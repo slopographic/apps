@@ -24,7 +24,7 @@
   async function show() {
     const alg = $('ck-alg').value;
     $('ck-copy').disabled = true;
-    if (!file) { $('ck-hash').textContent = ''; $('ck-verdict').textContent = ''; return; }
+    if (!file) { $('ck-hash').textContent = ''; $('ck-verdict').textContent = ''; $('ck-status').textContent = ''; return; }
     $('ck-status').textContent = `Reading ${file.name} (${(file.size / 1048576).toFixed(1)} MB)…`;
     const hash = await hashOf(alg);
     $('ck-hash').textContent = hash;
@@ -86,7 +86,9 @@
   window.SlopChecksum = { presetOf, hashOf: (alg, f) => { file = f; last = { alg: null, hash: null }; return hashOf(alg); }, clean,
     /** Shows a file's hash on the page, checked against expected: { hash, verdict }. */
     async use(f, alg, expected) { if (alg) $('ck-alg').value = alg; if (expected != null) $('ck-expect').value = expected; file = f; last = { alg: null, hash: null }; await show(); return { hash: last.hash, verdict: $('ck-verdict').textContent }; },
-    current: () => ({ file: file ? file.name : null, algorithm: $('ck-alg').value, hash: last.hash, verdict: $('ck-verdict').textContent }) };
+    /** Sets the published hash to check against (the paste box): the verdict, or '' when there is nothing to check. */
+    expectHash(text) { $('ck-expect').value = text || ''; check(); return $('ck-verdict').textContent; },
+    current: () => ({ file: file ? file.name : null, size: file ? file.size : null, algorithm: $('ck-alg').value, hash: last.hash, expected: $('ck-expect').value, verdict: $('ck-verdict').textContent }) };
   // SlopCmd: the assistant's commands with arguments (ai-commands.js), loaded when the AI panel first asks
   const C = window.SlopCmd;
   if (C) {

@@ -10,7 +10,8 @@ import { glideTo, savedSpot } from './glide.js';
 
 const CONTROL = 'a[href], button, input, select, textarea, label, summary, [role=button], [role=link], [role=tab], '
   + '[role=menuitem], [role=checkbox], [role=switch], [role=option], [contenteditable="true"], '
-  + '[tabindex]:not([tabindex="-1"]), nav, header, footer, form, [role=toolbar], [role=menubar], .buddy-toggle, .sloppo-hud';
+  + '[tabindex]:not([tabindex="-1"]), nav, header, footer, form, [role=toolbar], [role=menubar], .buddy-toggle, .sloppo-hud, '
+  + '[data-controls]';   // a region whose controls move (the homepage's scrolling strip of app links): free now is not free later
 let dodged = false, passing = false;
 
 /** His hit box for feet at page point (x, y), in viewport coordinates (the same box fit() in engine.js sizes). */

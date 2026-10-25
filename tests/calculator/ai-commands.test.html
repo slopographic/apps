@@ -40,6 +40,25 @@
       back();
       expect(C.state().tape.length).toBe(2);
     }, { timeout: 30000 });
+
+    it('new_sheet empties the tape and the answer, keeps or forgets the variables; the rollback brings all back', async () => {
+      await run('add-calculation', { expression: 'price = 19.99' });
+      const n = C.state().tape.length;
+      const back = C.checkpoint();
+      let r = await run('new-sheet', { keep_variables: true });
+      expect(r.value).toMatch(/variables kept/);
+      expect(C.state().tape.length).toBe(0);
+      expect(C.state().ans).toBe(null);
+      expect(C.state().last).toBe(null);
+      r = await run('add-calculation', { expression: 'price * 2' });
+      expect(r.value.result).toBe('39.98');
+      await run('new-sheet', {});
+      expect(C.state().vars).toEqual([]);
+      expect((await C.exec('calc.ai.add-calculation', { expression: 'price * 2' })).ok).toBe(false);
+      back();
+      expect(C.state().tape.length).toBe(n);
+      expect(C.state().vars.join(' ')).toMatch(/price = 19\.99/);
+    }, { timeout: 30000 });
   });
   SlopTest.run({ name: 'Slopculator: assistant commands' });
   </script>

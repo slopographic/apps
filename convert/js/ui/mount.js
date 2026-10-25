@@ -21,3 +21,17 @@ if (window.SlopIntake && window.SlopIntake.launch && document.querySelector('[da
 // The hub's conversion cards and their search box (absent on the converter pages).
 const cardRoot = document.querySelector('[data-convert-cards]');
 if (cardRoot) mountCards(cardRoot, { search: document.getElementById('cv-search'), empty: document.getElementById('cv-cards-empty') });
+
+// The assistant (the hub page loads shared/commands/commands.js): its commands with arguments (ai-commands.js) load when
+// first asked, with Slop Drive (shared/hub.js) and shared/commands/sources.js, which find the files add_files takes.
+if (window.SlopCmd && window.SlopCmd.provide && document.querySelector('[data-convert-root]')) {
+  const one = (rel) => new Promise((res, rej) => document.head.append(Object.assign(document.createElement('script'),
+    { src: new URL(rel, import.meta.url).href, async: false, onload: res, onerror: () => rej(new Error('Could not load ' + rel)) })));
+  window.SlopCmd.init({ app: 'convert' });
+  window.SlopCmd.provide({ prepare: async () => {
+    if (!window.SLOP_APPS) await one('../../../shared/apps.js');
+    if (!window.SlopHub) await one('../../../shared/hub.js');
+    await window.SlopCmd.sources();   // shared/commands/sources.js
+    await import('./ai-commands.js');
+  } });
+}

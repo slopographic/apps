@@ -63,6 +63,13 @@ const r = await SlopCmd.exec('ps.ai.gaussian-blur', { radius: '900px' });  // { 
   word rule (delete, clear, new, merge, crop… ask first). `hidden: true` keeps a command that duplicates a menu item out
   of the palette; the assistant still sees it. `ai: false` keeps a command with args away from the assistant.
 - `state()`, `checkpoint()` and `prepare()` call what the app provided (null / a resolved promise when it did not).
+  `state()` may give a value or a promise (an app's state can be async, as aitools' is): every caller awaits it
+  (shared/ai/cmdtools.js app_state, ai/js/ui/workspace.js); a failure comes back as `{ error }`.
+- `aiAdder(prefix, list)` → `add(tool, title, args, run, extra)`, the one helper the apps' `ai-commands.js` use: id
+  `<prefix>.ai.<tool-with-dashes>`, hidden, group AI, `destructive: false` unless extra says so, run with the defaults
+  when called without arguments; pushed into `list` when given, and returned. Keep the name `add` (tools/ai-coverage.mjs reads `add('tool', …)`).
+- `sources()` loads `sources.js` once and resolves `SlopCmdSources` (`driveFile(q)`, `driveAsFile(q)`, `siteFile`, `picture`,
+  `put`): the one way a command finds a Slop Drive file by id or name. Tests: `tests/commands/spec-ai.js`.
 - Make every command one step in the app's own undo history (PhotoSlop folds several commits into one with `aiOneStep`).
 - Return a short sentence (or a promise of one) saying what happened; throw an `Error` with a plain message when it
   cannot run. Both reach the model and the panel's step list.

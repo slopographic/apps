@@ -60,6 +60,31 @@
 }
 .gx-hint[hidden] { display: none; }
 .gx-i.is-hot .gx-svg { filter: drop-shadow(0 0 18px color-mix(in srgb, var(--slop) 70%, transparent)); }
+/* The front-most icons' names, and a search's matches (home/globe/labels.js places them with a transform; it shows one by
+ * the class, so the fade is a transition the contrast sweep can finish, and visibility keeps a faded one out entirely). */
+.gx-tag {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 105;
+  padding: 5px 9px;
+  background: var(--bone);
+  color: var(--ink);
+  font: 600 11px/1.2 var(--mono);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  will-change: transform, opacity;
+  transition: opacity .25s, visibility .25s;
+}
+.gx-tag.is-on { opacity: 1; visibility: visible; }
+.gx-narrow .gx-tag { max-width: 180px; overflow: hidden; text-overflow: ellipsis; padding: 4px 7px; font-size: 10px; }   /* labels.js NARROW_MAX */
+/* searching: the matches' names and icons carry the accent */
+.gx-tag.is-match { outline: 2px solid var(--slop); outline-offset: 0; }
+.gx-layer.is-searching .gx-i.is-match .gx-svg { outline: 2px solid var(--slop); outline-offset: 3px; border-radius: 22%; }
 
 /* The keyboard way in: every app in a list, visually hidden until a link has focus; the focused one shows as a chip
  * at the top of the copy while its icon comes round to the front (one tab stop, the arrow keys move). */
@@ -87,4 +112,4 @@
 @media (max-width: 899px) { .gx-list a:focus { left: 50%; translate: -50% 0; } }
 /* The lite globe (phones, small devices): no filters at all, depth is size and opacity alone. */
 .gx-layer.gx-lite .gx-svg { filter: none !important; }
-@media (prefers-reduced-motion: reduce) { .gx-name { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .gx-name, .gx-tag { transition: none; } }

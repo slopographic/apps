@@ -7,7 +7,8 @@
   Status board, the Authenticator view (`#detector`), footer (licence and trademark line). Loads `style/*.css`,
   `home/home.css`, `shared/finder/finder.css`, the buddy CSS, `shared/apps.js`, `shared/hub.js`, `shared/urlstate/urlstate.js`,
   `shared/finder/model.js`, `finder.js`, `app-search.js`, the `slop/` engine, `app.js`, `home/sections.js`,
-  `home/catalog.js`, `home/browse.js`, `home/globe/sphere.js`, `home/globe/paint.js`, `home/globe/globe.js`, `motion.js` and
+  `home/catalog.js`, `home/browse.js`, `home/globe/sphere.js`, `home/globe/paint.js`, `home/globe/labels.js`, `home/globe/globe.js`,
+  `home/globe/drag.js`, `home/globe/list.js`, `home/marquee.js`, `motion.js` and
   `home/mascot/index.js` (module). `home/hero.css` styles the hero, the strip and the numbered headings; `home/globe/globe.css` the globe.
 - `home/sections.js`: the six sections in order (`SECTION_DEFS`), the placement map `SECTIONS` keyed by app id (an array
   gives an app several places; a converter entry's `line` is its in-and-out line), the Print card (`SECTIONS.print`,
@@ -47,7 +48,14 @@
   the canvas (halo, body, rim, turning wireframe in the theme's ink and accent). `globe.js` places the icon links (true
   perspective via translate and scale; depth bands far2/far1/mid/near for blur and glow), runs the turn and reacts to
   the finder; `drag.js` is drag-to-spin with inertia (touch-action: pan-y keeps vertical scroll); `list.js` is the
-  keyboard list `.gx-nav` (one tab stop, arrow keys; the focused app comes round to the front).
+  keyboard list `.gx-nav` (one tab stop, arrow keys; the focused app comes round to the front). `labels.js` names icons
+  without hovering: at rest the few front-most, near-centre icons (5 wide, 3 at phone width), while searching the matches
+  on the near side (12 / 6), marked with the accent (`is-match` on label and icon). Pure `pick` (greedy, best first, no
+  overlaps with each other, the copy, a hovered icon's chip or the hero's edges; a shown label holds on a little longer
+  so it does not flicker; widths estimated from the monospace text, never measured) is node-tested in
+  tests/node/globe-labels.test.mjs. A small pool of `.gx-tag` spans in the aria-hidden layer moves by transform only; the
+  text changes only when a span takes another app; the fade is a CSS transition on `is-on` (none under reduced motion).
+  The text is the icon's accessible name, so a plain-names profile shows its own names.
 - Icon sizes come from `weight` in shared/apps.js (2 for the apps most people come for): those are 1.7 times larger
   and sit round the equator, so they pass the front on every turn; the finder also lists them first when nothing is
   searched (home/browse.js rank).
@@ -62,7 +70,10 @@
   It runs only while the hero is on screen and the tab is visible. `window.SlopGlobe` (state, frames, startedAt, tier,
   view, icons, focusApp, reduce, pause) is for the tests and list.js.
 - Capability strip: `tools/seo/marquee.mjs` (one label per app from its title, File convert as its number of
-  conversions), scrolled by CSS, paused on hover and under reduced motion. Run `node tools/seo/write.mjs` after
+  conversions), scrolled by CSS, paused on hover or focus, still under reduced motion. Each label links to its app
+  (`data-id`); the aria-hidden copy's links are tabindex -1. `home/marquee.js`: one tab stop with arrow keys, hover or
+  focus turns the globe to the app (SlopGlobe.focusApp: highlight and name chip), and a plain-names profile shows
+  slopAppName. Run `node tools/seo/write.mjs` after
   changing the registry (tests/node/home-marquee.test.mjs fails when index.html is stale).
 
 ## Live regions
@@ -86,6 +97,9 @@ every card (`data-perch="card"`, which chaos may bite, knock or blast), the stat
 ## Tests (`node tests/run.mjs home`)
 - `tests/home/catalog.test.html`: every registry entry renders in its shelf, badges and features, the status board, tab
   jumps, Authenticator view switching, clicks on Sloppo are not navigation, the icon markup, no carousel left.
+- `tests/home/hero-labels.test.html`: front labels (count, no overlap, not over the headline, come and go, pool size,
+  hero attributes untouched), search labels, the hovered icon, reduced motion, 390 px. `tests/home/hero-marquee.test.html`:
+  the strip's links, keyboard, globe focus, pause, plain names.
 - `tests/home/hero-search.test.html`: the globe follows the finder (pdf, one match, no match, clearing, reduced motion), icon
   sizes and the finder's default order from the registry weights.
 - `tests/home/hero.test.html` (1280 and 390 px, Light and Dark): the headline the largest paint before the globe, above

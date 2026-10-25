@@ -49,7 +49,10 @@
 
   /** An app's commands: registered with SlopCmd (the palette, remappable keys) when the page loads it, and [data-cmd]
    *  elements run them on click. list: [{ id, title, group, keywords, when, run }]. Returns run(id) (true when it ran). */
-  function commands(app, list) {
+  function commands(app, own) {
+    // every app that keeps records has "Fill with a sample…" (shared/biz/sample.js, loaded when it is first used)
+    const list = own.concat([{ id: 'biz.sample', title: 'Data: fill with a sample…', group: 'Data', keywords: ['random', 'example', 'demo', 'seed', 'test data'],
+      when: () => !(g.SlopBiz.sample && g.SlopDataAI && g.SlopDataAI.APPS && !g.SlopBiz.sample.kinds(app).length), run: () => sample(app) }]);
     const byId = Object.fromEntries(list.map((c) => [c.id, c]));
     const C = g.SlopCmd;
     if (C) {
@@ -74,16 +77,20 @@
     return run;
   }
 
-  /** The assistant's record commands (shared/data/ai-records.js, ai-records-apps.js), loaded when the AI panel first asks. */
+  /** The assistant's record commands (shared/data/ai-records.js, ai-records-apps.js) and the samples (sample.js), loaded
+   *  when the AI panel first asks. */
   const HERE = g.document && g.document.currentScript ? g.document.currentScript.src : '';
-  function assistant(app) {
-    const one = (rel) => new Promise((res, rej) => {
-      const s = Object.assign(g.document.createElement('script'), { src: new URL(rel, HERE || g.location.href).href, async: false });
-      s.onload = res; s.onerror = () => rej(new Error('Could not load ' + rel)); g.document.head.append(s);
-    });
+  const one = (rel) => new Promise((res, rej) => {
+    const s = Object.assign(g.document.createElement('script'), { src: new URL(rel, HERE || g.location.href).href, async: false });
+    s.onload = res; s.onerror = () => rej(new Error('Could not load ' + rel)); g.document.head.append(s);
+  });
+  function records() {
     const need = g.SlopDataAI && g.SlopDataAI.APPS ? Promise.resolve() : one('../data/ai-records.js').then(() => one('../data/ai-records-apps.js'));
-    return need.then(() => g.SlopDataAI.install(app));
+    return need.then(() => (g.SlopBiz.sample ? null : one('sample.js')));
   }
+  function assistant(app) { return records().then(() => g.SlopDataAI.install(app)); }
+  /** The "Fill with a sample" dialog (shared/biz/sample.js). */
+  function sample(app) { return records().then(() => g.SlopBiz.sample.dialog(app)); }
 
   /** Small DOM builder: h('a', { class, href, text, dataset, onclick }, 'text', child). Text children are escaped by the DOM. */
   function h(tag, attrs, ...kids) {
@@ -104,7 +111,7 @@
     return e;
   }
 
-  const api = { PLAIN, refusal, settings, money, expenseAccounts, commands, assistant, h };
+  const api = { PLAIN, refusal, settings, money, expenseAccounts, commands, assistant, sampleDialog: sample, h };
   g.SlopBiz = Object.assign(g.SlopBiz || {}, api);   // merge: router.js, backup.js and setup.js may have loaded first
   if (typeof module === 'object' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -1,6 +1,7 @@
 /* SlopCmdSources: where an app command with arguments gets a file from, the same way in every app. Classic script
  * (window.SlopCmdSources), loaded on demand by the apps' assistant commands (slides/js/ui/ai-files.js, docs/js/ui/ai-create.js…).
  *   driveFile(q)               a Slop Drive record ({ id, name, type, blob }) by id, exact name, or a part of the name
+ *   driveAsFile(q)             the same file as a File (name and type kept), for an app's own open or add code
  *   siteFile(url)              { name, blob } of a file on this site (same origin only; nothing is fetched from other sites)
  *   picture({ file, url })     { name, blob, dataUrl, w, h }: a picture from Slop Drive (file) or from this site (url)
  *   put(blob, name, from)      saves a new file to Slop Drive and resolves its id */
@@ -21,6 +22,7 @@
     if (!rec || !rec.blob) throw new Error(`No Slop Drive file “${q}”. List the files to see the names.`);
     return rec;
   }
+  const driveAsFile = (q) => driveFile(q).then((r) => new File([r.blob], r.name || 'file', { type: r.type || r.blob.type || '' }));
   async function siteFile(url) {
     const u = new URL(String(url), location.href);
     if (u.origin !== location.origin) throw new Error('Only files from this site or from Slop Drive can be used');
@@ -46,5 +48,5 @@
     if (!hub() || !hub().put) throw new Error('Slop Drive is not available here');
     return hub().put(blob, { name, from });
   }
-  window.SlopCmdSources = { driveFile, siteFile, picture, put, dataUrl };
+  window.SlopCmdSources = { driveFile, driveAsFile, siteFile, picture, put, dataUrl };
 })();

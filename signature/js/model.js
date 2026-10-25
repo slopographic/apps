@@ -1,6 +1,6 @@
 /* Slop Signature, the model: the fields of an email signature, their checks, and the links made from them. Pure; the form
  * (js/form.js) is drawn from FIELDS and the templates (js/templates.js) read the cleaned state. Classic script; the Node
- * tests load it in a vm. Sets SlopSignature.model = { FIELDS, GROUPS, SOCIAL, blank, clean, problems, esc, href, sample }.
+ * tests load it in a vm. Sets SlopSignature.model = { FIELDS, GROUPS, SOCIAL, STYLE, FONTS, blank, clean, problems, esc, href, sample }.
  *   clean(state) -> the same keys, trimmed, with links made absolute (https:// added), colours checked, and
  *                   socials as [{ id, label, url }] for the ones filled in. */
 (function (g) {
@@ -22,6 +22,9 @@
     ['legal', 'extra', 'Small print (disclaimer, company number)', 'textarea', '', 600],
   ].map(([key, group, label, type, placeholder, max]) => ({ key, group, label, type, placeholder, max }));
   const SOCIAL = { linkedin: 'LinkedIn', x: 'X', instagram: 'Instagram', facebook: 'Facebook', youtube: 'YouTube', github: 'GitHub' };
+  // The fonts every mail program has (the form's Font list; the sample picks one).
+  const FONTS = [['Arial, Helvetica, sans-serif', 'Arial'], ['Helvetica, Arial, sans-serif', 'Helvetica'], ['Verdana, Geneva, sans-serif', 'Verdana'],
+    ['Tahoma, Geneva, sans-serif', 'Tahoma'], ['Georgia, serif', 'Georgia'], ["'Times New Roman', Times, serif", 'Times New Roman'], ["'Trebuchet MS', sans-serif", 'Trebuchet MS']];
   const STYLE = { template: 'classic', accent: '#1f6feb', font: 'Arial, Helvetica, sans-serif', imageSize: 72, round: false };
 
   const blank = () => Object.assign(Object.fromEntries(FIELDS.map((f) => [f.key, ''])), STYLE);
@@ -68,5 +71,5 @@
     address: '12 Harbour Street, Bristol BS1 4RN', phone: '+44 117 496 0000', email: 'alex@northwind.example', linkedin: 'linkedin.com/company/northwind',
     cta: 'Book a 15-minute call', ctaUrl: 'northwind.example/call', legal: 'Northwind Ltd, registered in England and Wales, company number 01234567.' });
 
-  NS.model = { FIELDS, GROUPS, SOCIAL, STYLE, blank, clean, problems, esc, href, sample };
+  NS.model = { FIELDS, GROUPS, SOCIAL, STYLE, FONTS, blank, clean, problems, esc, href, sample };
 })(typeof window !== 'undefined' ? window : globalThis);

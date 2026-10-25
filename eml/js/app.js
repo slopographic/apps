@@ -1,6 +1,6 @@
 /* Slop EML: app state and actions. Classic script; exposes window.EmlApp. Nothing is uploaded: files are read in this page.
  * Each open message is a doc: { id, name, size, bytes (the original file), msg (EmlMime.parse result), summary, time (the
- * Date header in ms, or null), attachments, view: 'html' | 'text', cids: bool, pinned: bool }. A mailbox (.mbox) opens as
+ * Date header in ms, or null), attachments, view: 'html' | 'text', cids: bool, pinned: bool, rev: how often replace() changed it }. A mailbox (.mbox) opens as
  * one doc per message (eml/js/mbox.js). A message opened on its own is pinned (it gets a tab); a batch goes to the list.
  * The list's state: the ticked messages (checked), the sort and the search (eml/js/batch.js does the work).
  * Listeners (subscribe) run after every change, and the view redraws. */
@@ -69,6 +69,16 @@
     if (curId === id) curId = docs.length ? docs[Math.min(i, docs.length - 1)].id : null;
     notify();
   }
+  /** The same message with new bytes (the assistant added a recipient or an attachment): read again, same id and place. */
+  function replace(id, bytes) {
+    const doc = find(id);
+    if (!doc) return null;
+    const msg = M.parse(bytes), summary = M.summary(msg), d = window.EmlCodec.parseDate(summary.date);
+    Object.assign(doc, { size: bytes.length, bytes, msg, summary, time: d ? d.getTime() : null, attachments: msg.attachments, rev: (doc.rev || 0) + 1 });
+    if (doc.view === 'html' && msg.html == null) doc.view = 'text';
+    notify();
+    return doc;
+  }
   function closeAll() { docs.length = 0; checked.clear(); curId = null; notify(); }
   function step(dir) {
     const v = visible();
@@ -98,7 +108,7 @@
 
   window.EmlApp = {
     docs: () => docs.slice(),
-    current, find, isOpen, openFile, openFiles, select, close, closeAll, step, setView, toggleCids, togglePin, attachmentBlob,
+    current, find, isOpen, openFile, openFiles, replace, select, close, closeAll, step, setView, toggleCids, togglePin, attachmentBlob,
     visible, check, checkMany, checkAll, checkedDocs, isChecked: (id) => checked.has(id), listState: () => Object.assign({}, list), setList,
     subscribe(fn) { listeners.push(fn); },
     /** The file name of a doc without .eml, for the PDF and the print title. */

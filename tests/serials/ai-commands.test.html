@@ -24,7 +24,7 @@
       W = f.contentWindow; C = W.SlopCmd;
       if (W.SlopFirstRun) W.SlopFirstRun.once = async () => true;
       await C.prepare();
-      expect(C.list().filter((c) => /^serials\.ai\./.test(c.id) && c.destructive).map((c) => c.id)).toEqual(['serials.ai.clear-photos']);
+      expect(C.list().filter((c) => /^serials\.ai\./.test(c.id) && c.destructive).map((c) => c.id)).toEqual(['serials.ai.new-count', 'serials.ai.clear-photos']);
       await W.SlopHub.put(await png(), { name: 'shelf-1.png' });
       await W.SlopHub.put(await png(), { name: 'shelf-2.png' });
       await run('add-photos', { files: ['shelf-1.png', 'shelf-2.png'] });
@@ -47,6 +47,27 @@
       back();
       expect(C.state().photos.length).toBe(2);
     }, { timeout: 40000 });
+
+    it('new_count clears the photos and sets the pattern (or the default); a bad pattern changes nothing; the rollback brings them back', async () => {
+      expect(C.state().photos.length).toBe(2);
+      const bad = await C.exec('serials.ai.new-count', { pattern: '([' });
+      expect(bad.ok).toBe(false);
+      expect(C.state().photos.length).toBe(2);
+      const back = C.checkpoint();
+      let r = await run('new-count', { pattern: '\\bSN\\d{4}\\b' });
+      expect(r.value).toMatch(/cleared 2 photo/);
+      expect(C.state().photos.length).toBe(0);
+      expect(C.state().pattern).toBe('\\bSN\\d{4}\\b');
+      await W.SlopHub.put(await png(), { name: 'box.png' });
+      await run('add-photos', { files: ['box.png'] });
+      await run('add-text', { text: 'SN1234 and SN5678, not FOC2145X0AB' });
+      expect(C.state().unique.map((u) => u.serial).sort()).toEqual(['SN1234', 'SN5678']);
+      back();
+      expect(C.state().photos.length).toBe(2);
+      r = await run('new-count', {});
+      expect(C.state().pattern).toBe(W.SlopSerials.DEFAULT_PATTERN);
+      expect(C.state().photos.length).toBe(0);
+    }, { timeout: 30000 });
   });
   SlopTest.run({ name: 'Serial counter: assistant commands' });
   </script>

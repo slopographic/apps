@@ -11,7 +11,7 @@
   <script src="../../shared/commands/args.js"></script>
   <script src="eml.helpers.js"></script>
   <script>
-  // Covers: eml/js/ai-commands.js, eml/js/commands.js
+  // Covers: eml/js/ai-commands.js, eml/js/commands.js, eml/js/app.js, eml/js/view.js
   const { describe, it, expect, waitFor } = SlopTest;
   const f = document.getElementById('app');
   let W, C;
@@ -54,6 +54,36 @@
       await run('close-message', { message: 'invoice' });
       expect(C.state().messages.length).toBe(1);
     }, { timeout: 60000 });
+
+    it('add_recipient and add_attachment rewrite the message; a second attachment joins the same multipart; the rollback puts it back', async () => {
+      await run('new-message', { to: 'ada@example.com', subject: 'Plans', text: 'The plans are attached.', name: 'plans' });
+      const back = C.checkpoint();
+      await run('add-recipient', { address: 'Bob Smith <bob@example.com>', field: 'cc', message: 'plans' });
+      await run('add-recipient', { address: 'cy@example.com', message: 'plans' });
+      const again = await run('add-recipient', { address: 'CY@example.com', message: 'plans' });
+      expect(again.value).toMatch(/already/);
+      let d = W.EmlApp.current();
+      expect(d.summary.cc).toContain('bob@example.com');
+      expect(d.summary.to).toContain('ada@example.com');
+      expect(d.summary.to).toContain('cy@example.com');
+      await W.SlopHub.put(new Blob(['beehive plan v1'], { type: 'text/plain' }), { name: 'plan.txt', from: 'test' });
+      await W.SlopHub.put(new Blob([new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0, 255])], { type: 'image/png' }), { name: 'tiny.png', from: 'test' });
+      let r = await run('add-attachment', { file: 'plan.txt', message: 'plans' });
+      expect(r.value).toMatch(/1 attachment/);
+      r = await run('add-attachment', { file: 'tiny.png', name: 'Bild ä.png', message: 'plans' });
+      expect(r.value).toMatch(/2 attachment/);
+      d = W.EmlApp.current();
+      expect(d.msg.text).toContain('The plans are attached.');
+      expect(d.attachments.map((x) => x.name)).toEqual(['plan.txt', 'Bild ä.png']);
+      expect(new TextDecoder().decode(d.attachments[0].bytes)).toBe('beehive plan v1');
+      expect(Array.from(d.attachments[1].bytes)).toEqual([0x89, 0x50, 0x4e, 0x47, 0, 255]);
+      expect(C.state().messages.find((m) => m.subject === 'Plans').attachments).toBe(2);
+      back();
+      d = W.EmlApp.docs().find((x) => x.summary.subject === 'Plans');
+      expect(d.attachments.length).toBe(0);
+      expect(d.summary.cc).toBe('');
+      expect(d.summary.to).toBe('ada@example.com');
+    }, { timeout: 30000 });
   });
   SlopTest.run({ name: 'Slop EML: assistant commands' });
   </script>

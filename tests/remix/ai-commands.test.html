@@ -13,7 +13,7 @@
   // Reel Remix's operations as commands with arguments (the AI's tools): a whole reel from a spec (Slop Drive sources,
   // options, seed), the same spec gives the same edit, single edits on the plan, a destructive command flagged, and the
   // export through SlopCut's hidden copy into Slop Drive.
-  // Covers: remix/js/ai-commands.js, remix/js/ai-spec.js, shared/commands/argform.js
+  // Covers: remix/js/ai-commands.js, remix/js/ai-spec.js, shared/commands/argform.js, shared/commands/sources.js
   const { describe, it, expect, waitFor } = SlopTest;
   const win = () => document.getElementById('app').contentWindow;
   const RM = () => win().RM, C = () => win().SlopCmd;
@@ -28,11 +28,12 @@
   describe('Reel Remix AI commands', () => {
     it('lists every operation as a command with arguments; destructive ones are flagged', async () => {
       await waitFor(() => win() && win().RM && win().RM.ready, { timeout: 20000 });
-      for (const id of ['remix.ai.state', 'remix.ai.add', 'remix.ai.remove', 'remix.ai.options', 'remix.ai.remix', 'remix.ai.fill', 'remix.ai.replace', 'remix.ai.swap', 'remix.ai.moveCut', 'remix.ai.lock', 'remix.ai.reset', 'remix.ai.export', 'remix.ai.send', 'remix.ai.spec']) {
+      for (const id of ['remix.ai.new', 'remix.ai.state', 'remix.ai.add', 'remix.ai.remove', 'remix.ai.options', 'remix.ai.remix', 'remix.ai.fill', 'remix.ai.replace', 'remix.ai.swap', 'remix.ai.moveCut', 'remix.ai.lock', 'remix.ai.reset', 'remix.ai.export', 'remix.ai.send', 'remix.ai.spec']) {
         const c = C().list().find((x) => x.id === id); if (!c || !c.args || c.hidden) throw new Error('missing ' + id);
       }
       expect(C().list().find((x) => x.id === 'remix.ai.remove').destructive).toBe(true);
       expect(C().list().find((x) => x.id === 'remix.ai.reset').destructive).toBe(true);
+      expect(C().list().find((x) => x.id === 'remix.ai.new').destructive).toBe(true);
     }, { timeout: 30000 });
     it('remix_from_spec: Drive sources, options and a seed; the same spec gives the same edit', async () => {
       for (let i = 1; i <= 4; i++) ids.push(await still(i));
@@ -62,6 +63,21 @@
       expect(RM().state.locks.length).toBeGreaterThan(0);
       expect((await C().exec('remix.ai.fill', { cut: 999, fill: 'fit' })).error).toContain('no cut 999');
     }, { timeout: 20000 });
+    it('new_reel empties the bin, resets the options and draws a new seed, then plans from Drive sources', async () => {
+      const seed = RM().state.seed;
+      const bad = await C().exec('remix.ai.new', { sources: [ids[0], 'no-such-clip.png'] });
+      expect(bad.ok).toBe(false);
+      expect(RM().state.items.length).toBe(4, 'a missing source changes nothing');
+      const r = await ok('remix.ai.new', { sources: ids.slice(0, 2), target: 3, pace: 'fast' });
+      expect(r).toContain('New reel with 2 clip(s), planned');
+      const st = RM().state;
+      expect(st.items.map((m) => m.name)).toEqual(['still-1.png', 'still-2.png']);
+      expect([st.base, st.locks.length, st.target]).toEqual(['none', 0, 3]);
+      expect(st.seed === seed).toBe(false);
+      expect(Math.abs(C().state().plan.total - 3)).toBeLessThan(0.05);
+      expect(await ok('remix.ai.new', {})).toContain('the bin is empty');
+      expect([RM().state.items.length, RM().state.plan, RM().state.target]).toEqual([0, null, 30]);
+    }, { timeout: 30000 });
     it('exports the reel through SlopCut\'s hidden copy into Slop Drive', async () => {
       if (typeof win().VideoEncoder !== 'function') return;
       const r = await ok('remix.ai.spec', { spec: { sources: ids.slice(0, 3), target: 2, pace: 'fast', width: 180, height: 320, layout: 'none', seed: 'cafe0001', export: { engine: 'slopcut', format: 'mp4', name: 'my reel' } } });

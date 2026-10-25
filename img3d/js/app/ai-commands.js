@@ -2,19 +2,14 @@
  * by SlopCmd.prepare() (app/main.js). They drive the page's own steps (SlopImg3D.app: openBlob, the option controls and
  * build) and its own writers (exporter.glbBytes, objText, s3d.sceneOf). Files come from Slop Drive or this site and go to
  * Slop Drive through shared/commands/sources.js. The page keeps no undo history, so each command is one step of its own
- * and the checkpoint puts the options back. Sets SlopImg3D.ai. */
+ * and the checkpoint puts the options back. import_depth_map adds a depth map picture to the open one. Sets SlopImg3D.ai. */
 (function () {
   'use strict';
   const ns = window.SlopImg3D, P = ns.app, C = window.SlopCmd;
   const $ = (id) => document.getElementById(id);
   const list = [];
-  const add = (tool, title, args, run, extra) => list.push(Object.assign({ id: 'img3d.ai.' + tool.replace(/_/g, '-'), tool, title, group: 'AI', hidden: true, destructive: false, args,
-    run: (a) => run(a || (window.SlopCmdArgs ? SlopCmdArgs.defaults(args) : {})) }, extra));
-  let srcP = null;
-  const sources = () => (window.SlopCmdSources ? Promise.resolve() : (srcP = srcP || new Promise((res, rej) => {
-    const el = Object.assign(document.createElement('script'), { src: new URL('../shared/commands/sources.js', location.href).href });
-    el.onload = res; el.onerror = () => { srcP = null; rej(new Error('Could not load sources.js')); }; document.head.append(el);
-  })));
+  const add = C.aiAdder('img3d', list);   // shared/commands/commands.js
+  const sources = () => C.sources();   // shared/commands/sources.js, loaded once (commands.js)
   const settle = async () => { for (let i = 0; i < 600 && !P.idle(); i++) await new Promise((r) => setTimeout(r, 50)); };
   const OPTS = [['mode', 'select'], ['grid', 'select'], ['scale', 'range'], ['smooth', 'range'], ['size', 'range'], ['invert', 'check'], ['subject', 'check']];
   const values = () => Object.fromEntries(OPTS.map(([id, k]) => [id, k === 'check' ? $(id).checked : $(id).value]));
@@ -25,7 +20,7 @@
   function summary() {
     const S = P.state();
     if (!S.img) return 'No picture is open.';
-    return `${S.item ? S.item.kind : 'nothing'} from ${S.img.name} (${S.img.W} × ${S.img.H} px)` + (S.prep ? `, a ${S.prep.gw} × ${S.prep.gh} grid, depth from ${S.prep.source === 'model' ? 'the depth model' : 'brightness (fallback)'}` : '');
+    return `${S.item ? S.item.kind : 'nothing'} from ${S.img.name} (${S.img.W} × ${S.img.H} px)` + (S.prep ? `, a ${S.prep.gw} × ${S.prep.gh} grid, depth from ${S.prep.source === 'model' ? 'the depth model' : S.prep.source === 'map' ? 'the depth map ' + S.depth.name : 'brightness (fallback)'}` : '');
   }
   const GRIDS = [...$('grid').options].map((o) => o.value);
 
@@ -40,6 +35,18 @@
     if (!P.state().img) throw new Error(`${f.name} was not opened: ${$('status').textContent}`);
     return `Made ${summary()}.`;
   }, { description: 'Open a picture and turn it into a 3D height-field mesh (or points or splats).' });
+
+  add('import_depth_map', 'Use a depth map', [{ name: 'file', type: 'string', maxLength: 300, description: 'a Slop Drive depth map picture (name or id)' },
+    { name: 'url', type: 'string', maxLength: 500, description: 'or one on this site' }],
+  async (a) => {
+    if (!P.state().img) throw new Error('Open a picture first (new_from_picture)');
+    await sources();
+    if (!a.file && !a.url) throw new Error('Give file (Slop Drive) or url (a picture on this site)');
+    const f = a.file ? await SlopCmdSources.driveFile(a.file) : await SlopCmdSources.siteFile(a.url);
+    await P.useDepthMap(f.blob, f.name);
+    await settle();
+    return `Now ${summary()}.`;
+  }, { description: 'Add a depth map (a grayscale picture, brighter is nearer, e.g. from another depth tool) to the open picture; it is used as the depth in place of the model or brightness until another picture opens.' });
 
   add('set_options', 'Set the 3D options', [{ name: 'mode', type: 'enum', values: ['mesh', 'points', 'splats'] }, { name: 'grid', type: 'enum', values: GRIDS, description: 'grid cells on the long side' },
     { name: 'scale', type: 'number', min: 0, max: 1, description: 'depth (height of the nearest point)' }, { name: 'smooth', type: 'number', min: 0, max: 8, integer: true },

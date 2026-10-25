@@ -1,6 +1,5 @@
 // Random sample documents for Slop Invoices and Slop Orders. Pure: SlopDocs.samples.plan(seed, env) draws a plan from one
-// seeded generator (the same mulberry32 and FNV-1a as shared/templates/rng.js, repeated here because these are classic
-// scripts). The same seed and the same environment always give the same plan. No storage, no Math.random in plan().
+// seeded generator, SlopSample.rng (shared/sample, loaded first: its names and goods are the one source of sample words). The same seed and the same environment always give the same plan. No storage, no Math.random in plan().
 // The plan is saved by samples-run.js through the app's own functions, so every rule of the data layer still applies.
 // Money is integer minor units; tax rates and discounts are basis points (SlopDocs.model rules). Classic script.
 (function (g) {
@@ -9,69 +8,34 @@
   const M = NS.model;
   const samples = (NS.samples = NS.samples || {});
 
+  const X = g.SlopSample;   // shared/sample: the seeded generator, the names and the goods (the one source of sample words)
+
   const MAX_DOCS = 50, MAX_LINES = 6, MAX_QTY = 12, MAX_SEED = 40;
   const TAX_RATES = [0, 500, 700, 1000, 2000];         // 0%, 5%, 7%, 10%, 20%
   const DISCOUNTS = [500, 1000, 1500, 2000, 2500];     // 5% to 25% off the line net
-  const ADJ = ['Birch', 'Harbor', 'Copper', 'Granite', 'Maple', 'Juniper', 'Ember', 'Northwind', 'Slate', 'Willow', 'Quarry', 'Atlas', 'Cedar', 'Lumen', 'Kestrel', 'Orchard'];
-  const NOUN = ['Studio', 'Works', 'Supply', 'Labs', 'Goods', 'Trading', 'Industries', 'Design', 'Press', 'Foundry', 'Stationers', 'Garden'];
-  const FIRST = ['Mara', 'Jonas', 'Priya', 'Tomas', 'Ines', 'Kofi', 'Lena', 'Oscar', 'Yuki', 'Dara', 'Felix', 'Noor'];
-  const LAST = ['Okafor', 'Lindqvist', 'Shah', 'Moreau', 'Varga', 'Tanaka', 'Brennan', 'Adeyemi', 'Costa', 'Hale'];
-  const MAT = ['Brass', 'Oak', 'Linen', 'Ceramic', 'Steel', 'Canvas', 'Wool', 'Glass', 'Rubber', 'Paper'];
-  const ITEM = ['hinge', 'bracket', 'tray', 'lamp', 'notebook', 'bottle', 'rope', 'mug', 'kit', 'crate', 'stool', 'basket'];
-  const NOTES = ['Sample record for testing. Safe to delete.', 'Random sample: no real customer.', 'Net 30, sent by e-mail.',
-    'Please leave at the side door.', 'Call before delivery.', 'Gift wrap requested.'];
 
-  /** A 32-bit hash of any string (FNV-1a, then a final avalanche). Same as shared/templates/rng.js. */
-  function hashSeed(text) {
-    let h = 0x811c9dc5;
-    const s = String(text);
-    for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193); }
-    h ^= h >>> 16; h = Math.imul(h, 0x85ebca6b); h ^= h >>> 13; h = Math.imul(h, 0xc2b2ae35); h ^= h >>> 16;
-    return h >>> 0;
-  }
-
-  /** A generator seeded from a string: next() in [0, 1), int(lo, hi) inclusive, pick(list), chance(p). */
-  function rng(seed) {
-    let a = hashSeed(seed);
-    const next = () => {
-      a = (a + 0x6d2b79f5) >>> 0;
-      let t = a;
-      t = Math.imul(t ^ (t >>> 15), t | 1);
-      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-    };
-    return {
-      next,
-      int: (lo, hi) => lo + Math.floor(next() * (hi - lo + 1)),
-      pick: (list) => list[Math.floor(next() * list.length)],
-      chance: (p) => next() < p,
-    };
-  }
-
-  /** A new seed: six characters of base 36. The caller may pass rand (Math.random by default). */
-  const newSeed = (rand = Math.random) => Math.floor(rand() * 36 ** 6).toString(36).padStart(6, '0');
+  const hashSeed = (text) => X.hashSeed(text);
+  /** A generator seeded from a string: next() in [0, 1), int(lo, hi) inclusive, pick(list), chance(p) (SlopSample.rng). */
+  const rng = (seed) => X.rng(seed);
+  /** A new seed (SlopSample.newSeed). The caller may pass rand (Math.random by default). */
+  const newSeed = (rand) => X.newSeed(rand);
 
   const pad = (n, w) => String(n).padStart(w, '0');
-  const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '.').replace(/^\.+|\.+$/g, '');
   /** A catalogue price in minor units, 1.00 to 250.00 in steps of 0.50. */
   const randomPrice = (r) => r.int(2, 500) * 50;
-  /** Whole days between two ISO dates (UTC arithmetic on the calendar, no clock). */
-  const utcDay = (iso) => Date.UTC(+iso.slice(0, 4), +iso.slice(5, 7) - 1, +iso.slice(8, 10));
-  const dayCount = (from, to) => Math.round((utcDay(to) - utcDay(from)) / 86400000);
+  const dayCount = (from, to) => X.dayCount(from, to);
+  /** Something to sell, by name (SlopSample's goods, in the person's language). */
+  const thing = (r, locale) => X.item(r, { locale }).name;
 
   /** A customer record for the customers collection (a sample, so it can be deleted with the others). */
-  function customerRecord(r) {
-    const first = r.pick(FIRST), last = r.pick(LAST);
-    const company = `${r.pick(ADJ)} ${r.pick(NOUN)}`;
-    const asCompany = r.chance(0.6);
-    const name = asCompany ? company : `${first} ${last}`;
-    const phone = `+1 555 ${r.int(100, 999)} ${r.int(1000, 9999)}`;
-    return { name, email: `${slug(name)}@example.test`, phone, stage: 'customer', sample: true };
+  function customerRecord(r, locale) {
+    const c = X.customer(r.seed + '/' + r.int(0, 1e9), { locale });
+    return { name: c.name, email: c.email, phone: c.phone, address: c.address, stage: 'customer', sample: true };
   }
 
   /** A product record. The SKU is the first SMP-nnn that the catalogue does not use (taken is updated). */
-  function productRecord(r, taken) {
-    const name = `${r.pick(MAT)} ${r.pick(ITEM)}`;
+  function productRecord(r, taken, locale) {
+    const name = thing(r, locale);
     const price = randomPrice(r);
     const taxRate = r.pick(TAX_RATES);
     let n = 1;
@@ -104,12 +68,12 @@
     const u = r.next();   // the customer draw comes first, whatever the list holds
     const out = { seed: String(seed), customerId: null, newCustomer: null, newProducts: [], lines: [], date: '', dueDate: undefined, notes: '', currency: env.currency };
     if (customers.length) out.customerId = customers[Math.floor(u * customers.length)].id;
-    else if (env.missing && env.missing.customers) out.newCustomer = customerRecord(r);
+    else if (env.missing && env.missing.customers) out.newCustomer = customerRecord(r, env.locale);
     else return { error: 'There are no customers yet. Add one, or turn on "Create missing customers".' };
 
     out.date = M.addDays(env.from, r.int(0, dayCount(env.from, env.to)));
     if (env.kind === 'invoice') out.dueDate = M.addDays(out.date, env.paymentTermsDays);
-    out.notes = r.pick(NOTES);
+    out.notes = r.pick(X.locale(env.locale).notes[env.kind] || X.locale(env.locale).notes.invoice);
 
     const pool = (env.products || []).map((p) => ({ ref: { id: p.id }, sku: p.sku, name: p.name, price: p.price, taxRate: p.taxRate }));
     const sameCurrency = env.currency === env.base;
@@ -117,11 +81,11 @@
     const lineCount = r.int(1, MAX_LINES);
     for (let i = 0; i < lineCount; i++) {
       if (!pool.length && env.missing && env.missing.products) {
-        const rec = productRecord(r, taken);
+        const rec = productRecord(r, taken, env.locale);
         out.newProducts.push(rec);
         pool.push({ ref: { n: out.newProducts.length - 1 }, sku: rec.sku, name: rec.name, price: rec.price, taxRate: rec.taxRate });
       }
-      const custom = `${r.pick(MAT)} ${r.pick(ITEM)}`;
+      const custom = thing(r, env.locale);
       const unit = randomPrice(r);
       const rate = r.pick(TAX_RATES);
       const qty = r.int(1, MAX_QTY);
@@ -138,5 +102,5 @@
   }
 
   Object.assign(samples, { MAX_DOCS, MAX_LINES, MAX_QTY, TAX_RATES, DISCOUNTS, hashSeed, rng, newSeed, checkOptions, plan, dayCount, randomPrice, customerRecord, productRecord });
-  samples.normalizeSeed = (s, rand) => String(s ?? '').trim().slice(0, MAX_SEED) || newSeed(rand);
+  samples.normalizeSeed = (s, rand) => X.normSeed(s, rand);
 })(typeof window !== 'undefined' ? window : globalThis);

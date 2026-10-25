@@ -152,7 +152,7 @@
   /** What an app shares with the assistant: provide({ state, checkpoint: () => rollbackFn, prepare, snapshot: () => Blob|canvas (look_at_canvas) }); only a provided
    * prepare is remembered (one provided after an early prepare() call still runs). No state or snapshot: view.js gives the page's. */
   const prov = {}, provide = (o) => { if (o && o.prepare && o.prepare !== prov.prepare) prepP = null; Object.assign(prov, o || {}); };
-  let prepP = null; const pageView = () => (parts.view ? Promise.resolve(parts.view) : BASE ? loadPart('view').then(() => parts.view) : Promise.reject(new Error('This page has no view summary')));
+  let prepP = null, srcP = null; const pageView = () => (parts.view ? Promise.resolve(parts.view) : BASE ? loadPart('view').then(() => parts.view) : Promise.reject(new Error('This page has no view summary')));
   function trimRecents() { const ids = Object.keys(recents); if (ids.length > 60) ids.sort((a, b) => recents[a][1] - recents[b][1]).slice(0, ids.length - 60).forEach((i) => delete recents[i]); }
   /** Frecency: use count weighted by how recently it was used (half-life about a day). */
   function frecency(id, now = Date.now()) { const r = recents[id]; if (!r) return 0; return r[0] * Math.pow(0.5, (now - r[1]) / 864e5) + 1 / (1 + (now - r[1]) / 6e4); }
@@ -273,7 +273,8 @@
     providers: () => [...providers.values()], removeProvider: (id) => providers.delete(id),
     get: (id) => cmds.get(id) || null,
     exec, provide,
-    state: () => { try { return prov.state ? prov.state() : pageView().then((v) => v.state(), () => null); } catch (e) { return { error: e.message }; } },
+    // a value or a promise (an app's state may be async, as aitools' is): callers await it; a failure is { error } either way
+    state: () => { try { const v = prov.state ? prov.state() : pageView().then((p) => p.state(), () => null); return v && typeof v.then === 'function' ? v.then(null, (e) => ({ error: String((e && e.message) || e) })) : v; } catch (e) { return { error: e.message }; } },
     checkpoint: () => (prov.checkpoint ? prov.checkpoint() : null),
     snapshot: () => (prov.snapshot ? prov.snapshot() : pageView().then((v) => v.snapshot(), () => null)),
     ownState: () => !!prov.state,
@@ -285,14 +286,15 @@
     open: (q) => withUI((p) => p.palette.open(q)),
     close: () => { if (parts.palette) parts.palette.close(); },
     openKeymap: () => { api.close(); return withUI((p) => p.keymap.open()); },
-    get isOpen() { return paletteOpen; },
-    get app() { return app; },
-    get options() { return opts; },
-    get mac() { return mac; }, set mac(v) { mac = !!v; changed(); },
+    get isOpen() { return paletteOpen; }, get app() { return app; }, get options() { return opts; },
+    /** add(tool, title, args, run, extra) for an app's assistant commands: id '<prefix>.ai.<tool with dashes>', hidden, in
+     * the AI group; run gets the defaults when called with no arguments (keys, palette). Pushes into list when given. */
+    aiAdder: (prefix, list) => (tool, title, args, run, extra) => { const c = Object.assign({ id: prefix + '.ai.' + tool.replace(/_/g, '-'), tool, title, group: 'AI', hidden: true, destructive: false, args, run: (a) => run(a || (window.SlopCmdArgs ? SlopCmdArgs.defaults(args) : {})) }, extra); if (list) list.push(c); return c; },
+    /** shared/commands/sources.js (Slop Drive and site files for commands), loaded once on demand: resolves SlopCmdSources. */
+    sources: () => (window.SlopCmdSources || !BASE ? Promise.resolve(window.SlopCmdSources) : (srcP = srcP || loadPart('sources').then(() => window.SlopCmdSources, (e) => { srcP = null; throw e; }))),
+    get mac() { return mac; }, set mac(v) { mac = !!v; changed(); }, get base() { return BASE; },
     _setOpen(v) { paletteOpen = !!v; pending = null; emit(v ? 'open' : 'close'); },
-    _recording(d) { recording = Math.max(0, recording + d); pending = null; },
-    _emit: emit,
-    get base() { return BASE; },
+    _recording(d) { recording = Math.max(0, recording + d); pending = null; }, _emit: emit,
   };
   window.SlopCmd = api;
 })();

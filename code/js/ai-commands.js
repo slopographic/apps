@@ -13,8 +13,7 @@ import { env } from './ui.js';
 const H = () => window.SlopHub, C = window.SlopCmd;
 const Str = (name, description, extra) => Object.assign({ name, type: 'string', maxLength: 500, description }, extra);
 const list = [];
-const add = (tool, title, args, run, extra) => list.push(Object.assign({ id: 'code.ai.' + tool.replace(/_/g, '-'), tool, title, group: 'AI', hidden: true, destructive: false, args,
-  run: (a) => run(a || window.SlopCmdArgs.defaults(args)) }, extra));
+const add = C.aiAdder('code', list);   // shared/commands/commands.js
 
 /** A folder id from a path ("site/css") or an id; empty or "/" is the top of Slop Drive. */
 async function folderOf(q) {

@@ -13,7 +13,7 @@
   const S = (name, description, extra) => Object.assign({ name, type: 'string', maxLength: 200, description }, extra);
   const hasSel = () => !!D.sel, hasLayer = () => !!activeLayer();
   const list = [];
-  const add = (tool, title, args, run, extra) => list.push(Object.assign({ id: 'ps.ai.' + tool.replace(/_/g, '-'), tool, title, group: 'AI', hidden: true, destructive: false, args, run: (a) => run(a || (window.SlopCmdArgs ? SlopCmdArgs.defaults(args) : {})) }, extra));
+  const add = window.SlopCmd.aiAdder('ps', list);   // shared/commands/commands.js
 
   /* adjustments and filters */
   add('brightness_contrast', 'Brightness/Contrast', [N('brightness', -150, 150, 0, 'negative darkens'), N('contrast', -100, 100, 0)], (a) => aiFilter('brightness', { b: a.brightness, c: a.contrast }));
