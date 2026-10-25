@@ -69,10 +69,10 @@
       app.close();
     }, { timeout: 60000 });
 
-    it('File convert: no commands, the operations and the workspace; list_operations lists the conversions with options', async () => {
+    it('File convert: its own commands, the operations and the workspace; list_operations lists the conversions with options', async () => {
       const app = await AgentFake.open('../../convert/index.html');
       checkTools(app);
-      expect(app.names()).not.toContain('run_command');
+      for (const t of ['new_conversion', 'add_files', 'set_target', 'export_results', 'run_command']) expect(app.names()).toContain(t);   // convert/js/ui/ai-commands.js
       const all = await app.json('list_operations');
       expect(all.count).toBeGreaterThan(100);
       const png = await app.json('list_operations', { query: 'resize' });
