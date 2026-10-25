@@ -27,20 +27,21 @@
       expect(D.querySelector('header h1').textContent).toBe('Slop Sheets');
       f.remove();
     });
-    it('keeps one row at 1440px, buttons and pickers at one height', async () => {
+    it('keeps one row at 1440px, its buttons at one height; Export and the pickers are in the panel (tests/sheetview/panel.test.html)', async () => {
       const f = await open(1440), D = f.contentDocument;
       expect(box(D, 'header.sv-top').height).toBeLessThan(60);
-      const heights = ['#sv-open', '#sv-export', '#sv-hub', '#sv-style', '#sv-palette', '#sv-cmd', '#sv-menu'].map((s) => box(D, s).height);
+      for (const id of ['#sv-export', '#sv-hub', '#sv-style', '#sv-palette']) expect(D.querySelector('header').contains(D.querySelector(id))).toBe(false);
+      const heights = ['#sv-open', '#sv-cmd', '#sv-menu'].map((s) => box(D, s).height);
       expect(new Set(heights).size).toBe(1);
       f.remove();
     });
-    it('fits 390px: the tools take one row that scrolls inside the header', async () => {
+    it('fits 390px: the tools take one row inside the header', async () => {
       const f = await open(390), D = f.contentDocument;
       expect(D.documentElement.scrollWidth).toBeLessThanOrEqual(390);
       expect(box(D, '#sv-menu').top).toBe(box(D, '#sv-open').top);
       expect(box(D, 'header.sv-top').height).toBeLessThan(110);
       const tools = D.querySelector('.sv-tools');
-      expect(tools.scrollWidth).toBeGreaterThan(tools.clientWidth);
+      expect(tools.scrollWidth).toBeLessThanOrEqual(tools.clientWidth + 1);
       f.remove();
     });
   });

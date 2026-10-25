@@ -38,6 +38,7 @@
   <link rel="stylesheet" href="../shared/commands/commands.css">
   <link rel="stylesheet" href="../shared/sheets/table.css">
   <link rel="stylesheet" href="../brand/brand.css"><!-- the brand tile; this page has no shell -->
+  <link rel="stylesheet" href="../shared/frame/frame.css">
   <link rel="stylesheet" href="css/sheetview.css">
   <!-- the touch layer (double tap, long press, pinch; shared/input/HANDOFF.md): the shell loads it on other pages -->
   <link rel="stylesheet" href="../shared/input/touch.css" data-src="shared/input/touch.css">
@@ -60,6 +61,10 @@
   <script src="../shared/drop/drop.js" data-src="shared/drop/drop.js"></script>
   <script src="../shared/samples/samples.js" data-src="shared/samples/samples.js"></script>
   <script src="../shared/samples/docs.js" data-src="shared/samples/docs.js"></script>
+  <script src="../shared/ui/sheet.js" data-src="shared/ui/sheet.js"></script>
+  <script src="../shared/ui/resize-panel.js" data-src="shared/ui/resize-panel.js"></script>
+  <script src="../shared/frame/frame.js" data-src="shared/frame/frame.js"></script>
+  <script src="../shared/frame/panel.js" data-src="shared/frame/panel.js"></script>
   <script type="module" src="js/main.js"></script>
 </head>
 <body>
@@ -86,6 +91,7 @@
     <div class="sv-tabs sv-sheets" id="sv-sheets" role="tablist" aria-label="Sheets" hidden></div>
     <div id="sv-drop" class="sv-dropstrip"></div>
 
+    <div class="sv-body" id="sv-body">
     <main class="sv-main" id="sv-main">
       <div class="sv-empty" id="sv-empty">
         <p class="sv-empty-t">Open a spreadsheet to browse it.</p>
@@ -102,6 +108,8 @@
         <div class="sv-host" id="sv-grid"></div>
       </section>
     </main>
+    <aside class="sv-side" id="sv-side" aria-label="Sheet"></aside>
+    </div>
   </div>
   <script src="../shared/tour/mount.js" data-app="sheetview"></script>
   <script src="../shared/spotlight/spotlight.js"></script>
