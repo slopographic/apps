@@ -49,9 +49,10 @@
     'footer.all_tools': 'Todas as ferramentas',
     'footer.sitemap': 'Mapa do site (XML)',
 
-    'hero.lead': 'A caixa de ferramentas inteira,',
-    'hero.accent': 'aberta no seu navegador.',
-    'hero.sub': 'Edite PDFs, fotos e vídeos, escreva documentos, envie faturas e converta arquivos. É grátis, não há nada para instalar nem conta para criar, seus arquivos ficam no seu dispositivo e os apps continuam funcionando offline depois da primeira visita.',
+    'hero.kicker': 'Software de escritório e criativo',
+    'hero.lead': 'Apps de escritório e criativos,',
+    'hero.accent': 'grátis no seu navegador.',
+    'hero.sub': 'Escreva documentos e planilhas, edite PDFs, fotos e vídeos, e mantenha faturas, pedidos e contatos em dia. Não há nada para instalar nem conta para criar, seus arquivos ficam no seu dispositivo e os apps continuam funcionando offline depois da primeira visita.',
     'hero.open': 'Abrir os apps',
     'hero.how': 'Como funciona',
     'hero.github': 'Código aberto no GitHub',

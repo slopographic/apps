@@ -53,9 +53,10 @@
     'footer.all_tools': 'All tools',
     'footer.sitemap': 'Sitemap',
 
-    'hero.lead': 'The whole toolbox,',
-    'hero.accent': 'open in your browser.',
-    'hero.sub': 'Edit PDFs, photos and video, write documents, send invoices and convert files. It is free, there is nothing to install and no account to make, your files stay on your device, and the apps keep working offline after the first visit.',
+    'hero.kicker': 'Office and creative software',
+    'hero.lead': 'Office and creative apps,',
+    'hero.accent': 'free in your browser.',
+    'hero.sub': 'Write documents and spreadsheets, edit PDFs, photos and video, and keep invoices, orders and contacts in order. There is nothing to install and no account to make, your files stay on your device, and the apps keep working offline after the first visit.',
     'hero.open': 'Open the apps',
     'hero.how': 'How it works',
     'hero.github': 'Open source on GitHub',

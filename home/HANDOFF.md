@@ -1,14 +1,14 @@
 # Homepage handoff
 
 ## Files
-- `index.html`: the hero (`#hero`: wordmark, headline, buttons, meta line, the keyboard list `.vx-nav`, the ledge Sloppo
+- `index.html`: the hero (`#hero`: kicker, headline, buttons, meta line, the keyboard list `.gx-nav`, the globe's box `.gx-box`, the ledge Sloppo
   perches on), the capability strip (between `<!-- site:marquee -->` markers, written by `tools/seo/write.mjs`), the
   finder (`#app-finder`), the jump links (`#jump-links`), workspaces, "Why it's different" strip (with the video link), the section shelves (`#app-sections`, filled by `home/browse.js`),
   Status board, the Authenticator view (`#detector`), footer (licence and trademark line). Loads `style/*.css`,
   `home/home.css`, `shared/finder/finder.css`, the buddy CSS, `shared/apps.js`, `shared/hub.js`, `shared/urlstate/urlstate.js`,
   `shared/finder/model.js`, `finder.js`, `app-search.js`, the `slop/` engine, `app.js`, `home/sections.js`,
-  `home/catalog.js`, `home/browse.js`, `home/vortex/orbit.js`, `home/vortex/vortex.js`, `motion.js` and
-  `home/mascot/index.js` (module). `home/hero.css` styles the hero, the strip and the numbered headings.
+  `home/catalog.js`, `home/browse.js`, `home/globe/sphere.js`, `home/globe/paint.js`, `home/globe/globe.js`, `motion.js` and
+  `home/mascot/index.js` (module). `home/hero.css` styles the hero, the strip and the numbered headings; `home/globe/globe.css` the globe.
 - `home/sections.js`: the six sections in order (`SECTION_DEFS`), the placement map `SECTIONS` keyed by app id (an array
   gives an app several places; a converter entry's `line` is its in-and-out line), the Print card (`SECTIONS.print`,
   opens `html2pdf/`), `placements()` (an app the map does not name keeps its old group: business, creative, or
@@ -22,7 +22,7 @@
 - `app.js`: routing (home vs `#detector`), the live counter and the Authenticator. Clicks only count as navigation on
   real `[data-view]` links (the `<body>` carries `data-view` as state).
 - `home/catalog.js`: renders the cards, the shelves and status board from `shared/apps.js`; `SlopHomeCards.icon` is the
-  badge every icon on the page uses (the vortex too). Another agent is adding
+  badge every icon on the page uses (the globe too). Another agent is adding
   hover clips (`data-clip`, `<video>`) here; coordinate before editing it.
 - `home/mascot/index.js`: boots the shared Sloppo buddy with the homepage options:
   `boot({ app: 'home', defaultOn: true })`. The engine lives in `shared/buddy/` (see its HANDOFF.md).
@@ -34,25 +34,29 @@
 - `motion.js`: the Authenticator stamp slam and the footer fill.
 
 ## Hero (top of the homepage)
-- Wordmark: `.hx-mark`, Archivo 900 at 125 % width (75 % on phones), its size in container units of `.hx-stage` (the
-  text is 10.27 em wide at 125 %, 6.5 em at 75 %), so it fills the row in any font and the stage keeps its height:
-  nothing moves when fonts or scripts arrive. It is the largest paint on desktop. `data-brand-name` follows brand.json.
-- Headline (the page's only h1 in the home view), sub-line, Open the apps (`[data-to-finder]`: home/browse.js scrolls to
-  the finder and focuses its search; without scripts it is a plain `#app-finder` link), How it works, meta line. Every
-  string has a `hero.*` key in shared/i18n (all seven languages).
-- Tool vortex (`home/vortex/`): `orbit.js` is the pure maths (tiers, spiral, placing on the tilted ellipse, fades,
-  keep-out over the text boxes, the still ring, the fps cap; node-tested in tests/node/vortex-orbit.test.mjs).
-  `vortex.js` builds `.vx-layer` (a canvas for flow lines and trails, and the icon links), starts after `load` when idle,
-  and runs only while the hero is on screen and the tab is visible. Tiers: full (34 icons, 60 fps), lite (14 icons,
-  30 fps: phones, touch, 4 cores or fewer, 4 GB or less, Save-Data), static (reduced motion: 16 icons on two rings).
-  Each icon slot takes the next app when it reaches the centre, so every app comes round. Hover or press holds an icon
-  and shows its name. `.vx-nav` lists every app as one tab stop (arrow keys, Home, End); the focused app shows as a chip
-  and lights its icon. `window.SlopVortex` (state, frames, tier, icons, reduce, pause) is for the tests.
+- Layout: the copy on the left and the app globe on the right on wide screens (900 px and up); on phones the globe sits
+  above the centred copy. Chosen over the globe behind the text (icons crossing the headline, too busy) and a larger
+  globe bleeding off the right edge (crowded, pushed the strip below the fold). There is no wordmark: the header carries
+  the name and the kicker line repeats it on wide screens.
+- Copy: kicker, headline (the page's only h1 in the home view; with the sub-line, the largest paint, before the globe
+  starts), sub-line, Open the apps (`[data-to-finder]`: home/browse.js scrolls to the finder and focuses its search),
+  How it works, meta line. Every string has a `hero.*` key in shared/i18n (all seven languages).
+- App globe (`home/globe/`): `sphere.js` is the pure maths (tiers, Fibonacci sphere, rotation, perspective, depth looks,
+  spin with inertia damping, seek and frontOf to bring an icon to the front, keep-out, the wireframe grid; node-tested in
+  tests/node/globe-sphere.test.mjs). `paint.js` draws the canvas: halo, body, rim and the turning wireframe in the
+  theme's ink and accent. `globe.js` places the icon links (true perspective via translate and scale, depth bands
+  far2/far1/mid/near for blur and glow), runs the turn, and handles drag, hover and the keyboard list. It starts after
+  `load` when idle, sizes itself from `.gx-box` (reserved in CSS, so nothing moves) and runs only while the hero is on
+  screen and the tab is visible. Tiers: full (every app, 60 fps), lite (40 icons, 30 fps: phones, touch, 4 cores or
+  fewer, 4 GB or less, Save-Data), static (reduced motion: every app, no turn, no drag).
+- Drag spins it (horizontal; `touch-action: pan-y` keeps vertical page scroll), a fling slows back to the idle turn
+  (one turn in 75 s). Pointing at an icon eases the globe until it faces you and shows its name; leaving resumes the
+  turn after 1.4 s. `.gx-nav` lists every app as one tab stop (arrow keys, Home, End); the focused app shows as a chip
+  and its icon comes round to the front (in lite, the farthest icon takes the focused app).
+  `window.SlopGlobe` (state, frames, startedAt, tier, view, icons, reduce, pause) is for the tests.
 - Capability strip: `tools/seo/marquee.mjs` (one label per app from its title, File convert as its number of
   conversions), scrolled by CSS, paused on hover and under reduced motion. Run `node tools/seo/write.mjs` after
   changing the registry (tests/node/home-marquee.test.mjs fails when index.html is stale).
-- The app carousel that used to lead the page is gone: the vortex shows every app's icon and the finder right under it
-  lists them all, so a featured row would only repeat them.
 
 ## Perches
 Sloppo stands on the top edges of `[data-perch]` elements: the ledge at the bottom right of the hero, the shelf headings,
@@ -69,9 +73,9 @@ every card (`data-perch="card"`, which chaos may bite, knock or blast), the stat
 ## Tests (`node tests/run.mjs home`)
 - `tests/home/catalog.test.html`: every registry entry renders in its shelf, badges and features, the status board, tab
   jumps, Authenticator view switching, clicks on Sloppo are not navigation, the icon markup, no carousel left.
-- `tests/home/hero.test.html` (1280 and 390 px, Light and Dark): the wordmark whole and above the vortex with no icon
-  shown over it, the vortex moving, stopping in a hidden tab or off screen, the still ring for reduced motion, the strip
-  from the registry, no sideways scroll. `tests/home/hero-links.test.html`: icons as named links, hover, the keyboard
+- `tests/home/hero.test.html` (1280 and 390 px, Light and Dark): the headline the largest paint before the globe, above
+  it with no icon shown over it, the layout, the globe turning, stopping in a hidden tab or off screen, still for reduced
+  motion, drag and fling, the strip from the registry, no sideways scroll. `tests/home/hero-links.test.html`: icons as named links, hover brings to front, the keyboard
   list, the buttons, one h1, translations. `tests/a11y/sweep-40.test.html`: the homepage in the contrast sweep.
 - `tests/home/mascot.test.html` (11): levels/hats/lines (pure), loads and perches, pet, level-up with hat and growth,
   drag and throw, moods, leaping back into view, view switches, lazy 3D.

@@ -12,7 +12,7 @@
   const { describe, it, expect, waitFor, sleep, run } = SlopTest;
 
   describe('homepage: hero, faucet and featured search', () => {
-    it('the hero (wordmark and tool vortex) comes first, then the capability strip, then the search', async () => {
+    it('the hero (headline and app globe) comes first, then the capability strip, then the search', async () => {
       const win = await HomeTest.openHome();
       const doc = win.document;
       const hero = doc.getElementById('hero'), finder = doc.querySelector('.finder-top');

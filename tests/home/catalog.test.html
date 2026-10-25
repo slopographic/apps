@@ -120,11 +120,11 @@
   });
 
   describe('app icons', () => {
-    it('each card and vortex icon is an SVG-namespace svg with the badge rect and glyph group as direct children', async () => {
+    it('each card and globe icon is an SVG-namespace svg with the badge rect and glyph group as direct children', async () => {
       await ready;
-      await waitFor(() => doc.querySelector('.vx-layer .vx-svg'), { timeout: 20000 });
+      await waitFor(() => doc.querySelector('.gx-layer .gx-svg'), { timeout: 20000 });
       const SVG = 'http://www.w3.org/2000/svg';
-      const icons = [...doc.querySelectorAll('[data-section] .shot-icon'), ...doc.querySelectorAll('.vx-layer .vx-svg')];
+      const icons = [...doc.querySelectorAll('[data-section] .shot-icon'), ...doc.querySelectorAll('.gx-layer .gx-svg')];
       expect(icons.length).toBeGreaterThan(win.SLOP_APPS.length);
       for (const svg of icons) {
         expect(svg.namespaceURI).toBe(SVG);
