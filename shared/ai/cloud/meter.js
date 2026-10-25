@@ -2,7 +2,7 @@
  * Classic script; adds SlopAIKit.cloud.meter.
  *   add(usage) → the totals of this visit { input, output, tokens, cost (null when the price is not known), replies }
  *   total() · reset() · over(cap) → true when this visit used cap tokens or more (cap 0 = no cap)
- *   line(usage) → '1,234 tokens · about $0.02'      totalLine(cap) → 'This visit: 5,678 tokens · about $0.05 (cap 200,000)'
+ *   line(usage) → '1,234 tokens · about $0.02'      detail([usage per turn]) → 'This request used N tokens (M cached): …', a line a turn      totalLine(cap) → 'This visit: 5,678 tokens · about $0.05 (cap 200,000)'
  *   capText(cap) → the sentence the loop stops with
  *   notice(provider, model) → Promise<bool>: before the first request to a provider, once per browser (localStorage
  *        'slop-firstrun:ai-cloud:<id>'): what goes to the provider, that files go only when the person allows each one,
@@ -34,6 +34,12 @@
     const tok = (u.input || 0) + (u.output || 0);
     return `${n(tok)} tokens` + (u.cacheRead ? ` (${n(u.cacheRead)} from cache)` : '') + (u.cost != null ? ` · ${money(u.cost)}` : '');
   }
+  /** The hover text of a request's line: its total, how much came from the cache, and each model turn. */
+  function detail(list) {
+    const sum = (k) => list.reduce((a, u) => a + (u[k] || 0), 0), inp = sum('input'), out = sum('output'), hit = sum('cacheRead'), wrote = sum('cacheWrite');
+    const head = `This request used ${n(inp + out)} tokens (${n(hit)} cached): ${n(inp)} in, ${n(out)} out` + (wrote ? `, ${n(wrote)} written to the cache` : '') + `, over ${list.length} model turn${list.length === 1 ? '' : 's'}.`;
+    return [head, ...list.map((u, i) => `Turn ${i + 1}: ${n(u.input || 0)} in (${n(u.cacheRead || 0)} cached), ${n(u.output || 0)} out`)].join('\n');
+  }
   function totalLine(cap) {
     const x = total();
     return `This visit: ${n(x.tokens)} tokens` + (x.cost != null ? ` · ${money(x.cost)}` : ' · price not known here, see your provider') + (cap ? ` (cap ${n(cap)})` : '');
@@ -64,5 +70,5 @@
     });
   }
 
-  C.meter = { add, total, reset, over, line, totalLine, capText, notice, seen, lines, money };
+  C.meter = { add, total, reset, over, line, detail, totalLine, capText, notice, seen, lines, money };
 })();

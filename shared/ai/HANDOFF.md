@@ -134,6 +134,8 @@ blocks with signatures, OpenAI's reasoning items, Gemini's parts with `thoughtSi
 | `cloud/connect.js` | The form: provider, address, key (password field, autocomplete off), Test connection, Forget key, model, cap, steps, Use; `restore()` brings the last provider back on the next page when its key is still here. |
 | `filetools.js` | `look_at_file`: asks every time ("Send a copy to Anthropic?"), sends a picture scaled to 1024 px (JPEG) or the first 8,000 characters of a text. |
 | `optools.js` | `list_operations`, `run_operation`, `run_workflow` from `shared/ops/registry.js` and the one runner (`workflows/js/core/plan.js`); results saved to Slop Drive. |
+| `toolbox.js` | `K.toolbox`: what the panel sends stays small (below, "Token budget"): `arrange` (core tools + `find_tools`, the rest deferred), `visible`, `loaded`, `compact` (schemas), `summarize` (results), `trim` (earlier requests' results). |
+| `prompt.js` | `K.prompt.system(tools, eng, { appName, capable })`: the panel's system prompt (the hand-over rule, the apps in a line each, the tools to load by name). |
 
 The panel: the header names the provider and model (click it to change), the foot says where requests go; before
 the first request to a provider, the notice; cloud runs get `look`, `ops` and up to `steps` model turns (12 by default,
@@ -177,6 +179,39 @@ it and refuses new requests; Stop aborts the request in flight. A key-based engi
   per model), AI settings…, AI permissions…, Disconnect. A pick is remembered for that app (`lastByApp`). With a
   provider in use, the full model choice shows it first and the local models under "Models on this device".
 - Steps show the app's answer as a dimmed line; more than 3 steps in a row fold into "9 steps ✓" (open to see them).
+
+## Token budget (2026-10, wip/ai-tokens)
+Measured with `node tools/ai-tokens.mjs [apps] [--count]` (real app pages in Chromium, the panel's own run, a fake fetch
+per provider, `tests/ai/token-probe.js`; `--count` asks Anthropic's count_tokens with `ANTHROPIC_API_KEY` to calibrate
+the estimate, about 2.4 characters a token). First request, Claude Haiku 5.5 (count_tokens): before PhotoSlop 17,535,
+Slop PDF 11,059, SlopCut 20,724, Workflows 9,744, Slides 12,651 (each of the 12 steps of a task paid that again); after
+about 4,600–4,750 on each, a local model about 2,000. `tests/node/ai-tokens.test.mjs` fails above `BUDGET` (7,000 cloud,
+3,500 local) and checks that later turns keep the cached prefix.
+- **Progressive tool disclosure** (`toolbox.js`, applied by `panel-run.js` only: WebMCP and Slop AI keep the full list):
+  when a page has 16 tools or more, only the core goes in full (app_state, find_tools, run_command, run_operation,
+  open_in_app, open_app, look_at_canvas, look_at_file, list_files, read_file, save_to_drive); the prompt names the others
+  ("More tools here …"). `find_tools({ query | names })` loads them (strong matches only), and also lists matching
+  operations (`opTools.search`) and other apps' tools (`app-skills.js`). A deferred tool can always be called.
+  Claude 4.5+ (`anthropic.defers`): every tool is sent, deferred ones with `defer_loading: true`; find_tools answers with
+  a tool_result of `tool_reference` blocks only (the documented custom tool search; the API refuses text beside them, so
+  the rest of the answer follows the results as a text block). The tool list never changes, so the cache and the thinking
+  blocks stay valid. Other providers and local models: the loaded tools join the end of later turns (`visible`).
+- **Compact schemas** (cloud `toolDef`): huge bounds (≥ 10,000), maxLength/maxItems, additionalProperties: false and
+  empty required are left out; the app checks and clamps arguments anyway. Shorter core descriptions.
+- **Prompt** (`prompt.js`): the apps in a line each (what it is, what it makes) for cloud models, by name for local ones;
+  tools and operations per app come from find_tools.
+- **Results**: data results go through `summarize` (lists 25 items, strings 400 characters, valid JSON); `app_state` is a
+  summary (8 items, 160 characters) unless `detail: true`; `list_operations` gives ids only unless filtered (options for
+  the 6 best matches).
+- **History**: other providers and local models get tool results of earlier requests (before the last user message) cut
+  to 200 characters, pictures left out (`trim`); the current request is never changed. Claude: context editing
+  (`clear_tool_uses_20250919`, beta `context-management-2025-06-27`: from 30,000 input tokens, keep 4, at least 5,000,
+  never find_tools), since editing earlier turns would invalidate thinking blocks.
+- **Usage**: the tokens line under a reply has the breakdown on hover (`meter.detail`): "This request used N tokens
+  (M cached): … over n model turns", then each turn.
+- Tests: `tests/node/ai-deferred.test.mjs` (request building per provider, find_tools, trim, summarize, prompt, meter),
+  `tests/ai/deferred.test.html` (PhotoSlop blur with Claude, Workflows add_step + run_workflow with OpenAI, Slides
+  build_presentation with the local fake engine, each through find_tools).
 
 ## GPUs that cannot compile a model (2026-10)
 - WebLLM is 0.2.86 (model libraries `v0_2_86/base`, rebuilt by MLC with current compilers); `vendor/web-llm/README.md`.

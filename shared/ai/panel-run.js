@@ -53,7 +53,7 @@
         ...(m.media || []).filter((x) => /^image\//.test(x.mime)).map((x) => h('img', { class: 'sap-thumb', alt: 'Sent: ' + (x.name || 'picture'), src: `data:${x.mime};base64,${x.data}` })));
     }
     if (m.handoff) return h('div', { class: 'sap-handoff' }, m.display);   // "Opening SlopIsolate…", "Continuing in PhotoSlop with …"
-    if (m.meter) return h('div', { class: 'sap-usage' }, m.display);   // the tokens line (not m.usage: every reply carries its usage)
+    if (m.meter) return h('div', { class: 'sap-usage', title: m.detail || null }, m.display);   // the tokens line (not m.usage: every reply carries its usage)
     const d = h('div', { class: 'sap-msg ' + m.role + (m.error ? ' bad' : '') });
     const text = m.display != null ? m.display : m.content;
     if (m.role === 'assistant' && K.md && !m.error) d.innerHTML = K.md.render(text); else d.textContent = text;
@@ -64,38 +64,6 @@
   P.capable = function (eng) {
     try { const m = K.catalog && K.catalog.byId(eng.info().id); return !!m && (m.strengths || []).includes('tools') && m.params >= 3; } catch (e) { return false; }
   };
-  /** The site's apps, what each makes (appTools.catalog with the generated app-skills.js), for the system prompt. */
-  const SITE = () => `The apps on the site. "Tools there" are the commands you get in that app (open_in_app first); "Operations" run from any page with run_operation:\n${K.appTools.catalog(window.SLOP_APPS || [])}`;
-  /** The rule for tasks that use other apps, with the person's setting (handoff.js mode). */
-  function hopRule() {
-    const show = K.handoff && K.handoff.mode() === 'show';
-    return ['Two kinds of work. (1) File in, file out (convert, remove background, watermark, resize, upscale, OCR, transcribe, compress, workflows): run_operation does it on this page (list_operations finds it). (2) Editing that needs an app (layers in PhotoSlop, a timeline in SlopCut, pages in Slop PDF, slides in Slop Slides): open_in_app moves the task to that app in this tab with the files and a full task; the chat comes along and you continue there.',
-      show ? 'The person chose "Show me in each app": move to the app that does each step, also for file jobs, so they can watch.'
-        : 'The person chose "Stay on this page when possible": do file jobs here with run_operation and move only for editing that needs another app.',
-      'If the person says "do it here", stay; if they say "show me", move to each app.'].join(' ');
-  }
-  function systemPrompt(tools, eng) {
-    const name = P.appName(), cloud = eng && eng.kind === 'cloud';
-    const lines = [cloud ? `You are Slop AI, a helpful assistant inside ${name} on slopographic.com, a site of apps that run in the user's browser. The user connected you with their own key. Be brief.`
-      : `You are Slop AI, a helpful assistant inside ${name} on slopographic.com. It runs on the user's own device. Be brief.`];
-    if (tools.length && cloud) {
-      lines.push(`You control ${name} with the tools. Call app_state first when you need to know what is open.`,
-        'Plan the fewest steps and use arguments in the given ranges. Some actions (deleting, look_at_file) may ask the user first; if they say no, accept it.',
-        'Files stay on the device: to see a picture or read a file, call look_at_file. After the actions, answer in one short sentence. If a tool fails, say so plainly; do not invent results.',
-        'Be resourceful: build what is asked from the tools you have (layers, shapes, text, gradients, SVG, fills, filters, and generate_image when it is there) instead of saying it cannot be done. After making something visual, check it with look_at_canvas when it is available, and fix what is off.',
-        `Never refuse because ${name} cannot do something. ${hopRule()}`,
-        SITE());
-    } else if (tools.length) {
-      lines.push(`You control ${name} with the tools below. Call app_state first when you need to know what is open.`,
-        'Plan the fewest steps. Use the tools that match the request directly, with arguments in the given ranges.',
-        'You may put several <tool_call> lines in one reply; they run in order. After the results, answer in one short sentence.',
-        'If a tool fails, say so plainly; do not invent results.', hopRule());
-      // a local model that gets the operations (capable, or the test engine) also gets the map of what each app makes
-      if (eng && (eng.kind === 'fake' || P.capable(eng))) lines.push(SITE());
-    }
-    return lines.join(' ');
-  }
-
   function setBusy(on) {
     P.sendBtn.textContent = on ? 'Stop' : '↑';
     P.sendBtn.classList.toggle('stop', !!on);
@@ -139,7 +107,9 @@
     const control = P.toolsBox.checked && !!cmd;
     if (control && cmd.prepare) { try { await cmd.prepare(); } catch (e) { console.warn('SlopCmd.prepare:', e); } }
     const ops = cloud || eng.kind === 'fake' || P.capable(eng);   // file operations: own-key models, the test engine, capable local models
-    const tools = P.toolsBox.checked ? K.appTools.build({ cmd, appId: P.appId(), appName: P.appName(), confirm: confirmFn, look: cloud, ops, who: cloud ? eng.provider.who : '', handoff, hop }) : [];
+    const env = { cmd, appId: P.appId(), appName: P.appName(), confirm: confirmFn, look: cloud, ops, who: cloud ? eng.provider.who : '', handoff, hop };
+    // the long tail of tools is deferred: find_tools loads what the task needs (toolbox.js), for every engine
+    const tools = P.toolsBox.checked ? K.toolbox.arrange(K.appTools.build(env), env) : [];
     let rollback = null;
     try { rollback = control && cmd.checkpoint ? cmd.checkpoint() : null; } catch (e) { rollback = null; }
     let changed = 0;
@@ -153,7 +123,7 @@
     Perm.startRequest();
     try {
       const turns = cloud ? cs.steps || 12 : MAX_STEPS;
-      const res = await K.tools.run(eng, [{ role: 'system', content: systemPrompt(tools, eng) }, ...P.messages.filter((m) => !m.error && !m.note)], {
+      const res = await K.tools.run(eng, [{ role: 'system', content: K.prompt.system(tools, eng, { appName: P.appName(), capable: eng.kind === 'fake' || P.capable(eng) }) }, ...P.messages.filter((m) => !m.error && !m.note)], {
         tools, env: { confirm: confirmFn, permit }, maxSteps: tools.length ? turns : 1, maxCalls: cloud ? Math.max(MAX_CALLS, turns * 3) : MAX_CALLS, temperature: 0.3, max_tokens: 640, signal: P.busy.signal,
         onUsage: cloud ? (u) => { spent.push(u); C.meter.add(u); return C.meter.over(cs.cap) ? C.meter.capText(cs.cap) : null; } : null,
         onDelta: (t) => { pieces += t; reply.innerHTML = K.md.render(pieces.replace(/<tool_call>[\s\S]*?(<\/tool_call>|$)/g, '').trim()); P.list.scrollTop = P.list.scrollHeight; },
@@ -184,7 +154,7 @@
     if (handed) P.messages.push(Object.assign({ role: 'assistant', content: '' }, handed));
     if (cloud && spent.length) {
       const u = spent.reduce((a, x) => ({ input: a.input + (x.input || 0), output: a.output + (x.output || 0), cacheRead: a.cacheRead + (x.cacheRead || 0), cost: a.cost == null || x.cost == null ? null : a.cost + x.cost }), { input: 0, output: 0, cacheRead: 0, cost: 0 });
-      P.messages.push({ role: 'assistant', content: '', display: `${C.meter.line(u)} · ${C.meter.totalLine(cs.cap)}`, note: true, meter: true });
+      P.messages.push({ role: 'assistant', content: '', display: `${C.meter.line(u)} · ${C.meter.totalLine(cs.cap)}`, detail: C.meter.detail(spent), note: true, meter: true });
     }
     Perm.endRequest();   // "Allow for this request" ends with the reply
     P.busy = null; setBusy(false);

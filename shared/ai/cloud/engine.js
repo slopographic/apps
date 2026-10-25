@@ -7,7 +7,8 @@
  *       toolCalls: [{ id, name, arguments }], native (the provider's own reply, sent back unchanged next turn),
  *       usage: { tokens, prompt, input, output, cacheRead, cacheWrite, cost ($ or null), ms, ttft, tps }, stop ('refusal' | 'length' | …), aborted }
  * Tool calling is NATIVE: each tool goes to the provider as JSON Schema (cmdTools.inputSchema, the one schema maker) and
- * its calls come back structured, never parsed out of text. Temperature and the small max_tokens the panel gives local
+ * its calls come back structured, never parsed out of text. Deferred tools (toolbox.js) reach the model when find_tools
+ * loads them (plan below). Temperature and the small max_tokens the panel gives local
  * models are not passed on (several providers refuse sampling settings; thinking models need room). */
 (function () {
   'use strict';
@@ -15,10 +16,21 @@
   const C = K.cloud;
   const now = () => performance.now();
 
-  /** A tool of the kit as a provider-neutral definition: name, description and its input as JSON Schema. */
-  function toolDef(t) {
+  /** A tool of the kit as a provider-neutral definition: name, description, its input as JSON Schema (compact: the app
+   * checks bounds and lengths itself, toolbox.js) and deferred (a format that loads tools natively sends it unloaded). */
+  function toolDef(t, native) {
     const schema = K.cmdTools && K.cmdTools.inputSchema ? K.cmdTools.inputSchema(t) : (t.schema || { type: 'object', properties: {} });
-    return { name: t.name, description: t.description || t.name, inputSchema: schema };
+    const d = { name: t.name, description: t.description || t.name, inputSchema: K.toolbox ? K.toolbox.compact(schema) : schema };
+    if (native && t.deferred) d.deferred = true;
+    return d;
+  }
+  /** What one turn sends: with a format that defers tools itself (Claude's defer_loading) every tool, deferred ones
+   * marked, and the history as it was (the provider clears old results on its side); for the others only the tools shown
+   * so far (toolbox.visible: loaded ones join at the end) and the earlier requests' results shortened (toolbox.trim). */
+  function plan(F, model, messages, list) {
+    const B = K.toolbox, native = !!(F.defers && F.defers(model));
+    if (!B) return { tools: list.map((t) => toolDef(t)), messages };
+    return { tools: (native ? list : B.visible(list, messages)).map((t) => toolDef(t, native)), messages: F.serverEdits ? messages : B.trim(messages) };
   }
 
   class CloudEngine extends K.Engine {
@@ -46,13 +58,13 @@
 
     chat(messages, opts = {}) {
       const self = this, p = this.provider, F = C.formats[p.format];
-      const tools = (opts.tools || []).map(toolDef);
+      const sent = plan(F, this.model.id, messages, opts.tools || []), tools = sent.tools;
       async function* gen() {
         const t0 = now();
         let first = 0, streamed = '', parse = null;
         const key = await self.getKey();
         if (p.needsKey && !key) throw new C.CloudError('key', `Connect ${p.short} first: paste your key in the AI panel.`);
-        const { url, init } = F.request(self.cfg(key), C.seal(messages), tools, { maxTokens: opts.maxTokens });
+        const { url, init } = F.request(self.cfg(key), C.seal(sent.messages), tools, { maxTokens: opts.maxTokens });
         init.signal = opts.signal;
         let aborted = false;
         try {
@@ -84,5 +96,5 @@
   }
 
   K.CloudEngine = CloudEngine;
-  C.toolDef = toolDef;
+  C.toolDef = toolDef; C.plan = plan;
 })();
