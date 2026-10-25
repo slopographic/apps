@@ -49,9 +49,10 @@
     'footer.all_tools': 'Tutti gli strumenti',
     'footer.sitemap': 'Mappa del sito (XML)',
 
-    'hero.lead': 'Tutta la cassetta degli attrezzi,',
-    'hero.accent': 'aperta nel tuo browser.',
-    'hero.sub': 'Modifica PDF, foto e video, scrivi documenti, invia fatture e converti file. È gratis, non c’è niente da installare né un account da creare, i tuoi file restano sul tuo dispositivo e le app funzionano offline dopo la prima visita.',
+    'hero.kicker': 'Software per ufficio e creatività',
+    'hero.lead': 'App per ufficio e creatività,',
+    'hero.accent': 'gratis nel tuo browser.',
+    'hero.sub': 'Scrivi documenti e fogli di calcolo, modifica PDF, foto e video, e tieni in ordine fatture, ordini e contatti. Non c’è niente da installare né un account da creare, i tuoi file restano sul tuo dispositivo e le app funzionano offline dopo la prima visita.',
     'hero.open': 'Apri le app',
     'hero.how': 'Come funziona',
     'hero.github': 'Open source su GitHub',

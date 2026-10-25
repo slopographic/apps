@@ -55,6 +55,7 @@
   <link rel="stylesheet" href="shared/footnav/footnav.css">
   <link rel="stylesheet" href="home/home.css">
   <link rel="stylesheet" href="home/hero.css">
+  <link rel="stylesheet" href="home/globe/globe.css">
   <link rel="stylesheet" href="shared/finder/finder.css">
   <link rel="stylesheet" href="shared/buddy/buddy.css">
   <link rel="stylesheet" href="shared/buddy/extras.css">
@@ -78,19 +79,18 @@
   <main>
     <section id="view-home" class="view home">
       <section id="hero" class="hx" aria-labelledby="hero-title">
-        <div class="hx-stage">
-          <p class="hx-mark" aria-hidden="true"><span data-brand-name>Slopographic</span></p>
-        </div>
         <div class="hx-copy">
-          <h1 id="hero-title" class="hx-title"><span data-i18n="hero.lead">The whole toolbox,</span> <em data-i18n="hero.accent">open in your browser.</em></h1>
-          <p class="hx-sub" data-i18n="hero.sub">Edit PDFs, photos and video, write documents, send invoices and convert files. It is free, there is nothing to install and no account to make, your files stay on your device, and the apps keep working offline after the first visit.</p>
+          <p class="hx-kicker"><span data-brand-name>Slopographic</span><span data-i18n="hero.kicker">Office and creative software</span></p>
+          <h1 id="hero-title" class="hx-title"><span data-i18n="hero.lead">Office and creative apps,</span> <em data-i18n="hero.accent">free in your browser.</em></h1>
+          <p class="hx-sub" data-i18n="hero.sub">Write documents and spreadsheets, edit PDFs, photos and video, and keep invoices, orders and contacts in order. There is nothing to install and no account to make, your files stay on your device, and the apps keep working offline after the first visit.</p>
           <div class="hx-cta">
             <a class="btn primary hx-btn" href="#app-finder" data-to-finder><span data-i18n="hero.open">Open the apps</span><span class="hx-arrow" aria-hidden="true">→</span></a>
             <a class="btn hx-btn" href="how-it-works/" data-i18n="hero.how">How it works</a>
           </div>
           <p class="hx-meta"><a href="https://github.com/slopographic/apps" rel="noopener" data-i18n="hero.github">Open source on GitHub</a><span class="hx-terms"><span data-i18n="hero.offline">Works offline</span><span data-i18n="hero.no_account">No account needed</span></span></p>
-          <nav class="vx-nav" aria-label="Every app" data-i18n-attr="aria-label:hero.apps"></nav>
+          <nav class="gx-nav" aria-label="Every app" data-i18n-attr="aria-label:hero.apps"></nav>
         </div>
+        <div class="gx-box" aria-hidden="true"></div>
         <div class="stage-ledge" data-perch="stage" aria-hidden="true"></div>
       </section>
       <!-- site:marquee -->
@@ -234,8 +234,9 @@
   <script src="home/sections.js"></script>
   <script src="home/catalog.js"></script>
   <script src="home/browse.js"></script>
-  <script src="home/vortex/orbit.js"></script>
-  <script src="home/vortex/vortex.js"></script>
+  <script src="home/globe/sphere.js"></script>
+  <script src="home/globe/paint.js"></script>
+  <script src="home/globe/globe.js"></script>
   <script src="motion.js"></script>
   <script src="brand/brand.js"></script>
   <script type="module" src="home/mascot/index.js"></script>

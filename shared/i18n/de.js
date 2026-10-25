@@ -49,9 +49,10 @@
     'footer.all_tools': 'Alle Werkzeuge',
     'footer.sitemap': 'Sitemap',
 
-    'hero.lead': 'Der ganze Werkzeugkasten,',
-    'hero.accent': 'offen in deinem Browser.',
-    'hero.sub': 'PDFs, Fotos und Videos bearbeiten, Dokumente schreiben, Rechnungen senden und Dateien umwandeln. Kostenlos, nichts zu installieren, kein Konto nötig, deine Dateien bleiben auf deinem Gerät, und die Apps laufen nach dem ersten Besuch auch offline.',
+    'hero.kicker': 'Büro- und Kreativsoftware',
+    'hero.lead': 'Büro- und Kreativ-Apps,',
+    'hero.accent': 'kostenlos im Browser.',
+    'hero.sub': 'Dokumente und Tabellen schreiben, PDFs, Fotos und Videos bearbeiten und Rechnungen, Bestellungen und Kontakte im Griff behalten. Nichts zu installieren, kein Konto nötig, deine Dateien bleiben auf deinem Gerät, und die Apps laufen nach dem ersten Besuch auch offline.',
     'hero.open': 'Apps öffnen',
     'hero.how': 'So funktioniert es',
     'hero.github': 'Open Source auf GitHub',
