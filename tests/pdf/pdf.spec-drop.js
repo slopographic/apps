@@ -11,9 +11,10 @@
     files.forEach((f) => dt.items.add(f));
     (target || doc().getElementById('viewer')).dispatchEvent(new PT.win.DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer: dt }));
   }
-  const choiceDialog = () => doc().querySelector('.sui-dlg.si-choose');
+  // a closed dialog stays in the page for its 140 ms fade (.sui-out): it is not the one on screen
+  const choiceDialog = () => doc().querySelector('.sui-back:not(.sui-out) .sui-dlg.si-choose');
   const clickChoice = (label) => {
-    const b = [...doc().querySelectorAll('.sui-foot .sui-btn')].find((x) => x.textContent === label);
+    const b = [...doc().querySelectorAll('.sui-back:not(.sui-out) .sui-foot .sui-btn')].find((x) => x.textContent === label);
     if (!b) throw new Error('no choice "' + label + '"');
     b.click();
   };
