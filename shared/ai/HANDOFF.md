@@ -233,3 +233,27 @@ end, `endpoint(base, path)`), `authHeaders` (Bearer, or `{ header: 'api-key' }` 
 - Tests: `tests/node/ai-catalog.test.mjs` (well-formed entries, templates, requests, search, the CORS tool's probes),
   `tests/node/ai-local.test.mjs` (each diagnosis, the port probe), `tests/ai/cloud-picker.test.html` (search, groups,
   needs-proxy rows, fields per provider, a chat through RunPod and Groq with a fake fetch, models, Find servers, 390 px).
+
+## Free AI (2026-10, wip/free-ai)
+- **The data**: a `free` field on catalog entries (fields in `catalog/main.js`), read from each provider's own pricing or
+  limits page on 2026-10-25: Gemini `free` (Flash, Flash-Lite, 2.5 Pro and Gemma 4 are free of charge; prompts may train
+  Google's products except in the EEA, Switzerland and the UK; daily limits reset at midnight Pacific), Groq `free`
+  (gpt-oss 120B / Qwen 3.8 27B: 30 rpm, 1,000/day, 8K tpm), OpenRouter `free-models` (`:free` ids: 20 rpm, 50/day, 1,000/day
+  after $10 of credits), Mistral `free` (Free mode, no card, low limits; which models and whether it trains: not stated on
+  the pages read), Cerebras `free-trial` ($5 for 30 days after a verified payment method, 5 rpm), Hugging Face `none` (no
+  credits for free accounts; PRO $2/month), servers on this computer `free`. Re-check them by hand; change `verified`.
+- **`cloud/free.js`** (`K.cloud.free`, no DOM): `tier`, `label` (Free / Free models / Free trial), `priced` (an OpenRouter
+  list entry: `:free` or every price 0; `compat.js` sets `m.free`), `model(p, m)` (true / false / null = not known), `known`,
+  `others` (free providers with tools, for suggestions), `rate(p, model, secs)` (the words a 429 gets), `wait`.
+- **UI**: a Free badge on picker rows and the provider button, a "Free" chip in the picker; "· Free" on free models in the
+  form and the header model menu (and "· Free models" on the provider's heading); "Show only free models" over the model
+  field (with "Control <app>" on: only free models that can use tools; the panel passes `tools: () => P.toolsBox.checked`);
+  "Get a free key in 2 minutes" (`cloud/free-guide.js`): Gemini, Groq, OpenRouter, sign-up links, limits and data notes
+  from the catalog, "Choose <provider>".
+- **429** (`net.js`): the retry time from Retry-After, Gemini's `retryDelay`, Groq's `x-ratelimit-reset-*` or OpenRouter's
+  `X-RateLimit-Reset` (`C.retryIn`); at a free provider the message adds its limits, "Try again in about N seconds" (or the
+  daily reset) and another free provider or a model on this device. Gemini's free-tier "quota … billing" 429 counts as a
+  rate limit, not as no credit.
+- Tests: `tests/node/ai-free.test.mjs` (shape, OpenRouter fixture `tests/node/ai-openrouter-models.json` from its public
+  /models, which models are free, the 429 words), `tests/ai/cloud-free.test.html` (badges, chip, guide links, only free
+  models, the model menu, a 429 from Groq).

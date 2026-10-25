@@ -2,7 +2,7 @@
 // for every app the audit there marks done: the audit table is the one list, this test reads it. A done app loads
 // SlopFrame (frame.css, frame.js, panel.js, and sheet.js for phones), and a done tool also puts its main button in the
 // panel's footer (panel.js footer()); a done editor (or a non-tool app that keeps its own right panel) puts its main button in the shared footer. The browser tests of each app check the look (tests/<app>/…).
-// Covers: shared/frame/HANDOFF.md, shared/frame/frame.js, shared/frame/panel.js, shared/biz/panel.js
+// Covers: shared/frame/HANDOFF.md, shared/frame/frame.js, shared/frame/panel.js, shared/biz/panel.js, watermark/js/main.js
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile, readdir } from 'node:fs/promises';
@@ -65,6 +65,8 @@ test('every app marked done loads SlopFrame and its phone sheet; a done tool has
     if (r.kind === 'editor' || (r.kind !== 'tool' && bare && !/SlopFrame\.mount\(/.test(js))) {
       // (an editor that had no panel builds one with the shared sections: Slop Docs' Document panel)
       assert.ok(bare || (r.kind === 'editor' && /SlopFramePanel\.create\(/.test(js) && /\.footer\(/.test(js)), r.name + ': the shared footer on its own panel');
+      // a records app's own panel (Contacts' card, CRM's record) is a SlopSheet bottom sheet on a phone, not a page
+      if (r.kind === 'records') assert.ok(/SlopSheet\.attach\(/.test(js), r.name + ': its record is a SlopSheet on a phone');
       continue;
     }
     assert.ok(loads('frame.js'), r.name + ': frame.js');
@@ -73,4 +75,17 @@ test('every app marked done loads SlopFrame and its phone sheet; a done tool has
     assert.ok(viaBiz || (/SlopFrame\.mount\(/.test(js) && /(SlopFrame\.panel|SlopFramePanel\.create)\(/.test(js)), r.name + ': mounts SlopFrame and its panel');
     if (r.kind === 'tool' && r.folder !== 'workflows/') assert.ok(/\.footer\(/.test(js), r.name + ': the main button is in the panel footer');
   }
+});
+
+test('no app is left "close" or "to do": every row is done or n/a', async () => {
+  const left = (await audit()).filter((r) => r.status === 'close' || r.status === 'to do').map((r) => r.name);
+  assert.deepEqual(left, []);
+});
+
+test('Slop Watermark, rebuilt on SlopFrame, is done: the list, view and panel, Watermark N files the footer\'s primary button', async () => {
+  const row = (await audit()).find((r) => r.name === 'Slop Watermark');
+  assert.equal(row.status, 'done');
+  const js = await read('watermark/js/main.js');
+  assert.ok(/SlopFrame\.mount\(\$\('wm-main'\), \{ list: \$\('wm-files'\), view: \$\('wm-work'\), panel: \$\('wm-panel'\)/.test(js), 'mounts SlopFrame with its files, preview and panel');
+  assert.ok(/side\.footer\(\[\s*\{ id: 'wm-apply'[^\n]*primary: true/.test(js), 'Watermark N files is the primary button at the panel\'s foot');
 });

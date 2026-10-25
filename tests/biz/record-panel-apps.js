@@ -26,8 +26,8 @@
     { name: 'Slop Ledger', path: 'ledger/index.html', hash: 'journal', view: '#view-journal .biz-fv-main', panel: '#jForm', main: 'Post entry', more: 'New entry',
       ready: (W) => W.SlopLedger && W.SlopLedger.app && W.SlopLedger.app.booted && W.document.querySelector('#jForm .sf-p-foot'),
       done: (W) => W.document.getElementById('jMsg').textContent.trim().length > 0 },
-    // Contacts: the card is the record panel (its own column, a page on a phone); Edit, Duplicate and Delete at its foot
-    { name: 'Slop Contacts', path: 'contacts/index.html', hash: '', view: '.col-list', panel: '#card', main: 'Edit', bare: true,
+    // Contacts: the card is the record panel (its own column, a bottom sheet on a phone); Edit, Duplicate and Delete at its foot
+    { name: 'Slop Contacts', path: 'contacts/index.html', hash: '', view: '.col-list', panel: '#card', main: 'Edit', bare: true, sheet: true,
       ready: (W) => W.SlopContacts && W.SlopContacts.ready,
       async prep(W) {
         W.SlopContacts.state.mode = 'view';   // the card's mode is remembered per device: the run before left it on Edit
@@ -38,8 +38,8 @@
         for (let i = 0; i < 100 && !W.document.querySelector('#card .sf-p-foot'); i++) await new Promise((r) => setTimeout(r, 50));
       },
       done: (W) => !!W.document.querySelector('#card .ed-form') },
-    // CRM: the customer's record beside the list (a page of its own on a phone); Edit details opens the customer form
-    { name: 'Slop CRM', path: 'crm/index.html', hash: 'customers', view: '#view-customers', panel: '#view-customer', main: 'Edit details', bare: true,
+    // CRM: the customer's record beside the list (a bottom sheet over it on a phone); Edit details opens the customer form
+    { name: 'Slop CRM', path: 'crm/index.html', hash: 'customers', view: '#view-customers', panel: '#view-customer', main: 'Edit details', bare: true, sheet: true,
       ready: (W) => W.SlopCrm && W.SlopCrm.app && W.document.getElementById('boot').hidden,
       async prep(W) {
         const r = await W.SlopData.store.put('customers', { name: 'Panel Test', stage: 'customer', email: 'panel@test.invalid' });

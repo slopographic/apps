@@ -40,7 +40,12 @@
     if (!hitG && !handle && t === 'select' && !tbox) hitG = S.annotElAt(e);
     if (Ed.objMode && t === 'select' && !handle && !hitG && S.objDown && S.objDown(e, p)) return; // a page object (obj-mode.js)
     if (Ed.editText && Ed.paraMode && t === 'select' && !handle && S.paraDown && S.paraDown(e, p, hitG)) return; // Paragraphs (para-mode.js)
-    if (Ed.editText && t === 'select' && !handle && !hitG && !tbox) { e.preventDefault(); S.runDown(e, p); return; }
+    if (Ed.editText && t === 'select' && !handle && !hitG && !tbox) {
+      // on the page's text a press that stays put opens the line; a drag (or a long press) selects text instead, and the
+      // selection bar (sel-bar.js) offers its actions, Edit text among them
+      if (e.target.closest && e.target.closest('.pv-textlayer span')) { S.textPress(e, p); return; }
+      e.preventDefault(); S.runDown(e, p); return;
+    }
     if (t === 'block') { e.preventDefault(); S.blockDown(e, p); return; } // block copy (editor/block-copy.js)
     if (t === 'select') {
       if (tbox) { S.liftEdit(e, tbox); return; } // the selected text becomes an annotation when it is first moved (sel-actions.js)
@@ -187,6 +192,41 @@
     }
     S.pageEl.addEventListener('pointermove', mv); S.pageEl.addEventListener('pointerup', up); S.pageEl.addEventListener('pointercancel', up);
   }
+  /** A caret position (node, offset) in the text layer under a client point, or null. */
+  function caretAt(x, y) {
+    var r = document.caretRangeFromPoint ? document.caretRangeFromPoint(x, y) : null;
+    if (!r && document.caretPositionFromPoint) { var cp = document.caretPositionFromPoint(x, y); r = cp && { startContainer: cp.offsetNode, startOffset: cp.offset }; }
+    var el = r && r.startContainer && (r.startContainer.nodeType === 1 ? r.startContainer : r.startContainer.parentNode);
+    return el && el.closest && el.closest('.pv-textlayer') ? { n: r.startContainer, o: r.startOffset } : null;
+  }
+  /** A press on page text in Edit text ▸ Lines. A press that stays put opens the line on release. A drag selects the text it
+   * crosses, and a long press (a finger) the word under it: the selection bar (sel-bar.js) then offers its actions, Edit
+   * text among them. The selection is made here (the browser's own is held off, so the page does not pan or open). */
+  S.textPress = function (e, p) {
+    e.preventDefault();
+    var x0 = e.clientX, y0 = e.clientY, moved = false, down = e, from = caretAt(x0, y0), sel = window.getSelection();
+    if (sel) sel.removeAllRanges();
+    var hold = setTimeout(function () { // a long press: the word under the finger
+      if (moved || !from || from.n.nodeType !== 3) return;
+      var t = from.n.textContent, a = from.o, b = from.o;
+      while (a > 0 && /\S/.test(t[a - 1])) a--;
+      while (b < t.length && /\S/.test(t[b])) b++;
+      if (b > a) { sel.setBaseAndExtent(from.n, a, from.n, b); held = true; }
+    }, 500), held = false;
+    function mv(ev) {
+      if (!moved && Math.hypot(ev.clientX - x0, ev.clientY - y0) <= 4) return;
+      moved = true; clearTimeout(hold);
+      var to = caretAt(ev.clientX, ev.clientY);
+      if (from && to && sel) sel.setBaseAndExtent(from.n, from.o, to.n, to.o);
+    }
+    function end(ev) {
+      clearTimeout(hold);
+      window.removeEventListener('pointermove', mv, true); window.removeEventListener('pointerup', end, true); window.removeEventListener('pointercancel', end, true);
+      if (ev.type === 'pointercancel' || moved || held) return;
+      S.runDown(down, p);
+    }
+    window.addEventListener('pointermove', mv, true); window.addEventListener('pointerup', end, true); window.addEventListener('pointercancel', end, true);
+  };
   S.onDbl = function (e) {
     // the text layer lies over the annotations: a double click inside an annotation's box is the annotation's
     var g = e.target.closest('.annots [data-aid]') || (S.annotElAt ? S.annotElAt(e) : null);

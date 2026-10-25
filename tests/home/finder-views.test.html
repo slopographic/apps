@@ -26,7 +26,7 @@
     return { win, doc: win.document, frame, errors };
   }
   const clickView = (doc, view) => {
-    const b = doc.querySelector(`#app-finder .sf-view[data-sf-view="${view}"]`);
+    const b = doc.querySelector(`#app-finder .fd-view[data-fd-view="${view}"]`);
     b.click();
     return b;
   };
@@ -40,16 +40,16 @@
         const apps = appsOf(win);
         clickView(doc, 'list');
         expect(doc.getElementById('view-home').hidden).toBe(false);
-        expect(doc.querySelector('#app-finder .sf-view[data-sf-view="list"]').getAttribute('aria-pressed')).toBe('true');
-        const rows = [...doc.querySelectorAll('#app-finder .sf-list .sf-row')];
+        expect(doc.querySelector('#app-finder .fd-view[data-fd-view="list"]').getAttribute('aria-pressed')).toBe('true');
+        const rows = [...doc.querySelectorAll('#app-finder .fd-list .fd-row')];
         expect(rows.length).toBe(apps.length);
         for (const row of rows) {
           const a = apps.find((x) => x.id === row.dataset.id);
           expect(!!a).toBe(true);
           expect(row.querySelector('b').textContent).toBe(win.slopAppLabel(a, false));
-          expect(row.querySelector('.sf-row-sec').textContent.trim() !== '').toBe(true);
-          expect(row.querySelector('.sf-row-types').textContent.trim() !== '').toBe(true);
-          expect(row.querySelector('a.sf-row-open').getAttribute('href')).toBe(a.path);
+          expect(row.querySelector('.fd-row-sec').textContent.trim() !== '').toBe(true);
+          expect(row.querySelector('.fd-row-types').textContent.trim() !== '').toBe(true);
+          expect(row.querySelector('a.fd-row-open').getAttribute('href')).toBe(a.path);
           expect(row.getBoundingClientRect().height > 0).toBe(true);
         }
         expect(noOverflow(win)).toBe(true);
@@ -61,9 +61,9 @@
         const apps = appsOf(win);
         clickView(doc, 'table');
         expect(doc.getElementById('view-home').hidden).toBe(false);
-        const heads = [...doc.querySelectorAll('#app-finder .sf-table thead th')].map((th) => th.textContent.trim());
+        const heads = [...doc.querySelectorAll('#app-finder .fd-table thead th')].map((th) => th.textContent.trim());
         expect(heads).toEqual(['App', 'Section', 'File types', 'Open']);
-        const trs = [...doc.querySelectorAll('#app-finder .sf-table tbody tr')];
+        const trs = [...doc.querySelectorAll('#app-finder .fd-table tbody tr')];
         expect(trs.length).toBe(apps.length);
         for (const tr of trs) {
           const a = apps.find((x) => win.slopAppLabel(x, false) === tr.querySelector('td[data-col="name"]').textContent);
@@ -81,7 +81,7 @@
         const { win, doc, errors } = await openAt(width);
         clickView(doc, 'table');
         clickView(doc, 'list');
-        expect(doc.querySelectorAll('#app-finder .sf-row').length).toBe(appsOf(win).length);
+        expect(doc.querySelectorAll('#app-finder .fd-row').length).toBe(appsOf(win).length);
         clickView(doc, 'cards');
         expect(doc.getElementById('view-home').hidden).toBe(false);
         expect(doc.querySelectorAll('#app-sections [data-perch="card"]').length).toBeGreaterThan(0);
@@ -91,7 +91,7 @@
   }
 
   function tr_visible(doc) {
-    const t = doc.querySelector('#app-finder .sf-table');
+    const t = doc.querySelector('#app-finder .fd-table');
     return !!t && t.getBoundingClientRect().height > 0;
   }
 

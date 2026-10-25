@@ -45,29 +45,29 @@
     const noun = (n) => (Array.isArray(opts.noun) ? opts.noun[n === 1 ? 0 : 1] : opts.noun || 'items');
     const spec = { fields: opts.fields || [], searchKeys: opts.searchKeys, facets: opts.facets || [], columns: opts.columns || [], sort: opts.sort, rank: opts.rank, view: opts.view };
     const scope = scopeFor(opts.urlPrefix);
-    const id = 'sf' + (++seq);
+    const id = 'fd' + (++seq);
     let items = (opts.items || []).slice();
     let st = M.normalizeState(scope ? readUrl(scope) : {}, spec);
     let destroyed = false, active = -1, shown = [];
 
-    const search = el('input', { type: 'search', class: 'sf-input', id: id + '-q', placeholder: opts.placeholder || 'Search',
+    const search = el('input', { type: 'search', class: 'fd-input', id: id + '-q', placeholder: opts.placeholder || 'Search',
       'aria-label': opts.searchLabel || 'Search', autocomplete: 'off', spellcheck: 'false', role: opts.suggest ? 'combobox' : null,
       'aria-autocomplete': opts.suggest ? 'list' : null, 'aria-expanded': opts.suggest ? 'false' : null, 'aria-controls': opts.suggest ? id + '-list' : null });
     search.value = st.q;
-    const suggest = opts.suggest ? el('ul', { class: 'sf-suggest', id: id + '-list', role: 'listbox', hidden: true, 'aria-label': 'Matching apps' }) : null;
-    // The attribute is data-sf-view, not data-view: app.js routes every click on [data-view] to a page view, which hid the homepage.
-  const views = M.VIEWS.map((v) => el('button', { type: 'button', class: 'sf-view', 'data-sf-view': v, 'aria-pressed': 'false',
+    const suggest = opts.suggest ? el('ul', { class: 'fd-suggest', id: id + '-list', role: 'listbox', hidden: true, 'aria-label': 'Matching apps' }) : null;
+    // The attribute is data-fd-view, not data-view: app.js routes every click on [data-view] to a page view, which hid the homepage.
+  const views = M.VIEWS.map((v) => el('button', { type: 'button', class: 'fd-view', 'data-fd-view': v, 'aria-pressed': 'false',
       onclick: () => { st = { ...st, view: v }; update(); } }, VIEW_LABELS[v]));
-    const facetBox = el('div', { class: 'sf-facets' });
-    const facetWrap = opts.facetsCollapsed ? el('details', { class: 'sf-more' }, el('summary', { class: 'sf-more-sum' }, 'Filter by'), facetBox) : facetBox;
-    const chipBox = el('div', { class: 'sf-chips', hidden: true });
-    const count = el('p', { class: 'sf-count', 'aria-live': 'polite' });
-    const results = el('div', { class: 'sf-results' });
-    const empty = el('div', { class: 'sf-empty', hidden: true }, el('p', null, opts.emptyText || 'No matches.'),
-      el('button', { type: 'button', class: 'sf-btn', onclick: () => clear() }, 'Clear filters'));
-    const bar = el('div', { class: 'sf-bar' }, el('div', { class: 'sf-search' }, el('label', { class: 'sf-sr', for: id + '-q' }, opts.searchLabel || 'Search'), search, suggest),
-      el('div', { class: 'sf-views', role: 'group', 'aria-label': 'View' }, views));
-    host.replaceChildren(el('div', { class: 'sf' + (opts.suggest || opts.big ? ' sf-big' : '') + (opts.layout === 'faucet' ? ' sf-faucet' : '') }, bar, facetWrap, chipBox, count, results, empty));
+    const facetBox = el('div', { class: 'fd-facets' });
+    const facetWrap = opts.facetsCollapsed ? el('details', { class: 'fd-more' }, el('summary', { class: 'fd-more-sum' }, 'Filter by'), facetBox) : facetBox;
+    const chipBox = el('div', { class: 'fd-chips', hidden: true });
+    const count = el('p', { class: 'fd-count', 'aria-live': 'polite' });
+    const results = el('div', { class: 'fd-results' });
+    const empty = el('div', { class: 'fd-empty', hidden: true }, el('p', null, opts.emptyText || 'No matches.'),
+      el('button', { type: 'button', class: 'fd-btn', onclick: () => clear() }, 'Clear filters'));
+    const bar = el('div', { class: 'fd-bar' }, el('div', { class: 'fd-search' }, el('label', { class: 'fd-sr', for: id + '-q' }, opts.searchLabel || 'Search'), search, suggest),
+      el('div', { class: 'fd-views', role: 'group', 'aria-label': 'View' }, views));
+    host.replaceChildren(el('div', { class: 'sf' + (opts.suggest || opts.big ? ' fd-big' : '') + (opts.layout === 'faucet' ? ' fd-faucet' : '') }, bar, facetWrap, chipBox, count, results, empty));
 
     /* ---------- suggestions: as you type, Enter opens the first match, arrows move through them ---------- */
     function paintSuggest() {
@@ -76,7 +76,7 @@
       const list = q.trim() ? M.filter(items, { ...st, facets: {} }, spec).slice(0, opts.suggest.max || 8) : [];
       suggest.replaceChildren(...list.map((it, i) => el('li', { role: 'option', id: id + '-o' + i, 'aria-selected': i === active ? 'true' : 'false',
         class: i === active ? 'is-on' : null, onmousedown: (e) => { e.preventDefault(); win.location.href = opts.suggest.href(it); } }, // touch-ok: before the field's blur; a tap sends it too
-        el('a', { href: opts.suggest.href(it), tabindex: '-1' }, el('b', null, opts.suggest.label(it)), el('span', { class: 'sf-hint' }, opts.suggest.hint ? opts.suggest.hint(it) : '')))));
+        el('a', { href: opts.suggest.href(it), tabindex: '-1' }, el('b', null, opts.suggest.label(it)), el('span', { class: 'fd-hint' }, opts.suggest.hint ? opts.suggest.hint(it) : '')))));
       suggest.hidden = !list.length;
       search.setAttribute('aria-expanded', String(!!list.length));
       if (active >= list.length) active = -1;
@@ -107,15 +107,15 @@
         const sel = st.facets && st.facets[f.key];
         const box = el('input', { type: 'checkbox', checked: !sel || sel.includes(o.value) ? true : null });
         box.addEventListener('change', () => { st = M.setFacetValue(st, f.key, o.value, box.checked, all); update(); });
-        return el('label', { class: 'sf-check' }, box, el('span', { class: 'sf-check-text' }, f.format ? f.format(o.value) : o.value),
-          el('span', { class: 'sf-n' }, String(o.count)));
+        return el('label', { class: 'fd-check' }, box, el('span', { class: 'fd-check-text' }, f.format ? f.format(o.value) : o.value),
+          el('span', { class: 'fd-n' }, String(o.count)));
       };
       const group = (f) => {
         const list = counts[f.key] || [], all = list.map((o) => o.value), filtered = !!(st.facets && st.facets[f.key]);
-        const reset = filtered ? el('button', { type: 'button', class: 'sf-link', onclick: () => {
+        const reset = filtered ? el('button', { type: 'button', class: 'fd-link', onclick: () => {
           const facets = { ...st.facets }; delete facets[f.key]; st = { ...st, facets }; update(); } }, 'All') : null;
-        return el('fieldset', { class: 'sf-facet' }, el('legend', null, f.label, reset ? ' ' : null, reset),
-          el('div', { class: 'sf-checks' }, list.map((o) => check(f, all, o))));
+        return el('fieldset', { class: 'fd-facet' }, el('legend', null, f.label, reset ? ' ' : null, reset),
+          el('div', { class: 'fd-checks' }, list.map((o) => check(f, all, o))));
       };
       facetBox.replaceChildren(...spec.facets.map(group));
       if (opts.facetsCollapsed) facetWrap.open = M.isFiltered(st) || facetWrap.open;
@@ -123,9 +123,9 @@
     function paintChips() {
       const list = M.chips(st, spec);
       chipBox.hidden = !list.length;
-      chipBox.replaceChildren(...list.map((c) => el('button', { type: 'button', class: 'sf-chip', 'aria-label': 'Remove ' + c.label,
+      chipBox.replaceChildren(...list.map((c) => el('button', { type: 'button', class: 'fd-chip', 'aria-label': 'Remove ' + c.label,
         onclick: () => { st = c.kind === 'q' ? { ...st, q: '' } : M.removeFacet(st, c.key, c.value); if (c.kind === 'q') search.value = ''; update(); } },
-      c.label, el('span', { 'aria-hidden': 'true' }, ' ×'))), list.length ? el('button', { type: 'button', class: 'sf-link', onclick: () => clear() }, 'Clear all') : null);
+      c.label, el('span', { 'aria-hidden': 'true' }, ' ×'))), list.length ? el('button', { type: 'button', class: 'fd-link', onclick: () => clear() }, 'Clear all') : null);
     }
     function paintResults() {
       if (opts.resultsWhen === 'filtered' && !M.isFiltered(st) && st.view === 'cards') { results.hidden = true; return; }
@@ -136,16 +136,16 @@
           const label = on ? (st.sort.dir === 'desc' ? 'descending' : 'ascending') : 'not sorted';
           if (c.sortable === false) return el('th', { scope: 'col' }, c.label);
           return el('th', { scope: 'col', 'aria-sort': on ? (st.sort.dir === 'desc' ? 'descending' : 'ascending') : 'none' },
-            el('button', { type: 'button', class: 'sf-sort', 'aria-label': `${c.label}, ${label}`,
+            el('button', { type: 'button', class: 'fd-sort', 'aria-label': `${c.label}, ${label}`,
               onclick: () => { st = { ...st, sort: M.nextSort(st.sort, c.key) }; update(); } }, c.label, el('span', { 'aria-hidden': 'true' }, on ? (st.sort.dir === 'desc' ? ' ↓' : ' ↑') : '')));
         });
         const rows = shown.map((it) => el('tr', null, spec.columns.map((c) => el('td', { 'data-col': c.key }, c.render ? c.render(it) : String(c.get(it) ?? '')))));
-        results.replaceChildren(el('div', { class: 'sf-tablewrap' }, el('table', { class: 'sf-table' },
+        results.replaceChildren(el('div', { class: 'fd-tablewrap' }, el('table', { class: 'fd-table' },
           el('thead', null, el('tr', null, head)), el('tbody', null, rows))));
       } else if (st.view === 'list') {
-        results.replaceChildren(el('div', { class: 'sf-list' }, shown.map((it) => opts.row(it))));
+        results.replaceChildren(el('div', { class: 'fd-list' }, shown.map((it) => opts.row(it))));
       } else {
-        results.replaceChildren(el('div', { class: 'sf-cards' }, shown.map((it) => opts.card(it))));
+        results.replaceChildren(el('div', { class: 'fd-cards' }, shown.map((it) => opts.card(it))));
       }
     }
     function update() {
@@ -155,7 +155,7 @@
       paintFacets(M.facetCounts(items, st, spec));
       paintChips();
       paintSuggest();
-      for (const b of views) b.setAttribute('aria-pressed', String(b.dataset.sfView === st.view)), b.classList.toggle('is-on', b.dataset.sfView === st.view);
+      for (const b of views) b.setAttribute('aria-pressed', String(b.dataset.fdView === st.view)), b.classList.toggle('is-on', b.dataset.fdView === st.view);
       count.textContent = M.isFiltered(st) ? `${matched.length} of ${items.length} ${noun(items.length)} match` : `${items.length} ${noun(items.length)}`;
       empty.hidden = matched.length > 0;
       paintResults();

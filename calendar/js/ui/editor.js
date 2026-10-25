@@ -1,6 +1,7 @@
-// The event editor: a SlopUI dialog for a new or existing event. It shows the time in the viewer's zone and in the event's
-// own zone as you type, links a CRM customer and a call, meeting or event kind, and sets the repeat and the reminder.
-// Saving validates first, and a bad form keeps the dialog open. Exposes window.SlopCal.editor.
+// The event editor: a new or existing event, in the calendar's right panel (ui/panel.js: edit(); a bottom sheet on a
+// phone), Cancel, Delete and Save at its foot. It shows the time in the viewer's zone and in the event's own zone as you
+// type, links a CRM customer and a call, meeting or event kind, and sets the repeat and the reminder. Saving validates
+// first, and a bad form stays open. Escape cancels. Exposes window.SlopCal.editor.
 (function (g) {
   'use strict';
   const S = g.SlopData, T = g.SlopTime, UI = g.SlopUI, el = UI.el;
@@ -68,6 +69,8 @@
     });
     body.querySelector('#evNotes').value = f.notes || '';
     refresh();
+    let h = null;
+    const close = () => { if (h) h.close(); };
     const save = async () => {
       read();
       const res = g.SlopEvents.fromForm(f, opts.event || null);
@@ -75,6 +78,7 @@
       const r = await g.SlopEvents.save(res.value);
       if (!r.ok) { UI.toast(r.message || 'Could not save the event.'); return false; }
       if (opts.onSaved) opts.onSaved(r.value);
+      close();
       return true;
     };
     const remove = async () => {
@@ -84,13 +88,17 @@
       const r = await g.SlopEvents.remove(opts.event.id);
       if (!r.ok) { UI.toast(r.message); return false; }
       if (opts.onRemoved) opts.onRemoved(opts.event.id);
+      close();
       return true;
     };
-    const buttons = [{ label: 'Cancel' }];
-    if (opts.event) buttons.push({ label: 'Delete', danger: true, act: remove });
-    buttons.push({ label: 'Save', primary: true, act: async () => (await save()) ? undefined : false });
-    const d = UI.dialog({ title: opts.event ? 'Edit event' : 'New event', body, buttons, cls: 'ev-dlg', dismissable: true });
-    return d;
+    const buttons = [{ label: 'Cancel', run: close }];
+    if (opts.event) buttons.push({ label: 'Delete', run: remove });
+    buttons.push({ label: 'Save', primary: true, run: save });
+    body.addEventListener('keydown', (e) => { if (e.key === 'Escape') { e.preventDefault(); close(); } });
+    body.addEventListener('submit', (e) => { e.preventDefault(); save(); });
+    h = NS.panel.edit({ title: opts.event ? 'Edit event' : 'New event', body, buttons });
+    setTimeout(() => { if (titleInput.isConnected) titleInput.focus({ preventScroll: true }); }, 40);
+    return h;
   }
 
   /** A new event's defaults: the day and time asked for, an hour long, in the viewer's zone. */

@@ -472,6 +472,23 @@ file stays self-contained; the guard/backup cannot work from file:// anyway.
   Remove, screen canvas and saved rendering with no bar, old text not extractable, undo, edit-log replay, text over a
   gradient image, text in a form covered in the paper colour with the canvas unreadable).
 
+## The selection bar in every mode (`editor/sel-bar.js`, `sel-annot.js`, `css/selbar.css`)
+- One bar for whatever is selected in page view, in Select and in Edit text (Lines or Paragraphs). Text: Highlight,
+  Underline, Strikethrough, Colour, Copy, Comment, Edit text, Remove, Redact, Replace, Find (`sel-actions.js`). A selected
+  annotation (not locked, not being typed in): Edit (text box, callout, step, paragraph), Colour (the type's own colour:
+  `color`, or `fill` for boxes, whiteouts and steps), Opacity (100/75/50/25%), Comment (the composer at its top-right),
+  Duplicate, Delete (the old floating `.sel-del` button is gone; Del still deletes). All through the editor's commands
+  (`Ed.setProp`, `Ed.duplicateSelected`, `Ed.deleteSelected`), one undo step each. The bar follows every repaint of the
+  selection (it wraps `S.drawSelection`), sits above the selection or below it near the top, stays above the on-screen
+  keyboard (`SlopKeyboard.visible()`, the `slopkeyboard` event), and wraps its annotation row on a phone. Tab moves
+  into it, Escape puts it away (for an annotation until another one is selected).
+- Edit text ▸ Lines (`pointer.js S.textPress`): a press on page text that stays put opens the line on release; a drag
+  selects the text it crosses and a long press the word (the selection is made with `caretRangeFromPoint` and
+  `setBaseAndExtent`, the browser's own drag selection being held off), and the bar shows; its marks keep Edit text on.
+  The bar's Edit text opens the line at once from any mode (Edit text comes on), or in Paragraphs mode the paragraph
+  under the selection (`S.para.selectBlocks` + `edit`).
+- Tests: `tests/pdf/actions.test.html` (`pdf.spec-actions.js`).
+
 ## Fonts (`ui/fonts.js`, the shared panel)
 - File ▸ Fonts…, the top-bar "Aa" button and the command palette ("Fonts…"). It opens the shared Fonts panel
   (`shared/fonts/panel.js`, `SlopFonts.openPanel`) and can be reopened at any time.

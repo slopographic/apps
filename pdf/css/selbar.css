@@ -1,4 +1,4 @@
-/* Slop PDF — the text selection bar (editor/sel-bar.js). Colours are the shared --sl-* tokens with fallbacks. The bar is
+/* Slop PDF — the selection bar, for text and for annotations (editor/sel-bar.js). Colours are the shared --sl-* tokens with fallbacks. The bar is
    fixed to the viewport; its row scrolls sideways on a phone, and the colour popover sits outside that scroll area. */
 .selbar { position: fixed; left: 0; top: 0; z-index: 60; box-sizing: border-box; max-width: calc(100vw - 16px); padding: 4px; border-radius: 10px; background: var(--sl-surface, #1d1d21); color: var(--sl-text, #f2f2f2); border: 1px solid var(--sl-border, #3a3a41); box-shadow: 0 8px 26px rgba(0, 0, 0, .38); font: 13px/1.2 system-ui, sans-serif; }
 .selbar[hidden], .selbar-pop[hidden] { display: none; }
@@ -14,4 +14,8 @@
 .selbar.pop-below .selbar-pop { top: auto; bottom: calc(100% + 6px); }
 .selbar-sw { width: 26px; height: 26px; padding: 0; border-radius: 50%; border: 2px solid var(--sl-border, #3a3a41); cursor: pointer; }
 .selbar-sw[aria-pressed="true"] { border-color: var(--sl-text, #f2f2f2); box-shadow: 0 0 0 2px var(--sl-surface, #1d1d21) inset; }
+.selbar-btn.is-danger { color: var(--danger, #ff5a6e); } /* the theme's danger text: 4.5:1 on the bar in each theme */
+.selbar-row[hidden], .selbar-btn[hidden] { display: none; }
+.selbar-op { height: 30px; padding: 0 10px; border: 1px solid var(--sl-border, #3a3a41); }
+@media (max-width: 480px) { .selbar-row.is-annot { flex-wrap: wrap; } }
 @media (max-width: 900px) { .selbar-btn { padding: 0 7px; } }
