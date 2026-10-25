@@ -144,7 +144,8 @@
     tours.setAttribute('aria-haspopup', 'dialog');
     dlg.addEventListener('close', () => { if (opener) opener.focus(); opener = null; });
     document.body.append(dlg);
-    nav.append(tours);
+    const slot = nav.querySelector('.stour-slot');   // room kept for it in the page's own HTML, so nothing moves
+    if (slot) slot.replaceWith(tours); else nav.append(tours);
   }
   function init() {
     if (HOME) { homeMenu(); return; }

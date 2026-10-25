@@ -16,7 +16,7 @@
   if (win.SlopPWA) return; // loaded twice (theme.js adds it for ?fresh): the first copy serves
   const NAV = win.navigator;
   const KEY = 'slop-pwa.persist';
-  const STYLE = '.pwa-install{font-size:12px;padding:6px 10px;white-space:nowrap}.pwa-install[hidden]{display:none!important}';
+  const STYLE = '.pwa-install:not(.slop-hbtn){font-size:12px;padding:6px 10px;white-space:nowrap}.pwa-install[hidden]{display:none!important}';
   const MESSAGES = {
     granted: 'Kept by the browser. It has agreed to keep Slop Drive, so it will not be cleared to free up space. Clearing this site’s data would still delete your files.',
     denied: 'The browser has not promised to keep Slop Drive. It may still clear it when space runs low. Export a copy with Backup & restore to be safe.',

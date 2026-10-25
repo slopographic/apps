@@ -162,6 +162,8 @@ p { margin: 0 0 12px; }
 .l-doc table.cmp .m-unknown { color: var(--bone-faint); font-style: italic; }
 .l-doc table.matrix td { white-space: nowrap; }
 
+/* under 560px the header buttons are icons of shared/ui/hbtn.css's phone height: the slot takes it too, so nothing moves */
+@media (max-width: 560px) { .sh-hdr-slot { block-size: var(--slop-hbtn-h, 30px); } }
 /* phones: the matrix turns into one card per feature. Headers stay in the DOM for screen readers. */
 @media (max-width: 640px) {
   .l-hero { padding-top: 36px; }

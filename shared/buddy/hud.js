@@ -13,7 +13,7 @@ import { size } from './look.js';
 const IDLE_MS = 6000, TOG = 40, GAP = 8;
 const PHONE = matchMedia('(max-width: 600px)');
 let hud = null, tog = null, panel = null, lv = null;
-let idleT = 0, hovered = false, focused = false, wasOpen = false, lastX = NaN, lastY = NaN;
+let idleT = 0, hovered = false, focused = false, wasOpen = false, lastX = NaN, lastY = NaN, lastSheet = false;
 
 export function mountHud({ onUnleash, onRestore, on3d, onAsk }) {
   hud = document.createElement('div');
@@ -129,10 +129,14 @@ export function placeHud() {
   const away = M.y < scrollY || M.y - s * 1.2 > scrollY + innerHeight;
   const cx = clamp(M.x - scrollX + s * 0.62 + 6, 4, innerWidth - TOG - 4);
   const cy = clamp(M.y - scrollY - s * 0.9, 4, innerHeight - TOG - 4);
-  if (cx !== lastX || cy !== lastY) {
-    lastX = cx; lastY = cy;
-    hud.style.left = cx + 'px';
-    hud.style.top = cy + 'px';
+  // Moved with a transform, which the page's layout-shift score (CLS) does not count: left and top made every frame of
+  // his fall a shift. Only the phone's open sheet needs left and top (a transform would pin its fixed card to the HUD).
+  const sheet = !!M.hudOpen && PHONE.matches;
+  if (cx !== lastX || cy !== lastY || sheet !== lastSheet) {
+    lastX = cx; lastY = cy; lastSheet = sheet;
+    hud.style.transform = sheet ? '' : `translate(${cx}px, ${cy}px)`;
+    hud.style.left = sheet ? cx + 'px' : '';
+    hud.style.top = sheet ? cy + 'px' : '';
   }
   hud.classList.toggle('is-away', away);
   if (M.hudOpen && !PHONE.matches) {
