@@ -451,6 +451,16 @@ file stays self-contained; the guard/backup cannot work from file:// anyway.
   white: that was the white bar on the beige sample) or the page is not rendered, the colour the content paints there
   (`core/content-fills.js`: the last filled rectangle under the box, followed into forms; an image, shading, pattern or
   curved shape there is not flat → white). Replace all and the selection box's lift still use covers (with that colour).
+- **The new text's colour** (Lines, Paragraphs, Replace: `S.textInk` in `edit-colours.js`) is the colour the content
+  painted the old text in (`core/content-ink.js`: fill colour, or stroke for stroked-only text, through q/Q and Form
+  XObjects; DeviceGray/RGB/CMYK, ICCBased as its alternate, Indexed, Separation and one-ink DeviceN with an exponential
+  tint; CMYK converted as pdf.js draws it), read from the page's resources by `core/content-res.js` before the content is
+  rewritten. Else the median of the glyph pixels on the rendered page (not the paper), else black or white with at least
+  4.5:1 on the paper. The editor shows its text in that colour; its field is the paper unless the ink reads under 3:1 on
+  it (`S.fieldColour`: black or white then). Tests: `tests/node/pdf-content-ink.test.mjs`, `tests/pdf/ink.test.html`
+  (white on near-black, pink on beige, CMYK, grey, in a form, canvas reads blocked, Paragraphs and Replace; the saved
+  text's fill read back from pdf.js's operator list equals the original's). Not done: the Replace text macro (pdf-lib
+  path) still draws black; Lab, DeviceN with several inks and sampled/PostScript tint transforms give no content colour.
 - **Edit log**: a derived file is replayable: the log keeps its recipe (`rec.derived`) and replay makes it again
   (`S.strip.build` with the same id) before applying the steps; a step whose copy cannot be made ends the replay there.
   The status bar counts a derived copy as its file. A paragraph selected and left unchanged lets its copy go

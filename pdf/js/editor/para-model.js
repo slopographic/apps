@@ -94,10 +94,12 @@
     }
     var gaps = [];
     for (var k = 1; k < bs.length; k++) gaps.push(bs[k].base - bs[k - 1].lines[bs[k - 1].lines.length - 1].base - b0.lh);
-    var targets = runs.map(function (r) { return S.strip.targetOfRun(r); }), took = await S.strip.take(p, targets);
+    var targets = runs.map(function (r) { return S.strip.targetOfRun(r); });
+    await S.strip.ready(p); // the content's colours, read before the old lines leave it
+    var took = await S.strip.take(p, targets);
     var s = S.slots.get(p.id), box = lineBox(l0), paper = S.paperColour(s, box, took.paper[0]);
     var a = {
-      id: U.uid('a'), type: 'para', rot: 0, opacity: 1, color: s ? S.inkColour(s, box, paper) : '#000000', paper: S.hex(paper),
+      id: U.uid('a'), type: 'para', rot: 0, opacity: 1, color: S.textInk(p, s, targets, box, paper), paper: S.hex(paper),
       fs: fs, lh: b0.lh, asc: l0.base - top, align: align, rtl: rtl, first: first, rest: rest,
       pgap: gaps.length ? Math.max(0, gaps.reduce(function (q, v) { return q + v; }, 0) / gaps.length) : 0,
       styles: sty.styles, paras: paras, cx: x + w / 2, cy: top + 1, w: w, h: 2
