@@ -16,7 +16,7 @@
     ['paste', 'Slop Paste'], ['resize', 'Slop Resize'], ['upscale', 'Slop Upscale'], ['aitools', 'Slop AI Tools'],
     ['3d', 'Slop 3D'], ['img3d', 'Slop Image to 3D'], ['effects', 'Slop Effects'], ['docs', 'Slop Docs'],
     ['slides', 'Slop Slides'], ['tables', 'Slop Tables'], ['label', 'Slop Label'], ['gallery', 'Slop Gallery'],
-    ['hex', 'Slop Hex'], ['code', 'Slop Code'],
+    ['hex', 'Slop Hex'], ['code', 'Slop Code'], ['fontcreator', 'Slop Font'],
   ];
   const NAME = Object.fromEntries(TOURS);
   let loading = null;

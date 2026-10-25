@@ -101,6 +101,8 @@ export const APPS = {
     description: 'QR codes for text, links, email, Wi-Fi, contacts, locations and events. Download SVG or PNG, with transparency if you need it. Nothing is uploaded.' },
   colors: { title: 'Slop Colors: colour picker, palettes and contrast | Slopographic', category: 'DesignApplication',
     description: 'Pick colours from any picture, find its main colours, make palettes and harmonies, check WCAG contrast and export CSS, Tailwind, ASE or GPL. Nothing uploaded.' },
+  fontcreator: { title: 'Slop Font: make your own font in the browser | Slopographic', category: 'DesignApplication',
+    description: 'Draw a font, trace your handwriting or edit a TTF, OTF or WOFF2. Pen, shapes, kerning and a type test; export TTF, OTF, WOFF2 and CSS. Nothing uploaded.' },
   workflows: { title: 'Slop Workflows: batch workflows across apps | Slopographic', category: 'UtilitiesApplication',
     description: 'Chain apps into one workflow for a batch of files: remove backgrounds, watermark, resize, convert, compress and zip. Runs on your device, no upload.' },
   convert: { title: 'File convert: image, PDF and data converter | Slopographic', category: 'UtilitiesApplication',

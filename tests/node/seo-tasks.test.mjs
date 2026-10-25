@@ -8,6 +8,7 @@
 //   shared/seo/tasks/finance.mjs, shared/seo/tasks/raw.mjs
 //   shared/seo/tasks/recorder.mjs
 // Covers: shared/seo/tasks/colors.mjs
+// Covers: shared/seo/tasks/fontcreator.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';

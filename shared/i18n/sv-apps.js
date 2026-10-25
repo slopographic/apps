@@ -51,6 +51,7 @@
     ['signature', 'E-postsignatur', 'En e-postsignatur för Gmail, Outlook eller Apple Mail.'],
     ['qr', 'QR-koder', 'QR-koder för länkar, wifi, kontakter och mer.'],
     ['colors', 'Färger', 'Plocka färger, skapa paletter och kontrollera kontrast.'],
+    ['fontcreator', 'Typsnittsverktyg', 'Skapa ett eget typsnitt: rita, spåra din handstil eller redigera ett typsnitt.'],
     ['workflows', 'Arbetsflöden', 'Koppla ihop appar till ett arbetsflöde för många filer.'],
     ['convert', 'Filkonverterare', 'Bilder, PDF:er, data och text, konverterade på din enhet.'],
     ['calculator', 'Miniräknare', 'Miniräknare med pappersremsa, enheter, valuta och datum.'],

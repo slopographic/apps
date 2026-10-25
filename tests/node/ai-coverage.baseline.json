@@ -395,6 +395,15 @@
   "snapshot": "page",
   "driven": true
  },
+ "fontcreator": {
+  "create": true,
+  "add": true,
+  "edit": true,
+  "export": true,
+  "state": "app",
+  "snapshot": "page",
+  "driven": true
+ },
  "workflows": {
   "create": true,
   "add": true,
