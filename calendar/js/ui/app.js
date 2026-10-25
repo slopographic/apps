@@ -82,6 +82,7 @@
     $('cSplit').hidden = view !== 'split';
     $('cSplit').value = state.pair.key;
     $('cTasks').checked = state.showTasks;
+    if (NS.panel) NS.panel.paint(ctx, state.anchor);   // the day, the choices and New event on the right (ui/panel.js)
     $('cNote').textContent = `Times are in ${state.zone}${T.zoneLabel(Date.now(), state.zone) ? ` (${T.zoneLabel(Date.now(), state.zone)})` : ''}. Events show their own zone too.`;
   }
   const refreshSoon = () => { clearTimeout(timer); timer = setTimeout(render, 40); };
@@ -172,6 +173,7 @@
     state.anchor = T.todayIn(state.zone);
     fillZones();
     wire();
+    if (NS.panel) NS.panel.mount();
     NS.commands.init();
     S.store.subscribe(() => refreshSoon());
     if (g.SlopReminderEngine) g.SlopReminderEngine.start();
