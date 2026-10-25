@@ -65,6 +65,12 @@
   conversions), scrolled by CSS, paused on hover and under reduced motion. Run `node tools/seo/write.mjs` after
   changing the registry (tests/node/home-marquee.test.mjs fails when index.html is stale).
 
+## Live regions
+- `[data-live]` marks a region that changes on its own after load: the globe's layer (`.gx-layer`, added by globe.js,
+  turning every frame) and its keyboard list (`.gx-nav`, filled when the globe starts). The globe keeps all of its
+  changing state inside them and never touches the hero's own attributes. Page snapshots leave them out: the Unleash
+  and Restore checks in tests/home/chaos.test.html compare `main` without `[data-live]`, with the globe turning.
+
 ## Perches
 Sloppo stands on the top edges of `[data-perch]` elements: the ledge at the bottom right of the hero, the shelf headings,
 every card (`data-perch="card"`, which chaos may bite, knock or blast), the status board and the footer wordmark.
