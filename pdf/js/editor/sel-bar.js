@@ -1,12 +1,17 @@
-/* Slop PDF — the text selection bar: a floating row of actions beside a text selection in page view. Highlight, Underline,
-   Strikethrough, Copy, Comment, Edit text, Colour (a popover), Remove, Redact, Replace and Find. It is placed from the selection's
-   box on screen: above it, below when there is no room above, kept inside the viewport, and hidden when the selection
-   scrolls out of the viewer or is cleared. Keyboard: Tab from the selection moves into the bar, Escape dismisses it and
-   returns focus to the page. The actions are in sel-actions.js, the snapshot in sel-track.js, the styles in css/selbar.css. */
+/* Slop PDF — the selection bar: one floating row of actions beside what is selected in page view, in every mode (Select and
+   Edit text, Lines or Paragraphs). For selected text: Highlight, Underline, Strikethrough, Colour (a popover), Copy,
+   Comment, Edit text, Remove, Redact, Replace and Find (sel-actions.js, on the snapshot of sel-track.js). For a selected
+   annotation: Edit (text boxes, callouts, steps, paragraphs), Colour, Opacity (popovers), Comment, Duplicate and Delete
+   (sel-annot.js; Del still deletes). It is placed from the selection's box on screen: above it, below when there is no
+   room above (near the top edge), kept inside the viewport and above the on-screen keyboard (SlopKeyboard), and hidden
+   when the selection scrolls out of the viewer or is cleared. Keyboard: Tab from the selection moves into the bar, Escape
+   dismisses it and returns focus to the page. Styles: css/selbar.css. */
 (function () {
   'use strict';
-  var SP = window.SP, U = SP.util, Ed = SP.editor, S = Ed._, T = S.sel, A = S.selAct;
+  var SP = window.SP, U = SP.util, Ed = SP.editor, S = Ed._, T = S.sel, A = S.selAct, N = S.annotAct;
   var h = U.h, bar = null, row = null, pop = null, colBtn = null, dot = null, popOpen = false, raf = 0;
+  var arow = null, abtns = {}, adot = null, apop = null, opop = null, mode = null; // the annotation row and its popovers
+  var OPACITY = [[1, '100%'], [0.75, '75%'], [0.5, '50%'], [0.25, '25%']];
   var MARKS = ['highlight', 'underline', 'strike'], markBtns = {}, markSeq = 0; // markSeq: the token of the newest markState
   var COLOURS = [['#ffe14d', 'Yellow'], ['#34c759', 'Green'], ['#0a84ff', 'Blue'], ['#ff2d92', 'Pink'], ['#ff9500', 'Orange'], ['#e0102f', 'Red'], ['#111111', 'Black']];
   // [id, label, action or null for the colour button, group] in the order shown
@@ -53,7 +58,8 @@
         sw.addEventListener('click', function () { pick(c[0]); });
         return sw;
       }));
-    bar.append(row, pop);
+    buildAnnot();
+    bar.append(row, arow, pop, apop, opop);
     // a press on the bar keeps the text selection (the actions need it); inputs in the bar still take focus
     bar.addEventListener('mousedown', function (e) { if (!e.target.closest('input, textarea')) e.preventDefault(); }); // touch-ok: only keeps the focus (browsers send it after a tap too)
     bar.addEventListener('keydown', function (e) {
@@ -68,24 +74,84 @@
     document.addEventListener('scroll', function () { T.rebox(); again(); }, true);
   }
 
+  /** The annotation row: Edit, Colour, Opacity | Comment, Duplicate | Delete, and its two popovers. */
+  function buildAnnot() {
+    var b = function (id, label, fn, extra) {
+      var el = h('button', Object.assign({ type: 'button', class: 'selbar-btn', 'data-act': id, 'aria-label': label, title: label }, extra || {}), label);
+      if (fn) el.addEventListener('click', function () { run(fn); });
+      return (abtns[id] = el);
+    };
+    adot = h('span', { class: 'selbar-dot', 'aria-hidden': 'true' });
+    var ac = b('a-colour', 'Colour', null, { 'aria-haspopup': 'dialog', 'aria-expanded': 'false' }); ac.prepend(adot);
+    var ao = b('a-opacity', 'Opacity', null, { 'aria-haspopup': 'dialog', 'aria-expanded': 'false' });
+    ac.addEventListener('click', function () { toggle(apop, ac); });
+    ao.addEventListener('click', function () { toggle(opop, ao); });
+    var sep = function () { return h('span', { class: 'selbar-sep', 'aria-hidden': 'true' }); };
+    arow = h('div', { class: 'selbar-row is-annot', hidden: true },
+      b('a-edit', 'Edit', function () { return N.edit(); }), ac, ao, sep(),
+      b('a-comment', 'Comment', function () { return N.comment(); }), b('a-duplicate', 'Duplicate', function () { return N.duplicate(); }), sep(),
+      b('a-delete', 'Delete', function () { return N.remove(); }, { title: 'Delete (Del)', 'aria-keyshortcuts': 'Delete' }));
+    abtns['a-delete'].classList.add('is-danger');
+    apop = h('div', { class: 'selbar-pop', role: 'dialog', 'aria-label': 'Colour', hidden: true }, COLOURS.map(function (c) {
+      var sw = h('button', { type: 'button', class: 'selbar-sw', 'aria-label': c[1], title: c[1], 'data-colour': c[0], 'aria-pressed': 'false' });
+      sw.style.background = c[0];
+      sw.addEventListener('click', function () { closePop(false); run(function () { return N.setColour(c[0]); }); });
+      return sw;
+    }));
+    opop = h('div', { class: 'selbar-pop', role: 'dialog', 'aria-label': 'Opacity', hidden: true }, OPACITY.map(function (o) {
+      var ob = h('button', { type: 'button', class: 'selbar-btn selbar-op', 'data-opacity': String(o[0]), 'aria-pressed': 'false' }, o[1]);
+      ob.addEventListener('click', function () { closePop(false); run(function () { return N.setOpacity(o[0]); }); });
+      return ob;
+    }));
+  }
+  /** Opens one of the annotation popovers (closing the other), or closes it. */
+  function toggle(p, btn) {
+    var open = p.hidden;
+    closePop(false);
+    if (!open) return;
+    popOpen = true; p.hidden = false; btn.setAttribute('aria-expanded', 'true');
+    var a = N.target();
+    if (a) p.querySelectorAll('[aria-pressed]').forEach(function (x) { x.setAttribute('aria-pressed', String(x.dataset.colour ? x.dataset.colour === N.colour(a) : +x.dataset.opacity === N.opacity(a))); });
+    var cur = p.querySelector('[aria-pressed="true"]') || p.querySelector('button'); if (cur) cur.focus();
+  }
+  /** Shows the annotation row for the selected annotation: its buttons fit its type. */
+  function annotRow(a) {
+    abtns['a-edit'].hidden = !N.canEdit(a);
+    abtns['a-colour'].hidden = !N.colourKey(a);
+    abtns['a-opacity'].hidden = !N.canOpacity(a);
+    adot.style.background = N.colour(a);
+    bar.setAttribute('aria-label', 'Selected ' + N.name(a).toLowerCase());
+  }
+
   /** Tab from a selection moves into the bar; Escape anywhere with the bar up dismisses it. */
   function onDocKey(e) {
     if (!bar || bar.hidden || bar.contains(e.target) || editable(e.target)) return;
     if (e.key === 'Tab' && !e.shiftKey) {
-      var first = row.querySelector('button');
+      var first = (mode === 'annot' ? arow : row).querySelector('button:not([hidden])');
       if (first) { e.preventDefault(); first.focus(); }
     } else if (e.key === 'Escape') { T.dismiss(); }
   }
   /** Leaves the bar: the selection stays, the bar hides until the selection changes, and focus goes back to the page. */
   function leave() {
     if (bar.contains(document.activeElement)) document.activeElement.blur();
+    if (mode === 'annot') { dismissed = Ed.selId; render(); return; }
     T.dismiss();
   }
+  var dismissed = null; // the annotation whose bar Escape put away (it comes back when another one is selected)
 
-  /** Shows the bar for the current snapshot, or hides it. Runs on every selection change (sel-track.js). */
+  /** Shows the bar for what is selected, or hides it: a selected annotation first, else the text selection. Runs on every
+      selection change (sel-track.js) and every repaint of the selection (view.js drawSelection). */
   function render() {
-    if (!bar) { if (!T.shown()) return; build(); }
-    if (!T.shown()) { closePop(false); bar.hidden = true; markSeq++; setPressed(null); return; }
+    var a = N && Ed.selId && Ed.selId !== dismissed ? N.target() : null;
+    if (Ed.selId !== dismissed) dismissed = null;
+    var next = a ? 'annot' : T.shown() ? 'text' : null;
+    if (!bar) { if (!next) return; build(); }
+    if (next !== mode) closePop(false);
+    mode = next;
+    if (!next) { bar.hidden = true; markSeq++; setPressed(null); return; }
+    row.hidden = next !== 'text'; arow.hidden = next !== 'annot';
+    if (next === 'annot') { annotRow(a); place(); return; }
+    bar.setAttribute('aria-label', 'Selected text');
     colour();
     place();
     markState();
@@ -108,12 +174,15 @@
   }
   /** Puts the bar above the selection, below it when there is no room above, inside the viewport. */
   function place() {
-    if (!bar || !T.snap || !T.shown()) return;
-    var b = T.snap.box, vr = S.viewer ? S.viewer.getBoundingClientRect() : { top: 0, bottom: innerHeight };
+    if (!bar || !mode) return;
+    var b = mode === 'annot' ? N.box() : T.snap && T.snap.box, vr = S.viewer ? S.viewer.getBoundingClientRect() : { top: 0, bottom: innerHeight };
+    if (!b) { bar.hidden = true; return; }
     if (b.bottom < vr.top || b.top > vr.bottom) { bar.hidden = true; return; } // the selection is scrolled out of view
     bar.hidden = false;
     bar.style.left = '0px'; bar.style.top = '0px';
-    var w = bar.offsetWidth, ht = bar.offsetHeight, vw = innerWidth, vh = innerHeight, M = 8, GAP = 10;
+    // above the on-screen keyboard: its top is the bottom of the space the bar may use
+    var kb = window.SlopKeyboard && SlopKeyboard.height() ? SlopKeyboard.visible() : null;
+    var w = bar.offsetWidth, ht = bar.offsetHeight, vw = innerWidth, vh = kb ? Math.min(innerHeight, kb.bottom) : innerHeight, M = 8, GAP = 10;
     var x = U.clamp(b.left + (b.right - b.left) / 2 - w / 2, M, Math.max(M, vw - w - M));
     var above = b.top - ht - GAP, below = b.bottom + GAP, y;
     if (above >= M) y = above;
@@ -133,6 +202,8 @@
   function closePop(focusBtn) {
     if (!pop) return;
     popOpen = false; pop.hidden = true; if (colBtn) colBtn.setAttribute('aria-expanded', 'false');
+    [apop, opop].forEach(function (p) { if (p) p.hidden = true; });
+    ['a-colour', 'a-opacity'].forEach(function (k) { if (abtns[k]) abtns[k].setAttribute('aria-expanded', 'false'); });
     if (focusBtn && colBtn) colBtn.focus();
   }
   /** A swatch: the colour is used by the next markup, and existing markup under the selection takes it. */
@@ -142,5 +213,9 @@
   }
 
   T.onChange(render);
-  window.SlopSelBar = { place: place, leave: leave, isOpen: function () { return !!bar && !bar.hidden; } };
+  // every repaint of the selection (a selected annotation, its move, the page or zoom changing) places the bar again
+  var draw = S.drawSelection;
+  S.drawSelection = function () { var r = draw.apply(this, arguments); render(); return r; };
+  window.addEventListener('slopkeyboard', function () { if (bar && mode) place(); });
+  window.SlopSelBar = { place: place, leave: leave, update: render, mode: function () { return mode; }, isOpen: function () { return !!bar && !bar.hidden; } };
 })();
