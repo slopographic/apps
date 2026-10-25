@@ -49,7 +49,7 @@
     return ok;
   };
 
-  const typing = (t) => !!t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) && !/^(range|checkbox|radio|button|color)$/.test(t.type || ''));
+  const typing = (t) => (!!window.SlopTyping && window.SlopTyping.isTyping(t));   // shared/input/typing.js
   const overlayOpen = () => !!document.querySelector('.sui-menu, .sui-dlg, [role="dialog"][aria-modal="true"]');
 
   B.init = function () {

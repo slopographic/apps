@@ -106,7 +106,7 @@
     };
     win.addEventListener('keydown', function (e) {
       var k = e.key;
-      if (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+      if (!!window.SlopTyping && window.SlopTyping.isTyping(e, { controls: true })) return;   // shared/input/typing.js (this page's)
       if (['ArrowRight', 'ArrowDown', 'PageDown', ' ', 'Enter'].indexOf(k) >= 0) act.next();
       else if (['ArrowLeft', 'ArrowUp', 'PageUp', 'Backspace'].indexOf(k) >= 0) act.prev();
       else if (k === 'Home') act.first();

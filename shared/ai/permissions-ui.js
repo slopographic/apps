@@ -5,6 +5,9 @@
  *       Closing it (×, Escape) is Deny.
  *   renderSettings(box, { app, appName, onChange }) → the panel's "AI permissions": the mode (three choices, the last
  *       with a plain warning) and the remembered "always allow" rules, each with Remove.
+ *   modeControl() → a compact switch for the mode (a <select> with MODES' short labels) that the panel shows by the
+ *       message box, as Claude Code shows its permission mode. Choosing "Allow everything" shows its warning first
+ *       (Cancel keeps the mode); it follows a switch made anywhere else (the settings, another tab).
  * Styles are injected once (class names sap-perm-*), so any page with SlopUI can ask, not only the AI panel. */
 (function (g) {
   'use strict';
@@ -20,6 +23,8 @@
 .sap-perm label input { margin-top: 3px; }
 .sap-perm-warn { color: #ff8a98; font-size: 12px; margin: 0 0 0 24px; }
 .sap-perm-rules { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.sap-mode { max-width: 11.5em; height: 28px; font-size: 12px; padding: 0 4px; border-radius: 6px; border: 1px solid var(--p-line, #8884); background: var(--p-input, transparent); color: inherit; }
+.sap-mode.all { border-color: #ff8a98; }
 .sap-perm-rules li { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 12.5px; }`;
   function style() {
     if (document.getElementById('sap-perm-css')) return;
@@ -49,6 +54,25 @@
         ],
         onClose: () => resolve(choice) });
     });
+  };
+
+  P.modeControl = function () {
+    style();
+    const sel = el('select', { class: 'sap-mode', 'aria-label': 'AI permissions', title: 'What Slop AI may do without asking' },
+      P.MODES.map((m) => el('option', { value: m.id, title: m.note }, m.short || m.label)));
+    const sync = () => { sel.value = P.mode(); sel.classList.toggle('all', sel.value === 'all'); };
+    sel.addEventListener('change', async () => {
+      const m = P.MODES.find((x) => x.id === sel.value);
+      if (m && m.warning) {
+        const ok = g.SlopUI && g.SlopUI.confirm ? await g.SlopUI.confirm(m.label + '?', m.warning, m.label, { danger: true }) : g.confirm(m.warning);
+        if (!ok) return sync();
+      }
+      P.setMode(sel.value); sync();
+    });
+    g.addEventListener('slopaipermissions', sync);
+    g.addEventListener('storage', (e) => { if (!e.key || /^slop-ai\.permissions/.test(e.key)) sync(); });
+    sync();
+    return sel;
   };
 
   P.renderSettings = function (box, o = {}) {

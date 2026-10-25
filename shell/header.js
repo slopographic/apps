@@ -92,7 +92,7 @@
     b.innerHTML = ICON_CONVERT + '<span class="slop-hbtn-txt" data-i18n="shell.convert">Convert…</span>';
     b.addEventListener('click', openConvert);
     const C = window.SlopCmd;
-    if (C && C.register && !C.get('shell.convert')) {
+    if (C && C.register && C.get && !C.get('shell.convert')) {
       C.register([{ id: 'shell.convert', title: 'Convert files…', group: 'File', keywords: ['convert', 'export', 'format', 'pdf', 'png', 'docx', 'xlsx'], run: openConvert }]);
     }
     return b;
@@ -101,8 +101,8 @@
   /** AI: the Slop AI side panel (shared/ai/panel.js), loaded on the first click and never before, then opened beside the
    *  app (a bottom sheet on phones). Also "Ask Slop AI…" in the command palette. None on Slop AI itself. */
   let aiP = null;
-  function openAI() {
-    aiP = aiP || new Promise((res, rej) => {
+  function loadAI() {
+    return aiP = aiP || new Promise((res, rej) => {
       if (window.SlopAIPanel) return res();
       const s = document.createElement('script'), app = window.SlopShell.currentApp;
       s.src = new URL('shared/ai/panel.js', window.SlopShell.ROOT).href;
@@ -110,7 +110,14 @@
       s.onload = res; s.onerror = () => { aiP = null; rej(new Error('Slop AI is not available offline. Open the page online once.')); };
       document.head.append(s);
     });
-    return aiP.then(() => window.SlopAIPanel.toggle()).catch((e) => { if (window.SlopUI && window.SlopUI.toast) window.SlopUI.toast(e.message); });
+  }
+  function openAI() { return loadAI().then(() => window.SlopAIPanel.toggle()).catch((e) => { if (window.SlopUI && window.SlopUI.toast) window.SlopUI.toast(e.message); }); }
+  /** Slop AI was left open (on any app, this device: panel.js keeps 'slop-ai.open'): it opens again here, beside the app.
+   *  Not on a phone, where it is a bottom sheet over the page: there it waits for the AI button. */
+  function reopenAI() {
+    let on = false; try { on = localStorage.getItem('slop-ai.open') === '1'; } catch (e) { /* storage blocked */ }
+    if (!on || (window.matchMedia && matchMedia('(max-width: 640px)').matches)) return;
+    loadAI().then(() => { if (!window.SlopAIPanel.isOpen) window.SlopAIPanel.open({ auto: true }); }).catch(() => {});
   }
   function aiButton() {
     const app = window.SlopShell && window.SlopShell.currentApp;
@@ -126,9 +133,10 @@
     b.innerHTML = ICON_AI + '<span class="slop-hbtn-txt" data-i18n="shell.ai">AI</span>';
     b.addEventListener('click', openAI);
     const C = window.SlopCmd;
-    if (C && C.register && !C.get('shell.ai')) C.register([{ id: 'shell.ai', title: 'Ask Slop AI…', group: 'Help', keywords: ['ai', 'assistant', 'chat', 'llm', 'help'], run: openAI }]);
+    if (C && C.register && C.get && !C.get('shell.ai')) C.register([{ id: 'shell.ai', title: 'Ask Slop AI…', group: 'Help', keywords: ['ai', 'assistant', 'chat', 'llm', 'help'], run: openAI }]);
     // a request handed over from another app (shared/ai/handoff.js): open the panel so it continues here
-    try { const h = JSON.parse(sessionStorage.getItem('slop-ai.handoff') || 'null'); if (h && h.to === app.id && Date.now() - h.at < 6e5) setTimeout(openAI, 0); } catch (e) { /* no storage */ }
+    try { const h = JSON.parse(sessionStorage.getItem('slop-ai.handoff') || 'null'); if (h && h.to === app.id && Date.now() - h.at < 6e5) { setTimeout(openAI, 0); return b; } } catch (e) { /* no storage */ }
+    setTimeout(reopenAI, 0);
     return b;
   }
 

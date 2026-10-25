@@ -9,6 +9,7 @@ import { count } from './journal.js';
 import { cycleHat } from './levels.js';
 import { rageLevel } from './rage.js';
 import { size } from './look.js';
+import '../input/typing.js';   // window.SlopTyping: the H key is never taken from a field
 
 const IDLE_MS = 6000, TOG = 40, GAP = 8;
 const PHONE = matchMedia('(max-width: 600px)');
@@ -116,7 +117,7 @@ export function mountHud({ onUnleash, onRestore, on3d, onAsk }) {
 /** Open or close the card (M.hudOpen; every listener follows). */
 export function setOpen(v) { M.hudOpen = !!v; changed(); }
 
-function typing(t) { return !!t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)); }
+function typing(t) { return !!globalThis.SlopTyping && globalThis.SlopTyping.isTyping(t, { controls: true }); }   // shared/input/typing.js
 function restartIdle() { clearTimeout(idleT); idleT = setTimeout(fade, IDLE_MS); }
 function fade() { if (!hovered && !focused && !M.hudOpen) hud.classList.add('is-faded'); }
 function wake() { hud.classList.remove('is-faded'); restartIdle(); }

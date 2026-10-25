@@ -65,6 +65,8 @@
       let status = 'pass', message = '';
       window.__SLOPTEST_NOW__ = s.name + ' › ' + t.name;
       window.__SLOPTEST_DEADLINE__ = performance.now() + t.timeout * SCALE;   // tests/run.mjs: past this, the harness itself is stuck
+      // each test starts as a new device would, with Slop AI closed (shared/ai/panel.js remembers it for the next app)
+      try { localStorage.removeItem('slop-ai.open'); } catch (e) { /* storage blocked */ }
       try {
         // the test with its beforeEach and afterEach steps, all inside the test's time limit (a hook can hang too)
         const steps = async () => { for (const b of s.before) await b(); await t.fn(); for (const a of s.after) await a(); };

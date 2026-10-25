@@ -12,8 +12,7 @@
   window.addEventListener('keydown', (e) => {
     if (e.code !== 'Space' || e.repeat || e.ctrlKey || e.metaKey) return;
     if (window.SlopUI && SlopUI.openDialogs) return;
-    if (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName || '')) return;
-    if (e.target && e.target.isContentEditable) return;
+    if ((!!window.SlopTyping && window.SlopTyping.isTyping(e, { controls: true }))) return;   // shared/input/typing.js
     V.space = true; V.el.classList.add('space');
   }, true);
   SlopNav.attach(APP, {
