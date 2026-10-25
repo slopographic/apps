@@ -21,12 +21,18 @@
     var f = E.fileOfPage(p), key = f && p.f + ':' + p.i;
     if (!f || p.blank || !window.PDFLib) return Promise.resolve([]);
     if (!cache.has(key)) {
-      var pr = S.strip.load(f.bytes).then(function (doc) { var l = S.objRead(doc, p.i).list; pr.value = l; return l; })
+      var pr = docOf(f).then(function (doc) { var l = S.objRead(doc, p.i).list; pr.value = l; return l; })
         .catch(function (e) { console.warn('Slop PDF: page objects not read', e); pr.value = []; return []; });
       cache.set(key, pr);
     }
     return cache.get(key);
   };
+  /** The file read with pdf-lib once (only read here, never changed), the last few files kept. */
+  var docs = new Map();
+  function docOf(f) {
+    if (!docs.has(f.id)) { docs.set(f.id, S.strip.load(f.bytes)); if (docs.size > 4) docs.delete(docs.keys().next().value); }
+    return docs.get(f.id);
+  }
   O.list = function (p) { var pr = p && cache.get(p.f + ':' + p.i); return pr && pr.value ? pr.value : null; };
   /** user space → page space (the annotations' space: from the top-left of the page box, y down). */
   O.toPage = function (p) { var g = E.geom(p); return [1, 0, 0, -1, -g.x0, g.y0 + g.H]; };
