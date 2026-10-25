@@ -19,7 +19,7 @@
     boot: { file: 'pdf/js/io/build.js', name: 'SP.build.BOOT' },
     drop: ['shared/profile/profile.js', 'shared/theme/theme.js', 'shared/hub.js', 'shared/intake/outtake.js', 'shared/ops/entry.js', 'shared/drive-link.js', 'shared/spotlight/spotlight.js'],
     files: [
-    'shared/load/load.js', 'shared/ui/sheet.js', 'shared/ui/resize-panel.js',
+    'shared/load/load.js', 'shared/ui/sheet.js', 'shared/ui/resize-panel.js', 'shared/frame/frame.css', 'shared/frame/panel.js',
     'shared/session/session.js', 'pdf/css/base.css', 'pdf/css/workspace.css', 'shared/workspace/workspace.css', 'shared/doctabs/pane-tabs.css', 'pdf/css/panels.css',
     'pdf/css/redact.css', 'pdf/css/page-acts.css', 'pdf/css/find.css', 'pdf/css/para.css', 'pdf/css/selbar.css', 'pdf/css/assets.css',
     'pdf/css/notes.css', 'pdf/css/dock.css', 'pdf/css/themes.css', 'shared/doctabs/doctabs.css',
@@ -67,7 +67,7 @@
     'shared/load/load.js', 'shared/intake/rules.js', 'shared/intake/normalize.js', 'shared/intake/pipeline.js', 'shared/intake/intake.js', 'shared/intake/sources.js', 'shared/viewmode/grid.js', 'shared/viewmode/viewmode.js', 'pdf/js/core/util.js',
     'pdf/js/ui/icons.js', 'pdf/js/core/model.js', 'pdf/js/core/history.js', 'pdf/js/core/layers.js', 'pdf/js/ui/sheet.js',
     'pdf/js/organize/grid.js', 'pdf/js/editor/view.js', 'pdf/js/ui/panel-kit.js', 'pdf/js/ui/dock.js', 'pdf/js/tools/organize-panel.js',
-    'pdf/js/ui/app.js', 'pdf/js/tools/layers-panel.js', 'pdf/js/tools/history-panel.js', 'pdf/js/ui/menus.js', 'shared/ui/sheet.js', 'shared/drop/panel.js', 'shared/drop/drop.js', 'shared/drop/choice.js', 'pdf/js/ui/drop.js', 'shared/session/session.js',
+    'shared/frame/panel.js', 'pdf/js/ui/app.js', 'pdf/js/tools/layers-panel.js', 'pdf/js/tools/history-panel.js', 'pdf/js/ui/menus.js', 'shared/ui/sheet.js', 'shared/drop/panel.js', 'shared/drop/drop.js', 'shared/drop/choice.js', 'pdf/js/ui/drop.js', 'shared/session/session.js',
     'shared/versions/versions.js', 'shared/doctabs/tabs.js', 'shared/doctabs/drive.js', 'shared/doctabs/session.js', 'shared/nav/presets.js',
     'shared/nav/validate.js', 'shared/nav/logic.js', 'shared/nav/engine.js', 'shared/urlstate/urlstate.js', 'shared/router/router.js',
     'pdf/js/core/zip.js', 'shared/pdf-crypto/legacy.js', 'shared/pdf-crypto/aes256.js', 'shared/pdf-crypto/security.js', 'shared/pdf-crypto/decrypt.js', 'shared/pdf-crypto/encrypt.js',
