@@ -89,7 +89,7 @@ async function rtPortrait(a = {}) {
   if (!activeLayer()) throw new Error('There is no picture to retouch');
   const src = rtComposite();
   const fr = a.facesFound ? { faces: a.facesFound, note: '' } : await rtFaces(src, a.faces === 'off' ? 'off' : a.askFaces ? 'ask' : 'auto');
-  const subject = a.subjectMask !== undefined ? a.subjectMask : a.subject !== false ? await rtSubject(src) : null;
+  const subject = a.subjectMask !== undefined ? a.subjectMask : a.subject ? await rtSubject(src) : null;
   const r = rtPortraitLayers(src, a, { faces: fr.faces, subject, k: 1 });
   const layers = r.layers.map((L) => ({ name: nextName(L.name), canvas: L.canvas, mask: { canvas: L.mask, x: 0, y: 0, def: false, enabled: true } }));
   if (layers.length) rtAddLayers(layers, 'Portrait Retouch');

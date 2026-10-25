@@ -43,7 +43,7 @@ function psRetouchCommands() {
   const portraitArgs = [N('smoothing', 0, 100, 45, 'skin smoothing strength, %; pores and edges are kept'), B('blemishes', true, 'heal small spots on the skin'),
     N('blemish_size', 0, 40, 0, 'largest spot radius in px; 0 = from the image size'), B('red_eye', true, 'fix red pupils (needs face detection)'),
     N('teeth', 0, 100, 0, 'teeth whitening, %'), N('eyes', 0, 100, 0, 'whites of the eyes, %'),
-    E('faces', ['auto', 'off'], 'auto', 'auto uses on-device face detection when it is turned on in Profile'), B('subject', true, 'limit the skin to the person (on-device subject model)')];
+    E('faces', ['auto', 'off'], 'auto', 'auto uses on-device face detection when it is turned on in Profile'), B('subject', false, 'limit the skin to the person (the on-device portrait model, about 26 MB on first use)')];
   const removeArgs = [N('x', -16384, 16384, undefined, 'left edge, px (omit to use the selection)'), N('y', -16384, 16384, undefined, 'top edge, px'),
     N('width', 1, 16384, undefined, 'px'), N('height', 1, 16384, undefined, 'px'), E('shape', ['ellipse', 'rect'], 'ellipse', 'the area given by x, y, width, height'),
     E('engine', ['device', 'ai'], 'device', 'device: fill from the surroundings on this device; ai: open Edit with AI (your own key) for the area')];
