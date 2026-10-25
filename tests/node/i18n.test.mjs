@@ -50,6 +50,7 @@ test('the language list is data: English first, codes unique, each with a name a
     assert.ok(['ltr', 'rtl'].includes(l.dir), `dir of ${l.code}`);
   }
   assert.equal(I.DEFAULT, 'en');
+  assert.equal(I.DEFAULT_CHOICE, 'en', 'this repo starts in English');
   assert.equal(Object.isFrozen(I.LANGS), true);
   I.langs().pop();
   assert.equal(I.langs().length, I.LANGS.length, 'langs() gives a copy');
@@ -183,6 +184,7 @@ const LANG_ORDER = [
   ['pt-BR', 'Português (Brasil)', 'ltr'],
   ['it', 'Italiano', 'ltr'],
   ['ar', 'العربية', 'rtl'],
+  ['sv', 'Svenska', 'ltr'],
 ];
 
 test('the picker lists every language by its own name, English first, and only Arabic is right to left', async () => {
@@ -193,7 +195,8 @@ test('the picker lists every language by its own name, English first, and only A
 });
 
 test('each language has one file, named by its code, that adds its strings under that code', async () => {
-  const files = (await readdir(path.join(ROOT, 'shared', 'i18n'))).filter((f) => f.endsWith('.js') && !['i18n.js', 'strings.js'].includes(f));
+  // <code>-apps.js is a language's app-name table (sv-apps.js), loaded next to its main file.
+  const files = (await readdir(path.join(ROOT, 'shared', 'i18n'))).filter((f) => f.endsWith('.js') && !['i18n.js', 'strings.js'].includes(f) && !/-apps\.js$/.test(f));
   const codes = LANG_ORDER.map(([c]) => c).filter((c) => c !== 'en');
   assert.deepEqual(files.map((f) => f.slice(0, -3)).sort(), [...codes].sort(), 'one file per language, and no stray file');
   for (const code of codes) {

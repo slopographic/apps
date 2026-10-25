@@ -9,7 +9,7 @@ import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { ROOT, SITE, loadRegistry, isPage, pageUrl } from './site.mjs';
+import { ROOT, SITE, loadRegistry, registryWindow, isPage, pageUrl } from './site.mjs';
 import { landingPages, siteTop, siteFoot, SITE_HEAD } from './landing.mjs';
 import { taskPages, taskJsonLd, videoJsonLd, hubPage } from './tasks.mjs';
 import { roundupPages, roundupJsonLd, roundupIndex } from './roundups.mjs';
@@ -100,11 +100,14 @@ export function injectHead(html, lines) {
 }
 
 /** Checks the copy: length of descriptions, unique titles. Throws on the first problem. */
-export function validateCopy(entries) {
+/** lenient (a white-label build, SEO_LENIENT=1, whose renamed copy is longer or shorter): lengths only warn. */
+export function validateCopy(entries, lenient = process.env.SEO_LENIENT === '1') {
   const titles = new Map();
+  const bad = (m) => { if (lenient) console.warn(`seo (lenient): ${m}`); else throw new Error(m); };
   for (const [name, { title, description }] of entries) {
-    if (description.length < DESC_MIN || description.length > DESC_MAX) throw new Error(`${name}: description is ${description.length} characters (need ${DESC_MIN} to ${DESC_MAX})`);
-    if (!title || title.length > 75) throw new Error(`${name}: title missing or too long`);
+    if (description.length < DESC_MIN || description.length > DESC_MAX) bad(`${name}: description is ${description.length} characters (need ${DESC_MIN} to ${DESC_MAX})`);
+    if (!title) throw new Error(`${name}: title missing`);
+    if (title.length > 75) bad(`${name}: title missing or too long`);
     if (titles.has(title)) throw new Error(`${name}: title repeats ${titles.get(title)}`);
     titles.set(title, name);
   }
@@ -136,9 +139,11 @@ export async function build({ date }) {
     if (!ABOUT[a.id]) throw new Error(`${a.id}: has about/ but no entry in shared/seo/copy.mjs ABOUT`);
     copyEntries.push([`${a.id} about`, ABOUT[a.id]]);
   }
-  const { TASKS } = await import(pathToFileURL(path.join(ROOT, 'shared', 'seo', 'tasks', 'index.mjs')).href);
-  const { ROUNDUPS } = await import(pathToFileURL(path.join(ROOT, 'shared', 'seo', 'roundups', 'index.mjs')).href);
-  const { GUIDES } = await import(pathToFileURL(path.join(ROOT, 'shared', 'seo', 'guides', 'index.mjs')).href);
+  // A brand profile can hide apps (shared/apps.js SLOP_HIDDEN_APPS): their tasks, roundups and guides are left out too.
+  const hidden = new Set(registryWindow().SLOP_HIDDEN_APPS || []), shown = (x) => !hidden.has(x.app);
+  const TASKS = (await import(pathToFileURL(path.join(ROOT, 'shared', 'seo', 'tasks', 'index.mjs')).href)).TASKS.filter(shown);
+  const ROUNDUPS = (await import(pathToFileURL(path.join(ROOT, 'shared', 'seo', 'roundups', 'index.mjs')).href)).ROUNDUPS.filter(shown);
+  const GUIDES = (await import(pathToFileURL(path.join(ROOT, 'shared', 'seo', 'guides', 'index.mjs')).href)).GUIDES.filter(shown);
   const landing = landingPages(apps, SITE, LANDING, TASKS, ROUNDUPS, GUIDES);
   for (const p of landing) copyEntries.push([`${p.key} landing`, LANDING[p.key]]);
   const tasks = taskPages(apps, SITE, TASKS, { ROUNDUPS, GUIDES });

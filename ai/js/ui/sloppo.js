@@ -44,7 +44,13 @@
     return bubble;
   };
 
+  const MASCOT = /*profile:mascot*/true;   // the brand profile's mascot switch (set at build time)
   AI.initSloppo = function () {
+    if (!MASCOT) {
+      AI.$('sloppo').hidden = true; AI.paintSloppo = () => {};
+      document.head.append(el('style', null, '.hello-sloppo{display:none}'));
+      return;
+    }
     AI.$('sloppo').onclick = () => AI.askSloppo();
     const base = new URL('../shared/sloppo/index.js', document.baseURI).href;
     import(base).then((m) => { draw = m.drawSloppo; K.powerUp.install(m.HATS); AI.paintSloppo(); }).catch((e) => console.warn('Sloppo painter unavailable', e));

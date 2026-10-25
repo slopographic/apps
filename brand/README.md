@@ -52,3 +52,98 @@ SlopBrand.order;                                              // the default app
 `tools/pwa-precache.mjs` lists the files a page loads at boot so the service worker can cache them. It
 follows static `<script src>` tags. The shell (`shell/`) and `brand/` files are loaded from script code,
 so they are not in that list yet. Add them to the list and regenerate it before you rely on offline use.
+
+## White-label builds
+
+The same code also builds other sites: a copy of the whole site under another name, with plain app names, its own
+colours and logo, no mascot, and no word of this brand anywhere (text, code, file names, storage keys, tests, workflows).
+One codebase, one profile per site. A build is generated: it is never edited by hand, and every improvement made here
+reaches it at the next release.
+
+**The rule: edit here, publish there. If a change is made there anyway, import it** (`tools/whitelabel/import.mjs`).
+
+### Profiles
+
+A site is one profile, `<id>.json`, next to its rename map, `<id>.map.json`. This repository holds only
+`brand/profiles/slopographic.json` (this site; no map, so a build of it is a plain copy with today's values) and two
+made-up samples that CI builds (`sample`: "Acme Tools", English; `sample-sv`: Swedish by default). The profiles of real
+sites live outside this repository, with the publish script; pass their folder with `--profiles=<dir>`.
+
+| Field | What it sets |
+| --- | --- |
+| `id` | The file name. |
+| `name`, `shortName`, `brandWord`, `tagline` | The product name (title, header, footer, manifest), the short name (manifest), the word that replaces this brand before a lower-case word ("the Acme apps"), and the line under the homepage title. |
+| `origin`, `cname`, `mailDomain`, `github` | The site's address (canonical, Open Graph, sitemap, robots), its custom domain (`CNAME`), mail domain, and GitHub account (cdn and repository links). |
+| `defaultLang` | The language a visitor gets when nothing is stored (`en`, `sv`, ...). Every language stays in the picker. |
+| `naming` | `brand` (PhotoSlop, Slop PDF) or `plain` (Image Editor, PDF Editor; the `PLAIN` table in `shared/apps.js`). |
+| `tone` | `playful` or `plain`: plain applies the copy layer, `brand/copy/plain.json`. |
+| `mascot` | `false` turns the mascot off everywhere (the buddy, the Drive empty states, the AI top bar). |
+| `colors`, `themes`, `palette` | `brand.json` colours; the Light and Dark theme tokens (`hide` drops themes such as `lime`); the hue every accent-coloured colour in the CSS and code moves to (`tools/whitelabel/palette.mjs`). |
+| `logo` | `{ text, mark, color }`: the build draws a wordmark (`brand/logo.svg`), a square mark (`brand/mark.svg`, the favicon) and the PNG icons and share card from it. Replace the files in a later commit of the profile's folder if you have a real logo. |
+| `links`, `footer`, `support`, `analytics` | Footer and support links (empty hides them), the footer line, the export card parts, and third parties: `false` leaves out analytics, ads and the consent strip. |
+| `copy` | Extra phrase replacements for this site (`"source phrase": "replacement"`), on top of the tone's. |
+| `apps.hide`, `media` | Apps left out of every list, menu and sitemap; `false` leaves out screenshots, clips and videos (they show this brand). |
+| `seo` | `homeTitle`, `homeDescription`, `titleSuffix` for the generated head blocks and the sitemap. |
+| `legal` | `{ holder, year }`: the MIT licence's copyright holder, `NOTICE.md` and `TRADEMARKS.md`. |
+| `publish` | `{ repo, branch, secret, author, email }`: where the publish script pushes, the token's secret name, and the release commit's author. |
+| `brandTerms`, `forbid`, `scanAllow` | Words only this site uses (no other build may contain them), extra words to forbid, and allowed scan hits (`{ file, term, why }`, reported every time). |
+
+`tools/whitelabel/profile.mjs` `validate()` is the schema in code; `tests/node/whitelabel-profile.test.mjs` checks every
+profile here.
+
+### The rename map
+
+`<id>.map.json` holds every token and folder rename of a build, in one file: `stem` (`["slop", "<new stem>"]`, every case
+form: `SlopUI` -> `TlbxUI`, `SLOP_APPS` -> `TLBX_APPS`) and `compounds` (`photoslop` -> `imageeditor`, with the folder
+name `image-editor/`). English words that contain the stem (slope, sloped, sloppy, SLOPE) are never touched. The map is a
+bijection: its targets must not occur in the source (the build refuses a map whose targets do), so the reverse is exact.
+`node tools/whitelabel/roundtrip.mjs <id>` proves it over the whole repository; CI runs it on every push.
+
+### Build one locally
+
+```sh
+node tools/whitelabel/build.mjs sample /tmp/acme              # the whole site for the profile, scan included
+node tools/whitelabel/build.mjs <id> <dir> --profiles=<dir>   # a real profile kept outside the repository
+node tools/whitelabel/export.mjs <id> <mirror checkout> --profiles=<dir>   # round trip + build into a mirror's checkout
+```
+
+A build copies every file (`git ls-files`), leaves out this brand's own files (licence notices, trademarks, its
+workflows' identity checks, the profiles, this tool), renames paths and text through the map, writes the profile's files
+(`brand/brand.json`, `CNAME`, `LICENSE`, `NOTICE.md`, `TRADEMARKS.md`, `SECURITY.md`, a README that says "generated - do
+not edit", the manifest, logo, favicon, icons, share card and the mirror's own CI workflow), runs the SEO writer and the
+precache list inside the copy, and then scans every file name, text line and binary for this brand's words and every
+other profile's terms. Any hit fails the build. Serve the folder with any static server to look at it.
+
+### Releases
+
+A release builds each profile with `export.mjs` and pushes the result as one commit on top of the mirror's last release
+commit (one commit per release, author from `publish`, a neutral message). The publish script refuses to run when the
+mirror has a commit it did not make, and names it, instead of overwriting it. The script and the real profiles are kept
+outside this repository; CI here builds the samples on every push, so a change that would break a white-label build
+fails here first.
+
+**DNS for a mirror on GitHub Pages:** in the domain's DNS add `CNAME <subdomain> -> <account>.github.io` (for example
+`tools -> <account>.github.io`); the build writes the `CNAME` file and the publish script turns Pages on for the
+repository with that custom domain. Turn on "Enforce HTTPS" once the certificate is issued.
+
+### Importing a change made in a mirror
+
+```sh
+node tools/whitelabel/import.mjs <id> --mirror=<mirror checkout> --from=<mirror commit> --to=<mirror commit> \
+  --base=<source commit the --from release was built from> --profiles=<dir>
+```
+
+It adds a worktree on a new `wip/import-...` branch, turns every changed path and line back through the map, puts back
+the source names the profile replaced on those lines, stages the result and lists what needs a look: lines that hold the
+profile's own words (they must not reach this public repository), regenerated files and binaries. It never commits.
+
+### Checklist: a feature that works in every build
+
+- Show an app's name with `slopAppName(app)` (or `app.name`), never a hard-coded brand name in a new string.
+- Playful text goes through the copy layer: add the plain wording to `brand/copy/plain.json`, not a second copy of the
+  feature.
+- Behaviour that differs per site reads a profile flag through a marker (`/*profile:mascot*/true`,
+  `/*profile:naming*/'brand'`; values in `tools/whitelabel/emit.mjs` `markerValues`). Never `if (brand === '...')`.
+- Colours: use the theme tokens (`--sl-*`) or this brand's accent family, which the palette shift recolours.
+- New user-facing strings in the shared chrome get an i18n key (`shared/i18n`).
+- Run `node tools/whitelabel/build.mjs sample /tmp/acme` before you push a change that adds brand words; CI does it anyway.

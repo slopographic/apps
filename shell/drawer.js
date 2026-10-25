@@ -18,13 +18,14 @@
 
   function load() { items = L.normalize(L.read() || [], apps().map((a) => a.id), S.brandOrder()); }
   function save() { L.write(items); }
+  const nameOf = (a) => (window.slopAppName ? window.slopAppName(a) : a.name);   // the profile's name, in the chosen language
   function badge(app, cls = 'sh-badge') { return `<span class="${cls}" style="--h:${hue(app.name)}" aria-hidden="true">${esc(app.name[0].toUpperCase())}</span>`; }
 
   function tileHtml(it) {
     if (it.k === 'app') {
       const a = appById(it.id);
       if (!a) return '';
-      return `<button type="button" class="sh-tile" data-key="app:${esc(a.id)}" data-app="${esc(a.id)}" aria-label="${esc(a.name)}">${badge(a)}<span class="sh-name">${esc(a.name)}</span></button>`;
+      return `<button type="button" class="sh-tile" data-key="app:${esc(a.id)}" data-app="${esc(a.id)}" aria-label="${esc(nameOf(a))}">${badge(a)}<span class="sh-name">${esc(nameOf(a))}</span></button>`;
     }
     const names = it.apps.map(appById).filter(Boolean);
     const minis = names.slice(0, 4).map((a) => badge(a, 'sh-badge sh-mini-b')).join('');

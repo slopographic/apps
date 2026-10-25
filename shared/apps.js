@@ -8,12 +8,17 @@
 (function () {
   'use strict';
   /* Group headings on the homepage. Change a label here only; the keys ('business', 'creative') stay as they are. */
-  const GROUP_LABELS = Object.freeze({ business: 'Slop 365', creative: 'Creative Slop' });
+  // The brand profile (brand/profiles/<id>.json) sets these at build time (tools/whitelabel/build.mjs rewrites the literal
+  // after each marker). Here they hold this site's own values: brand names, every app listed, shots and videos shown.
+  const NAMING = /*profile:naming*/'brand';
+  const HIDE = /*profile:hideApps*/[];
+  const MEDIA = /*profile:media*/true;
+  const GROUP_LABELS = Object.freeze(NAMING === 'plain' ? { business: 'Business', creative: 'Creative' } : { business: 'Slop 365', creative: 'Creative Slop' });
   window.SLOP_GROUP_LABELS = GROUP_LABELS;
   // extra.video: the app's YouTube tutorial { id, title, date (ISO upload time), duration (ISO 8601) }: the landing page
   // shows it (thumbnail kept in assets/video/yt-<id>.jpg) and the shell header links it as Tutorial.
   const A = (id, kind, name, path, tagline, extra = {}) => Object.assign({ id, kind, name, path, tagline, status: 'live', accepts: [], features: [] }, extra);
-  window.SLOP_APPS = [
+  const list = [
     A('photoslop', 'app', 'PhotoSlop', 'photoslop/', 'Photoshop, rebuilt for the browser.', { title: 'PhotoSlop: photo editor', group: 'creative',
       accepts: ['image/*', 'image/vnd.adobe.photoshop', 'application/x-openraster'],
       features: ['Layers, masks & 17 blend modes', 'Real PSD open & save', 'Camera RAW: CR2, CR3, NEF, ARW, DNG, RAF', '50+ filters, brush packs, .abr import', 'Tabs, autosave, offline .html'],
@@ -234,4 +239,54 @@
     A('authenticator', 'experiment', 'The Authenticator', '#detector', 'Is your text secretly slop? Get it certified.', { title: 'AI text detector', shot: 'assets/shots/authenticator.jpg' }),
     A('paint-classic', 'experiment', 'Slop Paint Classic', 'photoslop/classic/', 'The 1998 experience. Every MS Paint tool.', { title: 'Paint Classic: the 1998 paint program', shot: 'assets/shots/paint-classic.jpg' }),
   ];
+  /* Plain names, for a profile with naming 'plain': [name, one-line description]. A missing description keeps the brand
+   * tagline. Every visible app name reads through these: apps.js swaps them in (name, title, tagline; the brand name stays
+   * in brandName), and slopAppName(app) adds the chosen language's 'app.<id>' string (shared/i18n/<lang>-apps.js). */
+  const PLAIN = {
+    photoslop: ['Image Editor', 'Edit photos with layers, masks and filters.'], vector: ['Vector Editor', 'Draw vector graphics with pens, shapes and layers.'],
+    pdf: ['PDF Editor'], label: ['Label Designer'], cutout: ['Background Remover'], aitools: ['AI Tools'], reports: ['Reports'],
+    ocr: ['OCR'], html2pdf: ['HTML to PDF'], clean: ['Metadata Remover'], ai: ['Assistant'],
+    docs: ['Documents', 'Write documents with pages, styles and lists. Opens and saves DOCX.'],
+    tables: ['Spreadsheets', 'Spreadsheets with formulas, charts and pivot tables. Opens and saves XLSX.'],
+    slides: ['Presentations', 'Build slide decks with themes and layouts. Opens and saves PPTX.'],
+    press: ['Page Layout', 'Lay out pages for print with master pages and text frames.'],
+    remix: ['Video Remix', 'Clips and photos in, an automatic edit out, then fine-tune in the video editor.'],
+    slopedit: ['Video Editor'], resize: ['Resizer'], upscale: ['Upscaler'], watermark: ['Watermark'], contacts: ['Contacts'],
+    inventory: ['Inventory'], orders: ['Orders'], quotes: ['Quotes'], purchases: ['Purchase Orders'], timesheets: ['Timesheets'],
+    expenses: ['Expenses'], invoices: ['Invoices'], notes: ['Notes'], paste: ['Paste'], effects: ['Motion Graphics'],
+    img3d: ['Image to 3D'], sheetview: ['Spreadsheet Viewer'], hex: ['Hex Editor'], eml: ['Email Viewer'], checksum: ['Checksum'],
+    diff: ['Compare'], nodes: ['Node Calculator'], serials: ['Serial Counter'], transcribe: ['Transcription'],
+    recorder: ['Screen Recorder'], signature: ['Email Signature'], qr: ['QR Code Generator'], colors: ['Colours'],
+    workflows: ['Workflows'], convert: ['File Converter'], calculator: ['Calculator'], time: ['World Clock'], crm: ['CRM'],
+    calendar: ['Calendar'], todo: ['To-do'], projects: ['Projects'], reminders: ['Reminders'], ledger: ['Ledger'],
+    admin: ['Admin'], drive: ['Files', 'Every file from every app, in one place on this device.'], code: ['Code Editor'],
+    sorter: ['Photo Sorter'], gallery: ['Gallery'], '3d': ['3D Modeller'], music: ['Music Player'],
+    authenticator: ['AI Text Detector', 'Check whether a text reads as machine-written.'], 'paint-classic': ['Paint Classic', 'A simple paint program in the classic style.'],
+  };
+  window.SLOP_APPS = list.filter((a) => HIDE.indexOf(a.id) < 0);
+  for (const a of window.SLOP_APPS) {
+    const p = PLAIN[a.id] || [a.title || a.name];
+    a.plain = p[0];
+    a.plainTagline = p[1] || a.tagline;
+    a.brandName = a.name;
+    if (NAMING === 'plain') { a.name = a.plain; a.title = a.plain; a.tagline = a.plainTagline; }
+    if (!MEDIA) { delete a.shot; delete a.video; }
+  }
+  window.SLOP_NAMING = NAMING;
+  window.SLOP_HIDDEN_APPS = HIDE;
+  /** The name to show for an app (a registry entry or an id): the profile's name, in the chosen language when that
+   * language has an 'app.<id>' string and the profile uses plain names. Brand names stay as they are in every language. */
+  window.slopAppName = (app) => {
+    const a = typeof app === 'string' ? window.SLOP_APPS.find((x) => x.id === app) : app;
+    if (!a) return String(app || '');
+    const I = window.SlopI18n;
+    if (NAMING === 'plain' && I && typeof I.t === 'function') { const k = 'app.' + a.id, s = I.t(k); if (s && s !== k) return s; }
+    return a.name;
+  };
+  /** The one-line description, the same way: the chosen language's 'apptag.<id>' when the profile uses plain names. */
+  window.slopAppTagline = (a) => {
+    const I = window.SlopI18n;
+    if (NAMING === 'plain' && a && I && typeof I.t === 'function') { const k = 'apptag.' + a.id, s = I.t(k); if (s && s !== k) return s; }
+    return a ? a.tagline : '';
+  };
 })();

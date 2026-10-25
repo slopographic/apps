@@ -7,6 +7,8 @@ import { HOME, APP } from './config.js';
 import { getPrefs, setPrefs, isOn, remember } from './prefs.js';
 
 let booted = false, engine = null, on = false, cfg = null, btn = null;
+// The brand profile turns the mascot off (brand/profiles/<id>.json "mascot", set at build time): then boot() does nothing.
+const MASCOT = /*profile:mascot*/true;
 const SHORTCUT = (e) => e.altKey && e.shiftKey && !e.ctrlKey && !e.metaKey && (e.code === 'KeyS' || e.key === 'S' || e.key === 's');
 
 /** Which app is this? SlopHub's id, the html data-app attribute, or the registry path. */
@@ -24,7 +26,7 @@ export function detectApp() {
 const kindOf = (id) => { const a = (window.SLOP_APPS || []).find((x) => x.id === id); return a ? a.kind : /\/games\//.test(location.pathname) ? 'game' : 'app'; };
 
 export function boot(opts = {}) {
-  if (booted) return api;
+  if (booted || !MASCOT) return api;
   booted = true;
   const app = opts.app || detectApp();
   const home = app === 'home';

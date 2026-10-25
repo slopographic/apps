@@ -36,7 +36,9 @@
   }
   function label(it) {
     if (it.kind === 'tab') return { name: it.tab.name || tr('switcher.tab_name', 'Open tab'), sub: tr('switcher.tab_sub', 'Open in another window'), letter: (it.tab.name || '?')[0], key: 'tab:' + it.tab.tab };
-    return { name: it.app.name, sub: it.app.tagline || '', letter: it.app.name[0], key: 'app:' + it.app.id, status: it.app.status };
+    const name = window.slopAppName ? window.slopAppName(it.app) : it.app.name;   // the profile's name, in the chosen language
+    const sub = window.slopAppTagline ? window.slopAppTagline(it.app) : it.app.tagline;
+    return { name, sub: sub || '', letter: name[0], key: 'app:' + it.app.id, status: it.app.status };
   }
 
   function render() {
