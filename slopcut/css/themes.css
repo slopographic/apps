@@ -80,4 +80,4 @@
 @media (hover: none) { .th-b { width: 26px; height: 26px; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
 /* The shared header buttons keep their own light face on the title bar: dark text on it. */
-:root[data-slop-theme="classic"] .topbar .slop-hbtn { color: var(--fg); }
+:root[data-slop-theme="classic"] .topbar .slop-hbtn { color: var(--fg); --slop-hbtn-bg: var(--input); --slop-hbtn-line: var(--line); }
