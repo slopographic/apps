@@ -141,7 +141,7 @@
     });
     if (!ok) return false;
     var nx = doc.context.obj({});
-    xo.keys().forEach(function (key) { if (used.has(key.decodeText())) nx.set(key, xo.get(key)); });
+    xo.keys().forEach(function (key) { if (used.has(key.decodeText())) nx.set(key, xo.get(key)); }); // compat-ok: pdf-lib returns an array here, not an iterator
     var nr = res.clone(doc.context);
     nr.set(N('XObject'), nx);
     node.set(N('Resources'), nr);

@@ -79,7 +79,7 @@
     var changed = 0;
     doc.getPages().forEach(function (pg, k) {
       var res = pg.node.Resources(), pr = res instanceof L.PDFDict ? look(res.get(N('Properties'))) : null, names = [];
-      if (pr instanceof L.PDFDict) pr.entries().forEach(function (e) { if (only(e[1])) names.push(e[0].decodeText()); });
+      if (pr instanceof L.PDFDict) pr.entries().forEach(function (e) { if (only(e[1])) names.push(e[0].decodeText()); }); // compat-ok: pdf-lib returns an array here, not an iterator
       if (!names.length) return;
       var c = Res.contentOf(doc, pg), t = Mv.stripMarked(c.text, Lx.lex(c.text), names);
       if (t != null) { SP.editor._.strip.putContent(doc, k, c.refs, t); changed++; }

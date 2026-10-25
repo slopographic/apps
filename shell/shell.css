@@ -31,6 +31,11 @@ button { font: inherit; }
 .sh-sw-head { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--sh-line); }
 .sh-q { flex: 1; min-width: 0; height: 40px; padding: 0 10px; font-size: 16px; color: var(--sh-fg); background: color-mix(in srgb, var(--sh-fg) 8%, transparent); border: 1px solid var(--sh-line); border-radius: 8px; outline: none; }
 .sh-q:focus { border-color: var(--sh-accent); }
+/* the close control: a × always (a finger has no Esc key), the Esc hint beside it where there is a keyboard (slopui.css) */
+.sh-close { flex: none; display: inline-flex; align-items: center; gap: 6px; min-width: 40px; min-height: 40px; padding: 0 8px; border: 0; border-radius: 8px; background: none; color: var(--sh-dim); cursor: pointer; font: inherit; }
+.sh-close:hover { background: color-mix(in srgb, var(--sh-fg) 8%, transparent); color: var(--sh-fg); }
+.sh-close:focus-visible { outline: 2px solid var(--sh-accent); outline-offset: 1px; }
+.sh-x { font-size: 24px; line-height: 1; }
 .sh-list { flex: 1; overflow-y: auto; padding: 6px; overscroll-behavior: contain; }
 .sh-sec { padding: 10px 8px 4px; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--sh-dim); }
 .sh-opt { width: 100%; display: flex; align-items: center; gap: 10px; padding: 7px 8px; background: none; border: 0; border-radius: 8px; color: var(--sh-fg); text-align: start; cursor: pointer; }

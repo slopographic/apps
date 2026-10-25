@@ -1,8 +1,7 @@
 /* Loaders for the vendored libraries. pdf-lib is a UMD build (global PDFLib); pdf.js is an ES module.
  * Paths are resolved from this file, so the same code works from the hub and from every converter page. */
 const VENDOR = new URL('../../../vendor/', import.meta.url);
-export const PDFJS_URL = new URL('pdfjs/pdf.min.js', VENDOR).href;
-export const PDFJS_WORKER_URL = new URL('pdfjs/pdf.worker.min.js', VENDOR).href;
+export const PDFJS_BASE = new URL('pdfjs/', VENDOR).href;   // loaded through shared/compat/pdfjs.js (convert/js/core/pdf-raster.js)
 export const PDFJS_CMAP_URL = new URL('pdfjs/cmaps/', VENDOR).href;
 const PDF_LIB_URL = new URL('pdf-lib/pdf-lib.min.js', VENDOR).href;
 

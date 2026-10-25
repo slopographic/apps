@@ -16,8 +16,7 @@
     if (typeof window !== 'undefined' && window.pdfjsLib) return Promise.resolve(window.pdfjsLib);
     if (!libP) {
       var b = base || new URL(SCRIPT_SRC ? '../../../vendor/pdfjs/' : '../vendor/pdfjs/', SCRIPT_SRC || document.baseURI).href;
-      libP = import(b + 'pdf.min.js').then(function (lib) {
-        lib.GlobalWorkerOptions.workerSrc = b + 'pdf.worker.min.js';
+      libP = import(new URL('../../shared/compat/pdfjs.js', b).href).then(function (m) { return m.loadPdfjs(b); }).then(function (lib) {
         window.pdfjsLib = lib;
         return lib;
       });

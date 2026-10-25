@@ -13,8 +13,7 @@
       libP = (async function () {
         if (window.pdfjsLib) return window.pdfjsLib; // offline single-file build injects it
         var base = E.vendorBase();
-        var lib = await import(base + 'pdf.min.js');
-        lib.GlobalWorkerOptions.workerSrc = base + 'pdf.worker.min.js';
+        var lib = await import(new URL('../../shared/compat/pdfjs.js', base).href).then(function (m) { return m.loadPdfjs(base); });
         window.pdfjsLib = lib;
         return lib;
       })();

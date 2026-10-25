@@ -117,3 +117,8 @@ textarea.sui-input { height: auto; resize: vertical; }
   .sui-row { min-height: var(--slop-hit, 44px); }
   .sui-x { min-width: var(--slop-hit, 44px); min-height: var(--slop-hit, 44px); }
 }
+/* Closing a dialog, a sheet or a palette: a real × button (aria-label "Close") on every screen, since a finger has no Esc
+   key. Esc still closes; its hint (a small "Esc" next to the ×, class slop-esc-hint) shows only where there is a mouse
+   and room for it. The one rule for SlopUI dialogs (.sui-x), sheets (shared/ui/sheet.js), the command palette and the
+   app switcher. */
+@media (hover: none), (pointer: coarse), (max-width: 640px) { .slop-esc-hint { display: none !important; } }

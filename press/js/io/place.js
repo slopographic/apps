@@ -47,7 +47,7 @@
   /** Renders a PDF's pages to images and places them one per page (adding pages as needed). */
   PL.pdf = function (bytes, name) {
     var base = SCRIPT ? new URL('../../../vendor/pdfjs/', SCRIPT).href : new URL('../vendor/pdfjs/', document.baseURI).href;
-    var libP = window.pdfjsLib ? Promise.resolve(window.pdfjsLib) : import(base + 'pdf.min.js').then(function (lib) { lib.GlobalWorkerOptions.workerSrc = base + 'pdf.worker.min.js'; window.pdfjsLib = lib; return lib; });
+    var libP = window.pdfjsLib ? Promise.resolve(window.pdfjsLib) : import(new URL('../../shared/compat/pdfjs.js', base).href).then(function (m) { return m.loadPdfjs(base); }).then(function (lib) { window.pdfjsLib = lib; return lib; });
     U.toast('Rendering PDF pages…');
     return libP.then(function (lib) {
       return lib.getDocument({ data: bytes.slice(), isEvalSupported: false, standardFontDataUrl: base + 'standard_fonts/', cMapUrl: base + 'cmaps/', cMapPacked: true }).promise;

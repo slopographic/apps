@@ -18,13 +18,19 @@
   K.base = K.base || (me ? new URL('./', me).href : new URL('../shared/ai/', location.href).href);
   const pending = {};
   const FLAG = { engines: 'Engine', powerup: 'powerUp', apptools: 'appTools', webllm: 'WebLLMEngine' }; // what each file defines on SlopAIKit
+  /** Loads kit files (names relative to shared/ai/, no .js), each once. All are requested at once and run in the order
+   *  given (async = false keeps the order of inserted scripts), so a phone waits one round trip, not one per file.
+   *  Rejects with the name of a file that failed. A file another loader inserted is waited for (data-loaded once in). */
   K.load = function (names) {
-    return names.reduce((p, n) => p.then(() => (pending[n] = pending[n] || new Promise((res, rej) => {
-      if (document.querySelector(`script[data-slopai="${n}"]`) || K[FLAG[n] || n]) return res();
+    return Promise.all(names.map((n) => (pending[n] = pending[n] || new Promise((res, rej) => {
+      const fail = () => { delete pending[n]; rej(new Error('Could not load shared/ai/' + n + '.js')); };
+      if (K[FLAG[n] || n]) return res();
+      const old = document.querySelector(`script[data-slopai="${n}"]`);
+      if (old) { if (old.dataset.loaded) return res(); old.addEventListener('load', () => res()); old.addEventListener('error', fail); return; }
       const s = document.createElement('script'); s.src = K.base + n + '.js'; s.dataset.slopai = n; s.async = false;
-      s.onload = () => res(); s.onerror = () => rej(new Error('Could not load shared/ai/' + n + '.js'));
+      s.onload = () => { s.dataset.loaded = '1'; res(); }; s.onerror = () => { s.remove(); fail(); };
       document.head.append(s);
-    }))), Promise.resolve());
+    })))).then(() => undefined);
   };
 
   const SLOPPO = [

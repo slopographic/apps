@@ -23,7 +23,7 @@
   function build() {
     const id = 'scmd-' + (++uid);
     const input = el('input', { class: 'scmd-input', type: 'text', role: 'combobox', 'aria-expanded': 'true', 'aria-controls': id + '-list', 'aria-autocomplete': 'list', 'aria-label': 'Search commands', placeholder: 'Search commands, tools and apps…', autocomplete: 'off', autocapitalize: 'off', spellcheck: 'false', enterkeyhint: 'go' });
-    const close = el('button', { class: 'scmd-close', type: 'button', 'aria-label': 'Close' }, el('kbd', { class: 'scmd-esc' }, 'Esc'), el('span', { class: 'scmd-x', 'aria-hidden': 'true' }, '×'));
+    const close = el('button', { class: 'scmd-close', type: 'button', 'aria-label': 'Close' }, el('kbd', { class: 'scmd-esc slop-esc-hint', 'aria-hidden': 'true' }, 'Esc'), el('span', { class: 'scmd-x', 'aria-hidden': 'true' }, '×'));
     const list = el('div', { class: 'scmd-list', id: id + '-list', role: 'listbox', 'aria-label': 'Commands' });
     const keysBtn = el('button', { class: 'scmd-link', type: 'button' }, 'Keyboard shortcuts…');
     const hint = el('span', { class: 'scmd-hint' }, el('kbd', null, '↑'), el('kbd', null, '↓'), ' to move ', el('kbd', null, '↵'), ' to run');

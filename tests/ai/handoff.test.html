@@ -68,7 +68,10 @@
       q('.sap-back').click(); q('.sap-status').click();
       (await waitFor(() => [...P.document.querySelectorAll('.smb-row')].find((r) => r.textContent === 'AI settings…'))).click();
       await waitFor(() => q('.sap-pick-row') || q('.sap-pick p'), { timeout: 15000 });
-      expect(q('.sap-empty > div').className).toBe('sap-pick'); expect(q('.sap-pick-local-h')).toBe(null);
+      // the models on this device come first where WebGPU runs them; without it, the own account (it works everywhere)
+      const gpuOk = (await P.SlopAIKit.picker.gpu()).ok;
+      await waitFor(() => !q('.sap-pick-wait'), { timeout: 15000 });
+      expect(q('.sap-empty > div').className).toBe(gpuOk ? 'sap-pick' : 'sap-pick-cloud'); expect(q('.sap-pick-local-h')).toBe(null);
     }, { timeout: 40000 });
   });
 
