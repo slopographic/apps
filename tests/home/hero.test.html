@@ -9,7 +9,7 @@
   <script src="../harness.js"></script>
   <script src="hero-boot.js"></script>
   <script>
-  // Covers: home/globe/globe.js, home/globe/sphere.js, home/globe/paint.js, home/globe/globe.css, home/hero.css, index.html
+  // Covers: home/globe/globe.js, home/globe/sphere.js, home/globe/paint.js, home/globe/drag.js, home/globe/globe.css, home/hero.css, index.html
   /* The hero at 1280 and 390 px, in the Light and Dark themes: the headline paints first (largest paint, before the globe
    * starts), reads clearly above the globe with no icon shown over it; the copy sits beside the globe on a wide screen and
    * under it on a phone; the globe turns and stops when it should (hidden tab, off screen, reduced motion); a drag spins it
@@ -30,6 +30,11 @@
         const win = await HeroTest.open({ width, theme });
         const doc = win.document, box = HeroTest.titleBox(win);
         expect(doc.querySelectorAll('.hx-mark, .hx-stage').length).toBe(0);
+        // the globe keeps its changing state in its own data-live layer: the hero's attributes are the page's own
+        const hero = doc.getElementById('hero');
+        expect(hero.getAttributeNames().sort()).toEqual(['aria-labelledby', 'class', 'id']);
+        expect(hero.className).toBe('hx');
+        expect(doc.querySelector('.gx-layer').hasAttribute('data-live') && doc.querySelector('.gx-nav').hasAttribute('data-live')).toBe(true);
         const big = await lcp(win);
         if (big) {
           expect(!!(big.element && big.element.closest('.hx-copy'))).toBe(true);   // the headline or its sub-line, never the globe
@@ -60,6 +65,15 @@
         expect(Math.abs(v.geom.cx - (g.left + g.right) / 2)).toBeLessThan(2);
         expect(win.SlopGlobe.state()).toBe('running');
         if (width < 700) expect(win.SlopGlobe.tier()).toBe('lite');
+        if (win.SlopGlobe.tier() === 'lite') {
+          // the lite globe: no filters, and no frames while the page scrolls
+          expect(doc.querySelector('.gx-layer').classList.contains('gx-lite')).toBe(true);
+          expect(win.getComputedStyle(doc.querySelector('.gx-i .gx-svg')).filter).toBe('none');
+          let f = 0;
+          for (let k = 0; k < 8; k++) { win.dispatchEvent(new win.Event('scroll')); if (k === 1) f = win.SlopGlobe.frames(); await sleep(50); }
+          expect(win.SlopGlobe.frames()).toBe(f);
+          await waitFor(() => win.SlopGlobe.frames() > f, { timeout: 5000 });   // and it goes on once the page is still
+        }
         const apps = win.SLOP_APPS.filter((a) => !a.path.startsWith('#') && win.SLOP_ICONS[a.id]).length;
         const a = HeroTest.transforms(win);
         expect(a.length).toBe(Math.min(apps, win.SlopGlobeMath.TIERS[win.SlopGlobe.tier()].icons));

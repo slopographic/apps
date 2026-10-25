@@ -4,7 +4,9 @@
  *   kind:    app | game | experiment
  *   group:   business | creative (how the homepage groups apps; headings from GROUP_LABELS)
  *   status:  live | beta | building
- *   accepts: MIME patterns the app can open from Slop Drive (for "Send to…") */
+ *   accepts: MIME patterns the app can open from Slop Drive (for "Send to…")
+ *   weight:  1, or 2 for the apps most people come for: drawn larger on the homepage globe and listed first by the
+ *            homepage finder when nothing is searched (home/globe/globe.js, home/browse.js) */
 (function () {
   'use strict';
   /* Group headings on the homepage. Change a label here only; the keys ('business', 'creative') stay as they are. */
@@ -17,9 +19,9 @@
   window.SLOP_GROUP_LABELS = GROUP_LABELS;
   // extra.video: the app's YouTube tutorial { id, title, date (ISO upload time), duration (ISO 8601) }: the landing page
   // shows it (thumbnail kept in assets/video/yt-<id>.jpg) and the shell header links it as Tutorial.
-  const A = (id, kind, name, path, tagline, extra = {}) => Object.assign({ id, kind, name, path, tagline, status: 'live', accepts: [], features: [] }, extra);
+  const A = (id, kind, name, path, tagline, extra = {}) => Object.assign({ id, kind, name, path, tagline, status: 'live', accepts: [], features: [], weight: 1 }, extra);
   const list = [
-    A('photoslop', 'app', 'PhotoSlop', 'photoslop/', 'Photoshop, rebuilt for the browser.', { title: 'PhotoSlop: photo editor', group: 'creative',
+    A('photoslop', 'app', 'PhotoSlop', 'photoslop/', 'Photoshop, rebuilt for the browser.', { weight: 2, title: 'PhotoSlop: photo editor', group: 'creative',
       accepts: ['image/*', 'image/vnd.adobe.photoshop', 'application/x-openraster'],
       features: ['Layers, masks & 17 blend modes', 'Real PSD open & save', 'Camera RAW: CR2, CR3, NEF, ARW, DNG, RAF', '50+ filters, brush packs, .abr import', 'Tabs, autosave, offline .html'],
       shot: 'assets/shots/photoslop.jpg', video: { id: 'sasXp4d8rtg', title: 'PhotoSlop tutorial: a free photo editor in the browser', date: '2026-10-13T14:35:03-07:00', duration: 'PT2M25S' }, icon: 'brush' }),
@@ -27,7 +29,7 @@
       accepts: ['image/svg+xml', 'image/*', 'application/illustrator'],
       features: ['Pen, shapes, type & layers', 'Real pathfinder booleans', 'SVG, PNG, PDF & .ai export', 'Offline .html'],
       shot: 'assets/shots/vector.jpg', icon: 'pen' }),
-    A('pdf', 'app', 'Slop PDF', 'pdf/', 'Organise, edit and sign PDFs. Nothing uploaded.', { title: 'PDF tools', group: 'business', featured: true,
+    A('pdf', 'app', 'Slop PDF', 'pdf/', 'Organise, edit and sign PDFs. Nothing uploaded.', { weight: 2, title: 'PDF tools', group: 'business', featured: true,
       accepts: ['application/pdf', 'image/*'],
       features: ['Reorder, merge & split', 'Text, shapes, images & signatures', 'Page numbers, watermarks, forms', 'Compress & convert'],
       shot: 'assets/shots/pdf.jpg', video: { id: 'sLjcd23fOhw', title: 'Slop PDF tutorial: a free PDF editor in the browser', date: '2026-10-13T13:23:22-07:00', duration: 'PT1M27S' }, icon: 'doc' }),
@@ -35,7 +37,7 @@
       accepts: ['image/*', 'text/csv'],
       features: ['Barcodes & QR, GS1', 'Data merge from CSV & Excel', 'Zebra ZPL export & import', 'Sheets & thermal rolls'],
       shot: 'assets/shots/label.jpg', icon: 'tag', status: 'beta' }),
-    A('cutout', 'app', 'SlopIsolate', 'slopisolate/', 'Remove backgrounds with AI that runs on your device.', { title: 'SlopIsolate: background remover', group: 'creative',
+    A('cutout', 'app', 'SlopIsolate', 'slopisolate/', 'Remove backgrounds with AI that runs on your device.', { weight: 2, title: 'SlopIsolate: background remover', group: 'creative',
       accepts: ['image/*'],
       features: ['One-click AI background removal', 'Refine brush & soft edges', 'Replace with colour, blur or image', 'Batch, no uploads, no watermarks'],
       shot: 'assets/shots/cutout.jpg', video: { id: 'jKWTbl2PEIc', title: 'SlopIsolate tutorial: remove backgrounds in the browser', date: '2026-10-14T14:06:15-07:00', duration: 'PT1M41S' }, icon: 'brush', status: 'beta' }),
@@ -62,17 +64,17 @@
       accepts: ['text/*', 'image/*'],
       features: ['Local models via WebGPU, works offline', 'System check: what can your PC run?', 'Drives every Slopographic app', 'Builds mini-apps for you'],
       shot: 'assets/shots/ai.jpg', icon: 'spark', status: 'beta' }),
-    A('docs', 'app', 'Slop Docs', 'docs/', 'Word and Google Docs, rebuilt for the browser.', { title: 'Document editor', group: 'business',
+    A('docs', 'app', 'Slop Docs', 'docs/', 'Word and Google Docs, rebuilt for the browser.', { weight: 2, title: 'Document editor', group: 'business',
       accepts: ['application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/markdown', 'text/plain', 'text/html'],
       creates: [{ label: 'Document', ext: 'sdoc', mime: 'application/x-slop-doc' }],
       features: ['Real pages, styles and lists', 'Opens & saves DOCX and Markdown', 'Exports a PDF that matches the page', 'Headers, footers and page numbers', 'Arabic, Hebrew, Chinese, Hindi and more', 'Offline .html'],
       shot: 'assets/shots/docs.jpg', icon: 'page', status: 'building' }),
-    A('tables', 'app', 'Slop Tables', 'tables/', 'Excel and Google Sheets, rebuilt for the browser.', { title: 'Spreadsheet editor', group: 'business',
+    A('tables', 'app', 'Slop Tables', 'tables/', 'Excel and Google Sheets, rebuilt for the browser.', { weight: 2, title: 'Spreadsheet editor', group: 'business',
       accepts: ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.oasis.opendocument.spreadsheet', 'text/csv', 'text/tab-separated-values'],
       creates: [{ label: 'Spreadsheet', ext: 'stab', mime: 'application/x-slop-table' }],
       features: ['300+ functions, charts and pivot tables', 'Opens XLSX, ODS and CSV; saves XLSX and CSV', 'Templates to start from', 'Offline .html'],
       shot: 'assets/shots/tables.jpg', icon: 'grid', status: 'building' }),
-    A('slides', 'app', 'Slop Slides', 'slides/', 'Keynote and PowerPoint, rebuilt for the browser.', { title: 'Presentation editor', group: 'business',
+    A('slides', 'app', 'Slop Slides', 'slides/', 'Keynote and PowerPoint, rebuilt for the browser.', { weight: 2, title: 'Presentation editor', group: 'business',
       accepts: ['application/vnd.openxmlformats-officedocument.presentationml.presentation', 'image/*'],
       creates: [{ label: 'Presentation', ext: 'sslide', mime: 'application/x-slop-slides' }],
       features: ['Themes, layouts, transitions & animations', 'Opens and exports PowerPoint (PPTX)', 'Exports PDF', 'Presenter view with notes and a timer', 'Offline .html'],
@@ -85,7 +87,7 @@
       accepts: ['video/*', 'image/*'],
       features: ['Random edit with grids and layout switches', 'Seeded: reshuffle or repeat exactly', 'Export presets from phone to 4K', 'Sends the project to SlopCut'],
       icon: 'film', status: 'building' }),
-    A('slopedit', 'app', 'SlopCut', 'slopcut/', 'A video editor that never uploads your footage.', { title: 'SlopCut: video editor', group: 'creative',
+    A('slopedit', 'app', 'SlopCut', 'slopcut/', 'A video editor that never uploads your footage.', { weight: 2, title: 'SlopCut: video editor', group: 'creative',
       accepts: ['video/*', 'audio/*', 'image/*'],
       features: ['Multi-track timeline', 'Trim, split, transitions & titles', 'Hardware MP4 export (WebCodecs)', 'Offline .html'],
       shot: 'assets/shots/slopedit.jpg', icon: 'film', status: 'beta' }),
@@ -181,11 +183,11 @@
       accepts: ['image/*'],
       features: ['Eyedropper with a magnifier, and the main colours of a picture', 'Harmonies, tints, shades and a 50 to 950 ramp', 'WCAG contrast check with a fix for failing text', 'HEX, RGB, HSL, OKLCH and CMYK', 'Export CSS, Tailwind, JSON, ASE and GPL; save to Slop Drive'],
       icon: 'brush', status: 'beta' }),
-    A('workflows', 'app', 'Slop Workflows', 'workflows/', 'Chain apps into one workflow for a batch of files. Nothing uploaded.', { title: 'Batch workflows across apps', group: 'creative', tool: true,
+    A('workflows', 'app', 'Slop Workflows', 'workflows/', 'Chain apps into one workflow for a batch of files. Nothing uploaded.', { weight: 2, title: 'Batch workflows across apps', group: 'creative', tool: true,
       accepts: ['image/*', 'application/pdf'],
       features: ['Remove background, watermark, resize, upscale and clean in one run', 'Every File convert conversion as a step', 'PDF merge, compress, password and OCR', 'Templates, saved workflows, .slopflow files and links', 'Progress per file per step; results as a ZIP or to Slop Drive'],
       icon: 'spark', status: 'building' }),
-    A('convert', 'app', 'File convert', 'convert/', 'Images, PDFs, data and text, converted on your device.', { title: 'File converter', group: 'business', tool: true,
+    A('convert', 'app', 'File convert', 'convert/', 'Images, PDFs, data and text, converted on your device.', { weight: 2, title: 'File converter', group: 'business', tool: true,
       accepts: ['image/*', 'application/pdf', 'text/csv', 'application/json', 'text/markdown', 'text/plain'],
       features: ['iPhone HEIC, camera RAW and images to JPG, PNG, WebP and PDF', 'PDF to images, Word and Excel; merge and split', 'Excel, CSV, JSON, YAML, TOML, XML and subtitles', 'Video and audio: MP4, GIF, MP3, FLAC, OGG, M4A', 'Batch convert, download as zip'],
       icon: 'doc', status: 'building' }),

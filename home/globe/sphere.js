@@ -1,18 +1,23 @@
 /* The app globe's maths (home/globe/globe.js draws it, home/globe/paint.js paints its lines). Pure functions, no DOM:
  * unit-tested in tests/node/globe-sphere.test.mjs. Classic script: sets window.SlopGlobeMath, and module.exports under Node.
  * Space: y up, z towards the viewer (z = 1 is the front of the globe, z = -1 the back).
- *   tier({ reduced, cores, memory, saveData, coarse, width }) -> 'static' | 'lite' | 'full';  TIERS[tier] -> { icons, fps }
+ *   tier({ reduced, cores, memory, saveData, coarse, width }) -> 'static' | 'lite' | 'full'
+ *   TIERS[tier] -> { icons, fps, delay (ms after load before it starts), redraw (radians the lines may lag, 0: every frame) }
  *   fibonacci(n) -> [{ x, y, z }]          n points spread evenly over the unit sphere
  *   rotate(p, yaw, pitch) -> { x, y, z }    turn about the vertical axis (yaw), then tip about the horizontal one (pitch)
  *   project(q, geom) -> { x, y, scale }     true perspective: geom { cx, cy, r, d } (d: eye distance in radii)
  *   look(z) -> { alpha, blur, front }       how an icon at depth z is drawn: the back smaller, fainter and blurred
  *   spin(s, dt, o) -> s                     one step of the turn: velocity relaxes to the idle speed (inertia damping)
  *   seek(s, target, dt, tau) -> s           eases yaw and pitch towards a target (bringing an icon to the front)
- *   frontOf(p, tilt) -> { yaw, pitch }      the turn that brings point p to the front (pitch leaned only part way)
+ *   frontOf(p, tilt, lean) -> { yaw, pitch }  the turn that brings p to the front (pitch leaned `lean` of the way, 0.6)
  *   nearAngle(from, to) -> to + 2πk         the copy of an angle closest to another (the short way round)
  *   keepOut(x, y, rects, margin) -> .05..1  how much an icon shows over the text boxes
  *   grid(lat, lon, step) -> [[{x,y,z}]]     latitude and longitude lines as point lists, for the wireframe
- *   due(now, last, fps) -> bool             whether a frame is due under an fps cap */
+ *   due(now, last, fps) -> bool             whether a frame is due under an fps cap
+ *   weighted(weights) -> [{x,y,z}]          one point per weight: the heavy ones (weight > 1) spread round the equator, so
+ *                                           they pass the front on every turn, the rest on a Fibonacci sphere kept clear of them
+ *   centroid(points, weights?) -> {x,y,z}|null  the (weighted) mean direction of some points (null when they cancel out)
+ *   zoomFor(n) -> factor                    how far the globe leans in for n search matches (1 for none or many) */
 (function () {
   'use strict';
   const TAU = Math.PI * 2, GOLDEN = Math.PI * (3 - Math.sqrt(5));
@@ -20,9 +25,9 @@
   const smooth = (e0, e1, x) => { const t = clamp((x - e0) / (e1 - e0), 0, 1); return t * t * (3 - 2 * t); };
 
   const TIERS = Object.freeze({
-    full: Object.freeze({ icons: 72, fps: 60 }),
-    lite: Object.freeze({ icons: 40, fps: 30 }),
-    static: Object.freeze({ icons: 72, fps: 0 }),
+    full: Object.freeze({ icons: 72, fps: 60, delay: 700, redraw: 0 }),
+    lite: Object.freeze({ icons: 28, fps: 20, delay: 2000, redraw: 0.012 }),
+    static: Object.freeze({ icons: 72, fps: 0, delay: 700, redraw: 0 }),
   });
   function tier(o) {
     if (o.reduced) return 'static';
@@ -53,7 +58,7 @@
 
   function look(z) {
     const t = (clamp(z, -1, 1) + 1) / 2;          // 0 at the back, 1 at the front
-    return { alpha: 0.22 + 0.78 * smooth(0.05, 0.75, t), blur: z < -0.2 ? (z < -0.6 ? 2 : 1) : 0, front: z > 0.55 };
+    return { alpha: 0.06 + 0.94 * smooth(0.05, 0.75, t), blur: z < -0.2 ? (z < -0.6 ? 2 : 1) : 0, front: z > 0.55 };   // the far side all but fades
   }
 
   /** s: { yaw, pitch, vel } (vel in radians per ms). The velocity relaxes towards o.idle with time constant o.tau (ms),
@@ -71,13 +76,13 @@
 
   const nearAngle = (from, to) => to + TAU * Math.round((from - to) / TAU);
 
-  /** The yaw that turns p to face the viewer (x = 0, z > 0), and a pitch leaned 60 % of the way to its latitude from the
+  /** The yaw that turns p to face the viewer (x = 0, z > 0), and a pitch leaned part of the way (60 %) to its latitude from the
    * resting tilt, never past ±0.6 rad, so the globe never flips over. */
-  function frontOf(p, tilt) {
+  function frontOf(p, tilt, lean = 0.6) {
     const yaw = Math.atan2(-p.x, p.z);
     const flat = Math.sqrt(p.x * p.x + p.z * p.z);
     const lat = Math.atan2(p.y, flat);
-    return { yaw, pitch: clamp(tilt + (lat - tilt) * 0.6, -0.6, 0.6) };
+    return { yaw, pitch: clamp(tilt + (lat - tilt) * lean, -0.6, 0.6) };
   }
 
   function keepOut(x, y, rects, margin) {
@@ -109,7 +114,36 @@
 
   const due = (now, last, fps) => (!fps ? false : fps >= 60 || now - last >= 1000 / fps - 2);
 
-  const M = { TAU, TIERS, clamp, smooth, tier, fibonacci, rotate, project, look, spin, seek, frontOf, nearAngle, keepOut, grid, due };
+  const angle = (a, b) => Math.acos(clamp(a.x * b.x + a.y * b.y + a.z * b.z, -1, 1));
+  function weighted(weights) {
+    const heavy = [], light = [];
+    weights.forEach((w, i) => ((w || 1) > 1 ? heavy : light).push(i));
+    const out = new Array(weights.length);
+    heavy.forEach((idx, k) => {
+      const a = (TAU * k) / heavy.length, y = k % 2 ? -0.16 : 0.12, r = Math.sqrt(1 - y * y);
+      out[idx] = { x: Math.cos(a) * r, y, z: Math.sin(a) * r };
+    });
+    const big = heavy.map((i) => out[i]);
+    // the light points: a Fibonacci sphere with a few more points than needed, minus those too near a heavy one
+    const clear = heavy.length ? 0.34 : 0;   // radians: a big icon and a small one never touch
+    let pts = [];
+    for (let m = light.length; m <= light.length * 3 + 8; m++) {
+      pts = fibonacci(m).filter((p) => big.every((b) => angle(p, b) >= clear));
+      if (pts.length >= light.length) break;
+    }
+    light.forEach((idx, k) => { out[idx] = pts[k]; });
+    return out;
+  }
+  function centroid(points, weights) {
+    if (!points.length) return null;
+    let c = { x: 0, y: 0, z: 0 }, sum = 0;
+    points.forEach((p, i) => { const w = weights ? weights[i] : 1; sum += w; c = { x: c.x + p.x * w, y: c.y + p.y * w, z: c.z + p.z * w }; });
+    const l = Math.hypot(c.x, c.y, c.z);
+    return l / sum < 0.2 ? null : { x: c.x / l, y: c.y / l, z: c.z / l };
+  }
+  const zoomFor = (n) => (n === 1 ? 1.22 : n > 1 && n <= 6 ? 1.12 : 1);
+
+  const M = { TAU, TIERS, clamp, smooth, tier, fibonacci, rotate, project, look, spin, seek, frontOf, nearAngle, keepOut, grid, due, weighted, centroid, zoomFor };
   if (typeof window !== 'undefined') window.SlopGlobeMath = M;
   if (typeof module !== 'undefined' && module.exports) module.exports = M;
 })();

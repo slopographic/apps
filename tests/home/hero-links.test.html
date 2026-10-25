@@ -9,7 +9,7 @@
   <script src="../harness.js"></script>
   <script src="hero-boot.js"></script>
   <script>
-  // Covers: home/globe/globe.js, home/browse.js, index.html
+  // Covers: home/globe/globe.js, home/globe/list.js, home/browse.js, index.html
   /* The hero's links: every globe icon is a link to its app with the app's name, pointing at one brings it to the front
    * and shows the name, the keyboard list holds every app as one tab stop moved with the arrow keys, Open the apps puts the cursor in
    * the finder's search, How it works opens its page; the copy is translated through shared/i18n. */
@@ -50,9 +50,10 @@
       const g = win.SlopGlobe.view().geom;
       await sleep(1500);
       expect(win.SlopGlobe.view().vel).toBe(0);   // no idle turn while it is pointed at
-      const held = win.SlopGlobe.icons().find((i) => i.id === ic.id);
-      expect(held.z).toBeGreaterThan(0.55);
-      expect(Math.abs(held.x - g.cx)).toBeLessThan(g.r * 0.1);   // it waits at the front
+      const held = () => win.SlopGlobe.icons().find((i) => i.id === ic.id);
+      expect(win.SlopGlobe.view().focus).toBe(ic.id);
+      try { await waitFor(() => held().z > 0.55 && Math.abs(held().x - g.cx) < g.r * 0.1, { timeout: 6000 }); }   // it waits at the front
+      catch (e) { throw new Error('not at the front: ' + JSON.stringify({ x: held().x - g.cx, z: held().z, v: win.SlopGlobe.view() })); }
       ic.el.dispatchEvent(new win.PointerEvent('pointerout', { bubbles: true, pointerType: 'mouse', relatedTarget: doc.body }));
       expect(ic.el.classList.contains('is-hot')).toBe(false);
       expect(win.SlopGlobe.view().focus).toBe(null);
