@@ -20,7 +20,7 @@
   /** The tools that are not loaded yet, by name (find_tools loads them). */
   function more(tools) {
     const names = tools.filter((t) => t.deferred).map((t) => t.name);
-    return names.length ? `More tools here (load with find_tools by name or by what they do, then call): ${names.join(', ')}.` : '';
+    return names.length ? `More tools here, not loaded yet (their arguments are unknown until find_tools loads them, by name or by what they do): ${names.join(', ')}.` : '';
   }
 
   function system(tools, eng, { appName = 'this page', capable = false } = {}) {

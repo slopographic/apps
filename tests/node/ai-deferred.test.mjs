@@ -75,6 +75,10 @@ test('find_tools: by words (strong matches only) or by name; other apps that mak
   assert.equal(res.messages.length, 1);
   await T.dispatch({ name: 'gaussian_blur', arguments: { radius: 8 } }, tools);
   assert.deepEqual(J(ran), [['ps.gaussian-blur', { radius: 8 }]], 'a deferred tool runs even before it is loaded');
+  // a guess at its arguments (seen live: Claude Haiku 5.5 sent { args: { radius: 3 } } before loading it) does not run
+  const guess = await T.dispatch({ name: 'gaussian_blur', arguments: { args: { radius: 3 } } }, tools);
+  assert.equal(guess.ok, false); assert.match(guess.error, /^gaussian_blur does not take args\. It takes: gaussian_blur\(radius\?: number 0\.1–250 =4\): Blur the active layer\./);
+  assert.equal(ran.length, 1);
 });
 
 test('Claude: every tool sent, deferred ones with defer_loading; find_tools answers with tool_reference blocks only; context editing', async () => {
@@ -154,7 +158,7 @@ test('results stay small: app_state summarized (detail for all of it), data list
 test('the system prompt: short, names the tools to load, the apps in a line each (brief) for cloud, by name for local', () => {
   const w = fresh(), { tools } = page(w), K = w.SlopAIKit;
   const cloud = K.prompt.system(tools, { kind: 'cloud' }, { appName: 'PhotoSlop' });
-  assert.match(cloud, /More tools here \(load with find_tools.*\): .*gaussian_blur, motion_blur, draw_shape/);
+  assert.match(cloud, /More tools here, not loaded yet \(.*find_tools.*\): .*gaussian_blur, motion_blur, draw_shape/);
   assert.match(cloud, /- slides: Slop Slides, Keynote and PowerPoint\. Makes: Presentation \(\.sslide\)\./);
   assert.doesNotMatch(cloud, /Tools there|rebuilt for the browser/);
   assert.match(cloud, /run_operation does it on this page/); assert.match(cloud, /Be resourceful/);

@@ -111,9 +111,20 @@
     };
   }
 
+  /** A deferred tool called with arguments it does not take (the model guessed before loading it): it does not run, and
+   * the answer says what it takes, so the next call is right. */
+  function guard(t) {
+    const run = t.run, props = Object.keys(schemaOf(t).properties || {});
+    if (!props.length && !t.schema) return t;
+    return Object.assign(t, { deferred: true, run: (a = {}, e) => {
+      const odd = Object.keys(a || {}).filter((k) => !props.includes(k));
+      if (odd.length) throw new Error(`${t.name} does not take ${odd.join(', ')}. It takes: ${signature(t)}`);
+      return run(a, e);
+    } });
+  }
   function arrange(tools, env = {}) {
     if (env.defer === false || tools.length < MIN_TO_DEFER || tools.some((t) => t.name === 'find_tools')) return tools;
-    const out = tools.map((t) => (CORE.has(t.name) ? t : Object.assign(t, { deferred: true })));
+    const out = tools.map((t) => (CORE.has(t.name) ? t : t.schema || t.cmdId ? guard(t) : Object.assign(t, { deferred: true })));
     const at = Math.max(0, out.findIndex((t) => t.name === 'app_state') + 1);
     out.splice(at, 0, finder(out, env));
     return out;
