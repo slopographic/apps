@@ -2,7 +2,7 @@
  * (tools/claude-plugin/). The one source for the site's help ("Use Slopographic from Claude Code and other AI apps" in
  * how-it-works) and the README that tools/claude-plugin/publish.mjs writes. Pure data: window.SlopAgentClients on pages,
  * a CommonJS module for Node.
- *   PUBLISHED   false until the public repository exists: the help then says "coming soon" (the one flag)
+ *   PUBLISHED   true: the public repository slopographic/claude-plugin exists (false would show "coming soon" instead; the one flag)
  *   REPO        the public repository (owner/name)     NPX  the command that runs the server with no install
  *   list        [{ id, name, steps: [text], snippets: [{ label, file?, lang, code }], note? }]
  * Formats checked against each vendor's documentation on 2026-10-24 (links in each entry's doc). */
@@ -12,7 +12,7 @@
   root.SlopAgentClients = api;
 })(typeof window !== 'undefined' ? window : globalThis, function () {
   'use strict';
-  const PUBLISHED = false;
+  const PUBLISHED = true;
   const REPO = 'slopographic/claude-plugin';
   const NPX = ['npx', '-y', `github:${REPO}`];
   const json = (o) => JSON.stringify(o, null, 2);
