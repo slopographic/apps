@@ -13,7 +13,17 @@
   const { describe, it, expect, waitFor } = SlopTest;
   const tourOpen = (win) => !!(win.SlopTour && win.SlopTour.isOpen && win.SlopTour.isOpen());
 
+  // Covers: photoslop/js/app/first-run.js
   describe('PhotoSlop tour on the first run', () => {
+    it('waits when an AI app opened the page to pair (?connect=1): the pairing dialog first, the tour next time', async () => {
+      const { win } = await freshApp({ tour: true, query: '?connect=1' });
+      await waitFor(() => win.document.querySelector('.sbr-dialog'), { timeout: 20000 });
+      await new Promise((r) => setTimeout(r, 1500));
+      expect(tourOpen(win)).toBe(false);
+      expect(localStorage.getItem('photoslop.tourShown')).toBe(null);
+      win.document.querySelector('.sbr-dialog .sui-x').click();
+    }, { timeout: 40000 });
+
     it('opens the tour by itself on the first run and remembers it in localStorage', async () => {
       const { win } = await freshApp({ tour: true });
       await waitFor(() => tourOpen(win), { timeout: 20000 });
