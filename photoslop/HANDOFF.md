@@ -51,9 +51,43 @@ A layered, Photoshop-style image editor at `/photoslop/` (`/paint/` redirects he
 - **Spot Healing Brush** (`spot`, key J; no source). The same blend, with the source taken from the clean ring just outside the brush: each pixel inside the brush takes the target pixel the same distance beyond the edge along its radius (a mirror across the brush boundary). A uniform background therefore heals to exactly its own value.
 - Both paint one buffered stroke: one history step (`Healing Brush` / `Spot Healing Brush`), respect the selection and the layer's opacity. The sources are snapshots, so a stroke does not heal from its own earlier dabs.
 - **Red-Eye** (`redeye`, key J, and Filter ▸ Repair ▸ Red-Eye Removal…). Tolerance and darkening (`T.redeye`). A pixel is red when `r / max(1, (g+b)/2)` passes a threshold set by the tolerance (`2.4 − 1.2 × tol/100`, soft over 0.6), and bright pixels are weighted down (`(235 − luma)/55`), so catchlights stay. Red is pulled to `max(g, b)` and darkened by up to 80 % of the darkening amount. The tool corrects a drawn region (a click corrects a square of the tool size); the region and the selection both limit it. The filter runs through the normal filter path, so the selection limits it.
-- **Auto Enhance** (Filter ▸ Auto Enhance…). Analysis on a copy of the layer at most 256 px wide. (1) Levels from the 0.5 and 99.5 percentiles of luma, widened to at least 16 levels. (2) Grey-world white balance: red and blue gains are `mean(G) / mean(R or B)` after levels, each clamped to 0.92–1.08. (3) Exposure: half the log2 distance of the median (after 1 and 2) to 128, clamped to ±0.4 EV. (4) Saturation lift `(0.22 − mean saturation)` clamped to 0–12 %, reduced by 75 % where a pixel's hue (12–52°) and saturation (0.12–0.75) fall in the skin range. "Protect skin tones" switches that reduction off. The dialog's sliders hold the values (`filter-dialog.js`: the filter's `plist(base)`); "Reset to auto" restores them without closing; OK is one history step.
+- **Auto Enhance** (Filter ▸ Auto Enhance…). The maths is `shared/retouch/tone.js` (the same as Auto retouch below), on a copy of the layer at most 256 px wide: white balance (iterated grey-world blended with white-patch, gains 0.6–1.6, clipping guard), levels from the 0.5 and 99.5 percentiles of the balanced luma (at least 16 levels), a midtone (gamma) exposure that cannot clip, and a vibrance lift that spares skin (`shared/retouch/skin.js`). The dialog shows red and blue relative to green. "Protect skin tones" switches the skin reduction off. The dialog's sliders hold the values (`filter-dialog.js`: the filter's `plist(base)`); "Reset to auto" restores them without closing; OK is one history step.
 - Filter ▸ Repair lists the three tools and the red-eye filter; Filter ▸ Auto Enhance… is the top item. Tools have SlopCmd commands, options-bar controls and right-click items (the brush picker for the two healing tools, the red-eye filter for the red-eye tool).
-- **Not done:** content-aware fill and any model-based texture invention (needs a model, so not built); the Patch and Content-Aware Move tools; face or eye detection (red-eye is drawn by the person, and the skin-tone protection is a colour range only); healing across a different document or from a flattened source unless "Sample all layers" is on; a faster solver for very large brushes (a 240 px stroke takes about 1.5 s in headless Chromium).
+- **Not done:** model-based texture invention on the device (Auto retouch's Remove object fills by PatchMatch; Edit with AI is the generative option, with the person's key); the Patch and Content-Aware Move tools; the Red Eye tool still works on a drawn region (Auto retouch finds eyes with shared/faces when face detection is on); healing across a different document or from a flattened source unless "Sample all layers" is on; a faster solver for very large brushes (a 240 px stroke takes about 1.5 s in headless Chromium).
+
+## Auto retouch (`js/retouch/`, `shared/retouch/`, `css/retouch.css`)
+On the device, no key. `js/retouch/boot.js` (boot) adds the menus and the commands; `js/retouch/tool.js` (boot) is the Remove
+Object tool (key J); the rest loads on first use (`psRetouch()`). The maths is pure and shared (`shared/retouch/*.js`, UMD, Node
+tests in `tests/node/retouch.test.mjs`): `core` (blurs), `skin` (one skin model, the mask, spot finding), `tone` (auto enhance),
+`horizon` (tilt), `portrait` (frequency separation, whitening), `patchmatch` (content-aware fill, run in `inpaint-worker.js`).
+- **Commands** (`psRetouchCommands`, args schemas; Ctrl+K, AI panel, macros, WebMCP, the Claude Code plugin): `ps.retouch.auto-enhance`
+  (`auto_enhance`), `ps.retouch.portrait` (`portrait_retouch`), `ps.retouch.remove-object` (`remove_object`, the selection or
+  x/y/width/height; `engine: 'ai'` opens Edit with AI), `ps.retouch.straighten` (`straighten`, angle detected when omitted),
+  `ps.retouch.detect-tilt` (read-only). `ps.retouch.dialog` is Filter ▸ Auto Retouch… (also Image ▸ Auto Retouch…, and Image ▸
+  Straighten… asks first).
+- **Results are layers above the picture, one undo step each:** "Auto Enhance" (the enhanced visible picture); "Blemishes" (healed
+  with the Spot Healing Brush's own `healStamp`, mask = the discs), "Skin Smoothing" (mask = skin), "Red Eye" (`redEyeData`),
+  "Teeth Whitening", "Eye Whitening" (each with its mask); "Remove Object" (only the filled area, feathered). Straighten rotates
+  every layer and mask and crops to the largest box of the same proportions (`straightenBox`).
+- **Faces:** `shared/faces` (YuNet) is loaded on demand and used only when the person has turned face detection on (Profile);
+  the dialog offers the shared opt-in. Without faces, skin comes from colour (and the optional subject matte, the portrait
+  model of `shared/cutout`, behind the shared first-use notice); red-eye and whitening are skipped and the reply says so.
+  With faces, skin is limited to the face, neck and shoulders, learnt from the cheeks; eyes, brows and mouth are cut out.
+- **Blemishes:** small dark or red blobs in the skin (difference from a local blur, a noise-adaptive threshold), not longer
+  than 2·maxR + 2 or more elongated than 2.5:1, on calm skin (the ring the heal reads must vary little), healed twice.
+- **Remove object:** a crop around the area (at most 360 px across) is filled by PatchMatch, coarse to fine; the coarsest
+  level matches on known pixels only. Over 12 % of the picture (or 45 % of a side) the tool asks: Fill on this device or
+  Edit with AI (your key), with the trade-off said plainly. Big areas come out smooth on the device.
+- **Workflows:** `shared/ops/retouch.js` registers `photoslop.auto-enhance` ("Auto enhance photos") and `photoslop.portrait`
+  under PhotoSlop; they run the commands in the hidden PhotoSlop (`shared/macros/frame.js`), so there is one implementation.
+- **Phones and touch:** the dialog is a bottom sheet under 640 px; the split view is a touch surface (drag or arrow keys);
+  the Remove Object tool paints with a finger (it is in `BOX_HIDDEN_TOOLS`, so the layer box does not take the drag).
+- Tests: `tests/photoslop/retouch.test.html` (cast, blemishes and edge, faces stub, remove, big area choice, straighten, undo),
+  `retouch-dialog.test.html` (split view, Apply/Cancel, macro step, contrast in four themes, phone sheet),
+  `retouch-touch.test.html` (touch runs), `tests/workflows/retouch.test.html` (three pictures), `tests/node/retouch.test.mjs`.
+- **Limits:** the on-device fill copies texture, it does not invent structure (use Edit with AI for big or complex areas);
+  skin smoothing and blemishes rely on colour when face detection is off, so warm backgrounds can count as skin (the
+  subject switch or the layer masks fix that); red-eye needs visible eyes (sunglasses: nothing to fix).
 
 ## Guides, rulers, grid, snapping (`js/guides/`, uses `shared/guides/`)
 - **Model** (`model.js`): `D.guides` is an immutable array of `{ o: 'v' | 'h', pos }` in document px. It is part of every history snapshot, so every guide change is one undo step (`setGuides(list, label)`, `addGuide`, `applyGuides(list, 'add' | 'replace')`, `clearGuides`). Tabs stash it; autosave stores it; PSD read/write uses image resource 1032, so Photoshop sees the guides. Canvas Size, Crop, Image Size and Image Rotation move the guides with the pixels (`remapGuides`).

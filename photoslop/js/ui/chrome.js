@@ -111,7 +111,7 @@ function showMenu(btn, items, focus) {
 /* ---------- toolbox ---------- */
 function buildToolbox() {
   const box = $('#toolbox');
-  const order = ['move', 'marquee', 'ellipse', 'lasso', 'polylasso', 'wand', 'crop', 'eyedropper', 'brush', 'pencil', 'clone', 'heal', 'spot', 'redeye', 'eraser', 'gradient', 'bucket', 'blur', 'sharpen', 'smudge', 'dodge', 'sponge', 'type', 'shape', 'hand', 'zoom'];
+  const order = ['move', 'marquee', 'ellipse', 'lasso', 'polylasso', 'wand', 'crop', 'eyedropper', 'brush', 'pencil', 'clone', 'heal', 'spot', 'redeye', 'remove', 'eraser', 'gradient', 'bucket', 'blur', 'sharpen', 'smudge', 'dodge', 'sponge', 'type', 'shape', 'hand', 'zoom'];
   const grid = h('div', { class: 'tools' });
   for (const id of order) {
     const t = TOOL[id];
@@ -188,6 +188,7 @@ function buildOptions() {
       h('button', { class: 'btn primary', type: 'button', onclick: commitTransform, title: 'Commit (Enter)' }, 'Commit'));
     return;
   }
+  if (t.options) { t.options(add); return; }   // a tool that builds its own options (retouch/tool.js)
   const blendOpts = BLENDS.map((b) => [b[0], b[1]]);
   switch (t.id) {
     case 'brush': add(brushPickerButton(), optSelect('Tip', T.brush, 'tip', tipOptions(T.brush)), optRange('Size', T.brush, 'size', 1, 1000, 1, (v) => v + ''), optRange('Hardness', T.brush, 'hardness', 0, 100, 1, pct, (v) => v / 100, (v) => v * 100), optSelect('Mode', T.brush, 'blend', blendOpts), optRange('Opacity', T.brush, 'opacity', 1, 100, 1, pct, (v) => v / 100, (v) => v * 100), optRange('Flow', T.brush, 'flow', 1, 100, 1, pct, (v) => v / 100, (v) => v * 100), optCheck('Pen pressure', T.brush, 'pressure')); break;

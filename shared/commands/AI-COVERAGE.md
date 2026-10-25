@@ -10,7 +10,7 @@ Covered: 44 of 61 apps.
 
 | App | Create | Add | Edit | Export | Operations | Covered |
 |---|---|---|---|---|---|---|
-| PhotoSlop (`photoslop`) | ✓ 1 | ✓ 7 | ✓ 29 | ✓ 1 |  | yes |
+| PhotoSlop (`photoslop`) | ✓ 1 | ✓ 7 | ✓ 34 | ✓ 1 | 2 | yes |
 | SlopVector (`vector`) | ✓ 1 | ✓ 3 | ✓ 10 | ✓ 1 |  | yes |
 | Slop PDF (`pdf`) | ✓ 1 | ✓ 5 | ✓ 5 | ✓ 1 | 1 | yes |
 | SlopLabel (`label`) | ✓ 1 | ✓ 5 | ✓ 3 | ✓ 1 |  | yes |
@@ -78,8 +78,9 @@ Covered: 44 of 61 apps.
 
 - create: `new_document`
 - add: `add_svg_layer`, `add_text`, `brush_stroke`, `click_tool`, `draw_shape`, `new_layer`, `use_tool`
-- edit: `add_noise`, `brightness_contrast`, `canvas_size`, `crop`, `crop_to_selection`, `curves`, `delete_layer`, `denoise`, `desaturate`, `duplicate_layer`, `fill`, `filter`, `flip`, `gaussian_blur`, `gradient_fill`, `hue_saturation`, `image_size`, `invert_selection`, `levels`, `motion_blur`, `remove_background`, `rotate`, `select_all`, `select_subject`, `set_layer`, `sharpen`, `transform_layer`, `upscale`, `vignette`
+- edit: `add_noise`, `auto_enhance`, `brightness_contrast`, `canvas_size`, `crop`, `crop_to_selection`, `curves`, `delete_layer`, `denoise`, `desaturate`, `detect_tilt`, `duplicate_layer`, `fill`, `filter`, `flip`, `gaussian_blur`, `gradient_fill`, `hue_saturation`, `image_size`, `invert_selection`, `levels`, `motion_blur`, `portrait_retouch`, `remove_background`, `remove_object`, `rotate`, `select_all`, `select_subject`, `set_layer`, `sharpen`, `straighten`, `transform_layer`, `upscale`, `vignette`
 - export: `export`
+- operations: `photoslop.auto-enhance`, `photoslop.portrait`
 
 ### SlopVector
 

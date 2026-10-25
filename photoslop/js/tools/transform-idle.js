@@ -3,7 +3,7 @@
 'use strict';
 
 /** Painting tools, and tools with their own handles: the box stays hidden under them. */
-const BOX_HIDDEN_TOOLS = new Set(['brush', 'pencil', 'clone', 'heal', 'spot', 'redeye', 'eraser', 'gradient', 'bucket', 'blur', 'sharpen', 'smudge', 'dodge', 'sponge', 'type', 'shape', 'crop', 'hand', 'zoom', 'eyedropper']);
+const BOX_HIDDEN_TOOLS = new Set(['brush', 'pencil', 'clone', 'heal', 'spot', 'redeye', 'remove', 'eraser', 'gradient', 'bucket', 'blur', 'sharpen', 'smudge', 'dodge', 'sponge', 'type', 'shape', 'crop', 'hand', 'zoom', 'eyedropper']);
 
 /** The selected part of the layer (cached per canvas, selection and position). */
 const selBoxCache = { c: null, sel: null, x: 0, y: 0, b: null };
