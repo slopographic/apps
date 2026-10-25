@@ -11,8 +11,12 @@
  * Own AI account (shared/ai/cloud/): a provider connected with the person's own key is just another engine; the
  * header names it ("Claude · Claude Opus 5.5"), the foot says where requests go, and the provider chosen last comes
  * back on the next page when its key is still in this browser. It is never shared with other tabs over the bridge.
- * API: window.SlopAIPanel = { open(), close(), toggle(), send(text), use(engine), get messages(), ready (all of the kit),
- *   chatReady (what the chat needs: the composer works from then), isOpen }. */
+ * The message box: Up and Down recall what was sent before, in every app (history.js); Ctrl+A and the other editing keys
+ * stay the box's (shared/input/typing.js keeps the app's shortcuts off them). Beside it, the AI permissions mode
+ * (permissions-ui.js modeControl). Open or closed is remembered on this device ('slop-ai.open'): shell/header.js opens
+ * the panel again on the next app, except on a phone, where it would cover the page.
+ * API: window.SlopAIPanel = { open({ auto }), close(), toggle(), send(text), use(engine), get messages(), ready (all of the
+ *   kit), chatReady (what the chat needs: the composer works from then), isOpen, OPEN_KEY }. */
 (function () {
   'use strict';
   if (window.SlopAIPanel) return;
@@ -29,7 +33,9 @@
   const CORE = ['permissions', 'app-skills', 'apptools', 'cmdtools', 'toolbox', 'prompt', 'filetools', 'optools', 'handoff', 'md', 'catalog', 'picker', 'panel-run'];
   const LATER = ['permissions-ui', '../ui/menubutton', 'model-menu', 'imagegen/index'];
   K.panelKit = { CORE, LATER };
-  const kit = Promise.all([add('slopai', () => window.SlopAI), add('../commands/args', () => window.SlopCmdArgs), sheetP, add('../ui/resize-panel', () => window.SlopResizePanel)])
+  const OPEN_KEY = 'slop-ai.open';   // '1' open, '0' closed: what the person did last, on any app (read by shell/header.js)
+  const remember = (on) => { try { localStorage.setItem(OPEN_KEY, on ? '1' : '0'); } catch (e) { /* storage blocked */ } };
+  const kit = Promise.all([add('slopai', () => window.SlopAI), add('history', () => K.history), add('../commands/args', () => window.SlopCmdArgs), sheetP, add('../ui/resize-panel', () => window.SlopResizePanel)])
     .then(() => Promise.all([window.SlopAI.loaded, K.load(CORE)]))
     .then(() => takeHandoff()).then(() => restoreCloud());
   const extras = kit.then(() => K.load(LATER)).then(() => K.imageGenReady && K.imageGenReady.catch(() => null));
@@ -39,7 +45,21 @@
   const allReady = kit.then(() => extras.catch(() => null));
   allReady.catch(() => {});   // reported in the panel (kit.catch)
   /** A message sent before the kit is in waits for it (the composer is there at once). */
-  const sendWhenReady = (t) => kit.then(() => extras.catch(() => null)).then(() => P.send(t));
+  function sendWhenReady(t) {
+    if (t == null && K.history) K.history.add(P.input.value.trim());   // what the person typed, for Up next time
+    if (P.recall) P.recall.reset();
+    return kit.then(() => extras.catch(() => null)).then(() => P.send(t));
+  }
+  /** Up and Down in the message box (history.js): on the first or last line only, never while an IME composes. */
+  const recall = () => P.recall || (K.history && P.input && (P.recall = K.history.cursor(() => P.input.value, (t) => { P.input.value = t; P.input.setSelectionRange(t.length, t.length); })));
+  function onComposerKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); if (!P.busy) sendWhenReady(); }
+    else if ((e.key === 'ArrowUp' || e.key === 'ArrowDown') && !e.isComposing && e.keyCode !== 229 && !e.shiftKey && !e.altKey && !e.ctrlKey && !e.metaKey && recall()) {
+      const up = e.key === 'ArrowUp';
+      if (K.history.atEdge(P.input, up ? 'up' : 'down') && (up ? P.recall.up() : P.recall.down())) e.preventDefault();
+    }
+    if (e.key !== 'Escape') e.stopPropagation();
+  }
   /** A request handed over from another app (handoff.js): its conversation, a line saying so, and its task, sent as soon
    * as a model is there. */
   function takeHandoff() {
@@ -71,7 +91,8 @@
     P.toolsBox = h('input', { type: 'checkbox', checked: !!window.SlopCmd });
     P.input = h('textarea', { rows: 2, placeholder: 'Ask about ' + appName() + ', or say what to do…', 'aria-label': 'Message' });
     P.sendBtn = h('button', { type: 'button', class: 'sap-send', 'aria-label': 'Send', onclick: () => (P.busy ? P.stop() : sendWhenReady()) }, '↑');
-    P.input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); if (!P.busy) sendWhenReady(); } if (e.key !== 'Escape') e.stopPropagation(); });
+    P.input.addEventListener('keydown', onComposerKey);
+    P.input.addEventListener('input', () => { if (P.recall) P.recall.reset(); });   // typing starts the recall over
     P.list = h('div', { class: 'sap-list', role: 'log', 'aria-live': 'polite' });
     P.status = h('button', { type: 'button', class: 'sap-status', title: 'Change the model' });   // the quick model menu (model-menu.js)
     P.undoBtn = h('button', { type: 'button', class: 'sap-btn sap-undo', hidden: true, onclick: () => P.undoAll() }, '↶ Undo all AI changes');
@@ -80,7 +101,7 @@
         h('button', { type: 'button', class: 'sap-gear', title: 'AI permissions', 'aria-label': 'AI permissions', onclick: () => extras.catch(() => null).then(() => P.settings()) }, '⚙'),
         h('button', { type: 'button', class: 'sap-x', 'aria-label': 'Close Slop AI', onclick: close }, '×')),
       P.list,
-      h('div', { class: 'sap-bar' }, h('label', { class: 'sap-tools' }, P.toolsBox, ' Control ' + appName()), P.undoBtn),
+      P.bar = h('div', { class: 'sap-bar' }, h('label', { class: 'sap-tools' }, P.toolsBox, ' Control ' + appName()), P.undoBtn),
       h('div', { class: 'sap-comp' }, P.input, P.sendBtn),
       P.foot = h('div', { class: 'sap-foot' }, 'Runs on your device. Nothing leaves it.'));
     root.querySelector('.sap-logo').innerHTML = SPARK;
@@ -90,6 +111,7 @@
     // the model menu arrives with the later part; a tap before then opens it as soon as it is in (or the model choice)
     const early = () => { if (!P.modelMenu) extras.catch(() => null).then(() => (P.modelMenu ? P.modelMenu.open() : P.choose())); };
     P.status.addEventListener('click', early);
+    extras.then(() => { const Pm = window.SlopAIPermissions; if (Pm && Pm.modeControl && !P.modeSel) P.bar.insertBefore(P.modeSel = Pm.modeControl(), P.undoBtn); }, () => {});
     extras.then(() => { if (K.modelMenu) K.modelMenu.attach(P); P.status.removeEventListener('click', early); if (!P.modelMenu) P.status.addEventListener('click', () => P.choose()); }, () => {});
   }
   function fab() {
@@ -170,26 +192,29 @@
       apply: (px) => { if (px != null) document.documentElement.style.setProperty('--sap-w', px + 'px'); else document.documentElement.style.removeProperty('--sap-w'); if (root && !root.hidden) window.dispatchEvent(new Event('resize')); } });
     if (sheet || !window.SlopSheet) return;
     sheet = SlopSheet.attach({ root: host, panel: root, side: 'bottom', phone: '(max-width: 640px)', label: 'Slop AI',
-      onChange: (open, why) => { if (!open && why !== 'api' && why !== 'wide') { root.hidden = true; layout(); } } });
+      onChange: (open, why) => { if (!open && why !== 'api' && why !== 'wide') { root.hidden = true; remember(false); layout(); } } });
   }
-  function open() {
+  /** auto: shell/header.js reopening it on the next app (not remembered again, and the app keeps the focus). */
+  function open(o) {
+    const auto = !!(o && o.auto);
+    if (!auto) remember(true);
     build(); attachSheet();
     if (!sizer) kit.then(attachSheet).catch(() => {});   // the resize module arrives with the kit
     root.hidden = false;
     if (sheet && sheet.isPhone()) sheet.open();
     else if (!sheet) sheetP.then(() => { attachSheet(); if (sheet && sheet.isPhone() && !root.hidden) { sheet.open(); layout(); } }).catch(() => {});
     layout(); P.renderStatus();
-    setTimeout(() => P.input.focus({ preventScroll: true }), 0);
+    if (!auto) setTimeout(() => P.input.focus({ preventScroll: true }), 0);
     kit.then(P.render).catch(() => {});   // a kit that failed shows its error line (kit.catch above)
     return kit;
   }
-  function close() { if (sheet && sheet.isOpen()) sheet.close(); if (root) root.hidden = true; layout(); }
+  function close() { remember(false); if (sheet && sheet.isOpen()) sheet.close(); if (root) root.hidden = true; layout(); }
   function toggle() { if (root && !root.hidden) close(); else open(); }
   if (window.matchMedia) matchMedia(WIDE).addEventListener('change', layout);
 
   const start = () => { fab(); kit.then(() => { SlopAI.on('change', () => { P.renderStatus(); if (root && !P.messages.length) P.render(); }); P.renderStatus(); }).catch((e) => console.warn('Slop AI panel:', e.message)); };
   if (document.body) start(); else document.addEventListener('DOMContentLoaded', start);
-  window.SlopAIPanel = { open, close, toggle, send: (t) => { open(); return sendWhenReady(t); }, use: (e) => kit.then(() => P.use(e)),
+  window.SlopAIPanel = { open, close, toggle, OPEN_KEY, send: (t) => { open(); return sendWhenReady(t); }, use: (e) => kit.then(() => P.use(e)),
     get messages() { return P.messages; }, get isOpen() { return !!root && !root.hidden; },
     ready: allReady, chatReady: kit, _p: P };
   K.panel = P;

@@ -20,7 +20,7 @@
     var k = keyName(e);
     return (e.ctrlKey || e.metaKey ? 'mod+' : '') + (e.altKey ? 'alt+' : '') + (e.shiftKey ? 'shift+' : '') + k;
   };
-  function isTyping(t) { return t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable); }
+  function isTyping(t) { return (!window.SlopTyping || window.SlopTyping.isTyping(t, { controls: true })); }   // shared/input/typing.js
   var pasteTimer = null;
   function onKeyDown(e) {
     var t = e.target;

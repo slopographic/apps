@@ -7,9 +7,11 @@
   'use strict';
   const N = (window.SlopNav = window.SlopNav || {});
   const L = N.logic;
-  const TYPING = /^(INPUT|TEXTAREA|SELECT)$/;
 
-  const isTyping = (t) => !!t && (TYPING.test(t.tagName || '') || !!t.isContentEditable);
+  // the shared guard (shared/input/typing.js; loaded here when no one did); a focused slider keeps its keys too
+  const ME = document.currentScript;
+  if (!window.SlopTyping && ME && ME.src) document.head.append(Object.assign(document.createElement('script'), { src: new URL('../input/typing.js', ME.src).href, async: false }));
+  const isTyping = (e) => !window.SlopTyping || window.SlopTyping.isTyping(e, { controls: true });
   const dialogsOpen = () => { try { return !!(window.SlopUI && SlopUI.openDialogs); } catch (e) { return false; } };
 
   /**
@@ -30,7 +32,7 @@
     const inHost = (t) => !!t && host.contains(t);
     const pageTarget = (t) => !t || t === document.body || t === document.documentElement || inHost(t);
     const emit = (a) => { if (o.onAction) { try { o.onAction(a); } catch (e) { console.error(e); } } };
-    const blocked = (e) => isTyping(e.target) || (keys === 'global' && dialogsOpen()) || (keys === 'hover' && !over) || !!(o.skip && o.skip());
+    const blocked = (e) => isTyping(e) || (keys === 'global' && dialogsOpen()) || (keys === 'hover' && !over) || !!(o.skip && o.skip());
     const pal = () => host.classList;
     const setHeld = () => { if (held.space || held.hand) pal().add('space'); else pal().remove('space'); };
     const stop = (e) => { e.preventDefault(); e.stopImmediatePropagation(); };

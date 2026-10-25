@@ -114,6 +114,8 @@ async function runPage(browser, base, p, scale) {
   const net = await attachNet(ctx, { dir: NET_DIR, route: NET_PAGES.has(p.split(path.sep).join('/')) });
   const page = await ctx.newPage();
   if (TOUCH) await touchPage(page, ENGINE, touchDevice(ENGINE, value('device')).name); // real touches for the test page (tests/touch.mjs)
+  // real key presses for a page that needs the browser's own handling (Ctrl+A selecting a field's text): __slopKey('Control+A')
+  await page.exposeFunction('__slopKey', (key) => page.keyboard.press(key));
   if (scale > 1) await page.addInitScript((n) => { window.__SLOPTEST_SCALE__ = n; }, scale); // harness timeouts (tests/harness.js)
   // A script error before the harness starts (a syntax error in the test page) would leave the page waiting for the full
   // timeout; the page notes the first error so the wait below can end early.

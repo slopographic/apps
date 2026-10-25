@@ -6,7 +6,7 @@
   DR.wireKeys = function () {
     document.addEventListener('keydown', (e) => {
       if (window.SlopUI.openDialogs || document.querySelector('.sui-menu')) return;
-      const t = e.target, typing = t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable);
+      const t = e.target, typing = (!window.SlopTyping || window.SlopTyping.isTyping(e, { controls: true }));   // shared/input/typing.js
       const mod = e.ctrlKey || e.metaKey, k = e.key, items = DR.selected(), one = items.length === 1 ? items[0] : null;
       if (typing) {
         if (k === 'Escape' && t.id === 'search') { t.value = ''; S.query = ''; DR.render(); $('pane').focus(); }

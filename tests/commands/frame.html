@@ -10,7 +10,7 @@
 <body>
   <script src="../../shared/slopui.js"></script>
   <script src="../../shared/apps.js"></script>
-  <script src="../../shared/commands/commands.js"></script>
+  <script src="../../shared/input/typing.js"></script><script src="../../shared/commands/commands.js"></script>
   <script>
     SlopCmd.init({ app: 'frame-test', fab: 'touch' });
     SlopCmd.register([{ id: 'f.hello', title: 'Say hello', group: 'Test', keys: ['H'], run: () => { window.hello = (window.hello || 0) + 1; } }]);

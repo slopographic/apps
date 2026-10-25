@@ -8,7 +8,7 @@
   let stage = null, cur = null, drag = null, space = false;
 
   const isBrush = () => S.tool === 'keep' || S.tool === 'remove';
-  const typing = (t) => !!t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName));
+  const typing = (t) => (!window.SlopTyping || window.SlopTyping.isTyping(t, { controls: true }));   // shared/input/typing.js
   const local = (e) => { const r = stage.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
 
   /** Brush radius in image px and hardness for the current settings. */

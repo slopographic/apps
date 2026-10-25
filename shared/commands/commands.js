@@ -190,11 +190,9 @@
   /* ---------- dispatch ---------- */
   let target = null, pending = null, paletteOpen = false, recording = 0;
   const CHORD_MS = 1500;
-  function isTyping(t) {
-    if (!t || !t.tagName) return false;
-    if (t.isContentEditable || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT') return true;
-    return t.tagName === 'INPUT' && !/^(button|checkbox|radio|range|color|file|submit|reset|image)$/i.test(t.type || '');
-  }
+  // Typing in a field is shared/input/typing.js's call (the one guard every shortcut handler uses); loaded here if no one did
+  if (!window.SlopTyping && BASE) document.head.append(Object.assign(document.createElement('script'), { src: BASE + '../input/typing.js', async: false }));
+  const isTyping = (t) => !!(window.SlopTyping && window.SlopTyping.isTyping(t));
   const dialogOpen = () => !!(window.SlopUI && SlopUI.openDialogs > 0) || paletteOpen;
   function candidates(seq, typing, blocked) {
     const exact = [], prefix = [];
@@ -214,9 +212,11 @@
     if (e.target && e.target.closest && e.target.closest('[role="menu"]')) return; // an open menu takes its own keys
     if (e.key === 'Escape' && document.querySelector('[data-slop-escape]')) return; // an open sheet (shared/ui/sheet.js) closes first
     if (TAB_KEYS.has(e.key) && !e.ctrlKey && !e.metaKey && !e.altKey && e.target && e.target.closest && e.target.closest('[role="tablist"]')) return; // and a focused tab strip its arrows
+    const T = window.SlopTyping;
+    if (!T || T.yields(e)) return;   // a key the field itself uses (Ctrl+A, Ctrl+Z, Home…) is never a shortcut there
     const steps = eventSteps(e);
     if (!steps) return;
-    const typing = isTyping(e.composedPath ? e.composedPath()[0] : e.target), blocked = dialogOpen();
+    const typing = T.isTyping(e), blocked = dialogOpen();
     const now = Date.now();
     const pre = pending && now - pending.t < CHORD_MS ? pending.seq : [];
     pending = null;

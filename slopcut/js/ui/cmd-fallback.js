@@ -27,12 +27,10 @@
     for (const c of cmds) for (const k of c.keys || []) map.set(norm(k), c);
     document.addEventListener('keydown', (e) => {
       if (SlopUI.openDialogs || e.defaultPrevented) return;
-      const t = e.target, typing = t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)) && !(t.type === 'range' || t.type === 'checkbox' || t.type === 'color');
       if (document.querySelector('.sui-menu')) return;
       const k = keyName(e), c = map.get(k);
       if (!c) return;
-      if (typing && !k.includes('Mod')) return;
-      if (typing && /^(Mod\+[ACVXZY]|Shift\+Mod\+Z)$/.test(k)) return; // native text editing
+      if (!window.SlopTyping || window.SlopTyping.yields(e)) return; // a field keeps its own keys (shared/input/typing.js)
       if (c.when && !c.when()) return;
       e.preventDefault();
       c.run({});

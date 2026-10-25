@@ -116,7 +116,7 @@ export function mountHud({ onUnleash, onRestore, on3d, onAsk }) {
 /** Open or close the card (M.hudOpen; every listener follows). */
 export function setOpen(v) { M.hudOpen = !!v; changed(); }
 
-function typing(t) { return !!t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)); }
+function typing(t) { return (!window.SlopTyping || window.SlopTyping.isTyping(t, { controls: true })); }   // shared/input/typing.js
 function restartIdle() { clearTimeout(idleT); idleT = setTimeout(fade, IDLE_MS); }
 function fade() { if (!hovered && !focused && !M.hudOpen) hud.classList.add('is-faded'); }
 function wake() { hud.classList.remove('is-faded'); restartIdle(); }

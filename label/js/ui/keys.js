@@ -74,7 +74,7 @@ async function onPaste(e) {
 }
 
 /* ---------------- keyboard: Space-to-pan (held); the rest lives in ui/commands.js ---------------- */
-const isTyping = (t) => t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable);
+const isTyping = (t) => (!window.SlopTyping || window.SlopTyping.isTyping(t, { controls: true }));   // shared/input/typing.js
 function onKeyDown(e) {
   if (e.key === ' ' && !isTyping(e.target)) { spaceDown = true; $('stage').classList.add('panning'); if (e.target === $('stage')) e.preventDefault(); }
   // every other shortcut is a command in ui/commands.js, dispatched (and rebindable) by SlopCmd
