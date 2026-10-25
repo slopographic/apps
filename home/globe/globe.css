@@ -81,7 +81,7 @@
   transition: opacity .25s, visibility .25s;
 }
 .gx-tag.is-on { opacity: 1; visibility: visible; }
-.gx-narrow .gx-tag { padding: 4px 7px; font-size: 10px; }
+.gx-narrow .gx-tag { max-width: 180px; overflow: hidden; text-overflow: ellipsis; padding: 4px 7px; font-size: 10px; }   /* labels.js NARROW_MAX */
 /* searching: the matches' names and icons carry the accent */
 .gx-tag.is-match { outline: 2px solid var(--slop); outline-offset: 0; }
 .gx-layer.is-searching .gx-i.is-match .gx-svg { outline: 2px solid var(--slop); outline-offset: 3px; border-radius: 22%; }

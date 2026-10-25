@@ -96,7 +96,7 @@
     W = hero.clientWidth; H = hero.clientHeight;
     const r = (Math.min(b.r - b.l, b.b - b.t) / 2) * 0.82;
     geom = { cx: (b.l + b.r) / 2, cy: (b.t + b.b) / 2, r, d: 3.4 };
-    rects = ['.hx-title', '.hx-sub', '.hx-cta', '.hx-meta'].map((q) => rel(hero.querySelector(q), base)).filter(Boolean);
+    rects = ['.hx-kicker', '.hx-title', '.hx-sub', '.hx-cta', '.hx-meta'].map((q) => rel(hero.querySelector(q), base)).filter(Boolean);
     size = Math.round(G.clamp(r * (tierName === 'lite' ? 0.27 : 0.22), 34, 58));   // a phone's fewer icons are larger
     layer.style.setProperty('--gx-size', size + 'px');
     Object.assign(hit.style, { left: geom.cx - r * 1.05 + 'px', top: geom.cy - r * 1.05 + 'px', width: r * 2.1 + 'px', height: r * 2.1 + 'px' });

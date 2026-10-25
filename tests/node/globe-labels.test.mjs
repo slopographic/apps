@@ -22,6 +22,7 @@ test('a box sits under its icon, sized from the text, smaller at phone width, ke
   assert.ok(Math.abs(b.l + b.w / 2 - 500) < 1);
   assert.ok(L.boxFor({ ...c('a', 500, 300, 1), text: 'A much longer app name' }, { W: 1280 }).w > b.w);
   assert.ok(L.boxFor(c('a', 500, 300, 1), { W: 390, narrow: true }).w < b.w);
+  assert.equal(L.boxFor({ ...c('a', 200, 300, 1), text: 'A very long app name: with a long description' }, { W: 390, narrow: true }).w, L.NARROW_MAX);
   const edge = L.boxFor(c('a', 2, 300, 1), { W: 390 });
   assert.ok(edge.l >= 4);
   const right = L.boxFor(c('a', 388, 300, 1), { W: 390 });

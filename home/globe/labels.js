@@ -17,12 +17,13 @@
 (function () {
   'use strict';
   const LIMITS = { idle: [5, 3], search: [12, 6] };   // [wide, narrow]
-  const GAP = 6, PAD = 6, FADE = 260;
+  const GAP = 6, PAD = 6, FADE = 260, NARROW_MAX = 180;   // px: a long name is cut short at phone width (globe.css)
   const limit = (searching, narrow) => LIMITS[searching ? 'search' : 'idle'][narrow ? 1 : 0];
   const font = (narrow) => (narrow ? 10 : 11);
 
   function boxFor(c, o) {
-    const f = font(o.narrow), w = Math.ceil(String(c.text || '').length * f * 0.7 + (o.narrow ? 14 : 18)), h = Math.ceil(f * 1.2 + (o.narrow ? 8 : 10));
+    const f = font(o.narrow), est = Math.ceil(String(c.text || '').length * f * 0.7 + (o.narrow ? 14 : 18));
+    const w = o.narrow ? Math.min(NARROW_MAX, est) : est, h = Math.ceil(f * 1.2 + (o.narrow ? 8 : 10));
     let l = c.x - w / 2;
     if (o.W) l = Math.max(4, Math.min(o.W - 4 - w, l));
     return { l, t: c.y + c.half + GAP, w, h };
@@ -98,7 +99,7 @@
     return { update, shown };
   }
 
-  const M = { limit, boxFor, pick, overlap, LIMITS };
+  const M = { limit, boxFor, pick, overlap, LIMITS, NARROW_MAX };
   if (typeof window !== 'undefined') window.SlopGlobeLabels = { ...M, pool };
   if (typeof module !== 'undefined' && module.exports) module.exports = M;
 })();
