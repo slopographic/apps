@@ -21,6 +21,7 @@
     // A record that is a view of its own, beside the list (SlopBiz.panel.records): a new one, its main button with the
     // form empty answers in the message line
     listApp('Slop Expenses', 'expenses/index.html', 'SlopExpenses', 'Record expense'),
+    listApp('Slop Timesheets', 'timesheets/index.html', 'SlopTimesheets', 'Save'),
     // Contacts: the card is the record panel (its own column, a page on a phone); Edit, Duplicate and Delete at its foot
     { name: 'Slop Contacts', path: 'contacts/index.html', hash: '', view: '.col-list', panel: '#card', main: 'Edit', bare: true,
       ready: (W) => W.SlopContacts && W.SlopContacts.ready,
