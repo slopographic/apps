@@ -108,9 +108,39 @@
     });
     return { images: imgs, fonts: fts, counts: { images: imgs.length, fonts: fts.length, selectable: imgs.concat(fts).filter(function (r) { return !r.disabled; }).length } };
   };
+  /** The rows of embedded files: { id, title, meta, reason, checked, disabled }. */
+  M.attachmentRows = function (list) {
+    return list.map(function (a) {
+      var meta = [a.mime, M.sizeText(a.size || 0), a.from === 'annotation' ? 'attached on page ' + a.page : 'attached to the document', a.einvoice ? 'e-invoice (ZUGFeRD / Factur-X)' : '', a.rel ? 'relationship: ' + a.rel : '', a.desc, a.file].filter(Boolean);
+      return { id: a.id, group: 'attachment', checked: !!a.bytes, disabled: !a.bytes, reason: a.bytes ? '' : a.reason, title: a.name, meta: meta };
+    });
+  };
+  /** A page's text from pdf.js text items ({ str, hasEOL, transform: [a, b, c, d, x, y] }): { txt, md }. A gap between lines
+      bigger than 1.6 lines starts a paragraph (a blank line in both); md has a heading for the page. */
+  M.pageText = function (items, n) {
+    var lines = [], cur = '', lastY = null;
+    items.forEach(function (it) {
+      if (typeof it.str !== 'string') return;
+      var y = it.transform ? it.transform[5] : null, fs = it.transform ? Math.hypot(it.transform[2], it.transform[3]) : 0;
+      cur += it.str;
+      if (it.hasEOL) { lines.push({ t: cur, y: y, fs: fs }); cur = ''; }
+      lastY = y;
+    });
+    if (cur.trim()) lines.push({ t: cur, y: lastY, fs: 0 });
+    var paras = [], para = [];
+    lines.forEach(function (l, i) {
+      var prev = lines[i - 1], gap = prev && prev.y != null && l.y != null ? prev.y - l.y : 0, pitch = (l.fs || prev && prev.fs || 12) * 1.2;
+      if (para.length && gap > pitch * 1.6) { paras.push(para); para = []; }
+      if (l.t.trim()) para.push(l.t.replace(/\s+$/, ''));
+    });
+    if (para.length) paras.push(para);
+    var txt = paras.map(function (p) { return p.join('\n'); }).join('\n\n');
+    var md = '## Page ' + n + '\n\n' + paras.map(function (p) { return p.join(' ').replace(/([*_#`\\])/g, '\\$1'); }).join('\n\n');
+    return { txt: txt + '\n', md: md + '\n' };
+  };
   /** The zip entries of a selection, images first (so a JPEG or PNG is the first entry). items: [{ group, path, ext, data }]. */
   M.planEntries = function (items) {
-    var order = { image: 0, font: 1 };
+    var order = { image: 0, attachment: 1, font: 2, text: 3, page: 4 };
     return items.slice().sort(function (a, b) { return order[a.group] - order[b.group]; });
   };
 

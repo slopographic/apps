@@ -4,7 +4,7 @@
    Slop Drive (a folder named after the PDF in the Slop PDF folder). */
 (function () {
   'use strict';
-  var SP = window.SP, U = SP.util, E = SP.engine, Mod = window.SlopPdfAssets, A = SP.assets;
+  var SP = window.SP, U = SP.util, E = SP.engine, Mod = window.SlopPdfAssets, A = SP.assets, X = A;
 
   /** The name of the PDF for the Drive folder and the zip: its file name without .pdf, or "PDF assets". */
   A.baseName = function () {
@@ -12,20 +12,15 @@
     var n = p ? String(E.files.get(p.f).name || '').replace(/\.pdf$/i, '').trim() : '';
     return n || 'PDF assets';
   };
-  /** PNG bytes of an image with raw (Flate) samples, decoded through a canvas. Throws with a reason when the data is short. */
-  async function pngOf(im) {
-    var bytes = await A.streamBytes({ contents: im.contents }, im.filters, im.parms);
-    if (!bytes) throw new Error('The image data could not be decompressed');
-    var w = im.width, h = im.height, comps = im.palette ? 1 : im.comps;
-    if (!w || !h) throw new Error('The image has no size');
-    if (bytes.length < w * h * comps) throw new Error('The image data is shorter than its size');
-    var rgba = Mod.toRGBA(bytes, w, h, comps, im.palette);
+  /** PNG bytes of RGBA pixels, through a canvas. */
+  async function encodePng(rgba, w, h) {
     var c = document.createElement('canvas'); c.width = w; c.height = h;
     c.getContext('2d').putImageData(new ImageData(rgba, w, h), 0, 0);
     var png = new Uint8Array(await (await U.canvasToBlob(c, 'image/png')).arrayBuffer());
     c.width = c.height = 0;
     return png;
   }
+  X.encodePng = encodePng;
   /** The entries of a selection: [{ group, path, data }] in order (images first) and the skipped items with reasons. */
   A.entries = async function (images, fonts) {
     var items = [], skipped = [];
@@ -33,7 +28,7 @@
       var label = 'p' + im.page + '-' + Mod.safePart(im.name, 'image');
       if (im.kind === 'skip') { skipped.push({ name: im.name, reason: im.reason }); continue; }
       try {
-        var data = im.kind === 'jpeg' ? im.contents : await pngOf(im);
+        var data = (await window.SlopPdfParts.imageFile(im, encodePng)).data;
         items.push({ group: 'image', name: label, ext: im.ext, data: data });
       } catch (e) { skipped.push({ name: im.name + ' (' + im.pageText + ')', reason: e.message || String(e) }); }
     }

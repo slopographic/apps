@@ -69,9 +69,11 @@
       expect(px(200, 150)).toEqual(centre);
       expect(px(30, 150)).not.toEqual(edge);
       expect(win.document.querySelector('.sap-list').textContent).toContain('Blurred the background.');
-      // the model saw the clamped, validated tool description
-      const sys = eng.calls[0].messages[0].content;
-      expect(sys).toMatch(/gaussian_blur\(radius\?: number 0\.1–250, default 4\)/);
+      // the model was told the tool is there (deferred: find_tools loads it, shared/ai/toolbox.js); loaded, it reads the
+      // clamped, validated description
+      const sys = eng.calls[0].messages[0].content, K = win.SlopAIKit;
+      expect(sys).toMatch(/More tools here.*gaussian_blur/);
+      expect(K.tools.describe(K.appTools.build({ cmd: win.SlopCmd }).filter((t) => t.name === 'gaussian_blur'))).toMatch(/gaussian_blur\(radius\?: number 0\.1–250, default 4\)/);
       // one undo reverts the blur only
       W.undo();
       expect(px(30, 150)).toEqual(edge); expect(!!W.D.sel).toBe(true);

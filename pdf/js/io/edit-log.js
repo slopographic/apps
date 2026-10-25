@@ -29,7 +29,7 @@
       if (!f || !f.derived || seen[id]) return;
       seen[id] = 1;
       add(f.derived.from);
-      out.push({ id: id, from: f.derived.from, i: f.derived.i, targets: f.derived.targets });
+      out.push({ id: id, from: f.derived.from, i: f.derived.i, targets: f.derived.targets, edit: f.derived.edit || null });
     }
     entries.forEach(function (en) { Object.keys(en.ch).forEach(function (id) { [0, 1].forEach(function (s) { var o = en.ch[id][s]; if (o && o.f) add(o.f); }); }); });
     return out;
@@ -106,7 +106,7 @@
     for (var k = 0; k < (list || []).length; k++) {
       var d = list[k], from = E.files.get(d.from), made = null;
       if (E.files.has(d.id)) continue;
-      if (from && SP.editor && SP.editor._.strip) made = (await SP.editor._.strip.build(from, d.i, d.targets, d.id).catch(function () { return { id: null }; })).id;
+      if (from && SP.editor && SP.editor._.strip) made = (await SP.editor._.strip.build(from, d.i, d.targets, d.id, d.edit || null).catch(function () { return { id: null }; })).id;
       if (!made) missing.add(d.id);
     }
     return missing;

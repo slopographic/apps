@@ -38,6 +38,7 @@
     // select tool the press is the annotation's when it is inside its box (select, move, resize), in Edit text mode or not.
     // Edit text mode (edit-text.js): only a press on the page's own text opens a run.
     if (!hitG && !handle && t === 'select' && !tbox) hitG = S.annotElAt(e);
+    if (Ed.objMode && t === 'select' && !handle && !hitG && S.objDown && S.objDown(e, p)) return; // a page object (obj-mode.js)
     if (Ed.editText && Ed.paraMode && t === 'select' && !handle && S.paraDown && S.paraDown(e, p, hitG)) return; // Paragraphs (para-mode.js)
     if (Ed.editText && t === 'select' && !handle && !hitG && !tbox) {
       // on the page's text a press that stays put opens the line; a drag (or a long press) selects text instead, and the

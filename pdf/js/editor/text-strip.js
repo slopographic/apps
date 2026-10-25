@@ -34,8 +34,14 @@
     var r = St.strip(c.text, res.fonts, targets), xobj = res.xobj;
     var paper = targets.map(function (t) { return Fi.under(ops, boxOf(t), r ? r.first : null, xobj); });
     if (!r) return { bytes: null, paper: paper };
-    var L = PDFLib, ref = doc.context.register(doc.context.flateStream(bytesOf(r.text)));
-    // the old streams leave the file too (unless another page shows them), so the old text is not in it at all
+    X.putContent(doc, i, c.refs, r.text);
+    return { bytes: await doc.save({ useObjectStreams: true }), paper: paper };
+  };
+  X.load = load;
+  /** Page i of doc shows the content text from now on; its old streams leave the file too (unless another page shows
+   * them), so what was taken off is not in it at all. */
+  X.putContent = function (doc, i, oldRefs, text) {
+    var L = PDFLib, page = doc.getPage(i), ref = doc.context.register(doc.context.flateStream(bytesOf(text)));
     var others = new Set();
     doc.getPages().forEach(function (pg, k) {
       if (k === i) return;
@@ -43,8 +49,7 @@
       rs.forEach(function (x) { others.add(String(x)); });
     });
     page.node.set(L.PDFName.of('Contents'), ref);
-    c.refs.forEach(function (x) { if (x instanceof L.PDFRef && !others.has(String(x))) doc.context.delete(x); });
-    return { bytes: await doc.save({ useObjectStreams: true }), paper: paper };
+    oldRefs.forEach(function (x) { if (x instanceof L.PDFRef && !others.has(String(x))) doc.context.delete(x); });
   };
 
   /** pdf.js text items of page i of a file: { s (no white space), x, y, w, fs }. */
@@ -78,19 +83,36 @@
   };
 
   /** The derived file for page i of f without the targets' text, made (and checked) once: { id (null when it cannot be
-   * made), paper (the content's colour under each target, when it was read) }. */
-  X.build = async function (f, i, targets, id) {
+   * made), paper (the content's colour under each target, when it was read) }. edit: an object or layer edit instead of
+   * targets (editor/obj-derive.js, io/ocg.js: X.kinds[edit.op] makes and checks it), the same path for every page edit. */
+  X.build = async function (f, i, targets, id, edit) {
     if (E.files.has(id)) return { id: id, paper: [] };
-    var d = await X.derive(f, i, targets);
+    var kind = edit ? X.kinds[edit.kind || 'obj'] : null;
+    if (edit && !kind) return { id: null, paper: [] };
+    var d = edit ? { bytes: await kind.derive(f, i, edit), paper: [] } : await X.derive(f, i, targets);
     if (!d.bytes) return { id: null, paper: d.paper };
     var made = await E.registerPdf(d.bytes, f.name, null, { id: id, color: f.color });
-    made.derived = { from: f.id, i: i, targets: targets };
+    made.derived = edit ? { from: f.id, i: i, targets: null, edit: edit } : { from: f.id, i: i, targets: targets };
     if (f.ocr) made.ocr = true;
+    if (f.fontMap) made.fontMap = f.fontMap;
     if (f.security) { made.security = f.security; made.decrypted = true; }
-    if (await X.verify(f, made, i, targets).catch(function () { return false; })) return { id: id, paper: d.paper };
+    var ok = edit ? kind.verify(f, made, i, edit) : X.verify(f, made, i, targets);
+    if (await Promise.resolve(ok).catch(function () { return false; })) return { id: id, paper: d.paper };
     E.files.delete(id);
     made.doc.destroy();
     return { id: null, paper: d.paper };
+  };
+  /** The derived-file makers for edits other than taking text off: { derive(f, i, edit) → bytes | null, verify(f, made, i, edit) }. */
+  X.kinds = {};
+  /** A derived copy of page p's file with an edit made (an object moved, a layer deleted …): { to: its id, or null }. */
+  X.edit = async function (p, edit) {
+    var f = E.fileOfPage(p);
+    if (!f || p.blank || f.locked || !window.PDFLib || f.bytes.length > MAX) return { to: null };
+    var i = edit.page === false ? -1 : p.i, id = 'd' + hash(f.id + '|' + i + '|' + JSON.stringify(edit));
+    try { return { to: (await X.build(f, i, null, id, edit)).id }; } catch (e) {
+      console.warn('Slop PDF: the page could not be changed', e);
+      return { to: null, error: e };
+    }
   };
   function round(t) { return { x0: +t.x0.toFixed(2), x1: +t.x1.toFixed(2), y: +t.y.toFixed(2), fs: +(t.fs || 10).toFixed(2) }; }
   /** Takes the targets' text off page p: { to: the derived file's id (the caller sets the page's f to it in its commit),
