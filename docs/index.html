@@ -43,6 +43,7 @@
   <script src="../shared/fonts/picker.js" data-offline="strip"></script>
   <link rel="stylesheet" href="../shared/slopui.css" data-src="shared/slopui.css">
   <link rel="stylesheet" href="../shared/commands/commands.css" data-src="shared/commands/commands.css">
+  <link rel="stylesheet" href="../shared/frame/frame.css" data-src="shared/frame/frame.css">
   <link rel="stylesheet" href="css/app.css" data-src="docs/css/app.css">
   <link rel="stylesheet" href="css/random.css" data-src="docs/css/random.css">
   <link rel="stylesheet" href="../shared/doctabs/doctabs.css" data-src="shared/doctabs/doctabs.css">
@@ -91,6 +92,10 @@
   <script src="js/ui/intake.js" defer data-src="docs/js/ui/intake.js" blocking="render"></script>
   <script src="js/ui/main.js" defer data-src="docs/js/ui/main.js" blocking="render"></script>
   <script src="../shared/ui/sheet.js" defer data-src="shared/ui/sheet.js" blocking="render"></script>
+  <script src="../shared/ui/menubutton.js" defer data-src="shared/ui/menubutton.js" blocking="render"></script>
+  <script src="../shared/ui/resize-panel.js" defer data-src="shared/ui/resize-panel.js" blocking="render"></script>
+  <script src="../shared/frame/panel.js" defer data-src="shared/frame/panel.js" blocking="render"></script>
+  <script src="js/ui/panel.js" defer data-src="docs/js/ui/panel.js" blocking="render"></script>
   <script type="module" src="js/ui/outline.js" data-src="docs/js/ui/outline.js" blocking="render"></script>
 </head>
 <body>
@@ -151,6 +156,7 @@
     <main class="stage" id="stage" aria-label="Document">
       <div class="pages" id="pages"></div>
     </main>
+    <aside class="doc-panel" id="docPanel" aria-label="Document"></aside>
 
     <footer class="statusbar">
       <span id="pageInfo">Page 1 of 1</span>

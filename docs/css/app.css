@@ -76,7 +76,6 @@ body { background: var(--bg); }
   .docname { flex: 0 1 140px; }
   .topbar { gap: 4px; padding: 6px; height: auto; min-height: 48px; box-sizing: border-box; flex-wrap: wrap; }
   .menu-btn { padding: 6px 6px; }
-  #btnSave span { display: none; }
   .stage { padding: 12px 8px 40px; }
 }
 @media print {
