@@ -1,7 +1,7 @@
 /* Reel Remix: every operation as a SlopCmd command with arguments (the tools of the Slop AI panel, WebMCP and the Claude
    Code bridge, through shared/ai/cmdtools.js; Ctrl+K opens a form, shared/commands/argform.js). Each one changes the
    state the page already has (core.js RM.state) and plans with RM.remixNow, so the page shows what the AI did. The
-   one-call remix_from_spec and the export are in ai-spec.js. Exposes RM.ai (set, items, summary). */
+   one-call remix_from_spec and the export are in ai-spec.js. new_reel starts over. Exposes RM.ai (set, items, summary). */
 (function () {
   'use strict';
   const RM = window.RM, SV = window.SlopVideo, S = SV.seed, FX = SV.effects;
@@ -59,21 +59,36 @@
   const said = (p, verb) => `${verb}: ${num(p.total)} s, ${p.cuts.length} cuts, seed ${p.seedHex}.`;
   const cutOf = (i) => { const p = RM.state.plan; if (!p || !p.cuts[i]) throw new Error(`There is no cut ${i} (the plan has ${p ? p.cuts.length : 0}; they count from 0).`); return p.cuts[i]; };
   const redraw = () => { if (RM.renderPlan) RM.renderPlan(); };
-  AI.fromDrive = async function (q) {
-    const H = window.SlopHub;
-    if (!H) throw new Error('Slop Drive is not available here.');
-    let rec = await H.get(q).catch(() => null);
-    if (!rec) { const all = await H.list().catch(() => []), low = String(q).toLowerCase(); const f = all.find((x) => x.name.toLowerCase() === low) || all.find((x) => x.name.toLowerCase().includes(low)); rec = f && (await H.get(f.id)); } // intake-ok: an AI command looks a Drive file up by id or name (a lookup; the person's picker is SlopIntake.fromDrive)
-    if (!rec || !rec.blob) throw new Error(`There is no Slop Drive file "${q}".`);
-    const file = new File([rec.blob], rec.name, { type: rec.type || rec.blob.type });
-    if (!(await RM.addFiles([file]))) throw new Error(`${rec.name} is not a picture or video this browser can read.`);
+  /** A Slop Drive file by id or name (or part of it): shared/commands/sources.js. */
+  const driveFile = async (q) => (await window.SlopCmd.sources()).driveAsFile(q);
+  async function addFile(file) {
+    if (!(await RM.addFiles([file]))) throw new Error(`${file.name} is not a picture or video this browser can read.`);
     RM.syncUI();
     return RM.state.items[RM.state.items.length - 1];
-  };
+  }
+  AI.fromDrive = async (q) => addFile(await driveFile(q));
+
+  /** A new reel: the bin emptied, the options back to their defaults (Reset all), no music file, a new seed; the frame stays.
+   *  The sources are looked up before anything goes, so a missing one changes nothing. */
+  async function newReel(a) {
+    const st = RM.state, sources = [].concat(a.sources || []).map(String).filter((x) => x.trim());
+    const files = [];
+    for (const q of sources) files.push(await driveFile(q));
+    for (const m of st.items.slice()) RM.removeItem(m.id);
+    if (st.music) { URL.revokeObjectURL(st.music.url); st.music = null; }
+    RM.resetAll();
+    Object.assign(st, { plan: null, overrides: {}, pending: [], seed: S.make() });
+    for (const f of files) await addFile(f);
+    AI.set(Object.assign({}, a, { sources: undefined }));
+    return RM.media().length ? said(plan(), `New reel with ${st.items.length} clip(s), planned`) : 'New reel: the bin is empty. Add clips (add_from_drive), then remix.';
+  }
 
   const C = (list) => SlopCmd.register(list.map((c) => SlopCmdForm.wrap(Object.assign({ group: 'Reel Remix' }, c))));
   C([
     { id: 'remix.ai.state', tool: 'remix_state', title: 'Show the remix plan', readOnly: true, args: [], description: 'The clips in the bin (ids), the options and the plan: each cut with its start, length and the clip in each slot.', run: () => AI.summary() },
+    { id: 'remix.ai.new', tool: 'new_reel', title: 'Start a new reel…', destructive: true,
+      args: [{ name: 'sources', type: 'array', maxItems: 200, items: { type: 'string' }, description: 'Slop Drive ids or names of the videos and photos for the new bin' }].concat(AI.OPTION_ARGS),
+      description: 'Start over: empty the bin, put every option back to its default and draw a new seed (the frame stays), then add the Slop Drive sources, set any options given and plan the edit.', run: newReel },
     { id: 'remix.ai.add', tool: 'add_from_drive', title: 'Add a clip from Slop Drive…', args: [{ name: 'source', type: 'string', required: true, maxLength: 200, description: 'Slop Drive file id or name' }],
       description: 'Add a video or photo from Slop Drive to the bin.', run: async (a) => { const it = await AI.fromDrive(a.source); return `Added ${it.name} as ${it.id}.`; } },
     { id: 'remix.ai.remove', tool: 'remove_clip', title: 'Remove a clip from the bin…', destructive: true, args: [{ name: 'clip', type: 'string', required: true, maxLength: 40 }],

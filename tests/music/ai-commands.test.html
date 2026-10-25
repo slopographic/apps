@@ -11,7 +11,7 @@
   <script src="../../shared/ops/entry.js"></script>
   <script src="fixtures.js"></script>
   <script>
-  // Covers: music/js/app/ai-commands.js, music/js/app/ai-find.js, music/js/core/engine.js, music/js/ui/playlists.js,
+  // Covers: music/js/app/ai-commands.js, music/js/app/ai-find.js, music/js/core/engine.js, music/js/ui/playlists.js, music/js/core/plfile.js,
   //   music/js/app/main.js, music/index.html, shared/ai/cmdtools.js
   const { describe, it, expect, waitFor, sleep, topDialog } = SlopTest;
   const F = window.MusicFixtures;
@@ -29,7 +29,7 @@
       C = W.SlopCmd; M = W.SlopMusic; E = M.engine;
       const mine = C.list().filter((c) => c.id.startsWith('mu.'));
       for (const id of ['mu.play', 'mu.pause', 'mu.play-pause', 'mu.play-track', 'mu.play-playlist', 'mu.next', 'mu.previous', 'mu.seek', 'mu.volume', 'mu.speed', 'mu.shuffle', 'mu.repeat',
-        'mu.queue-track', 'mu.find-tracks', 'mu.tag-track', 'mu.create-playlist', 'mu.rename-playlist', 'mu.add-to-playlist', 'mu.remove-from-playlist', 'mu.delete-playlist'])
+        'mu.queue-track', 'mu.find-tracks', 'mu.tag-track', 'mu.create-playlist', 'mu.rename-playlist', 'mu.add-to-playlist', 'mu.remove-from-playlist', 'mu.delete-playlist', 'mu.export-playlist'])
         expect(!!C.get(id)).toBe(true, id);
       for (const c of mine) {
         expect(c.hidden).toBe(false, c.id);
@@ -43,7 +43,7 @@
       expect(K.isDestructive(C.get('mu.create-playlist'))).toBe(false);
       expect(K.isDestructive(C.get('mu.remove-from-playlist'))).toBe(false);
       const names = K.build(C).map((t) => t.name);
-      for (const n of ['app_state', 'play_track', 'seek', 'volume', 'queue_track', 'find_tracks', 'tag_track', 'create_playlist', 'delete_playlist']) expect(names.includes(n)).toBe(true, n);
+      for (const n of ['app_state', 'play_track', 'seek', 'volume', 'queue_track', 'find_tracks', 'tag_track', 'create_playlist', 'delete_playlist', 'export_playlist']) expect(names.includes(n)).toBe(true, n);
     }, { timeout: 30000 });
 
     it('plays a track by title words and by id; pause, play or pause, seek, volume, speed (clamped), shuffle, repeat', async () => {
@@ -124,6 +124,21 @@
       expect(st.nowPlaying.id).toBe(ids[1]);
       expect(st.library.tracks).toBe(3);
       expect(st.library.first.map((x) => x.id).sort()).toEqual(ids.slice().sort());
+      r = await run('mu.export-playlist', { playlist: 'long drive' });
+      const fileId = r.value.match(/id ([^)]+)\)/)[1];
+      const parsed = M.plfile.parse(await (await W.SlopHub.get(fileId)).blob.text());
+      expect(parsed).toEqual({ name: 'Long drive', trackIds: [ids[1], ids[2]] });
+      const got = [];
+      W.SlopUI.download = (blob, name) => got.push({ blob, name });
+      r = await run('mu.export-playlist', { playlist: p.id, format: 'm3u', to: 'download' });
+      expect(r.value).not.toContain('Slop Drive');
+      expect(got[0].name).toBe('Long drive.m3u');
+      const lines = (await got[0].blob.text()).trim().split('\n');
+      expect(lines[0]).toBe('#EXTM3U');
+      expect(lines[1]).toBe('#PLAYLIST:Long drive');
+      expect(lines[2]).toMatch(/^#EXTINF:-?\d+,Night Drive$/);
+      expect(lines[3]).toBe('Night Drive.wav');
+      expect(lines[5]).toBe('Rainy Day.wav');
       await run('mu.delete-playlist', { playlist: p.id });
       expect(M.playlists.get(p.id)).toBe(null);
     }, { timeout: 20000 });

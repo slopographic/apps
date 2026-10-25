@@ -18,8 +18,7 @@
   const TOOL_IDS = TOOLS.map((t) => t.id);
   const OPTIONS = { name: 'options', type: 'object', description: 'the tool\'s options (see list_tools), e.g. { "size": 40, "hardness": 0.8, "opacity": 0.5, "color": "#ff0000", "tol": 20 }' };
   const list = [];
-  const add = (tool, title, args, run, extra) => list.push(Object.assign({ id: 'ps.ai.' + tool.replace(/_/g, '-'), tool, title, group: 'AI', hidden: true, destructive: false, args,
-    run: (a) => run(a || (window.SlopCmdArgs ? SlopCmdArgs.defaults(args) : {})) }, extra));
+  const add = window.SlopCmd.aiAdder('ps', list);   // shared/commands/commands.js
 
   add('new_document', 'New document', [N('width', 1, 16384, 1920, 'px', { integer: true }), N('height', 1, 16384, 1080, 'px', { integer: true }),
     S('background', 'a colour, or transparent', { default: '#ffffff', maxLength: 40 }), S('name', 'document name', { default: 'Untitled' })],

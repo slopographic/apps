@@ -9,7 +9,7 @@ that this file is up to date and that no covered app loses a create, add or expo
 the picture look_at_canvas and app_snapshot take (`own` or `page`), **Driven** whether those commands reach an assistant
 in another app (the Slop AI workspace, open_in_app, agents). **Full** is all of it. ✗ marks a gap.
 
-Covered: 44 of 61 apps. Full suite: 44 of 61 apps.
+Covered: 61 of 61 apps. Full suite: 61 of 61 apps.
 
 | App | Create | Add | Edit | Export | Operations | State | Snapshot | Driven | Covered | Full |
 |---|---|---|---|---|---|---|---|---|---|---|
@@ -18,17 +18,17 @@ Covered: 44 of 61 apps. Full suite: 44 of 61 apps.
 | Slop PDF (`pdf`) | ✓ 1 | ✓ 5 | ✓ 12 | ✓ 2 | 2 | ✓ own | ✓ page | ✓ | yes | yes |
 | SlopLabel (`label`) | ✓ 1 | ✓ 5 | ✓ 3 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | SlopIsolate (`cutout`) | ✓ 1 | ✓ 1 | ✓ 1 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
-| Slop AI Tools (`aitools`) | ✗ | ✗ | ✗ | ✗ |  | ✗ | ✗ | ✗ | no | no |
+| Slop AI Tools (`aitools`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Reports (`reports`) | ✓ 1 | ✓ 1 | ✓ 5 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop OCR (`ocr`) | ✓ 1 | ✓ 1 | ✓ 2 | ✓ 1 | 1 | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop HTML to PDF (`html2pdf`) | ✓ 1 | ✓ 1 | ✓ 1 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
-| SlopClean (`clean`) | ✗ | ✗ | ✗ | ✗ | 1 | ✓ page | ✓ page | ✗ | no | no |
-| Slop AI (`ai`) | ✗ | ✗ | ✗ | ✗ |  | ✓ page | ✓ page | ✗ | no | no |
+| SlopClean (`clean`) | ✓ 1 | ✓ 1 | ✓ 2 | ✓ 1 | 1 | ✓ own | ✓ page | ✓ | yes | yes |
+| Slop AI (`ai`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Docs (`docs`) | ✓ 2 | ✓ 6 | ✓ 4 | ✓ 1 | 1 | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Tables (`tables`) | ✓ 3 | ✓ 3 | ✓ 8 | ✓ 1 | 1 | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Slides (`slides`) | ✓ 2 | ✓ 4 | ✓ 6 | ✓ 1 | 1 | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Press (`press`) | ✓ 2 | ✓ 4 | ✓ 5 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
-| Reel Remix (`remix`) | ✗ | ✓ 1 | ✓ 12 | ✓ 1 |  | ✓ own | ✓ page | ✓ | no | no |
+| Reel Remix (`remix`) | ✓ 1 | ✓ 1 | ✓ 12 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | SlopCut (`slopedit`) | ✓ 2 | ✓ 9 | ✓ 22 | ✓ 1 | 4 | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Resize (`resize`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 | 1 | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Upscale (`upscale`) | ✓ 1 | ✓ 1 | ✓ 2 | ✓ 1 | 1 | ✓ own | ✓ page | ✓ | yes | yes |
@@ -43,23 +43,23 @@ Covered: 44 of 61 apps. Full suite: 44 of 61 apps.
 | Slop Invoices (`invoices`) | ✓ 2 | ✓ 1 | ✓ 5 | ✓ 2 |  | ✓ records | ✓ page | ✓ | yes | yes |
 | Slop Notes (`notes`) | ✓ 2 | ✓ 1 | ✓ 2 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Paste (`paste`) | ✓ 1 | ✓ 1 | ✓ 2 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
-| Slop Effects (`effects`) | ✓ 1 | ✓ 4 | ✓ 11 | ✗ |  | ✓ own | ✓ page | ✓ | no | no |
-| Slop Image to 3D (`img3d`) | ✓ 1 | ✗ | ✓ 1 | ✓ 1 |  | ✓ own | ✓ page | ✓ | no | no |
-| Slop Sheets (`sheetview`) | ✗ | ✗ | ✓ 5 | ✓ 1 |  | ✓ own | ✓ page | ✓ | no | no |
-| Slop Hex (`hex`) | ✓ 1 | ✗ | ✓ 3 | ✓ 2 |  | ✓ own | ✓ page | ✓ | no | no |
-| Slop EML (`eml`) | ✓ 1 | ✗ | ✓ 4 | ✓ 1 |  | ✓ own | ✓ page | ✓ | no | no |
-| Checksum (`checksum`) | ✗ | ✗ | ✓ 1 | ✓ 1 |  | ✓ own | ✓ page | ✓ | no | no |
+| Slop Effects (`effects`) | ✓ 1 | ✓ 4 | ✓ 11 | ✓ 2 |  | ✓ own | ✓ page | ✓ | yes | yes |
+| Slop Image to 3D (`img3d`) | ✓ 1 | ✓ 1 | ✓ 1 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
+| Slop Sheets (`sheetview`) | ✓ 1 | ✓ 2 | ✓ 5 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
+| Slop Hex (`hex`) | ✓ 1 | ✓ 2 | ✓ 4 | ✓ 2 |  | ✓ own | ✓ page | ✓ | yes | yes |
+| Slop EML (`eml`) | ✓ 1 | ✓ 2 | ✓ 4 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
+| Checksum (`checksum`) | ✓ 1 | ✓ 2 | ✓ 1 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Compare (`diff`) | ✓ 1 | ✓ 2 | ✓ 2 | ✓ 1 | 1 | ✓ own | ✓ page | ✓ | yes | yes |
 | Slopnodes (`nodes`) | ✓ 2 | ✓ 1 | ✓ 4 | ✓ 2 |  | ✓ own | ✓ page | ✓ | yes | yes |
-| Serial counter (`serials`) | ✗ | ✓ 3 | ✓ 4 | ✓ 1 |  | ✓ own | ✓ page | ✓ | no | no |
-| Slop Transcribe (`transcribe`) | ✗ | ✓ 1 | ✓ 6 | ✓ 1 | 1 | ✓ own | ✓ page | ✓ | no | no |
+| Serial counter (`serials`) | ✓ 1 | ✓ 3 | ✓ 4 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
+| Slop Transcribe (`transcribe`) | ✓ 1 | ✓ 1 | ✓ 6 | ✓ 1 | 1 | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Recorder (`recorder`) | ✓ 1 | ✓ 1 | ✓ 6 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Signature (`signature`) | ✓ 1 | ✓ 2 | ✓ 5 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | QR SLOP (`qr`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Colors (`colors`) | ✓ 1 | ✓ 2 | ✓ 7 | ✓ 1 | 1 | ✓ own | ✓ page | ✓ | yes | yes |
-| Slop Workflows (`workflows`) | ✗ | ✗ | ✗ | ✗ |  | ✓ own | ✓ page | ✗ | no | no |
-| File convert (`convert`) | ✗ | ✗ | ✗ | ✗ |  | ✗ | ✗ | ✗ | no | no |
-| Slopculator (`calculator`) | ✗ | ✓ 1 | ✓ 1 | ✓ 2 |  | ✓ own | ✓ page | ✓ | no | no |
+| Slop Workflows (`workflows`) | ✓ 1 | ✓ 1 | ✓ 7 | ✓ 2 |  | ✓ own | ✓ page | ✓ | yes | yes |
+| File convert (`convert`) | ✓ 1 | ✓ 1 | ✓ 2 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
+| Slopculator (`calculator`) | ✓ 1 | ✓ 1 | ✓ 1 | ✓ 2 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Time (`time`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop CRM (`crm`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | ✓ records | ✓ page | ✓ | yes | yes |
 | Slop Calendar (`calendar`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | ✓ records | ✓ page | ✓ | yes | yes |
@@ -70,10 +70,10 @@ Covered: 44 of 61 apps. Full suite: 44 of 61 apps.
 | Slop Admin (`admin`) | ✓ 1 | ✓ 1 | ✓ 5 | ✓ 2 |  | ✓ records | ✓ page | ✓ | yes | yes |
 | Slop Drive (`drive`) | ✓ 2 | ✓ 1 | ✓ 4 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Code (`code`) | ✓ 1 | ✓ 1 | ✓ 5 | ✓ 2 |  | ✓ own | ✓ page | ✓ | yes | yes |
-| Slop Photo Sorter (`sorter`) | ✗ | ✓ 2 | ✓ 3 | ✓ 1 |  | ✓ own | ✓ page | ✓ | no | no |
+| Slop Photo Sorter (`sorter`) | ✓ 1 | ✓ 2 | ✓ 3 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Gallery (`gallery`) | ✓ 1 | ✓ 2 | ✓ 5 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop 3D (`3d`) | ✓ 2 | ✓ 2 | ✓ 8 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
-| Slop Music (`music`) | ✓ 1 | ✓ 1 | ✓ 18 | ✗ |  | ✓ own | ✓ page | ✓ | no | no |
+| Slop Music (`music`) | ✓ 1 | ✓ 1 | ✓ 18 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 
 ## Commands per app
 
@@ -114,6 +114,13 @@ Covered: 44 of 61 apps. Full suite: 44 of 61 apps.
 - edit: `look`
 - export: `save_cutouts`
 
+### Slop AI Tools
+
+- create: `new_job`
+- add: `add_file`
+- edit: `request_model`, `run_job`, `set_options`
+- export: `export_result`
+
 ### Slop Reports
 
 - create: `create_report`
@@ -135,6 +142,21 @@ Covered: 44 of 61 apps. Full suite: 44 of 61 apps.
 - add: `add_images`
 - edit: `set_page`
 - export: `export_pdf`
+
+### SlopClean
+
+- create: `new_batch`
+- add: `add_files`
+- edit: `remove_file`, `set_options`
+- export: `export_cleaned`
+- operations: `clean.metadata`
+
+### Slop AI
+
+- create: `new_chat`
+- add: `add_message`
+- edit: `open_chat`, `send_message`, `set_settings`
+- export: `export_chat`
 
 ### Slop Docs
 
@@ -169,6 +191,7 @@ Covered: 44 of 61 apps. Full suite: 44 of 61 apps.
 
 ### Reel Remix
 
+- create: `new_reel`
 - add: `add_from_drive`
 - edit: `lock_cut`, `move_cut`, `remix`, `remix_from_spec`, `remix_state`, `remove_clip`, `replace_slot`, `reset_options`, `send_to_slopcut`, `set_cut_fill`, `set_options`, `swap_slots`
 - export: `export_reel`
@@ -280,32 +303,40 @@ Covered: 44 of 61 apps. Full suite: 44 of 61 apps.
 - create: `new_project`
 - add: `add_effect`, `add_keyframe`, `add_layer`, `add_media_from_drive`
 - edit: `animate`, `delete_layer`, `duplicate_layer`, `edit_layer`, `move_layer`, `random_motion`, `remove_effect`, `render`, `set_composition`, `set_effect`, `set_layer_property`
+- export: `export_frame`, `save_project`
 
 ### Slop Image to 3D
 
 - create: `new_from_picture`
+- add: `import_depth_map`
 - edit: `set_options`
 - export: `export_model`
 
 ### Slop Sheets
 
+- create: `new_workbook`
+- add: `add_rows`, `add_sheet`
 - edit: `clear_filters`, `filter_rows`, `open_file`, `select_sheet`, `sort_column`
 - export: `export_rows`
 
 ### Slop Hex
 
 - create: `new_file`
-- edit: `find_bytes`, `open_file`, `set_bytes`
+- add: `append_bytes`, `insert_bytes`
+- edit: `delete_bytes`, `find_bytes`, `open_file`, `set_bytes`
 - export: `export_file`, `save_version`
 
 ### Slop EML
 
 - create: `new_message`
+- add: `add_attachment`, `add_recipient`
 - edit: `close_message`, `open_file`, `search_messages`, `select_message`
 - export: `export_messages`
 
 ### Checksum
 
+- create: `new_check`
+- add: `add_text`, `paste_hash`
 - edit: `hash_file`
 - export: `save_hash`
 
@@ -326,12 +357,14 @@ Covered: 44 of 61 apps. Full suite: 44 of 61 apps.
 
 ### Serial counter
 
+- create: `new_count`
 - add: `add_photos`, `add_serial`, `add_text`
 - edit: `clear_photos`, `read_photos`, `remove_serial`, `set_pattern`
 - export: `export_serials`
 
 ### Slop Transcribe
 
+- create: `new_batch`
 - add: `add_from_drive`
 - edit: `clear_files`, `correct_text`, `remove_file`, `select_file`, `stop`, `transcribe`
 - export: `save_transcript`
@@ -366,8 +399,23 @@ Covered: 44 of 61 apps. Full suite: 44 of 61 apps.
 - export: `export_palette`
 - operations: `colors.palette`
 
+### Slop Workflows
+
+- create: `new_workflow`
+- add: `add_step`
+- edit: `move_step`, `open_template`, `remove_step`, `rename_workflow`, `run_workflow`, `set_option`, `set_step`
+- export: `export_workflow`, `save_workflow`
+
+### File convert
+
+- create: `new_conversion`
+- add: `add_files`
+- edit: `run_conversion`, `set_target`
+- export: `export_results`
+
 ### Slopculator
 
+- create: `new_sheet`
 - add: `add_calculation`
 - edit: `clear_tape`
 - export: `export_tape`, `save_calculation`
@@ -444,6 +492,7 @@ Covered: 44 of 61 apps. Full suite: 44 of 61 apps.
 
 ### Slop Photo Sorter
 
+- create: `new_sort`
 - add: `add_photos`, `add_tags`
 - edit: `remove_photos`, `remove_tag`, `set_decision`
 - export: `export_photos`
@@ -467,3 +516,4 @@ Covered: 44 of 61 apps. Full suite: 44 of 61 apps.
 - create: `create_playlist`
 - add: `add_to_playlist`
 - edit: `delete_playlist`, `find_tracks`, `next`, `pause`, `play`, `play_pause`, `play_playlist`, `play_track`, `previous`, `queue_track`, `remove_from_playlist`, `rename_playlist`, `repeat`, `seek`, `shuffle`, `speed`, `tag_track`, `volume`
+- export: `export_playlist`

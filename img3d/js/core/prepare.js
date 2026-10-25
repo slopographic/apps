@@ -2,7 +2,8 @@
  * prepare(rgba, W, H, opts) → { gw, gh, aspect, depth, colors, mask, source }.
  *   rgba: RGBA bytes (W*H*4), e.g. ImageData.data.
  *   opts.grid: long side of the output grid (default 128).
- *   opts.depth: { data: Float32 (any size, higher = nearer), w, h } from the depth model, or null for the fallback.
+ *   opts.depth: { data: Float32 (any size, higher = nearer), w, h, source? } from the depth model ('model') or a depth
+ *     map picture ('map'), or null for the fallback.
  *   opts.mask: { data: Float32 0..1 (any size), w, h } subject mask (1 = subject), or null for no separation.
  *   opts.invert: flip the depth (default false).
  * The fallback is brightness (Rec. 709 luminance, brighter reads as nearer). It is not real depth: source says so. */
@@ -31,7 +32,7 @@
     let depth, source;
     if (opts.depth && opts.depth.data) {
       depth = hf.normalize(hf.resample(opts.depth.data, opts.depth.w, opts.depth.h, gw, gh));
-      source = 'model';
+      source = opts.depth.source || 'model';
     } else {
       depth = hf.normalize(hf.resample(luminance(rgba, W, H), W, H, gw, gh));
       source = 'luminance';

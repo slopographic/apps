@@ -101,6 +101,9 @@
 .mq-track { display: flex; width: max-content; animation: hx-mq 260s linear infinite; }
 .mq-list { display: flex; flex: none; margin: 0; padding: 0; list-style: none; }
 .mq-list li { padding: 14px 0; font: 500 12px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; white-space: nowrap; color: var(--bone-dim); }
+.mq-list a { color: inherit; text-decoration: none; }
+.mq-list a:hover { color: var(--bone); text-decoration: underline; text-underline-offset: 4px; }
+.mq-list a:focus-visible { color: var(--bone); outline: 2px solid var(--slop); outline-offset: 4px; }
 .mq-list li::after { content: "•"; content: "•" / ""; margin: 0 1.5em; color: var(--slop); }
 .hx-marquee:hover .mq-track, .hx-marquee:focus-within .mq-track { animation-play-state: paused; }
 @keyframes hx-mq { to { transform: translateX(-50%); } }

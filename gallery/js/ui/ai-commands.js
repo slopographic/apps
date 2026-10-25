@@ -10,8 +10,7 @@
   const L = () => G.library;
   const log = [];   // { album } | { photos: [ids] } | { retag: [records before] }
   const list = [];
-  const add = (tool, title, args, run, extra) => list.push(Object.assign({ id: 'gallery.ai.' + tool.replace(/_/g, '-'), tool, title, group: 'AI', hidden: true, destructive: false, args,
-    run: (a) => run(a || window.SlopCmdArgs.defaults(args)) }, extra));
+  const add = C.aiAdder('gallery', list);   // shared/commands/commands.js
   const PHOTOS = { name: 'photos', type: 'array', maxItems: 2000, items: { type: 'string' }, description: 'photo ids or file names (app_state); the selection when empty' };
   const ALBUM = { name: 'album', type: 'string', maxLength: 80, description: 'album name or id' };
   const TAGS = (name, d) => ({ name, type: 'array', maxItems: 32, items: { type: 'string' }, description: d });

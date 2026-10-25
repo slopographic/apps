@@ -68,7 +68,7 @@
     $('em-v-html').setAttribute('aria-pressed', String(view === 'html'));
     $('em-v-text').setAttribute('aria-pressed', String(view === 'text'));
 
-    const key = doc.id + ':' + view + ':' + !!doc.cids;
+    const key = doc.id + ':' + (doc.rev || 0) + ':' + view + ':' + !!doc.cids;
     if (body.dataset.key === key && body.firstChild) return;   // the same body: a tick or a sort does not reload the frame
     body.dataset.key = key;
     body.replaceChildren();

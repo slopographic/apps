@@ -45,13 +45,13 @@
   "driven": true
  },
  "aitools": {
-  "create": false,
-  "add": false,
-  "edit": false,
-  "export": false,
-  "state": "",
-  "snapshot": "",
-  "driven": false
+  "create": true,
+  "add": true,
+  "edit": true,
+  "export": true,
+  "state": "app",
+  "snapshot": "page",
+  "driven": true
  },
  "reports": {
   "create": true,
@@ -81,22 +81,22 @@
   "driven": true
  },
  "clean": {
-  "create": false,
-  "add": false,
-  "edit": false,
-  "export": false,
-  "state": "page",
+  "create": true,
+  "add": true,
+  "edit": true,
+  "export": true,
+  "state": "app",
   "snapshot": "page",
-  "driven": false
+  "driven": true
  },
  "ai": {
-  "create": false,
-  "add": false,
-  "edit": false,
-  "export": false,
-  "state": "page",
+  "create": true,
+  "add": true,
+  "edit": true,
+  "export": true,
+  "state": "app",
   "snapshot": "page",
-  "driven": false
+  "driven": true
  },
  "docs": {
   "create": true,
@@ -135,7 +135,7 @@
   "driven": true
  },
  "remix": {
-  "create": false,
+  "create": true,
   "add": true,
   "edit": true,
   "export": true,
@@ -273,14 +273,14 @@
   "create": true,
   "add": true,
   "edit": true,
-  "export": false,
+  "export": true,
   "state": "app",
   "snapshot": "page",
   "driven": true
  },
  "img3d": {
   "create": true,
-  "add": false,
+  "add": true,
   "edit": true,
   "export": true,
   "state": "app",
@@ -288,8 +288,8 @@
   "driven": true
  },
  "sheetview": {
-  "create": false,
-  "add": false,
+  "create": true,
+  "add": true,
   "edit": true,
   "export": true,
   "state": "app",
@@ -298,7 +298,7 @@
  },
  "hex": {
   "create": true,
-  "add": false,
+  "add": true,
   "edit": true,
   "export": true,
   "state": "app",
@@ -307,7 +307,7 @@
  },
  "eml": {
   "create": true,
-  "add": false,
+  "add": true,
   "edit": true,
   "export": true,
   "state": "app",
@@ -315,8 +315,8 @@
   "driven": true
  },
  "checksum": {
-  "create": false,
-  "add": false,
+  "create": true,
+  "add": true,
   "edit": true,
   "export": true,
   "state": "app",
@@ -342,7 +342,7 @@
   "driven": true
  },
  "serials": {
-  "create": false,
+  "create": true,
   "add": true,
   "edit": true,
   "export": true,
@@ -351,7 +351,7 @@
   "driven": true
  },
  "transcribe": {
-  "create": false,
+  "create": true,
   "add": true,
   "edit": true,
   "export": true,
@@ -396,25 +396,25 @@
   "driven": true
  },
  "workflows": {
-  "create": false,
-  "add": false,
-  "edit": false,
-  "export": false,
+  "create": true,
+  "add": true,
+  "edit": true,
+  "export": true,
   "state": "app",
   "snapshot": "page",
-  "driven": false
+  "driven": true
  },
  "convert": {
-  "create": false,
-  "add": false,
-  "edit": false,
-  "export": false,
-  "state": "",
-  "snapshot": "",
-  "driven": false
+  "create": true,
+  "add": true,
+  "edit": true,
+  "export": true,
+  "state": "app",
+  "snapshot": "page",
+  "driven": true
  },
  "calculator": {
-  "create": false,
+  "create": true,
   "add": true,
   "edit": true,
   "export": true,
@@ -513,7 +513,7 @@
   "driven": true
  },
  "sorter": {
-  "create": false,
+  "create": true,
   "add": true,
   "edit": true,
   "export": true,
@@ -543,7 +543,7 @@
   "create": true,
   "add": true,
   "edit": true,
-  "export": false,
+  "export": true,
   "state": "app",
   "snapshot": "page",
   "driven": true

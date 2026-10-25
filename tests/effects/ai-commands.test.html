@@ -9,7 +9,7 @@
   <iframe id="app" src="../../effects/index.html"></iframe>
   <script src="../harness.js"></script>
   <script>
-  // Covers: effects/js/app/ai-commands.js, effects/js/app/ai-ops.js, effects/js/app/cmd.js, effects/index.html, shared/ai/cmdtools.js
+  // Covers: effects/js/app/ai-commands.js, effects/js/app/ai-ops.js, effects/js/app/ai-export.js, effects/js/app/cmd.js, effects/index.html, shared/ai/cmdtools.js
   const { describe, it, expect, waitFor, run } = SlopTest;
   const f = document.getElementById('app');
   let W, S, Cmd;
@@ -31,7 +31,7 @@
       }
       const names = W.SlopAIKit.cmdTools.specs(Cmd).map((t) => t.name);
       for (const n of ['app_state', 'new_project', 'set_composition', 'add_layer', 'set_layer_property', 'add_keyframe', 'add_effect', 'set_effect',
-        'remove_effect', 'animate', 'random_motion', 'delete_layer', 'duplicate_layer', 'move_layer', 'edit_layer', 'add_media_from_drive', 'render', 'go_to_time']) {
+        'remove_effect', 'animate', 'random_motion', 'delete_layer', 'duplicate_layer', 'move_layer', 'edit_layer', 'add_media_from_drive', 'render', 'export_frame', 'save_project', 'go_to_time']) {
         if (!names.includes(n)) throw new Error('no tool ' + n + ' in ' + names.join(', '));
       }
     });
@@ -147,6 +147,40 @@
       expect(stopped.error).toBe('The render was stopped');
       expect(W.document.getElementById('fx-status').classList.contains('is-on')).toBe(false);
     }, { timeout: 30000 });
+    it('export_frame saves a PNG of a frame at the composition size to Slop Drive and downloads it', async () => {
+      await exec('set-composition', { width: 64, height: 32, fps: 24, duration: 1 });
+      const got = [];
+      W.SlopUI.download = (blob, name) => got.push({ blob, name });
+      const r = await exec('export-frame', { time: 0.5, name: 'ai-frame', to: 'both' });
+      const id = String(r.value).match(/id ([^)]+)\)/)[1];
+      const rec = await W.SlopHub.get(id);
+      expect(rec.name).toBe('ai-frame-0012.png');
+      expect(rec.type).toBe('image/png');
+      const bmp = await W.createImageBitmap(rec.blob);
+      expect(bmp.width).toBe(64);
+      expect(bmp.height).toBe(32);
+      expect(got.length).toBe(1);
+      expect(got[0].name).toBe('ai-frame-0012.png');
+    });
+    it('save_project saves the project file to Slop Drive, then writes back to the same file', async () => {
+      W.SlopEffects.app.act.renameProject('AI project');
+      const r1 = await exec('save-project', { to: 'drive' });
+      const id = String(r1.value).match(/id ([^)]+)\)/)[1];
+      expect(S.file.driveId).toBe(id);
+      const rec = await W.SlopHub.get(id);
+      expect(rec.name).toBe('AI project.effects.json');
+      const data = W.SlopEffects.project.fromFile(await rec.blob.text());
+      expect(data.data.layers.length).toBe(S.doc.layers.length);
+      await exec('add-layer', { type: 'solid', color: '#00ff00' });
+      const r2 = await exec('save-project', { to: 'drive' });
+      expect(String(r2.value)).toContain('id ' + id);
+      const again = W.SlopEffects.project.fromFile(await (await W.SlopHub.get(id)).blob.text());
+      expect(again.data.layers.length).toBe(S.doc.layers.length);
+      const got = [];
+      W.SlopUI.download = (blob, name) => got.push({ blob, name });
+      await exec('save-project', { to: 'download' });
+      expect(got[0].name).toBe('AI project.effects.json');
+    });
     it('the checkpoint undoes every change since it was taken; the palette runs a command with its defaults', async () => {
       const mark = S.doc;
       const back = Cmd.checkpoint();

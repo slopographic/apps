@@ -1,8 +1,9 @@
 // Slop Effects commands with arguments (shared/commands/args.js), for the Slop AI panel, WebMCP and macros: a new
 // project, layers, properties and keyframes, effects, animate in and out, random motion, reorder, media from Slop Drive,
-// and a render saved to Slop Drive. They call the app's own actions and model through the store, and each is one undo
-// step (oneStep folds the actions a command calls). They show in the command palette too: there a command runs with its
-// defaults, or opens the app's own dialog. Helpers: ai-ops.js. Classic script: window.SlopEffects.aiCmd.
+// a render saved to Slop Drive, and a PNG frame or the project file to Slop Drive or a download (ai-export.js). They call
+// the app's own actions and model through the store, and each is one undo step (oneStep folds the actions a command
+// calls). They show in the command palette too: there a command runs with its defaults, or opens the app's own dialog.
+// Helpers: ai-ops.js. Classic script: window.SlopEffects.aiCmd.
 (function (g) {
   'use strict';
   const ns = (g.SlopEffects = g.SlopEffects || {});
@@ -205,6 +206,13 @@
     add('render', 'Render to Slop Drive', 'File', [E('format', ['webm', 'mp4', 'png'], 'webm', 'webm or mp4 video (real time), png: a zip of frames'), E('range', ['all', 'range'], 'all', 'range: only the play range'),
       E('save', ['drive', 'download'], 'drive'), T('name', 'file name without extension; the project name when empty')], (a, rctx) => ops.render(a, { signal: rctx.signal, onProgress: rctx.onProgress }),
     { palette: () => ctx.renderDialog(), description: 'Render the composition (WebM, MP4 where the browser can, or a PNG frame zip) and save it to Slop Drive. Video takes as long as the composition.' });
+
+    const TO = E('to', ['drive', 'download', 'both'], 'drive', 'Slop Drive, a download, or both');
+    const xp = ns.aiExport.create(S);
+    add('export_frame', 'Export a frame as PNG', 'File', [N('time', 0, 600, undefined, 'seconds; the playhead when empty'), T('name', 'file name start; the project name when empty'), TO],
+      (a) => xp.exportFrame(a), { description: 'Save one frame of the composition as a PNG at its full size (with transparency), to Slop Drive and/or a download.' });
+    add('save_project', 'Save the project', 'File', [TO], (a) => xp.saveProject(a),
+      { palette: () => io.saveDrive(), description: 'Save the project file (layers, keyframes, effects, composition; media by name) to Slop Drive and/or a download. A project opened from Slop Drive is saved back to its file.' });
 
     add('go_to_time', 'Go to a time', 'Playback', [N('time', 0, 600, 0, 'seconds')], (a) => { S.seek(a.time); return `The playhead is at ${S.playhead} s.`; },
       { description: 'Move the playhead to a time in seconds.' });

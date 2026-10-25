@@ -109,8 +109,7 @@
       } });
   }
   async function saveToDrive(p) {
-    const tracks = playlistIds(p).map((id) => byId(id));
-    const blob = M.plfile.build(p.name, tracks.map((t) => ({ id: t.id, title: M.lib.display(t), artist: t.artist, album: t.album, duration: t.duration })));
+    const blob = M.plfile.build(p.name, M.plfile.rows(p));
     const id = await H().saveToDrive(blob, M.plfile.fileName(p.name), { from: 'music', title: 'Save “' + p.name + '” to Slop Drive' });
     if (id) UI().toast('Playlist saved to Slop Drive');
   }
@@ -137,5 +136,5 @@
   }
   /** The playlist open in the Playlists view, or null. */
   const selected = () => (S.sel ? M.playlists.get(S.sel) : null);
-  M.plUI = { bind, render, create, rename, remove, addTracks, selected, select: (id) => { S.sel = id; render(); } };
+  M.plUI = { bind, render, create, rename, remove, addTracks, saveToDrive, selected, select: (id) => { S.sel = id; render(); } };
 })();

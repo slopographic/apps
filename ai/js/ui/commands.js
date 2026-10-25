@@ -3,6 +3,7 @@
 'use strict';
 (function (AI) {
   const E = AI.E;
+  const HERE = (document.currentScript && document.currentScript.src) || location.href;
   AI.commands = function () {
     const C = (id, title, group, keys, run, extra = {}) => Object.assign({ id: 'ai.' + id, title, group, keys, run }, extra);
     return [
@@ -41,6 +42,9 @@
     const S = window.SlopCmd;
     if (!S || !S.register) { fallbackKeys(); return false; }
     try { if (S.init) S.init({ app: 'ai' }); S.register(AI.commands()); } catch (e) { console.warn('SlopCmd', e); fallbackKeys(); return false; }
+    // the assistant's commands with arguments (ai-commands.js: new_chat, send_message, export_chat…), loaded when first asked
+    if (S.provide) S.provide({ prepare: () => new Promise((res, rej) => document.head.append(Object.assign(document.createElement('script'),
+      { src: new URL('ai-commands.js', HERE).href, onload: res, onerror: () => rej(new Error('Could not load ai-commands.js')) }))) });
     AI.$('btnCmd').hidden = false;
     return true;
   };

@@ -8,8 +8,7 @@
   const A = window.SlopNodesApp, M = window.SlopNodesModel, G = window.SlopCalc.graph, C = window.SlopCmd;
   const TYPES = G.TYPES;
   const list = [];
-  const add = (tool, title, args, run, extra) => list.push(Object.assign({ id: 'nodes.ai.' + tool.replace(/_/g, '-'), tool, title, group: 'AI', hidden: true, destructive: false, args,
-    run: (a) => run(a || (window.SlopCmdArgs ? SlopCmdArgs.defaults(args) : {})) }, extra));
+  const add = C.aiAdder('nodes', list);   // shared/commands/commands.js
   const Str = (name, description, extra) => Object.assign({ name, type: 'string', maxLength: 200, description }, extra);
   let srcP = null;
   const sources = () => (window.SlopCmdSources ? Promise.resolve() : (srcP = srcP || new Promise((res, rej) => {

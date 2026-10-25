@@ -26,6 +26,11 @@ test('no app loses AI coverage (tests/node/ai-coverage.baseline.json)', () => {
 test('a new app has the full suite: create, add, edit, export, state, snapshot, reachable from another app', () => {
   for (const r of rows.filter((x) => !baseline[x.id])) assert.ok(r.full, `${r.name} is new and has no full AI suite: ${JSON.stringify(levels(r))}`);
 });
+test('every app has the full suite (AI-COVERAGE.md: Full suite: N of N apps)', () => {
+  const short = rows.filter((r) => !r.full).map((r) => `${r.name}: ${JSON.stringify(levels(r))}`);
+  assert.equal(short.length, 0, 'apps without the full AI suite: ' + short.join('; '));
+  assert.match(readFileSync(path.join(ROOT, OUT), 'utf8'), new RegExp(`Full suite: ${rows.length} of ${rows.length} apps`));
+});
 test('the baseline records what the apps have now (raise it: node tools/ai-coverage.mjs --baseline)', () => {
   for (const r of rows) assert.deepEqual(baseline[r.id], levels(r), `${r.id} changed: run node tools/ai-coverage.mjs --baseline`);
 });

@@ -7,11 +7,7 @@
   const S = window.Slop3D, M = S.model, A = S.actions, st = S.state, s = st.s, F = S.files;
   const HERE = (document.currentScript && document.currentScript.src) || location.href;
   const AI = (S.ai = {});
-  let srcP = null;
-  AI.sources = () => (window.SlopCmdSources ? Promise.resolve() : (srcP = srcP || new Promise((res, rej) => {
-    const el = Object.assign(document.createElement('script'), { src: new URL('../../../shared/commands/sources.js', HERE).href, async: false });
-    el.onload = res; el.onerror = () => { srcP = null; rej(new Error('Could not load sources.js')); }; document.head.append(el);
-  })));
+  AI.sources = () => window.SlopCmd.sources();   // shared/commands/sources.js, loaded once (commands.js)
 
   /** The scene as one file: { blob, name }. Several files (an OBJ with its .mtl and textures) come as one zip. */
   AI.fileOf = async function (format, scale = 1) {

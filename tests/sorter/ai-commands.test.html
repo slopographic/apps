@@ -10,7 +10,7 @@
   <script src="../harness.js"></script>
   <script src="../../shared/commands/args.js"></script>
   <script>
-  // Covers: sorter/js/ai-commands.js, sorter/js/app.js
+  // Covers: sorter/js/ai-commands.js, sorter/js/app.js, shared/commands/sources.js
   const { describe, it, expect, waitFor } = SlopTest;
   const f = document.getElementById('app');
   let W, C;
@@ -46,6 +46,19 @@
       expect(C.state().counts.liked).toBe(1);
       expect(C.state().counts.all).toBe(2);   // a removed photo is not brought back (the Drive file is still there)
     }, { timeout: 40000 });
+
+    it('new_sort clears the pile and its decisions and starts again with Drive photos', async () => {
+      expect(C.get('sorter.ai.new-sort').destructive).toBe(true);
+      expect((await C.exec('sorter.ai.new-sort', { files: ['nope.png'] })).ok).toBe(false);
+      expect(C.state().counts.all).toBe(2);   // a missing file leaves the old pile alone
+      let r = await run('new-sort', { files: ['green.png', 'blue.png'] });
+      expect(r.value).toMatch(/2 photo\(s\) and their decisions cleared\) with 2 photo/);
+      const c = C.state().counts;
+      expect([c.all, c.unsorted, c.liked, c.tags.length]).toEqual([2, 2, 0, 0]);
+      r = await run('new-sort', {});
+      expect(C.state().counts.all).toBe(0);
+      expect(W.document.getElementById('soWork').hidden).toBe(true);
+    }, { timeout: 20000 });
   });
   SlopTest.run({ name: 'Photo Sorter: assistant commands' });
   </script>
