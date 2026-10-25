@@ -138,11 +138,11 @@
       expect(!!task('Move van')).toBe(true);
       expect(!!task('Extra')).toBe(false);
     });
-    it('a palette run (no arguments) opens the dialog', async () => {
+    it('a palette run (no arguments) opens the task panel', async () => {
       W.SlopCmd.run('projects.newTask', { source: 'palette' });
-      await waitFor(() => D.querySelector('.sui-dlg #peTitle'));
-      D.querySelector('.sui-dlg .sui-foot button').click();   // Cancel
-      await waitFor(() => !D.querySelector('.sui-dlg'));
+      await waitFor(() => D.querySelector('.pj-task #peTitle'));
+      [...D.querySelectorAll('.pj-task .sf-p-foot button')].find((b) => b.textContent === 'Cancel').click();
+      await waitFor(() => !W.SlopProjects.taskPanel.isOpen());
     });
   });
   run();

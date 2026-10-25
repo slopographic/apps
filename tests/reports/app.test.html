@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <title>Slop Reports · the page: empty note, the built-in list and the profit report, at 390 px</title>
-  <!-- Covers: reports/js/app.js, reports/index.html, reports/css/reports.css, shared/finder/finder.js -->
+  <!-- Covers: reports/js/app.js, reports/index.html, reports/css/reports.css, shared/finder/finder.js, reports/js/layout.js -->
   <style>body { margin: 0; background: #111; color: #eee; font: 13px system-ui; }</style>
 </head>
 <body>
@@ -64,7 +64,7 @@
       expect([...card.querySelectorAll('.rp-kv')].map((n) => n.textContent)).toEqual(['Income: $0.00', 'Expenses: $100.00', 'Profit: -$100.00']);
       expect(doc().documentElement.scrollWidth <= 391).toBe(true);
     });
-    it('at 1280 px the page keeps one width and position whatever report is chosen (it jumped between reports)', async () => {
+    it('at 1280 px the report keeps one width and position whatever report is chosen (it jumped between reports)', async () => {
       frame.style.width = '1280px';
       await waitFor(() => frame.contentWindow.innerWidth === 1280);
       const sel = $('report'), seen = new Set();
@@ -72,13 +72,39 @@
         sel.value = o.value;
         sel.dispatchEvent(new Event('change', { bubbles: true }));
         await new Promise((r) => setTimeout(r, 150));
-        const m = doc().querySelector('.rp-main').getBoundingClientRect();
+        const m = doc().getElementById('rpView').getBoundingClientRect();
         seen.add(`${Math.round(m.left)}/${Math.round(m.width)}`);
       }
       expect(seen.size).toBe(1);
-      expect([...seen][0].endsWith('/1100')).toBe(true);   // the full capped width, not shrunk to the report's content
-      expect(getComputedStyle(doc().documentElement).scrollbarGutter).toBe('stable');
+      // the report fills the room left of the panel (shared/frame), not shrunk to the report's content
+      expect(doc().getElementById("rpView").getBoundingClientRect().right).toBeLessThanOrEqual(doc().getElementById("rpPanel").getBoundingClientRect().left + 1);
+      expect(doc().getElementById("rpView").getBoundingClientRect().width).toBeGreaterThan(800);
+    });
+    it('at 1280 px the picker and Export CSV are in the panel on the right, Export CSV at its foot and working', async () => {
+      const panel = $('rpPanel'), csv = $('csv'), W = frame.contentWindow;
+      expect(panel.getBoundingClientRect().left).toBeGreaterThan(640);
+      expect(panel.contains($('report'))).toBe(true);
+      expect(csv.closest('.sf-p-foot').parentNode).toBe(panel);
+      expect(csv.getBoundingClientRect().bottom).toBeLessThanOrEqual(W.innerHeight);
+      let made = 0;
+      const was = W.URL.createObjectURL;
+      W.URL.createObjectURL = (b) => { made++; return was.call(W.URL, b); };
+      csv.click();
+      W.URL.createObjectURL = was;
+      expect(made).toBe(1);
+    });
+    it('at 390 px the panel is a bottom sheet whose footer (Report, Export CSV) stays on screen; no sideways scroll', async () => {
       frame.style.width = '390px';
+      const W = frame.contentWindow;
+      await waitFor(() => W.innerWidth === 390);
+      await new Promise((r) => setTimeout(r, 200));
+      const foot = doc().querySelector('#rpPanel .sf-p-foot');
+      expect(Math.round(foot.getBoundingClientRect().bottom)).toBe(W.innerHeight);
+      expect([...foot.querySelectorAll('button')].filter((b) => b.getClientRects().length).map((b) => b.textContent.trim())).toEqual(['Report', 'Export CSV']);
+      expect(doc().documentElement.scrollWidth <= 390).toBe(true);
+      $('new').click();   // New report opens the sheet with the definition
+      await waitFor(() => $('rpPanel').classList.contains('ssh-on'));
+      expect($('json').getClientRects().length > 0).toBe(true);
     });
   });
   run();

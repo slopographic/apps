@@ -64,7 +64,7 @@
   function measure(win, name) {
     const onScreen = (b) => { const r = b.getBoundingClientRect(); return r.top >= 0 && r.left >= 0 && r.bottom <= win.innerHeight && r.right <= win.innerWidth; };
     const uncovered = (b) => { const r = b.getBoundingClientRect(); const hit = win.document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2); return !!hit && b.contains(hit); };
-    const save = $(win, '.ed-foot .btn.primary'), cancel = $(win, '.ed-foot [data-act="cancel"]');
+    const save = $(win, '#card .sf-p-foot .btn.primary'), cancel = $(win, '#card .sf-p-foot [data-act="cancel"]');
     const body = $(win, '.ed-body');
     /** A place in the body's own coordinates, so a scroll does not count as a move. */
     const at = (e) => Math.round(e.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop);
@@ -72,7 +72,7 @@
     return {
       name, form: box(win, '.ed-form'), bodyW: body.clientWidth, view: [win.innerWidth, win.innerHeight],
       nameAt: at($(win, 'input[aria-label="Name"]')), addPhoneAt: addPhone ? at(addPhone) : null,
-      save: round(box(win, '.ed-foot .btn.primary')),
+      save: round(box(win, '#card .sf-p-foot .btn.primary')),
       saveVisible: onScreen(save) && uncovered(save), cancelVisible: onScreen(cancel) && uncovered(cancel),
     };
   }

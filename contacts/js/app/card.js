@@ -7,12 +7,31 @@
   const SC = window.SlopContacts;
   const S = SC.state;
   const D = window.SlopData;
-  let key = '', json = '';
+  let key = '', json = '', fp = null;
+
+  /** The card's footer (the suite rule, shared/frame/HANDOFF.md: the main button at the foot of the right-hand panel; the
+   *  shared footer, shared/frame/panel.js): Edit, Duplicate and Delete on a contact, Cancel and Save in the form. */
+  function foot(list) {
+    if (!fp && window.SlopFramePanel) fp = window.SlopFramePanel.create(document.getElementById('card'), { bare: true });
+    if (fp) fp.footer(list.map((b) => ({ el: b })));
+  }
+  function btn(label, act, cls, run) {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = cls; b.dataset.act = act; b.textContent = label;
+    b.addEventListener('click', run);
+    return b;
+  }
+  function readFoot(c) {
+    foot([btn('Edit', 'editFoot', 'btn primary', () => { S.mode = 'edit'; S.emit('render'); }),
+      btn('Duplicate', 'dup', 'btn', () => SC.cardRead.duplicate(c)),
+      btn('Delete', 'del', 'btn danger', () => SC.select.remove(new Set([c.id])))]);
+  }
 
   function empty(text) {
     const body = document.getElementById('cardBody');
     body.innerHTML = `<div class="card-empty"><p class="card-empty-h">${text}</p></div>`;
     key = ''; json = '';
+    foot([]);
   }
 
   /** Draws the card for the current state. */
@@ -26,13 +45,14 @@
       return;
     }
     if (S.mode === 'edit') {
-      if (key !== `edit:${c.id}`) { key = `edit:${c.id}`; SC.cardEdit.render(c); }
+      if (key !== `edit:${c.id}`) { key = `edit:${c.id}`; SC.cardEdit.render(c); foot(SC.cardEdit.buttons); }
       return;
     }
     const j = JSON.stringify(c);
     if (key === `view:${c.id}` && j === json) return;
     key = `view:${c.id}`; json = j;
     SC.cardRead.render(c);
+    readFoot(c);
   }
 
   /** The View / Edit switch on the card (shown in both modes). The chosen mode is remembered per device (state.js). */

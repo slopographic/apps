@@ -55,7 +55,7 @@
       $(win, '[data-act="edit"]').click();
       await waitFor(() => $(win, '.ed-form'));
       $(win, 'input[aria-label="Company"]').value = 'Changed';
-      $(win, '.ed-foot [data-act="cancel"]').click();
+      $(win, '#card .sf-p-foot [data-act="cancel"]').click();
       await waitFor(() => dialogButton(win, 'Discard'));
       dialogButton(win, 'Cancel').click();
       await sleep(60);

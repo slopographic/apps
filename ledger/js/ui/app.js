@@ -25,6 +25,13 @@
     if (v && v.render) await v.render();
   }
 
+  // The forms that add a record are the panel on the right of their view, their button at its foot (shared/biz/panel.js)
+  const P = g.SlopBiz.panel;
+  if (P) {
+    P.form({ app: 'ledger', key: 'journal', view: '#view-journal', form: '#jForm', foot: ['#jPost'], label: 'New entry' });
+    P.form({ app: 'ledger', key: 'accounts', view: '#view-accounts', form: '#aForm', foot: ['#aAdd'], label: 'New account' });
+    P.form({ app: 'ledger', key: 'rates', view: '#view-rates', form: '#rForm', foot: ['#rAdd'], label: 'New rate' });
+  }
   const app = g.SlopBiz.router.start({
     ns: NS, app: 'ledger', parse: (h) => ({ view: VIEWS.includes(h) ? h : 'journal' }),
     after: () => { label(); }, refresh: render,

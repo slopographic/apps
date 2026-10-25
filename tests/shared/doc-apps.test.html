@@ -17,7 +17,7 @@
   let W, D;
   const $ = (id) => D.getElementById(id);
   const set = (el, v) => { el.value = v; el.dispatchEvent(new W.Event('input', { bubbles: true })); el.dispatchEvent(new W.Event('change', { bubbles: true })); };
-  const button = (text) => [...D.querySelectorAll('#eActions button')].find((b) => b.textContent === text);
+  const button = (text) => [...D.querySelectorAll('#eActions button, .ws-panel .sf-p-foot button')].find((b) => b.textContent === text);
   const APPS = [
     { app: 'quotes', ns: 'SlopQuotes', summary: 'qSummary', one: '1 quote', zero: '0 quotes' },
     { app: 'orders', ns: 'SlopOrders', summary: 'oSummary', one: '1 order', zero: '0 orders' },
