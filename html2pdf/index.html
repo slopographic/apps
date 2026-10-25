@@ -40,8 +40,6 @@
     </div>
     <span class="local-badge" title="The HTML is read and printed in this browser. Nothing is uploaded.">100% local</span>
 
-    <input type="file" id="h2p-file" accept=".html,.htm,text/html" hidden>
-
     <main class="h2p-main">
       <aside class="h2p-side" aria-label="Options">
         <section class="h2p-group" aria-labelledby="h2p-h-source">
@@ -51,9 +49,7 @@
             <textarea class="h2p-input" id="h2p-paste" rows="5" spellcheck="false" placeholder="<h1>Paste HTML here</h1>"></textarea>
           </label>
           <button type="button" class="sui-btn" id="h2p-use-paste">Use pasted HTML</button>
-          <label class="h2p-field">Local images
-            <input type="file" id="h2p-images" class="h2p-input" accept="image/*" multiple>
-          </label>
+          <button type="button" class="sui-btn" id="h2p-images">Attach local images…</button>
           <p class="h2p-note" id="h2p-image-list">No local images attached.</p>
         </section>
 
@@ -122,6 +118,12 @@
 
   <script src="../shared/slopui.js"></script>
   <script src="../shared/apps.js"></script>
+  <script src="../shared/hub.js"></script>
+  <script src="../shared/intake/rules.js"></script>
+  <script src="../shared/intake/normalize.js"></script>
+  <script src="../shared/intake/pipeline.js"></script>
+  <script src="../shared/intake/intake.js"></script>
+  <script src="../shared/intake/sources.js"></script>
   <script src="../vendor/bwip-js/bwip-js-min.js"></script>
   <script src="../shared/print/print.js"></script>
   <script src="js/sheet.js"></script>

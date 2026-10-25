@@ -24,7 +24,7 @@
   }
   const dialogButton = (text) => until(() => [...win().document.querySelectorAll('.sui-dlg button')].find((b) => b.textContent.trim() === text), 'the dialog button ' + text);
   describe('Slopnodes: projects in Slop Drive', () => {
-    it('Save to Slop Drive keeps the graph as a project; Open project lists it and brings it back', async () => {
+    it('Save to Slop Drive keeps the graph as a project; Open project (the shared Slop Drive picker) brings it back', async () => {
       await until(() => doc().querySelectorAll('.sn-node').length === 6, 'the example');
       const name = 'Shop check ' + Date.now();
       doc().querySelector('#sn-save').click();
@@ -38,8 +38,11 @@
       const menuFile = [...doc().querySelectorAll('.smb-menu-b')].find((b) => b.textContent === 'File');
       menuFile.click();
       [...doc().querySelectorAll('.smb-item')].find((b) => b.textContent === 'Open project…').click();
-      const row = await until(() => [...win().document.querySelectorAll('.sn-proj')].find((r) => r.textContent.includes(name)), 'the project in the list');
-      row.querySelector('button').click();
+      // the one shared Slop Drive picker (shared/drive/picker.js), not a list of the app's own
+      // Save put it in the app's folder: open the folder, then the project
+      (await until(() => [...win().document.querySelectorAll('.hub-folder')].find((r) => r.textContent.includes('Slopnodes')), 'the Slopnodes folder in the shared picker')).click();
+      const item = await until(() => [...win().document.querySelectorAll('.hub-item:not(.hub-folder)')].find((r) => r.textContent.includes(name)), 'the project in the shared picker');
+      item.click();
       await until(() => /Opened/.test(doc().querySelector('#sn-status').textContent), 'the project reopened');
       expect(doc().querySelectorAll('.sn-node').length).toBe(6);
     }, { timeout: 60000 });

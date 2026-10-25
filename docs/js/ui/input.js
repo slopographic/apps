@@ -59,7 +59,7 @@
     else { const text = t || e.data || ''; if (text) A().type(text.replace(/\r\n?/g, '\n')); }
   });
   input.addEventListener('compositionend', () => { const t = input.value; input.value = ''; if (t) A().type(t); });
-  input.addEventListener('paste', (e) => {
+  input.addEventListener('paste', (e) => { // intake-ok: text pasted into the document (the hidden input)
     e.preventDefault();
     if (A().pasteBuffer && A().pasteBuffer()) return; // the shared buffer, when it is newer than this document's last copy
     A().paste((e.clipboardData && e.clipboardData.getData('text/plain')) || '');

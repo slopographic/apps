@@ -18,7 +18,7 @@
     let fh = null, shut = false; // the face badge and boxes (shared/faces/view.js), when the picture has been checked
     const meta = el('div', { class: 'ql-meta' }, `${DR.kindLabel(r)} · ${DR.fmtSize(r.size)} · ${DR.appName(r.from)} · ${DR.fmtFull(r.modified || r.time)}`, files.length > 1 && i >= 0 ? el('span', null, `${i + 1} / ${files.length}`) : '');
     const buttons = [];
-    if (apps.length) buttons.push({ label: `Open in ${apps[0].name}`, act: () => { DR.openWith(r, apps[0].id); } });
+    if (apps.length) buttons.push({ label: `Open in ${apps[0].name}`, act: () => { DR.openWith(r, apps[0].id); } }); // outtake-ok: the file's default app (Drive's Open with); it goes out through SlopOuttake.send
     buttons.push({ label: 'Download', act: () => { DR.downloadFile(r); return false; } }, { label: 'Close', primary: true });
     const d = window.SlopUI.dialog({ title: r.name, cls: 'sui-wide ql', body: el('div', null, pv, meta), buttons, onClose: () => { shut = true; if (fh) fh.destroy(); if (current === d) current = null; qlUrls.forEach((u) => URL.revokeObjectURL(u)); DR.syncUrl(); } });
     DR.attachFaces(pv, r, meta).then((h) => { if (shut && h) h.destroy(); else fh = h; });

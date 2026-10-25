@@ -57,9 +57,7 @@
       drop.hidden = !photo;
     };
     choose.addEventListener('click', async () => {
-      const [file] = await UI.pickFiles({ accept: 'image/*' });
-      if (!file) return;
-      try { photo = await toJpegDataUri(file); paint(); } catch (e) { UI.toast(e.message || 'That photo could not be read.'); }
+      try { const p = await SC.dropImport.pickPhoto(); if (p) { photo = p; paint(); } } catch (e) { UI.toast(e.message || 'That photo could not be read.'); }
     });
     drop.addEventListener('click', () => { photo = ''; paint(); });
     paint();

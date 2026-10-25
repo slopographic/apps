@@ -19,15 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
--------------------------------------------------------------------------------
-Exclusions (not covered by the MIT License above)
-
-1. Sloppo character art. The files listed in LICENSE-ART are
-   Copyright (c) 2026 Slopographic. All rights reserved.
-2. Brand. "Slopographic", "Sloppo", their logos and the Sloppo character design
-   are trademarks of Slopographic. The MIT License grants no trademark rights.
-   See TRADEMARKS.md. Forks must use a different name and mascot.
-3. Media. Screenshots, video and images under assets/ are
-   Copyright (c) 2026 Slopographic. All rights reserved.
-4. Third-party code under vendor/ keeps its own license (see each folder).

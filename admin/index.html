@@ -132,7 +132,7 @@
         <div class="card">
           <h2 class="h3">Restore</h2>
           <p class="note">The whole file is checked first. A bad file changes nothing. A good one replaces every record here.</p>
-          <label>Backup file <input id="dRestore" type="file" accept="application/json,.json"></label>
+          <button type="button" class="btn" id="dRestore">Restore from a backup file…</button>
           <p class="msg" id="dRestoreMsg" role="status"></p>
         </div>
         <div class="card danger-card">
@@ -182,6 +182,11 @@
   <script src="../shared/ops/entry.js"></script>
   <script src="../shared/backup/index.js"></script>
   <script src="../shared/slopui.js"></script>
+  <script src="../shared/intake/rules.js"></script>
+  <script src="../shared/intake/normalize.js"></script>
+  <script src="../shared/intake/pipeline.js"></script>
+  <script src="../shared/intake/intake.js"></script>
+  <script src="../shared/intake/sources.js"></script>
   <script src="../shared/commands/commands.js"></script>
   <script src="js/core/util.js"></script>
   <script src="js/core/profile.js"></script>

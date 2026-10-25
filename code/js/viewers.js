@@ -62,21 +62,13 @@ function binaryNode(doc) {
     el('p', null, 'This is not a text file, so Slop Code cannot show or edit it.'));
   const list = el('div', { class: 'cd-bin-apps' });
   const rec = { id: doc.id, name: doc.name };
-  const openers = () => {
-    const H = window.SlopHub;
-    if (!H) return [];
-    return H.appsAccepting ? H.appsAccepting(doc.mime || 'application/octet-stream') : [];
-  };
+  // The one builder (SlopOuttake): the file is already in Slop Drive, so the app opens that record (no copy).
+  const openers = () => (window.SlopOuttake && window.SlopHub ? window.SlopOuttake.items({ id: rec.id, name: rec.name, type: doc.mime || 'application/octet-stream', from: 'code', folder: false }) : []);
   const showApps = () => {
-    const apps = openers();
-    list.replaceChildren(apps.length ? el('p', { class: 'cd-hint' }, 'Open it in:') : el('p', { class: 'cd-hint' }, 'No app opens this type.'),
-      ...apps.map((a) => el('button', { type: 'button', class: 'sui-btn', onclick: () => openIn(a, rec) }, a.name)));
+    const items = openers();
+    list.replaceChildren(items.length ? el('p', { class: 'cd-hint' }, 'Open it in:') : el('p', { class: 'cd-hint' }, 'No app opens this type.'),
+      ...items.map((it) => el('button', { type: 'button', class: 'sui-btn', onclick: it.act }, it.label.replace(/^Open in /, ''))));
   };
   box.append(el('button', { type: 'button', class: 'sui-btn sui-primary', id: 'cd-bin-open', onclick: showApps }, 'Open in an app'), list);
   return box;
-}
-
-async function openIn(app, rec) {
-  try { await window.SlopHub.sendTo(app.id, null, rec.name, { id: rec.id }); if (window.SlopUI) SlopUI.toast(`Opened in ${app.name}`); }
-  catch (e) { if (window.SlopUI) SlopUI.toast('Could not open it: ' + e.message); }
 }

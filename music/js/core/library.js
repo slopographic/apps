@@ -32,7 +32,7 @@
   function load() {
     if (loading) return loading;
     loading = (async () => {
-      const recs = await H().list({ accept: AUDIO });
+      const recs = await H().list({ accept: AUDIO }); // intake-ok: the music library, not a picker
       const seen = new Set();
       for (const rec of recs) {
         seen.add(rec.id);

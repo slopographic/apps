@@ -7,7 +7,7 @@
 
   /** Reload everything from IndexedDB. */
   DR.refresh = async function () {
-    const [files, folders] = await Promise.all([H().list({ trashed: 'any' }), H().listFolders()]);
+    const [files, folders] = await Promise.all([H().list({ trashed: 'any' }), H().listFolders()]); // intake-ok: Slop Drive itself
     S.folders = new Map(folders.map((f) => [f.id, Object.assign(f, { isFolder: true })]));
     for (const f of S.folders.values()) f.parent = S.folders.has(f.parentId) && f.parentId !== f.id ? f.parentId : null;
     S.files = new Map(files.map((r) => [r.id, Object.assign(r, { isFolder: false, parent: S.folders.has(r.folderId) ? r.folderId : null })]));

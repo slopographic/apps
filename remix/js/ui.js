@@ -51,7 +51,7 @@
     li.addEventListener('dragstart', (e) => RM.moves.cutDragStart(e, i, li));
     li.addEventListener('dragover', (e) => RM.moves.cutDragOver(e, li));
     li.addEventListener('dragleave', () => { delete li.dataset.drop; });
-    li.addEventListener('drop', (e) => { delete li.dataset.drop; RM.moves.cutDrop(e, i); });
+    li.addEventListener('drop', (e) => { delete li.dataset.drop; RM.moves.cutDrop(e, i); }); // intake-ok: a cut moved in the list
     li.append(lk, ' ' + (i + 1) + '. ');
     beat.forEach((x, k) => {
       if (k) li.append(' | ');
@@ -123,31 +123,24 @@
   RM.remixNow = remix;
   RM.reshuffleNow = function () { readControls(); RM.reshuffle(); $('rm-seed').value = S.hex(RM.state.seed); renderPlan(); status('Reshuffled: new seed ' + S.hex(RM.state.seed)); return RM.state.plan; };
 
-  // The bin and the stage take files through SlopDrop (shared/drop): it checks the types, shows each file's progress,
-  // and calls RM.addFiles (the same path as before) one file at a time.
-  const DROP_RULES = { types: ['image/*', 'video/*'], exts: [], noun: 'a picture or video' };
-  let missingBefore = 0, dropZone = null;
+  // The way in is the intake (js/intake.js); this is what a batch and the music file do here, and the zone's look.
+  let dropZone = null;
+  function batchDone(sum, missingBefore) {
+    if (RM.auto) RM.auto.batchDone(sum); // the batch's clips are in the bin now: pending for auto remix
+    const filled = missingBefore - RM.state.items.filter((x) => x.missing).length;
+    renderBin();
+    if (filled > 0) { remix(); status('Filled ' + filled + ' missing clip' + (filled > 1 ? 's' : '') + ' and planned the edit again.'); }
+    else if (sum.added.length) status('Added ' + sum.added.length + ' file' + (sum.added.length > 1 ? 's' : '') + '. Press Remix to make the edit.');
+  }
   function wireDrop() {
+    RM.intake.register({ done: batchDone, music: (f) => { RM.setMusic(f); $('rm-audio').value = 'music'; readControls(); renderTracks(); RM.audioChanged(); status('Music: ' + f.name + '.'); } });
     dropZone = SlopDrop.attach($('rm-drop'), {
-      accept: DROP_RULES,
-      input: $('rm-file'),
+      intake: 'remix',
       targets: [$('rm-bin'), $('rm-stage')],
       preview: { picture: { src: '../assets/shots/remix.jpg', alt: 'A vertical reel cut from clips and photos, several to a frame' },
         steps: ['Drop clips and photos', 'Press Remix: it plans the cuts', 'Play it, then export a video'] },
       sample: { label: 'Try it with 2 clips and 3 photos', files: async () => { const S = window.SlopSamples; status('Making the sample clips…'); // painted in the page (shared/samples)
         return (await Promise.all([S.media.clip(4, { scene: 'hills', width: 480, height: 640 }), S.media.clip(4, { scene: 'sea', width: 480, height: 640 }), S.photos(3, { width: 900, height: 1200 })])).flat(); } },
-      begin: () => { missingBefore = RM.state.items.filter((x) => x.missing).length; },
-      process: async (file) => {
-        if (!(await RM.addFiles([file]))) throw new Error('could not be decoded as a picture or video');
-        return RM.state.items.slice().reverse().find((x) => x.name === file.name).id;
-      },
-      done: (sum) => {
-        if (RM.auto) RM.auto.batchDone(sum); // the batch's clips are in the bin now: pending for auto remix
-        const filled = missingBefore - RM.state.items.filter((x) => x.missing).length;
-        renderBin();
-        if (filled > 0) { remix(); status('Filled ' + filled + ' missing clip' + (filled > 1 ? 's' : '') + ' and planned the edit again.'); }
-        else if (sum.added.length) status('Added ' + sum.added.length + ' file' + (sum.added.length > 1 ? 's' : '') + '. Press Remix to make the edit.');
-      },
       reveal: (sum) => document.querySelector('#rm-bin li[data-id="' + sum.added[sum.added.length - 1].value + '"]'),
     });
   }
@@ -253,6 +246,8 @@
     wire();
     RM.say = status; RM.renderPlan = renderPlan;
     RM.panel.init();
+    if (window.SlopHub) { try { SlopHub.register('remix'); } catch (e) { /* bus unavailable */ } }
+    SlopIntake.launch({ to: 'remix' }); // ?drive=<id> (Open in Reel Remix) and a PWA launch
     RM.ready = true;
   }
   /** Move the playhead to t and paint that frame (scrubbing; works while paused). */
@@ -271,10 +266,10 @@
   function wire() {
     ['rm-pshow', 'rm-psec', 'rm-pmin', 'rm-pmax', 'rm-pfrom', 'rm-pto', 'rm-penter', 'rm-pexit', 'rm-vmode', 'rm-vstart', 'rm-vstop', 'rm-vspeed'].forEach((id) => $(id).addEventListener('change', () => { readControls(); status('Clip settings: press Remix to apply them (or set them per slot or clip).'); }));
     ['rm-timing', 'rm-vtiming', 'rm-lmin', 'rm-lmax', 'rm-stagger'].forEach((id) => $(id).addEventListener('change', () => { readControls(); status('Timing: press Remix to plan the new timing.'); }));
-    const audioChanged = () => { readControls(); renderTracks(); const p = RM.state.plan; if (p) p.audio = SV.audio.choose({ mode: RM.state.audioMode, track: RM.state.audioTrack }, p.seed, RM.media()); status('Audio: ' + $('rm-audio').options[$('rm-audio').selectedIndex].text + '.'); };
+    const audioChanged = RM.audioChanged = () => { readControls(); renderTracks(); const p = RM.state.plan; if (p) p.audio = SV.audio.choose({ mode: RM.state.audioMode, track: RM.state.audioTrack }, p.seed, RM.media()); status('Audio: ' + $('rm-audio').options[$('rm-audio').selectedIndex].text + '.'); };
     $('rm-audio').addEventListener('change', audioChanged);
     $('rm-track').addEventListener('change', audioChanged);
-    $('rm-music').addEventListener('change', (e) => { const f = e.target.files[0]; e.target.value = ''; if (!f) return; RM.setMusic(f); $('rm-audio').value = 'music'; readControls(); renderTracks(); audioChanged(); status('Music: ' + f.name + '.'); });
+    $('rm-music').addEventListener('click', RM.intake.pickMusic);
     $('rm-fill').addEventListener('change', () => { readControls(); if (RM.state.plan) { RM.state.plan.fill = RM.state.fill; renderPlan(); } status('Fill: ' + $('rm-fill').options[$('rm-fill').selectedIndex].text + '.'); });
     const ctl = ['rm-target', 'rm-pace', 'rm-preset', 'rm-cw', 'rm-ch', 'rm-base', 'rm-random', 'rm-seed'];
     ctl.forEach((id) => $(id).addEventListener('change', () => { readControls(); if (id === 'rm-preset' || id === 'rm-cw' || id === 'rm-ch') status('Frame size ' + RM.size().w + '×' + RM.size().h + ': press Remix to plan for it.'); }));

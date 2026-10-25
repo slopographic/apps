@@ -7,16 +7,8 @@
   const app = () => window.EmlApp;
   const toast = (msg, ms, action) => window.SlopUI.toast(msg, ms, action);
 
-  /** Opens files chosen with the picker or dropped. Says which ones could not be read. */
-  A.openFiles = async function (files) {
-    const res = await app().openFiles(files);
-    if (res.failed.length) toast('Could not read ' + res.failed.map((f) => f.name).join(', ') + '.', 6000);
-    return res;
-  };
-  A.pick = async function () {
-    const files = await window.SlopUI.pickFiles({ accept: '.eml,.mbox,.mbx,message/rfc822,application/mbox', multiple: true });
-    if (files.length) await A.openFiles(files);
-  };
+  /** Open messages… (Ctrl+O, the Open buttons): a source of the one intake (main.js). */
+  A.pick = () => window.SlopIntake.pick({ to: 'eml', accept: '.eml,.mbox,.mbx,message/rfc822,application/mbox' });
 
   /** Print: the message's headers and body in a print window, with print styles only (no toolbar, no tabs). The window
    *  holds the same policy as the preview (no scripts, no network), so the mail cannot run or load anything. */

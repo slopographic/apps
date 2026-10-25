@@ -55,6 +55,9 @@
     S.emit('sel');
     g.SlopEffects.app = { S, act, ka, io, tr, preview, menus, showTab, sheet };
     menus.refresh();
+    g.SlopIntake.dropTarget($('fx-view'), { to: 'effects' });
+    if (g.SlopHub) { try { g.SlopHub.register('effects'); } catch (e) { /* bus unavailable */ } }
+    io.launch();
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once: true });

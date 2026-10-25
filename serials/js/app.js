@@ -25,11 +25,6 @@ async function addFiles(list) {
   const all = [...list];
   const files = all.filter(isImage);
   if (!files.length) { say('Only photos can be added. Pick JPEG, PNG or WebP pictures.'); return; }
-  if (!(await window.SlopFirstRun.once('serials', {
-    title: 'Serial counter',
-    lines: ['Each photo is read here, on this device, with the same text reader as the OCR page. Serials are found with a pattern you can change.'],
-    downloads: [],
-  }))) return;
   for (const f of files) {
     state.photos.push({ id: state.nextId++, name: f.name, file: f, text: '', read: false, error: null, manual: new Set(), removed: new Set() });
   }
@@ -173,11 +168,19 @@ function exportPhotos() {
 }
 
 function wire() {
-  $('pick').addEventListener('change', (e) => { addFiles(e.target.files); e.target.value = ''; });
+  // The one way in (shared/intake, spec 'serials'): the box (click to choose photos, or a drop on it) and a paste, after
+  // the first-use notice (the intake's, once per batch). A paste waits for the gate to show the page.
+  window.SlopIntake.register({
+    id: 'serials', accept: { types: ['image/*'], exts: ['.jpg', '.jpeg', '.png', '.webp'], noun: 'a photo' },
+    notice: { title: 'Serial counter', lines: ['Each photo is read here, on this device, with the same text reader as the OCR page. Serials are found with a pattern you can change.'], downloads: [] },
+    gate: (batch) => !$('ui').hidden || batch.source !== 'paste',
+    processAll: async (files) => { drop.classList.remove('over'); await addFiles(files); return files.map((f) => f.name); },
+  });
   const drop = $('drop');
-  drop.addEventListener('dragover', (e) => { e.preventDefault(); drop.classList.add('over'); });
+  drop.addEventListener('click', () => window.SlopIntake.pick({ to: 'serials', accept: 'image/*' }));
+  window.SlopIntake.dropTarget(drop, { to: 'serials' });
+  drop.addEventListener('dragenter', () => drop.classList.add('over'));
   drop.addEventListener('dragleave', () => drop.classList.remove('over'));
-  drop.addEventListener('drop', (e) => { e.preventDefault(); drop.classList.remove('over'); addFiles(e.dataTransfer.files); });
   $('pattern').addEventListener('input', () => render());
   $('read').addEventListener('click', readAll);
   $('export-serials').addEventListener('click', exportSerials);

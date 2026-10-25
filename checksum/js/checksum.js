@@ -67,7 +67,9 @@
   const preset = presetOf(location.search);
   if (preset) $('ck-alg').value = preset;
 
-  $('ck-file').addEventListener('change', (e) => choose(e.target.files[0]));
+  const drop = $('ck-drop');
+  // The one way in (shared/intake, spec 'checksum'): the box (click to choose, or a drop on it) and a paste; one file.
+  SlopIntake.register({ id: 'checksum', accept: { any: true, allowEmpty: true, noun: 'a file' }, limit: 1, toast: false, process: async (f) => { drop.classList.remove('over'); await choose(f); return f.name; } });
   $('ck-alg').addEventListener('change', show);
   $('ck-expect').addEventListener('input', check);
   $('ck-copy').addEventListener('click', async () => {
@@ -75,10 +77,10 @@
     catch (e) { $('ck-copy').textContent = 'Copy failed'; }
     setTimeout(() => { $('ck-copy').textContent = 'Copy hash'; }, 1500);
   });
-  const drop = $('ck-drop');
-  ['dragenter', 'dragover'].forEach((t) => drop.addEventListener(t, (e) => { e.preventDefault(); drop.classList.add('over'); }));
-  ['dragleave', 'drop'].forEach((t) => drop.addEventListener(t, (e) => { e.preventDefault(); drop.classList.remove('over'); }));
-  drop.addEventListener('drop', (e) => choose(e.dataTransfer.files[0]));
+  drop.addEventListener('click', () => SlopIntake.pick({ to: 'checksum', multiple: false }));
+  SlopIntake.dropTarget(drop, { to: 'checksum' });
+  drop.addEventListener('dragenter', () => drop.classList.add('over'));
+  drop.addEventListener('dragleave', () => drop.classList.remove('over'));
 
   // Exposed for the browser test.
   window.SlopChecksum = { presetOf, hashOf: (alg, f) => { file = f; last = { alg: null, hash: null }; return hashOf(alg); }, clean };

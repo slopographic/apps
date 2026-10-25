@@ -39,7 +39,7 @@
     document.getElementById('panelsToggle').addEventListener('click', function () { if (!UI.dockSheet.isPhone()) togglePanels(); });   // on a phone it is the drawer's toggle
     document.addEventListener('click', function (e) { var b = e.target && e.target.closest ? e.target.closest('button') : null; if (b && e.detail > 0 && !b.closest('.sui-dlg')) setTimeout(function () { if (document.activeElement === b) b.blur(); }, 0); }, true);
     D.textEditor.addEventListener('input', SV.onEditorInput);
-    SV.bindStage(); SV.bindKeys(); SV.wireCommands(); IO.bindDrop(); SV.buffer.bindDrop(); if (window.SlopBuffer) SlopBuffer.tray(document.body); bindContextMenus();
+    SV.bindStage(); SV.bindKeys(); SV.wireCommands(); SV.intake.bindDrop(); SV.buffer.bindDrop(); if (window.SlopBuffer) SlopBuffer.tray(document.body); bindContextMenus();
     var saved = SV.loadAutosave(), recovered = false;
     if (saved) { try { SV.loadDoc(saved.doc, { fit: true }); S.fileName = saved.fileName || null; recovered = true; } catch (e) { recovered = false; } }
     if (!recovered) SV.loadDoc(SV.sampleDoc(), { fit: true });

@@ -1,4 +1,5 @@
-/* SlopClean: the controller. Opens pictures (button, drop, Slop Drive ?drive=<id>), cleans them with the chosen
+/* SlopClean: the controller. Opens pictures through the one intake (shared/intake, spec 'clean': Open, a drop, a paste,
+ * Slop Drive ?drive=<id>, a PWA launch), cleans them with the chosen
  * categories, and hands out the results: a download (one file, or a zip through the shared SlopZip), a copy saved to
  * Slop Drive, or (only for a picture opened from Drive, after a confirmation) a replaced original. Classic script. */
 (function () {
@@ -79,7 +80,19 @@
     if (window.SlopGuard && SlopGuard.setUnsaved) SlopGuard.setUnsaved('clean', S.items.some((x) => x.out));
   }
 
-  function openPicker() { return UI().pickFiles({ accept: CL.io.ACCEPT, multiple: true }).then((f) => addFiles(f)); }
+  /** The one way in: every source reaches addFiles (a picture from Slop Drive keeps its record: Replace original). */
+  function registerIntake() {
+    window.SlopIntake.register({
+      id: 'clean', accept: { types: ['image/*'], exts: ['.jpg', '.jpeg', '.png', '.webp', '.tif', '.tiff'], noun: 'a picture' },
+      processAll: async (files, ctx) => {
+        for (const f of files) S.items.push(await CL.io.load(f, f.name, f.slopDrive ? { driveId: f.slopDrive.id } : {}));
+        await runClean();
+        return files.map((f) => f.name);
+      },
+    });
+    window.SlopIntake.dropTarget(document.body, { to: 'clean' });
+  }
+  const openPicker = () => window.SlopIntake.pick({ to: 'clean', accept: CL.io.ACCEPT });
 
   function wire() {
     $('cl-open').addEventListener('click', openPicker);
@@ -87,8 +100,6 @@
     $('cl-remove-all').addEventListener('click', removeAll);
     $('cl-all').addEventListener('click', downloadAll);
     $('cl-save-all').addEventListener('click', () => saveAll());
-    document.addEventListener('dragover', (e) => { if (e.dataTransfer && [...e.dataTransfer.types].includes('Files')) e.preventDefault(); });
-    document.addEventListener('drop', (e) => { if (e.dataTransfer && e.dataTransfer.files.length) { e.preventDefault(); addFiles([...e.dataTransfer.files]); } });
     if (window.SlopCmd && SlopCmd.register) SlopCmd.register([
       { id: 'cl.open', title: 'Open pictures…', group: 'File', keys: ['Mod+O'], run: openPicker, keywords: ['add', 'import', 'photo'] },
       { id: 'cl.download', title: 'Download cleaned pictures', group: 'File', keys: ['Mod+S'], run: downloadAll, keywords: ['zip', 'save'] },
@@ -97,11 +108,10 @@
   }
 
   async function boot() {
+    registerIntake();
     wire();
     render();
-    if (!window.SlopHub) return;
-    const rec = await H().consumeLaunch();
-    if (rec && rec.blob) await addFiles([new File([rec.blob], rec.name, { type: rec.type })], { driveId: rec.id });
+    await window.SlopIntake.launch({ to: 'clean' });
   }
   document.addEventListener('DOMContentLoaded', boot);
   CL.app = { addFiles, runClean, render, state: S };

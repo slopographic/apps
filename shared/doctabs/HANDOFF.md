@@ -55,7 +55,7 @@ nodes or canvases; encode canvases as PNG Blobs and decode them in `restore`.
 - `changed(doc)`: call after every edit or rename. It redraws the title and the dirty dot and tells the session to save.
 - `markSaved(doc)`, `setDriveId(doc, id)`, `on(fn)` (events: `open`, `close`, `activate`, `reorder`, `content`, `drive`),
   `overflowVisible()`, `destroy()`.
-- `saveToDrive(doc = current)`, `openFromDrive({ title })`: the Drive actions (see below).
+- `saveToDrive(doc = current)`: the Drive save (see below). Open from Slop Drive is the app's intake (`SlopIntake.fromDrive`, shared/intake), whose reader calls `openDoc(doc, { driveId, origName })`.
 
 ## Steps to add it to an app (second pass)
 
@@ -72,7 +72,7 @@ nodes or canvases; encode canvases as PNG Blobs and decode them in `restore`.
 
    Do not open a blank doc yourself before `restore()`: it opens one when nothing is stored.
 4. Edits: call `tabs.changed(doc)` after each change to a document (and on rename). That is what saves it on this device.
-5. Opening a file from the computer: `tabs.openDoc(doc)`. Opening from Drive: `await tabs.openFromDrive()`.
+5. Opening a file from the computer: `tabs.openDoc(doc)`. Opening from Drive: the app's intake reader (`SlopIntake.fromDrive`) calls `tabs.openDoc(doc, { driveId: rec.id, origName: rec.name })`.
 6. Save: File > Save (Ctrl+S) calls `await tabs.saveToDrive()` and then the app's own file save. The first save asks for a
    folder; later saves write the same Drive file (in place, no copy). A new file in Drive is `tabs.saveToDrive(doc)`.
 7. Remove the app's own tab code, its own autosave and its own tab restore, so there is one source of truth.

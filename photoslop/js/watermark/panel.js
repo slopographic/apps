@@ -7,6 +7,7 @@ function buildWatermarkPanel() {
   const host = h('div', { class: 'ps-wm' });
   const panel = SlopWatermarkPanel.mount(host, {
     value: wmState().spec,
+    intake: 'photoslop.logo',   // the logo part: SlopIntake.pick({ to: 'photoslop.logo' })
     onChange: (spec) => wmSetSpec(spec),
     toggle: { get: wmOn, set: wmSetOn, label: 'Watermark on', note: (on) => (on ? 'On: added to exports and shown on the page.' : 'Off: exports and the page show no watermark.') },
     actions: [
@@ -14,7 +15,15 @@ function buildWatermarkPanel() {
       { label: 'Reset to default', title: 'Back to this device’s default watermark', act: () => wmResetStyle() },
     ],
   });
-  // the document's watermark: after an undo, a tab switch or opening a file
-  listeners.add((w) => { if (w === 'watermark' || w === 'doc' || w === 'docname') panel.set(wmState().spec); });
+  // the document's watermark: after an undo, a tab switch or opening a file. Only when it is another spec: 'doc' comes
+  // with every edit of the picture, and redrawing the panel each time made every stroke and drag slow.
+  let shown = wmState().spec, shownOn = wmOn();
+  listeners.add((w) => {
+    if (w !== 'watermark' && w !== 'doc' && w !== 'docname') return;
+    const spec = wmState().spec, on = wmOn();
+    if (spec !== shown) panel.set(spec);
+    else if (on !== shownOn) panel.sync();   // the switch (Layer › Watermark on, a tab with it on)
+    shown = spec; shownOn = on;
+  });
   return host;
 }

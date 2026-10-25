@@ -24,6 +24,7 @@
         value: E.watermarkSpec(), onChange: commit, media: { pages: true, time: false },
         pageCount: function () { return E.state.pages.length; }, currentPage: curPage,
         newLayer: function (kind) { return NEW[kind] || null; },
+        intake: 'pdf.logo',   // the logo part of the page's intake
         onFiles: function (files) { SlopIntake.take(files, { to: 'pdf', source: 'drop' }); }   // a PDF dropped on the panel opens as usual
       });
       b.appendChild(K.note('Layers stack like sheets: the top one is drawn last. Sizes follow each page’s shorter side, so the watermark looks the same on every page size. Drop a picture here to add it as a logo.'));

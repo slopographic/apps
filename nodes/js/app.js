@@ -185,22 +185,15 @@
       status('Saved “' + name + '” to Slop Drive.');
     } catch (e) { status('Not saved: ' + (e.message || e)); }
   }
-  async function openProject() {
-    let list;
-    try { list = await P.list(); } catch (e) { return status(e.message || 'Slop Drive is not available.'); }
-    const body = document.createElement('div');
-    body.className = 'sn-projects';
-    if (!list.length) body.append(Object.assign(document.createElement('p'), { textContent: 'No saved projects yet. Use Save to Slop Drive to keep this graph.' }));
-    for (const p of list) {
-      const row = document.createElement('div'); row.className = 'sn-proj';
-      const info = document.createElement('span');
-      info.textContent = p.name + ' · ' + p.nodes + ' nodes, ' + p.links + ' wires · ' + new Date(p.modified).toLocaleDateString();
-      const go = document.createElement('button'); go.type = 'button'; go.className = 'sui-btn'; go.textContent = 'Open';
-      go.addEventListener('click', async () => { SlopUI.closeDialogs && SlopUI.closeDialogs(); await loadProject(p.id); });
-      row.append(info, go);
-      body.append(row);
-    }
-    SlopUI.dialog({ title: 'Open a project', body, buttons: [{ label: 'Close' }] });
+  // Open project… is the one shared Slop Drive picker (SlopIntake.fromDrive, part 'nodes.project'); a file that is not
+  // a Slopnodes project is refused in plain words by P.open
+  function openProject() {
+    const SI = window.SlopIntake;
+    if (!SI) return status('Slop Drive is not available.');
+    return SI.fromDrive({ title: 'Open a project', accept: ['application/json'], to: SI.part({
+      id: 'nodes.project', limit: 1, accept: { types: ['application/json'], exts: ['.json'], noun: 'a Slopnodes project' },
+      process: async (f, ctx) => { if (ctx.drive) await loadProject(ctx.drive.id); return f.name; },
+    }) });
   }
   async function loadProject(id) {
     try {

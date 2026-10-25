@@ -34,7 +34,6 @@
    */
   SP.openPicker = function (opts) {
     const s = SU(), state = { sel: null }, list = el('ul', { class: 'sp-list', role: 'listbox', 'aria-label': 'Presets' });
-    const pick = el('input', { type: 'file', accept: '.json,.slop.json,application/json', hidden: true });
     const mine = () => { const p = state.sel && SP.get(state.sel); return p && !p.builtin ? p : null; };
     const exportBtn = el('button', { type: 'button', class: 'sui-btn' }, 'Export…');
     const deleteBtn = el('button', { type: 'button', class: 'sui-btn sui-danger' }, 'Delete');
@@ -76,17 +75,21 @@
       state.sel = null; paint();
       return false;
     });
-    pick.addEventListener('change', async () => {
-      const f = pick.files && pick.files[0];
-      pick.value = '';
-      if (!f) return;
+    const read = async (f) => {
       const r = await SP.importFile(f);
       status.textContent = r.ok ? 'Imported.' : SP.errorText(r.errors);
       if (r.ok) state.sel = r.id;
       paint();
-    });
-    const importBtn = el('button', { type: 'button', class: 'sui-btn', onclick: () => pick.click() }, 'Import…');
-    const body = el('div', { class: 'sp-dialog' }, el('div', { class: 'sp-tools' }, exportBtn, importBtn, deleteBtn, pick), list, status);
+      return f.name;
+    };
+    /** Import…: a part of the one intake ('presets.import') where the page has it. */
+    const pickPreset = () => {
+      const SI = window.SlopIntake;
+      if (SI && SI.part) return SI.pick({ to: SI.part({ id: 'presets.import', limit: 1, accept: { types: ['application/json'], exts: ['.json'], noun: 'a preset file (.json)' }, process: read }), multiple: false, accept: '.json,.slop.json,application/json' });
+      return window.SlopUI.pickFiles({ accept: '.json,.slop.json,application/json' }).then((fs) => (fs && fs[0] ? read(fs[0]) : null)); // intake-ok: a page without shared/intake
+    };
+    const importBtn = el('button', { type: 'button', class: 'sui-btn', onclick: pickPreset }, 'Import…');
+    const body = el('div', { class: 'sp-dialog' }, el('div', { class: 'sp-tools' }, exportBtn, importBtn, deleteBtn), list, status);
     paint();
     g.addEventListener('slop-presets:change', paint);
     s.dialog({

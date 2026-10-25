@@ -25,12 +25,11 @@
   const preview = () => $('h2p-paper-frame').contentDocument;
   const hdr = () => preview() && preview().querySelector('.h2p-hdr');
 
-  /** Opens a file the way the file picker does: sets the input's files and fires change. */
+  /** Opens a file the way Open does (the intake's picker). */
   function openFile(name, text, type = 'text/html') {
-    const dt = new W.DataTransfer();
-    dt.items.add(new W.File([text], name, { type }));
-    $('h2p-file').files = dt.files;
-    $('h2p-file').dispatchEvent(new W.Event('change'));
+    const f = new W.File([text], name, { type });
+    W.SlopUI.pickFiles = async () => [f];
+    $('h2p-open').click();
   }
   function choose(id, value) { const el = $(id); el.value = value; el.dispatchEvent(new W.Event('change')); }
 
@@ -112,10 +111,9 @@
       const canvas = W.document.createElement('canvas');
       canvas.width = 8; canvas.height = 8;
       const blob = await new Promise((r) => canvas.toBlob(r, 'image/png'));
-      const dt = new W.DataTransfer();
-      dt.items.add(new W.File([blob], 'pic.png', { type: 'image/png' }));
-      $('h2p-images').files = dt.files;
-      $('h2p-images').dispatchEvent(new W.Event('change'));
+      const pic = new W.File([blob], 'pic.png', { type: 'image/png' });
+      W.SlopUI.pickFiles = async () => [pic];
+      $('h2p-images').click(); // Attach local images… (the intake's part html2pdf.images)
       const local = await waitFor(() => { const i = preview().querySelector('img[alt="local"]'); return i && i.src.startsWith('blob:') && i.naturalWidth > 0 ? i : null; });
       expect(local.naturalWidth).toBe(8);
       const remote = preview().querySelector('img[alt="remote"]');

@@ -64,7 +64,7 @@
       b.classList.add('drop-on');
     });
     box.addEventListener('dragleave', (e) => { const b = e.target.closest && e.target.closest('.drop-on'); if (b) b.classList.remove('drop-on'); });
-    box.addEventListener('drop', (e) => {
+    box.addEventListener('drop', (e) => { // intake-ok: contacts dragged onto a group, not files
       const b = e.target.closest && e.target.closest('.is-drop');
       if (!b) return;
       e.preventDefault(); b.classList.remove('drop-on');

@@ -110,15 +110,9 @@
     return true;
   }
 
-  async function pickComputer() {
-    const files = await SlopUI.pickFiles({ multiple: false });
-    if (files && files[0]) await openBlob(files[0], { name: files[0].name });
-  }
-  /** Open from Slop Drive, through the strip (drive.js): the file opens in a new tab linked to its Drive record. */
-  async function pickDrive() {
-    const doc = await tabs().api().openFromDrive({ title: 'Open in Slop Hex' });
-    if (doc) status(`Opened ${app.doc ? app.doc.name : 'the file'}`);
-  }
+  /* Open file… and Open from Slop Drive: sources of the one intake (main.js); a Drive file opens linked to its record. */
+  const pickComputer = () => window.SlopIntake.pick({ to: 'hex', multiple: false });
+  const pickDrive = () => window.SlopIntake.fromDrive({ to: 'hex', title: 'Open in Slop Hex' });
 
   /** "photo.bin" -> "photo (v2).bin": the version goes before the extension, and an old version tag is replaced. */
   function versionName(name, n) {

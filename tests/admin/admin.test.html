@@ -111,8 +111,8 @@
       const text = await captured[0].blob.text();
       const dt = new (win().DataTransfer)();
       dt.items.add(new (win().File)([text], 'backup.json', { type: 'application/json' }));
-      $('dRestore').files = dt.files;
-      $('dRestore').dispatchEvent(new (win().Event)('change'));
+      win().SlopUI.pickFiles = async () => [...dt.files]; // Restore is the intake's picker (part admin.backup)
+      $('dRestore').click();
       await waitFor(() => openDlg(), { timeout: 8000 });
       dlgSave().click();
       await waitFor(async () => (await counts()).customers.live === 3, { timeout: 8000 });
@@ -126,15 +126,15 @@
       good.collections.customers.push({ id: 'bad-1', name: '' });
       const dt = new (win().DataTransfer)();
       dt.items.add(new (win().File)([JSON.stringify(good)], 'broken.json', { type: 'application/json' }));
-      $('dRestore').files = dt.files;
-      $('dRestore').dispatchEvent(new (win().Event)('change'));
+      win().SlopUI.pickFiles = async () => [...dt.files]; // Restore is the intake's picker (part admin.backup)
+      $('dRestore').click();
       await waitFor(() => $('dRestoreMsg').textContent.includes('not restored'), { timeout: 8000 });
       expect(openDlg()).toBe(null);
       expect(await counts()).toEqual(before);
       const notJson = new (win().DataTransfer)();
       notJson.items.add(new (win().File)(['{ not json'], 'junk.json', { type: 'application/json' }));
-      $('dRestore').files = notJson.files;
-      $('dRestore').dispatchEvent(new (win().Event)('change'));
+      win().SlopUI.pickFiles = async () => [...notJson.files]; // Restore is the intake's picker (part admin.backup)
+      $('dRestore').click();
       await waitFor(() => $('dRestoreMsg').textContent.includes('not valid JSON'), { timeout: 8000 });
       expect(await counts()).toEqual(before);
     });

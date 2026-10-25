@@ -39,10 +39,9 @@
 
     <section class="ck-card" aria-labelledby="ck-pick">
       <h2 id="ck-pick">1. Choose a file</h2>
-      <label class="ck-drop" id="ck-drop">
-        <input type="file" id="ck-file" aria-describedby="ck-status">
+      <button type="button" class="ck-drop" id="ck-drop" aria-describedby="ck-status">
         <span>Choose a file, or drop it here</span>
-      </label>
+      </button>
       <p id="ck-status" class="ck-status" role="status" aria-live="polite"></p>
     </section>
 
@@ -70,6 +69,11 @@
     </section>
   </main>
   <script src="../shared/apps.js"></script>
+  <script src="../shared/intake/rules.js"></script>
+  <script src="../shared/intake/normalize.js"></script>
+  <script src="../shared/intake/pipeline.js"></script>
+  <script src="../shared/intake/intake.js"></script>
+  <script src="../shared/intake/sources.js"></script>
   <script src="js/checksum.js"></script>
   <script src="../shell/shell.js"></script>
   <script src="../shared/spotlight/spotlight.js"></script>

@@ -3,7 +3,8 @@
  * env: { apps(): SLOP_APPS, hub: SlopHub, cmd: SlopCmd (only inside an app, via the side panel), open(url),
  *        confirm(title, message), appId, workspace: SlopWorkspace (Slop AI: apps open beside the chat),
  *        look: add look_at_file (fileTools.js; for models that can see, it asks before each copy goes out), who: where
- *        that copy goes ("Anthropic"), ops: add the operations registry's tools (opTools.js) }
+ *        that copy goes ("Anthropic"), ops: add the operations registry's tools (opTools.js) }; plus every set a file put
+ *        in SlopAIKit.toolSets (a function env → tools), such as the pictures of imagegen/tools.js
  * The one tool list: the side panel, Slop AI and every engine (local prompt-based or cloud native) use what build makes.
  * Destructive actions (commands that delete, clear, close, reset, …) always ask the person first.
  * With env.workspace, open_app opens the app in a frame beside the chat, and app_search / app_command / app_state
@@ -152,6 +153,7 @@
     ];
     if (env.look && K.fileTools) tools.push(K.fileTools.look(env));
     if (env.ops && K.opTools) tools.push(...K.opTools.build(env));
+    for (const set of K.toolSets || []) tools.push(...set(env));   // registered sets, e.g. generate_image (imagegen/tools.js)
     const cmd = env.cmd;
     if (cmd && cmd.list && (cmd.run || cmd.exec) && K.cmdTools) {
       const label = env.appId ? `the ${((apps().find((a) => a.id === env.appId) || {}).name) || env.appId} app` : 'this app';

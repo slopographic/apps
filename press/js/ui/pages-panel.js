@@ -51,7 +51,8 @@
     // drop a master chip onto a page
     el.addEventListener('dragover', function (e) { if (Array.prototype.indexOf.call(e.dataTransfer.types, 'text/x-press-master') >= 0) { e.preventDefault(); el.classList.add('sel'); } });
     el.addEventListener('dragleave', function () { el.classList.toggle('sel', picked.indexOf(i) >= 0); });
-    el.addEventListener('drop', function (e) { var id = e.dataTransfer.getData('text/x-press-master'); if (id === undefined) return; e.preventDefault(); P.applyMaster(doc, [i], id || null); H.commit('Apply master'); });
+    el.addEventListener('drop', function (e) { // intake-ok: a master chip dragged onto a page, not a file
+      var id = e.dataTransfer.getData('text/x-press-master'); if (id === undefined) return; e.preventDefault(); P.applyMaster(doc, [i], id || null); H.commit('Apply master'); });
     reorder(el, i);
     return el;
   }

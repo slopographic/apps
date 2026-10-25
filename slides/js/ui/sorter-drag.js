@@ -39,7 +39,7 @@
       mark(t, slot(list, t, e).after);
     });
     list.addEventListener('dragleave', function (e) { if (!list.contains(e.relatedTarget)) mark(null); });
-    list.addEventListener('drop', function (e) {
+    list.addEventListener('drop', function (e) { // intake-ok: a slide thumbnail moved in the sorter, not a file
       var t = thumbAt(list, e), id = dragId;
       mark(null);
       dragId = null;

@@ -26,7 +26,7 @@
     const before = RM().state.items.length;
     const dt = new (win().DataTransfer)();
     for (let i = 1; i <= n; i++) dt.items.add(await still(tag, i));
-    const input = $('rm-file');
+    const input = win().document.querySelector('#rm-drop input[type=file]');
     input.files = dt.files;
     change(input);
     await waitFor(() => RM().state.items.length >= before + n && RM().pendingCount() >= n, { timeout: 20000 });

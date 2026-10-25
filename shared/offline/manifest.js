@@ -124,7 +124,7 @@
     'slopvector/js/io/svg-export.js', 'slopvector/js/io/pdf.js', 'slopvector/js/io/svg-parse.js',
     'slopvector/js/io/svg-import.js', 'slopvector/js/io/svg-open.js', 'shared/drop/panel.js',
     'shared/intake/rules.js', 'shared/intake/normalize.js', 'shared/intake/pipeline.js', 'shared/intake/intake.js', 'shared/intake/sources.js', 'shared/drop/drop.js', 'slopvector/js/io/files.js', 'slopvector/js/io/buffer.js', 'slopvector/js/io/offline.js',
-    'slopvector/js/io/hub.js', 'slopvector/js/ui/base.js', 'shared/config/schema.js', 'shared/config/validate.js',
+    'slopvector/js/io/hub.js', 'slopvector/js/io/intake.js', 'slopvector/js/ui/base.js', 'shared/config/schema.js', 'shared/config/validate.js',
     'shared/config/template.js', 'shared/config/io.js', 'shared/config/prompt.js', 'shared/config/dialog.js',
     'shared/config/dialog-ai.js', 'slopvector/js/ui/actions.js', 'slopvector/js/ui/aspect.js',
     'slopvector/js/io/config.js', 'shared/guides/engine.js', 'shared/guides/notation.js', 'shared/guides/presets.js',

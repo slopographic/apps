@@ -5,6 +5,7 @@
   <script src="../harness.js"></script>
   <script src="util.js"></script>
   <script>
+  // Covers: drive/js/core/store.js
   const { describe, it, expect, waitFor, sleep } = SlopTest;
   let W, DR, H;
   const byName = (n, folder) => { const all = [...(folder ? DR.S.folders : DR.S.files).values()].filter((x) => x.name === n); return all.find((x) => x.id === (W.keep || {})[n]) || all[0]; };

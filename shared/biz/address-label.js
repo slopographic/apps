@@ -29,7 +29,10 @@
   function send(opts) {
     const doc = project(opts);
     const blob = new Blob([JSON.stringify(doc, null, 1)], { type: 'application/json' });
-    return g.SlopHub.sendTo('label', blob, `${doc.name}.sloplabel`, { from: opts.app || g.SlopHub.self && g.SlopHub.self.app });
+    const from = opts.app || (g.SlopHub.self && g.SlopHub.self.app), name = `${doc.name}.sloplabel`;
+    // the one way out (shared/intake/outtake.js), where the page has it
+    if (g.SlopOuttake) return g.SlopOuttake.send('label', { from, get: () => blob, name, type: 'application/json' });
+    return g.SlopHub.sendTo('label', blob, name, { from });
   }
 
   B.addressLabel = { project, send, SIZE: { w: W, h: H } };
