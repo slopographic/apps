@@ -130,6 +130,7 @@
       const doc = win.document, card = $(win, '#card');
       expect(doc.documentElement.scrollWidth).toBeLessThanOrEqual(doc.documentElement.clientWidth);
       expect(card.classList.contains('ssh-on')).toBe(false);
+      await waitFor(() => win.getComputedStyle(card).visibility === 'hidden', { timeout: 3000 }).catch(() => {});   // the sheet's own .22 s delay
       expect(win.getComputedStyle(card).visibility).toBe('hidden');
       expect($(win, '#rows').getBoundingClientRect().width).toBeGreaterThan(300);
       rowFor(win, 'Phone Page').click();
