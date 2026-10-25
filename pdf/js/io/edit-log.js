@@ -15,7 +15,25 @@
   };
   /** A file is logged when its id is the stable one for its fingerprint and it is not restored, generated or pending. */
   function loggable(f) { return !!(f && f.fp && f.id === 'f' + f.fp.slice(0, 16) && !f.noLog); }
-  function fileOk(id) { return loggable(E.files.get(id)); }
+  /** A file a logged page may point at: a logged file, or a copy derived from one (text taken off a page, text-strip.js),
+      which replay makes again from its recipe (rec.derived). */
+  function fileOk(id) {
+    var f = E.files.get(id);
+    return loggable(f) || !!(f && f.derived && f.derived.from !== id && fileOk(f.derived.from));
+  }
+  /** The recipes of the derived files the entries point at, each after the one it is made from. */
+  function derivedOf(entries) {
+    var out = [], seen = {};
+    function add(id) {
+      var f = E.files.get(id);
+      if (!f || !f.derived || seen[id]) return;
+      seen[id] = 1;
+      add(f.derived.from);
+      out.push({ id: id, from: f.derived.from, i: f.derived.i, targets: f.derived.targets });
+    }
+    entries.forEach(function (en) { Object.keys(en.ch).forEach(function (id) { [0, 1].forEach(function (s) { var o = en.ch[id][s]; if (o && o.f) add(o.f); }); }); });
+    return out;
+  }
 
   /** The part of one command that belongs to file f (and the blank pages, for the first logged file only). */
   function restrict(c, f, primary, started) {
@@ -63,7 +81,7 @@
         if (st && st.watermarks) SlopPdfWm.assetIds(st.watermarks).forEach(function (id) { if (!seen[id] && E.assets.get(id)) { seen[id] = 1; assets.push(E.assets.get(id)); } });
       });
     });
-    return { v: 1, fid: r.f.id, fp: r.f.fp, name: r.f.name, primary: r.primary, savedAt: Date.now(), entries: r.entries, assets: assets };
+    return { v: 1, fid: r.f.id, fp: r.f.fp, name: r.f.name, primary: r.primary, savedAt: Date.now(), entries: r.entries, assets: assets, derived: derivedOf(r.entries) };
   }
   /** Writes (or deletes, when nothing is left to replay) the log of every logged file that is open. */
   function save() {
@@ -82,10 +100,27 @@
   /** Deletes the saved log of a file (by fingerprint), e.g. when the document is reverted to its original. */
   L.discard = function (fp) { try { return U.idb.del(KEY + fp); } catch (e) { return null; } };
 
-  /** Applies a saved log on top of the open file (every step goes on the undo stack). */
-  L.replay = function (rec) {
+  /** Makes the derived files a log points at again; resolves the ids that could not be made. */
+  async function rebuild(list) {
+    var missing = new Set();
+    for (var k = 0; k < (list || []).length; k++) {
+      var d = list[k], from = E.files.get(d.from), made = null;
+      if (E.files.has(d.id)) continue;
+      if (from && SP.editor && SP.editor._.strip) made = (await SP.editor._.strip.build(from, d.i, d.targets, d.id).catch(function () { return { id: null }; })).id;
+      if (!made) missing.add(d.id);
+    }
+    return missing;
+  }
+  /** Applies a saved log on top of the open file (every step goes on the undo stack). Resolves when it is applied. The
+      derived files are made first; a step that needs one that could not be made ends the replay there. */
+  L.replay = async function (rec) {
     (rec.assets || []).forEach(function (a) { E.assets.set(a.id, a); });
-    rec.entries.forEach(function (en) { var c = H.make(en.label, en); H.apply(E.state, c, 1); H.push(c); });
+    var missing = await rebuild(rec.derived), entries = rec.entries;
+    if (missing.size) {
+      var cut = entries.findIndex(function (en) { var t = JSON.stringify(en.ch); return Array.from(missing).some(function (id) { return t.indexOf('"' + id + '"') >= 0; }); });
+      if (cut >= 0) entries = entries.slice(0, cut);
+    }
+    entries.forEach(function (en) { var c = H.make(en.label, en); H.apply(E.state, c, 1); H.push(c); });
     // text set in an installed font (core/fonts-custom.js): prepare it so it measures and draws as it will be saved
     if (E.prepareAnnotFonts) E.prepareAnnotFonts(E.state.pages, { ask: false }).then(function () { if (SP.editor && SP.editor.paint) SP.editor.paint(); });
   };
@@ -111,7 +146,7 @@
     if (!rec || rec.v !== 1 || rec.fid !== f.id || !rec.entries || !rec.entries.length) return 'none';
     f.noLog = true; // nothing is written for this file until the choice is made
     var choice = await ask(f, rec);
-    if (choice === 'replay') { L.replay(rec); f.noLog = false; E.emit('change', { label: 'Replay saved edits' }); return 'replay'; }
+    if (choice === 'replay') { await L.replay(rec); f.noLog = false; E.emit('change', { label: 'Replay saved edits' }); return 'replay'; }
     if (choice === 'discard') { try { await U.idb.del(KEY + f.fp); } catch (e) { /* ignore */ } f.noLog = false; return 'discard'; }
     return 'kept';
   };

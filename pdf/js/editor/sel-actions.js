@@ -1,8 +1,9 @@
 /* Slop PDF — the text selection actions (the buttons of sel-bar.js). Highlight, Underline and Strikethrough add text-markup
    annotations (type texthl, style highlight | underline | strike) as one undo step each, in the edit log; a press on text
    already marked in that style removes the markup instead (a toggle). Colour sets the
-   colour of the next markup and recolours the markup under the selection. Remove hides the selected text the way Edit text
-   clears it (white covers, OCR words emptied; no rasterizing, one undo step). Redact marks the selected text for the Redact
+   colour of the next markup and recolours the markup under the selection. Remove takes the selected text off the page the
+   way Edit text does (text-strip.js: removed from the content, or covers in the colour under it; OCR words emptied; no
+   rasterizing, one undo step) and lets the selection go. Redact marks the selected text for the Redact
    tool, which applies it. Copy, Comment, Edit text, Replace and Find use the same snapshot. The selection box that moves and
    resizes the selected text is in sel-lift.js. */
 (function () {
@@ -192,27 +193,51 @@
     return out;
   }
 
-  /** Remove: the selected text leaves the page the way Edit text clears it: each selected line gets a white cover, and the
-      OCR words under it are emptied in the content. No page image is rebuilt and nothing asks first. One undo step. */
+  /** The targets (user space) of a selection on a page: the part of each run under it that its rectangles cross. */
+  function targetsOf(p, runs, rects) {
+    var gx = E.geom(p).x0, out = [];
+    runs.forEach(function (run) {
+      var b = run.box;
+      rects.forEach(function (q) {
+        if (!(Math.min(b.y + b.h, q.y1) > Math.max(b.y, q.y0))) return;
+        var x0 = Math.max(run.x0, q.x0 + gx), x1 = Math.min(run.x0 + run.width, q.x1 + gx);
+        if (x1 > x0) out.push(S.strip.targetOfRun(run, x0, x1));
+      });
+    });
+    return out;
+  }
+  /** Lets the selection go: the browser's, the snapshot, and with them the bar and the selection box. */
+  function letGo() {
+    if (window.getSelection) window.getSelection().removeAllRanges();
+    T.snap = null; T.range = null; T.dismissedKey = null;
+    T.emit();
+  }
+  /** Remove: the selected text leaves the page the way Edit text takes it off (text-strip.js): removed from the page's
+      content where it can be, else a cover in the colour under each selected line; OCR words under it are emptied in the
+      content. No page image is rebuilt and nothing asks first. One undo step; the selection goes. */
   A.remove = async function () {
     var snap = T.snap; if (!snap) return;
     var geo = await geometry(snap);
     if (!geo.length) { SlopUI.toast('No text under the selection.'); return; }
-    var covers = [];
-    geo.forEach(function (g) { g.boxes.forEach(function (b) { covers.push({ pid: g.pid, a: coverOf(b, A.paperOf(g.pid, b)) }); }); });
-    var files = await emptyOcrWords(geo);
+    var covers = [], moves = [], plain = [];
+    for (const g of geo) {
+      var runs = await Ed.runsUnder(g.p, g.rects), took = { to: null, paper: [] };
+      if (!runs.some(function (r) { return r.ocr; })) { took = await S.strip.take(g.p, targetsOf(g.p, runs, g.rects)); plain.push(g); }
+      if (took.to) { moves.push({ pid: g.pid, to: took.to }); continue; }
+      var slot = S.slots.get(g.pid);
+      g.boxes.forEach(function (b, i) { covers.push({ pid: g.pid, a: coverOf(b, S.hex(S.paperColour(slot, b, took.paper[i] || took.paper[0]))) }); });
+    }
+    var files = await emptyOcrWords(geo.filter(function (g) { return plain.indexOf(g) < 0; }));
     E.commit('Remove text', function (st) {
-      covers.forEach(function (c) {
-        var q = st.pages.filter(function (x) { return x.id === c.pid; })[0];
-        if (q) q.annots.push(JSON.parse(JSON.stringify(c.a)));
-      });
-      files.forEach(function (fl) {
-        fl.pids.forEach(function (pid) { var q = st.pages.filter(function (x) { return x.id === pid; })[0]; if (q) q.f = fl.to; });
-      });
+      var page = function (pid) { return st.pages.filter(function (x) { return x.id === pid; })[0]; };
+      moves.forEach(function (m) { var q = page(m.pid); if (q) S.strip.use(q, m.to); });
+      covers.forEach(function (c) { var q = page(c.pid); if (q) q.annots.push(JSON.parse(JSON.stringify(c.a))); });
+      files.forEach(function (fl) { fl.pids.forEach(function (pid) { var q = page(pid); if (q) q.f = fl.to; }); });
     });
-    Ed.selId = null; Ed.paint();
+    Ed.selId = null;
+    letGo();
+    Ed.paint();
     SlopUI.toast('Text removed. Undo brings it back.');
-    T.emit();
   };
 
   /** Redact: the selected lines become redaction marks (R.mark, the Redact tool's marks). Nothing is applied: the marks are

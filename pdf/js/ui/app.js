@@ -164,7 +164,9 @@
     statusT = setTimeout(function () { statusMsg = ''; var m2 = $('#statusMsg'); if (m2) m2.textContent = ''; }, 6000);
   };
   S.updateStatus = function () {
-    var n = E.state.pages.length, files = new Set(E.state.pages.filter(function (p) { return p.f; }).map(function (p) { return p.f; })).size;
+    // a copy made to take text off a page (editor/text-strip.js) counts as the file it was made from
+    var root = function (id) { var f = E.files.get(id); return f && f.derived ? root(f.derived.from) : id; };
+    var n = E.state.pages.length, files = new Set(E.state.pages.filter(function (p) { return p.f; }).map(function (p) { return root(p.f); })).size;
     var left = n ? n + ' page' + (n === 1 ? '' : 's') + ' · ' + files + ' file' + (files === 1 ? '' : 's') + (O.sel.size ? ' · ' + O.sel.size + ' selected' : '') : 'No document';
     $('#statusLeft').textContent = left;
     $('#statusZoom').textContent = A.mode === 'page' && n ? 'Zoom ' + Math.round(Ed.zoom * 72 / 96 * 100) + '%' : '';

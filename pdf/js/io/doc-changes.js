@@ -44,9 +44,9 @@
     // The log names its pages by the file's stable id ('f' + fingerprint). Another open tab holds that id, so this copy
     // gets a random one (pdfjs.js registerPdf); its pages are then named by that id instead.
     var stable = 'f' + f.fp.slice(0, 16);
-    var entries = f.id === stable ? rec.entries : JSON.parse(JSON.stringify(rec.entries).replace(new RegExp('"' + stable + '(?=[."])', 'g'), '"' + f.id));
-    SP.editLog.replay(Object.assign({}, rec, { entries: entries }));
-    E.emit('change', { label: 'Replay saved changes' });
+    var named = { entries: rec.entries, derived: rec.derived || [] };
+    if (f.id !== stable) named = JSON.parse(JSON.stringify(named).replace(new RegExp('"' + stable + '(?=[."])', 'g'), '"' + f.id));
+    SP.editLog.replay(Object.assign({}, rec, named)).then(function () { E.emit('change', { label: 'Replay saved changes' }); });
     return rec.entries.length;
   };
 })();
