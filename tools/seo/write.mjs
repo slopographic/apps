@@ -14,6 +14,7 @@ import { landingPages, siteTop, siteFoot, SITE_HEAD } from './landing.mjs';
 import { taskPages, taskJsonLd, videoJsonLd, hubPage } from './tasks.mjs';
 import { roundupPages, roundupJsonLd, roundupIndex } from './roundups.mjs';
 import { guidePages, guideJsonLd } from './guides.mjs';
+import { footNav, converterFiles, addFootSlot } from './footnav.mjs';
 
 export { ROOT, SITE, loadRegistry, isPage, pageUrl };
 const DEFAULT_IMAGE = `${SITE}/og-share.png`;
@@ -109,10 +110,11 @@ export function validateCopy(entries) {
 }
 
 /** Writes the site frame into a hand-made page between its markers: <!-- site:head --> (theme, consent, the content-page
- *  stylesheet), <!-- site:top --> (the header) and <!-- site:foot --> (the footer). A page without markers is unchanged. */
+ *  stylesheet), <!-- site:top --> (the header), <!-- site:foot --> (the footer) and <!-- site:footnav --> (the footer's
+ *  site links alone, footnav.mjs: the homepage and the converter pages). A page without markers is unchanged. */
 export function siteChrome(html) {
   const put = (name, body) => (h) => h.replace(new RegExp(`<!-- site:${name} -->[\\s\\S]*?<!-- /site:${name} -->`), `<!-- site:${name} -->\n${body}\n<!-- /site:${name} -->`);
-  return [put('head', SITE_HEAD.map((t) => '  ' + t).join('\n')), put('top', siteTop()), put('foot', siteFoot())].reduce((h, f) => f(h), html);
+  return [put('head', SITE_HEAD.map((t) => '  ' + t).join('\n')), put('top', siteTop()), put('foot', siteFoot()), put('footnav', footNav())].reduce((h, f) => f(h), html);
 }
 
 /** Builds every page's new content. Returns [{ file, html }] for pages and sitemap, plus the list of problems. */
@@ -226,6 +228,12 @@ export async function build({ date }) {
     const before = existsSync(file) ? await readFile(file, 'utf8') : '';
     const jsonld = p.r ? roundupJsonLd(p.r, p.url, SITE) : [{ '@context': 'https://schema.org', '@type': 'CollectionPage', name: copy.title, description: copy.description, url: p.url }];
     out.push({ file, html: injectHead(p.html, headBlock({ title: copy.title, description: copy.description, url: p.url, image: DEFAULT_IMAGE, viewport: false, jsonld })), before });
+  }
+  // converter pages (convert/js/core/pages.js): their own frame, with the footer's site links in a slot before the shell
+  for (const rel of converterFiles()) {
+    const file = path.join(ROOT, rel), have = out.find((f) => f.file === file);
+    if (have) have.html = siteChrome(addFootSlot(have.html));
+    else { const before = await readFile(file, 'utf8'); out.push({ file, html: siteChrome(addFootSlot(before)), before }); }
   }
   out.push(await sitemap(apps, date, [...landing.map((p) => p.url), ...tasks.map((p) => p.url), ...guides.map((p) => p.url), hub.url, bestIndex.url, ...best.map((p) => p.url), ...Object.keys(PAGES).map((slug) => `${SITE}/${slug}/`)]));
   return out;
