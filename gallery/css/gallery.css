@@ -117,3 +117,12 @@ body.dragging .drop-hint { display: flex; }
 .g-dropstrip { margin: 8px 12px 0; padding: 6px 10px; border: 1px dashed var(--line, #3a3a46); border-radius: 8px; }
 /* A finger: a long press on a photo is the gallery's menu (shared/input), not iOS's image callout or a text selection. */
 @media (pointer: coarse) { .tile, .tile img { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; } }
+/* The panel on the right (js/ui/panel.js, shared/frame/frame.css) in the gallery's colours; Import photos at its foot. On a
+   phone it is a bottom sheet whose closed state shows Import over the status bar's place. */
+.g-panel { --sl-surface: var(--panel); --sl-background: var(--bg); --sl-text: var(--fg); --sl-border: var(--line); --sl-accent: var(--accent); }
+.g-panel .sf-set { gap: 2px; }
+.g-panel .side-btn { margin: 0; }
+.g-panel .sf-acts .tb-btn { white-space: normal; text-align: start; }
+.g-panel .sf-foot-acts .tb-btn, .g-panel .sf-foot-more { min-height: 40px; padding: 8px 12px; font: inherit; font-weight: 700; border-radius: 6px; }
+.g-panel .sf-foot-more { background: var(--panel-2); color: var(--fg); border: 1px solid var(--line); }
+.app:has(> .body.ssh-phone .g-panel.sf-has-foot) > .statusbar { display: none; }
