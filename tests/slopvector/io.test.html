@@ -57,8 +57,9 @@
         if (o.font) o.font.weight = bad;
         o.id = String(o.id) + bad;
       }
-      SV.loadDoc(doc, { fit: false });
-      const svg = IO.exportSVG({ metadata: true });
+      // the file as an attacker would write it: a valid SVG whose embedded document carries the markup
+      const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><metadata id="slopvector-document"><![CDATA[' +
+        JSON.stringify({ app: 'SlopVector', format: 1, doc }) + ']]></metadata><rect width="1" height="1"/></svg>';
       blank();
       expect(IO.openSVGText(svg, 'hostile.svg')).not.toBe(false);
       SV.renderNow(); SV.select && SV.select(objs.slice(0, 2).map((o) => o.id));
@@ -67,6 +68,7 @@
       expect(W.document.querySelectorAll('[onerror], [onmouseover]').length).toBe(0);
       expect(W.__svXss).toBe(undefined);
       expect(SV.state.doc.layers.length).toBe(doc.layers.length);
+      SV.loadDoc(SV.sampleDoc(), { fit: false });   // the later tests (the offline builder) start from the sample
     });
     it('an SVG whose entities would expand without limit is refused, and one with a few plain entities opens', () => {
       const bomb = '<?xml version="1.0"?><!DOCTYPE svg [<!ENTITY a "aaaaaaaaaa"><!ENTITY b "&a;&a;&a;&a;&a;&a;&a;&a;&a;&a;">]><svg xmlns="http://www.w3.org/2000/svg"><text>&b;</text></svg>';
