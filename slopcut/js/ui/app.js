@@ -83,6 +83,7 @@
   /* ------------------------------------------------------------ mobile panes */
   A.isPhone = () => window.innerWidth <= 760;
   A.setPane = function (pane) {
+    if (pane === 'insp' && A.inspSheet && A.isPhone()) { A.inspSheet.open(); return; }   // a bottom sheet over the pane (ui/layout.js)
     A.els.app.dataset.pane = pane;
     if (SE.bin && (pane === 'media' || pane === 'effects') && SE.bin.tab !== pane) { SE.bin.tab = pane; SE.bin.render(); }
     U.$$('.mtab', A.els.mtabs).forEach((b) => b.classList.toggle('on', b.dataset.pane === pane));
@@ -90,7 +91,7 @@
   };
   function buildTabs() {
     const tabs = [['media', 'bin', 'Media'], ['effects', 'sparkle', 'Effects'], ['insp', 'sliders', 'Inspector'], ['timeline', 'film', 'Timeline']];
-    for (const [id, ic, label] of tabs) A.els.mtabs.append(U.h('button', { type: 'button', class: 'mtab', dataset: { pane: id }, onclick: () => A.setPane(id) }, SE.icon(ic), U.h('span', null, label)));
+    for (const [id, ic, label] of tabs) A.els.mtabs.append(U.h('button', { type: 'button', class: 'mtab', dataset: { pane: id }, onclick: () => { if (!(id === 'insp' && A.inspSheet && A.isPhone())) A.setPane(id); } }, SE.icon(ic), U.h('span', null, label)));
   }
 
   /* ------------------------------------------------------------ drag and drop of files */

@@ -7,6 +7,7 @@
   <!-- Covers: docs/css/app.css -->
   <!-- Covers: docs/css/outline.css -->
   <!-- Covers: docs/css/random.css -->
+  <!-- Covers: docs/js/ui/panel.js, docs/js/ui/main.js -->
   <script src="../harness.js"></script>
   <script>
   const { describe, it, expect, waitFor, sleep } = SlopTest;
@@ -52,11 +53,11 @@
   const SRC = '../../docs/index.html', READY = '#btnCmd';
 
   describe('Slop Docs: the look', () => {
-    it('1440: Save, Search and the shared buttons are one height on one row; the toolbar sits above the page', async () => {
+    it('1440: Search and the shared buttons are one height on one row; the toolbar sits above the page', async () => {
       const D = await open(1440);
       expect(headers(D).length).toBe(1);
-      expect(sameHeight(D, ['#btnSave', '#btnCmd', '#docName'])).toBe(34);
-      oneRow(D, '#btnSave');
+      expect(sameHeight(D, ['#btnCmd', '#docName'])).toBe(34);
+      oneRow(D, '#btnCmd');
       fits(D);
       expect(box(D.getElementById('toolbar')).top).toBeLessThan(box(D.getElementById('stage')).top);
       expect(box(D.getElementById('toolbar')).bottom).toBeLessThanOrEqual(box(D.getElementById('stage')).top + 1);
@@ -66,14 +67,49 @@
     }, { timeout: 40000 });
     it('1024: everything fits on one row', async () => {
       const D = await open(1024);
-      sameHeight(D, ['#btnSave', '#btnCmd']);
-      oneRow(D, '#btnSave');
+      sameHeight(D, ['#btnCmd']);
+      oneRow(D, '#btnCmd');
       fits(D);
     }, { timeout: 40000 });
     it('390: the bar wraps instead of hiding the shared buttons past the edge', async () => {
       const D = await open(390);
       fits(D);
       expect(box(headers(D)[0]).bottom).toBeLessThanOrEqual(box(D.getElementById('tabs')).top + 1);
+    }, { timeout: 40000 });
+    // The suite rule (shared/frame/HANDOFF.md): the Document panel on the right, Save at its foot
+    it('1280: the Document panel is on the right with Save in its footer; Save saves; the top-bar button hides and shows it', async () => {
+      const D = await open(1280), W = D.defaultView, save = D.getElementById('btnSave'), panel = D.getElementById('docPanel');
+      expect(headers(D)[0].contains(save)).toBe(false);
+      expect(save.closest('.sf-p-foot').parentNode).toBe(panel);
+      expect(box(panel).left).toBeGreaterThan(box(D.getElementById('stage')).right - 1);
+      expect(box(save).bottom).toBeLessThanOrEqual(box(panel).bottom + 0.5);
+      expect(box(save).bottom).toBeGreaterThan(box(panel).bottom - 80);   // at the panel's foot
+      expect(D.getElementById('stage').scrollWidth).toBeLessThanOrEqual(D.getElementById('stage').clientWidth + 1);   // the page fits beside it
+      const seen = [], real = W.SlopDocs.save;
+      W.SlopDocs.save = () => { seen.push('save'); };
+      save.click();
+      W.SlopDocs.save = real;
+      expect(seen).toEqual(['save']);
+      D.getElementById('btnPanel').click();
+      expect(box(panel).width).toBe(0);
+      expect(box(D.getElementById('stage')).right).toBeGreaterThan(1270);
+      D.getElementById('btnPanel').click();
+      expect(box(panel).width).toBeGreaterThan(150);
+    }, { timeout: 40000 });
+    it('390: the closed Document sheet still shows Save at the bottom; Document opens the whole sheet', async () => {
+      const D = await open(390), W = D.defaultView, save = D.getElementById('btnSave'), panel = D.getElementById('docPanel');
+      const no = D.querySelector('.slopc-btn[data-act="reject"]'); if (no) no.click();   // the first-visit consent banner, answered
+      const r = box(save);
+      expect(r.width).toBeGreaterThan(60);
+      expect(r.bottom).toBeLessThanOrEqual(W.innerHeight + 0.5);
+      expect(r.top).toBeGreaterThan(W.innerHeight - 120);
+      expect(D.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2).closest('#btnSave')).toBe(save);
+      expect(box(D.getElementById('dp-print')).height).toBe(0);
+      panel.querySelector('.sf-foot-more').click();
+      await waitFor(() => panel.classList.contains('ssh-on'));
+      await sleep(300);
+      expect(box(D.getElementById('dp-print')).height).toBeGreaterThan(20);
+      expect(D.documentElement.scrollWidth).toBeLessThanOrEqual(390);
     }, { timeout: 40000 });
   });
   SlopTest.run({ name: 'Slop Docs: the look' });

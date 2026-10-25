@@ -153,7 +153,9 @@
         D.el('button', { type: 'button', class: 'danger', onclick: OP.deleteSel }, 'Delete'))]));
     }
     if (!s) kids.push(D.el('p', { class: 'hint', text: 'No slide.' }));
+    var foot = root.querySelector(':scope > .sf-p-foot');   // Save and Present (ui/main.js) stay at the foot
     root.replaceChildren(...kids);
+    if (foot) root.append(foot);
     sync();
   }
 })();

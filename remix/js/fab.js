@@ -1,4 +1,5 @@
-/* Reel Remix: the floating Remix button (bottom right) and the settings dialog. The button pulses while clips wait for a
+/* Reel Remix: the floating Remix button (bottom right; hidden while the options panel has its footer, js/side.js, whose
+   Remix button pulses instead) and the settings dialog. The button pulses while clips wait for a
    remix, or before any remix exists, and stops once a remix has run. A click remixes; a long press, the Settings button
    or the palette command "Remix settings" opens the settings (auto remix on or off). The pulse is a CSS keyframe on the
    button's ring; reduced motion gets a steady ring (css/remix-auto.css). Exposes RM.fab. */
@@ -13,6 +14,7 @@
     const b = $('rm-fab'); if (!b) return;
     const n = RM.pendingCount();
     b.classList.toggle('pulse', n > 0 || !RM.state.plan);
+    $('rm-remix').classList.toggle('pulse', n > 0 || !RM.state.plan);   // the panel's Remix (side.js) carries the pulse
     b.title = (n ? 'Remix the ' + n + ' new clip' + (n === 1 ? '' : 's') : 'Remix') + '. Long press for settings.';
   }
   function openSettings() {

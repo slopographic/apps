@@ -49,8 +49,7 @@
   .statusbar, .tl-split, .menus, .local-badge, .fname, .appname .home-link { display: none; }
   .tb-group { margin-left: 2px; padding-left: 4px; }
   #btnMore { display: inline-flex; }
-  #btnExport span { display: none; }
-  #btnExport { padding: 0 10px; }
+  .app .insp.ssh-panel { display: flex; }   /* the Inspector is a bottom sheet (ui/layout.js); closed, it shows only Export */
   .topbar { gap: 2px; padding: 0 6px; }
   .appname { margin: 0 2px; }
   /* The top bar must fit 390 px: the name goes (the logo links home) and so does the Show-panels control; the mode

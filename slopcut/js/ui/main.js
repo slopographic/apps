@@ -22,6 +22,7 @@
     A.init();
     SE.bin.init(A.els.bin);
     if (SE.inspector) SE.inspector.init(A.els.insp);
+    if (A.dockInspector) A.dockInspector();   // ui/layout.js: Export at the inspector's foot, the phone sheet
     if (SE.preview) SE.preview.init();
     if (SE.transport) SE.transport.init(A.els.transport);
     if (SE.timeline) SE.timeline.init();

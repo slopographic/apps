@@ -4,7 +4,7 @@
 <style>body { margin: 0; } iframe { border: 0; display: block; height: 800px; }</style></head>
 <body>
   <!-- Covers: slides/index.html -->
-  <!-- Covers: slides/css/app.css -->
+  <!-- Covers: slides/css/app.css, slides/js/ui/main.js, slides/js/ui/inspector.js, slides/js/manifest.js -->
   <script src="../harness.js"></script>
   <script>
   const { describe, it, expect, waitFor, sleep } = SlopTest;
@@ -51,18 +51,45 @@
 
   describe('Slop Slides: the look', () => {
     for (const W of [1440, 1024]) {
-      it(W + ': two rows by design: the document, Save and the shared buttons, then the Insert and Layout tools', async () => {
+      it(W + ': two rows by design: the document and the shared buttons, then the Insert and Layout tools', async () => {
         const D = await open(W);
         expect(headers(D).length).toBe(1);
-        expect(sameHeight(D, ['#btnSave', '#btnPresent', '#btnFile', '#btnUndo', '#btnPalette', '#insText', '#selLayout', '#title'])).toBe(34);
-        oneRow(D, '#btnSave');
+        expect(sameHeight(D, ['#btnFile', '#btnUndo', '#btnPalette', '#insText', '#selLayout', '#title'])).toBe(34);
+        oneRow(D, '#btnFile');
         fits(D);
-        const save = box(D.getElementById('btnSave')), ins = box(D.getElementById('insText')), lay = box(D.getElementById('selLayout'));
+        const save = box(D.getElementById('btnFile')), ins = box(D.getElementById('insText')), lay = box(D.getElementById('selLayout'));
         expect(ins.top).toBeGreaterThan(save.bottom);
         expect(Math.round(lay.top)).toBe(Math.round(ins.top));
         expect(box(headers(D)[0]).height).toBeLessThan(110);
       }, { timeout: 40000 });
     }
+    // The suite rule (shared/frame/HANDOFF.md): Save and Present sit at the foot of the inspector on the right
+    it('1280: Save and Present are at the foot of the inspector on the right, not in the header, and Save saves', async () => {
+      const D = await open(1280), W = D.defaultView, save = D.getElementById('btnSave'), insp = D.getElementById('inspector');
+      expect(headers(D)[0].contains(save)).toBe(false);
+      expect(save.closest('.sf-p-foot').parentNode).toBe(insp);
+      expect(D.getElementById('btnPresent').closest('.sf-p-foot')).toBe(save.closest('.sf-p-foot'));
+      expect(box(insp).left).toBeGreaterThan(box(D.getElementById('stage')).right - 1);
+      expect(box(save).bottom).toBeLessThanOrEqual(box(insp).bottom + 0.5);
+      D.getElementById('insText').click();   // the inspector redraws for the new selection; the footer stays
+      await sleep(100);
+      expect(save.closest('.sf-p-foot').parentNode).toBe(insp);
+      const seen = [], real = W.SS.files.save;
+      W.SS.files.save = (as) => { seen.push(as); };
+      save.click();
+      W.SS.files.save = real;
+      expect(seen).toEqual([false]);
+    }, { timeout: 40000 });
+    it('390: the closed properties sheet still shows Save at the bottom of the screen', async () => {
+      const D = await open(390), W = D.defaultView, save = D.getElementById('btnSave');
+      const no = D.querySelector('.slopc-btn[data-act="reject"]'); if (no) no.click();   // the first-visit consent banner, answered
+      const r = box(save);
+      expect(r.width).toBeGreaterThan(60);
+      expect(r.bottom).toBeLessThanOrEqual(W.innerHeight + 0.5);
+      expect(r.top).toBeGreaterThan(W.innerHeight - 120);
+      expect(D.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2).closest('#btnSave')).toBe(save);
+      expect(D.documentElement.scrollWidth).toBeLessThanOrEqual(390);
+    }, { timeout: 40000 });
     it('390: nothing scrolls sideways', async () => {
       const D = await open(390);
       fits(D);
