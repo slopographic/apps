@@ -34,6 +34,7 @@
       R.settings.set({ source: 'screen', countdown: 0, mic: false, systemAudio: true });
       expect(footer(D)[0]).toBe('Record');
       await R.app.record();
+      const t0 = W.performance.now();
       expect(R.app.state()).toBe('recording');
       expect(D.getElementById('rc-live').hidden).toBe(false);
       expect(footer(D)).toEqual(['Stop', 'Pause']);
@@ -43,10 +44,10 @@
       await sleep(700);
       R.app.resume();
       await sleep(1000);
-      const rec = await R.app.stop();
+      const wall = W.performance.now() - t0, rec = await R.app.stop();
       expect(R.app.state()).toBe('review');
       expect(rec.ms).toBeGreaterThan(1700);
-      expect(rec.ms).toBeLessThan(2700);   // 2.1 s recorded, not 2.8 s with the pause
+      expect(rec.ms).toBeLessThan(wall - 500);   // about 2.1 s recorded: the 0.7 s pause is left out (a busy machine stretches both)
       const bytes = new Uint8Array(await rec.blob.arrayBuffer());
       expect(Math.abs(R.webm.readDuration(bytes) - rec.ms)).toBeLessThan(1);
       const p = await played(W, rec.blob);

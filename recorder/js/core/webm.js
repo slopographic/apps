@@ -2,7 +2,7 @@
  * no Duration in its Info, so players show no length and cannot seek well. This writes it in. Pure (bytes in, bytes out),
  * Node-tested (tests/node/recorder-webm.test.mjs). Classic script: SlopRec.webm; also a CommonJS module.
  *   measure(bytes)            → ms from the first to the end of the last block (each track's last frame length added from the
- *                               average spacing of its blocks), or 0 when no block is found
+ *                               average spacing of its blocks, at most 0.1 s), or 0 when no block is found
  *   readDuration(bytes)       → the Duration in ms the file says, or null
  *   setDuration(bytes, ms)    → new bytes with Info's Duration set (overwritten in place when there is one; else an 8-byte
  *                               float inserted, Info's size and a known Segment size grown, SeekHead positions after Info
@@ -91,7 +91,7 @@
     let end = last;   // each track's last block plus that track's own frame length (its average spacing); the latest wins
     for (const list of times.values()) {
       if (list.length < 3) continue;
-      const hi = Math.max(...list), step = (hi - Math.min(...list)) / (list.length - 1);
+      const hi = Math.max(...list), step = Math.min(100, (hi - Math.min(...list)) / (list.length - 1));   // a frame: at most 0.1 s
       end = Math.max(end, hi + step);
     }
     return ((end - first) * scale) / 1e6;
