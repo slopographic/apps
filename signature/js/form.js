@@ -5,8 +5,7 @@
   'use strict';
   const NS = (g.SlopSignature = g.SlopSignature || {});
   const M = NS.model, UI = g.SlopUI, el = UI.el;
-  const FONTS = [['Arial, Helvetica, sans-serif', 'Arial'], ['Helvetica, Arial, sans-serif', 'Helvetica'], ['Verdana, Geneva, sans-serif', 'Verdana'],
-    ['Tahoma, Geneva, sans-serif', 'Tahoma'], ['Georgia, serif', 'Georgia'], ["'Times New Roman', Times, serif", 'Times New Roman'], ["'Trebuchet MS', sans-serif", 'Trebuchet MS']];
+  const FONTS = M.FONTS;
   const inputs = {};
   let changed = () => {};
 
@@ -34,15 +33,16 @@
   }
   function pictureExtras() {
     const msg = el('p', { class: 'sg-note', role: 'status' });
-    // The picture is the page's one way in for files (shared/intake, spec 'signature'): the button and a pasted picture.
+    // The picture is the page's one way in for files (shared/intake, spec 'signature'): the button, a pasted picture, a
+    // picture dropped on the email or this box (app.js) and one another app sent (Open in, ?drive=). Each is drawn to PNG.
     if (!window.SlopIntake.spec('signature')) {
-      window.SlopIntake.register({ id: 'signature', limit: 1, toast: false, accept: { types: ['image/png', 'image/jpeg', 'image/gif'], noun: 'a PNG, JPEG or GIF picture' },
+      window.SlopIntake.register({ id: 'signature', limit: 1, toast: false, accept: { types: ['image/png', 'image/jpeg', 'image/gif', 'image/webp', 'image/svg+xml'], noun: 'a PNG, JPEG, GIF, WebP or SVG picture' },
         process: async (f) => {
           try { inputs.image.value = await shrink(f); msg.textContent = `${f.name} is kept inside the signature. Gmail does not show pictures kept this way: for Gmail, use a web address.`; changed(); } catch (e) { msg.textContent = e.message; throw e; }
           return f.name;
         } });
     }
-    const pick = () => window.SlopIntake.pick({ to: 'signature', multiple: false, accept: 'image/png,image/jpeg,image/gif' });
+    const pick = () => window.SlopIntake.pick({ to: 'signature', multiple: false, accept: 'image/png,image/jpeg,image/gif,image/webp,image/svg+xml' });
     inputs.imageSize = el('input', { id: 'sg-imageSize', type: 'range', min: 32, max: 160, step: 4, oninput: () => changed() });
     inputs.round = el('input', { id: 'sg-round', type: 'checkbox', onchange: () => changed() });
     return [el('div', { class: 'sg-row' }, el('button', { type: 'button', class: 'sui-btn', id: 'sgUpload', onclick: pick }, 'Use a picture from this device…')),

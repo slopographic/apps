@@ -27,6 +27,7 @@
     { id: 'contacts.selectMode', title: 'Toggle select mode (checkboxes)', group: 'Contacts', run: () => { S.selectMode = !S.selectMode; S.emit('render'); } },
     { id: 'import.files', title: 'Import vCard, CSV or .scontacts…', group: 'File', run: () => SC.io.importPick() },
     { id: 'export.open', title: 'Export…', group: 'File', run: () => SC.io.exportDialog(), when: hasContacts },
+    { id: 'biz.sample', title: 'Fill with a sample…', group: 'File', run: () => window.SlopBiz.sampleDialog('contacts'), when: () => !!(window.SlopBiz && window.SlopBiz.sampleDialog) },   // shared/biz/sample.js
     { id: 'drive.save', title: 'Save contacts to Slop Drive now', group: 'File', run: () => SC.drive.save(), when: () => SC.drive.isOn() },
     { id: 'drive.open', title: 'Open contacts from Slop Drive…', group: 'File', run: () => SC.driveLoad.open(), when: () => SC.drive.isOn() },
     { id: 'contacts.dupes', title: 'Find duplicates…', group: 'Tools', run: () => tools().dupesDialog(), when: () => S.list.length > 1, why: 'Add at least two contacts to look for duplicates.' },

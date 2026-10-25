@@ -2,7 +2,8 @@
  * SlopCmd.prepare() (js/app.js). An email signature is the form's state (model.js FIELDS and STYLE); every command fills
  * the form through SlopSignature.form.fill and redraws through app.render, so the page, the copy and the download all show
  * the same signature. Pictures come from Slop Drive or this site (shared/commands/sources.js) and are kept inside the
- * signature, as the "picture from this device" button does. The checkpoint is the state before. */
+ * signature, as the "picture from this device" button does. random_signature (a seeded sample, js/sample.js), make_logo
+ * (js/logo.js) and copy_signature (js/copy.js: a "Copy now" button when the browser wants a click). The checkpoint is the state before. */
 (function (g) {
   'use strict';
   const C = g.SlopCmd, NS = g.SlopSignature;
@@ -79,10 +80,33 @@
     return out.join(' and ') + '. To use it, copy it into the mail program (Copy signature does that).';
   }, { description: 'Save the signature as an HTML page or plain text, to Slop Drive and/or a download.' });
 
+  add('random_signature', 'Make a random sample signature', [{ name: 'seed', type: 'string', maxLength: 40, description: 'the same seed makes the same signature; empty for a new one' },
+    { name: 'locale', type: 'enum', values: ['en', 'sv'], description: 'English or Swedish names, addresses and phone numbers' }],
+  async (a) => { const r = await A.random(a.seed, a.locale); return `Made sample seed ${r.seed} (${summary()}, template ${r.state.template}, colour ${r.state.accent}${r.logo ? ', with a logo' : ''}). Give the seed again to get the same signature.`; },
+  { description: 'Fill the signature with a realistic random sample (person, company, template, colour, font, a logo) from a seed.' });
+  add('make_logo', 'Make a logo', [{ name: 'text', type: 'string', maxLength: 24, description: 'the letters (a monogram, up to 3) or a short name (a wordmark); the company initials when empty' },
+    { name: 'kind', type: 'enum', values: ['monogram', 'wordmark'], default: 'monogram' }, { name: 'shape', type: 'enum', values: NS.logo.SHAPES.map((x) => x[0]), description: 'the shape behind the letters' },
+    { name: 'seed', type: 'string', maxLength: 40, description: 'the look (style, typeface, mark); the same seed gives the same logo' },
+    { name: 'accent', type: 'color', description: 'the colour; the signature colour when empty' }],
+  async (a) => {
+    if (a.accent) apply(A.state, { accent: a.accent });
+    const o = await NS.logoUI.use({ text: a.text, kind: a.kind, shape: a.shape, seed: a.seed || g.SlopSample.newSeed() });
+    return `Made a ${o.kind} logo "${o.text}" (${o.shape}, look ${o.seed}) and put it in the signature, kept inside it: Outlook and Apple Mail show it; for Gmail the logo needs a web address (Download logo gives the PNG to put on a website).`;
+  }, { description: 'Draw a logo (initials or a short name in a circle, rounded square, square or no shape, in the signature colour) and use it as the signature picture.' });
+  add('copy_signature', 'Copy the signature', [{ name: 'client', type: 'enum', values: ['gmail', 'outlook', 'apple', 'html'], default: 'gmail', description: 'the mail program, or html for the code' }],
+  async (a) => {
+    if (!A.current.html) throw new Error('The signature is empty: give a name first');
+    const C2 = NS.copy, out = C2.output(a.client, M.clean(A.state)), ua = g.navigator.userActivation;
+    const ok = ua && !ua.isActive ? false : await C2.copyFor(a.client);
+    if (!ok) { C2.ask(a.client); return `The browser lets a page copy only after a click, so the page now shows a "Copy now" button: click it to copy for ${C2.CLIENTS[a.client]}.${out.dropped ? ' The picture is left out for Gmail (it needs a web address).' : ''}`; }
+    return `Copied for ${C2.CLIENTS[a.client]}.${out.notes.length ? ' ' + out.notes.join(' ') : ''}`;
+  }, { description: 'Copy the signature for Gmail, Outlook or Apple Mail (or the HTML code). Without a click the page shows a one-click "Copy now" button.' });
+
   function state() {
     const s = M.clean(A.state);
     return { app: 'Slop Signature', fields: Object.fromEntries(M.FIELDS.map((f) => [f.key, f.key === 'image' && s.image.startsWith('data:') ? '(picture kept inside)' : s[f.key]])),
-      template: s.template, accent: s.accent, font: s.font, problems: M.problems(A.state).map((p) => p.text), empty: !A.current.html };
+      template: s.template, accent: s.accent, font: s.font, problems: M.problems(A.state).map((p) => p.text), empty: !A.current.html,
+      sample_seed: g.document.getElementById('sgSeed').value || null, picture: NS.copy.pictureNote(s) || 'none' };
   }
   function checkpoint() {
     const snap = JSON.parse(JSON.stringify(A.state));

@@ -175,7 +175,7 @@
       icon: 'film', status: 'beta' }),
     A('signature', 'app', 'Slop Signature', 'signature/', 'An email signature for Gmail, Outlook or Apple Mail. Nothing uploaded.', { title: 'Email signature generator', group: 'business', tool: true,
       features: ['Name, title, company, phone, email, website, address and social links', 'Four templates, your colour and font, a logo or photo', 'Copy into Gmail, Outlook or Apple Mail, or download the HTML'],
-      icon: 'doc' }),
+      accepts: ['image/png', 'image/jpeg', 'image/gif', 'image/webp', 'image/svg+xml'], icon: 'doc' }),
     A('qr', 'app', 'QR SLOP', 'qr/', 'QR codes for links, Wi-Fi, contacts and more. Nothing uploaded.', { title: 'QR code generator', group: 'business', tool: true,
       features: ['Text, links, email, phone, SMS, Wi-Fi, vCard, location and events', 'Colours, error correction and a transparent background', 'Download as SVG or PNG, or copy the text', 'Batch: one code per line'],
       icon: 'grid', status: 'building' }),

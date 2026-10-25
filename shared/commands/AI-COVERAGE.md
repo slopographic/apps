@@ -51,7 +51,7 @@ Covered: 44 of 61 apps.
 | Serial counter (`serials`) | ✗ | ✓ 3 | ✓ 4 | ✓ 1 |  | no |
 | Slop Transcribe (`transcribe`) | ✗ | ✓ 1 | ✓ 6 | ✓ 1 | 1 | owned by wip/video-ai |
 | Slop Recorder (`recorder`) | ✓ 1 | ✓ 1 | ✓ 6 | ✓ 1 |  | yes |
-| Slop Signature (`signature`) | ✓ 1 | ✓ 2 | ✓ 2 | ✓ 1 |  | yes |
+| Slop Signature (`signature`) | ✓ 1 | ✓ 2 | ✓ 5 | ✓ 1 |  | yes |
 | QR SLOP (`qr`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | yes |
 | Slop Colors (`colors`) | ✓ 1 | ✓ 2 | ✓ 7 | ✓ 1 | 1 | yes |
 | Slop Workflows (`workflows`) | ✗ | ✗ | ✗ | ✗ |  | no |
@@ -345,7 +345,7 @@ Covered: 44 of 61 apps.
 
 - create: `new_signature`
 - add: `add_links`, `add_picture`
-- edit: `set_fields`, `set_style`
+- edit: `copy_signature`, `make_logo`, `random_signature`, `set_fields`, `set_style`
 - export: `export_signature`
 
 ### QR SLOP
