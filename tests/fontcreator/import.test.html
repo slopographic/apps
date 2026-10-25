@@ -42,9 +42,9 @@ describe('Slop Font: bringing things in', () => {
   it('an SVG file dropped on the page goes to Draw from SVG', async () => {
     const svg = new W.File(['<svg viewBox="0 0 10 10"><path d="M0 0H10V10H0Z"/></svg>'], 'box.svg', { type: 'image/svg+xml' });
     await W.SlopIntake.take([svg], { to: 'fontcreator' });
-    await waitFor(() => D.getElementById('fc-svg-text'));
-    expect(D.getElementById('fc-svg-text').value).toContain('M0 0H10');
-    D.querySelector('.sui-dlg .sui-x').click();
+    const box = () => [...D.querySelectorAll('textarea.fc-svg-text')].find((t) => t.value.includes('M0 0H10'));
+    await waitFor(() => box());
+    box().closest('.sui-dlg').querySelector('.sui-x').click();
   });
 
   it('Trace a picture: a drawn O becomes an outline with a hole', async () => {
@@ -84,7 +84,8 @@ describe('Slop Font: bringing things in', () => {
       expect(Math.abs(b.y)).toBeLessThan(40);
       expect(Math.abs(b.y + b.h - 700)).toBeLessThan(80);
     }
-    expect(M().find(S().project(), 'D').contours.length).toBe(0);
+    const d = M().find(S().project(), 'D');
+    expect(!d || d.contours.length === 0).toBe(true);   // an empty box makes no glyph
   }, { timeout: 40000 });
 
   it('an OFL font opens to edit: names, licence, glyphs; Undo goes back to the drawn font', async () => {

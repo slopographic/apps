@@ -121,7 +121,16 @@
     const raw = loops(bits, w, h).filter((l) => Math.abs(areaOf(l)) >= minArea);
     const eps = opts.smooth == null ? 0.7 : opts.smooth;
     const rings = raw.map((l) => smoothLoop(l, eps)).filter((r) => r.length >= 3);
-    return rings.length ? G.fitRings(rings, null, { err: Math.max(0.4, eps), cornerAngle: opts.cornerAngle || 55 }) : [];
+    return rings.map((ring) => fitSafely(ring, { err: Math.max(0.4, eps), cornerAngle: opts.cornerAngle || 55 })).filter(Boolean);
+  }
+  /** One ring's curve fit, or its polygon when the fit strays out of it (a handle overshooting on noisy edges). */
+  function fitSafely(ring, o) {
+    const pb = G.boxOfPoints(ring), slack = Math.max(2, 0.06 * Math.max(pb.w, pb.h));
+    let sub = null;
+    try { sub = G.fitRings([ring], null, o)[0]; } catch (e) { sub = null; }
+    const fb = sub && G.subsBBox([sub]);
+    const ok = fb && fb.x >= pb.x - slack && fb.y >= pb.y - slack && fb.x + fb.w <= pb.x + pb.w + slack && fb.y + fb.h <= pb.y + pb.h + slack;
+    return ok ? sub : { closed: true, pts: ring.map((p) => ({ x: p.x, y: p.y, ix: p.x, iy: p.y, ox: p.x, oy: p.y })) };
   }
   function trace(img, opts = {}) {
     const b = binarize(img, opts.threshold);
