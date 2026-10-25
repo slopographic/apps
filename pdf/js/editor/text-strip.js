@@ -9,15 +9,11 @@
 (function () {
   'use strict';
   var SP = window.SP, E = SP.engine, Ed = SP.editor, S = Ed._, Lx = window.SlopPdfLex, St = window.SlopPdfStrip, Fi = window.SlopPdfFills;
+  var Ink = window.SlopPdfInk, Res = window.SlopPdfRes, contentOf = Res.contentOf;
   var X = S.strip = {};
   var MAX = 80e6; // bytes: a bigger file is covered, not copied for each edit
   var fills = new Map(); // file id:page → Promise of the page's operators (for the colour under a box)
 
-  function latin1(b) {
-    var s = '';
-    for (var i = 0; i < b.length; i += 8192) s += String.fromCharCode.apply(null, b.subarray(i, i + 8192));
-    return s;
-  }
   function bytesOf(s) { var u = new Uint8Array(s.length); for (var i = 0; i < s.length; i++) u[i] = s.charCodeAt(i) & 255; return u; }
   function load(bytes) { return PDFLib.PDFDocument.load(bytes, { ignoreEncryption: true, updateMetadata: false, throwOnInvalidObject: false }); }
   /** FNV-1a of a string, twice with two seeds: 16 hex digits. */
@@ -29,96 +25,13 @@
     });
     return out;
   }
-  /** The page's content streams (refs) and their decoded text, joined by a newline. */
-  function contentOf(doc, page) {
-    var L = PDFLib, c = page.node.Contents(), refs = !c ? [] : c instanceof L.PDFArray ? c.asArray() : [c];
-    var text = refs.map(function (r) {
-      var s = doc.context.lookup(r);
-      return latin1(s instanceof L.PDFRawStream ? L.decodePDFRawStream(s).decode() : s.getUnencodedContents());
-    }).join('\n');
-    return { refs: refs, text: text };
-  }
-
-  /* ------------------------------------------------------------ fonts: name → { two, width(code) } or null */
-  var STD = { Arial: 'Helvetica', ArialMT: 'Helvetica', 'Arial-BoldMT': 'Helvetica-Bold', 'Arial,Bold': 'Helvetica-Bold', TimesNewRoman: 'Times-Roman', TimesNewRomanPSMT: 'Times-Roman', CourierNew: 'Courier', CourierNewPSMT: 'Courier' };
-  var stdCodes = new Map();
-  function stdFont(base) {
-    var n = String(base || '').replace(/^[A-Z]{6}\+/, ''), names = Object.values(PDFLib.StandardFonts);
-    n = names.indexOf(n) >= 0 ? n : STD[n];
-    if (!n) return null;
-    if (!stdCodes.has(n)) {
-      var em = PDFLib.StandardFontEmbedder.for(n), map = {};
-      em.encoding.supportedCodePoints.forEach(function (cp) { var e = em.encoding.encodeUnicodeCodePoint(cp); if (map[e.code] == null) map[e.code] = em.font.getWidthOfGlyph(e.name) || 0; });
-      stdCodes.set(n, map);
-    }
-    var m = stdCodes.get(n);
-    return { two: false, width: function (c) { return m[c] || 0; } };
-  }
-  function readFont(ctx, d) {
-    var L = PDFLib, N = function (k) { return L.PDFName.of(k); }, look = function (o) { return o ? ctx.lookup(o) : null; };
-    var val = function (o) { o = look(o); return o instanceof L.PDFNumber ? o.asNumber() : null; };
-    var nm = function (o) { o = look(o); return o instanceof L.PDFName ? o.decodeText() : null; };
-    var sub = nm(d.get(N('Subtype')));
-    if (sub === 'Type0') {
-      if (nm(d.get(N('Encoding'))) !== 'Identity-H') return null;
-      var kids = look(d.get(N('DescendantFonts'))), cid = kids instanceof L.PDFArray ? look(kids.get(0)) : null;
-      if (!(cid instanceof L.PDFDict)) return null;
-      var dw = val(cid.get(N('DW'))), w = look(cid.get(N('W'))), map = new Map();
-      if (dw == null) dw = 1000;
-      if (w instanceof L.PDFArray) {
-        var a = w.asArray(), i = 0;
-        while (i < a.length) {
-          var c0 = val(a[i]), nx = look(a[i + 1]);
-          if (nx instanceof L.PDFArray) { nx.asArray().forEach(function (v, j) { map.set(c0 + j, val(v) || 0); }); i += 2; }
-          else { var c1 = val(a[i + 1]), wv = val(a[i + 2]); for (var c = c0; c <= c1 && c - c0 < 65536; c++) map.set(c, wv); i += 3; }
-        }
-      }
-      return { two: true, width: function (c) { return map.has(c) ? map.get(c) : dw; } };
-    }
-    if (sub === 'Type3') return null;
-    var widths = look(d.get(N('Widths'))), first = val(d.get(N('FirstChar')));
-    if (widths instanceof L.PDFArray && first != null) {
-      var ws = widths.asArray().map(function (v) { return val(v) || 0; }), fd = look(d.get(N('FontDescriptor')));
-      var miss = fd instanceof L.PDFDict ? val(fd.get(N('MissingWidth'))) || 0 : 0;
-      return { two: false, width: function (c) { var k = c - first; return k >= 0 && k < ws.length ? ws[k] : miss; } };
-    }
-    return stdFont(nm(d.get(N('BaseFont'))));
-  }
-  function fontTable(doc, page) {
-    var L = PDFLib, res = page.node.Resources(), fd = res ? res.lookup(L.PDFName.of('Font')) : null, out = {};
-    if (fd instanceof L.PDFDict) fd.entries().forEach(function (e) {
-      var d = doc.context.lookup(e[1]);
-      try { out[e[0].decodeText()] = d instanceof L.PDFDict ? readFont(doc.context, d) : null; } catch (err) { out[e[0].decodeText()] = null; }
-    });
-    return function (name) { return out[name] || null; };
-  }
-
-  /** The XObjects of a resource dictionary for content-fills.js: name → { image } or { ops, matrix, xobj } (forms read
-   * when asked, a few levels deep), or null. */
-  function xobjects(doc, res, depth) {
-    var L = PDFLib, ctx = doc.context, xd = res instanceof L.PDFDict ? res.lookup(L.PDFName.of('XObject')) : null, memo = {};
-    return function (name) {
-      if (name in memo) return memo[name];
-      var st = xd instanceof L.PDFDict ? xd.lookup(L.PDFName.of(name)) : null, out = null;
-      try {
-        var sub = st && st.dict ? st.dict.lookup(L.PDFName.of('Subtype')) : null, kind = sub instanceof L.PDFName ? sub.decodeText() : '';
-        if (kind === 'Image') out = { image: true };
-        else if (kind === 'Form' && depth < 4) {
-          var m = st.dict.lookup(L.PDFName.of('Matrix')), mat = m instanceof L.PDFArray ? m.asArray().map(function (v) { return ctx.lookup(v).asNumber(); }) : null;
-          var data = st instanceof L.PDFRawStream ? L.decodePDFRawStream(st).decode() : st.getUnencodedContents();
-          out = { ops: Lx.lex(latin1(data)), matrix: mat && mat.length === 6 ? mat : null, xobj: xobjects(doc, st.dict.lookup(L.PDFName.of('Resources')), depth + 1) };
-        }
-      } catch (e) { out = null; }
-      return (memo[name] = out);
-    };
-  }
   /** A target box (user space) for the colour under it: from the descender to above the capitals. */
   function boxOf(t) { var fs = t.fs || 10; return { x0: t.x0, x1: t.x1, y0: t.y - 0.25 * fs, y1: t.y + 0.9 * fs }; }
   /** The bytes of file f with the targets' text removed from page i (null when it cannot be), and the colour the content
    * paints under each target (null where that is not one flat colour). */
   X.derive = async function (f, i, targets) {
-    var doc = await load(f.bytes), page = doc.getPage(i), c = contentOf(doc, page), ops = Lx.lex(c.text);
-    var r = St.strip(c.text, fontTable(doc, page), targets), xobj = xobjects(doc, page.node.Resources(), 0);
+    var doc = await load(f.bytes), page = doc.getPage(i), c = contentOf(doc, page), ops = Lx.lex(c.text), res = Res.of(doc, page.node.Resources());
+    var r = St.strip(c.text, res.fonts, targets), xobj = res.xobj;
     var paper = targets.map(function (t) { return Fi.under(ops, boxOf(t), r ? r.first : null, xobj); });
     if (!r) return { bytes: null, paper: paper };
     var L = PDFLib, ref = doc.context.register(doc.context.flateStream(bytesOf(r.text)));
@@ -212,21 +125,34 @@
   X.targetOfRun = function (run, x0, x1) {
     return { x0: x0 == null ? run.x0 : x0, x1: x1 == null ? run.x0 + run.width : x1, y: run.y, fs: run.fs };
   };
-  /** The page's operators (for the colour under a box when the screen cannot be read), read once per file page. */
+  /** The page's operators and resources (for the colours of its text, and of the paper under a box when the screen cannot
+   * be read), read once per file page: a Promise (null when the page has no content to read). */
   X.prefetch = function (p) {
     var f = E.fileOfPage(p), key = f && p.f + ':' + p.i;
-    if (!f || p.blank || !window.PDFLib || fills.has(key)) return;
-    fills.set(key, null);
-    load(f.bytes).then(function (doc) {
-      var pg = doc.getPage(p.i);
-      fills.set(key, { ops: Lx.lex(contentOf(doc, pg).text), xobj: xobjects(doc, pg.node.Resources(), 0) });
-    }).catch(function () { /* no colour */ });
+    if (!f || p.blank || !window.PDFLib) return Promise.resolve(null);
+    if (!fills.has(key)) {
+      var pr = load(f.bytes).then(function (doc) {
+        var pg = doc.getPage(p.i), c = { ops: Lx.lex(contentOf(doc, pg).text), res: Res.of(doc, pg.node.Resources()) };
+        pr.value = c;
+        return c;
+      }).catch(function () { return null; });
+      fills.set(key, pr);
+    }
+    return fills.get(key);
   };
+  /** Resolves once page p's content is read (X.prefetch), so the readers below have it. */
+  X.ready = function (p) { return X.prefetch(p).then(function () { return true; }); };
+  function cached(p) { var pr = p && fills.get(p.f + ':' + p.i); return pr ? pr.value || null : null; }
   /** The content's colour under a page-space box (annotation space) of page p, or null (not read yet, or not flat). */
   X.contentPaper = function (p, b) {
-    var c = p && fills.get(p.f + ':' + p.i);
+    var c = cached(p);
     if (!c) return null;
     var g = E.geom(p), top = g.y0 + g.H;
-    return Fi.under(c.ops, { x0: b.x + g.x0, x1: b.x + b.w + g.x0, y0: top - b.y - b.h, y1: top - b.y }, null, c.xobj);
+    return Fi.under(c.ops, { x0: b.x + g.x0, x1: b.x + b.w + g.x0, y0: top - b.y - b.h, y1: top - b.y }, null, c.res.xobj);
+  };
+  /** The colour the content paints the text of the targets (user space) in, [r, g, b] in 0..1, or null (core/content-ink.js). */
+  X.contentInk = function (p, targets) {
+    var c = cached(p);
+    try { return c ? Ink.ink(c.ops, c.res, targets) : null; } catch (e) { return null; }
   };
 })();

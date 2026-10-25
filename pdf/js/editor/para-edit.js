@@ -99,7 +99,7 @@
       box.style.left = ((a.cx - a.w / 2) * z) + 'px'; box.style.top = ((a.cy - a.h / 2 + off) * z) + 'px';
       box.style.width = (a.w * zx) + 'px'; box.style.minHeight = ((a.h - off) * z) + 'px';
       box.style.fontSize = (a.fs * z) + 'px'; box.style.lineHeight = (a.lh * z) + 'px';
-      box.style.textAlign = a.align; box.style.color = a.color; box.style.background = a.paper || '#ffffff';
+      box.style.textAlign = a.align; box.style.color = a.color; box.style.background = S.hex(S.fieldColour(a.color, S.rgbOf(a.paper || '#ffffff'))); // never under 3:1
       U.$$(':scope > div', box).forEach(function (d, i, all) {
         d.style.marginBottom = i < all.length - 1 ? ((a.pgap || 0) * z) + 'px' : '0';
         d.style[a.rtl ? 'paddingRight' : 'paddingLeft'] = ((a.rest || 0) * zx) + 'px';

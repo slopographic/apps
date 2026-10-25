@@ -32,9 +32,12 @@
   }
 
   /** Walks the operators: calls show(k, el, ts) for each string a text operator shows (el: the string, ts: the text state
-   * with Tm, CTM and a known flag), adjust(n, ts) for each TJ number, and keeps the state. Returns nothing. */
-  function walk(ops, fonts, show) {
-    var gs = { ctm: ID, tc: 0, tw: 0, th: 1, tl: 0, font: null, fs: 0, rise: 0, tr: 0 }, stack = [];
+   * with Tm, CTM and a known flag) and keeps the state. opts (content-ink.js): gs0, the graphics state to start from (a
+   * form's caller's); each(op, gs), called for every operator first (the colour state); form(name) → { ops, fonts, matrix,
+   * opts } for a Form XObject to walk into (null: not followed). Returns nothing. */
+  function walk(ops, fonts, show, opts) {
+    opts = opts || {};
+    var gs = Object.assign({ ctm: ID, tc: 0, tw: 0, th: 1, tl: 0, font: null, fs: 0, rise: 0, tr: 0 }, opts.gs0 || {}), stack = [];
     var tm = ID, tlm = ID, known = true;
     function lineMove(tx, ty) { tlm = mul([1, 0, 0, 1, tx, ty], tlm); tm = tlm; known = true; }
     function adv(tx) { tm = mul([1, 0, 0, 1, tx, 0], tm); }
@@ -46,7 +49,12 @@
     }
     ops.forEach(function (o, k) {
       var a = o.args, n;
+      if (opts.each) opts.each(o, gs);
       switch (o.op) {
+        case 'Do':
+          var x = opts.form && a[0] && a[0].name != null ? opts.form(a[0].name) : null;
+          if (x) walk(x.ops, x.fonts, show, Object.assign({}, x.opts, { gs0: Object.assign({}, gs, { ctm: mul(x.matrix || ID, gs.ctm) }) }));
+          break;
         case 'q': stack.push(Object.assign({}, gs)); break;
         case 'Q': if (stack.length) gs = stack.pop(); break;
         case 'cm': if ((n = nums(a, 6))) gs.ctm = mul(n, gs.ctm); break;
@@ -93,7 +101,7 @@
   }
 
   /** Every glyph the stream shows with a known place. */
-  function glyphs(ops, fonts) {
+  function glyphs(ops, fonts, opts) {
     var out = [];
     walk(ops, fonts, function (k, str, t) {
       if (!t.f) return null;
@@ -101,11 +109,11 @@
       var up = m[0] > 0 && m[3] > 0 && Math.abs(m[1]) < 1e-3 * Math.abs(m[0]) && Math.abs(m[2]) < 1e-3 * Math.abs(m[3]);
       codesOf(str, t.f).forEach(function (code, at) {
         var w0 = (t.f.width(code.c) / 1000) * gs.fs * gs.th, o = apply(m, dx, gs.rise), e = apply(m, dx + w0, gs.rise);
-        if (t.known) out.push({ k: k, si: t.si, at: at, code: code.c, x: o[0], y: o[1], w: e[0] - o[0], cx: (o[0] + e[0]) / 2, up: up, tr: gs.tr, fs: Math.abs(gs.fs * m[3]) });
+        if (t.known) out.push({ k: k, si: t.si, at: at, code: code.c, x: o[0], y: o[1], w: e[0] - o[0], cx: (o[0] + e[0]) / 2, up: up, tr: gs.tr, fs: Math.abs(gs.fs * m[3]), fill: gs.fill, stroke: gs.stroke });
         dx += advOf(code, t.f, gs) * gs.th;
       });
       return dx;
-    });
+    }, opts);
     return out;
   }
   /** Whether a glyph is in a target: its centre within x0..x1, its origin on the line of baseline y (from 0.3 em below it
@@ -205,5 +213,5 @@
     return '[' + els.map(function (p) { return typeof p === 'number' ? Lx.num(p) : Lx.hexOf(p.str); }).join(' ') + '] TJ';
   }
 
-  return { glyphs: glyphs, strip: strip, mul: mul, walk: walk };
+  return { glyphs: glyphs, strip: strip, mul: mul, walk: walk, inTarget: inTarget };
 });

@@ -1,7 +1,10 @@
-/* Slop PDF — the colours of a text run on the rendered page, for Edit text (edit-text.js): the paper round the run (the
-   editor's background, the cover over the old text, the paint over an OCR word) and the run's ink (the new text's colour).
-   The ink is the colour that stands out most from the paper, not the darkest one: light text on a dark band is light.
-   Both are read from the page's canvas. Some browsers do not let a page read its canvases back (Firefox and Tor Browser
+/* Slop PDF — the colours of a text run, for Edit text (Lines, Paragraphs) and Replace: the paper round the run (the
+   editor's background, the cover over the old text, the paint over an OCR word) and the run's ink (the colour of the
+   editor's text and of the saved text). The ink is, in this order: the colour the page's content paints the run in
+   (S.textInk: core/content-ink.js through text-strip.js), the median colour of the run's glyph pixels on the rendered page
+   (not the paper; light text on a dark band is light), or black or white, whichever has at least 4.5:1 contrast with the
+   paper. The editor never shows its text on a field it reads poorly on (under 3:1): the field then takes black or white
+   (S.fieldColour). The paper is read from the page's canvas. Some browsers do not let a page read its canvases back (Firefox and Tor Browser
    with fingerprinting resistance give white): then, and on a page that is not rendered, the paper is the colour the
    page's content paints under the box (text-strip.js, content-fills.js), else white, and the ink black or white on it.
    Classic script. */
@@ -56,17 +59,39 @@
     return ch.map(function (a) { a.sort(function (p, q) { return p - q; }); return a[a.length >> 1] / 255; });
   };
 
-  /** The run's ink inside a box: the pixel farthest from the paper colour ([r, g, b] in 0..1), as '#rrggbb'. When nothing
-   * in the box stands out (no glyph pixels), black or white, whichever reads on that paper. */
+  /** The run's ink on the rendered page: the median colour of its glyph pixels in a box (the pixels that stand out from the
+   * paper, [r, g, b] in 0..1), as '#rrggbb'. When nothing stands out, or the canvas cannot be read: black or white,
+   * whichever reads on that paper. */
   S.inkColour = function (s, b, paper) {
-    var px = S.canvasReadable() ? pixels(s, b, 0) : null, P = paper.map(function (v) { return v * 255; }), best = null, far = 0;
+    var px = S.canvasReadable() ? pixels(s, b, 0) : null, P = paper.map(function (v) { return v * 255; }), far = 0, ds = [];
     if (px) for (var i = 0; i < px.d.length; i += 4) {
-      if (px.d[i + 3] < 128) continue;
+      if (px.d[i + 3] < 128) { ds.push(-1); continue; }
       var dist = Math.abs(px.d[i] - P[0]) + Math.abs(px.d[i + 1] - P[1]) + Math.abs(px.d[i + 2] - P[2]);
-      if (dist > far) { far = dist; best = [px.d[i], px.d[i + 1], px.d[i + 2]]; }
+      ds.push(dist); if (dist > far) far = dist;
     }
-    if (!best || far < 90) return P[0] * 0.299 + P[1] * 0.587 + P[2] * 0.114 < 128 ? '#ffffff' : '#000000';
-    return S.hex(best.map(function (v) { return v / 255; }));
+    if (far < 90) return S.hex(S.readable(paper));
+    // the glyphs' cores: pixels at least half as far from the paper as the farthest (their anti-aliased edges are not)
+    var ch = [[], [], []];
+    ds.forEach(function (d, k) { if (d >= far / 2) for (var c = 0; c < 3; c++) ch[c].push(px.d[k * 4 + c]); });
+    return S.hex(ch.map(function (a) { a.sort(function (p, q) { return p - q; }); return a[a.length >> 1] / 255; }));
+  };
+  /** Relative luminance (WCAG) of [r, g, b] in 0..1, and the contrast ratio of two colours. */
+  function lum(c) { return c.map(function (v) { return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }).reduce(function (a, v, i) { return a + v * [0.2126, 0.7152, 0.0722][i]; }, 0); }
+  S.contrast = function (a, b) { var x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+  /** '#rrggbb' as [r, g, b] in 0..1. */
+  S.rgbOf = function (h) { return [1, 3, 5].map(function (i) { return parseInt(String(h).slice(i, i + 2), 16) / 255; }); };
+  /** Black or white, whichever has more contrast with a colour (at least 4.5:1 for any colour). */
+  S.readable = function (bg) { return S.contrast([0, 0, 0], bg) >= S.contrast([1, 1, 1], bg) ? [0, 0, 0] : [1, 1, 1]; };
+  /** The ink of the text in the targets (user space) of page p, whose box (page space) is b on slot s, on paper: the
+   * content's colour, else the glyph pixels' median, else black or white for the paper; as '#rrggbb'. */
+  S.textInk = function (p, s, targets, b, paper) {
+    var c = S.strip && p ? S.strip.contentInk(p, targets) : null;
+    return c ? S.hex(c) : S.inkColour(s, b, paper);
+  };
+  /** The editor's field colour for an ink on a paper: the paper, unless the ink reads under 3:1 on it (black or white then). */
+  S.fieldColour = function (ink, paper) {
+    var k = S.rgbOf(ink);
+    return S.contrast(k, paper) >= 3 ? paper : S.readable(k);
   };
 
   /** [r, g, b] in 0..1 as '#rrggbb'. */
