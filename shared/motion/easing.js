@@ -65,7 +65,7 @@
     const ay = 1 - cy - by;
     const curveX = (s) => ((ax * s + bx) * s + cx) * s;
     const curveY = (s) => ((ay * s + by) * s + cy) * s;
-    const slopeX = (s) => (3 * ax * s + 2 * bx) * s + cx;
+    const dxdt = (s) => (3 * ax * s + 2 * bx) * s + cx;
     const EPS = 1e-7;
 
     function solveS(x) {
@@ -73,7 +73,7 @@
       for (let i = 0; i < 8; i++) {
         const err = curveX(s) - x;
         if (Math.abs(err) < EPS) return s;
-        const d = slopeX(s);
+        const d = dxdt(s);
         if (Math.abs(d) < 1e-6) break;
         s -= err / d;
       }

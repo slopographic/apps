@@ -125,10 +125,10 @@ test('validate rejects unknown keys and bad values without throwing', () => {
     assert.doesNotThrow(() => { r = N.validate.validate(junk); });
     assert.equal(r.ok, false);
   }
-  const sloppy = N.validate.validate({ ...SLOP, fitKey: 'mod+0', zoomInKeys: ['Shift+Mod+='] });
-  assert.equal(sloppy.ok, true);
-  assert.equal(sloppy.value.fitKey, 'Mod+0', 'combos are normalised');
-  assert.deepEqual(plain(sloppy.value.zoomInKeys), ['Mod+='], 'Shift is dropped for = and -');
+  const loose = N.validate.validate({ ...SLOP, fitKey: 'mod+0', zoomInKeys: ['Shift+Mod+='] });
+  assert.equal(loose.ok, true);
+  assert.equal(loose.value.fitKey, 'Mod+0', 'combos are normalised');
+  assert.deepEqual(plain(loose.value.zoomInKeys), ['Mod+='], 'Shift is dropped for = and -');
 });
 
 test('setCustom rejects invalid bindings and saves nothing', () => {

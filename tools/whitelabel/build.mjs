@@ -17,7 +17,7 @@ import { urls, phrases, tokens, collisions } from './rename.mjs';
 import { context, profileText, forward, forwardPath } from './transform.mjs';
 import { markerValues, applyMarkers, brandJson, markSvg, logoSvg, manifest, mit, notice, trademarks, security, readme } from './emit.mjs';
 import { mirrorWorkflow } from './workflow.mjs';
-import { skipPattern } from './mirror-skip.mjs';
+import { skipPattern, smokeFor } from './mirror-skip.mjs';
 import { isText, scan, report } from './scan.mjs';
 
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -121,7 +121,7 @@ function emit(out, p, opts, ctx) {
   const trial = path.join(out, 'shared/agent/trial-tokens.json');
   if (existsSync(trial)) { const t = JSON.parse(readFileSync(trial, 'utf8')); t.tokens = []; writeFileSync(trial, JSON.stringify(t, null, 2) + '\n'); }
   const wf = readFileSync(path.join(ROOT, '.github/workflows/rules.yml'), 'utf8');
-  write(out, '.github/workflows/rules.yml', tokens(phrases(urls(mirrorWorkflow(wf, skipPattern(p)), ctx.urls), ctx.phraseRules), ctx.tokenRules));
+  write(out, '.github/workflows/rules.yml', tokens(phrases(urls(mirrorWorkflow(wf, skipPattern(p), smokeFor(p)), ctx.urls), ctx.phraseRules), ctx.tokenRules));
   write(out, '.nojekyll', '');
 }
 

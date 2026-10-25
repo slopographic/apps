@@ -10,7 +10,7 @@ import { excluded, patchBinary, SCAN_ALLOW } from '../../tools/whitelabel/build.
 import { exportProfile } from '../../tools/whitelabel/export.mjs';
 import { ico, cardHtml } from '../../tools/whitelabel/images.mjs';
 import { mirrorWorkflow, DROP_STEPS } from '../../tools/whitelabel/workflow.mjs';
-import { skipPattern, SKIP } from '../../tools/whitelabel/mirror-skip.mjs';
+import { skipPattern, SKIP, smokeFor, SMOKE } from '../../tools/whitelabel/mirror-skip.mjs';
 import { loadProfile, profilesDir } from '../../tools/whitelabel/profile.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -39,7 +39,8 @@ test('the mirror workflow drops the steps that only work here', () => {
   assert.doesNotMatch(out, /git config user\.name/);
   assert.match(out, /node --test tests\/node/);
   assert.doesNotMatch(out, /whitelabel/);
-  assert.match(out, /\n  touch:\n/);
+  assert.doesNotMatch(out, /\n  (touch|browser|plan):\n/);
+  assert.match(mirrorWorkflow(yml, '', ['tests/x.test.html']), /\n  smoke:\n[\s\S]*tests\/x\.test\.html/);
 });
 
 test('icons: a PNG-in-ICO header; the share card holds the name', () => {
@@ -52,11 +53,16 @@ test('icons: a PNG-in-ICO header; the share card holds the name', () => {
 
 test('the mirror skips only the tests that pin this site’s profile, and names each one', () => {
   const dir = profilesDir(ROOT);
-  assert.equal(skipPattern(loadProfile(dir, 'slopographic')), '^each landing page has a description of 120 to 160 characters|^each page has a description of 120 to 160 characters');
+  const own = skipPattern(loadProfile(dir, 'slopographic'));   // this site's own profile skips only what every build skips
+  assert.doesNotMatch(own, /system prompt|support block|tutorial/);
+  assert.match(own, /description of 120 to 160/);
   const pat = skipPattern(loadProfile(dir, 'sample'));
   assert.doesNotMatch(pat, /['"]/);
-  for (const s of SKIP) assert.ok(new RegExp(pat).test(s.test), s.test);
+  const sample = loadProfile(dir, 'sample');
+  for (const s of SKIP) assert.equal(new RegExp(pat).test(s.test), !!s.when(sample), s.test);
   assert.ok(!new RegExp(pat).test('every app id in shared/apps.js has an icon entry'));
+  assert.deepEqual(smokeFor(sample), SMOKE);
+  assert.ok(!smokeFor(loadProfile(dir, 'sample-sv')).includes('tests/i18n/switch.test.html'));
   const yml = mirrorWorkflow(readFileSync(path.join(ROOT, '.github/workflows/rules.yml'), 'utf8'), pat);
   assert.ok(yml.includes(`node --test '--test-skip-pattern=${pat}' tests/node/`));
 });

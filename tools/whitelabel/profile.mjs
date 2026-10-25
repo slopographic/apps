@@ -105,7 +105,8 @@ export function loadMap(dir, id) {
 /** The words a build of profile p must not contain: the source brand's and every other profile's brand terms, and the
  * profile's own extra `forbid` list. */
 export function forbiddenTerms(dir, p) {
-  const terms = new Set(['slop', 'slurp', ...(p.forbid || [])]);
+  // the source brand: its stem (slopographic, sloppo and the domains contain it), its GitHub user id (in noreply mails)
+  const terms = new Set(['slop', 'slurp', '340656300', ...(p.forbid || [])]);
   for (const o of allProfiles(dir)) if (o.id !== p.id) for (const t of o.brandTerms) terms.add(t.toLowerCase());
   return [...terms].map((t) => t.toLowerCase());
 }

@@ -9,7 +9,9 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { KEEP } from './rename.mjs';
+/** Words the scan allows: the slope family only (technical vocabulary: SVG's slope attribute, OpenType's caretSlopeRise,
+ * the spreadsheet SLOPE function, LeakyReLU's negative_slope). Any other word with the stem fails, sloppy included. */
+export const SCAN_KEEP = ['slope', 'slopes', 'sloped', 'sloping'];
 
 /** Every file below dir, as posix paths relative to it (the .git folder left out). */
 export function listFiles(dir, rel = '') {
@@ -40,7 +42,7 @@ export function findTerms(s, terms, opts = {}) {
       const tail = s.slice(i, i + t.length) === s.slice(i, i + t.length).toUpperCase() ? /[A-Z]/ : /[a-z]/;
       while (b < s.length && tail.test(s[b])) b++;
       const word = s.slice(a, b);
-      if (KEEP.includes(word.toLowerCase())) continue;
+      if (SCAN_KEEP.includes(word.toLowerCase())) continue;
       if (opts.account && t === opts.account && (ACCOUNT_URL.test(s.slice(Math.max(0, i - 30), i)) || /^\.github\.io/i.test(s.slice(i + t.length)))) continue;
       out.push({ term: t, index: i, word });
     }

@@ -205,13 +205,10 @@ jobs:
           SKIP=$(node tools/whitelabel/mirror-skip.mjs ${{ matrix.profile }})
           cd "$OUT" && git init -q && git add -A && git -c user.name=mirror -c user.email=mirror@example.invalid commit -qm build
           npm ci --no-audit --no-fund && node --test ${SKIP:+"--test-skip-pattern=$SKIP"} tests/node/*.test.mjs tests/seo/*.test.mjs
-      - name: Browser smoke pages, served from the build
+      - name: Browser smoke pages, served from the build (the set a mirror runs, tools/whitelabel/mirror-skip.mjs)
         run: |
-          cd "$OUT"
-          printf '%s\n' tests/i18n/default-lang.test.html tests/i18n/switch.test.html tests/shell/switcher.test.html \
-            tests/shell/drawer.test.html tests/shell/brand.test.html tests/home/catalog.test.html tests/home/finder.test.html \
-            tests/pdf/preview.test.html tests/image-editor/welcome.test.html > smoke-pages.txt
-          node tests/run.mjs --skip-node --jobs=3 --pages-file=smoke-pages.txt
+          node tools/whitelabel/mirror-skip.mjs ${{ matrix.profile }} --smoke > "$OUT/smoke-pages.txt"
+          cd "$OUT" && node tests/run.mjs --skip-node --jobs=3 --pages-file=smoke-pages.txt
       - name: The contrast sweep in the profile's colours
         if: matrix.profile == 'sample'
         run: cd "$OUT" && node tests/run.mjs a11y/sweep- --skip-node --jobs=3

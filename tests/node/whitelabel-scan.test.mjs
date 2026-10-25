@@ -9,7 +9,8 @@ import path from 'node:path';
 import { scan, findTerms, isText, report } from '../../tools/whitelabel/scan.mjs';
 
 test('findTerms: the stem, but not slope, sloped, SLOPE or slopeX', () => {
-  assert.equal(findTerms('a slope that sloped, SLOPE(), slopeX, sloppy', ['slop']).length, 0);
+  assert.equal(findTerms('a slope that sloped, SLOPE(), slopeX, caretSlopeRise', ['slop']).length, 0);
+  assert.equal(findTerms('sloppy', ['slop']).length, 1);   // only the slope family is allowed
   assert.equal(findTerms('SlopUI and slop-drive', ['slop']).length, 2);
   assert.equal(findTerms('see https://github.com/acme/x and acme.github.io', ['acme'], { account: 'acme' }).length, 0);
   assert.equal(findTerms('made by acme', ['acme'], { account: 'acme' }).length, 1);

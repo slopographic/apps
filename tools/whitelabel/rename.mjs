@@ -37,6 +37,7 @@ export function urls(text, map) {
     .replace(/https:\/\/[\w.-]*\b(?:x\.com|patreon\.com|reddit\.com|tiktok\.com)\/[^\s"'<>)]*[Ss]lopographic[^\s"'<>)]*/g, map.origin + '/')
     .replace(/https:\/\/slopographic\.gumroad\.com[^\s"'<>)]*/g, map.origin + '/')
     .replace(/@slopographic\.com\b/g, '@' + map.mail)
+    .replace(/340656300\+slopographic@users\.noreply\.github\.com/g, `${map.github}@users.noreply.github.com`)
     .replace(/\bslopographic\.(?:com|github\.io)\b/g, host);
 }
 

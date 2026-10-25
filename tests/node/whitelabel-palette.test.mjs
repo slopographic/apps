@@ -2,10 +2,11 @@
 // The accent family moves to the profile's hue; greys and other hues stay; lengths and alpha are kept.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { remapColors, shift, rgbToHsl, paletteFile } from '../../tools/whitelabel/palette.mjs';
+import { remapColors, shift, rgbToHsl, paletteFile, luminance } from '../../tools/whitelabel/palette.mjs';
 
-const PAL = { hue: 221, from: [55, 110] };
-test('lime becomes the profile hue with the same lightness', () => {
+const PAL = { hue: 221, from: [65, 100] };
+test('lime becomes the profile hue with the same luminance (so the same contrast)', () => {
+  for (const c of [[212, 255, 58], [79, 108, 0], [159, 204, 0]]) assert.ok(Math.abs(luminance(shift(c, PAL)) - luminance(c)) < 0.002, String(c));
   const out = remapColors('a { color: #d4ff3a; background: #4f6c00; }', PAL);
   const hexes = out.match(/#[0-9a-f]{6}/g);
   for (const h of hexes) {
@@ -23,5 +24,7 @@ test('greys, reds and blues are untouched; alpha and rgb() handled', () => {
 test('only the site’s own styles and code', () => {
   assert.equal(paletteFile('pdf/css/a.css'), true);
   assert.equal(paletteFile('vendor/x/a.js'), false);
+  assert.equal(paletteFile('tests/node/colors-core.test.mjs'), false);
+  assert.equal(paletteFile('tests/pdf/look.test.html'), true);
   assert.equal(paletteFile('assets/a.png'), false);
 });

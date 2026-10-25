@@ -1,6 +1,6 @@
 // The palette shift of a white-label build: every colour of the source brand's accent family (its hues, from.hues) is
-// turned to the profile's hue, keeping saturation and lightness, in the site's CSS, JavaScript, HTML and SVG. Greys, reds,
-// blues and the rest are untouched, so contrast between text and surfaces stays as the source tested it.
+// turned to the profile's hue, keeping saturation and luminance, in the site's CSS, JavaScript, HTML and SVG. Greys, reds,
+// blues and the rest are untouched; a moved colour keeps its luminance, so contrast stays as the source tested it.
 // profile.palette: { hue: 221, from: [55, 110], minSaturation: 0.3 }. Node only. Tests: tests/node/whitelabel-palette.test.mjs.
 
 const hex2 = (n) => Math.round(Math.max(0, Math.min(255, n))).toString(16).padStart(2, '0');
@@ -19,12 +19,22 @@ export function hslToRgb(h, s, l) {
   return [f(0) * 255, f(8) * 255, f(4) * 255];
 }
 
-/** The new [r, g, b] for a colour, or null when it is not in the accent family. */
+/** WCAG relative luminance of 0-255 channels. */
+export function luminance([r, g, b]) {
+  const c = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; };
+  return 0.2126 * c(r) + 0.7152 * c(g) + 0.0722 * c(b);
+}
+
+/** The new [r, g, b] for a colour, or null when it is not in the accent family. The new colour has the profile's hue,
+ * the same saturation, and the lightness that gives the same luminance, so every contrast the source passed still holds. */
 export function shift([r, g, b], pal) {
-  const [h, s, l] = rgbToHsl(r, g, b);
-  const [lo, hi] = pal.from || [55, 110];
+  const [h, s] = rgbToHsl(r, g, b);
+  const [lo, hi] = pal.from || [65, 100];
   if (h < lo || h > hi || s < (pal.minSaturation ?? 0.3)) return null;
-  return hslToRgb(pal.hue, s, l);
+  const want = luminance([r, g, b]);
+  let a = 0, z = 1;
+  for (let i = 0; i < 30; i++) { const m = (a + z) / 2; if (luminance(hslToRgb(pal.hue, s, m)) < want) a = m; else z = m; }
+  return hslToRgb(pal.hue, s, (a + z) / 2);
 }
 
 const HEX = /#([0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})\b/g;
