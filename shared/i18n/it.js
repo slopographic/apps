@@ -60,6 +60,7 @@
     'hero.no_account': 'Nessun account',
     'hero.apps': 'Tutte le app',
     'hero.marquee': 'Cosa fanno le app',
+    'hero.no_match': 'Nessuna app corrisponde',
 
     'settings.appearance': 'Aspetto',
     'settings.appearance_lede': 'Un unico tema per tutte le app Slopographic e per questo sito. Scegli qui e si applica subito. Ogni app usa la stessa scelta quando si apre.',

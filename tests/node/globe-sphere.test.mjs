@@ -109,3 +109,32 @@ test('grid: latitude rings and meridians on the unit sphere, closed loops', () =
   }
   assert.equal(G.due(1016, 1000, 30), false); assert.equal(G.due(1033, 1000, 30), true); assert.equal(G.due(5, 0, 0), false);
 });
+
+test('weighted: heavy apps round the equator, spaced evenly; the rest kept clear of them and of each other', () => {
+  const w = Array.from({ length: 63 }, (_, i) => ([0, 2, 5, 10, 20, 30, 40, 50, 60].includes(i) ? 2 : 1));
+  const p = G.weighted(w);
+  assert.equal(p.length, 63);
+  for (const q of p) assert.ok(near(len(q), 1, 1e-9));
+  const ang = (a, b) => Math.acos(Math.max(-1, Math.min(1, a.x * b.x + a.y * b.y + a.z * b.z)));
+  const heavy = p.filter((_, i) => w[i] > 1), light = p.filter((_, i) => w[i] === 1);
+  for (const h of heavy) assert.ok(Math.abs(h.y) < 0.2, 'near the equator, so each passes the front on a turn');
+  let hh = 9, hl = 9, ll = 9;
+  for (const a of heavy) { for (const b of heavy) if (a !== b) hh = Math.min(hh, ang(a, b)); for (const b of light) hl = Math.min(hl, ang(a, b)); }
+  for (let i = 0; i < light.length; i++) for (let j = i + 1; j < light.length; j++) ll = Math.min(ll, ang(light[i], light[j]));
+  assert.ok(hh > 0.6 && hl >= 0.34 && ll > 0.3, `${hh} ${hl} ${ll}`);
+  assert.deepEqual(G.weighted([1, 1, 1]), G.fibonacci(3), 'no heavy apps: the plain Fibonacci sphere');
+  assert.deepEqual(G.weighted(w), p, 'the same every time');
+});
+
+test('centroid and zoom: the matches\' (weighted) centre, none when they cancel out; the lean-in by match count', () => {
+  const c = G.centroid([{ x: 1, y: 0, z: 0 }, { x: 0, y: 0, z: 1 }]);
+  assert.ok(near(c.x, Math.SQRT1_2, 1e-9) && near(c.z, Math.SQRT1_2, 1e-9));
+  const w = G.centroid([{ x: 1, y: 0, z: 0 }, { x: 0, y: 0, z: 1 }], [3, 1]);
+  assert.ok(w.x > w.z, 'the heavier point pulls the centre');
+  assert.equal(G.centroid([{ x: 1, y: 0, z: 0 }, { x: -1, y: 0, z: 0 }]), null);
+  assert.equal(G.centroid([]), null);
+  assert.ok(G.zoomFor(1) > G.zoomFor(3) && G.zoomFor(3) > G.zoomFor(20) && G.zoomFor(0) === 1 && G.zoomFor(20) === 1);
+  const p = { x: 0.6, y: -0.3, z: -0.74 };
+  const full = G.frontOf(p, 0.3, 1), q = G.rotate(p, full.yaw, full.pitch);
+  assert.ok(q.z > 0.99, 'one match leans all the way: square in front');
+});

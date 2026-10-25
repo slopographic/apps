@@ -9,8 +9,8 @@
   position: absolute;
   left: 0;
   top: 0;
-  width: var(--gx-size, 56px);
-  height: var(--gx-size, 56px);
+  width: calc(var(--gx-size, 56px) * var(--gx-k, 1));    /* --gx-k: 1.7 for the registry's heavier apps (globe.js) */
+  height: calc(var(--gx-size, 56px) * var(--gx-k, 1));
   opacity: 0;
   pointer-events: none;
   touch-action: pan-y;
@@ -41,7 +41,24 @@
   transition: opacity .15s, visibility .15s;
 }
 .gx-i.is-hot { z-index: 120 !important; }
-.gx-i.is-hot .gx-name { opacity: 1; visibility: visible; }
+.gx-i.is-hot .gx-name, .gx-i.is-pick .gx-name { opacity: 1; visibility: visible; }
+.gx-i.is-pick { z-index: 110 !important; }
+/* The finder found nothing: a short note at the globe's centre (globe.js places it). */
+.gx-hint {
+  position: absolute;
+  z-index: 130;
+  margin: 0;
+  translate: -50% -50%;
+  padding: 8px 14px;
+  background: var(--ink-2);
+  border: 1px solid var(--line);
+  color: var(--bone);
+  font: 600 12px/1.2 var(--mono);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.gx-hint[hidden] { display: none; }
 .gx-i.is-hot .gx-svg { filter: drop-shadow(0 0 18px color-mix(in srgb, var(--slop) 70%, transparent)); }
 
 /* The keyboard way in: every app in a list, visually hidden until a link has focus; the focused one shows as a chip

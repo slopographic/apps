@@ -61,6 +61,7 @@
     'hero.no_account': 'لا حاجة إلى حساب',
     'hero.apps': 'كل التطبيقات',
     'hero.marquee': 'ما تفعله التطبيقات',
+    'hero.no_match': 'لا توجد تطبيقات مطابقة',
 
     'settings.appearance': 'المظهر',
     'settings.appearance_lede': 'سمة واحدة لكل تطبيقات Slopographic ولهذا الموقع. اختَرها هنا وتُطبَّق فوراً. يستخدم كل تطبيق الاختيار نفسه عند فتحه.',
