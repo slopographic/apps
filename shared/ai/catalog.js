@@ -1,5 +1,5 @@
 /* SlopAIKit catalog: the local models Slop AI offers. Classic script; adds SlopAIKit.catalog.
- * Ids are WebLLM prebuilt ids (vendor/web-llm prebuiltAppConfig.model_list, v0.2.85); vramMB and lowResource are
+ * Ids are WebLLM prebuilt ids (vendor/web-llm prebuiltAppConfig.model_list, v0.2.86); vramMB and lowResource are
  * copied from there. sizeMB is the approximate one-time download (weights + tokenizer + kernels).
  * f32Id is the q4f32 build for GPUs without shader-f16. */
 (function () {
@@ -36,9 +36,16 @@
       f32Id: 'Qwen2.5-Coder-7B-Instruct-q4f32_1-MLC', vram32: 5900.09, strengths: ['code', 'mini-apps'], blurb: 'Writes real working mini-apps. Needs a strong GPU.' }),
   ];
   const byId = (id) => list.find((m) => m.id === id || m.f32Id === id) || null;
-  /** The id to load on this machine: the q4f32 build when the GPU lacks shader-f16. */
-  const idFor = (m, sys) => (sys && sys.gpu && sys.gpu.ok && !sys.gpu.f16 && m.f32Id ? m.f32Id : m.id);
+  /** GPUs whose driver reports shader-f16 but cannot compile the f16 kernels (a load failed with a shader validation
+   * error and the f32 build worked): remembered on this device by adapter vendor, architecture and description. */
+  const F16_KEY = 'slop-ai.f16-broken';
+  const gpuKey = (g) => [g && g.vendor, g && g.architecture, g && g.description].map((x) => String(x || '')).join('|');
+  const brokenList = () => { try { return JSON.parse(localStorage.getItem(F16_KEY)) || []; } catch (e) { return []; } };
+  const f16Broken = (g) => !!g && brokenList().includes(gpuKey(g));
+  function markF16Broken(g) { const l = brokenList(), k = gpuKey(g); if (!l.includes(k)) l.push(k); try { localStorage.setItem(F16_KEY, JSON.stringify(l)); } catch (e) { /* this visit only */ } }
+  /** The id to load on this machine: the q4f32 build when the GPU lacks shader-f16, or its f16 kernels failed before. */
+  const idFor = (m, sys) => (sys && sys.gpu && sys.gpu.ok && (!sys.gpu.f16 || f16Broken(sys.gpu)) && m.f32Id ? m.f32Id : m.id);
   /** A model record for a folder loaded from disk (see webllm.js loadFromDisk). */
   const custom = (id, o = {}) => M(id, Object.assign({ name: id, maker: 'Local folder', license: { name: 'See the model folder', short: 'see folder', url: '' }, custom: true, sizeMB: 0, vramMB: 0, blurb: 'Loaded from a folder on this computer.' }, o));
-  K.catalog = { list, byId, idFor, custom, LICENSES: LIC, DEFAULT: 'Qwen2.5-1.5B-Instruct-q4f16_1-MLC' };
+  K.catalog = { list, byId, idFor, custom, gpuKey, f16Broken, markF16Broken, LICENSES: LIC, DEFAULT: 'Qwen2.5-1.5B-Instruct-q4f16_1-MLC' };
 })();

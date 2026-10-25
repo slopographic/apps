@@ -7,6 +7,7 @@ downloads/
 
 # Claude Code session files and agent worktrees (local only)
 .claude/
+.webgpu-profile/
 
 # The test runner's download cache (tests/netcache.mjs; CI keeps it with actions/cache)
 tests/.cache/

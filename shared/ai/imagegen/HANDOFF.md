@@ -41,11 +41,12 @@ which local servers really offer `/images/generations`; any live call (the only 
 which has no image model).
 
 ## Permission and money
-Each `generate_image` / `edit_image` call asks first, in its own run (so a key added after the panel opened is used and
-named): "Spend on image generation?" with the provider, model, size, price per picture (or why it is not known) and that
-the provider receives the prompt (and a copy of the picture, at most 1536 px) and its terms apply. The tools carry
-`permission: { kind: 'spend-image', title: 'Spend on image generation' }` and `confirmText(args)` for the shared
-permission system. A refused question sends nothing. The visit's spending cap (`cloud/meter.js`) refuses a request once
+Each `generate_image` / `edit_image` call asks through the one permission module (`shared/ai/permissions.js`, kind
+`spend-image`: never covered by "allow app changes"; allow once / for this request / for this visit / always in this
+app apply): `tools.dispatch` runs the tool's `before()` (it picks the provider, so a key added after the panel opened is
+used and named), then asks "Spend on image generation?" with the provider, model, size, price per picture (or why it is
+not known) and that the provider receives the prompt (and a copy of the picture, at most 1536 px) and its terms apply.
+`run()` itself no longer asks. A refused question sends nothing. The visit's spending cap (`cloud/meter.js`) refuses a request once
 reached; every finished request adds its tokens and cost. In the dialogs, Generate is the go-ahead.
 
 ## Where pictures go

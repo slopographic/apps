@@ -175,13 +175,14 @@ test('the tool: offered when a picture provider has a key; asks first with provi
   const hub = { put: async (blob, o) => { saved.push(o); return 'id1'; } };
   w.routes.push([/images\/generations$/, jsonResponse(oaiImage(1))]);
   const tools = T.build({ hub, sink: null });
-  const no = tools[0].run({ prompt: 'a cat' }, { confirm: async (t, m) => { asked.push([t, m]); return false; } });
-  await assert.rejects(no, /said no/);
+  // the question comes from the one permission module (tools.dispatch → env.permit), kind 'spend-image'
+  const no = await w.SlopAIKit.tools.dispatch({ name: 'generate_image', arguments: { prompt: 'a cat' } }, tools, { permit: async (req) => { asked.push([req.title, req.detail, req.kind]); return false; } });
+  assert.match(no.error, /said no/);
   assert.equal(w.requests.length, 0);
-  assert.equal(asked[0][0], 'Spend on image generation?');
+  assert.equal(asked[0][0], 'Spend on image generation?'); assert.equal(asked[0][2], 'spend-image');
   assert.match(asked[0][1], /1 picture with OpenAI \(GPT Image 2\.5 Flare, 1024 × 1024 px\): price not known before/);
   assert.match(asked[0][1], /goes to OpenAI, which makes the picture and charges your account\. OpenAI’s terms and content rules apply\./);
-  const text = await tools[0].run({ prompt: 'a cat on a sofa' }, { confirm: async () => true });
+  const text = (await w.SlopAIKit.tools.dispatch({ name: 'generate_image', arguments: { prompt: 'a cat on a sofa' } }, tools, { permit: async () => true })).result;
   assert.match(text, /^Made 1 picture with OpenAI gpt-image-2\.5-flare \(1024 × 1024 px\) · about \$0\.05\. Saved “ai-a-cat-on-a-sofa\.png” to Slop Drive/);
   assert.deepEqual(J(saved), [{ name: 'ai-a-cat-on-a-sofa.png', from: 'ai' }]);
   // nothing connected: a model on this device gets no tool; a cloud chat model gets one that explains

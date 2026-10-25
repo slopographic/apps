@@ -13,7 +13,8 @@
  *   cmdTools.label(c, args): 'Gaussian blur, radius 8', for the panel's step list
  * A command may set readOnly: true (it only reads: no confirm, readOnly in specs) or sends: true (its value carries the
  * app's content to the model, e.g. a video frame: { text, media: [{ mime, data, name }] }). A sending command is asked
- * every time with the same question as look_at_file ("Send a copy to <env.who>?"), the one permission hook in tools.js.
+ * every time with the same question as look_at_file ("Send a copy to <env.who>?", permission kind 'send'), the one
+ * permission hook in tools.js; any other command that asks is kindOf(c): 'delete' or 'change' (shared/ai/permissions.js).
  * The run's signal (env.signal) reaches the command as ctx.signal, so a long command (an export) can stop.
  * Tools carry cmdId, so the panel knows which steps changed the app (its "Undo all AI changes"). */
 (function () {
@@ -28,6 +29,8 @@
     const re = (K.appTools && K.appTools.DESTRUCTIVE) || WORDS;
     return re.test(c.title || '') || re.test((c.id || '').replace(/[._-]/g, ' '));
   }
+  /** Which approval a destructive command needs: 'delete' or 'change' (shared/ai/permissions.js, the one rule). */
+  const kindOf = (c) => { const P = window.SlopAIPermissions; return P && P.kindOf ? P.kindOf(`${(c && c.id) || ''} ${(c && c.title) || ''}`) : 'delete'; };
   const toolName = (c) => (c.tool || String(c.id).replace(/^[a-z0-9]+\./i, '')).replace(/\W+/g, '_').replace(/^_+|_+$/g, '').toLowerCase();
   const plainTitle = (c) => String(c.title || c.id).replace(/…$/, '').split(' › ').pop();
   function label(c, args) {
@@ -68,6 +71,7 @@
     const confirmText = (c) => (c && c.sends ? `The assistant wants to use “${plainTitle(c)}” in ${where}. A small copy of what it shows goes to ${env.who || 'the AI provider'}. Nothing is changed.`
       : `The assistant wants to run “${c ? plainTitle(c) : 'a command'}” in ${where}. This may change or remove your work.`);
     const ask = (c) => !!c && !c.readOnly && (c.sends || isDestructive(c));
+    const kindFor = (c) => (c && c.sends ? 'send' : kindOf(c));   // a sending command asks as look_at_file does (permissions.js 'send')
     const tools = [];
     for (const c of all) {
       if (!c.args || c.ai === false || (c.sends && env.look === false)) continue;   // a model that cannot see gets no picture tools
@@ -76,7 +80,7 @@
       names.add(name);
       tools.push({ name, cmdId: c.id, description: c.description || plainTitle(c), params: params(c.args),
         schema: A() ? A().jsonSchema(c.args) : { type: 'object', properties: {} },
-        destructive: () => ask(c), confirmText: () => confirmText(c), label: (a) => label(c, a), readOnly: !!c.readOnly, sends: !!c.sends,
+        destructive: () => ask(c), kind: () => kindFor(c), confirmText: () => confirmText(c), label: (a) => label(c, a), readOnly: !!c.readOnly, sends: !!c.sends,
         confirmTitle: c.sends ? () => `Send a copy to ${env.who || 'the AI provider'}?` : undefined,
         run: (a, e) => exec(cmd, c, a, Object.assign({}, env, e)) });
     }
@@ -90,7 +94,7 @@
         run: () => listAll(cmd).filter(usable).filter((c) => !c.hidden || c.args).map((c) => (c.args && A() ? { id: c.id, title: c.title, args: A().normalize(c.args).map((p) => `${p.name}: ${A().hint(p)}`) } : { id: c.id, title: c.title, group: c.group || '' })) },
       { name: 'run_command', description: `Run one command of ${where} by its id (ids from list_commands), with optional arguments.`,
         params: { id: { type: 'string', description: 'command id', required: true }, args: { type: 'object', description: 'arguments, when the command takes any' } },
-        destructive: (a) => ask(byId(a.id) || { id: a.id }), confirmText: (a) => confirmText(byId(a.id) || { id: a.id }),
+        destructive: (a) => ask(byId(a.id) || { id: a.id }), kind: (a) => kindFor(byId(a.id) || { id: a.id }), confirmText: (a) => confirmText(byId(a.id) || { id: a.id }),
         confirmTitle: (a) => { const c = byId(a.id); return c && c.sends ? `Send a copy to ${env.who || 'the AI provider'}?` : 'Allow this action?'; },
         label: (a) => { const c = byId(a.id); return c ? label(c, a.args) : String(a.id); },
         cmdIdOf: (a) => a.id,
@@ -121,9 +125,9 @@
   const neutral = (t) => ({ name: t.name, description: t.description, inputSchema: inputSchema(t), cmdId: t.cmdId || null,
     readOnly: READ_ONLY.has(t.name) || !!t.readOnly, untrusted: UNTRUSTED.has(t.name) || !!t.readOnly || !!t.sends, sends: !!t.sends,
     mayDestroy: /^(run|app)_command$/.test(t.name) || (!t.sends && (typeof t.destructive === 'function' ? !!t.destructive({}) : !!t.destructive)),
-    confirmTitle: t.confirmTitle, destructive: t.destructive || false, confirmText: t.confirmText, run: t.run });
+    confirmTitle: t.confirmTitle, destructive: t.destructive || false, kind: t.kind || null, permission: t.permission || null, confirmText: t.confirmText, run: t.run });
   /** The command tools, provider-neutral. */
   const specs = (cmd, env = {}) => build(cmd, env).map(neutral);
 
-  K.cmdTools = { build, definitions, specs, neutral, inputSchema, isDestructive, label, toolName };
+  K.cmdTools = { build, definitions, specs, neutral, inputSchema, isDestructive, kindOf, label, toolName };
 })();

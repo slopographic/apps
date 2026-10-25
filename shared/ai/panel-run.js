@@ -15,6 +15,32 @@
   const stepText = (tool, call) => { try { return tool && tool.label ? tool.label(call.arguments || {}) : call.name; } catch (e) { return call.name; } };
   const ICON = { run: '…', ok: '✓', bad: '✗', stop: '■' };
 
+  /** A step's result as a short line: what the app said, without repeating the step's own label; nothing for data. */
+  function result(m) {
+    let t = String(m.content || '').trim();
+    if (/^[[{]/.test(t)) return '';
+    const done = `Done: ${m.label || ''}.`;
+    if (m.label && t.startsWith(done)) t = t.slice(done.length).trim();
+    else t = t.replace(/^Done:\s*/, '');
+    return t.length > 160 ? t.slice(0, 157) + '…' : t;
+  }
+  /** All messages as DOM; a run of more than 3 steps folds into "9 steps ▸" (open it to see each one). Empty assistant
+   * turns (a reply that only called tools) draw nothing. */
+  P.viewAll = function (list) {
+    const out = [];
+    for (let i = 0; i < list.length;) {
+      const m = list[i];
+      if (m.role === 'assistant' && !m.note && !String(m.display != null ? m.display : m.content || '').trim()) { i++; continue; }
+      if (m.role !== 'tool') { out.push(P.view(m)); i++; continue; }
+      const run = [];
+      for (; i < list.length && (list[i].role === 'tool' || (list[i].role === 'assistant' && !list[i].note && !String(list[i].display != null ? list[i].display : list[i].content || '').trim())); i++) if (list[i].role === 'tool') run.push(list[i]);
+      if (run.length <= 3) { run.forEach((x) => out.push(P.view(x))); continue; }
+      const bad = run.filter((x) => !x.ok).length;
+      out.push(h('details', { class: 'sap-steps' }, h('summary', null, `${run.length} steps${bad ? `, ${bad} failed` : ' ✓'}`), ...run.map((x) => P.view(x))));
+    }
+    return out;
+  };
+
   /** One message as DOM: a user bubble, an assistant reply (Markdown), or a step. */
   P.view = function (m) {
     if (m.role === 'tool') {
@@ -22,28 +48,46 @@
       return h('div', { class: 'sap-tool sap-step ' + st, title: String(m.content).slice(0, 400) },
         h('span', { class: 'sap-step-i', 'aria-hidden': 'true' }, ICON[st]), h('span', { class: 'sap-step-t' }, m.label || m.name),
         h('span', { class: 'sr-only' }, m.ok ? ' (done)' : ' (failed)'),
-        !m.ok ? h('span', { class: 'sap-step-e' }, String(m.content).replace(/^ERROR:\s*/, '')) : null);
+        !m.ok ? h('span', { class: 'sap-step-e' }, String(m.content).replace(/^ERROR:\s*/, '')) : result(m) ? h('span', { class: 'sap-step-r' }, result(m)) : null,
+        // what was sent to the provider (look_at_file, look_at_canvas): a thumbnail, so the person sees it too
+        ...(m.media || []).filter((x) => /^image\//.test(x.mime)).map((x) => h('img', { class: 'sap-thumb', alt: 'Sent: ' + (x.name || 'picture'), src: `data:${x.mime};base64,${x.data}` })));
     }
-    if (m.usage) return h('div', { class: 'sap-usage' }, m.display);
+    if (m.handoff) return h('div', { class: 'sap-handoff' }, m.display);   // "Opening SlopIsolate…", "Continuing in PhotoSlop with …"
+    if (m.meter) return h('div', { class: 'sap-usage' }, m.display);   // the tokens line (not m.usage: every reply carries its usage)
     const d = h('div', { class: 'sap-msg ' + m.role + (m.error ? ' bad' : '') });
     const text = m.display != null ? m.display : m.content;
     if (m.role === 'assistant' && K.md && !m.error) d.innerHTML = K.md.render(text); else d.textContent = text;
     return d;
   };
 
+  /** A local model good enough for the longer tool list (the operations): one the catalog marks good at tools, 3B or more. */
+  P.capable = function (eng) {
+    try { const m = K.catalog && K.catalog.byId(eng.info().id); return !!m && (m.strengths || []).includes('tools') && m.params >= 3; } catch (e) { return false; }
+  };
+  /** The rule for tasks that use other apps, with the person's setting (handoff.js mode). */
+  function hopRule() {
+    const show = K.handoff && K.handoff.mode() === 'show';
+    return ['Two kinds of work. (1) File in, file out (convert, remove background, watermark, resize, upscale, OCR, transcribe, compress, workflows): run_operation does it on this page (list_operations finds it). (2) Editing that needs an app (layers in PhotoSlop, a timeline in SlopCut, pages in Slop PDF, slides in Slop Slides): open_in_app moves the task to that app in this tab with the files and a full task; the chat comes along and you continue there.',
+      show ? 'The person chose "Show me in each app": move to the app that does each step, also for file jobs, so they can watch.'
+        : 'The person chose "Stay on this page when possible": do file jobs here with run_operation and move only for editing that needs another app.',
+      'If the person says "do it here", stay; if they say "show me", move to each app.'].join(' ');
+  }
   function systemPrompt(tools, eng) {
     const name = P.appName(), cloud = eng && eng.kind === 'cloud';
     const lines = [cloud ? `You are Slop AI, a helpful assistant inside ${name} on slopographic.com, a site of apps that run in the user's browser. The user connected you with their own key. Be brief.`
       : `You are Slop AI, a helpful assistant inside ${name} on slopographic.com. It runs on the user's own device. Be brief.`];
     if (tools.length && cloud) {
       lines.push(`You control ${name} with the tools. Call app_state first when you need to know what is open.`,
-        'Plan the fewest steps and use arguments in the given ranges. Destructive actions and look_at_file ask the user first; if they say no, accept it.',
-        'Files stay on the device: to see a picture or read a file, call look_at_file. After the actions, answer in one short sentence. If a tool fails, say so plainly; do not invent results.');
+        'Plan the fewest steps and use arguments in the given ranges. Some actions (deleting, look_at_file) may ask the user first; if they say no, accept it.',
+        'Files stay on the device: to see a picture or read a file, call look_at_file. After the actions, answer in one short sentence. If a tool fails, say so plainly; do not invent results.',
+        'Be resourceful: build what is asked from the tools you have (layers, shapes, text, gradients, SVG, fills, filters, and generate_image when it is there) instead of saying it cannot be done. After making something visual, check it with look_at_canvas when it is available, and fix what is off.',
+        `Never refuse because ${name} cannot do something. ${hopRule()}`,
+        `The apps on the site:\n${K.appTools.catalog(window.SLOP_APPS || [])}`);
     } else if (tools.length) {
       lines.push(`You control ${name} with the tools below. Call app_state first when you need to know what is open.`,
         'Plan the fewest steps. Use the tools that match the request directly, with arguments in the given ranges.',
         'You may put several <tool_call> lines in one reply; they run in order. After the results, answer in one short sentence.',
-        'If a tool fails, say so plainly; do not invent results.');
+        'If a tool fails, say so plainly; do not invent results.', hopRule());
     }
     return lines.join(' ');
   }
@@ -53,7 +97,11 @@
     P.sendBtn.classList.toggle('stop', !!on);
     P.sendBtn.setAttribute('aria-label', on ? 'Stop' : 'Send');
   }
-  P.stop = function () { if (P.busy) P.busy.abort(); };
+  P.stop = function () {
+    if (!P.busy) return;
+    P.busy.abort();
+    if (P.chain && K.handoff) { K.handoff.cancel(P.chain.id); P.chain = null; P.stoppedChain = true; }   // Stop ends the whole task, every app
+  };
 
   P.send = async function (text) {
     text = text != null ? String(text) : P.input.value.trim();
@@ -68,9 +116,26 @@
     P.undoBtn.hidden = true; P.rollback = null;
     P.render();
     const cmd = window.SlopCmd;
+    let handed = null;
+    const done = [];   // this request's steps so far: they go along when the task moves
+    /** The task moves to another app in this tab (handoff.js): the conversation, the task and the chain are saved in
+     * sessionStorage, this run stops, and go() navigates (SlopOuttake's act, or the app's address). */
+    const hop = async (rec, go) => {
+      const chain = P.chain || { id: Date.now().toString(36), hop: 0 };
+      if (chain.hop >= K.handoff.MAX_HOPS) throw new Error(`This task already moved through ${chain.hop} apps; it stops here.`);
+      handed = { display: `Opening ${rec.app.name}…`, note: true, handoff: true };
+      K.handoff.save({ to: rec.app.id, toName: rec.app.name, from: P.appId(), fromName: P.appName(), task: rec.task, line: rec.line, chain: { id: chain.id, hop: chain.hop + 1 },
+        messages: K.handoff.carry([...P.messages, ...done, { role: 'assistant', display: handed.display }]) });
+      P.list.append(P.view(Object.assign({ role: 'assistant' }, handed)));
+      if (P.busy) P.busy.abort();   // the next app's page goes on from here
+      await go();
+      return `Moving to ${rec.app.name}; the task continues there.`;
+    };
+    const handoff = ({ app, task, url }) => hop({ app, task, line: `Continuing in ${app.name}.` }, () => { location.href = url; });
     const control = P.toolsBox.checked && !!cmd;
     if (control && cmd.prepare) { try { await cmd.prepare(); } catch (e) { console.warn('SlopCmd.prepare:', e); } }
-    const tools = P.toolsBox.checked ? K.appTools.build({ cmd, appId: P.appId(), confirm: confirmFn, look: cloud, ops: cloud, who: cloud ? eng.provider.who : '' }) : [];
+    const ops = cloud || eng.kind === 'fake' || P.capable(eng);   // file operations: own-key models, the test engine, capable local models
+    const tools = P.toolsBox.checked ? K.appTools.build({ cmd, appId: P.appId(), appName: P.appName(), confirm: confirmFn, look: cloud, ops, who: cloud ? eng.provider.who : '', handoff, hop }) : [];
     let rollback = null;
     try { rollback = control && cmd.checkpoint ? cmd.checkpoint() : null; } catch (e) { rollback = null; }
     let changed = 0;
@@ -78,11 +143,14 @@
     live.append(reply); P.list.append(live);
     P.busy = new AbortController(); setBusy(true);
     let pieces = '';
-    const steps = new Map(), spent = [];
+    const steps = new Map(), spent = [], Perm = window.SlopAIPermissions;
+    // approvals: the one permission module (mode, remembered rules, this visit, this request)
+    const permit = (req) => Perm.ask(Object.assign({ app: P.appId(), appName: P.appName(), who: cloud ? eng.provider.who : '' }, req));
+    Perm.startRequest();
     try {
       const turns = cloud ? cs.steps || 12 : MAX_STEPS;
       const res = await K.tools.run(eng, [{ role: 'system', content: systemPrompt(tools, eng) }, ...P.messages.filter((m) => !m.error && !m.note)], {
-        tools, env: { confirm: confirmFn }, maxSteps: tools.length ? turns : 1, maxCalls: cloud ? Math.max(MAX_CALLS, turns * 3) : MAX_CALLS, temperature: 0.3, max_tokens: 640, signal: P.busy.signal,
+        tools, env: { confirm: confirmFn, permit }, maxSteps: tools.length ? turns : 1, maxCalls: cloud ? Math.max(MAX_CALLS, turns * 3) : MAX_CALLS, temperature: 0.3, max_tokens: 640, signal: P.busy.signal,
         onUsage: cloud ? (u) => { spent.push(u); C.meter.add(u); return C.meter.over(cs.cap) ? C.meter.capText(cs.cap) : null; } : null,
         onDelta: (t) => { pieces += t; reply.innerHTML = K.md.render(pieces.replace(/<tool_call>[\s\S]*?(<\/tool_call>|$)/g, '').trim()); P.list.scrollTop = P.list.scrollHeight; },
         onTool: ({ phase, call, tool, res: r }) => {
@@ -93,7 +161,9 @@
           } else {
             if (r.ok && tool && (tool.cmdId || (tool.cmdIdOf && tool.cmdIdOf(call.arguments || {})))) changed++;
             const row = steps.get(call);
-            if (row) row.replaceWith(P.view({ role: 'tool', ok: r.ok, name: call.name, label: stepText(tool, call), content: r.ok ? r.result : 'ERROR: ' + r.error }));
+            const msg = { role: 'tool', ok: r.ok, name: call.name, label: stepText(tool, call), content: r.ok ? r.result : 'ERROR: ' + r.error, media: r.media };
+            done.push(msg);
+            if (row) row.replaceWith(P.view(msg));
           }
           P.list.scrollTop = P.list.scrollHeight;
         },
@@ -101,15 +171,18 @@
       // the steps keep their labels in the history (the model sees only name and result)
       for (const m of res.messages) if (m.role === 'tool') { const t = tools.find((x) => x.name === m.name); m.label = stepText(t, { name: m.name, arguments: m.args }); }
       P.messages.push(...res.messages);
-      if (P.busy.signal.aborted) P.messages.push({ role: 'assistant', content: '', display: 'Stopped. The steps above that show ✓ were done.', note: true });
+      if (P.busy.signal.aborted && !handed) P.messages.push({ role: 'assistant', content: '', display: P.stoppedChain ? 'Stopped the task, in every app. The steps above that show ✓ were done.' : 'Stopped. The steps above that show ✓ were done.', note: true });
+      P.stoppedChain = false;
     } catch (e) {
       const msg = cloud ? K.cloud.redact((e && e.message) || e) : (e && e.message) || e;
       P.messages.push({ role: 'assistant', content: '', display: (cloud && e && e.kind ? '' : 'Something went wrong: ') + msg, error: true });
     }
+    if (handed) P.messages.push(Object.assign({ role: 'assistant', content: '' }, handed));
     if (cloud && spent.length) {
-      const u = spent.reduce((a, x) => ({ input: a.input + (x.input || 0), output: a.output + (x.output || 0), cost: a.cost == null || x.cost == null ? null : a.cost + x.cost }), { input: 0, output: 0, cost: 0 });
-      P.messages.push({ role: 'assistant', content: '', display: `${C.meter.line(u)} · ${C.meter.totalLine(cs.cap)}`, note: true, usage: true });
+      const u = spent.reduce((a, x) => ({ input: a.input + (x.input || 0), output: a.output + (x.output || 0), cacheRead: a.cacheRead + (x.cacheRead || 0), cost: a.cost == null || x.cost == null ? null : a.cost + x.cost }), { input: 0, output: 0, cacheRead: 0, cost: 0 });
+      P.messages.push({ role: 'assistant', content: '', display: `${C.meter.line(u)} · ${C.meter.totalLine(cs.cap)}`, note: true, meter: true });
     }
+    Perm.endRequest();   // "Allow for this request" ends with the reply
     P.busy = null; setBusy(false);
     P.rollback = changed && typeof rollback === 'function' ? rollback : null;
     P.render();
@@ -119,7 +192,7 @@
 
   P.undoAll = function () {
     const r = P.rollback;
-    P.rollback = null; P.undoBtn.hidden = true;
+    P.rollback = null; P.undoBtn.hidden = true; P.undoBtn.textContent = '↶ Undo all AI changes';
     if (!r) return;
     let ok = true;
     try { ok = r() !== false; } catch (e) { ok = false; console.warn(e); }

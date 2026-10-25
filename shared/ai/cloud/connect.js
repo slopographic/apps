@@ -3,7 +3,8 @@
  * SlopAIKit.cloud.connect = { render(box, { onReady(engine) }), restore() → Promise<engine|null>, engineFor(id, s) }.
  * The key field is a password field with autocomplete off; the key goes to keys.js (this tab, or this device when
  * "Remember on this device" is on) and from there only into requests to that provider. Forget key removes it.
- * restore(): the provider chosen last, used again on the next page when its key is still here (or none is needed).
+ * restore(appId): the provider chosen last (or the model last picked in this app), used again on the next page when its
+ * key is still here (or none is needed).
  * The provider is chosen in the searchable picker (cloud/pick.js), which drives a hidden select (the form's one value);
  * a provider's own fields (endpoint id, account id…) come from its address template; a server on this computer gets
  * "Find servers" and a diagnosis on Test connection (cloud/local.js, local-ui.js). A picture-only provider just keeps
@@ -22,8 +23,11 @@
     const f = (fetched.get(id) || []).find((m) => m.id === model);
     return new K.CloudEngine({ provider: p, model, base: C.baseFor(p, ps), key: () => C.keys.get(id), modelName: (f && f.name) || ps.modelName || '', price: C.price(p, model, f) || ps.price || null });
   }
-  async function restore() {
-    const s = C.keys.settings(), p = s.active && C.byId(s.active);
+  /** appId: the model last picked in this app (model-menu.js) wins when its provider is still connected. */
+  async function restore(appId) {
+    const s = C.keys.settings(), last = appId && s.lastByApp && s.lastByApp[appId], lp = last && C.byId(last.provider);
+    if (lp && (!lp.needsKey || (await C.keys.get(lp.id)))) { s.active = lp.id; s.providers = Object.assign({}, s.providers, { [lp.id]: Object.assign({}, s.providers[lp.id], { model: last.model }) }); }
+    const p = s.active && C.byId(s.active);
     if (!p) return null;
     if (p.needsKey && !(await C.keys.get(p.id))) return null;
     const eng = engineFor(p.id, s);
@@ -74,14 +78,15 @@
     let shown = Promise.resolve();
     const reshow = () => (shown = shown.then(show, show));
     async function show() {
+      say('');
       const ps = (C.keys.settings().providers || {})[p.id] || {};
       sel.value = p.id; pp.sync(); base.value = ps.base || p.base || ''; base.placeholder = p.base || 'http://localhost:8080/v1 or https://…/v1';
       fl = C.pick.fields(p, ps.fields); fieldBox.replaceChildren(fl.node); C.localUI.show(diag, null);
       baseRow.hidden = !p.editBase; finder.hidden = !p.editBase; keyRow.hidden = remRow.hidden = hint.hidden = forget.hidden = !(p.needsKey || p.keyOptional);
       for (const n of chatOnly) n.hidden = !p.chat;
       key.value = ''; key.placeholder = p.keyHint || 'paste the key (if the service needs one)';
-      remember.checked = await C.keys.remembered(kid());
-      const has = !!(await C.keys.get(kid()));
+      const rem = await C.keys.remembered(kid()), has = !!(await C.keys.get(kid()));
+      remember.checked = rem;
       if (has) key.placeholder = remember.checked ? 'Key saved on this device' : 'Key kept in this tab';
       forget.disabled = !has;
       use.textContent = p.chat ? 'Use ' + p.short : 'Save key';
@@ -93,7 +98,7 @@
       if (p.docs) help.append(' ', h('a', { href: p.docs, target: '_blank', rel: 'noopener' }, 'Docs'));
       local.textContent = ''; local.hidden = !p.editBase;
       if (p.editBase) local.append(h('summary', null, p.local ? `How to connect ${p.short}` : 'How to connect a local server'), ...C.localHelp(p).map((t) => h('p', { class: 'sap-dim' }, t)));
-      say(''); fillModels();
+      fillModels();
     }
     const cfgBase = () => (p.editBase ? base.value.trim() : C.resolve(p, fl.values()).url);
     /** What is missing or wrong in the address before anything is sent: '' when it is fine. */
@@ -143,6 +148,7 @@
         st.active = p.id; st.cap = Math.max(0, Math.round(Number(cap.value) || 0)); st.steps = Math.min(30, Math.max(1, Math.round(Number(steps.value) || 12)));
         st.providers = Object.assign({}, st.providers, { [p.id]: { model: model.value, modelName: f ? f.name : (p.models.find((m) => m.id === model.value) || {}).name, base: p.editBase ? cfgBase() : undefined, fields: p.fields ? fl.values() : undefined, price: f && f.price ? f.price : undefined } });
         C.pick.remember(p, model.value);
+        if (o.appId) st.lastByApp = Object.assign({}, st.lastByApp, { [o.appId]: { provider: p.id, model: model.value } });
         C.keys.save(st);
         key.value = '';
         const eng = engineFor(p.id); await eng.load();

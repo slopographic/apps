@@ -7,8 +7,9 @@
  *   imageTools.deliver(images, { target, name, sink, hub }) → the sentence for the model and the panel
  * Where a picture goes: the page's sink (window.SlopImageSink: PhotoSlop puts it in a new layer or a new document),
  * else Slop Drive (from 'ai'), where every app opens it through the intake (open_app with file).
- * Asking: each call asks first ("Spend on image generation?") with the provider, the model, the size and the price per
- * picture when it is known; permission kind 'spend-image' for the shared permission system. The prompt (and for an
+ * Asking: through the one permission module (shared/ai/permissions.js, kind 'spend-image', never covered by "allow app
+ * changes"): the question names the provider, the model, the size and the price per picture when it is known; before()
+ * picks the provider first, so the question can say who makes it. The prompt (and for an
  * edit, a copy of the picture) goes to the provider named there, whose terms apply. */
 (function () {
   'use strict';
@@ -81,8 +82,9 @@
       params: Object.assign({ prompt: { type: 'string', required: true, description: edit ? 'what to change' : 'what the picture shows' } }, edit ? { file: { type: 'string', description: 'Slop Drive picture, or "layer"' } } : { aspect: { type: 'string', description: G.ASPECTS.join(' | ') } }, { target: { type: 'string', description: TARGETS.join(' | ') } }),
       description: edit ? `Change a picture with an image model at the person’s own provider (prompt + picture → picture; a selection limits the change). ${where}. The person is asked first and sees the price.`
         : `Make a new picture (photo, illustration, painting …) from a prompt with an image model at the person’s own provider. You cannot draw pictures yourself: use this. ${where}. The person is asked first and sees the price.`,
-      // It spends money at the provider, so run() asks every time, once it knows who makes the picture and the price
-      // (a key added after the panel opened counts too). The permission system can read permission / confirmText.
+      // It spends money at the provider: tools.dispatch asks through the permission module (kind 'spend-image') after
+      // before() has found the provider (a key added after the panel opened counts too), so the price can be shown.
+      before: async () => { if (!G.current || !G.byId(G.current.provider)) await G.choose(); },
       confirmTitle: () => PERMISSION.title + '?',
       confirmText: (a) => confirmText(request(a, edit), edit ? 'a copy of the picture (at most 1536 px)' : ''),
       label: (a) => `${edit ? 'Edit picture' : 'Make a picture'}: ${short(a.prompt, 40)}`,
@@ -90,8 +92,6 @@
         if (!G.current || !G.byId(G.current.provider)) await G.choose();
         const r = request(a, edit);
         if (!r.provider) throw new Error(G.noneText());
-        const ask = runEnv.confirm || env.confirm;
-        if (!ask || !(await ask(PERMISSION.title + '?', confirmText(r, edit ? 'a copy of the picture (at most 1536 px)' : '')))) throw new Error('The person said no: no picture was made and nothing was spent.');
         const m = await make(r, { file: a.file, target: a.target, sink, hub: env.hub !== undefined ? env.hub : window.SlopHub, env: Object.assign({}, env, runEnv) });
         return m.text;
       },

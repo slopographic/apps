@@ -149,7 +149,7 @@
     } catch (err) { return { ok: false, error: String((err && err.message) || err), args: v.args }; }
   }
   const ensureArgs = () => (window.SlopCmdArgs || !BASE ? Promise.resolve() : loadPart('args'));
-  /** What an app shares with the assistant: provide({ state: () => json, checkpoint: () => rollbackFn, prepare: () => Promise }). */
+  /** What an app shares with the assistant: provide({ state, checkpoint: () => rollbackFn, prepare, snapshot: () => Blob|canvas (look_at_canvas) }). */
   const prov = {}, provide = (o) => { Object.assign(prov, o || {}); };
   let prepP = null;
   function trimRecents() { const ids = Object.keys(recents); if (ids.length > 60) ids.sort((a, b) => recents[a][1] - recents[b][1]).slice(0, ids.length - 60).forEach((i) => delete recents[i]); }
@@ -278,6 +278,7 @@
     exec, provide,
     state: () => { try { return prov.state ? prov.state() : null; } catch (e) { return { error: e.message }; } },
     checkpoint: () => (prov.checkpoint ? prov.checkpoint() : null),
+    snapshot: () => (prov.snapshot ? prov.snapshot() : null),
     prepare: () => (prepP = prepP || Promise.resolve(prov.prepare ? prov.prepare() : null).catch((e) => { prepP = null; throw e; })),
     keyFor: (id) => { const b = bindings(id); return b.length ? format(b[0]) : ''; },
     keysFor: (id) => bindings(id).map((b) => format(b)),

@@ -137,8 +137,55 @@ the first request to a provider, the notice; cloud runs get `look`, `ops` and up
 1–30); after each reply a line with its tokens and this visit's total; the cap stops the loop after the turn that reaches
 it and refuses new requests; Stop aborts the request in flight. A key-based engine is never shared with other tabs.
 
+## Permissions, handoff, model menu (2026-10, wip/ai-permissions)
+- **One permission module**, `permissions.js` (`window.SlopAIPermissions`, also CommonJS) + `permissions-ui.js` (the
+  question and the settings view). `tools.dispatch` asks through `env.permit(req)` (the panel passes
+  `SlopAIPermissions.ask`); a tool says which approval it needs with `kind(args)`: `change` (marked app changes: crop,
+  flatten, merge…), `delete` (delete, clear, close, overwrite…, `kindOf(text)` is the one word rule), `send` (a copy of a
+  file or a picture of the work goes to the provider: `look_at_file`, `look_at_canvas`). Modes: Ask each time (default),
+  Allow app changes (never covers `send` or `delete`), Allow everything (with a warning). Answers: Allow once · for this
+  request (ends with the reply: `startRequest`/`endRequest`) · for this visit (sessionStorage) · Always in this app (a rule,
+  listed in ⚙ AI permissions with Remove) · Deny. Reading and ordinary edits never ask; Undo all works in every mode.
+  WebMCP (shared/agent/) should call `SlopAIPermissions.ask({ kind, app, appName, action, detail })` the same way.
+  The Slop AI app page (`ai/js/ui/chat.js`) still uses its plain confirm.
+- **Prompt caching**: Anthropic requests carry a cache breakpoint on the system prompt (tools come first, so they are
+  cached too) plus top-level automatic caching; usage reports `cacheRead`/`cacheWrite`, the cost prices them (reads
+  0.1× or the listed price, writes 1.25×). OpenAI gets `prompt_cache_key`; Gemini and OpenRouter cache on their own and
+  report cached tokens. Measured live (Haiku 5.5, 5 steps, 34 tools): 42,898 tokens either way; cost $0.0044 → $0.0014
+  (Sonnet 5.5 prices: $0.088 → $0.028); `tests/node/ai-permissions.test.mjs` keeps those numbers.
+- **The site in the prompt**: own-key models get `appTools.catalog(SLOP_APPS)` (each app: what it is, what it makes and
+  opens), "be resourceful" and "never refuse because this app cannot: run_operation here, or open_app with a task".
+- **One task through several apps** (`handoff.js`), in this tab: file in → file out jobs run on any page
+  (`run_operation`); editing that needs an app moves there with `open_in_app({ app, files, task })`, which sends the files
+  the way "Open in…" does (SlopOuttake items now carry `to`; an app's own handover first, e.g. SlopIsolate → PhotoSlop as
+  a layer with its mask; `SlopHub.sameTab` makes `sendTo` stay in this tab). `open_app({ id, task })` moves without files.
+  The record (conversation, task, the line "Continuing in PhotoSlop with photo.png.", chain id and hop) is in
+  sessionStorage; on arrival the shell header opens the panel, which shows the line and sends the task as soon as a model
+  is there. Stop ends the chain in every app (`cancel`); at most 8 hops. Setting (⚙): "When a task uses other apps" —
+  Stay on this page when possible (default) / Show me in each app; the prompt honours "do it here" / "show me".
+  `tests/ai/chain.test.html`: Drive → PhotoSlop (stay) and Drive → SlopIsolate → PhotoSlop → export (show), real pages.
+- **look_at_canvas** (`filetools.js`): `SlopCmd.snapshot()` when the app provides one (`SlopCmd.provide({ snapshot })`),
+  else the file the app hands to Convert; scaled to 1024 px, kind `send`, a thumbnail in the chat.
+- **Model menu** (`model-menu.js`): the header's model name is a SlopMenuButton: the connected providers' models (hint
+  per model), AI settings…, AI permissions…, Disconnect. A pick is remembered for that app (`lastByApp`). With a
+  provider in use, the full model choice shows it first and the local models under "Models on this device".
+- Steps show the app's answer as a dimmed line; more than 3 steps in a row fold into "9 steps ✓" (open to see them).
+
+## GPUs that cannot compile a model (2026-10)
+- WebLLM is 0.2.86 (model libraries `v0_2_86/base`, rebuilt by MLC with current compilers); `vendor/web-llm/README.md`.
+- `WebLLMEngine.load`: a shader or pipeline validation error on the f16 build ("Invalid ShaderModule … index_kernel")
+  loads the model's q4f32 build once, and `catalog.markF16Broken(adapter)` remembers it (localStorage
+  `slop-ai.f16-broken`, by vendor/architecture/description), so `catalog.idFor` and later loads go straight to f32. A
+  failure carries `err.tried` and `err.shader`; the model choice then shows `gpu-help.js`: what was tried, browser and
+  GPU (sysinfo), Copy details, Try a smaller model, Use your own AI account. `tests/ai/shader.test.html`.
+- Real WebGPU: `tools/webgpu-check.mjs` + `.github/workflows/webgpu.yml` (nightly, by hand, on WebLLM changes): Chromium
+  with WebGPU on SwiftShader (`--enable-unsafe-webgpu --enable-features=Vulkan --use-webgpu-adapter=swiftshader`, page on
+  http://localhost) loads Qwen2.5 0.5B q4f32 and generates 8 tokens (about 3.5 minutes with a cold cache; the model is
+  kept in the Actions cache). SwiftShader has no shader-f16, so the q4f16 build is reported as not testable there. The
+  tokens SwiftShader produces are gibberish: the check is that every shader compiles and generation runs.
+
 Pictures (`generate_image`, `edit_image`, PhotoSlop's Generate Image…): `imagegen/HANDOFF.md`. They join the one tool
-list through `K.toolSets` (a function env → tools that `apptools.js build` adds), loaded by the panel as `imagegen/index`.
+list through `K.toolSets` (a function env → tools that `apptools.js build` adds), loaded by the panel as `imagegen/index`. They ask through the permission module as kind `spend-image`.
 
 ## Tests
 `node tests/run.mjs ai` covers all of this; see `ai/HANDOFF.md`. Own keys: `tests/node/ai-cloud-formats.test.mjs`

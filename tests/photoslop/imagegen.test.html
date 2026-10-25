@@ -133,7 +133,7 @@
       const G = win.SlopAIKit.imageGen;
       G.save({ provider: 'openai', models: { openai: 'gpt-image-2.5-flare' } }); await G.choose();
       W.newDocument(400, 300, '#ffffff', 'Panel');
-      const asked = []; win.SlopUI.confirm = async (t, m) => { asked.push(t + ' | ' + m); return true; };
+      const asked = []; win.SlopAIPermissions.prompt = async (r) => { asked.push(r.title + ' | ' + r.detail); return 'once'; };   // the permission question
       F.color = '#ff00ff'; F.size = [256, 256];
       cu.replies.push(CU.anthropic.call('generate_image', { prompt: 'a magenta square', aspect: '1:1' }), CU.anthropic.text('Added it as a new layer.'));
       await win.SlopAIPanel.send('make me a magenta square picture');
@@ -141,7 +141,7 @@
       expect(tools).toContain('generate_image'); expect(tools).toContain('edit_image');
       expect(asked.length).toBe(1);
       expect(asked[0]).toMatch(/^Spend on image generation\? \| Make 1 picture with OpenAI \(GPT Image 2\.5 Flare, 1024 × 1024 px\)/);
-      const steps = [...win.document.querySelectorAll('.sap-step')].map((x) => x.textContent);
+      const steps = [...win.document.querySelectorAll('.sap-step')].map((x) => [...x.childNodes].filter((n) => !n.classList || !n.classList.contains('sap-step-r')).map((n) => n.textContent).join(''));
       expect(steps.pop()).toBe('✓Make a picture: a magenta square (done)');
       const L = layer('AI: a magenta square');
       expect(!!L).toBe(true); expect(px(L, 200, 150).slice(0, 3)).toEqual([255, 0, 255]);
@@ -150,7 +150,7 @@
       // the spending cap: this visit is over it, so the tool refuses before anything is sent
       const C = win.SlopAIKit.cloud; C.keys.save(Object.assign(C.keys.settings(), { cap: 100 }));
       const sent = F.calls.length, gen = win.SlopAIKit.imageTools.build({}).find((t) => t.name === 'generate_image');
-      let err = ''; try { await gen.run({ prompt: 'another' }, { confirm: async () => true }); } catch (e) { err = e.message; }
+      let err = ''; try { await gen.run({ prompt: 'another' }); } catch (e) { err = e.message; }
       expect(err).toMatch(/spending cap of 100 tokens/); expect(F.calls.length).toBe(sent);
       C.keys.save(Object.assign(C.keys.settings(), { cap: 0 }));
     }, { timeout: 60000 });

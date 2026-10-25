@@ -12,7 +12,7 @@
   //   shared/ai/imagegen/core.js, shared/ai/apptools.js, shared/ai/panel.js
   const { describe, it, expect, waitFor } = SlopTest;
   let P, cu, F;
-  const steps = () => [...P.document.querySelectorAll('.sap-step')].map((s) => s.textContent);
+  const steps = () => [...P.document.querySelectorAll('.sap-step')].map((s) => [...s.childNodes].filter((n) => !n.classList || !n.classList.contains('sap-step-r')).map((n) => n.textContent).join(''));   // the call, without its result line
   const lastResult = () => cu.requests.filter((r) => /\/v1\/messages$/.test(r.url)).pop().body.messages.pop().content[0];
   async function wipe() {
     for (const k of Object.keys(localStorage)) if (/^slop-ai\.(cloud|imagegen)|^slop-firstrun:ai-cloud:/.test(k)) localStorage.removeItem(k);
@@ -33,7 +33,7 @@
       await eng.load(); await P.SlopAIPanel.use(eng);
       expect(P.SlopAIKit.imageGen.available.map((p) => p.id)).toEqual(['openrouter']);
       expect(P.SlopImageSink).toBe(undefined);
-      const asked = []; let answer = false; P.SlopUI.confirm = async (t, m) => { asked.push(t + ' | ' + m); return answer; };
+      const asked = []; let answer = false; P.SlopAIPermissions.prompt = async (r) => { asked.push(r.title + ' | ' + r.detail); return answer ? 'once' : 'deny'; };   // the permission question
       // no: nothing goes to the picture provider
       cu.replies.push(CU.anthropic.call('generate_image', { prompt: 'a lighthouse at dusk' }), CU.anthropic.text('OK, no picture.'));
       await P.SlopAIPanel.send('make a picture of a lighthouse');

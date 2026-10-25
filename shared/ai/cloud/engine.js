@@ -5,7 +5,7 @@
  *   load() → nothing to download; marks it ready      info() → { kind: 'cloud', id, name, provider, who, loaded }
  *   chat(messages, { tools, signal, maxTokens }) → the stream: { type: 'delta', text } … then { type: 'done', text, raw,
  *       toolCalls: [{ id, name, arguments }], native (the provider's own reply, sent back unchanged next turn),
- *       usage: { tokens, prompt, input, output, cost ($ or null), ms, ttft, tps }, stop ('refusal' | 'length' | …), aborted }
+ *       usage: { tokens, prompt, input, output, cacheRead, cacheWrite, cost ($ or null), ms, ttft, tps }, stop ('refusal' | 'length' | …), aborted }
  * Tool calling is NATIVE: each tool goes to the provider as JSON Schema (cmdTools.inputSchema, the one schema maker) and
  * its calls come back structured, never parsed out of text. Temperature and the small max_tokens the panel gives local
  * models are not passed on (several providers refuse sampling settings; thinking models need room). */
@@ -70,7 +70,7 @@
         }
         const r = parse && !aborted ? parse.done() : { text: streamed, calls: [], native: null, usage: { input: 0, output: 0 }, stop: 'aborted' };
         const end = now(), genMs = Math.max(1, end - (first || t0));
-        const usage = { input: r.usage.input || 0, output: r.usage.output || 0 };
+        const usage = { input: r.usage.input || 0, output: r.usage.output || 0, cacheRead: r.usage.cacheRead || 0, cacheWrite: r.usage.cacheWrite || 0 };
         usage.tokens = usage.output; usage.prompt = usage.input; usage.cost = C.cost(usage, self.price);
         usage.ms = Math.round(end - t0); usage.ttft = Math.round((first || end) - t0); usage.tps = Math.round((usage.output / (genMs / 1000)) * 10) / 10;
         let text = r.text;

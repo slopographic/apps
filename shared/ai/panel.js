@@ -23,13 +23,23 @@
   const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = base + 'panel.css'; document.head.append(css);
   const add = (src, test) => new Promise((res, rej) => { if (test && test()) return res(); const s = document.createElement('script'); s.src = new URL(src + '.js', base).href; s.async = false; s.onload = res; s.onerror = () => rej(new Error('load ' + src)); document.head.append(s); });
   const kit = Promise.all([add('slopai', () => window.SlopAI), add('../commands/args', () => window.SlopCmdArgs), add('../ui/sheet', () => window.SlopSheet), add('../ui/resize-panel', () => window.SlopResizePanel)])
-    .then(() => window.SlopAI.loaded).then(() => K.load(['apptools', 'cmdtools', 'filetools', 'optools', 'md', 'catalog', 'picker', 'panel-run', 'imagegen/index'])).then(() => K.imageGenReady && K.imageGenReady.catch(() => null))
-    .then(() => restoreCloud());
+    .then(() => window.SlopAI.loaded).then(() => K.load(['permissions', 'permissions-ui', 'apptools', 'cmdtools', 'filetools', 'optools', 'handoff', 'md', 'catalog', 'picker', 'panel-run', 'model-menu', '../ui/menubutton', 'imagegen/index'])).then(() => K.imageGenReady && K.imageGenReady.catch(() => null))
+    .then(() => takeHandoff()).then(() => restoreCloud()).then(() => { if (P.pending && P.engine()) runPending(); });
+  /** A request handed over from another app (handoff.js): its conversation, a line saying so, and its task, sent as soon
+   * as a model is there. */
+  function takeHandoff() {
+    const ho = K.handoff && K.handoff.take(appId());
+    if (!ho) return;
+    P.messages.push(...(ho.messages || []), { role: 'assistant', content: '', display: ho.line || `Continued from ${ho.fromName || 'another app'}.`, note: true, handoff: true });
+    P.pending = ho.task; P.chain = ho.chain || null;
+    if (!root || root.hidden) open();
+  }
+  function runPending() { const t = P.pending; P.pending = null; if (t) setTimeout(() => P.send(t), 0); }
   /** The provider chosen last, when its key is still here (keys.js keeps no key in localStorage, only which one). */
   function restoreCloud() {
     let s = null; try { s = JSON.parse(localStorage.getItem('slop-ai.cloud') || 'null'); } catch (e) { s = null; }
     if (!s || !s.active || P.local) return null;
-    return K.picker.loadCloud().then(() => K.cloud.connect.restore()).then((eng) => { if (eng && !P.local) P.use(eng); }).catch((e) => console.warn('Slop AI: own key', e));
+    return K.picker.loadCloud().then(() => K.cloud.connect.restore(appId())).then((eng) => { if (eng && !P.local) P.use(eng); }).catch((e) => console.warn('Slop AI: own key', e));
   }
 
   const h = (tag, attrs, ...kids) => { const n = document.createElement(tag); for (const k in attrs || {}) { const v = attrs[k]; if (v == null || v === false) continue; if (k === 'class') n.className = v; else if (k.startsWith('on')) n.addEventListener(k.slice(2), v); else n.setAttribute(k, v === true ? '' : v); } for (const c of kids.flat()) if (c != null && c !== false) n.append(c.nodeType ? c : document.createTextNode(c)); return n; };
@@ -48,10 +58,12 @@
     P.sendBtn = h('button', { type: 'button', class: 'sap-send', 'aria-label': 'Send', onclick: () => (P.busy ? P.stop() : P.send()) }, '↑');
     P.input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); if (!P.busy) P.send(); } if (e.key !== 'Escape') e.stopPropagation(); });
     P.list = h('div', { class: 'sap-list', role: 'log', 'aria-live': 'polite' });
-    P.status = h('button', { type: 'button', class: 'sap-status', title: 'Change the model', onclick: () => P.choose() });
+    P.status = h('button', { type: 'button', class: 'sap-status', title: 'Change the model' });   // the quick model menu (model-menu.js)
     P.undoBtn = h('button', { type: 'button', class: 'sap-btn sap-undo', hidden: true, onclick: () => P.undoAll() }, '↶ Undo all AI changes');
     root = h('aside', { class: 'sap ssh-panel', role: 'complementary', 'aria-label': 'Slop AI', hidden: true },
-      h('header', null, h('span', { class: 'sap-logo', html: null }), h('b', null, 'Slop AI'), P.status, h('button', { type: 'button', class: 'sap-x', 'aria-label': 'Close Slop AI', onclick: close }, '×')),
+      h('header', null, h('span', { class: 'sap-logo', html: null }), h('b', null, 'Slop AI'), P.status,
+        h('button', { type: 'button', class: 'sap-gear', title: 'AI permissions', 'aria-label': 'AI permissions', onclick: () => P.settings() }, '⚙'),
+        h('button', { type: 'button', class: 'sap-x', 'aria-label': 'Close Slop AI', onclick: close }, '×')),
       P.list,
       h('div', { class: 'sap-bar' }, h('label', { class: 'sap-tools' }, P.toolsBox, ' Control ' + appName()), P.undoBtn),
       h('div', { class: 'sap-comp' }, P.input, P.sendBtn),
@@ -60,6 +72,7 @@
     host = h('div', { class: 'sap-host' }, root);
     document.body.append(host);
     P.render();
+    kit.then(() => { if (K.modelMenu) K.modelMenu.attach(P); else P.status.addEventListener('click', () => P.choose()); });
   }
   function fab() {
     if (!opts.button || document.querySelector('.sap-fab')) return;
@@ -81,17 +94,27 @@
   /** Forget key: the engine that used it stops here too. */
   P.forgot = (p) => { if (P.local && P.local.kind === 'cloud' && P.local.provider.id === p.id) { P.local = null; P.renderStatus(); } };
   /** The model choice again (the header's model name), over the chat; Back returns to it. */
-  P.choose = function () { P.choosing = !P.choosing; if (P.pickBox) P.pickBox.remove(); P.pickBox = null; P.render(); };
+  P.choose = function () { P.choosing = !P.choosing; P.setting = false; if (P.pickBox) P.pickBox.remove(); P.pickBox = null; P.render(); };
+  /** AI permissions (permissions-ui.js): the mode and the remembered "always allow" rules, over the chat. */
+  P.settings = function () { P.setting = !P.setting; P.choosing = false; P.pickBox = null; P.render(); };
   P.render = function () {
     if (!P.list) return;
     P.renderStatus();
     const picking = ((!P.messages.length && !P.engine()) || P.choosing) && K.picker;
     if (picking && P.pickBox && P.pickBox.isConnected) return;   // keep the model choice (and a download in progress) as it is
     P.list.textContent = ''; P.pickBox = null;
+    if (P.undoBtn) P.undoBtn.hidden = !P.rollback;   // the button follows what can still be undone
+    if (P.setting && window.SlopAIPermissions && SlopAIPermissions.renderSettings) {
+      const box = h('div', { class: 'sap-empty sap-settings' });
+      P.list.append(h('button', { type: 'button', class: 'sap-btn sap-back', onclick: () => P.settings() }, '← Back to the chat'), box);
+      SlopAIPermissions.renderSettings(box, { app: appId(), appName: appName() });
+      if (K.handoff) K.handoff.renderSetting(box);
+      return;
+    }
     if (P.choosing && K.picker) {
       const box = P.pickBox = h('div', { class: 'sap-empty' });
       P.list.append(h('button', { type: 'button', class: 'sap-btn sap-back', onclick: () => P.choose() }, '← Back to the chat'), box);
-      K.picker.render(box, { appName: appName(), cloudOpen: true, onReady: (eng) => { P.choosing = false; P.use(eng); }, onForget: P.forgot });
+      K.picker.render(box, { appName: appName(), appId: appId(), cloudOpen: true, onReady: (eng) => { P.choosing = false; P.use(eng); }, onForget: P.forgot });
       return;
     }
     if (!P.messages.length) {
@@ -99,10 +122,11 @@
       else if (picking) {
         const box = P.pickBox = h('div', { class: 'sap-empty' });
         P.list.append(box);
-        K.picker.render(box, { appName: appName(), onReady: (eng) => P.use(eng), onForget: P.forgot });
+        K.picker.render(box, { appName: appName(), appId: appId(), onReady: (eng) => P.use(eng), onForget: P.forgot });
       } else P.list.append(h('div', { class: 'sap-empty' }, 'Loading…'));
     }
-    for (const m of P.messages) P.list.append(P.view ? P.view(m) : h('div', { class: 'sap-msg ' + m.role }, m.display != null ? m.display : m.content));
+    if (P.viewAll) P.list.append(...P.viewAll(P.messages));
+    else for (const m of P.messages) P.list.append(h('div', { class: 'sap-msg ' + m.role }, m.display != null ? m.display : m.content));
     P.list.scrollTop = P.list.scrollHeight;
   };
   /** A model this page loaded itself (the picker, a test's fake engine): used here and shared with other tabs. */
@@ -110,6 +134,7 @@
     P.local = eng;
     if (window.SlopAI && eng && eng.kind !== 'cloud') SlopAI.use(eng);   // a key-based engine stays in this page
     P.render();
+    if (P.pending && eng) runPending();
   };
 
   const beside = () => window.matchMedia && matchMedia(WIDE).matches;

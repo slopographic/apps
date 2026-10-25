@@ -52,7 +52,7 @@ test('the real WebMCP API: the tools are registered, listed, run and withdrawn',
     assert.deepEqual(warnings, [], 'every tool was accepted');
     const ops = listed.find((t) => t.name === 'run_operation');
     const schema = typeof ops.inputSchema === 'string' ? JSON.parse(ops.inputSchema) : ops.inputSchema;
-    assert.deepEqual(schema.required, ['operation', 'files']);
+    assert.deepEqual(schema.required, ['operation']);   // files or a written input (ai-permissions: input: { name, text | json })
 
     const out = await page.evaluate(async () => {
       const mc = document.modelContext, tool = (await mc.getTools()).find((t) => t.name === 'list_operations');

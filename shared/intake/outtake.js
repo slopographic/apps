@@ -10,7 +10,7 @@
    SlopHub.openIn(o) and SlopHub.sendMenuItems (shared/hub.js) are this builder. Classic script, after shared/hub.js (it
    needs SlopHub; without it the list is only the extensions). See
    shared/intake/HANDOFF.md.
-     SlopOuttake.items(o) → menu items ({ label, act }, for SlopUI.menu or an app menu; separators: true adds '-' lines)
+     SlopOuttake.items(o) → menu items ({ label, act, to? (the app it opens) }, for SlopUI.menu or an app menu; separators: true adds '-' lines)
        o: { get() → Blob | Promise<Blob>, name: string | () => string, type, from? (the app id, default the page's),
             verb? ('Open in'; 'Send to' for the older menus), folder? (Save to Slop Drive…, default true), exclude? [ids],
             id? (the output is already this Slop Drive record: the apps open it, no copy is made, no Save to Slop Drive…) }
@@ -70,7 +70,7 @@
     const mine = handovers.filter((h) => (!h.from || h.from === ctx.from) && typeMatches(ctx.type, h.types));
     for (const h of mine) {
       if (h.when && !h.when(ctx)) continue;
-      out.push({ label: h.label, act: guard(async () => { const r = await h.run(ctx); emit({ phase: 'sent', from: ctx.from, to: h.to, type: ctx.type, name: ctx.name(), id: r }); }) });
+      out.push({ label: h.label, to: h.to, act: guard(async () => { const r = await h.run(ctx); emit({ phase: 'sent', from: ctx.from, to: h.to, type: ctx.type, name: ctx.name(), id: r }); }) });
     }
     const replaced = new Set(mine.filter((h) => h.replaces && h.to).map((h) => h.to));
     // Slop Workflows comes in one way: its own entry (shared/ops/entry.js) gives "Run a workflow…" and "Add to a
@@ -80,7 +80,7 @@
     if (hub) {
       for (const a of hub.appsAccepting(ctx.type)) {
         if (exclude.has(a.id) || replaced.has(a.id) || a.id === ctx.from) continue;
-        out.push({ label: verb + ' ' + a.name, act: guard(() => O.send(a.id, ctx)) });
+        out.push({ label: verb + ' ' + a.name, to: a.id, act: guard(() => O.send(a.id, ctx)) });
       }
     }
     const extra = [];

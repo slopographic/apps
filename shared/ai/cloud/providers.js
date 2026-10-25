@@ -1,6 +1,6 @@
 /* SlopAIKit cloud providers: who the person can connect with their own key, in plain words. Classic script; adds to
  * SlopAIKit.cloud: providers (every catalog entry, normalized), byId(id), GROUPS, FORMATS, price(provider, model) →
- * { input, output } $ per million tokens or null, cost(usage, price) → $ or null, suggested(provider, models) → the few
+ * { input, output, cacheRead } $ per million tokens or null, cost(usage, price) → $ or null (cache reads and writes priced), suggested(provider, models) → the few
  * models offered first, search(query) → the matching providers best first, resolve(p, values) → { url, missing },
  * baseFor(p, saved), endpoint(base, path), authHeaders(cfg), checkBase(url), localHelp(p).
  * The entries themselves are data in cloud/catalog/*.js (one file per group, see catalog/main.js for the fields). They
@@ -102,9 +102,15 @@
   function price(p, model, fetched) {
     if (fetched && fetched.price) return fetched.price;
     const row = p && p.prices && p.prices[model];
-    return row ? { input: row[0], output: row[1] } : null;
+    return row ? { input: row[0], output: row[1], cacheRead: row[2] != null ? row[2] : row[0] * 0.1 } : null;
   }
-  const cost = (usage, pr) => (pr && usage ? ((usage.input || 0) * pr.input + (usage.output || 0) * pr.output) / 1e6 : null);
+  /** $ for a reply: cached input at the cache price (0.1× input when unknown), cache writes at 1.25× input. */
+  function cost(u, pr) {
+    if (!pr || !u) return null;
+    const read = u.cacheRead || 0, wrote = u.cacheWrite || 0, plain = Math.max(0, (u.input || 0) - read - wrote);
+    const cr = pr.cacheRead != null ? pr.cacheRead : pr.input * 0.1;
+    return (plain * pr.input + read * cr + wrote * pr.input * 1.25 + (u.output || 0) * pr.output) / 1e6;
+  }
 
   /** The models offered first: the provider's preferred ones that the fetched list has, else its defaults. */
   function suggested(p, models) {

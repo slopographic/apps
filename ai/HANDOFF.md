@@ -1,6 +1,6 @@
 # Slop AI: handoff
 
-Chat with a language model that runs entirely on the person's device, in the browser, with WebGPU (WebLLM 0.2.85,
+Chat with a language model that runs entirely on the person's device, in the browser, with WebGPU (WebLLM 0.2.86,
 vendored in `vendor/web-llm/`). Registry id `ai` in `shared/apps.js` (icon `spark`).
 
 **Recommended status: beta.** Everything works end to end with the fake engine and the real WebLLM path is wired and

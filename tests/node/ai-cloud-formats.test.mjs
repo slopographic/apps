@@ -32,11 +32,17 @@ test('Anthropic: browser headers, API version 2026-10-21, native tools, no tempe
   assert.equal(init.headers['anthropic-dangerous-direct-browser-access'], 'true');
   assert.equal(init.headers['anthropic-beta'], 'server-side-fallback-2026-07-01');
   const b = JSON.parse(init.body);
-  assert.equal(b.stream, true); assert.equal(b.fallbacks, 'default'); assert.equal(b.temperature, undefined); assert.equal(b.system, 'You are Slop AI.');
+  assert.equal(b.stream, true); assert.equal(b.fallbacks, 'default'); assert.equal(b.temperature, undefined);
+  // prompt caching: a breakpoint on the system prompt (tools render before it, so they are cached too) + automatic for the tail
+  eq(b.system, [{ type: 'text', text: 'You are Slop AI.', cache_control: { type: 'ephemeral' } }]);
+  eq(b.cache_control, { type: 'ephemeral' });
   eq(b.tools[0], { name: 'run_command', description: 'Run a command', input_schema: TOOLS[0].inputSchema });
   eq(b.output_config, { effort: 'medium' });
   const haiku = JSON.parse(C.formats.anthropic.request({ key: 'k', model: 'claude-haiku-5-5' }, history(null), [], {}).init.body);
   assert.equal(haiku.fallbacks, undefined); assert.equal(haiku.tools, undefined);
+  // no system prompt: the breakpoint goes on the last tool
+  const bare = JSON.parse(C.formats.anthropic.request({ key: 'k', model: 'claude-haiku-5-5' }, [{ role: 'user', content: 'hi' }], TOOLS, {}).init.body);
+  eq(bare.tools[0].cache_control, { type: 'ephemeral' }); assert.equal(bare.system, undefined);
 });
 
 test('Anthropic: the reply goes back whole (thinking signature, tool_use), results in one user turn with the picture', () => {
@@ -57,7 +63,7 @@ test('Anthropic stream: text deltas, the signature, a call whose JSON came in pi
   assert.equal(pieces.join(''), 'I will blur it.');
   eq(r.calls, [{ id: 'toolu_01A', name: 'run_command', arguments: { id: 'demo.bold' } }]);
   assert.equal(r.native[0].signature, 'EqQBCkYIBxgCKkDsig');
-  eq(r.usage, { input: 912, output: 64 });
+  eq(r.usage, { input: 912, output: 64, cacheRead: 100, cacheWrite: 0 });
   assert.equal((await read('anthropic', FX.ANTHROPIC_REFUSAL)).r.stop, 'refusal');
   const fb = (await read('anthropic', FX.ANTHROPIC_FALLBACK)).r;
   eq(fb.calls, []); assert.equal(fb.text, 'Here you go.');
@@ -70,7 +76,7 @@ test('OpenAI Responses: store false, function tools, items passed back, function
   assert.equal(url, 'https://api.openai.com/v1/responses');
   assert.equal(init.headers.authorization, 'Bearer sk-o1');
   const b = JSON.parse(init.body);
-  assert.equal(b.store, false); assert.equal(b.stream, true); assert.equal(b.instructions, 'You are Slop AI.'); assert.equal(b.temperature, undefined);
+  assert.equal(b.store, false); assert.equal(b.stream, true); assert.equal(b.prompt_cache_key, 'slopographic-ai-panel'); assert.equal(b.instructions, 'You are Slop AI.'); assert.equal(b.temperature, undefined);
   eq(b.tools[0], { type: 'function', name: 'run_command', description: 'Run a command', parameters: TOOLS[0].inputSchema, strict: false });
   eq(b.input[0], { role: 'user', content: 'make it bold' });
   eq(b.input.slice(1, 3), native);
@@ -82,7 +88,7 @@ test('OpenAI stream: the completed response gives the calls, the reasoning item 
   const { r } = await read('openai', FX.OPENAI_TOOL);
   eq(r.calls, [{ id: 'call_abc', name: 'run_command', arguments: { id: 'demo.bold' } }]);
   assert.equal(r.native[0].encrypted_content, 'gAAAAenc');
-  eq(r.usage, { input: 400, output: 30 });
+  eq(r.usage, { input: 400, output: 30, cacheRead: 0 });
   const t = await read('openai', FX.OPENAI_TEXT);
   assert.equal(t.pieces.join(''), 'Made it bold.'); assert.equal(t.r.text, 'Made it bold.');
   await assert.rejects(read('openai', FX.OPENAI_FAILED), /did not accept the request: The model failed/);
@@ -111,7 +117,7 @@ test('Chat Completions stream: comments skipped, two calls joined by index, usag
   const { pieces, r } = await read('compat', FX.COMPAT_TOOL);
   assert.equal(pieces.join(''), 'On it. ');
   eq(r.calls, [{ id: 'call_1', name: 'run_command', arguments: { id: 'demo.bold' } }, { id: 'call_2', name: 'list_apps', arguments: {} }]);
-  eq(r.usage, { input: 300, output: 25 });
+  eq(r.usage, { input: 300, output: 25, cacheRead: 0 });
   assert.equal(r.native.tool_calls.length, 2);
   await assert.rejects(read('compat', FX.COMPAT_ERROR), (e) => e.kind === 'rate' && /too many requests/.test(e.message));
 });
@@ -135,7 +141,7 @@ test('Gemini stream: text, a call with its signature kept, thinking tokens count
   assert.equal(pieces.join(''), 'Blurring now.');
   assert.equal(r.calls[0].name, 'run_command'); eq(r.calls[0].arguments, { id: 'demo.bold' }); assert.match(r.calls[0].id, /^gem:/);
   assert.equal(r.native[1].thoughtSignature, 'CiQBVKhc7sig');
-  eq(r.usage, { input: 500, output: 60 });
+  eq(r.usage, { input: 500, output: 60, cacheRead: 0 });
   assert.equal((await read('gemini', FX.GEMINI_SAFETY)).r.stop, 'refusal');
 });
 
@@ -150,11 +156,29 @@ test('providers: suggested models from a fetched list, prices, addresses that ma
   const p = C.byId('openrouter');
   const list = [{ id: 'x/new', tools: true }, { id: 'anthropic/claude-sonnet-5.5', tools: true, price: { input: 2, output: 10 } }, { id: 'openai/gpt-6-astra', tools: true }, { id: 'anthropic/claude-haiku-5.5', tools: false }];
   eq(C.suggested(p, list).map((m) => m.id), ['anthropic/claude-sonnet-5.5', 'openai/gpt-6-astra']);
-  eq(C.price(C.byId('anthropic'), 'claude-opus-5-5'), { input: 4, output: 20 });
+  eq(C.price(C.byId('anthropic'), 'claude-opus-5-5'), { input: 4, output: 20, cacheRead: 0.2 });
+  // cached input at the cache price, writes at 1.25×: 100k plain + 800k read + 100k written + 10k out on Sonnet 5.5
+  assert.equal(Math.round(C.cost({ input: 1e6, cacheRead: 8e5, cacheWrite: 1e5, output: 1e4 }, C.price(C.byId('anthropic'), 'claude-sonnet-5-5')) * 1e4) / 1e4, 0.71);
   assert.equal(C.price(C.byId('openai'), 'gpt-6-astra'), null);
   assert.equal(C.cost({ input: 1e6, output: 1e5 }, { input: 4, output: 20 }), 6);
   assert.equal(C.checkBase('http://localhost:11434/v1'), '');
   assert.equal(C.checkBase('https://llm.example.org/v1'), '');
   assert.match(C.checkBase('http://192.168.1.4:8080/v1'), /https/);
   assert.match(C.localHelp(C.byId('ollama')).join(' '), /OLLAMA_ORIGINS to https:\/\/slopographic\.com/);
+});
+
+test('a reply in several text blocks (progress notes between) keeps its line breaks, so a Markdown list stays a list', async () => {
+  const { sse } = await import('./ai-cloud-env.mjs');
+  const text = sse([
+    ['content_block_start', { type: 'content_block_start', index: 0, content_block: { type: 'text', text: 'Done:' } }],
+    ['content_block_start', { type: 'content_block_start', index: 1, content_block: { type: 'thinking', thinking: '', signature: 's' } }],
+    ['content_block_start', { type: 'content_block_start', index: 2, content_block: { type: 'text', text: '' } }],
+    ['content_block_delta', { type: 'content_block_delta', index: 2, delta: { type: 'text_delta', text: '- I filled it red\n- I added a layer' } }],
+  ]);
+  const { pieces, r } = await read('anthropic', text);
+  assert.equal(r.text, 'Done:\n\n- I filled it red\n- I added a layer');
+  assert.equal(pieces.join(''), r.text, 'what streams is what stays');
+  const vm = await import('node:vm'), { readFileSync } = await import('node:fs');
+  vm.runInContext(readFileSync(new URL('../../shared/ai/md.js', import.meta.url), 'utf8'), vm.createContext(w));
+  assert.equal(w.SlopAIKit.md.render(r.text), '<p>Done:</p><ul><li>I filled it red</li><li>I added a layer</li></ul>');
 });

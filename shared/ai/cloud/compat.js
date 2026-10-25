@@ -62,7 +62,7 @@
           throw new C.CloudError(kind, C.plain(kind, 'The AI provider', { detail: msg }), { status: code, detail: msg });
         }
         if (d.model) model = d.model;
-        if (d.usage) { usage.input = d.usage.prompt_tokens || 0; usage.output = d.usage.completion_tokens || 0; }
+        if (d.usage) { usage.input = d.usage.prompt_tokens || 0; usage.output = d.usage.completion_tokens || 0; usage.cacheRead = (d.usage.prompt_tokens_details && d.usage.prompt_tokens_details.cached_tokens) || 0; }
         const ch = (d.choices || [])[0];
         if (!ch) return [];
         if (ch.finish_reason) stop = ch.finish_reason;
@@ -97,6 +97,7 @@
     return list.map((m) => {
       const o = { id: m.id || m.name, name: m.name || m.id };
       if (m.pricing) o.price = { input: Number(m.pricing.prompt) * 1e6 || 0, output: Number(m.pricing.completion) * 1e6 || 0 };   // $ per token → per million
+      if (m.pricing && m.pricing.input_cache_read != null) o.price.cacheRead = Number(m.pricing.input_cache_read) * 1e6 || 0;
       if (Array.isArray(m.supported_parameters)) o.tools = m.supported_parameters.includes('tools');
       return o;
     });
