@@ -1,6 +1,7 @@
 // The capability strip under the homepage hero: one short label per app (shared/apps.js, kind "app"), in registry order,
 // with File convert shown as its number of conversions (convert/js/core/pages.js). tools/seo/write.mjs writes it into
 // index.html between <!-- site:marquee --> and <!-- /site:marquee -->, so a new app joins the strip the next time it runs.
+// data-controls: its links move (it scrolls), so Sloppo treats the whole strip as controls (shared/buddy/avoid.js).
 // The list is written twice: the second copy (aria-hidden) lets the strip loop without a gap (home/hero.css scrolls it).
 // Each label is a link to its app (data-id: home/marquee.js turns the globe to it on hover or focus). One tab stop: the
 // first link takes Tab, the arrow keys move along (home/marquee.js); the copy's links are never in the tab order.
@@ -39,7 +40,7 @@ export const capabilities = (apps, conversions) => entries(apps, conversions).ma
 
 export function buildMarquee(list) {
   const items = (copy) => list.map((e, i) => `<li><a href="${esc(e.path)}" data-id="${esc(e.id)}" tabindex="${!copy && !i ? 0 : -1}">${esc(e.label)}</a></li>`).join('');
-  return `<div class="hx-marquee"><div class="mq-track"><ul class="mq-list" aria-label="What the apps do" data-i18n-attr="aria-label:hero.marquee">${items(false)}</ul>` +
+  return `<div class="hx-marquee" data-controls><div class="mq-track"><ul class="mq-list" aria-label="What the apps do" data-i18n-attr="aria-label:hero.marquee">${items(false)}</ul>` +
     `<ul class="mq-list" aria-hidden="true">${items(true)}</ul></div></div>`;
 }
 

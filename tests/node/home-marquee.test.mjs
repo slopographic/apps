@@ -37,7 +37,7 @@ test('the strip lists every app once, in registry order, with File convert as it
 
 test('the html: a labelled list of links to the apps (one tab stop) and an aria-hidden copy kept out of the tab order', () => {
   const html = buildMarquee([{ id: 'pdf', path: 'pdf/', label: 'PDF tools' }, { id: 'x', path: 'x/', label: 'a < b' }]);
-  assert.match(html, /^<div class="hx-marquee">/);
+  assert.match(html, /^<div class="hx-marquee" data-controls>/);   // a strip of moving links: Sloppo keeps off it all
   assert.equal((html.match(/<ul class="mq-list"/g) || []).length, 2);
   assert.match(html, /<ul class="mq-list" aria-label="What the apps do" data-i18n-attr="aria-label:hero.marquee"><li><a href="pdf\/" data-id="pdf" tabindex="0">PDF tools<\/a><\/li><li><a href="x\/" data-id="x" tabindex="-1">a &lt; b<\/a><\/li><\/ul>/);
   const copy = html.slice(html.indexOf('aria-hidden="true"'));

@@ -9,6 +9,7 @@
   <script src="../harness.js"></script>
   <script src="boot.js"></script>
   <script type="module">
+  // Covers: shared/buddy/avoid.js
   const { describe, it, expect, waitFor, sleep, run } = SlopTest;
   const SPOT = 'slop.mascot.spot';
   let win, S, M;
@@ -62,6 +63,22 @@
       await waitFor(() => M.mode === 'float' || M.mode === 'perched', { timeout: 8000 });
       expect(M.mode).toBe('float');
       expect(Math.abs(M.x - saved.x) <= 1 && Math.abs(M.y - saved.y) <= 1).toBe(true);
+    });
+    it('the scrolling strip of app links counts as controls all over, gaps too: a spot free now is under a link a moment later', async () => {
+      const strip = win.document.querySelector('.hx-marquee');
+      expect(strip.hasAttribute('data-controls')).toBe(true);
+      const A = await win.eval('import(new URL("shared/buddy/avoid.js", document.baseURI).href)');   // the page's own module instance
+      win.scrollTo(0, Math.max(0, strip.getBoundingClientRect().top + win.scrollY - win.innerHeight / 2));
+      await frames();
+      const him = M.hit.getBoundingClientRect(), W = win.innerWidth;
+      // a label well inside the window and away from him (the strip keeps moving: read and probe in the same task)
+      const li = [...strip.querySelectorAll('.mq-list li')].find((n) => { const g = n.getBoundingClientRect(); return g.left > 80 && g.right < W - 80 && (g.right < him.left || g.left > him.right); });
+      expect(!!li).toBe(true);
+      const g = li.getBoundingClientRect(), a = li.querySelector('a').getBoundingClientRect();
+      const x = (a.right + g.right) / 2, y = g.top + g.height / 2;   // the dot after the label (li::after), no link there
+      expect(win.document.elementFromPoint(x, y).closest('a')).toBe(null);
+      expect(A.controlAt(x, y)).toBe(true);
+      win.scrollTo(0, 0);
     });
     it('a click in blank space, away from any control, reacts (pet: love, hearts, XP)', async () => {
       await ready;
