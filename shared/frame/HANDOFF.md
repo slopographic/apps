@@ -187,18 +187,18 @@ Kind: tool (open → settings → run → save), editor, records (list + form), 
 | Slop Gallery | gallery/ | viewer | albums/filters/import left | done | js/ui/panel.js: selection, add photos and library tools on the right, Import photos at its foot; albums and filters stay left |
 | Slop Sheets | sheetview/ | viewer | options in the header | done | js/panel.js: Look (style, colours) and Open in Slop Table on the right, Export at its foot |
 | Slop Hex | hex/ | viewer | one column | done | js/panel.js: Inspector (file facts) on the right, Save version + Download at its foot; Go to and Find stay above the bytes |
-| Slop Invoices | invoices/ | records | list, document, ws-panel right; Save in the header | close | Save into the ws-panel's foot |
-| Slop Orders | orders/ | records | ws-panel right | close | New/Save into the panel |
-| Slop Quotes | quotes/ | records | ws-panel right | close | phone sheet; Save into the panel |
-| Slop Purchases | purchases/ | records | ws-panel right | close | phone sheet; Save into the panel |
-| Slop Contacts | contacts/ | records | groups left, list, card right | close | card actions into the card's foot |
-| Slop CRM | crm/ | records | filters left | to do | a detail panel on the right |
-| Slop Projects | projects/ | records | timeline, undated tasks right | to do | a task detail panel on the right |
-| Slop Timesheets | timesheets/ | records | tabs, one-column form | to do | the form → right panel |
-| Slop Expenses | expenses/ | records | tabs, one-column form | to do | the form → right panel |
-| Slop Inventory | inventory/ | records | tabs, one column | to do | forms → right panel |
-| Slop Ledger | ledger/ | records | tabs, one column | to do | forms → right panel |
-| Slop Reports | reports/ | other | one column | to do | the report definition → right panel |
+| Slop Invoices | invoices/ | records | list, document, ws-panel right; Save in the header | done | the details are SlopBiz.panel (shared/biz/panel.js through shared/docs/doc-layout.js): Save draft and Issue… (or the status's main button) at its foot; a bottom sheet ≤720 px; Print stays in the record bar |
+| Slop Orders | orders/ | records | ws-panel right | done | Save and Confirm order / Fulfil… at the record panel's foot (shared/biz/panel.js); New order stays in the list and the File menu |
+| Slop Quotes | quotes/ | records | ws-panel right | done | Save and Mark as sent at the record panel's foot; a bottom sheet on phones |
+| Slop Purchases | purchases/ | records | ws-panel right | done | Save and Place order at the record panel's foot; a bottom sheet on phones |
+| Slop Contacts | contacts/ | records | groups left, list, card right | close | Edit, Duplicate, Delete (Cancel, Save in the form) at the card's foot (the shared footer, bare); on a phone the card is a page with the footer at the bottom, not a SlopSheet |
+| Slop CRM | crm/ | records | filters left | close | the customer's record beside the list (shared/layouts) with Edit details and Delete customer at its foot (the shared footer, bare); on a phone a page with a fixed footer, not a SlopSheet |
+| Slop Projects | projects/ | records | timeline, undated tasks right | done | a task opens in the SlopFrame panel right of the board, timeline or list (projects/js/ui/task-panel.js), Cancel, Delete and Save at its foot; project settings stay a dialog |
+| Slop Timesheets | timesheets/ | records | tabs, one-column form | done | an open entry is the panel right of the list (SlopBiz.panel.records), Save at its foot |
+| Slop Expenses | expenses/ | records | tabs, one-column form | done | an open expense is the panel right of the list (SlopBiz.panel.records), Record expense / Mark as paid… at its foot |
+| Slop Inventory | inventory/ | records | tabs, one column | close | Receive, Sell, Adjust, Transfer are the stock view's right panel (SlopBiz.panel.form; Stock actions opens it on a phone), each form keeps its own submit button; the product form, Count and Scan are unchanged |
+| Slop Ledger | ledger/ | records | tabs, one column | done | the new entry, account and rate forms are their view's right panel (SlopBiz.panel.form), Post entry / Add account / Add rate at its foot |
+| Slop Reports | reports/ | other | one column | done | the report is the view; picker, definition and Export CSV (at the foot) in the SlopFrame panel (reports/js/layout.js) |
 | Slop AI | ai/ | other | chat, workspace pane right | n/a | a chat: the composer is the main action |
 | Slop Notes | notes/ | other | notebooks left, list, editor | n/a | no settings |
 | Paste | paste/ | other | list left, main | n/a | no settings |

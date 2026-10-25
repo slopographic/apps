@@ -2,7 +2,7 @@
 // for every app the audit there marks done: the audit table is the one list, this test reads it. A done app loads
 // SlopFrame (frame.css, frame.js, panel.js, and sheet.js for phones), and a done tool also puts its main button in the
 // panel's footer (panel.js footer()); a done editor (or a non-tool app that keeps its own right panel) puts its main button in the shared footer. The browser tests of each app check the look (tests/<app>/…).
-// Covers: shared/frame/HANDOFF.md, shared/frame/frame.js, shared/frame/panel.js
+// Covers: shared/frame/HANDOFF.md, shared/frame/frame.js, shared/frame/panel.js, shared/biz/panel.js
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile, readdir } from 'node:fs/promises';
@@ -40,6 +40,12 @@ test('the audit names every app in the registry once, with a known status', asyn
   for (const r of rows) assert.ok(['done', 'close', 'to do', 'n/a'].includes(r.status), r.name + ': status ' + r.status);
 });
 
+test('the business apps\' shared record panel mounts SlopFrame with the shared footer', async () => {
+  const js = await read('shared/biz/panel.js');
+  assert.ok(/SlopFrame\.mount\(/.test(js) && /\.footer\(/.test(js), 'shared/biz/panel.js mounts SlopFrame and puts the main button in the footer');
+  assert.ok(/SlopBiz\.panel\.mount\(|panel\.mount\(/.test(await read('shared/docs/doc-layout.js')), 'shared/docs/doc-layout.js uses it');
+});
+
 test('every app marked done loads SlopFrame and its phone sheet; a done tool has its main button in the panel footer', async () => {
   const done = (await audit()).filter((r) => r.status === 'done');
   assert.ok(done.length >= 3, 'some apps are done');
@@ -60,7 +66,9 @@ test('every app marked done loads SlopFrame and its phone sheet; a done tool has
       continue;
     }
     assert.ok(loads('frame.js'), r.name + ': frame.js');
-    assert.ok(/SlopFrame\.mount\(/.test(js) && /(SlopFrame\.panel|SlopFramePanel\.create)\(/.test(js), r.name + ': mounts SlopFrame and its panel');
+    // the business apps mount it through their one shared layer (shared/biz/panel.js; the document apps through shared/docs/doc-layout.js)
+    const viaBiz = r.kind !== 'tool' && html.includes('shared/biz/panel.js') && /SlopBiz\.panel\b|SlopDocs\.docLayout\.mount\(/.test(js);
+    assert.ok(viaBiz || (/SlopFrame\.mount\(/.test(js) && /(SlopFrame\.panel|SlopFramePanel\.create)\(/.test(js)), r.name + ': mounts SlopFrame and its panel');
     if (r.kind === 'tool' && r.folder !== 'workflows/') assert.ok(/\.footer\(/.test(js), r.name + ': the main button is in the panel footer');
   }
 });
