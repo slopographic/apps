@@ -37,6 +37,7 @@
     "img3d": {"create":["new_from_picture"],"add":[],"ops":[]},
     "hex": {"create":["new_file"],"add":[],"ops":[]},
     "eml": {"create":["new_message"],"add":[],"ops":[]},
+    "diff": {"create":["new_comparison"],"add":["add_file","add_text"],"ops":["diff.report"]},
     "nodes": {"create":["build_graph","new_graph"],"add":["add_node"],"ops":[]},
     "serials": {"create":[],"add":["add_photos","add_serial","add_text"],"ops":[]},
     "transcribe": {"create":[],"add":["add_from_drive"],"ops":["transcribe.text"]},
