@@ -5,7 +5,7 @@
  *   prepare(messages, tools)   → messages for the engine (tool help in the system prompt; roles normalised)
  *   parse(text, tools)         → { text, calls: [{ name, arguments }] }
  *   dispatch(call, tools, env) → { ok, result | error }     env.permit({ kind, tool, action, detail, title, step }) → Promise<bool>
- *       (shared/ai/permissions.js ask), or the older env.confirm(title, message). A tool says which kind of approval it
+ *       (shared/ai/permissions.js ask; a tool's appOf(args) → { app, appName } names another app), or the older env.confirm(title, message). A tool says which kind of approval it
  *       needs with kind(args): 'change' | 'delete' | 'send' (permissions.js); a destructive tool without one is 'delete'.
  *   run(engine, messages, { tools, env, onDelta, onTool, onUsage, maxSteps, maxCalls, ...chatOpts }) → the agent loop
  *       (onTool({ phase: 'start' | 'end', call, tool, res }); an aborted signal stops between actions;
@@ -97,7 +97,8 @@
       // env.permit: the one permission module (permissions.js); else the plain yes/no of older callers
       const kind = t.kind ? t.kind(args) : t.permission ? t.permission.kind : 'delete';
       const own = t.confirmTitle ? t.confirmTitle(args) : undefined;
-      const ok = env.permit ? await env.permit({ kind, tool: t.name, action, detail: what, title: own || (t.permission && t.permission.title ? t.permission.title + '?' : undefined), step: env.step })
+      const req = Object.assign({ kind, tool: t.name, action, detail: what, title: own || (t.permission && t.permission.title ? t.permission.title + '?' : undefined), step: env.step }, (t.appOf && t.appOf(args)) || {});   // appOf: another app's step asks for that app
+      const ok = env.permit ? await env.permit(req)
         : env.confirm ? await env.confirm(own || 'Allow this action?', what) : false;
       if (!ok) return { ok: false, error: 'The user said no to this action.' };
     }

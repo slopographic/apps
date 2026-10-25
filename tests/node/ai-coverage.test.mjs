@@ -1,32 +1,39 @@
-// The AI coverage audit (tools/ai-coverage.mjs → shared/commands/AI-COVERAGE.md): the file is up to date, and an app that is
-// covered (the assistant can create, add, edit and export there) keeps its create, add and export commands.
+// The AI coverage audit (tools/ai-coverage.mjs → shared/commands/AI-COVERAGE.md): the file is up to date, no app loses
+// what the assistant can do there (the ratchet, tests/node/ai-coverage.baseline.json), and every app has the full suite.
 // Covers: tools/ai-coverage.mjs, shared/ai/app-skills.js
 // Run: node --test tests/node/ai-coverage.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
-import { scan, render, skills, toolsIn, kindOf, ROOT, OUT, SKILLS } from '../../tools/ai-coverage.mjs';
+import { scan, render, skills, toolsIn, kindOf, levels, losses, ROOT, OUT, SKILLS, BASELINE } from '../../tools/ai-coverage.mjs';
 import vm from 'node:vm';
 
-// Apps that must stay covered. Add an app here once its commands cover it (never remove one to make the test pass).
-const COVERED = ['photoslop', 'colors', 'vector', 'pdf', 'label', 'reports', 'docs', 'tables', 'slides', 'press', 'contacts', 'inventory', 'orders', 'quotes', 'purchases',
-  'timesheets', 'expenses', 'invoices', 'notes', 'signature', 'qr', 'crm', 'calendar', 'todo', 'ledger', 'drive', 'code', 'gallery', '3d', 'nodes', 'cutout', 'ocr', 'html2pdf', 'resize', 'upscale', 'watermark', 'paste', 'reminders', 'admin', 'time',
-  'slopedit', 'projects',   // SlopCut and Slop Projects (wip/video-ai)
-  'diff', 'recorder'];
 const rows = scan();
+const baseline = JSON.parse(readFileSync(path.join(ROOT, BASELINE), 'utf8'));
 
 test('AI-COVERAGE.md is up to date (run node tools/ai-coverage.mjs)', () => {
   assert.equal(readFileSync(path.join(ROOT, OUT), 'utf8'), render(rows));
 });
 
-test('covered apps keep their create, add, edit and export commands', () => {
-  for (const id of COVERED) {
-    const r = rows.find((x) => x.id === id);
-    assert.ok(r, `${id} is in shared/apps.js`);
-    for (const k of ['create', 'add', 'edit', 'export']) assert.ok(r.by[k].length > 0, `${r.name} lost every ${k} command`);
-  }
-  for (const r of rows.filter((x) => x.covered)) assert.ok(COVERED.includes(r.id), `${r.name} is covered now: add '${r.id}' to COVERED in this test`);
+// The ratchet: no app loses a kind of command, its state, its snapshot or being reachable from another app, and a new
+// app arrives with the full suite. When an app gains something, the baseline is raised with it (node tools/ai-coverage.mjs
+// --baseline, which refuses to lower anything), so it cannot be lost later without this test failing.
+test('no app loses AI coverage (tests/node/ai-coverage.baseline.json)', () => {
+  const lost = rows.filter((r) => baseline[r.id]).map((r) => [r.id, losses(levels(r), baseline[r.id])]).filter(([, l]) => l.length);
+  assert.equal(lost.length, 0, 'apps that lost coverage: ' + lost.map(([id, l]) => `${id}: ${l.join(', ')}`).join('; '));
+});
+test('a new app has the full suite: create, add, edit, export, state, snapshot, reachable from another app', () => {
+  for (const r of rows.filter((x) => !baseline[x.id])) assert.ok(r.full, `${r.name} is new and has no full AI suite: ${JSON.stringify(levels(r))}`);
+});
+test('the baseline records what the apps have now (raise it: node tools/ai-coverage.mjs --baseline)', () => {
+  for (const r of rows) assert.deepEqual(baseline[r.id], levels(r), `${r.id} changed: run node tools/ai-coverage.mjs --baseline`);
+});
+test('the cross-app columns are read from the apps: state, snapshot, driven', () => {
+  const q = rows.find((r) => r.id === 'quotes');
+  assert.equal(q.state, 'records'); assert.ok(q.snapshot); assert.equal(q.driven, true);
+  assert.equal(rows.find((r) => r.id === 'photoslop').state, 'app');
+  assert.deepEqual(losses({ create: true, add: true, edit: true, export: false, state: 'page', snapshot: 'page', driven: true }, { create: true, add: true, edit: true, export: true, state: 'app', snapshot: 'page', driven: true }), ['export', 'state app → page']);
 });
 
 test('commands are read from the four ways apps write them, and sorted by what they do', () => {

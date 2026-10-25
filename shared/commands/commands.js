@@ -149,18 +149,17 @@
     } catch (err) { return { ok: false, error: String((err && err.message) || err), args: v.args }; }
   }
   const ensureArgs = () => (window.SlopCmdArgs || !BASE ? Promise.resolve() : loadPart('args'));
-  /** What an app shares with the assistant: provide({ state, checkpoint: () => rollbackFn, prepare, snapshot: () => Blob|canvas (look_at_canvas) }). */
-  const prov = {}, provide = (o) => { Object.assign(prov, o || {}); };
-  let prepP = null;
+  /** What an app shares with the assistant: provide({ state, checkpoint: () => rollbackFn, prepare, snapshot: () => Blob|canvas (look_at_canvas) }); only a provided
+   * prepare is remembered (one provided after an early prepare() call still runs). No state or snapshot: view.js gives the page's. */
+  const prov = {}, provide = (o) => { if (o && o.prepare && o.prepare !== prov.prepare) prepP = null; Object.assign(prov, o || {}); };
+  let prepP = null; const pageView = () => (parts.view ? Promise.resolve(parts.view) : BASE ? loadPart('view').then(() => parts.view) : Promise.reject(new Error('This page has no view summary')));
   function trimRecents() { const ids = Object.keys(recents); if (ids.length > 60) ids.sort((a, b) => recents[a][1] - recents[b][1]).slice(0, ids.length - 60).forEach((i) => delete recents[i]); }
   /** Frecency: use count weighted by how recently it was used (half-life about a day). */
   function frecency(id, now = Date.now()) { const r = recents[id]; if (!r) return 0; return r[0] * Math.pow(0.5, (now - r[1]) / 864e5) + 1 / (1 + (now - r[1]) / 6e4); }
   function recent(n = 6) { return Object.keys(recents).filter((i) => cmds.has(i)).sort((a, b) => recents[b][1] - recents[a][1]).slice(0, n); }
-
   /** Extra palette results: addProvider({ id, title, search(query) → [{ id, title, group?, icon?, keywords?, run }] }). */
   const providers = new Map();
   function addProvider(p) { if (p && p.id && typeof p.search === 'function') providers.set(p.id, p); return () => providers.delete(p.id); }
-
   /* ---------- overrides ---------- */
   function setKeys(id, keys) {
     const c = cmds.get(id), clean = [...new Set([].concat(keys || []).map((k) => canon(k)).filter(Boolean))];
@@ -275,10 +274,11 @@
     providers: () => [...providers.values()], removeProvider: (id) => providers.delete(id),
     get: (id) => cmds.get(id) || null,
     exec, provide,
-    state: () => { try { return prov.state ? prov.state() : null; } catch (e) { return { error: e.message }; } },
+    state: () => { try { return prov.state ? prov.state() : pageView().then((v) => v.state(), () => null); } catch (e) { return { error: e.message }; } },
     checkpoint: () => (prov.checkpoint ? prov.checkpoint() : null),
-    snapshot: () => (prov.snapshot ? prov.snapshot() : null),
-    prepare: () => (prepP = prepP || Promise.resolve(prov.prepare ? prov.prepare() : null).catch((e) => { prepP = null; throw e; })),
+    snapshot: () => (prov.snapshot ? prov.snapshot() : pageView().then((v) => v.snapshot(), () => null)),
+    ownState: () => !!prov.state,
+    prepare: () => (!prov.prepare ? Promise.resolve(null) : (prepP = prepP || Promise.resolve(prov.prepare()).catch((e) => { prepP = null; throw e; }))),
     keyFor: (id) => { const b = bindings(id); return b.length ? format(b[0]) : ''; },
     keysFor: (id) => bindings(id).map((b) => format(b)),
     overrides: () => JSON.parse(JSON.stringify(overrides)),

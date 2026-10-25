@@ -150,3 +150,10 @@ test('names are cleaned to the WebMCP rule', () => {
   assert.equal(T.checkSchema({ type: 'object', properties: { a: { type: 'strin' } } }).length, 1);
   assert.equal(T.checkSchema({ type: 'object', properties: {}, required: ['b'] }).length, 1);
 });
+
+test('a picture a tool hands back (look_at_canvas, app snapshots) reaches the agent as MCP image content', async () => {
+  const tool = T.toWebMCP({ name: 'look_at_canvas', description: 'x', inputSchema: { type: 'object', properties: {} }, readOnly: true, run: async () => ({ text: 'A 4 × 3 picture.', media: [{ mime: 'image/jpeg', data: 'AAAA', name: 'work' }] }) });
+  const r = await tool.execute({});
+  assert.deepEqual(JSON.parse(JSON.stringify(r)), { content: [{ type: 'text', text: 'A 4 × 3 picture.' }, { type: 'image', data: 'AAAA', mimeType: 'image/jpeg' }] });
+  assert.deepEqual(T.result('plain'), { content: [{ type: 'text', text: 'plain' }] });
+});

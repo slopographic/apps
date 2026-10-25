@@ -141,28 +141,42 @@
     if (!r.ok) throw new Error(r.error);
     return r;
   }
-  /** Up to ten commands matching a query (the app's palette search), as { id, title, group, enabled }. */
+  /** Up to ten commands matching a query (the app's palette search), as { id, title, group, enabled, args?, does? }. With no
+   * query: every command that can run now, those that take arguments (create, add, edit, export) first. */
   async function search(id, q) {
     await commands(id);
-    const S = entryOf(id).frame.contentWindow.SlopCmd;
-    return S.search(String(q || '')).filter((c) => !/^cmd\./.test(c.id) && (!c.hidden || c.args)).slice(0, 10)
-      .map((c) => Object.assign({ id: c.id, title: c.title, group: c.group || '', enabled: !!c.enabled }, c.args ? { args: argList(c.args) } : null));
+    const S = entryOf(id).frame.contentWindow.SlopCmd, all = !String(q || '').trim();
+    const usable = (c) => { try { return c.enabled !== false && (!c.when || c.when()); } catch (e) { return false; } };
+    const list = (all ? S.list().filter(usable).map((c) => Object.assign({}, c, { enabled: true })).sort((x, y) => !!y.args - !!x.args) : S.search(String(q)))
+      .filter((c) => !/^cmd\./.test(c.id) && (!c.hidden || c.args) && c.ai !== false);
+    return list.slice(0, all ? 80 : 10).map((c) => Object.assign({ id: c.id, title: c.title, group: c.group || '', enabled: !!c.enabled },
+      c.args ? { args: argList(c.args, entryOf(id).frame.contentWindow.SlopCmdArgs || window.SlopCmdArgs) } : null, c.args && c.description ? { does: String(c.description).slice(0, 160) } : null));
   }
   /** A command's arguments for the model: ['radius: number 0.1–250, default 4', …] (shared/commands/args.js shapes). */
-  const argList = (args) => (Array.isArray(args) ? args : Object.keys(args).map((k) => Object.assign({ name: k }, args[k]))).map((a) =>
-    `${a.name}: ${a.type || 'string'}${a.min != null && a.max != null ? ` ${a.min}–${a.max}` : ''}${a.values ? ' (' + a.values.join('|') + ')' : ''}${a.default !== undefined ? ', default ' + a.default : ''}`);
+  const argList = (args, A = window.SlopCmdArgs) => { return (Array.isArray(args) ? args : Object.keys(args).map((k) => Object.assign({ name: k }, args[k]))).map((a) =>
+    (A ? `${a.name}${a.required ? '' : '?'}: ${A.hint(A.normalize([a])[0])}` : `${a.name}: ${a.type || 'string'}${a.min != null && a.max != null ? ` ${a.min}–${a.max}` : ''}${a.values ? ' (' + a.values.join('|') + ')' : ''}${a.default !== undefined ? ', default ' + a.default : ''}`)
+    + (a.description ? ` (${String(a.description).slice(0, 80)})` : '')); };
   /** A summary of an open app: title, whether it can be driven, and what it shares through window.SlopAppState(). */
   async function state(id) {
     const e = await ready(id), w = e.frame.contentWindow;
     let st = null, note = null;
-    if (w.SlopCmd && w.SlopCmd.state && w.SlopCmd.prepare) {
-      await w.SlopCmd.prepare().catch(() => {});
-      try { st = JSON.parse(JSON.stringify(w.SlopCmd.state())); } catch (err) { note = 'The app state hook failed: ' + err.message; }
+    if (w.SlopCmd && w.SlopCmd.state) {
+      if (w.SlopCmd.prepare) await w.SlopCmd.prepare().catch(() => {});
+      try { st = JSON.parse(JSON.stringify((await w.SlopCmd.state()) || null)); } catch (err) { note = 'The app state hook failed: ' + err.message; }
     }
     if (st == null && !note && typeof w.SlopAppState === 'function') {
       try { st = JSON.parse(JSON.stringify(w.SlopAppState())); } catch (err) { note = 'The app state hook failed: ' + err.message; }
     } else if (st == null && !note) note = 'This app shares no state (no SlopCmd.provide({ state }) or window.SlopAppState hook), so only its title and command count are known.';
     return { app: e.app.name, title: w.document.title || e.app.name, drivable: !!w.SlopCmd, commands: w.SlopCmd ? own(w.SlopCmd).length : 0, state: st, note };
+  }
+  /** A picture of an open app's work: its own SlopCmd.snapshot() (or the page drawn, shared/commands/view.js), as a canvas or Blob. */
+  async function snapshot(id) {
+    const e = await ready(id), S = e.frame.contentWindow.SlopCmd;
+    if (!S || !S.snapshot) throw new Error(`${e.app.name} has no command registry, so it cannot show its work.`);
+    if (S.prepare) await S.prepare().catch(() => {});
+    const pic = await S.snapshot();
+    if (!pic) throw new Error(`${e.app.name} has nothing to show yet.`);
+    return pic;
   }
   /** One command of an open app as the registry lists it, or null (sync, for the destructive check). */
   function findCommand(id, cmdId) {
@@ -175,7 +189,7 @@
     mount, open, openUrl, close, hide, show: (id) => show(id),
     isOpen: (id) => { const app = findApp(id); return !!app && frames.has(app.id); },
     openIds: () => [...frames.keys()],
-    ready, commands, run, search, state, findCommand, findApp, framable,
+    ready, commands, run, search, state, snapshot, findCommand, findApp, framable,
     granted: (id) => { const app = findApp(id); return !!app && granted.has(app.id); },
     grant: (id) => { const app = findApp(id); if (app) granted.add(app.id); },
     forgetGrants: () => granted.clear(),

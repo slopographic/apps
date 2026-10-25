@@ -131,3 +131,29 @@ test('the agent loop stops between actions when aborted and caps the number of a
   const r = await K.tools.run(engine(call.repeat(5)), [], { tools, maxCalls: 3, maxSteps: 3 });
   assert.equal(cmd.ran.length, 4); assert.match(r.text, /at most 3 actions/);
 });
+
+// Covers: shared/commands/args.js (forgiving enums: the owner's Slop Signature session, font "Trebuchet MS" refused)
+test('enum options match the value, the label, loose text, a CSS stack\'s first family and a unique prefix', () => {
+  const FONTS = [['Arial, Helvetica, sans-serif', 'Arial'], ['Helvetica, Arial, sans-serif', 'Helvetica'], ['Verdana, Geneva, sans-serif', 'Verdana'],
+    ["'Times New Roman', Times, serif", 'Times New Roman'], ["'Trebuchet MS', sans-serif", 'Trebuchet MS']];
+  const F = [{ name: 'font', type: 'enum', options: FONTS, default: 'Arial, Helvetica, sans-serif' }];
+  const v = (x) => A.validate(F, { font: x });
+  assert.equal(v('Trebuchet MS').args.font, "'Trebuchet MS', sans-serif");       // the label (the owner's case)
+  assert.equal(v("'Trebuchet MS', sans-serif").args.font, "'Trebuchet MS', sans-serif");   // the exact value
+  assert.equal(v('trebuchet ms').args.font, "'Trebuchet MS', sans-serif");       // case and spaces
+  assert.equal(v('"Times New Roman", serif').args.font, "'Times New Roman', Times, serif");   // a stack's first family
+  assert.equal(v('Trebuchet MS, Helvetica, sans-serif').args.font, "'Trebuchet MS', sans-serif");
+  assert.equal(v('verd').args.font, 'Verdana, Geneva, sans-serif');              // a unique prefix
+  const bad = v('Comic Sans');
+  assert.equal(bad.ok, false);
+  assert.equal(bad.errors[0].startsWith('font must be one of: Arial, Helvetica, Verdana, Times New Roman, Trebuchet MS'), true);
+  assert.match(v('Verdanna').errors[0], /closest: Verdana/);
+  const s = A.jsonSchema(F).properties.font;                                    // the model sees the labels, not the stacks
+  assert.deepEqual(s.enum, ['Arial', 'Helvetica', 'Verdana', 'Times New Roman', 'Trebuchet MS']);
+  assert.equal(s.default, 'Arial');
+  assert.equal(A.hint(F[0]), 'one of Arial|Helvetica|Verdana|Times New Roman|Trebuchet MS, default Arial');
+  const TO = [{ name: 'to', type: 'enum', options: [['drive', 'Slop Drive'], ['download', 'a download']] }];   // plain values stay
+  assert.deepEqual(A.jsonSchema(TO).properties.to.enum, ['drive', 'download']);
+  assert.equal(A.validate(TO, { to: 'Slop Drive' }).args.to, 'drive');
+  assert.equal(A.validate([{ name: 'f', type: 'enum', values: ['jpeg', 'jpg2'] }], { f: 'jp' }).ok, false);   // a prefix two have is not a guess
+});

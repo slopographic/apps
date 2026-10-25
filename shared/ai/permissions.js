@@ -7,6 +7,8 @@
  *   change  an app change that Undo can take back but that the word rule marks (crop, flatten, merge, replace, new…)
  *   delete  deleting, clearing, closing or overwriting (delete, remove, clear, erase, reset, close, discard, overwrite…)
  *   send    sending a copy of a file or picture to the AI provider (look_at_file). Never covered by "allow app changes".
+ *   control running the commands of another app open beside the chat (Slop AI's workspace): asked once per app and
+ *          visit; never covered by "allow app changes"
  *   spend-image  making or editing a picture at the person's provider, which costs money (generate_image, edit_image).
  *          Never covered by "allow app changes" either.
  *   kindOf(text) → 'delete' | 'change'   (a command's id and title; send is set by the tool itself)
@@ -30,6 +32,7 @@
     change: { id: 'change', name: 'app changes', what: 'a change Undo can take back (crop, flatten, merge, replace…)' },
     delete: { id: 'delete', name: 'deleting or clearing', what: 'deleting, clearing, closing or overwriting something' },
     send: { id: 'send', name: 'sending files', what: 'sending a copy of a file or picture to the AI provider' },
+    control: { id: 'control', name: 'running commands in another app', what: 'letting the assistant run the commands of an app open beside the chat' },
     'spend-image': { id: 'spend-image', name: 'spending on image generation', what: 'making or editing a picture at your provider, which charges your account' },
   };
   const MODES = [

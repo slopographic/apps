@@ -69,11 +69,33 @@
     if (m) return '#' + [m[1], m[2], m[3]].map((x) => Math.max(0, Math.min(255, +x)).toString(16).padStart(2, '0')).join('');
     return null;
   }
+  /** Enum matching, forgiving the way models write: the exact value, then the label, then either one ignoring case,
+   * quotes and spaces, then a CSS stack's first family ("Trebuchet MS" → "'Trebuchet MS', sans-serif"), then a prefix
+   * that only one choice has. */
+  const loose = (x) => String(x == null ? '' : x).toLowerCase().replace(/["'\s]+/g, '');
+  const first = (x) => loose(String(x).split(',')[0]);
   function toEnum(a, v) {
-    const s = String(v == null ? '' : v).trim().toLowerCase(), list = choices(a);
-    const hit = list.find(([val]) => String(val).toLowerCase() === s) || list.find(([, label]) => label.toLowerCase() === s)
-      || (s && list.find(([val, label]) => String(val).toLowerCase().startsWith(s) || label.toLowerCase().startsWith(s)));
-    return hit ? hit[0] : undefined;
+    const raw = String(v == null ? '' : v).trim(), s = loose(raw), list = choices(a);
+    const hit = list.find(([val]) => String(val) === raw) || list.find(([, label]) => label === raw)
+      || list.find(([val, label]) => loose(val) === s || loose(label) === s)
+      || (s && list.find(([val, label]) => /,/.test(String(val)) && (first(val) === first(raw) || loose(label) === first(raw))));
+    if (hit) return hit[0];
+    const pre = s ? [...new Set(list.filter(([val, label]) => loose(val).startsWith(s) || loose(label).startsWith(s)).map((c) => c[0]))] : [];
+    return pre.length === 1 ? pre[0] : undefined;
+  }
+  /** What the model is shown for an enum: the values, or the labels when a value is raw (a CSS stack, a text with commas). */
+  const shown = (a) => { const list = choices(a), raw = list.some(([val]) => /[,'"]/.test(String(val))); return list.map(([val, label]) => (raw ? label : val)); };
+  const shownOf = (a, v) => { const list = choices(a), i = list.findIndex(([val]) => val === v); return i < 0 ? v : shown(a)[i]; };
+  function lev(x, y) {
+    let prev = Array.from({ length: y.length + 1 }, (_, i) => i);
+    for (let i = 1; i <= x.length; i++) { const cur = [i]; for (let j = 1; j <= y.length; j++) cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (x[i - 1] === y[j - 1] ? 0 : 1)); prev = cur; }
+    return prev[y.length];
+  }
+  function enumError(a, v) {
+    const names = shown(a), s = loose(v);
+    const best = names.map((n) => [n, lev(s, loose(n))]).sort((x, y) => x[1] - y[1])[0];
+    const close = best && best[1] <= Math.max(2, Math.floor(s.length / 2)) ? ` (closest: ${best[0]})` : '';
+    return `${a.name} must be one of: ${names.join(', ')}${close}`;
   }
 
   /** One argument: { ok, value, note } or { ok: false, error }. */
@@ -91,7 +113,7 @@
     if (a.type === 'boolean') { const b = toBool(v); return b == null ? { ok: false, error: `${a.name} must be true or false` } : { ok: true, value: b }; }
     if (a.type === 'enum') {
       const e = toEnum(a, v);
-      return e === undefined ? { ok: false, error: `${a.name} must be one of: ${choices(a).map((c) => c[0]).join(', ')}` } : { ok: true, value: e };
+      return e === undefined ? { ok: false, error: enumError(a, v) } : { ok: true, value: e };
     }
     if (a.type === 'color') { const c = toColor(v); return c ? { ok: true, value: c } : { ok: false, error: `${a.name} must be a colour like #ff8800 or "red"` }; }
     if (a.type === 'json') {
@@ -156,14 +178,14 @@
       const p = {};
       if (a.type === 'number') { p.type = a.integer ? 'integer' : 'number'; if (a.min != null) p.minimum = a.min; if (a.max != null) p.maximum = a.max; }
       else if (a.type === 'boolean') p.type = 'boolean';
-      else if (a.type === 'enum') { p.type = 'string'; p.enum = choices(a).map((c) => c[0]); }
+      else if (a.type === 'enum') { p.type = 'string'; p.enum = shown(a); }
       else if (a.type === 'color') { p.type = 'string'; p.pattern = '^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$'; }
       else if (a.type === 'json') Object.assign(p, a.schema || { type: 'object' });
       else if (a.type === 'array') { p.type = 'array'; p.items = a.items || {}; if (a.maxItems) p.maxItems = a.maxItems; }
       else if (a.type === 'object') { p.type = 'object'; if (a.properties) p.properties = a.properties; }
       else { p.type = 'string'; if (a.maxLength) p.maxLength = a.maxLength; }
       if (a.description) p.description = a.description;
-      if (a.default !== undefined) p.default = a.default;
+      if (a.default !== undefined) p.default = a.type === 'enum' ? shownOf(a, a.default) : a.default;
       properties[a.name] = p;
       if (a.required) required.push(a.name);
     }
@@ -173,7 +195,7 @@
   function hint(a) {
     const d = a.default !== undefined ? `, default ${a.default}` : '';
     if (a.type === 'number') return `number${a.min != null && a.max != null ? ` ${fmt(a.min)}–${fmt(a.max)}` : ''}${d}`;
-    if (a.type === 'enum') return `one of ${choices(a).map((c) => c[0]).join('|')}${d}`;
+    if (a.type === 'enum') return `one of ${shown(a).join('|')}${a.default !== undefined ? `, default ${shownOf(a, a.default)}` : ''}`;
     if (a.type === 'color') return `colour #rrggbb${d}`;
     if (a.type === 'array') return `list${a.maxItems ? ` of up to ${a.maxItems}` : ''} (JSON)${d}`;
     if (a.type === 'object') return `object (JSON)${d}`;

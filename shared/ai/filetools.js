@@ -2,8 +2,8 @@
  * SlopAIKit.fileTools. Part of the one tool list (appTools.build adds it when env.look is set, for engines that can see).
  *   fileTools.look(env) → the tool:  look_at_file({ file })   file: a Slop Drive name or id, or "open" (what the app
  *        has open, through the same event as the Convert dialog, shared/convert/provided.js)
- *   fileTools.canvas(env) → look_at_canvas(): a picture of the work in this app (SlopCmd.snapshot() when the app provides
- *        one, else the file it hands to Convert, shared/convert/provided.js), so the model can check what it made. Same
+ *   fileTools.canvas(env) → look_at_canvas(): a picture of the work in this app (SlopCmd.snapshot(): the app's own, else its
+ *        work area drawn by shared/commands/view.js; else the file it hands to Convert), so the model can check what it made. Same
  *        kind, 'send', and the same small copy; the chat shows it as a thumbnail.
  *   fileTools.shrink(blob, max) → { mime, data (base64), width, height, from: { width, height } }
  *   fileTools.extract(text, n) → the first n characters, and how many were left out
@@ -86,7 +86,9 @@
   /** look_at_canvas: the app's own picture of its work, else its open file (only pictures and SVG can be looked at). */
   async function snapshot(env) {
     const cmd = env.cmd !== undefined ? env.cmd : window.SlopCmd;
-    const snap = cmd && cmd.snapshot ? await cmd.snapshot() : null;
+    // the app's own picture, else the page's work area drawn (SlopCmd's default, shared/commands/view.js)
+    let snap = null;
+    try { snap = cmd && cmd.snapshot ? await cmd.snapshot() : null; } catch (e) { console.warn('snapshot:', e); }
     if (snap) return { src: snap, name: 'the work in ' + (env.appName || 'this app') };
     const root = new URL('../../', K.base || document.baseURI).href;
     const { ask } = await import(root + 'shared/convert/provided.js');
