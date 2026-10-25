@@ -58,7 +58,8 @@
         expect(taps <= 2).toBe(true);
         expect(taps).toBe(1);   // at 390 px it stays as an icon: the other buttons fold into More first
         const panel = await waitFor(() => { const p = q('.sap'); return p && !p.hidden && p.classList.contains('ssh-on') ? p : null; }, { timeout: 15000 });
-        await sleep(50);
+        // it slides up (.22 s) and is sized to the visual viewport: wait for it to settle, then check it
+        await waitFor(() => { const b = panel.getBoundingClientRect(); return Math.round(b.bottom) === 844 && b.height > 844 * 0.9; }, { timeout: 3000 }).catch(() => null);
         const r = panel.getBoundingClientRect(), cs = W.getComputedStyle(panel);
         expect([Math.round(r.bottom), r.height > 844 * 0.9, alpha(cs.backgroundColor), cs.opacity]).toEqual([844, true, 1, '1']);
         expect(shown(q('.sap-comp textarea')) && shown(q('.sap-send'))).toBe(true);
@@ -75,7 +76,8 @@
       await W.SlopAIPanel.ready;
       const box = await waitFor(() => q('.sap-cloud'), { timeout: 15000 });
       if (!box.open) q('.sap-cloud summary').click();
-      for (const s of ['.sap-cloud-provider', '.sap-cloud-key', '.sap-cloud-test']) { q(s).scrollIntoView({ block: 'nearest' }); expect(shown(q(s))).toBe(true, s); }
+      // the provider is the picker's button (cloud/pick.js); the select it drives is hidden
+      for (const s of ['.sap-cloud .sap-pp-btn', '.sap-cloud-key', '.sap-cloud-test']) { q(s).scrollIntoView({ block: 'nearest' }); expect(shown(q(s))).toBe(true, s); }
       expect(D.documentElement.scrollWidth <= 390 && q('.sap').scrollWidth <= 391).toBe(true);
       const prov = q('.sap-cloud-provider'); prov.value = 'anthropic'; prov.dispatchEvent(new W.Event('change'));
       await waitFor(() => /platform\.claude\.com/.test(q('.sap-cloud-help a') && q('.sap-cloud-help a').href));
