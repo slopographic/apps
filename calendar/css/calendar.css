@@ -93,6 +93,8 @@ body { min-height: 100vh; }
 .ev-form .field, .ics-preview .field { display: grid; gap: 4px; font-size: 13px; color: var(--mute); }
 .ev-form .field.check { display: flex; gap: 8px; align-items: center; }
 .ev-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; }
+.cal-side .ev-form { min-width: 0; width: auto; }   /* the editor in the day panel (js/ui/panel.js) */
+.cal-side .ev-form select, .cal-side .ev-form input:not([type="checkbox"]), .cal-side .ev-form textarea { width: 100%; box-sizing: border-box; }
 .ev-form textarea { width: 100%; resize: vertical; }
 .ev-zones { margin: 0; font-size: 13px; }
 .ics-list { list-style: none; padding: 0; margin: 0; max-height: 40vh; overflow: auto; }

@@ -2,7 +2,7 @@
  * in its letter section and in the CRM view, the orders and invoices of a customer, the 390 px layout with no
  * horizontal scroll, and the keyboard (arrows, Enter, Ctrl+Alt+N, Delete asks first). The app runs in a same-origin iframe
  * and reads the same IndexedDB as the test page.
- * Covers: contacts/js/app/keys.js */
+ * Covers: contacts/js/app/keys.js, contacts/js/app/card.js, contacts/css/contacts.css */
 (function () {
   'use strict';
   const { describe, it, expect, sleep, waitFor } = SlopTest;
@@ -116,29 +116,40 @@
   });
 
   describe('layout and keyboard', () => {
-    it('at 390 px the list is the screen, the card opens as a full page, and nothing scrolls sideways', async () => {
+    it('at 390 px the list is the screen, the card opens as a bottom sheet with its footer, × closes it, nothing scrolls sideways', async () => {
       await CT.resetCustomers();
       await CT.seed([{ name: 'Phone Page', id: 'mob-1' }, { name: 'Other One', id: 'mob-2' }]);
       const win = await boot();
       const fr = document.getElementById('app');
+      win.SlopContacts.state.open = null;   // the saved place may reopen the last contact
+      win.SlopContacts.state.emit('render');
       fr.style.width = '390px';
       fr.style.height = '780px';
+      try {
       await sleep(250);
-      const doc = win.document;
+      const doc = win.document, card = $(win, '#card');
       expect(doc.documentElement.scrollWidth).toBeLessThanOrEqual(doc.documentElement.clientWidth);
-      expect(win.getComputedStyle($(win, '#card')).display).toBe('none');
+      expect(card.classList.contains('ssh-on')).toBe(false);
+      await waitFor(() => win.getComputedStyle(card).visibility === 'hidden', { timeout: 3000 }).catch(() => {});   // the sheet's own .22 s delay
+      expect(win.getComputedStyle(card).visibility).toBe('hidden');
       expect($(win, '#rows').getBoundingClientRect().width).toBeGreaterThan(300);
       rowFor(win, 'Phone Page').click();
-      await waitFor(() => win.getComputedStyle($(win, '#card')).display !== 'none', { timeout: 5000 });
-      await sleep(60);
-      expect($(win, '#card').getBoundingClientRect().width).toBeCloseTo(390, 0.5);
-      expect(win.getComputedStyle($(win, '.back')).display).not.toBe('none');
+      await waitFor(() => card.classList.contains('ssh-on'), { timeout: 5000 });
+      await sleep(320);   // it slides up
+      const r = card.getBoundingClientRect(), foot = $(win, '#card .sf-p-foot').getBoundingClientRect();
+      expect(Math.round(r.width)).toBe(390);
+      expect(r.top).toBeGreaterThan(40);   // a sheet over the list, not a page
+      expect(Math.round(foot.bottom)).toBe(780);
+      const edit = $$(win, '#card .sf-p-foot button').find((b) => b.textContent.trim() === 'Edit');
+      expect(!!edit).toBe(true);
       expect(doc.documentElement.scrollWidth).toBeLessThanOrEqual(doc.documentElement.clientWidth);
-      $(win, '.card-bar .back').click();
-      await sleep(40);
-      expect(win.getComputedStyle($(win, '#card')).display).toBe('none');
-      fr.style.width = '1280px';
-      fr.style.height = '760px';
+      edit.click();   // the footer's main button works in the sheet
+      await waitFor(() => $(win, '#card .ed-form'), { timeout: 5000 });
+      win.SlopContacts.state.mode = 'view'; win.SlopContacts.state.emit('render');
+      $(win, '#card .ssh-x').click();
+      await waitFor(() => !card.classList.contains('ssh-on') && win.SlopContacts.state.open === null, { timeout: 5000 });
+      expect($(win, '#card .sf-p-foot')).toBe(null);
+      } finally { fr.style.width = '1280px'; fr.style.height = '760px'; await sleep(100); }
     });
 
     it('arrow keys move through the list, Enter opens the card, and Delete asks before it removes', async () => {
