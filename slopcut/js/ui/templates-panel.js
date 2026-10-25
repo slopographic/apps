@@ -56,7 +56,7 @@
     card.addEventListener('dragstart', (e) => { if (!c) return; e.dataTransfer.setData(MIME_SLOT, String(i)); e.dataTransfer.effectAllowed = 'move'; });
     card.addEventListener('dragover', (e) => { if (dragHas(e, MIME_SLOT) || dragHas(e, MIME_CLIP) || dragHas(e, MIME_MEDIA) || dragHas(e, MIME_FX)) { e.preventDefault(); card.classList.add('over'); } });
     card.addEventListener('dragleave', () => card.classList.remove('over'));
-    card.addEventListener('drop', (e) => {
+    card.addEventListener('drop', (e) => { // intake-ok: slots, clips, bin items and effects dragged inside the app, not files
       e.preventDefault(); card.classList.remove('over');
       const from = e.dataTransfer.getData(MIME_SLOT), clip = e.dataTransfer.getData(MIME_CLIP), media = e.dataTransfer.getData(MIME_MEDIA), fx = e.dataTransfer.getData(MIME_FX);
       if (from !== '') SE.change('Swap slots', (p) => L.swap(p, i, +from));
@@ -94,7 +94,7 @@
   function clearZone(el) {
     el.addEventListener('dragover', (e) => { if (dragHas(e, MIME_SLOT)) { e.preventDefault(); el.classList.add('over'); } });
     el.addEventListener('dragleave', () => el.classList.remove('over'));
-    el.addEventListener('drop', (e) => {
+    el.addEventListener('drop', (e) => { // intake-ok: a slot dragged onto the clip list
       const from = e.dataTransfer.getData(MIME_SLOT);
       el.classList.remove('over');
       if (from === '') return;

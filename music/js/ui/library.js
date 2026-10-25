@@ -88,27 +88,35 @@
     const cur = curId();
     if (rows) rows.querySelectorAll('.mu-row').forEach((li) => li.classList.toggle('on', li.dataset.id === cur));
   }
-  async function addFiles(files) {
-    if (!files || !files.length) return;
-    const n = await M.lib.addFiles(files);
-    UI().toast(n ? `Added ${n} file${n === 1 ? '' : 's'} to Slop Drive` : 'No files added');
-  }
-  function bind() {
-    rows = $('lib-list'); stat = $('lib-stat'); side = $('lib-side'); empty = $('lib-empty');
-    $('lib-search').addEventListener('input', (e) => { S.q = e.target.value; schedule(); });
-    $('lib-sort').addEventListener('change', (e) => { S.sort = e.target.value; schedule(); });
-    $('mu-add').addEventListener('click', async () => addFiles(await UI().pickFiles({ accept: 'audio/*,.mp3,.wav,.ogg,.oga,.flac,.m4a,.aac,.opus', multiple: true })));
-    $('lib-add-empty').addEventListener('click', async () => addFiles(await UI().pickFiles({ accept: 'audio/*,.mp3,.wav,.ogg,.oga,.flac,.m4a,.aac,.opus', multiple: true })));
-    const view = $('v-library');
-    // Files dropped on the library go through SlopDrop (shared/drop): each one is added to Slop Drive as before.
-    const drop = SlopDrop.attach($('lib-drop'), {
-      accept: { types: ['audio/*'], exts: ['.mp3', '.wav', '.ogg', '.oga', '.flac', '.m4a', '.aac', '.opus'], noun: 'an audio file' },
-      compact: true,
-      targets: [view],
-      process: async (file) => {
+  /** The one way in (shared/intake, spec 'music'): Add files, the empty library's button, a drop on the library, the
+   *  sample, a paste, ?drive=<id> and a PWA launch. A file is added to Slop Drive (the library); a track the library
+   *  already has (another app's Open in Slop Music) plays. */
+  const ACCEPT = { types: ['audio/*'], exts: ['.mp3', '.wav', '.ogg', '.oga', '.flac', '.m4a', '.aac', '.opus'], noun: 'an audio file' };
+  function register() {
+    window.SlopIntake.register({
+      id: 'music', accept: ACCEPT, driveAccept: ['audio/*'],
+      process: async (file, ctx) => {
+        const id = ctx.drive && ctx.drive.id;
+        if (id && M.lib.track(id)) { M.playTrack(id); return file.name; }
         if (!(await M.lib.addFiles([file]))) throw new Error('could not be added to Slop Drive');
         return file.name;
       },
+    });
+  }
+  const addFiles = () => window.SlopIntake.pick({ to: 'music' });
+  function bind() {
+    register();
+    rows = $('lib-list'); stat = $('lib-stat'); side = $('lib-side'); empty = $('lib-empty');
+    $('lib-search').addEventListener('input', (e) => { S.q = e.target.value; schedule(); });
+    $('lib-sort').addEventListener('change', (e) => { S.sort = e.target.value; schedule(); });
+    $('mu-add').addEventListener('click', addFiles);
+    $('lib-add-empty').addEventListener('click', addFiles);
+    const view = $('v-library');
+    // The library's drop strip is the intake's zone (and its feedback for every way in).
+    const drop = SlopDrop.attach($('lib-drop'), {
+      intake: 'music',
+      compact: true,
+      targets: [view],
       // the sample's button is the empty library's (below): a compact strip draws none
       sample: { label: 'Try it with 3 sample tracks', files: () => window.SlopSamples.media.melodies(3, 8) },
     });

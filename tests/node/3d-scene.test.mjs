@@ -1,4 +1,5 @@
 // Slop 3D pure logic: scene model, .s3d round trip, history, snapping, groups and the validator.
+// Covers: 3d/js/core/ops.js, 3d/js/core/model.js
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { load, plain } from './3d-env.mjs';
@@ -72,6 +73,15 @@ test('a group transform applies to its children', () => {
   near(p2[1], 3); near(p2[0], 10); near(p2[2], -2);
   // The child's local transform is untouched by moving its parent.
   assert.deepEqual(plain(moved.nodes[c.id].transform.p), [1, 0, 0]);
+});
+
+test('reparenting an id that is not a node of the scene (__proto__ from a foreign drag) changes nothing', () => {
+  const sc = addCube(M.defaultScene('Drag')).scene;
+  for (const id of ['__proto__', 'constructor', 'prototype', 'nope']) assert.equal(O.reparent(sc, id, null, -1), null, id);
+  assert.equal(O.reparent(sc, sc.roots[0], '__proto__', -1), null);
+  const proto = Object.getPrototypeOf(M.defaultScene('x').nodes);   // the Object.prototype of the scripts' own realm
+  assert.equal(proto.transform, undefined);
+  assert.equal(proto.parent, undefined);
 });
 
 test('reparenting keeps the world position', () => {

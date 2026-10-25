@@ -53,7 +53,6 @@
     <aside class="rm-bin" aria-label="Media">
       <h2>Clips and photos <small id="rm-count"></small></h2>
       <div id="rm-drop" class="rm-drop"></div>
-      <input id="rm-file" type="file" accept="video/*,image/*" multiple hidden>
       <ul id="rm-bin" class="rm-list"></ul>
     </aside>
     <section id="rm-stage" class="rm-stage" aria-label="Preview">
@@ -121,7 +120,7 @@
           <label class="rm-f">Speed<input id="rm-vspeed" type="number" min="0.1" max="8" step="0.1" value="1"></label>
         </div>
       </fieldset>
-      <div class="rm-row"><label class="rm-btn">Pick music file<input id="rm-music" type="file" accept="audio/*,video/*" hidden></label><span id="rm-music-name" class="rm-size"></span></div>
+      <div class="rm-row"><button type="button" class="rm-btn" id="rm-music">Pick music file</button><span id="rm-music-name" class="rm-size"></span></div>
       <div id="rm-custom" class="rm-custom" hidden>
         <label class="rm-f">Width<input id="rm-cw" type="number" min="16" max="7680" step="2" value="1080"></label>
         <label class="rm-f">Height<input id="rm-ch" type="number" min="16" max="4320" step="2" value="1920"></label>
@@ -219,11 +218,16 @@
   <script src="../shared/drop/drop.js"></script>
   <script src="../shared/samples/samples.js"></script>
   <script src="../shared/samples/media.js"></script>
+  <script src="js/intake.js"></script>
   <script src="js/ui.js"></script>
   <script src="../shared/urlstate/urlstate.js"></script>
   <script src="js/auto.js"></script>
   <script src="js/fab.js"></script>
   <script src="js/randomise.js"></script>
+  <script src="../shared/commands/args.js"></script>
+  <script src="../shared/commands/argform.js"></script>
+  <script src="js/ai-commands.js"></script>
+  <script src="js/ai-spec.js"></script>
   <script src="../shell/shell.js"></script>
   <script src="../shared/tour/mount.js" data-app="remix"></script>
   <script src="../shared/spotlight/spotlight.js"></script>

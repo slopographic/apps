@@ -10,6 +10,8 @@ import { FORMATS, fileOf, textOf, presetOf } from './exports.js';
 import { drawList, drawTranscript, textFor } from './view.js';
 import { wireChoice } from './choose.js';
 import { createPrefs } from '../../shared/models/prefs.js';
+import { wireCommands } from './ai-commands.js';
+import { LANGUAGES } from './languages.js';
 import '../../shared/ui/flow.js';
 
 const T = window.SlopAITools, $ = (id) => document.getElementById(id);
@@ -66,9 +68,11 @@ function add(files) {
   return added[added.length - 1].id;
 }
 
-async function run() {
+/** Reads every waiting file. opts (from the commands, ai-commands.js): a language and a model instead of the chosen ones. */
+async function run(opts) {
+  const o = opts && !(opts instanceof Event) ? opts : {};
   say('');
-  await q.run({ language: models.choice.language, choose: (lang) => models.choice.chooseFor(lang), onStatus: say });
+  await q.run({ language: o.language || models.choice.language, choose: (lang) => o.model || models.choice.chooseFor(lang), onStatus: say });
   const list = q.items, bad = list.filter((x) => x.status === 'error').length;
   say(bad ? `${bad} file${bad === 1 ? '' : 's'} could not be read; the reason is under each one.` : 'Done. Check the text before you use it: corrections are kept for Text and Word.');
   if (!current() || current().status !== 'done') { const first = list.find((x) => x.status === 'done'); if (first) select(first.id); }
@@ -81,8 +85,8 @@ async function toggleRecord() {
   if (rec.recording) {
     const file = await rec.stop();
     $('trRecord').classList.remove('is-on'); $('trRecord').textContent = 'Record'; $('trRecTime').hidden = true;
-    const id = file && add([file]);
-    if (id) select(id);
+    const r = file && (await window.SlopIntake.take([file], { to: 'transcribe', source: 'record' })); // the one way in
+    if (r && r.added[0]) select(r.added[0].value);
     return;
   }
   try { await rec.start(); } catch (e) { say(e.message); return; }
@@ -98,18 +102,23 @@ async function exportAs(format, then) {
 }
 
 function wire() {
-  window.SlopDrop.attach($('trDrop'), {
+  // The one way in (shared/intake, spec 'transcribe'): the zone (a drop, Choose files, the sample), a paste, a recording,
+  // ?drive=<id> (another app's Open in Slop Transcribe) and a PWA launch all reach add(). A paste waits for the gate.
+  window.SlopIntake.register({
+    id: 'transcribe', gate: (batch) => !$('trUi').hidden || batch.source !== 'paste', // no paste before the gate has shown the page
     accept: { types: ['audio/*', 'video/*'], exts: ['.mp3', '.m4a', '.wav', '.ogg', '.opus', '.flac', '.webm', '.mp4', '.mov', '.mkv', '.amr', '.wma'], noun: 'an audio or video file' },
-    input: $('trPick'), label: 'Drop audio or video files here, or choose files', hint: 'MP3, WAV, M4A, OGG, FLAC, video… Several at once. Nothing is uploaded.',
+    process: async (file) => { const id = add([file]); if (!id) throw new Error('not an audio or video file'); return id; },
+  });
+  window.SlopDrop.attach($('trDrop'), {
+    intake: 'transcribe', label: 'Drop audio or video files here, or choose files', hint: 'MP3, WAV, M4A, OGG, FLAC, video… Several at once. Nothing is uploaded.',
     // the steps are in the intro (shown before the model is in, as the From → To picture is); the sample is NASA's
     // public-domain Moon landing recording (assets/samples/moon-landing.txt)
     sample: { label: 'Try it with a sample: the Moon landing, 24 s', files: async () => [await window.SlopSamples.asset('moon-landing.ogg', 'Moon landing, Apollo 11.ogg', 'audio/ogg')] },
-    process: async (file) => { const id = add([file]); if (!id) throw new Error('not an audio or video file'); return file.name; },
   });
   $('trFormat').replaceChildren(...FORMATS.map((f) => Object.assign(document.createElement('option'), { value: f.id, textContent: f.label })));
   const preset = presetOf(location.search);   // a task page's link, e.g. ?format=srt (not remembered)
   if (preset.format) $('trFormat').value = preset.format;
-  $('trRun').addEventListener('click', run);
+  $('trRun').addEventListener('click', () => run());
   $('trStop').addEventListener('click', () => { q.stop(); say('Stopping after this file…'); });
   $('trClear').addEventListener('click', () => { if (q.clear()) { selected = null; say(''); draw(); } });
   $('trRecord').addEventListener('click', toggleRecord);
@@ -126,5 +135,6 @@ function wire() {
 const models = wireChoice({ queue: q, run, draw: () => draw(), say, catalog: C, manager: window.SlopAIManager, ui: window.SlopUI, prefs: createPrefs('speech') });
 // engine is exposed so a test can stand in a fake Whisper (the real model is a download the tests do not make)
 window.SlopTranscribe = { queue: q, engine, add, run, select, presetOf, models, get selected() { return selected; } };
-T.gate('speech', () => { $('trUi').hidden = false; });
+T.gate('speech', () => { $('trUi').hidden = false; if (window.SlopHub) window.SlopHub.register('transcribe'); window.SlopIntake.launch({ to: 'transcribe' }); });
 wire();
+wireCommands({ queue: q, add, run, select, current, draw, say, models, catalog: C, tools: T, languages: LANGUAGES });

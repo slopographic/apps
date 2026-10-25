@@ -3,6 +3,7 @@
  *   decode(blob)                Promise<HTMLCanvasElement>: the picture with its orientation applied
  *   encode(canvas, fmt, q)      Promise<Blob>: fmt 'png' | 'jpeg' | 'webp'; q 0..1 for JPEG and WebP
  *   formatSupported(fmt)        Promise<boolean>: whether this browser writes the format (PNG always)
+ *   mime(fmt)                   the MIME type of a format
  *   outName(name, scale, ext)   'holiday-4x.png' */
 (function (g) {
   'use strict';
@@ -37,6 +38,7 @@
     return c;
   };
 
+  IO.mime = (fmt) => MIME[fmt] || 'image/png';
   IO.encode = function (canvas, fmt, q) {
     const type = MIME[fmt];
     return new Promise((res, rej) => canvas.toBlob((b) => {

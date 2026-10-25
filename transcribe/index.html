@@ -30,6 +30,8 @@
   <link rel="stylesheet" href="../aitools/aitools.css">
   <link rel="stylesheet" href="../shared/slopui.css">
   <link rel="stylesheet" href="../shared/models/chooser.css">
+  <link rel="stylesheet" href="../shared/frame/frame.css">
+  <link rel="stylesheet" href="../shared/commands/commands.css">
   <link rel="stylesheet" href="css/transcribe.css">
   <script type="module" blocking="render" src="js/app.js"></script>
 </head>
@@ -49,19 +51,11 @@
 
     <div id="gate" class="tr-gate" aria-live="polite"></div>
 
+    <!-- View · Panel (shared/frame): the files and the transcript; recording, the language, saving and Transcribe on the right -->
     <section id="trUi" class="tr-ui" hidden>
+      <div class="tr-main" id="trView">
       <div class="tr-add">
         <div id="trDrop" class="tr-drop"></div>
-        <input id="trPick" type="file" accept="audio/*,video/*" multiple hidden>
-        <div class="tr-controls">
-          <button type="button" id="trRecord" class="tr-rec">Record</button>
-          <span id="trRecTime" class="tr-rectime" hidden>00:00:00</span>
-          <div class="tr-lang"><span id="trLangHead">Language and model</span>
-            <button type="button" id="trModel" class="tr-modelbtn" aria-haspopup="dialog" aria-describedby="trLangHead">Detect automatically · Whisper tiny</button>
-          </div>
-          <button type="button" id="trRun" class="ai-pri">Transcribe</button>
-          <button type="button" id="trStop" hidden>Stop</button>
-        </div>
         <p id="trMsg" class="tr-msg" role="status" aria-live="polite"></p>
       </div>
 
@@ -76,17 +70,29 @@
           <p id="trPaneMeta" class="tr-meta"></p>
           <div class="tr-tools" role="toolbar" aria-label="Transcript">
             <label class="tr-check"><input type="checkbox" id="trTimes"> Show times</label>
-            <button type="button" id="trCopy">Copy</button>
-            <select id="trFormat" aria-label="File format"></select>
-            <button type="button" id="trDownload" class="ai-pri">Download</button>
-            <button type="button" id="trDrive">Save to Slop Drive</button>
-            <button type="button" id="trDocs">Open in Slop Docs</button>
           </div>
           <div id="trSuggest" class="tr-suggest" aria-live="polite" hidden></div>
           <p id="trEdited" class="tr-edited" hidden>Your corrections are kept for Text and Word. <button type="button" id="trRevert">Undo corrections</button></p>
           <textarea id="trText" class="tr-text" spellcheck="true" aria-label="Transcript text" placeholder="The transcript appears here."></textarea>
         </section>
       </div>
+      </div>
+      <aside class="tr-side" id="trSide" aria-label="Record, language and saving">
+        <div class="tr-controls" id="trRecGroup">
+          <button type="button" id="trRecord" class="tr-rec">Record</button>
+          <span id="trRecTime" class="tr-rectime" hidden>00:00:00</span>
+        </div>
+        <div class="tr-lang" id="trLangGroup"><span id="trLangHead">Language and model</span>
+          <button type="button" id="trModel" class="tr-modelbtn" aria-haspopup="dialog" aria-describedby="trLangHead">Detect automatically · Whisper tiny</button>
+        </div>
+        <label class="sf-field" id="trFormatField"><span class="sf-lab">File format</span><select id="trFormat"></select></label>
+        <button type="button" id="trDownload">Download</button>
+        <button type="button" id="trCopy">Copy</button>
+        <button type="button" id="trDrive">Save to Slop Drive</button>
+        <button type="button" id="trDocs">Open in Slop Docs</button>
+        <button type="button" id="trRun" class="ai-pri">Transcribe</button>
+        <button type="button" id="trStop" hidden>Stop</button>
+      </aside>
     </section>
   </main>
   <script src="../shared/intake/rules.js"></script>
@@ -113,7 +119,14 @@
   <script src="../shared/hub.js"></script>
   <script src="../shared/intake/outtake.js"></script>
   <script src="../shared/ops/entry.js"></script>
+  <script src="../shared/commands/commands.js"></script>
   <link rel="stylesheet" href="../shared/menubar/menubar.css">
+  <script src="../shared/ui/sheet.js"></script>
+  <script src="../shared/ui/menubutton.js"></script>
+  <script src="../shared/ui/resize-panel.js"></script>
+  <script src="../shared/frame/frame.js"></script>
+  <script src="../shared/frame/panel.js"></script>
+  <script src="js/frame.js"></script>
   <script src="../shared/menubar/menubar.js"></script>
   <script>SlopMenuBar.mount({ "app": "Transcribe", "menus": { "File": ["#trRecord", "#trRun", "-", "#trDownload", "#trDrive", "#trDocs", "-", "#trClear"], "Edit": ["#trCopy", "#trRevert"] } });</script>
   <script src="../shell/shell.js"></script>

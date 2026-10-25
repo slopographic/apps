@@ -62,9 +62,15 @@ async function boot() {
   buildPanels();
   buildStatus();
   wireMobile();
+  // The suite rule (shared/frame/HANDOFF.md): Export, the main button, is at the foot of the right-hand panels (the shared
+  // footer, shared/frame/panel.js), as well as File ▸ Export As….
+  if (window.SlopResizePanel) SlopResizePanel.attach($('#panels'), { app: 'photoslop', id: 'panels', edge: 'start', width: 280, min: 220, max: 560,
+    phone: '(max-width: 900px)', cssVar: '--ps-panels-w', target: $('.main'), label: 'Panels' });   // shared/ui/resize-panel.js
+  SlopFramePanel.create($('#panels'), { bare: true })
+    .footer([{ el: $('#exportBtn'), run: () => dlgExport() }]);
   $('#viewport').before(buildViewBar()); // the viewport toolbar (view rotation), above the canvas
   $('#themeToggle').addEventListener('click', () => setTheme(theme() === 'pro' ? 'light' : theme() === 'light' ? 'paint' : 'pro'));
-  $('#exportBtn').addEventListener('click', () => dlgExport());
+  window.PSTopbarFit && PSTopbarFit.mount();
   $('#newBtn').addEventListener('click', () => dlgNew());
   selectTool(TOOL[store.get('tool', 'brush')] ? store.get('tool', 'brush') : 'brush');
   wireCommands();

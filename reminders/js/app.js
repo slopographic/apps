@@ -94,6 +94,8 @@
     S.store.subscribe(() => refreshSoon());
     E.start();
     try { if (g.SlopHub) g.SlopHub.register('reminders'); } catch (e) { /* no hub */ }
+    // SlopCmd: the assistant's record commands (shared/data/ai-records.js through shared/biz/biz.js), loaded when the AI panel first asks
+    if (g.SlopCmd) { g.SlopCmd.init({ app: 'reminders' }); if (g.SlopCmd.provide && g.SlopBiz && g.SlopBiz.assistant) g.SlopCmd.provide({ prepare: () => g.SlopBiz.assistant('reminders') }); }
     await render();
     $('rBoot').hidden = true;
     setInterval(render, 30000);

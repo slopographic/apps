@@ -20,32 +20,18 @@ function wireChrome() {
   $('btnRedo').addEventListener('click', redo);
   $('btnPrint').addEventListener('click', openPrintDialog);
   wireDock();   // ui/app.js: the phone sheet
+  // The suite rule (shared/frame/HANDOFF.md): Print…, the main button, sits at the foot of the right-hand dock (the shared
+  // footer, shared/frame/panel.js); on a phone the closed dock sheet still shows it. File ▸ Print and Ctrl+P too.
+  if (window.SlopFramePanel) SlopFramePanel.create($('dock'), { bare: true }).footer([{ el: $('btnPrint') }], { more: 'Panels', onMore: () => App.sheet && App.sheet.toggle() });
   $('cbLabel').addEventListener('click', () => labelSetupDialog());
   $('recPrev').addEventListener('click', () => setRecord(App.rec - 1));
   $('recNext').addEventListener('click', () => setRecord(App.rec + 1));
   $('zoomIn').addEventListener('click', () => zoomTo(App.zoom * 1.25));
   $('zoomOut').addEventListener('click', () => zoomTo(App.zoom / 1.25));
   $('zoomVal').addEventListener('click', fitView);
-  // drag and drop anywhere: SlopDrop (shared/drop) shows the outline and each file's progress in the strip over the
-  // stage. A picture dropped on the stage lands where it was dropped; everything else opens as before (openFiles).
-  const DROP_RULES = {
-    types: ['image/*'],
-    exts: ['.sloplabel', '.json', '.zpl', '.prn', '.txt', '.csv', '.tsv', '.xlsx', '.svg'],
-    noun: 'a label, picture or data file',
-  };
-  window.SlopDrop.attach($('lbDrop'), {
-    accept: DROP_RULES,
-    compact: true,
-    targets: [$('app')],
-    process: async (file, progress, ctx) => {
-      const hit = ctx.at && document.elementFromPoint(ctx.at.x, ctx.at.y);
-      if (/^image\//.test(file.type) && hit && hit.closest && hit.closest('#stage')) {
-        const [x, y] = toMMpt({ clientX: ctx.at.x, clientY: ctx.at.y });
-        await insertImageFile(file, { x: round(x, 2), y: round(y, 2) });
-      } else await openFiles([file]);
-      return file.name;
-    },
-  });
+  // drag and drop anywhere: the strip over the stage is the intake's zone (ui/intake.js); a picture dropped on the stage
+  // lands where it was dropped, everything else opens as Open… does (openFiles).
+  attachLabelDrop();
   matchMedia('(max-width: 760px)').addEventListener('change', () => setTimeout(fitView, 50));
 }
 /** The label people see on first visit: the product label template. */

@@ -1,11 +1,12 @@
 /* Slop PDF text selection bar: selecting a line of text shows the bar beside it, on screen, and it hides when the selection
    is cleared. Highlight adds one highlight over the line (one undo step). Escape dismisses the bar and Tab moves into it.
-   Edit text, Find and Comment open their tools on the selection; Colour recolours the markup under it; Remove hides the
-   selected text without rebuilding the page, and Redact marks it for the Redact tool. Both can be undone. */
-// Covers: pdf/js/editor/sel-actions.js
+   Edit text, Find and Comment open their tools on the selection; Colour recolours the markup under it; Remove takes the
+   selected text out of the page's content without rasterizing it (and lets the selection go), and Redact marks it for the
+   Redact tool. Both can be undone. */
+// Covers: pdf/js/editor/sel-actions.js, pdf/js/editor/text-strip.js
 (function () {
   'use strict';
-  const { describe, it, expect, waitFor } = SlopTest;
+  const { describe, it, expect, waitFor, sleep } = SlopTest;
   const doc = () => PT.win.document;
   const bar = () => doc().querySelector('.selbar');
   const shown = () => !!bar() && !bar().hidden;
@@ -135,7 +136,7 @@
       expect(texthls()[0].color).not.toBe('#e0102f');
     });
 
-    it('Remove hides the selected text without rebuilding the page: no confirmation, the page file and image are unchanged, and undo brings the cover back', async () => {
+    it('Remove takes the selected text out of the page without rasterizing or asking; the selection and its bar go; undo brings it back', async () => {
       await fixture([{ text: 'Hello world', w: 300, h: 200 }, { text: 'Keep me', w: 300, h: 200 }]);
       const E = PT.E, pg = () => E.state.pages[0], whites = () => pg().annots.filter((a) => a.type === 'whiteout').length;
       const fileBefore = pg().f, orig = E.applyRedactions;
@@ -143,15 +144,22 @@
       E.applyRedactions = async (...args) => { applied++; return orig.apply(E, args); };
       try {
         await select('Hello world');
-        const before = whites();
         act('remove').click();
-        await waitFor(() => whites() > before, { timeout: 5000 });
+        await waitFor(() => pg().f !== fileBefore, { timeout: 8000 });
         expect(doc().querySelector('.sui-dlg')).toBe(null);
         expect(applied).toBe(0);
         expect(!!pg().redacted).toBe(false);
-        expect(pg().f).toBe(fileBefore);
+        expect(whites()).toBe(0, 'removed from the content, nothing painted over it');
+        expect(E.files.get(pg().f).derived.from).toBe(fileBefore);
+        expect(E.state.pages[1].f).toBe(fileBefore, 'the other page keeps its file');
+        await sleep(100);
+        expect(PT.win.getSelection().isCollapsed).toBe(true);
+        expect(!!doc().querySelector('.sel-box')).toBe(false, 'no selection box is left where the text was');
+        expect(shown()).toBe(false, 'the bar goes with the selection');
+        const r = await PT.read(await E.build());
+        expect(r.pages[0].text).toBe('');
+        expect(r.pages[1].text).toBe('Keep me');
         expect(PT.A.undo() != null).toBe(true);
-        expect(whites()).toBe(before);
         expect(pg().f).toBe(fileBefore);
       } finally { E.applyRedactions = orig; }
     });

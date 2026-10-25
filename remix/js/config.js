@@ -24,7 +24,7 @@
         body: SlopUI.el('div', null,
           SlopUI.el('p', { class: 'sui-p' }, 'The reel is set up. These clips are not loaded yet. Add them; each one is matched by its name, and the edit is planned again:'),
           SlopUI.el('ul', { class: 'sui-errors' }, missing.map((m) => SlopUI.el('li', null, `${m.name} (${MB(m.size || 0)})`)))),
-        buttons: [{ label: 'Later' }, { label: 'Add files…', primary: true, act: () => { const f = document.getElementById('rm-file'); if (f) f.click(); } }],
+        buttons: [{ label: 'Later' }, { label: 'Add files…', primary: true, act: () => { window.SlopIntake.pick({ to: 'remix' }); } }],
       });
     }
   }

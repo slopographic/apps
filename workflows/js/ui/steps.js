@@ -142,7 +142,7 @@ export function createSteps(ctx, host) {
     const over = e.target.closest && e.target.closest('.wf-step');
     for (const c of cards.values()) c.el.classList.toggle('wf-drop', c.el === over);
   });
-  host.addEventListener('drop', (e) => {
+  host.addEventListener('drop', (e) => { // intake-ok: a step card moved in the list, not a file
     if (dragFrom < 0) return;
     e.preventDefault();
     const over = e.target.closest && e.target.closest('.wf-step');

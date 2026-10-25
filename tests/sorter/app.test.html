@@ -9,7 +9,7 @@
   <iframe id="app" style="width:1280px;height:860px"></iframe>
   <script src="../harness.js"></script>
   <script>
-  // Covers: assets/shots/sorter.jpg, sorter/index.html, sorter/js/app.js, sorter/js/model.js, shared/drop/folders.js, sorter/css/sorter.css, shared/deck/deck.js, shared/deck/deck.css
+  // Covers: assets/shots/sorter.jpg, sorter/index.html, sorter/js/app.js, sorter/js/model.js, shared/drop/folders.js, sorter/css/sorter.css, sorter/js/frame.js, shared/deck/deck.js, shared/deck/deck.css
   const { describe, it, expect, waitFor, run, sleep } = SlopTest;
   let W, D, A, got;
   const $ = (id) => D.getElementById(id);
@@ -166,6 +166,19 @@
       await waitFor(() => A.deck.state().open);
       const r = A.deck.element.querySelector('.s-bar').getBoundingClientRect();
       expect(r.right <= 391 && r.bottom <= 861).toBe(true);
+    });
+    it('the panel on the right holds the downloads, with Start sorting at its foot (1280); on a phone the foot stays at the bottom', async () => {
+      await boot(1280);
+      A.add([await png('c.png', 'blue')]);
+      const side = $('soSide');
+      expect(side.getBoundingClientRect().left >= $('soView').getBoundingClientRect().right - 1).toBe(true);
+      for (const id of ['soZip', 'soDrive', 'soCsv', 'soClear']) expect(side.contains($(id))).toBe(true);
+      expect($('soStart').closest('.sf-p-foot').parentNode).toBe(side);
+      expect($('soStart').getBoundingClientRect().bottom <= 860).toBe(true);
+      await boot(390);
+      A.add([await png('d.png', 'red')]);
+      const b = $('soStart').getBoundingClientRect();
+      expect(b.top > 760 && b.bottom <= 860).toBe(true);
     });
   });
   run();

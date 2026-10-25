@@ -18,9 +18,11 @@
   const q = (s) => P.document.querySelector(s);
   const dialog = () => [...P.document.querySelectorAll('.sui-back:not(.sui-out) .sui-dlg')].pop() || null;
   async function wipe() {
-    for (const k of Object.keys(localStorage)) if (/^slop-ai\.cloud|^slop-firstrun:ai-cloud:/.test(k)) localStorage.removeItem(k);
-    for (const k of Object.keys(sessionStorage)) if (/^slop-ai\.cloud/.test(k)) sessionStorage.removeItem(k);
-    await new Promise((res) => { const r = indexedDB.deleteDatabase('slop-ai-keys'); r.onsuccess = r.onerror = r.onblocked = () => res(); });
+    for (const k of Object.keys(localStorage)) if (/^slop-ai\.cloud|^slop-ai\.permissions|^slop-firstrun:ai-cloud:/.test(k)) localStorage.removeItem(k);
+    for (const k of Object.keys(sessionStorage)) if (/^slop-ai\.(cloud|permissions)/.test(k)) sessionStorage.removeItem(k);
+    // empty the key store (deleting the database would wait for any page that still has it open)
+    await new Promise((res) => { const r = indexedDB.open('slop-ai-keys'); r.onerror = () => res(); r.onupgradeneeded = () => { r.transaction.abort(); };
+      r.onsuccess = () => { const d = r.result; if (!d.objectStoreNames.contains('keys')) { d.close(); return res(); } const t = d.transaction('keys', 'readwrite'); t.objectStore('keys').clear(); t.oncomplete = t.onerror = () => { d.close(); res(); }; }; });
   }
   const keys = () => P.SlopAIKit.cloud.keys;
   async function open(provider, width = 900) {
@@ -29,8 +31,13 @@
     F = CU.install(P, provider);
     P.SlopAIPanel.open(); await P.SlopAIPanel.ready;
   }
+  /** The full model choice: the header's model menu ▸ AI settings… */
+  async function settings() {
+    q('.sap-status').click();
+    (await waitFor(() => [...P.document.querySelectorAll('.smb-row')].find((r) => r.textContent === 'AI settings…'))).click();
+  }
   async function connect(provider, key) {
-    if (!q('.sap-cloud')) { q('.sap-status').click(); }
+    if (!q('.sap-cloud')) await settings();
     const box = await waitFor(() => q('.sap-cloud'), { timeout: 15000 });
     if (!box.open) q('.sap-cloud summary').click();
     const s = q('.sap-cloud-provider'); s.value = provider; s.dispatchEvent(new P.Event('change'));
@@ -70,7 +77,7 @@
     }, { timeout: 30000 });
 
     it('Forget key removes it everywhere and the panel stops using it', async () => {
-      q('.sap-status').click();
+      await settings();
       await waitFor(() => q('.sap-cloud-forget') && !q('.sap-cloud-forget').disabled);
       q('.sap-cloud-forget').click();
       await waitFor(() => /is gone from this browser/.test(q('.sap-cloud-msg').textContent));
@@ -129,14 +136,14 @@
       expect(q('.sap-cloud-base').value).toBe('http://localhost:11434/v1');
       F.offline = true;
       q('.sap-cloud-test').click();
-      await waitFor(() => /could not reach Ollama on this computer/.test(q('.sap-cloud-msg').textContent));
-      expect(q('.sap-cloud-msg').textContent).toContain('choose Allow');
+      await waitFor(() => /Nothing answers at http:\/\/localhost:11434\/v1/.test(q('.sap-cloud-msg').textContent));
+      expect(q('.sap-cloud-diag').textContent).toContain('choose Allow');
       expect(q('.sap-cloud-local').textContent).toContain('OLLAMA_ORIGINS');
       expect(q('.sap-cloud-local').textContent).toContain(location.origin);
       F.offline = false;
       q('.sap-cloud-base').value = 'http://192.168.0.9:11434/v1';
       q('.sap-cloud-use').click();
-      await waitFor(() => /https:\/\/ address, or http:\/\/localhost/.test(q('.sap-cloud-msg').textContent));
+      await waitFor(() => /mixed content.*https:\/\/ address, or http:\/\/localhost/.test(q('.sap-cloud-msg').textContent));
     }, { timeout: 30000 });
   });
 

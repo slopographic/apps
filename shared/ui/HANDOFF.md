@@ -205,3 +205,4 @@ Orders, Purchases: on a phone the details are the Form view, with a Page / Form 
 Remix (their side parts stack in the page flow and are the main content there).
 
 Tests: `tests/shared/sheet.test.html`, and each app's phone test.
+- `resize-panel.js` (SlopResizePanel): the one way every side panel is resized and keeps its width; see shared/frame/HANDOFF.md (Resizing side panels). Tests: tests/shared/resize-panel.test.html.

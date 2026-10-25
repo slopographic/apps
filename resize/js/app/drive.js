@@ -34,7 +34,7 @@
   D.loadPresets = async function () {
     if (!hub()) return null;
     const fid = await D.folder();
-    const rec = (await hub().list({ folderId: fid })).find((r) => r.name === PRESET_FILE);
+    const rec = (await hub().list({ folderId: fid })).find((r) => r.name === PRESET_FILE); // intake-ok: the presets file by name, not a picker
     if (!rec || !rec.blob) return [];
     try {
       const data = JSON.parse(await rec.blob.text());
@@ -46,7 +46,7 @@
     if (!hub()) return false;
     const H = hub(), fid = await D.folder();
     const blob = new Blob([JSON.stringify({ version: 1, presets: list }, null, 2)], { type: 'application/json' });
-    const rec = (await H.list({ folderId: fid })).find((r) => r.name === PRESET_FILE);
+    const rec = (await H.list({ folderId: fid })).find((r) => r.name === PRESET_FILE); // intake-ok: the presets file by name, not a picker
     if (rec) await H.update(rec.id, { blob });
     else await H.put(blob, { name: PRESET_FILE, from: APP, folderId: fid, meta: { type: 'resize-presets' } });
     return true;

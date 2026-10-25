@@ -194,7 +194,9 @@
     document.querySelectorAll('[data-ins]').forEach((b) => b.addEventListener('click', () => insert(b.dataset.ins)));
     // Published only now, with the listeners attached: this script sits in the <head>, so boot() waits for
     // DOMContentLoaded, and a caller that sees SlopCalcApp earlier would click controls that do nothing yet.
-    window.SlopCalcApp = { commit, copyResult, saveDrive, clearInput, clearTape, insert, focus: () => el.expr.focus(), copyText };
+    window.SlopCalcApp = { commit, copyResult, saveDrive, clearInput, clearTape, insert, focus: () => el.expr.focus(), copyText,
+      setExpr: (t) => { el.expr.value = t; }, snapshot: () => ({ last: S.last && { expr: S.last.expr, text: S.last.text }, tape: S.tape.map((r) => Object.assign({}, r)), ans: S.ans }),
+      restoreTape: (tape) => { S.tape = tape.map((r) => Object.assign({}, r)); renderTape(); } };
     P.init({
       pick: (expr) => { el.expr.value = expr; schedulePreview(); el.expr.focus(); },
       history: () => S.history,

@@ -45,3 +45,6 @@ Slop Hex views and edits any file as bytes. It is registered in `shared/apps.js`
 - Find over a very large file reads the whole file in 1 MB chunks, with no progress bar. Press Next again to run it again if it is cancelled by a new search.
 - SHA-256 reads the current content into memory, so a 100 MB hash needs about 100 MB more.
 - Versions are never deleted or merged by the app.
+
+## Assistant commands
+`js/ai-commands.js` (loaded by `SlopCmd.prepare()` from `commands.js`): `hex.ai.new_file` (name, hex or text), `open_file` (Slop Drive), `set_bytes` (offset, hex or text: overwrites, never inserts; one undo step), `find_bytes`, `save_version` (a new file's first Drive record, else Save version), `export_file` (to, name). `doc.undoDepth()` is the checkpoint's mark. Test: `tests/hex/ai-commands.test.html`.

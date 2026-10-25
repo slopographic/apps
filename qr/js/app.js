@@ -118,6 +118,9 @@
     remove() { S().logo.href = null; S().logo.name = ''; S().logo.mark = ''; logoDone(); },
     width(f) { S().logo.frac = window.QRRender.clampLogo(f); edit(); },
   };
+  // The logo is the page's one way in for files (shared/intake, spec 'qr'): the logo tab's box (a click or a drop) and a
+  // pasted picture.
+  window.SlopIntake.register({ id: 'qr', limit: 1, accept: { types: ['image/*'], exts: ['.svg'], noun: 'a picture' }, process: async (f) => { await logoActs.file(f); return f.name; } });
   function logoDone() { edit(); drawTab('logo'); }
 
   function applyTemplate(id) {

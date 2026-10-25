@@ -11,9 +11,12 @@
   <script src="../harness.js"></script>
   <script src="../../shared/slopui.js"></script>
   <script src="../../shared/commands/commands.js"></script>
+  <script src="../../vendor/dompurify/purify.min.js"></script>
+  <script src="../../shared/sanitize/sanitize.js"></script>
   <script src="../../shared/print/print.js"></script>
   <div id="source"><h1 class="title">Quarterly report</h1><p>Total: 42</p><script>window.__ran = true</script><img src="https://example.com/x.png" alt="remote"><a href="https://example.com/" onclick="x()">link</a></div>
   <script>
+  // Covers: shared/print/print.js, shared/sanitize/sanitize.js
   const { describe, it, beforeEach, expect, waitFor, sleep, run } = SlopTest;
   const U = window.SlopUI;
   const P = window.SlopPrint;
@@ -95,6 +98,20 @@
       expect(doc.querySelector('a').hasAttribute('href')).toBe(false);
       expect(doc.querySelector('a').hasAttribute('onclick')).toBe(false);
       expect(doc.defaultView.__ran).toBe(undefined);
+      await closeAll();
+    });
+    it('markup that tries to run script gets none, and the preview frame is sandboxed without scripts', async () => {
+      window.__printXss = undefined;
+      P.open({ title: 'Bad', html: '<p>Kept</p><noscript><p title="</noscript><img src=x onerror=parent.__printXss=1>"></p></noscript>' +
+        '<svg><animate attributeName="href" values="javascript:parent.__printXss=2"/></svg><img src=x onerror="parent.__printXss=3">' +
+        '<math><mtext><table><mglyph><style><img src=x onerror=parent.__printXss=4></style></mglyph></table></mtext></math>' });
+      const doc = await previewDoc();
+      await sleep(150);
+      expect(doc.body.textContent).toContain('Kept');
+      expect(preview().getAttribute('sandbox')).toBe('allow-same-origin');
+      expect(doc.querySelectorAll('[onerror]').length).toBe(0);
+      expect(doc.querySelector('animate')).toBe(null);
+      expect(window.__printXss).toBe(undefined);
       await closeAll();
     });
     it('copies the page print CSS into the frame', async () => {

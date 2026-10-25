@@ -10,7 +10,7 @@
 <script src="../harness.js"></script>
 <script>
   // Covers: photoslop/js/app/intake.js, photoslop/js/app/main.js, photoslop/js/app/tabs.js, photoslop/js/app/welcome.js, photoslop/js/io/files.js, photoslop/js/io/hub.js
-  // Covers: photoslop/js/ui/menus.js, photoslop/js/brushes/panel.js, photoslop/js/watermark/panel.js, photoslop/js/io/config.js, photoslop/js/layers/fx-preset-picker.js
+  // Covers: photoslop/js/ui/menus.js, photoslop/js/brushes/panel.js, photoslop/js/watermark/panel.js, shared/watermark/panel.js, photoslop/js/io/config.js, photoslop/js/layers/fx-preset-picker.js
   // Covers: photoslop/js/layers/fx-rows.js, photoslop/js/ui/panels.js, photoslop/js/type/edit.js
   // PhotoSlop, a reference app of the one intake: Open… and Place Image as Layer… (the picker), a drop with its zone's
   // mode, a paste (Add or New asked), Open from Slop Drive (the tab keeps the Drive record), ?drive=<id> (launch) and the
@@ -98,12 +98,15 @@
     it('brushes and the watermark logo are parts of their own (the picker goes to them, not to the document)', async () => {
       const got = [];
       win.importBrushFiles = async (files) => { got.push('brushes:' + files.length); };
-      win.wmSetLogo = async (f) => { got.push('logo:' + f.name); };
+      const logos = () => win.wmState().spec.layers.filter((L) => L.kind === 'logo').length;
       win.SlopUI.pickFiles = async () => [await png('tip.png')];
       seen = [];
       await win.SlopIntake.pick({ to: 'photoslop.brushes' });
+      const n = logos();
+      // the logo part is the shared watermark panel's (shared/watermark/panel.js): the picture becomes a logo layer
       await win.SlopIntake.pick({ to: 'photoslop.logo' });
-      expect(got).toEqual(['brushes:1', 'logo:tip.png']);
+      await waitFor(() => logos() === n + 1, { timeout: 8000 });
+      expect(got).toEqual(['brushes:1']);
       expect(seen.length).toBe(0);
     });
   });

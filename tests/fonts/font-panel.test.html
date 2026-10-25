@@ -69,7 +69,8 @@
       await FontTest.removeOwnFonts();
       SlopFonts.openPanel({ fonts: ['Barlow'] });
       await until(() => rowOf('Barlow'));
-      FontTest.pick(rowOf('Barlow').querySelector('input[type="file"]'), await FontTest.barlowFile());
+      btnIn(rowOf('Barlow'), 'Drop your own font').click(); // no shared/intake on this page: the panel's own file input
+      FontTest.pick([...document.querySelectorAll('body > input[type="file"]')].pop(), await FontTest.barlowFile());
       await until(() => rowOf('Barlow') && rowOf('Barlow').textContent.includes('Installed from your file'));
       FontTest.closeAll();
     });

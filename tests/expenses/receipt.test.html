@@ -32,11 +32,11 @@
     W.SlopExpenses.app.go('new');
     await waitFor(() => !$('view-edit').hidden && !$('eForm').hidden && $('eAccount').options.length > 1);
   }
+  /** From a receipt… is the intake's picker (spec 'expenses'). */
   function pick() {
-    const dt = new W.DataTransfer();
-    dt.items.add(new W.File([new W.Uint8Array(20)], 'receipt.jpg', { type: 'image/jpeg' }));
-    $('eReceiptPick').files = dt.files;
-    $('eReceiptPick').dispatchEvent(new W.Event('change'));
+    const f = new W.File([new W.Uint8Array(20)], 'receipt.jpg', { type: 'image/jpeg' });
+    W.SlopUI.pickFiles = async () => [f];
+    $('eReceipt').click();
   }
 
   describe('From a receipt…', () => {
@@ -68,6 +68,13 @@
       expect(asked).toBe('ppocr-v4');
       expect($('eAmount').value).toBe('');
       expect(saved.length).toBe(0);
+    });
+    it('a pasted receipt photo is read the same way (the intake, spec expenses)', async () => {
+      await boot(true);
+      const dt = new W.DataTransfer(); dt.items.add(new W.File([new W.Uint8Array(20)], 'pasted.jpg', { type: 'image/jpeg' }));
+      D.body.dispatchEvent(new W.ClipboardEvent('paste', { bubbles: true, cancelable: true, clipboardData: dt }));
+      await waitFor(() => $('eAmount').value === '10.59');
+      expect(saved.map((x) => x.name)).toEqual(['pasted.jpg']);
     });
   });
   run();

@@ -64,7 +64,7 @@
         }
         if (d.modelVersion) model = d.modelVersion;
         const u = d.usageMetadata;
-        if (u) { usage.input = u.promptTokenCount || 0; usage.output = (u.candidatesTokenCount || 0) + (u.thoughtsTokenCount || 0); }
+        if (u) { usage.input = u.promptTokenCount || 0; usage.output = (u.candidatesTokenCount || 0) + (u.thoughtsTokenCount || 0); usage.cacheRead = u.cachedContentTokenCount || 0; }   // implicit caching: automatic
         if (d.promptFeedback && d.promptFeedback.blockReason) stop = 'refusal';
         const cand = (d.candidates || [])[0];
         if (!cand) return [];

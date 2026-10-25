@@ -63,8 +63,7 @@
       expect(input.style.fontFamily.indexOf('Source Sans 3') > -1).toBe(true, input.style.fontFamily);
       input.value = 'goodbye';
       enter(input);
-      await sleep(120);
-      const annot = PT.E.state.pages[0].annots.find((a) => a.type === 'text' && a.text === 'goodbye');
+      const annot = await waitFor(() => PT.E.state.pages[0].annots.find((a) => a.type === 'text' && a.text === 'goodbye'), { timeout: 8000 }); // the old run leaves the content first (text-strip.js)
       expect(!!annot).toBe(true);
       expect(annot.font).toBe('Source Sans 3');
       const name = await savedFontOf('goodbye');
@@ -95,11 +94,9 @@
       const at = await startEdit(await barlowPdf('hello world'), 'barlow3.pdf');
       press(at, 13);
       await waitFor(() => doc().querySelector('.sf-ov'), { timeout: 8000 });
-      const input = doc().querySelector('.sf-row input[type="file"]');
-      const dt = new PT.win.DataTransfer();
-      dt.items.add(new PT.win.File([await PT.fixture('Barlow-Regular.ttf')], 'Barlow-Regular.ttf', { type: 'font/ttf' }));
-      input.files = dt.files;
-      input.dispatchEvent(new PT.win.Event('change'));
+      const picked = new PT.win.File([await PT.fixture('Barlow-Regular.ttf')], 'Barlow-Regular.ttf', { type: 'font/ttf' });
+      PT.win.SlopUI.pickFiles = async () => [picked]; // the row's Drop your own font… is the intake's picker (part fonts.file)
+      [...doc().querySelector('.sf-row').querySelectorAll('button')].find((b) => /Drop your own font/.test(b.textContent)).click();
       await waitFor(() => doc().querySelector('.edit-run'), { timeout: 8000 });
       expect((await (await store()).listPacks()).some((p) => p.id.startsWith('user-barlow'))).toBe(true, 'the file is stored');
       expect(doc().querySelector('.sf-ov')).toBe(null, 'the one family is answered by the file');
@@ -107,8 +104,7 @@
       const run = doc().querySelector('.edit-run');
       run.value = 'goodbye';
       enter(run);
-      await sleep(120);
-      const annot = PT.E.state.pages[0].annots.find((a) => a.type === 'text' && a.text === 'goodbye');
+      const annot = await waitFor(() => PT.E.state.pages[0].annots.find((a) => a.type === 'text' && a.text === 'goodbye'), { timeout: 8000 }); // the old run leaves the content first (text-strip.js)
       expect(annot && annot.font).toBe('Barlow');
       const name = await savedFontOf('goodbye');
       expect(!!name && /Barlow-Regular/.test(name)).toBe(true, 'saved font ' + name);

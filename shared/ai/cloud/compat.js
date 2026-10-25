@@ -11,12 +11,9 @@
   'use strict';
   const K = (window.SlopAIKit = window.SlopAIKit || {});
   const C = (K.cloud = K.cloud || {}); C.formats = C.formats || {};
-  const root = (cfg) => String(cfg.base || '').replace(/\/+$/, '');
-  function headers(cfg) {
-    const h = Object.assign({ 'content-type': 'application/json' }, (cfg.provider && cfg.provider.headers) || {});
-    if (cfg.key) h.authorization = 'Bearer ' + cfg.key;
-    return h;
-  }
+  /** base + path (a query in the base, Azure's ?api-version=…, stays at the end); the key in the provider's header. */
+  const url = (cfg, path) => C.endpoint(cfg.base, path);
+  const headers = (cfg) => Object.assign({ 'content-type': 'application/json' }, C.authHeaders(cfg));
 
   function convert(messages) {
     const out = [];
@@ -48,7 +45,7 @@
     if (p.usageOption !== false) body.stream_options = { include_usage: true };
     if (p.maxTokens) body.max_tokens = opts.maxTokens || p.maxTokens;
     if (tools.length) body.tools = tools.map((t) => ({ type: 'function', function: { name: t.name, description: t.description || t.name, parameters: t.inputSchema } }));
-    return { url: root(cfg) + '/chat/completions', init: { method: 'POST', headers: headers(cfg), body: JSON.stringify(body) } };
+    return { url: url(cfg, '/chat/completions'), init: { method: 'POST', headers: headers(cfg), body: JSON.stringify(body) } };
   }
 
   function parser() {
@@ -65,7 +62,7 @@
           throw new C.CloudError(kind, C.plain(kind, 'The AI provider', { detail: msg }), { status: code, detail: msg });
         }
         if (d.model) model = d.model;
-        if (d.usage) { usage.input = d.usage.prompt_tokens || 0; usage.output = d.usage.completion_tokens || 0; }
+        if (d.usage) { usage.input = d.usage.prompt_tokens || 0; usage.output = d.usage.completion_tokens || 0; usage.cacheRead = (d.usage.prompt_tokens_details && d.usage.prompt_tokens_details.cached_tokens) || 0; }
         const ch = (d.choices || [])[0];
         if (!ch) return [];
         if (ch.finish_reason) stop = ch.finish_reason;
@@ -90,13 +87,17 @@
     };
   }
 
+  /** Lists also carry embedding, picture, speech and rerank models (Together, DeepInfra, Fireworks…), which cannot chat. */
+  const NOT = /(^|[-_/.])(embed|embedding|rerank|whisper|tts|moderation|guard)/i;
+  const chatty = (m) => !(m.type && /embed|image|rerank|moderation|audio|transcri/i.test(m.type)) && !NOT.test(m.id || m.name);
   async function models(cfg) {
-    const res = await C.call(root(cfg) + '/models', { headers: headers(cfg), signal: cfg.signal }, { secret: cfg.key, provider: cfg.provider });
+    const res = await C.call(url(cfg, (cfg.provider && cfg.provider.modelsEndpoint) || '/models'), { headers: headers(cfg), signal: cfg.signal }, { secret: cfg.key, provider: cfg.provider });
     const j = await res.json();
-    const list = (Array.isArray(j) ? j : j.data || j.models || []).map((m) => (typeof m === 'string' ? { id: m } : m)).filter((m) => m && (m.id || m.name));
+    const list = (Array.isArray(j) ? j : j.data || j.models || []).map((m) => (typeof m === 'string' ? { id: m } : m)).filter((m) => m && (m.id || m.name) && chatty(m));
     return list.map((m) => {
       const o = { id: m.id || m.name, name: m.name || m.id };
       if (m.pricing) o.price = { input: Number(m.pricing.prompt) * 1e6 || 0, output: Number(m.pricing.completion) * 1e6 || 0 };   // $ per token → per million
+      if (m.pricing && m.pricing.input_cache_read != null) o.price.cacheRead = Number(m.pricing.input_cache_read) * 1e6 || 0;
       if (Array.isArray(m.supported_parameters)) o.tools = m.supported_parameters.includes('tools');
       return o;
     });

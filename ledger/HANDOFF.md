@@ -44,3 +44,11 @@ balance, reversals, and exchange rates. Browser only, local only. All rules live
 - Entries from other modules (for example invoices) appear in the journal and can be reversed here, but are not edited here.
 - Amounts in CSV are plain decimals in the base or entry currency; no locale formatting.
 - Tests: `node tests/run.mjs ledger` (tests/ledger/*.test.html; Import SIE and statements in tests/ledger/sie.test.html), and `tests/node/finance-ledger.test.mjs`.
+
+## Assistant commands (`shared/data/ai-records-apps.js`, block `ledger`)
+Loaded on demand by `SlopCmd.prepare()` (`js/ui/commands.js` → `SlopBiz.assistant('ledger')`). The record commands
+(`shared/data/ai-records.js`) on `journal` (posting only, through `SlopData.ledger.postJournal`) and `accounts`, plus
+`create_journal_entry` (balanced lines with plain amounts), `add_account`, `export_trial_balance` (`NS.csv.trialCsv`) and
+`export_statement` (profit and loss or balance sheet for a period, `NS.statements`), as CSV to Slop Drive and/or a download.
+Posted entries are not taken back by "Undo all AI changes" (the journal is immutable; reverse an entry instead).
+Test: `tests/ledger/ai-commands.test.html`.

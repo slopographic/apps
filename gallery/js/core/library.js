@@ -122,6 +122,13 @@
     return a.photoIds.length - next.length;
   }
 
+  /** Puts an album's photos in this order (ids first, in the order given; the album's other photos keep theirs after them). */
+  async function reorderAlbum(albumId, ids) {
+    const a = albums.get(albumId); if (!a) return null;
+    const first = ids.filter((id) => a.photoIds.includes(id)), rest = a.photoIds.filter((id) => !first.includes(id));
+    return writeAlbum(Object.assign({}, a, { photoIds: [...new Set(first)].concat(rest) }));
+  }
+
   const api = {
     load, get loaded() { return loaded; },
     photo: (id) => photos.get(id) || null,
@@ -131,7 +138,7 @@
     album: (id) => albums.get(id) || null,
     hasSha: (sha) => shas.has(sha),
     addEntries, remove, retag, setLiked, toggleFav, addTag, removeTag, syncDrive,
-    createAlbum, renameAlbum, deleteAlbum, addToAlbum, removeFromAlbum, newId,
+    createAlbum, renameAlbum, deleteAlbum, addToAlbum, removeFromAlbum, reorderAlbum, newId,
     on(fn) { listeners.add(fn); return () => listeners.delete(fn); },
     _reset() { photos.clear(); albums.clear(); shas.clear(); loaded = false; },
   };

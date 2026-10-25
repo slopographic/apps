@@ -107,3 +107,16 @@ button opens and closes it; the shared ×, Escape, a tap outside (the label, the
 `showDock(tab)` / `hideDock()` are thin wrappers; there is no `dock-open` class, stage tap handler or own motion any more
 (the shared look gives place and motion; `mobile.css` sets the height and puts the × over the tab row's end). Test:
 `tests/label/ui-flows.test.js` (phone layout), run by `tests/label/sloplabel.test.html`.
+
+## Assistant commands (`js/ui/ai-commands.js`, `js/ui/ai-files.js`)
+Loaded on demand by `SlopCmd.prepare()` (`loadLabelAI` in `ui/commands.js`, with `shared/commands/sources.js`); not in the
+offline build, which has no AI panel. All `label.ai.*`, hidden, each edit one undo step through `commit`/`editDoc`; lengths in
+mm from the label's top-left. `new_label` (preset, stock or width/height; a new tab), `add_text` (font, size, bold, italic,
+align, rotation, wrap width), `add_barcode` (every `SYMBOLOGIES` id; refused when the value cannot be encoded), `add_qr`,
+`add_shape` (rect, ellipse, line, inverse), `add_image` (Slop Drive or a same-origin URL, `addImageAsset`), `set_property`,
+`data_merge` (columns + rows, or a CSV/TSV/JSON file from Slop Drive; map, quantity column), `delete_object` (the only
+destructive one), `export` (PDF of every record, PNG, ZPL or .sloplabel, to Slop Drive and/or a download), `undo`. The add
+commands say where the object sits and warn when it runs past the label's edge; `fit: true` shrinks it inside.
+`state()` lists the label, objects and data; the checkpoint closes the tabs the assistant opened and undoes back.
+Not built: a headless "spec → label PDF" operation (the writer needs the app's page globals; it would need the hidden-app host).
+Test: `tests/label/ai-commands.test.html`.

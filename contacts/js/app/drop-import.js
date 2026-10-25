@@ -1,36 +1,46 @@
-/* Slop Contacts: vCards and CSV files dropped on the contact list, or chosen with the zone's button, go to the import
- * flow together (one preview). Other files are refused with their names (SlopDrop, shared/drop: the column is the drop
- * target and the zone sits at its head). Adds SlopContacts.dropImport. */
+/* Slop Contacts: the one way files come in (shared/intake, spec 'contacts'). vCards, CSV, TSV and .scontacts files
+ * dropped on the contact list (or chosen with the zone's button), chosen with Import ▸ Choose files…, pasted, or handed
+ * over from Slop Drive (?drive=<id>, a PWA launch) go to the import flow together (one preview, which waits for the
+ * person: the intake does not wait for it). Other files are refused with their names. A contact's photo is a part of its
+ * own ('contacts.photo'). Adds SlopContacts.dropImport: mount(), pick(), pickPhoto(), launch(). */
 (function () {
   'use strict';
-  const SC = window.SlopContacts;
-
+  const SC = window.SlopContacts, SI = window.SlopIntake;
   const RULES = {
-    types: ['text/vcard', 'text/x-vcard', 'text/csv', 'application/csv', 'text/comma-separated-values', 'text/plain'],
-    exts: ['.vcf', '.vcard', '.csv'],
-    noun: 'a vCard (.vcf, .vcard) or a CSV (.csv) file',
+    types: ['text/vcard', 'text/x-vcard', 'text/csv', 'application/csv', 'text/comma-separated-values', 'text/plain', 'text/tab-separated-values', 'application/json'],
+    exts: ['.vcf', '.vcard', '.csv', '.tsv', '.txt', '.scontacts'],
+    noun: 'a vCard (.vcf, .vcard), a CSV or a .scontacts file',
   };
-  let pending = []; // the accepted files of the batch, read by the import flow once the batch is done
-
-  /** One accepted file. A name the import does not read (a .txt with a text type) is refused here, by name. */
-  function process(file) {
-    if (!SC.importPlan.DROPPABLE.test(file.name || '')) throw new Error('is not a vCard or CSV file');
-    pending.push(file);
-    return file.name;
-  }
-  /** After the batch: the files go to the import flow together, so the preview lists them all. */
-  function done() {
-    const list = pending;
-    pending = [];
-    if (list.length) SC.importFlow.run(list);
-  }
+  const ACCEPT = '.vcf,.vcard,.csv,.tsv,.txt,.scontacts,text/vcard,text/csv,application/json';
+  SI.register({
+    id: 'contacts', accept: RULES,
+    processAll: (files) => {
+      SC.importFlow.run(files).catch((e) => window.SlopUI.toast(`Could not import: ${e.message}`));
+      return files.map((f) => f.name);
+    },
+  });
+  SI.register({
+    id: 'contacts.photo', main: false, paste: false, toast: false, limit: 1, accept: { types: ['image/*'], noun: 'a picture' },
+    process: (file) => SC.photoUi.toJpegDataUri(file),
+  });
 
   function mount() {
     const column = document.querySelector('.col-list');
     const zone = document.getElementById('ctDrop');
     if (!column || !zone || !window.SlopDrop) return;
-    SlopDrop.attach(zone, { accept: RULES, compact: true, label: 'Drop vCards or CSV files here', targets: [column], process, done });
+    SlopDrop.attach(zone, { intake: 'contacts', compact: true, label: 'Drop vCards or CSV files here', targets: [column] });
   }
+  /** Import ▸ Choose files…. */
+  const pick = () => SI.pick({ to: 'contacts', accept: ACCEPT });
+  /** Choose photo…: resolves the photo as a JPEG data URI, or null. Throws the reason when it could not be read. */
+  async function pickPhoto() {
+    const r = await SI.pick({ to: 'contacts.photo', multiple: false, accept: 'image/*' });
+    if (r.added[0]) return r.added[0].value;
+    if (r.skipped[0]) throw new Error(r.skipped[0].reason);
+    return null;
+  }
+  /** What the page was opened with. Resolves true when something was handed over. */
+  const launch = async () => { const r = await SI.launch({ to: 'contacts' }); return !!(r && r.added && r.added.length); };
 
-  SC.dropImport = { mount };
+  SC.dropImport = { mount, pick, pickPhoto, launch };
 })();

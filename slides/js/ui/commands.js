@@ -4,6 +4,21 @@
   'use strict';
   var SS = window.SS, A = SS.app, OP = SS.ops, C = null;
   var K = SS.commands = {};
+  var HERE = (document.currentScript && document.currentScript.src) || location.href;
+  /** The assistant's commands with arguments (ai-files.js, ai-commands.js), loaded in order when SlopCmd.prepare() asks. */
+  function script(name) {
+    return new Promise(function (res, rej) {
+      var s = document.createElement('script');
+      s.src = new URL(name, HERE).href; s.async = false;
+      s.onload = res; s.onerror = function () { rej(new Error('Could not load ' + name)); };
+      document.head.append(s);
+    });
+  }
+  K.prepare = function () {
+    if (SS.aiCmd) return Promise.resolve();
+    return (window.SlopCmdSources ? Promise.resolve() : script('../../../shared/commands/sources.js'))
+      .then(function () { return script('ai-files.js'); }).then(function () { return script('ai-commands.js'); });
+  };
   function editing() { return A.mode === 'edit' && !SS.textEdit.editing; }
   function hasSel() { return editing() && A.sel.length > 0; }
   function cmd(id, title, group, keys, run, when, extra) {
@@ -62,5 +77,6 @@
     if (!C) { console.warn('Slop Slides: SlopCmd is missing; keyboard shortcuts are off'); return; }
     C.init({ app: 'slides' });
     C.register(list());
+    if (C.provide) C.provide({ prepare: K.prepare });
   };
 })();

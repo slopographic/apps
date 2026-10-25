@@ -1,11 +1,13 @@
 /* Slop Docs for the assistant: SlopCmd commands with argument schemas (shared/commands/args.js), the state summary and
  * the checkpoint for "Undo all AI changes". An ES module imported on demand by SlopCmd.prepare() (ui/commands.js), never
  * at boot. Each command is one SlopDocs.edit, so one step in the document's own undo history. The commands are hidden
- * from the palette (the menus have the same actions) and none is destructive: all of them undo. */
+ * from the palette (the menus have the same actions) and none is destructive: all of them undo. The commands that make
+ * documents and their content (new, build from outline, lists, tables, pictures, export) are in ai-create.js. */
 import { para, paraText, paraLen, wordCount } from '../model/doc.js';
 import { setParas, setMarks, ordered, collapsed, textBetween } from '../model/ops.js';
 import { STYLE_ORDER, STYLE_NAMES, headingLevel } from '../model/styles.js';
 import { insertParas, findAll, replaceMatches } from '../model/ai-edit.js';
+import { commands as createCommands, made, closeMade } from './ai-create.js';
 
 const S = window.SlopDocs, C = window.SlopCmd;
 const WHERE = { name: 'where', type: 'enum', values: ['caret', 'end', 'start'], default: 'caret', description: 'caret puts it after the paragraph with the caret' };
@@ -110,13 +112,17 @@ function state() {
 }
 /** The document as it is now; the rollback puts it back as one more undo step. False when another tab or document is open. */
 function checkpoint() {
-  const hist = S.undoStack, blocks = S.doc.blocks, sel = S.sel;
+  const hist = S.undoStack, blocks = S.doc.blocks, sel = S.sel, mark = made.length;
   return () => {
+    closeMade(mark);
     if (!S.doc || S.undoStack !== hist) return false;
     if (S.doc.blocks !== blocks) S.edit(blocks, sel, 'ai');
     return true;
   };
 }
 
+if (!window.SlopCmdSources) await new Promise((res, rej) => document.head.append(Object.assign(document.createElement('script'),
+  { src: new URL('../../../shared/commands/sources.js', import.meta.url).href, onload: res, onerror: () => rej(new Error('Could not load sources.js')) })));
+createCommands(add);
 C.register(list);
 C.provide({ state, checkpoint });

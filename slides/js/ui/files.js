@@ -3,12 +3,11 @@
    picker opens in a tab linked to it. A zero-byte .sslide (Drive's New menu) opens as a blank deck. Pictures open as a
    one-slide deck and other formats open as a blank deck, in a tab with no link, so Save can never overwrite a file this
    editor did not write. A PowerPoint file (Drive, a drop or Open a file) is imported into a tab with no link, and what was left
-   out is reported. Also: the .sslide download, PowerPoint, PDF and PNG export, and the boot. Exposes SS.files. */
+   out is reported. Files come in through the intake (file-drop.js). Also: the .sslide download, PowerPoint, PDF and PNG export, and the boot. Exposes SS.files. */
 (function () {
   'use strict';
   var SS = window.SS, A = SS.app, N = SS.native, U = SS.util, D = SS.dom, R = SS.canvasRender;
   var F = SS.files = {};
-  var PPTX = 'application/vnd.openxmlformats-officedocument.presentationml.presentation';
   var hub = function () { return window.SlopHub || null; };
   var api = function () { return SS.tabs.api(); };
 
@@ -25,17 +24,9 @@
     SS.tabs.open(N.normalize(U.clone(rec.deck)), {});
     D.toast('New presentation from ' + rec.name);
   };
-  /** File ▸ Open: a native .sslide from Slop Drive, in a new tab linked to that file (the strip's picker and open). */
-  F.openDrive = function () {
-    if (!hub() || !api()) return null;
-    return api().openFromDrive({ title: 'Open from Slop Drive' });
-  };
-  /** File ▸ Import: a PowerPoint or picture file from Slop Drive, in a tab with no link. */
-  F.importDrive = async function () {
-    if (!hub()) return;
-    var rec = await hub().pickFromDrive({ accept: [PPTX, 'image/*'], title: 'Import from Slop Drive' });
-    if (rec) await F.openRecord(rec);
-  };
+  /** File ▸ Open (a native .sslide from Slop Drive, linked) and Import (a PowerPoint or picture): the intake (file-drop.js). */
+  F.openDrive = function () { return SS.fileDrop.openDrive(); };
+  F.importDrive = function () { return SS.fileDrop.importDrive(); };
   /** Opens a Drive record (full or summary) in a tab. A tab already showing that file is brought forward. Resolves true when a deck is open. */
   F.openRecord = async function (rec) {
     var full = rec.blob !== undefined ? rec : await hub().get(rec.id);
@@ -124,14 +115,17 @@
 
   /** Boot: the tabs come back (session.js). A launch from Slop Drive opens in a tab of its own, and an untouched blank tab it
    * replaces is closed. The launch was read before this (main.js), because showing a tab rewrites the address bar. */
+  /** Boot: the tabs come back, then what the page was opened with (launch: SS.fileDrop.launch(), read before the tabs)
+   *  opens, and an untouched blank tab it replaces is closed. */
   F.boot = async function (launch) {
     var session = SS.tabs.mount();
     try { await session.restore(); } catch (e) { console.warn('Slop Slides: restore failed', e); }
     if (!SS.tabs.current()) SS.tabs.newTab();
-    if (!launch) return;
     var blank = SS.tabs.isPristine(SS.tabs.current()) ? SS.tabs.current() : null;
-    try { await F.openRecord(launch); } catch (e) { D.toast('Could not open: ' + e.message, 4000); }
-    if (blank && SS.tabs.current() !== blank) await api().close(blank);
+    if (!launch) return;
+    launch.ready();
+    var r = await launch.done;
+    if (r && r.added && r.added.length && blank && SS.tabs.current() !== blank) await api().close(blank);
   };
   /** Convert… in the header (shared/convert/provided.js): the open deck, as PPTX. */
   addEventListener('slop:convert-files', function (e) {

@@ -85,8 +85,7 @@
         </div>
         <p class="msg" id="eMsg" role="status"></p>
         <form class="card" id="eForm" novalidate>
-          <div class="toolbar receipt-row"><button type="button" class="btn" id="eReceipt">From a receipt…</button><span class="note">Take or choose a photo of the receipt: it is read on this device and kept in Slop Drive.</span>
-            <input id="eReceiptPick" type="file" accept="image/*" hidden></div>
+          <div class="toolbar receipt-row"><button type="button" class="btn" id="eReceipt">From a receipt…</button><span class="note">Take or choose a photo of the receipt: it is read on this device and kept in Slop Drive.</span></div>
           <div class="form-grid">
             <label>Date <input id="eDate" type="date" required></label>
             <label>Supplier <input id="eSupplier" list="eSuppliers" maxlength="200" required autocomplete="off"></label>
@@ -138,6 +137,11 @@
   <script src="../shared/slopui.js"></script>
   <script src="../shared/hub.js"></script>
   <script src="../shared/intake/outtake.js"></script>
+  <script src="../shared/intake/rules.js"></script>
+  <script src="../shared/intake/normalize.js"></script>
+  <script src="../shared/intake/pipeline.js"></script>
+  <script src="../shared/intake/intake.js"></script>
+  <script src="../shared/intake/sources.js"></script>
   <script src="../shared/ops/entry.js"></script>
   <script src="../shared/ctxmenu.js"></script>
   <script src="../shared/commands/commands.js"></script>

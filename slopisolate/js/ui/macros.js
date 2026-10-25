@@ -35,6 +35,7 @@ if (CO && SM && g.SlopCmd && OP) {
   g.SlopCmd.register([{ id: 'co.look', title: 'Set the model and look', group: 'Edit', hidden: true, args: argsOf(OP), run: (a) => setLook(a || {}),
     description: 'Set the background (see-through, a colour or the photo blurred), shadow, crop and model, as Remove background does.' }]);
   // what the panel changes (kit.js look edits, the model) is noted as that one command
+  CO.lookArgs = lookArgs;   // the assistant's state (ui/ai-commands.js) reads the look as co.look's arguments
   CO.macroLook = (it) => SM.note('co.look', lookArgs(it), 'Model and look', { merge: true });
   SM.init({ app: 'slopisolate', label: 'SlopIsolate' });
 }

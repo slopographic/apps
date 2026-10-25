@@ -3,7 +3,10 @@
  * env: { apps(): SLOP_APPS, hub: SlopHub, cmd: SlopCmd (only inside an app, via the side panel), open(url),
  *        confirm(title, message), appId, workspace: SlopWorkspace (Slop AI: apps open beside the chat),
  *        look: add look_at_file (fileTools.js; for models that can see, it asks before each copy goes out), who: where
- *        that copy goes ("Anthropic"), ops: add the operations registry's tools (opTools.js) }
+ *        that copy goes ("Anthropic"), ops: add the operations registry's tools (opTools.js), handoff({ app, task, url }):
+ *        open_app takes a "task" and the conversation continues in that app (handoff.js), hop (open_in_app), appName };
+ *        plus every set a file put in SlopAIKit.toolSets (a function env → tools), such as the pictures of imagegen/tools.js
+ *   appTools.catalog(apps) → the apps in a few words each (what they are, what they make and open), for the system prompt
  * The one tool list: the side panel, Slop AI and every engine (local prompt-based or cloud native) use what build makes.
  * Destructive actions (commands that delete, clear, close, reset, …) always ask the person first.
  * With env.workspace, open_app opens the app in a frame beside the chat, and app_search / app_command / app_state
@@ -105,10 +108,15 @@
       { name: 'open_app', description: ws
         ? 'Open a Slopographic app beside this chat in the workspace, by its id (for example "photoslop", "vector", "pdf", "drive"), or focus it if it is already open. Pass a web address (https://…) as the id to open a website in a new browser tab instead; websites never open inside the workspace. With "file", the app opens that Slop Drive file in a new tab.'
         : 'Open a Slopographic app in a new tab, by its id (for example "photoslop", "vector", "pdf", "drive"). With "file", the app opens that Slop Drive file (for example a poster.svg for SlopVector, or a photo for Cutout).',
-        params: { id: { type: 'string', description: 'app id, or a web address to open in a new tab', required: true }, file: { type: 'string', description: 'Slop Drive file name or id to open in the app' } },
+        params: Object.assign({ id: { type: 'string', description: 'app id, or a web address to open in a new tab', required: true }, file: { type: 'string', description: 'Slop Drive file name or id to open in the app' } },
+          env.handoff ? { task: { type: 'string', description: 'what to do in that app: the conversation continues there with this task' } } : {}),
         run: async (a) => {
           if (ws && /^https?:\/\//i.test(String(a.id))) return ws.openUrl(String(a.id));
           const app = appFor(a.id);
+          if (a.task && env.handoff) {
+            const f = a.file ? await findFile(hub, a.file) : null;
+            return env.handoff({ app, task: String(a.task), url: hub && hub.urlOf ? hub.urlOf(app, f ? { drive: f.id } : undefined) : new URL(app.path, location.href).href });
+          }
           if (a.file) {
             const f = await findFile(hub, a.file);
             const fits = !hub.matches || (app.accepts || []).some((p) => hub.matches(f.type, p));
@@ -150,15 +158,27 @@
           return text.length > 4000 ? text.slice(0, 4000) + `\n… (${text.length - 4000} more characters)` : text;
         } },
     ];
-    if (env.look && K.fileTools) tools.push(K.fileTools.look(env));
+    if (env.look && K.fileTools) tools.push(K.fileTools.look(env), K.fileTools.canvas(env));
     if (env.ops && K.opTools) tools.push(...K.opTools.build(env));
+    if (env.hop && K.handoff) tools.push(K.handoff.tool(env));   // open_in_app: the task moves to another app with files
+    for (const set of K.toolSets || []) tools.push(...set(env));   // registered sets, e.g. generate_image (imagegen/tools.js)
     const cmd = env.cmd;
     if (cmd && cmd.list && (cmd.run || cmd.exec) && K.cmdTools) {
       const label = env.appId ? `the ${((apps().find((a) => a.id === env.appId) || {}).name) || env.appId} app` : 'this app';
-      tools.push(...K.cmdTools.build(cmd, { label }));   // list_commands, run_command, app_state and one tool per command with args
+      tools.push(...K.cmdTools.build(cmd, { label, who: env.who, look: !!env.look }));   // list_commands, run_command, app_state and one tool per command with args
     }
     return tools;
   }
 
-  K.appTools = { build, isDestructiveCommand, listCommands, findFile, DESTRUCTIVE, WS_DESTRUCTIVE, nearest };
+  /** The apps (kind 'app') in a line each: the system prompt's map of the site, from the one registry (shared/apps.js). */
+  const MIME = (m) => (m === '*/*' ? 'any file' : m.replace(/^image\/\*$/, 'images').replace(/^audio\/\*$/, 'audio').replace(/^video\/\*$/, 'video').replace(/^text\/\*$/, 'text')
+    .replace(/^[a-z]+\/(x-|vnd\.)?/, '').replace(/^(vnd\.)?openxmlformats-officedocument\./, '').replace(/[.+-]/g, ' ').trim()).replace(/^wordprocessingml document$/, 'docx').replace(/^presentationml presentation$/, 'pptx').replace(/^spreadsheetml sheet$/, 'xlsx').replace(/^plain$/, 'text');
+  function catalog(list) {
+    return (list || []).filter((a) => a.kind === 'app').map((a) => {
+      const makes = (a.creates || []).map((c) => `${c.label}${c.ext ? ` (.${c.ext})` : ''}`), opens = [...new Set((a.accepts || []).map(MIME))].slice(0, 5);
+      return `- ${a.id}: ${a.name}, ${a.tagline}${makes.length ? ` Makes: ${makes.join(', ')}.` : ''}${opens.length ? ` Opens: ${opens.join(', ')}.` : ''}${a.status === 'building' ? ' (early version)' : ''}`;
+    }).join('\n');
+  }
+
+  K.appTools = { catalog, build, isDestructiveCommand, listCommands, findFile, DESTRUCTIVE, WS_DESTRUCTIVE, nearest };
 })();

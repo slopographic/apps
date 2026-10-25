@@ -8,7 +8,6 @@ import { videoCard } from './video.js';
 const el = (tag, attrs, ...kids) => SlopUI.el(tag, attrs, ...kids);
 const clean = (s) => String(s || '').replace(/\s+/g, ' ').trim();
 const whole = (s, lo, hi) => { const n = Number(s); return Number.isInteger(n) && n >= lo && n <= hi ? n : 0; };
-const MIME = /^image\/(png|jpeg|gif|webp)$/;
 const MAX_IMAGE = 2 * 1024 * 1024;
 
 /** A dialog with named fields: spec maps a name to { label, type: 'text' | 'number', value, min, max, placeholder }.
@@ -73,16 +72,22 @@ export async function addVideo() {
   if (v) insertAtCaret(v);
 }
 
-/** A picture from the computer, kept in the note as a data URL (PNG, JPEG, GIF or WebP, up to 2 MB). */
-export async function addImage() {
-  const [file] = await SlopUI.pickFiles({ accept: 'image/png,image/jpeg,image/gif,image/webp' });
-  if (!file) return;
-  if (!MIME.test(file.type)) { SlopUI.toast('Use a PNG, JPEG, GIF or WebP picture'); return; }
-  if (file.size > MAX_IMAGE) { SlopUI.toast('A picture in a note can be 2 MB at most'); return; }
-  const url = await readAsDataURL(file);
-  const alt = file.name.replace(/\.[^.]+$/, '').replace(/[[\]()<>"\n]/g, ' ').trim() || 'Image';
-  insertAtCaret('![' + alt + '](' + url + ')');
+/** A picture from the computer, kept in the note as a data URL (PNG, JPEG, GIF or WebP, up to 2 MB): the page's one way
+ *  in for files (shared/intake, spec 'notes'), from Insert ▸ Image… or a pasted picture outside the text. */
+function registerIntake() {
+  if (window.SlopIntake.spec('notes')) return;
+  window.SlopIntake.register({
+    id: 'notes', limit: 1, accept: { types: ['image/png', 'image/jpeg', 'image/gif', 'image/webp'], noun: 'a PNG, JPEG, GIF or WebP picture', maxBytes: MAX_IMAGE },
+    process: async (file) => {
+      const url = await readAsDataURL(file);
+      const alt = file.name.replace(/\.[^.]+$/, '').replace(/[[\]()<>"\n]/g, ' ').trim() || 'Image';
+      if (insertAtCaret('![' + alt + '](' + url + ')') === false) throw new Error('has no note to go in: open or make a note first');
+      return file.name;
+    },
+  });
 }
+if (globalThis.SlopIntake) registerIntake();
+export function addImage() { return window.SlopIntake.pick({ to: 'notes', multiple: false, accept: 'image/png,image/jpeg,image/gif,image/webp' }); }
 
 export async function addCode() {
   const v = await form('Code block', 'Insert', {

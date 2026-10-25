@@ -23,7 +23,7 @@
   async function addStills(n) {
     const dt = new (win().DataTransfer)();
     for (let i = 1; i <= n; i++) dt.items.add(await still(i));
-    const input = $('rm-file');
+    const input = win().document.querySelector('#rm-drop input[type=file]');
     input.files = dt.files;
     change(input);
     await waitFor(() => RM().state.items.length >= n, { timeout: 20000 });

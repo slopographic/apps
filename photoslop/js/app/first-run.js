@@ -13,6 +13,7 @@ function rememberTourShown() {
 /** Click the header's Tour button once the app has finished booting (so the tour points at real panels). */
 function openTourOnFirstRun() {
   if (tourWasShown()) return;
+  if (new URLSearchParams(location.search).get('connect') === '1') return; // an AI app opened the page to pair (shared/agent/bridge-ui.js): that dialog first, the tour next time
   rememberTourShown();
   if (new URLSearchParams(location.search).get('tour') === '1') return; // the mount script opens ?tour=1 itself
   let waits = 0; // give up after about 30 s, so a failed boot does not keep polling

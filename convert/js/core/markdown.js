@@ -1,19 +1,22 @@
 /* Markdown → HTML for common syntax: headings, paragraphs, emphasis, code, links, images, lists,
  * block quotes, rules and fenced code. Raw HTML in the source is shown as text (escaped), so the output
- * is safe to embed. Not supported: tables, nested lists, footnotes, HTML blocks. Pure. */
+ * is safe to embed. Not supported: tables, nested lists, footnotes, HTML blocks. Pure. Link and image addresses are
+ * checked by SlopSanitize.url (shared/sanitize/sanitize.js). */
+import '../../../shared/sanitize/sanitize.js';
+
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
-/** Only web, mail, fragment and relative links are kept; anything else (javascript:, data:) becomes "#". */
-function safeUrl(u) {
-  const raw = u.replace(/&amp;/g, '&').trim();
-  if (/^[a-z][a-z0-9+.-]*:/i.test(raw) && !/^(https?|mailto):/i.test(raw)) return '#';
-  return esc(raw);
+/** Only web, mail, phone, fragment and relative links are kept (images may also be data:image); anything else
+ *  (javascript:, data:text/html, with tabs or control characters in it or not) becomes "#". */
+function safeUrl(u, kind = 'link') {
+  const ok = globalThis.SlopSanitize.url(u.replace(/&amp;/g, '&'), kind);
+  return ok ? esc(ok) : '#';
 }
 
 function inline(src) {
   const codes = [];
   let s = esc(src).replace(/`([^`]+)`/g, (_, c) => { codes.push(c); return `\u0000${codes.length - 1}\u0000`; });
-  s = s.replace(/!\[([^\]]*)\]\(([^)\s]+)(?:\s+&quot;([^&]*)&quot;)?\)/g, (_, alt, url, title) => `<img src="${safeUrl(url)}" alt="${alt}"${title ? ` title="${title}"` : ''}>`);
+  s = s.replace(/!\[([^\]]*)\]\(([^)\s]+)(?:\s+&quot;([^&]*)&quot;)?\)/g, (_, alt, url, title) => `<img src="${safeUrl(url, 'image')}" alt="${alt}"${title ? ` title="${title}"` : ''}>`);
   s = s.replace(/\[([^\]]+)\]\(([^)\s]+)(?:\s+&quot;([^&]*)&quot;)?\)/g, (_, t, url, title) => `<a href="${safeUrl(url)}"${title ? ` title="${title}"` : ''}>${t}</a>`);
   s = s.replace(/&lt;((?:https?|mailto):[^\s&]+)&gt;/g, (_, u) => `<a href="${safeUrl(u)}">${u}</a>`);
   s = s.replace(/\*\*(?=\S)([\s\S]*?\S)\*\*|__(?=\S)([\s\S]*?\S)__/g, (_, a, b) => `<strong>${a ?? b}</strong>`);

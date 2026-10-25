@@ -1,3 +1,4 @@
+// Covers: pdf/js/io/drive-docs.js
 /* Slop PDF documents in Slop Drive: an opened PDF's original is stored at once, the same bytes are linked (not copied), Save
    writes the edited copy and its change list beside the original, the change list replays onto the original, the versions
    open, revert keeps the saved copy, a Drive file uploaded by another app is adopted, and without Drive (or with autosave

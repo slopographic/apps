@@ -9,7 +9,7 @@
   <iframe id="app" style="width:1280px;height:860px"></iframe>
   <script src="../harness.js"></script>
   <script>
-  // Covers: transcribe/index.html, transcribe/js/app.js, transcribe/js/view.js, transcribe/js/choose.js, transcribe/css/transcribe.css, aitools/common.js, aitools/speech/speech.js
+  // Covers: transcribe/index.html, transcribe/js/app.js, transcribe/js/view.js, transcribe/js/choose.js, transcribe/css/transcribe.css, transcribe/js/frame.js, aitools/common.js, aitools/speech/speech.js
   // The real model is a download the tests do not make: the page's engine is swapped for a fake that answers like Whisper.
   const { describe, it, expect, waitFor, run, sleep, topDialog } = SlopTest;
   let W, D, detected = [{ code: 'en', p: 0.97 }];
@@ -161,6 +161,31 @@
       expect(r.left >= 0 && r.right <= W.innerWidth + 1).toBe(true);
       expect(dlg.scrollWidth <= dlg.clientWidth + 1).toBe(true);
       dlg.querySelector('.sui-x').click();
+    });
+    it('at 1280 px the panel on the right holds Record, Language and Save, with Transcribe at its foot', async () => {
+      await boot(1280);
+      const side = $('trSide');
+      expect(side.getBoundingClientRect().left >= $('trView').getBoundingClientRect().right - 1).toBe(true);
+      expect(Math.round(side.getBoundingClientRect().right)).toBe(1280);
+      expect([...side.querySelectorAll('.sf-h')].map((n) => n.textContent)).toEqual(['Record', 'Language', 'Save']);
+      for (const id of ['trRecord', 'trModel', 'trFormat', 'trDownload', 'trCopy', 'trDrive', 'trDocs']) expect(side.contains($(id))).toBe(true);
+      expect($('trRun').closest('.sf-p-foot').parentNode).toBe(side);
+      W.SlopTranscribe.add([mp3('one.mp3')]);
+      await sleep(100);
+      expect($('trRun').getBoundingClientRect().bottom <= 860).toBe(true);
+      $('trRun').click();
+      await waitFor(() => !W.SlopTranscribe.queue.busy && $('trText').value.includes('Hello'), { timeout: 10000 });
+    });
+    it('at 390 px Transcribe stays at the bottom of the screen; Options opens the sheet', async () => {
+      await boot(390);
+      W.SlopTranscribe.add([mp3('p.mp3')]);
+      await sleep(100);
+      const r = $('trRun').getBoundingClientRect();
+      expect(r.top > 760 && r.bottom <= 860).toBe(true);
+      D.querySelector('#trSide .sf-foot-more').click();
+      await waitFor(() => $('trSide').classList.contains('ssh-on'));
+      await sleep(300);
+      expect($('trModel').getBoundingClientRect().height > 0).toBe(true);
     });
   });
   run();

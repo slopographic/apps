@@ -45,11 +45,6 @@ const WITH_ATTACHMENT = [
   '--XYZ--', '',
 ].join('\r\n');
 
-const HTML_MAIL = [
-  'From: Ada <ada@example.com>', 'Subject: Hi', 'MIME-Version: 1.0', 'Content-Type: text/html; charset=utf-8', '',
-  '<html><body onload="steal()"><p>Hello <b>there</b></p><script>alert(1)</script><img src="https://tracker.example/x.gif"></body></html>',
-].join('\n');
-
 test('an email to plain text: the address and date lines, a blank line, then the text body', async () => {
   const out = await M.emlToText(bytesOf(PLAIN));
   assert.match(out, /^From: Ada <ada@example\.com>\nTo: Grace <grace@example\.com>\n/);
@@ -57,15 +52,7 @@ test('an email to plain text: the address and date lines, a blank line, then the
   assert.match(out, /\n\nAre we still on for Friday\?\n$/);
 });
 
-test('an email to HTML: the body is shown, and scripts, handlers and remote images are not carried over', async () => {
-  const html = await M.emlToHtml(bytesOf(HTML_MAIL));
-  assert.match(html, /<p>Hello <b>there<\/b><\/p>/);
-  assert.match(html, /Content-Security-Policy/);
-  assert.doesNotMatch(html, /<script/i);
-  assert.doesNotMatch(html, /onload=/i);
-  assert.doesNotMatch(html, /alert\(1\)/);
-  assert.match(html, /<dt>Subject<\/dt><dd>Hi<\/dd>/);
-});
+// An HTML body is sanitised with DOMPurify, which needs a DOM: tests/convert/mail.test.html checks it in the browser.
 
 test('a plain-text email goes into HTML inside a preformatted block, escaped', async () => {
   const html = await M.emlToHtml(bytesOf(PLAIN.replace('Are we still', '<Are> we still')));

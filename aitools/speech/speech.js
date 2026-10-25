@@ -66,11 +66,10 @@ $('model').addEventListener('click', async () => openModelChooser({
   family: speechFamily(C), language, model: model || await modelFor(language), pinned: !!prefs.pinned(), installer: M, ui: window.SlopUI, storageHref: '../../settings/#storage',
   onChoose: (c) => { language = c.language; model = c.model; if (c.pin) prefs.pin(language); else if (prefs.pinned() !== language) prefs.pin(null); label(); },
 }));
-$('file').addEventListener('change', (e) => pick(e.target.files[0]));
-$('drop').addEventListener('dragover', (e) => e.preventDefault());
-$('drop').addEventListener('drop', (e) => { e.preventDefault(); pick(e.dataTransfer.files[0]); });
+// the one way in (aitools/intake.js): a drop on the box, choose a file, a paste, a launch
+const intake = T.intake('ai-speech', { accept: { types: ['audio/*', 'video/*'], exts: ['.mp3', '.wav', '.m4a', '.aac', '.ogg', '.opus', '.flac', '.mp4', '.m4v', '.mov', '.webm', '.mkv'], noun: 'an audio or video file' }, read: (f) => pick(f) });
 $('run').addEventListener('click', run);
 $('srt').addEventListener('click', () => T.download(baseName + '.srt', X.srt(segments), 'application/x-subrip'));
 $('txt').addEventListener('click', () => T.download(baseName + '.txt', X.txt(segments), 'text/plain'));
 label();
-T.gate('speech', () => { $('ui').hidden = false; });
+T.gate('speech', () => { $('ui').hidden = false; intake.launch(); });

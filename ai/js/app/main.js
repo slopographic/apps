@@ -20,14 +20,7 @@
     addEventListener('hashchange', () => { const h = location.hash.slice(1); if (AI.TABS.some((t) => t[0] === h)) AI.setTab(h); });
     await AI.restoreChatPlace(); // ui/view-state.js: the open chat and its unsent text
     // "Send to Slop AI" from another app: text files become an attachment
-    if (window.SlopHub) {
-      const r = await SlopHub.consumeLaunch();
-      if (r && r.blob) {
-        if (AI.tab !== 'chat') AI.setTab('chat');
-        if (/^image\//.test(r.type)) AI.toast('Images are not supported yet: the local models read text only');
-        else await AI.chat.addFiles([new File([r.blob], r.name, { type: r.type })]);
-      }
-    }
+    await AI.intake.launch(); // through the intake (ui/intake.js); a picture is refused: the local models read text only
     if (!AI.sys && AI.tab !== 'sys') AI.runCheck({ bench: false });
     // the default model loads by itself only when it is already downloaded (never a surprise download)
     const def = AI.prefs.defaultModel;

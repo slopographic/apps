@@ -1,7 +1,8 @@
-/* Slop Sheets viewer: boot. Opens files (Open button, drop, several at once as tabs, or ?drive=<id> from Slop Drive),
+/* Slop Sheets viewer: boot. Opens files through the one intake (shared/intake, spec 'sheetview': the Open buttons, a
+ * drop, the sample, a paste, ?drive=<id> from Slop Drive, a PWA launch; several at once as tabs),
  * wires the header, the Export and Menu buttons, the commands, the table style choices and Open in Slop Table.
  * Module script; the classic scripts (apps, slopui, hub, drop, commands) load first.
- * Test hook: window.SlopSheetView.open(files) takes File objects the way the Open button does. */
+ * Test hook: window.SlopSheetView.open(files) takes File objects through the intake, as the Open button does. */
 import { read } from '../../shared/sheets/read.js';
 import { csvBlob } from '../../shared/sheets/csv.js';
 import { createStore } from './state.js';
@@ -28,29 +29,15 @@ async function openFile(file) {
   return file.name;
 }
 
-/** The Open button: each file in turn; a file that fails gets its own message and the rest still open. */
-async function openFiles(files) {
-  for (const f of files) {
-    try { await openFile(f); } catch (e) { window.SlopUI.alert(`Could not open ${f.name}`, e.message); }
-  }
+/* The one way in: every source reaches openFile, a file at a time (one that fails is refused with its reason in the strip
+   and the toast, and the rest still open). */
+function registerIntake() {
+  window.SlopIntake.register({
+    id: 'sheetview', limit: 20, process: (file) => openFile(file),
+    accept: { types: MIME, exts: ['.xlsx', '.xlsm', '.csv', '.tsv', '.xls', '.ods'], noun: 'a spreadsheet' },
+  });
 }
-
-async function pickFiles() {
-  const files = await window.SlopUI.pickFiles({ accept: ACCEPT, multiple: true });
-  if (files && files.length) await openFiles(files);
-}
-
-/** Opens the file a Slop Drive "Open in" handoff points at (?drive=<id>). */
-async function openLaunch() {
-  const launch = await window.SlopHub.consumeLaunch();
-  if (!launch || !launch.blob) return;
-  try {
-    const parsed = await read(launch.blob, { name: launch.name });
-    store.addDoc(parsed, { name: launch.name });
-  } catch (e) {
-    window.SlopUI.alert(`Could not open ${launch.name}`, e.message);
-  }
-}
+const pickFiles = () => window.SlopIntake.pick({ to: 'sheetview', accept: ACCEPT });
 
 /** The current sheet, all rows, as CSV, opened in Slop Table through Slop Drive. */
 async function openInTables() {
@@ -59,9 +46,8 @@ async function openInTables() {
   const sheet = store.sheet();
   const name = `${d.name}${d.sheets.length > 1 ? ' - ' + sheet.name : ''}.csv`;
   try {
-    // No byte-order mark: Slop Tables reads the text as it is, and a BOM would sit in cell A1.
-    await window.SlopHub.sendTo('tables', csvBlob(sheet, null, ',', { bom: false }), name);
-    toast('Opened in Slop Table');
+    // No byte-order mark: Slop Tables reads the text as it is, and a BOM would sit in cell A1. The one way out.
+    await window.SlopOuttake.send('tables', { from: 'sheetview', get: () => csvBlob(sheet, null, ',', { bom: false }), name, type: 'text/csv' });
   } catch (e) {
     toast('Could not send to Slop Table: ' + e.message);
   }
@@ -121,6 +107,8 @@ function registerCommands() {
     C('convert', 'Convert files…', [], openConvert, { keywords: ['convert', 'format', 'pdf', 'json', 'csv'] }),
     C('clear', 'Clear sort and filters', [], () => store.clearView(), { keywords: ['reset', 'sort', 'filter'], when: () => !!store.doc() }),
   ]);
+  // the assistant's commands with arguments (ai-commands.js), loaded when the AI panel first asks
+  if (SlopCmd.provide) SlopCmd.provide({ prepare: () => import('./ai-commands.js').then((m) => m.install(store, openFile)) });
 }
 
 function wireHeader() {
@@ -153,12 +141,10 @@ function wireHeader() {
 }
 
 function wireDrop() {
-  const drop = window.SlopDrop.attach($('sv-drop'), {
-    accept: { types: MIME, exts: ['.xlsx', '.xlsm', '.csv', '.tsv', '.xls', '.ods'], noun: 'a spreadsheet' },
-    limit: 20,
+  window.SlopDrop.attach($('sv-drop'), {
+    intake: 'sheetview',
     compact: true,
     targets: [document.querySelector('.sv-app')],
-    process: async (file) => openFile(file),
   });
   // The empty page shows what a sheet looks like here and how (SlopDrop's preview); the sample goes through the strip.
   const empty = $('sv-empty'), sample = document.createElement('button');
@@ -167,12 +153,13 @@ function wireDrop() {
     steps: ['Drop an .xlsx, .csv or .tsv file', 'Sort and filter any column', 'Export the rows you need'],
   }), empty.querySelector('.sv-empty-b'));
   sample.type = 'button'; sample.className = 'sd-sample'; sample.id = 'sv-sample'; sample.textContent = 'Try it with a sample price list';
-  sample.addEventListener('click', () => drop.run(window.SlopSamples.docs.xlsx().then((f) => [f])));
+  sample.addEventListener('click', () => window.SlopIntake.sample(() => window.SlopSamples.docs.xlsx().then((f) => [f]), { to: 'sheetview' }));
   empty.querySelector('.sv-empty-b').append(sample);
 }
 
 async function boot() {
   SlopHub.register('sheetview');
+  registerIntake();
   view = createView(store, {
     empty: $('sv-empty'), view: $('sv-view'), grid: $('sv-grid'), docs: $('sv-docs'), sheets: $('sv-sheets'),
     name: $('sv-name'), status: $('sv-status'), clear: $('sv-clear'),
@@ -180,9 +167,9 @@ async function boot() {
   wireHeader();
   wireDrop();
   registerCommands();
-  window.SlopSheetView = { open: (files) => openFiles(Array.from(files)), store };
+  window.SlopSheetView = { open: (files) => window.SlopIntake.take(Array.from(files), { to: 'sheetview' }), store };
   view.render();
-  try { await openLaunch(); } catch (e) { toast('Could not open that file: ' + e.message); }
+  try { await window.SlopIntake.launch({ to: 'sheetview' }); } catch (e) { toast('Could not open that file: ' + e.message); }
   view.render();
   document.body.classList.add('ready');
 }

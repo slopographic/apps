@@ -1,5 +1,6 @@
-// Import from Slop Contacts: pick the saved list in Slop Drive, see the plan (new, already linked, cannot be stored),
-// then import. Linked contacts are skipped, so a second import adds nothing that is already here.
+// Import from Slop Contacts: the newest saved list in Slop Drive is offered first, and Choose another list… is the one
+// shared Slop Drive picker (SlopIntake.fromDrive, part 'crm.contacts'); see the plan (new, already linked, cannot be
+// stored), then import. Linked contacts are skipped, so a second import adds nothing that is already here.
 (function (g) {
   'use strict';
   const NS = (g.SlopCrm = g.SlopCrm || {});
@@ -24,20 +25,26 @@
         buttons: [{ label: 'OK', primary: true }] });
       return;
     }
-    const sel = UI.select(lists.map((f, i) => [i, f.name]), 0);
+    let current = lists[0];
+    const name = el('b', null, current.name);
     const info = el('p', { class: 'note', role: 'status' });
     let plan = null;
     const show = async () => {
-      const p = await planFor(lists[Number(sel.value)]);
+      name.textContent = current.name;
+      const p = await planFor(current);
       plan = p.ok ? p.value : null;
       info.textContent = p.ok
         ? `${plan.add.length} new customer${plan.add.length === 1 ? '' : 's'}, ${plan.skipped} already linked or without an id, ${plan.invalid} that cannot be stored.`
         : NS.util.refusal(p);
     };
-    sel.addEventListener('change', show);
+    const SI = g.SlopIntake;
+    const other = () => SI.fromDrive({ title: 'Choose a saved Contacts list', accept: ['application/x-slop-contacts', 'application/json'], to: SI.part({
+      id: 'crm.contacts', limit: 1, accept: { types: ['application/x-slop-contacts', 'application/json'], exts: ['.scontacts', '.json'], noun: 'a Slop Contacts list' },
+      process: async (f, ctx) => { current = ctx.drive ? Object.assign({}, ctx.drive.record, { blob: f }) : { name: f.name, blob: f }; await show(); return f.name; },
+    }) });
     UI.dialog({
       title: 'Import from Slop Contacts',
-      body: el('div', null, UI.field('Saved list', sel), info,
+      body: el('div', null, el('p', { class: 'note' }, 'Saved list: ', name, ' ', el('button', { type: 'button', class: 'sui-btn', onclick: other }, 'Choose another list…')), info,
         el('p', { class: 'note' }, 'Each contact becomes a lead. Contacts already linked to a customer are skipped.'),
         el('p', { class: 'note' }, SC_INFO.note),
         el('button', { type: 'button', class: 'sui-btn', onclick: () => SlopExamples.download('crm') }, 'Download example CSV')),

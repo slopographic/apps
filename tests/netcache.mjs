@@ -1,7 +1,10 @@
 // The test pages' network: what each page fetched from outside the local server, and a disk cache for the big immutable
 // files some pages download (real AI models, wasm, fonts from the model hosts and CDNs). tests/run.mjs uses it:
-//   attachNet(context, { dir })   routes GET requests to CACHE_HOSTS through tests/.cache/net/ (filled on a miss, from the
-//                                 real host) and counts every outside request of the page
+//   attachNet(context, { dir, route })   routes GET requests to CACHE_HOSTS through tests/.cache/net/ (filled on a miss,
+//                                 from the real host) and counts every outside request of the page. route: false only
+//                                 counts (run.mjs routes the pages listed in tests/net-urls.txt): once a context has a route,
+//                                 Playwright aborts every request whose URL ends in /favicon.ico (its favicon rule), which
+//                                 breaks pages that fetch the site's favicon.ico themselves (the offline builders)
 // The bytes are the real ones (the pages check models against their SHA-256); only the transfer is saved. CI keeps the
 // folder between runs (actions/cache in .github/workflows/rules.yml). SLOPTEST_NET_CACHE=0 turns the cache off.
 //   node tests/netcache.mjs --fill    downloads every file in tests/net-urls.txt that the cache lacks (CI's check job does
@@ -47,18 +50,18 @@ export async function store(dir, url, { final = url, headers, body }) {
 
 /** Routes a browser context's outside requests through the cache. Returns the page's network tally: { hits, misses, bytes,
  *  ms, outside: { host: count } } (bytes and ms: what the misses cost). */
-export async function attachNet(ctx, { dir, enabled = process.env.SLOPTEST_NET_CACHE !== '0' } = {}) {
+export async function attachNet(ctx, { dir, enabled = process.env.SLOPTEST_NET_CACHE !== '0', route = true } = {}) {
   const tally = { hits: 0, misses: 0, bytes: 0, ms: 0, outside: {}, urls: new Set() };
   ctx.on('request', (r) => {
     let h; try { h = new URL(r.url()).hostname; } catch (e) { return; }
     if (/^https?:$/.test(new URL(r.url()).protocol) && !LOCAL.test(h)) tally.outside[h] = (tally.outside[h] || 0) + 1;
+    if (cacheable(r.method(), r.url(), r.headers())) tally.urls.add(r.url());   // listed in net-urls.txt even when not routed
   });
-  if (!enabled) return tally;
+  if (!enabled || !route) return tally;
   await mkdir(dir, { recursive: true });
   await ctx.route((u) => CACHE_HOSTS.test(u.hostname) && u.protocol === 'https:', async (route) => {
     const req = route.request(), url = req.url();
     if (!cacheable(req.method(), url, req.headers())) return route.continue();
-    tally.urls.add(url);
     const hit = await load(dir, url);
     if (hit) { tally.hits++; return route.fulfill({ status: hit.meta.status, headers: hit.meta.headers, body: hit.body }); }
     const t0 = Date.now();

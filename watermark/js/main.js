@@ -17,17 +17,17 @@
     if (dropZone) dropZone.empty(!n); // the preview in the zone is for an empty page only
     $('wm-preview-box').hidden = !n; // the empty stage would only repeat the zone
     bar.setActions([
-      { id: 'open', label: 'Open files…', icon: 'open', disabled: busy, onClick: () => $('wm-open').click() },
+      { id: 'open', label: 'Open files…', icon: 'open', disabled: busy, onClick: () => window.SlopIntake.pick({ to: 'watermark' }) },
       { id: 'clear', label: 'Clear', disabled: busy || !n, onClick: clearAll },
     ]);
     bar.setMenu([{ id: 'drive', label: 'Save all to Slop Drive…', disabled: busy || !outs, onClick: saveAll }]);
     const O = window.SlopOuttake, openIn = one && O ? O.items({ get: () => items[0].out.blob, name: items[0].out.name, type: items[0].out.blob.type, from: 'watermark', folder: false }) : null;
-    side.setFooter([
+    side.footer([
       { id: 'wm-apply', label: n ? 'Watermark ' + n + ' ' + nounOf(items, n) : 'Watermark files', primary: true, disabled: busy || !n, run: applyAll },
       { id: 'wm-zip', label: n > 1 ? 'Download all (ZIP)' : 'Download', disabled: busy || !outs, run: n > 1 ? downloadZip : () => window.WMExport.downloadOne(items[0]) },
       { id: 'wm-drive', label: 'Save to Slop Drive…', disabled: busy || !outs, run: saveAll },
       openIn && openIn.length ? { id: 'wm-openin', label: 'Open in…', menu: openIn } : null,
-    ]);
+    ], { stack: true, more: 'Settings' });
     frame.setList(n > 1);
     const panel = window.WMSettings.panel();
     if (panel) panel.setMedia(window.WMItems.kinds());
@@ -73,23 +73,27 @@
   }
   const added = () => { window.WMList.render(); window.WMPreview.schedule(); syncBar(); if (frame.isPhone()) frame.showView(); };
 
-  /** Drops and Open files: each file is read into the list. The shared module reports the rest. */
+  /** The one way files come in (shared/intake, spec 'watermark'): a drop, the zone's Choose files, Open files…, a paste,
+   *  ?drive=<id> (another app's Open in…) and a PWA launch. Each file is read into the list; the zone reports the rest. */
   function wireDrop() {
     const W = window.SlopWatermark, exts = ['.png', '.jpg', '.jpeg', '.webp', '.avif', '.bmp', '.gif', '.svg', '.heic', '.heif', '.mp4', '.m4v', '.mov', '.webm', '.pdf'];
-    dropZone = window.SlopDrop.attach($('wm-drop'), {
+    window.SlopIntake.register({
+      id: 'watermark',
       accept: { types: W.ACCEPT.split(',').filter((t) => t.includes('/')), exts, noun: 'a picture, a video or a PDF' },
-      input: $('wm-open'),
+      process: async (file) => {
+        if (window.WMItems.count() >= window.WMItems.MAX) throw new Error('the list is full (' + window.WMItems.MAX + ' files)');
+        return (await window.WMItems.add(file)).id;
+      },
+      after: added,
+    });
+    dropZone = window.SlopDrop.attach($('wm-drop'), {
+      intake: 'watermark',
       targets: [$('wm-drop'), $('wm-preview-box')],
       label: 'Drop photos, videos or PDFs here',
       hint: 'Pictures (PNG, JPEG, WebP, GIF, SVG, HEIC), videos (MP4, MOV, WebM) and PDFs, many at once. Read in this browser, never uploaded.',
       preview: { picture: { src: '../assets/shots/watermark.jpg', alt: 'A sunset photo with a © text watermark in the bottom right corner' },
         steps: ['Drop photos, videos and PDFs, many at once', 'Type your text or add a logo, pick a corner', 'Download them all as a ZIP'] },
       sample: { label: 'Try it with 4 sample photos', files: () => window.SlopSamples.photos(4) },
-      process: async (file) => {
-        if (window.WMItems.count() >= window.WMItems.MAX) throw new Error('the list is full (' + window.WMItems.MAX + ' files)');
-        return (await window.WMItems.add(file)).id;
-      },
-      done: added,
       reveal: () => $('wm-list').lastElementChild,
     });
   }
@@ -99,17 +103,11 @@
     window.SlopFlowDoc.addToWorkflow({ id: 'watermark.apply' }, { settings: { spec: window.WMSettings.spec() } })
       .catch((e) => toast('Could not open Slop Workflows: ' + e.message));
   }
-  /** A file sent from another app or opened from Slop Drive (?drive=). */
-  async function fromDrive() {
-    const H = window.SlopHub;
-    if (!H) return;
-    H.register('watermark');
-    const rec = await H.consumeLaunch();
-    if (!rec || !rec.blob) return;
-    try { await window.WMItems.add(new File([rec.blob], rec.name, { type: rec.type || rec.blob.type })); added(); }
-    catch (e) { toast(rec.name + ' ' + e.message); }
-  }
 
+  /** For the commands (commands.js, ai-commands.js): the page's own actions. */
+  window.WMApp = { applyAll, downloadZip, clearAll, busy: () => busy, refresh: () => { window.WMList.render(); window.WMPreview.schedule(); syncBar(); } };
+
+  /** A file sent from another app or opened from Slop Drive (?drive=). */
   function boot() {
     bar = window.SlopAppBar.mount($('wm-bar'), {
       home: '../', title: 'Slop Watermark', subtitle: 'Watermark photos, videos and PDFs at once with your logo or text. Nothing is uploaded.', actions: [], menu: [],
@@ -128,7 +126,8 @@
     window.WMList.render();
     syncBar();
     window.WMPreview.schedule();
-    fromDrive().catch(() => {});
+    if (window.SlopHub) window.SlopHub.register('watermark');
+    window.SlopIntake.launch({ to: 'watermark' });
   }
 
   document.addEventListener('DOMContentLoaded', () => {

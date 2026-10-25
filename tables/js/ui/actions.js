@@ -118,8 +118,9 @@ export function bindClipboard() {
   const field = (t) => t && t.closest && t.closest('input, textarea, select, [contenteditable="true"]');
   document.addEventListener('copy', (e) => { if (S.edit || field(e.target)) return; e.preventDefault(); copySel(false, e.clipboardData); });
   document.addEventListener('cut', (e) => { if (S.edit || field(e.target)) return; e.preventDefault(); copySel(true, e.clipboardData); });
-  document.addEventListener('paste', (e) => {
-    if (S.edit || field(e.target)) return;
+  // A pasted spreadsheet file is the intake's (ui/drop.js), which takes it first; this is pasted cells and text.
+  document.addEventListener('paste', (e) => { // intake-ok: cells and text pasted into the grid
+    if (e.defaultPrevented || S.edit || field(e.target)) return;
     e.preventDefault();
     paste(e.clipboardData ? e.clipboardData.getData('text/plain') : undefined);
   });

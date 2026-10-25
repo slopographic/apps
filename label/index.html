@@ -38,6 +38,7 @@
   <link rel="stylesheet" href="../shared/slopui.css">
   <link rel="stylesheet" href="../shared/commands/commands.css">
   <link rel="stylesheet" href="../shared/doctabs/doctabs.css">
+  <link rel="stylesheet" href="../shared/frame/frame.css">
   <link rel="stylesheet" href="css/themes.css">
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/panels.css">
@@ -139,6 +140,15 @@
   <script src="js/io/examples.js"></script>
   <script src="js/templates/gallery.js"></script>
   <script src="../shared/ui/sheet.js"></script>
+  <script src="../shared/intake/rules.js" data-src="shared/intake/rules.js"></script>
+  <script src="../shared/intake/normalize.js" data-src="shared/intake/normalize.js"></script>
+  <script src="../shared/intake/pipeline.js" data-src="shared/intake/pipeline.js"></script>
+  <script src="../shared/intake/intake.js" data-src="shared/intake/intake.js"></script>
+  <script src="../shared/intake/sources.js" data-src="shared/intake/sources.js"></script>
+  <script src="../shared/drop/panel.js" data-src="shared/drop/panel.js"></script>
+  <script src="../shared/drop/drop.js" data-src="shared/drop/drop.js"></script>
+  <script src="../shared/ui/menubutton.js"></script>
+  <script src="../shared/frame/panel.js"></script>
   <script src="js/ui/app.js"></script>
   <script src="js/ui/view.js"></script>
   <script src="js/ui/interact.js"></script>
@@ -147,13 +157,6 @@
   <script src="../shared/config/validate.js"></script>
   <script src="../shared/config/io.js"></script>
   <script src="../shared/config/prompt.js"></script>
-  <script src="../shared/intake/rules.js" data-src="shared/intake/rules.js"></script>
-  <script src="../shared/intake/normalize.js" data-src="shared/intake/normalize.js"></script>
-  <script src="../shared/intake/pipeline.js" data-src="shared/intake/pipeline.js"></script>
-  <script src="../shared/intake/intake.js" data-src="shared/intake/intake.js"></script>
-  <script src="../shared/intake/sources.js" data-src="shared/intake/sources.js"></script>
-  <script src="../shared/drop/panel.js" data-src="shared/drop/panel.js"></script>
-  <script src="../shared/drop/drop.js" data-src="shared/drop/drop.js"></script>
   <script src="../shared/config/dialog.js"></script>
   <script src="../shared/config/dialog-ai.js"></script>
   <script src="js/io/config.js"></script>
@@ -176,15 +179,14 @@
   <script src="js/ui/menus.js"></script>
   <script src="js/ui/context.js"></script>
   <script src="js/ui/tabs.js"></script>
-  <script src="../shared/drop/panel.js" data-src="shared/drop/panel.js"></script>
-  <script src="../shared/drop/drop.js" data-src="shared/drop/drop.js"></script>
+  <script src="js/ui/intake.js"></script>
   <script src="js/ui/boot.js"></script>
   <script type="module" async src="../shared/buddy/boot.js" data-offline="strip"></script>
   <script src="../shared/pwa.js"></script>
   <script>SlopPWA.mount();</script>
 <link rel="stylesheet" href="../shared/menubar/menubar.css">
 <script src="../shared/menubar/menubar.js"></script>
-<script>SlopMenuBar.mount({app: 'SlopLabel', host: '#menubar', tools: ['#btnPrint', '#btnDock'], menus: {File: menuFile, Edit: menuEdit, Insert: menuInsert, Object: menuObject, Data: menuData, View: menuView, Help: menuHelp}});</script>
+<script>SlopMenuBar.mount({app: 'SlopLabel', host: '#menubar', tools: ['#btnDock'], menus: {File: menuFile, Edit: menuEdit, Insert: menuInsert, Object: menuObject, Data: menuData, View: menuView, Help: menuHelp}});</script>
   <script src="../shell/shell.js"></script>
   <script src="../shared/tour/mount.js" data-app="label"></script>
   <script src="../shared/urlstate/urlstate.js" data-src="shared/urlstate/urlstate.js"></script>

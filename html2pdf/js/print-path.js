@@ -8,6 +8,7 @@
     const f = document.createElement('iframe');
     f.setAttribute('aria-hidden', 'true');
     f.tabIndex = -1;
+    f.setAttribute('sandbox', 'allow-same-origin allow-modals'); // no script runs in it; print() from here needs modals
     f.style.cssText = 'position:fixed;right:0;bottom:0;width:1px;height:1px;border:0;opacity:0;pointer-events:none';
     f.srcdoc = fullDocument();
     document.body.append(f);

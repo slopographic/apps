@@ -105,7 +105,8 @@
       await PT.open(await PT.makePdf([{ text: 'a' }]), 'base4.pdf');
       drop([file('budget.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', new PT.win.Uint8Array([80, 75, 3, 4, 0, 0]))]);
       await waitFor(() => cvtDialog() && cvtText().includes('budget.xlsx'), { timeout: 30000 });
-      expect(cvtText()).toContain('cannot be converted to PDF here');
+      // the row shows first, "Reading…"; what the file can become comes once it is read
+      await waitFor(() => cvtText().includes('cannot be converted to PDF here'), { timeout: 15000 });
       expect(suiTitles()).toEqual([]);
       expect(PT.E.state.pages.length).toBe(1);
       doc().querySelector('.sl-cvt-dlg .sui-x').click();

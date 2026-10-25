@@ -23,43 +23,29 @@
       return k;
     }
 
-    async function importFromComputer() {
-      const files = await UI().pickFiles({ accept: MEDIA_ACCEPT, multiple: true });
-      for (const f of files) {
-        const kind = kindFor(f.type, f.name);
-        if (!kind) continue;
-        try {
-          const entry = await M().add({ id: act.nextMediaId(), name: f.name, size: f.size, kind }, f);
-          act.addMediaLayer(entry);
-        } catch (e) { toast(`${f.name}: ${e.message}`); }
-      }
-    }
-
-    async function importFromDrive() {
-      const rec = await g.SlopHub.pickFromDrive({ accept: ['image/*', 'video/*'], title: 'Add an image or video from Slop Drive' });
-      if (!rec) return;
-      const full = await g.SlopHub.get(rec.id);
-      if (!full || !full.blob) { toast('That file is not in Slop Drive any more'); return; }
-      const kind = kindFor(full.type || full.blob.type, rec.name);
-      if (!kind) return;
-      try {
-        const entry = await M().add({ id: act.nextMediaId(), name: rec.name, size: full.size, kind, driveId: rec.id }, full.blob);
-        act.addMediaLayer(entry);
-      } catch (e) { toast(e.message); }
-    }
-
-    /** Relinks a missing media id to a file from this computer (the layers keep their id). */
-    async function relink(mediaId) {
-      const [f] = await UI().pickFiles({ accept: MEDIA_ACCEPT });
-      if (!f) return;
+    /* The one way in (shared/intake, spec 'effects'): Add media (this computer or Slop Drive), Relink media, Open project
+       from Slop Drive, a drop on the view, a paste, ?drive=<id> and a PWA launch. A project file opens; mode 'relink'
+       (data.mediaId) points a missing media id at the file; any other picture or video is added as a layer. */
+    async function read(f, ctx) {
+      if (/json/.test(f.type || '') || /\.json$/i.test(f.name || '')) return openProjectFile(f, ctx.drive ? ctx.drive.id : '');
       const kind = kindFor(f.type, f.name);
-      if (!kind) return;
-      try {
-        const entry = await M().add({ id: mediaId, name: f.name, size: f.size, kind }, f);
+      if (!kind) throw new Error('is not an image or video');
+      if (ctx.mode === 'relink') {
+        const entry = await M().add({ id: ctx.data.mediaId, name: f.name, size: f.size, kind }, f);
         S.edit('Relink media', (d) => ns.layers.addMedia(d, M().info(entry)));
         toast('Relinked ' + f.name);
-      } catch (e) { toast(e.message); }
+        return f.name;
+      }
+      const entry = await M().add({ id: act.nextMediaId(), name: f.name, size: f.size, kind, driveId: ctx.drive ? ctx.drive.id : undefined }, f);
+      act.addMediaLayer(entry);
+      return f.name;
     }
+    g.SlopIntake.register({ id: 'effects', accept: { types: ['image/*', 'video/*', 'application/json'], exts: ['.json'], noun: 'an image, a video or a Slop Effects project' }, process: read });
+    const importFromComputer = () => g.SlopIntake.pick({ to: 'effects', accept: MEDIA_ACCEPT });
+    const importFromDrive = () => g.SlopIntake.fromDrive({ to: 'effects', accept: ['image/*', 'video/*'], title: 'Add an image or video from Slop Drive' });
+    /** Relinks a missing media id to a file from this computer (the layers keep their id). */
+    const relink = (mediaId) => g.SlopIntake.pick({ to: 'effects', mode: 'relink', data: { mediaId }, multiple: false, accept: MEDIA_ACCEPT });
+    const launch = () => g.SlopIntake.launch({ to: 'effects' });
 
     function newProject() {
       S.replace(ns.core.newDoc({ name: 'Untitled', comp: DEFAULT_COMP }), 'New project');
@@ -129,17 +115,15 @@
       toast('Saved to Slop Drive');
     }
 
-    async function openDrive() {
-      const rec = await g.SlopHub.pickFromDrive({ accept: ['application/json'], title: 'Open a Slop Effects project' });
-      if (!rec) return;
-      const full = await g.SlopHub.get(rec.id);
-      if (!full || !full.blob) { toast('That file is not in Slop Drive any more'); return; }
-      let parsed;
-      try { parsed = P().fromFile(await full.blob.text()); } catch (e) { toast(e.message); return; }
+    /** A project file (from Slop Drive: driveId, so Save writes back to it). Throws the reason when it cannot be opened. */
+    async function openProjectFile(f, driveId) {
+      const parsed = P().fromFile(await f.text());
       const check = g.SlopConfig ? P().checkConfig(g.SlopConfig, parsed.data) : { ok: true, errors: [] };
-      if (!check.ok) { toast(`Cannot open: ${check.errors[0] ? check.errors[0].path + ' ' + check.errors[0].message : 'the file is not valid'}`); return; }
-      openRows(parsed.data, 'Open ' + parsed.name, { name: parsed.name, driveId: rec.id });
+      if (!check.ok) throw new Error(`cannot be opened: ${check.errors[0] ? check.errors[0].path + ' ' + check.errors[0].message : 'the file is not valid'}`);
+      if (!openRows(parsed.data, 'Open ' + parsed.name, { name: parsed.name, driveId })) throw new Error('cannot be opened');
+      return f.name;
     }
+    const openDrive = () => g.SlopIntake.fromDrive({ to: 'effects', accept: ['application/json'], title: 'Open a Slop Effects project' });
 
     /** Registers the effects-project config kind (import and export through shared/config). */
     function registerConfig() {
@@ -159,7 +143,7 @@
       });
     }
 
-    return { importFromComputer, importFromDrive, relink, newProject, saveDrive, openDrive, openRows, registerConfig, build, toast };
+    return { importFromComputer, importFromDrive, relink, launch, newProject, saveDrive, openDrive, openRows, registerConfig, build, toast };
   }
 
   ns.io = { create, DEFAULT_COMP, fileName };

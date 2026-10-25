@@ -22,8 +22,9 @@
       if (typeof indexedDB === 'undefined') return rej(new Error('This browser cannot store keys.'));
       const r = indexedDB.open(DB, 1);
       r.onupgradeneeded = () => { if (!r.result.objectStoreNames.contains(STORE)) r.result.createObjectStore(STORE, { keyPath: 'provider' }); };
-      r.onsuccess = () => { const d = r.result; d.onversionchange = () => { d.close(); dbP = null; }; res(d); };
-      r.onerror = () => rej(r.error);
+      const t = setTimeout(() => rej(new Error('The key store is busy in another tab.')), 5000);   // never hang the panel
+      r.onsuccess = () => { clearTimeout(t); const d = r.result; d.onversionchange = () => { d.close(); dbP = null; }; res(d); };
+      r.onerror = () => { clearTimeout(t); rej(r.error); };
     }).catch((e) => { dbP = null; throw e; });
     return dbP;
   }

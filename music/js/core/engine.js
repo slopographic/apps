@@ -83,6 +83,17 @@
   function setRepeat(mode) { st.q.repeat = mode; keep('repeat', mode); emit(); }
   const REPEAT_NEXT = { off: 'all', all: 'one', one: 'off' };
   function cycleRepeat() { setRepeat(REPEAT_NEXT[st.q.repeat] || 'off'); }
+  /** Puts a track in the queue, right after the current one ('next') or at the end ('last'). With an empty queue
+   * the track is loaded, paused. */
+  function enqueue(id, where = 'last') {
+    if (!st.q.order.length || st.q.index < 0) { st.q = Q.create([id], id, { shuffle: st.q.shuffle, repeat: st.q.repeat }); return loadId(id, false); }
+    const cur = st.q.order[st.q.index], order = st.q.order.filter((x) => x !== id || x === cur);
+    const at = order.indexOf(cur);
+    if (id !== cur) order.splice(where === 'next' ? at + 1 : order.length, 0, id);
+    st.q = Object.assign({}, st.q, { order, index: at, ids: st.q.ids.includes(id) ? st.q.ids : st.q.ids.concat(id) });
+    emit();
+    return Promise.resolve();
+  }
   const current = () => (st.trackId ? M.lib.track(st.trackId) : null);
 
   audio.addEventListener('timeupdate', () => { M.media && M.media.position(state()); subs.forEach((f) => f()); });
@@ -94,7 +105,7 @@
 
   M.engine = { audio, state, current, subscribe: (f) => { subs.add(f); return () => subs.delete(f); },
     setQueue, play, pause, toggle: () => (audio.paused ? play() : pause()), next, prev, seek, setVolume, toggleMute,
-    setRate, setShuffle, setRepeat, cycleRepeat, playIndex };
+    setRate, setShuffle, setRepeat, cycleRepeat, playIndex, enqueue };
   // Convert… in the header (shared/convert/provided.js): the current track's file from Slop Drive.
   addEventListener('slop:convert-files', (e) => e.detail.provide(async () => {
     const rec = st.trackId && H() ? await H().get(st.trackId).catch(() => null) : null;

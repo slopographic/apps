@@ -3,11 +3,15 @@
  *        language-x class as the fence's language), links, images, lists (nested, numbered from their start), quotes,
  *        rules, line breaks and tables. Scripts, styles, forms and the head are left out; any other element gives its
  *        content. Markdown characters in the text are escaped so they stay text.
- *   nodeToMarkdown(node) -> text     the same for a parsed element (an EPUB chapter's body) */
+ *   nodeToMarkdown(node) -> text     the same for a parsed element (an EPUB chapter's body)
+ * Link and image addresses are checked by SlopSanitize.url (shared/sanitize/sanitize.js): javascript: and the like go. */
+import '../../../shared/sanitize/sanitize.js';
+
 const BLOCK = new Set(['P', 'DIV', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'UL', 'OL', 'TABLE', 'BLOCKQUOTE', 'PRE', 'SECTION', 'ARTICLE',
   'HEADER', 'FOOTER', 'NAV', 'MAIN', 'ASIDE', 'HR', 'DL', 'DT', 'DD', 'FIGURE', 'FIGCAPTION', 'ADDRESS', 'DETAILS', 'SUMMARY', 'BODY', 'CENTER']);
 const DROP = new Set(['SCRIPT', 'STYLE', 'NOSCRIPT', 'TEMPLATE', 'HEAD', 'SVG', 'MATH', 'IFRAME', 'OBJECT', 'FORM', 'BUTTON', 'SELECT', 'INPUT', 'TEXTAREA']);
 const BR = '\u0001';   // a hard line break until the paragraph is finished
+const SAFE = globalThis.SlopSanitize;
 const tag = (n) => String(n.tagName || n.localName || '').toUpperCase();
 
 const escText = (s) => s.replace(/([\\`*_[\]<>])/g, '\\$1');
@@ -39,12 +43,12 @@ function inline(el) {
   if (t === 'EM' || t === 'I' || t === 'CITE' || t === 'VAR') return wrap('*', inlineAll(el));
   if (t === 'DEL' || t === 'S' || t === 'STRIKE') return wrap('~~', inlineAll(el));
   if (t === 'CODE' || t === 'KBD' || t === 'SAMP' || t === 'TT') return codeSpan(el.textContent);
-  if (t === 'IMG') { const alt = escText(el.getAttribute('alt') || ''), src = el.getAttribute('src'); return src ? `![${alt}](${url(src)})` : alt; }
+  if (t === 'IMG') { const alt = escText(el.getAttribute('alt') || ''), src = SAFE.url(el.getAttribute('src'), 'image'); return src ? `![${alt}](${url(src)})` : alt; }
   if (t === 'A') {
-    const href = el.getAttribute('href'), inner = inlineAll(el).trim();
-    if (!href || href.startsWith('javascript:')) return inlineAll(el);
+    const href = SAFE.url(el.getAttribute('href'), 'link'), inner = inlineAll(el).trim();
+    if (!href) return inlineAll(el);
     const title = el.getAttribute('title');
-    return `[${inner || escText(href)}](${url(href)}${title ? ` "${title.replace(/"/g, '\\"')}"` : ''})`;
+    return `[${inner || escText(href)}](${url(href)}${title ? ` "${title.replace(/[\\"]/g, '\\$&')}"` : ''})`;
   }
   if (t === 'SUP' || t === 'SUB' || t === 'U' || t === 'MARK' || t === 'SMALL' || t === 'SPAN' || t === 'ABBR' || t === 'Q') return inlineAll(el);
   return BLOCK.has(t) || t === 'LI' ? ` ${inlineAll(el)} ` : inlineAll(el);

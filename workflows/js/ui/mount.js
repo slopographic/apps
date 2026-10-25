@@ -88,7 +88,7 @@ export function mountWorkflow(host, opts = {}) {
     addFiles: (files) => runner.addFiles([...files]), run: () => runner.run(), stop: () => runner.stop(),
     addStep: (id, options, o) => addStep(ctx, id, options, o), load: (w) => lib.load(w), openTemplate: (id) => lib.openTemplate(id),
     results: () => runner.results(), resultsZip: () => runner.resultsZip(),
-    destroy: () => { if (frame) frame.destroy(); ui.root.remove(); },
+    destroy: () => { if (frame) frame.destroy(); runner.destroy(); ui.root.remove(); },
   };
   ctx.R.onMacros(() => ctx.emit('doc', {}));   // an app saved a macro: the step menu and the macro steps see it
   tool.ready = (async () => {

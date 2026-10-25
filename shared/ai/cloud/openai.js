@@ -41,7 +41,8 @@
 
   function request(cfg, messages, tools = [], opts = {}) {
     const { instructions, input } = convert(messages);
-    const body = { model: cfg.model, input, stream: true, store: false, max_output_tokens: opts.maxTokens || 16000 };
+    // prompt_cache_key: OpenAI caches long repeated prefixes on its own; one key for the panel helps them land together
+    const body = { model: cfg.model, input, stream: true, store: false, max_output_tokens: opts.maxTokens || 16000, prompt_cache_key: 'slopographic-ai-panel' };
     if (instructions) body.instructions = instructions;
     if (tools.length) body.tools = tools.map((t) => ({ type: 'function', name: t.name, description: t.description || t.name, parameters: t.inputSchema, strict: false }));
     return { url: root(cfg) + '/responses', init: { method: 'POST', headers: headers(cfg), body: JSON.stringify(body) } };
@@ -63,6 +64,7 @@
             final = d.response || {};
             const u = final.usage || {};
             usage.input = u.input_tokens || 0; usage.output = u.output_tokens || 0;
+            usage.cacheRead = (u.input_tokens_details && u.input_tokens_details.cached_tokens) || 0;
             if (d.type === 'response.incomplete') stop = (final.incomplete_details && final.incomplete_details.reason) === 'content_filter' ? 'refusal' : 'length';
             break;
           }

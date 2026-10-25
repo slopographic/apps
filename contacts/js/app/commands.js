@@ -68,6 +68,8 @@
       C.init({ app: 'contacts' });
       C.register(COMMANDS.map((c) => ({ id: c.id, title: c.title, group: c.group, keys: [], when: c.when, why: c.why, run: () => c.run() })));
       C.register([{ id: 'help.keys', title: 'Keyboard shortcuts…', group: 'Help', run: () => C.openKeymap() }]);
+      // the assistant's record commands (shared/data/ai-records.js), loaded when the AI panel first asks
+      if (C.provide && window.SlopBiz && SlopBiz.assistant) C.provide({ prepare: () => SlopBiz.assistant('contacts') });
     }
     document.addEventListener('click', (e) => {
       const el = e.target.closest && e.target.closest('[data-cmd]');

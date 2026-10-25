@@ -42,12 +42,11 @@
     }).catch(() => { $('msg').textContent = 'That picture could not be read.'; });
   }
   function applySplit() { $('after').style.clipPath = `inset(0 ${100 - +$('split').value}% 0 0)`; }
-  $('file').addEventListener('change', (e) => pick(e.target.files[0]));
-  $('drop').addEventListener('dragover', (e) => e.preventDefault());
-  $('drop').addEventListener('drop', (e) => { e.preventDefault(); pick(e.dataTransfer.files[0]); });
+  // the one way in (aitools/intake.js): a drop on the box, choose a file, a paste, a launch
+  const intake = T.intake('ai-denoise', { accept: { types: ['image/*'], exts: ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.bmp', '.avif'], noun: 'an image' }, read: (f) => pick(f) });
   $('strength').addEventListener('input', (e) => { $('sv').textContent = e.target.value; });
   $('run').addEventListener('click', apply);
   $('split').addEventListener('input', applySplit);
   $('dl').addEventListener('click', () => { if (outCanvas) outCanvas.toBlob((b) => T.download('denoised.png', b, 'image/png')); });
-  T.gate('denoise', () => { $('ui').hidden = false; });
+  T.gate('denoise', () => { $('ui').hidden = false; intake.launch(); });
 })();

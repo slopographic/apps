@@ -132,7 +132,7 @@ test('the file and operations tools of the one list, and the page\'s own two: va
   for (const n of ['list_files', 'read_file', 'list_operations', 'list_apps']) assert.equal(tool(n).annotations.readOnlyHint, true, n);
   assert.equal(tool('list_files').annotations.untrustedContentHint, true);
   assert.equal(tool('run_workflow').annotations.readOnlyHint, false);
-  assert.deepEqual([...tool('run_operation').inputSchema.required], ['operation', 'files']);
+  assert.deepEqual([...tool('run_operation').inputSchema.required], ['operation']);
   // with an app that takes files, open_file is offered
   const w2 = await classic(KIT.concat('shared/agent/workspace.js'), { document: doc, location: { href: 'http://localhost/' }, SlopIntake: { take: () => {}, spec: () => ({ id: 'x' }) } });
   assert.ok(w2.SlopAgentWorkspace.defs({}).some((d) => d.name === 'open_file'));

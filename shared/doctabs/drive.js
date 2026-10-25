@@ -1,4 +1,4 @@
-/* SlopDocTabs.drive: Save to Slop Drive and Open from Slop Drive for one tab, through window.SlopHub (shared/hub.js).
+/* SlopDocTabs.drive: Save to Slop Drive for one tab, through window.SlopHub (shared/hub.js).
  * Classic script, no network of its own. The app supplies the file format in adapter.drive = { ext, mime, toBlob?, fromBlob? }.
  * Without toBlob the file holds JSON of adapter.serialize(doc); without fromBlob it is read back with adapter.restore. */
 (function () {
@@ -49,23 +49,7 @@
     return id;
   }
 
-  /** Pick a file from Slop Drive and open it in a new tab, linked to that file. Resolves with the doc, or null. */
-  async function openFromDrive(api, o = {}) {
-    const H = hub();
-    if (!H) { toast(api, 'Slop Drive is not available here'); return null; }
-    const dr = api.adapter.drive || {};
-    const rec = await H.pickFromDrive({ accept: dr.mime ? [dr.mime] : ['*'], title: o.title || 'Open from Slop Drive' });
-    if (!rec || !rec.blob) return null;
-    let doc;
-    try {
-      doc = dr.fromBlob ? await dr.fromBlob(rec.blob, rec.name) : api.adapter.restore(JSON.parse(await rec.blob.text()));
-    } catch (e) {
-      toast(api, `Could not open ${rec.name}: ${e.message || e}`);
-      return null;
-    }
-    api.openDoc(doc, { driveId: rec.id, origName: rec.name });
-    return doc;
-  }
-
-  NS.drive = { saveToDrive, openFromDrive, fileName };
+  // Open from Slop Drive is each app's: a source of the one intake (SlopIntake.fromDrive), whose reader opens the file in a
+  // tab linked to it with api.openDoc(doc, { driveId, origName }).
+  NS.drive = { saveToDrive, fileName };
 })();

@@ -23,8 +23,8 @@
       const png = Uint8Array.from(atob('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='), (c) => c.charCodeAt(0));
       const dt = new W.DataTransfer(); dt.items.add(new W.File([png], 'shelf.png', { type: 'image/png' }));
       if (W.SlopFirstRun) W.SlopFirstRun.once = async () => true;   // the first-run notice is answered yes
-      const pick = f.contentDocument.getElementById('pick');
-      pick.files = dt.files; pick.dispatchEvent(new W.Event('change'));
+      W.SlopIntake.pickFiles = async () => [...dt.files]; // the box is the intake's picker
+      f.contentDocument.getElementById('drop').click();
       await waitFor(() => f.contentDocument.getElementById('photos').textContent.includes('shelf.png'), { timeout: 10000 });
       f.contentDocument.getElementById('export-photos').click();
       await waitFor(() => got.length === 1);

@@ -25,6 +25,7 @@ sequence (zip), WebM, or MP4 where the browser can record it. Projects save to S
 | `js/app/actions.js`, `actions-keys.js` | What the UI and the commands call. Copy and paste go through `SlopBuffer` too. |
 | `js/app/io.js` | Slop Drive save and open (kind `effects`, `meta.kind`), media from computer and Drive, relink, config kind. |
 | `js/app/cmd.js` | Keyboard shortcuts and SlopCmd palette entries. |
+| `js/app/ai-commands.js`, `ai-ops.js` | Commands with arguments (`fx.ai.*`) for the Slop AI panel, WebMCP and macros: new project, composition, add/edit/duplicate/reorder/delete layer, set property, add keyframe, add/set/remove effect (clamped to `defs`), animate in and out, random motion, media from Drive, render to Drive (progress in `#fx-status`, stops on `ctx.signal`), go to time. Each is one undo step; `SlopCmd.provide({ state, checkpoint })`. Test: `tests/effects/ai-commands.test.html`. |
 | `js/ui/*.js` | Preview, transport, timeline (and key dragging), graph editor, layer panel, effects and motion panels, menus, render dialog. |
 | `js/main.js` | Boot and wiring. `window.SlopEffects.app` exposes the store and actions for tests. |
 

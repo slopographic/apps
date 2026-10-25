@@ -165,6 +165,7 @@
       get changed() { return st.edits.size; },
       load, has, base, byte, write, undo, redo, dirty, markSaved, toBlob, sha256, readRange, find,
       canUndo: () => st.undo.length > 0,
+      undoDepth: () => st.undo.length,   // how many undo steps there are (the assistant's checkpoint)
       canRedo: () => st.redo.length > 0,
     };
   }

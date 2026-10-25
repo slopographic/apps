@@ -1,5 +1,7 @@
 /* Slop Code: boot. Wires the editor, the tabs, the Slop Drive tree, Run, the drawer and the commands, then
- * opens the file given by ?drive=<id> (Send to, or Open with). */
+ * opens the file given by ?drive=<id> (Send to, or Open with). Files come in one way (shared/intake, spec 'code'):
+ * Open from Slop Drive, ?drive=<id> and a PWA launch, a drop on the editor and a paste. Slop Code edits Slop Drive
+ * files, so a file from this device is put in Slop Drive (the folder chosen in the tree) and opened from there. */
 import * as docs from './docs.js';
 import { newView, makeState, setHooks, setWrap, isWrap, showFind } from './editor.js';
 import { initTree, refresh as refreshTree, selectedFolder, revealFolder, newFolder } from './tree.js';
@@ -10,10 +12,20 @@ import { openRecord, saveDoc, saveAs, newFile, closeDoc, onEdit, showDoc, restor
 import { runDoc, attachPreview, canRun } from './run.js';
 import { registerCommands } from './commands.js';
 
-async function openPicker() {
-  const rec = await SlopHub.pickFromDrive({ title: 'Open from Slop Drive' });
-  if (rec) openRecord(rec);
+function registerIntake() {
+  window.SlopIntake.register({
+    id: 'code', accept: { any: true, allowEmpty: true, noun: 'a file' },
+    process: async (file, ctx) => {
+      let rec = ctx.drive && ctx.drive.record;
+      if (!rec) rec = await SlopHub.get(await SlopHub.put(file, { name: file.name, from: 'code', folderId: selectedFolder() || null }));
+      if (ctx.source === 'launch' && rec.folderId) revealFolder(rec.folderId);
+      await openRecord(rec);
+      return rec.id;
+    },
+  });
+  window.SlopIntake.dropTarget(document.querySelector('.cd-main'), { to: 'code' });
 }
+const openPicker = () => window.SlopIntake.fromDrive({ to: 'code', title: 'Open from Slop Drive' });
 async function runCurrent() {
   const d = docs.current();
   if (!d) { toast('Open a file first'); return; }
@@ -69,6 +81,7 @@ function wireButtons() {
 
 async function boot() {
   SlopHub.register('code');
+  registerIntake();
   initLayout();
   initDrawer();
   setTreeOpen(treeOpen()); // keeps the Files button's aria-expanded in step with what is shown
@@ -91,8 +104,7 @@ async function boot() {
   registerCommands(ACTIONS);
   await refreshTree();
   await restoreTabs();
-  const launch = await SlopHub.consumeLaunch();
-  if (launch) { if (launch.folderId) revealFolder(launch.folderId); await openRecord(launch); }
+  await window.SlopIntake.launch({ to: 'code' });
   renderChrome();
   document.body.classList.add('ready');
 }

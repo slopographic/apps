@@ -13,7 +13,7 @@
   const K = (window.SlopAIKit = window.SlopAIKit || {});
   const C = (K.cloud = K.cloud || {});
   const KEY = 'slop-ai.cloud.visit', SEEN = 'slop-firstrun:ai-cloud:';
-  const zero = () => ({ input: 0, output: 0, tokens: 0, cost: 0, known: true, replies: 0 });
+  const zero = () => ({ input: 0, output: 0, cacheRead: 0, tokens: 0, cost: 0, known: true, replies: 0 });
   let t = (() => { try { return Object.assign(zero(), JSON.parse(sessionStorage.getItem(KEY)) || {}); } catch (e) { return zero(); } })();
   const keep = () => { try { sessionStorage.setItem(KEY, JSON.stringify(t)); } catch (e) { /* storage blocked: memory only */ } };
   const n = (x) => Math.round(x).toLocaleString('en');
@@ -22,7 +22,7 @@
 
   function add(u) {
     if (!u) return total();
-    t.input += u.input || 0; t.output += u.output || 0; t.tokens = t.input + t.output; t.replies++;
+    t.input += u.input || 0; t.output += u.output || 0; t.cacheRead += u.cacheRead || 0; t.tokens = t.input + t.output; t.replies++;
     if (u.cost == null) t.known = false; else t.cost += u.cost;
     keep();
     return total();
@@ -32,7 +32,7 @@
   const over = (cap) => !!cap && cap > 0 && t.tokens >= cap;
   function line(u) {
     const tok = (u.input || 0) + (u.output || 0);
-    return `${n(tok)} tokens` + (u.cost != null ? ` · ${money(u.cost)}` : '');
+    return `${n(tok)} tokens` + (u.cacheRead ? ` (${n(u.cacheRead)} from cache)` : '') + (u.cost != null ? ` · ${money(u.cost)}` : '');
   }
   function totalLine(cap) {
     const x = total();

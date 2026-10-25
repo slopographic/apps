@@ -4,9 +4,9 @@
  * Classic script; load after shared/commands/commands.js, core.js and store.js. See shared/macros/HANDOFF.md.
  *
  *   SlopMacros.init({ app, label, host })   app: the SlopCmd / registry app id ('photoslop'); label: its name
- *     host: { open(file), save({ format, quality }) → { blob, kind }, ready? () → Promise }  how a hidden copy of the app
+ *     host: { open(file, options), save(options, { signal, progress }) → { blob, kind }, ready? () → Promise }  how a hidden copy of the app
  *       (an iframe at <app>/?macro-host=1, shared/macros/frame.js) opens a file and writes the result. With ?macro-host=1
- *       in the address the page serves window.SlopMacroHost = { ready, run(file, steps, options, { signal }) } for it.
+ *       in the address the page serves window.SlopMacroHost = { ready, run(file, steps, options, { signal, progress }) } for it.
  *   record() stop() cancel() note(cmd, args, title) play(id) list() get(id) rename(id) remove(id) exportFile(ids?)
  *   importFile(file?) addToWorkflow(id) on(fn) → off (fn({ type: 'record' | 'steps' | 'list' | 'play' }))
  *   recording, steps(), isHost
@@ -133,13 +133,13 @@
     const ready = Promise.resolve(host.ready ? host.ready() : null).then(() => true);
     g.SlopMacroHost = {
       app, ready,
-      run(file, steps, options = {}, { signal = null } = {}) {
+      run(file, steps, options = {}, { signal = null, progress = null } = {}) {
         const job = chain.then(async () => {
           await ready;
           const f = new File([file], file.name || 'picture', { type: file.type || '' });   // this window's own File
-          await host.open(f);
-          await rec.playing(() => M.replay(steps, { exec, prepare, signal }));
-          return host.save(options || {});
+          await host.open(f, options || {});   // options may carry more files (SlopCut: the media of an edit list)
+          await rec.playing(() => M.replay(steps, { exec: (cmd, args) => C().exec(cmd, args, { source: 'macro', signal }), prepare, signal }));
+          return host.save(options || {}, { signal, progress });
         });
         chain = job.catch(() => {});
         return job;

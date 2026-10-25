@@ -166,7 +166,8 @@
     let nd = c0.dur * c0.speed / speed;
     for (const c of grp) nd = Math.min(nd, (M.srcLen(p, c) - c.in) / speed);
     const applied = E.rippleShift(p, pivot - 1e-4, nd - c0.dur, g);
-    for (const c of grp) { c.speed = speed; c.dur = Math.max(E.minDur(p), c0.dur + applied); c.keys = null; }
+    const dur = Math.max(E.minDur(p), c0.dur + applied);   // once: c0 is in the group and changes in the loop
+    for (const c of grp) { c.speed = speed; c.dur = dur; c.keys = null; }
   };
   /** Snap t to the nearest edit point within tol seconds. Returns { t, hit }. */
   E.snap = function (p, t, tol, skip, extra = []) {

@@ -8,18 +8,13 @@
   const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 
   function render() {
-    const items = NS.queue.items(), busy = NS.queue.busy();
+    const items = NS.queue.items();
     $('rs-empty').hidden = items.length > 0;
     $('rs-queue-wrap').hidden = items.length === 0;
     NS.list.render($('rs-list'), items, actions);
     const ref = items.find((i) => i.src);
     NS.settings.setSource(ref ? ref.src : null, ref ? ref.name : '');
-    const ready = items.some((i) => i.src), done = items.filter((i) => i.status === 'done');
-    $('rs-run').disabled = busy || !ready;
-    $('rs-cancel').disabled = !busy;
-    $('rs-zip').disabled = busy || !done.length;
-    $('rs-save-all').disabled = busy || !done.some((i) => !i.drive);
-    $('rs-clear').disabled = busy || !items.length;
+    NS.layout.paint(api);   // the panel's buttons (app/layout.js)
     $('rs-stat').textContent = NS.list.summary(items);
   }
 
@@ -162,11 +157,6 @@
     panel.addEventListener('input', () => NS.settings.labels());
     $('rs-open').addEventListener('click', () => api.open());
     $('rs-drive').addEventListener('click', () => api.drive());
-    $('rs-run').addEventListener('click', () => run());
-    $('rs-cancel').addEventListener('click', () => api.cancel());
-    $('rs-zip').addEventListener('click', () => downloadAll());
-    $('rs-save-all').addEventListener('click', () => api.saveAll());
-    $('rs-clear').addEventListener('click', () => api.clear());
   }
 
   async function boot() {
@@ -186,6 +176,7 @@
   }
 
   NS.app = api;
+  NS.layout.paint(api);   // the panel and its Resize button are in before the first paint
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();
 })();

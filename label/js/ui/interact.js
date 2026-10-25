@@ -202,9 +202,9 @@ async function createFromDrag(D0) {
   addObject(makeObject(type, Object.assign(styleProps(App.doc, type), props)));
   if (type === 'text' || type === 'para') focusContent();
 }
-/** Pick (or take) an image file and place it as an object. props may give x/y/w/h. */
+/** Place an image file as an object (with no file: the picker, a source of the intake, ui/intake.js). props may give x/y/w/h. */
 async function insertImageFile(file, props = {}) {
-  if (!file) { const fs = await SlopUI.pickFiles({ accept: 'image/*,.svg' }); file = fs[0]; if (!file) return null; }
+  if (!file) { await pickImage(props); return null; }
   try {
     const a = await addImageAsset(App.doc, file);
     let w = props.w || Math.min(30, App.doc.label.w * 0.6), h = props.h || w / a.aspect;

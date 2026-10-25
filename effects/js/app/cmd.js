@@ -62,6 +62,7 @@
       cmds.push({ id: `fx.effect-${kind}`, title: `Add effect: ${D().EFFECTS[kind].label}`, group: 'Effects', when: hasLayer, run: () => act.addEffect(kind) });
     }
     C.register(cmds);
+    if (ns.aiCmd) ns.aiCmd.init(ctx);   // the commands with arguments (ai-commands.js)
   }
 
   ns.cmd = { init };

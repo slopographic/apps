@@ -86,7 +86,7 @@
         </form>
         <div class="toolbar">
           <h2 class="h2 grow">Posted entries <span class="count" id="jCount"></span></h2>
-          <button type="button" class="btn" id="jImportSie" title="Bring accounts, opening balances and vouchers from another program’s SIE export">Import SIE…</button><input id="jSiePick" type="file" accept=".se,.si,.sie,.txt" hidden>
+          <button type="button" class="btn" id="jImportSie" title="Bring accounts, opening balances and vouchers from another program’s SIE export">Import SIE…</button>
           <button type="button" class="btn" id="jExport">Export journal (CSV)</button>
         </div>
         <div id="jRows" class="entries"></div>
@@ -178,7 +178,7 @@
       <section class="view" id="view-bank" role="tabpanel" aria-labelledby="tab-bank" hidden>
         <div class="toolbar">
           <label>Account <select id="bkAccount"><option value="1010">1010 Bank</option><option value="1000">1000 Cash</option></select></label>
-          <button type="button" class="btn primary" id="bkImport">Import a statement…</button><input id="bkPick" type="file" accept=".csv,.txt,text/csv,.ofx,.qfx,.qif,.xml,.sta,.mt940,.940" hidden>
+          <button type="button" class="btn primary" id="bkImport">Import a statement…</button>
           <button type="button" class="btn" id="bkMatch">Match again</button>
           <label class="check"><input id="bkShowAll" type="checkbox"> Show matched and set aside</label>
         </div>
@@ -225,6 +225,11 @@
   <script src="../shared/consent/config.js"></script>
   <script src="../shared/consent/state.js"></script>
   <script src="../shared/slopui.js"></script>
+  <script src="../shared/intake/rules.js"></script>
+  <script src="../shared/intake/normalize.js"></script>
+  <script src="../shared/intake/pipeline.js"></script>
+  <script src="../shared/intake/intake.js"></script>
+  <script src="../shared/intake/sources.js"></script>
   <script src="../shared/ctxmenu.js"></script>
   <script src="../shared/commands/commands.js"></script>
   <script src="js/core/util.js"></script>

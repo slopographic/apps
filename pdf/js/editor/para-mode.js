@@ -66,6 +66,7 @@
   /* ----------------------------------------------------------- the frame */
   P.clear = function () {
     if (P.editor) P.editor.cancel();
+    if (P.sel && P.sel.to) S.strip.release(P.sel.to); // set up but never changed: its derived file goes
     P.sel = null;
     U.$$('.para-frame').forEach(function (el) { el.remove(); });
   };
@@ -99,7 +100,7 @@
     var sel = P.sel = { pid: p.id, kind: 'block', blocks: bs };
     sel.ready = P.fromBlocks(p, bs).then(function (m) {
       if (P.sel !== sel) return null;
-      sel.model = m.annot; sel.covers = m.covers; P.draw(); return sel;
+      sel.model = m.annot; sel.covers = m.covers; sel.preview = m.preview; sel.to = m.to; P.draw(); return sel;
     }, function (e) {
       if (P.sel === sel) P.clear();
       if (!(e && e.message === 'cancelled')) SlopUI.toast('This paragraph could not be set up: ' + (e && e.message || e));
@@ -184,7 +185,7 @@
         m.cx = h === 'e' ? left + m.w / 2 : right - m.w / 2;
       }
       cur = m;
-      p.annots = sel.kind === 'block' ? saved.concat(sel.covers, [m]) : saved.map(function (y) { return y.id === m.id ? m : y; });
+      p.annots = sel.kind === 'block' ? saved.concat(sel.preview || sel.covers, [m]) : saved.map(function (y) { return y.id === m.id ? m : y; });
       Ed.paint();
     }
     function up() {

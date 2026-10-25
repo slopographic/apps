@@ -9,7 +9,11 @@
  * kept whole (thinking blocks with their signatures, tool_use) and sent back unchanged, as the API requires; after a
  * server-side fallback the blocks before the last fallback marker are left out, as documented. No temperature: API
  * version 2026-10-21 refuses sampling parameters. Opus/Sonnet 5.x get fallbacks: "default" (a declined request is run
- * again on the model Anthropic picks); Haiku has no server-side fallback. */
+ * again on the model Anthropic picks); Haiku has no server-side fallback.
+ * Prompt caching (the agent loop sends the same tools and system prompt every turn): an explicit cache breakpoint on the
+ * system prompt (it caches the tools too, which come first) plus top-level automatic caching for the growing
+ * conversation, as the API's guide recommends for agent loops. usage: input (all input tokens), cacheRead, cacheWrite.
+ * Text blocks of one reply are joined with a blank line (a reply may hold several, with progress notes between). */
 (function () {
   'use strict';
   const K = (window.SlopAIKit = window.SlopAIKit || {});
@@ -65,9 +69,10 @@
 
   function request(cfg, messages, tools = [], opts = {}) {
     const { system, messages: msgs } = convert(messages);
-    const body = { model: cfg.model, max_tokens: opts.maxTokens || 16000, stream: true, messages: msgs };
-    if (system) body.system = system;
+    const body = { model: cfg.model, max_tokens: opts.maxTokens || 16000, stream: true, messages: msgs, cache_control: { type: 'ephemeral' } };
     if (tools.length) body.tools = tools.map((t) => ({ name: t.name, description: t.description || t.name, input_schema: t.inputSchema }));
+    if (system) body.system = [{ type: 'text', text: system, cache_control: { type: 'ephemeral' } }];
+    else if (body.tools) body.tools[body.tools.length - 1].cache_control = { type: 'ephemeral' };
     if (effort(cfg.model)) body.output_config = { effort: opts.effort || 'medium' };
     const h = headers(cfg);
     if (fallbacks(cfg.model)) { body.fallbacks = 'default'; h['anthropic-beta'] = 'server-side-fallback-2026-07-01'; }
@@ -75,7 +80,8 @@
   }
 
   function parser() {
-    const blocks = [], partial = {}, usage = { input: 0, output: 0 };
+    const blocks = [], partial = {}, usage = { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 };
+    let texts = 0;
     let stop = null, model = null;
     return {
       push(ev) {
@@ -85,14 +91,15 @@
         switch (d.type) {
           case 'message_start': {
             const u = (d.message && d.message.usage) || {};
-            usage.input = (u.input_tokens || 0) + (u.cache_read_input_tokens || 0) + (u.cache_creation_input_tokens || 0);
+            usage.cacheRead = u.cache_read_input_tokens || 0; usage.cacheWrite = u.cache_creation_input_tokens || 0;
+            usage.input = (u.input_tokens || 0) + usage.cacheRead + usage.cacheWrite;
             usage.output = u.output_tokens || 0; model = d.message && d.message.model; break;
           }
           case 'content_block_start': {
             const b = Object.assign({}, d.content_block);
             if (b.type === 'tool_use') { partial[d.index] = ''; b.input = b.input || {}; }
             blocks[d.index] = b;
-            if (b.type === 'text' && b.text) out.push(b.text);
+            if (b.type === 'text') { if (texts++) out.push('\n\n'); if (b.text) out.push(b.text); }
             break;
           }
           case 'content_block_delta': {
@@ -125,7 +132,7 @@
         const list = blocks.filter(Boolean);
         let cut = -1; list.forEach((b, i) => { if (b.type === 'fallback') cut = i; });
         const calls = list.filter((b, i) => b.type === 'tool_use' && i > cut).map((b) => ({ id: b.id, name: b.name, arguments: b.input && typeof b.input === 'object' ? b.input : {} }));
-        const text = list.filter((b) => b.type === 'text').map((b) => b.text || '').join('');
+        const text = list.filter((b) => b.type === 'text').map((b) => b.text || '').join('\n\n');
         return { text, calls, native: list, usage, stop: stop === 'refusal' ? 'refusal' : stop === 'max_tokens' ? 'length' : stop, model };
       },
     };

@@ -44,6 +44,9 @@
   function register() {
     if (!window.SlopCmd) return;
     SlopCmd.register(COMMANDS.map((c) => Object.assign({}, c, { keys: c.keys || [] })));
+    // the assistant's commands with arguments (ui/ai-commands.js), loaded when the AI panel first asks
+    if (SlopCmd.provide) SlopCmd.provide({ prepare: () => (G.ai ? null : new Promise((res, rej) => document.head.append(Object.assign(document.createElement('script'),
+      { src: new URL('js/ui/ai-commands.js', location.href).href, onload: res, onerror: () => rej(new Error('Could not load ai-commands.js')) })))) });
   }
   G.commands = { register, list: () => COMMANDS.map((c) => ({ id: c.id, title: c.title, keys: c.keys || [] })) };
 })();

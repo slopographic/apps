@@ -6,6 +6,7 @@
   <!-- Covers: label/index.html -->
   <!-- Covers: label/css/layout.css -->
   <!-- Covers: label/css/mobile.css -->
+  <!-- Covers: label/js/ui/boot.js -->
   <script src="../harness.js"></script>
   <script>
   const { describe, it, expect, waitFor, sleep } = SlopTest;
@@ -52,11 +53,16 @@
 
   describe('SlopLabel: the look', () => {
     for (const W of [1440, 1024]) {
-      it(W + ': Print and the shared buttons are one height in the menu bar; View matches the zoom buttons; no dock tab is cut', async () => {
+      it(W + ': the shared buttons are one height in the menu bar; View matches the zoom buttons; Print is at the dock\'s foot; no dock tab is cut', async () => {
         const D = await open(W);
         expect(headers(D).length).toBe(1);
-        expect(sameHeight(D, ['#btnPrint', '#zoomIn', '#zoomVal'])).toBe(26);
-        for (const n of headers(D)[0].querySelectorAll('.slop-hbtn')) if (shown(n)) expect(Math.abs(box(n).top - box(D.getElementById('btnPrint')).top)).toBeLessThan(2);
+        expect(sameHeight(D, ['#zoomIn', '#zoomVal'])).toBe(26);
+        const tops = [...headers(D)[0].querySelectorAll('.slop-hbtn')].filter(shown).map((n) => Math.round(box(n).top));
+        for (const t of tops) expect(Math.abs(t - tops[0])).toBeLessThan(2);
+        const print = D.getElementById('btnPrint'), dock = D.getElementById('dock');
+        expect(headers(D)[0].contains(print)).toBe(false);
+        expect(print.closest('.sf-p-foot').parentNode).toBe(dock);
+        expect(Math.round(box(print).bottom)).toBeLessThanOrEqual(Math.round(box(dock).bottom));
         fits(D);
         for (const t of D.querySelectorAll('#dockTabs .tab')) expect(t.textContent + ' ' + (t.scrollWidth <= t.clientWidth)).toBe(t.textContent + ' true');
       }, { timeout: 40000 });
@@ -65,6 +71,9 @@
       const D = await open(390);
       fits(D);
       expect(box(headers(D)[0]).bottom).toBeLessThanOrEqual(box(D.getElementById('tabs')).top + 1);
+      const print = D.getElementById('btnPrint');   // the closed dock sheet still shows its foot
+      expect(box(print).top).toBeGreaterThan(D.defaultView.innerHeight - 110);
+      expect(box(print).bottom).toBeLessThanOrEqual(D.defaultView.innerHeight);
     }, { timeout: 40000 });
   });
   SlopTest.run({ name: 'SlopLabel: the look' });

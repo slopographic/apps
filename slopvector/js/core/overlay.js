@@ -24,7 +24,8 @@
 
   /* ================= overlay (selection UI) ================= */
   function scr(p) { return toScreen(p); }
-  function selColorOf(id) { var L = layerOf(id); return L ? L.color : LAYER_COLORS[0]; }
+  /** The selection colour of the object's layer (a #rrggbb; a layer from a file may say anything, so it is checked). */
+  function selColorOf(id) { var L = layerOf(id); return L && /^#[0-9a-f]{3,8}$/i.test(L.color) ? L.color : LAYER_COLORS[0]; }
   SV.HANDLE_NAMES = ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'];
   function handlePositions(b) {
     var x0 = b.x, y0 = b.y, x1 = b.x + b.w, y1 = b.y + b.h, xm = (x0 + x1) / 2, ym = (y0 + y1) / 2;

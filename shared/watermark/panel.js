@@ -12,11 +12,13 @@
  *     newLayer: (kind) => ({ ...fields }),   // the app's defaults for a new layer (optional)
  *     actions: [{ label, title, act }],      // the app's own buttons under the panel (optional)
  *     onFiles: (files) => {},                // files dropped on the panel that are not pictures (default: the page's intake)
+ *     intake: 'app.logo',                    // the name of the panel's logo part in the page's intake (default watermark.logo.<n>)
  *     saved: true,                           // the My watermarks button
  *   });
  *   p.el ; p.set(spec) ; p.get() ; p.setMedia({ pages, time }) ; p.select(layerId) ; p.selected() ; p.sync() ; p.destroy()
  * A logo comes in through the page's one intake (shared/intake, SlopIntake) when the page has it: each panel is a part of
- * its own ('watermark.logo.<n>', picked or dropped); without it, through SlopUI.pickFiles and the panel's own drop. */
+ * its own (opts.intake, else 'watermark.logo.<n>'; picked or dropped), registered when the panel mounts, so the page can
+ * reach it by name (SlopIntake.pick({ to })) from boot; without the intake, through SlopUI.pickFiles and the panel's drop. */
 (function () {
   'use strict';
   const P = (window.SlopWatermarkPanel = window.SlopWatermarkPanel || {});
@@ -27,7 +29,7 @@
 
   let mounts = 0;
   P.mount = function (host, opts = {}) {
-    const IID = 'watermark.logo.' + (++mounts);
+    const IID = opts.intake || 'watermark.logo.' + (++mounts);
     let offIntake = null;
     let spec = S.normalize(opts.value || S.defaults()), sel = spec.layers.length ? spec.layers[spec.layers.length - 1].id : null;
     let media = Object.assign({ pages: false, time: false }, opts.media), editorFor = '';
@@ -35,7 +37,7 @@
     const layer = () => S.getLayer(spec, sel);
     const fresh = (kind) => S.layerDefaults(kind, opts.newLayer ? opts.newLayer(kind) : null);
 
-    /** The panel's logo part in the page's intake (registered on first use). */
+    /** The panel's logo part in the page's intake (registered at mount, or on first use if the intake came later). */
     function intake() {
       const SI = window.SlopIntake;
       if (!offIntake && SI && SI.register && SI.pick) {
@@ -59,6 +61,7 @@
       sel = L.id;
       emit(S.addLayer(spec, L), 'Add logo');
     }
+    intake();
     function addText() { const L = fresh('text'); sel = L.id; emit(S.addLayer(spec, L), 'Add text layer'); }
 
     const ctx = { layer, media: () => media, pageCount: () => (opts.pageCount ? opts.pageCount() : 0), currentPage: opts.currentPage || null,
