@@ -1,4 +1,5 @@
 @import url("tool.css");   /* the tool (drop zone, cards, options, results), scoped under .cv-tool */
+@import url("../../shared/footnav/footnav.css");   /* the site links at the foot of the converter pages (tools/seo/footnav.mjs) */
 /* File convert: hub and converter pages. Colours are tokens on :root; dark is the default. */
 :root {
   --bg: #0a0a0a; --panel: #161618; --panel-2: #1f1f23; --ink: #f1ede4; --muted: #b3ada3;
@@ -95,3 +96,5 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .cv-pair-accepts span { color: var(--ink); font-weight: 600; }
 .cv-pair-go { margin-top: auto; align-self: flex-start; }
 .cv-cards-empty { color: var(--muted); }
+.cv-foot { padding-top: 0; }
+.cv-foot .fnav { --fn-fg: var(--ink); --fn-dim: var(--muted); --fn-line: var(--line); }
