@@ -6,7 +6,7 @@
   <script src="../harness.js"></script>
   <script src="record-panel-apps.js"></script>
   <script>
-  // Covers: shared/biz/panel.js, shared/docs/doc-layout.js, shared/docs/doc-editor.js, shared/docs/workspace.css, shared/biz/app.css, contacts/js/app/card.js, contacts/js/app/card-read.js, contacts/js/app/card-edit.js, contacts/css/contacts-card.css, expenses/js/ui/app.js, timesheets/js/ui/app.js, crm/js/ui/detail.js, crm/css/crm.css, projects/js/ui/task-panel.js, ledger/js/ui/app.js
+  // Covers: shared/biz/panel.js, shared/docs/doc-layout.js, shared/docs/doc-editor.js, shared/docs/workspace.css, shared/biz/app.css, contacts/js/app/card.js, contacts/js/app/card-read.js, contacts/js/app/card-edit.js, contacts/css/contacts-card.css, expenses/js/ui/app.js, timesheets/js/ui/app.js, crm/js/ui/detail.js, crm/css/crm.css, projects/js/ui/task-panel.js, ledger/js/ui/app.js, inventory/js/ui/app.js
   // The suite rule (shared/frame/HANDOFF.md): an open record's details are a panel on the RIGHT (SlopFrame), its main button in
   // the panel's footer; on a phone the panel is a bottom sheet whose closed state still shows that footer. One run per app
   // (tests/biz/record-panel-apps.js: how each app opens a record, fills it and what its main button does).
@@ -77,6 +77,27 @@
         if (w < 900) { expect(foot.textContent.trim()).toBe('Details'); foot.querySelector('button').click(); await waitFor(() => W.document.querySelector('.ws-panel').classList.contains('ssh-on')); }
         f.remove();
       }
+    }, { timeout: 90000 });
+    it('Slop Inventory: Receive, Sell, Adjust and Transfer are the stock view\'s right panel; on a phone Stock actions opens them', async () => {
+      const app = { path: 'inventory/index.html', hash: 'stock', ready: (W) => W.SlopInv && W.SlopInv.app && W.SlopInv.app.booted && W.document.querySelector('#view-stock .sf-p-foot') };
+      let f = await open(app, 1280), W = f.contentWindow, D = W.document;
+      const panel = D.querySelector('#view-stock .forms'), main = D.querySelector('#view-stock .biz-fv-main');
+      expect(panel.getBoundingClientRect().left).toBeGreaterThanOrEqual(main.getBoundingClientRect().right - 1);
+      expect(shown(D.querySelector('#view-stock .sf-grip'))).toBe(true);
+      const receive = [...panel.querySelectorAll('button')].find((b) => b.textContent === 'Receive');
+      expect(shown(receive)).toBe(true);
+      receive.click();   // no product yet: the answer shows in the panel
+      await waitFor(() => D.getElementById('sMsg').textContent.trim().length > 0 && panel.contains(D.getElementById('sMsg')));
+      f.remove();
+      f = await open(app, 390); W = f.contentWindow; D = W.document;
+      const p2 = D.querySelector('#view-stock .forms'), foot = p2.querySelector('.sf-p-foot');
+      expect(Math.round(foot.getBoundingClientRect().bottom)).toBe(W.innerHeight);
+      expect(foot.textContent.trim()).toBe('Stock actions');
+      expect(D.documentElement.scrollWidth).toBeLessThanOrEqual(390);
+      foot.querySelector('button').click();
+      await waitFor(() => p2.classList.contains('ssh-on'));
+      expect(shown([...p2.querySelectorAll('button')].find((b) => b.textContent === 'Receive'))).toBe(true);
+      f.remove();
     }, { timeout: 90000 });
   });
   SlopTest.run({ name: 'Business apps: the record panel' });
