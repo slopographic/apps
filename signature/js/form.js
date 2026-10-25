@@ -33,16 +33,19 @@
     return UI.field(f.label, input);
   }
   function pictureExtras() {
-    const pick = el('input', { type: 'file', accept: 'image/png,image/jpeg,image/gif', hidden: true });
     const msg = el('p', { class: 'sg-note', role: 'status' });
-    pick.addEventListener('change', async () => {
-      const f = pick.files && pick.files[0]; pick.value = '';
-      if (!f) return;
-      try { inputs.image.value = await shrink(f); msg.textContent = `${f.name} is kept inside the signature. Gmail does not show pictures kept this way: for Gmail, use a web address.`; changed(); } catch (e) { msg.textContent = e.message; }
-    });
+    // The picture is the page's one way in for files (shared/intake, spec 'signature'): the button and a pasted picture.
+    if (!window.SlopIntake.spec('signature')) {
+      window.SlopIntake.register({ id: 'signature', limit: 1, toast: false, accept: { types: ['image/png', 'image/jpeg', 'image/gif'], noun: 'a PNG, JPEG or GIF picture' },
+        process: async (f) => {
+          try { inputs.image.value = await shrink(f); msg.textContent = `${f.name} is kept inside the signature. Gmail does not show pictures kept this way: for Gmail, use a web address.`; changed(); } catch (e) { msg.textContent = e.message; throw e; }
+          return f.name;
+        } });
+    }
+    const pick = () => window.SlopIntake.pick({ to: 'signature', multiple: false, accept: 'image/png,image/jpeg,image/gif' });
     inputs.imageSize = el('input', { id: 'sg-imageSize', type: 'range', min: 32, max: 160, step: 4, oninput: () => changed() });
     inputs.round = el('input', { id: 'sg-round', type: 'checkbox', onchange: () => changed() });
-    return [el('div', { class: 'sg-row' }, el('button', { type: 'button', class: 'sui-btn', id: 'sgUpload', onclick: () => pick.click() }, 'Use a picture from this device…'), pick),
+    return [el('div', { class: 'sg-row' }, el('button', { type: 'button', class: 'sui-btn', id: 'sgUpload', onclick: pick }, 'Use a picture from this device…')),
       msg, UI.field('Picture size', inputs.imageSize), el('label', { class: 'sg-check' }, inputs.round, ' Round (for a photo of you)')];
   }
   function styleBox() {

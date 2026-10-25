@@ -8,23 +8,9 @@
     if (PR.templates && PR.templates.make) { try { return PR.templates.make('magazine'); } catch (e) { console.warn(e); } }
     return PR.model.create({ pages: 4 });
   }
-  /* Files dropped on the stage (or chosen with the zone's button): an image lands in the frame under the drop point, or
-     on a new frame; a .slpress file opens. Each file goes through PR.place.files, one at a time (shared/drop). */
-  function dropSetup() {
-    if (!window.SlopDrop) return;
-    function frameAt(f, at) {
-      if (!at) return null;
-      var r = V.canvas.getBoundingClientRect(), w = V.toWorld(at.x - r.left, at.y - r.top), hit = PR.tools.hit(w.x, w.y);
-      var s = V.surfaceAt(w.x, w.y); if (s) PR.selectTool.activate(s);
-      return hit && /image|rect|ellipse/.test(hit.it.type) && /^image\//.test(f.type) ? hit.it : null;
-    }
-    SlopDrop.attach(U.$('#pressDrop'), {
-      accept: { types: ['image/*', 'text/*', 'application/pdf', 'font/*', 'application/x-font-ttf', 'application/font-sfnt'], exts: ['.slpress', '.txt', '.md', '.csv', '.pdf', '.ttf', '.otf'], noun: 'an image, text, PDF, font or .slpress file' },
-      compact: true,
-      targets: [U.$('#stage')],
-      process: function (f, progress, ctx) { return PR.place.files([f], { frame: frameAt(f, ctx.at) }); },
-    });
-  }
+  /* Files dropped on the stage (or chosen with the zone's button) go through the one intake (io/intake.js): a picture
+     lands in the frame under the drop point, or on a new frame; a .slpress file opens. */
+  function dropSetup() { PR.intake.attachDrop(U.$('#pressDrop'), U.$('#stage')); }
   function prefs() {
     var show = ST.pref('show'); if (show) U.assign(V.show, show);
     U.$('#app').classList.toggle('no-rulers', !V.show.rulers);
@@ -48,10 +34,10 @@
     addEventListener('pagehide', function () { if (S.dirty) ST.autosave(); });
     PR.actions.loadSlopCmd();
     PR.tools.set('select');
-    // open: Slop Drive launch → autosave → welcome template
-    var launch = PR.hub ? PR.hub.init() : Promise.resolve(null);
-    return launch.then(function (rec) {
-      if (rec) return true;
+    // open: what the page was opened with (?drive=<id>, a PWA launch; the intake) → autosave → welcome template
+    if (PR.hub) PR.hub.init();
+    return PR.intake.launch().catch(function () { return false; }).then(function (opened) {
+      if (opened) return true;
       return ST.restore().then(function (saved) {
         if (saved && saved.doc && !/[?&]fresh\b/.test(location.search)) { return PR.io.openDoc(saved.doc, saved.fileName).then(function () { S.dirty = true; U.toast('Restored your last session'); return true; }); }
         return PR.io.openDoc(welcomeDoc()).then(function () { return true; });

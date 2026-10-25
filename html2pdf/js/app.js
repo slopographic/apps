@@ -90,21 +90,29 @@
 
   for (const id of ['h2p-paper', 'h2p-orient', 'h2p-margin', 'h2p-scale', 'h2p-bg', 'h2p-header', 'h2p-qr-mode']) $(id).addEventListener('change', render);
   $('h2p-qr-text').addEventListener('input', render);
-  $('h2p-open').addEventListener('click', () => $('h2p-file').click());
-  $('h2p-open-empty').addEventListener('click', () => $('h2p-file').click());
-  $('h2p-file').addEventListener('change', (e) => { openFile(e.target.files[0]); e.target.value = ''; });
+  const stage = $('h2p-stage');
+  // The one way in (shared/intake, spec 'html2pdf'): Open, a drop anywhere on the page, a paste of an .html file,
+  // ?drive=<id> (another app's Open in) and a PWA launch reach openFile; the local images are a part of their own.
+  const SI = window.SlopIntake;
+  SI.register({ id: 'html2pdf', limit: 1, accept: { types: ['text/html'], exts: ['.html', '.htm'], noun: 'an HTML file' }, process: async (f) => { stage.classList.remove('h2p-over'); await openFile(f); return f.name; } });
+  SI.register({ id: 'html2pdf.images', main: false, paste: false, toast: false, accept: { types: ['image/*'], exts: ['.svg'], noun: 'a picture' }, processAll: (files) => { attachImages(files); return files.map((f) => f.name); } });
+  const pickHtml = () => SI.pick({ to: 'html2pdf', multiple: false, accept: '.html,.htm,text/html' });
+  $('h2p-open').addEventListener('click', pickHtml);
+  $('h2p-open-empty').addEventListener('click', pickHtml);
   $('h2p-use-paste').addEventListener('click', () => {
     const text = $('h2p-paste').value;
     if (text.trim()) setSource(PASTED, text); else status('Paste some HTML first.');
   });
-  $('h2p-images').addEventListener('change', (e) => attachImages([...e.target.files]));
+  $('h2p-images').addEventListener('click', () => SI.pick({ to: 'html2pdf.images', accept: 'image/*' }));
   $('h2p-print').addEventListener('click', print);
 
-  /* Drops anywhere on the page open the file. The preview frame ignores pointer input, so the drop reaches the page. */
-  const stage = $('h2p-stage');
-  addEventListener('dragover', (e) => { e.preventDefault(); stage.classList.add('h2p-over'); });
+  /* Drops anywhere on the page open the file (the intake's drop target). The preview frame ignores pointer input, so the
+     drop reaches the page. */
+  SI.dropTarget(document.body, { to: 'html2pdf' });
+  addEventListener('dragenter', () => stage.classList.add('h2p-over'));
   addEventListener('dragleave', (e) => { if (!e.relatedTarget) stage.classList.remove('h2p-over'); });
-  addEventListener('drop', (e) => { e.preventDefault(); stage.classList.remove('h2p-over'); openFile(e.dataTransfer.files[0]); });
+  if (window.SlopHub) { try { SlopHub.register('html2pdf'); } catch (e) { /* bus unavailable */ } }
+  SI.launch({ to: 'html2pdf' });
   addEventListener('resize', fit);
 
   render();

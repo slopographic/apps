@@ -41,6 +41,11 @@
   <script src="../shared/slopui.js"></script>
   <script src="../shared/hub.js"></script>
   <script src="../shared/intake/outtake.js"></script>
+  <script src="../shared/intake/rules.js"></script>
+  <script src="../shared/intake/normalize.js"></script>
+  <script src="../shared/intake/pipeline.js"></script>
+  <script src="../shared/intake/intake.js"></script>
+  <script src="../shared/intake/sources.js"></script>
   <script src="../shared/ops/entry.js"></script>
   <script src="../shared/storage/classify.js"></script>
   <script src="../shared/storage/storage.js"></script>
@@ -92,7 +97,7 @@
           </label>
         </div>
         <div class="pb-text" id="pb-text-wrap">
-          <textarea id="pb-src" spellcheck="false" aria-label="Paste text"></textarea>
+          <textarea id="pb-src" class="paste-catcher" spellcheck="false" aria-label="Paste text"></textarea>
           <pre class="pb-code" data-lang="plain" id="pb-pre" aria-label="Highlighted text"><code id="pb-code" class="language-plain"></code></pre>
         </div>
         <figure class="pb-image" id="pb-image-wrap" hidden>

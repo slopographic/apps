@@ -104,12 +104,14 @@ if (flag('needs-net')) {
   process.exit(0);
 }
 const took = {}, results = {};
+// The pages that download through the cache (tests/net-urls.txt): only these get its route (see tests/netcache.mjs).
+const NET_PAGES = parseNetUrls(await readFile(NET_URLS, 'utf8').catch(() => '')).pages;
 /** Opens one test page in its own context and returns its report as printed lines (a page prints all at once, so pages
  *  that run side by side never mix their output). */
 async function runPage(browser, base, p, scale) {
   const ctx = TOUCH ? await browser.newContext({ ...touchDevice(ENGINE, value('device')).options, acceptDownloads: true })
     : await browser.newContext({ viewport: { width: 1280, height: 800 }, acceptDownloads: true, permissions: ['clipboard-read', 'clipboard-write'] });
-  const net = await attachNet(ctx, { dir: NET_DIR });
+  const net = await attachNet(ctx, { dir: NET_DIR, route: NET_PAGES.has(p.split(path.sep).join('/')) });
   const page = await ctx.newPage();
   if (TOUCH) await touchPage(page, ENGINE, touchDevice(ENGINE, value('device')).name); // real touches for the test page (tests/touch.mjs)
   if (scale > 1) await page.addInitScript((n) => { window.__SLOPTEST_SCALE__ = n; }, scale); // harness timeouts (tests/harness.js)

@@ -32,12 +32,11 @@
       im.src = url;
     });
   }
-  /** Picks an image file and places it, scaled to at most 60% of the slide. */
-  OP.addImage = async function () {
-    if (!window.SlopUI) return;
-    var files = await SlopUI.pickFiles({ accept: 'image/*' });
-    if (!files || !files.length) return;
-    var f = files[0], url = await U.blobToDataUrl(f), sz = await imageSize(url), d = A.deck;
+  /** Insert picture…: the intake's picker (file-drop.js, mode 'image'). */
+  OP.addImage = function () { return SS.fileDrop.addImage(); };
+  /** Places a picture (the intake's reader, mode 'image'), scaled to at most 60% of the slide. */
+  OP.placeImage = async function (f) {
+    var url = await U.blobToDataUrl(f), sz = await imageSize(url), d = A.deck;
     var k = Math.min(1, d.size.w * 0.6 / sz.w, d.size.h * 0.6 / sz.h);
     var mid = M.addMedia(d, url, f.name);
     OP.add('image', { w: sz.w * k, h: sz.h * k, src: { w: sz.w, h: sz.h }, media: mid, name: f.name.replace(/\.[^.]+$/, '') || 'Picture' }, 'Insert picture');

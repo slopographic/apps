@@ -124,7 +124,8 @@ function frame(t) {
 function spawn() {
   M.el.hidden = false;
   if (!restoreSpot()) arrive();              // back where he rested on this page, or a fresh arrival
-  setTimeout(() => say(M.xp ? line('hello') : 'Hi! Pet me.', 2200), 900);
+  // his hello, unless he is already saying something (a page's say() in the meantime keeps its own time)
+  setTimeout(() => { if (!M.bubble.classList.contains('show')) say(M.xp ? line('hello') : 'Hi! Pet me.', 2200); }, 900);
   if (!CFG.home) setTimeout(() => tips.maybeTip(true), 6000);
 }
 

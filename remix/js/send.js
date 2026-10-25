@@ -18,7 +18,7 @@
     const blob = new Blob([JSON.stringify(RM.manifest(ids), null, 1)], { type: TYPE });
     const name = 'Remix ' + stamp + '.reel.json';
     const mid = await SlopHub.put(blob, { name, from: 'remix' });
-    await SlopHub.sendTo('slopedit', null, name, { id: mid });
+    await window.SlopOuttake.send('slopedit', { id: mid, name, type: TYPE, from: 'remix' }); // the one way out, no copy
     $('rm-status').textContent = 'Opened in SlopCut: ' + ids.length + ' clips, manifest ' + name;
     return mid;
   };

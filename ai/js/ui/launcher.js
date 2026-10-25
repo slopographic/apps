@@ -7,21 +7,13 @@
   const apps = () => (window.SLOP_APPS || []).filter((a) => a.kind === 'app' && a.id !== 'ai');
   const urlOf = (app) => (hub() ? hub().urlOf(app) : new URL('../' + app.path, location.href).href);
 
-  async function sendFile(app, rec) {
-    try { await hub().sendTo(app.id, null, rec.name, { id: rec.id }); }
-    catch (e) { window.SlopUI.alert('Could not open ' + app.name, e.message || String(e)); }
-  }
-  async function fromComputer(app) {
-    const files = await window.SlopUI.pickFiles({ accept: app.accepts.filter((p) => p !== '*').join(','), multiple: false });
-    const f = files && files[0]; if (!f) return;
-    try { await hub().sendTo(app.id, f, f.name); }
-    catch (e) { window.SlopUI.alert('Could not open ' + app.name, e.message || String(e)); }
-  }
+  // A file from this computer or Slop Drive opened in the app: the intake's part 'ai.launch' (ui/intake.js), which sends it
+  // the one way out (SlopOuttake).
   function menuFor(app, x, y) {
     window.SlopUI.menu([
       { label: 'Open in a new tab', act: () => window.open(urlOf(app), '_blank') },
-      { label: 'Open a Slop Drive file in it…', disabled: !hub(), act: async () => { const rec = await hub().pickFromDrive({ accept: app.accepts, title: 'Open in ' + app.name }); if (rec) sendFile(app, rec); } },
-      { label: 'Open a file from this computer…', act: () => fromComputer(app) },
+      { label: 'Open a Slop Drive file in it…', disabled: !hub(), act: () => AI.intake.openDriveFileInApp(app) },
+      { label: 'Open a file from this computer…', act: () => AI.intake.openInApp(app) },
     ], x, y);
   }
   function row(app) {

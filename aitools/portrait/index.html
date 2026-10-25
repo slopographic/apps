@@ -18,7 +18,7 @@
   <div class="ai-tool">
     <div id="gate" class="ai-stack" aria-live="polite"></div>
     <section id="ui" class="ai-stack" hidden>
-      <div id="drop" class="ai-drop">Drop a portrait here, or <label><u>choose a file</u><input id="file" type="file" accept="image/*" hidden></label><br><span class="ai-meta">The person stays sharp; the background blurs. The model is the one Slop Isolate uses (bundled, no download).</span></div>
+      <div id="drop" class="ai-drop">Drop a portrait here, or <button type="button" id="chooseFile" class="ai-choose">choose a file</button><br><span class="ai-meta">The person stays sharp; the background blurs. The model is the one Slop Isolate uses (bundled, no download).</span></div>
       <div class="ai-field"><label for="strength">Blur strength: <span id="sv">50</span></label><input id="strength" type="range" min="0" max="100" value="50" disabled></div>
       <p id="msg" class="ai-meta" role="status"></p>
       <div class="ai-panel"><canvas id="view" class="ai-img" aria-label="Preview"></canvas></div>
@@ -34,6 +34,12 @@
   <script src="../../shared/cutout/pipeline.js"></script>
   <script src="../../shared/cutout/models.js"></script>
   <script src="../../shared/cutout/cutout.js"></script>
+  <script src="../../shared/intake/rules.js"></script>
+  <script src="../../shared/intake/normalize.js"></script>
+  <script src="../../shared/intake/pipeline.js"></script>
+  <script src="../../shared/intake/intake.js"></script>
+  <script src="../../shared/intake/sources.js"></script>
+  <script src="../intake.js"></script>
   <script src="portrait.js"></script>
   <script src="../../shell/shell.js"></script>
 <i id="slop-built" hidden></i>

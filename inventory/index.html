@@ -226,7 +226,7 @@
           <div class="toolbar">
             <button type="button" class="btn" id="dBackup">Download full backup</button>
           </div>
-          <label class="file">Restore from a backup file <input id="dRestore" type="file" accept="application/json,.json"></label>
+          <div class="file"><button type="button" class="btn" id="dRestore">Restore from a backup file…</button></div>
           <ul class="report" id="dRestoreMsg" aria-live="polite"></ul>
         </div>
       </section>
@@ -258,6 +258,11 @@
   <script src="../shared/ctxmenu.js"></script>
   <script src="../shared/commands/commands.js"></script>
   <script src="../shared/biz/biz.js"></script>
+  <script src="../shared/intake/rules.js"></script>
+  <script src="../shared/intake/normalize.js"></script>
+  <script src="../shared/intake/pipeline.js"></script>
+  <script src="../shared/intake/intake.js"></script>
+  <script src="../shared/intake/sources.js"></script>
   <script src="../shared/biz/backup.js"></script>
   <script src="js/core/util.js"></script>
   <script src="js/core/csv.js"></script>

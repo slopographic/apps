@@ -64,26 +64,17 @@
     $('tagText').value = '';
     showPhoto(f, f.name, null, 'Press Suggest tags. Saving puts the photo in Slop Drive with its tags.');
   }
-  async function listDrive() {
-    const box = $('driveList'); box.replaceChildren(); box.hidden = false;
-    const rows = (await window.SlopHub.list()).filter((r) => !r.isFolder && /^image\//.test(r.type || '')).slice(0, 40);
-    if (!rows.length) { box.textContent = 'No photos in Slop Drive yet.'; return; }
-    for (const r of rows) {
-      const b = document.createElement('button'); b.type = 'button'; b.textContent = r.name;
-      b.addEventListener('click', async () => {
-        const rec = await window.SlopHub.get(r.id);
-        box.hidden = true;
-        $('tagText').value = TAGS.of(rec).join(', ');
-        showPhoto(rec.blob, r.name, r.id, `${r.name} from Slop Drive. Press Suggest tags.`);
-      });
-      box.append(b);
-    }
+  /** A photo from Slop Drive (the picker, ?drive=<id>): its tags so far are in the box, and Save updates that record. */
+  function fromDrive(f, rec) {
+    $('tagText').value = TAGS.of(rec).join(', ');
+    showPhoto(f, f.name, rec.id, `${f.name} from Slop Drive. Press Suggest tags.`);
   }
-  $('file').addEventListener('change', (e) => pick(e.target.files[0]));
-  $('drop').addEventListener('dragover', (e) => e.preventDefault());
-  $('drop').addEventListener('drop', (e) => { e.preventDefault(); pick(e.dataTransfer.files[0]); });
-  $('pickDrive').addEventListener('click', () => (window.SlopHub ? listDrive() : null));
+  // the one way in (aitools/intake.js): a drop on the box, choose a file, pick a photo from Slop Drive, a paste, ?drive=<id>
+  const intake = T.intake('ai-tags', {
+    accept: { types: ['image/*'], exts: ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.bmp', '.avif'], noun: 'an image' }, drive: '#pickDrive',
+    read: (f, ctx) => (ctx.drive ? fromDrive(f, ctx.drive.record) : pick(f)),
+  });
   $('run').addEventListener('click', suggest);
   $('save').addEventListener('click', save);
-  T.gate('tags', () => { $('ui').hidden = false; });
+  T.gate('tags', () => { $('ui').hidden = false; intake.launch(); });
 })();

@@ -99,7 +99,7 @@
   SE.act.snapshot = async function () { SE.player.pause(); SlopUI.download(await PV.snapshotBlob(), shotName()); SE.app.status('Saved frame as PNG'); };
   SE.act.snapshotSend = async function () {
     SE.player.pause();
-    try { await SlopHub.sendTo('photoslop', await PV.snapshotBlob(), shotName()); SlopUI.toast('Opened the frame in PhotoSlop'); } catch (e) { SlopUI.toast('Could not send: ' + e.message); }
+    try { await SlopOuttake.send('photoslop', { from: 'slopedit', get: PV.snapshotBlob, name: shotName(), type: 'image/png' }); } catch (e) { SlopUI.toast('Could not send: ' + e.message); }
   };
   SE.act.toggleSafe = function () { PV.safe = !PV.safe; U.store.set('safe', PV.safe); PV.request(); SE.emit('transport', {}); };
   SE.act.toggleQuality = function () { PV.half = !PV.half; U.store.set('half', PV.half); PV.layout(); SE.app.status('Preview quality: ' + (PV.half ? 'half' : 'full')); };

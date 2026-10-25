@@ -10,7 +10,7 @@
     { id: 'view.storage', title: 'Go to Storage', group: 'Go to', run: () => NS.app.show('storage') },
     { id: 'data.backup', title: 'Data: download a full backup', group: 'Data', run: () => { NS.app.show('data'); document.getElementById('dBackup').click(); } },
     { id: 'data.everything', title: 'Data: export or import everything in one file', group: 'Data', run: () => { NS.app.show('data'); document.getElementById('dEverything').click(); } },
-    { id: 'data.restore', title: 'Data: restore from a backup file…', group: 'Data', run: () => { NS.app.show('data'); document.getElementById('dRestore').click(); } },
+    { id: 'data.restore', title: 'Data: restore from a backup file…', group: 'Data', run: () => { NS.app.show('data'); document.getElementById('dRestore').click(); } }, // the button opens the intake's picker
     { id: 'data.reset', title: 'Data: reset all data…', group: 'Data', run: () => { NS.app.show('data'); NS.views.data.reset(); } },
   ];
   const byId = Object.fromEntries(COMMANDS.map((c) => [c.id, c]));

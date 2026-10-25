@@ -24,14 +24,10 @@
   }
   function importDialog() {
     if (D) { D.importDialog({ app: APP }); return; }
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.json,application/json';
-    input.addEventListener('change', async () => {
-      const f = input.files && input.files[0];
-      if (f) importText(await f.text());
-    });
-    input.click();
+    // without the shared config dialog: a part of the one intake of its own ('3d.config')
+    const SI = window.SlopIntake;
+    if (!SI.spec('3d.config')) SI.register({ id: '3d.config', main: false, paste: false, toast: false, limit: 1, accept: { types: ['application/json'], exts: ['.json'], noun: 'a config file' }, process: async (f) => { await importText(await f.text()); return f.name; } });
+    SI.pick({ to: '3d.config', multiple: false, accept: '.json,application/json' });
   }
   function exportConfig() {
     const r = S.config.exportScene(s.doc);

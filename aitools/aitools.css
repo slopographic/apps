@@ -39,3 +39,4 @@ select, input[type="number"] { padding: 6px 8px; border: 1px solid var(--line); 
 .ai-out { width: 100%; min-height: 160px; font: 14px/1.5 ui-monospace, Menlo, Consolas, monospace; background: var(--card); color: var(--fg); border: 1px solid var(--line); border-radius: 8px; padding: 10px; }
 .ai-img { max-width: 100%; height: auto; border-radius: 8px; display: block; }
 .ai-stack { display: grid; gap: 12px; }
+.ai-choose { background: none; border: 0; padding: 0; font: inherit; color: inherit; text-decoration: underline; cursor: pointer; }

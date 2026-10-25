@@ -29,18 +29,22 @@
     });
     $('hx-findform').addEventListener('submit', (e) => { e.preventDefault(); A().find(1); });
     if (window.SlopCtx) SlopCtx.bind($('hx-scroll'), () => window.HexCommands.contextItems());
-    /* A file dropped on the tabs, the strip or the bytes opens (SlopDrop, shared/drop; one file at a time, and a file that is
-       already open is not opened again). */
-    const drop = window.SlopDrop.attach($('hx-drop'), {
-      accept: { any: true, allowEmpty: true, noun: 'a file' },
-      limit: 1,
-      compact: true,
-      targets: [$('hx-tabs'), $('hx-drop'), $('hx-main')],
-      process: async (file) => {
+    /* The one way in (shared/intake, spec 'hex'): a file dropped on the tabs, the strip or the bytes, Open file…, Open from
+       Slop Drive (linked to its record), the sample, a paste, ?drive=<id> and a PWA launch open in a tab, one file at a time; a file
+       already open is not opened again. Files wait for the tabs to come back (boot). */
+    window.SlopIntake.register({
+      id: 'hex', accept: { any: true, allowEmpty: true, noun: 'a file' }, limit: 1,
+      before: () => tabsBack,
+      process: async (file, ctx) => {
         if (A().isOpen(file)) throw new Error('is already open');
-        await A().openBlob(file, { name: file.name });
+        await A().openBlob(file, { name: file.name, driveId: ctx.drive ? ctx.drive.id : null });
         return file.name;
       },
+    });
+    window.SlopDrop.attach($('hx-drop'), {
+      intake: 'hex',
+      compact: true,
+      targets: [$('hx-tabs'), $('hx-drop'), $('hx-main')],
     });
     // The empty page shows a file's bytes and how (SlopDrop's preview); the sample (a small PDF) goes through the strip.
     const empty = $('hx-empty'), row = empty.querySelector('.hx-empty-b'), sample = document.createElement('button');
@@ -49,10 +53,11 @@
       steps: ['Drop any file', 'Read, find and change its bytes', 'Download the changed file'],
     }), row);
     sample.type = 'button'; sample.className = 'sd-sample'; sample.id = 'hx-sample'; sample.textContent = 'Try it with a sample PDF';
-    sample.addEventListener('click', () => drop.run([window.SlopSamples.docs.pdf()]));
+    sample.addEventListener('click', () => window.SlopIntake.sample([window.SlopSamples.docs.pdf()], { to: 'hex' }));
     row.append(sample);
   }
 
+  let tabsBack = null;
   async function boot() {
     SlopHub.register('hex');
     const grid = HexGrid.create({
@@ -64,18 +69,17 @@
     A().app.grid = grid;
     wire();
     window.HexCommands.register();
-    // The launch is read before the tabs come back: showing a tab rewrites the address bar (its ?drive= id).
-    let launch = null;
-    try { launch = await SlopHub.consumeLaunch(); } catch (e) { launch = null; }
+    // The launch (the intake) is read before the tabs come back: showing a tab rewrites the address bar (its ?drive= id).
+    // Its file opens once the tabs are back.
+    let back;
+    tabsBack = new Promise((r) => { back = r; });
+    const launching = window.SlopIntake.launch({ to: 'hex' }).catch((e) => { SlopUI.toast('Could not open that file: ' + e.message); });
     const session = HexTabs.mount($('hx-tabs'), { activate: A().activate, deactivate: A().deactivate, refresh: A().refresh });
     try { await session.restore(); } catch (e) { console.warn('Slop Hex: restore failed', e); }
     if (!HexTabs.current()) HexTabs.api().newTab();
     A().refresh();
-    try {
-      if (launch && launch.blob) await A().openBlob(launch.blob, { name: launch.name, driveId: launch.id });
-    } catch (e) {
-      SlopUI.toast('Could not open that file: ' + e.message);
-    }
+    back();
+    await launching;
     document.body.classList.add('ready');
   }
 

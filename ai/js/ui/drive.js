@@ -16,16 +16,6 @@
       await AI.db.put(c, { touch: false });
     } catch (e) { window.SlopUI.alert('Could not save to Slop Drive', e.message || String(e)); }
   };
-  AI.openChatFromDrive = async function () {
-    const hub = H(); if (!hub) return;
-    const rec = await hub.pickFromDrive({ accept: ['application/json'], title: 'Open chat from Slop Drive' });
-    if (!rec) return;
-    try {
-      const c = AI.fromJSON(await rec.blob.text());
-      c.driveId = rec.id;
-      await AI.db.put(c, { touch: false });
-      AI.setTab('chat');
-      if (c.kind === 'build') AI.openBuild(c.id); else AI.openConv(c.id);
-    } catch (e) { window.SlopUI.alert('Could not open that chat', e.message || String(e)); }
-  };
+  /** Open a chat from Slop Drive, linked to that file: the intake's part 'ai.conv' (ui/intake.js). */
+  AI.openChatFromDrive = () => (H() ? AI.intake.openConvFromDrive() : null);
 })(window.AI);

@@ -62,14 +62,13 @@
     var d = CB.copyItems(true); if (!d) return;
     e.clipboardData.setData('text/plain', MARK + JSON.stringify(d)); e.preventDefault();
   });
-  document.addEventListener('paste', function (e) {
-    if (S.text || editable(e.target) || !S.doc) return;
+  // A pasted file (a picture) is the intake's (io/intake.js), which takes it first; this is Press's own clipboard and text.
+  document.addEventListener('paste', function (e) { // intake-ok: the items copied in Press, and pasted text
+    if (e.defaultPrevented || S.text || editable(e.target) || !S.doc) return;
     var dt = e.clipboardData; if (!dt) return;
-    var files = Array.prototype.slice.call(dt.files || []).filter(function (f) { return /^image\//.test(f.type); });
     var txt = dt.getData('text/plain');
     e.preventDefault();
     if (txt && txt.indexOf(MARK) === 0) { try { CB.data = JSON.parse(txt.slice(MARK.length)); } catch (er) { /* fall back to the in-memory copy */ } CB.pasteItems(false); return; }
-    if (files.length) { PR.place.files(files); return; }
     if (txt) { PR.place.text(txt); return; }
     CB.pasteItems(false);
   });

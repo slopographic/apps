@@ -121,6 +121,21 @@
       expect(diff(off, on, 0, 0, 400, 250)).toBe(0);
     }, { timeout: 60000 });
 
+    it('the panel follows the switch and the spec, and is not redrawn for edits of the picture', async () => {
+      const { W } = await setup();
+      const sw = () => W.document.querySelector('#panel-watermark input[type=checkbox]');
+      W.eval('wmToggle()');
+      expect(sw().checked).toBe(true);
+      const list = W.document.querySelector('#panel-watermark .swp-row');
+      expect(!!list).toBe(true);   // the default watermark has a text layer
+      W.eval("emit('doc')");
+      expect(W.document.querySelector('#panel-watermark .swp-row')).toBe(list);   // the same rows: nothing rebuilt
+      W.eval('wmToggle()');
+      expect(sw().checked).toBe(false);
+      W.eval('wmSetSpec')(Object.assign({}, W.eval('wmState().spec'), { layers: [] }));
+      expect(W.document.querySelector('#panel-watermark .swp-row')).toBe(null);
+    }, { timeout: 60000 });
+
     it('a PSD saved before the spec ({ on, cfg }) opens with its watermark', async () => {
       const { W } = await setup();
       W.eval('adoptWatermark')({ on: true, cfg: { kind: 'text', text: 'Old file', position: 'tc', size: 0.05, opacity: 0.9 } });

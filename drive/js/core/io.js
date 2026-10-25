@@ -36,14 +36,8 @@
     if (DR.select) DR.select(ids.filter((k) => DR.item(k) && DR.item(k).parent === (S.section === 'folder' ? S.cwd : null)));
     return ids;
   };
-  DR.uploadPicker = async function (folders = false) {
-    const i = DR.el('input', { type: 'file', multiple: true, style: 'position:fixed;left:-9999px' });
-    if (folders) i.webkitdirectory = true;
-    document.body.append(i);
-    const files = await new Promise((res) => { i.addEventListener('change', () => res([...i.files]), { once: true }); i.click(); });
-    i.remove();
-    return DR.importFiles(files.map((f) => ({ file: f, path: f.webkitRelativePath || f.name })));
-  };
+  /** Upload files… / Upload a folder…: the intake's picker (ui/dnd.js), into the open folder. */
+  DR.uploadPicker = (folders = false) => window.SlopIntake.pick({ to: 'drive', folder: !!folders, data: { dest: DR.dest() } });
   /** Read a drop: DataTransferItems may hold folders (webkitGetAsEntry). */
   DR.readDrop = async function (dt) {
     const out = [], entries = [...(dt.items || [])].map((it) => it.webkitGetAsEntry && it.webkitGetAsEntry()).filter(Boolean);
@@ -110,11 +104,10 @@
   DR.openWith = async function (r, appId, { remember = false } = {}) {
     if (!r || r.isFolder) return;
     if (remember) DR.rememberApp(r, appId);
-    const app = H().appById(appId);
     r.opened = Date.now();
     await H().update(r.id, { opened: r.opened }, { touch: false });
-    await H().sendTo(appId, null, r.name, { id: r.id });
-    DR.toast(`Opened in ${app ? app.name : appId}`);
+    // the one way out (shared/intake/outtake.js): the file is already in Slop Drive, so the app opens it (no copy)
+    await window.SlopOuttake.send(appId, { id: r.id, name: r.name, type: r.type, from: 'drive' });
   };
   /** Double-click / Enter: folders open, files open in their default app, or in Quick Look if no app takes them. */
   DR.open = function (it) {
