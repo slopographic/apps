@@ -72,7 +72,7 @@
       // the model was told the tool is there (deferred: find_tools loads it, shared/ai/toolbox.js); loaded, it reads the
       // clamped, validated description
       const sys = eng.calls[0].messages[0].content, K = win.SlopAIKit;
-      expect(sys).toMatch(/More tools here .*gaussian_blur/);
+      expect(sys).toMatch(/More tools here.*gaussian_blur/);
       expect(K.tools.describe(K.appTools.build({ cmd: win.SlopCmd }).filter((t) => t.name === 'gaussian_blur'))).toMatch(/gaussian_blur\(radius\?: number 0\.1–250, default 4\)/);
       // one undo reverts the blur only
       W.undo();

@@ -47,7 +47,7 @@
       expect(JSON.stringify(b3.tools)).toBe(JSON.stringify(b1.tools));
       const res = b2.messages[b2.messages.length - 1].content[0];
       expect(res.content.map((c) => c.tool_name)).toContain('gaussian_blur');
-      expect(b1.system[0].text).toMatch(/More tools here .*gaussian_blur/);
+      expect(b1.system[0].text).toMatch(/More tools here.*gaussian_blur/);
       // the tokens line: this request's breakdown on hover
       const line = await waitFor(() => w.document.querySelector('.sap-usage'));
       expect(line.title).toMatch(/^This request used [\d,]+ tokens \([\d,]+ cached\): .* over 3 model turns\.\nTurn 1: /);
@@ -92,7 +92,7 @@
       expect(steps(w)[1]).toMatch(/^✓Build presentation from outline/);
       expect(w.SS.app.deck.slides.length).toBe(3);
       const sys = (i) => e.calls[i].messages[0].content;
-      expect(sys(0)).not.toMatch(/^- build_presentation\(/m); expect(sys(0)).toMatch(/More tools here .*build_presentation/);
+      expect(sys(0)).not.toMatch(/^- build_presentation\(/m); expect(sys(0)).toMatch(/More tools here.*build_presentation/);
       expect(sys(1)).toMatch(/^- build_presentation\(/m);
       expect(sys(0).length).toBeLessThan(12000);
     }, { timeout: 60000 });
