@@ -39,4 +39,22 @@ div.sg-app { flex: 1 1 auto; min-height: 0; }
 .sg-how details { border: 1px solid var(--sg-line); border-radius: 8px; background: var(--sg-card); padding: 6px 12px; margin-bottom: 6px; }
 .sg-how summary { cursor: pointer; font-weight: 600; font-size: 14px; }
 .sg-how ol { margin: 6px 0 4px; padding-left: 20px; font-size: 14px; }
+/* Random and its seed; the copies for each mail program; the "Copy now" bar the assistant raises; the logo maker */
+.sg-seed { display: flex; flex-wrap: wrap; gap: 8px; align-items: end; margin-bottom: 12px; }
+.sg-seed-field { display: grid; gap: 3px; font-size: 13px; flex: 1 1 120px; min-width: 0; }
+.sg-seed-field .sui-input { width: 100%; }
+.sg-out { display: grid; gap: 8px; }
+.sg-clients { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 6px; }
+.sg-copynow { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; padding: 10px 14px; border: 2px solid var(--sg-accent);
+  border-radius: 10px; background: var(--sg-card); color: var(--sg-fg); font-size: 14px; }
+.sg-flash { animation: sg-flash 1.2s ease-out 2; }
+@keyframes sg-flash { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--sg-accent) 55%, transparent); } 100% { box-shadow: 0 0 0 12px transparent; } }
+@media (prefers-reduced-motion: reduce) { .sg-flash { animation: none; } }
+.sg-logo { border-top: 1px solid var(--sg-line); padding-top: 8px; }
+.sg-logo summary { cursor: pointer; font-weight: 600; font-size: 14px; min-height: 32px; display: list-item; }
+.sg-logo > * + * { margin-top: 8px; }
+.sg-logo-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.sg-logo-preview { width: 140px; min-height: 80px; display: grid; place-items: center; padding: 8px; background: #fff; border: 1px solid var(--sg-line); border-radius: 8px; }
+.sg-logo-preview svg { display: block; max-width: 100%; height: auto; max-height: 96px; }
+.sg-logo-acts { display: grid; gap: 4px; justify-items: start; }
 @media (max-width: 860px) { .sg-right { padding: 16px 16px 32px; } .sg-intro h1 { font-size: 22px; } }

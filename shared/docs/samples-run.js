@@ -44,7 +44,7 @@
     const ps = await io.products();
     if (!ps.ok) return ps;
     const p = NS.samples.plan(`${o.seed}#${index}`, {
-      kind: o.kind, currency: o.currency, base: io.base, from: o.from, to: o.to, paymentTermsDays: io.terms,
+      kind: o.kind, currency: o.currency, base: io.base, from: o.from, to: o.to, paymentTermsDays: io.terms, locale: io.locale,
       missing: o.missing, customers: cs.value.map((c) => ({ id: c.id, name: c.name })), products: ps.value,
       skus: new Set(ps.value.map((x) => x.sku)),
     });

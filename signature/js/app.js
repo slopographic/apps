@@ -3,7 +3,11 @@
  * HTML. What was typed is kept in this browser (localStorage, through try/catch) so the page opens where it was left.
  * A link may name the mail program (?mail=gmail|outlook|outlook-web|apple, from a task page): its steps open, the others
  * close, for this visit only (presetOf; unknown values are ignored, nothing is stored).
- * Classic script, after model.js, templates.js and form.js. Sets SlopSignature.app = { state, render, copy, copyCode, download, reset, example, presetOf }. */
+ * Random makes a whole sample signature from a seed (js/sample.js, shared/sample), shown in the seed field to make it again.
+ * A picture comes in by the button, a paste, a drop on the email or the Picture box, or another app's Open in (?drive=), all
+ * through SlopIntake (the 'signature' spec in form.js); the logo maker is js/logo-ui.js; copying for each mail program js/copy.js.
+ * Classic script, after model.js, templates.js, form.js, logo.js, logo-ui.js, sample.js and copy.js.
+ * Sets SlopSignature.app = { state, current, render, say, copy, copyFor, copyCode, download, reset, example, random, presetOf }. */
 (function (g) {
   'use strict';
   const NS = (g.SlopSignature = g.SlopSignature || {});
@@ -24,27 +28,22 @@
     const probs = M.problems(state);
     $('sgProblems').replaceChildren(...probs.map((p) => UI.el('li', null, p.text)));
     $('sgProblems').hidden = !probs.length;
-    for (const id of ['sgCopy', 'sgCode', 'sgDownload']) $(id).disabled = !current.html;
+    for (const id of ['sgCopy', 'sgCode', 'sgDownload', 'sgCopyGmail', 'sgCopyOutlook', 'sgCopyApple']) $(id).disabled = !current.html;
+    $('sgPicNote').textContent = NS.copy.pictureNote(s);
+    $('sgPicNote').hidden = !s.imageHref;
+    if (NS.logoUI) NS.logoUI.draw();
   }
   const say = (t) => { $('sgMsg').textContent = t; };
 
-  /** The formatted signature and its plain text, on the clipboard. Where the browser refuses the clipboard, the signature
-   *  is selected and copied the old way, which keeps the formatting too. */
-  async function copy() {
+  /** The signature on the clipboard for a mail program (js/copy.js); false when the browser refused. */
+  async function copyFor(client) {
     if (!current.html) return false;
-    const html = `<div style="font-family:${M.clean(state).font}">${current.html}</div>`;
-    const ok = g.SlopBuffer && g.SlopBuffer.writeSystem ? await g.SlopBuffer.writeSystem({ t: Date.now(), formats: { 'text/html': html, 'text/plain': current.text } }) : false;
-    if (!ok) {
-      const r = document.createRange(), sel = getSelection();
-      r.selectNodeContents($('sgSig')); sel.removeAllRanges(); sel.addRange(r);
-      try { document.execCommand('copy'); } catch (e) { /* the selection stays for Ctrl+C */ }
-    }
-    say('Copied. Paste it into the signature box of your mail program (steps below).');
-    return true;
+    const ok = await NS.copy.copyFor(client);
+    if (!ok) say(client === 'html' ? 'The browser did not allow copying: use Download HTML.' : 'The browser did not allow copying: select the signature above and press Ctrl+C (⌘C on a Mac).');
+    return ok;
   }
-  async function copyCode() {
-    try { await navigator.clipboard.writeText(current.html); say('The HTML is copied.'); } catch (e) { say('The browser did not allow copying: use Download HTML.'); }
-  }
+  const copy = () => copyFor('all');
+  const copyCode = () => copyFor('html');
   function download() {
     const s = M.clean(state), name = (s.name || 'signature').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'signature';
     const page = `<!doctype html>\n<html><head><meta charset="utf-8"><title>${M.esc(s.name || 'Signature')}</title></head><body>\n${current.html}\n</body></html>\n`;
@@ -52,6 +51,16 @@
   }
   function reset() { F.fill(M.blank()); render(); say('Cleared. Type your details.'); }
   function example() { F.fill(M.sample()); render(); say(''); }
+  /** A random signature from a seed (a new one when none is given), with its logo drawn. Resolves the sample. */
+  async function random(seed, locale) {
+    const r = NS.sample.make(seed == null || seed === '' ? g.SlopSample.newSeed() : seed, locale || $('sgSeedLang').value);
+    $('sgSeed').value = r.seed;
+    let st = r.state;
+    if (r.logo) { try { st = Object.assign({}, st, { image: await NS.logo.png(Object.assign({ colour: st.accent }, r.logo)) }); } catch (e) { /* no canvas: the signature without a logo */ } }
+    F.fill(st); render();
+    say(`Sample seed ${r.seed}. Type that seed again to get the same signature.`);
+    return r;
+  }
 
   const MAILS = ['gmail', 'outlook', 'outlook-web', 'apple'];
   /** The preset in a page address: { mail } when it names a known mail program, else {}. Pure. */
@@ -71,9 +80,17 @@
     $('sgDownload').addEventListener('click', download);
     $('sgReset').addEventListener('click', reset);
     $('sgExample').addEventListener('click', example);
+    $('sgRandom').addEventListener('click', () => random());
+    $('sgSeedGo').addEventListener('click', () => random($('sgSeed').value.trim()));
+    $('sgSeed').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); random($('sgSeed').value.trim()); } });
+    for (const [id, client] of [['sgCopyGmail', 'gmail'], ['sgCopyOutlook', 'outlook'], ['sgCopyApple', 'apple']]) $(id).addEventListener('click', () => copyFor(client));
+    NS.logoUI.mount(document.querySelector('#sgForm [data-group="picture"]'));
+    // a picture dropped on the email or the Picture box goes the one way in (shared/intake), like the button and a paste
+    for (const t of [$('sgView'), document.querySelector('#sgForm [data-group="picture"]')]) g.SlopIntake.dropTarget(t, { to: 'signature' });
     const preset = presetOf(location.search);
     if (preset.mail) showMail(preset.mail);
     render();
+    g.SlopIntake.launch({ to: 'signature' });   // a picture another app sent (Open in Slop Signature, ?drive=)
   }
 
   mount();
@@ -83,5 +100,5 @@
     g.SlopCmd.provide({ prepare: () => (NS.ai ? null : new Promise((res, rej) => document.head.append(Object.assign(document.createElement('script'),
       { src: new URL('js/ai-commands.js', location.href).href, onload: res, onerror: () => rej(new Error('Could not load ai-commands.js')) })))) });
   }
-  NS.app = { get state() { return state; }, get current() { return current; }, render, copy, copyCode, download, reset, example, presetOf };
+  NS.app = { get state() { return state; }, get current() { return current; }, render, say, copy, copyFor, copyCode, download, reset, example, random, presetOf };
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -43,6 +43,7 @@
         <h1>Email signature generator</h1>
         <p class="sg-lede">Type your details, pick a template and see the signature in an email as you go. Then copy it into Gmail, Outlook or Apple Mail.</p>
       </section>
+        <div class="sg-copynow" id="sgCopyNow" role="alert" hidden><span id="sgCopyNowText"></span> <button type="button" class="sui-btn sui-primary" id="sgCopyNowBtn">Copy now</button></div>
         <div class="sg-mail" aria-label="The signature in an email">
           <div class="sg-mail-head"><span><b>To</b> sam@client.example</span><span><b>Subject</b> Thanks for today</span></div>
           <div class="sg-mail-body">
@@ -67,9 +68,23 @@
     <aside class="sg-left" id="sgPanel" aria-label="Your details">
       <div class="sg-row sg-top" id="sgStart">
         <button type="button" class="sui-btn" id="sgExample">Fill in an example</button>
+        <button type="button" class="sui-btn" id="sgRandom">Random</button>
         <button type="button" class="sui-btn" id="sgReset">Clear</button>
       </div>
+      <div class="sg-seed" id="sgSeedRow">
+        <label class="sg-seed-field"><span>Sample seed</span><input type="text" class="sui-input" id="sgSeed" maxlength="40" autocomplete="off" spellcheck="false" placeholder="4821"></label>
+        <label class="sg-seed-field"><span>Language</span><select class="sui-input" id="sgSeedLang"><option value="en">English</option><option value="sv">Svenska</option></select></label>
+        <button type="button" class="sui-btn" id="sgSeedGo">Make from seed</button>
+      </div>
       <div id="sgForm"></div>
+      <div class="sg-out" id="sgOut">
+        <p class="sg-note" id="sgPicNote" hidden></p>
+        <div class="sg-clients" role="group" aria-label="Copy for a mail program">
+          <button type="button" class="sui-btn" id="sgCopyGmail">Copy for Gmail</button>
+          <button type="button" class="sui-btn" id="sgCopyOutlook">Copy for Outlook</button>
+          <button type="button" class="sui-btn" id="sgCopyApple">Copy for Apple Mail</button>
+        </div>
+      </div>
       <button type="button" class="sui-btn sui-primary" id="sgCopy">Copy signature</button>
       <button type="button" class="sui-btn" id="sgCode">Copy HTML code</button>
       <button type="button" class="sui-btn" id="sgDownload">Download HTML</button>
@@ -87,7 +102,15 @@
   <script src="../shared/commands/commands.js"></script>
   <script src="js/model.js"></script>
   <script src="js/templates.js"></script>
+  <script src="../shared/sample/rng.js"></script>
+  <script src="../shared/sample/en.js"></script>
+  <script src="../shared/sample/sv.js"></script>
+  <script src="../shared/sample/people.js"></script>
   <script src="js/form.js"></script>
+  <script src="js/logo.js"></script>
+  <script src="js/logo-ui.js"></script>
+  <script src="js/sample.js"></script>
+  <script src="js/copy.js"></script>
   <script src="../shared/ui/sheet.js"></script>
   <script src="../shared/ui/menubutton.js"></script>
   <script src="../shared/ui/resize-panel.js"></script>
@@ -97,7 +120,7 @@
   <script src="js/app.js"></script>
   <link rel="stylesheet" href="../shared/menubar/menubar.css">
   <script src="../shared/menubar/menubar.js"></script>
-  <script>SlopMenuBar.mount({ "app": "Signature", "menus": { "File": ["#sgCopy", "#sgCode", "#sgDownload", "-", "#sgExample", "#sgReset"] } });</script>
+  <script>SlopMenuBar.mount({ "app": "Signature", "menus": { "File": ["#sgCopy", "#sgCopyGmail", "#sgCopyOutlook", "#sgCopyApple", "#sgCode", "#sgDownload", "-", "#sgExample", "#sgRandom", "#sgReset"] } });</script>
   <script src="../shell/shell.js"></script>
 <i id="slop-built" hidden></i>
 </body>
