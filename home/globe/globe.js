@@ -2,13 +2,15 @@
  * sphere (Fibonacci), drawn with true perspective: the far side smaller, fainter and blurred, the near side crisp with a
  * soft accent glow, over a turning wireframe and a faint halo (home/globe/paint.js). Maths: home/globe/sphere.js.
  * Styles: home/hero.css. Classic script, after shared/apps.js, shared/app-icons.js, home/catalog.js, sphere.js, paint.js.
- *  - It draws into .gx-layer over the hero, sized from the reserved .gx-box, 0.7 s after load when the page is idle: the
+ *  - It draws into .gx-layer over the hero, sized from the reserved .gx-box, 0.7 s after load when the page is idle (2 s,
+ *    or the first tap, on a phone or small device): the
  *    headline (the largest paint) never waits for it and nothing moves when it comes.
  *  - It turns slowly on a tilted axis; a drag (mouse, pen or finger) spins it, and a fling slows back to the idle turn.
  *    Vertical swipes still scroll the page (touch-action: pan-y). Pointing at an icon (or focusing it in the list) eases
  *    the globe round until that icon faces you and shows its name; a click or tap opens the app; the turn resumes after.
  *  - It runs only while the hero is on screen and the tab is visible. Reduced motion: a still globe. Phones, touch
- *    screens, Save-Data and small devices: fewer icons at 30 fps (SlopGlobeMath.tier).
+ *    screens, Save-Data and small devices: 28 icons at 20 fps, no blur or glow filters, lines repainted only when they
+ *    would visibly lag, and no frames while the page scrolls (SlopGlobeMath.tier).
  *  - Icons over the copy fade almost out (keepOut), so the text always reads.
  *  - The keyboard and screen-reader way in is .gx-nav: every app, one tab stop, the arrow keys move along it.
  *  window.SlopGlobe: { state(), frames(), startedAt(), tier(), view(), icons(), reduce(on), pause(on) } for the tests. */
@@ -64,6 +66,8 @@
       layer.append(ic.el);
       return ic;
     });
+    linesDirty = true;
+    layer.classList.toggle('gx-lite', tierName === 'lite');
     measure();
     draw();
   }
@@ -91,11 +95,12 @@
     const cs = getComputedStyle(hero);
     ink = cs.getPropertyValue('--bone').trim() || ink;
     accent = cs.getPropertyValue('--slop').trim() || accent;
+    linesDirty = true;
     return true;
   }
 
   /* ---------- one frame ---------- */
-  let frames = 0;
+  let frames = 0, painted = { yaw: 0, pitch: 0 }, linesDirty = true;
   const frontScale = () => geom.d / (geom.d - 1);
   function draw() {
     for (const ic of icons) {
@@ -110,18 +115,24 @@
       if (lk.blur !== ic.blur) { ic.blur = lk.blur; ic.el.dataset.depth = lk.blur ? 'far' + lk.blur : lk.front ? 'near' : 'mid'; }
       ic.el.classList.toggle('is-live', op > 0.35 && q.z > -0.1);
     }
-    P.paint(ctx, { W, H, geom, yaw: s.yaw, pitch: s.pitch, ink, accent, lines: tierName === 'full' ? LINES.full : LINES.lite });
+    // the lite globe repaints its lines only once they would visibly lag the icons
+    if (!T.redraw || linesDirty || Math.abs(s.yaw - painted.yaw) + Math.abs(s.pitch - painted.pitch) > T.redraw) {
+      P.paint(ctx, { W, H, geom, yaw: s.yaw, pitch: s.pitch, ink, accent, lines: tierName === 'full' ? LINES.full : LINES.lite });
+      painted = { yaw: s.yaw, pitch: s.pitch }; linesDirty = false;
+    }
     frames++;
   }
 
   /* ---------- running: on screen, tab visible, motion allowed, not held ---------- */
-  let raf = 0, last = 0, inView = true, held = false, drag = null;
+  let raf = 0, last = 0, inView = true, held = false, drag = null, scrollQuiet = 0;
+  addEventListener('scroll', () => { scrollQuiet = performance.now() + 200; }, { passive: true });
   const running = () => tierName !== 'static' && inView && !document.hidden && !held;
   function tick(now) {
     raf = 0;
     if (!running()) return paint();
     raf = requestAnimationFrame(tick);
     if (last && !G.due(now, last, T.fps)) return;
+    if (tierName === 'lite' && now < scrollQuiet) { last = now; return; }   // a phone scrolling: the page first
     const dt = last ? Math.min(64, now - last) : 16;
     last = now;
     if (drag) { /* the pointer turns it */ }
@@ -215,11 +226,12 @@
   let startedAt = 0;
   function start() {
     startedAt = performance.now();
-    fillList();
     pickTier();
     build();
     hero.classList.add('gx-on');
     paint();
+    // the keyboard list (every app's icon again) in a task of its own, so neither task is long on a phone
+    if (window.requestIdleCallback) window.requestIdleCallback(fillList, { timeout: 1000 }); else setTimeout(fillList, 50);   // compat-ok: feature-detected
     if ('IntersectionObserver' in window) new IntersectionObserver((en) => { inView = en[en.length - 1].isIntersecting; paint(); }).observe(hero);
     document.addEventListener('visibilitychange', paint);
     if ('ResizeObserver' in window) new ResizeObserver(() => { if (measure()) draw(); }).observe(hero);
@@ -239,7 +251,15 @@
     /** Holds the globe still (the layout tests measure a still page). */
     pause(on) { held = !!on; paint(); },
   };
-  // well after the first paints: a moment past load, then the next idle time
-  const later = () => setTimeout(() => (window.requestIdleCallback ? requestIdleCallback(start, { timeout: 1500 }) : start()), 700);
+  // Well after the first paints: a moment past load (2 s on a phone or a small device, or its first tap or key, if sooner),
+  // then the next idle time.
+  let begun = false;
+  const go = () => { if (!begun) { begun = true; start(); } };
+  const idle = () => (window.requestIdleCallback ? requestIdleCallback(go, { timeout: 1500 }) : go());
+  const later = () => {
+    pickTier();
+    setTimeout(idle, G.TIERS[tierName].delay);
+    if (tierName === 'lite') for (const t of ['pointerdown', 'keydown']) addEventListener(t, idle, { once: true, passive: true });
+  };
   if (document.readyState === 'complete') later(); else addEventListener('load', later, { once: true });
 })();

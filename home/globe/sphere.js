@@ -1,7 +1,8 @@
 /* The app globe's maths (home/globe/globe.js draws it, home/globe/paint.js paints its lines). Pure functions, no DOM:
  * unit-tested in tests/node/globe-sphere.test.mjs. Classic script: sets window.SlopGlobeMath, and module.exports under Node.
  * Space: y up, z towards the viewer (z = 1 is the front of the globe, z = -1 the back).
- *   tier({ reduced, cores, memory, saveData, coarse, width }) -> 'static' | 'lite' | 'full';  TIERS[tier] -> { icons, fps }
+ *   tier({ reduced, cores, memory, saveData, coarse, width }) -> 'static' | 'lite' | 'full'
+ *   TIERS[tier] -> { icons, fps, delay (ms after load before it starts), redraw (radians the lines may lag, 0: every frame) }
  *   fibonacci(n) -> [{ x, y, z }]          n points spread evenly over the unit sphere
  *   rotate(p, yaw, pitch) -> { x, y, z }    turn about the vertical axis (yaw), then tip about the horizontal one (pitch)
  *   project(q, geom) -> { x, y, scale }     true perspective: geom { cx, cy, r, d } (d: eye distance in radii)
@@ -20,9 +21,9 @@
   const smooth = (e0, e1, x) => { const t = clamp((x - e0) / (e1 - e0), 0, 1); return t * t * (3 - 2 * t); };
 
   const TIERS = Object.freeze({
-    full: Object.freeze({ icons: 72, fps: 60 }),
-    lite: Object.freeze({ icons: 40, fps: 30 }),
-    static: Object.freeze({ icons: 72, fps: 0 }),
+    full: Object.freeze({ icons: 72, fps: 60, delay: 700, redraw: 0 }),
+    lite: Object.freeze({ icons: 28, fps: 20, delay: 2000, redraw: 0.012 }),
+    static: Object.freeze({ icons: 72, fps: 0, delay: 700, redraw: 0 }),
   });
   function tier(o) {
     if (o.reduced) return 'static';

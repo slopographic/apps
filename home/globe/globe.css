@@ -68,4 +68,6 @@
   text-decoration: none;
 }
 @media (max-width: 899px) { .gx-list a:focus { left: 50%; translate: -50% 0; } }
+/* The lite globe (phones, small devices): no filters at all, depth is size and opacity alone. */
+.gx-layer.gx-lite .gx-svg { filter: none !important; }
 @media (prefers-reduced-motion: reduce) { .gx-name { transition: none; } }

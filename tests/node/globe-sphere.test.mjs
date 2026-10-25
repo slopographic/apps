@@ -15,6 +15,9 @@ test('tiers: reduced motion is still, weak or small devices get the lite globe, 
   for (const o of [{ cores: 4, width: 1600 }, { memory: 2, width: 1600 }, { saveData: true, width: 1600 }, { coarse: true, width: 1600 }, { cores: 16, width: 390 }]) assert.equal(G.tier(o), 'lite', JSON.stringify(o));
   assert.ok(G.TIERS.lite.icons < G.TIERS.full.icons && G.TIERS.lite.fps < G.TIERS.full.fps);
   assert.equal(G.TIERS.static.fps, 0);
+  // the lite globe keeps out of a phone's way: it starts later and repaints its lines less often
+  assert.ok(G.TIERS.lite.delay > G.TIERS.full.delay && G.TIERS.lite.redraw > 0 && G.TIERS.full.redraw === 0);
+  assert.ok(G.TIERS.lite.icons <= 28 && G.TIERS.lite.fps <= 20);
 });
 
 test('fibonacci: n points on the unit sphere, spread evenly (no two close, both halves alike)', () => {

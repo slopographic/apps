@@ -20,7 +20,7 @@
     await new Promise((r) => f.addEventListener('load', r, { once: true }));
     const win = f.contentWindow;
     win.document.documentElement.style.scrollBehavior = 'auto';
-    await SlopTest.waitFor(() => win.SlopGlobe && win.SlopGlobe.frames() > 4 && win.document.querySelector('#app-finder .fd-input'), { timeout: 30000 });
+    await SlopTest.waitFor(() => win.SlopGlobe && win.SlopGlobe.frames() > 4 && win.document.querySelector('.gx-nav a') && win.document.querySelector('#app-finder .fd-input'), { timeout: 30000 });
     return win;
   }
   const titleBox = (win) => win.document.querySelector('.hx-title').getBoundingClientRect();

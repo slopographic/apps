@@ -47,7 +47,8 @@
   theme's ink and accent. `globe.js` places the icon links (true perspective via translate and scale, depth bands
   far2/far1/mid/near for blur and glow), runs the turn, and handles drag, hover and the keyboard list. It starts after
   `load` when idle, sizes itself from `.gx-box` (reserved in CSS, so nothing moves) and runs only while the hero is on
-  screen and the tab is visible. Tiers: full (every app, 60 fps), lite (40 icons, 30 fps: phones, touch, 4 cores or
+  screen and the tab is visible. Tiers: full (every app, 60 fps), lite (28 icons, 20 fps, no filters, lines repainted
+  only when they would visibly lag, no frames while scrolling, started 2 s after load or at the first tap: phones, touch, 4 cores or
   fewer, 4 GB or less, Save-Data), static (reduced motion: every app, no turn, no drag).
 - Drag spins it (horizontal; `touch-action: pan-y` keeps vertical page scroll), a fling slows back to the idle turn
   (one turn in 75 s). Pointing at an icon eases the globe until it faces you and shows its name; leaving resumes the

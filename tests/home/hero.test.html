@@ -60,6 +60,15 @@
         expect(Math.abs(v.geom.cx - (g.left + g.right) / 2)).toBeLessThan(2);
         expect(win.SlopGlobe.state()).toBe('running');
         if (width < 700) expect(win.SlopGlobe.tier()).toBe('lite');
+        if (win.SlopGlobe.tier() === 'lite') {
+          // the lite globe: no filters, and no frames while the page scrolls
+          expect(doc.querySelector('.gx-layer').classList.contains('gx-lite')).toBe(true);
+          expect(win.getComputedStyle(doc.querySelector('.gx-i .gx-svg')).filter).toBe('none');
+          let f = 0;
+          for (let k = 0; k < 8; k++) { win.dispatchEvent(new win.Event('scroll')); if (k === 1) f = win.SlopGlobe.frames(); await sleep(50); }
+          expect(win.SlopGlobe.frames()).toBe(f);
+          await waitFor(() => win.SlopGlobe.frames() > f, { timeout: 5000 });   // and it goes on once the page is still
+        }
         const apps = win.SLOP_APPS.filter((a) => !a.path.startsWith('#') && win.SLOP_ICONS[a.id]).length;
         const a = HeroTest.transforms(win);
         expect(a.length).toBe(Math.min(apps, win.SlopGlobeMath.TIERS[win.SlopGlobe.tier()].icons));
