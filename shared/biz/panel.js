@@ -19,6 +19,10 @@
 //   The two views move into one row (.biz-lr): on the list view the list alone; with a record open the list stays on the
 //   left (redrawn with the record) and the record is the panel on the right, its buttons (foot) in the footer. On a phone
 //   the record opens as the bottom sheet over the list. Styles: shared/biz/app.css (.biz-lr).
+// A view whose form adds a record (Ledger: a journal entry, an account, a rate) puts that form in the panel instead:
+//   SlopBiz.panel.form({ app, key: 'journal', view: '#view-journal', form: '#jForm', foot: ['#jPost'], label: 'New entry' })
+//   The rest of the view stays on the left; the form is the panel on the right, its button in the footer; on a phone the
+//   footer stays at the bottom of the screen and the form opens as a bottom sheet (a tap on its button opens it too).
 (function (g) {
   'use strict';
   const B = (g.SlopBiz = g.SlopBiz || {});
@@ -35,7 +39,7 @@
       const put = () => { const h = pick(o.button); if (h && !h.contains(slot)) h.append(slot); return !!h; };
       if (!put() && g.MutationObserver) { const mo = new g.MutationObserver(() => { if (put()) mo.disconnect(); }); mo.observe(document.body, { childList: true, subtree: true }); }
     }
-    const frame = g.SlopFrame.mount(root, { list: null, view: pick(o.view), panel, panelLabel: label, storageKey: o.app + '-record', app: o.app,
+    const frame = g.SlopFrame.mount(root, { list: null, view: pick(o.view), panel, panelLabel: label, storageKey: o.app + '-' + (o.key || 'record'), app: o.app,
       phone: o.phone || '(max-width: 900px)', button: slot, phoneButton: false, width: o.width || 340, min: 280, max: 620, command: o.command });
     const p = g.SlopFrame.panel(panel, { bare: true });
     root.classList.add('biz-rp');
@@ -73,6 +77,7 @@
     if (!g.SlopFrame || !list || !rec || !app) return null;
     const wrap = document.createElement('div');
     wrap.className = 'biz-lr';
+    rec.classList.add('biz-rp-panel');
     list.before(wrap);
     wrap.append(list, rec);
     // the record is the panel: no show/hide button or command (a hidden panel would hide the record)
@@ -99,5 +104,26 @@
     return rp;
   }
 
-  B.panel = { mount, records };
+  /** Footer buttons that open the phone's sheet when it is closed (so the form's answer is seen), then run. */
+  function opensSheet(rp, foot) {
+    for (const b of foot) b.addEventListener('click', () => { const f = rp.frame; if (f.isPhone() && !b.closest('.ssh-on')) f.openSheet(); }, true);
+  }
+
+  function form(o) {
+    const sec = pick(o.view), panel = pick(o.form);
+    if (!g.SlopFrame || !sec || !panel) return null;
+    const main = document.createElement('div');
+    main.className = 'biz-fv-main';
+    for (const n of [...sec.children]) if (n !== panel) main.append(n);
+    sec.prepend(main);
+    sec.classList.add('biz-fv');
+    panel.classList.add('biz-rp-panel');
+    const rp = mount({ app: o.app, key: o.key, root: sec, view: main, panel, label: o.label, phone: o.phone, width: o.width || 360, command: false });
+    const foot = (o.foot || []).map(pick).filter(Boolean);
+    rp.footer(foot);
+    opensSheet(rp, foot);
+    return rp;
+  }
+
+  B.panel = { mount, records, form };
 })(typeof window !== 'undefined' ? window : globalThis);

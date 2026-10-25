@@ -22,6 +22,10 @@
     // form empty answers in the message line
     listApp('Slop Expenses', 'expenses/index.html', 'SlopExpenses', 'Record expense'),
     listApp('Slop Timesheets', 'timesheets/index.html', 'SlopTimesheets', 'Save'),
+    // Ledger: the form that adds a record is the panel of its view (SlopBiz.panel.form); Post entry with no lines answers
+    { name: 'Slop Ledger', path: 'ledger/index.html', hash: 'journal', view: '#view-journal .biz-fv-main', panel: '#jForm', main: 'Post entry', more: 'New entry',
+      ready: (W) => W.SlopLedger && W.SlopLedger.app && W.SlopLedger.app.booted && W.document.querySelector('#jForm .sf-p-foot'),
+      done: (W) => W.document.getElementById('jMsg').textContent.trim().length > 0 },
     // Contacts: the card is the record panel (its own column, a page on a phone); Edit, Duplicate and Delete at its foot
     { name: 'Slop Contacts', path: 'contacts/index.html', hash: '', view: '.col-list', panel: '#card', main: 'Edit', bare: true,
       ready: (W) => W.SlopContacts && W.SlopContacts.ready,

@@ -137,24 +137,26 @@ a.btn { text-decoration: none; }
 .grid-t tfoot th { font-weight: 600; border-bottom: 0; }
 .grid-t .num { text-align: right; }
 
-/* A record beside its list (shared/biz/panel.js, SlopBiz.panel.records: Expenses, Timesheets): one row of SlopFrame, the
-   list on the left and the open record the panel on the right, its main buttons in the panel's footer. With a record open
-   the window holds the menu bar and the row; the list and the panel scroll inside it. On a phone the record is a bottom
-   sheet over the list whose footer stays on screen. */
+/* The panels of shared/biz/panel.js. A record beside its list (SlopBiz.panel.records: Expenses, Timesheets): one row of
+   SlopFrame, the list on the left and the open record the panel on the right. A view whose form adds a record
+   (SlopBiz.panel.form: Ledger) keeps the rest of the view on the left and the form in the panel. The main buttons are in the
+   panel's footer; the window holds the menu bar and the row, and the parts scroll inside it. On a phone the panel is a
+   bottom sheet whose footer stays on screen. */
 .biz-lr:not(.biz-lr-on) { display: none !important; }
 .biz-lr.biz-lr-rec > .sf-view[hidden] { display: block !important; }
 .biz-lr:not(.biz-lr-rec) > .sf-panel, .biz-lr:not(.biz-lr-rec) > .sf-grip { display: none; }
-.biz-lr > .sf-panel { padding: 0 14px; }
-.biz-lr > .sf-panel > .sf-p-foot { margin-inline: -14px; }
-.biz-lr > .sf-panel .card { background: none; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; padding: 0 0 12px; margin: 0 0 12px; }
-.biz-lr > .sf-panel .form-grid { grid-template-columns: minmax(0, 1fr); }
-.biz-lr > .sf-panel > .msg:empty { min-height: 0; margin: 6px 0; }
-.biz-lr:not(.sf-phone) > .sf-view { padding: 14px 16px 40px; }
-.biz-lr.ssh-phone > .sf-panel > .ssh-x { float: none; display: flex; margin-block-end: 0; background: inherit; }   /* its own row over the form */
+.biz-rp-panel.sf-panel { padding: 0 14px; }
+.biz-rp-panel > .sf-p-foot { margin-inline: -14px; }
+.biz-rp-panel.sf-panel .card, .biz-rp-panel.sf-panel.card { background: none; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; padding: 0 0 12px; margin: 0 0 12px; }
+.biz-rp-panel.sf-panel.card { border-bottom: 0; margin: 0; padding: 12px 14px 0; background: var(--panel); border-inline-start: 1px solid var(--line); }
+.biz-rp-panel .form-grid, .biz-rp-panel .grid3, .biz-rp-panel .grid2 { grid-template-columns: minmax(0, 1fr); }
+.biz-rp-panel > .msg:empty { min-height: 0; margin: 6px 0; }
+.biz-lr:not(.sf-phone) > .sf-view, .biz-fv:not(.sf-phone) > .sf-view { padding: 14px 16px 40px; }
+.ssh-phone > .biz-rp-panel > .ssh-x { float: none; display: flex; margin-block-end: 0; background: inherit; }   /* its own row over the form */
 @media (min-width: 901px) {
-  body.biz-lr-open { height: 100vh; box-sizing: border-box; overflow: hidden; }
-  body.biz-lr-open .app { flex: 1 1 0; min-height: 0; height: auto; }
-  body.biz-lr-open .app > .main { flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0; overflow: hidden; padding: 0; max-width: none; }
+  body.biz-lr-open, body:has(.biz-fv:not([hidden])) { height: 100vh; box-sizing: border-box; overflow: hidden; display: flex; flex-direction: column; }
+  body.biz-lr-open .app, body:has(.biz-fv:not([hidden])) .app { flex: 1 1 0; min-height: 0; height: auto; }
+  body.biz-lr-open .app > .main, body:has(.biz-fv:not([hidden])) .app > .main { flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0; overflow: hidden; padding: 0; max-width: none; }
   body.biz-lr-open .main > .local-badge { display: none; }
-  .biz-lr.biz-lr-rec { flex: 1 1 auto; }
+  .biz-lr.biz-lr-rec, .main > .biz-fv { flex: 1 1 auto; }
 }
