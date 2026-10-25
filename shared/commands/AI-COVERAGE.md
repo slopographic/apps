@@ -9,7 +9,7 @@ that this file is up to date and that no covered app loses a create, add or expo
 the picture look_at_canvas and app_snapshot take (`own` or `page`), **Driven** whether those commands reach an assistant
 in another app (the Slop AI workspace, open_in_app, agents). **Full** is all of it. ✗ marks a gap.
 
-Covered: 57 of 61 apps. Full suite: 57 of 61 apps.
+Covered: 61 of 61 apps. Full suite: 61 of 61 apps.
 
 | App | Create | Add | Edit | Export | Operations | State | Snapshot | Driven | Covered | Full |
 |---|---|---|---|---|---|---|---|---|---|---|
@@ -18,12 +18,12 @@ Covered: 57 of 61 apps. Full suite: 57 of 61 apps.
 | Slop PDF (`pdf`) | ✓ 1 | ✓ 5 | ✓ 12 | ✓ 2 | 2 | ✓ own | ✓ page | ✓ | yes | yes |
 | SlopLabel (`label`) | ✓ 1 | ✓ 5 | ✓ 3 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | SlopIsolate (`cutout`) | ✓ 1 | ✓ 1 | ✓ 1 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
-| Slop AI Tools (`aitools`) | ✗ | ✗ | ✗ | ✗ |  | ✗ | ✗ | ✗ | no | no |
+| Slop AI Tools (`aitools`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Reports (`reports`) | ✓ 1 | ✓ 1 | ✓ 5 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop OCR (`ocr`) | ✓ 1 | ✓ 1 | ✓ 2 | ✓ 1 | 1 | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop HTML to PDF (`html2pdf`) | ✓ 1 | ✓ 1 | ✓ 1 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
-| SlopClean (`clean`) | ✗ | ✗ | ✗ | ✗ | 1 | ✓ page | ✓ page | ✗ | no | no |
-| Slop AI (`ai`) | ✗ | ✗ | ✗ | ✗ |  | ✓ page | ✓ page | ✗ | no | no |
+| SlopClean (`clean`) | ✓ 1 | ✓ 1 | ✓ 2 | ✓ 1 | 1 | ✓ own | ✓ page | ✓ | yes | yes |
+| Slop AI (`ai`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Docs (`docs`) | ✓ 2 | ✓ 6 | ✓ 4 | ✓ 1 | 1 | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Tables (`tables`) | ✓ 3 | ✓ 3 | ✓ 8 | ✓ 1 | 1 | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Slides (`slides`) | ✓ 2 | ✓ 4 | ✓ 6 | ✓ 1 | 1 | ✓ own | ✓ page | ✓ | yes | yes |
@@ -58,7 +58,7 @@ Covered: 57 of 61 apps. Full suite: 57 of 61 apps.
 | QR SLOP (`qr`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Colors (`colors`) | ✓ 1 | ✓ 2 | ✓ 7 | ✓ 1 | 1 | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Workflows (`workflows`) | ✓ 1 | ✓ 1 | ✓ 7 | ✓ 2 |  | ✓ own | ✓ page | ✓ | yes | yes |
-| File convert (`convert`) | ✗ | ✗ | ✗ | ✗ |  | ✗ | ✗ | ✗ | no | no |
+| File convert (`convert`) | ✓ 1 | ✓ 1 | ✓ 2 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slopculator (`calculator`) | ✓ 1 | ✓ 1 | ✓ 1 | ✓ 2 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Time (`time`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop CRM (`crm`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | ✓ records | ✓ page | ✓ | yes | yes |
@@ -114,6 +114,13 @@ Covered: 57 of 61 apps. Full suite: 57 of 61 apps.
 - edit: `look`
 - export: `save_cutouts`
 
+### Slop AI Tools
+
+- create: `new_job`
+- add: `add_file`
+- edit: `request_model`, `run_job`, `set_options`
+- export: `export_result`
+
 ### Slop Reports
 
 - create: `create_report`
@@ -135,6 +142,21 @@ Covered: 57 of 61 apps. Full suite: 57 of 61 apps.
 - add: `add_images`
 - edit: `set_page`
 - export: `export_pdf`
+
+### SlopClean
+
+- create: `new_batch`
+- add: `add_files`
+- edit: `remove_file`, `set_options`
+- export: `export_cleaned`
+- operations: `clean.metadata`
+
+### Slop AI
+
+- create: `new_chat`
+- add: `add_message`
+- edit: `open_chat`, `send_message`, `set_settings`
+- export: `export_chat`
 
 ### Slop Docs
 
@@ -383,6 +405,13 @@ Covered: 57 of 61 apps. Full suite: 57 of 61 apps.
 - add: `add_step`
 - edit: `move_step`, `open_template`, `remove_step`, `rename_workflow`, `run_workflow`, `set_option`, `set_step`
 - export: `export_workflow`, `save_workflow`
+
+### File convert
+
+- create: `new_conversion`
+- add: `add_files`
+- edit: `run_conversion`, `set_target`
+- export: `export_results`
 
 ### Slopculator
 

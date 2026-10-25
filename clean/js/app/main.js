@@ -100,12 +100,19 @@
     $('cl-remove-all').addEventListener('click', removeAll);
     $('cl-all').addEventListener('click', downloadAll);
     $('cl-save-all').addEventListener('click', () => saveAll());
+    if (window.SlopCmd && SlopCmd.init) SlopCmd.init({ app: 'clean' });
+    // the assistant's commands with arguments (ai-commands.js; shared/commands/sources.js finds Drive files), loaded when first asked
+    if (window.SlopCmd && SlopCmd.provide) SlopCmd.provide({ prepare: () => (window.SlopCmdSources ? Promise.resolve() : script('../shared/commands/sources.js')).then(() => script('js/app/ai-commands.js')) });
     if (window.SlopCmd && SlopCmd.register) SlopCmd.register([
       { id: 'cl.open', title: 'Open pictures…', group: 'File', keys: ['Mod+O'], run: openPicker, keywords: ['add', 'import', 'photo'] },
       { id: 'cl.download', title: 'Download cleaned pictures', group: 'File', keys: ['Mod+S'], run: downloadAll, keywords: ['zip', 'save'] },
       { id: 'cl.remove-all', title: 'Remove all metadata (default choices)', group: 'Edit', keys: ['Shift+Mod+R'], run: removeAll, keywords: ['strip', 'clean'] },
     ]);
   }
+
+  const script = (src) => new Promise((res, rej) => document.head.append(Object.assign(document.createElement('script'),
+    { src: new URL(src, HERE).href, async: false, onload: res, onerror: () => rej(new Error('Could not load ' + src)) })));
+  const HERE = new URL('../../', (document.currentScript && document.currentScript.src) || location.href).href;   // clean/
 
   async function boot() {
     registerIntake();
