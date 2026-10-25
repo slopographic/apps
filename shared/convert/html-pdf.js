@@ -1,36 +1,21 @@
-/* HTML to a picture PDF, the one HTML-to-PDF path of the Convert dialog. The HTML is sanitised first (no scripts, no event
- * handlers, no remote or relative references: nothing is fetched). Its height is measured in a sandboxed frame, then each
- * A4 page is drawn as an SVG foreignObject (the page's content shifted up), rasterised onto a canvas at 2x, and the pictures
- * go into a PDF with pdf-lib (convert/js/core/pdf-images.js). Text in the result is pictures: not selectable. Classic
- * conventions, ES module. */
+/* HTML to a picture PDF, the one HTML-to-PDF path of the Convert dialog. The HTML is sanitised first by SlopSanitize
+ * (shared/sanitize: no scripts, no event handlers, no remote or relative references: nothing is fetched). Its height is
+ * measured in a sandboxed frame, then each A4 page is drawn as an SVG foreignObject (the page's content shifted up),
+ * rasterised onto a canvas at 2x, and the pictures go into a PDF with pdf-lib (convert/js/core/pdf-images.js). Text in the
+ * result is pictures: not selectable. Classic conventions, ES module. */
 import { imagesToPdf } from '../../convert/js/core/pdf-images.js';
+import '../sanitize/sanitize.js';
+
+const PURIFY = new URL('../../vendor/dompurify/purify.min.js', import.meta.url).href;
 
 const PAGE_W = 794, PAGE_H = 1123; // A4 at 96 px per inch
 const SCALE = 2;                   // canvas pixels per CSS pixel
 const MAX_PAGES = 150;
-const DROP = 'script,iframe,frame,frameset,object,embed,applet,link,meta,base,portal,noscript';
-const URL_ATTRS = ['src', 'srcset', 'href', 'poster', 'background', 'data', 'xlink:href'];
-const LOCAL_URL = /^(data:|blob:|#)/i;
 
-/** CSS with nothing fetched: @import dropped, and every url() that is not a data: URL becomes none. */
-function cssNoRemote(css) {
-  return String(css).replace(/@import[^;]*;?/gi, '').replace(/url\(\s*(['"]?)([^'")]*)\1\s*\)/gi, (m, q, u) => (/^data:/i.test(u.trim()) ? m : 'none'));
-}
-
-/** The HTML as a document that cannot run or load anything (parsed inertly by DOMParser). */
+/** The HTML as a document that cannot run or load anything (SlopSanitize, then parsed inertly by DOMParser). */
 function sanitise(html) {
-  const doc = new DOMParser().parseFromString(String(html), 'text/html');
-  doc.querySelectorAll(DROP).forEach((n) => n.remove());
-  for (const el of doc.querySelectorAll('*')) {
-    for (const a of [...el.attributes]) {
-      const n = a.name.toLowerCase();
-      if (n.startsWith('on')) el.removeAttribute(a.name);
-      else if (n === 'style') el.setAttribute(a.name, cssNoRemote(a.value));
-      else if (URL_ATTRS.includes(n) && !LOCAL_URL.test(a.value.trim())) el.removeAttribute(a.name);
-    }
-  }
-  doc.querySelectorAll('style').forEach((s) => { s.textContent = cssNoRemote(s.textContent); });
-  return doc;
+  const clean = globalThis.SlopSanitize.html(String(html), { urls: 'local', links: false, whole: true });
+  return new DOMParser().parseFromString(clean, 'text/html');
 }
 
 /** Measures the content height at the page width, in a sandboxed frame (no scripts; its layout is the page's). */
@@ -79,6 +64,7 @@ function draw(svg) {
 
 /** An HTML File -> a Blob of the picture PDF (one A4 page per 1123 px of the HTML's height). */
 export async function htmlToPdf(file) {
+  await globalThis.SlopSanitize.ready(PURIFY);
   const doc = sanitise(await file.text());
   const ser = (n) => new XMLSerializer().serializeToString(n);
   const headStyles = [...doc.head.querySelectorAll('style')];

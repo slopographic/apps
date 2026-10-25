@@ -95,6 +95,7 @@
   }
   /** Removes id from its parent list without deleting it (keeps the node object). */
   function detach(s, id) {
+    if (!Object.hasOwn(s.nodes, id)) return;
     const n = s.nodes[id];
     const list = siblingsOf(s, n.parent);
     const at = list.indexOf(id);
@@ -103,6 +104,7 @@
   }
   /** Puts an already-detached node under parent (null = root) at index. */
   function attach(s, id, parent, index = -1) {
+    if (!Object.hasOwn(s.nodes, id)) return;
     const n = s.nodes[id];
     n.parent = parent;
     const list = siblingsOf(s, parent);

@@ -4,6 +4,7 @@
 <body>
   <script src="../harness.js"></script>
   <script>
+  // Covers: html2pdf/js/source.js, html2pdf/js/print-path.js, html2pdf/index.html, shared/sanitize/sanitize.js
   const { describe, it, beforeEach, expect, waitFor } = SlopTest;
   const FIXTURE = '<!doctype html><html><head><title>Fixture</title><style>h1{color:#222}</style></head><body>' +
     '<h1>Fixture heading</h1><p>Paragraph text.</p><img src="pic.png" alt="local"><img src="https://example.invalid/remote.png" alt="remote"></body></html>';
@@ -94,6 +95,26 @@
       expect(f.srcdoc).toContain('@page{size:A4 portrait}');
       expect(f.srcdoc).toContain('@page{margin:0mm !important}');
       expect(f.srcdoc).toContain('h2p-hdr');
+    });
+
+    it('a hostile HTML file runs no script, in the preview or the print frame, and its text still shows', async () => {
+      W.__h2pXss = undefined;
+      openFile('bad.html', '<p id="kept">Still here</p><img src=x onerror="parent.__h2pXss=1">' +
+        '<noscript><p title="</noscript><img src=x onerror=parent.__h2pXss=2>"></p></noscript>' +
+        '<svg><a><animate attributeName="href" values="javascript:parent.__h2pXss=3"/><text y="20">x</text></a></svg>' +
+        '<a href="java&#x09;script:parent.__h2pXss=4">link</a><iframe srcdoc="<script>parent.parent.__h2pXss=5<\/script>"></iframe>' +
+        '<div style="background:url(https://example.invalid/x.png)">styled</div>');
+      await waitFor(() => hdr());
+      expect(preview().getElementById('kept').textContent).toBe('Still here');
+      expect(preview().querySelectorAll('[onerror], animate, iframe, a[href]').length).toBe(0);
+      expect(preview().body.innerHTML).not.toContain('example.invalid');
+      delete W.SlopPrint;
+      $('h2p-print').click();
+      const f = await waitFor(() => W.document.querySelector('iframe[aria-hidden="true"]'));
+      expect(f.getAttribute('sandbox')).not.toContain('allow-scripts');
+      expect(f.srcdoc).not.toContain('onerror');
+      await new Promise((r) => setTimeout(r, 300));
+      expect(W.__h2pXss).toBe(undefined);
     });
 
     it('the preview is isolated: sandboxed, no scripts, and a CSP that allows no network', async () => {

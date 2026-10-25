@@ -6,10 +6,13 @@
  *   A text child must be escaped with esc(); x(name, attrs, 'text') escapes a plain string child for you.
  *   doc(rootXml) prefixes the standalone XML declaration.
  * Parsing:
- *   parseXml(str) → Document (throws on parse errors)
+ *   parseXml(str) → Document (throws on parse errors, and on a DOCTYPE whose entities could expand without limit:
+ *                   SlopSanitize.xmlText, shared/sanitize/sanitize.js)
  *   NS.w, NS.r, … namespace URIs; kids(el, ns, local), kid(el, ns, local), all(el, ns, local)
  *   attr(el, ns, local) reads a namespaced attribute (ns null = no namespace); textOf(el)
  */
+import '../sanitize/sanitize.js';
+
 export const NS = {
   // OOXML
   w: 'http://schemas.openxmlformats.org/wordprocessingml/2006/main',
@@ -86,7 +89,7 @@ export const doc = (rootXml) => '<?xml version="1.0" encoding="UTF-8" standalone
 /** Parse XML text. Throws an Error with the parser message on bad input. */
 export function parseXml(str) {
   if (str instanceof Uint8Array) str = new TextDecoder().decode(str);
-  const d = new DOMParser().parseFromString(String(str).replace(/^﻿/, ''), 'application/xml');
+  const d = new DOMParser().parseFromString(globalThis.SlopSanitize.xmlText(String(str).replace(/^﻿/, '')), 'application/xml');
   const err = d.getElementsByTagName('parsererror')[0];
   if (err) throw new Error('XML parse error: ' + (err.textContent || '').trim().split('\n')[0]);
   return d;

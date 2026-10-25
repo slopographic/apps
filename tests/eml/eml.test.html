@@ -11,6 +11,7 @@
   <script src="../harness.js"></script>
   <script src="eml.helpers.js"></script>
   <script>
+  // Covers: eml/js/frame.js, eml/index.html, shared/sanitize/sanitize.js
   const { describe, it, beforeEach, expect, waitFor, sleep, run } = SlopTest;
   const f = document.getElementById('app');
   const W = () => f.contentWindow;
@@ -61,6 +62,26 @@
       expect(src).toContain("default-src 'none'");
       expect(src).toContain('img-src data: blob:');
       expect(/<script/i.test(src)).toBeFalsy();
+    });
+
+    it('a hostile email: its text and styles show, and no script, handler or script address reaches the frame or the print page', async () => {
+      W().__xss = undefined;
+      const bytes = await (await fetch('../shared/fixtures/hostile/hostile.eml')).arrayBuffer();
+      const doc = await A().openFile(new File([bytes], 'hostile.eml', { type: 'message/rfc822' }));
+      const frame = q('#em-body iframe');
+      const src = frame.srcdoc;
+      expect(src).toContain('This text stays.');
+      expect(src).toContain('p.kept{color:#036}');
+      expect(src).toContain('href="https://example.com/ok"');
+      const printed = W().EmlFrame.printable(doc.msg, doc.summary, 'html');
+      for (const html of [src, printed]) {
+        const d = new DOMParser().parseFromString(html, 'text/html');
+        const bad = [...d.querySelectorAll('*')].filter((el) => [...el.attributes].some((a) => /^on/i.test(a.name) || /^\s*javascript:/i.test(a.value.replace(/[\t\n\r]/g, ''))));
+        expect(bad.map((el) => el.outerHTML.slice(0, 80))).toEqual([]);
+        expect(d.querySelectorAll('script, iframe, animate, form, meta[http-equiv="refresh"], noscript').length).toBe(0);
+      }
+      await sleep(300);
+      expect(W().__xss).toBe(undefined);
     });
 
     it('blocks remote images and says so, and the remote image does not load', async () => {

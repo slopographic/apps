@@ -24,6 +24,10 @@ on:
         type: boolean
         default: false
 
+# The GITHUB_TOKEN can only read the repository; a job that needs more says so in its own permissions block.
+permissions:
+  contents: read
+
 concurrency:
   group: speed-${{ github.ref }}
   cancel-in-progress: true

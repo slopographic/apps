@@ -1,6 +1,7 @@
 // The CI workflow (.github/workflows/rules.yml) and the repo agree: the browser jobs run in the Playwright image of the
 // version package-lock.json installs (a newer library in an older image cannot find its browser), and every slice of the
-// slices of the plan are asked for. wip/* branches never run the full suite (tools/ci/plan.mjs decides).
+// slices of the plan are asked for. wip/* branches never run the full suite (tools/ci/plan.mjs decides). Every workflow
+// declares read-only token permissions at the top (.github/workflows/*.yml).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -64,4 +65,19 @@ test('the touch jobs run the touch-marked pages in WebKit (iPad) and Chromium (A
   assert.match(job, /needs: plan/);
   assert.match(job, /if: \$\{\{ needs\.plan\.outputs\.touch == 'true' \}\}/);
   assert.match(job, /--pages-file=plan-pages\.txt/); // a changed-pages run: only the touch pages among them
+});
+
+test('every workflow limits its GITHUB_TOKEN: a top-level permissions block, read-only unless a job asks for more', async () => {
+  const { readdirSync } = await import('node:fs');
+  const dir = path.join(ROOT, '.github/workflows');
+  const files = readdirSync(dir).filter((f) => /\.ya?ml$/.test(f));
+  assert.ok(files.length >= 5);
+  for (const f of files) {
+    const text = readFileSync(path.join(dir, f), 'utf8');
+    const top = /^permissions:\n((?: {2}.*\n)+)/m.exec(text);
+    assert.ok(top, `${f} has no top-level permissions block`);
+    assert.match(top[1], /^ {2}contents: read$/m, `${f}: contents is read-only at the top`);
+    assert.doesNotMatch(top[1], /: write/, `${f}: nothing is writable for every job`);
+    assert.doesNotMatch(text, /permissions: write-all|permissions: \{\s*\}/, `${f}: no blanket permissions`);
+  }
 });

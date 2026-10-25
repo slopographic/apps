@@ -1,11 +1,10 @@
 /* Slop HTML to PDF: reads the HTML the person gave us. Parsed inertly (DOMParser runs no script and loads nothing).
- * Removes scripts, handlers, remote links and @import, and maps relative image paths to attached files by file name.
+ * Maps relative image paths to attached files by file name, then SlopSanitize (shared/sanitize) removes scripts,
+ * handlers, frames, links and everything that would load from the network (remote images, url() and @import).
  * Classic script. Exposes window.H2P.source. */
 (function () {
   'use strict';
-  const DROP_TAGS = 'script,iframe,frame,frameset,object,embed,applet,link,meta,base,portal';
   const SRC_ATTRS = { src: 1, 'xlink:href': 1 };
-  const URL_ATTRS = { action: 1, formaction: 1, poster: 1, background: 1, data: 1, ping: 1, srcset: 1, imagesrcset: 1 };
 
   /** A relative reference: no scheme, not a fragment, not a site-root or protocol-relative path. */
   const isRelative = (u) => !/^([a-z][a-z0-9+.-]*:|\/|#)/i.test(String(u).trim());
@@ -31,29 +30,23 @@
 
   /** Cleans the HTML. images: Map of file name to blob URL. Returns { styles, body } for the sheet. */
   function prepare(html, images = new Map()) {
+    const S = window.SlopSanitize;
     const doc = new DOMParser().parseFromString(String(html || ''), 'text/html');
-    doc.querySelectorAll(DROP_TAGS).forEach((n) => n.remove());
     const styles = [...doc.querySelectorAll('style')].map((s) => {
-      const css = rewriteCss(s.textContent, images);
+      const css = S.css(rewriteCss(s.textContent, images), 'local');
       s.remove();
-      return `<style>${css.replace(/<\/style/gi, '<\\/style')}</style>`;
+      return `<style>${css}</style>`;
     }).join('');
+    // An attached file by name becomes its blob URL first; the sanitiser then drops every other reference.
     for (const n of doc.body.querySelectorAll('*')) {
       const tag = n.tagName.toLowerCase();
       for (const a of [...n.attributes]) {
         const name = a.name.toLowerCase(), v = a.value.trim();
-        if (name.startsWith('on') || URL_ATTRS[name]) { n.removeAttribute(a.name); continue; }
-        if (name === 'style') { n.setAttribute(a.name, rewriteCss(a.value, images)); continue; }
-        if (SRC_ATTRS[name] || (name === 'href' && tag === 'image')) {
-          // An attached file by name, or data:/blob: as it is. Anything else (remote, or a missing local file) is removed, never fetched.
-          if (isRelative(v) && images.has(baseName(v))) n.setAttribute(a.name, images.get(baseName(v)));
-          else if (!/^(data:|blob:|#)/i.test(v)) n.removeAttribute(a.name);
-          continue;
-        }
-        if (name === 'href' && !v.startsWith('#')) n.removeAttribute(a.name); // links stay as text
+        if (name === 'style') n.setAttribute(a.name, rewriteCss(a.value, images));
+        else if ((SRC_ATTRS[name] || (name === 'href' && tag === 'image')) && isRelative(v) && images.has(baseName(v))) n.setAttribute(a.name, images.get(baseName(v)));
       }
     }
-    return { styles, body: doc.body.innerHTML };
+    return { styles, body: S.html(doc.body.innerHTML, { urls: 'local', links: false }) };
   }
 
   window.H2P = Object.assign(window.H2P || {}, { source: { prepare, rewriteCss, baseName, isRelative } });

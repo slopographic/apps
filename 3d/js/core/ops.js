@@ -32,8 +32,9 @@
   /** Moves nodes under a group (or root) keeping world transforms. Null when it would make a cycle. */
   function reparent(scene, id, parent, index = -1) {
     const s = M.clone(scene);
-    if (!s.nodes[id]) return null;
-    if (parent && (!s.nodes[parent] || s.nodes[parent].type !== 'group' || M.isWithin(s, parent, id))) return null;
+    // ids can come from a drag that started on another page: only the scene's own nodes count (never __proto__)
+    if (!Object.hasOwn(s.nodes, id)) return null;
+    if (parent && (!Object.hasOwn(s.nodes, parent) || s.nodes[parent].type !== 'group' || M.isWithin(s, parent, id))) return null;
     reparentIn(s, id, parent, index);
     return s;
   }

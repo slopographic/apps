@@ -11,6 +11,10 @@ on:
     branches: [testing]
   workflow_dispatch:
 
+# The GITHUB_TOKEN can only read the repository; a job that needs more says so in its own permissions block.
+permissions:
+  contents: read
+
 concurrency:
   group: preview
   cancel-in-progress: true

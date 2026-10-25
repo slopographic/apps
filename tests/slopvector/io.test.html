@@ -7,6 +7,7 @@
   <script src="../harness.js"></script>
   <script src="boot.js"></script>
   <script>
+  // Covers: slopvector/js/io/svg-open.js, slopvector/js/core/svgout.js, slopvector/js/core/overlay.js, slopvector/index.html
   const { describe, it, expect, waitFor } = SlopTest;
 
   describe('SVG export / import', () => {
@@ -44,6 +45,37 @@
       expect(circ.style.fill.type).toBe('linear'); expect(circ.style.fill.stops[1].c).toBe('#0000ff');
       expect(SV.objBBox(rot).w).toBeCloseTo(10, 1e-6);
       expect([text.text, text.font.family, text.font.weight]).toEqual(['Hello SVG', 'Georgia', 700]);
+    });
+    it('a hostile SVG (a SlopVector document with markup in its values) opens without running any script', async () => {
+      W.__svXss = undefined;
+      const doc = SV.sampleDoc(), bad = '"/><image href="x" onerror="parent.__svXss=1"/><path d="';
+      const objs = []; const walk = (o) => { objs.push(o); (o.children || []).forEach(walk); }; doc.layers.forEach((L) => L.children.forEach(walk));
+      doc.layers[0].color = '"><img src=x onerror="parent.__svXss=2">';
+      for (const o of objs) {
+        if (o.style) { o.style.fill = typeof o.style.fill === 'string' ? bad : o.style.fill; o.style.blend = 'multiply;" onmouseover="parent.__svXss=3'; o.style.cap = bad; o.style.stroke = o.style.stroke || '#000'; o.style.sw = o.style.sw || 1; }
+        if (o.style && o.style.fill && o.style.fill.stops) o.style.fill.stops[0].c = bad;
+        if (o.font) o.font.weight = bad;
+        o.id = String(o.id) + bad;
+      }
+      // the file as an attacker would write it: a valid SVG whose embedded document carries the markup
+      const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><metadata id="slopvector-document"><![CDATA[' +
+        JSON.stringify({ app: 'SlopVector', format: 1, doc }) + ']]></metadata><rect width="1" height="1"/></svg>';
+      blank();
+      expect(IO.openSVGText(svg, 'hostile.svg')).not.toBe(false);
+      SV.renderNow(); SV.select && SV.select(objs.slice(0, 2).map((o) => o.id));
+      SV.renderNow();
+      await new Promise((r) => setTimeout(r, 200));
+      expect(W.document.querySelectorAll('[onerror], [onmouseover]').length).toBe(0);
+      expect(W.__svXss).toBe(undefined);
+      expect(SV.state.doc.layers.length).toBe(doc.layers.length);
+      SV.loadDoc(SV.sampleDoc(), { fit: false });   // the later tests (the offline builder) start from the sample
+    });
+    it('an SVG whose entities would expand without limit is refused, and one with a few plain entities opens', () => {
+      const bomb = '<?xml version="1.0"?><!DOCTYPE svg [<!ENTITY a "aaaaaaaaaa"><!ENTITY b "&a;&a;&a;&a;&a;&a;&a;&a;&a;&a;">]><svg xmlns="http://www.w3.org/2000/svg"><text>&b;</text></svg>';
+      expect(() => IO.parseSVG(bomb)).toThrow(/expand without limit/);
+      const ai = '<?xml version="1.0"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" [<!ENTITY ns_svg "http://www.w3.org/2000/svg">]>' +
+        '<svg xmlns="&ns_svg;" width="10" height="10"><rect width="5" height="5" fill="red"/></svg>';
+      expect(IO.parseSVG(ai, { asLayers: true }).layers.length).toBeGreaterThan(0);
     });
     it('rejects files that are not SVG', () => {
       expect(() => IO.parseSVG('<html><body>nope</body></html>')).toThrow(/valid SVG/);
