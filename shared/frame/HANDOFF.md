@@ -170,16 +170,16 @@ Kind: tool (open → settings → run → save), editor, records (list + form), 
 | Slop Photo Sorter | sorter/ | tool | one column, Start and downloads in bars | done | the view filters stay above the photos |
 | File convert | convert/ | tool | tool built in JS, one column | done | js/ui/frame.js: files left, results right, Convert + Clear in the panel footer; the Convert dialog (compact) keeps one column |
 | Slop AI Tools | aitools/ (+ ocr, speech, denoise, tags, portrait) | tool | each tool one column | done | one module for the five pages (aitools/frame.js, data-side marks); the hub is a list of tools |
-| Reel Remix | remix/ | editor | bin left, settings right, Remix in the panel | close | phone sheet missing |
+| Reel Remix | remix/ | editor | bin left, settings right, Remix in the panel | done | Remix and Export in the options panel's footer; the panel is a phone bottom sheet whose closed state shows them |
 | PhotoSlop | photoslop/ | editor | toolbox left, panels right, Export in the header | done | Export at the panels' foot; the top bar fits the app's width (container query, More ▾) beside the Slop AI panel |
 | SlopVector | slopvector/ | editor | toolbar left, dock right, no main button | done | Export ▾ at the dock's foot (the File ▸ Export actions); the dock is a drawer on phones |
 | Slop PDF | pdf/ | editor | rail left, properties right, Download in the header | done | Download at the properties panel's foot (the shared footer); its own phone sheet (openClass) shows the footer above the rail while closed; properties resizable (shared/ui/resize-panel.js) |
 | SlopLabel | label/ | editor | toolbox left, dock right, Print in the header | done | Print at the dock's foot (the shared footer) |
-| SlopCut | slopcut/ | editor | bin left, inspector right, Export in the header | close | Export into the inspector's foot |
+| SlopCut | slopcut/ | editor | bin left, inspector right, Export in the header | done | Export at the inspector's foot (the shared footer); the inspector is a phone bottom sheet whose closed state shows Export |
 | Slop Press | press/ | editor | toolbar left, dock right, Export PDF in the control bar | done | Export PDF… at the dock's foot; the dock is a drawer on phones |
-| Slop Slides | slides/ | editor | slides left, inspector right, Save in the header | close | Save stays in the header (a document app saves from File) |
+| Slop Slides | slides/ | editor | slides left, inspector right, Save in the header | done | Save and Present at the inspector's foot (the shared footer); the closed phone sheet shows them; File ▸ Save and Ctrl+S too |
 | Slop 3D | 3d/ | editor | outliner left, properties right, Save in the header | done | Save at the Properties foot (the shared footer) |
-| Slop Docs | docs/ | editor | outline left, no inspector | to do | no inspector yet (a new right panel is a larger job); the outline is a list and stays left |
+| Slop Docs | docs/ | editor | outline left, no inspector | done | a Document panel on the right (docs/js/ui/panel.js: file, page, download and send; resizable), Save and PDF at its foot; a phone bottom sheet; the outline stays left |
 | Slop Tables | tables/ | editor | sheets and objects list LEFT | n/a | the left column is a list (sheets, charts, pivots), which the rule keeps on the left; no settings panel |
 | Slop Code | code/ | editor | file tree left, preview right | n/a | an IDE: tree left is a list; no settings panel |
 | Slop Music | music/ | other | tags/playlists left | n/a | navigation only |
