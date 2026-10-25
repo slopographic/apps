@@ -25,6 +25,25 @@
   const doc = g.document;
   const el = (tag, cls, text) => { const n = doc.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
 
+  // A footer in the bottom of the window (a phone's sheet footer, at the edge or above an app's own bottom rail) is published
+  // as --slop-foot-h on the page's root: the room from its top edge to the window's bottom, so cards in the bottom corner
+  // (the consent card, shared/consent/banner.css) sit above it.
+  const foots = new Set();
+  function lift() {
+    let h = 0;
+    const vh = g.innerHeight;
+    foots.forEach((f) => {
+      if (!f.isConnected) { foots.delete(f); return; }
+      const r = f.getBoundingClientRect();
+      if (r.height && r.top < vh && r.bottom > vh * 0.75) h = Math.max(h, vh - r.top);
+    });
+    const v = Math.ceil(h) + 'px', root = doc.documentElement;
+    if (root.style.getPropertyValue('--slop-foot-h') === v) return;
+    root.style.setProperty('--slop-foot-h', v);
+    g.dispatchEvent(new g.CustomEvent('slop-foot'));   // the buddy's button (shared/buddy/boot.js) moves up too
+  }
+  g.addEventListener('resize', lift);
+
   /** One button for an action. With a menu it is "Label ▾" and opens the menu under it. */
   function button(a, key) {
     if (a.el) {   // a button that is already in the page's markup (its id and listeners stay); the other fields update it
@@ -146,7 +165,8 @@
     // (frame.css lifts the page above it on phones, where the closed sheet shows only the footer).
     const foot = el('div', 'sf-p-foot');
     const host = () => panel.closest('.sf-root') || doc.documentElement;
-    const ro = g.ResizeObserver ? new g.ResizeObserver(() => { const r = host(); if (r) r.style.setProperty('--sf-foot-h', foot.offsetHeight + 'px'); }) : null;
+    const ro = g.ResizeObserver ? new g.ResizeObserver(() => { const r = host(); if (r) r.style.setProperty('--sf-foot-h', foot.offsetHeight + 'px'); lift(); }) : null;
+    foots.add(foot);
     function footer(actions, fo) {
       fo = fo || {};
       const list = (actions || []).filter(Boolean);
@@ -155,7 +175,7 @@
       const had = panel.classList.contains('sf-has-foot');
       panel.classList.toggle('sf-has-foot', list.length > 0);
       if (had !== list.length > 0) panel.dispatchEvent(new g.CustomEvent('sf-foot'));
-      if (!list.length) { foot.remove(); return; }
+      if (!list.length) { foot.remove(); lift(); return; }
       const bar = el('div', 'sf-foot-acts' + (fo.stack ? ' sf-foot-stack' : ''));
       list.forEach((a, k) => bar.append(button(a, 'foot/' + (a.id || k))));
       if (fo.more) {
@@ -167,7 +187,7 @@
       foot.append(bar);
       if (fo.note) foot.append(el('p', 'sf-foot-note', fo.note));
       if (foot.parentNode !== panel || panel.lastChild !== foot) panel.append(foot);
-      if (ro) ro.observe(foot);
+      if (ro) { ro.observe(foot); ro.observe(panel); }   // the panel too: a footer that moves without resizing (the page got shorter)
       if (focused) { const again = foot.querySelector('[data-sf-key="' + focused.replace(/["\\]/g, '\\$&') + '"]'); if (again && !again.disabled) again.focus({ preventScroll: true }); }
     }
     return { render, footer, setTitle: (t) => { h.textContent = t; }, element: body, title: head, foot };

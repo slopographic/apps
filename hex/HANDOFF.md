@@ -48,3 +48,11 @@ Slop Hex views and edits any file as bytes. It is registered in `shared/apps.js`
 
 ## Assistant commands
 `js/ai-commands.js` (loaded by `SlopCmd.prepare()` from `commands.js`): `hex.ai.new_file` (name, hex or text), `open_file` (Slop Drive), `set_bytes` (offset, hex or text: overwrites, never inserts; one undo step), `find_bytes`, `save_version` (a new file's first Drive record, else Save version), `export_file` (to, name). `doc.undoDepth()` is the checkpoint's mark. Test: `tests/hex/ai-commands.test.html`.
+
+## The inspector on the right (the suite rule, shared/frame/HANDOFF.md)
+
+`js/panel.js` mounts SlopFrame on `#hx-body`: the bytes (`#hx-main`) are the view, `#hx-side` the inspector. It holds the
+file's facts (`#hx-info`: name, size, type, SHA-256, selection) and Save version (primary) and Download at its foot; Go to
+and Find stay above the bytes, Open in the header (the menu bar's only tool), Save as new and Open from Drive in the File
+menu. On a phone the inspector is a bottom sheet whose closed state shows Save version and Download. Test:
+`tests/hex/panel.test.html`.

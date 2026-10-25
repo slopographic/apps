@@ -10,13 +10,15 @@
   let W, D;
   const esc = () => D.dispatchEvent(new W.KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
   describe('Slop Slides at 390 × 844', () => {
-    it('the slide and the strip share the page; the inspector is out of sight', async () => {
+    it('the slide and the strip share the page; the inspector is out of sight but for its footer (Save)', async () => {
       const f = document.createElement('iframe'); f.src = '../../slides/index.html'; document.body.append(f);
       await waitFor(() => f.contentDocument.body && f.contentDocument.body.classList.contains('ready'), { timeout: 40000 });
       W = f.contentWindow; D = f.contentDocument;
       D.head.append(Object.assign(D.createElement('style'), { textContent: '* { transition: none !important; }' }));   // an offscreen frame stalls them
       expect(D.documentElement.scrollWidth).toBeLessThanOrEqual(390);
-      expect(W.getComputedStyle(D.getElementById('inspector')).visibility).toBe('hidden');
+      const insp = D.getElementById('inspector');   // closed, the sheet shows only its footer (shared/frame/panel.js)
+      expect([...insp.children].filter((n) => !n.classList.contains('sf-p-foot') && n.getBoundingClientRect().height > 0).length).toBe(0);
+      expect(insp.querySelector('.sf-p-foot #btnSave').getBoundingClientRect().bottom).toBeLessThanOrEqual(844.5);
       expect(D.getElementById('btnInspector').getBoundingClientRect().width).toBeGreaterThan(0);
     }, { timeout: 60000 });
     it('Properties opens the bottom sheet, again closes it, × closes and refocuses, Escape and a tap on the slide close it', () => {

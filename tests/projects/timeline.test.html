@@ -65,9 +65,11 @@
       expect(task('Choose photos').start).toBe(d(9));
       const b = bar('Choose photos'), m = b.getBoundingClientRect();
       fire(b, 'pointerdown', m.left + 30, m.top + 5); fire(b, 'pointerup', m.left + 30, m.top + 5);
-      await waitFor(() => D.querySelector('.sui-dlg') && $('peTitle').value === 'Choose photos');
-      D.querySelector('.sui-dlg .sui-x').click();
-      await waitFor(() => !D.querySelector('.sui-dlg'));
+      // the task opens in the panel on the right (projects/js/ui/task-panel.js); Escape closes it
+      await waitFor(() => W.SlopProjects.taskPanel.isOpen() && $('peTitle').value === 'Choose photos');
+      expect(D.querySelector('.pj-task').getBoundingClientRect().left).toBeGreaterThan(D.querySelector('.pj-views').getBoundingClientRect().left);
+      $('peTitle').dispatchEvent(new W.KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+      await waitFor(() => !W.SlopProjects.taskPanel.isOpen());
     });
 
     it('keys on a focused bar: arrows move a day, Shift changes the end; the focus stays', async () => {

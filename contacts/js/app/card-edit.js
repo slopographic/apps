@@ -118,15 +118,16 @@
         section('ed-h-groups', 'Pipeline and groups', null,
           field('Groups (comma separated)', f.groups),
           el('p', { class: 'ed-hint' }, 'The pipeline stage and the next follow-up are set on the card, and kept as they are.')))),
-      el('footer', { class: 'ed-foot' }, msg,
-        el('div', { class: 'ed-btns' },
-          el('button', { type: 'button', class: 'btn', 'data-act': 'cancel', onclick: cancel }, 'Cancel'),
-          el('button', { type: 'submit', class: 'btn primary' }, 'Save'))));
+      el('footer', { class: 'ed-foot' }, msg));
+    form.id = 'edForm';
+    // Cancel and Save are the card's footer (card.js, the shared footer); Save still submits this form
+    SC.cardEdit.buttons = [el('button', { type: 'button', class: 'btn', 'data-act': 'cancel', onclick: cancel }, 'Cancel'),
+      el('button', { type: 'submit', class: 'btn primary', form: 'edForm' }, 'Save')];
     body.replaceChildren(form);
     snapshot = values(f);
     setTimeout(() => f.name.focus({ preventScroll: true }), 30);
   }
 
   /** Leaves edit mode the way Escape does (asks first when there are unsaved changes). */
-  SC.cardEdit = { render, cancel: () => cancelNow && cancelNow() };
+  SC.cardEdit = { render, cancel: () => cancelNow && cancelNow(), buttons: [] };
 })();

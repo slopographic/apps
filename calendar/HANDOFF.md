@@ -97,3 +97,11 @@ Year, month, week, day, split and agenda views over the shared store. Events, th
   time grid has no drag on phones, where the agenda shows.
 - Deleting an event leaves its reminder rows behind (harmless, but they are not swept).
 - Reminders show only while a tab is open. There is no background scheduling.
+
+## The day panel on the right (the suite rule, shared/frame/HANDOFF.md)
+
+`js/ui/panel.js` mounts SlopFrame on `#cBody`: the calendar (`#main`) is the view, `#cSide` the panel. It shows the day
+the view is on (its events and to-dos; each opens in the editor), Show (To-dos, the time zone, the split's panes) and
+Calendar file (Import .ics, Export .ics, Config), with New event, the main button, at its foot. The event editor is still
+a dialog. On a phone (640 px) the panel is a bottom sheet whose closed state shows New event. Test:
+`tests/calendar/panel.test.html`.

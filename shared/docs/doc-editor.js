@@ -124,7 +124,8 @@
       D.lines.draw($('eLines'), st.lines, lineOpts());
       D.lines.drawTotals($('eTotals'), st.lines, lineOpts());
       if (X.paint) X.paint(st, ro);
-      $('eActions').replaceChildren(...cfg.actions(st, api));
+      const acts = cfg.actions(st, api);   // the main ones go to the record panel's footer (shared/biz/panel.js)
+      if (NS.recordPanel) NS.recordPanel.actions(acts, $('eActions')); else $('eActions').replaceChildren(...acts);
       NS.page.paint();
     }
 

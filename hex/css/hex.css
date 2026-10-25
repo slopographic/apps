@@ -70,3 +70,12 @@ body { background: var(--hx-bg); color: var(--hx-fg); font: 14px/1.4 system-ui, 
 
 /* Drop strip under the header (shared/drop, compact) */
 .hx-dropstrip { margin: 6px 10px 0; padding: 6px 10px; border: 1px dashed var(--line, #3a3a46); border-radius: 8px; }
+/* The inspector on the right (js/panel.js, shared/frame/frame.css): the file's facts one per row, Save version and Download at its foot. */
+.hx-body { flex: 1 1 auto; min-height: 0; }
+.hx-side { --sl-surface: var(--hx-panel); --sl-background: var(--hx-bg); --sl-text: var(--hx-fg); --sl-border: var(--hx-line); --sl-accent: var(--hx-accent); }
+.hx-side .hx-info { flex-direction: column; gap: 10px; padding: 0; border: 0; }
+.hx-side .hx-info > .hx-file { max-width: none; }
+.hx-side .hx-name { white-space: normal; overflow-wrap: anywhere; }
+.hx-side .hx-info:not([hidden]) ~ .hx-none { display: none; }
+.hx-side .sf-foot-acts .sui-btn { min-height: 38px; }
+.hx-side .sf-h, .hx-side .sf-note { color: var(--hx-dim); }   /* the small headings in the dim ink (contrast) */

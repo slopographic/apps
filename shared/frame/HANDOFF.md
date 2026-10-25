@@ -60,6 +60,10 @@ p.footer([{ id: 'up-run', label: 'Upscale 2 pictures', primary: true, run }], { 
   buttons, `aria-pressed="true"` is the chosen one), `.sf-note`.
 - With a footer the panel is a column and the footer is `position: sticky; bottom: 0`; its height is in `--sf-foot-h` on
   the frame's root (frame.css leaves that much room under the page on phones).
+- A footer in the bottom of the window also sets `--slop-foot-h` on `<html>` (the room from its top to the window's
+  bottom; a `slop-foot` event on window when it changes): the consent card (shared/consent/banner.css, phones) and the
+  buddy's button (shared/buddy/boot.js, until moved) sit above it, so nothing floats over the main button.
+  Test: `tests/consent/sheet-foot.test.html`.
 
 ## Resizing side panels (every app)
 
@@ -141,7 +145,7 @@ its main button in the panel. Slop Upscale: `tests/upscale/panel.test.html`. Slo
 ## Audit: every app against the rule
 
 Status: **done** (follows the rule; checked by `tests/node/right-panel.test.mjs`: a tool or viewer mounts SlopFrame and,
-for a tool, its main button is in the panel's footer; an editor keeps its own panel and takes the shared footer), **close** (panel already on the right, the
+for a tool, its main button is in the panel's footer; an editor, or a viewer/records app that already had its own right panel, keeps that panel and takes the shared footer), **close** (panel already on the right, the
 main button still elsewhere), **to do**, **n/a** (no settings and no main action: the rule has nothing to move).
 Kind: tool (open → settings → run → save), editor, records (list + form), viewer, other.
 
@@ -152,56 +156,59 @@ Kind: tool (open → settings → run → save), editor, records (list + form), 
 | Slop Workflows | workflows/ | tool | SlopFrame, run panel right | done | |
 | Slop Resize | resize/ | tool | settings right, Resize all + downloads in the header | done | |
 | Slop Watermark | watermark/ | tool | settings right, run/download in an app bar | to do | being rebuilt on wip/watermark-all (told the rule) |
-| SlopIsolate | slopisolate/ | editor | queue left, #props right; Download, Send back in the header | close | #props is resizable; Download and Send back still in the header (its own branch owns the panel) |
+| SlopIsolate | slopisolate/ | editor | queue left, #props right; Download, Send back in the header | done | Send back, Open in… and Download at the settings panel's foot (the shared footer); the closed phone sheet shows them; #props resizable |
 | Slop OCR | ocr/ | tool | settings row above the work area, Read in it | done | the model prompt shows before the tool, as before |
 | Slop Transcribe | transcribe/ | tool | controls above, list left, text right | done | the file list stays in the view, left of the transcript |
+| Slop Recorder | recorder/ | tool | new: stage centre, settings right, Record at the panel's foot | done | |
 | SlopClean | clean/ | tool | choices panel right, Copy and clean in the header | done | |
 | Slop HTML to PDF | html2pdf/ | tool | settings LEFT, Print in the header | done | |
 | Slop Image to 3D | img3d/ | tool | settings LEFT, Send in the header | done | |
 | Slop Signature | signature/ | tool | form LEFT, preview right, Copy under the preview | done | |
 | QR SLOP | qr/ | tool | editor LEFT, preview right, downloads under it | done | Save to Drive, Open from Drive and Copy to buffer stay in its app bar (Drive actions, like Open) |
+| Slop Colors | colors/ | tool | new: SlopFrame from the start | done | Download palette at the panel's foot, with Save to Slop Drive…, Copy code and Open in… |
 | Slop Effects | effects/ | editor | properties right, Render in the header | done | its own panel and SlopSheet, the shared footer (bare) |
 | Checksum | checksum/ | tool | three stacked cards, Copy under the hash | done | |
+| Slop Compare | diff/ | tool | new: A and B and the result in the view | done | Compare and Export at the panel's foot; the settings and the report's Save and Open in in the panel |
 | Serial counter | serials/ | tool | one column, bar + actions | done | |
 | Slop Photo Sorter | sorter/ | tool | one column, Start and downloads in bars | done | the view filters stay above the photos |
-| File convert | convert/ | tool | tool built in JS, one column | to do | split the tool into view + right panel |
+| File convert | convert/ | tool | tool built in JS, one column | done | js/ui/frame.js: files left, results right, Convert + Clear in the panel footer; the Convert dialog (compact) keeps one column |
 | Slop AI Tools | aitools/ (+ ocr, speech, denoise, tags, portrait) | tool | each tool one column | done | one module for the five pages (aitools/frame.js, data-side marks); the hub is a list of tools |
-| Reel Remix | remix/ | editor | bin left, settings right, Remix in the panel | close | phone sheet missing |
+| Reel Remix | remix/ | editor | bin left, settings right, Remix in the panel | done | Remix and Export in the options panel's footer; the panel is a phone bottom sheet whose closed state shows them |
 | PhotoSlop | photoslop/ | editor | toolbox left, panels right, Export in the header | done | Export at the panels' foot; the top bar fits the app's width (container query, More ▾) beside the Slop AI panel |
 | SlopVector | slopvector/ | editor | toolbar left, dock right, no main button | done | Export ▾ at the dock's foot (the File ▸ Export actions); the dock is a drawer on phones |
-| Slop PDF | pdf/ | editor | rail left, properties right, Download in the header | close | properties resizable (shared/ui/resize-panel.js); Download stays in the header: its phone sheet is the app's own (openClass), where a footer would be hidden |
+| Slop PDF | pdf/ | editor | rail left, properties right, Download in the header | done | Download at the properties panel's foot (the shared footer); its own phone sheet (openClass) shows the footer above the rail while closed; properties resizable (shared/ui/resize-panel.js) |
 | SlopLabel | label/ | editor | toolbox left, dock right, Print in the header | done | Print at the dock's foot (the shared footer) |
-| SlopCut | slopcut/ | editor | bin left, inspector right, Export in the header | close | Export into the inspector's foot |
+| SlopCut | slopcut/ | editor | bin left, inspector right, Export in the header | done | Export at the inspector's foot (the shared footer); the inspector is a phone bottom sheet whose closed state shows Export |
 | Slop Press | press/ | editor | toolbar left, dock right, Export PDF in the control bar | done | Export PDF… at the dock's foot; the dock is a drawer on phones |
-| Slop Slides | slides/ | editor | slides left, inspector right, Save in the header | close | Save stays in the header (a document app saves from File) |
+| Slop Slides | slides/ | editor | slides left, inspector right, Save in the header | done | Save and Present at the inspector's foot (the shared footer); the closed phone sheet shows them; File ▸ Save and Ctrl+S too |
 | Slop 3D | 3d/ | editor | outliner left, properties right, Save in the header | done | Save at the Properties foot (the shared footer) |
-| Slop Docs | docs/ | editor | outline left, no inspector | to do | no inspector yet (a new right panel is a larger job); the outline is a list and stays left |
+| Slop Docs | docs/ | editor | outline left, no inspector | done | a Document panel on the right (docs/js/ui/panel.js: file, page, download and send; resizable), Save and PDF at its foot; a phone bottom sheet; the outline stays left |
 | Slop Tables | tables/ | editor | sheets and objects list LEFT | n/a | the left column is a list (sheets, charts, pivots), which the rule keeps on the left; no settings panel |
 | Slop Code | code/ | editor | file tree left, preview right | n/a | an IDE: tree left is a list; no settings panel |
 | Slop Music | music/ | other | tags/playlists left | n/a | navigation only |
-| Slop Drive | drive/ | viewer | places left, info right, New in the header | close | file actions into the info panel |
-| Slop Gallery | gallery/ | viewer | albums/filters/import left | to do | import and actions → right panel |
-| Slop Sheets | sheetview/ | viewer | options in the header | to do | header pickers → right panel |
-| Slop Hex | hex/ | viewer | one column | to do | an inspector panel on the right |
-| Slop Invoices | invoices/ | records | list, document, ws-panel right; Save in the header | close | Save into the ws-panel's foot |
-| Slop Orders | orders/ | records | ws-panel right | close | New/Save into the panel |
-| Slop Quotes | quotes/ | records | ws-panel right | close | phone sheet; Save into the panel |
-| Slop Purchases | purchases/ | records | ws-panel right | close | phone sheet; Save into the panel |
-| Slop Contacts | contacts/ | records | groups left, list, card right | close | card actions into the card's foot |
-| Slop CRM | crm/ | records | filters left | to do | a detail panel on the right |
-| Slop Projects | projects/ | records | timeline, undated tasks right | to do | a task detail panel on the right |
-| Slop Timesheets | timesheets/ | records | tabs, one-column form | to do | the form → right panel |
-| Slop Expenses | expenses/ | records | tabs, one-column form | to do | the form → right panel |
-| Slop Inventory | inventory/ | records | tabs, one column | to do | forms → right panel |
-| Slop Ledger | ledger/ | records | tabs, one column | to do | forms → right panel |
-| Slop Reports | reports/ | other | one column | to do | the report definition → right panel |
+| Slop Drive | drive/ | viewer | places left, info right, New in the header | done | its own info panel takes the shared footer (bare: ui/info-foot.js): Open in…/Download, Restore/Delete forever, with a phone peek; New stays in the header as Drive's Open |
+| Slop Gallery | gallery/ | viewer | albums/filters/import left | done | js/ui/panel.js: selection, add photos and library tools on the right, Import photos at its foot; albums and filters stay left |
+| Slop Sheets | sheetview/ | viewer | options in the header | done | js/panel.js: Look (style, colours) and Open in Slop Table on the right, Export at its foot |
+| Slop Hex | hex/ | viewer | one column | done | js/panel.js: Inspector (file facts) on the right, Save version + Download at its foot; Go to and Find stay above the bytes |
+| Slop Invoices | invoices/ | records | list, document, ws-panel right; Save in the header | done | the details are SlopBiz.panel (shared/biz/panel.js through shared/docs/doc-layout.js): Save draft and Issue… (or the status's main button) at its foot; a bottom sheet ≤720 px; Print stays in the record bar |
+| Slop Orders | orders/ | records | ws-panel right | done | Save and Confirm order / Fulfil… at the record panel's foot (shared/biz/panel.js); New order stays in the list and the File menu |
+| Slop Quotes | quotes/ | records | ws-panel right | done | Save and Mark as sent at the record panel's foot; a bottom sheet on phones |
+| Slop Purchases | purchases/ | records | ws-panel right | done | Save and Place order at the record panel's foot; a bottom sheet on phones |
+| Slop Contacts | contacts/ | records | groups left, list, card right | close | Edit, Duplicate, Delete (Cancel, Save in the form) at the card's foot (the shared footer, bare); on a phone the card is a page with the footer at the bottom, not a SlopSheet |
+| Slop CRM | crm/ | records | filters left | close | the customer's record beside the list (shared/layouts) with Edit details and Delete customer at its foot (the shared footer, bare); on a phone a page with a fixed footer, not a SlopSheet |
+| Slop Projects | projects/ | records | timeline, undated tasks right | done | a task opens in the SlopFrame panel right of the board, timeline or list (projects/js/ui/task-panel.js), Cancel, Delete and Save at its foot; project settings stay a dialog |
+| Slop Timesheets | timesheets/ | records | tabs, one-column form | done | an open entry is the panel right of the list (SlopBiz.panel.records), Save at its foot |
+| Slop Expenses | expenses/ | records | tabs, one-column form | done | an open expense is the panel right of the list (SlopBiz.panel.records), Record expense / Mark as paid… at its foot |
+| Slop Inventory | inventory/ | records | tabs, one column | close | Receive, Sell, Adjust, Transfer are the stock view's right panel (SlopBiz.panel.form; Stock actions opens it on a phone), each form keeps its own submit button; the product form, Count and Scan are unchanged |
+| Slop Ledger | ledger/ | records | tabs, one column | done | the new entry, account and rate forms are their view's right panel (SlopBiz.panel.form), Post entry / Add account / Add rate at its foot |
+| Slop Reports | reports/ | other | one column | done | the report is the view; picker, definition and Export CSV (at the foot) in the SlopFrame panel (reports/js/layout.js) |
 | Slop AI | ai/ | other | chat, workspace pane right | n/a | a chat: the composer is the main action |
 | Slop Notes | notes/ | other | notebooks left, list, editor | n/a | no settings |
 | Paste | paste/ | other | list left, main | n/a | no settings |
 | Slopnodes | nodes/ | other | canvas only | n/a | a canvas; Save is in the menu bar |
 | Slopculator | calculator/ | other | tape right | n/a | not a settings app |
 | Slop Time | time/ | other | tabs | n/a | |
-| Slop Calendar | calendar/ | other | one view | to do | an event panel on the right |
+| Slop Calendar | calendar/ | other | one view | done | js/ui/panel.js: the day's events, display choices and calendar file on the right, New event at its foot; the event editor is still a dialog |
 | Slop To-do | todo/ | other | lists left | n/a | navigation left; add form in the list |
 | Slop Reminders | reminders/ | other | one column | n/a | |
 | Slop Admin | admin/ | other | tabs | n/a | settings pages themselves |

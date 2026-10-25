@@ -38,3 +38,16 @@
   .app { display: block; }
   .outline { display: none !important; }
 }
+/* The Document panel on the right (ui/panel.js): a third column, resized on its edge, hidden with the top-bar button.
+   On a phone it is a bottom sheet whose closed state shows only Save and PDF; the page leaves room for it. */
+.app { --dp-col: var(--dp-w, 212px); grid-template-columns: var(--ol-w, 232px) minmax(0, 1fr) var(--dp-col); box-sizing: border-box; }
+.app.dp-shut, .app.ssh-phone { --dp-col: 0px; }   /* --dp-w is the kept width (ui/panel.js) */
+.doc-panel { grid-column: 3; grid-row: 4; position: relative; display: flex; flex-direction: column; min-width: 0; min-height: 0; overflow-y: auto;
+  background: var(--panel); color: var(--fg); border-left: 1px solid var(--line);
+  --sl-surface: var(--panel); --sl-background: var(--bg); --sl-text: var(--fg); --sl-border: var(--line); --sl-accent: var(--accent); }
+.app.dp-shut:not(.ssh-phone) .doc-panel { display: none; }
+.doc-panel > .sf-p-body { flex: 1 0 auto; }
+.doc-panel .sf-acts { flex-direction: row; flex-wrap: wrap; }
+.doc-panel .sf-acts .sf-btn { flex: 1 1 auto; }
+#btnPanel[aria-pressed="true"] { color: var(--accent-line, var(--fg)); background: var(--active); }
+.app.ssh-phone #btnPanel { display: none; }   /* the closed sheet's Document button opens it */

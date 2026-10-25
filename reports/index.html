@@ -29,32 +29,39 @@
   <link rel="icon" href="../favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../shared/commands/commands.css">
   <link rel="stylesheet" href="../shared/finder/finder.css">
+  <link rel="stylesheet" href="../shared/frame/frame.css">
   <link rel="stylesheet" href="css/reports.css">
   <link rel="stylesheet" href="../shared/slop365/look.css">
 </head>
 <body>
-  <main class="rp-main">
-    <p class="rp-lead">Reports across Contacts, Invoices, Expenses, the ledger and CRM. Read-only: nothing here changes your records.</p>
-    <section class="rp-bar" aria-label="Report">
-      <label for="report">Report</label>
-      <select id="report"></select>
-      <button id="new" type="button">New report</button>
-      <button id="edit" type="button">Edit</button>
-      <button id="delete" type="button" hidden>Delete</button>
+  <!-- View · Panel (shared/frame, js/layout.js): the report in the middle; the report picker, its definition and Export CSV
+       in the panel on the right (a bottom sheet on a phone, its footer always on screen) -->
+  <main class="rp-main" id="rpMain">
+    <div class="rp-view" id="rpView">
+      <p class="rp-lead">Reports across Contacts, Invoices, Expenses, the ledger and CRM. Read-only: nothing here changes your records.</p>
+      <p id="data-note" class="rp-note" hidden></p>
+      <p id="report-note" class="rp-sub"></p>
+      <section id="results" class="rp-results" aria-live="polite"></section>
+    </div>
+    <aside class="rp-panel" id="rpPanel" aria-label="Report">
+      <section class="rp-bar rp-pick" id="rpPick" aria-label="Report">
+        <label for="report">Report</label>
+        <select id="report"></select>
+        <button id="new" type="button">New report</button>
+        <button id="edit" type="button">Edit</button>
+        <button id="delete" type="button" hidden>Delete</button>
+      </section>
+      <section id="editor" class="rp-editor" aria-label="Report definition" hidden>
+        <label for="json">Report definition (JSON)</label>
+        <textarea id="json" spellcheck="false" rows="16"></textarea>
+        <p id="err" class="rp-err" role="alert"></p>
+        <div class="rp-bar">
+          <button id="save" type="button">Save report</button>
+          <button id="cancel" type="button">Cancel</button>
+        </div>
+      </section>
       <button id="csv" type="button">Export CSV</button>
-    </section>
-    <p id="data-note" class="rp-note" hidden></p>
-    <p id="report-note" class="rp-sub"></p>
-    <section id="editor" class="rp-editor" aria-label="Report definition" hidden>
-      <label for="json">Report definition (JSON)</label>
-      <textarea id="json" spellcheck="false" rows="16"></textarea>
-      <p id="err" class="rp-err" role="alert"></p>
-      <div class="rp-bar">
-        <button id="save" type="button">Save report</button>
-        <button id="cancel" type="button">Cancel</button>
-      </div>
-    </section>
-    <section id="results" class="rp-results" aria-live="polite"></section>
+    </aside>
   </main>
   <script src="../shared/db/query.js"></script>
   <script src="../shared/db/db.js"></script>
@@ -70,6 +77,12 @@
   <script src="js/app.js"></script>
   <script src="../shared/commands/commands.js"></script>
   <script src="js/commands.js"></script>
+  <script src="../shared/ui/sheet.js"></script>
+  <script src="../shared/ui/menubutton.js"></script>
+  <script src="../shared/ui/resize-panel.js"></script>
+  <script src="../shared/frame/frame.js"></script>
+  <script src="../shared/frame/panel.js"></script>
+  <script src="js/layout.js"></script>
   <script src="../shared/spotlight/spotlight.js"></script>
 <link rel="stylesheet" href="../shared/menubar/menubar.css">
 <script src="../shared/menubar/menubar.js"></script>

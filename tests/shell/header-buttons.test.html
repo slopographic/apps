@@ -33,7 +33,7 @@
         const list = shared(D), folded = D.querySelectorAll('header [data-hbtn-folded]').length;
         expect(list.length + folded).toBeGreaterThanOrEqual(6);
         expect(list.includes(D.querySelector('header .sh-ai'))).toBe(true);   // AI stays: the others fold first (shared/ui/hbtn.js)
-        const own = D.getElementById('btnSave').getBoundingClientRect().height;
+        const own = D.getElementById('btnFile').getBoundingClientRect().height;   // Save is at the inspector's foot
         for (const n of list) {
           const r = n.getBoundingClientRect();
           expect(r.left >= 0 && r.right <= W.innerWidth + 0.5).toBe(true, `${n.className} at ${Math.round(r.left)}–${Math.round(r.right)}`);

@@ -47,6 +47,7 @@
   .info-grip { left: 50%; top: 6px; bottom: auto; width: 44px; height: 14px; margin-left: -22px; cursor: default; }
   .info-grip::after { left: 0; right: 0; top: 4px; width: auto; height: 5px; margin: 0; background: var(--line-2); }
   .info { width: auto; max-height: 72vh; padding-bottom: calc(14px + env(safe-area-inset-bottom)); }
+  body { box-sizing: border-box; }   /* the closed details sheet shows its main buttons (js/ui/info-foot.js): the page ends above them */
   .status { padding-bottom: env(safe-area-inset-bottom); height: auto; min-height: 26px; }
   .selbar .btn { height: 34px; }
   .viz-tools .muted { display: none; }

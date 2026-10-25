@@ -45,6 +45,9 @@
   font: 13px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
   animation: slopc-in 0.25s ease-out;
 }
+/* On a phone the card sits above a sheet footer pinned to the bottom of the window (an app's main button, shared/frame/panel.js
+ * publishes its height as --slop-foot-h), so the main button is never under it. */
+@media (max-width: 900px) { .slopc-banner { bottom: calc(16px + var(--slop-foot-h, 0px)); } }
 @keyframes slopc-in { from { opacity: 0; transform: translateY(8px); } }
 @media (prefers-reduced-motion: reduce) { .slopc-banner { animation: none; } }
 .slopc-text { margin: 0; padding-inline-end: 22px; }

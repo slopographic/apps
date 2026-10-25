@@ -24,6 +24,13 @@
     return place && VIEWS.includes(place.view) ? place.view : null;
   }
 
+  // Receive, Sell, Adjust and Transfer (and their answer) are the panel on the right of the stock view (shared/biz/panel.js);
+  // on a phone a bottom sheet over the stock levels, opened by Stock actions at the foot of the screen
+  const forms = document.querySelector('#view-stock .forms');
+  if (g.SlopBiz.panel && forms) {
+    forms.append(document.getElementById('sMsg'));
+    g.SlopBiz.panel.form({ app: 'inventory', key: 'stock', view: '#view-stock', form: forms, foot: [], label: 'Stock actions' });
+  }
   const app = g.SlopBiz.router.start({
     ns: NS, app: 'inventory', parse: (h) => ({ view: VIEWS.includes(h) ? h : 'products' }),
     start, refresh, ready: () => NS.viewState.restoreScroll(place),

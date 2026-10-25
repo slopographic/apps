@@ -18,5 +18,9 @@ import { TASKS as everyday2 } from './everyday-2.mjs';
 import { TASKS as threed } from './threed.mjs';
 import { TASKS as finance } from './finance.mjs';
 import { TASKS as raw } from './raw.mjs';
+import { TASKS as compare } from './compare.mjs';
+import { TASKS as colors } from './colors.mjs';
+import { TASKS as recorder } from './recorder.mjs';
 
-export const TASKS = [...cutout, ...creative, ...creative2, ...creative3, ...documents, ...documents2, ...documents3, ...documents4, ...business, ...business2, ...business3, ...everyday, ...everyday2, ...threed, ...finance, ...raw];
+
+export const TASKS = [...cutout, ...creative, ...creative2, ...creative3, ...documents, ...documents2, ...documents3, ...documents4, ...business, ...business2, ...business3, ...everyday, ...everyday2, ...threed, ...finance, ...raw, ...compare, ...recorder, ...colors];

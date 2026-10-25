@@ -32,15 +32,14 @@
     if (m.duration) parts.push(`${Math.floor(m.duration / 60)}:${String(Math.round(m.duration % 60)).padStart(2, '0')}`);
     return parts.join(' · ') || null;
   }
+  /** The other actions under the preview; the main ones (open, download, restore) are at the panel's foot (ui/info-foot.js). */
   function actions(r) {
     const b = (label, act, cls = '') => { const x = el('button', { type: 'button', class: 'btn ' + cls }, label); x.addEventListener('click', act); return x; };
-    if (r.trashedAt) return el('div', { class: 'acts' }, b('Restore', () => DR.restore([r]), 'primary'), b('Delete forever', () => DR.purge([r]), 'danger'));
+    if (r.trashedAt) return null;
     const apps = DR.orderedAppsFor(r), d = apps[0];
-    const openIn = r.isFolder ? [] : d ? [b(`Open in ${d.name}`, () => DR.openWith(r, d.id, { remember: false }), 'primary'),
-      b('Open in…', (e) => { const x = e.currentTarget.getBoundingClientRect(); window.SlopUI.menu(DR.openInRows(r), x.left, x.bottom + 4); })] : [el('span', { class: 'muted' }, 'No app opens this type')];
+    const openIn = r.isFolder ? [] : d ? [b('Open in…', (e) => { const x = e.currentTarget.getBoundingClientRect(); window.SlopUI.menu(DR.openInRows(r), x.left, x.bottom + 4); })] : [el('span', { class: 'muted' }, 'No app opens this type')];
     return el('div', { class: 'acts' }, ...openIn,
-      r.isFolder ? b('Open', () => DR.open(r), 'primary') : b('Quick look', () => DR.quickLook(r)),
-      b(r.isFolder ? 'Download .zip' : 'Download', () => DR.download([r])), b(r.starred ? 'Unstar' : 'Star', () => DR.setStar([r], !r.starred)),
+      r.isFolder || !d ? null : b('Quick look', () => DR.quickLook(r)), b(r.starred ? 'Unstar' : 'Star', () => DR.setStar([r], !r.starred)),
       DR.isCleanable(r) ? b('Remove metadata…', () => DR.openInClean(r)) : null,
       DR.isFaceable(r) ? b('Find faces', () => DR.findFaces([r])) : null,
       DR.isFaceable(r) ? b('Faces and people…', () => DR.openFaces()) : null);
@@ -114,13 +113,15 @@
     const box = $('info'), open = S.info || (DR.sheetUI && DR.sheetUI.isOpen());
     box.hidden = !open && !DR.isMobile();   // on a phone the closed sheet is out of sight, ready to slide up
     document.body.classList.toggle('info-on', !!S.info);
+    if (DR.renderFoot) DR.renderFoot();   // the main buttons at the foot (ui/info-foot.js): a phone's closed sheet shows them
     if (!open) { shownKey = null; free(); return; }
     const items = DR.selected();
     const key = DR.version() + '|' + (items.length ? items.map(DR.keyOf).join(',') : 'place:' + S.section + ':' + S.cwd + ':' + (DR.lastVisible || []).length);
     if (key === shownKey && !force) return;
     shownKey = key; free();
     if (faceH) { faceH.destroy(); faceH = null; }
-    box.replaceChildren(DR.$('infoGrip'), ...(items.length === 1 ? single(items[0]) : items.length ? many(items) : place()));
+    box.replaceChildren(DR.$('infoGrip'), ...(items.length === 1 ? single(items[0]) : items.length ? many(items) : place()).filter(Boolean));
+    if (DR.renderFoot) DR.renderFoot();
   };
   /** Phones: the details panel is a bottom sheet (SlopSheet, shared/ui/sheet.js: the Info button, ×, Escape, a tap
    * outside, swipe down). Its × is the panel's close on a wide screen too. */

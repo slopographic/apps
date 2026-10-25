@@ -9,7 +9,7 @@
   <!-- The real invoices app runs in a same-origin iframe at a set width; the width sets the media queries it sees. -->
   <script src="../harness.js"></script>
   <script>
-  // Covers: invoices/js/ui/list.js, invoices/js/ui/app.js, invoices/js/ui/commands.js, invoices/js/core/util.js, invoices/js/ui/layout.js, shared/biz/router.js
+  // Covers: invoices/js/ui/list.js, invoices/js/ui/app.js, invoices/js/ui/commands.js, invoices/js/core/util.js, invoices/js/ui/layout.js, shared/biz/router.js, shared/biz/panel.js, shared/docs/workspace.css, invoices/css/workspace.css
   const { describe, it, expect, waitFor, run } = SlopTest;
   let frame = null;
 
@@ -64,7 +64,6 @@
       expect(!!bar).toBe(true);
       expect(shown(D.getElementById('eTitle'))).toBe(true);   // the invoice's heading, in the record bar (shared/biz/docbar.js)
       expect(D.getElementById('eTitle').closest('.biz-docbar')).toBeTruthy();
-      expect(shown(D.getElementById('tbSave'))).toBe(true);
       const list = D.getElementById('view-list'), stage = D.querySelector('.ws-stage'), panel = D.querySelector('.ws-panel');
       expect(!!stage && !!panel).toBe(true);
       expect(D.getElementById('main').hasAttribute('data-slop-layout')).toBe(true);
@@ -76,6 +75,10 @@
       expect(!!D.querySelector('.ws-stage #ePage .paper')).toBe(true);
       expect(!!D.querySelector('.ws-panel #eLines')).toBe(true);
       expect(!!D.querySelector('.ws-panel #eTotals')).toBe(true);
+      // the record panel (shared/biz/panel.js): Save draft and Issue… at its foot, not in the record bar
+      const foot = [...panel.querySelectorAll('.sf-p-foot button')].filter(shown).map((b) => b.textContent);
+      expect(foot).toEqual(['Save draft', 'Issue…']);
+      expect(D.querySelector('.biz-docbar').textContent.includes('Save')).toBe(false);
       // the panes scroll, the window does not: the menu bar, the record bar and the panes fit its height
       W.scrollTo(0, 200);
       expect(W.scrollY).toBe(0);
@@ -105,7 +108,7 @@
   });
 
   describe('the workspace at 390 px', () => {
-    it('an open invoice stacks: the sheet, then the details, and the page does not scroll sideways', async () => {
+    it('an open invoice: the page, and the details in a bottom sheet whose footer (Save draft, Issue…) stays on screen; no sideways scroll', async () => {
       const W = await openApp(390, 'new', 'edit');
       const D = W.document;
       expect(!!D.querySelector('header.smb-bar')).toBe(true);
@@ -113,9 +116,11 @@
       expect(D.documentElement.scrollWidth <= 390).toBe(true);
       expect(D.body.scrollWidth <= 390).toBe(true);
       expect(sideways(W)).toEqual([]);
-      const paper = D.querySelector('#ePage .paper').getBoundingClientRect();
-      const panel = D.querySelector('.ws-panel').getBoundingClientRect();
-      expect(panel.top >= paper.bottom - 1).toBe(true);
+      expect(shown(D.querySelector('#ePage .paper'))).toBe(true);
+      const foot = D.querySelector('.ws-panel .sf-p-foot').getBoundingClientRect();
+      expect(Math.round(foot.bottom)).toBe(W.innerHeight);
+      expect([...D.querySelectorAll('.ws-panel .sf-p-foot button')].filter(shown).map((b) => b.textContent)).toEqual(['Details', 'Save draft', 'Issue…']);
+      expect(D.getElementById('eForm').getClientRects().length).toBe(0);   // the rest of the sheet waits for Details
       expect(shown(D.getElementById('view-list'))).toBe(false);
     });
 

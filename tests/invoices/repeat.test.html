@@ -14,7 +14,7 @@
   let W, D, inv;
   const $ = (id) => D.getElementById(id);
   const S = () => W.SlopData;
-  const button = (text) => [...D.querySelectorAll('#eActions button')].find((b) => b.textContent === text);
+  const button = (text) => [...D.querySelectorAll('#eActions button, .ws-panel .sf-p-foot button')].find((b) => b.textContent === text);
   const dlg = () => SlopTest.topDialog(D);
   const rows = () => [...D.querySelectorAll('#rRows .sl-row')];
   async function boot(hash = '') {

@@ -34,14 +34,15 @@
       expect(D.defaultView.getComputedStyle(D.getElementById('hx-dl')).borderTopStyle).toBe('solid');
     }, { timeout: 40000 });
 
-    it("an open file's name is in the info strip, on one row with its size, type and hash", async () => {
+    it("an open file's name is in the inspector on the right, above its size, type and hash", async () => {
       const D = await open(1440);
       await D.defaultView.HexApp.openBlob(new Blob([new Uint8Array([0x4d, 0x5a, 0x90, 0])]), { name: 'tiny.exe' });
       await waitFor(() => D.getElementById('hx-name').textContent.includes('tiny.exe'));
       expect(D.getElementById('hx-info').contains(D.getElementById('hx-name'))).toBe(true);
       expect(shown(D.getElementById('hx-scroll'))).toBe(true);
-      const tops = new Set([...D.querySelectorAll('#hx-info > div')].map((n) => Math.round(n.getBoundingClientRect().top)));
-      expect(tops.size).toBe(1);
+      expect(D.getElementById('hx-side').contains(D.getElementById('hx-info'))).toBe(true);
+      const tops = [...D.querySelectorAll('#hx-info > div')].map((n) => Math.round(n.getBoundingClientRect().top));
+      expect(new Set(tops).size).toBe(tops.length);   // one fact per row in the panel
     }, { timeout: 40000 });
 
     it("at 390px nothing scrolls sideways and the bar's fields share rows with their buttons", async () => {

@@ -82,6 +82,29 @@
       tap(rail('sign')); await settle();
       expect(open()).toBe(false);
     }, { timeout: 60000 });
+
+    it('the closed sheet still shows its footer above the rail: Download, and Properties that opens the sheet; no sideways scroll', async () => {
+      await boot();
+      const props = D.getElementById('props'), dl = D.getElementById('btnDownload'), foot = props.querySelector('.sf-p-foot');
+      expect(open()).toBe(false);
+      expect(foot.contains(dl)).toBe(true);
+      const f = foot.getBoundingClientRect(), r = D.getElementById('rail').getBoundingClientRect();
+      expect(f.height).toBeGreaterThan(40);
+      expect(Math.round(f.bottom)).toBeLessThanOrEqual(Math.round(r.top) + 1);   // above the rail, on screen
+      expect(W.getComputedStyle(props).backgroundColor).not.toBe('rgba(0, 0, 0, 0)');   // opaque
+      expect(props.querySelector('.pp-main').getBoundingClientRect().height).toBe(0);   // only the footer while closed
+      expect(D.documentElement.scrollWidth).toBeLessThanOrEqual(390);
+      D.getElementById('emptySample').click();
+      await waitFor(() => !dl.disabled, { timeout: 20000 });
+      let n = 0; W.SP.app.download = () => { n++; };
+      dl.click(); await settle();
+      expect(n).toBe(1);
+      foot.querySelector('.sf-foot-more').click(); await settle();
+      expect(open()).toBe(true);
+      expect(props.querySelector('.pp-main').getBoundingClientRect().height).toBeGreaterThan(0);
+      esc(); await settle();
+      expect(open()).toBe(false);
+    }, { timeout: 60000 });
   });
   SlopTest.run({ name: 'Slop PDF · phone sheet' });
   </script>

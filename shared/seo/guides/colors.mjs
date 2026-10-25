@@ -1,0 +1,25 @@
+// Guides for Slop Colors (colors/index.html, colors/js/*.js). Shape in tools/seo/guides.mjs. Every step matches the app as it is.
+export const GUIDES = [
+  { app: 'colors', slug: 'getting-started', crumb: 'Getting started',
+    title: 'Getting started with Slop Colors: pick, build and export a palette',
+    description: 'Learn Slop Colors in a few minutes: pick colours from a picture, build a palette from harmonies, check contrast and export CSS, Tailwind or ASE.',
+    h1: 'Getting started with Slop Colors',
+    lead: 'Slop Colors is a colour picker, a palette maker and a contrast checker in one page. Pictures and palettes are read in your browser and never uploaded.',
+    sections: [
+      { h2: 'The page',
+        text: ['At the top is the current colour, with its value in HEX, RGB, HSL, OKLCH and CMYK and a Copy button for each. Below it are four cards: Pick from a picture, Palette, Made from this colour and Contrast check.',
+          'The panel on the right has the colour\'s fields, what to make from it, how many colours to find in a picture and the export. On a phone it is a sheet at the bottom: tap Settings to open it.'] },
+      { h2: 'Pick colours from a picture',
+        steps: ['Drop a picture on the page, or click Open picture….', 'Move over it and click to pick a colour; the magnifier shows the pixels under the point.',
+          'Use the arrow keys to move one pixel at a time, and Enter to add the colour to the palette.', 'Click Add all to the palette to keep the picture\'s main colours.'],
+        tip: 'In Chrome and Edge, Pick from screen picks a colour from anywhere on your screen.' },
+      { h2: 'Build the palette',
+        steps: ['Click Add this colour to add the current colour.', 'Pick a Harmony and a Scale in the panel, then Use as the palette under a row.',
+          'Under each colour of the palette, ‹ and › move it, ✎ names it and × removes it.'] },
+      { h2: 'Check contrast',
+        text: ['Type a text colour and a background, or use Use as text colour and Use as background in the panel. The ratio and the WCAG levels show at once, and Fix the text colour finds the nearest colour that passes AA.'] },
+      { h2: 'Export and keep it',
+        steps: ['Name the palette and choose a Format under Export.', 'Click Download palette, Copy code or Save to Slop Drive…; Open in… sends the file to another app.',
+          'To open a palette again, drop its .gpl, .ase, .json or .css file on the page.'] },
+    ] },
+];

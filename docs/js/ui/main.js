@@ -25,10 +25,10 @@
     $('stage').addEventListener('pointerdown', (e) => { if (!e.target.closest('#pages')) S.focusIme(); });
   }
 
-  /** On a phone, fit the page to the screen width (the page is 816 px wide at 100%). */
+  /** On a phone, fit the page to the screen width beside the outline's 30 px rail (the page is 816 px wide at 100%). */
   function fitZoom() {
     if (window.innerWidth >= 700) return;
-    const z = Math.round(Math.max(0.35, Math.min(1, (window.innerWidth - 24) / 816)) * 100) / 100;
+    const z = Math.floor(Math.max(0.35, Math.min(1, (window.innerWidth - 54) / 816)) * 100) / 100;
     S.zoom = z;
     const sel = $('zoomSel');
     if (![...sel.options].some((o) => Number(o.value) === z)) sel.append(new Option(Math.round(z * 100) + '%', String(z)));

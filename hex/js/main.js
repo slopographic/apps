@@ -68,6 +68,7 @@
     });
     A().app.grid = grid;
     wire();
+    window.HexPanel.mount();   // the inspector on the right, Save version at its foot (js/panel.js)
     window.HexCommands.register();
     // The launch (the intake) is read before the tabs come back: showing a tab rewrites the address bar (its ?drive= id).
     // Its file opens once the tabs are back.

@@ -9,6 +9,7 @@ import { createStore } from './state.js';
 import { createView } from './view.js';
 import { exportItems, exportFile } from './export.js';
 import { STYLES, PALETTES, loadAppearance, saveAppearance } from './appearance.js';
+import { mountPanel } from './panel.js';
 
 const $ = (id) => document.getElementById(id);
 const toast = (msg) => { if (window.SlopUI) window.SlopUI.toast(msg); };
@@ -19,8 +20,8 @@ const MIME = [
 ];
 
 const appearance = loadAppearance();
-let view = null;
-const store = createStore(() => { if (view) view.render(); });
+let view = null, side = null;
+const store = createStore(() => { if (view) view.render(); if (side) side.paint(); });
 
 /** Reads one file into a new tab. Throws the reason when it cannot be read (the drop panel shows it). */
 async function openFile(file) {
@@ -165,6 +166,7 @@ async function boot() {
     name: $('sv-name'), status: $('sv-status'), clear: $('sv-clear'),
   }, appearance);
   wireHeader();
+  side = mountPanel({ has: () => !!store.doc() });   // the panel on the right, Export at its foot (panel.js)
   wireDrop();
   registerCommands();
   window.SlopSheetView = { open: (files) => window.SlopIntake.take(Array.from(files), { to: 'sheetview' }), store };

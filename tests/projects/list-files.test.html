@@ -9,7 +9,7 @@
   <iframe id="app"></iframe>
   <script src="../harness.js"></script>
   <script>
-  // Covers: projects/js/ui/list.js, projects/js/ui/editor.js, projects/js/ui/editor-parts.js, projects/js/ui/project.js, projects/js/ui/files.js
+  // Covers: projects/js/ui/list.js, projects/js/ui/editor.js, projects/js/ui/editor-parts.js, projects/js/ui/project.js, projects/js/ui/files.js, projects/js/ui/task-panel.js
   // Covers: projects/js/core/io.js, projects/js/core/sample.js, projects/js/core/board.js
   const { describe, it, expect, waitFor, run } = SlopTest;
   let W, D, got = null;
@@ -18,7 +18,7 @@
   const task = (title) => P().state.tasks.find((t) => t.title === title);
   const titles = () => [...D.querySelectorAll('.plist tbody tr')].map((r) => r.querySelector('.linkish').textContent);
   const set = (el, v) => { el.value = v; el.dispatchEvent(new W.Event('input', { bubbles: true })); el.dispatchEvent(new W.Event('change', { bubbles: true })); };
-  const dlgButton = (label) => [...D.querySelectorAll('.sui-dlg .sui-foot button')].find((b) => b.textContent === label);
+  const dlgButton = (label) => [...D.querySelectorAll('.sui-dlg .sui-foot button, .pj-task .sf-p-foot button')].find((b) => b.textContent === label);   // a dialog, or the task panel's foot
   async function boot(hash) {
     const f = document.getElementById('app');
     f.src = '../../projects/index.html' + hash;
@@ -59,7 +59,7 @@
       expect(D.querySelectorAll('.pe-check li').length).toBe(4);
       set($('peTags'), 'planning, kickoff');
       dlgButton('Save').click();
-      await waitFor(() => !D.querySelector('.sui-dlg'));
+      await waitFor(() => !P().taskPanel.isOpen());
       await waitFor(() => task('Write the brief').checklist.length === 4);
       expect(task('Write the brief').tags).toEqual(['planning', 'kickoff']);
       expect(task('Write the brief').deps).toEqual([]);

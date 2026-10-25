@@ -79,9 +79,11 @@
       fire(D, 'pointerup', b.left + 20, b.top + 3);
       await waitFor(() => col('todo')[0] === 'Tell the newsletter');
       card('Tell the newsletter').querySelector('.pc-title').click();
-      await waitFor(() => D.querySelector('.sui-dlg') && D.getElementById('peTitle').value === 'Tell the newsletter');
-      D.querySelector('.sui-dlg .sui-x').click();
-      await waitFor(() => !D.querySelector('.sui-dlg'));
+      // the task opens in the panel on the right (projects/js/ui/task-panel.js); Escape closes it
+      await waitFor(() => W.SlopProjects.taskPanel.isOpen() && D.getElementById('peTitle').value === 'Tell the newsletter');
+      expect(D.querySelector('.pj-task').getBoundingClientRect().left).toBeGreaterThan(D.querySelector('.pj-views').getBoundingClientRect().left);
+      D.getElementById('peTitle').dispatchEvent(new W.KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+      await waitFor(() => !W.SlopProjects.taskPanel.isOpen());
     });
 
     it('Shift with an arrow moves a focused card between and within columns; the focus stays on it', async () => {

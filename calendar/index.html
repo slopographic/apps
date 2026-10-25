@@ -35,6 +35,7 @@
   <link rel="stylesheet" href="../shared/fonts/fonts.css">
   <link rel="stylesheet" href="../shared/slopui.css">
   <link rel="stylesheet" href="../shared/commands/commands.css">
+  <link rel="stylesheet" href="../shared/frame/frame.css">
   <link rel="stylesheet" href="css/calendar.css">
   <link rel="stylesheet" href="css/views.css">
   <script src="../shared/guard.js" defer></script>
@@ -75,11 +76,14 @@
       <button type="button" class="btn" id="cConfig" aria-haspopup="menu">Config</button>
     </div>
 
+    <div class="cal-body" id="cBody">
     <main class="main" id="main">
       <p id="cNote" class="note" role="status"></p>
       <div id="cBoot" class="empty" role="status">Opening your calendar…</div>
       <div id="cView"></div>
     </main>
+    <aside class="cal-side" id="cSide" aria-label="Day"></aside>
+    </div>
   </div>
 
   <script src="../shared/data/money.js"></script>
@@ -141,6 +145,11 @@
   <script src="js/ui/editor.js"></script>
   <script src="js/ui/ics-ui.js"></script>
   <script src="js/ui/commands.js"></script>
+  <script src="../shared/ui/sheet.js" data-src="shared/ui/sheet.js"></script>
+  <script src="../shared/ui/resize-panel.js" data-src="shared/ui/resize-panel.js"></script>
+  <script src="../shared/frame/frame.js" data-src="shared/frame/frame.js"></script>
+  <script src="../shared/frame/panel.js" data-src="shared/frame/panel.js"></script>
+  <script src="js/ui/panel.js"></script>
   <script src="js/ui/app.js"></script>
   <script src="../shared/pwa.js"></script>
   <script>SlopPWA.mount();</script>

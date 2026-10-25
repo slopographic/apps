@@ -6,6 +6,14 @@ A photo library that runs entirely in the browser. Classic scripts, no build ste
 
 Run `node tests/run.mjs gallery`: the checks in `tests/gallery/` (library and I/O page, an app page that boots the real UI in an iframe, `reel.test.html`, which runs the gallery and SlopCut in iframes for Make reel, `viewer.test.html`, the viewer's preview, wheel, drag and arrow keys, and `drive-source.test.html`, the Drive source with stubbed Slop Drive calls).
 
+## The panel on the right (the suite rule, shared/frame/HANDOFF.md)
+
+`js/ui/panel.js` mounts SlopFrame on `.body`: the photos are the view, `#gPanel` (in index.html) the panel. Views, albums and
+filters stay on the left (`#side`, a drawer on a phone). The panel holds the selection (Sort, Make reel, More actions),
+Add photos (a folder, from Slop Drive, keep duplicates) and the library tools (sort deck, duplicates, backup, restore);
+Import photos, the main button, is at its foot. On a phone the panel is a bottom sheet whose closed state shows Import
+("Library" opens it). Test: `tests/gallery/panel.test.html`.
+
 ## Viewer
 
 The picture is `SlopPreview` (`shared/preview/`, the component Slop Drive uses), made for each photo with `chrome: false`, so the gallery keeps its own header and footer. Zoom is the wheel (around the pointer), `+ − 0 1`, the toolbar with the percentage, drag, pinch and double-tap. The viewer adds: `← →` for previous and next, Space for the slideshow (3, 5 or 10 s), `I` for the info panel, `L` and `D` for like and dislike, `F` for favourite, Delete for remove (after a confirmation), and the counter. The footer holds Info, Like, Dislike, Favourite and Remove. `Z` (fit or 100%) is gone: `0` and `1` do the same. When the viewer moves to another photo or closes, the old preview leaves the page and its blob URL is revoked.
