@@ -155,7 +155,7 @@
   /** Escape returns to Full, unless an app is using Escape (a dialog, a text field, or a key the app already handled). */
   function onEscape(e) {
     if (e.key !== 'Escape' || mode === 'full') return;
-    if ((!window.SlopTyping || window.SlopTyping.isTyping(e, { controls: true }))) return;   // shared/input/typing.js
+    if ((!!window.SlopTyping && window.SlopTyping.isTyping(e, { controls: true }))) return;   // shared/input/typing.js
     if (doc.querySelector('dialog[open], [aria-modal="true"], .sui-menu')) return;   // a dialog or a menu closes first
     setMode('full');
   }

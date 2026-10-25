@@ -33,6 +33,7 @@ test('the field keeps every plain key and its editing shortcuts; other Ctrl/⌘ 
   for (const k of ['s', 'k', 'p', 'b', 'Enter', '0']) assert.equal(T.fieldKey(key(k, { ctrl: true })), false, 'Ctrl+' + k);
   assert.equal(T.fieldKey(key('@', { ctrl: true, alt: true })), true, 'AltGr+Q types @ on a German keyboard');
   assert.equal(T.fieldKey(key('b', { ctrl: true, alt: true })), false, 'Ctrl+Alt+B is a shortcut');
+  assert.equal(T.fieldKey(key('z', { ctrl: true, alt: true })), false, 'Ctrl+Alt+Z is a shortcut (Slop Code: line wrap)');
 });
 
 test('yields: only in a field, and only for the field’s keys', () => {

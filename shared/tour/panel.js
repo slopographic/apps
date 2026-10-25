@@ -102,7 +102,7 @@
     if (!handlers || e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
     if (window.SlopCmd && SlopCmd.isOpen) return;
     const a = document.activeElement;
-    if (a && (!window.SlopTyping || window.SlopTyping.isTyping(a, { controls: true }))) return;   // shared/input/typing.js
+    if (a && (!!window.SlopTyping && window.SlopTyping.isTyping(a, { controls: true }))) return;   // shared/input/typing.js
     if (otherDialogOpen()) return;
     const bare = !a || a === document.body || a === document.documentElement;
     const inPanel = !!a && root.contains(a);

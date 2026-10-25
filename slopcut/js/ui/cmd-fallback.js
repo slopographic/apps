@@ -30,7 +30,7 @@
       if (document.querySelector('.sui-menu')) return;
       const k = keyName(e), c = map.get(k);
       if (!c) return;
-      if (!window.SlopTyping || window.SlopTyping.yields(e)) return; // a field keeps its own keys (shared/input/typing.js)
+      if (window.SlopTyping && window.SlopTyping.yields(e)) return; // a field keeps its own keys (shared/input/typing.js)
       if (c.when && !c.when()) return;
       e.preventDefault();
       c.run({});

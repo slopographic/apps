@@ -34,7 +34,7 @@
 
   var providers = [], prow = {}, shown = null; // the rows other selections add (SlopSelBar.provide), and the one shown
   function provided() { for (var i = 0; i < providers.length; i++) if (providers[i].active()) return providers[i]; return null; }
-  function editable(el) { return (!window.SlopTyping || window.SlopTyping.isTyping(el, { controls: true })); }   // shared/input/typing.js
+  function editable(el) { return (!!window.SlopTyping && window.SlopTyping.isTyping(el, { controls: true })); }   // shared/input/typing.js
   function run(fn) { Promise.resolve().then(fn).catch(function (err) { console.error(err); SlopUI.toast('That did not work. ' + ((err && err.message) || '')); }); }
 
   function build() {

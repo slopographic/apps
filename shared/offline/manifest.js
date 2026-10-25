@@ -64,7 +64,7 @@
     'vendor/pdfjs/standard_fonts/FoxitSymbol.pfb', 'vendor/pdfjs/standard_fonts/FoxitDingbats.pfb', 'favicon.ico',
     ],
     scripts: [
-    'shared/load/load.js', 'shared/intake/rules.js', 'shared/intake/normalize.js', 'shared/intake/pipeline.js', 'shared/intake/intake.js', 'shared/intake/sources.js', 'shared/viewmode/grid.js', 'shared/viewmode/viewmode.js', 'pdf/js/core/util.js',
+    'shared/load/load.js', 'shared/intake/rules.js', 'shared/intake/normalize.js', 'shared/intake/pipeline.js', 'shared/intake/intake.js', 'shared/intake/sources.js', 'shared/input/typing.js', 'shared/viewmode/grid.js', 'shared/viewmode/viewmode.js', 'pdf/js/core/util.js',
     'pdf/js/ui/icons.js', 'pdf/js/core/model.js', 'pdf/js/core/history.js', 'pdf/js/core/layers.js', 'pdf/js/ui/sheet.js',
     'pdf/js/organize/grid.js', 'pdf/js/editor/view.js', 'pdf/js/ui/panel-kit.js', 'pdf/js/ui/dock.js', 'pdf/js/tools/organize-panel.js',
     'shared/frame/panel.js', 'pdf/js/ui/app.js', 'pdf/js/tools/layers-panel.js', 'pdf/js/tools/history-panel.js', 'pdf/js/ui/menus.js', 'shared/ui/sheet.js', 'shared/drop/panel.js', 'shared/drop/drop.js', 'shared/drop/choice.js', 'pdf/js/ui/drop.js', 'shared/session/session.js',

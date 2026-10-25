@@ -212,11 +212,10 @@
     if (e.target && e.target.closest && e.target.closest('[role="menu"]')) return; // an open menu takes its own keys
     if (e.key === 'Escape' && document.querySelector('[data-slop-escape]')) return; // an open sheet (shared/ui/sheet.js) closes first
     if (TAB_KEYS.has(e.key) && !e.ctrlKey && !e.metaKey && !e.altKey && e.target && e.target.closest && e.target.closest('[role="tablist"]')) return; // and a focused tab strip its arrows
-    const T = window.SlopTyping;
-    if (!T || T.yields(e)) return;   // a key the field itself uses (Ctrl+A, Ctrl+Z, Home…) is never a shortcut there
+    if (window.SlopTyping && window.SlopTyping.yields(e)) return;   // a key the field uses (Ctrl+A, Ctrl+Z, Home…) is never a shortcut there
     const steps = eventSteps(e);
     if (!steps) return;
-    const typing = T.isTyping(e), blocked = dialogOpen();
+    const typing = isTyping(e), blocked = dialogOpen();
     const now = Date.now();
     const pre = pending && now - pending.t < CHORD_MS ? pending.seq : [];
     pending = null;

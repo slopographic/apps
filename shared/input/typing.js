@@ -45,7 +45,7 @@
     if (!e) return false;
     const ctrl = !!(e.ctrlKey || e.metaKey);
     if (!ctrl) return true;
-    if (EDIT_MOD.test(e.key || '')) return true;
+    if (!e.altKey && EDIT_MOD.test(e.key || '')) return true;   // Ctrl+Alt+Z is a shortcut (Slop Code: line wrap)
     // AltGr arrives as Ctrl+Alt on Windows: a character it types (@, €, {) is the field's
     return !!(e.ctrlKey && e.altKey && !e.metaKey && typeof e.key === 'string' && e.key.length === 1 && !/[a-z]/i.test(e.key));
   }

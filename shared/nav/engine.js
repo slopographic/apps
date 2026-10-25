@@ -8,10 +8,11 @@
   const N = (window.SlopNav = window.SlopNav || {});
   const L = N.logic;
 
-  // the shared guard (shared/input/typing.js; loaded here when no one did); a focused slider keeps its keys too
-  const ME = document.currentScript;
+  // the shared guard (shared/input/typing.js; loaded here when no one did); a focused slider keeps its keys too. Until
+  // it is in (a few ms after the page), keys count as not typing, as before
+  const ME = typeof document !== 'undefined' ? document.currentScript : null;
   if (!window.SlopTyping && ME && ME.src) document.head.append(Object.assign(document.createElement('script'), { src: new URL('../input/typing.js', ME.src).href, async: false }));
-  const isTyping = (e) => !window.SlopTyping || window.SlopTyping.isTyping(e, { controls: true });
+  const isTyping = (e) => !!window.SlopTyping && window.SlopTyping.isTyping(e, { controls: true });
   const dialogsOpen = () => { try { return !!(window.SlopUI && SlopUI.openDialogs); } catch (e) { return false; } };
 
   /**

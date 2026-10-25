@@ -82,8 +82,7 @@
   describe('Up and Down recall what was sent, as in the Claude Code CLI', () => {
     it('Up goes back through sent messages, Down returns to the draft; only on the first/last line; not while composing', async () => {
       await boot('quotes');
-      const ta = await openAI(), H = W.SlopAIKit.history;
-      await waitFor(() => H);
+      const ta = await openAI(), H = await waitFor(() => W.SlopAIKit.history);
       H.clear(); H.add('make a quote for Acme'); H.add('add a line: 3 hours design');
       ta.value = 'draft'; ta.setSelectionRange(5, 5);
       const key = (k, o = {}) => ta.dispatchEvent(new W.KeyboardEvent('keydown', Object.assign({ key: k, bubbles: true, cancelable: true }, o)));
