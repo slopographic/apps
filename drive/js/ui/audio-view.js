@@ -8,7 +8,7 @@
   const RATES = [0.5, 0.75, 1, 1.25, 1.5, 2];
   const clock = (t) => { if (!isFinite(t) || t < 0) t = 0; const s = Math.floor(t); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
   DR.audioView = function (r, big = false) {
-    const wave = el('canvas', { class: 'ap-wave', title: 'Click or drag to seek', 'aria-hidden': 'true' });
+    const wave = el('canvas', { class: 'ap-wave', title: 'Click or drag to seek', 'aria-hidden': 'true', 'data-touch-surface': '' }); // a finger scrubs, never scrolls (shared/input)
     const msg = el('p', { class: 'ap-msg', role: 'status' });
     const time = el('span', { class: 'ap-time' }, '0:00 / 0:00');
     const button = (label, title, act, cls = '') => {

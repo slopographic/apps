@@ -185,22 +185,15 @@
       status('Saved “' + name + '” to Slop Drive.');
     } catch (e) { status('Not saved: ' + (e.message || e)); }
   }
-  async function openProject() {
-    let list;
-    try { list = await P.list(); } catch (e) { return status(e.message || 'Slop Drive is not available.'); }
-    const body = document.createElement('div');
-    body.className = 'sn-projects';
-    if (!list.length) body.append(Object.assign(document.createElement('p'), { textContent: 'No saved projects yet. Use Save to Slop Drive to keep this graph.' }));
-    for (const p of list) {
-      const row = document.createElement('div'); row.className = 'sn-proj';
-      const info = document.createElement('span');
-      info.textContent = p.name + ' · ' + p.nodes + ' nodes, ' + p.links + ' wires · ' + new Date(p.modified).toLocaleDateString();
-      const go = document.createElement('button'); go.type = 'button'; go.className = 'sui-btn'; go.textContent = 'Open';
-      go.addEventListener('click', async () => { SlopUI.closeDialogs && SlopUI.closeDialogs(); await loadProject(p.id); });
-      row.append(info, go);
-      body.append(row);
-    }
-    SlopUI.dialog({ title: 'Open a project', body, buttons: [{ label: 'Close' }] });
+  // Open project… is the one shared Slop Drive picker (SlopIntake.fromDrive, part 'nodes.project'); a file that is not
+  // a Slopnodes project is refused in plain words by P.open
+  function openProject() {
+    const SI = window.SlopIntake;
+    if (!SI) return status('Slop Drive is not available.');
+    return SI.fromDrive({ title: 'Open a project', accept: ['application/json'], to: SI.part({
+      id: 'nodes.project', limit: 1, accept: { types: ['application/json'], exts: ['.json'], noun: 'a Slopnodes project' },
+      process: async (f, ctx) => { if (ctx.drive) await loadProject(ctx.drive.id); return f.name; },
+    }) });
   }
   async function loadProject(id) {
     try {
@@ -290,5 +283,9 @@
     status(S.g.nodes.length ? 'Drag from a node’s right dot to another node’s left dot to connect them.' : 'Add a node to start.');
   }
   document.addEventListener('DOMContentLoaded', boot);
-  window.SlopNodesApp = { compute, graph: () => S.g };
+  /** For the assistant's commands (ai-commands.js): edit(fn) is one change and one undo step (false from fn: no change). */
+  window.SlopNodesApp = { compute, graph: () => S.g, results: () => S.res, project: () => S.project, undo,
+    edit(fn) { const snap = snapshot(); let r; try { r = fn(S.g); } catch (e) { S.g = M.load(JSON.parse(snap)); changed(true); throw e; } if (r !== false) { pushUndo(snap); changed(true); } else { S.g = M.load(JSON.parse(snap)); changed(true); } return r; },
+    replace(g, project) { pushUndo(snapshot()); S.g = g; if (project) { S.project = project; $('sn-project').textContent = project.name; } changed(true); },
+    async saveAs(name) { const id = await P.save({ driveId: S.project.driveId, name, graph: M.save(S.g) }); S.project = { driveId: id, name }; $('sn-project').textContent = name; return id; } };
 })();

@@ -1,5 +1,6 @@
 /* Slop Image to 3D: orbit camera controls with no three.js dependency (vendor/three has no OrbitControls).
  * Left drag orbits, right or middle drag (or Shift + drag) pans, the wheel zooms, a double click frames the model.
+ * Touch (shared/input): the element is a touch surface; one finger orbits, two fingers pinch-zoom and pan, a double tap frames.
  * new Orbit(element, onChange): apply(camera) places a three.js camera; frame({ center, radius }) fits the model.
  * Sets window.SlopImg3D.Orbit. */
 (function (root) {
@@ -11,6 +12,8 @@
     this.theta = 0.35; this.phi = 1.25; this.radius = 3; this.target = [0, 0, 0];
     this.el = el; this.onChange = onChange || (() => {}); this.drag = null;
     el.style.touchAction = 'none';
+    el.setAttribute('data-touch-surface', '');
+    el.touchSurface = { zoom: (s) => { this.radius = clamp(this.radius / s, 0.05, 200); this.onChange(); }, pan: (dx, dy) => { this.pan(dx, dy); this.onChange(); } };
     el.addEventListener('contextmenu', (e) => e.preventDefault());
     el.addEventListener('pointerdown', (e) => {
       const pan = e.button === 1 || e.button === 2 || e.shiftKey;

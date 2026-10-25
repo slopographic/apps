@@ -81,19 +81,26 @@
   const BARS = 'header, nav, [role=toolbar], [role=menubar], .topbar, .menubar, .toolbar, .sv-top';
   const overlaps = (a, b) => { const x = a.getBoundingClientRect(), y = b.getBoundingClientRect(); return x.left < y.right && y.left < x.right && x.top < y.bottom && y.top < x.bottom; };
 
+  // One page load per app serves the tests that leave it as it was or only add to it, in this order: where the zone sits,
+  // the clicks (counted, the picker is not opened), a drop on the bare page (not taken), then one drop on the zone. The
+  // test of a second drop loads the app afresh.
+  let shared = null;
+  async function appWindow(app) {
+    if (!shared || shared.app !== app || shared.w.document !== shared.doc) { const w = await openApp(app); shared = { app, w, doc: w.document }; }
+    return shared.w;
+  }
+
   for (const app of APPS) {
     describe(app.name + ': the drop zone', () => {
-      it('one file dropped opens once (one batch, one "Added 1 file" toast)', async () => {
-        const w = await openApp(app);
-        const s = spy(w);
-        dropOn(w, w.document.querySelector(app.zone), await fileOf(w, app.file));
-        await waitFor(() => s.batches.length >= 1, { timeout: 30000 });
-        await sleep(800);
-        expect(s.batches).toEqual(['Added 1 file']);
+      it('the zone is not positioned over a menu, toolbar or header', async () => {
+        const w = await appWindow(app);
+        const zone = w.document.querySelector(app.zone);
+        const hit = Array.from(w.document.querySelectorAll(BARS)).filter((b) => !b.contains(zone) && overlaps(zone, b));
+        expect(hit.map((b) => b.tagName + '.' + b.className)).toEqual([]);
       }, { timeout: 60000 });
 
       it('a click on the zone or its message opens the picker zero times; Choose files opens it once', async () => {
-        const w = await openApp(app);
+        const w = await appWindow(app);
         const s = spy(w);
         w.document.querySelector(app.zone).click();
         w.document.querySelector(app.zone + ' .sd-msg').click();
@@ -103,11 +110,21 @@
       }, { timeout: 60000 });
 
       it('a file dropped on the bare page is not taken: the toast says where to drop', async () => {
-        const w = await openApp(app);
+        const w = await appWindow(app);
         const s = spy(w);
         dropOn(w, w.document.body, await fileOf(w, app.file));
         await sleep(800);
         expect(s.batches).toEqual(['Drop files on the highlighted area']);
+      }, { timeout: 60000 });
+
+      it('one file dropped opens once (one batch, one "Added 1 file" toast)', async () => {
+        const w = await appWindow(app);
+        const s = spy(w);
+        dropOn(w, w.document.querySelector(app.zone), await fileOf(w, app.file));
+        await waitFor(() => s.batches.length >= 1, { timeout: 30000 });
+        await sleep(800);
+        expect(s.batches).toEqual(['Added 1 file']);
+        shared = null;                           // the file is open now
       }, { timeout: 60000 });
 
       if (app.tabs) it('a file dropped again while it is open is not opened twice', async () => {
@@ -121,13 +138,6 @@
         await waitFor(() => s.batches.length >= 2, { timeout: 30000 });
         expect(tabs()).toBe(n);
         expect(s.batches[1].includes('already open')).toBe(true);
-      }, { timeout: 60000 });
-
-      it('the zone is not positioned over a menu, toolbar or header', async () => {
-        const w = await openApp(app);
-        const zone = w.document.querySelector(app.zone);
-        const hit = Array.from(w.document.querySelectorAll(BARS)).filter((b) => !b.contains(zone) && overlaps(zone, b));
-        expect(hit.map((b) => b.tagName + '.' + b.className)).toEqual([]);
       }, { timeout: 60000 });
     });
   }

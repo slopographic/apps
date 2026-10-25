@@ -9,6 +9,8 @@
   <meta name="description" content="Suggest tags for a photo with an on-device classifier. Accept or edit them; they are saved to the photo's Slop Drive record.">
   <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../aitools.css">
+  <link rel="stylesheet" href="../../shared/frame/frame.css">
+  <link rel="stylesheet" href="../frame.css">
 </head>
 <body>
   <header class="ai-top">
@@ -18,17 +20,16 @@
   <div class="ai-tool">
     <div id="gate" class="ai-stack" aria-live="polite"></div>
     <section id="ui" class="ai-stack" hidden>
-      <div id="drop" class="ai-drop">Drop a photo here, or <label><u>choose a file</u><input id="file" type="file" accept="image/*" hidden></label><br><span class="ai-meta">Or <button id="pickDrive" type="button">pick a photo from Slop Drive</button></span></div>
+      <div id="drop" class="ai-drop">Drop a photo here, or <button type="button" id="chooseFile" class="ai-choose">choose a file</button><br><span class="ai-meta">Or <button id="pickDrive" type="button">pick a photo from Slop Drive</button></span></div>
       <div class="ai-grid2">
         <img id="pic" class="ai-img" alt="" hidden>
         <div class="ai-stack">
           <p id="msg" class="ai-meta" role="status"></p>
           <div><strong>Suggested</strong><div id="sugg" class="ai-act"></div></div>
           <div class="ai-field"><label for="tagText">Tags (comma separated, edit freely)</label><input id="tagText" type="text" placeholder="sunset, beach, people"></div>
-          <div class="ai-act"><button id="run" class="ai-pri" type="button" disabled>Suggest tags</button><button id="save" type="button" disabled>Save tags to Slop Drive</button></div>
+          <div class="ai-act"><button id="run" class="ai-pri" type="button" disabled data-side="main">Suggest tags</button><button id="save" type="button" disabled data-side="save">Save tags to Slop Drive</button></div>
         </div>
       </div>
-      <div id="driveList" class="ai-models-list" hidden></div>
     </section>
   </div>
   <script src="../model-registry.js"></script>
@@ -42,7 +43,19 @@
   <script src="../../shared/intake/outtake.js"></script>
   <script src="../../shared/ops/entry.js"></script>
   <script src="../../shared/tags/tags.js"></script>
+  <script src="../../shared/intake/rules.js"></script>
+  <script src="../../shared/intake/normalize.js"></script>
+  <script src="../../shared/intake/pipeline.js"></script>
+  <script src="../../shared/intake/intake.js"></script>
+  <script src="../../shared/intake/sources.js"></script>
+  <script src="../intake.js"></script>
   <script src="tags.js"></script>
+  <script src="../../shared/ui/sheet.js"></script>
+  <script src="../../shared/ui/menubutton.js"></script>
+  <script src="../../shared/ui/resize-panel.js"></script>
+  <script src="../../shared/frame/frame.js"></script>
+  <script src="../../shared/frame/panel.js"></script>
+  <script src="../frame.js"></script>
   <script src="../../shell/shell.js"></script>
 <i id="slop-built" hidden></i>
 </body>

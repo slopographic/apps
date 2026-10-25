@@ -34,14 +34,17 @@
   };
   const importDrive = () => window.SlopIntake.fromDrive({ to: 'gallery', title: 'Import from Slop Drive' });
 
-  async function removeIds(ids) {
-    if (!ids.length) return;
-    const ok = await SlopUI.confirm('Remove from library', `Remove ${plural(ids.length, 'photo', 'photos')} from Slop Gallery? Their Slop Drive files, if any, are kept.`, 'Remove', { danger: true });
-    if (!ok) return;
+  /** Removes photos from the library after a confirmation (ask: false when the caller already asked, as the assistant's
+   *  panel does for destructive commands). Resolves the number removed. */
+  async function removeIds(ids, { ask = true } = {}) {
+    if (!ids.length) return 0;
+    const ok = !ask || await SlopUI.confirm('Remove from library', `Remove ${plural(ids.length, 'photo', 'photos')} from Slop Gallery? Their Slop Drive files, if any, are kept.`, 'Remove', { danger: true });
+    if (!ok) return 0;
     const n = await G.library.remove(ids);
     G.state.select(ids, false);
     ids.forEach((id) => G.urls.forget(id));
     toast(`Removed ${plural(n, 'photo', 'photos')}`);
+    return n;
   }
   async function tagPrompt(ids) {
     const t = await SlopUI.prompt('Add a tag', 'Tag name', '', { ok: 'Add tag', placeholder: 'e.g. holiday' });

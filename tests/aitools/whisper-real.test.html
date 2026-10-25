@@ -9,6 +9,7 @@
 <body>
   <pre id="log"></pre>
   <script src="../harness.js"></script>
+  <script src="../../shared/cdn/assets.js"></script>
   <script src="../../shared/models/catalog.js"></script>
   <script src="../../aitools/speech-models.js"></script>
   <script src="../../aitools/model-registry.js"></script>
@@ -17,7 +18,8 @@
   // Covers: aitools/workers/speech-engine.js, aitools/workers/whisper-logits.js, aitools/workers/whisper-quality.js, aitools/workers/whisper-decode.js, aitools/workers/whisper-longform.js, aitools/workers/infer.worker.js, aitools/download.js
   // The real models from the cdn (the pinned commit in aitools/speech-models.js, every file checked against its SHA-256 and
   // the parts joined as the installer does) run in the real worker on two public-domain LibriVox clips
-  // (tests/aitools/audio/SOURCES.txt). Needs the network: about 120 MB.
+  // (tests/aitools/audio/SOURCES.txt). Needs the network: about 120 MB, or the test runner's download cache, which keeps
+  // the very same files (tests/netcache.mjs; CI restores it between runs).
   const { describe, it, expect, run } = SlopTest;
   const R = window.SlopAIModels;
   const log = (t) => { document.getElementById('log').textContent += t + '\n'; };

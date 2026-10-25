@@ -93,6 +93,7 @@ function wireCommands() {
     SlopCmd.register(menuCommands().concat(toolCommands()));
     CMD_ON = true;
     if (SlopCmd.provide) SlopCmd.provide({ prepare: loadAICommands });   // the assistant's commands load when the AI panel first needs them
+    SlopCmd.register(psGenCommands());   // ps.generate / ps.edit-ai with arguments (over the menu items' own entries)
     const b = $('#cmdBtn'); if (b) { b.hidden = false; b.title = 'Search commands (' + SlopCmd.keyFor('cmd.palette') + ')'; }
   } catch (err) { console.warn(err); CMD_ON = false; }
   return CMD_ON;
@@ -100,7 +101,28 @@ function wireCommands() {
 /** The Slop AI panel's commands with arguments, the state summary and the checkpoint (ai-*.js), loaded on demand. */
 function loadAICommands() {
   const add = (src) => new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.async = false; s.onload = res; s.onerror = () => rej(new Error('Could not load ' + src)); document.head.append(s); });
-  return ['js/app/ai-ops.js', 'js/app/ai-tools.js', 'js/app/ai-commands.js'].reduce((p, src) => p.then(() => add(src)), Promise.resolve());
+  return ['js/app/ai-ops.js', 'js/app/ai-tools.js', 'js/app/ai-draw.js', 'js/app/ai-tool-use.js', 'js/app/ai-draw-cmds.js', 'js/app/ai-commands.js'].reduce((p, src) => p.then(() => add(src)), Promise.resolve());
+}
+/* AI pictures (Layer › Generate Image…, Edit with AI…): the shared module shared/ai/imagegen/ and js/app/imagegen.js
+ * load on first use. window.SlopImageSink is there from the start, so the AI panel's generate_image puts its picture in
+ * a new layer. ps.generate with arguments opens the dialog filled in; Generate there is the go-ahead to spend. */
+let psGenP = null;
+function psGenLoad() {
+  const add = (src) => new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.async = false; s.onload = res; s.onerror = () => rej(new Error('Could not load ' + src)); document.head.append(s); });
+  if (!psGenP) psGenP = add('../shared/ai/imagegen/index.js').then(() => SlopAIKit.imageGenReady).then(() => add('js/app/imagegen.js')).catch((e) => { psGenP = null; throw e; });
+  return psGenP;
+}
+function psImageGen(mode, args) { return psGenLoad().then(() => psImageGenOpen(mode, args)).catch((e) => { toast(e.message); return e.message; }); }
+window.SlopImageSink = { app: 'photoslop', name: 'PhotoSlop', targets: ['layer', 'document', 'drive'],
+  place: (images, o) => psGenLoad().then(() => psImageSink.place(images, o)), source: () => psGenLoad().then(() => psImageSink.source()) };
+function psGenCommands() {
+  const S = (name, description, extra) => Object.assign({ name, type: 'string', maxLength: 4000, description }, extra);
+  const E = (name, values, description) => ({ name, type: 'enum', values, description });
+  const args = [S('prompt', 'what the picture shows'), E('aspect', ['1:1', '3:2', '2:3', '4:3', '3:4', '16:9', '9:16', '21:9'], 'width:height'), E('resolution', ['1K', '2K', '4K']),
+    E('quality', ['low', 'medium', 'high']), E('style', ['none', 'photo', 'illustration', 'painting', '3d', 'pixel-art', 'line-art', 'anime', 'watercolor']),
+    { name: 'n', type: 'number', min: 1, max: 4, integer: true }, { name: 'transparent', type: 'boolean' }, E('target', ['layer', 'document', 'drive']), S('provider', 'openai, gemini, openrouter, …', { maxLength: 40 }), S('model', '', { maxLength: 120 })];
+  const C = (id, mode, title, extra) => Object.assign({ id, title, group: 'Layer', keywords: ['ai', 'image', 'picture', 'generate', 'dall-e', 'gpt image', 'gemini', 'nano banana'], ai: false, macro: false, args, run: (a) => psImageGen(mode, a) }, extra);
+  return [C('ps.generate', 'generate', 'Layer › Generate Image…'), C('ps.edit-ai', 'edit', 'Layer › Edit with AI…', { when: () => !!activeLayer() })];
 }
 function openCommandPalette(q) { if (CMD_ON) SlopCmd.open(q); else dlgShortcuts(); }
 function openKeymap() { if (CMD_ON) SlopCmd.openKeymap(); else dlgShortcuts(); }

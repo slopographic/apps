@@ -109,8 +109,8 @@
       } catch (e) { if (e.name === 'AbortError') return; files = null; }
     }
     if (!files) {
-      files = await new Promise((res) => { const i = el('input', { type: 'file', webkitdirectory: true, multiple: true, style: 'position:fixed;left:-9999px' }); i.onchange = () => { res([...i.files]); i.remove(); }; document.body.append(i); i.click(); });
-      if (!files || !files.length) return;
+      files = await AI.intake.pickModelFolder(); // the intake's folder picker (part 'ai.model', ui/intake.js)
+      if (!files.length) return;
     }
     try { AI.toast('Importing the model folder…', 6000); const id = await K.models.importFolder(files); await refreshStatus(); render(); AI.toast('Imported ' + id.slice(6)); await E.load(id, { skipConsent: true }); }
     catch (e) { window.SlopUI.alert('Could not use this folder', e.message); }

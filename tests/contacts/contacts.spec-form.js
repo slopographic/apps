@@ -21,8 +21,8 @@
     if (win.SlopConsentState && win.SlopConsentState.needsChoice()) {
       win.SlopConsentState.write({});
       fr.src = '../../contacts/index.html?again';
-      await waitFor(() => fr.contentWindow && fr.contentWindow !== win && fr.contentWindow.SlopContacts && fr.contentWindow.SlopContacts.ready, { timeout: 30000 }).catch(() => {});
-      await waitFor(() => fr.contentWindow.SlopContacts && fr.contentWindow.SlopContacts.ready, { timeout: 30000 });
+      // The frame's window object stays the same across a navigation: the new page is the one at ?again, once it is ready.
+      await waitFor(() => fr.contentWindow.location.search === '?again' && fr.contentWindow.SlopContacts && fr.contentWindow.SlopContacts.ready, { timeout: 30000 });
       win = fr.contentWindow;
     }
     await sleep(300);

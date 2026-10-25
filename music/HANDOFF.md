@@ -27,6 +27,17 @@ network request. Files are read from Slop Drive (IndexedDB) and played through o
   playback in one Music tab pauses any other Music tab.
 - **Layout**: works at 390 px with no horizontal scroll. The queue is a bottom sheet.
 
+## Commands (palette, Slop AI, WebMCP)
+
+`js/app/ai-commands.js` registers `mu.*` SlopCmd commands with arguments (shared/commands/HANDOFF.md, "Arguments and app
+state"); they show in Ctrl+K and are the AI tools. `js/app/ai-find.js` finds tracks (Drive id or title words) and
+playlists (id or name), and provides `state` (library summary, now playing, queue, playlists with ids) and `checkpoint`
+(playlists and tags back). Player: play, pause, play_pause, play_track, play_playlist, next, previous, seek, volume,
+speed, shuffle, repeat, queue_track (`engine.enqueue`). Library: find_tracks, tag_track. Playlists: create, rename,
+add_to, remove_from, delete (destructive). From the palette (no arguments) the ones that need a choice open the view or
+dialog. No keys are bound to them: the keyboard stays in main.js. Music is a player; nothing here makes or edits music.
+Test: `tests/music/ai-commands.test.html`.
+
 ## Files
 
 | Path | What |

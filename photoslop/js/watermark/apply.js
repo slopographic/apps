@@ -1,11 +1,12 @@
 /* PhotoSlop watermark: painting it onto an export (the flattened image at full size, before any resize) and onto the
- * page preview. Both use the shared engine (SlopWatermark.draw). Nothing is painted while the switch is off. */
+ * page preview. Both use the shared engine (SlopWatermark.draw) with the document's spec. Nothing is painted while the
+ * switch is off. */
 'use strict';
 
 /** Paints the watermark onto the export canvas c (when on) and returns c. Used by every flattened export. */
 function wmApplyExport(c) {
   const s = D.wm;
-  if (s && s.on) SlopWatermark.draw(cx(c), c.width, c.height, s.cfg, { image: s.image });
+  if (s && s.on) SlopWatermark.draw(cx(c), c.width, c.height, s.spec);
   return c;
 }
 
@@ -19,7 +20,7 @@ function wmPreviewView(g, x0, y0, w, hh) {
   if (!wmView.c) wmView.c = mkCanvas(1, 1);
   if (wmView.s !== s || wmView.ver !== wmVer || wmView.c.width !== pw || wmView.c.height !== ph) {
     wmView.c.width = pw; wmView.c.height = ph;
-    SlopWatermark.draw(cx(wmView.c), pw, ph, s.cfg, { image: s.image });
+    SlopWatermark.draw(cx(wmView.c), pw, ph, s.spec);
     wmView.s = s; wmView.ver = wmVer;
   }
   g.drawImage(wmView.c, x0, y0, w, hh);

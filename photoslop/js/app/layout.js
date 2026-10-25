@@ -8,6 +8,7 @@
     app: 'photoslop',
     root: main,
     phone: '(max-width: 900px)',
+    sizeVars: { panels: '--ps-panels-w' },   // the panels' width the person dragged (shared/ui/resize-panel.js, app/main.js)
     // Show / Hide Panels (Tab) sets body.no-panels: the layout steps aside, and comes back when it is cleared.
     active: () => !document.body.classList.contains('no-panels'),
     panels: {

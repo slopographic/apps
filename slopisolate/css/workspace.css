@@ -24,6 +24,7 @@
 /* before / after split */
 .split { position: absolute; top: 0; bottom: 0; width: 2px; margin-left: -1px; background: var(--fg); box-shadow: 0 0 0 1px rgba(0, 0, 0, .35); z-index: 3; cursor: ew-resize; touch-action: none; }
 .split::before { content: ''; position: absolute; inset: 0 -14px; }
+@media (pointer: coarse) { .split::before { inset: 0 calc((2px - var(--slop-hit, 44px)) / 2); } } /* a finger's grab (shared/input) */
 .split-knob { position: absolute; top: 50%; left: 50%; width: 34px; height: 34px; margin: -17px 0 0 -17px; border-radius: 50%; background: var(--input); box-shadow: 0 2px 10px rgba(0, 0, 0, .45); }
 .split-knob::before, .split-knob::after { content: ''; position: absolute; top: 11px; border: 6px solid transparent; }
 .split-knob::before { left: 3px; border-right: 7px solid var(--fg); }
@@ -98,12 +99,21 @@
 .vp-bgl { display: inline-flex; align-items: center; gap: 6px; }
 .vp-msg { margin: 0; font-size: 12px; opacity: .8; min-height: 1em; }
 .vp-msg:empty { display: none; }
-/* bulk selection (js/ui/bulk.js) */
+/* bulk selection (js/ui/bulk.js, js/ui/queue.js): the queue header, a checkbox per tile, the result on the tile */
 .q-item.sel { outline: 2px solid var(--accent-line, #2b6cff); outline-offset: 2px; }
-.bulkbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 12px; margin: 0 0 8px; border-radius: 10px; background: var(--panel, #1c1c1c); }
-.bulkbar[hidden] { display: none; }
-.bulk-n { margin-right: 6px; }
-.btn.danger { color: var(--danger); }
+.q-item .q-res { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: repeating-conic-gradient(#8885 0 25%, transparent 0 50%) 0 0 / 12px 12px; }
+.q-item[data-status="done"]:has(.q-res) img { visibility: hidden; }
+.q-head { position: sticky; top: -10px; z-index: 2; display: flex; flex-direction: column; align-items: stretch; gap: 2px; margin: -10px -8px 0; padding: 8px 6px 6px; background: var(--panel); flex: none; }
+.q-head[hidden] { display: none; }
+.q-all { min-height: 28px; padding: 0 6px; border: 1px solid var(--line-2); border-radius: var(--radius-s); background: var(--panel-2); color: var(--fg); font-size: 11.5px; font-weight: 600; }
+.q-all:hover { border-color: var(--faint); }
+.q-n { font: 600 10.5px var(--mono); color: var(--accent-line); text-align: center; min-height: 14px; }
+.q-n:empty { display: none; }
+.q-chk { position: absolute; left: 4px; top: 4px; z-index: 1; width: 22px; height: 22px; border-radius: 6px; border: 2px solid #fff; background: rgba(0, 0, 0, .35); box-shadow: 0 0 0 1px rgba(0, 0, 0, .45); opacity: 0; transition: opacity .12s; cursor: pointer; }
+.q-chk::after { content: ''; position: absolute; left: 6px; top: 2px; width: 5px; height: 10px; border: solid var(--accent-ink, #000); border-width: 0 2.5px 2.5px 0; transform: rotate(45deg); opacity: 0; }
+.q-chk[aria-checked="true"] { background: var(--accent); border-color: var(--accent); opacity: 1; }
+.q-chk[aria-checked="true"]::after { opacity: 1; }
+.q-item:hover .q-chk, .q-item:focus-visible .q-chk, .queue.selecting .q-chk { opacity: 1; }
 .btn.ghost { background: transparent; }
 
 /* Drop strip above the stage (shared/drop, compact). A normal block in the workspace column, never over the stage. Its file

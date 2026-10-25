@@ -13,12 +13,12 @@ const require = createRequire(import.meta.url);
 const M = require('../../shared/macros/core.js');
 const ST = require('../../shared/macros/store.js');
 
-test('a macro is normalized: bad steps are left out with a reason, args keep plain values only', () => {
+test('a macro is normalized: bad steps are left out with a reason, args keep plain values and JSON data (a json argument)', () => {
   const { macro, errors } = M.normalize({ app: 'photoslop', name: '  Auto  levels ', steps: [
-    { cmd: 'ps.ai.levels', args: { preset: 'auto', bad: { x: 1 }, n: 2, f: Infinity }, title: 'Levels' }, { cmd: 'no spaces allowed' }, 'x'] });
+    { cmd: 'ps.ai.levels', args: { preset: 'auto', list: { x: 1 }, n: 2, f: Infinity, fn: () => 1 }, title: 'Levels' }, { cmd: 'no spaces allowed' }, 'x'] });
   assert.equal(macro.name, 'Auto levels');
   assert.equal(macro.app, 'photoslop');
-  assert.deepEqual(macro.steps, [{ cmd: 'ps.ai.levels', args: { preset: 'auto', n: 2 }, title: 'Levels' }]);
+  assert.deepEqual(macro.steps, [{ cmd: 'ps.ai.levels', args: { preset: 'auto', list: { x: 1 }, n: 2 }, title: 'Levels' }]);
   assert.equal(errors.length, 2);
   assert.match(macro.id, /^m/);
   assert.equal(M.normalize({ kind: 'slopflow' }).macro, null);

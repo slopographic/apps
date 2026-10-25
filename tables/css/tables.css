@@ -105,6 +105,10 @@ body { background: var(--bg); color: var(--fg); font: 13px/1.4 var(--font-ui); o
 .cell.err { color: var(--danger); }
 .selrect { position: absolute; box-sizing: border-box; border: 1px solid var(--g-accent); background: var(--g-sel); }
 .cursor { position: absolute; box-sizing: border-box; border: 2px solid var(--g-accent); }
+/* The finger's selection knob (pointer.js): at the selection's bottom right, shown for touch; 44 px to grab (touch.css) */
+.selknob { position: absolute; width: 12px; height: 12px; margin: -6px 0 0 -6px; box-sizing: border-box; border-radius: 50%; background: var(--g-accent); border: 2px solid var(--g-surface); pointer-events: auto; z-index: 3; display: none; }
+.grid.touching .selknob:not([hidden]) { display: block; }
+@media (pointer: coarse) { .selknob:not([hidden]) { display: block; } }
 .editor { position: absolute; box-sizing: border-box; visibility: hidden; pointer-events: auto; z-index: 4; font: 13px var(--font-ui); color: var(--g-text); background: var(--g-surface); border: 2px solid var(--g-accent); padding: 0 5px; margin: 0; border-radius: 0; }
 
 /* sheet tabs and status */

@@ -98,3 +98,14 @@ conditional formats, validation, sort/filter, find and comments are not built ye
 6. (done) Charts (SVG) and the pivot builder. Next there: chart types (scatter, area, stacked), axis titles, data labels,
    pivot date grouping and filters, and reading ODS charts.
 7. The offline single-file build (`tables/` modules are plain ES, so a small bundler can inline them), then SlopCmd palette and keymap tests.
+
+## Assistant: making workbooks (`js/ui/ai-create.js`, `js/io/build.js`)
+Registered with the other `tables.ai.*` commands (`ai-commands.js`, on `SlopCmd.prepare()`): `new_workbook` and `build_table`
+(rows, or `sheets: [{ name, rows }]`; a new tab, header row bold), `set_range` (rows of values and formulas from a cell),
+`add_rows` (under the table), `add_sheet`, `format_cells` (bold, italic, number format, alignment; Tables has no fill colour),
+`create_chart` (column, bar, line, pie), `delete_rows` and `delete_column` (destructive; formulas, names, charts and pivots
+follow or become #REF!, through the native JSON like `insertColumn`), `export_workbook` (xlsx, csv of the active sheet, .stab;
+Slop Drive through `shared/commands/sources.js` and/or a download). `io/build.js` (no DOM) writes cells with the engine's
+own `input`/`setFormula` and checks every formula first; the operation `table-data-to-spreadsheet`
+(`shared/ops/create-tables.js`) uses it with `io/xlsx.js` headlessly. The checkpoint closes the tabs the assistant opened.
+Test: `tests/tables/ai-create.test.html`.

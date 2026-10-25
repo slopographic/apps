@@ -1,8 +1,10 @@
 /* Slop PDF — from the page's text to a paragraph frame (Edit text ▸ Paragraphs). The page's text runs (edit-text.js, the
    runs no cover hides) become lines and blocks (para-blocks.js); the blocks a press or a drag picks become one frame
-   annotation (para-fonts.js) with its fonts set up, its colours read from the rendered page, and the covers that hide the
-   old lines (the whiteouts Edit text uses, in the paper colour). Nothing is committed here: para-mode.js commits the frame
-   and its covers as one undo step. Classic script. */
+   annotation (para-fonts.js) with its fonts set up, its colours read from the rendered page, and the old lines taken off
+   the page the way Edit text's Lines mode does it (text-strip.js): removed from the page's content (the derived file the
+   page then points at, `to`), or, when that cannot be done, the covers that hide them (whiteouts in the paper colour). The
+   covers are also the preview while the frame is dragged. Nothing is committed here: para-mode.js commits the frame and
+   the removal or the covers as one undo step. Classic script. */
 (function () {
   'use strict';
   var SP = window.SP, U = SP.util, E = SP.engine, Ed = SP.editor, S = Ed._, M = window.SlopPdfMacro, F = window.SlopPdfFind;
@@ -92,7 +94,8 @@
     }
     var gaps = [];
     for (var k = 1; k < bs.length; k++) gaps.push(bs[k].base - bs[k - 1].lines[bs[k - 1].lines.length - 1].base - b0.lh);
-    var s = S.slots.get(p.id), box = lineBox(l0), paper = s ? S.paperColour(s, box) : [1, 1, 1];
+    var targets = runs.map(function (r) { return S.strip.targetOfRun(r); }), took = await S.strip.take(p, targets);
+    var s = S.slots.get(p.id), box = lineBox(l0), paper = S.paperColour(s, box, took.paper[0]);
     var a = {
       id: U.uid('a'), type: 'para', rot: 0, opacity: 1, color: s ? S.inkColour(s, box, paper) : '#000000', paper: S.hex(paper),
       fs: fs, lh: b0.lh, asc: l0.base - top, align: align, rtl: rtl, first: first, rest: rest,
@@ -109,19 +112,21 @@
         M.coverPlan({ segs: [seg] }, '', function () { return 0; }).covers.forEach(function (c) { var o = 0.12 * l.fs; covers.push(F.coverAnnot(p, { x: c.x - o, y: c.y, w: c.w + 2 * o, h: c.h }, a.paper)); });
       });
     });
-    return { annot: a, covers: covers };
+    return { annot: a, covers: took.to ? [] : covers, preview: covers, to: took.to };
   };
 
-  /** Commits a frame as one undo step: a new frame with the covers of its old lines, or a changed frame in its place. */
+  /** Commits a frame as one undo step: a new frame with its old lines taken off the page (the derived file, or covers),
+   * or a changed frame in its place. */
   P.commit = function (p, sel, a, label) {
-    var covers = sel.kind === 'block' ? sel.covers : null, fin = JSON.parse(JSON.stringify(a));
+    var covers = sel.kind === 'block' ? sel.covers : null, to = sel.kind === 'block' ? sel.to : null, fin = JSON.parse(JSON.stringify(a));
     E.commit(label, function (st) {
       var q = st.pages.filter(function (x) { return x.id === p.id; })[0];
       if (!q) return;
+      S.strip.use(q, to);
       if (covers) { covers.forEach(function (c) { q.annots.push(JSON.parse(JSON.stringify(c))); }); q.annots.push(fin); }
       else q.annots = q.annots.map(function (y) { return y.id === fin.id ? fin : y; });
     });
-    sel.kind = 'annot'; sel.id = a.id; sel.covers = null; sel.model = null;
+    sel.kind = 'annot'; sel.id = a.id; sel.covers = sel.preview = sel.to = null; sel.model = null;
     if (F.refresh) F.refresh();
     Ed.paint();
   };

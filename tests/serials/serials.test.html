@@ -57,7 +57,8 @@ describe('Serial counter: the page', () => {
     await new Promise((r) => (page.onload = r));
     const d = page.contentDocument;
     expect(d.getElementById('pattern').value).toBe('\\b[A-Z]{3}\\d{4}[A-Z0-9]{4}\\b');
-    expect(d.getElementById('pick').multiple).toBeTruthy();
+    expect(d.getElementById('drop').tagName).toBe('BUTTON'); // the box is the intake's picker (several photos at once)
+    expect(page.contentWindow.SlopIntake.spec('serials').limit).toBe(undefined);
     page.remove();
   });
 });
@@ -84,9 +85,8 @@ describe('Serial counter: photos through the page', () => {
     const dt = new w.DataTransfer();
     dt.items.add(await picture('label-1.png'));
     dt.items.add(await picture('label-2.png'));
-    const pick = d.getElementById('pick');
-    pick.files = dt.files;
-    pick.dispatchEvent(new w.Event('change'));
+      w.SlopIntake.pickFiles = async () => [...dt.files]; // the box is the intake's picker
+      d.getElementById('drop').click();
     for (let i = 0; i < 100 && d.querySelectorAll('#photos li').length < 2; i++) await new Promise((r) => setTimeout(r, 20));
     d.getElementById('read').click();
     const rows = () => [...d.querySelectorAll('#unique tr')].map((tr) => [...tr.children].map((td) => td.textContent));

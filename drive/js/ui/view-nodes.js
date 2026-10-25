@@ -71,7 +71,7 @@
     if (txFor !== S.cwd) { tx = { x: 40, y: 40, k: 1 }; txFor = S.cwd; }
     const { root } = DR.nodeTree(S.cwd);
     const rows = layout(root);
-    const svg = sv('svg', { class: 'viz nodes-svg', role: 'tree', 'aria-label': 'Folder graph' }), g = sv('g');
+    const svg = sv('svg', { class: 'viz nodes-svg', role: 'tree', 'aria-label': 'Folder graph', 'data-touch-surface': '' }), g = sv('g');
     svg.append(g); draw(svg, g, root); apply(g);
     const btn = (label, title, fn) => { const b = el('button', { type: 'button', class: 'tb', title, 'aria-label': title }, label); b.addEventListener('click', fn); return b; };
     const zoomBy = (f, cx, cy) => { const r = svg.getBoundingClientRect(); cx = cx == null ? r.width / 2 : cx; cy = cy == null ? r.height / 2 : cy; const k = Math.min(3, Math.max(0.15, tx.k * f)); tx.x = cx - ((cx - tx.x) * k) / tx.k; tx.y = cy - ((cy - tx.y) * k) / tx.k; tx.k = k; apply(g); };
@@ -92,6 +92,7 @@
     // pan & pinch
     const pts = new Map();
     let pan = null, pinch = null;
+    // Touch: the graph is a touch surface (shared/input) with its own pinch and pan below, so the layer leaves fingers to it.
     svg.addEventListener('pointerdown', (e) => {
       if (e.target.closest('[data-key], [data-toggle]') && e.pointerType !== 'touch') return;
       pts.set(e.pointerId, { x: e.clientX, y: e.clientY });

@@ -14,7 +14,7 @@ const noteOf = (T) => (T && T.id ? byId(S.notes, T.id) : null);
 const isBlank = (T) => !!T && !T.id && !T.creating;
 
 /** The notebook new notes go into: the chosen one, else the first, else a new 'My notes'. */
-async function ensureNotebook() {
+export async function ensureNotebook() {
   if (S.notebookId) return S.notebookId;
   if (!S.notebooks.length) S.notebooks.push(await store.createNotebook('My notes'));
   S.notebookId = S.notebooks[0].id;

@@ -31,6 +31,14 @@
   PV.initInput = function (ov) {
     const stage = SE.app.els.monStage;
     let drag = null;
+    // The monitor is a touch surface (shared/input): dragging a clip's box or a mask handle is never a page scroll.
+    stage.setAttribute('data-touch-surface', '');
+    /** A handle's hit radius in overlay px: base for a mouse, 22 CSS px for a finger, 12 for a pen. */
+    const rad = (e, base) => {
+      const w = ov.getBoundingClientRect().width || 1, k = ov.width / w;
+      const css = window.SlopTouch && SlopTouch.hit ? SlopTouch.hit(e, 0) : e.pointerType === 'touch' ? 22 : e.pointerType === 'pen' ? 12 : 0;
+      return Math.max(base, css * k);
+    };
     const local = (e) => { const r = ov.getBoundingClientRect(); return { x: (e.clientX - r.left) * (ov.width / r.width), y: (e.clientY - r.top) * (ov.height / r.height) }; };
     stage.addEventListener('pointerdown', (e) => {
       if (e.button !== 0 || SE.player.playing) return;
@@ -38,8 +46,9 @@
       let mode = null, c = null;
       if (b) {
         c = M.clip(SE.doc, b.clip);
-        if (Math.hypot(pt.x - b.rot[0], pt.y - b.rot[1]) < 12) mode = 'rot';
-        else if (b.pts.some(([x, y]) => Math.abs(pt.x - x) < 10 && Math.abs(pt.y - y) < 10)) mode = 'scale';
+        const rr = rad(e, 12), rs = rad(e, 10);
+        if (Math.hypot(pt.x - b.rot[0], pt.y - b.rot[1]) < rr) mode = 'rot';
+        else if (b.pts.some(([x, y]) => Math.abs(pt.x - x) < rs && Math.abs(pt.y - y) < rs)) mode = 'scale';
         else if (inside(b.pts, pt.x, pt.y)) mode = 'move';
       }
       if (!mode) {

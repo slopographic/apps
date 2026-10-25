@@ -9,9 +9,9 @@
   const busy = (on, msg, progress) => CO.emit('busy', { on, msg, progress: progress == null ? null : progress });
 
   /** Encode a canvas in the chosen format. JPG has no alpha, so the JPG background fills first. */
-  async function encode(canvas) {
+  async function encode(canvas, format) {
     const o = S.exportOpts;
-    const fmt = MIME[o.format] ? o.format : 'png';
+    const fmt = MIME[format || o.format] ? format || o.format : 'png';
     let src = canvas;
     if (fmt === 'jpg') {
       src = U.canvas(canvas.width, canvas.height);
@@ -38,9 +38,12 @@
   }
 
   /** Render and encode one item. */
-  const encodeItem = (it) => withPicture(it, (canvas) => encode(canvas));
+  const encodeItem = (it, format) => withPicture(it, (canvas) => encode(canvas, format));
 
   CO.export = {};
+  /** One item's finished picture, encoded (format: png|webp|jpg, default the chosen export format) → { blob, ext }.
+   *  Open in…, Save to Slop Drive and Run a workflow… send this. */
+  CO.export.encode = encodeItem;
 
   /** Export one image and download it as <name>-cutout.<ext>. */
   CO.export.one = async function (it) {
@@ -60,9 +63,10 @@
     } finally { busy(false); }
   };
 
-  /** Export every finished image into one zip (slop-cutouts.zip). Names are made unique. */
-  CO.export.all = async function () {
-    const items = S.items.filter((it) => it.status === 'done' && it.kind !== 'video');
+  /** Export every finished image (or those of `list`: the selected pictures) into one zip (slop-cutouts.zip). Names are
+   *  made unique. */
+  CO.export.all = async function (list) {
+    const items = (Array.isArray(list) ? list : S.items).filter((it) => it.status === 'done' && it.kind !== 'video');
     if (!items.length) return toast('No finished cutouts to export yet');
     const entries = [], used = new Set();
     let failed = 0;

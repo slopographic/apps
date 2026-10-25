@@ -22,7 +22,8 @@
     return i;
   }
   function field(label, inp) { return E('label', 'scp-f', [E('span', 'scp-fl', [label]), inp]); }
-  /** Pointer drag: fn(event) runs on the press and on every move until release. */
+  /** Pointer drag: fn(event) runs on the press and on every move until release.
+   *  touch-ok: the field and the bars have touch-action: none (picker.css .scp-sv, .scp-bar), so a finger drags them. */
   function drag(el, fn) {
     el.addEventListener('pointerdown', function (e) {
       e.preventDefault();

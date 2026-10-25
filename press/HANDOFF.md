@@ -41,7 +41,7 @@ Items: `text | image | rect | ellipse | line | polygon` with `x,y,w,h,rot,fill,s
 
 ## Slop Drive (shared storage)
 
-- **Save (Ctrl+S)** writes the `.slpress` back to the Drive file the document came from (`S.driveId`, set by `HB.openRecord` for project files, cleared by `PR.setDoc`). The first save asks for a folder. `File ▸ Save to Slop Drive…` creates a new Drive file and links to it. Save As and offline builds download as before (the offline build strips the hub).
+- **Save (Ctrl+S)** writes the `.slpress` back to the Drive file the document came from (`S.driveId`, set by the intake (`press/js/io/intake.js`) for project files opened from Slop Drive, cleared by `PR.setDoc`). The first save asks for a folder. `File ▸ Save to Slop Drive…` creates a new Drive file and links to it. Save As and offline builds download as before (the offline build strips the hub).
 - Open/Place from Drive, `?drive=` launch and `register('press')` as before.
 
 ## Phone layout (SlopSheet)
@@ -51,3 +51,15 @@ called from `main.js`) is `SlopSheet.attach({ side: 'end', toggles: [#panelsTogg
 shared ×, Escape, a tap outside and a swipe right close it. The old `dock-open` class and the `.dock-head` bar with its × are
 gone; the Escape command (Exit / Deselect) waits while the drawer is open. The script carries `data-src`, so the offline
 build includes it. Test: `tests/press/phone-dock.test.html`.
+
+## Assistant commands (`js/ui/ai-commands.js`, `js/ui/ai-build.js`)
+Loaded on demand: `PR.actions.bindSlopCmd` gives SlopCmd `provide({ prepare: A.prepareAI })`, which loads
+`shared/commands/sources.js`, `ai-build.js` (`PR.aiPress`: spec → items through `M.item`/`I.add`/`PR.story`, colours, overset
+and off-page warnings) and `ai-commands.js`. All `press.ai.*`, hidden, one `H.commit` each, lengths in points:
+`new_document` and `build_document` (pages of item specs: text, image from Slop Drive or this site, rect, ellipse, line,
+polygon) replace the open document, so they are destructive like `delete_page` and `delete_item`; the checkpoint opens the
+previous document again. Also `add_page`, `add_text_frame`, `set_text`, `format_text` (styles, font, size, colour, align,
+leading, tracking, `match`), `add_image`, `add_shape`, `move_item`, `export_document` (PDF, PNG of one page, .slpress to Slop
+Drive and/or a download), `undo`. No headless operation yet: the PDF writer reads `PR.state` and the renderer of the Press
+page, so a "spec to PDF" operation would need the page in a hidden host frame (`shared/macros/frame.js` style).
+Test: `tests/press/ai-commands.test.html`.

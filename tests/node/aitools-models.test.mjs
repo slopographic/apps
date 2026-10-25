@@ -42,6 +42,11 @@ test('remote files come only from https on allowed hosts; bundled files stay in 
   assert.equal(R.allowedUrl('https://raw.githubusercontent.com/slopographic/cdn/abc/models/whisper/x.onnx'), true);
   assert.equal(R.allowedUrl('https://raw.githubusercontent.com/someone/cdn/abc/x.onnx'), false);
   assert.equal(R.allowedUrl('https://raw.githubusercontent.com.evil.com/slopographic/cdn/x.onnx'), false);
+  // and on jsDelivr (shared/cdn/assets.js): that repository only, not every package jsDelivr serves
+  assert.equal(R.allowedUrl('https://cdn.jsdelivr.net/gh/slopographic/cdn@v2026.10.24/models/whisper/x.onnx'), true);
+  assert.equal(R.allowedUrl('https://cdn.jsdelivr.net/gh/someone/cdn@v1/x.onnx'), false);
+  assert.equal(R.allowedUrl('https://cdn.jsdelivr.net/npm/evil@1/x.onnx'), false);
+  assert.equal(R.allowedUrl('http://cdn.jsdelivr.net/gh/slopographic/cdn@v1/x.onnx'), false);
 });
 
 test('every tool points at models that exist, and the denoise tool needs none', () => {

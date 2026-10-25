@@ -13,7 +13,7 @@ export const els = () => E;
 
 export function init() {
   E = { grid: $('grid'), vp: $('vp'), sizer: $('sizer'), colhead: $('colhead'), rowhead: $('rowhead'),
-    cells: $('cells'), selrect: $('selrect'), cursor: $('cursor'), editor: $('editor') };
+    cells: $('cells'), selrect: $('selrect'), cursor: $('cursor'), editor: $('editor'), knob: $('selknob') };
 }
 
 /** Geometry for the current scroll position. X(c), Y(r): left/top of a cell inside the plane. */
@@ -109,6 +109,7 @@ function placeSelection(m, rg) {
   E.selrect.style.cssText = `left:${x1}px;top:${y1}px;width:${x2 - x1}px;height:${y2 - y1}px`;
   const { r, c } = S.sel;
   E.cursor.style.cssText = `left:${m.X(c)}px;top:${m.Y(r)}px;width:${m.C.size(c)}px;height:${m.R.size(r)}px`;
+  if (E.knob) { E.knob.style.left = x2 + 'px'; E.knob.style.top = y2 + 'px'; E.knob.hidden = !!S.edit; } // the finger's selection knob (pointer.js)
   placeEditor(m);
 }
 

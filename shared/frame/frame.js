@@ -9,9 +9,12 @@
  *   const fr = SlopFrame.mount(root, {
  *     list: listEl, view: viewEl, panel: panelEl,     // list is optional (null: two columns)
  *     phone: '(max-width: 900px)', panelLabel: 'Actions', storageKey: 'eml',
- *     button: '.smb-tools',                           // where the header's show/hide button goes (selector or element; optional)
+ *     button: '.smb-tools',                           // where the header's show/hide button goes (selector or element; optional;
+ *                                                     //   a selector not on the page yet is tried again at DOMContentLoaded)
  *     phoneButton: true,                              // false: no header button on phones (the app opens the sheet itself)
- *     width: 300, min: 240, max: 520,                 // panel width in px (default, limits)
+ *     width: 300, min: 240, max: 520,                 // panel width in px (default, limits), resized and kept by
+ *     listWidth: 320, listMin: 220, listMax: 560,     //   shared/ui/resize-panel.js (load it before this file); the list too
+ *     app: 'eml',                                     // the key of the sizes in the settings store (default storageKey)
  *     command: true,                                  // register '<storageKey>.panel' in SlopCmd (default true when present)
  *     onChange: (state) => {},                        // { panel: shown, width, viewing } after any change
  *   });
@@ -25,7 +28,9 @@
  *     { title, list: [{ name, meta, open?, actions: [action] }] }    files or items, each with its own buttons
  *     { title, actions: [action] }                                   buttons; one may be primary
  *     { title, note }  { title, body: element }                      a line of text, or the app's own element
- *   action = { label, run?, menu?: items | () => items, primary?, disabled?, title?, id? }
+ *     { title, settings: element | [elements] }                      a tool's settings group (the app's own controls)
+ *   .footer([action], { note, more })   the panel's main button(s), stuck to its bottom (tool apps: the rule)
+ *   action = { label, run?, menu?: items | () => items, primary?, disabled?, title?, id? }  or { el: a button already in the page }
  *     menu items = [{ label, act, disabled?, heading? }] open under the button (shared/ui/menubutton.js) as "Label ▾".
  * Classic script; styles in frame.css. Needs shared/ui/sheet.js for phones and shared/ui/menubutton.js for menus. */
 (function (g) {
@@ -45,9 +50,8 @@
     const list = pick(o.list), view = pick(o.view), panel = pick(o.panel), win = root.ownerDocument.defaultView;
     const key = 'slop-frame:' + (o.storageKey || 'app'), label = o.panelLabel || 'Panel';
     const min = o.min || 240, max = o.max || 520, mq = win.matchMedia(o.phone || '(max-width: 900px)');
-    const saved = ls.get(key);
-    let shown = saved.hidden !== true, width = clamp(saved.width || o.width || 300), viewing = false, hasList = !!list;
-    function clamp(w) { return Math.round(Math.max(min, Math.min(max, Number(w) || 300))); }
+    const saved = ls.get(key), app = o.app || o.storageKey || 'app';
+    let shown = saved.hidden !== true, width = o.width || 300, viewing = false, hasList = !!list;
 
     root.classList.add('sf-root');
     if (list) list.classList.add('sf-list');
@@ -55,25 +59,26 @@
     panel.classList.add('sf-panel');
     if (!panel.getAttribute('aria-label')) panel.setAttribute('aria-label', label);
 
+    // The panel's edge and the list's edge resize them: the one shared implementation (shared/ui/resize-panel.js), which
+    // keeps the widths in the site's settings store (app + 'frame-panel' / 'frame-list').
     const grip = el('div', 'sf-grip');
-    grip.tabIndex = 0;
-    grip.setAttribute('role', 'separator');
-    grip.setAttribute('aria-orientation', 'vertical');
-    grip.setAttribute('aria-label', 'Resize the ' + label.toLowerCase() + ' panel (arrow keys)');
-    grip.setAttribute('aria-valuemin', String(min));
-    grip.setAttribute('aria-valuemax', String(max));
     panel.before(grip);
+    const lgrip = list ? el('div', 'sf-grip sf-lgrip') : null;
+    if (lgrip) list.after(lgrip);
 
+    // The header button goes into o.button; a host that is not on the page yet (a menu bar mounted after this script)
+    // is looked up again once the page is parsed.
     let btn = null;
     const host = pick(o.button);
-    if (host) {
+    if (o.button) {
       btn = el('button', 'slop-hbtn sf-toggle' + (o.phoneButton === false ? ' sf-toggle-wide' : ''));
       btn.type = 'button';
       btn.innerHTML = ICON + '<span class="slop-hbtn-txt"></span>';
       btn.querySelector('.slop-hbtn-txt').textContent = label;
       btn.title = 'Show or hide the ' + label.toLowerCase() + ' panel (Ctrl+Alt+B)';
       btn.setAttribute('aria-label', label + ' panel');
-      host.append(btn);
+      if (host) host.append(btn);
+      else doc.addEventListener('DOMContentLoaded', () => { const h = pick(o.button); if (h) h.append(btn); }, { once: true });
     }
 
     const sheet = g.SlopSheet ? g.SlopSheet.attach({
@@ -82,14 +87,15 @@
     }) : null;
 
     const phone = () => mq.matches;
-    function save() { ls.set(key, { hidden: !shown, width }); }
+    function save() { ls.set(key, { hidden: !shown }); }
     function paint() {
-      root.style.setProperty('--sf-panel-w', width + 'px');
       root.classList.toggle('sf-nopanel', !shown);
       root.classList.toggle('sf-nolist', !hasList);
       root.classList.toggle('sf-phone', phone());
       root.classList.toggle('sf-viewing', phone() && hasList && viewing);
-      grip.setAttribute('aria-valuenow', String(width));
+      // a phone's closed sheet that shows only its footer (panel.js footer()): the rest of it is out of reach until opened
+      const peek = phone() && panel.classList.contains('sf-has-foot') && !(sheet && sheet.isOpen());
+      for (const c of panel.children) { if (!c.classList.contains('sf-p-foot')) c.inert = peek; }
       if (btn) { btn.setAttribute('aria-pressed', String(phone() ? !!(sheet && sheet.isOpen()) : shown)); btn.classList.toggle('sf-phone-hide', phone()); }
       if (o.onChange) o.onChange({ panel: shown, width, viewing });
     }
@@ -98,37 +104,20 @@
       if (phone()) { if (sheet) sheet.toggle(); paint(); return; }
       setPanel(!shown);
     }
-    function setWidth(w) { width = clamp(w); save(); paint(); }
-    if (btn) btn.addEventListener('click', () => { if (!phone()) setPanel(!shown); });   // on a phone SlopSheet's toggle opens it
+    const RP = g.SlopResizePanel, phoneQ = o.phone || '(max-width: 900px)';
+    if (saved.width && RP && g.SlopProfile && g.SlopProfile.panelSize && !g.SlopProfile.panelSize(app, 'frame-panel')) g.SlopProfile.setPanelSize(app, 'frame-panel', saved.width);   // kept before 2026-10
+    const sizer = RP ? RP.attach(panel, { app, id: 'frame-panel', handle: grip, edge: 'start', width, min, max, phone: phoneQ, label,
+      apply: (px) => { if (px != null) { width = px; root.style.setProperty('--sf-panel-w', px + 'px'); } if (o.onChange) o.onChange({ panel: shown, width, viewing }); } }) : null;
+    if (!RP) root.style.setProperty('--sf-panel-w', width + 'px');
+    const lsizer = RP && lgrip ? RP.attach(list, { app, id: 'frame-list', handle: lgrip, edge: 'end', width: o.listWidth || 320, min: o.listMin || 220, max: o.listMax || 560, phone: phoneQ, label: o.listLabel || 'List',
+      apply: (px) => { if (px != null) root.style.setProperty('--sf-list-w', px + 'px'); } }) : null;
+    function setWidth(w) { if (sizer) sizer.setWidth(w); }
+    if (btn) btn.addEventListener('click', () => { if (!phone()) setPanel(!shown); });
+    const onMore = () => { if (phone() && sheet) { sheet.toggle(); paint(); } else if (!shown) setPanel(true); };   // the footer's "more" button
+    panel.addEventListener('sf-sheet', onMore);
+    const onFoot = () => paint();   // the footer came or went
+    panel.addEventListener('sf-foot', onFoot);   // on a phone SlopSheet's toggle opens it
 
-    // Drag the edge: the panel is as wide as from the pointer to the root's far edge (the start edge in right-to-left).
-    let drag = null;
-    const rtl = () => win.getComputedStyle(root).direction === 'rtl';
-    grip.addEventListener('pointerdown', (e) => {
-      if (phone() || e.button !== 0) return;
-      e.preventDefault();
-      drag = e.pointerId;
-      try { grip.setPointerCapture(e.pointerId); } catch (x) { /* synthetic event */ }
-      root.classList.add('sf-dragging');
-    });
-    grip.addEventListener('pointermove', (e) => {
-      if (drag !== e.pointerId) return;
-      const r = root.getBoundingClientRect();
-      width = clamp(rtl() ? e.clientX - r.left : r.right - e.clientX);
-      paint();
-    });
-    const end = (e) => { if (drag !== e.pointerId) return; drag = null; root.classList.remove('sf-dragging'); save(); };
-    grip.addEventListener('pointerup', end);
-    grip.addEventListener('pointercancel', end);
-    grip.addEventListener('keydown', (e) => {
-      const step = e.shiftKey ? 64 : 16, grow = rtl() ? 'ArrowRight' : 'ArrowLeft', shrink = rtl() ? 'ArrowLeft' : 'ArrowRight';
-      if (e.key === grow) setWidth(width + step);
-      else if (e.key === shrink) setWidth(width - step);
-      else if (e.key === 'Home') setWidth(min);
-      else if (e.key === 'End') setWidth(max);
-      else return;
-      e.preventDefault();
-    });
     const onMq = () => paint();
     mq.addEventListener('change', onMq);
 
@@ -144,11 +133,13 @@
       setList(on) { hasList = !!on && !!list; if (!hasList) viewing = false; paint(); },
       showView() { viewing = true; paint(); }, showList() { viewing = false; paint(); }, viewing: () => phone() && hasList && viewing,
       openSheet() { if (sheet) sheet.open(); paint(); }, closeSheet() { if (sheet) sheet.close(); paint(); },
-      isPhone: phone, button: btn, grip, command: cmdId,
+      isPhone: phone, button: btn, grip, listGrip: lgrip, sizer, listSizer: lsizer, command: cmdId,
       destroy() {
         mq.removeEventListener('change', onMq);
+        panel.removeEventListener('sf-sheet', onMore); panel.removeEventListener('sf-foot', onFoot);
         if (sheet) sheet.destroy();
-        grip.remove(); if (btn) btn.remove();
+        if (sizer) sizer.destroy(); if (lsizer) lsizer.destroy();
+        grip.remove(); if (lgrip) lgrip.remove(); if (btn) btn.remove();
         if (g.SlopCmd && o.command !== false) g.SlopCmd.unregister(cmdId);
         root.classList.remove('sf-root', 'sf-nopanel', 'sf-nolist', 'sf-phone', 'sf-viewing');
       },

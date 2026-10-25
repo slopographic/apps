@@ -59,9 +59,15 @@
     }
   }
 
+  /** The receipt photo comes in one way (shared/intake, spec 'expenses'): From a receipt… (the intake's picker) and a
+   *  pasted photo while the editor is open. */
   function mount(say) {
-    $('eReceipt').addEventListener('click', () => $('eReceiptPick').click());
-    $('eReceiptPick').addEventListener('change', async (e) => { const f = e.target.files[0]; e.target.value = ''; await scan(f, say); });
+    g.SlopIntake.register({
+      id: 'expenses', limit: 1, toast: false, accept: { types: ['image/*'], noun: 'a photo of the receipt' },
+      gate: () => !$('view-edit').hidden,
+      process: async (f) => { await scan(f, say); return f.name; },
+    });
+    $('eReceipt').addEventListener('click', () => g.SlopIntake.pick({ to: 'expenses', multiple: false, accept: 'image/*' }));
   }
 
   /** The photo's Drive id for the expense being recorded (the editor clears it once the expense is recorded or replaced). */

@@ -1,14 +1,18 @@
 /* The optional 3D decoders: Draco (compressed meshes), meshoptimizer (compressed buffers) and the Basis Universal
  * transcoder (KTX2 textures). They are large and few files need them, so they are not in vendor/: they come from the
- * Slopographic cdn repository at a pinned commit, only when a glTF or GLB file uses the extension, and each file is
+ * Slopographic cdn repository at its release tag (jsDelivr, then GitHub), only when a glTF or GLB file uses the extension, and each file is
  * checked against its SHA-256 before it runs (the same checksums are in each folder's manifest.json in the cdn repo,
  * engines/<name>/three-0.170.0/, with the licence and source notes). Browser only.
  *   needed(gltfJson)       → engine ids the file needs, e.g. ['draco']
  *   prepare(ids, { ask })  → asks once before the first download (SlopFirstRun), then loads and checks every file
  *   setFetch(fn)           → tests: replace the network (fn(url) → Promise<Response-like>) */
 
-const COMMIT = '318d161448d0d447866218a1742e8cb699f06f56';
-export const CDN_BASE = `https://raw.githubusercontent.com/slopographic/cdn/${COMMIT}/engines/`;
+import '../cdn/assets.js';   // globalThis.SlopCdn: where the cdn files are served from, and the checked download
+
+const C = globalThis.SlopCdn;
+/** The engines' folder in the cdn repository, and its first URL (the release tag in shared/cdn/assets.js keeps it fixed). */
+export const CDN_DIR = 'engines/';
+export const CDN_BASE = C.url(CDN_DIR);
 
 export const ENGINES = {
   draco: { label: 'Draco mesh decoder', dir: 'draco/three-0.170.0/', ext: ['KHR_draco_mesh_compression'], files: {
@@ -36,11 +40,6 @@ export function needed(json) {
   return Object.keys(ENGINES).filter((id) => ENGINES[id].ext.some((e) => used.has(e)));
 }
 
-async function sha256(buf) {
-  const d = new Uint8Array(await crypto.subtle.digest('SHA-256', buf));
-  return [...d].map((b) => b.toString(16).padStart(2, '0')).join('');
-}
-
 const loaded = new Map();   // engine id → Promise<{ file name → blob URL }>
 const TYPES = { js: 'text/javascript', wasm: 'application/wasm' };
 
@@ -51,12 +50,9 @@ function load(id) {
     const p = (async () => {
       const urls = {};
       for (const [name, [hash]] of Object.entries(e.files)) {
-        const url = CDN_BASE + e.dir + name;
-        requested.push(url);
-        const r = await fetchImpl(url);
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
-        const buf = await r.arrayBuffer();
-        if ((await sha256(buf)) !== hash) throw new Error(`${name}: the checksum does not match`);
+        const list = C.urls(CDN_DIR + e.dir + name);
+        requested.push(list[0]);
+        const buf = await C.fetchVerified(list, { label: name, sha256: hash, index: 'its checksum' }, { fetch: (u) => fetchImpl(u), onFallback: (err, next) => requested.push(next) });
         urls[name] = URL.createObjectURL(new Blob([buf], { type: TYPES[name.split('.').pop()] || 'application/octet-stream' }));
       }
       return urls;

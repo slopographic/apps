@@ -154,7 +154,7 @@
       const blob = await new Promise((r) => sample().toBlob(r, 'image/png'));
       const file = new File([blob], 'sample.png', { type: 'image/png' });
       const dt = new DataTransfer(); dt.items.add(file);
-      const input = doc().getElementById('file');
+      const input = doc().querySelector('#drop input[type=file]'); // the zone's Choose files (the intake's picker)
       input.files = dt.files;
       input.dispatchEvent(new Event('change'));
       await waitFor(() => !doc().getElementById('read').disabled, { timeout: 5000 });

@@ -6,6 +6,7 @@
   <!-- Covers: press/index.html -->
   <!-- Covers: press/css/chrome.css -->
   <!-- Covers: press/css/responsive.css -->
+  <!-- Covers: press/js/ui/dock.js, press/js/ui/controlbar.js -->
   <script src="../harness.js"></script>
   <script>
   const { describe, it, expect, waitFor, sleep } = SlopTest;
@@ -72,6 +73,14 @@
     it('390: nothing scrolls sideways', async () => {
       const D = await open(390);
       fits(D);
+    }, { timeout: 40000 });
+    it('1280: Export PDF… sits at the foot of the dock on the right (once: not in the control bar) and opens the Export PDF dialog', async () => {
+      const D = await open(1280), dock = D.getElementById('dock'), b = D.getElementById('dockExport');
+      expect(b.closest('.sf-p-foot').parentNode).toBe(dock);
+      expect([...D.querySelectorAll('button')].filter((x) => shown(x) && x.textContent.trim() === 'Export PDF…').length).toBe(1);
+      expect(Math.round(box(b).bottom)).toBeLessThanOrEqual(Math.round(box(dock).bottom));
+      b.click();
+      await waitFor(() => [...D.querySelectorAll('.sui-dlg, [role="dialog"]')].some((d) => /Export PDF/.test(d.textContent)), { timeout: 5000 });
     }, { timeout: 40000 });
   });
   SlopTest.run({ name: 'Slop Press: the look' });

@@ -155,3 +155,7 @@ body { --s-bg2: var(--sui-bg2); --s-input: var(--sui-input); --s-line: var(--sui
   .mu-now-info .mu-times { font-size: 11px; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+/* A finger (pointer: coarse): the reorder handle is at least 44 px wide (--slop-hit, shared/input/touch.css). */
+@media (pointer: coarse) { .mu-handle { width: max(26px, var(--slop-hit, 44px)); height: max(34px, var(--slop-hit, 44px)); } }
+/* A finger: a long press on a track is the track menu (shared/input), not iOS's callout or a text selection. */
+@media (pointer: coarse) { .mu-row { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; } }

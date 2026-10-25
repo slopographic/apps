@@ -9,6 +9,9 @@ import './upscale.js';
 import './clean.js';
 import './ocr.js';
 import './files.js';
+import './video.js';   // SlopCut's edit list, reframe, captions and reel, and Slop Transcribe's speech to text
+import './create.js';
+import './create-tables.js';
 import './macros.js';   // the apps' recorded macros (app host adapters), after the apps' own operations
 
 export * from './registry.js';

@@ -53,16 +53,4 @@ export async function runGroups(groups, optsFor, progress) {
   return all;
 }
 
-/** The notice before the video engine's first download: shown once, and only when a video conversion runs (catalog
- *  entries with engine: 'ffmpeg'). Every other conversion needs no download and starts without asking. */
-const FIRST_USE = {
-  title: 'Download the video engine?',
-  lines: ['Converting a video needs the video engine. It is downloaded once and kept by this browser for next time. Your files are still read on this device and never uploaded.'],
-  downloads: [{ name: 'Video engine (ffmpeg.wasm)', bytes: 32344223 }],
-};
-let firstUse = null;
-/** Resolves true when the work may go on. Cancelling clears the gate, so the next drop asks again. */
-export function firstUseGate() {
-  if (!firstUse) firstUse = window.SlopFirstRun ? window.SlopFirstRun.once('convert', FIRST_USE) : Promise.resolve(true);
-  return firstUse.then((ok) => { if (!ok) firstUse = null; return ok; });
-}
+export { firstUseGate } from '../core/ffmpeg-engine.js';

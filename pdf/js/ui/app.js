@@ -37,6 +37,9 @@
     // phone width: the panel is a bottom sheet (shared/ui/sheet.js) that the rail's tools and the panel button open and close
     if (window.SlopSheet) S.sheet = SlopSheet.attach({ root: S.els.app, panel: S.els.props, phone: '(max-width: 900px)', openClass: 'sheet-open', triggers: S.els.rail,
       isActive: function (b) { return b.classList.contains('on'); }, toggles: [S.els.btnPanel], label: 'Tool panel' });
+    // the properties panel's width: dragged on its edge and kept (shared/ui/resize-panel.js, every side panel's one implementation)
+    if (window.SlopResizePanel) SlopResizePanel.attach(S.els.props, { app: 'pdf', id: 'props', edge: 'start', width: 304, min: 260, max: 560,
+      phone: '(max-width: 900px)', cssVar: '--props-w', target: S.els.app, label: 'Properties' });
     S.els.btnPanel.addEventListener('click', function () { if (!S.sheet || !S.sheet.isPhone()) A.togglePanel(); });
     S.els.btnDownload.addEventListener('click', A.whenReady(function () { A.download(); }));
     S.els.btnUndo.addEventListener('click', A.whenReady(function () { A.undo(); }));
@@ -161,7 +164,9 @@
     statusT = setTimeout(function () { statusMsg = ''; var m2 = $('#statusMsg'); if (m2) m2.textContent = ''; }, 6000);
   };
   S.updateStatus = function () {
-    var n = E.state.pages.length, files = new Set(E.state.pages.filter(function (p) { return p.f; }).map(function (p) { return p.f; })).size;
+    // a copy made to take text off a page (editor/text-strip.js) counts as the file it was made from
+    var root = function (id) { var f = E.files.get(id); return f && f.derived ? root(f.derived.from) : id; };
+    var n = E.state.pages.length, files = new Set(E.state.pages.filter(function (p) { return p.f; }).map(function (p) { return root(p.f); })).size;
     var left = n ? n + ' page' + (n === 1 ? '' : 's') + ' · ' + files + ' file' + (files === 1 ? '' : 's') + (O.sel.size ? ' · ' + O.sel.size + ' selected' : '') : 'No document';
     $('#statusLeft').textContent = left;
     $('#statusZoom').textContent = A.mode === 'page' && n ? 'Zoom ' + Math.round(Ed.zoom * 72 / 96 * 100) + '%' : '';

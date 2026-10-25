@@ -55,6 +55,9 @@
       canvas.addEventListener('pointercancel', up);
       canvas.addEventListener('wheel', (e) => { e.preventDefault(); cam.zoom(e.deltaY); stage.request(); }, { passive: false });
       canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+      // Touch (shared/input): a drag orbits, never scrolls; two fingers pinch to zoom (the camera's dist × 1/scale) and pan.
+      canvas.setAttribute('data-touch-surface', '');
+      canvas.touchSurface = { zoom(k) { cam.zoom(-Math.log(k) / 0.0012); stage.request(); }, pan(dx, dy) { cam.pan(dx, dy); stage.request(); } };
       const p = { box, stage, cam, done: false };
       box.s3dView = p; // the tests read the camera through this
       track(p);

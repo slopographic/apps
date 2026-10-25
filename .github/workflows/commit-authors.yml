@@ -5,6 +5,10 @@ on:
     branches: ['**'] # branch pushes only: a tag points at commits that were checked when their branch was pushed
   pull_request:
 
+# The GITHUB_TOKEN can only read the repository; a job that needs more says so in its own permissions block.
+permissions:
+  contents: read
+
 jobs:
   check:
     runs-on: ubuntu-24.04

@@ -1,6 +1,7 @@
 // Full backup and restore for the business apps, through SlopData.exporter: one file with every record in the shared
 // business data. A restore is validated as a whole first, so a bad file changes nothing and its errors are listed.
-// SlopBiz.backup.mount({ done? }) wires the Data view's #dBackup button, #dRestore file input and #dRestoreMsg list, and
+// SlopBiz.backup.mount({ done? }) wires the Data view's #dBackup button, #dRestore button (a backup file comes in one way:
+// the intake's part 'biz.backup', shared/intake) and #dRestoreMsg list, and
 // returns { backup, restore }; done() runs after a restore (an app redraws). attach(ns) makes an app's Data view of it.
 // Classic script, loaded after biz.js.
 (function (g) {
@@ -26,7 +27,7 @@
     const yes = await UI.confirm('Restore this backup?',
       'This replaces every record in this browser with the contents of the file: customers, quotes, orders, invoices, payments, credit notes, expenses, stock and the ledger. Download a backup first if you are not sure.',
       'Restore', { danger: true });
-    if (!yes) { $('dRestore').value = ''; return false; }
+    if (!yes) return false;
     const r = await S.exporter.importBundle(await file.text());
     if (!r.ok) {
       const errs = (r.errors || [r.message]).slice(0, 20);
@@ -39,8 +40,11 @@
   }
 
   function mount(opts = {}) {
+    const SI = g.SlopIntake;
+    SI.register({ id: 'biz.backup', main: false, paste: false, toast: false, limit: 1, accept: { types: ['application/json'], exts: ['.json'], noun: 'a backup file (.json)' },
+      process: async (file) => { if ((await restore(file)) && opts.done) opts.done(); return file.name; } });
     $('dBackup').addEventListener('click', backup);
-    $('dRestore').addEventListener('change', async (e) => { if ((await restore(e.target.files && e.target.files[0])) && opts.done) opts.done(); });
+    $('dRestore').addEventListener('click', () => SI.pick({ to: 'biz.backup', multiple: false, accept: 'application/json,.json' }));
     return { backup, restore };
   }
 

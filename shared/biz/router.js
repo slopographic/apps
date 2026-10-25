@@ -1,7 +1,7 @@
 // The boot and #hash router every business app shares: opens the shared store (a plain message when it cannot), mounts the
 // views, wires the view tabs (SlopTabs, shared/ui/tabs.js), registers the commands and the hub, redraws the current view
 // when the store reports a change (from this tab or another), and shows a view for each hash. Classic script.
-// SlopBiz.router.start(cfg) sets ns.app = { go, route, boot, parse, show(name) (that view, its name in the address) } and
+// SlopBiz.router.start(cfg) sets ns.app = { go, route, boot, parse, show(name) (that view, its name in the address), booted } and
 // returns it. cfg:
 //   ns, app                 the namespace (ns.views, ns.commands, ns.util) and the app id ('expenses')
 //   parse(hash)             -> { view, arg?, ... } for the hash without '#'
@@ -82,6 +82,7 @@
       if (cfg.start && !location.hash.slice(1)) { const h = await cfg.start(); if (h) history.replaceState(null, '', `#${h}`); }
       await route();
       if (cfg.ready) cfg.ready();
+      NS.app.booted = true;   // the first view is shown (after start(): tests and callers wait on it, not on the boot cover)
     }
 
     NS.views = NS.views || {};

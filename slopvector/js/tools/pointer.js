@@ -11,8 +11,17 @@
   var pointers = new Map(), gesture = null, lastDown = { t: 0, x: 0, y: 0 };
   function mkEv(e) {
     var r = D.stage.getBoundingClientRect();
-    return { e: e, p: SV.evDoc(e), sx: e.clientX - r.left, sy: e.clientY - r.top, shift: e.shiftKey, alt: e.altKey, mod: e.ctrlKey || e.metaKey };
+    S.pointerKind = e.pointerType || 'mouse';
+    return { e: e, p: SV.evDoc(e), sx: e.clientX - r.left, sy: e.clientY - r.top, shift: e.shiftKey, alt: e.altKey, mod: e.ctrlKey || e.metaKey,
+      kind: S.pointerKind, pressure: e.pointerType === 'pen' ? (e.pressure || 0.5) : null };
   }
+  /** A hit radius in screen px for the last pointer: base for a mouse, at least 22 for a finger and 12 for a pen
+   *  (shared/input: SlopTouch.hit; the stage is a touch surface, data-touch-surface="nav" in index.html). */
+  SV.hitPx = function (base) {
+    var k = S.pointerKind;
+    if (window.SlopTouch && SlopTouch.hit) return SlopTouch.hit({ pointerType: k }, base);
+    return k === 'touch' ? max(base, 22) : k === 'pen' ? max(base, 12) : base;
+  };
   function onDown(e) {
     if (e.button === 2 || e.target === D.textEditor) return;
     if (document.activeElement && document.activeElement !== document.body && document.activeElement !== D.textEditor && document.activeElement.blur) document.activeElement.blur();
@@ -23,7 +32,7 @@
     try { D.stage.setPointerCapture(e.pointerId); } catch (er) { /* ignore */ }
     var ev = mkEv(e);
     var now = Date.now();
-    ev.dbl = now - lastDown.t < 420 && hypot(e.clientX - lastDown.x, e.clientY - lastDown.y) < 6;
+    ev.dbl = now - lastDown.t < 420 && hypot(e.clientX - lastDown.x, e.clientY - lastDown.y) < (e.pointerType === 'touch' || e.pointerType === 'pen' ? 24 : 6); // a finger's two taps land further apart
     lastDown = { t: ev.dbl ? 0 : now, x: e.clientX, y: e.clientY };
     if (S.editing) {
       var eo = getObj(S.editing.id);

@@ -69,6 +69,17 @@
   var oldShortcuts = A['help.shortcuts'].run;
   A['help.shortcuts'].run = function () { if (SV.cmdOn) window.SlopCmd.openKeymap(); else oldShortcuts(); };
 
+  /** The assistant's commands with arguments (ai-io.js, then ai-commands.js), loaded when SlopCmd.prepare() asks. */
+  var HERE = (document.currentScript && document.currentScript.src) || location.href;
+  function script(name) {
+    return new Promise(function (res, rej) {
+      var s = document.createElement('script'); s.src = new URL(name, HERE).href; s.async = false;
+      s.onload = res; s.onerror = function () { rej(new Error('Could not load ' + name)); };
+      document.head.append(s);
+    });
+  }
+  SV.prepareAI = function () { return SV.ai ? Promise.resolve() : script('ai-io.js').then(function () { return script('ai-commands.js'); }); };
+
   SV.wireCommands = function () {
     var SC = window.SlopCmd;
     if (!SC || !SC.register) return false;
@@ -76,6 +87,7 @@
       SC.init({ app: 'vector' });
       SC.register(actionCommands().filter(function (c) { return c.id !== 'sv.help.commands'; }).concat(toolCommands(), canvasCommands()));
       SV.cmdOn = true;
+      if (SC.provide) SC.provide({ prepare: SV.prepareAI });
       var b = document.getElementById('cmdBtn');
       if (b) { b.hidden = false; b.title = 'Search commands (' + SC.keyFor('cmd.palette') + ')'; b.addEventListener('click', function () { SC.open(); }); }
     } catch (e) { console.warn(e); SV.cmdOn = false; }

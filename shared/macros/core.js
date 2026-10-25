@@ -37,6 +37,7 @@
       if (!/^[A-Za-z_][\w-]{0,40}$/.test(k) || v === undefined) continue;
       if (v === null || typeof v === 'boolean' || (typeof v === 'number' && isFinite(v))) out[k] = v;
       else if (typeof v === 'string') out[k] = v.slice(0, 20000);
+      else if (typeof v === 'object') { const s = JSON.stringify(v); if (s.length <= 200000) out[k] = JSON.parse(s); }   // a json argument (an edit list)
     }
     return out;
   }

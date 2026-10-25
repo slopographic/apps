@@ -13,8 +13,9 @@
   SEL.activate = activate;
   function local(it, s, w) { return I.toLocal(it, w.x - s.x, w.y - s.y); }
 
-  function handleAt(w) {
-    var hs = (PT.HANDLE + 3) / V.zoom, sel = PR.selected();
+  /** e: the pointer event, so a finger gets a 44 px handle (SlopTouch.hit) where a mouse gets 10 px. */
+  function handleAt(w, e) {
+    var r = (PT.HANDLE + 3) / 2, hs = 2 * (e && window.SlopTouch ? SlopTouch.hit(e, r) : r) / V.zoom, sel = PR.selected();
     if (S.text) return null;
     for (var k = 0; k < sel.length; k++) {
       var it = sel[k], s = PT.surfaceOf(it); if (!s) continue;
@@ -70,7 +71,7 @@
         if (!moved) return;
         // dropped onto another page? move the items there
         var c = I.center(items[0]), tgt = V.surfaceAt(s0.x + c.x, s0.y + c.y, true);
-        if (tgt && tgt !== s0) {
+        if (tgt && tgt.key !== s0.key) { // V.surfaces() builds new objects on every call: compare by key
           items.forEach(function (it) { it.x += s0.x - tgt.x; it.y += s0.y - tgt.y; });
           I.moveTo(S.doc, items.map(function (it) { return it.id; }), tgt.items);
           activate(tgt);
@@ -142,7 +143,7 @@
         if (hit && hit.it.type === 'text') { SEL.linkTo(hit.it); return null; }
         return PR.createTool.drag('text', w, e, function (fr) { SEL.linkTo(fr); });
       }
-      var hd = handleAt(w);
+      var hd = handleAt(w, e);
       if (hd && hd.h) return resizeDrag(hd);
       if (hd && hd.port === 'out') { loadThread(hd.it); return null; }
       if (hd && hd.port === 'inp' && hd.it.prev) { I.breakAfter(S.doc, hd.it.prev); H.commit('Break thread'); return null; }
@@ -152,7 +153,7 @@
         activate(h.s);
         if (e.shiftKey) { var i = S.sel.indexOf(h.it.id); PR.select(i >= 0 ? S.sel.filter(function (x) { return x !== h.it.id; }) : S.sel.concat(h.it.id)); return null; }
         if (S.sel.indexOf(h.it.id) < 0) PR.select([h.it.id]);
-        return moveDrag(w, PR.selected().filter(function (it) { return PT.surfaceOf(it) === h.s; }), e.altKey);
+        return moveDrag(w, PR.selected().filter(function (it) { var s = PT.surfaceOf(it); return s && s.key === h.s.key; }), e.altKey);
       }
       var gd = SEL.guideAt(w);
       if (gd) return SEL.guideDrag(gd.s, gd.g);

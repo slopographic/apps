@@ -59,6 +59,13 @@
     return box;
   }
 
+  /** A customer's photo comes in one way (shared/intake, spec 'crm', no paste): the button's picker. Resolves the take's
+   *  summary; its value is the shrunk picture (or null when it is too large). */
+  function pickPhoto() {
+    const SI = g.SlopIntake;
+    if (!SI.spec('crm')) SI.register({ id: 'crm', limit: 1, paste: false, toast: false, accept: { types: ['image/*'], noun: 'a picture' }, process: (f) => NS.photo.shrink(f) });
+    return SI.pick({ to: 'crm', multiple: false, accept: 'image/*' });
+  }
   /** The photo: the picture or the initials, with Add, Change and Remove. The value is kept in v.photo. */
   function photo(v) {
     const box = el('div', { class: 'photo' });
@@ -66,13 +73,11 @@
     const draw = () => {
       box.replaceChildren(avatar({ photo: v.photo, name: v.name }, 'av av-lg'), el('div', { class: 'photo-ctl' },
         el('button', { type: 'button', class: 'btn small', onclick: async () => {
-          const files = await UI.pickFiles({ accept: 'image/*' });
-          if (!files || !files[0]) return;
-          try {
-            const url = await NS.photo.shrink(files[0]);
-            note = url ? '' : 'That picture is too large, even when smaller. Try another.';
-            if (url) v.photo = url;
-          } catch (e) { note = 'That file is not a picture we can read.'; }
+          const r = await pickPhoto();
+          if (r.cancelled && !r.added.length) return;
+          const url = r.added[0] && r.added[0].value;
+          note = url ? '' : r.skipped[0] ? 'That file is not a picture we can read.' : 'That picture is too large, even when smaller. Try another.';
+          if (url) v.photo = url;
           draw();
         } }, v.photo ? 'Change photo' : 'Add photo'),
         v.photo ? el('button', { type: 'button', class: 'btn small', onclick: () => { v.photo = ''; note = ''; draw(); } }, 'Remove photo') : null,

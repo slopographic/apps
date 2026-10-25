@@ -8,6 +8,10 @@
  *        no WebGPU → a plain message and what still works; otherwise the models with size, GPU memory, licence and
  *        a "good at app control" mark (strength 'tools'), Download / Use with progress and Cancel.
  *   picker.FIT: the catalog ids that follow tool instructions well enough to control an app, best first.
+ *   Order: with an own-key provider in use, its section ("Use your own AI account", with the Model choice) comes first
+ *        and the local models follow under "Models on this device"; otherwise the local models come first.
+ *   picker.loadCloud() → loads "Use your own AI account" (shared/ai/cloud/), shown under the models in render, and
+ *        also when this browser has no WebGPU: a provider with the person's own key works in every browser.
  * Downloads happen only after a click and the notice. Nothing is uploaded. */
 (function () {
   'use strict';
@@ -56,24 +60,36 @@
     return K.models.status(id).catch(() => ({ state: 'none', bytes: 0 }));
   }
 
+  const CATALOG = ['main', 'open', 'cloud', 'more', 'local', 'images'].map((g) => 'cloud/catalog/' + g);   // the providers, as data
+  const CLOUD = ['cloud/net', ...CATALOG, 'cloud/providers', 'cloud/anthropic', 'cloud/openai', 'cloud/compat', 'cloud/gemini', 'cloud/keys', 'cloud/meter', 'cloud/engine', 'cloud/pick', 'cloud/local', 'cloud/local-ui', 'cloud/connect'];
+  const loadCloud = () => K.load(['cmdtools', ...CLOUD]);
+  async function cloud(box, o) {
+    try { await loadCloud(); K.cloud.connect.render(box, { onReady: o.onReady, onForget: o.onForget, open: o.cloudOpen, appId: o.appId }); } catch (e) { console.warn('Slop AI: own-key providers', e); }
+  }
+
   async function render(box, o = {}) {
     box.textContent = '';
-    const wrap = h('div', { class: 'sap-pick' });
-    box.append(wrap);
-    const g = await gpu();
+    const wrap = h('div', { class: 'sap-pick' }), more = h('div', { class: 'sap-pick-cloud' });
+    // a provider in use comes first (its model choice at the top); the models on this device follow under a heading
+    let active = '';
+    try { active = (JSON.parse(localStorage.getItem('slop-ai.cloud') || 'null') || {}).active || ''; } catch (e) { active = ''; }
+    if (active) { box.append(more, wrap); wrap.append(h('p', { class: 'sap-pick-local-h' }, h('b', null, 'Models on this device'))); o = Object.assign({ cloudOpen: true }, o); }
+    else box.append(wrap, more);
+    const g = await K.picker.gpu();
     if (!g.ok) {
       wrap.append(h('p', { class: 'sap-pick-no', role: 'alert' }, noGpuText(g.reason)), h('p', { class: 'sap-dim' }, NO_GPU_HELP),
-        h('p', { class: 'sap-dim' }, `You can still use every menu and tool of ${o.appName || 'this app'} yourself. A model that `, aiLink(), ' runs in another tab of this browser is used here too.'));
-      return;
+        h('p', { class: 'sap-dim' }, `You can still use every menu and tool of ${o.appName || 'this app'} yourself, or connect your own AI account below. A model that `, aiLink(), ' runs in another tab of this browser is used here too.'));
+      return cloud(more, Object.assign({ cloudOpen: true }, o));
     }
     await K.load(['catalog', 'webllm']);
     const p = prefs(), list = K.catalog.list.slice().sort((a, b) => rank(a) - rank(b));
     const st = new Map(await Promise.all(list.map(async (m) => [m.id, await statusOf(m.id)])));
     const have = list.find((m) => (st.get(m.id) || {}).state === 'ready' && (m.id === p.defaultModel || m.id === p.lastModel)) || list.find((m) => (st.get(m.id) || {}).state === 'ready');
-    wrap.append(h('p', null, h('b', null, 'Pick a model to start.'), ' It downloads once and then works offline, on your graphics card.'));
-    const rows = h('div', { class: 'sap-pick-list' });
+    wrap.append(h('p', null, h('b', null, active ? 'Or a model on this device.' : 'Pick a model to start.'), ' It downloads once and then works offline, on your graphics card.'));
+    const rows = o.rows = h('div', { class: 'sap-pick-list' });
     for (const m of list.filter((x) => FIT.includes(x.id) || x === have || x.id === p.defaultModel)) rows.append(row(m, st.get(m.id) || {}, m === have, o));
     wrap.append(rows, h('p', { class: 'sap-dim' }, 'Smaller models are faster but follow instructions less well. More models and settings: ', aiLink(), '.'));
+    return cloud(more, o);
   }
   const aiLink = () => h('a', { href: new URL('../../ai/#models', K.base || document.baseURI).href, target: '_blank', rel: 'noopener' }, 'Slop AI');
   const rank = (m) => { const i = FIT.indexOf(m.id); return i < 0 ? 99 : i; };
@@ -97,6 +113,7 @@
       } catch (e) {
         msg.textContent = ctl.signal.aborted ? 'Cancelled. Finished parts stay, so it can resume.' : 'Could not load it: ' + friendly(e);
         msg.classList.add('bad');
+        if (!ctl.signal.aborted && e && e.shader) gpuFailed(msg, m, e, o);
       } finally { go.disabled = false; cancel.hidden = true; ctl = null; }
     });
     const fit = (m.strengths || []).includes('tools');
@@ -105,6 +122,16 @@
       h('div', { class: 'sap-dim' }, `${ready ? 'Downloaded' : 'Download ' + size(m.sizeMB)} · needs about ${size(m.vramMB)} of GPU memory · ${m.license ? m.license.short || m.license.name : ''}`),
       h('div', { class: 'sap-acts' }, go, cancel), prog, msg);
   }
+  /** The GPU could not compile the model (webllm.js tried f16, then f32): the plain message, details and two ways on. */
+  async function gpuFailed(msg, m, e, o) {
+    await K.load(['sysinfo', 'gpu-help']);
+    const sys = await K.sysinfo.collect({ bench: false }).catch(() => null);
+    msg.textContent = ''; msg.classList.remove('bad');
+    const smaller = K.catalog.list.filter((x) => x.vramMB < m.vramMB && !(e.tried || []).includes(x.id)).sort((a, b) => b.vramMB - a.vramMB)[0];
+    K.gpuHelp.render(msg, { model: m, error: e, sys,
+      onSmaller: smaller && o.rows ? () => { let b = o.rows.querySelector(`[data-model="${smaller.id}"]`); if (!b) { o.rows.append(row(smaller, {}, false, o)); b = o.rows.querySelector(`[data-model="${smaller.id}"]`); } b.scrollIntoView({ block: 'nearest' }); b.click(); } : null,
+      onCloud: () => { const c = document.querySelector('.sap-cloud'); if (c) { c.open = true; c.scrollIntoView({ block: 'start' }); } } });
+  }
   function friendly(e) {
     const s = String((e && e.message) || e);
     if (/fetch|network|load failed/i.test(s)) return 'the download failed. Check the connection and press Download again (finished parts are kept).';
@@ -112,5 +139,5 @@
     return s;
   }
 
-  K.picker = { gpu, consent, render, FIT, noGpuText, NO_GPU_HELP };
+  K.picker = { gpu, consent, render, FIT, noGpuText, NO_GPU_HELP, loadCloud, CLOUD };
 })();

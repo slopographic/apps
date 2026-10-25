@@ -23,6 +23,10 @@
     temp = svg('path', { class: 'sn-wire sn-temp', hidden: '' });
     wires.append(temp);
     world.prepend(wires);
+    // A touch surface (shared/input): one finger drags nodes, wires or the canvas (never a page scroll); two fingers
+    // pinch the zoom and pan the stage.
+    stage.setAttribute('data-touch-surface', '');
+    stage.touchSurface = { zoom: (f) => zoomBy(f), pan: (dx, dy) => { stage.scrollLeft -= dx; stage.scrollTop -= dy; } };
     world.addEventListener('contextmenu', (e) => {
       e.preventDefault();
       const node = e.target.closest('.sn-node'), hit = e.target.closest('.sn-hit');
@@ -40,9 +44,10 @@
     select(null, null);
     let x = e.clientX, y = e.clientY;
     const move = (ev) => { stage.scrollLeft -= (ev.clientX - x); stage.scrollTop -= (ev.clientY - y); x = ev.clientX; y = ev.clientY; };
-    const up = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); };
+    const up = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); window.removeEventListener('pointercancel', up); };
     window.addEventListener('pointermove', move);
     window.addEventListener('pointerup', up);
+    window.addEventListener('pointercancel', up);
   }
 
   function select(kind, id) {
@@ -144,7 +149,7 @@
     if (e.button !== 0) return;
     select('node', id);
     const start = at(e.clientX, e.clientY), x0 = parseFloat(box.style.left) || 0, y0 = parseFloat(box.style.top) || 0;
-    box.setPointerCapture(e.pointerId);
+    try { box.setPointerCapture(e.pointerId); } catch (err) { /* a finished or synthetic pointer */ }
     box.classList.add('is-drag');
     const move = (ev) => {
       const p = at(ev.clientX, ev.clientY);
@@ -153,13 +158,14 @@
       if (H.move) H.move(id, nx, ny, false);
     };
     const up = (ev) => {
-      box.removeEventListener('pointermove', move); box.removeEventListener('pointerup', up);
+      box.removeEventListener('pointermove', move); box.removeEventListener('pointerup', up); box.removeEventListener('pointercancel', up);
       box.classList.remove('is-drag');
       const p = at(ev.clientX, ev.clientY);
       if (H.move) H.move(id, Math.max(0, Math.round(x0 + p.x - start.x)), Math.max(0, Math.round(y0 + p.y - start.y)), true);
     };
     box.addEventListener('pointermove', move);
     box.addEventListener('pointerup', up);
+    box.addEventListener('pointercancel', up); // a second finger (the pinch) or the system took it: it stays where it is
   }
 
   /** Ports. From an output: a wire follows the pointer and lands on an input. From an input that has wires: the last wire
@@ -181,8 +187,9 @@
     };
     const move = (ev) => draw(at(ev.clientX, ev.clientY));
     const up = (ev) => {
-      window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up);
+      window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); window.removeEventListener('pointercancel', up);
       temp.setAttribute('hidden', '');
+      if (ev.type === 'pointercancel') return;
       const target = document.elementFromPoint(ev.clientX, ev.clientY);
       const port = target && target.closest && target.closest('.sn-in');
       const to = port ? port.dataset.id : null;
@@ -191,6 +198,7 @@
     };
     window.addEventListener('pointermove', move);
     window.addEventListener('pointerup', up);
+    window.addEventListener('pointercancel', up);
     draw(at(e.clientX, e.clientY));
   }
   function lastLinkInto(id) { const links = H.linksInto ? H.linksInto(id) : []; return links.length ? links[links.length - 1] : null; }

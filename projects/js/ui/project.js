@@ -1,7 +1,7 @@
 // Project settings: a SlopUI dialog for the name, colour, dates, people, notes, CRM customer and the board's columns
 // (rename, limit of cards, which one holds finished work, reorder, remove, add). A removed column's cards go to the
 // column before it, in the same save, which is one undo step. Also New project (a name, then the default columns).
-// Exposes window.SlopProjects.projectDialog.
+// make(name, opts) is the same without the question (the AI commands). Exposes window.SlopProjects.projectDialog.
 (function (g) {
   'use strict';
   const NS = (g.SlopProjects = g.SlopProjects || {});
@@ -75,10 +75,15 @@
   async function create() {
     const name = await UI.prompt('New project', 'Project name', '', { ok: 'Create', placeholder: 'Office move' });
     if (name === null || !String(name).trim()) return false;
-    const today = NS.state.today;
-    const p = { id: NS.store.newId(), name: String(name).trim().slice(0, 120), color: 'blue', start: today, columns: NS.board.DEFAULT_COLUMNS.map((c) => ({ ...c })), people: [] };
+    return make(name);
+  }
+
+  /** Makes and opens a project: a name, and optionally { columns, color, start } (default To do, Doing, Done, today). */
+  function make(name, opts = {}) {
+    const p = { id: NS.store.newId(), name: String(name).trim().slice(0, 120), color: opts.color || 'blue', start: opts.start || NS.state.today,
+      columns: (opts.columns || NS.board.DEFAULT_COLUMNS).map((c) => ({ ...c })), people: [] };
     return NS.actions.addBundle({ project: p, tasks: [] }, `Made the project "${p.name}"`);
   }
 
-  NS.projectDialog = { open, create, columnsEditor, COLORS };
+  NS.projectDialog = { open, create, make, columnsEditor, COLORS };
 })(typeof window !== 'undefined' ? window : globalThis);

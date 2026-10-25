@@ -59,8 +59,7 @@
     DR.folderRefresh().then(() => DR.renderFolder()).catch((e) => console.warn('Slop Drive: folder state', e));
     DR.refreshProviders().catch((e) => console.warn('Slop Drive: places', e));
     DR.restoreScroll();
-    const launch = await window.SlopHub.consumeLaunch().catch(() => null);
-    if (launch && S.files.has(launch.id)) DR.reveal(S.files.get(launch.id));
+    await window.SlopIntake.launch({ to: 'drive' }).catch(() => null); // ?drive=<id> is shown, launch files are uploaded (ui/dnd.js)
     document.body.classList.add('ready');
     $('pane').focus({ preventScroll: true });
   };

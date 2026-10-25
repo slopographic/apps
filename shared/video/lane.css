@@ -13,5 +13,7 @@
 .lv-mark { position: absolute; top: 0; bottom: 0; width: 10px; margin-left: -5px; padding: 0; border: 0; background: var(--sui-accent, #3b6cf6); color: #fff; font-size: 9px; cursor: ew-resize; touch-action: none; }
 .lv-mark.on { box-shadow: inset 0 0 0 2px #fff; }
 .lv-mark.drag { opacity: .8; }
+/* A finger-sized switch (--slop-hit: 44 px under a coarse pointer, shared/input/touch.css) */
+.lv-mark::after { content: ""; position: absolute; top: 0; bottom: 0; left: 50%; width: var(--slop-hit, 0px); transform: translateX(-50%); }
 .lv-ph { position: absolute; top: 0; bottom: 0; width: 1px; background: #d33; pointer-events: none; }
 .lv-hint { margin: 0; color: var(--sui-muted, #666); font-size: 11px; }

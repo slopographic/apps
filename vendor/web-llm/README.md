@@ -1,10 +1,10 @@
 # WebLLM (vendored)
 
-MLC **@mlc-ai/web-llm 0.2.85** from registry.npmjs.org, Apache-2.0 (see `LICENSE`).
+MLC **@mlc-ai/web-llm 0.2.86** (model libraries `v0_2_86/base`) from registry.npmjs.org, Apache-2.0 (see `LICENSE`).
 
 | File | What |
 |---|---|
-| `web-llm.js` | `lib/index.js` from the npm package, unmodified (6.6 MB; sha256 `341bae95822bfee1d0fd6a0e6cd2db8613bb8edf809390ac142fba36ec17792c`). Self-contained ES module: the TVM runtime, tokenizers and xgrammar are bundled in it. Load it with `import()`, never a classic `<script src>`. |
+| `web-llm.js` | `lib/index.js` from the npm package, unmodified (6.8 MB; sha256 `ae2642e73a4a9896c21efb3a067c4666446f8b49cbe2012f4b576f5d83d5f206`). Self-contained ES module: the TVM runtime, tokenizers and xgrammar are bundled in it. Load it with `import()`, never a classic `<script src>`. |
 | `LICENSE` | the package's Apache-2.0 licence |
 
 The source map (`index.js.map`) was left out; the file still ends with a `sourceMappingURL` comment, which only matters

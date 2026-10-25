@@ -28,8 +28,9 @@
   async function addFile(name) {
     const blob = await (await fetch('fixtures/' + name)).blob();
     const dt = new DataTransfer(); dt.items.add(new File([blob], name, { type: 'image/png' }));
-    $('file').files = dt.files;
-    $('file').dispatchEvent(new Event('change'));
+    const input = doc().querySelector('#drop input[type=file]'); // the zone's Choose files (the intake's picker)
+    input.files = dt.files;
+    input.dispatchEvent(new Event('change'));
     await waitFor(() => !$('read').disabled, { timeout: 8000 });
   }
 

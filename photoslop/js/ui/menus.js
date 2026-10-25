@@ -98,6 +98,8 @@ const MENUS = [
     { label: 'Layer via Copy', key: 'Ctrl+J', act: () => layerViaCopy(false) },
     { label: 'Layer via Cut', key: 'Shift+Ctrl+J', act: () => layerViaCopy(true), need: 'layer' },
     { label: 'Isolate Subject…', act: () => isolateSubject(), en: () => !!activeLayer() },
+    { label: 'Generate Image…', cmdId: 'ps.generate', act: () => psImageGen('generate') },
+    { label: 'Edit with AI…', cmdId: 'ps.edit-ai', act: () => psImageGen('edit'), en: () => !!activeLayer() },
     { label: 'New Fill Layer', sub: [
       { label: 'Solid Color (foreground)', act: () => { const c = mkCanvas(D.w, D.h), g = cx(c); g.fillStyle = C.fg; g.fillRect(0, 0, D.w, D.h); addLayer({ name: nextName('Color Fill'), canvas: c }, 'Fill Layer'); } },
       { label: 'Gradient (foreground → background)', act: () => { const keep = T.gradient.type; T.gradient.type = 'linear'; const c = gradientCanvas({ x: 0, y: 0 }, { x: 0, y: D.h }); T.gradient.type = keep; addLayer({ name: nextName('Gradient Fill'), canvas: c }, 'Fill Layer'); } },
@@ -186,6 +188,7 @@ const MENUS = [
       { label: 'Paint ’98', check: () => theme() === 'paint', act: () => setTheme('paint') },
     ] },
     { label: 'Show / Hide Panels', key: 'Tab', act: () => document.body.classList.toggle('no-panels') },
+    { label: 'Reset panel sizes', cmdId: 'view.resetPanels', act: () => window.SlopResizePanel && SlopResizePanel.resetAll() },   // shared/ui/resize-panel.js
   ]],
   ['Layout', () => (window.SlopLayouts ? SlopLayouts.menu('photoslop') : [])],
   ['Window', () => windowMenuItems()],
@@ -193,6 +196,7 @@ const MENUS = [
     { label: 'Search Commands…', cmdId: 'cmd.palette', act: () => openCommandPalette() },
     { label: 'Keyboard Shortcuts…', cmdId: 'cmd.keymap', act: () => openKeymap() },
     { label: 'About PhotoSlop', act: () => dlgAbout() },
+    { label: 'AI agents…', act: () => window.SlopAgents && window.SlopAgents.about() },
     '-',
     { label: 'Open Slop Paint Classic (MS Paint)', act: () => { location.href = 'classic/'; } },
     { label: 'Back to slopographic.com', act: () => { location.href = '../'; } },

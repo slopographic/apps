@@ -210,3 +210,10 @@ Folders and Info buttons open and close them, and the shared ×, Escape, a tap o
 scrim, `sheet-open`/`drawer-open` class or Escape branch of Drive's own any more; `DR.drawer(open)` and `DR.sheet(open)` are
 thin wrappers. The details × is the panel's close on a desktop too (`closeWide`). Both are wired in `main.js` before
 `DR.wireKeys()`, whose Escape skips an event the sheet took (`e.defaultPrevented`).
+
+## Assistant commands (`js/ui/ai-commands.js`)
+Loaded on demand by `SlopCmd.prepare()` (`ui/commands.js`). `drive.ai.*`, hidden: `list_items` (folder or search), `new_folder`,
+`add_file` (name + text content), `new_document` (a blank file of an app, the New menu's `DR.createNew`), `move_item`, `rename_item`,
+`star_item`, `delete_item` (to the Trash; the only destructive one), `download_items` (one file, or a ZIP). Items are named by path
+("Work/notes.md"), name, id or key. The checkpoint undoes the assistant's changes (made items to the Trash, the rest put back).
+Test: `tests/drive/ai-commands.test.html`.

@@ -8,8 +8,8 @@ Slop Drive in a "Slop Upscale" folder.
 ## Files (all ≤300 lines)
 | File | What it does |
 |---|---|
-| `index.html` | Markup and load order. Shared: slopui, apps, hub, guard. Vendored: mp4-muxer, webm-muxer. |
-| `css/upscale.css` | Tokens (dark, light), the phone stack (≤860 px the panel goes under the picture), the slider. |
+| `index.html` | Markup and load order. Shared: slopui, apps, hub, guard, frame (SlopFrame), sheet, menubutton, zip. Vendored: mp4-muxer, webm-muxer. |
+| `css/upscale.css` | Tokens (dark, light), the files list, the view column, the slider. The three columns and the phone sheet are shared/frame/frame.css. |
 | `js/core/tiling.js` | Pure: `plan(W, H, {tile, overlap})` gives the cores and padded source rectangles; `cropRGBA`, `placeRGBA`, `scaleRect`. |
 | `js/core/lanczos.js` | Pure: Lanczos-3, separable, on RGBA. Used for the fallback and the colour of the Fast model. |
 | `js/core/models.js` | The model registry: path, size, SHA-256, scale, channels, licence, whether it is bundled. |
@@ -20,9 +20,18 @@ Slop Drive in a "Slop Upscale" folder.
 | `js/app/slider.js` | Before and after: the result clipped at a range input (mouse, touch, keys). |
 | `js/app/drive.js` | Slop Drive: the "Slop Upscale" folder (tagged `app: upscale`), save, pick. |
 | `js/video/run.js` | Video: seek each frame in a muted `<video>`, upscale it, `VideoEncoder`, mux to MP4 (H.264) or WebM (VP9). |
-| `js/app/main.js` | Controller: open, drop, Drive, `?drive=<id>` from Resize, run, progress, cancel, slider, download, save, Get more. |
+| `js/app/main.js` | Controller: the files (each opened file joins the list), open, drop, Drive, `?drive=<id>` from Resize, run (one, or every file not done), progress, cancel, Get more. |
+| `js/app/layout.js` | The page as SlopFrame's List · View · Panel: files left (two or more), picture centre, settings + Result actions in the right panel, Upscale / Upscale N pictures / Cancel in the panel's footer. |
+| `js/app/output.js` | Download, Download all (ZIP), Save to Slop Drive, Open in… (SlopOuttake items). Files (Open, drops, Drive, ?drive=) come in through shared/intake (spec `upscale`, up to 50, each joins the list). |
 
-Tests: `tests/node/upscale-tiling.test.mjs` (tiling, stitching, Lanczos; no browser) and
+Layout (the suite rule, shared/frame/HANDOFF.md): the header holds only Open… and From Slop Drive… (plus the shared
+buttons and SlopFrame's "Settings" show/hide button). Everything else is in the right panel: Size, Model, Output, Result
+(Download, Download all (ZIP) with two or more done, Save to Slop Drive, Open in…, Remove/Clear) and, stuck to its foot,
+the main button. Phones (≤900 px): the list is the page, the panel is a bottom sheet; while closed it still shows its foot
+(Settings + Upscale). Keys: Ctrl+Enter upscales, Esc cancels a run.
+
+Tests: `tests/upscale/panel.test.html` (the panel on the right at 1280, a real 2× Fast and 4× Lanczos run from the
+panel's button, two files, Ctrl+Enter and Esc, the phone sheet at 390), `tests/node/upscale-tiling.test.mjs` (tiling, stitching, Lanczos; no browser) and
 `tests/upscale/upscale.test.html` (2× of a generated 100 × 100 picture to 200 × 200 with the Lanczos fallback and
 with the bundled Fast model; the opt-in Real-ESRGAN file passed as bytes, 4×; cancel; the size limit; the registry
 against `vendor/models/upscale/index.json`). Run: `node tests/run.mjs upscale`.
@@ -53,9 +62,9 @@ SHA-256. Get more shows them before anything downloads. The file is stored in th
 (`slop-library`), and the worker checks its size and SHA-256 again before it loads it. The worker never fetches a
 model that is not bundled.
 
-**The download URL is `raw.githubusercontent.com/slopographic/cdn/main/models/upscale/realesrgan-x4plus.onnx`.
-It only works once that file is on `main`.** Until then Get more reports that the download failed, and Quality falls
-back to Lanczos. The file is 64 MB; commit it with git LFS if the repository should not hold it directly.
+The file is `models/upscale/realesrgan-x4plus.onnx` in the cdn repository (`"cdn"` in packs.json). At 64 MB it is over
+jsDelivr's 20 MB limit, so it comes from `raw.githubusercontent.com` at the release tag until the Hugging Face copy exists
+(see shared/cdn/HANDOFF.md). The cdn repository uses no Git LFS (jsDelivr would serve the pointer).
 
 ## How a run works
 1. The picture is decoded to a canvas. `plan()` cuts it into 128 px cores, each read with 16 px of context on every
@@ -84,7 +93,7 @@ encoded in order. Sound is not copied (said in the UI). Clips over 15 s are refu
 - MP4 output needs an H.264 encoder. The headless test browser has none, so the MP4 branch was not run here. WebM
   (VP9) was run end to end.
 - WebGPU is not used. The model runs single-threaded WebAssembly, because the site has no SharedArrayBuffer.
-- One picture or video at a time (no batch queue).
+- Files run one after the other (no parallel runs). While a run goes, other files cannot be selected.
 - The service worker (`service-worker.js`) was not changed, so the new files are not precached and Upscale will not
   work offline until the precache list is updated.
 - Model files are served from the site. Only the bundled ones are loaded by default; the Real-ESRGAN file is in the
@@ -97,3 +106,10 @@ python3 -I vendor/models/tools/upscale-realesrgan.py RealESRGAN_x4plus.pth reale
 ```
 Run them from a scratch directory, never inside the repository. Afterwards update the sizes and SHA-256 in
 `js/core/models.js`, `vendor/models/upscale/index.json` and `shared/library/packs.json` together, or the registry test fails.
+
+## Commands and the assistant (`js/app/commands.js`, `js/app/ai-commands.js`)
+The page now loads SlopCmd: `up.open`, `up.drive`, `up.run`, `up.download`, `up.save`, `up.clear` press the page's own
+buttons. `SlopCmd.prepare()` loads `ai-commands.js`: `new_upscale` (clear; destructive), `add_file` (`file` from Slop Drive or
+`url` on this site, through `open()`, so the first-use notice still asks), `set_upscale` (scale, model, format, quality, fps),
+`upscale` (runs and waits), `save_result` (`to` drive | download | both), with `state` and a settings checkpoint. Test:
+`tests/upscale/ai-commands.test.html`.

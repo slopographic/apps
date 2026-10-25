@@ -51,7 +51,7 @@
     var tabs = h('div', { class: 'sg-tabs', role: 'tablist' });
     var panes = {};
     // draw pane
-    var pad = h('canvas', { class: 'sg-pad', 'aria-label': 'Signature pad: draw your signature with a mouse, finger or pen' });
+    var pad = h('canvas', { class: 'sg-pad', 'data-touch-surface': '', 'aria-label': 'Signature pad: draw your signature with a mouse, finger or pen' });
     var strokes = 0;
     var colorRow = function (onPick) {
       var row = h('div', { class: 'sg-colors', role: 'radiogroup', 'aria-label': 'Ink colour' });

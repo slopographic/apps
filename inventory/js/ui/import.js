@@ -19,7 +19,8 @@
   /** Dialog: pick a CSV, see the plan, import only when it is clean. */
   function openImport() {
     const report = h('div', { class: 'report-box', 'aria-live': 'polite' });
-    const file = h('input', { type: 'file', accept: '.csv,text/csv', 'aria-label': 'Products CSV file' });
+    // the CSV comes in one way: the intake's part 'inventory.csv' (shared/intake), from this button
+    const file = h('button', { type: 'button', class: 'btn', text: 'Choose a CSV file…', onclick: () => g.SlopIntake.pick({ to: 'inventory.csv', multiple: false, accept: '.csv,text/csv' }) });
     let plan = null;
     const apply = async () => {
       if (!plan || !plan.ok) return false;
@@ -29,15 +30,15 @@
       NS.app.refresh();
       return true;
     };
-    file.addEventListener('change', async () => {
-      const f = file.files && file.files[0];
-      if (!f) return;
-      const text = await f.text();
-      const cur = await S.store.list('products');
-      const st = await U.settings();
-      plan = NS.importer.planImport(text, cur.ok ? cur.value : [], st);
-      report.replaceChildren(...planView(plan, f.name));
-    });
+    g.SlopIntake.register({ id: 'inventory.csv', main: false, paste: false, toast: false, limit: 1, accept: { types: ['text/csv', 'text/plain', 'application/vnd.ms-excel'], exts: ['.csv'], noun: 'a CSV file' },
+      process: async (f) => {
+        const text = await f.text();
+        const cur = await S.store.list('products');
+        const st = await U.settings();
+        plan = NS.importer.planImport(text, cur.ok ? cur.value : [], st);
+        report.replaceChildren(...planView(plan, f.name));
+        return f.name;
+      } });
     UI.dialog({
       title: 'Import products from CSV',
       cls: 'wide',

@@ -3,7 +3,7 @@
 <head><meta charset="utf-8"><title>Slop Effects: the look (header and transport at 1440, 1024 and 390 wide)</title>
 <style>body { margin: 0; } iframe { border: 0; display: block; height: 800px; }</style></head>
 <body>
-  <!-- Covers: effects/css/effects.css, effects/js/ui/transport.js -->
+  <!-- Covers: effects/css/effects.css, effects/js/ui/transport.js, effects/js/main.js -->
   <script src="../harness.js"></script>
   <script>
   const { describe, it, expect, waitFor, sleep } = SlopTest;
@@ -60,6 +60,17 @@
       expect(/[⏮⏭]/.test(text)).toBe(false);
       expect(text).toContain('⇤');
       expect(text).toContain('⇥');
+      f.remove();
+    }, { timeout: 60000 });
+
+    it('at 1280px Render sits at the foot of the Properties panel on the right, not in the header, and opens the render dialog', async () => {
+      const f = await open(1280), D = f.contentDocument, side = D.querySelector('.fx-side'), r = D.getElementById('fx-render');
+      expect(side.getBoundingClientRect().left).toBeGreaterThan(D.querySelector('.fx-stage').getBoundingClientRect().right - 1);
+      expect(D.querySelector('.fx-top').contains(r)).toBe(false);
+      expect(r.closest('.sf-p-foot').parentNode).toBe(side);
+      expect(Math.round(r.getBoundingClientRect().bottom)).toBeLessThanOrEqual(Math.round(side.getBoundingClientRect().bottom));
+      r.click();
+      await waitFor(() => D.querySelector('dialog[open], .sui-back, [role="dialog"]'), { timeout: 5000 });
       f.remove();
     }, { timeout: 60000 });
   });

@@ -7,10 +7,21 @@
 //                                 passed and is listed as load-sensitive (its timing depends on the machine being idle)
 //   --shard=2/8                   only the 2nd of 8 slices of the pages, balanced by tests/timings.json (CI runs the slices
 //                                 as parallel jobs; see tests/shard.mjs)
+//   --pages-file=list.txt         only the pages listed in the file (repo paths, space or line separated; CI's changed-pages
+//                                 run on work branches, from tools/ci/plan.mjs)
 //   --skip-node                   no Node tests (CI runs them in their own job)
+//   --needs-net                   only print yes when a page of the slice is in tests/net-urls.txt (CI then restores the
+//                                 download cache), else no
 //   --record-timings              write each page's seconds into tests/timings.json, for the shard balance
+//   --results=out.json            write every page's seconds, test times and network tally as JSON (a CI artifact per
+//                                 slice; tests/results.mjs turns those into tests/timings.json and tests/net-urls.txt)
+// Requests to the model hosts and CDNs go through a disk cache, tests/.cache/net (see tests/netcache.mjs).
+//   --touch                       only pages marked <meta name="slop-test-touch">, on a touch tablet (tests/touch.mjs):
+//   --browser=webkit|chromium       WebKit (Safari's engine) as an iPad, or Chromium as an Android tablet (default chromium)
+//   --device="iPhone 15"            another Playwright device instead (an iPhone, a Pixel...)
 // Serves the repo root on a local port (no dependencies), opens each page, waits for
 // window.__SLOPTEST__ (see tests/harness.js) and prints a report. Exit code 1 on failure.
+// What CI runs where (the full suite on testing, only the pages a change needs on work branches): tools/ci/plan.mjs.
 // Also runs Node-only tests (tests/node/*.test.mjs and tests/seo/*.test.mjs) with `node --test`.
 import http from 'node:http';
 import { readFile, readdir, stat, writeFile } from 'node:fs/promises';
@@ -18,7 +29,10 @@ import { createRequire } from 'node:module';
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { parseShard, shardPages, pool, mergeTimings } from './shard.mjs';
+import { parseShard, shardPages, pool, mergeTimings, longestFirst } from './shard.mjs';
+import { attachNet, NET_DIR } from './netcache.mjs';
+import { parseNetUrls, NET_URLS } from './results.mjs';
+import { touchDevice, touchPage, isTouchPage, TOUCH_ARGS } from './touch.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const argv = process.argv.slice(2), flag = (name) => argv.find((a) => a === `--${name}` || a.startsWith(`--${name}=`));
@@ -27,6 +41,7 @@ const filter = argv.find((a) => !a.startsWith('--')) || '';
 const JOBS = Math.max(1, Number(value('jobs') || process.env.SLOPTEST_JOBS || 1) || 1);
 const SHARD = value('shard') ? parseShard(value('shard')) : null;
 const TIMINGS = path.join(ROOT, 'tests', 'timings.json');
+const TOUCH = !!flag('touch'), ENGINE = value('browser') || 'chromium';
 // Ad and analytics hosts do not resolve in the test browser: the tests check that the app adds those scripts (their tags and
 // URLs), and the real ones would make results depend on third-party servers (AdSense throws on a test page) and send ad
 // requests. Done in DNS, not with request routing, which made pages that fetch many files at once fail.
@@ -76,17 +91,29 @@ if (nodeTests.length && !flag('skip-node')) {
 }
 
 let pages = (await findTests(path.join(ROOT, 'tests'))).filter((p) => p.includes(filter)).sort();
+if (value('pages-file')) { const only = new Set((await readFile(value('pages-file'), 'utf8')).split(/\s+/).filter(Boolean)); pages = pages.filter((p) => only.has(p)); }
+if (TOUCH) { pages = (await Promise.all(pages.map(async (p) => (isTouchPage(await readFile(p, 'utf8')) ? p : null)))).filter(Boolean); console.log(c.b(`\nTouch: ${pages.length} pages in ${ENGINE} as ${touchDevice(ENGINE, value('device')).name}`)); }
 const timings = JSON.parse(await readFile(TIMINGS, 'utf8').catch(() => '{}'));
 if (SHARD) {
   pages = shardPages(pages, SHARD.count, timings)[SHARD.index - 1];
-  console.log(c.b(`\nShard ${SHARD.index}/${SHARD.count}: ${pages.length} pages, ${JOBS} at a time`));
+  if (!flag('needs-net')) console.log(c.b(`\nShard ${SHARD.index}/${SHARD.count}: ${pages.length} pages, ${JOBS} at a time`));
 }
-const took = {};
+if (flag('needs-net')) {
+  const { pages: net } = parseNetUrls(await readFile(NET_URLS, 'utf8').catch(() => ''));
+  console.log(pages.some((p) => net.has(p)) ? 'yes' : 'no');
+  process.exit(0);
+}
+const took = {}, results = {};
+// The pages that download through the cache (tests/net-urls.txt): only these get its route (see tests/netcache.mjs).
+const NET_PAGES = parseNetUrls(await readFile(NET_URLS, 'utf8').catch(() => '')).pages;
 /** Opens one test page in its own context and returns its report as printed lines (a page prints all at once, so pages
  *  that run side by side never mix their output). */
 async function runPage(browser, base, p, scale) {
-  const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 }, acceptDownloads: true, permissions: ['clipboard-read', 'clipboard-write'] });
+  const ctx = TOUCH ? await browser.newContext({ ...touchDevice(ENGINE, value('device')).options, acceptDownloads: true })
+    : await browser.newContext({ viewport: { width: 1280, height: 800 }, acceptDownloads: true, permissions: ['clipboard-read', 'clipboard-write'] });
+  const net = await attachNet(ctx, { dir: NET_DIR, route: NET_PAGES.has(p.split(path.sep).join('/')) });
   const page = await ctx.newPage();
+  if (TOUCH) await touchPage(page, ENGINE, touchDevice(ENGINE, value('device')).name); // real touches for the test page (tests/touch.mjs)
   if (scale > 1) await page.addInitScript((n) => { window.__SLOPTEST_SCALE__ = n; }, scale); // harness timeouts (tests/harness.js)
   // A script error before the harness starts (a syntax error in the test page) would leave the page waiting for the full
   // timeout; the page notes the first error so the wait below can end early.
@@ -118,12 +145,15 @@ async function runPage(browser, base, p, scale) {
   }
   const secs = (Date.now() - t0) / 1000;
   took[p] = secs;
-  const errs = consoleErrors.filter((m) => !/favicon|net::ERR_|Failed to load resource|Content Security Policy|Fetch API cannot load/.test(m));
+  const errs = consoleErrors.filter((m) => !/favicon|net::ERR_|Failed to load resource|Content Security Policy|Fetch API cannot load|ResizeObserver loop/.test(m));
   const out = [`\n${c.b(report.name || p)} ${c.d(p + ' · ' + secs.toFixed(1) + 's')}`];
   for (const r of report.results) {
     out.push(`  ${r.status === 'pass' ? c.g('✓') : c.r('✗')} ${r.suite} › ${r.test} ${c.d(r.ms != null ? r.ms + 'ms' : '')}`);
     if (r.message) out.push(c.r('      ' + r.message.split('\n').join('\n      ')));
   }
+  const outside = Object.entries(net.outside).map(([h, n]) => `${h}×${n}`).join(' ');
+  if (outside) out.push(c.d(`  net: ${net.hits} from the cache, ${net.misses} fetched (${(net.bytes / 1e6).toFixed(1)} MB in ${(net.ms / 1000).toFixed(1)} s) · ${outside}`));
+  results[p] = { secs: Math.round(secs * 10) / 10, net: { ...net, urls: [...net.urls] }, tests: report.results.map((r) => ({ name: `${r.suite} › ${r.test}`, ms: r.ms, status: r.status })) };
   if (errs.length) { out.push(c.r(`  ✗ console errors (${errs.length}):`)); for (const m of errs.slice(0, 5)) out.push(c.r('      ' + m)); report.failed++; }
   await ctx.close();
   return { out, passed: report.passed, failed: report.failed, hung: !!report.hung };
@@ -137,12 +167,13 @@ async function pageLimit(p) {
   return m ? Number(m[1]) * 1000 : CAP_MS;
 }
 if (pages.length) {
-  const { chromium } = await loadPlaywright();
+  const pw = await loadPlaywright(), engine = pw[ENGINE];
+  if (!engine) throw new Error(`--browser=${ENGINE}: not a Playwright browser`);
   const server = await serve();
   const base = `http://127.0.0.1:${server.address().port}/`;
-  const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', '--autoplay-policy=no-user-gesture-required', NO_THIRD_PARTY] });
+  const browser = ENGINE !== 'chromium' ? await engine.launch(TOUCH_ARGS[ENGINE] || {}) : await engine.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', '--autoplay-policy=no-user-gesture-required', NO_THIRD_PARTY] });
   const again = [], alone = [];
-  await pool(pages, JOBS, async (p) => {
+  await pool(longestFirst(pages, timings), JOBS, async (p) => {
     const r = await runPage(browser, base, p, Math.min(JOBS, 4));
     if (r.failed && !r.hung && JOBS > 1) { again.push(p); console.log(r.out.join('\n') + c.d('\n  (runs again on its own after the others)')); return; }
     console.log(r.out.join('\n'));
@@ -157,7 +188,8 @@ if (pages.length) {
   if (alone.length) console.log(c.d(`\nLoad-sensitive (failed beside other pages, passed alone): ${alone.join(', ')}`));
   await browser.close();
   server.close();
-  if (flag('record-timings')) await writeFile(TIMINGS, JSON.stringify(mergeTimings(timings, took), null, 1) + '\n');
+  if (value('results')) await writeFile(value('results'), JSON.stringify({ shard: value('shard'), jobs: JOBS, pages: results }) + '\n');
+  if (flag('record-timings') && !TOUCH) await writeFile(TIMINGS, JSON.stringify(mergeTimings(timings, took), null, 1) + '\n');
 }
 console.log(`\n${failed ? c.r(`${failed} failed`) : c.g('all green')} · ${passed} passed across ${pages.length} page${pages.length === 1 ? '' : 's'}${nodeTests.length && !flag('skip-node') ? ` + ${nodeTests.length} node file${nodeTests.length === 1 ? '' : 's'}` : ''}`);
 process.exit(failed ? 1 : 0);

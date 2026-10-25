@@ -78,6 +78,6 @@
   C.init = function () {
     stage = SE.app.els.monStage; ov = SE.app.els.overlay;
     stage.addEventListener('dragover', onDragOver);
-    stage.addEventListener('drop', onDrop);
+    stage.addEventListener('drop', onDrop); // intake-ok: a bin item dropped on a layout cell, not a file
   };
 })();

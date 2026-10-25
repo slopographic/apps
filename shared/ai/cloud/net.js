@@ -1,0 +1,138 @@
+/* SlopAIKit cloud, the network part: one way to call an AI provider from the browser with the person's own key.
+ * Classic script; adds SlopAIKit.cloud = { sse, call, CloudError, plain, redact, seal, formats: {} }.
+ *   sse(body) → async iterator of { event, data } from a fetch Response body (Server-Sent Events, any provider)
+ *   call(url, init, { secret, provider }) → Response; every failure becomes a CloudError with a plain message:
+ *        kind 'key' (401/403, a bad key) · 'rate' (429) · 'money' (402, no credit) · 'cors' (the browser blocked the
+ *        request: a local server without the allowed origin, or a provider that refuses browsers) · 'network' ·
+ *        'model' (404, unknown model) · 'request' (400) · 'server' (5xx) · 'abort'
+ *   redact(text, secret) → the text with the key (and anything that looks like a key) replaced by "…"; every message and
+ *        error that leaves this file goes through it, so a key is never in the chat, the console or an error report.
+ *   seal(messages) → the loop's history with an answer for every tool call that never ran (Stop, the spending cap), which
+ *        every provider requires before the next turn.
+ * Provider formats (anthropic.js, openai.js, compat.js, gemini.js) add themselves to formats[id]. */
+(function () {
+  'use strict';
+  const K = (window.SlopAIKit = window.SlopAIKit || {});
+  const C = (K.cloud = K.cloud || {});
+  C.formats = C.formats || {};
+
+  /** Anything that looks like an API key: sk-…, sk-ant-…, sk-or-…, AIza… (Google), long random tokens after "Bearer". */
+  const KEYISH = /\b(sk-[A-Za-z0-9_-]{4,}|AIza[0-9A-Za-z_-]{10,}|key-[A-Za-z0-9]{16,})|(Bearer\s+)[A-Za-z0-9._-]{12,}/g;
+  function redact(text, secret) {
+    let s = String(text == null ? '' : text);
+    if (secret && String(secret).length >= 4) s = s.split(String(secret)).join('…');
+    return s.replace(KEYISH, (m, a, b) => (b ? b + '…' : m.slice(0, 3) + '…'));
+  }
+
+  class CloudError extends Error {
+    constructor(kind, message, { status = 0, detail = '', retryAfter = 0 } = {}) {
+      super(message); this.name = 'CloudError'; this.kind = kind; this.status = status; this.detail = detail; this.retryAfter = retryAfter;
+    }
+  }
+
+  /** The plain sentence for an error, by kind. who = the provider's name, as people know it. */
+  function plain(kind, who, extra = {}) {
+    who = who || 'The AI provider';
+    switch (kind) {
+      case 'key': return `${who} did not accept the key. Check that you pasted the whole key, that it is still active, then press Test connection again.`;
+      case 'rate': return `${who} says too many requests right now (rate limit).` + (extra.retryAfter ? ` Try again in about ${extra.retryAfter} seconds.` : ' Wait a minute and try again.');
+      case 'money': return `${who} says the account has no credit left. Add credit on the provider's website, or use another key.`;
+      case 'cors': return extra.local
+        ? `The browser could not reach ${who}. Check that it is running, and that it allows this website (see “How to connect a local server” below). Chrome may also ask whether this site may use apps on your device: choose Allow.`
+        : `The browser could not reach ${who}. Check your internet connection. If it keeps failing, the provider may not accept requests from web pages.`;
+      case 'network': return `Could not reach ${who}. Check your internet connection and try again.`;
+      case 'model': return `${who} does not know this model, or the key cannot use it. Pick another model.`;
+      case 'request': return `${who} did not accept the request` + (extra.detail ? `: ${extra.detail}` : '.');
+      case 'server': return `${who} had a problem on its side. Try again in a moment.`;
+      case 'refusal': return `${who} declined to answer this request.`;
+      case 'abort': return 'Stopped.';
+      default: return `${who} did not answer` + (extra.detail ? `: ${extra.detail}` : '.');
+    }
+  }
+
+  /** The provider's own error text from a JSON or plain body (every provider nests it differently). */
+  function errorText(body) {
+    try {
+      const j = JSON.parse(body), e = Array.isArray(j) ? j[0] && j[0].error : j.error;
+      if (e && typeof e === 'object') return String(e.message || e.status || e.type || '');
+      if (typeof e === 'string') return e;
+      return String(j.message || j.detail || '');
+    } catch (err) { return String(body || '').slice(0, 300); }
+  }
+  function kindOf(status, text) {
+    if (status === 401 || status === 403) return 'key';
+    if (status === 400 && /api[ _]?key|API_KEY_INVALID|authentication/i.test(text)) return 'key';
+    if (status === 429) return /quota|billing|credit|insufficient/i.test(text) && !/rate/i.test(text) ? 'money' : 'rate';
+    if (status === 402) return 'money';
+    if (status === 404) return 'model';
+    if (status >= 500) return 'server';
+    return 'request';
+  }
+
+  async function call(url, init = {}, { secret = '', provider = null } = {}) {
+    const who = provider ? provider.who || provider.name : '';
+    let res;
+    try { res = await fetch(url, init); } catch (e) {
+      if (e && e.name === 'AbortError') throw new CloudError('abort', plain('abort'));
+      // A fetch that never got an answer is a TypeError: offline, or the browser blocked it (CORS, Local Network Access).
+      const offline = typeof navigator !== 'undefined' && navigator.onLine === false;
+      const local = !!(provider && provider.local) || /^https?:\/\/(localhost|127\.|\[::1\]|0\.0\.0\.0)/i.test(url);
+      const kind = offline ? 'network' : 'cors';
+      throw new CloudError(kind, plain(kind, who, { local }), { detail: redact(e && e.message, secret) });
+    }
+    if (res.ok) return res;
+    const body = await res.text().catch(() => '');
+    const detail = redact(errorText(body), secret).slice(0, 300);
+    const kind = kindOf(res.status, detail);
+    const retryAfter = Math.round(Number(res.headers && res.headers.get && res.headers.get('retry-after')) || 0);
+    throw new CloudError(kind, plain(kind, who, { detail, retryAfter }), { status: res.status, detail, retryAfter });
+  }
+
+  /** Server-Sent Events: blank-line separated blocks of "event:" / "data:" lines; ":" lines are comments (OpenRouter's
+   * keep-alives). Several data lines join with newlines. */
+  async function* sse(body) {
+    const reader = body.getReader(), dec = new TextDecoder();
+    let buf = '';
+    const block = (raw) => {
+      let event = 'message'; const data = [];
+      for (const line of raw.split(/\r?\n/)) {
+        if (!line || line.startsWith(':')) continue;
+        const i = line.indexOf(':'), f = i < 0 ? line : line.slice(0, i), v = i < 0 ? '' : line.slice(i + 1).replace(/^ /, '');
+        if (f === 'event') event = v; else if (f === 'data') data.push(v);
+      }
+      return data.length ? { event, data: data.join('\n') } : null;
+    };
+    try {
+      for (;;) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buf += dec.decode(value, { stream: true });
+        let m;
+        while ((m = /\r?\n\r?\n/.exec(buf))) { const b = block(buf.slice(0, m.index)); buf = buf.slice(m.index + m[0].length); if (b) yield b; }
+      }
+      buf += dec.decode();
+      const last = buf.trim() && block(buf);
+      if (last) yield last;
+    } finally { try { reader.releaseLock(); } catch (e) { /* already released */ } }
+  }
+  const json = (s) => { try { return JSON.parse(s); } catch (e) { return null; } };
+
+  /** Every tool call answered before the next model turn: calls the loop did not run get "Not run" (all providers 400 on
+   * a call without its result). Also numbers calls that came without an id. */
+  function seal(messages) {
+    const out = [];
+    for (let i = 0; i < messages.length; i++) {
+      const m = messages[i];
+      out.push(m);
+      if (m.role !== 'assistant' || !m.toolCalls || !m.toolCalls.length) continue;
+      const answered = new Set();
+      let j = i + 1;
+      for (; j < messages.length && messages[j].role === 'tool'; j++) { out.push(messages[j]); answered.add(messages[j].callId || messages[j].name); }
+      m.toolCalls.forEach((c) => { if (!answered.has(c.id || c.name)) out.push({ role: 'tool', name: c.name, callId: c.id, content: 'Not run: the request was stopped before this action.', ok: false }); });
+      i = j - 1;
+    }
+    return out;
+  }
+
+  Object.assign(C, { sse, call, CloudError, plain, redact, seal, json, errorText, kindOf });
+})();

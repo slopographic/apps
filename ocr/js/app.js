@@ -156,18 +156,22 @@ async function again() {
 /** The pages as the outputs want them: the text as edited, the lines and the picture size. */
 const outPages = () => state.pages.map((p) => ({ text: p.text || '', lines: p.lines || [], w: p.w, h: p.h }));
 
+/** The searchable PDF of every page (the picture with an invisible text layer). */
+async function pdfBlob(onPage = () => {}) {
+  const base = outPages(), pages = [];
+  for (let i = 0; i < base.length; i++) {
+    const canvas = await renderPage(state.pages[i]);
+    pages.push({ ...base[i], w: canvas.width, h: canvas.height, image: await jpegBytes(canvas) });
+    onPage((i + 1) / base.length);
+  }
+  return searchablePdf(pages, { title: stem() });
+}
 async function exportPdf() {
-  const prog = $('prog'), base = outPages();
+  const prog = $('prog');
   prog.hidden = false; prog.value = 0;
   setExporting(true, 'Making the searchable PDF…');
   try {
-    const pages = [];
-    for (let i = 0; i < base.length; i++) {
-      const canvas = await renderPage(state.pages[i]);
-      pages.push({ ...base[i], w: canvas.width, h: canvas.height, image: await jpegBytes(canvas) });
-      prog.value = (i + 1) / base.length;
-    }
-    const blob = await searchablePdf(pages, { title: stem() });
+    const blob = await pdfBlob((f) => { prog.value = f; });
     saveBlob(stem() + '.pdf', blob);
     say('Searchable PDF saved. Its text layer is invisible; it is there for search and copy.');
   } catch (e) {
@@ -185,18 +189,21 @@ function setExporting(on, text) {
 }
 
 function wire() {
-  // The drop zone is SlopDrop (shared/drop): drops and the Choose files button (the only thing that opens the picker)
-  // go through addFiles, one file at a time. The page's own picker input keeps its accept list.
-  const file = $('file'), accept = file.getAttribute('accept');
+  // The one way in (shared/intake, spec 'ocr'): the zone (a drop, its Choose files, the sample), a paste, ?drive=<id>
+  // (another app's Open in Slop OCR) and a PWA launch all reach addFiles. A paste waits for the gate (the launch is read
+  // only once the gate has passed).
+  window.SlopIntake.register({
+    id: 'ocr',
+    accept: { types: ['image/*', 'application/pdf'], exts: ['.pdf', '.png', '.jpg', '.jpeg', '.webp', '.gif', '.bmp', '.tif', '.tiff', '.avif'], noun: 'an image or a PDF' },
+    gate: (batch) => !$('ui').hidden || batch.source !== 'paste', // a paste before the gate has shown the page is not taken
+    processAll: async (files) => { await addFiles(files); return files.map((f) => f.name); },
+  });
   dropZone = window.SlopDrop.attach($('drop'), {
-    accept: { any: true, noun: 'an image or a PDF' },
-    input: file,
+    intake: 'ocr',
     label: 'Drop images or PDFs here, or choose files',
     preview: PREVIEW,
     sample: { label: 'Try it with a sample receipt', files: async () => [await sampleReceipt()] },
-    process: async (f) => { await addFiles([f]); return f.name; },
   });
-  file.setAttribute('accept', accept);
   $('read').addEventListener('click', readAll);
   $('prev').addEventListener('click', () => show(state.cur - 1));
   $('next').addEventListener('click', () => show(state.cur + 1));
@@ -217,14 +224,25 @@ function wire() {
   $('copy').addEventListener('click', async () => {
     say((await copyText(plainText(outPages()))) ? 'Copied all the text.' : 'Copy was blocked here. Select the text and copy it.');
   });
-  $('clear').addEventListener('click', () => {
-    if (state.busy) return;
-    state.pages = []; state.cur = 0; state.shown = null;
-    $('suggest').replaceChildren();
-    $('text').value = ''; $('file').value = '';
-    say('Cleared.');
-    refresh();
-  });
+  $('clear').addEventListener('click', clearAll);
+}
+function clearAll() {
+  if (state.busy) return;
+  state.pages = []; state.cur = 0; state.shown = null;
+  $('suggest').replaceChildren();
+  $('text').value = '';
+  say('Cleared.');
+  refresh();
+}
+
+/** For the assistant's commands (ai-commands.js, loaded by SlopCmd.prepare()): the page's own actions and outputs. */
+window.SlopOcrPage = { state, addFiles, readAll, refresh, show, clearAll, outPages, stem, pdfBlob, say, plainText, markdownText, docxFile };
+if (window.SlopCmd) {
+  const C = window.SlopCmd, click = (id) => () => { if (!$(id).disabled) $(id).click(); };
+  C.init({ app: 'ocr' });
+  C.register([['ocr.read', 'Read text', 'read'], ['ocr.txt', 'Save as text', 'dlTxt'], ['ocr.md', 'Save as Markdown', 'dlMd'], ['ocr.docx', 'Save as Word', 'dlDocx'],
+    ['ocr.pdf', 'Save as searchable PDF', 'dlPdf'], ['ocr.clear', 'Clear', 'clear']].map(([id, title, el]) => ({ id, title, group: 'OCR', keys: [], when: () => !$(el).disabled, run: click(el) })));
+  if (C.provide) C.provide({ prepare: () => import('./ai-commands.js') });
 }
 
 wire();
@@ -234,4 +252,6 @@ T.gate('ocr', () => {
   $('ui').hidden = false;
   $('intro').hidden = true; // the drop zone shows the same preview now
   refresh();
+  if (window.SlopHub) window.SlopHub.register('ocr');
+  window.SlopIntake.launch({ to: 'ocr' });
 });

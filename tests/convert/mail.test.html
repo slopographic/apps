@@ -5,6 +5,7 @@
   <script>try { localStorage.setItem('slop-firstrun:convert', '1'); } catch (e) { /* private window */ }</script>
 <script src="../harness.js"></script>
 <script type="module">
+// Covers: convert/js/core/mail.js, shared/sanitize/sanitize.js
 import { CONVERSIONS, conversionById, conversionsFor } from '../../convert/js/core/catalog.js';
 import { detectKind, KIND_LABEL } from '../../convert/js/core/detect.js';
 import { xmlToJson } from '../../convert/js/core/mail.js';
@@ -39,6 +40,27 @@ describe('File convert: mail, calendar and archives', () => {
     const [txt] = await runOn('eml-to-text', [{ name: f.name, kind: 'eml', file: f }]);
     expect(txt.name).toBe('lunch.txt');
     expect((await textOf(txt.blob)).includes('Subject: Lunch')).toBe(true);
+  });
+
+  it('an HTML email converts to a page with its text and styles, and without scripts, handlers or remote loads', async () => {
+    const mail = ['From: Ada <ada@example.com>', 'Subject: Hi', 'MIME-Version: 1.0', 'Content-Type: text/html; charset=utf-8', '',
+      '<html><head><style>p{color:#c00}</style></head><body onload="steal()"><p>Hello <b>there</b></p>\x3cscript>alert(1)\x3c/script>' +
+      '<img src="https://tracker.example/x.gif"><a href="javascript:alert(2)">bad</a><a href="https://example.com/">good</a>' +
+      '<svg><animate attributeName="href" values="javascript:alert(3)"/></svg><img src=x onerror="alert(4)"></body></html>'].join('\n');
+    const [out] = await runOn('eml-to-html', [{ name: 'hi.eml', kind: 'eml', file: file('hi.eml', mail) }]);
+    const html = await textOf(out.blob);
+    expect(html).toContain('<p>Hello <b>there</b></p>');
+    expect(html).toContain('p{color:#c00}');
+    expect(html).toContain('href="https://example.com/"');
+    expect(html).toContain('Content-Security-Policy');
+    expect(/<script|onload=|onerror=|javascript:|tracker\.example|alert\(/i.test(html)).toBe(false);
+  });
+
+  it('an XML file whose entities could expand without limit is refused before it is parsed', () => {
+    const bomb = '<?xml version="1.0"?><!DOCTYPE l [<!ENTITY a "aaaaaaaaaa"><!ENTITY b "&a;&a;&a;&a;&a;&a;&a;&a;&a;&a;"><!ENTITY c "&b;&b;&b;&b;&b;&b;&b;&b;&b;&b;">]><l>&c;</l>';
+    let refused = '';
+    try { xmlToJson(bomb); } catch (e) { refused = e.message; }
+    expect(refused).toContain('expand without limit');
   });
 
   it('a calendar file converts to CSV, and a ZIP unpacks into its files', async () => {

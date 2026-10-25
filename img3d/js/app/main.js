@@ -119,17 +119,17 @@
     return hf.heightField(S.prep, opts());
   }
 
-  /** The first-use notice: Continue agrees to the depth model download, made the first time a picture is opened
-   *  (js/model/jit.js, through the shared installer). Cancel opens nothing. */
+  /** The first-use notice (the intake's, once per batch whichever way the picture came): Continue agrees to the depth model
+   *  download, made the first time a picture is opened (js/model/jit.js, through the shared installer). Cancel opens nothing. */
   const FIRST_USE = {
     title: 'Make a 3D model on this device',
     lines: ['Slop Image to 3D estimates depth with a model that runs in your browser.',
       'Continue downloads the depth model (Depth Anything V2 Small, Apache-2.0) when your first picture opens. Until it is here, or if you remove it in Get more…, brightness stands in for depth.'],
     downloads: [{ name: 'Depth model (Depth Anything V2 Small)', bytes: 27258801 }],
   };
+  /** The intake's reader: the notice has been agreed to when it runs. */
   async function openBlob(blob, name) {
-    const consent = !!window.SlopFirstRun && (await SlopFirstRun.once('img3d', FIRST_USE));
-    if (window.SlopFirstRun && !consent) return;
+    const consent = !!window.SlopFirstRun;
     try {
       say('Reading the picture…');
       const img = await ns.image.decode(blob, name);
@@ -158,20 +158,19 @@
   async function sendTo3d() {
     try {
       await ns.exporter.sendTo3d(meshNow(), S.img.name, S.img.canvas);
-      toast('Opened in Slop 3D');
     } catch (e) { say('Could not send to Slop 3D: ' + e.message, true); }
   }
 
   function bind() {
-    $('file').addEventListener('change', (e) => { const f = e.target.files[0]; if (f) openBlob(f, f.name); e.target.value = ''; });
-    const vp = $('vp');
-    vp.addEventListener('dragover', (e) => { e.preventDefault(); });
-    vp.addEventListener('drop', (e) => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) openBlob(f, f.name); });
-    $('btnDrive').addEventListener('click', async () => {
-      if (!window.SlopHub) { say('Slop Drive is not available in this browser.', true); return; }
-      const rec = await SlopHub.pickFromDrive({ accept: ['image/*'], title: 'Open a picture from Slop Drive' });
-      if (rec && rec.blob) openBlob(rec.blob, rec.name);
+    // The one way in (shared/intake, spec 'img3d'): Open image…, a drop on the view, From Slop Drive…, a paste, ?drive=<id>
+    // and a PWA launch; one picture at a time, after the first-use notice.
+    SlopIntake.register({
+      id: 'img3d', limit: 1, notice: FIRST_USE, accept: { types: ['image/*'], noun: 'a picture' },
+      process: async (f) => { await openBlob(f, f.name); return f.name; },
     });
+    $('btnOpen').addEventListener('click', () => SlopIntake.pick({ to: 'img3d', multiple: false }));
+    SlopIntake.dropTarget($('vp'), { to: 'img3d' });
+    $('btnDrive').addEventListener('click', () => SlopIntake.fromDrive({ to: 'img3d', title: 'Open a picture from Slop Drive' }));
     $('btnMore').addEventListener('click', async () => { await loadLib(); if (window.SlopLibrary) SlopLibrary.open({ onInstalled: refreshDepthNote }); });
     $('btnObj').addEventListener('click', exportObj);
     $('btnGlb').addEventListener('click', exportGlb);
@@ -182,8 +181,21 @@
     }
   }
 
+  /** For the assistant's commands (ai-commands.js, loaded when the AI panel first asks): the page's own steps. */
+  ns.app = { state: () => S, openBlob, build, opts, meshNow, idle: () => !S.busy && !S.again };
+  function commands() {
+    const C = window.SlopCmd;
+    if (!C || !C.init) return;
+    C.init({ app: 'img3d' });
+    if (C.provide) C.provide({ prepare: () => (ns.ai ? null : new Promise((res, rej) => {
+      const el = Object.assign(document.createElement('script'), { src: new URL('js/app/ai-commands.js', location.href).href });
+      el.onload = res; el.onerror = () => rej(new Error('Could not load ai-commands.js')); document.head.append(el);
+    })) });
+  }
+
   async function boot() {
     bind();
+    commands();
     $('scaleVal').textContent = (+$('scale').value).toFixed(2);
     say('Open a picture to begin. Nothing is uploaded.');
     refreshDepthNote();
@@ -191,9 +203,8 @@
     const H = window.SlopHub;
     if (H) {
       try { H.register('img3d'); } catch (e) { /* no hub: the app still works */ }
-      const rec = await H.consumeLaunch();
-      if (rec && rec.blob) openBlob(rec.blob, rec.name);
     }
+    SlopIntake.launch({ to: 'img3d' });
   }
   boot();
 })();

@@ -16,8 +16,7 @@
         return el('label', { class: 'cl-choice' + (n ? '' : ' is-none') }, input,
           el('span', null, c.label), el('span', { class: 'cl-count' }, String(n)));
       });
-      box.replaceChildren(
-        el('h2', { class: 'cl-side-h' }, 'What to remove'),
+      box.replaceChildren(   // the heading is the panel section's ("What to remove", app/layout.js)
         el('p', { class: 'cl-side-p' }, 'Applies to every picture. The colour profile and DPI stay unless you tick them.'),
         el('div', { class: 'cl-choice-list' }, rows));
     },

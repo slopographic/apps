@@ -1,8 +1,9 @@
 /* Slop Code: a small Markdown renderer for the rendered preview. It builds DOM nodes (never innerHTML), so the
  * file's text cannot inject markup. Supported: ATX headings, paragraphs, bullet and numbered lists, block quotes,
  * fenced code, horizontal rules, `code`, **bold**, __bold__, *italic*, _italic_ and [links](target). Images show
- * their alt text. Links are kept only for http, https, mailto, in-page (#) and relative targets. */
+ * their alt text. Links are kept only for http, https, mailto, tel, in-page (#) and relative targets (SlopSanitize.url). */
 import { el } from './dom.js';
+import '../../shared/sanitize/sanitize.js';
 
 const FENCE = /^\s*```/;
 const HEADING = /^(#{1,6})\s+(.*?)\s*#*\s*$/;
@@ -10,7 +11,6 @@ const RULE = /^\s*([-*_])(\s*\1){2,}\s*$/;
 const ITEM = /^\s*([-*+]|\d{1,9}[.)])\s+(.*)$/;
 const QUOTE = /^\s*>\s?(.*)$/;
 const INLINE = /`([^`]+)`|!\[([^\]]*)\]\([^)]*\)|\[([^\]]+)\]\(([^)\s]+)\)|\*\*(.+?)\*\*|__(.+?)__|\*([^*\s](?:[^*]*[^*\s])?)\*|_([^_\s](?:[^_]*[^_\s])?)_/;
-const SAFE_LINK = /^(https?:|mailto:|#|[^:]*$)/i;
 
 /** The inline pieces of one line of text, as nodes. */
 export function inline(s) {
@@ -20,7 +20,7 @@ export function inline(s) {
     if (m.index > 0) out.push(rest.slice(0, m.index));
     if (m[1] != null) out.push(el('code', null, m[1]));
     else if (m[2] != null) out.push(m[2]);
-    else if (m[3] != null) out.push(SAFE_LINK.test(m[4]) ? el('a', { href: m[4], target: '_blank', rel: 'noopener noreferrer' }, inline(m[3])) : inline(m[3]));
+    else if (m[3] != null) { const href = globalThis.SlopSanitize.url(m[4], 'link'); out.push(href ? el('a', { href, target: '_blank', rel: 'noopener noreferrer' }, inline(m[3])) : inline(m[3])); }
     else if (m[5] != null || m[6] != null) out.push(el('strong', null, inline(m[5] ?? m[6])));
     else out.push(el('em', null, inline(m[7] ?? m[8])));
     rest = rest.slice(m.index + m[0].length);

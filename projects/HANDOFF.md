@@ -45,6 +45,16 @@ version 12; see `shared/data/HANDOFF.md`), so they are in the site's backup, and
 - Timeline: arrows move a bar a day, Shift with an arrow moves the end, Alt the start, Enter opens.
 - SlopCmd: `b` Board, `t` Timeline, `l` List, `n` new task, `f` find, `p` project settings.
 
+## Commands with arguments (palette, macros, Slop AI, WebMCP)
+`js/ui/ai-commands.js` (schemas, registered by `commands.js` init) and `js/ui/ai-ops.js` (find a task/column/project by
+id or name, dates like `2026-05-31`/`today`/`+3`, the `state()` summary with ids, the checkpoint that undoes the AI's
+SlopUndo steps). Tools: `new_project` (name, columns, color, start), `open_project`, `add_task` (title, column, start,
+end, due, assignee, notes, priority, tags, checklist, waits_for), `move_task` (task, column, order), `edit_task`,
+`set_dependency` (task, waits_for, mode add/replace/remove; loops refused), `delete_task` (destructive), `add_column`,
+`list_tasks` (read-only), `export_to_drive` (json or csv into Slop Drive). They call `NS.actions`, so each is one undo
+step; with no arguments (palette) they open the matching dialog. `new_project` is not destructive (nothing is replaced).
+Test: `tests/projects/ai-commands.test.html`.
+
 ## Tests
 - Node: `tests/node/projects-board.test.mjs`, `projects-deps.test.mjs` (dependencies, scheduling, timeline geometry),
   `projects-io.test.mjs` (CSV, backup, sample, and the SlopData schema for both collections); helper `projects-env.mjs`.

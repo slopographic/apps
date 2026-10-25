@@ -2,6 +2,8 @@
  * double-click to frame, gizmo arrows to move the selection along an axis (snapped), and the right-click menu.
  * In mesh edit mode the same gizmo moves the selected elements, a click or box picks elements (editpick.js), Alt-drag
  * orbits, and a running transform (editmodal.js) takes the pointer until it is confirmed or cancelled.
+ * Touch (shared/input): the canvas is a touch surface; one finger orbits or taps to select, two fingers pinch-zoom and pan,
+ * a double tap frames, a long press opens the menu; a finger grabs the gizmo arrows from 22 px away.
  * Sets window.Slop3D.viewport: create({ canvas, stage, cam, gizmo, objects, menus }) → { redraw, frame, setView, pickAt }. */
 (function () {
   'use strict';
@@ -35,6 +37,22 @@
       return { o: [rc.ray.origin.x, rc.ray.origin.y, rc.ray.origin.z], d: [rc.ray.direction.x, rc.ray.direction.y, rc.ray.direction.z] };
     }
     const pickAt = (e) => stage.pick(ndcOf(e), stage.camera, objects.pickables());
+    /** The gizmo axis under the pointer; a finger or a pen also tries points around it (a thin arrow is hard to hit). */
+    const RING = [[0, 0], [8, 0], [-8, 0], [0, 8], [0, -8], [14, 14], [-14, 14], [14, -14], [-14, -14], [20, 0], [-20, 0], [0, 20], [0, -20]];
+    function gizmoHit(e) {
+      const R = window.SlopTouch ? SlopTouch.hit(e, 0) : 0;
+      for (const [dx, dy] of RING) {
+        if (Math.hypot(dx, dy) > R) continue;
+        const a = gizmo.hit(ndcOf({ clientX: e.clientX + dx, clientY: e.clientY + dy }), stage.camera);
+        if (a) return a;
+      }
+      return null;
+    }
+    canvas.setAttribute('data-touch-surface', '');
+    canvas.touchSurface = { // two fingers (shared/input): the layer has cancelled the first finger's orbit
+      zoom: (scale) => { cam.zoom(-Math.log(scale) / 0.0012); redraw(); },
+      pan: (dx, dy) => { cam.pan(dx, dy); redraw(); },
+    };
 
     /** Keeps the gizmo on the primary selection (or the element pivot in edit mode) at a constant on-screen size. */
     function refreshGizmo() {
@@ -65,7 +83,7 @@
       try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* synthetic pointer: no capture */ }
       e.preventDefault();
       const ndc = ndcOf(e);
-      const axis = e.button === 0 && !e.shiftKey && !e.altKey && (editOn() ? S.edit.hasSel() : s.sel.length) ? gizmo.hit(ndc, stage.camera) : null;
+      const axis = e.button === 0 && !e.shiftKey && !e.altKey && (editOn() ? S.edit.hasSel() : s.sel.length) ? gizmoHit(e) : null;
       if (axis) {
         const origin = editOn() ? S.edit.pivot() : (() => { const W = M.worldMatrix(s.doc, st.primary()); return [W[12], W[13], W[14]]; })();
         const dir = gizmo.dirOf(axis), r = rayFrom(ndc);
@@ -115,7 +133,7 @@
       try { if (canvas.hasPointerCapture(e.pointerId)) canvas.releasePointerCapture(e.pointerId); } catch (err) { /* no capture to release */ }
       canvas.style.cursor = '';
       if (d.mode === 'axis') gizmo.highlight(null);
-      if (click && d.mode === 'orbit' && d.moved < 5 && !editOn()) {
+      if (click && d.mode === 'orbit' && d.moved < (e.pointerType === 'touch' ? 12 : 5) && !editOn()) {
         const hit = pickAt(e);
         if (hit) st.select(e.shiftKey ? toggle(hit.id) : [hit.id]);
         else if (!e.shiftKey) st.select([]);

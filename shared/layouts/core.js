@@ -49,7 +49,8 @@
   /**
    * The grid a preset gives for the panels an app has. `present` is the list of panel ids the app can place;
    * `opts.fixedTop` and `opts.fixedBottom` are the number of full-width rows the app keeps for itself (a top bar, a status bar).
-   * `opts.sizeVars` maps a panel id to a CSS variable the app already sets (its own drag handle); the track follows it, with the preset size as fallback.
+   * `opts.sizeVars` maps a panel id to a CSS variable the app already sets (its own drag handle); the track (a row, or a side
+   * column holding that panel alone) follows it, with the preset size as fallback.
    * Returns the column and row templates, where each placed panel goes ({ column, row } as grid lines), which
    * panels are off, and the line where the fixed bottom rows start.
    * Rule: left, centre and right share one band of rows; a side with k panels splits the band evenly; top and bottom
@@ -68,7 +69,9 @@
     const sideTrack = (side) => {
       if (!by[side].length) return '0px';
       const s = sized(side);
-      return s.includes(null) ? FR : `${Math.max(...s)}px`;
+      if (s.includes(null)) return FR;
+      const one = by[side].length === 1 && vars[by[side][0]];   // a side panel the person resizes (shared/ui/resize-panel.js)
+      return one ? `var(${one}, ${s[0]}px)` : `${Math.max(...s)}px`;
     };
     const centreTrack = !by.center.length && (sized('left').includes(null) || sized('right').includes(null)) ? '0px' : FR;
     const columns = [sideTrack('left'), centreTrack, sideTrack('right')].join(' ');

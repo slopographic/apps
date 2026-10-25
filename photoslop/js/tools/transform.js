@@ -116,10 +116,14 @@ function transformLayerQuick(kind) {
 /* Box geometry in screen space, shared with the idle box (tools/transform-idle.js). cs = corners tl, tr, br, bl. */
 const boxMid = (cs, i) => ({ x: (cs[i].x + cs[(i + 1) % 4].x) / 2, y: (cs[i].y + cs[(i + 1) % 4].y) / 2 });
 /** The scale handle under screen point s: { hx, hy } (each -1, 0 or 1), or null. */
+/** A handle's grab radius in screen px: r for a mouse, at least 22 for a finger and 12 for a pen (shared/input). */
+function handleR(r) { const T = window.SlopTouch; return T && T.hit && T.last && T.last !== 'mouse' ? T.hit({ pointerType: T.last }, r) : r; }
 function boxHandle(cs, s) {
   const H = [[cs[0], -1, -1], [boxMid(cs, 0), 0, -1], [cs[1], 1, -1], [boxMid(cs, 1), 1, 0], [cs[2], 1, 1], [boxMid(cs, 2), 0, 1], [cs[3], -1, 1], [boxMid(cs, 3), -1, 0]];
-  for (const [q, hx, hy] of H) if (Math.hypot(q.x - s.x, q.y - s.y) < 9) return { hx, hy };
-  return null;
+  const R = handleR(9);
+  let best = null, bd = R;   // the nearest handle (a finger's grab areas overlap on a small box)
+  for (const [q, hx, hy] of H) { const d = Math.hypot(q.x - s.x, q.y - s.y); if (d < bd) { bd = d; best = { hx, hy }; } }
+  return best;
 }
 /** The rotate knob: 24 px out from the middle of the top edge, along the box's normal. */
 function boxKnob(cs) {

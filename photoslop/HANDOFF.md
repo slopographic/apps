@@ -68,6 +68,14 @@ A layered, Photoshop-style image editor at `/photoslop/` (`/paint/` redirects he
 - `onEarlyKey` (capture, registered before SlopCmd) keeps Space-to-pan and tool keys (Enter/Esc/Backspace in transform, crop, lassos) ahead of shortcuts. The legacy `onKeyDown` then only arms the paste catcher for Ctrl+V (the native paste event carries images), or does everything when SlopCmd is missing.
 - Help ▸ Search Commands… (⌘K), Help/Edit ▸ Keyboard Shortcuts… (SlopCmd's editor), and a search button in the top bar.
 
+## AI pictures (`js/app/imagegen.js`, `js/app/commands.js`, uses `shared/ai/imagegen/`)
+Layer › Generate Image… (`ps.generate`) and Edit with AI… (`ps.edit-ai`, the active layer; a selection limits the change)
+open the shared dialog; with arguments (`prompt`, `aspect`, `resolution`, `quality`, `style`, `n`, `transparent`, `target`,
+`provider`, `model`) it opens filled in, and Generate there is the go-ahead to spend (`ai: false`: the AI panel uses
+`generate_image` instead). Both load on first use. `window.SlopImageSink` (set in `commands.js`) puts a picture from
+the AI panel in a new layer (fitted and centred, one undo step), a new document, or Slop Drive. Providers, prices and the
+local-model finding: `shared/ai/imagegen/HANDOFF.md`. Test: `tests/photoslop/imagegen.test.html`.
+
 ## Layer Style dialog, view rotation, effect preset picker (`js/ui/layer-style*.js`, `js/core/view-rot.js`, `js/layers/fx-preset-picker.js`)
 - **Layer Style dialog** (`js/ui/layer-style.js`, pages in `layer-style-pages.js`): double-click a layer (thumbnail or row; a type layer still edits its text), or Layer ▸ Layer Style ▸ Layer Style…. Sections on the left: Blending Options (blend mode), Drop Shadow, Inner Shadow, Outer Glow, Stroke, Color Overlay, Gradient Overlay (each an effect with an enable switch; the controls are `FX_BY_ID` params through `paramControl`), and Opacity and Fill. A live preview of the layer sits on the right. Preview (on by default) shows the edits on the document while they are made; OK is one step (`Layer Style`); Cancel, Escape and × restore the layer with no step. Phone width: sections scroll sideways, the preview goes below.
 - The FX rows (double-click, their edit button, Enter) and the right-click "Edit effect…" still open the per-effect `openFxDialog`, which the effects tests cover.
@@ -141,3 +149,17 @@ Under 900 px the panels column (`#panels`: Layers, History…) is a drawer from 
 (on the picture too) and a swipe right close it. `css/extras.css` only sets `--ssh-top` (38 px, 66 px under 640 px) and
 `--ssh-z`; the old `panels-open` class and viewport listener are gone. A tool that uses Escape (a transform, a lasso) still
 gets it first. Test: `tests/photoslop/phone-panels.test.html`.
+
+## Drawing and every tool for the assistant (`js/app/ai-draw.js`, `ai-tool-use.js`, `ai-draw-cmds.js`)
+Loaded on demand with the other `ai-*.js` (`SlopCmd.prepare()`); all `ps.ai.*`, hidden, one history step each, recordable as
+macro steps. `new_document` (new tab, size, background), `add_svg_layer` (the model's SVG, checked by `psCheckSvg`: no
+script, foreignObject, event handlers, javascript: or links other than `#id` and `data:` pictures; drawn at document size or
+x/y/width/height into a new named layer), `gradient_fill` (linear/radial/conic, colours or stops, angle, centre, radius; on
+the layer or the selection through `bakeStroke`, or a new layer), `draw_shape` (rect, rounded, ellipse, polygon, star, heart,
+line, points, SVG path; fill, stroke, blur, opacity, blend), `use_tool` / `click_tool` / `brush_stroke` (any `TOOLS` id driven
+through the tool's own `down`/`move`/`up` with points in document px; options from `T`, colours; clone/heal `source`, type
+`text`, crop `apply`, polygonal lasso closes with `finish`; the eyedropper returns the colour), `transform_layer` (Free
+Transform's state with numbers, then `commitTransform`), `list_tools` (each tool and its options, read from `T`). `add_text`,
+`draw_shape`, `add_svg_layer` and the shape/type/move tools say where the content landed and warn when it runs past the
+canvas (`psBoundsNote`); `fit: true` shrinks it inside. Not there: skew/perspective, a pen/path tool and quick selection
+(PhotoSlop has none). Test: `tests/photoslop/ai-draw.test.html`.

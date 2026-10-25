@@ -116,7 +116,9 @@
       }
       expect(S.bodies()).toBe(2);
       const [a, b] = [...doc.querySelectorAll('[data-perch="card"]')].filter((c) => c.style.pointerEvents === 'none');
-      await sleep(5000);
+      // both at rest (neither moved 2 px in 400 ms), or 5 s on, as before: then they must not overlap
+      const at = () => [a, b].map((c) => { const r = c.getBoundingClientRect(); return [r.left, r.top]; }).flat();
+      await waitFor(async () => { const p = at(); await sleep(400); return at().every((v, i) => Math.abs(v - p[i]) < 2); }, { timeout: 5000 / (window.__SLOPTEST_SCALE__ || 1), step: 0 }).catch(() => {});
       const ra = a.getBoundingClientRect(), rb = b.getBoundingClientRect();
       const ox = Math.min(ra.right, rb.right) - Math.max(ra.left, rb.left), oy = Math.min(ra.bottom, rb.bottom) - Math.max(ra.top, rb.top);
       expect(ox > 20 && oy > 20).toBe(false);

@@ -38,7 +38,7 @@
 :root[data-slop-theme="classic"] .tb-group { border-color: color-mix(in srgb, var(--accent-ink) 30%, transparent); }
 
 /* ---------------------------------------------------------------- touch */
-@media (hover: none) { .q-x { opacity: 1; } }
+@media (hover: none) { .q-x, .q-chk { opacity: 1; } }
 
 /* ---------------------------------------------------------------- responsive */
 /* Up to 1500 px the badge keeps its lock and title only, so the shared header buttons keep their labels. */
@@ -53,6 +53,12 @@
   .statusbar { display: none; }
   .queue { flex-direction: row; padding: 8px 8px calc(8px + env(safe-area-inset-bottom)); border-right: 0; border-top: 1px solid var(--line); overflow-x: auto; overflow-y: hidden; }
   .q-item, .q-add { width: auto; height: 100%; }
+  .q-head { position: sticky; top: auto; left: -8px; margin: 0 0 0 -8px; padding: 0 6px; justify-content: center; width: 78px; height: 100%; box-sizing: border-box; }
+  .q-all { white-space: nowrap; font-size: 11px; padding: 0 4px; }
+  .q-chk, .q-x { width: 18px; height: 18px; }
+  .q-chk { left: 3px; top: 3px; border-radius: 5px; }
+  .q-chk::after { left: 4px; top: 1px; width: 4px; height: 8px; }
+  .pp-title { padding-right: 52px; }
   /* the settings panel is a bottom sheet: shared/ui/sheet.js gives its place, motion, × and closing */
   .props { display: flex !important; border-left: 0; padding-bottom: env(safe-area-inset-bottom); --ssh-z: 40; }
   .pp-title { border-radius: 18px 18px 0 0; }

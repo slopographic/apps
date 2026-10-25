@@ -90,17 +90,52 @@ models in `vendor/models/`, ONNX Runtime Web in `vendor/onnxruntime-web/`. Modul
   MP4 on a chosen background colour (H.264 or VP9). Unverified here: WebM with alpha (headless Chromium lacks alpha 'keep').
 - **Drive** (`js/io/drive.js`): processed items are saved into the Drive folder "Slop Isolate": images as
   `-original`, `-mask.png`, `-result.png`; videos as `-original` and `-matte.mp4`, results on export. Open from Drive: images and videos.
-- **Bulk** (`js/ui/bulk.js`): Ctrl/Cmd-click, Shift-click, Ctrl+A in the queue. With 2+ selected, the bar applies look,
-  clear brush edits, re-run a model, export, or remove, one progress bar. Videos are skipped by those actions.
-- **Open in** (`js/ui/openin.js`): PhotoSlop (`CO.send.layer`), Slop Vector (cut-out PNG), Slop Cut (video, as a colour
-  + matte MP4 pair in Drive). The mask is not made a PhotoSlop layer mask in one step (it goes through `send.js`).
+- **Bulk editing** (Oct 2026). One editor: the settings panel. With two or more pictures selected it edits all of them
+  (`S.targets()`), the header says "Editing 4 pictures" and a line says brush edits stay with each picture.
+  - Selecting (`js/ui/bulk.js`, `js/ui/queue.js`): a checkbox on each tile (on hover; always on touch screens and while
+    something is selected), Select all / none and "4 selected" in the queue header, Ctrl/Cmd-click (starts from the image
+    on screen), Shift-click, Ctrl+A, Escape clears (after a menu or the phone sheet closes on its own Escape). Touch: a long
+    press starts selecting (its browser menu is suppressed), then a tap adds or removes. Ticking a picture that is not on
+    screen puts it on screen, so the live preview is always on an edited picture. A plain click on a selected picture
+    opens it and keeps the selection.
+  - Settings as data (`js/core/settings.js`, pure, node-tested): paths (`s.threshold`, `bg.color`, `model`, …), `merge`
+    (shared value or mixed), `copy`/`patchOf`, `agreed`, `needsModel` (only `model` and `s.refine` run the model again).
+  - One write path (`js/ui/edit.js`): the panel controls (`K.look(label, path)`), Paste settings and Apply these settings
+    to all all go through `CO.edit`. A look change emits `look` (the image on screen re-finishes in the worker); refinement
+    re-runs the model for those pictures; a model change pins it on the selected pictures only (`P.pin`, only those made
+    with another model re-run; the app's model stays). Mixed values show as an empty slider thumb and "Mixed", an
+    indeterminate checkbox, a segmented control with nothing pressed; touching one sets it on all.
+  - Undo: one entry per picture with a shared `group` (`H.group()`); undo/redo on any of them does the whole group
+    (`js/core/history.js`). Undoing a refinement change re-runs the model.
+  - The other pictures' results: each tile shows the finished picture (`js/render/thumbs.js`), redrawn in the background
+    on the main thread at tile size with the same matte maths (`C.alphaFn`, also used by the live brush) and compositor;
+    feather and decontamination are left out at that size. Full-size results are built in the worker on export.
+  - The panel menu (⋯, `js/ui/panel-head.js` + `js/ui/bulk-act.js`): Copy settings, Paste settings, Apply these settings
+    to all; with a selection: Export N (ZIP), Open in ▸ (each item for every selected picture), Save N to Slop Drive,
+    Run a workflow… (the selected finished pictures as PNGs; Ctrl+K's Run a workflow… gets them too through
+    `slop:convert-files`), Add to a workflow… (the settings they share, a differing one from the picture on screen), Clear
+    brush edits (one undo step), Remove, Select none. The queue's right-click menu on a selected picture is the same menu.
+    Commands: `co.copy-settings`, `co.paste-settings`, `co.apply-all`, `co.select-all`, `co.select-none`,
+    `co.bulk-clear-edits`, `co.bulk-export`, `co.bulk-drive`, `co.bulk-workflow`, `co.bulk-remove` (macros can record them).
+  - Saved work keeps each picture's settings and pinned model (the look and model fields; nothing new to save).
+  - Tests: `tests/node/slopisolate-settings.test.mjs`, `tests/slopisolate/bulk.test.html` (3 pictures: mixed, threshold +
+    colour + shadow on all with pixel checks and no model run, undo, copy/paste, model on the selection only, workflow,
+    saved work), `bulk-phone.test.html` (390 px, touch), `openin.test.html`.
+  - Not done: a background picture (`bg.image`) is not a panel setting, so it is not bulk-editable; the model choice is
+    not an undo step (as before).
+- **Open in** (`js/ui/openin.js`): through the shared outbound builder (`SlopOuttake.items`, shared/intake/outtake.js): the
+  toolbar's Open in…, More ▸ Open in and the queue's right-click menu are the same list: every app that takes the output
+  (Slop Upscale, Slop Vector, …), Run a workflow… / Add to a workflow…, Save to Slop Drive…, and two handovers
+  (`SlopOuttake.handover`): PhotoSlop as a layer with its mask (`CO.send.layer`), Slop Cut as a colour + matte pair. An
+  image's output is its finished picture (PNG, as exported); a video's is its cut-out MP4 on the export colour. With a
+  selection, `O.bulkItems()` does each item for every selected picture. Test: `tests/slopisolate/openin.test.html`.
 - **Right-drag brush resize** (Keep/Remove): across = size, down = hardness, live readout; a drag never opens the menu.
   Maths in `shared/brush/resize.js`; PhotoSlop still has its own copy (`photoslop/js/core/brush-resize.js`).
 - **Live brush**: `CO.process.live(it, rect)` updates the matte and cut-out on the main thread every stroke step; the
   view tints the removed part. Test: `tests/slopisolate/live.test.html`.
 - **Saved work** (`js/ui/view-state.js`, SlopSession, IndexedDB): finished images (file, model, look, edits, base mask) and
   finished videos (file and matte) come back without running the model. Unfinished items are not saved and not restarted.
-  Settings and brush edits apply to the image on screen, or to the selection in bulk. Toolbar button "Clear saved work".
+  Settings apply to the image on screen, or to every selected picture; brush edits to the image on screen. Toolbar button "Clear saved work".
   Test: `tests/slopisolate/persist.test.html`.
 - Tests: `tests/node/slopisolate-smooth.test.mjs`; `tests/slopisolate/video.test.html` (2-second generated MP4: frames, model
   per frame, cancel, WebM or PNG export, MP4 background); `live.test.html`; `persist.test.html`.
@@ -111,3 +146,10 @@ Under 900 px the settings panel (`#props`) is a bottom sheet: `CO.sheet = SlopSh
 shared ×, Escape, a tap outside and a swipe down close it. Before this the CSS had a `.sheet-open` sheet that nothing ever
 opened, so the settings were out of reach on a phone; that CSS and the unused `.sheet-grip` are gone. On a wide screen the
 button still hides the panel (`no-panel`). Test: `tests/slopisolate/phone-sheet.test.html`.
+
+## Assistant: batches (`js/ui/ai-commands.js`)
+`SlopCmd.prepare()` (ui/commands.js, not in the offline build) loads it with `shared/commands/sources.js`: `new_batch`
+(removes every image; destructive), `add_images` (`files[]`, `urls[]`, through `SlopIntake.take` like a drop; the queue cuts
+them out), `save_cutouts` (waits for the queue, then `CO.export.encode` each to Slop Drive and/or `CO.export.all` as a ZIP;
+`format` png | webp | jpg). The look stays `co.look` (ui/macros.js); `CO.lookArgs` gives it to the state. Test:
+`tests/slopisolate/ai-commands.test.html`.

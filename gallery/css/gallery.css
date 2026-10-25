@@ -115,3 +115,5 @@ body.dragging .drop-hint { display: flex; }
 
 /* Drop strip above the grid (shared/drop, compact) */
 .g-dropstrip { margin: 8px 12px 0; padding: 6px 10px; border: 1px dashed var(--line, #3a3a46); border-radius: 8px; }
+/* A finger: a long press on a photo is the gallery's menu (shared/input), not iOS's image callout or a text selection. */
+@media (pointer: coarse) { .tile, .tile img { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; } }

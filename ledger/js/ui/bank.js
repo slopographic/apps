@@ -142,8 +142,10 @@
   }
 
   function mount() {
-    $('bkImport').addEventListener('click', () => $('bkPick').click());
-    $('bkPick').addEventListener('change', async (e) => { const f = e.target.files[0]; e.target.value = ''; if (f) await importFile(f); });
+    // Import a statement…: a part of the one intake of its own ('ledger.bank', shared/intake)
+    g.SlopIntake.register({ id: 'ledger.bank', main: false, paste: false, toast: false, limit: 1, accept: { any: true, noun: 'a bank statement' }, process: async (f) => { await importFile(f); return f.name; } });
+    NS.bankPick = () => g.SlopIntake.pick({ to: 'ledger.bank', multiple: false, accept: '.csv,.txt,text/csv,.ofx,.qfx,.qif,.xml,.sta,.mt940,.940' });
+    $('bkImport').addEventListener('click', NS.bankPick);
     $('bkAccount').addEventListener('change', render);
     $('bkShowAll').addEventListener('change', render);
     $('bkMatch').addEventListener('click', async () => { const n = await autoMatch(); UI.toast(n ? `${n} matched` : 'Nothing new to match'); await render(); });

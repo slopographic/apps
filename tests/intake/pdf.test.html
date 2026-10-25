@@ -107,11 +107,11 @@
     }, { timeout: 60000 });
     it('the watermark logo and Images to PDF are parts of their own', async () => {
       PT.A.setTool('watermark');
-      await waitFor(() => PT.win.document.querySelector('.wm-drop'));
+      await waitFor(() => PT.win.document.querySelector('.pdf-wm .swp'));
       files = [await pngFile('logo.png')];
       const dt = new PT.win.DataTransfer(); dt.items.add(files[0]);
-      await batch('pdf.logo', 'drop', () => PT.win.document.querySelector('.wm-drop').dispatchEvent(new PT.win.DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer: dt })));
-      await waitFor(() => (PT.E.state.stamps.watermarks || []).some((L) => L.kind === 'image' && L.asset), { timeout: 8000 });
+      await batch('pdf.logo', 'drop', () => PT.win.document.querySelector('.pdf-wm .swp').dispatchEvent(new PT.win.DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer: dt })));
+      await waitFor(() => ((PT.E.state.stamps.wm || {}).layers || []).some((L) => L.kind === 'logo' && L.logo), { timeout: 8000 });
       const cap = PT.captureDownloads();
       try {
         files = [await pngFile('one.png'), await pngFile('two.png')];

@@ -11,7 +11,7 @@
   var TOOLS = $.TOOLS;
 
   /* ================= pen & anchor tools ================= */
-  function nearScreen(a, ev, px) { var s = SV.toScreen(a); return hypot(s.x - ev.sx, s.y - ev.sy) <= (px || 7); }
+  function nearScreen(a, ev, px) { var s = SV.toScreen(a); return hypot(s.x - ev.sx, s.y - ev.sy) <= SV.hitPx(px || 7); }
   SV.finishPen = function () {
     if (!S.pen) return;
     var o = getObj(S.pen.id);

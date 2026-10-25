@@ -48,7 +48,8 @@
     ],
     Layout: () => (window.SlopLayouts ? SlopLayouts.menu('slopcut') : []),
     Help: () => [
-      it('help.search'), it('help.keys'), it('help.about'), '-',
+      it('help.search'), it('help.keys'), it('help.about'),
+      { label: 'AI agents…', act: () => window.SlopAgents && SlopAgents.about(), disabled: !window.SlopAgents }, '-',
       { label: 'Slopographic home', act: () => { location.href = SE.offline ? 'https://slopographic.com/' : '../'; } }
     ]
   };

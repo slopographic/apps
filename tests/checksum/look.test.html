@@ -3,14 +3,14 @@
 <head><meta charset="utf-8"><title>Checksum: the look (header, 1440 and 390 wide)</title>
 <style>body { margin: 0; } iframe { border: 0; display: block; height: 800px; }</style></head>
 <body>
-  <!-- Covers: checksum/index.html, checksum/css/checksum.css -->
+  <!-- Covers: checksum/js/layout.js, checksum/index.html, checksum/css/checksum.css -->
   <script src="../harness.js"></script>
   <script>
   const { describe, it, expect, waitFor } = SlopTest;
   /** The app in a fresh iframe of this width, once the shell's buttons are in. */
-  async function open(width) {
+  async function open(width, height = 800) {
     const f = document.createElement('iframe');
-    f.style.width = width + 'px';
+    f.style.width = width + 'px'; f.style.height = height + 'px';
     f.src = '../../checksum/index.html';
     document.body.append(f);
     await waitFor(() => { const D = f.contentDocument; return D && D.readyState === 'complete' && D.querySelector('header .sh-switch') && D.querySelector('header a.brand .brand-app'); }, { timeout: 30000 });
@@ -46,6 +46,35 @@
       const D = await open(390);
       expect(laidOut(D, 390)).toBe(true);
       expect(D.documentElement.scrollWidth).toBeLessThanOrEqual(390);
+    }, { timeout: 40000 });
+
+    /** A file chosen the way the picker does it: the intake's take, as its picker would (shared/intake). */
+    function choose(D, text) {
+      const W = D.defaultView;
+      W.SlopIntake.take([new W.File([text], 'abc.txt')], { to: 'checksum', source: 'picker' });
+    }
+    it('at 1280px Algorithm and the hash to check are a panel on the right, Copy hash at its foot; a check says it matches', async () => {
+      const D = await open(1280), side = D.getElementById('ck-side');
+      await waitFor(() => side.getBoundingClientRect().width > 0 && side.closest('.sf-root'), { timeout: 10000 });   // the frame is mounted (a busy machine is slower)
+      expect(side.getBoundingClientRect().left).toBeGreaterThanOrEqual(D.getElementById('ck-view').getBoundingClientRect().right - 1);
+      expect(Math.round(side.getBoundingClientRect().right)).toBe(1280);
+      for (const id of ['ck-alg', 'ck-expect', 'ck-copy']) expect(side.contains(D.getElementById(id))).toBe(true);
+      expect(D.getElementById('ck-copy').closest('.sf-p-foot')).toBeTruthy();
+      choose(D, 'abc');
+      await waitFor(() => D.getElementById('ck-hash').textContent.length === 64, { timeout: 10000 });
+      const ex = D.getElementById('ck-expect');
+      ex.value = 'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad'; ex.dispatchEvent(new D.defaultView.Event('input'));
+      await waitFor(() => D.getElementById('ck-verdict').classList.contains('ok'), { timeout: 5000 });
+      expect(D.getElementById('ck-copy').disabled).toBe(false);
+    }, { timeout: 40000 });
+    it('at 390px Copy hash stays at the bottom of the screen; Settings opens the sheet', async () => {
+      const D = await open(390, 844), b = D.getElementById('ck-copy');
+      expect(b.getBoundingClientRect().top).toBeGreaterThan(700);
+      expect(b.getBoundingClientRect().bottom).toBeLessThanOrEqual(844);
+      D.querySelector('.sf-foot-more').click();
+      await waitFor(() => D.getElementById('ck-side').classList.contains('ssh-on'));
+      await new Promise((r) => setTimeout(r, 300));
+      expect(D.getElementById('ck-alg').getBoundingClientRect().height).toBeGreaterThan(0);
     }, { timeout: 40000 });
   });
   SlopTest.run({ name: 'Checksum: the look' });

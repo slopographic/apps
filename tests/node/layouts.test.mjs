@@ -56,6 +56,8 @@ test('video preset: preview large, timeline bottom, bin left, properties right',
   assert.equal(a.rows, 'auto minmax(0, 1fr) 300px auto');
   const v = L.arrange(p, ['preview', 'bin', 'insp', 'timeline'], { fixedTop: 1, fixedBottom: 1, sizeVars: { timeline: '--tl-h' } });
   assert.equal(v.rows, 'auto minmax(0, 1fr) var(--tl-h, 300px) auto', 'the app drives the timeline height');
+  const c = L.arrange(p, ['preview', 'bin', 'insp', 'timeline'], { fixedTop: 1, fixedBottom: 1, sizeVars: { insp: '--insp-w' } });
+  assert.ok(/var\(--insp-w, \d+px\)$/.test(c.columns), 'a side column holding one resizable panel follows its width: ' + c.columns);
 });
 
 test('a side with two panels splits the band; a missing panel is off', () => {

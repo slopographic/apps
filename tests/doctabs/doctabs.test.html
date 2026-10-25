@@ -278,7 +278,9 @@
 
       it('Open from Drive opens a linked tab, and the link comes back after a reload', async () => {
         const sess = SlopDocTabs.session(APP, api, { notice: () => {} });
-        const opened = await api.openFromDrive();
+        // what an app's intake reader does with a file from Slop Drive (SlopIntake.fromDrive): a tab linked to it
+        const rec = await SlopHub.pickFromDrive(), opened = api.adapter.restore(JSON.parse(await rec.blob.text()));
+        api.openDoc(opened, { driveId: rec.id, origName: rec.name });
         expect(opened.title).toBe('Other');
         expect(api.current().text).toBe('from drive');
         expect(api.driveIdOf(opened)).toBe('drive-9');

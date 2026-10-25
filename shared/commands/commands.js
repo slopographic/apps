@@ -118,7 +118,7 @@
   function unregister(id) { for (const i of [].concat(id)) cmds.delete(i); changed(); }
   const enabled = (c) => { try { return !c.when || !!c.when(); } catch (e) { return false; } };
   const checkedOf = (c) => { try { return c.checked ? !!c.checked() : undefined; } catch (e) { return undefined; } };
-  function view(c) { return { id: c.id, title: c.title || c.id, group: c.group || '', icon: c.icon || '', keywords: c.keywords || [], keys: bindings(c.id), defaults: c.keys.slice(), enabled: enabled(c), checked: checkedOf(c), hidden: !!c.hidden, args: c.args || null, tool: c.tool || null, description: c.description || '', destructive: c.destructive, ai: c.ai, macro: c.macro }; }
+  function view(c) { return { id: c.id, title: c.title || c.id, group: c.group || '', icon: c.icon || '', keywords: c.keywords || [], keys: bindings(c.id), defaults: c.keys.slice(), enabled: enabled(c), checked: checkedOf(c), hidden: !!c.hidden, args: c.args || null, tool: c.tool || null, description: c.description || '', destructive: c.destructive, ai: c.ai, macro: c.macro, readOnly: !!c.readOnly, sends: !!c.sends }; }
   const list = () => [...cmds.values()].map(view);
   function run(id, ctx = {}) {
     const c = cmds.get(id);
@@ -149,7 +149,7 @@
     } catch (err) { return { ok: false, error: String((err && err.message) || err), args: v.args }; }
   }
   const ensureArgs = () => (window.SlopCmdArgs || !BASE ? Promise.resolve() : loadPart('args'));
-  /** What an app shares with the assistant: provide({ state: () => json, checkpoint: () => rollbackFn, prepare: () => Promise }). */
+  /** What an app shares with the assistant: provide({ state, checkpoint: () => rollbackFn, prepare, snapshot: () => Blob|canvas (look_at_canvas) }). */
   const prov = {}, provide = (o) => { Object.assign(prov, o || {}); };
   let prepP = null;
   function trimRecents() { const ids = Object.keys(recents); if (ids.length > 60) ids.sort((a, b) => recents[a][1] - recents[b][1]).slice(0, ids.length - 60).forEach((i) => delete recents[i]); }
@@ -278,6 +278,7 @@
     exec, provide,
     state: () => { try { return prov.state ? prov.state() : null; } catch (e) { return { error: e.message }; } },
     checkpoint: () => (prov.checkpoint ? prov.checkpoint() : null),
+    snapshot: () => (prov.snapshot ? prov.snapshot() : null),
     prepare: () => (prepP = prepP || Promise.resolve(prov.prepare ? prov.prepare() : null).catch((e) => { prepP = null; throw e; })),
     keyFor: (id) => { const b = bindings(id); return b.length ? format(b[0]) : ''; },
     keysFor: (id) => bindings(id).map((b) => format(b)),

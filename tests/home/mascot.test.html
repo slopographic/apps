@@ -7,6 +7,7 @@
 </head>
 <body>
   <!-- Covers: shared/buddy/perches.js (he lands on a perch beside the consent card, whatever its height in the machine's fonts) -->
+  <!-- Covers: shared/buddy/engine.js (show, spawn and his hello) -->
   <script src="../harness.js"></script>
   <script src="boot.js"></script>
   <script type="module">
@@ -123,6 +124,16 @@
       await waitFor(() => M.mode === 'perched' && M.perch && M.perch.el.classList.contains('page-title'), { timeout: 6000 });
       win.document.querySelector('.brand').click();
       await sleep(100);
+    });
+    it('his hello does not cut off what he is already saying', async () => {
+      await ready;
+      S.show(false); S.show(true);
+      await waitFor(() => !M.el.hidden, { timeout: 4000 });   // spawned; the hello is due 900 ms later
+      S.say('Hold this line', 60000, { force: true });
+      await sleep(1500);
+      expect(M.bubble.textContent).toBe('Hold this line');
+      expect(M.bubble.classList.contains('show')).toBe(true);
+      S.say('ok', 1);
     });
     it('3D toggle loads three.js lazily, or falls back to 2D quietly', async () => {
       await ready;

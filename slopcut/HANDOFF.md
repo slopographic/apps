@@ -233,3 +233,43 @@ Every source file is ≤ 300 lines.
 - Test: `node tests/run.mjs slopcut/matte-pair` (alpha from the matte: opaque white, transparent black, partial grey).
 - Not tested end to end: the Isolate → Cut return path has no browser test. Expect a check of the bus message and the
   `?drive=` path on a real pair before release.
+
+## AI commands, the edit list and the hidden copy (js/ai/, 2026-10)
+
+Every editing action is a SlopCmd command with arguments (the one list the Slop AI panel, WebMCP and the Claude Code bridge
+read through `shared/ai/cmdtools.js`; macros record them; Ctrl+K opens a form for them, `shared/commands/argform.js`). They
+edit through `SE.change` and `core/edit.js`, so each is one undo step and "Undo all AI changes" works
+(`SlopCmd.provide({ state, checkpoint })` in `js/ai/core.js`).
+
+| Tool (command id) | Key arguments |
+|---|---|
+| `list_clips` (`cut.list`, read-only) | sequence, tracks, clips with id/track/start/end/in/out, media with ids |
+| `new_project` (`cut.newProject`, destructive) | aspect 16:9/9:16/1:1/4:5 or width/height, fps, name |
+| `set_sequence` (`cut.sequence`) | aspect or width/height, fps, background, name |
+| `import_media` (`cut.import`) | source (Slop Drive id or name), timeline |
+| `add_clip` (`cut.addClip`) | media (bin or Drive), track V1…/A1…, start, in, out |
+| `move_clip`, `trim_clip`, `set_source_range` | clip, start/track; start/end edges + ripple; source in/out |
+| `split_clip`, `delete_clips` (destructive), `duplicate_clip` | time (+clip); clips list/"all", ripple; clip, start |
+| `set_speed`, `set_volume`, `set_track` | speed 0.1–16; volume, fade_in/out, mute; track mute/solo/hide/lock |
+| `set_transform`, `picture_in_picture`, `set_colour` | x/y/scale/rotation/opacity/crop; corner/scale/margin; look or brightness/contrast/saturation/temperature |
+| `add_transition` | clip (incoming), type (the 14 transitions or none), duration |
+| `add_title`, `edit_title` | text, start, duration, style (the title presets), font, size (fraction of height), color, background, outline, position, x/y, animation, exit |
+| `add_captions` | srt text, source (Drive .srt/.vtt) or transcribe (a clip id, or "timeline": the edit's own mixed sound) + language, size, position, colour |
+| `add_graphic`, `add_effect_layer` | shape/start/duration/colour/size/motion; effects/intensity/every/seed |
+| `reframe` | aspect (e.g. 9:16), focus_x/focus_y, clips: pictures cover the new frame, titles keep their place |
+| `add_music` | media, start, in, duration, volume, duck (level under other sound: volume keys), fades, track |
+| `add_marker`, `set_in_out` | time/name/colour; in/out/clear |
+| `random_edit` (`cut.randomEdit`) | Reel Remix's plan: target, pace, aspect or size, layout, switches, seed, or its whole `options` |
+| `build_from_edit_list` (`cut.build`), `check_edit_list` | an edit decision list (JSON, `shared/video/edl.js`): clips, titles, transitions, captions, music with ducking, markers, reframe |
+| `export_video` (`cut.export`) | format mp4/webm, aspect or width/height, fps, quality, range all/io, audio, name, save_to_drive, download |
+| `look_at_frame` (`cut.look`, sends) | time, max_size: a JPEG of the frame; asked every time (cmdtools' `sends`) |
+
+Long commands (`export_video`, `build_from_edit_list`, transcription) show the progress dialog with Cancel and stop on the
+caller's AbortSignal (`ctx.signal`: the panel's Stop, a workflow's cancel). Changing the export size (`AI.resize`) scales
+positions and text with it. Macros: `shared/macros` is loaded, so Ctrl+K has Record a macro / Macros…; with
+`?macro-host=1` the page is the hidden copy (`js/ai/host.js`: memory instead of IndexedDB, no restore, no launch) that
+`shared/ops/video.js` (Edit list → video, Reframe video, Add captions to video, Remix to reel) and SlopCut macro steps in
+Slop Workflows run in. Fixed on the way: `SE.edit.setSpeed` gave the linked sound a one-frame length when the picture came
+first in the group. Tests: `tests/slopcut/ai-edit.test.html`, `ai-panel.test.html` (fake engine: a 15-second vertical reel
+with captions), `ai-ops.test.html`, `tests/node/video-edl.test.mjs`. Not done: playing a clip backwards (reverse), beat
+detection; captions from a single clip map the clip's own source time.

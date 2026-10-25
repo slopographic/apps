@@ -27,7 +27,7 @@
     files = [...files];
     if (!files.length) return [];
     const proj = files.find((f) => /\.slopedit$/i.test(f.name));
-    if (proj) { await SE.project.openFile(proj); return []; }
+    if (proj) { await SE.project.openFile(proj, proj.slopDrive ? proj.slopDrive.id : null); return []; } // a Drive project stays linked
     const wasEmpty = !SE.doc.clips.length;
     A.status('Importing ' + files.length + ' file' + (files.length > 1 ? 's' : '') + '…');
     const metas = await SE.media.importFiles(files, opts);
@@ -42,15 +42,9 @@
     } else A.status('Imported ' + metas.length + ' item' + (metas.length > 1 ? 's' : '') + ' into the bin');
     return metas;
   };
-  A.openDialog = async function () { const files = await SlopUI.pickFiles({ accept: A.ACCEPT + ',.slopedit', multiple: true }); if (files.length) A.importFiles(files); };
-  A.openFromDrive = async function () {
-    if (!window.SlopHub) return;
-    const rec = await SlopHub.pickFromDrive({ accept: ['video/*', 'audio/*', 'image/*', 'application/x-slopedit', 'application/zip'], title: 'Import from Slop Drive' });
-    if (!rec) return;
-    const f = new File([rec.blob], rec.name, { type: rec.type });
-    if (/\.slopedit$/i.test(rec.name || '')) return SE.project.openFile(f, rec.id);
-    A.importFiles([f], { from: 'drive' });
-  };
+  // Import media… and Import from Slop Drive: sources of the one intake (io/intake.js), whose reader is importFiles.
+  A.openDialog = () => SE.intake.importMedia();
+  A.openFromDrive = () => SE.intake.fromDrive();
   /** Put media at the end of the timeline (V1 for pictures, A1 for sound). */
   A.appendToTimeline = function (metas, at) {
     SE.change('Add to timeline', (p) => {
@@ -100,34 +94,13 @@
   }
 
   /* ------------------------------------------------------------ drag and drop of files */
-  function hasFiles(e) { return e.dataTransfer && [...(e.dataTransfer.types || [])].includes('Files'); }
-  // Files: a timeline lane takes the batch where it is dropped (TL.dropFiles, one placement). Everywhere else, SlopDrop
-  // imports each file (A.importFiles, the same path as Open) and shows its progress in a strip over the monitor.
+  // A drop on a timeline lane takes the batch where it is dropped; anywhere else the strip over the monitor (the intake's
+  // zone, io/intake.js) imports it, as Import media… does.
   function wireDrop() {
-    document.getElementById('timeline').addEventListener('drop', (e) => {
-      if (!hasFiles(e) || !SE.timeline) return;
-      const tl = SE.timeline.dropTarget(e);
-      if (!tl) return;
-      e.preventDefault(); e.sdHandled = true;
-      SE.timeline.dropFiles([...e.dataTransfer.files], tl);
-    });
     const zone = document.createElement('div');
     zone.id = 'scDrop'; zone.className = 'sc-dropstrip';
     document.getElementById('monitor').append(zone);
-    SlopDrop.attach(zone, {
-      accept: {
-        types: ['video/*', 'audio/*', 'image/*'],
-        exts: ['.mp4', '.m4v', '.mov', '.webm', '.mkv', '.mp3', '.wav', '.m4a', '.aac', '.ogg', '.flac', '.jpg', '.jpeg', '.png', '.webp', '.gif', '.slopedit'],
-        noun: 'a video, audio, picture or project',
-      },
-      compact: true,
-      targets: [document.getElementById('app')],
-      process: async (file) => {
-        const metas = await A.importFiles([file]);
-        if (!metas.length && !/\.slopedit$/i.test(file.name)) throw new Error('could not be imported');
-        return file.name;
-      },
-    });
+    SE.intake.attachDrops(zone);
   }
 
   /* ------------------------------------------------------------ resizable timeline */
@@ -136,7 +109,7 @@
     const h0 = U.store.get('tlh', 300);
     document.documentElement.style.setProperty('--tl-h', U.clamp(h0, 160, innerHeight - 220) + 'px');
     s.addEventListener('pointerdown', (e) => {
-      e.preventDefault(); s.setPointerCapture(e.pointerId);
+      e.preventDefault(); s.setPointerCapture(e.pointerId); // touch-ok: .tl-split has touch-action: none (css/timeline.css)
       const y0 = e.clientY, start = A.els.timeline.getBoundingClientRect().height;
       const mv = (ev) => { const h = U.clamp(start - (ev.clientY - y0), 140, innerHeight - 200); document.documentElement.style.setProperty('--tl-h', h + 'px'); U.store.set('tlh', h); SE.emit('layout', {}); };
       s.addEventListener('pointermove', mv);

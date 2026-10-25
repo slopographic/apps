@@ -102,3 +102,9 @@ Vendored by `tools/vendor-codemirror.mjs` from `cdn.jsdelivr.net/npm/` (build ti
 - The Markdown renderer covers the common syntax only: no tables, no nested lists, no footnotes, and no images from the file (their alt text is shown).
 - The service worker's PRECACHE list does not include `code/` or `vendor/codemirror/`, so offline use is not set up. Regenerate the list with `node tools/pwa-precache.mjs` when this app is ready to ship.
 - Vendored CodeMirror files are the unminified upstream modules, so some exceed 300 lines. The limit applies to code Slop writes.
+
+## Assistant commands (`js/ai-commands.js`)
+Imported on demand by `SlopCmd.prepare()` (`js/commands.js`). `code.ai.*`, hidden, none destructive: `new_file` (name, code, folder),
+`open_file`, `insert_text` (cursor, start, end or before a line), `replace_text`, `set_text`, `format_document`, `run_preview`,
+`save_file` (its own Drive record) and `export_file` (a copy to Slop Drive and/or a download). Each edit is one CodeMirror
+transaction (one Ctrl+Z); the checkpoint puts the open files' text back. Test: `tests/code/ai-commands.test.html`.

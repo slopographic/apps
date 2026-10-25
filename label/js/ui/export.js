@@ -44,21 +44,21 @@ function downloadProject() {
   markSaved();
   status('Saved ' + safeName(App.doc.name, '.sloplabel'), '', 2500);
 }
-const OPEN_ACCEPT = '.sloplabel,.json,.zpl,.prn,.txt,.csv,.tsv,.xlsx,image/*,.svg';
-async function openFilesDialog() { const fs = await SlopUI.pickFiles({ accept: OPEN_ACCEPT, multiple: true }); if (fs.length) await openFiles(fs); }
-/** Open whatever was chosen or dropped: projects, ZPL, images (placed) or data files (merged). */
-async function openFiles(files) {
+/** Open whatever came in (ui/intake.js: chosen, dropped, sent from another app): projects, ZPL, images (placed) or data
+ *  files (merged). o.driveId: the Slop Drive file a project came from (Save writes back to it). */
+async function openFiles(files, o = {}) {
+  const tab = (f) => ({ origName: f.name, driveId: o.driveId || null });
   for (const f of files) {
     const n = (f.name || '').toLowerCase();
     try {
-      if (/\.sloplabel$/.test(n)) { openDocTab(parseProject(await f.text()), { origName: f.name }); status('Opened ' + f.name, '', 2500); }
+      if (/\.sloplabel$/.test(n)) { openDocTab(parseProject(await f.text()), tab(f)); status('Opened ' + f.name, '', 2500); }
       else if (/\.(zpl|prn)$/.test(n)) await importZPLText(await f.text(), f.name);
       else if (/\.webm$/.test(n) || /^video\//.test(f.type)) SlopUI.alert('WebM is video', 'SlopLabel places pictures and does not play video. Export a still image (PNG, JPEG or WebP) instead.');
       else if (/^image\//.test(f.type) || /\.(png|jpe?g|gif|webp|avif|svg|bmp)$/.test(n)) await insertImageFile(f);
       else if (/\.(csv|tsv|tab|xlsx)$/.test(n) || /csv|spreadsheet/.test(f.type)) await importDataDialog(f);
       else if (/\.(json|txt)$/.test(n)) {
         const t = await f.text();
-        if (/"app"\s*:\s*"sloplabel"/.test(t.slice(0, 400))) openDocTab(parseProject(t), { origName: f.name });
+        if (/"app"\s*:\s*"sloplabel"/.test(t.slice(0, 400))) { openDocTab(parseProject(t), tab(f)); status('Opened ' + f.name, '', 2500); }
         else if (/"format"\s*:\s*"sloplabel-configs"/.test(t.slice(0, 400))) importConfigsText(t);
         else if (/\^XA/.test(t)) await importZPLText(t, f.name);
         else await importDataDialog(f);
@@ -84,7 +84,7 @@ function importZPLDialog() {
   const zbody = mk('div', { class: 'dlg-form' }, mk('p', { class: 'sui-p' }, 'Paste a ZPL II format (from ZebraDesigner, NiceLabel, an ERP or a printer dump). Fields with ^FN become prompts and ^SN becomes a counter.'), ta, dRow('Printer resolution', dpi));
   SlopFormReset.snapshot(zbody);
   SlopUI.dialog({ title: 'Import ZPL', cls: 'sui-wide', body: zbody,
-    buttons: [{ label: 'Open file…', act: async () => { const f = (await SlopUI.pickFiles({ accept: '.zpl,.prn,.txt' }))[0]; if (f) ta.value = await f.text(); return false; } }, SlopFormReset.dialogButton(zbody), { label: 'Cancel' },
+    buttons: [{ label: 'Open file…', act: async () => { const t = await pickZPLText(); if (t != null) ta.value = t; return false; } }, SlopFormReset.dialogButton(zbody), { label: 'Cancel' },
       { label: 'Import', primary: true, act: async () => {
         if (!/\^XA/i.test(ta.value)) { SlopUI.toast('No ^XA … ^XZ format found'); return false; }
         await importZPLText(ta.value, undefined, +dpi.value);

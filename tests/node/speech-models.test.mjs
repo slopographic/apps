@@ -1,4 +1,4 @@
-// The speech models (aitools/speech-models.js): every file on the slopographic/cdn repository at one pinned commit, big
+// The speech models (aitools/speech-models.js): every file on the slopographic/cdn repository at its release tag, big
 // files in parts under 95 MB that add up, and the ranking the Language and model dialog and the upgrade offer use.
 // The download of a file in parts (aitools/download.js): each part checked, joined, the whole checked; any mismatch,
 // a host outside the list or a cancel keeps nothing.
@@ -11,25 +11,23 @@ const require = createRequire(import.meta.url);
 const SM = require('../../aitools/speech-models.js');
 const R = require('../../aitools/model-registry.js');
 const { fetchFile } = require('../../aitools/download.js');
+const C = require('../../shared/cdn/assets.js');
 const ids = (lang) => SM.rank(lang).map((r) => r.model.id);
 
-test('every speech model is in the model index, with a licence, every file on the cdn at one pinned commit', () => {
+test('every speech model is in the model index, with a licence, every file on the cdn at the release tag', () => {
   assert.deepEqual(R.problems(), []);
-  const commits = new Set();
   for (const m of SM.MODELS) {
     assert.ok(R.byId(m.id), m.id);
     assert.ok(['MIT', 'Apache-2.0'].includes(m.licence));
     const names = m.files.map((f) => f.name);
     for (const n of ['encoder_model_quantized.onnx', 'decoder_model_merged_quantized.onnx', 'vocab.json', 'added_tokens.json', 'config.json', 'generation_config.json']) assert.ok(names.includes(n), `${m.id} ${n}`);
     for (const f of m.files) for (const u of R.urlsOf(f)) {
-      const hit = u.match(/^https:\/\/raw\.githubusercontent\.com\/slopographic\/cdn\/([0-9a-f]{40})\/models\/whisper\/([a-z0-9-]+)\//);
-      assert.ok(hit, u);
-      assert.equal(hit[2], m.id);
-      commits.add(hit[1]);
+      const p = C.pathOf(u);
+      assert.ok(p && p.startsWith(SM.CDN + m.id + '/'), u);
+      assert.equal(u, C.url(p), 'the first place shared/cdn/assets.js gives');
     }
     for (const f of m.files) if (f.size > 95e6) assert.ok(f.parts && f.parts.length >= 2, `${m.id} ${f.name} must be in parts`);
   }
-  assert.equal(commits.size, 1, 'one cdn commit for all');
 });
 
 test('Swedish: KB-Whisper small, then base, then the multilingual models; tiny last as the fast option', () => {

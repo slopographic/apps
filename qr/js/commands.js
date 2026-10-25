@@ -24,6 +24,9 @@
     if (!window.SlopCmd) return;
     SlopCmd.init({ app: 'qr' });
     SlopCmd.register(commandList());
+    // the assistant's commands with arguments (js/ai-commands.js), loaded when the AI panel first asks
+    if (SlopCmd.provide) SlopCmd.provide({ prepare: () => (window.QRAI ? null : new Promise((res, rej) => document.head.append(Object.assign(document.createElement('script'),
+      { src: new URL('js/ai-commands.js', location.href).href, onload: res, onerror: () => rej(new Error('Could not load ai-commands.js')) })))) });
   }
 
   window.QRCommands = { register, commandList };

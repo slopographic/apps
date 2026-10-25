@@ -4,7 +4,7 @@
  * window.SlopMacroHost (shared/macros/macros.js serve): open the file, replay the steps with SlopCmd.exec (the same replay
  * as Play, shared/macros/core.js), write the result. One iframe per app, reused for every file of a run, one file at a
  * time, and removed after a minute of rest. ES module; used by shared/ops/macros.js (the Workflows step).
- *   runInHost({ app, url }, file, steps, options, { signal, timeout }) → { blob, kind }
+ *   runInHost({ app, url }, file, steps, options, { signal, timeout, progress }) → { blob, kind, info? }
  *   dropHosts()   removes the hidden apps now */
 const SITE = new URL('../../', import.meta.url).href;
 const hosts = new Map();
@@ -47,7 +47,7 @@ function drop(app) {
 }
 export function dropHosts() { for (const app of [...hosts.keys()]) drop(app); }
 
-export async function runInHost({ app, url }, file, steps, options = {}, { signal = null, timeout = 120000 } = {}) {
+export async function runInHost({ app, url }, file, steps, options = {}, { signal = null, timeout = 120000, progress = null } = {}) {
   if (signal && signal.aborted) throw new DOMException('Cancelled', 'AbortError');
   const h = frameFor(app, url);
   h.busy++;
@@ -55,9 +55,9 @@ export async function runInHost({ app, url }, file, steps, options = {}, { signa
     const host = await h.ready;
     let timer = 0;
     const late = new Promise((_, rej) => { timer = setTimeout(() => rej(new Error('The macro took too long and was stopped.')), timeout); });
-    const r = await Promise.race([host.run(file, steps, options, { signal }), late]).finally(() => clearTimeout(timer));
+    const r = await Promise.race([host.run(file, steps, options, { signal, progress }), late]).finally(() => clearTimeout(timer));
     // a Blob of this window (the iframe's own goes away with it)
-    return { blob: new Blob([r.blob], { type: r.blob.type }), kind: r.kind };
+    return { blob: new Blob([r.blob], { type: r.blob.type }), kind: r.kind, info: r.info ? JSON.parse(JSON.stringify(r.info)) : undefined };
   } finally {
     h.busy--;
     if (!h.busy && hosts.get(app) === h) h.idle = setTimeout(() => drop(app), IDLE_MS);

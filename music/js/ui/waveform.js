@@ -27,7 +27,8 @@
   /** Pointer seek: onSeek receives a fraction 0 to 1 of the track. */
   function attach(canvas, onSeek) {
     const at = (e) => { const r = canvas.getBoundingClientRect(); return Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)); };
-    canvas.addEventListener('pointerdown', (e) => { canvas.setPointerCapture(e.pointerId); onSeek(at(e)); });
+    canvas.setAttribute('data-touch-surface', ''); // a finger scrubs the track, never scrolls the page (shared/input)
+    canvas.addEventListener('pointerdown', (e) => { try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* a synthetic pointer */ } onSeek(at(e)); });
     canvas.addEventListener('pointermove', (e) => { if (e.buttons & 1) onSeek(at(e)); });
   }
   M.wave = { draw, attach };

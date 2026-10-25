@@ -124,6 +124,8 @@
     b.addEventListener('click', openAI);
     const C = window.SlopCmd;
     if (C && C.register && !C.get('shell.ai')) C.register([{ id: 'shell.ai', title: 'Ask Slop AI…', group: 'Help', keywords: ['ai', 'assistant', 'chat', 'llm', 'help'], run: openAI }]);
+    // a request handed over from another app (shared/ai/handoff.js): open the panel so it continues here
+    try { const h = JSON.parse(sessionStorage.getItem('slop-ai.handoff') || 'null'); if (h && h.to === app.id && Date.now() - h.at < 6e5) setTimeout(openAI, 0); } catch (e) { /* no storage */ }
     return b;
   }
 

@@ -38,7 +38,7 @@ export function bindInput(hit) {
     if (e.pointerType === 'mouse' && e.button !== 0) return;
     if (e.pointerType !== 'mouse' && controlAt(e.clientX, e.clientY)) return;   // over a control under him: no pet (see HANDOFF: touch can't pass through)
     e.preventDefault();
-    try { hit.setPointerCapture(e.pointerId); } catch (err) { /* synthetic events */ }
+    try { hit.setPointerCapture(e.pointerId); } catch (err) { /* synthetic events */ } // touch-ok: his hit area has touch-action: none (buddy.css)
     P = { id: e.pointerId, sx: e.clientX, sy: e.clientY, ox: M.x - e.pageX, oy: M.y - e.pageY, drag: false };
   });
   hit.addEventListener('pointermove', (e) => {

@@ -48,7 +48,7 @@
     it('one drop zone (the shared one under the preview); the empty preview does not repeat it', async () => {
       const D = await open(1440);
       expect(D.querySelectorAll('.sd-zone').length).toBe(1);
-      expect(D.querySelector('#wm-drop .sd-msg').textContent).toBe('Drop pictures here');
+      expect(D.querySelector('#wm-drop .sd-msg').textContent).toBe('Drop photos, videos or PDFs here');
       expect(/drop/i.test(D.getElementById('wm-off').textContent)).toBe(false);
     }, { timeout: 40000 });
 

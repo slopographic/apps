@@ -26,7 +26,7 @@
     if (open) {
       const r = await H().get(id);
       if (r) await H().update(id, { opened: Date.now() }, { touch: false });
-      await H().sendTo(c.app.id, null, name, { id });
+      await window.SlopOuttake.send(c.app.id, { id, name, type: c.mime, from: 'drive' }); // the one way out, no copy
     }
     return id;
   };

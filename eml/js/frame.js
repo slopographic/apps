@@ -1,11 +1,14 @@
 /* Slop EML: the documents the message body is shown in. Pure string building (no DOM). Classic script; exposes window.EmlFrame.
  *   esc(s)                       HTML-escapes text
- *   bodyHtml(msg, withCids)      the message's HTML body, ready for a frame: meta refresh removed (it would load a page),
+ *   bodyHtml(msg, withCids)      the message's HTML body, ready for a frame: sanitised by SlopSanitize (shared/sanitize: no
+ *                                scripts, handlers, frames, forms, meta refresh or script URLs; its <head> styles kept),
  *                                cid: images replaced by their attachments when withCids is set
  *   preview(inner)               the srcdoc for the preview iframe: no scripts, no network (the CSP below), white paper
  *   printable(msg, view)         a complete page for the print window: the headers, then the body (HTML or text), print CSS only
  * The page's Content-Security-Policy allows data: and blob: images and nothing else, so a remote image or a script in
- * the mail cannot load. The preview iframe also has sandbox without allow-scripts (see eml/js/view.js). */
+ * the mail cannot load. The preview iframe also has sandbox without allow-scripts (see eml/js/view.js). Remote images stay
+ * in the markup (the CSP blocks them, and the app says so); the print window has no sandbox, so the sanitiser is what keeps
+ * script out of it. */
 (function () {
   'use strict';
   const F = (window.EmlFrame = {});
@@ -14,10 +17,8 @@
   F.esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ESC[c]);
 
   F.bodyHtml = function (msg, withCids) {
-    let h = String(msg.html || '').replace(/<meta\b[^>]*http-equiv\s*=\s*["']?refresh[^>]*>/gi, '');
-    // Scripts never run here (the frame has no allow-scripts), so they are removed rather than left to be blocked.
-    h = h.replace(/<script\b[\s\S]*?<\/script\s*>/gi, '').replace(/<script\b[^>]*>/gi, '');
-    return withCids ? M.embedCids(h, msg.cids).html : h;
+    const h = String(msg.html || '');
+    return window.SlopSanitize.html(withCids ? M.embedCids(h, msg.cids).html : h, { urls: 'web', whole: true });
   };
 
   /** The policy: nothing from the network, images only as data: or blob:, styles only inline. Mail is laid out on white. */

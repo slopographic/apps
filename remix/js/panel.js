@@ -18,6 +18,7 @@
     track.replaceChildren(...cur.keys.map((k, i) => {
       const b = document.createElement('button');
       b.type = 'button'; b.className = 'rm-kkey' + (i === RM.state.selKey ? ' on' : '');
+      b.setAttribute('data-touch-hit', ''); // a 44 px grab area for a finger (shared/input/touch.css); touch-ok: .rm-kkey has touch-action: none
       b.style.left = (cur.span > 0 ? (k.t / cur.span) * 100 : 0) + '%';
       b.title = 'Key ' + (i + 1) + ' at ' + k.t.toFixed(2) + ' s. Drag, or Left and Right keys. Delete removes it.';
       b.setAttribute('aria-label', b.title); b.setAttribute('aria-pressed', String(i === RM.state.selKey));
