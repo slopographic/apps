@@ -27,6 +27,11 @@ inside any page; `convert.css` imports it and `mountTool` adds it to a page that
 for the first tool on a page, `cv2-drop` for the next (`tool.ns`). `compact` shows the drop zone as a strip from the start
 and no first-visit picture; `onResults(outputs)` is called after each Convert. Returns the ConvertTool (`host.convertTool`).
 
+- **Layout** (`frame.js`, the suite rule in shared/frame/HANDOFF.md): on File convert's own pages the tool is a SlopFrame:
+  the files on the left (flow picture, drop zone, bulk bar, cards) and a panel on the right with the summary (`#cv-note`,
+  `#cv-status`), the converted files and Convert + Clear at its foot (Convert stays the form's submit button through its
+  `form` attribute). On a phone the panel is a bottom sheet whose closed state shows Convert; a run's results open it.
+  A compact tool (a dialog) keeps its one column. Test: `tests/convert/panel.test.html`.
 - **Drop zone** (`#cv-drop`, SlopDrop): always the upload area at the top. Once there are files it is a strip of one fixed
   height (76 px, "Add more files"), so nothing above the list moves; the zone's own progress list and status are hidden
   (the file list and the status line say the same). The flow picture keeps its place (blank while a side is unknown).

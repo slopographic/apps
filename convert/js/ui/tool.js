@@ -14,6 +14,7 @@ import { ownTargets, resolve, sharedTargets, applyTarget, groupsFor, commonTarge
 import { installRoutes, runTool } from './tool-chain.js';
 import { isRoute, stepsOf, kindsOf } from '../core/chain.js';
 import { drawFiles, drawResults } from './list-view.js';
+import { frameTool } from './frame.js';
 
 let seq = 0, instances = 0;
 const plural = (n, one, many = one + 's') => `${n} ${n === 1 ? one : many}`;
@@ -32,6 +33,7 @@ export class ConvertTool {
     this.defaultTarget = null;   // set by ?to= (route.js) or setTarget with no selection: the default for files added later
     this.ui = buildTool(root, preset, { ns: this.ns, compact: !!opts.compact });
     const ui = this.ui;
+    if (!opts.compact) this.side = frameTool(this);   // the page's tool: the files left, Convert in the panel on the right
     // Files come in one way (shared/intake): the drop zone (SlopDrop: drops and Choose files, the only thing that opens
     // the picker), a paste, ?drive=<id>, the sample, the Convert dialog's own files and addFiles all go through the
     // tool's intake spec, and each file is read by readFile. The page's own picker input keeps its accept list.
@@ -222,6 +224,7 @@ export class ConvertTool {
     ui.run.disabled = this.busy || !this.groups().length;
     this.noteFor(cands);
     this.paintFlow();
+    if (this.side) this.side.paint();
     this.emit();
   }
 
@@ -262,6 +265,7 @@ export class ConvertTool {
     this.outputs = [];
     this.ui.outList.replaceChildren();
     this.ui.results.hidden = true;
+    if (this.side) this.side.paint();
   }
 
   /** Converts every file with its own target: one run per conversion or route in use (tool-chain.js). */
@@ -275,7 +279,7 @@ export class ConvertTool {
     return parts.join('. ') + (parts.length ? '.' : '');
   }
 
-  renderResults() { drawResults(this.ui, this.outputs); }
+  renderResults() { drawResults(this.ui, this.outputs); if (this.side) this.side.paint(); }
 
   async zipAll() {
     if (!this.outputs.length) return;

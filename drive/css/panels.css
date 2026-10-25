@@ -118,3 +118,8 @@ body.dragging, body.dragging * { cursor: grabbing !important; }
 .pv-mode[hidden] { display: none; }
 /* A finger (pointer: coarse): the details panel's grip takes a 44 px band (--slop-hit, shared/input/touch.css); the line stays thin. */
 @media (pointer: coarse) { .info-grip::before { content: ''; position: absolute; top: 0; bottom: 0; left: 50%; width: var(--slop-hit, 44px); transform: translateX(-50%); } }
+/* The details panel's main buttons at its foot (js/ui/info-foot.js, the shared footer of shared/frame/frame.css), in
+   Drive's colours; it spans the panel's padding */
+.info .sf-p-foot { margin: auto -14px -14px; padding: 10px 14px; background: var(--panel); border-top-color: var(--line); }
+.info .sf-foot-acts .btn { height: auto; min-height: 36px; font-size: var(--fs-s); }
+.info .sf-foot-acts .sf-foot-more { flex: 0 0 auto; }

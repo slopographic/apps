@@ -26,3 +26,15 @@
   .yr { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
   .sp { grid-template-columns: minmax(0, 1fr); }
 }
+/* The panel on the right (js/ui/panel.js, shared/frame/frame.css): the chosen day, the display choices, the calendar file,
+   and New event at its foot. The page scrolls; the panel stays in sight. */
+.cal-body { align-items: flex-start; }
+.cal-body > .main { flex: 1 1 auto; min-width: 0; }
+.cal-body:not(.sf-phone) > .cal-side { position: sticky; top: 0; max-height: 100vh; min-height: calc(100vh - var(--cal-top, 96px)); }
+.cal-body > .sf-grip { align-self: stretch; }
+.cal-side label.sf-field { color: var(--ink); font-size: 13px; }
+.cal-side label.sf-field:has(input[type="checkbox"]) { display: flex; align-items: center; gap: 8px; }
+.cal-side .tb-lbl { display: inline; }
+.cal-side select { background: var(--panel-2); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; font: inherit; width: 100%; }
+.cal-side .sf-acts .btn, .cal-side .sf-foot-acts .btn { min-height: 36px; }
+.cal-side .sf-h, .cal-side .sf-note, .cal-side .sf-item-meta { color: var(--mute); }   /* the small headings in the muted ink (contrast) */

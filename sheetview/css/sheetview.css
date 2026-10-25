@@ -76,3 +76,8 @@ body { background: var(--sl-background); color: var(--sl-text); font: 14px/1.45 
   .sv-tools > * { flex: none; white-space: nowrap; }
   .sv-bar { padding: 6px 16px; }
 }
+/* The panel on the right (js/panel.js, shared/frame/frame.css): Look, Send, and Export at its foot. */
+.sv-body { flex: 1 1 auto; min-height: 0; }
+.sv-side .sv-pick { display: grid; gap: 6px; font-size: 12.5px; font-weight: 600; }
+.sv-side .sv-pick select { height: 34px; }
+.sv-side .sf-foot-acts .sv-btn, .sv-side .sf-acts .sv-btn { min-height: 36px; font-weight: 700; }
