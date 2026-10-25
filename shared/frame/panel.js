@@ -25,8 +25,9 @@
   const doc = g.document;
   const el = (tag, cls, text) => { const n = doc.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
 
-  // A footer pinned to the window's bottom edge (a phone's sheet footer) is published as --slop-foot-h on the page's root:
-  // the room it takes from the bottom, so cards in the bottom corner (the consent card, shared/consent/banner.css) sit above it.
+  // A footer in the bottom of the window (a phone's sheet footer, at the edge or above an app's own bottom rail) is published
+  // as --slop-foot-h on the page's root: the room from its top edge to the window's bottom, so cards in the bottom corner
+  // (the consent card, shared/consent/banner.css) sit above it.
   const foots = new Set();
   function lift() {
     let h = 0;
@@ -34,7 +35,7 @@
     foots.forEach((f) => {
       if (!f.isConnected) { foots.delete(f); return; }
       const r = f.getBoundingClientRect();
-      if (r.height && r.top < vh && r.bottom >= vh - 2) h = Math.max(h, vh - r.top);
+      if (r.height && r.top < vh && r.bottom > vh * 0.75) h = Math.max(h, vh - r.top);
     });
     doc.documentElement.style.setProperty('--slop-foot-h', Math.ceil(h) + 'px');
   }

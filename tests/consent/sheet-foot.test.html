@@ -8,11 +8,11 @@
   <script>
   const { describe, it, expect, waitFor, sleep } = SlopTest;
   /** Slop Clean (a tool with the shared footer) at this size, on a first visit: the consent card is up. */
-  async function open(w, h) {
+  async function open(w, h, app = 'clean') {
     try { localStorage.removeItem('slop-consent'); } catch (e) { /* ignore */ }
     const f = document.createElement('iframe');
     f.style.width = w + 'px'; f.style.height = h + 'px';
-    f.src = '../../clean/index.html';
+    f.src = '../../' + app + '/index.html';
     document.body.append(f);
     await waitFor(() => { const D = f.contentDocument; return D && D.getElementById('slopc-banner') && D.querySelector('.sf-p-foot'); }, { timeout: 30000 });
     await sleep(500);   // banner.css arrives, the footer is measured
@@ -30,6 +30,13 @@
       const main = f.contentDocument.querySelector('.sf-p-foot .sui-primary');
       if (main) { const r = main.getBoundingClientRect(); const hit = f.contentDocument.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2); expect(f.contentDocument.querySelector('.sf-p-foot').contains(hit)).toBe(true); }   // (a disabled button hit-tests as its bar)
       expect(f.contentDocument.documentElement.scrollWidth).toBeLessThanOrEqual(390);
+      f.remove();
+    }, { timeout: 60000 });
+    it('at 390 px in Slop PDF the card sits above the closed sheet footer, which sits above the tool rail', async () => {
+      const f = await open(390, 844, 'pdf');
+      const card = box(f, '#slopc-banner'), foot = box(f, '.sf-p-foot');
+      expect(foot.height).toBeGreaterThan(0);
+      expect(card.bottom).toBeLessThanOrEqual(foot.top + 0.5);
       f.remove();
     }, { timeout: 60000 });
     it('at 1280 px the card keeps its place in the bottom corner', async () => {
