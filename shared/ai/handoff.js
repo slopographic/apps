@@ -58,9 +58,9 @@
     const apps = env.apps || (() => window.SLOP_APPS || []);
     return {
       name: 'open_in_app',
-      description: 'Move the task to another app, in this tab, carrying files the way "Open in…" does (an app\'s own handover first, e.g. a SlopIsolate cut-out arrives in PhotoSlop as a layer with its mask). This chat comes along and you continue there with "task". Use it for editing that needs that app; for a file in → file out job use run_operation here instead.',
+      description: 'Move the task to another app in this tab, with files (as "Open in…" does: a SlopIsolate cut-out arrives in PhotoSlop as a layer with its mask). The chat comes along; you continue there with "task". For editing that needs that app; file in → file out jobs: run_operation here.',
       params: { app: { type: 'string', description: 'app id, e.g. "photoslop"', required: true }, files: { type: 'array', description: 'Slop Drive file names, or "open" for what this app has open; none to just open the app' }, task: { type: 'string', description: 'what to do there, in full (the next page starts from it)', required: true } },
-      schema: { type: 'object', properties: { app: { type: 'string', description: 'app id, e.g. "photoslop"' }, files: { type: 'array', items: { type: 'string' }, description: 'Slop Drive file names, or "open" for what this app has open; none to just open the app' }, task: { type: 'string', description: 'what to do there, in full (the next page starts from it)' } }, required: ['app', 'task'] },
+      schema: { type: 'object', properties: { app: { type: 'string', description: 'app id, e.g. "photoslop"' }, files: { type: 'array', items: { type: 'string' }, description: 'Slop Drive names, or "open" (what is open here)' }, task: { type: 'string', description: 'what to do there, in full' } }, required: ['app', 'task'] },
       label: (a) => `Open ${((apps().find((x) => x.id === a.app) || {}).name) || a.app}${[].concat(a.files || []).length ? ' with ' + [].concat(a.files).join(', ') : ''}`,
       run: async (a) => {
         const app = apps().find((x) => x.id === a.app || x.name.toLowerCase() === String(a.app).toLowerCase());
