@@ -35,7 +35,7 @@ export async function reportPdf(r, { nameA = 'A', nameB = 'B', date = new Date()
     const segs = wrap(latin(text), COLS, true);
     for (let k = 0; k < segs.length; k++) {
       need(LH);
-      const x0 = M + 64, top = y - LH + 2.5;
+      const x0 = M + 64, top = y - LH + 0.2;
       if (bg) page.drawRectangle({ x: M, y: top, width: W - 2 * M, height: LH, color: bg });
       const from = k * COLS;
       for (const [s, e] of marks) { const a = Math.max(s, from), b = Math.min(e, from + segs[k].length); if (b > a) page.drawRectangle({ x: x0 + (a - from) * CW, y: top, width: (b - a) * CW, height: LH, color: markColor }); }
