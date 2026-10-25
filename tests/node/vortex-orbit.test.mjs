@@ -56,12 +56,12 @@ test('alpha: zero when an icon is born and when it reaches the centre, highest i
 
 test('keepOut: an icon over the text nearly vanishes, one clear of it shows fully, with a smooth ramp between', () => {
   const rects = [{ l: 100, t: 100, r: 400, b: 200 }];
-  assert.ok(near(V.keepOut(250, 150, rects, 30), 0.08));
+  assert.ok(near(V.keepOut(250, 150, rects, 30), 0.05));
   assert.equal(V.keepOut(250, 300, rects, 30), 1);
   const a = V.keepOut(250, 210, rects, 30), b = V.keepOut(250, 220, rects, 30);
-  assert.ok(a > 0.08 && a < b && b < 1);
+  assert.ok(a > 0.05 && a < b && b < 1);
   assert.equal(V.keepOut(0, 0, [], 30), 1);
-  assert.ok(near(V.keepOut(250, 150, [{ l: 0, t: 0, r: 10, b: 10 }, rects[0]], 30), 0.08), 'the closest box wins');
+  assert.ok(near(V.keepOut(250, 150, [{ l: 0, t: 0, r: 10, b: 10 }, rects[0]], 30), 0.05), "the closest box wins");
 });
 
 test('ring: the still arrangement spreads n icons on two rings, none on top of another', () => {

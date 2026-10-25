@@ -8,7 +8,7 @@
  *   spiral(phase, a0, turns) -> { d, a }               depth and angle on the spiral
  *   place(d, a, geom, par) -> { x, y, z, scale }       stage position, front/back z (-1 back .. 1 front), size factor
  *   alpha(phase, d, z) -> 0..1                         fade in at the rim, fade out into the centre, back dimmer
- *   keepOut(x, y, rects, margin) -> 0.08..1            how much an icon shows over the text boxes (rects)
+ *   keepOut(x, y, rects, margin) -> 0.05..1            how much an icon shows over the text boxes (rects)
  *   ring(n, geom) -> [{ d, a }]                        the static ring for reduced motion
  *   due(now, last, fps) -> bool                        whether a frame should be drawn under the fps cap */
 (function () {
@@ -61,7 +61,7 @@
     return clamp(life * (0.45 + 0.55 * d) * (0.78 + 0.22 * z), 0, 1);
   }
 
-  /** How much of an icon shows at (x, y) given the text boxes: 1 well clear of every box, 0.08 inside one, a smooth ramp
+  /** How much of an icon shows at (x, y) given the text boxes: 1 well clear of every box, 0.05 inside one, a smooth ramp
    * across the margin. rects: [{ l, t, r, b }]. */
   function keepOut(x, y, rects, margin) {
     let k = 1;
@@ -69,7 +69,7 @@
     for (const b of rects || []) {
       const dx = Math.max(b.l - x, 0, x - b.r), dy = Math.max(b.t - y, 0, y - b.b);
       const dist = Math.sqrt(dx * dx + dy * dy);
-      k = Math.min(k, 0.08 + 0.92 * smooth(0, m, dist));
+      k = Math.min(k, 0.05 + 0.95 * smooth(0, m, dist));
     }
     return k;
   }
