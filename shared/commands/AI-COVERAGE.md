@@ -9,7 +9,7 @@ that this file is up to date and that no covered app loses a create, add or expo
 the picture look_at_canvas and app_snapshot take (`own` or `page`), **Driven** whether those commands reach an assistant
 in another app (the Slop AI workspace, open_in_app, agents). **Full** is all of it. ✗ marks a gap.
 
-Covered: 61 of 61 apps. Full suite: 61 of 61 apps.
+Covered: 62 of 62 apps. Full suite: 62 of 62 apps.
 
 | App | Create | Add | Edit | Export | Operations | State | Snapshot | Driven | Covered | Full |
 |---|---|---|---|---|---|---|---|---|---|---|
@@ -57,6 +57,7 @@ Covered: 61 of 61 apps. Full suite: 61 of 61 apps.
 | Slop Signature (`signature`) | ✓ 1 | ✓ 2 | ✓ 5 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | QR SLOP (`qr`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Colors (`colors`) | ✓ 1 | ✓ 2 | ✓ 7 | ✓ 1 | 1 | ✓ own | ✓ page | ✓ | yes | yes |
+| Slop Font (`fontcreator`) | ✓ 1 | ✓ 6 | ✓ 17 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Workflows (`workflows`) | ✓ 1 | ✓ 1 | ✓ 7 | ✓ 2 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | File convert (`convert`) | ✓ 1 | ✓ 1 | ✓ 2 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slopculator (`calculator`) | ✓ 1 | ✓ 1 | ✓ 1 | ✓ 2 |  | ✓ own | ✓ page | ✓ | yes | yes |
@@ -398,6 +399,13 @@ Covered: 61 of 61 apps. Full suite: 61 of 61 apps.
 - edit: `check_contrast`, `convert_color`, `fix_contrast`, `make_palette`, `remove_color`, `rename_palette`, `set_color`
 - export: `export_palette`
 - operations: `colors.palette`
+
+### Slop Font
+
+- create: `new_font`
+- add: `add_characters`, `add_kerning`, `add_shape`, `draw_glyph`, `draw_glyphs`, `draw_strokes`
+- edit: `asc`, `base`, `cap`, `clear_glyph`, `copy_glyph`, `desc`, `open_font`, `path_operation`, `remove_glyph`, `select_glyph`, `set_glyph_metrics`, `set_info`, `set_metrics`, `show_view`, `subset_font`, `transform_glyph`, `x`
+- export: `export_font`
 
 ### Slop Workflows
 

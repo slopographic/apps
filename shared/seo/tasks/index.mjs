@@ -21,6 +21,7 @@ import { TASKS as raw } from './raw.mjs';
 import { TASKS as compare } from './compare.mjs';
 import { TASKS as colors } from './colors.mjs';
 import { TASKS as recorder } from './recorder.mjs';
+import { TASKS as fontcreator } from './fontcreator.mjs';
 
 
-export const TASKS = [...cutout, ...creative, ...creative2, ...creative3, ...documents, ...documents2, ...documents3, ...documents4, ...business, ...business2, ...business3, ...everyday, ...everyday2, ...threed, ...finance, ...raw, ...compare, ...recorder, ...colors];
+export const TASKS = [...cutout, ...creative, ...creative2, ...creative3, ...documents, ...documents2, ...documents3, ...documents4, ...business, ...business2, ...business3, ...everyday, ...everyday2, ...threed, ...finance, ...raw, ...compare, ...recorder, ...colors, ...fontcreator];
