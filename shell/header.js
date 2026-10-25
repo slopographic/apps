@@ -43,7 +43,7 @@
         .concat((ai && ai.hidden) || (conv && conv.hidden) ? ['-'] : [])
         .concat([{ label: 'System', check: now === T.SYSTEM, act: pick(T.SYSTEM) }, '-'])
         .concat(T.THEMES.map((t) => ({ label: t.name, check: now === t.id, act: pick(t.id) })));
-      const r = b.getBoundingClientRect();
+      const r = (window.SlopHbtn && window.SlopHbtn.anchor ? window.SlopHbtn.anchor(b) : b).getBoundingClientRect();   // folded into More: under it
       const m = window.SlopUI.menu(items, r.left, r.bottom + 4);
       b.setAttribute('aria-expanded', 'true');
       const done = new MutationObserver(() => { if (!m.isConnected) { b.setAttribute('aria-expanded', 'false'); done.disconnect(); } });
@@ -84,7 +84,8 @@
     const b = document.createElement('button');
     b.type = 'button';
     b.className = 'sh-hbtn slop-hbtn sh-convert';
-    b.dataset.hbtnYield = '1';   // gives way first when the header is full (shared/ui/hbtn.js), then shows in the Theme menu
+    b.dataset.hbtnYield = '1';   // gives way first when the header is full (shared/ui/hbtn.js), then shows in the Theme and More menus
+    b.dataset.hbtnLabel = 'Convert files…';
     b.title = 'Convert files to another format, on this device';
     b.setAttribute('aria-label', 'Convert files');
     b.setAttribute('aria-haspopup', 'dialog');
@@ -117,8 +118,10 @@
     const b = document.createElement('button');
     b.type = 'button';
     b.className = 'sh-hbtn slop-hbtn sh-ai';
-    b.dataset.hbtnYield = '2';   // gives way right after Convert… (shared/ui/hbtn.js), then shows in the Theme menu
-    b.title = 'Slop AI: ask, or let it work in ' + app.name + ' (runs on this device)';
+    // gives up its label right after Convert… (shared/ui/hbtn.js), but stays as an icon: Theme, the bell, Drive and Apps fold
+    // into More (⋯) first; only a header with no room at all puts it in More, with its label
+    b.dataset.hbtnYield = '2'; b.dataset.hbtnKeep = ''; b.dataset.hbtnLabel = 'Ask Slop AI…';
+    b.title = 'Slop AI: ask, or let it work in ' + app.name;
     b.setAttribute('aria-label', 'Slop AI');
     b.innerHTML = ICON_AI + '<span class="slop-hbtn-txt" data-i18n="shell.ai">AI</span>';
     b.addEventListener('click', openAI);
@@ -152,8 +155,8 @@
     if (host) { if (window.SlopHbtn) window.SlopHbtn.fit(host); }   // labels give way to icons when the header is full
     else { box.classList.add('sh-fab'); document.body.append(box); }
     window.SlopNotify.mountBell(box);
-    // Convert… and AI never cost the header a row or the app's controls their room: they give up their labels, then their
-    // place (the Theme menu offers them), before anything else does (shared/ui/hbtn.js). Measured again now the bell is in.
+    // Convert… and AI never cost the header a row or the app's controls their room: they give up their labels, Convert… its
+    // place, then the other buttons fold into More, AI last (shared/ui/hbtn.js). Measured again now the bell is in.
     if (host && window.SlopHbtn) window.SlopHbtn.check(host);
     window.addEventListener('slop-lang', () => { sw.title = title(); });
   }

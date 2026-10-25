@@ -13,9 +13,10 @@
 </head>
 <body>
   <script src="../harness.js"></script>
+  <script src="../../shared/ui/menubutton.js"></script>
   <script src="../../shared/ui/hbtn.js"></script>
   <script>
-  // Covers: shared/ui/hbtn.css, shared/ui/hbtn.js
+  // Covers: shared/ui/hbtn.css, shared/ui/hbtn.js, shared/ui/menubutton.js
   const { describe, it, expect, waitFor, run } = SlopTest;
   const ICON = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg>';
   /** A header with one app button and three shared buttons (an icon and a label each). */
@@ -154,6 +155,45 @@
       expect(SlopHbtn.check(h)).toBe(true);
       g.style.width = 'auto';
       expect(SlopHbtn.check(h)).toBe(false);
+      h.remove();
+    });
+  });
+  describe('SlopHbtn: AI stays, the others fold into More (⋯)', () => {
+    /** The shell's header: an app button, then AI (keeps its place), Theme, Apps and the bell in .sh-hdr. */
+    function shellBar(width) {
+      const h = document.createElement('header');
+      h.className = 'bar'; h.style.cssText = `width:${width}px;flex-wrap:wrap`;
+      h.innerHTML = '<button class="own">Save the document</button><div class="sh-hdr" style="display:flex;gap:8px">' +
+        '<button class="slop-hbtn sh-ai" data-hbtn-yield="2" data-hbtn-keep data-hbtn-label="Ask Slop AI…" aria-label="Slop AI">' + ICON + '<span class="slop-hbtn-txt">AI</span></button>' +
+        [['sh-theme', 'Theme'], ['sh-switch', 'Apps'], ['sn-bell', 'Notifications']].map(([c, t]) => `<button class="slop-hbtn ${c}" aria-label="${t}">${ICON}<span class="slop-hbtn-txt">${t}</span></button>`).join('') + '</div>';
+      document.body.append(h);
+      return h;
+    }
+    const vis = (h, s) => { const b = h.querySelector(s); return !!b && !b.hidden && b.getBoundingClientRect().width > 0; };
+    it('a narrow header folds Theme, then Apps, into More while AI stays as an icon; More lists them by label and opens them', async () => {
+      const h = shellBar(250); let themed = 0;
+      h.querySelector('.sh-theme').addEventListener('click', () => themed++);
+      SlopHbtn.check(h);
+      expect([vis(h, '.sh-ai'), vis(h, '.slop-hmore'), h.querySelector('.sh-theme').hidden]).toEqual([true, true, true]);
+      expect(h.getBoundingClientRect().height).toBeLessThan(60);
+      h.querySelector('.slop-hmore').click();
+      const rows = await waitFor(() => [...document.querySelectorAll('.smb-menu[role="menu"] .smb-row')].map((r) => r.textContent));
+      expect(rows[0]).toBe('Theme');
+      [...document.querySelectorAll('.smb-menu[role="menu"] .smb-row')][0].click();
+      expect(themed).toBe(1);
+      expect(SlopHbtn.anchor(h.querySelector('.sh-theme'))).toBe(h.querySelector('.slop-hmore'));
+      h.style.width = '900px'; SlopHbtn.check(h);   // room again: everything comes back, More goes
+      expect([vis(h, '.sh-theme'), vis(h, '.sn-bell'), h.querySelector('.slop-hmore').hidden]).toEqual([true, true, true]);
+      h.remove();
+    });
+    it('with no room at all AI goes last, into More with its label', async () => {
+      const h = shellBar(170);
+      SlopHbtn.check(h);
+      expect([h.querySelector('.sh-ai').hidden, vis(h, '.slop-hmore')]).toEqual([true, true]);
+      h.querySelector('.slop-hmore').click();
+      const rows = await waitFor(() => [...document.querySelectorAll('.smb-menu[role="menu"] .smb-row')].map((r) => r.textContent));
+      expect(rows).toContain('Ask Slop AI…');
+      document.body.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true })); document.body.click();
       h.remove();
     });
   });
