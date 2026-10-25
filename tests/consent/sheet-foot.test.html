@@ -3,7 +3,7 @@
 <head><meta charset="utf-8"><title>Consent card and buddy above a sheet footer</title>
 <style>body { margin: 0; } iframe { border: 0; display: block; }</style></head>
 <body>
-  <!-- Covers: shared/consent/banner.css, shared/consent/banner.js, shared/frame/panel.js, shared/buddy/boot.js -->
+  <!-- Covers: shared/consent/banner.css, shared/consent/banner.js, shared/frame/panel.js, shared/buddy/boot.js, shared/slopui.css, shared/drop/panel.js -->
   <script src="../harness.js"></script>
   <script>
   const { describe, it, expect, waitFor, sleep } = SlopTest;
@@ -50,6 +50,17 @@
     it('at 1280 px the card keeps its place in the bottom corner', async () => {
       const f = await open(1280, 800);
       expect(Math.round(800 - box(f, '#slopc-banner').bottom)).toBe(16);
+      f.remove();
+    }, { timeout: 60000 });
+    it('at 390 px the toasts (SlopUI, SlopDrop in Slop Gallery) show above the closed sheet footer', async () => {
+      const f = await open(390, 844, 'gallery'), W = f.contentWindow;
+      const top = box(f, '.sf-p-foot').top;
+      W.SlopUI.toast('Saved');
+      const t = await waitFor(() => { const n = f.contentDocument.querySelector('.sui-toast'); return n && n.getBoundingClientRect().height && n; });
+      await sleep(300);   // it slides in
+      expect(t.getBoundingClientRect().bottom).toBeLessThanOrEqual(top + 0.5);
+      W.SlopDrop.panel.toast('Added 2 files');
+      expect(f.contentDocument.querySelector('.sd-toast').getBoundingClientRect().bottom).toBeLessThanOrEqual(top + 0.5);
       f.remove();
     }, { timeout: 60000 });
     for (const [w, h] of [[390, 844], [1280, 800]]) {

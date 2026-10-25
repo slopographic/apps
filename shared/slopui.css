@@ -63,6 +63,7 @@ textarea.sui-input { height: auto; resize: vertical; }
 .sui-check { display: inline-flex; align-items: center; gap: 7px; color: var(--s-dim); }
 .sui-check input { accent-color: var(--s-accent); margin: 0; }
 .sui-toast { position: fixed; left: 50%; bottom: 40px; z-index: 99999; transform: translate(-50%, 20px); padding: 9px 14px; border-radius: 8px; background: #0a0a0a; color: #f1ede4; border: 1px solid #333; opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; max-width: calc(100vw - 32px); box-shadow: 0 8px 30px rgba(0, 0, 0, .4); }
+@media (max-width: 900px) { .sui-toast { bottom: calc(40px + var(--slop-foot-h, 0px)); } }   /* above a phone sheet's footer (shared/frame/panel.js) */
 .sui-toast.sui-show { opacity: 1; transform: translate(-50%, 0); }
 /* The toast's action (Undo, Retry): the toast is dark in every theme, so its button is drawn for it, not left to the browser's
    default face (light grey under the toast's light text, which read as an empty white box). */
