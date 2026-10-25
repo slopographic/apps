@@ -45,6 +45,8 @@ export function excluded(file, p) {
   // this repository's own automation: every workflow (deploys, pings, checks that only make sense here; the build writes the
   // mirror's one rules.yml) and the commit identity test
   if (/^\.github\/(workflows\/|dependabot\.yml$)/.test(file) || file === 'tests/node/attribution.test.mjs') return true;
+  // and the tests of those workflows (speed, the nightly model check, IndexNow): with the workflows gone they test nothing
+  if (/^tests\/node\/(speed-config|webgpu-check|indexnow)\.test\.mjs$/.test(file)) return true;
   if (/^tests\/node\/whitelabel-/.test(file)) return true;
   if (/^(TRADEMARKS\.md|NOTICE\.md|LICENSE|LICENSE-ART|README\.md|SECURITY\.md|CNAME|favicon\.svg|favicon\.ico|og-share\.png)$/.test(file)) return true;
   if (/^[^/]+\.png$/.test(file)) return true;                                               // stray root screenshots

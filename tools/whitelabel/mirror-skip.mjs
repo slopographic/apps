@@ -14,6 +14,8 @@ const otherLang = (p) => p.defaultLang !== 'en';
 const plain = (p) => p.naming === 'plain', noMedia = (p) => !p.media, always = (p) => !!p;
 const supportOff = (p) => !p.support || Object.values(p.support).some((v) => v === false);
 export const SKIP = [
+  { test: 'every workflow limits its GITHUB_TOKEN: a top-level permissions block, read-only unless a job asks for more', why: 'counts this site\'s workflows; a mirror has only its own rules.yml', when: always },
+  { test: 'the preview copy is the only place that adds noindex to every page', why: 'reads this site\'s preview workflow, which a mirror does not get', when: always },
   { test: 'the browser tests run only in the slices the plan job asks for', why: 'a mirror runs the smoke pages, not the sliced suite', when: always },
   { test: 'the touch jobs run the touch-marked pages', why: 'a mirror runs the smoke pages, not the touch jobs', when: always },
   { test: 'the system prompt: short, names the tools to load', why: 'the brand app names in the AI prompt', when: plain },
