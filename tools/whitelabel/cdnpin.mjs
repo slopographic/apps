@@ -1,17 +1,17 @@
 // Pins a build's raw links to its own file host. This repository's tests (tests/net-urls.txt, test helpers) and notes link
-// raw files of the cdn repository at a commit or a branch of it; a build's cdn repository is made fresh (cdn.mjs: one
-// commit of its own, tagged with the site's TAG), so those commits and branches do not exist there. Every such link is
-// pointed at the build's TAG instead, which holds the same files.
+// raw files of the cdn repository at a commit of it; a build's cdn repository is made fresh (cdn.mjs: one commit of its
+// own, tagged with the site's TAG), so those commits do not exist there. Every such link is pointed at the build's TAG,
+// which holds the same files. Named refs stay: the tests use made-up ones ("test") on purpose, answered by mocks.
 // Node only. Tests: tests/node/whitelabel-cdnpin.test.mjs.
 import { readdirSync, readFileSync, writeFileSync, statSync } from 'node:fs';
 import path from 'node:path';
 
 const TEXT = /\.(txt|js|mjs|cjs|md|html|json|css|yml)$/;
 
-/** The text with raw.githubusercontent.com/<account>/cdn/<commit or branch>/ links pointed at <tag>. */
+/** The text with raw.githubusercontent.com/<account>/cdn/<commit>/ links pointed at <tag>. */
 export function pinCdn(text, account, tag) {
-  const re = new RegExp(`(raw\\.githubusercontent\\.com/${account.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}/cdn/)(?!${tag.replace(/\./g, '\\.')}/)([0-9a-f]{40}|[A-Za-z][\\w.-]*)/`, 'gi');
-  return text.replace(re, (all, head, ref) => (/^(tree|blob|commit|releases)$/i.test(ref) ? all : `${head}${tag}/`));
+  const re = new RegExp(`(raw\\.githubusercontent\\.com/${account.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}/cdn/)[0-9a-f]{40}/`, 'gi');
+  return text.replace(re, (all, head) => `${head}${tag}/`);
 }
 
 /** Rewrites every text file of the build in place; returns how many files changed. */

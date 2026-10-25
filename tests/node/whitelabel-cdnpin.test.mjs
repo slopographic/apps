@@ -9,10 +9,10 @@ import { pinCdn, pinBuild } from '../../tools/whitelabel/cdnpin.mjs';
 
 const SHA = '0cd1e199373a327108ba91702e597d767fbfc3f9';
 
-test('commit and branch links become the tag; the tag, other accounts and page links stay', () => {
+test('commit links become the tag; named refs, the tag, other accounts and page links stay', () => {
   const t = (s) => pinCdn(s, 'acme', 'v2026.10.24');
   assert.equal(t(`https://raw.githubusercontent.com/acme/cdn/${SHA}/engines/x.js`), 'https://raw.githubusercontent.com/acme/cdn/v2026.10.24/engines/x.js');
-  assert.equal(t('https://raw.githubusercontent.com/acme/cdn/test/packs/'), 'https://raw.githubusercontent.com/acme/cdn/v2026.10.24/packs/');
+  assert.equal(t('https://raw.githubusercontent.com/acme/cdn/test/packs/'), 'https://raw.githubusercontent.com/acme/cdn/test/packs/');   // made up on purpose (mocked)
   assert.equal(t('https://raw.githubusercontent.com/acme/cdn/v2026.10.24/a.js'), 'https://raw.githubusercontent.com/acme/cdn/v2026.10.24/a.js');
   assert.equal(t(`https://raw.githubusercontent.com/other/cdn/${SHA}/a.js`), `https://raw.githubusercontent.com/other/cdn/${SHA}/a.js`);
   assert.equal(t('https://cdn.jsdelivr.net/gh/acme/cdn@v2026.10.24/a.js'), 'https://cdn.jsdelivr.net/gh/acme/cdn@v2026.10.24/a.js');
