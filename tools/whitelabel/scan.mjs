@@ -4,7 +4,7 @@
 // other files (images, fonts, archives) are searched as bytes, in ASCII and UTF-16. English words that contain the stem
 // (rename.mjs KEEP: slope, sloppy...) are allowed. An allowlist names vendor files that cannot change; each entry is
 // reported, never silently skipped.
-//   node tools/whitelabel/scan.mjs <dir> <term> [<term>...]   exit 1 when something is found
+//   node tools/whitelabel/scan.mjs <dir> <term> [<term>...] [--allow=<file>:<term>]   exit 1 when something is found
 // Node only. Tests: tests/node/whitelabel-scan.test.mjs.
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import path from 'node:path';
@@ -28,8 +28,8 @@ export function listFiles(dir, rel = '') {
 export const isText = (buf) => !buf.subarray(0, 8192).includes(0);
 
 /** The matches of the terms in one string: [{ term, index, word }]. A stem match inside a KEEP word is skipped, and so is
- * the build's own GitHub account (opts.account) where it is part of a GitHub or jsDelivr address. */
-const ACCOUNT_URL = /(?:github\.com\/|githubusercontent\.com\/|jsdelivr\.net\/gh\/|github:|\.github\.io)$/i;
+ * the build's own GitHub account (opts.account) where it is part of a GitHub or jsDelivr address or an owner/repo name. */
+const ACCOUNT_URL = /(?:github\\?\.com|githubusercontent\\?\.com|jsdelivr\\?\.net\\?\/gh|github:)\\?\/$/i;   // also inside a regular expression
 export function findTerms(s, terms, opts = {}) {
   const out = [];
   const lower = s.toLowerCase();
@@ -43,7 +43,7 @@ export function findTerms(s, terms, opts = {}) {
       while (b < s.length && tail.test(s[b])) b++;
       const word = s.slice(a, b);
       if (SCAN_KEEP.includes(word.toLowerCase())) continue;
-      if (opts.account && t === opts.account && (ACCOUNT_URL.test(s.slice(Math.max(0, i - 30), i)) || /^\.github\.io/i.test(s.slice(i + t.length)))) continue;
+      if (opts.account && t === opts.account && (ACCOUNT_URL.test(s.slice(Math.max(0, i - 30), i)) || /^(\.github\.io|\\?\/[\w.-]|@users\.noreply\.github\.com)/i.test(s.slice(i + t.length)))) continue;
       out.push({ term: t, index: i, word });
     }
   }
@@ -82,9 +82,10 @@ export function report({ found, allowed }, max = 200) {
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1] || '').href) {
-  const [dir, ...terms] = process.argv.slice(2);
-  if (!dir || !terms.length) { console.error('usage: scan.mjs <dir> <term> [<term>...]'); process.exit(2); }
-  const res = scan(dir, terms.map((t) => t.toLowerCase()));
+  const args = process.argv.slice(2), [dir, ...terms] = args.filter((a) => !a.startsWith('--'));
+  if (!dir || !terms.length) { console.error('usage: scan.mjs <dir> <term> [<term>...] [--allow=<file>:<term>]...'); process.exit(2); }
+  const allow = args.filter((a) => a.startsWith('--allow=')).map((a) => { const [file, term] = a.slice(8).split(':'); return { file, term, why: 'allowed on the command line' }; });
+  const res = scan(dir, terms.map((t) => t.toLowerCase()), allow);
   console.log(report(res));
   process.exit(res.found.length ? 1 : 0);
 }

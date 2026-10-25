@@ -36,7 +36,7 @@ export function patchBinary(file, buf) {
 
 /** Files of the source brand that a renamed build leaves out (it writes its own where one is needed). */
 export function excluded(file, p) {
-  if (/^(brand\/profiles|brand\/copy|tools\/whitelabel)\//.test(file) || file === 'brand/README.md') return true;
+  if (/^(brand\/profiles|brand\/copy|tools\/whitelabel|\.claude)\//.test(file) || file === 'brand/README.md') return true;   // .claude: this repo's agent settings
   // this repository's own rules: the commit identity (its workflow and test), and rules.yml, which the build rewrites
   if (/^\.github\/workflows\/(commit-authors|rules)\.yml$/.test(file) || file === 'tests/node/attribution.test.mjs') return true;
   if (/^tests\/node\/whitelabel-/.test(file)) return true;

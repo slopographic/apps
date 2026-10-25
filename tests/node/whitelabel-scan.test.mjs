@@ -14,6 +14,8 @@ test('findTerms: the stem, but not slope, sloped, SLOPE or slopeX', () => {
   assert.equal(findTerms('SlopUI and slop-drive', ['slop']).length, 2);
   assert.equal(findTerms('see https://github.com/acme/x and acme.github.io', ['acme'], { account: 'acme' }).length, 0);
   assert.equal(findTerms('made by acme', ['acme'], { account: 'acme' }).length, 1);
+  assert.equal(findTerms('the acme/cdn repository', ['acme'], { account: 'acme' }).length, 0);
+  assert.equal(findTerms('/gh\\/acme\\/cdn@/ and acme@users.noreply.github.com', ['acme'], { account: 'acme' }).length, 0);
 });
 
 test('scan: file names, text lines, bytes and the allowlist', () => {

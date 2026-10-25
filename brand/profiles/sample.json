@@ -22,13 +22,16 @@
   },
   "palette": {
     "hue": 243,
-    "from": [65, 100]
+    "from": [
+      65,
+      100
+    ]
   },
   "themes": {
     "light": {
       "background": "#f3f4f6",
       "surface": "#ffffff",
-      "text": "#111827",
+      "text": "#030712",
       "accent": "#4338ca",
       "border": "#6b7280"
     },
