@@ -27,7 +27,7 @@ export const GUIDES = [
           'Press Escape to go back to all the pages.'],
         text: ['Annotations are flattened into the page when you download. Clear page annotations in the panel removes all of them from the page you are on.'],
         image: { src: '/assets/guides/pdf-getting-started-2.jpg', alt: 'The page view of Slop PDF with a typed note on page 2 and the Edit page tools in the right panel' },
-        tip: 'Edit text in place (Ctrl+E) in the Edit menu lets you change the PDF\'s own text, not just add new text.' },
+        tip: 'Edit text in place (Ctrl+E) in the Edit menu lets you change the PDF\'s own text, line by line (Lines) or a whole paragraph at a time (Paragraphs), not just add new text.' },
       { h2: 'Download the PDF',
         steps: ['Type a file name in the name box at the top, if you want a different one.',
           'Click Download. Slop PDF builds the new file, checks it, and saves it to your device.'],

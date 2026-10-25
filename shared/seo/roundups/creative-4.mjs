@@ -1,6 +1,7 @@
 // Round-ups for the creative apps, part 4: desktop publishing and motion graphics (shape in index.mjs).
 // Every fact about another tool is from its own pages, listed in its sources, as they read on the checked date.
 import { INSTALL } from '../install-copy.mjs';
+import { AI } from '../ai-copy.mjs';
 const checked = '2026-10-24';
 const S = (label, url) => ({ label, url });
 
@@ -25,7 +26,7 @@ export const ROUNDUPS = [
         sources: [S('Scribus on SourceForge', 'https://sourceforge.net/projects/scribus/'), S('Scribus releases', 'https://sourceforge.net/projects/scribus/files/scribus/'), S('Scribus manual: PDF/X-3', 'https://wiki.scribus.net/canvas/Help:Manual_Cmspdfx3'), S('Scribus 1.6 new features', 'https://wiki.scribus.net/canvas/1.6-new-features-and-fixes'), S('Scribus manual: master pages', 'https://github.com/scribusproject/scribus/blob/master/doc/en/pagetemplate1.html'), S('Scribus manual: text frames', 'https://github.com/scribusproject/scribus/blob/master/doc/en/scripterapi-textframes.html'), S('Scribus manual: styles', 'https://github.com/scribusproject/scribus/blob/master/doc/en/WwStyles.html'), S('Scribus manual: PDF options', 'https://github.com/scribusproject/scribus/blob/master/doc/en/scripterapi-PDFfile.html'), S('Scribus manual: shortcuts', 'https://github.com/scribusproject/scribus/blob/master/doc/en/keys.html')] },
       { name: 'Slop Press', ours: true, bestFor: 'Layout in the browser with no install or account: flyers, zines and business cards with a print-ready PDF.',
         cells: ['Free', 'Browser; offline .html', 'No', 'PDF with bleed, crop marks and embedded fonts', 'Yes', 'No'],
-        pros: ['Master pages, threaded text frames, paragraph and character styles', 'Templates for business cards, zines and flyers; any page size', 'PDF with trim and bleed boxes, crop and bleed marks, CMYK colours and embedded font subsets', 'Works on your device and offline; open source (MIT)', 'Installs on phone, tablet and desktop from the browser'],
+        pros: ['Master pages, threaded text frames, paragraph and character styles', 'Templates for business cards, zines and flyers; any page size', 'PDF with trim and bleed boxes, crop and bleed marks, CMYK colours and embedded font subsets', 'Works on your device and offline; open source (MIT)', 'Installs on phone, tablet and desktop from the browser', 'The AI button can lay out a flyer or a zine for you: text frames, pictures and pages, with a model on your device or your own key'],
         cons: ['Still in beta', 'No tables, tab stops, footnotes, spot colours or gradients yet', 'No PDF/X, and cannot open InDesign or IDML files', 'PDF pages are placed as images; booklets are exported in reading order'] },
       { name: 'Canva', url: 'https://www.canva.com/', bestFor: 'Quick, template-based designs in a browser, for people who do not need professional layout tools.',
         cells: ['Free; Pro US$12 a month billed yearly', 'Browser; Windows and Mac apps', 'Yes', 'PDF; crop marks and bleed option', 'Pro only', 'Not stated'],
@@ -43,7 +44,8 @@ export const ROUNDUPS = [
       { feature: 'Bleed and crop marks', values: ['yes', 'yes', 'yes', 'yes'] },
       { feature: 'Open IDML (InDesign)', values: ['yes', 'yes', 'no', 'unknown'] },
       { feature: 'Templates', values: ['yes', 'yes', 'yes', 'yes'] },
-      { feature: 'AI tools', values: ['partial', 'unknown', 'no', 'partial'] },
+      { feature: 'AI tools', values: ['partial', 'unknown', 'partial', 'partial'] },
+      { feature: AI.row, values: ['unknown', 'unknown', AI.short, 'unknown'] },
       { feature: 'Runs in a browser', values: ['no', 'no', 'yes', 'yes'] },
       { feature: 'Desktop app', values: ['macOS, Windows', 'Linux, macOS, Windows', 'Works in the browser; offline .html file', 'Windows, Mac'] },
       { feature: 'No account needed', values: ['no', 'unknown', 'yes', 'no'] },
@@ -76,7 +78,7 @@ export const ROUNDUPS = [
         sources: [S('Blender home', 'https://www.blender.org/'), S('About Blender', 'https://www.blender.org/about/'), S('Blender download', 'https://www.blender.org/download/'), S('Blender features', 'https://www.blender.org/features/'), S('Blender manual: graph editor', 'https://docs.blender.org/manual/en/latest/editors/graph_editor/introduction.html'), S('Blender manual: video formats', 'https://docs.blender.org/manual/en/latest/files/media/video_formats.html'), S('Blender extensions: Lottie export', 'https://extensions.blender.org/add-ons/io-lottie-export/'), S('Blender render resolution (source)', 'https://github.com/blender/blender/blob/main/source/blender/makesrna/intern/rna_scene.cc'), S('Blender extensions: Multi-user', 'https://extensions.blender.org/add-ons/multi-user/')] },
       { name: 'Slop Effects', ours: true, bestFor: 'Simple titles and social clips in the browser, free with no watermark, account or upload.',
         cells: ['Free', 'None; compositions of 0.1 to 600 seconds', 'Browser', 'No', 'No', 'Yes: PNG sequence'],
-        pros: ['Layers, keyframes and easing, a graph editor and seeded random motion', 'Blur, drop shadow, glow, colour, grain, vignette and glitch, all keyframable', 'Sizes from Shorts to 4K and custom up to 7680×4320; WebM, MP4 and PNG sequence', 'Nothing is uploaded: editing and rendering happen in your browser', INSTALL.pro],
+        pros: ['Layers, keyframes and easing, a graph editor and seeded random motion', 'Blur, drop shadow, glow, colour, grain, vignette and glitch, all keyframable', 'Sizes from Shorts to 4K and custom up to 7680×4320; WebM, MP4 and PNG sequence', 'Nothing is uploaded: editing and rendering happen in your browser', AI.pro, INSTALL.pro],
         cons: ['Still in beta', 'No audio yet: renders are silent', 'MP4 and WebM render in real time; no 3D and no Lottie export', 'A limited set of fonts and text options'] },
       { name: 'Jitter', url: 'https://jitter.video/', bestFor: 'Designers who animate Figma designs in a browser and collaborate in real time.',
         cells: ['Free; paid Pro, Max and Ultra plans', '3 workspace files, 720p at 30 fps, 20 MB uploads', 'Browser', 'Not stated', 'Yes', 'Max plan and up'],
@@ -93,6 +95,7 @@ export const ROUNDUPS = [
       { feature: 'MP4 export', values: ['yes', 'yes', 'yes', 'yes'] },
       { feature: 'Transparent export', values: ['yes', 'yes', 'yes', 'partial'] },
       { feature: 'Lottie export', values: ['yes', 'partial', 'no', 'yes'] },
+      { feature: AI.row, values: ['unknown', 'unknown', AI.short, 'unknown'] },
       { feature: 'Free export size', values: ['unknown', 'Up to 65536×65536', 'Up to 7680×4320', '720p, 30 fps'] },
       { feature: 'No watermark on free exports', values: ['unknown', 'unknown', 'yes', 'no'] },
       { feature: 'Runs in a browser', values: ['no', 'no', 'yes', 'yes'] },
