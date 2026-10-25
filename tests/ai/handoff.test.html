@@ -90,8 +90,7 @@
       expect(eng.calls[0].messages[0].content).not.toMatch(/can.t|cannot/i);
       const sys = eng.calls[0].messages[0].content;   // the fake engine gets the map like capable models: the apps by name (small prompts)
       expect(sys).toMatch(/Apps \(open_in_app\): .*slides \(Slop Slides\).*/); expect(sys).toContain('docs (Slop Docs)'); expect(sys).toContain('tables (Slop Tables)');
-      expect(sys).toMatch(/^- find_tools\(/m);   // what each app can do comes from find_tools (app-skills.js), on demand
-      expect(sys).toMatch(/More tools here .*add_svg_layer.*draw_shape/);
+      expect(sys).toMatch(/^- open_app\(id: string, file\?: string, task\?: string\)/m);   // what each app can do: find_tools (tests/ai/deferred.test.html)
       expect(sys).not.toContain('Nothing uploaded.');
       sessionStorage.removeItem('slop-ai.handoff');
     }, { timeout: 30000 });
