@@ -68,7 +68,8 @@ test('the importer reads the exported fonts back to an equal project', () => {
 
 test('WOFF wraps the TTF losslessly; WOFF2 (Google\'s encoder in wasm) packs and unpacks it', async () => {
   const p = sample(), ttf = B.ttf(p);
-  const woff = await B.woff(p, deflate);
+  const woff = await S.woff(ttf, deflate);   // the same TTF (each build stamps the head table with the time)
+  assert.equal(S.sniff(await B.woff(p, deflate)), 'woff');
   assert.equal(S.sniff(woff), 'woff');
   assert.ok(woff.length < ttf.length, 'smaller');
   assert.equal(parse(woff).numGlyphs, p.glyphs.length);
