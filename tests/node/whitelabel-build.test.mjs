@@ -18,8 +18,8 @@ const P = { support: { ads: false }, media: false };
 
 test('left out of a renamed build: the source brand’s own files', () => {
   for (const f of ['TRADEMARKS.md', 'LICENSE-ART', '.github/workflows/rules.yml', 'docs-1280-dark.png', 'brand/profiles/sample.json', 'tools/whitelabel/build.mjs',
-    'tests/node/whitelabel-build.test.mjs', 'tests/node/attribution.test.mjs', '.github/workflows/commit-authors.yml', 'ads.txt', 'assets/shots/pdf.jpg', 'brand/logo-128.webp', 'docs-1280-dark.png', '.claude/settings.json']) assert.equal(excluded(f, P), true, f);
-  for (const f of ['pdf/index.html', '.github/workflows/speed.yml', '.githooks/pre-commit', 'shared/apps.js', 'tests/node/i18n.test.mjs']) assert.equal(excluded(f, P), false, f);
+    'tests/node/whitelabel-build.test.mjs', 'tests/node/attribution.test.mjs', '.github/workflows/commit-authors.yml', '.github/workflows/speed.yml', '.github/workflows/preview.yml', '.github/dependabot.yml', 'ads.txt', 'assets/shots/pdf.jpg', 'brand/logo-128.webp', 'docs-1280-dark.png', '.claude/settings.json']) assert.equal(excluded(f, P), true, f);
+  for (const f of ['pdf/index.html', '.githooks/pre-commit', 'shared/apps.js', 'tests/node/i18n.test.mjs']) assert.equal(excluded(f, P), false, f);
   assert.equal(excluded('assets/shots/pdf.jpg', { media: true }), false);
 });
 
@@ -71,5 +71,10 @@ test('the mirror skips only the tests that pin this site’s profile, and names 
   assert.deepEqual(smokeFor(sample), SMOKE);
   assert.ok(!smokeFor(loadProfile(dir, 'sample-sv')).includes('tests/i18n/switch.test.html'));
   const yml = mirrorWorkflow(readFileSync(path.join(ROOT, '.github/workflows/rules.yml'), 'utf8'), pat);
-  assert.ok(yml.includes(`node --test '--test-skip-pattern=${pat}' tests/node/`));
+  assert.ok(yml.includes(`run: |\n          node --test '--test-skip-pattern=${pat}' tests/node/`));
+  // a plain one-line YAML value may not hold ": " (the test names do): GitHub then rejects the whole file and runs nothing
+  for (const line of yml.split('\n')) {
+    const m = /^\s*(?:- )?[\w-]+: (.*)$/.exec(line);
+    if (m && !/^["'|>]/.test(m[1])) assert.doesNotMatch(m[1], /: /, line);
+  }
 });
