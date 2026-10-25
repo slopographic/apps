@@ -25,6 +25,21 @@
   const doc = g.document;
   const el = (tag, cls, text) => { const n = doc.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
 
+  // A footer pinned to the window's bottom edge (a phone's sheet footer) is published as --slop-foot-h on the page's root:
+  // the room it takes from the bottom, so cards in the bottom corner (the consent card, shared/consent/banner.css) sit above it.
+  const foots = new Set();
+  function lift() {
+    let h = 0;
+    const vh = g.innerHeight;
+    foots.forEach((f) => {
+      if (!f.isConnected) { foots.delete(f); return; }
+      const r = f.getBoundingClientRect();
+      if (r.height && r.top < vh && r.bottom >= vh - 2) h = Math.max(h, vh - r.top);
+    });
+    doc.documentElement.style.setProperty('--slop-foot-h', Math.ceil(h) + 'px');
+  }
+  g.addEventListener('resize', lift);
+
   /** One button for an action. With a menu it is "Label ▾" and opens the menu under it. */
   function button(a, key) {
     if (a.el) {   // a button that is already in the page's markup (its id and listeners stay); the other fields update it
@@ -146,7 +161,8 @@
     // (frame.css lifts the page above it on phones, where the closed sheet shows only the footer).
     const foot = el('div', 'sf-p-foot');
     const host = () => panel.closest('.sf-root') || doc.documentElement;
-    const ro = g.ResizeObserver ? new g.ResizeObserver(() => { const r = host(); if (r) r.style.setProperty('--sf-foot-h', foot.offsetHeight + 'px'); }) : null;
+    const ro = g.ResizeObserver ? new g.ResizeObserver(() => { const r = host(); if (r) r.style.setProperty('--sf-foot-h', foot.offsetHeight + 'px'); lift(); }) : null;
+    foots.add(foot);
     function footer(actions, fo) {
       fo = fo || {};
       const list = (actions || []).filter(Boolean);
@@ -155,7 +171,7 @@
       const had = panel.classList.contains('sf-has-foot');
       panel.classList.toggle('sf-has-foot', list.length > 0);
       if (had !== list.length > 0) panel.dispatchEvent(new g.CustomEvent('sf-foot'));
-      if (!list.length) { foot.remove(); return; }
+      if (!list.length) { foot.remove(); lift(); return; }
       const bar = el('div', 'sf-foot-acts' + (fo.stack ? ' sf-foot-stack' : ''));
       list.forEach((a, k) => bar.append(button(a, 'foot/' + (a.id || k))));
       if (fo.more) {

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Consent card above a phone sheet's footer</title>
+<style>body { margin: 0; } iframe { border: 0; display: block; }</style></head>
+<body>
+  <!-- Covers: shared/consent/banner.css, shared/consent/banner.js, shared/frame/panel.js -->
+  <script src="../harness.js"></script>
+  <script>
+  const { describe, it, expect, waitFor, sleep } = SlopTest;
+  /** Slop Clean (a tool with the shared footer) at this size, on a first visit: the consent card is up. */
+  async function open(w, h) {
+    try { localStorage.removeItem('slop-consent'); } catch (e) { /* ignore */ }
+    const f = document.createElement('iframe');
+    f.style.width = w + 'px'; f.style.height = h + 'px';
+    f.src = '../../clean/index.html';
+    document.body.append(f);
+    await waitFor(() => { const D = f.contentDocument; return D && D.getElementById('slopc-banner') && D.querySelector('.sf-p-foot'); }, { timeout: 30000 });
+    await sleep(500);   // banner.css arrives, the footer is measured
+    return f;
+  }
+  const box = (f, sel) => f.contentDocument.querySelector(sel).getBoundingClientRect();
+
+  describe('the consent card and the sheet footer', () => {
+    it('at 390 px the card sits above the closed sheet footer (the main button is not covered)', async () => {
+      const f = await open(390, 844);
+      const card = box(f, '#slopc-banner'), foot = box(f, '.sf-p-foot');
+      expect(foot.height).toBeGreaterThan(0);
+      expect(Math.round(foot.bottom)).toBe(844);
+      expect(card.bottom).toBeLessThanOrEqual(foot.top + 0.5);
+      const main = f.contentDocument.querySelector('.sf-p-foot .sui-primary');
+      if (main) { const r = main.getBoundingClientRect(); const hit = f.contentDocument.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2); expect(f.contentDocument.querySelector('.sf-p-foot').contains(hit)).toBe(true); }   // (a disabled button hit-tests as its bar)
+      expect(f.contentDocument.documentElement.scrollWidth).toBeLessThanOrEqual(390);
+      f.remove();
+    }, { timeout: 60000 });
+    it('at 1280 px the card keeps its place in the bottom corner', async () => {
+      const f = await open(1280, 800);
+      expect(Math.round(800 - box(f, '#slopc-banner').bottom)).toBe(16);
+      f.remove();
+    }, { timeout: 60000 });
+  });
+  SlopTest.run({ name: 'Consent card above a phone sheet footer' });
+  </script>
+</body>
+</html>
