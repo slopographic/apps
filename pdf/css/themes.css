@@ -59,7 +59,7 @@
 @media (max-width: 1180px) { :root { --props-w: 280px; } }
 @media (max-width: 1000px) { .tb-group, .local-badge { display: none; } }
 @media (max-width: 560px) { #btnSplit { display: none; } }
-@media (max-width: 1200px) { .menus { display: none; } #btnMore { display: inline-flex; } .btn.dl span { display: none; } .btn.dl { padding: 0 10px; } }
+@media (max-width: 1200px) { .menus { display: none; } #btnMore { display: inline-flex; } .topbar .btn.dl span { display: none; } .topbar .btn.dl { padding: 0 10px; } }
 @media (max-width: 900px) {
   :root { --rail-w: 0px; --status-h: 0px; }
   .app { grid-template-columns: minmax(0, 1fr); grid-template-rows: var(--top-h) minmax(0, 1fr) 62px; grid-template-areas: "top" "work" "rail"; }
@@ -71,6 +71,11 @@
   .rail-b.on::before { left: 14px; right: 14px; top: -4px; bottom: auto; width: auto; height: 3px; border-radius: 0 0 3px 3px; }
   .props { position: fixed; left: 0; right: 0; bottom: 62px; max-height: 62vh; z-index: 40; border-left: 0; border-top: 1px solid var(--line-2); border-radius: 18px 18px 0 0; box-shadow: 0 -16px 40px rgba(0, 0, 0, .4); transform: translateY(calc(100% + 80px)); visibility: hidden; transition: transform .22s ease, visibility 0s .22s; display: block !important; }
   .app.sheet-open .props { transform: none; visibility: visible; transition: transform .22s ease; }
+  /* the closed sheet still shows its footer (Download, shared/frame/panel.js) above the rail, as every app's does */
+  .props.sf-has-foot { display: flex !important; flex-direction: column; }
+  .app:not(.sheet-open) .props.sf-has-foot { transform: none; visibility: visible; transition: none; overflow: hidden; border-radius: 0; box-shadow: 0 -6px 18px rgba(0, 0, 0, .18); }
+  .app:not(.sheet-open) .props.sf-has-foot > :not(.sf-p-foot) { display: none; }
+  .app:has(.props.sf-has-foot) .workspace { padding-bottom: var(--sf-foot-h, 64px); }
   .pp-title { border-radius: 18px 18px 0 0; }
   #btnPanel { display: inline-flex; }
   .menus, .tb-group { display: none; }
@@ -84,8 +89,8 @@
 @media (max-width: 560px) {
   .topbar { gap: 4px; padding: 0 6px 0 8px; }
   .fname { display: none; }
-  .btn.dl span { display: none; }
-  .btn.dl { padding: 0 10px; }
+  .topbar .btn.dl span { display: none; }
+  .topbar .btn.dl { padding: 0 10px; }
   .grid { gap: 8px 4px; padding: 10px 8px 60px; }
   .tb-l span { display: none; }
   .drop-card { padding: 28px 16px 20px; }

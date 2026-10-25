@@ -45,7 +45,7 @@
 @media (max-width: 1500px) { .local-badge span { display: none; } .local-badge { padding: 0 6px; } }
 @media (max-width: 1180px) { :root { --props-w: 280px; } }
 /* Below 1180 px Open in… and Clear saved work move to the More menu (js/ui/menus.js), so the top bar keeps one row. */
-@media (max-width: 1180px) { #btnOpenIn, #btnClearSaved { display: none; } #btnMore { display: inline-flex; } }
+@media (max-width: 1180px) { #btnClearSaved { display: none; } #btnMore { display: inline-flex; } }
 @media (max-width: 900px) {
   :root { --status-h: 0px; --queue-h: 74px; }
   .app, .app.no-panel, .app[data-mode="empty"], .app[data-mode="empty"].no-panel { grid-template-columns: minmax(0, 1fr); grid-template-rows: var(--top-h) minmax(0, 1fr) var(--queue-h); grid-template-areas: "top" "work" "queue"; }
@@ -72,8 +72,8 @@
   .topbar { gap: 4px; padding: 0 6px 0 8px; }
   .appname { margin: 0 2px; }
   .appname, .local-badge { display: none; }   /* the app's icon stays; the shared header buttons need the room */
-  .btn.dl span { display: none; }
-  .btn.dl { padding: 0 10px; }
+  .topbar .btn.dl span { display: none; }
+  .topbar .btn.dl { padding: 0 10px; }
   .tb-l span { display: none; }
   .drop-card { padding: 28px 16px 20px; }
   .empty { justify-content: flex-start; }

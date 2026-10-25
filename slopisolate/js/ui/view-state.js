@@ -95,7 +95,7 @@
 
   /** The toolbar button: clear the saved work (asks first). */
   CO.viewState.init = function () {
-    const top = U.$('.topbar'), dl = U.$('#btnDownload');
+    const top = U.$('.topbar'), dl = U.$('#btnPanel');   // before the panel button (Download is at the panel's foot)
     if (!top || !dl) return;
     const b = U.h('button', { type: 'button', class: 'btn ghost', id: 'btnClearSaved', title: 'Remove the saved work in this browser' }, 'Clear saved work');
     b.addEventListener('click', () => {

@@ -79,7 +79,7 @@
   };
 
   O.init = function () {
-    const top = U.$('.topbar'), dl = U.$('#btnDownload');
+    const top = U.$('.topbar'), dl = U.$('#btnPanel');   // before the panel button (Download is at the panel's foot)
     if (!top || !dl) return;
     const b = U.h('button', { type: 'button', class: 'btn', id: 'btnOpenIn', title: 'Open the cut-out in another app', 'aria-haspopup': 'menu' }, 'Open in…');
     b.addEventListener('click', () => O.show(b));

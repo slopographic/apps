@@ -90,8 +90,17 @@
     await SlopIntake.launch({ to: 'cutout' });
   }
 
+  /** The suite rule (shared/frame/HANDOFF.md): the main buttons (Send back, Open in…, Download) sit at the foot of the
+   *  settings panel (the shared footer, shared/frame/panel.js); on a phone the closed settings sheet still shows them. */
+  function footer() {
+    if (!window.SlopFramePanel) return;
+    const acts = ['#btnSendBack', '#btnOpenIn', '#btnDownload'].map((id) => $(id)).filter(Boolean).map((el) => ({ el }));
+    SlopFramePanel.create($('#props'), { bare: true }).footer(acts, { more: 'Settings', onMore: () => CO.sheet && CO.sheet.toggle() });
+  }
+
   function boot() {
     startModules();
+    footer();
     wire();
     CO.viewState.restore().catch(function (e) { console.warn('SlopIsolate: the last session was not restored', e); }); // ui/view-state.js
     mode(); status(); download(); guardSync();
