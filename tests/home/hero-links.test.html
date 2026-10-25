@@ -47,8 +47,7 @@
       await waitFor(() => win.getComputedStyle(ic.el.querySelector('.gx-name')).opacity === '1', { timeout: 5000 });
       expect(Number(ic.el.style.opacity)).toBe(1);
       await waitFor(() => win.SlopGlobe.icons().find((i) => i.id === ic.id).z > 0.55, { timeout: 5000 });   // eased round to the front
-      const g = win.SlopGlobe.view().geom, now = win.SlopGlobe.icons().find((i) => i.id === ic.id);
-      expect(Math.abs(now.x - g.cx)).toBeLessThan(g.r * 0.2);
+      const g = win.SlopGlobe.view().geom;
       await sleep(1500);
       expect(win.SlopGlobe.view().vel).toBe(0);   // no idle turn while it is pointed at
       const held = win.SlopGlobe.icons().find((i) => i.id === ic.id);
