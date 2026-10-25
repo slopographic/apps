@@ -88,14 +88,14 @@
     const cloudP = cloud(more, o);
     const wait = h('p', { class: 'sap-dim sap-pick-wait' }, 'Checking what this device can run…');
     wrap.before(wait);
-    try { await local(box, wrap, more, o); } catch (e) { wrap.append(failed('The models on this device could not be listed', e)); console.warn('Slop AI: local models', e); }
+    try { await local(box, wrap, more, o, active); } catch (e) { wrap.append(failed('The models on this device could not be listed', e)); console.warn('Slop AI: local models', e); }
     wait.remove();
     const g = await K.picker.gpu();
     if (!g.ok) await cloudP.then(() => { const det = more.querySelector('details.sap-cloud'); if (det) det.open = true; });
     return cloudP;
   }
   /** The models on this device (or why there are none), into wrap. */
-  async function local(box, wrap, more, o) {
+  async function local(box, wrap, more, o, active) {
     const g = await K.picker.gpu();
     if (!g.ok) {
       if (more.parentNode === box && box.firstChild !== more) box.prepend(more);   // the account first when nothing runs here
