@@ -47,7 +47,7 @@
       const wall = W.performance.now() - t0, rec = await R.app.stop();
       expect(R.app.state()).toBe('review');
       expect(rec.ms).toBeGreaterThan(1700);
-      expect(rec.ms).toBeLessThan(wall - 500);   // about 2.1 s recorded: the 0.7 s pause is left out (a busy machine stretches both)
+      expect(rec.ms).toBeLessThan(wall - 350);   // about 2.1 s recorded: the 0.7 s pause is left out (a busy CI machine stretches both and was seen at 480 ms)
       const bytes = new Uint8Array(await rec.blob.arrayBuffer());
       expect(Math.abs(R.webm.readDuration(bytes) - rec.ms)).toBeLessThan(1);
       const p = await played(W, rec.blob);

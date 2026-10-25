@@ -168,3 +168,14 @@ test('restartLong: after a busy page the hold counts again, and a lift in that t
   g.restartLong(3200);
   assert.deepEqual(types(g.tick(3700)), ['longpress']);
 });
+
+test('stroke pressure: a finger or a mouse paints at full pressure whatever it reports, a pen at its own', () => {
+  const { pressure } = createRequire(import.meta.url)('../../shared/input/gesture.js');
+  assert.equal(pressure({ pointerType: 'touch', pressure: 0 }), 1);   // iOS: a finger reports 0
+  assert.equal(pressure({ pointerType: 'touch', pressure: 0.5 }), 1); // Chrome: 0.5 while pressed
+  assert.equal(pressure({ pointerType: 'mouse', pressure: 0 }), 1);
+  assert.equal(pressure({ pointerType: 'pen', pressure: 0.2 }), 0.2);
+  assert.equal(pressure({ pointerType: 'pen', pressure: 0 }), 0.5);   // some pens report 0 on the first contact
+  assert.equal(pressure({ pointerType: 'pen', pressure: 1.4 }), 1);
+  assert.equal(pressure(null), 1);
+});

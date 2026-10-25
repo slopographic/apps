@@ -68,7 +68,7 @@
     bar = SE.app.els.tlBar;
     const zoom = h('input', { type: 'range', class: 'tl-zoom', min: String(Math.log(2)), max: String(Math.log(2400)), step: '0.01', 'aria-label': 'Timeline zoom', oninput: (e) => TL.setZoom(Math.exp(+e.target.value)) });
     bar.append(
-      toolBtn('tool.select', 'select', 'Selection tool'), toolBtn('tool.razor', 'cut', 'Razor tool'), toolBtn('tool.ripple', 'ripple', 'Ripple edit tool'),
+      toolBtn('tool.select', 'select', 'Selection tool'), toolBtn('tool.razor', 'cut', 'Razor tool'), toolBtn('tool.ripple', 'ripple', 'Ripple edit tool'), toolBtn('tool.multi', 'multi', 'Select several'),
       h('span', { class: 'tb-sep' }),
       toolBtn('tool.snap', 'magnet', 'Snapping'),
       toolBtn('edit.split', 'split', 'Split at playhead'),

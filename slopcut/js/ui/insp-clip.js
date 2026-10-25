@@ -10,7 +10,11 @@
     const id = c.id, get = (k, d) => I.clipGet(id, k, d), set = (k, l) => I.clipSet(id, k, l), t = I.track;
     body().append(F.section('Transform', 'select',
       t(F.pair('Position', { label: 'X offset (px)', get: get('x'), set: (v) => set('x', 'Position')(Math.round(v)) }, { label: 'Y offset (px)', get: get('y'), set: (v) => set('y', 'Position')(Math.round(v)) })),
-      t(F.slider('Scale', get('scale', 1), set('scale', 'Scale'), { min: 1, max: 400, step: 1, scale: 100, unit: '%', reset: 1, hardMin: 1 })),
+      t(F.slider('Scale', get('scale', 1), set('scale', 'Scale'), { step: 1, scale: 100, unit: '%', reset: 1, hardMin: SE.fit.SCALE.min * 100, hardMax: SE.fit.SCALE.max * 100,
+        curve: { steps: SE.fit.SCALE.steps, to: SE.fit.toSlider, from: SE.fit.fromSlider } })),
+      h('div', { class: 'ins-actions' },
+        h('button', { type: 'button', class: 'btn sm', title: 'Scale the picture to cover the whole frame (aspect kept, centred)', onclick: () => fill(id, 'fill') }, 'Fill frame'),
+        h('button', { type: 'button', class: 'btn sm', title: 'Scale the whole picture to fit inside the frame (centred)', onclick: () => fill(id, 'fit') }, 'Fit frame')),
       t(F.slider('Rotation', get('rot'), set('rot', 'Rotation'), { min: -180, max: 180, step: 1, unit: '°', reset: 0 })),
       t(F.slider('Opacity', get('opacity', 1), set('opacity', 'Opacity'), { min: 0, max: 100, step: 1, scale: 100, unit: '%', reset: 1, hardMin: 0, hardMax: 100 })),
       c.kind !== 'title' ? h('div', null,
@@ -19,8 +23,6 @@
         t(F.slider('Crop top', get('cropT'), set('cropT', 'Crop'), { min: 0, max: 50, scale: 100, reset: 0, hardMin: 0, hardMax: 100 })).el,
         t(F.slider('Crop bottom', get('cropB'), set('cropB', 'Crop'), { min: 0, max: 50, scale: 100, reset: 0, hardMin: 0, hardMax: 100 })).el) : null,
       h('div', { class: 'ins-actions' },
-        h('button', { type: 'button', class: 'btn sm', onclick: () => fill(id, 'fit') }, 'Fit'),
-        h('button', { type: 'button', class: 'btn sm', onclick: () => fill(id, 'fill') }, 'Fill frame'),
         h('button', { type: 'button', class: 'btn sm', onclick: () => SE.change('Centre', (p) => { const cc = M.clip(p, id); cc.x = 0; cc.y = 0; }) }, 'Centre'),
         h('button', { type: 'button', class: 'btn sm', disabled: !SE.aspect.targetOf(SE.doc, c), title: 'Set the visible box back to the source ratio', onclick: () => SE.aspect.restore(id) }, 'Restore aspect ratio'))));
     if (c.kind !== 'color') body().append(F.section('Colour', 'color',
@@ -38,13 +40,7 @@
       !M.prevAdjacent(SE.doc, c) && c.trIn ? h('p', { class: 'ins-note' }, 'No clip right before this one, so it transitions from the tracks below.') : null));
   };
   function fill(id, mode) {
-    SE.change(mode === 'fill' ? 'Fill frame' : 'Fit', (p) => {
-      const c = M.clip(p, id), m = c.media && M.media(p, c.media);
-      c.x = 0; c.y = 0; c.rot = 0;
-      if (mode === 'fit' || !m || !m.w) { c.scale = 1; return; }
-      const fit = Math.min(p.w / m.w, p.h / m.h), cover = Math.max(p.w / m.w, p.h / m.h);
-      c.scale = U.round(cover / fit, 4);
-    });
+    SE.change(mode === 'fill' ? 'Fill frame' : 'Fit frame', (p) => { const c = M.clip(p, id); SE.fit.clip(p, c, c.media && M.media(p, c.media), mode); });
   }
   /** Font choices: the standard list, then the bundled and downloaded families of shared/fonts (when the picker loaded). */
   function fontOptions() {

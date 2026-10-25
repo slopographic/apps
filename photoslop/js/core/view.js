@@ -47,7 +47,7 @@ function resizeView() {
 }
 function dirty(comp) { V.needDraw = true; if (comp) V.needComp = true; }
 // Pointer → document goes through the view rotation (view-rot.js); with no rotation viewLocal is the plain viewport offset.
-const toDoc = (e) => { const s = viewLocal(e); return { x: (s.x - V.ox) / V.zoom, y: (s.y - V.oy) / V.zoom, pressure: e.pointerType === 'pen' ? e.pressure || 0.5 : 1, pen: e.pointerType === 'pen' }; };
+const toDoc = (e) => { const s = viewLocal(e); return { x: (s.x - V.ox) / V.zoom, y: (s.y - V.oy) / V.zoom, pressure: SlopTouch.gesture.pressure(e), pen: e.pointerType === 'pen' }; };
 const toScreen = (x, y) => ({ x: x * V.zoom + V.ox, y: y * V.zoom + V.oy });
 
 function fitView(capAt100) {
@@ -183,6 +183,10 @@ function drawAnts(g, sel = D.sel, offset) {
 function onPointerDown(e) {
   if (e.target && e.target.closest && e.target.closest('.type-edit')) return; // caret and selection inside the text box
   if (e.pointerType === 'touch') {
+    // The first finger of a touch (isPrimary): no other finger is down, whatever this map remembers. iOS sends the lift of
+    // a finger whose element left the page to that element, where nothing hears it; a finger kept from then on would make
+    // every later one a second finger, a pinch, and the brush would never paint.
+    if (e.isPrimary) { V.touches.clear(); V.pinch = null; }
     V.touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (V.touches.size === 2) {
       // Second finger: abandon the stroke and pinch/pan instead.

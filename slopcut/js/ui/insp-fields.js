@@ -10,19 +10,23 @@
   F.setter = function (label, key, apply) {
     return (v) => SE.change(label, (p) => apply(p, v), { key: 'insp:' + key });
   };
-  /** Slider + number. o: { min, max, step, unit, scale (display = value*scale), reset } */
+  /** Slider + number. o: { min, max, step, unit, scale (display = value*scale), reset, hardMin, hardMax (what the number
+   *  field takes, display units), curve: { steps, to(value) → slider position, from(position) → value } for a slider
+   *  that is not linear (Scale: logarithmic, SE.fit) } */
   F.slider = function (label, get, set, o = {}) {
-    const sc = o.scale || 1, dec = o.dec != null ? o.dec : (o.step || 1) < 1 ? 2 : 0;
-    const range = h('input', { type: 'range', min: o.min, max: o.max, step: o.step || 1, 'aria-label': label });
-    const num = h('input', { class: 'inp', type: 'number', min: o.min, max: o.max, step: o.step || 1, 'aria-label': label + (o.unit ? ' (' + o.unit + ')' : ''), inputmode: 'decimal' });
+    const sc = o.scale || 1, dec = o.dec != null ? o.dec : (o.step || 1) < 1 ? 2 : 0, cv = o.curve;
+    const range = cv ? h('input', { type: 'range', min: 0, max: cv.steps, step: 1, 'aria-label': label })
+      : h('input', { type: 'range', min: o.min, max: o.max, step: o.step || 1, 'aria-label': label });
+    const num = h('input', { class: 'inp', type: 'number', min: cv ? o.hardMin : o.min, max: cv ? o.hardMax : o.max, step: o.step || 1, 'aria-label': label + (o.unit ? ' (' + o.unit + ')' : ''), inputmode: 'decimal' });
     const put = (v) => set(U.clamp(v, o.hardMin != null ? o.hardMin : -Infinity, o.hardMax != null ? o.hardMax : Infinity) / sc);
-    range.addEventListener('input', () => { put(+range.value); num.value = (+range.value).toFixed(dec); });
+    const shown = () => (cv ? cv.from(+range.value) * sc : +range.value);
+    range.addEventListener('input', () => { const v = shown(); put(v); num.value = (+v).toFixed(dec); });
     range.addEventListener('change', () => SE.history.breakCoalescing());
     num.addEventListener('change', () => { if (num.value !== '' && isFinite(+num.value)) put(+num.value); SE.history.breakCoalescing(); });
     const name = h('span', { title: o.reset != null ? 'Double-click to reset' : label }, label);
     if (o.reset != null) name.addEventListener('dblclick', () => { set(o.reset); SE.history.breakCoalescing(); });
     const el = h('label', { class: 'ins-row' }, name, range, num);
-    const sync = () => { const v = get() * sc; if (document.activeElement !== range) range.value = String(v); if (document.activeElement !== num) num.value = (+v).toFixed(dec); };
+    const sync = () => { const v = get() * sc; if (document.activeElement !== range) range.value = String(cv ? cv.to(v / sc) : v); if (document.activeElement !== num) num.value = (+v).toFixed(dec); };
     sync();
     return { el, sync };
   };

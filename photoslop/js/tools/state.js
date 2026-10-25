@@ -35,12 +35,23 @@ function setColor(which, hex) { C[which] = hex; store.set(which, hex); emit('col
 /* ---------- helpers ---------- */
 function editableLayer(forPixels = true) {
   let L = activeLayer();
-  if (!L) return null;
-  if (!L.visible) { toast('The target layer is hidden. Show it first.'); return null; }
-  if (L.locked) { toast('That layer is locked'); return null; }
+  if (!L) { cantPaint('There is no layer to paint on'); return null; }
+  if (!L.visible) { cantPaint('This layer is hidden, so it can\'t be painted on — show it, or choose a pixel layer'); return null; }
+  if (L.locked) { cantPaint('This layer can\'t be painted on (it is locked) — choose a pixel layer'); return null; }
   if (forPixels && (L.text || L.shape) && !UI.editMask) { const what = L.text ? 'Type' : 'Shape'; L = rasterizeText(L, true); toast(what + ' layer rasterized'); }
   return L;
 }
+/** Clone and heal: Alt-click sets the source. A finger or a pen has no Alt key: its first press sets the source when
+ *  there is none yet, and Set source (options bar: tool.pickSource) makes the next press set it. True when it did. */
+function takeSource(tool, p, e, what) {
+  const touchy = e.pointerType === 'touch' || e.pointerType === 'pen';
+  if (!e.altKey && !tool.pickSource && !(touchy && !tool.src)) return false;
+  tool.src = { x: p.x, y: p.y }; tool.off = null; tool.pickSource = false;
+  toast(what + ' source set' + (touchy ? ' — now paint where the copy goes' : ''));
+  return true;
+}
+/** A tool could not paint: says why, plainly, and offers a new pixel layer above to paint on instead. */
+function cantPaint(msg) { toast(msg, 6000, { label: 'Add a pixel layer', run: () => addLayer({}, 'New Layer') }); }
 function maskTarget(L) { return UI.editMask && L.mask; }
 function docCanvasOf(L) { const c = mkCanvas(D.w, D.h); cx(c).drawImage(L.canvas, L.x, L.y); return c; }
 function sampleSource(all) { return all ? flattenCanvas() : docCanvasOf(activeLayer()); }
