@@ -32,7 +32,7 @@ export const isText = (buf) => !buf.subarray(0, 8192).includes(0);
 const ACCOUNT_URL = /(?:github\\?\.com|githubusercontent\\?\.com|jsdelivr\\?\.net\\?\/gh|github:)\\?\/$/i;   // also inside a regular expression
 export function findTerms(s, terms, opts = {}) {
   const out = [];
-  const lower = s.toLowerCase();
+  const lower = s.replace(/[A-Z]+/g, (c) => c.toLowerCase());   // ASCII only: the same length, so indices match s
   for (const t of terms) {
     let i = -1;
     while ((i = lower.indexOf(t, i + 1)) >= 0) {
@@ -50,7 +50,8 @@ export function findTerms(s, terms, opts = {}) {
   return out;
 }
 
-/** Scans dir. allow: [{ file, term, why }] (exact paths). Returns { found: [{ file, line, term, text }], allowed: [...] }. */
+/** Scans dir. allow: [{ file, term, why }] (exact paths). Returns { found: [{ file, line, term, word, text }], allowed: [...] }
+ * (word: the whole word the term was found in). */
 export function scan(dir, terms, allow = [], opts = {}) {
   const found = [], allowed = [];
   const isAllowed = (file, term) => allow.find((a) => a.file === file && (!a.term || a.term === term));
@@ -62,11 +63,11 @@ export function scan(dir, terms, allow = [], opts = {}) {
     const buf = readFileSync(full);
     if (isText(buf)) {
       const lines = buf.toString('utf8').split('\n');
-      lines.forEach((ln, i) => { for (const m of findTerms(ln, terms, opts)) add({ file, line: i + 1, term: m.term, text: ln.slice(Math.max(0, m.index - 40), m.index + 60).trim() }); });
+      lines.forEach((ln, i) => { for (const m of findTerms(ln, terms, opts)) add({ file, line: i + 1, term: m.term, word: m.word, text: ln.slice(Math.max(0, m.index - 40), m.index + 60).trim() }); });
     } else {
       // ASCII, and UTF-16 at both byte alignments
       for (const s of [buf.toString('latin1'), buf.toString('utf16le'), buf.subarray(1).toString('utf16le')]) {
-        for (const m of findTerms(s, terms, opts)) add({ file, line: -1, term: m.term, text: `(bytes) ${s.slice(Math.max(0, m.index - 20), m.index + 30).replace(/[^\x20-\x7e]/g, '.')}` });
+        for (const m of findTerms(s, terms, opts)) add({ file, line: -1, term: m.term, word: m.word, text: `(bytes) ${s.slice(Math.max(0, m.index - 20), m.index + 30).replace(/[^\x20-\x7e]/g, '.')}` });
       }
     }
   }

@@ -9,6 +9,10 @@ import { getPrefs, setPrefs, isOn, remember } from './prefs.js';
 let booted = false, engine = null, on = false, cfg = null, btn = null;
 // The brand profile turns the mascot off (brand/profiles/<id>.json "mascot", set at build time): then boot() does nothing.
 const MASCOT = /*profile:mascot*/true;
+// A profile with its own mascot ("mascot": { "overlay": ... }): the same toggle loads the mascot slot (shared/mascot/slot.js)
+// with the overlay copied to brand/mascot/, in place of this buddy's engine.
+const OVERLAY = /*profile:mascotOverlay*/false;
+let NAME = 'Sloppo';
 const SHORTCUT = (e) => e.altKey && e.shiftKey && !e.ctrlKey && !e.metaKey && (e.code === 'KeyS' || e.key === 'S' || e.key === 's');
 
 /** Which app is this? SlopHub's id, the html data-app attribute, or the registry path. */
@@ -26,7 +30,7 @@ export function detectApp() {
 const kindOf = (id) => { const a = (window.SLOP_APPS || []).find((x) => x.id === id); return a ? a.kind : /\/games\//.test(location.pathname) ? 'game' : 'app'; };
 
 export function boot(opts = {}) {
-  if (booted || !MASCOT) return api;
+  if (booted || !(MASCOT || OVERLAY)) return api;
   booted = true;
   const app = opts.app || detectApp();
   const home = app === 'home';
@@ -43,7 +47,7 @@ export async function setOn(v, save = true) {
   if (save) remember(cfg.app, on);
   render();
   if (on) {
-    if (!engine) engine = await import('./engine.js');
+    if (!engine) engine = await (OVERLAY ? import('../mascot/slot.js') : import('./engine.js'));
     if (!on) return;                         // switched off again while loading
     engine.start(cfg);
     engine.show(true);
@@ -73,6 +77,7 @@ function makeToggle() {
   btn = document.createElement('div');
   btn.className = 'buddy-toggle';
   btn.innerHTML = `<button type="button" class="bt-main" aria-pressed="false" title="Sloppo buddy (Alt+Shift+S)">${FACE}</button><button type="button" class="bt-more" aria-label="Sloppo menu" title="Sloppo menu" hidden>⋯</button>`;
+  if (OVERLAY) overlayFace(btn.querySelector('.bt-main'));
   Object.assign(btn.style, { position: 'fixed', zIndex: String((cfg.z || 900) + 2), width: '44px', height: '44px' });
   const main = btn.querySelector('.bt-main');
   const pos = getPrefs().btn;
@@ -102,6 +107,15 @@ function makeToggle() {
   document.body.append(btn);
   addEventListener('resize', () => place(parseFloat(btn.style.right), parseFloat(btn.style.bottom)));
 }
+/** The overlay's flat icon and name on the toggle (its icon module is small; the mascot itself loads when switched on). */
+async function overlayFace(main) {
+  const m = await import('../mascot/slot.js').then((s) => s.loadIcon()).catch(() => null);
+  if (!m) return;
+  main.innerHTML = m.svg(36, false);
+  NAME = m.name || NAME;
+  main.title = `${NAME} (Alt+Shift+S)`;
+  render();
+}
 function place(right, bottom) {
   btn.style.right = Math.max(4, Math.min(innerWidth - 48, right)) + 'px';
   btn.style.bottom = Math.max(4, Math.min(innerHeight - 48, bottom)) + 'px';
@@ -110,9 +124,9 @@ function render() {
   if (!btn) return;
   const main = btn.querySelector('.bt-main');
   main.setAttribute('aria-pressed', String(on));
-  main.setAttribute('aria-label', on ? 'Hide Sloppo (Alt+Shift+S)' : 'Show Sloppo (Alt+Shift+S)');
+  main.setAttribute('aria-label', on ? `Hide ${NAME} (Alt+Shift+S)` : `Show ${NAME} (Alt+Shift+S)`);
   btn.classList.toggle('is-on', on);
-  btn.querySelector('.bt-more').hidden = !on || cfg.home;
+  btn.querySelector('.bt-more').hidden = !on || cfg.home || OVERLAY;
 }
 
 export const api = { boot, setOn, toggle, detectApp, get on() { return on; }, get engine() { return engine; } };

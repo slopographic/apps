@@ -3,7 +3,7 @@
 // tree (roundtrip.mjs), builds the site into the mirror's checkout (build.mjs; its .git folder is kept, everything else
 // is replaced) and fails when the leak scan finds anything. Committing and pushing are the caller's (a publish script
 // outside this repository, which holds the real profiles and the token).
-//   node tools/whitelabel/export.mjs <profile id> <mirror checkout> [--profiles=<dir>] [--release=<text>] [--no-images]
+//   node tools/whitelabel/export.mjs <profile id> <mirror checkout> [--profiles=<dir>] [--release=<text>] [--no-images] [--cdn-ref=<tag>]
 // Node only. Tests: tests/node/whitelabel-build.test.mjs.
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -24,9 +24,9 @@ export function exportProfile(id, out, opts = {}) {
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2), pos = args.filter((a) => !a.startsWith('--'));
   const opt = (k) => { const a = args.find((x) => x.startsWith(`--${k}=`)); return a ? a.slice(k.length + 3) : null; };
-  if (pos.length !== 2) { console.error('usage: export.mjs <profile id> <mirror checkout> [--profiles=<dir>] [--release=<text>] [--no-images]'); process.exit(2); }
+  if (pos.length !== 2) { console.error('usage: export.mjs <profile id> <mirror checkout> [--profiles=<dir>] [--release=<text>] [--no-images] [--cdn-ref=<tag>]'); process.exit(2); }
   try {
-    const r = exportProfile(pos[0], pos[1], { profiles: opt('profiles') && path.resolve(opt('profiles')), release: opt('release'), noImages: args.includes('--no-images') });
+    const r = exportProfile(pos[0], pos[1], { profiles: opt('profiles') && path.resolve(opt('profiles')), release: opt('release'), cdnRef: opt('cdn-ref'), noImages: args.includes('--no-images') });
     console.log(r.lines.join('\n'));
     process.exit(r.ok ? 0 : 1);
   } catch (e) { console.error(String(e.message || e)); process.exit(1); }

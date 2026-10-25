@@ -37,5 +37,13 @@ test('AI top bar: no mascot button when the mascot is off', () => {
 test('buddy: boot() returns at once when the mascot is off', () => {
   const src = read('shared/buddy/boot.js', true);
   assert.match(src, /const MASCOT = \/\*profile:mascot\*\/false;/);
-  assert.match(src, /if \(booted \|\| !MASCOT\) return api;/);
+  assert.match(src, /const OVERLAY = \/\*profile:mascotOverlay\*\/false;/);                // and no mascot of its own
+  assert.match(src, /if \(booted \|\| !\(MASCOT \|\| OVERLAY\)\) return api;/);
+});
+
+test('buddy: a profile with its own mascot boots the slot instead of the engine', () => {
+  const src = read('shared/buddy/boot.js');
+  assert.match(src, /const OVERLAY = \/\*profile:mascotOverlay\*\/false;/);
+  assert.match(src, /if \(booted \|\| !\(MASCOT \|\| OVERLAY\)\) return api;/);
+  assert.match(src, /OVERLAY \? import\('\.\.\/mascot\/slot\.js'\) : import\('\.\/engine\.js'\)/);
 });

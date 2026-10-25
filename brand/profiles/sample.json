@@ -9,7 +9,14 @@
   "defaultLang": "en",
   "naming": "plain",
   "tone": "plain",
-  "mascot": false,
+  "mascot": {
+    "overlay": "overlays/acme",
+    "name": "Acme Bot",
+    "files": [
+      "icon.js",
+      "mascot.js"
+    ]
+  },
   "github": "acme-example",
   "mailDomain": "acme.example",
   "brandTerms": [
@@ -68,7 +75,12 @@
   },
   "legal": {
     "holder": "Acme Example Ltd",
-    "year": "2026"
+    "year": "2026",
+    "trademarks": [
+      "Acme",
+      "Acme Tools",
+      "Acme Bot"
+    ]
   },
   "publish": {
     "repo": "acme-example/tools",
