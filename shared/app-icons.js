@@ -72,6 +72,7 @@
     transcribe: '<rect x="18" y="6" width="12" height="22" rx="6"/><path d="M12 22a12 12 0 0 0 24 0M24 34v6M17 40h14"/>',
     serials: '<path d="M8 10v28M13 10v28M17 10v28M23 10v28M27 10v28M33 10v28M38 10v28M42 10v28"/>',
     qr: '<rect x="6" y="6" width="14" height="14" rx="1.5"/><rect x="11" y="11" width="4" height="4"/><rect x="28" y="6" width="14" height="14" rx="1.5"/><rect x="33" y="11" width="4" height="4"/><rect x="6" y="28" width="14" height="14" rx="1.5"/><rect x="11" y="33" width="4" height="4"/><path d="M28 28h4v4h-4zM36 28h6M28 36v6h4M36 36h6v6h-6z"/>',
+    colors: '<path d="M24 6c-10 0-18 7.5-18 17 0 8 6 13 12 13h3a3 3 0 0 1 2.2 5A2 2 0 0 0 24 44c10 0 18-8 18-19S34 6 24 6z"/><circle cx="15" cy="20" r="3"/><circle cx="23" cy="14" r="3"/><circle cx="32" cy="17" r="3"/><circle cx="34" cy="27" r="3"/>',
     calculator: '<rect x="10" y="6" width="28" height="36" rx="3"/><rect x="15" y="11" width="18" height="7" rx="1"/><path d="M15 26h3M22 26h3M29 26h3M15 33h3M22 33h3M29 33h3"/>',
     time: '<circle cx="24" cy="24" r="16"/><path d="M24 14v10l7 5"/>',
     calendar: '<rect x="7" y="10" width="34" height="31" rx="3"/><path d="M7 19h34M16 6v8M32 6v8M15 26h3M22 26h3M29 26h3M15 33h3M22 33h3"/>',

@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Slop Colors: the look (header, the panel, 1280 and 390 wide)</title>
+<style>body { margin: 0; } iframe { border: 0; display: block; height: 844px; }</style></head>
+<body>
+<script src="../harness.js"></script>
+<script>
+// Covers: colors/index.html, colors/css/colors.css, colors/css/view.css, colors/js/main.js, colors/js/panel.js
+const { describe, it, expect, waitFor, run } = SlopTest;
+async function open(width) {
+  document.querySelectorAll('iframe').forEach((f) => f.remove());
+  const f = document.createElement('iframe');
+  f.style.width = width + 'px';
+  f.src = '../../colors/index.html';
+  document.body.append(f);
+  await waitFor(() => { const D = f.contentDocument; return D && D.readyState === 'complete' && D.querySelector('header .sh-switch') && D.querySelector('header a.brand .brand-app') && D.querySelector('#co-download'); }, { timeout: 30000 });
+  return f.contentDocument;
+}
+describe('Slop Colors: the look', () => {
+  it('1280: the header leads with the home link; Open… is its only action; the panel is on the right with Download palette at its foot', async () => {
+    localStorage.removeItem('slop-colors');
+    const D = await open(1280);
+    const brand = D.querySelector('#co-bar .sab-brand > a.brand:first-child');
+    expect(brand.getAttribute('href')).toBe('../');
+    expect(D.querySelector('#co-bar .sab-name').textContent).toBe('Slop Colors');
+    expect([...D.querySelectorAll('#co-bar .sab-btn')].map((b) => b.textContent.trim()).filter(Boolean)).toEqual(['Open…']);
+    const view = D.getElementById('co-view').getBoundingClientRect(), panel = D.getElementById('co-panel').getBoundingClientRect();
+    expect(panel.left).toBeGreaterThanOrEqual(view.right - 1);
+    const dl = D.getElementById('co-download');
+    expect(dl.closest('#co-panel')).toBeTruthy();
+    expect(dl.classList.contains('sui-primary')).toBe(true);
+    expect(dl.disabled).toBe(true);   // an empty palette has nothing to download
+    expect(D.querySelectorAll('.sd-zone').length).toBe(1);
+    expect(D.getElementById('co-canvas').hasAttribute('data-touch-surface')).toBe(true);
+    expect(D.documentElement.scrollWidth).toBeLessThanOrEqual(1280);
+  }, { timeout: 40000 });
+  it('390: no sideways scrolling; the panel is a bottom sheet whose foot (Settings and Download palette) always shows', async () => {
+    const D = await open(390), W = D.defaultView;
+    W.CO.state.addColor('#ff0000');
+    expect(D.documentElement.scrollWidth).toBeLessThanOrEqual(390);
+    const dl = D.getElementById('co-download').getBoundingClientRect();
+    expect(dl.bottom).toBeLessThanOrEqual(844);
+    expect(dl.top).toBeGreaterThan(400);
+    expect(D.getElementById('co-download').disabled).toBe(false);
+    const hex = D.getElementById('co-in-hex').getBoundingClientRect();
+    expect(hex.height === 0 || hex.top >= 844).toBe(true);   // the settings wait in the closed sheet
+    W.CO.main.frame().openSheet();
+    await waitFor(() => { const r = D.getElementById('co-in-hex').getBoundingClientRect(); return r.height > 0 && r.top > 0 && r.bottom < 844; });
+  }, { timeout: 40000 });
+});
+run({ name: 'Slop Colors: look' });
+</script>
+</body>
+</html>

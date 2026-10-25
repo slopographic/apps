@@ -8,6 +8,7 @@
  * (elementsFromPoint, so an absolutely placed label over a panel is measured on that panel), down to the first opaque one.
  * A gradient counts as each of its stops (the worst is kept); text over a picture, canvas or video is counted as "image"
  * and not judged. Text covered by something else (behind a modal, scrolled away) is skipped.
+ * The ratio itself is shared/color/contrast.js (SlopContrastMath), the one copy of the WCAG maths.
  * Needs 4.5:1, or 3:1 for large text (24 px, or 18.66 px bold) and placeholders. An inactive control (disabled, aria-disabled,
  * inert, or in a box faded to 60 % or less that takes no pointer) is exempt in WCAG; it needs 2:1 here, so its label still
  * shows. */
@@ -35,9 +36,10 @@
     cache.set(s, out);
     return out;
   }
-  const lin = (v) => { v /= 255; return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; };
-  const lum = (c) => 0.2126 * lin(c[0]) + 0.7152 * lin(c[1]) + 0.0722 * lin(c[2]);
-  function ratio(a, b) { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); }
+  // the WCAG maths is the site's one copy (shared/color/contrast.js, loaded by the test page before this file)
+  const M = g.SlopContrastMath;
+  if (!M) throw new Error('tests/a11y/contrast.js needs shared/color/contrast.js on the page first');
+  const ratio = M.ratio;
   /** c (with alpha a) over an opaque colour. */
   const over = (c, a, under) => [0, 1, 2].map((i) => c[i] * a + under[i] * (1 - a));
   const mix = (under, top, op) => (op >= 1 ? top : [0, 1, 2].map((i) => top[i] * op + under[i] * (1 - op)));

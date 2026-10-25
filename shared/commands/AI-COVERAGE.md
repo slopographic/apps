@@ -6,7 +6,7 @@ that this file is up to date and that no covered app loses a create, add or expo
 
 **Covered** means the assistant can create, add content, edit and export there. ✗ marks a gap.
 
-Covered: 41 of 58 apps.
+Covered: 42 of 59 apps.
 
 | App | Create | Add | Edit | Export | Operations | Covered |
 |---|---|---|---|---|---|---|
@@ -51,6 +51,7 @@ Covered: 41 of 58 apps.
 | Slop Transcribe (`transcribe`) | ✗ | ✓ 1 | ✓ 6 | ✓ 1 | 1 | owned by wip/video-ai |
 | Slop Signature (`signature`) | ✓ 1 | ✓ 2 | ✓ 2 | ✓ 1 |  | yes |
 | QR SLOP (`qr`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | yes |
+| Slop Colors (`colors`) | ✓ 1 | ✓ 2 | ✓ 7 | ✓ 1 | 1 | yes |
 | Slop Workflows (`workflows`) | ✗ | ✗ | ✗ | ✗ |  | no |
 | File convert (`convert`) | ✗ | ✗ | ✗ | ✗ |  | no |
 | Slopculator (`calculator`) | ✗ | ✓ 1 | ✓ 1 | ✓ 2 |  | no |
@@ -335,6 +336,14 @@ Covered: 41 of 58 apps.
 - add: `add_logo`
 - edit: `remove_logo`, `set_content`, `set_design`
 - export: `export_qr`
+
+### Slop Colors
+
+- create: `new_palette`
+- add: `add_colors`, `add_from_picture`
+- edit: `check_contrast`, `convert_color`, `fix_contrast`, `make_palette`, `remove_color`, `rename_palette`, `set_color`
+- export: `export_palette`
+- operations: `colors.palette`
 
 ### Slopculator
 

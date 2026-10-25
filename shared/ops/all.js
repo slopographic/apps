@@ -7,6 +7,7 @@ import './watermark.js';
 import './resize.js';
 import './upscale.js';
 import './clean.js';
+import './colors.js';
 import './ocr.js';
 import './files.js';
 import './video.js';   // SlopCut's edit list, reframe, captions and reel, and Slop Transcribe's speech to text
