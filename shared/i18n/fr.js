@@ -49,9 +49,10 @@
     'footer.all_tools': 'Tous les outils',
     'footer.sitemap': 'Plan du site (XML)',
 
-    'hero.lead': 'Toute la boîte à outils,',
-    'hero.accent': 'ouverte dans votre navigateur.',
-    'hero.sub': 'Modifiez des PDF, des photos et des vidéos, rédigez des documents, envoyez des factures et convertissez des fichiers. C’est gratuit, rien à installer, aucun compte à créer, vos fichiers restent sur votre appareil et les apps fonctionnent hors ligne après la première visite.',
+    'hero.kicker': 'Logiciels de bureau et de création',
+    'hero.lead': 'Des apps de bureau et de création,',
+    'hero.accent': 'gratuites dans votre navigateur.',
+    'hero.sub': 'Rédigez des documents et des tableurs, modifiez des PDF, des photos et des vidéos, et tenez à jour factures, commandes et contacts. Rien à installer, aucun compte à créer, vos fichiers restent sur votre appareil et les apps fonctionnent hors ligne après la première visite.',
     'hero.open': 'Ouvrir les apps',
     'hero.how': 'Comment ça marche',
     'hero.github': 'Open source sur GitHub',

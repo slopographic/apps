@@ -13,12 +13,12 @@
   let win, doc, S, M, pristine;
   // The page itself changes as cards scroll into view (lazy screenshots load or fall back, clips attach):
   // compare without those parts.
-  // The tool vortex in the hero moves on its own (its layer and the hero's state change every frame): compare without it.
+  // The app globe in the hero turns on its own (its layer and the hero's state change every frame): compare without it.
   const main = () => {
     const m = doc.querySelector('main').cloneNode(true);
-    m.querySelectorAll('.vx-layer').forEach((n) => n.remove());
-    m.querySelector('#hero').removeAttribute('data-vx');
-    m.querySelectorAll('.vx-nav a').forEach((a) => a.removeAttribute('tabindex'));
+    m.querySelectorAll('.gx-layer').forEach((n) => n.remove());
+    m.querySelector('#hero').removeAttribute('data-globe');
+    m.querySelectorAll('.gx-nav a').forEach((a) => a.removeAttribute('tabindex'));
     return m.innerHTML.replace(/<img[^>]*>|<video[\s\S]*?<\/video>| data-clip="[^"]*"| has-img/g, '');
   };
   const leftovers = () => doc.querySelectorAll('.sloppo-layer > :not(.sloppo):not(.sloppo-fx)').length;

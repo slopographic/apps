@@ -9,66 +9,73 @@
   <script src="../harness.js"></script>
   <script src="hero-boot.js"></script>
   <script>
-  // Covers: home/vortex/vortex.js, home/browse.js, index.html
-  /* The hero's links: every vortex icon is a link to its app with the app's name, hovering one shows the name and slows
-   * the swirl, the keyboard list holds every app as one tab stop moved with the arrow keys, Open the apps puts the cursor in
+  // Covers: home/globe/globe.js, home/browse.js, index.html
+  /* The hero's links: every globe icon is a link to its app with the app's name, pointing at one brings it to the front
+   * and shows the name, the keyboard list holds every app as one tab stop moved with the arrow keys, Open the apps puts the cursor in
    * the finder's search, How it works opens its page; the copy is translated through shared/i18n. */
   const { describe, it, expect, waitFor, sleep, run } = SlopTest;
   let win, doc;
   const ready = HeroTest.open({ width: 1280 }).then((w) => { win = w; doc = w.document; });
   const label = (a) => win.slopAppLabel(a, win.slopBrandNamesOn());
 
-  describe('vortex icons', () => {
+  describe('globe icons', () => {
     it('each icon is a link to an app, named after it, out of the tab order and hidden from screen readers', async () => {
       await ready;
-      const icons = [...doc.querySelectorAll('.vx-layer .vx-i')];
+      const icons = [...doc.querySelectorAll('.gx-layer .gx-i')];
       expect(icons.length).toBeGreaterThan(10);
+      expect(new Set(icons.map((n) => n.dataset.id)).size).toBe(icons.length);   // each app once
       for (const n of icons) {
         expect(n.tagName).toBe('A');
         const app = win.SLOP_APPS.find((a) => a.id === n.dataset.id);
         if (!app) throw new Error('no app for icon ' + n.dataset.id);
         expect(n.getAttribute('href')).toBe(app.path);
         expect(n.getAttribute('aria-label')).toBe(label(app));
-        expect(n.querySelector('.vx-name').textContent).toBe(label(app));
-        expect(n.querySelector('svg.vx-svg') !== null).toBe(true);
+        expect(n.querySelector('.gx-name').textContent).toBe(label(app));
+        expect(n.querySelector('svg.gx-svg') !== null).toBe(true);
         expect(n.getAttribute('tabindex')).toBe('-1');
         expect(n.getAttribute('aria-hidden')).toBe('true');
       }
-      expect(doc.querySelector('.vx-layer').getAttribute('aria-hidden')).toBe('true');
+      expect(doc.querySelector('.gx-layer').getAttribute('aria-hidden')).toBe('true');
     });
-    it('hovering an icon shows its name, holds it in full view and slows the swirl; leaving lets it go', async () => {
+    it('pointing at an icon stops the turn, brings it round to the front and shows its name; leaving resumes the turn', async () => {
       await ready;
-      await waitFor(() => win.SlopVortex.icons().some((i) => i.opacity > 0.5), { timeout: 5000 });
-      const ic = win.SlopVortex.icons().filter((i) => i.opacity > 0.5)[0];
-      ic.el.dispatchEvent(new win.PointerEvent('pointerover', { bubbles: true, pointerType: 'mouse' }));
+      await waitFor(() => win.SlopGlobe.icons().some((i) => i.opacity > 0.5 && i.z > 0 && i.z < 0.6), { timeout: 8000 });
+      const ic = win.SlopGlobe.icons().filter((i) => i.opacity > 0.5 && i.z > 0 && i.z < 0.6)[0];
+      ic.el.dispatchEvent(new win.PointerEvent('pointerover', { bubbles: true, pointerType: 'mouse', clientX: 1, clientY: 1 }));
       expect(ic.el.classList.contains('is-hot')).toBe(true);
-      await waitFor(() => win.getComputedStyle(ic.el.querySelector('.vx-name')).opacity === '1', { timeout: 5000 });   // after its fade
+      expect(win.SlopGlobe.view().focus).toBe(ic.id);
+      await waitFor(() => win.getComputedStyle(ic.el.querySelector('.gx-name')).opacity === '1', { timeout: 5000 });
       expect(Number(ic.el.style.opacity)).toBe(1);
-      const r1 = ic.el.getBoundingClientRect();
-      await sleep(300);
-      const r2 = ic.el.getBoundingClientRect();
-      expect(Math.hypot(r2.left - r1.left, r2.top - r1.top)).toBeLessThan(2);   // it stays put while pointed at
+      await waitFor(() => win.SlopGlobe.icons().find((i) => i.id === ic.id).z > 0.55, { timeout: 5000 });   // eased round to the front
+      const g = win.SlopGlobe.view().geom;
+      await sleep(1500);
+      expect(win.SlopGlobe.view().vel).toBe(0);   // no idle turn while it is pointed at
+      const held = win.SlopGlobe.icons().find((i) => i.id === ic.id);
+      expect(held.z).toBeGreaterThan(0.55);
+      expect(Math.abs(held.x - g.cx)).toBeLessThan(g.r * 0.1);   // it waits at the front
       ic.el.dispatchEvent(new win.PointerEvent('pointerout', { bubbles: true, pointerType: 'mouse', relatedTarget: doc.body }));
       expect(ic.el.classList.contains('is-hot')).toBe(false);
-    });
+      expect(win.SlopGlobe.view().focus).toBe(null);
+      const y2 = win.SlopGlobe.view().yaw;
+      await waitFor(() => win.SlopGlobe.view().yaw - y2 > 0.01, { timeout: 8000 });   // the idle turn resumes
+    }, { timeout: 30000 });
   });
 
   describe('the keyboard list', () => {
     it('lists every app with an icon and a page, as one tab stop', async () => {
       await ready;
-      const links = [...doc.querySelectorAll('.vx-nav a')];
+      const links = [...doc.querySelectorAll('.gx-nav a')];
       const want = win.SLOP_APPS.filter((a) => !a.path.startsWith('#') && win.SLOP_ICONS[a.id]);
       expect(links.map((a) => a.getAttribute('href'))).toEqual(want.map((a) => a.path));
       expect(links.map((a) => a.textContent)).toEqual(want.map(label));
       expect(links.filter((a) => a.tabIndex === 0).length).toBe(1);
-      expect(doc.querySelector('.vx-nav').getAttribute('aria-label')).toBe('Every app');
+      expect(doc.querySelector('.gx-nav').getAttribute('aria-label')).toBe('Every app');
       expect(links[0].getBoundingClientRect().width).toBeLessThan(2);   // hidden until focused
     });
-    it('the arrow keys move along it; the focused app shows as a chip and lights its icon; the swirl waits', async () => {
+    it('the arrow keys move along it; the focused app shows as a chip and its icon comes round to the front', async () => {
       await ready;
-      const links = [...doc.querySelectorAll('.vx-nav a')];
+      const links = [...doc.querySelectorAll('.gx-nav a')];
       links[0].focus();
-      expect(win.SlopVortex.state()).toBe('paused');
       const key = (k) => doc.activeElement.dispatchEvent(new win.KeyboardEvent('keydown', { key: k, bubbles: true }));
       key('ArrowRight');
       expect(doc.activeElement).toBe(links[1]);
@@ -78,17 +85,17 @@
       expect(doc.activeElement).toBe(links[links.length - 1]);
       key('Home');
       expect(doc.activeElement).toBe(links[0]);
-      // focus one that is on screen in the vortex: its icon is lit
-      const live = win.SlopVortex.icons()[0];
-      const target = links.find((a) => a.dataset.id === live.id);
+      // the farthest icon's app: focused, it turns all the way round to the front
+      const far = win.SlopGlobe.icons().reduce((m, i) => (i.z < m.z ? i : m));
+      const target = links.find((a) => a.dataset.id === far.id);
       target.focus();
       expect(target.getBoundingClientRect().width).toBeGreaterThan(40);
-      expect(live.el.classList.contains('is-lit')).toBe(true);
-      expect(Number(live.el.style.opacity)).toBe(1);
+      expect(far.el.classList.contains('is-hot')).toBe(true);
+      await waitFor(() => win.SlopGlobe.icons().find((i) => i.id === far.id).z > 0.55, { timeout: 6000 });
       target.blur();
-      expect(live.el.classList.contains('is-lit')).toBe(false);
-      expect(win.SlopVortex.state()).toBe('running');
-    });
+      expect(far.el.classList.contains('is-hot')).toBe(false);
+      expect(win.SlopGlobe.state()).toBe('running');
+    }, { timeout: 30000 });
   });
 
   describe('buttons and copy', () => {
@@ -121,10 +128,10 @@
       expect(win.getComputedStyle(h1.querySelector('em')).fontFamily).toMatch(/Instrument Serif/);
       win.SlopI18n.set('es');
       expect(doc.querySelector('[data-i18n="hero.open"]').textContent).toBe('Abrir las apps');
-      expect(h1.querySelector('em').textContent).toBe('abierta en tu navegador.');
+      expect(h1.querySelector('em').textContent).toBe('gratis en tu navegador.');
       expect(doc.querySelector('.hx-marquee .mq-list').getAttribute('aria-label')).toBe('Lo que hacen las apps');
       win.SlopI18n.set('en');
-      expect(h1.textContent).toBe('The whole toolbox, open in your browser.');
+      expect(h1.textContent).toBe('Office and creative apps, free in your browser.');
     });
   });
 

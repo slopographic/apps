@@ -19,7 +19,7 @@ html { scroll-padding-top: calc(var(--top, 64px) + 8px); scroll-padding-bottom: 
 
 .home { padding: calc(var(--top, 64px) + 24px) clamp(16px, 4vw, 56px) 40px; max-width: 1280px; margin: 0 auto; }
 
-/* The hero (wordmark, tool vortex, headline) and the capability strip are in home/hero.css. */
+/* The hero (headline, app globe) and the capability strip are in home/hero.css and home/globe/globe.css. */
 /* ---------- why it's different ---------- */
 .why { padding: 56px 0 0; }
 .why-title { font: 700 13px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--bone-faint); margin: 0 0 16px; }

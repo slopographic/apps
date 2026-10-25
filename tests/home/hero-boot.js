@@ -1,8 +1,8 @@
 /* Opens the homepage for the hero tests (tests/home/hero*.test.html) in a same-origin iframe of a given width and theme,
- * and waits until the tool vortex (home/vortex/vortex.js) has drawn a few frames.
+ * and waits until the app globe (home/globe/globe.js) has drawn a few frames.
  *   HeroTest.open({ width, height, theme }) -> the iframe's window
- *   HeroTest.markBox(win) -> the wordmark's text box (client coordinates of the iframe)
- *   HeroTest.transforms(win) -> each vortex icon's inline transform, in order */
+ *   HeroTest.titleBox(win) -> the headline's box (client coordinates of the iframe)
+ *   HeroTest.transforms(win) -> each globe icon's inline transform, in order */
 (function () {
   'use strict';
   async function open({ width = 1280, height = 800, theme = 'light' } = {}) {
@@ -20,14 +20,10 @@
     await new Promise((r) => f.addEventListener('load', r, { once: true }));
     const win = f.contentWindow;
     win.document.documentElement.style.scrollBehavior = 'auto';
-    await SlopTest.waitFor(() => win.SlopVortex && win.SlopVortex.frames() > 4 && win.document.querySelector('#app-finder .fd-input'), { timeout: 30000 });
+    await SlopTest.waitFor(() => win.SlopGlobe && win.SlopGlobe.frames() > 4 && win.document.querySelector('#app-finder .fd-input'), { timeout: 30000 });
     return win;
   }
-  function markBox(win) {
-    const r = win.document.createRange();
-    r.selectNodeContents(win.document.querySelector('.hx-mark'));
-    return r.getBoundingClientRect();
-  }
-  const transforms = (win) => [...win.document.querySelectorAll('.vx-i')].map((n) => n.style.transform);
-  window.HeroTest = { open, markBox, transforms };
+  const titleBox = (win) => win.document.querySelector('.hx-title').getBoundingClientRect();
+  const transforms = (win) => [...win.document.querySelectorAll('.gx-i')].map((n) => n.style.transform);
+  window.HeroTest = { open, titleBox, transforms };
 })();
