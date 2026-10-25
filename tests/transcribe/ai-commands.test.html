@@ -9,7 +9,7 @@
   <iframe id="app" style="width:1280px;height:860px"></iframe>
   <script src="../harness.js"></script>
   <script>
-  // Covers: transcribe/js/ai-commands.js, transcribe/js/app.js, transcribe/index.html, shared/commands/commands.js, shared/commands/args.js, shared/ai/cmdtools.js
+  // Covers: transcribe/js/ai-commands.js, transcribe/js/app.js, transcribe/index.html, shared/commands/commands.js, shared/commands/sources.js, shared/commands/args.js, shared/ai/cmdtools.js
   // The real model is a download the tests do not make: the page's engine is swapped for a fake that answers like Whisper.
   const { describe, it, expect, waitFor, run, sleep } = SlopTest;
   let W, D, S, driveId;
@@ -62,7 +62,7 @@
       expect(W.SlopTranscribe.queue.items.map((x) => x.name)).toEqual(['Team meeting.mp3', 'Team meeting.mp3']);
       const bad = await S.exec('tr.add-from-drive', { id: 'no-such-id' });
       expect(bad.ok).toBe(false);
-      expect(bad.error).toContain('No file with id no-such-id');
+      expect(bad.error).toContain('No Slop Drive file “no-such-id”');   // shared/commands/sources.js says it
     });
 
     it('state() lists the files with their ids, status and the selection', async () => {

@@ -1,7 +1,7 @@
 /* The app globe's name labels (home/globe/globe.js calls it every frame): without hovering, a few of the icons facing you
  * (closest to the viewer and near the centre) carry their app's name; while the finder is searching, the matches on the
  * near side do (as many as fit), marked with the accent. Labels never overlap one another, the copy, or a hovered icon's
- * own name chip, and stay inside the hero. Fewer and smaller at phone width.
+ * own name chip, and stay inside the hero with a margin at its sides (EDGE). Fewer and smaller at phone width.
  * Pure part (unit-tested in tests/node/globe-labels.test.mjs; module.exports under Node):
  *   limit(searching, narrow) -> how many labels at most
  *   boxFor(c, o) -> { l, t, w, h }      where c's label goes (under the icon, kept inside the hero); the width is estimated
@@ -18,14 +18,17 @@
   'use strict';
   const LIMITS = { idle: [5, 3], search: [12, 6] };   // [wide, narrow]
   const GAP = 6, PAD = 6, FADE = 260, NARROW_MAX = 180;   // px: a long name is cut short at phone width (globe.css)
+  const EDGE = [16, 10];   // px [wide, narrow]: a label keeps this far inside the hero's left and right edges
   const limit = (searching, narrow) => LIMITS[searching ? 'search' : 'idle'][narrow ? 1 : 0];
   const font = (narrow) => (narrow ? 10 : 11);
 
   function boxFor(c, o) {
-    const f = font(o.narrow), est = Math.ceil(String(c.text || '').length * f * 0.7 + (o.narrow ? 14 : 18));
+    // uppercase monospace: about 0.6em a character plus the 0.08em letter spacing (globe.css), a little over, plus padding
+    const f = font(o.narrow), est = Math.ceil(String(c.text || '').length * f * 0.72 + (o.narrow ? 14 : 18));
     const w = o.narrow ? Math.min(NARROW_MAX, est) : est, h = Math.ceil(f * 1.2 + (o.narrow ? 8 : 10));
     let l = c.x - w / 2;
-    if (o.W) l = Math.max(4, Math.min(o.W - 4 - w, l));
+    const e = EDGE[o.narrow ? 1 : 0];
+    if (o.W) l = Math.max(e, Math.min(o.W - e - w, l));
     return { l, t: c.y + c.half + GAP, w, h };
   }
   const overlap = (a, b, pad = PAD) => a.l < b.l + b.w + pad && b.l < a.l + a.w + pad && a.t < b.t + b.h + pad && b.t < a.t + a.h + pad;
@@ -99,7 +102,7 @@
     return { update, shown };
   }
 
-  const M = { limit, boxFor, pick, overlap, LIMITS, NARROW_MAX };
+  const M = { limit, boxFor, pick, overlap, LIMITS, NARROW_MAX, EDGE };
   if (typeof window !== 'undefined') window.SlopGlobeLabels = { ...M, pool };
   if (typeof module !== 'undefined' && module.exports) module.exports = M;
 })();

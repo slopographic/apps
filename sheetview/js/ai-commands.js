@@ -11,8 +11,7 @@ export function install(store, openFile) {
   const C = window.SlopCmd;
   if (!C || C.get('sheetview.ai.sort-column')) return;
   const list = [];
-  const add = (tool, title, args, run, extra) => list.push(Object.assign({ id: 'sheetview.ai.' + tool.replace(/_/g, '-'), tool, title, group: 'AI', hidden: true, destructive: false, args,
-    run: (a) => run(a || window.SlopCmdArgs.defaults(args)) }, extra));
+  const add = C.aiAdder('sheetview', list);   // shared/commands/commands.js
   const COL = { name: 'column', type: 'string', required: true, maxLength: 120, description: 'header text, a letter (B) or a number from 1' };
   const need = () => { if (!store.doc()) throw new Error('Open a spreadsheet first (open_file)'); return store.sheet(); };
   const width = (sh) => Math.max(0, ...sh.rows.map((r) => r.length));
@@ -51,13 +50,10 @@ export function install(store, openFile) {
 
   add('open_file', 'Open a spreadsheet from Slop Drive', [{ name: 'file', type: 'string', required: true, maxLength: 300, description: 'Slop Drive name or id (.xlsx, .csv, .tsv, .ods)' }],
     async (a) => {
-      const H = window.SlopHub, list = await H.list(), s = String(a.file).toLowerCase();   // intake-ok: an AI command looks a Drive file up by name or id (a lookup; the person's picker is SlopIntake.fromDrive)
-      const hit = list.find((f) => f.id === a.file) || list.find((f) => f.name.toLowerCase() === s) || list.find((f) => f.name.toLowerCase().includes(s));
-      if (!hit) throw new Error(`No Slop Drive file “${a.file}”`);
-      const rec = await H.get(hit.id);
-      await openFile(new File([rec.blob], rec.name, { type: rec.type || rec.blob.type }));
+      const file = await (await window.SlopCmd.sources()).driveAsFile(a.file);   // shared/commands/sources.js: by id or name
+      await openFile(file);
       const d = store.doc();
-      return `Opened ${rec.name}: ${d.sheets.length} sheet(s), ${need().rows.length} rows in “${need().name}”.`;
+      return `Opened ${file.name}: ${d.sheets.length} sheet(s), ${need().rows.length} rows in “${need().name}”.`;
     });
   add('select_sheet', 'Show a sheet', [{ name: 'sheet', type: 'string', required: true, maxLength: 120, description: 'sheet name or number' }], (a) => {
     const d = store.doc(); need();

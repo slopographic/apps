@@ -8,8 +8,7 @@ import { writeZip } from '../../shared/office/zip.js';
 
 const C = window.SlopCmd, P = () => window.SlopSorter.app, M = () => window.SlopSorter.model;
 const list = [];
-const add = (tool, title, args, run, extra) => list.push(Object.assign({ id: 'sorter.ai.' + tool.replace(/_/g, '-'), tool, title, group: 'AI', hidden: true, destructive: false, args,
-  run: (a) => run(a || window.SlopCmdArgs.defaults(args)) }, extra));
+const add = C.aiAdder('sorter', list);   // shared/commands/commands.js
 const PHOTOS = { name: 'photos', type: 'array', maxItems: 5000, items: { type: 'string' }, description: 'photo names or ids; the shown ones when empty' };
 function pick(names) {
   const items = P().set.items;
@@ -28,14 +27,10 @@ async function save(blob, name, to) {
   return out.join(' and ') + '.';
 }
 
+/** Slop Drive files by id or name (shared/commands/sources.js), all found before anything changes. */
 async function driveFiles(names) {
-  const H = window.SlopHub, all = await H.list(), files = [];   // intake-ok: an AI command looks a Drive file up by name or id (a lookup; the person's picker is SlopIntake.fromDrive)
-  for (const q of names) {
-    const s = String(q).toLowerCase(), hit = all.find((f) => f.id === q) || all.find((f) => f.name.toLowerCase() === s);
-    if (!hit) throw new Error(`No Slop Drive file “${q}”`);
-    const rec = await H.get(hit.id);
-    files.push(new File([rec.blob], rec.name, { type: rec.type || rec.blob.type }));
-  }
+  const src = await window.SlopCmd.sources(), files = [];
+  for (const q of names) files.push(await src.driveAsFile(q));
   return files;
 }
 const FILES = { name: 'files', type: 'array', required: true, maxItems: 5000, items: { type: 'string' }, description: 'Slop Drive names or ids' };

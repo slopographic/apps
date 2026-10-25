@@ -14,8 +14,7 @@
   const CATS = K().CATS.map((c) => c.id);
   const plural = (n, one, many) => `${n} ${n === 1 ? one : many || one + 's'}`;
   const list = [];
-  const add = (tool, title, args, run, extra) => list.push(Object.assign({ id: 'cl.ai.' + tool.replace(/_/g, '-'), tool, title, group: 'AI', hidden: true, destructive: false, args,
-    run: (a) => run(a || window.SlopCmdArgs.defaults(args)) }, extra));
+  const add = C.aiAdder('cl', list);   // shared/commands/commands.js
   const ready = () => S().items.filter((x) => x.out);
   const blobOf = (it) => new Blob([it.out.bytes], { type: it.out.mime });
   const find = (q) => {

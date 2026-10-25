@@ -13,8 +13,7 @@
   const C = window.SlopCmd, R = window.SlopRec;
   if (!C || C.get('recorder.ai.new-recording')) return;
   const A = R.app, P = R.plan;
-  const add = (tool, title, args, run, extra) => Object.assign({ id: 'recorder.ai.' + tool.replace(/_/g, '-'), tool, title, group: 'AI', hidden: true, destructive: false, args,
-    run: (a) => run(a || window.SlopCmdArgs.defaults(args)) }, extra);
+  const add = C.aiAdder('recorder');   // shared/commands/commands.js
   const SETTINGS = [
     { name: 'source', type: 'enum', options: P.SOURCES, description: 'what to record' },
     { name: 'systemAudio', type: 'boolean', description: 'the sound of the shared screen or tab, where the browser allows it' },

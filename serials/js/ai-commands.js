@@ -6,8 +6,7 @@
  * serials or the photos as CSV, to Slop Drive and/or a download) and clear_photos (destructive). */
 const C = window.SlopCmd, X = () => window.SlopSerials;
 const list = [];
-const add = (tool, title, args, run, extra) => list.push(Object.assign({ id: 'serials.ai.' + tool.replace(/_/g, '-'), tool, title, group: 'AI', hidden: true, destructive: false, args,
-  run: (a) => run(a || window.SlopCmdArgs.defaults(args)) }, extra));
+const add = C.aiAdder('serials', list);   // shared/commands/commands.js
 const PHOTO = { name: 'photo', type: 'string', maxLength: 200, description: 'photo name or number from 1; the last one when empty' };
 function photo(q) {
   const ps = X().state.photos;

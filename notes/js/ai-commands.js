@@ -11,8 +11,7 @@ import { blobFor, fileBase } from './export.js';
 const C = window.SlopCmd;
 const log = [];   // { made: id } | { changed: note, before }
 const list = [];
-const add = (tool, title, args, run, extra) => list.push(Object.assign({ id: 'notes.ai.' + tool.replace(/_/g, '-'), tool, title, group: 'AI', hidden: true, destructive: false, args,
-  run: (a) => run(a || window.SlopCmdArgs.defaults(args)) }, extra));
+const add = C.aiAdder('notes', list);   // shared/commands/commands.js
 const NOTE = { name: 'note', type: 'string', maxLength: 200, description: 'note id or title; the open note when empty' };
 const TAGS = { name: 'tags', type: 'array', maxItems: 30, items: { type: 'string' }, description: 'tags, without #' };
 const cleanTags = (t) => [...new Set([].concat(t || []).map((x) => String(x).replace(/^#/, '').trim().toLowerCase()).filter(Boolean))].slice(0, 30);

@@ -27,6 +27,15 @@
       if (A.left < B.right && B.left < A.right && A.top < B.bottom && B.top < A.bottom) throw new Error(`labels ${i} and ${j} overlap`);
     }
   }
+  /** Every label keeps labels.js's margin inside the hero's sides (a long search label once ran to the window's edge):
+   *  its drawn width is within the estimate it was placed with. */
+  function insideEdges() {
+    const hero = doc.getElementById('hero'), h = hero.getBoundingClientRect(), e = L().EDGE[hero.clientWidth < 600 ? 1 : 0];
+    for (const l of win.SlopGlobe.labels()) {
+      const b = l.el.getBoundingClientRect();
+      if (b.left - h.left < e - 1 || h.left + hero.clientWidth - b.right < e - 1) throw new Error(`“${l.text}” is ${Math.round(b.left - h.left)} px / ${Math.round(h.left + hero.clientWidth - b.right)} px from the hero's sides`);
+    }
+  }
   const heroAttrs = () => [...doc.getElementById('hero').attributes].map((a) => a.name + '=' + a.value).join(' ');
 
   describe('at 1280 px', () => {
@@ -47,6 +56,7 @@
       }
       await sleep(400);   // past the fade
       noOverlap();
+      insideEdges();
       // nothing over the headline
       const t = HeroTest.titleBox(win);
       for (const b of boxes()) expect(b.right < t.left || b.left > t.right || b.bottom < t.top || b.top > t.bottom).toBe(true);
@@ -75,6 +85,7 @@
         expect(iconOf(l.id).el.classList.contains('is-match')).toBe(true);
       }
       noOverlap();
+      insideEdges();
       expect(win.getComputedStyle(shown[0].el).outlineStyle).toBe('solid');
       type('');
       await waitFor(() => win.SlopGlobe.labels().every((l) => !l.el.classList.contains('is-match')), { timeout: 8000 });
@@ -111,6 +122,7 @@
       await sleep(400);
       noOverlap();
       for (const b of boxes()) expect(b.left >= 0 && b.right <= 390).toBe(true);
+      insideEdges();
     }, { timeout: 60000 });
   });
 

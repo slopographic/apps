@@ -9,8 +9,7 @@
   const C = window.SlopCmd, A = () => window.EmlApp, X = () => window.EmlExport;
   if (!C || C.get('eml.ai.export-messages')) return;
   const list = [], opened = [], edits = [];   // edits: { id, bytes } before each rewrite, for the checkpoint
-  const add = (tool, title, args, run, extra) => list.push(Object.assign({ id: 'eml.ai.' + tool.replace(/_/g, '-'), tool, title, group: 'AI', hidden: true, destructive: false, args,
-    run: (a) => run(a || window.SlopCmdArgs.defaults(args)) }, extra));
+  const add = C.aiAdder('eml', list);   // shared/commands/commands.js
   const S = (name, description, extra) => Object.assign({ name, type: 'string', maxLength: 300, description }, extra);
   const MSG = S('message', 'subject, file name or id; the open one when empty');
   const find = (q) => {

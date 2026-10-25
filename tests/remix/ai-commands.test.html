@@ -13,7 +13,7 @@
   // Reel Remix's operations as commands with arguments (the AI's tools): a whole reel from a spec (Slop Drive sources,
   // options, seed), the same spec gives the same edit, single edits on the plan, a destructive command flagged, and the
   // export through SlopCut's hidden copy into Slop Drive.
-  // Covers: remix/js/ai-commands.js, remix/js/ai-spec.js, shared/commands/argform.js
+  // Covers: remix/js/ai-commands.js, remix/js/ai-spec.js, shared/commands/argform.js, shared/commands/sources.js
   const { describe, it, expect, waitFor } = SlopTest;
   const win = () => document.getElementById('app').contentWindow;
   const RM = () => win().RM, C = () => win().SlopCmd;

@@ -24,8 +24,7 @@
     { name: 'text', type: 'string', maxLength: 2953, description: 'shortcut: the text (kind text) or the address (kind url)' },
     { name: 'raw', type: 'string', maxLength: 2953, description: 'encode exactly this text instead of a form' }];
   const list = [];
-  const add = (tool, title, args, run, extra) => list.push(Object.assign({ id: 'qr.ai.' + tool.replace(/_/g, '-'), tool, title, group: 'AI', hidden: true, destructive: false, args,
-    run: (a) => run(a || window.SlopCmdArgs.defaults(args)) }, extra));
+  const add = C.aiAdder('qr', list);   // shared/commands/commands.js
 
   function content(a) {
     if (a.raw != null && a.raw !== '') { Q.setRaw(a.raw); return; }

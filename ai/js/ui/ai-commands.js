@@ -13,8 +13,7 @@
   if (!C || !AI || !AI.chat || C.get('ai.ai.new-chat')) return;
   const P = () => AI.chat;
   const list = [];
-  const add = (tool, title, args, run, extra) => list.push(Object.assign({ id: 'ai.ai.' + tool.replace(/_/g, '-'), tool, title, group: 'AI', hidden: true, destructive: false, args,
-    run: (a) => run(a || window.SlopCmdArgs.defaults(args)) }, extra));
+  const add = C.aiAdder('ai', list);   // shared/commands/commands.js
   const PERSONAS = Object.keys(AI.PERSONAS).filter((k) => !AI.PERSONAS[k].hidden);
   const notBusy = () => { if (P().busy || (AI.builder && AI.builder.busy)) throw new Error('Slop AI is writing a reply; wait for it or stop it first'); };
   const personaName = (c) => (c.system && c.persona !== 'builder' ? 'Custom' : (AI.PERSONAS[c.persona] || AI.PERSONAS.helper).name);

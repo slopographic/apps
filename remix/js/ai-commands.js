@@ -59,33 +59,26 @@
   const said = (p, verb) => `${verb}: ${num(p.total)} s, ${p.cuts.length} cuts, seed ${p.seedHex}.`;
   const cutOf = (i) => { const p = RM.state.plan; if (!p || !p.cuts[i]) throw new Error(`There is no cut ${i} (the plan has ${p ? p.cuts.length : 0}; they count from 0).`); return p.cuts[i]; };
   const redraw = () => { if (RM.renderPlan) RM.renderPlan(); };
-  /** A Slop Drive record by id or name (or part of it). */
-  AI.driveRec = async function (q) {
-    const H = window.SlopHub;
-    if (!H) throw new Error('Slop Drive is not available here.');
-    let rec = await H.get(q).catch(() => null);
-    if (!rec) { const all = await H.list().catch(() => []), low = String(q).toLowerCase(); const f = all.find((x) => x.name.toLowerCase() === low) || all.find((x) => x.name.toLowerCase().includes(low)); rec = f && (await H.get(f.id)); } // intake-ok: an AI command looks a Drive file up by id or name (a lookup; the person's picker is SlopIntake.fromDrive)
-    if (!rec || !rec.blob) throw new Error(`There is no Slop Drive file "${q}".`);
-    return rec;
-  };
-  AI.fromDrive = async function (q) {
-    const rec = await AI.driveRec(q);
-    const file = new File([rec.blob], rec.name, { type: rec.type || rec.blob.type });
-    if (!(await RM.addFiles([file]))) throw new Error(`${rec.name} is not a picture or video this browser can read.`);
+  /** A Slop Drive file by id or name (or part of it): shared/commands/sources.js. */
+  const driveFile = async (q) => (await window.SlopCmd.sources()).driveAsFile(q);
+  async function addFile(file) {
+    if (!(await RM.addFiles([file]))) throw new Error(`${file.name} is not a picture or video this browser can read.`);
     RM.syncUI();
     return RM.state.items[RM.state.items.length - 1];
-  };
+  }
+  AI.fromDrive = async (q) => addFile(await driveFile(q));
 
   /** A new reel: the bin emptied, the options back to their defaults (Reset all), no music file, a new seed; the frame stays.
    *  The sources are looked up before anything goes, so a missing one changes nothing. */
   async function newReel(a) {
     const st = RM.state, sources = [].concat(a.sources || []).map(String).filter((x) => x.trim());
-    for (const q of sources) await AI.driveRec(q);
+    const files = [];
+    for (const q of sources) files.push(await driveFile(q));
     for (const m of st.items.slice()) RM.removeItem(m.id);
     if (st.music) { URL.revokeObjectURL(st.music.url); st.music = null; }
     RM.resetAll();
     Object.assign(st, { plan: null, overrides: {}, pending: [], seed: S.make() });
-    for (const q of sources) await AI.fromDrive(q);
+    for (const f of files) await addFile(f);
     AI.set(Object.assign({}, a, { sources: undefined }));
     return RM.media().length ? said(plan(), `New reel with ${st.items.length} clip(s), planned`) : 'New reel: the bin is empty. Add clips (add_from_drive), then remix.';
   }

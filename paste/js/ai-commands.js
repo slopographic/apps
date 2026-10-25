@@ -15,8 +15,7 @@ const LANG = { name: 'language', type: 'enum', values: LANGS.map((l) => l[0]), d
 const EXP = { name: 'expiry', type: 'enum', values: EXPIRY_OPTIONS.map((e) => e[0]), description: 'a label only' };
 const PASTE = { name: 'paste', type: 'string', maxLength: 200, description: 'title or id; the open paste when empty' };
 const list = [];
-const add = (tool, title, args, run, extra) => list.push(Object.assign({ id: 'paste.ai.' + tool.replace(/_/g, '-'), tool, title, group: 'AI', hidden: true, destructive: false, args,
-  run: (a) => run(a || window.SlopCmdArgs.defaults(args)) }, extra));
+const add = C.aiAdder('paste', list);   // shared/commands/commands.js
 
 function find(q) {
   if (!q) { const p = current(); if (!p) throw new Error('No paste is open'); return p; }

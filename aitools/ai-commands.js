@@ -14,8 +14,7 @@
   const R = () => window.SlopAIModels, M = () => window.SlopAIManager;
   let job = null;
   const list = [];
-  const add = (tool, title, args, run, extra) => list.push(Object.assign({ id: 'ait.ai.' + tool.replace(/_/g, '-'), tool, title, group: 'AI', hidden: true, destructive: false, args,
-    run: (a) => run(a || window.SlopCmdArgs.defaults(args)) }, extra));
+  const add = C.aiAdder('ait', list);   // shared/commands/commands.js
   const need = () => { if (!job) throw new Error('No job yet: new_job first'); return job; };
   const say = (t) => { const s = document.getElementById('status'); if (s) s.textContent = t; };
   const stem = (n) => String(n).replace(/\.[^.]+$/, '') || 'result';

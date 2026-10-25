@@ -23,10 +23,25 @@ test('a box sits under its icon, sized from the text, smaller at phone width, ke
   assert.ok(L.boxFor({ ...c('a', 500, 300, 1), text: 'A much longer app name' }, { W: 1280 }).w > b.w);
   assert.ok(L.boxFor(c('a', 500, 300, 1), { W: 390, narrow: true }).w < b.w);
   assert.equal(L.boxFor({ ...c('a', 200, 300, 1), text: 'A very long app name: with a long description' }, { W: 390, narrow: true }).w, L.NARROW_MAX);
-  const edge = L.boxFor(c('a', 2, 300, 1), { W: 390 });
-  assert.ok(edge.l >= 4);
-  const right = L.boxFor(c('a', 388, 300, 1), { W: 390 });
-  assert.ok(right.l + right.w <= 386);
+  const edge = L.boxFor(c('a', 2, 300, 1), { W: 390, narrow: true });
+  assert.ok(edge.l >= L.EDGE[1]);
+  const right = L.boxFor(c('a', 388, 300, 1), { W: 390, narrow: true });
+  assert.ok(right.l + right.w <= 390 - L.EDGE[1]);
+});
+
+test('a long label near the right of a 1280 px hero keeps a margin inside its edge (a search for "batch")', () => {
+  const text = 'Batch workflows across apps';
+  for (const x of [1150, 1230, 1279]) {
+    const b = L.boxFor({ ...c('wf', x, 300, 1), text }, { W: 1280 });
+    assert.ok(L.EDGE[0] >= 12, 'a real margin, not a few pixels');
+    assert.ok(b.l + b.w <= 1280 - L.EDGE[0], `${x}: right edge ${b.l + b.w}`);
+    assert.ok(b.w >= text.length * 11 * 0.68 + 18, 'wide enough for the uppercase mono text with its letter spacing');
+  }
+  const left = L.boxFor({ ...c('wf', 3, 300, 1), text }, { W: 1280 });
+  assert.ok(left.l >= L.EDGE[0]);
+  const out = L.pick([{ ...c('wf', 1260, 400, 0.9, { match: true }), text }], { ...base, W: 1280, searching: true, max: 6 });
+  assert.equal(out.length, 1);
+  assert.ok(out[0].l + out[0].w <= 1280 - L.EDGE[0]);
 });
 
 test('at rest: only icons facing you near the centre, the front-most and most central first, at most the limit', () => {

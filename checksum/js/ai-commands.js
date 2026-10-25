@@ -8,8 +8,7 @@
   const C = window.SlopCmd, K = () => window.SlopChecksum;
   if (!C || C.get('checksum.ai.hash-file')) return;
   const ALGS = ['SHA-256', 'SHA-384', 'SHA-512', 'SHA-1'];
-  const add = (tool, title, args, run, extra) => Object.assign({ id: 'checksum.ai.' + tool.replace(/_/g, '-'), tool, title, group: 'AI', hidden: true, destructive: false, args,
-    run: (a) => run(a || window.SlopCmdArgs.defaults(args)) }, extra);
+  const add = C.aiAdder('checksum');   // shared/commands/commands.js
   async function driveFile(q) {
     const H = window.SlopHub, s = String(q).toLowerCase(), all = await H.list();   // intake-ok: an AI command looks a Drive file up by name or id (a lookup; the person's picker is SlopIntake.fromDrive)
     const hit = all.find((f) => f.id === q) || all.find((f) => f.name.toLowerCase() === s) || all.find((f) => f.name.toLowerCase().includes(s));

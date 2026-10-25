@@ -8,8 +8,7 @@
   const ns = window.SlopImg3D, P = ns.app, C = window.SlopCmd;
   const $ = (id) => document.getElementById(id);
   const list = [];
-  const add = (tool, title, args, run, extra) => list.push(Object.assign({ id: 'img3d.ai.' + tool.replace(/_/g, '-'), tool, title, group: 'AI', hidden: true, destructive: false, args,
-    run: (a) => run(a || (window.SlopCmdArgs ? SlopCmdArgs.defaults(args) : {})) }, extra));
+  const add = C.aiAdder('img3d', list);   // shared/commands/commands.js
   let srcP = null;
   const sources = () => (window.SlopCmdSources ? Promise.resolve() : (srcP = srcP || new Promise((res, rej) => {
     const el = Object.assign(document.createElement('script'), { src: new URL('../shared/commands/sources.js', location.href).href });

@@ -7,8 +7,7 @@
   'use strict';
   const C = window.SlopCmd, A = () => window.SlopCalcApp;
   if (!C || C.get('calc.ai.add-calculation')) return;
-  const add = (tool, title, args, run, extra) => Object.assign({ id: 'calc.ai.' + tool.replace(/_/g, '-'), tool, title, group: 'AI', hidden: true, destructive: false, args,
-    run: (a) => run(a || window.SlopCmdArgs.defaults(args)) }, extra);
+  const add = C.aiAdder('calc');   // shared/commands/commands.js
   const TO = { name: 'to', type: 'enum', values: ['drive', 'download', 'both'], default: 'drive' };
   C.register([
     add('new_sheet', 'Start a new sheet', [{ name: 'keep_variables', type: 'boolean', default: false, description: 'keep the names set so far (price = 19.99)' }], (a) => {

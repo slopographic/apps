@@ -30,23 +30,15 @@ export function wireCommands({ queue: q, add, run, select, current, draw, say, m
   const pick = (a) => a || {};
 
   async function addFromDrive(a) {
-    const H = window.SlopHub;
     if (!a) { if (window.SlopIntake && SlopIntake.fromDrive) { await SlopIntake.fromDrive({ to: $('trDrop'), accept: ['audio/*', 'video/*'] }); return 'Opened Slop Drive.'; } throw new Error('Slop Drive is not available here.'); }
-    if (!H) throw new Error('Slop Drive is not available here.');
-    const file = await driveFile(H, a), id = add([file]);
+    const file = await driveFile(a.id || a.name), id = add([file]);
     if (!id) throw new Error(`“${file.name}” is not an audio or video file.`);
     return `Added “${file.name}” as file ${id}. Transcribe it next.`;
   }
-  /** A Slop Drive file by { id } or { name } (or part of it), as a File. */
-  async function driveFile(H, a) {
-    let rec = null;
-    if (a.id) rec = await H.get(a.id);
-    else if (a.name) {
-      const want = a.name.trim().toLowerCase(), all = await H.list({ accept: ['audio/*', 'video/*'] }); // intake-ok: an AI command looks a Drive file up by name (a lookup; the person's picker is SlopIntake.fromDrive)
-      rec = all.find((r) => String(r.name).toLowerCase() === want) || all.find((r) => String(r.name).toLowerCase().includes(want)) || null;
-    } else throw new Error('Give the Slop Drive id or the name of the file.');
-    if (!rec || !rec.blob) throw new Error(`No file ${a.id ? 'with id ' + a.id : 'named “' + a.name + '”'} in Slop Drive.`);
-    return new File([rec.blob], rec.name || 'Recording', { type: rec.type || rec.blob.type || '' });
+  /** A Slop Drive file by id, name or part of the name, as a File (shared/commands/sources.js). */
+  async function driveFile(q) {
+    if (!q) throw new Error('Give the Slop Drive id or the name of the file.');
+    return (await S.sources()).driveAsFile(q);
   }
 
   /** A new batch: the list is cleared, the Drive files (all found first) are added, and the language and model are set
@@ -54,10 +46,9 @@ export function wireCommands({ queue: q, add, run, select, current, draw, say, m
   async function newBatch(a) {
     a = a || {};
     if (q.busy) throw new Error('Stop transcribing first.');
-    const H = window.SlopHub, files = [];
-    if ((a.files || []).length && !H) throw new Error('Slop Drive is not available here.');
+    const files = [];
     for (const n of a.files || []) {
-      const f = await driveFile(H, { id: n }).catch(() => driveFile(H, { name: n }));   // an id, else a name
+      const f = await driveFile(n);   // an id, else a name
       if (!isMedia(f)) throw new Error(`“${f.name}” is not an audio or video file.`);
       files.push(f);
     }

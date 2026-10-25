@@ -31,8 +31,7 @@
   }
   const where = (id) => (id ? '“' + DR.pathOf(id).map((f) => f.name).join('/') + '”' : 'the top of Slop Drive');
   const list = [];
-  const add = (tool, title, args, run, extra) => list.push(Object.assign({ id: 'drive.ai.' + tool.replace(/_/g, '-'), tool, title, group: 'AI', hidden: true, destructive: false, args,
-    run: (a) => run(a || window.SlopCmdArgs.defaults(args)) }, extra));
+  const add = C.aiAdder('drive', list);   // shared/commands/commands.js
 
   add('list_items', 'List files', [FOLDER, Str('search', 'words in the name (searches every folder)'), { name: 'limit', type: 'number', min: 1, max: 500, default: 100, integer: true }],
     async (a) => {

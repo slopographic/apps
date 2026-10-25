@@ -14,8 +14,7 @@
   const OBJECT_ITEM = { type: 'object', properties: { kind: { type: 'string', enum: SHAPES.concat(['directional', 'ambient', 'group']) }, name: { type: 'string' },
     position: V3, rotation: V3, scale: V3, color: { type: 'string' }, roughness: { type: 'number' }, metallic: { type: 'number' }, opacity: { type: 'number' }, params: { type: 'object' } } };
   const list = [];
-  const add = (tool, title, args, run, extra) => list.push(Object.assign({ id: '3d.ai.' + tool.replace(/_/g, '-'), tool, title, group: 'AI', hidden: true, destructive: false, args,
-    run: (a) => run(a || (window.SlopCmdArgs ? SlopCmdArgs.defaults(args) : {})) }, extra));
+  const add = C.aiAdder('3d', list);   // shared/commands/commands.js
 
   const v3 = (v, name) => {
     let a = [].concat(v);

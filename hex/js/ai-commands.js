@@ -9,8 +9,7 @@
   const C = window.SlopCmd, A = () => window.HexApp, B = () => window.HexBytes;
   if (!C || C.get('hex.ai.set-bytes')) return;
   const list = [];
-  const add = (tool, title, args, run, extra) => list.push(Object.assign({ id: 'hex.ai.' + tool.replace(/_/g, '-'), tool, title, group: 'AI', hidden: true, destructive: false, args,
-    run: (a) => run(a || window.SlopCmdArgs.defaults(args)) }, extra));
+  const add = C.aiAdder('hex', list);   // shared/commands/commands.js
   const doc = () => { const d = A().doc(); if (!d) throw new Error('No file is open'); return d; };
   /** Bytes from hex text ("4D 5A") or plain text (UTF-8). */
   function bytesOf(a) {

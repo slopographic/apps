@@ -7,8 +7,7 @@
   'use strict';
   const C = window.SlopCmd, T = () => window.SlopTime;
   if (!C || C.get('time.ai.add-city')) return;
-  const add = (tool, title, args, run, extra) => Object.assign({ id: 'time.ai.' + tool.replace(/_/g, '-'), tool, title, group: 'AI', hidden: true, destructive: false, args,
-    run: (a) => run(a || window.SlopCmdArgs.defaults(args)) }, extra);
+  const add = C.aiAdder('time');   // shared/commands/commands.js
   /** A zone from a zone name or a city word. */
   function zone(q) {
     const Z = T().zones, s = String(q || '').trim();
