@@ -1,6 +1,8 @@
 // Task pages for the creative apps, part 1: PhotoSlop, Paint Classic, SlopVector, Slop Resize and Slop Upscale (see
 // index.mjs for the shape of a task; parts 2 and 3 are creative-2.mjs and creative-3.mjs). Presets in `query` must be
 // read by the app. Slop Resize reads w, h, kb, scale, long, fill, resample and format (resize/js/app/settings.js presetOf).
+import { AI } from '../ai-copy.mjs';
+
 const NOT_AFFILIATED = (name, owner) => `Slopographic is not affiliated with ${owner}. ${name} is a trademark of its owner, and the name is used here only to say what this app can stand in for.`;
 
 export const TASKS = [
@@ -68,6 +70,7 @@ export const TASKS = [
     faq: [['Is PhotoSlop really free?', 'Yes. There is no plan, no account and no watermark on what you export.'],
       ['Can I open and save PSD files?', 'Yes. PhotoSlop opens PSDs with their layers and masks, and saves layered 8-bit RGB PSDs. Groups are flattened and Photoshop text opens as pixels.'],
       ['Does it work offline?', 'Yes. File > Download PhotoSlop for offline use (.html) saves a copy of the editor as one file that you can open without a connection.'],
+      ['Does PhotoSlop have AI?', `${AI.how} Pictures made or changed with Generate Image… and Edit with AI… use an image service you connect, such as OpenAI, Gemini or OpenRouter with your own key; they are not made on your device.`],
       ['Is PhotoSlop made by Adobe?', NOT_AFFILIATED('Photoshop', 'Adobe')]] },
 
   // Paint Classic

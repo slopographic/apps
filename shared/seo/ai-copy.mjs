@@ -6,6 +6,7 @@
 //       a local server: Ollama, LM Studio and others (shared/ai/cloud/catalog/local.js, cloud/local.js);
 //       the person's own key: Claude, ChatGPT, Gemini, OpenRouter, Groq and about 50 services (shared/ai/cloud/catalog/).
 //     With a key the browser calls that provider directly (shared/ai/cloud/net.js); there is no Slopographic server.
+//     Free tiers are the catalog's `free` entries (Gemini, Groq, Mistral: free; OpenRouter: free models; cloud/free.js).
 //   - pictures: generate_image / edit_image and PhotoSlop's Generate Image… and Edit with AI… (shared/ai/imagegen/,
 //     photoslop/js/app/imagegen.js) need the person's own OpenAI, Gemini or OpenRouter key; an edit changes only the
 //     selection (OpenAI with a mask, the others put back inside it, imagegen/pixels.js). Nothing generates pictures on
@@ -22,7 +23,7 @@ export const AI = {
   /** What a key means, in one sentence. */
   key: 'With your own key, what you ask (and any file you allow) goes to that provider, and its terms and prices apply.',
   /** The free ways to use it. */
-  free: 'Models on your device and on your own computer cost nothing, and some services, such as Gemini, Groq and OpenRouter, have free tiers.',
+  free: 'Models on your device and on your own computer cost nothing; Gemini, Groq and Mistral have free tiers, and OpenRouter has free models.',
   /** Pictures made or changed by AI: never on the device. */
   images: 'Generate Image… and Edit with AI… make or change a picture with your own OpenAI, Gemini or OpenRouter key; Edit with AI changes only the selected area',
   /** Our value for a "Generative fill" row. */
