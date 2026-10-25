@@ -59,7 +59,11 @@
 .docs li { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; border-top: 1px solid var(--line); padding-top: 6px; }
 .docs .row-sub { flex: 1 1 auto; }
 .amt { font-variant-numeric: tabular-nums; }
-.d-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+#view-customer > .sf-p-foot { margin-top: 12px; border-radius: var(--r) var(--r) 0 0; }   /* Edit details, Delete customer (js/ui/detail.js) */
+@media (max-width: 959px) {   /* the record is a page of its own: its footer stays at the bottom of the screen */
+  #view-customer > .sf-p-foot { position: fixed; inset-inline: 0; bottom: 0; border-radius: 0; margin: 0; }
+  #view-customer.sf-has-foot { padding-bottom: 76px; }
+}
 .crm-form { display: grid; gap: 10px; min-width: min(360px, 80vw); }
 .crm-form label { display: flex; flex-direction: column; gap: 3px; font-size: 12px; color: var(--mute); }
 .crm-form textarea { resize: vertical; }
@@ -72,7 +76,8 @@
 .btn.danger:hover { border-color: var(--danger); }
 .main.split { max-width: 1320px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
 .main.split > .view#view-customers { min-width: 0; }
-.main.split > .view#view-customer { position: sticky; top: 16px; max-height: calc(100vh - 32px); overflow-y: auto; min-width: 0; }
+.main.split > .view#view-customer { position: sticky; top: 16px; max-height: calc(100vh - 112px);   /* below the menu bar and the tabs: its footer (Edit details) in view */
+  overflow-y: auto; min-width: 0; }
 .main.split > .view#view-customer > .toolbar { display: none; }
 .d-head { display: flex; align-items: center; gap: 12px; }
 .d-title { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; flex: 1; min-width: 0; }

@@ -113,9 +113,18 @@
       el('div', { class: 'inline' }, day, time, kind, el('button', { type: 'button', class: 'btn', onclick: go }, 'Schedule')));
   }
 
+  // The record's main buttons (Edit details, Delete customer) at the foot of the detail panel, the suite rule
+  // (shared/frame/HANDOFF.md; the shared footer, shared/frame/panel.js): in reach however long the record is.
+  let fp = null;
+  function foot(list) {
+    if (!fp && g.SlopFramePanel) fp = g.SlopFramePanel.create($('view-customer'), { bare: true });
+    if (fp) fp.footer(list);
+  }
+
   async function render() {
     const body = $('dBody');
     const id = NS.state.current;
+    foot([]);
     if (!id) { body.replaceChildren(el('p', { class: 'empty' }, 'Select a customer to see details')); return; }
     const r = await NS.customers.get(id);
     if (!r.ok) { body.replaceChildren(el('p', { class: 'msg', role: 'alert' }, NS.util.refusal(r))); return; }
@@ -125,10 +134,9 @@
     if (!h.ok) { body.replaceChildren(el('p', { class: 'msg', role: 'alert' }, NS.util.refusal(h))); return; }
     body.replaceChildren(header(c), contact(c), tagsAndGroups(c), pipeline(c), categories(c), notes(c, cur.locale), schedule(c),
       sect('Orders', docList(h.value.orders, cur, cur.locale, 'Orders', 'No orders for this customer yet.')),
-      sect('Invoices', docList(h.value.invoices, cur, cur.locale, 'Invoices', 'No invoices for this customer yet.')),
-      el('div', { class: 'd-actions' },
-        el('button', { type: 'button', class: 'btn', onclick: () => NS.form.open(c.id) }, 'Edit details'),
-        el('button', { type: 'button', class: 'btn danger', onclick: () => NS.menu.removeCustomer(c) }, 'Delete customer')));
+      sect('Invoices', docList(h.value.invoices, cur, cur.locale, 'Invoices', 'No invoices for this customer yet.')));
+    foot([{ el: el('button', { type: 'button', class: 'btn primary', onclick: () => NS.form.open(c.id) }, 'Edit details') },
+      { el: el('button', { type: 'button', class: 'btn danger', onclick: () => NS.menu.removeCustomer(c) }, 'Delete customer') }]);
   }
 
   NS.views = NS.views || {};

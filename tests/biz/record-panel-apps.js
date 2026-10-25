@@ -34,5 +34,14 @@
         for (let i = 0; i < 100 && !W.document.querySelector('#card .sf-p-foot'); i++) await new Promise((r) => setTimeout(r, 50));
       },
       done: (W) => !!W.document.querySelector('#card .ed-form') },
+    // CRM: the customer's record beside the list (a page of its own on a phone); Edit details opens the customer form
+    { name: 'Slop CRM', path: 'crm/index.html', hash: 'customers', view: '#view-customers', panel: '#view-customer', main: 'Edit details', bare: true,
+      ready: (W) => W.SlopCrm && W.SlopCrm.app && W.document.getElementById('boot').hidden,
+      async prep(W) {
+        const r = await W.SlopData.store.put('customers', { name: 'Panel Test', stage: 'customer', email: 'panel@test.invalid' });
+        W.SlopCrm.app.show('customer', r.value.id);
+        for (let i = 0; i < 100 && !W.document.querySelector('#view-customer .sf-p-foot'); i++) await new Promise((x) => setTimeout(x, 50));
+      },
+      done: (W) => !!W.document.querySelector('.sui-dlg') },
   ];
 })(window);
