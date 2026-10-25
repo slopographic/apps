@@ -88,7 +88,7 @@ export const GUIDES = [
           'To open an Excel or ODS file, use File, Open file from this device…, or drop the file on the window.'],
         text: ['A draft is also kept in this browser after every change.'],
         image: { src: '/assets/guides/tables-getting-started-2.jpg', alt: 'The File menu of Slop Tables with New workbook, From template, Open, Save and Download' },
-        tip: 'Print and PDF, sort and filter, find and comments are not built yet. To sort and filter a sheet, open it in Slop Sheets.' },
+        tip: 'Print and PDF, find and comments are not built yet, and sort and filter work only by asking the AI button. To sort and filter by hand, open the sheet in Slop Sheets.' },
     ],
     shortcuts: [['Enter / Tab', 'Confirm and move down / right'], ['F2', 'Edit the cell'], ['Ctrl+arrow keys', 'Jump to the edge of the data'],
       ['Ctrl+B / Ctrl+I', 'Bold / italic'], ['Ctrl+Z / Ctrl+Y', 'Undo / redo'], ['Ctrl+S', 'Save'], ['Ctrl+O', 'Open from Slop Drive']] },

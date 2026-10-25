@@ -36,7 +36,7 @@ PRECACHE.push(
   '/code/js/ui.js', '/code/js/viewers.js', '/colors/css/colors.css', '/colors/css/view.css', '/colors/index.html', '/colors/js/commands.js',
   '/colors/js/contrast-ui.js', '/colors/js/core/ase.js', '/colors/js/core/convert.js', '/colors/js/core/formats.js', '/colors/js/core/harmony.js',
   '/colors/js/core/kmeans.js', '/colors/js/io.js', '/colors/js/main.js', '/colors/js/panel.js', '/colors/js/picture.js', '/colors/js/state.js',
-  '/colors/js/swatches.js', '/contacts/css/contacts-card.css', '/contacts/css/contacts-list.css', '/contacts/css/contacts-panel.css',
+  '/colors/js/swatches.js', '/colors/js/values.js', '/contacts/css/contacts-card.css', '/contacts/css/contacts-list.css', '/contacts/css/contacts-panel.css',
   '/contacts/css/contacts-table.css', '/contacts/css/contacts-ui.css', '/contacts/css/contacts.css', '/contacts/index.html', '/contacts/js/app/card-edit.js',
   '/contacts/js/app/card-read.js', '/contacts/js/app/card.js', '/contacts/js/app/commands.js', '/contacts/js/app/drive-load.js',
   '/contacts/js/app/drive-save.js', '/contacts/js/app/drop-import.js', '/contacts/js/app/filter-panel.js', '/contacts/js/app/groups.js',

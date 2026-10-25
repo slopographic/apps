@@ -55,10 +55,10 @@
       const sel = $('report');
       sel.value = 'profit-by-month';
       sel.dispatchEvent(new Event('change', { bubbles: true }));
-      await waitFor(() => doc().querySelector('.sf-count') && doc().querySelector('.sf-count').textContent === '1 row', { timeout: 10000 });
-      expect(doc().querySelector('[data-sf-view="table"]').getAttribute('aria-pressed')).toBe('true');
+      await waitFor(() => doc().querySelector('.fd-count') && doc().querySelector('.fd-count').textContent === '1 row', { timeout: 10000 });
+      expect(doc().querySelector('[data-fd-view="table"]').getAttribute('aria-pressed')).toBe('true');
       expect(doc().querySelector('#results').textContent.includes('$100.00')).toBe(true);
-      doc().querySelector('[data-sf-view="cards"]').click();
+      doc().querySelector('[data-fd-view="cards"]').click();
       const card = doc().querySelector('.rp-card');
       expect(card.querySelector('.rp-card-title').textContent).toBe('2026-10');
       expect([...card.querySelectorAll('.rp-kv')].map((n) => n.textContent)).toEqual(['Income: $0.00', 'Expenses: $100.00', 'Profit: -$100.00']);

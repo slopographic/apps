@@ -14,7 +14,7 @@ Year, month, week, day, split and agenda views over the shared store. Events, th
 - `js/ui/year.js` (twelve mini months with a dot on busy days), `month.js`, `timegrid.js` (week and day), `split.js` (two panes),
   `agenda.js`, `chip.js` (blocks and column layout), `drag.js` (the pointer drag and the change each drop makes).
 - `css/views.css`: the year, split and drag feedback styles. Loaded after `calendar.css`.
-- `js/ui/editor.js` (the event dialog), `ics-ui.js` (export, and import with a preview), `commands.js` (SlopCmd), `js/config.js`.
+- `js/ui/editor.js` (the event editor, in the right panel), `ics-ui.js` (export, and import with a preview), `commands.js` (SlopCmd), `js/config.js`.
 - Shared, pure and node-testable: `shared/calendar/tz.js` (SlopTime), `rrule.js` (SlopRecur), `ics.js` (SlopIcs),
   `store.js` (SlopEvents: form to record, record to form, save, patch, remove).
 
@@ -102,6 +102,6 @@ Year, month, week, day, split and agenda views over the shared store. Events, th
 
 `js/ui/panel.js` mounts SlopFrame on `#cBody`: the calendar (`#main`) is the view, `#cSide` the panel. It shows the day
 the view is on (its events and to-dos; each opens in the editor), Show (To-dos, the time zone, the split's panes) and
-Calendar file (Import .ics, Export .ics, Config), with New event, the main button, at its foot. The event editor is still
-a dialog. On a phone (640 px) the panel is a bottom sheet whose closed state shows New event. Test:
+Calendar file (Import .ics, Export .ics, Config), with New event, the main button, at its foot. The event editor (js/ui/editor.js)
+opens in the same panel: the form, with Cancel, Delete and Save at its foot; Escape or Cancel puts the day back. On a phone (640 px) the panel is a bottom sheet whose closed state shows New event. Test:
 `tests/calendar/panel.test.html`.

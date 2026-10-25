@@ -1,6 +1,6 @@
 /* Slop Colors: boot. The header (SlopAppBar: Open… only, plus the shell's buttons), the suite's View · Panel layout
- * (shared/frame, SlopFrame: the colour, picture, palette and contrast check in the middle; the settings and Download
- * palette on the right; a bottom sheet on phones whose foot always shows), the drop zone (SlopDrop, spec 'colors'), a
+ * (shared/frame, SlopFrame: the colour and its values, picture, palette and contrast check in the middle; the settings and
+ * Download palette on the right; a bottom sheet on phones whose foot always shows), the drop zone (SlopDrop, spec 'colors'), a
  * file sent from another app (?drive=) and the redraw on every state change. Classic script, after the other parts. */
 (function (g) {
   'use strict';
@@ -9,7 +9,7 @@
 
   function paint(s) {
     const W = g.CO.swatches;
-    W.hero(s); W.palette(s); W.generated(s);
+    g.CO.values.paint(s); W.palette(s); W.generated(s);
     g.CO.contrast.paint(s);
     g.CO.panel.paint(s);
     if (g.CO.picture.has()) g.CO.picture.paintDominant();

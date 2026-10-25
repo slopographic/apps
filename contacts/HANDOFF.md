@@ -31,7 +31,7 @@ uploaded.
   the top of its section, so it does not move as rows appear; a new row takes the focus and is scrolled into view only if
   needed. Enter saves; Cmd or Ctrl+Enter saves from notes; Escape cancels (asks first when something changed). The first
   field has the focus. The scrollbar gutter is reserved, so a scrollbar does not change the width.
-- **390 px (below 960):** the list is the screen. A contact opens the card as a full page with a back button. Groups
+- **390 px (below 960):** the list is the screen. A contact opens the card as a bottom sheet over the list (SlopSheet, js/app/card.js; its ×, Escape, a tap outside or a swipe down closes the contact), Edit, Duplicate and Delete at its foot. Groups
   open as a sheet from the ☰ button at the top of the list. The top bar keeps New, Import and Export. A test checks there
   is no horizontal scroll.
 - **Style:** the system font, generous spacing, subtle separators, one accent (the Slopographic lime). Light and dark

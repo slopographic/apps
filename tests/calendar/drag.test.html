@@ -98,15 +98,16 @@
       const chip = await waitFor(() => chipOf(today(), rec.id), { timeout: 8000 });
       const c = center(chip);
       chip.click();
-      const dlg = await waitFor(() => [...cd().querySelectorAll('.sui-dlg')].find((d) => d.querySelector('.sui-title') && d.querySelector('.sui-title').textContent === 'Edit event'), { timeout: 4000 });
-      expect(dlg).toBeTruthy();
-      expect(cd().querySelectorAll('.sui-dlg').length).toBe(1);
-      dlg.querySelector('.sui-foot button:not(.sui-primary)').click();
-      await waitFor(() => cd().querySelectorAll('.sui-dlg').length === 0, { timeout: 4000 });
+      // the editor opens in the right panel (calendar/js/ui/panel.js), once
+      const editing = () => cw().SlopCal.panel.editing() && cd().querySelector('#cSide .sf-p-h').textContent === 'Edit event';
+      await waitFor(editing, { timeout: 4000 });
+      expect(cd().querySelectorAll('#evTitle').length).toBe(1);
+      [...cd().querySelectorAll('#cSide .sf-p-foot button')].find((b) => b.textContent.trim() === 'Cancel').click();
+      await waitFor(() => !cw().SlopCal.panel.editing(), { timeout: 4000 });
       fire(chip, 'pointerdown', c.x, c.y);
       fire(cd(), 'pointerup', c.x, c.y);
       await new Promise((r) => setTimeout(r, 300));
-      expect(cd().querySelectorAll('.sui-dlg').length).toBe(0);
+      expect(cw().SlopCal.panel.editing()).toBe(false);
     });
   });
 

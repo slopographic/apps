@@ -115,7 +115,7 @@
     if (P.choosing && K.picker) {
       const box = P.pickBox = h('div', { class: 'sap-empty' });
       P.list.append(h('button', { type: 'button', class: 'sap-btn sap-back', onclick: () => P.choose() }, '← Back to the chat'), box);
-      K.picker.render(box, { appName: appName(), appId: appId(), cloudOpen: true, onReady: (eng) => { P.choosing = false; P.use(eng); }, onForget: P.forgot });
+      K.picker.render(box, { appName: appName(), appId: appId(), tools: () => P.toolsBox.checked, cloudOpen: true, onReady: (eng) => { P.choosing = false; P.use(eng); }, onForget: P.forgot });
       return;
     }
     if (!P.messages.length) {
@@ -123,7 +123,7 @@
       else if (picking) {
         const box = P.pickBox = h('div', { class: 'sap-empty' });
         P.list.append(box);
-        K.picker.render(box, { appName: appName(), appId: appId(), onReady: (eng) => P.use(eng), onForget: P.forgot });
+        K.picker.render(box, { appName: appName(), appId: appId(), tools: () => P.toolsBox.checked, onReady: (eng) => P.use(eng), onForget: P.forgot });
       } else P.list.append(h('div', { class: 'sap-empty' }, 'Loading…'));
     }
     if (P.viewAll) P.list.append(...P.viewAll(P.messages));

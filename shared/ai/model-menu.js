@@ -1,7 +1,8 @@
 /* SlopAIKit modelMenu: the panel header's model name as a menu button (shared/ui/menubutton.js), so changing the model
  * is two clicks. Classic script; adds SlopAIKit.modelMenu = { attach(P), items(P), refresh() }.
  * The menu: each connected provider (a key in this browser, or a server on this computer that was used) with its models,
- * the current one ticked, each with its hint ("most capable", "fastest, cheapest"); then "AI settings…" (the full
+ * the current one ticked, each with its hint ("most capable", "fastest, cheapest") and "· Free" when it costs nothing (a
+ * provider with a free tier says so in its heading, cloud/free.js); then "AI settings…" (the full
  * model choice), "AI permissions…", and "Disconnect <provider>" (forgets its key). Picking a model uses it at once and
  * remembers it for this app (settings.lastByApp; connect.restore prefers it on this app's pages). */
 (function () {
@@ -28,8 +29,12 @@
   function items(P) {
     const cur = P.local && P.local.kind === 'cloud' ? P.local : null, list = [];
     for (const { provider: p, models } of connected) {
-      list.push({ heading: p.name });
-      for (const m of models) list.push({ value: `use|${p.id}|${m.id}`, label: m.name + (m.note ? ` · ${m.note}` : ''), checked: !!cur && cur.provider.id === p.id && cur.model.id === m.id });
+      const F = K.cloud && K.cloud.free, tier = F ? F.label(p) : '';
+      list.push({ heading: p.name + (tier ? ` · ${tier}` : '') });
+      for (const m of models) {
+        const free = !!F && !p.local && F.model(p, m) === true;
+        list.push({ value: `use|${p.id}|${m.id}`, label: m.name + (m.note ? ` · ${m.note}` : '') + (free ? ' · Free' : ''), keywords: free ? ['free'] : [], checked: !!cur && cur.provider.id === p.id && cur.model.id === m.id });
+      }
     }
     list.push({ heading: 'More' }, { value: 'settings', label: 'AI settings…' }, { value: 'permissions', label: 'AI permissions…' });
     if (cur) list.push({ value: 'forget', label: `Disconnect ${cur.provider.short} (forget the key)` });

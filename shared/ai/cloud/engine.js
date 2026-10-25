@@ -68,7 +68,7 @@
         init.signal = opts.signal;
         let aborted = false;
         try {
-          const res = await C.call(url, init, { secret: key, provider: p });
+          const res = await C.call(url, init, { secret: key, provider: p, model: self.model.id });
           parse = F.parser();
           for await (const ev of C.sse(res.body)) {
             for (const piece of parse.push(ev)) { if (!first) first = now(); streamed += piece; yield { type: 'delta', text: piece }; }

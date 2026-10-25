@@ -7,7 +7,9 @@
   const K = (window.SlopAIKit = window.SlopAIKit || {});
   const C = (K.cloud = K.cloud || {});
   const L = { group: 'local', format: 'openai-chat', local: true, auth: 'none', cors: 'unknown', modelsEndpoint: '/models', caps: { tools: true, streaming: true }, models: [], prefer: [/./] };
-  const add = (e) => Object.assign({}, L, e);
+  // a server on this computer is free: no account, no limits but the computer's own (each of these servers is free to download and run)
+  const FREE = { tier: 'free', rank: 9, verified: '2026-10-25', training: null, note: 'Free: it runs on your own computer, with no account and no limits but your hardware. Nothing leaves the computer.' };
+  const add = (e) => Object.assign({}, L, e, e.anyAddress ? {} : { free: Object.assign({ docs: e.docs, signup: e.docs }, FREE) });
   (C.catalog = C.catalog || []).push(
     add({ id: 'ollama', name: 'Ollama on this computer', who: 'Ollama on this computer', short: 'Ollama', rank: 1, base: 'http://localhost:11434/v1', port: 11434,
       docs: 'https://docs.ollama.com/api/openai-compatibility', aliases: ['ollama', 'local'], prefer: [/qwen|llama|mistral|gemma/i],
