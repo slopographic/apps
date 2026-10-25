@@ -60,6 +60,7 @@
     'hero.no_account': 'Inget konto behövs',
     'hero.apps': 'Alla appar',
     'hero.marquee': 'Vad apparna gör',
+    'hero.no_match': 'Ingen app matchar',
 
     'settings.appearance': 'Utseende',
     'settings.appearance_lede': 'Ett tema för alla Slopographic-appar och för den här webbplatsen. Välj det här så gäller det direkt. Varje app använder samma val när den öppnas.',
