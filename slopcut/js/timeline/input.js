@@ -1,10 +1,14 @@
-/* SlopCut: timeline pointer input. Scrub, select (click, shift, marquee), move across tracks,
-   trim (normal / ripple with the B tool or Ctrl), razor, fades, transition length, volume and keyframes,
-   wheel zoom/scroll and two-finger pinch. Every drag is one undo step. */
+/* SlopCut: timeline pointer input. Scrub, select (click, Shift adds, Ctrl/Cmd toggles, a box from empty space; the rules
+   are core/pick.js), move across tracks (a selection moves together), trim (normal / ripple with the B tool or Ctrl; a
+   plain trim of a selected clip trims every selected clip's same edge), razor, fades, transition length, volume and
+   keyframes, wheel zoom/scroll and two-finger pinch. Every drag is one undo step.
+   A finger: a tap selects the clip; a drag pans the timeline, or moves the clip when it was selected; a long press on a
+   clip turns on Select mode (TL.multi, the toolbar's Select several), where taps add and remove clips and a drag from
+   empty space draws a selection box; a long press in Select mode opens the menu. */
 (function () {
   'use strict';
-  const SE = window.SE, U = SE.util, M = SE.model, E = SE.edit, TL = SE.timeline, A = SE.app;
-  let drag = null;
+  const SE = window.SE, U = SE.util, M = SE.model, E = SE.edit, TL = SE.timeline, A = SE.app, P = SE.pick;
+  let drag = null, fingerDown = false;
   const pointers = new Map();
 
   /** Live drag edit: snapshot once, re-apply from the original on every move. */
@@ -35,7 +39,8 @@
     SE.player.seek(k.t);
     drag = { kind: 'marker', move: (p) => ed.apply((d) => { const m = d.markers.find((x) => x.id === k.id); m.t = Math.max(0, TL.snapT(t0 + (p.x - x0) / TL.pps, null)); }), end: () => { TL.snapLine = null; } };
   }
-  function startMove(e, pt, h) {
+  /** onTap: what a press that never moved does when it lifts (select the clip alone, or toggle it in Select mode). */
+  function startMove(e, pt, h, onTap) {
     const c = h.clip;
     if (!A.sel.has(c.id)) A.select([...E.group(SE.doc, [c.id])]);
     const ids = A.selectedIds(), g = E.group(SE.doc, ids);
@@ -59,7 +64,7 @@
         const dTrack = ri < 0 ? 0 : kind === 'video' ? r0 - ri : ri - r0;
         ed.apply((d) => { if (!E.move(d, ids, dt, dTrack, kind)) E.move(d, ids, dt, 0, kind); });
       },
-      end() { TL.snapLine = null; }
+      end() { TL.snapLine = null; if (!started && onTap) onTap(); }
     };
   }
   function startTrim(e, pt, h) {
@@ -67,11 +72,14 @@
     if (!A.sel.has(c.id)) A.select([...E.group(SE.doc, [c.id])]);
     const ed = live(rip ? 'Ripple trim' : 'Trim');
     const t0 = edge === 'in' ? c.start : M.end(c), g = E.group(SE.doc, [c.id]);
+    // A plain trim of a selected clip trims the same edge of every other selected clip by as much (one per linked group)
+    const done = new Set(g), others = [];
+    if (!rip) for (const id of A.selectedIds()) if (!done.has(id)) { E.group(SE.doc, [id]).forEach((x) => done.add(x)); const o = M.clip(SE.doc, id); others.push([id, edge === 'in' ? o.start : M.end(o)]); }
     drag = {
       kind: 'trim',
       move(p) {
         const t = TL.snapT(t0 + (p.x - pt.x) / TL.pps, g);
-        ed.apply((d) => E.trim(d, c.id, edge, t, { ripple: rip }));
+        ed.apply((d) => { E.trim(d, c.id, edge, t, { ripple: rip }); for (const [id, e0] of others) E.trim(d, id, edge, e0 + t - t0); });
         const cc = M.clip(SE.doc, c.id);
         if (cc && !SE.player.playing) SE.player.seek(edge === 'in' ? cc.start : M.end(cc) - 1 / SE.doc.fps, { preview: true });
       },
@@ -112,18 +120,35 @@
       SE.app.status('Volume ' + (20 * Math.log10(Math.max(1e-4, M.clip(SE.doc, c.id).vol))).toFixed(1) + ' dB');
     } };
   }
+  /** A selection box from an empty spot: every clip it touches, across tracks (added to the selection with Shift or in Select mode). */
   function startMarquee(e, pt) {
-    const base = e.shiftKey ? new Set(A.sel) : new Set();
+    const base = e.shiftKey || TL.multi ? A.selectedIds() : [];
     drag = { kind: 'marquee', move(p) {
-      const x = Math.min(pt.x, p.x), y = Math.min(pt.y, p.y), w = Math.abs(p.x - pt.x), h = Math.abs(p.y - pt.y);
-      TL.marquee = { x, y, w, h };
-      const ids = SE.doc.clips.filter((c) => { const r = TL.clipRect(c); return r && r.x < x + w && r.x + r.w > x && r.y < y + h && r.y + r.h > y; }).map((c) => c.id);
-      A.select([...base, ...ids]);
+      TL.marquee = P.box(pt, p);
+      A.select(P.marquee(base, SE.doc.clips.map((c) => Object.assign({ id: c.id }, TL.clipRect(c))), TL.marquee));
     }, end() { TL.marquee = null; TL.dirty(); } };
   }
-  function startPan(e, pt) {
+  function startPan(e, pt, onTap) {
     const sx = TL.scrollX, sy = TL.scrollY;
-    drag = { kind: 'pan', move(p) { TL.scrollX = sx - (p.x - pt.x) / TL.pps; TL.scrollY = sy - (p.y - pt.y); TL.clampScroll(); TL.syncHeads(); TL.dirty(); } };
+    let moved = false;
+    drag = { kind: 'pan', move(p) {
+      if (!moved && Math.hypot(p.x - pt.x, p.y - pt.y) < 6) return;
+      moved = true;
+      TL.scrollX = sx - (p.x - pt.x) / TL.pps; TL.scrollY = sy - (p.y - pt.y); TL.clampScroll(); TL.syncHeads(); TL.dirty();
+    }, end() { if (!moved && onTap) onTap(); } };
+  }
+  /** A press on a clip's body: select it, move the selection, or pan (a finger on a clip not yet selected). */
+  function pressClip(e, pt, h, touch) {
+    const group = [...E.group(SE.doc, [h.clip.id])], sel = A.selectedIds(), mods = { multi: TL.multi };
+    const tap = () => A.select(P.click(A.selectedIds(), group, mods));
+    if (TL.multi) {
+      if (group.every((id) => A.sel.has(id))) return startMove(e, pt, h, tap); // a drag moves the selection, a tap takes it out
+      if (touch) return startPan(e, pt, tap);                                   // a tap adds it, a drag scrolls
+      A.select(P.click(sel, group, mods)); return startMove(e, pt, h);
+    }
+    if (P.keepsForDrag(sel, group, mods)) return startMove(e, pt, h, tap);      // the whole selection drags; a tap keeps this one
+    A.select(group);
+    return touch ? startPan(e, pt) : startMove(e, pt, h);
   }
 
   function down(e) {
@@ -135,6 +160,9 @@
       startPan(e, local(e));
       return;
     }
+    // The first finger of a touch: no other is down (a lift the browser never sent must not make this one a pinch)
+    if (e.pointerType === 'touch' && e.isPrimary) { pointers.clear(); if (drag && drag.kind === 'pinch') drag = null; }
+    fingerDown = e.pointerType === 'touch';
     pointers.set(e.pointerId, local(e));
     if (pointers.size === 2) { // pinch zoom
       const [a, b] = [...pointers.values()]; drag = { kind: 'pinch', d0: Math.abs(a.x - b.x) || 1, pps0: TL.pps, cx: (a.x + b.x) / 2 };
@@ -151,16 +179,16 @@
     if (h.area === 'clip') {
       if (M.track(SE.doc, h.clip.track).lock) { A.select([h.clip.id]); drag = { kind: 'none' }; return; }
       if (TL.tool === 'razor') { SE.act.splitAt(TL.snapT(h.t), e.shiftKey ? null : [h.clip.id]); drag = { kind: 'none' }; return; }
-      if (e.shiftKey || e.ctrlKey || e.metaKey) { if (h.part === 'body') { A.select([...E.group(SE.doc, [h.clip.id])], { toggle: true }); drag = { kind: 'none' }; return; } }
+      const mods = { shift: e.shiftKey, ctrl: e.ctrlKey || e.metaKey };
+      if ((mods.shift || mods.ctrl) && h.part === 'body') { A.select(P.click(A.selectedIds(), [...E.group(SE.doc, [h.clip.id])], mods)); drag = { kind: 'none' }; return; }
       if (h.part === 'in' || h.part === 'out') return startTrim(e, pt, h);
       if (h.part === 'fadein' || h.part === 'fadeout') return startFade(e, pt, h);
       if (h.part === 'transition') return startTransition(e, pt, h);
       if (h.part === 'volume' || h.part === 'key') return startVolume(e, pt, h);
-      if (touch && !A.sel.has(h.clip.id)) { A.select([...E.group(SE.doc, [h.clip.id])]); return startPan(e, pt); }
-      return startMove(e, pt, h);
+      return pressClip(e, pt, h, touch);
     }
-    if (touch) return startPan(e, pt);
-    if (!e.shiftKey) A.select([]);
+    if (touch && !TL.multi) return startPan(e, pt, () => A.select([])); // a tap on empty space clears the selection
+    if (!e.shiftKey && !TL.multi) A.select([]);
     startMarquee(e, pt);
   }
   function move(e) {
@@ -176,6 +204,7 @@
   }
   function up(e) {
     pointers.delete(e.pointerId);
+    if (!pointers.size) fingerDown = false;
     if (drag) { if (drag.end) drag.end(); drag = null; TL.dirty(); }
   }
   function hover(pt) {
@@ -220,6 +249,13 @@
     el.addEventListener('wheel', wheel, { passive: false });
     el.addEventListener('auxclick', (e) => { if (e.button === 1) e.preventDefault(); });
     el.addEventListener('dblclick', (e) => { const pt = local(e), h = TL.hit(pt.x, pt.y); if (TL.onDouble) TL.onDouble(h, e); });
-    el.addEventListener('contextmenu', (e) => { e.preventDefault(); const pt = local(e), h = TL.hit(pt.x, pt.y); if (TL.contextMenu) TL.contextMenu(h, e.clientX, e.clientY); });
+    el.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      const pt = local(e), h = TL.hit(pt.x, pt.y), finger = fingerDown || e.slopTouch;
+      if (finger && drag) drag = { kind: 'none' }; // a long press is not also a tap or a drag
+      // A long press on a clip turns on Select mode with that clip; in Select mode it opens the menu.
+      if (finger && h.area === 'clip' && !TL.multi) { TL.setMulti(true); A.select([...E.group(SE.doc, [h.clip.id])], { add: true }); return; }
+      if (TL.contextMenu) TL.contextMenu(h, e.clientX, e.clientY);
+    });
   };
 })();

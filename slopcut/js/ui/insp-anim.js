@@ -61,7 +61,7 @@
       const val = h('input', { class: 'inp', type: 'number', step: 1, 'aria-label': P.label + ' key value', value: String(U.round(pct ? k.value * 100 : k.value, 2)) });
       val.addEventListener('change', () => {
         if (val.value === '' || !isFinite(+val.value)) return;
-        const v = U.clamp(+val.value, pct ? 0 : -1e6, pct ? (prop === 'scale' ? 400 : 100) : 1e6);
+        const v = U.clamp(+val.value, pct ? 0 : -1e6, pct ? (prop === 'scale' ? SE.fit.SCALE.max * 100 : 100) : 1e6);
         commit('Key value', (c) => AN.setValue(c, prop, idx, pct ? v / 100 : v), 'anim:val:' + id + prop + idx);
       });
       const time = h('input', { class: 'inp', type: 'number', min: 0, max: U.round(clip.dur, 3), step: 1 / fps(), 'aria-label': 'Key time (s from clip start)', value: String(U.round(k.t, 3)) });

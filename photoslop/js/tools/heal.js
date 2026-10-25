@@ -100,8 +100,8 @@ function healTool(def) {
     brushCursor() { return this.opt().size; },
     down(p, e) {
       const spot = !!this.spot, o = this.opt();
-      if (!spot && e.altKey) { this.src = { x: p.x, y: p.y }; this.off = null; toast('Heal source set'); return; }
-      if (!spot && !this.src) { toast('Alt-click (Option-click) to set a heal source first'); return; }
+      if (!spot && takeSource(this, p, e, 'Heal')) return;
+      if (!spot && !this.src) { toast('Alt-click (Option-click), or tap Set source, to set a heal source first'); return; }
       const L = editableLayer(); if (!L) { this.s = null; return; }
       const Lc = coverDoc(L);
       if (!spot && (!o.aligned || !this.off)) this.off = { x: this.src.x - p.x, y: this.src.y - p.y };

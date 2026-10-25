@@ -39,6 +39,26 @@ No SharedArrayBuffer, no ffmpeg.wasm (GitHub Pages cannot send COOP/COEP headers
    command (`js/ui/commands.js`; Help ▸ Search commands ⌘K, Keyboard shortcuts). `cmd-fallback.js` is a small
    built-in dispatcher/palette used only if SlopCmd is missing.
 
+## Selecting clips (`js/core/pick.js` rules, `js/timeline/input.js`)
+
+- Mouse: a click selects the clip (and its linked clips) alone; a press on a clip of a multi-selection drags them all, and
+  selects that clip alone if it lifts without moving. Shift-click adds, Ctrl/Cmd-click toggles. A drag from empty space
+  draws a selection box that takes every clip it touches, across tracks (Shift adds). Ctrl/Cmd+A selects all, Escape clears.
+- Finger: a tap selects one clip (a tap on empty space clears); a drag on a clip not selected scrolls the timeline, on a
+  selected one moves the selection. **Select mode** (toolbar "Select several", `tool.multi`, `TL.multi`) is the touch
+  multi-select: a long press on a clip turns it on with that clip; then taps add and remove clips and a drag from empty
+  space draws a selection box (not a scroll). A long press in Select mode opens the menu. Escape or the button ends it.
+  Chosen over long-press-then-drag for the box: the long press already means "menu", and a mode is visible on screen.
+- A selection moves together (same time shift, tracks kept, `E.move`), a plain trim of a selected clip trims the same
+  edge of each selected clip by as much (ripple trims one clip), Delete removes them all; each is one undo step.
+- Commands: `select_clips` (ids, replace/add/remove), `select_all` (`js/ai/cmd-clips.js`).
+
+## Placing a picture (`js/core/fit.js`)
+
+Scale: the number field takes 1 % to 100 000 %, the slider is logarithmic from 1 % to 2000 % (`SE.fit.toSlider`).
+**Fill frame** / **Fit frame** (under Scale in the Inspector; `fit_frame` for the AI) cover or fit the frame with the
+visible, cropped picture, centred, aspect kept (`SE.fit.frame`). `set_transform` takes scale up to 1000 (100 000 %).
+
 ## Templates and random edit
 
 **Templates** (`shared/video/templates.js` and `grid.js` data, `slots.js` slot maths, `js/core/layout.js` operations,
