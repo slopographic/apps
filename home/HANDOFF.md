@@ -41,19 +41,26 @@
 - Copy: kicker, headline (the page's only h1 in the home view; with the sub-line, the largest paint, before the globe
   starts), sub-line, Open the apps (`[data-to-finder]`: home/browse.js scrolls to the finder and focuses its search),
   How it works, meta line. Every string has a `hero.*` key in shared/i18n (all seven languages).
-- App globe (`home/globe/`): `sphere.js` is the pure maths (tiers, Fibonacci sphere, rotation, perspective, depth looks,
-  spin with inertia damping, seek and frontOf to bring an icon to the front, keep-out, the wireframe grid; node-tested in
-  tests/node/globe-sphere.test.mjs). `paint.js` draws the canvas: halo, body, rim and the turning wireframe in the
-  theme's ink and accent. `globe.js` places the icon links (true perspective via translate and scale, depth bands
-  far2/far1/mid/near for blur and glow), runs the turn, and handles drag, hover and the keyboard list. It starts after
-  `load` when idle, sizes itself from `.gx-box` (reserved in CSS, so nothing moves) and runs only while the hero is on
-  screen and the tab is visible. Tiers: full (every app, 60 fps), lite (40 icons, 30 fps: phones, touch, 4 cores or
-  fewer, 4 GB or less, Save-Data), static (reduced motion: every app, no turn, no drag).
-- Drag spins it (horizontal; `touch-action: pan-y` keeps vertical page scroll), a fling slows back to the idle turn
-  (one turn in 75 s). Pointing at an icon eases the globe until it faces you and shows its name; leaving resumes the
-  turn after 1.4 s. `.gx-nav` lists every app as one tab stop (arrow keys, Home, End); the focused app shows as a chip
-  and its icon comes round to the front (in lite, the farthest icon takes the focused app).
-  `window.SlopGlobe` (state, frames, startedAt, tier, view, icons, reduce, pause) is for the tests.
+- App globe (`home/globe/`): `sphere.js` is the pure maths (tiers, Fibonacci and weighted spheres, rotation,
+  perspective, depth looks, spin with inertia damping, seek and frontOf to bring an icon to the front, centroid and zoom
+  for search results, keep-out, the wireframe grid; node-tested in tests/node/globe-sphere.test.mjs). `paint.js` draws
+  the canvas (halo, body, rim, turning wireframe in the theme's ink and accent). `globe.js` places the icon links (true
+  perspective via translate and scale; depth bands far2/far1/mid/near for blur and glow), runs the turn and reacts to
+  the finder; `drag.js` is drag-to-spin with inertia (touch-action: pan-y keeps vertical scroll); `list.js` is the
+  keyboard list `.gx-nav` (one tab stop, arrow keys; the focused app comes round to the front).
+- Icon sizes come from `weight` in shared/apps.js (2 for the apps most people come for): those are 1.7 times larger
+  and sit round the equator, so they pass the front on every turn; the finder also lists them first when nothing is
+  searched (home/browse.js rank).
+- Finder link: home/browse.js sends the finder's own result (`slop-home-filter`, `{ ids, filtered }`; also
+  `SlopHomeBrowse.result()`); the globe never matches by itself. Matches stay bright and grow, the rest fade and shrink,
+  the globe leans in (zoomFor) and turns the matches' centre (leaning to the finder's first match) to the front; one
+  match comes square to the front, larger, with its name; no match dims it with "No apps match"; clearing restores the
+  turn. Reduced motion or an off-screen hero: the end state at once.
+- Tiers: full (every app, 60 fps, starts 0.7 s after load when idle), lite (28 icons, 20 fps, no filters, lines
+  repainted only when they would visibly lag, no frames while scrolling, starts 2 s after load or at the first tap:
+  phones, touch, 4 cores or fewer, 4 GB or less, Save-Data), static (reduced motion: every app, no turn, no drag).
+  It runs only while the hero is on screen and the tab is visible. `window.SlopGlobe` (state, frames, startedAt, tier,
+  view, icons, focusApp, reduce, pause) is for the tests and list.js.
 - Capability strip: `tools/seo/marquee.mjs` (one label per app from its title, File convert as its number of
   conversions), scrolled by CSS, paused on hover and under reduced motion. Run `node tools/seo/write.mjs` after
   changing the registry (tests/node/home-marquee.test.mjs fails when index.html is stale).
@@ -73,6 +80,8 @@ every card (`data-perch="card"`, which chaos may bite, knock or blast), the stat
 ## Tests (`node tests/run.mjs home`)
 - `tests/home/catalog.test.html`: every registry entry renders in its shelf, badges and features, the status board, tab
   jumps, Authenticator view switching, clicks on Sloppo are not navigation, the icon markup, no carousel left.
+- `tests/home/hero-search.test.html`: the globe follows the finder (pdf, one match, no match, clearing, reduced motion), icon
+  sizes and the finder's default order from the registry weights.
 - `tests/home/hero.test.html` (1280 and 390 px, Light and Dark): the headline the largest paint before the globe, above
   it with no icon shown over it, the layout, the globe turning, stopping in a hidden tab or off screen, still for reduced
   motion, drag and fling, the strip from the registry, no sideways scroll. `tests/home/hero-links.test.html`: icons as named links, hover brings to front, the keyboard

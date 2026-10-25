@@ -64,12 +64,20 @@
   const ready = (a) => (a.status === 'building' ? 'In development' : 'Ready');
   const search = (a) => SEARCH[a.id] || { desc: '', keywords: [] };
   const finderHost = document.getElementById('app-finder');
+  /** The finder's result for the hero's globe (home/globe/globe.js): the matching ids in the finder's order, and whether
+   * anything is filtered. Kept for a late reader (SlopHomeBrowse.result()) and sent as 'slop-home-filter'. */
+  let lastResult = null;
+  function publish(shown, filter) {
+    lastResult = { ids: shown.map((a) => a.id), filtered: !!(M && M.isFiltered(filter)) };
+    window.dispatchEvent(new CustomEvent('slop-home-filter', { detail: lastResult }));
+  }
   if (SF && M && finderHost) {
     const norm = (s) => String(s == null ? '' : s).normalize('NFD').replace(/\p{M}+/gu, '').toLowerCase().trim();
-    // Featured apps lead, and an app whose name starts with or contains the search leads above them all.
+    // Featured apps lead, then the registry's heavier apps (weight), and an app whose name starts with or contains the
+    // search leads above them all.
     const rank = (a, q) => {
       const t = norm(q), n = norm(a.name);
-      return (a.featured ? 50 : 0) + (t && n.includes(t) ? 100 : 0) + (t && n.startsWith(t) ? 20 : 0);
+      return (a.featured ? 50 : 0) + ((a.weight || 1) - 1) * 30 + (t && n.includes(t) ? 100 : 0) + (t && n.startsWith(t) ? 20 : 0);
     };
     // Wide screens keep the facets open in their column on the left; phones keep them behind "Filter by".
     const wide = window.matchMedia && matchMedia('(min-width: 900px)').matches;
@@ -111,7 +119,8 @@
       view: 'list',
       big: true, // the large search box; the results filter live below it, so there is no dropdown
       autofocus: desktop(),
-      onChange: () => render(APPS, false), // the faucet filters its own list; the shelves below always show every app
+      // the faucet filters its own list; the shelves below always show every app; the hero's globe follows the result
+      onChange: (shown, filter) => { render(APPS, false); publish(shown, filter); },
     });
   } else {
     render(APPS, false);
@@ -126,5 +135,5 @@
     finderHost.scrollIntoView({ behavior: still ? 'auto' : 'smooth', block: 'start' });
     input.focus({ preventScroll: true });
   });
-  window.SlopHomeBrowse = { render };
+  window.SlopHomeBrowse = { render, result: () => lastResult };
 })();

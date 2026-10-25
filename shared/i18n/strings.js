@@ -64,6 +64,7 @@
     'hero.no_account': 'No account needed',
     'hero.apps': 'Every app',
     'hero.marquee': 'What the apps do',
+    'hero.no_match': 'No apps match',
 
     'settings.appearance': 'Appearance',
     'settings.appearance_lede': 'One theme for every Slopographic app and for this site. Pick it here and it applies at once. Each app uses the same choice when it opens.',
