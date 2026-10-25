@@ -50,9 +50,8 @@
         if (width < 700) expect(win.SlopVortex.tier()).toBe('lite');   // a wide screen is full, or lite on a small machine
         const a = HeroTest.transforms(win);
         expect(a.length).toBe(win.SlopVortexMath.TIERS[win.SlopVortex.tier()].icons);
-        await sleep(500);
-        const b = HeroTest.transforms(win);
-        expect(a.filter((t, i) => t !== b[i]).length).toBeGreaterThan(a.length / 2);
+        // most icons have moved a few frames later (waited for, as a loaded machine draws fewer frames)
+        await waitFor(() => { const b = HeroTest.transforms(win); return a.filter((t, i) => t !== b[i]).length > a.length / 2; }, { timeout: 8000 });
         const se = win.document.scrollingElement;
         expect(se.scrollWidth).toBeLessThanOrEqual(win.innerWidth);
         win.scrollTo(0, 1200);

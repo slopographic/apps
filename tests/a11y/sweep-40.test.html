@@ -12,8 +12,7 @@
 <script src="sweep.js"></script>
 <script>
 // The contrast sweep (tests/a11y/sweep.js): the homepage (hero, tool vortex, capability strip, finder, sections, footer), in the Light, Dark, Classic 98 and Lime themes at 1280 and 390 px, with
-// the shared menus, dialogs, toast, Drive picker, command palette, AI panel and Convert dialog opened on each at 390 px.
-SlopSweep.define(['../../']);
+SlopSweep.define(['../../'], { components: false });   // the homepage has no app UI kit (menus, dialogs) to open
 SlopTest.run({ name: 'Contrast sweep 40' });
 </script>
 </body>

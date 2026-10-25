@@ -73,7 +73,7 @@
 .sloppo-hud.is-away { display: none; }
 .sh-toggle {
   display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; padding: 0; border-radius: 50%;
-  border: 1px solid var(--line); background: rgba(17, 17, 17, .9); color: inherit; font: inherit; cursor: pointer;
+  border: 1px solid var(--line); background: color-mix(in srgb, var(--hud-bg) 92%, transparent); color: inherit;   /* the theme's surface, under the theme's ink */ font: inherit; cursor: pointer;
   box-shadow: 0 6px 18px rgba(0, 0, 0, .35); transition: opacity .6s ease, transform .2s, border-color .2s;
 }
 .sh-toggle:hover { border-color: var(--slop); transform: scale(1.06); }

@@ -3,8 +3,9 @@
  * audited (tests/a11y/contrast.js); at the phone width the shared components are then opened on it and audited too
  * (components.js: they take the same tokens at every width, so one width is enough). A test fails with each low-contrast text:
  * where it is, its colours and its ratio. The test page loads shared/profile/profile.js and shared/theme/theme.js first.
- *   SlopSweep.define(['../../pdf/', '../../docs/'], { themes, widths })   (paths from the test page, written out in it so
- *   tools/ci/deps.mjs sees which app each page opens)
+ *   SlopSweep.define(['../../pdf/', '../../docs/'], { themes, widths, components })   (paths from the test page, written out in it so
+ *   tools/ci/deps.mjs sees which app each page opens; components: false audits the page alone, for a site page such as
+ *   the homepage, which has no app UI kit)
  * The results also go to window.__CONTRAST__ ({ 'pdf/ dark 390': { page, components } }) for tools that tally them. */
 (function (g) {
   'use strict';
@@ -51,7 +52,7 @@
             it(`${theme} ${width}px: every text reads on its background`, async () => {
               const W = await open(path, theme, width);
               const page = SlopContrast.audit(W);
-              const comps = width < 600 ? await SlopContrastKit.components(W, { heavy: true }) : [];
+              const comps = width < 600 && o.components !== false ? await SlopContrastKit.components(W, { heavy: true }) : [];
               g.__CONTRAST__[`${name} ${theme} ${width}`] = { page, components: comps };
               const bad = page.fails.map((x) => line('page', x));
               for (const c of comps) for (const x of c.fails) bad.push(line(c.name, x));

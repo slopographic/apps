@@ -95,9 +95,9 @@
 .hx-meta a { color: inherit; text-decoration: underline; text-decoration-color: color-mix(in srgb, currentColor 45%, transparent); text-underline-offset: 3px; }
 .hx-meta a:hover { color: var(--bone); }
 
-/* Sloppo's ledge: the bottom left of the hero, beside the centred copy, so he never stands on the text. Absolutely
- * placed, so nothing moves if it goes. */
-.hx .stage-ledge { position: absolute; left: 3%; bottom: 0; z-index: 2; width: 24%; height: 2px; background: linear-gradient(90deg, transparent, var(--line), transparent); }
+/* Sloppo's ledge: the bottom right of the hero, beside the centred copy (so he never stands on the text) and away from
+ * the consent strip at the bottom left. Absolutely placed, so nothing moves if it goes. */
+.hx .stage-ledge { position: absolute; right: 3%; bottom: 0; z-index: 2; width: 24%; height: 2px; background: linear-gradient(90deg, transparent, var(--line), transparent); }
 
 /* ---------- the vortex (home/vortex/vortex.js) ---------- */
 .vx-layer { position: absolute; inset: 0; z-index: 1; pointer-events: none; contain: strict; }
@@ -128,17 +128,18 @@
   text-transform: uppercase;
   white-space: nowrap;
   opacity: 0;
+  visibility: hidden;   /* not there at all until shown, for screen readers and the contrast audit alike */
   pointer-events: none;
-  transition: opacity .15s;
+  transition: opacity .15s, visibility .15s;
 }
 .vx-i.is-hot, .vx-i.is-lit { z-index: 80 !important; }
-.vx-i.is-hot .vx-name, .vx-i.is-lit .vx-name { opacity: 1; }
+.vx-i.is-hot .vx-name, .vx-i.is-lit .vx-name { opacity: 1; visibility: visible; }
 .vx-i.is-lit .vx-svg { outline: 2px solid var(--slop); outline-offset: 4px; border-radius: 14px; }
 
 /* The keyboard way in: every app in a list, visually hidden until a link has focus; the focused one shows as a chip
  * under the wordmark (one tab stop, the arrow keys move; vortex.js). */
 .vx-list { list-style: none; margin: 0; padding: 0; }
-.vx-list a { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.vx-list a { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; color: var(--bone); }
 .vx-list a .vx-svg { width: 28px; height: 28px; flex: none; filter: none; }
 .vx-list a:focus {
   left: 50%;
@@ -186,7 +187,7 @@
 .shelf-head h2.sec-num::before { display: block; margin-bottom: 10px; font: 600 12px/1 var(--mono); letter-spacing: .14em; }
 
 @media (max-width: 700px) {
-  .hx-stage { height: clamp(190px, 30vh, 250px); }
+  .hx-stage { height: clamp(170px, 26vh, 230px); }
   .hx-mark { font-stretch: 75%; font-size: calc(100cqi / 6.9); }   /* 6.5 em wide at 75 % */
   .hx-sub { margin-top: 16px; }
   .hx-cta { margin-top: 24px; width: 100%; }

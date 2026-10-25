@@ -81,6 +81,7 @@
   }
   function measure() {
     const base = hero.getBoundingClientRect(), s = box(stage, base);
+    if (!s || !hero.clientWidth) return false;   // the home view is hidden (the Authenticator): keep the last geometry
     W = hero.clientWidth; H = hero.clientHeight;
     const phone = W < 700;
     const m = box(mark, base) || s;
@@ -94,6 +95,7 @@
     canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
     if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ink = getComputedStyle(hero).getPropertyValue('--bone').trim() || '#888';
+    return true;
   }
 
   /* ---------- one frame ---------- */
@@ -247,11 +249,11 @@
     paint();
     if ('IntersectionObserver' in window) new IntersectionObserver((en) => { inView = en[en.length - 1].isIntersecting; paint(); }).observe(hero);
     document.addEventListener('visibilitychange', paint);
-    if ('ResizeObserver' in window) new ResizeObserver(() => { measure(); draw(); }).observe(hero);
+    if ('ResizeObserver' in window) new ResizeObserver(() => { if (measure()) draw(); }).observe(hero);
     const rm = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)');
     if (rm && rm.addEventListener) rm.addEventListener('change', () => { pickTier(); build(); paint(); });
     // a theme change repaints the lines in the new ink
-    new MutationObserver(() => { measure(); draw(); }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'data-slop-theme'] });
+    new MutationObserver(() => { if (measure()) draw(); }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'data-slop-theme'] });
   }
   window.SlopVortex = {
     state: () => hero.dataset.vx || 'idle',

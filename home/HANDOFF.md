@@ -55,7 +55,7 @@
   lists them all, so a featured row would only repeat them.
 
 ## Perches
-Sloppo stands on the top edges of `[data-perch]` elements: the ledge at the bottom left of the hero, the shelf headings,
+Sloppo stands on the top edges of `[data-perch]` elements: the ledge at the bottom right of the hero, the shelf headings,
 every card (`data-perch="card"`, which chaos may bite, knock or blast), the status board and the footer wordmark.
 
 ## Finder and sections
