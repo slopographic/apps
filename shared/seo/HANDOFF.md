@@ -74,3 +74,14 @@ the Creative Slop Pro page and the `/compare/` matrix. The body comes from `shar
 registry `title`, the feature matrix is the registry `features`, file types come from `accepts`), so
 edit the registry, not the page. The head copy is `LANDING` in `shared/seo/copy.mjs`. `node tools/seo/write.mjs`
 writes the bodies and their head blocks and the sitemap, and `--check` verifies them. Tests: `tests/seo/seo.landing.test.mjs`.
+
+## The footer navigation (tools/seo/footnav.mjs)
+
+One block of plain links at the foot of the homepage, every page written with `shell()` (landing, task, round-up, guide,
+hub, compare, how-it-works) and every converter page (`convert/js/core/pages.js`): the apps by registry group (each
+`/apps/<id>/`), Compare (`/compare/`, `/best/` and every round-up), Converters (the first page of each converter category,
+and `/convert/`), and Guides & help. It is built from the same data as the pages, so a new app, round-up or converter
+category is linked the next time `node tools/seo/write.mjs` runs; nothing is listed by hand. The homepage carries it between
+`<!-- site:footnav -->` markers; the converter pages get those markers in a `<footer class="cv-foot">` before their shell
+script. Styles: `shared/footnav/footnav.css` (columns open on wide screens; folded `<details>` on phones). The app pages
+do not get it. Tests: `tests/seo/footnav.test.mjs`, `tests/home/footer-nav.test.html`.
