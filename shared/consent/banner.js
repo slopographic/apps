@@ -55,12 +55,20 @@
       root.classList.toggle('slopc-pad', !fullHeight());
     };
     measure();
-    if (typeof ResizeObserver === 'function') { ro = new ResizeObserver(measure); ro.observe(el, { box: 'border-box' }); if (document.body) ro.observe(document.body); }
+    // Later measures run in the next frame (at most one a frame): the card's own size (a ResizeObserver; a change made in its
+    // delivery would be a "ResizeObserver loop" error on the page), and the page's changes (a MutationObserver: an app that
+    // turns full-height after it starts, a view that switches).
+    var queued = false;
+    var later = function () { if (queued) return; queued = true; requestAnimationFrame(function () { queued = false; if (off) measure(); }); };
+    if (typeof ResizeObserver === 'function') { ro = new ResizeObserver(later); ro.observe(el, { box: 'border-box' }); }
+    var mo = typeof MutationObserver === 'function' && document.body ? new MutationObserver(later) : null;
+    if (mo) mo.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'hidden'] });
     var link = document.getElementById('slopc-css'), fonts = document.fonts;
     if (link) link.addEventListener('load', measure);
     window.addEventListener('resize', measure);
     if (fonts && fonts.addEventListener) { fonts.addEventListener('loadingdone', measure); fonts.ready.then(function () { if (off) measure(); }); }
     off = function () {
+      if (mo) mo.disconnect();
       if (link) link.removeEventListener('load', measure);
       window.removeEventListener('resize', measure);
       if (fonts && fonts.removeEventListener) fonts.removeEventListener('loadingdone', measure);
