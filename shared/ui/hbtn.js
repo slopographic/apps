@@ -126,8 +126,10 @@
     host.classList.toggle(TIGHT, tight);
     ys.forEach((b, i) => show(b, states[i]));
     fs.forEach((b, i) => { const on = i < folded; if (b.hidden !== on) b.hidden = on; if (on) b.dataset.hbtnFolded = '1'; else delete b.dataset.hbtnFolded; });
-    const more = moreOf(host, folded > 0 || states.some((st, i) => st === 'hidden' && keep(ys[i])));
-    if (more) more.hidden = !(folded > 0 || states.some((st, i) => st === 'hidden' && keep(ys[i])));
+    const need = folded > 0 || states.some((st, i) => st === 'hidden' && keep(ys[i]));
+    const more = moreOf(host, need);
+    if (more) more.hidden = !need;
+    return !need || !!more;   // false: buttons went into a More that is not there yet (its script is still loading)
   }
   /** Tries the layouts from the roomiest down and keeps the first that fits: labels go (Convert…, then AI), Convert… goes,
    *  everything goes tight (icons only), the other buttons fold into More one by one, and last AI goes into More too. */
@@ -147,7 +149,9 @@
     for (let k = 0; k <= folds; k++) plan.push([true, kept, k]);
     if (ys.some(keep)) for (let k = 0; k <= folds; k++) plan.push([true, hidden, k]);
     // on the first row if they can be; else on the header's own rows (only where the app's controls take two rows)
-    for (rows of [false, true]) for (const [tight, st, k] of plan) { apply(host, ys, fs, tight, st, k); if (fits()) return tight; }
+    // a layout that needs More before its script has loaded does not count: it would show the header without those
+    // buttons for a frame or two, then again with More (the page jumps twice); check() runs again once it has loaded
+    for (rows of [false, true]) for (const [tight, st, k] of plan) { if (apply(host, ys, fs, tight, st, k) && fits()) return tight; }
     // nothing fits: the app's own controls overflow whatever we do; fold nothing (it would not help) and keep AI as an icon
     // when that adds no row, else hide it as before (the Theme menu and the command palette still offer it)
     apply(host, ys, fs, true, kept, 0);
