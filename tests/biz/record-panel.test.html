@@ -6,7 +6,7 @@
   <script src="../harness.js"></script>
   <script src="record-panel-apps.js"></script>
   <script>
-  // Covers: shared/biz/panel.js, shared/docs/doc-layout.js, shared/docs/doc-editor.js, shared/docs/workspace.css, shared/biz/app.css
+  // Covers: shared/biz/panel.js, shared/docs/doc-layout.js, shared/docs/doc-editor.js, shared/docs/workspace.css, shared/biz/app.css, contacts/js/app/card.js, contacts/js/app/card-read.js, contacts/js/app/card-edit.js, contacts/css/contacts-card.css
   // The suite rule (shared/frame/HANDOFF.md): an open record's details are a panel on the RIGHT (SlopFrame), its main button in
   // the panel's footer; on a phone the panel is a bottom sheet whose closed state still shows that footer. One run per app
   // (tests/biz/record-panel-apps.js: how each app opens a record, fills it and what its main button does).
@@ -18,6 +18,7 @@
     f.src = `../../${app.path}?t=${Date.now()}#${app.hash}`;
     document.body.append(f);
     await waitFor(() => { const W = f.contentWindow; return W && W.document.readyState === 'complete' && app.ready(W); }, { timeout: 30000 });
+    if (app.prep) await app.prep(f.contentWindow);
     await sleep(300);
     return f;
   }
@@ -28,10 +29,10 @@
       it(`${app.name} at 1280: the panel is right of the record, resizable, its main button "${app.main}" at its foot works`, async () => {
         const f = await open(app, 1280), W = f.contentWindow, D = W.document;
         const panel = D.querySelector(app.panel), view = D.querySelector(app.view);
-        expect(panel.classList.contains('sf-panel')).toBe(true);
+        if (!app.bare) expect(panel.classList.contains('sf-panel')).toBe(true);
         expect(panel.getBoundingClientRect().left).toBeGreaterThanOrEqual(view.getBoundingClientRect().right - 1);
         expect(Math.round(panel.getBoundingClientRect().right)).toBeLessThanOrEqual(1280);
-        expect(shown(D.querySelector('.sf-grip'))).toBe(true);   // shared/ui/resize-panel.js on its edge
+        if (!app.bare) expect(shown(D.querySelector('.sf-grip'))).toBe(true);   // shared/ui/resize-panel.js on its edge
         const btn = footButtons(D, panel).find((b) => b.textContent.trim() === app.main);
         expect(!!btn).toBe(true);
         const fr = btn.closest('.sf-p-foot').getBoundingClientRect();
@@ -49,10 +50,11 @@
         expect(D.documentElement.scrollWidth).toBeLessThanOrEqual(390);
         const names = footButtons(D, panel).map((b) => b.textContent.trim());
         expect(names.includes(app.main)).toBe(true);
-        expect(names[0]).toBe('Details');
+        if (!app.bare) expect(names[0]).toBe('Details');
         const foot = panel.querySelector('.sf-p-foot').getBoundingClientRect();
         expect(Math.round(foot.bottom)).toBe(W.innerHeight);
         expect(foot.top).toBeGreaterThan(W.innerHeight / 2);
+        if (app.bare) { f.remove(); return; }   // a record that is a page of its own on a phone (Contacts' card): no sheet
         footButtons(D, panel)[0].click();
         await waitFor(() => panel.classList.contains('ssh-on'));
         expect(panel.getBoundingClientRect().top).toBeLessThan(foot.top - 100);

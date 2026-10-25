@@ -83,17 +83,13 @@
       + `<input type="text" id="actText" maxlength="500" placeholder="Add a dated note" aria-label="Note text" autocomplete="off">`
       + `<button type="submit" class="btn">Add</button></form>`
       + (act.length ? `<ul class="acts">${act.map((a) => `<li><span class="act-date">${esc(dateText(a.date))}</span><span class="act-text">${esc(a.text)}</span></li>`).join('')}</ul>`
-        : '<p class="muted">No dated notes yet.</p>') + `</section>`
-      + `<div class="card-foot"><button type="button" class="btn" data-act="dup">Duplicate</button>`
-      + `<button type="button" class="btn danger" data-act="del">Delete</button></div></div>`;
+        : '<p class="muted">No dated notes yet.</p>') + `</section></div>`;   // Edit, Duplicate and Delete: the card's footer (card.js)
     bind(c, body);
     history(c.id, document.getElementById('cardHistory'));
   }
 
   function bind(c, body) {
     body.querySelector('[data-act="back"]').addEventListener('click', () => { S.open = null; S.mode = 'view'; S.emit('render'); });
-    body.querySelector('[data-act="dup"]').addEventListener('click', () => duplicate(c));
-    body.querySelector('[data-act="del"]').addEventListener('click', () => SC.select.remove(new Set([c.id])));
     body.querySelector('[data-act="stage"]').addEventListener('change', (e) => patch(c, { stage: e.target.value }));
     body.querySelector('[data-act="followUp"]').addEventListener('change', (e) => {
       const v = e.target.value;

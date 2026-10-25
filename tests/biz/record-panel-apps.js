@@ -13,5 +13,17 @@
     docApp('Slop Orders', 'orders/index.html', 'SlopOrders'),
     docApp('Slop Quotes', 'quotes/index.html', 'SlopQuotes'),
     docApp('Slop Purchases', 'purchases/index.html', 'SlopPurchases'),
+    // Contacts: the card is the record panel (its own column, a page on a phone); Edit, Duplicate and Delete at its foot
+    { name: 'Slop Contacts', path: 'contacts/index.html', hash: '', view: '.col-list', panel: '#card', main: 'Edit', bare: true,
+      ready: (W) => W.SlopContacts && W.SlopContacts.ready,
+      async prep(W) {
+        W.SlopContacts.state.mode = 'view';   // the card's mode is remembered per device: the run before left it on Edit
+        await W.SlopData.store.put('customers', { name: 'Panel Test', stage: 'customer', email: 'panel@test.invalid' });
+        const row = () => [...W.document.querySelectorAll('#rows .row')].find((r) => r.textContent.includes('Panel Test'));
+        for (let i = 0; i < 100 && !row(); i++) await new Promise((r) => setTimeout(r, 50));
+        row().click();
+        for (let i = 0; i < 100 && !W.document.querySelector('#card .sf-p-foot'); i++) await new Promise((r) => setTimeout(r, 50));
+      },
+      done: (W) => !!W.document.querySelector('#card .ed-form') },
   ];
 })(window);
