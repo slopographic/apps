@@ -30,7 +30,7 @@ test('Anthropic: browser headers, API version 2026-10-21, native tools, no tempe
   assert.equal(init.headers['x-api-key'], 'sk-ant-k1');
   assert.equal(init.headers['anthropic-version'], '2026-10-21');
   assert.equal(init.headers['anthropic-dangerous-direct-browser-access'], 'true');
-  assert.equal(init.headers['anthropic-beta'], 'server-side-fallback-2026-07-01');
+  assert.equal(init.headers['anthropic-beta'], 'server-side-fallback-2026-07-01,context-management-2025-06-27');   // with tools: old results cleared server-side
   const b = JSON.parse(init.body);
   assert.equal(b.stream, true); assert.equal(b.fallbacks, 'default'); assert.equal(b.temperature, undefined);
   // prompt caching: a breakpoint on the system prompt (tools render before it, so they are cached too) + automatic for the tail

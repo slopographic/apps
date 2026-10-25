@@ -158,7 +158,7 @@
       await openView(2, 0.5, 'assets.pdf');
       PT.A.extractAssets();
       const dlg = await waitFor(() => PT.win.document.querySelector('.ea-dlg'), { timeout: 15000 });
-      const rows = [...dlg.querySelectorAll('.ea-row')];
+      const rows = [...dlg.querySelectorAll('.ea-row:not(.ea-opt)')]; // the text and page options are rows of their own
       // the image, and the standard Helvetica font, which the PDF refers to but does not embed (listed, not selectable)
       expect(rows.length).toBe(2);
       const img = rows.find((r) => r.textContent.includes('64×48'));
@@ -167,7 +167,7 @@
       const saved = [], orig = PT.U.download;
       PT.U.download = (data, name, mime) => { saved.push({ data, name, mime }); };
       try {
-        [...dlg.querySelectorAll('.sui-btn')].find((b) => b.textContent === 'Download').click();
+        [...dlg.querySelectorAll('.sui-btn')].find((b) => b.textContent === 'Download ZIP').click();
         await waitFor(() => saved.length > 0, { timeout: 15000 });
       } finally { PT.U.download = orig; }
       expect(saved[0].name).toBe('assets-assets.zip');

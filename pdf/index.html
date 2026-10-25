@@ -162,7 +162,7 @@
     <link rel="stylesheet" href="../shared/commands/commands.css" data-src="shared/commands/commands.css"> <link rel="stylesheet" href="../shared/workspace/workspace.css" data-src="shared/workspace/workspace.css">
     <link rel="stylesheet" href="../shared/doctabs/pane-tabs.css" data-src="shared/doctabs/pane-tabs.css"> <link rel="stylesheet" href="css/redact.css" data-src="pdf/css/redact.css">
     <link rel="stylesheet" href="css/page-acts.css" data-src="pdf/css/page-acts.css"> <link rel="stylesheet" href="css/find.css" data-src="pdf/css/find.css">
-    <link rel="stylesheet" href="css/selbar.css" data-src="pdf/css/selbar.css"> <link rel="stylesheet" href="css/assets.css" data-src="pdf/css/assets.css">
+    <link rel="stylesheet" href="css/selbar.css" data-src="pdf/css/selbar.css"> <link rel="stylesheet" href="css/objects.css" data-src="pdf/css/objects.css"> <link rel="stylesheet" href="css/assets.css" data-src="pdf/css/assets.css">
     <link rel="stylesheet" href="css/notes.css" data-src="pdf/css/notes.css"> <link rel="stylesheet" href="css/para.css" data-src="pdf/css/para.css"> <link rel="stylesheet" href="../shared/convert/dialog.css" data-src="shared/convert/dialog.css">
     <link rel="stylesheet" href="../aitools/dialog.css" data-offline="strip"> <script src="../shared/session/session.js" data-src="shared/session/session.js"></script>
     <script src="../shared/commands/commands.js" data-src="shared/commands/commands.js"></script> <script src="../shared/commands/search.js" data-src="shared/commands/search.js"></script>
@@ -195,13 +195,15 @@
     <script src="../shared/watermark/panel.js" data-src="shared/watermark/panel.js"></script>
     <script src="js/core/watermark.js" data-src="pdf/js/core/watermark.js"></script> <script src="js/core/watermark-annots.js" data-src="pdf/js/core/watermark-annots.js"></script>
     <script src="js/core/pdfjs.js" data-src="pdf/js/core/pdfjs.js"></script> <script src="js/io/forms.js" data-src="pdf/js/io/forms.js"></script>
-    <script src="js/io/export.js" data-src="pdf/js/io/export.js"></script> <script src="js/io/export-notes.js" data-src="pdf/js/io/export-notes.js"></script>
+    <script src="js/io/export.js" data-src="pdf/js/io/export.js"></script>
+    <script src="js/io/export-oc.js" data-src="pdf/js/io/export-oc.js"></script> <script src="js/io/export-notes.js" data-src="pdf/js/io/export-notes.js"></script>
     <script src="js/io/export-callout.js" data-src="pdf/js/io/export-callout.js"></script> <script src="js/io/export-step.js" data-src="pdf/js/io/export-step.js"></script>
     <script src="js/redact/find.js" data-src="pdf/js/redact/find.js"></script> <script src="js/redact/apply.js" data-src="pdf/js/redact/apply.js"></script>
     <script src="../aitools/model-registry.js" data-offline="strip"></script> <script src="../aitools/models.js" data-offline="strip"></script>
     <script src="../aitools/support.js" data-offline="strip"></script> <script src="../aitools/get-more.js" data-offline="strip"></script>
     <script src="../aitools/common.js" data-offline="strip"></script> <script src="js/io/convert.js" data-src="pdf/js/io/convert.js"></script>
-    <script src="js/io/assets-model.js" data-src="pdf/js/io/assets-model.js"></script> <script src="js/io/assets-scan.js" data-src="pdf/js/io/assets-scan.js"></script>
+    <script src="js/io/assets-model.js" data-src="pdf/js/io/assets-model.js"></script> <script src="js/core/pdf-parts.js" data-src="pdf/js/core/pdf-parts.js"></script>
+    <script src="js/io/assets-scan.js" data-src="pdf/js/io/assets-scan.js"></script>
     <script src="js/io/assets-save.js" data-src="pdf/js/io/assets-save.js"></script> <script src="js/io/sample.js" data-src="pdf/js/io/sample.js"></script>
     <script src="js/io/session.js" data-src="pdf/js/io/session.js"></script> <script src="js/io/edit-log.js" data-src="pdf/js/io/edit-log.js"></script>
     <script src="js/io/doc-changes.js" data-src="pdf/js/io/doc-changes.js"></script> <script src="js/io/drive-docs.js" data-src="pdf/js/io/drive-docs.js"></script>
@@ -221,6 +223,7 @@
     <script src="js/core/content-lex.js" data-src="pdf/js/core/content-lex.js"></script> <script src="js/core/content-strip.js" data-src="pdf/js/core/content-strip.js"></script>
     <script src="js/core/content-ink.js" data-src="pdf/js/core/content-ink.js"></script> <script src="js/core/content-fills.js" data-src="pdf/js/core/content-fills.js"></script>
     <script src="js/core/content-res.js" data-src="pdf/js/core/content-res.js"></script> <script src="js/editor/text-strip.js" data-src="pdf/js/editor/text-strip.js"></script>
+    <script src="js/core/content-objs.js" data-src="pdf/js/core/content-objs.js"></script> <script src="js/core/content-move.js" data-src="pdf/js/core/content-move.js"></script> <script src="js/core/content-svg.js" data-src="pdf/js/core/content-svg.js"></script> <script src="js/editor/obj-derive.js" data-src="pdf/js/editor/obj-derive.js"></script> <script src="js/io/ocg.js" data-src="pdf/js/io/ocg.js"></script>
     <script src="js/editor/edit-text.js" data-src="pdf/js/editor/edit-text.js"></script> <script src="js/editor/para-blocks.js" data-src="pdf/js/editor/para-blocks.js"></script>
     <script src="js/editor/para-layout.js" data-src="pdf/js/editor/para-layout.js"></script> <script src="js/editor/para-fonts.js" data-src="pdf/js/editor/para-fonts.js"></script>
     <script src="js/editor/para-view.js" data-src="pdf/js/editor/para-view.js"></script> <script src="js/editor/para-model.js" data-src="pdf/js/editor/para-model.js"></script>
@@ -231,6 +234,7 @@
     <script src="js/editor/sel-track.js" data-src="pdf/js/editor/sel-track.js"></script> <script src="js/editor/sel-actions.js" data-src="pdf/js/editor/sel-actions.js"></script>
     <script src="js/editor/sel-lift.js" data-src="pdf/js/editor/sel-lift.js"></script> <script src="js/editor/sel-annot.js" data-src="pdf/js/editor/sel-annot.js"></script>
     <script src="js/editor/sel-bar.js" data-src="pdf/js/editor/sel-bar.js"></script>
+    <script src="js/editor/obj-mode.js" data-src="pdf/js/editor/obj-mode.js"></script> <script src="js/editor/obj-files.js" data-src="pdf/js/editor/obj-files.js"></script> <script src="js/editor/obj-bar.js" data-src="pdf/js/editor/obj-bar.js"></script>
     <script src="js/tools/sign.js" data-src="pdf/js/tools/sign.js"></script> <script src="js/tools/edit-panel.js" data-src="pdf/js/tools/edit-panel.js"></script>
     <script src="js/tools/stamp-panels.js" data-src="pdf/js/tools/stamp-panels.js"></script> <script src="js/tools/watermark-panel.js" data-src="pdf/js/tools/watermark-panel.js"></script>
     <script src="js/tools/comments-panel.js" data-src="pdf/js/tools/comments-panel.js"></script> <script src="js/tools/doc-panels.js" data-src="pdf/js/tools/doc-panels.js"></script>
@@ -238,6 +242,7 @@
     <script src="js/ui/versions.js" data-src="pdf/js/ui/versions.js"></script> <script src="js/ui/fonts.js" data-src="pdf/js/ui/fonts.js"></script>
     <script src="js/ui/export-menu.js" data-src="pdf/js/ui/export-menu.js"></script> <script src="js/ui/exports.js" data-src="pdf/js/ui/exports.js"></script> <script src="js/ui/protect.js" data-src="pdf/js/ui/protect.js"></script>
     <script src="js/ui/page-acts.js" data-src="pdf/js/ui/page-acts.js"></script> <script src="js/ui/assets.js" data-src="pdf/js/ui/assets.js"></script>
+    <script src="js/io/extract-more.js" data-src="pdf/js/io/extract-more.js"></script> <script src="js/tools/ocg-panel.js" data-src="pdf/js/tools/ocg-panel.js"></script>
     <script src="js/redact/panel.js" data-src="pdf/js/redact/panel.js"></script> <script src="js/ocr/layer.js" data-offline="strip"></script>
     <script src="js/ocr/recognise.js" data-offline="strip"></script> <script src="js/ui/commands.js" data-src="pdf/js/ui/commands.js"></script>
     <script src="js/ui/context.js" data-src="pdf/js/ui/context.js"></script> <script src="js/ui/input.js" data-src="pdf/js/ui/input.js"></script>

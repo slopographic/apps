@@ -3,6 +3,7 @@
  * recorded macros) and the one runner (workflows/js/core/plan.js runWorkflow). Classic script; adds SlopAIKit.opTools.
  * Part of the one tool list: appTools.build adds them when env.ops is set (the side panel does for cloud models).
  *   opTools.build(env) → [list_operations, run_operation, run_workflow]
+ *   opTools.search(query, n) → the n best matching operations as lines, for find_tools (toolbox.js)
  * Each tool has params (for prompt-based models) and schema (JSON Schema, for native tool calling and WebMCP).
  * Files are Slop Drive names or ids, or "open" (what the app has open, shared/convert/provided.js). The new files are
  * saved to Slop Drive (from 'ai') so the person finds them there; nothing is uploaded. The modules load on first use. */
@@ -77,26 +78,42 @@
     return { files: saved, errors, notes: (res.notes || []).concat(n.errors || []) };
   }
 
-  const FILES = { type: 'array', items: { type: 'string' }, description: 'Slop Drive file names or ids (list_files), or "open" for what this app has open' };
-  const INPUT = { type: 'object', description: 'an input written here instead of a file: { name: "outline.json", json: {…} } or { name: "notes.md", text: "…" } (for an operation that makes something from data, such as an outline → presentation)',
+  const hay = (op) => `${op.id} ${op.label} ${op.group || ''} ${(op.keywords || []).join(' ')}`.toLowerCase();
+  /** Operations that take the kind and contain every word. */
+  function match(R, query, kind) {
+    const q = String(query || '').toLowerCase().split(/\s+/).filter(Boolean), k = String(kind || '').toLowerCase().replace(/^\./, '');
+    return R.all().filter((op) => (!k || R.accepts(op, k)) && q.every((w) => hay(op).includes(w)));
+  }
+  /** For find_tools (toolbox.js): the operations most words match, one line each ('id: label (png → jpg)'). */
+  async function search(query, n = 5) {
+    const { R } = await mods(), ws = K.toolbox ? K.toolbox.words(query) : String(query || '').toLowerCase().split(/\s+/);
+    return R.all().map((op) => ({ op, s: ws.filter((w) => hay(op).includes(w)).length })).filter((x) => x.s).sort((x, y) => y.s - x.s).slice(0, n)
+      .map(({ op }) => `- ${op.id}: ${op.label} (${[].concat(op.from || []).slice(0, 4).join(', ') || 'any'} → ${op.ext || 'same kind'})`);
+  }
+
+  const FILES = { type: 'array', items: { type: 'string' }, description: 'Slop Drive names or ids, or "open" (what is open here)' };
+  const INPUT = { type: 'object', description: 'instead of a file: { name: "outline.json", json: {…} } or { name: "notes.md", text: "…" }',
     properties: { name: { type: 'string' }, text: { type: 'string' }, json: { type: 'object' } } };
   function build(env = {}) {
     return [
-      { name: 'list_operations', maxChars: 12000, label: (a) => (a.query || a.kind ? `Find operations: ${[a.query, a.kind].filter(Boolean).join(', ')}` : 'List the operations'),
+      { name: 'list_operations', maxChars: 6000, label: (a) => (a.query || a.kind ? `Find operations: ${[a.query, a.kind].filter(Boolean).join(', ')}` : 'List the operations'),
         description: 'List the file operations this site runs on the device (conversions, remove background, watermark, resize, upscale, OCR, PDF tools, recorded macros). Filter by words or by a file kind (png, pdf, csv…); a short filtered list includes each operation\'s options.',
         params: { query: { type: 'string', description: 'words in the name' }, kind: { type: 'string', description: 'a file kind the operation takes, e.g. png' } },
         schema: { type: 'object', properties: { query: { type: 'string', description: 'words in the name' }, kind: { type: 'string', description: 'a file kind the operation takes, e.g. png' } } },
         run: async (a) => {
           const { R } = await mods();
-          const q = String(a.query || '').toLowerCase().split(/\s+/).filter(Boolean), k = String(a.kind || '').toLowerCase().replace(/^\./, '');
-          const hits = R.all().filter((op) => (!k || R.accepts(op, k)) && q.every((w) => `${op.id} ${op.label} ${op.group || ''} ${(op.keywords || []).join(' ')}`.toLowerCase().includes(w)));
-          const full = (q.length || k) && hits.length <= 25;
-          return { count: hits.length, operations: hits.slice(0, 200).map((op) => describe(R, op, full)), hint: full ? undefined : 'Filter with query or kind to see the options.' };
+          const hits = match(R, a.query, a.kind), short = (op) => ({ id: op.id, label: op.label });
+          // unfiltered or broad: ids and labels only (option lists are long), so the answer stays small; a filtered
+          // list gives the options of its best matches (the query in the id first)
+          if (!(a.query || a.kind) || hits.length > 25) return { count: hits.length, operations: hits.slice(0, 60).map(short), hint: 'Filter with query or kind to see the options.' };
+          const q = String(a.query || '').toLowerCase(), first = hits.filter((op) => q && op.id.toLowerCase().includes(q.split(/\s+/)[0]));
+          const ranked = [...new Set([...first, ...hits])];
+          return { count: hits.length, operations: ranked.map((op, i) => (i < 6 ? describe(R, op, true) : short(op))) };
         } },
       { name: 'run_operation', label: (a) => `Run ${a.operation} on ${[...[].concat(a.files || []), ...(a.input && a.input.name ? [a.input.name] : a.input ? ['the input'] : [])].join(', ')}`,
-        description: 'Run one operation (id from list_operations) on files, or on an input you write in the call (input: { name, text | json }, for operations that make something from data, e.g. an outline → a presentation: no file needed first). The new files are saved to Slop Drive on this device; nothing is uploaded.',
+        description: 'Run a file operation (id from find_tools or list_operations) on files, or on an input written in the call (e.g. an outline → a presentation). New files go to Slop Drive on this device.',
         params: { operation: { type: 'string', description: 'operation id from list_operations', required: true }, files: { type: 'array', description: 'Slop Drive file names, or "open"' }, input: { type: 'object', description: '{ name, text | json }: an input written here instead of a file' }, options: { type: 'object', description: 'the operation\'s options' } },
-        schema: { type: 'object', properties: { operation: { type: 'string', description: 'operation id from list_operations' }, files: FILES, input: INPUT, options: { type: 'object', description: 'the operation\'s options (see list_operations)' } }, required: ['operation'] },
+        schema: { type: 'object', properties: { operation: { type: 'string', description: 'operation id from list_operations' }, files: FILES, input: INPUT, options: { type: 'object', description: 'its options (list_operations with a query shows them)' } }, required: ['operation'] },
         run: async (a) => {
           const { R } = await mods(), op = R.byId(String(a.operation));
           if (!op) throw new Error(`No operation "${a.operation}". Use list_operations.`);
@@ -111,5 +128,5 @@
     ];
   }
 
-  K.opTools = { build, mods };
+  K.opTools = { build, mods, search };
 })();

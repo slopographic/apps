@@ -85,8 +85,15 @@
         run: (a, e) => exec(cmd, c, a, Object.assign({}, env, e)) });
     }
     if (cmd.state) {
-      tools.unshift({ name: 'app_state', description: `A short JSON summary of ${where} right now (document, layers, selection…). Call it first.`, params: {}, maxChars: 6000, label: () => 'Read the app state',
-        run: () => cmd.state() || `${where} shares no state.` });
+      // a summary by default (long lists and texts cut, toolbox.summarize); detail: true for all of it
+      const DETAIL = { type: 'boolean', description: 'all of it, not a summary' };
+      tools.unshift({ name: 'app_state', description: `${where} right now as JSON (document, layers, selection…), summarized; detail: true for all of it. Call it first.`,
+        params: { detail: DETAIL }, schema: { type: 'object', properties: { detail: DETAIL } }, maxChars: 6000, label: () => 'Read the app state',
+        run: (a = {}) => {
+          const st = cmd.state();
+          if (!st) return `${where} shares no state.`;
+          return a.detail || typeof st !== 'object' || !K.toolbox ? st : JSON.stringify(K.toolbox.summarize(st, { items: 8, chars: 160, depth: 4 }));
+        } });
     }
     const byId = (id) => listAll(cmd).find((c) => c.id === id) || null;
     tools.push(

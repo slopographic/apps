@@ -12,7 +12,8 @@
  *        onUsage(usage) after each model turn may return a sentence, which stops the loop there: the spending cap)
  * Engines with native tool calling (shared/ai/cloud/) give each call an id and keep their own reply in done.native; the
  * loop keeps both (assistant { toolCalls, native }, tool { callId, media }) so they can send the history back as it was.
- * A tool may return { text, media: [{ mime, data (base64), name }] } (look_at_file): the media go to engines that can see. */
+ * A tool may return { text, media: [{ mime, data (base64), name }] } (look_at_file): the media go to engines that can see;
+ * or { text, load: [tool names] } (find_tools, toolbox.js): those deferred tools are shown to the model from then on. */
 (function () {
   'use strict';
   const K = (window.SlopAIKit = window.SlopAIKit || {});
@@ -32,6 +33,8 @@
   /** Engines get plain system/user/assistant messages: one system message first, tool results as user messages,
    * consecutive same-role messages merged (some chat templates require alternation), and a user message last. */
   function prepare(messages, tools) {
+    const B = K.toolbox;
+    if (B) { tools = B.visible(tools, messages); messages = B.trim(messages); }   // deferred tools once loaded; earlier results short
     let sys = messages.filter((m) => m.role === 'system').map((m) => m.content).join('\n\n');
     if (tools && tools.length) sys = (sys ? sys + '\n\n' : '') + describe(tools);
     const out = [];
@@ -80,7 +83,7 @@
   const clip = (s, n = 4000) => (s.length > (n || 4000) ? s.slice(0, n || 4000) + `… (${s.length - (n || 4000)} more characters)` : s);
   async function dispatch(call, tools, env = {}) {
     const t = tools.find((x) => x.name === call.name);
-    if (!t) return { ok: false, error: `Unknown tool "${call.name}". Available: ${tools.map((x) => x.name).join(', ')}` };
+    if (!t) return { ok: false, error: `Unknown tool "${call.name}". Available: ${tools.filter((x) => !x.deferred).map((x) => x.name).join(', ')}${tools.some((x) => x.deferred) ? '; find_tools finds more' : ''}` };
     const args = call.arguments || {};
     for (const [k, p] of Object.entries(t.params || {})) if (p.required && (args[k] == null || args[k] === '')) return { ok: false, error: `Missing argument "${k}" for ${t.name}` };
     // a tool that needs approval: destructive (delete, change, send), or one with a permission of its own
@@ -101,7 +104,10 @@
     try {
       const r = await t.run(args, env);
       if (r && typeof r === 'object' && Array.isArray(r.media)) return { ok: true, result: clip(String(r.text || 'ok'), t.maxChars), media: r.media };
-      return { ok: true, result: clip(typeof r === 'string' ? r : JSON.stringify(r == null ? 'ok' : r), t.maxChars) };
+      if (r && typeof r === 'object' && Array.isArray(r.load)) return { ok: true, result: clip(String(r.text || ''), t.maxChars), load: r.load };   // find_tools
+      // data: long lists and strings cut (toolbox.summarize) before the hard limit, so what arrives is still valid JSON
+      const data = r != null && typeof r === 'object' && K.toolbox && !t.maxChars ? K.toolbox.summarize(r, { items: 25, chars: 400, depth: 6 }) : r;
+      return { ok: true, result: clip(typeof data === 'string' ? data : JSON.stringify(data == null ? 'ok' : data), t.maxChars) };
     } catch (e) { return { ok: false, error: String((e && e.message) || e) }; }
   }
 
@@ -126,7 +132,7 @@
         if (onTool) onTool({ phase: 'start', call, tool });
         const res = await dispatch(call, tools, Object.assign({}, env, { step: calls }, chatOpts.signal ? { signal: chatOpts.signal } : {}));   // a long tool (an export) stops with Stop
         if (onTool) onTool({ phase: 'end', call, res, tool });
-        added.push({ role: 'tool', name: call.name, callId: call.id, content: res.ok ? res.result : 'ERROR: ' + res.error, ok: res.ok, args: call.arguments, media: res.media });
+        added.push({ role: 'tool', name: call.name, callId: call.id, content: res.ok ? res.result : 'ERROR: ' + res.error, ok: res.ok, args: call.arguments, media: res.media, load: res.load });
       }
       if (stopped() || calls > maxCalls) break;
       if (step === maxSteps - 1) text += '\n\n(Stopped after ' + maxSteps + ' tool steps.)';
