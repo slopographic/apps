@@ -15,7 +15,7 @@
   <script>
   /* The owner's iPhone: with no document open the Redact sheet showed the drop zone through it (the empty-mode fade of the
      side panel applied to the sheet), and the keyboard covered the text being edited.
-     Covers: pdf/js/editor/view.js, pdf/js/editor/para-edit.js, pdf/js/editor/text.js, pdf/css/base.css, pdf/css/themes.css,
+     Covers: pdf/js/editor/view.js, pdf/js/editor/para-edit.js, pdf/js/editor/edit-text.js, pdf/js/editor/text.js, pdf/css/base.css, pdf/css/themes.css,
      pdf/index.html, shared/input/keyboard.js, shared/ui/sheet.js, shared/ai/panel.js */
   const { describe, it, expect, waitFor, sleep } = SlopTest;
   const KB = 320;
@@ -87,6 +87,20 @@
       expect(inView(S.ta)).toBe(true);   // still while typing
       S.ta.blur(); await keyboard(0);
       expect([D().querySelector('#viewer .slop-kb-spacer'), W().getComputedStyle(D().getElementById('rail')).visibility]).toEqual([null, 'visible']);
+    }, { timeout: 60000 });
+
+    it('Edit text ▸ Lines: the line being typed in (a press on it, as on a phone) shows above the keyboard', async () => {
+      const bytes = await PP.pdf((pg, f) => PP.lines(pg, f.hel, ['A line at the foot of the page'], 40, 30));
+      await PP.open(bytes, 'kb-lines.pdf');
+      PP.Ed().setEditTextMode('lines');
+      const a = PP.at(60, 320 - 30 - 4);
+      a.el.dispatchEvent(new (W().PointerEvent)('pointerdown', { clientX: a.x, clientY: a.y, button: 0, bubbles: true, cancelable: true, pointerId: 5, pointerType: 'mouse', isPrimary: true }));
+      const input = await waitFor(() => D().querySelector('.edit-run'), { timeout: 8000 });
+      await waitFor(() => D().activeElement === input, { timeout: 4000 });
+      await keyboard(KB);
+      expect(inView(input)).toBe(true);
+      input.dispatchEvent(new (W().KeyboardEvent)('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+      await keyboard(0);
     }, { timeout: 60000 });
 
     it('Edit text ▸ Paragraphs: the paragraph being typed in shows above the keyboard', async () => {
