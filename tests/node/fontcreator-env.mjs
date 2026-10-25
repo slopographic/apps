@@ -22,7 +22,7 @@ export const T = core('ttf')(P);
 export const B = core('build')(OT, M, P, S, T);
 export const I = core('import')(OT, M, CS, P);
 export const TR = core('trace')(P, G);
-export const ST = core('stroke')(P, G);
+export const ST = core('stroke')(P, G, TR);
 export const SH = core('sheet')(CS);
 /** zlib deflate and inflate as the page has them (CompressionStream), for WOFF. */
 const pump = async (bytes, stream) => new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(stream)).arrayBuffer());

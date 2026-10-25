@@ -57,11 +57,11 @@
     const st = F.model.stats(S().project());
     count.textContent = `${st.drawn} drawn · ${st.glyphs} glyphs in the font`;
   }
-  function open(id) {
+  function open(id, keyboard) {
     S().select(id);
     const fr = g.FC.main && g.FC.main.frame();
     if (fr && fr.showView) fr.showView();
-    g.FC.editor && g.FC.editor.focus();
+    if (keyboard && g.FC.editor) g.FC.editor.focus();   // a tap leaves the focus alone (no ring round the canvas)
   }
   function keys(e) {
     const c = e.target.closest('.fc-cell');
@@ -91,7 +91,7 @@
     add.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); const n = addChars(add.value); if (n) { add.value = ''; g.SlopUI.toast(`Added ${n} character${n === 1 ? '' : 's'}`); } } });
     count = el('p', { class: 'fc-count', id: 'fc-count', 'aria-live': 'polite' });
     cells = el('div', { class: 'fc-cells', id: 'fc-cells', role: 'group', 'aria-label': 'Glyphs' });
-    cells.addEventListener('click', (e) => { const c = e.target.closest('.fc-cell'); if (c) open(c.dataset.id); });
+    cells.addEventListener('click', (e) => { const c = e.target.closest('.fc-cell'); if (c) open(c.dataset.id, e.detail === 0); });
     cells.addEventListener('keydown', keys);
     root.append(el('div', { class: 'fc-list-head' }, setSel, add, count), cells);
     S().on((e) => {

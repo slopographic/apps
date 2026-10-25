@@ -89,7 +89,7 @@
   function strokeFinish() {
     if (line && line.length) {
       const st = S().settings();
-      const out = g.SlopFont.stroke.outline([{ points: line.map((q) => [q.x, q.y]) }], { width: st.strokeWidth, cap: st.cap, join: 'round' });
+      const out = g.SlopFont.stroke.outline([{ points: line.map((q) => [q.x, q.y]) }], { width: st.strokeWidth, cap: st.cap });
       add('Draw a stroke', out);
     }
     line = null; E().paint();

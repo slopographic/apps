@@ -5,6 +5,7 @@
  * SVGeom (in Node, pass them).
  *   binarize(img, threshold?) → { bits, w, h, threshold }   img: { data (RGBA), width, height }
  *   loops(bits, w, h) → [[{ x, y }]]   every ink boundary as a closed polygon of pixel corners
+ *   fromBits(bits, w, h, { minArea, smooth }) → fitted contours in pixels (y down): also how core/stroke.js outlines
  *   trace(img, opts) → { contours, advance, threshold, loops }   in font units. opts.place:
  *       { mode: 'fit', height, left?, bottom? }   the ink's box scaled to height (default 700) on the baseline
  *       { mode: 'box', top, bottom, ascender, descender, left? }  pixel rows top/bottom are the ascender and descender
@@ -114,19 +115,23 @@
     const s = (place.height || 700) / Math.max(1, pxBox.h);
     return { s, tx: left - pxBox.x * s, ty: (place.bottom || 0) + (pxBox.y + pxBox.h) * s };
   }
-  function trace(img, opts = {}) {
-    const b = binarize(img, opts.threshold);
-    const minArea = opts.minArea == null ? Math.max(4, b.w * b.h * 0.0002) : opts.minArea;
-    const raw = loops(b.bits, b.w, b.h).filter((l) => Math.abs(areaOf(l)) >= minArea);
-    if (!raw.length) return { contours: [], advance: null, threshold: b.threshold, loops: 0 };
+  /** Ink pixels (bits, 1 = ink) as fitted curves in pixel units (y down): the boundary loops, smoothed and fitted. */
+  function fromBits(bits, w, h, opts = {}) {
+    const minArea = opts.minArea == null ? Math.max(4, w * h * 0.0002) : opts.minArea;
+    const raw = loops(bits, w, h).filter((l) => Math.abs(areaOf(l)) >= minArea);
     const eps = opts.smooth == null ? 0.7 : opts.smooth;
     const rings = raw.map((l) => smoothLoop(l, eps)).filter((r) => r.length >= 3);
-    const fitted = G.fitRings(rings, null, { err: Math.max(0.4, eps), cornerAngle: 55 });
+    return rings.length ? G.fitRings(rings, null, { err: Math.max(0.4, eps), cornerAngle: opts.cornerAngle || 55 }) : [];
+  }
+  function trace(img, opts = {}) {
+    const b = binarize(img, opts.threshold);
+    const fitted = fromBits(b.bits, b.w, b.h, opts);
+    if (!fitted.length) return { contours: [], advance: null, threshold: b.threshold, loops: 0 };
     const pxBox = G.subsBBox(fitted);
     const pl = placement(pxBox, opts.place || {}, pxBox);
     const contours = P.orient(P.clean(P.transform(fitted, [pl.s, 0, 0, -pl.s, pl.tx, pl.ty])));
     const fb = P.bbox(contours), side = opts.place && opts.place.left != null ? opts.place.left : 50;
     return { contours, advance: fb ? Math.round(fb.x + fb.w + side) : null, threshold: b.threshold, loops: contours.length };
   }
-  return { binarize, loops, smoothLoop, trace, otsu };
+  return { binarize, loops, smoothLoop, fromBits, trace, otsu };
 });

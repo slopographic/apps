@@ -1,5 +1,5 @@
 /* Slop Font for the assistant, part 2 (after ai-commands.js, loaded by the same prepare()). Font units, y up.
- *   draw_strokes     char, strokes [{ points: [[x, y]…], closed? } | { d }], width, cap, join, advance, add
+ *   draw_strokes     char, strokes [{ points: [[x, y]…], closed? } | { d }], width, cap, advance, add
  *                    a monoline glyph from centre lines (core/stroke.js): the quick way to a rounded or square font
  *   path_operation   char, op union | minus | intersect | exclude | merge, first [contour indexes], others [indexes]
  *   transform_glyph  char, dx, dy, scale, scaleY, flip none | h | v
@@ -32,10 +32,10 @@
       items: { type: 'object', properties: { points: { type: 'array', items: { type: 'array', items: { type: 'number' } } }, closed: { type: 'boolean' }, d: { type: 'string' } } },
       description: 'centre lines: { points: [[x, y], …], closed? } or { d: "SVG path data" } (curves allowed), font units, y up' },
       { name: 'width', type: 'number', min: 1, max: 2000, default: 80, description: 'pen width in font units' },
-      { name: 'cap', type: 'enum', values: ['round', 'square', 'butt'], default: 'round' }, { name: 'join', type: 'enum', values: ['round', 'bevel', 'miter'], default: 'round' },
+      { name: 'cap', type: 'enum', values: ['round', 'square', 'butt'], default: 'round', description: 'the ends of open strokes; joints are always round' },
       { name: 'advance', type: 'number', min: 0, max: 20000, description: 'the width (default: the outline plus equal side bearings)' },
       { name: 'add', type: 'boolean', default: false }], (a) => {
-      const id = glyphId(a.char, true), cs = F.stroke.outline(a.strokes || [], { width: a.width, cap: a.cap, join: a.join });
+      const id = glyphId(a.char, true), cs = F.stroke.outline(a.strokes || [], { width: a.width, cap: a.cap });
       if (!cs.length) throw new Error('The strokes made no outline: give at least one point per stroke');
       S.edit(`Draw ${a.char} with strokes`, { glyph: id }, (p, gl) => {
         gl.contours = a.add ? gl.contours.concat(cs) : cs;

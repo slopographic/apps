@@ -57,11 +57,11 @@
     parts.format.value = f.id;
     const side = g.FC.panel.side();
     if (!side) return;
-    const none = !st.drawn, IO = g.FC.io;
+    const none = !st.drawn, IO = g.FC.io, phone = g.matchMedia && g.matchMedia('(max-width: 860px)').matches;
     side.footer([
       { id: 'fc-download', label: `Download font (.${f.ext})`, primary: true, disabled: none && f.id !== 'sfont', run: () => IO.download().catch((e) => g.SlopUI.toast(e.message)) },
       { id: 'fc-drive', label: 'Save to Slop Drive…', disabled: none && f.id !== 'sfont', run: () => IO.saveToDrive().catch((e) => g.SlopUI.toast('Could not save: ' + e.message)) },
-      { id: 'fc-save-project', label: 'Save project', run: () => IO.saveToDrive('sfont').catch((e) => g.SlopUI.toast('Could not save: ' + e.message)) },
+      phone ? null : { id: 'fc-save-project', label: 'Save project', run: () => IO.saveToDrive('sfont').catch((e) => g.SlopUI.toast('Could not save: ' + e.message)) },   // phones: in the ⋯ menu
       { id: 'fc-openin', label: 'Open in…', disabled: none, menu: () => IO.openInItems() },
     ], { stack: true, more: 'Settings', note: none ? 'Draw a glyph to make a font' : `${st.drawn} of ${st.glyphs} glyphs drawn · ${st.pairs} kerning pair${st.pairs === 1 ? '' : 's'}${S().dirty() ? ' · changed since saved' : ''}` });
   }

@@ -108,17 +108,20 @@ test('orient: a contour inside another becomes a hole, whatever way it was drawn
   assert.throws(() => P.boolean(P.rect(0, 0, 1, 1), P.rect(0, 0, 1, 1), 'divide'), /Unknown operation/);
 });
 
-test('strokes: flat, square and round ends, joins, and a curve from path data', () => {
+test('strokes: flat, square and round ends, round joints, crossings, and a curve from path data, within a few units', () => {
   const line = [{ points: [[100, 0], [500, 0]] }];
   const butt = P.bbox(ST.outline(line, { width: 100, cap: 'butt' }));
-  near(butt.w, 400, 0.5); near(butt.h, 100, 0.5);
-  near(P.bbox(ST.outline(line, { width: 100, cap: 'square' })).w, 500, 0.5);
+  near(butt.w, 400, 2); near(butt.h, 100, 2);
+  near(P.bbox(ST.outline(line, { width: 100, cap: 'square' })).w, 500, 2);
   const round = ST.outline(line, { width: 100, cap: 'round' });
-  near(P.bbox(round).w, 500, 2); assert.equal(round.length, 1);
-  near(Math.abs(areaOf(round)), 400 * 100 + Math.PI * 2500, 400);
-  const el = ST.outline([{ points: [[0, 0], [0, 400], [300, 400]] }], { width: 60, cap: 'butt', join: 'miter' });
+  near(P.bbox(round).w, 500, 3); assert.equal(round.length, 1);
+  near(Math.abs(areaOf(round)), 400 * 100 + Math.PI * 2500, 1500);
+  const el = ST.outline([{ points: [[0, 0], [0, 400], [300, 400]] }], { width: 60, cap: 'butt' });
   const eb = P.bbox(el);
-  near(eb.y + eb.h, 430, 1, 'the miter fills the outer corner'); near(eb.x, -30, 1);
+  assert.equal(el.length, 1);
+  near(eb.y, 0, 2, 'a flat end stops at the point'); near(eb.y + eb.h, 430, 3, 'the joint is round'); near(eb.x, -30, 3); near(eb.x + eb.w, 300, 2);
+  const crossing = ST.outline([{ points: [[0, 300], [600, 300]] }, { points: [[300, 0], [300, 600]] }, { d: 'M100 100 C200 500 400 500 500 100' }], { width: 50 });
+  assert.equal(crossing.length, 3, 'crossing strokes merge into one outline (with the holes they enclose)');
   const ring = ST.outline([{ d: 'M200 0 A200 200 0 1 1 199.9 0 Z' }], { width: 40 });
   assert.equal(ring.length, 2, 'a closed stroke is a ring: an outline and a hole');
   assert.deepEqual(ST.outline([], {}), []);

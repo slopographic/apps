@@ -32,8 +32,8 @@
 .fc-kern-head { display: grid; grid-template-columns: 90px 90px minmax(0, 1fr); gap: 10px; align-items: end; }
 .fc-kern-letter input { font-size: 22px; text-align: center; }
 .fc-kern-ctl { display: flex; gap: 8px; align-items: center; }
-.fc-kern-ctl input[type=range] { flex: 1 1 auto; min-width: 80px; }
-.fc-kern-ctl input[type=number] { width: 90px; flex: none; }
+.fc-kerning .fc-kern-ctl input[type=range] { flex: 1 1 auto; width: auto; min-width: 80px; }
+.fc-kerning .fc-kern-ctl input[type=number] { width: 96px; flex: 0 0 96px; }
 .fc-kern-view { overflow-x: auto; border: 1px solid var(--fc-line); border-radius: var(--fc-radius); background: var(--fc-canvas); }
 .fc-kern-canvas { display: block; }
 .fc-kern-list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
@@ -60,5 +60,8 @@
   .fc-kern-head { grid-template-columns: 1fr 1fr; }
   .fc-kern-amount { grid-column: 1 / -1; }
   .fc-tabs { padding-inline: 8px; }
-  .fc-toolbar { padding: 6px 8px; gap: 6px; }
+  .fc-toolbar { padding: 6px 8px; gap: 6px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .fc-toolbar > * { flex: none; }
+  .fc-gtitle { margin-inline-end: 4px; }
+  .fc-gname { display: none; }
 }

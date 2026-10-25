@@ -27,6 +27,8 @@
   function later() { stale = true; if (!host || host.hidden) return; clearTimeout(timer); timer = setTimeout(refresh, 350); }
   function lines() {
     const st = S().settings().tester;
+    if (document.activeElement !== parts.text) parts.text.value = st.text;
+    if (document.activeElement !== parts.sizes) parts.sizes.value = st.sizes.join(' ');
     parts.out.replaceChildren(...st.sizes.map((s) => el('div', { class: 'fc-test-line' }, el('span', { class: 'fc-test-size' }, s + ' px'),
       el('p', { class: 'fc-test-text', style: `font-size:${s}px`, lang: 'und' }, st.text || ' '))));
     parts.out.classList.toggle('fc-test-dark', !!st.dark);
