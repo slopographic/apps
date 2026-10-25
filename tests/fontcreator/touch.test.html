@@ -44,6 +44,7 @@
     }, { timeout: 20000 });
 
     it('‹ Glyphs goes back to the grid, where H is drawn now', async () => {
+      await sleep(900);   // the touch layer swallows a tap this soon after a finger held still (a long press) on the canvas
       await TouchKit.tap(D.getElementById('fc-back'));
       await waitFor(() => shown(D.getElementById('fc-cells')));
       expect(D.querySelector('[data-id="u0048"]').classList.contains('fc-empty')).toBe(false);
