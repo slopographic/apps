@@ -33,12 +33,15 @@
     $('#statusMsg').textContent = msg;
   }
 
-  /** The download button exports the active image in the chosen format; it needs a finished cutout. */
+  /** The download button (the one main button, at the settings panel's foot) exports the active image in the chosen
+   *  format, or with two or more pictures selected those that are done (a ZIP); it needs a finished cutout. */
   function download() {
     const b = $('#btnDownload'), it = S.current(), fmt = S.exportOpts.format.toUpperCase();
-    b.disabled = !(it && it.status === 'done' && it.kind !== 'video');
-    U.btnIcon(b, 'download', 'Download ' + fmt);
-    b.title = 'Download ' + fmt;
+    const many = S.bulk(), ready = many ? S.targets().filter((t) => t.status === 'done').length : 0;
+    b.disabled = many ? !ready : !(it && it.status === 'done' && it.kind !== 'video');
+    const label = many ? `Export ${ready} picture${ready === 1 ? '' : 's'} (ZIP)` : 'Download ' + fmt;
+    U.btnIcon(b, 'download', label);
+    b.title = label;
   }
 
   function showBusy(on, msg, progress) {
@@ -60,7 +63,8 @@
   /* ---------- events ---------- */
   function wire() {
     CO.on('activeItem', () => { mode(); status(); download(); });
-    CO.on('list', () => { mode(); status(); guardSync(); });
+    CO.on('list', () => { mode(); status(); download(); guardSync(); });
+    CO.on('sel', download);
     CO.on('item', () => {
       status(); download();
       // The model download shows a busy bar; hide it once no image is still being worked on.

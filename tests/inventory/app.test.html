@@ -31,8 +31,10 @@
     }
     input.dispatchEvent(new (win().KeyboardEvent)('keydown', { key: 'Enter', bubbles: true }));
   };
-  const dlgInputs = () => [...doc().querySelectorAll('.sui-dlg input')];
-  const dlgButton = (cls) => doc().querySelector(`.sui-dlg .${cls}`);
+  // the product form is the products view's right panel (a bottom sheet at this width), Create product at its foot
+  const formInputs = () => [...doc().querySelectorAll('#pFields input')];
+  const formOpen = () => !$('view-products').hidden && $('pForm').classList.contains('ssh-on');
+  // Covers: inventory/js/ui/product-form.js, inventory/js/ui/scan-view.js, inventory/js/ui/app.js
   const resultText = () => $('scanResult').textContent;
 
   describe('the app in a 390 px wide window', () => {
@@ -48,10 +50,13 @@
 
     it('a product added in the form appears in the list by name and SKU, with no price in the row', async () => {
       $('pAdd').click();
-      await waitFor(() => doc().querySelector('.sui-dlg'));
-      const [sku, ean, name, price, tax] = dlgInputs();
+      await waitFor(formOpen);
+      expect($('pSave').closest('.sf-p-foot').parentNode).toBe($('pForm'));
+      expect(Math.round($('pSave').closest('.sf-p-foot').getBoundingClientRect().bottom)).toBe(820);
+      expect(doc().documentElement.scrollWidth).toBeLessThanOrEqual(390);
+      const [sku, ean, name, price, tax] = formInputs();
       sku.value = 'W-EAN-1'; ean.value = CODE; name.value = 'Washer'; price.value = '12.50'; tax.value = '20';
-      dlgButton('sui-primary').click();
+      $('pSave').click();
       await waitFor(() => $('pRows').querySelector('[data-id]'));
       const row = $('pRows').querySelector('[data-id]');
       expect(row.querySelector('.c-name').textContent).toContain('Washer');
@@ -76,11 +81,11 @@
       await waitFor(() => doc().querySelector('.res-actions .btn.primary'));
       expect(resultText()).toContain('Not found');
       doc().querySelector('.res-actions .btn.primary').click();
-      await waitFor(() => doc().querySelector('.sui-dlg'));
-      const [sku, ean, name, price] = dlgInputs();
-      expect(ean.value).toBe(OTHER);
+      await waitFor(() => formOpen() && formInputs()[1].value === OTHER);
+      const [, , name, price] = formInputs();
       name.value = 'Found item'; price.value = '3.00';
-      dlgButton('sui-primary').click();
+      $('pSave').click();
+      await waitFor(() => !$('view-scan').hidden);   // saved: back on Scan
       await waitFor(() => resultText().includes('Found item') && resultText().includes('Received'), { timeout: 20000 });
       const found = await win().SlopData.stock.lookupBarcode(OTHER);
       expect(found.value.ean).toBe(OTHER);

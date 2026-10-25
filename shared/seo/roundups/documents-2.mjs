@@ -2,6 +2,7 @@
 // presentation software (slides). Every fact about another tool is from its own pages (linked in sources), checked on
 // the date below. Our columns follow the code as it stood that day: re-check them when Docs, Tables or Slides change.
 import { INSTALL } from '../install-copy.mjs';
+import { AI } from '../ai-copy.mjs';
 const checked = '2026-10-24';
 const GW = 'https://workspace.google.com/products', GS = 'https://support.google.com';
 const MSS = 'https://support.microsoft.com/en-us';
@@ -59,8 +60,8 @@ export const ROUNDUPS = [
       { name: 'Slop Docs', ours: true, bestFor: 'A quick private document with real pages, no account and nothing uploaded',
         summary: 'A word processor in the browser with real pages: styles, lists, headers and footers, tables from Word files, and DOCX, PDF and Markdown out. Early version.',
         cells: [OURS.Price, OURS.Account, OURS.Runs, 'Slop Drive, in this browser on your device', 'Opens and saves DOCX'],
-        pros: ['No account and nothing uploaded: documents are kept in Slop Drive in your browser', 'Real pages with margins, headers, footers and page numbers', 'Downloads Word (DOCX), PDF with selectable text and bookmarks, Markdown and text', 'Opens DOCX, Markdown and text, and has random and saved templates', INSTALL.pro],
-        cons: ['No co-editing, comments or tracked changes', 'Pictures cannot be inserted yet, and DOCX images, footnotes and comments are not imported', 'Does not open ODT files', 'Files open through Slop Drive, not straight from a folder on your computer'] },
+        pros: ['No account and nothing uploaded: documents are kept in Slop Drive in your browser', 'Real pages with margins, headers, footers and page numbers', 'Downloads Word (DOCX), PDF with selectable text and bookmarks, Markdown and text', 'Opens DOCX, Markdown and text, and has random and saved templates', 'The AI button can write a whole document from your outline, with headings, lists and tables, using a model on your device or your own key', INSTALL.pro],
+        cons: ['No co-editing, comments or tracked changes', 'Pictures can be added only by asking the AI button and are not saved in DOCX; DOCX images, footnotes and comments are not imported', 'Does not open ODT files', 'Files open through Slop Drive, not straight from a folder on your computer'] },
     ],
     matrix: [
       { feature: 'Free to use', values: ['yes', 'yes', 'yes', 'yes', 'yes'] },
@@ -74,10 +75,11 @@ export const ROUNDUPS = [
       { feature: 'Tracked changes', values: ['unknown', 'yes', 'yes', 'yes', 'no'] },
       { feature: 'Version history', values: ['yes', 'unknown', 'unknown', 'yes', 'no'] },
       { feature: 'Templates', values: ['yes', 'unknown', 'yes', 'yes', 'yes'] },
+      { feature: AI.row, values: ['unknown', 'unknown', 'unknown', 'yes', AI.short] },
       { feature: 'Works offline', values: ['Chrome or Edge, with an extension', 'Desktop app', 'unknown', 'Desktop apps', 'After the first visit'] },
       { feature: 'Where documents are kept', values: ['Google Drive', 'unknown', 'OneDrive', 'unknown', 'Your browser'] },
     ],
-    verdict: ['Slop Docs is our pick for a private document: no account and nothing uploaded, real pages with headers, footers and page numbers, and DOCX, PDF and Markdown out. It installs from the browser on a phone, tablet or computer and works offline. It is an early version: there is no co-editing, comments or tracked changes, and pictures cannot be inserted yet.',
+    verdict: ['Slop Docs is our pick for a private document: no account and nothing uploaded, real pages with headers, footers and page numbers, and DOCX, PDF and Markdown out. It installs from the browser on a phone, tablet or computer and works offline. It is an early version: there is no co-editing, comments or tracked changes, and pictures go in only through the AI button.',
       'Choose Google Docs or Word for the web if you write with other people: both have co-editing, comments and history, in exchange for an account and cloud storage. Word for the web suits documents that must stay .docx; Google Docs has the smoothest collaboration.',
       'Choose LibreOffice Writer for a full desktop word processor, if you can install a program, or Zoho Writer for reviews and an AI assistant in a free web editor.'],
     faq: [['Which free word processor needs no account?', 'Slop Docs works without an account: open the page and start typing. Google Docs, Word for the web and Zoho Writer need an account; LibreOffice is a program you install.'],
@@ -116,8 +118,8 @@ export const ROUNDUPS = [
       { name: 'Slop Tables', ours: true, bestFor: 'A private spreadsheet with formulas, charts and pivots, no account and nothing uploaded',
         summary: 'A spreadsheet in the browser: 324 functions, several sheets, charts and pivot tables. It opens XLSX, ODS and CSV and saves XLSX. Early version.',
         cells: [OURS.Price, OURS.Account, OURS.Runs, 'Opens XLSX and ODS; saves XLSX', 'Slop Drive, in this browser'],
-        pros: ['No account and nothing uploaded: files stay in your browser', '324 functions, several sheets, freeze panes and number formats', 'Column, bar, line and pie charts, and pivot tables', 'Opens XLSX, XLSM, ODS, CSV and TSV, saves XLSX and CSV, and says what an import left out', INSTALL.pro],
-        cons: ['No sort, filter or conditional formatting yet', 'No co-editing, comments or macros', 'Does not save ODS, and has no print or PDF yet', 'Other chart types in an Excel file are not imported'] },
+        pros: ['No account and nothing uploaded: files stay in your browser', '324 functions, several sheets, freeze panes and number formats', 'Column, bar, line and pie charts, and pivot tables', 'Opens XLSX, XLSM, ODS, CSV and TSV, saves XLSX and CSV, and says what an import left out', 'The AI button can build a table or a chart for you, and sort or filter it, using a model on your device or your own key', INSTALL.pro],
+        cons: ['Sort and filter only by asking the AI button; no conditional formatting yet', 'No co-editing, comments or macros', 'Does not save ODS, and has no print or PDF yet', 'Other chart types in an Excel file are not imported'] },
     ],
     matrix: [
       { feature: 'Free to use', values: ['yes', 'yes', 'yes', 'yes', 'yes'] },
@@ -128,15 +130,16 @@ export const ROUNDUPS = [
       { feature: 'ODS files', values: ['unknown', 'Opens', 'yes', 'unknown', 'Opens'] },
       { feature: 'Charts', values: ['yes', 'yes', 'yes', 'Nearly 40 types', '4 types'] },
       { feature: 'Pivot tables', values: ['yes', 'yes', 'yes', 'yes', 'yes'] },
-      { feature: 'Sort and filter', values: ['yes', 'yes', 'unknown', 'unknown', 'no'] },
+      { feature: 'Sort and filter', values: ['yes', 'yes', 'unknown', 'unknown', 'partial'] },
       { feature: 'Conditional formatting', values: ['unknown', 'unknown', 'unknown', 'yes', 'no'] },
       { feature: 'Macros', values: ['unknown', 'Do not run', 'unknown', 'yes', 'no'] },
       { feature: 'Real-time co-editing', values: ['yes', 'yes', 'unknown', 'yes', 'no'] },
       { feature: 'Version history', values: ['yes', 'unknown', 'unknown', 'yes', 'no'] },
       { feature: 'Templates', values: ['unknown', 'yes', 'unknown', 'unknown', 'yes'] },
+      { feature: AI.row, values: ['unknown', 'unknown', 'unknown', 'yes', AI.short] },
       { feature: 'Works offline', values: ['Chrome or Edge, with an extension', 'unknown', 'Desktop app', 'In its apps', 'After the first visit'] },
     ],
-    verdict: ['Slop Tables is our pick when you want formulas, charts and pivot tables with no account and nothing uploaded: 324 functions, several sheets, and XLSX in and out, with a note of anything an import left out. It installs from the browser and works offline. It still lacks sort, filter and conditional formatting, and has no co-editing.',
+    verdict: ['Slop Tables is our pick when you want formulas, charts and pivot tables with no account and nothing uploaded: 324 functions, several sheets, and XLSX in and out, with a note of anything an import left out. It installs from the browser and works offline. It still lacks conditional formatting and co-editing, and sorts and filters only when you ask the AI button.',
       'Choose Google Sheets if you work on spreadsheets with other people, or Excel for the web when the file must stay an Excel workbook. Both need an account and keep your files in their cloud.',
       'Choose LibreOffice Calc for heavy spreadsheet work on your own computer, or Zoho Sheet for many chart types and an AI assistant for teams.'],
     faq: [['Which free spreadsheet works without an account?', 'Slop Tables opens in the browser with no account or sign-in. Google Sheets and Excel for the web need an account; LibreOffice Calc is a program you install.'],
@@ -175,7 +178,7 @@ export const ROUNDUPS = [
       { name: 'Slop Slides', ours: true, bestFor: 'A private deck with a presenter view and PPTX in and out, no account',
         summary: 'A presentation editor in the browser: themes, layouts, transitions and animations, a presenter view, and PowerPoint import and export. Early version.',
         cells: [OURS.Price, OURS.Account, OURS.Runs, 'Imports PPTX; exports PPTX', 'Yes, in a second window'],
-        pros: ['No account and nothing uploaded: decks are kept in Slop Drive in your browser', 'Presenter view with the current and next slide, notes, a timer and the slide count', 'Imports PowerPoint files and says what it left out; exports PPTX, PDF and PNG', 'Themes, layouts, transitions, animations and templates', INSTALL.pro],
+        pros: ['No account and nothing uploaded: decks are kept in Slop Drive in your browser', 'Presenter view with the current and next slide, notes, a timer and the slide count', 'Imports PowerPoint files and says what it left out; exports PPTX, PDF and PNG', 'Themes, layouts, transitions, animations and templates', 'The AI button can make a deck from your outline, with layouts, a theme and speaker notes, using a model on your device or your own key', INSTALL.pro],
         cons: ['No co-editing or comments', 'Video, audio, charts and SmartArt in a PowerPoint file are not imported, and video cannot be added', 'Does not open ODP files'] },
     ],
     matrix: [
@@ -193,6 +196,7 @@ export const ROUNDUPS = [
       { feature: 'Real-time co-editing', values: ['yes', 'yes', 'unknown', 'yes', 'no'] },
       { feature: 'Version history', values: ['yes', 'unknown', 'unknown', 'yes', 'no'] },
       { feature: 'Templates', values: ['yes', 'yes', 'unknown', '100+', 'yes'] },
+      { feature: AI.row, values: ['unknown', 'unknown', 'unknown', 'unknown', AI.short] },
       { feature: 'Works offline', values: ['Chrome or Edge, with an extension', 'unknown', 'Desktop app', 'yes', 'After the first visit'] },
     ],
     verdict: ['Slop Slides is our pick for a private deck: no account, nothing uploaded, a presenter view with your notes, the next slide and a timer, and PPTX in and out. It installs from the browser and works offline, so you can present without a connection. It has no co-editing or comments yet, and video cannot be added.',

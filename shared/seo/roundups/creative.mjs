@@ -2,6 +2,7 @@
 // Every fact about another tool is from its own pages, listed in its sources, as they read on the checked date.
 // More in creative-2.mjs and creative-3.mjs.
 import { INSTALL } from '../install-copy.mjs';
+import { AI } from '../ai-copy.mjs';
 const checked = '2026-10-24';
 const S = (label, url) => ({ label, url });
 
@@ -21,8 +22,8 @@ export const ROUNDUPS = [
         sources: [S('Photopea home', 'https://www.photopea.com/'), S('Photopea: how ads are shown', 'https://www.photopea.com/tuts/how-photopea-displays-ads/'), S('Photopea learn', 'https://www.photopea.com/learn/'), S('Photopea: opening and saving', 'https://www.photopea.com/learn/opening-saving'), S('Photopea AI', 'https://www.photopea.com/tuts/get-unlimited-ai-inside-photopea/'), S('Photopea for schools', 'https://www.photopea.com/schools/'), S('Photopea: Type tool', 'https://www.photopea.com/learn/text'), S('Photopea: install to your device', 'https://www.photopea.com/tuts/install-photopea-to-your-device/'), S('Photopea on GitHub', 'https://github.com/photopea/photopea')] },
       { name: 'PhotoSlop', ours: true, bestFor: 'A Photoshop-style editor in the browser with no ads, no account and nothing uploaded, that opens and saves PSD.',
         cells: ['Free', 'No', 'Browser, on your device', 'No', 'Yes, after the first visit or as one .html file', 'Open and save'],
-        pros: ['Layers, masks and 17 blend modes; real PSD open and save; camera RAW with white balance and exposure', '50+ filters, brush packs and Photoshop .abr brush import', 'Select Subject with an AI model that runs on your device', 'Tabs, autosave and an offline .html edition; open source (MIT)', INSTALL.pro],
-        cons: ['Camera RAW is developed to 8-bit, and its engine (1.4 MB) downloads on first use', 'No generative AI or one-click object removal; retouching is by Clone Stamp and Healing Brush', 'From PSD, layer groups are flattened and text layers open as pixels'] },
+        pros: ['Layers, masks and 17 blend modes; real PSD open and save; camera RAW with white balance and exposure', '50+ filters, brush packs and Photoshop .abr brush import; works with a finger or a pen on iPhone, iPad and Android, with pen pressure for brushes', 'Select Subject and Isolate Subject with AI models that run on your device', AI.images, AI.pro, 'Record steps as a macro and play them again, or run them on many files in Slop Workflows', 'Tabs, autosave and an offline .html edition; open source (MIT)', INSTALL.pro],
+        cons: ['Camera RAW is developed to 8-bit, and its engine (1.4 MB) downloads on first use', 'Generating or changing pictures with AI needs your own key, and the picture then goes to that provider; with no key, retouching is by Clone Stamp and Healing Brush', 'From PSD, layer groups are flattened and text layers open as pixels'] },
       { name: 'GIMP', url: 'https://www.gimp.org/', bestFor: 'A full desktop editor that is free software, with plug-ins, scripting and no ads.',
         cells: ['Free, open source (GNU GPL)', 'No', 'Desktop: Windows, macOS, Linux', 'Not stated', 'Yes; it sends no data', 'Import and export'],
         pros: ['Free software: you can change the source and share your changes', 'Non-destructive filters, link and vector layers in 3.2', 'Improved PSD import and export, PSB export, layer styles on import', 'Many plug-ins and scripts in C, C++, Python and Scheme; camera RAW through darktable, RawTherapee or ART'],
@@ -41,7 +42,9 @@ export const ROUNDUPS = [
       { feature: 'Open PSD', values: ['yes', 'yes', 'yes', 'yes'] },
       { feature: 'Save PSD', values: ['yes', 'yes', 'yes', 'unknown'] },
       { feature: 'Camera RAW', values: ['yes', 'yes', 'partial', 'unknown'] },
-      { feature: 'AI tools', values: ['yes', 'partial', 'unknown', 'yes'] },
+      { feature: 'AI tools', values: ['yes', 'yes', 'unknown', 'yes'] },
+      { feature: 'Generative fill and AI edits', values: ['yes', AI.imagesShort, 'unknown', 'yes'] },
+      { feature: AI.row, values: ['unknown', AI.short, 'unknown', 'unknown'] },
       { feature: 'Photoshop brushes (.abr)', values: ['partial', 'yes', 'yes', 'unknown'] },
       { feature: 'Text', values: ['yes', 'yes', 'yes', 'yes'] },
       { feature: 'Runs in a browser', values: ['yes', 'yes', 'no', 'yes'] },
@@ -52,8 +55,8 @@ export const ROUNDUPS = [
       { feature: 'Mobile app', values: ['partial', INSTALL.short, 'no', 'yes'] },
       { feature: 'Open source', values: ['no', 'yes', 'yes', 'no'] },
     ],
-    verdict: ['PhotoSlop is our pick for layered photo editing in the browser: layers, masks and real PSD open and save, camera RAW, no ads, no account and nothing uploaded, open source, and it installs from the browser and works offline. It has no generative AI, and PSD layer groups and text are flattened.',
-      'Choose Photopea if you need the widest file support (RAW, AI, Sketch and more) or AI tools, and can live with ads on part of the screen. Choose GIMP for the most powerful free desktop editor, with plug-ins and scripting. Choose Pixlr for quick AI edits such as generative fill, and for its phone apps.'],
+    verdict: ['PhotoSlop is our pick for layered photo editing in the browser: layers, masks and real PSD open and save, camera RAW, no ads, no account and nothing uploaded, open source, and it installs from the browser and works offline. AI pictures and edits work with your own key, and PSD layer groups and text are flattened.',
+      'Choose Photopea if you need the widest file support (RAW, AI, Sketch and more) or AI tools, and can live with ads on part of the screen. Choose GIMP for the most powerful free desktop editor, with plug-ins and scripting. Choose Pixlr for quick AI edits such as generative fill without bringing your own key, and for its phone apps.'],
     faq: [['Which free online photo editor opens PSD files?', 'Photopea and PhotoSlop open and save PSD in the browser; GIMP imports and exports PSD on the desktop. Pixlr opens layered PSD files and exports JPEG, PNG and WebP.'],
       ['Is there a free photo editor without ads?', 'PhotoSlop has no ads in the editor, and GIMP says it contains no advertisements or trackers. Photopea shows ads in its free version and Pixlr removes ads on paid plans.'],
       ['Do these editors upload my photos?', 'Photopea and PhotoSlop say the photo stays on your device. GIMP is a desktop program. Pixlr\'s web editor needs an internet connection.'],
@@ -74,7 +77,7 @@ export const ROUNDUPS = [
         sources: [S('Inkscape home', 'https://inkscape.org/'), S('Inkscape features', 'https://inkscape.org/about/features/'), S('Inkscape 1.4.4 downloads', 'https://inkscape.org/release/1.4.4/platforms/'), S('Inkscape for Illustrator users (wiki)', 'https://wiki.inkscape.org/wiki/Inkscape_for_Adobe_Illustrator_users'), S('Installing Inkscape (wiki)', 'https://wiki.inkscape.org/wiki/Installing_Inkscape'), S('Inkscape manual: gradients', 'https://inkscape-manuals.readthedocs.io/en/latest/creating-gradients.html'), S('Inkscape: user accounts', 'https://inkscape.org/user/register/'), S('Inkscape: Inkboard', 'https://inkscape.org/inkboard/')] },
       { name: 'SlopVector', ours: true, bestFor: 'Logos and icons in the browser, with Illustrator-style tools and nothing to install.',
         cells: ['Free', 'Browser; offline .html', 'No', 'No', 'Yes', 'Live'],
-        pros: ['Pen, shapes, type and layers with familiar shortcuts', 'Real pathfinder booleans', 'Exports SVG, PNG at 1×, 2× or 4×, JPG, PDF with vector paths, and a PDF-compatible .ai', 'Works on your device and offline; open source (MIT)', 'Installs on phone, tablet and desktop from the browser'],
+        pros: ['Pen, shapes, type and layers with familiar shortcuts', 'Real pathfinder booleans', 'Exports SVG, PNG at 1×, 2× or 4×, JPG, PDF with vector paths, and a PDF-compatible .ai', 'Works on your device and offline; open source (MIT)', 'Installs on phone, tablet and desktop from the browser', AI.pro],
         cons: ['Cannot open .ai or PDF files', 'SVG import ignores clip paths and skips linked images', 'No collaboration or cloud sync', 'Fewer tools than Inkscape'] },
       { name: 'Graphite', url: 'https://graphite.art/', bestFor: 'Trying a new open source editor with node-based procedural design in the browser.',
         cells: ['Free, open source (MIT or Apache 2.0)', 'Browser; desktop apps in release candidate', 'Not stated', 'No (planned)', 'No (planned)', 'Alpha'],
@@ -97,6 +100,7 @@ export const ROUNDUPS = [
       { feature: 'Desktop app', values: ['yes', INSTALL.short, 'partial'] },
       { feature: 'No account needed', values: ['yes', 'yes', 'unknown'] },
       { feature: 'Collaboration', values: ['no', 'no', 'no'] },
+      { feature: AI.row, values: ['unknown', AI.short, 'unknown'] },
       { feature: 'Open source', values: ['yes', 'yes', 'yes'] },
     ],
     verdict: ['SlopVector is our pick for logos and icons: Illustrator-style pen, shape and type tools with real pathfinder booleans, SVG, PDF and a PDF-compatible .ai out, no account, and it installs from the browser and works offline.',
@@ -140,6 +144,7 @@ export const ROUNDUPS = [
       { feature: 'Output formats', values: ['PNG, WebP, JPG', 'PNG, JPEG, WebP', 'PNG'] },
       { feature: 'No account needed', values: ['yes', 'partial', 'no'] },
       { feature: 'Processed on your device', values: ['yes', 'no', 'unknown'] },
+      { feature: 'AI-generated backgrounds', values: ['no', 'yes', 'yes'] },
       { feature: 'Mobile app', values: [INSTALL.short, 'yes', 'yes'] },
       { feature: 'API', values: ['no', 'yes', 'yes'] },
     ],

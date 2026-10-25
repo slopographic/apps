@@ -48,7 +48,7 @@
     await waitFor(() => $(win, '[data-act="edit"]'));
     $(win, '[data-act="edit"]').click();
     await waitFor(() => $(win, '.ed-form'));
-    await sleep(80);
+    await sleep(350);   // on a phone the card is a bottom sheet that slides up (.22 s)
   }
   /** Opens the full form of a stored contact. */
   async function editForm(win, name) {
@@ -57,7 +57,7 @@
     await waitFor(() => $(win, '[data-act="edit"]'));
     $(win, '[data-act="edit"]').click();
     await waitFor(() => $(win, '.ed-form'));
-    await sleep(80);
+    await sleep(350);   // on a phone the card is a bottom sheet that slides up (.22 s)
   }
 
   /** The form's frame, its scroll body's width, and whether Save and Cancel are on screen and not covered by anything. */

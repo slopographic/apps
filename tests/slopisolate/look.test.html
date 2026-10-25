@@ -5,7 +5,7 @@
 <body>
   <!-- Covers: slopisolate/css/base.css -->
   <!-- Covers: slopisolate/css/themes.css -->
-  <!-- Covers: slopisolate/js/ui/menus.js -->
+  <!-- Covers: slopisolate/js/ui/menus.js, slopisolate/js/ui/panel.js -->
   <!-- Covers: slopisolate/js/ui/main.js, slopisolate/js/ui/openin.js, slopisolate/js/ui/view-state.js -->
   <script src="../harness.js"></script>
   <script>
@@ -56,6 +56,11 @@
       expect(box(props).left).toBeGreaterThan(box(D.getElementById('workspace')).right - 1);
       expect(box(props).bottom - box(dl).bottom).toBeLessThan(30);
       expect(box(dl).bottom).toBeLessThanOrEqual(W.innerHeight);
+      // one highlighted main button in the panel: Download at its foot (the Export section keeps only Export all)
+      const vis = (b) => !b.hidden && b.getClientRects().length > 0;
+      expect([...props.querySelectorAll('.primary, .sui-primary')].filter(vis)).toEqual([dl]);
+      expect(D.getElementById('btnExportOne')).toBe(null);
+      expect(props.contains(D.getElementById('btnExportAll'))).toBe(true);
       let n = 0; W.CO.menus.act.exportOne = () => { n++; };
       dl.disabled = false; dl.click();
       expect(n).toBe(1);
