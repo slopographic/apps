@@ -1,6 +1,6 @@
 /* Reel Remix: auto remix banner, the floating Remix button and the settings dialog. New CSS reads --sl-* tokens only;
    they are mapped here to the page's --rm-* colours (declared in remix.css), so light and dark mode follow the page. */
-:root { --sl-background: var(--rm-bg); --sl-surface: var(--rm-panel); --sl-text: var(--rm-text); --sl-text-muted: var(--rm-muted); --sl-border: var(--rm-line); --sl-accent: var(--rm-accent); --sl-on-accent: #fff; }
+:root { --sl-background: var(--rm-bg); --sl-surface: var(--rm-panel); --sl-text: var(--rm-text); --sl-text-muted: var(--rm-muted); --sl-border: var(--rm-line); --sl-accent: var(--rm-accent); --sl-on-accent: var(--rm-on-accent); }
 .rm-auto { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin: 0 0 10px; padding: 6px 10px; border: 1px solid var(--sl-accent); border-radius: 6px; background: var(--sl-surface); color: var(--sl-text); font-size: 13px; }
 .rm-auto[hidden] { display: none; }
 .rm-auto #rm-auto-cancel { margin-left: auto; padding: 4px 10px; font-size: 12px; }

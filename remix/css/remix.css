@@ -1,7 +1,7 @@
 /* Reel Remix: a three-column page that stacks on a phone. Colours are tokens on :root (light by default). */
-:root { --rm-bg: #f6f6f8; --rm-panel: #fff; --rm-line: #d6d6de; --rm-text: #1b1b22; --rm-muted: #5d5d6b; --rm-accent: #3b5bdb; --rm-track: #ececf1; }
-:root[data-theme="dark"] { --rm-bg: #15151b; --rm-panel: #1f1f27; --rm-line: #3a3a46; --rm-text: #ececf3; --rm-muted: #a4a4b3; --rm-accent: #7c93ff; --rm-track: #2a2a34; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --rm-bg: #15151b; --rm-panel: #1f1f27; --rm-line: #3a3a46; --rm-text: #ececf3; --rm-muted: #a4a4b3; --rm-accent: #7c93ff; --rm-track: #2a2a34; } }
+:root { --rm-bg: #f6f6f8; --rm-panel: #fff; --rm-line: #d6d6de; --rm-text: #1b1b22; --rm-muted: #5d5d6b; --rm-accent: #3b5bdb; --rm-track: #ececf1; --rm-on-accent: #fff; }
+:root[data-theme="dark"] { --rm-bg: #15151b; --rm-panel: #1f1f27; --rm-line: #3a3a46; --rm-text: #ececf3; --rm-muted: #a4a4b3; --rm-accent: #7c93ff; --rm-track: #2a2a34; --rm-on-accent: #10101a; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --rm-bg: #15151b; --rm-panel: #1f1f27; --rm-line: #3a3a46; --rm-text: #ececf3; --rm-muted: #a4a4b3; --rm-accent: #7c93ff; --rm-track: #2a2a34; --rm-on-accent: #10101a; } }
 /* lane.css reads these host tokens */
 :root { --sui-text: var(--rm-text); --sui-line: var(--rm-line); --sui-panel: var(--rm-panel); --sui-track: var(--rm-track); --sui-accent: var(--rm-accent); --sui-muted: var(--rm-muted); }
 * { box-sizing: border-box; }
@@ -43,13 +43,13 @@ h2 small { font-weight: 400; text-transform: none; }
 .rm-size, .rm-status { font-size: 12px; color: var(--rm-muted); margin: 4px 0 10px; }
 .rm-row { display: flex; gap: 8px; }
 .rm-btn { font: inherit; line-height: 20px; padding: 7px 12px; border: 1px solid var(--rm-line); border-radius: 6px; background: var(--rm-panel); color: var(--rm-text); cursor: pointer; }
-.rm-btn.primary { background: var(--rm-accent); border-color: var(--rm-accent); color: #fff; }
+.rm-btn.primary { background: var(--rm-accent); border-color: var(--rm-accent); color: var(--rm-on-accent); }
 .rm-btn.wide { width: 100%; margin-top: 8px; }
 @media (max-width: 960px) { .rm-main { grid-template-columns: 1fr; } .rm-canvas { max-height: 70vh; } }
 /* Timing, locks and audio */
 .rm-slots { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 6px 0; }
 .rm-slotlock { display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; font-size: 12px; }
-.rm-slotlock.on { background: var(--rm-accent); border-color: var(--rm-accent); color: #fff; }
+.rm-slotlock.on { background: var(--rm-accent); border-color: var(--rm-accent); color: var(--rm-on-accent); }
 .rm-lockbtn { border: 0; background: none; color: var(--rm-muted); cursor: pointer; padding: 0 2px; vertical-align: middle; }
 .rm-cuts li.locked .rm-lockbtn { color: var(--rm-accent); }
 .rm-lockbadge { font-size: 11px; color: var(--rm-accent); border: 1px solid var(--rm-accent); border-radius: 4px; padding: 0 4px; }
