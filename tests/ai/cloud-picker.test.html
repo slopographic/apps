@@ -21,12 +21,17 @@
     for (const k of Object.keys(localStorage)) if (/^slop-ai\.cloud|^slop-firstrun:ai-cloud:/.test(k)) localStorage.removeItem(k);
     for (const k of Object.keys(sessionStorage)) if (/^slop-ai\.cloud/.test(k)) sessionStorage.removeItem(k);
   }
+  /** The full model choice: the header's model menu ▸ AI settings… (wip/ai-permissions: the model name is a menu button) */
+  async function settings() {
+    q('.sap-status').click();
+    (await waitFor(() => [...P.document.querySelectorAll('.smb-row')].find((r) => r.textContent === 'AI settings…'))).click();
+  }
   async function open(provider, width = 900) {
     if (P && P.__frame) P.__frame.remove();
     P = await AT.frame('panel-page.html', (w) => w.SlopAIPanel && w.SlopAI, { width, height: 800 });
     F = CU.install(P, provider);
     P.SlopAIPanel.open(); await P.SlopAIPanel.ready;
-    if (!q('.sap-cloud')) q('.sap-status').click();
+    if (!q('.sap-cloud')) await settings();
     const box = await waitFor(() => q('.sap-cloud'), { timeout: 15000 });
     if (!box.open) q('.sap-cloud summary').click();
     await waitFor(() => q('.sap-pp-btn'));
@@ -161,7 +166,7 @@
       q('.sap-cloud-model').value = 'vendor2/model-17';
       q('.sap-cloud-use').click();
       await waitFor(() => q('.sap-status').classList.contains('cloud'));
-      q('.sap-status').click();
+      await settings();
       await waitFor(() => q('.sap-cloud-test'));
       if (q('.sap-cloud-provider').value !== 'openrouter') await pick('openrouter');
       q('.sap-cloud-test').click();

@@ -93,8 +93,9 @@
       try { if (t.label) action = t.label(args) || t.name; } catch (e) { /* the tool's name */ }
       // env.permit: the one permission module (permissions.js); else the plain yes/no of older callers
       const kind = t.kind ? t.kind(args) : t.permission ? t.permission.kind : 'delete';
-      const ok = env.permit ? await env.permit({ kind, tool: t.name, action, detail: what, title: t.confirmTitle ? t.confirmTitle(args) : t.permission && t.permission.title ? t.permission.title + '?' : undefined, step: env.step })
-        : env.confirm ? await env.confirm(t.confirmTitle ? t.confirmTitle(args) : 'Allow this action?', what) : false;
+      const own = t.confirmTitle ? t.confirmTitle(args) : undefined;
+      const ok = env.permit ? await env.permit({ kind, tool: t.name, action, detail: what, title: own || (t.permission && t.permission.title ? t.permission.title + '?' : undefined), step: env.step })
+        : env.confirm ? await env.confirm(own || 'Allow this action?', what) : false;
       if (!ok) return { ok: false, error: 'The user said no to this action.' };
     }
     try {

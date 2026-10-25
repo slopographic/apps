@@ -95,7 +95,7 @@
       { name: 'run_command', description: `Run one command of ${where} by its id (ids from list_commands), with optional arguments.`,
         params: { id: { type: 'string', description: 'command id', required: true }, args: { type: 'object', description: 'arguments, when the command takes any' } },
         destructive: (a) => ask(byId(a.id) || { id: a.id }), kind: (a) => kindFor(byId(a.id) || { id: a.id }), confirmText: (a) => confirmText(byId(a.id) || { id: a.id }),
-        confirmTitle: (a) => { const c = byId(a.id); return c && c.sends ? `Send a copy to ${env.who || 'the AI provider'}?` : 'Allow this action?'; },
+        confirmTitle: (a) => { const c = byId(a.id); return c && c.sends ? `Send a copy to ${env.who || 'the AI provider'}?` : undefined; },   // else the permission question's own
         label: (a) => { const c = byId(a.id); return c ? label(c, a.args) : String(a.id); },
         cmdIdOf: (a) => a.id,
         run: (a, e) => {

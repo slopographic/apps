@@ -48,14 +48,14 @@
       expect(D.documentElement.scrollWidth).toBeLessThanOrEqual(390);
     }, { timeout: 40000 });
 
-    /** A file chosen the way the picker does it. */
+    /** A file chosen the way the picker does it: the intake's take, as its picker would (shared/intake). */
     function choose(D, text) {
-      const dt = new D.defaultView.DataTransfer();
-      dt.items.add(new D.defaultView.File([text], 'abc.txt'));
-      const i = D.getElementById('ck-file'); i.files = dt.files; i.dispatchEvent(new D.defaultView.Event('change'));
+      const W = D.defaultView;
+      W.SlopIntake.take([new W.File([text], 'abc.txt')], { to: 'checksum', source: 'picker' });
     }
     it('at 1280px Algorithm and the hash to check are a panel on the right, Copy hash at its foot; a check says it matches', async () => {
       const D = await open(1280), side = D.getElementById('ck-side');
+      await waitFor(() => side.getBoundingClientRect().width > 0 && side.closest('.sf-root'), { timeout: 10000 });   // the frame is mounted (a busy machine is slower)
       expect(side.getBoundingClientRect().left).toBeGreaterThanOrEqual(D.getElementById('ck-view').getBoundingClientRect().right - 1);
       expect(Math.round(side.getBoundingClientRect().right)).toBe(1280);
       for (const id of ['ck-alg', 'ck-expect', 'ck-copy']) expect(side.contains(D.getElementById(id))).toBe(true);
