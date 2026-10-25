@@ -4,7 +4,7 @@
  * compressed in ?flow= (a logo picture over 16 KB is left out of a link, and the tool says so). Opening another workflow
  * is one Undo step, so nothing is lost by a wrong click.
  *   createLibrary(ctx, { saved, templates }) → { renderList, menuItems, newFlow, openSaved, openTemplate, load, save,
- *     exportFile, importFile, pickImport, shareLink, takeLink }   (saved, templates: list elements, or null) */
+ *     fileName, fileBlob, exportFile, importFile, pickImport, shareLink, takeLink }   (saved, templates: list elements, or null) */
 import * as store from '../core/store.js';
 import { TEMPLATES, templateById, fromTemplate } from '../core/templates.js';
 import { saveBlob } from '../../../convert/js/io/files.js';
@@ -93,7 +93,8 @@ export function createLibrary(ctx, els = {}) {
   }
 
   const fileName = () => `${(S.doc.name || 'workflow').replace(/[\\/:*?"<>|]+/g, '_').trim() || 'workflow'}${F.EXT}`;
-  function exportFile() { saveBlob(new Blob([F.toText(S.doc)], { type: F.MIME }), fileName()); return fileName(); }
+  const fileBlob = () => new Blob([F.toText(S.doc)], { type: F.MIME });
+  function exportFile() { saveBlob(fileBlob(), fileName()); return fileName(); }
   async function importFile(file) {
     const { doc, errors } = F.fromText(await file.text());
     if (!doc) { toast(errors[0]); return { ok: false, message: errors[0] }; }
@@ -146,5 +147,5 @@ export function createLibrary(ctx, els = {}) {
   }
 
   on('saved', renderList);
-  return { renderList, menuItems, newFlow, openSaved, openTemplate, load, save, exportFile, importFile, pickImport, shareLink, takeLink };
+  return { renderList, menuItems, newFlow, openSaved, openTemplate, load, save, fileName, fileBlob, exportFile, importFile, pickImport, shareLink, takeLink };
 }

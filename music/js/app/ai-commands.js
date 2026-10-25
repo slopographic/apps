@@ -1,7 +1,8 @@
 /* Slop Music: SlopCmd commands with arguments (shared/commands/args.js). They show in the Ctrl+K palette and are the
  * tools of the Slop AI panel, WebMCP and the Claude Code bridge (shared/ai/cmdtools.js). Each one calls the player's own
  * engine, library and playlists (no second implementation). From the palette (args null) a command that needs a
- * choice opens the view or dialog for it. Music is a player: it plays, queues, tags and lists; it does not make songs.
+ * choice opens the view or dialog for it. Music is a player: it plays, queues, tags, lists and exports playlists; it does
+ * not make songs.
  * Classic script; adds window.SlopMusic.cmds.install(), called by main.js after SlopCmd.init({ app: 'music' }). */
 (function () {
   'use strict';
@@ -124,6 +125,17 @@
     await P().remove(p.id);
     return `Deleted the playlist “${p.name}”.`;
   }, Object.assign({ destructive: true, ask: () => { const p = M.plUI.selected(); if (p) return M.plUI.remove(p); M.setView('playlists'); } }, G));
+
+  add('export_playlist', 'Export a playlist…', 'Save a playlist as a file: splaylist (opens again in Slop Music) or m3u (for other players; it lists the file names, so keep it next to the audio files). To Slop Drive, a download or both.',
+    [PLAYLIST, { name: 'format', type: 'enum', values: ['splaylist', 'm3u'], default: 'splaylist' },
+      { name: 'to', type: 'enum', values: ['drive', 'download', 'both'], default: 'drive', description: 'Slop Drive, a download, or both' }], async (a) => {
+      const p = A().playlistOf(a.playlist, { selected: true }), rows = M.plfile.rows(p);
+      const blob = a.format === 'm3u' ? M.plfile.m3u(p.name, rows) : M.plfile.build(p.name, rows);
+      const file = a.format === 'm3u' ? M.plfile.m3uName(p.name) : M.plfile.fileName(p.name), out = [];
+      if (a.to !== 'download') out.push(`saved ${file} to Slop Drive (id ${await window.SlopHub.put(blob, { name: file, from: 'music' })})`);
+      if (a.to !== 'drive') { window.SlopUI.download(blob, file); out.push(`downloaded ${file}`); }
+      return `“${p.name}” (${rows.length} track${rows.length === 1 ? '' : 's'}): ${out.join(' and ')}.`;
+    }, Object.assign({ ask: () => { const p = M.plUI.selected(); if (p) return M.plUI.saveToDrive(p); M.setView('playlists'); } }, G));
 
   M.cmds = {
     list,

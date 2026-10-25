@@ -47,6 +47,7 @@
     "signature": {"create":["new_signature"],"add":["add_links","add_picture"],"ops":[]},
     "qr": {"create":["new_qr"],"add":["add_logo"],"ops":[]},
     "colors": {"create":["new_palette"],"add":["add_colors","add_from_picture"],"ops":["colors.palette"]},
+    "workflows": {"create":["new_workflow"],"add":["add_step"],"ops":[]},
     "calculator": {"create":["new_sheet"],"add":["add_calculation"],"ops":[]},
     "time": {"create":["create_meeting"],"add":["add_city"],"ops":[]},
     "crm": {"create":["create_record"],"add":["create_record"],"ops":[]},
