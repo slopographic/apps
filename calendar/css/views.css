@@ -37,3 +37,4 @@
 .cal-side .tb-lbl { display: inline; }
 .cal-side select { background: var(--panel-2); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; font: inherit; width: 100%; }
 .cal-side .sf-acts .btn, .cal-side .sf-foot-acts .btn { min-height: 36px; }
+.cal-side .sf-h, .cal-side .sf-note, .cal-side .sf-item-meta { color: var(--mute); }   /* the small headings in the muted ink (contrast) */

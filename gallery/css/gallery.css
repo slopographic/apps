@@ -126,3 +126,4 @@ body.dragging .drop-hint { display: flex; }
 .g-panel .sf-foot-acts .tb-btn, .g-panel .sf-foot-more { min-height: 40px; padding: 8px 12px; font: inherit; font-weight: 700; border-radius: 6px; }
 .g-panel .sf-foot-more { background: var(--panel-2); color: var(--fg); border: 1px solid var(--line); }
 .app:has(> .body.ssh-phone .g-panel.sf-has-foot) > .statusbar { display: none; }
+.g-panel .sf-h, .g-panel .sf-note, .g-panel .sf-item-meta { color: var(--fg-dim); }   /* the small headings in the gallery's dim ink (contrast) */

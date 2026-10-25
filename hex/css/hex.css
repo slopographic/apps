@@ -78,3 +78,4 @@ body { background: var(--hx-bg); color: var(--hx-fg); font: 14px/1.4 system-ui, 
 .hx-side .hx-name { white-space: normal; overflow-wrap: anywhere; }
 .hx-side .hx-info:not([hidden]) ~ .hx-none { display: none; }
 .hx-side .sf-foot-acts .sui-btn { min-height: 38px; }
+.hx-side .sf-h, .hx-side .sf-note { color: var(--hx-dim); }   /* the small headings in the dim ink (contrast) */

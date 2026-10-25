@@ -146,3 +146,4 @@
 .cv-tool .cv-side .sf-foot-acts .cv-btn { min-height: 44px; padding-inline: 10px; }
 .cv-tool .cv-side .sf-foot-acts .cv-primary { flex-grow: 2; }
 .cv-tool .cv-side .sf-foot-more { min-height: 44px; padding: 8px 12px; font: inherit; font-weight: 600; color: var(--ink); background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; cursor: pointer; }
+.cv-tool .cv-side .sf-h, .cv-tool .cv-side .sf-note { color: var(--muted); }   /* the panel's small headings in the tool's muted ink (contrast) */
