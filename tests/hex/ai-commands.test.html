@@ -74,7 +74,7 @@
       const back = C.checkpoint();
       await run('append-bytes', { text: 'abc' });
       await run('delete-bytes', { offset: '0', count: 1 });
-      expect(C.state().size).toBe(11);
+      expect(C.state().size).toBe(10);
       expect(back()).toBe(true);
       expect(await txt()).toBe('world!\nx');
       const r = await C.exec('hex.ai.insert-bytes', { offset: '99', text: 'a' });
