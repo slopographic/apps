@@ -47,11 +47,15 @@ const r = await SlopCmd.exec('ps.ai.gaussian-blur', { radius: '900px' });  // { 
 ```
 - Types: `number` (`min`, `max`, `step`, `integer`), `string` (`maxLength`), `enum` (`values` or `options: [[value, label]]`),
   `boolean`, `color` (hex or a basic name → `#rrggbb`), `json` (an object or list, or its JSON text; `schema` is its JSON
-  schema for tool definitions; macros keep it).
+  schema for tool definitions; macros keep it), `array` (`items`: a JSON Schema per item, `maxItems`; JSON text is parsed,
+  plain text is one item per line), `object` (`properties`; JSON text is parsed). The command checks what is inside an array or
+  object. `required`, `default`, `description` on any. A map `{ radius: {…} }` works too.
 - `readOnly: true` (only reads; never asked) and `sends: true` (its value `{ text, media }` carries the app's content to the
   model; asked every time, like look_at_file) are passed on to the tools (shared/ai/cmdtools.js).
 - `argform.js` (`SlopCmdForm.wrap(cmd)`): a command with args run from Ctrl+K or a key gets a form from its schema,
-  prefilled by `cmd.prefill()`; a recording macro keeps the values chosen. Used by SlopCut and Reel Remix. `required`, `default`, `description` on any. A map `{ radius: {…} }` works too.
+  prefilled by `cmd.prefill()`; a recording macro keeps the values chosen. Used by SlopCut and Reel Remix.
+- `sources.js` (`window.SlopCmdSources`, loaded on demand): `driveFile(q)`, `siteFile(url)` (same origin only), `picture({ file, url })`
+  and `put(blob, name, from)`: where commands with arguments get files from and save them to (Slop Slides and Slop Docs use it).
 - `exec(id, args, ctx)` loads `args.js` if needed, checks the arguments (strings coerced, numbers clamped with a note,
   unknown names dropped with a note, defaults filled, a missing required or unreadable value is an error), runs the
   command and awaits it. `run(id, { args })` does the same check synchronously when `args.js` is on the page.

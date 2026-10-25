@@ -283,5 +283,9 @@
     status(S.g.nodes.length ? 'Drag from a node’s right dot to another node’s left dot to connect them.' : 'Add a node to start.');
   }
   document.addEventListener('DOMContentLoaded', boot);
-  window.SlopNodesApp = { compute, graph: () => S.g };
+  /** For the assistant's commands (ai-commands.js): edit(fn) is one change and one undo step (false from fn: no change). */
+  window.SlopNodesApp = { compute, graph: () => S.g, results: () => S.res, project: () => S.project, undo,
+    edit(fn) { const snap = snapshot(); let r; try { r = fn(S.g); } catch (e) { S.g = M.load(JSON.parse(snap)); changed(true); throw e; } if (r !== false) { pushUndo(snap); changed(true); } else { S.g = M.load(JSON.parse(snap)); changed(true); } return r; },
+    replace(g, project) { pushUndo(snapshot()); S.g = g; if (project) { S.project = project; $('sn-project').textContent = project.name; } changed(true); },
+    async saveAs(name) { const id = await P.save({ driveId: S.project.driveId, name, graph: M.save(S.g) }); S.project = { driveId: id, name }; $('sn-project').textContent = name; return id; } };
 })();

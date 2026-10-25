@@ -19,7 +19,7 @@
       if (a.type === 'boolean') { const c = UI().check(a.description || a.name.replace(/_/g, ' '), !!v); rows.push(c.el); read.push([a.name, () => c.input.checked]); continue; }
       let input;
       if (a.type === 'enum') input = UI().select([['', '—']].concat(choices(a)), v == null ? '' : v);
-      else if (a.type === 'json') { input = el('textarea', { rows: 8, className: 'sui-input' }); input.value = v == null ? '' : typeof v === 'string' ? v : JSON.stringify(v, null, 1); }
+      else if (a.type === 'json' || a.type === 'array' || a.type === 'object') { input = el('textarea', { rows: 8, className: 'sui-input' }); input.value = v == null ? '' : typeof v === 'string' ? v : JSON.stringify(v, null, 1); }
       else { input = el('input', { type: a.type === 'color' ? 'color' : 'text', className: 'sui-input' }); input.value = v == null ? '' : String(v); }
       input.title = a.description || '';
       rows.push(UI().field(a.name.replace(/_/g, ' '), input));

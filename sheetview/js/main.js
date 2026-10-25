@@ -107,6 +107,8 @@ function registerCommands() {
     C('convert', 'Convert files…', [], openConvert, { keywords: ['convert', 'format', 'pdf', 'json', 'csv'] }),
     C('clear', 'Clear sort and filters', [], () => store.clearView(), { keywords: ['reset', 'sort', 'filter'], when: () => !!store.doc() }),
   ]);
+  // the assistant's commands with arguments (ai-commands.js), loaded when the AI panel first asks
+  if (SlopCmd.provide) SlopCmd.provide({ prepare: () => import('./ai-commands.js').then((m) => m.install(store, openFile)) });
 }
 
 function wireHeader() {

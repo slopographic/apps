@@ -170,3 +170,11 @@ Under 900 px the viewport fills the screen and the panels are SlopSheets (`share
 bottom sheet. The Scene and Properties buttons at the viewport's foot (`.vp-panels`, phone only) open and close them; the
 shared ×, Escape, a tap outside and a swipe close them. Before, the panels were stacked under the viewport in a scrolling
 page. `window.Slop3DSheets` (`{ scene, props }`) is for the tests: `tests/3d/phone.test.html`.
+
+## Assistant commands (`js/app/ai-io.js`, `js/app/ai-commands.js`)
+Loaded on demand by `SlopCmd.prepare()` (`main.js aiPrepare`); all `3d.ai.*`, hidden, each one `actions.commit` (one undo step).
+`new_scene`, `build_scene` (objects `[{ kind, name, position, rotation, scale, color, roughness, metallic, opacity, params }]`) and
+`delete_object` are destructive; `add_object`, `add_model` (Slop Drive or this site, through `files.importBlob`), `set_transform`,
+`set_material`, `set_light`, `set_shape`, `set_background`, `rename_object`, `set_view` (the camera, not in the file), `undo`,
+`export_scene` (glb, gltf, obj, stl, ply, usdz, s3d, png, to Slop Drive and/or a download, with the File menu's writers).
+`state()` lists the objects; the checkpoint puts the scene back as one more step. Test: `tests/3d/ai-commands.test.html`.

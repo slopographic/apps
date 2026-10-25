@@ -132,3 +132,15 @@ Under 700 px the inspector is a bottom sheet, `SlopSheet.attach` from `shared/ui
 `js/ui/main.js` (`SS.sheet`); `shared/ui/sheet.js` is the first `ui` entry of `js/manifest.js`. The Properties button in the
 top bar (phone only) opens and closes it; the shared ×, Escape, a tap outside and a swipe down close it, and the × stays
 when the inspector redraws. Before, the inspector was stacked under the slide strip. Test: `tests/slides/phone.test.html`.
+
+## Assistant commands (AI panel, Ctrl+K, macros, WebMCP)
+`js/ui/ai-commands.js` and `js/ui/ai-files.js` load on demand (`SlopCmd.prepare()`, from `commands.js`). All `slides.ai.*`, hidden
+from the palette, each one `A.change` (one undo step): `new_presentation` (title, size, theme; a new tab), `build_presentation`
+(title, subtitle, `slides: [{ title, bullets, right, notes, layout }]`, size, theme, title_slide; a new tab), `add_slide`,
+`set_text` (placeholder or object name/id), `set_notes`, `add_text_box`, `add_shape`, `add_image` (Slop Drive name/id or a
+same-origin URL, `shared/commands/sources.js`), `apply_theme` (theme, accent, background, text colour, fonts), `set_layout`,
+`move_slide`, `delete_slide` (the only destructive one), `go_to_slide`, `export_presentation` (pdf/pptx/sslide to Slop Drive
+and/or a download), `undo`. `state()` lists the slides (`SS.outline.summary`); the checkpoint closes tabs the assistant opened.
+`js/core/outline.js` (`SS.outline`, in the manifest's core) builds a deck from an outline object, JSON or Markdown; the
+operation `outline-to-presentation` (`shared/ops/create.js`) uses it headlessly. Tests: `tests/node/create-outline.test.mjs`,
+`tests/slides/ai-commands.test.html`, `tests/pdf/ai-create.test.html`.

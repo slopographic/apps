@@ -94,15 +94,16 @@ export function moveToNotebook(n, notebook) {
   redraw();
 }
 
-/** Moves an item and what is in it to the Drive Trash, after a confirmation. */
-export async function remove(item) {
+/** Moves an item and what is in it to the Drive Trash, after a confirmation (ask: false when the caller already asked,
+ *  as the assistant's panel does for destructive commands). Resolves true when it was moved. */
+export async function remove(item, { ask = true } = {}) {
   const all = { notebooks: S.notebooks, folders: S.folders, notes: S.notes };
   const ids = store.trashIds(all, item);
   const what = item.kind === 'note' ? `“${item.title || 'Untitled'}”` : `“${item.title}” and the ${ids.length - 1} item${ids.length === 2 ? '' : 's'} in it`;
-  const ok = await SlopUI.confirm('Move to Trash?', `${what} goes to the Slop Drive Trash, where you can restore it.`, 'Move to Trash', { danger: true });
-  if (!ok) return;
+  const ok = !ask || await SlopUI.confirm('Move to Trash?', `${what} goes to the Slop Drive Trash, where you can restore it.`, 'Move to Trash', { danger: true });
+  if (!ok) return false;
   store.forget(ids);
-  try { await store.trash(ids); } catch (e) { toast('Could not move to Trash: ' + e.message); return; }
+  try { await store.trash(ids); } catch (e) { toast('Could not move to Trash: ' + e.message); if (!ask) throw e; return false; }
   const gone = new Set(ids);
   S.notes = S.notes.filter((n) => !gone.has(n.id));
   S.folders = S.folders.filter((f) => !gone.has(f.id));
@@ -112,7 +113,10 @@ export async function remove(item) {
   if (gone.has(S.folderId)) S.folderId = null;
   redraw();
   toast('Moved to Trash');
+  return true;
 }
+/** Redraws every view (after a change made outside the screen, such as the assistant's). */
+export const refresh = () => redraw();
 
 /** Exports one note (md, html, txt, doc) or opens its print view (pdf). */
 export function exportNote(n, format) {

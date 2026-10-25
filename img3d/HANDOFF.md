@@ -124,3 +124,9 @@ Also needs committing: `vendor/models/depth/depth-anything-v2-small.onnx` (27 MB
 - Splats are a point shader with depth-sized discs, not a fitted Gaussian splat scene, and they are not depth-sorted.
 - The depth model runs on one WebAssembly thread (no cross-origin isolation here), so large pictures are slow. Timing not measured.
 - The subject cut-out model is about 46 MB and loads on first use (SlopCutout's own download).
+
+## Assistant commands (`js/app/ai-commands.js`)
+The page now starts SlopCmd (`main.js commands()`, which also exposes `SlopImg3D.app`); `img3d.ai.*` load on demand:
+`new_from_picture` (Slop Drive or this site, through the page's own `openBlob`), `set_options` (mode, grid, scale, smooth, size,
+invert, subject: the page's own controls, then `build`), `export_model` (glb, obj, s3d to Slop Drive and/or a download). The page
+keeps no undo history; the checkpoint puts the options back. Test: `tests/img3d/ai-commands.test.html`.

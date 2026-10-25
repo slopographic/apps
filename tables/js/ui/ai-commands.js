@@ -1,13 +1,16 @@
 /* Slop Tables for the assistant: SlopCmd commands with argument schemas (shared/commands/args.js), so the Slop AI
    panel can sort, filter, add columns and write formulas ("total = price × qty" → add_column Total, fill_column
    Total =B2*C2). Loaded on demand by SlopCmd.prepare() (commands.js); also gives the state summary and the checkpoint.
-   Each command is one undo step in the workbook's own history. Hidden from the palette: they are for the assistant. */
+   Each command is one undo step in the workbook's own history. Hidden from the palette: they are for the assistant.
+   The commands that make workbooks, write blocks of cells, format, chart, delete and export are in ai-create.js. */
 import { S, sheet, range, redraw } from './state.js';
 import { transact, undo, canUndo } from './history.js';
 import { toNative, fromNative } from '../io/native.js';
 import { colName, addr, rangeText, MAX_ROWS } from '../engine/refs.js';
 import { isErr } from '../engine/values.js';
 import * as O from './ai-ops.js';
+import { LIST as CREATE, made, closeMade } from './ai-create.js';
+import { tabs } from './tabs.js';
 
 const Str = (name, description, extra) => Object.assign({ name, type: 'string', maxLength: 500, description }, extra);
 const Num = (name, min, max, def, description) => ({ name, type: 'number', integer: true, min, max, default: def, description });
@@ -127,8 +130,10 @@ export function state() {
     workbook tab is open by then. */
 export function checkpoint() {
   if (!S.wb) return () => false;
-  const hist = S.hist, json = JSON.stringify(toNative(S.wb)), si = S.si, sel = { ...S.sel };
+  const hist = S.hist, json = JSON.stringify(toNative(S.wb)), si = S.si, sel = { ...S.sel }, mark = made.length, T0 = tabs.current();
   return () => {
+    closeMade(mark);
+    if (S.hist !== hist && T0 && tabs.api()) tabs.api().activate(T0);
     if (S.hist !== hist) return false;
     step(() => { S.wb = fromNative(JSON.parse(json)); S.si = Math.min(si, S.wb.sheets.length - 1); S.sel = { ...sel }; S.edit = null; });
     return true;
@@ -142,9 +147,9 @@ export function register() {
   if (done || !C || !C.register) return;
   done = true;
   const defaults = (args) => (window.SlopCmdArgs ? window.SlopCmdArgs.defaults(args) : {});
-  C.register(LIST.map(([tool, title, args, fn, description]) => ({
+  C.register(LIST.concat(CREATE).map(([tool, title, args, fn, description, extra]) => Object.assign({
     id: 'tables.ai.' + tool.replace(/_/g, '-'), tool, title, group: 'AI', hidden: true, destructive: false, description, args,
     when: () => !!S.wb && !S.edit, run: (a) => fn(a || defaults(args)),
-  })));
+  }, extra || {})));
   C.provide({ state, checkpoint });
 }

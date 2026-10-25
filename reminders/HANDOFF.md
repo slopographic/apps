@@ -35,3 +35,6 @@ is open, and optionally as a browser notification. Nothing uses the network.
 - In-app delivery calls `SlopNotify.show({ title, body })` (shell/notify.js, loaded by shell/shell.js). It used to pass one
   string, which the notifier cannot read, so the pop-up said "Notice" with no text. `reminders.test.html` checks the title now.
 - Notifications only while a tab is open. Browser notifications were not tested on a real device.
+
+## Assistant commands
+The page loads `shared/biz/biz.js` and starts SlopCmd (`js/app.js`); `SlopBiz.assistant('reminders')` gives the record commands of `shared/data/ai-records.js` on `reminders` (a new one is `custom`; `at` may be ISO text). Test: `tests/reminders/ai-commands.test.html`.

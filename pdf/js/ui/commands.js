@@ -110,6 +110,13 @@
     if (!C) { console.warn('Slop PDF: SlopCmd is missing; keyboard shortcuts are off'); return; }
     C.init({ app: 'pdf' });
     C.register(all());
+    // the assistant's commands with arguments (ai-pages.js, ai-commands.js), loaded when the AI panel first asks
+    if (C.provide && !SP.offline) C.provide({ prepare: function () { return SP.aiPdf ? null : ['../shared/commands/sources.js', 'js/ui/ai-pages.js', 'js/ui/ai-commands.js'].reduce(function (p, src) {
+      return p.then(function () { return src.indexOf('sources') >= 0 && window.SlopCmdSources ? null : new Promise(function (res, rej) {
+        var s = document.createElement('script'); s.src = new URL(src, location.href).href; s.async = false;
+        s.onload = res; s.onerror = function () { rej(new Error('Could not load ' + src)); }; document.head.append(s);
+      }); });
+    }, Promise.resolve()); } });
     // The button is in the page (index.html), so the top bar is whole at its first paint; it works from here on
     var b = document.getElementById('btnCmd');
     if (!b) { b = U.h('button', { type: 'button', class: 'tb', id: 'btnCmd', 'aria-label': 'Search commands', html: U.icon('search') }); S.els.btnPanel.parentNode.insertBefore(b, S.els.btnPanel); }

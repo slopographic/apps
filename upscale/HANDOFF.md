@@ -106,3 +106,10 @@ python3 -I vendor/models/tools/upscale-realesrgan.py RealESRGAN_x4plus.pth reale
 ```
 Run them from a scratch directory, never inside the repository. Afterwards update the sizes and SHA-256 in
 `js/core/models.js`, `vendor/models/upscale/index.json` and `shared/library/packs.json` together, or the registry test fails.
+
+## Commands and the assistant (`js/app/commands.js`, `js/app/ai-commands.js`)
+The page now loads SlopCmd: `up.open`, `up.drive`, `up.run`, `up.download`, `up.save`, `up.clear` press the page's own
+buttons. `SlopCmd.prepare()` loads `ai-commands.js`: `new_upscale` (clear; destructive), `add_file` (`file` from Slop Drive or
+`url` on this site, through `open()`, so the first-use notice still asks), `set_upscale` (scale, model, format, quality, fps),
+`upscale` (runs and waits), `save_result` (`to` drive | download | both), with `state` and a settings checkpoint. Test:
+`tests/upscale/ai-commands.test.html`.

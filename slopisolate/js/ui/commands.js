@@ -44,12 +44,23 @@
     return C;
   }
 
+  /** ai-commands.js and shared/commands/sources.js, loaded when the AI panel first asks. */
+  function loadAI() {
+    if (CO.aiCommands) return Promise.resolve();
+    const one = (src) => new Promise((res, rej) => {
+      const s = Object.assign(document.createElement('script'), { src, async: false });
+      s.onload = () => res(); s.onerror = () => rej(new Error('Could not load ' + src)); document.head.append(s);
+    });
+    return (window.SlopCmdSources ? Promise.resolve() : one('../shared/commands/sources.js')).then(() => one('js/ui/ai-commands.js'));
+  }
+
   function init() {
     const SC = window.SlopCmd, a = CO.menus && CO.menus.act;
     if (!SC || !a) return;
     try {
       SC.init({ app: 'cutout' });
       SC.register(list(a).concat(CO.bulk && CO.bulk.commands ? CO.bulk.commands() : [], window.CO.configCommands ? window.CO.configCommands() : []));
+      if (SC.provide && !document.documentElement.dataset.offline) SC.provide({ prepare: loadAI });   // the assistant's batch commands (ai-commands.js)
     } catch (err) { console.warn('SlopIsolate: commands are off', err); }
   }
 

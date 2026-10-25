@@ -24,6 +24,8 @@ export function registerCommands() {
   if (!window.SlopCmd) return;
   SlopCmd.init({ app: 'paste' });
   SlopCmd.register(commandList());
+  // the assistant's commands with arguments (ai-commands.js), loaded when the AI panel first asks
+  if (SlopCmd.provide) SlopCmd.provide({ prepare: () => import('./ai-commands.js') });
 }
 
 /** The menu for a paste in the list: Open, Copy, Download, Share link, Trash. */

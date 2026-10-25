@@ -156,18 +156,22 @@ async function again() {
 /** The pages as the outputs want them: the text as edited, the lines and the picture size. */
 const outPages = () => state.pages.map((p) => ({ text: p.text || '', lines: p.lines || [], w: p.w, h: p.h }));
 
+/** The searchable PDF of every page (the picture with an invisible text layer). */
+async function pdfBlob(onPage = () => {}) {
+  const base = outPages(), pages = [];
+  for (let i = 0; i < base.length; i++) {
+    const canvas = await renderPage(state.pages[i]);
+    pages.push({ ...base[i], w: canvas.width, h: canvas.height, image: await jpegBytes(canvas) });
+    onPage((i + 1) / base.length);
+  }
+  return searchablePdf(pages, { title: stem() });
+}
 async function exportPdf() {
-  const prog = $('prog'), base = outPages();
+  const prog = $('prog');
   prog.hidden = false; prog.value = 0;
   setExporting(true, 'Making the searchable PDF…');
   try {
-    const pages = [];
-    for (let i = 0; i < base.length; i++) {
-      const canvas = await renderPage(state.pages[i]);
-      pages.push({ ...base[i], w: canvas.width, h: canvas.height, image: await jpegBytes(canvas) });
-      prog.value = (i + 1) / base.length;
-    }
-    const blob = await searchablePdf(pages, { title: stem() });
+    const blob = await pdfBlob((f) => { prog.value = f; });
     saveBlob(stem() + '.pdf', blob);
     say('Searchable PDF saved. Its text layer is invisible; it is there for search and copy.');
   } catch (e) {
@@ -220,14 +224,25 @@ function wire() {
   $('copy').addEventListener('click', async () => {
     say((await copyText(plainText(outPages()))) ? 'Copied all the text.' : 'Copy was blocked here. Select the text and copy it.');
   });
-  $('clear').addEventListener('click', () => {
-    if (state.busy) return;
-    state.pages = []; state.cur = 0; state.shown = null;
-    $('suggest').replaceChildren();
-    $('text').value = '';
-    say('Cleared.');
-    refresh();
-  });
+  $('clear').addEventListener('click', clearAll);
+}
+function clearAll() {
+  if (state.busy) return;
+  state.pages = []; state.cur = 0; state.shown = null;
+  $('suggest').replaceChildren();
+  $('text').value = '';
+  say('Cleared.');
+  refresh();
+}
+
+/** For the assistant's commands (ai-commands.js, loaded by SlopCmd.prepare()): the page's own actions and outputs. */
+window.SlopOcrPage = { state, addFiles, readAll, refresh, show, clearAll, outPages, stem, pdfBlob, say, plainText, markdownText, docxFile };
+if (window.SlopCmd) {
+  const C = window.SlopCmd, click = (id) => () => { if (!$(id).disabled) $(id).click(); };
+  C.init({ app: 'ocr' });
+  C.register([['ocr.read', 'Read text', 'read'], ['ocr.txt', 'Save as text', 'dlTxt'], ['ocr.md', 'Save as Markdown', 'dlMd'], ['ocr.docx', 'Save as Word', 'dlDocx'],
+    ['ocr.pdf', 'Save as searchable PDF', 'dlPdf'], ['ocr.clear', 'Clear', 'clear']].map(([id, title, el]) => ({ id, title, group: 'OCR', keys: [], when: () => !$(el).disabled, run: click(el) })));
+  if (C.provide) C.provide({ prepare: () => import('./ai-commands.js') });
 }
 
 wire();

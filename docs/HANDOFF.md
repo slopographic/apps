@@ -158,3 +158,13 @@ Positions are `{ b, o }`: the index of a top-level paragraph in `doc.blocks` and
 - `ui/commands.js` registers only `SlopCmd.provide({ prepare })`; `SlopCmd.prepare()` imports `ui/ai-commands.js` (ES module) on demand, so nothing is added to first paint. It registers hidden, non-destructive commands with argument schemas and provides `state` (title, pages, paragraphs, words, heading outline, caret, selection) and `checkpoint` (rollback = one more undo step; false after another tab or document is opened).
 - Tools: `insert_heading` (text, level 1–6, where caret/end/start), `insert_paragraph` (text, where, style), `find_replace` (find, replace, match_case, whole_word, all → count), `set_paragraph_style` (style, paragraph), `format_text` (bold, italic, underline, strike, color, match, paragraph), `undo` (steps). Each is one `SlopDocs.edit`, so one undo step. Pure parts: `model/ai-edit.js`.
 - Test: `tests/docs/ai-commands.test.html`.
+
+## Assistant: making documents (`ui/ai-create.js`, `model/build.js`)
+Beside the editing commands of `ui/ai-commands.js`: `new_document` (title, page, landscape; a new tab), `build_document`
+(`blocks: [{ type: heading|paragraph|bullets|numbered|quote|code|table|image|page_break, … }]` or `markdown`; a new tab),
+`insert_list`, `insert_table` (rows of cells, header row), `insert_image` (Slop Drive or a same-origin URL,
+`shared/commands/sources.js`), `insert_page_break`, `set_alignment`, `export_document` (docx/pdf/md/txt/sdoc to Slop Drive and/or
+a download, through `SlopDocs.exportBlob`). None is destructive; the checkpoint also closes the tabs the assistant opened.
+`model/build.js` is pure (blocks, lists, tables, images, `buildDoc(outline | JSON | Markdown)`); the operation
+`outline-to-document` (`shared/ops/create.js`) uses it with File convert's Docs engine. Images are not in DOCX export yet.
+Tests: `tests/node/create-outline.test.mjs`, `tests/docs/ai-create.test.html`, `tests/pdf/ai-create.test.html`.

@@ -224,4 +224,6 @@
   }
 
   init();
+  /** For the commands (js/commands.js, js/ai-commands.js): pick and run a report, read what is shown, export it. */
+  R.app = { fillPicker, choose, findDef, run, exportCsv, current: () => ({ def: S.def, saved: S.saved, result: S.result, shown: S.shown, ctx: S.ctx }) };
 })(window);

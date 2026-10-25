@@ -44,21 +44,44 @@ const CURVES_PRESETS = { 'more-contrast': P2([[0, 0], [64, 48], [192, 208], [255
   brighten: P2([[0, 0], [128, 160], [255, 255]]), darken: P2([[0, 0], [128, 98], [255, 255]]), fade: P2([[0, 36], [128, 132], [255, 230]]), invert: P2([[0, 255], [255, 0]]) };
 function curvesParam(rgb) { const id = [[0, 0], [255, 255]]; return { rgb, r: id, g: id, b: id }; }
 
-/** Text layer from the assistant: placed by name ('center', 'top-left' …) or by x/y in document px. */
+/** Where content landed, and a plain warning when it runs past the canvas: { x, y, w, h } in document px → a sentence. */
+function psBoundsNote(what, b) {
+  if (!b) return '';
+  const cut = { left: Math.max(0, -b.x), right: Math.max(0, b.x + b.w - D.w), top: Math.max(0, -b.y), bottom: Math.max(0, b.y + b.h - D.h) };
+  let s = ` It covers ${Math.round(b.w)} × ${Math.round(b.h)} px at ${Math.round(b.x)}, ${Math.round(b.y)}.`;
+  const side = (a, z, size, dim, word) => {
+    if (!a && !z) return '';
+    const big = size > dim ? `${what} is ${Math.round(size)} px ${word}, ${word === 'wide' ? 'wider' : 'taller'} than the ${dim} px canvas; ` : `${what} runs past the canvas: `;
+    return a && z && Math.abs(a - z) < 2 ? `${big}${Math.round(a)} px is cut off on each side.` : `${big}${[a ? `${Math.round(a)} px is cut off on the ${word === 'wide' ? 'left' : 'top'}` : '', z ? `${Math.round(z)} px on the ${word === 'wide' ? 'right' : 'bottom'}` : ''].filter(Boolean).join(' and ')}.`;
+  };
+  const warn = [side(cut.left, cut.right, b.w, D.w, 'wide'), side(cut.top, cut.bottom, b.h, D.h, 'tall')].filter(Boolean);
+  if (warn.length) s += ' Warning: ' + warn.join(' ') + ' Use fit: true, a smaller size or another position to keep it all on the canvas.';
+  return s;
+}
+/** The document-space bounds of a layer's visible pixels. */
+function psLayerBounds(L) { const b = L && alphaBounds(L.canvas); return b ? { x: L.x + b.x, y: L.y + b.y, w: b.w, h: b.h } : null; }
+
+/** Text layer from the assistant: placed by name ('center', 'top-left' …) or by x/y in document px. fit: shrink the size
+ *  until the text fits inside the canvas margins. */
 async function aiAddText(a) {
   await aiSettle();
   const t = normText({ str: a.text, x: 0, y: 0, font: a.font || T.type.font, size: a.size, bold: a.bold, color: a.color });
   await loadTextFonts(t);
-  const r0 = renderTextCanvas(t), w = r0.canvas.width, hh = r0.canvas.height, m = Math.round(Math.min(D.w, D.h) * 0.04);
-  const pos = String(a.position || 'center');
+  let r0 = renderTextCanvas(t);
+  const m = Math.round(Math.min(D.w, D.h) * 0.04);
+  if (a.fit) {
+    const k = Math.min(1, (D.w - 2 * m) / r0.canvas.width, (D.h - 2 * m) / r0.canvas.height);
+    if (k < 1) { t.size = Math.max(4, Math.floor(t.size * k * 0.98)); r0 = renderTextCanvas(t); }
+  }
+  const w = r0.canvas.width, hh = r0.canvas.height, pos = String(a.position || 'center');
   let bx = (D.w - w) / 2, by = (D.h - hh) / 2;
   if (/left/.test(pos)) bx = m; if (/right/.test(pos)) bx = D.w - w - m;
   if (/^top/.test(pos)) by = m; if (/^bottom/.test(pos)) by = D.h - hh - m;
   if (a.x != null) bx = a.x; if (a.y != null) by = a.y;
   t.x = Math.round(bx - r0.x); t.y = Math.round(by - r0.y);
   const r = renderTextCanvas(t);
-  await aiOneStep('Type Layer', () => addLayer({ name: t.str.split('\n')[0].slice(0, 32), canvas: r.canvas, x: r.x, y: r.y, text: t }, 'Type Layer'));
-  return `Added the text layer “${t.str.slice(0, 40)}” at ${Math.round(bx)}, ${Math.round(by)}.`;
+  const L = await aiOneStep('Type Layer', () => addLayer({ name: t.str.split('\n')[0].slice(0, 32), canvas: r.canvas, x: r.x, y: r.y, text: t }, 'Type Layer'));
+  return `Added the text layer “${t.str.slice(0, 40)}” at ${Math.round(bx)}, ${Math.round(by)}, size ${t.size} px.` + psBoundsNote('The text', psLayerBounds(L) || { x: bx, y: by, w, h: hh });
 }
 
 async function aiExport(a) {

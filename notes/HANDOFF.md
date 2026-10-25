@@ -66,3 +66,11 @@ Slop Notes keeps notebooks, folders and Markdown notes in Slop Drive. It is regi
 - `service-worker.js` precaches the app files and was not regenerated for the new files (`js/blocks.js`, `js/table.js`, `js/video.js`, `js/plain.js`), so offline use of the new blocks and exports needs a regenerated precache.
 - The SEO description in `index.html` still says ".md or .html" (it is generated from `shared/seo/copy.mjs`, which was not changed).
 - The Commands list does not yet include the new export formats or the blocks.
+
+## Assistant commands (`js/ai-commands.js`)
+Imported on demand by `SlopCmd.prepare()` (`commands.js`); `notes.ai.*`, hidden. `new_note` (title, Markdown body, tags,
+notebook by name, made when new), `new_notebook`, `insert_text` (end or start), `set_note` (title, body, tags, add_tags,
+pinned), `delete_note` (destructive: `actions.remove(n, { ask: false })`, to the Drive Trash), `export_note` (md, html, txt,
+doc through `export.blobFor`, to Slop Drive and/or a download). Notes are named by id or title, else the open one. Saves go
+through `store.touch` like typing. The checkpoint trashes the notes and notebooks the assistant made and puts changed notes
+back. The PDF is the browser's print view, so it is not offered. Test: `tests/notes/ai-commands.test.html`.

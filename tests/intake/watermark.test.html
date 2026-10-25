@@ -7,12 +7,13 @@
 </head>
 <body>
 <iframe id="app"></iframe>
+<script>try { localStorage.setItem('slop-firstrun:convert', '1'); } catch (e) { /* private window */ }</script>
 <script src="../harness.js"></script>
 <script>
-  // Covers: watermark/js/main.js
-  // Slop Watermark's pictures on the one intake: a drop on the zone or the preview, the zone's Choose files, Open
-  // pictures…, a paste, ?drive=<id> (another app's Open in…, launch) and the sample all reach the same reader (the list)
-  // with the same events.
+  // Covers: watermark/js/main.js, watermark/js/probe.js
+  // Slop Watermark's files (pictures, videos and PDFs, mixed) on the one intake: a drop on the zone or the preview, the
+  // zone's Choose files, the header's Open files…, a paste, ?drive=<id> (another app's Open in…, launch) and the sample
+  // all reach the same reader (the list) with the same events.
   const { describe, it, expect, waitFor, run } = SlopTest;
   let W, D, seen = [], events = [];
   async function boot() {
@@ -51,12 +52,19 @@
       const files = [await png('c.png'), await png('d.png')];
       await through('picker', () => { const i = D.querySelector('#wm-drop input[type=file]'); i.files = dtOf(files).files; i.dispatchEvent(new W.Event('change')); });
     });
-    it('Open pictures…', async () => {
-      const files = [await png('e.png'), await png('f.png')];
+    it('Open files… (a picture, a video and a PDF)', async () => {
+      const mp4 = new W.File([await (await fetch('../convert/fixtures/tone.mp4')).arrayBuffer()], 'clip.mp4', { type: 'video/mp4' });
+      const L = await (await import('../../convert/js/core/lib.js')).loadPdfLib(), doc = await L.PDFDocument.create();
+      doc.addPage([400, 300]);
+      const pdf = new W.File([await doc.save()], 'paper.pdf', { type: 'application/pdf' });
+      const files = [await png('e.png'), mp4, pdf];
       W.SlopUI.pickFiles = async () => files;
-      const b = [...D.querySelectorAll('#wm-bar button')].find((x) => /Open pictures/.test(x.textContent + (x.title || '') + (x.getAttribute('aria-label') || '')));
-      await through('picker', () => b.click());
-    });
+      const b = [...D.querySelectorAll('#wm-bar button')].find((x) => /Open files/.test(x.textContent + (x.title || '') + (x.getAttribute('aria-label') || '')));
+      expect(!!b).toBe(true);
+      expect(D.getElementById('wm-open')).toBe(null);   // no hidden file input of its own: the intake's picker
+      await through('picker', () => b.click(), 3);
+      expect(W.WMItems.all().slice(-3).map((x) => x.media)).toEqual(['picture', 'video', 'pdf']);
+    }, { timeout: 40000 });
     it('a paste', async () => {
       const files = [await png('g.png')];
       await through('paste', () => D.body.dispatchEvent(new W.ClipboardEvent('paste', { bubbles: true, cancelable: true, clipboardData: dtOf(files) })), 1);

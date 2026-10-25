@@ -136,4 +136,6 @@ function wire() {
 }
 
 wire();
-window.SlopSorter.app = { set, deck, add, start, draw, zipLiked, get which() { return which; } };
+window.SlopSorter.app = { set, deck, add, start, draw, zipLiked, driveLiked, get which() { return which; } };
+// SlopCmd: the assistant's commands with arguments (ai-commands.js), loaded when the AI panel first asks
+if (window.SlopCmd) { window.SlopCmd.init({ app: 'sorter' }); if (window.SlopCmd.provide) window.SlopCmd.provide({ prepare: () => import('./ai-commands.js') }); }

@@ -20,15 +20,22 @@
     }
     return out;
   }
-  /** Downloads the selection. Returns the number of files saved. */
-  async function downloadSelection(ids, { zipName = 'slop-gallery-selection.zip' } = {}) {
+  /** The photos as one file: the original when there is one photo, else a store-only zip with unique names.
+   *  Resolves { blob, name, count } (name is zipName for a zip), or null when none of the ids has its bytes. */
+  async function packOf(ids, zipName) {
     const files = await originals(ids);
-    if (!files.length) return 0;
-    if (files.length === 1) { window.SlopUI.download(files[0].blob, files[0].name); return 1; }
+    if (!files.length) return null;
+    if (files.length === 1) return { blob: files[0].blob, name: files[0].name, count: 1 };
     const taken = new Set();
     const blob = await G.zip.write(files.map((f) => ({ name: uniqueName(f.name, taken), data: f.blob })));
-    window.SlopUI.download(blob, zipName);
-    return files.length;
+    return { blob, name: zipName, count: files.length };
+  }
+  /** Downloads the selection. Returns the number of files saved. */
+  async function downloadSelection(ids, { zipName = 'slop-gallery-selection.zip' } = {}) {
+    const p = await packOf(ids, zipName);
+    if (!p) return 0;
+    window.SlopUI.download(p.blob, p.name);
+    return p.count;
   }
   /** Downloads the whole library as one backup file. */
   async function downloadBackup() {
@@ -38,7 +45,7 @@
     return blob.size;
   }
 
-  G.export = { downloadSelection, downloadBackup, uniqueName };
+  G.export = { downloadSelection, downloadBackup, uniqueName, packOf };
   /** Convert… in the header (shared/convert/provided.js): the selected photos, else the one open in the viewer. */
   addEventListener('slop:convert-files', (e) => e.detail.provide(async () => {
     const open = document.querySelector('.viewer:not([hidden])'), cur = open && G.viewer && G.viewer.current();

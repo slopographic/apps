@@ -19,8 +19,8 @@ export function exportItems(ctx, run) {
 
 const safeBase = (name) => String(name || 'Sheet').replace(/[\\/:*?"<>|]+/g, ' ').trim() || 'Sheet';
 
-/** Builds the file and downloads it. Returns the file name. */
-export async function exportFile(kind, scope, { doc, sheet, order }) {
+/** Builds the file: { blob, name }. */
+export async function exportBlob(kind, scope, { doc, sheet, order }) {
   const visible = scope === 'visible';
   const suffix = visible ? ' (visible rows)' : '';
   const base = safeBase(doc.name);
@@ -33,6 +33,11 @@ export async function exportFile(kind, scope, { doc, sheet, order }) {
     blob = csvBlob(sheet, visible ? order : null, kind === 'tsv' ? '\t' : ',');
     name = `${base}${suffix}.${kind}`;
   }
+  return { blob, name };
+}
+/** Builds the file and downloads it. Returns the file name. */
+export async function exportFile(kind, scope, ctx) {
+  const { blob, name } = await exportBlob(kind, scope, ctx);
   window.SlopUI.download(blob, name);
   return name;
 }

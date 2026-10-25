@@ -64,7 +64,8 @@ export function printNote(n) {
   document.body.append(frame);
 }
 
-function blobFor(n, format) {
+/** The file for a note in a format (md, html, txt, doc), as a Blob. */
+export function blobFor(n, format) {
   if (format === 'html') return noteToHtml(n);
   if (format === 'txt') return noteToText(n);
   if (format === 'doc') return noteToDoc(n);

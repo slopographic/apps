@@ -70,7 +70,7 @@
     (a) => { aiLayer(); fillSelection(a.color, 'Fill', a.opacity / 100); return `Filled ${D.sel ? 'the selection' : 'the layer'} with ${a.color}.`; }, { description: 'Fill the selection (or the whole active layer) with a colour.' });
   add('add_text', 'Add text', [S('text', 'the words', { required: true, maxLength: 500 }), N('size', 4, 1000, 96, 'px', { integer: true }), { name: 'color', type: 'color', default: '#000000' },
     E('position', ['center', 'top', 'bottom', 'top-left', 'top-right', 'bottom-left', 'bottom-right', 'left', 'right'], 'center'), N('x', -16384, 16384, undefined, 'left edge px, overrides position'), N('y', -16384, 16384, undefined, 'top edge px'),
-    E('font', TYPE_FONTS, undefined), B('bold', true)], aiAddText, { description: 'Add an editable text layer.' });
+    E('font', TYPE_FONTS, undefined), B('bold', true), B('fit', false, 'shrink the size so all the text stays inside the canvas')], aiAddText, { description: 'Add an editable text layer.' });
 
   /* output, undo, on-device AI */
   add('export', 'Export', [E('format', ['png', 'jpeg', 'webp'], 'png'), N('quality', 1, 100, 90, 'JPEG/WebP quality', { integer: true }), E('scale', ['25', '50', '100', '200'], '100', '% of the size'), B('transparent', true, 'PNG only')],

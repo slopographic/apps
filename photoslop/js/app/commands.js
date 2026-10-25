@@ -101,7 +101,7 @@ function wireCommands() {
 /** The Slop AI panel's commands with arguments, the state summary and the checkpoint (ai-*.js), loaded on demand. */
 function loadAICommands() {
   const add = (src) => new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.async = false; s.onload = res; s.onerror = () => rej(new Error('Could not load ' + src)); document.head.append(s); });
-  return ['js/app/ai-ops.js', 'js/app/ai-tools.js', 'js/app/ai-commands.js'].reduce((p, src) => p.then(() => add(src)), Promise.resolve());
+  return ['js/app/ai-ops.js', 'js/app/ai-tools.js', 'js/app/ai-draw.js', 'js/app/ai-tool-use.js', 'js/app/ai-draw-cmds.js', 'js/app/ai-commands.js'].reduce((p, src) => p.then(() => add(src)), Promise.resolve());
 }
 /* AI pictures (Layer › Generate Image…, Edit with AI…): the shared module shared/ai/imagegen/ and js/app/imagegen.js
  * load on first use. window.SlopImageSink is there from the start, so the AI panel's generate_image puts its picture in

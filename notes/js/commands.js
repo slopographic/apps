@@ -33,4 +33,6 @@ export function registerCommands() {
   if (!window.SlopCmd) return;
   SlopCmd.init({ app: 'notes' });
   SlopCmd.register(commandList());
+  // the assistant's commands with arguments (ai-commands.js), loaded when the AI panel first asks
+  if (SlopCmd.provide) SlopCmd.provide({ prepare: () => import('./ai-commands.js') });
 }

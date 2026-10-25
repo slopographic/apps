@@ -43,3 +43,6 @@ Paste keeps pastes (text, code and images) in Slop Drive. It is registered in `s
 - The highlighter is small: it handles comments, strings, numbers, keywords, function names and the listed languages' markup. It is not a full parser.
 - Share links only open in the browser that holds the paste. There is no server, by design.
 - The expiry is a label. Nothing expires.
+
+## Assistant commands
+`js/ai-commands.js` (imported by `SlopCmd.prepare()` from `commands.js`): `paste.ai.new_paste` (title, text, language, expiry), `insert_text` (paste, text, where), `set_paste` (paste, title, text, language, expiry), `delete_paste` (destructive: Drive Trash), `export_paste` (paste, to, name: a file with its language's extension). The checkpoint trashes pastes made since and puts changed ones back. Test: `tests/paste/ai-commands.test.html`.

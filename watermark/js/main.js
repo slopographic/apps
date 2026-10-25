@@ -103,6 +103,10 @@
     window.SlopFlowDoc.addToWorkflow({ id: 'watermark.apply' }, { settings: { spec: window.WMSettings.spec() } })
       .catch((e) => toast('Could not open Slop Workflows: ' + e.message));
   }
+
+  /** For the commands (commands.js, ai-commands.js): the page's own actions. */
+  window.WMApp = { applyAll, downloadZip, clearAll, busy: () => busy, refresh: () => { window.WMList.render(); window.WMPreview.schedule(); syncBar(); } };
+
   /** A file sent from another app or opened from Slop Drive (?drive=). */
   function boot() {
     bar = window.SlopAppBar.mount($('wm-bar'), {

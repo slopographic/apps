@@ -117,4 +117,14 @@
 
   render();
   status('Open an HTML file, drop one here, or paste HTML. Nothing is uploaded.');
+
+  /* The page's actions for the commands: Ctrl+K and the assistant (ai-commands.js, loaded by SlopCmd.prepare()). */
+  H.app = { st, setSource, attachImages, options, cleaned, hasSource, render, status: () => $('h2p-status').textContent };
+  if (window.SlopCmd) {
+    const C = window.SlopCmd;
+    C.init({ app: 'html2pdf' });
+    C.register([{ id: 'h2p.open', title: 'Open an HTML file…', group: 'File', keys: [], run: () => $('h2p-open').click() },
+      { id: 'h2p.print', title: 'Print or save as PDF…', group: 'File', keys: [], when: hasSource, run: print }]);
+    if (C.provide) C.provide({ prepare: () => import(new URL('js/ai-commands.js', location.href).href) });
+  }
 })();
