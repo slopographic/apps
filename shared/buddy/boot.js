@@ -74,7 +74,10 @@ function makeToggle() {
   Object.assign(btn.style, { position: 'fixed', zIndex: String((cfg.z || 900) + 2), width: '44px', height: '44px' });
   const main = btn.querySelector('.bt-main');
   const pos = getPrefs().btn;
-  place(pos ? pos.right : 14, pos ? pos.bottom : 14);
+  // Not moved yet: the bottom corner, above a panel's footer with an app's main button (shared/frame/panel.js, --slop-foot-h)
+  const home = () => { if (!getPrefs().btn) place(14, 14 + (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--slop-foot-h')) || 0)); };
+  if (pos) place(pos.right, pos.bottom); else home();
+  addEventListener('slop-foot', home);
   // Drag to move (position remembered); a click toggles.
   let drag = null;
   main.addEventListener('pointerdown', (e) => {

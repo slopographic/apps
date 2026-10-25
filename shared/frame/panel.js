@@ -37,7 +37,10 @@
       const r = f.getBoundingClientRect();
       if (r.height && r.top < vh && r.bottom > vh * 0.75) h = Math.max(h, vh - r.top);
     });
-    doc.documentElement.style.setProperty('--slop-foot-h', Math.ceil(h) + 'px');
+    const v = Math.ceil(h) + 'px', root = doc.documentElement;
+    if (root.style.getPropertyValue('--slop-foot-h') === v) return;
+    root.style.setProperty('--slop-foot-h', v);
+    g.dispatchEvent(new g.CustomEvent('slop-foot'));   // the buddy's button (shared/buddy/boot.js) moves up too
   }
   g.addEventListener('resize', lift);
 
@@ -184,7 +187,7 @@
       foot.append(bar);
       if (fo.note) foot.append(el('p', 'sf-foot-note', fo.note));
       if (foot.parentNode !== panel || panel.lastChild !== foot) panel.append(foot);
-      if (ro) ro.observe(foot);
+      if (ro) { ro.observe(foot); ro.observe(panel); }   // the panel too: a footer that moves without resizing (the page got shorter)
       if (focused) { const again = foot.querySelector('[data-sf-key="' + focused.replace(/["\\]/g, '\\$&') + '"]'); if (again && !again.disabled) again.focus({ preventScroll: true }); }
     }
     return { render, footer, setTitle: (t) => { h.textContent = t; }, element: body, title: head, foot };

@@ -1,9 +1,9 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><title>Consent card above a phone sheet's footer</title>
+<head><meta charset="utf-8"><title>Consent card and buddy above a sheet footer</title>
 <style>body { margin: 0; } iframe { border: 0; display: block; }</style></head>
 <body>
-  <!-- Covers: shared/consent/banner.css, shared/consent/banner.js, shared/frame/panel.js -->
+  <!-- Covers: shared/consent/banner.css, shared/consent/banner.js, shared/frame/panel.js, shared/buddy/boot.js -->
   <script src="../harness.js"></script>
   <script>
   const { describe, it, expect, waitFor, sleep } = SlopTest;
@@ -19,6 +19,14 @@
     return f;
   }
   const box = (f, sel) => f.contentDocument.querySelector(sel).getBoundingClientRect();
+  /** The buddy's round button (bottom corner), when the page has it, stays clear of the footer's buttons. */
+  async function buddyClear(f) {
+    const b = await waitFor(() => f.contentDocument.querySelector('.buddy-toggle'), { timeout: 15000 });
+    const clear = () => { const r = b.getBoundingClientRect(), a = box(f, '.sf-foot-acts'); return r.bottom <= a.top + 0.5 || r.top >= a.bottom - 0.5 || r.right <= a.left || r.left >= a.right; };
+    await waitFor(clear, { timeout: 5000 }).catch(() => {});   // the footer settles after the app's first paint
+    const r = b.getBoundingClientRect();
+    expect([clear(), Math.round(r.top), Math.round(r.bottom), JSON.stringify(box(f, '.sf-foot-acts'))]).toEqual([true, Math.round(r.top), Math.round(r.bottom), JSON.stringify(box(f, '.sf-foot-acts'))]);
+  }
 
   describe('the consent card and the sheet footer', () => {
     it('at 390 px the card sits above the closed sheet footer (the main button is not covered)', async () => {
@@ -44,6 +52,13 @@
       expect(Math.round(800 - box(f, '#slopc-banner').bottom)).toBe(16);
       f.remove();
     }, { timeout: 60000 });
+    for (const [w, h] of [[390, 844], [1280, 800]]) {
+      it(`at ${w} px the buddy's button (SlopLabel) sits above the footer's buttons`, async () => {
+        const f = await open(w, h, 'label');
+        await buddyClear(f);
+        f.remove();
+      }, { timeout: 60000 });
+    }
   });
   SlopTest.run({ name: 'Consent card above a phone sheet footer' });
   </script>
