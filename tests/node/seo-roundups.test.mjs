@@ -5,6 +5,7 @@
 //   shared/seo/roundups/creative-2.mjs, shared/seo/roundups/creative-3.mjs, shared/seo/roundups/creative-4.mjs, shared/seo/roundups/documents.mjs,
 //   shared/seo/roundups/documents-2.mjs, shared/seo/roundups/documents-3.mjs, shared/seo/roundups/documents-4.mjs, shared/seo/roundups/business.mjs,
 //   shared/seo/roundups/business-2.mjs, shared/seo/roundups/business-3.mjs
+//   shared/seo/roundups/recorder.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';

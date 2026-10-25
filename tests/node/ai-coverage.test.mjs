@@ -12,7 +12,8 @@ import vm from 'node:vm';
 // Apps that must stay covered. Add an app here once its commands cover it (never remove one to make the test pass).
 const COVERED = ['photoslop', 'vector', 'pdf', 'label', 'reports', 'docs', 'tables', 'slides', 'press', 'contacts', 'inventory', 'orders', 'quotes', 'purchases',
   'timesheets', 'expenses', 'invoices', 'notes', 'signature', 'qr', 'crm', 'calendar', 'todo', 'ledger', 'drive', 'code', 'gallery', '3d', 'nodes', 'cutout', 'ocr', 'html2pdf', 'resize', 'upscale', 'watermark', 'paste', 'reminders', 'admin', 'time',
-  'slopedit', 'projects', 'diff'];   // SlopCut and Slop Projects (wip/video-ai)
+  'slopedit', 'projects',   // SlopCut and Slop Projects (wip/video-ai)
+  'diff', 'recorder'];
 const rows = scan();
 
 test('AI-COVERAGE.md is up to date (run node tools/ai-coverage.mjs)', () => {

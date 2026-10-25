@@ -155,6 +155,7 @@ Kind: tool (open → settings → run → save), editor, records (list + form), 
 | SlopIsolate | slopisolate/ | editor | queue left, #props right; Download, Send back in the header | close | #props is resizable; Download and Send back still in the header (its own branch owns the panel) |
 | Slop OCR | ocr/ | tool | settings row above the work area, Read in it | done | the model prompt shows before the tool, as before |
 | Slop Transcribe | transcribe/ | tool | controls above, list left, text right | done | the file list stays in the view, left of the transcript |
+| Slop Recorder | recorder/ | tool | new: stage centre, settings right, Record at the panel's foot | done | |
 | SlopClean | clean/ | tool | choices panel right, Copy and clean in the header | done | |
 | Slop HTML to PDF | html2pdf/ | tool | settings LEFT, Print in the header | done | |
 | Slop Image to 3D | img3d/ | tool | settings LEFT, Send in the header | done | |

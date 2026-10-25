@@ -6,7 +6,7 @@ that this file is up to date and that no covered app loses a create, add or expo
 
 **Covered** means the assistant can create, add content, edit and export there. ✗ marks a gap.
 
-Covered: 42 of 59 apps.
+Covered: 43 of 60 apps.
 
 | App | Create | Add | Edit | Export | Operations | Covered |
 |---|---|---|---|---|---|---|
@@ -50,6 +50,7 @@ Covered: 42 of 59 apps.
 | Slopnodes (`nodes`) | ✓ 2 | ✓ 1 | ✓ 4 | ✓ 2 |  | yes |
 | Serial counter (`serials`) | ✗ | ✓ 3 | ✓ 4 | ✓ 1 |  | no |
 | Slop Transcribe (`transcribe`) | ✗ | ✓ 1 | ✓ 6 | ✓ 1 | 1 | owned by wip/video-ai |
+| Slop Recorder (`recorder`) | ✓ 1 | ✓ 1 | ✓ 6 | ✓ 1 |  | yes |
 | Slop Signature (`signature`) | ✓ 1 | ✓ 2 | ✓ 2 | ✓ 1 |  | yes |
 | QR SLOP (`qr`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | yes |
 | Slop Workflows (`workflows`) | ✗ | ✗ | ✗ | ✗ |  | no |
@@ -330,6 +331,13 @@ Covered: 42 of 59 apps.
 - edit: `clear_files`, `correct_text`, `remove_file`, `select_file`, `stop`, `transcribe`
 - export: `save_transcript`
 - operations: `transcribe.text`
+
+### Slop Recorder
+
+- create: `new_recording`
+- add: `add_recording`
+- edit: `pause_recording`, `resume_recording`, `set_format`, `start_recording`, `stop_recording`, `trim_recording`
+- export: `export_recording`
 
 ### Slop Signature
 

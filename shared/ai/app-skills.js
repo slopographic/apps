@@ -41,6 +41,7 @@
     "nodes": {"create":["build_graph","new_graph"],"add":["add_node"],"ops":[]},
     "serials": {"create":[],"add":["add_photos","add_serial","add_text"],"ops":[]},
     "transcribe": {"create":[],"add":["add_from_drive"],"ops":["transcribe.text"]},
+    "recorder": {"create":["new_recording"],"add":["add_recording"],"ops":[]},
     "signature": {"create":["new_signature"],"add":["add_links","add_picture"],"ops":[]},
     "qr": {"create":["new_qr"],"add":["add_logo"],"ops":[]},
     "calculator": {"create":[],"add":["add_calculation"],"ops":[]},
