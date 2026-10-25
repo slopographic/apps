@@ -6,7 +6,7 @@ that this file is up to date and that no covered app loses a create, add or expo
 
 **Covered** means the assistant can create, add content, edit and export there. ✗ marks a gap.
 
-Covered: 41 of 58 apps.
+Covered: 42 of 59 apps.
 
 | App | Create | Add | Edit | Export | Operations | Covered |
 |---|---|---|---|---|---|---|
@@ -46,6 +46,7 @@ Covered: 41 of 58 apps.
 | Slop Hex (`hex`) | ✓ 1 | ✗ | ✓ 3 | ✓ 2 |  | no |
 | Slop EML (`eml`) | ✓ 1 | ✗ | ✓ 4 | ✓ 1 |  | no |
 | Checksum (`checksum`) | ✗ | ✗ | ✓ 1 | ✓ 1 |  | no |
+| Slop Compare (`diff`) | ✓ 1 | ✓ 2 | ✓ 2 | ✓ 1 | 1 | yes |
 | Slopnodes (`nodes`) | ✓ 2 | ✓ 1 | ✓ 4 | ✓ 2 |  | yes |
 | Serial counter (`serials`) | ✗ | ✓ 3 | ✓ 4 | ✓ 1 |  | no |
 | Slop Transcribe (`transcribe`) | ✗ | ✓ 1 | ✓ 6 | ✓ 1 | 1 | owned by wip/video-ai |
@@ -301,6 +302,14 @@ Covered: 41 of 58 apps.
 
 - edit: `hash_file`
 - export: `save_hash`
+
+### Slop Compare
+
+- create: `new_comparison`
+- add: `add_file`, `add_text`
+- edit: `compare`, `set_options`
+- export: `export_report`
+- operations: `diff.report`
 
 ### Slopnodes
 

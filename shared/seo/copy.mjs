@@ -82,6 +82,8 @@ export const APPS = {
     description: 'Open .eml files and .mbox mailboxes in your browser. Read, search and print them, combine many into one PDF, or export text and CSV. Nothing uploaded.' },
   checksum: { title: 'Checksum: SHA-256 file hash checker online, free | Slopographic', category: 'UtilitiesApplication',
     description: 'Compute SHA-256, SHA-384, SHA-512 or SHA-1 for any file in your browser, and check it against a published hash. Nothing is uploaded.' },
+  diff: { title: 'Slop Compare: compare two texts, files, PDFs or images | Slopographic', category: 'UtilitiesApplication',
+    description: 'Compare two texts, code files, JSON, CSV, PDFs or images in your browser: every change word by word, a report and a .patch. Nothing is uploaded.' },
   nodes: { title: 'Slopnodes: node calculator with live formulas | Slopographic', category: 'BusinessApplication',
     description: 'A node calculator: named formulas joined by their names. Change a value and every node downstream updates. Runs in your browser.' },
   sorter: { title: 'Slop Photo Sorter: swipe to keep the best photos | Slopographic', category: 'MultimediaApplication',

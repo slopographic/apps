@@ -11,5 +11,6 @@ import { GUIDES as documents3 } from './documents-3.mjs';
 import { GUIDES as documents4 } from './documents-4.mjs';
 import { GUIDES as business } from './business.mjs';
 import { GUIDES as everyday } from './everyday.mjs';
+import { GUIDES as compare } from './compare.mjs';
 
-export const GUIDES = [...creative, ...creative2, ...creative3, ...creative4, ...documents, ...documents2, ...documents3, ...documents4, ...business, ...everyday];
+export const GUIDES = [...creative, ...creative2, ...creative3, ...creative4, ...documents, ...documents2, ...documents3, ...documents4, ...business, ...everyday, ...compare];

@@ -9,6 +9,7 @@ import './upscale.js';
 import './clean.js';
 import './ocr.js';
 import './files.js';
+import './diff.js';   // Slop Compare: two files → a report
 import './video.js';   // SlopCut's edit list, reframe, captions and reel, and Slop Transcribe's speech to text
 import './create.js';
 import './create-tables.js';

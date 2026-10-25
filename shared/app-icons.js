@@ -67,6 +67,7 @@
     hex: '<path d="M16 8h-6v32h6M32 8h6v32h-6"/><path d="M18 24h2M23 24h2M28 24h2"/>',
     eml: '<rect x="6" y="11" width="36" height="26" rx="3"/><path d="M7 14l17 13 17-13"/><path d="M10 33h8M30 33h8"/>',
     checksum: '<path d="M17 7 13 41M35 7 31 41M7 18h34M6 30h34"/>',
+    diff: '<rect x="6" y="8" width="15" height="32" rx="2"/><rect x="27" y="8" width="15" height="32" rx="2"/><path d="M10 15h7M10 21h4M10 27h7M31 15h7M31 21h7M31 27h3"/><path d="M21 24h6"/>',
     nodes: '<circle cx="12" cy="14" r="3"/><circle cx="36" cy="14" r="3"/><circle cx="24" cy="34" r="3"/><path d="M15 14h18M13 17l9 14M35 17l-9 14"/>',
     signature: '<rect x="6" y="10" width="36" height="28" rx="3"/><path d="M6 13l18 13 18-13"/><path d="M14 33c3-5 5-5 6-2s3 3 5-1 4-3 5 0 3 2 6-1"/>',
     transcribe: '<rect x="18" y="6" width="12" height="22" rx="6"/><path d="M12 22a12 12 0 0 0 24 0M24 34v6M17 40h14"/>',
