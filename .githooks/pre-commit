@@ -21,6 +21,6 @@ if command -v node >/dev/null 2>&1; then
 fi
 # The AI coverage audit follows the apps' commands (tools/ai-coverage.mjs; tests/node/ai-coverage.test.mjs checks it).
 if command -v node >/dev/null 2>&1; then
-  node tools/ai-coverage.mjs --index >/dev/null && git add shared/commands/AI-COVERAGE.md
+  node tools/ai-coverage.mjs --index >/dev/null && git add shared/commands/AI-COVERAGE.md shared/ai/app-skills.js
 fi
 exit 0
