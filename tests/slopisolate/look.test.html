@@ -6,6 +6,7 @@
   <!-- Covers: slopisolate/css/base.css -->
   <!-- Covers: slopisolate/css/themes.css -->
   <!-- Covers: slopisolate/js/ui/menus.js -->
+  <!-- Covers: slopisolate/js/ui/main.js, slopisolate/js/ui/openin.js, slopisolate/js/ui/view-state.js -->
   <script src="../harness.js"></script>
   <script>
   const { describe, it, expect, waitFor, sleep } = SlopTest;
@@ -40,18 +41,32 @@
   const noSideScroll = (D) => expect(D.documentElement.scrollWidth).toBeLessThanOrEqual(D.defaultView.innerWidth);
 
   describe('SlopIsolate: the look', () => {
-    it('at 1440px: one header, the shared buttons keep their labels and are as tall as Download', async () => {
+    it('at 1440px: one header, the shared buttons keep their labels and are as tall as the app\'s own', async () => {
       const D = await open(1440);
       expect(headers(D).length).toBe(1);
       expect(D.querySelector('header.slop-htight')).toBe(null);
-      sameHeight(D, ['#btnDownload', '#btnOpenIn']);
+      sameHeight(D, ['#btnClearSaved', '#btnPanel']);
     }, { timeout: 40000 });
 
-    it('at 1024 and 390px nothing scrolls sideways, and More holds Open in and Clear saved work', async () => {
+    it('at 1280px Download and Open in… sit at the foot of the settings panel on the right, and Download downloads', async () => {
+      const D = await open(1280), W = D.defaultView, dl = D.getElementById('btnDownload'), props = D.getElementById('props');
+      expect(D.querySelector('.topbar').contains(dl)).toBe(false);
+      expect(dl.closest('.sf-p-foot').parentNode).toBe(props);
+      expect(props.querySelector('.sf-p-foot').contains(D.getElementById('btnOpenIn'))).toBe(true);
+      expect(box(props).left).toBeGreaterThan(box(D.getElementById('workspace')).right - 1);
+      expect(box(props).bottom - box(dl).bottom).toBeLessThan(30);
+      expect(box(dl).bottom).toBeLessThanOrEqual(W.innerHeight);
+      let n = 0; W.CO.menus.act.exportOne = () => { n++; };
+      dl.disabled = false; dl.click();
+      expect(n).toBe(1);
+    }, { timeout: 40000 });
+
+    it('at 1024 and 390px nothing scrolls sideways, Open in… is in the panel\'s footer, and More holds Open in and Clear saved work', async () => {
       for (const w of [1024, 390]) {
         const D = await open(w);
         noSideScroll(D);
-        expect(shown(D.getElementById('btnOpenIn'))).toBe(false);
+        expect(shown(D.getElementById('btnOpenIn'))).toBe(true);
+        expect(D.getElementById('btnOpenIn').closest('.sf-p-foot')).toBeTruthy();
         D.getElementById('btnMore').click();
         const menu = await waitFor(() => D.querySelector('.sui-menu'), { timeout: 4000 });
         expect(menu.textContent).toContain('Open in');
