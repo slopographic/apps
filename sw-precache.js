@@ -116,7 +116,7 @@ PRECACHE.push(
   '/gallery/js/ui/people-faces.js', '/gallery/js/ui/people.js', '/gallery/js/ui/reel.js', '/gallery/js/ui/rows.js', '/gallery/js/ui/sidebar.js',
   '/gallery/js/ui/sortmode.js', '/gallery/js/ui/state.js', '/gallery/js/ui/timeline.js', '/gallery/js/ui/view-state.js', '/gallery/js/ui/viewer.js',
   '/gallery/js/ui/vlist.js', '/hex/css/hex.css', '/hex/index.html', '/hex/js/actions.js', '/hex/js/bytes.js', '/hex/js/commands.js', '/hex/js/doc.js',
-  '/hex/js/grid.js', '/hex/js/main.js', '/hex/js/route.js', '/hex/js/tabs.js', '/home/browse.js', '/home/catalog.js', '/home/home.css',
+  '/hex/js/grid.js', '/hex/js/main.js', '/hex/js/panel.js', '/hex/js/route.js', '/hex/js/tabs.js', '/home/browse.js', '/home/catalog.js', '/home/home.css',
   '/home/mascot/index.js', '/home/sections.js', '/html2pdf/css/app.css', '/html2pdf/index.html', '/html2pdf/js/app.js', '/html2pdf/js/layout.js',
   '/html2pdf/js/print-path.js', '/html2pdf/js/qr.js', '/html2pdf/js/sheet.js', '/html2pdf/js/source.js', '/img3d/css/img3d.css', '/img3d/index.html',
   '/img3d/js/app/export.js', '/img3d/js/app/image.js', '/img3d/js/app/layout.js', '/img3d/js/app/main.js', '/img3d/js/core/hfmesh.js',

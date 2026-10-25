@@ -36,6 +36,7 @@
   <link rel="stylesheet" href="../shared/fonts/fonts.css">
   <link rel="stylesheet" href="../shared/slopui.css">
   <link rel="stylesheet" href="../shared/commands/commands.css">
+  <link rel="stylesheet" href="../shared/frame/frame.css">
   <link rel="stylesheet" href="css/hex.css">
   <link rel="stylesheet" href="../shared/doctabs/doctabs.css" data-src="shared/doctabs/doctabs.css">
   <script src="../shared/apps.js"></script>
@@ -68,6 +69,11 @@
   <script src="../shared/drop/drop.js" data-src="shared/drop/drop.js"></script>
   <script src="../shared/samples/samples.js" data-src="shared/samples/samples.js"></script>
   <script src="../shared/samples/docs.js" data-src="shared/samples/docs.js"></script>
+  <script src="../shared/ui/sheet.js" data-src="shared/ui/sheet.js"></script>
+  <script src="../shared/ui/resize-panel.js" data-src="shared/ui/resize-panel.js"></script>
+  <script src="../shared/frame/frame.js" data-src="shared/frame/frame.js"></script>
+  <script src="../shared/frame/panel.js" data-src="shared/frame/panel.js"></script>
+  <script src="js/panel.js"></script>
   <script src="js/main.js"></script>
 </head>
 <body>
@@ -110,6 +116,7 @@
       <div><dt>Selection</dt><dd id="hx-sel"></dd></div>
     </dl>
 
+    <div class="hx-body" id="hx-body">
     <main class="hx-main" id="hx-main">
       <div class="hx-empty" id="hx-empty">
         <p class="hx-empty-t">Open any file to see its bytes.</p>
@@ -124,6 +131,8 @@
         <div class="hx-rows" id="hx-rows"></div>
       </div>
     </main>
+    <aside class="hx-side" id="hx-side" aria-label="Inspector"></aside>
+    </div>
   </div>
   <script src="../shared/tour/mount.js" data-app="hex"></script>
   <script src="../shared/urlstate/urlstate.js"></script>
@@ -133,7 +142,7 @@
   <script src="../shared/spotlight/spotlight.js"></script>
 <link rel="stylesheet" href="../shared/menubar/menubar.css">
 <script src="../shared/menubar/menubar.js"></script>
-<script>SlopMenuBar.mount({"app": "Slop Hex", "tools": ["#hx-open", "#hx-save", "#hx-dl"], "menus": {"File": ["#hx-open", "#hx-drive", "#hx-save", "#hx-saveas", "#hx-dl"], "Edit": ["#hx-prev", "#hx-next", "#hx-sha-btn"], "Help": ["#hx-cmd"]}});</script>
+<script>SlopMenuBar.mount({"app": "Slop Hex", "tools": ["#hx-open"], "menus": {"File": ["#hx-open", "#hx-drive", "#hx-save", "#hx-saveas", "#hx-dl"], "Edit": ["#hx-prev", "#hx-next", "#hx-sha-btn"], "Help": ["#hx-cmd"]}});</script>
   <script src="../shell/shell.js"></script>
 <i id="slop-built" hidden></i>
 </body>
