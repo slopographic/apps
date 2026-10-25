@@ -1,4 +1,4 @@
-// Removing text from a page's content stream (pdf/js/core/content-lex.js, content-strip.js, content-fills.js): the
+// Removing text from a page's content stream (pdf/js/core/content-lex.js, content-strip.js, content-fills.js, content-ink.js): the
 // operators of the text that goes are rewritten so the rest of the page keeps its place, and every other operator stays
 // byte for byte. Run with: node --test tests/node/pdf-content-strip.test.mjs
 import { test } from 'node:test';
@@ -9,6 +9,7 @@ const require = createRequire(import.meta.url);
 const Lx = require('../../pdf/js/core/content-lex.js');
 const St = require('../../pdf/js/core/content-strip.js');
 const Fi = require('../../pdf/js/core/content-fills.js');
+const Ink = require('../../pdf/js/core/content-ink.js');
 
 // every glyph of F1 is half an em wide; F2 is a two-byte font a full em wide; F9 cannot be measured
 const fonts = (n) => (n === 'F1' ? { two: false, width: () => 500 } : n === 'F2' ? { two: true, width: () => 1000 } : null);
@@ -113,7 +114,7 @@ test('the colour under a box: the last filled rectangle that holds it, white on 
   assert.equal(Fi.under(ops, { x0: 60, y0: 698, x1: 80, y1: 710 }, null, xobj), null); // the shading painted last covers all
   assert.equal(Fi.under(ops, { x0: 60, y0: 698, x1: 80, y1: 710 }, text), null); // an XObject it cannot look into: not flat
   assert.deepEqual(Fi.under(Lx.lex('BT /F1 10 Tf (x) Tj ET'), { x0: 0, y0: 0, x1: 5, y1: 5 }), [1, 1, 1]);
-  assert.deepEqual(Fi.under(Lx.lex('0 0 1 0 k 0 0 10 10 re f'), { x0: 1, y0: 1, x1: 2, y1: 2 }), [1, 1, 0]);
+  assert.deepEqual(Fi.under(Lx.lex('0 0 1 0 k 0 0 10 10 re f'), { x0: 1, y0: 1, x1: 2, y1: 2 }), Ink.cmyk(0, 0, 1, 0)); // as pdf.js draws it
   assert.equal(Fi.under(Lx.lex('/Pattern cs /P0 scn 0 0 10 10 re f'), { x0: 1, y0: 1, x1: 2, y1: 2 }), null);
 });
 

@@ -64,6 +64,8 @@
   P.capable = function (eng) {
     try { const m = K.catalog && K.catalog.byId(eng.info().id); return !!m && (m.strengths || []).includes('tools') && m.params >= 3; } catch (e) { return false; }
   };
+  /** The site's apps, what each makes (appTools.catalog with the generated app-skills.js), for the system prompt. */
+  const SITE = () => `The apps on the site. "Tools there" are the commands you get in that app (open_in_app first); "Operations" run from any page with run_operation:\n${K.appTools.catalog(window.SLOP_APPS || [])}`;
   /** The rule for tasks that use other apps, with the person's setting (handoff.js mode). */
   function hopRule() {
     const show = K.handoff && K.handoff.mode() === 'show';
@@ -82,12 +84,14 @@
         'Files stay on the device: to see a picture or read a file, call look_at_file. After the actions, answer in one short sentence. If a tool fails, say so plainly; do not invent results.',
         'Be resourceful: build what is asked from the tools you have (layers, shapes, text, gradients, SVG, fills, filters, and generate_image when it is there) instead of saying it cannot be done. After making something visual, check it with look_at_canvas when it is available, and fix what is off.',
         `Never refuse because ${name} cannot do something. ${hopRule()}`,
-        `The apps on the site:\n${K.appTools.catalog(window.SLOP_APPS || [])}`);
+        SITE());
     } else if (tools.length) {
       lines.push(`You control ${name} with the tools below. Call app_state first when you need to know what is open.`,
         'Plan the fewest steps. Use the tools that match the request directly, with arguments in the given ranges.',
         'You may put several <tool_call> lines in one reply; they run in order. After the results, answer in one short sentence.',
         'If a tool fails, say so plainly; do not invent results.', hopRule());
+      // a local model that gets the operations (capable, or the test engine) also gets the map of what each app makes
+      if (eng && (eng.kind === 'fake' || P.capable(eng))) lines.push(SITE());
     }
     return lines.join(' ');
   }

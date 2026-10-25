@@ -12,7 +12,7 @@
   /* Pro (dark) */
   --bg-app: #1e1e1e; --bg-panel: #2b2b2b; --bg-panel-2: #323232; --bg-input: #1c1c1c; --bg-hover: #3a3a3a; --bg-active: #4a4a4a;
   --border: #3c3c3c; --border-dark: #151515; --sep: #3a3a3a;
-  --text: #dcdcdc; --text-dim: #a3a3a3; --text-faint: #6d6d6d;
+  --text: #dcdcdc; --text-dim: #a3a3a3; --text-faint: #9c9c9c;
   --accent: #d4ff3a; --accent-ink: #0a0a0a; --accent-line: #d4ff3a; --accent-soft: rgba(212, 255, 58, .14);
   --pasteboard: #383838; --ruler-bg: #262626; --ruler-fg: #8d8d8d; --ruler-tick: #555;
   --menu-bg: #2f2f2f; --menu-hover-bg: #d4ff3a; --menu-hover-fg: #0a0a0a;
@@ -27,7 +27,7 @@
 :root[data-theme="light"] {
   --bg-app: #e6e6e6; --bg-panel: #f2f2f2; --bg-panel-2: #e5e5e5; --bg-input: #ffffff; --bg-hover: #e1e1e1; --bg-active: #d0d0d0;
   --border: #cdcdcd; --border-dark: #bdbdbd; --sep: #d4d4d4;
-  --text: #1c1c1c; --text-dim: #555; --text-faint: #8c8c8c;
+  --text: #1c1c1c; --text-dim: #555; --text-faint: #636363;
   --accent: #d4ff3a; --accent-ink: #0a0a0a; --accent-line: #5d7a00; --accent-soft: rgba(150, 190, 0, .16);
   --pasteboard: #cacaca; --ruler-bg: #ececec; --ruler-fg: #666; --ruler-tick: #a8a8a8;
   --menu-bg: #fafafa; --menu-hover-bg: #d4ff3a; --menu-hover-fg: #0a0a0a;
@@ -46,16 +46,16 @@
   --radius: 0; --radius-s: 0;
   --bg-app: #c0c0c0; --bg-panel: #c0c0c0; --bg-panel-2: #c0c0c0; --bg-input: #ffffff; --bg-hover: #000080; --bg-active: #c0c0c0;
   --border: #808080; --border-dark: #000; --sep: #808080;
-  --text: #000; --text-dim: #222; --text-faint: #808080;
+  --text: #000; --text-dim: #222; --text-faint: #4a4a4a;
   --accent: #000080; --accent-ink: #fff; --accent-line: #000080; --accent-soft: rgba(0, 0, 128, .12);
   --pasteboard: #008080; --ruler-bg: #c0c0c0; --ruler-fg: #000; --ruler-tick: #404040;
   --menu-bg: #c0c0c0; --menu-hover-bg: #000080; --menu-hover-fg: #fff;
   --shadow: 2px 2px 0 rgba(0, 0, 0, .55);
   --btn-bg: #c0c0c0; --btn-hover: #c0c0c0; --btn-border: transparent;
-  --title-bg: linear-gradient(90deg, #000080, #1084d0); --title-fg: #fff;
+  --title-bg: linear-gradient(90deg, #000080, #0a5ea8); --title-fg: #fff;
   --sel-row: #000080; --sel-row-strong: #000080;
   --artboard-shadow: #000;
-  --doctab-bg: linear-gradient(90deg, #000080, #1084d0); --doctab-fg: #fff;
+  --doctab-bg: linear-gradient(90deg, #000080, #0a5ea8); --doctab-fg: #fff;
   --bevel-out: inset -1px -1px #0a0a0a, inset 1px 1px #dfdfdf, inset -2px -2px #808080, inset 2px 2px #fff;
   --bevel-in: inset -1px -1px #fff, inset 1px 1px #808080, inset -2px -2px #dfdfdf, inset 2px 2px #0a0a0a;
   --bevel-btn: inset -1px -1px #0a0a0a, inset 1px 1px #fff, inset -2px -2px #808080, inset 2px 2px #dfdfdf;

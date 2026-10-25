@@ -18,17 +18,26 @@
  *                                      //   its panel its own way); without it the × is a phone-only thing
  *     onChange: (open, why) => {},     // why: 'trigger', 'toggle', 'close', 'outside', 'wide', 'api', 'destroy'
  *   });
- *   s.open(); s.close(); s.toggle(); s.isOpen(); s.isPhone(); s.destroy();
+ *   s.open(); s.close(); s.toggle(); s.isOpen(); s.isPhone(); s.destroy(); s.panel; s.side;   SlopSheet.list(): all of the page's
  *
  * The sheet is not modal: focus stays where it was when it opens, and goes back to the button that opened it when the ×
  * or Escape closes it. A tap outside closes the sheet and still reaches what was tapped. Several sheets can share a root
- * (a drawer and a details sheet): the open one is marked on its panel ('ssh-on'), and Escape closes one at a time.
+ * (a drawer and a details sheet): the open one is marked on its panel ('ssh-on').
  * The × stays the panel's first child when the app redraws the panel. Classic script, no dependencies; injects its
- * styles once (colours from --sl-* theme tokens). Tests: tests/shared/sheet.test.html. */
+ * styles once (colours from --sl-* theme tokens). Tests: tests/shared/sheet.test.html.
+ *
+ * Every sheet on a phone, the app's own look or the shared one, is opaque: its background is --slop-sheet-bg (the theme's
+ * surface), never translucent, faded or blurred, and the page behind it is dimmed (a shadow that takes no taps). Only one
+ * sheet is open at a time on a page: opening one closes any other (why 'other'). While the on-screen keyboard is up
+ * (shared/input/keyboard.js, the 'slopkeyboard' event) a bottom sheet rises above it and a drawer ends at its top.
+ * Tests: tests/shared/keyboard.test.html, tests/shared/sheet-opaque.test.html, tests/pdf/keyboard.test.html. */
 (function (g) {
   'use strict';
   if (g.SlopSheet) return;
   const CSS = `
+:root { --slop-sheet-bg: var(--sl-surface, Canvas); --slop-sheet-dim: rgba(0, 0, 0, .4); }
+.ssh-phone .ssh-sheet { background-color: var(--slop-sheet-bg) !important; opacity: 1 !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+.ssh-phone .ssh-sheet.ssh-on { box-shadow: 0 -12px 32px rgba(0, 0, 0, .3), 0 0 0 100vmax var(--slop-sheet-dim) !important; }
 .ssh-x { display: none; }
 .ssh-phone .ssh-x, .ssh-x.ssh-x-wide { display: inline-flex; position: sticky; inset-block-start: 0; float: inline-end; z-index: 3; align-items: center; justify-content: center;
   inline-size: 44px; block-size: 44px; margin-block-end: -44px; margin-inline: auto 2px; align-self: flex-end; flex: none; border: 0; border-radius: 12px; background: transparent;
@@ -41,7 +50,7 @@
   border-radius: 18px 18px 0 0; box-shadow: 0 -16px 40px rgba(0, 0, 0, .35); transform: translateY(calc(100% + 80px)); visibility: hidden;
   transition: transform .22s ease, visibility 0s .22s; }
 .ssh-phone .ssh-panel.ssh-start, .ssh-phone .ssh-panel.ssh-end { inset-block: var(--ssh-top, 0px) 0; inline-size: min(320px, 86vw); max-block-size: none;
-  border: 0; box-shadow: 0 0 0 100vmax rgba(0, 0, 0, .35); touch-action: pan-y; }
+  border: 0; touch-action: pan-y; }
 .ssh-phone .ssh-panel.ssh-start { inset-inline: 0 auto; border-radius: 0 18px 18px 0; transform: translateX(calc(-100% - 20px)); }
 .ssh-phone .ssh-panel.ssh-end { inset-inline: auto 0; border-radius: 18px 0 0 18px; transform: translateX(calc(100% + 20px)); }
 .ssh-phone .ssh-panel.ssh-start:dir(rtl) { transform: translateX(calc(100% + 20px)); }
@@ -63,6 +72,20 @@
   const OVER_KEY = '.sui-back, .sui-menu, .smb-menu[role="menu"], .smb-pop:not([hidden]), dialog[open]';
   const OVER_TAP = '.sui-back, .sui-menu, .smb-menu[role="menu"], [role="dialog"], [role="menu"]';
   const RTL = (el) => { try { return el.matches(':dir(rtl)'); } catch (e) { return false; } };
+  const live = new Set();   // the attached sheets of this page: one open at a time
+
+  /** Keeps an open sheet clear of the on-screen keyboard (kb: its height in CSS px, 0 when it is down). */
+  function clearKeyboard(panel, side, kb, win) {
+    const st = panel.style;
+    st.removeProperty('translate'); st.removeProperty('max-block-size'); st.removeProperty('inset-block-end');
+    if (!kb || !panel.classList.contains('ssh-on')) return;
+    if (side !== 'bottom') { st.setProperty('inset-block-end', kb + 'px'); return; }
+    // the sheet's resting place (not its box: it may still be sliding in), then up by what the keyboard covers of it
+    const cs = win.getComputedStyle(panel), gap = parseFloat(cs.bottom) || 0, max = parseFloat(cs.maxHeight);
+    const lift = Math.max(0, kb - gap), room = win.document.documentElement.clientHeight - Math.max(kb, gap) - 48;
+    if (lift) st.setProperty('translate', '0 ' + -lift + 'px');
+    st.setProperty('max-block-size', Math.max(120, isNaN(max) ? room : Math.min(max, room)) + 'px');
+  }
 
   function attach(o) {
     const root = o.root, panel = o.panel, doc = panel.ownerDocument, win = doc.defaultView;
@@ -70,6 +93,7 @@
     const side = o.side === 'start' || o.side === 'end' ? o.side : 'bottom';
     const cls = o.openClass || 'ssh-open', isActive = o.isActive || activeDefault;
     if (!o.openClass) panel.classList.add('ssh-panel');
+    panel.classList.add('ssh-sheet');
     if (side !== 'bottom') panel.classList.add('ssh-' + side);
     const mq = win.matchMedia(o.phone || '(max-width: 900px)');
     const toggles = o.toggles || [];
@@ -86,16 +110,23 @@
     if (mo) mo.observe(panel, { childList: true });
 
     const isOpen = () => panel.classList.contains('ssh-on');
+    const me = { closeFor: () => { if (isOpen()) set(false, 'other'); } };
+    live.add(me);
+    const kbNow = () => (win.SlopKeyboard && win.SlopKeyboard.height ? win.SlopKeyboard.height() : 0);
+    const onKb = () => clearKeyboard(panel, side, isOpen() && mq.matches ? kbNow() : 0, win);
+    win.addEventListener('slopkeyboard', onKb);
     function set(open, why) {
       if (open && !mq.matches) return;   // a wide screen has no sheet
       if (open) ensureX();
       const was = isOpen();
+      if (open && !was) for (const other of live) if (other !== me) other.closeFor();
       panel.classList.toggle('ssh-on', !!open);
       root.classList.toggle(cls, !!open);
       if (open) root.setAttribute('data-slop-escape', 'sheet'); else root.removeAttribute('data-slop-escape');   // app commands leave Escape to it (shared/commands)
       if (!o.openClass) root.classList.toggle('ssh-open', !!open);
       for (const t of toggles) t.setAttribute('aria-expanded', String(!!open));
       if (was !== !!open && o.onChange) { o.onChange(!!open, why); if (open) ensureX(); }   // the app may have redrawn the panel
+      onKb();
     }
     const refocus = () => { if (opener && opener.isConnected) { try { opener.focus({ preventScroll: true }); } catch (e) { opener.focus(); } } };
     function close(back) {
@@ -160,19 +191,20 @@
     win.addEventListener('pointerup', onUp);
     win.addEventListener('pointercancel', onUp);
 
-    return {
-      open: () => set(true, 'api'), close: () => close(false), toggle: () => set(!isOpen(), 'api'), isOpen, isPhone: () => mq.matches,
+    return (me.api = {
+      panel, side, open: () => set(true, 'api'), close: () => close(false), toggle: () => set(!isOpen(), 'api'), isOpen, isPhone: () => mq.matches,
       destroy() {
-        set(false, 'destroy'); if (mo) mo.disconnect(); x.remove(); mq.removeEventListener('change', phoneClass); root.classList.remove('ssh-phone');
-        panel.classList.remove('ssh-panel', 'ssh-start', 'ssh-end');
+        set(false, 'destroy'); live.delete(me); win.removeEventListener('slopkeyboard', onKb); if (mo) mo.disconnect(); x.remove(); mq.removeEventListener('change', phoneClass); root.classList.remove('ssh-phone');
+        panel.classList.remove('ssh-panel', 'ssh-sheet', 'ssh-start', 'ssh-end');
         if (o.triggers) { o.triggers.removeEventListener('pointerdown', onTriggerDown, true); o.triggers.removeEventListener('keydown', onTriggerDown, true); o.triggers.removeEventListener('click', onTrigger); }
         for (const t of toggles) t.removeEventListener('click', onToggle);
         win.removeEventListener('keydown', onKey, true); doc.removeEventListener('pointerdown', onOutside, true);
         panel.removeEventListener('pointerdown', onDown); win.removeEventListener('pointermove', onMove);
         win.removeEventListener('pointerup', onUp); win.removeEventListener('pointercancel', onUp);
       },
-    };
+    });
   }
 
-  g.SlopSheet = { attach };
+  /** The sheets attached on this page (their attach() results). */
+  g.SlopSheet = { attach, list: () => Array.from(live, (m) => m.api) };
 })(typeof window !== 'undefined' ? window : globalThis);

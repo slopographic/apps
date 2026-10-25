@@ -78,6 +78,8 @@
       P = await frame();
       const eng = new P.SlopAIKit.FakeEngine({ delay: 0, loadMs: 0 }); await eng.load('fake');
       await P.SlopAIPanel.use(eng);
+      // Covers: shared/ai/app-skills.js — the map of what each app makes, generated from the apps' own commands
+      expect(!!P.SlopAIKit.appSkills.slides).toBe(true);   // the panel loads it
       const f = P.__frame;
       P.SlopAIPanel.send('make a presentation about slime');
       await waitFor(() => { try { return f.contentWindow.location.pathname.includes('/slides/'); } catch (e) { return false; } }, { timeout: 20000 });
@@ -86,6 +88,11 @@
       if (rec.to) { expect(rec.to).toBe('slides'); expect(rec.task).toBe('make a presentation about slime'); expect(rec.fromName).toBe('PhotoSlop');
         expect(rec.messages[0]).toEqual({ role: 'user', content: 'make a presentation about slime' }); expect(rec.chain.hop).toBe(1); }
       expect(eng.calls[0].messages[0].content).not.toMatch(/can.t|cannot/i);
+      const sys = eng.calls[0].messages[0].content;   // the fake engine gets the map like capable models
+      expect(sys).toContain('Tools there: build_presentation, new_presentation'); expect(sys).toContain('Operations: outline-to-presentation');
+      expect(sys).toMatch(/- docs: Slop Docs.*Tools there: build_document/); expect(sys).toMatch(/- tables: .*Operations: table-data-to-spreadsheet/);
+      expect(sys).toMatch(/- invoices: .*create_invoice/); expect(sys).toMatch(/- photoslop: .*add_svg_layer.*draw_shape.*use_tool/);
+      expect(sys).not.toContain('Nothing uploaded.');
       sessionStorage.removeItem('slop-ai.handoff');
     }, { timeout: 30000 });
 

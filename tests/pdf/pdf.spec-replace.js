@@ -19,8 +19,8 @@
       boxes[1].checked = false; boxes[1].dispatchEvent(new PT.win.Event('change', { bubbles: true }));
       doc().querySelector('.find-modal input[aria-label="Replace with"]').value = 'pear';
       doc().querySelector('.find-go').click();
-      await sleep(200);
       const pear = () => PT.E.state.pages.flatMap((p) => p.annots.filter((a) => a.type === 'text' && a.text === 'pear'));
+      await waitFor(() => pear().length === 2, { timeout: 8000 }); // the pages' colours are read first
       expect(pear().length).toBe(2);
       expect(PT.E.state.pages[0].annots.filter((a) => a.type === 'whiteout').length).toBe(1);
       PT.A.undo(); await sleep(80);

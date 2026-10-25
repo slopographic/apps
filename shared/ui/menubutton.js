@@ -18,29 +18,40 @@
  * label, value and keywords (groups with no match hide), ArrowDown goes to the first row, Enter picks the first match,
  * and a letter typed on a row goes back to the box.
  * A click outside closes it. Classic script; also works as a side-effect ES-module import. Injects its styles once;
- * colours come from the page's tokens (--panel, --ink, --line, --accent, --focus) with system colours as the fallback. */
+ * colours come from the page-wide theme tokens (see T below). */
 (function (g) {
   'use strict';
   if (g.SlopMenuButton) return;
+  /* Colours: the menu sits in <body>, outside the app's own themed boxes, so it reads only page-wide tokens: SlopUI's --s-*
+   * (shared/slopui.css sets them on .smb-menu from the app's --sui-* map, as for its own menus), else the theme's --sl-*
+   * (shared/theme/theme.js), else the system colours. Never an app's own --ink or --muted, which mean a background in some
+   * apps (--ink is the near-black page colour in Slop PDF): that put dark text on the dark menu. --smb-* overrides all. */
+  const T = {
+    bg: 'var(--smb-bg, var(--s-bg2, var(--sl-surface, Canvas)))', fg: 'var(--smb-fg, var(--s-fg, var(--sl-text, CanvasText)))',
+    line: 'var(--smb-line, var(--s-line, var(--sl-border, GrayText)))',
+    dim: 'var(--smb-dim, var(--s-dim, color-mix(in srgb, var(--sl-text, CanvasText) 72%, transparent)))',
+    accent: 'var(--smb-accent, var(--s-accent, var(--sl-accent, Highlight)))', focus: 'var(--smb-focus, var(--s-ring, var(--sl-accent, Highlight)))',
+  };
   const CSS = `
 .smb-menu[role="menu"] { position: fixed; z-index: 2000; min-inline-size: 220px; max-inline-size: calc(100vw - 16px); max-block-size: min(60vh, 420px); overflow-y: auto;
-  padding: 6px; margin: 0; box-sizing: border-box; background: var(--smb-bg, var(--panel, Canvas)); color: var(--smb-fg, var(--ink, var(--fg, CanvasText)));
-  border: 1px solid var(--smb-line, var(--line, GrayText)); border-radius: 10px; box-shadow: 0 12px 36px rgba(0, 0, 0, .35); font: inherit; font-size: 14px; }
-.smb-group + .smb-group { margin-block-start: 4px; padding-block-start: 4px; border-block-start: 1px solid var(--smb-line, var(--line, GrayText)); }
-.smb-h { margin: 0; padding-block: 4px 2px; padding-inline: 8px; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--smb-dim, var(--muted, GrayText)); }
+  padding: 6px; margin: 0; box-sizing: border-box; background: ${T.bg}; color: ${T.fg};
+  border: 1px solid ${T.line}; border-radius: 10px; box-shadow: 0 12px 36px rgba(0, 0, 0, .35); font: inherit; font-size: 14px; }
+.smb-group + .smb-group { margin-block-start: 4px; padding-block-start: 4px; border-block-start: 1px solid ${T.line}; }
+.smb-h { margin: 0; padding-block: 4px 2px; padding-inline: 8px; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: ${T.dim}; }
 .smb-row { display: flex; align-items: center; gap: 10px; inline-size: 100%; min-block-size: 40px; padding-block: 4px; padding-inline: 6px 10px; border: 0; border-radius: 6px;
   background: none; color: inherit; font: inherit; text-align: start; cursor: pointer; }
-.smb-row:hover:not([disabled]) { background: color-mix(in srgb, var(--smb-fg, var(--ink, CanvasText)) 10%, transparent); }
-.smb-row:focus-visible { outline: 2px solid var(--smb-focus, var(--focus, Highlight)); outline-offset: -2px; }
-.smb-row[aria-checked="true"] { font-weight: 600; background: color-mix(in srgb, var(--smb-accent, var(--accent, Highlight)) 16%, transparent); }
-.smb-row[disabled] { opacity: .5; cursor: default; }
+.smb-row:hover:not([disabled]) { background: color-mix(in srgb, ${T.fg} 10%, transparent); }
+.smb-row:focus-visible { outline: 2px solid ${T.focus}; outline-offset: -2px; }
+.smb-row[aria-checked="true"] { font-weight: 600; background: color-mix(in srgb, ${T.accent} 12%, transparent); }
+.smb-row[disabled] { color: ${T.dim}; cursor: default; opacity: 1; }
 .smb-lbl { flex: 1 1 auto; min-inline-size: 0; }
-.smb-chk { flex: none; inline-size: 1.2em; text-align: center; color: var(--smb-accent, var(--accent, Highlight)); }
+.smb-chk { flex: none; inline-size: 1.2em; text-align: center; color: ${T.fg}; }
 .smb-icon { flex: none; display: inline-flex; }
-.smb-empty { margin: 0; padding: 8px 10px; color: var(--smb-dim, var(--muted, GrayText)); }
+.smb-empty { margin: 0; padding: 8px 10px; color: ${T.dim}; }
 .smb-search { position: sticky; inset-block-start: -6px; z-index: 1; display: block; inline-size: 100%; box-sizing: border-box; margin-block-end: 6px; padding: 8px 10px;
-  border: 1px solid var(--smb-line, var(--line, GrayText)); border-radius: 6px; background: var(--smb-bg, var(--panel, Canvas)); color: inherit; font: inherit; }
-.smb-search:focus-visible { outline: 2px solid var(--smb-focus, var(--focus, Highlight)); outline-offset: -1px; }
+  border: 1px solid ${T.line}; border-radius: 6px; background: ${T.bg}; color: inherit; font: inherit; }
+.smb-search::placeholder { color: ${T.dim}; opacity: 1; }
+.smb-search:focus-visible { outline: 2px solid ${T.focus}; outline-offset: -1px; }
 .smb-row[hidden], .smb-group[hidden], .smb-empty[hidden] { display: none; }
 @media (max-width: 480px) { .smb-menu[role="menu"] { min-inline-size: min(280px, calc(100vw - 16px)); } }`;
   let openOne = null;   // the one open menu on the page: { close }

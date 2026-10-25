@@ -1,6 +1,6 @@
 /* Slop Clean: layout and tokens. Dark by default, light when the system asks for it or the page is set to light. */
 :root {
-  --cl-bg: #161616; --cl-panel: #1f1f1f; --cl-line: #333; --cl-fg: #ececec; --cl-dim: #a3a3a3; --cl-faint: #777;
+  --cl-bg: #161616; --cl-panel: #1f1f1f; --cl-line: #333; --cl-fg: #ececec; --cl-dim: #a3a3a3; --cl-faint: #9a9a9a;
   --cl-accent: #d4ff3a; --cl-accent-ink: #10180a; --cl-bad: #ff6b82; --cl-ok: #8fd66b; --cl-radius: 8px;
   --cl-mono: ui-monospace, Menlo, Consolas, monospace;
   --s-bg: var(--cl-panel); --s-bg2: #262626; --s-input: #161616; --s-line: var(--cl-line); --s-fg: var(--cl-fg);
@@ -8,13 +8,13 @@
 }
 @media (prefers-color-scheme: light) {
   :root:not([data-theme="dark"]) {
-    --cl-bg: #f4f2ec; --cl-panel: #ffffff; --cl-line: #d8d4c8; --cl-fg: #161616; --cl-dim: #555; --cl-faint: #888;
+    --cl-bg: #f4f2ec; --cl-panel: #ffffff; --cl-line: #d8d4c8; --cl-fg: #161616; --cl-dim: #555; --cl-faint: #666;
     --cl-accent: #5b7f00; --cl-accent-ink: #ffffff; --cl-bad: #b3263f; --cl-ok: #2f6b1a;
     --s-bg2: #f0eee7; --s-input: #fff; --s-bg: #fff;
   }
 }
 :root[data-theme="light"] {
-  --cl-bg: #f4f2ec; --cl-panel: #ffffff; --cl-line: #d8d4c8; --cl-fg: #161616; --cl-dim: #555; --cl-faint: #888;
+  --cl-bg: #f4f2ec; --cl-panel: #ffffff; --cl-line: #d8d4c8; --cl-fg: #161616; --cl-dim: #555; --cl-faint: #666;
   --cl-accent: #5b7f00; --cl-accent-ink: #ffffff; --cl-bad: #b3263f; --cl-ok: #2f6b1a;
   --s-bg2: #f0eee7; --s-input: #fff; --s-bg: #fff;
 }

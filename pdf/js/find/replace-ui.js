@@ -75,11 +75,11 @@
     el.go.disabled = !n;
     el.go.textContent = 'Replace checked' + (n ? ' (' + n + ')' : '');
   }
-  function apply() {
+  async function apply() {
     var rep = el.rep.value, items = [], skipped = 0;
     st.matches.forEach(function (m, i) { if (st.on.has(i) && m.precise) items.push({ pid: m.pid, m: m, rep: rep }); else if (!m.precise) skipped++; });
     var unticked = st.matches.length - items.length - skipped;
-    var r = F.replaceMatches(items);
+    var r = await F.replaceMatches(items);
     var parts = ['Replaced ' + r.done + ' of ' + st.matches.length + '.'];
     if (skipped) parts.push(skipped + ' not replaced: the position could not be located exactly.');
     if (unticked) parts.push(unticked + ' left unticked.');

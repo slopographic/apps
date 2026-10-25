@@ -71,11 +71,14 @@ A CSS glow also works for a DOM-positioned buddy: `filter: drop-shadow(0 0 8px r
 ## The AI button and app control (2026-10)
 - Every app page with the shell header has an **AI** button (`shell/header.js`, `.sh-ai`, same look as Convert…). Nothing
   of the AI loads before the first click; then it injects `shared/ai/panel.js` (`data-button="false"`) and opens the
-  panel. On Slop AI itself there is no button. When the header is full the button becomes an icon, then moves into the
-  Theme menu ("Ask Slop AI…"); it is also "Ask Slop AI…" in the command palette (`shell.ai`).
+  panel. On Slop AI itself there is no button. When the header is full the button becomes an icon and stays (`data-hbtn-keep`):
+  Theme, the bell, Drive, Tutorial and Apps fold into a More (⋯) menu first (`shared/ui/hbtn.js`, SlopMenuButton); only a
+  header with no room at all puts it in More as "Ask Slop AI…" (two taps). It is also "Ask Slop AI…" in the command
+  palette (`shell.ai`). Tests: `tests/ai/phone-panel.test.html` (PhotoSlop, Slop PDF, Convert at 390 × 844).
 - Layout: above 900 px the page narrows by the panel's width (`html.sap-beside body { margin-inline-end }`, plus a
-  resize event so canvases refit); 641–900 px it overlays on the right; ≤640 px it is a bottom sheet (`SlopSheet`,
-  `shared/ui/sheet.js`, unchanged: swipe down, ×, Escape, tap outside).
+  resize event so canvases refit); 641–900 px it overlays on the right; ≤640 px it is a full-height bottom sheet (`SlopSheet`,
+  `shared/ui/sheet.js`: opaque, swipe down, ×, Escape, tap outside; with the keyboard up it ends above it, so the composer
+  shows and the chat scrolls, `shared/input/keyboard.js`; its fields are 16 px so iOS does not zoom into them).
 - No model: the panel shows `picker.js`. Without WebGPU it says so plainly and what still works. A model loaded in
   another tab (Slop AI) is used through the bridge.
 - "Control <app>" on: before each request the panel calls `SlopCmd.prepare()` (the app's AI commands load), builds the
@@ -155,6 +158,10 @@ it and refuses new requests; Stop aborts the request in flight. A key-based engi
   (Sonnet 5.5 prices: $0.088 → $0.028); `tests/node/ai-permissions.test.mjs` keeps those numbers.
 - **The site in the prompt**: own-key models get `appTools.catalog(SLOP_APPS)` (each app: what it is, what it makes and
   opens), "be resourceful" and "never refuse because this app cannot: run_operation here, or open_app with a task".
+  What each app makes is generated, not written by hand: `node tools/ai-coverage.mjs` (also the pre-commit hook) writes
+  `shared/ai/app-skills.js` (`SlopAIKit.appSkills`: per app its create tools, up to 8 add tools and its operations) from
+  the same scan as `shared/commands/AI-COVERAGE.md`; `appTools.catalog` adds "Tools there: …" and "Operations: …" to each
+  app's line. Own-key models, the fake engine and capable local models get it.
 - **One task through several apps** (`handoff.js`), in this tab: file in → file out jobs run on any page
   (`run_operation`); editing that needs an app moves there with `open_in_app({ app, files, task })`, which sends the files
   the way "Open in…" does (SlopOuttake items now carry `to`; an app's own handover first, e.g. SlopIsolate → PhotoSlop as

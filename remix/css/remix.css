@@ -55,7 +55,7 @@ h2 small { font-weight: 400; text-transform: none; }
 .rm-lockbadge { font-size: 11px; color: var(--rm-accent); border: 1px solid var(--rm-accent); border-radius: 4px; padding: 0 4px; }
 /* Keyframes and the effect layer */
 .rm-keys { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 6px 0; padding: 8px; border: 1px solid var(--rm-line); border-radius: 6px; font-size: 12px; }
-.rm-keys:has(button:disabled) { opacity: .6; }
+.rm-keys:has(button:disabled) :is(button, select, input) { opacity: .6; }   /* the controls fade; the note saying why stays readable */
 .rm-inline { display: inline-flex; align-items: center; gap: 4px; }
 .rm-inline select, .rm-keys select { font: inherit; font-size: 12px; padding: 3px 6px; border: 1px solid var(--rm-line); border-radius: 6px; background: var(--rm-bg); color: var(--rm-text); }
 .rm-keys .rm-btn { padding: 4px 8px; font-size: 12px; }

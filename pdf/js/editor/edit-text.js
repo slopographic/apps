@@ -1,6 +1,6 @@
 /* Slop PDF — Edit text in place (Ctrl+E). Click a line of text on the page and type over it: the old run is taken off the
    page (removed from the page's content, text-strip.js; covered in the colour under it only when it cannot be removed) and
-   the new text is drawn at the same baseline, size and colour (the ink of the run on the rendered page). The new text is
+   the new text is drawn at the same baseline, size and colour (the colour the content painted the run in, edit-colours.js). The new text is
    never written into the document's own subset font (that holds only the old glyphs). It is set in
    the run's family when that family is installed (shared/fonts), else in the family the person chose in the asset check
    (font-check.js), else in the closest bundled family; standard families (Helvetica, Times, Courier) stay standard. The info
@@ -112,6 +112,7 @@
     try {
       if (!(await S.fontsReady(f)) || token !== S.runToken) return;
       var font = await S.runFont(f, run);
+      await S.strip.ready(p); // the run's colour from the content
       if (token === S.runToken) S.openRun(p, run, font);
     } catch (err) {
       if (token === S.runToken) { SlopUI.toast('The font could not be set up: ' + (err && err.message || err)); S.openRun(p, run, { font: run.fam, bold: run.bold, italic: run.italic, std: true }); }
@@ -151,7 +152,9 @@
     var asc = cm ? cm.ascent : face ? face.ascent : 0.9, desc = cm ? cm.descent : face ? face.descent : 0.25, lineH = (asc + desc) * fs;
     var k = cm && cm.width > 0 && run.width > 0 ? run.width * z / cm.width : 1;
     if (!(k > 0.5 && k < 2) || Math.abs(k - 1) < 0.01) k = 1;
-    var paper = S.paperColour(s, run.box).map(function (v) { return Math.round(v * 255); });
+    // the run's own ink on the paper round it; the field never shows the ink at under 3:1 (S.fieldColour)
+    var paper01 = S.paperColour(s, run.box), ink = S.textInk(p, s, [S.strip.targetOfRun(run)], run.box, paper01);
+    var paper = S.fieldColour(ink, paper01).map(function (v) { return Math.round(v * 255); });
     var input = U.h('input', { type: 'text', class: 'edit-run', value: run.str, 'aria-label': 'Edit text', spellcheck: 'false', dir: 'auto' });
     // widths are in the input's own (unscaled) pixels; scaleX(k) from its left edge makes them page pixels
     var minW = b.w * z / k, maxW = Math.max(minW, ((s.layer.clientWidth || Infinity) - b.x * z) / k);
@@ -160,7 +163,7 @@
     input.style.width = minW + 'px'; input.style.height = (lineH * z) + 'px'; input.style.lineHeight = (lineH * z) + 'px';
     input.style.padding = '0 0 0 ' + (0.12 * fs * z / k) + 'px';
     input.style.fontSize = (fs * z) + 'px'; input.style.fontWeight = weight; input.style.fontFamily = css;
-    input.style.background = 'rgb(' + paper.join(',') + ')';
+    input.style.background = 'rgb(' + paper.join(',') + ')'; input.style.color = ink; input.style.caretColor = ink;
     /** Widens the box to its text (never narrower than the run, never past the page edge). */
     function fit() {
       input.style.width = minW + 'px';
@@ -236,8 +239,8 @@
   S.coverRun = async function (p, run, font, text, s) {
     var took = run.ocr ? { to: null, paper: [] } : await S.strip.take(p, [S.strip.targetOfRun(run)]); // an OCR word's picture needs a cover
     // a cover takes the paper colour round the run (not white: text on a coloured band keeps its band), and the new text
-    // the run's ink: the colour that stands out most from that paper (light text on a dark band stays light)
-    var paper = S.paperColour(s, run.box, took.paper[0]), color = s ? S.inkColour(s, run.box, paper) : '#000000', key = E.fontKey(font);
+    // the run's ink: the colour the content painted it in (edit-colours.js S.textInk; read before the content changes)
+    var paper = S.paperColour(s, run.box, took.paper[0]), color = S.textInk(p, s, [S.strip.targetOfRun(run)], run.box, paper), key = E.fontKey(font);
     var m = { segs: [{ x0: run.x0, x1: run.x0 + run.width, y: run.y, fs: run.fs }] };
     var plan = M.coverPlan(m, E.sanitize(text, key), function (t, sz) { return E.measure(t, key, sz); });
     var annots = took.to ? [] : plan.covers.map(function (c) { return F.coverAnnot(p, c, S.hex(paper)); });

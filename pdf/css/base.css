@@ -65,7 +65,9 @@ body > .sr { position: fixed !important; }
   grid-template-areas: "top top top" "rail work props" "status status status"; }
 .app.no-panel { grid-template-columns: var(--rail-w) minmax(0, 1fr) 0; }
 .app.no-panel .props { display: none; }
-.app[data-mode="empty"] .props { opacity: .75; }
+/* faded until a PDF is open, beside the page only (a hint of "nothing open yet"; its text must still read): on a phone
+   the panel is a sheet over the page and must be opaque */
+@media (min-width: 901px) { .app[data-mode="empty"] .props { opacity: .92; } }
 
 /* ---------------------------------------------------------------- top bar */
 .topbar { grid-area: top; display: flex; align-items: center; gap: 6px; padding: 0 10px 0 12px; background: var(--panel); border-bottom: 1px solid var(--line); min-width: 0; }
@@ -108,7 +110,7 @@ body > .sr { position: fixed !important; }
 .btn.ghost { background: none; border-color: transparent; color: var(--dim); }
 .btn.wide { flex: 1; }
 .btn .ic { width: 17px; height: 17px; }
-.btn.danger-text { color: var(--danger); }
+.btn.danger-text { color: var(--sl-danger, var(--danger)); }
 .btn.dl { padding: 0 16px; }
 
 /* ---------------------------------------------------------------- rail */

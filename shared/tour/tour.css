@@ -1,18 +1,19 @@
 /* SlopTour: spotlight, tip, step panel, header button and the homepage Tours menu. Themed through the same
- * --sui-* tokens as SlopUI (falling back to common app tokens, then the dark brand look). */
+ * --s-* tokens as SlopUI (shared/slopui.css). */
 .stour-panel, .stour-hole, .stour-tip {
-  --c-bg: var(--sui-bg, var(--panel, #232323));
-  --c-bg2: var(--sui-bg2, var(--panel-2, #2c2c2c));
-  --c-line: var(--sui-line, var(--line-2, #3d3d3d));
-  --c-fg: var(--sui-fg, var(--fg, #e6e6e6));
-  --c-dim: var(--sui-dim, var(--fg-dim, #a0a0a0));
-  --c-hover: var(--sui-hover, var(--hover, #3a3a3a));
-  --c-sel: var(--sui-sel, var(--sel, #1f4a7a));
-  --c-accent: var(--sui-accent, var(--accent, #d4ff3a));
-  --c-accent-ink: var(--sui-accent-ink, var(--accent-ink, #10180a));
+  /* SlopUI's tokens (shared/slopui.css sets --s-* on these too, from the app's --sui-* map), else the page theme (--sl-*). */
+  --c-bg: var(--s-bg, var(--sl-surface, #232323));
+  --c-bg2: var(--s-bg2, var(--sl-surface, #2c2c2c));
+  --c-line: var(--s-line, var(--sl-border, #3d3d3d));
+  --c-fg: var(--s-fg, var(--sl-text, #e6e6e6));
+  --c-dim: var(--s-dim, color-mix(in srgb, var(--sl-text, #e6e6e6) 72%, transparent));
+  --c-hover: var(--s-hover, color-mix(in srgb, var(--sl-text, #e6e6e6) 12%, var(--sl-surface, #2c2c2c)));
+  --c-sel: var(--s-sel, color-mix(in srgb, var(--sl-accent, #1f4a7a) 28%, var(--sl-surface, #1c1c1c)));
+  --c-accent: var(--s-accent, var(--sl-accent, #d4ff3a));
+  --c-accent-ink: var(--s-accent-ink, var(--sl-on-accent, #10180a));
   --c-radius: var(--sui-radius, var(--radius, 8px));
-  --c-shadow: var(--sui-shadow, var(--shadow, 0 18px 50px rgba(0, 0, 0, .55)));
-  --c-font: var(--sui-font, var(--ui, "Inter Tight", system-ui, -apple-system, "Segoe UI", sans-serif));
+  --c-shadow: var(--s-shadow, 0 18px 50px rgba(0, 0, 0, .55));
+  --c-font: var(--s-font, "Inter Tight", system-ui, -apple-system, "Segoe UI", sans-serif);
 }
 .stour-dim[hidden], .stour-hole[hidden], .stour-tip[hidden], .stour-panel[hidden] { display: none !important; }
 .stour-dim { position: fixed; inset: 0; z-index: 99990; background: rgba(0, 0, 0, .58); pointer-events: none; }

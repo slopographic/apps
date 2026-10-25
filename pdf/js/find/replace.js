@@ -1,6 +1,7 @@
 /* Slop PDF find — Replace all, in the open document. Each replacement is the cover-and-replace of the Replace text macro
    (M.coverPlan in macro/ops-edit.js), written as annotations: a white whiteout over the old characters and the new text
-   in the standard font (Helvetica) on the same baseline (the whiteout takes the paper colour under it, not always white). Each replacement is one undo step and goes to the edit log.
+   in the standard font (Helvetica) on the same baseline, in the old text's colour (the whiteout takes the paper colour
+   under it, not always white). Each replacement is one undo step and goes to the edit log.
    A match whose position could not be located exactly is never guessed: it is left alone. Classic script. */
 (function () {
   'use strict';
@@ -33,15 +34,18 @@
     var plan = M.coverPlan(m, rep, function (t, sz) { return E.measure(t, FONT, sz); }), out = [];
     // each cover in the paper colour under it (editor/edit-colours.js; white when the editor is not loaded)
     var S = SP.editor && SP.editor._, slot = S && S.slots ? S.slots.get(p.id) : null;
-    plan.covers.forEach(function (c) {
-      out.push(F.coverAnnot(p, c, S && S.paperColour ? S.hex(S.paperColour(slot, toPageRect(p, c.x, c.y, c.w, c.h))) : null));
-    });
-    if (plan.text) out.push(F.textAnnot(p, plan.text.x, plan.text.y, plan.text.size, plan.text.text));
+    var papers = plan.covers.map(function (c) { var r = toPageRect(p, c.x, c.y, c.w, c.h); return { r: r, rgb: S && S.paperColour ? S.paperColour(slot, r) : [1, 1, 1] }; });
+    papers.forEach(function (q, i) { out.push(F.coverAnnot(p, plan.covers[i], S && S.hex ? S.hex(q.rgb) : null)); });
+    // the new text in the old text's colour (S.textInk: the content's, else the glyph pixels', else readable on the paper)
+    var ink = S && S.textInk && papers.length ? S.textInk(p, slot, m.segs.map(function (g) { return { x0: g.x0, x1: g.x1, y: g.y, fs: g.fs }; }), papers[0].r, papers[0].rgb) : null;
+    if (plan.text) out.push(F.textAnnot(p, plan.text.x, plan.text.y, plan.text.size, plan.text.text, ink ? { color: ink } : null));
     return { annots: out, wide: plan.wide };
   };
-  /** Applies replacements: items [{pid, m, rep}] (m is a located match from F.search). One undo step each. */
-  F.replaceMatches = function (items) {
-    var res = { done: 0, wide: 0, unsupported: 0, skipped: 0 };
+  /** Applies replacements: items [{pid, m, rep}] (m is a located match from F.search). One undo step each. Resolves the
+   *  counts once the pages' colours are read (the editor's text-strip.js; at once without it). */
+  F.replaceMatches = async function (items) {
+    var res = { done: 0, wide: 0, unsupported: 0, skipped: 0 }, S = SP.editor && SP.editor._;
+    if (S && S.strip) for (const it of items) { var pg = E.pageById(it.pid); if (pg) await S.strip.ready(pg); }
     items.forEach(function (it) {
       var p = E.pageById(it.pid);
       if (!p || !it.m.precise) { res.skipped++; return; }

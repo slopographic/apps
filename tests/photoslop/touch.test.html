@@ -32,6 +32,14 @@
     }
     return { A: W.D.layers.find((L) => L.name === 'A'), B: W.D.layers.find((L) => L.name === 'B') };
   }
+  /** The page at rest before a drag: the new document drawn and the autosave a change schedules (2.5 s later, the open
+   *  tabs written out) done now. A gesture sent while the page is busy waits for it, and a finger held still that long
+   *  is a long press (the canvas menu cancels the drag); a person's finger does not wait on the page like that. */
+  async function drawn() {
+    W.eval('clearTimeout(autosaveTimer); autosaveTimer = 0');
+    await W.autosave();
+    await new Promise((r) => win.requestAnimationFrame(() => win.requestAnimationFrame(() => setTimeout(r, 50))));
+  }
 
   describe('PhotoSlop on touch', () => {
     it('boots with the touch layer, the canvas a touch surface and the panels free to scroll', async () => {
@@ -53,6 +61,7 @@
 
     it('a finger drag with the Move tool moves the layer', async () => {
       const { B } = scene();
+      await drawn();
       const x0 = W.layerBoundsDoc(B).x;
       await TouchKit.drag(at(290, 150), 60, 0, 10);
       const x = () => W.layerBoundsDoc(W.D.layers.find((L) => L.name === 'B')).x;
@@ -62,6 +71,7 @@
 
     it('a finger grabs a transform handle from 15 px away (a mouse needs 9) and scales the layer', async () => {
       scene();
+      await drawn();
       const br = W.idleBoxPoints()[2];
       expect(br).toBeTruthy();
       await TouchKit.drag({ el: W.V.el, x: br.x + 11, y: br.y + 10 }, 40, 30, 10);

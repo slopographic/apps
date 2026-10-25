@@ -4,8 +4,10 @@
  * that holds the Apps button.
  * Buttons that yield (data-hbtn-yield="1", "2", ...: Convert… and AI, shell/header.js) give way before anything else:
  * first their labels (class sh-icon-only), in that order, then the buttons themselves (hidden; the Theme menu offers them).
- * Only a header that is still over with all of them gone goes tight; there they come back as icons where they fit. They never make a header taller than it is without
- * them, so they cannot wrap it onto a new row.
+ * Then the header goes tight (icons only), and Theme, the bell, Slop Drive, Tutorial and Apps fold one by one into a More (⋯)
+ * menu (SlopMenuButton) before a button marked data-hbtn-keep (AI) goes; it goes last, into More with its label. They never
+ * make a header taller than it is without them, so they cannot wrap it onto a new row.
+ *   SlopHbtn.anchor(b)    where a menu of b opens (the More button while b is folded into it).
  *   SlopHbtn.fit(host)    watch host (an element): its size and what it holds. Returns host. Safe to call again.
  *   SlopHbtn.check(host)  measure host now. Returns true when it is tight. */
 (function (win) {
@@ -14,19 +16,23 @@
   const TIGHT = 'slop-htight';
   const watched = new WeakSet();
 
-  /** Something inside host is cut off, pushed past an edge, or wrapped onto a second row (a shared button sits below the
-   *  bottom of the header's first item), or the app's title (h1) is squeezed: it runs past the box that holds it, which
+  /** Something inside host is cut off, pushed past an edge, or wrapped onto a new row (a shared button sits below the
+   *  header's own controls), or the app's title (h1) is squeezed: it runs past the box that holds it, which
    *  clips it ("Slop Upsca"). */
-  function over(host) {
+  function over(host, rows) {
     if (host.scrollWidth > host.clientWidth + 1) return true;
     for (const t of host.querySelectorAll('h1')) {
       const p = t.parentElement, tr = t.getBoundingClientRect();
       if (!tr.width || !p || p === host) continue;
       if (tr.right > p.getBoundingClientRect().right + 1 || t.scrollWidth > t.clientWidth + 1) return true;
     }
+    // rows: the header's own last row counts (a header that is two rows of the app's own controls on a phone, PhotoSlop,
+    // may hold them on its second; only one below every own row is wrapped); else the first item's row
     const box = host.getBoundingClientRect();
+    const ours = (c) => c.matches('.slop-hbtn, .sh-hdr') || (!!c.querySelector('.slop-hbtn') && ![...c.querySelectorAll(CONTROLS)].some((n) => !n.closest('.slop-hbtn')));
+    const own = [...host.children].filter((c) => !ours(c)).map((c) => c.getBoundingClientRect()).filter((r) => r.width && r.height);
     const first = [...host.children].map((c) => c.getBoundingClientRect()).find((r) => r.width && r.height);
-    const row = first ? first.bottom : box.bottom;
+    const row = rows && own.length ? Math.max(...own.map((r) => r.bottom)) : first ? first.bottom : box.bottom;
     for (const n of host.querySelectorAll('.slop-hbtn')) {
       const r = n.getBoundingClientRect();
       if (!r.width) continue;
@@ -71,33 +77,88 @@
     for (let i = 0; i < ys.length; i++) { st[i] = 'hidden'; out.push(st.slice()); }
     return out;
   }
-  /** Labels first; only a header that is still over with labels shown goes tight. */
+  /* The header's other shared buttons fold into a More (⋯) menu, in this order, before a button that stays (data-hbtn-keep:
+   * AI) gives up its place; More then lists everything folded or hidden, by its label. */
+  const FOLD = ['.sh-theme', '.sn-bell', '[data-sdl]', '.sh-tutorial', '.sh-switch'];
+  // only on a phone: a wide header keeps its old order (AI gives way after Convert…, into the Theme menu; nothing folds)
+  const PHONE = '(max-width: 640px)';
+  const phone = () => !!(win.matchMedia && win.matchMedia(PHONE).matches);
+  const keep = (b) => b.hasAttribute('data-hbtn-keep') && phone();
+  /** The buttons that may fold: those shown, or folded by us (never one the app hid itself). */
+  function folders(host) {
+    const out = [];
+    for (const sel of FOLD) for (const b of host.querySelectorAll(sel)) if ((!b.hidden || b.dataset.hbtnFolded) && b.classList.contains('slop-hbtn')) out.push(b);
+    return out;
+  }
+  const labelOf = (b) => b.dataset.hbtnLabel || b.getAttribute('aria-label') || b.title || b.textContent.trim();
+  /** The More button of host (made the first time something folds; needs SlopMenuButton, shared/ui/menubutton.js). */
+  const SRC = win.document.currentScript && win.document.currentScript.src;
+  let mbP = null;
+  /** shared/ui/menubutton.js, loaded the first time a header needs its More menu (not before the page's first paint). */
+  function loadMenuButton() {
+    if (mbP || !SRC) return mbP;
+    return (mbP = new Promise((res) => {
+      const s = win.document.createElement('script');
+      s.src = new URL('menubutton.js', SRC).href; s.onload = s.onerror = res;
+      win.document.head.append(s);
+    }));
+  }
+  function moreOf(host, make) {
+    let m = host.querySelector(':scope .slop-hmore');
+    if (m || !make) return m;
+    if (!win.SlopMenuButton) { const p = loadMenuButton(); if (p) p.then(() => { if (win.SlopMenuButton) check(host); }); return null; }
+    const doc = host.ownerDocument;
+    m = doc.createElement('button');
+    m.type = 'button'; m.className = 'slop-hbtn slop-hmore'; m.hidden = true;
+    m.title = 'More'; m.setAttribute('aria-label', 'More');
+    m.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/></svg>';
+    const away = () => [...host.querySelectorAll('[data-hbtn-yield], ' + FOLD.join(', '))].filter((b) => b.hidden && (b.dataset.hbtnFolded || b.hasAttribute('data-hbtn-yield')) && b !== m);
+    win.SlopMenuButton.attach(m, {
+      label: 'More', search: false,
+      items: () => away().map((b, i) => { const ic = b.querySelector('svg'); return { value: String(i), label: labelOf(b), icon: ic ? ic.cloneNode(true) : null }; }),
+      onPick: (v) => { const b = away()[+v]; if (b) b.click(); },
+    });
+    (host.querySelector('.sh-hdr') || host).append(m);
+    return m;
+  }
+  /** One way to lay out the header: tight or not, each yielder's state, how many buttons are folded. */
+  function apply(host, ys, fs, tight, states, folded) {
+    host.classList.toggle(TIGHT, tight);
+    ys.forEach((b, i) => show(b, states[i]));
+    fs.forEach((b, i) => { const on = i < folded; if (b.hidden !== on) b.hidden = on; if (on) b.dataset.hbtnFolded = '1'; else delete b.dataset.hbtnFolded; });
+    const more = moreOf(host, folded > 0 || states.some((st, i) => st === 'hidden' && keep(ys[i])));
+    if (more) more.hidden = !(folded > 0 || states.some((st, i) => st === 'hidden' && keep(ys[i])));
+  }
+  /** Tries the layouts from the roomiest down and keeps the first that fits: labels go (Convert…, then AI), Convert… goes,
+   *  everything goes tight (icons only), the other buttons fold into More one by one, and last AI goes into More too. */
   function check(host) {
     if (!host || !host.isConnected) return false;
-    host.classList.remove(TIGHT);
-    const ys = yielders(host);
-    if (ys.length) {
-      ys.forEach((b) => show(b, 'hidden'));
-      const h0 = host.getBoundingClientRect().height;   // the header without them: they may not make it taller
-      const plan = steps(ys);
-      for (let k = 0; k < plan.length - 1; k++) {
-        ys.forEach((b, i) => show(b, plan[k][i]));
-        if (host.getBoundingClientRect().height <= h0 + 1 && !over(host)) return false;
-      }
-      ys.forEach((b) => show(b, 'hidden'));
-    }
-    const tight = over(host);
-    host.classList.toggle(TIGHT, tight);
-    // A tight header (every label an icon) may still have room for them as icons: Convert… stays out first.
-    if (tight && ys.length) {
-      const h1 = host.getBoundingClientRect().height;
-      for (let k = 0; k < ys.length; k++) {
-        ys.forEach((b, i) => show(b, i < k ? 'hidden' : 'icon'));
-        if (host.getBoundingClientRect().height <= h1 + 1 && !over(host)) return tight;
-      }
-      ys.forEach((b) => show(b, 'hidden'));
-    }
-    return tight;
+    const ys = yielders(host), fs = folders(host), hidden = ys.map(() => 'hidden');
+    apply(host, ys, fs, false, hidden, 0);
+    const h0 = host.getBoundingClientRect().height;   // the header without them: they may not make it taller
+    let rows = false;
+    const fits = () => host.getBoundingClientRect().height <= h0 + 1 && !over(host, rows);
+    const plan = steps(ys).slice(0, -1).filter((st) => !st.some((x, i) => x === 'hidden' && keep(ys[i]))).map((st) => [false, st, 0]);
+    if (!ys.some(keep)) plan.push([false, hidden, 0]);
+    const kept = ys.map((b) => (keep(b) ? 'icon' : 'hidden'));
+    plan.push([true, ys.map(() => 'icon'), 0]);
+    const folds = phone() ? fs.length : 0;
+    for (let k = 1; k < ys.length; k++) plan.push([true, ys.map((b, i) => (i < k ? 'hidden' : 'icon')), 0]);
+    for (let k = 0; k <= folds; k++) plan.push([true, kept, k]);
+    if (ys.some(keep)) for (let k = 0; k <= folds; k++) plan.push([true, hidden, k]);
+    // on the first row if they can be; else on the header's own rows (only where the app's controls take two rows)
+    for (rows of [false, true]) for (const [tight, st, k] of plan) { apply(host, ys, fs, tight, st, k); if (fits()) return tight; }
+    // nothing fits: the app's own controls overflow whatever we do; fold nothing (it would not help) and keep AI as an icon
+    // when that adds no row, else hide it as before (the Theme menu and the command palette still offer it)
+    apply(host, ys, fs, true, kept, 0);
+    if (host.getBoundingClientRect().height > h0 + 1) apply(host, ys, fs, true, hidden, 0);
+    return true;
+  }
+  /** Where a menu of b opens: b, or the More button when b is folded into it. */
+  function anchor(b) {
+    const host = b && b.hidden && b.closest('header, .sh-hdr');
+    const m = host && (host.querySelector('.slop-hmore') || (host.closest('header') && host.closest('header').querySelector('.slop-hmore')));
+    return m && !m.hidden ? m : b;
   }
   function fit(host) {
     if (!host || watched.has(host)) return host;
@@ -119,5 +180,5 @@
     return host;
   }
 
-  win.SlopHbtn = { fit, check };
+  win.SlopHbtn = { fit, check, anchor };
 })(window);

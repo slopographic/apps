@@ -62,6 +62,8 @@ function startTypeEdit(p, L, selectAll) {
   if (el.contentEditable !== 'plaintext-only') el.contentEditable = 'true';
   Object.assign(TE, { el, layerId: L ? L.id : null, t, orig: L ? JSON.stringify(normText(L.text)) : null, sel: { s: 0, e: selectAll ? t.str.length : t.str.length } });
   if (L) live = { layerId: L.id, surface: () => ({ canvas: scratchCanvas('b', 1, 1), x: 0, y: 0, w: 1, h: 1 }) };
+  // a phone's on-screen keyboard (shared/input/keyboard.js): the view pans so the box shows above it
+  el.slopKeyboard = { reveal: (need) => { const d = viewDelta(0, -need.dy); V.ox += d.x; V.oy += d.y; layoutTypeEdit(); dirty(); } };
   V.el.append(el);
   teRender(false);
   el.addEventListener('input', (e) => { if (e.isComposing) return; const sel = teGetSel(); if (!teRead()) { teRender(false); if (sel) teSetSel(sel.s, sel.e); } layoutTypeEdit(); });

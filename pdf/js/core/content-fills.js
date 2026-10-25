@@ -9,10 +9,11 @@
        box, else null. Nothing painted there: white (the paper). Clipping and transparency are not followed.
    Edit text uses it for the colour of a cover when the rendered page cannot be read (edit-colours.js). */
 (function (root, factory) {
-  var api = factory(root.SlopPdfStrip || (typeof require === 'function' ? require('./content-strip.js') : null));
+  var api = factory(root.SlopPdfStrip || (typeof require === 'function' ? require('./content-strip.js') : null),
+    root.SlopPdfInk || (typeof require === 'function' ? require('./content-ink.js') : null));
   if (typeof module === 'object' && module.exports) module.exports = api;
   root.SlopPdfFills = api;
-})(typeof window !== 'undefined' ? window : globalThis, function (St) {
+})(typeof window !== 'undefined' ? window : globalThis, function (St, Ink) {
   'use strict';
   var mul = St.mul, ID = [1, 0, 0, 1, 0, 0], ALL = { x0: -Infinity, y0: -Infinity, x1: Infinity, y1: Infinity };
   function pt(m, x, y) { return [m[0] * x + m[2] * y + m[4], m[1] * x + m[3] * y + m[5]]; }
@@ -20,14 +21,13 @@
     var xs = ps.map(function (p) { return p[0]; }), ys = ps.map(function (p) { return p[1]; });
     return { x0: Math.min.apply(null, xs), y0: Math.min.apply(null, ys), x1: Math.max.apply(null, xs), y1: Math.max.apply(null, ys) };
   }
-  function cmyk(c, m, y, k) { return [(1 - c) * (1 - k), (1 - m) * (1 - k), (1 - y) * (1 - k)]; }
   /** A colour from fill operands: 1 value grey, 3 RGB, 4 CMYK; a pattern name (or anything else) is null. */
   function colourOf(args) {
     var n = args.filter(function (v) { return typeof v === 'number'; });
     if (args.some(function (v) { return v && v.name != null; })) return null;
     if (n.length === 1) return [n[0], n[0], n[0]];
     if (n.length === 3) return n.slice();
-    if (n.length === 4) return cmyk(n[0], n[1], n[2], n[3]);
+    if (n.length === 4) return Ink.cmyk(n[0], n[1], n[2], n[3]); // as pdf.js draws it
     return null;
   }
 

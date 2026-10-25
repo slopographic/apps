@@ -1,5 +1,5 @@
 /* Slop Drive — Classic 98 touches, and the phone layout (390×844): sidebar drawer, details bottom sheet. */
-:root[data-theme="classic"] .topbar { background: linear-gradient(90deg, #000080, #1084d0); color: #fff; border: 0; }
+:root[data-theme="classic"] .topbar { background: linear-gradient(90deg, #000080, #0a5ea8); color: #fff; border: 0; }
 :root[data-theme="classic"] .topbar .tb, :root[data-theme="classic"] .home-link { color: #fff; }
 :root[data-theme="classic"] .brand { border-radius: 0; background: #c0c0c0; box-shadow: var(--bevel); }
 :root[data-theme="classic"] .brand-mark { fill: #000080; }
@@ -54,3 +54,5 @@
   .empty { padding-top: 20px; }
   .krow { grid-template-columns: 1fr; gap: 0; margin-bottom: 4px; }
 }
+/* The shared header buttons keep their light face on the blue title bar: dark text on it. */
+:root[data-theme="classic"] .topbar .slop-hbtn { color: #000; }

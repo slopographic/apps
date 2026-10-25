@@ -1,11 +1,16 @@
-/* Slop AI side panel (shared/ai/panel.js). Themes with the host page's --sui-* tokens, like SlopUI. */
+/* Slop AI side panel (shared/ai/panel.js). Themes with SlopUI's --s-* tokens (shared/slopui.css). */
 .sap, .sap-fab {
-  --p-bg: var(--sui-bg, var(--panel, #151518)); --p-bg2: var(--sui-bg2, var(--panel-2, #1d1d22)); --p-input: var(--sui-input, var(--input, #0f0f12));
-  --p-line: var(--sui-line, var(--line-2, #33333b)); --p-fg: var(--sui-fg, var(--fg, #ececef)); --p-dim: var(--sui-dim, var(--dim, #a3a3ad));
-  --p-accent: var(--sui-accent, var(--accent, #d4ff3a)); --p-ink: var(--sui-accent-ink, var(--accent-ink, #0a0a0a)); --p-radius: var(--sui-radius, 8px);
+  /* SlopUI's tokens (shared/slopui.css sets --s-* on .sap too, from the app's --sui-* map), else the page theme (--sl-*). */
+  --p-bg: var(--s-bg, var(--sl-surface, #151518)); --p-bg2: var(--s-bg2, var(--sl-surface, #1d1d22)); --p-input: var(--s-input, var(--sl-background, #0f0f12));
+  --p-line: var(--s-line, var(--sl-border, #33333b)); --p-fg: var(--s-fg, var(--sl-text, #ececef)); --p-dim: var(--s-dim, color-mix(in srgb, var(--sl-text, #ececef) 72%, transparent));
+  --p-accent: var(--s-accent, var(--sl-accent, #d4ff3a)); --p-ink: var(--s-accent-ink, var(--sl-on-accent, #0a0a0a)); --p-radius: var(--sui-radius, 8px);
+  --p-danger: var(--s-danger, color-mix(in srgb, #e5484d 60%, var(--p-fg)));
   --p-font: var(--sui-font, 'Inter Tight', system-ui, sans-serif); --p-mono: var(--sui-mono, ui-monospace, monospace);
   font: 13px/1.45 var(--p-font); color: var(--p-fg); box-sizing: border-box;
 }
+/* As a phone sheet (shared/ui/sheet.js) it keeps its own background, the one its text is coloured for (Paint Classic's
+   SlopUI look on a dark page theme), not the page theme's surface. */
+.sap { --slop-sheet-bg: var(--p-bg); }
 .sap *, .sap *::before, .sap *::after { box-sizing: border-box; }
 .sap-fab { position: fixed; right: 16px; bottom: 16px; z-index: 880; width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--p-line); background: var(--p-bg); color: var(--p-dim); display: grid; place-items: center; box-shadow: 0 8px 24px rgba(0, 0, 0, .35); cursor: pointer; }
 .sap-fab svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linejoin: round; }
@@ -48,13 +53,13 @@ body.sap-open .sap-fab { display: none; }
 .sap-send.stop { background: #ff5a6e; color: #fff; font-size: 13px; }
 .sap-btn.primary { background: var(--p-accent); color: var(--p-ink); border-color: transparent; font-weight: 600; }
 .sap-btn:disabled { opacity: .55; cursor: default; }
-.sap-msg.bad, .sap-pick-msg.bad, .sap-pick-no { color: #ff8a98; }
+.sap-msg.bad, .sap-pick-msg.bad, .sap-pick-no { color: var(--p-danger); }
 /* each tool call as a step: "Gaussian blur, radius 8 ✓" */
 .sap-live { display: grid; gap: 8px; }
 .sap-step { display: grid; grid-template-columns: 18px 1fr; gap: 2px 6px; align-items: baseline; color: var(--p-fg); font-size: 12.5px; padding: 3px 0 3px 8px; }
 .sap-step-i { font-weight: 700; color: var(--p-accent); text-align: center; }
 .sap-step.bad .sap-step-i { color: #ff5a6e; } .sap-step.run .sap-step-i { animation: sap-pulse 1s ease-in-out infinite; }
-.sap-step-e { grid-column: 2; color: #ff8a98; font-size: 12px; }
+.sap-step-e { grid-column: 2; color: var(--p-danger); font-size: 12px; }
 @keyframes sap-pulse { 50% { opacity: .3; } }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 /* the model choice (picker.js) */
@@ -73,7 +78,13 @@ body.sap-open .sap-fab { display: none; }
 :root.sap-beside body { margin-inline-end: min(var(--sap-w, 380px), 100vw); }
 :root.sap-beside .sap { box-shadow: none; }
 /* phones: a bottom sheet (shared/ui/sheet.js gives it its place, the swipe and the ×) */
-.sap-host.ssh-phone .sap { top: auto; width: auto; height: auto; block-size: 76vh; max-block-size: 76vh; border-left: 0; background: var(--p-bg); color: var(--p-fg); z-index: 890; }
+/* full height, the chat scrolling between the header and the composer; with the keyboard up the sheet ends above it and the
+   composer with it (shared/ui/sheet.js and shared/input/keyboard.js); fields at 16 px so iOS does not zoom into them */
+.sap-host.ssh-phone .sap { top: auto; width: auto; height: auto; block-size: calc(100vh - 8px - env(safe-area-inset-top, 0px)); block-size: calc(100dvh - 8px - env(safe-area-inset-top, 0px));
+  max-block-size: none; border-left: 0; background: var(--p-bg); color: var(--p-fg); z-index: 890; padding-block-end: env(safe-area-inset-bottom, 0px); }
+.sap-host.ssh-phone .sap header { padding-inline-end: 52px; }
+.sap-host.ssh-phone .sap-comp textarea, .sap-host.ssh-phone .sap-cloud-f input, .sap-host.ssh-phone .sap-cloud-f select { font-size: 16px; }
+.sap-host.ssh-phone .sap-cloud-f input, .sap-host.ssh-phone .sap-cloud-f select { height: 40px; }
 .sap-host.ssh-phone .sap-x { display: none; }
 .sap-host.ssh-phone .sap > .ssh-x { position: absolute; inset-block-start: 4px; inset-inline-end: 4px; float: none; margin: 0; }
 /* the Sloppo buddy's button (shared/buddy/boot.js) sits bottom right: keep it off the panel's Send button */
@@ -87,7 +98,7 @@ body.sap-open .buddy-toggle { visibility: hidden; }
 .sap-cloud-f[hidden], .sap-cloud-check[hidden], .sap-cloud-local[hidden] { display: none; }
 .sap-cloud-f input, .sap-cloud-f select { height: 32px; padding: 0 8px; border-radius: var(--p-radius); border: 1px solid var(--p-line); background: var(--p-input); color: var(--p-fg); font: 13px var(--p-font); min-width: 0; width: 100%; }
 .sap-cloud-check { display: flex; align-items: center; gap: 6px; font-size: 12.5px; }
-.sap-cloud-msg.bad { color: #ff8a98; }
+.sap-cloud-msg.bad { color: var(--p-danger); }
 .sap-cloud-local summary { cursor: pointer; font-size: 12px; } .sap-cloud-local p { margin: 6px 0 0; word-break: break-word; }
 .sap-pick-cloud:empty { display: none; }
 .sap-back { justify-self: start; }

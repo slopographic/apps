@@ -22,8 +22,9 @@
   K.base = K.base || base;
   const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = base + 'panel.css'; document.head.append(css);
   const add = (src, test) => new Promise((res, rej) => { if (test && test()) return res(); const s = document.createElement('script'); s.src = new URL(src + '.js', base).href; s.async = false; s.onload = res; s.onerror = () => rej(new Error('load ' + src)); document.head.append(s); });
-  const kit = Promise.all([add('slopai', () => window.SlopAI), add('../commands/args', () => window.SlopCmdArgs), add('../ui/sheet', () => window.SlopSheet), add('../ui/resize-panel', () => window.SlopResizePanel)])
-    .then(() => window.SlopAI.loaded).then(() => K.load(['permissions', 'permissions-ui', 'apptools', 'cmdtools', 'filetools', 'optools', 'handoff', 'md', 'catalog', 'picker', 'panel-run', 'model-menu', '../ui/menubutton', 'imagegen/index'])).then(() => K.imageGenReady && K.imageGenReady.catch(() => null))
+  const sheetP = add('../ui/sheet', () => window.SlopSheet);   // a phone's bottom sheet: as soon as it is here, not after the kit
+  const kit = Promise.all([add('slopai', () => window.SlopAI), add('../commands/args', () => window.SlopCmdArgs), sheetP, add('../ui/resize-panel', () => window.SlopResizePanel)])
+    .then(() => window.SlopAI.loaded).then(() => K.load(['permissions', 'permissions-ui', 'app-skills', 'apptools', 'cmdtools', 'filetools', 'optools', 'handoff', 'md', 'catalog', 'picker', 'panel-run', 'model-menu', '../ui/menubutton', 'imagegen/index'])).then(() => K.imageGenReady && K.imageGenReady.catch(() => null))
     .then(() => takeHandoff()).then(() => restoreCloud()).then(() => { if (P.pending && P.engine()) runPending(); });
   /** A request handed over from another app (handoff.js): its conversation, a line saying so, and its task, sent as soon
    * as a model is there. */
@@ -158,6 +159,7 @@
     if (!sizer) kit.then(attachSheet);   // the resize module arrives with the kit
     root.hidden = false;
     if (sheet && sheet.isPhone()) sheet.open();
+    else if (!sheet) sheetP.then(() => { attachSheet(); if (sheet && sheet.isPhone() && !root.hidden) { sheet.open(); layout(); } }).catch(() => {});
     layout(); P.renderStatus();
     setTimeout(() => P.input.focus({ preventScroll: true }), 0);
     kit.then(P.render);

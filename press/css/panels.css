@@ -36,7 +36,8 @@
 .pthumb { display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; padding: 3px; border-radius: 3px; border: 1px solid transparent; user-select: none; touch-action: none; }
 .pthumb canvas { display: block; background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, .4); }
 .pthumb .plabel { font-size: 10px; color: var(--text-dim); font-family: var(--mono); }
-.pthumb .pmaster { position: absolute; margin: 4px; font: 700 9px var(--mono); color: #555; }
+.pthumb.on .plabel { color: var(--text); }
+.pthumb .pmaster { position: absolute; margin: 4px; padding: 0 2px; font: 700 9px var(--mono); color: #333; background: rgba(255, 255, 255, .85); }   /* on the white page */
 .pthumb.on { border-color: var(--accent-line); background: var(--accent-soft); }
 .pthumb.sel canvas { outline: 2px solid var(--accent-line); }
 .pthumb.drop-before { box-shadow: -3px 0 0 var(--accent-line); }

@@ -7,7 +7,7 @@
   --w-accent: var(--sui-accent, var(--accent, var(--sl-accent, #3b82f6)));
   --w-bg2: var(--sui-bg2, var(--panel-2, color-mix(in srgb, currentColor 6%, transparent)));
   --w-sel: color-mix(in srgb, var(--w-accent) 20%, transparent);
-  --w-danger: var(--sui-danger, var(--danger, #d64545));
+  --w-danger: var(--sui-danger, var(--sl-danger, var(--danger, #d64545)));
   display: flex; flex-direction: column; gap: 10px; min-inline-size: 0; color: var(--w-fg); font-size: 13px; line-height: 1.35;
 }
 .swp [hidden] { display: none !important; }
