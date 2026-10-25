@@ -9,7 +9,7 @@
   <script src="../harness.js"></script>
   <script src="fresh-app.js"></script>
   <script>
-  // Covers: photoslop/js/app/topbar-fit.js, photoslop/js/app/main.js, photoslop/js/app/layout.js, photoslop/js/ui/menus.js, shared/layouts/core.js, shared/ui/resize-panel.js, photoslop/css/layout.css, photoslop/index.html, shared/frame/panel.js, shared/frame/frame.css
+  // Covers: shared/tour/tours/photoslop.js, photoslop/js/app/topbar-fit.js, photoslop/js/app/main.js, photoslop/js/app/layout.js, photoslop/js/ui/menus.js, shared/layouts/core.js, shared/ui/resize-panel.js, photoslop/css/layout.css, photoslop/index.html, shared/frame/panel.js, shared/frame/frame.css
   const { describe, it, expect, waitFor, sleep } = SlopTest;
   const vis = (n) => n.getBoundingClientRect().width > 0 && n.getBoundingClientRect().height > 0;
 
@@ -56,6 +56,21 @@
       await sleep(300);
       expect(D.getElementById('topMore').hidden).toBe(true);
       expect(vis(D.getElementById('newBtn'))).toBe(true);
+    }, { timeout: 60000 });
+  });
+
+  describe('the tour and a folded top bar', () => {
+    it('when New is folded into More ▾, the tour\'s first step points at More ▾ (at full width, at New)', async () => {
+      const app = await freshApp({ query: '?tour=1' }), win = app.win, D = win.document;
+      const T = await waitFor(() => win.SlopTour && win.SlopTour.spot && win.SlopTour.spot.target && win.SlopTour);
+      expect(T.spot.target.id).toBe('newBtn');
+      app.frame.style.width = '901px';
+      await waitFor(() => D.getElementById('newBtn').classList.contains('ps-fold') && !D.getElementById('topMore').hidden, { timeout: 5000 });
+      await T.start('photoslop', { restart: true });
+      await waitFor(() => T.spot.target);
+      expect(T.spot.target.id).toBe('topMore');
+      expect(vis(T.spot.target)).toBe(true);
+      T.close && T.close();
     }, { timeout: 60000 });
   });
 
