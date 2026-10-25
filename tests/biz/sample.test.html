@@ -85,13 +85,14 @@
     it('biz.sample opens the dialog, and a sample contact is saved', async () => {
       const f = document.getElementById('app');
       f.src = '../../contacts/index.html';
-      await waitFor(() => f.contentWindow && f.contentWindow.SlopData && f.contentWindow.SlopCmd && f.contentWindow.SlopCmd.get && f.contentWindow.SlopCmd.get('biz.sample'), { timeout: 20000 });
+      await waitFor(() => f.contentWindow && /contacts/.test(f.contentWindow.location.pathname) && f.contentWindow.SlopData && f.contentWindow.SlopCmd && f.contentWindow.SlopCmd.get && f.contentWindow.SlopCmd.get('biz.sample'), { timeout: 20000 });
       W = f.contentWindow; C = W.SlopCmd; D = W.document;
-      await S().store.erase(); await S().store.ready();
+      const before = (await S().store.list('customers')).value.length;
       C.run('biz.sample');
       await waitFor(() => D.querySelector('.biz-sample .biz-seed'));
       [...D.querySelectorAll('.sui-dlg .sui-btn')].find((b) => b.textContent === 'Make').click();
-      await waitFor(async () => (await S().store.list('customers')).value.some((c) => c.sample));
+      await waitFor(async () => (await S().store.list('customers')).value.length === before + 1);
+      await waitFor(() => /seed \d+/.test((D.querySelector('.sui-toast') || {}).textContent || ''));
     }, { timeout: 30000 });
   });
   SlopTest.run({ name: 'Fill with a sample' });
