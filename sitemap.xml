@@ -40,6 +40,7 @@
   <url><loc>https://slopographic.com/nodes/</loc><lastmod>2026-10-20</lastmod></url>
   <url><loc>https://slopographic.com/serials/</loc><lastmod>2026-10-20</lastmod></url>
   <url><loc>https://slopographic.com/transcribe/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/recorder/</loc><lastmod>2026-10-25</lastmod></url>
   <url><loc>https://slopographic.com/signature/</loc><lastmod>2026-10-24</lastmod></url>
   <url><loc>https://slopographic.com/qr/</loc><lastmod>2026-10-20</lastmod></url>
   <url><loc>https://slopographic.com/workflows/</loc><lastmod>2026-10-24</lastmod></url>
@@ -116,6 +117,7 @@
   <url><loc>https://slopographic.com/apps/nodes/</loc><lastmod>2026-10-20</lastmod></url>
   <url><loc>https://slopographic.com/apps/serials/</loc><lastmod>2026-10-20</lastmod></url>
   <url><loc>https://slopographic.com/apps/transcribe/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/apps/recorder/</loc><lastmod>2026-10-25</lastmod></url>
   <url><loc>https://slopographic.com/apps/signature/</loc><lastmod>2026-10-24</lastmod></url>
   <url><loc>https://slopographic.com/apps/qr/</loc><lastmod>2026-10-20</lastmod></url>
   <url><loc>https://slopographic.com/apps/workflows/</loc><lastmod>2026-10-24</lastmod></url>
@@ -321,6 +323,10 @@
   <url><loc>https://slopographic.com/gallery/raw-photo-viewer/</loc><lastmod>2026-10-24</lastmod></url>
   <url><loc>https://slopographic.com/convert/dng-converter/</loc><lastmod>2026-10-24</lastmod></url>
   <url><loc>https://slopographic.com/resize/resize-raw-photos/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/recorder/screen-recorder-with-webcam/</loc><lastmod>2026-10-25</lastmod></url>
+  <url><loc>https://slopographic.com/recorder/record-screen-with-audio/</loc><lastmod>2026-10-25</lastmod></url>
+  <url><loc>https://slopographic.com/recorder/loom-alternative/</loc><lastmod>2026-10-25</lastmod></url>
+  <url><loc>https://slopographic.com/recorder/webcam-recorder/</loc><lastmod>2026-10-25</lastmod></url>
   <url><loc>https://slopographic.com/photoslop/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
   <url><loc>https://slopographic.com/photoslop/layers/</loc><lastmod>2026-10-24</lastmod></url>
   <url><loc>https://slopographic.com/photoslop/classic/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
@@ -380,6 +386,7 @@
   <url><loc>https://slopographic.com/music/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
   <url><loc>https://slopographic.com/remix/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
   <url><loc>https://slopographic.com/slopcut/getting-started/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/recorder/getting-started/</loc><lastmod>2026-10-25</lastmod></url>
   <url><loc>https://slopographic.com/all-tools/</loc><lastmod>2026-10-24</lastmod></url>
   <url><loc>https://slopographic.com/best/</loc><lastmod>2026-10-24</lastmod></url>
   <url><loc>https://slopographic.com/best/free-online-photo-editors/</loc><lastmod>2026-10-24</lastmod></url>
@@ -416,6 +423,7 @@
   <url><loc>https://slopographic.com/best/free-email-signature-generators/</loc><lastmod>2026-10-24</lastmod></url>
   <url><loc>https://slopographic.com/best/free-to-do-list-apps/</loc><lastmod>2026-10-24</lastmod></url>
   <url><loc>https://slopographic.com/best/free-time-zone-converters/</loc><lastmod>2026-10-24</lastmod></url>
+  <url><loc>https://slopographic.com/best/free-screen-recorders/</loc><lastmod>2026-10-25</lastmod></url>
   <url><loc>https://slopographic.com/how-it-works/</loc><lastmod>2026-10-20</lastmod></url>
   <url><loc>https://slopographic.com/convert/csv-to-vcf/</loc><lastmod>2026-10-20</lastmod></url>
   <url><loc>https://slopographic.com/convert/xlsx-to-vcf/</loc><lastmod>2026-10-20</lastmod></url>

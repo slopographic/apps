@@ -90,6 +90,8 @@ export const APPS = {
     description: 'Make an email signature with your details, logo and social links in four templates, then copy it into Gmail, Outlook or Apple Mail. Free.' },
   transcribe: { title: 'Slop Transcribe: voice, MP3 and video to text | Slopographic', category: 'BusinessApplication',
     description: 'Record your voice or add MP3, WAV or video files and get the text on your device with Whisper. Correct it, then save as text, Word or subtitles.' },
+  recorder: { title: 'Slop Recorder: free screen recorder in your browser | Slopographic', category: 'MultimediaApplication',
+    description: 'Record your screen, a tab, your webcam or microphone, or the screen with your webcam in a corner. Trim it, save as WebM, MP4 or GIF. Nothing uploaded.' },
   serials: { title: 'Serial counter: count unique serials from photos | Slopographic', category: 'BusinessApplication',
     description: 'Read serial numbers from a batch of photos and count each unique serial once, with a table of totals. Runs in your browser; nothing is uploaded.' },
   qr: { title: 'QR SLOP: QR codes for links, Wi-Fi and contacts | Slopographic', category: 'UtilitiesApplication',

@@ -70,6 +70,7 @@
     nodes: '<circle cx="12" cy="14" r="3"/><circle cx="36" cy="14" r="3"/><circle cx="24" cy="34" r="3"/><path d="M15 14h18M13 17l9 14M35 17l-9 14"/>',
     signature: '<rect x="6" y="10" width="36" height="28" rx="3"/><path d="M6 13l18 13 18-13"/><path d="M14 33c3-5 5-5 6-2s3 3 5-1 4-3 5 0 3 2 6-1"/>',
     transcribe: '<rect x="18" y="6" width="12" height="22" rx="6"/><path d="M12 22a12 12 0 0 0 24 0M24 34v6M17 40h14"/>',
+    recorder: '<rect x="5" y="9" width="38" height="26" rx="3"/><path d="M17 41h14M24 35v6"/><circle cx="24" cy="22" r="6"/>',
     serials: '<path d="M8 10v28M13 10v28M17 10v28M23 10v28M27 10v28M33 10v28M38 10v28M42 10v28"/>',
     qr: '<rect x="6" y="6" width="14" height="14" rx="1.5"/><rect x="11" y="11" width="4" height="4"/><rect x="28" y="6" width="14" height="14" rx="1.5"/><rect x="33" y="11" width="4" height="4"/><rect x="6" y="28" width="14" height="14" rx="1.5"/><rect x="11" y="33" width="4" height="4"/><path d="M28 28h4v4h-4zM36 28h6M28 36v6h4M36 36h6v6h-6z"/>',
     calculator: '<rect x="10" y="6" width="28" height="36" rx="3"/><rect x="15" y="11" width="18" height="7" rx="1"/><path d="M15 26h3M22 26h3M29 26h3M15 33h3M22 33h3M29 33h3"/>',
