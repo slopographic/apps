@@ -30,6 +30,11 @@
         const win = await HeroTest.open({ width, theme });
         const doc = win.document, box = HeroTest.titleBox(win);
         expect(doc.querySelectorAll('.hx-mark, .hx-stage').length).toBe(0);
+        // the globe keeps its changing state in its own data-live layer: the hero's attributes are the page's own
+        const hero = doc.getElementById('hero');
+        expect(hero.getAttributeNames().sort()).toEqual(['aria-labelledby', 'class', 'id']);
+        expect(hero.className).toBe('hx');
+        expect(doc.querySelector('.gx-layer').hasAttribute('data-live') && doc.querySelector('.gx-nav').hasAttribute('data-live')).toBe(true);
         const big = await lcp(win);
         if (big) {
           expect(!!(big.element && big.element.closest('.hx-copy'))).toBe(true);   // the headline or its sub-line, never the globe

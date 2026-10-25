@@ -1,7 +1,7 @@
 /* The app globe's keyboard and screen-reader way in (home/globe/globe.js): every app in .gx-nav as one tab stop; the arrow
  * keys, Home and End move along it; the focused app shows as a chip and its icon comes round to the front
  * (SlopGlobe.focusApp). Built once the globe starts, in an idle task of its own, so neither task is long on a phone.
- * Classic script, after globe.js. */
+ * Its nav is data-live (index.html): it is filled late, so page snapshots leave it out. Classic script, after globe.js. */
 (function () {
   'use strict';
   const hero = document.getElementById('hero'), nav = hero && hero.querySelector('.gx-nav'), C = window.SlopHomeCards;

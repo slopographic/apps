@@ -13,12 +13,11 @@
   let win, doc, S, M, pristine;
   // The page itself changes as cards scroll into view (lazy screenshots load or fall back, clips attach):
   // compare without those parts.
-  // The app globe in the hero turns on its own (its layer and the hero's state change every frame): compare without it.
+  // Regions marked data-live change on their own (the hero's app globe, built after load and turning every frame, and its
+  // keyboard list, filled when the globe starts): compare without them, whenever they arrive.
   const main = () => {
     const m = doc.querySelector('main').cloneNode(true);
-    m.querySelectorAll('.gx-layer').forEach((n) => n.remove());
-    m.querySelector('#hero').removeAttribute('data-globe');
-    m.querySelectorAll('.gx-nav a').forEach((a) => a.removeAttribute('tabindex'));
+    m.querySelectorAll('[data-live]').forEach((n) => n.remove());
     return m.innerHTML.replace(/<img[^>]*>|<video[\s\S]*?<\/video>| data-clip="[^"]*"| has-img/g, '');
   };
   const leftovers = () => doc.querySelectorAll('.sloppo-layer > :not(.sloppo):not(.sloppo-fx)').length;
@@ -26,6 +25,7 @@
     win = w; doc = w.document; S = w.SlopMascot; M = S.M;
     doc.documentElement.style.scrollBehavior = 'auto';
     await sleep(1500);                         // let missing screenshots fall back to tiles
+    await waitFor(() => w.SlopGlobe && w.SlopGlobe.state() === 'running', { timeout: 20000 });   // chaos and Restore with the globe turning
     S.toggleHud(true);                         // the HUD card is collapsed by default: open it for its buttons
     pristine = main();
   });

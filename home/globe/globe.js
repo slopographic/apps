@@ -37,7 +37,9 @@
   const LINES = { full: G.grid(30, 30, 6), lite: G.grid(30, 30, 12) };   // the lite globe draws coarser lines
   const big = (a) => ((a.weight || 1) > 1 ? BIG : 1);
 
-  const layer = el('div', { class: 'gx-layer', 'aria-hidden': 'true' });
+  // data-live: a region that changes on its own; page snapshots (Sloppo's Restore checks) leave it out. The globe keeps all
+  // of its changing state inside it and never touches the hero's own attributes.
+  const layer = el('div', { class: 'gx-layer', 'aria-hidden': 'true', 'data-live': '' });
   const canvas = el('canvas', { class: 'gx-lines' });
   const hit = el('div', { class: 'gx-hit' });
   const hint = el('p', { class: 'gx-hint', 'data-i18n': 'hero.no_match' }, t('hero.no_match', 'No apps match'));
@@ -159,7 +161,7 @@
     draw();
   }
   function paint() {
-    hero.dataset.globe = tierName === 'static' ? 'static' : running() ? 'running' : 'paused';
+    layer.dataset.globe = tierName === 'static' ? 'static' : running() ? 'running' : 'paused';
     if (running() && !raf) { last = 0; raf = requestAnimationFrame(tick); }
   }
   /** When nothing animates (reduced motion, off screen): the end state at once. */
@@ -233,7 +235,6 @@
     build();
     const r = early || (window.SlopHomeBrowse && window.SlopHomeBrowse.result && window.SlopHomeBrowse.result());
     if (r) apply(r);
-    hero.classList.add('gx-on');
     paint();
     hero.dispatchEvent(new CustomEvent('gx-start'));   // list.js fills the keyboard list in a task of its own
     if ('IntersectionObserver' in window) new IntersectionObserver((en) => { inView = en[en.length - 1].isIntersecting; paint(); }).observe(hero);
@@ -244,7 +245,7 @@
     new MutationObserver(() => { if (measure()) draw(); }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'data-slop-theme'] });
   }
   const api = window.SlopGlobe = {
-    state: () => hero.dataset.globe || 'idle',
+    state: () => layer.dataset.globe || 'idle',
     frames: () => frames,
     startedAt: () => startedAt,
     tier: () => tierName,
