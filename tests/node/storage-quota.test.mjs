@@ -127,10 +127,10 @@ test('the English fallback is the same as shared/i18n/strings.js, and every lang
   const ctx = { SlopI18n: { tables: {}, add(code, d) { this.tables[code] = d; } } };
   ctx.window = ctx;
   vm.createContext(ctx);
-  for (const f of ['strings.js', 'es.js', 'fr.js', 'de.js', 'pt-BR.js', 'it.js', 'ar.js']) vm.runInContext(await readFile(path.join(ROOT, 'shared/i18n', f), 'utf8'), ctx);
+  for (const f of ['strings.js', 'es.js', 'fr.js', 'de.js', 'pt-BR.js', 'it.js', 'ar.js', 'sv.js']) vm.runInContext(await readFile(path.join(ROOT, 'shared/i18n', f), 'utf8'), ctx);
   for (const [k, v] of Object.entries(Q.EN)) {
     assert.equal(ctx.SlopI18n.tables.en[k], v, k);
-    for (const code of ['es', 'fr', 'de', 'pt-BR', 'it', 'ar']) assert.ok(ctx.SlopI18n.tables[code][k], `${code} ${k}`);
+    for (const code of ['es', 'fr', 'de', 'pt-BR', 'it', 'ar', 'sv']) assert.ok(ctx.SlopI18n.tables[code][k], `${code} ${k}`);
   }
 });
 

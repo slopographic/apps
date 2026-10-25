@@ -169,3 +169,46 @@ jobs:
         run: echo "$PAGES" > plan-pages.txt
       - name: Touch tests in ${{ matrix.engine }}
         run: node tests/run.mjs --touch --browser=${{ matrix.engine }} --jobs=2 --skip-node ${{ needs.plan.outputs.suite == 'changed' && '--pages-file=plan-pages.txt' || '' }}
+
+  # The white-label build (tools/whitelabel; brand/README.md, "White-label builds"), on every push: the made-up sample
+  # profiles (brand/profiles/sample*.json) built the way a mirror is, so a change here cannot break a white-label site
+  # unnoticed. The rename map's round trip over the whole repository, the build with its leak scan, the build's own Node
+  # tests, and browser pages served from the build: a smoke set, and (sample) the contrast sweep in its colours.
+  # It runs a fixed set of pages of the build, not this repository's suite; it waits for the plan like every browser job.
+  whitelabel:
+    name: White-label build ${{ matrix.profile }}
+    needs: plan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble
+    strategy:
+      fail-fast: false
+      matrix:
+        profile: [sample, sample-sv]
+    env:
+      OUT: ${{ github.workspace }}/../wl-build
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Let git work in the checkout and in the build (the container runs as root)
+        run: git config --global --add safe.directory '*'
+      - run: npm ci --no-audit --no-fund
+      - name: The rename map comes back over the whole repository (tools/whitelabel/roundtrip.mjs)
+        run: node tools/whitelabel/roundtrip.mjs ${{ matrix.profile }}
+      - name: Build the profile, with the leak scan (tools/whitelabel/build.mjs)
+        run: node tools/whitelabel/build.mjs ${{ matrix.profile }} "$OUT"
+      - name: The build as a mirror checkout is (one commit), and its Node tests (less the ones that pin this site's profile)
+        run: |
+          SKIP=$(node tools/whitelabel/mirror-skip.mjs ${{ matrix.profile }})
+          cd "$OUT" && git init -q && git add -A && git -c user.name=mirror -c user.email=mirror@example.invalid commit -qm build
+          npm ci --no-audit --no-fund && node --test ${SKIP:+"--test-skip-pattern=$SKIP"} tests/node/*.test.mjs tests/seo/*.test.mjs
+      - name: Browser smoke pages, served from the build (the set a mirror runs, tools/whitelabel/mirror-skip.mjs)
+        run: |
+          node tools/whitelabel/mirror-skip.mjs ${{ matrix.profile }} --smoke > "$OUT/smoke-pages.txt"
+          cd "$OUT" && node tests/run.mjs --skip-node --jobs=3 --pages-file=smoke-pages.txt
+      - name: The contrast sweep in the profile's colours
+        if: matrix.profile == 'sample'
+        run: cd "$OUT" && node tests/run.mjs a11y/sweep- --skip-node --jobs=3

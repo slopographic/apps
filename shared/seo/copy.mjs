@@ -7,8 +7,9 @@
 import { CONVERT_PAGES } from './convert-copy.mjs';
 
 export const HOME = {
-  title: 'Slopographic: office and creative software in your browser',
-  description: 'Slopographic makes business and creative software that runs in your browser: documents, sheets, PDFs, labels and photo tools. Free, no accounts.',
+  // A brand profile can set its own (seo.homeTitle, seo.homeDescription; tools/whitelabel/build.mjs writes them here).
+  title: /*profile:seoHomeTitle*/'Slopographic: office and creative software in your browser',
+  description: /*profile:seoHomeDescription*/'Slopographic makes business and creative software that runs in your browser: documents, sheets, PDFs, labels and photo tools. Free, no accounts.',
 };
 
 export const APPS = {

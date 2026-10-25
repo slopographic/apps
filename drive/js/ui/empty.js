@@ -4,6 +4,7 @@
 (function (DR) {
   const el = DR.el;
   let painter = null;
+  const MASCOT = /*profile:mascot*/true;   // the brand profile's mascot switch (set at build time)
   const load = () => painter || (painter = import(new URL('../shared/sloppo/index.js', document.baseURI).href).catch(() => null));
   const LOOKS = {
     drive: { eyes: 'happy', mouth: 'open', hat: 'party' },
@@ -38,8 +39,9 @@
       clr.addEventListener('click', () => { DR.S.query = ''; DR.S.tag = ''; DR.S.kind = 'all'; DR.$('search').value = ''; DR.render(); });
       acts.append(clr);
     }
+    if (!MASCOT) cv.hidden = true;
     const box = el('div', { class: 'empty', 'data-empty': what }, cv, el('h2', null, h), el('p', null, p), acts);
-    paint(cv, LOOKS[what] || LOOKS.folder);
+    if (MASCOT) paint(cv, LOOKS[what] || LOOKS.folder);
     return box;
   };
   function paint(cv, look) {

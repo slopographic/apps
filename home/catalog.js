@@ -25,6 +25,7 @@
   };
   /* The name shown for an app (see shared/apps.js). The switch relabels the names already on the page. */
   const label = (a) => window.slopAppLabel(a, window.slopBrandNamesOn());
+  const tag = (a) => (window.slopAppTagline ? window.slopAppTagline(a) : a.tagline);   // in the chosen language (plain names)
   function relabel() {
     const withSlop = window.slopBrandNamesOn();
     document.querySelectorAll('.app-title[data-id]').forEach((n) => {
@@ -139,13 +140,13 @@
       shot(a),
       el('div', { class: 'app-body' },
         el('div', { class: 'app-name' }, el('h3', { class: 'app-title', 'data-id': a.id }, label(a)), badge(a, true)),
-        el('p', { class: 'app-tag' }, line || a.tagline),
+        el('p', { class: 'app-tag' }, line || tag(a)),
         el('span', { class: 'go' }, a.status === 'building' ? 'Preview →' : 'Open →')));
   }
   function tile(a) {
     return el('a', { class: 'tile', href: a.path, 'data-perch': 'card', 'data-id': a.id, ...(a.path.startsWith('#') ? { 'data-view': a.path.slice(1) } : {}) },
       shot(a),
-      el('div', { class: 'tile-body' }, el('div', { class: 'app-name' }, el('h3', { class: 'app-title', 'data-id': a.id }, label(a)), badge(a)), el('p', null, a.tagline)));
+      el('div', { class: 'tile-body' }, el('div', { class: 'app-name' }, el('h3', { class: 'app-title', 'data-id': a.id }, label(a)), badge(a)), el('p', null, tag(a))));
   }
   /* ---------- status board ---------- */
   const board = document.getElementById('status-board');

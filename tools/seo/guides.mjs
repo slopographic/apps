@@ -8,6 +8,11 @@
 import { esc, shell, videoLink } from './landing.mjs';
 import { appNav, withToc, docsLayout } from './guide.mjs';
 import { videoJsonLd } from './tasks.mjs';
+import { existsSync } from 'node:fs';
+import path from 'node:path';
+import { ROOT } from './site.mjs';
+/** A guide picture that is on disk (a white-label build without media leaves them out, and the page then has none). */
+const hasImage = (img) => !!img && existsSync(path.join(ROOT, img.src));
 
 export function checkGuide(g, app) {
   const fail = (m) => { throw new Error(`guide ${g.app}/${g.slug}: ${m}`); };
@@ -26,7 +31,7 @@ function body(g, app) {
   const sec = (s) => `<h2>${esc(s.h2)}</h2>
 ${(s.text || []).map((p) => `<p>${esc(p)}</p>`).join('\n')}
 ${s.steps ? `<ol>${s.steps.map((x) => `<li>${esc(x)}</li>`).join('')}</ol>` : ''}
-${s.image ? `<figure class="shot"><img src="${esc(s.image.src)}" alt="${esc(s.image.alt)}" loading="lazy"></figure>` : ''}
+${hasImage(s.image) ? `<figure class="shot"><img src="${esc(s.image.src)}" alt="${esc(s.image.alt)}" loading="lazy"></figure>` : ''}
 ${s.tip ? `<p class="note"><b>Tip:</b> ${esc(s.tip)}</p>` : ''}`;
   const keys = g.shortcuts ? `<h2>Keyboard shortcuts</h2>\n<div class="wrap"><table><thead><tr><th scope="col">Keys</th><th scope="col">What it does</th></tr></thead><tbody>${g.shortcuts.map(([k, w]) => `<tr><td><code>${esc(k)}</code></td><td>${esc(w)}</td></tr>`).join('')}</tbody></table></div>` : '';
   return `<p class="eyebrow">${esc(app.name)} guide</p>

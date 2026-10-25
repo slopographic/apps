@@ -11,6 +11,8 @@
 (function (g) {
   'use strict';
   var doc = typeof document !== 'undefined' ? document : null;
+  // A screenshot under assets/ that is not there (a white-label build ships without them) is hidden, never shown broken.
+  if (doc) doc.addEventListener('error', function (e) { var t = e.target; if (t && t.tagName === 'IMG' && /assets\/(shots|guides|video)\//.test(t.getAttribute('src') || '')) t.style.display = 'none'; }, true);
   var DEFAULT = 'system';
   var SYSTEM = 'system';
 
@@ -18,12 +20,18 @@
     return { id: id, name: name, scheme: scheme, tokens: { background: bg, surface: surface, text: text, accent: accent, border: border } };
   }
   /** The real themes. Every theme has all five tokens; System resolves to one of these. */
+  /* The brand profile's colours (brand/profiles/<id>.json "themes", set at build time by tools/whitelabel/build.mjs):
+   * { light: { background, surface, text, accent, border }, dark: {...}, hide: ['lime'] }. Empty here: this site's own. */
+  var PROFILE = /*profile:themes*/{};
   var THEMES = Object.freeze([
     th('light', 'Light', 'light', '#ebe7de', '#f8f6f1', '#0a0a0a', '#4f6c00', '#8e8b82'),
     th('dark', 'Dark', 'dark', '#0a0a0a', '#151518', '#f1ede4', '#d4ff3a', '#66666a'),
     th('classic', 'Classic 98', 'light', '#c0c0c0', '#ffffff', '#000000', '#000080', '#808080'),
     th('lime', 'Slopographic Lime', 'dark', '#0d1206', '#171f0c', '#f1ffb8', '#d4ff3a', '#5f713e'),
-  ]);
+  ].filter(function (t) { return (PROFILE.hide || []).indexOf(t.id) < 0; }).map(function (t) {
+    if (PROFILE[t.id]) Object.keys(t.tokens).forEach(function (k) { if (PROFILE[t.id][k]) t.tokens[k] = PROFILE[t.id][k]; });
+    return t;
+  }));
   var IDS = THEMES.map(function (t) { return t.id; });
   var byId = {};
   THEMES.forEach(function (t) { byId[t.id] = t; });

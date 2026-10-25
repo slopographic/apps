@@ -52,7 +52,7 @@ test('the page heads carry every token, on one line in the SEO block', async () 
     const html = await readFile(path.join(ROOT, rel), 'utf8');
     const block = html.slice(html.indexOf('<!-- seo:start'), html.indexOf('<!-- seo:end -->'));
     for (const t of cfg.tokens) assert.ok(block.includes(`<meta http-equiv="origin-trial" content="${t.token}">`), `${rel}: the ${t.origin} token`);
-    assert.equal(block.split('\n').filter((l) => l.includes('origin-trial')).length, 1, rel + ': one line');
+    assert.equal(block.split('\n').filter((l) => l.includes('origin-trial')).length, cfg.tokens.length ? 1 : 0, rel + ': one line (none in a build without tokens)');
   }
 });
 

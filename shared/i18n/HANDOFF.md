@@ -1,7 +1,7 @@
 # Language switcher (shared/i18n)
 
-Seven languages, each with a full table of the shared chrome: English (`en`, the default and the fallback), Spanish
-(`es`), French (`fr`), German (`de`), Portuguese (`pt-BR`), Italian (`it`) and Arabic (`ar`, right to left). The picker
+Eight languages, each with a full table of the shared chrome: English (`en`, the default and the fallback), Spanish
+(`es`), French (`fr`), German (`de`), Portuguese (`pt-BR`), Italian (`it`), Arabic (`ar`, right to left) and Swedish (`sv`). The picker
 lists them in `LANGS` order, each by its own name. The switch works on the homepage, on Settings, and on every page
 that loads the shell (`shell/shell.js`). Only shared chrome is translated so far; each app's own text stays English
 (see "Still English" below).
@@ -11,8 +11,11 @@ that loads the shell (`shell/shell.js`). Only shared chrome is translated so far
   `add(code, dict)`, `langs()`, and `create(opts)` for an independent instance (tests).
 - `strings.js`: the English table: the top bar and home link, the Apps button and switcher, the Settings labels, the
   homepage footer, the consent strip, the support card, and the common menu words.
-- `es.js`, `fr.js`, `de.js`, `pt-BR.js`, `it.js`, `ar.js`: one table per language. Each must hold every key in
+- `es.js`, `fr.js`, `de.js`, `pt-BR.js`, `it.js`, `ar.js`, `sv.js`: one table per language. Each must hold every key in
   `strings.js`, with the same `{placeholders}`, and keep the brand names (Sloppo, Slopographic, the app names).
+- `sv-apps.js`: Swedish app names, `app.<id>` (a plain business name such as `PDF-redigerare`) and `apptag.<id>` (a
+  one-line description), for every id in `shared/apps.js` (`tests/node/i18n-sv.test.mjs` checks it). These keys exist only
+  in Swedish: in English the plain names are the registry's `plain` field. A `<code>-apps.js` file loads after `<code>.js`.
 - `settings/language.js`: the Language picker in Settings > Appearance (lists `LANGS` in order).
 
 ## Loading
@@ -21,9 +24,16 @@ that loads the shell (`shell/shell.js`). Only shared chrome is translated so far
 - The homepage and Settings load all of them in their `<head>`, after `shared/profile/profile.js` and
   `shared/theme/theme.js`, so their text is translated before first paint of the body.
 
+## Default language (brand profile)
+`DEFAULT` (`en`) is the fallback: a key missing in the chosen language is read from English. `DEFAULT_CHOICE` is the
+language a visitor gets when nothing is stored. It is written as one line, `var DEFAULT_CHOICE = /*profile:defaultLang*/'en';`,
+and the white-label build (`tools/whitelabel`) rewrites the literal after the marker from the profile's `defaultLang`
+(a profile with `"defaultLang": "sv"` starts in Swedish). Keep the marker and the literal on one line. Every language stays in the picker
+on every build; only the starting choice changes. `create({ defaultLang })` overrides it in tests.
+
 ## Storage
-The choice is `SlopProfile` appId `lang`, key `mode` (default `en`), so it lives in the `slop-profile` key with the
-other settings and survives a reload. An unknown stored code reads as English. Choosing English clears the override.
+The choice is `SlopProfile` appId `lang`, key `mode` (default `DEFAULT_CHOICE`), so it lives in the `slop-profile` key with the
+other settings and survives a reload. An unknown stored code reads as the default choice. Choosing the default choice clears the override.
 A change in another tab re-applies on `storage`.
 
 ## Adding a language
@@ -77,7 +87,7 @@ A change in another tab re-applies on `storage`.
   Arabic), every language table having every English key with the same placeholders, the logical-property CSS, and
   every shared-chrome key used by the shell, the consent strip, the support card, and the homepage and Settings
   existing in English.
-- `tests/i18n/switch.test.html`: in a browser, the Settings picker lists all seven codes; choosing Spanish changes the
+- `tests/i18n/switch.test.html`: in a browser, the Settings picker lists all eight codes; choosing Spanish changes the
   homepage nav text; a reload keeps it; a shell page (Ledger) shows it at boot; switching back restores English.
 - `tests/i18n/rtl.test.html`: the picker shows each language by its own name; choosing Arabic sets `lang="ar"` and
   `dir="rtl"`, the header's Apps button shows and is on screen, and the header's start margin is on the right; a shell
@@ -102,4 +112,4 @@ A change in another tab re-applies on `storage`.
   every language file, but no app's own menus are marked yet. An app marks its menus with `menu.*` keys.
 - **Notifications** (`shell/notify.js`, the bell and its panel) and the navigation drawer (`shell/drawer.js`) are English,
   and their CSS is not mirrored yet (see Right-to-left).
-- **Every app's own text** is English in all seven languages (see the first bullet above).
+- **Every app's own text** is English in all eight languages (see the first bullet above).

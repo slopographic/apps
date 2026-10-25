@@ -132,10 +132,10 @@
     return b;
   }
   function cone(radius, height, seg) {
-    const b = Buf(), h = height / 2, slope = radius / height, len = Math.hypot(1, slope);
+    const b = Buf(), h = height / 2, rise = radius / height, len = Math.hypot(1, rise);
     for (let s = 0; s <= seg; s++) {
       const th = TAU * s / seg, x = Math.cos(th), z = Math.sin(th);
-      b.p.push(0, h, 0, radius * x, -h, radius * z); b.n.push(x / len, slope / len, z / len, x / len, slope / len, z / len);
+      b.p.push(0, h, 0, radius * x, -h, radius * z); b.n.push(x / len, rise / len, z / len, x / len, rise / len, z / len);
     }
     for (let s = 0; s < seg; s++) { const a = s * 2; b.i.push(a, a + 3, a + 2); }
     const c = b.p.length / 3;

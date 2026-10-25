@@ -36,7 +36,7 @@
     it('the Settings picker lists every language, English first', async () => {
       const s = await open('../../settings/index.html');
       const values = [...s.contentDocument.getElementById('lang-select').options].map((o) => o.value);
-      expect(values).toEqual(['en', 'es', 'fr', 'de', 'pt-BR', 'it', 'ar']);
+      expect(values).toEqual(['en', 'es', 'fr', 'de', 'pt-BR', 'it', 'ar', 'sv']);
     });
 
     it('choosing Spanish changes the homepage nav text, and it persists across a reload', async () => {

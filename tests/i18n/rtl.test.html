@@ -43,7 +43,7 @@
     it('the Settings picker lists each language by its own name', async () => {
       const s = await open('../../settings/index.html');
       const names = [...s.contentDocument.getElementById('lang-select').options].map((o) => o.textContent);
-      expect(names).toEqual(['English', 'Español', 'Français', 'Deutsch', 'Português (Brasil)', 'Italiano', 'العربية']);
+      expect(names).toEqual(['English', 'Español', 'Français', 'Deutsch', 'Português (Brasil)', 'Italiano', 'العربية', 'Svenska']);
     });
 
     it('choosing Arabic sets lang="ar" and dir="rtl", and the header still shows the Apps button on screen', async () => {

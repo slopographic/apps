@@ -1,5 +1,6 @@
 // Slop 3D pure logic: primitive geometry (outward winding) and transform maths. Model files (OBJ, glTF, GLB and the rest)
 // are read and written by the shared 3D I/O module: tests/node/3d-io.test.mjs, tests/3d-io/ and tests/3d/modelio.test.html.
+// Covers: 3d/js/core/geometry.js
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { load, plain } from './3d-env.mjs';
