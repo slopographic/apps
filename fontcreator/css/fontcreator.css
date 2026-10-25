@@ -35,7 +35,7 @@ h2, h3, p { margin: 0; }
 .fc-cell.fc-empty { border-style: dashed; background: transparent; }
 .fc-cell-art { display: grid; place-items: center; min-height: 46px; }
 .fc-cell-art svg { width: 100%; height: 46px; fill: currentColor; }
-.fc-cell-ghost { font-size: 24px; line-height: 46px; color: color-mix(in srgb, var(--fc-fg) 38%, transparent); }
+.fc-cell-ghost { font-size: 24px; line-height: 46px; color: color-mix(in srgb, var(--fc-fg) 62%, transparent); }
 .fc-cell-lab { font-size: 11px; color: var(--fc-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* the panel's controls */

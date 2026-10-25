@@ -11,6 +11,8 @@
     await waitFor(() => { try { const W = fr.contentWindow; return !W.__ftOld && W.FC && W.FC.main && W.FC.state && W.document.getElementById('fc-download') && W.document.body.classList.contains('ready'); } catch (e) { return false; } }, { timeout: 30000 });
     const W = fr.contentWindow;
     await W.FC.main.ready;
+    // the cookie card would sit over the editor on a phone: choose, and take it away
+    try { if (W.SlopConsentState) W.SlopConsentState.write({ analytics: false, ads: false, rates: false }); if (W.SlopBanner) W.SlopBanner.remove(); } catch (e) { /* no consent layer */ }
     return { W, D: W.document, FC: W.FC };
   }
   const canvas = (W) => W.document.getElementById('fc-canvas');
