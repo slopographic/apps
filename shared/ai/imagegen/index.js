@@ -10,11 +10,14 @@
   if (K.imageGenReady) return;
   const me = document.currentScript && document.currentScript.src;
   const base = K.base || (me ? new URL('../', me).href : new URL('../shared/ai/', location.href).href);
-  const FILES = ['cloud/net', 'cloud/providers', 'cloud/keys', 'cloud/meter', 'imagegen/core', 'imagegen/openai', 'imagegen/gemini', 'imagegen/openrouter',
+  const CATALOG = ['main', 'open', 'cloud', 'more', 'local', 'images'].map((g) => 'cloud/catalog/' + g);   // the providers, as data (before providers.js)
+  const FILES = ['cloud/net', ...CATALOG, 'cloud/providers', 'cloud/keys', 'cloud/meter', 'imagegen/core', 'imagegen/openai', 'imagegen/gemini', 'imagegen/openrouter',
     'imagegen/pixels', 'imagegen/run', 'imagegen/tools', 'imagegen/dialog'];
   const C = () => K.cloud || {};
   /** What each file defines: a file already loaded by K.load (the panel's picker) is not loaded again. */
   const HAS = { 'cloud/net': () => C().call, 'cloud/providers': () => C().byId, 'cloud/keys': () => C().keys, 'cloud/meter': () => C().meter };
+  // A catalog file K.load already ran (its tag is there and providers.js, loaded after it in order, is in) is not loaded again.
+  for (const n of CATALOG) HAS[n] = () => !!C().byId && !!document.querySelector(`script[data-slopai="${n}"]`);
   const one = (n) => new Promise((res, rej) => {
     if (HAS[n] && HAS[n]()) return res();
     const fail = () => rej(new Error('Could not load shared/ai/' + n + '.js'));

@@ -58,7 +58,8 @@
     return K.models.status(id).catch(() => ({ state: 'none', bytes: 0 }));
   }
 
-  const CLOUD = ['cloud/net', 'cloud/providers', 'cloud/anthropic', 'cloud/openai', 'cloud/compat', 'cloud/gemini', 'cloud/keys', 'cloud/meter', 'cloud/engine', 'cloud/connect'];
+  const CATALOG = ['main', 'open', 'cloud', 'more', 'local', 'images'].map((g) => 'cloud/catalog/' + g);   // the providers, as data
+  const CLOUD = ['cloud/net', ...CATALOG, 'cloud/providers', 'cloud/anthropic', 'cloud/openai', 'cloud/compat', 'cloud/gemini', 'cloud/keys', 'cloud/meter', 'cloud/engine', 'cloud/pick', 'cloud/local', 'cloud/local-ui', 'cloud/connect'];
   const loadCloud = () => K.load(['cmdtools', ...CLOUD]);
   async function cloud(box, o) {
     try { await loadCloud(); K.cloud.connect.render(box, { onReady: o.onReady, onForget: o.onForget, open: o.cloudOpen }); } catch (e) { console.warn('Slop AI: own-key providers', e); }

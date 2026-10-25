@@ -3,7 +3,11 @@
  * SlopAIKit.cloud.connect = { render(box, { onReady(engine) }), restore() → Promise<engine|null>, engineFor(id, s) }.
  * The key field is a password field with autocomplete off; the key goes to keys.js (this tab, or this device when
  * "Remember on this device" is on) and from there only into requests to that provider. Forget key removes it.
- * restore(): the provider chosen last, used again on the next page when its key is still here (or none is needed). */
+ * restore(): the provider chosen last, used again on the next page when its key is still here (or none is needed).
+ * The provider is chosen in the searchable picker (cloud/pick.js), which drives a hidden select (the form's one value);
+ * a provider's own fields (endpoint id, account id…) come from its address template; a server on this computer gets
+ * "Find servers" and a diagnosis on Test connection (cloud/local.js, local-ui.js). A picture-only provider just keeps
+ * its key here, for AI pictures. */
 (function () {
   'use strict';
   const K = (window.SlopAIKit = window.SlopAIKit || {});
@@ -16,7 +20,7 @@
     const model = ps.model || (C.suggested(p, fetched.get(id))[0] || {}).id;
     if (!model) return null;
     const f = (fetched.get(id) || []).find((m) => m.id === model);
-    return new K.CloudEngine({ provider: p, model, base: ps.base || p.base, key: () => C.keys.get(id), modelName: (f && f.name) || ps.modelName || '', price: C.price(p, model, f) || ps.price || null });
+    return new K.CloudEngine({ provider: p, model, base: C.baseFor(p, ps), key: () => C.keys.get(id), modelName: (f && f.name) || ps.modelName || '', price: C.price(p, model, f) || ps.price || null });
   }
   async function restore() {
     const s = C.keys.settings(), p = s.active && C.byId(s.active);
@@ -30,7 +34,10 @@
   function render(box, o = {}) {
     const s = C.keys.settings();
     let p = C.byId(s.active) || C.providers[0];
-    const sel = h('select', { class: 'sap-cloud-provider', 'aria-label': 'AI provider' }, C.providers.map((x) => h('option', { value: x.id }, x.name)));
+    const sel = h('select', { class: 'sap-cloud-provider', 'aria-label': 'AI provider', hidden: true }, C.providers.filter((x) => x.usable).map((x) => h('option', { value: x.id }, x.name)));
+    const pp = C.pick.providers(sel), fieldBox = h('div', { class: 'sap-cloud-fieldbox' }), diag = h('div', { class: 'sap-cloud-diag', hidden: true });
+    let fl = C.pick.fields({}, {});
+    const kid = () => p.keyOf || p.id;   // a picture provider may use another entry's key (Together, RunPod)
     const base = h('input', { class: 'sap-cloud-base', type: 'url', spellcheck: 'false', autocomplete: 'off', 'aria-label': 'Server address' });
     const key = h('input', { class: 'sap-cloud-key', type: 'password', spellcheck: 'false', autocomplete: 'off', 'data-lpignore': 'true', 'aria-label': 'API key' });
     const remember = h('input', { class: 'sap-cloud-remember', type: 'checkbox' });
@@ -54,6 +61,7 @@
       if (rest.length) model.append(h('optgroup', { label: 'More models' }, rest.map((m) => h('option', { value: m.id }, m.name))));
       if (ps.model && ![...model.options].some((x) => x.value === ps.model)) model.prepend(h('option', { value: ps.model }, ps.modelName || ps.model));
       if (ps.model) model.value = ps.model;
+      C.pick.models(model, p);
       model.disabled = !model.options.length;
       estimate();
     }
@@ -67,27 +75,33 @@
     const reshow = () => (shown = shown.then(show, show));
     async function show() {
       const ps = (C.keys.settings().providers || {})[p.id] || {};
-      sel.value = p.id; base.value = ps.base || p.base || ''; base.placeholder = p.base || 'https://…/v1';
-      baseRow.hidden = !p.editBase; keyRow.hidden = remRow.hidden = forget.hidden = !(p.needsKey || p.keyOptional);
+      sel.value = p.id; pp.sync(); base.value = ps.base || p.base || ''; base.placeholder = p.base || 'http://localhost:8080/v1 or https://…/v1';
+      fl = C.pick.fields(p, ps.fields); fieldBox.replaceChildren(fl.node); C.localUI.show(diag, null);
+      baseRow.hidden = !p.editBase; finder.hidden = !p.editBase; keyRow.hidden = remRow.hidden = hint.hidden = forget.hidden = !(p.needsKey || p.keyOptional);
+      for (const n of chatOnly) n.hidden = !p.chat;
       key.value = ''; key.placeholder = p.keyHint || 'paste the key (if the service needs one)';
-      remember.checked = await C.keys.remembered(p.id);
-      const has = !!(await C.keys.get(p.id));
+      remember.checked = await C.keys.remembered(kid());
+      const has = !!(await C.keys.get(kid()));
       if (has) key.placeholder = remember.checked ? 'Key saved on this device' : 'Key kept in this tab';
       forget.disabled = !has;
-      use.textContent = 'Use ' + p.short;
+      use.textContent = p.chat ? 'Use ' + p.short : 'Save key';
       help.textContent = '';
-      if (p.needsKey) help.append('Get a key at ', h('a', { href: p.keyUrl, target: '_blank', rel: 'noopener' }, p.where), `. ${p.who} charges your account there for what you use.`);
+      if (p.needsKey) help.append('Get a key at ', h('a', { href: p.keyUrl, target: '_blank', rel: 'noopener' }, p.where || p.keyUrl), `. ${p.who} charges your account there for what you use.`);
       else if (p.local) help.append(`Uses ${p.short} running on this computer. Nothing leaves it.`);
-      else help.append('Any server that speaks the OpenAI Chat Completions API.');
+      else help.append(p.notes || 'Any server that speaks the OpenAI Chat Completions API.');
+      if (!p.chat) help.append(' This one makes pictures: its key is kept for AI pictures.');
+      if (p.docs) help.append(' ', h('a', { href: p.docs, target: '_blank', rel: 'noopener' }, 'Docs'));
       local.textContent = ''; local.hidden = !p.editBase;
-      if (p.editBase) local.append(h('summary', null, 'How to connect a local server'), ...C.localHelp(p).map((t) => h('p', { class: 'sap-dim' }, t)));
+      if (p.editBase) local.append(h('summary', null, p.local ? `How to connect ${p.short}` : 'How to connect a local server'), ...C.localHelp(p).map((t) => h('p', { class: 'sap-dim' }, t)));
       say(''); fillModels();
     }
-    const cfgBase = () => (p.editBase ? base.value.trim() : p.base);
+    const cfgBase = () => (p.editBase ? base.value.trim() : C.resolve(p, fl.values()).url);
+    /** What is missing or wrong in the address before anything is sent: '' when it is fine. */
+    const addressProblem = () => (p.editBase ? C.checkBase(cfgBase()) : fl.missing().length ? 'Fill in: ' + fl.missing().join(', ') + '.' : '');
     async function engineNow() {
-      if (p.editBase) { const bad = C.checkBase(cfgBase()); if (bad) throw new C.CloudError('request', bad); }
+      const bad = addressProblem(); if (bad) throw new C.CloudError('request', bad);
       const typed = key.value.trim();
-      const e = new K.CloudEngine({ provider: p, model: model.value || (p.models[0] || {}).id || 'model', base: cfgBase(), key: async () => typed || C.keys.get(p.id) });
+      const e = new K.CloudEngine({ provider: p, model: model.value || (p.models[0] || {}).id || 'model', base: cfgBase(), key: async () => typed || C.keys.get(kid()) });
       return e;
     }
 
@@ -97,14 +111,20 @@
       await shown;
       test.disabled = true; say('Testing…');
       try {
+        if (p.editBase && !addressProblem()) {   // a server: say which part failed, and its fix
+          const r = await C.local.diagnose(p, cfgBase(), { key: key.value.trim() || (await C.keys.get(kid())) });
+          if (r.models.length) fetched.set(p.id, r.models);
+          fillModels(); C.localUI.show(diag, r); say(r.message, !r.ok);
+          return;
+        }
         const list = await (await engineNow()).test();
         if (list.length) fetched.set(p.id, list);
         fillModels();
-        say(`Connected to ${p.short}.` + (list.length ? ` ${list.length} models.` : ''));
+        say(p.modelsEndpoint === false && !p.test ? `${p.short} has no model list to test with: the key is checked on your first request.` : `Connected to ${p.short}.` + (list.length ? ` ${list.length} models.` : ''));
       } catch (e) { say(C.redact(e.message, key.value.trim()), true); } finally { test.disabled = false; }
     });
     forget.addEventListener('click', async () => {
-      await C.keys.forget(p.id);
+      await C.keys.forget(kid());
       const st = C.keys.settings(); if (st.active === p.id) { st.active = ''; C.keys.save(st); }
       await reshow(); say(`The ${p.short} key is gone from this browser.`);
       if (o.onForget) o.onForget(p);
@@ -113,14 +133,16 @@
       await shown;
       try {
         const typed = key.value.trim();
-        if (p.needsKey && !typed && !(await C.keys.get(p.id))) { say('Paste your key first.', true); key.focus(); return; }
-        if (p.editBase) { const bad = C.checkBase(cfgBase()); if (bad) { say(bad, true); return; } }
+        if (p.needsKey && !typed && !(await C.keys.get(kid()))) { say('Paste your key first.', true); key.focus(); return; }
+        if (!p.chat) { await C.keys.set(kid(), typed || (await C.keys.get(kid())), { remember: remember.checked }); key.value = ''; await show(); say(`Saved. AI pictures can use ${p.short}.`); return; }
+        { const bad = addressProblem(); if (bad) { say(bad, true); return; } }
         if (!model.value) { say('Press Test connection to load the models, then pick one.', true); return; }
         if (typed) await C.keys.set(p.id, typed, { remember: remember.checked });
         else if (await C.keys.get(p.id)) await C.keys.set(p.id, await C.keys.get(p.id), { remember: remember.checked });
         const st = C.keys.settings(), f = (fetched.get(p.id) || []).find((m) => m.id === model.value);
         st.active = p.id; st.cap = Math.max(0, Math.round(Number(cap.value) || 0)); st.steps = Math.min(30, Math.max(1, Math.round(Number(steps.value) || 12)));
-        st.providers = Object.assign({}, st.providers, { [p.id]: { model: model.value, modelName: f ? f.name : (p.models.find((m) => m.id === model.value) || {}).name, base: p.editBase ? cfgBase() : undefined, price: f && f.price ? f.price : undefined } });
+        st.providers = Object.assign({}, st.providers, { [p.id]: { model: model.value, modelName: f ? f.name : (p.models.find((m) => m.id === model.value) || {}).name, base: p.editBase ? cfgBase() : undefined, fields: p.fields ? fl.values() : undefined, price: f && f.price ? f.price : undefined } });
+        C.pick.remember(p, model.value);
         C.keys.save(st);
         key.value = '';
         const eng = engineFor(p.id); await eng.load();
@@ -129,16 +151,16 @@
       } catch (e) { say(C.redact(e.message, key.value.trim()), true); }
     });
 
+    const finder = C.localUI.finder({ onPick: (id, addr) => { p = C.byId(id); const st = C.keys.settings(); st.providers = Object.assign({}, st.providers, { [id]: Object.assign({}, st.providers && st.providers[id], { base: addr }) }); C.keys.save(st); show(); } });
+    const modelRow = h('label', { class: 'sap-cloud-f' }, 'Model', model), capRow = h('label', { class: 'sap-cloud-f' }, 'Spending cap (tokens this visit)', cap), stepRow = h('label', { class: 'sap-cloud-f' }, 'Steps per request', steps);
+    const chatOnly = [modelRow, capRow, est, stepRow], hint = h('p', { class: 'sap-dim sap-cloud-hint' }, 'Off: the key is kept in this tab only, until you close it.');
     cap.value = s.cap || ''; steps.value = s.steps || 12;
     const wrap = h('details', { class: 'sap-cloud', open: o.open || !!s.active || null },
-      h('summary', null, h('b', null, 'Use your own AI account'), h('span', { class: 'sap-dim' }, ' Claude, ChatGPT, Gemini, OpenRouter, or a model on this computer')),
+      h('summary', null, h('b', null, 'Use your own AI account'), h('span', { class: 'sap-dim' }, ` Claude, ChatGPT, Gemini, OpenRouter, ${C.providers.length - 4} more, or a model on this computer`)),
       h('p', { class: 'sap-dim' }, 'With your own key, the requests go from this browser straight to that provider, and are charged to your account there. There is no Slopographic server in between.'),
-      h('label', { class: 'sap-cloud-f' }, 'Provider', sel), baseRow, keyRow, help, remRow,
-      h('p', { class: 'sap-dim sap-cloud-hint' }, 'Off: the key is kept in this tab only, until you close it.'),
-      h('div', { class: 'sap-acts' }, test, forget), msg,
-      h('label', { class: 'sap-cloud-f' }, 'Model', model),
-      h('label', { class: 'sap-cloud-f' }, 'Spending cap (tokens this visit)', cap), est,
-      h('label', { class: 'sap-cloud-f' }, 'Steps per request', steps),
+      h('div', { class: 'sap-cloud-f' }, h('span', null, 'Provider'), sel, pp.node), finder, baseRow, fieldBox, keyRow, help, remRow,
+      hint,
+      h('div', { class: 'sap-acts' }, test, forget), msg, diag, modelRow, capRow, est, stepRow,
       h('div', { class: 'sap-acts' }, use), local);
     box.append(wrap);
     reshow();
