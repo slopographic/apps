@@ -7,6 +7,7 @@
 //   shared/seo/tasks/business-3.mjs, shared/seo/tasks/everyday.mjs, shared/seo/tasks/everyday-2.mjs, shared/seo/tasks/threed.mjs,
 //   shared/seo/tasks/finance.mjs, shared/seo/tasks/raw.mjs
 //   shared/seo/tasks/recorder.mjs
+// Covers: shared/seo/tasks/colors.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';

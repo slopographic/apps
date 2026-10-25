@@ -7,6 +7,7 @@ import './watermark.js';
 import './resize.js';
 import './upscale.js';
 import './clean.js';
+import './colors.js';
 import './ocr.js';
 import './files.js';
 import './diff.js';   // Slop Compare: two files → a report

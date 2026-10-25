@@ -5,6 +5,7 @@
 //   shared/seo/guides/documents-2.mjs, shared/seo/guides/documents-3.mjs, shared/seo/guides/documents-4.mjs,
 //   shared/seo/guides/business.mjs, shared/seo/guides/everyday.mjs
 //   shared/seo/guides/recorder.mjs
+// Covers: shared/seo/guides/colors.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';

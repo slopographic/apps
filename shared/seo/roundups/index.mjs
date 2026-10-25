@@ -17,6 +17,7 @@ import { ROUNDUPS as business } from './business.mjs';
 import { ROUNDUPS as business2 } from './business-2.mjs';
 import { ROUNDUPS as business3 } from './business-3.mjs';
 import { ROUNDUPS as compare } from './compare.mjs';
+import { ROUNDUPS as colors } from './colors.mjs';
 import { ROUNDUPS as recorder } from './recorder.mjs';
 
 /** Our app comes first in every round-up: the tools, and each feature row's values with them (same order). The other
@@ -28,4 +29,4 @@ export function oursFirst(r) {
   return { ...r, tools: move(r.tools), matrix: r.matrix && r.matrix.map((m) => ({ ...m, values: move(m.values) })) };
 }
 
-export const ROUNDUPS = [...creative, ...creative2, ...creative3, ...creative4, ...documents, ...documents2, ...documents3, ...documents4, ...business, ...business2, ...business3, ...compare, ...recorder].map(oursFirst);
+export const ROUNDUPS = [...creative, ...creative2, ...creative3, ...creative4, ...documents, ...documents2, ...documents3, ...documents4, ...business, ...business2, ...business3, ...compare, ...recorder, ...colors].map(oursFirst);
