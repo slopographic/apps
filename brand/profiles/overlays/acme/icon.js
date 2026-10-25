@@ -1,7 +1,7 @@
 // Sample mascot overlay for the made-up "Acme Tools" profile (brand/profiles/sample.json): its flat icon. Sample art for
 // tests, MIT like the rest of this repository. The overlay contract: shared/mascot/slot.js. No DOM: the white-label build
 // also runs this in Node to draw the favicon and the app icons (tools/whitelabel/mascot.mjs).
-// Tests: tests/node/mascot-slot.test.mjs.
+// Tests: tests/node/whitelabel-mascot-slot.test.mjs, tests/buddy/slot.test.html.
 export const name = 'Acme Bot';
 
 /** The icon at size px. small (16 and 24 px): no antenna, bigger eyes. */

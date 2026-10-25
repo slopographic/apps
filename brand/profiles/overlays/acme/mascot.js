@@ -1,6 +1,6 @@
 // Sample mascot overlay for the made-up "Acme Tools" profile (brand/profiles/sample.json): a flat robot head that plays
 // the slot's moments with the Web Animations API, so the slot can be tested without WebGL. Sample art for tests, MIT like
-// the rest of this repository. The overlay contract: shared/mascot/slot.js. Tests: tests/node/mascot-slot.test.mjs,
+// the rest of this repository. The overlay contract: shared/mascot/slot.js. Tests:
 // tests/buddy/slot.test.html.
 import { svg, name } from './icon.js';
 

@@ -1,7 +1,7 @@
 // The files a white-label build writes from the profile instead of copying them: brand.json, CNAME, the licence and
 // notices, the README (a generated mirror is never edited by hand), the manifest, the logo and favicon, and the
 // profile markers (/*profile:key*/ literals) in the copied code. Pure functions; build.mjs writes their results.
-// Node only. Tests: tests/node/whitelabel-profile.test.mjs, tests/node/mascot-slot.test.mjs.
+// Node only. Tests: tests/node/whitelabel-profile.test.mjs, tests/node/whitelabel-mascot-slot.test.mjs.
 import { hasOverlay, artNotice, artTrademarks } from './mascot.mjs';
 
 /** The value each marker key takes for a profile. A key whose value is undefined keeps the source literal. */

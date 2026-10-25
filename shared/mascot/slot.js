@@ -13,7 +13,7 @@
 // busy regions (SlopFlow tiles, aria-busy), idle -> sleep after a minute without input and wake on the next one, point
 // when a page asks (document event 'mascot-moment', detail { moment: 'point', target }) or at [data-mascot-point] after
 // the greeting. Pages and apps may send any moment the same way. Pointer events pass through the mascot.
-// Tests: tests/node/mascot-slot.test.mjs (the moment logic), tests/buddy/slot.test.html (the slot on a page).
+// Tests: tests/node/mascot-moments.test.mjs (the moment logic), tests/buddy/slot.test.html (the slot on a page).
 import { animationFor, stateOf, workTracker, idleTracker, sideOf, MOMENTS } from './moments.js';
 
 export const OVERLAY = new URL('../../brand/mascot/', import.meta.url).href;

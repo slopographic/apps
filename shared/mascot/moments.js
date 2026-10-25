@@ -2,7 +2,7 @@
 // (slot.js) asks the profile's mascot overlay to play the named animation for that moment. The table is the contract an
 // overlay implements: it lists the animations it has (`animations`) and may map a moment to another one (`moments`).
 // Pure logic (no DOM): the work and idle trackers take a clock, so Node tests drive them. Tests:
-// tests/node/mascot-slot.test.mjs. The overlay contract itself is described in shared/mascot/slot.js.
+// tests/node/mascot-moments.test.mjs. The overlay contract itself is described in shared/mascot/slot.js.
 
 /** Moment -> animation name. greeting: the page opened; working: a task runs; done / error: it ended; idle: nothing
  * happened for IDLE_MS (the mascot sleeps); wake: the first input after that; point: the page asks it to show a control. */

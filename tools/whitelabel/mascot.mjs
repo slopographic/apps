@@ -6,7 +6,7 @@
 // is described there). Every file of the folder must be in "files" and every listed file must exist: LICENSE-ART lists
 // them, so the licence never misses one. With "icon" (default on), the favicon, the header mark and the app icons are
 // drawn by the overlay's icon.js: the small drawing at 16 and 24 px, the full one from 32 px.
-// Node only. Tests: tests/node/mascot-slot.test.mjs.
+// Node only. Tests: tests/node/whitelabel-mascot-slot.test.mjs.
 import { readdirSync, statSync, existsSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import path from 'node:path';

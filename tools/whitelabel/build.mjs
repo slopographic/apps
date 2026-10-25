@@ -10,7 +10,7 @@
 // A profile with its own mascot (mascot.mjs) gets the overlay in brand/mascot/, LICENSE-ART, and icons drawn by it.
 // --cdn-ref: the release tag of the profile's own cdn repository (cdn.mjs makes its content), when it differs from this
 // site's tag. The out dir's .git folder is kept, so a mirror checkout can be rebuilt in place.
-// Tests: tests/node/whitelabel-build.test.mjs, tests/node/mascot-slot.test.mjs.
+// Tests: tests/node/whitelabel-build.test.mjs, tests/node/whitelabel-mascot-slot.test.mjs.
 import { readFileSync, writeFileSync, mkdirSync, rmSync, readdirSync, existsSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import path from 'node:path';

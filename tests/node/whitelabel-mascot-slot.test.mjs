@@ -1,63 +1,16 @@
-// Covers: shared/mascot/moments.js, tools/whitelabel/mascot.mjs, tools/whitelabel/emit.mjs, tools/whitelabel/profile.mjs, brand/profiles/overlays/acme/icon.js
-// The mascot slot without a browser: the moment table and the trackers that turn page states into moments, and the build
-// side of a profile's own mascot (the overlay's file list, its icons, LICENSE-ART, NOTICE and TRADEMARKS).
-// The slot on a page: tests/buddy/slot.test.html.
+// Covers: tools/whitelabel/mascot.mjs, tools/whitelabel/emit.mjs, tools/whitelabel/profile.mjs, brand/profiles/overlays/acme/icon.js
+// The build side of a profile's own mascot: the overlay's file list, its icons, LICENSE-ART, NOTICE and TRADEMARKS, the
+// markers. The moments: tests/node/mascot-moments.test.mjs.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { MOMENTS, animationFor, stateOf, workTracker, idleTracker, sideOf, DONE_AFTER_MS } from '../../shared/mascot/moments.js';
 import { mascotProblems, overlayDir, overlayProblems, overlayIcons, artFiles, licenseArt, artNotice, artTrademarks, artAllow, artHolder, DEST } from '../../tools/whitelabel/mascot.mjs';
 import { loadProfile, profilesDir, validate } from '../../tools/whitelabel/profile.mjs';
 import { markerValues, applyMarkers, notice, trademarks, readme, logoSvg } from '../../tools/whitelabel/emit.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const DIR = profilesDir(ROOT);
-
-test('every buddy moment has a named animation; an overlay may map or lack one', () => {
-  assert.deepEqual(Object.keys(MOMENTS).sort(), ['done', 'error', 'greeting', 'idle', 'point', 'wake', 'working']);
-  assert.equal(animationFor('done'), 'celebrate');
-  assert.equal(animationFor('done', { animations: ['hello'] }), null);
-  assert.equal(animationFor('done', { animations: ['bounce'], moments: { done: 'bounce' } }), 'bounce');
-  assert.equal(animationFor('nope', {}), null);
-});
-
-test('page states: SlopFlow tiles and aria-busy regions', () => {
-  const el = (attrs, cls = '') => ({ getAttribute: (k) => (k in attrs ? attrs[k] : null), classList: { contains: (c) => cls.split(' ').includes(c) } });
-  assert.equal(stateOf(el({ 'data-state': 'run' }, 'sflow')), 'run');
-  assert.equal(stateOf(el({ 'data-state': 'idle' }, 'sflow')), 'end');
-  assert.equal(stateOf(el({ 'data-state': 'run' })), null);           // another widget's data-state is not a task
-  assert.equal(stateOf(el({ 'aria-busy': 'true' })), 'run');
-  assert.equal(stateOf(el({ 'aria-busy': 'false' })), 'end');
-  assert.equal(stateOf(null), null);
-});
-
-test('work: working once, done when the last task ends, error at once, short busy spells are not done', () => {
-  let now = 0;
-  const out = [], w = workTracker((m) => out.push(m), () => now);
-  w.update('a', 'run'); w.update('b', 'run');
-  assert.deepEqual(out, ['working']);
-  w.update('a', 'done');
-  assert.deepEqual(out, ['working']);                                // b still runs
-  w.update('b', 'error');
-  assert.deepEqual(out, ['working', 'error']);
-  w.update('c', 'run'); now = DONE_AFTER_MS - 1; w.update('c', 'end');
-  assert.deepEqual(out, ['working', 'error', 'working']);
-  w.update('c', 'run'); now += DONE_AFTER_MS; w.update('c', 'end');
-  assert.deepEqual(out.slice(-1), ['done']);
-  assert.equal(w.busy, 0);
-});
-
-test('idle: sleep once after the quiet time, wake on the next input', () => {
-  const out = [], t = idleTracker((m) => out.push(m), 1000, 0);
-  t.tick(999); assert.deepEqual(out, []);
-  t.tick(1000); t.tick(5000); assert.deepEqual(out, ['idle']);
-  assert.equal(t.asleep, true);
-  t.activity(5001); t.activity(5002);
-  assert.deepEqual(out, ['idle', 'wake']);
-  assert.equal(sideOf({ left: 500, width: 100 }, { left: 10, width: 20 }), -1);
-  assert.equal(sideOf({ left: 0, width: 100 }, { left: 400, width: 20 }), 1);
-});
 
 test('the profile field: false, true, or an overlay with its name and files', () => {
   assert.deepEqual(mascotProblems(false), []);
