@@ -7,6 +7,7 @@
  *   has(offset, len)             are those pages in memory?
  *   byte(i)                      the current value (edits applied), or undefined when its page is not loaded
  *   write([{ at, value }], { coalesce })   one undo group; coalesce merges into the last group with the same key
+ *   splice(at, remove, bytes)    insert and/or delete bytes (the size changes): one undo group that swaps the whole content
  *   undo() / redo()              return { at } (the first byte changed) or null
  *   dirty() / markSaved()        changed since the last save?
  *   toBlob()                     the current content as a Blob
@@ -23,14 +24,15 @@
     const cr = opts.crypto || window.crypto;
     const st = {
       blob, size: blob.size, name: opts.name || 'untitled.bin', type: opts.type || blob.type || 'application/octet-stream',
-      pages: new Map(), loading: new Map(), edits: new Map(), undo: [], redo: [], idSeq: 0,
+      pages: new Map(), loading: new Map(), edits: new Map(), undo: [], redo: [], idSeq: 0, gen: 0,
       savedId: opts.dirty ? -1 : 0, // dirty: a restored unsaved file differs from its saved copy, which is unknown
     };
     const top = () => (st.undo.length ? st.undo[st.undo.length - 1] : null);
 
     async function fetchPage(p) {
-      const start = p * PAGE, end = Math.min(st.size, start + PAGE);
-      const buf = new Uint8Array(await blob.slice(start, end).arrayBuffer());
+      const start = p * PAGE, end = Math.min(st.size, start + PAGE), gen = st.gen;
+      const buf = new Uint8Array(await st.blob.slice(start, end).arrayBuffer());
+      if (gen !== st.gen) return;   // the content was swapped (splice) while this page was read
       st.pages.delete(p); st.pages.set(p, buf);
       while (st.pages.size > MAX_PAGES) st.pages.delete(st.pages.keys().next().value);
     }
@@ -73,7 +75,7 @@
       st.redo = [];
       if (coalesce && last && last.key === coalesce) {
         for (const o of ops) {
-          const old = last.ops.find((x) => x.at === o.at);
+          const old = last.ops.find((x) => x.at === o.at);   // (a splice group never has a coalesce key)
           if (old) old.to = o.to; else last.ops.push(o);
         }
         last.id = ++st.idSeq;
@@ -83,16 +85,37 @@
       for (const o of ops) st.edits.set(o.at, o.to);
       return true;
     }
+    /** The whole content at once: a splice swaps the Blob, the size and the edits (undo restores the old ones). */
+    function swap(c) {
+      st.blob = c.blob; st.size = c.size; st.edits = new Map(c.edits);
+      st.pages = new Map(); st.loading = new Map(); st.gen++;
+    }
+    const near = (at) => ({ at: Math.max(0, Math.min(at, st.size - 1)) });
+    function splice(at, remove, bytes) {
+      remove = Math.max(0, Math.min(remove || 0, st.size - at));
+      const add = bytes || new Uint8Array(0);
+      if (!(at >= 0 && at <= st.size)) throw new Error('The offset is outside the file');
+      if (!remove && !add.length) return false;
+      const cur = toBlob(), before = { blob: st.blob, size: st.size, edits: new Map(st.edits) };
+      const blob = new Blob([cur.slice(0, at), add, cur.slice(at + remove)], { type: st.type });
+      const after = { blob, size: blob.size, edits: new Map() };
+      st.redo = [];
+      st.undo.push({ key: null, ops: [], swap: { before, after, at }, id: ++st.idSeq });
+      swap(after);
+      return true;
+    }
     function undo() {
       const g = st.undo.pop();
       if (!g) return null;
-      for (const o of g.ops) st.edits.set(o.at, o.from);
       st.redo.push(g);
+      if (g.swap) { swap(g.swap.before); return near(g.swap.at); }
+      for (const o of g.ops) st.edits.set(o.at, o.from);
       return { at: Math.min(...g.ops.map((o) => o.at)) };
     }
     function redo() {
       const g = st.redo.pop();
       if (!g) return null;
+      if (g.swap) { st.undo.push(g); swap(g.swap.after); return near(g.swap.at); }
       for (const o of g.ops) st.edits.set(o.at, o.to);
       st.undo.push(g);
       return { at: Math.min(...g.ops.map((o) => o.at)) };
@@ -163,7 +186,7 @@
       set name(v) { st.name = v; },
       get type() { return st.type; },
       get changed() { return st.edits.size; },
-      load, has, base, byte, write, undo, redo, dirty, markSaved, toBlob, sha256, readRange, find,
+      load, has, base, byte, write, splice, undo, redo, dirty, markSaved, toBlob, sha256, readRange, find,
       canUndo: () => st.undo.length > 0,
       undoDepth: () => st.undo.length,   // how many undo steps there are (the assistant's checkpoint)
       canRedo: () => st.redo.length > 0,

@@ -1,5 +1,6 @@
 /* Slop Serial counter for the assistant: SlopCmd commands with arguments (shared/commands/args.js), imported on demand by
- * SlopCmd.prepare() (app.js). On the page's own state (window.SlopSerials): add_photos (from Slop Drive), add_text (a
+ * SlopCmd.prepare() (app.js). On the page's own state (window.SlopSerials): new_count (a fresh count: no photos, the
+ * pattern given or the default; destructive), add_photos (from Slop Drive), add_text (a
  * photo's label text typed or pasted instead of read, so its serials count without the reader), read_photos (the OCR
  * reader, as the Read photos button), add_serial and remove_serial (on one photo), set_pattern, export_serials (the unique
  * serials or the photos as CSV, to Slop Drive and/or a download) and clear_photos (destructive). */
@@ -24,6 +25,16 @@ async function save(text, name, to) {
   return out.join(' and ') + '.';
 }
 
+add('new_count', 'Start a new count', [{ name: 'pattern', type: 'string', maxLength: 300, description: 'the serial pattern (a regular expression); the default when empty' }], (a) => {
+  if (X().state.busy) throw new Error('The photos are being read; wait until that is done');
+  const pat = a.pattern || '';
+  if (pat) { try { new RegExp(pat); } catch (e) { throw new Error('That pattern is not valid: ' + e.message); } }
+  const n = X().state.photos.length;
+  X().state.photos = [];
+  document.getElementById('pattern').value = pat || X().DEFAULT_PATTERN;
+  X().render();
+  return `Started a new count${n ? ` (cleared ${n} photo(s))` : ''} with ${pat ? 'your' : 'the default'} pattern. add_photos or add_text next.`;
+}, { destructive: true, description: 'Start over: clear the photos and set the serial pattern (or the default), as for a new batch.' });
 add('add_photos', 'Add photos from Slop Drive', [{ name: 'files', type: 'array', required: true, maxItems: 500, items: { type: 'string' }, description: 'Slop Drive names or ids' }], async (a) => {
   const H = window.SlopHub, all = await H.list(), files = [];   // intake-ok: an AI command looks a Drive file up by name or id (a lookup; the person's picker is SlopIntake.fromDrive)
   for (const q of a.files) {

@@ -119,6 +119,12 @@
 
   function clearInput() { el.expr.value = ''; S.recall = -1; S.last = null; S.seq++; showPreview(null); el.expr.focus(); }
   function clearTape() { S.tape = []; renderTape(); setStatus('Tape cleared. History is kept.'); }
+  /** A new sheet: an empty tape and line, no last answer; the variables go too unless kept. The history is kept. */
+  function newSheet(keepVars) {
+    S.tape = []; S.ans = null; renderTape(); clearInput();
+    if (!keepVars) { S.vars = {}; K.write(VARS_KEY, S.vars); renderVars(); }
+    setStatus('New sheet.');
+  }
 
   /** The variables: each name with its value. A click puts the name into the line. */
   function renderVars() {
@@ -194,9 +200,14 @@
     document.querySelectorAll('[data-ins]').forEach((b) => b.addEventListener('click', () => insert(b.dataset.ins)));
     // Published only now, with the listeners attached: this script sits in the <head>, so boot() waits for
     // DOMContentLoaded, and a caller that sees SlopCalcApp earlier would click controls that do nothing yet.
-    window.SlopCalcApp = { commit, copyResult, saveDrive, clearInput, clearTape, insert, focus: () => el.expr.focus(), copyText,
-      setExpr: (t) => { el.expr.value = t; }, snapshot: () => ({ last: S.last && { expr: S.last.expr, text: S.last.text }, tape: S.tape.map((r) => Object.assign({}, r)), ans: S.ans }),
-      restoreTape: (tape) => { S.tape = tape.map((r) => Object.assign({}, r)); renderTape(); } };
+    const copy = (r) => Object.assign({}, r);
+    window.SlopCalcApp = { commit, copyResult, saveDrive, clearInput, clearTape, newSheet, insert, focus: () => el.expr.focus(), copyText,
+      setExpr: (t) => { el.expr.value = t; },
+      snapshot: () => ({ last: S.last && { expr: S.last.expr, text: S.last.text }, tape: S.tape.map(copy), ans: S.ans,
+        vars: Object.keys(S.vars).sort().map((n) => n + ' = ' + C.format(S.vars[n])) }),
+      /** The tape, the last answer and the variables as they are (mark), and back to them (restore): the assistant's undo. */
+      mark: () => ({ tape: S.tape.map(copy), ans: S.ans, vars: Object.assign({}, S.vars) }),
+      restore: (m) => { S.tape = m.tape.map(copy); S.ans = m.ans; S.vars = Object.assign({}, m.vars); K.write(VARS_KEY, S.vars); renderTape(); renderVars(); } };
     P.init({
       pick: (expr) => { el.expr.value = expr; schedulePreview(); el.expr.focus(); },
       history: () => S.history,

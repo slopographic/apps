@@ -9,7 +9,7 @@ that this file is up to date and that no covered app loses a create, add or expo
 the picture look_at_canvas and app_snapshot take (`own` or `page`), **Driven** whether those commands reach an assistant
 in another app (the Slop AI workspace, open_in_app, agents). **Full** is all of it. ✗ marks a gap.
 
-Covered: 44 of 61 apps. Full suite: 44 of 61 apps.
+Covered: 49 of 61 apps. Full suite: 49 of 61 apps.
 
 | App | Create | Add | Edit | Export | Operations | State | Snapshot | Driven | Covered | Full |
 |---|---|---|---|---|---|---|---|---|---|---|
@@ -46,12 +46,12 @@ Covered: 44 of 61 apps. Full suite: 44 of 61 apps.
 | Slop Effects (`effects`) | ✓ 1 | ✓ 4 | ✓ 11 | ✗ |  | ✓ own | ✓ page | ✓ | no | no |
 | Slop Image to 3D (`img3d`) | ✓ 1 | ✗ | ✓ 1 | ✓ 1 |  | ✓ own | ✓ page | ✓ | no | no |
 | Slop Sheets (`sheetview`) | ✗ | ✗ | ✓ 5 | ✓ 1 |  | ✓ own | ✓ page | ✓ | no | no |
-| Slop Hex (`hex`) | ✓ 1 | ✗ | ✓ 3 | ✓ 2 |  | ✓ own | ✓ page | ✓ | no | no |
-| Slop EML (`eml`) | ✓ 1 | ✗ | ✓ 4 | ✓ 1 |  | ✓ own | ✓ page | ✓ | no | no |
-| Checksum (`checksum`) | ✗ | ✗ | ✓ 1 | ✓ 1 |  | ✓ own | ✓ page | ✓ | no | no |
+| Slop Hex (`hex`) | ✓ 1 | ✓ 2 | ✓ 4 | ✓ 2 |  | ✓ own | ✓ page | ✓ | yes | yes |
+| Slop EML (`eml`) | ✓ 1 | ✓ 2 | ✓ 4 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
+| Checksum (`checksum`) | ✓ 1 | ✓ 2 | ✓ 1 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Compare (`diff`) | ✓ 1 | ✓ 2 | ✓ 2 | ✓ 1 | 1 | ✓ own | ✓ page | ✓ | yes | yes |
 | Slopnodes (`nodes`) | ✓ 2 | ✓ 1 | ✓ 4 | ✓ 2 |  | ✓ own | ✓ page | ✓ | yes | yes |
-| Serial counter (`serials`) | ✗ | ✓ 3 | ✓ 4 | ✓ 1 |  | ✓ own | ✓ page | ✓ | no | no |
+| Serial counter (`serials`) | ✓ 1 | ✓ 3 | ✓ 4 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Transcribe (`transcribe`) | ✗ | ✓ 1 | ✓ 6 | ✓ 1 | 1 | ✓ own | ✓ page | ✓ | no | no |
 | Slop Recorder (`recorder`) | ✓ 1 | ✓ 1 | ✓ 6 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Signature (`signature`) | ✓ 1 | ✓ 2 | ✓ 2 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
@@ -59,7 +59,7 @@ Covered: 44 of 61 apps. Full suite: 44 of 61 apps.
 | Slop Colors (`colors`) | ✓ 1 | ✓ 2 | ✓ 7 | ✓ 1 | 1 | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Workflows (`workflows`) | ✗ | ✗ | ✗ | ✗ |  | ✓ own | ✓ page | ✗ | no | no |
 | File convert (`convert`) | ✗ | ✗ | ✗ | ✗ |  | ✗ | ✗ | ✗ | no | no |
-| Slopculator (`calculator`) | ✗ | ✓ 1 | ✓ 1 | ✓ 2 |  | ✓ own | ✓ page | ✓ | no | no |
+| Slopculator (`calculator`) | ✓ 1 | ✓ 1 | ✓ 1 | ✓ 2 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Time (`time`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop CRM (`crm`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | ✓ records | ✓ page | ✓ | yes | yes |
 | Slop Calendar (`calendar`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | ✓ records | ✓ page | ✓ | yes | yes |
@@ -295,17 +295,21 @@ Covered: 44 of 61 apps. Full suite: 44 of 61 apps.
 ### Slop Hex
 
 - create: `new_file`
-- edit: `find_bytes`, `open_file`, `set_bytes`
+- add: `append_bytes`, `insert_bytes`
+- edit: `delete_bytes`, `find_bytes`, `open_file`, `set_bytes`
 - export: `export_file`, `save_version`
 
 ### Slop EML
 
 - create: `new_message`
+- add: `add_attachment`, `add_recipient`
 - edit: `close_message`, `open_file`, `search_messages`, `select_message`
 - export: `export_messages`
 
 ### Checksum
 
+- create: `new_check`
+- add: `add_text`, `paste_hash`
 - edit: `hash_file`
 - export: `save_hash`
 
@@ -326,6 +330,7 @@ Covered: 44 of 61 apps. Full suite: 44 of 61 apps.
 
 ### Serial counter
 
+- create: `new_count`
 - add: `add_photos`, `add_serial`, `add_text`
 - edit: `clear_photos`, `read_photos`, `remove_serial`, `set_pattern`
 - export: `export_serials`
@@ -368,6 +373,7 @@ Covered: 44 of 61 apps. Full suite: 44 of 61 apps.
 
 ### Slopculator
 
+- create: `new_sheet`
 - add: `add_calculation`
 - edit: `clear_tape`
 - export: `export_tape`, `save_calculation`
