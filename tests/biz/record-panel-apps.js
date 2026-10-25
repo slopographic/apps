@@ -8,11 +8,19 @@
     ready: (W) => W[ns] && W[ns].app && W[ns].app.booted && !W.document.getElementById('view-edit').hidden && W.document.querySelector('.ws-panel .sf-p-foot'),
     done: (W) => W.document.getElementById('eMsg').textContent.trim().length > 0,
   });
+  const listApp = (name, path, ns, main) => ({
+    name, path, hash: 'new', view: '#view-list', panel: '#view-edit', main,
+    ready: (W) => W[ns] && W[ns].app && W[ns].app.booted && !W.document.getElementById('view-edit').hidden && W.document.querySelector('#view-edit .sf-p-foot'),
+    done: (W) => W.document.getElementById('eMsg').textContent.trim().length > 0,
+  });
   g.RECORD_PANEL_APPS = [
     docApp('Slop Invoices', 'invoices/index.html', 'SlopInvoices'),
     docApp('Slop Orders', 'orders/index.html', 'SlopOrders'),
     docApp('Slop Quotes', 'quotes/index.html', 'SlopQuotes'),
     docApp('Slop Purchases', 'purchases/index.html', 'SlopPurchases'),
+    // A record that is a view of its own, beside the list (SlopBiz.panel.records): a new one, its main button with the
+    // form empty answers in the message line
+    listApp('Slop Expenses', 'expenses/index.html', 'SlopExpenses', 'Record expense'),
     // Contacts: the card is the record panel (its own column, a page on a phone); Edit, Duplicate and Delete at its foot
     { name: 'Slop Contacts', path: 'contacts/index.html', hash: '', view: '.col-list', panel: '#card', main: 'Edit', bare: true,
       ready: (W) => W.SlopContacts && W.SlopContacts.ready,

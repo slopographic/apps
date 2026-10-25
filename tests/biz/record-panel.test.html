@@ -6,7 +6,7 @@
   <script src="../harness.js"></script>
   <script src="record-panel-apps.js"></script>
   <script>
-  // Covers: shared/biz/panel.js, shared/docs/doc-layout.js, shared/docs/doc-editor.js, shared/docs/workspace.css, shared/biz/app.css, contacts/js/app/card.js, contacts/js/app/card-read.js, contacts/js/app/card-edit.js, contacts/css/contacts-card.css
+  // Covers: shared/biz/panel.js, shared/docs/doc-layout.js, shared/docs/doc-editor.js, shared/docs/workspace.css, shared/biz/app.css, contacts/js/app/card.js, contacts/js/app/card-read.js, contacts/js/app/card-edit.js, contacts/css/contacts-card.css, expenses/js/ui/app.js
   // The suite rule (shared/frame/HANDOFF.md): an open record's details are a panel on the RIGHT (SlopFrame), its main button in
   // the panel's footer; on a phone the panel is a bottom sheet whose closed state still shows that footer. One run per app
   // (tests/biz/record-panel-apps.js: how each app opens a record, fills it and what its main button does).
@@ -48,6 +48,11 @@
         const f = await open(app, 390), W = f.contentWindow, D = W.document;
         const panel = D.querySelector(app.panel);
         expect(D.documentElement.scrollWidth).toBeLessThanOrEqual(390);
+        if (panel.classList.contains('ssh-on')) {   // a record of its own view opens as the sheet: its × closes it to the footer
+          panel.querySelector('.ssh-x').click();
+          await waitFor(() => !panel.classList.contains('ssh-on'));
+          await sleep(300);
+        }
         const names = footButtons(D, panel).map((b) => b.textContent.trim());
         expect(names.includes(app.main)).toBe(true);
         if (!app.bare) expect(names[0]).toBe('Details');

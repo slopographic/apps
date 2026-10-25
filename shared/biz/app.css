@@ -136,3 +136,25 @@ a.btn { text-decoration: none; }
 .grid-t thead th { color: var(--mute); font-weight: 600; }
 .grid-t tfoot th { font-weight: 600; border-bottom: 0; }
 .grid-t .num { text-align: right; }
+
+/* A record beside its list (shared/biz/panel.js, SlopBiz.panel.records: Expenses, Timesheets): one row of SlopFrame, the
+   list on the left and the open record the panel on the right, its main buttons in the panel's footer. With a record open
+   the window holds the menu bar and the row; the list and the panel scroll inside it. On a phone the record is a bottom
+   sheet over the list whose footer stays on screen. */
+.biz-lr:not(.biz-lr-on) { display: none !important; }
+.biz-lr.biz-lr-rec > .sf-view[hidden] { display: block !important; }
+.biz-lr:not(.biz-lr-rec) > .sf-panel, .biz-lr:not(.biz-lr-rec) > .sf-grip { display: none; }
+.biz-lr > .sf-panel { padding: 0 14px; }
+.biz-lr > .sf-panel > .sf-p-foot { margin-inline: -14px; }
+.biz-lr > .sf-panel .card { background: none; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; padding: 0 0 12px; margin: 0 0 12px; }
+.biz-lr > .sf-panel .form-grid { grid-template-columns: minmax(0, 1fr); }
+.biz-lr > .sf-panel > .msg:empty { min-height: 0; margin: 6px 0; }
+.biz-lr:not(.sf-phone) > .sf-view { padding: 14px 16px 40px; }
+.biz-lr.sf-phone > .sf-panel > .ssh-x + * { margin-top: 46px; }
+@media (min-width: 901px) {
+  body.biz-lr-open { height: 100vh; box-sizing: border-box; overflow: hidden; }
+  body.biz-lr-open .app { flex: 1 1 0; min-height: 0; height: auto; }
+  body.biz-lr-open .app > .main { flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0; overflow: hidden; padding: 0; max-width: none; }
+  body.biz-lr-open .main > .local-badge { display: none; }
+  .biz-lr.biz-lr-rec { flex: 1 1 auto; }
+}

@@ -14,6 +14,11 @@
 //   rp.actions(nodes, host)   the record's action buttons and notes: the primary one(s) and Save go in the footer, the
 //                             others (and the notes) into host, a section of the panel; call it on every state change
 //   rp.footer(list, opts)     the footer straight (shared/frame/panel.js footer())     rp.frame   the SlopFrame
+// An app whose record is a view of its own (Expenses, Timesheets: list, edit) shows it beside the list instead:
+//   SlopBiz.panel.records({ app, ns, list: '#view-list', record: '#view-edit', view: 'edit', foot: ['#eSave', …] })
+//   The two views move into one row (.biz-lr): on the list view the list alone; with a record open the list stays on the
+//   left (redrawn with the record) and the record is the panel on the right, its buttons (foot) in the footer. On a phone
+//   the record opens as the bottom sheet over the list. Styles: shared/biz/app.css (.biz-lr).
 (function (g) {
   'use strict';
   const B = (g.SlopBiz = g.SlopBiz || {});
@@ -31,7 +36,7 @@
       if (!put() && g.MutationObserver) { const mo = new g.MutationObserver(() => { if (put()) mo.disconnect(); }); mo.observe(document.body, { childList: true, subtree: true }); }
     }
     const frame = g.SlopFrame.mount(root, { list: null, view: pick(o.view), panel, panelLabel: label, storageKey: o.app + '-record', app: o.app,
-      phone: o.phone || '(max-width: 900px)', button: slot, phoneButton: false, width: o.width || 340, min: 280, max: 620 });
+      phone: o.phone || '(max-width: 900px)', button: slot, phoneButton: false, width: o.width || 340, min: 280, max: 620, command: o.command });
     const p = g.SlopFrame.panel(panel, { bare: true });
     root.classList.add('biz-rp');
     // With no main button (a paid invoice, a cancelled order) the phone's footer is only "Details", which opens the sheet
@@ -63,5 +68,36 @@
     return { actions, footer, frame, panel: p };
   }
 
-  B.panel = { mount };
+  function records(o) {
+    const NS = o.ns, list = pick(o.list), rec = pick(o.record), app = document.querySelector('.app');
+    if (!g.SlopFrame || !list || !rec || !app) return null;
+    const wrap = document.createElement('div');
+    wrap.className = 'biz-lr';
+    list.before(wrap);
+    wrap.append(list, rec);
+    // the record is the panel: no show/hide button or command (a hidden panel would hide the record)
+    const rp = mount({ app: o.app, root: wrap, view: list, panel: rec, label: o.label, phone: o.phone, width: o.width || 380, command: false });
+    const foot = (o.foot || []).map(pick).filter(Boolean);
+    const homes = new Set(foot.map((b) => b.parentElement));
+    rp.footer(foot);
+    for (const h of homes) if (h && !h.childElementCount) h.hidden = true;   // the bar the buttons came from, now empty
+    const redraw = () => { const v = NS.views && NS.views[o.listView || 'list'], fn = v && (v.refresh || v.render); if (fn) fn.call(v); };
+    let was = null, t = 0;
+    function sync() {
+      const v = app.dataset.view, on = v === o.view;
+      wrap.classList.toggle('biz-lr-on', on || v === (o.listView || 'list'));
+      wrap.classList.toggle('biz-lr-rec', on);
+      document.body.classList.toggle('biz-lr-open', on);
+      if (on && was !== v) { redraw(); if (rp.frame.isPhone()) rp.frame.openSheet(); }
+      if (!on && was === o.view) rp.frame.closeSheet();
+      was = v;
+    }
+    new g.MutationObserver(sync).observe(app, { attributes: true, attributeFilter: ['data-view'] });
+    sync();
+    // the list beside an open record follows every change (a record saved, voided or paid)
+    if (g.SlopData && g.SlopData.store) g.SlopData.store.subscribe(() => { clearTimeout(t); t = setTimeout(() => { if (wrap.classList.contains('biz-lr-rec')) redraw(); }, 60); });
+    return rp;
+  }
+
+  B.panel = { mount, records };
 })(typeof window !== 'undefined' ? window : globalThis);
