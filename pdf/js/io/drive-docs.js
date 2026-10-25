@@ -24,7 +24,7 @@
   }
   /** The Drive PDF whose bytes equal these (same size, then the same SHA-256), or null. Trashed files do not count. */
   D.findSame = async function (bytes, hash) {
-    var list = await hub().list({ accept: 'application/pdf' });
+    var list = await hub().list({ accept: 'application/pdf' }); // intake-ok: finds the same PDF already in Drive (no copy), not a picker
     for (var i = 0; i < list.length; i++) {
       if (list[i].size === bytes.length && (await hashOf(list[i])) === hash) return list[i];
     }

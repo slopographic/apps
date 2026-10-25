@@ -81,8 +81,6 @@
       });
     }, Promise.resolve());
   };
-  /** File ▸ Place… (into `frame` when given). */
-  PL.pick = function (frame) {
-    return window.SlopUI.pickFiles({ accept: 'image/*,.txt,.md,application/pdf,.ttf,.otf', multiple: !frame }).then(function (fs) { if (fs.length) return PL.files(fs, { frame: frame || null }); });
-  };
+  /** File ▸ Place… (into `frame` when given): a source of the one intake (io/intake.js). */
+  PL.pick = function (frame) { return PR.intake.place(frame); };
 })();

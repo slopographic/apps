@@ -8,7 +8,6 @@
   const S = SC.state;
   const UI = window.SlopUI;
   const el = UI.el;
-  const ACCEPT = '.vcf,.vcard,.csv,.tsv,.txt,.scontacts,text/vcard,text/csv,application/json';
   const EXPORTS = [
     ['vcf', 'vCard 3.0 (.vcf), one file for iOS and Android'], ['vcf40', 'vCard 4.0 (.vcf), one file'],
     ['zip', 'vCard 3.0, one file per contact (.zip)'], ['zip40', 'vCard 4.0, one file per contact (.zip)'],
@@ -28,8 +27,7 @@
       el('p', { class: 'sui-p' }, ex.note), el('p', { class: 'sui-p' }, 'Columns: ' + ex.columns.join(', ') + '.'),
       el('button', { type: 'button', class: 'sui-btn', onclick: () => SlopExamples.download('contacts') }, 'Download example CSV')),
     buttons: [{ label: 'Cancel' }, { label: 'Choose files…', primary: true, act: async () => {
-      const files = await UI.pickFiles({ accept: ACCEPT, multiple: true });
-      if (files && files.length) importFiles(files); // the preview is its own dialog; this one closes now
+      SC.dropImport.pick(); // the intake's picker (drop-import.js); the preview is its own dialog, this one closes now
     } }] });
   }
 

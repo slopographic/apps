@@ -128,21 +128,23 @@
       A.select([id]);
     });
   };
-  /** Files dropped from the desktop onto the timeline: import, then place them there. */
+  /** Files dropped from the desktop onto the timeline (the intake's reader, io/intake.js): import, then place them there.
+   *  Resolves the imported media. */
   TL.dropFiles = async function (files, tg) {
     const metas = await SE.media.importFiles(files);
-    if (!metas.length || !tg.row) return;
+    if (!metas.length || !tg.row) return metas;
     let t = TL.snapT(tg.t);
     SE.change('Add clip', (p) => {
       let ids = [];
       for (const m of metas) { const got = E.addMedia(p, m, tg.row.track.id, t); ids = ids.concat(got); if (got.length) t = M.end(M.clip(p, got[0])); }
       A.select(ids);
     });
+    return metas;
   };
   TL.initDrops = function () {
     const el = SE.app.els.tlLanes;
     el.addEventListener('dragover', onDragOver);
     el.addEventListener('dragleave', () => { TL.ghost = null; TL.dirty(); });
-    el.addEventListener('drop', onDrop);
+    el.addEventListener('drop', onDrop); // intake-ok: bin items and effects dragged onto a lane, not files
   };
 })();

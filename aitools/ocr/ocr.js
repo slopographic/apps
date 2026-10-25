@@ -67,10 +67,8 @@
     $('page').parentElement.hidden = f.type !== 'application/pdf';
     $('run').disabled = false;
   }
-  const drop = $('drop');
-  $('file').addEventListener('change', (e) => pick(e.target.files[0]));
-  drop.addEventListener('dragover', (e) => { e.preventDefault(); });
-  drop.addEventListener('drop', (e) => { e.preventDefault(); pick(e.dataTransfer.files[0]); });
+  // the one way in (aitools/intake.js): a drop on the box, choose a file, a paste, ?drive=<id>, a launch
+  const intake = T.intake('ai-ocr', { accept: { types: ['image/*', 'application/pdf'], exts: ['.pdf', '.png', '.jpg', '.jpeg', '.webp', '.gif', '.bmp'], noun: 'an image or a PDF' }, read: (f) => pick(f) });
   $('run').addEventListener('click', run);
   choiceP.then((c) => c.button($('lang'), () => { if (file && $('out').value) run(); }));
   $('copy').addEventListener('click', async () => { try { await navigator.clipboard.writeText($('out').value); $('msg').textContent = 'Copied.'; } catch (e) { $('msg').textContent = 'Copy was blocked. Select the text and copy it.'; } });
@@ -81,5 +79,5 @@
     if (id) { T.openDocs(id); $('msg').textContent = 'Saved to Slop Drive as ' + base + '.txt. Slop Docs is opening it in a new tab.'; }
     else $('msg').textContent = 'Slop Drive is not available here, so the text cannot be sent to Slop Docs. Use Download instead.';
   });
-  T.gate('ocr', () => { $('ui').hidden = false; $('page').parentElement.hidden = true; });
+  T.gate('ocr', () => { $('ui').hidden = false; $('page').parentElement.hidden = true; intake.launch(); });
 })();

@@ -81,7 +81,7 @@
       n.addEventListener('dragstart', (e) => { dragId = t.id; e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('application/x-sl-doctab', t.id); });
       n.addEventListener('dragend', () => { dragId = null; });
       n.addEventListener('dragover', (e) => { if (dragId) e.preventDefault(); });
-      n.addEventListener('drop', (e) => {
+      n.addEventListener('drop', (e) => { // intake-ok: a tab moved along the strip, not a file
         if (!dragId) return;
         e.preventDefault();
         const r = n.getBoundingClientRect(), at = tabs.findIndex((x2) => x2.id === t.id);
@@ -265,7 +265,6 @@
       on(fn) { listeners.add(fn); return () => listeners.delete(fn); },
       overflowVisible: () => !more.hidden,
       saveToDrive: (doc = api.current()) => (NS.drive ? NS.drive.saveToDrive(api, doc) : Promise.resolve(null)),
-      openFromDrive: (o) => (NS.drive ? NS.drive.openFromDrive(api, o) : Promise.resolve(null)),
       toast: (msg) => toastFn(msg),
       destroy() {
         d.removeEventListener('pointerdown', onClick, true);

@@ -47,17 +47,7 @@
   };
   SE.act.newProject = () => S.newProject(true);
 
-  /** Opened from another app with ?drive=<id>: import that file. */
-  S.launch = async function () {
-    if (!window.SlopHub || SE.offline) return false;
-    const rec = await SlopHub.consumeLaunch();
-    if (!rec) return false;
-    if (SE.reel && SE.reel.isManifest(rec)) return SE.reel.launch(rec); // a reel from Slop Gallery (io/reel.js)
-    if (rec.meta && rec.meta.matteId) { await SE.cutout.receive({ id: rec.id, matteId: rec.meta.matteId, clipId: rec.meta.clipId || null, name: rec.name }); return true; } // a matte pair from SlopIsolate
-    const f = new File([rec.blob], rec.name, { type: rec.type });
-    if (/\.slopedit$/i.test(rec.name || '')) await SE.project.openFile(f, rec.id);
-    else await SE.app.importFiles([f], { from: 'drive' });
-    SlopUI.toast('Opened ' + rec.name + ' from Slop Drive');
-    return true;
-  };
+  /** Opened from another app (?drive=<id>: a file, a reel from Slop Gallery, a matte pair from SlopIsolate) or as the
+   *  installed app with files: through the intake (io/intake.js). */
+  S.launch = () => SE.intake.launch();
 })();

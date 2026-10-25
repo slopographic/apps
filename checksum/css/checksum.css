@@ -8,9 +8,8 @@ body { margin: 0; background: var(--sl-background, #f4f2ec); color: var(--sl-tex
 .ck-lede, .ck-note { margin: 0; color: var(--sl-muted, #555); font-size: 14px; line-height: 1.5; }
 .ck-card { background: var(--sl-surface, #fff); border: 1px solid var(--sl-border, #ddd); border-radius: 12px; padding: 16px; display: grid; gap: 12px; }
 .ck-card h2 { margin: 0; font-size: 16px; }
-.ck-drop { display: grid; place-items: center; min-height: 96px; border: 2px dashed var(--sl-border, #bbb); border-radius: 10px; cursor: pointer; padding: 12px; text-align: center; }
-.ck-drop:focus-within, .ck-drop.over { border-color: var(--sl-accent, #2a6df4); }
-.ck-drop input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.ck-drop { font: inherit; color: inherit; background: transparent; width: 100%; display: grid; place-items: center; min-height: 96px; border: 2px dashed var(--sl-border, #bbb); border-radius: 10px; cursor: pointer; padding: 12px; text-align: center; }
+.ck-drop:focus-visible, .ck-drop.over { border-color: var(--sl-accent, #2a6df4); }
 .ck-row { display: grid; gap: 6px; font-size: 14px; }
 .ck-row select, .ck-row input { font: inherit; padding: 8px; border-radius: 8px; border: 1px solid var(--sl-border, #bbb); background: var(--sl-surface, #fff); color: inherit; }
 .ck-hash { display: block; font-family: var(--mono, ui-monospace, monospace); font-size: 13px; word-break: break-all; min-height: 2.4em; padding: 10px; border-radius: 8px; background: color-mix(in srgb, var(--sl-text, #000) 6%, transparent); }

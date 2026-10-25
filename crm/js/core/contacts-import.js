@@ -12,7 +12,7 @@
   async function findLists() {
     const hub = g.SlopHub;
     if (!hub || !hub.list) return [];
-    const files = await hub.list({ trashed: false });
+    const files = await hub.list({ trashed: false }); // intake-ok: the newest saved list is offered first; choosing one is the shared picker
     return files.filter((f) => /\.scontacts$/i.test(f.name || '') || f.type === 'application/x-slop-contacts')
       .sort((a, b) => (b.modified || 0) - (a.modified || 0));
   }

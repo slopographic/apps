@@ -24,9 +24,11 @@
       this.btnAttach.onclick = (e) => this.attachMenu(e);
       this.input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); if (!this.busy) this.send(); } });
       this.input.addEventListener('input', () => this.grow());
-      this.scroller.addEventListener('dragover', (e) => { if (e.dataTransfer && [...e.dataTransfer.types].includes('Files')) { e.preventDefault(); this.scroller.classList.add('drop'); } });
+      // a drop on the messages is the intake's (ui/intake.js), for this panel
+      if (AI.intake) AI.intake.dropOn(this.scroller, this);
+      this.scroller.addEventListener('dragenter', (e) => { if (e.dataTransfer && [...e.dataTransfer.types].includes('Files')) this.scroller.classList.add('drop'); });
       this.scroller.addEventListener('dragleave', () => this.scroller.classList.remove('drop'));
-      this.scroller.addEventListener('drop', (e) => { e.preventDefault(); this.scroller.classList.remove('drop'); this.addFiles([...e.dataTransfer.files]); });
+      this.scroller.addEventListener('drop', () => this.scroller.classList.remove('drop')); // intake-ok: only the highlight; the files are the intake's
       AI.wireMessageActions(this.list, () => this.conv, { onRegen: () => this.regenerate() });
       AI.on('engine', () => this.syncButtons());
     }
@@ -49,8 +51,8 @@
     attachMenu(e) {
       const r = this.btnAttach.getBoundingClientRect();
       window.SlopUI.menu([
-        { label: 'From this computer…', act: async () => this.addFiles(await window.SlopUI.pickFiles({ multiple: true, accept: 'text/*,.md,.json,.csv,.js,.ts,.py,.html,.css,.xml,.svg,.yml,.yaml,.log' }) || []) },
-        { label: 'From Slop Drive…', disabled: !window.SlopHub, act: async () => { const r2 = await window.SlopHub.pickFromDrive({ title: 'Attach from Slop Drive' }); if (r2) this.addFiles([new File([r2.blob], r2.name, { type: r2.type })]); } },
+        { label: 'From this computer…', act: () => AI.intake.attachFromComputer(this) },
+        { label: 'From Slop Drive…', disabled: !window.SlopHub, act: () => AI.intake.attachFromDrive(this) },
       ], r.left, r.top - 80);
     }
     async addFiles(files) {

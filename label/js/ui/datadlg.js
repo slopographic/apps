@@ -1,9 +1,9 @@
 /* SlopLabel — ui/datadlg: importing data (CSV/TSV/JSON/Excel file, paste) and mapping columns to fields. */
 'use strict';
 
-const DATA_ACCEPT = '.csv,.tsv,.tab,.txt,.json,.xlsx,text/csv,text/tab-separated-values,application/json,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+/** A data file as the label's data source (with no file: the picker, a source of the intake, ui/intake.js). */
 async function importDataDialog(file) {
-  if (!file) { file = (await SlopUI.pickFiles({ accept: DATA_ACCEPT }))[0]; if (!file) return false; }
+  if (!file) return pickData();
   let src;
   try { src = await loadDataFile(file); } catch (e) { SlopUI.alert('Could not read the data', e.message || String(e)); return false; }
   return useDataSource(src);

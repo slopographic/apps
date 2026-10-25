@@ -185,18 +185,21 @@ function setExporting(on, text) {
 }
 
 function wire() {
-  // The drop zone is SlopDrop (shared/drop): drops and the Choose files button (the only thing that opens the picker)
-  // go through addFiles, one file at a time. The page's own picker input keeps its accept list.
-  const file = $('file'), accept = file.getAttribute('accept');
+  // The one way in (shared/intake, spec 'ocr'): the zone (a drop, its Choose files, the sample), a paste, ?drive=<id>
+  // (another app's Open in Slop OCR) and a PWA launch all reach addFiles. A paste waits for the gate (the launch is read
+  // only once the gate has passed).
+  window.SlopIntake.register({
+    id: 'ocr',
+    accept: { types: ['image/*', 'application/pdf'], exts: ['.pdf', '.png', '.jpg', '.jpeg', '.webp', '.gif', '.bmp', '.tif', '.tiff', '.avif'], noun: 'an image or a PDF' },
+    gate: (batch) => !$('ui').hidden || batch.source !== 'paste', // a paste before the gate has shown the page is not taken
+    processAll: async (files) => { await addFiles(files); return files.map((f) => f.name); },
+  });
   dropZone = window.SlopDrop.attach($('drop'), {
-    accept: { any: true, noun: 'an image or a PDF' },
-    input: file,
+    intake: 'ocr',
     label: 'Drop images or PDFs here, or choose files',
     preview: PREVIEW,
     sample: { label: 'Try it with a sample receipt', files: async () => [await sampleReceipt()] },
-    process: async (f) => { await addFiles([f]); return f.name; },
   });
-  file.setAttribute('accept', accept);
   $('read').addEventListener('click', readAll);
   $('prev').addEventListener('click', () => show(state.cur - 1));
   $('next').addEventListener('click', () => show(state.cur + 1));
@@ -221,7 +224,7 @@ function wire() {
     if (state.busy) return;
     state.pages = []; state.cur = 0; state.shown = null;
     $('suggest').replaceChildren();
-    $('text').value = ''; $('file').value = '';
+    $('text').value = '';
     say('Cleared.');
     refresh();
   });
@@ -234,4 +237,6 @@ T.gate('ocr', () => {
   $('ui').hidden = false;
   $('intro').hidden = true; // the drop zone shows the same preview now
   refresh();
+  if (window.SlopHub) window.SlopHub.register('ocr');
+  window.SlopIntake.launch({ to: 'ocr' });
 });

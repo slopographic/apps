@@ -170,16 +170,18 @@ async function runImport(get) {
     if (rec) { toast(`Added “${rec.name}” to My templates`); refresh(); }
   } catch (err) { UI().alert('Could not import this template', errText(err)); }
 }
-async function importFile() {
-  const [file] = await UI().pickFiles({ accept: `.${TEMPLATE_EXT},${TEMPLATE_MIME},application/json` });
-  if (file) await runImport(() => importBlob(file));
+/* Import file… and Import from Drive…: a part of the one intake of its own ('tables.template'). */
+function templateIntake() {
+  const SI = window.SlopIntake;
+  if (SI && !SI.spec('tables.template')) {
+    SI.register({ id: 'tables.template', main: false, paste: false, toast: false, limit: 1, driveAccept: [TEMPLATE_MIME],
+      accept: { types: [TEMPLATE_MIME, 'application/json'], exts: ['.' + TEMPLATE_EXT, '.json'], noun: 'a Slop Tables template' },
+      process: async (file) => { await runImport(() => importBlob(file)); return file.name; } });
+  }
+  return SI;
 }
-async function importFromDrive() {
-  const h = hub();
-  if (!h) return;
-  const rec = await h.pickFromDrive({ accept: [TEMPLATE_MIME] });
-  if (rec) await runImport(() => importBlob(rec.blob));
-}
+const importFile = () => templateIntake().pick({ to: 'tables.template', multiple: false, accept: `.${TEMPLATE_EXT},${TEMPLATE_MIME},application/json` });
+const importFromDrive = () => templateIntake().fromDrive({ to: 'tables.template' });
 
 function refresh() { if (current) renderList(); }
 /** My templates, newest first (for tests and the console). */

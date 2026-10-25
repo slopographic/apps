@@ -1,5 +1,5 @@
-/* Slop Upscale: the controller. One picture or short video at a time: open (button, drop, Slop Drive, or ?drive=<id>
- * from Slop Resize's "Send to…"), choose 2× or 4× and a model, run, compare, then download or save to Slop Drive.
+/* Slop Upscale: the controller. One picture or short video at a time: open (Open, a drop, a paste, Slop Drive, ?drive=<id>
+ * from Slop Resize's "Send to…" or a PWA launch: all through the one intake, shared/intake, spec 'upscale'), choose 2× or 4× and a model, run, compare, then download or save to Slop Drive.
  * Models: Fast (FSRCNN, bundled) for 2× and 4×; Quality (Real-ESRGAN, opt-in through Get more) for 4× only; Lanczos
  * alone. When the chosen model is not installed the run uses Lanczos and the page says so. Classic script. */
 (function (g) {
@@ -11,7 +11,7 @@
   const S = { item: null, busy: false, cancel: { cancelled: false }, scale: 2, model: 'fast', format: 'png', quality: 0.92, fps: 24, installed: false };
 
   // The controller's state and helpers, for the output module (app/output.js), which runs later, on a click.
-  U.app = { S, open: (...a) => open(...a), toast: (m) => toast(m), setStatus: (m, f) => setStatus(m, f) };
+  U.app = { S, toast: (m) => toast(m), setStatus: (m, f) => setStatus(m, f) };
   const toast = (msg) => { if (g.SlopUI && g.SlopUI.toast) g.SlopUI.toast(msg); };
   const setStatus = (msg, frac) => {
     $('up-status').textContent = msg;
@@ -81,8 +81,8 @@
     lines: ['Slop Upscale enlarges pictures with models that run in your browser.'],
     downloads: [{ name: 'Quality model (Real-ESRGAN x4plus), only if you choose it', bytes: MD.get(QUALITY_ID).bytes }],
   };
+  /** The one reader (the intake's process, after its first-use notice): the file becomes the open item. */
   async function open(file, o = {}) {
-    if (window.SlopFirstRun && !(await SlopFirstRun.once('upscale', FIRST_USE))) return;
     const kind = IO.kind(file);
     if (!kind) { toast('That is not a picture or a video'); return false; }
     if (S.busy) { toast('Wait for the run to finish, or cancel it'); return false; }
@@ -218,9 +218,8 @@
   }
 
   function wire() {
-    const pick = () => { const i = document.createElement('input'); i.type = 'file'; i.accept = 'image/*,video/*'; i.onchange = () => i.files[0] && open(i.files[0]); i.click(); };
-    $('up-open').addEventListener('click', pick);
-    $('up-drive').addEventListener('click', U.output.openDrive);
+    $('up-open').addEventListener('click', () => g.SlopIntake.pick({ to: 'upscale', multiple: false }));
+    $('up-drive').addEventListener('click', () => g.SlopIntake.fromDrive({ to: 'upscale', title: 'Open from Slop Drive' }));
     $('up-run').addEventListener('click', run);
     $('up-cancel').addEventListener('click', cancel);
     $('up-download').addEventListener('click', U.output.download);
@@ -233,22 +232,17 @@
     $('up-quality').addEventListener('input', (e) => { S.quality = Number(e.target.value) / 100; $('up-quality-val').textContent = e.target.value; });
     $('up-fps').addEventListener('change', (e) => { S.fps = Number(e.target.value); updateInfo(); });
     $('up-get-more').addEventListener('click', async () => { await loadLib(); if (g.SlopLibrary) g.SlopLibrary.open({ onInstalled: refreshModels }); });
-    // Drops and the zone go through SlopDrop (shared/drop): one picture at a time, the rest are refused with a reason.
-    // The zone is the empty state's only drop area; with a picture open, the whole stage still takes drops.
+    // The zone (shared/drop) is the intake's: one picture at a time, the rest are refused with a reason. It is the empty
+    // state's only drop area; with a picture open, the whole stage still takes drops.
     SlopDrop.attach($('up-drop'), {
+      intake: 'upscale',
       label: 'Drop a picture or a short video here',
       hint: 'JPEG, PNG, WebP and AVIF pictures, and MP4, WebM or MOV video up to 15 seconds. Everything runs in this browser. Nothing is uploaded.',
-      accept: { types: ['image/*', 'video/*'], exts: ['.jpg', '.jpeg', '.png', '.webp', '.avif', '.gif', '.mp4', '.m4v', '.mov', '.webm'], noun: 'a picture or a short video' },
       targets: [$('up-stage-wrap')],
-      limit: 1,
       preview: { picture: { src: '../assets/shots/upscale.jpg', alt: 'A photo of a city at night, before and after a 2× upscale' },
         steps: ['Drop a picture or a short video', 'Pick 2× or 4× and press Upscale', 'Download the bigger copy'] },
       // The city at night (the fourth scene), small: its lit windows show the sharper edges best.
       sample: { label: 'Try it with a sample photo', files: async () => (await window.SlopSamples.photos(4, { width: 400, height: 260 })).slice(3) },
-      process: async (file) => {
-        if (!(await open(file))) throw new Error('could not be opened');
-        return file.name;
-      },
     });
     document.addEventListener('keydown', (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); run(); }
@@ -256,7 +250,21 @@
     });
   }
 
+  /** Every way in (Open, the zone, a drop on the stage, a paste, Open from Slop Drive, ?drive=<id>, a PWA launch, the
+   *  sample, controller.open) is a source of this one spec: its first-use notice, then open(). */
+  function registerIntake() {
+    g.SlopIntake.register({
+      id: 'upscale', limit: 1, notice: FIRST_USE, driveAccept: ['image/*', 'video/*'],
+      accept: { types: ['image/*', 'video/*'], exts: ['.jpg', '.jpeg', '.png', '.webp', '.avif', '.gif', '.mp4', '.m4v', '.mov', '.webm'], noun: 'a picture or a short video' },
+      process: async (file, ctx) => {
+        if (!(await open(file, { drive: ctx.drive ? ctx.drive.id : null }))) throw new Error('could not be opened');
+        return file.name;
+      },
+    });
+  }
+
   async function boot() {
+    registerIntake();
     // The Quality model's size on the page comes from the registry's byte count, as the first-use notice's does.
     const qs = document.getElementById('up-quality-size');
     if (qs && g.SlopFirstRun) qs.textContent = g.SlopFirstRun.size(MD.get(QUALITY_ID).bytes);
@@ -265,12 +273,10 @@
     await formats();
     await refreshModels();
     if (g.SlopLibrary) g.SlopLibrary.onChange(refreshModels);
-    if (g.SlopHub) {
-      g.SlopHub.register('upscale');
-      if (D.available()) { const rec = await g.SlopHub.consumeLaunch(); if (rec) await U.output.openRecord(rec); }
-    }
+    if (g.SlopHub) g.SlopHub.register('upscale');
+    await g.SlopIntake.launch({ to: 'upscale' });
   }
 
-  U.controller = { open, run, clear, state: () => ({ scale: S.scale, model: S.model, busy: S.busy }) };
+  U.controller = { open: (file) => g.SlopIntake.take([file], { to: 'upscale' }), run, clear, state: () => ({ scale: S.scale, model: S.model, busy: S.busy }) };
   document.addEventListener('DOMContentLoaded', boot);
 })(typeof window !== 'undefined' ? window : globalThis);

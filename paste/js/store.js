@@ -26,7 +26,7 @@ const blobOf = (p) => (p.kind === 'image' ? p.blob : new Blob([p.body || ''], { 
 
 /** Every paste in Slop Drive (Trash left out), newest first. Text bodies are read in. */
 export async function load() {
-  const recs = await SH().list({ accept: [TEXT_MIME, 'image/*'] });
+  const recs = await SH().list({ accept: [TEXT_MIME, 'image/*'] }); // intake-ok: the clipboard history store, not a picker
   const out = [];
   for (const r of recs) {
     const m = metaOf(r);

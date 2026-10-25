@@ -1,5 +1,5 @@
-/* Slop Upscale: getting the result out. Download the picture or video, save it to Slop Drive, or open a file from Drive
- * (the Drive picker, or a launch from Drive). The controller (app/main.js) shares its state and helpers as SlopUpscale.app.
+/* Slop Upscale: getting the result out. Download the picture or video, or save it to Slop Drive (files come in through
+ * the intake: app/main.js). The controller (app/main.js) shares its state and helpers as SlopUpscale.app.
  * Classic script. */
 (function (g) {
   'use strict';
@@ -36,15 +36,5 @@ async function saveDrive() {
     toast('Saved to the Slop Upscale folder in Slop Drive');
   } catch (e) { setStatus('Could not save to Slop Drive: ' + e.message); }
 }
-async function openDrive() {
-  if (!D.available()) { toast('Slop Drive is not available on this page'); return; }
-  const rec = await D.pick();
-  if (rec) await openRecord(rec);
-}
-async function openRecord(rec) {
-  if (!rec || !rec.blob) return;
-  await U.app.open(new File([rec.blob], rec.name || 'Drive file', { type: rec.blob.type || '' }), { drive: rec.id });
-}
-
-  U.output = { resultBlob, resultName, download, saveDrive, openDrive, openRecord };
+  U.output = { resultBlob, resultName, download, saveDrive };
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -109,14 +109,15 @@
     return res;
   }
 
+  /** Import SIE…: a part of the one intake of its own ('ledger.sie', shared/intake). */
+  const pickSie = () => g.SlopIntake.pick({ to: 'ledger.sie', multiple: false, accept: '.se,.si,.sie,.txt' });
   function mount() {
-    const pick = $('jSiePick');
-    if (!pick) return;
-    $('jImportSie').addEventListener('click', () => pick.click());
-    pick.addEventListener('change', async (e) => { const f = e.target.files[0]; e.target.value = ''; if (f) await importFile(f); });
+    if (!$('jImportSie')) return;
+    g.SlopIntake.register({ id: 'ledger.sie', main: false, paste: false, toast: false, limit: 1, accept: { any: true, noun: 'an SIE file' }, process: async (f) => { await importFile(f); return f.name; } });
+    $('jImportSie').addEventListener('click', pickSie);
   }
 
   NS.views = NS.views || {};
   NS.views.sie = { mount };
-  NS.sieView = { importFile, prepare, apply };
+  NS.sieView = { importFile, prepare, apply, pick: pickSie };
 })(typeof window !== 'undefined' ? window : globalThis);

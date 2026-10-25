@@ -101,23 +101,8 @@
       return rec;
     } catch (e) { SlopUI.alert('The template was not added', e.message); return null; }
   };
-  /** Picks a .sslide-template file from this computer and imports it. */
-  TU.importFile = async function () {
-    var files = await SlopUI.pickFiles({ accept: '.' + TF.EXT + ',application/json' });
-    var f = files && files[0];
-    if (!f) return null;
-    var text;
-    try { text = await f.text(); } catch (e) { SlopUI.alert('This template was not added', 'The file could not be read'); return null; }
-    return TU.importText(text);
-  };
-  /** Picks a template from Slop Drive and imports it. */
-  TU.importDrive = async function () {
-    var hub = window.SlopHub;
-    if (!hub) { toast('Slop Drive is not available'); return null; }
-    var pick = await hub.pickFromDrive({ accept: [TF.MIME, 'application/json'], title: 'Import a template from Slop Drive' });
-    if (!pick) return null;
-    var full = pick.blob !== undefined ? pick : await hub.get(pick.id);
-    if (!full || !full.blob) { toast('That file is no longer in Slop Drive'); return null; }
-    return TU.importText(await full.blob.text());
-  };
+  /** Picks a .sslide-template file from this computer, or from Slop Drive, and imports it: the intake's part
+   *  'slides.template' (file-drop.js), whose reader is importText. */
+  TU.importFile = function () { return SS.fileDrop.importTemplate(); };
+  TU.importDrive = function () { return SS.fileDrop.importTemplateDrive(); };
 })();

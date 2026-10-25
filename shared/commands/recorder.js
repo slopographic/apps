@@ -76,7 +76,13 @@
   }
   /** Import from a File (or pick one). Resolves to the number of commands imported, or -1 on error. */
   async function importFile(file) {
-    if (!file) { const picked = window.SlopUI ? await SlopUI.pickFiles({ accept: '.json,application/json' }) : []; file = picked[0]; }
+    if (!file && window.SlopIntake && window.SlopIntake.part) {
+      // a part of the one intake ('keys.import') where the page has it: its reader is this function, with the file
+      let n = 0;
+      await window.SlopIntake.pick({ to: window.SlopIntake.part({ id: 'keys.import', limit: 1, accept: { types: ['application/json'], exts: ['.json'], noun: 'a shortcuts file (.json)' }, process: async (f) => { n = await importFile(f); return f.name; } }), multiple: false, accept: '.json,application/json' });
+      return n;
+    }
+    if (!file) { const picked = window.SlopUI ? await SlopUI.pickFiles({ accept: '.json,application/json' }) : []; file = picked[0]; } // intake-ok: a page without shared/intake
     if (!file) return 0;
     try {
       const data = JSON.parse(await file.text());

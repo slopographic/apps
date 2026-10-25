@@ -66,7 +66,7 @@ function configsDialog() {
     mk('p', { class: 'sui-p' }, 'A config is a label setup: the size and stock (sheet grid included), units and resolution, printer settings, the default text and shape style, and the data columns. Applying one to the open label is a single undo step.'),
     notice, list),
   buttons: [
-    { label: 'Import…', act: async () => { const f = (await SlopUI.pickFiles({ accept: '.json,application/json' }))[0]; if (f) { importConfigsText(await f.text()); draw(); } return false; } },
+    { label: 'Import…', act: async () => { const r = await SlopIntake.pick({ to: 'label.configs', multiple: false, accept: '.json,application/json' }); if (r.added.length) draw(); return false; } },
     { label: 'Export all…', act: () => { if (!LabelConfigs.configs.length) { SlopUI.toast('No configs to export yet'); return false; } SlopUI.download(new Blob([LabelConfigs.exportText()], { type: 'application/json' }), 'sloplabel-configs.json'); return false; } },
     { label: 'Close', primary: true },
   ] });

@@ -31,19 +31,22 @@
     $('em-v-html').addEventListener('click', () => window.EmlApp.setView('html'));
     $('em-v-text').addEventListener('click', () => window.EmlApp.setView('text'));
     $('em-cid').addEventListener('click', () => window.EmlApp.toggleCids());
-    /* .eml files and mailboxes dropped on the strip or the page open in turn (SlopDrop: refusals say why). A file that is
-       already open is not opened again. A drop of two or more is a batch: it goes to the list, not to tabs. */
-    let batch = 0;
-    const drop = window.SlopDrop.attach($('em-drop'), {
+    /* The one way in (shared/intake, spec 'eml'): .eml files and mailboxes from a drop on the strip or the page, Open
+       messages…, the sample, a paste, ?drive=<id> (Slop Drive's Open with) and a PWA launch open in turn (refusals say
+       why). A file that is already open is not opened again. A batch of two or more goes to the list, not to tabs. */
+    window.SlopIntake.register({
+      id: 'eml',
       accept: { types: ['message/rfc822', 'application/mbox'], exts: ['.eml', '.mbox', '.mbx'], noun: 'an email file (.eml) or a mailbox (.mbox)' },
-      targets: [$('em-drop'), $('em-frame')],
-      compact: true,
-      begin: (files) => { batch = files.length; },
-      process: async (file) => {
+      process: async (file, ctx) => {
         if (window.EmlApp.isOpen(file.name, file.size)) throw new Error('is already open');
-        await window.EmlApp.openFile(file, { pin: batch <= 1 });
+        await window.EmlApp.openFile(file, { pin: ctx.batch.take.length <= 1 });
         return file.name;
       },
+    });
+    window.SlopDrop.attach($('em-drop'), {
+      intake: 'eml',
+      targets: [$('em-drop'), $('em-frame')],
+      compact: true,
     });
     // The empty page shows a read email and how (SlopDrop's preview); the sample goes through the strip.
     const empty = $('em-empty'), row = empty.querySelector('.em-empty-b'), sample = document.createElement('button');
@@ -52,17 +55,14 @@
       steps: ['Drop .eml files or a mailbox', 'Read, search and tick messages', 'Export them, combine them into one PDF, or open them in Slop PDF'],
     }), row);
     sample.type = 'button'; sample.className = 'sd-sample'; sample.id = 'em-sample'; sample.textContent = 'Try it with a sample email';
-    sample.addEventListener('click', () => drop.run([window.SlopSamples.docs.eml()]));
+    sample.addEventListener('click', () => window.SlopIntake.sample([window.SlopSamples.docs.eml()], { to: 'eml' }));
     row.append(sample);
   }
 
-  /** A message or mailbox sent from Slop Drive ("Open with Slop EML"). */
-  async function launch() {
-    const H = window.SlopHub;
-    if (!H) return;
-    H.register('eml');
-    const rec = await H.consumeLaunch().catch(() => null);
-    if (rec && rec.blob) await window.EmlActions.openFiles([new File([rec.blob], rec.name || 'message.eml', { type: rec.type || '' })]);
+  /** A message or mailbox sent from Slop Drive ("Open with Slop EML"), or a PWA launch: through the intake. */
+  function launch() {
+    if (window.SlopHub) window.SlopHub.register('eml');
+    return window.SlopIntake.launch({ to: 'eml' }).catch(() => null);
   }
 
   function boot() {

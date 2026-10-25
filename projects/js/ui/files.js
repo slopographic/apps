@@ -35,30 +35,38 @@
     return b.project.id;
   }
 
+  /* The one way a backup comes in (shared/intake, spec 'projects'): Open a backup (the menu and the empty page's zone), a
+     drop on that zone, the sample and a paste of a .json backup, one at a time. */
+  function registerIntake() {
+    if (!g.SlopIntake || g.SlopIntake.spec('projects')) return;
+    g.SlopIntake.register({ id: 'projects', limit: 1, accept: { types: ['application/json'], exts: ['.json'], noun: 'a Slop Projects backup (.json)' }, process: (file) => openFile(file) });
+  }
   async function importFile() {
-    const files = await UI.pickFiles({ accept: '.json,application/json' });
-    const f = files && files[0];
-    if (!f) return false;
-    try { await openFile(f); return true; } catch (e) { UI.toast(e.message, 5000); return false; }
+    registerIntake();
+    const r = await g.SlopIntake.pick({ to: 'projects', multiple: false, accept: '.json,application/json' });
+    if (r.skipped && r.skipped.length) UI.toast(r.skipped[0].reason, 5000);
+    return !!(r.added && r.added.length);
   }
 
   /** The sample project as a file, dated around today. */
   const sampleFile = () => g.SlopSamples.file('Sample project.json', JSON.stringify(NS.sample(st().today)), 'application/json');
 
   async function trySample() {
-    try { await openFile(sampleFile()); return true; } catch (e) { UI.toast(e.message); return false; }
+    registerIntake();
+    const r = await g.SlopIntake.sample([sampleFile()], { to: 'projects' });
+    if (r.skipped && r.skipped.length) UI.toast(r.skipped[0].reason);
+    return !!(r.added && r.added.length);
   }
 
   /** The drop zone on the empty page: a backup file, or the sample. */
   function mountEmpty() {
     const zone = document.getElementById('pDrop');
     if (!zone || !g.SlopDrop || drop) return;
+    registerIntake();
     drop = g.SlopDrop.attach(zone, {
-      accept: { types: ['application/json'], exts: ['.json'], noun: 'a Slop Projects backup (.json)' },
-      window: false, label: 'Drop a project backup (.json) here', chooseLabel: 'Open a backup', multiple: false, limit: 1,
+      intake: 'projects', window: false, label: 'Drop a project backup (.json) here', chooseLabel: 'Open a backup', multiple: false,
       preview: { steps: ['Make a project, or open one from a backup.', 'Add tasks to the board and drag them across the columns.', 'Give them dates and plan them on the timeline.'] },
       sample: { label: 'Try a sample', files: () => [sampleFile()] },
-      process: (file) => openFile(file),
     });
   }
 
