@@ -1,5 +1,5 @@
-/* Slop Contacts: the card column (the right-hand column on a wide screen; a full page with a back button on a
- * narrow one). Chooses the view for the state: the empty card, the selection count, the read card (card-read.js),
+/* Slop Contacts: the card column (the right-hand column on a wide screen; on a narrow one a bottom sheet over the list,
+ * SlopSheet: its ×, Escape, a tap outside or a swipe down closes the contact). Chooses the view for the state: the empty card, the selection count, the read card (card-read.js),
  * or the form (card-edit.js). The read card is drawn again only when the contact or the view changes, so typing
  * in it is not lost to an unrelated redraw. Adds SlopContacts.card. */
 (function () {
@@ -7,7 +7,7 @@
   const SC = window.SlopContacts;
   const S = SC.state;
   const D = window.SlopData;
-  let key = '', json = '', fp = null;
+  let key = '', json = '', fp = null, sheet = null;
 
   /** The card's footer (the suite rule, shared/frame/HANDOFF.md: the main button at the foot of the right-hand panel; the
    *  shared footer, shared/frame/panel.js): Edit, Duplicate and Delete on a contact, Cancel and Save in the form. */
@@ -37,6 +37,7 @@
   /** Draws the card for the current state. */
   function render() {
     document.body.classList.toggle('card-open', !!S.open);
+    if (sheet) { if (S.open) sheet.open(); else sheet.close(); }
     const c = S.open ? S.byId(S.open) : null;
     if (!c) {
       key = ''; json = '';
@@ -71,7 +72,24 @@
     else if (S.mode === 'edit') SC.cardEdit.cancel();
   }
 
+  /** On a phone the card is a bottom sheet (shared/ui/sheet.js). Closing it closes the contact; with the form open it
+   *  leaves the form the way Escape and Cancel do (asking first about unsaved changes) and the card stays. A window that
+   *  becomes a phone's with a contact open shows it in the sheet. */
+  function mountSheet() {
+    if (!window.SlopSheet) return;
+    const card = document.getElementById('card'), PHONE = '(max-width: 959px)';
+    sheet = window.SlopSheet.attach({ root: document.getElementById('shell'), panel: card, side: 'bottom', phone: PHONE, label: 'Contact',
+      onChange: (open, why) => {
+        if (open || why === 'api' || why === 'wide' || why === 'destroy' || !S.open) return;
+        if (S.mode === 'edit') { sheet.open(); SC.cardEdit.cancel(); return; }
+        S.open = null; S.emit('render');
+      } });
+    const mq = window.matchMedia(PHONE);
+    mq.addEventListener('change', () => { if (mq.matches && S.open) sheet.open(); });
+  }
+
   function mount() {
+    mountSheet();
     S.on('render', render);
     S.on('change', render);
     document.getElementById('cardBody').addEventListener('click', onSwitch);

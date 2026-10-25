@@ -99,6 +99,7 @@
       if (m.pricing) o.price = { input: Number(m.pricing.prompt) * 1e6 || 0, output: Number(m.pricing.completion) * 1e6 || 0 };   // $ per token → per million
       if (m.pricing && m.pricing.input_cache_read != null) o.price.cacheRead = Number(m.pricing.input_cache_read) * 1e6 || 0;
       if (Array.isArray(m.supported_parameters)) o.tools = m.supported_parameters.includes('tools');
+      if (C.free && (m.pricing || /:free$/.test(o.id))) o.free = C.free.priced(m);   // OpenRouter: ':free' ids and zero prices
       return o;
     });
   }

@@ -78,6 +78,13 @@
           <div id="pRows" role="rowgroup"></div>
         </div>
         <p class="empty" id="pEmpty" hidden>No products match. Add one, or import a CSV in the Data tab.</p>
+        <form class="card pform" id="pForm" novalidate aria-labelledby="pFormTitle">
+          <h2 class="h2" id="pFormTitle">New product</h2>
+          <div class="pfields" id="pFields"></div>
+          <p class="form-error" id="pFormErr" role="alert"></p>
+          <button type="button" class="btn" id="pCancel" hidden>Cancel</button>
+          <button type="submit" class="btn primary" id="pSave">Create product</button>
+        </form>
       </section>
 
       <section class="view" id="view-scan" role="tabpanel" aria-labelledby="tab-scan" hidden>
@@ -127,34 +134,31 @@
           </div>
         </div>
         <div class="forms">
-          <form class="card" id="fReceive" novalidate>
-            <h3 class="h3">Receive</h3>
+          <div class="sf-seg stock-kinds" id="sKinds" role="group" aria-label="Stock action">
+            <button type="button" class="sui-btn" data-form="fReceive" aria-pressed="true">Receive</button><button type="button" class="sui-btn" data-form="fSell" aria-pressed="false">Sell</button>
+            <button type="button" class="sui-btn" data-form="fAdjust" aria-pressed="false">Adjust</button><button type="button" class="sui-btn" data-form="fTransfer" aria-pressed="false">Transfer</button>
+          </div>
+          <form class="card" id="fReceive" novalidate aria-label="Receive">
             <label>Quantity <input id="rQty" type="number" min="1" step="1" inputmode="numeric" required></label>
             <label>Location <input id="rLoc" type="text" value="main" list="locations" autocomplete="off"></label>
             <label>Note <input id="rNote" type="text" maxlength="300" autocomplete="off"></label>
-            <button type="submit" class="btn">Receive</button>
           </form>
-          <form class="card" id="fSell" novalidate>
-            <h3 class="h3">Sell</h3>
+          <form class="card" id="fSell" novalidate aria-label="Sell" hidden>
             <label>Quantity <input id="sellQty" type="number" min="1" step="1" inputmode="numeric" required></label>
             <label>Location <input id="sellLoc" type="text" value="main" list="locations" autocomplete="off"></label>
             <label class="check"><input id="sellNeg" type="checkbox"> Allow stock below zero</label>
-            <button type="submit" class="btn">Sell</button>
           </form>
-          <form class="card" id="fAdjust" novalidate>
-            <h3 class="h3">Adjust</h3>
+          <form class="card" id="fAdjust" novalidate aria-label="Adjust" hidden>
             <label>Change (+ or −) <input id="adjQty" type="number" step="1" inputmode="numeric" required></label>
             <label>Location <input id="adjLoc" type="text" value="main" list="locations" autocomplete="off"></label>
             <label class="check"><input id="adjNeg" type="checkbox"> Allow stock below zero</label>
-            <button type="submit" class="btn">Adjust</button>
           </form>
-          <form class="card" id="fTransfer" novalidate>
-            <h3 class="h3">Transfer</h3>
+          <form class="card" id="fTransfer" novalidate aria-label="Transfer" hidden>
             <label>Quantity <input id="trQty" type="number" min="1" step="1" inputmode="numeric" required></label>
             <label>From <input id="trFrom" type="text" value="main" list="locations" autocomplete="off"></label>
             <label>To <input id="trTo" type="text" value="back" list="locations" autocomplete="off"></label>
-            <button type="submit" class="btn">Transfer</button>
           </form>
+          <button type="submit" class="btn primary" id="sApply" form="fReceive">Receive</button>
         </div>
         <p class="msg" id="sMsg" role="status"></p>
       </section>
@@ -264,14 +268,8 @@
   <script src="../shared/intake/intake.js"></script>
   <script src="../shared/intake/sources.js"></script>
   <script src="../shared/biz/backup.js"></script>
-  <script src="js/core/util.js"></script>
-  <script src="js/core/csv.js"></script>
-  <script src="js/core/products.js"></script>
-  <script src="js/core/import.js"></script>
-  <script src="js/core/rows.js"></script>
-  <script src="js/core/stock-ops.js"></script>
-  <script src="js/core/count.js"></script>
-  <script src="js/core/scan.js"></script>
+  <script src="js/core/util.js"></script><script src="js/core/csv.js"></script><script src="js/core/products.js"></script><script src="js/core/import.js"></script>
+  <script src="js/core/rows.js"></script><script src="js/core/stock-ops.js"></script><script src="js/core/count.js"></script><script src="js/core/scan.js"></script>
   <script src="js/scan/wedge.js"></script>
   <script src="js/scan/camera.js"></script>
   <script src="js/ui/product-form.js"></script>

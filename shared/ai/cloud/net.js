@@ -1,8 +1,8 @@
 /* SlopAIKit cloud, the network part: one way to call an AI provider from the browser with the person's own key.
  * Classic script; adds SlopAIKit.cloud = { sse, call, CloudError, plain, redact, seal, formats: {} }.
  *   sse(body) → async iterator of { event, data } from a fetch Response body (Server-Sent Events, any provider)
- *   call(url, init, { secret, provider }) → Response; every failure becomes a CloudError with a plain message:
- *        kind 'key' (401/403, a bad key) · 'rate' (429) · 'money' (402, no credit) · 'cors' (the browser blocked the
+ *   call(url, init, { secret, provider, model }) → Response; every failure becomes a CloudError with a plain message:
+ *        kind 'key' (401/403, a bad key) · 'rate' (429; at a free tier, cloud/free.js adds its limits, when to retry and where else to go) · 'money' (402, no credit) · 'cors' (the browser blocked the
  *        request: a local server without the allowed origin, or a provider that refuses browsers) · 'network' ·
  *        'model' (404, unknown model) · 'request' (400) · 'server' (5xx) · 'abort'
  *   redact(text, secret) → the text with the key (and anything that looks like a key) replaced by "…"; every message and
@@ -69,7 +69,7 @@
     return 'request';
   }
 
-  async function call(url, init = {}, { secret = '', provider = null } = {}) {
+  async function call(url, init = {}, { secret = '', provider = null, model = '' } = {}) {
     const who = provider ? provider.who || provider.name : '';
     let res;
     try { res = await fetch(url, init); } catch (e) {
@@ -83,9 +83,27 @@
     if (res.ok) return res;
     const body = await res.text().catch(() => '');
     const detail = redact(errorText(body), secret).slice(0, 300);
-    const kind = kindOf(res.status, detail);
-    const retryAfter = Math.round(Number(res.headers && res.headers.get && res.headers.get('retry-after')) || 0);
-    throw new CloudError(kind, plain(kind, who, { detail, retryAfter }), { status: res.status, detail, retryAfter });
+    let kind = kindOf(res.status, detail);
+    // Gemini's free tier says "You exceeded your current quota … billing" for a per-minute or per-day limit: a wait, not money
+    if (kind === 'money' && res.status === 429 && C.free && C.free.tier(provider) && /free_tier|retryDelay|per (minute|day)/i.test(body)) kind = 'rate';
+    const retryAfter = kind === 'rate' ? retryIn(res, body) : 0;
+    const free = kind === 'rate' && C.free ? C.free.rate(provider, model, retryAfter) : '';   // a free tier's limits and where else to go
+    throw new CloudError(kind, free ? `${who} says too many requests right now (rate limit). ${free}` : plain(kind, who, { detail, retryAfter }), { status: res.status, detail, retryAfter });
+  }
+
+  /** Seconds until a rate-limited request may be sent again, from wherever the provider says it: Retry-After (seconds or
+   * a date), Gemini's RetryInfo retryDelay ("37s") in the body, Groq's x-ratelimit-reset-requests/-tokens ("2m59.56s"),
+   * OpenRouter's X-RateLimit-Reset (a time in ms) in the error's metadata. 0 when nobody says. */
+  function retryIn(res, body) {
+    const hd = (n) => (res.headers && res.headers.get ? res.headers.get(n) : null);
+    const dur = (t) => { const m = /^(?:(\d+)h)?(?:(\d+)m(?!s))?(?:([\d.]+)s)?$/.exec(String(t || '').trim()); return m && m[0] ? (+m[1] || 0) * 3600 + (+m[2] || 0) * 60 + (+m[3] || 0) : 0; };
+    const at = (v) => { const n = Number(v); if (!n) return 0; return Math.max(0, (n > 1e12 ? n : n * 1000) - Date.now()) / 1000; };
+    const ra = hd('retry-after');
+    let s = ra ? (Number.isNaN(Number(ra)) ? Math.max(0, (Date.parse(ra) - Date.now()) / 1000) : Number(ra)) : 0;
+    if (!s) { const m = /"retryDelay"\s*:\s*"([\d.]+)s"/.exec(body || ''); if (m) s = Number(m[1]); }
+    if (!s) s = Math.max(dur(hd('x-ratelimit-reset-requests')), dur(hd('x-ratelimit-reset-tokens')));
+    if (!s) { const m = /"x-ratelimit-reset"\s*:\s*"?(\d+)/i.exec(body || ''); s = m ? at(m[1]) : at(hd('x-ratelimit-reset')); }
+    return Math.ceil(s || 0);
   }
 
   /** Server-Sent Events: blank-line separated blocks of "event:" / "data:" lines; ":" lines are comments (OpenRouter's
@@ -134,5 +152,5 @@
     return out;
   }
 
-  Object.assign(C, { sse, call, CloudError, plain, redact, seal, json, errorText, kindOf });
+  Object.assign(C, { sse, call, CloudError, plain, redact, seal, json, errorText, kindOf, retryIn });
 })();

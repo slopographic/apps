@@ -96,9 +96,10 @@
         h('button', { type: 'button', class: 'btn', text: 'Link EAN to this product', onclick: () => linkFor(e, pick.value) })));
   }
 
-  /** Opens the product form prefilled; when it is saved, the same code is scanned again so the action applies. */
+  /** Opens the product form (the products view's panel) prefilled; once saved, Scan shows again and the same code is
+   *  scanned again so the action applies. */
   function createFor(e, prefill) {
-    NS.productForm.open({ ...prefill, onSaved: () => handle(e.code, e.source) });
+    NS.productForm.open({ ...prefill, back: 'scan', onSaved: () => handle(e.code, e.source) });
   }
 
   async function linkFor(e, productId) {

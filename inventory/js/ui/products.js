@@ -63,6 +63,7 @@
   }
 
   function mount() {
+    NS.productForm.open({ show: false });   // the panel on the right starts as a new product
     $('pSearch').addEventListener('input', draw);
     $('pSort').addEventListener('change', draw);
     $('pFilter').addEventListener('change', draw);

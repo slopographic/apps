@@ -15,16 +15,12 @@ html { scrollbar-gutter: stable; }
 body:has(> .rp-main.sf-root) { height: 100vh; overflow: hidden; }
 html:has(.rp-main.sf-root) { scrollbar-gutter: auto; }   /* the window does not scroll: the view does */
 .rp-main.sf-root { flex: 1 1 0; max-width: none; padding: 0; min-height: 0; }
-.rp-main > .rp-view.sf-view { padding: 16px; box-sizing: border-box; min-height: 0; border: 0; border-radius: 0; background: none; color: inherit; font-weight: inherit; }   /* not finder's .sf-view button */
+.rp-main > .rp-view.sf-view { padding: 16px; box-sizing: border-box; min-height: 0; }
 .rp-panel .rp-bar { margin: 0; }
 .rp-panel .rp-pick select { flex: 1 1 100%; }
 .rp-panel .rp-pick button { flex: 1 1 auto; }
 .rp-panel .sf-sec.rp-def:has(#editor[hidden]) { display: none; }
 .rp-panel #json { min-height: 240px; }
-/* shared/finder's own .sf-view and .sf-btn (the view switch, its buttons) are not the frame's */
-.rp-results .sf-view { flex: none; order: 0; overflow: visible; min-height: 44px; }
-.rp-panel .sf-p-foot .sf-btn:not(.sui-primary) { background: var(--sl-surface, #fff); color: var(--sl-text, #1d1d1b); border-color: var(--sl-border, #cfcac0); }
-.rp-panel .sf-p-foot .sui-primary { background: var(--sl-accent, #6b8f00); color: var(--sl-on-accent, #fff); border-color: var(--sl-accent, #6b8f00); font-weight: 700; }
 .rp-home { color: var(--sl-text-muted, #5c584e); text-decoration: none; font-size: 13px; }
 .rp-lead, .rp-sub { color: var(--sl-text-muted, #5c584e); margin: 4px 0 12px; }
 .rp-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 8px 0; }

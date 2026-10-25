@@ -6,7 +6,7 @@
 <iframe id="app"></iframe>
 <script src="../harness.js"></script>
 <script>
-// Covers: colors/index.html, colors/js/state.js, colors/js/swatches.js, colors/js/picture.js, colors/js/contrast-ui.js, colors/js/panel.js, colors/js/io.js, colors/js/main.js
+// Covers: colors/index.html, colors/js/state.js, colors/js/swatches.js, colors/js/values.js, colors/js/picture.js, colors/js/contrast-ui.js, colors/js/panel.js, colors/js/io.js, colors/js/main.js
 // Covers: colors/js/core/convert.js, colors/js/core/harmony.js, colors/js/core/kmeans.js, colors/js/core/formats.js, colors/js/core/ase.js, shared/color/contrast.js
 const { describe, it, expect, waitFor, run } = SlopTest;
 let W, D;
@@ -89,6 +89,8 @@ describe('Slop Colors: the colour, the generated rows and the contrast check', (
     expect(S().current).toBe('#ff0000');
     bad.dispatchEvent(new W.Event('change'));
     expect(bad.value).toBe('#ff0000');
+    expect(D.getElementById('co-view').contains(hsl)).toBe(true);   // typed in the main view, beside its Copy
+    expect(hsl.closest('.co-value').querySelector('.co-copy').getAttribute('aria-label')).toBe('Copy HSL hsl(0 100% 50%)');
   });
   it('the harmony and scale rows follow the colour and the panel; a row becomes the palette', async () => {
     W.CO.state.set({ harmony: 'triadic' });

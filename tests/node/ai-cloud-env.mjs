@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
 export const FILES = ['shared/commands/args.js', 'shared/ai/engines.js', 'shared/ai/tools.js', 'shared/ai/permissions.js', 'shared/ai/cmdtools.js', 'shared/ai/apptools.js',
-  'shared/ai/cloud/net.js', ...['main', 'open', 'cloud', 'more', 'local', 'images'].map((g) => `shared/ai/cloud/catalog/${g}.js`), 'shared/ai/cloud/providers.js', 'shared/ai/cloud/anthropic.js', 'shared/ai/cloud/openai.js', 'shared/ai/cloud/compat.js',
+  'shared/ai/cloud/net.js', ...['main', 'open', 'cloud', 'more', 'local', 'images'].map((g) => `shared/ai/cloud/catalog/${g}.js`), 'shared/ai/cloud/providers.js', 'shared/ai/cloud/free.js', 'shared/ai/cloud/anthropic.js', 'shared/ai/cloud/openai.js', 'shared/ai/cloud/compat.js',
   'shared/ai/cloud/gemini.js', 'shared/ai/cloud/meter.js', 'shared/ai/cloud/engine.js', 'shared/ai/cloud/local.js'];
 
 function store() {
