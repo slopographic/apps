@@ -24,7 +24,7 @@
 .fc-stage { position: relative; flex: 1 1 auto; min-height: 220px; overflow: hidden; }
 .fc-canvas { position: absolute; inset: 0; display: block; touch-action: none; cursor: crosshair; }
 .fc-canvas:focus-visible { outline: 3px solid var(--fc-accent); outline-offset: -3px; }
-.sf-phone .fc-back { display: inline-grid; }
+.sf-phone .fc-back { display: inline-grid; position: sticky; inset-inline-start: 0; z-index: 1; }   /* stays in reach while the bar scrolls */
 @media (pointer: coarse) { .fc-tb { min-height: 44px; min-width: 44px; } .fc-tab { min-height: 44px; } }
 
 /* kerning */

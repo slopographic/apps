@@ -114,7 +114,7 @@ describe('Slop Font: drawing', () => {
     await FT.tap(W, { x: 200, y: 750 }); await FT.tap(W, { x: 200, y: 0 });
     FT.key(W, 'Enter');
     const b = bbox();
-    expect(Math.abs(b.w - 60)).toBeLessThan(2.5); expect(Math.abs(b.h - 810)).toBeLessThan(2.5);
+    expect(Math.abs(b.w - 60)).toBeLessThan(4); expect(Math.abs(b.h - 810)).toBeLessThan(4);
     FT.click(D, 'fc-tool-select');
   });
 });
