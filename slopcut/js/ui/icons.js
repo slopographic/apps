@@ -22,6 +22,7 @@
     text: '<path d="M5 6V4h14v2M12 4v16M9 20h6"/>',
     cut: '<circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 12 12"/>',
     select: '<path d="m5 3 13 7-6 1.5L9.5 18z"/>',
+    multi: '<path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><path d="m8.5 12 2.5 2.5 5-5"/>',
     ripple: '<path d="M4 4v16M20 12H8M12 8l-4 4 4 4"/>',
     slip: '<path d="M7 12h10M10 9l-3 3 3 3M14 9l3 3-3 3M3 5v14M21 5v14"/>',
     magnet: '<path d="M6 3v8a6 6 0 0 0 12 0V3h-4v8a2 2 0 0 1-4 0V3z"/><path d="M6 7h4M14 7h4"/>',

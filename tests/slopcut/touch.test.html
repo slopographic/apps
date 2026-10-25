@@ -58,7 +58,11 @@
       await settle();
       expect(d0 - ST.M.clip(SE.doc, c1).dur).toBeCloseTo(1, 0.2);
     });
-    it('a long press opens the clip menu, and lifting does not pick an item', async () => {
+    it('a long press on a clip turns on Select mode; another opens the clip menu, and lifting does not pick an item', async () => {
+      await sleep(400);
+      await TouchKit.longPress(onClip(c1));
+      await waitFor(() => TL.multi, { timeout: 3000 });
+      expect(menu()).toBe(null);
       await sleep(400);
       await TouchKit.longPress(onClip(c1));
       await waitFor(() => menu(), { timeout: 3000 });
@@ -66,6 +70,7 @@
       expect(!!menu()).toBe(true);
       expect([...A.sel]).toContain(c1);
       closeMenus();
+      TL.setMulti(false);
       await sleep(100);
     });
     it('a pinch zooms the timeline (not the page), and the still finger is not a long press', async () => {

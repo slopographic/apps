@@ -108,6 +108,8 @@
     T.last = e.pointerType || 'mouse';
     if (!finger(e) || e.slopTouch) return;
     for (const [id, p] of info) if (id !== e.pointerId && p.target && !p.target.isConnected && !taken.has(id)) lost(id, p);
+    // The first finger of a touch (isPrimary): every finger still remembered lifted without telling (iOS loses lifts)
+    if (e.pointerType === 'touch' && e.isPrimary) for (const [id, p] of info) if (id !== e.pointerId && p.kind === 'touch') { taken.delete(id); lost(id, p); }
     if (e.pointerType === 'pen') {
       pens++;
       if (T.palm) for (const [id, p] of info) if (p.kind === 'touch') { takeFromApp(id); g.cancel({ id }); }

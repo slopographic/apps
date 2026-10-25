@@ -54,7 +54,7 @@
       x: F.num({ min: -1e5, max: 1e5, desc: 'horizontal offset in pixels from the centre' }),
       y: F.num({ min: -1e5, max: 1e5, desc: 'vertical offset in pixels from the centre' }),
     }),
-    scale: F.num({ min: 0.01, max: 20, desc: 'size, 1 is the fitted size' }),
+    scale: F.num({ min: 0.01, max: 1000, desc: 'size, 1 is the fitted size' }),
     rotation: F.num({ min: -3600, max: 3600, desc: 'rotation in degrees' }),
     opacity: F.num({ min: 0, max: 1, desc: '0 to 1' }),
     keyframes: ANIM,

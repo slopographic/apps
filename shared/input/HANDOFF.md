@@ -22,6 +22,15 @@ to 3D, Sheet view) load the three scripts and the CSS themselves.
 | two fingers on a surface that zooms | its `zoom(scale, cx, cy)` / `pan(dx, dy)` hooks, or wheel events | the app's one-finger drag gets a `pointercancel` and the fingers' pointer events stop reaching it until they lift |
 | pen down | pressure on the pointer events as usual (Apple Pencil, S Pen); touches are ignored until 400 ms after it lifts | a finger already down when the pen lands (the palm) gets a `pointercancel` |
 
+**Pressure for strokes:** `SlopTouch.gesture.pressure(e)` (gesture.js, Node-tested): a pen's own pressure (0 counts as
+0.5), a finger or a mouse always 1. iOS reports 0 for a finger and Chrome 0.5: a stroke must never read those.
+
+**Lost lifts:** iOS sends the `pointerup` of a finger whose element left the page to that element, where nothing hears
+it. Any code that counts fingers (a pinch on two) must forget them all when a touch `pointerdown` has `isPrimary`
+(no other finger is down then): the layer (`touch.js`), SlopNav (`shared/nav/engine.js`), PhotoSlop's view and
+SlopCut's timeline do. Without it every later finger is a "second finger": PhotoSlop's brush never painted and
+SlopCut's taps never selected. Test kit fingers (`TouchKit.finger`) set `isPrimary` as a browser does.
+
 Every synthetic event has `e.slopTouch === true` (and `isTrusted === false`).
 
 The dblclick is dispatched inside the second tap's click (after the app's own click handlers, in the same dispatch), so

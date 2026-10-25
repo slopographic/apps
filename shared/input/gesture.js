@@ -125,7 +125,16 @@
     };
   }
 
-  const api = { create, DEFAULTS };
+  /** The pressure a stroke uses (0–1) for a pointer event: a pen's own (one that reports 0, as some do on the first
+   *  contact, counts as 0.5); a finger or a mouse always 1. iOS reports 0 for a finger, Chrome 0.5 while pressed: a
+   *  stroke that read those would paint faint or not at all. */
+  function pressure(e) {
+    if (!e || e.pointerType !== 'pen') return 1;
+    const p = Number(e.pressure);
+    return p > 0 ? Math.min(1, p) : 0.5;
+  }
+
+  const api = { create, DEFAULTS, pressure };
   if (typeof window !== 'undefined') { window.SlopTouch = window.SlopTouch || {}; window.SlopTouch.gesture = api; }
   if (typeof module === 'object' && module.exports) module.exports = api;
 })();
