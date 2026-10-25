@@ -19,6 +19,7 @@ test('urls: the origin, the account, the site repository and the mail domain', (
   assert.equal(urls('https://cdn.jsdelivr.net/gh/slopographic/cdn@1/x', m), 'https://cdn.jsdelivr.net/gh/acme/cdn@1/x');
   assert.equal(urls('mail noreply@slopographic.com', m), 'mail noreply@acme.example');
   assert.equal(urls('https://x.com/Slopographic', m), 'https://tools.acme.example/');
+  assert.equal(urls('/OLLAMA_ORIGINS to https:\\/\\/slopographic\\.com/', m), '/OLLAMA_ORIGINS to https:\\/\\/tools\\.acme\\.example/');
 });
 
 test('phrases: names in prose change, names written as code do not', () => {

@@ -193,13 +193,17 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: 22
+      - name: Let git work in the checkout and in the build (the container runs as root)
+        run: git config --global --add safe.directory '*'
       - run: npm ci --no-audit --no-fund
       - name: The rename map comes back over the whole repository (tools/whitelabel/roundtrip.mjs)
         run: node tools/whitelabel/roundtrip.mjs ${{ matrix.profile }}
       - name: Build the profile, with the leak scan (tools/whitelabel/build.mjs)
         run: node tools/whitelabel/build.mjs ${{ matrix.profile }} "$OUT"
-      - name: The build's Node tests
-        run: cd "$OUT" && npm ci --no-audit --no-fund && node --test tests/node/*.test.mjs tests/seo/*.test.mjs
+      - name: The build as a mirror checkout is (one commit), and its Node tests
+        run: |
+          cd "$OUT" && git init -q && git add -A && git -c user.name=mirror -c user.email=mirror@example.invalid commit -qm build
+          npm ci --no-audit --no-fund && node --test tests/node/*.test.mjs tests/seo/*.test.mjs
       - name: Browser smoke pages, served from the build
         run: |
           cd "$OUT"

@@ -75,7 +75,8 @@ export function phrasePairs(root, p) {
   for (const [a, b] of Object.entries(p.copy || {})) map.set(a, b);
   if (p.seo && p.seo.titleSuffix) map.set(' | Slopographic', p.seo.titleSuffix);   // page titles have a length limit
   map.set('Slopographic', p.name);
-  map.set('>slopographic<', `>${p.name}<`);                       // the home link under each app's name
+  map.set('>slopographic<', `>${p.name}<`);
+  map.set('slopographic repository', `${p.name} repository`);                       // the home link under each app's name
   return [...map.entries()];
 }
 

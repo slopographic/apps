@@ -20,7 +20,7 @@
   // extra.video: the app's YouTube tutorial { id, title, date (ISO upload time), duration (ISO 8601) }: the landing page
   // shows it (thumbnail kept in assets/video/yt-<id>.jpg) and the shell header links it as Tutorial.
   const A = (id, kind, name, path, tagline, extra = {}) => Object.assign({ id, kind, name, path, tagline, status: 'live', accepts: [], features: [], weight: 1 }, extra);
-  const list = [
+  window.SLOP_APPS = [
     A('photoslop', 'app', 'PhotoSlop', 'photoslop/', 'Photoshop, rebuilt for the browser.', { weight: 2, title: 'PhotoSlop: photo editor', group: 'creative',
       accepts: ['image/*', 'image/vnd.adobe.photoshop', 'application/x-openraster'],
       features: ['Layers, masks & 17 blend modes', 'Real PSD open & save', 'Camera RAW: CR2, CR3, NEF, ARW, DNG, RAF', '50+ filters, brush packs, .abr import', 'Tabs, autosave, offline .html'],
@@ -265,7 +265,7 @@
     sorter: ['Photo Sorter'], gallery: ['Gallery'], '3d': ['3D Modeller'], music: ['Music Player'],
     authenticator: ['AI Text Detector', 'Check whether a text reads as machine-written.'], 'paint-classic': ['Paint Classic', 'A simple paint program in the classic style.'],
   };
-  window.SLOP_APPS = list.filter((a) => HIDE.indexOf(a.id) < 0);
+  window.SLOP_APPS = window.SLOP_APPS.filter((a) => HIDE.indexOf(a.id) < 0);
   for (const a of window.SLOP_APPS) {
     const p = PLAIN[a.id] || [a.title || a.name];
     a.plain = p[0];

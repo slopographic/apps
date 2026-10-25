@@ -20,7 +20,10 @@ const escRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
  * The site's own repository becomes the mirror's (repo); the other repositories of the account keep their names. */
 export function urls(text, map) {
   const host = map.origin.replace(/^https?:\/\//, '');
+  const re = (s) => s.replace(/[./]/g, (c) => '\\' + c);   // the same address inside a regular expression
   return text
+    .replace(/https?:\\\/\\\/(?:www\\\.)?slopographic\\\.com/g, re(map.origin))
+    .replace(/@slopographic\\\.com/g, '@' + re(map.mail))
     .replace(/https?:\/\/(?:www\.)?slopographic\.(?:com|github\.io)/g, map.origin)
     .replace(/wss:\/\/mcp\.slopographic\.com/g, `wss://mcp.${host}`)
     .replace(/github\.com\/slopographic\/apps\b/g, `github.com/${map.repo || map.github + '/apps'}`)
