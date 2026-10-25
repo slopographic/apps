@@ -14,7 +14,8 @@
  *  - It runs only while the hero is on screen and the tab is visible. Reduced motion: a still globe. Phones, touch
  *    screens, Save-Data and small devices: 28 icons at 20 fps, no filters, lines repainted only when they would visibly
  *    lag, and no frames while the page scrolls (SlopGlobeMath.tier). Icons over the copy fade almost out (keepOut).
- *  window.SlopGlobe: { state(), frames(), startedAt(), tier(), view(), icons(), focusApp(id), reduce(on), pause(on) }. */
+ *  - The front-most icons carry their names without hovering, and a search names its matches (labels.js, decorative).
+ *  window.SlopGlobe: { state(), frames(), startedAt(), tier(), view(), icons(), labels(), focusApp(id), reduce(on), pause(on) }. */
 (function () {
   'use strict';
   const G = window.SlopGlobeMath, P = window.SlopGlobePaint, C = window.SlopHomeCards;
@@ -47,6 +48,7 @@
   const ctx = canvas.getContext && canvas.getContext('2d');
   layer.append(canvas, hit, hint);
   hero.prepend(layer);
+  const tags = window.SlopGlobeLabels ? window.SlopGlobeLabels.pool(layer) : null;
 
   let tierName = 'full', T = G.TIERS.full, icons = [], s = { yaw: 0.7, pitch: TILT, vel: IDLE };
   let focus = null, target = null, resumeAt = 0, match = null, zoom = 1, zoomT = 1;
@@ -122,6 +124,7 @@
       ic.x = pr.x; ic.y = pr.y; ic.z = q.z; ic.op = op;
       const half = (size * ic.k) / 2, sc = (pr.scale / frontScale()) * (0.6 + 0.4 * ic.em) * (!match || !match.n ? 1 : match.n === 1 ? 1 + 0.6 * ic.em : 1 + 0.18 * ic.em);   // matches grow; one match most
       const st = ic.el.style;
+      ic.half = half * sc;
       st.transform = `translate3d(${(pr.x - half).toFixed(1)}px,${(pr.y - half).toFixed(1)}px,0) scale(${sc.toFixed(3)})`;
       st.opacity = op.toFixed(3);
       st.zIndex = String(Math.round(50 + q.z * 40 + ic.em * 10));
@@ -133,6 +136,7 @@
       P.paint(ctx, { W, H, geom: gz, yaw: s.yaw, pitch: s.pitch, ink, accent, lines: tierName === 'full' ? LINES.full : LINES.lite });
       painted = { yaw: s.yaw, pitch: s.pitch, zoom }; linesDirty = false;
     }
+    if (tags) tags.update(icons, { W, H, rects, geom: gz, match: match && match.n ? match.ids : null, still: tierName === 'static' });
     frames++;
   }
 
@@ -193,6 +197,7 @@
     for (const ic of icons) {
       ic.emT = !match ? 1 : match.ids.has(ic.app.id) ? 1 : n ? 0 : 0.45;
       ic.el.classList.toggle('is-pick', n === 1 && match.ids.has(ic.app.id));
+      ic.el.classList.toggle('is-match', n > 1 && match.ids.has(ic.app.id));
     }
     zoomT = match ? G.zoomFor(n) : 1;
     hint.hidden = !(match && !n);
@@ -250,6 +255,7 @@
     startedAt: () => startedAt,
     tier: () => tierName,
     view: () => ({ ...s, zoom, geom: { ...geom }, focus: focus ? focus.app.id : null, match: match && match.ids ? [...match.ids] : null }),
+    labels: () => (tags ? tags.shown() : []),
     icons: () => icons.map((i) => ({ id: i.app.id, x: i.x, y: i.y, z: i.z, opacity: i.op, k: i.k, em: i.em, emT: i.emT, el: i.el })),
     /** Brings an app's icon to the front (the keyboard list); null lets go. In lite, the farthest icon takes the app. */
     focusApp(id) {
