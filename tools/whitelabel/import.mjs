@@ -18,7 +18,7 @@ import { matches, hunks } from './linediff.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 /** Files the build writes from the profile: a change to them in a mirror is reported, never imported. */
-export const GENERATED = /^(brand\/brand\.json|CNAME|LICENSE|NOTICE\.md|TRADEMARKS\.md|SECURITY\.md|README\.md|brand\/(mark|logo)\.svg|favicon\.(svg|ico)|og-share\.png|assets\/icons\/.*|manifest\.webmanifest|\.github\/.*|\.nojekyll|sitemap\.xml|sw-precache[\w-]*\.js|shared\/agent\/trial-tokens\.json)$/;
+export const GENERATED = /^(brand\/brand\.json|brand\/mascot\/.*|CNAME|LICENSE|LICENSE-ART|NOTICE\.md|TRADEMARKS\.md|SECURITY\.md|README\.md|brand\/(mark|logo)\.svg|favicon\.(svg|ico)|og-share\.png|assets\/icons\/.*|manifest\.webmanifest|\.github\/.*|\.nojekyll|sitemap\.xml|sw-precache[\w-]*\.js|shared\/agent\/trial-tokens\.json)$/;
 
 /** One modified text file: S (source at base), MA and MB (the mirror before and after). Returns { text, notes }. */
 export function backFile(S, MA, MB, ctx, mirrorPath) {

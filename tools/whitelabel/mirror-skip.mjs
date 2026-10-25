@@ -35,11 +35,11 @@ export const SKIP = [
 
 /** Browser pages a mirror runs on every push (source paths; the build renames them). They check the shell, the language
  * layer, the brand, and the look of the main apps, and none of them pins this site's names, mascot or media. The full
- * browser suite runs here, on the source. */
+ * browser suite runs here, on the source; the contrast sweep runs in a mirror as its own job (workflow.mjs sweepJob). */
 export const SMOKE = ['tests/i18n/default-lang.test.html', 'tests/i18n/switch.test.html', 'tests/shell/drawer.test.html',
   'tests/shell/brand.test.html', 'tests/photoslop/welcome.test.html', 'tests/pdf/pages.test.html', 'tests/drive/look.test.html',
   'tests/tables/look.test.html', 'tests/docs/look.test.html', 'tests/settings/look.test.html', 'tests/how-it-works/how-it-works.test.html',
-  'tests/invoices/workspace.test.html', 'tests/a11y/sweep-01.test.html'];
+  'tests/invoices/workspace.test.html'];
 
 /** The smoke pages for a profile: the language switch test starts from English, so a build that starts elsewhere skips it. */
 export const smokeFor = (p) => SMOKE.filter((f) => !(otherLang(p) && f === 'tests/i18n/switch.test.html'));

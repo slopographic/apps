@@ -146,15 +146,15 @@
     for (var oi = 0; oi < opened.length; oi++) await SP.editLog.offer(opened[oi]);
   };
   A.loadSample = async function () {
-    S.busy('Mixing a fresh batch of goo…', 0.3);
+    S.busy(E.sampleInfo.busy, 0.3);
     try {
       var bytes = await E.makeSample();
-      var f = await E.registerPdf(bytes, "Sloppo's Guide to Goo.pdf", null);
+      var f = await E.registerPdf(bytes, E.sampleInfo.file, null);
       f.noLog = true; // random every time: nothing to replay
       var wasEmpty = !E.state.pages.length;
       if (wasEmpty) { var md = await E.readMeta(f); if (md) E.state.meta = md; }
       E.commit('Open sample', function (st) { E.ops.insert(st, st.pages.length, E.pagesForFile(f)); });
-      if (!S.fileNameTouched) S.els.fileName.value = 'sloppos-guide-to-goo.pdf';
+      if (!S.fileNameTouched) S.els.fileName.value = E.sampleInfo.slug;
       S.els.restore.hidden = true;
       A.announce('Sample loaded: 4 pages');
     } catch (e) { SlopUI.alert('Sample failed', String(e.message || e)); console.error(e); }

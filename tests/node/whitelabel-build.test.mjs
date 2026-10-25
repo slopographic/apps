@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 import { excluded, patchBinary, SCAN_ALLOW } from '../../tools/whitelabel/build.mjs';
 import { exportProfile } from '../../tools/whitelabel/export.mjs';
 import { ico, cardHtml } from '../../tools/whitelabel/images.mjs';
-import { mirrorWorkflow, DROP_STEPS } from '../../tools/whitelabel/workflow.mjs';
+import { mirrorWorkflow, DROP_STEPS, SWEEP_SHARDS } from '../../tools/whitelabel/workflow.mjs';
 import { skipPattern, SKIP, smokeFor, SMOKE } from '../../tools/whitelabel/mirror-skip.mjs';
 import { loadProfile, profilesDir } from '../../tools/whitelabel/profile.mjs';
 
@@ -41,6 +41,13 @@ test('the mirror workflow drops the steps that only work here', () => {
   assert.doesNotMatch(out, /whitelabel/);
   assert.doesNotMatch(out, /\n  (touch|browser|plan):\n/);
   assert.match(mirrorWorkflow(yml, '', ['tests/x.test.html']), /\n  smoke:\n[\s\S]*tests\/x\.test\.html/);
+  // the contrast sweep in the profile's colours, sliced; never inside the smoke set
+  const sweep = out.slice(out.indexOf('\n  sweep:\n'));
+  assert.match(sweep, new RegExp(`shard: \\[1, 2, 3, 4, 5, 6\\]`));
+  assert.equal(SWEEP_SHARDS, 6);
+  assert.match(sweep, /node tests\/run\.mjs a11y\/sweep- --skip-node --jobs=3 --shard=\$\{\{ matrix\.shard \}\}\/6/);
+  assert.doesNotMatch(mirrorWorkflow(yml, '', [], false), /\n  sweep:\n/);
+  assert.ok(!SMOKE.some((f) => /a11y\/sweep-/.test(f)));
 });
 
 test('icons: a PNG-in-ICO header; the share card holds the name', () => {

@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Mascot slot · a profile's own mascot plays the page's moments</title>
+  <style>body { margin: 0; background: #111; color: #eee; font: 13px system-ui; }</style>
+</head>
+<body>
+  <!-- Covers: shared/mascot/slot.js, shared/mascot/moments.js, brand/profiles/overlays/acme/mascot.js, brand/profiles/overlays/acme/icon.js -->
+  <button type="button" id="open" data-mascot-point style="position:fixed;left:20px;top:20px">Open a file</button>
+  <script src="../harness.js"></script>
+  <script type="module">
+  import * as S from '../../shared/mascot/slot.js';
+  const { describe, it, expect, waitFor } = SlopTest;
+  const played = [];
+  document.addEventListener('mascot-played', (e) => played.push(e.detail.moment));
+  const last = () => played[played.length - 1];
+
+  describe('the mascot slot with the sample overlay', () => {
+    it('loads the overlay and greets when shown', async () => {
+      await S.start({ overlay: '../../brand/profiles/overlays/acme/', z: 10 });
+      expect(S.state().name).toBe('Acme Bot');
+      expect(S.state().live).toBe(true);
+      expect(S.moment('greeting')).toBe(false);          // hidden: nothing plays
+      S.show(true);
+      expect(last()).toBe('greeting');
+      const dock = document.querySelector('.mascot-slot');
+      expect(dock.hidden).toBe(false);
+      expect(getComputedStyle(dock).pointerEvents).toBe('none');
+      expect(dock.querySelector('[data-anim]').dataset.anim).toBe('hello');
+      await waitFor(() => last() === 'point', { timeout: 5000 });   // then it shows the page's [data-mascot-point]
+      expect(dock.querySelector('[data-anim]').dataset.anim).toBe('point');
+    });
+    it('a running task, its end and an error', async () => {
+      const tile = document.createElement('div');
+      tile.className = 'sflow'; tile.dataset.state = 'idle';
+      document.body.append(tile);
+      tile.dataset.state = 'run';
+      await waitFor(() => last() === 'working');
+      expect(S.state().holding).toBe('working');
+      tile.dataset.state = 'done';
+      await waitFor(() => last() === 'done');
+      tile.dataset.state = 'run';
+      await waitFor(() => last() === 'working');
+      tile.dataset.state = 'error';
+      await waitFor(() => last() === 'error');
+      expect(document.querySelector('.mascot-slot [data-anim]').dataset.anim).toBe('oops');
+    });
+    it('points at a control when a page asks, and plays any named moment', async () => {
+      document.dispatchEvent(new CustomEvent('mascot-moment', { detail: { moment: 'point', target: document.getElementById('open') } }));
+      expect(last()).toBe('point');
+      document.dispatchEvent(new CustomEvent('mascot-moment', { detail: { moment: 'idle' } }));
+      expect(last()).toBe('idle');
+      expect(S.state().holding).toBe('idle');
+      document.dispatchEvent(new CustomEvent('mascot-moment', { detail: { moment: 'nope' } }));
+      expect(last()).toBe('idle');
+    });
+    it('hidden, it plays nothing', () => {
+      S.show(false);
+      expect(document.querySelector('.mascot-slot').hidden).toBe(true);
+      expect(S.moment('done')).toBe(false);
+      S.stop();
+    });
+  });
+
+  SlopTest.run();
+  </script>
+</body>
+</html>

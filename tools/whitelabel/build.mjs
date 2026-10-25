@@ -1,13 +1,16 @@
 #!/usr/bin/env node
 // Builds the whole site for one brand profile into a folder: the white-label copy that a mirror repository publishes.
-//   node tools/whitelabel/build.mjs <profile id> <out dir> [--profiles=<dir>] [--no-images] [--no-seo] [--release=<text>]
+//   node tools/whitelabel/build.mjs <profile id> <out dir> [--profiles=<dir>] [--no-images] [--no-seo] [--release=<text>] [--cdn-ref=<tag>]
 // --profiles: the folder that holds <id>.json and <id>.map.json (default brand/profiles). Real brands' profiles live
 // outside this repository; brand/profiles/sample.json is the made-up one CI builds.
 // Steps: copy every file of the working tree (git ls-files) except the source brand's own files (EXCLUDE), rename paths
 // and text through the profile's map (rename.mjs), set the profile markers, write the generated files (emit.mjs), run the
 // SEO writer and the precache list in the copy, render the icons (images.mjs), then scan for leftovers (scan.mjs) and
 // exit 1 when the scan finds any. A profile without a map file (slopographic) is copied as it is.
-// The out dir's .git folder is kept, so a mirror checkout can be rebuilt in place. Tests: tests/node/whitelabel-build.test.mjs.
+// A profile with its own mascot (mascot.mjs) gets the overlay in brand/mascot/, LICENSE-ART, and icons drawn by it.
+// --cdn-ref: the release tag of the profile's own cdn repository (cdn.mjs makes its content), when it differs from this
+// site's tag. The out dir's .git folder is kept, so a mirror checkout can be rebuilt in place.
+// Tests: tests/node/whitelabel-build.test.mjs, tests/node/mascot-slot.test.mjs.
 import { readFileSync, writeFileSync, mkdirSync, rmSync, readdirSync, existsSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import path from 'node:path';
@@ -20,6 +23,7 @@ import { mirrorWorkflow } from './workflow.mjs';
 import { themeProblems, sourceThemes } from './palette.mjs';
 import { skipPattern, smokeFor } from './mirror-skip.mjs';
 import { isText, scan, report } from './scan.mjs';
+import { DEST, overlayDir, overlayProblems, overlayIcons, filesIn, licenseArt, hasOverlay, artAllow } from './mascot.mjs';
 
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 
@@ -68,6 +72,8 @@ export function build(id, out, opts = {}) {
   const map = loadMap(dir, id);
   const weak = themeProblems(p.themes, sourceThemes(readFileSync(path.join(ROOT, 'shared/theme/theme.js'), 'utf8')));
   if (weak.length) throw new Error(`profile ${id}: its theme colours read worse than this site's:\n  ${weak.join('\n  ')}`);
+  const overlay = overlayDir(dir, p), bad = overlayProblems(overlay, p);
+  if (bad.length) throw new Error(`profile ${id}:\n  ${bad.join('\n  ')}`);
   out = path.resolve(out);
   prepareOut(out);
   const files = sh('git', ['ls-files', '-co', '--exclude-standard', '-z'], ROOT).split('\0').filter((f) => f && existsSync(path.join(ROOT, f)));
@@ -98,12 +104,12 @@ export function build(id, out, opts = {}) {
   }
   for (const [t] of collisions(files.join('\n'), map)) clashes.push(`(file names): '${t}'`);
   if (clashes.length) throw new Error(`the rename map's targets already occur in the source, so the reverse would be ambiguous:\n  ${clashes.slice(0, 40).join('\n  ')}`);
-  emit(out, p, opts, ctx);
+  emit(out, p, Object.assign({ overlay }, opts), ctx);
   log(`${p.id}: wrote ${n} files to ${out}`);
   const node = process.execPath;
   if (!opts.noImages) sh(node, [path.join(ROOT, 'tools/whitelabel/images.mjs'), out]);   // before the precache list, which hashes them
   if (!opts.noSeo) { sh(node, ['tools/seo/write.mjs'], out); sh(node, ['tools/pwa-precache.mjs'], out); }
-  const res = scan(out, forbiddenTerms(dir, p), SCAN_ALLOW.concat(p.scanAllow || []), { account: p.github.toLowerCase() });
+  const res = scan(out, forbiddenTerms(dir, p), SCAN_ALLOW.concat(p.scanAllow || [], artAllow(p)), { account: p.github.toLowerCase() });
   log(report(res));
   return { profile: p, out, files: n, found: res.found, allowed: res.allowed };
 }
@@ -117,9 +123,20 @@ function emit(out, p, opts, ctx) {
   write(out, 'TRADEMARKS.md', trademarks(p));
   write(out, 'SECURITY.md', security(p));
   write(out, 'README.md', readme(p, opts.release));
-  write(out, 'brand/mark.svg', markSvg(p));
-  write(out, 'brand/logo.svg', logoSvg(p));
-  write(out, 'favicon.svg', markSvg(p));
+  const icon = opts.overlay && p.mascot.icon !== false ? overlayIcons(opts.overlay) : null;
+  write(out, 'brand/mark.svg', icon ? icon.full : markSvg(p));
+  write(out, 'brand/logo.svg', logoSvg(p, icon && icon.full));
+  write(out, 'favicon.svg', icon ? icon.small : markSvg(p));            // a tab icon: the small drawing
+  if (hasOverlay(p)) {
+    for (const f of filesIn(opts.overlay)) write(out, `${DEST}/${f}`, readFileSync(path.join(opts.overlay, f)));
+    write(out, 'LICENSE-ART', licenseArt(p));
+  }
+  if (opts.cdnRef) {
+    if (!/^v\d{4}\.\d{1,2}\.\d{1,2}$/.test(opts.cdnRef)) throw new Error(`--cdn-ref ${opts.cdnRef}: a release tag (vYYYY.M.D)`);
+    const f = path.join(out, forwardPath('shared/cdn/assets.js', ctx)), src = readFileSync(f, 'utf8');
+    if (!/const TAG = '[^']*';/.test(src)) throw new Error('shared/cdn/assets.js: no TAG line');
+    writeFileSync(f, src.replace(/const TAG = '[^']*';/, `const TAG = '${opts.cdnRef}';`));
+  }
   write(out, 'manifest.webmanifest', manifest(readFileSync(path.join(out, 'manifest.webmanifest'), 'utf8'), p));
   const trial = path.join(out, 'shared/agent/trial-tokens.json');
   if (existsSync(trial)) { const t = JSON.parse(readFileSync(trial, 'utf8')); t.tokens = []; writeFileSync(trial, JSON.stringify(t, null, 2) + '\n'); }
@@ -132,9 +149,9 @@ const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPat
 if (isMain) {
   const args = process.argv.slice(2), pos = args.filter((a) => !a.startsWith('--'));
   const opt = (k) => { const a = args.find((x) => x.startsWith(`--${k}=`)); return a ? a.slice(k.length + 3) : null; };
-  if (pos.length !== 2) { console.error('usage: build.mjs <profile id> <out dir> [--profiles=<dir>] [--no-images] [--no-seo] [--release=<text>]'); process.exit(2); }
+  if (pos.length !== 2) { console.error('usage: build.mjs <profile id> <out dir> [--profiles=<dir>] [--no-images] [--no-seo] [--release=<text>] [--cdn-ref=<tag>]'); process.exit(2); }
   try {
-    const r = build(pos[0], pos[1], { profiles: opt('profiles') && path.resolve(opt('profiles')), release: opt('release'), noImages: args.includes('--no-images'), noSeo: args.includes('--no-seo') });
+    const r = build(pos[0], pos[1], { profiles: opt('profiles') && path.resolve(opt('profiles')), release: opt('release'), cdnRef: opt('cdn-ref'), noImages: args.includes('--no-images'), noSeo: args.includes('--no-seo') });
     process.exit(r.found.length ? 1 : 0);
   } catch (e) { console.error(String(e.message || e)); process.exit(1); }
 }

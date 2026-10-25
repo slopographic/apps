@@ -4,6 +4,7 @@
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';
+import { mascotProblems } from './mascot.mjs';
 
 const HEX = /^#[0-9a-f]{3,8}$/i;
 const TOKENS = ['background', 'surface', 'text', 'accent', 'border'];
@@ -21,7 +22,7 @@ export function validate(p) {
   need('defaultLang', (v) => LANGS.includes(v), `one of ${LANGS.join(', ')}`);
   need('naming', (v) => v === 'brand' || v === 'plain', "'brand' or 'plain'");
   need('tone', (v) => v === 'playful' || v === 'plain', "'playful' or 'plain'");
-  need('mascot', (v) => typeof v === 'boolean', 'true or false');
+  errs.push(...mascotProblems(p.mascot));
   need('github', (v) => /^[A-Za-z0-9-]+$/.test(v || ''), 'GitHub account of the site');
   need('brandTerms', (v) => Array.isArray(v) && v.length > 0 && v.every(isStr), 'words that only this brand uses');
   need('colors', (v) => v && ['ink', 'paper', 'accent'].every((k) => HEX.test(v[k])), 'ink, paper and accent as #hex');
@@ -29,6 +30,7 @@ export function validate(p) {
   need('analytics', (v) => typeof v === 'boolean', 'true or false');
   need('footer', (v) => typeof v === 'string', 'the footer line');
   need('legal', (v) => v && isStr(v.holder) && /^\d{4}$/.test(v.year || ''), '{ holder, year }');
+  if (p.legal && p.legal.trademarks !== undefined && !(Array.isArray(p.legal.trademarks) && p.legal.trademarks.every(isStr))) errs.push('legal.trademarks: the names the holder claims');
   for (const [id, t] of Object.entries(p.themes || {})) {
     if (id === 'hide') { if (!Array.isArray(t)) errs.push('themes.hide: a list of theme ids'); continue; }
     for (const k of TOKENS) if (!HEX.test((t || {})[k] || '')) errs.push(`themes.${id}.${k}: #hex`);

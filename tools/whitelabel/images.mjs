@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // The raster images of a white-label build, rendered from its own files in headless Chromium (Playwright): the PWA icons
-// (assets/icons/icon-192.png, icon-512.png) and favicon.ico from favicon.svg, and the share card og-share.png
-// (1200 x 630) from brand/brand.json (name, tagline, colours) and brand/mark.svg.
+// (assets/icons/icon-192.png, icon-512.png) from brand/mark.svg, favicon.ico (16 px from favicon.svg, the tab drawing,
+// which a mascot overlay draws small; 32 and 48 px from brand/mark.svg), and the share card og-share.png (1200 x 630) from
+// brand/brand.json (name, tagline, colours) and brand/mark.svg.
 //   node tools/whitelabel/images.mjs <build dir>
 // Node only. Tests: tests/node/whitelabel-build.test.mjs (the ICO container).
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
@@ -43,20 +44,21 @@ async function loadPlaywright() {
 }
 
 export async function render(dir) {
-  const svg = readFileSync(path.join(dir, 'favicon.svg'), 'utf8');
+  const small = readFileSync(path.join(dir, 'favicon.svg'), 'utf8'), svg = readFileSync(path.join(dir, 'brand/mark.svg'), 'utf8');
   const brand = JSON.parse(readFileSync(path.join(dir, 'brand/brand.json'), 'utf8'));
   const { chromium } = await loadPlaywright();
   const browser = await chromium.launch();
   try {
     const page = await browser.newPage({ deviceScaleFactor: 1 });
-    const png = async (size) => {
+    const png = async (size, from = svg) => {
       await page.setViewportSize({ width: size, height: size });
-      await page.setContent(`<!doctype html><body style="margin:0;background:transparent">${svg.replace('<svg ', `<svg width="${size}" height="${size}" `)}</body>`);
+      const sized = from.replace(/^<svg\b[^>]*>/, (t) => t.replace(/\s(width|height)="[^"]*"/g, '').replace('<svg', `<svg width="${size}" height="${size}"`));
+      await page.setContent(`<!doctype html><body style="margin:0;background:transparent">${sized}</body>`);
       return page.screenshot({ type: 'png', omitBackground: true, clip: { x: 0, y: 0, width: size, height: size } });
     };
     mkdirSync(path.join(dir, 'assets/icons'), { recursive: true });
     for (const s of [192, 512]) writeFileSync(path.join(dir, `assets/icons/icon-${s}.png`), await png(s));
-    writeFileSync(path.join(dir, 'favicon.ico'), ico([{ size: 16, data: await png(16) }, { size: 32, data: await png(32) }, { size: 48, data: await png(48) }]));
+    writeFileSync(path.join(dir, 'favicon.ico'), ico([{ size: 16, data: await png(16, small) }, { size: 32, data: await png(32) }, { size: 48, data: await png(48) }]));
     await page.setViewportSize({ width: 1200, height: 630 });
     await page.setContent(cardHtml(brand, svg));
     writeFileSync(path.join(dir, 'og-share.png'), await page.screenshot({ type: 'png' }));

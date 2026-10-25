@@ -77,14 +77,14 @@ sites live outside this repository, with the publish script; pass their folder w
 | `defaultLang` | The language a visitor gets when nothing is stored (`en`, `sv`, ...). Every language stays in the picker. |
 | `naming` | `brand` (PhotoSlop, Slop PDF) or `plain` (Image Editor, PDF Editor; the `PLAIN` table in `shared/apps.js`). |
 | `tone` | `playful` or `plain`: plain applies the copy layer, `brand/copy/plain.json`. |
-| `mascot` | `false` turns the mascot off everywhere (the buddy, the Drive empty states, the AI top bar). |
+| `mascot` | `false` turns the mascot off everywhere (the buddy, the Drive empty states, the AI top bar). An object puts the profile's own mascot in its place: `{ overlay, name, files, icon?, holder?, trademarks? }` (see "A mascot of your own"). |
 | `colors`, `themes`, `palette` | `brand.json` colours; the Light and Dark theme tokens (`hide` drops themes such as `lime`); the hue every accent-coloured colour in the CSS and code moves to (`tools/whitelabel/palette.mjs`). |
 | `logo` | `{ text, mark, color }`: the build draws a wordmark (`brand/logo.svg`), a square mark (`brand/mark.svg`, the favicon) and the PNG icons and share card from it. Replace the files in a later commit of the profile's folder if you have a real logo. |
 | `links`, `footer`, `support`, `analytics` | Footer and support links (empty hides them), the footer line, the export card parts, and third parties: `false` leaves out analytics, ads and the consent strip. |
 | `copy` | Extra phrase replacements for this site (`"source phrase": "replacement"`), on top of the tone's. |
 | `apps.hide`, `media` | Apps left out of every list, menu and sitemap (their guides and task pages too; the SEO tests of a mirror then need their names on the skip list); `false` leaves out screenshots, clips and videos (they show this brand). |
 | `seo` | `homeTitle`, `homeDescription`, `titleSuffix` for the generated head blocks and the sitemap. |
-| `legal` | `{ holder, year }`: the MIT licence's copyright holder, `NOTICE.md` and `TRADEMARKS.md`. |
+| `legal` | `{ holder, year, trademarks? }`: the MIT licence's copyright holder, `NOTICE.md` and `TRADEMARKS.md` (`trademarks`: the names the holder claims; default the product name). |
 | `publish` | `{ repo, branch, secret, author, email }`: where the publish script pushes, the token's secret name, and the release commit's author. |
 | `brandTerms`, `forbid`, `scanAllow` | Words only this site uses (no other build may contain them), extra words to forbid, and allowed scan hits (`{ file, term, why }`, reported every time). |
 
@@ -115,12 +115,55 @@ not edit", the manifest, logo, favicon, icons, share card and the mirror's own C
 precache list inside the copy, and then scans every file name, text line and binary for this brand's words and every
 other profile's terms. Any hit fails the build. Serve the folder with any static server to look at it.
 
+### A mascot of your own
+
+`"mascot": { "overlay": "<folder>", "name": "...", "files": [...] }` swaps this site's buddy for a mascot module the
+profile supplies. The folder (relative to the profiles folder, kept with the profile) is copied to `brand/mascot/` and
+holds two ES modules: `mascot.js` (`name`, `animations`, optional `moments`, `create(el, { reduce })` returning
+`{ play(name, { loop, side }), dispose() }`) and `icon.js` (`name`, `svg(size, small)`, no DOM). The buddy's toggle then
+loads the mascot slot (`shared/mascot/slot.js`) instead of its engine, and the slot plays a named animation for each of the
+buddy's moments (`shared/mascot/moments.js`):
+
+| Moment | Animation | When |
+| --- | --- | --- |
+| greeting | `hello` | the mascot is shown |
+| working | `working` | a task starts (a SlopFlow tile runs, a region is `aria-busy`); it loops while the task runs |
+| done / error | `celebrate` / `oops` | the task ends well or fails |
+| idle / wake | `sleep` / `wake` | a minute without input; the next input |
+| point | `point` | a page sends `mascot-moment` with `{ moment: 'point', target }`, or after the greeting at `[data-mascot-point]` |
+
+Any page may send a moment: `document.dispatchEvent(new CustomEvent('mascot-moment', { detail: { moment: 'done' } }))`.
+An overlay that lacks an animation simply skips that moment, and may map a moment to another one (`moments`).
+
+`files` lists every file of the folder (the build refuses a folder with an unlisted file or a listed file that is missing).
+The build writes `LICENSE-ART` (the character's files and the icons drawn from it, all rights reserved, outside the MIT
+licence), a `NOTICE.md` item and a `TRADEMARKS.md` that names the character design; with `icon` (default on) the favicon
+(the small drawing), the header mark, the app icons and the share card come from `icon.js`. `holder` and `trademarks`
+name the character's owner when it is not `legal.holder`; the owner's name is then allowed in the character's files and
+the notices only (reported by the scan). The made-up sample uses `brand/profiles/overlays/acme/`.
+
+### The file host (cdn)
+
+The apps download large files (models, engines, font packs) from this site's `cdn` repository at a release tag
+(`shared/cdn/assets.js` `TAG`). A build's links name `<github>/cdn` at the same tag. `tools/whitelabel/cdn.mjs` makes that
+repository's content for a build: the files the build fetches (its `tools/cdn-assets.mjs`) and the licence and source
+notes beside them, read with `git archive` from a local checkout of this site's `cdn` repository at the tag (content only:
+none of its commits, authors or history), the notes renamed like the site, and a README. Everything is scanned; bytes
+inside a binary that happen to spell the stem and the English word in a speech model's tokenizer vocabulary are the only
+allowed hits, and each kind is reported. The publish script commits it as one commit of the profile's author, tags it
+with the tag, and pushes it before the site. `--cdn-ref=<tag>` on the build points the links at another tag.
+
+```sh
+node tools/whitelabel/cdn.mjs <id> <build dir> <cdn checkout> <out dir> --profiles=<dir>
+```
+
 ### Tests in a mirror
 
 A mirror keeps the whole test suite, renamed, and its own CI workflow runs it. The few Node tests that check this site's
 own profile values (its brand app names, its copy lengths, its media, its support links) are skipped by name there, and
-only when the profile differs (`tools/whitelabel/mirror-skip.mjs`, each with its reason). CI here runs the same build
-checks on the samples.
+only when the profile differs (`tools/whitelabel/mirror-skip.mjs`, each with its reason). The mirror's workflow also runs
+the smoke pages and the whole contrast sweep (`tests/a11y/sweep-*`) in its own colours, in six parallel slices. CI here runs
+the same build checks on the samples.
 
 ### Colours
 
