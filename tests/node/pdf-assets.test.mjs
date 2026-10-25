@@ -118,3 +118,26 @@ test('names are unique and safe; sizes read well', () => {
   assert.equal(M.sizeText(84 * 1024), '84 KB');
   assert.equal(M.sizeText(3.2 * 1024 * 1024), '3.2 MB');
 });
+
+test('embedded files are rows with their type, size, where they are attached and the e-invoice mark', () => {
+  const rows = plain(M.attachmentRows([
+    { id: 'att1', name: 'factur-x.xml', mime: 'text/xml', size: 2048, from: 'document', einvoice: true, rel: 'Alternative', bytes: [1] },
+    { id: 'att2', name: 'notes.txt', mime: 'text/plain', size: 10, from: 'annotation', page: 2, bytes: null, reason: 'not decoded' }]));
+  assert.equal(rows[0].checked, true);
+  assert.ok(rows[0].meta.includes('e-invoice (ZUGFeRD / Factur-X)'));
+  assert.ok(rows[0].meta.includes('2 KB'));
+  assert.equal(rows[1].disabled, true);
+  assert.ok(rows[1].meta.includes('attached on page 2'));
+});
+
+test('a page\'s text: lines, a paragraph break at a big gap, and a Markdown version with a heading', () => {
+  const it = (str, y, eol = true) => ({ str, hasEOL: eol, transform: [12, 0, 0, 12, 72, y] });
+  const t = M.pageText([it('First line', 700), it('second line', 686), it('After a gap', 600), it('*star*', 586)], 3);
+  assert.equal(t.txt, 'First line\nsecond line\n\nAfter a gap\n*star*\n');
+  assert.equal(t.md, '## Page 3\n\nFirst line second line\n\nAfter a gap \\*star\\*\n');
+});
+
+test('zip order: images, attachments, fonts, text, pages', () => {
+  const out = M.planEntries([{ group: 'page' }, { group: 'text' }, { group: 'font' }, { group: 'attachment' }, { group: 'image' }]);
+  assert.deepEqual(out.map((e) => e.group), ['image', 'attachment', 'font', 'text', 'page']);
+});

@@ -34,7 +34,7 @@
       F.replies.push(CU.anthropic.text('Hello.'));
       await P.SlopAIPanel.send('hi');
       const b = F.requests.find((r) => /\/v1\/messages$/.test(r.url)).body, sys = b.system[0].text;
-      expect(sys).toContain('- slides: Slop Slides, Keynote and PowerPoint, rebuilt for the browser. Makes: Presentation (.sslide).');
+      expect(sys).toContain('- slides: Slop Slides, Keynote and PowerPoint. Makes: Presentation (.sslide).');   // brief: find_tools gives the tools there
       expect(sys).toContain('- docs: Slop Docs'); expect(sys).toContain('open_in_app moves the task to that app');
       expect(sys).toContain('run_operation does it on this page'); expect(sys).toContain('Be resourceful');
       expect(b.tools.map((t) => t.name)).toContain('look_at_canvas');
@@ -91,10 +91,9 @@
       if (rec.to) { expect(rec.to).toBe('slides'); expect(rec.task).toBe('make a presentation about slime'); expect(rec.fromName).toBe('PhotoSlop');
         expect(rec.messages[0]).toEqual({ role: 'user', content: 'make a presentation about slime' }); expect(rec.chain.hop).toBe(1); }
       expect(eng.calls[0].messages[0].content).not.toMatch(/can.t|cannot/i);
-      const sys = eng.calls[0].messages[0].content;   // the fake engine gets the map like capable models
-      expect(sys).toContain('Tools there: build_presentation, new_presentation'); expect(sys).toContain('Operations: outline-to-presentation');
-      expect(sys).toMatch(/- docs: Slop Docs.*Tools there: build_document/); expect(sys).toMatch(/- tables: .*Operations: table-data-to-spreadsheet/);
-      expect(sys).toMatch(/- invoices: .*create_invoice/); expect(sys).toMatch(/- photoslop: .*add_svg_layer.*draw_shape.*use_tool/);
+      const sys = eng.calls[0].messages[0].content;   // the fake engine gets the map like capable models: the apps by name (small prompts)
+      expect(sys).toMatch(/Apps \(open_in_app\): .*slides \(Slop Slides\).*/); expect(sys).toContain('docs (Slop Docs)'); expect(sys).toContain('tables (Slop Tables)');
+      expect(sys).toMatch(/^- open_app\(id: string, file\?: string, task\?: string\)/m);   // what each app can do: find_tools (tests/ai/deferred.test.html)
       expect(sys).not.toContain('Nothing uploaded.');
       sessionStorage.removeItem('slop-ai.handoff');
     }, { timeout: 30000 });

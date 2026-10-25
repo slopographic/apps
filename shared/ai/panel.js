@@ -26,7 +26,7 @@
   const sheetP = add('../ui/sheet', () => window.SlopSheet);   // a phone's bottom sheet: as soon as it is here, not after the kit
   // The kit in two parts, each requested at once (K.load): what the chat needs (the composer works when it is in), then
   // what waits (permission settings, the model menu, pictures), which a send also waits for. A part that fails says so.
-  const CORE = ['permissions', 'app-skills', 'apptools', 'cmdtools', 'filetools', 'optools', 'handoff', 'md', 'catalog', 'picker', 'panel-run'];
+  const CORE = ['permissions', 'app-skills', 'apptools', 'cmdtools', 'toolbox', 'prompt', 'filetools', 'optools', 'handoff', 'md', 'catalog', 'picker', 'panel-run'];
   const LATER = ['permissions-ui', '../ui/menubutton', 'model-menu', 'imagegen/index'];
   K.panelKit = { CORE, LATER };
   const kit = Promise.all([add('slopai', () => window.SlopAI), add('../commands/args', () => window.SlopCmdArgs), sheetP, add('../ui/resize-panel', () => window.SlopResizePanel)])

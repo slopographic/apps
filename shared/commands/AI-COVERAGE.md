@@ -12,7 +12,7 @@ Covered: 44 of 61 apps.
 |---|---|---|---|---|---|---|
 | PhotoSlop (`photoslop`) | ✓ 1 | ✓ 7 | ✓ 29 | ✓ 1 |  | yes |
 | SlopVector (`vector`) | ✓ 1 | ✓ 3 | ✓ 10 | ✓ 1 |  | yes |
-| Slop PDF (`pdf`) | ✓ 1 | ✓ 5 | ✓ 5 | ✓ 1 | 1 | yes |
+| Slop PDF (`pdf`) | ✓ 1 | ✓ 5 | ✓ 12 | ✓ 2 | 2 | yes |
 | SlopLabel (`label`) | ✓ 1 | ✓ 5 | ✓ 3 | ✓ 1 |  | yes |
 | SlopIsolate (`cutout`) | ✓ 1 | ✓ 1 | ✓ 1 | ✓ 1 |  | yes |
 | Slop AI Tools (`aitools`) | ✗ | ✗ | ✗ | ✗ |  | no |
@@ -92,9 +92,9 @@ Covered: 44 of 61 apps.
 
 - create: `new_document`
 - add: `add_image`, `add_pages`, `add_shape`, `add_text`, `insert_pdf`
-- edit: `delete_pages`, `fill_form_field`, `move_page`, `rotate_pages`, `set_metadata`
-- export: `export_pdf`
-- operations: `pdf.compress`
+- edit: `arrange_page_object`, `delete_page_object`, `delete_pages`, `duplicate_page_object`, `fill_form_field`, `move_page`, `move_page_object`, `replace_page_image`, `resize_page_object`, `rotate_page_object`, `rotate_pages`, `set_metadata`
+- export: `export_pdf`, `export_pdf_contents`
+- operations: `pdf.compress`, `pdf.extract`
 
 ### SlopLabel
 

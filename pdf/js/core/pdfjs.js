@@ -142,7 +142,9 @@
     canvas.width = Math.max(1, Math.floor(vp.width)); canvas.height = Math.max(1, Math.floor(vp.height));
     var ctx = canvas.getContext('2d', { alpha: false });
     ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-    var task = pg.render({ canvasContext: ctx, viewport: vp, annotationMode: lib.AnnotationMode.ENABLE_STORAGE, annotationStorage: f.doc.annotationStorage });
+    // E.renderOptions(f): more render parameters (the layers shown, io/ocg.js)
+    var extra = E.renderOptions ? await E.renderOptions(f) : null;
+    var task = pg.render(Object.assign({ canvasContext: ctx, viewport: vp, annotationMode: lib.AnnotationMode.ENABLE_STORAGE, annotationStorage: f.doc.annotationStorage }, extra || {}));
     canvas._task = task;
     await task.promise;
     return canvas;
