@@ -147,10 +147,6 @@
       el.style.top = ((r.y + (/n/.test(h) ? 0 : /s/.test(h) ? r.h : r.h / 2)) * z) + 'px';
       S.overlay.appendChild(el);
     });
-    var del = U.h('button', { class: 'sel-del', type: 'button', title: 'Delete (Del)', 'aria-label': 'Delete annotation', html: U.icon('trash') });
-    del.style.left = ((r.x + r.w) * z + 8) + 'px'; del.style.top = (r.y * z - 30) + 'px';
-    del.addEventListener('pointerdown', function (e) { e.stopPropagation(); });
-    del.addEventListener('click', function (e) { e.stopPropagation(); Ed.deleteSelected(); });
-    S.overlay.appendChild(del);
+    // its actions (Edit, Colour, Opacity, Comment, Duplicate, Delete) are on the selection bar (sel-bar.js, sel-annot.js)
   };
 })();
