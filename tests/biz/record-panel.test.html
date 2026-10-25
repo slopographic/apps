@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Business apps: the record panel on the right, its main button at its foot (1280 and 390 px)</title>
+<style>body { margin: 0; background: #111; } iframe { border: 0; display: block; height: 800px; }</style></head>
+<body>
+  <script src="../harness.js"></script>
+  <script src="record-panel-apps.js"></script>
+  <script>
+  // Covers: shared/biz/panel.js, shared/docs/doc-layout.js, shared/docs/doc-editor.js, shared/docs/workspace.css, shared/biz/app.css
+  // The suite rule (shared/frame/HANDOFF.md): an open record's details are a panel on the RIGHT (SlopFrame), its main button in
+  // the panel's footer; on a phone the panel is a bottom sheet whose closed state still shows that footer. One run per app
+  // (tests/biz/record-panel-apps.js: how each app opens a record, fills it and what its main button does).
+  const { describe, it, expect, waitFor, sleep } = SlopTest;
+  const shown = (el) => !!el && el.getClientRects().length > 0 && getComputedStyle(el).display !== 'none';
+  async function open(app, width) {
+    const f = document.createElement('iframe');
+    f.style.width = width + 'px';
+    f.src = `../../${app.path}?t=${Date.now()}#${app.hash}`;
+    document.body.append(f);
+    await waitFor(() => { const W = f.contentWindow; return W && W.document.readyState === 'complete' && app.ready(W); }, { timeout: 30000 });
+    await sleep(300);
+    return f;
+  }
+  const footButtons = (D, panel) => [...panel.querySelectorAll('.sf-p-foot button')].filter(shown);
+
+  describe('the record panel of every business app', () => {
+    for (const app of window.RECORD_PANEL_APPS) {
+      it(`${app.name} at 1280: the panel is right of the record, resizable, its main button "${app.main}" at its foot works`, async () => {
+        const f = await open(app, 1280), W = f.contentWindow, D = W.document;
+        const panel = D.querySelector(app.panel), view = D.querySelector(app.view);
+        expect(panel.classList.contains('sf-panel')).toBe(true);
+        expect(panel.getBoundingClientRect().left).toBeGreaterThanOrEqual(view.getBoundingClientRect().right - 1);
+        expect(Math.round(panel.getBoundingClientRect().right)).toBeLessThanOrEqual(1280);
+        expect(shown(D.querySelector('.sf-grip'))).toBe(true);   // shared/ui/resize-panel.js on its edge
+        const btn = footButtons(D, panel).find((b) => b.textContent.trim() === app.main);
+        expect(!!btn).toBe(true);
+        const fr = btn.closest('.sf-p-foot').getBoundingClientRect();
+        expect(Math.round(fr.bottom)).toBeLessThanOrEqual(Math.round(panel.getBoundingClientRect().bottom));
+        expect(fr.bottom).toBeLessThanOrEqual(W.innerHeight + 1);
+        if (app.fill) await app.fill(W, btn);
+        btn.click();
+        await waitFor(() => app.done(W), { timeout: 15000 });
+        f.remove();
+      }, { timeout: 90000 });
+
+      it(`${app.name} at 390: the closed sheet's footer holds "${app.main}" at the bottom of the screen; Details opens the rest; no sideways scroll`, async () => {
+        const f = await open(app, 390), W = f.contentWindow, D = W.document;
+        const panel = D.querySelector(app.panel);
+        expect(D.documentElement.scrollWidth).toBeLessThanOrEqual(390);
+        const names = footButtons(D, panel).map((b) => b.textContent.trim());
+        expect(names.includes(app.main)).toBe(true);
+        expect(names[0]).toBe('Details');
+        const foot = panel.querySelector('.sf-p-foot').getBoundingClientRect();
+        expect(Math.round(foot.bottom)).toBe(W.innerHeight);
+        expect(foot.top).toBeGreaterThan(W.innerHeight / 2);
+        footButtons(D, panel)[0].click();
+        await waitFor(() => panel.classList.contains('ssh-on'));
+        expect(panel.getBoundingClientRect().top).toBeLessThan(foot.top - 100);
+        expect(D.documentElement.scrollWidth).toBeLessThanOrEqual(390);
+        f.remove();
+      }, { timeout: 90000 });
+    }
+  });
+  SlopTest.run({ name: 'Business apps: the record panel' });
+  </script>
+</body>
+</html>

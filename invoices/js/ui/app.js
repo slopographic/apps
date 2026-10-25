@@ -1,6 +1,6 @@
 // Slop Invoices boot: the shared document routes (shared/docs/doc-app.js: list, new, i/<id>, data) plus p/<id>, the print
 // view, s/<customer id> (a customer statement), c/<credit note id> (a credit note to print) and repeat (the repeating schedules). An open invoice, its print view and a
-// statement show the record bar (SlopBiz.docbar: back, number, status, Save and Print); the tabs stay Invoices, Repeating and
+// statement show the record bar (SlopBiz.docbar: back, number, status and Print; Save is in the record panel's footer); the tabs stay Invoices, Repeating and
 // Data. The list beside an open invoice marks its row; the menu bar has New invoice.
 (function (g) {
   'use strict';
@@ -19,8 +19,9 @@
 
   /** The menu bar's New invoice, and the record bar's Save (a draft open) and Print (an invoice open or its print view). */
   function mount() {
-    // The open invoice's bar (shared/biz/docbar.js): back to the list, its number and status, Save and Print.
-    g.SlopBiz.docbar.mount({ views: ['edit', 'print'], actions: ['#tbSave', '#tbPrint'] });
+    // The open invoice's bar (shared/biz/docbar.js): back to the list, its number and status, and Print. Save is the record
+    // panel's (shared/biz/panel.js: its footer, with Issue…); #tbSave stays for File › Save.
+    g.SlopBiz.docbar.mount({ views: ['edit', 'print'], actions: ['#tbPrint'] });
     $('tbNew').addEventListener('click', () => NS.app.go('new'));
     $('tbSave').addEventListener('click', () => NS.editor.save());
     $('tbPrint').addEventListener('click', () => (NS.state.view === 'edit' ? NS.editor.preview() : window.print()));
