@@ -75,6 +75,7 @@
       const det = box.querySelector('.sap-gpu-details').textContent;
       expect(det).toContain(`Tried: ${F16}, ${F32}`); expect(det).toContain('entryPoint: "index_kernel"'); expect(det).toMatch(/Browser: .+ on /);
       expect([...box.querySelectorAll('button')].map((b) => b.textContent)).toEqual(['Copy details', 'Try a smaller model', 'Use your own AI account']);
+      await waitFor(() => P.document.querySelector('.sap-cloud'), { timeout: 15000 });   // the own-key section loads after the models
       box.querySelector('.sap-gpu-cloud').click();
       expect(P.document.querySelector('.sap-cloud').open).toBe(true);
       box.querySelector('.sap-gpu-smaller').click();

@@ -33,10 +33,7 @@
       else if (e.key === 'ContextMenu' || (e.shiftKey && e.key === 'F10')) { e.preventDefault(); const r = el.getBoundingClientRect(); itemMenu(meta, r.left + 16, r.top + 16); }
     });
     el.addEventListener('contextmenu', (e) => { e.preventDefault(); itemMenu(meta, e.clientX, e.clientY); });
-    let lp = 0;
-    el.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'mouse') lp = setTimeout(() => itemMenu(meta, e.clientX, e.clientY), 550); });
-    el.addEventListener('pointerup', () => clearTimeout(lp));
-    el.addEventListener('pointercancel', () => clearTimeout(lp));
+    // A long press is the contextmenu above: the touch layer (shared/input) sends it on iOS, Android its own.
     el.addEventListener('click', (e) => {
       if (e.pointerType && e.pointerType !== 'mouse') return;
       // Ctrl/Shift-click builds a multi-selection (templates and the random edit use it); a plain click selects one.

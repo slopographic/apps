@@ -57,13 +57,14 @@ function openDialog({ title, content, buttons, width = 320, init }) {
       dlg.style.top = Math.max(6, (innerHeight - r.height) / 2.4) + 'px';
     };
     place();
+    // touch-ok: the title bar has touch-action: none (paint.css .titlebar), so a finger drags the dialog
     tb.addEventListener('pointerdown', e => {
       if (e.target.closest('button')) return;
       const r = dlg.getBoundingClientRect(), ox = e.clientX - r.left, oy = e.clientY - r.top;
       tb.setPointerCapture(e.pointerId);
       const mv = ev => { dlg.style.left = clamp(ev.clientX - ox, -r.width + 60, innerWidth - 60) + 'px'; dlg.style.top = clamp(ev.clientY - oy, 0, innerHeight - 30) + 'px'; };
-      const up = () => { tb.removeEventListener('pointermove', mv); tb.removeEventListener('pointerup', up); };
-      tb.addEventListener('pointermove', mv); tb.addEventListener('pointerup', up);
+      const up = () => { tb.removeEventListener('pointermove', mv); tb.removeEventListener('pointerup', up); tb.removeEventListener('pointercancel', up); };
+      tb.addEventListener('pointermove', mv); tb.addEventListener('pointerup', up); tb.addEventListener('pointercancel', up);
     });
     if (init) init(dlg);
     const first = $('input:not([disabled]):not([type=radio]), input[type=radio]:checked, select', body);

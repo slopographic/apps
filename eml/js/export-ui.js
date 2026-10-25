@@ -46,7 +46,8 @@
     const H = window.SlopHub, f = await X.make(format, docs, o);
     if (!f || !H) return null;
     try {
-      const id = await H.sendTo(appId, f.blob, f.name);
+      // the one way out (shared/intake/outtake.js): the file goes through Slop Drive and the app takes it with its intake
+      const id = await window.SlopOuttake.send(appId, { from: 'eml', get: () => f.blob, name: f.name, type: f.blob.type });
       const a = H.appById(appId);
       toast((f.info ? f.info + ' ' : '') + 'Opened ' + f.name + ' in ' + (a ? a.name : appId) + '.', f.info ? 9000 : 4000);
       return { id, file: f };
@@ -113,13 +114,14 @@
     });
   };
 
-  /** One attachment's menu: Save, then Send to each app that opens its type (SlopHub's matching by accepted types). */
+  /** One attachment's menu: Save, then the one builder's items (SlopOuttake): Send to each app that opens its type, and
+   *  Save to Slop Drive…. */
   X.attachmentItems = function (doc, i) {
     const a = doc.msg.attachments[i], H = window.SlopHub;
     if (!a) return [];
     const type = window.EmlBatch.typeOf(a.name, a.type), blob = () => new Blob([a.bytes], { type });
     const items = [{ label: 'Save', act: () => ui().download(blob(), window.EmlBatch.safeName(a.name, 'attachment')) }];
-    if (H) for (const it of H.sendMenuItems(blob, a.name, type, { folder: true })) items.push({ label: it.label, act: it.act });
+    if (H && window.SlopOuttake) for (const it of window.SlopOuttake.items({ get: blob, name: a.name, type, from: 'eml', verb: 'Send to' })) items.push({ label: it.label, act: it.act });
     return items;
   };
 })();

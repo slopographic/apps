@@ -49,20 +49,15 @@
 
   /** The logo tab. act = { file(File), mark(id), remove(), width(fraction) }. The current logo, if any, is shown. */
   function drawLogo(host, logo, act) {
-    const input = E('input', { type: 'file', accept: 'image/*', hidden: true, 'aria-label': 'Logo image file' });
+    // The box is the intake's (spec 'qr', app.js): a click opens its picker, a drop on it takes the picture.
     const drop = E('div', { class: 'qr-drop', role: 'button', tabindex: '0', 'aria-label': 'Choose a logo image, or drop one here' },
-      E('b', null, 'Drop an image here'), E('span', null, 'or choose a file: PNG, JPEG, WebP or SVG'), input);
-    const open = () => input.click();
-    drop.addEventListener('click', (e) => { if (e.target !== input) open(); });
+      E('b', null, 'Drop an image here'), E('span', null, 'or choose a file: PNG, JPEG, WebP or SVG'));
+    const open = () => g.SlopIntake.pick({ to: 'qr', multiple: false, accept: 'image/*' });
+    drop.addEventListener('click', open);
     drop.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
-    input.addEventListener('change', () => { if (input.files && input.files[0]) act.file(input.files[0]); input.value = ''; });
-    drop.addEventListener('dragover', (e) => { e.preventDefault(); drop.classList.add('qr-drop-on'); });
+    g.SlopIntake.dropTarget(drop, { to: 'qr' });
+    drop.addEventListener('dragenter', () => drop.classList.add('qr-drop-on'));
     drop.addEventListener('dragleave', () => drop.classList.remove('qr-drop-on'));
-    drop.addEventListener('drop', (e) => {
-      e.preventDefault(); drop.classList.remove('qr-drop-on');
-      const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
-      if (f) act.file(f);
-    });
     const marks = E('div', { class: 'qr-marks', role: 'group', 'aria-label': 'Built-in marks' },
       g.QRLogo.marks().map((m) => {
         const b = E('button', { type: 'button', class: 'qr-mark', 'aria-label': m.name, title: m.name, onclick: () => act.mark(m.id) });

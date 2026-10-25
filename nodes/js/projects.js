@@ -1,6 +1,6 @@
 /* Slopnodes projects in Slop Drive: one file per project (JSON, format 'slopnodes' v1), with meta { type:'nodes',
  * kind:'nodes-project', title, nodes, links, saved }. Save writes a new file, or updates the file the project came from;
- * Open reads one back. Classic script, needs shared/hub.js (window.SlopHub). Exposes window.SlopNodesProjects. */
+ * Open reads one back (the file is chosen in the shared Slop Drive picker, js/app.js). Classic script, needs shared/hub.js (window.SlopHub). Exposes window.SlopNodesProjects. */
 (function () {
   'use strict';
   const KIND = 'nodes-project';
@@ -17,12 +17,6 @@
       meta: { type: 'nodes', kind: KIND, title: project.name, nodes, links, saved: Date.now() },
     });
   }
-  /** The projects in Slop Drive, newest first: [{ id, name, nodes, links, modified }]. */
-  async function list() {
-    const files = await hub().list({});
-    return files.filter((f) => f.meta && f.meta.kind === KIND)
-      .map((f) => ({ id: f.id, name: (f.meta && f.meta.title) || f.name, nodes: f.meta.nodes || 0, links: f.meta.links || 0, modified: f.modified }));
-  }
   /** Reads a project back: { id, name, graph }. Throws a plain message when the file is not a Slopnodes project. */
   async function open(id) {
     const rec = await hub().get(id);
@@ -32,5 +26,5 @@
     if (!data || data.format !== 'slopnodes' || !data.graph) throw new Error('That file is not a Slopnodes project');
     return { id, name: data.name || rec.name, graph: data.graph };
   }
-  window.SlopNodesProjects = { save, list, open, KIND };
+  window.SlopNodesProjects = { save, open, KIND };
 })();

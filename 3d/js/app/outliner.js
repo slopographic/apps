@@ -97,7 +97,7 @@
     });
     list.addEventListener('dragleave', (e) => { if (!list.contains(e.relatedTarget)) clear(); });
     list.addEventListener('dragend', () => { dragId = null; clear(); });
-    list.addEventListener('drop', (e) => {
+    list.addEventListener('drop', (e) => { // intake-ok: an object moved in the outliner, not a file
       const li = e.target.closest('.outl-row');
       const id = dragId || e.dataTransfer.getData(MIME);
       clear();

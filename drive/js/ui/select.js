@@ -1,5 +1,6 @@
 /* Slop Drive — ui/select: selection with click, Shift (range), Ctrl/Cmd (toggle) and a marquee drag on empty
- * space; keyboard focus movement by geometry (works for every view); touch taps and long-press. */
+ * space; keyboard focus movement by geometry (works for every view); touch taps and long-press (the long press is the
+ * shared touch layer's contextmenu, shared/input/HANDOFF.md). */
 'use strict';
 (function (DR) {
   const S = DR.S, $ = DR.$;
@@ -71,6 +72,7 @@
   /* ---------- pointer wiring for the file views ---------- */
   DR.wireSelect = function () {
     const pane = $('pane');
+    let openedAt = -Infinity;
     pane.addEventListener('click', (e) => {
       if (DR.dragJustEnded && DR.dragJustEnded()) return;
       const it = e.target.closest('[data-key]');
@@ -78,27 +80,27 @@
         const item = DR.item(it.dataset.key);
         if (e.pointerType === 'touch' || DR.lastPointer === 'touch') {
           if (S.touchMode) return DR.clickItem(it.dataset.key, e);
-          if (item && item.isFolder && !item.trashedAt && !it.closest('.v-columns')) return DR.open(item);
+          if (item && item.isFolder && !item.trashedAt && !it.closest('.v-columns')) { openedAt = performance.now(); return DR.open(item); }
           DR.select([it.dataset.key]); if (DR.isMobile() && item && !item.isFolder) DR.sheet(true); return;
         }
         return DR.clickItem(it.dataset.key, e);
       }
       if (!e.target.closest('button, a, input, select, svg.viz, .usage, .nodes, .lhead') && !marqueeMoved && !(e.ctrlKey || e.metaKey || e.shiftKey)) DR.select([]);
     });
-    pane.addEventListener('dblclick', (e) => { const it = e.target.closest('[data-key]'); if (it && !e.target.closest('.no-open')) DR.open(DR.item(it.dataset.key)); });
-    let lp = 0;
-    pane.addEventListener('pointerdown', (e) => {
-      DR.lastPointer = e.pointerType;
-      if (e.pointerType !== 'touch') return;
-      const it = e.target.closest('[data-key]'); if (!it) return;
-      const x0 = e.clientX, y0 = e.clientY;
-      clearTimeout(lp);
-      lp = setTimeout(() => { S.touchMode = true; if (!S.sel.has(it.dataset.key)) DR.clickItem(it.dataset.key, {}); DR.contextMenu(x0, y0); }, 520);
-      const cancel = () => clearTimeout(lp);
-      pane.addEventListener('pointerup', cancel, { once: true });
-      pane.addEventListener('pointercancel', cancel, { once: true });
-      pane.addEventListener('pointermove', (ev) => { if (Math.hypot(ev.clientX - x0, ev.clientY - y0) > 8) cancel(); });
+    // A double tap on a folder: the first tap already opened it, so the second lands in the new folder; that is no double-click.
+    pane.addEventListener('dblclick', (e) => {
+      if ((e.slopTouch || DR.lastPointer === 'touch') && performance.now() - openedAt < 700) return;
+      const it = e.target.closest('[data-key]'); if (it && !e.target.closest('.no-open')) DR.open(DR.item(it.dataset.key));
     });
+    pane.addEventListener('pointerdown', (e) => { DR.lastPointer = e.pointerType; }, true);
+    // A long press (the shared touch layer's contextmenu, shared/input; Chrome on Android sends its own): touch selection
+    // mode, the item added to the selection, then the menu for the selection (ui/ctxmenu.js).
+    pane.addEventListener('contextmenu', (e) => {
+      if (!(e.slopTouch || e.pointerType === 'touch' || DR.lastPointer === 'touch')) return;
+      const it = e.target.closest('[data-key]'); if (!it) return;
+      S.touchMode = true;
+      if (!S.sel.has(it.dataset.key)) DR.clickItem(it.dataset.key, {});
+    }, true);
     wireMarquee(pane);
   };
   let marqueeMoved = false;
@@ -111,6 +113,7 @@
       const before = new Set(e.ctrlKey || e.metaKey || e.shiftKey ? S.sel : []);
       const box = DR.el('div', { class: 'marquee' });
       const nodes = [...pane.querySelectorAll('[data-key]')].map((n) => { const r = n.getBoundingClientRect(); return { n, x: r.left - pr.left + pane.scrollLeft, y: r.top - pr.top + pane.scrollTop, w: r.width, h: r.height }; });
+      // touch-ok: the marquee is a mouse's (or pen's); a finger scrolls the pane and selects with a long press, then taps
       try { pane.setPointerCapture(e.pointerId); } catch (err) { /* synthetic pointer */ }
       const move = (ev) => {
         const x1 = ev.clientX - pr.left + pane.scrollLeft, y1 = ev.clientY - pr.top + pane.scrollTop;

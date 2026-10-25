@@ -17,6 +17,9 @@
   function mount(host, S, act) {
     const view = { zoom: null, open: new Set(), labelW: 230 };
     const keyEls = new Map(); // "layer|prop|t" -> diamond element, for moving them during a drag
+    // The playhead moves through the transport when there is one (main.js): the player owns the time, and a plain
+    // S.seek is put back to the player's time on its next frame.
+    const seek = (t) => { const tr = ns.app && ns.app.tr; if (tr && tr.seekTo) tr.seekTo(t); else S.seek(t); };
     const pps = () => {
       if (view.zoom) return view.zoom;
       const w = host.clientWidth || 640;
@@ -77,7 +80,7 @@
         if (e.target.classList && e.target.classList.contains('fx-diamond')) return;
         const x = e.clientX - l.getBoundingClientRect().left - PAD;
         S.select({ keys: [], fx: S.sel.fx });
-        S.seek(x / p);
+        seek(x / p);
       });
       for (const it of items) l.append(diamond(it.refs, p, it.title, it.hold));
       return l;
@@ -136,8 +139,8 @@
       for (let s = 0; s <= dur + 1e-9; s += step) track.append(h('div', { class: 'fx-tick', style: `left:${(PAD + s * p).toFixed(3)}px` }, `${s.toFixed(s % 1 ? 2 : 0)}s`));
       const r = h('div', { class: 'fx-ruler', style: `width:${view.labelW + width + PAD}px` }, label, track);
       track.addEventListener('pointerdown', (e) => {
-        track.setPointerCapture(e.pointerId);
-        const at = (ev) => S.seek((ev.clientX - track.getBoundingClientRect().left - PAD) / p);
+        try { track.setPointerCapture(e.pointerId); } catch (err) { /* synthetic event */ } // touch-ok: .fx-ruler-track has touch-action: none (css/effects.css)
+        const at = (ev) => seek((ev.clientX - track.getBoundingClientRect().left - PAD) / p);
         at(e);
         const move = (ev) => at(ev);
         const up = () => { track.removeEventListener('pointermove', move); track.removeEventListener('pointerup', up); };

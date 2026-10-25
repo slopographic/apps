@@ -11,6 +11,7 @@
 .sf-grip::after { content: ""; position: absolute; inset-block: 0; inset-inline-start: 3px; width: 1px; background: transparent; transition: background .15s; }
 .sf-grip:hover::after, .sf-grip:focus-visible::after, .sf-dragging .sf-grip::after { width: 2px; background: var(--sl-accent); }
 .sf-grip:focus-visible { outline: none; }
+.sf-grip::before { content: ""; position: absolute; inset-block: 0; inset-inline: calc((7px - var(--slop-hit, 0px)) / 2); } /* a finger's 44 px grab (shared/input) */
 .sf-dragging { cursor: col-resize; user-select: none; }
 .sf-dragging iframe { pointer-events: none; }
 .sf-panel { order: 4; flex: 0 0 var(--sf-panel-w, 300px); min-width: 0; min-height: 0; overflow-y: auto; box-sizing: border-box;
@@ -56,4 +57,9 @@ button.sf-item-main:focus-visible { outline: 2px solid var(--sl-accent); outline
 .sf-item-meta { font-size: 11.5px; color: color-mix(in srgb, var(--sl-text) 62%, transparent); overflow-wrap: anywhere; }
 .sf-item-acts { display: flex; gap: 4px; flex: 0 0 auto; }
 .sf-item-acts .sf-btn { min-height: 28px; height: 28px; padding: 0 8px; font-size: 12px; }
+.sf-p-foot { position: sticky; bottom: 0; z-index: 2; display: flex; flex-direction: column; gap: 6px; padding: 12px 16px;
+  background: var(--sl-surface); border-top: 1px solid var(--sl-border); }
+.sf-p-foot[hidden] { display: none; }
+.sf-p-foot .sf-btn { white-space: normal; height: auto; }
+.sf-p-foot .sui-primary { min-height: 40px; font-weight: 700; }
 @media print { .sf-panel, .sf-grip, .sf-list { display: none !important; } }

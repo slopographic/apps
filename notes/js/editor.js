@@ -94,7 +94,7 @@ export function wireEditor(redraw) {
     renderPreview();
     redrawList();
   });
-  $('nt-body').addEventListener('paste', onPaste);
+  $('nt-body').addEventListener('paste', onPaste); // intake-ok: a table pasted as HTML becomes Markdown text
   for (const b of document.querySelectorAll('[data-mode]')) b.addEventListener('click', () => setMode(b.dataset.mode));
   $('nt-pin').addEventListener('click', () => A.togglePin());
   $('nt-back').addEventListener('click', () => A.setPane('list'));

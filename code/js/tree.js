@@ -50,7 +50,7 @@ export function initTree(listEl, callbacks) {
     const btn = e.target.closest ? e.target.closest('.cd-row') : null;
     if (btn) btn.classList.add('drop');
   });
-  host.addEventListener('drop', (e) => {
+  host.addEventListener('drop', (e) => { // intake-ok: a row of the tree moved to another folder, not a file
     if (!dragging) return;
     const r = dragging, target = dropTarget(e.target);
     dragging = null; clearDrop();

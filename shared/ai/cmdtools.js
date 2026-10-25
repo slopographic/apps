@@ -7,7 +7,8 @@
  *     - list_commands / run_command(id, args?): every other command, by id
  *   cmdTools.definitions(cmd) → OpenAI-style JSON-schema tool definitions [{ type: 'function', function: { name, description, parameters } }]
  *   cmdTools.specs(cmd, env) → the same tools provider-neutral, with inputSchema (JSON Schema) and readOnly / mayDestroy:
- *     what cloud engines and WebMCP (shared/agent/webmcp.js) take; inputSchema(tool) is the one schema maker
+ *     what cloud engines and WebMCP (shared/agent/webmcp.js) take; inputSchema(tool) is the one schema maker;
+ *     neutral(tool) does the same for any tool of the one list (appTools.build, with the operations and file tools)
  *   cmdTools.isDestructive(c): c.destructive when the command sets it, else the words in its id/title (appTools.DESTRUCTIVE)
  *   cmdTools.label(c, args): 'Gaussian blur, radius 8', for the panel's step list
  * Tools carry cmdId, so the panel knows which steps changed the app (its "Undo all AI changes"). */
@@ -104,14 +105,16 @@
   function definitions(cmd) {
     return build(cmd).filter((t) => t.schema || t.params).map((t) => ({ type: 'function', function: { name: t.name, description: t.description, parameters: inputSchema(t) } }));
   }
-  const READ_ONLY = new Set(['app_state', 'list_commands']);
-  /** The same tools, provider-neutral (for cloud engines and WebMCP, shared/agent/): { name, description, inputSchema,
-   * readOnly, untrusted (it returns the app's own content), mayDestroy, destructive(args), confirmText(args), cmdId, run(args) }. */
-  function specs(cmd, env = {}) {
-    return build(cmd, env).map((t) => ({ name: t.name, description: t.description, inputSchema: inputSchema(t), cmdId: t.cmdId || null,
-      readOnly: READ_ONLY.has(t.name), untrusted: t.name === 'app_state', mayDestroy: t.name === 'run_command' || (!!t.destructive && !!t.destructive({})),
-      destructive: t.destructive || false, kind: t.kind || null, confirmText: t.confirmText, run: t.run }));
-  }
+  /** Tools that only read, and those that hand back the person's own content (names of the one tool list, appTools). */
+  const READ_ONLY = new Set(['app_state', 'list_commands', 'list_apps', 'list_files', 'read_file', 'list_operations', 'app_search']);
+  const UNTRUSTED = new Set(['app_state', 'list_files', 'read_file']);
+  /** One tool, provider-neutral (for cloud engines and WebMCP, shared/agent/): { name, description, inputSchema,
+   * readOnly, untrusted (it returns the person's own content), mayDestroy, destructive(args), confirmText(args), cmdId, run(args) }. */
+  const neutral = (t) => ({ name: t.name, description: t.description, inputSchema: inputSchema(t), cmdId: t.cmdId || null,
+    readOnly: READ_ONLY.has(t.name), untrusted: UNTRUSTED.has(t.name), mayDestroy: /^(run|app)_command$/.test(t.name) || (typeof t.destructive === 'function' ? !!t.destructive({}) : !!t.destructive),
+    destructive: t.destructive || false, kind: t.kind || null, permission: t.permission || null, confirmText: t.confirmText, run: t.run });
+  /** The command tools, provider-neutral. */
+  const specs = (cmd, env = {}) => build(cmd, env).map(neutral);
 
-  K.cmdTools = { build, definitions, specs, inputSchema, isDestructive, kindOf, label, toolName };
+  K.cmdTools = { build, definitions, specs, neutral, inputSchema, isDestructive, kindOf, label, toolName };
 })();

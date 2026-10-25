@@ -34,6 +34,13 @@
     const pal = () => host.classList;
     const setHeld = () => { if (held.space || held.hand) pal().add('space'); else pal().remove('space'); };
     const stop = (e) => { e.preventDefault(); e.stopImmediatePropagation(); };
+    // Fingers the engine takes stop here for the app, but the other window listeners still see them: the touch layer
+    // (shared/input) must know a pinch is on, or the still finger of a pinch would count as a long press.
+    const stopTouch = (e) => { if (e.cancelable) e.preventDefault(); e.stopPropagation(); };
+    // The host is a touch surface (shared/input): a drag on it is never a page scroll, a pinch never a page zoom, and
+    // the layer leaves two fingers to this engine ("nav"). A host that scrolls natively (passthrough) marks itself.
+    const marked = !o.passthrough && !host.hasAttribute('data-touch-surface');
+    if (marked) host.setAttribute('data-touch-surface', 'nav');
 
     function onWheel(e) {
       if (!inHost(e.target)) return;
@@ -86,7 +93,7 @@
     function onUp(e) {
       if (e.pointerType === 'touch') touchEnd(e);
       if (pan && pan.id === e.pointerId) { pan = null; pal().remove('panning'); }
-      if (owned.has(e.pointerId)) { owned.delete(e.pointerId); e.stopImmediatePropagation(); }
+      if (owned.has(e.pointerId)) { owned.delete(e.pointerId); if (e.pointerType === 'touch') e.stopPropagation(); else e.stopImmediatePropagation(); }
     }
 
     /* touch: the first finger goes to the app (it may draw); a second finger takes over as pinch/pan */
@@ -99,8 +106,8 @@
         const m = pinchMid();
         pinch = { d: m.d, mx: m.x, my: m.y };
         owned.add(e.pointerId); // the first finger stays with the app, so its own pointerup still cleans up
-        stop(e);
-      } else if (pinch) stop(e);
+        stopTouch(e);
+      } else if (pinch) stopTouch(e);
     }
     function pinchMid() {
       const r = host.getBoundingClientRect(), [p1, p2] = [...touches.values()];
@@ -109,7 +116,7 @@
     function touchMove(e) {
       touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
       if (!pinch || touches.size !== 2) return;
-      e.stopImmediatePropagation();
+      stopTouch(e);
       const b = cfg(), m = pinchMid();
       // Zoom about the midpoint where the fingers were, then pan by how far it moved: the content under the
       // fingers stays under them, with no extra slide from the midpoint moving.
@@ -175,6 +182,7 @@
         window.removeEventListener('blur', reset);
         host.removeEventListener('pointerenter', enter);
         host.removeEventListener('pointerleave', leave);
+        if (marked) host.removeAttribute('data-touch-surface');
         reset();
       },
     };

@@ -66,7 +66,10 @@ export function view(el, root, { background = null } = {}) {
     renderer.render(scene, camera);
   }
   let drag = null;
-  canvas.addEventListener('pointerdown', (e) => { drag = { x: e.clientX, y: e.clientY }; canvas.setPointerCapture(e.pointerId); canvas.style.cursor = 'grabbing'; });
+  // Touch (shared/input): a finger orbits and never scrolls the page; a pinch zooms (dist × 1/scale); a double tap resets.
+  canvas.setAttribute('data-touch-surface', '');
+  canvas.touchSurface = { zoom(k) { st.dist = Math.max(0.2, Math.min(8, st.dist / k)); render(); } };
+  canvas.addEventListener('pointerdown', (e) => { drag = { x: e.clientX, y: e.clientY }; try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* a synthetic pointer */ } canvas.style.cursor = 'grabbing'; });
   canvas.addEventListener('pointermove', (e) => {
     if (!drag) return;
     st.yaw -= (e.clientX - drag.x) * 0.01;

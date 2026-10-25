@@ -62,12 +62,8 @@ export async function openRecord(rec) {
   return true;
 }
 
-export async function openFromDrive() {
-  const h = hub();
-  if (!h) return;
-  const rec = await h.pickFromDrive({ accept: [MIME, ...CSV_TYPES, ...SHEET_TYPES] });
-  if (rec) await openRecord(rec);
-}
+/** File ▸ Open from Slop Drive (Ctrl+O): a source of the one intake (ui/drop.js). */
+export const openFromDrive = () => window.SlopIntake.fromDrive({ to: 'tables', accept: [MIME, ...CSV_TYPES, ...SHEET_TYPES] });
 
 /** A file from this device (File ▸ Open file, a drop): .stab, XLSX, ODS, CSV or TSV, in a new tab. Throws the reason. */
 export async function openFile(file) {
@@ -82,10 +78,8 @@ export async function openFile(file) {
   return openRecord(rec);
 }
 
-export async function pickAndOpen() {
-  const files = await window.SlopUI.pickFiles({ accept: OPEN_EXTS.join(','), multiple: true });
-  for (const f of files || []) { try { await openFile(f); } catch (e) { window.SlopUI.alert('Could not open that file', e.message); } }
-}
+/** File ▸ Open file from this device: a source of the one intake (ui/drop.js). */
+export const pickAndOpen = () => window.SlopIntake.pick({ to: 'tables', accept: OPEN_EXTS.join(',') });
 
 /** File ▸ New workbook: a blank workbook in a new tab. */
 export async function newBlank() {
@@ -129,16 +123,23 @@ const within = (p, fallback) => new Promise((res) => {
   Promise.resolve(p).then((v) => { clearTimeout(t); res(v); }, () => { clearTimeout(t); res(fallback); });
 });
 
-/** Startup: the launch from ?drive=<id> (read first, since showing a tab rewrites the address bar), then the open tabs
- * from this device, then a blank workbook when there are none. */
+/* The intake waits for the tabs (ui/drop.js: its before step), so a file never opens before them. */
+let tabsReady = null;
+export const whenTabs = () => tabsReady;
+/** Startup: the launch through the intake (?drive=<id> is read first, since showing a tab rewrites the address bar; a PWA
+ * launch's files too), then the open tabs from this device, then a blank workbook when there are none. A launch that
+ * opens replaces the blank one. */
 export async function launch() {
   const h = hub();
   if (h) { try { h.register('tables'); } catch (e) { /* hub without register */ } }
-  const rec = h ? await within(Promise.resolve().then(() => h.consumeLaunch()), null) : null;
+  let ready;
+  tabsReady = new Promise((r) => { ready = r; });
+  const launched = window.SlopIntake ? window.SlopIntake.launch({ to: 'tables' }) : Promise.resolve(null);
   tabs.init();
   await within(Promise.resolve().then(() => tabs.restore()).catch(() => 0), 0); // storage blocked or stalled: start blank
   if (!tabs.current()) tabs.newTab();
-  if (!rec) return;
   const blank = tabs.isPristine(tabs.current()) ? tabs.current() : null;
-  if (await openRecord(rec) && blank && tabs.current() !== blank) tabs.api().close(blank);
+  ready();
+  const r = await within(launched, null);
+  if (r && r.added && r.added.length && blank && tabs.current() !== blank) tabs.api().close(blank);
 }

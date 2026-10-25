@@ -49,13 +49,13 @@ test('a link round trip (compressed), and a damaged link', async () => {
 });
 
 test('steps are checked against the kinds the step before makes', () => {
-  const d = doc([{ id: 'images-to-pdf' }, { id: 'watermark.apply' }, { id: 'pdf.compress' }]);
+  const d = doc([{ id: 'images-to-pdf' }, { id: 'resize.image' }, { id: 'pdf.compress' }]);
   const r = check(d.steps, ['png', 'jpg'], R);
   assert.deepEqual(r.map((x) => x.ok), [true, false, true]);
-  assert.match(r[1].message, /^Watermark cannot take PDF, which step 1 \(Images to PDF\) makes\. It takes PNG, JPG/);
+  assert.match(r[1].message, /^Resize cannot take PDF, which step 1 \(Images to PDF\) makes\. It takes PNG, JPG/);
   assert.deepEqual(r[0].out, ['pdf']);
   assert.equal(firstProblem(r).index, 1);
-  const files = check(doc([{ id: 'watermark.apply' }]).steps, ['pdf'], R);
+  const files = check(doc([{ id: 'resize.image' }]).steps, ['pdf'], R);
   assert.match(files[0].message, /cannot take PDF files/);
   const unknown = check(doc([{ id: 'files.rename' }, { id: 'watermark.apply' }]).steps, [], R);
   assert.ok(unknown.every((x) => x.ok));   // "any file" first: not judged until a kind is known

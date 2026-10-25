@@ -5,9 +5,9 @@
   'use strict';
   const { describe, it, expect } = SlopTest;
   const CO = window.CO, V = CO.video;
-  const FPS = 10, SECS = 2, W = 480, H = 270, N = FPS * SECS;
+  const FPS = 5, SECS = 2, W = 480, H = 270, N = FPS * SECS;
 
-  /** A 2 s MP4 (VP9): a bright disc moving across a dark blue background. */
+  /** A 2 s MP4 (VP9) at 5 frames a second (each frame is one model run): a bright disc moving across a dark blue background. */
   async function makeClip() {
     const chunks = [];
     const muxer = new Mp4Muxer.Muxer({ target: new Mp4Muxer.ArrayBufferTarget(), video: { codec: 'vp9', width: W, height: H }, fastStart: 'in-memory' });
@@ -17,7 +17,7 @@
     const g = cv.getContext('2d');
     for (let i = 0; i < N; i++) {
       g.fillStyle = '#1b2a4a'; g.fillRect(0, 0, W, H);
-      g.fillStyle = '#ff5a1f'; g.beginPath(); g.arc(80 + i * 15, H / 2, 60, 0, Math.PI * 2); g.fill();
+      g.fillStyle = '#ff5a1f'; g.beginPath(); g.arc(80 + i * 30, H / 2, 60, 0, Math.PI * 2); g.fill();
       const vf = new VideoFrame(cv, { timestamp: Math.round(i * 1e6 / FPS), duration: Math.round(1e6 / FPS) });
       enc.encode(vf, { keyFrame: i === 0 }); vf.close();
     }
@@ -52,7 +52,7 @@
       await src.each((c, i, t) => { seen.push([i, Math.round(t * 100) / 100]); });
       expect(seen.length).toBe(N);
       expect(seen[N - 1][0]).toBe(N - 1);
-      expect(seen[1][1]).toBe(0.1);
+      expect(seen[1][1]).toBe(1 / FPS);
     }, LONG);
   });
 
@@ -81,7 +81,8 @@
 
   describe('video export', () => {
     it('writes WebM with an alpha track, or a PNG sequence with one file per frame', async () => {
-      res = await V.analyze(src, { model: 'fast' });
+      // the matte of the first test (one model run per frame is the slow part); its own run only if that test failed
+      if (!res || res.cancelled) res = await V.analyze(src, { model: 'fast' });
       const S = await V.limits.probe();
       let progress = 0;
       if (S.alphaWebm) {

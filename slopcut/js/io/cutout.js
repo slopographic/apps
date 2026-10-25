@@ -2,7 +2,8 @@
    (?drive=). Isolate sends the result back as a matte pair: the colour video and its matte video, both in Drive.
    The result is a NEW clip on the video track above the source clip, starting at the same time, with the matte
    (clip.matteMedia) as its alpha. The source clip stays. Results come in over the Slop Hub bus ('cutout-result') when
-   Cut is open, or with ?drive= when Cut was opened for them (session.js). SE.cutout.send(clip), SE.cutout.receive(p). */
+   Cut is open, or with ?drive= when Cut was opened for them; both come in through the intake (io/intake.js), whose reader
+   calls SE.cutout.place. SE.cutout.send(clip), SE.cutout.receive(p), SE.cutout.place(files, p). */
 (function () {
   'use strict';
   const SE = window.SE, M = SE.model, E = SE.edit, A = SE.app;
@@ -21,15 +22,20 @@
     } catch (e) { toast('Could not send: ' + (e.message || e)); }
   };
 
-  /** Place a matte pair as a new clip above payload.clipId (or on a new top track). payload: { id, matteId, name, clipId }. */
+  /** A matte pair from SlopIsolate: its two Slop Drive records go through the intake. payload: { id, matteId, name, clipId }. */
   CU.receive = async function (payload) {
     const h = window.SlopHub;
     if (!h || !A) return false;
     const cRec = await h.get(payload.id), mRec = await h.get(payload.matteId);
     if (!cRec || !mRec) { toast('The cut-out is no longer in Slop Drive'); return false; }
-    const files = [new File([cRec.blob], cRec.name, { type: cRec.type }), new File([mRec.blob], mRec.name, { type: mRec.type })];
+    const r = await SE.intake.handed([cRec, mRec], { cutout: payload });
+    return !!(r && r.added.length);
+  };
+  /** The intake's reader for a matte pair (the colour file, then the matte): a new clip above payload.clipId (or on a new
+   *  top track), with the matte as its alpha. */
+  CU.place = async function (files, payload) {
     const metas = (await A.importFiles(files, { from: 'cutout' })) || [];
-    const cm = metas.find((m) => m.name === cRec.name), mm = metas.find((m) => m.name === mRec.name);
+    const cm = metas.find((m) => m.name === files[0].name), mm = metas.find((m) => m.name === files[1].name);
     if (!cm || !mm) { toast('Could not place the cut-out'); return false; }
     let ids = [];
     SE.change('Add background cut-out', (p) => {
@@ -47,5 +53,6 @@
     return true;
   };
 
-  if (window.SlopHub && typeof SlopHub.on === 'function') SlopHub.on('cutout-result', (d) => { CU.receive(d).catch((e) => toast('Could not add the cut-out: ' + (e.message || e))); });
+  if (window.SlopHub && typeof SlopHub.on === 'function') SlopHub.on('cutout-result', (d) => { // intake-ok: a message with two Drive ids; receive() hands the files to the intake
+    CU.receive(d).catch((e) => toast('Could not add the cut-out: ' + (e.message || e))); });
 })();

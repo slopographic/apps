@@ -81,8 +81,11 @@
         el('div', { class: 'ev-row' }, confirmBtn, pickBtn)));
     }
     confirmBtn.disabled = true;
+    const ACCEPT = '.json,.slop,.zip,application/json,application/zip';
     pickBtn.addEventListener('click', async () => {
-      const [f] = await UI.pickFiles({ accept: '.json,.slop,.zip,application/json,application/zip' });
+      const SI = window.SlopIntake; // the backup file is a part of the one intake ('backup.everything') where the page has it
+      if (SI && SI.part) { await SI.pick({ to: SI.part({ id: 'backup.everything', limit: 1, accept: { any: true, noun: 'a backup file' }, process: async (f) => { await choose(f); return f.name; } }), multiple: false, accept: ACCEPT }); return; }
+      const [f] = await UI.pickFiles({ accept: ACCEPT }); // intake-ok: a page without shared/intake
       if (f) await choose(f);
     });
     confirmBtn.addEventListener('click', async () => {

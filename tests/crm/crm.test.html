@@ -114,6 +114,20 @@
       await sleep(300);
       expect((await S().store.list('customers')).value).toHaveLength(4);
     });
+    it('Choose another list… is the one shared Slop Drive picker, and the plan follows the list picked there', async () => {
+      // Covers: crm/js/ui/import.js, crm/js/core/contacts-import.js
+      const older = (await win().SlopHub.list({ trashed: false })).find((r) => r.name === 'Contacts.scontacts');
+      await win().SlopHub.put(list([{ id: 'c-3', fn: 'Eve Lund', emails: [], phones: [], adr: [], groups: [] }]), { name: 'More.scontacts', from: 'contacts' });
+      $('cImport').click();
+      await waitFor(() => dlg() && dlgText().includes('More.scontacts') && dlgText().includes('1 new customer'), { timeout: 8000 });
+      const asked = [];
+      win().SlopHub.pickFromDrive = async (o) => { asked.push(o); return win().SlopHub.get(older.id); };
+      [...dlg().querySelectorAll('button')].find((b) => b.textContent === 'Choose another list…').click();
+      await waitFor(() => dlgText().includes('Saved list: Contacts.scontacts') && dlgText().includes('0 new customers'), { timeout: 8000 });
+      expect(asked.length).toBe(1);
+      expect(asked[0].accept).toContain('application/x-slop-contacts');
+      [...dlg().querySelectorAll('button')].find((b) => b.textContent === 'Cancel').click();
+    });
   });
 
   describe('the follow-up list', () => {

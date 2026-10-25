@@ -255,15 +255,25 @@
       const w = await HomeTest.openHome();     // a fresh page: nothing has been clicked yet
       const d = w.document, region = d.querySelector('.carousel');
       const idx = () => [...d.querySelectorAll('.carousel .car-slide')].findIndex((s) => s.classList.contains('is-current'));
-      region.dispatchEvent(new w.Event('pointerenter'));
-      await sleep(7600);
-      expect(idx()).toBe(0);
-      region.dispatchEvent(new w.Event('pointerleave'));
-      await waitFor(() => idx() === 1, { timeout: 9000 });
-      d.querySelector('.carousel .car-next').click();
-      expect(idx()).toBe(2);
-      await sleep(7600);
-      expect(idx()).toBe(2);
+      // 7-second timers run 20 times faster (each one is counted), so the waits take a third of a second. The advance has
+      // to come well before 7 real seconds: only a 7-second timer can have made it.
+      const FAST = 20, SEVEN = 10000 / FAST, realSet = w.setTimeout;
+      let sevens = 0;
+      w.setTimeout = (fn, ms, ...a) => { if (ms === 7000) { sevens++; ms /= FAST; } return realSet.call(w, fn, ms, ...a); };
+      try {
+        region.dispatchEvent(new w.Event('pointerenter'));
+        await sleep(SEVEN);
+        expect(idx()).toBe(0);
+        region.dispatchEvent(new w.Event('pointerleave'));
+        const t0 = performance.now();
+        await waitFor(() => idx() === 1, { timeout: 9000 });
+        expect(performance.now() - t0).toBeLessThan(3000);
+        expect(sevens).toBeGreaterThan(0);
+        d.querySelector('.carousel .car-next').click();
+        expect(idx()).toBe(2);
+        await sleep(SEVEN);
+        expect(idx()).toBe(2);
+      } finally { w.setTimeout = realSet; }
     }, { timeout: 40000 });
   });
 

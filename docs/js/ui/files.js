@@ -1,4 +1,4 @@
-/* Slop Docs — ui/files: Slop Drive (open with ?drive=<id>, File ▸ Open, Save and Ctrl+S), the saved templates store,
+/* Slop Docs — ui/files: Slop Drive (reading a record for the intake, ui/intake.js; Save and Ctrl+S), the saved templates store,
  * and exports (.sdoc, .docx, .pdf, .md, .txt). Classic script; window.SlopDocs.
  * Open tabs and their autosave are the tab strip's job (ui/tabs.js and shared/doctabs). Save and Open from Slop Drive
  * go through the strip, so each tab writes its own .sdoc (a native record is saved back under its own id). A Word,
@@ -10,7 +10,6 @@
   const H = () => window.SlopHub || null;
   const SD = () => E().SD, DX = () => E().DX;
   const SDOC_MIME = 'application/x-slop-doc', DOCX_MIME = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-  const IMPORT = [DOCX_MIME, 'text/markdown', 'text/plain', 'text/html'];
   const toast = (m) => { if (window.SlopUI) SlopUI.toast(m); };
 
   /* ---------- IndexedDB 'slop-docs' (store 'templates'; 'drafts' is kept for old data and no longer written) ---------- */
@@ -87,24 +86,7 @@
     if (!silent) toast(r.native ? `Opened ${baseName(rec.name)}` : `Opened ${rec.name} as a new Slop Docs file`);
     return r;
   };
-  /** File ▸ Import: a Word, Markdown or text file from Slop Drive, as a new tab that is not linked to the file. */
-  S.importFromDrive = async function () {
-    if (!H()) { toast('Slop Drive is not available'); return; }
-    const rec = await H().pickFromDrive({ accept: IMPORT, title: 'Import from Slop Drive' });
-    if (!rec) return;
-    try {
-      const r = await readRecord(rec);
-      S.tabsApi().openDoc(S.makeTab(r.doc, { name: baseName(rec.name) + '.sdoc' }), { origName: rec.name });
-      toast(`Opened ${rec.name} as a new Slop Docs file`);
-    } catch (e) { toast('Could not open: ' + e.message); }
-  };
-  /** Open a Drive record by id (used by ?drive= on boot). */
-  S.openDriveId = async function (id) {
-    const rec = H() && (await H().get(id).catch(() => null));
-    if (!rec) { toast('That document is no longer in Slop Drive'); return false; }
-    H().touch(id);
-    try { await S.openRecord(rec, { silent: true }); return true; } catch (e) { toast('Could not open: ' + e.message); return false; }
-  };
+  // Open, Import and ?drive= are sources of the one intake (ui/intake.js), whose reader is openRecord.
 
   S.confirmDiscard = async function () {
     if (!S.file.dirty || !window.SlopUI) return true;
@@ -151,10 +133,10 @@
     toast(`Downloaded ${name}`);
     SlopSupport.afterExport('docs');
   };
-  /** "Send to…" menu rows for the other Slopographic apps. */
+  /** "Send to…" menu rows for the other Slopographic apps: the one builder, SlopOuttake, with the document as DOCX. */
   S.sendItems = function () {
-    if (!H()) return [];
-    return H().sendMenuItems(() => S.exportBlob('docx'), () => S.displayName() + '.docx', DOCX_MIME);
+    if (!H() || !window.SlopOuttake) return [];
+    return SlopOuttake.items({ get: () => S.exportBlob('docx'), name: () => S.displayName() + '.docx', type: DOCX_MIME, from: 'docs', verb: 'Send to', folder: false });
   };
   /** Convert… in the header (shared/convert/provided.js): the open document, as DOCX. */
   addEventListener('slop:convert-files', (e) => e.detail.provide(async () => {

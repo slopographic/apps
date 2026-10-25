@@ -195,6 +195,7 @@ const MENUS = [
     { label: 'Search Commands…', cmdId: 'cmd.palette', act: () => openCommandPalette() },
     { label: 'Keyboard Shortcuts…', cmdId: 'cmd.keymap', act: () => openKeymap() },
     { label: 'About PhotoSlop', act: () => dlgAbout() },
+    { label: 'AI agents…', act: () => window.SlopAgents && window.SlopAgents.about() },
     '-',
     { label: 'Open Slop Paint Classic (MS Paint)', act: () => { location.href = 'classic/'; } },
     { label: 'Back to slopographic.com', act: () => { location.href = '../'; } },

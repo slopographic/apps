@@ -13,6 +13,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '.
 const read = (f) => readFileSync(path.join(ROOT, f), 'utf8');
 const toDataUrl = (s) => 'data:text/javascript;base64,' + Buffer.from(s).toString('base64');
 const MACRO_FILES = ['core/watermark', 'macro/pattern', 'macro/model', 'macro/frame', 'macro/text', 'macro/ops-edit', 'macro/ops-draw', 'macro/runner'].map((n) => `pdf/js/${n}.js`);
+MACRO_FILES.unshift('shared/watermark/spec.js');   // the watermark's page ranges
 
 // pdf.js 5 reads a few browser geometry classes when it loads. Node has none, so give it minimal stand-ins: the text
 // positions here come from pdf.js's own transform helpers, not from these classes.

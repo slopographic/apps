@@ -119,6 +119,16 @@
       return c ? Number(c.dataset.i) : null;
     }
 
+    // Touch: the rows keep touch-action: pan-x pan-y (hex/css/hex.css), so a finger scrolls; a tap puts the cursor on a
+    // byte, and a long press on a byte (the shared touch layer's contextmenu) makes the next tap select from it to there.
+    // (The menu bar has what the right-click menu has: a long press here does not open that menu.)
+    let extendNext = false;
+    rows.addEventListener('contextmenu', (e) => {
+      if (!(e.slopTouch || e.pointerType === 'touch') || cellIndex(e.target) === null) return;
+      e.preventDefault();
+      e.stopPropagation(); // no menu: the next tap ends the range
+      extendNext = true;
+    });
     rows.addEventListener('pointerdown', (e) => {
       if (!doc || e.button !== 0) return;
       const row = e.target.closest && e.target.closest('[data-row]');
@@ -129,8 +139,9 @@
       }
       const i = cellIndex(e.target);
       if (i === null) return;
-      if (e.shiftKey && anchor !== null) select(anchor, i);
+      if ((e.shiftKey || extendNext) && anchor !== null) select(anchor, i);
       else select(i, i);
+      extendNext = false;
       dragging = true;
       try { rows.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
       scroll.focus({ preventScroll: true });

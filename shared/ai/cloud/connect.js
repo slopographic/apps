@@ -65,18 +65,17 @@
       const pr = C.price(p, model.value, (fetched.get(p.id) || []).find((m) => m.id === model.value)), n = Number(cap.value) || 0;
       est.textContent = n && pr ? ` About $${((n * (pr.input * 0.8 + pr.output * 0.2)) / 1e6).toFixed(2)} at most with this model.` : n ? ' The price of this model is not known here.' : '';
     }
-    let seq = 0;
-    /** Draws the chosen provider. Cleared first and synchronously, so a slow key-store read can never wipe a message
-     * (Test connection's answer) that came after; only the latest call draws. */
+    // show() reads the key store, so it finishes later; Test connection, Forget key and Use wait for it first, or its
+    // clearing of the message would land after theirs (choosing a provider right after the panel opens runs it twice)
+    let shown = Promise.resolve();
+    const reshow = () => (shown = shown.then(show, show));
     async function show() {
-      const my = ++seq;
       say('');
       const ps = (C.keys.settings().providers || {})[p.id] || {};
       sel.value = p.id; base.value = ps.base || p.base || ''; base.placeholder = p.base || 'https://…/v1';
       baseRow.hidden = !p.editBase; keyRow.hidden = remRow.hidden = forget.hidden = !(p.needsKey || p.keyOptional);
       key.value = ''; key.placeholder = p.keyHint || 'paste the key (if the service needs one)';
       const rem = await C.keys.remembered(p.id), has = !!(await C.keys.get(p.id));
-      if (my !== seq) return;
       remember.checked = rem;
       if (has) key.placeholder = remember.checked ? 'Key saved on this device' : 'Key kept in this tab';
       forget.disabled = !has;
@@ -97,9 +96,10 @@
       return e;
     }
 
-    sel.addEventListener('change', () => { p = C.byId(sel.value); show(); });
+    sel.addEventListener('change', () => { p = C.byId(sel.value); reshow(); });
     cap.addEventListener('input', estimate); model.addEventListener('change', estimate);
     test.addEventListener('click', async () => {
+      await shown;
       test.disabled = true; say('Testing…');
       try {
         const list = await (await engineNow()).test();
@@ -111,10 +111,11 @@
     forget.addEventListener('click', async () => {
       await C.keys.forget(p.id);
       const st = C.keys.settings(); if (st.active === p.id) { st.active = ''; C.keys.save(st); }
-      await show(); say(`The ${p.short} key is gone from this browser.`);
+      await reshow(); say(`The ${p.short} key is gone from this browser.`);
       if (o.onForget) o.onForget(p);
     });
     use.addEventListener('click', async () => {
+      await shown;
       try {
         const typed = key.value.trim();
         if (p.needsKey && !typed && !(await C.keys.get(p.id))) { say('Paste your key first.', true); key.focus(); return; }
@@ -146,7 +147,7 @@
       h('label', { class: 'sap-cloud-f' }, 'Steps per request', steps),
       h('div', { class: 'sap-acts' }, use), local);
     box.append(wrap);
-    show();
+    reshow();
     return wrap;
   }
 

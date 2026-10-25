@@ -141,10 +141,10 @@
       return;
     }
     if (e.button === 2) return;
-    el.setPointerCapture(e.pointerId);
+    try { el.setPointerCapture(e.pointerId); } catch (err) { /* not an active pointer (synthetic): the drag still works */ }
     SE.app.els.tlLanes.focus({ preventScroll: true });
     const touch = e.pointerType === 'touch';
-    TL.EDGE = touch ? 16 : 7; // bigger trim handles for fingers
+    TL.EDGE = touch ? 22 : e.pointerType === 'pen' ? 12 : 7; // finger-sized trim handles (44 px across an edge; never over a third of a clip: view.js)
     const pt = local(e), h = TL.hit(pt.x, pt.y);
     if (h.area === 'ruler') return startScrub(e, pt);
     if (h.area === 'markers') return h.marker ? startMarker(e, pt, h.marker) : startScrub(e, pt);
@@ -203,7 +203,15 @@
   }
   TL.initInput = function () {
     const el = SE.app.els.tlCanvas;
+    // A touch surface (shared/input): no page scroll or zoom on it; two fingers pinch-zoom (about the fingers) and pan
+    // the timeline through these hooks, and the layer cancels the first finger's drag. A double tap is the dblclick
+    // below, a long press the contextmenu.
     el.style.touchAction = 'none';
+    el.setAttribute('data-touch-surface', '');
+    el.touchSurface = {
+      zoom(s, cx) { TL.setZoom(TL.pps * s, cx - el.getBoundingClientRect().left); },
+      pan(dx, dy) { TL.scrollX -= dx / TL.pps; TL.scrollY -= dy; TL.clampScroll(); TL.syncHeads(); TL.dirty(); }
+    };
     el.addEventListener('pointerdown', down);
     el.addEventListener('pointermove', move);
     el.addEventListener('pointerup', up);

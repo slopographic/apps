@@ -101,9 +101,16 @@ export function createLibrary(ctx, els = {}) {
     if (errors.length) toast(errors[0]);
     return { ok: true, errors };
   }
+  /** Import a .slopflow file…: a part of the one intake of its own ('workflows.import'). */
   async function pickImport() {
-    const files = g.SlopUI ? await g.SlopUI.pickFiles({ accept: '.slopflow,application/json,.json', multiple: false }) : [];
-    return files && files[0] ? importFile(files[0]) : { ok: false };
+    const SI = g.SlopIntake;
+    if (!SI.spec('workflows.import')) {
+      SI.register({ id: 'workflows.import', main: false, paste: false, toast: false, limit: 1,
+        accept: { types: [F.MIME, 'application/json'], exts: [F.EXT, '.json'], noun: 'a workflow (.slopflow)' },
+        process: async (file) => { const r = await importFile(file); if (!r.ok) throw new Error(r.message || 'was not imported'); return r; } });
+    }
+    const r = await SI.pick({ to: 'workflows.import', multiple: false, accept: '.slopflow,application/json,.json' });
+    return r.added[0] ? r.added[0].value : { ok: false, message: r.skipped[0] && r.skipped[0].reason };
   }
 
   /** A link to Slop Workflows with this workflow in it. Big pictures (a logo) are left out, so the link stays short. */
@@ -111,7 +118,7 @@ export function createLibrary(ctx, els = {}) {
     let dropped = 0;
     const doc = { ...S.doc, steps: S.doc.steps.map((s) => {
       const op = R.byId(s.id), o = { ...s.options };
-      for (const opt of (op ? op.options : [])) if (opt.type === 'image' && String(o[opt.key] || '').length > LINK_IMAGE_MAX) { delete o[opt.key]; dropped++; }
+      for (const opt of (op ? op.options : [])) if ((opt.type === 'image' || opt.type === 'watermark') && String(o[opt.key] || '').length > LINK_IMAGE_MAX) { delete o[opt.key]; dropped++; }
       return { ...s, options: o };
     }) };
     const url = new URL('workflows/', SITE);

@@ -50,8 +50,9 @@
   describe('Add to a workflow… from Slop Watermark', () => {
     it('sends the text, position and opacity of the setup as a Watermark step', async () => {
       const W = await load('../../watermark/index.html', (w) => w.document.body && w.document.body.classList.contains('ready') && w.WMSettings);
-      Object.assign(W.WMSettings.cfg(), { kind: 'text', text: '© Hook test', position: 'tl', opacity: 0.8, size: 0.06 });
-      const url = await opened(W, () => W.document.getElementById('wm-workflow').click());
+      W.WMSettings.set({ layers: [{ kind: 'text', text: '© Hook test', position: 'tl', opacity: 0.8, size: 0.06 }] });
+      const add = [...W.document.querySelectorAll('.swp-actions button')].find((b) => b.textContent === 'Add to a workflow…');
+      const url = await opened(W, () => add.click());
       await WFT.boot(url.slice(url.indexOf('?')), { fresh: true });
       const s = WFT.A.S.doc.steps.at(-1);
       expect(s.id).toBe('watermark.apply');

@@ -31,7 +31,7 @@ async function autosave() {
         png: await pngOf(L.canvas), mask: L.mask && { png: await pngOf(L.mask.canvas), x: L.mask.x, y: L.mask.y, def: L.mask.def, enabled: L.mask.enabled } });
     }
     if (!DOCS.some((d) => d.id === snap.id)) return; // closed meanwhile
-    await idbDo('readwrite', (st) => st.put({ v: 2, w: snap.w, h: snap.h, name: snap.name, active: snap.active, layers, guides: snap.guides, wm: snap.wm && { on: snap.wm.on, cfg: snap.wm.cfg }, time: Date.now() }, 'doc:' + snap.id));
+    await idbDo('readwrite', (st) => st.put({ v: 2, w: snap.w, h: snap.h, name: snap.name, active: snap.active, layers, guides: snap.guides, wm: snap.wm && { on: snap.wm.on, spec: snap.wm.spec }, time: Date.now() }, 'doc:' + snap.id));
     saveTabsIndex();
     const s = $('#sbSaved'); if (s) { s.textContent = 'Saved on this device'; s.title = 'Recovered automatically if you close the tab. Never uploaded.'; }
   } catch (e) { const s = $('#sbSaved'); if (s) s.textContent = 'Recovery off'; try { window.SlopStorage && SlopStorage.handle(e, { once: 'photoslop-recovery' }); } catch (x) { /* no dialog on this page */ }; }

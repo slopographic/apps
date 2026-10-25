@@ -12,7 +12,8 @@
    shared/intake/HANDOFF.md.
      SlopOuttake.items(o) → menu items ({ label, act, to? (the app it opens) }, for SlopUI.menu or an app menu; separators: true adds '-' lines)
        o: { get() → Blob | Promise<Blob>, name: string | () => string, type, from? (the app id, default the page's),
-            verb? ('Open in'; 'Send to' for the older menus), folder? (Save to Slop Drive…, default true), exclude? [ids] }
+            verb? ('Open in'; 'Send to' for the older menus), folder? (Save to Slop Drive…, default true), exclude? [ids],
+            id? (the output is already this Slop Drive record: the apps open it, no copy is made, no Save to Slop Drive…) }
      SlopOuttake.menu(at, o)       opens the items in a SlopUI menu at an element or { x, y }
      SlopOuttake.button(o, opts)   a toolbar button "Open in…" that opens the menu under itself
      SlopOuttake.handover({ from, to, types?, label, run(ctx), replaces? }) → off()   a richer handover to one app
@@ -37,9 +38,10 @@
     let blob = null;
     const from = o.from || (H() && H().self && H().self.app) || '';
     const ctx = {
-      from, type: o.type || '', data: o.data || null,
+      from, type: o.type || '', data: o.data || null, id: o.id || null,
       name: () => (typeof o.name === 'function' ? o.name() : o.name) || 'Untitled',
-      blob: () => (blob = blob || Promise.resolve().then(() => o.get())),
+      // an output that is already a Slop Drive record (o.id, no get) is read from Slop Drive when an item needs its bytes
+      blob: () => (blob = blob || Promise.resolve().then(() => (o.get ? o.get() : o.id && H() ? H().get(o.id).then((r) => r && r.blob) : null))),
     };
     return ctx;
   }
@@ -51,7 +53,8 @@
     const hub = H();
     if (!hub) throw new Error('Slop Drive is not available here');
     const app = hub.appById(to);
-    const id = await hub.sendTo(to, await ctx.blob(), ctx.name(), { from: ctx.from || undefined });
+    const id = ctx.id ? await hub.sendTo(to, null, ctx.name(), { id: ctx.id }) // already in Slop Drive: no copy
+      : await hub.sendTo(to, await ctx.blob(), ctx.name(), { from: ctx.from || undefined });
     emit({ phase: 'sent', from: ctx.from, to, type: ctx.type, name: ctx.name(), id });
     toast('Opened in ' + (app ? app.name : to));
     return id;
@@ -88,7 +91,7 @@
     for (const fn of extensions) { try { extra.push(...[].concat(fn(ctx) || [])); } catch (e) { console.warn('SlopOuttake extension', e); } }
     emit({ phase: 'items', from: ctx.from, type: ctx.type, ctx, add: (item) => { if (item) extra.push(item); } });
     if (extra.length) out.push(...(out.length && o.separators ? ['-'] : []), ...extra);
-    if (hub && o.folder !== false) {
+    if (hub && o.folder !== false && !ctx.id) {
       out.push({ label: 'Save to Slop Drive…', act: async () => {
         try {
           const id = await hub.saveToDrive(await ctx.blob(), ctx.name(), { from: ctx.from || undefined });

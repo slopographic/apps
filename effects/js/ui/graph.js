@@ -102,10 +102,12 @@
         const r = canvas.getBoundingClientRect();
         const px = (e.clientX - r.left) * (W / r.width), py = (e.clientY - r.top) * (W / r.height);
         const d1 = Math.hypot(px - toX(start[0]), py - toY(start[1])), d2 = Math.hypot(px - toX(start[2]), py - toY(start[3]));
-        if (Math.min(d1, d2) > 14) return;
+        // A finger gets a 22 CSS px handle, a pen 12 (shared/input); the canvas has touch-action: none (css/effects.css).
+        const touchR = (window.SlopTouch && SlopTouch.hit ? SlopTouch.hit(e, 0) : e.pointerType === 'touch' ? 22 : e.pointerType === 'pen' ? 12 : 0) * (W / r.width);
+        if (Math.min(d1, d2) > Math.max(14, touchR)) return;
         drag = d1 <= d2 ? 1 : 2;
         ctrl = start.slice();
-        canvas.setPointerCapture(e.pointerId);
+        try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* synthetic event */ } // touch-ok: .fx-curve has touch-action: none
         const move = (ev) => {
           const qx = (ev.clientX - r.left) * (W / r.width), qy = (ev.clientY - r.top) * (W / r.height);
           const i = drag === 1 ? 0 : 2;

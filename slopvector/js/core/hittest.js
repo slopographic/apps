@@ -46,7 +46,7 @@
   }
   SV.hitTest = function (p, opts) {
     opts = opts || {};
-    var tol = (opts.tol || 4) / S.view.zoom, layers = S.doc.layers;
+    var tol = (opts.tol || (SV.hitPx ? min(SV.hitPx(4), 12) : 4)) / S.view.zoom, layers = S.doc.layers;
     for (var li = layers.length - 1; li >= 0; li--) {
       var L = layers[li]; if (L.hidden || L.locked) continue;
       for (var i = L.children.length - 1; i >= 0; i--) {
@@ -60,7 +60,7 @@
   };
   // anchor / handle hit on given objects (doc coords) → {o, si, i, part:'a'|'in'|'out'}
   SV.hitAnchor = function (objs, p, handlesToo) {
-    var tol = 6 / S.view.zoom, best = null;
+    var tol = (SV.hitPx ? SV.hitPx(6) : 6) / S.view.zoom, best = null;
     objs.forEach(function (o) {
       leaves(o).forEach(function (l) {
         if (l.type === 'text' || l.type === 'image' || !isEditable(l)) return;
@@ -86,7 +86,7 @@
     return best;
   };
   SV.hitSegment = function (objs, p) {
-    var tol = 5 / S.view.zoom, best = null;
+    var tol = (SV.hitPx ? min(SV.hitPx(5), 14) : 5) / S.view.zoom, best = null;
     objs.forEach(function (o) {
       leaves(o).forEach(function (l) {
         if (l.type === 'text' || l.type === 'image' || !isEditable(l)) return;

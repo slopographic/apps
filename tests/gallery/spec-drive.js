@@ -1,3 +1,4 @@
+// Covers: gallery/js/io/drive-source.js
 /* Slop Gallery tests: the Drive source, in the real app (a same-origin iframe with its own library database). Slop Drive
  * is stubbed where the gallery reads it (SlopHub.list, get, touch, sendTo), so no Drive database is read or written.
  * The thumbnail cache is a test database too (window.SLOP_THUMB_DB, set on the iframe). */

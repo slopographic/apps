@@ -70,7 +70,7 @@
       e.preventDefault();
       bar.focus({ preventScroll: true });
       d = { bar, task, mode: (e.target.dataset && e.target.dataset.edge) || 'move', sx: e.clientX, started: false, dates: null };
-      try { bar.setPointerCapture(e.pointerId); } catch (x) { /* synthetic events in tests */ }
+      try { bar.setPointerCapture(e.pointerId); } catch (x) { /* synthetic events in tests */ } // touch-ok: .tl-bar has touch-action: none (css/timeline.css)
       bar.addEventListener('pointermove', move);
       bar.addEventListener('pointerup', () => end(true), { once: true });
       bar.addEventListener('pointercancel', () => end(false), { once: true });

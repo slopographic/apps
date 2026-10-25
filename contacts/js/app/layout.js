@@ -32,6 +32,7 @@
   }
   const listWidth = () => document.querySelector('.col-list').getBoundingClientRect().width;
 
+  // The splitter has touch-action: none (contacts/css/contacts-panel.css) and data-touch-hit: a 44 px hit area for a finger.
   function mountSplitter() {
     const sp = $('splitter');
     const start = savedWidth();

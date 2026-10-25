@@ -42,7 +42,7 @@
     g.title = 'Drag to show more of the preview. Double-click to reset';
     return g;
   };
-  /** Pointer drag on any grip in the details panel. */
+  /** Pointer drag on any grip in the details panel (touch-action: none, a 44 px band for a finger: drive/css/preview-size.css). */
   document.addEventListener('pointerdown', (e) => {
     const g = e.target.closest && e.target.closest('#info .pv-grip');
     if (!g || e.button !== 0) return;

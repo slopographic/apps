@@ -39,7 +39,7 @@ function idleBoxPoints() {
 function idleHit(sc) {
   const b = boxTarget(); if (!b) return null;
   const cs = boxCorners(b), h = boxHandle(cs, sc); if (h) return h;
-  const k = boxKnob(cs); if (Math.hypot(k.x - sc.x, k.y - sc.y) < 9) return { rotate: true };
+  const k = boxKnob(cs); if (Math.hypot(k.x - sc.x, k.y - sc.y) < handleR(9)) return { rotate: true };
   return sc.x >= cs[0].x && sc.x <= cs[2].x && sc.y >= cs[0].y && sc.y <= cs[2].y ? { move: true } : null;
 }
 
@@ -59,7 +59,8 @@ const BOX_GRAB = {
   up(p, e) { if (TRANSFORM.active) TRANSFORM_TOOL.up(p, e); },
   cancel() { if (TRANSFORM.active) TRANSFORM_TOOL.cancel(); },
 };
-/** Called by the viewport on pointer down, before the tool. Returns true when the box took the gesture. */
+/** Called by the viewport on pointer down, before the tool. Returns true when the box took the gesture.
+    touch-ok: V.el (#viewport) is the canvas touch surface (index.html); the grab radius grows for a finger (handleR). */
 function idleBoxDown(p, e) {
   if (!boxShown()) return false;
   const hit = idleHit(pointerScreen(e));

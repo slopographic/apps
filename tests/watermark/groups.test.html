@@ -6,13 +6,15 @@
 </head>
 <body>
   <!-- Pure functions of watermark/js/groups.js: the shape thresholds, grouping a mixed set, and the per-group override. -->
-  <script src="../../shared/watermark/core.js"></script>
+  <script src="../../shared/watermark/spec.js"></script>
   <script src="../../watermark/js/groups.js"></script>
   <script src="../harness.js"></script>
   <script>
   const { describe, it, expect, run } = SlopTest;
   const G = window.WMGroups;
-  const cfg = window.SlopWatermark.defaults();
+  const S = window.SlopWatermarkSpec;
+  /** A spec of one layer with these fields. */
+  const one = (o) => S.normalize({ layers: [o] });
   /** A picture as the page keeps it: its size and its group. */
   const pic = (w, h) => ({ w, h, group: G.classify(w, h) });
 
@@ -64,57 +66,53 @@
   });
 
   describe('Per-group override', () => {
-    const shared = Object.assign({}, cfg, { position: 'tc', opacity: 0.4 });
+    const shared = one({ text: 'Shared', position: 'tc', opacity: 0.4, size: 0.05 });
     it('an override that is on changes only the position, opacity and size of its own group', () => {
-      const ov = Object.assign(G.overrideFrom(shared), { on: true, position: 'tl', opacity: 0.9, size: 0.1 });
-      const portrait = G.applyOverride(shared, ov);
-      expect(portrait.position).toBe('tl');
-      expect(portrait.opacity).toBe(0.9);
-      expect(portrait.size).toBe(0.1);
-      expect(portrait.margin).toBe(shared.margin);
-      expect(portrait.colour).toBe(shared.colour);
-      const landscape = G.applyOverride(shared, undefined);
-      expect(landscape).toBe(shared);
+      const ov = Object.assign(G.overrideFrom(shared), { on: true, position: 'tl', opacity: 0.9, scale: 2 });
+      const L = G.applyOverride(shared, ov).layers[0], base = shared.layers[0];
+      expect(L.position).toBe('tl');
+      expect(L.opacity).toBe(0.9);
+      expect(L.size).toBe(0.1);
+      expect(L.margin).toBe(base.margin);
+      expect(L.colour).toBe(base.colour);
+      expect(G.applyOverride(shared, undefined)).toBe(shared);
     });
     it('an override that is off changes nothing', () => {
       const off = Object.assign(G.overrideFrom(shared), { position: 'tl', opacity: 0.9 });
       expect(G.applyOverride(shared, off)).toBe(shared);
     });
-    it('a logo override sets the logo scale, and a text override sets the text size', () => {
-      const logo = Object.assign({}, shared, { kind: 'logo' });
-      const ov = Object.assign(G.overrideFrom(logo), { on: true, logoScale: 0.3, size: 0.02 });
-      expect(G.applyOverride(logo, ov).logoScale).toBe(0.3);
-      expect(G.applyOverride(logo, ov).size).toBe(shared.size);
-      const text = Object.assign({}, shared, { kind: 'text' });
-      const tv = Object.assign(G.overrideFrom(text), { on: true, logoScale: 0.3, size: 0.07 });
-      expect(G.applyOverride(text, tv).size).toBe(0.07);
-      expect(G.applyOverride(text, tv).logoScale).toBe(shared.logoScale);
+    it('the size is a scale of every layer: a logo and a text layer grow together', () => {
+      const two = S.normalize({ layers: [{ kind: 'logo', size: 0.2 }, { text: 'T', size: 0.04 }] });
+      const out = G.applyOverride(two, Object.assign(G.overrideFrom(two), { on: true, scale: 1.5 }));
+      expect(out.layers.map((L) => Math.round(L.size * 1000) / 1000)).toEqual([0.3, 0.06]);
     });
-    it('a saved override is kept only when it is on, and a bad field falls back to the shared setup', () => {
+    it('a saved override is kept only when it is on, and a bad field falls back to the shared watermark', () => {
       expect(G.clean(null, shared)).toBe(null);
       expect(G.clean({ on: false, position: 'tl' }, shared)).toBe(null);
-      const bad = G.clean({ on: true, position: 'zz', opacity: 5, size: 'x' }, shared);
+      const bad = G.clean({ on: true, position: 'zz', opacity: 5, scale: 'x' }, shared);
       expect(bad.position).toBe('tc');
       expect(bad.opacity).toBe(1);
-      expect(bad.size).toBe(shared.size);
+      expect(bad.scale).toBe(1);
+    });
+    it('a group saved before layers (its own text size) becomes a scale of the shared size', () => {
+      expect(G.clean({ on: true, position: 'bl', opacity: 0.5, size: 0.1, logoScale: 0.2 }, shared).scale).toBe(2);
     });
   });
 
   describe('The shared setting applies to every group', () => {
-    const shared = Object.assign({}, cfg, { position: 'tc', opacity: 0.2, rotate: 15 });
-    it('with no overrides every group is drawn with the shared setup', () => {
+    const shared = one({ text: 'Shared', position: 'tc', opacity: 0.2, rotate: 15 });
+    it('with no overrides every group is drawn with the shared watermark', () => {
       for (const kind of G.KINDS) {
         expect(G.applyOverride(shared, undefined)).toBe(shared);
         expect(G.applyOverride(shared, { on: false, position: 'tl' })).toBe(shared);
       }
-      expect(G.summarise([pic(900, 600), pic(600, 900), pic(900, 900)]).map((g) => G.applyOverride(shared, undefined).position)).toEqual(['tc', 'tc', 'tc']);
     });
-    it('a change to the shared setup reaches every group that has no override of its own', () => {
-      const moved = Object.assign({}, shared, { opacity: 0.8 });
+    it('a change to the shared watermark reaches every group that has no override of its own', () => {
+      const moved = one({ text: 'Shared', position: 'tc', opacity: 0.8, rotate: 15 });
       const ov = Object.assign(G.overrideFrom(shared), { on: true, opacity: 0.1 });
-      expect(G.applyOverride(moved, undefined).opacity).toBe(0.8);
-      expect(G.applyOverride(moved, ov).opacity).toBe(0.1);
-      expect(G.applyOverride(moved, ov).rotate).toBe(15);
+      expect(G.applyOverride(moved, undefined).layers[0].opacity).toBe(0.8);
+      expect(G.applyOverride(moved, ov).layers[0].opacity).toBe(0.1);
+      expect(G.applyOverride(moved, ov).layers[0].rotate).toBe(15);
     });
   });
   run({ name: 'Slop Watermark shape groups' });

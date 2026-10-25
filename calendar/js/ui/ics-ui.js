@@ -22,30 +22,35 @@
     return `${T.dateTimeText(e.start, e.tz, locale)} (${e.tz})`;
   }
 
-  /** Reads the chosen .ics file. A dialog with a drop zone (SlopDrop, shared/drop): drop the file on it, or choose one.
-   *  Resolves to { file, text } or null when the dialog is closed. Without SlopDrop, the file picker. */
+  /* The one way an .ics file comes in (shared/intake, spec 'calendar'): the Import dialog's zone (a drop on it, or its
+     Choose files). The reader hands the file to the dialog that is waiting for it. */
+  let waiting = null;
+  function registerIntake() {
+    if (!g.SlopIntake || g.SlopIntake.spec('calendar')) return;
+    g.SlopIntake.register({
+      id: 'calendar', limit: 1, paste: false, toast: false,
+      accept: { types: ['text/calendar'], exts: ['.ics'], noun: 'an .ics calendar file', maxBytes: MAX_BYTES },
+      process: async (file) => {
+        if (!waiting) throw new Error('arrived with no Import dialog open');
+        const text = await file.text();
+        waiting({ file, text });
+        return file.name;
+      },
+    });
+  }
+  /** Reads the chosen .ics file. A dialog with a drop zone (SlopDrop on the intake): drop the file on it, or choose one.
+   *  Resolves to { file, text } or null when the dialog is closed. Without SlopDrop, the intake's picker. */
   async function pick() {
-    if (!g.SlopDrop) {
-      const files = await UI.pickFiles({ accept: '.ics,text/calendar' });
-      if (!files || !files.length) return null;
-      const file = files[0];
-      if (file.size > MAX_BYTES) { UI.toast('That file is larger than 5 MB.'); return null; }
-      return { file, text: await file.text() };
-    }
+    registerIntake();
     return new Promise((resolve) => {
-      let done = false;
+      let done = false, drop = null, dlg = null;
+      waiting = (got) => { done = true; waiting = null; resolve(got); if (dlg) dlg.close(true); };
+      const cancelled = () => { if (!done) { waiting = null; resolve(null); } };
+      if (!g.SlopDrop) { g.SlopIntake.pick({ to: 'calendar', multiple: false }).then(cancelled); return; }
       const zone = document.createElement('div');
-      const dlg = UI.dialog({ title: 'Import calendar', body: el('div', null, el('p', { class: 'sui-p' }, 'Drop an .ics file here, or choose one.'), zone), buttons: [{ label: 'Cancel' }], onClose: () => { if (!done) resolve(null); } });
-      g.SlopDrop.attach(zone, {
-        accept: { types: ['text/calendar'], exts: ['.ics'], noun: 'an .ics calendar file' },
-        compact: true, window: false, overlay: false, toast: false, limit: 1,
-        process: async (file) => {
-          if (file.size > MAX_BYTES) throw new Error('is larger than 5 MB');
-          const text = await file.text();
-          done = true; resolve({ file, text }); dlg.close(true);
-          return file.name;
-        },
-      });
+      dlg = UI.dialog({ title: 'Import calendar', body: el('div', null, el('p', { class: 'sui-p' }, 'Drop an .ics file here, or choose one.'), zone), buttons: [{ label: 'Cancel' }],
+        onClose: () => { if (drop && drop.destroy) drop.destroy(); cancelled(); } });
+      drop = g.SlopDrop.attach(zone, { intake: 'calendar', compact: true, window: false, overlay: false, toast: false });
     });
   }
 

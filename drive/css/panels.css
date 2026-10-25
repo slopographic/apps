@@ -116,3 +116,5 @@ body.dragging, body.dragging * { cursor: grabbing !important; }
 .pv-changes { margin: 0; padding: 0 0 0 18px; font-size: 13px; line-height: 1.5; max-height: 260px; overflow: auto; }
 .pv-mode { margin-bottom: 0; }
 .pv-mode[hidden] { display: none; }
+/* A finger (pointer: coarse): the details panel's grip takes a 44 px band (--slop-hit, shared/input/touch.css); the line stays thin. */
+@media (pointer: coarse) { .info-grip::before { content: ''; position: absolute; top: 0; bottom: 0; left: 50%; width: var(--slop-hit, 44px); transform: translateX(-50%); } }

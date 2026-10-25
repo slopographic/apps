@@ -54,6 +54,8 @@
     return { move: function (w, ev) { var p = T.screen(ev); V.panBy(p.x - last.x, p.y - last.y); last = p; }, up: function () {} };
   }
   T.attach = function (canvas) {
+    // A touch surface (shared/input): no scroll, callout or selection takes a drag; the pinch below is the canvas's own.
+    canvas.setAttribute('data-touch-surface', 'nav');
     canvas.addEventListener('pointerdown', function (e) {
       if (window.SlopUI) window.SlopUI.closeMenu();
       pointers.set(e.pointerId, T.screen(e));

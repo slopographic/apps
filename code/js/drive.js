@@ -29,7 +29,7 @@ export async function tree() {
   const folders = await H().listFolders();
   const map = new Map(folders.map((f) => [f.id, f]));
   const visibleFolders = folders.filter((f) => !H().inTrash(f, map));
-  const files = (await H().list()).filter((f) => !H().inTrash(f, map));
+  const files = (await H().list()).filter((f) => !H().inTrash(f, map)); // intake-ok: the project folder tree (projectFiles), not a picker
   return { folders: visibleFolders, files, map };
 }
 
@@ -41,7 +41,7 @@ export async function pathOf(folderId, name = '') {
 
 /** A name that is free in the folder: "index.js" becomes "index (2).js" when taken. */
 export async function uniqueName(name, folderId) {
-  const taken = new Set((await H().list({ folderId: folderId ?? null })).map((r) => r.name.toLowerCase()));
+  const taken = new Set((await H().list({ folderId: folderId ?? null })).map((r) => r.name.toLowerCase())); // intake-ok: names already taken in a folder, not a picker
   if (!taken.has(name.toLowerCase())) return name;
   const dot = extOf(name) ? name.lastIndexOf('.') : -1;
   const stem = dot > 0 ? name.slice(0, dot) : name, ext = dot > 0 ? name.slice(dot) : '';

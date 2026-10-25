@@ -1,13 +1,14 @@
 /* PhotoSlop guides: pointer input. Drag guides out of the rulers; with the Move tool (or Ctrl/⌘ held)
  * drag a guide to move it, drop it on a ruler or outside the canvas area to delete it; double-click one
- * to type its position. These capture-phase listeners run before the tools and stop the event when they use it. */
+ * to type its position. These capture-phase listeners run before the tools and stop the event when they use it.
+ * touch-ok: V.el (#viewport) is the canvas touch surface (index.html); a long press on a guide opens its menu. */
 'use strict';
 
 /** Pointer position in unrotated view space (the space the guides and V.ox/V.oy use); equals screen space at 0°. */
 function screenPt(e) { return viewLocal(e); }
 function inRuler(s) { return rulersShown() && (s.x < RULER || s.y < RULER) ? (s.x < RULER && s.y < RULER ? 'corner' : s.y < RULER ? 'top' : 'left') : null; }
 /** The guide under a screen point (index into D.guides), or -1. */
-function guideAt(s, tol = 4) {
+function guideAt(s, tol = handleR(4)) { // a finger grabs from further away (transform.js handleR)
   if (!GUIDE_PREFS.show || !D.guides) return -1;
   let best = -1, bd = tol + 1;
   D.guides.forEach((g, i) => { const d = Math.abs(g.o === 'v' ? V.ox + g.pos * V.zoom - s.x : V.oy + g.pos * V.zoom - s.y); if (d < bd) { bd = d; best = i; } });

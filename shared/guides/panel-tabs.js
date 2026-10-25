@@ -97,8 +97,11 @@
         if (UI) UI.download(blob, 'guide-presets.json');
       } },
       { label: 'Import Presets…', act: async () => {
-        const files = UI ? await UI.pickFiles({ accept: '.json,application/json' }) : [];
-        for (const f of files) { try { const n = SG.importJSON(await f.text()); ctx.fillPresets(); say(`Imported ${n} preset${n === 1 ? '' : 's'}`); } catch (e) { say(e.message); } }
+        const read = async (f) => { try { const n = SG.importJSON(await f.text()); ctx.fillPresets(); say(`Imported ${n} preset${n === 1 ? '' : 's'}`); } catch (e) { say(e.message); } return f.name; };
+        const SI = root.SlopIntake; // a part of the one intake ('guides.presets') where the page has it
+        if (SI && SI.part) { await SI.pick({ to: SI.part({ id: 'guides.presets', accept: { types: ['application/json'], exts: ['.json'], noun: 'a presets file (.json)' }, process: read }), accept: '.json,application/json' }); return; }
+        const files = UI ? await UI.pickFiles({ accept: '.json,application/json' }) : []; // intake-ok: a page without shared/intake
+        for (const f of files) await read(f);
       } },
     ];
     const r = anchor.getBoundingClientRect();

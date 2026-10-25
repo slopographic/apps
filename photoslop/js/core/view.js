@@ -1,4 +1,6 @@
-/* PhotoSlop: the viewport. Zoom/pan, checkerboard, composite cache, marching ants, tool overlays, pointer routing. */
+/* PhotoSlop: the viewport. Zoom/pan, checkerboard, composite cache, marching ants, tool overlays, pointer routing.
+ * Touch: #viewport is a touch surface (data-touch-surface="nav" in index.html: SlopNav and this file pinch and pan it);
+ * a long press opens the canvas menu (shared/input) and abandons the stroke it began. */
 'use strict';
 
 const V = {
@@ -27,7 +29,7 @@ function initView() {
   ctxTarget(V.el, 'canvas', canvasItems); // right-click and Menu key: ui/context.js
   V.el.addEventListener('contextmenu', (e) => {
     if (brushRightContext()) { e.preventDefault(); e.stopPropagation(); return; } // a right-button brush drag (brush-resize.js)
-    if (V.op) { const t = V.op.tool; if (e.pointerType === 'touch' || !e.button) { if (t.cancel) t.cancel(); V.op = null; } }
+    if (V.op) { const t = V.op.tool; if (e.pointerType === 'touch' || e.slopTouch || !e.button) { if (t.cancel) t.cancel(); V.op = null; } }
   });
   V.el.addEventListener('dblclick', (e) => { const t = currentTool(); V.lastDbl = toDoc(e); if (t.dblclick) t.dblclick(toDoc(e), e); emit('dblclick'); });
   listeners.add((what) => { if (what === 'doc') { V.needComp = true; dirty(); } });

@@ -65,7 +65,6 @@
     U.toast('Slop Press cannot open ' + (file.type || name));
     return Promise.resolve();
   };
-  IO.openFile = function () {
-    return window.SlopUI.pickFiles({ accept: '.slpress,.json,image/*,.txt,.md,application/pdf' }).then(function (fs) { if (fs[0]) return IO.openAny(fs[0]); });
-  };
+  /** File ▸ Open…: a source of the one intake (io/intake.js). */
+  IO.openFile = function () { return PR.intake.open(); };
 })();

@@ -8,13 +8,21 @@ const { $, S, cancelOp, finishPending, h, isTyping, loadBlobImage, main, mctx, p
 /* =====================================================================
  * Files
  * ===================================================================== */
-const fileInput = $('#fileInput');
-fileInput.addEventListener('change', () => {
-  const f = fileInput.files && fileInput.files[0];
-  fileInput.value = '';
-  if (!f) return;
-  if (P.st.fileMode === 'paste') pasteBlob(f); else openBlob(f, f.name);
+/* The one way pictures come in (shared/intake, spec 'paint-classic'): File ▸ Open and Paste From (the intake's picker,
+   mode 'open' or 'paste'), a drop on the window, a pasted picture (unless the app's own copy is newer), Open from Slop
+   Drive and ?drive=<id> (hub.js). Mode 'paste' pastes it in; otherwise it opens (a Drive file stays linked: P.linkDrive). */
+const SI = window.SlopIntake;
+SI.register({
+  id: 'paint-classic', limit: 1, toast: false, accept: { types: ['image/*'], noun: 'a picture' },
+  except: () => !!(P.st.clipInternalNewer && P.st.clip), // the app's own copy is newer: its paste uses that
+  process: async (f, ctx) => {
+    if (ctx.mode === 'paste' || ctx.source === 'paste') { await pasteBlob(f); return f.name; }
+    await openBlob(f, f.name);
+    if (ctx.drive && P.linkDrive) P.linkDrive(ctx.drive.id, f.name);
+    return f.name;
+  },
 });
+const fileInput = { click: () => SI.pick({ to: 'paint-classic', multiple: false, mode: P.st.fileMode === 'paste' ? 'paste' : 'open', accept: 'image/*' }) };
 async function openBlob(blob, name = 'untitled') {
   let img;
   try { img = await loadBlobImage(blob); }
@@ -54,21 +62,12 @@ async function confirmSave() {
   if (r === 'Yes') { await savePNG(); return true; }
   return r === 'No';
 }
-// drag & drop an image onto the app
-['dragenter', 'dragover'].forEach(t => win.addEventListener(t, e => { if (e.dataTransfer && [...e.dataTransfer.types].includes('Files')) { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; } }));
-win.addEventListener('drop', e => {
-  const f = e.dataTransfer && [...e.dataTransfer.files].find(x => x.type.startsWith('image/'));
-  if (!f) return;
+// a picture dropped on the app opens (the intake's drop target)
+SI.dropTarget(win, { to: 'paint-classic', mode: () => 'open' });
+// A pasted picture is the intake's (it takes it first); this is the app's own copy.
+document.addEventListener('paste', e => { // intake-ok: the app's own clipboard copy
+  if (e.defaultPrevented || document.querySelector('.modal-back') || isTyping(e.target)) return;
   e.preventDefault();
-  openBlob(f, f.name);
-});
-document.addEventListener('paste', e => {
-  if (document.querySelector('.modal-back') || isTyping(e.target)) return;
-  e.preventDefault();
-  if (P.st.clipInternalNewer && P.st.clip) { pasteCanvas(P.st.clip); return; }
-  const cd = e.clipboardData;
-  const f = cd && ([...cd.files].find(x => x.type.startsWith('image/')) || [...cd.items].filter(i => i.kind === 'file' && i.type.startsWith('image/')).map(i => i.getAsFile()).find(Boolean));
-  if (f) { pasteBlob(f); return; }
   if (P.st.clip) pasteCanvas(P.st.clip);
   else status('The clipboard has no picture in it.');
 });

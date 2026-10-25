@@ -94,8 +94,6 @@
   S.driveId = () => (current() ? tabs.driveIdOf(current()) : null);
   S.syncTab = () => { if (current()) copyOut(current()); };
   S.tabsApi = () => tabs;
-  /** File ▸ Open: a native .sdoc from Slop Drive (the strip's picker), in a new tab linked to that file. */
-  S.openFromDrive = () => (tabs ? tabs.openFromDrive({ title: 'Open from Slop Drive' }) : null);
 
   /** Mount the strip and its session. Returns the session: call session.restore() once, after the engine is ready. */
   S.mountTabs = function () {

@@ -4,7 +4,7 @@
 .sr-app h2 { font-size: 1.05rem; margin: 28px 0 8px; }
 .sr-lede { color: var(--muted); margin: 0 0 16px; }
 .sr-gate:empty { display: none; }
-.sr-drop { display: block; border: 2px dashed var(--line); border-radius: 12px; padding: 32px 16px; text-align: center; color: var(--muted); cursor: pointer; background: var(--card); }
+.sr-drop { font: inherit; width: 100%; display: block; border: 2px dashed var(--line); border-radius: 12px; padding: 32px 16px; text-align: center; color: var(--muted); cursor: pointer; background: var(--card); }
 .sr-drop.over { border-color: var(--accent); color: var(--fg); }
 .sr-drop u { color: var(--fg); text-decoration: underline; }
 .sr-bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; margin-top: 16px; }

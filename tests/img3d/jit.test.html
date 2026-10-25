@@ -86,11 +86,9 @@
       await waitFor(() => D.getElementById('depthNote').textContent.includes('downloads when you open a picture'), { timeout: 10000 });
       const c = D.createElement('canvas'); c.width = 64; c.height = 48;
       const x = c.getContext('2d'); x.fillStyle = '#888'; x.fillRect(0, 0, 64, 48);
-      const dt = new W.DataTransfer();
-      dt.items.add(new W.File([await new Promise((r) => c.toBlob(r, 'image/png'))], 'grey.png', { type: 'image/png' }));
-      const input = D.getElementById('file');
-      input.files = dt.files;
-      input.dispatchEvent(new W.Event('change', { bubbles: true }));
+      const grey = new W.File([await new Promise((r) => c.toBlob(r, 'image/png'))], 'grey.png', { type: 'image/png' });
+      W.SlopUI.pickFiles = async () => [grey]; // Open image… is the intake's picker
+      D.getElementById('btnOpen').click();
       const go = await waitFor(() => [...D.querySelectorAll('button')].find((b) => b.textContent === 'Continue'), { timeout: 5000 });
       const text = go.closest('[role="dialog"], .sui-dialog, dialog') ? go.closest('[role="dialog"], .sui-dialog, dialog').textContent : D.body.textContent;
       expect(text).toContain('Depth model (Depth Anything V2 Small)');

@@ -37,7 +37,7 @@
   D.cutTargets = function (el, ci, slot) {
     el.addEventListener('dragover', (e) => { if (!isItem(e)) return; e.preventDefault(); e.stopPropagation(); e.dataTransfer.dropEffect = 'copy'; el.classList.add('over'); });
     el.addEventListener('dragleave', () => el.classList.remove('over'));
-    el.addEventListener('drop', (e) => {
+    el.addEventListener('drop', (e) => { // intake-ok: a bin clip dropped on a cut, not a file
       if (!isItem(e)) return;
       e.preventDefault(); e.stopPropagation(); el.classList.remove('over');
       place(ci, slot, itemId(e));
@@ -53,7 +53,7 @@
       e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; stage.classList.add('over');
     });
     stage.addEventListener('dragleave', (e) => { if (!stage.contains(e.relatedTarget)) stage.classList.remove('over'); });
-    stage.addEventListener('drop', (e) => {
+    stage.addEventListener('drop', (e) => { // intake-ok: a bin clip dropped on a slot, not a file
       if (!isItem(e)) return;
       e.preventDefault(); stage.classList.remove('over');
       if (!RM.state.plan) { o.say('Press Remix first, then drop a clip on a slot'); return; }

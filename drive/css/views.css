@@ -74,3 +74,7 @@
 .pv-name { word-break: break-word; }
 .muted { color: var(--faint); font-size: var(--fs-s); }
 .center { text-align: center; margin-top: 40px; }
+/* A finger (pointer: coarse): a column grip takes a 44 px band (--slop-hit, shared/input/touch.css). */
+@media (pointer: coarse) { .col-grip::before { content: ''; position: absolute; top: 0; bottom: 0; left: 50%; width: var(--slop-hit, 44px); transform: translateX(-50%); } }
+/* A finger: a long press on a file is Drive's menu (shared/input), not iOS's callout or a selection of the name. */
+@media (pointer: coarse) { #pane [data-key], #pane [data-key] img, #tree [data-key] { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; } }

@@ -8,7 +8,7 @@ import assert from 'node:assert/strict';
 import * as R from '../../shared/ops/all.js';
 import { CONVERSIONS } from '../../convert/js/core/catalog.js';
 import { toLook, fromLook } from '../../shared/ops/isolate.js';
-import { toCfg, fromCfg } from '../../shared/ops/watermark.js';
+import { fromApp, specOf as wmSpecOf } from '../../shared/ops/watermark.js';
 import { specOf } from '../../shared/ops/resize.js';
 import { removeOf } from '../../shared/ops/clean.js';
 import { renameAll } from '../../shared/ops/files.js';
@@ -55,7 +55,10 @@ test('the kind a step makes: fixed, from a format option, or the input kept', ()
   assert.equal(R.outOf(R.byId('ocr.read'), 'png', { output: 'txt' }), 'txt');
   assert.equal(R.outOf(R.byId('files.rename'), 'pdf', {}), 'pdf');
   assert.ok(R.accepts(R.byId('files.rename'), 'anything'));
-  assert.ok(!R.accepts(R.byId('watermark.apply'), 'pdf'));
+  assert.ok(R.accepts(R.byId('watermark.apply'), 'pdf') && R.accepts(R.byId('watermark.apply'), 'mp4'));   // one call for every kind
+  assert.equal(R.outOf(R.byId('watermark.apply'), 'pdf', {}), 'pdf');
+  assert.equal(R.outOf(R.byId('watermark.apply'), 'mov', {}), 'mov');
+  assert.equal(R.outOf(R.byId('watermark.apply'), 'heic', {}), 'jpg');
 });
 
 test('an app host adapter adds its macros under its app (kind macro), read each time', () => {
@@ -73,11 +76,14 @@ test('the apps’ own settings become step options and back', () => {
   assert.deepEqual([look.bg.mode, look.bg.color, look.crop.mode, look.crop.pad, look.shadow.on], ['color', '#ff0000', 'subject', 12, true]);
   assert.deepEqual(fromLook({ model: 'quality', ...look }), { model: 'quality', background: 'color', color: '#ff0000', blur: 24, shadow: true, crop: true, pad: 12 });
   assert.equal(fromLook({ bg: { mode: 'gradient', gradA: '#123456' } }).color, '#123456');
-  const o = fromCfg({ kind: 'text', text: '© Me', size: 0.06, opacity: 0.8, position: 'tl', margin: 0.025, logoScale: 0.3 });
-  assert.deepEqual([o.mark, o.text, o.size, o.opacity, o.position, o.margin, o.logoSize], ['text', '© Me', 6, 80, 'tl', 2.5, 30]);
-  const c = toCfg(o);
-  assert.deepEqual([c.size, c.opacity, c.margin, c.logoScale], [0.06, 0.8, 0.025, 0.3]);
-  assert.equal(R.byId('watermark.apply').fromApp({ cfg: { kind: 'logo' }, logo: 'data:x' }).logo, 'data:x');
+  // Slop Watermark's setup from before the spec, and a spec, become the step's options; the options become the spec again
+  const o = fromApp({ cfg: { kind: 'text', text: '© Me', size: 0.06, opacity: 0.8, position: 'tl', margin: 0.025, logoScale: 0.3 } });
+  assert.deepEqual([o.mark, o.text, o.size, o.opacity, o.position, o.margin], ['text', '© Me', 6, 80, 'tl', 2.5]);
+  const L = wmSpecOf(o).layers[0];
+  assert.deepEqual([L.kind, L.size, L.opacity, L.margin, L.position], ['text', 0.06, 0.8, 0.025, 'tl']);
+  assert.equal(R.byId('watermark.apply').fromApp({ cfg: { kind: 'logo' }, logo: 'data:image/png;base64,AA' }).logo, 'data:image/png;base64,AA');
+  const two = { layers: [{ kind: 'text', text: 'A' }, { kind: 'text', text: 'B', position: 'tl' }] };
+  assert.deepEqual(wmSpecOf(fromApp({ spec: two })).layers.map((x) => x.text), ['A', 'B'], 'a spec of two layers rides as one spec option');
   assert.deepEqual(specOf({ mode: 'size', width: 1080, height: 1080, fit: 'fit', background: 'color', bgColor: '#ffffff' }),
     { mode: 'size', w: 1080, h: 1080, long: 0, scale: 50, keepRatio: true, fill: 'fit', anchor: 'center', bg: '#ffffff', resample: 'best' });
   assert.equal(specOf({ mode: 'size', width: 100, maxKB: 50 }).mode, 'bytes');

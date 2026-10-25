@@ -13,17 +13,24 @@
   /* ================= pencil / brush ================= */
   function freehandTool(kind) {
     return {
-      down: function (ev) { if (!SV.canDraw()) return; S.op = { kind: 'pencil', tool: kind, pts: [ev.p] }; },
+      // A pen's pressure (Apple Pencil, S Pen) is kept per point; the stroke's width follows its mean.
+      down: function (ev) { if (!SV.canDraw()) return; S.op = { kind: 'pencil', tool: kind, pts: [ev.p], pres: ev.pressure != null ? [ev.pressure] : null }; },
       move: function (ev) {
         var pts = S.op.pts, l = pts[pts.length - 1];
-        if (hypot(ev.p.x - l.x, ev.p.y - l.y) * S.view.zoom >= 1.5) pts.push(ev.p);
+        if (hypot(ev.p.x - l.x, ev.p.y - l.y) * S.view.zoom >= 1.5) { pts.push(ev.p); if (S.op.pres && ev.pressure != null) S.op.pres.push(ev.pressure); }
       },
       up: function () {
         var pts = S.op.pts; if (pts.length < 3) return;
         var z = S.view.zoom, closed = pts.length > 12 && hypot(pts[0].x - pts[pts.length - 1].x, pts[0].y - pts[pts.length - 1].y) * z < 12;
         var sp = G.fitFreehand(pts, 2.4 / z, closed);
         if (!sp || sp.pts.length < 2) return;
-        var o = SV.mk.path([sp], SV.newStyle(kind === 'brush' ? 'brush' : 'pencil'));
+        var o = SV.mk.path([sp], SV.newStyle(kind === 'brush' ? 'brush' : 'pencil')), pres = S.op.pres;
+        SV.lastPressure = null;
+        if (pres && pres.length && o.style.stroke) {
+          var mean = pres.reduce(function (s, v) { return s + v; }, 0) / pres.length;
+          SV.lastPressure = mean;
+          o.style.sw = Math.round(o.style.sw * (0.4 + 1.2 * mean) * 100) / 100; // 0.5, a pen's resting pressure, keeps the width
+        }
         if (SV.insertObj(o)) { SV.select([o.id]); SV.commit(kind); }
       }
     };

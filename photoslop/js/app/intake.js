@@ -4,7 +4,7 @@
  * welcome card's sample all call SlopIntake.take, and every file is read here by one reader: handleFiles (io/files.js).
  * mode 'add' places the file as a layer of the open document, otherwise it opens in a tab of its own; a file from Slop
  * Drive opened in a tab keeps its record (CUR.driveId), so Save writes back to it.
- * The parts with files of their own (brushes and the watermark logo here; the pictures of a config's layers in io/config.js;
+ * The parts with files of their own (brushes here; the watermark logo 'photoslop.logo', registered by the shared watermark panel; the pictures of a config's layers in io/config.js;
  * effect presets in layers/fx-preset-picker.js) are specs of their own, reached by name (SlopIntake.pick({ to })). Classic script, after app/tabs.js; registerIntake() runs
  * at boot (app/main.js). */
 'use strict';
@@ -35,8 +35,5 @@ function registerIntake() {
   SI.register({ id: 'photoslop.brushes', main: false, paste: false, toast: false,
     accept: { types: ['image/*', 'application/json'], exts: ['.abr', '.slopbrush', '.json'], noun: 'a brush file (.abr, .slopbrush or a picture)' },
     processAll: (files) => importBrushFiles(files) });
-  // The watermark's logo: one picture.
-  SI.register({ id: 'photoslop.logo', main: false, paste: false, limit: 1, toast: false,
-    accept: { types: WM_LOGO_TYPES.split(','), noun: 'a PNG, JPEG, WebP or SVG logo' },
-    process: (file) => wmSetLogo(file).catch((e) => { toast(e.message, 4200); throw e; }) });
+  // The watermark's logo ('photoslop.logo') is the shared watermark panel's own part (shared/watermark/panel.js, watermark/panel.js).
 }

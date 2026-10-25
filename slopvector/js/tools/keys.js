@@ -106,12 +106,12 @@
       if (!S.clipText) return;
       try { e.clipboardData.setData('text/plain', S.clipText); e.preventDefault(); } catch (er) { /* ignore */ }
     });
-    document.addEventListener('paste', function (e) {
-      if (isTyping(e.target) || S.editing) return;
+    // A pasted picture is the intake's (io/intake.js), which takes it first; this is the app's clipboard and pasted text.
+    document.addEventListener('paste', function (e) { // intake-ok: the app's own clipboard copies, SVG text and text
+      if (e.defaultPrevented || isTyping(e.target) || S.editing) return;
       clearTimeout(pasteTimer); pasteTimer = null;
       e.preventDefault();
       var dt = e.clipboardData, files = dt ? Array.from(dt.files || []) : [];
-      if (files.length && !SV.buffer.ownsPasteFile(files[0])) { SV.io.placeFiles(files); return; }
       if (SV.buffer.pasteIfNewer()) return;
       if (files.length) { C.paste(); return; }
       var txt = dt ? dt.getData('text/plain') : '';

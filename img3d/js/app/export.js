@@ -66,13 +66,12 @@
     try { download(new Blob([await glbBytes(item, name, canvas)], { type: 'model/gltf-binary' }), name + '.glb'); } catch (e) { fail(e); }
   }
 
-  /** Puts the mesh in Slop Drive as a .s3d scene and opens Slop 3D on it (SlopHub.sendTo). */
+  /** Puts the mesh in Slop Drive as a .s3d scene and opens Slop 3D on it (the one way out, SlopOuttake.send). */
   async function sendTo3d(mesh, name, canvas) {
-    const H = root.SlopHub;
-    if (!H) throw new Error('Slop Drive is not available in this browser');
+    if (!root.SlopOuttake) throw new Error('Slop Drive is not available in this browser');
     const scene = ns.s3d.sceneOf(mesh, { name, texture: canvas ? ns.image.jpegUrl(canvas) : null });
     const blob = new Blob([JSON.stringify(scene)], { type: S3D });
-    return H.sendTo('3d', blob, name + '.s3d');
+    return root.SlopOuttake.send('3d', { from: 'img3d', get: () => blob, name: name + '.s3d', type: S3D });
   }
 
   ns.exporter = { exportObj, exportGlb, sendTo3d, objText, glbBytes, download };

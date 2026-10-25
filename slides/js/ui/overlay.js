@@ -16,9 +16,9 @@
     return { nw: [x, y], n: [x + w / 2, y], ne: [x + w, y], e: [x + w, y + h / 2], se: [x + w, y + h], s: [x + w / 2, y + h], sw: [x, y + h], w: [x, y + h / 2] };
   };
   /** The handle under point p (slide points) for the selection, or null. */
-  OV.handleAt = function (p, objs) {
+  OV.handleAt = function (p, objs, px) {
     if (!OV.resizable(objs)) return null;
-    var pts = OV.handlePoints(objs[0]), r = 8 / St.k, hit = null;
+    var pts = OV.handlePoints(objs[0]), r = (px || 8) / St.k, hit = null; // px: the reach in screen pixels (more for a finger)
     OV.HANDLES.forEach(function (h) {
       if (!hit && Math.abs(p.x - pts[h][0]) <= r && Math.abs(p.y - pts[h][1]) <= r) hit = h;
     });

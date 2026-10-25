@@ -39,7 +39,7 @@
       const r = L.getBoundingClientRect(), x0 = e.clientX, t0 = cur().anim[prop][idx].t, step = 1 / fps();
       let last = t0;
       dragging = true;
-      try { b.setPointerCapture(e.pointerId); } catch (err) { /* synthetic event: no active pointer */ }
+      try { b.setPointerCapture(e.pointerId); } catch (err) { /* synthetic event: no active pointer */ } // touch-ok: .anim-key has touch-action: none and a 44 px hit area (css/anim.css)
       const move = (ev) => {
         const t = Math.round((t0 + ((ev.clientX - x0) / r.width) * dur) / step) * step;
         if (Math.abs(t - last) < 1e-9) return;
