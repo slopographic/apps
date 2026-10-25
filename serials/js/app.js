@@ -190,7 +190,7 @@ function wire() {
 
 wire();
 // The assistant's commands with arguments (ai-commands.js) work on the same state, through these.
-window.SlopSerials = { state, addFiles, readAll, changeSerial, render, pattern, serialsOf, tally: () => tally(state.photos, pattern()), serialsCsv, photosCsv };
+window.SlopSerials = { state, DEFAULT_PATTERN, addFiles, readAll, changeSerial, render, pattern, serialsOf, tally: () => tally(state.photos, pattern()), serialsCsv, photosCsv };
 if (window.SlopCmd) {
   window.SlopCmd.init({ app: 'serials' });
   if (window.SlopCmd.provide) window.SlopCmd.provide({ prepare: () => import('./ai-commands.js') });

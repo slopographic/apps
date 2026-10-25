@@ -53,6 +53,33 @@
       expect(back()).toBe(true);
       expect((await bytes())[0]).toBe(89);
     }, { timeout: 30000 });
+
+    it('insert_bytes, append_bytes and delete_bytes change the size; each is one undo step; set_bytes works after', async () => {
+      const txt = async () => new TextDecoder().decode(new Uint8Array(await bytes()));
+      await run('new-file', { name: 'grow.txt', text: 'Hello world' });
+      await run('insert-bytes', { offset: '5', text: ',' });
+      expect(await txt()).toBe('Hello, world');
+      await run('append-bytes', { hex: '21 0A' });
+      expect(await txt()).toBe('Hello, world!\n');
+      await run('insert-bytes', { offset: 'end', text: 'x' });
+      expect(C.state().size).toBe(15);
+      await run('delete-bytes', { offset: '0x0', count: 7 });
+      expect(await txt()).toBe('world!\nx');
+      await run('set-bytes', { offset: '0', text: 'W' });
+      expect(await txt()).toBe('World!\nx');
+      W.HexApp.undo(); W.HexApp.undo();
+      expect(await txt()).toBe('Hello, world!\nx');
+      W.HexApp.redo();
+      expect(await txt()).toBe('world!\nx');
+      const back = C.checkpoint();
+      await run('append-bytes', { text: 'abc' });
+      await run('delete-bytes', { offset: '0', count: 1 });
+      expect(C.state().size).toBe(11);
+      expect(back()).toBe(true);
+      expect(await txt()).toBe('world!\nx');
+      const r = await C.exec('hex.ai.insert-bytes', { offset: '99', text: 'a' });
+      expect(r.ok).toBe(false);
+    }, { timeout: 30000 });
   });
   SlopTest.run({ name: 'Slop Hex: assistant commands' });
   </script>

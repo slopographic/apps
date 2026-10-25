@@ -1,7 +1,8 @@
 /* Slopculator for the assistant: SlopCmd commands with arguments, loaded on demand by SlopCmd.prepare() (commands.js).
- * Through the page itself (SlopCalcApp): add_calculation (an expression, calculated as Enter does, onto the paper tape;
- * the answer comes back), clear_tape (destructive), save_calculation (the last one to Slop Drive, as Save does) and
- * export_tape (the tape as CSV or text, to Slop Drive and/or a download). The calculator makes no documents to create. */
+ * Through the page itself (SlopCalcApp): new_sheet (an empty tape and line, the variables kept or not; destructive),
+ * add_calculation (an expression, calculated as Enter does, onto the paper tape; the answer comes back), clear_tape
+ * (destructive), save_calculation (the last one to Slop Drive, as Save does) and export_tape (the tape as CSV or text,
+ * to Slop Drive and/or a download). The checkpoint puts the tape, the last answer and the variables back. */
 (function () {
   'use strict';
   const C = window.SlopCmd, A = () => window.SlopCalcApp;
@@ -10,6 +11,11 @@
     run: (a) => run(a || window.SlopCmdArgs.defaults(args)) }, extra);
   const TO = { name: 'to', type: 'enum', values: ['drive', 'download', 'both'], default: 'drive' };
   C.register([
+    add('new_sheet', 'Start a new sheet', [{ name: 'keep_variables', type: 'boolean', default: false, description: 'keep the names set so far (price = 19.99)' }], (a) => {
+      const n = A().snapshot().tape.length;
+      A().newSheet(!!a.keep_variables);
+      return `New sheet: the tape (${n} line(s)) and the last answer are cleared${a.keep_variables ? ', the variables kept' : ' and the variables forgotten'}. The history is kept.`;
+    }, { destructive: true, description: 'Start fresh: an empty paper tape and line, no last answer (ans), and the variables forgotten unless kept.' }),
     add('add_calculation', 'Calculate', [{ name: 'expression', type: 'string', required: true, maxLength: 2000, description: 'e.g. 12% of 340, 3 h 20 min in min, tax(100, 20%), 2026-03-01 + 45 days, 100 USD in EUR, price = 19.99' }],
       async (a) => {
         const before = A().snapshot().tape.length;
@@ -38,5 +44,5 @@
     }),
   ]);
   C.provide({ state: () => Object.assign({ app: 'Slopculator' }, A().snapshot()),
-    checkpoint: () => { const tape = A().snapshot().tape; return () => { A().restoreTape(tape); return true; }; } });
+    checkpoint: () => { const m = A().mark(); return () => { A().restore(m); return true; }; } });
 })();

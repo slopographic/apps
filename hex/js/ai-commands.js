@@ -1,8 +1,9 @@
 /* Slop Hex for the assistant: SlopCmd commands with arguments (shared/commands/args.js), loaded on demand by
  * SlopCmd.prepare() (commands.js). Through HexApp and the document model (doc.js): new_file (bytes from hex or text, in
- * a new tab), open_file (from Slop Drive), set_bytes (overwrite at an offset: one undo step), find_bytes, save_version
- * (a new Drive file beside the original, as Save version does) and export_file (Slop Drive and/or a download). The file
- * keeps its size: bytes are overwritten, never inserted. state() describes the open file; the checkpoint undoes back. */
+ * a new tab), open_file (from Slop Drive), set_bytes (overwrite at an offset: one undo step), insert_bytes and
+ * append_bytes (the file grows), delete_bytes (it shrinks), find_bytes, save_version (a new Drive file beside the
+ * original, as Save version does) and export_file (Slop Drive and/or a download). state() describes the open file;
+ * the checkpoint undoes back. */
 (function () {
   'use strict';
   const C = window.SlopCmd, A = () => window.HexApp, B = () => window.HexBytes;
@@ -40,6 +41,31 @@
     const ok = d.write(Array.from(b, (v, i) => ({ at: at + i, value: v })));
     A().grid().select(at, at + b.length - 1); A().grid().refresh(); A().changed();
     return ok ? `Wrote ${b.length} byte(s) at ${B().formatOffset(at, d.size)}.` : 'Those bytes were already there.';
+  });
+  /** Insert and/or delete through the document (one undo step), then show the changed bytes. */
+  function splice(d, at, remove, b) {
+    if (!d.splice(at, remove, b)) return false;
+    if (d.size) A().grid().select(Math.min(at, d.size - 1), Math.min(d.size - 1, at + Math.max(1, b.length) - 1));
+    A().grid().refresh(); A().changed();
+    return true;
+  }
+  add('insert_bytes', 'Insert bytes', [{ name: 'offset', type: 'string', required: true, maxLength: 20, description: 'where the new bytes go: decimal, 0x hex or end; the bytes from there on move up' }].concat(BYTES), async (a) => {
+    const d = doc(), at = /^\s*(end|size)\s*$/i.test(String(a.offset)) ? d.size : offset(a.offset, d.size + 1), b = bytesOf(a);
+    if (!b.length) throw new Error('Give at least one byte');
+    splice(d, at, 0, b);
+    return `Inserted ${b.length} byte(s) at ${B().formatOffset(at, d.size)}. The file now has ${d.size} bytes.`;
+  });
+  add('append_bytes', 'Append bytes', BYTES, async (a) => {
+    const d = doc(), at = d.size, b = bytesOf(a);
+    if (!b.length) throw new Error('Give at least one byte');
+    splice(d, at, 0, b);
+    return `Appended ${b.length} byte(s) at ${B().formatOffset(at, d.size)}. The file now has ${d.size} bytes.`;
+  });
+  add('delete_bytes', 'Delete bytes', [{ name: 'offset', type: 'string', required: true, maxLength: 20, description: 'the first byte to remove, decimal or 0x hex' },
+    { name: 'count', type: 'number', integer: true, required: true, min: 1, description: 'how many bytes to remove; the bytes after them move down' }], async (a) => {
+    const d = doc(), at = offset(a.offset, d.size), n = Math.min(Math.floor(a.count), d.size - at);
+    splice(d, at, n, new Uint8Array(0));
+    return `Deleted ${n} byte(s) at ${B().formatOffset(at, d.size + n)}. The file now has ${d.size} bytes.`;
   });
   add('find_bytes', 'Find bytes or text', BYTES.concat([{ name: 'from', type: 'string', maxLength: 20, default: '0' }]), async (a) => {
     const d = doc(), pat = bytesOf(a), i = await d.find(pat, offset(a.from, Math.max(1, d.size)), 1, () => false);
