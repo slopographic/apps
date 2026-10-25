@@ -1,6 +1,6 @@
 /* Slop Music: the Playlists view. Create, rename, delete; add tracks from the library; drag the handle to
  * reorder (pointer events, so it works by touch too); play; save as a .splaylist file to Slop Drive or open one.
- * Exposes window.SlopMusic.plUI = { bind, render }. */
+ * Exposes window.SlopMusic.plUI = { bind, render, create, rename, remove, addTracks, selected, select }. */
 (function () {
   'use strict';
   const M = (window.SlopMusic = window.SlopMusic || {});
@@ -135,5 +135,7 @@
     M.playlists.subscribe(render);
     M.lib.subscribe(() => renderDetail());
   }
-  M.plUI = { bind, render };
+  /** The playlist open in the Playlists view, or null. */
+  const selected = () => (S.sel ? M.playlists.get(S.sel) : null);
+  M.plUI = { bind, render, create, rename, remove, addTracks, selected, select: (id) => { S.sel = id; render(); } };
 })();

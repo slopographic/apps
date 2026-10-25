@@ -118,7 +118,7 @@
   function unregister(id) { for (const i of [].concat(id)) cmds.delete(i); changed(); }
   const enabled = (c) => { try { return !c.when || !!c.when(); } catch (e) { return false; } };
   const checkedOf = (c) => { try { return c.checked ? !!c.checked() : undefined; } catch (e) { return undefined; } };
-  function view(c) { return { id: c.id, title: c.title || c.id, group: c.group || '', icon: c.icon || '', keywords: c.keywords || [], keys: bindings(c.id), defaults: c.keys.slice(), enabled: enabled(c), checked: checkedOf(c), hidden: !!c.hidden, args: c.args || null, tool: c.tool || null, description: c.description || '', destructive: c.destructive, ai: c.ai, macro: c.macro }; }
+  function view(c) { return { id: c.id, title: c.title || c.id, group: c.group || '', icon: c.icon || '', keywords: c.keywords || [], keys: bindings(c.id), defaults: c.keys.slice(), enabled: enabled(c), checked: checkedOf(c), hidden: !!c.hidden, args: c.args || null, tool: c.tool || null, description: c.description || '', destructive: c.destructive, ai: c.ai, macro: c.macro, readOnly: !!c.readOnly, sends: !!c.sends }; }
   const list = () => [...cmds.values()].map(view);
   function run(id, ctx = {}) {
     const c = cmds.get(id);

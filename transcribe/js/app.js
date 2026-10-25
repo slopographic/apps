@@ -10,6 +10,8 @@ import { FORMATS, fileOf, textOf, presetOf } from './exports.js';
 import { drawList, drawTranscript, textFor } from './view.js';
 import { wireChoice } from './choose.js';
 import { createPrefs } from '../../shared/models/prefs.js';
+import { wireCommands } from './ai-commands.js';
+import { LANGUAGES } from './languages.js';
 import '../../shared/ui/flow.js';
 
 const T = window.SlopAITools, $ = (id) => document.getElementById(id);
@@ -66,9 +68,11 @@ function add(files) {
   return added[added.length - 1].id;
 }
 
-async function run() {
+/** Reads every waiting file. opts (from the commands, ai-commands.js): a language and a model instead of the chosen ones. */
+async function run(opts) {
+  const o = opts && !(opts instanceof Event) ? opts : {};
   say('');
-  await q.run({ language: models.choice.language, choose: (lang) => models.choice.chooseFor(lang), onStatus: say });
+  await q.run({ language: o.language || models.choice.language, choose: (lang) => o.model || models.choice.chooseFor(lang), onStatus: say });
   const list = q.items, bad = list.filter((x) => x.status === 'error').length;
   say(bad ? `${bad} file${bad === 1 ? '' : 's'} could not be read; the reason is under each one.` : 'Done. Check the text before you use it: corrections are kept for Text and Word.');
   if (!current() || current().status !== 'done') { const first = list.find((x) => x.status === 'done'); if (first) select(first.id); }
@@ -114,7 +118,7 @@ function wire() {
   $('trFormat').replaceChildren(...FORMATS.map((f) => Object.assign(document.createElement('option'), { value: f.id, textContent: f.label })));
   const preset = presetOf(location.search);   // a task page's link, e.g. ?format=srt (not remembered)
   if (preset.format) $('trFormat').value = preset.format;
-  $('trRun').addEventListener('click', run);
+  $('trRun').addEventListener('click', () => run());
   $('trStop').addEventListener('click', () => { q.stop(); say('Stopping after this file…'); });
   $('trClear').addEventListener('click', () => { if (q.clear()) { selected = null; say(''); draw(); } });
   $('trRecord').addEventListener('click', toggleRecord);
@@ -133,3 +137,4 @@ const models = wireChoice({ queue: q, run, draw: () => draw(), say, catalog: C, 
 window.SlopTranscribe = { queue: q, engine, add, run, select, presetOf, models, get selected() { return selected; } };
 T.gate('speech', () => { $('trUi').hidden = false; if (window.SlopHub) window.SlopHub.register('transcribe'); window.SlopIntake.launch({ to: 'transcribe' }); });
 wire();
+wireCommands({ queue: q, add, run, select, current, draw, say, models, catalog: C, tools: T, languages: LANGUAGES });
