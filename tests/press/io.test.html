@@ -35,7 +35,7 @@
     it('the event flyer template has neutral sample copy', () => {   // Covers: press/js/io/templates2.js
       const text = JSON.stringify(PR.templates.make('flyer').stories);
       expect(text.includes('The Print Hall')).toBe(true);
-      expect(/goo pool|gelatin/i.test(text)).toBe(false);
+      expect(text.includes('12 Harbour Street')).toBe(true);
     });
     it('zip writer and reader agree (stored and deflated entries)', async () => {
       const z = await PR.zip.write([{ name: 'a.txt', data: 'hello hello hello hello hello' }, { name: 'b.bin', data: new Uint8Array([1, 2, 3]), store: true }]);

@@ -19,7 +19,7 @@
   const rel = (p) => p.startsWith(ROOT()) ? p.slice(ROOT().length) : p;
 
   describe('the home view loads only what it shows', () => {
-    it('none of the old content engine, showreel or Authenticator files load with the home view', async () => {
+    it('none of the legacy files, nor the detector, load with the home view', async () => {
       await ready;
       const files = loaded().map(rel);
       for (const f of files) {

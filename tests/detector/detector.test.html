@@ -37,7 +37,7 @@
       expect(r.tally['“Let’s dive in”']).toBe(2);
     });
     it('the serial hash is the old engine’s (certificates keep their numbers)', () => {
-      expect(S.hashString('slop')).toBe(1110047775);   // the value slop/core.js gave before the move
+      expect(S.hashString('slop')).toBe(1110047775);   // fixed: a certificate keeps its serial number across releases
       expect(S.hashString('slop') === S.hashString('Slop')).toBe(false);
       expect(typeof S.hashString('') === 'number' && S.hashString('') >= 0).toBe(true);
     });
