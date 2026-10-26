@@ -4,5 +4,5 @@ window.SlopI18n && window.SlopI18n.source({
   ns: 'music',
   base: ((document.currentScript || {}).src || '').replace(/[^/]*$/, ''),
   parts: ['app', 'commands', 'playlists'],
-  langs: ['en', 'sv'],
+  langs: ['en', 'pt-BR', 'sv'],
 });

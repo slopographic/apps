@@ -4,5 +4,5 @@ window.SlopI18n && window.SlopI18n.source({
   ns: 'slopedit',
   base: ((document.currentScript || {}).src || '').replace(/[^/]*$/, ''),
   parts: ['defs', 'page', 'tail', 'tour', 'ui1', 'ui2', 'ui3'],
-  langs: ['en', 'sv'],
+  langs: ['en', 'pt-BR', 'sv'],
 });
