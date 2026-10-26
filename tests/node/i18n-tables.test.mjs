@@ -10,7 +10,7 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { check, compare, placeholders } from '../../tools/i18n/check.mjs';
 import { scan, render, levels, losses, raise, OUT, BASELINE } from '../../tools/i18n/coverage.mjs';
-import { ROOT, COVERS, coversText, langs, apps, appTables, sharedAreas } from '../../tools/i18n/tables.mjs';
+import { ROOT, COVERS, coversText, langs, apps, appTables, sharedAreas, sharedTables } from '../../tools/i18n/tables.mjs';
 import { scanJs, scanHtml, wordy, fragment, staticText } from '../../tools/i18n/scan.mjs';
 
 const rows = scan();
@@ -126,4 +126,15 @@ test('the shared areas include shared/biz/i18n, so the checker and the coverage 
   assert.ok(row && row.shared && row.keys === [...t.tables.en.keys()].filter((k) => !k.includes('#')).length, 'a coverage row for biz');
   assert.match(read(OUT), /Shared biz \(shared\/biz\/i18n\/\)/, 'COVERAGE.md lists it');
   assert.match(read('tools/i18n/check.mjs'), /\[\.\.\.apps\(\), \.\.\.sharedAreas\(\)\]/, 'check() walks the shared areas');
+});
+
+test('the home page describes the AI assistant, the file manager, the business apps and HTML to PDF in plain words, as sv and de do', () => {
+  const chrome = sharedTables('chrome');
+  for (const k of ['home.why_local_d', 'home.why_backup_d', 'home.sec_business_d', 'home.print_d']) {
+    for (const l of langs()) {
+      if (l.code === 'en') continue;
+      const v = chrome.tables[l.code].get(k);
+      assert.ok(!/Slop|\.slop\b/.test(v), `${l.code} ${k} names an app brand: ${v}`);
+    }
+  }
 });
