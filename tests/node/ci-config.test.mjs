@@ -70,6 +70,8 @@ test('the white-label sample suites: in full on testing and main; on a work bran
   assert.equal(wlOutputs('changed', changed, ['shared/apps.js'], (f) => f === 'shared/apps.js').wl_count, WL_SLICES);   // a profile marker
   assert.equal(wlOutputs('full', outputs('full', null)).wl_count, WL_SLICES);
   assert.deepEqual(wlOutputs('none', outputs('none', [])), { wl_suite: 'none', wl_count: 0, wl_shards: '[]' });
+  // the jobs themselves are this repository's (a mirror's workflow has none: tools/whitelabel/workflow.mjs DROP_JOBS)
+  if (!/\n  whitelabel:\n/.test(wf)) return;
   const browser = job('whitelabel-browser'), touch = job('whitelabel-touch');
   assert.match(browser, /shard: \$\{\{ fromJSON\(needs\.plan\.outputs\.wl_shards\) \}\}/);
   assert.match(browser, /needs\.plan\.outputs\.wl_suite == 'changed' && ' --pages-file=wl-pages\.txt'/);
