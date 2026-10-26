@@ -25,7 +25,7 @@
     if (!lay) return;
     const dpr = SE.preview.dpr || 1;
     og.save();
-    og.font = '600 ' + Math.round(11 * dpr) + 'px monospace'; og.textBaseline = 'top';
+    og.font = '600 ' + Math.round(11 * dpr) + 'px monospace'; og.textBaseline = 'top'; // i18n-ignore: a canvas font
     C.rects().forEach((r, i) => {
       const x = r.x * W, y = r.y * H, w = r.w * W, h = r.h * H, empty = !lay.slots[i];
       og.setLineDash(empty ? [6 * dpr, 4 * dpr] : []);
@@ -54,7 +54,7 @@
       g.setLineDash([5, 4]); g.strokeStyle = col.accent; g.lineWidth = 1;
       g.strokeRect(x + 0.5, y + 0.5, w - 1, row.h - 8);
       g.setLineDash([]); g.fillStyle = col.dim; g.font = '600 10px ' + col.ui; g.textBaseline = 'middle';
-      g.fillText('Slot ' + (i + 1) + ' · empty', x + 6, y + (row.h - 7) / 2);
+      g.fillText(U.t('slopedit.tpl.slot_empty', { n: i + 1 }), x + 6, y + (row.h - 7) / 2);
       g.restore();
     });
   };
@@ -68,12 +68,12 @@
     if (!hasMedia(e)) return;
     e.preventDefault();
     const id = e.dataTransfer.getData(MIME_MEDIA), meta = M.media(SE.doc, id);
-    if (!SE.doc.layout) { SlopUI.toast('Choose a layout first (Templates tab)'); return; }
-    if (!meta || !SE.media.ready(id)) { SlopUI.toast('That item is still analysing'); return; }
+    if (!SE.doc.layout) { SlopUI.toast(U.t('slopedit.render.choose_a_layout_first_templates')); return; }
+    if (!meta || !SE.media.ready(id)) { SlopUI.toast(U.t('slopedit.render.that_item_is_still_analysing')); return; }
     const i = C.slotAt(e);
     if (i == null) return;
-    SE.change('Put media in slot', (p) => L.placeMedia(p, i, M.media(p, id)));
-    SE.app.status('Slot ' + (i + 1) + ': ' + meta.name);
+    SE.change(U.t('slopedit.tpl.put_media_in_slot'), (p) => L.placeMedia(p, i, M.media(p, id)));
+    SE.app.status(U.t('slopedit.tpl.slot_n', { n: i + 1 }) + ': ' + meta.name);
   }
   C.init = function () {
     stage = SE.app.els.monStage; ov = SE.app.els.overlay;

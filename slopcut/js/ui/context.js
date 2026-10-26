@@ -5,12 +5,12 @@
 (function () {
   'use strict';
   const SE = window.SE, A = SE.app, C = SE.cmd, TL = SE.timeline, M = SE.model;
-  const isMenuKey = (e) => e.key === 'ContextMenu' || (e.shiftKey && e.key === 'F10');
+  const isMenuKey = (e) => e.key === 'ContextMenu' || (e.shiftKey && e.key === 'F10'); // i18n-ignore: a key name
 
   /** Items for the frame in the monitor: transport, snapshot and the safe-area overlay. */
   function frameItems() {
     const raw = [
-      C.item('play.toggle', SE.player.playing ? 'Pause' : 'Play'), C.item('play.prevFrame'), C.item('play.nextFrame'), '-',
+      C.item('play.toggle', SE.player.playing ? SE.util.t('slopedit.ctx.pause') : SE.util.t('slopedit.ctx.play')), C.item('play.prevFrame'), C.item('play.nextFrame'), '-',
       C.item('file.snapshot'), C.item('file.snapshotSend'), '-', C.item('view.safe')
     ];
     const out = [];

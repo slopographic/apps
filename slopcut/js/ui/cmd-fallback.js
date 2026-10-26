@@ -7,18 +7,18 @@
   let list = [];
 
   function keyName(e) {
-    let k = e.key === ' ' ? 'Space' : e.key.length === 1 ? e.key.toUpperCase() : e.key;
+    let k = e.key === ' ' ? 'Space' : e.key.length === 1 ? e.key.toUpperCase() : e.key; // i18n-ignore: key names
     if (k === '+') k = '=';
     if ((e.altKey || e.ctrlKey || e.metaKey) && /^Key[A-Z]$/.test(e.code || '')) k = e.code.slice(3);
     const mods = [];
-    if (e.shiftKey && k.length > 1 || e.shiftKey && /[A-Z]/.test(k)) mods.push('Shift');
-    if (e.altKey) mods.push('Alt');
-    if (e.ctrlKey || e.metaKey) mods.push('Mod');
+    if (e.shiftKey && k.length > 1 || e.shiftKey && /[A-Z]/.test(k)) mods.push('Shift'); // i18n-ignore: key names
+    if (e.altKey) mods.push('Alt'); // i18n-ignore: key names
+    if (e.ctrlKey || e.metaKey) mods.push('Mod'); // i18n-ignore: key names
     return mods.concat(k).join('+');
   }
   function norm(k) { // canonical order Shift+Alt+Mod+Key
     const parts = k.split('+'), key = parts.pop();
-    const order = ['Shift', 'Alt', 'Mod'];
+    const order = ['Shift', 'Alt', 'Mod']; // i18n-ignore: key names
     return order.filter((m) => parts.includes(m)).concat(key.length === 1 ? key.toUpperCase() : key).join('+');
   }
   F.install = function (cmds) {
@@ -37,7 +37,7 @@
     });
   };
   F.palette = function () {
-    const input = h('input', { class: 'sui-input cmdp-q', type: 'search', placeholder: 'Type a command…', 'aria-label': 'Search commands' });
+    const input = h('input', { class: 'sui-input cmdp-q', type: 'search', placeholder: U.t('slopedit.fb.type_a_command'), 'aria-label': U.t('slopedit.fb.search_commands') });
     const ul = h('div', { class: 'cmdp-list', role: 'listbox' });
     let rows = [], idx = 0, dlg;
     function score(c, q) {
@@ -60,7 +60,7 @@
       else if (e.key === 'ArrowUp') { e.preventDefault(); idx = Math.max(0, idx - 1); render(); }
       else if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); if (rows[idx]) go(rows[idx]); }
     });
-    dlg = SlopUI.dialog({ title: 'Search commands', body: h('div', { class: 'cmdp' }, input, ul), cls: 'cmdp-dlg', dismissable: true });
+    dlg = SlopUI.dialog({ title: U.t('slopedit.fb.search_commands'), body: h('div', { class: 'cmdp' }, input, ul), cls: 'cmdp-dlg', dismissable: true });
     render();
   };
   F.keymap = function () {
@@ -68,6 +68,6 @@
     for (const c of list) if (c.keys && c.keys.length) { if (!groups.has(c.group)) groups.set(c.group, []); groups.get(c.group).push(c); }
     const body = h('div', { class: 'keys-grid' }, [...groups].map(([g, cs]) => h('section', null, h('h3', null, g),
       h('dl', { class: 'keys' }, cs.map((c) => [h('dt', null, c.keys.map((k) => SE.cmd.keyFor(c.id) && k === c.keys[0] ? SE.cmd.keyFor(c.id) : k.replace('Mod+', 'Ctrl+')).join(' / ')), h('dd', null, c.title)])))));
-    SlopUI.dialog({ title: 'Keyboard shortcuts', body, cls: 'sui-wide', buttons: [{ label: 'Close', primary: true }] });
+    SlopUI.dialog({ title: U.t('slopedit.fb.keyboard_shortcuts'), body, cls: 'sui-wide', buttons: [{ label: U.t('slopedit.fb.close'), primary: true }] });
   };
 })();

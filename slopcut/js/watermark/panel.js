@@ -10,16 +10,16 @@
   let root = null, panel = null;
 
   function build() {
-    root = h('div', { class: 'wm-panel' }, h('div', { class: 'ins-title' }, SE.icon('sparkle'), h('b', null, 'Watermark')));
+    root = h('div', { class: 'wm-panel' }, h('div', { class: 'ins-title' }, SE.icon('sparkle'), h('b', null, U.t('slopedit.bin.watermark'))));
     panel = SlopWatermarkPanel.mount(root, {
       value: WM.settings().spec,
       media: { pages: false, time: true },
-      onChange: (spec, how) => WM.set({ spec }, how.label || 'Watermark', how.key || 'spec'),
-      toggle: { get: () => WM.settings().on, set: (on) => WM.set({ on }, on ? 'Watermark on' : 'Watermark off', 'on'), label: 'Watermark',
-        note: (on) => (on ? 'On: shows in the monitor and in every export.' : 'Off: no watermark in the monitor or in exports. Turn it on to add it.') },
+      onChange: (spec, how) => WM.set({ spec }, how.label || U.t('slopedit.bin.watermark'), how.key || 'spec'),
+      toggle: { get: () => WM.settings().on, set: (on) => WM.set({ on }, on ? U.t('slopedit.wm.watermark_on') : U.t('slopedit.wm.watermark_off'), 'on'), label: U.t('slopedit.bin.watermark'),
+        note: (on) => (on ? U.t('slopedit.wm.on_shows_in_the_monitor') : U.t('slopedit.wm.off_no_watermark_in_the')) },
       actions: [
-        { label: 'Save as device default', title: 'New projects on this device start with this watermark', act: () => { WM.saveDefaults(); SlopUI.toast('Saved as this device’s watermark default'); } },
-        { label: 'Use device default', title: 'Copy this device’s default watermark into this project', act: () => WM.useDefaults() },
+        { label: U.t('slopedit.wm.save_as_device_default'), title: U.t('slopedit.wm.new_projects_on_this_device'), act: () => { WM.saveDefaults(); SlopUI.toast(U.t('slopedit.wm.saved_as_this_device_s')); } },
+        { label: U.t('slopedit.wm.use_device_default'), title: U.t('slopedit.wm.copy_this_device_s_default'), act: () => WM.useDefaults() },
       ],
     });
     return root;

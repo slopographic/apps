@@ -42,7 +42,7 @@
         if (signal.cancelled || t >= b) { res(); return; }
         P.time = t; P.playing = true; P.rate = 1; // let the <video> pool run in sync
         SE.compositor.render(g, p, t, { W: w, H: h, source: SE.preview.source });
-        progress((t - a) / (b - a), 'Recording in real time · ' + U.timecode(t - a, fps) + ' / ' + U.timecode(b - a, fps));
+        progress((t - a) / (b - a), U.t('slopedit.io.recording', { at: U.timecode(t - a, fps), of: U.timecode(b - a, fps) }));
         requestAnimationFrame(step);
       };
       step();
@@ -53,7 +53,7 @@
     rec.stop(); await stopped;
     stream.getTracks().forEach((t) => t.stop());
     if (master) master.disconnect();
-    if (signal.cancelled) throw new DOMException('Export cancelled', 'AbortError');
+    if (signal.cancelled) throw new DOMException('Export cancelled', 'AbortError'); // i18n-ignore: an error for the code
     P.seek(a);
     return { blob: new Blob(parts, { type: (mime || 'video/webm').split(';')[0] }), info: { w, h, fps, codec: mime || 'webm', mode: 'recorder' } };
   };

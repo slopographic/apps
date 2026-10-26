@@ -55,7 +55,7 @@
   L.addMissing = function (meta) {
     const it = register(meta.id, new Blob([]), meta);
     it.status = 'missing';
-    it.error = 'Missing: add the file ' + meta.name + ' to match it';
+    it.error = U.t('slopedit.media.missing', { name: meta.name });
     notify(it);
     return it;
   };
@@ -71,7 +71,7 @@
     const jobs = [];
     for (const f of files) {
       const kind = A.kindOf(f);
-      if (!kind) { SlopUI.toast('Skipped ' + f.name + ': not a video, audio or image file'); continue; }
+      if (!kind) { SlopUI.toast(U.t('slopedit.media.skipped', { name: f.name })); continue; }
       const miss = missingFor(f.name);
       if (miss) {
         const meta = miss.meta;
@@ -101,7 +101,7 @@
       let blob = blobs && blobs.get(meta.id);
       if (!blob) { const rec = await U.idb.getMedia(meta.id).catch(() => null); blob = rec && rec.blob; }
       else U.idb.putMedia({ id: meta.id, name: meta.name, type: meta.type, blob }).catch(() => null);
-      if (!blob) { const it = register(meta.id, new Blob([]), meta); it.status = 'missing'; it.error = 'Media file missing'; continue; }
+      if (!blob) { const it = register(meta.id, new Blob([]), meta); it.status = 'missing'; it.error = U.t('slopedit.media.media_file_missing'); continue; }
       jobs.push(analyse(register(meta.id, blob, meta)));
     }
     notify(null);
@@ -110,7 +110,7 @@
   /** Remove an item from the bin (and its clips, as one undoable step). */
   L.remove = function (id) {
     const it = L.items.get(id);
-    SE.change('Remove media', (p) => { p.clips = p.clips.filter((c) => c.media !== id); });
+    SE.change(U.t('slopedit.bin.remove_media'), (p) => { p.clips = p.clips.filter((c) => c.media !== id); });
     SE.doc.media = SE.doc.media.filter((m) => m.id !== id);
     if (it) { URL.revokeObjectURL(it.url); L.items.delete(id); }
     U.idb.delMedia(id).catch(() => null);

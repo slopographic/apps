@@ -104,12 +104,12 @@
     return a;
   };
   M.label = function (p, c) {
-    if (c.kind === 'title') return (c.text && c.text.str) || 'Title';
-    if (c.kind === 'color') return 'Colour matte';
-    if (c.kind === 'effect') return c.name || 'Random effect';
-    if (c.kind === 'graphic') return c.name || ((window.SlopGraphics && SlopGraphics.get(c.gfx.id)) || { name: 'Graphic' }).name;
+    if (c.kind === 'title') return (c.text && c.text.str) || U.t('slopedit.core.title');
+    if (c.kind === 'color') return U.t('slopedit.core.matte');
+    if (c.kind === 'effect') return c.name || U.t('slopedit.fx.random_effect');
+    if (c.kind === 'graphic') return c.name || U.t('slopedit.gfx.graphic');
     const m = c.media && M.media(p, c.media);
-    return c.name || (m ? m.name : 'Clip');
+    return c.name || (m ? m.name : U.t('slopedit.core.clip'));
   };
 
   /** Strip runtime-only fields and clone (for history and autosave). */

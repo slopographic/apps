@@ -5,12 +5,12 @@
   const SE = window.SE, h = SE.util.h;
   SE.progress = {
     open(title, { cancel = true, onCancel } = {}) {
-      const bar = h('i'), msg = h('div', { class: 'prog-msg' }, 'Starting…'), pct = h('b', null, '');
+      const bar = h('i'), msg = h('div', { class: 'prog-msg' }, SE.util.t('slopedit.prog.starting')), pct = h('b', null, '');
       const st = { cancelled: false };
       const d = SlopUI.dialog({
         title, cls: 'sui-narrow prog-dlg',
         body: h('div', { class: 'prog', role: 'progressbar', 'aria-valuemin': '0', 'aria-valuemax': '100' }, h('div', { class: 'prog-bar' }, bar), h('div', { style: { display: 'flex', justifyContent: 'space-between', gap: '8px' } }, msg, pct)),
-        buttons: cancel ? [{ label: 'Cancel', act: () => { st.cancelled = true; if (onCancel) onCancel(); msg.textContent = 'Cancelling…'; return false; } }] : [],
+        buttons: cancel ? [{ label: SE.util.t('slopedit.fx.cancel'), act: () => { st.cancelled = true; if (onCancel) onCancel(); msg.textContent = SE.util.t('slopedit.prog.cancelling'); return false; } }] : [],
         onClose: () => { if (!st.done) { st.cancelled = true; if (onCancel) onCancel(); } }
       });
       const root = d.box.querySelector('.prog');

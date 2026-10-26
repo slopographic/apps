@@ -14,8 +14,8 @@
     const host = document.createElement('div');
     host.className = 'lane-host';
     const view = SV.laneView.mount(host, {
-      label: 'Layout lane',
-      onCommit: (list) => SE.change('Layout switch', (p) => L.setSwitches(p, list)),
+      label: SE.util.t('slopedit.lay.layout_lane'),
+      onCommit: (list) => SE.change(SE.util.t('slopedit.lay.layout_switch'), (p) => L.setSwitches(p, list)),
       onSeek: (t) => { if (SE.player) SE.player.seek(t); }
     });
     view.update({ duration: LANE.duration(), switches: SE.doc.segments || [], layouts: LANE.layouts(), playhead: SE.player ? SE.player.time : 0 });

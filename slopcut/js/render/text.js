@@ -5,11 +5,11 @@
   const SE = window.SE, U = SE.util;
   const TX = SE.text = {};
   const cache = new Map(), tried = new Set();
-  TX.ANIMS = [['none', 'None'], ['fade', 'Fade'], ['slide', 'Slide up'], ['pop', 'Pop'], ['type', 'Typewriter'], ['rise', 'Rise & blur']];
+  TX.ANIMS = [['none', 'None'], ['fade', 'Fade'], ['slide', 'Slide up'], ['pop', 'Pop'], ['type', 'Typewriter'], ['rise', 'Rise & blur']]; // i18n-ignore: English fallback of the slopedit.def.tanim/tout words (U.wl)
   const ease = (x) => 1 - Math.pow(1 - U.clamp(x, 0, 1), 3);
   const back = (x) => { x = U.clamp(x, 0, 1); const c = 1.7; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
   /** How a title leaves. 'same' (the default for titles saved before this field) repeats the entrance motion backwards. */
-  TX.OUTS = [['same', 'As in'], ['none', 'None'], ['fade', 'Fade'], ['slide', 'Slide up'], ['pop', 'Shrink'], ['rise', 'Blur out']];
+  TX.OUTS = [['same', 'As in'], ['none', 'None'], ['fade', 'Fade'], ['slide', 'Slide up'], ['pop', 'Shrink'], ['rise', 'Blur out']]; // i18n-ignore: English fallback of the slopedit.def.tanim/tout words (U.wl)
   /** Entrance motions: k is the eased progress 0..1 over the entrance time d, u the clip-relative time. */
   const IN = {
     fade: (s, k) => { s.alpha = ease(k); },

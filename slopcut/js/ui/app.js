@@ -29,17 +29,17 @@
     const proj = files.find((f) => /\.slopedit$/i.test(f.name));
     if (proj) { await SE.project.openFile(proj, proj.slopDrive ? proj.slopDrive.id : null); return []; } // a Drive project stays linked
     const wasEmpty = !SE.doc.clips.length;
-    A.status('Importing ' + files.length + ' file' + (files.length > 1 ? 's' : '') + '…');
+    A.status(U.t('slopedit.app.importing', { n: files.length }));
     const metas = await SE.media.importFiles(files, opts);
     if (!metas.length) { A.status(''); return metas; }
     if (wasEmpty && !SE.doc.clips.length) {
       const v = metas.find((m) => m.kind === 'video' && m.w && m.h);
       if (v) SE.doc = Object.assign(SE.doc, { w: v.w + (v.w % 2), h: v.h + (v.h % 2) });
       A.appendToTimeline(metas);
-      if (v) A.status('Sequence set to ' + SE.doc.w + '×' + SE.doc.h + ' to match ' + v.name);
+      if (v) A.status(U.t('slopedit.app.seq_set', { w: String(SE.doc.w), h: String(SE.doc.h), name: v.name }));
       SE.emit('settings', {});
       if (A.isPhone()) A.setPane('timeline');
-    } else A.status('Imported ' + metas.length + ' item' + (metas.length > 1 ? 's' : '') + ' into the bin');
+    } else A.status(U.t('slopedit.app.imported', { n: metas.length }));
     return metas;
   };
   // Import media… and Import from Slop Drive: sources of the one intake (io/intake.js), whose reader is importFiles.
@@ -47,7 +47,7 @@
   A.openFromDrive = () => SE.intake.fromDrive();
   /** Put media at the end of the timeline (V1 for pictures, A1 for sound). */
   A.appendToTimeline = function (metas, at) {
-    SE.change('Add to timeline', (p) => {
+    SE.change(U.t('slopedit.app.add_to_timeline'), (p) => {
       let ids = [];
       for (const m of metas) {
         const tk = m.kind === 'audio' ? M.audioTracks(p)[0] : M.videoTracks(p)[0];
@@ -62,7 +62,7 @@
 
   /* ------------------------------------------------------------ theme */
   /* The app's names and the shared theme ids (shared/theme/theme.js): the choice is saved through SlopTheme.set. */
-  const THEMES = [['pro', 'Pro (dark)', 'dark'], ['light', 'Light', 'light'], ['classic', 'Classic 98', 'classic']];
+  const THEMES = [['pro', 'slopedit.app.pro_dark', 'dark'], ['light', 'slopedit.app.light', 'light'], ['classic', 'slopedit.app.classic_98', 'classic']]; // the names are keys (U.t at use)
   A.THEMES = THEMES;
   /* The choice is saved for every page by the shared switcher; this page only shows it. */
   A.paintMeta = function () {
@@ -72,9 +72,9 @@
   };
   A.setTheme = function (t, silent) {
     const row = THEMES.find((x) => x[0] === t) || THEMES[0];
-    const r = window.SlopTheme ? SlopTheme.set(row[2]) : { ok: false, error: 'The theme script did not load.' };
+    const r = window.SlopTheme ? SlopTheme.set(row[2]) : { ok: false, error: U.t('slopedit.app.the_theme_script_did_not') };
     if (!r.ok) { if (window.SlopTheme) SlopTheme.apply(row[2]); A.status(r.error, 'err'); }
-    else if (!silent) A.status('Theme: ' + row[1]);
+    else if (!silent) A.status(U.t('slopedit.cmd.theme', { name: U.t(row[1]) }));
     A.paintMeta();
     SE.emit('theme', { t: row[0] });
   };
@@ -90,8 +90,8 @@
     SE.emit('layout', {});
   };
   function buildTabs() {
-    const tabs = [['media', 'bin', 'Media'], ['effects', 'sparkle', 'Effects'], ['insp', 'sliders', 'Inspector'], ['timeline', 'film', 'Timeline']];
-    for (const [id, ic, label] of tabs) A.els.mtabs.append(U.h('button', { type: 'button', class: 'mtab', dataset: { pane: id }, onclick: () => { if (!(id === 'insp' && A.inspSheet && A.isPhone())) A.setPane(id); } }, SE.icon(ic), U.h('span', null, label)));
+    const tabs = [['media', 'bin', 'slopedit.app.media'], ['effects', 'sparkle', 'slopedit.app.effects'], ['insp', 'sliders', 'slopedit.app.inspector'], ['timeline', 'film', 'slopedit.cmd.timeline']]; // keys: the labels follow a language change (data-i18n)
+    for (const [id, ic, key] of tabs) A.els.mtabs.append(U.h('button', { type: 'button', class: 'mtab', dataset: { pane: id }, onclick: () => { if (!(id === 'insp' && A.inspSheet && A.isPhone())) A.setPane(id); } }, SE.icon(ic), U.h('span', { dataset: { i18n: key } }, U.t(key))));
   }
 
   /* ------------------------------------------------------------ drag and drop of files */
@@ -121,12 +121,12 @@
   A.init = function () {
     for (const id of ['app', 'menus', 'btnUndo', 'btnRedo', 'btnSearch', 'btnExport', 'btnMore', 'projName', 'bin', 'monitor', 'monStage', 'preview', 'overlay', 'monMsg', 'transport', 'insp', 'timeline', 'tlSplit', 'tlBar', 'tlBody', 'tlHeads', 'tlLanes', 'tlCanvas', 'mtabs', 'statusLeft', 'statusMsg', 'statusCaps', 'dropOverlay']) A.els[id] = document.getElementById(id);
     A.els.btnUndo.append(SE.icon('undo')); A.els.btnRedo.append(SE.icon('redo')); A.els.btnSearch.append(SE.icon('zoomin'));
-    A.els.btnExport.append(SE.icon('export'), U.h('span', null, 'Export'));
+    A.els.btnExport.append(SE.icon('export'), U.h('span', null, U.t('slopedit.app.export')));
     A.els.btnMore.append(SE.icon('more'));
     A.paintMeta(); // the shared theme script has already painted the page
     buildTabs(); wireDrop(); wireSplit();
     A.setPane(A.els.app.dataset.pane || 'media');
-    A.els.projName.addEventListener('change', () => { SE.doc.name = A.els.projName.value.trim() || 'Untitled project'; SE.emit('autosave'); });
+    A.els.projName.addEventListener('change', () => { SE.doc.name = A.els.projName.value.trim() || 'Untitled project'; SE.emit('autosave'); }); // i18n-ignore: the project's own name
     SE.on('doc', () => { A.els.projName.value = SE.doc.name; });
     addEventListener('resize', () => SE.emit('layout', {}));
   };

@@ -68,7 +68,7 @@
       return { codec: 'av01.' + prof + '.' + String(lvl).padStart(2, '0') + (tierB ? 'H' : 'M') + '.' + (hbd ? (twelve ? '12' : '10') : '08'), description: u.slice() };
     }
     if (fourcc === 'mp4a') return { codec: 'mp4a.40.2' };
-    if (fourcc === 'Opus') return { codec: 'opus' };
+    if (fourcc === 'Opus') return { codec: 'opus' }; // i18n-ignore: a codec name
     return { codec: fourcc };
   }
   function track(dv, trak) {

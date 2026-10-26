@@ -21,7 +21,7 @@
   /** Sets the clip's vertical crop so its visible box has the source ratio. The visible width (and scale) stays. */
   function restore(id) {
     const c0 = M.clip(SE.doc, id); if (!c0 || !targetOf(SE.doc, c0)) return false;
-    SE.change('Restore aspect ratio', (p) => {
+    SE.change(SE.util.t('slopedit.insp.restore_aspect_ratio'), (p) => {
       const c = M.clip(p, id), m = M.media(p, c.media), s = sourceOf(p, c);
       const vw = 1 - c.cropL - c.cropR, vh = 1 - c.cropT - c.cropB;
       const want = Aspect.restore({ w: vw * m.w, h: vh * m.h }, s, 'w');

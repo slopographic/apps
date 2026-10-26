@@ -50,8 +50,8 @@
       og.strokeStyle = 'rgba(212,255,58,.6)'; og.strokeRect(W * 0.1 + 0.5, H * 0.1 + 0.5, W * 0.8, H * 0.8);
       og.setLineDash([]); og.strokeStyle = 'rgba(255,255,255,.5)';
       og.beginPath(); og.moveTo(W / 2 - 12, H / 2); og.lineTo(W / 2 + 12, H / 2); og.moveTo(W / 2, H / 2 - 12); og.lineTo(W / 2, H / 2 + 12); og.stroke();
-      og.fillStyle = 'rgba(255,255,255,.6)'; og.font = '600 ' + Math.round(10 * PV.dpr) + 'px monospace';
-      og.fillText('ACTION SAFE', W * 0.05 + 4, H * 0.05 + 14 * PV.dpr); og.fillText('TITLE SAFE', W * 0.1 + 4, H * 0.1 + 14 * PV.dpr);
+      og.fillStyle = 'rgba(255,255,255,.6)'; og.font = '600 ' + Math.round(10 * PV.dpr) + 'px monospace'; // i18n-ignore: canvas fonts, the broadcast safe-area marks, the brand, an API name
+      og.fillText('ACTION SAFE', W * 0.05 + 4, H * 0.05 + 14 * PV.dpr); og.fillText('TITLE SAFE', W * 0.1 + 4, H * 0.1 + 14 * PV.dpr); // i18n-ignore: canvas fonts, the broadcast safe-area marks, the brand, an API name
     }
     const c = SE.app.primary();
     PV.box = null;
@@ -71,14 +71,14 @@
   /** An empty project shows what SlopCut makes and how (SlopDrop's preview; the bin has Import and Sample project). */
   let intro = null;
   const introOf = () => intro || (intro = window.SlopDrop.panel.preview({
-    picture: { src: '../assets/shots/slopedit.jpg', alt: 'A short film on the timeline: two clips with a crossfade, a title, a logo and music' },
-    steps: ['Drop video, audio or pictures', 'Cut and arrange them on the timeline', 'Export a video file'] }));
+    picture: { src: '../assets/shots/slopedit.jpg', alt: U.t('slopedit.render.a_short_film_on_the') },
+    steps: ['Drop video, audio or pictures', U.t('slopedit.render.cut_and_arrange_them_on'), U.t('slopedit.render.export_a_video_file')] }));
   function updateMsg() {
     const p = SE.doc;
     if (!p.clips.length) {
       msg.hidden = false; msg.classList.toggle('mon-intro', !p.media.length);
-      const b = document.createElement('b'); b.textContent = 'SlopCut';
-      if (p.media.length) msg.replaceChildren(b, 'Drag media from the bin onto the timeline, or double-click an item.');
+      const b = document.createElement('b'); b.textContent = 'SlopCut'; // i18n-ignore: canvas fonts, the broadcast safe-area marks, the brand, an API name
+      if (p.media.length) msg.replaceChildren(b, U.t('slopedit.render.drag_media_from_the_bin'));
       else msg.replaceChildren(b, introOf());
     } else msg.hidden = true;
   }
@@ -96,19 +96,19 @@
   };
   PV.snapshotBlob = async function () { const c = await PV.frameCanvas(); return new Promise((r) => c.toBlob(r, 'image/png')); };
   const shotName = () => U.baseName(SE.doc.name) + ' ' + U.timecode(SE.player.time, SE.doc.fps).replace(/:/g, '-') + '.png';
-  SE.act.snapshot = async function () { SE.player.pause(); SlopUI.download(await PV.snapshotBlob(), shotName()); SE.app.status('Saved frame as PNG'); };
+  SE.act.snapshot = async function () { SE.player.pause(); SlopUI.download(await PV.snapshotBlob(), shotName()); SE.app.status(U.t('slopedit.render.saved_frame_as_png')); };
   SE.act.snapshotSend = async function () {
     SE.player.pause();
-    try { await SlopOuttake.send('photoslop', { from: 'slopedit', get: PV.snapshotBlob, name: shotName(), type: 'image/png' }); } catch (e) { SlopUI.toast('Could not send: ' + e.message); }
+    try { await SlopOuttake.send('photoslop', { from: 'slopedit', get: PV.snapshotBlob, name: shotName(), type: 'image/png' }); } catch (e) { SlopUI.toast(U.t('slopedit.io.send_failed', { error: e.message })); }
   };
   SE.act.toggleSafe = function () { PV.safe = !PV.safe; U.store.set('safe', PV.safe); PV.request(); SE.emit('transport', {}); };
-  SE.act.toggleQuality = function () { PV.half = !PV.half; U.store.set('half', PV.half); PV.layout(); SE.app.status('Preview quality: ' + (PV.half ? 'half' : 'full')); };
+  SE.act.toggleQuality = function () { PV.half = !PV.half; U.store.set('half', PV.half); PV.layout(); SE.app.status(U.t(PV.half ? 'slopedit.render.quality_half' : 'slopedit.render.quality_full')); };
 
   PV.init = function () {
     const A = SE.app;
     cv = A.els.preview; ov = A.els.overlay; stage = A.els.monStage; msg = A.els.monMsg;
     g = cv.getContext('2d', { alpha: false }); og = ov.getContext('2d');
-    if ('ResizeObserver' in window) new ResizeObserver(() => PV.layout()).observe(stage);
+    if ('ResizeObserver' in window) new ResizeObserver(() => PV.layout()).observe(stage); // i18n-ignore: canvas fonts, the broadcast safe-area marks, the brand, an API name
     SE.on('layout', PV.layout); SE.on('settings', PV.layout); SE.on('doc', () => { VP.clear(); PV.layout(); });
     for (const ev of ['time', 'frame', 'change', 'select', 'media', 'media-ready']) SE.on(ev, PV.request);
     SE.on('transport', () => { if (!SE.player.playing) VP.pauseAll(); PV.request(); });

@@ -152,3 +152,16 @@ Covers: shared/i18n/yo.js
 Covers: shared/i18n/zh-CN.js
 Covers: shared/i18n/zh-TW.js
 Covers: shared/i18n/zu.js
+Covers: slopcut/i18n/en/defs.js
+Covers: slopcut/i18n/en/page.js
+Covers: slopcut/i18n/en/tour.js
+Covers: slopcut/i18n/en/ui1.js
+Covers: slopcut/i18n/en/ui2.js
+Covers: slopcut/i18n/en/ui3.js
+Covers: slopcut/i18n/index.js
+Covers: slopcut/i18n/sv/defs.js
+Covers: slopcut/i18n/sv/page.js
+Covers: slopcut/i18n/sv/tour.js
+Covers: slopcut/i18n/sv/ui1.js
+Covers: slopcut/i18n/sv/ui2.js
+Covers: slopcut/i18n/sv/ui3.js

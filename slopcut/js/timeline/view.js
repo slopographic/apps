@@ -100,9 +100,9 @@
   TL.multi = false;
   TL.setMulti = function (on) {
     TL.multi = !!on; SE.emit('tool', {}); TL.dirty();
-    if (SE.app && SE.app.status) SE.app.status(on ? 'Select several: tap clips to add or remove them, or drag a box from an empty spot' : '');
+    if (SE.app && SE.app.status) SE.app.status(on ? U.t('slopedit.tl.select_several_tap_clips_to') : '');
   };
-  TL.toggleSnap = function () { TL.snap = !TL.snap; U.store.set('snap', TL.snap); SE.emit('tool', {}); SlopUI.toast('Snapping ' + (TL.snap ? 'on' : 'off')); };
+  TL.toggleSnap = function () { TL.snap = !TL.snap; U.store.set('snap', TL.snap); SE.emit('tool', {}); SlopUI.toast(U.t(TL.snap ? 'slopedit.tl.snap_on' : 'slopedit.tl.snap_off')); };
   /** Snap a time (seconds) to edit points within 8 px when snapping is on. */
   TL.snapT = function (t, skip, force) {
     if (!TL.snap && !force) { TL.snapLine = null; return t; }
@@ -128,7 +128,7 @@
   };
   TL.init = function () {
     TL.ctx = SE.app.els.tlCanvas.getContext('2d');
-    if ('ResizeObserver' in window) new ResizeObserver(() => TL.resize()).observe(SE.app.els.tlLanes);
+    if ('ResizeObserver' in window) new ResizeObserver(() => TL.resize()).observe(SE.app.els.tlLanes); // i18n-ignore: an API name
     SE.on('layout', TL.resize);
     SE.on('change', () => { TL.clampScroll(); TL.dirty(); if (TL.renderHeads) TL.renderHeads(); });
     SE.on('select', TL.dirty); SE.on('media', TL.dirty); SE.on('theme', () => { TL.colors = null; TL.dirty(); });

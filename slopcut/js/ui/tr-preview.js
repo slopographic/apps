@@ -59,8 +59,9 @@
     raf = requestAnimationFrame(step);
   };
 
-  function tile([id, label]) {
-    const b = h('button', { type: 'button', class: 'fx tr', draggable: 'true', title: label + ' (click to add at the cut, or drag onto a cut)', onclick: () => { TRP.play(id); SE.act.addTransition(id); }, onmouseenter: () => TRP.play(id) },
+  function tile([id, en]) {
+    const label = U.w('tr', id, en);
+    const b = h('button', { type: 'button', class: 'fx tr', draggable: 'true', title: U.t('slopedit.trp.tile_tip', { name: label }), onclick: () => { TRP.play(id); SE.act.addTransition(id); }, onmouseenter: () => TRP.play(id) }, // i18n-ignore: class names
       h('span', { class: 'fx-sw tr-sw', 'aria-hidden': 'true' }), h('span', null, label));
     b.addEventListener('dragstart', (e) => { e.dataTransfer.setData('application/x-slopedit-fx', JSON.stringify({ kind: 'transition', type: id, dur: TR.dur })); e.dataTransfer.effectAllowed = 'copy'; TRP.play(id); });
     b.addEventListener('dragend', () => { SE.timeline.ghost = null; SE.timeline.dirty(); });
@@ -68,17 +69,17 @@
   }
   /** The panel's nodes: preview, duration, then the tiles. Call once per render of the Effects tab. */
   TRP.nodes = function () {
-    cv = h('canvas', { width: W, height: H, class: 'tr-prev', role: 'img', 'aria-label': 'Transition preview' });
+    cv = h('canvas', { width: W, height: H, class: 'tr-prev', role: 'img', 'aria-label': U.t('slopedit.trp.transition_preview') });
     g = cv.getContext('2d');
     name = h('b', { class: 'tr-name' }, TR.label(shown));
-    const slider = SE.fields.slider('Duration', () => TR.dur, (v) => TR.setDur(v), { min: TR.DUR.min, max: TR.DUR.max, step: TR.DUR.step, unit: 's', reset: 1, dec: 1, hardMin: TR.DUR.min, hardMax: TR.DUR.max });
+    const slider = SE.fields.slider(U.t('slopedit.fx.duration'), () => TR.dur, (v) => TR.setDur(v), { min: TR.DUR.min, max: TR.DUR.max, step: TR.DUR.step, unit: 's', reset: 1, dec: 1, hardMin: TR.DUR.min, hardMax: TR.DUR.max });
     queueMicrotask(() => paint(shown, 1));
     return [
-      h('h4', { class: 'fx-h' }, 'Transitions'),
-      h('div', { class: 'tr-box' }, cv, h('div', { class: 'tr-bar' }, name, h('button', { type: 'button', class: 'btn sm', onclick: () => TRP.play(shown) }, 'Preview'))),
+      h('h4', { class: 'fx-h' }, U.t('slopedit.cmd.transitions')),
+      h('div', { class: 'tr-box' }, cv, h('div', { class: 'tr-bar' }, name, h('button', { type: 'button', class: 'btn sm', onclick: () => TRP.play(shown) }, U.t('slopedit.trp.preview')))), // i18n-ignore: class names
       slider.el,
       h('div', { class: 'fx-grid' }, TR.list().map(tile)),
-      h('p', { class: 'fx-note' }, 'Drop a transition on the second clip of a cut (or click one with a cut selected). Tip: the preview replays on hover.')
+      h('p', { class: 'fx-note' }, U.t('slopedit.trp.drop_a_transition_on_the'))
     ].filter(Boolean);
   };
 })();

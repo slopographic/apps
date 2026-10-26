@@ -15,11 +15,11 @@
   function applyLook(preset, ids) {
     const look = { bright: 0, contrast: 0, sat: 0, temp: 0 };
     for (const e of preset.params.effects) if (e.on !== false && e.type === 'colour-look') Object.assign(look, e.p);
-    SE.change('Preset: ' + preset.label, (p) => { for (const id of ids) Object.assign(M.clip(p, id), look); });
+    SE.change(U.t('slopedit.pre.preset', { name: preset.label }), (p) => { for (const id of ids) Object.assign(M.clip(p, id), look); });
   }
   /** Writes a motion preset as animate-in keys over the first part of each clip. Other keys are kept. */
   function applyMotion(preset, ids) {
-    SE.change('Animate in: ' + preset.label, (p) => {
+    SE.change(U.t('slopedit.pre.animate_in', { name: preset.label }), (p) => {
       for (const id of ids) {
         const c = M.clip(p, id), cut = SP.motion.toCut(preset.params, p.w, p.h, c.dur), D = Math.min(preset.params.duration, c.dur);
         c.anim = c.anim || {};
@@ -33,7 +33,7 @@
   }
   function apply(preset) {
     const ids = selected();
-    if (!ids.length) { SlopUI.toast('Select video or image clips first'); return false; }
+    if (!ids.length) { SlopUI.toast(U.t('slopedit.fx.select_video_or_image_clips')); return false; }
     if (preset.kind === 'effect') applyLook(preset, ids);
     else applyMotion(preset, ids);
   }
@@ -55,11 +55,11 @@
   }
   function saveDialog() {
     const ids = selected();
-    if (!ids.length) { SlopUI.toast('Select a clip first'); return; }
+    if (!ids.length) { SlopUI.toast(U.t('slopedit.pre.select_a_clip_first')); return; }
     const c = M.clip(SE.doc, ids[0]);
     SP.openSave({
-      app: 'slopedit', kinds: ['effect', 'motion'], title: 'Save clip as preset',
-      defaultName: 'My ' + (c.kind || 'clip') + ' look',
+      app: 'slopedit', kinds: ['effect', 'motion'], title: U.t('slopedit.pre.save_clip_as_preset'),
+      defaultName: 'My ' + (c.kind || 'clip') + ' look', // i18n-ignore: the preset's own name, stored in the user's library
       build: (kind) => fromClip(c, kind, SE.doc),
     });
   }
@@ -70,13 +70,13 @@
     sections() {
       const effects = SP.list({ kind: 'effect', app: 'slopedit' }), motion = SP.list({ kind: 'motion', app: 'slopedit' });
       return [
-        h('h4', { class: 'fx-h' }, 'Effect presets (selected clips)'),
+        h('h4', { class: 'fx-h' }, U.t('slopedit.pre.effect_presets_selected_clips')),
         h('div', { class: 'fx-grid' }, effects.map(tile)),
-        h('h4', { class: 'fx-h' }, 'Motion presets (animate in)'),
+        h('h4', { class: 'fx-h' }, U.t('slopedit.pre.motion_presets_animate_in')),
         h('div', { class: 'fx-grid' }, motion.map(tile)),
         h('div', { class: 'fx-grid' },
-          h('button', { type: 'button', class: 'fx', title: 'Save the first selected clip as a preset', onclick: saveDialog }, SE.icon('sparkle'), h('span', null, 'Save as preset…')),
-          h('button', { type: 'button', class: 'fx', title: 'Browse, import and export presets', onclick: () => SP.openPicker({ app: 'slopedit', title: 'Clip presets', onApply: apply }) }, SE.icon('sparkle'), h('span', null, 'All presets…'))),
+          h('button', { type: 'button', class: 'fx', title: U.t('slopedit.pre.save_the_first_selected_clip'), onclick: saveDialog }, SE.icon('sparkle'), h('span', null, U.t('slopedit.pre.save_as_preset'))),
+          h('button', { type: 'button', class: 'fx', title: U.t('slopedit.pre.browse_import_and_export_presets'), onclick: () => SP.openPicker({ app: 'slopedit', title: U.t('slopedit.pre.clip_presets'), onApply: apply }) }, SE.icon('sparkle'), h('span', null, U.t('slopedit.pre.all_presets')))),
       ];
     },
   };

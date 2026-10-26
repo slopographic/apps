@@ -199,7 +199,7 @@ PRECACHE.push(
   '/signature/js/logo.js', '/signature/js/model.js', '/signature/js/sample.js', '/signature/js/templates.js', '/slides/css/app.css', '/slides/index.html',
   '/slides/js/manifest.js', '/slides/js/ui/route.js', '/slop/core.js', '/slop/detect.js', '/slop/engine.js', '/slop/gen-feeds.js', '/slop/gen-more.js',
   '/slopcut/css/anim.css', '/slopcut/css/base.css', '/slopcut/css/library.css', '/slopcut/css/panels.css', '/slopcut/css/templates.css',
-  '/slopcut/css/themes.css', '/slopcut/css/timeline.css', '/slopcut/css/watermark.css', '/slopcut/index.html', '/slopcut/js/ai/build.js',
-  '/slopcut/js/ai/cmd-clips.js', '/slopcut/js/ai/cmd-export.js', '/slopcut/js/ai/cmd-project.js', '/slopcut/js/ai/cmd-text.js', '/slopcut/js/ai/core.js',
+  '/slopcut/css/themes.css', '/slopcut/css/timeline.css', '/slopcut/css/watermark.css', '/slopcut/i18n/en/defs.js', '/slopcut/i18n/en/page.js',
+  '/slopcut/i18n/en/tour.js', '/slopcut/i18n/en/ui1.js', '/slopcut/i18n/en/ui2.js', '/slopcut/i18n/en/ui3.js', '/slopcut/i18n/index.js', '/slopcut/index.html',
 );
 // END PRECACHE

@@ -13,13 +13,13 @@
   /** Send a clip's media to SlopIsolate (Drive record carries the clip id so the result can go back above it). */
   CU.send = async function (clip) {
     const h = window.SlopHub, it = SE.media.get(clip.media);
-    if (!h || SE.offline) return toast('Slop Drive is not available');
-    if (!it || !it.blob) return toast('The media is not loaded yet');
+    if (!h || SE.offline) return toast(SE.util.t('slopedit.io.slop_drive_is_not_available'));
+    if (!it || !it.blob) return toast(SE.util.t('slopedit.io.the_media_is_not_loaded'));
     try {
       const id = await h.put(it.blob, { name: it.meta.name, from: 'slopedit', meta: { clipId: clip.id } });
       window.open(h.urlOf(h.appById('cutout'), { drive: id }), '_blank');
-      toast('Opened in SlopIsolate');
-    } catch (e) { toast('Could not send: ' + (e.message || e)); }
+      toast(SE.util.t('slopedit.io.opened_in_slopisolate'));
+    } catch (e) { toast(SE.util.t('slopedit.io.send_failed', { error: e.message || String(e) })); }
   };
 
   /** A matte pair from SlopIsolate: its two Slop Drive records go through the intake. payload: { id, matteId, name, clipId }. */
@@ -27,7 +27,7 @@
     const h = window.SlopHub;
     if (!h || !A) return false;
     const cRec = await h.get(payload.id), mRec = await h.get(payload.matteId);
-    if (!cRec || !mRec) { toast('The cut-out is no longer in Slop Drive'); return false; }
+    if (!cRec || !mRec) { toast(SE.util.t('slopedit.io.the_cut_out_is_no')); return false; }
     const r = await SE.intake.handed([cRec, mRec], { cutout: payload });
     return !!(r && r.added.length);
   };
@@ -36,9 +36,9 @@
   CU.place = async function (files, payload) {
     const metas = (await A.importFiles(files, { from: 'cutout' })) || [];
     const cm = metas.find((m) => m.name === files[0].name), mm = metas.find((m) => m.name === files[1].name);
-    if (!cm || !mm) { toast('Could not place the cut-out'); return false; }
+    if (!cm || !mm) { toast(SE.util.t('slopedit.io.could_not_place_the_cut')); return false; }
     let ids = [];
-    SE.change('Add background cut-out', (p) => {
+    SE.change(SE.util.t('slopedit.io.add_background_cut_out'), (p) => {
       const src = payload.clipId ? M.clip(p, payload.clipId) : null;
       const vt = M.videoTracks(p);
       let tk, start = 0;
@@ -49,10 +49,10 @@
       return ids.length ? ids : false;
     });
     if (ids.length) A.select(ids);
-    toast('Added the cut-out above the clip');
+    toast(SE.util.t('slopedit.io.added_the_cut_out_above'));
     return true;
   };
 
   if (window.SlopHub && typeof SlopHub.on === 'function') SlopHub.on('cutout-result', (d) => { // intake-ok: a message with two Drive ids; receive() hands the files to the intake
-    CU.receive(d).catch((e) => toast('Could not add the cut-out: ' + (e.message || e))); });
+    CU.receive(d).catch((e) => toast(SE.util.t('slopedit.io.cutout_failed', { error: e.message || String(e) }))); });
 })();

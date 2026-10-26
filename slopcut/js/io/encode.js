@@ -63,7 +63,7 @@
     let aenc = null, chans = null, aPos = 0;
     const SR = 48000;
     if (sel.audio) {
-      progress(0, 'Mixing audio…');
+      progress(0, U.t('slopedit.io.mixing_audio'));
       const buf = await SE.audiomix.render(p, a, a + frames / fps, SR);
       chans = [buf.getChannelData(0), buf.numberOfChannels > 1 ? buf.getChannelData(1) : buf.getChannelData(0)];
       aenc = new AudioEncoder({ output: (c, m) => { try { muxer.addAudioChunk(c, m); } catch (e) { err = e; } }, error: (e) => { err = e; } });
@@ -88,7 +88,7 @@
     const t0 = performance.now();
     try {
       for (let i = 0; i < frames; i++) {
-        if (signal.cancelled) throw new DOMException('Export cancelled', 'AbortError');
+        if (signal.cancelled) throw new DOMException('Export cancelled', 'AbortError'); // i18n-ignore: an error for the code (the dialog shows its own words)
         if (err) throw err;
         const t = a + i / fps;
         await src.prepare(t);
@@ -100,12 +100,12 @@
         while (venc.encodeQueueSize > 4 || (aenc && aenc.encodeQueueSize > 16)) { await tick(); if (err) throw err; }
         if (i % 3 === 0) {
           const el = (performance.now() - t0) / 1000, rate = (i + 1) / el;
-          progress((i + 1) / frames, 'Frame ' + (i + 1) + ' of ' + frames + ' · ' + rate.toFixed(1) + ' fps · ' + Math.max(0, Math.round((frames - i - 1) / rate)) + ' s left');
+          progress((i + 1) / frames, U.t('slopedit.io.frame_of', { n: i + 1, of: frames }) + ' · ' + rate.toFixed(1) + ' fps · ' + U.t('slopedit.io.s_left', { s: Math.max(0, Math.round((frames - i - 1) / rate)) }));
           await tick();
         }
       }
       feedAudio(frames / fps + 1);
-      progress(1, 'Finishing…');
+      progress(1, U.t('slopedit.io.finishing'));
       await venc.flush();
       if (aenc) await aenc.flush();
       if (err) throw err;
