@@ -59,7 +59,7 @@
         if (d.error) {
           const msg = C.redact(typeof d.error === 'string' ? d.error : d.error.message), code = Number(d.error.code) || 0;
           const kind = code === 429 ? 'rate' : code === 401 ? 'key' : code === 402 ? 'money' : 'request';
-          throw new C.CloudError(kind, C.plain(kind, 'The AI provider', { detail: msg }), { status: code, detail: msg });
+          throw new C.CloudError(kind, C.plain(kind, '', { detail: msg }), { status: code, detail: msg });
         }
         if (d.model) model = d.model;
         if (d.usage) { usage.input = d.usage.prompt_tokens || 0; usage.output = d.usage.completion_tokens || 0; usage.cacheRead = (d.usage.prompt_tokens_details && d.usage.prompt_tokens_details.cached_tokens) || 0; }

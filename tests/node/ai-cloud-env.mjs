@@ -1,7 +1,7 @@
 // The own-key AI providers (shared/ai/cloud/) in a Node vm with a fake window: storage stubs, a fetch that records each
 // request and answers from a queue, and Responses made from recorded Server-Sent-Event text, cut into small pieces so the
 // parsers must join events across reads.
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import vm from 'node:vm';
 
 export const FILES = ['shared/commands/args.js', 'shared/ai/engines.js', 'shared/ai/tools.js', 'shared/ai/permissions.js', 'shared/ai/cmdtools.js', 'shared/ai/apptools.js',
@@ -40,6 +40,11 @@ export function kit() {
     return typeof a === 'function' ? a(url, init) : a;
   };
   const ctx = vm.createContext(w);
+  // SlopI18n with the English tables of the shared components (shared/i18n/ui/en/*.js), so words read as on a page
+  vm.runInContext(readFileSync(new URL('../../shared/i18n/i18n.js', import.meta.url), 'utf8'), ctx, { filename: 'shared/i18n/i18n.js' });
+  w.SlopI18n = w.SlopI18n.create({ defaultLang: 'en', profile: null });   // English in any build
+  const ui = new URL('../../shared/i18n/ui/en/', import.meta.url);
+  if (existsSync(ui)) for (const f of readdirSync(ui).filter((x) => x.endsWith('.js')).sort()) vm.runInContext(readFileSync(new URL(f, ui), 'utf8'), ctx, { filename: 'shared/i18n/ui/en/' + f });
   for (const f of FILES) vm.runInContext(readFileSync(new URL('../../' + f, import.meta.url), 'utf8'), ctx, { filename: f });
   return w;
 }

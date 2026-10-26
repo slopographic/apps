@@ -13,6 +13,7 @@
 (function () {
   'use strict';
   const K = (window.SlopAIKit = window.SlopAIKit || {});
+  const T = (k, v) => (window.SlopI18n ? SlopI18n.t(k, v) : k);
   const SETTINGS = 'slop-ai.imagegen';
   const ASPECTS = ['1:1', '3:2', '2:3', '4:3', '3:4', '16:9', '9:16', '21:9'];
   const RESOLUTIONS = ['1K', '2K', '4K'];
@@ -24,23 +25,28 @@
 
   const list = [
     { id: 'openai', format: 'openai', who: 'OpenAI', short: 'OpenAI', needsKey: true, mask: true, transparent: true, maxN: 10, quality: ['low', 'medium', 'high'],
-      models: [{ id: 'gpt-image-2.5-flare', name: 'GPT Image 2.5 Flare', note: 'fast, everyday pictures' },
-        { id: 'gpt-image-2.5-sunburst', name: 'GPT Image 2.5 Sunburst', note: 'most precise edits' },
-        { id: 'gpt-image-2', name: 'GPT Image 2', note: 'published price per picture' }],
-      help: 'OpenAI may ask you to verify your organization (platform.openai.com › Settings › Organization) before its picture models work.' },
+      models: [{ id: 'gpt-image-2.5-flare', name: 'GPT Image 2.5 Flare', hint: 'everyday' },
+        { id: 'gpt-image-2.5-sunburst', name: 'GPT Image 2.5 Sunburst', hint: 'precise_edits' },
+        { id: 'gpt-image-2', name: 'GPT Image 2', hint: 'per_picture' }] },
     { id: 'gemini', format: 'gemini', who: 'Google', short: 'Gemini', needsKey: true, mask: false, transparent: false, maxN: 4,
-      models: [{ id: 'gemini-nano-banana-2.1', name: 'Nano Banana 2.1', note: 'recommended by Google', sizes: { '1K': 0.0336, '2K': 0.0504, '4K': 0.113 }, input: 1.5 },
-        { id: 'gemini-3.1-flash-lite-image', name: 'Gemini 3.1 Flash-Lite Image', note: 'cheapest, 1K only', sizes: { '1K': 0.0336 }, input: 0.25 },
-        { id: 'gemini-3-pro-image', name: 'Gemini 3 Pro Image', note: 'most capable', sizes: { '1K': 0.134, '2K': 0.134, '4K': 0.24 }, input: 2 }],
-      help: 'Every picture Gemini makes carries Google’s invisible SynthID watermark.' },
+      models: [{ id: 'gemini-nano-banana-2.1', name: 'Nano Banana 2.1', hint: 'recommended', by: 'Google', sizes: { '1K': 0.0336, '2K': 0.0504, '4K': 0.113 }, input: 1.5 },
+        { id: 'gemini-3.1-flash-lite-image', name: 'Gemini 3.1 Flash-Lite Image', hint: 'cheapest_1k', sizes: { '1K': 0.0336 }, input: 0.25 },
+        { id: 'gemini-3-pro-image', name: 'Gemini 3 Pro Image', hint: 'capable', sizes: { '1K': 0.134, '2K': 0.134, '4K': 0.24 }, input: 2 }] },
     { id: 'openrouter', format: 'openrouter', who: 'OpenRouter', short: 'OpenRouter', needsKey: true, mask: false, transparent: true, maxN: 4, quality: ['low', 'medium', 'high'],
       models: [{ id: 'google/gemini-nano-banana-2.1', name: 'Google: Nano Banana 2.1' }, { id: 'openai/gpt-image-2.5-flare', name: 'OpenAI: GPT Image 2.5 Flare' },
-        { id: 'black-forest-labs/flux-3-image', name: 'Black Forest Labs: FLUX 3 Image' }],
-      help: 'OpenRouter passes the request to the model’s maker; its price list is shown with each model.' },
-    { id: 'ollama', format: 'openai', who: 'Ollama on this computer', short: 'Ollama', needsKey: false, local: true, mask: true, transparent: false, maxN: 4, models: [], free: true },
-    { id: 'lmstudio', format: 'openai', who: 'LM Studio on this computer', short: 'LM Studio', needsKey: false, local: true, mask: true, transparent: false, maxN: 4, models: [], free: true },
-    { id: 'custom', format: 'openai', who: 'the service at the address you gave', short: 'Your service', needsKey: false, mask: true, transparent: true, maxN: 4, models: [] },
+        { id: 'black-forest-labs/flux-3-image', name: 'Black Forest Labs: FLUX 3 Image' }] },
+    { id: 'ollama', format: 'openai', short: 'Ollama', needsKey: false, local: true, mask: true, transparent: false, maxN: 4, models: [], free: true },
+    { id: 'lmstudio', format: 'openai', short: 'LM Studio', needsKey: false, local: true, mask: true, transparent: false, maxN: 4, models: [], free: true },
+    { id: 'custom', format: 'openai', needsKey: false, mask: true, transparent: true, maxN: 4, models: [] },
   ];
+  // The words people read are keys (shared/i18n/ui): who and short of a server (the AI panel's, ui.ai.prov.<id>_who /
+  // _short), help (ui.ai.img.help_<id>) and a model's note (ui.ai.cloud.hint_<hint>, as the chat models'), read when shown.
+  const live = (o, f, k, v) => { if (window.SlopI18n && SlopI18n.has(k)) Object.defineProperty(o, f, { get: () => T(k, v), enumerable: true, configurable: true }); };
+  for (const p of list) {
+    for (const f of ['who', 'short']) if (p[f] == null) live(p, f, `ui.ai.prov.${p.id}_${f}`);
+    live(p, 'help', 'ui.ai.img.help_' + p.id);
+    for (const m of p.models) if (m.hint) live(m, 'note', 'ui.ai.cloud.hint_' + m.hint, { who: m.by || '' });
+  }
   const extra = [];
   const all = () => list.concat(extra);
   const byId = (id) => all().find((p) => p.id === id) || null;
@@ -69,23 +75,23 @@
   function estimate(req, fetched) {
     const p = byId(req.provider), n = Math.max(1, Number(req.n) || 1);
     const out = (perImage, exact, note) => ({ perImage, total: perImage == null ? null : perImage * n, exact: !!exact, note: note || '' });
-    if (!p) return out(null, false, 'unknown provider');
-    if (p.free || p.local) return out(0, true, 'runs on your computer');
+    if (!p) return out(null, false, T('ui.ai.img.est_unknown_provider'));
+    if (p.free || p.local) return out(0, true, T('ui.ai.img.est_local'));
     const m = model(p.id, req.model, fetched) || {};
     if (p.id === 'openai') {
       const q = GPT2_TABLE[req.quality] ? req.quality : 'medium', px = req.w && req.h ? req.w * req.h : size(req.aspect, req.resolution).w * size(req.aspect, req.resolution).h;
       if (/^gpt-image-2(-\d{4}-\d\d-\d\d)?$/.test(m.id || req.model)) {
         const base = GPT2_TABLE[q][shape(req.aspect)], std = px <= 1572864;
-        return out(std ? base : base * (px / 1572864), std, std ? '' : 'estimated from the 1024 px price');
+        return out(std ? base : base * (px / 1572864), std, std ? '' : T('ui.ai.img.est_from_1024'));
       }
-      return out(null, false, `billed by tokens ($${GPT_TOKENS.out} per million picture tokens); the cost is shown after`);
+      return out(null, false, T('ui.ai.img.est_tokens', { price: String(GPT_TOKENS.out) }));
     }
     if (p.id === 'gemini') {
       const v = m.sizes && (m.sizes[req.resolution || '1K'] || null);
-      return out(v, v != null, v == null ? 'this size has no published price' : '');
+      return out(v, v != null, v == null ? T('ui.ai.img.est_no_size') : '');
     }
     if (m.price && m.price.image > 0) return out(m.price.image, true, '');
-    return out(null, false, 'billed by the model’s own rate; the cost is shown after');
+    return out(null, false, T('ui.ai.img.est_rate'));
   }
 
   /** The cost of a finished request from the provider's usage report (null when it cannot be known). */

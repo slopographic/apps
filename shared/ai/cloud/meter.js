@@ -16,9 +16,11 @@
   const zero = () => ({ input: 0, output: 0, cacheRead: 0, tokens: 0, cost: 0, known: true, replies: 0 });
   let t = (() => { try { return Object.assign(zero(), JSON.parse(sessionStorage.getItem(KEY)) || {}); } catch (e) { return zero(); } })();
   const keep = () => { try { sessionStorage.setItem(KEY, JSON.stringify(t)); } catch (e) { /* storage blocked: memory only */ } };
-  const n = (x) => Math.round(x).toLocaleString('en');
+  const T = (k, v) => (window.SlopI18n ? SlopI18n.t(k, v) : k);
+  const n = (x) => (window.SlopI18n ? SlopI18n.num(Math.round(x)) : String(Math.round(x)));
   /** 'about $0.42', or 'less than $0.01' (a cent is the smallest step people read). */
-  const money = (c) => (c == null ? '' : c < 0.005 ? 'less than $0.01' : 'about $' + c.toFixed(2));
+  const money2 = (c) => (window.SlopI18n ? SlopI18n.num(c, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : c.toFixed(2));   // 0.42 / 0,42
+  const money = (c) => (c == null ? '' : c < 0.005 ? T('ui.ai.cloud.money_lt') : T('ui.ai.cloud.money_about', { amount: money2(c) }));
 
   function add(u) {
     if (!u) return total();
@@ -32,28 +34,25 @@
   const over = (cap) => !!cap && cap > 0 && t.tokens >= cap;
   function line(u) {
     const tok = (u.input || 0) + (u.output || 0);
-    return `${n(tok)} tokens` + (u.cacheRead ? ` (${n(u.cacheRead)} from cache)` : '') + (u.cost != null ? ` · ${money(u.cost)}` : '');
+    return T('ui.ai.cloud.tokens', { n: tok, count: n(tok) }) + (u.cacheRead ? ' ' + T('ui.ai.cloud.from_cache', { count: n(u.cacheRead) }) : '') + (u.cost != null ? ` · ${money(u.cost)}` : '');
   }
   /** The hover text of a request's line: its total, how much came from the cache, and each model turn. */
   function detail(list) {
     const sum = (k) => list.reduce((a, u) => a + (u[k] || 0), 0), inp = sum('input'), out = sum('output'), hit = sum('cacheRead'), wrote = sum('cacheWrite');
-    const head = `This request used ${n(inp + out)} tokens (${n(hit)} cached): ${n(inp)} in, ${n(out)} out` + (wrote ? `, ${n(wrote)} written to the cache` : '') + `, over ${list.length} model turn${list.length === 1 ? '' : 's'}.`;
-    return [head, ...list.map((u, i) => `Turn ${i + 1}: ${n(u.input || 0)} in (${n(u.cacheRead || 0)} cached), ${n(u.output || 0)} out`)].join('\n');
+    const head = T(wrote ? 'ui.ai.cloud.detail_head_w' : 'ui.ai.cloud.detail_head', { total: n(inp + out), hit: n(hit), inp: n(inp), out: n(out), wrote: n(wrote), n: list.length });
+    return [head, ...list.map((u, i) => T('ui.ai.cloud.detail_turn', { i: i + 1, inp: n(u.input || 0), hit: n(u.cacheRead || 0), out: n(u.output || 0) }))].join('\n');
   }
   function totalLine(cap) {
     const x = total();
-    return `This visit: ${n(x.tokens)} tokens` + (x.cost != null ? ` · ${money(x.cost)}` : ' · price not known here, see your provider') + (cap ? ` (cap ${n(cap)})` : '');
+    return T('ui.ai.cloud.visit', { count: n(x.tokens) }) + (x.cost != null ? ` · ${money(x.cost)}` : ' · ' + T('ui.ai.cloud.price_unknown')) + (cap ? ' ' + T('ui.ai.cloud.cap_of', { count: n(cap) }) : '');
   }
-  const capText = (cap) => `Stopped: this visit reached your spending cap of ${n(cap)} tokens. Raise or clear the cap in the AI settings to go on.`;
+  const capText = (cap) => T('ui.ai.cloud.cap_stop', { count: n(cap) });
 
   function seen(id) { try { return localStorage.getItem(SEEN + id) === '1'; } catch (e) { return false; } }
   function lines(p) {
-    if (p.local) return [`Your requests go to ${p.who} (${p.base || 'the address you gave'}). They do not leave this computer.`,
-      'Files and pictures are sent only when the assistant asks to look at one, and you are asked each time.'];
-    return [`What you type here, and what the assistant reads and does in this app (for example layer or file names, and each action), go to ${p.who} to be answered.`,
-      'Your files and pictures are not sent. When the assistant wants to look at one, you are asked first, every time, and only a small copy goes (a picture scaled down, or the first part of a text).',
-      `${p.who} charges your account for what you use, by tokens. The panel shows the tokens of each reply and of this visit, and you can set a cap. ${p.who}'s own terms and privacy policy apply.`,
-      `Your key stays in this browser and is sent only to ${p.who}.`];
+    const v = { who: p.who, address: p.base || T('ui.ai.cloud.the_address') };
+    if (p.local) return [T('ui.ai.cloud.notice_local_1', v), T('ui.ai.cloud.notice_local_2')];
+    return [1, 2, 3, 4].map((i) => T('ui.ai.cloud.notice_' + i, v));
   }
   function notice(p) {
     if (seen(p.id)) return Promise.resolve(true);
@@ -64,11 +63,11 @@
       for (const s of lines(p)) { const el = document.createElement('p'); el.className = 'sui-p'; el.textContent = s; body.append(el); }
       let done = false;
       const finish = (ok) => { if (done) return; done = true; if (ok) remember(); resolve(ok); };
-      SlopUI.dialog({ title: p.local ? `Use ${p.short}?` : `Send your requests to ${p.who}?`, body, cls: 'sap-notice',
-        buttons: [{ label: 'Cancel', act: () => finish(false) }, { label: 'Continue', primary: true, act: () => finish(true) }],
+      SlopUI.dialog({ title: p.local ? T('ui.ai.cloud.notice_title_local', { name: p.short }) : T('ui.ai.cloud.notice_title', { who: p.who }), body, cls: 'sap-notice',
+        buttons: [{ label: T('menu.cancel'), act: () => finish(false) }, { label: T('ui.ai.cloud.continue'), primary: true, act: () => finish(true) }],
         onClose: (ok) => finish(!!ok) });
     });
   }
 
-  C.meter = { add, total, reset, over, line, detail, totalLine, capText, notice, seen, lines, money };
+  C.meter = { add, total, reset, over, line, detail, totalLine, capText, notice, seen, lines, money, money2 };
 })();

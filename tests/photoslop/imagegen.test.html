@@ -155,6 +155,24 @@
       C.keys.save(Object.assign(C.keys.settings(), { cap: 0 }));
     }, { timeout: 60000 });
   });
+  describe('in Swedish', () => {
+    it('Generate image… reads Swedish (fields, price, who receives it), with no key showing', async () => {
+      IG.key(win, 'openai', 'sk-proj-PHOTOSLOP0123456789');
+      const I = win.SlopI18n;
+      try {
+        I.set('sv');
+        await waitFor(() => I.t('ui.ai.img.title_make') === 'Skapa bild', { timeout: 15000 });
+        closeAll(); const open = W.psImageGen('generate', { prompt: 'en röd kvadrat' });
+        const d = await waitFor(() => { const x = dlg(); return x && x.querySelector('.sig-prompt') ? x : null; }, { timeout: 15000 });
+        expect(d.textContent).toContain('Görs av'); expect(d.textContent).toContain('Genomskinlig bakgrund');
+        expect(d.querySelector('.sig-who').textContent).toContain('skickas till OpenAI, som gör bilden och debiterar ditt konto');
+        expect(d.querySelector('.sig-cost').textContent).toMatch(/^Pris: /);
+        expect(/\bui\.[a-z_]+\./.test(d.innerText)).toBe(false);
+        expect(button(d, 'Skapa')).toBeTruthy();
+        closeAll(); await open;
+      } finally { I.set('en'); }
+    }, { timeout: 40000 });
+  });
   SlopTest.run({ name: 'PhotoSlop: AI pictures' });
   </script>
 </body>

@@ -217,6 +217,29 @@
       expect(P.document.documentElement.scrollWidth).toBeLessThan(392);
     }, { timeout: 30000 });
   });
+  describe('in Swedish', () => {
+    it('the form, the picker and the catalog words follow a live switch to Swedish and back, with the provider kept', async () => {
+      await wipe(); await open('anthropic');
+      await pick('groq');
+      const I = P.SlopI18n, key = /\bui\.[a-z_]+\./;
+      try {
+        I.set('sv');
+        await waitFor(() => q('.sap-cloud summary b') && q('.sap-cloud summary b').textContent === 'Använd ditt eget AI-konto', { timeout: 15000 });
+        expect(q('.sap-cloud-provider').value).toBe('groq');
+        expect(q('.sap-cloud-test').textContent).toBe('Testa anslutningen');
+        expect(q('.sap-cloud-help').textContent).toContain('Gratis');
+        q('.sap-pp-btn').click();
+        expect(row('ollama').textContent).toContain('Ollama på den här datorn');
+        expect(q('.sap-pp-g[data-group="main"] summary').textContent).toContain('Huvudval');
+        expect(row('cloudflare').textContent).toContain('Kan inte användas direkt från en webbläsare');
+        expect(key.test(q('.sap-cloud').innerText)).toBe(false);
+        I.set('en');
+        await waitFor(() => q('.sap-cloud summary b').textContent === 'Use your own AI account', { timeout: 15000 });
+        expect(q('.sap-cloud-provider').value).toBe('groq');
+        expect(q('.sap-cloud-test').textContent).toBe('Test connection');
+      } finally { I.set('en'); }
+    }, { timeout: 40000 });
+  });
   SlopTest.run({ name: 'Slop AI: provider picker' });
   </script>
 </body>

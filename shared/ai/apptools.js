@@ -15,6 +15,7 @@
 (function () {
   'use strict';
   const K = (window.SlopAIKit = window.SlopAIKit || {});
+  const T = (k, v) => (window.SlopI18n ? SlopI18n.t(k, v) : k);   // words people read (steps, questions): shared/i18n/ui/<code>/ai2.js
   const DESTRUCTIVE = /\b(delete|remove|trash|purge|clear|erase|empty|reset|close|discard|revert|overwrite|replace|wipe|destroy|new|flatten|merge|crop|quit)\b/i;
   /** Workspace commands that always ask: the usual words, plus the ones that clearly destroy data. */
   const WS_DESTRUCTIVE = /(delete|remove|clear|empty|reset|overwrite|purge|discard|erase|wipe)/i;
@@ -62,8 +63,8 @@
   /** The once-per-app question before the assistant drives another app: through the one permission module
    * (SlopAIPermissions, kind 'control': "Allow everything" never asks, "always" is remembered per app), else env.confirm. */
   async function allowControl(app, env = {}) {
-    const P = window.SlopAIPermissions, title = `Let Slop AI run commands in ${app.name}?`;
-    const detail = `Slop AI wants to run commands in ${app.name} for this session (until you reload this page). Destructive commands still ask each time.`;
+    const P = window.SlopAIPermissions, title = T('ui.ai.step.control_q', { app: app.name });
+    const detail = T('ui.ai.step.control', { app: app.name });
     if (env.permit) return !!(await env.permit({ kind: 'control', app: app.id, appName: app.name, action: title, detail, title }));
     if (P && P.ask && P.KINDS.control) return !!(await P.ask({ kind: 'control', app: app.id, appName: app.name, action: title, detail, title }));
     return !!(env.confirm && await env.confirm(title, detail));
@@ -84,7 +85,7 @@
         params: { appId: appArg, commandId: { type: 'string', description: 'command id from app_search', required: true }, args: { type: 'object', description: 'optional arguments the command takes' } },
         destructive: (a) => { const c = ws.findCommand(a.appId, a.commandId); return !!c && WS_DESTRUCTIVE.test(`${a.commandId} ${c.title}`); },
         kind: () => 'delete', appOf: (a) => whose(a.appId),
-        confirmText: (a) => { const c = ws.findCommand(a.appId, a.commandId); return `The assistant wants to run “${c ? c.title : a.commandId}” in ${appFor(a.appId).name}. This may change or remove your work.`; },
+        confirmText: (a) => { const c = ws.findCommand(a.appId, a.commandId); return T('ui.ai.step.run_cmd', { cmd: c ? c.title : a.commandId, app: appFor(a.appId).name }); },
         run: async (a, env = {}) => {
           const app = openFor(a.appId);
           const { list } = await ws.commands(app.id);
@@ -106,9 +107,9 @@
         run: (a) => ws.state(openFor(a.appId).id) },
       ...(ws.snapshot && K.fileTools ? [{ name: 'app_snapshot', description: 'See an app that is open beside the chat as a picture (at most 1024 px), to check your work there. Its own picture of the work, else its page drawn.',
         params: { appId: appArg }, destructive: true, kind: () => 'send', appOf: (a) => whose(a.appId),
-        confirmTitle: () => 'Send a picture of your work to the AI provider?',
-        confirmText: (a) => `The assistant wants to see what is in ${appFor(a.appId).name} now, to check its work. A small picture goes to the AI provider. Nothing is changed.`,
-        label: (a) => `Look at ${appFor(a.appId).name}`,
+        confirmTitle: () => T('ui.ai.step.send_work_q', { who: T('ui.ai.the_provider') }),
+        confirmText: (a) => T('ui.ai.step.snapshot', { app: appFor(a.appId).name }),
+        label: (a) => T('ui.ai.step.snapshot_label', { app: appFor(a.appId).name }),
         run: async (a) => {
           const app = openFor(a.appId), s = await K.fileTools.shrink(await ws.snapshot(app.id));
           return { text: `A ${s.width} × ${s.height} picture of ${app.name} (full size ${s.from.width} × ${s.from.height}).`, media: [{ mime: s.mime, data: s.data, name: app.name }] };
@@ -185,8 +186,9 @@
     for (const set of K.toolSets || []) tools.push(...set(env));   // registered sets, e.g. generate_image (imagegen/tools.js)
     const cmd = env.cmd;
     if (cmd && cmd.list && (cmd.run || cmd.exec) && K.cmdTools) {
-      const label = env.appId ? `the ${((apps().find((a) => a.id === env.appId) || {}).name) || env.appId} app` : 'this app';
-      tools.push(...K.cmdTools.build(cmd, { label, who: env.who, look: !!env.look }));   // list_commands, run_command, app_state and one tool per command with args
+      const name = env.appId ? ((apps().find((a) => a.id === env.appId) || {}).name) || env.appId : '';
+      const label = name ? `the ${name} app` : 'this app';   // for the model (tool descriptions); people read appName
+      tools.push(...K.cmdTools.build(cmd, { label, appName: name, who: env.who, look: !!env.look }));   // list_commands, run_command, app_state and one tool per command with args
     }
     return tools;
   }

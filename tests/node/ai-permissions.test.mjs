@@ -132,3 +132,18 @@ test('spending (generate_image): its own kind with its own title; before() runs 
   assert.equal(asked.length, 2, 'always allowed in PhotoSlop: no third question');
   assert.match(P.MODES.find((m) => m.id === 'all').warning, /spend on image generation/);
 });
+
+test('the words people read follow the language: modes, kinds and the questions (shared/i18n/ui/sv/ai2.js)', () => {
+  const { w, P } = fresh();
+  const en = w.SlopI18n, sv = en.create({ defaultLang: 'sv', profile: null });
+  w.SlopI18n = sv;
+  for (const code of ['en', 'sv']) for (const p of ['ai', 'ai2']) vm.runInContext(readFileSync(new URL(`../../shared/i18n/ui/${code}/${p}.js`, import.meta.url), 'utf8'), w);
+  assert.deepEqual(Array.from(P.MODES, (m) => m.short), ['Fråga varje gång', 'Tillåt appändringar', 'Tillåt allt']);
+  assert.equal(P.KINDS.send.name, 'filutskick');
+  const look = w.SlopAIKit.fileTools.look({ who: 'Anthropic', hub: { list: async () => [] } });
+  assert.equal(look.confirmTitle(), 'Skicka en kopia till Anthropic?');
+  assert.match(look.confirmText({ file: 'open' }), /^Assistenten vill titta på det som är öppet i den här appen\. .*1024 px.*Anthropic/);
+  w.SlopI18n = en;   // back to English: the same objects read English at once
+  assert.equal(P.MODES[0].short, 'Ask each time');
+  assert.equal(look.confirmTitle(), 'Send a copy to Anthropic?');
+});

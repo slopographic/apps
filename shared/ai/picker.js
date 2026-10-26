@@ -18,6 +18,9 @@
   const K = (window.SlopAIKit = window.SlopAIKit || {});
   const FIT = ['Qwen2.5-1.5B-Instruct-q4f16_1-MLC', 'Llama-3.2-3B-Instruct-q4f16_1-MLC', 'Qwen2.5-3B-Instruct-q4f16_1-MLC', 'Qwen2.5-7B-Instruct-q4f16_1-MLC'];
   const MB = 1048576;
+  const T = (k, v) => (window.SlopI18n ? SlopI18n.t(k, v) : k);   // the words: shared/i18n/ui/<code>/ai.js
+  /** A sentence with a link in it ({link} in the words). */
+  const withLink = (key, vars, link) => T(key, Object.assign({}, vars)).split('{link}').flatMap((x, i) => (i ? [link(), x] : [x]));
   let gpuP = null;
   const h = (tag, attrs, ...kids) => { const n = document.createElement(tag); for (const k in attrs || {}) { const v = attrs[k]; if (v == null || v === false) continue; if (k === 'class') n.className = v; else if (k.startsWith('on')) n.addEventListener(k.slice(2), v); else n.setAttribute(k, v === true ? '' : v); } for (const c of kids.flat()) if (c != null && c !== false) n.append(c.nodeType ? c : document.createTextNode(c)); return n; };
   const size = (mb) => (window.SlopFirstRun ? SlopFirstRun.size(mb * MB) : (mb >= 1024 ? (mb / 1024).toFixed(1) + ' GB' : Math.round(mb) + ' MB'));
@@ -31,10 +34,7 @@
       try { const a = await Promise.race([navigator.gpu.requestAdapter(), late]); return a === 'late' ? { ok: false, reason: 'error' } : a ? { ok: true } : { ok: false, reason: 'no-adapter' }; } catch (e) { return { ok: false, reason: 'error' }; }
     })());
   }
-  const noGpuText = (r) => (r === 'no-api'
-    ? 'This browser cannot run the AI models: they need WebGPU, which it does not have.'
-    : 'This browser has WebGPU switched off or no graphics adapter it can use, so the AI models cannot run here.');
-  const NO_GPU_HELP = 'Use a recent Chrome or Edge on a computer (version 113 or later), or Safari 26 on a Mac or iPhone. On Linux, Chrome may need chrome://flags/#enable-unsafe-webgpu.';
+  const noGpuText = (r) => T(r === 'no-api' ? 'ui.ai.pick.no_api' : 'ui.ai.pick.no_gpu');
 
   /** shared/firstrun/notice.js, loaded on first need. */
   function notice() {
@@ -49,12 +49,12 @@
   async function consent(m, o = {}) {
     const F = await notice();
     const bytes = Math.round((o.sizeMB || m.sizeMB || 0) * MB);
-    const lines = [`${m.name} runs on this device with WebGPU, so what you ask it stays here.`,
-      'It is downloaded from huggingface.co, with its GPU code from raw.githubusercontent.com.',
-      `Licence: ${m.license ? m.license.name : 'see the model page'}${m.license && m.license.commercial ? '; commercial use: ' + m.license.commercial : ''}.`];
-    if (o.partial) lines.push('Part of it is already downloaded; it continues where it stopped.');
-    if (!F) return window.confirm(lines.join('\n') + `\n\nDownload about ${size(bytes / MB)}?`);
-    return F.once('ai-model:' + m.id, { title: 'Download ' + m.name + '?', lines, downloads: bytes ? [{ name: m.name, bytes }] : [] });
+    const licence = m.license ? m.license.name : T('ui.ai.pick.see_page');
+    const lines = [T('ui.ai.pick.consent_runs', { model: m.name }), T('ui.ai.pick.consent_hosts'),
+      m.license && m.license.commercial ? T('ui.ai.pick.consent_licence_use', { licence, use: m.license.commercial }) : T('ui.ai.pick.consent_licence', { licence })];
+    if (o.partial) lines.push(T('ui.ai.pick.consent_partial'));
+    if (!F) return window.confirm(lines.join('\n') + '\n\n' + T('ui.ai.pick.consent_size', { size: size(bytes / MB) }));
+    return F.once('ai-model:' + m.id, { title: T('ui.ai.pick.consent_title', { model: m.name }), lines, downloads: bytes ? [{ name: m.name, bytes }] : [] });
   }
 
   function prefs() { try { return JSON.parse(localStorage.getItem('slop-ai.prefs')) || {}; } catch (e) { return {}; } }
@@ -67,12 +67,12 @@
   const CLOUD = ['cloud/net', ...CATALOG, 'cloud/providers', 'cloud/free', 'cloud/anthropic', 'cloud/openai', 'cloud/compat', 'cloud/gemini', 'cloud/keys', 'cloud/meter', 'cloud/engine', 'cloud/pick', 'cloud/local', 'cloud/local-ui', 'cloud/free-guide', 'cloud/connect'];
   const loadCloud = () => K.load(['cmdtools', ...CLOUD]);
   async function cloud(box, o) {
-    box.append(h('p', { class: 'sap-dim sap-pick-wait' }, 'Loading “Use your own AI account”…'));
+    box.append(h('p', { class: 'sap-dim sap-pick-wait' }, T('ui.ai.pick.loading_own')));
     try { await loadCloud(); box.textContent = ''; K.cloud.connect.render(box, { onReady: o.onReady, onForget: o.onForget, open: o.cloudOpen, appId: o.appId, tools: o.tools }); }
-    catch (e) { box.textContent = ''; box.append(failed('“Use your own AI account” did not load', e)); console.warn('Slop AI: own-key providers', e); }
+    catch (e) { box.textContent = ''; box.append(failed(T('ui.ai.pick.own_failed'), e)); console.warn('Slop AI: own-key providers', e); }
   }
   /** A line saying what did not load, instead of an empty space. */
-  const failed = (what, e) => h('p', { class: 'sap-pick-no sap-kit-error', role: 'alert' }, `${what} (${(e && e.message) || e}). Check the connection, then open this again.`);
+  const failed = (what, e) => h('p', { class: 'sap-pick-no sap-kit-error', role: 'alert' }, T('ui.ai.pick.failed', { what, error: String((e && e.message) || e) }));
 
   async function render(box, o = {}) {
     box.textContent = '';
@@ -83,13 +83,24 @@
     // Without WebGPU (most phones, Firefox) the own account comes first and open: it works in every browser. It loads at
     // once, beside the device check, so the choice is never an empty space while the GPU is asked.
     const noApi = !navigator.gpu;
-    if (active || noApi) { box.append(more, wrap); if (active) wrap.append(h('p', { class: 'sap-pick-local-h' }, h('b', null, 'Models on this device'))); o = Object.assign({ cloudOpen: true }, o); }
+    const head = () => { if (active) wrap.append(h('p', { class: 'sap-pick-local-h' }, h('b', null, T('ui.ai.pick.on_device_h')))); };
+    if (active || noApi) { box.append(more, wrap); head(); o = Object.assign({ cloudOpen: true }, o); }
     else box.append(wrap, more);
     const cloudP = cloud(more, o);
-    const wait = h('p', { class: 'sap-dim sap-pick-wait' }, 'Checking what this device can run…');
+    const wait = h('p', { class: 'sap-dim sap-pick-wait' }, T('ui.ai.pick.checking'));
     wrap.before(wait);
-    try { await local(box, wrap, more, o, active); } catch (e) { wrap.append(failed('The models on this device could not be listed', e)); console.warn('Slop AI: local models', e); }
+    try { await local(box, wrap, more, o, active); } catch (e) { wrap.append(failed(T('ui.ai.pick.local_failed'), e)); console.warn('Slop AI: local models', e); }
     wait.remove();
+    // a language change: the models on this device again (the account part follows by itself, cloud/connect.js); not
+    // while a model downloads, which keeps its row
+    if (window.SlopI18n && SlopI18n.on) {
+      const off = SlopI18n.on(() => {
+        if (!box.isConnected) { off(); return; }
+        if (wrap.querySelector('.sap-pbar:not([hidden])')) return;
+        wrap.textContent = ''; head();
+        local(box, wrap, more, o, active).catch((e) => wrap.append(failed(T('ui.ai.pick.local_failed'), e)));
+      });
+    }
     const g = await K.picker.gpu();
     if (!g.ok) await cloudP.then(() => { const det = more.querySelector('details.sap-cloud'); if (det) det.open = true; });
     return cloudP;
@@ -99,18 +110,18 @@
     const g = await K.picker.gpu();
     if (!g.ok) {
       if (more.parentNode === box && box.firstChild !== more) box.prepend(more);   // the account first when nothing runs here
-      wrap.append(h('p', { class: 'sap-pick-no', role: 'alert' }, noGpuText(g.reason)), h('p', { class: 'sap-dim' }, NO_GPU_HELP),
-        h('p', { class: 'sap-dim' }, `You can still use every menu and tool of ${o.appName || 'this app'} yourself, or connect your own AI account above. A model that `, aiLink(), ' runs in another tab of this browser is used here too.'));
+      wrap.append(h('p', { class: 'sap-pick-no', role: 'alert' }, noGpuText(g.reason)), h('p', { class: 'sap-dim' }, T('ui.ai.pick.no_gpu_help')),
+        h('p', { class: 'sap-dim' }, withLink('ui.ai.pick.still', { app: o.appName || T('ui.ai.this_app') }, aiLink)));
       return;
     }
     await K.load(['catalog', 'webllm']);
     const p = prefs(), list = K.catalog.list.slice().sort((a, b) => rank(a) - rank(b));
     const st = new Map(await Promise.all(list.map(async (m) => [m.id, await statusOf(m.id)])));
     const have = list.find((m) => (st.get(m.id) || {}).state === 'ready' && (m.id === p.defaultModel || m.id === p.lastModel)) || list.find((m) => (st.get(m.id) || {}).state === 'ready');
-    wrap.append(h('p', null, h('b', null, active ? 'Or a model on this device.' : 'Pick a model to start.'), ' It downloads once and then works offline, on your graphics card.'));
+    wrap.append(h('p', null, h('b', null, T(active ? 'ui.ai.pick.or_device' : 'ui.ai.pick.start')), ' ' + T('ui.ai.pick.once')));
     const rows = o.rows = h('div', { class: 'sap-pick-list' });
     for (const m of list.filter((x) => FIT.includes(x.id) || x === have || x.id === p.defaultModel)) rows.append(row(m, st.get(m.id) || {}, m === have, o));
-    wrap.append(rows, h('p', { class: 'sap-dim' }, 'Smaller models are faster but follow instructions less well. More models and settings: ', aiLink(), '.'));
+    wrap.append(rows, h('p', { class: 'sap-dim' }, withLink('ui.ai.pick.smaller', {}, aiLink)));
   }
   const aiLink = () => h('a', { href: new URL('../../ai/#models', K.base || document.baseURI).href, target: '_blank', rel: 'noopener' }, 'Slop AI');
   const rank = (m) => { const i = FIT.indexOf(m.id); return i < 0 ? 99 : i; };
@@ -118,29 +129,29 @@
   function row(m, st, best, o) {
     const ready = st.state === 'ready';
     const bar = h('i'), prog = h('div', { class: 'sap-pbar', hidden: true }, bar), msg = h('div', { class: 'sap-dim sap-pick-msg' });
-    const go = h('button', { type: 'button', class: 'sap-btn' + (best || (!ready && m.id === K.catalog.DEFAULT) ? ' primary' : ''), 'data-model': m.id }, ready ? 'Use' : st.state === 'partial' ? 'Resume download' : 'Download');
-    const cancel = h('button', { type: 'button', class: 'sap-btn', hidden: true }, 'Cancel');
+    const go = h('button', { type: 'button', class: 'sap-btn' + (best || (!ready && m.id === K.catalog.DEFAULT) ? ' primary' : ''), 'data-model': m.id }, T(ready ? 'ui.ai.pick.use' : st.state === 'partial' ? 'ui.ai.pick.resume' : 'ui.download'));
+    const cancel = h('button', { type: 'button', class: 'sap-btn', hidden: true }, T('menu.cancel'));
     let ctl = null;
     cancel.addEventListener('click', () => { if (ctl) ctl.abort(); });
     go.addEventListener('click', async () => {
       if (!ready && !(await consent(m, { partial: st.state === 'partial' }))) return;
       const eng = o.engine ? o.engine() : new K.WebLLMEngine();
       ctl = new AbortController();
-      go.disabled = true; cancel.hidden = false; prog.hidden = false; msg.textContent = ready ? 'Loading…' : 'Downloading…';
+      go.disabled = true; cancel.hidden = false; prog.hidden = false; msg.textContent = T(ready ? 'ui.loading' : 'ui.ai.pick.downloading');
       try {
         await eng.load(m, (x) => { bar.style.width = Math.round((x.progress || 0) * 100) + '%'; msg.textContent = x.text || ''; }, { signal: ctl.signal });
         try { const pr = prefs(); pr.lastModel = m.id; localStorage.setItem('slop-ai.prefs', JSON.stringify(pr)); } catch (e) { /* storage blocked */ }
         if (o.onReady) o.onReady(eng, m);
       } catch (e) {
-        msg.textContent = ctl.signal.aborted ? 'Cancelled. Finished parts stay, so it can resume.' : 'Could not load it: ' + friendly(e);
+        msg.textContent = ctl.signal.aborted ? T('ui.ai.pick.cancelled') : T('ui.ai.pick.load_failed', { error: friendly(e) });
         msg.classList.add('bad');
         if (!ctl.signal.aborted && e && e.shader) gpuFailed(msg, m, e, o);
       } finally { go.disabled = false; cancel.hidden = true; ctl = null; }
     });
     const fit = (m.strengths || []).includes('tools');
     return h('div', { class: 'sap-pick-row' + (best ? ' best' : '') },
-      h('div', { class: 'sap-pick-h' }, h('b', null, m.name), fit ? h('span', { class: 'sap-badge' }, 'good at app control') : null, ready ? h('span', { class: 'sap-badge dim' }, 'on this device') : null),
-      h('div', { class: 'sap-dim' }, `${ready ? 'Downloaded' : 'Download ' + size(m.sizeMB)} · needs about ${size(m.vramMB)} of GPU memory · ${m.license ? m.license.short || m.license.name : ''}`),
+      h('div', { class: 'sap-pick-h' }, h('b', null, m.name), fit ? h('span', { class: 'sap-badge' }, T('ui.ai.pick.good_tools')) : null, ready ? h('span', { class: 'sap-badge dim' }, T('ui.ai.pick.on_device')) : null),
+      h('div', { class: 'sap-dim' }, T('ui.ai.pick.facts', { what: ready ? T('ui.ai.pick.downloaded') : T('ui.ai.pick.download_size', { size: size(m.sizeMB) }), vram: size(m.vramMB), licence: m.license ? m.license.short || m.license.name : '' })),
       h('div', { class: 'sap-acts' }, go, cancel), prog, msg);
   }
   /** The GPU could not compile the model (webllm.js tried f16, then f32): the plain message, details and two ways on. */
@@ -155,10 +166,10 @@
   }
   function friendly(e) {
     const s = String((e && e.message) || e);
-    if (/fetch|network|load failed/i.test(s)) return 'the download failed. Check the connection and press Download again (finished parts are kept).';
-    if (/quota|storage|space/i.test(s)) return 'this site has no storage left. Free space in Slop Drive ▸ Storage, then try again.';
+    if (/fetch|network|load failed/i.test(s)) return T('ui.ai.pick.net_failed');
+    if (/quota|storage|space/i.test(s)) return T('ui.ai.pick.no_storage');
     return s;
   }
 
-  K.picker = { gpu, consent, render, FIT, noGpuText, NO_GPU_HELP, loadCloud, CLOUD };
+  K.picker = { gpu, consent, render, FIT, noGpuText, get NO_GPU_HELP() { return T('ui.ai.pick.no_gpu_help'); }, loadCloud, CLOUD };
 })();

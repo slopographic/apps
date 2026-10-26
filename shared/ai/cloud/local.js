@@ -46,11 +46,12 @@
     return { signal: c.signal, done: () => clearTimeout(t) };
   };
   const site = () => { try { return location.origin; } catch (e) { return 'https://slopographic.com'; } };
+  const T = (k, v) => (window.SlopI18n ? SlopI18n.t(k, v) : k);
   const out = (kind, message, fix = [], extra = {}) => Object.assign({ ok: kind === 'ok', kind, message, fix, models: [] }, extra);
 
   async function diagnose(p, base, { key = '', signal } = {}) {
     const name = p.short || p.name, bad = C.checkBase(base), w = where(base);
-    if (bad && /mixed content/.test(bad)) return out('mixed', bad, ['Tailscale: tailscale serve --bg <port> on that machine gives an https://<machine>.<tailnet>.ts.net address.', 'Caddy: a reverse proxy with its local certificate (tls internal) in front of the server.', 'A tunnel: cloudflared tunnel --url http://localhost:<port>, or ngrok http <port>, gives an https address.', 'Or run the server on this computer and use http://localhost.']);
+    if (bad && C.mixed(base)) return out('mixed', bad, [1, 2, 3, 4].map((i) => T('ui.ai.cloud.fix_mixed_' + i)));
     if (bad) return out('address', bad);
     const F = C.formats[p.format], cfg = { key, base, provider: p, signal };
     let list;
@@ -60,20 +61,20 @@
         // the permission only matters for a public page (a page on this computer may always reach it), and only after a
         // refusal: some browsers report 'denied' for pages that never needed it
         if (w !== 'internet' && where(site()) === 'internet' && (await permission()) === 'denied')
-          return out('permission', `This browser blocks ${site()} from reaching servers on your computer or network.`, ['Click the icon left of the address bar, open Site settings, and set “Apps on device” / “Local network access” to Allow. Then press Test connection again.']);
+          return out('permission', T('ui.ai.cloud.diag_permission', { site: site() }), [T('ui.ai.cloud.fix_permission')]);
         const t = timeout(2500, signal), up = await reachable(C.endpoint(base, '/models'), t.signal); t.done();
-        if (up) return out('cors', `${name} answers, but does not allow requests from this website (CORS).`, C.localHelp(p));
-        return out('down', `Nothing answers at ${base}.`, [`Check that ${name} is running${p.port ? ` and listens on port ${p.port}` : ''}, and that the address is right.`, 'Chrome and Edge may ask whether this site may use apps on your device: choose Allow, then try again.', ...(p.start ? [p.start] : [])]);
+        if (up) return out('cors', T('ui.ai.cloud.diag_cors', { name }), C.localHelp(p));
+        return out('down', T('ui.ai.cloud.diag_down', { base }), [p.port ? T('ui.ai.cloud.fix_running_port', { name, port: String(p.port) }) : T('ui.ai.cloud.fix_running', { name }), T('ui.ai.cloud.fix_allow'), ...(p.start ? [p.start] : [])]);
       }
       if (e.kind === 'model' || e.status === 404 || e.status === 405) {
         const fixed = /\/v1\/?$/.test(base) ? '' : base.replace(/\/+$/, '') + '/v1';
-        return out('path', `${name} answers, but has no model list at ${C.endpoint(base, '/models')}.`, [fixed ? `Most servers want /v1 at the end: try ${fixed}` : 'Check the path: the address is the part before /chat/completions.', 'The server must speak the OpenAI API (some need it switched on, see the help below).'], { base: fixed });
+        return out('path', T('ui.ai.cloud.diag_path', { name, url: C.endpoint(base, '/models') }), [fixed ? T('ui.ai.cloud.fix_v1', { url: fixed }) : T('ui.ai.cloud.fix_path'), T('ui.ai.cloud.fix_openai')], { base: fixed });
       }
-      if (e.kind === 'key') return out('key', `${name} wants a key.`, ['Paste the key the server was started with (for example vLLM --api-key, LocalAI API_KEY) in the key field.']);
+      if (e.kind === 'key') return out('key', T('ui.ai.cloud.diag_key', { name }), [T('ui.ai.cloud.fix_key')]);
       return out(e.kind || 'error', e.message);
     }
-    if (!list.length) return out('none', `${name} answers, but has no models loaded.`, p.pull ? [p.pull] : ['Load or download a model in the server first, then press Test connection again.']);
-    return out('ok', `Connected to ${name}. ${list.length} model${list.length === 1 ? '' : 's'}.`, [], { models: list });
+    if (!list.length) return out('none', T('ui.ai.cloud.diag_none', { name }), p.pull ? [p.pull] : [T('ui.ai.cloud.fix_load')]);
+    return out('ok', T('ui.ai.cloud.diag_ok', { name, n: list.length }), [], { models: list });
   }
 
   /** The default ports of the local presets, each asked once (two presets can share one: llama.cpp and LocalAI on 8080). */

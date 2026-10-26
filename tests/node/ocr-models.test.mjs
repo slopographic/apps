@@ -12,6 +12,11 @@ const O = require('../../aitools/ocr-models.js');
 const C = require('../../shared/cdn/assets.js');
 const R = require('../../aitools/model-registry.js');
 globalThis.SlopOcrModels = O;
+// SlopI18n with the English words of the model chooser (shared/i18n/ui/en/models.js), as on a page
+require('../../shared/i18n/i18n.js');
+globalThis.SlopI18n = globalThis.SlopI18n.create({ defaultLang: 'en', profile: null });
+globalThis.window = globalThis.window || globalThis;
+require('../../shared/i18n/ui/en/models.js');
 const { ocrLanguages, ocrLanguageName } = await import('../../shared/ocr/languages.js');
 const { ocrFamily } = await import('../../shared/ocr/family.js');
 const { suggestModel, scriptsIn, unread } = await import('../../shared/ocr/suggest.js');
@@ -131,4 +136,18 @@ test('scriptsIn counts letters per script, unread spots lines far shorter than t
   assert.equal(unread(line('ab', 0.9, 500, 40)), true);
   assert.equal(unread(line('a fine line of text', 0.9, 500, 40)), false);
   assert.equal(unread(line('日本', 0.9, 80, 40)), false);
+});
+
+test('the chooser words follow the language (shared/i18n/ui/sv/models.js): the family, Detect automatically', () => {
+  const en = globalThis.SlopI18n;
+  globalThis.SlopI18n = en.create({ defaultLang: 'sv', profile: null });
+  try {
+    require('../../shared/i18n/ui/sv/models.js');
+    const F = ocrFamily(O), L = ocrLanguages(O);
+    assert.equal(F.title, 'Språk och modell');
+    assert.equal(F.languageStep, '1. Textens språk');
+    assert.equal(L.name('auto'), 'Identifiera automatiskt');
+    assert.equal(L.filter('ident')[0].code, 'auto');
+  } finally { globalThis.SlopI18n = en; }
+  assert.equal(ocrFamily(O).title, 'Language and model');
 });

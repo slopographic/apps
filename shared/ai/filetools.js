@@ -12,6 +12,7 @@
 (function () {
   'use strict';
   const K = (window.SlopAIKit = window.SlopAIKit || {});
+  const T = (k, v) => (window.SlopI18n ? SlopI18n.t(k, v) : k);   // words people read (steps, questions): shared/i18n/ui/<code>/ai2.js
   const MAX_PX = 1024, MAX_CHARS = 8000;
   const TEXT = /^text\/|json|xml|javascript|csv|yaml|markdown/i, TEXT_NAME = /\.(md|markdown|txt|csv|tsv|json|js|mjs|ts|py|html?|css|xml|svg|ya?ml|toml|ini|sql|sh|log)$/i;
   const PICTURE = /^image\/(png|jpe?g|webp|gif|bmp|avif)$/i, PICTURE_NAME = /\.(png|jpe?g|webp|gif|bmp|avif)$/i;
@@ -57,17 +58,15 @@
   }
 
   function look(env = {}) {
-    const who = env.who || 'the AI provider';
+    const who = env.who || T('ui.ai.the_provider');
     return {
       name: 'look_at_file', maxChars: MAX_CHARS + 400,
       description: `Look at a picture or read a text file: a Slop Drive file (name or id from list_files), or "open" for what this app has open. The person is asked each time; a picture comes as a small copy (at most ${MAX_PX} px).`,
       params: { file: { type: 'string', description: 'Slop Drive file name or id, or "open"', required: true } },
       destructive: true, kind: () => 'send',   // not destructive: it sends a copy out, so it needs approval (its own kind)
-      confirmTitle: () => `Send a copy to ${who}?`,
-      confirmText: (a) => (/^(open|current|this|app)$/i.test(String(a.file || '').trim())
-        ? `The assistant wants to look at what is open in this app. A small copy (a picture scaled to at most ${MAX_PX} px, or the first ${MAX_CHARS.toLocaleString('en')} characters of a text) goes to ${who}. Nothing is changed.`
-        : `The assistant wants to look at “${a.file}”. A small copy (a picture scaled to at most ${MAX_PX} px, or the first ${MAX_CHARS.toLocaleString('en')} characters of a text) goes to ${who}. The file itself is not changed.`),
-      label: (a) => `Look at ${/^(open|current)$/i.test(String(a.file || '')) ? 'the open file' : a.file}`,
+      confirmTitle: () => T('ui.ai.step.send_copy_q', { who }),
+      confirmText: (a) => T(/^(open|current|this|app)$/i.test(String(a.file || '').trim()) ? 'ui.ai.step.look_open' : 'ui.ai.step.look_file', { file: String(a.file), px: String(MAX_PX), chars: MAX_CHARS, who }),
+      label: (a) => (/^(open|current)$/i.test(String(a.file || '')) ? T('ui.ai.step.look_open_label') : T('ui.ai.step.look_label', { file: String(a.file) })),
       run: async (a) => {
         const f = await find(a.file, env);
         if (PICTURE.test(f.type || '') || PICTURE_NAME.test(f.name || '')) {
@@ -98,15 +97,15 @@
     return { src: f, name: f.name };
   }
   function canvas(env = {}) {
-    const who = env.who || 'the AI provider', where = env.appName || 'this app';
+    const who = env.who || T('ui.ai.the_provider'), where = env.appName || T('ui.ai.this_app');
     return {
       name: 'look_at_canvas', maxChars: 400,
       description: `See the current result in ${where} as a picture (at most ${MAX_PX} px), to check your own work after making or changing something. The person may be asked first.`,
       params: {}, schema: { type: 'object', properties: {} },
       destructive: true, kind: () => 'send',   // a picture of the work goes to the provider: approval of kind 'send'
-      confirmTitle: () => `Send a picture of your work to ${who}?`,
-      confirmText: () => `The assistant wants to see what is in ${where} now, to check its work. A small picture (at most ${MAX_PX} px) goes to ${who}. Nothing is changed.`,
-      label: () => `Look at the result in ${where}`,
+      confirmTitle: () => T('ui.ai.step.send_work_q', { who }),
+      confirmText: () => T('ui.ai.step.canvas', { app: where, px: String(MAX_PX), who }),
+      label: () => T('ui.ai.step.canvas_label', { app: where }),
       run: async () => {
         const { src, name } = await snapshot(env), s = await shrink(src);
         return { text: `A ${s.width} × ${s.height} picture of ${name} (full size ${s.from.width} × ${s.from.height}).`, media: [{ mime: s.mime, data: s.data, name }] };

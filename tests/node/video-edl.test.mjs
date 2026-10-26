@@ -16,7 +16,8 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '.
 const ctx = { console };
 ctx.window = ctx;
 vm.createContext(ctx);
-for (const f of ['shared/video/presets.js', 'shared/video/edl.js', 'shared/commands/args.js', 'shared/ai/cmdtools.js']) vm.runInContext(readFileSync(path.join(ROOT, f), 'utf8'), ctx, { filename: f });
+// SlopI18n with the English words of the questions (shared/i18n/ui/en/ai*.js), so they read as on a page
+for (const f of ['shared/i18n/i18n.js', 'shared/i18n/ui/en/ai.js', 'shared/i18n/ui/en/ai2.js', 'shared/video/presets.js', 'shared/video/edl.js', 'shared/commands/args.js', 'shared/ai/cmdtools.js']) vm.runInContext(readFileSync(path.join(ROOT, f), 'utf8'), ctx, { filename: f });
 const E = ctx.SlopVideo.edl, A = ctx.SlopCmdArgs, K = ctx.SlopAIKit;
 const require = createRequire(import.meta.url);
 const opts = { transitions: ['cross', 'wipe', 'black'], fonts: ['Archivo'] };

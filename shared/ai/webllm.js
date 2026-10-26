@@ -45,7 +45,7 @@
       try { await attempt(id); } catch (e) {
         if (!f32 || id === f32 || !SHADER.test(String(e && e.message)) || (signal && signal.aborted)) throw fail(e);
         if (gpu) C.markF16Broken(gpu);
-        if (onProgress) onProgress({ progress: 0, text: 'This graphics card could not run the f16 version. Trying the f32 version (a separate download)…' });
+        if (onProgress) onProgress({ progress: 0, text: window.SlopI18n ? SlopI18n.t('ui.ai.gpu.f32') : 'ui.ai.gpu.f32' });
         id = f32;
         try { await attempt(id); } catch (e2) { throw fail(e2); }
       }

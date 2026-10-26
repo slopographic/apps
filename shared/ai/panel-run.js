@@ -8,10 +8,10 @@
   'use strict';
   const K = window.SlopAIKit, P = K.panel;
   if (!P) return;
-  const h = P.h;
+  const h = P.h, T = P.T;
   const MAX_STEPS = 6, MAX_CALLS = 12;
 
-  const confirmFn = (title, msg) => (window.SlopUI && SlopUI.confirm ? SlopUI.confirm(title, msg, 'Allow') : Promise.resolve(window.confirm(title + '\n\n' + msg)));
+  const confirmFn = (title, msg) => (window.SlopUI && SlopUI.confirm ? SlopUI.confirm(title, msg, T('ui.ai.run.allow')) : Promise.resolve(window.confirm(title + '\n\n' + msg)));
   const stepText = (tool, call) => { try { return tool && tool.label ? tool.label(call.arguments || {}) : call.name; } catch (e) { return call.name; } };
   const ICON = { run: '…', ok: '✓', bad: '✗', stop: '■' };
 
@@ -36,7 +36,7 @@
       for (; i < list.length && (list[i].role === 'tool' || (list[i].role === 'assistant' && !list[i].note && !String(list[i].display != null ? list[i].display : list[i].content || '').trim())); i++) if (list[i].role === 'tool') run.push(list[i]);
       if (run.length <= 3) { run.forEach((x) => out.push(P.view(x))); continue; }
       const bad = run.filter((x) => !x.ok).length;
-      out.push(h('details', { class: 'sap-steps' }, h('summary', null, `${run.length} steps${bad ? `, ${bad} failed` : ' ✓'}`), ...run.map((x) => P.view(x))));
+      out.push(h('details', { class: 'sap-steps' }, h('summary', null, bad ? T('ui.ai.run.steps_bad', { n: run.length, bad }) : T('ui.ai.run.steps_ok', { n: run.length })), ...run.map((x) => P.view(x))));
     }
     return out;
   };
@@ -47,15 +47,15 @@
       const st = m.ok ? 'ok' : 'bad';
       return h('div', { class: 'sap-tool sap-step ' + st, title: String(m.content).slice(0, 400) },
         h('span', { class: 'sap-step-i', 'aria-hidden': 'true' }, ICON[st]), h('span', { class: 'sap-step-t' }, m.label || m.name),
-        h('span', { class: 'sr-only' }, m.ok ? ' (done)' : ' (failed)'),
+        h('span', { class: 'sr-only' }, ' ' + T(m.ok ? 'ui.ai.run.done' : 'ui.ai.run.failed')),
         !m.ok ? h('span', { class: 'sap-step-e' }, String(m.content).replace(/^ERROR:\s*/, '')) : result(m) ? h('span', { class: 'sap-step-r' }, result(m)) : null,
         // what was sent to the provider (look_at_file, look_at_canvas): a thumbnail, so the person sees it too
-        ...(m.media || []).filter((x) => /^image\//.test(x.mime)).map((x) => h('img', { class: 'sap-thumb', alt: 'Sent: ' + (x.name || 'picture'), src: `data:${x.mime};base64,${x.data}` })));
+        ...(m.media || []).filter((x) => /^image\//.test(x.mime)).map((x) => h('img', { class: 'sap-thumb', alt: T('ui.ai.run.sent', { name: x.name || T('ui.ai.run.picture') }), src: `data:${x.mime};base64,${x.data}` })));
     }
-    if (m.handoff) return h('div', { class: 'sap-handoff' }, m.display);   // "Opening SlopIsolate…", "Continuing in PhotoSlop with …"
+    if (m.handoff) return h('div', { class: 'sap-handoff' }, P.shown(m));   // "Opening SlopIsolate…", "Continuing in PhotoSlop with …"
     if (m.meter) return h('div', { class: 'sap-usage', title: m.detail || null }, m.display);   // the tokens line (not m.usage: every reply carries its usage)
     const d = h('div', { class: 'sap-msg ' + m.role + (m.error ? ' bad' : '') });
-    const text = m.display != null ? m.display : m.content;
+    const text = P.shown(m);
     if (m.role === 'assistant' && K.md && !m.error) d.innerHTML = K.md.render(text); else d.textContent = text;
     return d;
   };
@@ -65,9 +65,9 @@
     try { const m = K.catalog && K.catalog.byId(eng.info().id); return !!m && (m.strengths || []).includes('tools') && m.params >= 3; } catch (e) { return false; }
   };
   function setBusy(on) {
-    P.sendBtn.textContent = on ? 'Stop' : '↑';
+    P.sendBtn.textContent = on ? T('ui.ai.panel.stop') : '↑';
     P.sendBtn.classList.toggle('stop', !!on);
-    P.sendBtn.setAttribute('aria-label', on ? 'Stop' : 'Send');
+    P.sendBtn.setAttribute('aria-label', T(on ? 'ui.ai.panel.stop' : 'ui.ai.panel.send'));
   }
   P.stop = function () {
     if (!P.busy) return;
@@ -95,15 +95,16 @@
     const hop = async (rec, go) => {
       const chain = P.chain || { id: Date.now().toString(36), hop: 0 };
       if (chain.hop >= K.handoff.MAX_HOPS) throw new Error(`This task already moved through ${chain.hop} apps; it stops here.`);
-      handed = { display: `Opening ${rec.app.name}…`, note: true, handoff: true };
-      K.handoff.save({ to: rec.app.id, toName: rec.app.name, from: P.appId(), fromName: P.appName(), task: rec.task, line: rec.line, chain: { id: chain.id, hop: chain.hop + 1 },
+      const opening = { app: rec.app.name };
+      handed = { display: T('ui.ai.run.opening', opening), dk: 'ui.ai.run.opening', dv: opening, note: true, handoff: true };
+      K.handoff.save({ to: rec.app.id, toName: rec.app.name, from: P.appId(), fromName: P.appName(), task: rec.task, line: rec.line, dk: rec.dk, dv: rec.dv, chain: { id: chain.id, hop: chain.hop + 1 },
         messages: K.handoff.carry([...P.messages, ...done, { role: 'assistant', display: handed.display }]) });
       P.list.append(P.view(Object.assign({ role: 'assistant' }, handed)));
       if (P.busy) P.busy.abort();   // the next app's page goes on from here
       await go();
       return `Moving to ${rec.app.name}; the task continues there.`;
     };
-    const handoff = ({ app, task, url }) => hop({ app, task, line: `Continuing in ${app.name}.` }, () => { location.href = url; });
+    const handoff = ({ app, task, url }) => hop({ app, task, line: T('ui.ai.run.continuing', { app: app.name }), dk: 'ui.ai.run.continuing', dv: { app: app.name } }, () => { location.href = url; });
     const control = P.toolsBox.checked && !!cmd;
     if (control && cmd.prepare) { try { await cmd.prepare(); } catch (e) { console.warn('SlopCmd.prepare:', e); } }
     const ops = cloud || eng.kind === 'fake' || P.capable(eng);   // file operations: own-key models, the test engine, capable local models
@@ -145,11 +146,11 @@
       // the steps keep their labels in the history (the model sees only name and result)
       for (const m of res.messages) if (m.role === 'tool') { const t = tools.find((x) => x.name === m.name); m.label = stepText(t, { name: m.name, arguments: m.args }); }
       P.messages.push(...res.messages);
-      if (P.busy.signal.aborted && !handed) P.messages.push({ role: 'assistant', content: '', display: P.stoppedChain ? 'Stopped the task, in every app. The steps above that show ✓ were done.' : 'Stopped. The steps above that show ✓ were done.', note: true });
+      if (P.busy.signal.aborted && !handed) { const dk = P.stoppedChain ? 'ui.ai.run.stopped_chain' : 'ui.ai.run.stopped'; P.messages.push({ role: 'assistant', content: '', display: T(dk), dk, note: true }); }
       P.stoppedChain = false;
     } catch (e) {
       const msg = cloud ? K.cloud.redact((e && e.message) || e) : (e && e.message) || e;
-      P.messages.push({ role: 'assistant', content: '', display: (cloud && e && e.kind ? '' : 'Something went wrong: ') + msg, error: true });
+      P.messages.push({ role: 'assistant', content: '', display: cloud && e && e.kind ? msg : T('ui.ai.run.went_wrong', { error: msg }), dk: cloud && e && e.kind ? null : 'ui.ai.run.went_wrong', dv: { error: msg }, error: true });
     }
     if (handed) P.messages.push(Object.assign({ role: 'assistant', content: '' }, handed));
     if (cloud && spent.length) {
@@ -161,16 +162,17 @@
     P.rollback = changed && typeof rollback === 'function' ? rollback : null;
     P.render();
     P.undoBtn.hidden = !P.rollback;
-    if (P.rollback) P.undoBtn.textContent = `↶ Undo all AI changes (${changed})`;
+    P.undoN = P.rollback ? changed : 0; P.words();
   };
 
   P.undoAll = function () {
     const r = P.rollback;
-    P.rollback = null; P.undoBtn.hidden = true; P.undoBtn.textContent = '↶ Undo all AI changes';
+    P.rollback = null; P.undoBtn.hidden = true; P.undoN = 0; P.words();
     if (!r) return;
     let ok = true;
     try { ok = r() !== false; } catch (e) { ok = false; console.warn(e); }
-    P.messages.push({ role: 'assistant', content: '', display: ok ? 'Undid every change from the last request.' : 'Could not undo: the document changed in another way since.', note: true, error: !ok });
+    const dk = ok ? 'ui.ai.run.undid' : 'ui.ai.run.undo_failed';
+    P.messages.push({ role: 'assistant', content: '', display: T(dk), dk, note: true, error: !ok });
     P.render();
   };
 })();

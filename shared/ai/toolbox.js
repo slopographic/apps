@@ -17,6 +17,7 @@
 (function () {
   'use strict';
   const K = (window.SlopAIKit = window.SlopAIKit || {});
+  const T = (k, v) => (window.SlopI18n ? SlopI18n.t(k, v) : k);   // words people read (steps, questions): shared/i18n/ui/<code>/ai2.js
   /** Always sent: reading the app, finding and running tools, moving between apps, looking, Slop Drive. */
   const CORE = new Set(['app_state', 'find_tools', 'run_command', 'run_operation', 'open_in_app', 'open_app', 'look_at_canvas', 'look_at_file',
     'list_files', 'read_file', 'save_to_drive', 'app_search', 'app_command']);
@@ -90,7 +91,7 @@
       description: 'Load more tools of this app: by what they do (query, e.g. "blur text gradient") or by name (names). Returns each tool\'s arguments; then call it. Also lists matching file operations (run_operation) and other apps (open_in_app).',
       params: { query: { type: 'string', description: 'what you want to do' }, names: { type: 'array', description: 'tool names to load' } },
       schema: { type: 'object', properties: { query: { type: 'string', description: 'what you want to do' }, names: { type: 'array', items: { type: 'string' }, description: 'tool names to load' } } },
-      label: (a) => `Find tools: ${a.query || [].concat(a.names || []).join(', ')}`,
+      label: (a) => T('ui.ai.step.find_tools', { what: a.query || [].concat(a.names || []).join(', ') }),
       run: async (a) => {
         const named = new Set([].concat(a.names || []).map(String)), ws = words(a.query);
         const pool = all.filter((t) => t.deferred);

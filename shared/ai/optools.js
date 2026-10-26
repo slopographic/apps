@@ -10,6 +10,7 @@
 (function () {
   'use strict';
   const K = (window.SlopAIKit = window.SlopAIKit || {});
+  const T = (k, v) => (window.SlopI18n ? SlopI18n.t(k, v) : k);   // words people read (steps, questions): shared/i18n/ui/<code>/ai2.js
   let modsP = null;
   const root = () => new URL('../../', K.base || document.baseURI).href;
   const mod = (rel) => import(root() + rel);
@@ -96,7 +97,7 @@
     properties: { name: { type: 'string' }, text: { type: 'string' }, json: { type: 'object' } } };
   function build(env = {}) {
     return [
-      { name: 'list_operations', maxChars: 6000, label: (a) => (a.query || a.kind ? `Find operations: ${[a.query, a.kind].filter(Boolean).join(', ')}` : 'List the operations'),
+      { name: 'list_operations', maxChars: 6000, label: (a) => (a.query || a.kind ? T('ui.ai.step.find_ops', { what: [a.query, a.kind].filter(Boolean).join(', ') }) : T('ui.ai.step.list_ops')),
         description: 'List the file operations this site runs on the device (conversions, remove background, watermark, resize, upscale, OCR, PDF tools, recorded macros). Filter by words or by a file kind (png, pdf, csv…); a short filtered list includes each operation\'s options.',
         params: { query: { type: 'string', description: 'words in the name' }, kind: { type: 'string', description: 'a file kind the operation takes, e.g. png' } },
         schema: { type: 'object', properties: { query: { type: 'string', description: 'words in the name' }, kind: { type: 'string', description: 'a file kind the operation takes, e.g. png' } } },
@@ -110,7 +111,7 @@
           const ranked = [...new Set([...first, ...hits])];
           return { count: hits.length, operations: ranked.map((op, i) => (i < 6 ? describe(R, op, true) : short(op))) };
         } },
-      { name: 'run_operation', label: (a) => `Run ${a.operation} on ${[...[].concat(a.files || []), ...(a.input && a.input.name ? [a.input.name] : a.input ? ['the input'] : [])].join(', ')}`,
+      { name: 'run_operation', label: (a) => T('ui.ai.step.run_op', { op: String(a.operation), files: [...[].concat(a.files || []), ...(a.input && a.input.name ? [a.input.name] : a.input ? [T('ui.ai.step.the_input')] : [])].join(', ') }),
         description: 'Run a file operation (id from find_tools or list_operations) on files, or on an input written in the call (e.g. an outline → a presentation). New files go to Slop Drive on this device.',
         params: { operation: { type: 'string', description: 'operation id from list_operations', required: true }, files: { type: 'array', description: 'Slop Drive file names, or "open"' }, input: { type: 'object', description: '{ name, text | json }: an input written here instead of a file' }, options: { type: 'object', description: 'the operation\'s options' } },
         schema: { type: 'object', properties: { operation: { type: 'string', description: 'operation id from list_operations' }, files: FILES, input: INPUT, options: { type: 'object', description: 'its options (list_operations with a query shows them)' } }, required: ['operation'] },
@@ -120,7 +121,7 @@
           const step = op.kind === 'macro' ? describe(R, op).step : { kind: 'op' };
           return runFlow({ kind: 'slopflow', v: 1, name: op.label, steps: [Object.assign(step, { id: op.id, options: a.options || {} })] }, a.files, env, a.input);
         } },
-      { name: 'run_workflow', label: (a) => `Run the workflow ${(a.workflow && a.workflow.name) || ''}`.trim(),
+      { name: 'run_workflow', label: (a) => T('ui.ai.step.run_flow', { name: (a.workflow && a.workflow.name) || '' }).trim(),
         description: 'Run a Slop Workflows document on files: { kind: "slopflow", v: 1, name, steps: [{ kind: "op", id, options }] }, or workflow_text (a .slopflow file\'s text). Each step\'s files go to the next; the results are saved to Slop Drive.',
         params: { workflow: { type: 'object', description: 'the .slopflow document' }, workflow_text: { type: 'string', description: 'or the text of a .slopflow file' }, files: { type: 'array', description: 'Slop Drive file names, or "open"' }, input: { type: 'object', description: '{ name, text | json }: an input written here instead of a file' } },
         schema: { type: 'object', properties: { workflow: { type: 'object', description: 'the .slopflow document' }, workflow_text: { type: 'string', description: 'or the text of a .slopflow file' }, files: FILES, input: INPUT } },
