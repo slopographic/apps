@@ -42,13 +42,13 @@
   }
 
   /** Resolves once the video shows the frame at t (a seek that the browser has finished). */
-  function seek(video, t) {
-    if (Math.abs(video.currentTime - t) < 1e-3 && video.readyState >= 2) return Promise.resolve();
+  function seek(video, at) {
+    if (Math.abs(video.currentTime - at) < 1e-3 && video.readyState >= 2) return Promise.resolve();
     return new Promise((res, rej) => {
       const to = setTimeout(() => { video.removeEventListener('seeked', done); rej(new Error(t('upscale.video.stalled'))); }, 5000);
       const done = () => { clearTimeout(to); video.removeEventListener('seeked', done); res(); };
       video.addEventListener('seeked', done);
-      video.currentTime = Math.min(t, Math.max(0, video.duration - 0.001));
+      video.currentTime = Math.min(at, Math.max(0, video.duration - 0.001));
     });
   }
 

@@ -35,7 +35,7 @@
   }
 
   /** Paragraph objects for a text placeholder: lines are plain, list items are bulleted. */
-  const lines = (list) => SS.objects.paras(list.map(([t, bullet]) => ({ t, bullet: bullet ? 'disc' : 'none' })));
+  const lines = (list) => SS.objects.paras(list.map(([text, bullet]) => ({ t: text, bullet: bullet ? 'disc' : 'none' })));
 
   /** A new deck with one slide per page. Layout: title, title and content, or title only. */
   function deckFrom(data) {
@@ -45,13 +45,13 @@
       const head = pg.blocks.find((b) => b.type === 'heading');
       const body = [];
       for (const b of pg.blocks) {
-        if (b.type === 'text') for (const t of String(b.text).split('\n')) body.push([t, false]);
-        if (b.type === 'list') for (const t of b.items) body.push([t, true]);
+        if (b.type === 'text') for (const line of String(b.text).split('\n')) body.push([line, false]);
+        if (b.type === 'list') for (const item of b.items) body.push([item, true]);
       }
       const layout = body.length ? 'title-content' : head ? 'title-only' : 'blank';
       const s = M.addSlide(deck, layout);
-      const t = s.objects.find((o) => o.placeholder === 'title');
-      if (t && head) SS.objects.setPlain(t, head.text);
+      const title = s.objects.find((o) => o.placeholder === 'title');
+      if (title && head) SS.objects.setPlain(title, head.text);
       const b = s.objects.find((o) => o.placeholder === 'body');
       if (b && body.length) b.text.paras = lines(body);
     }

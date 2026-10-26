@@ -16,7 +16,7 @@
 
   function caps() {
     const M = g.MediaRecorder, d = md();
-    const types = M && M.isTypeSupported ? ['video/webm', 'video/mp4', 'audio/webm', 'audio/mp4'].filter((t) => { try { return M.isTypeSupported(t); } catch (e) { return false; } }) : [];
+    const types = M && M.isTypeSupported ? ['video/webm', 'video/mp4', 'audio/webm', 'audio/mp4'].filter((type) => { try { return M.isTypeSupported(type); } catch (e) { return false; } }) : [];
     return {
       display: !!(d && d.getDisplayMedia), user: !!(d && d.getUserMedia), recorder: typeof M === 'function',
       canvasStream: !!(g.HTMLCanvasElement && g.HTMLCanvasElement.prototype.captureStream),
@@ -64,7 +64,7 @@
   function mix(tracks) {
     if (tracks.length < 2) return { track: tracks[0] || null, stop() {} };
     const AC = g.AudioContext || g.webkitAudioContext, ac = new AC(), dest = ac.createMediaStreamDestination();
-    for (const t of tracks) ac.createMediaStreamSource(new MediaStream([t])).connect(dest);
+    for (const track of tracks) ac.createMediaStreamSource(new MediaStream([track])).connect(dest);
     return { track: dest.stream.getAudioTracks()[0], stop: () => { ac.close().catch(() => {}); } };
   }
   /** A refusal in plain words; w: 'screen' | 'camera' | 'mic' (the device asked for). */
@@ -78,7 +78,7 @@
 
   async function open(opts, { onEnded } = {}) {
     const P = R.plan, o = P.clean(opts), need = P.needs(o), d = md(), parts = [], notes = [];
-    const stopAll = () => { for (const s of parts) for (const t of s.getTracks()) t.stop(); };
+    const stopAll = () => { for (const s of parts) for (const track of s.getTracks()) track.stop(); };
     if (!d) throw new Error(t('recorder.err.no_devices'));
     try {
       let screen = null, camera = null, mic = null;

@@ -38,7 +38,7 @@
       await T.ensure('mobilenetv3-l100', (s) => ($('msg').textContent = s));
       const img = await T.image(photo.blob);
       const r = await T.call('classify', { bitmap: img.bitmap, w: img.w, h: img.h }, { transfer: [img.bitmap] });
-      suggestions = r.tags.filter((t) => t.p >= 0.02);
+      suggestions = r.tags.filter((tag) => tag.p >= 0.02);
       renderSuggestions();
       $('msg').textContent = suggestions.length ? t('aitools.tags.tap') : t('aitools.tags.none');
     } catch (e) { $('msg').textContent = t('aitools.tags.failed', { error: e.message }); }

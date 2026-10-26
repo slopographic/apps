@@ -10,8 +10,8 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { check, compare, placeholders } from '../../tools/i18n/check.mjs';
 import { scan, render, levels, losses, raise, OUT, BASELINE } from '../../tools/i18n/coverage.mjs';
-import { ROOT, COVERS, coversText, langs, apps, appTables } from '../../tools/i18n/tables.mjs';
-import { scanJs, scanHtml, wordy } from '../../tools/i18n/scan.mjs';
+import { ROOT, COVERS, coversText, langs, apps, appTables, sharedAreas, sharedTables } from '../../tools/i18n/tables.mjs';
+import { scanJs, scanHtml, wordy, fragment, staticText } from '../../tools/i18n/scan.mjs';
 
 const rows = scan();
 const read = (f) => readFileSync(path.join(ROOT, f), 'utf8');
@@ -85,4 +85,56 @@ test('the extractor finds UI text and skips ids, keys, selectors, paths and code
   assert.deepEqual(scanHtml(html).map((s) => s.text), ['Close panel', 'Drop PDFs here']);
   for (const s of ['Rotate', 'Open PDFs or images…', 'to move']) assert.equal(wordy(s), true, s);
   for (const s of ['pdf.menu.open', 'rotate-right', 'camelCase', 'PDF', 'Ctrl+S', '../x/y.js', 'sui-btn sf-btn', 'use strict']) assert.equal(wordy(s), false, s);
+});
+
+test('the extractor reads template literals by their static text and finds lower-case fragments where only text goes', () => {
+  const js = [
+    'SlopUI.toast(`Saved ${n} files`);',
+    'el.textContent = n + \' selected\';',
+    "h('span', { class: 'b' }, 'more');",
+    'label: `${n} of ${m}`,',
+    'el.title = `${count} to move`;',
+    // not text: classes, fonts, CSS, PDF and printer syntax, ids and enum values
+    "el.className = 'btn sm';",
+    'el.className = `btn small${on}`;',
+    'ctx.font = `600 ${s}px system-ui, sans-serif`;',
+    'el.style.transform = `translate(${x}px, ${y}px)`;',
+    'var sz = `${w}px ${h}px`;',
+    'ops.push(`q ${a} 0 0 ${b} cm Do Q`);',
+    'cmd.push(`SIZE ${w} mm,${h} mm`);',
+    "var st = { tip: 'round', blend: 'normal' };",
+    "setStatus(id, 'open');",
+    "var o = { label: 'log', text: 'text' };",
+    'var p = `${base}/i18n/${code}.js`;',
+  ].join('\n');
+  assert.deepEqual(scanJs(js).map((s) => s.text), ['Saved {…} files', 'selected', 'more', '{…} of {…}', '{…} to move']);
+  for (const s of ['selected', ' more', 'to move', '(untitled)', 'not shown on screen:']) assert.equal(fragment(s), true, s);
+  for (const s of ['none', 'px', 'rotate-right', 'camelCase', 'Close', 'a1']) assert.equal(fragment(s), false, s);
+  assert.equal(staticText('Saved {…} files'), 'Saved files');
+  assert.equal(staticText('{…}px {…}px'), null);
+  assert.equal(staticText('q {…} 0 0 {…} cm Do Q'), null);
+});
+
+test('the shared areas include shared/biz/i18n, so the checker and the coverage report read it', () => {
+  const biz = sharedAreas().find((a) => a.id === 'biz');
+  assert.ok(biz, 'sharedAreas() has biz');
+  assert.equal(biz.base, 'shared/biz/i18n/');
+  const t = appTables(biz);
+  assert.ok(t.tables.en && t.tables.en.size > 0 && t.tables.sv, 'en and sv tables of biz');
+  assert.ok([...t.tables.en.keys()].every((k) => k.startsWith('biz.')), 'biz keys');
+  const row = rows.find((r) => r.id === 'biz');
+  assert.ok(row && row.shared && row.keys === [...t.tables.en.keys()].filter((k) => !k.includes('#')).length, 'a coverage row for biz');
+  assert.match(read(OUT), /Shared biz \(shared\/biz\/i18n\/\)/, 'COVERAGE.md lists it');
+  assert.match(read('tools/i18n/check.mjs'), /\[\.\.\.apps\(\), \.\.\.sharedAreas\(\)\]/, 'check() walks the shared areas');
+});
+
+test('the home page describes the AI assistant, the file manager, the business apps and HTML to PDF in plain words, as sv and de do', () => {
+  const chrome = sharedTables('chrome');
+  for (const k of ['home.why_local_d', 'home.why_backup_d', 'home.sec_business_d', 'home.print_d']) {
+    for (const l of langs()) {
+      if (l.code === 'en') continue;
+      const v = chrome.tables[l.code].get(k);
+      assert.ok(!/Slop|\.slop\b/.test(v), `${l.code} ${k} names an app brand: ${v}`);
+    }
+  }
 });

@@ -3,13 +3,39 @@
 // console.* and thrown errors) and text and labelling attributes in HTML, and keeps what reads like words for a person.
 // A literal counts when a UI API takes it (label:, title:, toast(), textContent =, h('b', ..., 'Text'), ...), or when it
 // reads like prose (a capital and a lower-case letter, or two words). Keys (dotted lower case), ids, CSS, URLs, file
-// names and code do not count. Pure functions; no file system.
+// names and code do not count. A template literal counts by its static text (`Saved ${n} files` → 'Saved {…} files'),
+// and a lower-case fragment ('selected', ' more', `${n} of ${m}`) counts where only text can go (STRONG_UI: textContent,
+// a label:, a toast, an h() child), so a word joined to a number is found while ids and enum values are not.
+// Pure functions; no file system.
 
-const UI_PROP = /(?:^|[^\w$])(label|title|desc|description|placeholder|text|tip|tooltip|hint|empty|emptyLabel|message|msg|caption|heading|help|note|summary|confirm|ok|cancel|alt|name|sub|status|error|aria-label|ariaLabel|label2|unit|group)\s*:\s*$/;
-const UI_CALL = /(?:toast|alert|confirm|prompt|status|setStatus|announce|say|busy|guarded|notify|warn|fail|tip|dialog|ask|err|note|info|live|progress|msg|menuItem|item|option|button|btn|cmd|addItem|section|row|field|check|tab)\s*\(\s*(?:[^()]*,\s*)?$/i;
-const UI_ASSIGN = /(?:textContent|innerText|title|placeholder|ariaLabel|label|value|alt)\s*(?:\+?=)\s*(?:[^=;]*\?\s*)?(?:[^=;]*:\s*)?$/;
+const UI_PROP = /(?:^|[^\w$])(label|title|desc|description|placeholder|text|tip|tooltip|hint|empty|emptyLabel|message|msg|caption|heading|help|note|summary|confirm|ok|cancel|alt|name|sub|status|error|aria-label|ariaLabel|label2|unit|group)\s*:\s*(?:[^,{}:;'"`]*\+\s*)?$/;
+const UI_CALL = /(?:toast|alert|confirm|prompt|status|setStatus|announce|say|busy|guarded|notify|warn|fail|tip|dialog|ask|err|note|info|live|progress|msg|menuItem|item|option|button|btn|cmd|addItem|section|row|field|check|tab)\s*\(\s*(?:[^()]*[,+]\s*)?$/i;
+const UI_ASSIGN = /(?:textContent|innerText|title|placeholder|ariaLabel|label|value|alt)\s*(?:\+?=)\s*(?:[^=;]*\?\s*)?(?:[^=;]*:\s*)?(?:[^=;?:'"`]*\+\s*)?$/;
 const UI_ATTR_CALL = /setAttribute\(\s*['"](?:aria-label|title|placeholder|alt|aria-description|data-tip)['"]\s*,\s*$/;
-const H_CHILD = /\bh\(\s*['"][\w.-]+['"]\s*,\s*(?:null|\{[^{}]*\}|\w+)\s*,\s*(?:[^()]*,\s*)?$/;
+const H_CHILD = /\bh\(\s*['"][\w.-]+['"]\s*,\s*(?:null|\{[^{}]*\}|\w+)\s*,\s*(?:[^()]*[,+]\s*)?$/;
+// Where only text a person reads can go: here a lower-case fragment ('selected', ' more') counts too.
+const STRONG_UI = [
+  /(?:^|[^\w$])(label|title|placeholder|text|tooltip|hint|message|caption|heading|aria-label|ariaLabel|desc|description|summary|alt)\s*:\s*(?:[^,{}:;'"`]*\+\s*)?$/,
+  /(?:toast|alert|confirm|prompt|setStatus|announce|notify)\s*\(\s*(?:[^()]*[,+]\s*)?$/,
+  /(?:textContent|innerText|title|placeholder|ariaLabel|alt)\s*(?:\+?=)\s*(?:[^=;]*\?\s*)?(?:[^=;]*:\s*)?(?:[^=;?:'"`]*\+\s*)?$/,
+  UI_ATTR_CALL, H_CHILD,
+];
+// A bare word ('more', not ' more' or 'to move') is more often an id or an enum value: it counts only as an element's text.
+const BARE_UI = /(?:textContent|innerText)\s*\+?=\s*$|\bh\(\s*['"][\w.-]+['"]\s*,\s*(?:null|\{[^{}]*\}|\w+)\s*,\s*$/;
+const NOT_TEXT = /(?:\b(?:className|class|cls|font)\s*[:=]|setProperty\([^()]*,)\s*$/;
+const NOT_WORDS = /^(none|auto|true|false|null|undefined|inherit|initial|block|inline|flex|grid|hidden|visible|on|off|px|em|rem|mm|cm|pt|in|ms|kb|mb|gb|deg|rad|fr|vh|vw|x|y)$/;
+/** True when s is a lower-case fragment of text: words of letters only ('selected', ' more', 'to move'). */
+export function fragment(s) {
+  const v = s.trim().replace(/^[(,·–—-]+\s*|[\s.,:;!?…)]+$/g, '');
+  return /^[a-z][a-z'’]+(?:\s+[a-z][a-z'’]*)*$/.test(v) && !NOT_WORDS.test(v);
+}
+/** The static text of a template literal (its ${} parts dropped), or null when no word is left: only units, numbers,
+ * marks and operator-like tokens (a PDF content stream 'q {…} 0 0 {…} cm Do Q', a printer command 'SIZE {…} mm'). */
+export function staticText(v) {
+  const s = v.replace(/\{…\}/g, ' ').replace(/\s+/g, ' ').trim();
+  return /\b(?:[a-z]{3,}|[A-Z][a-z]{2,}|of|to|in|on|at|by|or|an|is|no)\b/.test(s.replace(/\b(px|em|rem|vh|vw|deg|rad|ms|fr|pt|mm|cm)\b/g, '')) ? s : null;
+}
+
 const SKIP_CTX = /(?:console\.\w+|throw\s+new\s+\w*Error|new\s+\w*Error|querySelector(?:All)?|getElementById|addEventListener|removeEventListener|dispatchEvent|matches|closest|classList\.\w+|getAttribute|hasAttribute|removeAttribute|createElement|localStorage\.\w+|getItem|setItem|import|require|postMessage|fetch|(?:^|[^\w$])(?:t|tr|i18n)|\.t)\s*\(\s*(?:[^()]*,\s*)?$/;
 
 /** True when s reads like words a person sees, rather than an id, key, selector, path or code. */
@@ -21,7 +47,8 @@ export function wordy(s) {
   if (/\.(js|mjs|css|html|json|svg|png|jpe?g|webp|pdf|zip|txt|md|woff2?)$/i.test(v) && !/\s/.test(v)) return false;
   if (/[{};<>]|=>|\$\{|^\W|\b(function|return|var|const|let)\b/.test(v) && !/^[A-Z][a-z]/.test(v)) return false;
   if (/^[\w-]+(\s*[:,]\s*[\w-]+)+$/.test(v) && !/\s\w+\s/.test(v)) return false;  // css-ish or a list of ids
-  if (/^(rgba?|hsla?|var|calc|url|translate|scale|rotate|matrix)\(/.test(v)) return false;
+  if (/\b(sans-serif|monospace|system-ui|endobj|endstream)\b/.test(v)) return false;   // a CSS font or PDF syntax
+  if (/^(rgba?|hsla?|var|calc|url|translate|scale|rotate|matrix|[\w-]*gradient)\(/.test(v)) return false;
   const words = v.split(/\s+/);
   if (words.every((w) => /^[a-z0-9_-]+$/.test(w)) && words.some((w) => /[-_]/.test(w))) return false;   // a class list
   if (/^[a-z]+([A-Z][a-z]*)+$/.test(v) || /^[a-z0-9_-]+$/.test(v)) return false;   // camelCase or a lower-case id
@@ -75,7 +102,15 @@ export function classify(lit) {
   const b = lit.before.replace(/\s+/g, ' ');
   if (SKIP_CTX.test(b)) return null;
   if (lit.quote === '`' && /<[a-z]/i.test(lit.value)) return htmlText(lit.value).length ? 'ui' : null;
-  if (!wordy(lit.value)) return null;
+  const hole = lit.quote === '`' && lit.value.includes('{…}');
+  const text = hole ? staticText(lit.value) : lit.value;
+  if (text == null) return null;
+  if (NOT_TEXT.test(b)) return null;
+  if (!wordy(text)) {
+    if (!fragment(text)) return null;
+    const bare = !hole && /^[a-z'’]+$/.test(text);
+    return (bare ? BARE_UI.test(b) : STRONG_UI.some((re) => re.test(b))) ? 'ui' : null;
+  }
   if (UI_PROP.test(b) || UI_CALL.test(b) || UI_ASSIGN.test(b) || UI_ATTR_CALL.test(b) || H_CHILD.test(b)) return 'ui';
   if (/\b(case|===?|!==?|in|typeof)\s*$/.test(b) || /\[\s*$/.test(b)) return null;   // compared or used as a key
   return 'prose';
@@ -90,7 +125,7 @@ export function scanJs(src) {
     const kind = classify(lit);
     if (!kind) continue;
     if (lit.quote === '`' && /<[a-z]/i.test(lit.value)) { for (const t of htmlText(lit.value)) out.push({ line: lit.line, text: t, kind }); continue; }
-    out.push({ line: lit.line, text: lit.value.trim(), kind });
+    out.push({ line: lit.line, text: lit.value.replace(/\s+/g, ' ').trim(), kind });
   }
   return out;
 }

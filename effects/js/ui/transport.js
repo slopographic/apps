@@ -23,11 +23,11 @@
     const player = g.SlopMotion.playback.create({
       duration: S.doc.comp.duration,
       loop: S.loop ? 'loop' : 'none',
-      onFrame: (t, st) => {
+      onFrame: (time, st) => {
         const r = S.range;
-        if (r && st.playing && (t >= r.out - 1e-6 || t < r.in - 1e-6)) { player.seek(r.in); S.seek(r.in); return; }
+        if (r && st.playing && (time >= r.out - 1e-6 || time < r.in - 1e-6)) { player.seek(r.in); S.seek(r.in); return; }
         if (st.ended && !S.loop) { player.pause(); }
-        S.seek(t);
+        S.seek(time);
         if (!st.playing) setPlaying(false);
       },
     });
@@ -46,12 +46,12 @@
     }
     function pause() { player.pause(); setPlaying(false); }
     function toggle() { if (player.playing) pause(); else play(); }
-    function seekTo(t) { player.seek(t); S.seek(t); }
+    function seekTo(time) { player.seek(time); S.seek(time); }
     const start = () => seekTo(S.range ? S.range.in : 0);
     const end = () => seekTo(S.doc.comp.duration);
     const stepFrames = (n) => seekTo(S.playhead + n / fps());
-    function setIn() { const t = S.playhead; const out = S.range ? S.range.out : S.doc.comp.duration; S.setRange({ in: Math.min(t, out - 1 / fps()), out }); }
-    function setOut() { const t = S.playhead; const inT = S.range ? S.range.in : 0; S.setRange({ in: inT, out: Math.max(t, inT + 1 / fps()) }); }
+    function setIn() { const now = S.playhead; const out = S.range ? S.range.out : S.doc.comp.duration; S.setRange({ in: Math.min(now, out - 1 / fps()), out }); }
+    function setOut() { const now = S.playhead; const inT = S.range ? S.range.in : 0; S.setRange({ in: inT, out: Math.max(now, inT + 1 / fps()) }); }
     function clearRange() { S.setRange(null); }
 
     playBtn.addEventListener('click', toggle);

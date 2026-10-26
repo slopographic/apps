@@ -37,7 +37,7 @@
    *  format, or with two or more pictures selected those that are done (a ZIP); it needs a finished cutout. */
   function download() {
     const b = $('#btnDownload'), it = S.current(), fmt = S.exportOpts.format.toUpperCase();
-    const many = S.bulk(), ready = many ? S.targets().filter((t) => t.status === 'done').length : 0;
+    const many = S.bulk(), ready = many ? S.targets().filter((it) => it.status === 'done').length : 0;
     b.disabled = many ? !ready : !(it && it.status === 'done' && it.kind !== 'video');
     const label = many ? t('cutout.app.export_n_zip', { n: ready }) : t('cutout.app.download_fmt', { fmt });
     U.btnIcon(b, 'download', label);

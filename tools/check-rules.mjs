@@ -12,17 +12,20 @@
 //      says so with a "touch-ok: <why>" comment (a mousedown that only keeps the focus, say).
 //   6. Compatibility (tools/compat-check.mjs): scripts use only what the support target has (Safari 16.4, the list in
 //      tools/compat/features.mjs); a feature-detected use says so with a "compat-ok: <why or the fallback>" comment.
+//   7. The translator t (tools/t-shadow.mjs): a script whose translator is called t names nothing else t (a parameter,
+//      loop variable, catch binding or other variable called t hides it, and t('key') there breaks).
 // Vendored code (vendor/), minified files and the generated precache lists are not ours to split or test.
-//   node tools/check-rules.mjs --all           rules 1, 4, 5 and 6 on every tracked file
-//   node tools/check-rules.mjs --staged        rules 1, 2, 4, 5 and 6 on the files staged for commit
-//   node tools/check-rules.mjs --range A..B    rules 1, 2, 4, 5 and 6 on the files changed between two commits
-//   node tools/check-rules.mjs --files a b     rules 1, 2, 4, 5 and 6 on the files named
+//   node tools/check-rules.mjs --all           rules 1, 4, 5, 6 and 7 on every tracked file
+//   node tools/check-rules.mjs --staged        rules 1, 2, 4, 5, 6 and 7 on the files staged for commit
+//   node tools/check-rules.mjs --range A..B    rules 1, 2, 4, 5, 6 and 7 on the files changed between two commits
+//   node tools/check-rules.mjs --files a b     rules 1, 2, 4, 5, 6 and 7 on the files named
 // Prints each problem and exits 1 when there is one.
 import { readFileSync, existsSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { strict, oneWayProblems } from './one-way.mjs';
+import { shadowProblems } from './t-shadow.mjs';
 import { compatProblems, inScope as compatScope, message as compatMessage } from './compat-check.mjs';
 
 export const MAX_LINES = 300;
@@ -41,7 +44,7 @@ export const needsTest = (f) => SCRIPT.test(f) && !EXEMPT.test(f) && !f.startsWi
 const readRepo = (f) => (existsSync(path.join(ROOT, f)) ? readFileSync(path.join(ROOT, f), 'utf8') : null);
 /** The problems in a list of repo paths: [{ file, rule, message }]. tests: the text of every file under tests/ (null skips
  * rule 2); read(path): a file's text or null when it is gone (default: the working tree). */
-export function check(files, { tests = null, size = true, oneWay = true, touch = true, compat = true, read = readRepo } = {}) {
+export function check(files, { tests = null, size = true, oneWay = true, touch = true, compat = true, shadow = true, read = readRepo } = {}) {
   const out = [];
   for (const f of files) {
     const text = isSource(f) ? read(f) : null;
@@ -50,6 +53,7 @@ export function check(files, { tests = null, size = true, oneWay = true, touch =
     if (size && n > MAX_LINES) out.push({ file: f, rule: 'size', message: `${f}: ${n} lines (at most ${MAX_LINES}). Split it into modules.` });
     if (oneWay && strict(f)) for (const p of oneWayProblems(text)) out.push({ file: f, rule: 'one-way', message: `${f}:${p.line}: ${p.why}. Files come in through SlopIntake and go out through SlopOuttake (shared/intake/HANDOFF.md); a line that must stay says why with an "intake-ok:" comment.` });
     if (touch) for (const m of touchProblems(f, text)) out.push({ file: f, rule: 'touch', message: m });
+    if (shadow && SCRIPT.test(f)) for (const p of shadowProblems(text)) out.push({ file: f, rule: 't-shadow', message: `${f}:${p.line}: ${p.why} (tools/t-shadow.mjs).` });
     if (compat && compatScope(f)) for (const p of compatProblems(f, text)) out.push({ file: f, rule: 'compat', message: compatMessage(f, p) });
     if (tests != null && needsTest(f) && !tests.includes(f)) out.push({ file: f, rule: 'test', message: `${f}: no test names it. Add a test that loads it, or a "Covers: ${f}" line to the test that checks it.` });
   }

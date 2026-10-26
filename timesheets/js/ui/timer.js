@@ -39,10 +39,10 @@
 
   /** Stops the timer and opens the new entry with what it measured. */
   function stop() {
-    const t = current();
-    if (!t) return;
-    const minutes = Math.min(1440, Math.max(1, Math.ceil((Date.now() - t.start) / 60000)));
-    NS.state.prefill = { minutes, description: $('tmDesc').value.trim() || t.description || '', customerId: t.customerId || '' };
+    const cur = current();
+    if (!cur) return;
+    const minutes = Math.min(1440, Math.max(1, Math.ceil((Date.now() - cur.start) / 60000)));
+    NS.state.prefill = { minutes, description: $('tmDesc').value.trim() || cur.description || '', customerId: cur.customerId || '' };
     mem = null;
     write(null);
     paint();
@@ -51,7 +51,7 @@
 
   function mount() {
     $('tmGo').addEventListener('click', () => (current() ? stop() : start()));
-    $('tmDesc').addEventListener('input', () => { const t = current(); if (t) { t.description = $('tmDesc').value; mem = t; write(t); } });
+    $('tmDesc').addEventListener('input', () => { const entry = current(); if (entry) { entry.description = $('tmDesc').value; mem = entry; write(entry); } });
     addEventListener('storage', (e) => { if (e.key === KEY) paint(); });
     if (g.SlopI18n) g.SlopI18n.on(paint);   // Start timer / Stop in the new language
     paint();

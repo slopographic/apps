@@ -30,7 +30,7 @@
     const shown = NS.core.filter(all, { search: $('xSearch').value, status: $('xStatus').value, ...period($('xPeriod').value) });
     list.set(shown);
     const live = shown.filter((e) => e.status === 'posted' || e.status === 'owed'), cur = settings.currency, m = (v) => B.money(v, cur, settings.locale);
-    const same = live.every((e) => (e.currency || cur) === cur), owed = live.filter((e) => e.status === 'owed').reduce((t, e) => t + e.amount, 0);
+    const same = live.every((e) => (e.currency || cur) === cur), owed = live.filter((e) => e.status === 'owed').reduce((sum, e) => sum + e.amount, 0);
     $('xTotal').textContent = live.length && same ? t('expenses.li.total', { amount: m(live.reduce((x, e) => x + e.amount, 0)) }) + (owed ? ' ' + t('expenses.li.to_pay', { amount: m(owed) }) : '') : '';
   }
 

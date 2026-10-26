@@ -67,8 +67,8 @@ export function sync() {
     else if (n.type === 'checkbox') n.checked = !!v;
     else if (n.value !== String(v)) n.value = String(v);
   }
-  const t = document.getElementById('df-opt-threshold');
-  if (t) t.title = `${S.opts.threshold}%`;
+  const inp = document.getElementById('df-opt-threshold');
+  if (inp) inp.title = `${S.opts.threshold}%`;
   const out = document.getElementById('df-thr-val');
   if (out) out.textContent = `${S.opts.threshold}%`;
   const cols = document.getElementById('df-cols');

@@ -10,7 +10,7 @@
   const COLS = ['sku', 'ean', 'name', 'price', 'reorderLevel'];
   const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
   const REQUIRED = ['sku', 'name', 'price'];
-  const norm = (t) => String(t ?? '').toLowerCase().replace(/[^a-z]/g, '');
+  const norm = (str) => String(str ?? '').toLowerCase().replace(/[^a-z]/g, '');
 
   /** Column index for each known column, by normalised header name ("Reorder level" -> reorderlevel). */
   function columnsOf(header) {

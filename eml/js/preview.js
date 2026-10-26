@@ -29,12 +29,12 @@
 
   /** The kind of preview an attachment gets: by its extension first, then by its type. */
   P.kindOf = function (a) {
-    const e = extOf(a.name), t = String(a.type || '').toLowerCase();
+    const e = extOf(a.name), mime = String(a.type || '').toLowerCase();
     if (IMG[e]) return 'image';
-    if (e === 'pdf' || t === 'application/pdf') return 'pdf';
+    if (e === 'pdf' || mime === 'application/pdf') return 'pdf';
     if (SHEET.includes(e)) return 'sheet';
-    if (e === 'html' || e === 'htm' || t === 'text/html') return 'html';
-    if (TEXT.includes(e) || t.startsWith('text/')) return 'text';
+    if (e === 'html' || e === 'htm' || mime === 'text/html') return 'html';
+    if (TEXT.includes(e) || mime.startsWith('text/')) return 'text';
     return 'other';
   };
 
@@ -64,7 +64,7 @@
 
   /** Fills the body for one attachment. Object URLs made here go into `urls` (revoked on close). */
   function fill(slot, a, kind, urls) {
-    const note = (t) => el('p', 'em-prev-note', t);
+    const note = (text) => el('p', 'em-prev-note', text);
     const ext = extOf(a.name);
     if (kind === 'image') {
       dataUrl(a, IMG[ext]).then((u) => {

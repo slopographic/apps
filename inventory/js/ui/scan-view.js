@@ -154,7 +154,7 @@
     if (st.mode === 'camera') {
       box.hidden = false;
       if (!st.camera) {
-        st.camera = NS.camera.createCamera({ video: $('cam'), onCode: (code, o) => handle(code, o.source), onStatus: (t) => { $('camMsg').textContent = t; } });
+        st.camera = NS.camera.createCamera({ video: $('cam'), onCode: (code, o) => handle(code, o.source), onStatus: (msg) => { $('camMsg').textContent = msg; } });
       }
       st.camera.start();
     } else {

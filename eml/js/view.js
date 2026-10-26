@@ -114,7 +114,7 @@
     const w = doc.msg.warnings;
     $('em-warn').hidden = w.length === 0;
     const list = $('em-warn-list');
-    list.replaceChildren(...w.map((t) => el('li', '', t)));
+    list.replaceChildren(...w.map((item) => el('li', '', item)));
   }
 
   /** Saves the decoded bytes of one attachment. */

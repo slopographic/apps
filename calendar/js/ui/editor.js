@@ -9,7 +9,7 @@
   const FALLBACK_ZONES = ['UTC', 'Europe/London', 'Europe/Paris', 'Europe/Berlin', 'America/New_York', 'America/Chicago', 'America/Los_Angeles', 'Asia/Dubai', 'Asia/Kolkata', 'Asia/Tokyo', 'Australia/Sydney'];
   const pad = (n) => String(n).padStart(2, '0');
   const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
-  const plusHour = (hhmm) => { const [h, m] = hhmm.split(':').map(Number); const t = (h + 1) % 24; return `${pad(t)}:${pad(m)}`; };
+  const plusHour = (hhmm) => { const [h, m] = hhmm.split(':').map(Number); const hr = (h + 1) % 24; return `${pad(hr)}:${pad(m)}`; };
 
   /** The zones offered: every zone Intl knows, or a short list where it cannot say. Always includes the given ones. */
   function zoneChoices(...extra) {

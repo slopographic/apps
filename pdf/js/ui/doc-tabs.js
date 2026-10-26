@@ -8,7 +8,7 @@
   var DT = SP.tabs = {};
   var api = null, session = null, shown = null, lastLoad = Promise.resolve(), locks = 0, driveVal = null;
 
-  D.list = function () { return api ? api.tabs().map(function (t) { return t.doc; }) : []; };
+  D.list = function () { return api ? api.tabs().map(function (tab) { return tab.doc; }) : []; };
 
   /* A.driveId is the Drive file of the open tab (the strip keeps it per tab, across reloads). */
   Object.defineProperty(A, 'driveId', {
@@ -92,19 +92,19 @@
   }
 
   /** The strip's events: a closed tab frees its files and undo stack; a rename (strip) sets the file name. */
-  function onStrip(why, t) {
-    if (!api || !t) return;
+  function onStrip(why, tab) {
+    if (!api || !tab) return;
     if (why === 'close') {
-      H.dropStack(t.doc.id);
-      if (t.doc.files && !t.doc.live) t.doc.files.forEach(function (f) { if (f.doc) Promise.resolve(f.doc.destroy()).catch(function () {}); });
+      H.dropStack(tab.doc.id);
+      if (tab.doc.files && !tab.doc.live) tab.doc.files.forEach(function (f) { if (f.doc) Promise.resolve(f.doc.destroy()).catch(function () {}); });
       return;
     }
     if (why !== 'content') return;
-    var row = api.tabs().find(function (r) { return r.doc === t.doc; });
+    var row = api.tabs().find(function (r) { return r.doc === tab.doc; });
     if (!row || !row.name) return;
     var fn = U.safeName(row.name + '.pdf', 'pdf');
-    if (t.doc === shown) { S.els.fileName.value = fn; S.fileNameTouched = true; } else t.doc.fileName = fn;
-    t.doc.fileNameTouched = true;
+    if (tab.doc === shown) { S.els.fileName.value = fn; S.fileNameTouched = true; } else tab.doc.fileName = fn;
+    tab.doc.fileNameTouched = true;
   }
 
   /** File > Rename, the top-bar name field: the open tab takes the name (its strip title, file name and Drive file). */
@@ -121,7 +121,7 @@
   /** Autosave off deletes the stored tabs; on writes every open tab again. */
   A.setAutosave = function (on) {
     if (!api) return;
-    if (on) api.tabs().forEach(function (t) { api.changed(t.doc); }); else session.clear();
+    if (on) api.tabs().forEach(function (tab) { api.changed(tab.doc); }); else session.clear();
   };
 
   /** Mounts the strip and restores the stored tabs. A.tabsReady resolves once the tab on screen is open. */

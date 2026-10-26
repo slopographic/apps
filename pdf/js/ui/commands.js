@@ -18,8 +18,8 @@
   /** Selected pages, else the focused thumbnail. */
   function gridIds() {
     if (O.sel.size) return O.selected();
-    var a = document.activeElement, t = a && a.closest && a.closest('#grid .thumb');
-    return t ? [t.dataset.id] : [];
+    var a = document.activeElement, thumb = a && a.closest && a.closest('#grid .thumb');
+    return thumb ? [thumb.dataset.id] : [];
   }
   function pageIds() { return pg() ? [Ed.pid] : A.targetIds(); }
   function zoom(k) { if (A.mode === 'page') Ed.zoomBy(k); else O.zoomBy(k); }

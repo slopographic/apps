@@ -10,7 +10,7 @@
   const toast = (m) => g.SlopUI.toast(m);
   const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
   let session = null, rec = null, frame = null, side = null, bar = null, saving = null;
-  const note = (t) => { $('rc-note').textContent = t || ''; };
+  const note = (msg) => { $('rc-note').textContent = msg || ''; };
 
   function state() { return session ? session.state : rec ? 'review' : 'idle'; }
   function syncFooter() {

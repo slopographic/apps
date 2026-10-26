@@ -29,7 +29,7 @@ const zip = (entries) => window.SlopZip.zip(entries);
 /** A message as Markdown: the subject as a heading, the address lines, the text, and the attachment names. */
 export function toMarkdown(d) {
   const s = d.summary, m = d.msg;
-  const esc = (t) => String(t || '').replace(/([\\`*_[\]<>#|])/g, '\\$1');
+  const esc = (str) => String(str || '').replace(/([\\`*_[\]<>#|])/g, '\\$1');
   const head = [['From', s.from], ['To', s.to], ['Cc', s.cc], ['Date', s.date]].filter((r) => r[1]).map(([k, v]) => '**' + k + ':** ' + esc(v));
   const body = m.text != null ? m.text : m.html != null ? window.EmlText.htmlToText(m.html) : '';
   const atts = m.attachments.length ? ['', '## Attachments', '', ...m.attachments.map((a) => '- ' + esc(a.name))] : [];

@@ -32,9 +32,9 @@ function card(k) {
     const img = Object.assign(document.createElement('img'), { src: urls[k], alt: `${k.toUpperCase()}: ${s.name}`, className: 'df-thumb' });
     box.append(img);
   } else {
-    const t = document.createElement('span');
-    t.className = 'df-pdf'; t.textContent = 'PDF'; t.setAttribute('aria-hidden', 'true');
-    box.append(t);
+    const tag = document.createElement('span');
+    tag.className = 'df-pdf'; tag.textContent = 'PDF'; tag.setAttribute('aria-hidden', 'true');
+    box.append(tag);
   }
   const meta = document.createElement('p');
   meta.className = 'df-meta';

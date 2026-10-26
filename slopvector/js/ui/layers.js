@@ -105,8 +105,8 @@
     lastRowClick = { id: id, t: isDbl ? 0 : now };
     if (isDbl) { UI.st.renaming = id; UI.st.layersSig = ''; renderLayers(); return; }
     var o = f.o;
-    if (e.target.closest('.leye')) { o.hidden = !o.hidden; if (o.hidden) S.sel = S.sel.filter(function (s) { var t = getObj(s); return t && SV.isEditable(t); }); SV.commit(o.hidden ? 'hide' : 'show'); return; }
-    if (e.target.closest('.llock')) { o.locked = !o.locked; if (o.locked) S.sel = S.sel.filter(function (s) { var t = getObj(s); return t && SV.isEditable(t); }); SV.commit(o.locked ? 'lock' : 'unlock'); return; }
+    if (e.target.closest('.leye')) { o.hidden = !o.hidden; if (o.hidden) S.sel = S.sel.filter(function (s) { var obj = getObj(s); return obj && SV.isEditable(obj); }); SV.commit(o.hidden ? 'hide' : 'show'); return; }
+    if (e.target.closest('.llock')) { o.locked = !o.locked; if (o.locked) S.sel = S.sel.filter(function (s) { var obj = getObj(s); return obj && SV.isEditable(obj); }); SV.commit(o.locked ? 'lock' : 'unlock'); return; }
     if (e.target.closest('.ltw')) { if (f.kind === 'layer') { o.expanded = !o.expanded; SV.requestRender(true); } else { expandedObjs[id] = !expandedObjs[id]; SV.requestRender(true); } return; }
     if (f.kind === 'layer') {
       S.activeLayer = id;
@@ -154,25 +154,25 @@
     window.addEventListener('pointermove', mv); window.addEventListener('pointerup', up); window.addEventListener('pointercancel', up);
   }
   function applyLayerDrop(d) {
-    var t = d.target;
+    var tgt = d.target;
     if (d.kind === 'layer') {
-      var Ls = S.doc.layers, src = SV.getLayer(d.id), dst = SV.getLayer(t.id); if (!src || !dst) return;
+      var Ls = S.doc.layers, src = SV.getLayer(d.id), dst = SV.getLayer(tgt.id); if (!src || !dst) return;
       Ls.splice(Ls.indexOf(src), 1);
       var di = Ls.indexOf(dst);
-      Ls.splice(t.pos === 'before' ? di + 1 : di, 0, src);
+      Ls.splice(tgt.pos === 'before' ? di + 1 : di, 0, src);
       SV.commit('reorder layers'); return;
     }
     var f = SV.find(d.id); if (!f) return;
     var obj = f.obj;
-    if (t.kind === 'obj') { var tObj = getObj(t.id); if (!tObj) return; if ((function c(o) { if (o.id === t.id) return true; return o.type === 'group' && o.children.some(c); })(obj)) return; }
+    if (tgt.kind === 'obj') { var tObj = getObj(tgt.id); if (!tObj) return; if ((function c(o) { if (o.id === tgt.id) return true; return o.type === 'group' && o.children.some(c); })(obj)) return; }
     f.arr.splice(f.idx, 1);
-    if (t.kind === 'layer') {
-      var L = SV.getLayer(t.id);
-      if (t.pos === 'into' || t.pos === 'after') L.children.push(obj); else { var li = S.doc.layers.indexOf(L), above = S.doc.layers[li + 1] || L; above.children.unshift(obj); }
+    if (tgt.kind === 'layer') {
+      var L = SV.getLayer(tgt.id);
+      if (tgt.pos === 'into' || tgt.pos === 'after') L.children.push(obj); else { var li = S.doc.layers.indexOf(L), above = S.doc.layers[li + 1] || L; above.children.unshift(obj); }
       L.expanded = true;
     } else {
-      var tf = SV.find(t.id); if (!tf) { f.arr.splice(f.idx, 0, obj); return; }
-      tf.arr.splice(t.pos === 'before' ? tf.idx + 1 : tf.idx, 0, obj);
+      var tf = SV.find(tgt.id); if (!tf) { f.arr.splice(f.idx, 0, obj); return; }
+      tf.arr.splice(tgt.pos === 'before' ? tf.idx + 1 : tf.idx, 0, obj);
     }
     SV.commit('reorder');
   }

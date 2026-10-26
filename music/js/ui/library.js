@@ -12,7 +12,7 @@
   const dash = (a, b) => (a ? 0 : 1) - (b ? 0 : 1);
   const trk = (a, b) => (a.track || 1e9) - (b.track || 1e9);   // album order: numbered tracks first, in number order
   function sortTracks(list, by) {
-    const T = (t) => M.lib.display(t);
+    const T = (track) => M.lib.display(track);
     return list.slice().sort((a, b) => {
       if (by === 'artist') return dash(a.artist, b.artist) || cmp(a.artist || '', b.artist || '') || dash(a.album, b.album) || cmp(a.album || '', b.album || '') || trk(a, b) || cmp(T(a), T(b));
       if (by === 'album') return dash(a.album, b.album) || cmp(a.album || '', b.album || '') || trk(a, b) || cmp(T(a), T(b));
@@ -22,8 +22,8 @@
   /** The tracks the list shows: search and tag filter, then sort. */
   function visible() {
     const q = S.q.trim().toLowerCase();
-    const list = M.lib.list().filter((t) => (!S.tag || t.tags.includes(S.tag)) &&
-      (!q || [t.title, t.name, t.artist, t.album].join(' ').toLowerCase().includes(q)));
+    const list = M.lib.list().filter((track) => (!S.tag || track.tags.includes(S.tag)) &&
+      (!q || [track.title, track.name, track.artist, track.album].join(' ').toLowerCase().includes(q)));
     return sortTracks(list, S.sort);
   }
   const curId = () => (M.engine ? M.engine.state().trackId : null);

@@ -13,9 +13,9 @@
   const EXT = { png: 'png', jpeg: 'jpg', webp: 'webp' };
 
   IO.kind = function (file) {
-    const t = file.type || '';
-    if (t.startsWith('image/')) return 'image';
-    if (t.startsWith('video/')) return 'video';
+    const type = file.type || '';
+    if (type.startsWith('image/')) return 'image';
+    if (type.startsWith('video/')) return 'video';
     const n = (file.name || '').toLowerCase();
     if (/\.(jpe?g|png|webp|avif|gif|bmp)$/.test(n)) return 'image';
     if (/\.(mp4|webm|mov|m4v)$/.test(n)) return 'video';

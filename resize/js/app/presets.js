@@ -46,7 +46,7 @@
   };
 
   P.bind = function ({ select, apply, saveAs, del, status }) {
-    const say = (t) => { if (status) status(t); };
+    const say = (msg) => { if (status) status(msg); };
     const refresh = async (keep) => {
       const list = await P.load();
       select.replaceChildren(new Option(t('resize.panel.g_saved'), ''), ...list.map((p) => new Option(p.name, p.id)));

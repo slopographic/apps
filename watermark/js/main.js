@@ -79,7 +79,7 @@
     const W = window.SlopWatermark, exts = ['.png', '.jpg', '.jpeg', '.webp', '.avif', '.bmp', '.gif', '.svg', '.heic', '.heif', '.mp4', '.m4v', '.mov', '.webm', '.pdf'];
     window.SlopIntake.register({
       id: 'watermark',
-      accept: { types: W.ACCEPT.split(',').filter((t) => t.includes('/')), exts, noun: 'watermark.drop.noun' },
+      accept: { types: W.ACCEPT.split(',').filter((type) => type.includes('/')), exts, noun: 'watermark.drop.noun' },
       process: async (file) => {
         if (window.WMItems.count() >= window.WMItems.MAX) throw new Error(t('watermark.drop.full', { n: window.WMItems.MAX }));
         return (await window.WMItems.add(file)).id;

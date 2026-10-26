@@ -46,7 +46,7 @@
       if (!res || !res.groups.length) return false;
       return reviewAndTrash(res.groups, (g) => DR.dupesToTrash(g, mode), t('drive.dupes.trash_q'));
     }
-    function thumb(r) { const t = el('span', { class: 'dthumb' }, DR.badge(r, 'badge xs')); DR.fillThumb(t, r); return t; }
+    function thumb(r) { const box = el('span', { class: 'dthumb' }, DR.badge(r, 'badge xs')); DR.fillThumb(box, r); return box; }
     function group(g, i) {
       const name = 'keep-' + i;
       if (!keep.has(g.hash)) keep.set(g.hash, g.files[0].id);
@@ -63,7 +63,7 @@
     }
     async function scan() {
       body.replaceChildren(status);
-      res = await DR.findDupes({ near, onProgress: (t) => { status.textContent = t; } });
+      res = await DR.findDupes({ near, onProgress: (msg) => { status.textContent = msg; } });
       const kids = [];
       kids.push(el('div', { class: 'dsum' }, el('b', null, res.groups.length ? t('drive.dupes.groups_n', { n: res.groups.length }) : t('drive.dupes.none')),
         el('span', null, t('drive.dupes.summary', { size: DR.fmtSize(res.wasted), n: res.scanned }))));

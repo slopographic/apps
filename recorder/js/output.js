@@ -26,7 +26,7 @@
       v.currentTime = start;
       await once(v, 'seeked');
       const cap = v.captureStream ? v.captureStream() : v.mozCaptureStream();
-      const P = R.plan, mime = P.pickMime((t) => MediaRecorder.isTypeSupported(t), !cap.getVideoTracks().length && !v.videoWidth);
+      const P = R.plan, mime = P.pickMime((type) => MediaRecorder.isTypeSupported(type), !cap.getVideoTracks().length && !v.videoWidth);
       const rec = new MediaRecorder(cap, mime ? { mimeType: mime, videoBitsPerSecond: 6e6 } : undefined), parts = [];
       rec.ondataavailable = (e) => { if (e.data && e.data.size) parts.push(e.data); };
       const stopped = new Promise((res) => { rec.onstop = res; });
@@ -45,7 +45,7 @@
       v.pause();
       if (rec.state !== 'inactive') rec.stop();
       await stopped;
-      cap.getTracks().forEach((t) => t.stop());
+      cap.getTracks().forEach((track) => track.stop());
       const out = new Blob(parts, { type: (rec.mimeType || 'video/webm').split(';')[0] });
       const bytes = new Uint8Array(await out.arrayBuffer());
       const ms = R.webm.measure(bytes) || (end - start) * 1000;

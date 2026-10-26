@@ -16,9 +16,9 @@
   const CLIP = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5l-8.6 8.6a5.5 5.5 0 0 1-7.8-7.8l8.6-8.6a3.7 3.7 0 0 1 5.2 5.2l-8.6 8.6a1.8 1.8 0 0 1-2.6-2.6l7.9-7.9"/></svg>';
 
   function el(tag, cls, text) { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; }
-  function when(t) {
-    if (t == null) return '';
-    const d = new Date(t), now = new Date();
+  function when(ts) {
+    if (ts == null) return '';
+    const d = new Date(ts), now = new Date();
     const o = d.toDateString() === now.toDateString() ? { hour: '2-digit', minute: '2-digit' } : d.getFullYear() === now.getFullYear() ? { day: 'numeric', month: 'short' } : { dateStyle: 'medium' };
     return window.SlopI18n ? window.SlopI18n.date(d, o) : d.toLocaleString(undefined, o);   // in the page's language
   }

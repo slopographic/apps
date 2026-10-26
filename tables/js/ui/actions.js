@@ -116,7 +116,7 @@ export function stats() {
 
 /** Copy, cut and paste from the browser (keyboard and menus). Typing in fields keeps their own clipboard. */
 export function bindClipboard() {
-  const field = (t) => t && t.closest && t.closest('input, textarea, select, [contenteditable="true"]');
+  const field = (node) => node && node.closest && node.closest('input, textarea, select, [contenteditable="true"]');
   document.addEventListener('copy', (e) => { if (S.edit || field(e.target)) return; e.preventDefault(); copySel(false, e.clipboardData); });
   document.addEventListener('cut', (e) => { if (S.edit || field(e.target)) return; e.preventDefault(); copySel(true, e.clipboardData); });
   // A pasted spreadsheet file is the intake's (ui/drop.js), which takes it first; this is pasted cells and text.

@@ -96,12 +96,12 @@
   /** Is a file of this name and size open in a tab? (A drop of the same file again is not opened twice.) The strip's
    *  record holds the tab (t.doc) and the tab holds the HexDoc (t.doc.doc). */
   function isOpen(file) {
-    return !!(tabs().api() && tabs().api().tabs().some((t) => t.doc && t.doc.doc && t.doc.doc.name === file.name && t.doc.doc.size === file.size));
+    return !!(tabs().api() && tabs().api().tabs().some((tb) => tb.doc && tb.doc.doc && tb.doc.doc.name === file.name && tb.doc.doc.size === file.size));
   }
   /** Opens a file in a new tab. A file already open from the same Drive record is shown instead. */
   async function openBlob(blob, { name = 'untitled.bin', driveId = null, version = 1 } = {}) {
     if (driveId && tabs().api()) {
-      const open = tabs().api().tabs().find((t) => t.driveId === driveId);
+      const open = tabs().api().tabs().find((tb) => tb.driveId === driveId);
       if (open) { tabs().api().activate(open.doc); return true; }
     }
     const pristine = tabs().current() && tabs().current().doc.size === 0 && !tabs().current().doc.dirty() && !(tabs().api().driveIdOf(tabs().current())) ? tabs().current() : null;

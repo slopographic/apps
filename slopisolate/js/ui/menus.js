@@ -41,7 +41,7 @@
       // The entry holds the bytes it swaps with, so undo restores `old` and redo clears again.
       H.push(it, { kind: 'stroke', label: 'cutout.menu.clear_edits', tiles: [{ x0: 0, y0: 0, w: it.w, h: it.h, bytes: old }], rect: { x: 0, y: 0, x1: it.w, y1: it.h } });
     },
-    tool: (t) => S.setTool(t),
+    tool: (tool) => S.setTool(tool),
     view: (v) => S.setView(v),
     fit: () => CO.view.fit(),
     zoom: (f) => { const r = $('#stage').getBoundingClientRect(); CO.view.zoomAt(f, r.width / 2, r.height / 2); },
@@ -166,7 +166,7 @@
       phone: '(max-width: 900px)', cssVar: '--props-w', target: $('#app'), label: t('cutout.app.settings') });
     buildBar(); bindButtons(); sync();
     U.onLang(() => { labels(); sync(); });   // the menu bar's names follow through data-i18n
-    ['history', 'activeItem', 'item', 'list'].forEach((t) => CO.on(t, sync));
+    ['history', 'activeItem', 'item', 'list'].forEach((ev) => CO.on(ev, sync));
     if (U.store.get('panel', true) === false) $('#app').classList.add('no-panel');
     $('#btnPanel').setAttribute('aria-expanded', String(!CO.sheet.isPhone() && !$('#app').classList.contains('no-panel')));
   }

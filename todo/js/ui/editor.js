@@ -35,7 +35,7 @@
     const cust = await S.store.list('customers');
     const customers = cust.ok ? cust.value.slice().sort((a, b) => String(a.name).localeCompare(String(b.name))) : [];
     const lists = await listNames();
-    const kids = task ? (await S.store.list('tasks')).value.filter((t) => t.parentId === task.id) : [];
+    const kids = task ? (await S.store.list('tasks')).value.filter((sub) => sub.parentId === task.id) : [];
     const subs = el('ul', { class: 'sub-list', 'aria-label': t('todo.ed.subtasks') }, kids.sort(TK.compare).map((k) => subRow(k)));
     const subInput = inp('tSubTitle', 'text', '', t('todo.ed.new_subtask'), { maxlength: 200, placeholder: t('todo.ed.add_subtask') });
     const subAdd = el('button', { type: 'button', class: 'btn', onclick: async () => {

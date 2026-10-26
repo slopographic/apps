@@ -41,7 +41,7 @@
   }
   function selectionItems() {
     return [
-      { label: t('ui.cut'), key: key('edit.cut', 'Ctrl+X'), act: act(() => { const t = A().cut(); if (t && navigator.clipboard) navigator.clipboard.writeText(t).catch(() => {}); }) },
+      { label: t('ui.cut'), key: key('edit.cut', 'Ctrl+X'), act: act(() => { const cut = A().cut(); if (cut && navigator.clipboard) navigator.clipboard.writeText(cut).catch(() => {}); }) },
       { label: t('ui.copy'), key: key('edit.copy', 'Ctrl+C'), act: act(() => { const txt = A().copyText(); if (txt && navigator.clipboard) navigator.clipboard.writeText(txt).catch(() => toast(t('docs.ctx.copy_blocked'))); }) },
       pasteItem(),
       '-',
@@ -62,7 +62,7 @@
   function pasteItem() {
     return { label: t('ui.paste'), key: key('edit.paste', 'Ctrl+V'), act: act(() => {
       if (!navigator.clipboard || !navigator.clipboard.readText) return toast(t('docs.ctx.paste_keys'));
-      navigator.clipboard.readText().then((t) => A().paste(t), () => toast(t('docs.ctx.paste_keys')));
+      navigator.clipboard.readText().then((text) => A().paste(text), () => toast(t('docs.ctx.paste_keys')));
     }) };
   }
   function cellItems(bi, r, c) {

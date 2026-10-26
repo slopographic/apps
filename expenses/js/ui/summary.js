@@ -13,7 +13,7 @@
     const months = NS.core.summary(all).filter((m) => (m.currency || s.currency) === s.currency);
     const now = S.ledger.today(), thisMonth = now.slice(0, 7), thisYear = now.slice(0, 4);
     const year = months.filter((m) => m.month.startsWith(thisYear));
-    const sum = (list, k) => list.reduce((t, m) => t + m[k], 0), money = (v) => B.money(v, s.currency, s.locale);
+    const sum = (list, k) => list.reduce((acc, m) => acc + m[k], 0), money = (v) => B.money(v, s.currency, s.locale);
     const stat = (value, label) => el('div', { class: 'stat' }, el('b', null, value), el('span', null, label));
     $('sStats').replaceChildren(
       stat(money(sum(months.filter((m) => m.month === thisMonth), 'amount')), t('expenses.su.month')),

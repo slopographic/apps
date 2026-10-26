@@ -203,7 +203,7 @@
     // DOMContentLoaded, and a caller that sees SlopCalcApp earlier would click controls that do nothing yet.
     const copy = (r) => Object.assign({}, r);
     window.SlopCalcApp = { commit, copyResult, saveDrive, clearInput, clearTape, newSheet, insert, focus: () => el.expr.focus(), copyText,
-      setExpr: (t) => { el.expr.value = t; },
+      setExpr: (text) => { el.expr.value = text; },
       snapshot: () => ({ last: S.last && { expr: S.last.expr, text: S.last.text }, tape: S.tape.map(copy), ans: S.ans,
         vars: Object.keys(S.vars).sort().map((n) => n + ' = ' + C.format(S.vars[n])) }),
       /** The tape, the last answer and the variables as they are (mark), and back to them (restore): the assistant's undo. */

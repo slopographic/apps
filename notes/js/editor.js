@@ -6,7 +6,7 @@ import { render } from './markdown.js';
 import { tablesFromHtml } from './table.js';
 import { $, t } from './dom.js';
 
-const tagsFrom = (text) => [...new Set(String(text).split(',').map((t) => t.trim().replace(/^#/, '').toLowerCase()).filter(Boolean))].slice(0, 30);
+const tagsFrom = (text) => [...new Set(String(text).split(',').map((tag) => tag.trim().replace(/^#/, '').toLowerCase()).filter(Boolean))].slice(0, 30);
 let redrawList = () => {};
 
 export function renderPreview() {

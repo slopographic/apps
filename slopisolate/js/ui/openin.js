@@ -86,7 +86,7 @@
     b.addEventListener('click', () => O.show(b));
     top.insertBefore(b, dl);
     const sync = () => { const it = S.current(); b.disabled = !(S.bulk() ? CO.bulk.items().some(ready) : ready(it)); };
-    ['activeItem', 'item', 'sel'].forEach((t) => CO.on(t, sync));
+    ['activeItem', 'item', 'sel'].forEach((ev) => CO.on(ev, sync));
     sync();
   };
 })();

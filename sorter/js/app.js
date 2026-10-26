@@ -9,13 +9,13 @@ const M = window.SlopSorter.model, UI = window.SlopUI, $ = (id) => document.getE
 const set = M.create(), urls = new Map();
 let which = 'all', dropZone = null;
 const t = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
-const say = (t) => { $('soMsg').textContent = t || ''; };
+const say = (msg) => { $('soMsg').textContent = msg || ''; };
 const urlOf = (id) => { if (!urls.has(id)) { const it = set.get(id); if (it) urls.set(id, URL.createObjectURL(it.file)); } return urls.get(id) || null; };
 const shown = () => M.filter(set.items, which);
 
 const deck = window.SlopDeck.create({
   photo: (id) => set.get(id), url: (id) => Promise.resolve(urlOf(id)), release: () => {},
-  setLiked: (id, v) => set.setLiked(id, v), addTag: (id, t) => set.addTag(id, t), removeTag: (id, t) => set.removeTag(id, t),
+  setLiked: (id, v) => set.setLiked(id, v), addTag: (id, tag) => set.addTag(id, tag), removeTag: (id, tag) => set.removeTag(id, tag),
   on: (fn) => set.on(fn), onClose: () => draw(),
 });
 
@@ -31,7 +31,7 @@ function add(files) {
 /** The filter buttons with their counts; a tag gets its own button once a photo has it. */
 function drawFilters(c) {
   const opts = [['all', t('sorter.app.f_all', { n: c.all })], ['unsorted', t('sorter.app.f_unsorted', { n: c.unsorted })], ['liked', t('sorter.app.f_liked', { n: c.liked })], ['disliked', t('sorter.app.f_disliked', { n: c.disliked })],
-    ...c.tags.map(([t, n]) => [`tag:${t}`, `#${t} ${n}`])];
+    ...c.tags.map(([tag, n]) => [`tag:${tag}`, `#${tag} ${n}`])];
   if (!opts.some(([k]) => k === which)) which = 'all';
   $('soFilters').replaceChildren(...opts.map(([k, label]) => {
     const b = document.createElement('button');
