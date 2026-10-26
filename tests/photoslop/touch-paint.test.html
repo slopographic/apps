@@ -34,6 +34,20 @@
   const count = (where) => (e) => { const k = `${where}:${e.type.slice(7)}:${e.pointerType}`; seen[k] = (seen[k] || 0) + 1; };
   function watchEvents() {
     for (const type of ['pointerdown', 'pointermove', 'pointerup', 'pointercancel']) { win.addEventListener(type, count('window'), true); W.V.el.addEventListener(type, count('view'), true); }
+    win.addEventListener('contextmenu', () => { seen.held = (seen.held || 0) + 1; }, true);
+  }
+  /** A finger stroke from doc point (x, y). On a busy machine the runner's first move can come after the long-press time:
+   *  the finger was held, not dragged, and the app rightly opened the brush picker under it (a long press on the canvas)
+   *  instead of painting. Such a stroke is not the one under test: the picker is closed and the stroke made again (twice
+   *  at most). Any other stroke that paints nothing fails the test. */
+  async function stroke(x, y, dx, dy, steps, how) {
+    for (let i = 0; ; i++) {
+      clearSeen();
+      await TouchKit.drag(at(x, y), dx, dy, steps, how);
+      if (!seen.held || i === 2) return;
+      W.closePopover(); W.closeMenus();
+      await sleep(100);
+    }
   }
   /** The state a stroke from doc point (x, y) met: the tool, the view's fingers, what is under the finger, the page zoom. */
   function why(x, y) {
@@ -64,8 +78,7 @@
       tmp.remove();
       tmp.dispatchEvent(new win.PointerEvent('pointerup', { bubbles: true, cancelable: true, pointerId: 9001, pointerType: 'touch', isPrimary: true, clientX: 10, clientY: 10, button: 0, buttons: 0 }));
       await sleep(100);
-      clearSeen();
-      await TouchKit.drag(at(60, 150), 260, 0, 12);
+      await stroke(60, 150, 260, 0, 12);
       await waitFor(() => opaque(W.activeLayer().canvas) > 1000, { timeout: 3000 }).catch(() => { throw new Error('the stroke painted ' + opaque(W.activeLayer().canvas) + ' pixels' + why(60, 150)); });
       expect(W.V.zoom).toBe(1);
     });
@@ -79,12 +92,11 @@
           Object.assign(W.T[id] || {}, { size: 40 });
           if (id === 'clone' || id === 'heal') {
             W.TOOL[id].src = null;
-            await TouchKit.drag(at(40, 40), 0, 0, 1, how); // a finger has no Alt key: its first press sets the source
+            await stroke(40, 40, 0, 0, 1, how); // a finger has no Alt key: its first press sets the source
             if (!W.TOOL[id].src) throw new Error(`${label}: the first press set no source` + why(40, 40));
           }
           const before = pixels();
-          clearSeen();
-          await TouchKit.drag(at(60, 150), 260, 0, 12, how);
+          await stroke(60, 150, 260, 0, 12, how);
           let n = 0;
           await waitFor(() => (n = changed(before)) >= 500, { timeout: 3000 }).catch(() => { throw new Error(`${label} changed ${n} pixels` + why(60, 150)); });
         }
@@ -96,8 +108,7 @@
       const L = W.activeLayer(); W.setLayerProps(L.id, { locked: true }, 'Lock Layer');
       W.selectTool('brush');
       const before = pixels();
-      clearSeen();
-      await TouchKit.drag(at(60, 150), 200, 0, 8);
+      await stroke(60, 150, 200, 0, 8);
       const toast = () => win.document.querySelector('.sui-toast.sui-show');
       await waitFor(() => toast() && /can't be painted on/.test(toast().textContent), { timeout: 3000 })
         .catch(() => { throw new Error(`the toast says "${toast() ? toast().textContent : '(none)'}"` + why(60, 150)); });
@@ -106,7 +117,7 @@
       const n = W.D.layers.length;
       t.querySelector('.sui-toast-act').click();
       expect(W.D.layers.length).toBe(n + 1);
-      await TouchKit.drag(at(60, 150), 200, 0, 8);
+      await stroke(60, 150, 200, 0, 8);
       await waitFor(() => opaque(W.activeLayer().canvas) > 1000, { timeout: 3000 });
     });
   });

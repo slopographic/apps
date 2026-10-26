@@ -6,8 +6,7 @@
  *   TouchKit.tap(t) · doubleTap(t) · longPress(t, ms) · drag(t, dx, dy, steps) · pinch(t, scale, steps) · pan2(t, dx, dy)
  * t is an element (its centre), { el, x, y } (x, y from the element's top left) or { x, y } in the test page. Elements in
  * a same-origin iframe are found through their frame. Each resolves once the gesture is over.
- * A gesture on an element waits until the element stays put first (settled). TouchKit.real: true when the gestures beyond a
- * tap are real touches (Chromium). Covers: shared/input/touch.js */
+ * TouchKit.real: true when the gestures beyond a tap are real touches (Chromium). Covers: shared/input/touch.js */
 (function () {
   'use strict';
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -33,18 +32,6 @@
       w = w.parent;
     }
     return { x, y, win, lx, ly };
-  }
-  /** Waits until a target element stays put: its page's fonts are in and its box is the same over two frames. A page still
-   *  laying out on a busy machine moved it after its place was read, and the finger landed beside it. At most a second. */
-  async function settled(t) {
-    const el = t && t.nodeType === 1 ? t : t && t.el;
-    if (!el || !el.isConnected) return;
-    const win = el.ownerDocument.defaultView, end = performance.now() + 1000;
-    const frame = () => Promise.race([new Promise((r) => win.requestAnimationFrame(() => r())), sleep(50)]);
-    try { await Promise.race([el.ownerDocument.fonts.ready, sleep(1000)]); } catch (e) { /* no font loading API */ }
-    const box = () => { const r = el.getBoundingClientRect(); return [r.left, r.top, r.width, r.height].join(); };
-    let last = box();
-    for (let same = 0; same < 2 && performance.now() < end;) { await frame(); const b = box(); same = b === last ? same + 1 : 0; last = b; }
   }
   /** The frame window and its coordinates for a top-page point (into same-origin iframes). */
   function local(x, y) {
@@ -105,7 +92,6 @@
   const cdp = (type, points, rest) => bridge({ op: 'touch', type, points, rest });
 
   async function tap(t) {
-    await settled(t);
     const p = where(t);
     // Chromium: the same CDP touches as every other gesture (Playwright's own tap there can leave a finger down for the
     // next CDP touch, which then reads as a second finger)
@@ -117,11 +103,10 @@
     return sleep(30);
   }
   /** Both taps at the same place, even when the first one makes the app draw the target anew. */
-  async function doubleTap(t) { await settled(t); const p = where(t), at = { x: p.x, y: p.y }; await tap(at); await sleep(90); await tap(at); return sleep(420); }
+  async function doubleTap(t) { const p = where(t), at = { x: p.x, y: p.y }; await tap(at); await sleep(90); await tap(at); return sleep(420); }
 
   // 1100 ms: the layer's 500 ms, plus once more when the page was busy as the finger landed (touch.js BUSY_MS)
   async function longPress(t, ms = 1100) {
-    await settled(t);
     const p = where(t);
     if (info().multi) { await cdp('start', [{ id: 1, x: p.x, y: p.y }]); await sleep(ms); await cdp('end', []); return sleep(60); }
     const f = finger(p.x, p.y);
@@ -131,7 +116,6 @@
   }
 
   async function drag(t, dx, dy, steps = 8, opts = {}) {
-    await settled(t);
     const p = where(t);
     if (info().multi && !opts.kind) {
       await cdp('start', [{ id: 1, x: p.x, y: p.y }]);
@@ -147,7 +131,6 @@
 
   /** Two fingers about the target's centre, spread from 80 px apart to 80·scale, and moved (dx, dy) together. */
   async function pinch(t, scale = 2, steps = 8, dx = 0, dy = 0) {
-    await settled(t);
     const p = where(t), d0 = 40, d1 = 40 * scale;
     const at = (k) => { const d = d0 + (d1 - d0) * k; return [{ id: 1, x: p.x - d + dx * k, y: p.y + dy * k }, { id: 2, x: p.x + d + dx * k, y: p.y + dy * k }]; };
     if (info().multi) {
@@ -166,5 +149,5 @@
   }
   const pan2 = (t, dx, dy, steps = 8) => pinch(t, 1, steps, dx, dy);
 
-  window.TouchKit = { tap, doubleTap, longPress, drag, pinch, pan2, finger, where, settled, get real() { return !!info().multi; }, get engine() { return info().engine; } };
+  window.TouchKit = { tap, doubleTap, longPress, drag, pinch, pan2, finger, where, get real() { return !!info().multi; }, get engine() { return info().engine; } };
 })();
