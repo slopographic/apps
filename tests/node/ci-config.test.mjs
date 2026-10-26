@@ -59,6 +59,25 @@ test('the plan: wip/* and other branches never get the full suite; main skips it
   assert.match(src, /w\.name === 'Rules and tests' && w\.conclusion === 'success'/);
 });
 
+test('the white-label sample suites: in full on testing and main; on a work branch the plan\'s pages, or in full for a change to the build', async () => {
+  const { outputs, wlOutputs, WL_SLICES, WL_FILES } = await import('../../tools/ci/plan.mjs');
+  const changed = outputs('changed', ['tests/a.test.html'], false);
+  assert.deepEqual(wlOutputs('changed', changed, ['pdf/js/a.js']), { wl_suite: 'changed', wl_count: changed.count, wl_shards: changed.shards });
+  for (const f of ['tools/whitelabel/build.mjs', 'brand/brand.json', 'tests/brand-facts.js', 'tests/needs.mjs', 'tests/repo-only.json']) {
+    assert.ok(WL_FILES.test(f), f);
+    assert.equal(wlOutputs('changed', changed, ['pdf/js/a.js', f]).wl_suite, 'full', f);
+  }
+  assert.equal(wlOutputs('changed', changed, ['shared/apps.js'], (f) => f === 'shared/apps.js').wl_count, WL_SLICES);   // a profile marker
+  assert.equal(wlOutputs('full', outputs('full', null)).wl_count, WL_SLICES);
+  assert.deepEqual(wlOutputs('none', outputs('none', [])), { wl_suite: 'none', wl_count: 0, wl_shards: '[]' });
+  const browser = job('whitelabel-browser'), touch = job('whitelabel-touch');
+  assert.match(browser, /shard: \$\{\{ fromJSON\(needs\.plan\.outputs\.wl_shards\) \}\}/);
+  assert.match(browser, /needs\.plan\.outputs\.wl_suite == 'changed' && ' --pages-file=wl-pages\.txt'/);
+  assert.match(touch, /needs\.plan\.outputs\.wl_suite == 'changed' && needs\.plan\.outputs\.touch == 'true'/);
+  assert.match(job('whitelabel'), /node tools\/whitelabel\/pages\.mjs \$\{\{ matrix\.profile \}\} > wl-pages\.txt/);
+  assert.match(job('whitelabel'), /node --test tests\/node\/\*\.test\.mjs/);   // the build and its Node tests on every push
+});
+
 test('the touch jobs run the touch-marked pages in WebKit (iPad) and Chromium (Android)', () => {
   const engines = (wf.match(/engine: \[([a-z, ]+)\]/) || [])[1].split(',').map((s) => s.trim());
   assert.deepEqual(engines.sort(), ['chromium', 'webkit']);

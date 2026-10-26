@@ -198,8 +198,10 @@ suite in its parallel slices and the touch jobs. Nothing is skipped by name. The
   lengths, the white-label tools) are listed with their reasons in one place, `tests/repo-only.json`, and a build leaves
   those files out.
 
-CI here builds both samples on every push and runs each build's Node tests, its whole browser suite (8 slices per
-profile) and its touch pages, so a change that breaks a build fails here first.
+CI here builds both samples on every push and runs each build's Node tests. On testing and main it also runs each
+build's whole browser suite (8 slices per profile) and its touch pages; on a work branch only the pages the plan picks
+(tools/ci/plan.mjs, renamed for the build by tools/whitelabel/pages.mjs), or the whole suite when the change is to the
+build itself (tools/whitelabel, brand/, the brand facts or a profile marker).
 
 ### Colours
 

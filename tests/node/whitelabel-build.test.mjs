@@ -1,4 +1,4 @@
-// Covers: tools/whitelabel/build.mjs, tools/whitelabel/export.mjs, tools/whitelabel/images.mjs, tools/whitelabel/workflow.mjs
+// Covers: tools/whitelabel/build.mjs, tools/whitelabel/export.mjs, tools/whitelabel/images.mjs, tools/whitelabel/workflow.mjs, tools/whitelabel/pages.mjs
 // The build's parts that need no browser: what it leaves out, the model-file patch, the mirror's workflow, the icon file,
 // the share card, the repo-only tests. CI's white-label jobs run the whole build, the scan and its whole suite on the samples.
 import { test } from 'node:test';
@@ -12,6 +12,8 @@ import { excluded, patchBinary, SCAN_ALLOW, REPO_ONLY, repoOnly, rehash } from '
 import { exportProfile } from '../../tools/whitelabel/export.mjs';
 import { ico, cardHtml } from '../../tools/whitelabel/images.mjs';
 import { mirrorWorkflow, DROP_STEPS, DROP_JOBS } from '../../tools/whitelabel/workflow.mjs';
+import { buildPages } from '../../tools/whitelabel/pages.mjs';
+import { loadMap, profilesDir } from '../../tools/whitelabel/profile.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const P = { support: { ads: false }, media: false };
@@ -67,6 +69,10 @@ test('the tests about this repository only are declared in one place, each with 
     if (!r.file.endsWith('*')) assert.equal(excluded(r.file, P), true, r.file);
   }
   assert.equal(repoOnly('tests/node/whitelabel-facts.test.mjs'), true);
+  // the plan's pages as a build names them, without the ones it leaves out (CI's white-label jobs on a work branch)
+  const map = loadMap(profilesDir(ROOT), 'sample');
+  assert.deepEqual(buildPages(['tests/photoslop/look.test.html', 'tests/buddy/slot.test.html', 'tests/pdf/look.test.html', ''], map), ['tests/imageeditor/look.test.html', 'tests/pdf/look.test.html']);
+  assert.deepEqual(buildPages(['tests/pdf/look.test.html'], null), ['tests/pdf/look.test.html']);
   for (const f of ['tests/node/ci-config.test.mjs', 'tests/seo/seo.test.mjs', 'tests/brand-facts.js', 'tests/node/brand-facts.test.mjs']) assert.equal(excluded(f, P), false, f);
 });
 

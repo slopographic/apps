@@ -82,6 +82,9 @@ jobs:
       shards: ${{ steps.plan.outputs.shards }}
       pages: ${{ steps.plan.outputs.pages }}
       touch: ${{ steps.plan.outputs.touch }}
+      wl_suite: ${{ steps.plan.outputs.wl_suite }}
+      wl_count: ${{ steps.plan.outputs.wl_count }}
+      wl_shards: ${{ steps.plan.outputs.wl_shards }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -202,26 +205,32 @@ jobs:
           node tools/whitelabel/build.mjs ${{ matrix.profile }} "$OUT"
           tar -cf wl-build.tar -C "$OUT" .
           node -p "require('./brand/profiles/${{ matrix.profile }}.json').github" > wl-account.txt
+          echo "$PAGES" | node tools/whitelabel/pages.mjs ${{ matrix.profile }} > wl-pages.txt
+        env:
+          PAGES: ${{ needs.plan.outputs.pages }}
       - uses: actions/upload-artifact@v5
         with:
           name: wl-build-${{ matrix.profile }}
           path: |
             wl-build.tar
             wl-account.txt
+            wl-pages.txt
           retention-days: 1
       - name: The build as a mirror checkout is (one commit), and all its Node tests
         run: |
           cd "$OUT" && git init -q && git add -A && git -c user.name=mirror -c user.email=mirror@example.invalid commit -qm build
           npm ci --no-audit --no-fund && node --test tests/node/*.test.mjs tests/seo/*.test.mjs
 
-  # The whole browser suite of each sample build, served from the build, in 8 slices per profile (balanced by the build's
-  # tests/timings.json); they run when a build's Node tests failed too (the build itself is uploaded before them). A sample
+  # The browser suite of each sample build, served from the build: on testing and main the whole suite in 8 slices per
+  # profile (balanced by the build's tests/timings.json); on a work branch only the plan's pages, renamed for the build
+  # (tools/whitelabel/pages.mjs), unless the change is to the white-label build itself (tools/ci/plan.mjs wlOutputs). They
+  # run when a build's Node tests failed too (the build itself is uploaded before them). A sample
   # has no file host of its own: its copy here links this site's (the same files at the same tag), through the download
   # cache of the browser jobs above.
   whitelabel-browser:
-    name: White-label ${{ matrix.profile }} browser ${{ matrix.shard }}/8
+    name: White-label ${{ matrix.profile }} browser ${{ matrix.shard }}/${{ needs.plan.outputs.wl_count }}
     needs: [plan, whitelabel]
-    if: ${{ !cancelled() }}
+    if: ${{ !cancelled() && needs.plan.outputs.wl_count != '0' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     container:
@@ -230,7 +239,9 @@ jobs:
       fail-fast: false
       matrix:
         profile: [sample, sample-sv]
-        shard: [1, 2, 3, 4, 5, 6, 7, 8]
+        shard: ${{ fromJSON(needs.plan.outputs.wl_shards) }}
+    env:
+      SLICE: --shard=${{ matrix.shard }}/${{ needs.plan.outputs.wl_count }}${{ needs.plan.outputs.wl_suite == 'changed' && ' --pages-file=wl-pages.txt' || '' }}
     steps:
       - uses: actions/download-artifact@v5
         with:
@@ -245,8 +256,8 @@ jobs:
           path: tests/.cache/net
           key: testnet-${{ hashFiles('tests/net-urls.txt') }}
           restore-keys: testnet-
-      - name: Browser tests of the build, slice ${{ matrix.shard }} of 8
-        run: node tests/run.mjs --shard=${{ matrix.shard }}/8 --jobs=3 --skip-node --results=wl-results-${{ matrix.profile }}-${{ matrix.shard }}.json
+      - name: Browser tests of the build, slice ${{ matrix.shard }} of ${{ needs.plan.outputs.wl_count }}
+        run: node tests/run.mjs $SLICE --jobs=3 --skip-node --results=wl-results-${{ matrix.profile }}-${{ matrix.shard }}.json
       - uses: actions/upload-artifact@v5
         if: always()
         with:
@@ -255,11 +266,12 @@ jobs:
           retention-days: 7
           if-no-files-found: ignore
 
-  # The touch pages of each sample build, in WebKit (iPad) and Chromium (Android), as in the touch job above.
+  # The touch pages of each sample build, in WebKit (iPad) and Chromium (Android), as in the touch job above: all of them
+  # when the samples run in full, else the touch pages among the plan's pages.
   whitelabel-touch:
     name: White-label ${{ matrix.profile }} touch ${{ matrix.engine }}
     needs: [plan, whitelabel]
-    if: ${{ !cancelled() }}
+    if: ${{ !cancelled() && (needs.plan.outputs.wl_suite == 'full' || (needs.plan.outputs.wl_suite == 'changed' && needs.plan.outputs.touch == 'true')) }}
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     container:
@@ -278,4 +290,4 @@ jobs:
           tar -xf wl-build.tar && rm wl-build.tar && npm ci --no-audit --no-fund
           grep -rlIZ --exclude-dir=node_modules --exclude-dir=.git "$(cat wl-account.txt)/cdn" . | xargs -0 -r sed -i "s#$(cat wl-account.txt)/cdn#slopographic/cdn#g"
       - name: Touch tests of the build in ${{ matrix.engine }}
-        run: node tests/run.mjs --touch --browser=${{ matrix.engine }} --jobs=2 --skip-node
+        run: node tests/run.mjs --touch --browser=${{ matrix.engine }} --jobs=2 --skip-node ${{ needs.plan.outputs.wl_suite == 'changed' && '--pages-file=wl-pages.txt' || '' }}
