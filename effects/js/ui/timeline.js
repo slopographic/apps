@@ -19,7 +19,7 @@
     const keyEls = new Map(); // "layer|prop|t" -> diamond element, for moving them during a drag
     // The playhead moves through the transport when there is one (main.js): the player owns the time, and a plain
     // S.seek is put back to the player's time on its next frame.
-    const seek = (t) => { const tr = ns.app && ns.app.tr; if (tr && tr.seekTo) tr.seekTo(t); else S.seek(t); };
+    const seek = (time) => { const tr = ns.app && ns.app.tr; if (tr && tr.seekTo) tr.seekTo(time); else S.seek(time); };
     const pps = () => {
       if (view.zoom) return view.zoom;
       const w = host.clientWidth || 640;
@@ -60,13 +60,13 @@
 
     /** A diamond at time t for the given refs (bound to drag and select). */
     function diamond(refs, p, title, easeHold) {
-      const t = refs[0].t;
+      const at = refs[0].t;
       const el = h('div', {
         class: 'fx-diamond' + (refs.some(isSel) ? ' is-sel' : '') + (easeHold ? ' is-hold' : ''),
-        style: `left:${(PAD + t * p).toFixed(3)}px`,
+        style: `left:${(PAD + at * p).toFixed(3)}px`,
         role: 'button', tabindex: 0, title,
         'aria-label': `${title}`,
-        'data-t': t,
+        'data-t': at,
       });
       refs.forEach((r) => keyEls.set(`${r.layer}|${r.prop}|${r.t.toFixed(6)}`, el));
       ns.timelineKeys.bind(el, refs, { S, act, pps: () => pps(), moveDiamonds });
@@ -124,9 +124,9 @@
     }
 
     /** The ease of one key, for the hold marker. */
-    function keyOf(layer, prop, t) {
+    function keyOf(layer, prop, at) {
       const keys = (S.doc.tl.tracks[layer.id] || {})[prop] || [];
-      const k = keys.find((x) => Math.abs(x.t - t) < 1e-6);
+      const k = keys.find((x) => Math.abs(x.t - at) < 1e-6);
       return k ? k.ease : null;
     }
 

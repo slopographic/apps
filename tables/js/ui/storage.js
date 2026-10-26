@@ -120,8 +120,8 @@ export async function downloadXlsx() { window.SlopUI.download(await toXlsx(S.wb)
    opening, or it stays blank. A late answer is ignored. */
 const START_MS = 1500;
 const within = (p, fallback) => new Promise((res) => {
-  const t = setTimeout(() => res(fallback), START_MS);
-  Promise.resolve(p).then((v) => { clearTimeout(t); res(v); }, () => { clearTimeout(t); res(fallback); });
+  const timer = setTimeout(() => res(fallback), START_MS);
+  Promise.resolve(p).then((v) => { clearTimeout(timer); res(v); }, () => { clearTimeout(timer); res(fallback); });
 });
 
 /* The intake waits for the tabs (ui/drop.js: its before step), so a file never opens before them. */

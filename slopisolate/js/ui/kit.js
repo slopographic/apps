@@ -34,7 +34,7 @@
 
   /** Drop-down row. options: [[value, text], …]. */
   K.select = function ({ label, options, value, onChange }) {
-    const sel = h('select', { class: 'inp', 'aria-label': label }, ...options.map(([v, t]) => h('option', { value: v }, t)));
+    const sel = h('select', { class: 'inp', 'aria-label': label }, ...options.map(([v, label]) => h('option', { value: v }, label)));
     const sync = (v) => { sel.value = String(v); };
     sync(value);
     sel.addEventListener('change', () => { if (onChange) onChange(sel.value); });
@@ -44,10 +44,10 @@
   /** Segmented buttons. options: [[value, text, iconName?], …]. */
   K.seg = function ({ options, value, onChange }) {
     let cur = value;
-    const btns = options.map(([v, t, icon], i) => {
+    const btns = options.map(([v, label, icon], i) => {
       const b = h('button', { type: 'button', class: 'seg-b', 'data-i': i });
       if (icon) b.innerHTML = U.icon(icon);
-      b.append(t);
+      b.append(label);
       return b;
     });
     const sync = (v, mixed) => {

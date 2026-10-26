@@ -8,7 +8,7 @@
   const P = V.player = {};
   let root = null, vid = null, cv = null, els = {}, raf = 0, shownId = null;
 
-  const fmt = (t) => (t || 0).toFixed(1);
+  const fmt = (sec) => (sec || 0).toFixed(1);
   /** The item on screen as a video, or null. */
   const current = () => { const it = S.current(); return it && it.kind === 'video' ? it : null; };
 

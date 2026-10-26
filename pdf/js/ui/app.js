@@ -100,16 +100,16 @@
       b.title = r[1]; var sp = b.querySelector('span'); if (sp) sp.textContent = r[1];
     });
   };
-  S.markRail = function (t) {
-    U.$$('.rail-b', S.els.rail).forEach(function (b) { var on = b.dataset.tool === t; b.classList.toggle('on', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); });
+  S.markRail = function (tool) {
+    U.$$('.rail-b', S.els.rail).forEach(function (b) { var on = b.dataset.tool === tool; b.classList.toggle('on', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); });
   };
-  A.setTool = function (t) {
+  A.setTool = function (tool) {
     if (Ed.isEditingText()) Ed.commitText();
-    A.tool = t;
-    S.markRail(t);
-    if (PAGE_TOOLS[t]) { if (E.state.pages.length) A.ensurePage(); if (t === 'redact' && Ed.tool !== 'redact') Ed.setTool('redact'); }
+    A.tool = tool;
+    S.markRail(tool);
+    if (PAGE_TOOLS[tool]) { if (E.state.pages.length) A.ensurePage(); if (tool === 'redact' && Ed.tool !== 'redact') Ed.setTool('redact'); }
     else if (A.mode === 'page') A.showGrid(true);
-    PN.show(t);
+    PN.show(tool);
     O.render();
     S.updateChrome();
   };

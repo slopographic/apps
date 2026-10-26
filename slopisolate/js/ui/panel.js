@@ -32,7 +32,7 @@
   function pickModel(id) {
     const name = MODELS.find((m) => m.id === id).name;
     if (S.bulk()) {
-      const n = S.targets().filter((t) => S.modelOf(t) !== id).length;
+      const n = S.targets().filter((it) => S.modelOf(it) !== id).length;
       CO.edit.apply(S.targets(), { model: id }, 'cutout.undo.model');
       if (n) CO.emit('toast', t('cutout.panel.rerun_sel', { n, name }));
       return P.refresh();

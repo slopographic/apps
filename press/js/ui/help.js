@@ -64,7 +64,7 @@
   UI.miniPalette = function () {
     var inp = h('input', { class: 'sui-input', type: 'search', placeholder: t('press.help.type_command'), 'aria-label': t('ui.cmd.search') }), list = h('div', { class: 'pr-pal-list', role: 'listbox' });
     var items = [], sel = 0, dlg;
-    function score(c, q) { var t = (c.title + ' ' + c.group + ' ' + (c.keywords || []).join(' ')).toLowerCase(); var i = t.indexOf(q); if (i >= 0) return 100 - i; var k = 0; for (var j = 0; j < t.length && k < q.length; j++) if (t[j] === q[k]) k++; return k === q.length ? 10 : -1; }
+    function score(c, q) { var hay = (c.title + ' ' + c.group + ' ' + (c.keywords || []).join(' ')).toLowerCase(); var i = hay.indexOf(q); if (i >= 0) return 100 - i; var k = 0; for (var j = 0; j < hay.length && k < q.length; j++) if (hay[j] === q[k]) k++; return k === q.length ? 10 : -1; }
     function render() {
       var q = inp.value.trim().toLowerCase();
       items = A.order.map(function (id) { return A.get(id); }).filter(function (c) { return c && A.enabled(c.id); }).map(function (c) { return { c: c, s: q ? score(c, q) : 1 }; }).filter(function (x) { return x.s >= 0; })

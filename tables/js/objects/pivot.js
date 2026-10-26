@@ -58,7 +58,7 @@ function keys(records, idx) {
     if (!map.has(k)) { if (map.size >= MAX_KEYS) throw new Error(t('tables.err.pivot_keys', { n: MAX_KEYS })); map.set(k, tup); }
   }
   const list = [...map.values()].sort(cmpTuple);
-  return { list, index: new Map(list.map((t, i) => [t.map(keyOf).join('\u0001'), i])) };
+  return { list, index: new Map(list.map((tup, i) => [tup.map(keyOf).join('\u0001'), i])) };
 }
 
 export function pivotGrid(headers, records, spec) {
@@ -79,7 +79,7 @@ export function pivotGrid(headers, records, spec) {
   const head = [];
   for (let k = 0; k < keyCols; k++) head.push({ v: ri.length ? spec.rows[k] : '', b: true });
   if (hasCols) {
-    for (const t of C.list) for (const v of vals) head.push({ v: t.map(shown).join(' / ') + (nv > 1 ? ' · ' + valueLabel(v) : ''), b: true });
+    for (const tup of C.list) for (const v of vals) head.push({ v: tup.map(shown).join(' / ') + (nv > 1 ? ' · ' + valueLabel(v) : ''), b: true });
     for (const v of vals) head.push({ v: nv > 1 ? 'Total · ' + valueLabel(v) : 'Total', b: true });
   } else for (const v of vals) head.push({ v: valueLabel(v), b: true });
   const out = [head];
@@ -93,7 +93,7 @@ export function pivotGrid(headers, records, spec) {
     return row;
   };
   if (!ri.length) { out.push([{ v: 'Total', b: true }, ...rowCells(0)]); return { cells: out, keyCols, fields: ri }; }
-  R.list.forEach((t, r) => out.push([...t.map((v, k) => ({ v: shown(v), key: ri[k] })), ...rowCells(r)]));
+  R.list.forEach((tup, r) => out.push([...tup.map((v, k) => ({ v: shown(v), key: ri[k] })), ...rowCells(r)]));
   const total = [{ v: 'Grand total', b: true }];
   for (let k = 1; k < keyCols; k++) total.push({ v: null, b: true });
   if (hasCols) {

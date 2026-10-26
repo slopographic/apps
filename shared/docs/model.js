@@ -23,8 +23,8 @@
   /** Minor units from typed money text in a currency, or null. Negative and blank are null. */
   function amountFromText(text, currency) {
     const str = String(text ?? '').trim();
-    if (t === '') return null;
-    const v = S.money.parseMinor(t, currency);
+    if (str === '') return null;
+    const v = S.money.parseMinor(str, currency);
     return v !== null && v >= 0 ? v : null;
   }
 

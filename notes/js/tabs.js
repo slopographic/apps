@@ -29,8 +29,8 @@ async function newRecord() {
   return n;
 }
 function focusTitle() {
-  const t = document.getElementById('nt-title');
-  if (t) { t.focus(); t.select(); }
+  const field = document.getElementById('nt-title');
+  if (field) { field.focus(); field.select(); }
 }
 /** Runs fn with blank tabs created without a Drive record (restore, and a close that leaves one blank tab). */
 function quietly(fn) {
@@ -104,7 +104,7 @@ export function refresh() {
 /** Shows a note in a tab: its own tab if it has one, else a new tab that replaces a blank one. */
 export function openNote(id) {
   if (!api || !byId(S.notes, id)) return;
-  const open = api.tabs().find((t) => t.doc.id === id);
+  const open = api.tabs().find((tab) => tab.doc.id === id);
   if (open) { api.activate(open.doc); return; }
   const blank = api.current() && isBlank(api.current()) ? api.current() : null;
   api.openDoc({ id, creating: false, ready: null }, { driveId: id });

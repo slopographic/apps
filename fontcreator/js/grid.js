@@ -71,8 +71,8 @@
     const to = { ArrowRight: i + 1, ArrowLeft: i - 1, ArrowDown: i + cols, ArrowUp: i - cols, Home: 0, End: all.length - 1 }[e.key];
     if (to == null) return;
     e.preventDefault();
-    const t = all[Math.max(0, Math.min(all.length - 1, to))];
-    if (t) t.focus();
+    const cell = all[Math.max(0, Math.min(all.length - 1, to))];
+    if (cell) cell.focus();
   }
   function addChars(text) {
     const cps = CS.parseChars(text);

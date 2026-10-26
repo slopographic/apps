@@ -50,7 +50,7 @@
     setVal($('selLayout'), s ? s.layout : '');
     var th = $('selTheme'), own = th.querySelector('option[data-own]');
     // a theme that came with the file (an imported PowerPoint theme) is listed by its own name
-    if (!SS.themes.list.some(function (t) { return t.id === A.deck.theme.id; })) {
+    if (!SS.themes.list.some(function (item) { return item.id === A.deck.theme.id; })) {
       if (!own) { own = D.option(A.deck.theme.id, '', ''); own.setAttribute('data-own', ''); th.prepend(own); }
       own.value = A.deck.theme.id; own.textContent = A.deck.theme.name || t('slides.app.file_theme');
     } else if (own) own.remove();

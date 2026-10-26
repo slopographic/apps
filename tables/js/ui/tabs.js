@@ -95,8 +95,8 @@ export const tabs = {
     api = SlopDocTabs.mount($('doc-tabs'), adapter, { appId: 'tables' });
     session = SlopDocTabs.session('tables', api, { notice: (m) => toast(m) });
     on('change', syncChange);
-    api.on((why, t) => {
-      if (why === 'drive' && t && t.doc.file) t.doc.file.driveId = t.driveId; // the file keeps the Drive id its tab is linked to
+    api.on((why, tab) => {
+      if (why === 'drive' && tab && tab.doc.file) tab.doc.file.driveId = tab.driveId; // the file keeps the Drive id its tab is linked to
       guard();
     });
     return session;
@@ -110,12 +110,12 @@ export const tabs = {
   /** A workbook in a new tab. driveId links it to a Drive record; without it the tab is an unsaved workbook. */
   open(wb, file = {}, driveId = null) { return api.openDoc(makeT(wb, file), { driveId, origName: file.origName || null }); },
   /** The tab that shows this Drive record, if one is open. */
-  tabFor: (driveId) => api.tabs().find((t) => t.driveId === driveId) || null,
+  tabFor: (driveId) => api.tabs().find((tab) => tab.driveId === driveId) || null,
   /** A tab nobody has edited and that is not linked to a file: a launch may replace it. */
   isPristine: (T) => !!T && !!T.untouched && !api.driveIdOf(T),
   /** Writes the open tab's state before a save or a close. */
   sync() { if (current()) copyOut(current()); },
-  anyDirty: () => (api ? api.tabs().some((t) => t.dirty) : false),
+  anyDirty: () => (api ? api.tabs().some((tab) => tab.dirty) : false),
   setUrl,
 };
 

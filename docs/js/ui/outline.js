@@ -119,8 +119,8 @@ function markActive() {
     if (on) { row.setAttribute('aria-selected', 'true'); cur = row; } else row.removeAttribute('aria-selected');
   }
   if (cur) {
-    const r = cur.getBoundingClientRect(), t = st.tn.getBoundingClientRect();
-    if (r.height && (r.top < t.top || r.bottom > t.bottom)) st.tn.scrollTop += r.top - t.top - t.height / 2 + r.height / 2;
+    const r = cur.getBoundingClientRect(), tn = st.tn.getBoundingClientRect();
+    if (r.height && (r.top < tn.top || r.bottom > tn.bottom)) st.tn.scrollTop += r.top - tn.top - tn.height / 2 + r.height / 2;
   }
 }
 /** As the page scrolls, the section under the top of the page area is current. */

@@ -73,7 +73,7 @@
     c.addEventListener('change', function () { onChange(c.checked); });
     return h('label', { class: 'chk' }, c, h('span', null, label));
   }
-  function note(t, cls) { return h('p', { class: 'pp-note' + (cls ? ' ' + cls : '') }, t); }
+  function note(text, cls) { return h('p', { class: 'pp-note' + (cls ? ' ' + cls : '') }, text); }
   function needPages() {
     if (E.state.pages.length) return null;
     return section(null, [note(t('pdf.app.need_pages')), h('div', { class: 'btn-row' }, btn(t('pdf.app.open_pdf'), 'open', function () { SP.app.openDialog(); }, 'primary'), btn(t('pdf.app.try_sample'), 'sparkle', function () { SP.app.loadSample(); }))]);

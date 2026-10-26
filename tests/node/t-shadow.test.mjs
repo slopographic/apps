@@ -21,6 +21,11 @@ test('a parameter, loop variable, catch binding or variable named t beside the t
   assert.deepEqual(lines(TR + 'list.reduce((acc, t) => acc + t, 0);'), [2]);
   assert.deepEqual(lines(TR + 'const o = { show(t) { return t; } };'), [2]);
   assert.deepEqual(lines(TR + 'const [t, n] = pair;'), [2]);
+  assert.deepEqual(lines(TR + 'for (const [id, t] of tiles) t.remove();'), [2]);
+  assert.deepEqual(lines(TR + 'let n = 0;\nt = setTimeout(go, 9);'), [3], 'an assignment replaces the translator');
+  assert.deepEqual(lines("import { t } from './i18n.js';\nel.title = t('diff.x');\nconst t2 = (t) => t;"), [3], 'an imported translator');
+  assert.deepEqual(lines("const D = 1, t = (k, v) => ns.defs.t(k, v);\nlist.map((t) => t.x);"), [2], 'a translator as a later declarator');
+  assert.deepEqual(lines(TR + 'function f(a) {\n  const e = a.name, t = a.type;\n  return t;\n}'), [3], 'a second declarator');
   assert.deepEqual(lines("var t = U.t;\nfunction a() { return t('pdf.menu.open'); }\nfunction b(t) { return t * 2; }"), [3], 'U.t is a translator in a file that asks t for keys');
 });
 

@@ -81,10 +81,10 @@
   /** A file's tags: a chip per tag with a remove button, and a box that adds more (Enter or a comma). */
   function tagBox(r) {
     const focusTags = () => { const i = DR.$('info') && DR.$('info').querySelector('.tag-in'); if (i) i.focus(); };
-    const chips = DR.tagsOf(r).map((t) => {
-      const x = el('button', { type: 'button', class: 'tag-x', title: DR.t('drive.info.remove_tag_tip', { tag: t }), 'aria-label': DR.t('drive.info.remove_tag', { tag: t }) }, DR.icon('x'));
-      x.addEventListener('click', async () => { await DR.removeTag([r], t); focusTags(); });
-      return el('span', { class: 'tag' }, t, x);
+    const chips = DR.tagsOf(r).map((tag) => {
+      const x = el('button', { type: 'button', class: 'tag-x', title: DR.t('drive.info.remove_tag_tip', { tag: tag }), 'aria-label': DR.t('drive.info.remove_tag', { tag: tag }) }, DR.icon('x'));
+      x.addEventListener('click', async () => { await DR.removeTag([r], tag); focusTags(); });
+      return el('span', { class: 'tag' }, tag, x);
     });
     const input = el('input', { type: 'text', class: 'tag-in', placeholder: DR.t('drive.info.add_tag'), 'aria-label': DR.t('drive.info.add_tag'), autocomplete: 'off', maxlength: '200' });
     input.addEventListener('keydown', async (e) => {

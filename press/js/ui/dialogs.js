@@ -44,8 +44,8 @@
       h('div', null, h('h4', null, t('press.dlg.baseline_grid')), SU().field(t('press.dlg.start'), bstart, unit), SU().field(t('press.dlg.increment'), bstep, 'pt'), h('p', { class: 'sui-p' }, t('press.dlg.baseline_note')))];
     var tabBar = h('div', { class: 'pr-tabs', role: 'tablist' });
     var body = h('div', { class: 'pr-form' }, tabBar, panes);
-    function show(k) { panes.forEach(function (p, i) { p.hidden = i !== k; }); U.$$('.pr-tab', tabBar).forEach(function (t, i) { t.classList.toggle('on', i === k); }); }
-    tabs.forEach(function (t, i) { var b = h('button', { type: 'button', class: 'pr-tab', role: 'tab' }, t); b.addEventListener('click', function () { show(i); }); tabBar.append(b); });
+    function show(k) { panes.forEach(function (p, i) { p.hidden = i !== k; }); U.$$('.pr-tab', tabBar).forEach(function (tab, i) { tab.classList.toggle('on', i === k); }); }
+    tabs.forEach(function (tab, i) { var b = h('button', { type: 'button', class: 'pr-tab', role: 'tab' }, tab); b.addEventListener('click', function () { show(i); }); tabBar.append(b); });
     show(focusTab === 'margins' ? 1 : 0);
     function q(o) { var r = {}; for (var k in o.ins) r[k] = lenVal(o.ins[k], 0); return r; }
     return { body: body, read: function () {

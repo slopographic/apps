@@ -21,9 +21,9 @@
   /** Post a message on the bus and wait for the matching reply (null after ACK_MS: nobody answered). */
   function ask(type, ackType, data) {
     return new Promise((res) => {
-      let t = 0;
-      const off = hub().on(ackType, (d) => { if (d && d.requestId === data.requestId) { clearTimeout(t); off(); res(d); } });
-      t = setTimeout(() => { off(); res(null); }, ACK_MS);
+      let timer = 0;
+      const off = hub().on(ackType, (d) => { if (d && d.requestId === data.requestId) { clearTimeout(timer); off(); res(d); } });
+      timer = setTimeout(() => { off(); res(null); }, ACK_MS);
       hub().emit(type, data);
     });
   }
@@ -76,7 +76,7 @@
       btn.hidden = !hub() || !(it && it.request);
       btn.disabled = !ready(it);
     };
-    ['activeItem', 'item', 'list'].forEach((t) => CO.on(t, sync));
+    ['activeItem', 'item', 'list'].forEach((ev) => CO.on(ev, sync));
     sync();
   };
 })();

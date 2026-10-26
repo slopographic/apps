@@ -22,19 +22,19 @@
   };
 
   /** Style one tile from its image. */
-  function update(t, it) {
+  function update(tile, it) {
     const on = S.activeId === it.id, sel = S.sel.has(it.id);
-    if (t.img.getAttribute('src') !== it.url) t.img.src = it.url || '';
+    if (tile.img.getAttribute('src') !== it.url) tile.img.src = it.url || '';
     const res = CO.thumbs && CO.thumbs.of(it);
-    if (res && t.res !== res) { if (t.res) t.res.remove(); t.res = res; t.img.after(res); }
-    t.btn.dataset.status = it.status;
-    t.btn.classList.toggle('on', on);
-    t.btn.classList.toggle('sel', sel);
-    t.btn.setAttribute('aria-current', on ? 'true' : 'false');
-    t.chk.setAttribute('aria-checked', String(sel));
-    t.chk.title = U.t(sel ? 'cutout.queue.unselect' : 'cutout.queue.select');
-    t.btn.title = it.error ? it.name + ' — ' + it.error : it.name;
-    t.badge.textContent = badgeText(it);
+    if (res && tile.res !== res) { if (tile.res) tile.res.remove(); tile.res = res; tile.img.after(res); }
+    tile.btn.dataset.status = it.status;
+    tile.btn.classList.toggle('on', on);
+    tile.btn.classList.toggle('sel', sel);
+    tile.btn.setAttribute('aria-current', on ? 'true' : 'false');
+    tile.chk.setAttribute('aria-checked', String(sel));
+    tile.chk.title = U.t(sel ? 'cutout.queue.unselect' : 'cutout.queue.select');
+    tile.btn.title = it.error ? it.name + ' — ' + it.error : it.name;
+    tile.badge.textContent = badgeText(it);
   }
 
   function make(id) {
@@ -97,12 +97,12 @@
   function render() {
     if (!root) return;
     const want = new Set(S.items.map((it) => it.id));
-    for (const [id, t] of tiles) if (!want.has(id)) { t.btn.remove(); tiles.delete(id); }
+    for (const [id, tile] of tiles) if (!want.has(id)) { tile.btn.remove(); tiles.delete(id); }
     const nodes = S.items.map((it) => {
-      let t = tiles.get(it.id);
-      if (!t) { t = make(it.id); tiles.set(it.id, t); }
-      update(t, it);
-      return t.btn;
+      let tile = tiles.get(it.id);
+      if (!tile) { tile = make(it.id); tiles.set(it.id, tile); }
+      update(tile, it);
+      return tile.btn;
     });
     head.sync();
     root.replaceChildren(head, ...nodes, addBtn);
@@ -127,11 +127,11 @@
     // Files dropped on the sidebar are taken by the drop zone (CO.files.init lists #queue as one of its targets).
     CO.on('list', render);
     CO.on('activeItem', render);
-    const one = (it) => { const t = tiles.get(it.id); if (t) update(t, it); else render(); };
+    const one = (it) => { const tile = tiles.get(it.id); if (tile) update(tile, it); else render(); };
     CO.on('item', one);
     CO.on('thumb', one);
     CO.on('sel', render);
-    CO.on('progress', ({ it }) => { const t = tiles.get(it.id); if (t) update(t, it); });
+    CO.on('progress', ({ it }) => { const tile = tiles.get(it.id); if (tile) update(tile, it); });
     // A language change: new tiles (their labels are set once) and a new header, in the new language.
     U.onLang(() => { tiles.forEach((tl) => tl.btn.remove()); tiles.clear(); makeHead(); render(); });
     render();

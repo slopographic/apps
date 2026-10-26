@@ -89,7 +89,7 @@
     rp.footer(foot);
     for (const h of homes) if (h && !h.childElementCount) h.hidden = true;   // the bar the buttons came from, now empty
     const redraw = () => { const v = NS.views && NS.views[o.listView || 'list'], fn = v && (v.refresh || v.render); if (fn) fn.call(v); };
-    let was = null, t = 0;
+    let was = null, timer = 0;
     function sync() {
       const v = app.dataset.view, on = v === o.view;
       wrap.classList.toggle('biz-lr-on', on || v === (o.listView || 'list'));
@@ -102,7 +102,7 @@
     new g.MutationObserver(sync).observe(app, { attributes: true, attributeFilter: ['data-view'] });
     sync();
     // the list beside an open record follows every change (a record saved, voided or paid)
-    if (g.SlopData && g.SlopData.store) g.SlopData.store.subscribe(() => { clearTimeout(t); t = setTimeout(() => { if (wrap.classList.contains('biz-lr-rec')) redraw(); }, 60); });
+    if (g.SlopData && g.SlopData.store) g.SlopData.store.subscribe(() => { clearTimeout(timer); timer = setTimeout(() => { if (wrap.classList.contains('biz-lr-rec')) redraw(); }, 60); });
     return rp;
   }
 

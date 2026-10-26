@@ -14,20 +14,20 @@
   var TYPE = { title: 'title', ctrTitle: 'title', subTitle: 'body', body: 'body', obj: 'body' };
 
   function themeOf(files, path) {
-    var el = I.a(I.xml(files, path), 'themeElements'), t = { path: path, scheme: {}, fonts: {}, lnWidths: [], bgFills: [], name: '' };
-    if (!el) return t;
-    t.name = I.att(el.parentNode, 'name') || '';
+    var el = I.a(I.xml(files, path), 'themeElements'), theme = { path: path, scheme: {}, fonts: {}, lnWidths: [], bgFills: [], name: '' };
+    if (!el) return theme;
+    theme.name = I.att(el.parentNode, 'name') || '';
     I.lib.kids(I.a(el, 'clrScheme')).forEach(function (c) {
       var s = I.a(c, 'srgbClr'), y = I.a(c, 'sysClr');
-      t.scheme[c.localName] = (s && I.lib.ooxmlToHex(I.att(s, 'val'))) || (y && I.lib.ooxmlToHex(I.att(y, 'lastClr'))) || '#000000';
+      theme.scheme[c.localName] = (s && I.lib.ooxmlToHex(I.att(s, 'val'))) || (y && I.lib.ooxmlToHex(I.att(y, 'lastClr'))) || '#000000';
     });
     var fs = I.a(el, 'fontScheme');
-    t.fonts.major = I.att(I.a(I.a(fs, 'majorFont'), 'latin'), 'typeface') || '';
-    t.fonts.minor = I.att(I.a(I.a(fs, 'minorFont'), 'latin'), 'typeface') || '';
+    theme.fonts.major = I.att(I.a(I.a(fs, 'majorFont'), 'latin'), 'typeface') || '';
+    theme.fonts.minor = I.att(I.a(I.a(fs, 'minorFont'), 'latin'), 'typeface') || '';
     var fmt = I.a(el, 'fmtScheme');
-    t.lnWidths = I.as(I.a(fmt, 'lnStyleLst'), 'ln').map(function (l) { return I.pt(I.num(l, 'w', 9525)); });
-    t.bgFills = I.lib.kids(I.a(fmt, 'bgFillStyleLst'));
-    return t;
+    theme.lnWidths = I.as(I.a(fmt, 'lnStyleLst'), 'ln').map(function (l) { return I.pt(I.num(l, 'w', 9525)); });
+    theme.bgFills = I.lib.kids(I.a(fmt, 'bgFillStyleLst'));
+    return theme;
   }
   function clrMapOf(el) {
     if (!el) return null;
@@ -130,8 +130,8 @@
     return { w: Math.round(w * 100) / 100, h: Math.round(h * 100) / 100, preset: preset };
   }
   function title(files, name) {
-    var core = I.xml(files, 'docProps/core.xml'), t = core && I.lib.kids(core, I.lib.NS.dc, 'title')[0];
-    return (t && t.textContent.trim()) || String(name || '').replace(/\.[^.]+$/, '') || 'Imported presentation'; // i18n-ignore
+    var core = I.xml(files, 'docProps/core.xml'), node = core && I.lib.kids(core, I.lib.NS.dc, 'title')[0];
+    return (node && node.textContent.trim()) || String(name || '').replace(/\.[^.]+$/, '') || 'Imported presentation'; // i18n-ignore
   }
 
   I.fromFiles = function (files, lib, opts) {

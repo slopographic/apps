@@ -51,8 +51,8 @@
     }
     var preview = h('div', { class: 'pr-preview', style: { padding: '10px 12px', overflow: 'hidden', color: '#111', height: '84px' } }, t('press.style.preview_text'));
     var bar = h('div', { class: 'pr-tabs' }), body = h('div', { class: 'pr-form' }, bar, panes, h('h4', null, t('press.style.preview')), preview);
-    function show(k) { panes.forEach(function (p, i) { p.hidden = i !== k; }); U.$$('.pr-tab', bar).forEach(function (t, i) { t.classList.toggle('on', i === k); }); }
-    tabs.forEach(function (t, i) { var b = h('button', { type: 'button', class: 'pr-tab' }, t); b.addEventListener('click', function () { show(i); }); bar.append(b); });
+    function show(k) { panes.forEach(function (p, i) { p.hidden = i !== k; }); U.$$('.pr-tab', bar).forEach(function (tab, i) { tab.classList.toggle('on', i === k); }); }
+    tabs.forEach(function (tab, i) { var b = h('button', { type: 'button', class: 'pr-tab' }, tab); b.addEventListener('click', function () { show(i); }); bar.append(b); });
     show(0);
     function collect() {
       var v = {}, g = function (k) { return I[k] && I[k].value; };
