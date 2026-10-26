@@ -129,3 +129,24 @@ The terms the shared chrome (shared/i18n/ko.js) and the app tables use. Add a te
 | Full (view mode) | 전체 |  |
 | Focus (view mode) | 집중 |  |
 | Content (view mode) | 콘텐츠 |  |
+| invoice | 청구서 | Everywhere; 송장 is a shipping waybill. Statement: 거래명세서; credit note: 크레딧 노트 |
+| template | 템플릿 | Not 서식 파일; 서식 stays for "format" |
+| paid | 결제 완료 | Also expenses ("결제 완료로 표시") |
+| fulfilled | 처리 완료 | Orders |
+| received | 입고됨 | Purchases and stock |
+| supplier | 공급업체 | Not 거래처 |
+| media bin | 미디어 빈 | Video editor bin |
+| library | 보관함 | Photo and music library; not a bin |
+| transcribe / transcript | 받아쓰기 | Noun and action in all speech apps |
+| grid | 격자 | |
+| guide | 안내선 | Not 가이드; 가이드 투어 stays for the tour |
+| page | 페이지 | Not 쪽, except 한쪽 면 for one side of a sheet |
+| download | 다운로드 | Not 내려받기; verb 다운로드하다 |
+| preset | 프리셋 | Not 사전 설정 |
+| web page | 웹 페이지 | |
+| preview | 미리 보기 | Spaced |
+| reset (settings) | 초기화 | Not 재설정 |
+| copy (of a file) | 사본 | Not 복사본 |
+| undo | 실행 취소 | Not 되돌리기; 복원 for restore |
+| confirm questions | -할까요? | Not -하시겠습니까? |
+| slop (joke word) | 엉터리 | Or Latin "slop"; never a Hangul transliteration |

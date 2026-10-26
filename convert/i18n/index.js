@@ -4,5 +4,5 @@ window.SlopI18n && window.SlopI18n.source({
   ns: 'convert',
   base: ((document.currentScript || {}).src || '').replace(/[^/]*$/, ''),
   parts: ['app', 'cards', 'cards2', 'catalog', 'chain', 'conv-a', 'conv-a2', 'conv-b', 'conv-b2', 'preview', 'tool'],
-  langs: ['ar', 'de', 'en', 'es', 'fr', 'it', 'ja', 'nl', 'pl', 'pt-BR', 'ru', 'sv', 'tr', 'uk', 'zh-CN'],
+  langs: ['ar', 'de', 'en', 'es', 'fr', 'it', 'ja', 'ko', 'nl', 'pl', 'pt-BR', 'ru', 'sv', 'tr', 'uk', 'zh-CN'],
 });
