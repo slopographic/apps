@@ -13,7 +13,7 @@ import { usedKeys } from '../../tools/i18n/check.mjs';
 import { scan } from '../../tools/i18n/coverage.mjs';
 
 // the default-language literal a white-label build rewrites (built from pieces so the build leaves this file alone)
-const DEFAULT_RE = new RegExp('(/\\*profile:' + 'defaultLang\\*/)\'[^\']*\'');
+const DEFAULT_RE = new RegExp('(/\\*profile:' + 'defaultLang\\*/)([\'"])[^\'"]*[\'"]');   // 'en', or "sv" as a build writes it
 const SRC = readFileSync(path.join(ROOT, 'shared/i18n/i18n.js'), 'utf8');
 
 /** Runs i18n.js in a fake page whose language is `code`, with UI_PARTS replaced; returns the script URLs it asks for. */
@@ -30,7 +30,7 @@ function load(code, parts) {
   vm.createContext(ctx);
   const src = SRC.replace(UI_PARTS_RE, '/*ui-parts*/' + JSON.stringify(parts) + ';').replace(DEFAULT_RE, (m, mark) => `${mark}'${code}'`);
   vm.runInContext(src, ctx);
-  return { urls, api: ctx.SlopI18n };
+  return { urls, api: Object.values(ctx).find((v) => v && v.LANGS && v.t) };   // by shape: a build may rename the global
 }
 
 test('UI_PARTS is one line that i18n.js and the tools both read', () => {
