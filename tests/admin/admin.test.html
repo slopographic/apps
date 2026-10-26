@@ -56,6 +56,8 @@
     });
 
     it('the Document language lists the languages with business tables and persists the choice', async () => {
+      await win().SlopAdmin.views.company.render();   // the form from the stored profile (a render started before the last save may have left it stale)
+      expect($('cName').value).toBe('Acme Test Ltd');
       const opts = [...$('cDocLang').options].map((o) => o.value);
       expect(opts).toEqual(win().SlopI18n.shipped('biz'));
       expect(opts.includes('sv')).toBe(true);
@@ -65,6 +67,7 @@
       $('cDocLang').value = 'en';
       await win().SlopAdmin.views.company.render();
       expect($('cDocLang').value).toBe('sv');
+      expect((await S().store.get('settings', 'main')).value.defaultTaxRate).toBe(750);   // the rest of the profile is kept
       const bad = await win().SlopAdmin.profile.save({ companyName: 'Acme Test Ltd', defaultCurrency: 'USD', locale: 'en-US', defaultTaxRate: '7.5', docLang: 'xx' });
       expect(bad.ok).toBe(false);
       expect((await S().store.get('settings', 'main')).value.docLang).toBe('sv');

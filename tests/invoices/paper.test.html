@@ -215,12 +215,12 @@
       await until(() => $('#ePage .paper[lang="en"]') && $('#ePage .paper').textContent.includes('INVOICE'), 'the page in English');
       expect($('#ePage .paper').textContent).toContain('INVOICE');
       expect($('#ePage .paper').textContent).toContain('Due ');
-      button('Save draft').click();
+      saveButton().click();
       await settle(async () => (await S.store.get('invoices', d.id)).value.docLang === 'en', 'the stored override');
       expect(NSI.pdf.viewOf((await NSI.context.load(d.id)).value).title).toBe('Invoice');
       sel.value = '';   // back to the company's: the override is removed
       sel.dispatchEvent(new Event('change', { bubbles: true }));
-      button('Save draft').click();
+      saveButton().click();
       await settle(async () => !(await S.store.get('invoices', d.id)).value.docLang, 'the override removed');
       expect(NSI.pdf.viewOf((await NSI.context.load(d.id)).value).title).toBe('Faktura');
     });
