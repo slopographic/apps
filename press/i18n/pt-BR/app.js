@@ -21,6 +21,7 @@ window.SlopI18n && window.SlopI18n.add('pt-BR', {
   'press.app.snap_off': 'Encaixe desativado',
   'press.app.no_masters': 'Ainda não há páginas-mestre',
   'press.app.pages_added': '{n} páginas adicionadas',
+  'press.app.pages_added#one': '{n} página adicionada',
   'press.app.style_redefined': 'Estilo redefinido',
   'press.app.cannot_thread': 'Esses quadros não podem ser vinculados',
   'press.app.thread_hint': 'Clique em um quadro de texto (ou arraste um novo) para continuar o texto',

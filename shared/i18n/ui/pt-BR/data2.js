@@ -2,6 +2,7 @@
 window.SlopI18n && window.SlopI18n.add('pt-BR', {
   'ui.data.bc.prefix_digits': 'O prefixo deve conter apenas dígitos',
   'ui.data.bc.prefix_short': 'O prefixo deve ter menos de {n} dígitos',
+  'ui.data.bc.prefix_short#one': 'O prefixo deve ter menos de {n} dígito',
   'ui.data.bc.no_gen': 'Nenhum gerador aleatório para {name}',
   'ui.data.bc.length': 'O tamanho deve ser de 1 a {max}',
   'ui.data.bc.prefix_long': 'O prefixo é maior que o valor',

@@ -2,10 +2,12 @@
 window.SlopI18n && window.SlopI18n.add('pt-BR', {
   'effects.keys.select_copy': 'Selecione os quadros-chave para copiar',
   'effects.keys.copied': '{n} quadros-chave copiados',
+  'effects.keys.copied#one': '{n} quadro-chave copiado',
   'effects.keys.select_layer_paste': 'Selecione uma camada para colar',
   'effects.keys.nothing': 'Nada para colar',
   'effects.keys.pasted_skipped': '{n} colados, {skipped} ignorados',
   'effects.keys.pasted': '{n} quadros-chave colados',
+  'effects.keys.pasted#one': '{n} quadro-chave colado',
   'effects.keys.select_key': 'Selecione primeiro um quadro-chave',
   'effects.keys.select_layer': 'Selecione primeiro uma camada',
   'effects.undo.set_key': 'Definir quadro-chave',

@@ -120,6 +120,7 @@ window.SlopI18n && window.SlopI18n.add('pt-BR', {
   'ui.ops.extract.skipped': '{name}: {n} ignorados ({list})',
   'ui.ops.extract.nothing': '{name}: nada para extrair.',
   'ui.ops.extract.done': '{n} arquivos extraídos.',
+  'ui.ops.extract.done#one': '{n} arquivo extraído.',
   'ui.ops.extract.parts': 'O quê',
   'ui.ops.extract.parts_all': 'Imagens, anexos e fontes',
   'ui.ops.extract.parts_images': 'Imagens',

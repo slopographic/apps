@@ -28,6 +28,7 @@ window.SlopI18n && window.SlopI18n.add('pt-BR', {
   'press.export.boxes_note': 'TrimBox = tamanho da página, BleedBox = página + sangria, MediaBox cresce para caber as marcas. Amostras de cor de processo (CMYK) são gravadas em CMYK; as marcas usam a cor de registro.',
   'press.export.no_font_file': 'Não há arquivo de fonte para incorporar: {fonts}. As posições do texto continuam exatas; carregue um .ttf/.otf (Arquivo ▸ Carregar arquivo de fonte) para incorporar o design real.',
   'press.export.overset': '{n} histórias têm texto excedente que não será exportado.',
+  'press.export.overset#one': '{n} história tem texto excedente que não será exportado.',
   'press.export.pdf_title': 'Exportar PDF',
   'press.export.ppi_screen': '{n} ppi (tela)',
   'press.export.ppi_print': '{n} ppi (impressão)',

@@ -47,6 +47,7 @@ window.SlopI18n && window.SlopI18n.add('pt-BR', {
   'settings.folder.changes': 'Aplicar este arquivo muda:',
   'settings.folder.same': 'Nada mudaria. O arquivo corresponde às configurações daqui.',
   'settings.folder.applied': '{n} alterações aplicadas a partir da pasta.',
+  'settings.folder.applied#one': '{n} alteração aplicada a partir da pasta.',
   'settings.folder.denied': 'O navegador não permitiu o acesso. Pressione o botão de novo e permita o acesso.',
   'settings.folder.allowed': 'Acesso permitido.',
   'settings.folder.disconnected': 'Pasta desconectada. Nada na pasta foi excluído.',

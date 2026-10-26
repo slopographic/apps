@@ -43,6 +43,7 @@ window.SlopI18n && window.SlopI18n.add('pt-BR', {
   'time.conv.ahead': '{b} está {hours} à frente de {a}',
   'time.conv.behind': '{b} está {hours} atrás de {a}',
   'time.conv.hours': '{n} horas',
+  'time.conv.hours#one': '{n} hora',
   'time.conv.h_min': '{h} h {m} min',
   'time.conv.min': '{m} min',
   'time.clock.stop': 'Parar',

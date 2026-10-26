@@ -67,6 +67,7 @@ window.SlopI18n && window.SlopI18n.add('pt-BR', {
   'fontcreator.more.add': 'Adicionar',
   'fontcreator.more.set_there': 'Todos os caracteres desse conjunto já estão na fonte',
   'fontcreator.more.set_added': '{n} glifos vazios adicionados para desenhar',
+  'fontcreator.more.set_added#one': '{n} glifo vazio adicionado para desenhar',
   'fontcreator.more.keep_label': 'Manter somente estes (subconjunto)',
   'fontcreator.more.keep_note': 'Todos os outros glifos são removidos, junto com o kerning deles. Desfazer os traz de volta.',
   'fontcreator.more.keep': 'Manter',
@@ -77,6 +78,7 @@ window.SlopI18n && window.SlopI18n.add('pt-BR', {
   'fontcreator.more.keep_ok': 'Manter somente estes',
   'fontcreator.more.undo_keep': 'Manter somente alguns caracteres',
   'fontcreator.more.removed': '{n} glifos removidos; {left} restantes',
+  'fontcreator.more.removed#one': '{n} glifo removido; {left} restante',
   'fontcreator.more.nothing_removed': 'Nada para remover',
   'fontcreator.more.hand': 'Escrita manuscrita',
   'fontcreator.more.hand_note': 'Imprima uma folha com uma caixa para cada letra, escreva nela com uma caneta escura, depois fotografe ou escaneie e leia de volta: cada caixa vira um glifo.',
@@ -93,5 +95,6 @@ window.SlopI18n && window.SlopI18n.add('pt-BR', {
   'fontcreator.more.draw_first': 'Desenhe um glifo para criar uma fonte',
   'fontcreator.more.note': '{drawn} de {glyphs} glifos desenhados',
   'fontcreator.more.pairs': '{n} pares de kerning',
+  'fontcreator.more.pairs#one': '{n} par de kerning',
   'fontcreator.more.changed': 'alterado desde o último salvamento',
 });

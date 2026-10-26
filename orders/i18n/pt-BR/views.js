@@ -28,6 +28,7 @@ window.SlopI18n && window.SlopI18n.add('pt-BR', {
   'orders.ed.new': 'Novo pedido',
   'orders.ed.date_error': 'Digite a data do pedido.',
   'orders.li.lines': '{n} itens',
+  'orders.li.lines#one': '{n} item',
   'orders.li.invoiced': 'faturado',
   'orders.li.sample': 'Amostra',
   'orders.li.not_done': 'Não feito',

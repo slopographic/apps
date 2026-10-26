@@ -130,6 +130,7 @@ window.SlopI18n && window.SlopI18n.add('pt-BR', {
   'ui.wm.saved_failed': 'Não salvo',
   'ui.wm.saved_delete_aria': 'Excluir {name}',
   'ui.wm.saved_layers': '{n} camadas',
+  'ui.wm.saved_layers#one': '{n} camada',
   'ui.wm.saved_none_dot': 'Nada salvo ainda.',
   'ui.wm.saved_none': 'Nada salvo ainda',
   'ui.wm.saved_note': 'Ficam guardadas neste navegador e aparecem em todos os apps do {brand}.',

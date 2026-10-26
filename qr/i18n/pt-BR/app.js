@@ -24,6 +24,7 @@ window.SlopI18n && window.SlopI18n.add('pt-BR', {
   'qr.app.batch_empty': 'Digite ou cole um texto por linha.',
   'qr.app.batch_capped': 'Só as primeiras {max} de {n} linhas são desenhadas.',
   'qr.app.batch_n': '{n} códigos.',
+  'qr.app.batch_n#one': '{n} código.',
   'qr.app.preview_label': 'Prévia ao vivo',
   'qr.app.preview_alt': 'Prévia do código QR',
   'qr.app.empty': 'Preencha o formulário ou escolha um modelo. O código aparece aqui enquanto você digita.',

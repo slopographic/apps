@@ -15,6 +15,7 @@ window.SlopI18n && window.SlopI18n.add('pt-BR', {
   'ui.shell.drawer_close': 'Fechar a gaveta de apps',
   'ui.shell.folder': 'Pasta',
   'ui.shell.folder_aria': '{name}, pasta com {n} apps',
+  'ui.shell.folder_aria#one': '{name}, pasta com {n} app',
   'ui.shell.folder_made': 'Pasta criada. Clique com o botão direito nela para renomear.',
   'ui.shell.rename_folder': 'Renomear pasta',
   'ui.shell.folder_name_label': 'Nome',

@@ -18,6 +18,7 @@ window.SlopI18n && window.SlopI18n.add('pt-BR', {
   'effects.tl.missing': 'Mídia ausente: revincule-a no painel da camada',
   'effects.tl.keys_at': '{name}: {keys} em {t} s',
   'effects.tl.keys_n': '{n} quadros-chave',
+  'effects.tl.keys_n#one': '{n} quadro-chave',
   'effects.tl.zoom': 'Zoom da linha do tempo',
   'effects.tl.fit': 'Ajustar',
   'effects.tl.empty': 'Ainda não há camadas. Use Camada para adicionar uma sólida, de forma, texto, imagem, vídeo ou nula.',

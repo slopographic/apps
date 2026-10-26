@@ -2,6 +2,7 @@
 window.SlopI18n && window.SlopI18n.add('pt-BR', {
   'ui.data.v.id': 'deve ser um id de até 80 caracteres',
   'ui.data.v.text_max': 'deve ser um texto de no máximo {n} caracteres',
+  'ui.data.v.text_max#one': 'deve ser um texto de no máximo {n} caractere',
   'ui.data.v.format': 'tem um formato inválido',
   'ui.data.v.currency': 'deve ser um código de moeda de 3 letras',
   'ui.data.v.locale': 'deve ser uma etiqueta de idioma, como en-US',
@@ -16,6 +17,7 @@ window.SlopI18n && window.SlopI18n.add('pt-BR', {
   'ui.data.v.entries': 'deve ter até {max} valores rotulados, de no máximo {len} caracteres cada',
   'ui.data.v.tags': 'deve ter até {max} etiquetas, de até {len} caracteres cada',
   'ui.data.v.min_entries': 'precisa de pelo menos {n} itens',
+  'ui.data.v.min_entries#one': 'precisa de pelo menos {n} item',
   'ui.data.v.object': 'deve ser um objeto',
   'ui.data.v.line_too_large': 'o valor da linha é grande demais',
   'ui.data.v.rows': 'deve ser uma lista de {min} a {max} itens',

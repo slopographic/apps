@@ -9,6 +9,7 @@ window.SlopI18n && window.SlopI18n.add('pt-BR', {
   'qr.design.transparent': 'Fundo transparente',
   'qr.design.quiet': 'Zona de silêncio',
   'qr.design.quiet_n': '{n} módulos',
+  'qr.design.quiet_n#one': '{n} módulo',
   'qr.design.size_aria': 'Tamanho em pixels',
   'qr.design.modules': 'Módulos',
   'qr.design.size': 'Tamanho (px)',

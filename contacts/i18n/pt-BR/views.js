@@ -3,6 +3,7 @@ window.SlopI18n && window.SlopI18n.add('pt-BR', {
   'contacts.list.recent': 'Recentes',
   'contacts.list.of': '{n} de {total}',
   'contacts.list.count': '{n} contatos',
+  'contacts.list.count#one': '{n} contato',
   'contacts.list.none_in': 'Ainda não há contatos em {name}.',
   'contacts.list.no_match': 'Nenhum contato corresponde a essa pesquisa.',
   'contacts.list.storage': 'O armazenamento não está disponível aqui: {why}. Nada pode ser salvo nesta janela.',

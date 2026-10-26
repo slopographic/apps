@@ -2,7 +2,9 @@
  * Rules: shared/i18n/APPS-HOWTO.md. */
 window.SlopI18n && window.SlopI18n.add('pt-BR', {
   'ui.finder.count': '{n} itens',
+  'ui.finder.count#one': '{n} item',
   'ui.finder.count_of': '{shown} de {n} itens correspondem',
+  'ui.finder.count_of#one': '{shown} de {n} item corresponde',
   'ui.finder.count_noun': '{n} {noun}',
   'ui.finder.count_of_noun': '{shown} de {n} {noun} correspondem',
   'ui.finder.matches': 'Resultados',
@@ -13,6 +15,7 @@ window.SlopI18n && window.SlopI18n.add('pt-BR', {
   'ui.finder.sorted_desc': 'decrescente',
   'ui.finder.not_sorted': 'sem ordenação',
   'ui.list.count': '{n} itens',
+  'ui.list.count#one': '{n} item',
   'ui.list.count_noun': '{n} {noun}',
   'ui.list.empty_any': 'Nada aqui ainda.',
 });

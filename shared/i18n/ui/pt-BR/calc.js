@@ -11,6 +11,7 @@ window.SlopI18n && window.SlopI18n.add('pt-BR', {
   'ui.calc.ends_early': 'A expressão termina antes do esperado',
   'ui.calc.unexpected': 'Inesperado “{text}”',
   'ui.calc.args': '{fn} recebe {n} argumentos',
+  'ui.calc.args#one': '{fn} recebe {n} argumento',
   'ui.calc.empty': 'Digite uma expressão',
   'ui.calc.no_rate': 'Não há taxa de câmbio de {from} para {to}',
   'ui.calc.cannot_convert': 'Não é possível converter {from} para {to}',

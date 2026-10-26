@@ -27,6 +27,7 @@ window.SlopI18n && window.SlopI18n.add('pt-BR', {
   'pdf.find.rep_unplaced': 'A posição não pode ser localizada exatamente: não substituído',
   'pdf.find.rep_status': '{matches} · {n} marcados',
   'pdf.find.rep_matches': '{n} resultados',
+  'pdf.find.rep_matches#one': '{n} resultado',
   'pdf.find.rep_none': 'Nenhum resultado.',
   'pdf.find.rep_done': '{done} de {total} substituídos.',
   'pdf.find.rep_skipped': '{n} não substituídos: a posição não pôde ser localizada exatamente.',
