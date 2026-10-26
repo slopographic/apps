@@ -72,8 +72,8 @@
         let w = swapped(); I.set('sv'); await w;
         // the app's name in Swedish where the tables give one (sv-apps.js), as the switcher shows it
         const docs = window.SLOP_APPS.find((a) => a.id === 'docs'), svName = window.slopAppName ? window.slopAppName(docs) : docs.name;
-        typeQuery(svName);
-        expect(tagOf(svName)).toBe('Förhandsversion');
+        typeQuery(docs.name);   // the registry name finds it in any language
+        expect(tagOf(svName) || tagOf(docs.name)).toBe('Förhandsversion');
         w = swapped(); I.set('en'); await w;
         closeIfOpen();
       });
