@@ -4,5 +4,5 @@ window.SlopI18n && window.SlopI18n.source({
   ns: 'recorder',
   base: ((document.currentScript || {}).src || '').replace(/[^/]*$/, ''),
   parts: ['app', 'support'],
-  langs: ['en', 'sv'],
+  langs: ['en', 'es', 'sv'],
 });

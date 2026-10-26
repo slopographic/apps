@@ -4,5 +4,5 @@ window.SlopI18n && window.SlopI18n.source({
   ns: 'fontcreator',
   base: ((document.currentScript || {}).src || '').replace(/[^/]*$/, ''),
   parts: ['app', 'io', 'panel', 'tour', 'views'],
-  langs: ['en', 'sv'],
+  langs: ['en', 'es', 'sv'],
 });
