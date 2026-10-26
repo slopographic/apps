@@ -179,6 +179,9 @@ export const ABOUT = {
 
 /** Pages that are not apps and have no registry entry, keyed by folder (the URL is /<folder>/). Written by write.mjs. */
 export const PAGES = {
+  // The typeface page (typeface/): only in a build whose profile has a type family (tools/whitelabel/font.mjs).
+  .../*profile:font*/true ? { typeface: { title: 'The Slopographic typeface: Sans, Serif, Mono, Condensed | Slopographic', crumb: 'Typeface',
+    description: 'The Slopographic type family: Sans, Serif, Mono and Condensed, with drop dots, a drip ligature and stylistic sets. Free under the SIL Open Font License.' } } : {},
   'how-it-works': { title: 'How Slopographic works: local files, storage and network | Slopographic', crumb: 'How it works',
     description: 'How the Slopographic apps work: files stay on your device, which browser APIs they use, every network request, and how to check it yourself.' },
   'convert/csv-to-vcf': { title: 'CSV to vCard (VCF) converter, free, in your browser | File convert', crumb: 'CSV to vCard',

@@ -9,6 +9,7 @@
   "naming": "brand",
   "tone": "playful",
   "mascot": true,
+  "font": { "spec": "../../tools/fonts/specs/slopographic.json", "dir": "../../shared/fonts/brand" },
   "github": "slopographic",
   "mailDomain": "slopographic.com",
   "brandTerms": ["Slopographic", "slopographic", "Sloppo"],

@@ -34,6 +34,7 @@
     'footer.accounts_home': 'Sem contas. Análises e anúncios continuam desligados, a menos que você os ative em Configurações.',
     'footer.accounts_settings': 'Sem contas. Análises e anúncios ficam desligados, a menos que você os ative em Configurações.',
     'footer.settings_link': 'Configurações e privacidade',
+    'footer.typeface': 'Tipografia',
     'footer.code_license': 'Código MIT',
     'footer.trademarks': 'Sloppo™ e Slopographic™ são marcas comerciais',
     'footer.made': 'Feito com ❤️ na Suécia',

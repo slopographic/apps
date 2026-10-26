@@ -34,6 +34,7 @@
     'footer.accounts_home': 'Inga konton. Statistik och annonser är avstängda om du inte slår på dem i Inställningar.',
     'footer.accounts_settings': 'Inga konton. Statistik och annonser är avstängda om du inte slår på dem i Inställningar.',
     'footer.settings_link': 'Inställningar och integritet',
+    'footer.typeface': 'Typsnitt',
     'footer.code_license': 'Kod MIT',
     'footer.trademarks': 'Sloppo™ och Slopographic™ är varumärken',
     'footer.made': 'Gjort med ❤️ i Sverige',
