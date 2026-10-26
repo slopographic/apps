@@ -14,7 +14,7 @@
     const t = DR.t, G = { file: t('drive.cmd.group_file'), edit: t('drive.cmd.group_edit'), go: t('drive.cmd.group_go'), view: t('drive.cmd.group_view'), tools: t('drive.cmd.group_tools'), help: t('drive.cmd.group_help') };
     const list = [
       C('newFolder', t('drive.cmd.new_folder'), G.file, ['Alt+Shift+Mod+N'], () => DR.newFolder(DR.dest()), { keywords: ['create', 'mkdir'] }),
-      ...(DR.creatables ? DR.creatables() : []).map((c) => C('new.' + c.app.id, t('drive.cmd.new_doc', { label: c.label.toLowerCase(), app: c.app.name }), G.file, [], () => DR.createNew(c), { keywords: ['create', 'new', c.ext, c.label] })),
+      ...(DR.creatables ? DR.creatables() : []).map((c) => C('new.' + c.app.id, t('drive.cmd.new_doc', { label: DR.newLabel(c), app: DR.appLabel(c.app) }), G.file, [], () => DR.createNew(c), { keywords: ['create', 'new', c.ext, c.label] })),
       C('upload', t('drive.cmd.upload'), G.file, ['Mod+U'], () => DR.uploadPicker(false), { keywords: ['import', 'add'] }),
       C('uploadFolder', t('drive.cmd.upload_folder'), G.file, [], () => DR.uploadPicker(true)),
       C('open', t('drive.cmd.open'), G.file, [], () => DR.open(one()), { when: () => !!one() }),

@@ -65,6 +65,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'tables.sheet.tab_tip': '{name} (doppio clic per rinominare)',
   'tables.sheet.rename_title': 'Rinomina foglio',
   'tables.sheet.name': 'Nome del foglio',
+  'tables.sheet.default': 'Foglio{n}',
   'tables.sheet.need_one': 'Una cartella di lavoro deve avere almeno un foglio',
   'tables.sheet.delete_body': 'Eliminare “{name}” e tutto ciò che contiene?',
   'tables.nf.general': 'Generale',

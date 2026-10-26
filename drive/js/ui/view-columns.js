@@ -8,7 +8,7 @@
   const kindOk = (it) => S.kind === 'all' || (S.kind === 'folder' ? it.isFolder : !it.isFolder && DR.kindOf(it) === S.kind);
   function column(parent, openId) {
     const c = DR.children(parent), list = DR.sortItems([...c.folders, ...c.files].filter((it) => it.isFolder || kindOk(it)));
-    const col = el('div', { class: 'col', role: 'listbox', 'aria-label': parent ? S.folders.get(parent).name : 'Slop Drive', 'data-drop': parent == null ? 'root' : parent });   // i18n-ignore: the app name
+    const col = el('div', { class: 'col', role: 'listbox', 'aria-label': parent ? S.folders.get(parent).name : DR.rootName(), 'data-drop': parent == null ? 'root' : parent });
     for (const it of list) {
       const key = DR.keyOf(it);
       const n = el('div', { class: 'crow' + (S.sel.has(key) ? ' sel' : '') + (it.isFolder && it.id === openId ? ' open' : '') + (S.focus === key ? ' focus' : ''), role: 'option', 'data-key': key, title: it.name, 'aria-selected': String(S.sel.has(key)) },

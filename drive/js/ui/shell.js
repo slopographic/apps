@@ -23,7 +23,7 @@
     };
     if (S.section !== 'folder') add(DR.placeName(), null, S.section);
     else {
-      add('Slop Drive', null);   // i18n-ignore: the app name
+      add(DR.rootName(), null);
       for (const f of DR.pathOf(S.cwd)) add(f.name, f.id);
       if (DR.searching()) { box.append(DR.icon('chev', 'ic sep')); box.append(el('span', { class: 'crumb' }, DR.t('drive.app.search_crumb', { q: S.query.trim() }))); }
     }

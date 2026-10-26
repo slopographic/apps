@@ -64,6 +64,7 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'tables.sheet.tab_tip': '{name}（ダブルクリックで名前を変更）',
   'tables.sheet.rename_title': 'シート名の変更',
   'tables.sheet.name': 'シート名',
+  'tables.sheet.default': 'Sheet{n}',
   'tables.sheet.need_one': 'ブックには少なくとも 1 つのシートが必要です',
   'tables.sheet.delete_body': '「{name}」とその中のすべてを削除しますか？',
   'tables.nf.general': '標準',

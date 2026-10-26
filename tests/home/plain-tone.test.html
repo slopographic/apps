@@ -68,7 +68,10 @@
             expect(m.tagName).toBe('BUTTON');
             expect(r.top).toBeGreaterThanOrEqual(h.bottom);
             expect(r.right).toBeLessThanOrEqual(win.innerWidth);
-            expect(r.width).toBeLessThan(width > 700 ? 80 : 60);              // calm and small
+            // calm and small, unless the profile sizes it (mascot.size, px tall: the slot's OPTIONS)
+            const { OPTIONS } = await win.eval('import(new URL("shared/mascot/slot.js", document.baseURI).href)');
+            const asked = OPTIONS.size[width > 700 ? 'desktop' : 'phone'];
+            expect(r.width).toBeLessThan(asked ? Math.round(asked * 112 / 136) + 1 : width > 700 ? 80 : 60);
           }
         } else {
           expect(!!doc.getElementById('slop-tone-css')).toBe(false);

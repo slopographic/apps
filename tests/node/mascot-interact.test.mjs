@@ -84,3 +84,17 @@ test('the idle glance comes every 20 to 45 seconds', () => {
   assert.equal(nextGlance(0), 20000);
   assert.equal(nextGlance(1), 45000);
 });
+
+test('the size: today\'s scale by default, the profile\'s px tall on a desktop and a phone when it sets one', async () => {
+  const { dims, STAGE } = await import('../../shared/mascot/interact.js');
+  assert.deepEqual(dims(null, 1), { desk: { w: 112, h: 136, k: 1, real: false }, phone: { w: 112, h: 136, k: 1, real: false } });
+  const plain = dims(undefined, 0.62);                       // a plain-tone build: calm and small, smaller on a phone
+  assert.deepEqual([plain.desk.w, plain.desk.h, plain.desk.real], [69, 84, false]);
+  assert.deepEqual([plain.phone.w, plain.phone.h], [52, 63]);
+  const big = dims({ desktop: 200, phone: 64 }, 0.62);
+  assert.deepEqual(big.desk, { w: Math.round(200 * STAGE.w / STAGE.h), h: 200, k: 200 / 136, real: true });
+  assert.equal(big.phone.h, 64); assert.equal(big.phone.real, true);
+  const deskOnly = dims({ desktop: 190 }, 0.62);             // no phone size: a phone keeps today's
+  assert.equal(deskOnly.desk.h, 190); assert.equal(deskOnly.phone.h, 63);
+  assert.equal(dims({ desktop: 5000 }, 1).desk.h, 136);      // out of range: ignored
+});

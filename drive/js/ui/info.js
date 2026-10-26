@@ -60,7 +60,7 @@
   let faceH = null; // the badge and boxes of the shown picture (destroyed when the panel is rebuilt)
   function single(r) {
     const head = el('div', { class: 'info-h' }, DR.badge(r, 'badge sm'), el('h2', { title: r.name }, r.name));
-    const loc = r.parent ? DR.pathOf(r.parent).map((f) => f.name).join(' / ') : 'Slop Drive', t = DR.t;   // i18n-ignore: the app name
+    const loc = r.parent ? DR.pathOf(r.parent).map((f) => f.name).join(' / ') : DR.rootName(), t = DR.t;
     if (r.isFolder) {
       const c = DR.children(r.id), sub = DR.descendants(r.id);
       return [head, el('div', { class: 'pv pv-folder' }, DR.icon('folder', 'ic huge')), actions(r),

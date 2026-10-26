@@ -66,7 +66,7 @@ async function readRawFile(f) {
   return new Promise((resolve, reject) => {
     let done = false;
     const finish = (fn) => { done = true; closed = true; clearTimeout(timer); fn(); };
-    const asDoc = (c) => ({ w: c.width, h: c.height, layers: [{ name: 'Background', canvas: c }] }); // i18n-ignore: layer name
+    const asDoc = (c) => ({ w: c.width, h: c.height, layers: [{ name: tr('photoslop.layer.background'), canvas: c }] });
     const buttons = [{ label: tr('menu.cancel') }];
     if (embedded) buttons.push({ label: rawT('use_embedded'), act: () => { finish(() => resolve(asDoc(embedded.canvas))); return true; } });
     buttons.push({ label: tr('menu.open'), primary: true, act: async () => {

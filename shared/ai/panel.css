@@ -99,6 +99,8 @@ body.sap-open .buddy-toggle { visibility: hidden; }
 .sap-cloud-f[hidden], .sap-cloud-check[hidden], .sap-cloud-local[hidden] { display: none; }
 .sap-cloud-f input, .sap-cloud-f select { height: 32px; padding: 0 8px; border-radius: var(--p-radius); border: 1px solid var(--p-line); background: var(--p-input); color: var(--p-fg); font: 13px var(--p-font); min-width: 0; width: 100%; }
 .sap-cloud-check { display: flex; align-items: center; gap: 6px; font-size: 12.5px; }
+.sap-cloud-signin { display: grid; gap: 4px; padding: 8px; border: 1px solid var(--p-line); border-radius: var(--p-radius); background: var(--p-bg2); }
+.sap-cloud-signin[hidden] { display: none; } .sap-cloud-signin .sap-btn { justify-self: start; } .sap-cloud-signin p { margin: 0; }
 .sap-cloud-msg.bad { color: var(--p-danger); }
 .sap-cloud-local summary { cursor: pointer; font-size: 12px; } .sap-cloud-local p { margin: 6px 0 0; word-break: break-word; }
 .sap-pick-cloud:empty { display: none; }

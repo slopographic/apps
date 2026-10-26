@@ -26,7 +26,7 @@
       n.more = Math.max(0, files.length - Math.min(files.length, MAX_FILES));
       return n;
     };
-    const top = S.cwd ? S.folders.get(S.cwd) : { id: '__root', name: 'Slop Drive', isFolder: true, parent: null };   // i18n-ignore: the app name
+    const top = S.cwd ? S.folders.get(S.cwd) : { id: '__root', name: DR.rootName(), isFolder: true, parent: null };
     return { root: build(top, 0), count };
   };
   function layout(root) {

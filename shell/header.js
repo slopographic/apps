@@ -155,6 +155,15 @@
     }
     // a request handed over from another app (shared/ai/handoff.js): open the panel so it continues here
     try { const h = JSON.parse(sessionStorage.getItem('slop-ai.handoff') || 'null'); if (h && h.to === app.id && Date.now() - h.at < 6e5) { setTimeout(openAI, 0); return b; } } catch (e) { /* no storage */ }
+    // back from "Sign in with OpenRouter" (shared/ai/cloud/signin.js, a sign-in started in this tab): that script now, so
+    // the code leaves the address at once, then the panel, which finishes the sign-in
+    try {
+      if (sessionStorage.getItem('slop-ai.signin') && /[?&](code|error)=/.test(location.search)) {
+        const s = document.createElement('script'); s.src = new URL('shared/ai/cloud/signin.js', window.SlopShell.ROOT).href; document.head.append(s);
+        s.onload = s.onerror = () => { if (!window.SlopAIPanel || !window.SlopAIPanel.isOpen) openAI(); };
+        return b;
+      }
+    } catch (e) { /* no storage */ }
     setTimeout(reopenAI, 0);
     return b;
   }

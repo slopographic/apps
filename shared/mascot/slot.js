@@ -15,31 +15,42 @@
 // the greeting. Pages and apps may send any moment the same way.
 // The mascot is a button (ui.js): a helper menu, drag to move, and optional look() / react() hooks on the instance. It is
 // the only presence while shown (the buddy's toggle steps aside, shared/buddy/boot.js); in a plain-tone build it is drawn
-// smaller (SCALE). Tests: tests/node/mascot-moments.test.mjs, tests/node/mascot-interact.test.mjs (the logic),
+// smaller (SCALE). The profile may size it ("mascot": { "size": { "desktop": <px tall>, "phone": <px> } }: the stage is
+// then laid out at that size, interact.js dims()) and let it roam the page ("roam": "float" | "hop" | true; roam.js);
+// both come in through the profile markers below. Tests: tests/buddy/roam.test.html (size and roaming), tests/node/mascot-moments.test.mjs, tests/node/mascot-interact.test.mjs (the logic),
 // tests/buddy/slot.test.html (the slot on a page).
 import { animationFor, stateOf, workTracker, idleTracker, sideOf, MOMENTS } from './moments.js';
 import { attach } from './ui.js';
+import { dims } from './interact.js';
+import { createRoam, styleOf } from './roam.js';
 
 export const OVERLAY = new URL('../../brand/mascot/', import.meta.url).href;
 const W = 112, H = 136;
 /** The drawing's scale: calm and small in a plain-tone build (shared/theme/theme.js), full size otherwise. */
 export const SCALE = typeof window !== 'undefined' && window.SlopTheme && window.SlopTheme.tone === 'plain' ? 0.62 : 1;
-const SW = Math.round(W * SCALE), SH = Math.round(H * SCALE);
-const CSS = `.mascot-slot{position:fixed;width:${SW}px;height:${SH}px;padding:0;margin:0;border:0;background:none;color:inherit;font:inherit;cursor:pointer;touch-action:none;
+const CALM = SCALE < 1;
+/** The profile's options (white-label build markers; none here): its size on a desktop and a phone (px tall), roaming. */
+export const OPTIONS = { size: { desktop: /*profile:mascotDesktop*/null, phone: /*profile:mascotPhone*/null }, roam: /*profile:mascotRoam*/'' };
+let SW = 0, SH = 0;
+const stageCss = (d) => (d.real ? `width:${d.w}px;height:${d.h}px;transform:none` : `width:${W}px;height:${H}px;transform:scale(${d.k})`);
+const css = ({ desk, phone }) => `.mascot-slot{position:fixed;width:${desk.w}px;height:${desk.h}px;padding:0;margin:0;border:0;background:none;color:inherit;font:inherit;cursor:pointer;touch-action:none;
 -webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;transition:opacity .3s;translate:0 calc(var(--consent-h,0px)*-1);
 --ms-safe-t:env(safe-area-inset-top,0px);--ms-safe-r:env(safe-area-inset-right,0px);--ms-safe-b:env(safe-area-inset-bottom,0px);--ms-safe-l:env(safe-area-inset-left,0px)}
 .mascot-slot[hidden]{display:none}.mascot-slot.is-dragging{cursor:grabbing}
 .mascot-slot:focus-visible{outline:2px solid var(--sl-accent,Highlight);outline-offset:2px;border-radius:12px}
-.mascot-slot .ms-stage{position:absolute;right:0;bottom:0;width:${W}px;height:${H}px;transform:scale(${SCALE});transform-origin:100% 100%;pointer-events:none}
+.mascot-slot .ms-stage{position:absolute;right:0;bottom:0;${stageCss(desk)};transform-origin:100% 100%;pointer-events:none}
 .mascot-slot .ms-stage>*{width:100%;height:100%;display:block}
 .mascot-slot .ms-icon{display:grid;place-items:end center}.mascot-slot .ms-icon svg{width:64px;height:64px}
 .ms-say{position:fixed;z-index:2001;max-width:min(300px,calc(100vw - 32px));margin:0;padding:10px 12px;border:1px solid var(--sl-border,GrayText);border-radius:10px;
 background:var(--sl-surface,Canvas);color:var(--sl-text,CanvasText);font:14px/1.4 var(--sans,system-ui);box-shadow:0 8px 24px rgba(0,0,0,.25)}.ms-say[hidden]{display:none}
-${SCALE < 1 ? `@media (max-width:700px){.mascot-slot{width:${Math.round(W * .46)}px;height:${Math.round(H * .46)}px}.mascot-slot .ms-stage{transform:scale(.46)}}` : ''}
+${phone.h !== desk.h ? `@media (max-width:700px){.mascot-slot{width:${phone.w}px;height:${phone.h}px}.mascot-slot .ms-stage{${stageCss(phone)}}}` : ''}
 @media print{.mascot-slot,.ms-say{display:none}}`;
 
-let mod = null, inst = null, dock = null, stage = null, ui = null, cfg = null, visible = false, holding = null, base = OVERLAY;
-const reduce = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+let mod = null, inst = null, dock = null, stage = null, ui = null, cfg = null, visible = false, holding = null, base = OVERLAY, roamer = null;
+const media = (q) => typeof matchMedia === 'function' && matchMedia(q).matches;
+/** Reduced motion (cfg.reduce: a test's override); a phone or a touch screen (it stays docked there). */
+const reduce = () => (cfg && cfg.reduce != null ? !!cfg.reduce : media('(prefers-reduced-motion: reduce)'));
+const phone = () => media('(max-width: 700px), (pointer: coarse)');
 
 /** Loads the overlay's icon module (the toggle button shows it before the mascot itself loads). */
 export const loadIcon = () => import(base + 'icon.js');
@@ -79,13 +90,16 @@ function watch() {
   });
 }
 
-/** The engine interface (shared/buddy/boot.js calls these). cfg.overlay: another overlay folder URL (tests). */
+/** The engine interface (shared/buddy/boot.js calls these). cfg.overlay: another overlay folder URL; cfg.size, cfg.roam,
+ * cfg.reduce: the profile's options and reduced motion, for tests. */
 export async function start(c) {
   cfg = c || {};
   if (cfg.overlay) base = new URL(cfg.overlay, location.href).href;
   if (dock) return;
+  const d = dims(cfg.size !== undefined ? cfg.size : OPTIONS.size, SCALE);
+  SW = d.desk.w; SH = d.desk.h;
   if (!document.getElementById('mascot-slot-css')) {
-    const st = document.createElement('style'); st.id = 'mascot-slot-css'; st.textContent = CSS; document.head.append(st);
+    const st = document.createElement('style'); st.id = 'mascot-slot-css'; st.textContent = css(d); document.head.append(st);
   }
   dock = document.createElement('button');
   dock.className = 'mascot-slot';
@@ -103,7 +117,11 @@ export async function start(c) {
   }
   dock.dataset.mascot = mod.name || '';
   ui = attach(dock, { name: mod.name || 'Helper', size: { w: SW, h: SH }, inst: () => inst, moment: (m) => moment(m), reduce,
-    hide: () => (typeof cfg.hide === 'function' ? cfg.hide() : show(false)) });
+    hide: () => (typeof cfg.hide === 'function' ? cfg.hide() : show(false)), settle: () => roamer && roamer.settle() });
+  roamer = createRoam(dock, stage, { style: styleOf(cfg.roam !== undefined ? cfg.roam : OPTIONS.roam), calm: CALM, reduce, phone, ui,
+    hook: (fn, ...args) => { if (inst && typeof inst[fn] === 'function') { try { inst[fn](...args); } catch (e) { /* an overlay error never reaches the page */ } } } });
+  if (visible) roamer.run(true);
+  window.MascotSlot = { state, parts, moment, show };   // a debug and test hook, like the buddy's
   watch();
 }
 
@@ -111,6 +129,7 @@ export function show(v) {
   visible = !!v;
   if (!dock) return;
   dock.hidden = !visible;
+  if (roamer) roamer.run(visible);
   if (!visible) return;
   if (ui) ui.place();
   moment('greeting');
@@ -122,6 +141,6 @@ export function toggleHud() { /* the slot has no HUD */ }
 
 /** For tests: the state of the slot. */
 export const state = () => ({ visible, name: mod && mod.name, live: !!inst, holding, busy: work ? work.busy : 0, asleep: idle ? idle.asleep : false });
-export function stop() { clearInterval(timer); if (observer) observer.disconnect(); if (ui) ui.dispose(); if (inst && inst.dispose) inst.dispose(); }
+export function stop() { clearInterval(timer); if (observer) observer.disconnect(); if (roamer) roamer.dispose(); if (ui) ui.dispose(); if (inst && inst.dispose) inst.dispose(); }
 /** For tests: the dock (the mascot's button) and the interaction layer. */
-export const parts = () => ({ dock, stage, ui, size: { w: SW, h: SH } });
+export const parts = () => ({ dock, stage, ui, roam: roamer, size: { w: SW, h: SH } });

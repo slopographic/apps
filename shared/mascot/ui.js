@@ -16,14 +16,15 @@ const t = (key, en, vars) => { const I = window.SlopI18n, s = I && typeof I.t ==
 const num = (v) => parseFloat(v) || 0;
 
 /** The view the mascot lives in: the window, the sticky header's bottom edge and the safe areas (env() through CSS). */
-function view(dock) {
+export function view(dock) {
   const cs = getComputedStyle(dock), head = document.querySelector('body > header, .nav, .sh-hdr');
   const top = head ? Math.max(0, head.getBoundingClientRect().bottom) : 0;
   return { w: innerWidth, h: innerHeight, top, safe: { top: num(cs.getPropertyValue('--ms-safe-t')), right: num(cs.getPropertyValue('--ms-safe-r')), bottom: num(cs.getPropertyValue('--ms-safe-b')), left: num(cs.getPropertyValue('--ms-safe-l')) } };
 }
 
 /** Wires the dock (a <button>) for the mascot. o: { name, size: { w, h }, inst() (the overlay's instance or null),
- * moment(name), hide(), reduce() }. Returns { place(), dispose() }. */
+ * moment(name), hide(), reduce(), settle()? (before a press or a move: a roaming mascot folds where it floats into its
+ * place, roam.js) }. Returns { place(), pos(), moveTo(pos), dispose() }. */
 export function attach(dock, o) {
   const hook = (fn, ...args) => { const i = o.inst(); if (i && typeof i[fn] === 'function') { try { i[fn](...args); } catch (e) { /* an overlay error never reaches the page */ } } };
   let pos = null;
@@ -31,6 +32,7 @@ export function attach(dock, o) {
   const set = (p) => { pos = clampPos(p, size(), view(dock)); dock.style.right = pos.right + 'px'; dock.style.bottom = pos.bottom + 'px'; };
   const foot = () => num(getComputedStyle(document.documentElement).getPropertyValue('--slop-foot-h'));
   const place = () => set(read() || defaultPos(size(), view(dock), 1, foot()));
+  const settle = () => { if (typeof o.settle === 'function') o.settle(); };
   dock.type = 'button';
   dock.setAttribute('data-touch-surface', '');   // a finger drags it (touch-action: none in slot.js's styles)
   dock.setAttribute('aria-label', o.name);
@@ -47,7 +49,7 @@ export function attach(dock, o) {
       if (input) { input.scrollIntoView({ block: 'center', behavior: o.reduce() ? 'auto' : 'smooth' }); input.focus({ preventScroll: true }); } else if (window.SlopSwitcher) window.SlopSwitcher.open();
     } else if (v === 'tour') { const b = document.querySelector('.stour-btn'); if (b) b.click(); }
     else if (v === 'tips') { const [k, en] = TIPS[tip++ % TIPS.length]; say(t(k, en)); }
-    else if (v === 'move') { const p = otherSide(pos, size(), view(dock)); write(p); set(p); }
+    else if (v === 'move') { settle(); const p = otherSide(pos, size(), view(dock)); write(p); set(p); }
     else if (v === 'hide') o.hide();
   };
   const menu = import('../ui/menubutton.js').then(() => {
@@ -69,6 +71,7 @@ export function attach(dock, o) {
   let press = null, start = null, longT = 0, skipClick = false;
   dock.addEventListener('pointerdown', (e) => {
     if (e.button > 0) return;
+    settle();
     press = createPress(e.clientX, e.clientY, e.timeStamp);
     start = { pos, id: e.pointerId };
     clearTimeout(longT);
@@ -123,6 +126,8 @@ export function attach(dock, o) {
 
   return {
     place, menu,
+    /** Where it sits ({ right, bottom }), and a new place (kept inside the view, not remembered). */
+    pos: () => pos, moveTo: (p) => set(p),
     dispose() { clearTimeout(glanceT); clearTimeout(longT); clearTimeout(bubbleT); removeEventListener('pointermove', onMove); removeEventListener('resize', onResize); if (mb) mb.destroy(); if (bubble) bubble.remove(); },
   };
 }

@@ -11,6 +11,7 @@
  * Own AI account (shared/ai/cloud/): a provider connected with the person's own key is just another engine; the
  * header names it ("Claude · Claude Opus 5.5"), the foot says where requests go, and the provider chosen last comes
  * back on the next page when its key is still in this browser. It is never shared with other tabs over the bridge.
+ * Back from "Sign in with OpenRouter" (cloud/signin.js), the panel opens on the model choice to finish it.
  * The message box: Up and Down recall what was sent before, in every app (history.js); Ctrl+A and the other editing keys
  * stay the box's (shared/input/typing.js keeps the app's shortcuts off them). Beside it, the AI permissions mode
  * (permissions-ui.js modeControl). Open or closed is remembered on this device ('slop-ai.open'): shell/header.js opens
@@ -28,7 +29,10 @@
   const T = (k, v) => (window.SlopI18n ? SlopI18n.t(k, v) : k);   // the words: shared/i18n/ui/<code>/ai.js
   const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = base + 'panel.css'; document.head.append(css);
   const add = (src, test) => new Promise((res, rej) => { if (test && test()) return res(); const s = document.createElement('script'); s.src = new URL(src + '.js', base).href; s.async = false; s.onload = res; s.onerror = () => rej(new Error('load ' + src)); document.head.append(s); });
-  const sheetP = add('../ui/sheet', () => window.SlopSheet);   // a phone's bottom sheet: as soon as it is here, not after the kit
+  const sheetP = add('../ui/sheet', () => window.SlopSheet);
+  // a sign-in started in this tab (cloud/signin.js): that file at once, so it takes a returned code out of the address
+  const signing = () => { try { return !!sessionStorage.getItem('slop-ai.signin'); } catch (e) { return false; } };
+  if (signing()) add('cloud/signin', () => K.cloud && K.cloud.signin).catch(() => {});   // a phone's bottom sheet: as soon as it is here, not after the kit
   // The kit in two parts, each requested at once (K.load): what the chat needs (the composer works when it is in), then
   // what waits (permission settings, the model menu, pictures), which a send also waits for. A part that fails says so.
   const CORE = ['permissions', 'app-skills', 'apptools', 'cmdtools', 'toolbox', 'prompt', 'filetools', 'optools', 'handoff', 'md', 'catalog', 'picker', 'panel-run'];
@@ -38,7 +42,7 @@
   const remember = (on) => { try { localStorage.setItem(OPEN_KEY, on ? '1' : '0'); } catch (e) { /* storage blocked */ } };
   const kit = Promise.all([add('slopai', () => window.SlopAI), add('history', () => K.history), add('../commands/args', () => window.SlopCmdArgs), sheetP, add('../ui/resize-panel', () => window.SlopResizePanel)])
     .then(() => Promise.all([window.SlopAI.loaded, K.load(CORE)]))
-    .then(() => takeHandoff()).then(() => restoreCloud());
+    .then(() => takeHandoff()).then(() => restoreCloud()).then(() => signedIn());
   const extras = kit.then(() => K.load(LATER)).then(() => K.imageGenReady && K.imageGenReady.catch(() => null));
   kit.then(() => extras.catch(() => null)).then(() => { if (P.pending && P.engine()) runPending(); }, () => {});
   kit.catch((e) => { P.kitError = e; if (root) P.render(); });
@@ -72,6 +76,17 @@
     if (!root || root.hidden) open();
   }
   function runPending() { const t = P.pending; P.pending = null; if (t) setTimeout(() => P.send(t), 0); }
+  /** Back from "Sign in with OpenRouter" (cloud/signin.js took the code out of the address): the panel opens on the model
+   * choice, whose form (cloud/connect.js) finishes the sign-in and tests the connection. */
+  function signedIn() {
+    if (!signing()) return null;
+    return K.picker.loadCloud().then(() => {
+      if (!K.cloud.signin.returned()) return;
+      if (!root || root.hidden) open();
+      if (P.engine() || P.messages.length) { P.choosing = true; P.setting = false; if (P.pickBox) P.pickBox.remove(); P.pickBox = null; }
+      P.render();
+    }).catch((e) => console.warn('Slop AI: sign-in', e));
+  }
   /** The provider chosen last, when its key is still here (keys.js keeps no key in localStorage, only which one). */
   function restoreCloud() {
     let s = null; try { s = JSON.parse(localStorage.getItem('slop-ai.cloud') || 'null'); } catch (e) { s = null; }

@@ -65,8 +65,10 @@
     for (let i = 2; i < 10000; i++) { const n = `${root} (${i})${ext}`; if (!sib.has(n.toLowerCase())) return n; }
     return name + ' ' + Date.now();
   };
-  DR.parentName = (it) => (it.parent ? (S.folders.get(it.parent) || {}).name : 'Slop Drive');   // i18n-ignore: the app name
+  /** The drive's own name, at its root and in paths: the app list's name in the chosen language (slopAppName). */
+  DR.rootName = () => (window.slopAppName ? window.slopAppName('drive') : 'Slop Drive');
+  DR.parentName = (it) => (it.parent ? (S.folders.get(it.parent) || {}).name : DR.rootName());
   DR.liveFiles = () => [...S.files.values()].filter((r) => !DR.hidden(r));
   DR.liveFolders = () => [...S.folders.values()].filter((f) => !DR.hidden(f));
-  DR.appName = (from) => { const a = H().appById(from); return a ? a.name : from === 'drive' ? 'Slop Drive' : from === 'upload' ? DR.t('drive.app.uploaded') : from && from !== 'unknown' ? from : '—'; };
+  DR.appName = (from) => { const a = H().appById(from); return a ? (window.slopAppName ? window.slopAppName(a) : a.name) : from === 'drive' ? DR.rootName() : from === 'upload' ? DR.t('drive.app.uploaded') : from && from !== 'unknown' ? from : '—'; };
 })(window.DR);

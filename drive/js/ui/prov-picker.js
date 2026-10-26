@@ -52,7 +52,7 @@
       const out = [];
       for (const d of places) {
         const granted = d.status === 'granted', isOpen = granted && open.has(key(d.id, ''));
-        const name = d.provider.kind === 'internal' ? 'Slop Drive' : d.label;   // i18n-ignore: the app name
+        const name = d.provider.kind === 'internal' ? DR.rootName() : d.label;
         const off = !granted;
         out.push(row(d, '', name, 0, isOpen, off, true, granted));
         if (off) out.push(el('div', { class: 'pv-note', style: '--d:1' }, DR.t('drive.dlg.allow_sidebar')));

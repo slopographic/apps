@@ -124,4 +124,9 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'drive.toast.copied_to_n#many': 'Skopiowano {n} elementów do: {place}',
   'drive.toast.link_copied': 'Skopiowano link',
   'drive.toast.link_failed': 'Nie udało się skopiować linku',
+  'drive.newdoc.sdoc': 'Dokument',
+  'drive.newdoc.stab': 'Arkusz kalkulacyjny',
+  'drive.newdoc.sslide': 'Prezentacja',
+  'drive.newdoc.sfont': 'Czcionka',
+  'drive.newdoc.s3d': 'Scena 3D',
 });

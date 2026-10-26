@@ -3349,6 +3349,7 @@ Covers: shared/i18n/ui/ar/ai5.js
 Covers: shared/i18n/ui/ar/ai6.js
 Covers: shared/i18n/ui/ar/ai7.js
 Covers: shared/i18n/ui/ar/ai8.js
+Covers: shared/i18n/ui/ar/ai9.js
 Covers: shared/i18n/ui/ar/backup.js
 Covers: shared/i18n/ui/ar/backup2.js
 Covers: shared/i18n/ui/ar/backup3.js
@@ -3389,6 +3390,7 @@ Covers: shared/i18n/ui/de/ai5.js
 Covers: shared/i18n/ui/de/ai6.js
 Covers: shared/i18n/ui/de/ai7.js
 Covers: shared/i18n/ui/de/ai8.js
+Covers: shared/i18n/ui/de/ai9.js
 Covers: shared/i18n/ui/de/backup.js
 Covers: shared/i18n/ui/de/backup2.js
 Covers: shared/i18n/ui/de/backup3.js
@@ -3429,6 +3431,7 @@ Covers: shared/i18n/ui/en/ai5.js
 Covers: shared/i18n/ui/en/ai6.js
 Covers: shared/i18n/ui/en/ai7.js
 Covers: shared/i18n/ui/en/ai8.js
+Covers: shared/i18n/ui/en/ai9.js
 Covers: shared/i18n/ui/en/backup.js
 Covers: shared/i18n/ui/en/backup2.js
 Covers: shared/i18n/ui/en/backup3.js
@@ -3469,6 +3472,7 @@ Covers: shared/i18n/ui/es/ai5.js
 Covers: shared/i18n/ui/es/ai6.js
 Covers: shared/i18n/ui/es/ai7.js
 Covers: shared/i18n/ui/es/ai8.js
+Covers: shared/i18n/ui/es/ai9.js
 Covers: shared/i18n/ui/es/backup.js
 Covers: shared/i18n/ui/es/backup2.js
 Covers: shared/i18n/ui/es/backup3.js
@@ -3509,6 +3513,7 @@ Covers: shared/i18n/ui/fr/ai5.js
 Covers: shared/i18n/ui/fr/ai6.js
 Covers: shared/i18n/ui/fr/ai7.js
 Covers: shared/i18n/ui/fr/ai8.js
+Covers: shared/i18n/ui/fr/ai9.js
 Covers: shared/i18n/ui/fr/backup.js
 Covers: shared/i18n/ui/fr/backup2.js
 Covers: shared/i18n/ui/fr/backup3.js
@@ -3554,6 +3559,7 @@ Covers: shared/i18n/ui/it/ai5.js
 Covers: shared/i18n/ui/it/ai6.js
 Covers: shared/i18n/ui/it/ai7.js
 Covers: shared/i18n/ui/it/ai8.js
+Covers: shared/i18n/ui/it/ai9.js
 Covers: shared/i18n/ui/it/backup.js
 Covers: shared/i18n/ui/it/backup2.js
 Covers: shared/i18n/ui/it/backup3.js
@@ -3594,6 +3600,7 @@ Covers: shared/i18n/ui/ja/ai5.js
 Covers: shared/i18n/ui/ja/ai6.js
 Covers: shared/i18n/ui/ja/ai7.js
 Covers: shared/i18n/ui/ja/ai8.js
+Covers: shared/i18n/ui/ja/ai9.js
 Covers: shared/i18n/ui/ja/backup.js
 Covers: shared/i18n/ui/ja/backup2.js
 Covers: shared/i18n/ui/ja/backup3.js
@@ -3634,6 +3641,7 @@ Covers: shared/i18n/ui/ko/ai5.js
 Covers: shared/i18n/ui/ko/ai6.js
 Covers: shared/i18n/ui/ko/ai7.js
 Covers: shared/i18n/ui/ko/ai8.js
+Covers: shared/i18n/ui/ko/ai9.js
 Covers: shared/i18n/ui/ko/backup.js
 Covers: shared/i18n/ui/ko/backup2.js
 Covers: shared/i18n/ui/ko/backup3.js
@@ -3674,6 +3682,7 @@ Covers: shared/i18n/ui/nl/ai5.js
 Covers: shared/i18n/ui/nl/ai6.js
 Covers: shared/i18n/ui/nl/ai7.js
 Covers: shared/i18n/ui/nl/ai8.js
+Covers: shared/i18n/ui/nl/ai9.js
 Covers: shared/i18n/ui/nl/backup.js
 Covers: shared/i18n/ui/nl/backup2.js
 Covers: shared/i18n/ui/nl/backup3.js
@@ -3714,6 +3723,7 @@ Covers: shared/i18n/ui/pl/ai5.js
 Covers: shared/i18n/ui/pl/ai6.js
 Covers: shared/i18n/ui/pl/ai7.js
 Covers: shared/i18n/ui/pl/ai8.js
+Covers: shared/i18n/ui/pl/ai9.js
 Covers: shared/i18n/ui/pl/backup.js
 Covers: shared/i18n/ui/pl/backup2.js
 Covers: shared/i18n/ui/pl/backup3.js
@@ -3754,6 +3764,7 @@ Covers: shared/i18n/ui/pt-BR/ai5.js
 Covers: shared/i18n/ui/pt-BR/ai6.js
 Covers: shared/i18n/ui/pt-BR/ai7.js
 Covers: shared/i18n/ui/pt-BR/ai8.js
+Covers: shared/i18n/ui/pt-BR/ai9.js
 Covers: shared/i18n/ui/pt-BR/backup.js
 Covers: shared/i18n/ui/pt-BR/backup2.js
 Covers: shared/i18n/ui/pt-BR/backup3.js
@@ -3794,6 +3805,7 @@ Covers: shared/i18n/ui/ru/ai5.js
 Covers: shared/i18n/ui/ru/ai6.js
 Covers: shared/i18n/ui/ru/ai7.js
 Covers: shared/i18n/ui/ru/ai8.js
+Covers: shared/i18n/ui/ru/ai9.js
 Covers: shared/i18n/ui/ru/backup.js
 Covers: shared/i18n/ui/ru/backup2.js
 Covers: shared/i18n/ui/ru/backup3.js
@@ -3834,6 +3846,7 @@ Covers: shared/i18n/ui/sv/ai5.js
 Covers: shared/i18n/ui/sv/ai6.js
 Covers: shared/i18n/ui/sv/ai7.js
 Covers: shared/i18n/ui/sv/ai8.js
+Covers: shared/i18n/ui/sv/ai9.js
 Covers: shared/i18n/ui/sv/backup.js
 Covers: shared/i18n/ui/sv/backup2.js
 Covers: shared/i18n/ui/sv/backup3.js
@@ -3875,6 +3888,7 @@ Covers: shared/i18n/ui/tr/ai5.js
 Covers: shared/i18n/ui/tr/ai6.js
 Covers: shared/i18n/ui/tr/ai7.js
 Covers: shared/i18n/ui/tr/ai8.js
+Covers: shared/i18n/ui/tr/ai9.js
 Covers: shared/i18n/ui/tr/backup.js
 Covers: shared/i18n/ui/tr/backup2.js
 Covers: shared/i18n/ui/tr/backup3.js
@@ -3915,6 +3929,7 @@ Covers: shared/i18n/ui/uk/ai5.js
 Covers: shared/i18n/ui/uk/ai6.js
 Covers: shared/i18n/ui/uk/ai7.js
 Covers: shared/i18n/ui/uk/ai8.js
+Covers: shared/i18n/ui/uk/ai9.js
 Covers: shared/i18n/ui/uk/backup.js
 Covers: shared/i18n/ui/uk/backup2.js
 Covers: shared/i18n/ui/uk/backup3.js
@@ -3958,6 +3973,7 @@ Covers: shared/i18n/ui/zh-CN/ai5.js
 Covers: shared/i18n/ui/zh-CN/ai6.js
 Covers: shared/i18n/ui/zh-CN/ai7.js
 Covers: shared/i18n/ui/zh-CN/ai8.js
+Covers: shared/i18n/ui/zh-CN/ai9.js
 Covers: shared/i18n/ui/zh-CN/backup.js
 Covers: shared/i18n/ui/zh-CN/backup2.js
 Covers: shared/i18n/ui/zh-CN/backup3.js
@@ -3998,6 +4014,7 @@ Covers: shared/i18n/ui/zh-TW/ai5.js
 Covers: shared/i18n/ui/zh-TW/ai6.js
 Covers: shared/i18n/ui/zh-TW/ai7.js
 Covers: shared/i18n/ui/zh-TW/ai8.js
+Covers: shared/i18n/ui/zh-TW/ai9.js
 Covers: shared/i18n/ui/zh-TW/backup.js
 Covers: shared/i18n/ui/zh-TW/backup2.js
 Covers: shared/i18n/ui/zh-TW/backup3.js

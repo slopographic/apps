@@ -70,6 +70,7 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'tables.sheet.tab_tip': '{name} (kliknij dwukrotnie, aby zmienić nazwę)',
   'tables.sheet.rename_title': 'Zmień nazwę arkusza',
   'tables.sheet.name': 'Nazwa arkusza',
+  'tables.sheet.default': 'Arkusz{n}',
   'tables.sheet.need_one': 'Skoroszyt potrzebuje co najmniej jednego arkusza',
   'tables.sheet.delete_body': 'Usunąć „{name}” wraz z całą zawartością?',
 

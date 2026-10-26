@@ -53,7 +53,7 @@ export function render() {
   if (document.activeElement !== title) title.value = S.file.name;
   $('saveState').textContent = t(S.file.dirty ? 'tables.status.unsaved' : S.file.driveId ? 'tables.status.saved' : 'tables.status.not_saved');
   $('saveState').classList.toggle('dirty', !!S.file.dirty);
-  document.title = (S.file.dirty ? '• ' : '') + fileName() + ' — Slop Tables';
+  document.title = (S.file.dirty ? '• ' : '') + fileName() + ' — ' + (window.slopAppName ? slopAppName('tables') : 'Slop Tables');   // the app list's name
   Sheets.render();
 }
 

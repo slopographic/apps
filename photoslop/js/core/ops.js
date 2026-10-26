@@ -4,13 +4,13 @@
 /* ---------- document ops ---------- */
 function newDocument(w, hh, bg = '#ffffff', name = 'Untitled') { // i18n-ignore: the document's own name
   D.w = w; D.h = hh; D.name = name; D.sel = null; D.guides = []; D.wm = null; live = null;
-  const L = newLayerRecord({ name: 'Background' }); // i18n-ignore: layer name
+  const L = newLayerRecord({ name: tr('photoslop.layer.background') });
   if (bg && bg !== 'transparent') { const g = cx(L.canvas); g.fillStyle = bg; g.fillRect(0, 0, w, hh); }
   D.layers = [L]; D.activeId = L.id;
   histReset(tr('photoslop.core.step_new'));
 }
 function addLayer(props = {}, label = tr('photoslop.core.step_new_layer'), above = true) {
-  const L = newLayerRecord(Object.assign({ name: nextName('Layer') }, props)); // i18n-ignore: layer name
+  const L = newLayerRecord(Object.assign({ name: nextName('photoslop.layer.default') }, props));
   const i = layerIndex(D.activeId);
   D.layers.splice(above && i >= 0 ? i + 1 : D.layers.length, 0, L);
   D.activeId = L.id;
@@ -31,7 +31,7 @@ async function removeAllLayers() {
   const count = tr('photoslop.core.n_layers', { n });
   if (!(await confirmDlg(tr('photoslop.core.remove_all_q'), tr('photoslop.core.remove_all_body', { count, name: D.name }), tr('photoslop.core.continue')))) return;
   if (!(await confirmDlg(tr('photoslop.core.remove_all_q'), tr('photoslop.core.remove_all_body2', { count }), tr('photoslop.core.remove_all'), { danger: true }))) return;
-  D.layers = [newLayerRecord({ name: nextName('Layer') })]; // i18n-ignore: layer name
+  D.layers = [newLayerRecord({ name: nextName('photoslop.layer.default') })];
   D.activeId = D.layers[0].id;
   commit(tr('photoslop.core.step_remove_all_layers'));
 }
@@ -78,7 +78,7 @@ function mergeDown() {
 function mergeVisible() { const v = D.layers.filter((l) => l.visible); if (v.length) mergeLayers(v, v[0].name, tr('photoslop.core.step_merge_visible')); }
 function flattenImage() {
   const c = flattenCanvas('#ffffff');
-  const L = newLayerRecord({ name: 'Background', canvas: c }); // i18n-ignore: layer name
+  const L = newLayerRecord({ name: tr('photoslop.layer.background'), canvas: c });
   D.layers = [L]; D.activeId = L.id;
   commit(tr('photoslop.core.step_flatten'));
 }

@@ -10,6 +10,7 @@
   <script src="../harness.js"></script>
   <script src="boot.js"></script>
   <script>
+  // Covers: shared/buddy/motion.js, shared/roam/path.js (the hop's arc and timing)
   const { describe, it, expect, waitFor, sleep, run } = SlopTest;
   let win, doc, S, M;
   const ready = HomeTest.openHome().then(async (w) => {
