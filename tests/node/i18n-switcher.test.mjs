@@ -13,7 +13,9 @@ import { fileURLToPath } from 'node:url';
 import { loadInto, plain } from './fx-env.mjs';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
-const LANG_FILES = ['es', 'fr', 'de', 'pt-BR', 'it', 'ar', 'sv'].map((c) => `i18n/${c}.js`);
+const CODES = ['es', 'fr', 'de', 'pt-BR', 'it', 'ar', 'sv', 'zh-CN', 'zh-TW', 'ja', 'ko', 'hi', 'ru', 'uk', 'pl', 'nl', 'tr', 'id', 'vi', 'he',
+  'sw', 'am', 'ha', 'yo', 'ig', 'zu', 'xh', 'af'];
+const LANG_FILES = CODES.map((c) => `i18n/${c}.js`);
 const memStorage = (seed = {}) => {
   const m = new Map(Object.entries(seed));
   return { m, getItem: (k) => (m.has(k) ? m.get(k) : null), setItem: (k, v) => m.set(k, String(v)), removeItem: (k) => m.delete(k) };
@@ -29,7 +31,12 @@ test('the menu lists every language from the list, in list order, each by its ow
   const { I, S } = await page();
   const rows = plain(S.items(I));
   assert.deepEqual(rows.map((r) => r.value), plain(I.LANGS).map((l) => l.code), 'from the data, not a copy of it');
-  assert.deepEqual(rows.map((r) => r.label), ['English', 'Español', 'Français', 'Deutsch', 'Português (Brasil)', 'Italiano', 'العربية', 'Svenska']);
+  assert.equal(rows.length, 29, 'all 29 languages');
+  assert.deepEqual(rows.slice(0, 8).map((r) => r.label), ['English', 'Español', 'Français', 'Deutsch', 'Português (Brasil)', 'Italiano', 'العربية', 'Svenska']);
+  assert.equal(rows.find((r) => r.value === 'ja').label, '日本語', 'each by its own name');
+  assert.deepEqual(rows.filter((r) => r.tag).map((r) => r.value), ['sw', 'am', 'ha', 'yo', 'ig', 'zu', 'xh', 'af'], "quality 'beta' shows a tag");
+  assert.ok(rows.find((r) => r.value === 'sw').keywords.includes('Swahili'), "LANGS' English name (en) is searchable");
+  assert.equal(S.search(I), true, '29 languages: a filter box');
   assert.deepEqual(rows.filter((r) => r.checked).map((r) => r.value), [I.DEFAULT_CHOICE], 'nothing stored: the build\'s start language');
   assert.equal(rows.find((r) => r.value === 'ar').dir, 'rtl');
   assert.ok(rows.every((r) => r.lang === r.value), 'each row says its own language');
@@ -43,13 +50,13 @@ test('a language added to the list shows in the menu with no change to the switc
 });
 
 test('a long list (29 languages, some beta) gets a filter box that finds a language by its English name, and beta tags', async () => {
-  const { ctx, I: I8, S } = await page();
-  assert.equal(S.search(I8), false, 'the eight of today: no filter box');
+  const { ctx, S } = await page();
+  assert.equal(S.search(ctx.SlopI18n.create({ languages: plain(ctx.SlopI18n.LANGS).slice(0, 8) })), false, 'eight languages: no filter box');
   const codes = ['en', 'es', 'fr', 'de', 'pt-BR', 'it', 'ar', 'sv', 'zh-CN', 'zh-TW', 'ja', 'ko', 'hi', 'ru', 'nl', 'pl', 'tr', 'uk', 'id', 'vi', 'he',
     'sw', 'am', 'ha', 'yo', 'ig', 'zu', 'xh', 'af'];
   const NAMES = { sw: 'Kiswahili', am: 'አማርኛ', he: 'עברית', 'zh-CN': '简体中文' };
   const list = codes.map((code) => ({ code, name: NAMES[code] || code.toUpperCase(), dir: ['ar', 'he'].includes(code) ? 'rtl' : 'ltr', complete: false,
-    ...(['sw', 'am', 'ha'].includes(code) ? { quality: 'beta' } : {}), ...(code === 'yo' ? { english: 'Yoruba', quality: 'beta' } : {}) }));
+    ...(['sw', 'am', 'ha'].includes(code) ? { quality: 'beta' } : {}), ...(code === 'yo' ? { en: 'Yoruba', quality: 'beta' } : {}) }));
   const I = ctx.SlopI18n.create({ languages: list, storage: memStorage({ 'slop-profile': JSON.stringify({ v: 1, data: { lang: { mode: 'sw' } } }) }) });
   I.add('en', { 'shell.beta': 'beta' });
   assert.equal(S.search(I), true, 'more than ' + S.SEARCH_FROM + ': a filter box');
@@ -60,7 +67,7 @@ test('a long list (29 languages, some beta) gets a filter box that finds a langu
   const find = (q) => rows.filter((r) => [r.label, r.value, ...r.keywords].join(' ').toLowerCase().includes(q)).map((r) => r.value);
   assert.deepEqual(find('swahili'), ['sw'], 'typing "swahili" finds Kiswahili (the menu filters label, value and keywords)');
   assert.deepEqual(find('kiswahili'), ['sw'], 'and by its own name');
-  assert.deepEqual(find('yoruba'), ['yo'], "an entry's own english name wins");
+  assert.deepEqual(find('yoruba'), ['yo'], "an entry's own English name (en) wins");
   assert.ok(find('hebrew').includes('he'));
   assert.equal(rows.find((r) => r.value === 'he').dir, 'rtl');
 });
@@ -106,7 +113,7 @@ test('the header strings are in every language: Theme, Install, Tours, Notificat
   S.pick(I, 'en');
   const en = Object.fromEntries(keys.map((k) => [k, I.t(k)]));
   assert.equal(en['shell.tours_title'], 'Guided tours for each app');
-  for (const code of ['sv', 'de', 'es', 'fr', 'it', 'pt-BR', 'ar']) {
+  for (const code of CODES) {
     S.pick(I, code);
     for (const k of keys) assert.notEqual(I.t(k), k, `${code} ${k}`);
   }

@@ -10,6 +10,8 @@
   const SI = (root.SlopIntake = root.SlopIntake || {});
   const SD = (root.SlopDrop = root.SlopDrop || {});
   const R = (SI.rules = SD.rules = SI.rules || {});
+  /** A word from the shared tables (shared/i18n/ui/en.js), or the English given when SlopI18n or the key is absent. */
+  function tr(key, en, vars) { const I = globalThis.SlopI18n; if (I && I.has && I.has(key)) return I.t(key, vars); return vars ? String(en).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en; }
 
   /** The extension of a file name, lower case, with its dot ('' when none). */
   R.ext = function (name) {
@@ -33,12 +35,12 @@
   /** Can a file be taken? Returns { ok: true } or { ok: false, reason } where reason names the file.
    *  file: { name, type, size } (a File works). */
   R.check = function (file, rules) {
-    const name = file.name || 'file', size = Number(file.size) || 0;
+    const name = file.name || tr('ui.intake.file', 'file'), size = Number(file.size) || 0;
     const known = R.knownType(file.type);
     const byType = rules.any || (known ? R.typeOk(file.type, rules) : (rules.exts || []).includes(R.ext(name)));
-    if (!byType) return { ok: false, reason: name + ' is not ' + (rules.noun || 'a supported file') };
-    if (size === 0 && !rules.allowEmpty) return { ok: false, reason: name + ' is empty' };
-    if (rules.maxBytes && size > rules.maxBytes) return { ok: false, reason: name + ' is larger than ' + R.size(rules.maxBytes) };
+    if (!byType) return { ok: false, reason: tr('ui.intake.not_noun', '{name} is not {noun}', { name, noun: rules.noun || tr('ui.intake.supported', 'a supported file') }) };
+    if (size === 0 && !rules.allowEmpty) return { ok: false, reason: tr('ui.intake.empty', '{name} is empty', { name }) };
+    if (rules.maxBytes && size > rules.maxBytes) return { ok: false, reason: tr('ui.intake.larger', '{name} is larger than {size}', { name, size: R.size(rules.maxBytes) }) };
     return { ok: true };
   };
   /** At drag time only the MIME type is known (no names): false when the type is known and not taken. */
@@ -61,17 +63,17 @@
    *  "Added 3 files, 1 skipped: notes.txt is not a picture". Lists at most two reasons. */
   R.describe = function (summary) {
     const n = (summary.added || []).length, bad = summary.skipped || [];
-    const noun = n === 1 ? 'file' : 'files';
-    let head = n ? 'Added ' + n + ' ' + noun : 'Nothing added';
-    if (!bad.length) return n ? head : 'No files to add';
-    const why = bad.slice(0, 2).map((s) => s.reason).join('; ') + (bad.length > 2 ? ' and ' + (bad.length - 2) + ' more' : '');
-    return n ? head + ', ' + bad.length + ' skipped: ' + why : 'Nothing added: ' + why;
+    const head = n ? tr('ui.intake.added', n === 1 ? 'Added {n} file' : 'Added {n} files', { n }) : tr('ui.intake.nothing_added', 'Nothing added');
+    if (!bad.length) return n ? head : tr('ui.intake.no_files', 'No files to add');
+    const two = bad.slice(0, 2).map((s) => s.reason).join('; ');
+    const why = bad.length > 2 ? tr('ui.intake.why_more', '{why} and {n} more', { why: two, n: bad.length - 2 }) : two;
+    return n ? tr('ui.intake.skipped', '{head}, {n} skipped: {why}', { head, n: bad.length, why }) : tr('ui.intake.nothing_why', 'Nothing added: {why}', { why });
   };
   /** The words for a drag in progress: "Drop to add 2 files" (with a note when a type is known to be refused). */
   R.dragLabel = function (types, rules) {
     const n = types.length;
     const refused = types.filter((t) => !R.maybeOk(t, rules)).length;
-    const label = 'Drop to add ' + n + ' ' + (n === 1 ? 'file' : 'files');
-    return refused ? label + ' (' + refused + ' will be refused)' : label;
+    const label = tr('ui.intake.drop_to_add', n === 1 ? 'Drop to add {n} file' : 'Drop to add {n} files', { n });
+    return refused ? tr('ui.intake.refused', '{label} ({n} will be refused)', { label, n: refused }) : label;
   };
 })(typeof window !== 'undefined' ? window : globalThis);

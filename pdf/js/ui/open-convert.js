@@ -6,9 +6,9 @@
   var SP = window.SP, U = SP.util, E = SP.engine, A = SP.app, S = A._;
 
   A.openConvert = function (target) {
-    if (!window.SlopConvert) { SlopUI.toast('Convert is not in the offline file. Use the online Slop PDF.'); return; }
+    if (!window.SlopConvert) { SlopUI.toast(U.t('pdf.act.convert_offline')); return; }
     if (!E.state.pages.length) return;
-    return S.guarded('Preparing the document…', function () { return A.currentPdfBlob(); }).then(function (blob) {
+    return S.guarded(U.t('pdf.act.preparing_doc'), function () { return A.currentPdfBlob(); }).then(function (blob) {
       if (!blob) return;
       var name = U.safeName(S.els.fileName.value || 'document.pdf', 'pdf');
       window.SlopConvert.open({ file: new File([blob], name, { type: 'application/pdf' }), drive: !!A.driveId, target: typeof target === 'string' ? target : null });
@@ -18,7 +18,7 @@
   /** Dropped files that are not PDFs or images (ui/drop.js): the Convert dialog opens with them, its target set to PDF
    *  (Images to PDF for images and SVG, Picture PDF for HTML). The PDF it makes comes back here, to open in a new tab (A.openConverted). */
   A.convertFiles = function (files) {
-    if (!window.SlopConvert) { SlopUI.toast('Convert is not in the offline file. Use the online Slop PDF.'); return; }
+    if (!window.SlopConvert) { SlopUI.toast(U.t('pdf.act.convert_offline')); return; }
     window.SlopConvert.open({ files: files, target: 'images-to-pdf', onPdf: function (outs, names) { A.openConverted(outs, names); } });
   };
 

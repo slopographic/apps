@@ -29,7 +29,7 @@
     return jobs.get(rel);
   }
   let kitP = null;
-  /** The SlopUI kit. Some pages own a different window.SlopUI (the homepage), so load the kit beside it. */
+  /** The SlopUI kit. A page may own a different window.SlopUI, so load the kit beside it. */
   function kit() {
     if (window.SlopUI && window.SlopUI.dialog) return Promise.resolve(window.SlopUI);
     if (!kitP) kitP = (async () => {

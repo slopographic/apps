@@ -1,4 +1,4 @@
-/* Slopographic site styles, part 1: tokens, base, nav and hero. Black, bone, one acid accent. */
+/* Slopographic site styles, part 1: tokens, base, nav and buttons. Black, bone, one acid accent. */
 :root {
   --ink: #0a0a0a;
   --ink-2: #111111;
@@ -46,12 +46,6 @@ body::after {
   opacity: 0.07;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
-@keyframes grain {
-  25% { transform: translate(-3%, 2%); }
-  50% { transform: translate(2%, -4%); }
-  75% { transform: translate(-1%, 3%); }
-}
-
 ::selection { background: var(--slop); color: var(--ink); }
 
 button { font: inherit; color: inherit; }
@@ -106,11 +100,10 @@ em { font-family: var(--serif); font-style: italic; font-weight: 400; }
 .tab[aria-current="page"] { color: var(--bone); border-bottom-color: var(--slop); }
 
 
-/* ---------- hero ---------- */
+/* ---------- page ---------- */
 
 main { overflow: clip; }
 
-.hero { padding: 36px 24px 40px; max-width: 1400px; margin: 0 auto; }
 .kicker {
   display: flex;
   flex-wrap: wrap;
@@ -124,8 +117,6 @@ main { overflow: clip; }
 }
 .kicker span + span::before { content: "/"; margin-right: 22px; color: var(--bone-faint); }
 
-.lede { color: var(--bone-dim); font-size: 17px; margin: 0 0 26px; max-width: 32em; }
-.cta { display: flex; gap: 10px; flex-wrap: wrap; }
 
 .btn[hidden] { display: none; }   /* a hidden button stays hidden: .btn's own display must not show it while the page loads */
 .btn {

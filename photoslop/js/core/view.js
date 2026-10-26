@@ -127,7 +127,7 @@ function draw() {
   drawGuidesLayer(g);
   // Selection
   if (D.sel && !(live && live.hideSel)) drawAnts(g);
-  if (UI.editMask) drawMaskOverlay(g);
+  if (UI.editMask && UI.maskOverlay) drawMaskOverlay(g);   // the result shows by default; the red tint is a toggle
   const t = currentTool();
   if (t.overlay) { g.save(); t.overlay(g); g.restore(); }
   drawIdleBox(g);

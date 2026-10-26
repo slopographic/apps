@@ -76,13 +76,18 @@
       expect(b.textContent.trim()).toBe('EN');
       expect(b.getAttribute('aria-haspopup')).toBe('menu');
       const list = await openMenu(f);
-      expect(list.map((r) => r.querySelector('.smb-lbl').textContent)).toEqual(['English', 'Español', 'Français', 'Deutsch', 'Português (Brasil)', 'Italiano', 'العربية', 'Svenska']);
+      const names = list.map((r) => r.querySelector('.smb-lbl').textContent);
+      expect(names.length).toBe(f.contentWindow.SlopI18n.LANGS.length);
+      expect(names.slice(0, 8)).toEqual(['English', 'Español', 'Français', 'Deutsch', 'Português (Brasil)', 'Italiano', 'العربية', 'Svenska']);
+      expect(names).toContain('日本語');
+      expect(list.find((r) => r.dataset.value === 'sw').textContent).toContain('beta');
       expect(list.filter((r) => r.getAttribute('aria-checked') === 'true').map((r) => r.dataset.value)).toEqual(['en']);
       expect(list.find((r) => r.dataset.value === 'ar').getAttribute('lang')).toBe('ar');
       list.find((r) => r.dataset.value === 'sv').click();
       await waitFor(() => html(f).getAttribute('lang') === 'sv', { timeout: 5000 });
       expect(html(f).getAttribute('dir')).toBe('ltr');
-      expect(D(f).querySelector('.sh-switch .slop-hbtn-txt').textContent).toBe('Appar');
+      // the Swedish tables load on the choice (lazily): the words follow as soon as they are in
+      await waitFor(() => D(f).querySelector('.sh-switch .slop-hbtn-txt').textContent === 'Appar', { timeout: 5000 });
       expect(D(f).querySelector('.sh-theme').getAttribute('aria-label')).toBe('Tema');
       expect(D(f).querySelector('.sn-bell').title).toBe('Aviseringar');
       expect(D(f).querySelector('.sh-lang').textContent.trim()).toBe('SV');
@@ -118,6 +123,9 @@
       b.focus();
       b.dispatchEvent(new W.KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
       await waitFor(() => rows(f).length >= 8, { timeout: 15000 });
+      // 29 languages: the menu opens with the cursor in its filter box; ArrowDown goes to the first row
+      expect(D(f).activeElement.classList.contains('smb-search')).toBe(true);
+      D(f).activeElement.dispatchEvent(new W.KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
       expect(D(f).activeElement.dataset.value).toBe('en');
       D(f).activeElement.dispatchEvent(new W.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
       await sleep(50);
@@ -125,9 +133,13 @@
       expect(D(f).activeElement).toBe(b);
       b.dispatchEvent(new W.KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
       await waitFor(() => rows(f).length >= 8, { timeout: 5000 });
+      const box = D(f).activeElement;
+      box.dispatchEvent(new W.KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
       D(f).activeElement.dispatchEvent(new W.KeyboardEvent('keydown', { key: 'End', bubbles: true }));
-      expect(D(f).activeElement.dataset.value).toBe('sv');
-      D(f).activeElement.dispatchEvent(new W.KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+      expect(D(f).activeElement.dataset.value).toBe(W.SlopI18n.LANGS[W.SlopI18n.LANGS.length - 1].code);
+      // typing an English name filters to it, and Enter picks the first match
+      box.focus(); box.value = 'swedish'; box.dispatchEvent(new W.Event('input', { bubbles: true }));
+      box.dispatchEvent(new W.KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
       await waitFor(() => html(f).getAttribute('lang') === 'sv', { timeout: 5000 });
     }, { timeout: 60000 });
 

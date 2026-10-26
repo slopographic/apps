@@ -36,6 +36,8 @@
 (function (g) {
   'use strict';
   if (g.SlopFrame) return;
+  /** A word from the shared tables (shared/i18n/ui/en.js), or the English given when SlopI18n or the key is absent. */
+  function tr(key, en, vars) { const I = globalThis.SlopI18n; if (I && I.has && I.has(key)) return I.t(key, vars); return vars ? String(en).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en; }
   const doc = g.document;
   const ls = {
     get(k) { try { return JSON.parse(g.localStorage.getItem(k)) || {}; } catch (e) { return {}; } },
@@ -48,7 +50,8 @@
   function mount(root, o) {
     o = o || {};
     const list = pick(o.list), view = pick(o.view), panel = pick(o.panel), win = root.ownerDocument.defaultView;
-    const key = 'slop-frame:' + (o.storageKey || 'app'), label = o.panelLabel || 'Panel';
+    const key = 'slop-frame:' + (o.storageKey || 'app');
+    let label = o.panelLabel || tr('ui.frame.panel', 'Panel');
     const min = o.min || 240, max = o.max || 520, mq = win.matchMedia(o.phone || '(max-width: 900px)');
     const saved = ls.get(key), app = o.app || o.storageKey || 'app';
     let shown = saved.hidden !== true, width = o.width || 300, viewing = false, hasList = !!list;
@@ -74,9 +77,6 @@
       btn = el('button', 'slop-hbtn sf-toggle' + (o.phoneButton === false ? ' sf-toggle-wide' : ''));
       btn.type = 'button';
       btn.innerHTML = ICON + '<span class="slop-hbtn-txt"></span>';
-      btn.querySelector('.slop-hbtn-txt').textContent = label;
-      btn.title = 'Show or hide the ' + label.toLowerCase() + ' panel (Ctrl+Alt+B)';
-      btn.setAttribute('aria-label', label + ' panel');
       if (host) host.append(btn);
       else doc.addEventListener('DOMContentLoaded', () => { const h = pick(o.button); if (h) h.append(btn); }, { once: true });
     }
@@ -109,7 +109,7 @@
     const sizer = RP ? RP.attach(panel, { app, id: 'frame-panel', handle: grip, edge: 'start', width, min, max, phone: phoneQ, label,
       apply: (px) => { if (px != null) { width = px; root.style.setProperty('--sf-panel-w', px + 'px'); } if (o.onChange) o.onChange({ panel: shown, width, viewing }); } }) : null;
     if (!RP) root.style.setProperty('--sf-panel-w', width + 'px');
-    const lsizer = RP && lgrip ? RP.attach(list, { app, id: 'frame-list', handle: lgrip, edge: 'end', width: o.listWidth || 320, min: o.listMin || 220, max: o.listMax || 560, phone: phoneQ, label: o.listLabel || 'List',
+    const lsizer = RP && lgrip ? RP.attach(list, { app, id: 'frame-list', handle: lgrip, edge: 'end', width: o.listWidth || 320, min: o.listMin || 220, max: o.listMax || 560, phone: phoneQ, label: o.listLabel || tr('ui.frame.list', 'List'),
       apply: (px) => { if (px != null) root.style.setProperty('--sf-list-w', px + 'px'); } }) : null;
     function setWidth(w) { if (sizer) sizer.setWidth(w); }
     if (btn) btn.addEventListener('click', () => { if (!phone()) setPanel(!shown); });
@@ -122,10 +122,22 @@
     mq.addEventListener('change', onMq);
 
     const cmdId = (o.storageKey || 'app') + '.panel';
-    if (o.command !== false && g.SlopCmd) {
-      g.SlopCmd.register([{ id: cmdId, title: 'Show or hide the ' + label.toLowerCase() + ' panel', group: 'View', keys: ['Mod+Alt+B'],
-        keywords: ['panel', 'sidebar', 'details', 'actions', 'side'], checked: () => shown, run: togglePanel }]);
+    // The words (the button's label and tip, the View command's title) again after a language change (shared/i18n).
+    function words() {
+      label = o.panelLabel || tr('ui.frame.panel', 'Panel');
+      const low = { label: label.toLowerCase() };
+      if (btn) {
+        btn.querySelector('.slop-hbtn-txt').textContent = label;
+        btn.title = tr('ui.frame.toggle_tip', 'Show or hide the {label} panel (Ctrl+Alt+B)', low);
+        btn.setAttribute('aria-label', tr('ui.frame.panel_aria', '{label} panel', { label }));
+      }
+      if (o.command !== false && g.SlopCmd) {
+        g.SlopCmd.register([{ id: cmdId, title: tr('ui.frame.toggle_cmd', 'Show or hide the {label} panel', low), group: 'View', keys: ['Mod+Alt+B'],
+          keywords: ['panel', 'sidebar', 'details', 'actions', 'side'], checked: () => shown, run: togglePanel }]);
+      }
     }
+    words();
+    const offLang = g.SlopI18n && g.SlopI18n.on ? g.SlopI18n.on(words) : null;
     paint();
 
     return {
@@ -136,6 +148,7 @@
       isPhone: phone, button: btn, grip, listGrip: lgrip, sizer, listSizer: lsizer, command: cmdId,
       destroy() {
         mq.removeEventListener('change', onMq);
+        if (offLang) offLang();
         panel.removeEventListener('sf-sheet', onMore); panel.removeEventListener('sf-foot', onFoot);
         if (sheet) sheet.destroy();
         if (sizer) sizer.destroy(); if (lsizer) lsizer.destroy();

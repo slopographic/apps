@@ -18,7 +18,7 @@
   S.calloutPlaced = function (a) {
     S.callDraft = a; S.callPid = Ed.pid; S.draft = a;
     Ed.paint();
-    SlopUI.toast('Now click where the leader line should end. Esc cancels.', 4200);
+    SlopUI.toast(U.t('pdf.ed.callout_tip'), 4200);
   };
   S.calloutClick = function (e) {
     var a = S.callDraft;
@@ -26,7 +26,7 @@
     if (Ed.pid !== S.callPid || !Ed.page()) { Ed.paint(); return; }
     a.tip = [U.round(S.pagePt(e)[0], 2), U.round(S.pagePt(e)[1], 2)];
     a.id = U.uid('a');
-    Ed.addAnnot(a, 'Add callout');
+    Ed.addAnnot(a, U.t('pdf.ed.undo_add_callout'));
     Ed.tool = 'select'; S.pageEl.dataset.tool = 'select';
     if (SP.app) SP.app.toolChanged();
   };

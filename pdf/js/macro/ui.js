@@ -5,6 +5,7 @@
   var M = window.SlopPdfMacro = window.SlopPdfMacro || {};
   var UI = M.ui = M.ui || {};
   var S = function () { return window.SlopUI; };
+  function tr(k, en, v) { return M.tr ? M.tr(k, en, v) : en; }
   function el(tag, attrs) { return S().el.apply(null, [tag, attrs].concat(Array.prototype.slice.call(arguments, 2))); }
   function ensureCss() {
     if (document.getElementById('spm-css')) return;
@@ -43,17 +44,17 @@
     ensureCss();
     var list = M.load(), draft = null, testResult = null;
     var problems = el('ul', { class: 'spm-problems', role: 'alert' });
-    var nameIn = el('input', { class: 'sui-input', type: 'text', maxlength: 80, placeholder: 'Macro name', 'aria-label': 'Macro name' });
-    var patIn = el('input', { class: 'sui-input', type: 'text', placeholder: 'invoice-*.pdf  or  /^inv-\\d+/', 'aria-label': 'File name pattern', autocomplete: 'off', spellcheck: 'false' });
-    var autoSel = S().select([['off', 'Only when I run it'], ['ask', 'Ask me when a matching PDF is dropped'], ['silent', 'Run by itself when a matching PDF is dropped']], 'off');
-    var pickSel = S().select([['', 'New macro']].concat(list.map(function (m) { return [m.id, m.name]; })), '');
-    var stepsBox = el('div', { 'aria-label': 'Steps' });
-    var addSel = S().select(M.TYPE_ORDER.map(function (t) { return [t, M.STEP_TYPES[t].label]; }), M.TYPE_ORDER[0]);
+    var nameIn = el('input', { class: 'sui-input', type: 'text', maxlength: 80, placeholder: tr('pdf.macro.name_ph', 'Macro name'), 'aria-label': tr('pdf.macro.name_ph', 'Macro name') });
+    var patIn = el('input', { class: 'sui-input', type: 'text', placeholder: tr('pdf.macro.pattern_ph', 'invoice-*.pdf  or  /^inv-\\d+/'), 'aria-label': tr('pdf.macro.pattern_aria', 'File name pattern'), autocomplete: 'off', spellcheck: 'false' });
+    var autoSel = S().select([['off', tr('pdf.macro.auto_off', 'Only when I run it')], ['ask', tr('pdf.macro.auto_ask', 'Ask me when a matching PDF is dropped')], ['silent', tr('pdf.macro.auto_silent', 'Run by itself when a matching PDF is dropped')]], 'off');
+    var pickSel = S().select([['', tr('pdf.macro.new_name', 'New macro')]].concat(list.map(function (m) { return [m.id, m.name]; })), '');
+    var stepsBox = el('div', { 'aria-label': tr('pdf.macro.steps', 'Steps') });
+    var addSel = S().select(M.TYPE_ORDER.map(function (t) { return [t, M.typeLabel(t)]; }), M.TYPE_ORDER[0]);
     var testLog = el('div', { class: 'spm-testlog', 'aria-live': 'polite' });
-    var saveMsg = el('p', { class: 'spm-hint' }, 'Macros are kept in this browser. Nothing is uploaded.');
+    var saveMsg = el('p', { class: 'spm-hint' }, tr('pdf.macro.kept_here', 'Macros are kept in this browser. Nothing is uploaded.'));
 
     function readMeta() {
-      draft.name = nameIn.value.trim() || 'Untitled macro';
+      draft.name = nameIn.value.trim() || tr('pdf.macro.untitled', 'Untitled macro');
       draft.pattern = patIn.value.trim();
       draft.auto = autoSel.value;
     }
@@ -62,7 +63,7 @@
     }
     function renderSteps() {
       stepsBox.replaceChildren();
-      if (!draft.steps.length) stepsBox.append(el('p', { class: 'spm-hint' }, 'No steps yet. Choose a step below and press Add step.'));
+      if (!draft.steps.length) stepsBox.append(el('p', { class: 'spm-hint' }, tr('pdf.macro.no_steps', 'No steps yet. Choose a step below and press Add step.')));
       draft.steps.forEach(function (step, i) {
         stepsBox.append(UI.stepCard(step, i, draft.steps.length, {
           set: function (k, v) { draft.steps[i][k] = v; testResult = null; },
@@ -80,16 +81,16 @@
     }
     pickSel.addEventListener('change', function () {
       var m = list.find(function (x) { return x.id === pickSel.value; });
-      setDraft(m || M.newMacro('New macro'));
+      setDraft(m || M.newMacro(tr('pdf.macro.new_name', 'New macro')));
     });
     var addBtn = el('button', { type: 'button', class: 'sui-btn', onclick: function () {
       draft.steps.push(M.newStep(addSel.value)); testResult = null; renderSteps();
       var cards = stepsBox.querySelectorAll('.spm-step'); var last = cards[cards.length - 1];
       if (last) { var f = last.querySelector('input, select'); if (f) f.focus({ preventScroll: true }); }
-    } }, 'Add step');
+    } }, tr('pdf.macro.add_step', 'Add step'));
 
-    var testBtn = el('button', { type: 'button', class: 'sui-btn' }, opts.current ? 'Test on the open PDF' : 'Test on a PDF…');
-    var dlBtn = el('button', { type: 'button', class: 'sui-btn', hidden: true }, 'Download test result');
+    var testBtn = el('button', { type: 'button', class: 'sui-btn' }, opts.current ? tr('pdf.macro.test_open', 'Test on the open PDF') : tr('pdf.macro.test_pick', 'Test on a PDF…'));
+    var dlBtn = el('button', { type: 'button', class: 'sui-btn', hidden: true }, tr('pdf.macro.test_download', 'Download test result'));
     async function testRun() {
       readMeta();
       showProblems([]);
@@ -100,7 +101,7 @@
         // the test PDF comes in the one way (shared/intake): a part of its own that hands the file back
         var picked = null;
         window.SlopIntake.register({ id: 'pdf.macro-test', main: false, paste: false, limit: 1, toast: false,
-          accept: { types: ['application/pdf'], exts: ['.pdf'], noun: 'a PDF' }, process: function (f) { picked = f; return f.name; } });
+          accept: { types: ['application/pdf'], exts: ['.pdf'], noun: tr('pdf.macro.noun_pdf', 'a PDF') }, process: function (f) { picked = f; return f.name; } });
         await window.SlopIntake.pick({ to: 'pdf.macro-test', multiple: false });
         if (!picked) return false;
         src = { name: picked.name, bytes: new Uint8Array(await picked.arrayBuffer()) };
@@ -115,22 +116,22 @@
     dlBtn.addEventListener('click', function () { if (testResult) download(testResult.bytes, testResult.name); });
 
     var body = el('div', null,
-      el('div', { class: 'spm-row' }, S().field('Macro', pickSel)),
+      el('div', { class: 'spm-row' }, S().field(tr('pdf.macro.macro', 'Macro'), pickSel)),
       el('div', { class: 'spm-grid', style: 'margin-top:10px' },
-        S().field('Name', nameIn), S().field('File name pattern (optional)', patIn),
-        el('div', { class: 'spm-wide' }, S().field('When a matching PDF is dropped', autoSel))),
-      el('p', { class: 'spm-hint' }, 'Patterns use * for any text and ? for one character, or a regular expression between slashes. A pattern must match the whole file name.'),
-      el('div', { class: 'spm-sec' }, el('h4', null, 'Steps', el('span', { class: 'spm-grow' }), addSel, addBtn), stepsBox),
-      el('div', { class: 'spm-sec' }, el('h4', null, 'Test run'),
+        S().field(tr('pdf.macro.name', 'Name'), nameIn), S().field(tr('pdf.macro.pattern', 'File name pattern (optional)'), patIn),
+        el('div', { class: 'spm-wide' }, S().field(tr('pdf.macro.when', 'When a matching PDF is dropped'), autoSel))),
+      el('p', { class: 'spm-hint' }, tr('pdf.macro.pattern_hint', 'Patterns use * for any text and ? for one character, or a regular expression between slashes. A pattern must match the whole file name.')),
+      el('div', { class: 'spm-sec' }, el('h4', null, tr('pdf.macro.steps', 'Steps'), el('span', { class: 'spm-grow' }), addSel, addBtn), stepsBox),
+      el('div', { class: 'spm-sec' }, el('h4', null, tr('pdf.macro.test_run', 'Test run')),
         el('div', { class: 'spm-row' }, testBtn, dlBtn),
-        el('p', { class: 'spm-hint' }, 'The test runs the steps on a copy. Your open file is not changed.'),
+        el('p', { class: 'spm-hint' }, tr('pdf.macro.test_hint', 'The test runs the steps on a copy. Your open file is not changed.')),
         testLog),
       problems, saveMsg);
 
     var exists = function () { return list.some(function (x) { return x.id === draft.id; }); };
     var buttons = [];
-    var deleteBtn = { label: 'Delete', danger: true, act: async function () {
-      var ok = await S().confirm('Delete this macro?', '“' + (draft.name || 'Untitled macro') + '” will be removed from this browser.', 'Delete', { danger: true });
+    var deleteBtn = { label: tr('ui.delete', 'Delete'), danger: true, act: async function () {
+      var ok = await S().confirm(tr('pdf.macro.delete_title', 'Delete this macro?'), tr('pdf.macro.delete_body', '“{name}” will be removed from this browser.', { name: draft.name || tr('pdf.macro.untitled', 'Untitled macro') }), tr('ui.delete', 'Delete'), { danger: true });
       if (!ok) return false;
       list = list.filter(function (x) { return x.id !== draft.id; });
       M.save(list);
@@ -138,32 +139,32 @@
       return true;
     } };
     if (list.length) buttons.push(deleteBtn);
-    buttons.push({ label: 'Close' });
-    buttons.push({ label: 'Save', primary: true, act: function () {
+    buttons.push({ label: tr('menu.close', 'Close') });
+    buttons.push({ label: tr('menu.save', 'Save'), primary: true, act: function () {
       readMeta();
       var errs = M.validateMacro(draft);
       if (errs.length) { showProblems(errs); return false; }
       var i = list.findIndex(function (x) { return x.id === draft.id; });
       if (i < 0) list.push(draft); else list[i] = draft;
       var kept = M.save(list);
-      if (!kept) S().toast('This browser would not keep the macro. It lasts until this page closes.', 4000);
-      else S().toast('Macro saved.');
+      if (!kept) S().toast(tr('pdf.macro.not_kept', 'This browser would not keep the macro. It lasts until this page closes.'), 4000);
+      else S().toast(tr('pdf.macro.saved', 'Macro saved.'));
       if (opts.onSaved) opts.onSaved(M.load());
       return true;
     } });
-    setDraft(M.newMacro('New macro'));
-    return S().dialog({ title: 'Macros', body: body, buttons: buttons, cls: 'spm-dlg' });
+    setDraft(M.newMacro(tr('pdf.macro.new_name', 'New macro')));
+    return S().dialog({ title: tr('pdf.macro.title', 'Macros'), body: body, buttons: buttons, cls: 'spm-dlg' });
   };
 
   /** Asks which of several macros to run on a dropped file. Resolves the chosen macro, or null. */
   function askWhich(name, macros) {
     return new Promise(function (res) {
       var picked = null;
-      var buttons = [{ label: 'Not now' }].concat(macros.map(function (m, i) {
-        return { label: 'Run “' + m.name + '”', primary: i === 0, act: function () { picked = m; } };
+      var buttons = [{ label: tr('pdf.macro.not_now', 'Not now') }].concat(macros.map(function (m, i) {
+        return { label: tr('pdf.macro.run_named', 'Run “{name}”', { name: m.name }), primary: i === 0, act: function () { picked = m; } };
       }));
-      var text = macros.length === 1 ? 'A macro is set to ask first for files like this one.' : 'More than one macro is set to ask first for files like this one. Choose one to run.';
-      S().dialog({ title: 'Run a macro on ' + name + '?', body: text, buttons: buttons, onClose: function () { res(picked); } });
+      var text = macros.length === 1 ? tr('pdf.macro.ask_one', 'A macro is set to ask first for files like this one.') : tr('pdf.macro.ask_many', 'More than one macro is set to ask first for files like this one. Choose one to run.');
+      S().dialog({ title: tr('pdf.macro.ask_title', 'Run a macro on {name}?', { name: name }), body: text, buttons: buttons, onClose: function () { res(picked); } });
     });
   }
 
@@ -182,11 +183,11 @@
     var r = await M.runMacro(chosen, new Uint8Array(await file.arrayBuffer()), { filename: name });
     var result = { ran: true, macro: chosen, name: outputName(name, chosen), ok: r.ok, bytes: r.bytes, log: r.log };
     if (!r.ok || logHasTrouble(r.log)) {
-      S().dialog({ title: r.ok ? '“' + chosen.name + '” ran with warnings' : '“' + chosen.name + '” stopped', body: UI.logList(r.log), buttons: [{ label: 'OK', primary: true }] });
+      S().dialog({ title: r.ok ? tr('pdf.macro.ran_warn', '“{name}” ran with warnings', { name: chosen.name }) : tr('pdf.macro.stopped', '“{name}” stopped', { name: chosen.name }), body: UI.logList(r.log), buttons: [{ label: tr('menu.ok', 'OK'), primary: true }] });
     }
     if (!r.ok) return result;
     if (opts.onResult) opts.onResult(result);
-    else { download(r.bytes, result.name); S().toast('Ran “' + chosen.name + '” on ' + name + '.'); }
+    else { download(r.bytes, result.name); S().toast(tr('pdf.macro.ran', 'Ran “{name}” on {file}.', { name: chosen.name, file: name })); }
     return result;
   };
 })();

@@ -88,7 +88,7 @@
   }
   function replace(src, ops, obj, name, aspect) {
     var o = ops[obj.a], S = fitIn(obj.ctm, aspect), fit = S[0] !== 1 || S[3] !== 1;
-    var paint = '/' + name + ' Do';
+    var paint = '/' + name + ' Do'; // i18n-ignore: PDF names / font names / producer, not UI
     return edit(src, [{ s: o.s, e: o.e, t: fit ? 'q ' + mat(S) + ' cm ' + paint + ' Q' : paint }]);
   }
   function stripMarked(src, ops, names) {

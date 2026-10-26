@@ -34,6 +34,8 @@
 (function (g) {
   'use strict';
   if (g.SlopSheet) return;
+  /** A word from the shared tables (shared/i18n/ui/en.js), or the English given when SlopI18n or the key is absent. */
+  function tr(key, en, vars) { const I = globalThis.SlopI18n; if (I && I.has && I.has(key)) return I.t(key, vars); return vars ? String(en).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en; }
   const CSS = `
 :root { --slop-sheet-bg: var(--sl-surface, Canvas); --slop-sheet-dim: rgba(0, 0, 0, .4); }
 .ssh-phone .ssh-sheet { background-color: var(--slop-sheet-bg) !important; opacity: 1 !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
@@ -101,8 +103,9 @@
 
     const x = doc.createElement('button');
     x.type = 'button'; x.className = 'ssh-x' + (o.closeWide ? ' ssh-x-wide' : ''); x.textContent = '×';
-    x.setAttribute('aria-label', 'Close' + (o.label ? ' ' + o.label.toLowerCase() : ''));
-    x.title = x.getAttribute('aria-label');
+    const xWords = () => { x.title = o.label ? tr('ui.close_name', 'Close {name}', { name: o.label.toLowerCase() }) : tr('menu.close', 'Close'); x.setAttribute('aria-label', x.title); };
+    xWords();
+    const offLang = g.SlopI18n && g.SlopI18n.on ? g.SlopI18n.on(xWords) : null;   // a language change (shared/i18n)
     // The × is the panel's first child; an app that redraws the panel's content gets it back at once.
     const ensureX = () => { if (x.parentNode !== panel || panel.firstChild !== x) panel.prepend(x); };
     ensureX();
@@ -194,7 +197,7 @@
     return (me.api = {
       panel, side, open: () => set(true, 'api'), close: () => close(false), toggle: () => set(!isOpen(), 'api'), isOpen, isPhone: () => mq.matches,
       destroy() {
-        set(false, 'destroy'); live.delete(me); win.removeEventListener('slopkeyboard', onKb); if (mo) mo.disconnect(); x.remove(); mq.removeEventListener('change', phoneClass); root.classList.remove('ssh-phone');
+        set(false, 'destroy'); live.delete(me); win.removeEventListener('slopkeyboard', onKb); if (mo) mo.disconnect(); if (offLang) offLang(); x.remove(); mq.removeEventListener('change', phoneClass); root.classList.remove('ssh-phone');
         panel.classList.remove('ssh-panel', 'ssh-sheet', 'ssh-start', 'ssh-end');
         if (o.triggers) { o.triggers.removeEventListener('pointerdown', onTriggerDown, true); o.triggers.removeEventListener('keydown', onTriggerDown, true); o.triggers.removeEventListener('click', onTrigger); }
         for (const t of toggles) t.removeEventListener('click', onToggle);

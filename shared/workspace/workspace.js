@@ -24,6 +24,8 @@
   root.SlopWorkspace = api;
 })(typeof window !== 'undefined' ? window : globalThis, function () {
   'use strict';
+  /** A word from the shared tables (shared/i18n/ui/en.js), or the English given when SlopI18n or the key is absent. */
+  function tr(key, en, vars) { const I = globalThis.SlopI18n; if (I && I.has && I.has(key)) return I.t(key, vars); return vars ? String(en).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en; }
 
   const LAYOUTS = ['columns', 'rows', 'grid'];
   const clampPanes = (n) => Math.min(4, Math.max(1, Math.floor(Number(n)) || 1));
@@ -63,7 +65,7 @@
       const el = document.createElement('section');
       el.className = 'sw-pane';
       el.dataset.pane = String(index);
-      el.setAttribute('aria-label', 'Pane ' + (index + 1));
+      el.setAttribute('aria-label', tr('ui.pane_n', 'Pane {n}', { n: String(index + 1) }));
       const p = { id: index, el, doc: null, view: null };
       // A press anywhere in the pane focuses it, before the view sees the press.
       el.addEventListener('pointerdown', () => { if (activeId !== p.id) focus(p.id); }, true);

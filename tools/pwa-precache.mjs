@@ -25,6 +25,8 @@ const resolveRef = (from, ref) => path.posix.normalize(path.posix.join(path.posi
 const EXTRA = ['offline.html', 'manifest.webmanifest', 'favicon.svg', 'assets/icons/icon-192.png', 'assets/icons/icon-512.png', 'shared/pwa.js',
   'shell/shell.js', 'brand/brand.js', 'brand/brand.json', 'brand/logo-128.webp',
   'style/tone.css',   // the plain tone's look: shared/theme/theme.js loads it from script, in a plain-tone build only
+  // the homepage's Authenticator view: home/view.js loads these the first time #detector opens
+  'detector/rules.js', 'detector/samples.js', 'detector/detector.js', 'detector/detector.css',
   'vendor/lamejs/lame.min.js', 'vendor/lamejs/LICENSE',
   // the video engine's JavaScript (the ffmpeg core itself comes from the cdn on first use, shared/cdn/assets.js)
   'vendor/ffmpeg/index.js', 'vendor/ffmpeg/classes.js', 'vendor/ffmpeg/const.js', 'vendor/ffmpeg/errors.js', 'vendor/ffmpeg/types.js', 'vendor/ffmpeg/utils.js', 'vendor/ffmpeg/worker.js', 'vendor/ffmpeg/LICENSE']; // the MP3 encoder and the video engine, loaded on demand
@@ -51,7 +53,13 @@ async function pageRoots() {
 }
 
 function refsOf(p, txt) {
-  if (p === 'shell/shell.js') return shellLoads(txt);
+  if (p === 'shell/shell.js') return shellLoads(txt).concat('shared/i18n/i18n.js');
+  // i18n.js fetches its tables at run time: English is cached up front, the chosen language when it is first used
+  if (p === 'shared/i18n/i18n.js') return ['shared/i18n/strings.js', 'shared/i18n/ui/en.js'];
+  if (/\/i18n\/index\.js$/.test(p)) {
+    const parts = (/parts: \[([^\]]*)\]/.exec(txt) || [, ''])[1].match(/[\w-]+/g) || [];
+    return parts.map((x) => path.posix.join(path.posix.dirname(p), 'en', x + '.js'));
+  }
   const out = [];
   if (p.endsWith('.html')) {
     for (const m of txt.matchAll(/<(script|link)\b[^>]*?>/gi)) {

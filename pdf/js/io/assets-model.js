@@ -6,22 +6,24 @@
   var M = {};
   var COMPS = { DeviceGray: 1, CalGray: 1, DeviceRGB: 3, CalRGB: 3 };
   function skip(reason) { return { kind: 'skip', reason: reason }; }
+  /** The chosen language's text for a key (SlopI18n), else the English given (no tables: tests, workers). */
+  function tr(k, en, v) { var I = root.SlopI18n; if (I && I.has && I.has(k)) return I.t(k, v); return String(en).replace(/\{(\w+)\}/g, function (m, n) { return v && n in v ? String(v[n]) : m; }); }
 
   /** How an image is saved. r: { filters: [names], bpc, colorSpace, comps, base, mask, imageMask, width, height }.
       DCTDecode (one filter) is kept as JPEG; FlateDecode with 8-bit gray, RGB or palette samples is decoded to PNG. */
   M.imageKind = function (r) {
-    var f = r.filters || [];
-    if (r.imageMask) return skip('Stencil mask (1 bit) is not decoded');
+    var f = r.filters || [], unknown = tr('pdf.io.unknown', 'unknown'), none = tr('pdf.io.none', 'none');
+    if (r.imageMask) return skip(tr('pdf.io.skip_stencil', 'Stencil mask (1 bit) is not decoded'));
     if (f.length === 1 && f[0] === 'DCTDecode') return { kind: 'jpeg', ext: 'jpg' };
-    if (f.indexOf('JPXDecode') >= 0) return skip('JPEG 2000 images are not decoded');
-    if (f.indexOf('JBIG2Decode') >= 0) return skip('JBIG2 images are not decoded');
-    if (f.indexOf('CCITTFaxDecode') >= 0) return skip('CCITT fax images are not decoded');
-    if (f.length > 1 || (f.length === 1 && f[0] !== 'FlateDecode')) return skip('Filter ' + (f.join(' + ') || 'none') + ' is not decoded');
-    if (!f.length && r.comps !== 1 && r.comps !== 3) return skip('Uncompressed images of this kind are not decoded');
-    if (r.bpc !== 8) return skip(r.bpc + '-bit samples are not decoded');
-    if (r.colorSpace === 'Indexed') return r.base === 'DeviceRGB' || r.base === 'RGB' ? { kind: 'raw', ext: 'png', comps: 1 } : skip('Palette in ' + (r.base || 'unknown') + ' is not decoded');
+    if (f.indexOf('JPXDecode') >= 0) return skip(tr('pdf.io.skip_jpx', 'JPEG 2000 images are not decoded'));
+    if (f.indexOf('JBIG2Decode') >= 0) return skip(tr('pdf.io.skip_jbig2', 'JBIG2 images are not decoded'));
+    if (f.indexOf('CCITTFaxDecode') >= 0) return skip(tr('pdf.io.skip_ccitt', 'CCITT fax images are not decoded'));
+    if (f.length > 1 || (f.length === 1 && f[0] !== 'FlateDecode')) return skip(tr('pdf.io.skip_filter', 'Filter {filter} is not decoded', { filter: f.join(' + ') || none }));
+    if (!f.length && r.comps !== 1 && r.comps !== 3) return skip(tr('pdf.io.skip_raw', 'Uncompressed images of this kind are not decoded'));
+    if (r.bpc !== 8) return skip(tr('pdf.io.skip_bpc', '{bpc}-bit samples are not decoded', { bpc: String(r.bpc) }));
+    if (r.colorSpace === 'Indexed') return r.base === 'DeviceRGB' || r.base === 'RGB' ? { kind: 'raw', ext: 'png', comps: 1 } : skip(tr('pdf.io.skip_palette', 'Palette in {cs} is not decoded', { cs: r.base || unknown }));
     if (r.comps === 1 || r.comps === 3) return { kind: 'raw', ext: 'png', comps: r.comps };
-    return skip('Colour space ' + (r.colorSpace || 'unknown') + ' is not decoded');
+    return skip(tr('pdf.io.skip_colour', 'Colour space {cs} is not decoded', { cs: r.colorSpace || unknown }));
   };
   M.COMPS = COMPS;
 
@@ -84,10 +86,10 @@
   };
   /** How a font file is stored and what its extension is. f: { key: 'FontFile'|'FontFile2'|'FontFile3', subtype, firstByte }. */
   M.fontKind = function (f) {
-    if (!f.key) return { ext: null, label: 'not embedded' };
-    if (f.key === 'FontFile') return { ext: f.firstByte === 0x80 ? 'pfb' : 'pfa', label: 'Type 1' };
-    if (f.key === 'FontFile2') return { ext: 'ttf', label: 'TrueType' };
-    if (f.subtype === 'OpenType') return { ext: 'otf', label: 'OpenType' };
+    if (!f.key) return { ext: null, label: tr('pdf.io.not_embedded', 'not embedded') };
+    if (f.key === 'FontFile') return { ext: f.firstByte === 0x80 ? 'pfb' : 'pfa', label: 'Type 1' }; // i18n-ignore: PDF names / font names / producer, not UI
+    if (f.key === 'FontFile2') return { ext: 'ttf', label: 'TrueType' }; // i18n-ignore: PDF names / font names / producer, not UI
+    if (f.subtype === 'OpenType') return { ext: 'otf', label: 'OpenType' }; // i18n-ignore: PDF names / font names / producer, not UI
     return { ext: 'cff', label: 'CFF' };
   };
   /** Subset fonts carry a six-letter tag before the name ("ABCDEF+Helvetica"). */
@@ -99,19 +101,19 @@
     var imgs = images.map(function (im) {
       var skipped = im.kind === 'skip';
       return { id: im.id, group: 'image', checked: !skipped, disabled: skipped, reason: im.reason || '', title: im.name,
-        meta: [im.width + '×' + im.height, im.colorSpace || '?', im.bpc ? im.bpc + ' bpc' : '', im.filterText, M.sizeText(im.size), (im.pageText || 'page ' + im.page) + (im.file ? ' · ' + im.file : ''), im.mask ? 'mask not included' : ''].filter(Boolean) };
+        meta: [im.width + '×' + im.height, im.colorSpace || '?', im.bpc ? im.bpc + ' bpc' : '', im.filterText, M.sizeText(im.size), (im.pageText || tr('pdf.io.meta_page', 'page {n}', { n: String(im.page) })) + (im.file ? ' · ' + im.file : ''), im.mask ? tr('pdf.io.mask_excluded', 'mask not included') : ''].filter(Boolean) };
     });
     var fts = fonts.map(function (f) {
       var can = !!f.embedded;
-      return { id: f.id, group: 'font', checked: can, disabled: !can, reason: can ? '' : 'Not embedded: the PDF refers to the font, so there is no file to save', title: f.name,
-        meta: [f.type, can ? M.sizeText(f.size) : 'not embedded', f.subset ? 'subset: may be incomplete' : ''].filter(Boolean) };
+      return { id: f.id, group: 'font', checked: can, disabled: !can, reason: can ? '' : tr('pdf.io.font_not_embedded', 'Not embedded: the PDF refers to the font, so there is no file to save'), title: f.name,
+        meta: [f.type, can ? M.sizeText(f.size) : tr('pdf.io.not_embedded', 'not embedded'), f.subset ? tr('pdf.io.font_subset', 'subset: may be incomplete') : ''].filter(Boolean) };
     });
     return { images: imgs, fonts: fts, counts: { images: imgs.length, fonts: fts.length, selectable: imgs.concat(fts).filter(function (r) { return !r.disabled; }).length } };
   };
   /** The rows of embedded files: { id, title, meta, reason, checked, disabled }. */
   M.attachmentRows = function (list) {
     return list.map(function (a) {
-      var meta = [a.mime, M.sizeText(a.size || 0), a.from === 'annotation' ? 'attached on page ' + a.page : 'attached to the document', a.einvoice ? 'e-invoice (ZUGFeRD / Factur-X)' : '', a.rel ? 'relationship: ' + a.rel : '', a.desc, a.file].filter(Boolean);
+      var meta = [a.mime, M.sizeText(a.size || 0), a.from === 'annotation' ? tr('pdf.io.att_on_page', 'attached on page {n}', { n: String(a.page) }) : tr('pdf.io.att_document', 'attached to the document'), a.einvoice ? tr('pdf.io.att_einvoice', 'e-invoice (ZUGFeRD / Factur-X)') : '', a.rel ? tr('pdf.io.att_rel', 'relationship: {rel}', { rel: a.rel }) : '', a.desc, a.file].filter(Boolean);
       return { id: a.id, group: 'attachment', checked: !!a.bytes, disabled: !a.bytes, reason: a.bytes ? '' : a.reason, title: a.name, meta: meta };
     });
   };

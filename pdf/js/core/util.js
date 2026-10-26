@@ -5,6 +5,11 @@
   var SP = window.SP = window.SP || {};
   var U = SP.util = {};
 
+  /* Words (pdf/i18n/<code>/*.js, shared/i18n/APPS-HOWTO.md): t('pdf.<area>.<name>') in the chosen language, English when it
+     lacks the key. onLang(fn) re-runs fn after a language change, once the new tables are in (for UI built once). */
+  U.t = function (key, vars) { var I = window.SlopI18n; return I ? I.t(key, vars) : key; };
+  U.onLang = function (fn) { var I = window.SlopI18n; return I && I.on ? I.on(fn) : function () {}; };
+
   U.$ = function (sel, root) { return (root || document).querySelector(sel); };
   U.$$ = function (sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); };
 

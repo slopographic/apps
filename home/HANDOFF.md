@@ -4,12 +4,13 @@
 - `index.html`: the hero (`#hero`: kicker, headline, buttons, meta line, the keyboard list `.gx-nav`, the globe's box `.gx-box`, the ledge Sloppo
   perches on), the capability strip (between `<!-- site:marquee -->` markers, written by `tools/seo/write.mjs`), the
   finder (`#app-finder`), the jump links (`#jump-links`), workspaces, "Why it's different" strip (with the video link), the section shelves (`#app-sections`, filled by `home/browse.js`),
-  Status board, the Authenticator view (`#detector`), footer (licence and trademark line). Loads `style/*.css`,
-  `home/home.css`, `shared/finder/finder.css`, the buddy CSS, `shared/apps.js`, `shared/hub.js`, `shared/urlstate/urlstate.js`,
-  `shared/finder/model.js`, `finder.js`, `app-search.js`, the `slop/` engine, `app.js`, `home/sections.js`,
-  `home/catalog.js`, `home/browse.js`, `home/globe/sphere.js`, `home/globe/paint.js`, `home/globe/labels.js`, `home/globe/globe.js`,
-  `home/globe/drag.js`, `home/globe/list.js`, `home/marquee.js`, `motion.js` and
-  `home/mascot/index.js` (module). `home/hero.css` styles the hero, the strip and the numbered headings; `home/globe/globe.css` the globe.
+  Status board, the empty Authenticator view (`#view-detector`, filled on first open), footer (licence and trademark
+  line). Loads `style/base.css`, `style/footer.css`, `home/home.css`, `shared/finder/finder.css`, the buddy CSS,
+  `shared/apps.js`, `shared/hub.js`, `home/view.js`, `shared/urlstate/urlstate.js`, `shared/finder/model.js`,
+  `finder.js`, `app-search.js`, `home/sections.js`, `home/catalog.js`, `home/browse.js`, `home/globe/sphere.js`,
+  `home/globe/paint.js`, `home/globe/labels.js`, `home/globe/globe.js`, `home/globe/drag.js`, `home/globe/list.js`,
+  `home/marquee.js`, `home/footer-mark.js` and `home/mascot/index.js` (module). The shell loads the shared kit
+  (`shared/slopui.js`, `window.SlopUI`: menus, dialogs, toasts) like on every other page. `home/hero.css` styles the hero, the strip and the numbered headings; `home/globe/globe.css` the globe.
 - `home/sections.js`: the six sections in order (`SECTION_DEFS`), the placement map `SECTIONS` keyed by app id (an array
   gives an app several places; a converter entry's `line` is its in-and-out line), the Print card (`SECTIONS.print`,
   opens `html2pdf/`), `placements()` (an app the map does not name keeps its old group: business, creative, or
@@ -20,19 +21,23 @@
   and AND across, counts, sort, chips, state) and node-tested; `finder.js` is `SlopFinder.mount(host, options)`; the
   options and the return value are documented at the top of `finder.js`. `app-search.js` holds the description and 4 to
   10 keywords for every registry app (`tests/node/app-search.test.mjs` fails if one is missing).
-- `app.js`: routing (home vs `#detector`), the live counter and the Authenticator. Clicks only count as navigation on
-  real `[data-view]` links (the `<body>` carries `data-view` as state).
+- `home/view.js`: the two views, home and the Authenticator (`#detector`): a click on a `[data-view]` link or a hash
+  change switches them (`window.slopShowView`, `window.SlopHomeView`), and the first open loads `detector/` (rules,
+  samples, the certificate UI and its CSS), so the home view never fetches it. Also sets `--top` (the header's height).
+  Tests: `tests/home/views.test.html` (and the navigation tests in `catalog.test.html`).
 - `home/catalog.js`: renders the cards, the shelves and status board from `shared/apps.js`; `SlopHomeCards.icon` is the
   badge every icon on the page uses (the globe too). Another agent is adding
   hover clips (`data-clip`, `<video>`) here; coordinate before editing it.
 - `home/mascot/index.js`: boots the shared Sloppo buddy with the homepage options:
   `boot({ app: 'home', defaultOn: true })`. The engine lives in `shared/buddy/` (see its HANDOFF.md).
-- `slop/`: the slop text engine, split from the old 597-line `slop.js` (output is byte-identical; fingerprint test).
-  Browser order: `core.js`, `gen-feeds.js`, `gen-more.js`, `engine.js`, `detect.js` (each extends `window.Slop`).
-  Node: `const Slop = require('./slop/index.js')` (also sets `globalThis.Slop`).
-- `style/`: `base.css` (tokens, nav, hero), `detector.css`, `footer.css` (footer, toast, responsive, motion), split
-  from the old 347-line `style.css` (concatenation is identical).
-- `motion.js`: the Authenticator stamp slam and the footer fill.
+- `detector/`: the Authenticator (registry id `authenticator`, the AI text detector). `rules.js` (pure: `SlopDetect.analyze`,
+  tiers, the serial hash; also `require`-able in Node), `samples.js` (the machine and human sample texts),
+  `detector.js` (`SlopDetect.mount(section)`: the certificate, the count-up and stamp slam, Copy verdict through
+  SlopUI), `detector.css`. Tests: `tests/detector/detector.test.html`.
+- `style/`: `base.css` (tokens, nav, buttons) and `footer.css` (footer, responsive, the footer wordmark fill); the
+  settings and typeface pages load them too. `style/tone.css` is the plain tone (shared/theme/theme.js).
+- `home/footer-mark.js`: scales the footer wordmark to fill its row once the fonts are in, and fills it with the
+  accent when it scrolls into view (not under reduced motion).
 
 ## Hero (top of the homepage)
 - Layout: the copy on the left and the app globe on the right on wide screens (900 px and up); on phones the globe sits

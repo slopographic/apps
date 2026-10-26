@@ -169,17 +169,31 @@
     if (lang) box.append(lang);
     if (theme) box.append(theme);
     box.append(sw);
-    const host = document.querySelector('header.topbar, header.menubar, header.nav, header');
-    const slot = host && host.querySelector('.sh-hdr-slot');   // room kept for the buttons in the page's own HTML
-    if (slot) slot.replaceWith(box); else if (host) host.append(box);
-    if (host) { if (window.SlopHbtn) window.SlopHbtn.fit(host); }   // labels give way to icons when the header is full
-    else { box.classList.add('sh-fab'); document.body.append(box); }
+    shellBox = box;
+    place();
     window.SlopNotify.mountBell(box);
     // Convert… and AI never cost the header a row or the app's controls their room: they give up their labels, Convert… its
     // place, then the other buttons fold into More, AI last (shared/ui/hbtn.js). Measured again now the bell is in.
-    if (host && window.SlopHbtn) window.SlopHbtn.check(host);
-    window.addEventListener('slop-lang', () => { sw.title = title(); });
+    const host = box.parentNode;
+    if (!box.classList.contains('sh-fab') && window.SlopHbtn) window.SlopHbtn.check(host);
+    for (const ev of ['slop-lang', 'slopi18n']) window.addEventListener(ev, () => { sw.title = title(); });   // slopi18n: its tables are in
   }
 
-  window.SlopHeader = { mount, openConvert, openAI };
+  /** Puts the buttons in the page's header (or floating at the top right when it has none). Called by mount() and again
+   *  by a page header built later (SlopMenuBar.mount, shared/menubar/menubar.js): the shell's scripts load side by side
+   *  with the page's, so either can come first (cached scripts make the shell first). Wherever they went before, the
+   *  buttons end where mounting after the page header would have put them. Does nothing before mount(). */
+  let shellBox = null;
+  function place() {
+    const box = shellBox;
+    if (!box) return;
+    const host = document.querySelector('header.topbar, header.menubar, header.nav, header');
+    if (host && box.parentNode === host && box.isConnected) return;
+    const slot = host && host.querySelector('.sh-hdr-slot');   // room kept for the buttons in the page's own HTML
+    box.classList.toggle('sh-fab', !host);
+    if (slot) slot.replaceWith(box); else if (host) host.append(box); else document.body.append(box);
+    if (host && window.SlopHbtn) { window.SlopHbtn.fit(host); window.SlopHbtn.check(host); }   // labels give way to icons when the header is full
+  }
+
+  window.SlopHeader = { mount, place, openConvert, openAI };
 })();

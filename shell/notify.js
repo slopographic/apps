@@ -145,6 +145,7 @@
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !panel.hidden) openPanel(false); });
     renderBell();
     window.addEventListener('slop-lang', renderBell);
+    window.addEventListener('slopi18n', renderBell);   // and again once the language's tables are in (lazy)
     return bell;
   }
   function clearAll() {

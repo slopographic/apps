@@ -8,6 +8,8 @@
   var H = SP.history = {};
   var MAX = 300;
   var undoS = [], redoS = [], lastKey = null, lastT = 0;
+  /** The chosen language's text for a key, else the English given (tests load this file without the tables). */
+  function tr(k, en, v) { var I = window.SlopI18n; if (I && I.has && I.has(k)) return I.t(k, v); return String(en).replace(/\{(\w+)\}/g, function (m, n) { return v && n in v ? String(v[n]) : m; }); }
 
   function clone(v) { return v == null ? null : JSON.parse(JSON.stringify(v)); }
   /** File id a page id belongs to. Base pages are "<fileId>.<index>", duplicates "<id>#<uid>", blank pages have no dot. */
@@ -78,13 +80,13 @@
   E.undo = function () {
     var c = undoS.pop(); if (!c) return null;
     c.undo(); redoS.push(c); lastKey = null;
-    E.emit('change', { label: 'Undo ' + c.label, history: true });
+    E.emit('change', { label: tr('ui.undo_what', 'Undo {what}', { what: c.label }), history: true });
     return c.label;
   };
   E.redo = function () {
     var c = redoS.pop(); if (!c) return null;
     c.do(); undoS.push(c); lastKey = null;
-    E.emit('change', { label: 'Redo ' + c.label, history: true });
+    E.emit('change', { label: tr('ui.redo_what', 'Redo {what}', { what: c.label }), history: true });
     return c.label;
   };
   E.canUndo = function () { return undoS.length > 0; };

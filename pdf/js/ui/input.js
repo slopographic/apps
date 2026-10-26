@@ -2,7 +2,7 @@
 (function () {
   'use strict';
   var SP = window.SP, U = SP.util, E = SP.engine, O = SP.organizer, Ed = SP.editor, PN = SP.panels, A = SP.app, S = A._;
-  var $ = U.$, h = U.h;
+  var $ = U.$, h = U.h, t = U.t;
   /* Keyboard shortcuts: ui/commands.js (SlopCmd). */
 
   /* ---------------------------------------------------------- session */
@@ -15,15 +15,15 @@
   }, 1200);
   A.restoreSession = function () {
     var s = S.savedSession; if (!s) return;
-    return S.guarded('Restoring your session…', async function () {
+    return S.guarded(t('pdf.app.restoring'), async function () {
       await E.restore(s);
       if (s.fileName) { S.els.fileName.value = s.fileName; S.fileNameTouched = true; }
       S.els.restore.hidden = true; S.savedSession = null;
-      A.announce('Session restored: ' + E.state.pages.length + ' pages');
+      A.announce(t('pdf.app.restored', { n: E.state.pages.length }));
     });
   };
   A.closeAll = function () {
-    SlopUI.confirm('Close all files', 'Remove every page and file from Slop PDF? Unsaved changes are lost (download first if you need them).', 'Close all', { danger: true }).then(function (ok) {
+    SlopUI.confirm(t('pdf.app.close_all_title'), t('pdf.app.close_all_msg'), t('pdf.menu.close_all'), { danger: true }).then(function (ok) {
       if (!ok) return;
       A.showGrid(true);
       E.closeAll(); U.idb.del('session'); S.fileNameTouched = false; S.els.fileName.value = 'document.pdf';

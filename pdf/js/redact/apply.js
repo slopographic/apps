@@ -45,8 +45,8 @@
   async function drawRaster(out, page, img, W, H) {
     var L = PDFLib;
     if (img.png) { page.drawImage(await out.embedPng(img.png), { x: 0, y: 0, width: W, height: H }); return; }
-    var ref = out.context.register(out.context.stream(img.rgb, { Type: 'XObject', Subtype: 'Image', Width: img.w, Height: img.h, ColorSpace: 'DeviceRGB', BitsPerComponent: 8, Filter: 'FlateDecode' }));
-    var name = page.node.newXObject('Redacted', ref);
+    var ref = out.context.register(out.context.stream(img.rgb, { Type: 'XObject', Subtype: 'Image', Width: img.w, Height: img.h, ColorSpace: 'DeviceRGB', BitsPerComponent: 8, Filter: 'FlateDecode' })); // i18n-ignore: PDF names / font names / producer, not UI
+    var name = page.node.newXObject('Redacted', ref); // i18n-ignore: PDF names / font names / producer, not UI
     page.pushOperators(L.pushGraphicsState(), L.concatTransformationMatrix(W, 0, 0, H, 0, 0), L.drawObject(name), L.popGraphicsState());
   }
 
@@ -57,7 +57,7 @@
     for (var k = 0; k < annots.size(); k++) {
       var d = src.context.lookup(annots.get(k));
       if (!(d instanceof L.PDFDict)) continue;
-      var st = d.lookup(N('Subtype')), act = d.lookup(N('A')), rect = d.lookup(N('Rect'));
+      var st = d.lookup(N('Subtype')), act = d.lookup(N('A')), rect = d.lookup(N('Rect')); // i18n-ignore: PDF names / font names / producer, not UI
       if (!st || st.asString() !== '/Link' || !(act instanceof L.PDFDict) || !(rect instanceof L.PDFArray)) continue;
       var s = act.lookup(N('S')), uri = act.lookup(N('URI'));
       if (!s || s.asString() !== '/URI' || !uri || !uri.decodeText) continue;
@@ -89,7 +89,7 @@
         page.setRotation(L.degrees(g.base));
         if (!srcs.has(p.f)) srcs.set(p.f, await L.PDFDocument.load(E.files.get(p.f).bytes, { updateMetadata: false, ignoreEncryption: true, throwOnInvalidObject: false }));
         keptLinks(srcs.get(p.f), p, boxes).forEach(function (l) {
-          var ref = out.context.register(out.context.obj({ Type: 'Annot', Subtype: 'Link', Rect: l.rect, Border: [0, 0, 0], A: { Type: 'Action', S: 'URI', URI: L.PDFString.of(l.uri) } }));
+          var ref = out.context.register(out.context.obj({ Type: 'Annot', Subtype: 'Link', Rect: l.rect, Border: [0, 0, 0], A: { Type: 'Action', S: 'URI', URI: L.PDFString.of(l.uri) } })); // i18n-ignore: PDF names / font names / producer, not UI
           page.node.addAnnot(ref);
         });
         map.set(p.id, k++);
@@ -98,11 +98,11 @@
     }
     var file = null;
     if (k) {
-      out.setProducer('Slop PDF · slopographic.com/pdf');
-      file = await E.registerPdf(await out.save({ useObjectStreams: true }), 'Redacted pages.pdf', null);
+      out.setProducer('Slop PDF · slopographic.com/pdf'); // i18n-ignore: PDF names / font names / producer, not UI
+      file = await E.registerPdf(await out.save({ useObjectStreams: true }), U.t('pdf.redact.file_name'), null);
       file.noLog = true; // generated: its bytes cannot be replayed
     }
-    E.commit('Apply redactions', function (st) {
+    E.commit(U.t('pdf.redact.apply_cmd'), function (st) {
       st.pages.forEach(function (p) {
         if (!byPage.has(p.id)) return;
         var boxes = boxesOf(p), g = E.geom(p);
@@ -144,9 +144,9 @@
     xo.keys().forEach(function (key) { if (used.has(key.decodeText())) nx.set(key, xo.get(key)); }); // compat-ok: pdf-lib returns an array here, not an iterator
     var nr = res.clone(doc.context);
     nr.set(N('XObject'), nx);
-    node.set(N('Resources'), nr);
+    node.set(N('Resources'), nr); // i18n-ignore: PDF names / font names / producer, not UI
     return true;
   };
   /** Page-level entries that can hold stale previews or private data. */
-  E.stripPageExtras = function (page) { ['Thumb', 'PieceInfo', 'Metadata'].forEach(function (k) { page.node.delete(N(k)); }); };
+  E.stripPageExtras = function (page) { ['Thumb', 'PieceInfo', 'Metadata'].forEach(function (k) { page.node.delete(N(k)); }); }; // i18n-ignore: PDF names / font names / producer, not UI
 })();

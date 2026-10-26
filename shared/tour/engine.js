@@ -8,6 +8,8 @@
   const BASE = document.currentScript && document.currentScript.src ? new URL('./', document.currentScript.src).href : '';
   const defs = Object.create(null);
   const L = T.logic;
+  /** A word from the shared tables (shared/i18n/ui/en.js), or the English given when SlopI18n or the key is absent. */
+  function tr(key, en, vars) { const I = globalThis.SlopI18n; if (I && I.has && I.has(key)) return I.t(key, vars); return vars ? String(en).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en; }
   let cur = null;          // { app, tour, index, done: Set, status }
   const subs = [];
 
@@ -37,9 +39,9 @@
     const steps = cur.tour.steps;
     const i = cur.index, s = steps[i];
     return {
-      name: cur.tour.title, counter: L.counter(i, steps.length), index: i, n: steps.length,
+      name: cur.tour.title, counter: tr('ui.tour.counter', L.counter(i, steps.length), { i: i + 1, n: steps.length }), index: i, n: steps.length,
       title: s.title, text: s.text, last: i === steps.length - 1,
-      hint: s.target && !T.spot.target ? 'This control is not on screen right now (it may be hidden at this window width). Next keeps going.' : '',
+      hint: s.target && !T.spot.target ? tr('ui.tour.offscreen', 'This control is not on screen right now (it may be hidden at this window width). Next keeps going.') : '',
       steps: steps.map((x) => ({ title: x.title, done: cur.done.has(x.id) })),
     };
   }

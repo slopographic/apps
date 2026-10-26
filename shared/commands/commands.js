@@ -6,6 +6,7 @@
 (function () {
   'use strict';
   if (window.SlopCmd) return;
+  function tr(key, en, vars) { const I = window.SlopI18n; if (I && I.has && I.has(key)) return I.t(key, vars); return vars ? String(en).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en; }   // shared/i18n/ui/en.js, else the English
   const SCRIPT = document.currentScript;
   const BASE = SCRIPT && SCRIPT.src ? new URL('./', SCRIPT.src).href : null;
   const PARTS = ['search', 'palette', 'recorder', 'keymap'];
@@ -99,15 +100,13 @@
   const cmds = new Map(), listeners = {};
   let index = [];
   function emit(type, data) { for (const fn of (listeners[type] || []).slice()) try { fn(data); } catch (err) { console.error(err); } }
-  function on(type, fn) { (listeners[type] = listeners[type] || []).push(fn); return () => off(type, fn); }
-  function off(type, fn) { const l = listeners[type]; if (l && l.indexOf(fn) >= 0) l.splice(l.indexOf(fn), 1); }
+  function on(type, fn) { (listeners[type] = listeners[type] || []).push(fn); return () => off(type, fn); } function off(type, fn) { const l = listeners[type]; if (l && l.indexOf(fn) >= 0) l.splice(l.indexOf(fn), 1); }
   const bindings = (id) => { const c = cmds.get(id); if (!c) return []; return (Object.prototype.hasOwnProperty.call(overrides, id) ? overrides[id] : c.keys).slice(); };
   function rebuild() {
     index = [];
     for (const [id] of cmds) for (const b of bindings(id)) { const seq = parse(b); if (seq) index.push({ id, seq, key: seq.join(' ') }); }
   }
-  let changeQueued = false;
-  function changed() { rebuild(); if (changeQueued) return; changeQueued = true; Promise.resolve().then(() => { changeQueued = false; emit('change'); }); }
+  let changeQueued = false; function changed() { rebuild(); if (changeQueued) return; changeQueued = true; Promise.resolve().then(() => { changeQueued = false; emit('change'); }); }
   function register(list) {
     for (const c of [].concat(list || [])) {
       if (!c || !c.id || typeof c.run !== 'function') { console.warn('SlopCmd.register: needs id and run()', c); continue; }
@@ -122,9 +121,9 @@
   const list = () => [...cmds.values()].map(view);
   function run(id, ctx = {}) {
     const c = cmds.get(id);
-    if (!c || !enabled(c)) { if (c && window.SlopUI && ctx.source !== 'palette') SlopUI.toast(c.why || (c.title || id) + ' is not available right now.'); return false; }
+    if (!c || !enabled(c)) { if (c && window.SlopUI && ctx.source !== 'palette') SlopUI.toast(c.why || tr('ui.cmd.not_available', '{title} is not available right now.', { title: c.title || id })); return false; }
     if (ctx.record !== false && !c.noRecent) { const r = recents[id] || [0, 0]; stamp = Math.max(Date.now(), stamp + 1); recents[id] = [r[0] + 1, stamp]; trimRecents(); ls.set(recStore(), recents); }
-    try { call(c, ctx); } catch (err) { console.error(err); if (window.SlopUI) SlopUI.toast((c.title || id) + ' failed: ' + err.message); }
+    try { call(c, ctx); } catch (err) { console.error(err); if (window.SlopUI) SlopUI.toast(tr('ui.cmd.failed', '{title} failed: {error}', { title: c.title || id, error: err.message })); }
     emit('run', { id, source: ctx.source || 'api' });
     return true;
   }
@@ -187,8 +186,7 @@
   }
 
   /* ---------- dispatch ---------- */
-  let target = null, pending = null, paletteOpen = false, recording = 0;
-  const CHORD_MS = 1500;
+  let target = null, pending = null, paletteOpen = false, recording = 0; const CHORD_MS = 1500;
   // Typing in a field is shared/input/typing.js's call (the one guard every shortcut handler uses); loaded here if no one did
   if (!window.SlopTyping && BASE) document.head.append(Object.assign(document.createElement('script'), { src: BASE + '../input/typing.js', async: false }));
   const isTyping = (t) => !!(window.SlopTyping && window.SlopTyping.isTyping(t));
@@ -248,7 +246,7 @@
   }
   const loadPart = (name) => new Promise((res, rej) => document.head.append(Object.assign(document.createElement('script'),
     { src: BASE + name + '.js', onload: res, onerror: () => rej(new Error('Could not load ' + name + '.js')) })));
-  const withUI = (fn) => ensureUI().then(fn, (err) => { console.warn(err); if (window.SlopUI) SlopUI.toast('Command palette unavailable offline'); });
+  const withUI = (fn) => ensureUI().then(fn, (err) => { console.warn(err); if (window.SlopUI) SlopUI.toast(tr('ui.cmd.offline', 'Command palette unavailable offline')); });
   let opts = {};
   function init(o = {}) {
     opts = o;
@@ -262,11 +260,13 @@
     if (document.readyState === 'complete') pre(); else addEventListener('load', pre, { once: true });
     return api;
   }
+  const OWN = { 'cmd.palette': ['ui.cmd.palette_dots', 'Search commands…'], 'cmd.keymap': ['ui.cmd.keymap_dots', 'Keyboard shortcuts…'], 'cmd.workflow': ['ui.cmd.workflow_dots', 'Run a workflow…'] }, own = (id) => tr(OWN[id][0], OWN[id][1]);   // titles follow a language change; groups stay ids
   register([
-    { id: 'cmd.palette', title: 'Search commands…', group: 'Help', keys: ['Mod+K', 'Shift+Mod+P', '/'], keywords: ['spotlight', 'palette', 'find', 'actions'], global: true, noRecent: true, run: () => (paletteOpen ? api.close() : api.open()) },
-    { id: 'cmd.keymap', title: 'Keyboard shortcuts…', group: 'Help', keywords: ['keys', 'keymap', 'hotkeys', 'bindings', 'customize'], noRecent: true, run: () => api.openKeymap() },
-    { id: 'cmd.workflow', title: 'Run a workflow…', group: 'File', keywords: ['workflow', 'batch', 'pipeline', 'automate', 'chain', 'apps'], when: () => !!BASE && !window.SlopWorkflowsPage, run: () => import(new URL('../ops/dialog.js', BASE).href).then((m) => m.open({})) },   // shared/ops/dialog.js
+    { id: 'cmd.palette', title: own('cmd.palette'), group: 'Help', keys: ['Mod+K', 'Shift+Mod+P', '/'], keywords: ['spotlight', 'palette', 'find', 'actions'], global: true, noRecent: true, run: () => (paletteOpen ? api.close() : api.open()) },
+    { id: 'cmd.keymap', title: own('cmd.keymap'), group: 'Help', keywords: ['keys', 'keymap', 'hotkeys', 'bindings', 'customize'], noRecent: true, run: () => api.openKeymap() },
+    { id: 'cmd.workflow', title: own('cmd.workflow'), group: 'File', keywords: ['workflow', 'batch', 'pipeline', 'automate', 'chain', 'apps'], when: () => !!BASE && !window.SlopWorkflowsPage, run: () => import(new URL('../ops/dialog.js', BASE).href).then((m) => m.open({})) },   // shared/ops/dialog.js
   ]);
+  if (window.SlopI18n && SlopI18n.on) SlopI18n.on(() => { for (const id in OWN) { const c = cmds.get(id); if (c) c.title = own(id); } changed(); });
   const api = {
     init, register, unregister, run, list, on, off, parse, canon, format, eventSteps, isTyping, conflicts, allConflicts,
     setKeys, resetKeys, exportKeys, importKeys, recent, frecency, ensureUI, bindings, addProvider, _parts: parts,

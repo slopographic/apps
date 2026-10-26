@@ -8,7 +8,6 @@
   --z-grain: 1;       /* the film grain (style/base.css) */
   --z-consent: 10;    /* the consent strip (shared/consent/banner.css) */
   --z-mascot: 15;     /* Sloppo, his speech bubble (shared/buddy) */
-  --z-toast: 30;      /* the short toast at the bottom (style/footer.css) */
   --z-header: 40;     /* the sticky header (style/base.css) */
   --consent-h: 0px;   /* the consent strip's measured height, set by shared/consent/banner.js */
 }

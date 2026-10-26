@@ -3,14 +3,14 @@
    (its note): Word and Excel are text-based, PowerPoint is one picture per page. Classic script. */
 (function () {
   'use strict';
-  var SP = window.SP, A = SP.app, E = SP.engine;
-  var TARGETS = [['pdf-to-docx', 'Word (.docx)'], ['pdf-to-xlsx', 'Excel (.xlsx)'], ['pdf-to-pptx', 'PowerPoint (.pptx)'],
-    ['pdf-to-png', 'PNG images'], ['pdf-to-jpg', 'JPG images']];
+  var SP = window.SP, A = SP.app, E = SP.engine, U = SP.util;
+  var TARGETS = [['pdf-to-docx', 'Word (.docx)'], ['pdf-to-xlsx', 'Excel (.xlsx)'], ['pdf-to-pptx', 'PowerPoint (.pptx)'], // i18n-ignore (format names)
+    ['pdf-to-png', 'pdf.act.png_images'], ['pdf-to-jpg', 'pdf.act.jpg_images']]; // [1]: a format name or a key
   /** The File ▸ Export as submenu. */
   A.exportItems = function () {
     var has = E.state.pages.length > 0;
-    return [{ label: 'PDF (download)', act: A.download, disabled: !has }, { label: 'PDF with a password…', act: function () { A.protect(); }, disabled: !has }, '-']
-      .concat(TARGETS.map(function (t) { return { label: t[1], act: function () { A.openConvert(t[0]); }, disabled: !has }; }))
-      .concat(['-', { label: 'Other formats…', act: function () { A.openConvert(null); }, disabled: !has }]);
+    return [{ label: U.t('pdf.act.pdf_download'), act: A.download, disabled: !has }, { label: U.t('pdf.act.pdf_password'), act: function () { A.protect(); }, disabled: !has }, '-']
+      .concat(TARGETS.map(function (t) { return { label: U.t(t[1]), act: function () { A.openConvert(t[0]); }, disabled: !has }; }))
+      .concat(['-', { label: U.t('pdf.act.other_formats'), act: function () { A.openConvert(null); }, disabled: !has }]);
   };
 })();

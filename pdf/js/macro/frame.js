@@ -4,7 +4,7 @@
   'use strict';
   var M = window.SlopPdfMacro = window.SlopPdfMacro || {};
   var P = M.pdf = {};
-  var FAMILY = { Helvetica: 'Helvetica', Times: 'TimesRoman', Courier: 'Courier' };
+  var FAMILY = { Helvetica: 'Helvetica', Times: 'TimesRoman', Courier: 'Courier' }; // i18n-ignore: PDF names / font names / producer, not UI
   var metrics = {}, charsets = {};
 
   P.lib = function () {
@@ -45,7 +45,7 @@
   };
   P.hasUnsupported = function (font, text) { return P.safeText(font, text) !== String(text == null ? '' : text).replace(/[\r\n\t]+/g, ' '); };
   P.font = function (doc, fam) {
-    return doc.embedFont(P.lib().StandardFonts[FAMILY[fam || 'Helvetica']]);
+    return doc.embedFont(P.lib().StandardFonts[FAMILY[fam || 'Helvetica']]); // i18n-ignore: PDF names / font names / producer, not UI
   };
 
   /** The displayed page: VW and VH are its visible size, rot is the display rotation (0, 90, 180 or 270), and

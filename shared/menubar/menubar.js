@@ -11,10 +11,13 @@
  * A menu given as a function is built each time it opens (for items that depend on the state of the app). An item with
  * sub opens a submenu. A '#id' item takes the button's own label. The bar is inserted at the top of <body>. Menus open on
  * click or Arrow Down; Arrow keys move, Right opens a submenu, Escape closes, a click elsewhere closes. A disabled item is
- * greyed out; enabled state is read each time a menu opens. Classic script. Exposes window.SlopMenuBar. */
+ * greyed out; enabled state is read each time a menu opens. The shell's header buttons are kept, whichever mounts first
+ * (SlopHeader.place). Classic script. Exposes window.SlopMenuBar. */
 (function () {
   'use strict';
   if (window.SlopMenuBar) return;
+  /** A word from the shared tables (shared/i18n/ui/en.js), or the English given when SlopI18n or the key is absent. */
+  function tr(key, en, vars) { const I = globalThis.SlopI18n; if (I && I.has && I.has(key)) return I.t(key, vars); return vars ? String(en).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en; }
   const $ = (sel) => document.querySelector(sel);
   const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
 
@@ -64,8 +67,10 @@
         const openSub = () => { if (!usable(it)) return; list.querySelectorAll('.smb-pop-sub').forEach((p) => { if (p !== pop) p.hidden = true; }); pop.hidden = false; b.setAttribute('aria-expanded', 'true'); const f = inner.rows.find((x) => !x.disabled); if (f) f.focus(); };
         b.addEventListener('click', () => (pop.hidden ? openSub() : (pop.hidden = true)));
         b.addEventListener('mouseenter', () => { if (pop.hidden) openSub(); });
-        b.addEventListener('keydown', (e) => { if (e.key === 'ArrowRight') { e.preventDefault(); openSub(); } });
-        pop.addEventListener('keydown', (e) => { if (e.key === 'ArrowLeft' || e.key === 'Escape') { e.preventDefault(); pop.hidden = true; b.setAttribute('aria-expanded', 'false'); b.focus(); } });
+        // the submenu side follows the page's direction (Arabic, Hebrew: it opens to the left, ArrowLeft opens it)
+        const rtl = () => document.documentElement.getAttribute('dir') === 'rtl';
+        b.addEventListener('keydown', (e) => { if (e.key === (rtl() ? 'ArrowLeft' : 'ArrowRight')) { e.preventDefault(); openSub(); } });
+        pop.addEventListener('keydown', (e) => { if (e.key === (rtl() ? 'ArrowRight' : 'ArrowLeft') || e.key === 'Escape') { e.preventDefault(); pop.hidden = true; b.setAttribute('aria-expanded', 'false'); b.focus(); } });
         b.disabled = !usable(it);
         rows.push(b); pairs.push([b, it, () => { inner.pairs.forEach(([x, y]) => { x.disabled = !usable(y); }); }]);
         list.append(wrap);
@@ -83,9 +88,12 @@
     return { rows, pairs };
   }
 
+  /** The menu names the shared tables have (menu.* in shared/i18n/strings.js); the title stays the menu's id. */
+  const TITLE_KEY = { File: 'menu.file', Edit: 'menu.edit', View: 'menu.view', Help: 'menu.help', Insert: 'ui.mb.insert', Format: 'ui.mb.format', Tools: 'ui.mb.tools' };
   function menuFor(title, source) {
     const wrap = el('div', 'smb-menu');
-    const btn = el('button', 'smb-menu-b', title);
+    const btn = el('button', 'smb-menu-b', TITLE_KEY[title] ? tr(TITLE_KEY[title], title) : title);
+    if (TITLE_KEY[title]) btn.dataset.i18n = TITLE_KEY[title];   // the plain menu names follow a language change (shared/i18n)
     btn.type = 'button'; btn.setAttribute('aria-haspopup', 'menu'); btn.setAttribute('aria-expanded', 'false');
     const list = el('div', 'smb-pop'); list.setAttribute('role', 'menu'); list.hidden = true;
     let state = { rows: [], pairs: [] };
@@ -126,16 +134,17 @@
     const bar = host || el('header', 'smb-bar');
     bar.classList.add('smb-bar');
     if (host) host.replaceChildren();
-    bar.setAttribute('aria-label', 'Application menu');
+    bar.setAttribute('aria-label', tr('ui.mb.app_menu', 'Application menu')); bar.dataset.i18nAttr = 'aria-label:ui.mb.app_menu';
     // The brand is the app's icon with the Slopographic mark as a corner badge (SlopBrand.appMark, brand/brand.js), as in
     // every app header; the plain mark when the page has no icon for the app.
     const brand = el('a', 'smb-brand brand');
-    brand.href = opts.home || '../'; brand.title = 'Slopographic home'; brand.setAttribute('aria-label', 'Slopographic home');
+    brand.href = opts.home || '../'; brand.title = tr('ui.mb.home', 'Slopographic home'); brand.setAttribute('aria-label', brand.title);
+    brand.dataset.i18nAttr = 'title:ui.mb.home;aria-label:ui.mb.home';
     brand.innerHTML = '<svg class="brand-mark smb-mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/></svg>';
     const name = el('span', 'smb-app', opts.app || document.title.split('|')[0].trim());
     // "100% local": the page's own badge (it carries what stays local in its title) moves next to the name, in every app.
 
-    const menubar = el('nav', 'smb-menus'); menubar.setAttribute('aria-label', 'Menus');
+    const menubar = el('nav', 'smb-menus'); menubar.setAttribute('aria-label', tr('ui.mb.menus', 'Menus')); menubar.dataset.i18nAttr = 'aria-label:ui.mb.menus';
     const closers = [];
     for (const title of Object.keys(opts.menus || {})) {
       const own = opts.menus[title];
@@ -160,6 +169,9 @@
     }
     bar.append(brand, name, ...(local ? [local] : []), menubar, tools);
     if (!host) document.body.prepend(bar);
+    // The shell's buttons (shell/header.js) may have mounted first, into the host just emptied or elsewhere: they go back
+    // where they belong now that the bar is in. When the shell comes later it puts them there itself.
+    if (window.SlopHeader && window.SlopHeader.place) window.SlopHeader.place();
     if (window.SlopBrand && window.SlopBrand.appMark) window.SlopBrand.appMark();
     document.addEventListener('click', (e) => { if (!e.target.closest('.smb-menu')) closers.forEach((c) => c()); });
     return bar;
