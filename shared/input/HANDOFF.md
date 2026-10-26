@@ -33,6 +33,15 @@ SlopCut's taps never selected. Test kit fingers (`TouchKit.finger`) set `isPrima
 
 Every synthetic event has `e.slopTouch === true` (and `isTrusted === false`).
 
+**A busy page:** it handles a finger's events late, so taps and double taps are timed by when they happened
+(`SlopTouch.gesture.stamp(e)`, the event's timeStamp), never by when a handler ran; an app with its own tap counting does
+the same (Slop Docs). The long-press clock starts when the page got the touch; when its timer comes late (the page was
+busy, and the lift or a drag's moves may still be queued: Chromium hands moves to a busy page late and in bursts) the
+hold starts again (twice at most), else the long press is decided at the next frame, after what is already queued. A
+real click forgets only the fingers that touched before it (a busy page can hand a tap's click over after the next touch).
+Tests: `TouchKit.busyTaps` makes taps at their times and hands them over late; the kit's real (CDP) gestures are paced by
+the runner (`tests/touch.mjs` `paced()`), as a finger does not wait for the page.
+
 The dblclick is dispatched inside the second tap's click (after the app's own click handlers, in the same dispatch), so
 it runs in a user gesture: an editor it opens can focus and iOS shows the keyboard. iOS does not for a focus from a timer,
 so an app that opens a text field from its own double-tap detection does it in the pointerdown/up (Tables, Slop PDF).

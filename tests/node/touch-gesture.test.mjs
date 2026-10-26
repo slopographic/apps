@@ -199,3 +199,10 @@ test('a touch the page got late: taps timed by when they happened, the long pres
   g.down({ id: 2, x: 0, y: 0, t: 1130, at: 1720 });
   assert.deepEqual(types(g.up({ id: 2, x: 0, y: 0, t: 1170 })), ['doubletap']);
 });
+
+test('clickAfter: a click tells of the fingers that touched before it, not of one that touched after (a late click)', () => {
+  const { clickAfter } = createRequire(import.meta.url)('../../shared/input/gesture.js');
+  assert.equal(clickAfter({ timeStamp: 1000 }, 900, 1500), true);   // the finger touched before the click: it lifted
+  assert.equal(clickAfter({ timeStamp: 1000 }, 1090, 1500), false); // the next tap's finger, down after the click was made
+  assert.equal(clickAfter({ timeStamp: 0 }, 1090, 1500), true);     // no stamp: the click is now, after every finger
+});

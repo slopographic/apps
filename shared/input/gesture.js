@@ -16,7 +16,9 @@
  *          { type: 'pinchstart', ids, cx, cy } · { type: 'pinch', scale, cx, cy, dx, dy } · { type: 'pinchend' }
  * pinch: scale is since the previous pinch action (multiply them up), cx/cy the midpoint now, dx/dy its move.
  * stamp(e, now) → when a pointer event happened (its timeStamp), on the clock of performance.now(): an app that times a
- * tap by when its handler runs reads a quick tap as a hold while the page is busy (the lift waits in the queue). */
+ * tap by when its handler runs reads a quick tap as a hold while the page is busy (the lift waits in the queue).
+ * clickAfter(click, t, now) → a click came after a touch made at t (a busy page can hand over a tap's click after the
+ * next touch has landed: that click tells nothing of the newer finger). */
 (function () {
   'use strict';
   const DEFAULTS = {
@@ -113,8 +115,9 @@
     /** No long press for this pointer: the browser opened its own menu, or the app took the gesture. */
     function skipLong(id) { const s = pts.get(id); if (s) s.long = true; }
 
+
     /** The page was busy (the long press is due but came late): the hold counts again from t, so a finger that lifted
-     *  during the busy time (its pointerup still queued) is not taken for a long press. */
+     *  or moved during the busy time (its events still queued) is not taken for a long press. */
     function restartLong(t) { for (const s of pts.values()) if (!s.long && !s.moved) s.tl = t; }
 
     function reset() { pts.clear(); lastTap = null; pinch = null; multi = false; }
@@ -144,7 +147,9 @@
     return Number.isFinite(t) && t > 0 && t <= now + 1 && now - t < 60000 ? t : now;
   }
 
-  const api = { create, DEFAULTS, pressure, stamp };
+  const clickAfter = (click, t, now) => stamp(click, now) >= t;
+
+  const api = { create, DEFAULTS, pressure, stamp, clickAfter };
   if (typeof window !== 'undefined') { window.SlopTouch = window.SlopTouch || {}; window.SlopTouch.gesture = api; }
   if (typeof module === 'object' && module.exports) module.exports = api;
 })();

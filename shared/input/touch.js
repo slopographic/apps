@@ -19,12 +19,13 @@
   const g = T.gesture.create();
   const PALM_MS = 400;      // touches stay ignored this long after the pen lifts
   const CLICK_MS = 700;     // a click this soon after a handled long press, or a palm, is swallowed
-  const BUSY_MS = 150;     // a long-press timer this late means the page was too busy to tell a hold from a tap
+  const BUSY_MS = 50;       // a long-press timer this late: the page was busy, and the finger's moves or lift may be queued
+  const RESTARTS = 2;       // that many times a touch's hold starts again for it
   const NATIVE_MS = 800;    // a native dblclick/contextmenu this soon after ours is the same gesture: swallowed
 
   const info = new Map();   // pointer id → { target, kind, x, y, surface }
   const taken = new Set();  // pointer ids the app no longer sees (palm, or part of a pinch the layer handles)
-  let pens = 0, penUpAt = -Infinity, timer = 0, restarted = false;
+  let pens = 0, penUpAt = -Infinity, timer = 0, restarts = 0;
   let blockClickUntil = 0;  // Infinity while a finger whose long press opened a menu is still down
   let sentDbl = -Infinity, sentMenu = -Infinity, pendingDbl = null;
   T.palm = true;
@@ -43,11 +44,11 @@
     const d = g.deadline();
     if (d === Infinity) return;
     timer = setTimeout(() => {
-      // Late by more than BUSY_MS: the page was busy, and the finger's pointerup may still be waiting behind it. The
-      // hold starts again (once a gesture), so only a finger still down after another long-press time opens a menu.
-      if (now() - d > BUSY_MS && !restarted) { restarted = true; g.restartLong(now()); schedule(); return; }
-      // Not before the page has had the moves already made: a busy page gets them at its next frame (Chromium aligns
-      // them to frames), after this timer, and a drag that started while the page was busy is no long press.
+      // Late: the page was busy, and what the finger did meanwhile (a lift, the moves of a drag, which Chromium hands
+      // over late and in bursts) may still be on its way. The hold starts again (RESTARTS times a touch), so only a
+      // finger still down after another long-press time opens a menu.
+      if (now() - d > BUSY_MS && restarts < RESTARTS) { restarts++; g.restartLong(now()); schedule(); return; }
+      // Else at the next frame, once the page has had what is already queued (Chromium aligns moves to frames).
       const mine = timer;
       requestAnimationFrame(() => { if (timer === mine) run(g.tick(now())); });
     }, Math.max(0, d - now()) + 1);
@@ -123,8 +124,8 @@
       swallow(e);
       return;
     }
-    if (!info.size) restarted = false;
-    info.set(e.pointerId, { target: e.target, kind: e.pointerType, x: e.clientX, y: e.clientY, surface: E.surfaceOf(e.target) });
+    if (!info.size) restarts = 0;
+    info.set(e.pointerId, { target: e.target, kind: e.pointerType, x: e.clientX, y: e.clientY, surface: E.surfaceOf(e.target), t: T.gesture.stamp(e, now()) });
     run(g.down(sample(e)), e);
   }
   function onMove(e) {
@@ -146,8 +147,10 @@
   }
 
   function onClick(e) {
-    // A real click means the fingers have lifted, even when the browser sent no pointerup: forget them (lost()).
-    if (e.isTrusted) for (const [id, p] of info) if (p.kind === 'touch' && !taken.has(id)) lost(id, p);
+    // A real click means the fingers that touched before it have lifted, even when the browser sent no pointerup:
+    // forget them (lost()). Not a finger that touched after it: a busy page hands over a tap's click late, after the
+    // next touch (the second tap of a double tap) has landed, and that finger is still down.
+    if (e.isTrusted) for (const [id, p] of info) if (p.kind === 'touch' && !taken.has(id) && T.gesture.clickAfter(e, p.t, now())) lost(id, p);
     if (now() < blockClickUntil && e.isTrusted) { blockClickUntil = 0; swallow(e); return; }
     if (pendingDbl && Math.hypot(e.clientX - pendingDbl.x, e.clientY - pendingDbl.y) <= 30) {
       const d = pendingDbl;
