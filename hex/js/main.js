@@ -34,7 +34,7 @@
        Slop Drive (linked to its record), the sample, a paste, ?drive=<id> and a PWA launch open in a tab, one file at a time; a file
        already open is not opened again. Files wait for the tabs to come back (boot). */
     window.SlopIntake.register({
-      id: 'hex', accept: { any: true, allowEmpty: true, noun: t('hex.app.a_file') }, limit: 1,
+      id: 'hex', accept: { any: true, allowEmpty: true, noun: 'hex.app.a_file' }, limit: 1,
       before: () => tabsBack,
       process: async (file, ctx) => {
         if (A().isOpen(file)) throw new Error(t('hex.app.already_open', { name: file.name }));   // shown to the person (the intake's row)

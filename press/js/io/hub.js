@@ -33,10 +33,10 @@
   HB.sendItems = function () {
     if (!HB.available() || !window.SlopOuttake) return [{ label: U.t('press.menu.hub_unavailable'), disabled: true }];
     var name = function () { return PR.io.baseName(); }, O = window.SlopOuttake;
-    var pdf = O.items({ get: HB.pdfBlob, name: function () { return name() + '.pdf'; }, type: 'application/pdf', from: 'press', verb: U.t('press.io.send_pdf_to'), folder: false });
+    var pdf = O.items({ get: HB.pdfBlob, name: function () { return name() + '.pdf'; }, type: 'application/pdf', from: 'press', verb: 'press.io.send_pdf_to', folder: false });
     // the page PNG lists the apps only: the workflow items are already there once, for the PDF
-    var pngVerb = U.t('press.io.send_png_to'), png = O.items({ get: HB.pngBlob, name: function () { return name() + '-p' + PR.pages.label(S.doc, S.page) + '.png'; }, type: 'image/png', from: 'press', verb: pngVerb, folder: false })
-      .filter(function (it) { return it.label.indexOf(pngVerb + ' ') === 0; });
+    var png = O.items({ get: HB.pngBlob, name: function () { return name() + '-p' + PR.pages.label(S.doc, S.page) + '.png'; }, type: 'image/png', from: 'press', verb: 'press.io.send_png_to', folder: false })
+      .filter(function (it) { return it.plain; });
     var items = pdf.concat(pdf.length && png.length ? ['-'] : [], png, ['-', { label: U.t('press.cmd.file_save_drive'), act: HB.saveToDrive }]);
     if (!HB.canSend()) items = items.map(function (it) { return it === '-' ? it : { label: it.label, disabled: true }; });
     return items;

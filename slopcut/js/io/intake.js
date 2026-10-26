@@ -18,7 +18,7 @@
   IN.RULES = {
     types: ['video/*', 'audio/*', 'image/*', 'application/x-slopedit', 'application/zip', REEL, 'application/json'],
     exts: ['.mp4', '.m4v', '.mov', '.webm', '.mkv', '.mp3', '.wav', '.m4a', '.aac', '.ogg', '.opus', '.flac', '.jpg', '.jpeg', '.png', '.webp', '.gif', '.svg', '.slopedit'],
-    noun: SE.util.t('slopedit.io.a_video_audio_picture_or'),
+    noun: 'slopedit.io.a_video_audio_picture_or',
   };
   const DRIVE = ['video/*', 'audio/*', 'image/*', 'application/x-slopedit', 'application/zip'];
   const names = (files) => files.map((f) => f.name);

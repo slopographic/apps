@@ -41,7 +41,7 @@ export class ConvertTool {
     this.intakeId = this.ns === 'cv' ? 'convert' : 'convert-' + this.ns;
     this.offIntake = window.SlopIntake.register({
       id: this.intakeId, main: !opts.compact, paste: !(opts.compact && opts.drop && opts.drop.paste === false),
-      accept: { any: true, noun: tr('convert.tool.noun_file', 'a file') },
+      accept: { any: true, noun: 'convert.tool.noun_file' },
       before: (batch) => { this.items = this.items.filter((i) => !i.pasted); this.setStatus(tr('convert.tool.reading', ['Reading {n} files…', 'Reading {n} file…'], { n: batch.take.length })); },
       process: (file) => this.readFile(file),
       after: () => { this.wantTarget = null; this.setStatus(''); this.render(); },
@@ -55,7 +55,7 @@ export class ConvertTool {
     });
     ui.input.setAttribute('accept', accept);
     // The flow picture's target tile (PDF → DOCX ▾) opens the menu of what the files can become.
-    ui.flow.onTo(() => this.openMenu(), tr('convert.tool.choose_format', 'Choose the format to make'));
+    ui.flow.onTo(() => this.openMenu(), 'convert.tool.choose_format');
     ui.form.addEventListener('submit', (e) => { e.preventDefault(); this.run(); });
     ui.clear.addEventListener('click', () => this.clear());
     ui.zip.addEventListener('click', () => this.zipAll());

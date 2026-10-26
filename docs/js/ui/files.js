@@ -136,7 +136,7 @@
   /** "Send to…" menu rows for the other Slopographic apps: the one builder, SlopOuttake, with the document as DOCX. */
   S.sendItems = function () {
     if (!H() || !window.SlopOuttake) return [];
-    return SlopOuttake.items({ get: () => S.exportBlob('docx'), name: () => S.displayName() + '.docx', type: DOCX_MIME, from: 'docs', verb: S.t('docs.menu.send_verb'), folder: false });
+    return SlopOuttake.items({ get: () => S.exportBlob('docx'), name: () => S.displayName() + '.docx', type: DOCX_MIME, from: 'docs', verb: 'ui.outtake.send_to', folder: false });
   };
   /** Convert… in the header (shared/convert/provided.js): the open document, as DOCX. */
   addEventListener('slop:convert-files', (e) => e.detail.provide(async () => {

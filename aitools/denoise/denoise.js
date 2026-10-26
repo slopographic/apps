@@ -44,7 +44,7 @@
   }
   function applySplit() { $('after').style.clipPath = `inset(0 ${100 - +$('split').value}% 0 0)`; }
   // the one way in (aitools/intake.js): a drop on the box, choose a file, a paste, a launch
-  const intake = T.intake('ai-denoise', { accept: { types: ['image/*'], exts: ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.bmp', '.avif'], noun: t('aitools.page.an_image') }, read: (f) => pick(f) });
+  const intake = T.intake('ai-denoise', { accept: { types: ['image/*'], exts: ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.bmp', '.avif'], noun: 'aitools.page.an_image' }, read: (f) => pick(f) });
   $('strength').addEventListener('input', (e) => { $('sv').textContent = e.target.value; });
   $('run').addEventListener('click', apply);
   $('split').addEventListener('input', applySplit);

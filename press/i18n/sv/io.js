@@ -2,8 +2,8 @@
  * Rules: shared/i18n/APPS-HOWTO.md, shared/i18n/glossary-sv.md. */
 window.SlopI18n && window.SlopI18n.add('sv', {
   'press.io.saved_drive': 'Sparade {name} till Slop Drive',
-  'press.io.send_pdf_to': 'Skicka PDF till',
-  'press.io.send_png_to': 'Skicka sidan som PNG till',
+  'press.io.send_pdf_to': 'Skicka PDF till {app}',
+  'press.io.send_png_to': 'Skicka sidan som PNG till {app}',
   'press.io.open_drive_title': 'Öppna från Slop Drive',
   'press.io.place_drive_title': 'Montera från Slop Drive',
   'press.io.intake_noun': 'en bild, text, PDF, ett teckensnitt eller en .slpress-fil',

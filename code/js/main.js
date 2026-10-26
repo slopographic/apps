@@ -15,7 +15,7 @@ import { t, onLang } from './dom.js';
 
 function registerIntake() {
   window.SlopIntake.register({
-    id: 'code', accept: { any: true, allowEmpty: true, noun: t('code.app.a_file') },
+    id: 'code', accept: { any: true, allowEmpty: true, noun: 'code.app.a_file' },
     process: async (file, ctx) => {
       let rec = ctx.drive && ctx.drive.record;
       if (!rec) rec = await SlopHub.get(await SlopHub.put(file, { name: file.name, from: 'code', folderId: selectedFolder() || null }));

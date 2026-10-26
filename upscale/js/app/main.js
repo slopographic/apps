@@ -250,13 +250,13 @@
     // The zone (shared/drop) is the intake's: the empty state's only drop area; the stage and the list take drops too.
     SlopDrop.attach($('up-drop'), {
       intake: 'upscale',
-      label: t('upscale.drop.label'),
-      hint: t('upscale.drop.hint'),
+      label: 'upscale.drop.label',
+      hint: 'upscale.drop.hint',
       targets: [$('up-stage-wrap'), $('up-list')],
-      preview: { picture: { src: '../assets/shots/upscale.jpg', alt: t('upscale.drop.alt') },
-        steps: [t('upscale.drop.step1'), t('upscale.drop.step2'), t('upscale.drop.step3')] },
+      preview: { picture: { src: '../assets/shots/upscale.jpg', alt: 'upscale.drop.alt' },
+        steps: ['upscale.drop.step1', 'upscale.drop.step2', 'upscale.drop.step3'] },
       // The city at night (the fourth scene), small: its lit windows show the sharper edges best.
-      sample: { label: t('upscale.drop.sample'), files: async () => (await window.SlopSamples.photos(4, { width: 400, height: 260 })).slice(3) },
+      sample: { label: 'upscale.drop.sample', files: async () => (await window.SlopSamples.photos(4, { width: 400, height: 260 })).slice(3) },
     });
     document.addEventListener('keydown', (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); run(); }
@@ -269,7 +269,7 @@
   function registerIntake() {
     g.SlopIntake.register({
       id: 'upscale', limit: 50, notice: WD.firstUse(MD.get(QUALITY_ID).bytes), driveAccept: ['image/*', 'video/*'],
-      accept: { types: ['image/*', 'video/*'], exts: ['.jpg', '.jpeg', '.png', '.webp', '.avif', '.gif', '.mp4', '.m4v', '.mov', '.webm'], noun: t('upscale.drop.noun') },
+      accept: { types: ['image/*', 'video/*'], exts: ['.jpg', '.jpeg', '.png', '.webp', '.avif', '.gif', '.mp4', '.m4v', '.mov', '.webm'], noun: 'upscale.drop.noun' },
       process: async (file, ctx) => { if (!(await open(file, { drive: ctx.drive ? ctx.drive.id : null }))) throw new Error('could not be opened'); return file.name; },
     });
   }
@@ -280,7 +280,6 @@
     const qs = document.getElementById('up-quality-size');
     if (qs && g.SlopFirstRun) qs.textContent = g.SlopFirstRun.size(MD.get(QUALITY_ID).bytes);
     wire();
-    U.markDrop($('up-drop'));
     WD.fine();
     WD.on(() => { WD.options(S); WD.fine(); updateInfo(); if (S.item && !S.item.status) setStatus(t('upscale.run.ready')); updateButtons(); });
     updateButtons();

@@ -107,6 +107,7 @@ const f = SlopFlow.create({ from: 'pdf', to: 'docx', size: 'lg' });   // from ma
 host.append(f.el);
 f.state('run'); f.progress(0.4); f.state('done');                      // or 'error', 'idle'
 f.set({ from: 'csv', to: 'xlsx' });                                     // a new pair is idle and draws again
+f.onTo(openMenu, 'convert.tool.choose_format');                         // labels: i18n keys follow a language change
 ```
 Tests: `tests/shared/flow.test.html`, `tests/convert/ui.test.html`, `tests/convert/dialog.test.html`, `tests/convert/hub.test.html`.
 
@@ -160,7 +161,8 @@ end edge, for a sidebar of places or files). Every app's sheet behaves the same,
      side: 'bottom',                  // or 'start' / 'end' for a drawer
      toggles: [$('btnInfo')],         // buttons that open and close it
      triggers: railEl,                // or: a rail of tool buttons (a tap on the active tool closes it)
-     label: 'Details', onChange: (open, why) => render() });
+     label: 'eml.panel.details',      // an i18n key (or a function, or text): the × follows a language change
+     onChange: (open, why) => render() });
    ```
 3. **Delete** the app's own phone toggle, ×, scrim, Escape and outside-tap code. Keep a thin wrapper if other code calls it
    (`DR.drawer = (open) => open ? DR.drawerUI.open() : DR.drawerUI.close()`).
@@ -205,4 +207,4 @@ Orders, Purchases: on a phone the details are the Form view, with a Page / Form 
 Remix (their side parts stack in the page flow and are the main content there).
 
 Tests: `tests/shared/sheet.test.html`, and each app's phone test.
-- `resize-panel.js` (SlopResizePanel): the one way every side panel is resized and keeps its width; see shared/frame/HANDOFF.md (Resizing side panels). Tests: tests/shared/resize-panel.test.html.
+- `resize-panel.js` (SlopResizePanel): the one way every side panel is resized and keeps its width; see shared/frame/HANDOFF.md (Resizing side panels). Its `label` may be an i18n key or a function (SlopI18n.label): the handle's words follow a language change. Tests: tests/shared/resize-panel.test.html.

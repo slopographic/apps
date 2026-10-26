@@ -45,7 +45,6 @@ window.SlopI18n && window.SlopI18n.add('en', {
   'workflows.run.save_drive': 'Save all to Slop Drive',
   'workflows.run.saved_drive': 'Saved {n} files to Slop Drive',
   'workflows.run.saved_drive#one': 'Saved {n} file to Slop Drive',
-  'workflows.run.send_to': 'Send to',
   'workflows.run.starting': 'Starting…',
   'workflows.run.step_n': 'Step {n}',
   'workflows.run.step_of': 'Step {i} of {n}: {name}…',

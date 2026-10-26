@@ -20,15 +20,6 @@ const toast = (m) => { if (g.SlopUI) g.SlopUI.toast(m); };
 const SYM = { wait: '·', run: '…', done: '✓', error: '✕' };
 const typeOf = (o) => o.blob.type || MIME[o.kind] || MIME[(/\.([a-z0-9]+)$/i.exec(o.name) || [])[1]] || 'application/octet-stream';
 let seq = 0;
-/** The drop zone's own words (drawn once by shared/drop) marked with their keys, so a language change relabels them. */
-function markDrop(zone) {
-  const I = g.SlopI18n;
-  const mark = (el, key) => { if (el && I && I.has(key)) el.dataset.i18n = key; };
-  mark(zone.querySelector('.sd-msg'), 'workflows.drop.label');
-  mark(zone.querySelector('.sd-msg + p'), 'workflows.drop.hint');
-  mark(zone.querySelector('.sd-sample'), 'workflows.drop.sample');
-}
-
 export function createRun(ctx, panelEl, { frame = null, drop: dropOpts = {}, onResults = null } = {}) {
   const { S, R, on, emit, ns } = ctx;
   const checks = () => checksOf(ctx);
@@ -110,7 +101,7 @@ export function createRun(ctx, panelEl, { frame = null, drop: dropOpts = {}, onR
       sections.push({ title: tr('workflows.run.results', 'Results ({n})', { n: list.length }), key: 'results', empty: tr('workflows.run.none_made', 'Nothing was made.'), list: list.map((o) => ({
         name: o.name, meta: `${kindsLabel([o.kind || ''])} · ${size(o.blob.size)}${o.mid ? ' · ' + tr('workflows.run.kept', 'step {n}, kept', { n: String(o.step) }) : ''}`,
         actions: [{ label: tr('workflows.run.download', 'Download'), run: () => saveBlob(o.blob, o.name) },
-          { label: tr('workflows.run.open_in', 'Open in'), menu: () => (g.SlopOuttake ? g.SlopOuttake.items({ get: () => o.blob, name: o.name, type: typeOf(o), from: 'workflows', verb: tr('workflows.run.send_to', 'Send to') }) : []), empty: tr('workflows.run.no_app', 'No app opens this kind of file') }],
+          { label: tr('workflows.run.open_in', 'Open in'), menu: () => (g.SlopOuttake ? g.SlopOuttake.items({ get: () => o.blob, name: o.name, type: typeOf(o), from: 'workflows', verb: 'ui.outtake.send_to' }) : []), empty: tr('workflows.run.no_app', 'No app opens this kind of file') }],
       })) });
       if (list.length) sections.push({ title: tr('workflows.run.all', 'All results'), key: 'all', actions: [
         { label: tr('workflows.run.zip', 'Download all (ZIP)'), id: `${ns}-zip`, primary: true, run: async () => saveBlob(await resultsZip(), zipName()) },
@@ -171,15 +162,14 @@ export function createRun(ctx, panelEl, { frame = null, drop: dropOpts = {}, onR
   const { paste, ...zoneOpts } = dropOpts, inPage = paste !== false;
   const intakeId = inPage && ns === 'wf' ? 'workflows' : `workflows.${ns}`;
   const offSpec = g.SlopIntake.register({
-    id: intakeId, main: inPage, paste: inPage, accept: { any: true, noun: tr('workflows.run.noun', 'a file') },
+    id: intakeId, main: inPage, paste: inPage, accept: { any: true, noun: 'workflows.run.noun' },
     processAll: async (files) => (await addFiles(files)).map((it) => it.id),
     after: () => render(),
   });
   const drop = g.SlopDrop.attach(zone, Object.assign({
-    intake: intakeId, label: tr('workflows.drop.label', 'Drop files to run the workflow on'), hint: tr('workflows.drop.hint', 'Pictures, PDFs, documents… Read on this device, never uploaded.'),
-    sample: g.SlopSamples ? { label: tr('workflows.drop.sample', 'Try 3 sample photos'), files: () => g.SlopSamples.photos(3) } : undefined,
+    intake: intakeId, label: 'workflows.drop.label', hint: 'workflows.drop.hint',
+    sample: g.SlopSamples ? { label: 'workflows.drop.sample', files: () => g.SlopSamples.photos(3) } : undefined,
   }, zoneOpts));
-  markDrop(zone);
   /** Files from code (another app's "Run a workflow…", the page's API) go through the intake too. */
   const take = (files) => g.SlopIntake.take([...files], { to: intakeId, source: 'api' }).then((r) => r.added.map((a) => S.files.find((f) => f.id === a.value)).filter(Boolean));
   const destroy = () => { offSpec(); if (drop && drop.destroy) drop.destroy(); };

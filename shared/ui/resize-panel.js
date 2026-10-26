@@ -19,7 +19,8 @@
  *                                              //   (a fixed panel such as Slop AI's)
  *     apply: (px) => {},                       // optional: how the width is applied; default: a CSS variable `cssVar` on
  *     cssVar: '--x-w', target: el,             //   `target` (default the panel) and, without cssVar, the panel's width
- *     label: 'Panels',                         // names the handle ("Resize the panels panel")
+ *     label: 'Panels',                         // names the handle ("Resize the panels panel"); an i18n key or a
+ *                                              //   function is read again on a language change (SlopI18n.label)
  *     onChange: (px) => {},
  *   });
  *   r.width() r.setWidth(px) r.reset() r.destroy() r.handle
@@ -31,6 +32,8 @@
   if (g.SlopResizePanel) return;
   /** A word from the shared tables (shared/i18n/ui/en.js), or the English given when SlopI18n or the key is absent. */
   function tr(key, en, vars) { const I = globalThis.SlopI18n; if (I && I.has && I.has(key)) return I.t(key, vars); return vars ? String(en).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en; }
+  /** label: an i18n key (translated, and again on a language change), a function, or plain text (SlopI18n.label). */
+  const lab = (v) => { const I = g.SlopI18n; return String(I && I.label ? I.label(v) : typeof v === 'function' ? v() : v); };
   const doc = g.document, all = new Set();
   const CSS = `
 .srp-grip { position: absolute; inset-block: 0; inline-size: 8px; z-index: 5; cursor: col-resize; touch-action: none; }
@@ -85,7 +88,7 @@
     grip.setAttribute('role', 'separator');
     grip.setAttribute('aria-orientation', 'vertical');
     const words = () => {   // again after a language change (shared/i18n)
-      grip.setAttribute('aria-label', tr('ui.frame.resize_aria', 'Resize the {label} panel (arrow keys; double-click resets)', { label: String(o.label || id).toLowerCase() }));
+      grip.setAttribute('aria-label', tr('ui.frame.resize_aria', 'Resize the {label} panel (arrow keys; double-click resets)', { label: lab(o.label || id).toLowerCase() }));
       grip.title = tr('ui.frame.resize_tip', 'Drag to resize. Double-click: the default width.');
     };
     words();

@@ -144,7 +144,7 @@
 
   function mount() {
     // Import a statement…: a part of the one intake of its own ('ledger.bank', shared/intake)
-    g.SlopIntake.register({ id: 'ledger.bank', main: false, paste: false, toast: false, limit: 1, accept: { any: true, noun: t('ledger.bk.noun') }, process: async (f) => { await importFile(f); return f.name; } });
+    g.SlopIntake.register({ id: 'ledger.bank', main: false, paste: false, toast: false, limit: 1, accept: { any: true, noun: 'ledger.bk.noun' }, process: async (f) => { await importFile(f); return f.name; } });
     NS.bankPick = () => g.SlopIntake.pick({ to: 'ledger.bank', multiple: false, accept: '.csv,.txt,text/csv,.ofx,.qfx,.qif,.xml,.sta,.mt940,.940' });
     $('bkImport').addEventListener('click', NS.bankPick);
     $('bkAccount').addEventListener('change', render);

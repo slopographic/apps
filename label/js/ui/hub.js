@@ -24,12 +24,12 @@ function sendToItems() {
   if (!hubAvailable() || !window.SlopOuttake) return [];
   const pdfApps = SlopHub.appsAccepting('application/pdf').map((a) => a.id); // outtake-ok: the ids only, left out of the PNG list
   const tag = (items, kind) => items.map((i) => Object.assign(i, {
-    label: i.label === LT('ui.outtake.save_drive') || i.label === 'Save to Slop Drive…' ? LT('label.hub.save_kind', { kind }) : i.label.startsWith(LT('label.menu.send_to') + ' ') ? i.label + ' (' + kind + ')' : i.label,
+    label: i.save ? LT('label.hub.save_kind', { kind }) : i.plain ? i.label + ' (' + kind + ')' : i.label,
   }));
-  const pdf = SlopOuttake.items({ get: pdfBlob, name: () => fileBase() + '.pdf', type: 'application/pdf', from: 'label', verb: LT('label.menu.send_to') });
-  const png = SlopOuttake.items({ get: () => labelPNGBlob(), name: () => fileBase() + '.png', type: 'image/png', from: 'label', verb: LT('label.menu.send_to'), exclude: pdfApps })
-    .filter((i) => /^Send to |^Save to Slop Drive/.test(i.label)); // the workflow items are there once, with the PDF
-  const save = (items) => items.filter((i) => /^Save /.test(i.label)), send = (items) => items.filter((i) => !/^Save /.test(i.label));
+  const pdf = SlopOuttake.items({ get: pdfBlob, name: () => fileBase() + '.pdf', type: 'application/pdf', from: 'label', verb: 'ui.outtake.send_to' });
+  const png = SlopOuttake.items({ get: () => labelPNGBlob(), name: () => fileBase() + '.png', type: 'image/png', from: 'label', verb: 'ui.outtake.send_to', exclude: pdfApps })
+    .filter((i) => i.plain || i.save); // the workflow items are there once, with the PDF
+  const save = (items) => items.filter((i) => i.save), send = (items) => items.filter((i) => !i.save);
   const p = tag(pdf, 'PDF'), g = tag(png, 'PNG');
   return [...send(p), ...send(g), '-', ...save(p), ...save(g)];
 }

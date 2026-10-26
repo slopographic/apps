@@ -38,7 +38,7 @@
        why). A file that is already open is not opened again. A batch of two or more goes to the list, not to tabs. */
     window.SlopIntake.register({
       id: 'eml',
-      accept: { types: ['message/rfc822', 'application/mbox'], exts: ['.eml', '.mbox', '.mbx'], noun: t('eml.app.noun') },
+      accept: { types: ['message/rfc822', 'application/mbox'], exts: ['.eml', '.mbox', '.mbx'], noun: 'eml.app.noun' },
       process: async (file, ctx) => {
         if (window.EmlApp.isOpen(file.name, file.size)) throw new Error(t('eml.err.already_open'));
         await window.EmlApp.openFile(file, { pin: ctx.batch.take.length <= 1 });

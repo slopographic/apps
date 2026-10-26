@@ -19,10 +19,9 @@ const T = window.SlopAITools, $ = (id) => document.getElementById(id);
 const say = (s) => { $('trMsg').textContent = s || ''; };
 let selected = null, times = false;
 const STEPS = ['transcribe.app.step1', 'transcribe.app.step2', 'transcribe.app.step3'];
-const flow = window.SlopFlow.create({ from: 'mp3', to: 'txt', size: 'lg', label: t('transcribe.app.flow', 'Audio or video to text') });
+const flow = window.SlopFlow.create({ from: 'mp3', to: 'txt', size: 'lg', label: 'transcribe.app.flow' });
 $('trFlow').append(flow.el);
-$('trSteps').append(window.SlopDrop.panel.preview({ steps: STEPS.map((k) => t(k)) }));
-$('trSteps').querySelectorAll('.sd-steps li').forEach((li, i) => { li.dataset.i18n = STEPS[i]; });   // they follow a language change
+$('trSteps').append(window.SlopDrop.panel.preview({ steps: STEPS }));   // keys: they follow a language change
 
 /** The Whisper engine of Slop AI Tools. The quick model downloads once, after the person agrees (T.gate); a better model
  *  only from the Language and model dialog or the offer under a transcript. One big model at a time stays in the worker. */
@@ -116,7 +115,7 @@ function wire() {
   // ?drive=<id> (another app's Open in Slop Transcribe) and a PWA launch all reach add(). A paste waits for the gate.
   window.SlopIntake.register({
     id: 'transcribe', gate: (batch) => !$('trUi').hidden || batch.source !== 'paste', // no paste before the gate has shown the page
-    accept: { types: ['audio/*', 'video/*'], exts: ['.mp3', '.m4a', '.wav', '.ogg', '.opus', '.flac', '.webm', '.mp4', '.mov', '.mkv', '.amr', '.wma'], noun: t('transcribe.app.noun') },
+    accept: { types: ['audio/*', 'video/*'], exts: ['.mp3', '.m4a', '.wav', '.ogg', '.opus', '.flac', '.webm', '.mp4', '.mov', '.mkv', '.amr', '.wma'], noun: 'transcribe.app.noun' },
     process: async (file) => { const id = add([file]); if (!id) throw new Error('not an audio or video file'); return id; },
   });
   window.SlopDrop.attach($('trDrop'), {

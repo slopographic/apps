@@ -132,7 +132,7 @@
     imagesIo = io;
     SlopIntake.register({
       id: 'pdf.images-to-pdf', main: false, paste: false, toast: false,
-      accept: { types: ['image/png', 'image/jpeg', 'image/webp', 'image/gif'], noun: t('pdf.act.images_noun') },
+      accept: { types: ['image/png', 'image/jpeg', 'image/webp', 'image/gif'], noun: 'pdf.act.images_noun' },
       processAll: imagesToPdfFiles,
     });
     return SlopIntake.pick({ to: 'pdf.images-to-pdf' });

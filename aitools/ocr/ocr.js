@@ -69,7 +69,7 @@
     $('run').disabled = false;
   }
   // the one way in (aitools/intake.js): a drop on the box, choose a file, a paste, ?drive=<id>, a launch
-  const intake = T.intake('ai-ocr', { accept: { types: ['image/*', 'application/pdf'], exts: ['.pdf', '.png', '.jpg', '.jpeg', '.webp', '.gif', '.bmp'], noun: t('aitools.ocr.noun') }, read: (f) => pick(f) });
+  const intake = T.intake('ai-ocr', { accept: { types: ['image/*', 'application/pdf'], exts: ['.pdf', '.png', '.jpg', '.jpeg', '.webp', '.gif', '.bmp'], noun: 'aitools.ocr.noun' }, read: (f) => pick(f) });
   $('run').addEventListener('click', run);
   choiceP.then((c) => c.button($('lang'), () => { if (file && $('out').value) run(); }));
   $('copy').addEventListener('click', async () => { try { await navigator.clipboard.writeText($('out').value); $('msg').textContent = t('aitools.page.copied'); } catch (e) { $('msg').textContent = t('aitools.ocr.blocked'); } });

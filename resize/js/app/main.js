@@ -155,27 +155,14 @@
   function wireDrop() {
     SlopDrop.attach($('rs-drop'), {
       intake: 'resize',
-      label: t('resize.drop.label'),
-      hint: t('resize.drop.hint'),
+      label: 'resize.drop.label',
+      hint: 'resize.drop.hint',
       targets: [$('rs-left')],
-      preview: { picture: { src: '../assets/shots/resize.jpg', alt: t('resize.drop.alt') },
-        steps: [t('resize.drop.step1'), t('resize.drop.step2'), t('resize.drop.step3')] },
-      sample: { label: t('resize.drop.sample'), files: () => window.SlopSamples.photos(4, { width: 2400, height: 1600 }) },
+      preview: { picture: { src: '../assets/shots/resize.jpg', alt: 'resize.drop.alt' },
+        steps: ['resize.drop.step1', 'resize.drop.step2', 'resize.drop.step3'] },
+      sample: { label: 'resize.drop.sample', files: () => window.SlopSamples.photos(4, { width: 2400, height: 1600 }) },
       reveal: () => $('rs-list').lastElementChild,
     });
-    markDrop($('rs-drop'), 'resize.drop');
-  }
-  /** SlopDrop draws its words once: marked here, they follow a language change (shared/i18n apply()). */
-  function markDrop(zone, prefix) {
-    const I = window.SlopI18n;
-    if (!zone || !I) return;
-    const mark = (el, key) => { if (el) { el.dataset.i18n = key; el.textContent = I.t(key); } };
-    mark(zone.querySelector('.sd-msg'), prefix + '.label');
-    mark(zone.querySelector('.sd-msg + p'), prefix + '.hint');
-    zone.querySelectorAll('.sd-steps li').forEach((li, i) => mark(li, prefix + '.step' + (i + 1)));
-    mark(zone.querySelector('.sd-sample'), prefix + '.sample');
-    const img = zone.querySelector('.sd-pic img');
-    if (img) img.dataset.i18nAttr = 'alt:' + prefix + '.alt';
   }
   /** A language change: everything drawn from script again (the panel's words, the list, the notes, the commands). */
   function relang() {

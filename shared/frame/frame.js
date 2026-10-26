@@ -9,6 +9,8 @@
  *   const fr = SlopFrame.mount(root, {
  *     list: listEl, view: viewEl, panel: panelEl,     // list is optional (null: two columns)
  *     phone: '(max-width: 900px)', panelLabel: 'Actions', storageKey: 'eml',
+ *                                                     // panelLabel, listLabel: an i18n key ('eml.panel.actions'), a
+ *                                                     //   function or plain text; a key follows a language change
  *     button: '.smb-tools',                           // where the header's show/hide button goes (selector or element; optional;
  *                                                     //   a selector not on the page yet is tried again at DOMContentLoaded)
  *     phoneButton: true,                              // false: no header button on phones (the app opens the sheet itself)
@@ -38,6 +40,8 @@
   if (g.SlopFrame) return;
   /** A word from the shared tables (shared/i18n/ui/en.js), or the English given when SlopI18n or the key is absent. */
   function tr(key, en, vars) { const I = globalThis.SlopI18n; if (I && I.has && I.has(key)) return I.t(key, vars); return vars ? String(en).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en; }
+  /** A label given to mount (panelLabel, listLabel): an i18n key, a function or plain text (SlopI18n.label). */
+  const lab = (v) => { const I = g.SlopI18n; return String(I && I.label ? I.label(v) : typeof v === 'function' ? v() : v); };
   const doc = g.document;
   const ls = {
     get(k) { try { return JSON.parse(g.localStorage.getItem(k)) || {}; } catch (e) { return {}; } },
@@ -51,7 +55,8 @@
     o = o || {};
     const list = pick(o.list), view = pick(o.view), panel = pick(o.panel), win = root.ownerDocument.defaultView;
     const key = 'slop-frame:' + (o.storageKey || 'app');
-    let label = o.panelLabel || tr('ui.frame.panel', 'Panel');
+    const panelLabel = o.panelLabel || (() => tr('ui.frame.panel', 'Panel')), listLabel = o.listLabel || (() => tr('ui.frame.list', 'List'));
+    let label = lab(panelLabel);
     const min = o.min || 240, max = o.max || 520, mq = win.matchMedia(o.phone || '(max-width: 900px)');
     const saved = ls.get(key), app = o.app || o.storageKey || 'app';
     let shown = saved.hidden !== true, width = o.width || 300, viewing = false, hasList = !!list;
@@ -60,7 +65,8 @@
     if (list) list.classList.add('sf-list');
     view.classList.add('sf-view');
     panel.classList.add('sf-panel');
-    if (!panel.getAttribute('aria-label')) panel.setAttribute('aria-label', label);
+    const ownAria = !panel.getAttribute('aria-label');   // ours: it follows a language change (words())
+    if (ownAria) panel.setAttribute('aria-label', label);
 
     // The panel's edge and the list's edge resize them: the one shared implementation (shared/ui/resize-panel.js), which
     // keeps the widths in the site's settings store (app + 'frame-panel' / 'frame-list').
@@ -82,7 +88,7 @@
     }
 
     const sheet = g.SlopSheet ? g.SlopSheet.attach({
-      root, panel, side: 'bottom', phone: o.phone || '(max-width: 900px)', label, toggles: btn ? [btn] : [],
+      root, panel, side: 'bottom', phone: o.phone || '(max-width: 900px)', label: panelLabel, toggles: btn ? [btn] : [],
       onChange: () => paint(),
     }) : null;
 
@@ -106,10 +112,10 @@
     }
     const RP = g.SlopResizePanel, phoneQ = o.phone || '(max-width: 900px)';
     if (saved.width && RP && g.SlopProfile && g.SlopProfile.panelSize && !g.SlopProfile.panelSize(app, 'frame-panel')) g.SlopProfile.setPanelSize(app, 'frame-panel', saved.width);   // kept before 2026-10
-    const sizer = RP ? RP.attach(panel, { app, id: 'frame-panel', handle: grip, edge: 'start', width, min, max, phone: phoneQ, label,
+    const sizer = RP ? RP.attach(panel, { app, id: 'frame-panel', handle: grip, edge: 'start', width, min, max, phone: phoneQ, label: panelLabel,
       apply: (px) => { if (px != null) { width = px; root.style.setProperty('--sf-panel-w', px + 'px'); } if (o.onChange) o.onChange({ panel: shown, width, viewing }); } }) : null;
     if (!RP) root.style.setProperty('--sf-panel-w', width + 'px');
-    const lsizer = RP && lgrip ? RP.attach(list, { app, id: 'frame-list', handle: lgrip, edge: 'end', width: o.listWidth || 320, min: o.listMin || 220, max: o.listMax || 560, phone: phoneQ, label: o.listLabel || tr('ui.frame.list', 'List'),
+    const lsizer = RP && lgrip ? RP.attach(list, { app, id: 'frame-list', handle: lgrip, edge: 'end', width: o.listWidth || 320, min: o.listMin || 220, max: o.listMax || 560, phone: phoneQ, label: listLabel,
       apply: (px) => { if (px != null) root.style.setProperty('--sf-list-w', px + 'px'); } }) : null;
     function setWidth(w) { if (sizer) sizer.setWidth(w); }
     if (btn) btn.addEventListener('click', () => { if (!phone()) setPanel(!shown); });
@@ -124,7 +130,8 @@
     const cmdId = (o.storageKey || 'app') + '.panel';
     // The words (the button's label and tip, the View command's title) again after a language change (shared/i18n).
     function words() {
-      label = o.panelLabel || tr('ui.frame.panel', 'Panel');
+      label = lab(panelLabel);
+      if (ownAria) panel.setAttribute('aria-label', label);
       const low = { label: label.toLowerCase() };
       if (btn) {
         btn.querySelector('.slop-hbtn-txt').textContent = label;

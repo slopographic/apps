@@ -44,7 +44,7 @@
   async function openPicked() {
     const SI = g.SlopIntake;
     if (!SI.spec('qr.open')) {
-      SI.register({ id: 'qr.open', main: false, paste: false, toast: false, limit: 1, accept: { types: ['image/png', JSON_TYPE], exts: ['.json'], noun: tr('qr.app.noun_qr', 'a QR code') },
+      SI.register({ id: 'qr.open', main: false, paste: false, toast: false, limit: 1, accept: { types: ['image/png', JSON_TYPE], exts: ['.json'], noun: 'qr.app.noun_qr' },
         process: async (file, ctx) => {
           const rec = ctx.drive ? ctx.drive.record : null;
           let snapshot = null;

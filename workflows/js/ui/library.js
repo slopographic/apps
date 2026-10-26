@@ -107,7 +107,7 @@ export function createLibrary(ctx, els = {}) {
     const SI = g.SlopIntake;
     if (!SI.spec('workflows.import')) {
       SI.register({ id: 'workflows.import', main: false, paste: false, toast: false, limit: 1,
-        accept: { types: [F.MIME, 'application/json'], exts: [F.EXT, '.json'], noun: tr('workflows.lib.noun', 'a workflow (.slopflow)') },
+        accept: { types: [F.MIME, 'application/json'], exts: [F.EXT, '.json'], noun: 'workflows.lib.noun' },
         process: async (file) => { const r = await importFile(file); if (!r.ok) throw new Error(r.message || tr('workflows.lib.not_imported', 'was not imported')); return r; } });
     }
     const r = await SI.pick({ to: 'workflows.import', multiple: false, accept: '.slopflow,application/json,.json' });

@@ -183,7 +183,7 @@
    * after this file). openIn(o) is SlopOuttake.items(o); sendMenuItems(getBlob, name, type, { folder }) is the older call
    * ("Send to PhotoSlop", …, and "Save to Slop Drive…" with folder). */
   const openIn = (o) => (window.SlopOuttake ? window.SlopOuttake.items(o) : []);
-  const sendMenuItems = (getBlob, name, type, opts = {}) => openIn({ get: getBlob, name, type, verb: 'Send to', folder: !!opts.folder });
+  const sendMenuItems = (getBlob, name, type, opts = {}) => openIn({ get: getBlob, name, type, verb: 'ui.outtake.send_to', folder: !!opts.folder });
   /** If this page was opened with ?drive=<id>, return that Drive record (once) and tidy the URL. */
   async function consumeLaunch() {
     const u = new URL(location.href), id = u.searchParams.get('drive');

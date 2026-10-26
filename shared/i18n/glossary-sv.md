@@ -779,3 +779,14 @@ history step and palette word, so never strip a suffix to get it. Layer names th
 | drop zone | släppyta | «Släppyta» |
 | side bearings (font) | sidomarginaler | «Bredd och sidomarginaler» |
 | depth scale | djupskala | «Djupskala» |
+
+## Shared labels that follow a language switch (widgets)
+
+| English | Swedish | Note |
+| --- | --- | --- |
+| Object / Data (menu) | Objekt / Data | SlopMenuBar titles |
+| Send to {app} | Skicka till {app} | SlopOuttake verb |
+| Export current config… | Exportera aktuell konfiguration… |  |
+| Export plain template… | Exportera tom mall… |  |
+| Ask AI to write a config… | Be AI skriva en konfiguration… |  |
+| Number formats | Nummerformat | invoice and order numbers |

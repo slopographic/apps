@@ -110,7 +110,7 @@
     } }] });
   }
   function pick() {
-    if (!partId) partId = g.SlopIntake.part({ id: 'fontcreator.sheet', accept: { types: ['image/*'], noun: t('fontcreator.sheet.noun') }, process: async (f) => { read(await g.FC.traceUi.pixels(f, 2000), f.name); return f.name; } });
+    if (!partId) partId = g.SlopIntake.part({ id: 'fontcreator.sheet', accept: { types: ['image/*'], noun: 'fontcreator.sheet.noun' }, process: async (f) => { read(await g.FC.traceUi.pixels(f, 2000), f.name); return f.name; } });
     return g.SlopIntake.pick({ to: partId, accept: 'image/*' });
   }
   g.FC.sheetUi = { template, draw, pdf, pick, read, readInto, lay };

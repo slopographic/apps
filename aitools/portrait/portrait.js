@@ -40,7 +40,7 @@
     } catch (e) { $('msg').textContent = t('aitools.page.unreadable'); }
   }
   // the one way in (aitools/intake.js): a drop on the box, choose a file, a paste, a launch
-  const intake = T.intake('ai-portrait', { accept: { types: ['image/*'], exts: ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.bmp', '.avif'], noun: t('aitools.page.an_image') }, read: (f) => pick(f) });
+  const intake = T.intake('ai-portrait', { accept: { types: ['image/*'], exts: ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.bmp', '.avif'], noun: 'aitools.page.an_image' }, read: (f) => pick(f) });
   $('strength').addEventListener('input', render);
   $('dl').addEventListener('click', () => { const v = $('view')._full; if (v) v.toBlob((b) => T.download(fileName + '-blur.png', b, 'image/png')); });
   T.gate('portrait', () => { $('ui').hidden = false; intake.launch(); });

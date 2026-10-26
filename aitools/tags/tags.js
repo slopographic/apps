@@ -72,7 +72,7 @@
   }
   // the one way in (aitools/intake.js): a drop on the box, choose a file, pick a photo from Slop Drive, a paste, ?drive=<id>
   const intake = T.intake('ai-tags', {
-    accept: { types: ['image/*'], exts: ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.bmp', '.avif'], noun: t('aitools.page.an_image') }, drive: '#pickDrive',
+    accept: { types: ['image/*'], exts: ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.bmp', '.avif'], noun: 'aitools.page.an_image' }, drive: '#pickDrive',
     read: (f, ctx) => (ctx.drive ? fromDrive(f, ctx.drive.record) : pick(f)),
   });
   $('run').addEventListener('click', suggest);

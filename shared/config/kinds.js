@@ -44,7 +44,7 @@
       if (v.defaultTaxRate !== undefined) next.defaultTaxRate = Math.round(v.defaultTaxRate * 100); // stored as basis points
       return tx.put('settings', next);
     }));
-  }, { label: 'Settings', description: 'Default currency, locale and tax rate', read: readSettings });
+  }, { label: 'ui.config.kind_settings', description: 'ui.config.kind_settings_desc', read: readSettings });
 
   /* ---------- numbering ---------- */
   const SEQUENCE = F.obj({
@@ -76,5 +76,5 @@
       }
       return { ok: true, value: true };
     }));
-  }, { label: 'Number formats', description: 'Invoice and order number prefixes and padding', read: readNumbering });
+  }, { label: 'ui.config.kind_numbering', description: 'ui.config.kind_numbering_desc', read: readNumbering });
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -24,7 +24,8 @@ Pages: `<script>` tags for rules, normalize, pipeline, intake, sources (in that 
 1. **normalize** the source's input to Files.
 2. **accept**: the spec's rules (`accept: { types, exts, noun, maxBytes, any, allowEmpty }`) or `accept(file)` → true |
    false | 'reason'; `except(file)` leaves some to the app's own path (its clipboard copies). Refusals keep their reason
-   ("notes.txt is not a picture"). `route(files, batch)` → the files kept (the app hands the rest to another spec or a dialog).
+   ("notes.txt is not a picture"). `noun` is an i18n key (`'sorter.app.a_photo'`), a function, or plain text: it is read
+   when a file is refused, so it follows a language change; pass the key, not `t(key)`. `route(files, batch)` → the files kept (the app hands the rest to another spec or a dialog).
 3. event **`slop:intake-before`** (cancelable: `preventDefault()`, or return false from `SlopIntake.on('before', fn)`).
 4. **gates, in order**: the first-use notice (`notice: { title, lines, downloads }`, once per batch whatever the source);
    the count and size limits (`limit`, `maxTotal`); **Add to <open doc> or New** when `hasOpen()` is true (one dialog,
@@ -104,7 +105,7 @@ ctx)`, `begin`, `done`, `limit`, `paste`), so the old callers work unchanged and
 ## One way out: SlopOuttake (outtake.js)
 
 ```js
-SlopOuttake.items({ get: () => blob, name: 'x.png', type: 'image/png', from: 'myapp', verb: 'Open in', folder: true })
+SlopOuttake.items({ get: () => blob, name: 'x.png', type: 'image/png', from: 'myapp', verb: 'ui.outtake.send_to', folder: true })
 SlopOuttake.send('code', { id: rec.id, name: rec.name, type: rec.type }) // a file already in Slop Drive: no copy
 SlopOuttake.menu(buttonOrPoint, o); SlopOuttake.button(o, { label: 'Open in…' }); SlopOuttake.send('upscale', o)
 SlopOuttake.handover({ from: 'cutout', to: 'photoslop', types: ['image/*'], replaces: true, label: 'Send to PhotoSlop as a layer', run: async (ctx) => { … } })
@@ -119,7 +120,12 @@ that takes the type (`SlopHub.appsAccepting`; the file goes to Slop Drive and th
 plain "Open in Slop Workflows" (the registry says it takes images and PDFs) is left out so it is not listed twice.
 `items(o)` gives no separators (menus that do not draw them); `menu()` and `button()` add them. After a file went out: `slop:outtake` with `phase: 'sent'` (`from, to,
 type, name, id`). `SlopHub.openIn(o)` is `items`; `SlopHub.sendMenuItems(getBlob, name, type, { folder })` is `items`
-with the verb "Send to". Use the same items for the toolbar button, the More menu and the context menus.
+with the verb `'ui.outtake.send_to'`. Use the same items for the toolbar button, the More menu and the context menus.
+
+`verb` is one i18n key per item whose text holds `{app}` (`'ui.outtake.send_to'`: "Send to {app}"; an app's own:
+`'press.io.send_pdf_to'`: "Send PDF to {app}"), or a function `({ app }) → text`; never a word joined to the app name.
+Without it the item reads `'ui.outtake.open_in'`. An app's plain item carries `plain: true` and "Save to Slop Drive…"
+`save: true`: filter on those, never on the label's words (they are translated).
 
 ## Rule 4 (tools/one-way.mjs, run by tools/check-rules.mjs)
 

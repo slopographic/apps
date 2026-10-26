@@ -47,9 +47,9 @@ function registerLabelIntake() {
       pruneAssets(App.doc);
       return f.name;
     } });
-  SI.register({ id: 'label.configs', main: false, paste: false, accept: { types: ['application/json'], exts: ['.json'], noun: LT('label.intake.a_configs_file') }, limit: 1,
+  SI.register({ id: 'label.configs', main: false, paste: false, accept: { types: ['application/json'], exts: ['.json'], noun: 'label.intake.a_configs_file' }, limit: 1,
     process: async (f) => { importConfigsText(await f.text()); return f.name; } });
-  SI.register({ id: 'label.zpl-text', main: false, paste: false, toast: false, accept: { exts: ['.zpl', '.prn', '.txt'], noun: LT('label.intake.a_zpl_file') }, limit: 1,
+  SI.register({ id: 'label.zpl-text', main: false, paste: false, toast: false, accept: { exts: ['.zpl', '.prn', '.txt'], noun: 'label.intake.a_zpl_file' }, limit: 1,
     process: (f) => f.text() });
 }
 registerLabelIntake();

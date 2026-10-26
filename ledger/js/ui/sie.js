@@ -126,7 +126,7 @@
   const pickSie = () => g.SlopIntake.pick({ to: 'ledger.sie', multiple: false, accept: '.se,.si,.sie,.txt' });
   function mount() {
     if (!$('jImportSie')) return;
-    g.SlopIntake.register({ id: 'ledger.sie', main: false, paste: false, toast: false, limit: 1, accept: { any: true, noun: t('ledger.sie.noun') }, process: async (f) => { await importFile(f); return f.name; } });
+    g.SlopIntake.register({ id: 'ledger.sie', main: false, paste: false, toast: false, limit: 1, accept: { any: true, noun: 'ledger.sie.noun' }, process: async (f) => { await importFile(f); return f.name; } });
     $('jImportSie').addEventListener('click', pickSie);
   }
 

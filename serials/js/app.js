@@ -166,7 +166,7 @@ function wire() {
   // The one way in (shared/intake, spec 'serials'): the box (click to choose photos, or a drop on it) and a paste, after
   // the first-use notice (the intake's, once per batch). A paste waits for the gate to show the page.
   window.SlopIntake.register({
-    id: 'serials', accept: { types: ['image/*'], exts: ['.jpg', '.jpeg', '.png', '.webp'], noun: t('serials.app.a_photo') },
+    id: 'serials', accept: { types: ['image/*'], exts: ['.jpg', '.jpeg', '.png', '.webp'], noun: 'serials.app.a_photo' },
     notice: { title: 'Serial counter', lines: [t('serials.app.notice')], downloads: [] },
     gate: (batch) => !$('ui').hidden || batch.source !== 'paste',
     processAll: async (files) => { drop.classList.remove('over'); await addFiles(files); return files.map((f) => f.name); },

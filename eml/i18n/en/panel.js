@@ -62,7 +62,6 @@ window.SlopI18n && window.SlopI18n.add('en', {
   'eml.ex.append': 'Add PDF and image attachments as pages',
   'eml.ex.pdf_help': 'Several messages go in date order, each from a new page, after a contents page. Text in every language is kept; the HTML layout and pictures of the body are not (Print keeps them).',
   'eml.ex.atts_help': 'One folder per message, with each file under its own name.',
-  'eml.ex.send_to': 'Send to',
 
   'eml.toast.popups': 'Allow pop-ups for this page to print the message.',
   'eml.toast.print_failed': 'The print window could not start.',

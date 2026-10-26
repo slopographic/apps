@@ -189,7 +189,7 @@
     const SI = window.SlopIntake;
     if (!SI) return status(t('nodes.st.no_drive'));
     return SI.fromDrive({ title: t('nodes.dlg.open'), accept: ['application/json'], to: SI.part({
-      id: 'nodes.project', limit: 1, accept: { types: ['application/json'], exts: ['.json'], noun: t('nodes.app.noun') },
+      id: 'nodes.project', limit: 1, accept: { types: ['application/json'], exts: ['.json'], noun: 'nodes.app.noun' },
       process: async (f, ctx) => { if (ctx.drive) await loadProject(ctx.drive.id); return f.name; },
     }) });
   }

@@ -62,7 +62,6 @@ window.SlopI18n && window.SlopI18n.add('sv', {
   'eml.ex.append': 'Lägg till PDF- och bildbilagor som sidor',
   'eml.ex.pdf_help': 'Flera meddelanden läggs i datumordning, vart och ett från en ny sida, efter en innehållssida. Text på alla språk behålls; brödtextens HTML-layout och bilder gör det inte (Skriv ut behåller dem).',
   'eml.ex.atts_help': 'En mapp per meddelande, med varje fil under sitt eget namn.',
-  'eml.ex.send_to': 'Skicka till',
 
   'eml.toast.popups': 'Tillåt popup-fönster för sidan för att skriva ut meddelandet.',
   'eml.toast.print_failed': 'Utskriftsfönstret kunde inte starta.',

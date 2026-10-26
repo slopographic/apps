@@ -2,8 +2,8 @@
  * keys into press/i18n/<code>/io.js. Rules: shared/i18n/APPS-HOWTO.md. */
 window.SlopI18n && window.SlopI18n.add('en', {
   'press.io.saved_drive': 'Saved {name} to Slop Drive',
-  'press.io.send_pdf_to': 'Send PDF to',
-  'press.io.send_png_to': 'Send page PNG to',
+  'press.io.send_pdf_to': 'Send PDF to {app}',
+  'press.io.send_png_to': 'Send page PNG to {app}',
   'press.io.open_drive_title': 'Open from Slop Drive',
   'press.io.place_drive_title': 'Place from Slop Drive',
   'press.io.intake_noun': 'an image, text, PDF, font or .slpress file',

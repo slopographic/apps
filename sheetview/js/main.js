@@ -36,7 +36,7 @@ async function openFile(file) {
 function registerIntake() {
   window.SlopIntake.register({
     id: 'sheetview', limit: 20, process: (file) => openFile(file),
-    accept: { types: MIME, exts: ['.xlsx', '.xlsm', '.csv', '.tsv', '.xls', '.ods'], noun: t('sheetview.app.a_spreadsheet') },
+    accept: { types: MIME, exts: ['.xlsx', '.xlsm', '.csv', '.tsv', '.xls', '.ods'], noun: 'sheetview.app.a_spreadsheet' },
   });
 }
 const pickFiles = () => window.SlopIntake.pick({ to: 'sheetview', accept: ACCEPT });
