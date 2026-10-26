@@ -63,7 +63,6 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'ui.frame.resize_aria': 'Größe des Bereichs „{label}“ ändern (Pfeiltasten; Doppelklick setzt zurück)',
   'ui.frame.resize_tip': 'Ziehen ändert die Größe. Doppelklick: Standardbreite.',
   'ui.frame.reset_sizes': 'Bereichsgrößen zurücksetzen',
-  'ui.list.empty': 'Noch keine {items}.',
   'ui.flow.from_to': '{from} in {to}',
   'ui.flow.file': 'Datei',
   'ui.flow.file_lc': 'Datei',

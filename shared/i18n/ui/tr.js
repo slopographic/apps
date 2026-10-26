@@ -63,7 +63,6 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'ui.frame.resize_aria': 'Panelin boyutunu değiştir: {label} (ok tuşları; çift tıklama sıfırlar)',
   'ui.frame.resize_tip': 'Boyutlandırmak için sürükleyin. Çift tıklama: varsayılan genişlik.',
   'ui.frame.reset_sizes': 'Panel boyutlarını sıfırla',
-  'ui.list.empty': 'Henüz yok: {items}.',
   'ui.flow.from_to': '{from} → {to}',
   'ui.flow.file': 'Dosya',
   'ui.flow.file_lc': 'dosya',

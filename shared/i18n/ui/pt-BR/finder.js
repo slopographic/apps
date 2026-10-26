@@ -16,6 +16,5 @@ window.SlopI18n && window.SlopI18n.add('pt-BR', {
   'ui.finder.not_sorted': 'sem ordenação',
   'ui.list.count': '{n} itens',
   'ui.list.count#one': '{n} item',
-  'ui.list.count_noun': '{n} {noun}',
   'ui.list.empty_any': 'Nada aqui ainda.',
 });

@@ -48,7 +48,7 @@
     $('pSearch').addEventListener('input', draw);
     $('pStatus').addEventListener('change', draw);
     $('pNew').addEventListener('click', () => NS.app.go('new'));
-    list = g.SlopList.mount($('pRows'), { label: 'purchases.li.label', noun: ['purchases.li.po', 'purchases.li.pos'], summary: $('pSummary'),
+    list = g.SlopList.mount($('pRows'), { label: 'purchases.li.label', count: 'purchases.li.count', summary: $('pSummary'),
       empty: 'purchases.li.empty', row, open: (x) => NS.app.go(`po/${x.id}`), menu: menuFor });
   }
 

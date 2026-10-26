@@ -62,7 +62,6 @@ window.SlopI18n && window.SlopI18n.add('yo', {
   'ui.frame.resize_aria': 'Yí ìtóbi pánẹ́ẹ̀lì {label} padà (àwọn bọ́tìnnì ọfà; títẹ̀ lẹ́ẹ̀mejì máa ń tún un ṣètò)',
   'ui.frame.resize_tip': 'Fà á láti yí ìtóbi padà. Tẹ̀ ẹ́ lẹ́ẹ̀mejì: fífẹ̀ àtilẹ̀wá.',
   'ui.frame.reset_sizes': 'Tún ìtóbi àwọn pánẹ́ẹ̀lì ṣètò',
-  'ui.list.empty': 'Kò tíì sí {items}.',
   'ui.flow.from_to': '{from} sí {to}',
   'ui.flow.file': 'Fáìlì',
   'ui.flow.file_lc': 'fáìlì',

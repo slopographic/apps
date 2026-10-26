@@ -3,10 +3,11 @@
 // Home and End move between rows; right-click or the Menu key opens the row's menu (SlopCtx when the page has it, else
 // SlopUI.menu). The app gives the rows; the list draws them, the count and the empty message. Styles: shared/ui/list.css.
 // Classic script. Exposes window.SlopList.mount(host, opts) -> { set(rows), rows(), focusRow(i), destroy() }.
-//   opts: { key = 'id', label, count(n) (the count line from the app's plural key: "3 expenses", "1 expense"),
-//           noun: ['expense', 'expenses'] (older: the count and the empty message; English plurals only),
+//   opts: { key = 'id', label, count: the count line, an i18n plural family ('expenses.li.count' with '#one', '#few',
+//           ...: SlopI18n.t(key, { n }) picks the form, so "2 faktury" and "5 faktur" both read right) or count(n);
+//           without one "3 items" (ui.list.count),
 //           empty (text, or an element such as a message with a button),
-//           label, noun's words and a text empty may be i18n keys (SlopI18n.label): drawn again on a language change,
+//           label and a text empty may be i18n keys (SlopI18n.label): drawn again on a language change,
 //           summary (an element for the count), open(rec), menu(rec) -> SlopUI menu items,
 //           row(rec) -> { title, amount, meta: [string | { chip, cls }], cls, selected (the record shown beside the list) } }
 (function (g) {
@@ -36,17 +37,17 @@
   }
 
   function mount(host, opts = {}) {
-    const key = opts.key || 'id', noun = opts.noun;
+    const key = opts.key || 'id';
     const box = el('div', 'sl-list' + (opts.open ? '' : ' is-static'));
     const own = !(opts.empty && opts.empty.nodeType), empty = own ? el('p', 'sl-empty') : opts.empty;
-    /** "3 expenses": the app's plural key (count), else the older noun pair, else "3 items". */
-    const countText = (n) => (opts.count ? opts.count(n) : noun ? tr('ui.list.count_noun', { n, noun: lab(n === 1 ? noun[0] : noun[1]) }) : tr('ui.list.count', { n }));
+    /** "3 expenses": the app's plural family (a key, or a function of n), else "3 items". */
+    const countText = (n) => (typeof opts.count === 'function' ? opts.count(n) : tr(opts.count || 'ui.list.count', { n }));
     box.setAttribute('role', 'list');
     let recs = [], drawn = false;   // drawn: set() has run (the count shows from then on)
     /** The list's own words, in the current language (again on every switch). */
     function words() {
       if (opts.label) box.setAttribute('aria-label', lab(opts.label));
-      if (own) empty.textContent = opts.empty ? lab(opts.empty) : noun ? tr('ui.list.empty', { items: lab(noun[1]) }) : tr('ui.list.empty_any');
+      if (own) empty.textContent = opts.empty ? lab(opts.empty) : tr('ui.list.empty_any');
       if (opts.summary && drawn) opts.summary.textContent = countText(recs.length);
     }
     words();
