@@ -2,7 +2,7 @@
    kortkommandon, om, stödlinjer) och frågan vid import av en konfiguration. Regler: shared/i18n/APPS-HOWTO.md. */
 window.SlopI18n && window.SlopI18n.add('sv', {
   'vector.dlg.name': 'Namn',
-  'vector.dlg.preset': 'Förval',
+  'vector.dlg.preset': 'Förinställning',
   'vector.dlg.preset_letter': 'Letter (612 × 792)',
   'vector.dlg.preset_a4': 'A4 (595 × 842)',
   'vector.dlg.preset_square': 'Instagram (1080 × 1080)',

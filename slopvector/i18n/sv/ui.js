@@ -97,7 +97,7 @@ window.SlopI18n && window.SlopI18n.add('sv', {
   'vector.obj.line': 'Linje',
   'vector.obj.rrect': 'Rundad rektangel',
   'vector.status.zoom_level': 'Zoomnivå',
-  'vector.status.zoom_presets': 'Zoomförval',
+  'vector.status.zoom_presets': 'Zoomnivåer',
   'vector.status.zoom_out_tip': 'Zooma ut ({key})',
   'vector.status.zoom_in_tip': 'Zooma in ({key})',
   'vector.status.artboard': 'Rityta {w} × {h} px',

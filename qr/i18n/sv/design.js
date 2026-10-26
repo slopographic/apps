@@ -7,7 +7,7 @@ window.SlopI18n && window.SlopI18n.add('sv', {
   'qr.design.round': 'Rundade moduler',
   'qr.design.bg': 'Bakgrundsfärg',
   'qr.design.transparent': 'Genomskinlig bakgrund',
-  'qr.design.quiet': 'Tyst zon',
+  'qr.design.quiet': 'Frizon',
   'qr.design.quiet_n': '{n} moduler',
   'qr.design.quiet_n#one': '{n} modul',
   'qr.design.size_aria': 'Storlek i pixlar',

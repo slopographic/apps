@@ -354,7 +354,7 @@ history step and palette word, so never strip a suffix to get it. Layer names th
 | ripple edit tool | Ripple-verktyg |  |
 | null layer | nollager |  |
 | solid layer | färglager |  |
-| anchor point | fästpunkt | as the PDF part |
+| anchor point (where an object is pinned) | fästpunkt | as the PDF part; a path's anchor point is «ankarpunkt» |
 | feather (mask) | mjuk kant |  |
 | quiet zone (barcode) | frizon |  |
 | bearer bars | bärlister |  |
@@ -402,7 +402,7 @@ history step and palette word, so never strip a suffix to get it. Layer names th
 | Document Setup | Dokumentinställningar (Press), Dokumentformat (Vector) | as each Adobe app |
 | artboard | rityta |  |
 | gradient | övertoning | «Färgstopp» for a stop |
-| anchor point | ankarpunkt |  |
+| anchor point (on a path) | ankarpunkt | an object's pinning point is «fästpunkt» |
 | path | bana | «Sammansatt bana» |
 | clipping mask | urklippsmask | «Skapa/Frigör urklippsmask» |
 | Pathfinder | Banhanterare | Förena / Minus framför / Snitt / Uteslut |
@@ -577,7 +577,7 @@ history step and palette word, so never strip a suffix to get it. Layer names th
 | keep / remove brush | Behåll-pensel / Ta bort-pensel | buttons «Behåll» / «Ta bort» |
 | threshold | Tröskel |  |
 | softness | Mjukhet |  |
-| feather | Ludd | as Photoshop sv |
+| feather | mjuk kant | as PhotoSlop; «Ludd» is not used |
 | decontaminate colours | Rensa färger | as Photoshop sv |
 | refine edges | Förfina kanter |  |
 | hardness (brush) | Hårdhet |  |
@@ -673,9 +673,9 @@ history step and palette word, so never strip a suffix to get it. Layer names th
 | fit / cover / stretch | Anpassa / Täck (beskär) / Sträck ut |  |
 | long edge | långsida |  |
 | resampling | omsampling |  |
-| preset (saved settings) | förval |  |
+| preset (saved settings) | förinställning | as PhotoSlop and the video apps; plural «Förinställningar» |
 | custom size / target size | Anpassad storlek / Målstorlek |  |
-| transparent | genomskinlig |  |
+| transparent | genomskinlig | in prose; the button word is «Transparent» (Shared across apps) |
 | output (settings group) | Utdata |  |
 | queue | kö |  |
 | lossless | förlustfri |  |
@@ -701,7 +701,7 @@ history step and palette word, so never strip a suffix to get it. Layer names th
 | mesh / point cloud | Nät / Punktmoln | «Höjdfältsnät»; «Splats» stays |
 | smoothing | Utjämning |  |
 | subject (vs background) | Motiv |  |
-| orbit (3D view) | rotera | «Dra för att rotera» |
+| orbit (3D view) | rotera | in hints («Dra för att rotera»); the 3D camera mode is «kretsa» |
 | compare | Jämför | Slop Compare |
 | side by side / unified | Sida vid sida / Samlad |  |
 | ignore whitespace / case | Ignorera blanksteg / skiftläge |  |
@@ -748,7 +748,7 @@ history step and palette word, so never strip a suffix to get it. Layer names th
 | palette (colours) | palett |  |
 | harmony (colours) | harmoni | Komplementär / Analog / Triad / Tetrad / Kvadrat / Monokrom |
 | contrast check | Kontrastkontroll | Godkänd / Underkänd |
-| QR: error correction / quiet zone / module | felkorrigering / tyst zon / modul |  |
+| QR: error correction / quiet zone / module | felkorrigering / frizon / modul | «frizon» as for barcodes |
 | raw text | råtext |  |
 | logo | logotyp |  |
 | buffer (SlopBuffer) | bufferten | «Kopiera till bufferten» |
@@ -759,7 +759,7 @@ history step and palette word, so never strip a suffix to get it. Layer names th
 | free-form select | Fri markering |  |
 | clipboard | Urklipp | as Windows sv |
 | hue / saturation / luminosity | nyans / mättnad / ljushet |  |
-| spreadsheet / sheet | kalkylblad / blad |  |
+| spreadsheet / worksheet | kalkylark / kalkylblad | a sheet tab is «blad» |
 | table style | Tabellformat | Randig / Enkel / Rutnät / Kompakt |
 | (Blanks) | (Tomma) | filter list |
 | watermark (verb) | vattenstämpla | «Vattenstämpla 3 bilder» |

@@ -87,7 +87,7 @@ window.SlopI18n && window.SlopI18n.add('sv', {
   'resize.cmd.run': 'Ändra storlek på alla',
   'resize.cmd.cancel': 'Avbryt körningen',
   'resize.cmd.clear': 'Rensa listan',
-  'resize.cmd.preset_save': 'Spara inställningar som förval…',
+  'resize.cmd.preset_save': 'Spara inställningar som förinställning…',
   'resize.cmd.preset_apply': 'Tillämpa sparade inställningar',
   'resize.cmd.mode_size': 'Ändra storlek efter bredd och höjd',
   'resize.cmd.mode_scale': 'Ändra storlek i procent',
@@ -96,6 +96,6 @@ window.SlopI18n && window.SlopI18n.add('sv', {
   'resize.cmd.fill': 'Fyll: {fill}',
   'resize.cmd.target': 'Målstorlek: {size}',
   'resize.cmd.g_resize': 'Ändra storlek',
-  'resize.cmd.g_presets': 'Förval',
+  'resize.cmd.g_presets': 'Förinställningar',
   'resize.cmd.g_target': 'Målstorlek',
 });
