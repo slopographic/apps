@@ -1,4 +1,4 @@
-/* Slop Press, français : unités, formats de page et attributs de style (core/), et les noms des étapes d’annulation (press.edit.undo_*). Mêmes clés que press/i18n/en/core.js. Termes : shared/i18n/glossary-fr.md. */
+/* Slop Press, français : unités, formats de page et attributs de style (core/), et les noms des étapes d’annulation (press.edit.undo_*). Mêmes clés que press/i18n/en/core.js. Termes : shared/i18n/glossary-fr.md. */
 window.SlopI18n && window.SlopI18n.add('fr', {
   'press.edit.undo_cut': 'Couper',
   'press.edit.undo_paste': 'Coller',

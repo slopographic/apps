@@ -1,10 +1,10 @@
-/* Slop Press, français : la barre de contrôle sous les menus (ui/controlbar.js) : réglages du texte, de l’objet, indications. Les clés commencent par press.ctl. Termes : shared/i18n/glossary-fr.md. */
+/* Slop Press, français : la barre de contrôle sous les menus (ui/controlbar.js) : réglages du texte, de l’objet, indications. Les clés commencent par press.ctl. Termes : shared/i18n/glossary-fr.md. */
 window.SlopI18n && window.SlopI18n.add('fr', {
   'press.ctl.para_style': 'Style de paragraphe',
   'press.ctl.char_style': 'Style de caractère',
   'press.ctl.font_family': 'Famille de police',
   'press.ctl.fonts': 'Polices…',
-  'press.ctl.fonts_tip': 'Polices : les polices de ce document et votre propre fichier de police',
+  'press.ctl.fonts_tip': 'Polices : les polices de ce document et votre propre fichier de police',
   'press.ctl.font_style': 'Style de police',
   'press.ctl.size_tip': 'Taille de police (pt)',
   'press.ctl.leading_tip': 'Interligne (pt ou « auto »)',

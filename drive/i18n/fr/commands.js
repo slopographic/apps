@@ -1,4 +1,4 @@
-/* Slop Drive, français : les commandes (palette Spotlight, Mod+K) et la visite guidée. Les identifiants, touches, mots-clés de recherche et texte de l’assistant restent en anglais (API). Termes : shared/i18n/glossary-fr.md. */
+/* Slop Drive, français : les commandes (palette Spotlight, Mod+K) et la visite guidée. Les identifiants, touches, mots-clés de recherche et texte de l’assistant restent en anglais (API). Termes : shared/i18n/glossary-fr.md. */
 window.SlopI18n && window.SlopI18n.add('fr', {
   'drive.cmd.group_file': 'Fichier',
   'drive.cmd.group_edit': 'Édition',
@@ -10,7 +10,7 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'drive.cmd.folders': 'Dossiers',
   'drive.cmd.new_doc': 'Nouveau {label} ({app})',
   'drive.cmd.view_of': 'Affichage {view}',
-  'drive.cmd.theme_of': 'Thème : {theme}',
+  'drive.cmd.theme_of': 'Thème : {theme}',
   'drive.cmd.new_folder': 'Nouveau dossier',
   'drive.cmd.upload': 'Envoyer des fichiers…',
   'drive.cmd.upload_folder': 'Envoyer un dossier…',
@@ -37,8 +37,8 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'drive.cmd.go_trash': 'Aller à la corbeille',
   'drive.cmd.show_in_folder': 'Afficher dans le dossier',
   'drive.cmd.copy_link': 'Copier le lien vers cette vue',
-  'drive.cmd.view_treemap': 'Utilisation du disque : carte arborescente',
-  'drive.cmd.view_sunburst': 'Utilisation du disque : diagramme en soleil',
+  'drive.cmd.view_treemap': 'Utilisation du disque : carte arborescente',
+  'drive.cmd.view_sunburst': 'Utilisation du disque : diagramme en soleil',
   'drive.cmd.info': 'Panneau d’informations',
   'drive.cmd.sort': 'Menu de tri…',
   'drive.cmd.tags': 'Ajouter des étiquettes à la sélection…',

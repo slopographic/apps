@@ -1,4 +1,4 @@
-/* Slop Compare, français : l’en-tête, les deux côtés, le panneau, la zone de dépôt, les commandes et les erreurs. Mêmes clés que diff/i18n/en/app.js. Termes : shared/i18n/glossary-fr.md. */
+/* Slop Compare, français : l’en-tête, les deux côtés, le panneau, la zone de dépôt, les commandes et les erreurs. Mêmes clés que diff/i18n/en/app.js. Termes : shared/i18n/glossary-fr.md. */
 window.SlopI18n && window.SlopI18n.add('fr', {
   'diff.app.subtitle': 'Comparez deux textes, fichiers, PDF ou images et voyez chaque modification. Rien n’est envoyé.',
   'diff.app.open': 'Ouvrir des fichiers…',
@@ -11,9 +11,9 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'diff.app.report_drive': 'Enregistrer le rapport dans Slop Drive…',
   'diff.app.ctrl_enter': 'Ctrl+Entrée compare',
   'diff.app.saved': 'Le rapport est enregistré dans Slop Drive.',
-  'diff.app.save_failed': 'Enregistrement impossible : {why}',
-  'diff.app.add_first': 'Ajoutez d’abord {side} : saisissez ou collez un texte, ou ouvrez un fichier.',
-  'diff.app.boot_failed': 'Slop Compare n’a pas pu démarrer : {why}',
+  'diff.app.save_failed': 'Enregistrement impossible : {why}',
+  'diff.app.add_first': 'Ajoutez d’abord {side} : saisissez ou collez un texte, ou ouvrez un fichier.',
+  'diff.app.boot_failed': 'Slop Compare n’a pas pu démarrer : {why}',
   'diff.side.work_aria': 'Comparaison',
   'diff.side.original': 'Original',
   'diff.side.changed': 'Modifié',
@@ -88,5 +88,5 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'diff.err.not_kind': 'n’est ni un texte, ni un PDF, ni une image',
   'diff.err.too_long': 'dépasse 30 Mo, trop long à comparer ici comme texte',
   'diff.err.compare_first': 'Comparez d’abord deux fichiers',
-  'diff.err.no_patch': 'Un .patch se fait à partir de deux textes ; les images et les PDF n’en ont pas',
+  'diff.err.no_patch': 'Un .patch se fait à partir de deux textes ; les images et les PDF n’en ont pas',
 });

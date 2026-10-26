@@ -1,4 +1,4 @@
-/* Slop Drive, français : la barre supérieure, la barre latérale, les vues, les colonnes de la liste et la liste des raccourcis clavier. Mêmes clés que drive/i18n/en/app.js. Termes : shared/i18n/glossary-fr.md. */
+/* Slop Drive, français : la barre supérieure, la barre latérale, les vues, les colonnes de la liste et la liste des raccourcis clavier. Mêmes clés que drive/i18n/en/app.js. Termes : shared/i18n/glossary-fr.md. */
 window.SlopI18n && window.SlopI18n.add('fr', {
   'drive.app.today_at': 'Aujourd’hui {time}',
   'drive.app.yesterday_at': 'Hier {time}',
@@ -55,9 +55,9 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'drive.side.clear_cache': 'Vider le cache local…',
   'drive.side.storage': 'Stockage',
   'drive.side.unknown': 'Inconnu',
-  'drive.side.meter_note': 'Slop Drive : {size}. Tout reste dans ce navigateur.',
-  'drive.side.clear_q': 'Vider le cache local ?',
-  'drive.side.clear_body': 'Cela supprime seulement ce qui est recréé à la demande : miniatures, formes d’onde, résultats de reconnaissance de visages et modèles d’IA et de détourage téléchargés. Vos fichiers, documents et sauvegardes sont conservés. Un modèle est téléchargé à nouveau lorsque vous l’utilisez.',
+  'drive.side.meter_note': 'Slop Drive : {size}. Tout reste dans ce navigateur.',
+  'drive.side.clear_q': 'Vider le cache local ?',
+  'drive.side.clear_body': 'Cela supprime seulement ce qui est recréé à la demande : miniatures, formes d’onde, résultats de reconnaissance de visages et modèles d’IA et de détourage téléchargés. Vos fichiers, documents et sauvegardes sont conservés. Un modèle est téléchargé à nouveau lorsque vous l’utilisez.',
   'drive.side.clear_ok': 'Vider le cache',
   'drive.side.cleared_n': '{n} entrées du cache supprimées. Vos fichiers ne sont pas modifiés.',
   'drive.side.cleared_n#one': '{n} entrée du cache supprimée. Vos fichiers ne sont pas modifiés.',
@@ -110,7 +110,7 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'drive.keys.select_all': 'Tout sélectionner',
   'drive.keys.clear_sel': 'Effacer la sélection',
   'drive.keys.rename': 'Renommer',
-  'drive.keys.trash': 'Mettre à la corbeille (Maj+Suppr : supprimer définitivement)',
+  'drive.keys.trash': 'Mettre à la corbeille (Maj+Suppr : supprimer définitivement)',
   'drive.keys.star': 'Ajouter / retirer des favoris',
   'drive.keys.clip': 'Copier, couper, coller',
   'drive.keys.duplicate': 'Dupliquer',

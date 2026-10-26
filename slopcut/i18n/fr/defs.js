@@ -1,4 +1,4 @@
-/* SlopCut, français : les noms des éléments intégrés tels que SlopCut les affiche (slopedit.def.<genre>.<id>) : transitions, titres, mattes, ambiances, animations. Mêmes clés que slopcut/i18n/en/defs.js. Termes : shared/i18n/glossary-fr.md. */
+/* SlopCut, français : les noms des éléments intégrés tels que SlopCut les affiche (slopedit.def.<genre>.<id>) : transitions, titres, mattes, ambiances, animations. Mêmes clés que slopcut/i18n/en/defs.js. Termes : shared/i18n/glossary-fr.md. */
 window.SlopI18n && window.SlopI18n.add('fr', {
   'slopedit.def.tr.cross': 'Fondu enchaîné',
   'slopedit.def.tr.blur': 'Fondu flou',

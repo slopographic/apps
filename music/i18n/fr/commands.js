@@ -1,4 +1,4 @@
-/* Slop Music, français : les titres et groupes des commandes de la palette Ctrl+K (js/app/ai-commands.js). Leurs descriptions et arguments restent en anglais (pour l’assistant). Mêmes clés que music/i18n/en/commands.js. Termes : shared/i18n/glossary-fr.md. */
+/* Slop Music, français : les titres et groupes des commandes de la palette Ctrl+K (js/app/ai-commands.js). Leurs descriptions et arguments restent en anglais (pour l’assistant). Mêmes clés que music/i18n/en/commands.js. Termes : shared/i18n/glossary-fr.md. */
 window.SlopI18n && window.SlopI18n.add('fr', {
   'music.cmd.play': 'Lecture',
   'music.cmd.pause': 'Pause',

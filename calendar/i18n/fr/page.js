@@ -1,4 +1,4 @@
-/* Slop Calendar, français : la barre d’outils, les boutons des vues et la page. Mêmes clés que calendar/i18n/en/page.js. Termes : shared/i18n/glossary-fr.md. */
+/* Slop Calendar, français : la barre d’outils, les boutons des vues et la page. Mêmes clés que calendar/i18n/en/page.js. Termes : shared/i18n/glossary-fr.md. */
 window.SlopI18n && window.SlopI18n.add('fr', {
   'calendar.app.name': 'Calendrier',
   'calendar.page.calendar': 'Calendrier',

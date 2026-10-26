@@ -1,4 +1,4 @@
-/* Slop Music, français : l’affichage des listes de lecture et ses boîtes de dialogue. Mêmes clés que music/i18n/en/playlists.js. Termes : shared/i18n/glossary-fr.md. */
+/* Slop Music, français : l’affichage des listes de lecture et ses boîtes de dialogue. Mêmes clés que music/i18n/en/playlists.js. Termes : shared/i18n/glossary-fr.md. */
 window.SlopI18n && window.SlopI18n.add('fr', {
   'music.pl.new': 'Nouvelle liste de lecture',
   'music.pl.open': 'Ouvrir depuis Drive…',
@@ -17,7 +17,7 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'music.pl.empty': 'Cette liste de lecture est vide. Utilisez « Ajouter des pistes… ».',
   'music.pl.rename_title': 'Renommer la liste de lecture',
   'music.pl.delete_title': 'Supprimer la liste de lecture',
-  'music.pl.delete_msg': 'Supprimer « {name} » ? Les pistes restent dans la bibliothèque.',
+  'music.pl.delete_msg': 'Supprimer « {name} » ? Les pistes restent dans la bibliothèque.',
   'music.pl.lib_empty': 'La bibliothèque est vide. Ajoutez d’abord des fichiers.',
   'music.pl.add_to_title': 'Ajouter des pistes à {name}',
   'music.pl.save_title': 'Enregistrer « {name} » dans Slop Drive',

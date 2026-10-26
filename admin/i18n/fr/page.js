@@ -1,4 +1,4 @@
-/* Slop Admin, français : les onglets et les panneaux. Mêmes clés que admin/i18n/en/page.js. Termes : shared/i18n/glossary-fr.md. */
+/* Slop Admin, français : les onglets et les panneaux. Mêmes clés que admin/i18n/en/page.js. Termes : shared/i18n/glossary-fr.md. */
 window.SlopI18n && window.SlopI18n.add('fr', {
   'admin.app.name': 'Administration',
   'admin.page.local_tip': 'Les réglages et les enregistrements restent dans ce navigateur. Rien n’est envoyé.',
@@ -39,7 +39,7 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'admin.page.backup_note': 'Une sauvegarde contient tous les enregistrements, y compris les supprimés, dans un seul fichier.',
   'admin.page.dl_backup': 'Télécharger la sauvegarde complète',
   'admin.page.everything': 'Tout dans un seul fichier',
-  'admin.page.everything_note': 'Chaque application de la suite dans un seul fichier .slop-backup.json : Slop Data, Slop Drive, Galerie, listes de lecture de Musique, modèles et réglages du profil. Les secrets et les caches n’y figurent jamais.',
+  'admin.page.everything_note': 'Chaque application de la suite dans un seul fichier .slop-backup.json : Slop Data, Slop Drive, Galerie, listes de lecture de Musique, modèles et réglages du profil. Les secrets et les caches n’y figurent jamais.',
   'admin.page.export_all': 'Exporter ou importer tout…',
   'admin.page.restore': 'Restaurer',
   'admin.page.restore_note': 'Le fichier entier est vérifié d’abord. Un mauvais fichier ne change rien. Un bon fichier remplace tous les enregistrements ici.',

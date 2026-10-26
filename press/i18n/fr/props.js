@@ -1,4 +1,4 @@
-/* Slop Press, français : le panneau Propriétés (ui/props-panel.js) et les noms d’annulation de ses modifications. Les clés commencent par press.props. Termes : shared/i18n/glossary-fr.md. */
+/* Slop Press, français : le panneau Propriétés (ui/props-panel.js) et les noms d’annulation de ses modifications. Les clés commencent par press.props. Termes : shared/i18n/glossary-fr.md. */
 window.SlopI18n && window.SlopI18n.add('fr', {
   'press.props.sec_transform': 'Transformation',
   'press.props.rotation': 'Rotation',

@@ -1,4 +1,4 @@
-/* Slop Press, français : les titres des menus (ui/menus.js). Mêmes clés que press/i18n/en/menus.js. Termes : shared/i18n/glossary-fr.md. */
+/* Slop Press, français : les titres des menus (ui/menus.js). Mêmes clés que press/i18n/en/menus.js. Termes : shared/i18n/glossary-fr.md. */
 window.SlopI18n && window.SlopI18n.add('fr', {
   'press.menu.layout': 'Mise en page',
   'press.menu.type': 'Texte',

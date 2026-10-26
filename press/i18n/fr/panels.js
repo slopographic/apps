@@ -1,4 +1,4 @@
-/* Slop Press, français : les panneaux (ui/dock.js, pages-panel.js, layers-panel.js, swatches-panel.js, styles-panel.js). Les clés commencent par press.panel. et press.dock. Termes : shared/i18n/glossary-fr.md. */
+/* Slop Press, français : les panneaux (ui/dock.js, pages-panel.js, layers-panel.js, swatches-panel.js, styles-panel.js). Les clés commencent par press.panel. et press.dock. Termes : shared/i18n/glossary-fr.md. */
 window.SlopI18n && window.SlopI18n.add('fr', {
   /* ui/dock.js */
   'press.dock.collapse': 'Replier le panneau',
@@ -44,7 +44,7 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'press.panel.lock_layer': 'Verrouiller le calque',
   'press.panel.unlock_layer': 'Déverrouiller le calque',
   'press.panel.toggle_lock': 'Basculer le verrouillage',
-  'press.panel.layer_tip': 'Clic : dessiner sur ce calque · double-clic : renommer · glisser pour réordonner',
+  'press.panel.layer_tip': 'Clic : dessiner sur ce calque · double-clic : renommer · glisser pour réordonner',
   'press.panel.undo_layer_vis': 'Visibilité du calque',
   'press.panel.undo_layer_lock': 'Verrouillage du calque',
   'press.panel.layer_options': 'Options du calque',
@@ -58,8 +58,8 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'press.panel.undo_move_layer': 'Déplacer le calque',
   'press.panel.delete_layer': 'Supprimer le calque',
   'press.panel.delete_layer_tip': 'Supprimer le calque',
-  'press.panel.delete_layer_q': 'Supprimer « {name} » et ses {n} objets ?',
-  'press.panel.delete_layer_q#one': 'Supprimer « {name} » et son objet ({n}) ?',
+  'press.panel.delete_layer_q': 'Supprimer « {name} » et ses {n} objets ?',
+  'press.panel.delete_layer_q#one': 'Supprimer « {name} » et son objet ({n}) ?',
   'press.panel.layers_n': '{n} calques',
   'press.panel.layers_n#one': '{n} calque',
   'press.panel.new_layer': 'Nouveau calque',
@@ -88,7 +88,7 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'press.panel.edit_style': 'Modifier le style',
   'press.panel.edit_style_name': 'Modifier {name}',
   'press.panel.based_on': 'Basé sur {name}',
-  'press.panel.style_tip': 'Cliquez pour appliquer · Alt-clic : appliquer et effacer les réglages locaux',
+  'press.panel.style_tip': 'Cliquez pour appliquer · Alt-clic : appliquer et effacer les réglages locaux',
   'press.panel.local_overrides': 'Réglages locaux',
   'press.panel.select_text_first': 'Sélectionnez d’abord du texte ou un cadre de texte',
   'press.panel.duplicate_style': 'Dupliquer le style',

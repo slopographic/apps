@@ -1,16 +1,16 @@
-/* Slop Press, français : la barre supérieure, le canevas et les règles (index.html), et les messages de l’application. Mêmes clés que press/i18n/en/app.js. Termes : shared/i18n/glossary-fr.md. */
+/* Slop Press, français : la barre supérieure, le canevas et les règles (index.html), et les messages de l’application. Mêmes clés que press/i18n/en/app.js. Termes : shared/i18n/glossary-fr.md. */
 window.SlopI18n && window.SlopI18n.add('fr', {
   'press.app.main_menu': 'Menu principal',
   'press.app.toggle_panels': 'Afficher ou masquer les panneaux',
   'press.app.control_bar': 'Barre de contrôle',
   'press.app.layout_area': 'Mise en page',
   'press.app.ruler_corner': 'Double-cliquez pour ajuster à la page',
-  'press.app.ruler_h': 'Règle horizontale : faites glisser vers le bas pour créer un repère',
-  'press.app.ruler_v': 'Règle verticale : faites glisser vers la droite pour créer un repère',
+  'press.app.ruler_h': 'Règle horizontale : faites glisser vers le bas pour créer un repère',
+  'press.app.ruler_v': 'Règle verticale : faites glisser vers la droite pour créer un repère',
   'press.app.pages_canvas': 'Pages',
   'press.app.edit_text': 'Modifier le texte',
   'press.app.panels': 'Panneaux',
-  'press.app.went_wrong': 'Une erreur s’est produite : {error}',
+  'press.app.went_wrong': 'Une erreur s’est produite : {error}',
   'press.app.restored': 'Votre dernière session a été restaurée',
   'press.app.guides_on': 'Repères activés',
   'press.app.guides_off': 'Repères désactivés',

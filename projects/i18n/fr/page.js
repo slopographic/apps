@@ -1,4 +1,4 @@
-/* Slop Projects, français : la page : menus, onglets, barre et mots fixes des vues. Mêmes clés que projects/i18n/en/page.js. Termes : shared/i18n/glossary-fr.md. */
+/* Slop Projects, français : la page : menus, onglets, barre et mots fixes des vues. Mêmes clés que projects/i18n/en/page.js. Termes : shared/i18n/glossary-fr.md. */
 window.SlopI18n && window.SlopI18n.add('fr', {
   'projects.app.name': 'Projets',
   'projects.page.search_cmds': 'Rechercher des commandes',
@@ -28,7 +28,7 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'projects.page.weeks': 'Semaines',
   'projects.page.months': 'Mois',
   'projects.page.today': 'Aujourd’hui',
-  'projects.page.tl_keys': 'Faites glisser une barre pour la déplacer, ou ses extrémités pour changer les dates. Barre sélectionnée : les flèches déplacent d’un jour, Maj avec une flèche change la fin.',
+  'projects.page.tl_keys': 'Faites glisser une barre pour la déplacer, ou ses extrémités pour changer les dates. Barre sélectionnée : les flèches déplacent d’un jour, Maj avec une flèche change la fin.',
   'projects.page.empty_h': 'Planifiez un projet sur un tableau et une chronologie',
   'projects.page.new_project': 'Nouveau projet',
 });

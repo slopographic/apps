@@ -1,4 +1,4 @@
-/* Slop Resize, français : la visite guidée (shared/tour/tours/resize.js). Mêmes clés que resize/i18n/en/tour.js. Termes : shared/i18n/glossary-fr.md. */
+/* Slop Resize, français : la visite guidée (shared/tour/tours/resize.js). Mêmes clés que resize/i18n/en/tour.js. Termes : shared/i18n/glossary-fr.md. */
 window.SlopI18n && window.SlopI18n.add('fr', {
   'resize.tour.title': 'Visite guidée de Slop Resize',
   'resize.tour.open_title': 'Ouvrir',

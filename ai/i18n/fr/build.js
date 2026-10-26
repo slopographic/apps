@@ -1,11 +1,11 @@
-/* Slop AI, français : Créer une mini-application (le fil de discussion du créateur, l’aperçu et les modèles). Les consignes des modèles et leur HTML restent en anglais (c’est ce que le modèle reçoit). Mêmes clés que ai/i18n/en/build.js. Termes : shared/i18n/glossary-fr.md. */
+/* Slop AI, français : Créer une mini-application (le fil de discussion du créateur, l’aperçu et les modèles). Les consignes des modèles et leur HTML restent en anglais (c’est ce que le modèle reçoit). Mêmes clés que ai/i18n/en/build.js. Termes : shared/i18n/glossary-fr.md. */
 window.SlopI18n && window.SlopI18n.add('fr', {
   'ai.build.new': 'Nouvelle mini-application',
   'ai.build.hello': 'Créer une mini-application',
-  'ai.build.hello_lead': 'Décrivez une application, un jeu ou une page. Le modèle écrit un seul fichier HTML qui s’exécute ici, en bac à sable. Ou partez d’un modèle :',
+  'ai.build.hello_lead': 'Décrivez une application, un jeu ou une page. Le modèle écrit un seul fichier HTML qui s’exécute ici, en bac à sable. Ou partez d’un modèle :',
   'ai.build.placeholder': 'Décrivez votre application, ou ce qu’il faut changer',
   'ai.build.none_yet': 'Aucune mini-application pour l’instant',
-  'ai.build.delete_q': 'Supprimer cette mini-application ?',
+  'ai.build.delete_q': 'Supprimer cette mini-application ?',
   'ai.build.delete_body': 'Sa conversation et son code seront supprimés.',
   'ai.build.no_html': 'Aucun fichier HTML complet dans cette réponse. Demandez à nouveau, ou dites « envoie le fichier entier ».',
   'ai.build.starter_reply': 'Modèle de départ. Dites-moi ce qu’il faut changer.',

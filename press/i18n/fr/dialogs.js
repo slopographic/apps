@@ -1,4 +1,4 @@
-/* Slop Press, français : les boîtes de dialogue (ui/dialogs.js) : document, pages, marges, modèles, repères, cadres de texte. Mêmes clés que press/i18n/en/dialogs.js. Termes : shared/i18n/glossary-fr.md. */
+/* Slop Press, français : les boîtes de dialogue (ui/dialogs.js) : document, pages, marges, modèles, repères, cadres de texte. Mêmes clés que press/i18n/en/dialogs.js. Termes : shared/i18n/glossary-fr.md. */
 window.SlopI18n && window.SlopI18n.add('fr', {
   'press.dlg.goto_title': 'Aller à la page',
   'press.dlg.goto_label': 'Page',
@@ -46,7 +46,7 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'press.dlg.insert_pages_title': 'Insérer des pages',
   'press.dlg.insert': 'Insérer',
   'press.dlg.master': 'Modèle',
-  'press.dlg.editing_master': 'Modification du modèle : Mise en page ▸ Modifier le modèle à nouveau (ou choisissez une page) pour revenir',
+  'press.dlg.editing_master': 'Modification du modèle : Mise en page ▸ Modifier le modèle à nouveau (ou choisissez une page) pour revenir',
   'press.dlg.master_options_title': 'Options du modèle',
   'press.dlg.new_master_title': 'Nouveau modèle',
   'press.dlg.prefix': 'Préfixe',
@@ -58,7 +58,7 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'press.dlg.remove_guides': 'Supprimer les repères existants',
   'press.dlg.create_guides_title': 'Créer des repères',
   'press.dlg.rows': 'Lignes',
-  'press.dlg.guides_tip_shared': 'Astuce : le panneau partagé GuideGuide est aussi disponible.',
+  'press.dlg.guides_tip_shared': 'Astuce : le panneau partagé GuideGuide est aussi disponible.',
   'press.dlg.guides_tip': 'Les repères s’ajustent dans les marges de la page actuelle (ou du modèle).',
   'press.dlg.tfo_title': 'Options du cadre de texte',
   'press.dlg.inset_align': 'Retrait et alignement',

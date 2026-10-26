@@ -1,4 +1,4 @@
-/* Slop Colors, français : le panneau de droite (ses réglages, son pied), les noms des harmonies, des échelles et des formats d’export, et les commandes de la palette (Ctrl+K). Mêmes clés que colors/i18n/en/panel.js. Termes : shared/i18n/glossary-fr.md. */
+/* Slop Colors, français : le panneau de droite (ses réglages, son pied), les noms des harmonies, des échelles et des formats d’export, et les commandes de la palette (Ctrl+K). Mêmes clés que colors/i18n/en/panel.js. Termes : shared/i18n/glossary-fr.md. */
 window.SlopI18n && window.SlopI18n.add('fr', {
   'colors.panel.gen': 'Créée à partir d’elle',
   'colors.panel.harmony': 'Harmonie',
@@ -6,13 +6,13 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'colors.panel.steps': 'Nombre de paliers de l’échelle',
   'colors.panel.pic': 'Image',
   'colors.panel.k': 'Couleurs à trouver',
-  'colors.panel.k_note': 'Les couleurs principales, par k-moyennes ; identiques à chaque fois pour une même image.',
+  'colors.panel.k_note': 'Les couleurs principales, par k-moyennes ; identiques à chaque fois pour une même image.',
   'colors.panel.export': 'Exporter',
   'colors.panel.name': 'Nom de la palette',
   'colors.panel.format': 'Format',
   'colors.panel.download': 'Télécharger la palette (.{ext})',
   'colors.panel.drive': 'Enregistrer dans Slop Drive…',
-  'colors.panel.save_failed': 'Enregistrement impossible : {msg}',
+  'colors.panel.save_failed': 'Enregistrement impossible : {msg}',
   'colors.panel.copy_code': 'Copier le code',
   'colors.panel.open_in': 'Ouvrir dans…',
   'colors.panel.count': '{n} couleurs dans « {name} »',

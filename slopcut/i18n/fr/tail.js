@@ -1,4 +1,4 @@
-/* SlopCut, français : les compteurs et notes de l’inspecteur, des modèles et de l’exportation. Mêmes clés que slopcut/i18n/en/tail.js. Termes : shared/i18n/glossary-fr.md. */
+/* SlopCut, français : les compteurs et notes de l’inspecteur, des modèles et de l’exportation. Mêmes clés que slopcut/i18n/en/tail.js. Termes : shared/i18n/glossary-fr.md. */
 window.SlopI18n && window.SlopI18n.add('fr', {
   'slopedit.render.step_drop': 'Déposez une vidéo, un fichier audio ou des images',
   'slopedit.insp.n_clips': '{n} clips',

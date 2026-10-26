@@ -1,4 +1,4 @@
-/* Slop Notes, français : la visite guidée (shared/tour/tours/notes.js). Mêmes clés que notes/i18n/en/tour.js. Termes : shared/i18n/glossary-fr.md. */
+/* Slop Notes, français : la visite guidée (shared/tour/tours/notes.js). Mêmes clés que notes/i18n/en/tour.js. Termes : shared/i18n/glossary-fr.md. */
 window.SlopI18n && window.SlopI18n.add('fr', {
   'notes.tour.title': 'Visite guidée de Notes',
   'notes.tour.notebooks_title': 'Carnets',

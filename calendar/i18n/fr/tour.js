@@ -1,8 +1,8 @@
-/* Slop Calendar, français : la visite guidée. Mêmes clés que calendar/i18n/en/tour.js. Termes : shared/i18n/glossary-fr.md. */
+/* Slop Calendar, français : la visite guidée. Mêmes clés que calendar/i18n/en/tour.js. Termes : shared/i18n/glossary-fr.md. */
 window.SlopI18n && window.SlopI18n.add('fr', {
   'calendar.tour.title': 'Visite guidée de Calendrier',
   'calendar.tour.period_title': 'Période',
-  'calendar.tour.period_text': 'La période affichée. Les flèches avancent ou reculent dans le temps ; Aujourd’hui revient à la date du jour.',
+  'calendar.tour.period_text': 'La période affichée. Les flèches avancent ou reculent dans le temps ; Aujourd’hui revient à la date du jour.',
   'calendar.tour.new_title': 'Nouvel événement',
   'calendar.tour.new_text': 'Ajoutez un événement. N en crée un nouveau.',
   'calendar.tour.todos_title': 'Tâches',

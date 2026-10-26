@@ -1,4 +1,4 @@
-/* Slop AI, français : les commandes telles que la palette (Mod+K) et les raccourcis clavier les affichent. Les identifiants, touches, mots-clés de recherche et commandes de l’assistant (ai-commands.js) restent en anglais (API). Mêmes clés que ai/i18n/en/commands.js. Termes : shared/i18n/glossary-fr.md. */
+/* Slop AI, français : les commandes telles que la palette (Mod+K) et les raccourcis clavier les affichent. Les identifiants, touches, mots-clés de recherche et commandes de l’assistant (ai-commands.js) restent en anglais (API). Mêmes clés que ai/i18n/en/commands.js. Termes : shared/i18n/glossary-fr.md. */
 window.SlopI18n && window.SlopI18n.add('fr', {
   'ai.cmd.group_chat': 'Conversation',
   'ai.cmd.group_build': 'Créer',
@@ -20,7 +20,7 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'ai.cmd.save': 'Enregistrer la conversation dans Slop Drive',
   'ai.cmd.open_drive': 'Ouvrir une conversation depuis Slop Drive…',
   'ai.cmd.new_build': 'Nouvelle mini-application',
-  'ai.cmd.template': 'Modèle de mini-application : {name}',
+  'ai.cmd.template': 'Modèle de mini-application : {name}',
   'ai.cmd.go_to': 'Aller à {name}',
   'ai.cmd.unload': 'Décharger le modèle',
   'ai.cmd.pause': 'Suspendre le téléchargement',
@@ -30,7 +30,7 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'ai.cmd.check': 'Lancer le contrôle du système',
   'ai.cmd.spec_card': 'Partager ma fiche technique…',
   'ai.cmd.sloppo': 'Demander à Sloppo',
-  'ai.cmd.theme': 'Thème : {name}',
+  'ai.cmd.theme': 'Thème : {name}',
   'ai.cmd.palette': 'Rechercher des commandes…',
   'ai.cmd.shortcuts': 'Raccourcis clavier…',
 });

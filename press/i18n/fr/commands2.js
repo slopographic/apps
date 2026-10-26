@@ -1,4 +1,4 @@
-/* Slop Press, français : les titres des commandes Mise en page, Texte, Affichage, Fenêtre, Aide et des styles (ui/commands2.js). Mêmes clés que press/i18n/en/commands2.js. Termes : shared/i18n/glossary-fr.md. */
+/* Slop Press, français : les titres des commandes Mise en page, Texte, Affichage, Fenêtre, Aide et des styles (ui/commands2.js). Mêmes clés que press/i18n/en/commands2.js. Termes : shared/i18n/glossary-fr.md. */
 window.SlopI18n && window.SlopI18n.add('fr', {
   'press.cmd.layout_add_page': 'Ajouter une page',
   'press.cmd.layout_insert_pages': 'Insérer des pages…',
@@ -60,9 +60,9 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'press.cmd.view_threads': 'Afficher les enchaînements de texte',
   'press.cmd.view_snap': 'Magnétiser aux repères',
   'press.cmd.view_rulers': 'Afficher les règles',
-  'press.cmd.theme_pro': 'Thème : Pro (sombre)',
-  'press.cmd.theme_light': 'Thème : Clair',
-  'press.cmd.theme_classic': 'Thème : Classique 98',
+  'press.cmd.theme_pro': 'Thème : Pro (sombre)',
+  'press.cmd.theme_light': 'Thème : Clair',
+  'press.cmd.theme_classic': 'Thème : Classique 98',
   'press.cmd.window_pages': 'Panneau Pages',
   'press.cmd.window_layers': 'Panneau Calques',
   'press.cmd.window_para_styles': 'Panneau Styles de paragraphe',
@@ -73,6 +73,6 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'press.cmd.help_search': 'Rechercher des commandes…',
   'press.cmd.help_shortcuts': 'Raccourcis clavier…',
   'press.cmd.help_about': 'À propos de Slop Press',
-  'press.cmd.style_para': 'Appliquer le style de paragraphe : {name}',
-  'press.cmd.style_char': 'Appliquer le style de caractère : {name}',
+  'press.cmd.style_para': 'Appliquer le style de paragraphe : {name}',
+  'press.cmd.style_char': 'Appliquer le style de caractère : {name}',
 });

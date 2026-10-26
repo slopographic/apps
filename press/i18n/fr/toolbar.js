@@ -1,4 +1,4 @@
-/* Slop Press, français : le panneau Outils (ui/toolbar.js), les pastilles de couleur et leur fenêtre (ui/kit.js), Créer des repères (ui/guides.js). Les clés commencent par press.tool., press.kit. et press.guide. Termes : shared/i18n/glossary-fr.md. */
+/* Slop Press, français : le panneau Outils (ui/toolbar.js), les pastilles de couleur et leur fenêtre (ui/kit.js), Créer des repères (ui/guides.js). Les clés commencent par press.tool., press.kit. et press.guide. Termes : shared/i18n/glossary-fr.md. */
 window.SlopI18n && window.SlopI18n.add('fr', {
   'press.tool.undo_fill': 'Remplissage',
   'press.tool.undo_stroke': 'Contour',

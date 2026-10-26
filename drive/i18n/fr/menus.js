@@ -1,4 +1,4 @@
-/* Slop Drive, français : les menus, les petites boîtes de dialogue et les messages brefs. Mêmes clés que drive/i18n/en/menus.js. Termes : shared/i18n/glossary-fr.md. */
+/* Slop Drive, français : les menus, les petites boîtes de dialogue et les messages brefs. Mêmes clés que drive/i18n/en/menus.js. Termes : shared/i18n/glossary-fr.md. */
 window.SlopI18n && window.SlopI18n.add('fr', {
   'drive.menu.new': 'Nouveau',
   'drive.menu.new_folder': 'Nouveau dossier',
@@ -63,13 +63,13 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'drive.dlg.choose_folder': 'Choisissez un dossier',
   'drive.dlg.choose_first': 'Choisissez d’abord un dossier.',
   'drive.dlg.allow_sidebar': 'Autorisez d’abord l’accès à ce dossier dans la barre latérale.',
-  'drive.dlg.restore_q': 'Restaurer cette sauvegarde ?',
-  'drive.dlg.restore_body': '« {name} » ressemble à une sauvegarde Slopographic. L’ouvrir dans Sauvegarde et restauration plutôt que de l’envoyer ?',
+  'drive.dlg.restore_q': 'Restaurer cette sauvegarde ?',
+  'drive.dlg.restore_body': '« {name} » ressemble à une sauvegarde Slopographic. L’ouvrir dans Sauvegarde et restauration plutôt que de l’envoyer ?',
   'drive.dlg.open_backup': 'Ouvrir la sauvegarde',
   'drive.dlg.just_upload': 'Envoyer seulement',
   'drive.dlg.a_file': 'un fichier',
-  'drive.dlg.purge_q': 'Supprimer définitivement ?',
-  'drive.dlg.empty_q': 'Vider la corbeille ?',
+  'drive.dlg.purge_q': 'Supprimer définitivement ?',
+  'drive.dlg.empty_q': 'Vider la corbeille ?',
   'drive.dlg.empty_ok': 'Vider la corbeille',
   'drive.toast.clip_cut_n': '{n} éléments coupés. Collez-les dans n’importe quel dossier',
   'drive.toast.clip_cut_n#one': '{n} élément coupé. Collez-le dans n’importe quel dossier',

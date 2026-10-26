@@ -1,4 +1,4 @@
-/* Slop Press, français : l’éditeur de styles de paragraphe et de caractère (ui/style-editor.js). Les clés commencent par press.style. Termes : shared/i18n/glossary-fr.md. */
+/* Slop Press, français : l’éditeur de styles de paragraphe et de caractère (ui/style-editor.js). Les clés commencent par press.style. Termes : shared/i18n/glossary-fr.md. */
 window.SlopI18n && window.SlopI18n.add('fr', {
   'press.style.new_para_name': 'Style de paragraphe {n}',
   'press.style.new_char_name': 'Style de caractère {n}',

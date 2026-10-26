@@ -1,4 +1,4 @@
-/* Slop Press, français : les titres des commandes Fichier, Édition, Objet et Outils (ui/commands.js), affichés dans les menus et la palette. Mêmes clés que press/i18n/en/commands.js. Termes : shared/i18n/glossary-fr.md. */
+/* Slop Press, français : les titres des commandes Fichier, Édition, Objet et Outils (ui/commands.js), affichés dans les menus et la palette. Mêmes clés que press/i18n/en/commands.js. Termes : shared/i18n/glossary-fr.md. */
 window.SlopI18n && window.SlopI18n.add('fr', {
   'press.cmd.file_new': 'Nouveau document…',
   'press.cmd.file_template': 'Nouveau à partir d’un modèle…',
@@ -38,10 +38,10 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'press.cmd.object_fit_fit': 'Ajuster le contenu proportionnellement',
   'press.cmd.object_fit_center': 'Centrer le contenu',
   'press.cmd.object_fit_stretch': 'Ajuster le contenu au cadre',
-  'press.cmd.wrap_none': 'Renvoi à la ligne : aucun',
-  'press.cmd.wrap_box': 'Renvoi à la ligne : cadre englobant',
-  'press.cmd.wrap_contour': 'Renvoi à la ligne : forme de l’objet',
-  'press.cmd.wrap_jump': 'Renvoi à la ligne : contourner l’objet',
+  'press.cmd.wrap_none': 'Renvoi à la ligne : aucun',
+  'press.cmd.wrap_box': 'Renvoi à la ligne : cadre englobant',
+  'press.cmd.wrap_contour': 'Renvoi à la ligne : forme de l’objet',
+  'press.cmd.wrap_jump': 'Renvoi à la ligne : contourner l’objet',
   'press.cmd.object_break_thread': 'Rompre l’enchaînement après le cadre',
   'press.cmd.object_rotate90': 'Pivoter de 90° dans le sens horaire',
   'press.cmd.object_place_image': 'Placer une image dans le cadre…',

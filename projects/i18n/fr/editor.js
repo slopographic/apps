@@ -1,4 +1,4 @@
-/* Slop Projects, français : l’éditeur de tâche, la boîte de dialogue du projet et les fichiers. Mêmes clés que projects/i18n/en/editor.js. Termes : shared/i18n/glossary-fr.md. */
+/* Slop Projects, français : l’éditeur de tâche, la boîte de dialogue du projet et les fichiers. Mêmes clés que projects/i18n/en/editor.js. Termes : shared/i18n/glossary-fr.md. */
 window.SlopI18n && window.SlopI18n.add('fr', {
   'projects.ed.no_title': 'Donnez un titre à la tâche.',
   'projects.ed.end_before': 'La fin est antérieure au début.',
@@ -22,7 +22,7 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'projects.ed.checklist': 'Liste de contrôle',
   'projects.ed.add_item': 'Ajouter un élément',
   'projects.ed.new_item': 'Nouvel élément de la liste de contrôle',
-  'projects.ed.done_item': 'Terminé : {text}',
+  'projects.ed.done_item': 'Terminé : {text}',
   'projects.ed.item_n': 'Élément {n} de la liste de contrôle',
   'projects.ed.remove': 'Retirer {text}',
   'projects.ed.done_of': '{done} sur {n} terminé(s)',
@@ -30,10 +30,10 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'projects.ed.add': 'Ajouter',
   'projects.ed.dep_add_aria': 'Ajouter une tâche que celle-ci attend',
   'projects.ed.dep_stop': 'Ne plus attendre {title}',
-  'projects.ed.dep_none': 'Aucune : elle peut commencer à tout moment.',
+  'projects.ed.dep_none': 'Aucune : elle peut commencer à tout moment.',
   'projects.ed.dep_pick': 'Ajouter une tâche qu’elle attend…',
   'projects.ed.waits': 'Attend (à terminer avant le début de celle-ci)',
-  'projects.ed.waiting': 'En attente de celle-ci : {names}.',
+  'projects.ed.waiting': 'En attente de celle-ci : {names}.',
   'projects.ed.task': 'Tâche',
   'projects.pr.blue': 'Bleu',
   'projects.pr.green': 'Vert',
@@ -93,13 +93,13 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'projects.core.one_col': 'Un tableau a besoin d’au moins une colonne.',
   'projects.core.no_col': 'Cette colonne n’est pas sur le tableau.',
   'projects.core.that_task': 'cette tâche',
-  'projects.core.loop': '« {name} » attend déjà cette tâche : celle-ci ne peut donc pas l’attendre.',
+  'projects.core.loop': '« {name} » attend déjà cette tâche : celle-ci ne peut donc pas l’attendre.',
   'projects.core.not_backup': 'Ce fichier n’est pas une sauvegarde de Slop Projects.',
   'projects.core.newer': 'Cette sauvegarde provient d’une version plus récente de Slop Projects.',
   'projects.core.no_name': 'La sauvegarde ne contient pas de nom de projet.',
   'projects.core.no_tasks': 'La sauvegarde ne contient pas de liste de tâches.',
   'projects.core.max_tasks': 'Une sauvegarde contient au maximum {n} tâches.',
   'projects.core.loops': '{n} dépendances qui formaient une boucle ont été omises.',
-  'projects.core.not_json': 'Ce fichier n’est pas du JSON : ce n’est donc pas une sauvegarde de Slop Projects.',
+  'projects.core.not_json': 'Ce fichier n’est pas du JSON : ce n’est donc pas une sauvegarde de Slop Projects.',
   'projects.core.gone': 'Cette tâche n’existe plus.',
 });

@@ -1,4 +1,4 @@
-/* Slop Press, français : la barre d’état (ui/status.js) : navigation entre les pages, zoom, contrôle préalable. Les clés commencent par press.status. Termes : shared/i18n/glossary-fr.md. */
+/* Slop Press, français : la barre d’état (ui/status.js) : navigation entre les pages, zoom, contrôle préalable. Les clés commencent par press.status. Termes : shared/i18n/glossary-fr.md. */
 window.SlopI18n && window.SlopI18n.add('fr', {
   'press.status.zoom': 'Zoom',
   'press.status.zoom_pct': 'Zoom en pourcentage',
