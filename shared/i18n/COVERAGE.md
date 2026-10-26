@@ -12,7 +12,7 @@ finds in its code (`node tools/i18n/i18n.mjs extract <app>` lists them). The rat
 | Shared chrome (header, switcher, footer, Settings) | 114 | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% |
 | Shared components (shared/i18n/ui) | 220 | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% |
 
-Shared code (shell/, shared/) still has 6241 hard-coded strings; most belong to one app family (office, biz, watermark, ...).
+Shared code (shell/, shared/) still has 6215 hard-coded strings; most belong to one app family (office, biz, watermark, ...).
 
 ## Apps, by strings to translate
 
@@ -21,9 +21,9 @@ Shared code (shell/, shared/) still has 6241 hard-coded strings; most belong to 
 | 1 | File convert | convert | 2030 | 0 | 2030 | 0 of 29 |
 | 2 | PhotoSlop | photoslop | 1855 | 0 | 1855 | 0 of 29 |
 | 3 | Slop PDF | pdf | 1682 | 1467 | 215 | 0 of 29 |
-| 4 | SlopCut | slopedit | 1426 | 0 | 1426 | 0 of 29 |
-| 5 | SlopLabel | label | 1406 | 0 | 1406 | 0 of 29 |
-| 6 | Slop Press | press | 1373 | 0 | 1373 | 0 of 29 |
+| 4 | Slop Press | press | 1373 | 0 | 1373 | 0 of 29 |
+| 5 | SlopCut | slopedit | 1128 | 769 | 359 | 0 of 29 |
+| 6 | SlopLabel | label | 1123 | 668 | 455 | 0 of 29 |
 | 7 | SlopVector | vector | 1020 | 0 | 1020 | 0 of 29 |
 | 8 | Slop Slides | slides | 785 | 0 | 785 | 0 of 29 |
 | 9 | Slop Tables | tables | 694 | 0 | 694 | 0 of 29 |
@@ -82,12 +82,14 @@ Shared code (shell/, shared/) still has 6241 hard-coded strings; most belong to 
 | 62 | Slop Reminders | reminders | 44 | 0 | 44 | 0 of 29 |
 | 63 | Checksum | checksum | 42 | 0 | 42 | 0 of 29 |
 
-Total: 25134 strings in 63 apps.
+Total: 24553 strings in 63 apps.
 
 ## Apps with tables, per language
 
 | App | en | es | fr | de | pt-BR | it | ar | sv | zh-CN | zh-TW | ja | ko | hi | ru | uk | pl | nl | tr | id | vi | he | sw | am | ha | yo | ig | zu | xh | af |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | pdf | 87% | 0% | 0% | 87% | 0% | 0% | 87% | 87% | 0% | 0% | 87% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
+| slopedit | 68% | 0% | 0% | 0% | 0% | 0% | 0% | 68% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
+| label | 59% | 0% | 0% | 0% | 0% | 0% | 0% | 59% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
 | effects | 60% | 0% | 0% | 0% | 0% | 0% | 0% | 60% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
 | remix | 70% | 0% | 0% | 0% | 0% | 0% | 0% | 70% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |

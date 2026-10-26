@@ -237,3 +237,40 @@ Register: informal «du», as the Swedish versions of Microsoft Office, Adobe Ac
 | grid / ruler / guide | rutnät / linjal / stödlinje |  |
 | element (object on a label) | objekt |  |
 | copies | kopior | «Antal kopior» |
+
+## Wave 1 terms (SlopCut, SlopLabel, Slop Effects, Reel Remix)
+
+| English | Svenska | Note |
+| --- | --- | --- |
+| inspector (panel) | Granskare | SlopCut's right panel |
+| program monitor | programmonitor |  |
+| colour matte | färgplatta |  |
+| cross dissolve | övertoning | «Tona via svart/vitt» for dip to black/white |
+| wipe | svep |  |
+| lower third | namnskylt |  |
+| random edit | slumpklippning | «Blanda om» for reshuffle |
+| cut (a span of a random edit or reel) | klipp | same word as clip; «klippning» for the whole edit |
+| slot (a cell of a layout) | plats |  |
+| reel | reel | «Stående 9:16-reel» |
+| effect layer | effektlager | «slumpeffektlager» for the random one |
+| safe areas | säkra områden |  |
+| shuttle (J/K/L) | spola | «Spola bakåt (J)» |
+| ripple edit tool | Ripple-verktyg |  |
+| null layer | nollager |  |
+| solid layer | färglager |  |
+| anchor point | fästpunkt | as the PDF part |
+| feather (mask) | mjuk kant |  |
+| quiet zone (barcode) | frizon |  |
+| bearer bars | bärlister |  |
+| human readable (barcode text) | läsbar text |  |
+| check digit | kontrollsiffra |  |
+| symbology | symbologi |  |
+| record (a data row) | post | «Föregående post», «Skriv ut post 3» |
+| prompt (variable asked at print) | fråga | «Fråga vid utskrift» |
+| thermal transfer / direct thermal | termotransfer / direkt termo |  |
+| darkness (printer) | svärta |  |
+| config (saved setup) | konfiguration |  |
+| print form link | länk till utskriftsformulär |  |
+| inverse box | inverterad ruta |  |
+| look (colour) | look | «Färglook», «Looks» |
+| pace | tempo |  |
