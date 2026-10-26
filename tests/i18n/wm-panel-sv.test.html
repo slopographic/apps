@@ -69,7 +69,7 @@
         expect(p.el.querySelector('.swp-cell[data-pos="br"]').getAttribute('aria-label')).toBe('Bottom right');
         expect(pv.canvas.getAttribute('aria-label')).toBe('Preview with the watermark');
         expect(KEY.test(visible(p.el))).toBe(false);
-      } finally { p.destroy(); pv.destroy(); localStorage.removeItem('slop-profile'); }
+      } finally { p.destroy(); pv.destroy(); localStorage.removeItem('slop-profile'); SlopTest.english(); }
     });
   });
   run({ name: 'The shared watermark panel in Swedish' });

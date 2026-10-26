@@ -6,12 +6,13 @@
  *   ready()        resolves once the tables are in.
  * In a page, this module waits (top-level await) until the tables are in, so no code of convert runs without its words:
  * a page that has SlopI18n but not these tables (another app's Convert dialog, Slop Workflows, the ops) gets the table
- * files that convert/i18n/index.js names, and a page without SlopI18n at all (a test page) gets shared/i18n/i18n.js first.
+ * files that convert/i18n/index.js names, and a page without SlopI18n at all (a test page) gets shared/profile/profile.js and shared/i18n/i18n.js first.
  * In Node (the tests, tools/seo, the shared ops) there is no page: tr reads the English tables from disk (nodeTable), the
  * same files a page runs, so Node and the page say the same words. */
 const g = globalThis;
 const INDEX = new URL('../../i18n/index.js', import.meta.url).href;
 const FRAMEWORK = new URL('../../../shared/i18n/i18n.js', import.meta.url).href;
+const PROFILE = new URL('../../../shared/profile/profile.js', import.meta.url).href;   // where the visitor's language choice is kept
 const PROBE = 'convert.card.go';   // any key of the tables: present once they are in
 const IN_NODE = !!(g.process && g.process.versions && g.process.versions.node);
 let loading = null;
@@ -62,7 +63,8 @@ function ensure() {
   if (loading) return loading;
   if (IN_NODE || !d || !d.createElement) return (loading = Promise.resolve());
   loading = (async () => {
-    if (!g.SlopI18n) await addScript(FRAMEWORK);
+    // the profile first, so the framework reads the language the visitor chose (without it: the build's default)
+    if (!g.SlopI18n) { if (!g.SlopProfile) await addScript(PROFILE); await addScript(FRAMEWORK); }
     const S = g.SlopI18n;
     if (!S || (S.has && S.has(PROBE)) || [...d.scripts].some((x) => x.src === INDEX)) return;
     await addTables(S.get());

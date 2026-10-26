@@ -52,7 +52,7 @@
         expect(texts(P.el, '.sgd-btns button')).toEqual(['Clear', 'Replace', 'Apply']);
         expect(texts(P.el, '.sgd-help dd')[0]).toBe('a guide');
         expect(KEY.test(visible(P.el))).toBe(false);
-      } finally { P.close(); localStorage.removeItem(STATE); localStorage.removeItem('slop-profile'); }
+      } finally { P.close(); localStorage.removeItem(STATE); localStorage.removeItem('slop-profile'); SlopTest.english(); }
     });
   });
   run({ name: 'The guides panel in Swedish' });

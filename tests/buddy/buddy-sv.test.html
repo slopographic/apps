@@ -62,7 +62,7 @@
       const tip = win.document.querySelector('.buddy-toggle .bt-main').title;
       expect(tip === win.SlopI18n.t('ui.buddy.toggle_tip') || /^[^()]+ \(Alt\+Shift\+S\)$/.test(tip)).toBe(true);
       expect(win.SlopI18n.t('ui.buddy.toggle_tip')).toMatch(/ buddy \(Alt\+Shift\+S\)$/);
-      try { localStorage.removeItem('slop-profile'); } catch (e) { /* none */ }
+      try { localStorage.removeItem('slop-profile'); SlopTest.english(); } catch (e) { /* none */ }
     });
   });
   run({ name: 'Buddy in Swedish' });

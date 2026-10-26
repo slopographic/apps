@@ -32,7 +32,7 @@
       await waitFor(() => document.documentElement.lang === 'sv', { timeout: 10000 });
       try {
         expect([f(512), f(3500), f(10240), f(2621440), f(1288490189)]).toEqual(['512 byte', '3,4 kB', '10 kB', '2,5 MB', '1,20 GB']);
-      } finally { I.set('en'); localStorage.removeItem('slop-profile'); }
+      } finally { I.set('en'); localStorage.removeItem('slop-profile'); SlopTest.english(); }
       expect(f(3500)).toBe('3.4 KB');
     });
   });

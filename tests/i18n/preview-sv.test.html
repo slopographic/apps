@@ -67,7 +67,7 @@
         expect(d.querySelector('[data-act="like"]').textContent).toBe('Like');
         expect(v.el.querySelector('.spv-note').textContent).toBe('No preview for this kind of file.');
         expect(window.SlopKinds.label('code')).toBe('Code and text');
-      } finally { deck.close(); v.close(); localStorage.removeItem('slop-profile'); }
+      } finally { deck.close(); v.close(); localStorage.removeItem('slop-profile'); SlopTest.english(); }
     });
   });
   run({ name: 'File preview, kinds, photo deck and faces in Swedish' });

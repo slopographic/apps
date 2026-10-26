@@ -99,7 +99,7 @@
           const cs = D.defaultView.getComputedStyle(D.querySelector('.fname'));
           expect(W + ' ' + (Number(cs.flexShrink) > 0 && box(D.querySelector('.fname')).width >= parseFloat(cs.minWidth) - 0.5)).toBe(W + ' true');
         }
-      } finally { try { if (was === null) localStorage.removeItem('slop-profile'); else localStorage.setItem('slop-profile', was); } catch (e) { /* no storage */ } }
+      } finally { try { if (was === null) { localStorage.removeItem('slop-profile'); SlopTest.english(); } else localStorage.setItem('slop-profile', was); } catch (e) { /* no storage */ } }
     }, { timeout: 60000 });
   });
   SlopTest.run({ name: 'Slop Tables: the look' });

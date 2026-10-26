@@ -36,7 +36,7 @@
   const themeNames = (f) => [...f.contentDocument.querySelectorAll('#theme-options .theme-name')].map((n) => n.textContent);
 
   describe('Settings in Swedish', () => {
-    afterEach(() => { frames.splice(0).forEach((f) => f.remove()); localStorage.removeItem('slop-profile'); });
+    afterEach(() => { frames.splice(0).forEach((f) => f.remove()); localStorage.removeItem('slop-profile'); SlopTest.english(); });
 
     it('the page text, the status lines and the drawn parts are Swedish, and no key shows', async () => {
       const f = await open('sv');

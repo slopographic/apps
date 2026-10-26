@@ -136,7 +136,7 @@
       } finally {
         const back = new Promise((res) => { const off = I18.on(() => { off(); res(); }); });
         I18.set('en'); await back;
-        try { localStorage.removeItem('slop-profile'); } catch (e) { /* private window */ }
+        try { localStorage.removeItem('slop-profile'); SlopTest.english(); } catch (e) { /* private window */ }
       }
       expect(badgeText('recommended', 'Swedish')).toBe('Recommended for Swedish');
     });

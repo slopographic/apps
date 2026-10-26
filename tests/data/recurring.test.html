@@ -53,7 +53,7 @@
       await waitFor(() => document.documentElement.lang === 'sv', { timeout: 10000 });
       try {
         expect([R.describe({ every: 1, unit: 'month' }), R.describe({ every: 2, unit: 'week' }), R.describe({ every: 1, unit: 'week' })]).toEqual(['varje månad', 'var 2:e vecka', 'varje vecka']);
-      } finally { I.set('en'); localStorage.removeItem('slop-profile'); }
+      } finally { I.set('en'); localStorage.removeItem('slop-profile'); SlopTest.english(); }
       expect(R.describe({ every: 3, unit: 'month' })).toBe('every 3 months');
     });
     it('due dates: every missed period up to today, not past the end, none when paused', () => {

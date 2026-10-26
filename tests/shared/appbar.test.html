@@ -79,7 +79,7 @@
         expect([attr('.sab-dirty', 'title'), attr('.sab-actions', 'aria-label'), attr('a.brand', 'aria-label')]).toEqual(['Osparade ändringar', 'Åtgärder', 'Slopographic start']);
         const again = SlopAppBar.mount($('narrow'), { title: 'App', actions, menu });
         expect(again.element.querySelector('.sab-menu').getAttribute('aria-label')).toBe('Fler åtgärder');   // built in Swedish
-      } finally { I.set('en'); localStorage.removeItem('slop-profile'); }
+      } finally { I.set('en'); localStorage.removeItem('slop-profile'); SlopTest.english(); }
       await waitFor(() => attr('.sab-more-btn', 'aria-label') === 'More actions', { timeout: 10000 });
     });
   });

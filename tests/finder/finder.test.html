@@ -241,7 +241,7 @@
         expect($('.fd-count').textContent).toBe('1 app');
         mountIt({ items: ITEMS.slice(0, 2), noun: undefined });
         expect($('.fd-count').textContent).toBe('2 objekt');   // no count of the caller's: the shared default
-      } finally { f.destroy(); await lang('en'); localStorage.removeItem('slop-profile'); }
+      } finally { f.destroy(); await lang('en'); localStorage.removeItem('slop-profile'); SlopTest.english(); }
     });
     it('SlopList counts with the app\'s plural key, and the older noun pair still reads', async () => {
       const box = document.createElement('div'), sum = document.createElement('p');

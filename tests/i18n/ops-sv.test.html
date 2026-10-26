@@ -53,7 +53,7 @@
         expect(R.byId('resize.image').label).toBe('Resize');
         expect(R.byId('slopedit.reframe').options[0].label).toBe('Frame');
         expect(window.SlopWorkflowEntry.menuItems(() => []).map((i) => i.label)).toEqual(['Run a workflow…', 'Add to a workflow…']);
-      } finally { localStorage.removeItem('slop-profile'); }
+      } finally { localStorage.removeItem('slop-profile'); SlopTest.english(); }
     });
   });
   run({ name: 'Slop Workflows steps in Swedish' });

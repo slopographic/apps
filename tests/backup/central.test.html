@@ -80,7 +80,7 @@
 
     it('a version 1 Slopographic .slop backup imports: its Drive databases and profile settings', async () => {
       const C = await BK.central();
-      localStorage.removeItem('slop-profile');
+      localStorage.removeItem('slop-profile'); SlopTest.english();
       await BK.deleteDb('slop-drive');
       const manifest = { format: 'slopographic-backup', version: 1, created: '2025-06-01T10:00:00.000Z', origin: location.origin, app: 'Slopographic', counts: {}, bytes: 3 };
       const local = { 'slop-profile': JSON.stringify({ v: 1, data: { photoslop: { zoom: 'fit' } } }), 'slop-sync': '{"clientId":"LEGACY-SYNC"}', 'slop-consent': '{"token":"LEGACY-CONSENT"}' };
@@ -103,7 +103,7 @@
       expect((await C.apply(p)).ok).toBe(true);
       expect(await (await BK.driveFile('f1')).blob.text()).toBe('abc');
       expect(JSON.parse(localStorage.getItem('slop-profile')).data.photoslop.zoom).toBe('fit');
-      localStorage.removeItem('slop-profile');
+      localStorage.removeItem('slop-profile'); SlopTest.english();
     });
   });
   describe('the dialog', () => {
