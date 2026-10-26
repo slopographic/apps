@@ -29,7 +29,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'aitools.ocr.sent': 'Slop Drive에 {name} 이름으로 저장했습니다. Slop Docs에서 새 탭으로 여는 중입니다.',
   'aitools.ocr.no_drive': '여기에서는 Slop Drive를 사용할 수 없어 텍스트를 Slop Docs로 보낼 수 없습니다. 대신 다운로드를 사용하세요.',
   'aitools.speech.intro': '여기에서는 한 번에 파일 하나만 다룹니다. 음성을 녹음하거나, 여러 파일을 한꺼번에 받아쓰거나, 텍스트를 고치거나, Word 또는 WebVTT로 저장하려면 ',
-  'aitools.speech.intro_end': ' (같은 모델을 사용하며, 한 번 내려받으면 이 기기에 이미 있습니다).',
+  'aitools.speech.intro_end': ' (같은 모델을 사용하며, 한 번 다운로드하면 이 기기에 이미 있습니다).',
   'aitools.speech.drop': '여기에 오디오나 동영상 파일을 놓거나 ',
   'aitools.speech.limit': '최대 2시간. 긴 파일은 30초 단위로 읽습니다.',
   'aitools.speech.auto': '자동 감지',
