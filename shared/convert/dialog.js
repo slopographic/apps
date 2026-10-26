@@ -32,13 +32,15 @@ export function pdfMaker(kind) {
 
 const h = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
 const toast = (m) => { if (window.SlopUI && window.SlopUI.toast) window.SlopUI.toast(m); };
+/** The words (shared/i18n/ui/<code>/ai2.js). */
+const T = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
 
 class ConvertDialog {
   constructor(opts) {
     this.opts = opts;
     this.tool = null; this.box = null; this.provided = new Set();
     this.done = new Promise((r) => { this.resolveDone = r; });
-    this.ready = this.start().catch((e) => { console.warn(e); toast('Convert could not open: ' + ((e && e.message) || e)); this.resolveDone(); });
+    this.ready = this.start().catch((e) => { console.warn(e); toast(T('ui.convert.could_not_open', { error: String((e && e.message) || e) })); this.resolveDone(); });
   }
 
   async start() {
@@ -56,8 +58,8 @@ class ConvertDialog {
     this.pdfBox = h('p', 'sl-cvt-note sl-cvt-err');
     this.host = h('div', 'sl-cvt-tool');
     this.notes = h('div', 'sl-cvt-notes');
-    wrap.append(this.fromBox, this.pdfBox, this.host, this.notes, h('p', 'sl-cvt-foot', 'Converted on this device. Nothing is uploaded.'));
-    this.dlg = window.SlopUI.dialog({ title: 'Convert', body: wrap, cls: 'sl-cvt-dlg', onClose: () => this.closed() });
+    wrap.append(this.fromBox, this.pdfBox, this.host, this.notes, h('p', 'sl-cvt-foot', T('ui.convert.foot')));
+    this.dlg = window.SlopUI.dialog({ title: T('ui.convert.title'), body: wrap, cls: 'sl-cvt-dlg', onClose: () => this.closed() });
     this.box = this.dlg.box;
     const back = this.box.parentElement;
     // The dialog takes every file drop over it; the page under it sees none of them.
@@ -98,9 +100,9 @@ class ConvertDialog {
     this.fromBox.replaceChildren();
     this.fromBox.hidden = !left.length;
     if (!left.length || !from) return;
-    const rm = h('button', 'cv-btn cv-small sl-cvt-from-rm', 'Remove');
+    const rm = h('button', 'cv-btn cv-small sl-cvt-from-rm', T('ui.remove'));
     rm.type = 'button';
-    rm.setAttribute('aria-label', `Remove the files from ${from.app}`);
+    rm.setAttribute('aria-label', T('ui.convert.remove_from', { app: from.app }));
     rm.addEventListener('click', () => {
       this.tool.items = this.tool.items.filter((i) => !this.provided.has(i.file));
       this.provided.clear();
@@ -109,7 +111,7 @@ class ConvertDialog {
       const b = this.host.querySelector('.cv-drop button');
       if (b) b.focus();
     });
-    this.fromBox.append(h('span', 'sl-cvt-from-txt', `From ${from.app}: ${left.map((i) => i.name).join(', ')}`), rm);
+    this.fromBox.append(h('span', 'sl-cvt-from-txt', T('ui.convert.from', { app: from.app, files: left.map((i) => i.name).join(', ') })), rm);
   }
 
   /** The notes of the conversions in use (how faithful each one is), and with onPdf the files that cannot become a PDF. */
@@ -121,7 +123,7 @@ class ConvertDialog {
     this.notes.replaceChildren(...list);
     const bad = this.opts.onPdf ? t.items.filter((i) => !pdfMaker(i.kind)) : [];
     this.pdfBox.hidden = !bad.length;
-    this.pdfBox.textContent = bad.length ? `${bad.map((i) => '“' + i.name + '”').join(', ')} cannot be converted to PDF here. Pictures, SVG, HTML, text and Markdown files make a PDF.` : '';
+    this.pdfBox.textContent = bad.length ? T('ui.convert.no_pdf', { files: bad.map((i) => '“' + i.name + '”').join(', ') }) : '';
     if (this.provided.size && !t.items.some((i) => this.provided.has(i.file))) { this.provided.clear(); this.fromBox.hidden = true; }
   }
 

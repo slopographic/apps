@@ -32,39 +32,46 @@
   }
   const el = (tag, attrs, ...kids) => { const n = document.createElement(tag); for (const k in attrs || {}) { if (attrs[k] == null || attrs[k] === false) continue; if (k === 'class') n.className = attrs[k]; else if (k.startsWith('on')) n.addEventListener(k.slice(2), attrs[k]); else n.setAttribute(k, attrs[k] === true ? '' : attrs[k]); } for (const c of kids.flat()) if (c != null && c !== false) n.append(c.nodeType ? c : document.createTextNode(c)); return n; };
   const kindName = (kind) => (P.KINDS[kind] || P.KINDS.delete).name;
+  const T = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);   // the words: shared/i18n/ui/<code>/ai2.js
+  const onLang = (fn) => (g.SlopI18n && g.SlopI18n.on ? g.SlopI18n.on(fn) : () => {});
 
   P.prompt = function (req) {
     if (!g.SlopUI || !g.SlopUI.dialog) return Promise.resolve(g.confirm(`${req.action}\n\n${req.detail || ''}`) ? 'once' : 'deny');
     style();
-    const app = req.appName || 'this app', k = kindName(req.kind);
+    const app = req.appName || T('ui.ai.this_app'), k = kindName(req.kind);
     const body = el('div', null,
-      el('p', { class: 'sui-p sap-perm-act' }, req.action || 'An action'),
+      el('p', { class: 'sui-p sap-perm-act' }, req.action || T('ui.ai.perm.an_action')),
       req.detail ? el('p', { class: 'sui-p' }, req.detail) : null,
-      el('p', { class: 'sui-p sap-perm-kind' }, `Kind of action: ${k}. ${req.step ? `Step ${req.step} of this request.` : ''}`.trim()));
+      el('p', { class: 'sui-p sap-perm-kind' }, req.step ? T('ui.ai.perm.kind_line_step', { kind: k, step: req.step }) : T('ui.ai.perm.kind_line', { kind: k })));
     return new Promise((resolve) => {
       let choice = 'deny';
       const pick = (c) => () => { choice = c; };
-      g.SlopUI.dialog({ title: req.title || `Allow this in ${app}?`, body, cls: 'sap-perm-dlg',
+      g.SlopUI.dialog({ title: req.title || T('ui.ai.perm.title', { app }), body, cls: 'sap-perm-dlg',
         buttons: [
-          { label: 'Allow once', primary: true, act: pick('once') },
-          { label: 'Allow for this request', act: pick('request') },
-          { label: `Allow ${k} for this visit`, act: pick('visit') },
-          { label: `Always allow ${k} in ${app}`, act: pick('always') },
-          { label: 'Deny', act: pick('deny') },
+          { label: T('ui.ai.perm.allow_once'), primary: true, act: pick('once') },
+          { label: T('ui.ai.perm.allow_request'), act: pick('request') },
+          { label: T('ui.ai.perm.allow_visit', { kind: k }), act: pick('visit') },
+          { label: T('ui.ai.perm.allow_always', { kind: k, app }), act: pick('always') },
+          { label: T('ui.ai.perm.deny'), act: pick('deny') },
         ],
         onClose: () => resolve(choice) });
     });
   };
 
+  const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
   P.modeControl = function () {
     style();
-    const sel = el('select', { class: 'sap-mode', 'aria-label': 'AI permissions', title: 'What Slop AI may do without asking' },
-      P.MODES.map((m) => el('option', { value: m.id, title: m.note }, m.short || m.label)));
+    const sel = el('select', { class: 'sap-mode' }, P.MODES.map((m) => el('option', { value: m.id })));
+    const words = () => {
+      sel.setAttribute('aria-label', T('ui.ai.panel.permissions')); sel.title = T('ui.ai.perm.what');
+      for (const o of sel.options) { const m = P.MODES.find((x) => x.id === o.value); o.title = m.note; o.textContent = m.short || m.label; }
+    };
+    words(); onLang(words);
     const sync = () => { sel.value = P.mode(); sel.classList.toggle('all', sel.value === 'all'); };
     sel.addEventListener('change', async () => {
       const m = P.MODES.find((x) => x.id === sel.value);
       if (m && m.warning) {
-        const ok = g.SlopUI && g.SlopUI.confirm ? await g.SlopUI.confirm(m.label + '?', m.warning, m.label, { danger: true }) : g.confirm(m.warning);
+        const ok = g.SlopUI && g.SlopUI.confirm ? await g.SlopUI.confirm(m.question || m.label, m.warning, m.label, { danger: true }) : g.confirm(m.warning);
         if (!ok) return sync();
       }
       P.setMode(sel.value); sync();
@@ -81,8 +88,8 @@
     const draw = () => {
       wrap.textContent = '';
       const now = P.mode();
-      wrap.append(el('b', null, 'AI permissions'),
-        el('p', { class: 'sap-dim' }, 'What the assistant may do without asking. Reading and ordinary edits never ask, and “Undo all AI changes” works in every mode.'));
+      wrap.append(el('b', null, T('ui.ai.panel.permissions')),
+        el('p', { class: 'sap-dim' }, T('ui.ai.perm.intro')));
       for (const m of P.MODES) {
         const r = el('input', { type: 'radio', name: 'sap-perm-mode', value: m.id, checked: m.id === now || null, class: 'sap-perm-mode' });
         r.addEventListener('change', () => { P.setMode(m.id); draw(); if (o.onChange) o.onChange(m.id); });
@@ -90,12 +97,13 @@
         if (m.warning && m.id === now) wrap.append(el('p', { class: 'sap-perm-warn', role: 'alert' }, m.warning));
       }
       const list = P.rules();
-      wrap.append(el('b', null, 'Always allowed on this device'));
-      if (!list.length) wrap.append(el('p', { class: 'sap-dim sap-perm-none' }, 'Nothing yet. Choose “Always allow …” when the assistant asks.'));
-      else wrap.append(el('ul', { class: 'sap-perm-rules' }, list.map((r) => el('li', null, el('span', null, `${kindName(r.kind)[0].toUpperCase()}${kindName(r.kind).slice(1)} in ${r.appName || r.app}`),
-        el('button', { type: 'button', class: 'sap-btn sap-perm-remove', 'data-kind': r.kind, 'data-app': r.app, onclick: () => { P.removeRule(r.kind, r.app); draw(); if (o.onChange) o.onChange(); } }, 'Remove')))));
+      wrap.append(el('b', null, T('ui.ai.perm.always_h')));
+      if (!list.length) wrap.append(el('p', { class: 'sap-dim sap-perm-none' }, T('ui.ai.perm.none')));
+      else wrap.append(el('ul', { class: 'sap-perm-rules' }, list.map((r) => el('li', null, el('span', null, cap(T('ui.ai.perm.rule', { kind: kindName(r.kind), app: r.appName || r.app }))),
+        el('button', { type: 'button', class: 'sap-btn sap-perm-remove', 'data-kind': r.kind, 'data-app': r.app, onclick: () => { P.removeRule(r.kind, r.app); draw(); if (o.onChange) o.onChange(); } }, T('ui.remove'))))));
     };
     draw();
+    const off = onLang(() => { if (wrap.isConnected) draw(); else off(); });
     box.append(wrap);
     return wrap;
   };

@@ -25,6 +25,7 @@
   const opts = { button: !me || me.dataset.button !== 'false', app: me && me.dataset.app };
   const K = (window.SlopAIKit = window.SlopAIKit || {});
   K.base = K.base || base;
+  const T = (k, v) => (window.SlopI18n ? SlopI18n.t(k, v) : k);   // the words: shared/i18n/ui/<code>/ai.js
   const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = base + 'panel.css'; document.head.append(css);
   const add = (src, test) => new Promise((res, rej) => { if (test && test()) return res(); const s = document.createElement('script'); s.src = new URL(src + '.js', base).href; s.async = false; s.onload = res; s.onerror = () => rej(new Error('load ' + src)); document.head.append(s); });
   const sheetP = add('../ui/sheet', () => window.SlopSheet);   // a phone's bottom sheet: as soon as it is here, not after the kit
@@ -65,7 +66,8 @@
   function takeHandoff() {
     const ho = K.handoff && K.handoff.take(appId());
     if (!ho) return;
-    P.messages.push(...(ho.messages || []), { role: 'assistant', content: '', display: ho.line || `Continued from ${ho.fromName || 'another app'}.`, note: true, handoff: true });
+    const dk = ho.line ? ho.dk : ho.fromName ? 'ui.ai.panel.continued' : 'ui.ai.panel.continued_other', dv = ho.line ? ho.dv : { app: ho.fromName };
+    P.messages.push(...(ho.messages || []), { role: 'assistant', content: '', display: ho.line || T(dk, dv), dk, dv, note: true, handoff: true });
     P.pending = ho.task; P.chain = ho.chain || null;
     if (!root || root.hidden) open();
   }
@@ -80,33 +82,36 @@
   const h = (tag, attrs, ...kids) => { const n = document.createElement(tag); for (const k in attrs || {}) { const v = attrs[k]; if (v == null || v === false) continue; if (k === 'class') n.className = v; else if (k.startsWith('on')) n.addEventListener(k.slice(2), v); else n.setAttribute(k, v === true ? '' : v); } for (const c of kids.flat()) if (c != null && c !== false) n.append(c.nodeType ? c : document.createTextNode(c)); return n; };
   const SPARK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c.6 4.6 2.4 6.4 7 7-4.6.6-6.4 2.4-7 7-.6-4.6-2.4-6.4-7-7 4.6-.6 6.4-2.4 7-7z"/></svg>';
   const appId = () => opts.app || (window.SlopHub && SlopHub.self && SlopHub.self.app) || location.pathname.split('/').filter(Boolean)[0] || 'home';
-  const appName = () => { const a = (window.SLOP_APPS || []).find((x) => x.id === appId()); return a ? a.name : 'this page'; };
+  const appName = () => { const a = (window.SLOP_APPS || []).find((x) => x.id === appId()); return a ? a.name : T('ui.ai.this_page'); };
   const WIDE = '(min-width: 901px)';
 
-  const P = { messages: [], local: null, busy: null, h, appId, appName, K };
+  const P = { messages: [], local: null, busy: null, h, appId, appName, K, T };
+  /** What a message shows: a note made from a key (dk, dv) in the language now, else its text. */
+  P.shown = (m) => (m.dk ? T(m.dk, m.dv) : m.display != null ? m.display : m.content);
   let host = null, root = null, sheet = null;
 
   function build() {
     if (root) return;
     P.toolsBox = h('input', { type: 'checkbox', checked: !!window.SlopCmd });
-    P.input = h('textarea', { rows: 2, placeholder: 'Ask about ' + appName() + ', or say what to do…', 'aria-label': 'Message' });
-    P.sendBtn = h('button', { type: 'button', class: 'sap-send', 'aria-label': 'Send', onclick: () => (P.busy ? P.stop() : sendWhenReady()) }, '↑');
+    P.input = h('textarea', { rows: 2 });
+    P.sendBtn = h('button', { type: 'button', class: 'sap-send', onclick: () => (P.busy ? P.stop() : sendWhenReady()) }, '↑');
     P.input.addEventListener('keydown', onComposerKey);
     P.input.addEventListener('input', () => { if (P.recall) P.recall.reset(); });   // typing starts the recall over
     P.list = h('div', { class: 'sap-list', role: 'log', 'aria-live': 'polite' });
-    P.status = h('button', { type: 'button', class: 'sap-status', title: 'Change the model' });   // the quick model menu (model-menu.js)
-    P.undoBtn = h('button', { type: 'button', class: 'sap-btn sap-undo', hidden: true, onclick: () => P.undoAll() }, '↶ Undo all AI changes');
+    P.status = h('button', { type: 'button', class: 'sap-status' });   // the quick model menu (model-menu.js)
+    P.undoBtn = h('button', { type: 'button', class: 'sap-btn sap-undo', hidden: true, onclick: () => P.undoAll() });
     root = h('aside', { class: 'sap ssh-panel', role: 'complementary', 'aria-label': 'Slop AI', hidden: true },
       h('header', null, h('span', { class: 'sap-logo', html: null }), h('b', null, 'Slop AI'), P.status,
-        h('button', { type: 'button', class: 'sap-gear', title: 'AI permissions', 'aria-label': 'AI permissions', onclick: () => extras.catch(() => null).then(() => P.settings()) }, '⚙'),
-        h('button', { type: 'button', class: 'sap-x', 'aria-label': 'Close Slop AI', onclick: close }, '×')),
+        P.gear = h('button', { type: 'button', class: 'sap-gear', onclick: () => extras.catch(() => null).then(() => P.settings()) }, '⚙'),
+        P.xBtn = h('button', { type: 'button', class: 'sap-x', onclick: close }, '×')),
       P.list,
-      P.bar = h('div', { class: 'sap-bar' }, h('label', { class: 'sap-tools' }, P.toolsBox, ' Control ' + appName()), P.undoBtn),
+      P.bar = h('div', { class: 'sap-bar' }, h('label', { class: 'sap-tools' }, P.toolsBox, ' ', P.toolsText = h('span')), P.undoBtn),
       h('div', { class: 'sap-comp' }, P.input, P.sendBtn),
-      P.foot = h('div', { class: 'sap-foot' }, 'Runs on your device. Nothing leaves it.'));
+      P.foot = h('div', { class: 'sap-foot' }));
     root.querySelector('.sap-logo').innerHTML = SPARK;
     host = h('div', { class: 'sap-host' }, root);
     document.body.append(host);
+    P.words();
     P.render();
     // the model menu arrives with the later part; a tap before then opens it as soon as it is in (or the model choice)
     const early = () => { if (!P.modelMenu) extras.catch(() => null).then(() => (P.modelMenu ? P.modelMenu.open() : P.choose())); };
@@ -116,9 +121,25 @@
   }
   function fab() {
     if (!opts.button || document.querySelector('.sap-fab')) return;
-    const b = h('button', { type: 'button', class: 'sap-fab', title: 'Slop AI', 'aria-label': 'Open Slop AI', onclick: toggle });
+    const b = h('button', { type: 'button', class: 'sap-fab', title: 'Slop AI', 'aria-label': T('ui.ai.panel.open'), onclick: toggle });
     b.innerHTML = SPARK; document.body.append(b);
   }
+  /** The words of the parts built once (the header, the bar, the composer), again after a language change. */
+  P.words = function () {
+    const fabEl = document.querySelector('.sap-fab');
+    if (fabEl) fabEl.setAttribute('aria-label', T('ui.ai.panel.open'));
+    if (!root) return;
+    P.input.placeholder = T('ui.ai.panel.placeholder', { app: appName() });
+    P.input.setAttribute('aria-label', T('ui.ai.panel.message'));
+    P.sendBtn.setAttribute('aria-label', T(P.busy ? 'ui.ai.panel.stop' : 'ui.ai.panel.send'));
+    if (P.busy) P.sendBtn.textContent = T('ui.ai.panel.stop');
+    P.status.title = T('ui.ai.panel.change_model');
+    P.undoBtn.textContent = '↶ ' + (P.undoN ? T('ui.ai.panel.undo_all_n', { n: P.undoN }) : T('ui.ai.panel.undo_all'));
+    P.gear.title = T('ui.ai.panel.permissions'); P.gear.setAttribute('aria-label', P.gear.title);
+    P.xBtn.setAttribute('aria-label', T('ui.ai.panel.close'));
+    P.toolsText.textContent = T('ui.ai.panel.control', { app: appName() });
+    for (const b of root.querySelectorAll('.sap-back')) b.textContent = '← ' + T('ui.ai.panel.back');   // over a model choice kept as it is
+  };
 
   P.engine = () => (P.local && P.local.loaded ? P.local : window.SlopAI && SlopAI.engine());
   P.renderStatus = function () {
@@ -127,9 +148,10 @@
     if (fabEl) fabEl.classList.toggle('on', !!m);
     document.querySelectorAll('.sh-ai').forEach((b) => b.classList.toggle('on', !!m));
     const c = P.local && P.local.kind === 'cloud' && P.local.loaded ? P.local.info() : null;
-    P.status.textContent = c ? `${c.short} · ${c.name}` : m ? (m.name || m.id || 'Model') + (m.kind === 'remote' ? ' · shared' : m.kind === 'fake' ? ' · demo' : '') : 'no model yet';
+    const name = m && (m.name || m.id || T('ui.ai.panel.model'));
+    P.status.textContent = c ? `${c.short} · ${c.name}` : m ? (m.kind === 'remote' ? T('ui.ai.panel.status_shared', { name }) : m.kind === 'fake' ? T('ui.ai.panel.status_demo', { name }) : name) : T('ui.ai.panel.no_model');
     P.status.classList.toggle('cloud', !!c);
-    if (P.foot) P.foot.textContent = c ? (P.local.provider.local ? `Sent to ${c.who}. Nothing leaves this computer.` : `Sent to ${c.who} with your key. Files only when you allow each one.`) : 'Runs on your device. Nothing leaves it.';
+    if (P.foot) P.foot.textContent = c ? T(P.local.provider.local ? 'ui.ai.panel.foot_local' : 'ui.ai.panel.foot_cloud', { who: c.who }) : T('ui.ai.panel.foot_device');
   };
   /** Forget key: the engine that used it stops here too. */
   P.forgot = (p) => { if (P.local && P.local.kind === 'cloud' && P.local.provider.id === p.id) { P.local = null; P.renderStatus(); } };
@@ -143,31 +165,31 @@
     const picking = ((!P.messages.length && !P.engine()) || P.choosing) && K.picker;
     if (picking && P.pickBox && P.pickBox.isConnected) return;   // keep the model choice (and a download in progress) as it is
     P.list.textContent = ''; P.pickBox = null;
-    if (P.kitError) P.list.append(h('p', { class: 'sap-kit-error', role: 'alert' }, (P.kitPart === 'later' ? 'Part of Slop AI did not load' : 'Slop AI did not load') + ` (${P.kitError.message || P.kitError}). Check the connection, then close and open Slop AI again.`));
+    if (P.kitError) P.list.append(h('p', { class: 'sap-kit-error', role: 'alert' }, T(P.kitPart === 'later' ? 'ui.ai.panel.kit_error_part' : 'ui.ai.panel.kit_error', { error: P.kitError.message || String(P.kitError) })));
     if (P.undoBtn) P.undoBtn.hidden = !P.rollback;   // the button follows what can still be undone
     if (P.setting && window.SlopAIPermissions && SlopAIPermissions.renderSettings) {
       const box = h('div', { class: 'sap-empty sap-settings' });
-      P.list.append(h('button', { type: 'button', class: 'sap-btn sap-back', onclick: () => P.settings() }, '← Back to the chat'), box);
+      P.list.append(h('button', { type: 'button', class: 'sap-btn sap-back', onclick: () => P.settings() }, '← ' + T('ui.ai.panel.back')), box);
       SlopAIPermissions.renderSettings(box, { app: appId(), appName: appName() });
       if (K.handoff) K.handoff.renderSetting(box);
       return;
     }
     if (P.choosing && K.picker) {
       const box = P.pickBox = h('div', { class: 'sap-empty' });
-      P.list.append(h('button', { type: 'button', class: 'sap-btn sap-back', onclick: () => P.choose() }, '← Back to the chat'), box);
+      P.list.append(h('button', { type: 'button', class: 'sap-btn sap-back', onclick: () => P.choose() }, '← ' + T('ui.ai.panel.back')), box);
       K.picker.render(box, { appName: appName(), appId: appId(), tools: () => P.toolsBox.checked, cloudOpen: true, onReady: (eng) => { P.choosing = false; P.use(eng); }, onForget: P.forgot });
       return;
     }
     if (!P.messages.length) {
-      if (P.engine()) P.list.append(h('div', { class: 'sap-empty' }, `Ask anything, or tell me what to do in ${appName()}. For example: “blur the background”.`));
+      if (P.engine()) P.list.append(h('div', { class: 'sap-empty' }, T('ui.ai.panel.empty', { app: appName() })));
       else if (picking) {
         const box = P.pickBox = h('div', { class: 'sap-empty' });
         P.list.append(box);
         K.picker.render(box, { appName: appName(), appId: appId(), tools: () => P.toolsBox.checked, onReady: (eng) => P.use(eng), onForget: P.forgot });
-      } else if (!P.kitError) P.list.append(h('div', { class: 'sap-empty sap-loading' }, 'Loading the AI tools…'));
+      } else if (!P.kitError) P.list.append(h('div', { class: 'sap-empty sap-loading' }, T('ui.ai.panel.loading')));
     }
     if (P.viewAll) P.list.append(...P.viewAll(P.messages));
-    else for (const m of P.messages) P.list.append(h('div', { class: 'sap-msg ' + m.role }, m.display != null ? m.display : m.content));
+    else for (const m of P.messages) P.list.append(h('div', { class: 'sap-msg ' + m.role }, P.shown(m)));
     P.list.scrollTop = P.list.scrollHeight;
   };
   /** A model this page loaded itself (the picker, a test's fake engine): used here and shared with other tabs. */
@@ -214,6 +236,8 @@
 
   const start = () => { fab(); kit.then(() => { SlopAI.on('change', () => { P.renderStatus(); if (root && !P.messages.length) P.render(); }); P.renderStatus(); }).catch((e) => console.warn('Slop AI panel:', e.message)); };
   if (document.body) start(); else document.addEventListener('DOMContentLoaded', start);
+  // a language change: the words built once, then the chat again (not during a reply; the model choice redraws itself)
+  if (window.SlopI18n && SlopI18n.on) SlopI18n.on(() => { P.words(); P.renderStatus(); if (root && !P.busy) P.render(); });
   window.SlopAIPanel = { open, close, toggle, OPEN_KEY, send: (t) => { open(); return sendWhenReady(t); }, use: (e) => kit.then(() => P.use(e)),
     get messages() { return P.messages; }, get isOpen() { return !!root && !root.hidden; },
     ready: allReady, chatReady: kit, _p: P };

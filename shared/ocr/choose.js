@@ -15,6 +15,8 @@ import { ocrLanguages } from './languages.js';
 import { suggestModel } from './suggest.js';
 
 const READY = /^(installed|update|bundled)$/;
+/** The words (shared/i18n/ui/<code>/models.js), read when drawn. */
+const T = (k, v) => (globalThis.SlopI18n ? globalThis.SlopI18n.t(k, v) : k);
 const SITE = new URL('../../', import.meta.url);
 
 /** Loads what the chooser needs on a page that did not load it up front (Slop PDF): the cdn hosts, the catalog, the OCR model list (which
@@ -109,10 +111,10 @@ export function createOcrChoice(o = {}) {
   /** The sentence for a suggestion. */
   function sentence(s) {
     const m = s.model && C.byId(s.model), lang = s.language ? L.name(s.language) : '';
-    if (s.reason === 'script') return `This looks like ${lang || C.SCRIPTS[s.script].name} text. ${m.name} reads it.`;
-    if (s.reason === 'accents') return `${m.name} reads accented letters (å, ä, ö, é …) that the quick model drops${lang ? `, for ${lang}` : ''}.`;
-    if (m) return `Some lines were not read clearly. If the text is in ${lang}, ${m.name} reads it.`;
-    return 'Some lines were not read clearly. If the text is not in Chinese or English, choose its language.';
+    if (s.reason === 'script') return T('ui.models.ocr_script', { lang: lang || C.SCRIPTS[s.script].name, model: m.name });
+    if (s.reason === 'accents') return lang ? T('ui.models.ocr_accents_for', { model: m.name, lang }) : T('ui.models.ocr_accents', { model: m.name });
+    if (m) return T('ui.models.ocr_unclear_in', { lang, model: m.name });
+    return T('ui.models.ocr_unclear');
   }
   /** A notice with the suggestion and a button that opens the dialog on it; null when there is nothing to say. */
   function suggestion(s, onChosen) {
@@ -121,7 +123,7 @@ export function createOcrChoice(o = {}) {
     p.className = 'ocr-suggest';
     p.setAttribute('role', 'status');
     b.type = 'button'; b.className = 'sui-btn';
-    b.textContent = s.model ? `Use ${C.byId(s.model).name}…` : 'Choose the language…';
+    b.textContent = s.model ? T('ui.models.ocr_use', { name: C.byId(s.model).name }) : T('ui.models.ocr_choose');
     b.addEventListener('click', async () => { const c = await open({ language: s.language || 'auto', model: s.model }); if (c && onChosen) onChosen(c); });
     p.append(sentence(s) + ' ', b);
     return p;
@@ -131,9 +133,10 @@ export function createOcrChoice(o = {}) {
   function button(b = null, onChosen = null) {
     if (!b) { b = document.createElement('button'); b.type = 'button'; b.className = 'sui-btn'; }
     b.classList.add('ocr-lang-btn');
-    const draw = () => { b.textContent = 'Language and model'; b.title = label(); b.setAttribute('aria-description', label()); };
+    const draw = () => { b.textContent = T('ui.models.title'); b.title = label(); b.setAttribute('aria-description', label()); };
     draw();
     drawers.push(draw);
+    if (globalThis.SlopI18n && globalThis.SlopI18n.on) globalThis.SlopI18n.on(draw);   // a language change
     b.addEventListener('click', async () => { const c = await open(); if (c && onChosen) onChosen(c); });
     return b;
   }

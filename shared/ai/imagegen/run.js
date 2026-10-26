@@ -12,6 +12,7 @@
   'use strict';
   const K = (window.SlopAIKit = window.SlopAIKit || {});
   const G = K.imageGen, C = () => K.cloud;
+  const T = (k, v) => (window.SlopI18n ? SlopI18n.t(k, v) : k);
   G.available = G.available || [];
 
   async function connected() {
@@ -41,10 +42,10 @@
     if (!(e instanceof CE)) return e;
     const said = `${e.detail || ''} ${e.message || ''}`;
     if ((e.kind === 'request' || e.kind === 'refusal') && /moderation|safety|content.?polic|prohibited|blocked|not allowed|inappropriate/i.test(said)) {
-      return new CE('refusal', `${p.who} declined to make this picture under its content rules. Change the prompt and try again.`, { status: e.status, detail: e.detail });
+      return new CE('refusal', T('ui.ai.img.err_refused', { who: p.who }), { status: e.status, detail: e.detail });
     }
-    if (e.kind === 'key' && /verif/i.test(said)) return new CE('key', `${p.who} asks you to verify your organization before its picture models work: platform.openai.com › Settings › Organization › General › Verify Organization. It can take a few minutes after that.`, { status: e.status, detail: e.detail });
-    if (e.kind === 'model' && p.format === 'openai' && p.id !== 'openai') return new CE('model', `${p.who} has no picture address (…/images/generations). Pictures need a server that offers OpenAI’s Image API.`, { status: e.status, detail: e.detail });
+    if (e.kind === 'key' && /verif/i.test(said)) return new CE('key', T('ui.ai.img.err_verify', { who: p.who }), { status: e.status, detail: e.detail });
+    if (e.kind === 'model' && p.format === 'openai' && p.id !== 'openai') return new CE('model', T('ui.ai.img.err_no_images', { who: p.who }), { status: e.status, detail: e.detail });
     return e;
   }
 
@@ -52,13 +53,13 @@
 
   async function generate(req, { signal } = {}) {
     const p = G.byId(req.provider);
-    if (!p) throw new Error('Pick who makes the picture first.');
+    if (!p) throw new Error(T('ui.ai.img.err_pick'));
     if (p.generate) return p.generate(req, { signal });   // a registered provider (an on-device model) does it all itself
     const cs = C().keys.settings(), CE = C().CloudError;
     if (C().meter.over(cs.cap)) throw new CE('cap', C().meter.capText(cs.cap));
     const key = await C().keys.get(p.id);
-    if (p.needsKey && !key) throw new CE('key', `Connect ${p.short} first: add your ${p.short} key in the AI panel (click the model name at its top, then “Use your own AI account”).`);
-    if (!String(req.prompt || '').trim()) throw new Error('Say what the picture should show.');
+    if (p.needsKey && !key) throw new CE('key', T('ui.ai.img.err_connect', { name: p.short }));
+    if (!String(req.prompt || '').trim()) throw new Error(T('ui.ai.img.say_show'));
     const cp = C().byId(p.id) || { id: p.id, who: p.who }, base = ((cs.providers || {})[p.id] || {}).base || cp.base || '';
     const F = G.formats[p.format], notes = [];
     let r = Object.assign({ n: 1, aspect: '1:1' }, req, { prompt: G.promptOf(req.prompt, req.style), resolution: String(req.resolution || '1K').toUpperCase() });
@@ -88,8 +89,8 @@
       left -= out.images.length >= n ? n : left;
     }
     if (!images.length) {
-      const said = text ? `: “${text.slice(0, 200)}”` : '';
-      throw new CE('refusal', `${p.who} did not make a picture${said}. It may have declined the prompt under its content rules; change it and try again.`);
+      const said = !!text;
+      throw new CE('refusal', T(said ? 'ui.ai.img.err_none_said' : 'ui.ai.img.err_none', { who: p.who, said: text.slice(0, 200) }));
     }
     const cost = G.costOf(p.id, r.model, usage, r);
     C().meter.add({ input: usage.input, output: usage.output, cost });

@@ -6,6 +6,7 @@
 (function () {
   'use strict';
   const K = (window.SlopAIKit = window.SlopAIKit || {});
+  const T = (k, v) => (window.SlopI18n ? SlopI18n.t(k, v) : k);   // the words: shared/i18n/ui/<code>/ai2.js
   const MATMUL = `
 @group(0) @binding(0) var<storage, read> A: array<f32>;
 @group(0) @binding(1) var<storage, read> B: array<f32>;
@@ -79,10 +80,10 @@ fn main(@builtin(global_invocation_id) g: vec3<u32>, @builtin(num_workgroups) w:
     const maxMb = Math.max(4, Math.floor(lim / 1048576 / 2));
     const t0 = now();
     try {
-      if (onStep) onStep('Matrix multiply…');
+      if (onStep) onStep(T('ui.ai.sys.matmul'));
       let n = 128, m = await matmul(device, n, budgetMs / 4);
       if (m.ms / m.reps < 2) { n = 512; m = await matmul(device, n, budgetMs); }
-      if (onStep) onStep('Memory bandwidth…');
+      if (onStep) onStep(T('ui.ai.sys.bandwidth'));
       let mb = Math.min(8, maxMb), c = await copy(device, mb, budgetMs / 4);
       if (c.ms / c.reps < 4 && maxMb > mb) { mb = Math.min(64, maxMb); c = await copy(device, mb, budgetMs); }
       return { gflops: r2(m.gflops), bandwidthGBs: r2(c.bandwidthGBs), n, mb, ms: Math.round(now() - t0) };

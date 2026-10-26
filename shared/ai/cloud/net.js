@@ -30,23 +30,17 @@
     }
   }
 
-  /** The plain sentence for an error, by kind. who = the provider's name, as people know it. */
+  const T = (k, v) => (window.SlopI18n ? SlopI18n.t(k, v) : k);
+  /** The plain sentence for an error, by kind (ui.ai.cloud.err_<kind>). who = the provider's name, as people know it. */
   function plain(kind, who, extra = {}) {
-    who = who || 'The AI provider';
+    who = who || T('ui.ai.cloud.err_who');
+    const v = { who, detail: extra.detail || '', secs: extra.retryAfter || 0 };
     switch (kind) {
-      case 'key': return `${who} did not accept the key. Check that you pasted the whole key, that it is still active, then press Test connection again.`;
-      case 'rate': return `${who} says too many requests right now (rate limit).` + (extra.retryAfter ? ` Try again in about ${extra.retryAfter} seconds.` : ' Wait a minute and try again.');
-      case 'money': return `${who} says the account has no credit left. Add credit on the provider's website, or use another key.`;
-      case 'cors': return extra.local
-        ? `The browser could not reach ${who}. Check that it is running, and that it allows this website (see “How to connect a local server” below). Chrome may also ask whether this site may use apps on your device: choose Allow.`
-        : `The browser could not reach ${who}. Check your internet connection. If it keeps failing, the provider may not accept requests from web pages.`;
-      case 'network': return `Could not reach ${who}. Check your internet connection and try again.`;
-      case 'model': return `${who} does not know this model, or the key cannot use it. Pick another model.`;
-      case 'request': return `${who} did not accept the request` + (extra.detail ? `: ${extra.detail}` : '.');
-      case 'server': return `${who} had a problem on its side. Try again in a moment.`;
-      case 'refusal': return `${who} declined to answer this request.`;
-      case 'abort': return 'Stopped.';
-      default: return `${who} did not answer` + (extra.detail ? `: ${extra.detail}` : '.');
+      case 'rate': return T('ui.ai.cloud.err_rate', v) + ' ' + (extra.retryAfter ? T('ui.ai.cloud.err_rate_in', { n: extra.retryAfter }) : T('ui.ai.cloud.err_rate_wait'));
+      case 'cors': return T(extra.local ? 'ui.ai.cloud.err_cors_local' : 'ui.ai.cloud.err_cors', v);
+      case 'request': case 'other': return T(extra.detail ? `ui.ai.cloud.err_${kind}_detail` : `ui.ai.cloud.err_${kind}`, v);
+      case 'key': case 'money': case 'network': case 'model': case 'server': case 'refusal': case 'abort': return T('ui.ai.cloud.err_' + kind, v);
+      default: return T(extra.detail ? 'ui.ai.cloud.err_other_detail' : 'ui.ai.cloud.err_other', v);
     }
   }
 
@@ -88,7 +82,7 @@
     if (kind === 'money' && res.status === 429 && C.free && C.free.tier(provider) && /free_tier|retryDelay|per (minute|day)/i.test(body)) kind = 'rate';
     const retryAfter = kind === 'rate' ? retryIn(res, body) : 0;
     const free = kind === 'rate' && C.free ? C.free.rate(provider, model, retryAfter) : '';   // a free tier's limits and where else to go
-    throw new CloudError(kind, free ? `${who} says too many requests right now (rate limit). ${free}` : plain(kind, who, { detail, retryAfter }), { status: res.status, detail, retryAfter });
+    throw new CloudError(kind, free ? `${T('ui.ai.cloud.err_rate', { who: who || T('ui.ai.cloud.err_who') })} ${free}` : plain(kind, who, { detail, retryAfter }), { status: res.status, detail, retryAfter });
   }
 
   /** Seconds until a rate-limited request may be sent again, from wherever the provider says it: Retry-After (seconds or

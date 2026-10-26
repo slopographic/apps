@@ -32,7 +32,8 @@ export function filterLanguages(query) {
   const q = fold(query).trim();
   const hit = (l) => !q || l.code === q || fold(l.name).split(/[\s-]+/).some((w) => w.startsWith(q)) || fold(l.name).startsWith(q);
   const out = LANGUAGES.filter(hit);
-  if (!q || 'detect automatically'.startsWith(q) || 'auto'.startsWith(q)) out.unshift({ code: 'auto', name: 'Detect automatically' });
+  const auto = globalThis.SlopI18n ? globalThis.SlopI18n.t('ui.models.auto') : 'ui.models.auto';   // shared/i18n/ui/<code>/models.js
+  if (!q || 'detect automatically'.startsWith(q) || 'auto'.startsWith(q) || fold(auto).startsWith(q)) out.unshift({ code: 'auto', name: auto });
   return out;
 }
 

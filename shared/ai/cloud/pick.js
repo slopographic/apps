@@ -41,6 +41,7 @@
 .sap-pp-b.no { color: #ff8a98; border-color: color-mix(in srgb, #ff8a98 45%, var(--p-line)); }
 .sap-pp-d { font-size: 11.5px; color: var(--p-dim); }
 .sap-pp-none { margin: 4px; color: var(--p-dim); font-size: 12px; }`;
+  const T = (k, v) => (window.SlopI18n ? SlopI18n.t(k, v) : k);
   function style() {
     if (document.getElementById('sap-pp-style')) return;
     document.head.append(h('style', { id: 'sap-pp-style' }, CSS));
@@ -50,31 +51,32 @@
   function badges(p) {
     const out = [], free = C.free ? C.free.label(p) : '';
     if (free) out.push(h('span', { class: 'sap-pp-b free', title: p.free.note || '' }, free));
-    if (p.caps.tools) out.push(h('span', { class: 'sap-pp-b', title: 'Can use the app’s tools' }, 'tools'));
-    if (p.caps.vision) out.push(h('span', { class: 'sap-pp-b', title: 'Can look at pictures' }, 'vision'));
-    if (p.caps.images || !p.chat) out.push(h('span', { class: 'sap-pp-b', title: 'Makes pictures' }, 'images'));
-    if (p.cors === 'needs-proxy') out.push(h('span', { class: 'sap-pp-b no' }, 'needs a proxy'));
-    else if (p.local) out.push(h('span', { class: 'sap-pp-b ok' }, 'on this computer'));
-    else if (p.cors === 'verified') out.push(h('span', { class: 'sap-pp-b ok', title: 'Checked: this provider accepts requests from web pages' }, 'browser OK'));
-    else out.push(h('span', { class: 'sap-pp-b' }, 'not checked'));
+    // data-cap: what it can do (the list shows those; the chosen provider's button leaves them out for room)
+    if (p.caps.tools) out.push(h('span', { class: 'sap-pp-b', 'data-cap': 'tools', title: T('ui.ai.cloud.cap_tools_t') }, T('ui.ai.cloud.cap_tools')));
+    if (p.caps.vision) out.push(h('span', { class: 'sap-pp-b', 'data-cap': 'vision', title: T('ui.ai.cloud.cap_vision_t') }, T('ui.ai.cloud.cap_vision')));
+    if (p.caps.images || !p.chat) out.push(h('span', { class: 'sap-pp-b', 'data-cap': 'images', title: T('ui.ai.cloud.cap_images_t') }, T('ui.ai.cloud.cap_images')));
+    if (p.cors === 'needs-proxy') out.push(h('span', { class: 'sap-pp-b no' }, T('ui.ai.cloud.needs_proxy')));
+    else if (p.local) out.push(h('span', { class: 'sap-pp-b ok' }, T('ui.ai.cloud.on_computer')));
+    else if (p.cors === 'verified') out.push(h('span', { class: 'sap-pp-b ok', title: T('ui.ai.cloud.browser_ok_t') }, T('ui.ai.cloud.browser_ok')));
+    else out.push(h('span', { class: 'sap-pp-b' }, T('ui.ai.cloud.not_checked')));
     return out;
   }
-  const blurb = (p) => (p.cors === 'needs-proxy' ? 'Can’t be used straight from a browser: ' + (p.corsNote || 'it does not accept requests from web pages.') : !p.chat ? 'Pictures only: its key is used by AI pictures, not by the chat.' : p.notes || '');
+  const blurb = (p) => (p.cors === 'needs-proxy' ? T('ui.ai.cloud.no_browser', { why: p.corsNote || T('ui.ai.cloud.no_browser_why') }) : !p.chat ? T('ui.ai.cloud.pictures_only') : p.notes || '');
 
   function providers(select, o = {}) {
     style();
     const label = h('b'), marks = h('span', { class: 'sap-pp-n' });
     const btn = h('button', { type: 'button', class: 'sap-pp-btn', 'aria-expanded': 'false', 'aria-haspopup': 'listbox' }, label, marks);
-    const q = h('input', { type: 'search', class: 'sap-pp-q', placeholder: `Search ${C.providers.length} providers or a model`, 'aria-label': 'Search providers', autocomplete: 'off', spellcheck: 'false' });
-    const none = h('p', { class: 'sap-pp-none', hidden: true }, 'No provider matches. “Any address” takes any server that speaks the OpenAI API.');
-    const chip = h('button', { type: 'button', class: 'sap-pp-chip', 'aria-pressed': 'false', title: 'Only providers you can use for free' }, 'Free');
+    const q = h('input', { type: 'search', class: 'sap-pp-q', placeholder: T('ui.ai.cloud.search_providers_n', { n: C.providers.length }), 'aria-label': T('ui.ai.cloud.search_providers'), autocomplete: 'off', spellcheck: 'false' });
+    const none = h('p', { class: 'sap-pp-none', hidden: true }, T('ui.ai.cloud.no_match'));
+    const chip = h('button', { type: 'button', class: 'sap-pp-chip', 'aria-pressed': 'false', title: T('ui.ai.cloud.free_only_t') }, T('ui.ai.cloud.tier_free'));
     chip.addEventListener('click', () => { chip.setAttribute('aria-pressed', String(chip.getAttribute('aria-pressed') !== 'true')); filter(); });
-    const panel = h('div', { class: 'sap-pp', hidden: true, role: 'listbox', 'aria-label': 'AI providers' }, h('div', { class: 'sap-pp-top' }, q, chip));
+    const panel = h('div', { class: 'sap-pp', hidden: true, role: 'listbox', 'aria-label': T('ui.ai.cloud.providers') }, h('div', { class: 'sap-pp-top' }, q, chip));
     const rows = new Map(), groups = new Map();
     for (const g of C.GROUPS) {
       const list = C.providers.filter((p) => p.group === g.id);
       if (!list.length) continue;
-      const det = h('details', { class: 'sap-pp-g', 'data-group': g.id, open: g.id === 'main' || null }, h('summary', null, `${g.name} (${list.length})`));
+      const det = h('details', { class: 'sap-pp-g', 'data-group': g.id, open: g.id === 'main' || null }, h('summary', null, T('ui.ai.cloud.group_n', { name: g.name, n: list.length })));
       for (const p of list) {
         const off = !p.usable;
         const row = h('button', { type: 'button', role: 'option', class: 'sap-pp-row' + (off ? ' off' : ''), 'data-id': p.id, 'aria-disabled': off ? 'true' : null, 'aria-checked': 'false' },
@@ -100,8 +102,8 @@
     for (const [id, det] of groups) det.querySelector('summary').addEventListener('click', () => setTimeout(() => { if (!q.value.trim()) { if (det.open) opened.add(id); else opened.delete(id); } }));
     function sync() {
       const p = C.byId(select.value);
-      label.textContent = p ? p.name : 'Choose a provider';
-      marks.textContent = ''; if (p) marks.append(...badges(p).filter((b) => !/^(tools|vision|images)$/.test(b.textContent)));   // the list shows those; the name needs the room
+      label.textContent = p ? p.name : T('ui.ai.cloud.choose_provider');
+      marks.textContent = ''; if (p) marks.append(...badges(p).filter((b) => !b.dataset.cap));   // the list shows those; the name needs the room
       for (const [id, row] of rows) row.setAttribute('aria-checked', String(id === select.value));
     }
     function show(open) {
@@ -152,8 +154,8 @@
     const field = select.closest('label') || select;   // the toggle goes above the Model field, not inside its label
     let q = select.parentNode && select.parentNode.querySelector('.sap-cloud-model-q'), fo = field.parentNode && field.parentNode.querySelector(':scope > .sap-cloud-free-only');
     if (!q) {
-      q = h('input', { type: 'search', class: 'sap-cloud-model-q', placeholder: 'Search models', 'aria-label': 'Search models', autocomplete: 'off', spellcheck: 'false' });
-      fo = h('label', { class: 'sap-cloud-free-only' }, h('input', { type: 'checkbox' }), h('span', null, 'Show only free models'));
+      q = h('input', { type: 'search', class: 'sap-cloud-model-q', placeholder: T('ui.ai.cloud.search_models'), 'aria-label': T('ui.ai.cloud.search_models'), autocomplete: 'off', spellcheck: 'false' });
+      fo = h('label', { class: 'sap-cloud-free-only' }, h('input', { type: 'checkbox' }), h('span', null, T('ui.ai.cloud.free_models_only')));
       select.before(q); field.before(fo);
       const again = () => filter(select, q.value, { free: fo.firstChild.checked, tools: select.dataset.tools === '1' });
       q.addEventListener('input', again); fo.firstChild.addEventListener('change', again);
@@ -161,12 +163,12 @@
     select.dataset.tools = o.tools ? '1' : '';
     const anyFree = !!select.querySelector('option[data-free="1"]');
     fo.hidden = !anyFree; if (!anyFree) fo.firstChild.checked = false;
-    fo.lastChild.textContent = o.tools && select.querySelector('option[data-free="1"][data-tools="0"]') ? 'Show only free models that can use tools' : 'Show only free models';
+    fo.lastChild.textContent = T(o.tools && select.querySelector('option[data-free="1"][data-tools="0"]') ? 'ui.ai.cloud.free_tools_only' : 'ui.ai.cloud.free_models_only');
     const opts = [...select.querySelectorAll('option')], ids = new Set(opts.map((x) => x.value));
     const rec = recent(p).filter((id) => ids.has(id));
     if (rec.length) {
       const was = select.value;
-      select.prepend(h('optgroup', { label: 'Recently used', 'data-recent': '1' }, rec.map((id) => opts.find((x) => x.value === id).cloneNode(true))));
+      select.prepend(h('optgroup', { label: T('ui.ai.cloud.recent'), 'data-recent': '1' }, rec.map((id) => opts.find((x) => x.value === id).cloneNode(true))));
       select.value = was;
     }
     q.value = ''; q.hidden = ids.size <= 8;

@@ -16,6 +16,7 @@
 (function () {
   'use strict';
   const K = (window.SlopAIKit = window.SlopAIKit || {});
+  const T = (k, v) => (window.SlopI18n ? SlopI18n.t(k, v) : k);   // the words: shared/i18n/ui/<code>/ai2.js
   const KEY = 'slop-ai.handoff', MODE = 'slop-ai.hops', STOPPED = 'slop-ai.chain.stopped', FRESH = 10 * 60 * 1000, MAX_HOPS = 8;
   const ss = (k, v) => { try { if (v === undefined) return sessionStorage.getItem(k); if (v === null) sessionStorage.removeItem(k); else sessionStorage.setItem(k, v); } catch (e) { return null; } return null; };
   const read = () => { try { return JSON.parse(ss(KEY) || 'null'); } catch (e) { return null; } };
@@ -61,7 +62,7 @@
       description: 'Move the task to another app in this tab, with files (as "Open in…" does: a SlopIsolate cut-out arrives in PhotoSlop as a layer with its mask). The chat comes along; you continue there with "task". For editing that needs that app; file in → file out jobs: run_operation here.',
       params: { app: { type: 'string', description: 'app id, e.g. "photoslop"', required: true }, files: { type: 'array', description: 'Slop Drive file names, or "open" for what this app has open; none to just open the app' }, task: { type: 'string', description: 'what to do there, in full (the next page starts from it)', required: true } },
       schema: { type: 'object', properties: { app: { type: 'string', description: 'app id, e.g. "photoslop"' }, files: { type: 'array', items: { type: 'string' }, description: 'Slop Drive names, or "open" (what is open here)' }, task: { type: 'string', description: 'what to do there, in full' } }, required: ['app', 'task'] },
-      label: (a) => `Open ${((apps().find((x) => x.id === a.app) || {}).name) || a.app}${[].concat(a.files || []).length ? ' with ' + [].concat(a.files).join(', ') : ''}`,
+      label: (a) => { const app = ((apps().find((x) => x.id === a.app) || {}).name) || a.app, files = [].concat(a.files || []); return files.length ? T('ui.ai.hop.open_with', { app, files: files.join(', ') }) : T('ui.ai.hop.open', { app }); },
       run: async (a) => {
         const app = apps().find((x) => x.id === a.app || x.name.toLowerCase() === String(a.app).toLowerCase());
         if (!app) throw new Error(`No app "${a.app}". Use list_apps.`);
@@ -75,7 +76,8 @@
           else if (hub && hub.sendTo) go = () => hub.sendTo(app.id, f, f.name);
           else throw new Error(`${app.name} cannot take ${f.name} here.`);
         }
-        return env.hop({ app, task: String(a.task), line: `Continuing in ${app.name}${f ? ' with ' + f.name : ''}.`, files: files.map((x) => x.name) },
+        const dk = f ? 'ui.ai.run.continuing_with' : 'ui.ai.run.continuing', dv = { app: app.name, file: f ? f.name : '' };
+        return env.hop({ app, task: String(a.task), line: T(dk, dv), dk, dv, files: files.map((x) => x.name) },
           async () => { if (hub) hub.sameTab = true; try { await go(); } finally { setTimeout(() => { if (hub) hub.sameTab = false; }, 2000); } });
       },
     };
@@ -84,9 +86,9 @@
   function renderSetting(box) {
     const el = (t, a, ...k) => { const n = document.createElement(t); for (const x in a || {}) n.setAttribute(x, a[x]); n.append(...k); return n; };
     const wrap = el('div', { class: 'sap-perm sap-hops' }), now = mode();
-    wrap.append(el('b', {}, 'When a task uses other apps'));
-    for (const [id, label, note] of [['stay', 'Stay on this page when possible', 'Conversions and other file jobs run here; the assistant moves only for editing that needs another app.'],
-      ['show', 'Show me in each app', 'The assistant opens each app that does a step, in this tab, and you watch it work there.']]) {
+    wrap.append(el('b', {}, T('ui.ai.hop.heading')));
+    for (const id of ['stay', 'show']) {
+      const label = T('ui.ai.hop.' + id), note = T(`ui.ai.hop.${id}_note`);
       const r = el('input', { type: 'radio', name: 'sap-hops', value: id, class: 'sap-hops-mode' });
       r.checked = id === now;
       r.addEventListener('change', () => setMode(id));

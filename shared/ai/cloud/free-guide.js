@@ -1,6 +1,6 @@
 /* SlopAIKit cloud freeGuide: "Get a free key in 2 minutes", the collapsible guide in "Use your own AI account"
  * (connect.js). Classic script; adds SlopAIKit.cloud.freeGuide = { render({ onChoose(id), tools() }) → <details> }.
- * Steps for Gemini, Groq and OpenRouter in plain words. Their sign-up links, limits and what the provider may do with
+ * Steps for Gemini, Groq and OpenRouter in plain words (keys ui.ai.cloud.guide_*). Their sign-up links, limits and what the provider may do with
  * free-tier data come from the catalog's `free` field (cloud/catalog/*.js), so the guide and the badges say the same.
  * Gemini and Groq come first: they use the app's tools on their free tier. At OpenRouter only some free models can. */
 (function () {
@@ -16,38 +16,33 @@
 .sap-free-guide ol { margin: 0; padding-inline-start: 20px; display: grid; gap: 2px; }
 .sap-free-guide a { color: var(--p-fg); }
 .sap-free-guide .sap-btn { justify-self: start; height: 28px; }`;
+  const T = (k, v) => (window.SlopI18n ? SlopI18n.t(k, v) : k);
   const style = () => { if (!document.getElementById('sap-free-guide-style')) document.head.append(h('style', { id: 'sap-free-guide-style' }, CSS)); };
 
-  /** The steps for each provider; {link} is its sign-up page from the catalog. */
-  const STEPS = {
-    gemini: { why: 'Good at controlling apps (it uses tools) and can look at pictures.',
-      steps: ['Open {link} and sign in with a Google account.', 'Create an API key there and copy it.', 'Paste it below under API key, press Test connection, and pick a model marked Free (a Flash model).'] },
-    groq: { why: 'Very fast, and good at controlling apps (it uses tools).',
-      steps: ['Open {link} and sign up (email, Google or GitHub).', 'Create an API key there and copy it.', 'Paste it below under API key, press Test connection, and pick gpt-oss 120B.'] },
-    openrouter: { why: 'Many models with one key; the ones whose name ends in :free cost nothing.',
-      steps: ['Open {link} and sign up.', 'Create an API key there and copy it.', 'Paste it below under API key, press Test connection, tick “Show only free models” and pick one.'] },
-  };
+  /** The steps for each provider: the keys of its why line and steps (ui.ai.cloud.guide_<id>_why, _step_1..3); {link}
+   * in a step is its sign-up page from the catalog. */
+  const STEPS = { gemini: 3, groq: 3, openrouter: 3 };
 
   function section(id, o) {
-    const p = C.byId(id), f = p && C.free.tier(p), s = STEPS[id];
+    const p = C.byId(id), f = p && C.free.tier(p), n = STEPS[id] || 0;
     if (!f) return null;
     const link = () => h('a', { href: f.signup, target: '_blank', rel: 'noopener', class: 'sap-free-link' }, f.signup.replace(/^https:\/\//, ''));
-    const steps = s.steps.map((t) => { const [a, b] = t.split('{link}'); return h('li', null, a, b === undefined ? null : link(), b || null); });
-    const tools = id === 'openrouter' ? h('p', { class: 'sap-dim' }, 'To control apps, the free model must support tools. With “Control this app” on, the free list shows only those.') : null;
+    const steps = Array.from({ length: n }, (x, i) => T(`ui.ai.cloud.guide_${id}_step_${i + 1}`)).map((line) => { const [a, b] = line.split('{link}'); return h('li', null, a, b === undefined ? null : link(), b || null); });
+    const tools = id === 'openrouter' ? h('p', { class: 'sap-dim' }, T('ui.ai.cloud.guide_tools')) : null;
     return h('section', { 'data-provider': id },
       h('h4', null, p.short, h('span', { class: 'sap-pp-b free' }, C.free.label(p))),
-      h('p', { class: 'sap-dim' }, s.why), h('ol', null, steps),
-      h('p', { class: 'sap-dim' }, h('b', null, 'Limits: '), f.note),
-      f.training ? h('p', { class: 'sap-dim' }, h('b', null, 'Your data: '), f.training) : null, tools,
-      h('button', { type: 'button', class: 'sap-btn sap-free-choose', onclick: () => o.onChoose && o.onChoose(id) }, 'Choose ' + p.short));
+      h('p', { class: 'sap-dim' }, T(`ui.ai.cloud.guide_${id}_why`)), h('ol', null, steps),
+      h('p', { class: 'sap-dim' }, h('b', null, T('ui.ai.cloud.guide_limits') + ' '), f.note),
+      f.training ? h('p', { class: 'sap-dim' }, h('b', null, T('ui.ai.cloud.guide_data') + ' '), f.training) : null, tools,
+      h('button', { type: 'button', class: 'sap-btn sap-free-choose', onclick: () => o.onChoose && o.onChoose(id) }, T('ui.ai.cloud.guide_choose', { name: p.short })));
   }
 
   function render(o = {}) {
     style();
-    return h('details', { class: 'sap-free-guide' }, h('summary', null, 'Get a free key in 2 minutes'),
-      h('p', { class: 'sap-dim' }, 'These give you a key for free. To let the AI control apps, start with Gemini or Groq: they use the app’s tools. A free tier has low limits; when you hit one, wait a little or switch to another free provider.'),
+    return h('details', { class: 'sap-free-guide' }, h('summary', null, T('ui.ai.cloud.guide_title')),
+      h('p', { class: 'sap-dim' }, T('ui.ai.cloud.guide_intro')),
       ['gemini', 'groq', 'openrouter'].map((id) => section(id, o)),
-      h('p', { class: 'sap-dim' }, 'Fully free and private: a model on this device (Models on this device, in this same list), or Ollama or LM Studio on this computer (in the provider list).'));
+      h('p', { class: 'sap-dim' }, T('ui.ai.cloud.guide_private')));
   }
 
   C.freeGuide = { render, STEPS };

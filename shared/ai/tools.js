@@ -17,6 +17,7 @@
 (function () {
   'use strict';
   const K = (window.SlopAIKit = window.SlopAIKit || {});
+  const T = (k, v) => (window.SlopI18n ? SlopI18n.t(k, v) : k);   // words people read (steps, questions): shared/i18n/ui/<code>/ai2.js
 
   function describe(tools) {
     const lines = tools.map((t) => {
@@ -91,7 +92,7 @@
     const destructive = (typeof t.destructive === 'function' ? t.destructive(args) : !!t.destructive) || !!t.permission;
     if (destructive && t.before) { try { await t.before(args, env); } catch (e) { return { ok: false, error: String((e && e.message) || e) }; } }
     if (destructive) {
-      const what = t.confirmText ? t.confirmText(args) : `The assistant wants to run ${t.name}(${JSON.stringify(args)}).`;
+      const what = t.confirmText ? t.confirmText(args) : T('ui.ai.step.run_q', { tool: t.name, args: JSON.stringify(args) });
       let action = t.name;
       try { if (t.label) action = t.label(args) || t.name; } catch (e) { /* the tool's name */ }
       // env.permit: the one permission module (permissions.js); else the plain yes/no of older callers
@@ -99,7 +100,7 @@
       const own = t.confirmTitle ? t.confirmTitle(args) : undefined;
       const req = Object.assign({ kind, tool: t.name, action, detail: what, title: own || (t.permission && t.permission.title ? t.permission.title + '?' : undefined), step: env.step }, (t.appOf && t.appOf(args)) || {});   // appOf: another app's step asks for that app
       const ok = env.permit ? await env.permit(req)
-        : env.confirm ? await env.confirm(own || 'Allow this action?', what) : false;
+        : env.confirm ? await env.confirm(own || T('ui.ai.perm.allow_q'), what) : false;
       if (!ok) return { ok: false, error: 'The user said no to this action.' };
     }
     try {
