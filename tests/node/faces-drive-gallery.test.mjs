@@ -206,7 +206,11 @@ describe('opt-in gate (index.js)', () => {
   test('the wording for the dialog and the Profile page is one constant', () => {
     const W = gated(memoryStorage());
     assert.equal(W.SLOP_FACES_COPY.title, 'Find faces on this device?');
-    assert.equal(W.SLOP_APP_OPTIONS.faces.detect.label, W.SLOP_FACES_COPY.switchLabel);
-    assert.ok(W.SLOP_APP_OPTIONS.faces.detect.help.includes('Nothing is uploaded'));
+    // Profile's switch reads the same keys, when the page draws it (it used to keep the words of load time: no switch)
+    const I = W.SlopI18n;
+    assert.equal(I.label(W.SLOP_APP_OPTIONS.faces.detect.label), W.SLOP_FACES_COPY.switchLabel);
+    assert.ok(I.label(W.SLOP_APP_OPTIONS.faces.detect.help).includes('Nothing is uploaded'));
+    assert.equal(I.label(W.SLOP_APP_OPTIONS.faces.threshold.label), 'Same person threshold');
+    assert.equal(I.label(W.SLOP_APP_SHARED.drive.faces), 'Face detection');
   });
 });

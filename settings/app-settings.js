@@ -7,6 +7,8 @@
   var host = document.getElementById('app-settings');
   var P = window.SlopProfile;
   var controls = []; // { owner, key, opt, input }: kept in step with the stored values
+  /** An option's label, help or group heading: an i18n key, a function or text (SlopI18n.label). */
+  var lab = function (v) { var I = window.SlopI18n; return String(I && I.label ? I.label(v) : typeof v === 'function' ? v() : v); };
 
   function el(tag, props, kids) {
     var n = document.createElement(tag);
@@ -37,7 +39,7 @@
     if (opt.type === 'bool') {
       input = el('input', { type: 'checkbox', id: id });
       input.addEventListener('change', function () { save(ctx, owner, key, input.checked); });
-      row = el('div', { class: 'app-opt' }, [el('label', { class: 'set-check', for: id }, [input, el('span', { text: opt.label })])]);
+      row = el('div', { class: 'app-opt' }, [el('label', { class: 'set-check', for: id }, [input, el('span', { text: lab(opt.label) })])]);
     } else {
       if (opt.type === 'enum') {
         input = el('select', { id: id, class: 'set-select' });
@@ -51,9 +53,9 @@
         }
         input.addEventListener('change', function () { save(ctx, owner, key, opt.type === 'number' ? Number(input.value) : input.value); });
       }
-      row = el('div', { class: 'app-opt' }, [el('label', { for: id, text: opt.label }), input]);
+      row = el('div', { class: 'app-opt' }, [el('label', { for: id, text: lab(opt.label) }), input]);
     }
-    if (opt.help) row.appendChild(el('p', { class: 'muted app-opt-help', text: opt.help }));
+    if (opt.help) row.appendChild(el('p', { class: 'muted app-opt-help', text: lab(opt.help) }));
     controls.push({ owner: owner, key: key, opt: opt, input: input });
     return row;
   }
@@ -67,7 +69,7 @@
     ownKeys.forEach(function (key) { section.appendChild(control(app.id, key, own[key], ctx)); });
     var groups = shared[app.id] || {};
     Object.keys(groups).forEach(function (owner) {
-      section.appendChild(el('h4', { class: 'app-group', text: groups[owner] }));
+      section.appendChild(el('h4', { class: 'app-group', text: lab(groups[owner]) }));
       var o = opts[owner] || {};
       Object.keys(o).forEach(function (key) { section.appendChild(control(owner, key, o[key], ctx)); });
     });
@@ -98,5 +100,6 @@
   }
 
   render();
+  if (window.SlopI18n && window.SlopI18n.on) window.SlopI18n.on(render);   // the options' words follow a language switch
   window.SlopAppSettings = { render: render };
 })();
