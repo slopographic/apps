@@ -5,24 +5,21 @@
   'use strict';
   const B = (g.SlopBiz = g.SlopBiz || {});
 
-  // id, the step, why it matters, where it is done (a path from the site root), and when it counts as done.
+  // id, where it is done (a path from the site root), and when it counts as done; the step and why it matters are the
+  // string tables' biz.setup.<id> and biz.setup.<id>_why (shared/biz/i18n), read when steps() runs.
+  const t = (k) => (g.SlopI18n ? g.SlopI18n.t(k) : k);
   const STEPS = [
-    { id: 'company', title: 'Add your company details', why: 'Your name, address and tax number go on every quote, invoice and purchase order.',
-      href: 'admin/#company', done: (s) => !!(s.companyName && s.companyName.trim()) },
-    { id: 'customer', title: 'Add your first customer', why: 'Customers are shared by CRM, Quotes, Orders, Invoices and Timesheets.',
-      href: 'crm/', done: (s, c) => c.customers > 0 },
-    { id: 'product', title: 'Add a product or service', why: 'Products fill document lines with a price and tax rate, and Inventory keeps their stock.',
-      href: 'inventory/#products', done: (s, c) => c.products > 0 },
-    { id: 'sell', title: 'Send a quote or an invoice', why: 'A quote becomes an order or an invoice in one click; an issued invoice is posted to your books.',
-      href: 'invoices/#new', done: (s, c) => c.quotes + c.invoices > 0 },
-    { id: 'spend', title: 'Record an expense', why: 'Expenses and supplier bills go into the same books, so Reports can show your profit.',
-      href: 'expenses/#new', done: (s, c) => c.expenses > 0 },
+    { id: 'company', href: 'admin/#company', done: (s) => !!(s.companyName && s.companyName.trim()) },
+    { id: 'customer', href: 'crm/', done: (s, c) => c.customers > 0 },
+    { id: 'product', href: 'inventory/#products', done: (s, c) => c.products > 0 },
+    { id: 'sell', href: 'invoices/#new', done: (s, c) => c.quotes + c.invoices > 0 },
+    { id: 'spend', href: 'expenses/#new', done: (s, c) => c.expenses > 0 },
   ];
 
   /** Pure: each step with done. counts: { customers (not suppliers), products, quotes, invoices, expenses }. */
   function steps(settings, counts) {
     const c = { customers: 0, products: 0, quotes: 0, invoices: 0, expenses: 0, ...counts };
-    return STEPS.map((st) => ({ id: st.id, title: st.title, why: st.why, href: st.href, done: !!st.done(settings || {}, c) }));
+    return STEPS.map((st) => ({ id: st.id, title: t('biz.setup.' + st.id), why: t(`biz.setup.${st.id}_why`), href: st.href, done: !!st.done(settings || {}, c) }));
   }
 
   /** Reads the settings and the counts in one transaction and works out the steps. */

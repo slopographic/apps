@@ -56,6 +56,9 @@ Covers: pdf/i18n/sv/menus.js
 Covers: pdf/i18n/sv/redact.js
 Covers: pdf/i18n/sv/tools.js
 Covers: pdf/i18n/sv/tools2.js
+Covers: reminders/i18n/en/app.js
+Covers: reminders/i18n/index.js
+Covers: reminders/i18n/sv/app.js
 Covers: shared/i18n/af.js
 Covers: shared/i18n/am.js
 Covers: shared/i18n/ar.js
@@ -115,3 +118,17 @@ Covers: shared/i18n/yo.js
 Covers: shared/i18n/zh-CN.js
 Covers: shared/i18n/zh-TW.js
 Covers: shared/i18n/zu.js
+Covers: signature/i18n/en/app.js
+Covers: signature/i18n/en/copy.js
+Covers: signature/i18n/en/form.js
+Covers: signature/i18n/index.js
+Covers: signature/i18n/sv/app.js
+Covers: signature/i18n/sv/copy.js
+Covers: signature/i18n/sv/form.js
+Covers: todo/i18n/en/app.js
+Covers: todo/i18n/en/editor.js
+Covers: todo/i18n/en/tour.js
+Covers: todo/i18n/index.js
+Covers: todo/i18n/sv/app.js
+Covers: todo/i18n/sv/editor.js
+Covers: todo/i18n/sv/tour.js

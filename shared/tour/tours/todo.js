@@ -1,13 +1,17 @@
 /* SlopTour: Slop To-do. Targets are ids in todo/index.html. */
-SlopTour.define({
-  app: 'todo',
-  title: 'Slop To-do tour',
-  steps: [
-    { id: 'lists', title: 'Views and lists', text: 'Pick a view or a list on the left to see its tasks.', target: '#tSide' },
-    { id: 'title', title: 'Current list', text: 'The name of the list you are looking at.', target: '#tTitle' },
-    { id: 'add', title: 'Add a task', text: 'Type a task and press Enter. Details… adds notes and a date.', target: '#tAdd' },
-    { id: 'done', title: 'Show done', text: 'Tick Show done to see finished tasks as well.', target: '#tDone' },
-    { id: 'find', title: 'Find', text: 'Find a task by its text.', target: '#tSearch' },
-    { id: 'tasks', title: 'Tasks', text: 'Tick a task to complete it.', target: '#tList' },
-  ],
-});
+(function () {
+  /* The words are in the app's string tables (todo/i18n/<code>/tour.js), read when the tour loads. */
+  const T = (k) => (globalThis.SlopI18n ? globalThis.SlopI18n.t(k) : k);
+  SlopTour.define({
+    app: 'todo',
+    title: T('todo.tour.title'),
+    steps: [
+      { id: 'lists', title: T('todo.tour.s_lists'), text: T('todo.tour.s_lists_text'), target: '#tSide' },
+      { id: 'title', title: T('todo.tour.s_title'), text: T('todo.tour.s_title_text'), target: '#tTitle' },
+      { id: 'add', title: T('todo.tour.s_add'), text: T('todo.tour.s_add_text'), target: '#tAdd' },
+      { id: 'done', title: T('todo.tour.s_done'), text: T('todo.tour.s_done_text'), target: '#tDone' },
+      { id: 'find', title: T('todo.tour.s_find'), text: T('todo.tour.s_find_text'), target: '#tSearch' },
+      { id: 'tasks', title: T('todo.tour.s_tasks'), text: T('todo.tour.s_tasks_text'), target: '#tList' },
+    ],
+  });
+})();

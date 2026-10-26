@@ -7,15 +7,21 @@
 (function (g) {
   'use strict';
   const $ = (id) => document.getElementById(id);
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
   const fr = g.SlopFrame.mount($('sgApp'), {
-    list: null, view: $('sgView'), panel: $('sgPanel'), phone: '(max-width: 860px)', panelLabel: 'Details',
+    list: null, view: $('sgView'), panel: $('sgPanel'), phone: '(max-width: 860px)', panelLabel: t('signature.lay.details'),
     storageKey: 'signature', button: '.smb-tools', phoneButton: false, width: 420, min: 320, max: 600,
   });
-  const panel = g.SlopFrame.panel($('sgPanel'), { title: 'Your signature' });
+  const panel = g.SlopFrame.panel($('sgPanel'), { title: t('signature.lay.title') });
+  /** The panel's sections and foot in the chosen language (again after a language change: app.js). */
+  function relabel() {
+  panel.setTitle(t('signature.lay.title'));
   panel.render([
-    { title: 'Your details', key: 'details', settings: [$('sgStart'), $('sgSeedRow'), $('sgForm')] },
-    { title: 'Result', key: 'result', settings: [$('sgOut')], actions: [{ el: $('sgCode') }, { el: $('sgDownload') }] },
+  { title: t('signature.lay.your_details'), key: 'details', settings: [$('sgStart'), $('sgSeedRow'), $('sgForm')] },
+  { title: t('signature.lay.result'), key: 'result', settings: [$('sgOut')], actions: [{ el: $('sgCode') }, { el: $('sgDownload') }] },
   ]);
-  panel.footer([{ el: $('sgCopy') }], { more: 'Edit' });
-  (g.SlopSignature = g.SlopSignature || {}).layout = { frame: fr, panel };
+  panel.footer([{ el: $('sgCopy') }], { more: t('signature.lay.edit') });
+  }
+  relabel();
+  (g.SlopSignature = g.SlopSignature || {}).layout = { frame: fr, panel, relabel };
 })(typeof window !== 'undefined' ? window : globalThis);

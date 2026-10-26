@@ -3,8 +3,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
+import { readFileSync } from 'node:fs';
+import vm from 'node:vm';
 
 const require = createRequire(import.meta.url);
+// SlopI18n with the English business words (shared/biz/i18n), so SlopBiz.refusal reads as it does on a page
+require('../../shared/i18n/i18n.js');
+vm.runInNewContext(readFileSync(new URL('../../shared/biz/i18n/en/biz.js', import.meta.url), 'utf8'), { window: globalThis });
 const X = require('../../expenses/js/core/expenses.js');
 const B = require('../../shared/biz/biz.js');
 require('../../shared/data/money.js');   // SlopData.money.plainMinor, which the CSV is given

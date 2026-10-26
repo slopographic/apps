@@ -8,7 +8,7 @@
   'use strict';
   const NS = (g.SlopSignature = g.SlopSignature || {});
   const X = g.SlopSample;
-  const SHAPES = [['circle', 'Circle'], ['rounded', 'Rounded square'], ['square', 'Square'], ['none', 'No shape']];
+  const SHAPES = [['circle', 'Circle'], ['rounded', 'Rounded square'], ['square', 'Square'], ['none', 'No shape']];   // i18n-ignore: SVG markup and the assistant's shape names
   const FACES = ['Arial, Helvetica, sans-serif', 'Georgia, serif', "'Trebuchet MS', sans-serif", 'Verdana, Geneva, sans-serif', "'Times New Roman', serif"];
   const STYLES = ['fill', 'fill', 'outline', 'tint'];
   const SMALL = /^(ab|hb|kb|ltd|llc|inc|plc|co|gmbh|oy|as|the|and|och|&)$/i;
@@ -40,13 +40,13 @@
     const mono = o.kind === 'monogram', W = mono ? 160 : Math.min(560, 120 + 30 * o.text.length), H = mono ? 160 : 120;
     const sw = o.style === 'outline' ? 8 : 0, inset = sw / 2;
     let back = '';
-    if (o.shape === 'circle' && mono) back = `<circle cx="80" cy="80" r="${80 - inset}"`;
-    else if (o.shape !== 'none') back = `<rect x="${inset}" y="${inset}" width="${W - sw}" height="${H - sw}" rx="${o.shape === 'rounded' || (o.shape === 'circle' && !mono) ? (mono ? 34 : H / 2) - inset : 0}"`;
+    if (o.shape === 'circle' && mono) back = `<circle cx="80" cy="80" r="${80 - inset}"`;   // i18n-ignore: SVG markup and the assistant's shape names
+    else if (o.shape !== 'none') back = `<rect x="${inset}" y="${inset}" width="${W - sw}" height="${H - sw}" rx="${o.shape === 'rounded' || (o.shape === 'circle' && !mono) ? (mono ? 34 : H / 2) - inset : 0}"`;   // i18n-ignore: SVG markup and the assistant's shape names
     if (back) back += ` fill="${ground}"${sw ? ` stroke="${c}" stroke-width="${sw}"` : ''}/>`;
     const n = o.text.length, size = mono ? (n === 1 ? 92 : n === 2 ? 70 : 54) : 56;
     const fit = mono ? Math.min(118, 46 * n) : W - 64;   // the text is stretched or squeezed to this width (textLength)
     const y = mono ? 80 + size * 0.35 : H / 2 + size * 0.35;
-    const text = `<text x="${W / 2}" y="${y}" text-anchor="middle" font-family="${esc(o.face)}" font-size="${size}" font-weight="bold" fill="${ink}"` +
+    const text = `<text x="${W / 2}" y="${y}" text-anchor="middle" font-family="${esc(o.face)}" font-size="${size}" font-weight="bold" fill="${ink}"` +   // i18n-ignore: SVG markup and the assistant's shape names
       `${o.spacing ? ` letter-spacing="${o.spacing}"` : ''} textLength="${fit}" lengthAdjust="spacingAndGlyphs">${esc(o.text)}</text>`;
     const mark = o.mark === 'dot' ? `<circle cx="${mono ? 128 : W - 22}" cy="${mono ? 34 : 24}" r="${mono ? 9 : 8}" fill="${ink}"/>`
       : o.mark === 'bar' ? `<rect x="${W / 2 - (mono ? 26 : fit / 4)}" y="${y + (mono ? 14 : 12)}" width="${mono ? 52 : fit / 2}" height="6" rx="3" fill="${ink}"/>` : '';

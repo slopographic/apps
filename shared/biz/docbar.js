@@ -17,6 +17,7 @@
   'use strict';
   const B = (g.SlopBiz = g.SlopBiz || {});
   const $ = (sel) => (typeof sel === 'string' ? document.querySelector(sel) : sel || null);
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
   let bar = null, label = null, own = null, status = null, ownViews = ['edit'];
 
   function mount(o) {
@@ -31,25 +32,29 @@
     b.type = 'button';
     b.className = 'biz-back';
     b.innerHTML = '<span aria-hidden="true">‹</span> ';
-    b.append(tab ? tab.textContent.trim() : 'Back');
-    b.setAttribute('aria-label', 'Back to ' + (tab ? tab.textContent.trim() : 'the list'));
+    const name = document.createElement('span');
+    b.append(name);
+    // the back button names the list's tab, in the chosen language (again after a language change)
+    const words = () => { const n = tab ? tab.textContent.trim() : ''; name.textContent = n || t('biz.docbar.back'); b.setAttribute('aria-label', t('biz.docbar.back_to', { name: n || t('biz.docbar.the_list') })); };
+    words();
+    if (g.SlopI18n) g.SlopI18n.on(words);
     b.addEventListener('click', () => { location.hash = back; });
-    const name = document.createElement('div');
-    name.className = 'biz-doc-name';
+    const name2 = document.createElement('div');
+    name2.className = 'biz-doc-name';
     own = $(opts.title || '#eTitle');
     const row = own && own.closest('.head-row');
     if (row) row.hidden = true;   // its back button and heading are the bar's now
     ownViews = opts.views || ['edit'];
     label = document.createElement('b');
     label.className = 'biz-doc-title';
-    name.append(label);
-    if (own) { own.classList.add('biz-doc-title'); name.append(own); }
+    name2.append(label);
+    if (own) { own.classList.add('biz-doc-title'); name2.append(own); }
     status = $(opts.status || '#eStatus');
-    if (status) name.append(status);
+    if (status) name2.append(status);
     const acts = document.createElement('div');
     acts.className = 'biz-doc-actions';
     for (const sel of opts.actions || []) { const n = $(sel); if (n) acts.append(n); }
-    bar.append(b, name, acts);
+    bar.append(b, name2, acts);
     const tabs = document.querySelector('.tabs');
     if (tabs) tabs.after(bar); else document.body.prepend(bar);
     return bar;

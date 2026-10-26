@@ -27,10 +27,12 @@
   'use strict';
   const B = (g.SlopBiz = g.SlopBiz || {});
   const pick = (x) => (typeof x === 'string' ? document.querySelector(x) : x || null);
-  const SAVE = /^save\b/i;
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
+  /** A Save button, in English or in the chosen language ("Save", "Save changes"; "Spara"). */
+  const isSave = (n) => { const s = n.textContent.trim().toLowerCase(); return /^save\b/.test(s) || s.startsWith(t('menu.save').toLowerCase()); };
 
   function mount(o) {
-    const root = pick(o.root), panel = pick(o.panel), label = o.label || 'Details';
+    const root = pick(o.root), panel = pick(o.panel), label = o.label || t('biz.panel.details');
     if (!g.SlopFrame || !root || !panel) return { actions: (nodes, host) => { if (host) host.replaceChildren(...nodes); }, footer() {}, frame: null };
     // the header button's place: a bar the app draws later (the record bar) gets it once it is on the page
     const slot = o.button ? document.createElement('span') : null;
@@ -62,7 +64,7 @@
     function actions(nodes, host) {
       const list = (nodes || []).filter(Boolean);
       const isBtn = (n) => n.tagName === 'BUTTON' || (n.tagName === 'A' && n.classList.contains('btn'));
-      const main = list.filter((n) => isBtn(n) && !n.hidden && (n.classList.contains('primary') || SAVE.test(n.textContent.trim())));
+      const main = list.filter((n) => isBtn(n) && !n.hidden && (n.classList.contains('primary') || isSave(n)));
       const save = main.filter((n) => !n.classList.contains('primary')), prim = main.filter((n) => n.classList.contains('primary'));
       if (host) host.replaceChildren(...list.filter((n) => !main.includes(n)));
       if (host) host.hidden = !host.childElementCount;
