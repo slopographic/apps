@@ -43,7 +43,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   '3d.file.save_failed': 'Kon niet opslaan: {error}',
   '3d.file.nothing_export': 'Nog niets om te exporteren',
   '3d.file.zip_note': '{format} opgeslagen met de {n} bijbehorende bestanden, in één zip',
-  '3d.file.zip_note#one': '{format} opgeslagen met het bijbehorende bestand ({n}), in één zip',
+  '3d.file.zip_note#one': '{format} opgeslagen met {n} bijbehorend bestand, in één zip',
   '3d.file.exported': '{format} geëxporteerd',
   '3d.file.picture_saved': 'Afbeelding opgeslagen',
   '3d.file.render_failed': 'Kon niet renderen',
