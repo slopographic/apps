@@ -47,7 +47,7 @@
       press('R', { ctrlKey: true, shiftKey: true });
       const box = await waitFor(dlg);
       btn(box, 'Export backup').click();
-      await waitFor(() => /Saved slopographic-backup-.*\.slop/.test(box.textContent), { timeout: 15000 });
+      await waitFor(() => /Saved slopographic-backup-/.test(box.textContent) && box.textContent.includes(W.SlopBackup.EXT), { timeout: 15000 });
       expect(!!dlg()).toBe(true);
       btn(box, 'Reload anyway').click();
       await waitFor(() => W.reloads === 1);

@@ -49,7 +49,7 @@ export async function setOn(v, save = true) {
   if (on) {
     if (!engine) engine = await (OVERLAY ? import('../mascot/slot.js') : import('./engine.js'));
     if (!on) return;                         // switched off again while loading
-    engine.start(cfg);
+    engine.start(Object.assign(cfg, { hide: () => setOn(false) }));   // the slot's menu has Hide
     engine.show(true);
   } else if (engine) engine.show(false);
   document.dispatchEvent(new CustomEvent('buddy:toggle', { detail: on }));
@@ -66,6 +66,7 @@ const CSS = `.buddy-toggle{display:flex;flex-direction:column;align-items:center
 .buddy-toggle .bt-main:focus-visible,.buddy-toggle .bt-more:focus-visible{outline:2px solid #d4ff3a;outline-offset:2px}
 .buddy-toggle .bt-more{position:absolute;top:-8px;left:-8px;width:20px;height:20px;padding:0;border-radius:50%;border:1px solid rgba(241,237,228,.25);background:#111;color:#f1ede4;font:700 11px/1 system-ui;cursor:pointer}
 .buddy-toggle .bt-more[hidden]{display:none}
+.buddy-toggle[hidden]{display:none}
 @media print{.buddy-toggle{display:none}}`;
 function makeToggle() {
   if (!document.getElementById('buddy-toggle-css')) {
@@ -127,6 +128,7 @@ function render() {
   main.setAttribute('aria-label', on ? `Hide ${NAME} (Alt+Shift+S)` : `Show ${NAME} (Alt+Shift+S)`);
   btn.classList.toggle('is-on', on);
   btn.querySelector('.bt-more').hidden = !on || cfg.home || OVERLAY;
+  btn.hidden = on && OVERLAY;   // one presence: a profile's mascot is its own button (shared/mascot/ui.js) while it shows
 }
 
 export const api = { boot, setOn, toggle, detectApp, get on() { return on; }, get engine() { return engine; } };

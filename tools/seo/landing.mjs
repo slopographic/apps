@@ -22,10 +22,13 @@ const lengthWords = (iso) => { const m = /PT(?:(\d+)M)?(?:(\d+)S)?/.exec(iso || 
 
 /** Slop 365 tools, in the order the hub lists them. Each id must be an app in the registry. */
 export const SLOP365 = ['invoices', 'orders', 'contacts', 'inventory', 'crm', 'ledger', 'reports', 'tables', 'docs', 'notes'];
-const STATUS = { live: 'Live', beta: 'Beta', building: 'In development' };
+// The brand profile's tone (set at build time, like shared/theme/theme.js): a plain build says Available / Beta / Preview,
+// the same words as its homepage (home/sections.js, the i18n keys plain.status.*).
+const TONE = /*profile:tone*/'playful';
+export const STATUS = TONE === 'plain' ? { live: 'Available', beta: 'Beta', building: 'Preview' } : { live: 'Live', beta: 'Beta', building: 'In development' };
 const NOTE = {
   beta: 'Beta: still being tested, so some parts may change.',
-  building: 'In development: some features listed below may not be finished yet.',
+  building: `${STATUS.building}: some features listed below may not be finished yet.`,
 };
 /** Readable names for the MIME patterns in an app's `accepts`. Unlisted patterns are shown as written. */
 const TYPE = {

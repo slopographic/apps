@@ -1,7 +1,7 @@
 // Sample mascot overlay for the made-up "Acme Tools" profile (brand/profiles/sample.json): a flat robot head that plays
 // the slot's moments with the Web Animations API, so the slot can be tested without WebGL. Sample art for tests, MIT like
-// the rest of this repository. The overlay contract: shared/mascot/slot.js. Tests:
-// tests/buddy/slot.test.html.
+// the rest of this repository. The overlay contract: shared/mascot/slot.js; the optional look() and react() hooks:
+// shared/mascot/ui.js. Tests: tests/buddy/slot.test.html.
 import { svg, name } from './icon.js';
 
 export { name };
@@ -33,6 +33,18 @@ export function create(el, { reduce } = {}) {
       if (reduce || typeof head.animate !== 'function') return Promise.resolve();
       run = head.animate(typeof a.frames === 'function' ? a.frames(side || 1) : a.frames, { duration: a.ms, iterations: loop ? Infinity : 1, direction: loop ? 'alternate' : 'normal', easing: 'ease-in-out' });
       return run.finished.then(() => {}, () => {});
+    },
+    /** The eyes follow the pointer: here the whole flat head leans a little that way. */
+    look(dx, dy) { head.dataset.look = `${dx},${dy}`; head.style.translate = `${dx * 3}px ${dy * 3}px`; },
+    /** hover: a lighter face; poke: a quick squash; drag: a tilt the way it moves; drop: a small bounce. */
+    react(kind, d = {}) {
+      head.dataset.react = kind === 'hover' ? (d.on ? 'hover' : '') : kind;
+      if (kind === 'hover') { head.style.filter = d.on ? 'brightness(1.08)' : ''; return; }
+      if (kind === 'drag') { head.style.rotate = `${Math.max(-12, Math.min(12, (d.dx || 0) * 2))}deg`; return; }
+      head.style.rotate = '';
+      if (reduce || typeof head.animate !== 'function') return;
+      if (kind === 'poke') head.animate([{ scale: '1' }, { scale: '1.08 .92' }, { scale: '1' }], { duration: 260, composite: 'add' });
+      if (kind === 'drop') head.animate([{ translate: '0 0' }, { translate: '0 -8px' }, { translate: '0 0' }], { duration: 320, easing: 'ease-out' });
     },
     dispose() { if (run) run.cancel(); head.remove(); },
   };

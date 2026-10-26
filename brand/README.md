@@ -77,6 +77,7 @@ sites live outside this repository, with the publish script; pass their folder w
 | `defaultLang` | The language a visitor gets when nothing is stored (`en`, `sv`, ...). Every language stays in the picker. |
 | `naming` | `brand` (PhotoSlop, Slop PDF) or `plain` (Image Editor, PDF Editor; the `PLAIN` table in `shared/apps.js`). |
 | `tone` | `playful` or `plain`: plain applies the copy layer, `brand/copy/plain.json`. |
+| `backupExt` | The backup file's extension (`.backup`, `.acme`): the backup ZIP is `<name>-backup-<date><ext>` and "Export everything" writes `<ext>.json`. Default `.backup` for the plain tone; a playful profile without it keeps this site's `.slop`, renamed by its map. The code reads it from `SlopBackup.EXT` / `JSON_EXT` (`shared/backup/index.js`); text that names it (guides, the homepage) is turned the same way. |
 | `mascot` | `false` turns the mascot off everywhere (the buddy, the Drive empty states, the AI top bar). An object puts the profile's own mascot in its place: `{ overlay, name, files, icon?, holder?, trademarks? }` (see "A mascot of your own"). |
 | `colors`, `themes`, `palette` | `brand.json` colours; the Light and Dark theme tokens (`hide` drops themes such as `lime`); the hue every accent-coloured colour in the CSS and code moves to (`tools/whitelabel/palette.mjs`). |
 | `logo` | `{ text, mark, color }`: the build draws a wordmark (`brand/logo.svg`), a square mark (`brand/mark.svg`, the favicon) and the PNG icons and share card from it. Replace the files in a later commit of the profile's folder if you have a real logo. |
@@ -135,6 +136,20 @@ buddy's moments (`shared/mascot/moments.js`):
 
 Any page may send a moment: `document.dispatchEvent(new CustomEvent('mascot-moment', { detail: { moment: 'done' } }))`.
 An overlay that lacks an animation simply skips that moment, and may map a moment to another one (`moments`).
+
+The mascot is a real button (`shared/mascot/ui.js`, logic in `shared/mascot/interact.js`), named after the overlay's
+`name`. A click, a tap or Enter / Space opens a small helper menu (Ask the assistant, Search apps, Take the tour of this
+page, Tips, Move to the other side, Hide; an item the page cannot do is left out); a long press opens it too. A drag moves
+it; the place is remembered on the device and kept clear of the header and the safe areas, and a short drag never opens
+the menu. A double click plays `done`; now and then an idle mascot glances aside (not with reduced motion). While it
+shows, it is the only presence: the buddy's toggle steps aside and comes back when the menu's Hide is used. In a
+plain-tone build it is drawn smaller. The instance `create()` returns may have two optional hooks (a missing one does
+nothing):
+
+| Hook | Called |
+| --- | --- |
+| `look(dx, dy)` | while the pointer moves within about 320 px: its direction, each axis -1..1; `(0, 0)` to look ahead |
+| `react(kind, detail)` | `'hover'` `{ on }` (pointer or focus on it), `'poke'` (a tap or long press), `'drag'` `{ dx, dy, shake }` (shake 0..1: how hard it is shaken), `'drop'` |
 
 `files` lists every file of the folder (the build refuses a folder with an unlisted file or a listed file that is missing).
 The build writes `LICENSE-ART` (the character's files and the icons drawn from it, all rights reserved, outside the MIT
@@ -208,4 +223,8 @@ profile's own words (they must not reach this public repository), regenerated fi
   `/*profile:naming*/'brand'`; values in `tools/whitelabel/emit.mjs` `markerValues`). Never `if (brand === '...')`.
 - Colours: use the theme tokens (`--sl-*`) or this brand's accent family, which the palette shift recolours.
 - New user-facing strings in the shared chrome get an i18n key (`shared/i18n`).
+- A look or wording that only suits one tone: `<html data-tone="playful|plain">` (with `data-naming` and `data-media`) is set
+  by `shared/theme/theme.js` before the first paint. Style the plain tone in `style/tone.css` (loaded only in a plain build;
+  every rule scoped to `:root[data-tone="plain"]`), mark copy for one tone with the class `tone-plain` or `tone-playful`,
+  and give an i18n key a plain wording as `plain.<key>` (the homepage's `tr()` in `home/sections.js` reads it first).
 - Run `node tools/whitelabel/build.mjs sample /tmp/acme` before you push a change that adds brand words; CI does it anyway.

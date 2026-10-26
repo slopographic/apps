@@ -19,7 +19,8 @@
 
   /* ---------- the shelves: one <section> per homepage section, built once so the headings keep their perch ---------- */
   const host = document.getElementById('app-sections');
-  const ALL = H.SECTION_DEFS.concat([H.EXPERIMENTS]);
+  const ALL = H.SHELVES || H.SECTION_DEFS.concat([H.EXPERIMENTS]);   // no Experiments shelf in a plain build
+  const tr = H.tr || ((k, en) => en);
   const shelves = new Map();
   for (const d of ALL) {
     const grid = el('div', { class: d.tiles ? 'tile-grid' : 'app-grid', 'data-section': d.id });
@@ -61,8 +62,10 @@
   /* ---------- the finder: search at the top, facets, views, and the matches (SlopFinder over the registry) ---------- */
   const folder = (a) => a.path.replace(/\/$/, '');
   const sectionsText = (a) => [...new Set(H.placements(a).map((p) => H.titleOf(p.section)))].join(', ');
-  const ready = (a) => (a.status === 'building' ? 'In development' : 'Ready');
+  const ready = (a) => (a.status === 'building' ? H.statusLabel('building') : tr('home.ready', 'Ready'));
   const search = (a) => SEARCH[a.id] || { desc: '', keywords: [] };
+  const tag = (a) => (window.slopAppTagline ? window.slopAppTagline(a) : a.tagline);   // in the chosen language (plain names)
+  const OPEN = tr('home.open', 'Open') + ' →';
   const finderHost = document.getElementById('app-finder');
   /** The finder's result for the hero's globe (home/globe/globe.js): the matching ids in the finder's order, and whether
    * anything is filtered. Kept for a late reader (SlopHomeBrowse.result()) and sent as 'slop-home-filter'. */
@@ -96,26 +99,26 @@
       ],
       searchKeys: ['name', 'tagline', 'desc', 'keywords', 'features', 'folder'],
       facets: [
-        { key: 'section', label: 'Section', values: (a) => H.placements(a).map((p) => H.titleOf(p.section)) },
-        { key: 'type', label: 'File types', values: (a) => H.typeKinds(a.accepts) },
-        { key: 'status', label: 'Status', values: (a) => [ready(a)] },
-        { key: 'tour', label: 'Guided tour', values: (a) => [H.TOUR_DIRS.has(folder(a)) ? 'Has a tour' : 'No tour'] },
+        { key: 'section', label: tr('finder.section', 'Section'), values: (a) => H.placements(a).map((p) => H.titleOf(p.section)) },
+        { key: 'type', label: tr('finder.types', 'File types'), values: (a) => H.typeKinds(a.accepts) },
+        { key: 'status', label: tr('finder.status', 'Status'), values: (a) => [ready(a)] },
+        { key: 'tour', label: tr('finder.tour', 'Guided tour'), values: (a) => [H.TOUR_DIRS.has(folder(a)) ? tr('finder.has_tour', 'Has a tour') : tr('finder.no_tour', 'No tour')] },
       ],
       columns: [
-        { key: 'name', label: 'App', get: (a) => shown(a) },
-        { key: 'section', label: 'Section', get: sectionsText },
-        { key: 'types', label: 'File types', get: (a) => H.typeKinds(a.accepts).join(', ') },
-        { key: 'open', label: 'Open', sortable: false, get: () => '', render: (a) => el('a', { href: a.path }, 'Open →') },
+        { key: 'name', label: tr('finder.app', 'App'), get: (a) => shown(a) },
+        { key: 'section', label: tr('finder.section', 'Section'), get: sectionsText },
+        { key: 'types', label: tr('finder.types', 'File types'), get: (a) => H.typeKinds(a.accepts).join(', ') },
+        { key: 'open', label: tr('home.open', 'Open'), sortable: false, get: () => '', render: (a) => el('a', { href: a.path }, OPEN) },
       ],
       row: (a) => rowLink(a, el('div', { class: 'fd-row has-icon', 'data-id': a.id }, C.icon(a, 'fd-row-icon'), el('b', { class: 'app-title', 'data-id': a.id }, shown(a)), el('span', { class: 'fd-row-sec' }, sectionsText(a)),
-        el('span', { class: 'fd-row-tag' }, a.tagline), el('span', { class: 'fd-row-types' }, H.typeKinds(a.accepts).join(', ')),
-        el('a', { class: 'fd-row-open', href: a.path }, 'Open →'))),
+        el('span', { class: 'fd-row-tag' }, tag(a)), el('span', { class: 'fd-row-types' }, H.typeKinds(a.accepts).join(', ')),
+        el('a', { class: 'fd-row-open', href: a.path }, OPEN))),
       card: (a) => C.appCard(a),
       urlPrefix: 'hp',
-      placeholder: 'Search apps by name, job, file type or feature',
-      searchLabel: 'Search apps',
-      noun: 'apps',
-      emptyText: 'No apps match these filters.',
+      placeholder: tr('finder.placeholder', 'Search apps by name, job, file type or feature'),
+      searchLabel: tr('switcher.search', 'Search apps'),
+      noun: [tr('finder.app_one', 'app'), tr('finder.apps', 'apps')],
+      emptyText: tr('finder.no_apps', 'No apps match these filters.'),
       view: 'list',
       big: true, // the large search box; the results filter live below it, so there is no dropdown
       autofocus: desktop(),

@@ -7,13 +7,19 @@
  *   SlopBackup.openEverything(opts)   "Export everything": one .slop-backup.json for the whole suite (central.js)
  *   SlopBackup.registerApp(id, def)   an app's part of that file (see shared/backup/HANDOFF.md)
  *   SlopBackup.registeredApps()       [{ id, label, version, part }] for the apps registered on this page
- *   SlopBackup.kit()                  resolves with the SlopUI dialog kit, loading it if the page lacks it */
+ *   SlopBackup.kit()                  resolves with the SlopUI dialog kit, loading it if the page lacks it
+ *   SlopBackup.EXT, JSON_EXT          the two backup files' extensions ('.slop', '.slop-backup.json' here) */
 (function () {
   'use strict';
   if (window.SlopBackup) return;
   const me = document.currentScript && document.currentScript.src;
   const ROOT = me ? new URL('../../', me).href : new URL('/', location.href).href;
   const jobs = new Map();
+  /* The backup files' extensions: the version 1 ZIP and the version 2 "Export everything" JSON. The one place they are
+   * written; core.js, central.js, ui.js, central-ui.js and Drive's drop check read them from here. A white-label build sets
+   * them from the brand profile's backupExt (tools/whitelabel/emit.mjs markerValues). */
+  const EXT = /*profile:backupExt*/'.slop';
+  const JSON_EXT = /*profile:backupJson*/'.slop-backup.json';
   function load(rel) {
     if (!jobs.has(rel)) jobs.set(rel, new Promise((res, rej) => {
       const s = document.createElement('script'); s.src = new URL(rel, ROOT).href;
@@ -81,6 +87,6 @@
   function central() { return load('shared/backup/central.js').then(() => window.SlopCentral); }
   function openEverything(opts) { return central().then((c) => c.openDialog(opts)); }
 
-  window.SlopBackup = { exportNow, importFile, openDialog, kit, ready, load, lastExport, ROOT,
+  window.SlopBackup = { exportNow, importFile, openDialog, kit, ready, load, lastExport, ROOT, EXT, JSON_EXT,
     registerApp, registeredApps, defs, central, openEverything };
 })();
