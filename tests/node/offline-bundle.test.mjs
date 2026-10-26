@@ -13,10 +13,12 @@ for (const [id, name, marker] of CASES) {
     assert.match(html, /^<!doctype html>/i);
     assert.ok(html.includes(name), `names ${name}`);
     assert.ok(html.includes(`name="${marker}" content="offline"`), 'carries its offline marker');
-    assert.equal(/<script\b[^>]*\ssrc=/i.test(html), false, 'no script src');
-    assert.equal(/<link\b[^>]*\brel="stylesheet"/i.test(html), false, 'no stylesheet link');
-    assert.equal(/<(link|script)\b[^>]*\sdata-src=/i.test(html), false, 'no data-src on a link or script');
-    assert.equal(/<(link|script)\b[^>]*\sdata-offline=/i.test(html), false, 'no data-offline element left');
+    // the tags only: an inlined script may hold tag text in a string (shared/i18n/i18n.js writes '<script src=…')
+    const tags = html.replace(/(<script\b[^>]*>)[\s\S]*?<\/script>/gi, '$1</script>');
+    assert.equal(/<script\b[^>]*\ssrc=/i.test(tags), false, 'no script src');
+    assert.equal(/<link\b[^>]*\brel="stylesheet"/i.test(tags), false, 'no stylesheet link');
+    assert.equal(/<(link|script)\b[^>]*\sdata-src=/i.test(tags), false, 'no data-src on a link or script');
+    assert.equal(/<(link|script)\b[^>]*\sdata-offline=/i.test(tags), false, 'no data-offline element left');
     assert.equal(/<link\b[^>]*\shref="(?!data:|#)[^"]*"[^>]*\brel="icon"/i.test(html), false, 'icon is inline');
     assert.ok(html.length > 500000, `a full app (${html.length} characters)`);
   });
