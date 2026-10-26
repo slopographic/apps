@@ -19,6 +19,8 @@
     frame = document.createElement('iframe');
     frame.style.cssText = `width:${width}px;height:800px;border:0;display:block`;
     const loaded = new Promise((res) => frame.addEventListener('load', res, { once: true }));
+    // the checks read the English words, so the app opens in English whatever language the build starts in
+    try { const pr = JSON.parse(localStorage.getItem('slop-profile') || 'null') || { v: 1, data: {} }; pr.data = pr.data || {}; pr.data.lang = { mode: 'en' }; localStorage.setItem('slop-profile', JSON.stringify(pr)); } catch (e) { /* storage blocked: the build default stays */ }
     frame.src = `../../invoices/index.html?t=${Date.now()}#${hash}`;
     document.body.append(frame);
     await loaded;
