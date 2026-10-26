@@ -46,7 +46,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'qr.app.print_pdf': 'Afdrukpagina (PDF)',
   'qr.app.noun_qr': 'een QR-code',
   'qr.app.noun_picture': 'een afbeelding',
-  'qr.app.filled': 'Ingevuld in “{name}”. Wijzig de gegevens en download daarna.',
+  'qr.app.filled': 'Ingevuld in ‘{name}’. Wijzig de gegevens en download daarna.',
   'qr.app.pdf_failed': 'Kon de PDF niet maken: {error}',
   'qr.app.copied_text': 'De gecodeerde tekst is gekopieerd.',
   'qr.app.copy_failed': 'Kon niet kopiëren. Selecteer de tekst op het tabblad Ruwe tekst en kopieer die.',

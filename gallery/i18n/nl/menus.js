@@ -19,7 +19,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'gallery.menu.remove': 'Uit bibliotheek verwijderen…',
   'gallery.menu.open_album': 'Album openen',
   'gallery.menu.sort_album': 'Dit album sorteren',
-  'gallery.menu.rename': 'Hernoemen…',
+  'gallery.menu.rename': 'Naam wijzigen…',
   'gallery.menu.delete_album': 'Album verwijderen…',
   'gallery.menu.select_month': '{n} in deze maand selecteren',
   'gallery.menu.sort_month': 'Deze maand sorteren',

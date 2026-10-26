@@ -81,5 +81,5 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'ui.video.lane.mark': 'Wisselen naar {name} op {t} seconden',
   'ui.video.lane.mark_tip': '{name} op {t} s',
   'ui.video.lane.hint': 'Elke baan is één indeling, van de wissel tot de volgende. Sleep een markering om hem te verplaatsen; selecteer hem en druk op Delete om hem te verwijderen.',
-  'ui.video.lane.hint_none': 'Geen wissels: één indeling voor de hele video. Kies een indeling en druk op “Wisselen bij afspeelkop” om hem in de tijd te veranderen.',
+  'ui.video.lane.hint_none': 'Geen wissels: één indeling voor de hele video. Kies een indeling en druk op ‘Wisselen bij afspeelkop’ om hem in de tijd te veranderen.',
 });

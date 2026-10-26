@@ -4,7 +4,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'label.props.system': 'Systeem',
   'label.props.new_variable': 'Nieuwe variabele…',
   'label.props.insert_a_variable_data_field': 'Voeg een variabele, gegevensveld of systeemwaarde in',
-  'label.props.reset': 'Herstellen',
+  'label.props.reset': 'Opnieuw instellen',
   'label.props.put_back_the_values_from': 'Zet de waarden terug van toen dit was geselecteerd',
   'label.props.rename': 'Naam wijzigen',
   'label.props.set_by_the_content_resize': 'Bepaald door de inhoud (formaat wijzigen met de handgrepen)',

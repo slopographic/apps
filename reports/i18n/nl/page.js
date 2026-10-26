@@ -1,4 +1,4 @@
-/* Slop Reports, Nederlands: de pagina, het paneel en de opdrachten. Dezelfde sleutels als reports/i18n/en/page.js.
+/* Slop Reports, Nederlands: de pagina, het deelvenster en de opdrachten. Dezelfde sleutels als reports/i18n/en/page.js.
  * Regels: shared/i18n/APPS-HOWTO.md, shared/i18n/glossary-nl.md. */
 window.SlopI18n && window.SlopI18n.add('nl', {
   'reports.app.name': 'Rapporten',

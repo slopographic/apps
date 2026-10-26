@@ -76,7 +76,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'fontcreator.more.keep_type': 'Typ de tekens om te houden',
   'fontcreator.more.keep_none': 'Geef de tekens op om te houden',
   'fontcreator.more.keep_title': 'Een subset maken?',
-  'fontcreator.more.keep_msg': 'Alleen de tekens “{chars}” houden en de rest verwijderen?',
+  'fontcreator.more.keep_msg': 'Alleen de tekens ‘{chars}’ houden en de rest verwijderen?',
   'fontcreator.more.keep_ok': 'Alleen deze houden',
   'fontcreator.more.undo_keep': 'Alleen sommige tekens houden',
   'fontcreator.more.removed': '{n} glyphs verwijderd; {left} over',

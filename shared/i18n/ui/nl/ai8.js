@@ -1,4 +1,4 @@
-/* Gedeelde woorden van Slop AI → Nederlands: AI-afbeeldingen met je eigen sleutel: “Afbeelding genereren…”, de prijs, de vraag vóór het uitgeven en de fouten (shared/ai/imagegen). Regels: shared/i18n/APPS-HOWTO.md. */
+/* Gedeelde woorden van Slop AI → Nederlands: AI-afbeeldingen met je eigen sleutel: ‘Afbeelding genereren…’, de prijs, de vraag vóór het uitgeven en de fouten (shared/ai/imagegen). Regels: shared/i18n/APPS-HOWTO.md. */
 window.SlopI18n && window.SlopI18n.add('nl', {
   'ui.ai.img.help_openai': 'OpenAI kan vragen je organisatie te verifiëren (platform.openai.com › Settings › Organization) voordat de afbeeldingsmodellen werken.',
   'ui.ai.img.help_gemini': 'Elke afbeelding die Gemini maakt, draagt Google’s onzichtbare SynthID-watermerk.',
@@ -13,10 +13,10 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'ui.ai.img.to_document': 'Een nieuw document',
   'ui.ai.img.to_drive': 'Slop Drive',
   'ui.ai.img.none_1': 'Afbeeldingen vereisen een afbeeldingsmodel bij een aanbieder die je met je eigen sleutel verbindt: OpenAI, Google Gemini of OpenRouter (of een server op je computer die de Image API van OpenAI biedt). De chatmodellen, waaronder Claude, kunnen niet tekenen.',
-  'ui.ai.img.none_2': 'Open het AI-paneel, klik bovenaan op de modelnaam, kies “Gebruik je eigen AI-account” en voeg de sleutel toe. Er wordt niets verstuurd tot je hier op Genereren drukt.',
+  'ui.ai.img.none_2': 'Open het AI-deelvenster, klik bovenaan op de modelnaam, kies ‘Gebruik je eigen AI-account’ en voeg de sleutel toe. Er wordt niets verstuurd tot je hier op Genereren drukt.',
   'ui.ai.img.title_edit': 'Bewerken met AI',
   'ui.ai.img.title_make': 'Afbeelding genereren',
-  'ui.ai.img.open_panel': 'Het AI-paneel openen',
+  'ui.ai.img.open_panel': 'Het AI-deelvenster openen',
   'ui.ai.img.ph_edit': 'Wat moet er veranderen, bijvoorbeeld: maak de lucht een warme zonsondergang',
   'ui.ai.img.ph_make': 'Wat de afbeelding toont, bijvoorbeeld: een mistig bergmeer bij zonsopgang, een rode kano op de oever',
   'ui.ai.img.what_change': 'Wat moet er veranderen',
@@ -81,7 +81,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'ui.ai.img.goes_copy_local': 'De prompt en een kopie van de afbeelding (ten hoogste 1536 px) gaan naar {who}; er gaat niets van deze computer af.',
   'ui.ai.img.step_edit': 'Afbeelding bewerken: {prompt}',
   'ui.ai.img.step_make': 'Een afbeelding maken: {prompt}',
-  'ui.ai.img.none_text': 'Er is geen afbeeldingsaanbieder verbonden. De chatmodellen kunnen niet tekenen; afbeeldingen vereisen een afbeeldingsmodel. Voeg een OpenAI-, Gemini- of OpenRouter-sleutel toe in het AI-paneel (klik bovenaan op de modelnaam, en kies dan “Gebruik je eigen AI-account”), en vraag daarna opnieuw.',
+  'ui.ai.img.none_text': 'Er is geen afbeeldingsaanbieder verbonden. De chatmodellen kunnen niet tekenen; afbeeldingen vereisen een afbeeldingsmodel. Voeg een OpenAI-, Gemini- of OpenRouter-sleutel toe in het AI-deelvenster (klik bovenaan op de modelnaam, en kies dan ‘Gebruik je eigen AI-account’), en vraag daarna opnieuw.',
   'ui.ai.img.which_file': 'Zeg welke afbeelding je wilt bewerken: een bestandsnaam uit Slop Drive.',
   'ui.ai.img.not_picture': '{name} is geen afbeelding.',
   'ui.ai.img.no_drive': 'Slop Drive is niet beschikbaar op deze pagina, dus de afbeelding heeft nergens een plek om heen te gaan.',
@@ -89,7 +89,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'ui.ai.img.err_verify': '{who} vraagt je je organisatie te verifiëren voordat de afbeeldingsmodellen werken: platform.openai.com › Settings › Organization › General › Verify Organization. Dat kan daarna een paar minuten duren.',
   'ui.ai.img.err_no_images': '{who} heeft geen afbeeldingsadres (…/images/generations). Afbeeldingen vereisen een server die de Image API van OpenAI biedt.',
   'ui.ai.img.err_pick': 'Kies eerst wie de afbeelding maakt.',
-  'ui.ai.img.err_connect': 'Verbind eerst {name}: voeg je {name}-sleutel toe in het AI-paneel (klik bovenaan op de modelnaam, en kies dan “Gebruik je eigen AI-account”).',
+  'ui.ai.img.err_connect': 'Verbind eerst {name}: voeg je {name}-sleutel toe in het AI-deelvenster (klik bovenaan op de modelnaam, en kies dan ‘Gebruik je eigen AI-account’).',
   'ui.ai.img.err_none': '{who} heeft geen afbeelding gemaakt. Mogelijk heeft het de prompt geweigerd volgens de inhoudsregels; pas hem aan en probeer het opnieuw.',
-  'ui.ai.img.err_none_said': '{who} heeft geen afbeelding gemaakt: “{said}”. Mogelijk heeft het de prompt geweigerd volgens de inhoudsregels; pas hem aan en probeer het opnieuw.',
+  'ui.ai.img.err_none_said': '{who} heeft geen afbeelding gemaakt: ‘{said}’. Mogelijk heeft het de prompt geweigerd volgens de inhoudsregels; pas hem aan en probeer het opnieuw.',
 });

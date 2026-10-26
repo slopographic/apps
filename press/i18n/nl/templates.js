@@ -1,7 +1,7 @@
 /* The Slop Press starter templates, Dutch. Same keys as press/i18n/en/templates.js. Terms: shared/i18n/glossary-nl.md. */
 window.SlopI18n && window.SlopI18n.add('nl', {
   'press.tpl.title': 'Nieuw uit sjabloon',
-  'press.tpl.opened': 'Nieuw document uit “{name}”',
+  'press.tpl.opened': 'Nieuw document uit ‘{name}’',
   'press.tpl.magazine_name': 'Tijdschriftdubbelpagina',
   'press.tpl.magazine_desc': 'A4-dubbele pagina’s: omslag, een artikel over twee pagina’s met initiaal, citaat en omlopende afbeelding',
   'press.tpl.flyer_name': 'Evenementenflyer',

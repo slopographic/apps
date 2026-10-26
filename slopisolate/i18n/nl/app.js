@@ -38,7 +38,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'cutout.app.not_images': 'Die bestanden zijn geen afbeeldingen',
   'cutout.app.notice_title': 'Achtergronden verwijderen op dit apparaat',
   'cutout.app.notice_line1': 'Slop Isolate verwijdert de achtergrond van een foto met een AI-model dat in je browser draait.',
-  'cutout.app.notice_line2': 'Een ander model wordt alleen gedownload als je het kiest in het Model-paneel.',
+  'cutout.app.notice_line2': 'Een ander model wordt alleen gedownload als je het kiest in het Model-deelvenster.',
   'cutout.app.notice_model': 'Model {name} ({arch})',
   'cutout.app.accept_noun': 'een afbeelding of een video',
   'cutout.app.preview_alt': 'Een foto voor en na: de drukke achtergrond is weg, het onderwerp is behouden',

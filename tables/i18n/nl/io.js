@@ -14,8 +14,8 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'tables.import.unknown_fn': '{n} formules gebruiken een functie die Slop Tables nog niet heeft, dus ze tonen #NAAM?.',
   'tables.import.unknown_fn#one': '{n} formule gebruikt een functie die Slop Tables nog niet heeft, dus die toont #NAAM?.',
   'tables.import.skipped': 'Niet geïmporteerd: {list}.',
-  'tables.import.chart_kind': '{n} grafieken van het type {kind} zijn niet geïmporteerd: Slop Tables tekent kolom-, staaf-, lijn- en taartgrafieken.',
-  'tables.import.chart_kind#one': '{n} grafiek van het type {kind} is niet geïmporteerd: Slop Tables tekent kolom-, staaf-, lijn- en taartgrafieken.',
+  'tables.import.chart_kind': '{n} grafieken van het type {kind} zijn niet geïmporteerd: Slop Tables tekent kolom-, staaf-, lijn- en cirkelgrafieken.',
+  'tables.import.chart_kind#one': '{n} grafiek van het type {kind} is niet geïmporteerd: Slop Tables tekent kolom-, staaf-, lijn- en cirkelgrafieken.',
   'tables.import.chart_shape': '{n} grafieken zijn niet geïmporteerd: hun reeksen zijn geen blok cellen.',
   'tables.import.chart_shape#one': '{n} grafiek is niet geïmporteerd: de reeksen ervan zijn geen blok cellen.',
 

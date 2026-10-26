@@ -8,7 +8,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'ai.chat.rename_title': 'Chat hernoemen',
   'ai.chat.title_label': 'Titel',
   'ai.chat.delete_q': 'Deze chat verwijderen?',
-  'ai.chat.delete_body': '“{title}” is dan definitief weg.',
+  'ai.chat.delete_body': '‘{title}’ is dan definitief weg.',
   'ai.chat.hello': 'Je eigen privé-AI',
   'ai.chat.hello_lead': 'Kies een model om te beginnen. Het wordt één keer gedownload en draait daarna offline op je gpu.',
   'ai.chat.hello_ready': 'Vraag me wat je wilt',

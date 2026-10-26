@@ -4,7 +4,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'ai.cmd.group_build': 'Bouwen',
   'ai.cmd.group_go': 'Ga',
   'ai.cmd.group_model': 'Model',
-  'ai.cmd.group_view': 'Weergave',
+  'ai.cmd.group_view': 'Beeld',
   'ai.cmd.group_help': 'Help',
 
   'ai.cmd.new_chat': 'Nieuwe chat',

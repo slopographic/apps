@@ -1,4 +1,4 @@
-/* Slop Effects, Nederlands: het deelvenster Eigenschappen, het effectenpaneel, het paneel Beweging en de namen van de
+/* Slop Effects, Nederlands: het deelvenster Eigenschappen, het effectenpaneel, het deelvenster Beweging en de namen van de
  * effecten, vormen, versnellingen, eigenschappen en formaten. Dezelfde sleutels als effects/i18n/en/panels.js.
  * Regels: shared/i18n/APPS-HOWTO.md, shared/i18n/glossary-nl.md. */
 window.SlopI18n && window.SlopI18n.add('nl', {

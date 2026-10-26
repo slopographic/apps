@@ -75,6 +75,6 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'vector.guides.vertical': 'Verticaal',
   'vector.guides.horizontal': 'Horizontaal',
   'vector.config.open_title': 'Document openen',
-  'vector.config.replace': 'Het geopende document vervangen door “{name}”?',
+  'vector.config.replace': 'Het geopende document vervangen door ‘{name}’?',
   'vector.config.kept': 'het geopende document is bewaard',
 });

@@ -4,7 +4,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'ui.models.ai.qwen25_05b': 'Klein en snel. Goed voor korte antwoorden en Sloppo-grapjes, zwak in redeneren.',
   'ui.models.ai.llama32_1b': 'Klein, snel, vriendelijk gesprek. Draait op bijna elke WebGPU-laptop.',
   'ui.models.ai.qwen25_15b': 'De beste alleskunner voor kleine grafische kaarten. Volgt toolinstructies goed.',
-  'ui.models.ai.qwen25_coder_15b': 'Klein programmeermodel. Een goede eerste keuze voor “Een mini-app bouwen”.',
+  'ui.models.ai.qwen25_coder_15b': 'Klein programmeermodel. Een goede eerste keuze voor ‘Een mini-app bouwen’.',
   'ui.models.ai.gemma2_2b': 'Natuurlijke schrijfstijl voor zijn formaat. Eerst Engels.',
   'ui.models.ai.llama32_3b': 'Merkbaar slimmer dan 1B, toch licht. Een goede standaard op computers met 8 GB.',
   'ui.models.ai.qwen25_3b': 'Sterk 3B-model. De licentie is alleen voor onderzoek en persoonlijk gebruik.',
@@ -27,7 +27,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'ui.models.cutout.quality_blurb': 'Scherpere randen en fijne details (trager). Het beste voor de meeste foto’s.',
   'ui.models.cutout.portrait': 'Portret',
   'ui.models.cutout.portrait_blurb': 'Mensen: haarfijne uitsnijding voor portretten.',
-  // het venster “Taal en model” (shared/models/chooser.js)
+  // het venster ‘Taal en model’ (shared/models/chooser.js)
   'ui.models.title': 'Taal en model',
   'ui.models.step_language': '1. De taal',
   'ui.models.step_model': '2. Het model',

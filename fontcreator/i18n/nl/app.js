@@ -24,7 +24,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'fontcreator.app.new_note': 'Het lettertype op de pagina wordt vervangen; Ongedaan maken haalt het terug. 1000 eenheden per em, ascender 800, descender −200, hoofdletterhoogte 700, x-hoogte 500 (wijzig ze onder Metrieken).',
   'fontcreator.app.create': 'Maken',
   'fontcreator.app.new_done': 'Nieuw lettertype: {name}',
-  'fontcreator.cmd.group_tools': 'Gereedschappen',
+  'fontcreator.cmd.group_tools': 'Tools',
   'fontcreator.cmd.group_path': 'Pad',
   'fontcreator.cmd.group_glyph': 'Glyph',
   'fontcreator.cmd.tool': 'Gereedschap {tool}',

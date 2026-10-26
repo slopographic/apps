@@ -1,4 +1,4 @@
-/* Slop Time, Nederlands: de woorden die de panelen schrijven. Dezelfde sleutels als time/i18n/en/panels.js.
+/* Slop Time, Nederlands: de woorden die de deelvensters schrijven. Dezelfde sleutels als time/i18n/en/panels.js.
  * Regels: shared/i18n/APPS-HOWTO.md, shared/i18n/glossary-nl.md. */
 window.SlopI18n && window.SlopI18n.add('nl', {
   'time.dev.this': 'Dit apparaat: {zone}',

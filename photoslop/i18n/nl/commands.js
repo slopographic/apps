@@ -17,7 +17,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'photoslop.cmd.prev_doc': 'Vorig document',
   'photoslop.cmd.go_to_doc': 'Ga naar document {i}',
   'photoslop.cmd.restore_aspect': 'Oorspronkelijke beeldverhouding herstellen',
-  'photoslop.cmd.guides_panel': 'Paneel Hulplijnen (hulplijnindelingen)',
+  'photoslop.cmd.guides_panel': 'Deelvenster Hulplijnen (hulplijnindelingen)',
   'photoslop.cmd.search_key': 'Opdrachten zoeken ({key})',
   'photoslop.cmd.nav_preset': 'Navigatievoorinstelling…',
 });

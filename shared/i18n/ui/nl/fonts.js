@@ -1,11 +1,11 @@
-/* Shared components, Dutch: de lettertypekiezer, het paneel Lettertypen, de controle op ontbrekende lettertypen, het downloaden van taalletters (shared/fonts) en de namen van de taalpakketten (SlopScripts.PACKS). Terms: shared/i18n/glossary-nl.md. */
+/* Shared components, Dutch: de lettertypekiezer, het deelvenster Lettertypen, de controle op ontbrekende lettertypen, het downloaden van taalletters (shared/fonts) en de namen van de taalpakketten (SlopScripts.PACKS). Terms: shared/i18n/glossary-nl.md. */
 window.SlopI18n && window.SlopI18n.add('nl', {
   'ui.fonts.title': 'Lettertypen',
   'ui.fonts.get_more': 'Meer ophalen…',
   'ui.fonts.get_more_none': 'Meer ophalen (geen pakketten vermeld)',
   'ui.fonts.get_more_tip': 'Optionele lettertypepakketten. Downloads beginnen pas als je erop klikt.',
   'ui.fonts.fonts_btn': 'Lettertypen…',
-  'ui.fonts.fonts_tip': 'Het paneel Lettertypen: de lettertypen die dit document gebruikt, wat is geïnstalleerd, en hoe je er een toevoegt.',
+  'ui.fonts.fonts_tip': 'Het deelvenster Lettertypen: de lettertypen die dit document gebruikt, wat is geïnstalleerd, en hoe je er een toevoegt.',
   'ui.fonts.group_standard': 'Standaard',
   'ui.fonts.group_site': 'Het lettertype van deze site',
   'ui.fonts.group_bundled': 'Meegeleverd (offline)',

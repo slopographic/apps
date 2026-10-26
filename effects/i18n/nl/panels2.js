@@ -71,7 +71,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'effects.io.cannot_open': 'Kan niet openen: {why}',
   'effects.io.opened': '{name} geopend',
   'effects.io.saved': 'Opgeslagen in Slop Drive',
-  'effects.io.save_to': '“{name}” opslaan in Slop Drive',
+  'effects.io.save_to': '‘{name}’ opslaan in Slop Drive',
   'effects.io.open_title': 'Een Slop Effects-project openen',
   'effects.undo.edit_layer': 'Laag bewerken',
   'effects.undo.fit_text': 'Tekstvak passend maken',

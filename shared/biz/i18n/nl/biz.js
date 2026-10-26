@@ -32,7 +32,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'biz.backup.downloaded': 'Back-up gedownload',
   'biz.backup.restore_q': 'Deze back-up terugzetten?',
   'biz.backup.restore_body': 'Dit vervangt elke post in deze browser door de inhoud van het bestand: klanten, offertes, orders, facturen, betalingen, creditnota’s, uitgaven, voorraad en het grootboek. Download eerst een back-up als je het niet zeker weet.',
-  'biz.backup.restore': 'Terugzetten',
+  'biz.backup.restore': 'Herstellen',
   'biz.backup.not_restored': 'Het bestand is niet teruggezet. Er is niets veranderd.',
   'biz.backup.restored_all': 'Teruggezet. Elke post komt nu overeen met het bestand.',
   'biz.backup.restored': 'Back-up teruggezet',

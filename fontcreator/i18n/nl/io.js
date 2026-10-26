@@ -58,7 +58,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'fontcreator.trace.traced': '{n} contouren getraceerd',
   'fontcreator.trace.traced#one': '{n} contour getraceerd',
   'fontcreator.sheet.print_title': 'Een handschriftvel afdrukken',
-  'fontcreator.sheet.print_note': 'Druk het af op 100% (niet “op pagina passend maken”), schrijf elk teken in zijn vakje met een zwarte pen, en fotografeer het daarna vlak en in goed licht, of scan het. Houd de vier zwarte hoekvierkanten in de afbeelding.',
+  'fontcreator.sheet.print_note': 'Druk het af op 100% (niet ‘op pagina passend maken’), schrijf elk teken in zijn vakje met een zwarte pen, en fotografeer het daarna vlak en in goed licht, of scan het. Houd de vier zwarte hoekvierkanten in de afbeelding.',
   'fontcreator.sheet.paper': 'Papier',
   'fontcreator.sheet.paper_a4': 'A4',
   'fontcreator.sheet.paper_letter': 'US Letter',

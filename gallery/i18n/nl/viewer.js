@@ -35,7 +35,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'gallery.viewer.from_drive': 'Geïmporteerd uit Slop Drive',
   'gallery.viewer.from_device': 'Geïmporteerd van dit apparaat',
   'gallery.viewer.remove_title': 'Foto verwijderen',
-  'gallery.viewer.remove_body': '“{name}” uit Slop Gallery verwijderen? Het Slop Drive-bestand, als dat er is, blijft bewaard.',
+  'gallery.viewer.remove_body': '‘{name}’ uit Slop Gallery verwijderen? Het Slop Drive-bestand, als dat er is, blijft bewaard.',
 
   'gallery.reel.title': 'Reel maken',
   'gallery.reel.making': 'Je reel wordt gemaakt…',

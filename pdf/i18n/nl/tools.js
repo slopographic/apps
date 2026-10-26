@@ -1,5 +1,5 @@
 /* Slop PDF, Nederlands: de gereedschappen Pagina’s ordenen, Pagina bewerken, Ondertekenen en de rest van het
- * paneel, met hun uitleg en meldingen. Dezelfde sleutels als pdf/i18n/en/tools.js.
+ * deelvenster, met hun uitleg en meldingen. Dezelfde sleutels als pdf/i18n/en/tools.js.
  * Terms: shared/i18n/glossary-nl.md. Regels: shared/i18n/APPS-HOWTO.md. */
 window.SlopI18n && window.SlopI18n.add('nl', {
   'pdf.tool.organize.title': 'Pagina’s ordenen',
@@ -56,7 +56,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'pdf.tool.organize.sort_even_odd': 'Even pagina’s eerst, dan oneven',
   'pdf.tool.organize.sort_source': 'Groeperen op bronbestand en pagina',
   'pdf.tool.organize.apply_sort': 'Sorteren toepassen',
-  'pdf.tool.organize.collate_note': 'Een dubbelzijdige stapel gescand op een eenzijdige scanner? Scan alle voorkanten, draai de stapel om, scan de achterkanten, open beide bestanden en kies daarna “Samenvoegen”.',
+  'pdf.tool.organize.collate_note': 'Een dubbelzijdige stapel gescand op een eenzijdige scanner? Scan alle voorkanten, draai de stapel om, scan de achterkanten, open beide bestanden en kies daarna ‘Samenvoegen’.',
   'pdf.tool.organize.merge': 'Samenvoegen',
   'pdf.tool.organize.merge_note': 'Elk bestand dat je opent, wordt aan één document toegevoegd, per bron in een eigen kleur. Rangschik de pagina’s en druk daarna op Downloaden om de samengevoegde PDF op te slaan.',
   'pdf.tool.organize.keyboard': 'Sneltoetsen',
@@ -126,8 +126,8 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'pdf.tool.edit.new_comment_help': 'Kies het gereedschap Opmerking en klik op een pagina. Typ de opmerking in het venster en sla haar daarna op.',
   'pdf.tool.edit.redact_selected': 'Geselecteerd: redigeermarkering',
   'pdf.tool.edit.redact_new': 'Nieuwe redigeermarkering',
-  'pdf.tool.edit.redact_help': 'Sleep over alles wat verwijderd moet worden. Markeringen zijn rood gearceerd tot je ze toepast in het paneel Redigeren; toepassen vervangt de pagina door een afbeelding en verwijdert de inhoud definitief.',
-  'pdf.tool.edit.open_redact': 'Paneel Redigeren openen',
+  'pdf.tool.edit.redact_help': 'Sleep over alles wat verwijderd moet worden. Markeringen zijn rood gearceerd tot je ze toepast in het deelvenster Redigeren; toepassen vervangt de pagina door een afbeelding en verwijdert de inhoud definitief.',
+  'pdf.tool.edit.open_redact': 'Deelvenster Redigeren openen',
   'pdf.tool.edit.whiteout_warn': 'Wit vlak tekent een ondoorzichtig vak over de pagina. Het verbergt de inhoud visueel; de oorspronkelijke tekst eronder staat nog steeds in het bestand. Gebruik Redigeren om de inhoud echt te verwijderen.',
   'pdf.tool.edit.name_text': 'Tekst',
   'pdf.tool.edit.name_pen': 'Tekening',
@@ -190,7 +190,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'pdf.tool.sign.name_aria': 'Je naam',
   'pdf.tool.sign.style_aria': 'Stijl van de handtekening',
   'pdf.tool.sign.name_sample': 'Je naam',
-  'pdf.tool.sign.saved_empty': 'Nog geen opgeslagen handtekeningen. Teken of typ er een en vink “Bewaren voor later” aan.',
+  'pdf.tool.sign.saved_empty': 'Nog geen opgeslagen handtekeningen. Teken of typ er een en vink ‘Bewaren voor later’ aan.',
   'pdf.tool.sign.use_aria': 'Deze handtekening gebruiken',
   'pdf.tool.sign.delete_aria': 'Opgeslagen handtekening verwijderen',
   'pdf.tool.sign.clear_all_msg': 'Elke handtekening verwijderen die in deze browser is opgeslagen?',

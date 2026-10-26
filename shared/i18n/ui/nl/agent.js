@@ -1,11 +1,11 @@
-/* Gedeelde componenten, Nederlands: wat je leest over AI-agents (shared/agent): de Help-notitie en de instelling ervoor (about.js), de opdrachten en meldingen (boot.js), het dialoogvenster “AI-app verbinden” en de verbindingsindicator (bridge-ui.js, bridge.js), de vraag vóór een verwijderende actie (toolset.js, tools.js) en de knoppen Kopiëren in de hulp voor AI-apps (clients-help.js). Beschrijvingen van hulpmiddelen die voor agents zijn geschreven, blijven Engels in de code. Regels: shared/i18n/APPS-HOWTO.md. */
+/* Gedeelde componenten, Nederlands: wat je leest over AI-agents (shared/agent): de Help-notitie en de instelling ervoor (about.js), de opdrachten en meldingen (boot.js), het dialoogvenster ‘AI-app verbinden’ en de verbindingsindicator (bridge-ui.js, bridge.js), de vraag vóór een verwijderende actie (toolset.js, tools.js) en de knoppen Kopiëren in de hulp voor AI-apps (clients-help.js). Beschrijvingen van hulpmiddelen die voor agents zijn geschreven, blijven Engels in de code. Regels: shared/i18n/APPS-HOWTO.md. */
 window.SlopI18n && window.SlopI18n.add('nl', {
   'ui.agent.about_title': 'AI-agents',
   'ui.agent.about_1': 'Sommige browsers laten een AI-agent de pagina gebruiken die je open hebt: een assistent die in de browser zit, of een app op je computer die via een browserextensie is verbonden. De pagina vertelt de agent wat die kan doen, en de agent vraagt de pagina om het te doen.',
   'ui.agent.about_2': 'Hier kan een agent de opdrachten van deze app uitvoeren, File convert-conversies en Slop Workflows op je bestanden draaien, en bestanden openen, opslaan in Slop Drive of downloaden.',
   'ui.agent.about_3': 'Je bestanden blijven op dit apparaat. De app geeft de agent bestandsnamen, id’s en de resultaten van wat hij heeft gedraaid; het werk zelf gebeurt in deze browser en de app uploadt niets. Wat de agent met de opdracht doet, is aan de agent die je gebruikt.',
   'ui.agent.about_4': 'Voordat er iets wordt verwijderd, gewist of vervangen, vraagt de app eerst aan jou.',
-  'ui.agent.about_5': 'Een AI-app op je computer (Claude Code, Codex, Cursor, VS Code, Claude Desktop…) kan ook rechtstreeks verbinding maken met de Slopographic MCP-server: “AI-app verbinden…” hieronder, of Ctrl+K. Je koppelt die één keer per tabblad met een code die hij toont, en de pagina laat zien dat hij verbonden is tot je het verbreekt.',
+  'ui.agent.about_5': 'Een AI-app op je computer (Claude Code, Codex, Cursor, VS Code, Claude Desktop…) kan ook rechtstreeks verbinding maken met de Slopographic MCP-server: ‘AI-app verbinden…’ hieronder, of Ctrl+K. Je koppelt die één keer per tabblad met een code die hij toont, en de pagina laat zien dat hij verbonden is tot je het verbreekt.',
   'ui.agent.about_6': 'Browsers: Chrome 149 tot 156 op slopographic.com zolang de WebMCP-proef loopt, of een recente Chrome met chrome://flags/#enable-webmcp-testing aan. Edge heeft het achter een vlag. Firefox en Safari hebben het nog niet. Een agent op je computer (buiten de browser) heeft een extensie nodig die hem met WebMCP verbindt, zoals MCP-B.',
   'ui.agent.no_webmcp': 'Deze browser biedt geen WebMCP, dus hier kan geen agent deze app gebruiken.',
   'ui.agent.off': 'Uit: er worden geen hulpmiddelen aan agents aangeboden.',
@@ -28,7 +28,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'ui.agent.closed': '{client} is losgekoppeld (het is gestopt, of de sessie is afgesloten).',
   'ui.agent.connected': '{client} is verbonden. Het kan nu dit tabblad gebruiken.',
   'ui.agent.already': '{client} is al met dit tabblad verbonden.',
-  'ui.agent.intro': 'Een AI-app op deze computer (Claude Code, Codex, Cursor, VS Code, Claude Desktop en andere) kan deze app gebruiken met zijn eigen opdrachten: dezelfde hulpmiddelen als het AI-paneel. Je bestanden blijven op dit apparaat; de pagina en de AI-app praten alleen via deze computer (127.0.0.1).',
+  'ui.agent.intro': 'Een AI-app op deze computer (Claude Code, Codex, Cursor, VS Code, Claude Desktop en andere) kan deze app gebruiken met zijn eigen opdrachten: dezelfde hulpmiddelen als het AI-deelvenster. Je bestanden blijven op dit apparaat; de pagina en de AI-app praten alleen via deze computer (127.0.0.1).',
   'ui.agent.step_1': 'Verbind in de AI-app met Slopographic. In Claude Code: /slopographic:slop-connect (na /plugin install slopographic@slopographic). Het toont een code.',
   'ui.agent.step_2': 'Chrome vraagt misschien of deze site apps en diensten op dit apparaat mag gebruiken. Kies Toestaan: zo bereikt deze pagina de AI-app op deze computer. Er wordt niets op je netwerk benaderd.',
   'ui.agent.step_3': 'Typ hier de code.',
@@ -47,10 +47,10 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   // vóór een verwijderende actie (toolset.js, tools.js); the_agent en an_agent vullen {who} in de gedeelde AI-vragen
   'ui.agent.allow_q': 'Deze actie van de AI-agent toestaan?',
   'ui.agent.allow': 'Toestaan',
-  'ui.agent.wants_run': 'Een AI-agent wil “{what}” uitvoeren. Dit kan je werk wijzigen of verwijderen.',
+  'ui.agent.wants_run': 'Een AI-agent wil ‘{what}’ uitvoeren. Dit kan je werk wijzigen of verwijderen.',
   'ui.agent.the_agent': 'de AI-agent',
   'ui.agent.an_agent': 'een AI-agent',
-  // de hulp voor AI-apps (clients-help.js); {doc} is de link “de documentatie”
+  // de hulp voor AI-apps (clients-help.js); {doc} is de link ‘de documentatie’
   'ui.agent.copied': 'Gekopieerd',
   'ui.agent.select_copy': 'Selecteren en kopiëren',
   'ui.agent.format_from': 'Opmaak uit {doc}, gecontroleerd oktober 2026.',

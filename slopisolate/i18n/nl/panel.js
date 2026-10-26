@@ -46,7 +46,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'cutout.panel.export_all': 'Alles exporteren (ZIP)',
   'cutout.panel.no_wm': 'Nooit een watermerk',
 
-  'cutout.bar.tool': 'Tool',
+  'cutout.bar.tool': 'Gereedschap',
   'cutout.bar.pan': 'Verschuiven',
   'cutout.bar.keep': 'Behouden',
   'cutout.bar.remove': 'Verwijderen',

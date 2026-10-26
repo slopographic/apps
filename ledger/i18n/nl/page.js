@@ -27,7 +27,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'ledger.page.sie_tip': 'Rekeningen, beginsaldi en boekingen overnemen uit een SIE-export van een ander programma',
   'ledger.page.sie': 'SIE importeren…',
   'ledger.page.export_journal': 'Journaal exporteren (CSV)',
-  'ledger.page.j_empty': 'Nog geen posten. Boek er een in het paneel Nieuwe journaalpost.',
+  'ledger.page.j_empty': 'Nog geen posten. Boek er een in het deelvenster Nieuwe journaalpost.',
   'ledger.page.account': 'Rekening',
   'ledger.page.debit': 'Debet',
   'ledger.page.credit': 'Credit',

@@ -11,7 +11,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'photoslop.tour.options_text': 'De optiebalk verandert met het actieve gereedschap: grootte, dekking, mengmodus en meer.',
   'photoslop.tour.canvas_title': 'Het canvas',
   'photoslop.tour.canvas_text': 'Schilder, selecteer en transformeer op het canvas. De statusbalk toont zoom en grootte.',
-  'photoslop.tour.panels_title': 'Lagen en panelen',
+  'photoslop.tour.panels_title': 'Lagen en deelvensters',
   'photoslop.tour.panels_text': 'Lagen, geschiedenis en eigenschappen staan in deze kolom. Op een telefoon tonen de knop Lagen ze.',
   'photoslop.tour.export_title': 'Exporteren',
   'photoslop.tour.export_text': 'Exporteer PNG, JPEG, WebP of PSD. Het bestand wordt op je apparaat gemaakt; er wordt niets geüpload.',

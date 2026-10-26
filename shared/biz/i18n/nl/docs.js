@@ -155,7 +155,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'biz.sm.range_order': 'Het bereik begint na het einde',
   'biz.sm.range_long': 'Het datumbereik mag maximaal tien jaar zijn',
   'biz.sm.currency_need': 'Kies een valuta',
-  'biz.sm.no_customers': 'Er zijn nog geen klanten. Voeg er een toe, of zet “Ontbrekende klanten aanmaken” aan.',
+  'biz.sm.no_customers': 'Er zijn nog geen klanten. Voeg er een toe, of zet ‘Ontbrekende klanten aanmaken’ aan.',
   'biz.sm.not_valid': 'niet geldig',
   'biz.sm.went_wrong': 'er ging iets mis',
 });

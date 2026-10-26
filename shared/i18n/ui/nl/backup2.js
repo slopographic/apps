@@ -1,7 +1,7 @@
 /* Gedeelde componenten, Nederlands: back-up naar de cloud en naar een map (shared/sync: de meldingen van de aanbieders en de aanmelding). Regels: shared/i18n/APPS-HOWTO.md. */
 window.SlopI18n && window.SlopI18n.add('nl', {
   'ui.sync.local_label': 'Lokale of netwerkmap',
-  'ui.sync.help_gdrive': 'Google Cloud-console: maak een OAuth-client-ID van het type “Web application” en voeg deze pagina toe als geautoriseerde redirect-URI.',
+  'ui.sync.help_gdrive': 'Google Cloud-console: maak een OAuth-client-ID van het type ‘Web application’ en voeg deze pagina toe als geautoriseerde redirect-URI.',
   'ui.sync.help_dropbox': 'Dropbox-app-console: maak een app (Scoped access, Full of App folder) en voeg deze pagina toe als redirect-URI.',
   'ui.sync.help_local': 'Browsers kunnen niet met SMB, NFS of WebDAV praten. Koppel de share eerst in je besturingssysteem en kies daarna de map. Alleen Chrome of Edge.',
   'ui.sync.unknown': 'Onbekende cloudaanbieder.',
@@ -11,7 +11,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'ui.sync.wrong': 'Er ging iets mis. Er is niets veranderd.',
   'ui.sync.bad_cloud_name': 'Die bestandsnaam kan niet in cloudopslag worden gebruikt.',
   'ui.sync.need_id': 'Voeg eerst je OAuth-client-ID toe.',
-  'ui.sync.need_id_panel': 'Voeg eerst je OAuth-client-ID toe. Open het paneel Cloud-back-up om hem te plakken.',
+  'ui.sync.need_id_panel': 'Voeg eerst je OAuth-client-ID toe. Open het deelvenster Cloud-back-up om hem te plakken.',
   'ui.sync.no_backup': 'Back-up is in deze app nog niet beschikbaar.',
   'ui.sync.no_export': 'De export heeft geen bestand opgeleverd.',
   'ui.sync.invalid': 'Het back-upbestand is ongeldig. Er is niets veranderd.',
@@ -20,7 +20,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'ui.sync.not_ours': 'Deze aanmelding is niet vanaf deze pagina gestart, dus er is niets verbonden.',
   'ui.sync.refused': 'Aanmelden is geannuleerd of geweigerd. Er is niets verbonden.',
   'ui.sync.state': 'Controle van de aanmelding is mislukt (state komt niet overeen). Er is niets verbonden.',
-  'ui.sync.confirm_first': 'Terugzetten vervangt je lokale gegevens. Bevestig eerst.',
+  'ui.sync.confirm_first': 'Herstellen vervangt je lokale gegevens. Bevestig eerst.',
   'ui.sync.none_cloud': 'Nog geen cloudback-up gevonden. Maak eerst een back-up.',
   'ui.sync.no_upload': 'Geen bestand om te uploaden.',
   'ui.sync.not_in_apps': 'Dat bestand staat niet in de map Apps.',
@@ -34,7 +34,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'ui.sync.no_folder': 'Nog geen map gekozen. Kies eerst een map.',
   'ui.sync.no_permission': 'Toestemming om deze map te gebruiken is niet verleend. Druk nogmaals op de knop en sta de toegang toe, of kies de map opnieuw.',
   'ui.sync.no_pick': 'Er is geen map gekozen. Er is niets verbonden.',
-  'ui.sync.needs_chrome': 'Back-up naar een lokale map vereist Chrome of Edge. Gebruik in plaats daarvan “Back-upbestand downloaden” en “Back-upbestand uploaden”.',
+  'ui.sync.needs_chrome': 'Back-up naar een lokale map vereist Chrome of Edge. Gebruik in plaats daarvan ‘Back-upbestand downloaden’ en ‘Back-upbestand uploaden’.',
   'ui.sync.http': '{name}-verzoek mislukt (HTTP {status}).',
   'ui.sync.http_why': '{name}-verzoek mislukt (HTTP {status}): {why}',
 });

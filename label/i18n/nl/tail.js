@@ -16,7 +16,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'label.cfg.roll': 'rol',
   'label.cfg.data_cols': '{n} gegevenskolommen',
   'label.cfg.data_cols#one': '{n} gegevenskolom',
-  'label.cfg.delete_body': '“{name}” wordt uit deze browser verwijderd. Voorinstellingen die ermee zijn gemaakt, blijven bewaard.',
+  'label.cfg.delete_body': '‘{name}’ wordt uit deze browser verwijderd. Voorinstellingen die ermee zijn gemaakt, blijven bewaard.',
   'label.cfg.missing_cols': '{n} kolommen uit de configuratie staan niet in deze gegevens: {list}',
   'label.cfg.missing_cols#one': '{n} kolom uit de configuratie staat niet in deze gegevens: {list}',
   'label.bulk.no_fit': '{grid} etiketten van {size} mm passen niet op {paper} met deze tussenruimten en marge.',

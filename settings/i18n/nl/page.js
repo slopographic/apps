@@ -28,7 +28,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'settings.updates.lede': 'Slopographic controleert elke keer dat je een pagina opent op een nieuwe versie. Lijkt een pagina nog oud, laad dan de nieuwste versie: de offlinekopieën worden opnieuw opgehaald en de pagina wordt opnieuw geladen. Je bestanden, documenten, instellingen en gedownloade pakketten blijven bewaard.',
   'settings.updates.fresh': 'Op elke pagina doet het toevoegen van {fresh} aan het adres hetzelfde.',
   'settings.updates.refresh': 'De nieuwste versie laden',
-  'settings.rates.lede': 'Koersen voer je zelf in, of je downloadt ze bewust van de Europese Centrale Bank. Er wordt niets gedownload tenzij je dit aanzet en op de knop drukt, of “Bijwerken bij openen” aanvinkt.',
+  'settings.rates.lede': 'Koersen voer je zelf in, of je downloadt ze bewust van de Europese Centrale Bank. Er wordt niets gedownload tenzij je dit aanzet en op de knop drukt, of ‘Bijwerken bij openen’ aanvinkt.',
   'settings.rates.switch_help': 'Laat de knop Bijwerken hieronder de dagelijkse referentiekoersen van de ECB downloaden. Standaard uit.',
   'settings.rates.on_open': 'Bijwerken bij openen',
   'settings.rates.on_open_help': 'Download de ECB-koersen elke keer dat deze pagina opent. Vereist dat Wisselkoersen aan staat.',

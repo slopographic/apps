@@ -1,6 +1,6 @@
 /* Reel Remix, Dutch: the keyframe row, the floating button, export, Send to SlopCut, Randomise, drops and moves, auto remix. Rules: shared/i18n/APPS-HOWTO.md. */
 window.SlopI18n && window.SlopI18n.add('nl', {
-  'remix.keys.key_tip': 'Keyframe {n} op {t} s. Sleep, of gebruik de pijltjestoetsen links en rechts. Delete verwijdert hem.',
+  'remix.keys.key_tip': 'Keyframe {n} op {t} s. Sleep, of gebruik de pijltjestoetsen links en rechts. Delete verwijdert het.',
   'remix.keys.key_n_deleted': 'Keyframe {n} verwijderd.',
   'remix.keys.outside': 'De afspeelkop staat buiten de knipmomenten.',
   'remix.keys.plan_first': 'Druk op Remix om de reel te plannen, en voeg dan keyframes toe.',
@@ -30,7 +30,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'remix.fab.auto_off': 'Automatisch remixen staat uit: druk op Remix om nieuwe clips te plannen.',
   'remix.side.remix_tip': 'Plan een nieuwe remix van de clips met deze opties',
   'remix.send.no_drive': 'Slop Drive is hier niet beschikbaar',
-  'remix.send.sending': 'Versturen naar SlopCut…',
+  'remix.send.sending': 'Verzenden naar SlopCut…',
   'remix.send.opened': 'Geopend in SlopCut: {n} clips, manifest {name}',
   'remix.export.first': 'Druk eerst op Remix en exporteer dan',
   'remix.export.unsupported': 'Deze browser kan hier geen video opnemen. Gebruik Naar SlopCut sturen om te exporteren.',
@@ -45,7 +45,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'remix.drop.no_slot': 'Dat vak staat niet in het plan',
   'remix.drop.put': '{name} in knipmoment {cut}, vak {slot} gezet. Remix of Opnieuw schudden plant opnieuw en wist dit.',
   'remix.drop.first': 'Druk eerst op Remix en zet dan een clip op een vak',
-  'remix.drop.miss': 'Zet de clip op een vak in de voorvertoning, of op een knipmoment in de lijst',
+  'remix.drop.miss': 'Zet de clip op een vak in het voorbeeld, of op een knipmoment in de lijst',
   'remix.drop.swapped': 'Vakken {a} en {b} van knipmoment {cut} omgewisseld.',
   'remix.drop.panned': 'Vak {slot} van knipmoment {cut} verschoven. Positie herstellen wist dit.',
   'remix.drop.no_move': 'Knipmomenten kunnen alleen van plek wisselen binnen dezelfde indeling, met hetzelfde aantal vakken.',

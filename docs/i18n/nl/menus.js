@@ -15,7 +15,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'docs.menu.dl_md': 'Markdown downloaden (.md)',
   'docs.menu.dl_txt': 'Platte tekst downloaden (.txt)',
   'docs.menu.dl_sdoc': 'Slop Doc downloaden (.sdoc)',
-  'docs.menu.send_to': 'Versturen naar…',
+  'docs.menu.send_to': 'Verzenden naar…',
   'docs.menu.print': 'Afdrukken…',
   'docs.menu.select_all': 'Alles selecteren',
   'docs.menu.align': 'Uitlijnen',

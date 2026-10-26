@@ -4,7 +4,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'press.menu.type': 'Tekst',
   'press.menu.object': 'Object',
   'press.menu.window': 'Venster',
-  'press.menu.tools': 'Gereedschap',
+  'press.menu.tools': 'Tools',
   'press.menu.styles': 'Stijlen',
   'press.menu.send_to': 'Verzenden naar',
   'press.menu.pages': 'Pagina’s',

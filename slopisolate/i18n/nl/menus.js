@@ -44,9 +44,9 @@ window.SlopI18n && window.SlopI18n.add('nl', {
 
   'cutout.cmd.group_tools': 'Tools',
   'cutout.cmd.export_all': 'Alles als ZIP exporteren…',
-  'cutout.cmd.tool_pan': 'Tool: Verschuiven',
-  'cutout.cmd.tool_keep': 'Tool: Penseel Behouden',
-  'cutout.cmd.tool_remove': 'Tool: Penseel Verwijderen',
+  'cutout.cmd.tool_pan': 'Gereedschap: Verschuiven',
+  'cutout.cmd.tool_keep': 'Gereedschap: Penseel Behouden',
+  'cutout.cmd.tool_remove': 'Gereedschap: Penseel Verwijderen',
   'cutout.cmd.view_result': 'Beeld: Resultaat',
   'cutout.cmd.view_before': 'Beeld: Voor / na',
   'cutout.cmd.view_mask': 'Beeld: Masker',

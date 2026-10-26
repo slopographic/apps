@@ -2,7 +2,7 @@
 window.SlopI18n && window.SlopI18n.add('nl', {
   'label.presets.per_sheet': '{n} per vel',
   'label.presets.round': 'rond',
-  'label.presets.removed_body': '“{name}” is uit deze browser verwijderd.',
+  'label.presets.removed_body': '‘{name}’ is uit deze browser verwijderd.',
   'label.def.type.text': 'Tekst',
   'label.def.type.para': 'Alinea',
   'label.def.type.barcode': 'Barcode',

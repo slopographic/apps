@@ -53,7 +53,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'ai.engine.deleted': 'De gedownloade bestanden zijn verwijderd',
   'ai.engine.err_network': 'het downloaden is mislukt. Controleer je verbinding (huggingface.co en raw.githubusercontent.com moeten bereikbaar zijn), en druk daarna opnieuw op Downloaden: afgeronde delen blijven bewaard.',
   'ai.engine.err_full': 'de opslag voor deze site is vol, dus het model kan niet worden opgeslagen. Om ruimte vrij te maken, verwijder een model onder Modellen ▸ Opslag, of gebruik Slop Drive ▸ Opslag ▸ Lokale cache wissen. Druk daarna opnieuw op Downloaden.',
-  'ai.engine.err_gpu': 'WebGPU is mislukt ({msg}). Zie “Kan mijn pc het draaien?”.',
+  'ai.engine.err_gpu': 'WebGPU is mislukt ({msg}). Zie ‘Kan mijn pc het draaien?’.',
 
   'ai.ws.label': 'Werkruimte',
   'ai.ws.open_tab': 'In nieuw tabblad openen ↗',
@@ -79,7 +79,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'ai.spec.save_drive': 'Opslaan in Slop Drive',
   'ai.spec.download': 'PNG downloaden',
 
-  'ai.drive.saved': '“{name}” opgeslagen in Slop Drive',
+  'ai.drive.saved': '‘{name}’ opgeslagen in Slop Drive',
   'ai.drive.save_failed': 'Kon niet opslaan in Slop Drive',
   'ai.store.not_conv': 'Geen Slop AI-gesprek',
   'ai.intake.noun_text': 'een tekstbestand (de lokale modellen lezen alleen tekst)',
@@ -87,7 +87,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'ai.intake.noun_file': 'een bestand',
   'ai.intake.open_failed': 'Kon die chat niet openen',
   'ai.intake.import_failed': 'Kon niet importeren',
-  'ai.intake.imported': 'Geïmporteerd: “{title}”',
+  'ai.intake.imported': 'Geïmporteerd: ‘{title}’',
   'ai.intake.open_in_failed': 'Kon {name} niet openen',
   'ai.intake.attach_drive': 'Bijvoegen uit Slop Drive',
   'ai.intake.open_drive': 'Chat openen uit Slop Drive',

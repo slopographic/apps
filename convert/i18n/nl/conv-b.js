@@ -61,7 +61,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'convert.raw.rebuild': 'Opnieuw opbouwen',
   'convert.raw.quality': 'Kwaliteit',
   'convert.raw.cannot_write': 'Deze browser kan {format}-afbeeldingen niet schrijven.',
-  'convert.raw.preview_note': 'De voorvertoning toont de ingebedde JPEG van de camera. Converteren ontwikkelt het RAW-bestand.',
+  'convert.raw.preview_note': 'Het voorbeeld toont de ingebedde JPEG van de camera. Converteren ontwikkelt het RAW-bestand.',
   'convert.raw.raw_to_jpg': 'RAW naar JPG',
   'convert.raw.raw_to_png': 'RAW naar PNG',
   'convert.raw.raw_to_webp': 'RAW naar WebP',

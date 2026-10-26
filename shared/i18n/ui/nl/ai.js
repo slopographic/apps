@@ -1,10 +1,10 @@
-/* Engelse woorden van het zijpaneel van Slop AI (shared/ai/panel.js, panel-run.js) → Nederlands: het paneel, de modelkeuze en de downloadmelding (picker.js), het modelmenu (model-menu.js), codeblokken (md.js) en de GPU-hulp (gpu-help.js). Regels: shared/i18n/APPS-HOWTO.md. */
+/* Engelse woorden van het zijpaneel van Slop AI (shared/ai/panel.js, panel-run.js) → Nederlands: het deelvenster, de modelkeuze en de downloadmelding (picker.js), het modelmenu (model-menu.js), codeblokken (md.js) en de GPU-hulp (gpu-help.js). Regels: shared/i18n/APPS-HOWTO.md. */
 window.SlopI18n && window.SlopI18n.add('nl', {
   'ui.ai.this_app': 'deze app',
   'ui.ai.this_page': 'deze pagina',
   'ui.ai.the_provider': 'de AI-aanbieder',
   'ui.ai.own_account': 'Gebruik je eigen AI-account',
-  // het paneel
+  // het deelvenster
   'ui.ai.panel.placeholder': 'Vraag iets over {app}, of zeg wat er moet gebeuren…',
   'ui.ai.panel.message': 'Bericht',
   'ui.ai.panel.send': 'Verzenden',
@@ -26,7 +26,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'ui.ai.panel.kit_error': 'Slop AI is niet geladen ({error}). Controleer de verbinding en sluit Slop AI daarna en open het opnieuw.',
   'ui.ai.panel.kit_error_part': 'Een deel van Slop AI is niet geladen ({error}). Controleer de verbinding en sluit Slop AI daarna en open het opnieuw.',
   'ui.ai.panel.back': 'Terug naar de chat',
-  'ui.ai.panel.empty': 'Vraag wat je wilt, of zeg wat ik in {app} moet doen. Bijvoorbeeld: “vervaag de achtergrond”.',
+  'ui.ai.panel.empty': 'Vraag wat je wilt, of zeg wat ik in {app} moet doen. Bijvoorbeeld: ‘vervaag de achtergrond’.',
   'ui.ai.panel.loading': 'De AI-hulpmiddelen laden…',
   'ui.ai.panel.continued': 'Verdergegaan vanuit {app}.',
   'ui.ai.panel.continued_other': 'Verdergegaan vanuit een andere app.',
@@ -61,8 +61,8 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'ui.ai.pick.consent_partial': 'Een deel is al gedownload; het gaat verder waar het gestopt is.',
   'ui.ai.pick.consent_size': 'Ongeveer {size} downloaden?',
   'ui.ai.pick.consent_title': '{model} downloaden?',
-  'ui.ai.pick.loading_own': '“Gebruik je eigen AI-account” laden…',
-  'ui.ai.pick.own_failed': '“Gebruik je eigen AI-account” is niet geladen',
+  'ui.ai.pick.loading_own': '‘Gebruik je eigen AI-account’ laden…',
+  'ui.ai.pick.own_failed': '‘Gebruik je eigen AI-account’ is niet geladen',
   'ui.ai.pick.local_failed': 'De modellen op dit apparaat konden niet worden weergegeven',
   'ui.ai.pick.failed': '{what} ({error}). Controleer de verbinding en open dit daarna opnieuw.',
   'ui.ai.pick.on_device_h': 'Modellen op dit apparaat',
@@ -83,7 +83,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'ui.ai.pick.facts': '{what} · heeft ongeveer {vram} GPU-geheugen nodig · {licence}',
   'ui.ai.pick.net_failed': 'het downloaden is mislukt. Controleer de verbinding en druk opnieuw op Downloaden (afgeronde delen blijven bewaard).',
   'ui.ai.pick.no_storage': 'deze site heeft geen opslagruimte meer. Maak ruimte vrij in Slop Drive ▸ Opslag en probeer het opnieuw.',
-  // het modelmenu in de kop van het paneel
+  // het modelmenu in de kop van het deelvenster
   'ui.ai.menu.model': 'Model',
   'ui.ai.menu.free': 'Gratis',
   'ui.ai.menu.add_account': 'Nog een AI-account toevoegen…',

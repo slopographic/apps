@@ -4,7 +4,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'pdf.menu.convert_doc': 'Dit document converteren…',
   'pdf.menu.open_files': 'PDF’s of afbeeldingen openen…',
   'pdf.menu.open_drive': 'Openen uit Slop Drive…',
-  'pdf.menu.try_sample': 'Het voorbeeld-PDF proberen',
+  'pdf.menu.try_sample': 'De voorbeeld-pdf proberen',
   'pdf.menu.new_tab': 'Nieuw tabblad',
   'pdf.menu.close_tab': 'Tabblad sluiten',
   'pdf.menu.restore': 'Vorige sessie herstellen',

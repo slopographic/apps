@@ -8,7 +8,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'ui.finder.count_noun': '{n} {noun}',
   'ui.finder.count_of_noun': '{shown} van {n} {noun} komen overeen',
   'ui.finder.matches': 'Overeenkomsten',
-  'ui.finder.chip_search': 'Zoeken: “{q}”',
+  'ui.finder.chip_search': 'Zoeken: ‘{q}’',
   'ui.finder.chip': '{label}: {value}',
   'ui.finder.sort_aria': '{label}, {sorted}',
   'ui.finder.sorted_asc': 'oplopend',

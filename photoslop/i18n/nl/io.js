@@ -47,11 +47,11 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'photoslop.io.save_png_drive': 'PNG opslaan in Slop Drive',
   'photoslop.io.rasterize_first': 'Rasteriseer eerst de tekst- of vormlaag',
   'photoslop.io.replace_mask': 'Het laagmasker vervangen?',
-  'photoslop.io.replace_mask_body': '“{name}” heeft al een masker. Wanneer je het onderwerpmasker terugstuurt vanuit SlopIsolate, vervangt het dat masker. Doorgaan?',
+  'photoslop.io.replace_mask_body': '‘{name}’ heeft al een masker. Wanneer je het onderwerpmasker terugstuurt vanuit SlopIsolate, vervangt het dat masker. Doorgaan?',
   'photoslop.io.continue': 'Doorgaan',
   'photoslop.io.opening_isolate': 'SlopIsolate openen…',
   'photoslop.io.doc_closed': 'Dat PhotoSlop-document is gesloten',
-  'photoslop.io.mask_meanwhile': '“{name}” kreeg een masker terwijl SlopIsolate open was',
+  'photoslop.io.mask_meanwhile': '‘{name}’ kreeg een masker terwijl SlopIsolate open was',
   'photoslop.io.mask_size': 'Het masker past niet bij de grootte van de laag',
   'photoslop.io.step_isolate': 'Onderwerp isoleren',
 });

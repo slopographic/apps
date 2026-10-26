@@ -1,4 +1,4 @@
-/* Gedeelde componenten, Nederlands: back-up en herstel (shared/backup: het dialoogvenster Back-up en herstel, “Alles in één bestand”, de controles van het back-upbestand en de voortgangsregels). Regels: shared/i18n/APPS-HOWTO.md. */
+/* Gedeelde componenten, Nederlands: back-up en herstel (shared/backup: het dialoogvenster Back-up en herstel, ‘Alles in één bestand’, de controles van het back-upbestand en de voortgangsregels). Regels: shared/i18n/APPS-HOWTO.md. */
 window.SlopI18n && window.SlopI18n.add('nl', {
   'ui.backup.title': 'Back-up en herstel',
   'ui.backup.intro': 'Alles wat je in {brand} maakt, staat alleen in deze browser. Browser- of sitegegevens wissen verwijdert het, dus maak een back-up.',
@@ -23,15 +23,15 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'ui.backup.merge_body': 'Voeg alles uit de back-up toe en behoud wat alleen hier staat. Waar beide hetzelfde item hebben, wint de back-up.',
   'ui.backup.replace': 'Vervangen.',
   'ui.backup.replace_body': 'Maak eerst Slop Drive, instellingen en opslagen leeg, zodat deze browser precies overeenkomt met de back-up.',
-  'ui.backup.restore': 'Terugzetten',
+  'ui.backup.restore': 'Herstellen',
   'ui.backup.replace_q': 'Alles vervangen?',
   'ui.backup.replace_warn': 'Dit verwijdert de Slop Drive-bestanden, instellingen en opslagen in deze browser die niet in de back-up staan.',
   'ui.backup.replace_ok': 'Vervangen',
-  'ui.backup.restored': '{records} items in {dbs} databases en {saves} instellingen teruggezet.',
+  'ui.backup.restored': '{records} items in {dbs} databases en {saves} instellingen hersteld.',
   'ui.backup.problems': '{n} problemen: {list}',
   'ui.backup.problems#one': '{n} probleem: {list}',
   'ui.backup.skipped': 'Overgeslagen: {list}.',
-  'ui.backup.restored_toast': 'Back-up teruggezet',
+  'ui.backup.restored_toast': 'Back-up hersteld',
   'ui.backup.import_failed': 'Importeren mislukt: {err}',
   'ui.backup.one_file': 'Alles, één bestand',
   'ui.backup.one_file_body': 'Elke app in de suite in één {ext}-bestand. Geheimen en caches zitten er nooit in.',
@@ -126,7 +126,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'ui.backup.why_v1': 'opgeslagen instellingen en automatische opslagen van andere apps zijn niet meegenomen ({n} sleutels)',
   'ui.backup.why_v1#one': 'opgeslagen instellingen en automatische opslagen van andere apps zijn niet meegenomen ({n} sleutel)',
   'ui.backup.newer': 'Deze back-up is gemaakt met een nieuwere versie van {brand}.',
-  'ui.backup.db_blocked': '“{name}” is open in een ander tabblad. Sluit andere {brand}-tabbladen en probeer het opnieuw.',
+  'ui.backup.db_blocked': '‘{name}’ is open in een ander tabblad. Sluit andere {brand}-tabbladen en probeer het opnieuw.',
   'ui.backup.write_failed': 'het schrijven is mislukt',
   'ui.backup.write_aborted': 'het schrijven is afgebroken',
   'ui.backup.key_differs': 'opslag {store} heeft in deze browser een andere sleutel',

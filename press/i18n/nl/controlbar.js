@@ -7,7 +7,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'press.ctl.fonts_tip': 'Lettertypen: de lettertypen van dit document, en je eigen lettertypebestand',
   'press.ctl.font_style': 'Lettertypestijl',
   'press.ctl.size_tip': 'Lettergrootte (pt)',
-  'press.ctl.leading_tip': 'Regelafstand (pt of “auto”)',
+  'press.ctl.leading_tip': 'Regelafstand (pt of ‘auto’)',
   'press.ctl.tracking_tip': 'Spatiëring (1/1000 em)',
   'press.ctl.al.left': 'Links',
   'press.ctl.al.left_tip': 'Links uitlijnen',

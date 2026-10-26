@@ -44,7 +44,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'press.style.dlg.new_char': 'Nieuwe tekenstijl',
   'press.style.dlg.edit_char': 'Tekenstijl bewerken',
   'press.style.create': 'Maken',
-  'press.style.exists': 'Er bestaat al een stijl met de naam “{name}”',
+  'press.style.exists': 'Er bestaat al een stijl met de naam ‘{name}’',
   'press.style.undo_new': 'Nieuwe stijl',
   'press.style.undo_edit': 'Stijl bewerken',
 });

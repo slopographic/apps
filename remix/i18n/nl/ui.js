@@ -4,7 +4,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'remix.ui.items_n#one': '{n} item',
   'remix.ui.missing': 'Ontbreekt',
   'remix.ui.missing_tip': 'Ontbreekt: voeg een bestand met deze naam toe',
-  'remix.ui.drag_tip': 'Sleep naar een vak van de voorvertoning of naar een knipmoment',
+  'remix.ui.drag_tip': 'Sleep naar een vak van het voorbeeld of naar een knipmoment',
   'remix.ui.photo': 'foto',
   'remix.ui.kind_photo': 'foto',
   'remix.ui.kind_video': 'video',

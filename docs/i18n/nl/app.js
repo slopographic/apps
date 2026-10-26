@@ -71,9 +71,9 @@ window.SlopI18n && window.SlopI18n.add('nl', {
 
   // the Document panel
   'docs.panel.page': 'Pagina',
-  'docs.panel.download_send': 'Downloaden en versturen',
+  'docs.panel.download_send': 'Downloaden en verzenden',
   'docs.panel.new': 'Nieuw',
-  'docs.panel.send_to': 'Versturen naar',
+  'docs.panel.send_to': 'Verzenden naar',
   'docs.panel.no_apps': 'Hier geen andere apps',
   'docs.panel.plain_text': 'Platte tekst (.txt)',
   'docs.panel.toggle': 'Documentpaneel',

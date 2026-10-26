@@ -71,7 +71,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'tables.sheet.rename_title': 'Blad hernoemen',
   'tables.sheet.name': 'Bladnaam',
   'tables.sheet.need_one': 'Een werkmap heeft minstens één blad nodig',
-  'tables.sheet.delete_body': '“{name}” en alles erop verwijderen?',
+  'tables.sheet.delete_body': '‘{name}’ en alles erop verwijderen?',
 
   'tables.nf.general': 'Algemeen',
   'tables.nf.number': 'Getal (0,00)',

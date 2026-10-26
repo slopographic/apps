@@ -40,7 +40,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'serials.app.type_serial': 'Typ een serienummer',
   'serials.app.add_serial': 'Een serienummer toevoegen aan {name}',
   'serials.app.add': 'Toevoegen',
-  'serials.app.no_match': '“{serial}” past niet bij het patroon.',
+  'serials.app.no_match': '‘{serial}’ past niet bij het patroon.',
   'serials.app.t_photos': 'Foto’s',
   'serials.app.t_read': 'Gelezen',
   'serials.app.t_with': 'Foto’s met een serienummer',

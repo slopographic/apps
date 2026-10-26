@@ -10,7 +10,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'code.tour.explorer_title': 'Verkenner',
   'code.tour.explorer_text': 'Je bestanden uit Slop Drive, in mappen. Open een bestand om het te bewerken.',
   'code.tour.run_title': 'Uitvoeren',
-  'code.tour.run_text': 'Voer de voorvertoning uit (Ctrl+Enter).',
+  'code.tour.run_text': 'Voer het voorbeeld uit (Ctrl+Enter).',
   'code.tour.commands_title': 'Opdrachten',
   'code.tour.commands_text': 'Zoek in alle opdrachten van Slop Code.',
 });

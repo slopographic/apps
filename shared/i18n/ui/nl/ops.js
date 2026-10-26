@@ -96,7 +96,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'ui.ops.files.app': 'Bestanden',
   'ui.ops.files.kb': '{n} KB',
   'ui.ops.files.mb': '{n} MB',
-  'ui.ops.step.files_rename': 'Hernoemen',
+  'ui.ops.step.files_rename': 'Naam wijzigen',
   'ui.ops.step.files_rename_desc': 'Nieuwe bestandsnamen uit een patroon met de oude naam, een nummer en de datum. De extensie blijft.',
   'ui.ops.files.pattern': 'Patroon',
   'ui.ops.files.pattern_hint': '{name} de oude naam, {n} een nummer, {date} vandaag.',

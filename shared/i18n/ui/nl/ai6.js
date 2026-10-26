@@ -1,4 +1,4 @@
-/* Gedeelde woorden van Slop AI → Nederlands: “Gebruik je eigen AI-account”: providergroepen, modelnotities, adrescontroles, fouten, gratis aanbiedingen, de gebruiksmeter en de eerste-keer-melding (shared/ai/cloud). Regels: shared/i18n/APPS-HOWTO.md. */
+/* Gedeelde woorden van Slop AI → Nederlands: ‘Gebruik je eigen AI-account’: providergroepen, modelnotities, adrescontroles, fouten, gratis aanbiedingen, de gebruiksmeter en de eerste-keer-melding (shared/ai/cloud). Regels: shared/i18n/APPS-HOWTO.md. */
 window.SlopI18n && window.SlopI18n.add('nl', {
   'ui.ai.cloud.group_main': 'Hoofd',
   'ui.ai.cloud.group_fast': 'Snelle inferentie',
@@ -26,7 +26,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'ui.ai.cloud.base_mixed': '{host} is een andere machine, en deze pagina is https, dus de browser blokkeert http ernaartoe (gemengde inhoud). Gebruik een https://-adres, of http://localhost voor een server op deze computer. Om via https een server op je netwerk te bereiken: Tailscale Serve, Caddy met een lokaal certificaat, of een tunnel (cloudflared, ngrok).',
   'ui.ai.cloud.base_https': 'Gebruik een https://-adres, of http://localhost voor een server op deze computer.',
   'ui.ai.cloud.setup_any': 'Het adres moet de OpenAI Chat Completions-API spreken (bij de meeste servers eindigt het op /v1) en verzoeken van {site} toestaan (CORS).',
-  'ui.ai.cloud.setup_chrome': 'Chrome en Edge vragen één keer of deze website verbinding mag maken met apps op je apparaat (“Apps op apparaat” of “Toegang tot lokaal netwerk”). Kies Toestaan. Heb je het geblokkeerd, klik dan op het pictogram links van het adres, open Sitesinstellingen en sta het weer toe.',
+  'ui.ai.cloud.setup_chrome': 'Chrome en Edge vragen één keer of deze website verbinding mag maken met apps op je apparaat (‘Apps op apparaat’ of ‘Toegang tot lokaal netwerk’). Kies Toestaan. Heb je het geblokkeerd, klik dan op het pictogram links van het adres, open Sitesinstellingen en sta het weer toe.',
   'ui.ai.cloud.err_who': 'De AI-aanbieder',
   'ui.ai.cloud.err_key': '{who} heeft de sleutel niet geaccepteerd. Controleer of je de hele sleutel hebt geplakt en of hij nog actief is, en druk daarna opnieuw op Verbinding testen.',
   'ui.ai.cloud.err_rate': '{who} zegt dat er nu te veel verzoeken zijn (limiet).',
@@ -34,7 +34,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'ui.ai.cloud.err_rate_in#one': 'Probeer het over ongeveer {n} seconde opnieuw.',
   'ui.ai.cloud.err_rate_wait': 'Wacht een minuut en probeer het opnieuw.',
   'ui.ai.cloud.err_money': '{who} zegt dat het account geen tegoed meer heeft. Voeg tegoed toe op de website van de aanbieder, of gebruik een andere sleutel.',
-  'ui.ai.cloud.err_cors_local': 'De browser kon {who} niet bereiken. Controleer of het draait en of het deze website toestaat (zie “Een lokale server verbinden” hieronder). Chrome vraagt misschien ook of deze site apps op je apparaat mag gebruiken: kies Toestaan.',
+  'ui.ai.cloud.err_cors_local': 'De browser kon {who} niet bereiken. Controleer of het draait en of het deze website toestaat (zie ‘Een lokale server verbinden’ hieronder). Chrome vraagt misschien ook of deze site apps op je apparaat mag gebruiken: kies Toestaan.',
   'ui.ai.cloud.err_cors': 'De browser kon {who} niet bereiken. Controleer je internetverbinding. Blijft het mislukken, dan accepteert de aanbieder misschien geen verzoeken van webpagina’s.',
   'ui.ai.cloud.err_network': 'Kon {who} niet bereiken. Controleer je internetverbinding en probeer het opnieuw.',
   'ui.ai.cloud.err_model': '{who} kent dit model niet, of de sleutel kan het niet gebruiken. Kies een ander model.',
@@ -46,7 +46,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'ui.ai.cloud.err_other': '{who} heeft niet geantwoord.',
   'ui.ai.cloud.err_other_detail': '{who} heeft niet geantwoord: {detail}',
   'ui.ai.cloud.paste_key': 'Plak eerst je sleutel.',
-  'ui.ai.cloud.connect_first': 'Verbind eerst {name}: plak je sleutel in het AI-paneel.',
+  'ui.ai.cloud.connect_first': 'Verbind eerst {name}: plak je sleutel in het AI-deelvenster.',
   'ui.ai.cloud.cut_off': '(Het antwoord is afgebroken bij de lengtelimiet.)',
   'ui.ai.cloud.no_store': 'Deze browser kan geen sleutels opslaan.',
   'ui.ai.cloud.store_busy': 'De sleutelopslag is bezet in een ander tabblad.',
@@ -83,7 +83,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'ui.ai.cloud.notice_local_2': 'Bestanden en afbeeldingen worden alleen verstuurd wanneer de assistent er een wil bekijken, en je wordt er elke keer voor gevraagd.',
   'ui.ai.cloud.notice_1': 'Wat je hier typt, en wat de assistent in deze app leest en doet (bijvoorbeeld laag- of bestandsnamen, en elke actie), gaat naar {who} om te worden beantwoord.',
   'ui.ai.cloud.notice_2': 'Je bestanden en afbeeldingen worden niet verstuurd. Wil de assistent er een bekijken, dan word je eerst gevraagd, elke keer, en gaat alleen een kleine kopie mee (een verkleinde afbeelding, of het begin van een tekst).',
-  'ui.ai.cloud.notice_3': '{who} rekent je account voor wat je gebruikt, per token. Het paneel toont de tokens van elk antwoord en van dit bezoek, en je kunt een limiet instellen. De eigen voorwaarden en het privacybeleid van {who} gelden.',
+  'ui.ai.cloud.notice_3': '{who} rekent je account voor wat je gebruikt, per token. Het deelvenster toont de tokens van elk antwoord en van dit bezoek, en je kunt een limiet instellen. De eigen voorwaarden en het privacybeleid van {who} gelden.',
   'ui.ai.cloud.notice_4': 'Je sleutel blijft in deze browser en wordt alleen naar {who} gestuurd.',
   'ui.ai.cloud.notice_title_local': '{name} gebruiken?',
   'ui.ai.cloud.notice_title': 'Je verzoeken naar {who} sturen?',

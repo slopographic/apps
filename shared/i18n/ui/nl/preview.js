@@ -62,7 +62,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'ui.deck.tagged_photo': '{tag}: {name}. {at}',
   'ui.deck.no_tag': 'Geen tag toegevoegd.',
   'ui.deck.tagged': 'Getagd: {tags}.',
-  'ui.deck.quoted': '“{text}”',
+  'ui.deck.quoted': '‘{text}’',
   'ui.deck.end_sum': 'Je hebt alle {n} foto’s bekeken: {liked} leuk, {disliked} niet leuk.',
   'ui.deck.end_sum#one': 'Je hebt alle {n} foto bekeken: {liked} leuk, {disliked} niet leuk.',
   'ui.deck.end_sum_left': 'Je hebt alle {n} foto’s bekeken: {liked} leuk, {disliked} niet leuk, {left} nog niet gesorteerd.',

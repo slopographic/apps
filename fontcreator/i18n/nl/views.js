@@ -19,7 +19,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'fontcreator.ops.exclude': 'Uitsluiten',
   'fontcreator.ops.no_outline': 'Deze glyph heeft nog geen contour',
   'fontcreator.ops.nothing_flip': 'Er is niets om te spiegelen',
-  'fontcreator.ops.no_glyph': 'Geen glyph “{key}” in het lettertype',
+  'fontcreator.ops.no_glyph': 'Geen glyph ‘{key}’ in het lettertype',
   'fontcreator.ops.same_glyph': 'Dat is deze glyph',
   'fontcreator.ops.undo_add_from': 'De contour van {name} toevoegen',
   'fontcreator.ops.undo_copy_from': '{name} kopiëren',

@@ -84,7 +84,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'vector.act.theme_pro': 'Pro (donker)',
   'vector.act.theme_light': 'Licht',
   'vector.act.theme_classic': 'Klassiek 98',
-  'vector.act.window_toggle_panels': 'Panelen tonen/verbergen',
+  'vector.act.window_toggle_panels': 'Deelvensters tonen/verbergen',
   'vector.act.window_reset': 'Werkruimte herstellen',
   'vector.act.window_fill_color': 'Vulkleur…',
   'vector.act.window_stroke_color': 'Lijnkleur…',
