@@ -4,5 +4,5 @@ window.SlopI18n && window.SlopI18n.source({
   ns: 'crm',
   base: ((document.currentScript || {}).src || '').replace(/[^/]*$/, ''),
   parts: ['forms', 'page', 'views'],
-  langs: ['en', 'sv'],
+  langs: ['ar', 'en', 'sv'],
 });
