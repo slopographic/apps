@@ -595,3 +595,42 @@ Test: `tests/pdf/ai-commands.test.html`.
 - Tests: `tests/node/pdf-content-objs.test.mjs`, `tests/node/pdf-assets.test.mjs`, `tests/pdf/objects.test.html`
   (`pdf.spec-objects.js`, `pdf.spec-ocg.js`), `tests/pdf/extract.test.html` (`pdf.spec-extract.js`), fixtures made in the
   tests (`objects.helpers.js`).
+
+## The select tool edits what it selects (`editor/select-edit.js`, `para-xform.js`, `annot-xform.js`, `multi-sel.js`, `clip.js`, `cross-page.js`)
+- **Why it did not before**: one gesture went to three mechanisms. A click on page text gave the browser's character
+  selection of one pdf.js span plus a "lift" box (`sel-lift.js S.onClick`; its handles turned the selection into a white cover
+  and a Helvetica text annotation, losing the font); a double click opened the one-line editor (`Ed.editRunAt`, no handles);
+  the paragraph frame that keeps the document's font (`para-*.js`) only came with Ctrl+E ▸ Paragraphs, and had width handles
+  only; page pictures needed Objects mode (O).
+- **Now** (select tool, Edit text and Objects mode off: `Ed.uniOn()`): a click on page text (a span, a gap between words, or
+  before the text layer is built) selects its paragraph block as the frame (`S.selectTextAt` → `P.selectBlocks(p, bs, true)`,
+  `sel.uni`) with move (body), width (`.para-h`), scale (`.para-c`: fs, pitch, indents and width together, the opposite corner
+  kept) and turn (`.para-r`, Shift 15°) handles; typing a letter, Enter / F2 or a double click edits in the same frame (caret at
+  the click), the handles stay; Escape applies and keeps the frame (it used to cancel); a click elsewhere applies and lets go
+  (`sel.pending` keeps the derived file from being released under the edit: the regression test). Arrows nudge, Delete
+  removes the text (`P.remove`). A click on a page picture / placed artwork / vector group selects it with its handles
+  (`obj-mode.js O.live()`); a paragraph frame annotation opens its frame; other annotations select as before.
+- **Plain text selection** stays in the same tool: a mouse drag across text selects characters (the selection bar: copy,
+  highlight…); on touch a long press selects the word and a drag scrolls. No separate tool was added: one tool, no mode.
+- **Turning** annotations: a round `.sel-rot` handle on text boxes, pictures/signatures, rectangles, ellipses, covers and
+  highlight boxes; `a.rot` at any angle (view angle = page rotation − rot). `E.annotViewRect` gives a turned box's bounds;
+  a turned box shows turned handles that resize along its own edges (`SlopPdfXform`, `xform.js`, Node-tested). A turned
+  paragraph frame is saved inside a `cm` about its centre (`E.drawPara`).
+- **Groups**: Shift+click toggles, a mouse drag on empty page draws a box (Shift adds); the group moves, nudges, deletes and
+  duplicates as one step (`S.selectedIds()`). Mouse drag on empty page is the box now; Space / middle drag and a finger pan.
+- **Copy / paste** (`clip.js`): Ctrl+C / X / V / D on annotations, groups, text blocks (copied as a para frame in its font,
+  `st.src` says where its font is read from, and the export finds the font on any output page) and page objects (copied as a
+  picture). Paste in place: another page → the same coordinates; its own page (and every further paste to one page) +12 pt.
+  Edit ▸ Paste on all pages / Paste on pages… (a range). The clipboard survives tab switches (pictures carry their asset).
+  The copied text goes to the system clipboard; a plain text paste from elsewhere becomes a text box.
+- **Between pages** (`cross-page.js`): a move dropped on another shown page (continuous, single, two-page) goes there at the
+  drop point; Alt copies; the target page is outlined and the viewer scrolls near its edges. Page objects (content stream)
+  do not cross pages.
+- **Panel** (`tools/sel-panel.js`): a text block's font (read-only: the document's), size, colour, alignment, X/Y/W and
+  rotation; a page picture's X/Y/W/H and a turn; every annotation gets X/Y/W/H/rotation under its own properties.
+- **Assistant** (`ui/ai-edit.js`): `pdf.text.list|select|edit|move|resize|rotate`, `pdf.annot.transform`, `pdf.annot.to-page`,
+  `pdf.clip.copy|paste|paste-pages`. Strings: `pdf/i18n/<lang>/select.js` (all five languages).
+- **Limits**: a pasted frame in another document saves in its substitute font when that document lacks the font; a text block
+  cannot join a group (its frame is one selection); rotated pages: the frame's handles work in page space.
+- Tests: `tests/pdf/select-edit.test.html` (`pdf.spec-select-edit.js`, `pdf.spec-clip.js`, `select-edit.helpers.js`),
+  `tests/node/pdf-xform.test.mjs`; `pdf.spec-lock-text.js` and `pdf.spec-edit-inplace.js` follow the new click / double click.

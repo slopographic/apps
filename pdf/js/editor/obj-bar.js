@@ -123,7 +123,7 @@
   function provide() {
     if (!window.SlopSelBar || !SlopSelBar.provide) return;
     SlopSelBar.provide({ id: 'obj', label: function () { var o = O.selected(); return U.t('pdf.ed.obj_selected', { what: o ? O.label(o) : U.t('pdf.ed.obj_kind_object') }); },
-      active: function () { return Ed.objMode && !!O.selected() && SP.app.mode === 'page'; }, box: box, build: build, refresh: refresh,
+      active: function () { return O.live() && !!O.selected() && SP.app.mode === 'page'; }, box: box, build: build, refresh: refresh,
       dismiss: function () { closePop(); O.select(null); } });
   }
   provide();
