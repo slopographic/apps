@@ -60,7 +60,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'vector.sc.from_centre': 'Vanuit het midden / dupliceren bij slepen',
   'vector.sc.zoom_keys': '{mod}+wiel / knijpen',
   'vector.about.version': 'v1.0 · build {build}',
-  'vector.about.blurb': 'Een echte vectoreditor die helemaal in je browser draait: pen en potlood, live-vormen, lagen, verlopen, pathfinder-bewerkingen, export naar SVG/PDF/PNG en een zelfgeschreven PDF-schrijver. Geen accounts, geen uploads, geen tracking: je tekeningen verlaten dit tabblad nooit.',
+  'vector.about.blurb': 'Een echt vectortekenprogramma dat helemaal in je browser draait: pen en potlood, live-vormen, lagen, verlopen, pathfinder-bewerkingen, export naar SVG/PDF/PNG en een zelfgeschreven PDF-schrijver. Geen accounts, geen uploads, geen tracking: je tekeningen verlaten dit tabblad nooit.',
   'vector.about.part_of': 'Onderdeel van {site}, een museum van AI-slop. De tool zelf is, tegen alle verwachtingen in, geen slop.',
   'vector.about.tip': 'Tip: {path} slaat één offline .html-kopie van deze hele editor op.',
   'vector.about.download_app': 'App downloaden',

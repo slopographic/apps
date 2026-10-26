@@ -13,8 +13,10 @@
 //    (Intl.PluralRules: ar zero one two few many, ru one few many, ja none), 'key' itself being 'other';
 //  - no value writes "slop" (the products' word and the mascot's name) in another script: a transliteration (سلوبو,
 //    スロップ) would carry it past a white-label build's rename map and its leak scan, which both read Latin words.
-//    Keep it in Latin letters or leave it out.
-import { readFileSync } from 'node:fs';
+//    Keep it in Latin letters or leave it out;
+//  - no value holds a white-label rename target (brand/profiles/*.map.json compounds, e.g. "vectoreditor"): a build
+//    renames slopvector to it, and its reverse would turn the translated word back into slopvector.
+import { readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { apps, appTables, sharedTables, sharedAreas, pageAreas, langs, ROOT } from './tables.mjs';
 
@@ -22,6 +24,16 @@ const CATS = new Set(['zero', 'one', 'two', 'few', 'many', 'other']);
 export const placeholders = (s) => [...String(s).matchAll(/\{(\w+)\}/g)].map((m) => m[1]).sort().join(',');
 /** "slop" written in the scripts of LANGS: Arabic, Hebrew, Cyrillic, Greek, Devanagari, Ethiopic, kana, Hangul, Han. */
 export const TRANSLIT = /(?<![\u0600-\u06FF])سل[وا]ب|סלופ|сл[оа]п|σλοπ|स्ल[ॉो]प|ስሎፕ|スロッ?プ|スロッポ|すろっぷ|슬롭|슬로포|斯洛普|斯洛波|斯罗普/i;
+/** The rename targets of the sample white-label maps, lower case (one source: the maps themselves). */
+export function renameTargets(root = ROOT) {
+  const dir = path.join(root, 'brand', 'profiles'), out = new Set();
+  for (const f of readdirSync(dir).filter((x) => x.endsWith('.map.json'))) {
+    const m = JSON.parse(readFileSync(path.join(dir, f), 'utf8'));
+    for (const c of m.compounds || []) if (c.to) out.add(c.to.toLowerCase());
+  }
+  return [...out];
+}
+let TARGETS = null;
 const baseOf = (k) => (k.includes('#') ? k.slice(0, k.indexOf('#')) : k);
 /** The plural forms a language needs besides 'other' for the counts a UI shows (CLDR, through Intl): the categories
  * some whole number 0..200 falls in. fr, es, it and pt 'many' (only for a million and up) is left to 'other'. */
@@ -47,6 +59,8 @@ export function compare(label, en, tr, { requireAll = true, code = label.split('
     if (!tr.has(k)) { if (requireAll) out.push(`${label}: missing ${k}`); continue; }
     if (!tr.get(k).trim()) out.push(`${label}: ${k} is empty`);
     if (placeholders(tr.get(k)) !== placeholders(v)) out.push(`${label}: ${k} has {${placeholders(tr.get(k))}}, English has {${placeholders(v)}}`);
+    const low = tr.get(k).toLowerCase(), hit = (TARGETS ||= renameTargets()).find((w) => low.includes(w));
+    if (hit && !v.toLowerCase().includes(hit)) out.push(`${label}: ${k} holds "${hit}", a white-label rename target: reword it`);
     const tl = TRANSLIT.exec(tr.get(k));
     if (tl) out.push(`${label}: ${k} writes "${tl[0]}": keep Slop names in Latin letters or leave them out`);
   }

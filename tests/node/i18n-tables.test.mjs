@@ -8,7 +8,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
-import { check, compare, placeholders, pluralForms, TRANSLIT } from '../../tools/i18n/check.mjs';
+import { check, compare, placeholders, pluralForms, TRANSLIT, renameTargets } from '../../tools/i18n/check.mjs';
 import { scan, render, levels, losses, raise, OUT, BASELINE } from '../../tools/i18n/coverage.mjs';
 import { ROOT, COVERS, coversText, langs, apps, appTables, sharedAreas, sharedTables, pageAreas, tableFiles } from '../../tools/i18n/tables.mjs';
 import { scanJs, scanHtml, wordy, fragment, staticText } from '../../tools/i18n/scan.mjs';
@@ -37,6 +37,14 @@ test('"slop" written in another script is refused, so a white-label rename still
   const en = new Map([['a.hi', 'Hi from Sloppo']]);
   assert.equal(compare('x/ar', en, new Map([['a.hi', 'مرحبا من سلوبو']])).length, 1);
   assert.deepEqual(compare('x/ar', en, new Map([['a.hi', 'مرحبا من Sloppo']])), []);
+});
+
+test('a translation never holds a white-label rename target (its reverse would rewrite the word)', () => {
+  const targets = renameTargets();
+  assert.ok(targets.includes('vectoreditor'), 'the targets come from brand/profiles/*.map.json');
+  const en = new Map([['a.blurb', 'A real vector editor']]);
+  assert.equal(compare('x/nl', en, new Map([['a.blurb', 'Een echte vectoreditor']])).length, 1);
+  assert.deepEqual(compare('x/nl', en, new Map([['a.blurb', 'Een echt vectortekenprogramma']])), []);
 });
 
 test('COVERAGE.md and tables.covers.txt are up to date (node tools/i18n/i18n.mjs coverage)', () => {
