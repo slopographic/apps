@@ -8,7 +8,7 @@
        label/js/ui/commands.js, label/js/ui/configs-dlg.js, label/js/ui/context.js, label/js/ui/datadlg.js, label/js/ui/dialogs.js, label/js/ui/export.js,
        label/js/ui/form.js, label/js/ui/hub.js, label/js/ui/intake.js, label/js/ui/interact.js, label/js/ui/keys.js, label/js/ui/menus.js, label/js/ui/panels.js,
        label/js/ui/presets-dlg.js, label/js/ui/printdlg.js, label/js/ui/props-reset.js, label/js/ui/props-types.js, label/js/ui/props.js, label/js/ui/tabs.js,
-       shared/tour/tours/label.js -->
+       shared/tour/tours/label.js, label/css/panels.css -->
   <style>body { margin: 0; background: #111; color: #eee; font: 12px system-ui; } iframe { width: 1280px; height: 800px; border: 0; display: block; }</style>
 </head>
 <body>
@@ -102,6 +102,20 @@
       await waitFor(() => doc.documentElement.getAttribute('lang') === 'sv', { timeout: 20000 });
       expect(doc.documentElement.scrollWidth <= f.contentWindow.innerWidth + 1).toBe(true);
       expect(KEY.test(visible(doc))).toBe(false);
+    });
+
+    it('the property labels are not cut off in Swedish ("Storlek (mm)"), on a desktop and at 390 px', async () => {
+      for (const width of [1280, 390]) {
+        const f = await open('sv', width);
+        const doc = f.contentDocument;
+        await waitFor(() => doc.documentElement.getAttribute('lang') === 'sv', { timeout: 20000 });
+        if (width < 700) doc.getElementById('btnDock').click();
+        const labels = () => [...doc.querySelectorAll('#dock .row > span:first-child')].filter((s) => s.offsetWidth > 0);
+        await waitFor(() => labels().some((s) => s.textContent === 'Storlek (mm)'), { timeout: 20000 });
+        const cut = labels().filter((s) => s.scrollWidth > s.clientWidth).map((s) => s.textContent);
+        expect(width + ': ' + cut.join(', ')).toBe(width + ': ');
+        frames.splice(0).forEach((x) => x.remove());
+      }
     });
   });
   run({ name: 'SlopLabel in Swedish' });
