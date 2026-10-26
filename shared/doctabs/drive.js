@@ -5,6 +5,8 @@
   'use strict';
   const NS = window.SlopDocTabs || (window.SlopDocTabs = {});
   if (NS.drive) return;
+  /** A word from the shared tables (shared/i18n/ui/en.js), or the English given when SlopI18n or the key is absent. */
+  function tr(key, en, vars) { const I = globalThis.SlopI18n; if (I && I.has && I.has(key)) return I.t(key, vars); return vars ? String(en).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en; }
 
   const hub = () => window.SlopHub || null;
   const toast = (api, msg) => api.toast(msg);
@@ -20,7 +22,7 @@
     const dr = api.adapter.drive || {};
     let ext = dr.ext || '';
     if (ext && !ext.startsWith('.')) ext = '.' + ext;
-    const base = String(api.nameOf(doc) || 'Untitled').replace(/\s+/g, ' ').trim() || 'Untitled';
+    const base = String(api.nameOf(doc) || tr('ui.untitled', 'Untitled')).replace(/\s+/g, ' ').trim() || tr('ui.untitled', 'Untitled');
     return ext && !base.toLowerCase().endsWith(ext.toLowerCase()) ? base + ext : base;
   }
 
@@ -31,7 +33,7 @@
   async function saveToDrive(api, doc) {
     if (!doc) return null;
     const H = hub();
-    if (!H) { toast(api, 'Slop Drive is not available here'); return null; }
+    if (!H) { toast(api, tr('ui.no_drive', 'Slop Drive is not available here')); return null; }
     const blob = await blobOf(api, doc), name = fileName(api, doc), type = (api.adapter.drive || {}).mime || blob.type;
     const linked = api.driveIdOf(doc);
     let id = null;
@@ -40,12 +42,12 @@
       if (out) id = linked;
     }
     if (!id) {
-      id = await H.saveToDrive(blob, name, { from: api.appId || 'unknown', title: `Save “${name}” to Slop Drive` });
+      id = await H.saveToDrive(blob, name, { from: api.appId || 'unknown', title: tr('ui.tabs.save_title', 'Save “{name}” to Slop Drive', { name }) });
       if (!id) return null;
     }
     api.setDriveId(doc, id);
     api.markSaved(doc);
-    toast(api, `Saved ${name} to Slop Drive`);
+    toast(api, tr('ui.tabs.saved', 'Saved {name} to Slop Drive', { name }));
     return id;
   }
 

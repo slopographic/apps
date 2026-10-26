@@ -5,16 +5,16 @@
 
   /* ------------------------------------------------------------- fonts */
   var FONTMAP = {
-    Helvetica: ['Helvetica', 'Helvetica-Bold', 'Helvetica-Oblique', 'Helvetica-BoldOblique'],
-    Times: ['Times-Roman', 'Times-Bold', 'Times-Italic', 'Times-BoldItalic'],
-    Courier: ['Courier', 'Courier-Bold', 'Courier-Oblique', 'Courier-BoldOblique']
+    Helvetica: ['Helvetica', 'Helvetica-Bold', 'Helvetica-Oblique', 'Helvetica-BoldOblique'], // i18n-ignore: PDF names / font names / producer, not UI
+    Times: ['Times-Roman', 'Times-Bold', 'Times-Italic', 'Times-BoldItalic'], // i18n-ignore: PDF names / font names / producer, not UI
+    Courier: ['Courier', 'Courier-Bold', 'Courier-Oblique', 'Courier-BoldOblique'] // i18n-ignore: PDF names / font names / producer, not UI
   };
   E.CSSFONT = {
-    Helvetica: 'Helvetica, Arial, "Liberation Sans", "Nimbus Sans", sans-serif',
+    Helvetica: 'Helvetica, Arial, "Liberation Sans", "Nimbus Sans", sans-serif', // i18n-ignore: PDF names / font names / producer, not UI
     Times: '"Times New Roman", Times, "Liberation Serif", "Nimbus Roman", serif',
     Courier: '"Courier New", Courier, "Liberation Mono", "Nimbus Mono PS", monospace'
   };
-  E.stdFontName = function (a) { var fam = FONTMAP[a.font] ? a.font : 'Helvetica'; return FONTMAP[fam][(a.bold ? 1 : 0) + (a.italic ? 2 : 0)]; };
+  E.stdFontName = function (a) { var fam = FONTMAP[a.font] ? a.font : 'Helvetica'; return FONTMAP[fam][(a.bold ? 1 : 0) + (a.italic ? 2 : 0)]; }; // i18n-ignore: PDF names / font names / producer, not UI
   var mdoc = null, mfonts = {}, charsets = {};
   E.initFonts = async function () {
     if (mdoc) return;
@@ -62,9 +62,9 @@
   /* ------------------------------------------------------------- stamps */
   E.pageNumberText = function (pn, n, total) {
     switch (pn.format) {
-      case 'page': return 'Page ' + n;
+      case 'page': return 'Page ' + n; // i18n-ignore: stamped into the document
       case 'n-of': return n + ' / ' + total;
-      case 'page-of': return 'Page ' + n + ' of ' + total;
+      case 'page-of': return 'Page ' + n + ' of ' + total; // i18n-ignore: stamped into the document
       case 'dash': return '– ' + n + ' –';
       default: return String(n);
     }
@@ -77,7 +77,7 @@
     if (pn && !(pn.skipFirst && index === 0)) {
       var n = (pn.start || 1) + index - (pn.skipFirst ? 1 : 0);
       var last = (pn.start || 1) + total - 1 - (pn.skipFirst ? 1 : 0);
-      var a = { id: 'pn', type: 'text', text: E.pageNumberText(pn, n, last), font: pn.font || 'Helvetica', bold: !!pn.bold, size: pn.size || 11, color: pn.color || '#000000', opacity: 1, rot: R };
+      var a = { id: 'pn', type: 'text', text: E.pageNumberText(pn, n, last), font: pn.font || 'Helvetica', bold: !!pn.bold, size: pn.size || 11, color: pn.color || '#000000', opacity: 1, rot: R }; // i18n-ignore: PDF names / font names / producer, not UI
       var t = E.textLayout(a), m = pn.margin == null ? 28 : pn.margin;
       var pos = pn.position || 'bottom-center', vx, vy;
       vx = /left/.test(pos) ? m + t.w / 2 - t.pad : /right/.test(pos) ? vs.w - m - t.w / 2 + t.pad : vs.w / 2;

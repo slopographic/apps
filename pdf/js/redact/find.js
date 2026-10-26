@@ -12,13 +12,13 @@
     return s % 10 === 0;
   }
   function digits(s) { return s.replace(/\D/g, ''); }
-  /** Presets: id → {label, re, ok(match)}. */
+  /** Presets: id → {label, re, ok(match)}. The label is read when the panel renders (the chosen language). */
   R.PRESETS = {
-    email: { label: 'E-mail addresses', re: /[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}/g },
-    phone: { label: 'Phone numbers', re: /(?:\+\d{1,3}[\s.-]?)?(?:\(\d{1,4}\)[\s.-]?)?\d{2,4}(?:[\s.-]?\d{2,4}){1,4}/g,
+    email: { get label() { return U.t('pdf.redact.preset_email'); }, re: /[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}/g },
+    phone: { get label() { return U.t('pdf.redact.preset_phone'); }, re: /(?:\+\d{1,3}[\s.-]?)?(?:\(\d{1,4}\)[\s.-]?)?\d{2,4}(?:[\s.-]?\d{2,4}){1,4}/g,
       ok: function (m) { var n = digits(m).length; return n >= 7 && n <= 15 && !/^\d{4}-\d{2}-\d{2}$/.test(m.trim()); } },
-    card: { label: 'Card numbers', re: /\b\d(?:[ -]?\d){12,18}\b/g, ok: function (m) { var d = digits(m); return d.length >= 13 && d.length <= 19 && luhn(d); } },
-    ssn: { label: 'SSN / ID numbers', re: /\b(?:\d{3}-\d{2}-\d{4}|(?:19|20)?\d{6}[-+]\d{4})\b/g }
+    card: { get label() { return U.t('pdf.redact.preset_card'); }, re: /\b\d(?:[ -]?\d){12,18}\b/g, ok: function (m) { var d = digits(m); return d.length >= 13 && d.length <= 19 && luhn(d); } },
+    ssn: { get label() { return U.t('pdf.redact.preset_ssn'); }, re: /\b(?:\d{3}-\d{2}-\d{4}|(?:19|20)?\d{6}[-+]\d{4})\b/g }
   };
   R.luhn = luhn;
 
@@ -119,7 +119,7 @@
   R.markMatches = function (matches) {
     if (!matches.length) return 0;
     var n = 0;
-    E.commit('Mark for redaction', function (st) {
+    E.commit(U.t('pdf.redact.mark_cmd'), function (st) {
       matches.forEach(function (m) {
         var p = st.pages.filter(function (x) { return x.id === m.pid; })[0]; if (!p) return;
         m.boxes.forEach(function (b) { p.annots.push(R.mark(b, m.text)); n++; });

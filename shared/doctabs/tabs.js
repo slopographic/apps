@@ -8,6 +8,7 @@
   'use strict';
   const NS = window.SlopDocTabs || (window.SlopDocTabs = {});
   if (NS.mount) return;
+  function tr(key, en, vars) { const I = globalThis.SlopI18n; if (I && I.has && I.has(key)) return I.t(key, vars); return vars ? String(en).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en; }   // shared/i18n/ui/en.js, else the English
 
   let seq = 0;
   /** A tab id, unique across reloads too: session.js names the stored content with it. */
@@ -38,9 +39,9 @@
     let cur = null, dragId = null, menuOpen = false, edit = null; // edit = { id, value, input } while a tab name is being typed
 
     // the tabs' tablist (a tab needs one as its parent), named by the host's label
-    const strip = make(d, 'div', { class: 'sl-doctabs-strip', role: 'tablist', 'aria-label': host.getAttribute('aria-label') || 'Open documents' });
-    const plus = make(d, 'button', { type: 'button', class: 'sl-doctabs-new', title: 'New document (Ctrl+T)', 'aria-label': 'New document' }, ['+']);
-    const more = make(d, 'button', { type: 'button', class: 'sl-doctabs-more', title: 'All open documents', 'aria-label': 'All open documents', 'aria-haspopup': 'menu', 'aria-expanded': 'false' }, ['⋯']);
+    const strip = make(d, 'div', { class: 'sl-doctabs-strip', role: 'tablist', 'aria-label': host.getAttribute('aria-label') || tr('ui.tabs.open_docs', 'Open documents'), 'data-i18n-attr': host.getAttribute('aria-label') ? null : 'aria-label:ui.tabs.open_docs' });
+    const plus = make(d, 'button', { type: 'button', class: 'sl-doctabs-new', title: tr('ui.tabs.new_tip', 'New document (Ctrl+T)'), 'aria-label': tr('ui.new_document', 'New document'), 'data-i18n-attr': 'title:ui.tabs.new_tip;aria-label:ui.new_document' }, ['+']);
+    const more = make(d, 'button', { type: 'button', class: 'sl-doctabs-more', title: tr('ui.tabs.all', 'All open documents'), 'aria-label': tr('ui.tabs.all', 'All open documents'), 'data-i18n-attr': 'title:ui.tabs.all;aria-label:ui.tabs.all', 'aria-haspopup': 'menu', 'aria-expanded': 'false' }, ['⋯']);
     const menu = make(d, 'div', { class: 'sl-doctabs-menu', role: 'menu' });
     more.hidden = true; menu.hidden = true;
     host.classList.add('sl-doctabs');
@@ -48,10 +49,11 @@
 
     const call = (name, ...a) => (typeof adapter[name] === 'function' ? adapter[name](...a) : undefined);
     const find = (doc) => tabs.find((t) => t.doc === doc) || null;
-    const titleOf = (t) => t.name || call('title', t.doc) || 'Untitled';
+    const titleOf = (t) => t.name || call('title', t.doc) || tr('ui.untitled', 'Untitled');
     const dirtyOf = (t) => !!call('dirty', t.doc);
     const emit = (why, t, other) => { for (const fn of [...listeners]) { try { fn(why, t, api, other); } catch (e) { console.warn(e); } } };
 
+    const offLang = window.SlopI18n && SlopI18n.on ? SlopI18n.on(() => { if (!edit) render(); }) : null;   // the tabs' words after a language change
     function checkOverflow() {
       more.hidden = !(tabs.length > 1 && strip.scrollWidth > strip.clientWidth + 1);
       if (more.hidden) setMenu(false);
@@ -65,13 +67,13 @@
     }
     function tabEl(t) {
       const on = t === cur, name = titleOf(t);
-      const x = make(d, 'button', { type: 'button', class: 'sl-doctab-x', title: 'Close (Ctrl+W)', 'aria-label': 'Close ' + name }, ['×']);
+      const x = make(d, 'button', { type: 'button', class: 'sl-doctab-x', title: tr('ui.tabs.close_tip', 'Close (Ctrl+W)'), 'aria-label': tr('ui.close_name', 'Close {name}', { name }) }, ['×']);
       x.addEventListener('click', (e) => { e.stopPropagation(); close(t.doc); });
       const editing = edit && edit.id === t.id;
       const label = editing ? editor(t) : make(d, 'span', { class: 'sl-doctab-name' }, [name]);
-      const n = make(d, 'div', { class: 'sl-doctab' + (on ? ' active' : ''), role: 'tab', 'aria-selected': on ? 'true' : 'false', tabindex: on ? '0' : '-1', title: t.orig ? name + '\nOriginal name: ' + t.orig : name, draggable: 'true', 'data-id': t.id }, [
+      const n = make(d, 'div', { class: 'sl-doctab' + (on ? ' active' : ''), role: 'tab', 'aria-selected': on ? 'true' : 'false', tabindex: on ? '0' : '-1', title: t.orig ? name + '\n' + tr('ui.tabs.orig_name', 'Original name: {name}', { name: t.orig }) : name, draggable: 'true', 'data-id': t.id }, [
         label,
-        dirtyOf(t) ? make(d, 'i', { class: 'sl-doctab-dot', 'aria-label': 'unsaved changes' }) : null,
+        dirtyOf(t) ? make(d, 'i', { class: 'sl-doctab-dot', 'aria-label': tr('ui.tabs.unsaved', 'unsaved changes') }) : null,
         x,
       ]);
       n.addEventListener('click', (e) => { if (e.button === 0 && !e.target.closest('.sl-doctab-x')) activate(t.doc); });
@@ -94,7 +96,7 @@
     /* ----- rename in place ----- */
     /** The text field that replaces a tab's name. Enter or blur saves, Escape cancels. */
     function editor(t) {
-      const inp = make(d, 'input', { type: 'text', class: 'sl-doctab-edit', maxlength: MAX_NAME, 'aria-label': 'Document name', autocomplete: 'off', spellcheck: 'false' });
+      const inp = make(d, 'input', { type: 'text', class: 'sl-doctab-edit', maxlength: MAX_NAME, 'aria-label': tr('ui.tabs.doc_name', 'Document name'), autocomplete: 'off', spellcheck: 'false' });
       inp.value = edit.value;
       edit.input = inp;
       inp.addEventListener('input', () => { edit.value = inp.value; });
@@ -127,7 +129,7 @@
      * The Drive file, when the tab is linked to one, is renamed to match, keeping its extension. Resolves true when renamed. */
     async function renameTab(t, raw) {
       const name = String(raw == null ? '' : raw).trim().slice(0, MAX_NAME).trim();
-      if (!name) { toastFn('A document needs a name, so the old name was kept.'); render(); return false; }
+      if (!name) { toastFn(tr('ui.tabs.need_name', 'A document needs a name, so the old name was kept.')); render(); return false; }
       if (name === titleOf(t)) { render(); return true; }
       t.name = name;
       changed(t.doc); // redraws the tab and tells the session to save the new name
@@ -135,7 +137,7 @@
         const H = window.SlopHub;
         const fileName = NS.drive ? NS.drive.fileName(api, t.doc) : name;
         const out = H ? await Promise.resolve().then(() => H.update(t.driveId, { name: fileName })).catch(() => null) : null;
-        if (!out) toastFn(`Renamed to ${name}. The Drive copy still has the old name.`);
+        if (!out) toastFn(tr('ui.tabs.renamed', 'Renamed to {name}. The Drive copy still has the old name.', { name }));
       }
       return true;
     }
@@ -184,7 +186,7 @@
     async function close(doc = cur && cur.doc) {
       const t = doc && find(doc);
       if (!t) return true;
-      if (dirtyOf(t) && !(await confirmFn('Close document?', `“${titleOf(t)}” has changes you haven't saved. Close it anyway?`, 'Close'))) return false;
+      if (dirtyOf(t) && !(await confirmFn(tr('ui.tabs.close_q', 'Close document?'), tr('ui.tabs.close_body', '“{name}” has changes you haven\'t saved. Close it anyway?', { name: titleOf(t) }), tr('menu.close', 'Close')))) return false;
       const i = tabs.indexOf(t), wasCur = t === cur;
       tabs.splice(i, 1);
       if (wasCur) { cur = null; call('deactivate', t.doc); }
@@ -247,7 +249,7 @@
       tabOf: (doc) => { const t = find(doc); return t ? t.id : null; },
       driveIdOf: (doc) => { const t = find(doc); return t ? t.driveId : null; },
       /** The display name of a doc (the renamed name, else the adapter's title). */
-      nameOf: (doc) => { const t = find(doc); return t ? titleOf(t) : (call('title', doc) || 'Untitled'); },
+      nameOf: (doc) => { const t = find(doc); return t ? titleOf(t) : (call('title', doc) || tr('ui.untitled', 'Untitled')); },
       /** The original file name of a doc (for example invoice-2026.pdf), or null for a new blank document. */
       originalNameOf: (doc) => { const t = find(doc); return t ? t.orig : null; },
       /** rename(doc, name): renames the tab (see renameTab). rename(doc) with no name edits the name in place. */
@@ -269,7 +271,7 @@
       destroy() {
         d.removeEventListener('pointerdown', onClick, true);
         d.removeEventListener('keydown', onKey, true);
-        win.removeEventListener('resize', checkOverflow);
+        win.removeEventListener('resize', checkOverflow); if (offLang) offLang();
         listeners.clear(); tabs.length = 0; cur = null; edit = null; mounts.delete(api);
         strip.remove(); plus.remove(); more.remove(); menu.remove();
         host.classList.remove('sl-doctabs');

@@ -16,49 +16,53 @@
   var arow = null, abtns = {}, adot = null, apop = null, opop = null, mode = null; // the annotation row and its popovers
   var OPACITY = [[1, '100%'], [0.75, '75%'], [0.5, '50%'], [0.25, '25%']];
   var MARKS = ['highlight', 'underline', 'strike'], markBtns = {}, markSeq = 0; // markSeq: the token of the newest markState
-  var COLOURS = [['#ffe14d', 'Yellow'], ['#34c759', 'Green'], ['#0a84ff', 'Blue'], ['#ff2d92', 'Pink'], ['#ff9500', 'Orange'], ['#e0102f', 'Red'], ['#111111', 'Black']];
-  // [id, label, action or null for the colour button, group] in the order shown
+  var COLOURS = [['#ffe14d', 'yellow'], ['#34c759', 'green'], ['#0a84ff', 'blue'], ['#ff2d92', 'pink'], ['#ff9500', 'orange'], ['#e0102f', 'red'], ['#111111', 'black']]; // names: pdf.ed.col_<name>
+  // [id, label key, action or null for the colour button, group] in the order shown
   var BUTTONS = [
-    ['highlight', 'Highlight', function () { return A.markup('highlight'); }, 1],
-    ['underline', 'Underline', function () { return A.markup('underline'); }, 1],
-    ['strike', 'Strikethrough', function () { return A.markup('strike'); }, 1],
-    ['colour', 'Colour', null, 1],
-    ['copy', 'Copy', function () { return A.copy(); }, 2],
-    ['comment', 'Comment', function () { return A.comment(); }, 2],
-    ['edit', 'Edit text', function () { return A.editText(); }, 2],
-    ['remove', 'Remove', function () { return A.remove(); }, 3],
-    ['redact', 'Redact', function () { return A.redact(); }, 3],
-    ['replace', 'Replace', function () { return A.replace(); }, 4],
-    ['find', 'Find', function () { return A.find(); }, 4]
+    ['highlight', 'pdf.ed.sb_highlight', function () { return A.markup('highlight'); }, 1],
+    ['underline', 'pdf.ed.sb_underline', function () { return A.markup('underline'); }, 1],
+    ['strike', 'pdf.ed.sb_strike', function () { return A.markup('strike'); }, 1],
+    ['colour', 'pdf.ed.sb_colour', null, 1],
+    ['copy', 'ui.copy', function () { return A.copy(); }, 2],
+    ['comment', 'pdf.ed.sb_comment', function () { return A.comment(); }, 2],
+    ['edit', 'pdf.ed.edit_text', function () { return A.editText(); }, 2],
+    ['remove', 'ui.remove', function () { return A.remove(); }, 3],
+    ['redact', 'pdf.ed.sb_redact', function () { return A.redact(); }, 3],
+    ['replace', 'pdf.ed.sb_replace', function () { return A.replace(); }, 4],
+    ['find', 'pdf.ed.sb_find', function () { return A.find(); }, 4]
   ];
 
   var providers = [], prow = {}, shown = null; // the rows other selections add (SlopSelBar.provide), and the one shown
   function provided() { for (var i = 0; i < providers.length; i++) if (providers[i].active()) return providers[i]; return null; }
   function editable(el) { return (!!window.SlopTyping && window.SlopTyping.isTyping(el, { controls: true })); }   // shared/input/typing.js
-  function run(fn) { Promise.resolve().then(fn).catch(function (err) { console.error(err); SlopUI.toast('That did not work. ' + ((err && err.message) || '')); }); }
+  function run(fn) { Promise.resolve().then(fn).catch(function (err) { console.error(err); SlopUI.toast(U.t('pdf.ed.op_failed', { err: String((err && err.message) || '') })); }); }
 
+  var t = U.t;
+  /** Marks an element for SlopI18n.apply(): text (when it is all the element holds) and attributes, as 'attr:key' pairs. */
+  function i18n(attrs, text, pairs) { if (text) attrs['data-i18n'] = text; if (pairs) attrs['data-i18n-attr'] = pairs; return attrs; }
   function build() {
-    bar = h('div', { class: 'selbar', role: 'toolbar', 'aria-label': 'Selected text', hidden: true });
+    bar = h('div', { class: 'selbar', role: 'toolbar', 'aria-label': t('pdf.ed.sb_selected_text'), hidden: true });
     row = h('div', { class: 'selbar-row' });
     var last = 1;
     BUTTONS.forEach(function (b) {
       if (b[3] !== last) { row.appendChild(h('span', { class: 'selbar-sep', 'aria-hidden': 'true' })); last = b[3]; }
       if (b[0] === 'colour') {
         dot = h('span', { class: 'selbar-dot', 'aria-hidden': 'true' });
-        colBtn = h('button', { type: 'button', class: 'selbar-btn', 'data-act': 'colour', 'aria-haspopup': 'dialog', 'aria-expanded': 'false', 'aria-label': 'Colour for highlight, underline and strikethrough', title: 'Colour for highlight, underline and strikethrough' }, dot, b[1]);
+        colBtn = h('button', { type: 'button', class: 'selbar-btn', 'data-act': 'colour', 'aria-haspopup': 'dialog', 'aria-expanded': 'false', 'aria-label': t('pdf.ed.sb_colour_tip'), title: t('pdf.ed.sb_colour_tip'),
+          'data-i18n-attr': 'aria-label:pdf.ed.sb_colour_tip;title:pdf.ed.sb_colour_tip' }, dot, h('span', { 'data-i18n': b[1] }, t(b[1])));
         colBtn.addEventListener('click', function () { if (popOpen) closePop(true); else openPop(); });
         row.appendChild(colBtn);
         return;
       }
       var isMark = MARKS.indexOf(b[0]) >= 0;
-      var btn = h('button', { type: 'button', class: 'selbar-btn', 'data-act': b[0], 'aria-label': b[1], title: b[1], 'aria-pressed': isMark ? 'false' : null }, b[1]);
+      var btn = h('button', i18n({ type: 'button', class: 'selbar-btn', 'data-act': b[0], 'aria-label': t(b[1]), title: t(b[1]), 'aria-pressed': isMark ? 'false' : null }, b[1], 'aria-label:' + b[1] + ';title:' + b[1]), t(b[1]));
       if (isMark) markBtns[b[0]] = btn;
       btn.addEventListener('click', function () { run(b[2]); });
       row.appendChild(btn);
     });
-    pop = h('div', { class: 'selbar-pop', role: 'dialog', 'aria-label': 'Colour', hidden: true },
+    pop = h('div', i18n({ class: 'selbar-pop', role: 'dialog', 'aria-label': t('pdf.ed.sb_colour'), hidden: true }, null, 'aria-label:pdf.ed.sb_colour'),
       COLOURS.map(function (c) {
-        var sw = h('button', { type: 'button', class: 'selbar-sw', 'aria-label': c[1], title: c[1], 'data-colour': c[0], 'aria-pressed': 'false' });
+        var sw = swatch(c);
         sw.style.background = c[0];
         sw.addEventListener('click', function () { pick(c[0]); });
         return sw;
@@ -81,34 +85,38 @@
 
   /** The annotation row: Edit, Colour, Opacity | Comment, Duplicate | Delete, and its two popovers. */
   function buildAnnot() {
-    var b = function (id, label, fn, extra) {
-      var el = h('button', Object.assign({ type: 'button', class: 'selbar-btn', 'data-act': id, 'aria-label': label, title: label }, extra || {}), label);
+    var b = function (id, key, fn, extra) { // extra.tip: a key for the title
+      extra = Object.assign({}, extra || {}); var tip = extra.tip || key; delete extra.tip;
+      var el = h('button', Object.assign(i18n({ type: 'button', class: 'selbar-btn', 'data-act': id, 'aria-label': t(key), title: t(tip) }, null, 'aria-label:' + key + ';title:' + tip), extra),
+        h('span', { 'data-i18n': key }, t(key)));
       if (fn) el.addEventListener('click', function () { run(fn); });
       return (abtns[id] = el);
     };
     adot = h('span', { class: 'selbar-dot', 'aria-hidden': 'true' });
-    var ac = b('a-colour', 'Colour', null, { 'aria-haspopup': 'dialog', 'aria-expanded': 'false' }); ac.prepend(adot);
-    var ao = b('a-opacity', 'Opacity', null, { 'aria-haspopup': 'dialog', 'aria-expanded': 'false' });
+    var ac = b('a-colour', 'pdf.ed.sb_colour', null, { 'aria-haspopup': 'dialog', 'aria-expanded': 'false' }); ac.prepend(adot);
+    var ao = b('a-opacity', 'pdf.ed.sb_opacity', null, { 'aria-haspopup': 'dialog', 'aria-expanded': 'false' });
     ac.addEventListener('click', function () { toggle(apop, ac); });
     ao.addEventListener('click', function () { toggle(opop, ao); });
     var sep = function () { return h('span', { class: 'selbar-sep', 'aria-hidden': 'true' }); };
     arow = h('div', { class: 'selbar-row is-annot', hidden: true },
-      b('a-edit', 'Edit', function () { return N.edit(); }), ac, ao, sep(),
-      b('a-comment', 'Comment', function () { return N.comment(); }), b('a-duplicate', 'Duplicate', function () { return N.duplicate(); }), sep(),
-      b('a-delete', 'Delete', function () { return N.remove(); }, { title: 'Delete (Del)', 'aria-keyshortcuts': 'Delete' }));
+      b('a-edit', 'pdf.ed.sb_edit', function () { return N.edit(); }), ac, ao, sep(),
+      b('a-comment', 'pdf.ed.sb_comment', function () { return N.comment(); }), b('a-duplicate', 'ui.duplicate', function () { return N.duplicate(); }), sep(),
+      b('a-delete', 'ui.delete', function () { return N.remove(); }, { tip: 'pdf.ed.delete_tip', 'aria-keyshortcuts': 'Delete' }));
     abtns['a-delete'].classList.add('is-danger');
-    apop = h('div', { class: 'selbar-pop', role: 'dialog', 'aria-label': 'Colour', hidden: true }, COLOURS.map(function (c) {
-      var sw = h('button', { type: 'button', class: 'selbar-sw', 'aria-label': c[1], title: c[1], 'data-colour': c[0], 'aria-pressed': 'false' });
+    apop = h('div', i18n({ class: 'selbar-pop', role: 'dialog', 'aria-label': t('pdf.ed.sb_colour'), hidden: true }, null, 'aria-label:pdf.ed.sb_colour'), COLOURS.map(function (c) {
+      var sw = swatch(c);
       sw.style.background = c[0];
       sw.addEventListener('click', function () { closePop(false); run(function () { return N.setColour(c[0]); }); });
       return sw;
     }));
-    opop = h('div', { class: 'selbar-pop', role: 'dialog', 'aria-label': 'Opacity', hidden: true }, OPACITY.map(function (o) {
-      var ob = h('button', { type: 'button', class: 'selbar-btn selbar-op', 'data-opacity': String(o[0]), 'aria-pressed': 'false' }, o[1]);
+    opop = h('div', i18n({ class: 'selbar-pop', role: 'dialog', 'aria-label': t('pdf.ed.sb_opacity'), hidden: true }, null, 'aria-label:pdf.ed.sb_opacity'), OPACITY.map(function (o) {
+      var ob = h('button', { type: 'button', class: 'selbar-btn selbar-op', 'data-opacity': String(o[0]), 'aria-pressed': 'false' }, o[1]); // i18n-ignore: a percentage
       ob.addEventListener('click', function () { closePop(false); run(function () { return N.setOpacity(o[0]); }); });
       return ob;
     }));
   }
+  /** A colour swatch: c = [colour, name]; its name follows a language switch. */
+  function swatch(c) { var k = 'pdf.ed.col_' + c[1]; return h('button', i18n({ type: 'button', class: 'selbar-sw', 'aria-label': t(k), title: t(k), 'data-colour': c[0], 'aria-pressed': 'false' }, null, 'aria-label:' + k + ';title:' + k)); }
   /** Opens one of the annotation popovers (closing the other), or closes it. */
   function toggle(p, btn) {
     var open = p.hidden;
@@ -125,7 +133,7 @@
     abtns['a-colour'].hidden = !N.colourKey(a);
     abtns['a-opacity'].hidden = !N.canOpacity(a);
     adot.style.background = N.colour(a);
-    bar.setAttribute('aria-label', 'Selected ' + N.name(a).toLowerCase());
+    bar.setAttribute('aria-label', t('pdf.ed.sb_selected', { what: N.name(a) }));
   }
 
   /** Tab from a selection moves into the bar; Escape anywhere with the bar up dismisses it. */
@@ -160,7 +168,7 @@
     row.hidden = next !== 'text'; arow.hidden = next !== 'annot';
     if (pv) { bar.setAttribute('aria-label', pv.label()); if (pv.refresh) pv.refresh(prow[pv.id]); place(); return; }
     if (next === 'annot') { annotRow(a); place(); return; }
-    bar.setAttribute('aria-label', 'Selected text');
+    bar.setAttribute('aria-label', t('pdf.ed.sb_selected_text'));
     colour();
     place();
     markState();
@@ -222,6 +230,7 @@
   }
 
   T.onChange(render);
+  U.onLang(function () { if (bar && mode) render(); }); // the bar's label (the buttons follow through data-i18n)
   // every repaint of the selection (a selected annotation, its move, the page or zoom changing) places the bar again
   var draw = S.drawSelection;
   S.drawSelection = function () { var r = draw.apply(this, arguments); render(); return r; };

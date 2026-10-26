@@ -5,6 +5,8 @@
 // Exposes window.SlopUndo = { create({ limit }), keys(history, run, { when }), toast(what, run) }.
 (function (g) {
   'use strict';
+  /** A word from the shared tables (shared/i18n/ui/en.js), or the English given when SlopI18n or the key is absent. */
+  function tr(key, en, vars) { const I = globalThis.SlopI18n; if (I && I.has && I.has(key)) return I.t(key, vars); return vars ? String(en).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en; }
 
   /** A history of undo steps. undo is an async function that reverses one step and resolves to a Result. */
   function create({ limit = 50 } = {}) {
@@ -17,10 +19,10 @@
       /** Runs the newest step's undo and removes it. Resolves to { ok, label } or { ok: false, message }. */
       async undo() {
         const step = steps.pop();
-        if (!step) return { ok: false, message: 'Nothing to undo.' };
+        if (!step) return { ok: false, message: tr('ui.undo.nothing', 'Nothing to undo.') };
         let r;
         try { r = await step.undo(); } catch (e) { r = { ok: false, message: e && e.message }; }
-        if (!r || !r.ok) return { ok: false, message: (r && r.message) || 'Could not undo that.' };
+        if (!r || !r.ok) return { ok: false, message: (r && r.message) || tr('ui.undo.failed', 'Could not undo that.') };
         return { ok: true, label: step.label };
       },
       /** The label of the step undo() would reverse, or ''. */
@@ -46,7 +48,7 @@
 
   /** Says what was done ("Moved Design to Doing.") with an Undo button in the toast. */
   function toast(what, run) {
-    if (g.SlopUI) g.SlopUI.toast(`${what}.`, 6000, { label: 'Undo', run });
+    if (g.SlopUI) g.SlopUI.toast(`${what}.`, 6000, { label: tr('ui.undo', 'Undo'), run });
   }
 
   g.SlopUndo = { create, keys, toast };

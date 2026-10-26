@@ -13,6 +13,8 @@
   'use strict';
   const SI = (window.SlopIntake = window.SlopIntake || {});
   if (SI.take) return; // loaded once per page: a second copy would make a second pipeline
+  /** A word from the shared tables (shared/i18n/ui/en.js), or the English given when SlopI18n or the key is absent. */
+  function tr(key, en, vars) { const I = globalThis.SlopI18n; if (I && I.has && I.has(key)) return I.t(key, vars); return vars ? String(en).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en; }
   const R = SI.rules;
   const views = new Map();
   const EVENTS = { before: 'slop:intake-before', file: 'slop:intake-file', after: 'slop:intake-after' };
@@ -30,19 +32,19 @@
   SI.choose = function (o, legacyName) {
     if (typeof o === 'number') o = { count: o, name: legacyName }; // the old choose(count, name)
     const L = Object.assign({}, o.labels);
-    const name = o.name || 'the open document', n = o.count || 1, names = o.names || [];
+    const name = o.name || tr('ui.intake.open_doc', 'the open document'), n = o.count || 1, names = o.names || [];
     if (!window.SlopUI || !window.SlopUI.dialog) return Promise.resolve('add');
-    const what = n === 1 && names[0] ? '“' + names[0] + '”' : o.source === 'paste' ? (n === 1 ? 'This image' : n + ' images') : n === 1 ? 'This file' : n + ' files';
+    const what = n === 1 && names[0] ? '“' + names[0] + '”' : o.source === 'paste' ? (n === 1 ? tr('ui.intake.this_image', 'This image') : tr('ui.intake.n_images', '{n} images', { n })) : n === 1 ? tr('ui.intake.this_file', 'This file') : tr('ui.intake.n_files', '{n} files', { n });
     return new Promise((res) => {
       let pick = null;
       window.SlopUI.dialog({
-        title: L.title || (o.source === 'paste' ? 'Paste' : 'Add files'),
-        body: L.message ? L.message + ' ' + (n === 1 && names[0] ? names[0] : n + ' files') : what + ' can go into ' + name + ', or open as a new document.',
+        title: L.title || (o.source === 'paste' ? tr('ui.paste', 'Paste') : tr('ui.intake.add_files', 'Add files')),
+        body: L.message ? L.message + ' ' + (n === 1 && names[0] ? names[0] : tr('ui.intake.n_files', '{n} files', { n })) : tr('ui.intake.can_go', '{what} can go into {name}, or open as a new document.', { what, name }),
         cls: 'si-choose',
         buttons: [
-          { label: L.cancel || 'Cancel' },
-          { label: L.new || 'New document', act: () => { pick = 'new'; } },
-          { label: L.add || 'Add to ' + name, primary: true, act: () => { pick = 'add'; } },
+          { label: L.cancel || tr('menu.cancel', 'Cancel') },
+          { label: L.new || tr('ui.new_document', 'New document'), act: () => { pick = 'new'; } },
+          { label: L.add || tr('ui.intake.add_to', 'Add to {name}', { name }), primary: true, act: () => { pick = 'add'; } },
         ],
         onClose: () => res(pick),
       });

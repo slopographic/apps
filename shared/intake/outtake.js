@@ -25,6 +25,8 @@
 (function () {
   'use strict';
   if (window.SlopOuttake) return;
+  /** A word from the shared tables (shared/i18n/ui/en.js), or the English given when SlopI18n or the key is absent. */
+  function tr(key, en, vars) { const I = globalThis.SlopI18n; if (I && I.has && I.has(key)) return I.t(key, vars); return vars ? String(en).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en; }
   const O = (window.SlopOuttake = {});
   const H = () => (document.documentElement.dataset.offline ? null : window.SlopHub || null);
   const toast = (m) => { if (window.SlopUI && window.SlopUI.toast) window.SlopUI.toast(m); };
@@ -39,7 +41,7 @@
     const from = o.from || (H() && H().self && H().self.app) || '';
     const ctx = {
       from, type: o.type || '', data: o.data || null, id: o.id || null,
-      name: () => (typeof o.name === 'function' ? o.name() : o.name) || 'Untitled',
+      name: () => (typeof o.name === 'function' ? o.name() : o.name) || tr('ui.untitled', 'Untitled'),
       // an output that is already a Slop Drive record (o.id, no get) is read from Slop Drive when an item needs its bytes
       blob: () => (blob = blob || Promise.resolve().then(() => (o.get ? o.get() : o.id && H() ? H().get(o.id).then((r) => r && r.blob) : null))),
     };
@@ -56,15 +58,15 @@
     const id = ctx.id ? await hub.sendTo(to, null, ctx.name(), { id: ctx.id }) // already in Slop Drive: no copy
       : await hub.sendTo(to, await ctx.blob(), ctx.name(), { from: ctx.from || undefined });
     emit({ phase: 'sent', from: ctx.from, to, type: ctx.type, name: ctx.name(), id });
-    toast('Opened in ' + (app ? app.name : to));
+    toast(tr('ui.outtake.opened_in', 'Opened in {app}', { app: app ? app.name : to }));
     return id;
   };
-  const guard = (fn) => async () => { try { await fn(); } catch (e) { toast('Could not send: ' + ((e && e.message) || e)); } };
+  const guard = (fn) => async () => { try { await fn(); } catch (e) { toast(tr('ui.outtake.send_failed', 'Could not send: {error}', { error: (e && e.message) || e })); } };
 
   /** The items for one output (see the header). */
   O.items = function (o) {
     o = o || {};
-    const ctx = context(o), verb = o.verb || 'Open in', out = [];
+    const ctx = context(o), verb = o.verb, out = [];
     const exclude = new Set(o.exclude || []);
     const hub = H();
     const mine = handovers.filter((h) => (!h.from || h.from === ctx.from) && typeMatches(ctx.type, h.types));
@@ -80,7 +82,7 @@
     if (hub) {
       for (const a of hub.appsAccepting(ctx.type)) {
         if (exclude.has(a.id) || replaced.has(a.id) || a.id === ctx.from) continue;
-        out.push({ label: verb + ' ' + a.name, to: a.id, act: guard(() => O.send(a.id, ctx)) });
+        out.push({ label: verb ? verb + ' ' + a.name : tr('ui.outtake.open_in', 'Open in {app}', { app: a.name }), to: a.id, act: guard(() => O.send(a.id, ctx)) });
       }
     }
     const extra = [];
@@ -92,11 +94,11 @@
     emit({ phase: 'items', from: ctx.from, type: ctx.type, ctx, add: (item) => { if (item) extra.push(item); } });
     if (extra.length) out.push(...(out.length && o.separators ? ['-'] : []), ...extra);
     if (hub && o.folder !== false && !ctx.id) {
-      out.push({ label: 'Save to Slop Drive…', act: async () => {
+      out.push({ label: tr('ui.outtake.save_drive', 'Save to Slop Drive…'), act: async () => {
         try {
           const id = await hub.saveToDrive(await ctx.blob(), ctx.name(), { from: ctx.from || undefined });
           if (id) emit({ phase: 'sent', from: ctx.from, to: 'drive', type: ctx.type, name: ctx.name(), id });
-        } catch (e) { toast('Could not save: ' + ((e && e.message) || e)); }
+        } catch (e) { toast(tr('ui.outtake.save_failed', 'Could not save: {error}', { error: (e && e.message) || e })); }
       } });
     }
     return out;
@@ -105,7 +107,7 @@
   /** Opens the items in a SlopUI menu at an element (under it) or a point. */
   O.menu = function (at, o) {
     const items = O.items(Object.assign({ separators: true }, o));
-    const list = items.length ? items : [{ label: 'No app opens this yet', disabled: true }];
+    const list = items.length ? items : [{ label: tr('ui.outtake.no_app', 'No app opens this yet'), disabled: true }];
     let x = 0, y = 0;
     if (at && at.getBoundingClientRect) { const r = at.getBoundingClientRect(); x = r.left; y = r.bottom + 4; } else if (at) { x = at.x; y = at.y; }
     if (window.SlopUI && window.SlopUI.menu) window.SlopUI.menu(list, x, y);
@@ -117,7 +119,7 @@
     const b = document.createElement('button');
     b.type = 'button';
     b.className = opts.cls || 'sui-btn';
-    b.textContent = opts.label || 'Open in…';
+    b.textContent = opts.label || tr('ui.outtake.open_in_dots', 'Open in…');
     if (opts.title) b.title = opts.title;
     b.setAttribute('aria-haspopup', 'menu');
     b.addEventListener('click', () => O.menu(b, typeof o === 'function' ? o() : o));

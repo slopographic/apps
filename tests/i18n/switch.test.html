@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <title>Language switch across pages</title>
+  <!-- Covers: settings/language.js, shared/i18n/i18n.js -->
   <style>body { margin: 0; background: #111; color: #eee; font: 12px system-ui; } iframe { width: 1000px; height: 700px; border: 0; }</style>
 </head>
 <body>
@@ -36,7 +37,10 @@
     it('the Settings picker lists every language, English first', async () => {
       const s = await open('../../settings/index.html');
       const values = [...s.contentDocument.getElementById('lang-select').options].map((o) => o.value);
-      expect(values).toEqual(['en', 'es', 'fr', 'de', 'pt-BR', 'it', 'ar', 'sv']);
+      expect(values).toEqual(['en', 'es', 'fr', 'de', 'pt-BR', 'it', 'ar', 'sv', 'zh-CN', 'zh-TW', 'ja', 'ko', 'hi', 'ru', 'uk', 'pl', 'nl', 'tr', 'id', 'vi', 'he', 'sw', 'am', 'ha', 'yo', 'ig', 'zu', 'xh', 'af']);
+      const opt = (c) => [...s.contentDocument.getElementById('lang-select').options].find((o) => o.value === c);
+      expect(opt('ja').textContent).toBe('日本語');
+      expect(opt('sw').textContent).toBe('Kiswahili (beta)');
     });
 
     it('choosing Spanish changes the homepage nav text, and it persists across a reload', async () => {

@@ -16,6 +16,8 @@
   var PARTS = ['legacy', 'aes256', 'security', 'decrypt', 'encrypt'];
   var SELF = (document.currentScript && document.currentScript.src) || '';
   var readyP = null;
+  /** The chosen language's text for a key (this file may run before core/util.js). */
+  function tr(k, en, v) { var I = window.SlopI18n; if (I && I.has && I.has(k)) return I.t(k, v); return String(en).replace(/\{(\w+)\}/g, function (m, n) { return v && n in v ? String(v[n]) : m; }); }
   function C() { var c = window.SlopPdfCrypto; return c && c.encryptPdf ? c : null; }
   /** The script URLs, from the template (so the precache and the offline build see them) or beside this file. */
   function urls() {
@@ -26,7 +28,7 @@
   function one(src) {
     return new Promise(function (res, rej) {
       var s = document.createElement('script'); s.src = src; s.async = false;
-      s.onload = res; s.onerror = function () { s.remove(); rej(new Error('Could not load the PDF password code.')); };
+      s.onload = res; s.onerror = function () { s.remove(); rej(new Error(tr('pdf.io.crypto_load_failed', 'Could not load the PDF password code.'))); };
       document.head.append(s);
     });
   }
@@ -35,7 +37,7 @@
     if (!readyP) {
       var list = urls();
       readyP = (window.SlopLoad ? SlopLoad.scripts(list) : Promise.all(list.map(one))).then(function () {
-        if (!C()) throw new Error('The PDF password code did not load.');
+        if (!C()) throw new Error(tr('pdf.io.crypto_not_loaded', 'The PDF password code did not load.'));
         return C();
       });
       readyP.catch(function () { readyP = null; });

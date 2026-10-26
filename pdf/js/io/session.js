@@ -26,7 +26,7 @@
     E._colorIdx = E.files.size;
     E.resetHistory();
     E.emit('files');
-    E.emit('change', { label: 'Restore', history: true });
+    E.emit('change', { label: U.t('pdf.io.restore'), history: true });
     return true;
   };
   E.closeAll = function () {
@@ -34,6 +34,6 @@
     E.files.forEach(function (f) { try { f.doc.destroy(); } catch (e) { /* ignore */ } });
     E.files.clear(); E.assets.clear(); E.dropCache();
     E.state = E.blankState(); E.resetHistory(); E._colorIdx = 0;
-    E.emit('files'); E.emit('change', { label: 'Close all', history: true });
+    E.emit('files'); E.emit('change', { label: U.t('pdf.io.close_all'), history: true });
   };
 })();

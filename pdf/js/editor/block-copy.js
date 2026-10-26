@@ -5,7 +5,7 @@
    so it stays on the same words when the page is zoomed: S.blockRedraw draws it again after every layout. */
 (function () {
   'use strict';
-  var SP = window.SP, Ed = SP.editor, S = Ed._, E = SP.engine;
+  var SP = window.SP, U = SP.util, Ed = SP.editor, S = Ed._, E = SP.engine;
 
   var style = document.createElement('style');
   style.textContent = '.pv-blockbox{position:absolute;z-index:50;pointer-events:none;border:1.5px dashed var(--accent,#6b5cff);background:rgba(107,92,255,.12);border-radius:2px}';
@@ -39,7 +39,7 @@
   S.blockDown = function (e, p) {
     var page = S.pageEl;
     var layer = page && page.querySelector('.pv-textlayer');
-    if (!layer) { SlopUI.toast('This page has no text to copy.', 3000); return; }
+    if (!layer) { SlopUI.toast(U.t('pdf.ed.bc_no_text_page'), 3000); return; }
     clear();
     var start = unitsAt(page, e);
     box = document.createElement('div'); box.className = 'pv-blockbox';
@@ -67,12 +67,12 @@
         return { text: s.textContent, rect: { left: rc.left, top: rc.top, right: rc.right, bottom: rc.bottom } };
       });
       var text = SPBlockText.extract(spans, r);
-      if (!text) { SlopUI.toast('No text in that box. Drag over the words.', 3000); return; }
+      if (!text) { SlopUI.toast(U.t('pdf.ed.bc_no_text_box'), 3000); return; }
       var lines = text.split('\n').length;
       Promise.resolve().then(function () { return navigator.clipboard.writeText(text); }).then(function () {
-        SlopUI.toast('Copied ' + lines + (lines === 1 ? ' line' : ' lines') + ' of text.', 2600);
+        SlopUI.toast(U.t('pdf.ed.bc_copied', { n: lines }), 2600);
       }, function () {
-        SlopUI.toast('Could not reach the clipboard. Select the page and copy from the page instead.', 4200);
+        SlopUI.toast(U.t('pdf.ed.bc_no_clipboard'), 4200);
       });
     }
     window.addEventListener('pointermove', move);

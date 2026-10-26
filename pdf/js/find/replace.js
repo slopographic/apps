@@ -53,7 +53,7 @@
       if (rep !== raw.replace(/\r\n?/g, '\n').replace(/\t/g, '    ')) res.unsupported++;
       var plan = F.annotsFor(p, it.m, rep);
       if (plan.wide) res.wide++;
-      E.commit('Replace “' + it.m.text + '”', function (st) {
+      E.commit(U.t('pdf.find.undo_replace', { text: it.m.text }), function (st) {
         var q = st.pages.filter(function (x) { return x.id === it.pid; })[0];
         if (q) plan.annots.forEach(function (a) { q.annots.push(JSON.parse(JSON.stringify(a))); });
       });

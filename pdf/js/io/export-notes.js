@@ -16,18 +16,18 @@
   /** One text annotation dictionary, registered in the output. irt: the comment it answers (a reply) or null. */
   function annotRef(out, data, rect, irt) {
     var L = PDFLib, d = L.PDFDict.withContext(out.context);
-    d.set(N('Type'), N('Annot'));
-    d.set(N('Subtype'), N('Text'));
-    d.set(N('Rect'), rect);
-    d.set(N('Contents'), L.PDFHexString.fromText(String(data.text || '')));
+    d.set(N('Type'), N('Annot')); // i18n-ignore: PDF names / font names / producer, not UI
+    d.set(N('Subtype'), N('Text')); // i18n-ignore: PDF names / font names / producer, not UI
+    d.set(N('Rect'), rect); // i18n-ignore: PDF names / font names / producer, not UI
+    d.set(N('Contents'), L.PDFHexString.fromText(String(data.text || ''))); // i18n-ignore: PDF names / font names / producer, not UI
     d.set(N('T'), L.PDFHexString.fromText(String(data.author || '')));
     d.set(N('M'), L.PDFString.of(pdfDate(data.date)));
-    d.set(N('Name'), N('Comment'));
+    d.set(N('Name'), N('Comment')); // i18n-ignore: PDF names / font names / producer, not UI
     d.set(N('C'), out.context.obj([1, 0.82, 0.25]));
     d.set(N('F'), L.PDFNumber.of(4)); // print
-    d.set(N('Open'), L.PDFBool.False);
+    d.set(N('Open'), L.PDFBool.False); // i18n-ignore: PDF names / font names / producer, not UI
     if (irt) { d.set(N('IRT'), irt); d.set(N('RT'), N('R')); }
-    else if (data.resolved) { d.set(N('State'), L.PDFString.of('Completed')); d.set(N('StateModel'), L.PDFString.of('Review')); }
+    else if (data.resolved) { d.set(N('State'), L.PDFString.of('Completed')); d.set(N('StateModel'), L.PDFString.of('Review')); } // i18n-ignore: PDF names / font names / producer, not UI
     return out.context.register(d);
   }
   /** Writes a comment and its replies onto the page's annotations. g: the page geometry (E.geom). */

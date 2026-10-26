@@ -7,6 +7,12 @@
   var SP = window.SP, E = SP.engine, M = window.SlopPdfMacro;
   var F = window.SlopPdfFind = window.SlopPdfFind || {};
   var T = M.text;
+  /** A word from the tables (pdf/i18n/en/find.js), English when SlopI18n is not on the page (node tests). */
+  function tr(key, en, vars) {
+    var I = window.SlopI18n;
+    if (I && (!I.has || I.has(key))) return I.t(key, vars);
+    return en.replace(/\{(\w+)\}/g, function (m, k) { return vars && k in vars ? String(vars[k]) : m; });
+  }
 
   /** Next (dir 1) or previous (dir -1) index with wrap-around. -1 when there is nothing to step through. */
   F.step = function (cur, total, dir) {
@@ -16,9 +22,9 @@
   };
   /** The count as the bar shows it: "3 of 12", "No results", or "Searching…". */
   F.label = function (cur, total, busy) {
-    if (busy) return 'Searching…';
-    if (!total) return 'No results';
-    return (cur + 1) + ' of ' + total;
+    if (busy) return tr('pdf.find.searching', 'Searching…');
+    if (!total) return tr('pdf.find.no_results', 'No results');
+    return tr('pdf.find.count', '{cur} of {total}', { cur: String(cur + 1), total: String(total) });
   };
   /** The text around a match for the result list: the match itself, with up to 30 characters before and 40 after. */
   F.context = function (text, start, end) {

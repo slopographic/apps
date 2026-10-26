@@ -4,7 +4,7 @@
 (function () {
   'use strict';
   var SP = window.SP, U = SP.util, E = SP.engine, H = SP.history, O = SP.organizer, Ed = SP.editor, A = SP.app, S = A._, D = SP.docs;
-  var $ = U.$;
+  var $ = U.$, t = U.t;
   var DT = SP.tabs = {};
   var api = null, session = null, shown = null, lastLoad = Promise.resolve(), locks = 0, driveVal = null;
 
@@ -34,7 +34,7 @@
 
   function pagesOf(doc) { return doc.pending ? doc.pending.state.pages.length : (doc.live ? E.state : doc.state).pages.length; }
   function titleOf(doc) {
-    if (!pagesOf(doc) && !doc.fileNameTouched) return 'Untitled';
+    if (!pagesOf(doc) && !doc.fileNameTouched) return t('ui.untitled');
     return U.baseName((doc.live ? S.els.fileName.value : doc.fileName) || 'document.pdf');
   }
 
@@ -80,11 +80,11 @@
   function activate(doc) {
     if (!doc.pending) { swapIn(doc); lastLoad = Promise.resolve(); return; }
     lock(1);
-    S.busy('Opening the document…', 0);
+    S.busy(t('pdf.app.opening_doc'), 0);
     lastLoad = D.load(doc).catch(function (e) {
       console.warn('Slop PDF: a tab could not be opened', e);
       doc.files = new Map(); doc.assets = new Map(); doc.state = E.blankState(); doc.pending = null;
-      A.status('A saved tab could not be restored, so it opened empty.', 'err');
+      A.status(t('pdf.app.tab_restore_failed'), 'err');
     }).then(function () {
       lock(-1); if (!A.isLocked()) S.busy(null); // another tab may still be loading
       if (api && api.current() === doc && !doc.live) swapIn(doc);

@@ -58,7 +58,7 @@
     var font = await doc.embedFont(L.StandardFonts.Helvetica);
     pages.forEach(function (pp) {
       var page = doc.getPage(pp.index);
-      var name = page.node.newFontDictionary('SlopOCR', font.ref);
+      var name = page.node.newFontDictionary('SlopOCR', font.ref); // i18n-ignore: PDF names / font names / producer, not UI
       var ops = [L.pushGraphicsState(), L.beginText(), L.setTextRenderingMode(3)];
       OL.placements(pp.lines, pp.g, pp.px, font).forEach(function (w) {
         ops.push(L.setFontAndSize(name, w.size), L.setTextMatrix(w.sx, 0, 0, 1, w.x, w.y), L.showText(font.encodeText(w.str)));
@@ -97,7 +97,7 @@
   function wordsIn(content) {
     var out = [], re = new RegExp(WORD.source, 'g'), m;
     while ((m = re.exec(content))) {
-      var t = m[1].trim().split(/\s+/), hexAt = m.index + m[0].indexOf('<', m[0].indexOf('Tm')) + 1, str = '';
+      var t = m[1].trim().split(/\s+/), hexAt = m.index + m[0].indexOf('<', m[0].indexOf('Tm')) + 1, str = ''; // i18n-ignore: PDF names / font names / producer, not UI
       for (var i = 0; i + 1 < m[2].length; i += 2) str += String.fromCharCode(parseInt(m[2].substr(i, 2), 16));
       out.push({ str: str, x: parseFloat(t[4]), y: parseFloat(t[5]), start: hexAt, end: hexAt + m[2].length });
     }
@@ -132,17 +132,17 @@
       return w.str !== '' && Math.abs(w.y - at.y) < 0.05 && w.x > at.x0 - 0.05 && w.x < at.x0 + at.width + 0.05;
     });
     if (!words.length || Math.abs(words[0].x - at.x0) > 0.05 || words.map(function (w) { return w.str; }).join(' ') !== at.str) return null;
-    var font = await doc.embedFont(L.StandardFonts.Helvetica), name = page.node.newFontDictionary('SlopOCR', font.ref).toString();
+    var font = await doc.embedFont(L.StandardFonts.Helvetica), name = page.node.newFontDictionary('SlopOCR', font.ref).toString(); // i18n-ignore: PDF names / font names / producer, not UI
     var hex = font.encodeText(drawable(font, text)).toString().slice(1, -1), out = c.text, fs = at.fs, col = bg || [1, 1, 1];
     for (var i = words.length - 1; i >= 0; i--) out = out.slice(0, words[i].start) + out.slice(words[i].end);
     // the paint: from the descender to above the capitals (a little more than the glyphs, not reaching the next line)
     var box = [at.x0 - 0.5, at.y - 0.25 * fs, at.width + 1, 1.2 * fs].map(num);
     out += '\nq ' + col.map(num).join(' ') + ' rg ' + box.join(' ') + ' re f Q\n' +
-      'q BT 0 Tr 0 g ' + name + ' ' + num(fs) + ' Tf 1 0 0 1 ' + num(at.x0) + ' ' + num(at.y) + ' Tm <' + hex + '> Tj ET Q\n';
+      'q BT 0 Tr 0 g ' + name + ' ' + num(fs) + ' Tf 1 0 0 1 ' + num(at.x0) + ' ' + num(at.y) + ' Tm <' + hex + '> Tj ET Q\n'; // i18n-ignore: PDF names / font names / producer, not UI
     // one content stream replaces the old ones, which are deleted so the old characters are not left in the file
     var ref = doc.context.register(doc.context.flateStream(bytesOf(out)));
     c.refs.forEach(function (r) { doc.context.delete(r); });
-    page.node.set(L.PDFName.of('Contents'), ref);
+    page.node.set(L.PDFName.of('Contents'), ref); // i18n-ignore: PDF names / font names / producer, not UI
     return doc.save({ useObjectStreams: true });
   };
 })();

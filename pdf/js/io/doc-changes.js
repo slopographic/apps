@@ -46,7 +46,7 @@
     var stable = 'f' + f.fp.slice(0, 16);
     var named = { entries: rec.entries, derived: rec.derived || [] };
     if (f.id !== stable) named = JSON.parse(JSON.stringify(named).replace(new RegExp('"' + stable + '(?=[."])', 'g'), '"' + f.id));
-    SP.editLog.replay(Object.assign({}, rec, named)).then(function () { E.emit('change', { label: 'Replay saved changes' }); });
+    SP.editLog.replay(Object.assign({}, rec, named)).then(function () { E.emit('change', { label: SP.util.t('pdf.io.changes_replayed') }); });
     return rec.entries.length;
   };
 })();

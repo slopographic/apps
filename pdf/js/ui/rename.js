@@ -4,25 +4,26 @@
    is focused and selected). The name the file was opened with is kept: it is shown as the name field's tooltip and never changes. */
 (function () {
   'use strict';
-  var SP = window.SP, U = SP.util, E = SP.engine, A = SP.app, S = A._;
+  var SP = window.SP, U = SP.util, E = SP.engine, A = SP.app, S = A._, t = U.t;
   /** The name of the first file opened (a rename never changes it). */
   A.originalName = function () { var f = E.files.values().next().value; return f ? f.name : ''; };
   function paintOriginal() {
     if (!S.els || !S.els.fileName) return; // before the topbar exists
     var orig = A.originalName();
-    S.els.fileName.title = orig ? 'Original name: ' + orig + ' (kept when you rename)' : 'Name of the document (used for Download and Save)';
+    S.els.fileName.title = orig ? t('pdf.app.name_original', { name: orig }) : t('pdf.app.name_tip');
   }
   A.rename = function (name) {
     var input = S.els.fileName;
     if (name == null) { input.focus(); input.select(); return true; }
     var base = String(name).replace(/[\\/:*?"<>|\u0000-\u001f]/g, '').replace(/\.pdf$/i, '').trim().slice(0, 120);
-    if (!base) { A.status('The name is empty, so the document keeps its name.', 'err'); return false; }
+    if (!base) { A.status(t('pdf.app.name_empty'), 'err'); return false; }
     var next = U.safeName(base + '.pdf', 'pdf');
     SP.tabs.rename(base);
-    A.announce('Renamed to ' + next);
+    A.announce(t('pdf.app.renamed', { name: next }));
     return true;
   };
   E.on('files', paintOriginal);
+  U.onLang(paintOriginal);
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', paintOriginal);   // loaded after the first paint (index.html)
   paintOriginal();
 })();

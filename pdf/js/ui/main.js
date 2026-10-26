@@ -2,7 +2,7 @@
    and the ?drive= launch (A.launch, run by A.bootRest in ui/app.js). Loaded last. */
 (function () {
   'use strict';
-  var SP = window.SP, U = SP.util, E = SP.engine, A = SP.app, S = A._;
+  var SP = window.SP, U = SP.util, E = SP.engine, A = SP.app, S = A._, t = U.t;
   function hub() { return window.SlopHub || null; }
   // A.driveId: the Slop Drive record the open document came from (or was saved to). Only a document that was empty when
   // a Drive file arrived takes that file's id (the intake's onNew, ui/drop.js), so Save never overwrites a different file.
@@ -18,14 +18,14 @@
    * that is not in Drive yet asks for a folder, and that first copy is then the document's original. */
   A.saveToDrive = function () {
     var H = hub(); if (!H || !E.state.pages.length) return Promise.resolve(null);
-    return S.guarded('Saving to Slop Drive…', function () { return A.currentPdfBlob(); }).then(function (blob) {
+    return S.guarded(t('pdf.app.saving_drive'), function () { return A.currentPdfBlob(); }).then(function (blob) {
       var name = U.safeName(S.els.fileName.value || 'document.pdf', 'pdf');
       S.els.fileName.value = name;
       return SP.driveDocs.save(A.driveId, blob, name).then(function (r) {
-        if (r) { SlopUI.toast('Saved ' + name + ' to Slop Drive. The original is kept.'); return r.editedId; }
+        if (r) { SlopUI.toast(t('pdf.app.saved_drive', { name: name })); return r.editedId; }
         return H.saveToDrive(blob, name, { from: 'pdf' }).then(function (id) { if (id) A.driveId = id; return id; });
       });
-    }).catch(function (e) { SlopUI.toast('Could not save to Slop Drive: ' + (e.message || e)); return null; });
+    }).catch(function (e) { SlopUI.toast(t('pdf.app.save_drive_failed', { error: String(e.message || e) })); return null; });
   };
   /** Opened PDFs go to Slop Drive at once (their original bytes, or the copy already there). When the document was empty
    * the first file is its link (A.driveId). Without Drive the work stays on this device, and the person is told so. */
@@ -36,7 +36,7 @@
     for (var k = 0; k < sources.length; k++) {
       var r = null;
       try { r = await SP.driveDocs.keepOriginal(sources[k].bytes, sources[k].name); }
-      catch (e) { console.warn('Slop PDF: Slop Drive is not available', e); SlopUI.toast('Slop Drive is not available. This document is kept on this device only.'); return; }
+      catch (e) { console.warn('Slop PDF: Slop Drive is not available', e); SlopUI.toast(t('pdf.app.drive_unavailable')); return; }
       if (k === 0 && linkFirst) A.setDriveIdOf(owner, r.id);
     }
     // A successful background save says nothing: a toast here would sit over page 1 for seconds, and the top bar's
@@ -60,13 +60,13 @@
   /** "Send to <App>" items for the whole PDF (File menu). */
   A.sendItems = function () {
     var H = hub(); if (!H || SP.offline || !E.state.pages.length) return [];
-    return H.sendMenuItems(wrap('Preparing the PDF…', A.currentPdfBlob), function () { return U.safeName(S.els.fileName.value || 'document.pdf', 'pdf'); }, 'application/pdf');
+    return H.sendMenuItems(wrap(t('pdf.app.preparing_pdf'), A.currentPdfBlob), function () { return U.safeName(S.els.fileName.value || 'document.pdf', 'pdf'); }, 'application/pdf');
   };
   /** "Send page as image to <App>" items (page context menu). */
   A.sendPageItems = function (id) {
     var H = hub(); if (!H || SP.offline || !id) return [];
     var n = E.indexOf(id) + 1;
-    return H.sendMenuItems(wrap('Rendering page ' + n + '…', function () { return A.pagePngBlob(id); }), function () { return U.baseName(S.els.fileName.value || 'document') + '-page-' + n + '.png'; }, 'image/png');
+    return H.sendMenuItems(wrap(t('pdf.app.rendering_page', { n: String(n) }), function () { return A.pagePngBlob(id); }), function () { return U.baseName(S.els.fileName.value || 'document') + '-page-' + n + '.png'; }, 'image/png');
   };
   /** ?drive=<id> (Send to…) and a PWA launch: sources of the intake. */
   async function launch() {
@@ -74,7 +74,7 @@
     if (H) { try { H.register('pdf'); } catch (e) { console.warn('Slop PDF: hub register failed', e); } }
     await A.tabsReady; // the stored tabs are open first; the launched file gets a tab of its own
     var r = await SlopIntake.launch({ to: 'pdf', mode: 'new', data: { tab: true } });
-    if (r && r.added.length) SlopUI.toast('Opened “' + r.added[0].name + '” from Slop Drive');
+    if (r && r.added.length) SlopUI.toast(t('pdf.app.opened_drive', { name: r.added[0].name }));
   }
   A.launch = launch; // run by A.bootRest (ui/app.js) once the app is wired
 })();

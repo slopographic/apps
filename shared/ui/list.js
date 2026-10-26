@@ -8,6 +8,8 @@
 //           row(rec) -> { title, amount, meta: [string | { chip, cls }], cls, selected (the record shown beside the list) } }
 (function (g) {
   'use strict';
+  /** A word from the shared tables (shared/i18n/ui/en.js), or the English given when SlopI18n or the key is absent. */
+  function tr(key, en, vars) { const I = globalThis.SlopI18n; if (I && I.has && I.has(key)) return I.t(key, vars); return vars ? String(en).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en; }
   const doc = g.document;
 
   function el(tag, cls, text) { const n = doc.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; }
@@ -31,7 +33,7 @@
   function mount(host, opts = {}) {
     const key = opts.key || 'id', noun = opts.noun || ['item', 'items'];
     const box = el('div', 'sl-list' + (opts.open ? '' : ' is-static'));
-    const empty = opts.empty && opts.empty.nodeType ? opts.empty : el('p', 'sl-empty', opts.empty || `No ${noun[1]} yet.`);
+    const empty = opts.empty && opts.empty.nodeType ? opts.empty : el('p', 'sl-empty', opts.empty || tr('ui.list.empty', 'No {items} yet.', { items: noun[1] }));
     box.setAttribute('role', 'list'); if (opts.label) box.setAttribute('aria-label', opts.label);
     empty.hidden = true;
     host.replaceChildren(box, empty);

@@ -176,7 +176,7 @@
     // place, then the other buttons fold into More, AI last (shared/ui/hbtn.js). Measured again now the bell is in.
     const host = box.parentNode;
     if (!box.classList.contains('sh-fab') && window.SlopHbtn) window.SlopHbtn.check(host);
-    window.addEventListener('slop-lang', () => { sw.title = title(); });
+    for (const ev of ['slop-lang', 'slopi18n']) window.addEventListener(ev, () => { sw.title = title(); });   // slopi18n: its tables are in
   }
 
   /** Puts the buttons in the page's header (or floating at the top right when it has none). Called by mount() and again

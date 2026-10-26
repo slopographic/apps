@@ -44,6 +44,15 @@
     return out;
   }
 
+  describe('Macro labels', () => {
+    it('a page-number position shows by its label, not its id (bottom-center reads "Bottom centre")', () => {
+      expect(M.posLabel('bottom-center')).toBe('Bottom centre');
+      expect(M.posLabel('top-left')).toBe('Top left');
+      expect(M.posLabel('elsewhere')).toBe('elsewhere');
+      expect(M.stepLabel({ type: 'addPageNumbers', position: 'bottom-right' })).toBe('Page numbers, Bottom right');
+    });
+  });
+
   describe('Macro dialog', () => {
     beforeEach(() => { localStorage.removeItem(KEY); closeAll(); });
     afterEach(() => { closeAll(); });
