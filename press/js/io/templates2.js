@@ -17,7 +17,7 @@
     var badge = TP.text(doc, p, W - m - 100, H * 0.5 + 2, 90, 30, 'FREE ENTRY', 'Info Head', { rot: 12 });
     doc.stories[badge.story].paras[0].ov = { align: 'center', color: '#ffffff', size: 12 };
     var cw = (W - 2 * m - 2 * 0.2 * inch) / 3, y = H * 0.62;
-    [['When', 'Saturday 14 November\nDoors 7 pm'], ['Where', 'The Goo Pool\n12 Gelatin Lane'], ['What', 'Live typesetting, zines, slime and print workshops.']].forEach(function (c, i) {
+    [['When', 'Saturday 14 November\nDoors 7 pm'], ['Where', 'The Print Hall\n12 Harbour Street'], ['What', 'Live typesetting, zines, slime and print workshops.']].forEach(function (c, i) {
       var t = TP.text(doc, p, m + i * (cw + 0.2 * inch), y, cw, 120, c[0] + '\n' + c[1], 'Info');
       doc.stories[t.story].paras[0].ps = 'Info Head';
     });

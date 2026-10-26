@@ -9,7 +9,7 @@
   Ed.addImageFile = async function (file) {
     var bytes = await U.readFile(file), im = await E.prepareImage(bytes);
     var asset = E.addAsset({ mime: im.mime, url: U.bytesToDataURL(im.bytes, im.mime), w: im.w, h: im.h, name: file.name });
-    Ed.placeImage(asset, 'Add image');
+    Ed.placeImage(asset, U.t('pdf.ed.undo_add_image'));
   };
 
   // A picture for the current page is a part of the intake of its own (shared/intake, 'pdf.image'), reached by a paste
@@ -18,12 +18,12 @@
   // the 'pdf' spec). With no PDF open it opens as a new PDF at once.
   SlopIntake.register({
     id: 'pdf.image', main: false, first: true, toast: false,
-    accept: { types: ['image/png', 'image/jpeg', 'image/webp', 'image/gif'], noun: 'a PNG, JPEG, WebP or GIF picture' },
+    accept: { types: ['image/png', 'image/jpeg', 'image/webp', 'image/gif'], get noun() { return U.t('pdf.ed.noun_picture'); } },
     hasOpen: function () { return !!(E.state && E.state.pages.length) && !!Ed.page(); },
-    openName: function () { return 'this page'; },
+    openName: function () { return U.t('pdf.ed.open_name_page'); },
     onAdd: async function (files) {
       for (var i = 0; i < files.length; i++) {
-        try { await Ed.addImageFile(files[i]); } catch (e) { SlopUI.alert('Image not added', 'That image could not be read: ' + (e.message || e)); }
+        try { await Ed.addImageFile(files[i]); } catch (e) { SlopUI.alert(U.t('pdf.ed.img_not_added'), U.t('pdf.ed.img_unreadable', { err: String(e.message || e) })); }
       }
     },
     onNew: function (files, ctx) { return SlopIntake.take(files, { to: 'pdf', source: ctx.source, mode: 'new', data: { tab: !!(E.state && E.state.pages.length) } }); },

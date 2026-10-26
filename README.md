@@ -51,7 +51,7 @@ Everything runs 100% in your browser: no installs, no accounts, no uploads, no w
 | `/eml/`, `/hex/`, `/checksum/`, `/clean/`, `/code/` | **Slop EML** (email files), **Hex**, **Checksum**, **SlopClean** (hidden photo data) and **Slop Code** |
 | `/diff/` | **Slop Compare**: two texts, code, JSON, CSV, PDFs or pictures compared, with a report and a .patch |
 | `/admin/`, `/settings/`, `/how-it-works/` | Company profile and backup, profile and settings, and how the storage works |
-| `/#detector` | **The Authenticator**: get any text certified as slop |
+| `/#detector` | **The Authenticator**: an AI text detector that certifies any text as slop (`detector/`) |
 
 Each app folder has its own `HANDOFF.md` with notes for whoever works on it. Tests: `npm test`.
 

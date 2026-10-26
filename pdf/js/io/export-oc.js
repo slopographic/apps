@@ -30,24 +30,24 @@
       if (d instanceof L.PDFDict) {
         var list = arr(ctx, d.get(N('OCGs'))), def = d.get(N('D')) && ctx.lookup(d.get(N('D'))), hide = new Set(SP.ocg ? SP.ocg.hiddenNames(fid) : []);
         var offSet = new Set(((def && arr(ctx, def.get(N('OFF')))) || { asArray: function () { return []; } }).asArray().map(String));
-        var base = def && def.get(N('BaseState')), baseOff = base && base.decodeText && base.decodeText() === 'OFF';
+        var base = def && def.get(N('BaseState')), baseOff = base && base.decodeText && base.decodeText() === 'OFF'; // i18n-ignore: PDF names / font names / producer, not UI
         (list ? list.asArray() : []).forEach(function (r) {
-          var g = ctx.lookup(r), nm = g instanceof L.PDFDict && g.get(N('Name')) ? g.lookup(N('Name')).decodeText() : '';
+          var g = ctx.lookup(r), nm = g instanceof L.PDFDict && g.get(N('Name')) ? g.lookup(N('Name')).decodeText() : ''; // i18n-ignore: PDF names / font names / producer, not UI
           var known = SP.ocg && SP.ocg.cached(E.files.get(fid)) ? SP.ocg.cached(E.files.get(fid)).some(function (x) { return x.name === nm; }) : false;
           var hidden = known ? hide.has(nm) : (baseOff || offSet.has(String(r)));
           ocgs.push(r); (hidden ? off : on).push(r);
         });
-        var ord = def && arr(ctx, def.get(N('Order')));
+        var ord = def && arr(ctx, def.get(N('Order'))); // i18n-ignore: PDF names / font names / producer, not UI
         if (ord) order = order.concat(ord.asArray());
       }
       // only the EmbeddedFiles tree of /Names is copied (its Dests would drag the source's pages along)
-      var sn = c.src.catalog.lookup(N('Names')), st = sn instanceof L.PDFDict ? sn.get(N('EmbeddedFiles')) : null;
+      var sn = c.src.catalog.lookup(N('Names')), st = sn instanceof L.PDFDict ? sn.get(N('EmbeddedFiles')) : null; // i18n-ignore: PDF names / font names / producer, not UI
       if (st) collect(ctx, c.copier.copy(st), efs, 0);
       var a = copied(c, 'AF'); if (a && arr(ctx, a)) af = af.concat(arr(ctx, a).asArray());
     });
     copiers.clear();
     if (ocgs.length) {
-      var D = ctx.obj({ Name: L.PDFString.of('Slop PDF'), BaseState: N('ON'), ON: on, OFF: off, Order: order.length ? order : ocgs });
+      var D = ctx.obj({ Name: L.PDFString.of('Slop PDF'), BaseState: N('ON'), ON: on, OFF: off, Order: order.length ? order : ocgs }); // i18n-ignore: PDF names / font names / producer, not UI
       out.catalog.set(N('OCProperties'), ctx.obj({ OCGs: ocgs, D: D }));
     }
     if (efs.length) {
@@ -56,7 +56,7 @@
         var k = e[0], n = 2; while (seen[k]) k = e[0] + ' (' + n++ + ')';
         seen[k] = 1; pairs.push(L.PDFHexString.fromText(k), e[1]);
       });
-      out.catalog.set(N('Names'), ctx.obj({ EmbeddedFiles: ctx.obj({ Names: pairs }) }));
+      out.catalog.set(N('Names'), ctx.obj({ EmbeddedFiles: ctx.obj({ Names: pairs }) })); // i18n-ignore: PDF names / font names / producer, not UI
     }
     if (af.length) out.catalog.set(N('AF'), ctx.obj(af));
   };
@@ -65,7 +65,7 @@
     var L = PDFLib;
     node = node instanceof L.PDFRef ? ctx.lookup(node) : node;
     if (!(node instanceof L.PDFDict) || depth > 20) return;
-    var names = arr(ctx, node.get(N('Names'))), kids = arr(ctx, node.get(N('Kids')));
+    var names = arr(ctx, node.get(N('Names'))), kids = arr(ctx, node.get(N('Kids'))); // i18n-ignore: PDF names / font names / producer, not UI
     if (names) for (var i = 0; i + 1 < names.size(); i += 2) { var k = ctx.lookup(names.get(i)); outList.push([k && k.decodeText ? k.decodeText() : 'file', names.get(i + 1)]); }
     if (kids) kids.asArray().forEach(function (k) { collect(ctx, k, outList, depth + 1); });
   }

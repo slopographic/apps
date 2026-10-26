@@ -8,16 +8,18 @@
   var bar = null, el = {}, typeT = 0;
 
   function build() {
-    el.input = U.h('input', { type: 'search', class: 'find-input', placeholder: 'Find in document', 'aria-label': 'Find in document', autocomplete: 'off', spellcheck: 'false' });
-    el.cs = U.h('button', { type: 'button', class: 'find-opt', title: 'Match case', 'aria-label': 'Match case', 'aria-pressed': 'false' }, 'Aa');
-    el.ww = U.h('button', { type: 'button', class: 'find-opt', title: 'Whole word', 'aria-label': 'Whole word', 'aria-pressed': 'false' }, 'W');
+    // built once: the words follow a language switch through data-i18n / data-i18n-attr (SlopI18n.apply) and U.onLang
+    var t = U.t;
+    el.input = U.h('input', { type: 'search', class: 'find-input', placeholder: t('pdf.find.input'), 'aria-label': t('pdf.find.input'), 'data-i18n-attr': 'placeholder:pdf.find.input;aria-label:pdf.find.input', autocomplete: 'off', spellcheck: 'false' });
+    el.cs = U.h('button', { type: 'button', class: 'find-opt', title: t('pdf.find.match_case'), 'aria-label': t('pdf.find.match_case'), 'data-i18n-attr': 'title:pdf.find.match_case;aria-label:pdf.find.match_case', 'aria-pressed': 'false' }, 'Aa');
+    el.ww = U.h('button', { type: 'button', class: 'find-opt', title: t('pdf.find.whole_word'), 'aria-label': t('pdf.find.whole_word'), 'data-i18n-attr': 'title:pdf.find.whole_word;aria-label:pdf.find.whole_word', 'aria-pressed': 'false' }, 'W');
     el.count = U.h('span', { class: 'find-count', 'aria-live': 'polite' });
-    el.prev = U.h('button', { type: 'button', class: 'find-nav', title: 'Previous (Shift+Enter)', 'aria-label': 'Previous match', html: U.icon('prev') });
-    el.next = U.h('button', { type: 'button', class: 'find-nav', title: 'Next (Enter)', 'aria-label': 'Next match', html: U.icon('next') });
-    el.list = U.h('button', { type: 'button', class: 'find-opt', title: 'Show the result list', 'aria-label': 'Show the result list', 'aria-pressed': 'false' }, 'List');
-    el.rep = U.h('button', { type: 'button', class: 'find-opt', title: 'Replace in document', 'aria-label': 'Replace in document' }, 'Replace…');
-    el.close = U.h('button', { type: 'button', class: 'find-nav', title: 'Close (Esc)', 'aria-label': 'Close find', html: U.icon('close') });
-    el.ol = U.h('ol', { class: 'find-list', hidden: true, 'aria-label': 'Matches' });
+    el.prev = U.h('button', { type: 'button', class: 'find-nav', title: t('pdf.find.prev_tip'), 'aria-label': t('pdf.find.prev'), 'data-i18n-attr': 'title:pdf.find.prev_tip;aria-label:pdf.find.prev', html: U.icon('prev') });
+    el.next = U.h('button', { type: 'button', class: 'find-nav', title: t('pdf.find.next_tip'), 'aria-label': t('pdf.find.next'), 'data-i18n-attr': 'title:pdf.find.next_tip;aria-label:pdf.find.next', html: U.icon('next') });
+    el.list = U.h('button', { type: 'button', class: 'find-opt', title: t('pdf.find.list_tip'), 'aria-label': t('pdf.find.list_tip'), 'data-i18n-attr': 'title:pdf.find.list_tip;aria-label:pdf.find.list_tip', 'data-i18n': 'pdf.find.list', 'aria-pressed': 'false' }, t('pdf.find.list'));
+    el.rep = U.h('button', { type: 'button', class: 'find-opt', title: t('pdf.find.replace_tip'), 'aria-label': t('pdf.find.replace_tip'), 'data-i18n-attr': 'title:pdf.find.replace_tip;aria-label:pdf.find.replace_tip', 'data-i18n': 'pdf.find.replace' }, t('pdf.find.replace'));
+    el.close = U.h('button', { type: 'button', class: 'find-nav', title: t('pdf.find.close_tip'), 'aria-label': t('pdf.find.close'), 'data-i18n-attr': 'title:pdf.find.close_tip;aria-label:pdf.find.close', html: U.icon('close') });
+    el.ol = U.h('ol', { class: 'find-list', hidden: true, 'aria-label': t('pdf.find.matches'), 'data-i18n-attr': 'aria-label:pdf.find.matches' });
     bar = U.h('div', { class: 'find-bar', role: 'search', hidden: true },
       U.h('div', { class: 'find-row' }, el.input, el.cs, el.ww, el.count, el.prev, el.next, el.list, el.rep, el.close), el.ol);
     S.viewer.parentNode.appendChild(bar);
@@ -36,6 +38,7 @@
     el.close.addEventListener('click', function () { F.close(); });
     bar.addEventListener('keydown', function (e) { e.stopPropagation(); });
     E.on('change', function () { if (st.open && st.q && !st.busy) run(false); });
+    U.onLang(function () { label(); renderList(); }); // the count and the list (the rest: data-i18n)
   }
 
   function label() { el.count.textContent = F.label(F.cur, F.results.length, st.busy); }
@@ -78,7 +81,7 @@
     if (el.ol.hidden) return;
     F.results.forEach(function (m, i) {
       var b = U.h('button', { type: 'button', class: 'find-hit' + (i === F.cur ? ' is-current' : ''), 'aria-current': i === F.cur ? 'true' : 'false' },
-        U.h('span', { class: 'find-hit-page' }, 'p. ' + m.page),
+        U.h('span', { class: 'find-hit-page' }, U.t('pdf.find.page_short', { page: String(m.page) })),
         U.h('span', { class: 'find-hit-ctx' }, m.ctx.before, U.h('mark', {}, m.ctx.match), m.ctx.after));
       b.addEventListener('click', function () { F.setResults(F.results, i); F.paintAll(); label(); renderList(); reveal(i); });
       el.ol.appendChild(U.h('li', {}, b));

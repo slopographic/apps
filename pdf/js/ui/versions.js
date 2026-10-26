@@ -4,18 +4,18 @@
    change list. Each opens in a new tab, without the device's saved-edits prompt. Classic script. */
 (function () {
   'use strict';
-  var SP = window.SP, U = SP.util, E = SP.engine, A = SP.app, S = A._, D = SP.driveDocs;
+  var SP = window.SP, U = SP.util, E = SP.engine, A = SP.app, S = A._, D = SP.driveDocs, t = U.t;
 
   /** The File ▸ Versions submenu. Every item needs the open document to be linked to Slop Drive. */
   A.versionItems = function () {
     var has = E.state.pages.length > 0, linked = !!A.driveId && D.linked() && has; // an empty tab has no document in Drive
     return [
-      { label: 'Open the original', act: function () { A.openVersion('original'); }, disabled: !linked },
-      { label: 'Open the edited copy', act: function () { A.openVersion('edited'); }, disabled: !linked },
-      { label: 'Open the original with the saved changes', act: function () { A.openVersion('replay'); }, disabled: !linked },
+      { label: t('pdf.act.ver_original'), act: function () { A.openVersion('original'); }, disabled: !linked },
+      { label: t('pdf.act.ver_edited'), act: function () { A.openVersion('edited'); }, disabled: !linked },
+      { label: t('pdf.act.ver_replay'), act: function () { A.openVersion('replay'); }, disabled: !linked },
       '-',
-      { label: 'Revert to the original…', act: function () { A.revertToOriginal(); }, disabled: !linked || !has },
-      { label: 'Download the change list (JSON)', act: function () { A.downloadChanges(); }, disabled: !linked },
+      { label: t('pdf.act.ver_revert_dots'), act: function () { A.revertToOriginal(); }, disabled: !linked || !has },
+      { label: t('pdf.act.ver_download_changes'), act: function () { A.downloadChanges(); }, disabled: !linked },
     ];
   };
 
@@ -23,7 +23,7 @@
   async function versions() {
     var v = null;
     try { v = await D.versions(A.driveId); } catch (e) { v = null; }
-    if (!v) SlopUI.toast('This document is not in Slop Drive yet. Save it first.');
+    if (!v) SlopUI.toast(t('pdf.act.ver_not_in_drive'));
     return v;
   }
   /** A PDF File for a Drive record, named as the record is. */
@@ -32,35 +32,35 @@
   A.openVersion = async function (kind) {
     var v = await versions(); if (!v) return;
     var rec = kind === 'edited' ? v.edited : v.original, changes = null;
-    if (kind === 'edited' && !rec) { SlopUI.toast('No edited copy has been saved yet.'); return; }
+    if (kind === 'edited' && !rec) { SlopUI.toast(t('pdf.act.ver_no_edited')); return; }
     if (kind === 'replay') {
-      if (!v.changes) { SlopUI.toast('No change list has been saved yet.'); return; }
+      if (!v.changes) { SlopUI.toast(t('pdf.act.ver_no_changes')); return; }
       changes = SP.docChanges.parse(await v.changes.blob.text());
-      if (!changes) { SlopUI.toast('The change list could not be read.'); return; }
+      if (!changes) { SlopUI.toast(t('pdf.act.ver_bad_changes')); return; }
     }
     A.newTab();
     await A.addFiles([fileOf(rec)], { drive: { link: v.original.id, log: false } });
     if (changes) {
       var n = SP.docChanges.replayOn(Array.from(E.files.values())[0], changes);
-      SlopUI.toast(n ? 'Replayed ' + n + ' saved edit' + (n === 1 ? '' : 's') + ' on the original' : 'The change list has nothing to replay for this file');
+      SlopUI.toast(n ? t('pdf.act.ver_replayed', { n: n }) : t('pdf.act.ver_nothing'));
     }
   };
   /** Back to the original in this tab. The edits in the tab are dropped; the saved edited copy stays in Slop Drive. */
   A.revertToOriginal = async function () {
     var v = await versions(); if (!v) return;
-    var ok = await SlopUI.confirm('Revert to the original', 'Go back to the original file? The edits in this tab are dropped. The edited copy saved in Slop Drive stays there.', 'Revert', { danger: true });
+    var ok = await SlopUI.confirm(t('pdf.act.ver_revert_title'), t('pdf.act.ver_revert_msg'), t('pdf.act.ver_revert'), { danger: true });
     if (!ok) return;
     A.showGrid(true);
     E.closeAll();
     if (v.original.meta && v.original.meta.sha256) await SP.editLog.discard(v.original.meta.sha256);
     S.fileNameTouched = false;
     await A.addFiles([fileOf(v.original)], { drive: { link: v.original.id, log: false } });
-    SlopUI.toast('Reverted to the original');
+    SlopUI.toast(t('pdf.act.ver_reverted'));
   };
   /** Downloads the saved change list as JSON. */
   A.downloadChanges = async function () {
     var v = await versions(); if (!v) return;
-    if (!v.changes) { SlopUI.toast('No change list has been saved yet. Save first.'); return; }
+    if (!v.changes) { SlopUI.toast(t('pdf.act.ver_no_changes_save')); return; }
     U.download(await v.changes.blob.text(), U.baseName(v.original.name) + '.changes.json', 'application/json');
   };
 })();

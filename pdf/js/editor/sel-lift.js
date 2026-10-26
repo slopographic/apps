@@ -83,7 +83,7 @@
       cleanup();
       snap.plan = null; // one lift per selection
       var pid = d.pid;
-      E.commit('Lift text', function (st) {
+      E.commit(U.t('pdf.ed.undo_lift_text'), function (st) {
         var q = st.pages.filter(function (x) { return x.id === pid; })[0];
         if (q) d.annots.forEach(function (a) { q.annots.push(JSON.parse(JSON.stringify(a))); });
       });

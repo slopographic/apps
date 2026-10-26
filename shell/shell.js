@@ -2,7 +2,7 @@
  *   a script tag pointing at ../shell/shell.js          (pages in a folder)
  *   a script tag pointing at shell/shell.js             (the homepage)
  * It loads what it needs in order (brand, registry, SlopUI, the language files, then shell/*.js and shell.css, skipping
- * what is already on the page), applies the chosen language (SlopI18n.apply) once the header is in, adds the Apps and Notifications buttons to the page header, and binds Ctrl+Space.
+ * what is already on the page; i18n.js then fetches English and the chosen language), applies the chosen language (SlopI18n.apply) once the header is in, adds the Apps and Notifications buttons to the page header, and binds Ctrl+Space.
  * Options on the tag: data-no-header (no buttons), data-brand-src (see brand/brand.js).
  * Exposes window.SlopShell (core helpers) and, once booted, SlopShell.switcher / .drawer / .notify / .tabs.
  * Also loads the touch layer (shared/input: window.SlopTouch).
@@ -84,9 +84,9 @@
   if (!window.SLOP_ICONS) queue.push(['shared/app-icons.js']); // before brand.js, which puts the app's icon in the header brand
   if (!window.SlopBrand) queue.push(['brand/brand.js', { brandSrc: (me && me.dataset.brandSrc) || '' }]);
   if (!window.SlopUI) { addCss('shared/slopui.css'); queue.push(['shared/slopui.js']); }
-  if (!window.SlopI18n) queue.push(['shared/i18n/i18n.js'], ['shared/i18n/strings.js'], ['shared/i18n/es.js'], ['shared/i18n/fr.js'],
-    ['shared/i18n/de.js'], ['shared/i18n/pt-BR.js'], ['shared/i18n/it.js'], ['shared/i18n/ar.js'],
-    ['shared/i18n/sv.js'], ['shared/i18n/sv-apps.js']); // one file per language (LANGS)
+  // The language: i18n.js fetches its own tables (English and the chosen language), after this queue; S.ready waits for them.
+  if (!window.SlopI18n) queue.push(['shared/i18n/i18n.js', { late: '1' }]);
+  if (!window.SlopLangSwitch) queue.push(['shared/i18n/switcher.js']);   // the header's language menu
   addCss('shell/shell.css');
   addCss('brand/brand.css');   // the brand link's app icon and badge
   addCss('shared/ui/hbtn.css');   // the look of every shared header button (Apps, the bell, Drive, Tour, View)
@@ -101,7 +101,7 @@
 
   // All at once: the browser fetches them side by side and, as they are not async, runs them in this order (one
   // round trip in all, not one per file)
-  S.ready = Promise.all(queue.map(([src, data]) => addScript(src, data))).then(() => {
+  S.ready = Promise.all(queue.map(([src, data]) => addScript(src, data))).then(() => window.SlopI18n && window.SlopI18n.ready()).then(() => {
     S.currentApp = detectCurrent();
     if (S.currentApp) pushRecent(S.currentApp.id);
     S.notify = window.SlopNotify;

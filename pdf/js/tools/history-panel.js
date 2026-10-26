@@ -3,11 +3,11 @@
    collapsed. Classic script. */
 (function () {
   'use strict';
-  var SP = window.SP, U = SP.util, E = SP.engine, Ed = SP.editor, H = SP.history, D = SP.dock, h = U.h;
+  var SP = window.SP, U = SP.util, E = SP.engine, Ed = SP.editor, H = SP.history, D = SP.dock, h = U.h, t = U.t;
 
   /** Rows: the original document, each applied step, then each undone step (the next redo first). */
   function rows() {
-    var st = H.steps(), cur = st.past.length, out = [{ label: 'Original', at: 0 }];
+    var st = H.steps(), cur = st.past.length, out = [{ label: t('pdf.tool.history.original'), at: 0 }];
     st.past.forEach(function (label, i) { out.push({ label: label, at: i + 1 }); });
     st.future.forEach(function (label, k) { out.push({ label: label, at: cur + k + 1, undone: true }); });
     return { list: out, cur: cur };
@@ -18,9 +18,9 @@
   }
   function render(body) {
     var r = rows();
-    if (r.list.length === 1 && !E.state.pages.length) { body.appendChild(h('p', { class: 'pp-note' }, 'Open a PDF. Each change is a step here; click a step to go back to it.')); return; }
-    body.appendChild(h('p', { class: 'pp-hint' }, 'Click a step to return to the document as it was after it.'));
-    var list = h('ol', { class: 'hist-list', 'aria-label': 'History, oldest first' });
+    if (r.list.length === 1 && !E.state.pages.length) { body.appendChild(h('p', { class: 'pp-note' }, t('pdf.tool.history.empty'))); return; }
+    body.appendChild(h('p', { class: 'pp-hint' }, t('pdf.tool.history.hint')));
+    var list = h('ol', { class: 'hist-list', 'aria-label': t('pdf.tool.history.list_aria') });
     r.list.forEach(function (x) {
       var on = x.at === r.cur;
       list.appendChild(h('li', { class: 'hist' + (on ? ' on' : '') + (x.undone ? ' is-undone' : '') },
@@ -29,7 +29,7 @@
     body.appendChild(list);
   }
   D.add({
-    id: 'history', title: 'History', open: false, render: render,
+    id: 'history', title: function () { return t('pdf.tool.history.title'); }, open: false, render: render,
     meta: function () { return E.state.pages.length ? String(H.steps().past.length) : ''; },
   });
 })();

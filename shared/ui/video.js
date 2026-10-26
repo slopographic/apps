@@ -8,6 +8,8 @@
 (function () {
   'use strict';
   if (window.SlopTutorialVideo) return;
+  /** A word from the shared tables (shared/i18n/ui/en.js), or the English given when SlopI18n or the key is absent. */
+  function tr(key, en, vars) { const I = globalThis.SlopI18n; if (I && I.has && I.has(key)) return I.t(key, vars); return vars ? String(en).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en; }
   const ID = /^[\w-]{6,20}$/;
   const STYLE = '.svid-dlg{width:min(960px,100%)}.svid-frame{position:relative;aspect-ratio:16/9;background:#000;border-radius:8px;overflow:hidden}'
     + '.svid-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}.svid-note{margin:8px 0 0;font-size:12px;opacity:.75}'
@@ -29,16 +31,16 @@
     const frame = doc.createElement('div'); frame.className = 'svid-frame';
     const ifr = doc.createElement('iframe');
     ifr.src = embed(id);
-    ifr.title = o.title || 'Video tutorial';
+    ifr.title = o.title || tr('ui.video.title', 'Video tutorial');
     ifr.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
     ifr.allowFullscreen = true;
     ifr.referrerPolicy = 'strict-origin-when-cross-origin';
     frame.append(ifr);
     const note = doc.createElement('p'); note.className = 'svid-note';
-    const a = doc.createElement('a'); a.href = watch(id); a.target = '_blank'; a.rel = 'noopener'; a.textContent = 'Open on YouTube';
-    note.append('Plays from YouTube in privacy-enhanced mode. ', a);
+    const a = doc.createElement('a'); a.href = watch(id); a.target = '_blank'; a.rel = 'noopener'; a.textContent = tr('ui.video.open', 'Open on YouTube');
+    note.append(tr('ui.video.note', 'Plays from YouTube in privacy-enhanced mode.') + ' ', a);
     const body = doc.createElement('div'); body.append(frame, note);
-    return UI.dialog({ title: o.title || 'Video tutorial', body, cls: 'svid-dlg', dismissable: true });
+    return UI.dialog({ title: o.title || tr('ui.video.title', 'Video tutorial'), body, cls: 'svid-dlg', dismissable: true });
   }
 
   function wire(doc) {

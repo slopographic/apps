@@ -14,6 +14,8 @@
 (function (g) {
   'use strict';
   if (g.SlopFlow) return;
+  /** A word from the shared tables (shared/i18n/ui/en.js), or the English given when SlopI18n or the key is absent. */
+  function tr(key, en, vars) { const I = globalThis.SlopI18n; if (I && I.has && I.has(key)) return I.t(key, vars); return vars ? String(en).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en; }
   const FAMILY = {
     pdf: ['pdf'], doc: ['docx', 'doc', 'odt', 'rtf', 'epub', 'word'], sheet: ['xlsx', 'xls', 'ods', 'csv', 'tsv', 'excel'],
     slide: ['pptx', 'ppt', 'odp', 'key'], image: ['png', 'jpg', 'jpeg', 'webp', 'bmp', 'gif', 'svg', 'ico', 'tif', 'tiff', 'avif', 'heic', 'image', 'images'],
@@ -119,7 +121,7 @@
         const f = list(o.from), t = list(o.to);
         paintTile(from, f.length ? f : ['file']);
         paintTile(to, t.length ? t : ['file']);
-        el.setAttribute('aria-label', o.label || `${f.map(tag).join(', ') || 'File'} to ${t.map(tag).join(', ') || 'file'}`);
+        el.setAttribute('aria-label', o.label || tr('ui.flow.from_to', '{from} to {to}', { from: f.map(tag).join(', ') || tr('ui.flow.file', 'File'), to: t.map(tag).join(', ') || tr('ui.flow.file_lc', 'file') }));
         const k = f.join() + '>' + t.join();
         if (k !== key) {   // a new pair starts idle and draws its arrow again (the class goes off and back on a fresh frame)
           key = k;
@@ -137,7 +139,7 @@
         to.removeAttribute('aria-hidden');
         Object.assign(to, { tabIndex: 0 });
         to.setAttribute('role', 'button');
-        to.setAttribute('aria-label', label || 'Choose the format to make');
+        to.setAttribute('aria-label', label || tr('ui.flow.pick', 'Choose the format to make'));
         to.classList.add('sflow-pick');
         if (!to.querySelector('.sflow-caret')) { const c = g.document.createElement('span'); c.className = 'sflow-caret'; c.textContent = '\u25BE'; c.setAttribute('aria-hidden', 'true'); to.append(c); }
         const go = (e) => { if (e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ') return; e.preventDefault(); fn(to); };

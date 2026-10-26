@@ -91,8 +91,8 @@ test('Swedish is in the language list and every app id in shared/apps.js has a S
   assert.equal(I.t('app.drive'), 'Filer');
 });
 
-test('the shell loads sv.js and sv-apps.js', async () => {
-  const shell = await read('shell/shell.js');
-  assert.match(shell, /shared\/i18n\/sv\.js/);
-  assert.match(shell, /shared\/i18n\/sv-apps\.js/);
+test('a Swedish page fetches sv.js and then sv-apps.js (the sv entry has appNames), after English', async () => {
+  const i18n = await read('shared/i18n/i18n.js');
+  assert.match(i18n, /L\('sv', 'Svenska', 'Swedish', 'ltr', \{ appNames: true \}\)/);
+  assert.match(i18n, /c \+ '-apps\.js'/, 'the chrome source adds <code>-apps.js for a language with appNames');
 });

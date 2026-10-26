@@ -6,23 +6,25 @@
   'use strict';
   var SP = window.SP;
   var L = SP.layers = {};
+  var T = function (k, v) { return SP.util.t(k, v); };
+  /** The layer name keys by annotation type (the text is read when the Layers panel renders, so it follows the language). */
   var NAMES = {
-    text: 'Text', callout: 'Callout', note: 'Comment', rect: 'Rectangle', ellipse: 'Ellipse', line: 'Line', arrow: 'Arrow',
-    pen: 'Drawing', marker: 'Highlighter', hlbox: 'Highlight', texthl: 'Text highlight', whiteout: 'Whiteout', image: 'Image',
-    redact: 'Redaction', step: 'Step', para: 'Paragraph',
+    text: 'text', callout: 'callout', note: 'comment', rect: 'rect', ellipse: 'ellipse', line: 'line', arrow: 'arrow',
+    pen: 'drawing', marker: 'highlighter', hlbox: 'highlight', texthl: 'texthl', whiteout: 'whiteout', image: 'image',
+    redact: 'redaction', step: 'step', para: 'paragraph',
   };
 
   L.isHidden = function (a) { return !!(a && a.hidden); };
   L.isLocked = function (a) { return !!(a && a.locked); };
   /** The name a layer item shows: its type, numbered among the page's layers of that type (bottom to top). */
-  function baseName(a) { return a.sig ? 'Signature' : NAMES[a.type] || 'Item'; }
+  function baseName(a) { return T('pdf.core.layer_' + (a.sig ? 'signature' : NAMES[a.type] || 'item')); }
 
   /** The page's layer items, top layer first: { a, index (in annots), name }. */
   L.items = function (p) {
     var all = (p && p.annots) || [], seen = {}, names = all.map(function (a) {
       var b = baseName(a);
       seen[b] = (seen[b] || 0) + 1;
-      return a.type === 'step' ? 'Step ' + a.n : b + ' ' + seen[b];
+      return a.type === 'step' ? T('pdf.core.layer_step_n', { n: String(a.n) }) : T('pdf.core.layer_numbered', { name: b, n: String(seen[b]) });
     });
     return all.map(function (a, i) { return { a: a, index: i, name: names[i] }; }).reverse();
   };

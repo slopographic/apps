@@ -4,6 +4,11 @@
   'use strict';
   const C = window.SlopCmd;
   if (!C || !C._parts || C._parts.search) return;
+  /** A word from the shared tables (shared/i18n/ui/en.js), or the English given when SlopI18n or the key is absent. */
+  function tr(key, en, vars) { const I = globalThis.SlopI18n; if (I && I.has && I.has(key)) return I.t(key, vars); return vars ? String(en).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en; }
+  /** A group's name to show: groups are English ids ('Help' stays last); the shared tables have the common ones. */
+  const GROUP = { File: 'menu.file', Edit: 'menu.edit', View: 'menu.view', Help: 'menu.help', Commands: 'ui.cmd.commands', 'Go to': 'ui.cmd.go_to', Recent: 'ui.cmd.recent' };
+  const groupLabel = (g) => (GROUP[g] ? tr(GROUP[g], g) : g);
   const FIELD_WEIGHT = { title: 1, keywords: 0.8, group: 0.55, id: 0.45 };
   const isWordStart = (s, i) => i === 0 || /[\s\-_./:()…]/.test(s[i - 1]) || (s[i - 1] === s[i - 1].toLowerCase() && s[i] !== s[i].toLowerCase());
 
@@ -63,7 +68,7 @@
   function appItems() {
     const apps = window.SLOP_APPS || [];
     return apps.filter((a) => a.id !== C.app).map((a) => ({
-      id: 'go.' + a.id, title: 'Go to ' + a.name, group: 'Go to', icon: a.kind === 'game' ? '🎮' : a.kind === 'experiment' ? '🧪' : '↗',
+      id: 'go.' + a.id, title: tr('ui.cmd.go_to_app', 'Go to {name}', { name: a.name }), group: tr('ui.cmd.go_to', 'Go to'), icon: a.kind === 'game' ? '🎮' : a.kind === 'experiment' ? '🧪' : '↗',
       keywords: [a.name, a.kind, a.tagline || ''], keys: [], enabled: true, go: a,
     }));
   }
@@ -85,19 +90,19 @@
         if (got.length) out.push({ title: p.title || p.id, items: got.map((r) => ({ id: r.id, title: r.title, group: r.group || '', icon: r.icon || '', keywords: r.keywords || [], keys: [], enabled: true, provided: r.run })) });
       }
       const go = rank(q, appItems()).slice(0, 8);
-      if (go.length) out.push({ title: 'Go to', items: go });
+      if (go.length) out.push({ id: 'go', title: tr('ui.cmd.go_to', 'Go to'), items: go });
       return out;
     }
     const sections = [], byId = new Map(cmds.map((c) => [c.id, c]));
     const rec = C.recent(5).map((id) => byId.get(id)).filter((c) => c && c.enabled);
-    if (rec.length) sections.push({ title: 'Recent', items: rec });
+    if (rec.length) sections.push({ id: 'recent', title: tr('ui.cmd.recent', 'Recent'), items: rec });
     const groups = new Map();
     for (const c of cmds) { const g = c.group || 'Commands'; if (!groups.has(g)) groups.set(g, []); groups.get(g).push(c); }
     const help = groups.get('Help'); groups.delete('Help');
-    for (const [g, items] of groups) sections.push({ title: g, items: items.sort((a, b) => (b.enabled !== false) - (a.enabled !== false)) });
-    if (help) sections.push({ title: 'Help', items: help });
+    for (const [g, items] of groups) sections.push({ id: g, title: groupLabel(g), items: items.sort((a, b) => (b.enabled !== false) - (a.enabled !== false)) });
+    if (help) sections.push({ id: 'Help', title: groupLabel('Help'), items: help });
     return sections;
   }
-  const api = { score, itemScore, rank, results, appItems, goTo, navigate: (url) => { location.href = url; } };
+  const api = { score, itemScore, rank, results, appItems, goTo, groupLabel, tr, navigate: (url) => { location.href = url; } };
   C._parts.search = api;
 })();

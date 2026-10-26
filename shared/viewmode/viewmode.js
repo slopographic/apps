@@ -7,8 +7,10 @@
   'use strict';
   if (win.SlopViewMode) return;
   const doc = win.document;
+  /** A word from the shared tables (shared/i18n/ui/en.js), or the English given when SlopI18n or the key is absent. */
+  function tr(key, en, vars) { const I = globalThis.SlopI18n; if (I && I.has && I.has(key)) return I.t(key, vars); return vars ? String(en).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en; }
   const MODES = ['full', 'focus', 'content'];
-  const LABEL = { full: 'Full', focus: 'Focus', content: 'Content' };
+  const LABEL = { full: () => tr('ui.viewmode.full', 'Full'), focus: () => tr('ui.viewmode.focus', 'Focus'), content: () => tr('ui.viewmode.content', 'Content') };
   const KEY = 'slop.viewmode', LAYOUT = 'slop.viewmode.layout.';
   const EDGE_PX = 6, LEAVE_MS = 700;
   const DEFAULT_EDGE = { toolbar: 'top', sidebar: 'left', panels: 'right' };
@@ -84,16 +86,28 @@
       shells.add(P);
       watch(P);
     }
-    for (const e of apps.values()) {
-      for (const b of e.buttons) { b.querySelector('.slopvm-txt').textContent = LABEL[mode]; b.firstChild.innerHTML = ICON[mode]; b.setAttribute('aria-label', 'View: ' + LABEL[mode] + '. Opens the view menu.'); }
-      for (const b of e.reveal) { b.lastChild.textContent = peekAll ? 'Hide panels' : 'Show panels'; b.setAttribute('aria-pressed', String(peekAll)); }
-    }
+    words();
     if (doc.documentElement) doc.documentElement.dataset.slopvm = mode;
     if (watcher) watcher.takeRecords();   // our own class changes are not an app change
     painting = false;
     // A changed layout needs a re-measure: apps listen for resize (canvases, editors, grids).
     if (notify && win.requestAnimationFrame) win.requestAnimationFrame(() => fire());
   }
+  /** The controls' words and icons for the mode; again after a language change (shared/i18n). */
+  function words() {
+    for (const e of apps.values()) {
+      for (const b of e.buttons) {
+        b.querySelector('.slopvm-txt').textContent = LABEL[mode](); b.firstChild.innerHTML = ICON[mode];
+        b.setAttribute('aria-label', tr('ui.viewmode.aria', 'View: {mode}. Opens the view menu.', { mode: LABEL[mode]() }));
+        b.title = tr('ui.viewmode.tip', 'View: choose what is shown (Ctrl+Shift+F next view, Escape back to Full)');
+      }
+      for (const b of e.reveal) {
+        b.lastChild.textContent = peekAll ? tr('ui.viewmode.hide', 'Hide panels') : tr('ui.viewmode.show', 'Show panels'); b.setAttribute('aria-pressed', String(peekAll));
+        b.title = tr('ui.viewmode.reveal_tip', 'Show every hidden panel and toolbar (Ctrl+Shift+L)');
+      }
+    }
+  }
+  if (win.SlopI18n && win.SlopI18n.on) win.SlopI18n.on(words);
   /** A resize for the app to re-measure; paint() ignores the resize this sends. */
   let firing = false;
   function fire() { firing = true; try { win.dispatchEvent(new Event('resize')); } finally { firing = false; } }
@@ -178,7 +192,7 @@
   // The View button's icon per mode (a window with its bars), and the eye of "Show panels".
   const BOX = '<rect x="3.5" y="4.5" width="17" height="15" rx="2"/>';
   const ICON = { full: BOX + '<path d="M3.5 9h17M9 9v10.5"/>', focus: BOX + '<path d="M3.5 9h17"/>', content: BOX + '<path d="M8 12h8"/>' };
-  const HINT = { full: 'everything shown', focus: 'fewer bars and sidebars', content: 'only the work area' };
+  const HINT = { full: () => tr('ui.viewmode.hint_full', 'everything shown'), focus: () => tr('ui.viewmode.hint_focus', 'fewer bars and sidebars'), content: () => tr('ui.viewmode.hint_content', 'only the work area') };
   const svg = (inner) => '<svg viewBox="0 0 24 24" aria-hidden="true">' + inner + '</svg>';
   function button(cls, title, html, fn) {
     const b = doc.createElement('button');
@@ -193,10 +207,10 @@
     if (!host) return;
     const bar = doc.createElement('span');
     bar.className = 'slopvm-bar';
-    const b = button('slopvm-btn', 'View: choose what is shown (Ctrl+Shift+F next view, Escape back to Full)',
+    const b = button('slopvm-btn', tr('ui.viewmode.tip', 'View: choose what is shown (Ctrl+Shift+F next view, Escape back to Full)'),
       svg('') + '<span class="slop-hbtn-txt"><span class="slopvm-txt"></span><span class="slopvm-caret" aria-hidden="true"></span></span>', () => openMenu(b));
     b.setAttribute('aria-haspopup', 'menu'); b.setAttribute('aria-expanded', 'false');
-    const reveal = button('slopvm-reveal', 'Show every hidden panel and toolbar (Ctrl+Shift+L)',
+    const reveal = button('slopvm-reveal', tr('ui.viewmode.reveal_tip', 'Show every hidden panel and toolbar (Ctrl+Shift+L)'),
       svg('<path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z"/><circle cx="12" cy="12" r="2.5"/>') + '<span class="slop-hbtn-txt"></span>', revealAll);
     bar.append(reveal, b);   // the reveal sits left of the View button, so the button stays put when it shows
     host.appendChild(bar);
@@ -207,9 +221,9 @@
   function openMenu(b) {
     const UI = win.SlopUI;
     if (!UI || !UI.menu) { cycle(); return; }
-    const items = MODES.map((m) => ({ label: LABEL[m] + ': ' + HINT[m], check: m === mode, radio: true, act: () => setMode(m) }));
-    items.push('-', { label: peekAll ? 'Hide the panels again' : 'Show hidden panels', key: 'Ctrl+Shift+L', disabled: mode === 'full', act: revealAll },
-      { label: 'Next view', key: 'Ctrl+Shift+F', act: cycle });
+    const items = MODES.map((m) => ({ label: tr('ui.viewmode.item', '{mode}: {hint}', { mode: LABEL[m](), hint: HINT[m]() }), check: m === mode, radio: true, act: () => setMode(m) }));
+    items.push('-', { label: peekAll ? tr('ui.viewmode.hide_again', 'Hide the panels again') : tr('ui.viewmode.show_hidden', 'Show hidden panels'), key: 'Ctrl+Shift+L', disabled: mode === 'full', act: revealAll },
+      { label: tr('ui.viewmode.next', 'Next view'), key: 'Ctrl+Shift+F', act: cycle });
     const r = b.getBoundingClientRect(), m = UI.menu(items, r.left, r.bottom + 4);
     m.classList.add('slopvm-menu');
     b.setAttribute('aria-expanded', 'true');

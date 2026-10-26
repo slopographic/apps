@@ -16,7 +16,7 @@
   function viewer() { return document.getElementById('viewer'); }
   function api() { return DT.api ? DT.api() : null; }
   function openDocs() { var a = api(); return a ? a.tabs().map(function (t) { return { doc: t.doc, title: t.title }; }) : []; }
-  function titleOf(doc) { var hit = openDocs().find(function (t) { return t.doc === doc; }); return hit ? hit.title : 'Document'; }
+  function titleOf(doc) { var hit = openDocs().find(function (t) { return t.doc === doc; }); return hit ? hit.title : SP.util.t('pdf.act.document'); }
   function paneEl(i) { return ws.pane(i).el; }
   function relayout() { if (Ed.page && Ed.page()) Ed.layout(); }
 

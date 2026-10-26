@@ -8,6 +8,8 @@
   const P = (SD.panel = {});
   // The brand profile's media switch (set at build time): a build without this site's screenshots shows no picture of one.
   const MEDIA = /*profile:media*/true;
+  /** A word from the shared tables (shared/i18n/ui/en.js), or the English given when SlopI18n or the key is absent. */
+  function tr(key, en, vars) { const I = globalThis.SlopI18n; if (I && I.has && I.has(key)) return I.t(key, vars); return vars ? String(en).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en; }
   const CSS = [
     // Colours: the app's own --sui-* tokens when it has them, else mixed from the text colour round the zone (right in any
     // theme, light or dark) and the shared theme's accent (--sl-*, set on every page by shared/theme/theme.js).
@@ -84,7 +86,7 @@
     }
     if (o.steps && o.steps.length) {
       const ol = doc.createElement('ol');
-      ol.className = 'sd-steps'; ol.setAttribute('aria-label', 'How it works');
+      ol.className = 'sd-steps'; ol.setAttribute('aria-label', tr('ui.drop.how', 'How it works')); ol.dataset.i18nAttr = 'aria-label:ui.drop.how';
       for (const t of o.steps) { const li = doc.createElement('li'); li.textContent = t; ol.append(li); }
       box.append(ol);
     }
@@ -92,10 +94,12 @@
     if (o.privacy !== false) {
       const note = doc.createElement('p');
       note.className = 'sd-private';
-      note.textContent = 'Everything happens in your browser: nothing is uploaded, and your files stay private on this device. ';
+      const words = doc.createElement('span');   // data-i18n: the text follows a language change (shared/i18n)
+      words.dataset.i18n = 'ui.drop.private'; words.textContent = tr('ui.drop.private', 'Everything happens in your browser: nothing is uploaded, and your files stay private on this device.');
+      note.append(words, ' ');
       if (!(root.location && root.location.protocol === 'file:')) {
         const a = doc.createElement('a');
-        a.href = '/how-it-works/'; a.textContent = 'How it works';
+        a.href = '/how-it-works/'; a.textContent = tr('ui.drop.how', 'How it works'); a.dataset.i18n = 'ui.drop.how';
         note.append(a);
       }
       box.append(note);
@@ -112,23 +116,26 @@
     if (pv) wrap.append(pv);
     const msg = doc.createElement('p');
     msg.className = 'sd-msg';
-    msg.textContent = o.label || 'Drop files here or choose files';
+    msg.textContent = o.label || tr('ui.drop.label', 'Drop files here or choose files');
+    if (!o.label) msg.dataset.i18n = 'ui.drop.label';
     wrap.append(msg);
     if (o.hint && !o.compact) { const h = doc.createElement('p'); h.textContent = o.hint; wrap.append(h); }
     const choose = doc.createElement('button');
     choose.type = 'button'; choose.className = 'sd-choose';
-    choose.textContent = o.chooseLabel || 'Choose files';
+    choose.textContent = o.chooseLabel || tr('ui.drop.choose', 'Choose files');
+    if (!o.chooseLabel) choose.dataset.i18n = 'ui.drop.choose';
     let sample = null;
     if (o.sample && !o.compact) {   // a strip stays a strip: an app with its own empty state puts its button there and calls .sample()
       sample = doc.createElement('button');
       sample.type = 'button'; sample.className = 'sd-sample';
-      sample.textContent = o.sample.label || 'Try it with a sample';
+      sample.textContent = o.sample.label || tr('ui.drop.sample', 'Try it with a sample');
+      if (!o.sample.label) sample.dataset.i18n = 'ui.drop.sample';
       const acts = doc.createElement('div');
       acts.className = 'sd-acts'; acts.append(choose, sample);
       wrap.append(acts);
     } else wrap.append(choose);
     const list = doc.createElement('ul');
-    list.className = 'sd-list'; list.setAttribute('aria-label', 'Files being added');
+    list.className = 'sd-list'; list.setAttribute('aria-label', tr('ui.drop.adding', 'Files being added')); list.dataset.i18nAttr = 'aria-label:ui.drop.adding';
     wrap.append(list);
     const status = doc.createElement('p');
     status.className = 'sd-status'; status.setAttribute('role', 'status'); status.setAttribute('aria-live', 'polite');
@@ -146,7 +153,7 @@
     top.append(nm, sz);
     const bar = doc.createElement('div'); bar.className = 'sd-bar ind';
     const fill = doc.createElement('i'); bar.append(fill);
-    const msg = doc.createElement('div'); msg.className = 'sd-msg-row'; msg.textContent = text || 'Reading…';
+    const msg = doc.createElement('div'); msg.className = 'sd-msg-row'; msg.textContent = text || tr('ui.drop.reading', 'Reading…');
     li.append(top, bar, msg);
     list.append(li);
     return {

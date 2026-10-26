@@ -14,6 +14,7 @@
     io = new IntersectionObserver(function (entries) {
       entries.forEach(function (en) { if (en.isIntersecting) { var el = en.target; el._visible = true; if (!S.zooming) loadThumb(el); } else en.target._visible = false; });
     }, { root: scroller, rootMargin: '400px 0px' });
+    U.onLang(function () { O.render(); }); // the thumbnails' labels (their buttons follow through data-i18n-attr)
     grid.addEventListener('pointerdown', function (e) { S.onDown(e); });
     grid.addEventListener('dblclick', function (e) { var t = e.target.closest('.thumb'); if (t && !e.target.closest('button')) SP.app.openPage(t.dataset.id); });
     grid.addEventListener('contextmenu', function (e) { S.onContext(e); });
@@ -66,16 +67,16 @@
   function makeThumb(p) {
     var el = U.h('div', { class: 'thumb', role: 'option', tabindex: '-1', 'data-id': p.id, 'aria-selected': 'false' },
       U.h('div', { class: 'thumb-box' }),
-      U.h('button', { class: 'thumb-check', type: 'button', 'data-act': 'check', tabindex: '-1', 'aria-label': 'Toggle selection', html: U.icon('check') }),
+      U.h('button', { class: 'thumb-check', type: 'button', 'data-act': 'check', tabindex: '-1', 'aria-label': U.t('pdf.org.toggle_sel'), 'data-i18n-attr': 'aria-label:pdf.org.toggle_sel', html: U.icon('check') }),
       U.h('div', { class: 'thumb-tools' },
-        U.h('button', { type: 'button', 'data-act': 'rotl', tabindex: '-1', title: 'Rotate left', 'aria-label': 'Rotate left', html: U.icon('rotl') }),
-        U.h('button', { type: 'button', 'data-act': 'rotr', tabindex: '-1', title: 'Rotate right', 'aria-label': 'Rotate right', html: U.icon('rotr') }),
-        U.h('button', { type: 'button', 'data-act': 'view', tabindex: '-1', title: 'Open page', 'aria-label': 'Open page', html: U.icon('zoomin') }),
-        U.h('button', { type: 'button', 'data-act': 'dup', tabindex: '-1', title: 'Duplicate', 'aria-label': 'Duplicate page', html: U.icon('copy') }),
-        U.h('button', { type: 'button', 'data-act': 'up', tabindex: '-1', title: 'Move up', 'aria-label': 'Move page up', html: U.icon('up') }),
-        U.h('button', { type: 'button', 'data-act': 'down', tabindex: '-1', title: 'Move down', 'aria-label': 'Move page down', html: U.icon('down') }),
-        U.h('button', { type: 'button', 'data-act': 'ext', tabindex: '-1', title: 'Extract this page', 'aria-label': 'Extract this page', html: U.icon('download') }),
-        U.h('button', { type: 'button', 'data-act': 'del', tabindex: '-1', title: 'Delete', 'aria-label': 'Delete page', class: 'danger', html: U.icon('trash') })),
+        U.h('button', { type: 'button', 'data-act': 'rotl', tabindex: '-1', title: U.t('pdf.org.rotate_left'), 'aria-label': U.t('pdf.org.rotate_left'), 'data-i18n-attr': 'title:pdf.org.rotate_left;aria-label:pdf.org.rotate_left', html: U.icon('rotl') }),
+        U.h('button', { type: 'button', 'data-act': 'rotr', tabindex: '-1', title: U.t('pdf.org.rotate_right'), 'aria-label': U.t('pdf.org.rotate_right'), 'data-i18n-attr': 'title:pdf.org.rotate_right;aria-label:pdf.org.rotate_right', html: U.icon('rotr') }),
+        U.h('button', { type: 'button', 'data-act': 'view', tabindex: '-1', title: U.t('pdf.org.open_page'), 'aria-label': U.t('pdf.org.open_page'), 'data-i18n-attr': 'title:pdf.org.open_page;aria-label:pdf.org.open_page', html: U.icon('zoomin') }),
+        U.h('button', { type: 'button', 'data-act': 'dup', tabindex: '-1', title: U.t('ui.duplicate'), 'aria-label': U.t('pdf.org.dup_page'), 'data-i18n-attr': 'title:ui.duplicate;aria-label:pdf.org.dup_page', html: U.icon('copy') }),
+        U.h('button', { type: 'button', 'data-act': 'up', tabindex: '-1', title: U.t('pdf.org.move_up'), 'aria-label': U.t('pdf.org.move_page_up'), 'data-i18n-attr': 'title:pdf.org.move_up;aria-label:pdf.org.move_page_up', html: U.icon('up') }),
+        U.h('button', { type: 'button', 'data-act': 'down', tabindex: '-1', title: U.t('pdf.org.move_down'), 'aria-label': U.t('pdf.org.move_page_down'), 'data-i18n-attr': 'title:pdf.org.move_down;aria-label:pdf.org.move_page_down', html: U.icon('down') }),
+        U.h('button', { type: 'button', 'data-act': 'ext', tabindex: '-1', title: U.t('pdf.org.extract_page'), 'aria-label': U.t('pdf.org.extract_page'), 'data-i18n-attr': 'title:pdf.org.extract_page;aria-label:pdf.org.extract_page', html: U.icon('download') }),
+        U.h('button', { type: 'button', 'data-act': 'del', tabindex: '-1', title: U.t('ui.delete'), 'aria-label': U.t('pdf.org.delete_page'), 'data-i18n-attr': 'title:ui.delete;aria-label:pdf.org.delete_page', class: 'danger', html: U.icon('trash') })),
       U.h('div', { class: 'thumb-grip', 'aria-hidden': 'true', html: U.icon('grip') }),
       U.h('div', { class: 'thumb-cap' }, U.h('span', { class: 'fdot' }), U.h('span', { class: 'pnum' }), U.h('span', { class: 'psrc' })),
       U.h('span', { class: 'thumb-badge', hidden: true }),
@@ -106,14 +107,16 @@
       el._sheet = V.sheet(el._sheet, p, box.w - 16, box.h - 16, i, total);
       var bx = el.firstChild; if (el._sheet.parentNode !== bx) bx.appendChild(el._sheet);
       el.querySelector('.pnum').textContent = String(i + 1);
-      el.querySelector('.psrc').textContent = p.blank ? 'blank' : (E.files.size > 1 ? shortName(f.name) + ' · p' + (p.i + 1) : 'p' + (p.i + 1));
-      el.setAttribute('aria-label', 'Page ' + (i + 1) + (p.blank ? ', blank' : ', from ' + (f ? f.name : '') + ' page ' + (p.i + 1)) + (p.rot ? ', rotated ' + p.rot + '°' : ''));
-      el.title = p.blank ? 'Blank page' : f.name + ' — page ' + (p.i + 1);
+      var n = String(i + 1), src = String(p.i + 1);
+      el.querySelector('.psrc').textContent = p.blank ? U.t('pdf.org.src_blank') : (E.files.size > 1 ? U.t('pdf.org.src_file_page', { file: shortName(f.name), page: src }) : U.t('pdf.org.src_page', { page: src }));
+      var lab = p.blank ? U.t('pdf.org.thumb_blank', { n: n }) : U.t('pdf.org.thumb_from', { n: n, file: f ? f.name : '', page: src });
+      el.setAttribute('aria-label', p.rot ? U.t('pdf.org.thumb_rotated', { label: lab, deg: String(p.rot) }) : lab);
+      el.title = p.blank ? U.t('pdf.org.blank_page') : U.t('pdf.org.thumb_title', { file: f.name, page: src });
       var badge = el.querySelector('.thumb-badge'), na = (p.annots || []).length;
       var nr = (p.annots || []).filter(function (a) { return a.type === 'redact'; }).length, rb = el.querySelector('.thumb-redact');
       na -= nr; badge.hidden = !na; if (na) badge.innerHTML = U.icon('edit') + na;
       rb.hidden = !(nr || p.redacted); rb.className = 'thumb-redact' + (nr ? ' pending' : '');
-      rb.textContent = nr ? nr + ' to redact' : 'Redacted';
+      rb.textContent = nr ? U.t('pdf.org.to_redact', { n: nr }) : U.t('pdf.org.redacted');
       var part = el.querySelector('.thumb-part');
       if (parts && parts[i]) { part.hidden = false; part.textContent = parts[i]; part.className = 'thumb-part' + (parts[i].charAt(0) === '✂' ? ' cut' : ''); } else part.hidden = true;
       if (grid.children[i] !== el) grid.insertBefore(el, grid.children[i] || null);

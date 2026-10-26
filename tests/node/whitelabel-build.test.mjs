@@ -18,7 +18,7 @@ const P = { support: { ads: false }, media: false };
 
 test('left out of a renamed build: the source brand’s own files', () => {
   for (const f of ['TRADEMARKS.md', 'LICENSE-ART', '.github/workflows/rules.yml', 'docs-1280-dark.png', 'brand/profiles/sample.json', 'tools/whitelabel/build.mjs',
-    'tests/node/whitelabel-build.test.mjs', 'tests/node/attribution.test.mjs', '.github/workflows/commit-authors.yml', '.github/workflows/speed.yml', 'tests/node/speed-config.test.mjs', 'tests/node/indexnow.test.mjs', '.github/workflows/preview.yml', '.github/dependabot.yml', 'ads.txt', 'assets/shots/pdf.jpg', 'brand/logo-128.webp', 'docs-1280-dark.png', '.claude/settings.json']) assert.equal(excluded(f, P), true, f);
+    'tests/node/whitelabel-build.test.mjs', 'tests/node/attribution.test.mjs', '.github/workflows/commit-authors.yml', '.github/workflows/speed.yml', 'tests/node/speed-config.test.mjs', 'tests/node/indexnow.test.mjs', '.github/workflows/preview.yml', '.github/dependabot.yml', 'ads.txt', 'assets/shots/pdf.jpg', 'brand/logo-128.webp', 'docs-1280-dark.png']) assert.equal(excluded(f, P), true, f);
   for (const f of ['pdf/index.html', '.githooks/pre-commit', 'shared/apps.js', 'tests/node/i18n.test.mjs']) assert.equal(excluded(f, P), false, f);
   assert.equal(excluded('assets/shots/pdf.jpg', { media: true }), false);
 });

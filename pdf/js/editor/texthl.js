@@ -117,8 +117,8 @@
     if (Ed.pid !== A.p.id) { Ed.paint(); return; }
     var pts = [];
     try { pts = E.textHighlightPts(await E.pageTextLines(A.p), A.a, A.b); } catch (err) { pts = []; }
-    if (!pts.length) { Ed.paint(); SlopUI.toast('No text under the drag. Drag across the text lines to highlight them.'); return; }
-    Ed.addAnnot({ id: U.uid('a'), type: 'texthl', color: col.color, opacity: col.opacity, pts: pts }, 'Add text highlight');
+    if (!pts.length) { Ed.paint(); SlopUI.toast(U.t('pdf.ed.texthl_none')); return; }
+    Ed.addAnnot({ id: U.uid('a'), type: 'texthl', color: col.color, opacity: col.opacity, pts: pts }, U.t('pdf.ed.undo_add_texthl'));
     Ed.selId = null; Ed.paint();
   };
 })();

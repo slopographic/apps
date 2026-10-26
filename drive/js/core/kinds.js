@@ -18,7 +18,9 @@
   const ext = (name) => { const m = /\.([a-z0-9]{1,8})$/i.exec(name || ''); return m ? m[1].toLowerCase() : ''; };
   const TEXT_EXT = ['txt', 'md', 'csv', 'tsv', 'json', 'xml', 'html', 'htm', 'css', 'js', 'mjs', 'ts', 'zpl', 'prn', 'log', 'ini', 'yaml', 'yml', 'sloplabel'];
   const DESIGN_EXT = ['psd', 'ora', 'ai', 'eps', 'sketch', 'fig', 'xcf', 'kra'];
-  const ARCH_EXT = ['zip', 'slop', '7z', 'rar', 'tar', 'gz', 'tgz'];
+  const ARCH_EXT = ['zip', '7z', 'rar', 'tar', 'gz', 'tgz'];
+  /** The backup ZIP's extension without the dot (SlopBackup.EXT, shared/backup/index.js), '' where that is not loaded. */
+  const backupExt = () => ((typeof window !== 'undefined' && window.SlopBackup && window.SlopBackup.EXT) || '').slice(1).toLowerCase();
   /** Slop's own native files (JSON): documents, sheets, slides and invoices. Each app's colour, for the cards. */
   const DOC_COLOR = { sdoc: '#4f8cff', stab: '#3fbf7f', sslide: '#ff8a3d', sinv: '#e0b43c' };
   /** Kind id of a file record (or folder). */
@@ -33,7 +35,7 @@
     if (t === 'application/pdf' || e === 'pdf') return 'pdf';
     if (t.startsWith('audio/')) return 'audio';
     if (t.startsWith('video/')) return 'video';
-    if (/zip|x-tar|gzip|x-7z|x-rar|slopographic-backup/.test(t) || ARCH_EXT.includes(e)) return 'archive';
+    if (/zip|x-tar|gzip|x-7z|x-rar|slopographic-backup/.test(t) || ARCH_EXT.includes(e) || e === backupExt()) return 'archive';
     if (t.startsWith('text/') || /json|xml|javascript|csv|yaml/.test(t) || TEXT_EXT.includes(e)) return 'text';
     // Images, audio and video by name or MIME type, from the shared kind table (shared/kinds/kinds.js) that every app uses.
     const shared = window.SlopKinds ? window.SlopKinds.kindOf(r.name, r.type) : 'other';

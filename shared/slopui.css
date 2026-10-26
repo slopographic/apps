@@ -106,10 +106,10 @@ textarea.sui-input { height: auto; resize: vertical; }
 @media (prefers-reduced-motion: reduce) { .sui-back, .sui-dlg { animation: none; } }
 /* submenus: beside the row (desktop) or in place as an indented list (phones, see slopui.js) */
 .sui-row.sui-open { background: var(--s-sel); }
-.sui-inline { padding-left: 14px; }
+.sui-inline { padding-inline-start: 14px; }
 @media (max-width: 640px) {
   .sui-menu { max-width: calc(100vw - 16px); min-width: min(240px, calc(100vw - 16px)); }
-  .sui-inline { padding-left: 16px; }
+  .sui-inline { padding-inline-start: 16px; }
 }
 /* A finger (shared/input/touch.css, --slop-hit: 44 px under a coarse pointer): menu rows and the dialog's close button
    are 44 px tall, so a long-press menu is easy to hit and a tap never takes the row beside it. */

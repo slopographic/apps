@@ -131,8 +131,8 @@
       if (l < 3) { var v0 = E.toView(c.R, c.W, c.H, a.pts[0][0], a.pts[0][1]); a.pts[1] = E.toPage(c.R, c.W, c.H, v0[0] + 100, v0[1]); }
     }
     a.id = U.uid('a');
-    var names = { pen: 'Draw', marker: 'Highlight', rect: 'Add rectangle', ellipse: 'Add ellipse', line: 'Add line', arrow: 'Add arrow', whiteout: 'Add whiteout', hlbox: 'Add highlight', redact: 'Mark for redaction' };
-    Ed.addAnnot(a, names[a.type]);
+    var names = { pen: 'pdf.ed.undo_draw', marker: 'pdf.ed.undo_marker', rect: 'pdf.ed.undo_add_rect', ellipse: 'pdf.ed.undo_add_ellipse', line: 'pdf.ed.undo_add_line', arrow: 'pdf.ed.undo_add_arrow', whiteout: 'pdf.ed.undo_add_whiteout', hlbox: 'pdf.ed.undo_add_hlbox', redact: 'pdf.ed.undo_mark_redaction' };
+    Ed.addAnnot(a, names[a.type] && U.t(names[a.type]));
     if (a.type === 'pen' || a.type === 'marker') { Ed.selId = null; Ed.paint(); }
     else if (!/^(whiteout|hlbox|redact)$/.test(a.type)) { Ed.tool = 'select'; S.pageEl.dataset.tool = 'select'; if (SP.app) SP.app.toolChanged(); }
   }
@@ -188,7 +188,7 @@
       if (!x || !A.moved) { if (x && x.type === 'note') Ed.noteUI.open(x.id); Ed.paint(); return; }
       var fin = JSON.parse(JSON.stringify(x));
       Object.keys(x).forEach(function (k) { delete x[k]; }); Object.assign(x, A.orig);
-      S.commitPage(A.h === 'move' ? 'Move annotation' : A.h === 'tip' ? 'Move callout pointer' : 'Resize annotation', function (p) { p.annots = p.annots.map(function (y) { return y.id === fin.id ? fin : y; }); });
+      S.commitPage(U.t(A.h === 'move' ? 'pdf.ed.undo_move_annot' : A.h === 'tip' ? 'pdf.ed.undo_move_tip' : 'pdf.ed.undo_resize_annot'), function (p) { p.annots = p.annots.map(function (y) { return y.id === fin.id ? fin : y; }); });
     }
     S.pageEl.addEventListener('pointermove', mv); S.pageEl.addEventListener('pointerup', up); S.pageEl.addEventListener('pointercancel', up);
   }

@@ -14,3 +14,6 @@ tests/.cache/
 
 # Python bytecode (tools/fonts)
 __pycache__/
+
+# local editor and assistant settings stay on each machine
+/.claude/

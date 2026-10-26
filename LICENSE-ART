@@ -13,9 +13,7 @@ product or fork) requires written permission from Slopographic.
   shared/buddy/three3d.js, shared/buddy/view3d.js   the 3D Sloppo
   The Sloppo face SVG in shared/buddy/boot.js and the goo splat SVG in
   shared/buddy/fx.js
-  games/*/js/player/      the in-game Sloppo models
-  reel/js/sloppo/         the Sloppo Reel model
-  The Sloppo SVG markup in 2100/index.html, favicon.svg and og-share.png (the share card, built from the app badges)
+  The Sloppo SVG markup in favicon.svg and og-share.png (the share card, built from the app badges)
 
 Everything else in shared/buddy/ (bodies.js physics, perches, input, chaos,
 the assistant engine) is code and is covered by the MIT License.

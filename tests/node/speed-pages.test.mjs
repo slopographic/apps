@@ -12,8 +12,8 @@ test('sitemap URLs become site paths, the root the empty path', () => {
 });
 
 test('app paths keep relative pages only, with a trailing slash', () => {
-  const apps = [{ path: 'pdf/' }, { path: 'games/snake' }, { path: '#detector' }, { path: 'https://example.com/' }, { path: '' }, { path: 'x/?a=1' }, { path: 'play.html' }];
-  assert.deepEqual(appPaths(apps), ['pdf/', 'games/snake/', 'x/', 'play.html']);
+  const apps = [{ path: 'pdf/' }, { path: 'notes/markdown' }, { path: '#detector' }, { path: 'https://example.com/' }, { path: '' }, { path: 'x/?a=1' }, { path: 'play.html' }];
+  assert.deepEqual(appPaths(apps), ['pdf/', 'notes/markdown/', 'x/', 'play.html']);
 });
 
 test('every page is listed once, in name order, the homepage first', () => {

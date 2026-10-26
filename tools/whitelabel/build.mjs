@@ -69,7 +69,7 @@ const sha = (buf) => createHash('sha256').update(buf).digest('hex');
 
 /** Files of the source brand that a renamed build leaves out (it writes its own where one is needed). */
 export function excluded(file, p) {
-  if (/^(brand\/profiles|brand\/copy|tools\/whitelabel|\.claude)\//.test(file) || file === 'brand/README.md') return true;   // .claude: this repo's agent settings
+  if (/^(brand\/profiles|brand\/copy|tools\/whitelabel)\//.test(file) || file === 'brand/README.md') return true;
   // this repository's own automation: every workflow (deploys, pings, checks that only make sense here; the build writes the
   // mirror's one rules.yml), and the tests that are about this repository only, declared in one place (tests/repo-only.json)
   if (/^\.github\/(workflows\/|dependabot\.yml$)/.test(file) || repoOnly(file)) return true;
@@ -144,7 +144,9 @@ export function build(id, out, opts = {}) {
   log(`${p.id}: wrote ${n} files to ${out}`);
   const node = process.execPath;
   if (!opts.noImages) sh(node, [path.join(ROOT, 'tools/whitelabel/images.mjs'), out]);   // before the precache list, which hashes them
-  if (!opts.noSeo) { sh(node, ['tools/seo/write.mjs'], out); sh(node, ['tools/pwa-precache.mjs'], out); }
+  // the generated reports name the apps and files, so the build writes its own: the SEO pages, the i18n coverage report
+  // (tests/node/i18n-tables.test.mjs checks it is up to date) and the precache list, which hashes the rest
+  if (!opts.noSeo) { sh(node, ['tools/seo/write.mjs'], out); sh(node, [path.join('tools', 'i18n', 'i18n.mjs'), 'coverage'], out); sh(node, ['tools/pwa-precache.mjs'], out); }
   const res = scan(out, forbiddenTerms(dir, p).concat(videos.map((v) => v.toLowerCase())), SCAN_ALLOW.concat(p.scanAllow || [], artAllow(p)), { account: p.github.toLowerCase() });
   log(report(res));
   return { profile: p, out, files: n, found: res.found, allowed: res.allowed };

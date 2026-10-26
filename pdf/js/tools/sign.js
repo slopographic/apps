@@ -2,20 +2,21 @@
    Saved signatures live only in this browser's localStorage and can be cleared. */
 (function () {
   'use strict';
-  var SP = window.SP, U = SP.util, E = SP.engine;
+  var SP = window.SP, U = SP.util, E = SP.engine, t = U.t;
   var S = SP.sign = {};
   S.FONTS = [
     ['Dancing Script', '"Dancing Script", "Segoe Script", "Brush Script MT", "Snell Roundhand", cursive'],
     ['Great Vibes', '"Great Vibes", "Edwardian Script ITC", "Snell Roundhand", "Segoe Script", cursive'],
     ['Caveat', 'Caveat, "Segoe Print", "Bradley Hand", "Comic Sans MS", cursive']
   ];
-  S.COLORS = [['#111111', 'Black'], ['#1a3fb0', 'Blue'], ['#b3122e', 'Red']];
+  S.COLORS = [['#111111', 'pdf.tool.sign.ink_black', 'pdf.tool.sign.ink_black_aria'], ['#1a3fb0', 'pdf.tool.sign.ink_blue', 'pdf.tool.sign.ink_blue_aria'],
+    ['#b3122e', 'pdf.tool.sign.ink_red', 'pdf.tool.sign.ink_red_aria']];   // [colour, name key, aria key]
 
   S.saved = function () { var v = U.store.get('signatures', []); return Array.isArray(v) ? v : []; };
   S.save = function (sig) {
     var list = S.saved().filter(function (x) { return x.url !== sig.url; });
     list.unshift(sig); list = list.slice(0, 6);
-    if (!U.store.set('signatures', list)) SlopUI.toast('Could not save the signature (browser storage is blocked or full).');
+    if (!U.store.set('signatures', list)) SlopUI.toast(t('pdf.tool.sign.save_failed'));
   };
   S.remove = function (id) { U.store.set('signatures', S.saved().filter(function (x) { return x.id !== id; })); };
   S.clear = function () { U.store.del('signatures'); };
@@ -51,28 +52,28 @@
     var tabs = h('div', { class: 'sg-tabs', role: 'tablist' });
     var panes = {};
     // draw pane
-    var pad = h('canvas', { class: 'sg-pad', 'data-touch-surface': '', 'aria-label': 'Signature pad: draw your signature with a mouse, finger or pen' });
+    var pad = h('canvas', { class: 'sg-pad', 'data-touch-surface': '', 'aria-label': t('pdf.tool.sign.pad_aria') });
     var strokes = 0;
     var colorRow = function (onPick) {
-      var row = h('div', { class: 'sg-colors', role: 'radiogroup', 'aria-label': 'Ink colour' });
+      var row = h('div', { class: 'sg-colors', role: 'radiogroup', 'aria-label': t('pdf.tool.sign.ink_aria') });
       S.COLORS.forEach(function (c) {
-        var b = h('button', { type: 'button', class: 'sg-color' + (c[0] === color ? ' on' : ''), title: c[1], 'aria-label': c[1] + ' ink', role: 'radio', 'aria-checked': c[0] === color ? 'true' : 'false', style: { '--c': c[0] } });
+        var b = h('button', { type: 'button', class: 'sg-color' + (c[0] === color ? ' on' : ''), title: t(c[1]), 'aria-label': t(c[2]), role: 'radio', 'aria-checked': c[0] === color ? 'true' : 'false', style: { '--c': c[0] } });
         b.addEventListener('click', function () { color = c[0]; U.$$('.sg-color', dlg.box).forEach(function (x) { var on = x.style.getPropertyValue('--c') === color; x.classList.toggle('on', on); x.setAttribute('aria-checked', on ? 'true' : 'false'); }); if (onPick) onPick(); });
         row.appendChild(b);
       });
       return row;
     };
-    var clearBtn = h('button', { type: 'button', class: 'btn sm', onclick: function () { var cx = pad.getContext('2d'); cx.clearRect(0, 0, pad.width, pad.height); strokes = 0; } }, 'Clear');
+    var clearBtn = h('button', { type: 'button', class: 'btn sm', onclick: function () { var cx = pad.getContext('2d'); cx.clearRect(0, 0, pad.width, pad.height); strokes = 0; } }, t('pdf.tool.sign.clear'));
     panes.draw = h('div', { class: 'sg-pane' },
       h('div', { class: 'sg-padwrap' }, pad, h('div', { class: 'sg-line', 'aria-hidden': 'true' }, h('span', null, '✕'))),
-      h('div', { class: 'sg-row' }, colorRow(), h('span', { class: 'sg-hint' }, 'Draw with mouse, finger or stylus'), clearBtn));
+      h('div', { class: 'sg-row' }, colorRow(), h('span', { class: 'sg-hint' }, t('pdf.tool.sign.draw_hint')), clearBtn));
     // type pane
-    var nameIn = h('input', { class: 'sui-input sg-name', type: 'text', placeholder: 'Type your name', maxlength: '60', 'aria-label': 'Your name' });
-    var fontRow = h('div', { class: 'sg-fonts', role: 'radiogroup', 'aria-label': 'Signature style' });
+    var nameIn = h('input', { class: 'sui-input sg-name', type: 'text', placeholder: t('pdf.tool.sign.name_ph'), maxlength: '60', 'aria-label': t('pdf.tool.sign.name_aria') });
+    var fontRow = h('div', { class: 'sg-fonts', role: 'radiogroup', 'aria-label': t('pdf.tool.sign.style_aria') });
     function paintFonts() {
       fontRow.innerHTML = '';
       S.FONTS.forEach(function (f, i) {
-        var b = h('button', { type: 'button', class: 'sg-font' + (i === fontIdx ? ' on' : ''), role: 'radio', 'aria-checked': i === fontIdx ? 'true' : 'false', style: { fontFamily: f[1], color: color } }, nameIn.value || 'Your Name');
+        var b = h('button', { type: 'button', class: 'sg-font' + (i === fontIdx ? ' on' : ''), role: 'radio', 'aria-checked': i === fontIdx ? 'true' : 'false', style: { fontFamily: f[1], color: color } }, nameIn.value || t('pdf.tool.sign.name_sample'));
         b.addEventListener('click', function () { fontIdx = i; paintFonts(); });
         fontRow.appendChild(b);
       });
@@ -83,27 +84,27 @@
     panes.saved = h('div', { class: 'sg-pane' });
     function paintSaved() {
       var list = S.saved(); panes.saved.innerHTML = '';
-      if (!list.length) { panes.saved.appendChild(h('p', { class: 'sg-empty' }, 'No saved signatures yet. Draw or type one and tick “Save for next time”.')); return; }
+      if (!list.length) { panes.saved.appendChild(h('p', { class: 'sg-empty' }, t('pdf.tool.sign.saved_empty'))); return; }
       var grid = h('div', { class: 'sg-saved' });
       list.forEach(function (sig) {
         var card = h('div', { class: 'sg-card' + (chosen && chosen.id === sig.id ? ' on' : '') },
-          h('button', { type: 'button', class: 'sg-pick', 'aria-label': 'Use this signature', onclick: function () { chosen = sig; paintSaved(); } }, h('img', { src: sig.url, alt: 'Saved signature' })),
-          h('button', { type: 'button', class: 'sg-del', title: 'Delete', 'aria-label': 'Delete saved signature', html: U.icon('trash'), onclick: function () { S.remove(sig.id); if (chosen && chosen.id === sig.id) chosen = null; paintSaved(); paintTabs(); } }));
+          h('button', { type: 'button', class: 'sg-pick', 'aria-label': t('pdf.tool.sign.use_aria'), onclick: function () { chosen = sig; paintSaved(); } }, h('img', { src: sig.url, alt: t('pdf.tool.sign.saved_alt') })),
+          h('button', { type: 'button', class: 'sg-del', title: t('ui.delete'), 'aria-label': t('pdf.tool.sign.delete_aria'), html: U.icon('trash'), onclick: function () { S.remove(sig.id); if (chosen && chosen.id === sig.id) chosen = null; paintSaved(); paintTabs(); } }));
         card.addEventListener('dblclick', function () { chosen = sig; place(); });
         grid.appendChild(card);
       });
-      panes.saved.append(grid, h('button', { type: 'button', class: 'btn sm danger-text', onclick: function () { SlopUI.confirm('Clear saved signatures', 'Remove every signature saved in this browser?', 'Clear', { danger: true }).then(function (ok) { if (ok) { S.clear(); chosen = null; paintSaved(); paintTabs(); } }); } }, 'Clear all saved signatures'));
+      panes.saved.append(grid, h('button', { type: 'button', class: 'btn sm danger-text', onclick: function () { SlopUI.confirm(t('pdf.tool.sign.clear_saved'), t('pdf.tool.sign.clear_all_msg'), t('pdf.tool.sign.clear'), { danger: true }).then(function (ok) { if (ok) { S.clear(); chosen = null; paintSaved(); paintTabs(); } }); } }, t('pdf.tool.sign.clear_all')));
     }
     function paintTabs() {
       tabs.innerHTML = '';
-      [['draw', 'Draw'], ['type', 'Type'], ['saved', 'Saved (' + S.saved().length + ')']].forEach(function (t) {
-        var b = h('button', { type: 'button', role: 'tab', class: 'sg-tab' + (tab === t[0] ? ' on' : ''), 'aria-selected': tab === t[0] ? 'true' : 'false' }, t[1]);
-        b.addEventListener('click', function () { tab = t[0]; paintTabs(); show(); });
+      [['draw', t('pdf.tool.sign.tab_draw')], ['type', t('pdf.tool.sign.tab_type')], ['saved', t('pdf.tool.sign.tab_saved', { n: S.saved().length })]].forEach(function (tb) {
+        var b = h('button', { type: 'button', role: 'tab', class: 'sg-tab' + (tab === tb[0] ? ' on' : ''), 'aria-selected': tab === tb[0] ? 'true' : 'false' }, tb[1]);
+        b.addEventListener('click', function () { tab = tb[0]; paintTabs(); show(); });
         tabs.appendChild(b);
       });
     }
     var body = h('div', { class: 'sg' }, tabs, panes.draw, panes.type, panes.saved);
-    var saveChk = SlopUI.check('Save for next time (stored only in this browser)', true);
+    var saveChk = SlopUI.check(t('pdf.tool.sign.save_check'), true);
     body.appendChild(h('div', { class: 'sg-save' }, saveChk.el));
     function show() {
       Object.keys(panes).forEach(function (k) { panes[k].hidden = k !== tab; });
@@ -114,10 +115,10 @@
     }
     async function place() {
       var sig = null;
-      if (tab === 'saved') { sig = chosen || S.saved()[0]; if (!sig) { SlopUI.toast('Pick a saved signature first.'); return false; } }
-      else if (tab === 'draw') { if (!strokes) { SlopUI.toast('Draw your signature first.'); return false; } var t = S.trim(pad, 8); if (!t) return false; sig = { id: U.uid('sig'), url: t.url, w: t.w, h: t.h }; }
+      if (tab === 'saved') { sig = chosen || S.saved()[0]; if (!sig) { SlopUI.toast(t('pdf.tool.sign.pick_first')); return false; } }
+      else if (tab === 'draw') { if (!strokes) { SlopUI.toast(t('pdf.tool.sign.draw_first')); return false; } var tr = S.trim(pad, 8); if (!tr) return false; sig = { id: U.uid('sig'), url: tr.url, w: tr.w, h: tr.h }; }
       else {
-        var txt = nameIn.value.trim(); if (!txt) { SlopUI.toast('Type your name first.'); nameIn.focus(); return false; }
+        var txt = nameIn.value.trim(); if (!txt) { SlopUI.toast(t('pdf.tool.sign.type_first')); nameIn.focus(); return false; }
         var r = await S.renderTyped(txt, S.FONTS[fontIdx][1], color); if (!r) return false;
         sig = { id: U.uid('sig'), url: r.url, w: r.w, h: r.h };
       }
@@ -126,7 +127,7 @@
       onPlace(S.toAsset(sig));
       return false;
     }
-    var dlg = SlopUI.dialog({ title: 'Add a signature', body: body, cls: 'sui-wide sp-sign-dlg', buttons: [{ label: 'Cancel' }, { label: 'Place signature', primary: true, act: place }] });
+    var dlg = SlopUI.dialog({ title: t('pdf.tool.sign.dlg_title'), body: body, cls: 'sui-wide sp-sign-dlg', buttons: [{ label: t('menu.cancel') }, { label: t('pdf.tool.sign.place'), primary: true, act: place }] });
     paintTabs(); show();
 
     function sizePad() {

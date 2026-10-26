@@ -123,10 +123,10 @@
         var d = src.context.lookup(annots.get(k));
         if (!(d instanceof L.PDFDict)) continue;
         d.delete(N('P'));
-        var parked = park(d.lookup(N('Dest')));
+        var parked = park(d.lookup(N('Dest'))); // i18n-ignore: PDF names / font names / producer, not UI
         var A = d.lookup(N('A'));
         if (A instanceof L.PDFDict) { var S = A.lookup(N('S')); if (S && S.asString && S.asString() === '/GoTo') parked = park(A.lookup(N('D'))) || parked; }
-        if (parked) d.set(N('SlopDest'), L.PDFBool.True);
+        if (parked) d.set(N('SlopDest'), L.PDFBool.True); // i18n-ignore: PDF names / font names / producer, not UI
       }
     });
   }
@@ -134,9 +134,9 @@
     var L = PDFLib, annots = page.node.Annots(); if (!annots) return;
     for (var k = annots.size() - 1; k >= 0; k--) {
       var d = out.context.lookup(annots.get(k));
-      if (!(d instanceof L.PDFDict) || !d.get(N('SlopDest'))) continue;
-      d.delete(N('SlopDest'));
-      var arrs = [d.lookup(N('Dest'))], A = d.lookup(N('A'));
+      if (!(d instanceof L.PDFDict) || !d.get(N('SlopDest'))) continue; // i18n-ignore: PDF names / font names / producer, not UI
+      d.delete(N('SlopDest')); // i18n-ignore: PDF names / font names / producer, not UI
+      var arrs = [d.lookup(N('Dest'))], A = d.lookup(N('A')); // i18n-ignore: PDF names / font names / producer, not UI
       if (A instanceof L.PDFDict) arrs.push(A.lookup(N('D')));
       var dead = false;
       arrs.forEach(function (arr) {
@@ -155,25 +155,25 @@
       for (var k = 0; k < annots.size(); k++) {
         var ref = annots.get(k), d = out.context.lookup(ref);
         if (!(d instanceof L.PDFDict)) continue;
-        var st = d.lookup(N('Subtype'));
+        var st = d.lookup(N('Subtype')); // i18n-ignore: PDF names / font names / producer, not UI
         if (!st || st.asString() !== '/Widget') continue;
         if (ref instanceof L.PDFRef) d.set(N('P'), pg.ref);
         var curRef = ref, cur = d, guard = 0;
-        while (cur.get(N('Parent')) && guard++ < 32) { curRef = cur.get(N('Parent')); cur = out.context.lookup(curRef); if (!(cur instanceof L.PDFDict)) break; }
+        while (cur.get(N('Parent')) && guard++ < 32) { curRef = cur.get(N('Parent')); cur = out.context.lookup(curRef); if (!(cur instanceof L.PDFDict)) break; } // i18n-ignore: PDF names / font names / producer, not UI
         if (curRef instanceof L.PDFRef && !seen.has(curRef.toString())) { seen.add(curRef.toString()); fields.push(curRef); }
       }
     });
     if (!fields.length) return;
     var acro = out.context.obj({ Fields: fields });
     for (var entry of srcDocs) {
-      var src = entry[1], sa = src.catalog.lookup(N('AcroForm'));
+      var src = entry[1], sa = src.catalog.lookup(N('AcroForm')); // i18n-ignore: PDF names / font names / producer, not UI
       if (sa instanceof L.PDFDict) {
         var copier = L.PDFObjectCopier.for(src.context, out.context);
-        ['DA', 'DR', 'Q', 'NeedAppearances'].forEach(function (k) { var v = sa.get(N(k)); if (v) acro.set(N(k), copier.copy(v)); });
+        ['DA', 'DR', 'Q', 'NeedAppearances'].forEach(function (k) { var v = sa.get(N(k)); if (v) acro.set(N(k), copier.copy(v)); }); // i18n-ignore: PDF names / font names / producer, not UI
         break;
       }
     }
-    out.catalog.set(N('AcroForm'), out.context.register(acro));
+    out.catalog.set(N('AcroForm'), out.context.register(acro)); // i18n-ignore: PDF names / font names / producer, not UI
   }
   /** Drop objects no longer reachable from the trailer (orphans left by copying/flattening). */
   E._gc = function (doc) {
@@ -198,9 +198,9 @@
     await E.libs();
     opts = opts || {};
     var L = PDFLib, st = E.state, pages = opts.pages || st.pages;
-    if (!pages.length) throw new Error('There are no pages to export.');
+    if (!pages.length) throw new Error(U.t('pdf.io.no_pages'));
     var pend = SP.redact ? SP.redact.pending(pages).length : 0;
-    if (pend) throw new Error(pend + ' area' + (pend === 1 ? ' is' : 's are') + ' marked for redaction but not redacted yet. Open Redact and choose “Apply redactions”, or remove the marks.');
+    if (pend) throw new Error(U.t('pdf.io.redact_pending', { n: pend }));
     await E.initFonts();
     await E.prepareAnnotFonts(pages);
     var out = await L.PDFDocument.create({ updateMetadata: false });
@@ -209,8 +209,8 @@
     var copied = new Map(), srcDocs = new Map(), step = 0, steps = need.size + pages.length;
     for (var entry of need) {
       var fid = entry[0], f = E.files.get(fid);
-      if (!f) throw new Error('A source file is missing.');
-      if (f.locked) throw new Error('“' + f.name + '” uses encryption Slop PDF cannot remove (' + f.locked + '), so its pages cannot be exported.');
+      if (!f) throw new Error(U.t('pdf.io.source_missing'));
+      if (f.locked) throw new Error(U.t('pdf.io.locked', { name: f.name, why: f.locked }));
       var src = await L.PDFDocument.load(f.bytes, { updateMetadata: false, ignoreEncryption: true, throwOnInvalidObject: false });
       var vals = st.forms[fid];
       if ((vals && Object.keys(vals).length) || st.flattenForms) E.fillForm(src, vals || {}, !!st.flattenForms);
@@ -259,8 +259,8 @@
     if (m.author) out.setAuthor(m.author);
     if (m.subject) out.setSubject(m.subject);
     if (m.keywords) out.setKeywords(String(m.keywords).split(/[,;]+/).map(function (s) { return s.trim(); }).filter(Boolean));
-    out.setProducer('Slop PDF · slopographic.com/pdf');
-    out.setCreator('Slop PDF');
+    out.setProducer('Slop PDF · slopographic.com/pdf'); // i18n-ignore: PDF names / font names / producer, not UI
+    out.setCreator('Slop PDF'); // i18n-ignore: PDF names / font names / producer, not UI
     var now = new Date();
     out.setCreationDate(now); out.setModificationDate(now);
   };

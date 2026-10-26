@@ -15,12 +15,15 @@
  * Arrow keys move between tabs. Classic script, no network, no storage. Exposes window.SlopPaneTabs. Styles: pane-tabs.css. */
 (function () {
   'use strict';
+  /** A word from the shared tables (shared/i18n/ui/en.js), or the English given when SlopI18n or the key is absent. */
+  function tr(key, en, vars) { const I = globalThis.SlopI18n; if (I && I.has && I.has(key)) return I.t(key, vars); return vars ? String(en).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en; }
   function mount(host, opts) {
     const o = opts || {};
     const bar = document.createElement('nav');
     bar.className = 'spt-tabs';
     bar.setAttribute('role', 'tablist');
-    bar.setAttribute('aria-label', o.label || 'Open documents');
+    bar.setAttribute('aria-label', o.label || tr('ui.tabs.open_docs', 'Open documents'));
+    if (!o.label) bar.dataset.i18nAttr = 'aria-label:ui.tabs.open_docs';
     host.prepend(bar);
 
     function tab(item) {
@@ -38,7 +41,7 @@
       const x = document.createElement('button');
       x.type = 'button';
       x.className = 'spt-x';
-      x.setAttribute('aria-label', 'Close ' + item.title);
+      x.setAttribute('aria-label', tr('ui.close_name', 'Close {name}', { name: item.title }));
       x.textContent = '×';
       x.addEventListener('click', (e) => { e.stopPropagation(); if (o.close) o.close(item.id); });
       t.addEventListener('auxclick', (e) => { if (e.button === 1) { e.preventDefault(); if (o.close) o.close(item.id); } });
@@ -50,8 +53,8 @@
     if (add) {
       add.type = 'button';
       add.className = 'spt-add';
-      add.title = 'New document';
-      add.setAttribute('aria-label', 'New document');
+      add.title = tr('ui.new_document', 'New document');
+      add.setAttribute('aria-label', add.title); add.dataset.i18nAttr = 'title:ui.new_document;aria-label:ui.new_document';
       add.textContent = '+';
       add.addEventListener('click', () => o.add());
     }

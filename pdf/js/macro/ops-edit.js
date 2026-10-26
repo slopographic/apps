@@ -4,7 +4,16 @@
   'use strict';
   var M = window.SlopPdfMacro = window.SlopPdfMacro || {};
   var P = M.pdf, OPS = M.ops = M.ops || {};
-  function count(n, word, plural) { return n + ' ' + (n === 1 ? word : (plural || word + 's')); }
+  /** The chosen language's text for a key (SlopI18n), else the English given: a string, or [one, other] for vars.n
+   *  (node tests and pages without the tables). */
+  function tr(k, en, v) {
+    var I = window.SlopI18n;
+    if (I && I.has && I.has(k)) return I.t(k, v);
+    if (Array.isArray(en)) en = v && v.n === 1 ? en[0] : en[1];
+    return String(en).replace(/\{(\w+)\}/g, function (m, n) { return v && n in v ? String(v[n]) : m; });
+  }
+  function pages(n) { return tr('pdf.macro.n_pages', ['{n} page', '{n} pages'], { n: n }); }
+  function nMatches(n) { return tr('pdf.macro.n_matches', ['{n} match', '{n} matches'], { n: n }); }
 
   /** The geometry of one located match's cover-and-replace, in PDF user space (y up), with no drawing: the boxes that
    *  cover the old characters, and the replacement's baseline position. rep is already safe for the font. measure(text,
@@ -24,7 +33,7 @@
   OPS.replaceText = async function (bytes, s, ctx) {
     var L = P.lib(), doc = await P.load(bytes), n = doc.getPageCount();
     var idx = M.parsePages(s.pages, n);
-    var font = await P.font(doc, 'Helvetica'), black = P.rgb('#000000'), cover = P.rgb(s.cover || '#ffffff');
+    var font = await P.font(doc, 'Helvetica'), black = P.rgb('#000000'), cover = P.rgb(s.cover || '#ffffff'); // i18n-ignore: PDF names / font names / producer, not UI
     var pdfjsDoc = await M.text.open(bytes), found = 0, done = 0, wide = 0, unsupported = 0, skipped = [], pagesHit = new Set();
     try {
       for (var k = 0; k < idx.length; k++) {
@@ -34,7 +43,7 @@
         for (var j = 0; j < matches.length; j++) {
           var m = matches[j];
           found++;
-          if (!m.precise) { skipped.push('page ' + (i + 1)); continue; }
+          if (!m.precise) { skipped.push(tr('pdf.macro.page_n', 'page {n}', { n: String(i + 1) })); continue; }
           var rep = s.regex
             ? m.text.replace(M.text.regex(s.find, s, false), s.replace || '')
             : String(s.replace || '');
@@ -49,12 +58,12 @@
       }
     } finally { await pdfjsDoc.destroy(); }
     var parts = [];
-    if (!found) parts.push('No “' + s.find + '” found on the chosen pages, so nothing was changed.');
-    if (done) parts.push('Replaced ' + count(done, 'match', 'matches') + ' on ' + count(pagesHit.size, 'page') + '.');
-    if (skipped.length) parts.push(count(skipped.length, 'match', 'matches') + ' left as it is, because its position could not be located exactly (' + skipped.slice(0, 5).join(', ') + ').');
-    if (wide) parts.push(count(wide, 'replacement') + ' wider than the original and may overlap nearby text.');
-    if (unsupported) parts.push('Some characters are not in the standard font and were written as “?”.');
-    if (done) parts.push('The original text remains in the file under the box; use Redact to remove it.');
+    if (!found) parts.push(tr('pdf.macro.msg_not_found', 'No “{find}” found on the chosen pages, so nothing was changed.', { find: s.find }));
+    if (done) parts.push(tr('pdf.macro.msg_replaced', 'Replaced {matches} on {pages}.', { matches: nMatches(done), pages: pages(pagesHit.size) }));
+    if (skipped.length) parts.push(tr('pdf.macro.msg_imprecise', '{matches} left as it is, because its position could not be located exactly ({list}).', { matches: nMatches(skipped.length), list: skipped.slice(0, 5).join(', ') }));
+    if (wide) parts.push(tr('pdf.macro.msg_wide', ['{n} replacement wider than the original and may overlap nearby text.', '{n} replacements wider than the original and may overlap nearby text.'], { n: wide }));
+    if (unsupported) parts.push(tr('pdf.macro.msg_unsupported', 'Some characters are not in the standard font and were written as “?”.'));
+    if (done) parts.push(tr('pdf.macro.msg_under_box', 'The original text remains in the file under the box; use Redact to remove it.'));
     return { bytes: await doc.save(), message: parts.join(' '), warn: !done || skipped.length > 0 || wide > 0 || unsupported > 0 };
   };
 
@@ -64,22 +73,22 @@
       var pg = doc.getPage(i), a = (((pg.getRotation().angle || 0) + Number(s.angle)) % 360 + 360) % 360;
       pg.setRotation(L.degrees(a));
     });
-    return { bytes: await doc.save(), message: 'Rotated ' + count(idx.length, 'page') + ' by ' + s.angle + '°.', warn: false };
+    return { bytes: await doc.save(), message: tr('pdf.macro.msg_rotated', 'Rotated {pages} by {angle}°.', { pages: pages(idx.length), angle: String(s.angle) }), warn: false };
   };
 
   OPS.deletePages = async function (bytes, s) {
     var doc = await P.load(bytes), n = doc.getPageCount(), idx = M.parsePages(s.pages, n);
-    if (!idx.length) throw new Error('No pages were chosen to delete.');
-    if (idx.length >= n) throw new Error('This would delete every page. Keep at least one page.');
+    if (!idx.length) throw new Error(tr('pdf.macro.err_delete_none', 'No pages were chosen to delete.'));
+    if (idx.length >= n) throw new Error(tr('pdf.macro.err_delete_all', 'This would delete every page. Keep at least one page.'));
     idx.slice().reverse().forEach(function (i) { doc.removePage(i); });
-    return { bytes: await doc.save(), message: 'Deleted ' + count(idx.length, 'page') + ', ' + count(n - idx.length, 'page') + ' left.', warn: false };
+    return { bytes: await doc.save(), message: tr('pdf.macro.msg_deleted', 'Deleted {pages}, {left} left.', { pages: pages(idx.length), left: pages(n - idx.length) }), warn: false };
   };
 
   OPS.extractPages = async function (bytes, s) {
     var L = P.lib(), src = await P.load(bytes), idx = M.parsePages(s.pages, src.getPageCount());
-    if (!idx.length) throw new Error('No pages were chosen to keep.');
+    if (!idx.length) throw new Error(tr('pdf.macro.err_keep_none', 'No pages were chosen to keep.'));
     var out = await L.PDFDocument.create({ updateMetadata: false });
     (await out.copyPages(src, idx)).forEach(function (pg) { out.addPage(pg); });
-    return { bytes: await out.save(), message: 'Kept ' + count(idx.length, 'page') + '.', warn: false };
+    return { bytes: await out.save(), message: tr('pdf.macro.msg_kept', 'Kept {pages}.', { pages: pages(idx.length) }), warn: false };
   };
 })();

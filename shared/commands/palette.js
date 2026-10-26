@@ -5,6 +5,8 @@
   'use strict';
   const C = window.SlopCmd;
   if (!C || !C._parts || C._parts.palette) return;
+  /** A word from the shared tables (shared/i18n/ui/en.js), or the English given when SlopI18n or the key is absent. */
+  function tr(key, en, vars) { const I = globalThis.SlopI18n; if (I && I.has && I.has(key)) return I.t(key, vars); return vars ? String(en).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en; }
   const ICON_SEARCH = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.5 15.5 21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
   function el(tag, attrs, ...kids) {
     const n = document.createElement(tag);
@@ -12,6 +14,7 @@
     for (const kid of kids.flat()) if (kid != null && kid !== false) n.append(kid.nodeType ? kid : document.createTextNode(String(kid)));
     return n;
   }
+  const lang = () => (window.SlopI18n && SlopI18n.get ? SlopI18n.get() : '');   // the palette is built again after a change
   let uid = 0;
   const S = { root: null, input: null, list: null, items: [], active: -1, prevFocus: null, query: '' };
 
@@ -22,13 +25,13 @@
   }
   function build() {
     const id = 'scmd-' + (++uid);
-    const input = el('input', { class: 'scmd-input', type: 'text', role: 'combobox', 'aria-expanded': 'true', 'aria-controls': id + '-list', 'aria-autocomplete': 'list', 'aria-label': 'Search commands', placeholder: 'Search commands, tools and apps…', autocomplete: 'off', autocapitalize: 'off', spellcheck: 'false', enterkeyhint: 'go' });
-    const close = el('button', { class: 'scmd-close', type: 'button', 'aria-label': 'Close' }, el('kbd', { class: 'scmd-esc slop-esc-hint', 'aria-hidden': 'true' }, 'Esc'), el('span', { class: 'scmd-x', 'aria-hidden': 'true' }, '×'));
-    const list = el('div', { class: 'scmd-list', id: id + '-list', role: 'listbox', 'aria-label': 'Commands' });
-    const keysBtn = el('button', { class: 'scmd-link', type: 'button' }, 'Keyboard shortcuts…');
-    const hint = el('span', { class: 'scmd-hint' }, el('kbd', null, '↑'), el('kbd', null, '↓'), ' to move ', el('kbd', null, '↵'), ' to run');
+    const input = el('input', { class: 'scmd-input', type: 'text', role: 'combobox', 'aria-expanded': 'true', 'aria-controls': id + '-list', 'aria-autocomplete': 'list', 'aria-label': tr('ui.cmd.search', 'Search commands'), placeholder: tr('ui.cmd.placeholder', 'Search commands, tools and apps…'), autocomplete: 'off', autocapitalize: 'off', spellcheck: 'false', enterkeyhint: 'go' });
+    const close = el('button', { class: 'scmd-close', type: 'button', 'aria-label': tr('menu.close', 'Close') }, el('kbd', { class: 'scmd-esc slop-esc-hint', 'aria-hidden': 'true' }, 'Esc'), el('span', { class: 'scmd-x', 'aria-hidden': 'true' }, '×'));
+    const list = el('div', { class: 'scmd-list', id: id + '-list', role: 'listbox', 'aria-label': tr('ui.cmd.commands', 'Commands') });
+    const keysBtn = el('button', { class: 'scmd-link', type: 'button' }, tr('ui.cmd.keymap_dots', 'Keyboard shortcuts…'));
+    const hint = el('span', { class: 'scmd-hint' }, el('kbd', null, '↑'), el('kbd', null, '↓'), ' ' + tr('ui.cmd.hint_move', 'to move') + ' ', el('kbd', null, '↵'), ' ' + tr('ui.cmd.hint_run', 'to run'));
     const status = el('div', { class: 'scmd-sr', role: 'status', 'aria-live': 'polite' });
-    const box = el('div', { class: 'scmd-pal', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Search commands' },
+    const box = el('div', { class: 'scmd-pal', role: 'dialog', 'aria-modal': 'true', 'aria-label': tr('ui.cmd.search', 'Search commands') },
       el('div', { class: 'scmd-bar' }, el('span', { class: 'scmd-lens', html: ICON_SEARCH }), input, close), list, el('div', { class: 'scmd-foot' }, hint, keysBtn), status);
     const root = el('div', { class: 'scmd-back', 'data-scmd': '' }, box);
     root.addEventListener('pointerdown', (e) => { if (e.target === root) { e.preventDefault(); closePalette(); } });
@@ -38,7 +41,7 @@
     root.addEventListener('keydown', onKey);
     list.addEventListener('pointermove', (e) => { const o = e.target.closest('[role="option"]'); if (o && e.pointerType === 'mouse') setActive(+o.dataset.i, false); });
     list.addEventListener('click', (e) => { const o = e.target.closest('[role="option"]'); if (o) choose(+o.dataset.i); });
-    Object.assign(S, { root, input, list, status, box, id });
+    Object.assign(S, { root, input, list, status, box, id, lang: lang() });
   }
   function render() {
     const sections = C._parts.search.results(S.query);
@@ -54,15 +57,15 @@
         S.items.push(it);
         const dis = it.enabled === false;
         const opt = el('div', { role: 'option', id: S.id + '-o' + i, class: 'scmd-opt' + (dis ? ' scmd-dis' : ''), 'data-i': i, 'data-id': it.id, 'aria-selected': 'false', 'aria-disabled': dis ? 'true' : null },
-          iconOf(it), el('span', { class: 'scmd-title' }, it.title, it.checked ? el('span', { class: 'scmd-check', 'aria-label': ' (on)' }, ' ✓') : null),
-          !sec.title || sec.title === 'Recent' || it.provided ? (it.group ? el('span', { class: 'scmd-grp' }, it.group) : null) : null,
+          iconOf(it), el('span', { class: 'scmd-title' }, it.title, it.checked ? el('span', { class: 'scmd-check', 'aria-label': ' ' + tr('ui.cmd.on', '(on)') }, ' ✓') : null),
+          !sec.title || sec.id === 'recent' || it.provided ? (it.group ? el('span', { class: 'scmd-grp' }, C._parts.search.groupLabel ? C._parts.search.groupLabel(it.group) : it.group) : null) : null,
           it.keys && it.keys.length ? kbd(it.keys[0]) : null);
         grp.append(opt);
       }
       S.list.append(grp); n++;
     }
-    if (!S.items.length) S.list.append(el('div', { class: 'scmd-empty', role: 'presentation' }, 'No commands match “' + S.query + '”'));
-    S.status.textContent = S.items.length ? S.items.length + ' result' + (S.items.length === 1 ? '' : 's') : 'No results';
+    if (!S.items.length) S.list.append(el('div', { class: 'scmd-empty', role: 'presentation' }, tr('ui.cmd.no_match', 'No commands match “{q}”', { q: S.query })));
+    S.status.textContent = S.items.length ? tr('ui.cmd.results', S.items.length === 1 ? '{n} result' : '{n} results', { n: S.items.length }) : tr('ui.cmd.no_results', 'No results');
     const first = S.items.findIndex((x) => x.enabled !== false);
     setActive(first, true);
   }
@@ -81,7 +84,7 @@
   }
   function choose(i) {
     const it = S.items[i]; if (!it) return;
-    if (it.enabled === false) { if (window.SlopUI) SlopUI.toast(it.title + ' is not available right now'); return; }
+    if (it.enabled === false) { if (window.SlopUI) SlopUI.toast(tr('ui.cmd.not_available_short', '{title} is not available right now', { title: it.title })); return; }
     closePalette(true);
     if (it.go) { C._parts.search.goTo(it.go); return; }
     if (it.provided) { try { it.provided({ source: 'palette' }); } catch (err) { console.error(err); } return; }
@@ -97,7 +100,7 @@
     e.stopPropagation();
   }
   function open(query = '') {
-    if (!S.root) build();
+    if (!S.root || (S.lang !== lang() && !S.root.isConnected)) build();
     if (!S.root.isConnected) { S.prevFocus = document.activeElement; document.body.append(S.root); C._setOpen(true); }
     S.root.classList.toggle('scmd-sheet', matchMedia('(max-width: 640px)').matches);
     S.input.value = query || ''; S.query = S.input.value;
@@ -118,9 +121,12 @@
   function fab(mode = true) {
     let b = document.querySelector('.scmd-fab');
     if (!b) {
-      b = el('button', { class: 'scmd-fab', type: 'button', 'aria-label': 'Search commands', title: 'Search commands (' + C.keyFor('cmd.palette') + ')', html: ICON_SEARCH });
+      b = el('button', { class: 'scmd-fab', type: 'button', html: ICON_SEARCH });
       b.addEventListener('click', () => C.open());
       document.body.append(b);
+      const words = () => { b.setAttribute('aria-label', tr('ui.cmd.search', 'Search commands')); b.title = tr('ui.cmd.fab_tip', 'Search commands ({key})', { key: C.keyFor('cmd.palette') }); };
+      words();
+      if (window.SlopI18n && SlopI18n.on) SlopI18n.on(words);
     }
     b.classList.toggle('scmd-fab-touch', mode === 'touch');
     return b;

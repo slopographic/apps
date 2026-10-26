@@ -46,7 +46,7 @@
     var base = await X.entries(choice.images || [], choice.fonts || []), items = base.entries.slice(), skipped = base.skipped.slice();
     (choice.attachments || []).forEach(function (a) {
       if (a.bytes) items.push({ group: 'attachment', path: 'attachments/' + (String(a.name).replace(/[\\/:*?"<>|]+/g, '_') || a.id), data: a.bytes });
-      else skipped.push({ name: a.name, reason: a.reason || 'Not decoded' });
+      else skipped.push({ name: a.name, reason: a.reason || U.t('pdf.io.not_decoded') });
     });
     for (var inl of choice.inline || []) {
       try { var f = await SP.editor._.obj.file(inl.p, inl.o); items.push({ group: 'image', path: 'images/p' + inl.page + '-' + inl.name + '.' + f.name.split('.').pop(), data: new Uint8Array(await f.blob.arrayBuffer()) }); }

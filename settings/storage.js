@@ -95,5 +95,6 @@
   }
 
   if (host) draw().catch(function () { say('Storage could not be read in this browser.'); });
-  if (host) window.addEventListener('slop-lang', function () { draw(); });   // the storage.* text is in the new language
+  // the storage.* text is in the new language (slopi18n: once its tables are in, they load lazily)
+  if (host) ['slop-lang', 'slopi18n'].forEach(function (ev) { window.addEventListener(ev, function () { draw(); }); });
 })();

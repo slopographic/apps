@@ -4,6 +4,7 @@
 (function () {
   'use strict';
   var M = window.SlopPdfMacro = window.SlopPdfMacro || {};
+  function tr(k, en) { var I = window.SlopI18n; return I && I.has && I.has(k) ? I.t(k) : en; }
 
   function copyBytes(b) {
     if (b instanceof ArrayBuffer) return new Uint8Array(b);
@@ -16,7 +17,7 @@
     opts = opts || {};
     var problems = M.validateMacro(macro);
     if (problems.length) {
-      return { ok: false, bytes: null, failed: -1, log: problems.map(function (p) { return { step: 'Check', ok: false, warn: false, message: p }; }) };
+      return { ok: false, bytes: null, failed: -1, log: problems.map(function (p) { return { step: tr('pdf.macro.check', 'Check'), ok: false, warn: false, message: p }; }) };
     }
     var cur = copyBytes(bytes), log = [];
     var ctx = { filename: String(opts.filename || 'document.pdf'), date: opts.date instanceof Date || opts.date == null ? M.isoDate(opts.date) : String(opts.date) };

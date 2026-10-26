@@ -17,6 +17,8 @@
 (function (root) {
   'use strict';
   const SI = (root.SlopIntake = root.SlopIntake || {});
+  /** A word from the shared tables (shared/i18n/ui/en.js), or the English given when SlopI18n or the key is absent. */
+  function tr(key, en, vars) { const I = globalThis.SlopI18n; if (I && I.has && I.has(key)) return I.t(key, vars); return vars ? String(en).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en; }
 
   SI.createPipeline = function (env) {
     env = env || {};
@@ -53,14 +55,14 @@
       const c = checkRules(s, file);
       if (!c.ok || !s.except) return c;
       const x = s.except(file); // the app leaves some files to its own path (its own clipboard copies): a reason, or true
-      return x ? { ok: false, reason: typeof x === 'string' ? x : (file.name || 'file') + ' is not taken here' } : c;
+      return x ? { ok: false, reason: typeof x === 'string' ? x : tr('ui.intake.not_here', '{name} is not taken here', { name: file.name || tr('ui.intake.file', 'file') }) } : c;
     }
     function checkRules(s, file) {
       const a = s.accept;
       if (typeof a === 'function') {
         const r = a(file);
         if (r === true || (r && r.ok)) return { ok: true };
-        return { ok: false, reason: typeof r === 'string' ? r : (r && r.reason) || (file.name || 'file') + ' is not ' + (s.noun || 'a supported file') };
+        return { ok: false, reason: typeof r === 'string' ? r : (r && r.reason) || tr('ui.intake.not_noun', '{name} is not {noun}', { name: file.name || tr('ui.intake.file', 'file'), noun: s.noun || tr('ui.intake.supported', 'a supported file') }) };
       }
       const rules = Object.assign({}, a || { any: true });
       if (s.noun && !rules.noun) rules.noun = s.noun;
@@ -75,8 +77,8 @@
       const keep = [];
       for (const f of batch.take) {
         let reason = '';
-        if (keep.length >= limit) reason = f.name + ' is not taken: ' + (limit === 1 ? 'only one file at a time' : 'only ' + limit + ' files at a time');
-        else if (bytes + (f.size || 0) > total) reason = f.name + ' is not taken: more than ' + R.size(total) + ' at once';
+        if (keep.length >= limit) reason = limit === 1 ? tr('ui.intake.one_at_a_time', '{name} is not taken: only one file at a time', { name: f.name }) : tr('ui.intake.n_at_a_time', '{name} is not taken: only {n} files at a time', { name: f.name, n: String(limit) });
+        else if (bytes + (f.size || 0) > total) reason = tr('ui.intake.too_much', '{name} is not taken: more than {size} at once', { name: f.name, size: R.size(total) });
         if (reason) batch.refused.push({ file: f, name: f.name, reason });
         else { keep.push(f); bytes += f.size || 0; }
       }
@@ -106,7 +108,7 @@
         return summary;
       };
       try { batch.files = await SI.normalize(input); } catch (e) { batch.files = []; batch.readError = e; }
-      if (batch.readError && env.toast) env.toast('Could not read the files', 'warn');
+      if (batch.readError && env.toast) env.toast(tr('ui.intake.read_failed', 'Could not read the files'), 'warn');
       if (view && view.begin) view.begin(batch);
       if (!batch.files.length) { if (view && view.end) view.end(summary, batch); return summary; }
       // 2. accept
@@ -134,7 +136,7 @@
         let open = false;
         try { open = !!s.hasOpen(batch); } catch (e) { open = false; }
         if (open) {
-          const name = s.openName ? s.openName(batch) : 'the open document';
+          const name = s.openName ? s.openName(batch) : tr('ui.intake.open_doc', 'the open document');
           const pick = env.choose ? await env.choose({ count: batch.take.length, names: batch.take.map((f) => f.name), name, source: batch.source, app: s.id, labels: s.labels }) : 'add';
           if (!pick) return finish(true);
           batch.mode = pick;
@@ -165,11 +167,11 @@
         const row = rows.get(f);
         let reason = '';
         if (!r.ok && !r.skipped) {
-          const msg = (r.error && r.error.message) || 'could not be read';
+          const msg = (r.error && r.error.message) || tr('ui.intake.unreadable', 'could not be read');
           reason = msg.includes(f.name) ? msg : f.name + ' ' + msg;
         }
         done[i] = { f, r, reason };
-        if (row && row.set) { if (r.ok) row.set('ready', 'Ready'); else if (!r.skipped) row.set('error', reason); }
+        if (row && row.set) { if (r.ok) row.set('ready', tr('ui.intake.ready', 'Ready')); else if (!r.skipped) row.set('error', reason); }
         if (!r.skipped) emit('file', { app: s.id, source: batch.source, mode: batch.mode, file: f, index: i, ok: !!r.ok, result: r.ok ? r.value : undefined, error: r.ok ? undefined : r.error, batch });
       };
       if (whole) {

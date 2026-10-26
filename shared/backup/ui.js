@@ -36,11 +36,11 @@
       const impBody = el('div', { class: 'bk-row' });
       const pickBtn = el('button', { type: 'button', class: 'sui-btn', 'data-act': 'import' }, 'Choose backup file…');
       impBody.append(pickBtn);
-      const imp = el('section', { class: 'bk-sec' }, el('h3', null, 'Import'), el('p', { class: 'sui-p' }, 'Restore a .slop backup into this browser.'), impBody);
+      const imp = el('section', { class: 'bk-sec' }, el('h3', null, 'Import'), el('p', { class: 'sui-p' }, `Restore a backup file (${B.EXT}) into this browser.`), impBody);
       pickBtn.addEventListener('click', async () => {
         const SI = window.SlopIntake; // the backup file is a part of the one intake ('backup.import') where the page has it
-        if (SI && SI.part) { await SI.pick({ to: SI.part({ id: 'backup.import', limit: 1, accept: { any: true, noun: 'a .slop backup' }, process: async (f) => { await choose(f); return f.name; } }), multiple: false, accept: '.slop,.zip,application/zip' }); return; }
-        const [f] = await UI.pickFiles({ accept: '.slop,.zip,application/zip' }); // intake-ok: a page without shared/intake
+        if (SI && SI.part) { await SI.pick({ to: SI.part({ id: 'backup.import', limit: 1, accept: { any: true, noun: `a backup file (${B.EXT})` }, process: async (f) => { await choose(f); return f.name; } }), multiple: false, accept: `${B.EXT},.zip,application/zip` }); return; }
+        const [f] = await UI.pickFiles({ accept: `${B.EXT},.zip,application/zip` }); // intake-ok: a page without shared/intake
         if (f) await choose(f);
       });
       async function choose(file) {
@@ -67,14 +67,14 @@
         });
       }
       const everything = el('section', { class: 'bk-sec' }, el('h3', null, 'Everything, one file'),
-        el('p', { class: 'sui-p' }, 'Every app in the suite in one .slop-backup.json file. Secrets and caches are never in it.'),
+        el('p', { class: 'sui-p' }, `Every app in the suite in one ${B.JSON_EXT} file. Secrets and caches are never in it.`),
         el('div', { class: 'bk-row' }, el('button', { type: 'button', class: 'sui-btn', 'data-act': 'everything' }, 'Export or import everything…')));
       everything.querySelector('button').addEventListener('click', () => B.openEverything({ onRestored }));
       const d = UI.dialog({ title: 'Backup & restore', cls: 'bk-dlg', body: el('div', null,
         el('p', { class: 'sui-p' }, 'Everything you make in Slopographic lives only in this browser. Clearing browser or site data deletes it, so keep a backup.'), exp, everything, imp),
         buttons: [{ label: 'Done', primary: true }], onClose: () => resolve() });
       d.box.dataset.backup = '1';
-      open.choose = choose; // for tests and drag-and-drop of .slop files
+      open.choose = choose; // for tests and drag-and-drop of backup files (SlopBackup.EXT)
     });
   }
   window.SlopBackupUI = { open };

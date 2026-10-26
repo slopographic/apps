@@ -43,7 +43,7 @@ test('the homepage footer has the block, with every round-up, the compare hub an
 
 test('the lists come from the shared data: every app page, one converter per category, the first getting-started guides', () => {
   for (const a of apps.filter(isPage)) assert.ok(links.includes(`/apps/${a.id}/`), `${a.id}: no link to its landing page`);
-  for (const g of Object.values(groups)) assert.ok(nav.includes(`<span>${g}</span>`), `group ${g}: no column`);
+  for (const g of Object.values(groups)) assert.ok(new RegExp(`<summary><span[^>]*>${g}</span>`).test(nav), `group ${g}: no column`);   // a plain-name build adds data-i18n
   const cats = new Set(CONVERTERS.map((p) => p.cat));
   assert.equal(links.filter((h) => /^\/convert\/[^/]+\/$/.test(h)).length, cats.size);
   assert.equal(links.filter((h) => h.endsWith('/getting-started/')).length, GUIDE_PICKS);

@@ -5,10 +5,11 @@
  *
  *   const mb = SlopMenuButton.attach(button, {
  *     label: 'Convert photo.png to',                       // the menu's accessible name
- *     items: () => [{ heading: 'Images' }, { value: 'to-jpg', label: 'To JPG', icon: node, checked: true }, ...],
+ *     items: () => [{ heading: 'Images' }, { value: 'to-jpg', label: 'To JPG', icon: node, checked: true, tag: 'beta' }, ...],
  *     empty: 'Nothing to choose',                           // shown when items() is empty
  *     onPick: (value) => { ... },
  *     search: 'auto',                                      // a search box at the top: true, false, or 'auto' (6+ choices)
+ *     anchor: () => element,                               // optional: open under this one instead (a More it is folded into)
  *   });
  *   mb.open(); mb.close(); mb.isOpen(); mb.destroy();
  *
@@ -22,6 +23,8 @@
 (function (g) {
   'use strict';
   if (g.SlopMenuButton) return;
+  /** A word from the shared tables (shared/i18n/ui/en.js), or the English given when SlopI18n or the key is absent. */
+  function tr(key, en, vars) { const I = globalThis.SlopI18n; if (I && I.has && I.has(key)) return I.t(key, vars); return vars ? String(en).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en; }
   /* Colours: the menu sits in <body>, outside the app's own themed boxes, so it reads only page-wide tokens: SlopUI's --s-*
    * (shared/slopui.css sets them on .smb-menu from the app's --sui-* map, as for its own menus), else the theme's --sl-*
    * (shared/theme/theme.js), else the system colours. Never an app's own --ink or --muted, which mean a background in some
@@ -47,6 +50,7 @@
 .smb-lbl { flex: 1 1 auto; min-inline-size: 0; }
 .smb-chk { flex: none; inline-size: 1.2em; text-align: center; color: ${T.fg}; }
 .smb-icon { flex: none; display: inline-flex; }
+.smb-tag { flex: none; padding-block: 1px; padding-inline: 6px; border: 1px solid ${T.line}; border-radius: 999px; font-size: 11px; color: ${T.fg}; }
 .smb-empty { margin: 0; padding: 8px 10px; color: ${T.dim}; }
 .smb-search { position: sticky; inset-block-start: -6px; z-index: 1; display: block; inline-size: 100%; box-sizing: border-box; margin-block-end: 6px; padding: 8px 10px;
   border: 1px solid ${T.line}; border-radius: 6px; background: ${T.bg}; color: inherit; font: inherit; }
@@ -118,13 +122,14 @@
         r.append(chk);
         if (it.icon) { const ic = doc.createElement('span'); ic.className = 'smb-icon'; ic.setAttribute('aria-hidden', 'true'); ic.append(it.icon); r.append(ic); }
         r.append(lbl);
+        if (it.tag) { const tg = doc.createElement('span'); tg.className = 'smb-tag'; tg.textContent = it.tag; r.append(tg); }
         r.addEventListener('click', () => { if (r.disabled) return; close(true); if (o.onPick) o.onPick(it.value); });
         group.append(r);
       }
       if (!count) {
-        const p = doc.createElement('p'); p.className = 'smb-empty'; p.textContent = o.empty || 'Nothing to choose'; m.append(p);
+        const p = doc.createElement('p'); p.className = 'smb-empty'; p.textContent = o.empty || tr('ui.mb.nothing', 'Nothing to choose'); m.append(p);
       } else if (search) {
-        const p = doc.createElement('p'); p.className = 'smb-empty smb-nomatch'; p.textContent = 'No match'; p.hidden = true; m.append(p);
+        const p = doc.createElement('p'); p.className = 'smb-empty smb-nomatch'; p.textContent = tr('ui.mb.no_match', 'No match'); p.hidden = true; m.append(p);
       }
       m.addEventListener('keydown', onMenuKey);
       return m;
@@ -132,8 +137,8 @@
     /** The search box: filters the rows as you type; ArrowDown goes into the list, Enter picks the first match. */
     function searchBox(m) {
       const inp = doc.createElement('input');
-      inp.type = 'search'; inp.className = 'smb-search'; inp.placeholder = 'Search';
-      inp.setAttribute('aria-label', 'Search ' + (o.label || 'choices'));
+      inp.type = 'search'; inp.className = 'smb-search'; inp.placeholder = tr('ui.search', 'Search');
+      inp.setAttribute('aria-label', tr('ui.mb.search_aria', 'Search {what}', { what: o.label || tr('ui.mb.choices', 'choices') }));
       inp.setAttribute('autocomplete', 'off');
       inp.addEventListener('input', () => filter(inp.value));
       inp.addEventListener('keydown', (e) => {
@@ -155,7 +160,7 @@
     }
     function place() {
       if (!menu) return;
-      const b = button.getBoundingClientRect(), vw = win.innerWidth, vh = win.innerHeight;
+      const b = (o.anchor && o.anchor() || button).getBoundingClientRect(), vw = win.innerWidth, vh = win.innerHeight;
       const w = menu.offsetWidth, hgt = menu.offsetHeight;
       const rtl = win.getComputedStyle(button).direction === 'rtl';
       let x = rtl ? b.right - w : b.left;

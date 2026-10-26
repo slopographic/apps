@@ -1,5 +1,5 @@
 #!/bin/sh
-# Refuses a commit unless it is authored as Slopographic and its message carries no Claude attribution.
+# Refuses a commit unless it is authored as Slopographic.
 # Enable once per clone: git config core.hooksPath .githooks   (tests/node/attribution.test.mjs checks it is on)
 name=$(git config user.name)
 email=$(git config user.email)

@@ -10,7 +10,7 @@ import path from 'node:path';
 import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { loadRegistry, isPage, SITE, ROOT } from '../../tools/seo/site.mjs';
-import { esc, fileTypeList, related, SLOP365 } from '../../tools/seo/landing.mjs';
+import { esc, fileTypeList, related, SLOP365, STATUS } from '../../tools/seo/landing.mjs';
 
 const read = (rel) => readFile(path.join(ROOT, rel), 'utf8');
 const apps = await loadRegistry();
@@ -75,7 +75,7 @@ test('each feature matrix lists exactly the registry features, with status and f
     const types = fileTypeList(a).map(esc).join(', ') || 'Not listed yet';
     if (!feats.length) { assert.match(html[a.id], /No features are listed for this app yet\./, `${a.id}: empty matrix note`); continue; }
     assert.deepEqual(rows.map((r) => r[0]), feats.map(esc), `${a.id}: feature rows`);
-    for (const r of rows) assert.deepEqual(r.slice(1), [a.status === 'building' ? 'In development' : a.status === 'beta' ? 'Beta' : 'Live', types], `${a.id}: status and file types`);
+    for (const r of rows) assert.deepEqual(r.slice(1), [STATUS[a.status || 'live'], types], `${a.id}: status and file types`);
   }
 });
 

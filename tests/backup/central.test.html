@@ -22,7 +22,8 @@
       const before = await BK.counts();
       expect(before).toEqual({ customers: 3, files: 2, folders: 1 });
       const ex = await C.exportEverything();
-      expect(ex.name).toMatch(/^slopographic-backup-\d{4}-\d{2}-\d{2}\.slop-backup\.json$/);
+      expect(ex.name).toMatch(/^slopographic-backup-\d{4}-\d{2}-\d{2}\./);
+      expect(ex.name.endsWith(SlopBackup.JSON_EXT)).toBe(true);   // the profile's extension (shared/backup/index.js)
       expect(ex.envelope.version).toBe(2);
       expect(ex.envelope.registry).toContain('drive');
       expect(ex.envelope.registry).toContain('data');

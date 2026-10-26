@@ -90,12 +90,15 @@
   }
 
   /* ---------- bell and history panel ---------- */
+  /** A shared-chrome string in the chosen language (shared/i18n), else the English given. */
+  function tr(key, en, vars) { const I = window.SlopI18n, s = I ? I.t(key, vars) : key; return s && s !== key ? s : en; }
   function renderBell() {
     if (!bell) return;
     const n = bell.querySelector('.sn-count');
     n.textContent = unread > 9 ? '9+' : String(unread);
     n.hidden = !unread;
-    bell.setAttribute('aria-label', 'Notifications' + (unread ? `, ${unread} new` : ''));
+    bell.title = tr('shell.notifications', 'Notifications');
+    bell.setAttribute('aria-label', unread ? tr('shell.notifications_new', `Notifications, ${unread} new`, { n: unread }) : bell.title);
     if (panel && !panel.hidden) renderPanel();
   }
   function renderPanel() {
@@ -126,7 +129,6 @@
     bell = el('button', 'sh-hbtn slop-hbtn sn-bell');
     bell.type = 'button';
     bell.setAttribute('aria-expanded', 'false');
-    bell.title = 'Notifications';
     bell.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 21h4"/></svg><span class="sn-count" hidden></span>';
     bell.addEventListener('click', (e) => { e.stopPropagation(); openPanel(panel.hidden); });
     container.append(bell);
@@ -134,13 +136,16 @@
     panel.hidden = true;
     panel.setAttribute('role', 'dialog');
     panel.setAttribute('aria-label', 'Notifications');
-    panel.innerHTML = '<div class="sn-phead"><span>Notifications</span><button type="button" class="sn-clear">Clear all</button></div><div class="sn-list"></div><div class="sn-perm" hidden><p>Get alerts when this page is in the background.</p><button type="button" class="sn-ask">Turn on desktop alerts</button></div>';
+    panel.setAttribute('data-i18n-attr', 'aria-label:shell.notifications');
+    panel.innerHTML = '<div class="sn-phead"><span data-i18n="shell.notifications">Notifications</span><button type="button" class="sn-clear" data-i18n="shell.clear_all">Clear all</button></div><div class="sn-list"></div><div class="sn-perm" hidden><p>Get alerts when this page is in the background.</p><button type="button" class="sn-ask">Turn on desktop alerts</button></div>';
     panel.querySelector('.sn-clear').addEventListener('click', clearAll);
     panel.querySelector('.sn-ask').addEventListener('click', () => { askDesktop(); });
     document.body.append(panel);
     document.addEventListener('pointerdown', (e) => { if (!panel.hidden && !panel.contains(e.target) && !bell.contains(e.target)) openPanel(false); });
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !panel.hidden) openPanel(false); });
     renderBell();
+    window.addEventListener('slop-lang', renderBell);
+    window.addEventListener('slopi18n', renderBell);   // and again once the language's tables are in (lazy)
     return bell;
   }
   function clearAll() {

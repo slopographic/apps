@@ -191,7 +191,7 @@ input[type=checkbox] { accent-color: var(--accent); margin: 0; }
 .lp-xf svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 .lp-thumb { flex: none; width: 42px; height: 32px; display: grid; place-items: center; background: repeating-conic-gradient(#ccc 0 25%, #fff 0 50%) 0 0 / 8px 8px; border: 1px solid var(--line); outline-offset: 1px; cursor: pointer; }
 .lp-thumb canvas { max-width: 40px; max-height: 30px; }
-.lp-thumb.target { outline: 1.5px solid var(--fg); }
+.lp-thumb.target { outline: 2px solid var(--accent); }   /* what painting edits: pixels or mask */
 .lp-thumb.mask { background: #000; }
 .lp-thumb.mask.off { opacity: .45; }
 .lp-thumb.mask.off::after { content: ""; position: absolute; width: 30px; height: 2px; background: #e33; transform: rotate(-35deg); }

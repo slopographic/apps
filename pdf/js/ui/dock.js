@@ -7,7 +7,8 @@
   var D = SP.dock = {};
   var sections = [], host = null;
 
-  /** Adds a section: { id, title, open (default false), render(body), meta() -> text for the header }. */
+  /** Adds a section: { id, title (text, or a function giving it in the current language), open (default false), render(body),
+   * meta() -> text for the header }. */
   D.add = function (o) {
     var s = { id: o.id, title: o.title, open: !!o.open, render: o.render, meta: o.meta || null, el: null };
     sections.push(s);
@@ -21,11 +22,12 @@
     root.appendChild(host);
     sections.forEach(build);
   };
+  function titleOf(s) { return typeof s.title === 'function' ? s.title() : s.title; }
   function build(s) {
-    var body = h('div', { class: 'pp-dock-body', id: 'dock-' + s.id, role: 'region', 'aria-label': s.title, hidden: !s.open });
+    var body = h('div', { class: 'pp-dock-body', id: 'dock-' + s.id, role: 'region', 'aria-label': titleOf(s), hidden: !s.open });
     var meta = h('span', { class: 'pp-dock-meta' });
     var head = h('button', { type: 'button', class: 'pp-dock-h', 'aria-expanded': s.open ? 'true' : 'false', 'aria-controls': 'dock-' + s.id },
-      h('span', { class: 'pp-dock-chev', 'aria-hidden': 'true' }), h('span', { class: 'pp-dock-t' }, s.title), meta);
+      h('span', { class: 'pp-dock-chev', 'aria-hidden': 'true' }), h('span', { class: 'pp-dock-t' }, titleOf(s)), meta);
     head.addEventListener('click', function () {
       D.setOpen(s.id, !s.open);
       if (D.onToggle) D.onToggle(s.id, s.open);
@@ -63,4 +65,13 @@
   };
   /** Re-renders the open sections (called on every change through SP.panels.refresh). */
   D.refresh = function () { sections.forEach(renderOne); };
+  /** A language switch (ui/panel-kit.js): the headers take their titles again and the open bodies re-render. */
+  D.relabel = function () {
+    sections.forEach(function (s) {
+      if (!s.el) return;
+      var tt = s.el.head.querySelector('.pp-dock-t'); if (tt) tt.textContent = titleOf(s);
+      s.el.body.setAttribute('aria-label', titleOf(s));
+      renderOne(s);
+    });
+  };
 })();

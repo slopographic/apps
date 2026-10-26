@@ -36,51 +36,51 @@
     return el;
   }
   function head(a, extra) {
-    return h('div', { class: 'np-head' }, h('b', null, a ? (a.author || 'Unnamed') : 'New comment'),
-      a ? h('time', { datetime: a.date }, date(a.date)) : null, a && a.resolved ? h('span', { class: 'np-badge' }, 'Resolved') : null, extra);
+    return h('div', { class: 'np-head' }, h('b', null, a ? (a.author || U.t('pdf.ed.note_unnamed')) : U.t('pdf.ed.note_new')),
+      a ? h('time', { datetime: a.date }, date(a.date)) : null, a && a.resolved ? h('span', { class: 'np-badge' }, U.t('pdf.ed.note_resolved')) : null, extra);
   }
-  function closeBtn() { return h('button', { type: 'button', class: 'np-x', 'aria-label': 'Close comment', title: 'Close (Esc)', onclick: function () { Ed.noteUI.close(); } }, '×'); }
+  function closeBtn() { return h('button', { type: 'button', class: 'np-x', 'aria-label': U.t('pdf.ed.note_close'), title: U.t('pdf.ed.note_close_tip'), onclick: function () { Ed.noteUI.close(); } }, '×'); }
   function repliesOf(a) {
     if (!a.replies || !a.replies.length) return null;
     return h('ol', { class: 'np-replies' }, a.replies.map(function (r) {
-      return h('li', null, h('b', null, r.author || 'Unnamed'), ' ', h('time', { datetime: r.date }, date(r.date)), h('p', null, r.text));
+      return h('li', null, h('b', null, r.author || U.t('pdf.ed.note_unnamed')), ' ', h('time', { datetime: r.date }, date(r.date)), h('p', null, r.text));
     }));
   }
   /** Hover preview: read only. */
   function previewBody(a) { return h('div', { class: 'np-body' }, head(a), h('p', { class: 'np-text' }, a.text), repliesOf(a)); }
   /** The thread popup: everything the comment holds, plus the reply, resolve and delete actions. */
   function threadBody(a) {
-    var author = Ed.authorName(), who = h('input', { class: 'np-input', type: 'text', value: author, placeholder: 'Your name', 'aria-label': 'Your name', maxlength: 80 });
-    var reply = keys(h('textarea', { class: 'np-input', rows: 2, placeholder: 'Reply…', 'aria-label': 'Reply' }), function () { send(); });
+    var author = Ed.authorName(), who = h('input', { class: 'np-input', type: 'text', value: author, placeholder: U.t('pdf.ed.note_your_name'), 'aria-label': U.t('pdf.ed.note_your_name'), maxlength: 80 });
+    var reply = keys(h('textarea', { class: 'np-input', rows: 2, placeholder: U.t('pdf.ed.note_reply_ph'), 'aria-label': U.t('pdf.ed.note_reply') }), function () { send(); });
     function send() {
       var name = Ed.rememberAuthor(who.value), text = reply.value.trim();
       if (!text) { reply.focus(); return; }
-      if (!name) { who.focus(); SlopUI.toast('Type your name first.'); return; }
+      if (!name) { who.focus(); SlopUI.toast(U.t('pdf.ed.note_name_first')); return; }
       Ed.replyNote(a.id, text, name);
     }
     var acts = h('div', { class: 'np-actions' },
-      h('button', { type: 'button', class: 'btn primary sm', onclick: send }, 'Reply'),
-      h('button', { type: 'button', class: 'btn sm', onclick: function () { Ed.setNoteResolved(a.id, !a.resolved); } }, a.resolved ? 'Reopen' : 'Resolve'),
-      h('button', { type: 'button', class: 'btn sm danger-text', onclick: function () { Ed.deleteNote(a.id); } }, 'Delete'));
+      h('button', { type: 'button', class: 'btn primary sm', onclick: send }, U.t('pdf.ed.note_reply')),
+      h('button', { type: 'button', class: 'btn sm', onclick: function () { Ed.setNoteResolved(a.id, !a.resolved); } }, U.t(a.resolved ? 'pdf.ed.note_reopen' : 'pdf.ed.note_resolve')),
+      h('button', { type: 'button', class: 'btn sm danger-text', onclick: function () { Ed.deleteNote(a.id); } }, U.t('ui.delete')));
     return h('div', { class: 'np-body' }, head(a, closeBtn()), h('p', { class: 'np-text' }, a.text), repliesOf(a),
-      h('div', { class: 'np-reply' }, h('label', { class: 'np-field' }, h('span', null, 'Your name'), who), reply), acts);
+      h('div', { class: 'np-reply' }, h('label', { class: 'np-field' }, h('span', null, U.t('pdf.ed.note_your_name')), who), reply), acts);
   }
   /** The composer: author and text, then Save or Cancel. */
   function composeBody(pt) {
-    var who = h('input', { class: 'np-input', type: 'text', value: Ed.authorName(), placeholder: 'Your name', 'aria-label': 'Your name', maxlength: 80 });
-    var text = keys(h('textarea', { class: 'np-input', rows: 3, placeholder: 'Type your comment', 'aria-label': 'Comment' }), save, Ed.noteUI.close);
+    var who = h('input', { class: 'np-input', type: 'text', value: Ed.authorName(), placeholder: U.t('pdf.ed.note_your_name'), 'aria-label': U.t('pdf.ed.note_your_name'), maxlength: 80 });
+    var text = keys(h('textarea', { class: 'np-input', rows: 3, placeholder: U.t('pdf.ed.note_type_ph'), 'aria-label': U.t('pdf.ed.note_comment') }), save, Ed.noteUI.close);
     function save() {
       var t = text.value.trim(), name = Ed.rememberAuthor(who.value);
       if (!t) { text.focus(); return; }
-      if (!name) { who.focus(); SlopUI.toast('Type your name first.'); return; }
+      if (!name) { who.focus(); SlopUI.toast(U.t('pdf.ed.note_name_first')); return; }
       Ed.noteUI.close();
       Ed.addNote(Ed.newNote(pt, t, name));
       Ed.setTool('select');
     }
     var acts = h('div', { class: 'np-actions' },
-      h('button', { type: 'button', class: 'btn primary sm', onclick: save }, 'Save comment'),
-      h('button', { type: 'button', class: 'btn sm', onclick: function () { Ed.noteUI.close(); } }, 'Cancel'));
-    return h('div', { class: 'np-body' }, head(null, closeBtn()), h('label', { class: 'np-field' }, h('span', null, 'Your name'), who), text, acts);
+      h('button', { type: 'button', class: 'btn primary sm', onclick: save }, U.t('pdf.ed.note_save')),
+      h('button', { type: 'button', class: 'btn sm', onclick: function () { Ed.noteUI.close(); } }, U.t('menu.cancel')));
+    return h('div', { class: 'np-body' }, head(null, closeBtn()), h('label', { class: 'np-field' }, h('span', null, U.t('pdf.ed.note_your_name')), who), text, acts);
   }
   function sigOf(a) { return JSON.stringify(a); }
   function note() { return popId ? S.findAnnot(popId) : null; }
@@ -93,7 +93,7 @@
     pop.style.left = (v[0] * c.z + 14) + 'px'; pop.style.top = (v[1] * c.z - 10) + 'px';
   }
   function show(kind, body, id) {
-    pop = h('div', { class: 'note-pop np-' + kind, role: kind === 'preview' ? 'tooltip' : 'dialog', 'aria-label': 'Comment' }, body);
+    pop = h('div', { class: 'note-pop np-' + kind, role: kind === 'preview' ? 'tooltip' : 'dialog', 'aria-label': U.t('pdf.ed.note_comment') }, body);
     popKind = kind; popId = id || null; popSig = id ? sigOf(note() || {}) : '';
     S.overlay.appendChild(pop); place();
   }

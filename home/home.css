@@ -8,7 +8,6 @@
   --z-grain: 1;       /* the film grain (style/base.css) */
   --z-consent: 10;    /* the consent strip (shared/consent/banner.css) */
   --z-mascot: 15;     /* Sloppo, his speech bubble (shared/buddy) */
-  --z-toast: 30;      /* the short toast at the bottom (style/footer.css) */
   --z-header: 40;     /* the sticky header (style/base.css) */
   --consent-h: 0px;   /* the consent strip's measured height, set by shared/consent/banner.js */
 }
@@ -165,6 +164,7 @@ html { scroll-padding-top: calc(var(--top, 64px) + 8px); scroll-padding-bottom: 
 .buddy-toggle { translate: 0 calc(var(--consent-h, 0px) * -1); }
 
 /* The switch above the app sections: shows "Slop" in the app names. */
+:root[data-naming="plain"] .names-switch, :root[data-media="off"] .hero-video { display: none; }   /* plain names / no media in the build */
 .names-switch { display: inline-flex; align-items: center; gap: .5em; margin: 0 0 1.2em; font-size: .92rem; cursor: pointer; }
 
 /* The finder is filled in by script after the first paint: reserve its height so the sections below do not jump. */

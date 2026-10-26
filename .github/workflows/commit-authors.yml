@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - name: Reject Claude authorship
+      - name: Reject other authors and co-author trailers
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             RANGE="${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}"
@@ -26,10 +26,10 @@ jobs:
             RANGE="${{ github.event.before }}..${{ github.sha }}"
           fi
           echo "Checking $RANGE"
-          bad=$(git log "$RANGE" --format='%h %an <%ae> | %cn <%ce>' | grep -iE '(^| )claude |noreply@anthropic\.com|noreply@slopographic\.com' || true)
-          trailers=$(git log "$RANGE" --format='%h%n%B' | grep -iE '^(co-authored-by: claude|claude-session:|.*generated with \[?claude)' || true)
+          bad=$(git log "$RANGE" --format='%h %an <%ae> | %cn <%ce>' | grep -viE '^[0-9a-f]+ slopographic <340656300\+slopographic@users\.noreply\.github\.com> \| slopographic <340656300\+slopographic@users\.noreply\.github\.com>$' || true)
+          trailers=$(git log "$RANGE" --format='%h%n%B' | grep -iE '^(co-authored-by:|[a-z-]+-session:|.*generated with \[)' || true)
           if [ -n "$bad$trailers" ]; then
-            echo "::error::Commits with Claude authorship or trailers found"
+            echo "::error::Commits by another author or with co-author trailers found"
             echo "$bad"; echo "$trailers"
             exit 1
           fi

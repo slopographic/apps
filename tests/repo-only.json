@@ -26,8 +26,8 @@
       "why": "this site's SEO copy lengths; a build's renamed copy is longer or shorter"
     },
     {
-      "file": "tests/home/slop-fingerprint.test.html",
-      "why": "the exact text of this site's post engine; a build renames its words (the engine's behaviour runs everywhere: tests/home/slop.test.html)"
+      "file": "tests/buddy/slot.test.html",
+      "why": "the mascot slot with the sample overlay (brand/profiles/overlays), which a build does not ship; a build's own mascot runs tests/buddy/overlay.test.html"
     },
     {
       "file": "tests/node/whitelabel-*",
