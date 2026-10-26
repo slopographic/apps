@@ -24,9 +24,9 @@
       await W.SlopData.store.ready();
       await C.prepare();
       const back = C.checkpoint();
-      await run('set-company', { name: 'Bee Farm Ltd', currency: 'eur', default_tax_rate: '7.5' });
+      await run('set-company', { name: 'Bee Farm Ltd', currency: 'eur', default_tax_rate: '7.5', doc_language: 'sv' });
       let st = (await W.SlopData.store.get('settings', 'main')).value;
-      expect([st.companyName, st.defaultCurrency, st.defaultTaxRate]).toEqual(['Bee Farm Ltd', 'EUR', 750]);
+      expect([st.companyName, st.defaultCurrency, st.defaultTaxRate, st.docLang]).toEqual(['Bee Farm Ltd', 'EUR', 750, 'sv']);   // docLang: the documents' language
       const r = await run('set-numbering', { sequence: 'invoice', prefix: 'BF-', next: 42 });
       expect(r.value).toMatch(/BF-0042/);
       expect((await C.exec('admin.ai.set-numbering', { sequence: 'invoice', next: 3 })).ok).toBe(false);

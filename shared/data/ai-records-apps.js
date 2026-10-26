@@ -99,10 +99,11 @@
     // a reminder the person adds is 'custom' (events and tasks make their own); the time is ISO text or epoch ms
     admin: { label: 'Slop Admin', collections: ['settings', 'numbering'], extra(add) {
       add('set_company', 'Set the company profile', [S('name', 'company name'), S('address', 'postal address', { maxLength: 1000 }), S('tax_number', 'VAT or tax number', { maxLength: 60 }),
-        S('currency', 'default currency, ISO code', { maxLength: 3 }), S('locale', 'language tag such as en-GB', { maxLength: 20 }), S('default_tax_rate', 'percent, like 20')],
+        S('currency', 'default currency, ISO code', { maxLength: 3 }), S('locale', 'language tag such as en-GB', { maxLength: 20 }), S('default_tax_rate', 'percent, like 20'),
+        S('doc_language', 'language of printed documents (invoices, quotes, orders...), a code such as en or sv', { maxLength: 8 })],
       async (a) => {
         const before = AI.unwrap(await D().store.get('settings', 'main'), 'Settings') || { id: 'main' }, rec = Object.assign({}, before);
-        const map = { name: 'companyName', address: 'address', tax_number: 'taxNumber', currency: 'defaultCurrency', locale: 'locale' };
+        const map = { name: 'companyName', address: 'address', tax_number: 'taxNumber', currency: 'defaultCurrency', locale: 'locale', doc_language: 'docLang' };
         for (const [k, f] of Object.entries(map)) if (a[k] != null && a[k] !== '') rec[f] = k === 'currency' ? a[k].toUpperCase() : a[k];
         if (a.default_tax_rate != null && a.default_tax_rate !== '') rec.defaultTaxRate = (await AI.toRecord('settings', { defaultTaxRate: a.default_tax_rate })).defaultTaxRate;
         AI.unwrap(await D().store.put('settings', rec), 'Save');
