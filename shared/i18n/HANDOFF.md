@@ -67,6 +67,13 @@ and the white-label build (`tools/whitelabel`) rewrites the literal after the ma
 (a profile with `"defaultLang": "sv"` starts in Swedish). Keep the marker and the literal on one line. Every language stays in the picker
 on every build; only the starting choice changes. `create({ defaultLang })` overrides it in tests.
 
+## A page in one language (data-lang-page)
+A static SEO page and every copy in a language's folder (`/sv/pdf/`, tools/seo) say their language in the HTML:
+`<html lang="sv" data-lang-page="sv">`. `create()` then reads that page in it (it wins over the stored choice until
+`set()`), and a page language other than `DEFAULT_CHOICE` is also stored as the visitor's choice, so the apps they open
+from there follow it. The header switcher (`switcher.js` `pick`) on such a page goes to the same page in the language
+picked, its `<link rel="alternate" hreflang>`, when there is one.
+
 ## Storage
 The choice is `SlopProfile` appId `lang`, key `mode` (default `DEFAULT_CHOICE`), so it lives in the `slop-profile` key with the
 other settings and survives a reload. An unknown stored code reads as the default choice. Choosing the default choice clears the override.
@@ -153,7 +160,9 @@ A change in another tab re-applies on `storage`.
 - **Shared code** outside the components in `ui.*`: the app families' shared modules (office, biz, watermark, ai, ...),
   notifications (`shell/notify.js`) and the drawer (`shell/drawer.js`); their CSS is not mirrored yet (Right-to-left).
 - **Homepage and Settings** paragraphs that are not marked (privacy explanations, the exchange-rate and defaults bodies).
-- **SEO landing pages and guides** (`tools/seo`): English by design for now.
+- **SEO pages** (`tools/seo`): written in every language whose SEO tables are complete (`shared/seo/i18n`, Swedish
+  today), each at its own URL (`/sv/...`; shared/seo/HANDOFF.md, "Languages"). The about pages, How it works and the
+  typeface page are still English only, and so is any text of an app page or the homepage that is not marked.
 
 ## The SlopI18n API
 

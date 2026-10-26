@@ -21,6 +21,8 @@ const { TASKS } = await import(pathToFileURL(path.join(ROOT, 'shared/seo/tasks/i
 const { loadRegistry, SITE } = await import(pathToFileURL(path.join(ROOT, 'tools/seo/site.mjs')).href);
 const apps = await loadRegistry();
 const app = (id) => apps.find((a) => a.id === id);
+const { context, ROOT_LANG } = await import(pathToFileURL(path.join(ROOT, 'tools/seo/lang.mjs')).href);
+const EN = context('en');   // the templates' English words: these checks read them (the root language may be another)
 const { FACTS } = await import(pathToFileURL(path.join(ROOT, 'tests/brand-facts.mjs')).href);
 const good = { app: 'cutout', slug: 'x-y', h1: 'Do a thing', lead: 'A lead long enough to say what the page is about, in a sentence or two.',
   steps: ['one', 'two', 'three'], faq: [['Q one?', 'An answer that is forty characters or longer, at least.'], ['Q two?', 'An answer that is forty characters or longer, at least.'], ['Q three?', 'An answer that is forty characters or longer, at least.']] };
@@ -36,7 +38,7 @@ test('checkTask refuses copy that would make a thin or broken page', () => {
 });
 
 test('a page has the task, an Open link with the preset, the questions, and links to the other tasks', () => {
-  const pages = taskPages(apps, SITE, TASKS), p = pages.find((x) => x.key === 'cutout/white-background');
+  const pages = taskPages(apps, SITE, TASKS, {}, EN), p = pages.find((x) => x.key === 'cutout/white-background');
   assert.equal(p.dir, 'slopisolate/white-background/');
   assert.match(p.html, /<h1>White background for product photos<\/h1>/);
   assert.match(p.html, /href="\/slopisolate\/\?bg=white&amp;format=jpg"/);
@@ -48,7 +50,7 @@ test('a page has the task, an Open link with the preset, the questions, and link
 
 test('JSON-LD: breadcrumb to the app, HowTo steps, FAQ and the tutorial as a VideoObject', () => {
   const t = TASKS.find((x) => x.slug === 'bulk-background-remover'), url = `${SITE}/slopisolate/bulk-background-remover/`;
-  const ld = taskJsonLd(t, app('cutout'), url, SITE), type = (k) => ld.find((x) => x['@type'] === k);
+  const ld = taskJsonLd(t, app('cutout'), url, SITE, EN), type = (k) => ld.find((x) => x['@type'] === k);
   assert.deepEqual(type('BreadcrumbList').itemListElement.map((i) => i.item), [`${SITE}/`, `${SITE}/apps/cutout/`, url]);
   assert.equal(type('HowTo').step.length, t.steps.length);
   assert.equal(type('FAQPage').mainEntity.length, t.faq.length);
@@ -75,5 +77,5 @@ test('the All tools hub lists every task page, is in the sitemap, and every land
   assert.equal(hub.count, TASKS.length);
   for (const p of taskPages(apps, SITE, TASKS)) assert.ok(html.includes(`href="/${p.dir}"`), `${p.dir} is on the hub`);
   assert.ok(readFileSync(path.join(ROOT, 'sitemap.xml'), 'utf8').includes(`<loc>${SITE}/all-tools/</loc>`));
-  assert.match(readFileSync(path.join(ROOT, 'apps/cutout/index.html'), 'utf8'), /<a href="\/all-tools\/">All tools<\/a>/);
+  assert.ok(readFileSync(path.join(ROOT, 'apps/cutout/index.html'), 'utf8').includes(`<a href="/all-tools/">${context(ROOT_LANG).t('seo.ui.nav.all_tools')}</a>`));
 });

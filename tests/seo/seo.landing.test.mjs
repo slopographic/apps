@@ -10,7 +10,11 @@ import path from 'node:path';
 import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { loadRegistry, isPage, SITE, ROOT } from '../../tools/seo/site.mjs';
-import { esc, fileTypeList, related, SLOP365, STATUS } from '../../tools/seo/landing.mjs';
+import { esc, fileTypeList, related, SLOP365, STATUS, regWords } from '../../tools/seo/landing.mjs';
+import { context, ROOT_LANG } from '../../tools/seo/lang.mjs';
+
+/** The root language's words (the profile's defaultLang: a build can have another than English at the root). */
+const R = context(ROOT_LANG), say = (k, v) => esc(R.t(k, v));
 
 const read = (rel) => readFile(path.join(ROOT, rel), 'utf8');
 const apps = await loadRegistry();
@@ -43,14 +47,14 @@ test('every app page in the registry has a landing page', () => {
 test('each landing page has exactly one H1 with the registry title', () => {
   for (const a of pageApps) {
     if (!html[a.id]) continue;
-    assert.deepEqual(h1Of(html[a.id]), [esc(a.title || a.name)], `${a.id}: H1`);
+    assert.deepEqual(h1Of(html[a.id]), [esc(regWords(a, R).title)], `${a.id}: H1`);
   }
 });
 
 test('each app landing page has an Open now button to the app folder', () => {
   for (const a of pageApps) {
     if (!html[a.id]) continue;
-    assert.match(html[a.id], new RegExp(`<a class="btn" href="/${a.path.replace(/[/]/g, '\\/')}" aria-label="Open now: [^"]*">Open now</a>`), `${a.id}: Open now link to /${a.path}`);
+    assert.ok(html[a.id].includes(`<a class="btn" href="/${a.path}" aria-label="${say('seo.ui.app.open_now_label', { app: a.name })}">${say('seo.ui.app.open_now')}</a>`), `${a.id}: Open now link to /${a.path}`);
     assert.ok(existsSync(path.join(ROOT, a.path, 'index.html')), `${a.id}: the app folder ${a.path} has no index.html`);
   }
 });
@@ -71,9 +75,9 @@ test('each feature matrix lists exactly the registry features, with status and f
   for (const a of pageApps) {
     if (!html[a.id]) continue;
     const rows = rowsOf(html[a.id]);
-    const feats = [...(a.features || [])]; // copied out of the VM realm the registry is loaded in
-    const types = fileTypeList(a).map(esc).join(', ') || 'Not listed yet';
-    if (!feats.length) { assert.match(html[a.id], /No features are listed for this app yet\./, `${a.id}: empty matrix note`); continue; }
+    const feats = regWords(a, R).features; // copied out of the VM realm the registry is loaded in
+    const types = fileTypeList(a, R).map(esc).join(', ') || say('seo.ui.type.none');
+    if (!feats.length) { assert.ok(html[a.id].includes(say('seo.ui.app.no_features')), `${a.id}: empty matrix note`); continue; }
     assert.deepEqual(rows.map((r) => r[0]), feats.map(esc), `${a.id}: feature rows`);
     for (const r of rows) assert.deepEqual(r.slice(1), [STATUS[a.status || 'live'], types], `${a.id}: status and file types`);
   }
@@ -101,7 +105,7 @@ test('the compare page lists every app page with a link and its file types', () 
   assert.ok(h, 'no compare page');
   assert.equal(h1Of(h).length, 1, 'compare: one H1');
   for (const a of pageApps) assert.ok(h.includes(`href="/apps/${a.id}/"`), `compare: missing ${a.id}`);
-  assert.ok(h.includes(`${pageApps.length} apps with a page`), 'compare: app count in the intro');
+  assert.ok(h.includes(say('seo.ui.cmp.lead', { n: pageApps.length })), 'compare: app count in the intro');
 });
 
 test('the Slop 365 page links to each of its tools', () => {
@@ -117,9 +121,10 @@ test('the Creative Slop Pro page names the three apps and says it is not affilia
   const h = html['creative-slop-pro'];
   assert.ok(h, 'no Creative Slop Pro page');
   for (const id of ['photoslop', 'vector', 'slopedit']) assert.ok(h.includes(`href="/apps/${id}/"`), `creative: missing ${id}`);
-  assert.match(h, /free browser alternative to Photoshop-style photo editing, Illustrator-style vector drawing and video editing/);
-  assert.match(h, /not affiliated with, endorsed by or sponsored by Adobe/);
-  assert.match(h, /They are not Adobe products/);
-  assert.match(h, /do not run the full feature sets/);
-  assert.match(h, /no account or install is needed/);
+  for (const k of ['lead', 'not_1', 'not_2', 'not_3']) assert.ok(h.includes(say('seo.ui.csp.' + k)), `creative: ${k}`);
+  if (ROOT_LANG === 'en') {   // the English words, as this site says them
+    assert.match(h, /free browser alternative to Photoshop-style photo editing, Illustrator-style vector drawing and video editing/);
+    assert.match(h, /not affiliated with, endorsed by or sponsored by Adobe/);
+    assert.match(h, /do not run the full feature sets/);
+  }
 });

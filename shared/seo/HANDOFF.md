@@ -9,8 +9,11 @@ after changing copy or the app list.
 
 - `shared/apps.js`: the registry. Every app's id, name, `path` (folder, or `#anchor` for an app shown
   on the homepage), and optional `shot` (its image). Read by the generator, not edited by it.
-- `shared/seo/copy.mjs`: the copy. `HOME` for the homepage, `APPS` keyed by app id (full title,
-  description, `category`), and `ABOUT` for about pages.
+- `shared/seo/i18n/<code>/<part>.js`: the copy, in string tables, English the source (`shared/seo/i18n/README.md`:
+  the keys, the parts, the rules and the translators' brief). The `.mjs` files in `shared/seo` hold the facts
+  (`copy.mjs`: which pages have copy and each app's `category`; tasks, roundups, guides: slugs, sources, dates, marks)
+  and give the copy joined with them, in English (`HOME`, `APPS`, `ABOUT`, `TASKS`...) or in a language
+  (`homeIn(code)`, `appsIn(code)`, `tasksIn(code)`...).
 - `tools/seo/write.mjs`: writes the block into each page and rebuilds `sitemap.xml`.
   `node tools/seo/write.mjs` writes; `node tools/seo/write.mjs --check` fails if anything is out of date.
 - `tests/seo/seo.test.mjs`: checks the HTML on disk. Run with `node tests/run.mjs seo`.
@@ -38,14 +41,15 @@ site. The tool refuses to write otherwise.
 
 1. Add the app to `shared/apps.js` with `path: 'name/'`. Add `shot: 'assets/shots/name.jpg'` if you
    have a screenshot. Without one, the share image is `og-share.png` (1200 x 630, rendered by tools/og/render.mjs).
-2. Add an entry to `APPS` in `shared/seo/copy.mjs`:
-   `name: { title: 'Name: short hook in your browser | Slopographic', category: 'BusinessApplication', description: '...' }`.
+2. Add the app's category to `CATEGORY` in `shared/seo/copy.mjs` (`name: 'BusinessApplication'`) and its title and
+   description to `shared/seo/i18n/en/copy.js` (`'seo.app.name.title': 'Name: short hook in your browser | Slopographic'`,
+   `'seo.app.name.description'`), and to every other language's `copy.js`.
    The category is a schema.org `applicationCategory` value (for example `MultimediaApplication`,
    `DesignApplication`, `UtilitiesApplication`, `DeveloperApplication`).
 3. Make the page `name/index.html`, with `<html lang="en">`, `<meta name="viewport">` and
    `<meta charset="utf-8">`. Leave out the SEO tags, since the tool writes them.
-4. If the app has an about page at `name/about/index.html`, add an `ABOUT` entry with its own title
-   and description. The tool throws if an about page has no entry.
+4. If the app has an about page at `name/about/index.html`, add its id to `ABOUT_IDS` and `seo.about.name.title` and
+   `.description` to the tables. The tool throws if an about page has no entry.
 5. Run `node tools/seo/write.mjs`, then `node tests/run.mjs seo`.
 
 An app on the homepage only (path `#something`) needs no page. Add it to `shared/apps.js` and it
@@ -85,3 +89,40 @@ category is linked the next time `node tools/seo/write.mjs` runs; nothing is lis
 `<!-- site:footnav -->` markers; the converter pages get those markers in a `<footer class="cv-foot">` before their shell
 script. Styles: `shared/footnav/footnav.css` (columns open on wide screens; folded `<details>` on phones). The app pages
 do not get it. Tests: `tests/seo/footnav.test.mjs`, `tests/home/footer-nav.test.html`.
+
+## Languages (tools/seo/lang.mjs)
+
+Every static SEO page is written in every published language, each its own page for search engines:
+
+- **URLs.** The root language (the brand profile's `defaultLang`: English here) is at the site root (`/compare/`,
+  `/pdf/`). Every other published language has a folder with the same paths (`/sv/compare/`, `/sv/pdf/`,
+  `/sv/convert/jpg-to-png/`, `/sv/`). Slugs stay the same in every language, so one path is one page in every language.
+- **Which languages.** A language is published when its SEO tables are complete (`shared/seo/i18n/<code>/`, every English
+  key) and the profile lets it in (`seo.langs`: `'all'`, the default, or a list; brand/README.md). A language without
+  tables is not written at all: no English pages in its folder and no hreflang to it. `write.mjs` prints the languages it
+  built and why the others were left out. A language folder holds only what `write.mjs` writes; it removes the rest.
+- **The generated pages** (landing, task, guide, round-up and hub pages) are drawn in the language (`L`, a `lang.mjs`
+  context: `L.t('seo.ui.*')` for the templates' own words); their links to another page that exists in the language
+  go to that language's page.
+- **The hand-made pages** (each app page, the homepage, the converter pages) get a copy in each language's folder
+  (`copies.mjs`): the same HTML with `<base href>` pointing back at the original folder, so the app's own scripts and
+  files load from where they are (nothing is duplicated but the page), the head in the language, the text of every
+  `data-i18n` element filled from that language's tables (so a crawler reads it without scripts), and a converter
+  page's own copy from `seo.cv.*`. GitHub Pages has no rewrites, so a real file must be at `/sv/pdf/`; a redirect page
+  would not be indexed as the language's page, and the app reading the prefix itself would need a server.
+  The about pages, How it works and the typeface page are written by hand in English and stay in the root language only.
+- **The head.** Every page that exists in more than one language lists them all with `<link rel="alternate" hreflang>`
+  and `x-default` (the root language's page); the canonical is the page's own URL in its language. A hand-made page that
+  keeps its own head (most converter pages) gets the alternates alone, between `<!-- seo:alt -->` markers.
+  `<html lang>` (and `dir="rtl"` for Arabic and Hebrew) is written in the HTML, with `data-lang-page`: shared/i18n
+  starts that page in its language, keeps a language other than the default as the visitor's choice, and the header's
+  language switcher goes to the same page in the language picked (its alternate) when there is one.
+- **Sitemaps.** `sitemap.xml` is the root language's pages, `sitemap-<code>.xml` each other language's, and
+  `sitemap-index.xml` lists them all; robots.txt names `sitemap.xml` and the index.
+- **Checks.** `write.mjs` refuses copy that breaks the rules in any language: description lengths by script
+  (`head.mjs` `descLimits`: 120 to 160 for Latin and most scripts, 45 to 110 for Chinese and Japanese, 55 to 130 for
+  Korean), titles of at most 75 characters, titles and descriptions unique within a language.
+  `node tools/i18n/i18n.mjs --check` holds the SEO tables like every other table (`todo seo <code>` lists what a
+  language lacks, `coverage` reports them). Tests: `tests/seo/lang.test.mjs`, `tests/seo/lang-pages.test.mjs`.
+- **Size.** Each published language adds about 560 pages (14 MB of HTML, about 1 MB compressed in git) and 1.1 MB of
+  tables. None of it is precached by the service worker: the precache list follows the app pages' own boot files only.

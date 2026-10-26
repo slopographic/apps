@@ -84,7 +84,7 @@ sites live outside this repository, with the publish script; pass their folder w
 | `links`, `footer`, `support`, `analytics` | Footer and support links (empty hides them), the footer line, the export card parts, and third parties: `false` leaves out analytics, ads and the consent strip. |
 | `copy` | Extra phrase replacements for this site (`"source phrase": "replacement"`), on top of the tone's. |
 | `apps.hide`, `media` | Apps left out of every list, menu and sitemap (their guides and task pages too; tests read them from the brand facts, `hideApps`); `false` leaves out screenshots, clips and videos (they show this brand). |
-| `seo` | `homeTitle`, `homeDescription`, `titleSuffix` for the generated head blocks and the sitemap. |
+| `seo` | `homeTitle`, `homeDescription`, `titleSuffix` for the generated head blocks and the sitemap (the home copy is in the root language), and `langs`: the languages of the static SEO pages (below, "Languages of the SEO pages"). |
 | `legal` | `{ holder, year, trademarks? }`: the MIT licence's copyright holder, `NOTICE.md` and `TRADEMARKS.md` (`trademarks`: the names the holder claims; default the product name). |
 | `publish` | `{ repo, branch, secret, author, email }`: where the publish script pushes, the token's secret name, and the release commit's author. |
 | `font` | `{ spec, dir }`: the profile's own type family, a font spec for `tools/fonts/build.py` and its built folder (both relative to the profiles folder; build the folder ahead, the site build needs no Python). The build ships it as `shared/fonts/brand/` with its CSS and token names, and the typeface page. Without it, a build ships no family: the upstream fonts (Inter Tight and the others) and no typeface page. This site's family never goes into another build, and the leak scan reads the name tables inside every WOFF2 file and zip. The sample's family: `brand/profiles/fonts/acme/`. Only a plain brand mark may go into a family's Private Use Area, never the mascot (it is all-rights-reserved art; a font is OFL): the build refuses such a spec. |
@@ -173,6 +173,23 @@ with the tag, and pushes it before the site. `--cdn-ref=<tag>` on the build poin
 ```sh
 node tools/whitelabel/cdn.mjs <id> <build dir> <cdn checkout> <out dir> --profiles=<dir>
 ```
+
+### Languages of the SEO pages
+
+The static SEO pages (landing, task, guide and comparison pages, the head of every app page, the converter pages) are
+written in every language whose SEO tables are complete (`shared/seo/HANDOFF.md`, "Languages"). One profile field,
+`defaultLang`, decides both the language a visitor starts in and the **root language**: its pages are at the site root
+(`/compare/`), every other language in its own folder (`/en/compare/`, `/de/compare/`). `seo.langs` says which other
+languages a build publishes: `"all"` (the default) or a list (`["sv", "en"]`); a language left out has no pages and no
+hreflang.
+
+Why the default language goes to the root: a site for one market is found in that language, and its plain addresses
+(`/compare/`) are the ones people share and search engines rank first, so they carry the language its visitors read.
+Keeping English at the root of a Swedish site would put English pages at the addresses that matter and the Swedish ones
+one folder down. The other languages stay reachable for visitors who search in them, unless the profile keeps a build to
+its own market with a short `seo.langs`. One field (`defaultLang`) sets both the start language and the root, so they can
+never disagree; the profile's `seo.homeTitle` and `seo.homeDescription` are in that language. The sample `sample-sv`
+publishes Swedish at the root and English under `/en/` (`"langs": ["sv", "en"]`).
 
 ### Tests in a mirror
 

@@ -64,7 +64,8 @@
   "seo": {
     "homeTitle": "Exempelbolaget Verktyg: kontorsverktyg i webbläsaren",
     "homeDescription": "PDF-redigerare, bildredigerare, dokument, kalkylark, fakturor och mer. Körs i webbläsaren och dina filer stannar på din enhet. Gratis.",
-    "titleSuffix": " | Exempelbolaget"
+    "titleSuffix": " | Exempelbolaget",
+    "langs": ["sv", "en"]
   },
   "legal": {
     "holder": "Exempelbolaget AB",

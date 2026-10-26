@@ -1,6 +1,7 @@
 // Guides: the tutorials of each app ("Getting started with PhotoSlop" and the like), one file per family (split into
 // parts to stay short), drawn by tools/seo/guides.mjs (the shape of a guide is in its header) and listed in each app's
 // guide sidebar.
+import { hydrate, seg } from '../i18n.mjs';
 import { GUIDES as creative } from './creative.mjs';
 import { GUIDES as creative2 } from './creative-2.mjs';
 import { GUIDES as creative3 } from './creative-3.mjs';
@@ -16,5 +17,7 @@ import { GUIDES as colors } from './colors.mjs';
 import { GUIDES as recorder } from './recorder.mjs';
 import { GUIDES as fontcreator } from './fontcreator.mjs';
 
-
-export const GUIDES = [...creative, ...creative2, ...creative3, ...creative4, ...documents, ...documents2, ...documents3, ...documents4, ...business, ...everyday, ...compare, ...recorder, ...colors, ...fontcreator];
+// The facts of every guide, in this order; guidesIn(code) joins them with that language's words.
+const FACTS = [...creative, ...creative2, ...creative3, ...creative4, ...documents, ...documents2, ...documents3, ...documents4, ...business, ...everyday, ...compare, ...recorder, ...colors, ...fontcreator];
+export const guidesIn = (code = 'en') => FACTS.map((g) => hydrate(g, `seo.guide.${seg(g.app)}.${seg(g.slug)}`, code));
+export const GUIDES = guidesIn('en');

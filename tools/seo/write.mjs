@@ -1,267 +1,71 @@
 #!/usr/bin/env node
-// Writes the SEO head block of every app page, the about pages and the homepage, and rebuilds sitemap.xml.
+// Writes the static SEO pages in every published language: the head block of every app page, about page and the
+// homepage, the generated pages (landing, task, guide, round-up and hub pages), the copies of the hand-made pages in each
+// other language's folder, the sitemaps, and the English table parts written from other sources (tables.mjs).
 //   node tools/seo/write.mjs            write the files
 //   node tools/seo/write.mjs --check    exit 1 and name the files that are out of date, write nothing
 //   node tools/seo/write.mjs --date=2026-10-11   lastmod date (default: today)
-// Copy comes from shared/seo/copy.mjs, the app list from shared/apps.js. Each page gets one block between
-// <!-- seo:start --> and <!-- seo:end -->, placed after its charset tag. Read shared/seo/HANDOFF.md first.
-import { readFile, writeFile, mkdir } from 'node:fs/promises';
-import { existsSync, readFileSync } from 'node:fs';
+// The root language (the brand profile's defaultLang) is at the site root, every other published language in its own
+// folder (/sv/...): lang.mjs. The copy is in the SEO tables (shared/seo/i18n), the facts in shared/seo, the app list in
+// shared/apps.js. Each page gets one block between <!-- seo:start --> and <!-- seo:end -->, placed after its charset tag.
+// A language folder holds only what this tool writes: a file there that it does not write is removed (and a folder of
+// a language no longer published). Read shared/seo/HANDOFF.md first.
+import { readFile, writeFile, mkdir, rm } from 'node:fs/promises';
+import { existsSync, readdirSync, statSync } from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
-import { ROOT, SITE, loadRegistry, registryWindow, isPage, pageUrl } from './site.mjs';
-import { landingPages, siteTop, siteFoot, SITE_HEAD } from './landing.mjs';
-import { taskPages, taskJsonLd, videoJsonLd, hubPage } from './tasks.mjs';
-import { roundupPages, roundupJsonLd, roundupIndex } from './roundups.mjs';
-import { guidePages, guideJsonLd } from './guides.mjs';
-import { footNav, converterFiles, addFootSlot } from './footnav.mjs';
-import { marquee } from './marquee.mjs';
+import { fileURLToPath } from 'node:url';
+import { ROOT, SITE, loadRegistry, isPage, pageUrl } from './site.mjs';
+import { published, unpublished, prefixOf, LANGS, ROOT_LANG } from './lang.mjs';
+import { buildLang, pagePaths } from './build-lang.mjs';
+import { converterFiles } from './footnav.mjs';
+import { sitemaps } from './sitemap.mjs';
+import { generatedParts } from './tables.mjs';
+import { context } from './lang.mjs';
+import { landingPages } from './landing.mjs';
+import { taskPages, hubPage } from './tasks.mjs';
+import { roundupPages, roundupIndex } from './roundups.mjs';
+import { guidePages } from './guides.mjs';
 
 export { ROOT, SITE, loadRegistry, isPage, pageUrl };
-const DEFAULT_IMAGE = `${SITE}/og-share.png`;
-const DESC_MIN = 120, DESC_MAX = 160;
-const TITLE_SUFFIX = ' | Slopographic';
-const OS = 'Any (runs in a web browser)';
-const AUTHOR = { '@type': 'Organization', name: 'Slopographic', url: `${SITE}/` };
+export { headBlock, injectHead, validateCopy, imageFor, TRIAL_TOKENS } from './head.mjs';
+export { appJsonLd, homeJsonLd } from './build-lang.mjs';
+export { siteChrome } from './chrome.mjs';
 
-/** Open Graph image: the app's shot when the file exists, else the site image. */
-export const imageFor = (app) => (app.shot && existsSync(path.join(ROOT, app.shot)) ? `${SITE}/${app.shot}` : DEFAULT_IMAGE);
-const escAttr = (s) => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
-// One line of JSON (crawlers read it the same as indented JSON), so a page with a long ItemList stays within 300 lines.
-const ldScript = (obj) => `<script type="application/ld+json">${JSON.stringify(obj).replace(/</g, '\\u003c')}</script>`;
+/** Every file under a folder, relative to the repo. */
+const walk = (dir) => readdirSync(path.join(ROOT, dir)).flatMap((f) => (statSync(path.join(ROOT, dir, f)).isDirectory() ? walk(`${dir}${f}/`) : [`${dir}${f}`]));
 
-/** The SoftwareApplication and BreadcrumbList for an app page (about pages get a breadcrumb only). */
-export function appJsonLd(app, copy, url) {
-  const crumbs = [{ '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE}/` }, { '@type': 'ListItem', position: 2, name: app.name, item: url }];
-  const software = { '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: app.name, applicationCategory: copy.category,
-    operatingSystem: OS, offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' }, description: copy.description, url, image: imageFor(app), author: AUTHOR };
-  return [software, { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: crumbs }];
-}
-/** Homepage: Organization, and an ItemList of every app in the registry. */
-export function homeJsonLd(apps) {
-  const org = { '@context': 'https://schema.org', '@type': 'Organization', name: 'Slopographic', url: `${SITE}/`, logo: `${SITE}/brand/logo.svg` };
-  const list = { '@context': 'https://schema.org', '@type': 'ItemList', name: 'Slopographic apps', numberOfItems: apps.length,
-    itemListElement: apps.map((a, i) => ({ '@type': 'ListItem', position: i + 1, name: a.name, url: pageUrl(a) })) };
-  return [org, list];
+/** The directories of the generated pages (the same in every language: a language is published only when complete). */
+async function generatedDirs(apps) {
+  const { landingIn } = await import('../../shared/seo/copy.mjs');
+  const { TASKS } = await import('../../shared/seo/tasks/index.mjs');
+  const { ROUNDUPS } = await import('../../shared/seo/roundups/index.mjs');
+  const { GUIDES } = await import('../../shared/seo/guides/index.mjs');
+  const L = context(ROOT_LANG);
+  return [...landingPages(apps, SITE, landingIn(ROOT_LANG), [], [], [], L), ...taskPages(apps, SITE, TASKS, {}, L), hubPage(apps, SITE, TASKS, L),
+    ...roundupPages(apps, SITE, ROUNDUPS, { TASKS, GUIDES }, L), roundupIndex(SITE, ROUNDUPS, L), ...guidePages(apps, SITE, GUIDES, { TASKS, ROUNDUPS }, L)].map((p) => p.dir);
 }
 
-/** The origin trial tokens (shared/agent/trial-tokens.json: WebMCP, one token per origin), all on one line. One build
- * serves both origins (main: slopographic.com, testing: slopographic.github.io); Chrome ignores a token made for
- * another origin. Static, in the first HTML, so the trial is on before any script runs. */
-export const TRIAL_TOKENS = JSON.parse(readFileSync(path.join(ROOT, 'shared/agent/trial-tokens.json'), 'utf8')).tokens.filter((t) => /^[A-Za-z0-9+/=]+$/.test(t.token || ''));
-const trialLine = () => (TRIAL_TOKENS.length ? [TRIAL_TOKENS.map((t) => `<meta http-equiv="origin-trial" content="${t.token}">`).join('')] : []);
-
-function headBlock({ title, description, url, image, jsonld, viewport }) {
-  const lines = [
-    '<!-- seo:start: generated by tools/seo/write.mjs from shared/seo/copy.mjs; edit the copy there -->',
-    ...(viewport ? ['<meta name="viewport" content="width=device-width, initial-scale=1">'] : []),
-    ...trialLine(),
-    `<title>${escAttr(title)}</title>`,
-    `<meta name="description" content="${escAttr(description)}">`,
-    `<link rel="canonical" href="${url}">`,
-    '<meta property="og:type" content="website">',
-    '<meta property="og:site_name" content="Slopographic">',
-    `<meta property="og:title" content="${escAttr(title)}">`,
-    `<meta property="og:description" content="${escAttr(description)}">`,
-    `<meta property="og:url" content="${url}">`,
-    `<meta property="og:image" content="${image}">`,
-    '<meta property="og:image:width" content="1200">',
-    '<meta property="og:image:height" content="630">',
-    '<meta name="twitter:card" content="summary_large_image">',
-    `<meta name="twitter:title" content="${escAttr(title)}">`,
-    `<meta name="twitter:description" content="${escAttr(description)}">`,
-    `<meta name="twitter:image" content="${image}">`,
-    ...jsonld.map(ldScript),
-    '<!-- seo:end -->',
-  ];
-  return lines;
-}
-
-/** Removes the old SEO tags (or the previous block) and puts the new block after the charset tag. */
-export function injectHead(html, lines) {
-  let out = html.replace(/<!-- seo:start[\s\S]*?<!-- seo:end -->\n?[ \t]*/, '');
-  out = out
-    .replace(/[ \t]*<title[^>]*>[\s\S]*?<\/title>\n?/gi, '')
-    .replace(/[ \t]*<meta\s+name=["']description["'][^>]*>\n?/gi, '')
-    .replace(/[ \t]*<link\s+rel=["']canonical["'][^>]*>\n?/gi, '')
-    .replace(/[ \t]*<meta\s+(?:property|name)=["'](?:og|twitter):[^"']*["'][^>]*>\n?/gi, '')
-    .replace(/[ \t]*<script\s+type=["']application\/ld\+json["'][\s\S]*?<\/script>\n?/gi, '');
-  if (!/<html[^>]*\slang=/i.test(out)) out = out.replace(/<html(\s|>)/i, '<html lang="en"$1');
-  const block = lines.join('\n  ');
-  const tag = out.match(/<meta[^>]+charset[^>]*>/i);
-  if (tag) {
-    const at = tag.index + tag[0].length;
-    return out.slice(0, at) + '\n  ' + block + out.slice(at);
-  }
-  const head = out.match(/<head[^>]*>/i);
-  if (!head) throw new Error('no <head> to put the SEO block in');
-  const at = head.index + head[0].length;
-  return out.slice(0, at) + '\n  ' + block + out.slice(at);
-}
-
-/** Checks the copy: length of descriptions, unique titles. Throws on the first problem. */
-/** lenient (a white-label build, SEO_LENIENT=1, whose renamed copy is longer or shorter): lengths only warn. */
-export function validateCopy(entries, lenient = process.env.SEO_LENIENT === '1') {
-  const titles = new Map();
-  const bad = (m) => { if (lenient) console.warn(`seo (lenient): ${m}`); else throw new Error(m); };
-  for (const [name, { title, description }] of entries) {
-    if (description.length < DESC_MIN || description.length > DESC_MAX) bad(`${name}: description is ${description.length} characters (need ${DESC_MIN} to ${DESC_MAX})`);
-    if (!title) throw new Error(`${name}: title missing`);
-    if (title.length > 75) bad(`${name}: title missing or too long`);
-    if (titles.has(title)) bad(`${name}: title repeats ${titles.get(title)}`);
-    titles.set(title, name);
-  }
-}
-
-/** Writes the site frame into a hand-made page between its markers: <!-- site:head --> (theme, consent, the content-page
- *  stylesheet), <!-- site:top --> (the header), <!-- site:foot --> (the footer) and <!-- site:footnav --> (the footer's
- *  site links alone, footnav.mjs: the homepage and the converter pages) and <!-- site:marquee --> (the homepage's
- *  capability strip, marquee.mjs). A page without markers is unchanged. */
-export function siteChrome(html) {
-  const put = (name, body) => (h) => h.replace(new RegExp(`<!-- site:${name} -->[\\s\\S]*?<!-- /site:${name} -->`), `<!-- site:${name} -->\n${body}\n<!-- /site:${name} -->`);
-  return [put('head', SITE_HEAD.map((t) => '  ' + t).join('\n')), put('top', siteTop()), put('foot', siteFoot()), put('footnav', footNav()), put('marquee', marquee())].reduce((h, f) => f(h), html);
-}
-
-/** Builds every page's new content. Returns [{ file, html }] for pages and sitemap, plus the list of problems. */
+/** Builds every page's new content: [{ file, html, before }] (html null: the file goes). */
 export async function build({ date }) {
-  const { HOME, APPS, ABOUT, LANDING, PAGES = {} } = await import(pathToFileURL(path.join(ROOT, 'shared', 'seo', 'copy.mjs')).href);
-  const apps = await loadRegistry();
-  const pages = [];
-  const copyEntries = [['home', HOME]];
-  for (const app of apps) {
-    if (!isPage(app)) continue;
-    const copy = APPS[app.id];
-    if (!copy) throw new Error(`${app.id}: no entry in shared/seo/copy.mjs`);
-    copyEntries.push([app.id, copy]);
+  const apps = await loadRegistry(), codes = published();
+  const out = generatedParts().map((p) => ({ file: path.join(ROOT, p.file), html: p.text }));
+  for (const f of out) f.before = existsSync(f.file) ? await readFile(f.file, 'utf8') : '';
+  const paths = pagePaths(apps, await generatedDirs(apps));
+  const byLang = new Map();
+  for (const code of codes) {
+    const r = await buildLang(code, codes, { apps, date, paths });
+    out.push(...r.files);
+    byLang.set(code, r.urls);
   }
-  const aboutApps = apps.filter((a) => isPage(a) && existsSync(path.join(ROOT, a.path, 'about', 'index.html')));
-  for (const a of aboutApps) {
-    if (!ABOUT[a.id]) throw new Error(`${a.id}: has about/ but no entry in shared/seo/copy.mjs ABOUT`);
-    copyEntries.push([`${a.id} about`, ABOUT[a.id]]);
+  // a language folder holds only what is written here
+  const written = new Set(out.map((f) => f.file));
+  for (const l of LANGS) {
+    const dir = l.code.toLowerCase();   // the root language too: its pages are at the root, not in a folder
+    if (!dir || !existsSync(path.join(ROOT, dir))) continue;
+    for (const f of walk(dir + '/')) if (!written.has(path.join(ROOT, f))) out.push({ file: path.join(ROOT, f), html: null, before: await readFile(path.join(ROOT, f), 'utf8') });
   }
-  // A brand profile can hide apps (shared/apps.js SLOP_HIDDEN_APPS): their tasks, roundups and guides are left out too.
-  const hidden = new Set(registryWindow().SLOP_HIDDEN_APPS || []), shown = (x) => !hidden.has(x.app);
-  const TASKS = (await import(pathToFileURL(path.join(ROOT, 'shared', 'seo', 'tasks', 'index.mjs')).href)).TASKS.filter(shown);
-  const ROUNDUPS = (await import(pathToFileURL(path.join(ROOT, 'shared', 'seo', 'roundups', 'index.mjs')).href)).ROUNDUPS.filter(shown);
-  const GUIDES = (await import(pathToFileURL(path.join(ROOT, 'shared', 'seo', 'guides', 'index.mjs')).href)).GUIDES.filter(shown);
-  const landing = landingPages(apps, SITE, LANDING, TASKS, ROUNDUPS, GUIDES);
-  for (const p of landing) copyEntries.push([`${p.key} landing`, LANDING[p.key]]);
-  const tasks = taskPages(apps, SITE, TASKS, { ROUNDUPS, GUIDES });
-  for (const p of tasks) copyEntries.push([`${p.key} task`, p.task]);
-  const hub = hubPage(apps, SITE, TASKS);
-  copyEntries.push(['all-tools landing', LANDING['all-tools']]);
-  const best = roundupPages(apps, SITE, ROUNDUPS, { TASKS, GUIDES }), bestIndex = roundupIndex(SITE, ROUNDUPS);
-  for (const p of best) copyEntries.push([`${p.key} roundup`, p.r]);
-  copyEntries.push(['best landing', LANDING.best]);
-  const guides = guidePages(apps, SITE, GUIDES, { TASKS, ROUNDUPS });
-  for (const p of guides) copyEntries.push([`${p.key} guide`, p.guide]);
-  for (const slug of Object.keys(PAGES)) copyEntries.push([`${slug} page`, PAGES[slug]]);
-  validateCopy(copyEntries);
-
-  for (const app of apps) {
-    if (!isPage(app)) continue;
-    const file = path.join(ROOT, app.path, 'index.html');
-    if (!existsSync(file)) throw new Error(`${app.id}: no page at ${app.path}index.html`);
-    const copy = APPS[app.id];
-    const url = pageUrl(app);
-    pages.push({ file, url, html: null, block: { title: copy.title, description: copy.description, url, image: imageFor(app), jsonld: appJsonLd(app, copy, url) } });
-  }
-  for (const app of aboutApps) {
-    const id = app.id;
-    const file = path.join(ROOT, app.path, 'about', 'index.html');
-    const url = `${SITE}/${app.path}about/`;
-    const crumbs = [{ '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE}/` },
-      { '@type': 'ListItem', position: 2, name: app.name, item: pageUrl(app) },
-      { '@type': 'ListItem', position: 3, name: 'About', item: url }] }];
-    pages.push({ file, url, block: { title: ABOUT[id].title, description: ABOUT[id].description, url, image: imageFor(app), jsonld: crumbs } });
-  }
-  // Pages outside the registry (shared/seo/copy.mjs PAGES): a WebPage and its breadcrumb.
-  for (const [slug, copy] of Object.entries(PAGES)) {
-    const url = `${SITE}/${slug}/`;
-    const crumb = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE}/` }, { '@type': 'ListItem', position: 2, name: copy.crumb, item: url }] };
-    // A tool page (copy has a category) is a SoftwareApplication, like the app pages; other pages are a WebPage.
-    const web = copy.category
-      ? { '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: copy.crumb, applicationCategory: copy.category, operatingSystem: OS,
-        offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' }, description: copy.description, url, author: AUTHOR }
-      : { '@context': 'https://schema.org', '@type': 'WebPage', name: copy.title, description: copy.description, url, isPartOf: { '@type': 'WebSite', name: 'Slopographic', url: `${SITE}/` } };
-    pages.push({ file: path.join(ROOT, slug, 'index.html'), url, block: { title: copy.title, description: copy.description, url, image: DEFAULT_IMAGE, jsonld: [web, crumb] } });
-  }
-  pages.push({ file: path.join(ROOT, 'index.html'), url: `${SITE}/`, block: { title: HOME.title, description: HOME.description, url: `${SITE}/`, image: DEFAULT_IMAGE, jsonld: homeJsonLd(apps) } });
-
-  const out = [];
-  for (const p of pages) {
-    const before = await readFile(p.file, 'utf8');
-    // A viewport tag outside the generated block is the page's own: the block then leaves it alone. A tag inside the block is kept.
-    const outside = before.replace(/<!-- seo:start[\s\S]*?<!-- seo:end -->/, '');
-    const addViewport = !/<meta[^>]+name=["']viewport["']/i.test(outside);
-    const after = siteChrome(injectHead(before, headBlock({ ...p.block, viewport: addViewport })));
-    out.push({ file: p.file, html: after, before });
-  }
-  // Landing pages: the body comes from landing.mjs, the head block is the same as for every other page.
-  for (const p of landing) {
-    const file = path.join(ROOT, p.dir, 'index.html');
-    const before = existsSync(file) ? await readFile(file, 'utf8') : '';
-    const block = { title: LANDING[p.key].title, description: LANDING[p.key].description, url: p.url, image: DEFAULT_IMAGE, viewport: false,
-      jsonld: [{ '@context': 'https://schema.org', '@type': 'WebPage', name: LANDING[p.key].title, description: LANDING[p.key].description, url: p.url, isPartOf: { '@type': 'WebSite', name: 'Slopographic', url: `${SITE}/` } },
-        { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE}/` }, { '@type': 'ListItem', position: 2, name: p.crumb, item: p.url }] }] };
-    const app = apps.find((a) => a.id === p.key), video = app && videoJsonLd(app, SITE);
-    if (video) block.jsonld.push(video);
-    out.push({ file, html: injectHead(p.html, headBlock(block)), before });
-  }
-  // Task pages (tools/seo/tasks.mjs, copy in shared/seo/tasks/): the same head block, with their own JSON-LD.
-  for (const p of tasks) {
-    const file = path.join(ROOT, p.dir, 'index.html');
-    const before = existsSync(file) ? await readFile(file, 'utf8') : '';
-    const image = imageFor(p.app);
-    const block = { title: p.task.title, description: p.task.description, url: p.url, image, viewport: false, jsonld: taskJsonLd(p.task, p.app, p.url, SITE) };
-    out.push({ file, html: injectHead(p.html, headBlock(block)), before });
-  }
-  { // the hub of every task page
-    const file = path.join(ROOT, hub.dir, 'index.html'), copy = LANDING['all-tools'];
-    const before = existsSync(file) ? await readFile(file, 'utf8') : '';
-    const jsonld = [{ '@context': 'https://schema.org', '@type': 'CollectionPage', name: copy.title, description: copy.description, url: hub.url, isPartOf: { '@type': 'WebSite', name: 'Slopographic', url: `${SITE}/` } },
-      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE}/` }, { '@type': 'ListItem', position: 2, name: 'All tools', item: hub.url }] }];
-    out.push({ file, html: injectHead(hub.html, headBlock({ title: copy.title, description: copy.description, url: hub.url, image: DEFAULT_IMAGE, viewport: false, jsonld })), before });
-  }
-  // guides (/<app>/<slug>/): the same head block, with their own JSON-LD
-  for (const p of guides) {
-    const file = path.join(ROOT, p.dir, 'index.html'), before = existsSync(file) ? await readFile(file, 'utf8') : '';
-    out.push({ file, html: injectHead(p.html, headBlock({ title: p.guide.title, description: p.guide.description, url: p.url, image: imageFor(p.app), viewport: false, jsonld: guideJsonLd(p.guide, p.app, p.url, SITE) })), before });
-  }
-  // round-ups (/best/<slug>/) and their index: the same head block, with their own JSON-LD
-  for (const p of [...best, { ...bestIndex, r: null }]) {
-    const file = path.join(ROOT, p.dir, 'index.html'), copy = p.r || LANDING.best;
-    const before = existsSync(file) ? await readFile(file, 'utf8') : '';
-    const jsonld = p.r ? roundupJsonLd(p.r, p.url, SITE) : [{ '@context': 'https://schema.org', '@type': 'CollectionPage', name: copy.title, description: copy.description, url: p.url }];
-    out.push({ file, html: injectHead(p.html, headBlock({ title: copy.title, description: copy.description, url: p.url, image: DEFAULT_IMAGE, viewport: false, jsonld })), before });
-  }
-  // converter pages (convert/js/core/pages.js): their own frame, with the footer's site links in a slot before the shell
-  for (const rel of converterFiles()) {
-    const file = path.join(ROOT, rel), have = out.find((f) => f.file === file);
-    if (have) have.html = siteChrome(addFootSlot(have.html));
-    else { const before = await readFile(file, 'utf8'); out.push({ file, html: siteChrome(addFootSlot(before)), before }); }
-  }
-  out.push(await sitemap(apps, date, [...landing.map((p) => p.url), ...tasks.map((p) => p.url), ...guides.map((p) => p.url), hub.url, bestIndex.url, ...best.map((p) => p.url), ...Object.keys(PAGES).map((slug) => `${SITE}/${slug}/`)]));
+  out.push(...await sitemaps(byLang, date, codes));
   return out;
-}
-
-async function sitemap(apps, date, extra) {
-  const file = path.join(ROOT, 'sitemap.xml');
-  const old = await readFile(file, 'utf8');
-  const urls = [`${SITE}/`];
-  for (const a of apps) if (isPage(a)) urls.push(pageUrl(a));
-  for (const a of apps) if (isPage(a) && existsSync(path.join(ROOT, a.path, 'about', 'index.html'))) urls.push(`${SITE}/${a.path}about/`);
-  urls.push(...extra);
-  // Keep the pages that are not app pages (the convert converters and hub) as they are, while their file is there (a
-  // white-label build can leave a page out: the typeface page of a site without its own fonts).
-  const onDisk = (u) => { const rel = u.slice(SITE.length + 1); return existsSync(path.join(ROOT, rel === '' || rel.endsWith('/') ? rel + 'index.html' : rel)); };
-  for (const m of old.matchAll(/<loc>([^<]+)<\/loc>/g)) if (!urls.includes(m[1]) && onDisk(m[1])) urls.push(m[1]);
-  // A URL keeps the date it was last written with; only a new URL gets this run's date, so the file changes when the pages do.
-  const dated = new Map([...old.matchAll(/<loc>([^<]+)<\/loc>\s*<lastmod>([^<]+)<\/lastmod>/g)].map((m) => [m[1], m[2]]));
-  const body = [...new Set(urls)].map((u) => `  <url><loc>${u}</loc><lastmod>${dated.get(u) || date}</lastmod></url>`).join('\n');
-  const html = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${body}\n</urlset>\n`;
-  return { file, html, before: old };
 }
 
 async function main() {
@@ -269,16 +73,23 @@ async function main() {
   const dateArg = process.argv.find((a) => a.startsWith('--date='));
   const date = dateArg ? dateArg.slice(7) : new Date().toISOString().slice(0, 10);
   const files = await build({ date });
-  const stale = files.filter((f) => f.before !== f.html).map((f) => path.relative(ROOT, f.file));
+  const stale = files.filter((f) => f.before !== f.html && !(f.html === null && f.before === undefined)).map((f) => path.relative(ROOT, f.file));
+  const langs = published().map((c) => `${c}${c === ROOT_LANG ? ' (root)' : ` (${prefixOf(c)}/)`}`).join(', ');
+  const left = unpublished().map((u) => `${u.code}: ${u.why}`).join('; ');
   if (check) {
-    if (stale.length) { console.error('SEO out of date (run node tools/seo/write.mjs):\n  ' + stale.join('\n  ')); process.exit(1); }
-    console.log(`SEO up to date: ${files.length} files`);
+    if (stale.length) { console.error('SEO out of date (run node tools/seo/write.mjs):\n  ' + stale.slice(0, 50).join('\n  ') + (stale.length > 50 ? `\n  ... and ${stale.length - 50} more` : '')); process.exit(1); }
+    console.log(`SEO up to date: ${files.length} files; languages ${langs}${left ? `; not published: ${left}` : ''}`);
     return;
   }
-  for (const f of files) if (f.before !== f.html) { await mkdir(path.dirname(f.file), { recursive: true }); await writeFile(f.file, f.html); }
-  console.log(`SEO written: ${stale.length} changed of ${files.length} files (lastmod ${date})`);
+  for (const f of files) {
+    if (f.before === f.html) continue;
+    if (f.html === null) { await rm(f.file, { force: true }); continue; }
+    await mkdir(path.dirname(f.file), { recursive: true });
+    await writeFile(f.file, f.html);
+  }
+  console.log(`SEO written: ${stale.length} changed of ${files.length} files (lastmod ${date}); languages ${langs}${left ? `; not published: ${left}` : ''}`);
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  main().catch((e) => { console.error(e.message); process.exit(1); });
+  main().catch((e) => { console.error(e.stack || e.message); process.exit(1); });
 }

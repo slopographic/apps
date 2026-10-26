@@ -24,6 +24,16 @@ test('validate names each bad field', () => {
   for (const k of ['origin', 'naming', 'colors', 'defaultLang']) assert.match(errs, new RegExp(`^${k}:`, 'm'));
 });
 
+test('seo.langs: the SEO pages\' languages besides the root one, \'all\' or a list; the marker carries it to tools/seo', () => {
+  const sv = loadProfile(DIR, 'sample-sv');
+  assert.deepEqual([sv.defaultLang, sv.seo.langs], ['sv', ['sv', 'en']]);
+  assert.deepEqual(markerValues(sv).seoLangs, ['sv', 'en']);
+  assert.equal(markerValues(loadProfile(DIR, 'sample')).seoLangs, undefined, 'unset: the code keeps \'all\'');
+  for (const langs of ['some', ['sv', 'xx'], 3]) assert.match(validate({ ...sv, seo: { ...sv.seo, langs } }).join('\n'), /^seo\.langs:/m);
+  assert.deepEqual(validate({ ...sv, seo: { ...sv.seo, langs: 'all' } }), []);
+  assert.match(readFileSync(path.join(ROOT, 'tools/seo/lang.mjs'), 'utf8'), /\/\*profile:defaultLang\*\/'en'[\s\S]*\/\*profile:seoLangs\*\/'all'/);
+});
+
 test('phrase pairs: registry plain names, the tone copy, the brand name', () => {
   const pairs = new Map(phrasePairs(ROOT, loadProfile(DIR, 'sample')));
   assert.equal(pairs.get('Slop PDF'), 'PDF Editor');
