@@ -94,4 +94,8 @@ window.SlopI18n && window.SlopI18n.add('sv', {
   'ui.presets.bd.pulse': 'Växer 8 % och går tillbaka',
   'ui.presets.b.spin_in': 'Snurra in',
   'ui.presets.bd.spin_in': 'Gör ett helt varv medan den växer in',
+  'ui.presets.err_no_file': 'Ingen fil angavs.',
+  'ui.presets.err_too_big': 'Filen är större än {size}.',
+  'ui.presets.err_problems': 'Inte en giltig förinställning: {list}',
+  'ui.presets.err_invalid': 'Inte en giltig förinställning.',
 });

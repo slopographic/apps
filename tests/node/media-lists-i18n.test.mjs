@@ -111,3 +111,12 @@ test('SlopCut: the random effect types read the shared effect words', () => {
   assert.equal(plain(ctx.SE.fx.TYPES).find((r) => r[0] === 'colour')[1], 'Färgskiftning');
   assert.equal(ctx.SE.fx.pick(1, 0, ['grain'], 1).type, 'grain');
 });
+
+// Covers: shared/presets/io.js
+// An import that failed said "not a valid preset" or "the file is larger than 5 MB" in every language.
+test('Swedish: a preset import that fails says so in Swedish', async () => {
+  const ctx = context([...FILES, 'shared/presets/io.js'], 'sv'), SP = ctx.SlopPresets;
+  assert.equal(SP.errorText([]), 'Inte en giltig förinställning.');
+  assert.match(SP.errorText([{ path: 'label', message: 'required' }]), /^Inte en giltig förinställning: label: required$/);
+  assert.equal(plain((await SP.importFile(null)).errors)[0].message, 'Ingen fil angavs.');
+});
