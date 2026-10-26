@@ -26,6 +26,9 @@
   }
 
   const data = () => g.SlopData;
+  const STATUS = ['draft', 'issued', 'paid', 'void', 'credited', 'open', 'fulfilled', 'cancelled', 'sent', 'accepted', 'declined', 'ordered', 'received', 'posted', 'owed'];
+  /** A record's status in words, in the chosen language ("open" is a confirmed order); an unknown one as it is. */
+  const statusText = (s) => (STATUS.includes(s) ? t('biz.st.' + s) : String(s || ''));
   /** A word from the business tables (shared/biz/i18n), or the key when SlopI18n is absent; a function value is called. */
   const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
   const val = (x) => (typeof x === 'function' ? x() : x);
@@ -115,7 +118,7 @@
     return e;
   }
 
-  const api = { PLAIN, refusal, settings, money, expenseAccounts, commands, assistant, sampleDialog: sample, h };
+  const api = { PLAIN, refusal, statusText, settings, money, expenseAccounts, commands, assistant, sampleDialog: sample, h };
   g.SlopBiz = Object.assign(g.SlopBiz || {}, api);   // merge: router.js, backup.js and setup.js may have loaded first
   if (typeof module === 'object' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);

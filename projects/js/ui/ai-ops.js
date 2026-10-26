@@ -98,7 +98,7 @@
   function state() {
     const s = st(), p = s.project;
     return {
-      app: 'Slop Projects', today: s.today, view: s.view,
+      app: 'Slop Projects', today: s.today, view: s.view,   // i18n-ignore: the assistant's tools and replies (English: API)
       projects: s.projects.map((x) => ({ id: x.id, name: x.name })),
       project: p ? { id: p.id, name: p.name, start: p.start, end: p.end, people: p.people || [], columns: p.columns.map((c) => ({ id: c.id, name: c.name, ...(c.done ? { done: true } : {}), ...(c.wip ? { wip: c.wip } : {}) })) } : null,
       tasks: p ? tasks().slice(0, 150) : [], taskCount: s.tasks.length,

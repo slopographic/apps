@@ -52,7 +52,7 @@
     // CRM fields, kept when present (the shared customer record carries them): pipeline stage and follow-up date.
     if (s.stage) c.stage = T.tidy(s.stage);
     if (s.followUp) c.followUp = T.tidy(s.followUp);
-    c.fn = c.fn || composed(c) || c.org || (c.emails[0] && c.emails[0].value) || (c.phones[0] && c.phones[0].value) || 'No name';
+    c.fn = c.fn || composed(c) || c.org || (c.emails[0] && c.emails[0].value) || (c.phones[0] && c.phones[0].value) || 'No name';   // i18n-ignore: the stored name of a contact without one (data)
     return c;
   }
   /** True when the raw record has anything worth keeping (used when importing). */

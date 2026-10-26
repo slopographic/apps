@@ -5,6 +5,7 @@
 (function (g) {
   'use strict';
   const T = g.SlopTime, UI = g.SlopUI, el = UI.el;
+  const tr = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
   const NS = (g.SlopCal = g.SlopCal || {});
   const SHOW = 3;
 
@@ -22,7 +23,7 @@
     const month = anchor.slice(0, 7);
     const names = days.slice(0, 7).map((d) => el('div', { class: 'mo-dow', role: 'columnheader' }, T.dayText(d, locale, { weekday: 'short' })));
     const cells = days.map((d) => cell(d, { ...ctx, month, zone, items, today }));
-    root.replaceChildren(el('div', { class: 'mo', role: 'grid', 'aria-label': 'Month' }, el('div', { class: 'mo-head', role: 'row' }, names), el('div', { class: 'mo-days' }, cells)));
+    root.replaceChildren(el('div', { class: 'mo', role: 'grid', 'aria-label': tr('calendar.views.month_aria') }, el('div', { class: 'mo-head', role: 'row' }, names), el('div', { class: 'mo-days' }, cells)));
   }
 
   function cell(day, ctx) {
@@ -75,7 +76,7 @@
         if (!cell) return;
         const n = T.dayDiff(fromDay(it, zone), cell.dataset.day);
         const res = it.allDay ? NS.drag.dayMove(it, n) : NS.drag.timedMove(it, n, undefined, zone);
-        if (res) ctx.commit(it, res.change, `Moved "${it.title}"`);
+        if (res) ctx.commit(it, res.change, tr('calendar.views.moved', { title: it.title }));
       },
       end() { cells.forEach((c) => c.classList.remove('is-drop')); NS.drag.tipHide(); },
     });

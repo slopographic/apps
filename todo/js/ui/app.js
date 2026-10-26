@@ -12,6 +12,8 @@
   /** The view name for the sidebar and the page title: 'today', 'upcoming', 'all' or 'list:<name>'. */
   const viewArg = () => (state.view.startsWith('list:') ? { list: state.view.slice(5) } : state.view);
   const tr = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
+  /** Dates in the language the page is read in; in English, the company's locale (Admin) decides the format. */
+  const loc = () => { const l = g.SlopI18n ? g.SlopI18n.get() : 'en'; return l !== 'en' ? l : state.locale; };
   const titleOf = () => (state.view.startsWith('list:') ? state.view.slice(5) : tr({ today: 'todo.view.today', upcoming: 'todo.view.upcoming', all: 'todo.view.all_tasks' }[state.view]));
 
   /** Re-draws the sidebar counts, the list and the title. */
@@ -34,7 +36,7 @@
       el('button', { type: 'button', class: 'btn small', onclick: newList }, tr('todo.side.new_list')));   // i18n-ignore: a class name
     $('tTitle').textContent = titleOf();
     const visible = TK.forView(all, viewArg(), today, { showDone: state.showDone, text: state.text });
-    NS.list.render($('tList'), visible, all, { view: viewArg(), today, locale: state.locale, customers, showDone: state.showDone,
+    NS.list.render($('tList'), visible, all, { view: viewArg(), today, locale: loc(), customers, showDone: state.showDone,
       toggle, edit });
     $('tDone').checked = state.showDone;
     $('tSearch').value = state.text;

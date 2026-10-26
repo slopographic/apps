@@ -11,12 +11,13 @@
   const Z = ns.zones;
   const $ = (id) => document.getElementById(id);
   const pad = (n) => String(n).padStart(2, '0');
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
   function hm(zone, ms) { const p = Z.localParts(zone, ms); return `${pad(p.h)}:${pad(p.mi)}`; }
-  function dayLabel(zone, ms) { const p = Z.localParts(zone, ms); return `${Z.WEEKDAYS[p.wd]} ${p.d} ${Z.MONTHS[p.mo - 1]}`; }
+  function dayLabel(zone, ms) { const p = Z.localParts(zone, ms); return Z.dayText(p); }
   function windowLabel(zone, a, b) {
     const s = Z.localParts(zone, a), e = Z.localParts(zone, b);
     const sameDay = s.d === e.d && s.mo === e.mo && s.y === e.y;
-    return `${dayLabel(zone, a)} ${hm(zone, a)} to ${sameDay ? hm(zone, b) : `${dayLabel(zone, b)} ${hm(zone, b)}`}`;
+    return t('time.ui.window', { day: dayLabel(zone, a), from: hm(zone, a), to: sameDay ? hm(zone, b) : `${dayLabel(zone, b)} ${hm(zone, b)}` });
   }
   const todayIn = (zone) => Z.dateIso(zone, ns.state.nowMs());
 

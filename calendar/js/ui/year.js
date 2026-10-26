@@ -22,7 +22,7 @@
     const y = anchor.slice(0, 4);
     const busy = busyDays(ctx.items, ctx.zone, `${y}-01-01`, `${y}-12-31`);
     const months = Array.from({ length: 12 }, (_, i) => mini(Number(y), i + 1, busy, ctx));
-    root.replaceChildren(el('div', { class: 'yr', role: 'region', 'aria-label': `Year ${y}` }, months));
+    root.replaceChildren(el('div', { class: 'yr', role: 'region', 'aria-label': g.SlopI18n ? g.SlopI18n.t('calendar.views.year_aria', { year: String(y) }) : String(y) }, months));
   }
 
   /** One month: its name, a weekday row and the days, Monday first. */

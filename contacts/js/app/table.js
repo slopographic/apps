@@ -24,13 +24,13 @@
       return `<th scope="col" data-col="${c.id}" aria-sort="${on ? (S.sort.dir === 'desc' ? 'descending' : 'ascending') : 'none'}">`
         + `<button type="button" class="th-btn" data-sort="${c.id}">${esc(c.label)} <span class="sort-ind" aria-hidden="true">${mark}</span></button></th>`;
     }).join('');
-    return `<thead><tr><th scope="col" class="tc-check"><input type="checkbox" id="tblAll" aria-label="Select all shown"${allOn ? ' checked' : ''}></th>${cells}</tr></thead>`;
+    return `<thead><tr><th scope="col" class="tc-check"><input type="checkbox" id="tblAll" aria-label="${esc(SC.tr('contacts.tbl.select_all'))}"${allOn ? ' checked' : ''}></th>${cells}</tr></thead>`;
   }
   function rowHtml(c) {
     const on = S.sel.has(c.id);
     const cells = TM.COLS.map((col) => `<td data-col="${col.id}" title="${esc(col.get(c))}"${col.edit ? ' tabindex="0"' : ''}>${esc(col.get(c))}</td>`).join('');
     return `<tr data-id="${esc(c.id)}" draggable="true" class="${on ? 'is-sel' : ''}" aria-selected="${on}">`
-      + `<td class="tc-check"><input type="checkbox" aria-label="Select ${esc(c.fn)}"${on ? ' checked' : ''}></td>${cells}</tr>`;
+      + `<td class="tc-check"><input type="checkbox" aria-label="${esc(SC.tr('contacts.tbl.select', { name: c.fn }))}"${on ? ' checked' : ''}></td>${cells}</tr>`;
   }
 
   /** Paints the table from the state. Not while a cell is being edited (the input would be lost). */
@@ -44,9 +44,9 @@
     const list = shown();
     $('tbl').innerHTML = headHtml(list) + `<tbody>${list.map(rowHtml).join('')}</tbody>`;
     $('tblEmpty').hidden = list.length > 0;
-    $('tblEmpty').textContent = S.list.length ? 'No contact matches the search or the filters.' : 'No contacts yet. Add one with New contact.';
+    $('tblEmpty').textContent = SC.tr(S.list.length ? 'contacts.tbl.no_match' : 'contacts.tbl.none');
     $('tblBar').hidden = !S.sel.size;
-    $('tblCount').textContent = `${S.sel.size} selected`;
+    $('tblCount').textContent = SC.tr('contacts.tbl.selected', { n: S.sel.size });
   }
 
   /** The ids between two rows, in the order they are shown. */

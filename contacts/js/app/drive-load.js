@@ -9,7 +9,7 @@
   const SC = window.SlopContacts;
   const S = SC.state;
   const UI = window.SlopUI;
-  const plural = (n) => `${n} ${n === 1 ? 'contact' : 'contacts'}`;
+  const tr = (k, v) => SC.tr(k, v);
 
   /** Gives a fresh id to each incoming contact whose id the store already holds (deleted records included) and that is
    *  not in the list (a list match keeps its id, so it still matches). */
@@ -26,15 +26,13 @@
   /** Reads the Drive record and shows it in the preview. Asks first when the list already has contacts. Resolves with true when imported. */
   async function openRecord(rec) {
     const n = S.list.length;
-    if (n && !(await UI.confirm('Merge contacts from Slop Drive?',
-      `Your list has ${plural(n)}. ${SC.bundle.NAME} from Slop Drive is merged into it. Contacts that match on id, phone or e-mail are flagged in the preview, where you choose what happens to them.`,
-      'Merge…'))) return false;
+    if (n && !(await UI.confirm(tr('contacts.dr.merge_q'), tr('contacts.dr.merge_body', { n, file: SC.bundle.NAME }), tr('contacts.dr.merge')))) return false;
     try {
       const contacts = await freeIds(SC.bundle.read(await rec.blob.text()));
-      if (!contacts.length) { UI.alert('Nothing to import', `${SC.bundle.NAME} in Slop Drive has no contacts.`); return false; }
+      if (!contacts.length) { UI.alert(tr('contacts.dr.nothing'), tr('contacts.dr.empty', { file: SC.bundle.NAME })); return false; }
       return await SC.importPreview.show(contacts, SC.bundle.NAME, [], { keepIds: true });
     } catch (e) {
-      UI.toast(`Could not open ${SC.bundle.NAME}: ${e.message || e}`);
+      UI.toast(tr('contacts.dr.open_failed', { file: SC.bundle.NAME, why: e.message || String(e) }));
       return false;
     }
   }
@@ -42,8 +40,8 @@
   /** File > Open contacts from Slop Drive. */
   async function open() {
     let rec = null;
-    try { rec = await SC.drive.find(); } catch (e) { UI.alert('Could not open', `Slop Drive could not be read: ${e.message || e}`); return false; }
-    if (!rec) { UI.alert('Nothing in Slop Drive', `There is no ${SC.bundle.NAME} in Slop Drive yet. It is saved after the first change to your contacts.`); return false; }
+    try { rec = await SC.drive.find(); } catch (e) { UI.alert(tr('contacts.dr.could_not'), tr('contacts.dr.unreadable', { why: e.message || String(e) })); return false; }
+    if (!rec) { UI.alert(tr('contacts.dr.none_title'), tr('contacts.dr.none', { file: SC.bundle.NAME })); return false; }
     return openRecord(rec);
   }
 
@@ -53,8 +51,7 @@
     let rec = null;
     try { rec = await SC.drive.find(); } catch (e) { return false; }
     if (!rec) return false;
-    const ok = await UI.confirm('Open your contacts from Slop Drive?',
-      `Slop Drive has ${SC.bundle.NAME}. Open it to fill this empty list. You see every contact in a preview before anything is added.`, 'Open');
+    const ok = await UI.confirm(tr('contacts.dr.open_q'), tr('contacts.dr.open_body', { file: SC.bundle.NAME }), tr('contacts.dr.open'));
     return ok ? openRecord(rec) : false;
   }
 

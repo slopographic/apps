@@ -7,7 +7,9 @@
   const NS = (g.SlopProjects = g.SlopProjects || {});
   const UI = g.SlopUI, el = UI.el;
   const KEY = 'slop-projects.sort';
-  const COLS = [['title', 'Task'], ['column', 'Column'], ['assignee', 'Assignee'], ['priority', 'Priority'], ['start', 'Start'], ['end', 'End'], ['due', 'Due'], [null, 'Checklist'], [null, 'Tags']];
+  const tr = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
+  // [sort key, the heading's key in the string tables]
+  const COLS = [['title', 'projects.list.task'], ['column', 'projects.list.column'], ['assignee', 'projects.list.assignee'], ['priority', 'projects.list.priority'], ['start', 'projects.list.start'], ['end', 'projects.list.end'], ['due', 'projects.list.due'], [null, 'projects.list.checklist'], [null, 'projects.list.tags']];
   const st = () => NS.state;
   let root = null;
 
@@ -27,7 +29,8 @@
     const rows = NS.board.sort(s.visible, s.sort.key, s.sort.dir, p);
     const colName = new Map(p.columns.map((c) => [c.id, c.name]));
     const day = (d) => (d ? NS.card.day(d, s.locale) : '');
-    const head = el('tr', null, COLS.map(([key, label]) => {
+    const head = el('tr', null, COLS.map(([key, lk]) => {
+      const label = tr(lk);
       if (!key) return el('th', { scope: 'col' }, label);
       const on = s.sort.key === key;
       return el('th', { scope: 'col', 'data-key': key, 'aria-sort': on ? (s.sort.dir === 'asc' ? 'ascending' : 'descending') : 'none' },
@@ -46,9 +49,9 @@
         el('td', { class: 'num' }, pr.total ? `${pr.done}/${pr.total}` : ''),
         el('td', null, (t.tags || []).join(', ')));
     });
-    root.replaceChildren(el('table', { class: 'grid-t plist', 'aria-label': `Tasks in ${p.name}` },
+    root.replaceChildren(el('table', { class: 'grid-t plist', 'aria-label': tr('projects.list.aria', { name: p.name }) },
       el('thead', null, head),
-      el('tbody', null, body.length ? body : el('tr', null, el('td', { colspan: COLS.length, class: 'note' }, s.tasks.length ? 'No tasks match the filters.' : 'No tasks yet. Add one with New task.')))));
+      el('tbody', null, body.length ? body : el('tr', null, el('td', { colspan: COLS.length, class: 'note' }, tr(s.tasks.length ? 'projects.list.no_match' : 'projects.list.none'))))));
   }
 
   /** The stored sort, or by column (board order). */

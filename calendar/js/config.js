@@ -11,19 +11,19 @@
   const COLORS = ['blue', 'green', 'amber', 'red', 'violet', 'teal', 'pink', 'grey'];
 
   const EVENT = F.obj({
-    title: F.str({ max: 200, required: true, desc: 'what the event is called' }),
+    title: F.str({ max: 200, required: true, desc: 'what the event is called' }),   // i18n-ignore: schema text for the config file and the assistant (API)
     allDay: F.bool({ desc: 'true for an all-day event; then use startDay and endDay only' }),
-    startDay: F.str({ max: 10, pattern: DAY, desc: 'all-day only: first day as YYYY-MM-DD' }),
-    endDay: F.str({ max: 10, pattern: DAY, desc: 'all-day only: last day as YYYY-MM-DD (inclusive)' }),
-    startLocal: F.str({ max: 16, pattern: LOCAL, desc: 'timed only: start as the clock reads in tz, YYYY-MM-DDTHH:MM' }),
-    endLocal: F.str({ max: 16, pattern: LOCAL, desc: 'timed only: end as the clock reads in tz, YYYY-MM-DDTHH:MM' }),
-    tz: F.str({ max: 64, required: true, desc: 'IANA time zone name, such as Europe/Paris or UTC' }),
+    startDay: F.str({ max: 10, pattern: DAY, desc: 'all-day only: first day as YYYY-MM-DD' }),   // i18n-ignore: schema text for the config file and the assistant (API)
+    endDay: F.str({ max: 10, pattern: DAY, desc: 'all-day only: last day as YYYY-MM-DD (inclusive)' }),   // i18n-ignore: schema text for the config file and the assistant (API)
+    startLocal: F.str({ max: 16, pattern: LOCAL, desc: 'timed only: start as the clock reads in tz, YYYY-MM-DDTHH:MM' }),   // i18n-ignore: schema text for the config file and the assistant (API)
+    endLocal: F.str({ max: 16, pattern: LOCAL, desc: 'timed only: end as the clock reads in tz, YYYY-MM-DDTHH:MM' }),   // i18n-ignore: schema text for the config file and the assistant (API)
+    tz: F.str({ max: 64, required: true, desc: 'IANA time zone name, such as Europe/Paris or UTC' }),   // i18n-ignore: schema text for the config file and the assistant (API)
     location: F.str({ max: 200 }), notes: F.text({ max: 5000 }),
-    color: F.enum(COLORS, { desc: 'colour name' }),
+    color: F.enum(COLORS, { desc: 'colour name' }),   // i18n-ignore: schema text for the config file and the assistant (API)
     kind: F.enum(['event', 'call', 'meeting']),
-    freq: F.enum(['none', 'daily', 'weekly', 'monthly', 'yearly'], { desc: 'how often it repeats' }),
-    until: F.str({ max: 10, pattern: DAY, desc: 'last day of a repeat, YYYY-MM-DD, optional' }),
-    remind: F.int({ min: 0, max: 525600, desc: 'minutes before the start to remind, optional' }),
+    freq: F.enum(['none', 'daily', 'weekly', 'monthly', 'yearly'], { desc: 'how often it repeats' }),   // i18n-ignore: schema text for the config file and the assistant (API)
+    until: F.str({ max: 10, pattern: DAY, desc: 'last day of a repeat, YYYY-MM-DD, optional' }),   // i18n-ignore: schema text for the config file and the assistant (API)
+    remind: F.int({ min: 0, max: 525600, desc: 'minutes before the start to remind, optional' }),   // i18n-ignore: schema text for the config file and the assistant (API)
   });
 
   /** Event records to the file's shape. */
@@ -46,22 +46,23 @@
   }
 
   /** Rules the schema cannot express: real zones, real days, and an end after the start. */
+  const tr = (k) => (g.SlopI18n ? g.SlopI18n.t(k) : k);
   function check(data) {
     const out = [];
     (data.events || []).forEach((e, i) => {
       const at = `events[${i}]`;
-      if (!T.isZone(e.tz)) out.push({ path: `${at}.tz`, message: 'is not a time zone that this browser knows' });
+      if (!T.isZone(e.tz)) out.push({ path: `${at}.tz`, message: tr('calendar.views.cfg.bad_zone') });
       if (e.allDay) {
-        if (!e.startDay) out.push({ path: `${at}.startDay`, message: 'an all-day event needs startDay' });
-        else if (e.endDay && e.endDay < e.startDay) out.push({ path: `${at}.endDay`, message: 'is before startDay' });
-      } else if (!e.startLocal || !e.endLocal) out.push({ path: at, message: 'a timed event needs startLocal and endLocal' });
-      else if (!T.parseDay(e.startLocal.slice(0, 10)) || e.endLocal < e.startLocal) out.push({ path: at, message: 'the end is before the start, or the start is not a date' });
-      if (e.freq && e.freq !== 'none' && e.until && e.until < (e.startDay || (e.startLocal || '').slice(0, 10))) out.push({ path: `${at}.until`, message: 'is before the first day' });
+        if (!e.startDay) out.push({ path: `${at}.startDay`, message: tr('calendar.views.cfg.need_start') });
+          else if (e.endDay && e.endDay < e.startDay) out.push({ path: `${at}.endDay`, message: tr('calendar.views.cfg.before_start') });
+        } else if (!e.startLocal || !e.endLocal) out.push({ path: at, message: tr('calendar.views.cfg.need_times') });
+        else if (!T.parseDay(e.startLocal.slice(0, 10)) || e.endLocal < e.startLocal) out.push({ path: at, message: tr('calendar.views.cfg.end_before') });
+        if (e.freq && e.freq !== 'none' && e.until && e.until < (e.startDay || (e.startLocal || '').slice(0, 10))) out.push({ path: `${at}.until`, message: tr('calendar.views.cfg.before_first') });
     });
     return out;
   }
 
-  C.registerKind('calendar', 'calendar', { fields: { events: F.list(EVENT, { max: 1000, required: true, desc: 'the events to add or export' }) } },
+  C.registerKind('calendar', 'calendar', { fields: { events: F.list(EVENT, { max: 1000, required: true, desc: 'the events to add or export' }) } },   // i18n-ignore: schema text for the config file and the assistant (API)
     /** Adds every event in one transaction. Existing events are not changed; a file adds its own copies. */
     async (data) => {
       const recs = data.events.map(fromConfig);
@@ -72,11 +73,11 @@
         }
         return { ok: true, value: recs.length };
       });
-      if (!r.ok) throw new Error(r.message || 'Could not add the events.');
+      if (!r.ok) throw new Error(r.message || tr('calendar.views.cfg.add_failed'));
       return { added: recs.length };
     },
     {
-      label: 'Calendar events', description: 'Events with title, time, zone, repeat, reminder and place.',
+      get label() { return tr('calendar.views.kind_label'); }, get description() { return tr('calendar.views.kind_desc'); },
       read: async () => {
         const r = await S.store.list('events');
         if (!r.ok) throw new Error(r.message);

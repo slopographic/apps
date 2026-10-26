@@ -12,7 +12,7 @@ finds in its code (`node tools/i18n/i18n.mjs extract <app>` lists them). The rat
 | Shared chrome (header, switcher, footer, Settings) | 114 | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% |
 | Shared components (shared/i18n/ui) | 220 | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% |
 
-Shared code (shell/, shared/) still has 6201 hard-coded strings; most belong to one app family (office, biz, watermark, ...).
+Shared code (shell/, shared/) still has 6178 hard-coded strings; most belong to one app family (office, biz, watermark, ...).
 
 ## Apps, by strings to translate
 
@@ -30,20 +30,20 @@ Shared code (shell/, shared/) still has 6201 hard-coded strings; most belong to 
 | 10 | Slop Drive | drive | 684 | 0 | 684 | 0 of 29 |
 | 11 | Slop Docs | docs | 659 | 0 | 659 | 0 of 29 |
 | 12 | Slop Effects | effects | 604 | 0 | 604 | 0 of 29 |
-| 13 | Slop Contacts | contacts | 540 | 0 | 540 | 0 of 29 |
-| 14 | Slop AI | ai | 508 | 0 | 508 | 0 of 29 |
-| 15 | Slop Font | fontcreator | 474 | 0 | 474 | 0 of 29 |
-| 16 | Slop 3D | 3d | 458 | 0 | 458 | 0 of 29 |
-| 17 | SlopIsolate | cutout | 433 | 0 | 433 | 0 of 29 |
+| 13 | Slop AI | ai | 508 | 0 | 508 | 0 of 29 |
+| 14 | Slop Font | fontcreator | 474 | 0 | 474 | 0 of 29 |
+| 15 | Slop 3D | 3d | 458 | 0 | 458 | 0 of 29 |
+| 16 | SlopIsolate | cutout | 433 | 0 | 433 | 0 of 29 |
+| 17 | Slop Contacts | contacts | 389 | 389 | 0 | 2 of 29 |
 | 18 | Slop Gallery | gallery | 380 | 0 | 380 | 0 of 29 |
-| 19 | Slop Projects | projects | 372 | 0 | 372 | 0 of 29 |
-| 20 | Slop Inventory | inventory | 359 | 0 | 359 | 0 of 29 |
-| 21 | Slop CRM | crm | 350 | 0 | 350 | 0 of 29 |
-| 22 | Reel Remix | remix | 338 | 0 | 338 | 0 of 29 |
-| 23 | Slop Ledger | ledger | 335 | 0 | 335 | 0 of 29 |
-| 24 | Slop Invoices | invoices | 318 | 0 | 318 | 0 of 29 |
-| 25 | Slop Paint Classic | paint-classic | 266 | 0 | 266 | 0 of 29 |
-| 26 | QR SLOP | qr | 265 | 0 | 265 | 0 of 29 |
+| 19 | Slop Inventory | inventory | 359 | 0 | 359 | 0 of 29 |
+| 20 | Slop CRM | crm | 350 | 0 | 350 | 0 of 29 |
+| 21 | Reel Remix | remix | 338 | 0 | 338 | 0 of 29 |
+| 22 | Slop Ledger | ledger | 335 | 0 | 335 | 0 of 29 |
+| 23 | Slop Invoices | invoices | 318 | 0 | 318 | 0 of 29 |
+| 24 | Slop Paint Classic | paint-classic | 266 | 0 | 266 | 0 of 29 |
+| 25 | QR SLOP | qr | 265 | 0 | 265 | 0 of 29 |
+| 26 | Slop Projects | projects | 252 | 252 | 0 | 2 of 29 |
 | 27 | Slop EML | eml | 246 | 0 | 246 | 0 of 29 |
 | 28 | Slop Resize | resize | 233 | 0 | 233 | 0 of 29 |
 | 29 | SlopClean | clean | 231 | 0 | 231 | 0 of 29 |
@@ -53,15 +53,15 @@ Shared code (shell/, shared/) still has 6201 hard-coded strings; most belong to 
 | 33 | Slop AI Tools | aitools | 203 | 0 | 203 | 0 of 29 |
 | 34 | Slop Workflows | workflows | 198 | 0 | 198 | 0 of 29 |
 | 35 | Slop Recorder | recorder | 195 | 0 | 195 | 0 of 29 |
-| 36 | Slop Time | time | 183 | 0 | 183 | 0 of 29 |
-| 37 | Slop Expenses | expenses | 181 | 0 | 181 | 0 of 29 |
-| 38 | Slop Calendar | calendar | 180 | 0 | 180 | 0 of 29 |
-| 39 | Slop Compare | diff | 170 | 0 | 170 | 0 of 29 |
-| 40 | Slop Hex | hex | 170 | 0 | 170 | 0 of 29 |
-| 41 | Slopnodes | nodes | 164 | 0 | 164 | 0 of 29 |
-| 42 | Slop Reports | reports | 161 | 0 | 161 | 0 of 29 |
-| 43 | Slop Colors | colors | 160 | 0 | 160 | 0 of 29 |
-| 44 | Slop Transcribe | transcribe | 158 | 0 | 158 | 0 of 29 |
+| 36 | Slop Expenses | expenses | 181 | 0 | 181 | 0 of 29 |
+| 37 | Slop Compare | diff | 170 | 0 | 170 | 0 of 29 |
+| 38 | Slop Hex | hex | 170 | 0 | 170 | 0 of 29 |
+| 39 | Slopnodes | nodes | 164 | 0 | 164 | 0 of 29 |
+| 40 | Slop Reports | reports | 161 | 0 | 161 | 0 of 29 |
+| 41 | Slop Colors | colors | 160 | 0 | 160 | 0 of 29 |
+| 42 | Slop Calendar | calendar | 158 | 158 | 0 | 2 of 29 |
+| 43 | Slop Transcribe | transcribe | 158 | 0 | 158 | 0 of 29 |
+| 44 | Slop Time | time | 152 | 152 | 0 | 2 of 29 |
 | 45 | Slop Upscale | upscale | 149 | 0 | 149 | 0 of 29 |
 | 46 | Slop Orders | orders | 144 | 0 | 144 | 0 of 29 |
 | 47 | Slop Purchases | purchases | 138 | 0 | 138 | 0 of 29 |
@@ -82,13 +82,17 @@ Shared code (shell/, shared/) still has 6201 hard-coded strings; most belong to 
 | 62 | Slop Reminders | reminders | 44 | 44 | 0 | 2 of 29 |
 | 63 | Checksum | checksum | 42 | 0 | 42 | 0 of 29 |
 
-Total: 25083 strings in 63 apps.
+Total: 24759 strings in 63 apps.
 
 ## Apps with tables, per language
 
 | App | en | es | fr | de | pt-BR | it | ar | sv | zh-CN | zh-TW | ja | ko | hi | ru | uk | pl | nl | tr | id | vi | he | sw | am | ha | yo | ig | zu | xh | af |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | pdf | 87% | 0% | 0% | 87% | 0% | 0% | 87% | 87% | 0% | 0% | 87% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
+| contacts | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
+| projects | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
+| calendar | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
+| time | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
 | signature | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
 | todo | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
 | reminders | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |

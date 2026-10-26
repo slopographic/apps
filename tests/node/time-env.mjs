@@ -13,6 +13,9 @@ export async function loadTime() {
   const ctx = {};
   ctx.window = ctx;
   vm.createContext(ctx);
+  // SlopI18n with the English tables (time/i18n/en), so the sentences read as on the page
+  const ROOT = path.join(JS, '..', '..');
+  for (const f of ['shared/i18n/i18n.js', 'time/i18n/en/page.js', 'time/i18n/en/panels.js']) vm.runInContext(await readFile(path.join(ROOT, f), 'utf8'), ctx, { filename: f });
   for (const f of TIME_FILES) vm.runInContext(await readFile(path.join(JS, f), 'utf8'), ctx, { filename: f });
   return ctx.SlopTime;
 }

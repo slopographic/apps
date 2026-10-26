@@ -15,8 +15,14 @@
 (function (g) {
   'use strict';
   const ns = (g.SlopTime = g.SlopTime || {});
-  const WEEKDAYS = Object.freeze(['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']);
-  const MONTHS = Object.freeze(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']);
+  const WEEKDAYS = Object.freeze(['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']);   // i18n-ignore: English names that Intl's en-US parts are matched against (data); the page shows dayText()
+  const MONTHS = Object.freeze(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']);   // i18n-ignore: English names that Intl's en-US parts are matched against (data); the page shows dayText()
+  /** 'Wed 1 Jul' for local parts { y, mo, d, wd }: these English names, or the chosen language's (Intl) on a translated page. */
+  function dayText(p) {
+    const I = g.SlopI18n, lang = I && I.get ? I.get() : 'en';
+    if (lang === 'en') return `${WEEKDAYS[p.wd]} ${p.d} ${MONTHS[p.mo - 1]}`;
+    try { return new Intl.DateTimeFormat(lang, { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' }).format(new Date(Date.UTC(p.y, p.mo - 1, p.d))); } catch (e) { return `${WEEKDAYS[p.wd]} ${p.d} ${MONTHS[p.mo - 1]}`; }
+  }
   const FALLBACK = ['UTC', 'Europe/London', 'Europe/Paris', 'Europe/Berlin', 'America/New_York', 'America/Chicago',
     'America/Denver', 'America/Los_Angeles', 'America/Sao_Paulo', 'Africa/Johannesburg', 'Asia/Dubai', 'Asia/Kolkata',
     'Asia/Shanghai', 'Asia/Tokyo', 'Australia/Sydney', 'Pacific/Auckland'];
@@ -109,5 +115,5 @@
     return hits.slice(0, limit).map((h) => h.z);
   }
 
-  ns.zones = Object.freeze({ list, isZone, search, cityOf, localParts, offsetMinutes, gmtLabel, zonedToUtc, dateIso, startOfDay, WEEKDAYS, MONTHS });
+  ns.zones = Object.freeze({ list, isZone, search, cityOf, localParts, offsetMinutes, gmtLabel, zonedToUtc, dateIso, startOfDay, dayText, WEEKDAYS, MONTHS });
 })(typeof window !== 'undefined' ? window : globalThis);

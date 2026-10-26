@@ -7,10 +7,11 @@
   const UI = g.SlopUI;
   const st = () => NS.state;
   let drop = null;
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
 
   function exportJson() {
     const p = st().project;
-    if (!p) { UI.toast('Open a project first.'); return false; }
+    if (!p) { UI.toast(t('projects.files.open_first')); return false; }
     const text = JSON.stringify(NS.io.backup(p, st().tasks), null, 2);
     UI.download(new Blob([text], { type: 'application/json' }), NS.io.fileName(p, 'json'));
     return true;
@@ -18,7 +19,7 @@
 
   function exportCsv() {
     const p = st().project;
-    if (!p) { UI.toast('Open a project first.'); return false; }
+    if (!p) { UI.toast(t('projects.files.open_first')); return false; }
     UI.download(new Blob(['﻿' + NS.io.csv(p, st().tasks, st().customers)], { type: 'text/csv' }), NS.io.fileName(p, 'csv'));
     return true;
   }
@@ -28,9 +29,9 @@
     const r = NS.io.readText(await file.text(), () => NS.store.newId(), new Set(st().customers.keys()));
     if (!r.ok) throw new Error(r.message);
     const sample = /^Sample /.test(file.name);
-    const b = { project: { ...r.project, ...(sample ? { sample: true } : {}) }, tasks: r.tasks.map((t) => (sample ? { ...t, sample: true } : t)) };
-    const ok = await NS.actions.addBundle(b, sample ? `Opened the sample "${b.project.name}"` : `Opened "${b.project.name}" with ${b.tasks.length} task${b.tasks.length === 1 ? '' : 's'}`);
-    if (!ok) throw new Error('It could not be saved.');
+    const b = { project: { ...r.project, ...(sample ? { sample: true } : {}) }, tasks: r.tasks.map((x) => (sample ? { ...x, sample: true } : x)) };
+    const ok = await NS.actions.addBundle(b, sample ? t('projects.files.opened_sample', { name: b.project.name }) : t('projects.files.opened', { name: b.project.name, n: b.tasks.length }));
+    if (!ok) throw new Error(t('projects.files.not_saved'));
     if (r.notes.length) UI.toast(r.notes.join(' '), 6000);
     return b.project.id;
   }
@@ -39,7 +40,7 @@
      drop on that zone, the sample and a paste of a .json backup, one at a time. */
   function registerIntake() {
     if (!g.SlopIntake || g.SlopIntake.spec('projects')) return;
-    g.SlopIntake.register({ id: 'projects', limit: 1, accept: { types: ['application/json'], exts: ['.json'], noun: 'a Slop Projects backup (.json)' }, process: (file) => openFile(file) });
+    g.SlopIntake.register({ id: 'projects', limit: 1, accept: { types: ['application/json'], exts: ['.json'], get noun() { return t('projects.files.noun'); } }, process: (file) => openFile(file) });
   }
   async function importFile() {
     registerIntake();
@@ -49,7 +50,7 @@
   }
 
   /** The sample project as a file, dated around today. */
-  const sampleFile = () => g.SlopSamples.file('Sample project.json', JSON.stringify(NS.sample(st().today)), 'application/json');
+  const sampleFile = () => g.SlopSamples.file('Sample project.json', JSON.stringify(NS.sample(st().today)), 'application/json');   // i18n-ignore: a file name the sample check reads
 
   async function trySample() {
     registerIntake();
@@ -64,9 +65,9 @@
     if (!zone || !g.SlopDrop || drop) return;
     registerIntake();
     drop = g.SlopDrop.attach(zone, {
-      intake: 'projects', window: false, label: 'Drop a project backup (.json) here', chooseLabel: 'Open a backup', multiple: false,
-      preview: { steps: ['Make a project, or open one from a backup.', 'Add tasks to the board and drag them across the columns.', 'Give them dates and plan them on the timeline.'] },
-      sample: { label: 'Try a sample', files: () => [sampleFile()] },
+      intake: 'projects', window: false, label: t('projects.files.drop'), chooseLabel: t('projects.files.open'), multiple: false,
+      preview: { steps: [t('projects.files.step1'), t('projects.files.step2'), t('projects.files.step3')] },
+      sample: { label: t('projects.files.try'), files: () => [sampleFile()] },
     });
   }
 

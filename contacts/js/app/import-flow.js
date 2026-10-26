@@ -18,14 +18,14 @@
         } else parts.push(...r.contacts);
         names.push(r.name);
       } catch (e) {
-        errors.push(`${(f && f.name) || 'A file'}: ${e.message}.`);
+        errors.push(`${(f && f.name) || SC.tr('contacts.imp.a_file')}: ${e.message}.`);
       }
     }
     if (!parts.length) {
-      UI.alert('Nothing to import', errors.join(' ') || 'No contacts were found in those files.');
+      UI.alert(SC.tr('contacts.imp.nothing'), errors.join(' ') || SC.tr('contacts.imp.none_found'));
       return false;
     }
-    return SC.importPreview.show(parts, names.length === 1 ? names[0] : `${names.length} files`, errors);
+    return SC.importPreview.show(parts, names.length === 1 ? names[0] : SC.tr('contacts.imp.n_files', { n: names.length }), errors);
   }
 
   SC.importFlow = { run };

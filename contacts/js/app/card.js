@@ -8,6 +8,7 @@
   const S = SC.state;
   const D = window.SlopData;
   let key = '', json = '', fp = null, sheet = null;
+  const tr = (k, v) => SC.tr(k, v);
 
   /** The card's footer (the suite rule, shared/frame/HANDOFF.md: the main button at the foot of the right-hand panel; the
    *  shared footer, shared/frame/panel.js): Edit, Duplicate and Delete on a contact, Cancel and Save in the form. */
@@ -22,14 +23,14 @@
     return b;
   }
   function readFoot(c) {
-    foot([btn('Edit', 'editFoot', 'btn primary', () => { S.mode = 'edit'; S.emit('render'); }),
-      btn('Duplicate', 'dup', 'btn', () => SC.cardRead.duplicate(c)),
-      btn('Delete', 'del', 'btn danger', () => SC.select.remove(new Set([c.id])))]);
+    foot([btn(tr('contacts.card.edit'), 'editFoot', 'btn primary', () => { S.mode = 'edit'; S.emit('render'); }),   // i18n-ignore: class names
+      btn(tr('contacts.card.dup'), 'dup', 'btn', () => SC.cardRead.duplicate(c)),
+      btn(tr('ui.delete'), 'del', 'btn danger', () => SC.select.remove(new Set([c.id])))]);   // i18n-ignore: class names
   }
 
   function empty(text) {
     const body = document.getElementById('cardBody');
-    body.innerHTML = `<div class="card-empty"><p class="card-empty-h">${text}</p></div>`;
+    body.innerHTML = `<div class="card-empty"><p class="card-empty-h">${SC.text.html(text)}</p></div>`;
     key = ''; json = '';
     foot([]);
   }
@@ -41,8 +42,8 @@
     const c = S.open ? S.byId(S.open) : null;
     if (!c) {
       key = ''; json = '';
-      if (S.sel.size > 1) empty(`${S.sel.size} contacts selected`);
-      else empty(S.list.length ? 'No contact selected' : 'No contacts yet');
+      if (S.sel.size > 1) empty(tr('contacts.card.n_selected', { n: S.sel.size }));
+      else empty(tr(S.list.length ? 'contacts.card.none_sel' : 'contacts.card.none'));
       return;
     }
     if (S.mode === 'edit') {
@@ -60,7 +61,7 @@
   function modeSwitch(mode) {
     const t = document.createElement('template');
     const b = (m, label) => `<button type="button" class="mode-btn${mode === m ? ' on' : ''}" data-act="${m}" aria-pressed="${mode === m}">${label}</button>`;
-    t.innerHTML = `<div class="mode-switch" role="group" aria-label="Card mode">${b('view', 'View')}${b('edit', 'Edit')}</div>`;
+    t.innerHTML = `<div class="mode-switch" role="group" aria-label="${tr('contacts.card.mode')}">${b('view', tr('contacts.card.view'))}${b('edit', tr('contacts.card.edit'))}</div>`;
     return t.content.firstElementChild;
   }
 
@@ -78,7 +79,7 @@
   function mountSheet() {
     if (!window.SlopSheet) return;
     const card = document.getElementById('card'), PHONE = '(max-width: 959px)';
-    sheet = window.SlopSheet.attach({ root: document.getElementById('shell'), panel: card, side: 'bottom', phone: PHONE, label: 'Contact',
+    sheet = window.SlopSheet.attach({ root: document.getElementById('shell'), panel: card, side: 'bottom', phone: PHONE, label: tr('contacts.card.label'),
       onChange: (open, why) => {
         if (open || why === 'api' || why === 'wide' || why === 'destroy' || !S.open) return;
         if (S.mode === 'edit') { sheet.open(); SC.cardEdit.cancel(); return; }
@@ -96,5 +97,7 @@
     D.store.subscribe(() => { if (!SC.records.pending()) SC.cardRead.refreshHistory(); });
   }
 
-  SC.card = { mount, render, modeSwitch };
+  /** Draws the card again from scratch (a language change). */
+  function redraw() { key = ''; json = ''; render(); }
+  SC.card = { mount, render, redraw, modeSwitch };
 })();

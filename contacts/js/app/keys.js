@@ -22,7 +22,7 @@
     if (mod && !e.altKey && k === 'f') { e.preventDefault(); $('search').focus(); return; }
     if (typing()) return;   // after this, so Ctrl+Alt (AltGr) letters still type in a field
     // e.code: on a Mac, Option+N gives a dead key, not "n"
-    if (mod && e.altKey && !e.shiftKey && e.code === 'KeyN') { e.preventDefault(); SC.newContact.open(); return; }
+    if (mod && e.altKey && !e.shiftKey && e.code === 'KeyN') { e.preventDefault(); SC.newContact.open(); return; }   // i18n-ignore: a key code
     if (mod && k === 'a' && document.getElementById('rows').contains(document.activeElement)) { e.preventDefault(); SC.commands.run('contacts.selectAll'); return; }
     if (k === 'Delete' || k === 'Backspace') {
       if (!S.sel.size && !(S.open && S.byId(S.open))) return;

@@ -9,6 +9,7 @@
   const NS = (g.SlopProjects = g.SlopProjects || {});
   const doc = g.document;
   let fr = null, p = null, wrap = null, open = false;
+  const t = (k) => (g.SlopI18n ? g.SlopI18n.t(k) : k);
 
   function mount() {
     if (fr || !g.SlopFrame) return !!fr;
@@ -22,9 +23,9 @@
     views[0].before(wrap);
     view.append(...views);
     wrap.append(view, panel);
-    fr = g.SlopFrame.mount(wrap, { view, panel, panelLabel: 'Task', storageKey: 'projects-task', app: 'projects', phoneButton: false, command: false,
+    fr = g.SlopFrame.mount(wrap, { view, panel, panelLabel: t('projects.ed.task'), storageKey: 'projects-task', app: 'projects', phoneButton: false, command: false,
       width: 380, min: 300, max: 640 });
-    p = g.SlopFrame.panel(panel, { title: 'Task' });
+    p = g.SlopFrame.panel(panel, { title: t('projects.ed.task') });
     panel.addEventListener('keydown', (e) => { if (e.key === 'Escape' && open) { e.preventDefault(); close(); } });
     return true;
   }
@@ -47,7 +48,7 @@
     p.footer(o.buttons.map((b, i) => ({ id: 'pjTask' + i, label: b.label, primary: !!b.primary, run: async () => {
       if (b.act && (await b.act()) === false) return;
       close();
-    } })), { more: 'Task' });
+    } })), { more: t('projects.ed.task') });
     if (fr.isPhone()) fr.openSheet();
     const first = o.body.querySelector('input, textarea, select');
     if (first) setTimeout(() => first.focus({ preventScroll: true }), 30);

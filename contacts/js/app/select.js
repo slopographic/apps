@@ -54,10 +54,9 @@
     const list = ids ? [...ids] : [];
     if (!list.length) return false;
     const names = S.list.filter((c) => list.includes(c.id)).slice(0, 3).map((c) => c.fn);
-    const what = list.length === 1 ? `“${names[0]}”` : `${list.length} contacts`;
-    if (ask && !(await UI.confirm(`Delete ${list.length === 1 ? 'this contact' : 'these contacts'}?`,
-      `${what} will be removed from your customers, with their notes and follow-up dates. Orders and invoices keep their link. This cannot be undone here.`,
-      'Delete', { danger: true }))) return false;
+    const what = list.length === 1 ? `”${names[0]}”` : SC.tr('contacts.sel.n_contacts', { n: list.length });
+    if (ask && !(await UI.confirm(SC.tr(list.length === 1 ? 'contacts.sel.del_one_q' : 'contacts.sel.del_many_q'),
+      SC.tr('contacts.sel.del_body', { what }), SC.tr('ui.delete'), { danger: true }))) return false;
     S.setList(S.list.filter((c) => !list.includes(c.id)));
     S.setSel([]);
     if (S.open && !S.byId(S.open)) { S.open = null; S.mode = 'view'; }
@@ -69,7 +68,7 @@
   function syncBar() {
     const n = S.sel.size;
     $('bulkBar').hidden = !n;
-    $('bulkCount').textContent = `${n} selected`;
+    $('bulkCount').textContent = SC.tr('contacts.tbl.selected', { n });
     for (const r of document.querySelectorAll('#rows .row')) r.classList.toggle('is-focus', r.dataset.id === S.focus);
   }
 
@@ -96,13 +95,15 @@
         S.setSel(next);
       }
     });
-    $('bulkStage').replaceChildren(new Option('Set stage…', ''), ...S.STAGES.map((s) => new Option(SC.stageLabel(s), s)));
+    const stages = () => $('bulkStage').replaceChildren(new Option(SC.tr('contacts.sel.set_stage'), ''), ...S.STAGES.map((s) => new Option(SC.stageLabel(s), s)));
+    stages();
+    if (window.SlopI18n) window.SlopI18n.on(stages);
     $('bulkStage').addEventListener('change', (e) => {
       const st = e.target.value;
       e.target.value = '';
       if (!st) return;
       S.replaceMany(S.selected().map((c) => ({ ...c, stage: st })));
-      UI.toast(`Stage set to ${SC.stageLabel(st)} for ${S.selected().length || 'the'} contacts`);
+      UI.toast(SC.tr('contacts.sel.stage_set', { stage: SC.stageLabel(st), n: String(S.selected().length) }));
     });
     S.on('render', syncBar);
     S.on('change', syncBar);

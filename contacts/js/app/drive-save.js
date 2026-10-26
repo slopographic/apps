@@ -53,10 +53,10 @@
   function save() {
     clearTimeout(timer);
     if (saving) { again = true; return saving; }
-    show('Saving…', 'saving');
+    show(SC.tr('contacts.dr.saving'), 'saving');
     saving = write().then(
-      () => show(`Saved to Slop Drive at ${at()}`, 'saved'),
-      (e) => show(`Could not save: ${(e && e.message) || e}`, 'error'))
+      () => show(SC.tr('contacts.dr.saved', { time: at() }), 'saved'),
+      (e) => show(SC.tr('contacts.dr.save_failed', { why: (e && e.message) || String(e) }), 'error'))
       .finally(() => {
         saving = null;
         if (again) { again = false; schedule(); }

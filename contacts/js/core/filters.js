@@ -52,15 +52,16 @@
   /** Chips for the set facets: { id, label }. names maps a tag id to its name. */
   function chips(f, names = {}) {
     const g = clean(f), out = [];
-    for (const x of g.group) out.push({ id: 'group:' + x, label: 'Group: ' + x });
-    if (g.org) out.push({ id: 'org', label: 'Organisation: ' + g.org });
-    if (g.email) out.push({ id: 'email', label: g.email === 'yes' ? 'Has e-mail' : 'No e-mail' });
-    if (g.phone) out.push({ id: 'phone', label: g.phone === 'yes' ? 'Has phone' : 'No phone' });
+    const tr = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
+    for (const x of g.group) out.push({ id: 'group:' + x, label: tr('contacts.chip.group', { name: x }) });
+    if (g.org) out.push({ id: 'org', label: tr('contacts.chip.org', { name: g.org }) });
+    if (g.email) out.push({ id: 'email', label: tr(g.email === 'yes' ? 'contacts.chip.has_email' : 'contacts.chip.no_email') });
+    if (g.phone) out.push({ id: 'phone', label: tr(g.phone === 'yes' ? 'contacts.chip.has_phone' : 'contacts.chip.no_phone') });
     if (g.from || g.to) {
-      const what = g.date === 'updated' ? 'Updated' : 'Created';
-      out.push({ id: 'date', label: `${what} ${g.from ? 'from ' + g.from : ''}${g.from && g.to ? ' ' : ''}${g.to ? 'to ' + g.to : ''}`.trim() });
+      const range = [g.from && tr('contacts.chip.from', { day: g.from }), g.to && tr('contacts.chip.to', { day: g.to })].filter(Boolean).join(' ');
+      out.push({ id: 'date', label: tr(g.date === 'updated' ? 'contacts.chip.updated_range' : 'contacts.chip.created_range', { range }) });
     }
-    for (const t of g.tag) out.push({ id: 'tag:' + t, label: 'Tag: ' + (names[t] || t) });
+    for (const t of g.tag) out.push({ id: 'tag:' + t, label: tr('contacts.chip.tag', { name: names[t] || t }) });
     return out;
   }
   /** The filter without one chip. */

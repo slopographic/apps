@@ -7,6 +7,8 @@
   const NS = (g.SlopRemindersUI = g.SlopRemindersUI || {});
   const $ = (id) => document.getElementById(id);
   const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
+  /** Dates in the language the page is read in; in English, the company's locale (Admin) decides the format. */
+  const loc = () => { const l = g.SlopI18n ? g.SlopI18n.get() : 'en'; return l !== 'en' ? l : state.locale; };
   const SOURCE = { event: 'reminders.src.event', task: 'reminders.src.task', custom: 'reminders.src.custom' };
   const GROUPS = [['overdue', 'reminders.group.overdue'], ['today', 'reminders.group.today'], ['later', 'reminders.group.later']];
   const SNOOZE = { '5m': 'reminders.row.snooze_5m', '1h': 'reminders.row.snooze_1h', tomorrow: 'reminders.row.snooze_tomorrow' };
@@ -19,12 +21,12 @@
       const v = e.target.value; e.target.value = '';
       if (!v) return;
       const r = await E.snooze(it, v);
-      UI.toast(r.ok ? t('reminders.row.snoozed_until', { when: T.dateTimeText(NR.snoozeUntil(v, NR.now(), state.zone), state.zone, state.locale) }) : r.message);
+      UI.toast(r.ok ? t('reminders.row.snoozed_until', { when: T.dateTimeText(NR.snoozeUntil(v, NR.now(), state.zone), state.zone, loc()) }) : r.message);
       } }, el('option', { value: '' }, t('reminders.row.snooze')), NR.SNOOZES.map((s) => el('option', { value: s.id }, SNOOZE[s.id] ? t(SNOOZE[s.id]) : s.label)));
     return el('li', { class: `rm-row src-${it.source}${it.dismissed ? ' is-dismissed' : ''}`, 'data-key': it.key, 'data-source': it.source },
-      el('div', { class: 'rm-when' }, T.dateTimeText(it.at, state.zone, state.locale), el('span', { class: 'rm-zone' }, state.zone)),
+      el('div', { class: 'rm-when' }, T.dateTimeText(it.at, state.zone, loc()), el('span', { class: 'rm-zone' }, state.zone)),
       el('div', { class: 'rm-main' }, el('b', null, it.title || t('reminders.row.untitled')),
-      el('span', { class: 'rm-sub' }, [t(SOURCE[it.source] || 'reminders.src.custom'), it.repeat, it.more && t('reminders.row.next_one'), snoozed && t('reminders.row.sub_snoozed', { time: T.timeText(it.snoozedUntil, state.zone, state.locale) }), it.firedAt && !snoozed && t('reminders.row.shown')].filter(Boolean).join(' · '))),
+      el('span', { class: 'rm-sub' }, [t(SOURCE[it.source] || 'reminders.src.custom'), it.repeat, it.more && t('reminders.row.next_one'), snoozed && t('reminders.row.sub_snoozed', { time: T.timeText(it.snoozedUntil, state.zone, loc()) }), it.firedAt && !snoozed && t('reminders.row.shown')].filter(Boolean).join(' · '))),
       el('div', { class: 'rm-acts' }, snooze,
         el('button', { type: 'button', class: 'btn small', onclick: async () => {   // i18n-ignore: a class name
           const r = await E.dismiss(it);

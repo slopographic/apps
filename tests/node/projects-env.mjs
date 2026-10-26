@@ -2,7 +2,7 @@
 // projects-*.test.mjs files; not a test itself.
 import vm from 'node:vm';
 import path from 'node:path';
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -13,7 +13,9 @@ export async function load() {
   const ctx = { TextEncoder };
   ctx.window = ctx;
   vm.createContext(ctx);
-  for (const f of FILES) vm.runInContext(await readFile(path.join(ROOT, f), 'utf8'), ctx, { filename: f });
+  // SlopI18n with the English tables (projects/i18n/en), so messages read as on the page
+  const en = (await readdir(path.join(ROOT, 'projects/i18n/en'))).map((f) => `projects/i18n/en/${f}`);
+  for (const f of ['shared/i18n/i18n.js', ...en, ...FILES]) vm.runInContext(await readFile(path.join(ROOT, f), 'utf8'), ctx, { filename: f });
   return { P: ctx.SlopProjects, T: ctx.SlopTime };
 }
 

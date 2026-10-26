@@ -79,5 +79,21 @@
  "reminders": {
   "en": 100,
   "sv": 100
+ },
+ "contacts": {
+  "en": 100,
+  "sv": 100
+ },
+ "time": {
+  "en": 100,
+  "sv": 100
+ },
+ "calendar": {
+  "en": 100,
+  "sv": 100
+ },
+ "projects": {
+  "en": 100,
+  "sv": 100
  }
 }
