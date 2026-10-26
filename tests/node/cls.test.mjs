@@ -6,13 +6,19 @@
 //   - the header buttons going into a More menu whose script had not loaded yet (shared/ui/hbtn.js), and the Tours button
 //     put after its slot instead of in it (shared/tour/mount.js);
 //   - the web fonts arriving: text drawn in the fallback wrapped onto other lines (shared/fonts/fonts.css's fallbacks);
-//   - Sloppo's level button following him with left and top (shared/buddy/hud.js).
+//   - Sloppo's level button following him with left and top (shared/buddy/hud.js);
+//   - a frame painted while the HTML was still being parsed: the phone's globe box sat after the copy in the HTML and was
+//     moved above it with order, so the copy painted at the top and then jumped down under the box (CLS 0.12 to 0.22,
+//     now and then, in builds whose head takes long). The box is first in index.html now; the second test streams the
+//     hero a line at a time so such a frame comes every time.
 // Every shift counts, those Chrome marks as after input too: emulated touch marks the first ones of a load that way, and
 // Lighthouse counts them.
 // Covers: shared/ui/hbtn.js, shared/buddy/hud.js, shared/tour/mount.js, shared/pwa.js, shared/fonts/fonts.css, home/home.css
-// Covers: shared/landing/landing.css, style/base.css
+// Covers: shared/landing/landing.css, style/base.css, home/hero.css, index.html
 // Run with: node --test tests/node/cls.test.mjs
 import { test } from 'node:test';
+import http from 'node:http';
+import { readFile } from 'node:fs/promises';
 import assert from 'node:assert/strict';
 import { serve } from '../../tools/speed/serve.mjs';
 import path from 'node:path';
@@ -61,4 +67,42 @@ test('the homepage and a landing page move less than CLS 0.05 on a slow phone', 
     assert.ok(sum < LIMIT, `/${page} moved CLS ${sum.toFixed(3)} (limit ${LIMIT}):\n${list}`);
     await ctx.close();
   }
+});
+
+/** Serves root like serve(), but sends the homepage's HTML a line at a time from <body> to the end of the hero, with a
+ * pause after each line: every half-parsed state of the hero gets painted. */
+async function trickle(root, pause) {
+  const inner = await serve(root, 0);
+  const html = await readFile(path.join(root, 'index.html'), 'utf8');
+  const a = html.indexOf('<body'), b = html.indexOf('</section>', html.indexOf('id="hero"')) + 10;
+  assert.ok(a > 0 && b > a, 'the homepage has a body and a hero');
+  const parts = [html.slice(0, a), ...html.slice(a, b).split(/(?<=\n)/), html.slice(b)];
+  const server = http.createServer(async (req, res) => {
+    if (new URL(req.url, 'http://x').pathname !== '/') {
+      const r = await fetch(inner.url + req.url.slice(1), { headers: { 'accept-encoding': 'identity' } });
+      res.writeHead(r.status, { 'content-type': r.headers.get('content-type') || 'application/octet-stream' });
+      return res.end(Buffer.from(await r.arrayBuffer()));
+    }
+    res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
+    for (const p of parts) { res.write(p); await new Promise((r) => setTimeout(r, pause)); }
+    res.end();
+  });
+  await new Promise((r) => server.listen(0, '127.0.0.1', r));
+  return { url: `http://127.0.0.1:${server.address().port}/`, close: () => { server.closeAllConnections?.(); server.close(); return inner.close(); } };
+}
+
+test('the homepage moves less than CLS 0.05 while its HTML is still arriving (a frame of a half-parsed hero)', { timeout: 120000 }, async (t) => {
+  const { chromium } = await import('playwright');
+  const server = await trickle(ROOT, 250);
+  const browser = await chromium.launch();
+  t.after(async () => { await browser.close(); await server.close(); });
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 3, isMobile: true, hasTouch: true });
+  const p = await ctx.newPage();
+  await p.addInitScript(observe);
+  await p.goto(server.url, { waitUntil: 'load', timeout: 60000 });
+  await p.waitForTimeout(3000);
+  const shifts = await p.evaluate(() => window.__shifts);
+  const sum = shifts.reduce((s, e) => s + e.value, 0);
+  const list = shifts.filter((e) => e.value >= 0.001).map((e) => `  ${e.at} ms  ${e.value.toFixed(4)}  ${e.moved.join(', ')}`).join('\n');
+  assert.ok(sum < LIMIT, `/ streamed moved CLS ${sum.toFixed(3)} (limit ${LIMIT}):\n${list}`);
 });

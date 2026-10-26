@@ -65,7 +65,7 @@
     for (const id of ['tSearch', 'tPeriod', 'tCustomer', 'tState']) $(id).addEventListener(id === 'tSearch' ? 'input' : 'change', draw);
     $('tNew').addEventListener('click', () => NS.app.go('new'));
     $('tCsv').addEventListener('click', downloadCsv);
-    list = g.SlopList.mount($('tRows'), { label: 'timesheets.li.label', noun: ['timesheets.li.entry', 'timesheets.li.entries'], summary: $('tSummary'),
+    list = g.SlopList.mount($('tRows'), { label: 'timesheets.li.label', count: 'timesheets.li.count', summary: $('tSummary'),
       empty: 'timesheets.li.empty', row, open: (x) => NS.app.go(`t/${x.id}`), menu: menuFor });
   }
 

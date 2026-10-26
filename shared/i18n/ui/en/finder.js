@@ -16,6 +16,5 @@ window.SlopI18n && window.SlopI18n.add('en', {
   'ui.finder.not_sorted': 'not sorted',
   'ui.list.count': '{n} items',
   'ui.list.count#one': '{n} item',
-  'ui.list.count_noun': '{n} {noun}',
   'ui.list.empty_any': 'Nothing here yet.',
 });

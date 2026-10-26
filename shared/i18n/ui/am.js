@@ -62,7 +62,6 @@ window.SlopI18n && window.SlopI18n.add('am', {
   'ui.frame.resize_aria': 'የፓነሉን መጠን ቀይር፦ {label} (የቀስት ቁልፎች፤ ሁለቴ ጠቅ ማድረግ ዳግም ያስጀምራል)',
   'ui.frame.resize_tip': 'መጠኑን ለመቀየር ይጎትቱ። ሁለቴ ጠቅ፦ ነባሪው ስፋት።',
   'ui.frame.reset_sizes': 'የፓነል መጠኖችን ዳግም አስጀምር',
-  'ui.list.empty': 'እስካሁን ምንም {items} የለም።',
   'ui.flow.from_to': 'ከ{from} ወደ {to}',
   'ui.flow.file': 'ፋይል',
   'ui.flow.file_lc': 'ፋይል',

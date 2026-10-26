@@ -62,7 +62,6 @@ window.SlopI18n && window.SlopI18n.add('ig', {
   'ui.frame.resize_aria': 'Gbanwee nha pane: {label} (igodo akụ; pịa ugboro abụọ ịtọgharịa)',
   'ui.frame.resize_tip': 'Dọrọ ka ịgbanwe nha. Pịa ugboro abụọ: obosara ndabara.',
   'ui.frame.reset_sizes': 'Tọgharịa nha pane',
-  'ui.list.empty': 'Enwebeghị {items}.',
   'ui.flow.from_to': '{from} gaa {to}',
   'ui.flow.file': 'Faịlụ',
   'ui.flow.file_lc': 'faịlụ',

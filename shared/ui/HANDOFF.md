@@ -18,11 +18,15 @@ tabbable); right-click or the Menu key opens the row's menu (through `SlopCtx` w
 ```
 
 ```js
-const list = SlopList.mount(host, { label: 'Expenses', noun: ['expense', 'expenses'], summary: countEl, empty: 'No expenses yet.',
+const list = SlopList.mount(host, { label: 'expenses.li.label', count: 'expenses.li.count', summary: countEl, empty: 'expenses.li.empty',
   row: (r) => ({ title: r.supplier, amount: money(r.amount), cls: r.status === 'void' ? 'is-void' : '', meta: [r.date, { chip: 'Void', cls: 'void' }] }),
   open: (r) => go('e/' + r.id), menu: (r) => [{ label: 'Open', act: () => go('e/' + r.id) }] });
 list.set(records);   // draws the rows, the count ("3 expenses") and the empty message
 ```
+
+`count` is one plural family in the app's tables (`'expenses.li.count': '{n} expenses'`, `'expenses.li.count#one'`,
+and `#few`/`#many`/... where a language needs them), drawn with `SlopI18n.t(key, { n })`, or a function of n. Never a
+`[singular, plural]` noun pair: Polish, Russian, Arabic and others have more forms than two.
 
 Chip classes: `good`, `warn`, `void`. A row class `is-void` greys and strikes the title and amount. Tests:
 `tests/shared/list.test.html`.

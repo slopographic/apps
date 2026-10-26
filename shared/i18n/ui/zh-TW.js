@@ -61,7 +61,6 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'ui.frame.resize_aria': '調整{label}面板的大小（方向鍵；按兩下可重設）',
   'ui.frame.resize_tip': '拖曳即可調整大小。按兩下：恢復預設寬度。',
   'ui.frame.reset_sizes': '重設面板大小',
-  'ui.list.empty': '尚無{items}。',
   'ui.flow.from_to': '{from} 轉 {to}',
   'ui.flow.file': '檔案',
   'ui.flow.file_lc': '檔案',

@@ -127,3 +127,21 @@ Register: informal «je/jij», as current Microsoft Office, Google Workspace and
 | chord (key sequence) | reeks |  |
 | recording | opnemen |  |
 | view mode Full / Focus / Content | Volledig / Focus / Inhoud |  |
+| pipeline (sales) | pijplijn | not «pipeline»; «verkooppijplijn» |
+| preset | voorinstelling | de voorinstelling; «exportvoorinstelling» |
+| keyframe | keyframe | het keyframe; kept as in Adobe NL |
+| reel | reel | de reel (short vertical video) |
+| bin (media) | bak | de bak; Adobe NL «bak» |
+| template | sjabloon | not «template» |
+| rename | Naam wijzigen | alone; with an object «Laag hernoemen» |
+| restore (backup, trash) | Herstellen | not «Terugzetten»; «Opnieuw instellen» is reset |
+| reset | Opnieuw instellen | not «resetten» |
+| send to | Verzenden naar | not «Versturen naar»; invoices are «verstuurd» |
+| panel | deelvenster | not «paneel» (older compounds like «detailpaneel» remain) |
+| preview | voorbeeld | het voorbeeld; not «voorvertoning» |
+| tool (toolbox) | gereedschap | «Tools» only as the menu title and for AI/app tools |
+| freeze panes | Deelvensters blokkeren | Excel NL |
+| pie chart | cirkelgrafiek | not «taartgrafiek» |
+| color dodge / burn | Tegenhouden / Doordrukken | Adobe NL; not «inbranden» |
+| quotes | ‘enkel’ | all «“dubbel”» converted |
+| decimal examples | 12,50 | comma in typed-amount hints; CSV messages keep the dot |
