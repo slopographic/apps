@@ -179,6 +179,7 @@ const MENUS = [
     '-',
     { label: 'Pixel Grid', check: () => store.get('pixelGrid', true), act: () => { store.set('pixelGrid', !store.get('pixelGrid', true)); dirty(); } },
     { label: 'Layer Bounds', check: () => store.get('showBounds', true), act: () => { store.set('showBounds', !store.get('showBounds', true)); dirty(); } },
+    { label: 'Mask Overlay', check: () => UI.editMask && UI.maskOverlay, act: () => toggleMaskOverlay(), en: () => hasMask() },
     '-',
     ...guidesMenuItems(),
     '-',
