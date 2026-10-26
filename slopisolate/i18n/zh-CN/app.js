@@ -1,6 +1,6 @@
 /* SlopIsolate, Simplified Chinese: the top bar, the empty view, the status bar, the busy overlay and the first-use notice. Rules: shared/i18n/APPS-HOWTO.md. Terms: shared/i18n/glossary-zh-CN.md. No plural forms (the #one keys are left out). */
 window.SlopI18n && window.SlopI18n.add('zh-CN', {
-  'cutout.app.home': 'Slopographic 主页',
+  'cutout.app.home': 'Slopographic 首页',
   'cutout.app.main_menu': '主菜单',
   'cutout.app.local_tip': 'AI 在此设备上运行。不会上传任何内容，导出的文件也绝不带水印。',
   'cutout.app.local_badge': '设备端 AI · 无水印',

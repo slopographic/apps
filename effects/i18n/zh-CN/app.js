@@ -12,7 +12,7 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'effects.app.motion': '运动',
   'effects.app.render': '渲染…',
   'effects.app.render_tip': '将合成渲染为视频或图片',
-  'effects.app.timeline': '时间轴',
+  'effects.app.timeline': '时间线',
   'effects.app.graph': '曲线编辑器',
   'effects.cmd.group_playback': '播放',
   'effects.cmd.group_keys': '关键帧',

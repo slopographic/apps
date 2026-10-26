@@ -12,7 +12,7 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'admin.da.restored': '备份已恢复',
   'admin.da.type_reset': '输入 RESET 以确认',
   'admin.da.reset_title': '重置所有数据',
-  'admin.da.reset_body': '此操作将删除此浏览器中的所有记录：客户、商品、订单、发票、付款、账本和设置。会先下载完整备份。',
+  'admin.da.reset_body': '此操作将删除此浏览器中的所有记录：客户、产品、订单、发票、付款、账本和设置。会先下载完整备份。',
   'admin.da.type_caps': '请输入大写的 RESET 以确认',
   'admin.da.export_reset': '导出备份并重置',
   'admin.da.not_typed': '请输入大写的 RESET 以确认。未删除任何内容。',

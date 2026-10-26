@@ -59,7 +59,7 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'ai.sys.unnamed_gpu': '未命名 GPU',
   'ai.sys.no_webgpu': '不支持 WebGPU',
   'ai.sys.adapter': '适配器',
-  'ai.sys.description': '描述',
+  'ai.sys.description': '说明',
   'ai.sys.hidden': '已被浏览器隐藏',
   'ai.sys.software_only': '是，仅软件实现',
   'ai.sys.not_available': '不可用',

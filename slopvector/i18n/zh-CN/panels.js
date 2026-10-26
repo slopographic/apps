@@ -41,7 +41,7 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'vector.props.quick_actions': '快速操作',
   'vector.props.expand': '扩展',
   'vector.props.lock': '锁定',
-  'vector.props.slopify_sel': 'Slop 化所选对象',
+  'vector.props.slopify_sel': 'Slopify 所选对象',
   'vector.paint.fill': '填充',
   'vector.paint.stroke': '描边',
   'vector.paint.fill_color': '填充颜色',

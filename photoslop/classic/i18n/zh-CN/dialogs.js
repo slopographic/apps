@@ -50,7 +50,7 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'paint-classic.help.drop': '将图片文件拖到窗口中即可打开。',
   'paint-classic.help.undo': '<b>Ctrl+Z / Ctrl+Y</b> 撤销和重做。<b>Ctrl+ 鼠标滚轮</b>缩放。触屏上可用两指滚动。',
   'paint-classic.help.palette': '双击调色板颜色即可编辑。点击颜色框可互换颜色。',
-  'paint-classic.help.slop': '<b>Slop 画笔</b>会滴落，<b>Slop 图章</b>盖上表情符号，<b>图像 → SLOPIFY</b> 将图片油炸（Ctrl+Z 可撤销）。',
+  'paint-classic.help.slop': '<b>Slop Brush</b>会滴落，<b>Slop Stamp</b>盖上表情符号，<b>图像 → SLOPIFY</b> 将图片油炸（Ctrl+Z 可撤销）。',
   'paint-classic.ec.title': '编辑颜色',
   'paint-classic.ec.basic': '基本颜色：',
   'paint-classic.ec.custom': '自定义颜色：',

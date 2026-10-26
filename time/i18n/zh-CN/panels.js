@@ -63,7 +63,7 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'time.sync.s': '{s} 秒',
   'time.sync.h_min': '{h} 小时 {m} 分钟',
   'time.sync.min_s': '{m} 分 {s} 秒',
-  'time.cmd.g_go': '前往',
+  'time.cmd.g_go': '转到',
   'time.cmd.g_world': '世界',
   'time.cmd.g_convert': '转换',
   'time.cmd.g_timers': '计时器',

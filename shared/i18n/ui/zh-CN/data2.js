@@ -30,7 +30,7 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'ui.data.io.missing_ref': '{where}：{field} {value} 不存在',
   'ui.data.io.missing_product': '{where}：产品 {id} 不存在',
   'ui.data.io.missing_account': '{where}：科目 {code} 不存在',
-  'ui.data.io.ledger': '总账：{message}',
+  'ui.data.io.ledger': '账簿：{message}',
   'ui.data.io.no_sequence': '编号：缺少序列 {name}',
   'ui.data.io.gap': '{name} 的编号在 {number} 处出现断号或前缀错误',
   'ui.data.io.behind': '编号：{name} 计数器落后于其最后一个编号',

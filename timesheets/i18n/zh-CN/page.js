@@ -14,7 +14,7 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'timesheets.page.working_on': '你正在做什么？',
   'timesheets.page.start': '开始计时',
   'timesheets.page.search': '搜索时间记录',
-  'timesheets.page.search_ph': '搜索描述、项目或客户',
+  'timesheets.page.search_ph': '搜索说明、项目或客户',
   'timesheets.page.period': '时间段',
   'timesheets.page.this_week': '本周',
   'timesheets.page.last_week': '上周',

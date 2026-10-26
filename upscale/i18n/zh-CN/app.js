@@ -1,6 +1,6 @@
 /* Slop Upscale, Simplified Chinese: the header, the empty page, the picture, the run's status and its messages. Rules: shared/i18n/APPS-HOWTO.md. Terms: shared/i18n/glossary-zh-CN.md. No plural forms (the #one keys are left out). */
 window.SlopI18n && window.SlopI18n.add('zh-CN', {
-  'upscale.app.home': 'Slopographic 主页',
+  'upscale.app.home': 'Slopographic 首页',
   'upscale.app.tagline': '放大图片和短视频。不会上传任何内容。',
   'upscale.app.open': '打开…',
   'upscale.app.from_drive': '从 Slop Drive 打开…',

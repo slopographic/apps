@@ -20,7 +20,7 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'photoslop.brush.pack_basics': '基础',
   'photoslop.brush.pack_ink_paint': '墨水与颜料',
   'photoslop.brush.pack_texture': '纹理',
-  'photoslop.brush.pack_slop_fx': 'Slop 特效',
+  'photoslop.brush.pack_slop_fx': 'Slop FX',
   'photoslop.brush.pack_mine': '我的画笔',
   'photoslop.brush.b_soft_round': '柔边圆',
   'photoslop.brush.b_hard_round': '硬边圆',

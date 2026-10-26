@@ -1,6 +1,6 @@
 /* Slop Effects, Simplified Chinese: the easing graph, the timeline, the transport bar, the render dialog and the file messages. Same keys as effects/i18n/en/panels2.js. Terms: shared/i18n/glossary-zh-CN.md. */
 window.SlopI18n && window.SlopI18n.add('zh-CN', {
-  'effects.graph.empty': '在时间轴中只选择一个关键帧，即可查看和编辑它的缓动。曲线显示数值从该关键帧移动到下一个关键帧的方式。',
+  'effects.graph.empty': '在时间线中只选择一个关键帧，即可查看和编辑它的缓动。曲线显示数值从该关键帧移动到下一个关键帧的方式。',
   'effects.graph.curve': '缓动曲线',
   'effects.graph.ease': '缓动',
   'effects.graph.handle': '控制柄 {n} {axis}',
@@ -18,7 +18,7 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'effects.tl.missing': '媒体缺失：请在图层面板中重新链接',
   'effects.tl.keys_at': '{name}：{keys}，位于 {t} 秒',
   'effects.tl.keys_n': '{n} 个关键帧',
-  'effects.tl.zoom': '时间轴缩放',
+  'effects.tl.zoom': '时间线缩放',
   'effects.tl.fit': '适应',
   'effects.tl.empty': '还没有图层。使用“图层”添加纯色、形状、文本、图片、视频或空图层。',
   'effects.tl.off': '（关）',

@@ -120,7 +120,7 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'photoslop.menu.search_commands': '搜索命令…',
   'photoslop.menu.about_photoslop': '关于 PhotoSlop',
   'photoslop.menu.ai_agents': 'AI 代理…',
-  'photoslop.menu.open_slop_paint_classic_ms_paint': '打开 Slop Paint Classic（MS 画图）',
+  'photoslop.menu.open_slop_paint_classic_ms_paint': '打开 Slop Paint Classic（MS Paint）',
   'photoslop.menu.back_to_slopographic_com': '返回 slopographic.com',
   'photoslop.menu.next_document': '下一个文档',
   'photoslop.menu.previous_document': '上一个文档',

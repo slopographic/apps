@@ -52,7 +52,7 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'photoslop.chrome.angle': '角度',
   'photoslop.chrome.fg_bg': '前景 → 背景',
   'photoslop.chrome.fg_transparent': '前景 → 透明',
-  'photoslop.chrome.slop_green': 'Slop 绿',
+  'photoslop.chrome.slop_green': 'Slop Green',
   'photoslop.chrome.spectrum': '光谱',
   'photoslop.chrome.reverse': '反转',
   'photoslop.chrome.rect': '矩形',

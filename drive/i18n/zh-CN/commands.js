@@ -3,7 +3,7 @@
 window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'drive.cmd.group_file': '文件',
   'drive.cmd.group_edit': '编辑',
-  'drive.cmd.group_go': '前往',
+  'drive.cmd.group_go': '转到',
   'drive.cmd.group_view': '视图',
   'drive.cmd.group_tools': '工具',
   'drive.cmd.group_help': '帮助',

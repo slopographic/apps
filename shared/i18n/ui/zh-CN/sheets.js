@@ -12,7 +12,7 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'ui.sheets.part_charts': '图表',
   'ui.sheets.part_chart_sheets': '图表工作表',
   'ui.sheets.part_pivots': '数据透视表（保留其数值）',
-  'ui.sheets.part_comments': '批注',
+  'ui.sheets.part_comments': '评论',
   'ui.sheets.part_macros': '宏',
   'ui.sheets.part_cond': '条件格式',
   'ui.sheets.part_validation': '数据验证',

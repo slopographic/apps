@@ -51,7 +51,7 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'pdf.redact.confirm_title': '永久应用涂黑？',
   'pdf.redact.confirm_body': '这将在 {pages} 上涂黑 {areas}。在你下载的文件中此操作是永久的：',
   'pdf.redact.warn_image': '每个涂黑的页面都会变成带有实心黑框的图片。其文本将无法再被选择、查找或复制。',
-  'pdf.redact.warn_flatten': '这些页面上的表单字段、批注和其他注释将被拼合；方框内的内容将被删除。',
+  'pdf.redact.warn_flatten': '这些页面上的表单字段、批注和其他批注将被拼合；方框内的内容将被删除。',
   'pdf.redact.warn_unchanged': '没有标记的页面保持不变。',
   'pdf.redact.warn_meta': '文档元数据（标题、作者、主题、关键词）将被移除。',
   'pdf.redact.redact_btn': '永久涂黑',

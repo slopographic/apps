@@ -57,7 +57,7 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'invoices.ed.closed_void': '已作废。编号仍被占用。',
   'invoices.ed.closed_credited': '已全额冲抵：贷项通知单覆盖整张发票。',
   'invoices.ed.issue_q': '开具发票',
-  'invoices.ed.issue_body': '开具此发票？它将获得下一个发票编号并记入总账。已开具的发票无法编辑。',
+  'invoices.ed.issue_body': '开具此发票？它将获得下一个发票编号并记入账簿。已开具的发票无法编辑。',
   'invoices.ed.issue_ok': '开具',
   'invoices.ed.not_issued': '未开具',
   'invoices.ed.issued': '{number} 已开具',

@@ -1,7 +1,7 @@
 /* Slop Calculator, Simplified Chinese: the whole app. Same keys as calculator/i18n/en/app.js. Terms: shared/i18n/glossary-zh-CN.md. */
 window.SlopI18n && window.SlopI18n.add('zh-CN', {
-  'calculator.app.about': '关于 Slop Calculator',
-  'calculator.app.local': '100% 本地',
+  'calculator.app.about': '关于 Slopculator',
+  'calculator.app.local': '100% 本地处理',
   'calculator.app.local_title': '你的计算、纸带和历史记录都保存在此浏览器中，不会上传任何内容。',
   'calculator.app.expression': '表达式',
   'calculator.app.type': '输入计算式',

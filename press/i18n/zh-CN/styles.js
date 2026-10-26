@@ -14,7 +14,7 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'press.style.based_on': '基于',
   'press.style.next_style': '下一样式',
   'press.style.font': '字体',
-  'press.style.font_style': '字型',
+  'press.style.font_style': '样式',
   'press.style.leading': '行距',
   'press.style.tracking': '字距',
   'press.style.shift': '偏移',

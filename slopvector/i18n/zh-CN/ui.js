@@ -62,7 +62,7 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'vector.cb.inner_radius_pct': '内半径 %',
   'vector.cb.brush': '画笔',
   'vector.cb.brush_size': '画笔大小',
-  'vector.cb.slopify_tip': 'Slop 化所选内容（{key}）',
+  'vector.cb.slopify_tip': 'Slopify 所选内容（{key}）',
   'vector.type.font_family': '字体系列',
   'vector.type.font_weight': '字重',
   'vector.type.font_size': '字号',

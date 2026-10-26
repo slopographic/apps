@@ -25,7 +25,7 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'contacts.ed.add_email': '+ 添加电子邮件',
   'contacts.ed.add_address': '+ 添加地址',
   'contacts.ed.notes_hint': '带日期的备注会保持原样。请在卡片的“动态”中添加。',
-  'contacts.ed.pipe_groups': '跟进流程和分组',
+  'contacts.ed.pipe_groups': '销售管道和分组',
   'contacts.ed.groups': '分组（用逗号分隔）',
   'contacts.ed.pipe_hint': '跟进阶段和下次跟进在卡片上设置，并保持原样。',
   'contacts.kind.phone': '电话',

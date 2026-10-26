@@ -1,6 +1,6 @@
 /* SlopClean, Simplified Chinese: the page, the panel, the cards, the dialogs and toasts. Rules: shared/i18n/APPS-HOWTO.md. Terms: shared/i18n/glossary-zh-CN.md. No plural forms (the #one keys are left out). */
 window.SlopI18n && window.SlopI18n.add('zh-CN', {
-  'clean.app.home': 'Slopographic 主页',
+  'clean.app.home': 'Slopographic 首页',
   'clean.app.tag': '元数据清除工具。不会上传任何内容。',
   'clean.app.open': '打开图片…',
   'clean.app.open_label': '打开图片',

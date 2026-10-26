@@ -54,7 +54,7 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'ui.buddy.give_him': '给他一个{item}',
   'ui.buddy.give_sloppo': '给 Sloppo 一个{item}',
   'ui.buddy.item.cookie': '饼干',
-  'ui.buddy.item.candy': '史莱姆糖',
+  'ui.buddy.item.candy': 'slop 糖',
   'ui.buddy.item.juice': '黏液果汁',
   'ui.buddy.item.plush': '毛绒玩具',
   'ui.buddy.item.hat': '新帽子',
@@ -68,7 +68,7 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'ui.buddy.kick': '哼！*踢*',
   // Ask Sloppo and the rest (power.js, fx.js, view3d.js)
   'ui.buddy.ask_ph': '随便问我什么…',
-  'ui.buddy.ask_powered': '咕噜，我就是史莱姆。随便问我什么吧。',
+  'ui.buddy.ask_powered': '咕噜，我就是 slop。随便问我什么吧。',
   'ui.buddy.ask_plain': '问我点什么（或输入命令）。',
   'ui.buddy.try_these': '试试这些：',
   'ui.buddy.no_brain': '{line}（加载 Slop AI 才能让我有大脑）',

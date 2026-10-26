@@ -13,7 +13,7 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'signature.app.mail_hi': '你好，Sam，',
   'signature.app.mail_body': '感谢你今天抽出时间。报价单已作为附件发送；如有需要修改的地方，请告诉我。',
   'signature.app.mail_regards': '此致敬礼，',
-  'signature.app.empty': '你的签名会显示在这里：请输入姓名、公司、邮箱或电话号码。',
+  'signature.app.empty': '你的签名会显示在这里：请输入姓名、公司、电子邮件或电话号码。',
   'signature.app.problems': '待检查',
   'signature.app.how_aria': '如何添加',
   'signature.app.how_h': '添加到你的邮件中',

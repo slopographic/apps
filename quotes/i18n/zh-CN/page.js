@@ -28,7 +28,7 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'quotes.page.lines': '明细',
   'quotes.page.add_line': '添加明细',
   'quotes.page.backup': '完整备份',
-  'quotes.page.backup_note': '备份包含此浏览器中共享业务数据的全部记录：客户、产品、报价单、订单、发票、付款、支出、库存和账簿。',
+  'quotes.page.backup_note': '备份包含此浏览器中共享业务数据的全部记录：客户、产品、报价单、订单、发票、付款、费用、库存和账簿。',
   'quotes.page.dl_backup': '下载完整备份',
   'quotes.page.restore': '从备份文件恢复…',
   'quotes.cmd.g_goto': '转到',

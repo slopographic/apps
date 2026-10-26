@@ -25,7 +25,7 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'ui.appdesc.quotes': '撰写含税和有效期的报价单与估价单，跟踪已发送和已接受的报价，并将确认转为订单或发票。',
   'ui.appdesc.purchases': '使用采购订单向供应商订货，将到货登记到库存中，并将供应商账单记为费用。',
   'ui.appdesc.timesheets': '用计时器或手动记录每位客户和项目的工时，汇总时长，并计入草稿发票。',
-  'ui.appdesc.expenses': '按供应商和类别记录收据和账单，包括可抵扣的税费，过账到总账，并导出 CSV。',
+  'ui.appdesc.expenses': '按供应商和类别记录收据和账单，包括可抵扣的税费，过账到账簿，并导出 CSV。',
   'ui.appdesc.invoices': '开具连续编号的发票，登记付款，跟踪逾期余额，并打印或导出 PDF。',
   'ui.appdesc.notes': '使用标签、置顶和实时预览保存笔记本和 Markdown 笔记，并保存到 Slop Drive。',
   'ui.appdesc.paste': '将文本、代码或图片分享为有效期有限的链接，支持六种语言的语法高亮。',

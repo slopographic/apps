@@ -28,7 +28,7 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'remix.ui.filled': '已补齐 {n} 个缺失素材，并重新生成剪辑方案。',
   'remix.ui.added': '已添加 {n} 个文件。请按“混剪”生成剪辑。',
   'remix.ui.music': '音乐：{name}。',
-  'remix.ui.shot_alt': '由素材和照片剪辑而成的竖版成片，每帧包含多个画面',
+  'remix.ui.shot_alt': '由素材和照片剪辑而成的竖版短片，每帧包含多个画面',
   'remix.ui.step_drop': '拖放素材和照片',
   'remix.ui.step_remix': '按“混剪”：生成片段方案',
   'remix.ui.step_play': '播放后导出视频',

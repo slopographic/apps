@@ -2,7 +2,7 @@
 window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'remix.page.note': '不会上传任何内容。剪辑方案在此设备上生成。',
   'remix.page.config': '配置',
-  'remix.page.config_tip': '将成片导出或导入为 .slop.json 配置，或请 AI 为你编写一个配置',
+  'remix.page.config_tip': '将短片导出或导入为 .slop.json 配置，或请 AI 为你编写一个配置',
   'remix.page.settings': '设置',
   'remix.page.settings_tip': '混剪设置：上传完成后自动混剪',
   'remix.page.settings_title': '混剪设置',

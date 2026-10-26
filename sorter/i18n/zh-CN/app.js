@@ -2,7 +2,7 @@
  * Terms: shared/i18n/glossary-zh-CN.md. */
 window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'sorter.app.local_tip': '你的照片在此浏览器中分类。关闭页面后，不会上传或保留任何内容。',
-  'sorter.app.local': '100% 本地',
+  'sorter.app.local': '100% 本地处理',
   'sorter.app.title': '照片分类：留下最好的',
   'sorter.app.lede': '拖入一批照片或整个文件夹，然后逐张浏览：用方向键或按钮标记喜欢、不喜欢或添加标签。可将留下的照片下载为 ZIP，或保存到 Slop Drive。',
   'sorter.app.folder': '选择文件夹…',

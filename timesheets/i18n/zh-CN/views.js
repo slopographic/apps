@@ -2,7 +2,7 @@
 window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'timesheets.f.date': '日期',
   'timesheets.f.customer': '客户',
-  'timesheets.f.description': '描述',
+  'timesheets.f.description': '说明',
   'timesheets.f.time': '时间',
   'timesheets.f.rate': '费率',
   'timesheets.f.currency': '货币',

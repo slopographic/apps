@@ -34,7 +34,7 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'photoslop.app.more': '更多',
   'photoslop.app.more_tip': '更多按钮',
   'photoslop.app.back_home': '返回 slopographic.com',
-  'photoslop.app.home': 'Slopographic 主页',
+  'photoslop.app.home': 'Slopographic 首页',
   'photoslop.app.menu': '菜单',
   'photoslop.app.new': '新建',
   'photoslop.app.new_tip': '新建文档（Ctrl+N）',

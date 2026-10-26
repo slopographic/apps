@@ -95,7 +95,7 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'ui.data.err.blocked': '数据库被另一个标签页阻止',
   'ui.data.err.needs_key': '{name} 需要{key}',
   'ui.data.err.deleted': '{name} {id} 已被删除',
-  'ui.data.err.posting_only': '{name} 仅由计费、总账和库存模块写入',
+  'ui.data.err.posting_only': '{name} 仅由计费、账簿和库存模块写入',
   'ui.data.err.invoice_status': '发票只能通过计费更改状态（开具、登记付款、作废）',
   'ui.data.err.used': '{field} {value} 已被使用',
   'ui.data.err.no_record': '没有 ID 为 {id} 的{name}记录',

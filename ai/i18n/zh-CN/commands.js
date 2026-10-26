@@ -3,7 +3,7 @@
 window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'ai.cmd.group_chat': '聊天',
   'ai.cmd.group_build': '构建',
-  'ai.cmd.group_go': '前往',
+  'ai.cmd.group_go': '转到',
   'ai.cmd.group_model': '模型',
   'ai.cmd.group_view': '视图',
   'ai.cmd.group_help': '帮助',
@@ -22,7 +22,7 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'ai.cmd.open_drive': '从 Slop Drive 打开聊天…',
   'ai.cmd.new_build': '新建迷你应用',
   'ai.cmd.template': '迷你应用模板：{name}',
-  'ai.cmd.go_to': '前往 {name}',
+  'ai.cmd.go_to': '转到 {name}',
   'ai.cmd.unload': '卸载模型',
   'ai.cmd.pause': '暂停下载',
   'ai.cmd.cancel': '取消下载',

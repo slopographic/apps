@@ -65,7 +65,7 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'photoslop.panel.lock': '锁定 / 解锁图层',
   'photoslop.panel.add_mask': '添加图层蒙版',
   'photoslop.panel.merge_down': '向下合并',
-  'photoslop.panel.duplicate': '复制图层',
+  'photoslop.panel.duplicate': '创建图层副本',
   'photoslop.panel.new_layer': '新建图层',
   'photoslop.panel.delete_layer': '删除图层',
   'photoslop.panel.step_lock': '锁定图层',

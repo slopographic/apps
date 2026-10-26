@@ -4,7 +4,7 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'projects.ed.no_title': '请为任务填写标题。',
   'projects.ed.end_before': '结束日期早于开始日期。',
   'projects.ed.title': '标题',
-  'projects.ed.desc': '描述',
+  'projects.ed.desc': '说明',
   'projects.ed.column': '列',
   'projects.ed.assignee': '负责人',
   'projects.ed.nobody': '无',

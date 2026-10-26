@@ -64,7 +64,7 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'ui.backup.app_data': 'Slop Data：记录、联系人、设置',
   'ui.backup.app_profile': '个人资料设置：各应用的选项',
   'ui.backup.app_drive': 'Slop Drive：文件和文件夹',
-  'ui.backup.app_gallery': 'Slop 图库：照片、原件、相册',
+  'ui.backup.app_gallery': 'Slop Gallery：照片、原件、相册',
   'ui.backup.app_music': 'Slop Music：播放列表',
   'ui.backup.app_tables': 'Slop Tables：模板',
   'ui.backup.app_slides': 'Slop Slides：模板',

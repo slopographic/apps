@@ -6,7 +6,7 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'press.ctl.font_family': '字体系列',
   'press.ctl.fonts': '字体…',
   'press.ctl.fonts_tip': '字体：本文档中的字体，以及你自己的字体文件',
-  'press.ctl.font_style': '字型',
+  'press.ctl.font_style': '字体样式',
   'press.ctl.size_tip': '字号（pt）',
   'press.ctl.leading_tip': '行距（pt 或“自动”）',
   'press.ctl.tracking_tip': '字距（1/1000 em）',

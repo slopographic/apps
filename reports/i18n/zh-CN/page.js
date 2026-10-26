@@ -3,7 +3,7 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'reports.app.name': '报表',
   'reports.page.report': '报表',
   'reports.page.definition': '报表定义',
-  'reports.page.lead': '汇总联系人、发票、支出、账簿和 CRM 的数据。只读：此处的操作不会更改你的任何记录。',
+  'reports.page.lead': '汇总联系人、发票、费用、账簿和 CRM 的数据。只读：此处的操作不会更改你的任何记录。',
   'reports.page.new': '新建报表',
   'reports.page.edit': '编辑',
   'reports.page.delete': '删除',

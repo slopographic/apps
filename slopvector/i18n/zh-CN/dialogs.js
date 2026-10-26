@@ -6,7 +6,7 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'vector.dlg.preset_a4': 'A4（595 × 842）',
   'vector.dlg.preset_square': 'Instagram（1080 × 1080）',
   'vector.dlg.preset_hd': '高清（1920 × 1080）',
-  'vector.dlg.preset_slop': 'Slop 默认（1200 × 800）',
+  'vector.dlg.preset_slop': 'Slop Default（1200 × 800）',
   'vector.dlg.preset_story': '竖版故事（1080 × 1920）',
   'vector.dlg.preset_custom': '自定义',
   'vector.dlg.new_title': '新建文档',

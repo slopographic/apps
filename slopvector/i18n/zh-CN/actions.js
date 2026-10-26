@@ -51,7 +51,7 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'vector.act.pf_minus': '减去顶层',
   'vector.act.pf_intersect': '交集',
   'vector.act.pf_exclude': '差集',
-  'vector.act.object_slopify': 'Slop 化',
+  'vector.act.object_slopify': 'Slopify',
   'vector.act.type_align_left': '左对齐',
   'vector.act.type_align_center': '居中对齐',
   'vector.act.type_align_right': '右对齐',

@@ -1,6 +1,6 @@
 /* Slop Docs, Simplified Chinese: the top bar, the formatting toolbar, the status bar, the Document panel, files and saving (docs/index.html, docs/js/ui). Rules: shared/i18n/APPS-HOWTO.md. Terms: shared/i18n/glossary-zh-CN.md. No plural forms (the #one keys are left out). */
 window.SlopI18n && window.SlopI18n.add('zh-CN', {
-  'docs.app.home': 'Slopographic 主页',
+  'docs.app.home': 'Slopographic 首页',
   'docs.app.doc_name': '文档名称',
   'docs.app.main_menu': '主菜单',
   'docs.app.local_tip': '你的文档保存在此设备上。不会上传任何内容。',

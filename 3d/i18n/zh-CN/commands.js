@@ -18,7 +18,7 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   '3d.cmd.export_fmt': '导出 {format}…',
   '3d.cmd.png1': '渲染 PNG（1×）',
   '3d.cmd.png2': '渲染 PNG（2×）',
-  '3d.cmd.duplicate': '复制',
+  '3d.cmd.duplicate': '创建副本',
   '3d.cmd.delete': '删除',
   '3d.cmd.group': '编组所选对象',
   '3d.cmd.ungroup': '取消编组',
@@ -107,6 +107,6 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   '3d.menu.scale': '缩放',
   '3d.menu.fill': '填充',
   '3d.menu.select_loop': '选择循环',
-  '3d.menu.deselect_all': '取消全部选择',
+  '3d.menu.deselect_all': '取消全选',
   '3d.menu.exit_edit': '退出编辑模式',
 });

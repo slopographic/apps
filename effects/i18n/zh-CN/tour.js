@@ -7,7 +7,7 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'effects.tour.composition_text': '整个合成的设置。',
   'effects.tour.layer_title': '图层',
   'effects.tour.layer_text': '添加并排列组成合成的图层。',
-  'effects.tour.timeline_title': '时间轴',
+  'effects.tour.timeline_title': '时间线',
   'effects.tour.timeline_text': '每个图层都是一条跨越时间的色条。选择一个图层即可更改其关键帧。',
   'effects.tour.panel_title': '特效面板',
   'effects.tour.panel_text': '所选图层的特效和属性，分在不同标签页中。',

@@ -1,6 +1,6 @@
 /* Slop AI Tools, Simplified Chinese: the hub, the tool gate, the Get more dialog, the tool frame, the device checks and the first-use notice. These modules also run on other apps' pages. Rules: shared/i18n/APPS-HOWTO.md. Terms: shared/i18n/glossary-zh-CN.md. No plural forms (the #one keys are left out). */
 window.SlopI18n && window.SlopI18n.add('zh-CN', {
-  'aitools.hub.home': 'Slopographic 主页',
+  'aitools.hub.home': 'Slopographic 首页',
   'aitools.hub.intro': '五个工具都在你的设备上运行。不会上传任何内容。每个模型都是可选的：只有在你按下 ',
   'aitools.hub.get_more': '获取更多',
   'aitools.hub.intro_end': ' 后才会下载，并且对话框会先显示其许可证和大小。',

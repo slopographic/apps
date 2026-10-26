@@ -62,7 +62,7 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'ui.ai.cloud.guide_gemini_step_2': '在该页面创建 API 密钥并复制。',
   'ui.ai.cloud.guide_gemini_step_3': '将其粘贴到下方的“API 密钥”中，点击“测试连接”，然后选择标有“免费”的模型（Flash 模型）。',
   'ui.ai.cloud.guide_groq_why': '速度非常快，并且擅长控制应用（使用工具）。',
-  'ui.ai.cloud.guide_groq_step_1': '打开 {link} 并注册（邮箱、Google 或 GitHub）。',
+  'ui.ai.cloud.guide_groq_step_1': '打开 {link} 并注册（电子邮件、Google 或 GitHub）。',
   'ui.ai.cloud.guide_groq_step_2': '在该页面创建 API 密钥并复制。',
   'ui.ai.cloud.guide_groq_step_3': '将其粘贴到下方的“API 密钥”中，点击“测试连接”，然后选择 gpt-oss 120B。',
   'ui.ai.cloud.guide_openrouter_why': '一个密钥即可使用多种模型；名称以 :free 结尾的模型免费。',
