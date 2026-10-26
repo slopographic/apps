@@ -41,6 +41,7 @@ button, select, input { font: inherit; color: inherit; }
 .tb-btn, .btn, .vp-btn { background: transparent; border: 1px solid transparent; border-radius: 6px; padding: 5px 9px; cursor: pointer; color: var(--ink); }
 a.tb-btn { text-decoration: none; display: inline-block; }
 .actions .tb-btn, .actions .btn { display: inline-flex; align-items: center; height: 30px; padding-block: 0; }   /* one height with --slop-hbtn-h */
+.actions [hidden] { display: none; }   /* the display above must not show a hidden button (Mesh outside edit mode) */
 .tb-btn:hover, .vp-btn:hover { background: var(--panel-2); border-color: var(--line); }
 .tb-btn[aria-pressed="true"] { background: var(--panel-2); border-color: var(--accent); }
 .tb-btn:focus-visible, .btn:focus-visible, .vp-btn:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
