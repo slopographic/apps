@@ -33,7 +33,14 @@ function addScript(src) {
 let spec = null;
 async function indexSpec() {
   if (!spec) {
-    spec = fetch(INDEX).then((r) => r.text()).then((src) => {
+    // XMLHttpRequest, not fetch: a page may stand in for fetch (the AI panel's tests answer it with model replies)
+    spec = new Promise((res, rej) => {
+      const x = new XMLHttpRequest();
+      x.open('GET', INDEX);
+      x.onload = () => (x.status < 400 ? res(x.responseText) : rej(new Error(String(x.status))));
+      x.onerror = rej;
+      x.send();
+    }).then((src) => {
       const list = (name) => JSON.parse((src.match(new RegExp(name + ':\\s*(\\[[^\\]]*\\])')) || [0, '[]'])[1].replace(/'/g, '"'));
       return { base: INDEX.replace(/[^/]*$/, ''), parts: list('parts'), langs: list('langs') };
     }).catch(() => ({ base: '', parts: [], langs: [] }));
