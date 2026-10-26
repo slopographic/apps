@@ -15,10 +15,12 @@ export async function loadInto(files, extra = {}) {
   const ctx = { ...extra };
   ctx.window = ctx;
   vm.createContext(ctx);
-  for (const f of ['i18n/i18n.js', 'i18n/ui/en.js', 'i18n/ui/en/data.js', 'i18n/ui/en/data2.js', ...files]) {   // the messages' English words first
+  // The records' messages need their English words (shared/i18n/ui/en/data.js, data2.js) first, unless the caller loads i18n itself.
+  const words = files.some((f) => f.startsWith('data/')) && !files.includes('i18n/i18n.js') ? ['i18n/i18n.js', 'i18n/ui/en.js', 'i18n/ui/en/data.js', 'i18n/ui/en/data2.js'] : [];
+  for (const f of [...words, ...files]) {
     const src = await readFile(path.join(ROOT, f), 'utf8');
     vm.runInContext(src, ctx, { filename: f });
-    if (f === 'i18n/i18n.js') vm.runInContext("window.SlopI18n = window.SlopI18n.create({ defaultLang: 'en', profile: null });", ctx);   // English in any build
+    if (words.length && f === 'i18n/i18n.js') vm.runInContext("window.SlopI18n = window.SlopI18n.create({ defaultLang: 'en', profile: null });", ctx);   // English in any build
   }
   return ctx;
 }
