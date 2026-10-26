@@ -19,7 +19,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'vector.act.file_config_export': 'Configurazione: esporta configurazione attuale…',
   'vector.act.file_config_template': 'Configurazione: esporta modello vuoto…',
   'vector.act.file_config_import': 'Configurazione: importa configurazione…',
-  'vector.act.file_config_ai': 'Configurazione: chiedi all\'IA di scrivere una configurazione…',
+  'vector.act.file_config_ai': 'Configurazione: chiedi all’IA di scrivere una configurazione…',
   'vector.act.edit_copy_buffer': 'Copia negli appunti',
   'vector.act.edit_paste_front': 'Incolla davanti',
   'vector.act.edit_paste_back': 'Incolla dietro',

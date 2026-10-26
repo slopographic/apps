@@ -27,7 +27,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'ai.chat.placeholder': 'Scrivi a Slop AI',
   'ai.chat.message': 'Messaggio',
   'ai.chat.send': 'Invia',
-  'ai.chat.send_tip': 'Invia (Enter)',
+  'ai.chat.send_tip': 'Invia (Invio)',
   'ai.chat.stop': 'Ferma',
   'ai.chat.attach': 'Allega un file di testo',
   'ai.chat.privacy': 'Gira sul tuo dispositivo. Nulla lo lascia.',

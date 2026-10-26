@@ -32,7 +32,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'reports.app.copy': '{title} (copia)',
   'reports.lay.definition': 'Definizione',
   'reports.lay.csv_tip': 'Scarica le righe mostrate come file CSV',
-  'reports.sv.builtin_id': 'Quell\'id appartiene a un report integrato. Scegline un altro.',
+  'reports.sv.builtin_id': 'Quell’id appartiene a un report integrato. Scegline un altro.',
   'reports.sv.no_save': 'Questo browser non consente di salvare i report.',
   'reports.cmd.g_file': 'File',
   'reports.cmd.g_reports': 'Report',

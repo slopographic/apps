@@ -22,7 +22,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'recorder.support.n_screen_mobile': 'Telefoni e tablet non permettono alle pagine web di registrare lo schermo. Usa il registratore di schermo del telefono.',
   'recorder.support.n_screen_no': 'Questo browser non permette alle pagine di acquisire lo schermo.',
   'recorder.support.n_system_yes': 'Nella finestra di condivisione del browser metti la spunta su «Condividi audio della scheda» o «Condividi audio di sistema». Una sola finestra non condivide audio.',
-  'recorder.support.n_system_partial': 'Solo l\'audio di una scheda del browser: scegli una scheda e metti la spunta su «Condividi audio della scheda». Uno schermo intero o una finestra non condividono audio qui (lo fanno su Windows e ChromeOS).',
+  'recorder.support.n_system_partial': 'Solo l’audio di una scheda del browser: scegli una scheda e metti la spunta su «Condividi audio della scheda». Uno schermo intero o una finestra non condividono audio qui (lo fanno su Windows e ChromeOS).',
   'recorder.support.n_system_no': 'Questo browser non condivide audio dallo schermo. Il microfono registra comunque.',
   'recorder.support.n_camera_yes': 'Il browser chiede il permesso per la fotocamera una sola volta.',
   'recorder.support.n_camera_no': 'Questo browser non dà alle pagine accesso alla fotocamera.',

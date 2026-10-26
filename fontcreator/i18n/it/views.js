@@ -49,7 +49,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'fontcreator.kern.remove_pair': 'Rimuovi la coppia {pair}',
   'fontcreator.kern.undo_remove': 'Rimuovi una coppia di crenatura',
   'fontcreator.kern.undo_kern': 'Crenatura {pair}',
-  'fontcreator.kern.not_in_font': 'Entrambe le lettere devono essere nel tipo di carattere ({char} non c\'è)',
+  'fontcreator.kern.not_in_font': 'Entrambe le lettere devono essere nel tipo di carattere ({char} non c’è)',
   'fontcreator.test.text': 'Testo',
   'fontcreator.test.text_label': 'Testo con cui provare il tipo di carattere',
   'fontcreator.test.sizes': 'Dimensioni (px)',

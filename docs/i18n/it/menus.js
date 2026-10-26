@@ -17,7 +17,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'docs.menu.dl_txt': 'Scarica testo semplice (.txt)',
   'docs.menu.dl_sdoc': 'Scarica Slop Doc (.sdoc)',
   'docs.menu.send_to': 'Invia a…',
-  'docs.menu.print': 'Stampare…',
+  'docs.menu.print': 'Stampa…',
   'docs.menu.select_all': 'Seleziona tutto',
   'docs.menu.align': 'Allinea',
   'docs.menu.left': 'Sinistra',
@@ -44,6 +44,6 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'docs.ctx.wrap': 'Testo a capo',
   'docs.ctx.inline': 'In linea',
   'docs.ctx.image_delete': 'Elimina immagine',
-  'docs.ctx.page_start': 'Vai all\'inizio della pagina',
+  'docs.ctx.page_start': 'Vai all’inizio della pagina',
   'docs.ctx.page_break': 'Inserisci interruzione di pagina qui',
 });

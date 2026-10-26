@@ -43,7 +43,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'photoslop.type.leading': 'Interlinea',
   'photoslop.type.colour': 'Colore',
   'photoslop.type.aa_short': 'AA',
-  'photoslop.type.hint': 'Fare clic per scrivere · {mod}Invio conferma · Esc annulla',
+  'photoslop.type.hint': 'Fai clic per scrivere · {mod}Invio conferma · Esc annulla',
   'photoslop.type.select_layer_first': 'Seleziona prima un livello di testo',
   'photoslop.type.bend': 'Piega',
   'photoslop.type.warp_text': 'Deforma testo',

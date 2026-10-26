@@ -5,7 +5,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'press.io.send_png_to': 'Invia PNG della pagina a {app}',
   'press.io.open_drive_title': 'Apri da Slop Drive',
   'press.io.place_drive_title': 'Inserisci da Slop Drive',
-  'press.io.intake_noun': 'un\'immagine, un testo, un PDF, un carattere o un file .slpress',
+  'press.io.intake_noun': 'un’immagine, un testo, un PDF, un carattere o un file .slpress',
   'press.io.placed_text': 'Testo inserito: aggiunte {n} pagine',
   'press.io.placed_text#one': 'Testo inserito: aggiunta {n} pagina',
   'press.io.rendering_pdf': 'Generazione delle pagine PDF…',

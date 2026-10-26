@@ -9,7 +9,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'photoslop.filter.balance': 'Bilanciamento colore…',
   'photoslop.filter.bw': 'Bianco e nero…',
   'photoslop.filter.photofilter': 'Filtro fotografico…',
-  'photoslop.filter.gradmap': 'Mappa gradiente…',
+  'photoslop.filter.gradmap': 'Mappa sfumatura…',
   'photoslop.filter.posterize': 'Posterizza…',
   'photoslop.filter.threshold': 'Soglia…',
   'photoslop.filter.invert': 'Inverti',
@@ -57,6 +57,6 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'photoslop.filter.bevel': 'Smusso e rilievo…',
   'photoslop.filter.inner_shadow': 'Ombra interna…',
   'photoslop.filter.inner_glow': 'Bagliore interno…',
-  'photoslop.filter.gradient': 'Sovrapposizione gradiente…',
+  'photoslop.filter.gradient': 'Sovrapposizione sfumatura…',
   'photoslop.filter.redeye': 'Rimozione occhi rossi…',
 });

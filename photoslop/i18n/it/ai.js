@@ -1,6 +1,6 @@
 /* PhotoSlop, Italian: the on-device AI tools and AI pictures (notices, toasts, history steps; the assistant's own words stay English). Same keys as photoslop/i18n/en/ai.js. Terms: shared/i18n/glossary-it.md. */
 window.SlopI18n && window.SlopI18n.add('it', {
-  'photoslop.ai.notice_local': 'Funziona su questo dispositivo. L\'immagine non viene caricata da nessuna parte.',
+  'photoslop.ai.notice_local': 'Funziona su questo dispositivo. L’immagine non viene caricata da nessuna parte.',
   'photoslop.ai.notice_cancelled': 'Annullato: il modello non è stato caricato',
   'photoslop.ai.notice_cutout': 'Rimuovere lo sfondo?',
   'photoslop.ai.model_subject': 'Modello del soggetto (U²-Netp)',
@@ -24,5 +24,5 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'photoslop.ai.step_gradient': 'Sfumatura',
   'photoslop.ai.step_shape': 'Forma',
   'photoslop.gen.step_generate': 'Genera immagine',
-  'photoslop.gen.no_layer': 'Non c\'è nessun livello da modificare.',
+  'photoslop.gen.no_layer': 'Non c’è nessun livello da modificare.',
 });

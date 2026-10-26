@@ -59,10 +59,10 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'ai.ws.label': 'Area di lavoro',
   'ai.ws.open_tab': 'Apri in una nuova scheda ↗',
   'ai.ws.open_tab_tip': 'Apri questa app in una nuova scheda',
-  'ai.ws.hide': 'Nascondi l\'area di lavoro',
-  'ai.ws.hide_tip': 'Nascondi l\'area di lavoro (le app restano aperte)',
+  'ai.ws.hide': 'Nascondi l’area di lavoro',
+  'ai.ws.hide_tip': 'Nascondi l’area di lavoro (le app restano aperte)',
 
-  'ai.launch.section': 'Apri un\'app',
+  'ai.launch.section': 'Apri un’app',
   'ai.launch.apps': 'App',
   'ai.launch.open_tip': 'Apri {name} in una nuova scheda',
   'ai.launch.with': 'Apri {name} con…',

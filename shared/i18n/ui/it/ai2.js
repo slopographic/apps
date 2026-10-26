@@ -14,7 +14,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'ui.ai.perm.kind_spend': 'spesa per la generazione di immagini',
   'ui.ai.perm.kind_spend_what': 'creare o modificare un’immagine presso il tuo fornitore, che addebita il tuo account',
   // le modalità
-  'ui.ai.perm.mode_ask': 'Chiedere ogni volta',
+  'ui.ai.perm.mode_ask': 'Chiedi ogni volta',
   'ui.ai.perm.mode_ask_note': 'Le azioni che modificano, eliminano o inviano qualcosa ti chiedono prima conferma. Lettura e modifiche ordinarie vengono eseguite.',
   'ui.ai.perm.mode_changes': 'Consenti le modifiche alle app, chiedere prima di eliminare o inviare file',
   'ui.ai.perm.mode_changes_short': 'Consenti le modifiche alle app',
@@ -97,7 +97,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'ui.convert.title': 'Converti',
   'ui.convert.could_not_open': 'Impossibile aprire Converti: {error}',
   'ui.convert.foot': 'Convertito su questo dispositivo. Non viene caricato nulla.',
-  'ui.convert.remove_from': 'Rimuovere i file da {app}',
+  'ui.convert.remove_from': 'Rimuovi i file da {app}',
   'ui.convert.from': 'Da {app}: {files}',
   'ui.convert.no_pdf': '{files} non si può convertire in PDF qui. Immagini, file SVG, HTML, testo e Markdown diventano un PDF.',
   'ui.convert.save_drive': 'Salva in Slop Drive',

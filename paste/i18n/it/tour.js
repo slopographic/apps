@@ -6,11 +6,11 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'paste.tour.search_title': 'Cerca',
   'paste.tour.search_text': 'Cerca titoli e testo.',
   'paste.tour.image_title': 'Snippet immagine',
-  'paste.tour.image_text': 'Aggiungi uno snippet che è un\'immagine.',
+  'paste.tour.image_text': 'Aggiungi uno snippet che è un’immagine.',
   'paste.tour.items_title': 'I tuoi snippet',
   'paste.tour.items_text': 'Ogni snippet viene salvato in Slop Drive man mano.',
   'paste.tour.editor_title': 'Editor',
-  'paste.tour.editor_text': 'Incolla qui testo, codice o un\'immagine, poi copia o condividi.',
+  'paste.tour.editor_text': 'Incolla qui testo, codice o un’immagine, poi copia o condividi.',
   'paste.tour.commands_title': 'Comandi',
   'paste.tour.commands_text': 'Cerca tra tutti i comandi di Paste.',
 });

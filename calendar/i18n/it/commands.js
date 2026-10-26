@@ -8,7 +8,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'calendar.cmd.year': 'Calendario: vista annuale',
   'calendar.cmd.month': 'Calendario: vista mensile',
   'calendar.cmd.split': 'Calendario: vista divisa',
-  'calendar.cmd.undo': 'Calendario: annulla l\'ultimo spostamento',
+  'calendar.cmd.undo': 'Calendario: annulla l’ultimo spostamento',
   'calendar.cmd.week': 'Calendario: vista settimanale',
   'calendar.cmd.day': 'Calendario: vista giornaliera',
   'calendar.cmd.agenda': 'Calendario: agenda',

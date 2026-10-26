@@ -43,7 +43,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'recorder.set.src_camera': 'Webcam',
   'recorder.set.src_pip': 'Schermo + webcam',
   'recorder.set.src_mic': 'Microfono',
-  'recorder.set.note_screen': 'Quando premi Registra scegli l\'intero schermo, una finestra o una scheda del browser.',
+  'recorder.set.note_screen': 'Quando premi Registra scegli l’intero schermo, una finestra o una scheda del browser.',
   'recorder.set.note_camera': 'Il browser chiede il permesso per la fotocamera una sola volta. Funziona anche su telefoni e tablet.',
   'recorder.set.note_pip': 'Scegli cosa condividere; la webcam viene disegnata in un angolo.',
   'recorder.set.note_mic': 'Solo audio: salvato come WebM o WAV.',

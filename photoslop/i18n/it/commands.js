@@ -19,5 +19,5 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'photoslop.cmd.restore_aspect': 'Ripristina proporzioni originali',
   'photoslop.cmd.guides_panel': 'Pannello guide (layout delle guide)',
   'photoslop.cmd.search_key': 'Cerca comandi ({key})',
-  'photoslop.cmd.nav_preset': 'Preimpostazione di navigazione…',
+  'photoslop.cmd.nav_preset': 'Preset di navigazione…',
 });

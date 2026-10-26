@@ -20,7 +20,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'press.dlg.tab_margins': 'Margini e colonne',
   'press.dlg.tab_bleed': 'Abbondanza e area di stampa',
   'press.dlg.tab_grid': 'Griglia',
-  'press.dlg.preset': 'Predefinita',
+  'press.dlg.preset': 'Preset',
   'press.dlg.width': 'Larghezza',
   'press.dlg.height': 'Altezza',
   'press.dlg.orientation': 'Orientamento',

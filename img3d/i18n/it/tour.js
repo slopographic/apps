@@ -2,9 +2,9 @@
 window.SlopI18n && window.SlopI18n.add('it', {
   'img3d.tour.title': 'Tour di Slop Image to 3D',
   'img3d.tour.picture_title': 'Immagine',
-  'img3d.tour.picture_text': 'Trascina un\'immagine qui, o aprine una.',
+  'img3d.tour.picture_text': 'Trascina un’immagine qui, o aprine una.',
   'img3d.tour.drive_title': 'Da Slop Drive',
-  'img3d.tour.drive_text': 'Prendi invece un\'immagine da Slop Drive.',
+  'img3d.tour.drive_text': 'Prendi invece un’immagine da Slop Drive.',
   'img3d.tour.invert_title': 'Profondità',
   'img3d.tour.invert_text': 'Inverti la profondità per rendere vicine le parti lontane.',
   'img3d.tour.subject_title': 'Solo soggetto',

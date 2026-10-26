@@ -8,5 +8,5 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'aitools.tour.storage_title': 'Spazio',
   'aitools.tour.storage_text': 'Quanto occupano sul dispositivo i modelli scaricati.',
   'aitools.tour.status_title': 'Stato',
-  'aitools.tour.status_text': 'I messaggi dell\'ultima azione compaiono qui.',
+  'aitools.tour.status_text': 'I messaggi dell’ultima azione compaiono qui.',
 });

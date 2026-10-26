@@ -11,7 +11,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'press.app.edit_text': 'Modifica testo',
   'press.app.panels': 'Pannelli',
   'press.app.went_wrong': 'Qualcosa non ha funzionato: {error}',
-  'press.app.restored': 'Ripristinata l\'ultima sessione',
+  'press.app.restored': 'Ripristinata l’ultima sessione',
   'press.app.guides_on': 'Guide attive',
   'press.app.guides_off': 'Guide disattivate',
   'press.app.baseline_on': 'Griglia della linea di base attiva',

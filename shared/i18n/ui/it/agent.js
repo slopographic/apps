@@ -6,7 +6,7 @@
 window.SlopI18n && window.SlopI18n.add('it', {
   'ui.agent.about_title': 'Agenti IA',
   'ui.agent.about_1': 'Alcuni browser permettono a un agente IA di usare la pagina che hai aperta: un assistente integrato nel browser, oppure un’app sul computer collegata tramite un’estensione del browser. La pagina dice all’agente che cosa può fare, e l’agente chiede alla pagina di farlo.',
-  'ui.agent.about_2': 'Qui un agente può eseguire i comandi di questa app, eseguire le conversioni di File convert e i Slop Workflows sui tuoi file, e aprire, salva in Slop Drive o scaricare i file.',
+  'ui.agent.about_2': 'Qui un agente può eseguire i comandi di questa app, eseguire le conversioni di File convert e i Slop Workflows sui tuoi file, e aprire, salvare in Slop Drive o scaricare i file.',
   'ui.agent.about_3': 'I tuoi file restano su questo dispositivo. L’app dà all’agente i nomi e gli id dei file e i risultati di ciò che ha eseguito; il lavoro vero e proprio si svolge in questo browser e l’app non carica nulla. Che cosa fa l’agente di ciò che gli viene detto dipende dall’agente che usi.',
   'ui.agent.about_4': 'Prima di qualunque azione che elimina, cancella o sostituisce il tuo lavoro, l’app ti chiede conferma.',
   'ui.agent.about_5': 'Un’app IA sul computer (Claude Code, Codex, Cursor, VS Code, Claude Desktop…) può anche collegarsi direttamente al server MCP di Slopographic: “Collega un’app IA…” qui sotto, oppure Ctrl+K. La accoppi una volta per scheda con un codice che mostra, e la pagina indica che è collegata finché non la scolleghi.',

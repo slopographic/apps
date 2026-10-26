@@ -36,7 +36,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'slopedit.def.anim.fade': 'Dissolvenza in entrata',
   'slopedit.def.anim.slidel': 'Scorri da sinistra',
   'slopedit.def.anim.slider': 'Scorri da destra',
-  'slopedit.def.anim.slidet': 'Scorri dall\'alto',
+  'slopedit.def.anim.slidet': 'Scorri dall’alto',
   'slopedit.def.anim.slideb': 'Scorri dal basso',
   'slopedit.def.anim.zoom': 'Zoom avanti',
   'slopedit.def.ease.linear': 'Lineare',

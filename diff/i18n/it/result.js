@@ -35,7 +35,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
 
   'diff.pic.handle': 'Dove B inizia sopra A',
   'diff.pic.handle_value': '{pct}%: A a sinistra, B a destra',
-  'diff.pic.slider_cap': 'Trascina sull\'immagine, oppure usa i tasti freccia sul cursore: A a sinistra, B a destra.',
+  'diff.pic.slider_cap': 'Trascina sull’immagine, oppure usa i tasti freccia sul cursore: A a sinistra, B a destra.',
   'diff.pic.label': 'Immagini confrontate',
   'diff.pic.diff_cap': 'Pixel modificati in rosso',
 
@@ -58,7 +58,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'diff.sum.pages_same': 'Con questa soglia ogni pagina sembra uguale.',
   'diff.sum.pdf_same': 'Il testo dei due PDF è lo stesso.',
   'diff.sum.text_same': 'I due testi sono uguali.',
-  'diff.sum.newline': 'I testi differiscono solo per l\'a capo finale.',
+  'diff.sum.newline': 'I testi differiscono solo per l’a capo finale.',
   'diff.sum.in_place': ' ({n} righe modificate sul posto)',
   'diff.sum.in_place#one': ' ({n} riga modificata sul posto)',
   'diff.sum.text': '{n} modifiche: +{added} −{removed} righe{in_place}.',

@@ -72,7 +72,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'vector.type.align_right': 'Allinea a destra',
   'vector.type.paragraph_align': 'Allineamento paragrafo',
   'vector.corner.corners': 'Angoli',
-  'vector.corner.radius': 'Raggio d\'angolo',
+  'vector.corner.radius': 'Raggio d’angolo',
   'vector.corner.link': 'Collega i raggi degli angoli: un valore per tutti gli angoli',
   'vector.corner.tl': 'AS',
   'vector.corner.tr': 'AD',

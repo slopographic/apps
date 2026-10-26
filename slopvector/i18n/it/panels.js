@@ -161,6 +161,6 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'vector.layers.select_name': 'Seleziona {name}',
   'vector.layers.is_hidden': 'Il livello è nascosto',
   'vector.layers.is_locked': 'Il livello è bloccato',
-  'vector.layers.obj_locked': 'L\'oggetto è bloccato',
-  'vector.layers.obj_hidden': 'L\'oggetto è nascosto o su un livello bloccato',
+  'vector.layers.obj_locked': 'L’oggetto è bloccato',
+  'vector.layers.obj_hidden': 'L’oggetto è nascosto o su un livello bloccato',
 });

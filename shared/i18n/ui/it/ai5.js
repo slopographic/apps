@@ -88,7 +88,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'ui.ai.prov.ollama_setup_3': 'Windows: Impostazioni › Sistema › Informazioni › Impostazioni di sistema avanzate › Variabili d’ambiente, aggiungi OLLAMA_ORIGINS = {site}, poi riavvia Ollama.',
   'ui.ai.prov.ollama_setup_4': 'Linux: sudo systemctl edit ollama.service, aggiungi Environment="OLLAMA_ORIGINS={site}" sotto [Service], poi sudo systemctl restart ollama.',
   'ui.ai.prov.lmstudio_setup_1': 'In LM Studio, apri la scheda Developer, avvia il server e, nelle sue impostazioni, attiva “Enable CORS”, così le pagine web possono usarlo (oppure avvialo con lms server start --cors).',
-  'ui.ai.prov.vllm_setup_1': 'vLLM di base non consente altri siti web. Avvialo con --allowed-origins \'["{site}"]\' (e --enable-auto-tool-choice con un --tool-call-parser per gli strumenti).',
+  'ui.ai.prov.vllm_setup_1': 'vLLM di base non consente altri siti web. Avvialo con --allowed-origins ’["{site}"]’ (e --enable-auto-tool-choice con un --tool-call-parser per gli strumenti).',
   'ui.ai.prov.vllm_setup_2': 'Se lo hai avviato con --api-key, incolla qui quella chiave.',
   'ui.ai.prov.llamacpp_setup_1': 'llama-server consente per impostazione predefinita ogni sito web (--cors-origins è * a meno che non siano attivi --tools, --agent o MCP; in quel caso passa --cors-origins {site}).',
   'ui.ai.prov.llamacpp_setup_2': 'Avvialo con --jinja perché i modelli possano chiamare strumenti. Se hai passato --api-key, incolla qui quella chiave.',

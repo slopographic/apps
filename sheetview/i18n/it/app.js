@@ -31,7 +31,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'sheetview.style.plain': 'Semplice',
   'sheetview.style.grid': 'Griglia',
   'sheetview.style.compact': 'Compatto',
-  'sheetview.palette.app': 'Segui il tema dell\'app',
+  'sheetview.palette.app': 'Segui il tema dell’app',
   'sheetview.palette.light': 'Chiaro',
   'sheetview.palette.dark': 'Scuro',
   'sheetview.palette.classic': 'Classico 98',

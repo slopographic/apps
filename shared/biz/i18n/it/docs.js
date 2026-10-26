@@ -47,7 +47,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'biz.pd.add': 'Aggiungi prodotto',
   'biz.pd.sku_needed': 'Lo SKU è obbligatorio, senza spazi.',
   'biz.pd.name_needed': 'Il nome è obbligatorio.',
-  'biz.pd.bad_price': 'Inserisci un prezzo come 12.50.',
+  'biz.pd.bad_price': 'Inserisci un prezzo come 12,50.',
   'biz.pd.bad_tax': 'Inserisci un’IVA % come 20.',
   'biz.pd.not_saved': 'Non salvato. Lo SKU potrebbe essere già usato.',
   'biz.pd.added': 'Aggiunto {name}',

@@ -71,7 +71,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'vector.guides.new_title': 'Nuova guida',
   'vector.guides.orientation': 'Orientamento',
   'vector.guides.position': 'Posizione',
-  'vector.guides.position_note': 'Dall\'angolo in alto a sinistra della tavola: px, %, mm, in o pt.',
+  'vector.guides.position_note': 'Dall’angolo in alto a sinistra della tavola: px, %, mm, in o pt.',
   'vector.guides.bad_position': 'Digita una posizione come 120, 50% o 2in',
   'vector.guides.vertical': 'Verticale',
   'vector.guides.horizontal': 'Orizzontale',

@@ -41,7 +41,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'remix.ui.sample_making': 'Creazione dei clip di esempio…',
   'remix.ui.grid_cells#one': '{name} ({n} cella)',
   'remix.ui.grid_cells': '{name} ({n} celle)',
-  'remix.ui.track_random': 'Casuale: l’audio di un video del cestino (con seme)',
+  'remix.ui.track_random': 'Casuale: l’audio di un video tra i contenuti (con seme)',
   'remix.ui.track_file': 'File scelto: {name}',
   'remix.ui.cut_head': 'Taglio {n}:',
   'remix.ui.reset_pos': 'Reimposta posizione',

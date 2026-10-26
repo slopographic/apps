@@ -8,7 +8,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'press.tpl.flyer_name': 'Volantino evento',
   'press.tpl.flyer_desc': 'US Letter, una pagina con abbondanza',
   'press.tpl.card_name': 'Biglietto da visita',
-  'press.tpl.card_desc': '3.5 × 2 in, fronte e retro, ⅛ in di abbondanza',
+  'press.tpl.card_desc': '3,5 × 2 in, fronte e retro, ⅛ in di abbondanza',
   'press.tpl.zine_name': 'Fanzine',
   'press.tpl.zine_desc': 'Half-letter, 8 pagine affiancate, storia collegata con numeri di pagina',
   'press.tpl.blank_name': 'A4 vuoto',

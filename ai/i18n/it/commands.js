@@ -11,11 +11,11 @@ window.SlopI18n && window.SlopI18n.add('it', {
 
   'ai.cmd.new_chat': 'Nuova chat',
   'ai.cmd.stop': 'Interrompi la generazione',
-  'ai.cmd.regenerate': 'Rigenera l\'ultima risposta',
+  'ai.cmd.regenerate': 'Rigenera l’ultima risposta',
   'ai.cmd.rename': 'Rinomina chat…',
   'ai.cmd.delete': 'Elimina chat…',
   'ai.cmd.settings': 'Personalità e impostazioni…',
-  'ai.cmd.tools': 'Controlla le app (strumenti dell\'agente)',
+  'ai.cmd.tools': 'Controlla le app (strumenti dell’agente)',
   'ai.cmd.attach': 'Allega un file di testo…',
   'ai.cmd.export_md': 'Esporta chat come Markdown in Slop Drive…',
   'ai.cmd.export_json': 'Esporta chat come JSON in Slop Drive…',
