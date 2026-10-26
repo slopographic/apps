@@ -8,29 +8,29 @@ function copySel(merged) {
   if (!activeLayer()) return;
   const r = copySelectionPixels(merged);
   CLIP.canvas = r.canvas; CLIP.x = r.x; CLIP.y = r.y; CLIP.t = Date.now();
-  toast(merged ? 'Copied merged' : 'Copied');
+  toast(tr(merged ? 'photoslop.io.copied_merged' : 'photoslop.io.copied'));
   try {
     if (navigator.clipboard && window.ClipboardItem) navigator.clipboard.write([new ClipboardItem({ 'image/png': canvasToBlob(r.canvas) })]).catch(() => {});
   } catch (e) { /* the internal clipboard still works */ }
 }
 function cutSel() {
   const L = activeLayer(); if (!L) return;
-  if (L.locked) { toast('That layer is locked'); return; }
+  if (L.locked) { toast(tr('photoslop.io.layer_locked')); return; }
   copySel(false);
-  if (D.sel) clearSelectionPixels('Cut');
-  else { patchLayer(L.id, { canvas: mkCanvas(1, 1), x: 0, y: 0, text: null }); commit('Cut'); }
+  if (D.sel) clearSelectionPixels(tr('photoslop.io.step_cut'));
+  else { patchLayer(L.id, { canvas: mkCanvas(1, 1), x: 0, y: 0, text: null }); commit(tr('photoslop.io.step_cut')); }
 }
-function pasteCanvas(c, x, y, name = 'Pasted Layer') {
+function pasteCanvas(c, x, y, name = 'Pasted Layer') { // i18n-ignore: layer names are the document's
   if (x == null) { x = Math.round((D.w - c.width) / 2); y = Math.round((D.h - c.height) / 2); }
   const L = newLayerRecord({ name: nextName(name.replace(/ \d+$/, '')), canvas: c, x, y });
   const i = layerIndex(D.activeId);
   D.layers.splice(i + 1, 0, L); D.activeId = L.id; D.sel = null;
-  commit('Paste');
+  commit(tr('photoslop.io.step_paste'));
   selectTool('move');
 }
 function pasteInternal(inPlace) {
-  if (!CLIP.canvas) { toast('Nothing to paste yet'); return; }
-  pasteCanvas(copyCanvas(CLIP.canvas), inPlace ? CLIP.x : null, inPlace ? CLIP.y : null, 'Layer');
+  if (!CLIP.canvas) { toast(tr('photoslop.io.nothing_to_paste')); return; }
+  pasteCanvas(copyCanvas(CLIP.canvas), inPlace ? CLIP.x : null, inPlace ? CLIP.y : null, 'Layer'); // i18n-ignore: layer name
 }
 /** The app's own clipboard: a paste with no file the intake takes (files go through shared/intake, app/intake.js, which
  *  marks the paste prevented), or one of our own buffer copies, places the buffer item or the internal copy. */
@@ -62,30 +62,30 @@ async function handleFiles(files, place) {
   let opened = 0;
   const failed = [];
   for (const f of files) {
-    const name = (f.name || 'Untitled').replace(/\.[^.]+$/, '') || 'Untitled';
+    const name = (f.name || tr('ui.untitled')).replace(/\.[^.]+$/, '') || tr('ui.untitled');
     try {
       const doc = await readAnyFile(f);
       if (place) pasteCanvas(doc.layers.length === 1 && !doc.layers[0].x && !doc.layers[0].y ? doc.layers[0].canvas : flattenDocLayers(doc), null, null, name);
       else { openDocTab(doc.w, doc.h, doc.layers, name); if (doc.guides) adoptGuides(doc.guides); if (doc.wm) adoptWatermark(doc.wm); opened++; }
-    } catch (e) { if (e && e.code === 'cancelled') continue; console.warn(e); failed.push(`Couldn't open ${f.name}: ${e.message || e}`); toast(`Couldn't open ${f.name}: ${e.message || e}`, 4200); }
+    } catch (e) { if (e && e.code === 'cancelled') continue; console.warn(e); const msg = tr('photoslop.io.open_failed', { name: f.name, error: e.message || String(e) }); failed.push(msg); toast(msg, 4200); }
   }
-  if (opened) toast(opened === 1 ? `Opened ${files[0].name}` : `Opened ${opened} files in tabs`);
+  if (opened) toast(opened === 1 ? tr('photoslop.io.opened_one', { name: files[0].name }) : tr('photoslop.io.opened_n', { n: opened }));
   document.body.classList.remove('busy');
   return failed;
 }
 function openDocument(w, hh, layers, name) {
   if (TE.el) endTypeEdit(true);
   if (TRANSFORM.active) cancelTransform();
-  D.w = w; D.h = hh; D.name = name || 'Untitled'; D.sel = null; D.guides = []; D.wm = null; live = null; UI.editMask = false;
+  D.w = w; D.h = hh; D.name = name || tr('ui.untitled'); D.sel = null; D.guides = []; D.wm = null; live = null; UI.editMask = false;
   D.layers = layers.map((l) => newLayerRecord(l));
   D.activeId = D.layers[D.layers.length - 1].id;
-  histReset('Open');
+  histReset(tr('photoslop.io.step_open'));
   fitView(true);
   emit('docname');
   scheduleAutosave();
 }
 /* ---------- saving & export ---------- */
-const safeName = () => (D.name || 'Untitled').replace(/[\\/:*?"<>|]+/g, '-').trim() || 'Untitled';
+const safeName = () => (D.name || tr('ui.untitled')).replace(/[\\/:*?"<>|]+/g, '-').trim() || tr('ui.untitled');
 async function savePSD() {
   if (TE.el) await endTypeEdit();
   if (TRANSFORM.active) commitTransform();
@@ -95,8 +95,8 @@ async function savePSD() {
     const bytes = writePSD();
     download(new Blob([bytes], { type: 'image/vnd.adobe.photoshop' }), safeName() + '.psd');
     D.dirty = false; emit('docname');
-    toast(`Saved ${safeName()}.psd (${(bytes.length / 1048576).toFixed(1)} MB)`);
-  } catch (e) { console.warn(e); alertDlg('Could not save the PSD', e.message); }
+    toast(tr('photoslop.io.saved_psd', { name: safeName(), mb: SlopI18n.num(bytes.length / 1048576, { minimumFractionDigits: 1, maximumFractionDigits: 1 }) }));
+  } catch (e) { console.warn(e); alertDlg(tr('photoslop.io.save_psd_failed'), e.message); }
   document.body.classList.remove('busy');
 }
 async function renderExport(fmt, scale, bg) {
@@ -104,14 +104,14 @@ async function renderExport(fmt, scale, bg) {
   if (scale !== 1) c = resampleCanvas(c, Math.max(1, Math.round(D.w * scale)), Math.max(1, Math.round(D.h * scale)));
   return c;
 }
-async function quickExport() { const c = await renderExport('image/png', 1, null); download(await canvasToBlob(c, 'image/png'), safeName() + '.png'); toast('Exported PNG'); SlopSupport.afterExport('photoslop'); }
+async function quickExport() { const c = await renderExport('image/png', 1, null); download(await canvasToBlob(c, 'image/png'), safeName() + '.png'); toast(tr('photoslop.io.exported_png')); SlopSupport.afterExport('photoslop'); }
 function dlgExport() {
-  const fmt = h('select', null, [['image/png', 'PNG'], ['image/jpeg', 'JPEG'], ['image/webp', 'WebP']].map(([v, l]) => h('option', { value: v }, l)));
+  const fmt = h('select', null, [['image/png', 'PNG'], ['image/jpeg', 'JPEG'], ['image/webp', 'WebP']].map(([v, l]) => h('option', { value: v }, l))); // i18n-ignore: format names
   const q = h('input', { type: 'range', min: 1, max: 100, value: 85 }), qn = h('span', { class: 'fp-u' }, '85');
   const scale = h('select', null, [[0.25, '25%'], [0.5, '50%'], [1, '100%'], [2, '200%'], [3, '300%']].map(([v, l]) => h('option', { value: v, selected: v === 1 }, l)));
   const transparent = h('input', { type: 'checkbox', checked: true });
   const info = h('p', { class: 'dlg-p mono' }, '…');
-  const qRow = field('Quality', q, qn), tRow = h('label', { class: 'field opt-check' }, transparent, h('span', null, 'Transparent background'));
+  const qRow = field(tr('photoslop.io.quality'), q, qn), tRow = h('label', { class: 'field opt-check' }, transparent, h('span', null, tr('photoslop.io.transparent_bg')));
   let tok = 0;
   const update = async () => {
     const my = ++tok, f = fmt.value;
@@ -121,11 +121,11 @@ function dlgExport() {
     if (my === tok) info.textContent = `${c.width} × ${c.height} px · ${b ? (b.size / 1024 < 1024 ? Math.round(b.size / 1024) + ' KB' : (b.size / 1048576).toFixed(2) + ' MB') : '?'}`;
   };
   [fmt, q, scale, transparent].forEach((el) => el.addEventListener('input', update));
-  dialog({ title: 'Export As', body: h('div', { class: 'form' }, field('Format', fmt), qRow, field('Size', scale), tRow, h('p', { class: 'dlg-p' }, wmOn() ? 'Watermark on: it is added to this export.' : 'No watermark: the watermark is off.'), info),
-    buttons: [{ label: 'Cancel' }, { label: 'Export', primary: true, act: async () => {
+  dialog({ title: tr('photoslop.io.export_as'), body: h('div', { class: 'form' }, field(tr('photoslop.io.format'), fmt), qRow, field(tr('photoslop.io.size'), scale), tRow, h('p', { class: 'dlg-p' }, tr(wmOn() ? 'photoslop.io.wm_on_export' : 'photoslop.io.wm_off_export')), info),
+    buttons: [{ label: tr('menu.cancel') }, { label: tr('menu.export'), primary: true, act: async () => {
       const f = fmt.value, c = await renderExport(f, +scale.value, f === 'image/png' && transparent.checked ? null : '#ffffff');
       const b = await canvasToBlob(c, f, +q.value / 100);
-      if (!b) { toast('This browser cannot encode that format'); return false; }
+      if (!b) { toast(tr('photoslop.io.cannot_encode')); return false; }
       download(b, safeName() + { 'image/png': '.png', 'image/jpeg': '.jpg', 'image/webp': '.webp' }[f]);
       SlopSupport.afterExport('photoslop');
     } }] });
@@ -162,6 +162,6 @@ async function exportLayers() {
   }
   download(zipStore(files), safeName() + ' layers.zip');
   document.body.classList.remove('busy');
-  toast(`Exported ${files.length} layers`);
+  toast(tr('photoslop.io.exported_layers', { n: files.length }));
   SlopSupport.afterExport('photoslop');
 }

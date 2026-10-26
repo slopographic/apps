@@ -55,16 +55,16 @@ function resetView() {
 
 /** The viewport toolbar: a strip above the canvas with rotate left and right, the slider, the angle and Reset View. */
 function buildViewBar() {
-  const bar = h('div', { class: 'view-bar', role: 'toolbar', 'aria-label': 'View rotation' });
-  const btn = (label, title, act) => { const b = h('button', { type: 'button', class: 'vb-btn', title, 'aria-label': title }, label); b.addEventListener('click', act); return b; };
-  const slider = h('input', { type: 'range', class: 'vb-slider', min: -180, max: 180, step: 1, title: 'View rotation', 'aria-label': 'View rotation' });
+  const bar = h('div', { class: 'view-bar', role: 'toolbar', 'aria-label': tr('photoslop.view.rotation'), 'data-i18n-attr': 'aria-label:photoslop.view.rotation' });
+  const btn = (label, k, act, lk) => { const title = tr(k), b = h('button', { type: 'button', class: 'vb-btn', title, 'aria-label': title, 'data-i18n-attr': 'title:' + k + ';aria-label:' + k, 'data-i18n': lk }, lk ? tr(lk) : label); b.addEventListener('click', act); return b; };
+  const slider = h('input', { type: 'range', class: 'vb-slider', min: -180, max: 180, step: 1, title: tr('photoslop.view.rotation'), 'aria-label': tr('photoslop.view.rotation'), 'data-i18n-attr': 'title:photoslop.view.rotation;aria-label:photoslop.view.rotation' });
   const num = h('span', { class: 'vb-angle', 'aria-live': 'off' });
   slider.addEventListener('input', () => setRotation(+slider.value));
   bar.append(
-    btn('⟲', 'Rotate view left (Alt+[)', () => rotateView(-90)),
-    btn('⟳', 'Rotate view right (Alt+])', () => rotateView(90)),
+    btn('⟲', 'photoslop.view.rotate_left', () => rotateView(-90)),
+    btn('⟳', 'photoslop.view.rotate_right', () => rotateView(90)),
     slider, num,
-    btn('Reset View', 'Reset View: rotation, zoom and pan (Alt+0)', () => resetView()));
+    btn('', 'photoslop.view.reset_tip', () => resetView(), 'photoslop.view.reset'));
   // The bar sits outside the viewport, so a press on it never starts a stroke or a pan.
   const sync = () => { slider.value = Math.round(V.rot); num.textContent = Math.round(V.rot) + '°'; };
   listeners.add((w) => { if (w === 'zoom') sync(); });

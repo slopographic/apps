@@ -104,18 +104,18 @@ function applyBoxField(key, v) {
   }
   else t.rot = (v * Math.PI) / 180;
   if (!t.tx && !t.ty && t.sx === 1 && t.sy === 1 && !t.rot) { cancelTransform(); return; }
-  commitTransform('Free Transform');
+  commitTransform(TRANSFORM_TOOL.name);
 }
 function boxField(key, label, unit, step) {
-  const i = h('input', { type: 'number', class: 'opt-num wide', step, 'aria-label': label, title: label + ' (Enter applies)' });
+  const i = h('input', { type: 'number', class: 'opt-num wide', step, 'aria-label': label, title: tr('photoslop.tool.enter_applies', { label }) });
   i.addEventListener('change', () => { const v = parseFloat(i.value); if (Number.isFinite(v)) applyBoxField(key, v); });
   BOX_FIELDS[key] = i;
   return h('label', { class: 'opt' }, h('span', null, label), i, h('span', { class: 'opt-u' }, unit));
 }
 /** The Move options' transform controls: Transform (Ctrl+T) and the layer's X, Y, W, H and rotation. */
 function moveBoxOptions() {
-  const els = [h('button', { class: 'btn', type: 'button', onclick: startTransform, title: 'Free Transform (Ctrl+T)' }, 'Transform'),
-    boxField('x', 'X', 'px', 1), boxField('y', 'Y', 'px', 1), boxField('w', 'W', 'px', 1), lockButton(), boxField('h', 'H', 'px', 1), boxField('rot', '∠', '°', 0.1)];
+  const els = [h('button', { class: 'btn', type: 'button', onclick: startTransform, title: tr('photoslop.tool.free_transform_tip') }, tr('photoslop.tool.transform_btn')),
+    boxField('x', 'X', 'px', 1), boxField('y', 'Y', 'px', 1), boxField('w', tr('photoslop.tool.box_w'), 'px', 1), lockButton(), boxField('h', tr('photoslop.tool.box_h'), 'px', 1), boxField('rot', '∠', '°', 0.1)];
   syncBoxFields();
   return els;
 }

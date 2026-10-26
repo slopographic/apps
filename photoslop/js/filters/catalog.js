@@ -3,15 +3,15 @@
 
 FILTERS.push(
   /* ---------- Adjustments ---------- */
-  { id: 'brightness', menu: 'adjust', name: 'Brightness/Contrast…', params: [R('b', 'Brightness', -150, 150, 0), R('c', 'Contrast', -100, 100, 0)],
+  { id: 'brightness', menu: 'adjust', params: [R('b', 'brightness', -150, 150, 0), R('c', 'contrast', -100, 100, 0)],
     fn: (s, p) => { const c = p.c * 2.55, f = (259 * (c + 255)) / (255 * (259 - c)); return lutMap(s, makeLut((v) => (v - 128) * f + 128 + p.b * 0.6)); } },
-  { id: 'levels', menu: 'adjust', name: 'Levels…', key: 'Ctrl+L', params: [{ k: 'hist', type: 'histogram' }, R('inB', 'Input black', 0, 253, 0), R('gamma', 'Midtones (gamma)', 0.1, 9.99, 1, { step: 0.01 }), R('inW', 'Input white', 2, 255, 255), R('outB', 'Output black', 0, 255, 0), R('outW', 'Output white', 0, 255, 255)],
+  { id: 'levels', menu: 'adjust', key: 'Ctrl+L', params: [{ k: 'hist', type: 'histogram' }, R('inB', 'input_black', 0, 253, 0), R('gamma', 'midtones_gamma', 0.1, 9.99, 1, { step: 0.01 }), R('inW', 'input_white', 2, 255, 255), R('outB', 'output_black', 0, 255, 0), R('outW', 'output_white', 0, 255, 255)],
     fn: (s, p) => { const lo = Math.min(p.inB, p.inW - 1); return lutMap(s, makeLut((v) => Math.pow(clamp((v - lo) / (p.inW - lo), 0, 1), 1 / p.gamma) * (p.outW - p.outB) + p.outB)); } },
-  { id: 'curves', menu: 'adjust', name: 'Curves…', key: 'Ctrl+M', params: [{ k: 'curve', type: 'curve', v: { rgb: [[0, 0], [255, 255]], r: [[0, 0], [255, 255]], g: [[0, 0], [255, 255]], b: [[0, 0], [255, 255]] } }],
+  { id: 'curves', menu: 'adjust', key: 'Ctrl+M', params: [{ k: 'curve', type: 'curve', v: { rgb: [[0, 0], [255, 255]], r: [[0, 0], [255, 255]], g: [[0, 0], [255, 255]], b: [[0, 0], [255, 255]] } }],
     fn: (s, p) => { const m = curveLut(p.curve.rgb), lr = curveLut(p.curve.r), lg = curveLut(p.curve.g), lb = curveLut(p.curve.b); return lutMap(s, makeLut((v) => lr[m[v]]), makeLut((v) => lg[m[v]]), makeLut((v) => lb[m[v]])); } },
-  { id: 'exposure', menu: 'adjust', name: 'Exposure…', params: [R('ev', 'Exposure', -5, 5, 0, { step: 0.01 }), R('off', 'Offset', -0.5, 0.5, 0, { step: 0.001 }), R('gam', 'Gamma correction', 0.1, 9.99, 1, { step: 0.01 })],
+  { id: 'exposure', menu: 'adjust', params: [R('ev', 'exposure', -5, 5, 0, { step: 0.01 }), R('off', 'offset', -0.5, 0.5, 0, { step: 0.001 }), R('gam', 'gamma_correction', 0.1, 9.99, 1, { step: 0.01 })],
     fn: (s, p) => lutMap(s, makeLut((v) => { const lin = Math.pow(v / 255, 2.2) * Math.pow(2, p.ev) + p.off; return Math.pow(Math.max(0, lin), 1 / 2.2 / p.gam) * 255; })) },
-  { id: 'vibrance', menu: 'adjust', name: 'Vibrance…', params: [R('vib', 'Vibrance', -100, 100, 0), R('sat', 'Saturation', -100, 100, 0)],
+  { id: 'vibrance', menu: 'adjust', params: [R('vib', 'vibrance', -100, 100, 0), R('sat', 'saturation', -100, 100, 0)],
     fn: (s, p) => withPixels(s, (d) => {
       for (let i = 0; i < d.length; i += 4) {
         const r = d[i], g = d[i + 1], b = d[i + 2], l = luma(r, g, b), sat = (Math.max(r, g, b) - Math.min(r, g, b)) / 255;
@@ -19,7 +19,7 @@ FILTERS.push(
         d[i] = l + (r - l) * k; d[i + 1] = l + (g - l) * k; d[i + 2] = l + (b - l) * k;
       }
     }) },
-  { id: 'huesat', menu: 'adjust', name: 'Hue/Saturation…', key: 'Ctrl+U', params: [R('h', 'Hue', -180, 180, 0), R('s', 'Saturation', -100, 100, 0), R('l', 'Lightness', -100, 100, 0), { k: 'colorize', label: 'Colorize', type: 'check', v: false }],
+  { id: 'huesat', menu: 'adjust', key: 'Ctrl+U', params: [R('h', 'hue', -180, 180, 0), R('s', 'saturation', -100, 100, 0), R('l', 'lightness', -100, 100, 0), { k: 'colorize', lk: 'colorize', type: 'check', v: false }],
     fn: (s, p) => withPixels(s, (d) => {
       const ss = p.s / 100, ll = p.l / 100;
       for (let i = 0; i < d.length; i += 4) {
@@ -30,7 +30,7 @@ FILTERS.push(
         const [r, g, b] = hslToRgb(hh, sat, l); d[i] = r; d[i + 1] = g; d[i + 2] = b;
       }
     }) },
-  { id: 'balance', menu: 'adjust', name: 'Color Balance…', key: 'Ctrl+B', params: [{ k: 'tone', label: 'Tone', type: 'select', options: [['shadows', 'Shadows'], ['midtones', 'Midtones'], ['highlights', 'Highlights']], v: 'midtones' }, R('cr', 'Cyan ↔ Red', -100, 100, 0), R('mg', 'Magenta ↔ Green', -100, 100, 0), R('yb', 'Yellow ↔ Blue', -100, 100, 0), { k: 'keep', label: 'Preserve luminosity', type: 'check', v: true }],
+  { id: 'balance', menu: 'adjust', key: 'Ctrl+B', params: [{ k: 'tone', lk: 'tone', type: 'select', options: FO('shadows', 'midtones', 'highlights'), v: 'midtones' }, R('cr', 'cyan_red', -100, 100, 0), R('mg', 'magenta_green', -100, 100, 0), R('yb', 'yellow_blue', -100, 100, 0), { k: 'keep', lk: 'preserve_luminosity', type: 'check', v: true }],
     fn: (s, p) => withPixels(s, (d) => {
       for (let i = 0; i < d.length; i += 4) {
         const r = d[i], g = d[i + 1], b = d[i + 2], l = luma(r, g, b) / 255;
@@ -40,7 +40,7 @@ FILTERS.push(
         d[i] = nr; d[i + 1] = ng; d[i + 2] = nb;
       }
     }) },
-  { id: 'bw', menu: 'adjust', name: 'Black & White…', params: [R('re', 'Reds', -200, 300, 40), R('ye', 'Yellows', -200, 300, 60), R('gr', 'Greens', -200, 300, 40), R('cy', 'Cyans', -200, 300, 60), R('bl', 'Blues', -200, 300, 20), R('ma', 'Magentas', -200, 300, 80), { k: 'tint', label: 'Tint', type: 'check', v: false }, { k: 'tintc', label: 'Tint colour', type: 'color', v: '#e1d3b3' }],
+  { id: 'bw', menu: 'adjust', params: [R('re', 'reds', -200, 300, 40), R('ye', 'yellows', -200, 300, 60), R('gr', 'greens', -200, 300, 40), R('cy', 'cyans', -200, 300, 60), R('bl', 'blues', -200, 300, 20), R('ma', 'magentas', -200, 300, 80), { k: 'tint', lk: 'tint', type: 'check', v: false }, { k: 'tintc', lk: 'tint_colour', type: 'color', v: '#e1d3b3' }],
     fn: (s, p) => withPixels(s, (d) => {
       // Photoshop's B&W: min + (mid−min)·w(secondary) + (max−mid)·w(primary).
       const W = { r: p.re / 100, y: p.ye / 100, g: p.gr / 100, c: p.cy / 100, b: p.bl / 100, m: p.ma / 100 };
@@ -55,7 +55,7 @@ FILTERS.push(
         if (p.tint) { const [tr, tg, tb] = hslToRgb(th, ts * 0.6, v / 255); d[i] = tr; d[i + 1] = tg; d[i + 2] = tb; } else d[i] = d[i + 1] = d[i + 2] = v;
       }
     }) },
-  { id: 'photofilter', menu: 'adjust', name: 'Photo Filter…', params: [{ k: 'color', label: 'Filter colour', type: 'color', v: '#ec8a00' }, R('dens', 'Density', 1, 100, 25), { k: 'keep', label: 'Preserve luminosity', type: 'check', v: true }],
+  { id: 'photofilter', menu: 'adjust', params: [{ k: 'color', lk: 'filter_colour', type: 'color', v: '#ec8a00' }, R('dens', 'density', 1, 100, 25), { k: 'keep', lk: 'preserve_luminosity', type: 'check', v: true }],
     fn: (s, p) => withPixels(s, (d) => {
       const [fr, fg, fb] = hexToRgb(p.color), t = p.dens / 100;
       for (let i = 0; i < d.length; i += 4) {
@@ -65,28 +65,28 @@ FILTERS.push(
         d[i] = nr; d[i + 1] = ng; d[i + 2] = nb;
       }
     }) },
-  { id: 'gradmap', menu: 'adjust', name: 'Gradient Map…', params: [{ k: 'a', label: 'Shadows', type: 'color', v: '@fg' }, { k: 'b', label: 'Highlights', type: 'color', v: '@bg' }, { k: 'rev', label: 'Reverse', type: 'check', v: false }],
+  { id: 'gradmap', menu: 'adjust', params: [{ k: 'a', lk: 'shadows', type: 'color', v: '@fg' }, { k: 'b', lk: 'highlights', type: 'color', v: '@bg' }, { k: 'rev', lk: 'reverse', type: 'check', v: false }],
     fn: (s, p) => withPixels(s, (d) => {
       let A = hexToRgb(p.a), B = hexToRgb(p.b); if (p.rev) [A, B] = [B, A];
       for (let i = 0; i < d.length; i += 4) { const t = luma(d[i], d[i + 1], d[i + 2]) / 255; d[i] = lerp(A[0], B[0], t); d[i + 1] = lerp(A[1], B[1], t); d[i + 2] = lerp(A[2], B[2], t); }
     }) },
-  { id: 'posterize', menu: 'adjust', name: 'Posterize…', params: [R('n', 'Levels', 2, 32, 4)], fn: (s, p) => lutMap(s, makeLut((v) => (Math.round((v / 255) * (p.n - 1)) / (p.n - 1)) * 255)) },
-  { id: 'threshold', menu: 'adjust', name: 'Threshold…', params: [{ k: 'hist', type: 'histogram' }, R('t', 'Threshold level', 1, 255, 128)],
+  { id: 'posterize', menu: 'adjust', params: [R('n', 'levels', 2, 32, 4)], fn: (s, p) => lutMap(s, makeLut((v) => (Math.round((v / 255) * (p.n - 1)) / (p.n - 1)) * 255)) },
+  { id: 'threshold', menu: 'adjust', params: [{ k: 'hist', type: 'histogram' }, R('t', 'threshold_level', 1, 255, 128)],
     fn: (s, p) => withPixels(s, (d) => { for (let i = 0; i < d.length; i += 4) d[i] = d[i + 1] = d[i + 2] = luma(d[i], d[i + 1], d[i + 2]) >= p.t ? 255 : 0; }) },
   { sep: 'adjust' },
-  { id: 'invert', menu: 'adjust', name: 'Invert', key: 'Ctrl+I', fn: (s) => lutMap(s, makeLut((v) => 255 - v)) },
-  { id: 'desaturate', menu: 'adjust', name: 'Desaturate', key: 'Shift+Ctrl+U', fn: (s) => withPixels(s, (d) => { for (let i = 0; i < d.length; i += 4) d[i] = d[i + 1] = d[i + 2] = (Math.max(d[i], d[i + 1], d[i + 2]) + Math.min(d[i], d[i + 1], d[i + 2])) / 2; }) },
-  { id: 'autotone', menu: 'adjust', name: 'Auto Tone', key: 'Shift+Ctrl+L', fn: (s) => { const H = histogram(s); const L = (h) => { const lo = percentile(h, 0.001), hi = Math.max(lo + 1, percentile(h, 0.999)); return makeLut((v) => ((v - lo) / (hi - lo)) * 255); }; return lutMap(s, L(H.r), L(H.g), L(H.b)); } },
-  { id: 'autocontrast', menu: 'adjust', name: 'Auto Contrast', key: 'Alt+Shift+Ctrl+L', fn: (s) => { const H = histogram(s); const lo = percentile(H.l, 0.001), hi = Math.max(lo + 1, percentile(H.l, 0.999)); return lutMap(s, makeLut((v) => ((v - lo) / (hi - lo)) * 255)); } },
-  { id: 'sepia', menu: 'adjust', name: 'Sepia', fn: (s) => withPixels(s, (d) => { for (let i = 0; i < d.length; i += 4) { const r = d[i], g = d[i + 1], b = d[i + 2]; d[i] = r * 0.393 + g * 0.769 + b * 0.189; d[i + 1] = r * 0.349 + g * 0.686 + b * 0.168; d[i + 2] = r * 0.272 + g * 0.534 + b * 0.131; } }) },
+  { id: 'invert', menu: 'adjust', key: 'Ctrl+I', fn: (s) => lutMap(s, makeLut((v) => 255 - v)) },
+  { id: 'desaturate', menu: 'adjust', key: 'Shift+Ctrl+U', fn: (s) => withPixels(s, (d) => { for (let i = 0; i < d.length; i += 4) d[i] = d[i + 1] = d[i + 2] = (Math.max(d[i], d[i + 1], d[i + 2]) + Math.min(d[i], d[i + 1], d[i + 2])) / 2; }) },
+  { id: 'autotone', menu: 'adjust', key: 'Shift+Ctrl+L', fn: (s) => { const H = histogram(s); const L = (h) => { const lo = percentile(h, 0.001), hi = Math.max(lo + 1, percentile(h, 0.999)); return makeLut((v) => ((v - lo) / (hi - lo)) * 255); }; return lutMap(s, L(H.r), L(H.g), L(H.b)); } },
+  { id: 'autocontrast', menu: 'adjust', key: 'Alt+Shift+Ctrl+L', fn: (s) => { const H = histogram(s); const lo = percentile(H.l, 0.001), hi = Math.max(lo + 1, percentile(H.l, 0.999)); return lutMap(s, makeLut((v) => ((v - lo) / (hi - lo)) * 255)); } },
+  { id: 'sepia', menu: 'adjust', fn: (s) => withPixels(s, (d) => { for (let i = 0; i < d.length; i += 4) { const r = d[i], g = d[i + 1], b = d[i + 2]; d[i] = r * 0.393 + g * 0.769 + b * 0.189; d[i + 1] = r * 0.349 + g * 0.686 + b * 0.168; d[i + 2] = r * 0.272 + g * 0.534 + b * 0.131; } }) },
 
   /* ---------- Blur ---------- */
-  { id: 'gauss', menu: 'Blur', name: 'Gaussian Blur…', params: [R('r', 'Radius', 0.1, 250, 4, { step: 0.1, unit: 'px' })], fn: (s, p) => gaussian(s, p.r) },
-  { id: 'boxblur', menu: 'Blur', name: 'Box Blur…', params: [R('r', 'Radius', 1, 200, 6, { unit: 'px' })],
+  { id: 'gauss', menu: 'Blur', params: [R('r', 'radius', 0.1, 250, 4, { step: 0.1, unit: 'px' })], fn: (s, p) => gaussian(s, p.r) }, // i18n-ignore: menu ids
+  { id: 'boxblur', menu: 'Blur', params: [R('r', 'radius', 1, 200, 6, { unit: 'px' })], // i18n-ignore: menu ids
     fn: (s, p) => { const c = copyCanvas(s), g = cxr(c), img = g.getImageData(0, 0, c.width, c.height), { data } = img, w = c.width, hh = c.height, n = w * hh, tmp = new Float32Array(n), ch = new Float32Array(n);
       for (let k = 0; k < 4; k++) { for (let i = 0; i < n; i++) ch[i] = data[i * 4 + k]; boxH(ch, tmp, w, hh, p.r); boxV(tmp, ch, w, hh, p.r); for (let i = 0; i < n; i++) data[i * 4 + k] = ch[i]; }
       g.putImageData(img, 0, 0); return c; } },
-  { id: 'motion', menu: 'Blur', name: 'Motion Blur…', params: [R('a', 'Angle', -180, 180, 0, { unit: '°' }), R('dist', 'Distance', 1, 400, 30, { unit: 'px' })],
+  { id: 'motion', menu: 'Blur', params: [R('a', 'angle', -180, 180, 0, { unit: '°' }), R('dist', 'distance', 1, 400, 30, { unit: 'px' })], // i18n-ignore: menu ids
     fn: (s, p) => {
       const w = s.width, hh = s.height, sd = cxr(s).getImageData(0, 0, w, hh).data, c = mkCanvas(w, hh), g = cxr(c), img = g.createImageData(w, hh), d = img.data;
       const N = Math.min(64, Math.max(2, Math.round(p.dist / 2))), ax = Math.cos((p.a * Math.PI) / 180), ay = -Math.sin((p.a * Math.PI) / 180);
@@ -98,7 +98,7 @@ FILTERS.push(
       for (let i = 0; i < d.length; i += 4) { const a = acc[i + 3]; d[i + 3] = a / N; if (a) { d[i] = acc[i] / a; d[i + 1] = acc[i + 1] / a; d[i + 2] = acc[i + 2] / a; } }
       g.putImageData(img, 0, 0); return c;
     } },
-  { id: 'radial', menu: 'Blur', name: 'Radial Blur (Zoom)…', params: [R('amt', 'Amount', 1, 100, 20)],
+  { id: 'radial', menu: 'Blur', params: [R('amt', 'amount', 1, 100, 20)], // i18n-ignore: menu ids
     fn: (s, p) => {
       const w = s.width, hh = s.height, sd = cxr(s).getImageData(0, 0, w, hh).data, c = mkCanvas(w, hh), g = cxr(c), img = g.createImageData(w, hh), d = img.data, o = [0, 0, 0, 0];
       const N = 24, cxp = w / 2, cyp = hh / 2, k = p.amt / 400;
@@ -110,15 +110,15 @@ FILTERS.push(
       g.putImageData(img, 0, 0); return c;
     } },
   /* ---------- Sharpen ---------- */
-  { id: 'sharpen', menu: 'Sharpen', name: 'Sharpen', fn: (s) => convolve(s, [0, -0.5, 0, -0.5, 3, -0.5, 0, -0.5, 0]) },
-  { id: 'unsharp', menu: 'Sharpen', name: 'Unsharp Mask…', params: [R('amt', 'Amount', 1, 500, 120, { unit: '%' }), R('r', 'Radius', 0.1, 100, 2, { step: 0.1, unit: 'px' }), R('t', 'Threshold', 0, 255, 2, { unit: 'levels' })],
+  { id: 'sharpen', menu: 'Sharpen', fn: (s) => convolve(s, [0, -0.5, 0, -0.5, 3, -0.5, 0, -0.5, 0]) }, // i18n-ignore: menu ids
+  { id: 'unsharp', menu: 'Sharpen', params: [R('amt', 'amount', 1, 500, 120, { unit: '%' }), R('r', 'radius', 0.1, 100, 2, { step: 0.1, unit: 'px' }), R('t', 'threshold', 0, 255, 2, { unit: 'levels' })], // i18n-ignore: menu ids
     fn: (s, p) => { const bl = cxr(gaussian(s, p.r)).getImageData(0, 0, s.width, s.height).data; return withPixels(s, (d) => { const k = p.amt / 100; for (let i = 0; i < d.length; i += 4) for (let c = 0; c < 3; c++) { const diff = d[i + c] - bl[i + c]; if (Math.abs(diff) >= p.t) d[i + c] = d[i + c] + diff * k; } }); } },
-  { id: 'highpass', menu: 'Other', name: 'High Pass…', params: [R('r', 'Radius', 0.1, 250, 6, { step: 0.1, unit: 'px' })],
+  { id: 'highpass', menu: 'Other', params: [R('r', 'radius', 0.1, 250, 6, { step: 0.1, unit: 'px' })], // i18n-ignore: menu ids
     fn: (s, p) => { const bl = cxr(gaussian(s, p.r)).getImageData(0, 0, s.width, s.height).data; return withPixels(s, (d) => { for (let i = 0; i < d.length; i += 4) for (let c = 0; c < 3; c++) d[i + c] = 128 + d[i + c] - bl[i + c]; }); } },
   /* ---------- Noise ---------- */
-  { id: 'noise', menu: 'Noise', name: 'Add Noise…', params: [R('amt', 'Amount', 0.1, 100, 12, { step: 0.1, unit: '%' }), { k: 'mono', label: 'Monochromatic', type: 'check', v: false }, R('seed', 'Seed', 1, 999, 7)],
+  { id: 'noise', menu: 'Noise', params: [R('amt', 'amount', 0.1, 100, 12, { step: 0.1, unit: '%' }), { k: 'mono', lk: 'monochromatic', type: 'check', v: false }, R('seed', 'seed', 1, 999, 7)], // i18n-ignore: menu ids
     fn: (s, p) => withPixels(s, (d) => { const r = rng(p.seed), k = p.amt * 2.55 * 1.2; const gn = () => (r() + r() + r() - 1.5) * k; for (let i = 0; i < d.length; i += 4) { if (p.mono) { const n = gn(); d[i] += n; d[i + 1] += n; d[i + 2] += n; } else { d[i] += gn(); d[i + 1] += gn(); d[i + 2] += gn(); } } }) },
-  { id: 'median', menu: 'Noise', name: 'Median (Despeckle)…', params: [R('r', 'Radius', 1, 12, 2, { unit: 'px' })],
+  { id: 'median', menu: 'Noise', params: [R('r', 'radius', 1, 12, 2, { unit: 'px' })], // i18n-ignore: menu ids
     fn: (s, p) => {
       const w = s.width, hh = s.height, r = p.r, sd = cxr(s).getImageData(0, 0, w, hh).data, c = mkCanvas(w, hh), g = cxr(c), img = g.createImageData(w, hh), d = img.data;
       for (let k = 0; k < 4; k++) {
@@ -137,7 +137,7 @@ FILTERS.push(
       g.putImageData(img, 0, 0); return c;
     } },
   /* ---------- Pixelate ---------- */
-  { id: 'mosaic', menu: 'Pixelate', name: 'Mosaic…', params: [R('n', 'Cell size', 2, 200, 12, { unit: 'px' })],
+  { id: 'mosaic', menu: 'Pixelate', params: [R('n', 'cell_size', 2, 200, 12, { unit: 'px' })], // i18n-ignore: menu ids
     fn: (s, p) => withPixels(s, (d, w, hh) => {
       const n = p.n;
       for (let by = 0; by < hh; by += n) for (let bx = 0; bx < w; bx += n) {
@@ -146,7 +146,7 @@ FILTERS.push(
         for (let y = by; y < Math.min(by + n, hh); y++) for (let x = bx; x < Math.min(bx + n, w); x++) { const i = (y * w + x) * 4; if (a) { d[i] = r / a; d[i + 1] = g / a; d[i + 2] = b / a; } d[i + 3] = a / cnt; }
       }
     }) },
-  { id: 'crystal', menu: 'Pixelate', name: 'Crystallize…', params: [R('n', 'Cell size', 3, 200, 18, { unit: 'px' }), R('seed', 'Seed', 1, 999, 3)],
+  { id: 'crystal', menu: 'Pixelate', params: [R('n', 'cell_size', 3, 200, 18, { unit: 'px' }), R('seed', 'seed', 1, 999, 3)], // i18n-ignore: menu ids
     fn: (s, p) => {
       const w = s.width, hh = s.height, n = p.n, sd = cxr(s).getImageData(0, 0, w, hh).data, r = rng(p.seed);
       const gw = Math.ceil(w / n) + 1, gh = Math.ceil(hh / n) + 1, px = new Float32Array(gw * gh), py = new Float32Array(gw * gh);
@@ -160,7 +160,7 @@ FILTERS.push(
       }
       g.putImageData(img, 0, 0); return c;
     } },
-  { id: 'halftone', menu: 'Pixelate', name: 'Color Halftone…', params: [R('r', 'Max radius', 2, 40, 6, { unit: 'px' })],
+  { id: 'halftone', menu: 'Pixelate', params: [R('r', 'max_radius', 2, 40, 6, { unit: 'px' })], // i18n-ignore: menu ids
     fn: (s, p) => {
       const w = s.width, hh = s.height, sd = cxr(s).getImageData(0, 0, w, hh).data, c = mkCanvas(w, hh), g = cx(c);
       g.fillStyle = '#fff'; g.fillRect(0, 0, w, hh); g.globalCompositeOperation = 'multiply';
@@ -179,13 +179,13 @@ FILTERS.push(
       return c;
     } },
   /* ---------- Stylize ---------- */
-  { id: 'edges', menu: 'Stylize', name: 'Find Edges', fn: (s) => {
+  { id: 'edges', menu: 'Stylize', fn: (s) => { // i18n-ignore: menu ids
       const w = s.width, hh = s.height, sd = cxr(s).getImageData(0, 0, w, hh).data, c = mkCanvas(w, hh), g = cxr(c), img = g.createImageData(w, hh), d = img.data;
       const at = (x, y, k) => sd[(clamp(y, 0, hh - 1) * w + clamp(x, 0, w - 1)) * 4 + k];
       for (let y = 0; y < hh; y++) for (let x = 0; x < w; x++) { const i = (y * w + x) * 4; for (let k = 0; k < 3; k++) { const gx = at(x + 1, y - 1, k) + 2 * at(x + 1, y, k) + at(x + 1, y + 1, k) - at(x - 1, y - 1, k) - 2 * at(x - 1, y, k) - at(x - 1, y + 1, k); const gy = at(x - 1, y + 1, k) + 2 * at(x, y + 1, k) + at(x + 1, y + 1, k) - at(x - 1, y - 1, k) - 2 * at(x, y - 1, k) - at(x + 1, y - 1, k); d[i + k] = 255 - Math.min(255, Math.hypot(gx, gy) * 0.5); } d[i + 3] = sd[i + 3]; }
       g.putImageData(img, 0, 0); return c;
     } },
-  { id: 'emboss', menu: 'Stylize', name: 'Emboss…', params: [R('a', 'Angle', -180, 180, 135, { unit: '°' }), R('hgt', 'Height', 1, 10, 3, { unit: 'px' }), R('amt', 'Amount', 1, 500, 100, { unit: '%' })],
+  { id: 'emboss', menu: 'Stylize', params: [R('a', 'angle', -180, 180, 135, { unit: '°' }), R('hgt', 'height', 1, 10, 3, { unit: 'px' }), R('amt', 'amount', 1, 500, 100, { unit: '%' })], // i18n-ignore: menu ids
     fn: (s, p) => {
       const w = s.width, hh = s.height, sd = cxr(s).getImageData(0, 0, w, hh).data, c = mkCanvas(w, hh), g = cxr(c), img = g.createImageData(w, hh), d = img.data;
       const dx = Math.round(Math.cos((p.a * Math.PI) / 180) * p.hgt), dy = -Math.round(Math.sin((p.a * Math.PI) / 180) * p.hgt), k = p.amt / 100;
@@ -196,8 +196,8 @@ FILTERS.push(
       }
       g.putImageData(img, 0, 0); return c;
     } },
-  { id: 'solarize', menu: 'Stylize', name: 'Solarize', fn: (s) => lutMap(s, makeLut((v) => (v > 127 ? 255 - v : v) * 2)) },
-  { id: 'oil', menu: 'Stylize', name: 'Oil Paint…', params: [R('r', 'Brush size', 1, 16, 4, { unit: 'px' })],
+  { id: 'solarize', menu: 'Stylize', fn: (s) => lutMap(s, makeLut((v) => (v > 127 ? 255 - v : v) * 2)) }, // i18n-ignore: menu ids
+  { id: 'oil', menu: 'Stylize', params: [R('r', 'brush_size', 1, 16, 4, { unit: 'px' })], // i18n-ignore: menu ids
     fn: (s, p) => {
       // Kuwahara filter on summed-area tables.
       const w = s.width, hh = s.height, r = p.r, sd = cxr(s).getImageData(0, 0, w, hh).data, W1 = w + 1, N = W1 * (hh + 1);
@@ -217,43 +217,43 @@ FILTERS.push(
       g.putImageData(img, 0, 0); return c;
     } },
   /* ---------- Distort ---------- */
-  { id: 'twirl', menu: 'Distort', name: 'Twirl…', params: [R('a', 'Angle', -999, 999, 120, { unit: '°' })],
+  { id: 'twirl', menu: 'Distort', params: [R('a', 'angle', -999, 999, 120, { unit: '°' })], // i18n-ignore: menu ids
     fn: (s, p) => { const w = s.width, hh = s.height, cx0 = w / 2, cy0 = hh / 2, R0 = Math.min(w, hh) / 2, A = (p.a * Math.PI) / 180;
       return displace(s, (x, y, o) => { const dx = x - cx0, dy = y - cy0, r = Math.hypot(dx, dy); if (r >= R0) return false; const t = 1 - r / R0, a = Math.atan2(dy, dx) + A * t * t; o[0] = cx0 + r * Math.cos(a); o[1] = cy0 + r * Math.sin(a); }); } },
-  { id: 'pinch', menu: 'Distort', name: 'Pinch / Bulge…', params: [R('amt', 'Amount (− bulge, + pinch)', -100, 100, -50, { unit: '%' })],
+  { id: 'pinch', menu: 'Distort', params: [R('amt', 'amount_bulge_pinch', -100, 100, -50, { unit: '%' })], // i18n-ignore: menu ids
     fn: (s, p) => { const w = s.width, hh = s.height, cx0 = w / 2, cy0 = hh / 2, R0 = Math.min(w, hh) / 2, k = p.amt / 100;
       return displace(s, (x, y, o) => { const dx = x - cx0, dy = y - cy0, r = Math.hypot(dx, dy); if (r >= R0 || !r) return false; const rn = r / R0, f = Math.pow(rn, k > 0 ? 1 - k * 0.7 : 1 - k * 1.2) / rn; o[0] = cx0 + dx * f; o[1] = cy0 + dy * f; }); } },
-  { id: 'wave', menu: 'Distort', name: 'Wave…', params: [R('amp', 'Amplitude', 1, 200, 12, { unit: 'px' }), R('len', 'Wavelength', 4, 800, 80, { unit: 'px' })],
+  { id: 'wave', menu: 'Distort', params: [R('amp', 'amplitude', 1, 200, 12, { unit: 'px' }), R('len', 'wavelength', 4, 800, 80, { unit: 'px' })], // i18n-ignore: menu ids
     fn: (s, p) => displace(s, (x, y, o) => { o[0] = x + p.amp * Math.sin((2 * Math.PI * y) / p.len); o[1] = y + p.amp * Math.sin((2 * Math.PI * x) / p.len); }) },
-  { id: 'ripple', menu: 'Distort', name: 'Ripple…', params: [R('amp', 'Amount', 1, 60, 6, { unit: 'px' }), R('len', 'Ring size', 4, 200, 24, { unit: 'px' })],
+  { id: 'ripple', menu: 'Distort', params: [R('amp', 'amount', 1, 60, 6, { unit: 'px' }), R('len', 'ring_size', 4, 200, 24, { unit: 'px' })], // i18n-ignore: menu ids
     fn: (s, p) => { const cx0 = s.width / 2, cy0 = s.height / 2; return displace(s, (x, y, o) => { const dx = x - cx0, dy = y - cy0, r = Math.hypot(dx, dy) || 1, k = (p.amp * Math.sin((2 * Math.PI * r) / p.len)) / r; o[0] = x + dx * k; o[1] = y + dy * k; }); } },
-  { id: 'polar', menu: 'Distort', name: 'Polar Coordinates (Tiny Planet)', fn: (s) => { const w = s.width, hh = s.height, cx0 = w / 2, cy0 = hh / 2, R0 = Math.min(w, hh) / 2;
+  { id: 'polar', menu: 'Distort', fn: (s) => { const w = s.width, hh = s.height, cx0 = w / 2, cy0 = hh / 2, R0 = Math.min(w, hh) / 2; // i18n-ignore: menu ids
       return displace(s, (x, y, o) => { const dx = x - cx0, dy = y - cy0, r = Math.hypot(dx, dy); let a = Math.atan2(dx, -dy); if (a < 0) a += 2 * Math.PI; o[0] = (a / (2 * Math.PI)) * w; o[1] = (1 - Math.min(1, r / R0)) * (hh - 1); }); } },
-  { id: 'offset', menu: 'Other', name: 'Offset…', params: [R('x', 'Horizontal', -2000, 2000, 100, { unit: 'px' }), R('y', 'Vertical', -2000, 2000, 0, { unit: 'px' }), { k: 'wrap', label: 'Wrap around', type: 'check', v: true }],
+  { id: 'offset', menu: 'Other', params: [R('x', 'horizontal', -2000, 2000, 100, { unit: 'px' }), R('y', 'vertical', -2000, 2000, 0, { unit: 'px' }), { k: 'wrap', lk: 'wrap_around', type: 'check', v: true }], // i18n-ignore: menu ids
     fn: (s, p) => { const c = mkCanvas(s.width, s.height), g = cx(c), w = s.width, hh = s.height;
       if (p.wrap) { const ox = ((p.x % w) + w) % w, oy = ((p.y % hh) + hh) % hh; for (const dx of [ox - w, ox]) for (const dy of [oy - hh, oy]) g.drawImage(s, dx, dy); } else g.drawImage(s, p.x, p.y);
       return c; } },
-  { id: 'maximum', menu: 'Other', name: 'Maximum (Dilate)…', params: [R('r', 'Radius', 1, 30, 2, { unit: 'px' })], fn: (s, p) => rankFilter(s, p.r, true) },
-  { id: 'minimum', menu: 'Other', name: 'Minimum (Erode)…', params: [R('r', 'Radius', 1, 30, 2, { unit: 'px' })], fn: (s, p) => rankFilter(s, p.r, false) },
+  { id: 'maximum', menu: 'Other', params: [R('r', 'radius', 1, 30, 2, { unit: 'px' })], fn: (s, p) => rankFilter(s, p.r, true) }, // i18n-ignore: menu ids
+  { id: 'minimum', menu: 'Other', params: [R('r', 'radius', 1, 30, 2, { unit: 'px' })], fn: (s, p) => rankFilter(s, p.r, false) }, // i18n-ignore: menu ids
   /* ---------- Render ---------- */
-  { id: 'clouds', menu: 'Render', name: 'Clouds', params: [R('scale', 'Scale', 10, 800, 160, { unit: 'px' }), R('seed', 'Seed', 1, 999, 11)],
+  { id: 'clouds', menu: 'Render', params: [R('scale', 'scale', 10, 800, 160, { unit: 'px' }), R('seed', 'seed', 1, 999, 11)], // i18n-ignore: menu ids
     fn: (s, p, env) => { const w = s.width, hh = s.height, A = hexToRgb(env.fg), B = hexToRgb(env.bg), n = valueNoise2D(p.seed);
       const c = mkCanvas(w, hh), g = cxr(c), img = g.createImageData(w, hh), d = img.data;
       for (let y = 0; y < hh; y++) for (let x = 0; x < w; x++) { let v = 0, amp = 0.5, f = 1 / p.scale; for (let o = 0; o < 6; o++) { v += n(x * f, y * f) * amp; amp *= 0.5; f *= 2; } const i = (y * w + x) * 4; d[i] = lerp(A[0], B[0], v); d[i + 1] = lerp(A[1], B[1], v); d[i + 2] = lerp(A[2], B[2], v); d[i + 3] = 255; }
       g.putImageData(img, 0, 0); return c; }, cover: true },
-  { id: 'vignette', menu: 'Render', name: 'Vignette…', params: [R('amt', 'Amount', 0, 100, 55, { unit: '%' }), R('size', 'Size', 10, 150, 75, { unit: '%' }), { k: 'color', label: 'Colour', type: 'color', v: '#000000' }],
+  { id: 'vignette', menu: 'Render', params: [R('amt', 'amount', 0, 100, 55, { unit: '%' }), R('size', 'size', 10, 150, 75, { unit: '%' }), { k: 'color', lk: 'colour', type: 'color', v: '#000000' }], // i18n-ignore: menu ids
     fn: (s, p) => { const c = copyCanvas(s), g = cx(c), w = c.width, hh = c.height, r = Math.hypot(w, hh) / 2;
       const gr = g.createRadialGradient(w / 2, hh / 2, r * (p.size / 100) * 0.45, w / 2, hh / 2, r * Math.max(0.2, p.size / 100) * 1.05);
       const [cr, cg, cb] = hexToRgb(p.color); gr.addColorStop(0, `rgba(${cr},${cg},${cb},0)`); gr.addColorStop(1, `rgba(${cr},${cg},${cb},${p.amt / 100})`);
       g.globalCompositeOperation = 'source-atop'; g.fillStyle = gr; g.fillRect(0, 0, w, hh); return c; } },
   /* ---------- Slop ---------- */
-  { id: 'deepfry', menu: 'Slop', name: 'Deep Fry…', params: [R('amt', 'Crispiness', 1, 100, 70, { unit: '%' }), R('seed', 'Seed', 1, 999, 5)],
+  { id: 'deepfry', menu: 'Slop', params: [R('amt', 'crispiness', 1, 100, 70, { unit: '%' }), R('seed', 'seed', 1, 999, 5)], // i18n-ignore: menu ids
     fn: async (s, p) => { const k = p.amt / 100;
       let c = withPixels(s, (d) => { const r = rng(p.seed); for (let i = 0; i < d.length; i += 4) { let R0 = d[i], G0 = d[i + 1], B0 = d[i + 2]; const l = luma(R0, G0, B0); R0 = l + (R0 - l) * (1 + 2.6 * k); G0 = l + (G0 - l) * (1 + 2.6 * k); B0 = l + (B0 - l) * (1 + 2.6 * k); R0 = (R0 - 128) * (1 + 0.9 * k) + 128 + 30 * k; G0 = (G0 - 128) * (1 + 0.9 * k) + 128 + 8 * k; B0 = (B0 - 128) * (1 + 0.9 * k) + 128 - 25 * k; const n = (r() - 0.5) * 50 * k; d[i] = R0 + n; d[i + 1] = G0 + n; d[i + 2] = B0 + n; } });
       c = convolve(c, [0, -1 * k, 0, -1 * k, 1 + 4 * k, -1 * k, 0, -1 * k, 0]);
       return jpegCrunch(c, Math.max(0.02, 0.35 - 0.33 * k), 1 + Math.round(k * 3)); } },
-  { id: 'jpeg', menu: 'Slop', name: 'JPEG Crunch…', params: [R('q', 'Quality', 1, 60, 8), R('n', 'Generations', 1, 20, 4)], fn: (s, p) => jpegCrunch(s, p.q / 100, p.n) },
-  { id: 'glitch', menu: 'Slop', name: 'Glitch…', params: [R('amt', 'Amount', 1, 100, 45, { unit: '%' }), R('shift', 'RGB split', 0, 60, 8, { unit: 'px' }), R('seed', 'Seed', 1, 999, 42)],
+  { id: 'jpeg', menu: 'Slop', params: [R('q', 'quality', 1, 60, 8), R('n', 'generations', 1, 20, 4)], fn: (s, p) => jpegCrunch(s, p.q / 100, p.n) }, // i18n-ignore: menu ids
+  { id: 'glitch', menu: 'Slop', params: [R('amt', 'amount', 1, 100, 45, { unit: '%' }), R('shift', 'rgb_split', 0, 60, 8, { unit: 'px' }), R('seed', 'seed', 1, 999, 42)], // i18n-ignore: menu ids
     fn: (s, p) => { const w = s.width, hh = s.height, r = rng(p.seed), sd = cxr(s).getImageData(0, 0, w, hh).data, c = mkCanvas(w, hh), g = cxr(c), img = g.createImageData(w, hh), d = img.data;
       const rows = new Int32Array(hh); let y = 0;
       while (y < hh) { const bh = 2 + Math.floor(r() * hh * 0.06), off = r() < p.amt / 100 ? Math.round((r() - 0.5) * w * 0.25 * (p.amt / 100)) : 0; for (let k = 0; k < bh && y < hh; k++, y++) rows[y] = off; }
@@ -261,7 +261,7 @@ FILTERS.push(
         const ir = (yy * w + clamp(sx + p.shift, 0, w - 1)) * 4, ig = (yy * w + sx) * 4, ib = (yy * w + clamp(sx - p.shift, 0, w - 1)) * 4;
         d[i] = sd[ir]; d[i + 1] = sd[ig + 1]; d[i + 2] = sd[ib + 2]; d[i + 3] = Math.max(sd[ir + 3], sd[ig + 3], sd[ib + 3]); }
       g.putImageData(img, 0, 0); return c; } },
-  { id: 'chroma', menu: 'Slop', name: 'Chromatic Aberration…', params: [R('amt', 'Amount', 1, 40, 6, { unit: 'px' })],
+  { id: 'chroma', menu: 'Slop', params: [R('amt', 'amount', 1, 40, 6, { unit: 'px' })], // i18n-ignore: menu ids
     fn: (s, p) => { const w = s.width, hh = s.height, sd = cxr(s).getImageData(0, 0, w, hh).data, c = mkCanvas(w, hh), g = cxr(c), img = g.createImageData(w, hh), d = img.data, o = [0, 0, 0, 0], cx0 = w / 2, cy0 = hh / 2, R0 = Math.hypot(cx0, cy0);
       for (let y = 0; y < hh; y++) for (let x = 0; x < w; x++) { const dx = (x - cx0) / R0, dy = (y - cy0) / R0, i = (y * w + x) * 4;
         sample(sd, w, hh, x + dx * p.amt, y + dy * p.amt, o); d[i] = o[0]; const a1 = o[3];

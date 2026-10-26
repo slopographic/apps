@@ -53,7 +53,7 @@ function fxPresetApply(layerId, preset) {
   const { add, skipped } = fxPresetPlan(preset);
   out.skipped = skipped;
   if (!add.length) return out;
-  setFxStack(layerId, (L.fx || []).concat(add), 'Apply Preset: ' + preset.label);
+  setFxStack(layerId, (L.fx || []).concat(add), tr('photoslop.fx.step_apply_preset', { name: preset.label }));
   out.added = add.length;
   return out;
 }
@@ -61,7 +61,7 @@ function fxPresetApply(layerId, preset) {
 async function fxPresetSave(layerId, label, description) {
   const L = D.layers.find((l) => l.id === layerId);
   const { effects } = L ? fxPresetEffects(L) : { effects: [] };
-  if (!effects.length) return { ok: false, errors: [{ path: 'params.effects', message: 'this layer has no effects PhotoSlop can save' }] };
+  if (!effects.length) return { ok: false, errors: [{ path: 'params.effects', message: tr('photoslop.fx.nothing_to_save') }] };
   return SlopPresets.save({ kind: 'effect', label, description, apps: ['photoslop'], params: { effects } });
 }
 
@@ -70,9 +70,9 @@ async function fxPresetSave(layerId, label, description) {
 function fxPresetPick(layerId) { openFxPresetPicker(layerId); }
 function fxPresetSaveDialog(layerId) {
   const L = D.layers.find((l) => l.id === layerId);
-  if (!L || !(L.fx && L.fx.length)) { SlopUI.toast('Add an effect to this layer first'); return; }
+  if (!L || !(L.fx && L.fx.length)) { SlopUI.toast(tr('photoslop.fx.add_effect_first')); return; }
   SlopPresets.openSave({
-    app: 'photoslop', kinds: ['effect'], title: 'Save effects as preset', defaultName: L.name + ' effects',
+    app: 'photoslop', kinds: ['effect'], title: tr('photoslop.fx.save_as_preset'), defaultName: tr('photoslop.fx.default_preset_name', { name: L.name }),
     build: () => { const { effects } = fxPresetEffects(L); return effects.length ? { effects } : null; },
   });
 }

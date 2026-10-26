@@ -6,16 +6,9 @@
  * layer back as it was, with no history step. */
 'use strict';
 
-const LS_SECTIONS = [
-  { id: 'blend', title: 'Blending Options' },
-  { id: 'shadow', title: 'Drop Shadow' },
-  { id: 'inner-shadow', title: 'Inner Shadow' },
-  { id: 'glow', title: 'Outer Glow' },
-  { id: 'stroke', title: 'Stroke' },
-  { id: 'overlay', title: 'Color Overlay' },
-  { id: 'gradient', title: 'Gradient Overlay' },
-  { id: 'opacity', title: 'Opacity and Fill' },
-];
+// the titles: the two pages of their own, and each effect's name (photoslop.filter.<id>) without its «…»
+const LS_SECTIONS = ['blend', 'shadow', 'inner-shadow', 'glow', 'stroke', 'overlay', 'gradient', 'opacity'].map((id) => ({ id,
+  get title() { return id === 'blend' ? tr('photoslop.lstyle.blending') : id === 'opacity' ? tr('photoslop.lstyle.opacity_fill') : tr('photoslop.filter.' + fKey(id)).replace('…', ''); } }));
 /** True when an effect type has its own section here (the others keep their own dialog). */
 const lsHasSection = (typeId) => LS_SECTIONS.some((s) => s.id === typeId);
 /** A comparable copy of a layer's style: stack, blend, opacity and fill. */
@@ -43,7 +36,7 @@ function openLayerStyle(layerId, section = 'blend') {
   const restoreDoc = () => { patchLayer(layerId, { fx: orig.fx, blend: orig.blend, opacity: orig.opacity, fillOp: orig.fillOp }); emit('doc'); };
 
   // The preview: the layer on the document's frame, with the working style (whether or not Preview is on).
-  const prev = h('canvas', { class: 'ls-prev', width: 240, height: 180, role: 'img', 'aria-label': 'Preview of the layer with this style' });
+  const prev = h('canvas', { class: 'ls-prev', width: 240, height: 180, role: 'img', 'aria-label': tr('photoslop.lstyle.preview_label') });
   const drawPreview = () => {
     const L = D.layers.find((l) => l.id === layerId);
     const g = prev.getContext('2d');
@@ -60,9 +53,9 @@ function openLayerStyle(layerId, section = 'blend') {
     g.restore();
   };
 
-  const list = h('ul', { class: 'ls-list', role: 'tablist', 'aria-label': 'Style sections', 'aria-orientation': 'vertical' });
+  const list = h('ul', { class: 'ls-list', role: 'tablist', 'aria-label': tr('photoslop.lstyle.sections'), 'aria-orientation': 'vertical' });
   const main = h('div', { class: 'ls-main' });
-  const body = h('div', { class: 'ls-body' }, list, main, h('div', { class: 'ls-side' }, prev, h('p', { class: 'ls-cap' }, 'Preview')));
+  const body = h('div', { class: 'ls-body' }, list, main, h('div', { class: 'ls-side' }, prev, h('p', { class: 'ls-cap' }, tr('photoslop.filter.preview'))));
 
   /** One change: the document follows it (when Preview is on) and the preview redraws. */
   const changed = () => { if (preview) applyDoc(); drawPreview(); paintList(); };
@@ -86,30 +79,30 @@ function openLayerStyle(layerId, section = 'blend') {
   }
 
   let previewBtn = null;
-  const syncPreviewBtn = () => { if (previewBtn) { previewBtn.setAttribute('aria-pressed', String(preview)); previewBtn.textContent = preview ? 'Preview: on' : 'Preview: off'; } };
+  const syncPreviewBtn = () => { if (previewBtn) { previewBtn.setAttribute('aria-pressed', String(preview)); previewBtn.textContent = tr(preview ? 'photoslop.lstyle.preview_on' : 'photoslop.lstyle.preview_off'); } };
   SlopUI.dialog({
-    title: 'Layer Style · ' + L0.name, cls: 'ls-dialog', body,
+    title: tr('photoslop.lstyle.title_named', { name: L0.name }), cls: 'ls-dialog', body,
     buttons: [
-      { label: 'Cancel' },
-      { label: 'Preview', act: () => {
+      { label: tr('menu.cancel') },
+      { label: tr('photoslop.filter.preview'), act: () => {
         preview = !preview;
         if (preview) applyDoc(); else restoreDoc();
         syncPreviewBtn();
         return false;
       } },
-      { label: 'OK', primary: true },
+      { label: tr('menu.ok'), primary: true },
     ],
     onClose: (ok) => {
       if (!ok) { restoreDoc(); return; }
       w.fx = kept();
       const changedStyle = lsSig(w) !== origSig;
       applyDoc();
-      if (changedStyle) commit('Layer Style'); else emit('doc');
+      if (changedStyle) commit(tr('photoslop.lstyle.step')); else emit('doc');
     },
   });
   // The Preview button is the third-from-start button of the foot: find it by its label after the dialog is built.
   const foot = body.closest('.sui-dlg') && body.closest('.sui-dlg').querySelector('.sui-foot');
-  previewBtn = foot ? [...foot.querySelectorAll('button')].find((b) => b.textContent === 'Preview') || null : null;
+  previewBtn = foot ? [...foot.querySelectorAll('button')].find((b) => b.textContent === tr('photoslop.filter.preview')) || null : null;
   syncPreviewBtn();
   show(current);
   drawPreview();

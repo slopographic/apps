@@ -4,6 +4,8 @@
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="convert" data-src="shared/theme/theme.js"></script>
   <link rel="expect" href="#slop-built" blocking="render">
+  <script src="../shared/i18n/i18n.js" data-src="shared/i18n/i18n.js"></script>
+  <script src="i18n/index.js" data-src="convert/i18n/index.js"></script>
 <script src="../shared/intake/rules.js" data-src="shared/intake/rules.js"></script>
 <script src="../shared/intake/normalize.js" data-src="shared/intake/normalize.js"></script>
 <script src="../shared/intake/pipeline.js" data-src="shared/intake/pipeline.js"></script>
@@ -57,35 +59,35 @@
   <script type="module" blocking="render" src="js/preview/mount.js"></script>
 </head>
 <body>
-  <a class="cv-skip-link" href="#tool">Skip to the converter</a>
+  <a class="cv-skip-link" href="#tool" data-i18n="convert.app.skip">Skip to the converter</a>
   <header class="cv-top">
-    <a class="cv-brand brand" href="../" title="Slopographic home" aria-label="Slopographic home"><svg viewBox="0 0 32 32" class="brand-mark" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/></svg></a>
-    <a class="cv-app" href="../convert/">File convert</a>
+    <a class="cv-brand brand" href="../" title="Slopographic home" aria-label="Slopographic home" data-i18n-attr="title:convert.app.home;aria-label:convert.app.home"><svg viewBox="0 0 32 32" class="brand-mark" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/></svg></a>
+    <a class="cv-app" href="../convert/" data-i18n="app.convert">File convert</a>
   </header>
   <main class="cv-wrap">
-    <h1>File convert</h1>
-    <p class="cv-lead">Drop files, pick the format, and download the result. Images, PDFs, spreadsheets, data and text all convert in this browser. Nothing is uploaded.</p>
-    <section id="tool" aria-label="Converter">
+    <h1 data-i18n="app.convert">File convert</h1>
+    <p class="cv-lead" data-i18n="convert.app.lead">Drop files, pick the format, and download the result. Images, PDFs, spreadsheets, data and text all convert in this browser. Nothing is uploaded.</p>
+    <section id="tool" aria-label="Converter" data-i18n-attr="aria-label:convert.app.converter">
       <div class="cv-tool" data-convert-root></div>
     </section>
-    <section class="cv-pv-wrap" aria-label="Live preview" data-convert-preview></section>
+    <section class="cv-pv-wrap" aria-label="Live preview" data-i18n-attr="aria-label:convert.pv.title" data-convert-preview></section>
     <section class="cv-explain">
-      <h2>What it converts</h2>
-      <p>Images to PNG, JPG, WebP, BMP and ICO, and to PDF. Email messages to HTML, text and an attachments ZIP. Calendar files to CSV and JSON. XML to JSON. ZIP files unzipped, and any files zipped. PDF pages to images, and PDF merge and split. CSV to JSON, JSON to CSV, CSV to Excel. Markdown to HTML, HTML to text, Base64 and URL encoding, and line endings. Each converter also has its own page.</p>
-      <p>Batches work: drop as many files as you like. Converted files download one at a time, or as one zip.</p>
+      <h2 data-i18n="convert.app.what_h">What it converts</h2>
+      <p data-i18n="convert.app.what_p1">Images to PNG, JPG, WebP, BMP and ICO, and to PDF. Email messages to HTML, text and an attachments ZIP. Calendar files to CSV and JSON. XML to JSON. ZIP files unzipped, and any files zipped. PDF pages to images, and PDF merge and split. CSV to JSON, JSON to CSV, CSV to Excel. Markdown to HTML, HTML to text, Base64 and URL encoding, and line endings. Each converter also has its own page.</p>
+      <p data-i18n="convert.app.what_p2">Batches work: drop as many files as you like. Converted files download one at a time, or as one zip.</p>
     </section>
     <section class="cv-card cv-catalog" aria-labelledby="all-h">
-      <h2 id="all-h">All conversions</h2>
-      <p class="cv-catalog-lead">Find the conversion you need. Each card opens its own page, with the same converter.</p>
+      <h2 id="all-h" data-i18n="convert.app.all_h">All conversions</h2>
+      <p class="cv-catalog-lead" data-i18n="convert.app.all_lead">Find the conversion you need. Each card opens its own page, with the same converter.</p>
       <div class="cv-search">
-        <label for="cv-search">Search conversions</label>
-        <input type="search" id="cv-search" placeholder="Try PDF, WebP or CSV" autocomplete="off">
+        <label for="cv-search" data-i18n="convert.app.search">Search conversions</label>
+        <input type="search" id="cv-search" placeholder="Try PDF, WebP or CSV" data-i18n-attr="placeholder:convert.app.search_ph" autocomplete="off">
       </div>
       <div data-convert-cards></div>
-      <p class="cv-cards-empty" id="cv-cards-empty" role="status" hidden>No conversion matches that search. Try a file type such as PDF or CSV.</p>
+      <p class="cv-cards-empty" id="cv-cards-empty" role="status" hidden data-i18n="convert.app.no_match">No conversion matches that search. Try a file type such as PDF or CSV.</p>
     </section>
   </main>
-  <aside class="cv-wrap" aria-label="Advertisement">
+  <aside class="cv-wrap" aria-label="Advertisement" data-i18n-attr="aria-label:support.ad_region">
     <div class="slop-ad" data-slop-ad="convert-sidebar" hidden></div>
   </aside>
   <script src="../shell/shell.js"></script>

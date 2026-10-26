@@ -12,7 +12,7 @@
 const PS_RULES = () => ({
   types: ['image/*'],
   exts: ['.psd', '.psb', '.ora', '.kra', '.tif', '.tiff', '.svg', '.ico', '.avif', '.bmp', '.gif', '.webp', '.jfif', ...(window.SlopRaw ? SlopRaw.EXTS.map((e) => '.' + e) : [])],
-  noun: 'a picture or a document',
+  noun: tr('photoslop.app.noun_picture'),
 });
 
 function registerIntake() {
@@ -22,7 +22,7 @@ function registerIntake() {
     driveAccept: ['image/*', 'image/vnd.adobe.photoshop', 'application/x-openraster'],
     except: (f) => !!(window.SlopBuffer && SlopBuffer.isSystemCopyOf(f)), // our own buffer copies stay with onPaste
     hasOpen: () => D.layers.length > 0,
-    openName: () => D.name || 'the open document',
+    openName: () => D.name || tr('photoslop.app.open_document'),
     process: async (file, ctx) => {
       const before = CUR, place = ctx.mode === 'add';
       const failed = await handleFiles([file], place);
@@ -33,7 +33,7 @@ function registerIntake() {
   });
   // Brushes: .abr, .slopbrush packs and picture tips, all of a pick at once (one toast).
   SI.register({ id: 'photoslop.brushes', main: false, paste: false, toast: false,
-    accept: { types: ['image/*', 'application/json'], exts: ['.abr', '.slopbrush', '.json'], noun: 'a brush file (.abr, .slopbrush or a picture)' },
+    accept: { types: ['image/*', 'application/json'], exts: ['.abr', '.slopbrush', '.json'], noun: tr('photoslop.app.noun_brush') },
     processAll: (files) => importBrushFiles(files) });
   // The watermark's logo ('photoslop.logo') is the shared watermark panel's own part (shared/watermark/panel.js, watermark/panel.js).
 }

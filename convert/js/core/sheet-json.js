@@ -21,7 +21,7 @@ export function headerNames(row, width) {
   const used = new Map(), out = [];
   for (let c = 0; c < width; c++) {
     const v = cellJson(row && row[c]);
-    let n = v !== null && String(v).trim() !== '' ? String(v).trim() : `Column ${c + 1}`;
+    let n = v !== null && String(v).trim() !== '' ? String(v).trim() : `Column ${c + 1}`; // i18n-ignore: names in the file the user gets
     const seen = used.get(n) || 0;
     used.set(n, seen + 1);
     if (seen) n = `${n} ${seen + 1}`;
@@ -56,13 +56,13 @@ function tableOf(arr) {
 }
 
 export function tablesFromJson(value) {
-  if (Array.isArray(value)) return [{ name: 'Sheet1', ...tableOf(value) }];
+  if (Array.isArray(value)) return [{ name: 'Sheet1', ...tableOf(value) }]; // i18n-ignore: names in the file the user gets
   if (isPlain(value)) {
     const keys = Object.keys(value);
     if (keys.length && keys.every((k) => Array.isArray(value[k]))) return keys.map((k) => ({ name: k, ...tableOf(value[k]) }));
-    return [{ name: 'Sheet1', rows: [['Key', 'Value'], ...keys.map((k) => [k, cellOf(value[k])])], header: true }];
+    return [{ name: 'Sheet1', rows: [['Key', 'Value'], ...keys.map((k) => [k, cellOf(value[k])])], header: true }]; // i18n-ignore: names in the file the user gets
   }
-  return [{ name: 'Sheet1', rows: [['Value'], [cellOf(value)]], header: true }];
+  return [{ name: 'Sheet1', rows: [['Value'], [cellOf(value)]], header: true }]; // i18n-ignore: names in the file the user gets
 }
 
 export function workbookOf(tables) {

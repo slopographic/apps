@@ -8,7 +8,8 @@
  * Routes (core/chain.js): a target can also be a route key ('sie-to-csv>csv-to-json'), steps done one after the other. A
  * file's menu lists them under "More formats" (the best route to each kind no single conversion makes). On a page for one
  * conversion no route is offered; on a page for one route, any route that ends with the same format is. */
-import { CONVERSIONS, conversionsFor, conversionById } from '../core/catalog.js';
+import { tr } from '../core/i18n.js';
+import { CONVERSIONS, conversionsFor, conversionById, groupLabel } from '../core/catalog.js';
 import { isRoute, validRoute, stepsOf, kindsOf, moreRoutes, routeTo, routeLabel } from '../core/chain.js';
 
 export const WITH = '@with';
@@ -71,7 +72,7 @@ export function routeOk(kind, key, only = null) {
 /** A route as a menu choice, shaped like a catalog entry: id is the key, ext the kind it ends with. */
 export function routeEntry(kind, key) {
   const kinds = kindsOf(kind, key) || [], steps = stepsOf(key), last = steps[steps.length - 1]?.conv;
-  return { id: key, route: true, label: routeLabel(kind, key), ext: kinds[kinds.length - 1] || 'file', group: 'More formats', from: [kind],
+  return { id: key, route: true, label: routeLabel(kind, key), ext: kinds[kinds.length - 1] || 'file', group: tr('convert.row.more_formats', 'More formats'), from: [kind],
     keywords: ['via', ...kinds.slice(1), ...((last && last.keywords) || []), (last && last.group) || ''].filter(Boolean) };
 }
 
@@ -99,16 +100,16 @@ export function targetFor(kind, want, only = null) {
 }
 
 /** Words the menu's search box also matches: the conversion's own keywords, its output extension and its group. */
-export const keywordsOf = (c) => [...(c.keywords || []), c.ext || '', c.group || ''].filter(Boolean);
+export const keywordsOf = (c) => [...(c.keywords || []), c.ext || '', c.group || '', c.group ? groupLabel(c.group) : ''].filter(Boolean);
 
 /** The choices of one file's menu: [{ id, label, ext, group }] (WITH first for a companion). */
 export function choicesFor(item, items, only = null) {
   const own = [...ownTargets(item.kind, only), ...routeEntries([item.kind], only, item.target)]
-    .map((c) => ({ id: c.id, label: c.label, ext: c.ext || 'file', group: c.group || 'Other', keywords: c.route ? c.keywords : keywordsOf(c) }));
+    .map((c) => ({ id: c.id, label: c.label, ext: c.ext || 'file', group: c.route ? c.group : groupLabel(c.group), keywords: c.route ? c.keywords : keywordsOf(c) }));
   const models = modelsFor(item, items);
   if (!models.length) return own;
-  const name = models.length === 1 ? models[0].name : `${models.length} models`;
-  return [{ id: WITH, label: `With ${name}`, ext: models[0].kind, group: 'Goes with' }, ...own];
+  const name = models.length === 1 ? models[0].name : tr('convert.row.n_models', '{n} models', { n: models.length });
+  return [{ id: WITH, label: tr('convert.row.with', 'With {name}', { name }), ext: models[0].kind, group: tr('convert.row.goes_with', 'Goes with') }, ...own];
 }
 
 /** The formats every one of these files can become (companions count as going with their model). */

@@ -49,7 +49,7 @@ function openInNewTab(setup, id) {
 function openDocTab(w, hh, layers, name) { return openInNewTab(() => openDocument(w, hh, layers, name)); }
 function newDocTab(w, hh, bg, name) { return openInNewTab(() => { newDocument(w, hh, bg, name); fitView(true); emit('docname'); scheduleAutosave(); }); }
 /** The empty document PhotoSlop starts with: transparent, default size. New… (File, the + tab, the top bar) makes others. */
-function newBlankTab() { return newDocTab(1600, 1000, 'transparent', 'Untitled'); }
+function newBlankTab() { return newDocTab(1600, 1000, 'transparent', tr('ui.untitled')); }
 function switchToDoc(rec) {
   if (!rec || rec === CUR) return;
   flushAutosave(); finishPendingWork(); stashCurrent();
@@ -58,10 +58,10 @@ function switchToDoc(rec) {
   renderTabs(); saveTabsIndex();
 }
 function docIsDirty(rec) { return rec === CUR ? D.dirty && Hist.idx > 0 : rec.state && rec.state.dirty && rec.state.idx > 0; }
-function docName(rec) { return rec === CUR ? D.name : rec.state ? rec.state.name : 'Untitled'; }
+function docName(rec) { return rec === CUR ? D.name : rec.state ? rec.state.name : tr('ui.untitled'); }
 async function closeDoc(rec = CUR) {
   if (!rec) return;
-  if (docIsDirty(rec) && !(await confirmDlg('Close document?', `“${docName(rec)}” has changes you haven't saved as a file. It is still recoverable on this device until you close it. Close it anyway?`, 'Close'))) return;
+  if (docIsDirty(rec) && !(await confirmDlg(tr('photoslop.tab.close_title'), tr('photoslop.tab.close_body', { name: docName(rec) }), tr('menu.close')))) return;
   const i = DOCS.indexOf(rec);
   DOCS.splice(i, 1);
   idbDo('readwrite', (st) => st.delete('doc:' + rec.id)).catch(() => {});
@@ -86,10 +86,10 @@ function renderTabs() {
   for (const rec of DOCS) {
     const s = rec === CUR ? D : rec.state || {};
     const active = rec === CUR;
-    const tab = h('div', { class: 'doctab' + (active ? ' active' : ''), role: 'tab', 'aria-selected': String(active), tabindex: active ? '0' : '-1', title: `${docName(rec)} — ${s.w} × ${s.h} px`, draggable: 'true' },
+    const tab = h('div', { class: 'doctab' + (active ? ' active' : ''), role: 'tab', 'aria-selected': String(active), tabindex: active ? '0' : '-1', title: tr('photoslop.tab.tip', { name: docName(rec), w: String(s.w), h: String(s.h) }), draggable: 'true' },
       h('span', { class: 'doctab-name' }, docName(rec)),
-      docIsDirty(rec) ? h('i', { class: 'doctab-dot', 'aria-label': 'unsaved changes' }) : null);
-    const x = h('button', { type: 'button', class: 'doctab-x', 'aria-label': `Close ${docName(rec)}`, title: 'Close (Alt+Ctrl+W)' }, '×');
+      docIsDirty(rec) ? h('i', { class: 'doctab-dot', 'aria-label': tr('photoslop.tab.unsaved') }) : null);
+    const x = h('button', { type: 'button', class: 'doctab-x', 'aria-label': tr('photoslop.tab.close_named', { name: docName(rec) }), title: tr('photoslop.tab.close_key') }, '×');
     x.addEventListener('click', (e) => { e.stopPropagation(); closeDoc(rec); });
     tab.append(x);
     ctxTarget(tab, 'tab', () => tabItems(rec));
@@ -110,26 +110,26 @@ function renderTabs() {
     });
     bar.append(tab);
   }
-  const plus = h('button', { type: 'button', class: 'doctab-new', title: 'New document', 'aria-label': 'New document' }, '+');
+  const plus = h('button', { type: 'button', class: 'doctab-new', title: tr('photoslop.tab.new'), 'aria-label': tr('photoslop.tab.new') }, '+');
   plus.addEventListener('click', () => dlgNew());
-  const open = h('button', { type: 'button', class: 'doctab-open', title: 'Open files (or drop them here)' }, 'Open…');
+  const open = h('button', { type: 'button', class: 'doctab-open', title: tr('photoslop.tab.open_tip') }, tr('photoslop.tab.open'));
   open.addEventListener('click', () => openFilePicker(false));
   bar.append(plus, open);
   const act = bar.querySelector('.doctab.active'); if (act && act.scrollIntoView) act.scrollIntoView({ block: 'nearest', inline: 'nearest' });
 }
 listeners.add((w) => { if (w === 'docname' || w === 'history') renderTabs(); });
 function windowMenuItems() {
-  return [
-    { label: 'Next Document', key: 'Ctrl+Tab', act: () => cycleDoc(1), en: () => DOCS.length > 1 },
-    { label: 'Previous Document', key: 'Shift+Ctrl+Tab', act: () => cycleDoc(-1), en: () => DOCS.length > 1 },
+  return labelMenu([
+    { k: 'next_document', key: 'Ctrl+Tab', act: () => cycleDoc(1), en: () => DOCS.length > 1 },
+    { k: 'previous_document', key: 'Shift+Ctrl+Tab', act: () => cycleDoc(-1), en: () => DOCS.length > 1 },
     '-',
-    { label: 'Guides', check: () => !!SlopGuides.panel, act: () => openGuidesPanel() },
+    { k: 'guides', check: () => !!SlopGuides.panel, act: () => openGuidesPanel() },
     '-',
-    { label: 'Foreground Colour…', act: () => editSwatch('fg') },
-    { label: 'Background Colour…', act: () => editSwatch('bg') },
+    { k: 'foreground_colour', act: () => editSwatch('fg') },
+    { k: 'background_colour', act: () => editSwatch('bg') },
     '-',
     ...DOCS.map((rec, i) => ({ label: `${i + 1}  ${docName(rec)}`, check: () => rec === CUR, act: () => switchToDoc(rec), key: i < 9 ? `Alt+${i + 1}` : undefined })),
-  ];
+  ]);
 }
 
 /* ---------- drag & drop: open as tabs, or place as layers ----------
@@ -139,9 +139,9 @@ function windowMenuItems() {
    later Choose files pick never inherits an earlier hover. The strip at the foot of the viewport shows progress and the
    Choose files button, and is not a drop target. */
 const DROP_LABELS = {
-  new: 'Open as new tabs', current: 'Place as layers',
-  newHint: 'PSD, PNG, JPEG, WebP, GIF, SVG, TIFF, BMP, AVIF, ORA, KRA…',
-  currentHint: () => 'into ' + (D.name || 'this document'),
+  get new() { return tr('photoslop.tab.drop_new'); }, get current() { return tr('photoslop.tab.drop_current'); },
+  newHint: 'PSD, PNG, JPEG, WebP, GIF, SVG, TIFF, BMP, AVIF, ORA, KRA…',   // i18n-ignore: format names
+  currentHint: () => (D.name ? tr('photoslop.tab.drop_into', { name: D.name }) : tr('photoslop.tab.drop_into_this')),
 };
 let fileZones = null; // SlopDropChoice.zones on the document area (made in bindFileDrop)
 const hasDragType = (e, names) => !!e.dataTransfer && Array.from(e.dataTransfer.types || []).some((t) => names.includes(t));
@@ -170,5 +170,5 @@ async function onDropFiles(e) {
     const blob = await r.blob();
     const name = decodeURIComponent(url.split('/').pop().split('?')[0] || 'image');
     SlopIntake.take([new File([blob], name, { type: blob.type })], { source: 'drop', to: 'photoslop', mode });
-  } catch (err) { toast("That site won't share the image directly. Save it, then drop the file here.", 4200); }
+  } catch (err) { toast(tr('photoslop.tab.drop_url_failed'), 4200); }
 }

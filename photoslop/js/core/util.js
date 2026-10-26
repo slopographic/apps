@@ -23,13 +23,19 @@ const lerp = (a, b, t) => a + (b - a) * t;
 const uid = (() => { let n = 1; return () => n++; })();
 const isMac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
 const isTyping = (t) => !!(t && t.closest && t.closest('input, textarea, select, [contenteditable]:not([contenteditable="false"])'));
+/** Words (shared/i18n/APPS-HOWTO.md): tr(key, vars) is the text of photoslop/i18n/<code>/*.js in the chosen language;
+ * onLang(fn) re-runs fn after a language change, once the new tables are in (for UI built once). */
+function tr(key, vars) { const I = window.SlopI18n; return I ? I.t(key, vars) : key; }
+function onLang(fn) { window.addEventListener('slopi18n', () => fn()); }
+/** [value, label] rows whose label (index 1) is read from the key prefix + value (- as _), in the language of the moment. */
+function trPairs(rows, prefix) { for (const r of rows) Object.defineProperty(r, 1, { get: () => tr(prefix + String(r[0]).replace(/-/g, '_')), enumerable: true, configurable: true }); return rows; }
 
 /* ---------- canvas ---------- */
 function mkCanvas(w, hh) { const c = document.createElement('canvas'); c.width = Math.max(1, Math.round(w)); c.height = Math.max(1, Math.round(hh)); return c; }
 function cx(c) { return c.getContext('2d', { willReadFrequently: false }); }
 function cxr(c) { return c.getContext('2d', { willReadFrequently: true }); }
 function copyCanvas(src) { const c = mkCanvas(src.width, src.height); cx(c).drawImage(src, 0, 0); return c; }
-function loadImage(src) { return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error('Could not read that image')); i.src = src; }); }
+function loadImage(src) { return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error(tr('photoslop.core.cant_read_image'))); i.src = src; }); }
 function canvasToBlob(c, type = 'image/png', q) { return new Promise((res) => c.toBlob(res, type, q)); }
 /** Saves a file: SlopUI.download (shared/slopui.js), the one copy. */
 function download(blob, name) { window.SlopUI.download(blob, name); }

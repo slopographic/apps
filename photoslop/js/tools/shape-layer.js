@@ -22,7 +22,7 @@ function shapeRecord(o, r) {
  * into a single step (400 ms after the last move), a typed value is one step. */
 let lastShapeRadius = Math.max(0, +T.shape.radius || 0);
 let shapeEdit = null;
-function flushShapeEdit() { if (!shapeEdit) return; clearTimeout(shapeEdit.timer); shapeEdit = null; commit('Corner Radius'); }
+function flushShapeEdit() { if (!shapeEdit) return; clearTimeout(shapeEdit.timer); shapeEdit = null; commit(tr('photoslop.tool.step_corner_radius')); }
 function syncShapeRadius() {
   const r = Math.max(0, +T.shape.radius || 0);
   if (r === lastShapeRadius) return; // only the option itself changing counts

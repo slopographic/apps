@@ -8,8 +8,8 @@
 function rtSplitView(before) {
   const W = before.width, H = before.height;
   const cv = h('canvas', { class: 'rt-canvas', width: W, height: H, 'aria-hidden': 'true' });
-  const knob = h('div', { class: 'rt-knob', role: 'slider', tabindex: '0', 'aria-label': 'Before and after divider', 'aria-valuemin': '0', 'aria-valuemax': '100' });
-  const stage = h('div', { class: 'rt-stage' }, cv, h('span', { class: 'rt-tag rt-before' }, 'Before'), h('span', { class: 'rt-tag rt-after' }, 'After'), knob);
+  const knob = h('div', { class: 'rt-knob', role: 'slider', tabindex: '0', 'aria-label': tr('photoslop.retouch.divider'), 'aria-valuemin': '0', 'aria-valuemax': '100' });
+  const stage = h('div', { class: 'rt-stage' }, cv, h('span', { class: 'rt-tag rt-before' }, tr('photoslop.retouch.before')), h('span', { class: 'rt-tag rt-after' }, tr('photoslop.retouch.after')), knob);
   const el = h('div', { class: 'rt-view', 'data-touch-surface': '' }, stage);
   let after = before, s = 0.5;
   function draw() {
@@ -18,7 +18,7 @@ function rtSplitView(before) {
     g.save(); g.beginPath(); g.rect(x, 0, W - x, H); g.clip(); g.drawImage(after, 0, 0, W, H); g.restore();
     knob.style.left = s * 100 + '%';
     knob.setAttribute('aria-valuenow', String(Math.round(s * 100)));
-    knob.setAttribute('aria-valuetext', `${Math.round(s * 100)} % before`);
+    knob.setAttribute('aria-valuetext', tr('photoslop.retouch.pct_before', { pct: Math.round(s * 100) }));
   }
   const at = (e) => { const r = cv.getBoundingClientRect(); return clamp((e.clientX - r.left) / Math.max(1, r.width), 0, 1); };
   el.addEventListener('pointerdown', (e) => {

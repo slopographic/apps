@@ -52,13 +52,13 @@ function rtPortraitLayers(src, a, ctx = {}) {
     const cd = cxr(src).getImageData(box.x, box.y, box.w, box.h).data;
     const spots = SlopRetouchSkin.findSpots(cd, box.w, box.h, rtCropU8(mask, W, box), { maxR }).map((s) => ({ x: s.x + box.x, y: s.y + box.y, r: s.r }));
     info.spots = spots.length;
-    if (spots.length) { const hs = rtHealSpots(src, spots); base = hs.canvas; out.push({ name: 'Blemishes', canvas: hs.canvas, mask: hs.mask }); }
+    if (spots.length) { const hs = rtHealSpots(src, spots); base = hs.canvas; out.push({ name: 'Blemishes', canvas: hs.canvas, mask: hs.mask }); } // i18n-ignore: layer names are the document's
   }
   if (box && (a.smoothing ?? 45) > 0) {
     const bd = cxr(base).getImageData(box.x, box.y, box.w, box.h);
     const res = SlopRetouchPortrait.smoothSkin(bd.data, box.w, box.h, rtCropU8(mask, W, box), { strength: a.smoothing ?? 45, radius });
     const c = copyCanvas(base); cx(c).putImageData(new ImageData(res, box.w, box.h), box.x, box.y);
-    out.push({ name: 'Skin Smoothing', canvas: c, mask: rtMaskCanvas(mask, W, H) });
+    out.push({ name: 'Skin Smoothing', canvas: c, mask: rtMaskCanvas(mask, W, H) }); // i18n-ignore: layer name
   }
   const regions = faces.map((f) => SlopRetouchSkin.featureRegions(f)).filter(Boolean);
   if (regions.length && a.red_eye !== false) {
@@ -72,9 +72,9 @@ function rtPortraitLayers(src, a, ctx = {}) {
     }
     // a red pupil is a real patch of the eye, not a few reddish pixels in a reflection
     info.redEye = n > Math.max(12, area * 0.015);
-    if (info.redEye) { const mc = rtMaskCanvas(m, W, H); blurAlphaCanvas(mc, 1); out.push({ name: 'Red Eye', canvas: rtCanvas(fixed, W, H), mask: mc }); }
+    if (info.redEye) { const mc = rtMaskCanvas(m, W, H); blurAlphaCanvas(mc, 1); out.push({ name: 'Red Eye', canvas: rtCanvas(fixed, W, H), mask: mc }); } // i18n-ignore: layer name
   }
-  for (const [key, kind, name] of [['teeth', 'teeth', 'Teeth Whitening'], ['eyes', 'eyes', 'Eye Whitening']]) {
+  for (const [key, kind, name] of [['teeth', 'teeth', 'Teeth Whitening'], ['eyes', 'eyes', 'Eye Whitening']]) { // i18n-ignore: layer names
     if (!regions.length || !(a[key] > 0)) continue;
     const ell = regions.flatMap((r) => (kind === 'teeth' ? [r.mouth] : r.eyes));
     const r = SlopRetouchPortrait.whiten(d, W, H, SlopRetouchPortrait.regionMap(W, H, ell), a[key], kind);
@@ -86,19 +86,20 @@ function rtPortraitLayers(src, a, ctx = {}) {
 
 async function rtPortrait(a = {}) {
   await rtSettle();
-  if (!activeLayer()) throw new Error('There is no picture to retouch');
+  if (!activeLayer()) throw new Error(rtT('no_picture'));
   const src = rtComposite();
   const fr = a.facesFound ? { faces: a.facesFound, note: '' } : await rtFaces(src, a.faces === 'off' ? 'off' : a.askFaces ? 'ask' : 'auto');
   const subject = a.subjectMask !== undefined ? a.subjectMask : a.subject ? await rtSubject(src) : null;
   const r = rtPortraitLayers(src, a, { faces: fr.faces, subject, k: 1 });
   const layers = r.layers.map((L) => ({ name: nextName(L.name), canvas: L.canvas, mask: { canvas: L.mask, x: 0, y: 0, def: false, enabled: true } }));
-  if (layers.length) rtAddLayers(layers, 'Portrait Retouch');
+  if (layers.length) rtAddLayers(layers, rtT('step_portrait'));
   if (window.SlopMacros && a.fromDialog) {
     const o = rtArgsOnly(a); delete o.facesFound; delete o.subjectMask; delete o.askFaces;
-    SlopMacros.note('ps.retouch.portrait', o, 'Portrait retouch');
+    SlopMacros.note('ps.retouch.portrait', o, 'Portrait retouch'); // i18n-ignore: saved in the macro
   }
   dirty(true);
-  if (!layers.length) return 'No skin was found to retouch' + (fr.note ? ' (' + fr.note + ')' : '.');
-  return `Added ${layers.map((L) => `“${L.name}”`).join(', ')} (${r.info.faces} face${r.info.faces === 1 ? '' : 's'}, ${r.info.spots} blemish${r.info.spots === 1 ? '' : 'es'} healed). ` +
-    'Each layer has a mask: paint it black to take the change back there.' + (fr.note ? ' ' + fr.note : '');
+  if (!layers.length) return fr.note ? rtT('no_skin_note', { note: fr.note }) : rtT('no_skin_retouch');
+  const list = layers.map((L) => rtT('quoted', { name: L.name })).join(', ');
+  return rtT('added_portrait', { layers: list, faces: rtT('n_faces', { n: r.info.faces }), spots: rtT('n_blemishes', { n: r.info.spots }) }) + ' ' +
+    rtT('mask_hint') + (fr.note ? ' ' + fr.note : '');
 }

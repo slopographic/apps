@@ -14,7 +14,7 @@ const RT_PREFS = { enhance: true, a: { strength: 100, levels: true, white_balanc
 
 async function rtOpenDialog(tab) {
   await rtSettle();
-  if (!activeLayer()) { toast('There is no picture to retouch'); return; }
+  if (!activeLayer()) { toast(rtT('no_picture')); return; }
   const src = rtComposite(), sm = rtSmall(src, 640), small = sm.canvas, k = sm.k;
   const st = { enhance: tab !== 'portrait' && RT_PREFS.enhance, portrait: tab === 'portrait', a: Object.assign({}, RT_PREFS.a), p: Object.assign({}, RT_PREFS.p) };
   const values = rtEnhanceValues(src), tilt = rtTilt(src), canTilt = !!(tilt && Math.abs(tilt.angle) >= 0.2 && tilt.confidence >= 0.3);
@@ -26,14 +26,12 @@ async function rtOpenDialog(tab) {
     if (ctx.faces && !ask) return;
     const r = await rtFaces(src, st.p.faces === 'off' ? 'off' : ask ? 'ask' : 'auto');
     ctx.faces = r.faces; ctx.note = r.note; ctx.off = !!r.off;
-    faceNote.textContent = r.faces.length ? `${r.faces.length} face${r.faces.length === 1 ? '' : 's'} found on this device.`
-      : ctx.off ? 'Face detection is off. Red-eye and whitening need it; skin smoothing and blemishes work without it.'
-        : 'No face was found: red-eye and whitening have nothing to work on.';
+    faceNote.textContent = r.faces.length ? rtT('faces_found', { n: r.faces.length }) : ctx.off ? rtT('faces_off') : rtT('no_face');
     faceBtn.hidden = !ctx.off || st.p.faces === 'off';
   }
   async function render() {
     const my = ++token;
-    status.textContent = 'Rendering the preview…';
+    status.textContent = rtT('rendering');
     await new Promise((r) => setTimeout(r, 0));
     try {
       let out = small;
@@ -49,7 +47,7 @@ async function rtOpenDialog(tab) {
         const c = copyCanvas(out), g = cx(c);
         for (const L of r.layers) { const t = copyCanvas(L.canvas), tg = cx(t); tg.globalCompositeOperation = 'destination-in'; tg.drawImage(L.mask, 0, 0); g.drawImage(t, 0, 0); }
         out = c;
-        status.textContent = r.info.skin ? `Skin found; ${r.info.spots} blemish${r.info.spots === 1 ? '' : 'es'} to heal.` : 'No skin was found in this picture.';
+        status.textContent = r.info.skin ? rtT('skin_spots', { n: r.info.spots }) : rtT('no_skin');
       } else status.textContent = '';
       if (my === token) view.setAfter(out);
     } catch (e) { console.warn(e); status.textContent = e.message; }
@@ -57,32 +55,32 @@ async function rtOpenDialog(tab) {
   const changed = () => { clearTimeout(timer); timer = setTimeout(render, 140); };
 
   const A = st.a, P = st.p;
-  const enhanceOn = rtCheck('Auto enhance', st, 'enhance', () => { enhanceBox.classList.toggle('rt-off', !st.enhance); changed(); });
+  const enhanceOn = rtCheck(rtT('auto_enhance'), st, 'enhance', () => { enhanceBox.classList.toggle('rt-off', !st.enhance); changed(); });
   const enhanceBox = h('div', { class: 'rt-group' + (st.enhance ? '' : ' rt-off') },
-    rtRange('Strength', A, 'strength', 0, 100, ' %', changed),
-    h('div', { class: 'rt-checks' }, rtCheck('Levels and contrast', A, 'levels', changed), rtCheck('White balance', A, 'white_balance', changed),
-      rtCheck('Exposure', A, 'exposure', changed), rtCheck('Shadows and highlights', A, 'shadows_highlights', changed), rtCheck('Vibrance', A, 'vibrance', changed)),
-    rtRange('Sharpen', A, 'sharpen', 0, 100, ' %', changed),
-    rtSelect('Denoise', A, 'denoise', [['none', 'Off'], ['light', 'Light'], ['medium', 'Medium'], ['strong', 'Strong']], changed),
-    canTilt ? rtCheck(`Straighten: the ${tilt.kind === 'horizon' ? 'horizon leans' : 'verticals lean'} ${Math.abs(tilt.angle)}° (rotates and crops)`, A, 'straighten', () => {})
-      : h('p', { class: 'rt-hint' }, 'Straighten: the picture looks level.'));
+    rtRange(rtT('strength'), A, 'strength', 0, 100, ' %', changed),
+    h('div', { class: 'rt-checks' }, rtCheck(rtT('levels'), A, 'levels', changed), rtCheck(rtT('white_balance'), A, 'white_balance', changed),
+      rtCheck(rtT('exposure'), A, 'exposure', changed), rtCheck(rtT('shadows_highlights'), A, 'shadows_highlights', changed), rtCheck(rtT('vibrance'), A, 'vibrance', changed)),
+    rtRange(rtT('sharpen'), A, 'sharpen', 0, 100, ' %', changed),
+    rtSelect(rtT('denoise'), A, 'denoise', [['none', rtT('denoise_off')], ['light', rtT('denoise_light')], ['medium', rtT('denoise_medium')], ['strong', rtT('denoise_strong')]], changed),
+    canTilt ? rtCheck(rtT(tilt.kind === 'horizon' ? 'tilt_horizon' : 'tilt_verticals', { deg: String(Math.abs(tilt.angle)) }), A, 'straighten', () => {})
+      : h('p', { class: 'rt-hint' }, rtT('tilt_level')));
   if (!canTilt) A.straighten = false;
-  const faceNote = h('p', { class: 'rt-hint' }, 'Looking for faces…');
-  const faceBtn = h('button', { type: 'button', class: 'sui-btn rt-faces', hidden: true, onclick: async () => { await faceInfo(true); changed(); } }, 'Find faces on this device…');
-  const portraitOn = rtCheck('Portrait retouch', st, 'portrait', () => { portraitBox.classList.toggle('rt-off', !st.portrait); changed(); });
+  const faceNote = h('p', { class: 'rt-hint' }, rtT('looking_faces'));
+  const faceBtn = h('button', { type: 'button', class: 'sui-btn rt-faces', hidden: true, onclick: async () => { await faceInfo(true); changed(); } }, rtT('find_faces'));
+  const portraitOn = rtCheck(rtT('portrait'), st, 'portrait', () => { portraitBox.classList.toggle('rt-off', !st.portrait); changed(); });
   const portraitBox = h('div', { class: 'rt-group' + (st.portrait ? '' : ' rt-off') },
-    rtRange('Skin smoothing', P, 'smoothing', 0, 100, ' %', changed),
-    h('div', { class: 'rt-checks' }, rtCheck('Heal blemishes', P, 'blemishes', changed), rtCheck('Red-eye', P, 'red_eye', changed),
-      rtCheck('Only the person (subject model)', P, 'subject', changed)),
-    rtRange('Whiten teeth', P, 'teeth', 0, 100, ' %', changed), rtRange('Whiten eyes', P, 'eyes', 0, 100, ' %', changed),
+    rtRange(rtT('smoothing'), P, 'smoothing', 0, 100, ' %', changed),
+    h('div', { class: 'rt-checks' }, rtCheck(rtT('heal_blemishes'), P, 'blemishes', changed), rtCheck(rtT('red_eye'), P, 'red_eye', changed),
+      rtCheck(rtT('only_person'), P, 'subject', changed)),
+    rtRange(rtT('whiten_teeth'), P, 'teeth', 0, 100, ' %', changed), rtRange(rtT('whiten_eyes'), P, 'eyes', 0, 100, ' %', changed),
     faceNote, faceBtn);
-  const removeBtn = h('button', { type: 'button', class: 'sui-btn rt-remove', onclick: () => { dlg.close(false); selectTool('remove'); toast('Brush over the object to remove it'); } }, 'Remove an object…');
+  const removeBtn = h('button', { type: 'button', class: 'sui-btn rt-remove', onclick: () => { dlg.close(false); selectTool('remove'); toast(rtT('brush_over')); } }, rtT('remove_an_object'));
   const body = h('div', { class: 'rt-body' }, view.el,
     h('div', { class: 'rt-controls' }, h('section', { class: 'rt-sec' }, enhanceOn, enhanceBox), h('section', { class: 'rt-sec' }, portraitOn, portraitBox),
-      h('div', { class: 'rt-row rt-more' }, removeBtn, h('span', { class: 'rt-hint' }, 'Runs on this device. Nothing is uploaded.')), status));
+      h('div', { class: 'rt-row rt-more' }, removeBtn, h('span', { class: 'rt-hint' }, rtT('on_device'))), status));
 
-  const dlg = dialog({ title: 'Auto Retouch', body, cls: 'rt-dlg', buttons: [{ label: 'Cancel' }, { label: 'Apply', primary: true, act: () => {
-    if (!st.enhance && !st.portrait) { status.textContent = 'Turn on Auto enhance or Portrait retouch first.'; return false; }
+  const dlg = dialog({ title: rtT('title'), body, cls: 'rt-dlg', buttons: [{ label: tr('menu.cancel') }, { label: tr('ui.apply'), primary: true, act: () => {
+    if (!st.enhance && !st.portrait) { status.textContent = rtT('turn_on_first'); return false; }
     return undefined;
   } }], onClose: async (ok) => {
     token++; clearTimeout(timer);
@@ -92,14 +90,14 @@ async function rtOpenDialog(tab) {
     try {
       await rtPrepareAI();
       const both = st.enhance && st.portrait;
-      const msgs = await aiOneStep(both ? 'Auto Retouch' : '', async () => {
+      const msgs = await aiOneStep(both ? rtT('title') : '', async () => {
         const out = [];
         if (st.enhance) out.push(await rtAutoEnhance(Object.assign({}, st.a, { fromDialog: true })));
         if (st.portrait) out.push(await rtPortrait(Object.assign({}, st.p, { fromDialog: true, facesFound: ctx.faces || undefined, subjectMask: st.p.subject ? ctx.subject || null : null })));
         return out;
       });
       toast(msgs.map((m) => m.split('. ')[0]).join(' · '), 4000);
-    } catch (e) { console.warn(e); toast('Auto retouch failed: ' + e.message); }
+    } catch (e) { console.warn(e); toast(rtT('failed', { error: e.message })); }
     document.body.classList.remove('busy');
   } });
   faceInfo(false).then(() => { if (!st.portrait && ctx.faces && ctx.faces.length && tab !== 'enhance') { st.portrait = true; portraitOn.querySelector('input').checked = true; portraitBox.classList.remove('rt-off'); } changed(); });

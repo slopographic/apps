@@ -3,7 +3,7 @@
 
 const dabCache = new Map();
 /** Brush tips. 'round' is the classic soft/hard round; the others are shaped tips. */
-const TIPS = [['round', 'Round'], ['square', 'Square'], ['flat', 'Flat (calligraphy)'], ['spray', 'Spray'], ['chalk', 'Chalk'], ['slime', 'Slime drip']];
+const TIPS = [['round', 'Round'], ['square', 'Square'], ['flat', 'Flat (calligraphy)'], ['spray', 'Spray'], ['chalk', 'Chalk'], ['slime', 'Slime drip']]; // i18n-ignore: not shown (the brush panel shows brushes/engine.js ALL_TIPS)
 const TIP_VARIANTS = { spray: 6, chalk: 4 };
 function tipPath(g, tip, cxp, cyp, r) {
   g.beginPath();

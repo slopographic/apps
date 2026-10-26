@@ -5,6 +5,7 @@
  *     route: the route's row of tiles (chain-row.js) under the row; then: "+ Then…" beside Convert to
  *   targetButton({ label, choices, target, onPick, empty, cls })  -> button (a SlopMenuButton) */
 import { h } from './dom.js';
+import { tr } from '../core/i18n.js';
 import { fmtSize } from '../io/files.js';
 import { KIND_LABEL } from '../core/detect.js';
 import '../../../shared/ui/menubutton.js';   // window.SlopMenuButton
@@ -37,19 +38,19 @@ export function targetButton({ label, choices, target, onPick, empty, cls = '' }
 }
 
 export function fileRow(it, { reason, choices, target, selected, onPick, onSelect, options = null, route = null, then = null }) {
-  const meta = `${KIND_LABEL[it.kind] || 'File'} · ${fmtSize(it.size)}`;
-  const box = h('input', { type: 'checkbox', class: 'cv-file-check', 'data-select': it.id, 'aria-label': `Select ${it.name}`, checked: !!selected });
+  const meta = `${KIND_LABEL[it.kind] || tr('convert.row.file', 'File')} · ${fmtSize(it.size)}`;
+  const box = h('input', { type: 'checkbox', class: 'cv-file-check', 'data-select': it.id, 'aria-label': tr('convert.row.select', 'Select {name}', { name: it.name }), checked: !!selected });
   box.addEventListener('click', (e) => onSelect(it, box.checked, e.shiftKey));
   const control = reason ? null : h('div', { class: 'cv-file-to' },
-    h('span', { class: 'cv-file-to-h', 'aria-hidden': 'true' }, 'Convert to'),
-    targetButton({ label: `Convert ${it.name} to`, choices, target, onPick: (id) => onPick(it, id), empty: 'No format' }), then);
+    h('span', { class: 'cv-file-to-h', 'aria-hidden': 'true' }, tr('convert.row.convert_to', 'Convert to')),
+    targetButton({ label: tr('convert.row.convert_name', 'Convert {name} to', { name: it.name }), choices, target, onPick: (id) => onPick(it, id), empty: tr('convert.row.no_format', 'No format') }), then);
   return h('li', { class: 'cv-file' + (reason ? ' cv-skip' : '') + (selected ? ' cv-selected' : ''), 'data-id': it.id },
     reason ? h('span', { class: 'cv-file-check-gap' }) : box,
     h('div', { class: 'cv-file-main' },
       h('span', { class: 'cv-file-name', text: it.name }),
       h('span', { class: 'cv-file-meta', text: meta })),
     control,
-    h('button', { type: 'button', class: 'cv-btn cv-small cv-file-rm', 'data-remove': it.id, 'aria-label': `Remove ${it.name}` }, 'Remove'),
+    h('button', { type: 'button', class: 'cv-btn cv-small cv-file-rm', 'data-remove': it.id, 'aria-label': tr('convert.row.remove', 'Remove {name}', { name: it.name }) }, tr('ui.remove', 'Remove')),
     reason ? null : route,
     options,
     reason ? h('p', { class: 'cv-file-msg' }, reason) : null,

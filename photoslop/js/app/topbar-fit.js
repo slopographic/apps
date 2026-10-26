@@ -8,6 +8,7 @@
   const ORDER = ['#macrosBtn', '#cmdBtn', '#themeToggle', '#newBtn', '.topbar .stour-btn', '.topbar .sdl'];
   let bar = null, more = null, raf = 0;
   const $ = (sel) => document.querySelector(sel);
+  const tr = (k) => (g.SlopI18n ? g.SlopI18n.t(k) : k);
   const label = (b) => b.getAttribute('aria-label') || b.textContent.trim() || b.title;
   const keyOf = (b) => ORDER.find((sel) => $(sel) === b);
   const folded = () => ORDER.map($).filter((b) => b && b.classList.contains('ps-fold'));
@@ -37,12 +38,11 @@
     if (!acts || more) return;
     more = document.createElement('button');
     more.type = 'button'; more.className = 'top-btn ps-more'; more.id = 'topMore'; more.hidden = true;
-    more.textContent = 'More ▾';
-    more.title = 'More buttons';
+    relabel();
     acts.append(more);
     if (g.SlopMenuButton) {
       g.SlopMenuButton.attach(more, {
-        label: 'More', search: false,
+        label: tr('ui.more'), search: false,
         items: () => folded().map((b) => ({ value: keyOf(b), label: label(b) })),
         onPick: (sel) => { const b = $(sel); if (b) b.click(); },
       });
@@ -53,5 +53,13 @@
     fit();
   }
 
-  g.PSTopbarFit = { mount, fit };
+  /** The More button in the current language (app/main.js relabelUI), then a new fit: the words changed length. */
+  function relabel() {
+    if (!more) return;
+    more.textContent = tr('photoslop.app.more') + ' ▾';
+    more.title = tr('photoslop.app.more_tip');
+    later();
+  }
+
+  g.PSTopbarFit = { mount, fit, relabel };
 })(typeof window !== 'undefined' ? window : globalThis);

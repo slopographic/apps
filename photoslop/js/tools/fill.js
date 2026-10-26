@@ -2,7 +2,7 @@
 'use strict';
 
 /* Fill tools */
-defTool({ id: 'gradient', name: 'Gradient Tool', key: 'G', icon: ICON('M3 3h18v18H3zM3 21 21 3'),
+defTool({ id: 'gradient', nk: 'gradient', key: 'G', icon: ICON('M3 3h18v18H3zM3 21 21 3'),
   down(p, e) { const L = editableLayer(); if (!L) return; this.s = { L: coverDoc(L), a: p, b: p }; },
   move(p, e) {
     const s = this.s; if (!s) return;
@@ -23,7 +23,7 @@ defTool({ id: 'gradient', name: 'Gradient Tool', key: 'G', icon: ICON('M3 3h18v1
     const L = D.layers.find((l) => l.id === s.L.id), grad = gradientCanvas(s.a, s.b);
     if (maskTarget(L)) { const t = copyCanvas(L.mask.canvas); applyGradToMask(t, L.mask, grad); patchLayer(L.id, { mask: Object.assign({}, L.mask, { canvas: t }) }); }
     else patchLayer(L.id, { canvas: bakeStroke(L, grad, { opacity: T.gradient.opacity }) });
-    commit('Gradient');
+    commit(TOOL.gradient.short);
   },
   cancel() { this.s = null; live = null; },
   overlay(g) {
@@ -66,7 +66,7 @@ function gradientCanvas(a, b) {
   g.fillStyle = gr; g.fillRect(0, 0, D.w, D.h);
   return c;
 }
-defTool({ id: 'bucket', name: 'Paint Bucket Tool', key: 'G', icon: ICON('M5 11 12 4l7 7-7 7zM19 15s2 2.4 2 3.5a2 2 0 0 1-4 0c0-1.1 2-3.5 2-3.5zM3 21h12'),
+defTool({ id: 'bucket', nk: 'bucket', key: 'G', icon: ICON('M5 11 12 4l7 7-7 7zM19 15s2 2.4 2 3.5a2 2 0 0 1-4 0c0-1.1 2-3.5 2-3.5zM3 21h12'),
   down(p, e) {
     const L0 = editableLayer(); if (!L0) return;
     const L = coverDoc(L0), src = T.bucket.sampleAll ? flattenCanvas() : docCanvasOf(L);
@@ -75,13 +75,13 @@ defTool({ id: 'bucket', name: 'Paint Bucket Tool', key: 'G', icon: ICON('M5 11 1
     g.globalCompositeOperation = 'source-in'; g.fillStyle = C.fg; g.fillRect(0, 0, D.w, D.h);
     if (maskTarget(L)) { const v = luma(...hexToRgb(C.fg)) / 255; patchLayer(L.id, { mask: Object.assign({}, L.mask, { canvas: bakeStroke(L, region, { opacity: T.bucket.opacity, mask: true, value: v }) }) }); }
     else patchLayer(L.id, { canvas: bakeStroke(L, region, { opacity: T.bucket.opacity }) });
-    commit('Paint Bucket');
+    commit(TOOL.bucket.short);
   } });
 
 /* Type: see js/type/ */
 
 /* Shapes */
-defTool({ id: 'shape', name: 'Shape Tool', key: 'U', icon: ICON('M3 3h10v10H3zM16 11a5 5 0 1 1 0 10 5 5 0 0 1 0-10z'),
+defTool({ id: 'shape', nk: 'shape', key: 'U', icon: ICON('M3 3h10v10H3zM16 11a5 5 0 1 1 0 10 5 5 0 0 1 0-10z'),
   down(p) { const L = activeLayer(); if (!L) return; this.s = { a: p, b: p, e: {} }; },
   move(p, e) {
     const s = this.s; if (!s) return; s.b = p; s.e = e;
@@ -104,14 +104,14 @@ defTool({ id: 'shape', name: 'Shape Tool', key: 'U', icon: ICON('M3 3h10v10H3zM1
     const kind = T.shape.kind, rec = SHAPE_RADIUS_KINDS.includes(kind) ? shapeRecord(T.shape, rectFrom(s.a, s.b, s.e.shiftKey, s.e.altKey)) : null;
     const c = rec ? renderShapeLayer(rec) : mkCanvas(D.w, D.h);
     if (!rec) this.paint(cx(c), s);
-    const names = { rect: 'Rectangle', rounded: 'Rounded Rectangle', ellipse: 'Ellipse', polygon: 'Polygon', star: 'Star', line: 'Line', heart: 'Heart' };
-    addLayer({ name: nextName(names[kind] || 'Shape'), canvas: c, shape: rec }, names[kind] || 'Shape');
+    const names = { rect: 'Rectangle', rounded: 'Rounded Rectangle', ellipse: 'Ellipse', polygon: 'Polygon', star: 'Star', line: 'Line', heart: 'Heart' }; // i18n-ignore: layer names are the document's
+    addLayer({ name: nextName(names[kind] || 'Shape'), canvas: c, shape: rec }, tr('photoslop.tool.step_shape_' + (names[kind] ? kind : 'other'))); // i18n-ignore: layer name
   },
   cancel() { this.s = null; live = null; },
 });
-defTool({ id: 'hand', name: 'Hand Tool', key: 'H', icon: ICON('M8 13V5.5a1.5 1.5 0 0 1 3 0V12M11 11V3.5a1.5 1.5 0 0 1 3 0V11M14 11V5.5a1.5 1.5 0 0 1 3 0V12M17 9.5a1.5 1.5 0 0 1 3 0V15a6 6 0 0 1-6 6h-2a6 6 0 0 1-4.6-2.2L4.3 15a1.6 1.6 0 0 1 2.4-2l1.3 1.4'),
+defTool({ id: 'hand', nk: 'hand', key: 'H', icon: ICON('M8 13V5.5a1.5 1.5 0 0 1 3 0V12M11 11V3.5a1.5 1.5 0 0 1 3 0V11M14 11V5.5a1.5 1.5 0 0 1 3 0V12M17 9.5a1.5 1.5 0 0 1 3 0V15a6 6 0 0 1-6 6h-2a6 6 0 0 1-4.6-2.2L4.3 15a1.6 1.6 0 0 1 2.4-2l1.3 1.4'),
   dblclick() { fitView(); } });
-defTool({ id: 'zoom', name: 'Zoom Tool', key: 'Z', icon: ICON('M10.5 3a7.5 7.5 0 1 1 0 15 7.5 7.5 0 0 1 0-15zM21 21l-5.2-5.2M7.5 10.5h6M10.5 7.5v6'),
+defTool({ id: 'zoom', nk: 'zoom', key: 'Z', icon: ICON('M10.5 3a7.5 7.5 0 1 1 0 15 7.5 7.5 0 0 1 0-15zM21 21l-5.2-5.2M7.5 10.5h6M10.5 7.5v6'),
   down(p, e) { this.s = { start: p, sx: e.clientX, alt: e.altKey || e.button === 2 }; },
   move(p, e) { const s = this.s; if (!s) return; const dx = e.clientX - s.sx; if (Math.abs(dx) > 3) { s.scrub = true; setZoom(V.zoom * Math.exp(dx * 0.01), toScreen(s.start.x, s.start.y)); s.sx = e.clientX; } },
   up(p, e) { const s = this.s; this.s = null; if (!s || s.scrub) return; zoomStep(s.alt ? -1 : 1, toScreen(p.x, p.y)); },

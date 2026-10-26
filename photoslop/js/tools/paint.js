@@ -24,19 +24,19 @@ function brushTool(def) {
       dirty(true);
     },
     move(p) { if (this.s) { this.s.stroker.to(p); dirty(true); } },
-    up(p) { const S = this.s; this.s = null; if (!S) return; this.lastPoint = p; finishBufferedStroke(S, this.name.replace(' Tool', '')); },
+    up(p) { const S = this.s; this.s = null; if (!S) return; this.lastPoint = p; finishBufferedStroke(S, this.short); },
     cancel() { this.s = null; live = null; dirty(true); },
   }, def));
 }
-brushTool({ id: 'brush', name: 'Brush Tool', key: 'B', icon: ICON('M18.4 3.6a2 2 0 0 1 2.9 2.9L12 15.8 8.2 12zM8 13c-2.5 0-4 1.8-4 4 0 1.6-.8 2.6-2 3 4 .8 8-.5 8-4.2z'), opt: () => T.brush });
-brushTool({ id: 'pencil', name: 'Pencil Tool', key: 'B', aliased: true, icon: ICON('M16 3l5 5L8 21H3v-5zM13.5 5.5l5 5'), opt: () => Object.assign({ hardness: 1, flow: 1, spacing: 0.1, pressure: false }, T.pencil) });
-brushTool({ id: 'eraser', name: 'Eraser Tool', key: 'E', erase: true, icon: ICON('M16.2 3.8 21 8.6 10.6 19H6l-3-3zM9 10l5.6 5.6M10.6 19H21'), opt: () => T.eraser });
-defTool({ id: 'clone', name: 'Clone Stamp Tool', key: 'S', icon: ICON('M9 3h6v6l3 2v3H6v-3l3-2zM4 17h16v4H4z'),
+brushTool({ id: 'brush', nk: 'brush', key: 'B', icon: ICON('M18.4 3.6a2 2 0 0 1 2.9 2.9L12 15.8 8.2 12zM8 13c-2.5 0-4 1.8-4 4 0 1.6-.8 2.6-2 3 4 .8 8-.5 8-4.2z'), opt: () => T.brush });
+brushTool({ id: 'pencil', nk: 'pencil', key: 'B', aliased: true, icon: ICON('M16 3l5 5L8 21H3v-5zM13.5 5.5l5 5'), opt: () => Object.assign({ hardness: 1, flow: 1, spacing: 0.1, pressure: false }, T.pencil) });
+brushTool({ id: 'eraser', nk: 'eraser', key: 'E', erase: true, icon: ICON('M16.2 3.8 21 8.6 10.6 19H6l-3-3zM9 10l5.6 5.6M10.6 19H21'), opt: () => T.eraser });
+defTool({ id: 'clone', nk: 'clone', key: 'S', icon: ICON('M9 3h6v6l3 2v3H6v-3l3-2zM4 17h16v4H4z'),
   coalesce: true,
   brushCursor() { return T.clone.size; },
   down(p, e) {
-    if (takeSource(this, p, e, 'Clone')) return;
-    if (!this.src) { toast('Alt-click (Option-click), or tap Set source, to set a clone source first'); return; }
+    if (takeSource(this, p, e, 'clone')) return;
+    if (!this.src) { toast(tr('photoslop.tool.need_clone_source')); return; }
     const L = editableLayer(); if (!L) return;
     const Lc = coverDoc(L), o = T.clone;
     if (!T.clone.aligned || !this.off) this.off = { x: this.src.x - p.x, y: this.src.y - p.y };
@@ -55,7 +55,7 @@ defTool({ id: 'clone', name: 'Clone Stamp Tool', key: 'S', icon: ICON('M9 3h6v6l
     S.stroker.begin(p); dirty(true);
   },
   move(p) { if (this.s) { this.s.stroker.to(p); dirty(true); } },
-  up() { const S = this.s; this.s = null; if (S) finishBufferedStroke(S, 'Clone Stamp'); },
+  up() { const S = this.s; this.s = null; if (S) finishBufferedStroke(S, this.short); },
   cancel() { this.s = null; live = null; },
   overlay(g) {
     if (!this.src) return;
@@ -71,7 +71,7 @@ function directTool(def) {
     coalesce: true,
     down(p) {
       const L = editableLayer(); if (!L) { this.s = null; return; }
-      if (UI.editMask) { toast('Switch to the layer pixels to use this tool'); return; }
+      if (UI.editMask) { toast(tr('photoslop.tool.need_pixels')); return; }
       const Lc = coverDoc(L), work = copyCanvas(Lc.canvas);
       const s = this.s = { L: Lc, work, g: cxr(work) };
       live = { layerId: Lc.id, surface: (LL) => ({ canvas: s.work, x: LL.x, y: LL.y }) };
@@ -86,13 +86,13 @@ function directTool(def) {
       live = null;
       const L = D.layers.find((l) => l.id === s.L.id); if (!L) return;
       patchLayer(L.id, { canvas: D.sel ? mixBySel(L.canvas, s.work, selInLayer(L)) : s.work });
-      commit(this.name.replace(' Tool', ''));
+      commit(this.short);
     },
     cancel() { this.s = null; live = null; },
     brushCursor() { return this.opt().size; },
   }, def));
 }
-directTool({ id: 'smudge', name: 'Smudge Tool', key: 'R', icon: ICON('M8 21v-6.5L5.5 8a1.5 1.5 0 0 1 2.8-1l1.7 4V4.5a1.5 1.5 0 0 1 3 0V10V3.5a1.5 1.5 0 0 1 3 0V11V6a1.5 1.5 0 0 1 3 0v8c0 3.9-2.5 7-6 7z'),
+directTool({ id: 'smudge', nk: 'smudge', key: 'R', icon: ICON('M8 21v-6.5L5.5 8a1.5 1.5 0 0 1 2.8-1l1.7 4V4.5a1.5 1.5 0 0 1 3 0V10V3.5a1.5 1.5 0 0 1 3 0V11V6a1.5 1.5 0 0 1 3 0v8c0 3.9-2.5 7-6 7z'),
   opt: () => T.smudge,
   begin(s, p) {
     const o = T.smudge, d = Math.max(2, Math.ceil(o.size));
@@ -107,7 +107,7 @@ directTool({ id: 'smudge', name: 'Smudge Tool', key: 'R', icon: ICON('M8 21v-6.5
     s.g.globalAlpha = o.strength; s.g.drawImage(s.tmp, x - d / 2, y - d / 2); s.g.globalAlpha = 1;
     s.pg.globalAlpha = 1 - o.strength * 0.85; s.pg.drawImage(s.work, -(x - d / 2), -(y - d / 2)); s.pg.globalAlpha = 1;
   } });
-directTool({ id: 'dodge', name: 'Dodge / Burn Tool', key: 'O', icon: ICON('M12 3a5 5 0 1 1 0 10 5 5 0 0 1 0-10zM12 13v8'),
+directTool({ id: 'dodge', nk: 'dodge', key: 'O', icon: ICON('M12 3a5 5 0 1 1 0 10 5 5 0 0 1 0-10zM12 13v8'),
   opt: () => T.dodge,
   begin() {},
   dab(s, x, y) {
@@ -143,9 +143,9 @@ function blurSharpenDab(s, x, y, o, sharpen) {
   }
   s.g.putImageData(img, R0.x0, R0.y0);
 }
-directTool({ id: 'blur', name: 'Blur Tool', key: 'R', icon: ICON('M12 3s6 6.6 6 11a6 6 0 0 1-12 0c0-4.4 6-11 6-11z'), opt: () => T.blur, begin() {}, dab(s, x, y) { blurSharpenDab(s, x, y, T.blur, false); } });
-directTool({ id: 'sharpen', name: 'Sharpen Tool', key: 'R', icon: ICON('M12 3 20 20H4z'), opt: () => T.sharpen, begin() {}, dab(s, x, y) { blurSharpenDab(s, x, y, T.sharpen, true); } });
-directTool({ id: 'sponge', name: 'Sponge Tool', key: 'O', icon: ICON('M5 8c0-2 2-4 7-4s7 2 7 4v8c0 2-2 4-7 4s-7-2-7-4zM9 9h.01M14 11h.01M10 14h.01M15 16h.01'),
+directTool({ id: 'blur', nk: 'blur', key: 'R', icon: ICON('M12 3s6 6.6 6 11a6 6 0 0 1-12 0c0-4.4 6-11 6-11z'), opt: () => T.blur, begin() {}, dab(s, x, y) { blurSharpenDab(s, x, y, T.blur, false); } });
+directTool({ id: 'sharpen', nk: 'sharpen', key: 'R', icon: ICON('M12 3 20 20H4z'), opt: () => T.sharpen, begin() {}, dab(s, x, y) { blurSharpenDab(s, x, y, T.sharpen, true); } });
+directTool({ id: 'sponge', nk: 'sponge', key: 'O', icon: ICON('M5 8c0-2 2-4 7-4s7 2 7 4v8c0 2-2 4-7 4s-7-2-7-4zM9 9h.01M14 11h.01M10 14h.01M15 16h.01'),
   opt: () => T.sponge, begin() {},
   dab(s, x, y) {
     const o = T.sponge, r = o.size / 2, R0 = dabRegion(s, x, y, r); if (!R0) return;

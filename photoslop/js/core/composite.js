@@ -114,18 +114,18 @@ function selectShape(draw, mode = 'replace', feather = 0) {
   }
   D.sel = out ? makeSel(out) : null;
 }
-function selectAll() { selectShape((g) => g.fillRect(0, 0, D.w, D.h)); commit('Select All'); }
-function deselect() { if (!D.sel) return; D.sel = null; commit('Deselect'); }
+function selectAll() { selectShape((g) => g.fillRect(0, 0, D.w, D.h)); commit(tr('photoslop.core.step_select_all')); }
+function deselect() { if (!D.sel) return; D.sel = null; commit(tr('photoslop.core.step_deselect')); }
 function selectInverse() {
   const c = mkCanvas(D.w, D.h), g = cx(c);
   g.fillStyle = '#000'; g.fillRect(0, 0, D.w, D.h);
   if (D.sel) { g.globalCompositeOperation = 'destination-out'; g.drawImage(D.sel.mask, 0, 0); }
-  D.sel = makeSel(c); commit('Select Inverse');
+  D.sel = makeSel(c); commit(tr('photoslop.core.step_select_inverse'));
 }
 function featherSel(r) {
   if (!D.sel || r <= 0) return;
   const c = copyCanvas(D.sel.mask); blurAlphaCanvas(c, r);
-  D.sel = makeSel(c); commit('Feather');
+  D.sel = makeSel(c); commit(tr('photoslop.core.step_feather'));
 }
 /** Grow (+) or shrink (−) the selection by r pixels. */
 function growSel(r) {
@@ -135,7 +135,7 @@ function growSel(r) {
   const t = r > 0 ? 18 : 236;
   for (let i = 3; i < d.length; i += 4) d[i] = d[i] >= t ? 255 : 0;
   g.putImageData(img, 0, 0);
-  D.sel = makeSel(c); commit(r > 0 ? 'Expand' : 'Contract');
+  D.sel = makeSel(c); commit(tr(r > 0 ? 'photoslop.core.step_expand' : 'photoslop.core.step_contract'));
 }
 /** Selection mask placed in layer space (layer canvas sized). */
 function selInLayer(L, sel = D.sel) {

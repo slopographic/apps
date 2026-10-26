@@ -19,12 +19,12 @@ function openFxDialog(layerId, fxId, typeId) {
   const body = h('div', { class: 'fparams' });
   if (isNew) apply(); // a new effect shows in the stack while the dialog is open
   for (const p of def.params) body.append(paramControl(p, params, L0.canvas, apply));
-  dialog({ title: 'Layer Style · ' + name, body, cls: 'fx-dialog',
-    buttons: [{ label: 'Cancel' }, { label: 'OK', primary: true }],
+  dialog({ title: tr('photoslop.lstyle.title_named', { name }), body, cls: 'fx-dialog',
+    buttons: [{ label: tr('menu.cancel') }, { label: tr('menu.ok'), primary: true }],
     onClose: (ok) => {
       if (!ok) { patchLayer(layerId, { fx: orig }); emit('doc'); return; }
       const changed = JSON.stringify(params) !== JSON.stringify(entry.p);
-      if (isNew || changed) commit((isNew ? 'Add ' : 'Edit ') + name);
+      if (isNew || changed) commit(tr(isNew ? 'photoslop.fx.step_add' : 'photoslop.fx.step_edit', { name }));
       else emit('doc');
     } });
 }

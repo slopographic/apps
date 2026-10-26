@@ -12,10 +12,10 @@ function redEyeRegion(L, r) {
   const o = T.redeye;
   const out = withPixels(L.canvas, (d) => redEyeData(d, o.tol, o.dark));
   patchLayer(L.id, { canvas: mixBySel(L.canvas, out, m), text: null });
-  commit('Red Eye');
+  commit(TOOL.redeye.short);
 }
 
-defTool({ id: 'redeye', name: 'Red Eye Tool', key: 'J', icon: ICON('M2 12s4-6 10-6 10 6 10 6-4 6-10 6S2 12 2 12zM12 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4z'),
+defTool({ id: 'redeye', nk: 'redeye', key: 'J', icon: ICON('M2 12s4-6 10-6 10 6 10 6-4 6-10 6S2 12 2 12zM12 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4z'),
   opt: () => T.redeye,
   down(p) {
     const L = editableLayer(); if (!L) { this.s = null; return; }

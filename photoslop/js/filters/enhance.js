@@ -29,17 +29,17 @@ function autoEnhanceApply(src, p) {
 
 /** The dialog's parameters for given analysed values (a and the neutral defaults use the same list). */
 const AE_PARAMS = (a) => [
-  R('inB', 'Black point', 0, 250, a.inB),
-  R('inW', 'White point', 5, 255, a.inW),
-  R('wr', 'White balance: red', 0.6, 1.6, a.wr, { step: 0.001 }),
-  R('wb', 'White balance: blue', 0.6, 1.6, a.wb, { step: 0.001 }),
-  R('ev', 'Exposure', -1, 1, a.ev, { step: 0.01, unit: 'EV' }),
-  R('sat', 'Saturation lift', 0, 30, a.sat, { unit: '%' }),
-  { k: 'skin', label: 'Protect skin tones', type: 'check', v: true },
+  R('inB', 'black_point', 0, 250, a.inB),
+  R('inW', 'white_point', 5, 255, a.inW),
+  R('wr', 'white_balance_red', 0.6, 1.6, a.wr, { step: 0.001 }),
+  R('wb', 'white_balance_blue', 0.6, 1.6, a.wb, { step: 0.001 }),
+  R('ev', 'exposure', -1, 1, a.ev, { step: 0.01, unit: 'EV' }),
+  R('sat', 'saturation_lift', 0, 30, a.sat, { unit: '%' }),
+  P({ k: 'skin', lk: 'protect_skin_tones', type: 'check', v: true }),
 ];
 FILTERS.push(
   // params: neutral defaults (used by code that calls fn directly); plist: the analysed values for the dialog.
-  { id: 'autoenhance', menu: 'Auto', name: 'Auto Enhance…', auto: true,
+  { id: 'autoenhance', menu: 'Auto', auto: true, // i18n-ignore: menu ids
     params: AE_PARAMS({ inB: 0, inW: 255, wr: 1, wb: 1, ev: 0, sat: 0 }),
     plist: (base) => AE_PARAMS(autoEnhanceValues(base)),
     fn: (s, p) => autoEnhanceApply(s, p) },

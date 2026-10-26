@@ -20,7 +20,7 @@ const T = Object.assign({
   bucket: { tol: 32, contiguous: true, sampleAll: false, opacity: 1 },
   gradient: { type: 'linear', mode: 'fgbg', reverse: false, opacity: 1 },
   shape: { kind: 'rect', fill: true, stroke: false, strokeW: 6, radius: 0, sides: 5, strokeColor: '#000000' },
-  type: { font: 'Archivo', size: 96, bold: true, italic: false, align: 'left', tracking: 0, leading: 120, aa: 'smooth' },
+  type: { font: 'Archivo', size: 96, bold: true, italic: false, align: 'left', tracking: 0, leading: 120, aa: 'smooth' }, // i18n-ignore: a font name
   move: { auto: false },
   crop: { del: true },
   eyedrop: { size: 1, all: true },
@@ -36,23 +36,23 @@ function setColor(which, hex) { C[which] = hex; store.set(which, hex); emit('col
 /* ---------- helpers ---------- */
 function editableLayer(forPixels = true) {
   let L = activeLayer();
-  if (!L) { cantPaint('There is no layer to paint on'); return null; }
-  if (!L.visible) { cantPaint('This layer is hidden, so it can\'t be painted on — show it, or choose a pixel layer'); return null; }
-  if (L.locked) { cantPaint('This layer can\'t be painted on (it is locked) — choose a pixel layer'); return null; }
-  if (forPixels && (L.text || L.shape) && !UI.editMask) { const what = L.text ? 'Type' : 'Shape'; L = rasterizeText(L, true); toast(what + ' layer rasterized'); }
+  if (!L) { cantPaint(tr('photoslop.tool.no_layer')); return null; }
+  if (!L.visible) { cantPaint(tr('photoslop.tool.layer_hidden')); return null; }
+  if (L.locked) { cantPaint(tr('photoslop.tool.layer_locked')); return null; }
+  if (forPixels && (L.text || L.shape) && !UI.editMask) { const was = L.text ? 'type' : 'shape'; L = rasterizeText(L, true); toast(tr('photoslop.tool.rasterized_' + was)); }
   return L;
 }
 /** Clone and heal: Alt-click sets the source. A finger or a pen has no Alt key: its first press sets the source when
  *  there is none yet, and Set source (options bar: tool.pickSource) makes the next press set it. True when it did. */
-function takeSource(tool, p, e, what) {
+function takeSource(tool, p, e, what) {   // what: 'clone' or 'heal'
   const touchy = e.pointerType === 'touch' || e.pointerType === 'pen';
   if (!e.altKey && !tool.pickSource && !(touchy && !tool.src)) return false;
   tool.src = { x: p.x, y: p.y }; tool.off = null; tool.pickSource = false;
-  toast(what + ' source set' + (touchy ? ' — now paint where the copy goes' : ''));
+  toast(tr('photoslop.tool.source_set_' + what + (touchy ? '_touch' : '')));
   return true;
 }
 /** A tool could not paint: says why, plainly, and offers a new pixel layer above to paint on instead. */
-function cantPaint(msg) { toast(msg, 6000, { label: 'Add a pixel layer', run: () => addLayer({}, 'New Layer') }); }
+function cantPaint(msg) { toast(msg, 6000, { label: tr('photoslop.tool.add_pixel_layer'), run: () => addLayer({}, tr('photoslop.tool.step_new_layer')) }); }
 function maskTarget(L) { return UI.editMask && L.mask; }
 function docCanvasOf(L) { const c = mkCanvas(D.w, D.h); cx(c).drawImage(L.canvas, L.x, L.y); return c; }
 function sampleSource(all) { return all ? flattenCanvas() : docCanvasOf(activeLayer()); }

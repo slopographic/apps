@@ -4,14 +4,15 @@
  * first stroke, a new tab, a file or Close removes it. */
 'use strict';
 
-const WELCOME = {
-  picture: { src: '../assets/shots/photoslop.jpg', alt: 'A sample photo in PhotoSlop with a title on its own layer, and the Layers panel' },
-  steps: ['Open or drop a photo, a PSD or a new canvas', 'Edit with layers, masks, filters and text', 'Export a PNG, JPEG or PSD'],
-};
+/** The card's picture and steps, in the current language. */
+const WELCOME = () => ({
+  picture: { src: '../assets/shots/photoslop.jpg', alt: tr('photoslop.welcome.alt') },
+  steps: [tr('photoslop.welcome.step_open'), tr('photoslop.welcome.step_edit'), tr('photoslop.welcome.step_export')],
+});
 
 function showWelcome() {
   const vp = $('#viewport');
-  const pv = window.SlopDrop && SlopDrop.panel.preview(WELCOME);
+  const pv = window.SlopDrop && SlopDrop.panel.preview(WELCOME());
   if (!vp || !pv || $('#psWelcome')) return;
   const doc = D; // the blank tab the card belongs to
   let card = null;
@@ -26,11 +27,11 @@ function showWelcome() {
   const sample = h('button', { type: 'button', class: 'sd-sample', id: 'psWelcomeSample', onclick: () => {
     close();
     if (window.SlopSamples) SlopIntake.sample(() => SlopSamples.photos(1, { width: 1600, height: 1000 }), { to: 'photoslop', mode: 'new' });
-  } }, 'Try it with a sample photo');
-  const shut = h('button', { type: 'button', class: 'sd-sample', onclick: close }, 'Start with this blank canvas');
+  } }, tr('photoslop.welcome.sample'));
+  const shut = h('button', { type: 'button', class: 'sd-sample', onclick: close }, tr('photoslop.welcome.blank'));
   const inner = h('div', { class: 'ps-welcome-card' }, pv, h('div', { class: 'sd-acts' }, sample, shut));
   inner.addEventListener('pointerdown', (e) => e.stopPropagation()); // a press on the card is not a stroke on the canvas
-  card = h('div', { class: 'ps-welcome', id: 'psWelcome', role: 'region', 'aria-label': 'What PhotoSlop does' }, inner);
+  card = h('div', { class: 'ps-welcome', id: 'psWelcome', role: 'region', 'aria-label': tr('photoslop.welcome.region') }, inner);
   vp.append(card);
   listeners.add(onModel);
   vp.addEventListener('pointerdown', onDown, true); // a stroke on the canvas starts work: the card goes, the stroke goes on

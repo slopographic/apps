@@ -15,14 +15,15 @@ import { parseJson } from './structured.js';
 import { rowsToCsv } from './csv.js';
 import { decodeText } from './text.js';
 import { stemOf as base } from '../io/files.js';
+import { tr } from './i18n.js';
 
 const textOf = async (f) => decodeText(new Uint8Array(await f.file.arrayBuffer()));
 const out = (name, data, type) => ({ name, blob: new Blob([data], { type }) });
 const IMAGE = ['png', 'jpg', 'webp', 'bmp', 'gif', 'svg', 'avif', 'ico'];
 const AUDIO_IN = ['mp4', 'webm', 'mov', 'm4a', 'mp3', 'wav', 'ogg', 'flac'];
 const VIDEO_IN = ['mp4', 'webm', 'mov'];
-const START = { key: 'start', type: 'text', label: 'Start', value: '0', placeholder: '0:00', hint: 'Seconds (75) or minutes and seconds (1:15).' };
-const END = { key: 'end', type: 'text', label: 'End', placeholder: 'The end of the file', hint: 'Blank keeps everything after the start.' };
+const START = { key: 'start', type: 'text', get label() { return tr('convert.media.start', 'Start'); }, value: '0', placeholder: '0:00', get hint() { return tr('convert.media.start_hint', 'Seconds (75) or minutes and seconds (1:15).'); } };
+const END = { key: 'end', type: 'text', get label() { return tr('convert.media.end', 'End'); }, get placeholder() { return tr('convert.media.end_placeholder', 'The end of the file'); }, get hint() { return tr('convert.media.end_hint', 'Blank keeps everything after the start.'); } };
 const n = (v) => Math.round(v * 1000) / 1000;
 
 async function favicon(files, o = {}) {
@@ -38,7 +39,7 @@ async function audioTrim(files, o = {}) {
   const res = o.output === 'mp3'
     ? [{ name: `${base(f.name)}-cut.mp3`, blob: encodeMp3(await loadLame(), chans, buf.sampleRate, Number(o.bitrate) || 192), kind: 'mp3' }]
     : [{ name: `${base(f.name)}-cut.wav`, blob: new Blob([encodeWav(chans, buf.sampleRate)], { type: 'audio/wav' }), kind: 'wav' }];
-  res.info = `Kept ${n(chans[0].length / buf.sampleRate)} s of ${n(buf.duration)} s.`;
+  res.info = tr('convert.media.kept', 'Kept {kept} s of {total} s.', { kept: String(n(chans[0].length / buf.sampleRate)), total: String(n(buf.duration)) });
   return res;
 }
 
@@ -61,13 +62,20 @@ const geo = (read, what) => async (files) => {
   const f = files[0], g = read(await textOf(f));
   const res = [out(`${base(f.name)}.geojson`, JSON.stringify(g, null, 2) + '\n', 'application/geo+json')];
   const c = (t) => g.features.filter((x) => x.geometry.type === t).length;
-  res.info = `${g.features.length} ${what} feature${g.features.length === 1 ? '' : 's'}: ${c('Point')} point${c('Point') === 1 ? '' : 's'}, ${g.features.length - c('Point')} line${g.features.length - c('Point') === 1 ? '' : 's'} or shape${g.features.length - c('Point') === 1 ? '' : 's'}.`;
+  const points = c('Point'), lines = g.features.length - points; // i18n-ignore: code and search keywords
+  res.info = tr('convert.geo.read_info', '{features}: {points}, {lines}.', {
+    features: tr('convert.geo.features', ['{n} {what} features', '{n} {what} feature'], { n: g.features.length, what }),
+    points: tr('convert.geo.points', ['{n} points', '{n} point'], { n: points }),
+    lines: tr('convert.geo.lines', ['{n} lines or shapes', '{n} line or shape'], { n: lines }) });
   return res;
 };
 async function toGpx(files) {
   const f = files[0], r = geojsonToGpx(parseJson(await textOf(f)), { name: base(f.name) });
   const res = [out(`${base(f.name)}.gpx`, r.text, 'application/gpx+xml')];
-  res.info = `${r.waypoints} waypoint${r.waypoints === 1 ? '' : 's'} and ${r.tracks} track${r.tracks === 1 ? '' : 's'}${r.outlines ? `; ${r.outlines} area outline${r.outlines === 1 ? ' is' : 's are'} written as tracks` : ''}.`;
+  res.info = tr('convert.geo.gpx_info', '{waypoints} and {tracks}{outlines}.', {
+    waypoints: tr('convert.geo.waypoints', ['{n} waypoints', '{n} waypoint'], { n: r.waypoints }),
+    tracks: tr('convert.geo.tracks', ['{n} tracks', '{n} track'], { n: r.tracks }),
+    outlines: r.outlines ? tr('convert.geo.outlines', ['; {n} area outlines are written as tracks', '; {n} area outline is written as tracks'], { n: r.outlines }) : '' });
   return res;
 }
 async function toCsv(files, o = {}) {
@@ -75,26 +83,29 @@ async function toCsv(files, o = {}) {
   return [out(`${base(f.name)}.csv`, rowsToCsv(rows, { delimiter: o.delimiter || ',' }), 'text/csv')];
 }
 
-const GEO = 'Maps and GPS';
+const GEO = 'Maps and GPS'; // i18n-ignore: a catalog group (the group names are translated where they are shown)
 export const MEDIA_GEO = [
-  { id: 'favicon-pack', label: 'Favicon set for a website (ICO, PNG)', group: 'Images', from: IMAGE, ext: 'zip', mode: 'each', keywords: ['favicon', 'icon', 'apple-touch-icon', 'manifest', 'website'],
-    options: [{ key: 'name', type: 'text', label: 'Site name (for the manifest)', placeholder: 'My site' },
-      { key: 'padding', type: 'select', label: 'Space around the picture', value: '0', options: [['0', 'None'], ['5', 'A little (5%)'], ['10', 'Some (10%)'], ['15', 'More (15%)']] },
-      { key: 'fill', type: 'checkbox', label: 'Fill the background', value: false, hint: 'Off: transparent, except the Apple icon, which is always filled (iPhones show transparency as black).' },
-      { key: 'background', type: 'color', label: 'Background colour', value: '#ffffff' }],
+  { id: 'favicon-pack', get label() { return tr('convert.fav.label', 'Favicon set for a website (ICO, PNG)'); }, group: 'Images', from: IMAGE, ext: 'zip', mode: 'each', keywords: ['favicon', 'icon', 'apple-touch-icon', 'manifest', 'website'], // i18n-ignore: group id (shown through groupLabel)
+    options: [{ key: 'name', type: 'text', get label() { return tr('convert.fav.site_name', 'Site name (for the manifest)'); }, get placeholder() { return tr('convert.fav.my_site', 'My site'); } },
+      { key: 'padding', type: 'select', get label() { return tr('convert.fav.padding', 'Space around the picture'); }, value: '0',
+        get options() { return [['0', tr('convert.fav.pad_none', 'None')], ['5', tr('convert.fav.pad_little', 'A little (5%)')], ['10', tr('convert.fav.pad_some', 'Some (10%)')], ['15', tr('convert.fav.pad_more', 'More (15%)')]]; } },
+      { key: 'fill', type: 'checkbox', get label() { return tr('convert.fav.fill', 'Fill the background'); }, value: false, get hint() { return tr('convert.fav.fill_hint', 'Off: transparent, except the Apple icon, which is always filled (iPhones show transparency as black).'); } },
+      { key: 'background', type: 'color', get label() { return tr('convert.fav.background', 'Background colour'); }, value: '#ffffff' }],
     run: favicon },
-  { id: 'audio-trim', label: 'Cut audio (trim)', group: 'Audio and video', from: AUDIO_IN, ext: 'wav', mode: 'each', keywords: ['trim', 'cut', 'clip', 'ringtone', 'fade'],
-    options: [START, END, { key: 'fadeIn', type: 'number', label: 'Fade in (seconds)', min: 0, max: 60, step: 0.1, value: 0 },
-      { key: 'fadeOut', type: 'number', label: 'Fade out (seconds)', min: 0, max: 60, step: 0.1, value: 0 },
-      { key: 'output', type: 'select', label: 'Save as', value: 'wav', options: [['wav', 'WAV (lossless)'], ['mp3', 'MP3']] },
-      { key: 'bitrate', type: 'select', label: 'MP3 bitrate', value: '192', options: [['128', '128 kbps'], ['192', '192 kbps'], ['320', '320 kbps']] }],
+  { id: 'audio-trim', get label() { return tr('convert.media.audio_trim', 'Cut audio (trim)'); }, group: 'Audio and video', from: AUDIO_IN, ext: 'wav', mode: 'each', keywords: ['trim', 'cut', 'clip', 'ringtone', 'fade'], // i18n-ignore: group id (shown through groupLabel)
+    options: [START, END, { key: 'fadeIn', type: 'number', get label() { return tr('convert.media.fade_in', 'Fade in (seconds)'); }, min: 0, max: 60, step: 0.1, value: 0 },
+      { key: 'fadeOut', type: 'number', get label() { return tr('convert.media.fade_out', 'Fade out (seconds)'); }, min: 0, max: 60, step: 0.1, value: 0 },
+      { key: 'output', type: 'select', get label() { return tr('convert.media.save_as', 'Save as'); }, value: 'wav', get options() { return [['wav', tr('convert.media.wav_lossless', 'WAV (lossless)')], ['mp3', 'MP3']]; } },
+      { key: 'bitrate', type: 'select', get label() { return tr('convert.media.mp3_bitrate', 'MP3 bitrate'); }, value: '192', options: [['128', '128 kbps'], ['192', '192 kbps'], ['320', '320 kbps']] }],
     run: audioTrim },
-  { id: 'video-trim', engine: 'ffmpeg', label: 'Cut video (trim)', group: 'Audio and video', from: VIDEO_IN, ext: 'mp4', mode: 'each', keywords: ['trim', 'cut', 'clip', 'shorten'],
-    options: [START, END, { key: 'exact', type: 'checkbox', label: 'Cut at the exact frame (slower: the video is re-encoded)', value: false, hint: 'Off: the streams are copied, which is fast and loses nothing, but the cut starts at the nearest key frame before the start.' }],
+  { id: 'video-trim', engine: 'ffmpeg', get label() { return tr('convert.media.video_trim', 'Cut video (trim)'); }, group: 'Audio and video', from: VIDEO_IN, ext: 'mp4', mode: 'each', keywords: ['trim', 'cut', 'clip', 'shorten'], // i18n-ignore: group id (shown through groupLabel)
+    options: [START, END, { key: 'exact', type: 'checkbox', get label() { return tr('convert.media.exact', 'Cut at the exact frame (slower: the video is re-encoded)'); }, value: false,
+      get hint() { return tr('convert.media.exact_hint', 'Off: the streams are copied, which is fast and loses nothing, but the cut starts at the nearest key frame before the start.'); } }],
     run: videoTrim },
-  { id: 'gpx-to-geojson', label: 'GPX to GeoJSON', group: GEO, from: ['gpx'], ext: 'geojson', mode: 'each', keywords: ['gps', 'track', 'strava', 'garmin', 'map'], options: [], run: geo(gpxToGeojson, 'GPX') },
-  { id: 'kml-to-geojson', label: 'KML to GeoJSON', group: GEO, from: ['kml'], ext: 'geojson', mode: 'each', keywords: ['google earth', 'google maps', 'map', 'placemark'], options: [], run: geo(kmlToGeojson, 'KML') },
-  { id: 'geojson-to-gpx', label: 'GeoJSON to GPX', group: GEO, from: ['geojson'], ext: 'gpx', mode: 'each', keywords: ['gps', 'track', 'waypoints', 'garmin'], options: [], run: toGpx },
-  { id: 'geojson-to-csv', label: 'GeoJSON to CSV (points)', group: GEO, from: ['geojson'], ext: 'csv', mode: 'each', keywords: ['latitude', 'longitude', 'coordinates', 'table', 'excel'],
-    options: [{ key: 'delimiter', type: 'select', label: 'Separator', value: ',', options: [[',', 'Comma'], [';', 'Semicolon'], ['\t', 'Tab']] }], run: toCsv },
+  { id: 'gpx-to-geojson', get label() { return tr('convert.geo.gpx_to_geojson', 'GPX to GeoJSON'); }, group: GEO, from: ['gpx'], ext: 'geojson', mode: 'each', keywords: ['gps', 'track', 'strava', 'garmin', 'map'], options: [], run: geo(gpxToGeojson, 'GPX') },
+  { id: 'kml-to-geojson', get label() { return tr('convert.geo.kml_to_geojson', 'KML to GeoJSON'); }, group: GEO, from: ['kml'], ext: 'geojson', mode: 'each', keywords: ['google earth', 'google maps', 'map', 'placemark'], options: [], run: geo(kmlToGeojson, 'KML') }, // i18n-ignore: code and search keywords
+  { id: 'geojson-to-gpx', get label() { return tr('convert.geo.geojson_to_gpx', 'GeoJSON to GPX'); }, group: GEO, from: ['geojson'], ext: 'gpx', mode: 'each', keywords: ['gps', 'track', 'waypoints', 'garmin'], options: [], run: toGpx },
+  { id: 'geojson-to-csv', get label() { return tr('convert.geo.geojson_to_csv', 'GeoJSON to CSV (points)'); }, group: GEO, from: ['geojson'], ext: 'csv', mode: 'each', keywords: ['latitude', 'longitude', 'coordinates', 'table', 'excel'],
+    options: [{ key: 'delimiter', type: 'select', get label() { return tr('convert.geo.separator', 'Separator'); }, value: ',',
+      get options() { return [[',', tr('convert.geo.sep_comma', 'Comma')], [';', tr('convert.geo.sep_semicolon', 'Semicolon')], ['\t', tr('convert.geo.sep_tab', 'Tab')]]; } }], run: toCsv },
 ];

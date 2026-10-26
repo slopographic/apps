@@ -10,7 +10,7 @@ function copyToBuffer(merged) {
   CLIP.canvas = r.canvas; CLIP.x = r.x; CLIP.y = r.y; CLIP.t = stamp;
   canvasToBlob(r.canvas)
     .then((blob) => SlopBuffer.put({ kind: 'image', formats: { 'image/png': blob }, source: 'photoslop', t: stamp }))
-    .then(() => toast(merged ? 'Merged copy in the buffer' : 'Copied to the buffer'), () => toast('Could not copy to the buffer', 4200));
+    .then(() => toast(tr(merged ? 'photoslop.io.buffer_merged' : 'photoslop.io.buffer_copied')), () => toast(tr('photoslop.io.buffer_copy_failed'), 4200));
 }
 
 /** True when the buffer holds something newer than this app's own clipboard. */
@@ -31,10 +31,10 @@ function placeBuffer(rec) {
   if (!c) return false;
   const made = c.type === 'image/png' ? fileToCanvas(c.data) : SlopBuffer.rasterize(c.data);
   made.then((canvas) => {
-    pasteCanvas(canvas, null, null, 'Pasted Image');
-    if (c.type !== 'image/png') toast('Vector converted to a raster image (one pixel per SVG unit)', 4200);
+    pasteCanvas(canvas, null, null, 'Pasted Image'); // i18n-ignore: layer name
+    if (c.type !== 'image/png') toast(tr('photoslop.io.buffer_rasterized'), 4200);
     else if (c.simplified) toast(c.note, 4200);
-  }, () => toast('The buffer could not be read as an image', 4200));
+  }, () => toast(tr('photoslop.io.buffer_unreadable'), 4200));
   return true;
 }
 

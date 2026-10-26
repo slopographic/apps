@@ -16,7 +16,7 @@ const HEX = /^#[0-9a-f]{6}$/i;
 export function manifestJson({ name = '', color = '#ffffff' } = {}) {
   const c = HEX.test(color) ? color : '#ffffff';
   const icons = [192, 512].map((s) => ({ src: `/android-chrome-${s}x${s}.png`, sizes: `${s}x${s}`, type: 'image/png' }));
-  return JSON.stringify({ name: name || 'My site', short_name: (name || 'My site').slice(0, 12), icons, theme_color: c, background_color: c, display: 'standalone' }, null, 2) + '\n';
+  return JSON.stringify({ name: name || 'My site', short_name: (name || 'My site').slice(0, 12), icons, theme_color: c, background_color: c, display: 'standalone' }, null, 2) + '\n'; // i18n-ignore: written into the manifest
 }
 
 export function headTags({ color = '#ffffff' } = {}) {
