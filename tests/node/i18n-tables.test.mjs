@@ -8,7 +8,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
-import { check, compare, placeholders } from '../../tools/i18n/check.mjs';
+import { check, compare, placeholders, pluralForms } from '../../tools/i18n/check.mjs';
 import { scan, render, levels, losses, raise, OUT, BASELINE } from '../../tools/i18n/coverage.mjs';
 import { ROOT, COVERS, coversText, langs, apps, appTables, sharedAreas, sharedTables, pageAreas, tableFiles } from '../../tools/i18n/tables.mjs';
 import { scanJs, scanHtml, wordy, fragment, staticText } from '../../tools/i18n/scan.mjs';
@@ -18,6 +18,17 @@ const read = (f) => readFileSync(path.join(ROOT, f), 'utf8');
 
 test('the tables are sound (node tools/i18n/i18n.mjs --check)', () => {
   assert.deepEqual(check(), []);
+});
+
+test('a plural family carries every form the language needs for counts; a million-only form is not asked for', () => {
+  assert.deepEqual(pluralForms('ar').sort(), ['few', 'many', 'one', 'two', 'zero']);
+  assert.deepEqual(pluralForms('ja'), []);
+  assert.deepEqual(pluralForms('fr'), ['one']);           // fr 'many' is for 1 000 000 and up
+  assert.deepEqual(pluralForms('pt-BR'), ['one']);
+  const en = new Map([['a.files', '{n} files'], ['a.files#one', '{n} file'], ['a.name', 'Name']]);
+  const ar = new Map([['a.files', '{n} ملفًا'], ['a.files#one', 'ملف واحد'], ['a.name', 'الاسم']]);
+  assert.deepEqual(compare('x/ar', en, ar).filter((m) => m.includes('plural')).length, 4);
+  assert.deepEqual(compare('x/ja', en, new Map([['a.files', '{n} 件'], ['a.name', '名前']])), []);
 });
 
 test('COVERAGE.md and tables.covers.txt are up to date (node tools/i18n/i18n.mjs coverage)', () => {
