@@ -61,7 +61,7 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'vector.sc.zoom_keys': '{mod} + ホイール / ピンチ',
   'vector.about.version': 'v1.0 · ビルド {build}',
   'vector.about.blurb': 'ブラウザーだけで動作する本格的なベクター エディターです。ペンと鉛筆、ライブ図形、レイヤー、グラデーション、パスファインダーのブール演算、SVG/PDF/PNG 書き出し、そして手書きの PDF ライターを備えています。アカウントもアップロードも追跡もありません。作品がこのタブの外に出ることはありません。',
-  'vector.about.part_of': '{site} の一部です。AI スロップの博物館。ツール自体は、奇跡的に、スロップではありません。',
+  'vector.about.part_of': '{site} の一部です。AI slop の博物館。ツール自体は、奇跡的に、slop ではありません。',
   'vector.about.tip': 'ヒント: {path} で、このエディター全体をオフラインで使える 1 つの .html ファイルとして保存できます。',
   'vector.about.download_app': 'アプリをダウンロード',
   'vector.guides.layout_title': 'ガイド レイアウト',

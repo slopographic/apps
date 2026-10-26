@@ -36,7 +36,7 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'vector.msg.pf_empty': '結果は空です。図形が重なっていません',
   'vector.msg.slopify_select': 'Slopify する図形を選択してください',
   'vector.msg.slopify_skipped': 'Slopify は {n} 個のオブジェクト（テキスト・画像）をスキップしました',
-  'vector.msg.slopified': 'Slopify しました。スロップであることが認定されました。',
+  'vector.msg.slopified': 'Slopify しました。slop であることが認定されました。',
   'vector.msg.distribute_select': '等間隔に配置するオブジェクトを 3 つ以上選択してください',
   'vector.msg.select_object': '先にオブジェクトを選択してください',
   'vector.msg.eyedrop_applied': 'サンプリングした外観を適用しました',
