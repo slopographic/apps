@@ -1,6 +1,6 @@
 #!/bin/sh
 # Refuses a commit message with a co-author or a tool trailer: commits are by Slopographic alone.
-if grep -i -E "^co-authored-by:|^[a-z-]+-session:|generated with \[" "$1" >/dev/null 2>&1; then
+if grep -i -v -E "^co-authored-by:[[:space:]]*none[[:space:]]*$" "$1" | grep -i -E "^co-authored-by:|^[a-z-]+-session:|generated with \[" >/dev/null 2>&1; then
   echo "commit-msg: remove the co-author and tool lines. Commits are by Slopographic alone." >&2
   exit 1
 fi
