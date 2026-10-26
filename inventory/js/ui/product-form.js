@@ -1,7 +1,8 @@
 // The product form: the products view's right panel (shared/biz/panel.js, set up in ui/app.js), "New product" until a
 // product is opened for editing; Create product / Save at the panel's foot, Cancel back to a new one. On a phone the panel
 // is a bottom sheet that opens with the form. The data layer validates every value; its errors show beside the fields.
-// Price and tax rate are typed as plain decimals and converted with money.parseMinor (never through floats).
+// Price and tax rate are typed in the page's language ("12,50" in sv; SlopData.money.parseTyped and parsePercent, never
+// through floats), and shown for editing the same way (typedMinor).
 (function (g) {
   'use strict';
   const S = g.SlopData;
@@ -69,8 +70,8 @@
     F.sku.control.value = p ? p.sku : o.sku || '';
     F.ean.control.value = p ? p.ean || '' : o.ean || '';
     F.name.control.value = p ? p.name : '';
-    F.price.control.value = p ? U.majorText(p.price, st.currency) : '';
-    F.taxRate.control.value = U.percentText(p ? p.taxRate : st.defaultTaxRate);
+    F.price.control.value = p ? S.money.typedMinor(p.price, st.currency) : '';
+    F.taxRate.control.value = S.money.typedMinor(p ? p.taxRate : st.defaultTaxRate, 'USD');   // basis points as a percentage
     F.unit.control.value = p ? p.unit || 'each' : 'each';
     F.reorderLevel.control.value = p && p.reorderLevel !== undefined ? String(p.reorderLevel) : '';
     clear();
@@ -86,15 +87,15 @@
   async function save() {
     clear();
     const F = fields, p = opts.product || null, rec = { ...(p || {}) };
-    const price = S.money.parseMinor(F.price.control.value, st.currency);
-    const tax = S.money.parseMinor(F.taxRate.control.value, 'USD');
+    const price = S.money.parseTyped(F.price.control.value, st.currency);
+    const tax = S.money.parsePercent(F.taxRate.control.value, { typed: true });
     const reorderText = F.reorderLevel.control.value.trim();
     const reorder = reorderText === '' ? undefined : U.wholeOf(reorderText);
     let bad = false;
     const flag = (k, text) => { F[k].msg.textContent = text; bad = true; };
     if (F.price.control.value.trim() === '') flag('price', t('inventory.pf.required'));
     else if (price === null) flag('price', t('inventory.pf.bad_price'));
-    if (tax === null || tax < 0 || tax > 10000) flag('taxRate', t('inventory.pf.bad_tax'));
+    if (tax === null) flag('taxRate', t('inventory.pf.bad_tax'));
     if (reorderText !== '' && (!Number.isSafeInteger(reorder) || reorder < 0)) flag('reorderLevel', t('inventory.pf.bad_reorder'));
     if (bad) { $('pFormErr').textContent = t('inventory.pf.not_saved'); return false; }
     Object.assign(rec, { sku: F.sku.control.value, ean: F.ean.control.value, name: F.name.control.value, price, taxRate: tax, unit: F.unit.control.value, reorderLevel: reorder });

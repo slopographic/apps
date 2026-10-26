@@ -29,6 +29,8 @@ async function app(width, opts = '') {
     <\/script></body></html>`;
   document.body.append(f);
   await waitFor(() => f.contentWindow && f.contentWindow.sheet, { timeout: 5000 });
+  // on a busy machine the frame can lay out at another width first: wait until it has its own and the sheet has followed
+  await waitFor(() => f.contentWindow.innerWidth === width && f.contentDocument.getElementById('app').classList.contains('ssh-phone') === (width <= 900), { timeout: 5000 });
   // no slide: a busy machine starts a transition late, and the test reads where the sheet ends up
   f.contentDocument.head.append(Object.assign(f.contentDocument.createElement('style'), { textContent: '* { transition: none !important; }' }));
   return f;

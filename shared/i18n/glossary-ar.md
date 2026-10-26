@@ -190,3 +190,40 @@ Terms chosen for Slop PDF (pdf/i18n/ar/). Kind words that code inserts as {what}
 | collate (scans) | ترتيب الوجوه والظهور |  |
 | nudge | إزاحة قليلاً |  |
 | validated | تم التحقق |  |
+
+## One term per concept across apps
+
+Chosen in the review pass so the same idea reads the same in every app. Brand names (Sloppo, PhotoSlop, Slopographic, Slopify and every "Slop …" name) stay in Latin script. Back arrows are written for a right-to-left page: "→ الفواتير" (the arrow points right, toward the previous page); "←" is kept between a source and a target ("{from} ← {to}") and for physical arrow keys. A breadcrumb or menu path keeps the English "›" and "◂" (both point left in a right-to-left line, toward the next item). Counts follow CLDR: #zero "لا …" or "لم يتم … أي …", #one and #two without the digit, #few (3 to 10) plural with the number, #many (11 to 99) singular accusative with the number ("{n} صفحةً"), bare other (100 and up) singular without tanween ("{n} صفحة"). Tanween is written "ًا" (not "اً"), except after a final alef ("كاميراً").
+
+| English | العربية | Note |
+| --- | --- | --- |
+| preset | إعداد مسبق | Plural: إعدادات مسبقة. Never "قالب" or "جاهز" for a preset. |
+| template | قالب | Documents, workbooks, labels, mini-apps. Not a preset. |
+| bin (media bin) | المكتبة | Slop Cut and Reel Remix. Not "الصندوق". |
+| reel | بكرة | Plural: بكرات. Not "مقطع قصير". |
+| clip | مقطع | A piece of video or audio on a timeline. |
+| paste (Slop Paste item) | لصقة | Plural: لصقات. Not "مقطع", which is a clip. |
+| cut / trim | قص | Cut a clip, trim audio or video. |
+| cut-out (isolated subject) | قصاصة | Plural: قصاصات. |
+| slot (template slot) | خانة | Plural: خانات. Not "موضع". |
+| timeline | الخط الزمني | Video editing. Projects uses "الجدول الزمني" for its schedule view. |
+| playhead | رأس التشغيل |  |
+| ledger | دفتر الأستاذ | Short form in running text: "الدفتر". General ledger: دفتر الأستاذ العام. Journal: دفتر اليومية. |
+| statement (bank, customer) | كشف حساب | Financial statements: القوائم المالية. |
+| bank (adjective) | بنكي | Noun: البنك. Not "مصرفي". |
+| purchase order | أمر شراء | Plural: أوامر شراء. |
+| credit note | إشعار دائن | Plural: إشعارات دائنة. |
+| quote | عرض سعر | Plural: عروض أسعار. |
+| trash | المهملات | Not "سلة المهملات". |
+| search commands | بحث في الأوامر | Menu item, noun form. |
+| tab (page section) | تبويب | A named section of a page: "تبويب البيانات". |
+| tab (document tab) | علامة تبويب | Browser-style tabs of open files (PDF, PhotoSlop). |
+| tab (character) | علامة جدولة | Separator choice in the converter. |
+| opacity | العتامة | Transparency (a different thing) stays "الشفافية". |
+| blur | تمويه | Gaussian blur: تمويه غاوسي. |
+| texture | نسيج | Plural: أنسجة. |
+| macro | ماكرو | Plural: وحدات الماكرو. |
+| code (source code) | شيفرة | Not "كود". Barcode stays "باركود". |
+| legend (chart) | وسيلة الإيضاح |  |
+| hash | بصمة | File hash: "بصمة الملف". |
+| config | الإعدادات | A config file is "ملف إعدادات". |

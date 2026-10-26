@@ -8,13 +8,13 @@
   const { fail } = S.result;
   const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
 
-  /** Adds a manual row from typed text: foreign currency, rate text such as "1.0842" (base per 1 foreign), date, note. */
+  /** Adds a manual row from typed text: foreign currency, rate text such as "1.0842" (base per 1 foreign; in the page's language), date, note. */
   async function addManual({ foreign, base, rateText, date, note }) {
     const f = String(foreign || '').trim().toUpperCase();
     if (!S.locale.isCurrency(f)) return fail('invalid', t('ledger.rt.e_foreign'));
     if (f === base) return fail('invalid', t('ledger.rt.e_base', { cur: base }));
     if (!NS.util.isDate(date)) return fail('invalid', t('ledger.rt.e_date'));
-    const rate = S.locale.parseRate(rateText);
+    const rate = S.locale.parseRate(S.money.plainFromTyped(rateText) ?? '');   // typed in the page's language ("1,0842" in sv)
     if (rate === null) return fail('invalid', t('ledger.rt.e_rate'));
     return S.fx.addRate({ base: f, quote: base, date, rate, source: 'manual', note: String(note || '').trim() || undefined });
   }

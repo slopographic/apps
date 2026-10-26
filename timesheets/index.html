@@ -125,7 +125,7 @@
         <div id="bForm" class="card">
           <div class="toolbar">
             <label><span data-i18n="timesheets.page.customer">Customer</span> <select id="bCustomer"></select></label>
-            <label><span data-i18n="timesheets.page.tax">Tax rate %</span> <input id="bTax" type="number" min="0" max="100" step="0.01" inputmode="decimal"></label>
+            <label><span data-i18n="timesheets.page.tax">Tax rate %</span> <input id="bTax" type="text" inputmode="decimal" maxlength="6" autocomplete="off"></label>
             <button type="button" class="btn small" id="bAll" data-i18n="timesheets.page.tick_all">Tick all or none</button>
           </div>
           <div class="bill-rows" id="bRows"></div>

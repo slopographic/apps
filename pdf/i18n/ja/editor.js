@@ -39,8 +39,8 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'pdf.ed.undo_delete_layer': 'レイヤーの削除',
 
   // editor/font-check.js
-  'pdf.ed.font_use_subset': '{family} (サブセット)',
-  'pdf.ed.font_use_full': '{family} (完全)',
+  'pdf.ed.font_use_subset': '{family}（サブセット）',
+  'pdf.ed.font_use_full': '{family}（完全）',
   'pdf.ed.font_use_missing': '{use} · 未インストール',
 
   // editor/notes.js
@@ -55,8 +55,8 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'pdf.ed.note_new': '新しいコメント',
   'pdf.ed.note_resolved': '解決済み',
   'pdf.ed.note_close': 'コメントを閉じる',
-  'pdf.ed.note_close_tip': '閉じる (Esc)',
-  'pdf.ed.note_your_name': 'あなたの名前',
+  'pdf.ed.note_close_tip': '閉じる（Esc）',
+  'pdf.ed.note_your_name': '名前',
   'pdf.ed.note_reply_ph': '返信…',
   'pdf.ed.note_reply': '返信',
   'pdf.ed.note_name_first': '先に名前を入力してください。',
@@ -72,26 +72,26 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'pdf.ed.obj_kind_form': '配置されたアートワーク',
   'pdf.ed.obj_kind_vector': 'ベクター図形',
   'pdf.ed.obj_kind_object': 'オブジェクト',
-  'pdf.ed.obj_on': 'オブジェクト: ページ上の画像や図形をクリックすると、移動、サイズ変更、回転ができます。',
+  'pdf.ed.obj_on': 'オブジェクト：ページ上の画像や図形をクリックすると、移動、サイズ変更、回転ができます。',
   'pdf.ed.obj_off': 'オブジェクト モードはオフです。',
-  'pdf.ed.obj_selected': '選択中: {what}',
-  'pdf.ed.obj_turn_tip': '回転 (Shift: 15° 単位)',
-  'pdf.ed.undo_move_obj': '{what}の移動',
-  'pdf.ed.undo_turn_obj': '{what}の回転',
-  'pdf.ed.undo_resize_obj': '{what}のサイズ変更',
-  'pdf.ed.undo_change_obj': '{what}の変更',
+  'pdf.ed.obj_selected': '選択中：{what}',
+  'pdf.ed.obj_turn_tip': '回転（Shift: 15° 単位）',
+  'pdf.ed.undo_move_obj': '{what} の移動',
+  'pdf.ed.undo_turn_obj': '{what} の回転',
+  'pdf.ed.undo_resize_obj': '{what} のサイズ変更',
+  'pdf.ed.undo_change_obj': '{what} の変更',
   'pdf.ed.obj_not_changed_here': 'このオブジェクトはここでは変更できませんでした。',
 
   // editor/obj-bar.js
   'pdf.ed.op_failed': 'うまくいきませんでした。{err}',
-  'pdf.ed.obj_already_there': '既にその位置にあります。',
+  'pdf.ed.obj_already_there': 'すでにその位置にあります。',
   'pdf.ed.obj_not_changed': 'このオブジェクトは変更できませんでした。',
   'pdf.ed.obj_front': '最前面へ移動',
   'pdf.ed.obj_forward': '前面へ移動',
   'pdf.ed.obj_backward': '背面へ移動',
   'pdf.ed.obj_back': '最背面へ移動',
-  'pdf.ed.undo_delete_obj': '{what}の削除',
-  'pdf.ed.undo_duplicate_obj': '{what}の複製',
+  'pdf.ed.undo_delete_obj': '{what} の削除',
+  'pdf.ed.undo_duplicate_obj': '{what} の複製',
   'pdf.ed.obj_only_image': '置き換えられるのは画像だけです。',
   'pdf.ed.undo_replace_image': '画像の置き換え',
   'pdf.ed.obj_saved': '{name} を保存しました',
@@ -102,14 +102,14 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'pdf.ed.obj_replace_image': '画像を置き換え…',
   'pdf.ed.obj_save_image': '画像を保存',
   'pdf.ed.obj_open_in': '別のアプリで開く…',
-  'pdf.ed.delete_tip': '削除 (Del)',
+  'pdf.ed.delete_tip': '削除（Del）',
   'pdf.ed.obj_save_svg': 'SVG として保存',
 
   // editor/paste-image.js
   'pdf.ed.undo_add_image': '画像の追加',
   'pdf.ed.open_name_page': 'このページ',
   'pdf.ed.img_not_added': '画像は追加されませんでした',
-  'pdf.ed.img_unreadable': 'その画像を読み込めませんでした: {err}',
+  'pdf.ed.img_unreadable': 'その画像を読み込めませんでした：{err}',
 
   // editor/sel-bar.js
   'pdf.ed.col_yellow': '黄',
@@ -131,12 +131,12 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'pdf.ed.sb_colour_tip': 'ハイライト、下線、取り消し線の色',
   'pdf.ed.sb_opacity': '不透明度',
   'pdf.ed.sb_edit': '編集',
-  'pdf.ed.sb_selected': '選択中: {what}',
+  'pdf.ed.sb_selected': '選択中：{what}',
 
   // editor/para-edit.js
   'pdf.ed.pe_text': '段落のテキスト',
   'pdf.ed.undo_edit_para': '段落の編集',
-  'pdf.ed.pe_failed': '段落を変更できませんでした: {err}',
+  'pdf.ed.pe_failed': '段落を変更できませんでした：{err}',
 
   // editor/pointer.js
   'pdf.ed.undo_draw': '描画',
@@ -166,34 +166,34 @@ window.SlopI18n && window.SlopI18n.add('ja', {
 
   // editor/view.js
   'pdf.ed.text_box_field': 'テキストを編集',
-  'pdf.ed.locked_tip': 'ロック中: 変更するには [レイヤー] でロックを解除してください',
+  'pdf.ed.locked_tip': 'ロック中：変更するには [レイヤー] でロックを解除してください',
   'pdf.ed.locked': 'ロック中',
 
   // editor/view-zoom.js
-  'pdf.ed.zoom_out_tip': '縮小 (Ctrl −)',
-  'pdf.ed.zoom_in_tip': '拡大 (Ctrl +)',
-  'pdf.ed.fit_width_tip': '幅に合わせる (Ctrl 0)',
+  'pdf.ed.zoom_out_tip': '縮小（Ctrl −）',
+  'pdf.ed.zoom_in_tip': '拡大（Ctrl +）',
+  'pdf.ed.fit_width_tip': '幅に合わせる（Ctrl 0）',
   'pdf.ed.fit_width': '幅に合わせる',
   'pdf.ed.zoom': 'ズーム',
 
   // editor/edit-text.js
   'pdf.ed.edit_text': 'テキストを編集',
   'pdf.ed.et_off': 'テキスト編集はオフです。',
-  'pdf.ed.et_on_para': 'テキスト編集 (段落): 段落をクリックし、ダブルクリックするか Enter キーを押して入力します。',
-  'pdf.ed.et_on_lines': 'テキスト編集: テキストの行をクリックして入力し、Enter キーで適用します (Esc でキャンセル)。',
+  'pdf.ed.et_on_para': 'テキスト編集（段落）：段落をクリックし、ダブルクリックするか Enter キーを押して入力します。',
+  'pdf.ed.et_on_lines': 'テキスト編集：テキストの行をクリックして入力し、Enter キーで適用します（Esc でキャンセル）。',
   'pdf.ed.et_no_text_there': 'そこにはテキストがありません。テキストの行をクリックしてください。',
   'pdf.ed.et_no_text_page': 'このページには編集できるテキストがありません。',
-  'pdf.ed.et_font_failed': 'フォントを準備できませんでした: {err}',
+  'pdf.ed.et_font_failed': 'フォントを準備できませんでした：{err}',
   'pdf.ed.et_checking_font': 'フォントを確認しています…',
   'pdf.ed.et_font_info': '{font} · {how} · 新しいテキストは {set} ({note})',
   'pdf.ed.et_font_subset': 'ファイル内にサブセットとして埋め込み',
   'pdf.ed.et_font_full': '完全に埋め込み',
   'pdf.ed.et_font_installed': 'インストール済み',
   'pdf.ed.et_font_closest': 'アプリにある最も近いフォント。ファイル内のサブセットは再利用されません',
-  'pdf.ed.et_font_info_emb': '{font} · 埋め込み · 新しいテキストは {set} (埋め込みフォントはまだ再利用できません)',
+  'pdf.ed.et_font_info_emb': '{font} · 埋め込み · 新しいテキストは {set}（埋め込みフォントはまだ再利用できません）',
   'pdf.ed.et_font_info_std': '{font} · 埋め込みなし · 新しいテキストは {set}',
   'pdf.ed.undo_edit_text': 'テキストの編集',
-  'pdf.ed.et_change_failed': 'テキストを変更できませんでした: {err}',
+  'pdf.ed.et_change_failed': 'テキストを変更できませんでした：{err}',
   'pdf.ed.et_no_text_rect': 'そこには編集できるテキストがありません。',
 
   // editor/para-mode.js
@@ -202,7 +202,7 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'pdf.ed.pm_lines_tip': '1 行ずつ',
   'pdf.ed.pm_paragraphs': '段落',
   'pdf.ed.pm_paragraphs_tip': 'テキスト フレームのように折り返す段落全体',
-  'pdf.ed.pm_done_tip': 'テキスト編集をオフにする (Ctrl+E)',
+  'pdf.ed.pm_done_tip': 'テキスト編集をオフにする（Ctrl+E）',
   'pdf.ed.pm_hint_para': '段落をクリックし、ダブルクリックするか Enter キーで入力します。辺をドラッグすると折り返しを変更、枠をドラッグすると移動できます。',
   'pdf.ed.pm_hint_lines': 'テキストの行をクリックして入力します。Enter で適用、Esc でキャンセルします。',
   'pdf.ed.pm_frame': '段落フレーム。Enter でテキストを編集、Esc で選択を解除します。',
@@ -216,7 +216,7 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'pdf.ed.pm_align_justify': '両端揃え',
   'pdf.ed.undo_move_para': '段落の移動',
   'pdf.ed.undo_resize_para': '段落のサイズ変更',
-  'pdf.ed.pm_setup_failed': 'この段落を準備できませんでした: {err}',
+  'pdf.ed.pm_setup_failed': 'この段落を準備できませんでした：{err}',
   'pdf.ed.pm_no_text_there': 'そこにはテキストがありません。段落をクリックしてください。',
 
   // editor/sel-actions.js

@@ -1,35 +1,32 @@
 // Document lines for Slop Orders and Slop Invoices: pure helpers over SlopData.money. No DOM, no storage.
 // Money is integer minor units; tax rates and discounts are integer basis points (2000 = 20.00%). Typed percent
-// text ("7.5") and typed money text ("12.50") are parsed here so both apps read them the same way.
+// text ("7.5") and typed money text ("12.50") are parsed here so every document app reads them the same way: in the page's
+// language ("12,50" and "7,5" in sv; SlopData.money.parseTyped, by its rules), and shown for editing the same way.
 // Classic script. Exposes window.SlopDocs.model.
 (function (g) {
   'use strict';
   const S = g.SlopData;
   const NS = (g.SlopDocs = g.SlopDocs || {});
-  const PCT = /^\d{1,3}(\.\d{1,2})?$/;
-
-  /** Basis points from typed percent text: "20" -> 2000, "7.5" -> 750. Blank is 0. Null when not 0 to 100. */
+  /** Basis points from typed percent text: "20" -> 2000, "7.5" (or "7,5" in sv) -> 750. Blank is 0. Null when not 0 to 100
+   *  with at most two decimals (two decimals of a percent are exactly basis points). */
   function bpFromPercent(text) {
     const str = String(text ?? '').trim();
-    if (str === '') return 0;
-    if (!PCT.test(str)) return null;
-    const bp = S.money.parseMinor(str, 'USD');   // two decimals of a percent are exactly basis points
-    return bp !== null && bp >= 0 && bp <= 10000 ? bp : null;
+    return str === '' ? 0 : S.money.parsePercent(str, { typed: true });
   }
 
-  /** Typed percent text from basis points: 750 -> "7.5", 2000 -> "20". */
-  const percentText = (bp) => (bp ? String(Number((bp / 100).toFixed(2))) : '');
+  /** Typed percent text from basis points: 750 -> "7.5" ("7,5" in sv), 2000 -> "20". */
+  const percentText = (bp) => (bp ? S.money.typedPlain(String(Number((bp / 100).toFixed(2)))) : '');
 
   /** Minor units from typed money text in a currency, or null. Negative and blank are null. */
   function amountFromText(text, currency) {
     const str = String(text ?? '').trim();
     if (str === '') return null;
-    const v = S.money.parseMinor(str, currency);
+    const v = S.money.parseTyped(str, currency);
     return v !== null && v >= 0 ? v : null;
   }
 
-  /** Minor units as plain text for an input, such as 1250 -> "12.50" (no thousands separator). */
-  const amountText = (minor, currency) => S.money.plainMinor(minor, currency);
+  /** Minor units as text for an input, such as 1250 -> "12.50" ("12,50" in sv; no thousands separator). */
+  const amountText = (minor, currency) => S.money.typedMinor(minor, currency);
 
   /** A new line, optionally filled from a product (sku, name as description, price and tax rate). */
   function newLine(product, taxRateDefault = 0) {

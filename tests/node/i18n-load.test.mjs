@@ -7,7 +7,7 @@
 // Run: node --test tests/node/i18n-load.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import vm from 'node:vm';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -117,7 +117,9 @@ test('at(code) reads another language without switching the page; need(code, fal
   p.script('shared/biz/i18n/index.js');
   await p.I().ready();
   const I = p.I();
-  assert.deepEqual([...I.shipped('biz')], ['en', 'sv'], 'the languages the business tables ship');
+  const folders = readdirSync(path.join(ROOT, 'shared/biz/i18n'), { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name).sort();
+  assert.deepEqual([...I.shipped('biz')].sort(), folders, 'the languages the business tables ship: one per folder');
+  assert.ok(folders.includes('en') && folders.includes('sv'));
   assert.equal(I.shipped('nope').length, 0);
   const before = p.added.length;
   await I.need('sv', false, 'biz');

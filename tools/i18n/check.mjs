@@ -8,23 +8,47 @@
 //  - the shared areas (tables.mjs sharedAreas(): the ui parts and shared/<area>/i18n) as an app's, with their ns as the
 //    key prefix; the ui parts' index is UI_PARTS in shared/i18n/i18n.js; keys asked for anywhere must exist;
 //  - in every table: no key English lacks (a plural form 'key#few' needs 'key' in English and a CLDR category), no empty
-//    text, and the same {placeholders} as English (a plural form may leave one out, e.g. the count for n = 1).
+//    text, and the same {placeholders} as English (a plural form may leave one out, e.g. the count for n = 1);
+//  - every plural family English has ('key' with 'key#one') carries each form the language needs by CLDR
+//    (Intl.PluralRules: ar zero one two few many, ru one few many, ja none), 'key' itself being 'other';
+//  - no value writes "slop" (the products' word and the mascot's name) in another script: a transliteration (سلوبو,
+//    スロップ) would carry it past a white-label build's rename map and its leak scan, which both read Latin words.
+//    Keep it in Latin letters or leave it out.
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { apps, appTables, sharedTables, sharedAreas, pageAreas, langs, ROOT } from './tables.mjs';
 
 const CATS = new Set(['zero', 'one', 'two', 'few', 'many', 'other']);
 export const placeholders = (s) => [...String(s).matchAll(/\{(\w+)\}/g)].map((m) => m[1]).sort().join(',');
+/** "slop" written in the scripts of LANGS: Arabic, Hebrew, Cyrillic, Greek, Devanagari, Ethiopic, kana, Hangul, Han. */
+export const TRANSLIT = /(?<![\u0600-\u06FF])سل[وا]ب|סלופ|сл[оа]п|σλοπ|स्ल[ॉो]प|ስሎፕ|スロッ?プ|スロッポ|すろっぷ|슬롭|슬로포|斯洛普|斯洛波|斯罗普/i;
 const baseOf = (k) => (k.includes('#') ? k.slice(0, k.indexOf('#')) : k);
+/** The plural forms a language needs besides 'other' for the counts a UI shows (CLDR, through Intl): the categories
+ * some whole number 0..200 falls in. fr, es, it and pt 'many' (only for a million and up) is left to 'other'. */
+export function pluralForms(code) {
+  try {
+    const pr = new Intl.PluralRules(code), seen = new Set();
+    for (let n = 0; n <= 200; n++) seen.add(pr.select(n));
+    return pr.resolvedOptions().pluralCategories.filter((c) => c !== 'other' && seen.has(c));
+  } catch (e) { return []; }
+}
 
 /** Problems of one language table against English: [message]. */
-export function compare(label, en, tr, { requireAll = true } = {}) {
+export function compare(label, en, tr, { requireAll = true, code = label.split('/').pop() } = {}) {
   const out = [];
+  const forms = pluralForms(code);
+  for (const k of en.keys()) {
+    if (!k.endsWith('#one') || !tr.has(baseOf(k))) continue;
+    const b = baseOf(k);
+    for (const f of forms) if (!tr.has(`${b}#${f}`)) out.push(`${label}: missing the plural form ${b}#${f}`);
+  }
   for (const [k, v] of en) {
     if (k.includes('#')) continue;
     if (!tr.has(k)) { if (requireAll) out.push(`${label}: missing ${k}`); continue; }
     if (!tr.get(k).trim()) out.push(`${label}: ${k} is empty`);
     if (placeholders(tr.get(k)) !== placeholders(v)) out.push(`${label}: ${k} has {${placeholders(tr.get(k))}}, English has {${placeholders(v)}}`);
+    const tl = TRANSLIT.exec(tr.get(k));
+    if (tl) out.push(`${label}: ${k} writes "${tl[0]}": keep Slop names in Latin letters or leave them out`);
   }
   for (const [k, v] of tr) {
     const b = baseOf(k);

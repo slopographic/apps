@@ -24,13 +24,13 @@ window.SlopI18n && window.SlopI18n.add('de', {
 
   // editor/block-copy.js
   'pdf.ed.bc_no_text_page': 'Diese Seite enthält keinen Text zum Kopieren.',
-  'pdf.ed.bc_no_text_box': 'Kein Text in diesem Rahmen. Ziehen Sie über die Wörter.',
+  'pdf.ed.bc_no_text_box': 'Kein Text in diesem Rahmen. Über die Wörter ziehen.',
   'pdf.ed.bc_copied': '{n} Textzeilen kopiert.',
   'pdf.ed.bc_copied#one': '{n} Textzeile kopiert.',
-  'pdf.ed.bc_no_clipboard': 'Kein Zugriff auf die Zwischenablage. Wählen Sie die Seite aus und kopieren Sie direkt von der Seite.',
+  'pdf.ed.bc_no_clipboard': 'Kein Zugriff auf die Zwischenablage. Die Seite auswählen und direkt von der Seite kopieren.',
 
   // editor/callout.js
-  'pdf.ed.callout_tip': 'Klicken Sie jetzt, wo die Hinweislinie enden soll. Esc bricht ab.',
+  'pdf.ed.callout_tip': 'Jetzt dort klicken, wo die Hinweislinie enden soll. Esc bricht ab.',
   'pdf.ed.undo_add_callout': 'Legende hinzufügen',
 
   // editor/layers-ops.js
@@ -60,10 +60,10 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'pdf.ed.note_resolved': 'Erledigt',
   'pdf.ed.note_close': 'Kommentar schließen',
   'pdf.ed.note_close_tip': 'Schließen (Esc)',
-  'pdf.ed.note_your_name': 'Ihr Name',
+  'pdf.ed.note_your_name': 'Name',
   'pdf.ed.note_reply_ph': 'Antworten…',
   'pdf.ed.note_reply': 'Antworten',
-  'pdf.ed.note_name_first': 'Geben Sie zuerst Ihren Namen ein.',
+  'pdf.ed.note_name_first': 'Zuerst den Namen eingeben.',
   'pdf.ed.note_reopen': 'Wieder öffnen',
   'pdf.ed.note_resolve': 'Erledigen',
   'pdf.ed.note_type_ph': 'Kommentar eingeben',
@@ -76,7 +76,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'pdf.ed.obj_kind_form': 'Platzierte Grafik',
   'pdf.ed.obj_kind_vector': 'Vektorzeichnung',
   'pdf.ed.obj_kind_object': 'Objekt',
-  'pdf.ed.obj_on': 'Objekte: Klicken Sie auf ein Bild oder eine Zeichnung, um es zu verschieben, zu skalieren oder zu drehen.',
+  'pdf.ed.obj_on': 'Objekte: Auf ein Bild oder eine Zeichnung klicken, um es zu verschieben, zu skalieren oder zu drehen.',
   'pdf.ed.obj_off': 'Objektmodus ist aus.',
   'pdf.ed.obj_selected': 'Ausgewählt: {what}',
   'pdf.ed.obj_turn_tip': 'Drehen (Umschalt: 15°-Schritte)',
@@ -162,7 +162,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'pdf.ed.undo_delete_text': 'Text löschen',
 
   // editor/texthl.js
-  'pdf.ed.texthl_none': 'Kein Text unter der Auswahl. Ziehen Sie über die Textzeilen, um sie hervorzuheben.',
+  'pdf.ed.texthl_none': 'Kein Text unter der Auswahl. Über die Textzeilen ziehen, um sie hervorzuheben.',
   'pdf.ed.undo_add_texthl': 'Texthervorhebung hinzufügen',
 
   // editor/sel-lift.js
@@ -183,9 +183,9 @@ window.SlopI18n && window.SlopI18n.add('de', {
   // editor/edit-text.js
   'pdf.ed.edit_text': 'Text bearbeiten',
   'pdf.ed.et_off': 'Text bearbeiten ist aus.',
-  'pdf.ed.et_on_para': 'Text bearbeiten, Absätze: Klicken Sie auf einen Absatz, dann Doppelklick oder Eingabe zum Schreiben.',
-  'pdf.ed.et_on_lines': 'Text bearbeiten: Klicken Sie auf eine Textzeile, schreiben Sie, Eingabe übernimmt (Esc bricht ab).',
-  'pdf.ed.et_no_text_there': 'Dort ist kein Text. Klicken Sie auf eine Textzeile.',
+  'pdf.ed.et_on_para': 'Text bearbeiten, Absätze: Auf einen Absatz klicken, dann Doppelklick oder Eingabe zum Schreiben.',
+  'pdf.ed.et_on_lines': 'Text bearbeiten: Auf eine Textzeile klicken, schreiben, Eingabe übernimmt (Esc bricht ab).',
+  'pdf.ed.et_no_text_there': 'Dort ist kein Text. Auf eine Textzeile klicken.',
   'pdf.ed.et_no_text_page': 'Diese Seite enthält keinen bearbeitbaren Text.',
   'pdf.ed.et_font_failed': 'Die Schriftart konnte nicht eingerichtet werden: {err}',
   'pdf.ed.et_checking_font': 'Schriftart wird geprüft…',
@@ -207,8 +207,8 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'pdf.ed.pm_paragraphs': 'Absätze',
   'pdf.ed.pm_paragraphs_tip': 'Ganze Absätze mit Umbruch, wie ein Textrahmen',
   'pdf.ed.pm_done_tip': 'Text bearbeiten ausschalten (Strg+E)',
-  'pdf.ed.pm_hint_para': 'Klicken Sie auf einen Absatz, dann Doppelklick oder Eingabe zum Schreiben. Seite ziehen für neuen Umbruch, Rahmen ziehen zum Verschieben.',
-  'pdf.ed.pm_hint_lines': 'Klicken Sie auf eine Textzeile und schreiben Sie; Eingabe übernimmt, Esc bricht ab.',
+  'pdf.ed.pm_hint_para': 'Auf einen Absatz klicken, dann Doppelklick oder Eingabe zum Schreiben. Seite ziehen für neuen Umbruch, Rahmen ziehen zum Verschieben.',
+  'pdf.ed.pm_hint_lines': 'Auf eine Textzeile klicken und schreiben; Eingabe übernimmt, Esc bricht ab.',
   'pdf.ed.pm_frame': 'Absatzrahmen. Eingabe bearbeitet den Text, Esc lässt ihn los.',
   'pdf.ed.pm_drag_width': 'Ziehen, um die Breite zu ändern',
   'pdf.ed.pm_tag': 'Absatz · {align}',
@@ -221,7 +221,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'pdf.ed.undo_move_para': 'Absatz verschieben',
   'pdf.ed.undo_resize_para': 'Absatzgröße ändern',
   'pdf.ed.pm_setup_failed': 'Dieser Absatz konnte nicht eingerichtet werden: {err}',
-  'pdf.ed.pm_no_text_there': 'Dort ist kein Text. Klicken Sie auf einen Absatz.',
+  'pdf.ed.pm_no_text_there': 'Dort ist kein Text. Auf einen Absatz klicken.',
 
   // editor/sel-actions.js
   'pdf.ed.undo_highlight_text': 'Text hervorheben',
@@ -237,12 +237,12 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'pdf.ed.removed_strike': 'Durchstreichung entfernt.',
   'pdf.ed.sel_no_text': 'Kein Text unter der Auswahl.',
   'pdf.ed.sel_copied': 'Ausgewählter Text kopiert.',
-  'pdf.ed.sel_copy_failed': 'Kopieren fehlgeschlagen. Drücken Sie Strg+C, während der Text ausgewählt ist.',
+  'pdf.ed.sel_copy_failed': 'Kopieren fehlgeschlagen. Strg+C drücken, während der Text ausgewählt ist.',
   'pdf.ed.undo_remove_text': 'Text entfernen',
   'pdf.ed.text_removed': 'Text entfernt. Rückgängig holt ihn zurück.',
   'pdf.ed.undo_mark_redaction': 'Zum Schwärzen markieren',
-  'pdf.ed.marked_redaction': '{n} Bereiche zum Schwärzen markiert. Wenden Sie sie im Werkzeug Schwärzen an.',
-  'pdf.ed.marked_redaction#one': '{n} Bereich zum Schwärzen markiert. Wenden Sie ihn im Werkzeug Schwärzen an.',
+  'pdf.ed.marked_redaction': '{n} Bereiche zum Schwärzen markiert. Die Markierungen im Werkzeug Schwärzen anwenden.',
+  'pdf.ed.marked_redaction#one': '{n} Bereich zum Schwärzen markiert. Die Markierung im Werkzeug Schwärzen anwenden.',
 
   // editor/sel-annot.js
   'pdf.ed.an_text': 'Textfeld',

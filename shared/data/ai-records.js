@@ -15,9 +15,11 @@
   const log = [];   // { kind: 'created' | 'updated', collection, id, before }
 
   const fieldsOf = (c) => { const d = D().schema.def(c); if (!d) throw new Error(`No collection “${c}”`); return d.fields; };
-  /** "12.50", 12.5, "$1,200" → minor units in the currency (2 decimals unless the currency says otherwise). */
+  /** "12.50", 12.5, "$1,200" → minor units in the currency (2 decimals unless the currency says otherwise). Tool
+   *  arguments are locale-independent: a dot is the decimal point and a comma only groups thousands, so "12,50" is refused
+   *  rather than guessed (money.parseMinor, strict; never the page's language). */
   function minor(v, cur) {
-    const s = String(v).replace(/[^\d.,-]/g, '').replace(/,(?=\d{3}\b)/g, '').replace(',', '.');
+    const s = String(v).replace(/[^\d.,-]/g, '').replace(/,(?=\d{3}\b)/g, '');
     const m = D().money.parseMinor(s, cur);
     if (m == null) throw new Error(`“${v}” is not an amount`);
     return m;

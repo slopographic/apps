@@ -30,7 +30,7 @@
     const cur = ($('jCur').value || 'USD').trim().toUpperCase();
     let dr = 0, cr = 0, bad = false;
     for (const r of formRows()) {
-      const d = S.money.parseMinor(r.debit.trim() || '0', cur), c = S.money.parseMinor(r.credit.trim() || '0', cur);
+      const d = S.money.parseTyped(r.debit.trim() || '0', cur), c = S.money.parseTyped(r.credit.trim() || '0', cur);   // typed in the page's language
       if (d === null || c === null) { bad = true; continue; }
       dr += d; cr += c;
     }
