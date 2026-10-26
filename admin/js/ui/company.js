@@ -10,9 +10,14 @@
   const $ = (id) => document.getElementById(id);
   const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
 
+  // A render reads the stored profile, then fills the form. A save (or a newer render) while it reads makes what it read
+  // old: it then leaves the form alone, so it cannot put the values from before the save back (the form went stale).
+  let gen = 0;
   async function render() {
     if (document.activeElement && document.activeElement.closest && document.activeElement.closest('#cForm')) return;
+    const mine = ++gen;
     const s = await NS.util.settings();
+    if (mine !== gen) return;
     const f = NS.profile.asForm(s);
     $('cName').value = f.companyName;
     $('cAddress').value = f.address;
@@ -26,6 +31,7 @@
   }
 
   async function save() {
+    gen++;   // a render still reading has the profile from before this save
     $('cMsg').textContent = '';
     const r = await NS.profile.save({ companyName: $('cName').value, address: $('cAddress').value, taxNumber: $('cTax').value,
       defaultCurrency: $('cCur').value, locale: $('cLocale').value, defaultTaxRate: $('cRate').value, docLang: $('cDocLang').value });
