@@ -4,5 +4,5 @@ window.SlopI18n && window.SlopI18n.source({
   ns: 'img3d',
   base: ((document.currentScript || {}).src || '').replace(/[^/]*$/, ''),
   parts: ['app', 'tour'],
-  langs: ['en', 'sv'],
+  langs: ['ar', 'de', 'en', 'es', 'fr', 'ja', 'pt-BR', 'sv', 'zh-CN'],
 });

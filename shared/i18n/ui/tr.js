@@ -98,6 +98,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'ui.cmd.on': '(açık)',
   'ui.cmd.no_match': '“{q}” ile eşleşen komut yok',
   'ui.cmd.results': '{n} sonuç',
+  'ui.cmd.results#one': '{n} sonuç',
   'ui.cmd.no_results': 'Sonuç yok',
   'ui.cmd.fab_tip': 'Komut ara ({key})',
   'ui.cmd.recent': 'Son kullanılanlar',
@@ -130,6 +131,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'ui.cmd.import_title': 'Kısayolları içe aktar',
   'ui.cmd.import_other': 'Bu dosyada “{app}” için kısayollar var. Yine de buraya aktarılsın mı?',
   'ui.cmd.imported': '{n} kısayol içe aktarıldı',
+  'ui.cmd.imported#one': '{n} kısayol içe aktarıldı',
   'ui.cmd.import_failed': 'Kısayollar içe aktarılamadı',
   'ui.cmd.keys_file': 'bir kısayol dosyası (.json)',
   // guided tours (shared/tour): the step panel, the engine, the homepage's tour list and the palette command
@@ -173,12 +175,14 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'ui.intake.unreadable': 'okunamadı',
   'ui.intake.ready': 'Hazır',
   'ui.intake.added': '{n} dosya eklendi',
+  'ui.intake.added#one': '{n} dosya eklendi',
   'ui.intake.nothing_added': 'Hiçbir şey eklenmedi',
   'ui.intake.no_files': 'Eklenecek dosya yok',
   'ui.intake.why_more': '{why} ve {n} tane daha',
   'ui.intake.skipped': '{head}, {n} atlandı: {why}',
   'ui.intake.nothing_why': 'Hiçbir şey eklenmedi: {why}',
   'ui.intake.drop_to_add': '{n} dosya eklemek için bırakın',
+  'ui.intake.drop_to_add#one': '{n} dosya eklemek için bırakın',
   'ui.intake.refused': '{label} ({n} reddedilecek)',
   // SlopOuttake (shared/intake/outtake.js): the Open in… menu
   'ui.outtake.opened_in': 'Şurada açıldı: {app}',
@@ -218,6 +222,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'ui.tabs.save_title': '“{name}” belgesini Slop Drive’a kaydet',
   'ui.tabs.saved': 'Slop Drive’a kaydedildi: {name}',
   'ui.tabs.blank': '{n} sekmenin bu cihazda kayıtlı içeriği yoktu, bu yüzden boş açıldı.',
+  'ui.tabs.blank#one': 'Bu cihazda kayıtlı içeriği olmayan bir sekme vardı, bu yüzden boş açıldı.',
   // view modes (shared/viewmode/viewmode.js)
   'ui.viewmode.full': 'Tam',
   'ui.viewmode.focus': 'Odak',

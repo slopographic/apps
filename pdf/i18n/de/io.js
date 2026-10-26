@@ -80,16 +80,16 @@ window.SlopI18n && window.SlopI18n.add('de', {
 
   // io/edit-log.js
   'pdf.io.log_found_title': 'Gespeicherte Änderungen gefunden',
-  'pdf.io.log_found_body': 'Slop PDF hat {n} Änderungen an „{name}“ auf diesem Gerät aufbewahrt. Wenden Sie sie auf diese Datei an oder verwerfen Sie sie. Speichern oder Exportieren schreibt in jedem Fall eine neue PDF.',
-  'pdf.io.log_found_body#one': 'Slop PDF hat {n} Änderung an „{name}“ auf diesem Gerät aufbewahrt. Wenden Sie sie auf diese Datei an oder verwerfen Sie sie. Speichern oder Exportieren schreibt in jedem Fall eine neue PDF.',
+  'pdf.io.log_found_body': 'Slop PDF hat {n} Änderungen an „{name}“ auf diesem Gerät aufbewahrt. Sie lassen sich auf diese Datei anwenden oder verwerfen. Speichern oder Exportieren schreibt in jedem Fall eine neue PDF.',
+  'pdf.io.log_found_body#one': 'Slop PDF hat {n} Änderung an „{name}“ auf diesem Gerät aufbewahrt. Sie lässt sich auf diese Datei anwenden oder verwerfen. Speichern oder Exportieren schreibt in jedem Fall eine neue PDF.',
   'pdf.io.log_discard': 'Verwerfen',
   'pdf.io.log_replay': 'Anwenden',
   'pdf.io.log_replayed': 'Gespeicherte Änderungen anwenden',
 
   // io/export.js
   'pdf.io.no_pages': 'Es gibt keine Seiten zum Exportieren.',
-  'pdf.io.redact_pending': '{n} Bereiche sind zum Schwärzen markiert, aber noch nicht geschwärzt. Öffnen Sie Schwärzen und wählen Sie „Schwärzungen anwenden“ oder entfernen Sie die Markierungen.',
-  'pdf.io.redact_pending#one': '{n} Bereich ist zum Schwärzen markiert, aber noch nicht geschwärzt. Öffnen Sie Schwärzen und wählen Sie „Schwärzungen anwenden“ oder entfernen Sie die Markierung.',
+  'pdf.io.redact_pending': '{n} Bereiche sind zum Schwärzen markiert, aber noch nicht geschwärzt. Schwärzen öffnen und „Schwärzungen anwenden“ wählen oder die Markierungen entfernen.',
+  'pdf.io.redact_pending#one': '{n} Bereich ist zum Schwärzen markiert, aber noch nicht geschwärzt. Schwärzen öffnen und „Schwärzungen anwenden“ wählen oder die Markierung entfernen.',
   'pdf.io.source_missing': 'Eine Quelldatei fehlt.',
   'pdf.io.locked': '„{name}“ verwendet eine Verschlüsselung, die Slop PDF nicht entfernen kann ({why}), daher lassen sich die Seiten nicht exportieren.',
 

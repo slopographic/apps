@@ -32,6 +32,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'pdf.find.rep_unplaced': 'تعذّر تحديد الموضع بدقة: لم يُستبدل',
   'pdf.find.rep_status': '{matches} · {n} محدد',
   'pdf.find.rep_matches': '{n} تطابق',
+  'pdf.find.rep_matches#zero': 'لا توجد تطابقات',
   'pdf.find.rep_matches#one': 'تطابق واحد',
   'pdf.find.rep_matches#two': 'تطابقان',
   'pdf.find.rep_matches#few': '{n} تطابقات',

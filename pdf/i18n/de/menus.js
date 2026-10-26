@@ -63,9 +63,9 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'pdf.menu.about': 'Info zu Slop PDF & Datenschutz',
   'pdf.menu.agents': 'KI-Agenten…',
   'pdf.menu.about_title': 'Info zu Slop PDF',
-  'pdf.menu.about_p1': 'Slop PDF ist ein kostenloser PDF-Editor, der vollständig in Ihrem Browser läuft. Ihre Dateien werden nie hochgeladen: Sie werden auf diesem Gerät gelesen, bearbeitet und geschrieben.',
+  'pdf.menu.about_p1': 'Slop PDF ist ein kostenloser PDF-Editor, der vollständig im Browser läuft. Die Dateien werden nie hochgeladen: Sie werden auf diesem Gerät gelesen, bearbeitet und geschrieben.',
   'pdf.menu.about_p2': 'Basiert auf pdf.js (Mozilla, Apache-2.0) für die Darstellung und pdf-lib (MIT) zum Schreiben. Seiteninhalte werden unverändert kopiert, damit Text und Vektorgrafiken scharf bleiben; nur die optionale verlustbehaftete Komprimierung macht Seiten zu Bildern.',
-  'pdf.menu.about_p3': 'Das automatische Speichern hält Ihre Sitzung in der IndexedDB dieses Browsers, damit beim Neuladen nichts verloren geht. Ausschalten unter Datei ▸ Automatisch speichern.',
+  'pdf.menu.about_p3': 'Das automatische Speichern hält die Sitzung in der IndexedDB dieses Browsers, damit beim Neuladen nichts verloren geht. Ausschalten unter Datei ▸ Automatisch speichern.',
   'pdf.menu.about_p4': 'Änderungen bleiben auf diesem Gerät; Speichern oder Exportieren schreibt eine neue PDF.',
   'pdf.menu.about_ok': 'Super',
 
