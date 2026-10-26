@@ -4,5 +4,5 @@ window.SlopI18n && window.SlopI18n.source({
   ns: 'workflows',
   base: ((document.currentScript || {}).src || '').replace(/[^/]*$/, ''),
   parts: ['run', 'tool'],
-  langs: ['en', 'es', 'pt-BR', 'sv'],
+  langs: ['en', 'es', 'fr', 'pt-BR', 'sv'],
 });

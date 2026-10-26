@@ -4,5 +4,5 @@ window.SlopI18n && window.SlopI18n.source({
   ns: 'vector',
   base: ((document.currentScript || {}).src || '').replace(/[^/]*$/, ''),
   parts: ['actions', 'dialogs', 'messages', 'panels', 'tools', 'tour', 'ui'],
-  langs: ['en', 'es', 'pt-BR', 'sv'],
+  langs: ['en', 'es', 'fr', 'pt-BR', 'sv'],
 });

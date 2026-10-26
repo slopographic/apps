@@ -4,5 +4,5 @@ window.SlopI18n && window.SlopI18n.source({
   ns: 'press',
   base: ((document.currentScript || {}).src || '').replace(/[^/]*$/, ''),
   parts: ['app', 'commands', 'commands2', 'controlbar', 'core', 'dialogs', 'export', 'help', 'io', 'menus', 'panels', 'props', 'status', 'styles', 'templates', 'toolbar'],
-  langs: ['en', 'es', 'pt-BR', 'sv'],
+  langs: ['en', 'es', 'fr', 'pt-BR', 'sv'],
 });

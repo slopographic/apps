@@ -4,5 +4,5 @@ window.SlopI18n && window.SlopI18n.source({
   ns: 'ledger',
   base: ((document.currentScript || {}).src || '').replace(/[^/]*$/, ''),
   parts: ['page', 'views'],
-  langs: ['en', 'es', 'pt-BR', 'sv'],
+  langs: ['en', 'es', 'fr', 'pt-BR', 'sv'],
 });

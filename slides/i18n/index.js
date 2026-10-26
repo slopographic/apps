@@ -4,5 +4,5 @@ window.SlopI18n && window.SlopI18n.source({
   ns: 'slides',
   base: ((document.currentScript || {}).src || '').replace(/[^/]*$/, ''),
   parts: ['app', 'commands', 'edit', 'io', 'panels', 'tour'],
-  langs: ['en', 'es', 'pt-BR', 'sv'],
+  langs: ['en', 'es', 'fr', 'pt-BR', 'sv'],
 });
