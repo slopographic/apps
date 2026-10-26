@@ -86,7 +86,8 @@
       list.find((r) => r.dataset.value === 'sv').click();
       await waitFor(() => html(f).getAttribute('lang') === 'sv', { timeout: 5000 });
       expect(html(f).getAttribute('dir')).toBe('ltr');
-      expect(D(f).querySelector('.sh-switch .slop-hbtn-txt').textContent).toBe('Appar');
+      // the Swedish tables load on the choice (lazily): the words follow as soon as they are in
+      await waitFor(() => D(f).querySelector('.sh-switch .slop-hbtn-txt').textContent === 'Appar', { timeout: 5000 });
       expect(D(f).querySelector('.sh-theme').getAttribute('aria-label')).toBe('Tema');
       expect(D(f).querySelector('.sn-bell').title).toBe('Aviseringar');
       expect(D(f).querySelector('.sh-lang').textContent.trim()).toBe('SV');
