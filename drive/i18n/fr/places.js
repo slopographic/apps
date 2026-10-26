@@ -60,7 +60,7 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'drive.prov.some_skipped': 'Certains éléments n’ont pas été copiés',
   'drive.prov.not_copied': 'Non copié',
   'drive.prov.not_copied_lc': 'n’a pas pu être copié',
-  'drive.prov.not_uploaded': 'Non envoyé',
+  'drive.prov.not_uploaded': 'Non téléversé',
   'drive.prov.files_failed': 'Certains fichiers n’ont pas pu être copiés',
   'drive.prov.state_prompt': 'Autoriser l’accès',
   'drive.prov.state_denied': 'Accès refusé',
