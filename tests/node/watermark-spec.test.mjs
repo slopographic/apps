@@ -5,6 +5,7 @@
 // Covers: shared/watermark/spec.js, shared/watermark/spec-layout.js, shared/watermark/spec-convert.js
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import './ui-i18n-en.mjs';   // the shared components' words (shared/i18n/ui), as a page has them
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);

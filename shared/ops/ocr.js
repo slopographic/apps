@@ -6,6 +6,7 @@
  *              workflow never downloads it by itself, it says where to get it. */
 import { register } from './registry.js';
 import { scripts, abortable, stem } from './load.js';
+import { t, opt } from './i18n.js';
 
 const g = globalThis;
 const AI = ['aitools/model-registry.js', 'aitools/models.js', 'aitools/support.js', 'aitools/common.js'];
@@ -15,7 +16,7 @@ const OUT = { pdf: 'pdf', txt: 'txt', md: 'md' };
 async function engine() {
   await scripts(AI, () => !!(g.SlopAITools && g.SlopAIManager));
   const status = await g.SlopAIManager.status(MODEL);
-  if (status === 'needs-download') throw new Error('The text model is not installed yet. Open Slop OCR and press Get more once; then this step can run.');
+  if (status === 'needs-download') throw new Error(t('ui.ops.ocr.no_model'));
   await g.SlopAITools.ensure(MODEL);
   return g.SlopAITools;
 }
@@ -37,9 +38,8 @@ async function read(files, o, ctx = {}) {
 }
 
 export const OCR_OPS = register([
-  { id: 'ocr.read', label: 'Read text (OCR)', group: 'Text', from: ['png', 'jpg', 'webp', 'bmp', 'gif', 'pdf'], mode: 'each', out: (k, o) => OUT[o.output] || 'pdf',
-    description: 'Reads the text in photos and scans on this device: a searchable PDF, plain text or Markdown.',
+  { id: 'ocr.read', group: 'Text', from: ['png', 'jpg', 'webp', 'bmp', 'gif', 'pdf'], mode: 'each', out: (k, o) => OUT[o.output] || 'pdf',
     keywords: ['ocr', 'searchable pdf', 'scan to text', 'read text', 'recognise'], engine: 'ocr',
-    options: [{ key: 'output', type: 'select', label: 'Make', value: 'pdf', options: [['pdf', 'Searchable PDF'], ['txt', 'Plain text'], ['md', 'Markdown']] }],
+    options: [opt('ui.ops.ocr.output', { key: 'output', type: 'select', value: 'pdf', options: ['pdf', 'txt', ['md', 'Markdown']] })],
     run: read },
 ], { app: 'ocr', label: 'Slop OCR' });

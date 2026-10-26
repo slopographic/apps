@@ -5,6 +5,7 @@
  * removeOf(choice, cats) is the category set for each choice; the categories themselves are SlopClean's (tags.js CATS). */
 import { register } from './registry.js';
 import { scripts } from './load.js';
+import { opt } from './i18n.js';
 
 const g = globalThis;
 const FILES = ['clean/js/core/bytes.js', 'clean/js/core/tags.js', 'clean/js/core/xmp.js', 'clean/js/core/tiff.js', 'clean/js/core/jpeg.js',
@@ -26,10 +27,8 @@ async function strip(files, o) {
 }
 
 export const CLEAN_OPS = register([
-  { id: 'clean.metadata', label: 'Remove metadata (EXIF, GPS)', group: 'Pictures', from: ['jpg', 'png', 'webp'], mode: 'each', out: (k) => k,
-    description: 'Removes the location, camera, serial numbers, dates and other hidden fields without re-encoding the picture.',
+  { id: 'clean.metadata', group: 'Pictures', from: ['jpg', 'png', 'webp'], mode: 'each', out: (k) => k,
     keywords: ['exif', 'gps', 'metadata', 'privacy', 'location', 'strip', 'clean'],
-    options: [{ key: 'remove', type: 'select', label: 'Remove', value: 'app', options: [
-      ['app', 'Everything but the colour profile and print size'], ['location', 'Only the location (GPS)'], ['all', 'Everything, colour profile too']] }],
+    options: [opt('ui.ops.clean.remove', { key: 'remove', type: 'select', value: 'app', options: ['app', 'location', 'all'] })],
     run: strip },
 ], { app: 'clean', label: 'SlopClean' });

@@ -8,6 +8,8 @@
  *   kindOfBlob(blob)               the kind a written Blob really is; stem(name) the name without its extension
  *   pictureKind(kind)              the kind a picture keeps when written again (jpg stays jpg; bmp, gif, svg become png)
  *   abortable(signal)              throws an AbortError when the signal has fired */
+import { t } from './i18n.js';
+
 export const ROOT = new URL('../../', import.meta.url).href;
 export const IMAGE_IN = ['png', 'jpg', 'webp', 'bmp', 'gif', 'avif'];
 export const MIME = { png: 'image/png', jpg: 'image/jpeg', webp: 'image/webp', avif: 'image/avif' };
@@ -52,7 +54,7 @@ export async function decode(blob) {
   let bmp;
   try { bmp = await createImageBitmap(blob, { imageOrientation: 'from-image' }); } catch (e) {
     const url = URL.createObjectURL(blob), img = new Image();
-    try { img.src = url; await img.decode(); bmp = img; } catch (x) { throw new Error('This file could not be read as a picture.'); } finally { URL.revokeObjectURL(url); }
+    try { img.src = url; await img.decode(); bmp = img; } catch (x) { throw new Error(t('ui.ops.load.not_picture')); } finally { URL.revokeObjectURL(url); }
   }
   const w = bmp.width || bmp.naturalWidth, h = bmp.height || bmp.naturalHeight;
   const c = canvas(w, h);
@@ -68,7 +70,7 @@ export function encode(c, kind, quality = 0.92) {
   return new Promise((resolve, reject) => c.toBlob((b) => {
     if (b && b.type === type) resolve(b);
     else if (type !== 'image/png') encode(c, 'png').then(resolve, reject);
-    else reject(new Error('The picture could not be written.'));
+    else reject(new Error(t('ui.ops.load.not_written')));
   }, type, quality));
 }
 

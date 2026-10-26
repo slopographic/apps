@@ -6,6 +6,10 @@
  * saves it to Slop Drive first. No DOM: the engine and the writer run in any page and in Node. */
 import { register } from './registry.js';
 import { stem } from './load.js';
+import { t, opt } from './i18n.js';
+
+// The data format, for the step's description (the assistant reads it): code, not words
+const TABLE_HELP = '{ "sheets": [{ "name": "Sales", "rows": [["Item", "Qty"], ["Tea", 2], ["Total", "=SUM(B2:B2)"]] }] }';   // i18n-ignore: format
 
 async function toSpreadsheet(files, o = {}) {
   const f = files[0], text = (await f.file.text()).replace(/^\uFEFF/, '');
@@ -15,15 +19,14 @@ async function toSpreadsheet(files, o = {}) {
   const fmt = o.format || 'xlsx', name = `${stem(f.name)}.${fmt}`;
   const blob = fmt === 'stab' ? N.toBlob(wb) : fmt === 'csv' ? new Blob([CSV.toCsv(wb.sheets[0])], { type: 'text/csv' }) : await X.toXlsx(wb);
   const out = [{ name, blob, kind: fmt }];
-  out.info = `${wb.sheets.length} sheet${wb.sheets.length === 1 ? '' : 's'}: ${wb.sheets.map((s) => s.name).join(', ')}.`;
+  out.info = t('ui.ops.tables.sheets', { n: wb.sheets.length, names: wb.sheets.map((s) => s.name).join(', ') });
   return out;
 }
 
 export const CREATE_TABLES = register([
-  { id: 'table-data-to-spreadsheet', label: 'Table data to spreadsheet', group: 'Create', from: ['json', 'csv', 'txt'], mode: 'each', ext: 'xlsx',
-    description: 'Make a spreadsheet with Slop Tables from rows of values and formulas. Save the data to Slop Drive first (e.g. table.json: '
-      + '{ "sheets": [{ "name": "Sales", "rows": [["Item", "Qty"], ["Tea", 2], ["Total", "=SUM(B2:B2)"]] }] }, or a CSV), then run this on it.',
+  { id: 'table-data-to-spreadsheet', group: 'Create', from: ['json', 'csv', 'txt'], mode: 'each', ext: 'xlsx',
+    get description() { return t('ui.ops.step.table_data_to_spreadsheet_desc', { format: TABLE_HELP }); },
     keywords: ['spreadsheet', 'excel', 'xlsx', 'table', 'sheet', 'workbook', 'create', 'make', 'generate', 'data', 'csv'],
-    options: [{ key: 'format', type: 'select', label: 'Make', value: 'xlsx', options: [['xlsx', 'Excel (.xlsx)'], ['stab', 'Slop Tables (.stab)'], ['csv', 'CSV (first sheet)']] }],
+    options: [opt('ui.ops.create.make', { key: 'format', type: 'select', value: 'xlsx', options: [['xlsx', 'Excel (.xlsx)'], ['stab', 'Slop Tables (.stab)'], 'csv'] })],
     run: toSpreadsheet },
 ], { app: 'tables', label: 'Slop Tables' });

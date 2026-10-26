@@ -8,6 +8,7 @@
  * workflow…" sends its current settings (slopisolate/js/ui/commands.js). */
 import { register } from './registry.js';
 import { scripts, notice, abortable, decode, encode, stem, IMAGE_IN } from './load.js';
+import { t, opt, like } from './i18n.js';
 
 const CUTOUT = ['shared/cutout/pipeline.js', 'shared/cutout/models.js', 'shared/cutout/cutout.js'];
 const LOOK = ['slopisolate/js/core/util.js', 'slopisolate/js/render/compose.js'];
@@ -23,19 +24,20 @@ async function ready(withModel) {
 function gate(model) {
   const M = g.SlopCutoutModels, m = M && M.get(model);
   return notice('slopisolate', {
-    title: 'Remove backgrounds on this device',
-    lines: ['Remove background runs an AI model in your browser, the one SlopIsolate uses.'],
-    downloads: m ? [{ name: `${m.name} model (${m.arch.split(' (')[0]})`, bytes: m.bytes }] : [],
+    title: t('ui.ops.isolate.notice_title'),
+    lines: [t('ui.ops.isolate.notice_line')],
+    downloads: m ? [{ name: t('ui.ops.isolate.notice_model', { name: m.name, arch: m.arch.split(' (')[0] }), bytes: m.bytes }] : [],
   });
 }
 
-const MODEL = { key: 'model', type: 'select', label: 'Model', value: 'fast', options: [['fast', 'Fast (small, products and simple shapes)'], ['quality', 'Quality (sharper edges, bigger download)'], ['portrait', 'Portrait (people and hair)']] };
-const BACKGROUND = { key: 'background', type: 'select', label: 'Background', value: 'transparent', options: [['transparent', 'See-through (PNG)'], ['color', 'A colour'], ['blur', 'The photo, blurred']] };
-const COLOR = { key: 'color', type: 'color', label: 'Background colour', value: '#ffffff', hint: 'Used when the background is a colour.' };
-const BLUR = { key: 'blur', type: 'number', label: 'Blur (px)', min: 0, max: 200, value: 24, hint: 'Used when the background is the blurred photo.' };
-const SHADOW = { key: 'shadow', type: 'checkbox', label: 'Drop shadow under the subject', value: false };
-const CROP = { key: 'crop', type: 'checkbox', label: 'Crop to the subject', value: false };
-const PAD = { key: 'pad', type: 'number', label: 'Space around the subject (px)', min: 0, max: 2000, value: 8, hint: 'Used with Crop to the subject.' };
+const B = 'ui.ops.isolate.';
+const MODEL = opt(B + 'model', { key: 'model', type: 'select', value: 'fast', options: ['fast', 'quality', 'portrait'] });
+const BACKGROUND = opt(B + 'background', { key: 'background', type: 'select', value: 'transparent', options: ['transparent', 'color', 'blur'] });
+const COLOR = opt(B + 'color', { key: 'color', type: 'color', value: '#ffffff', hint: true });
+const BLUR = opt(B + 'blur', { key: 'blur', type: 'number', min: 0, max: 200, value: 24, hint: true });
+const SHADOW = opt(B + 'shadow', { key: 'shadow', type: 'checkbox', value: false });
+const CROP = opt(B + 'crop', { key: 'crop', type: 'checkbox', value: false });
+const PAD = opt(B + 'pad', { key: 'pad', type: 'number', min: 0, max: 2000, value: 8, hint: true });
 
 /** SlopIsolate's look (state.js DEFAULT_LOOK shape) from these options. */
 export function toLook(o = {}) {
@@ -80,13 +82,11 @@ async function background(files, o) {
 }
 
 export const ISOLATE_OPS = register([
-  { id: 'slopisolate.remove-bg', label: 'Remove background', group: 'Pictures', from: IMAGE_IN, ext: 'png', mode: 'each', engine: 'cutout',
-    description: 'Cuts the subject out with an AI model on this device. See-through PNG, or a colour or blurred background.',
+  { id: 'slopisolate.remove-bg', group: 'Pictures', from: IMAGE_IN, ext: 'png', mode: 'each', engine: 'cutout',
     keywords: ['background remover', 'cut out', 'transparent', 'isolate', 'product photo'], notice: 'slopisolate',
     options: [MODEL, BACKGROUND, COLOR, BLUR, SHADOW, CROP, PAD], run: removeBg,
     fromApp: (s = {}) => fromLook(s.look || {}, s.model) },   // SlopIsolate's "Add to a workflow…" (shared/ops/flowdoc.js)
-  { id: 'slopisolate.background', label: 'Background colour', group: 'Pictures', from: ['png', 'webp', 'avif', 'gif'], ext: 'png', mode: 'each',
-    description: 'Puts a see-through picture (a cut-out) on a colour, with an optional drop shadow.',
+  { id: 'slopisolate.background', group: 'Pictures', from: ['png', 'webp', 'avif', 'gif'], ext: 'png', mode: 'each',
     keywords: ['white background', 'fill transparency', 'flatten', 'backdrop'],
-    options: [{ ...COLOR, hint: '' }, SHADOW, CROP, PAD], run: background },
+    options: [like(COLOR, { hint: '' }), SHADOW, CROP, PAD], run: background },
 ], { app: 'slopisolate', label: 'SlopIsolate' });

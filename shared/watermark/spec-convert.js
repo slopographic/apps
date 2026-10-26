@@ -70,27 +70,33 @@
 
   /* ---------- Slop Workflows: the Watermark step's options ---------- */
   const pct = (v) => Math.round(v * 1000) / 10;
+  // the labels read the language each time (keys ui.wm.*, shared/i18n/ui/<code>/watermark.js): getters, never constants
+  const tr = (k, v) => { const I = root.SlopI18n; return I && I.t ? I.t(k, v) : k; };
+  const get = (o, f, fn) => Object.defineProperty(o, f, { get: fn, enumerable: true, configurable: true });
+  /** An option labelled by a key (and hinted by hint, a key), or by a field of the spec's table (the same words). */
+  const lab = (o, key, hint) => { get(o, 'label', typeof key === 'function' ? key : () => tr(key)); if (hint) get(o, 'hint', typeof hint === 'function' ? hint : () => tr(hint)); return o; };
+  const ch = (v, k) => get([v], 1, () => tr(k));
   const sel = (f) => ({ type: 'select', options: f.options });
   const range = (f, o) => Object.assign({ type: 'number', min: pct(f.min), max: pct(f.max), step: 0.5, value: pct(f.value) }, o);
-  const FONT_CSS = Object.keys(FONTS).map((k) => [FONTS[k].css, FONTS[k].label]);
+  const FONT_CSS = Object.keys(FONTS).map((k) => get([FONTS[k].css], 1, () => FONTS[k].label));
   const OPTIONS = [
-    { key: 'mark', type: 'select', label: 'Watermark', value: 'text', options: [['text', 'Text'], ['logo', 'Logo'], ['both', 'Logo and text']] },
-    { key: 'text', type: 'text', label: F.text.label, value: F.text.value, placeholder: F.text.value },
-    { key: 'logo', type: 'image', label: 'Logo picture', value: '', hint: 'A PNG with a see-through background looks best. Kept inside the workflow.' },
-    { key: 'font', type: 'select', label: F.font.label, value: FONT_CSS[0][0], options: FONT_CSS },
-    { key: 'colour', type: 'color', label: 'Text colour', value: F.colour.value },
-    { key: 'shadow', type: 'checkbox', label: F.shadow.label, value: F.shadow.value },
-    range(S.SIZE.text, { key: 'size', label: 'Text size (% of the shorter side)' }),
-    range(S.SIZE.logo, { key: 'logoSize', label: 'Logo size (% of the shorter side)', step: 1 }),
-    { key: 'opacity', type: 'range', label: 'Opacity (%)', min: pct(F.opacity.min), max: pct(F.opacity.max), value: pct(F.opacity.value) },
-    Object.assign({ key: 'position', label: F.position.label, value: F.position.value }, sel(F.position)),
-    range(F.margin, { key: 'margin', label: 'Margin (% of the shorter side)' }),
-    { key: 'rotate', type: 'number', label: 'Rotation (degrees)', min: F.rotate.min, max: F.rotate.max, value: F.rotate.value },
-    { key: 'tile', type: 'checkbox', label: 'Repeat across the picture (tile)', value: F.tile.value },
-    { key: 'pages', type: 'text', label: 'PDF pages', value: '', placeholder: 'all', hint: F.pages.hint },
-    { key: 'from', type: 'number', label: 'Video: from (seconds)', min: F.from.min, max: F.from.max, step: 0.1, value: 0 },
-    { key: 'to', type: 'number', label: 'Video: until (seconds, 0 is the end)', min: F.to.min, max: F.to.max, step: 0.1, value: 0 },
-    { key: 'spec', type: 'watermark', label: 'My watermarks', value: '', hint: 'A watermark saved in any Slopographic app. When one is chosen, it is used instead of the settings above.' },
+    lab({ key: 'mark', type: 'select', value: 'text', options: [ch('text', 'ui.wm.mark_text'), ch('logo', 'ui.wm.mark_logo'), ch('both', 'ui.wm.mark_both')] }, 'ui.wm.mark'),
+    lab({ key: 'text', type: 'text', value: F.text.value, placeholder: F.text.value }, () => F.text.label),
+    lab({ key: 'logo', type: 'image', value: '' }, 'ui.wm.opt_logo', 'ui.wm.opt_logo_hint'),
+    lab({ key: 'font', type: 'select', value: FONT_CSS[0][0], options: FONT_CSS }, () => F.font.label),
+    lab({ key: 'colour', type: 'color', value: F.colour.value }, 'ui.wm.opt_colour'),
+    lab({ key: 'shadow', type: 'checkbox', value: F.shadow.value }, () => F.shadow.label),
+    lab(range(S.SIZE.text, { key: 'size' }), 'ui.wm.opt_size'),
+    lab(range(S.SIZE.logo, { key: 'logoSize', step: 1 }), 'ui.wm.opt_logo_size'),
+    lab({ key: 'opacity', type: 'range', min: pct(F.opacity.min), max: pct(F.opacity.max), value: pct(F.opacity.value) }, 'ui.wm.opt_opacity'),
+    lab(Object.assign({ key: 'position', value: F.position.value }, sel(F.position)), () => F.position.label),
+    lab(range(F.margin, { key: 'margin' }), 'ui.wm.opt_margin'),
+    lab({ key: 'rotate', type: 'number', min: F.rotate.min, max: F.rotate.max, value: F.rotate.value }, 'ui.wm.opt_rotate'),
+    lab({ key: 'tile', type: 'checkbox', value: F.tile.value }, 'ui.wm.opt_tile'),
+    lab({ key: 'pages', type: 'text', value: '', placeholder: 'all' }, 'ui.wm.opt_pages', () => F.pages.hint),   // i18n-ignore: 'all' is a page range word the parser reads
+    lab({ key: 'from', type: 'number', min: F.from.min, max: F.from.max, step: 0.1, value: 0 }, 'ui.wm.opt_from'),
+    lab({ key: 'to', type: 'number', min: F.to.min, max: F.to.max, step: 0.1, value: 0 }, 'ui.wm.opt_to'),
+    lab({ key: 'spec', type: 'watermark', value: '' }, 'ui.wm.opt_spec', 'ui.wm.opt_spec_hint'),
   ];
   const DEF = Object.fromEntries(OPTIONS.map((o) => [o.key, o.value]));
 

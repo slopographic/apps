@@ -8,14 +8,15 @@
  * are in the headers of slides/js/core/outline.js and docs/js/model/build.js. */
 import { register } from './registry.js';
 import { stem } from './load.js';
+import { t, opt } from './i18n.js';
 
-const SLIDE_SIZES = [['', 'As the outline says (16:9)'], ['16:9', '16:9'], ['4:3', '4:3'], ['16:10', '16:10'], ['A4', 'A4']];
-const THEMES = [['', 'As the outline says (Slopographic)'], ['slop', 'Slopographic'], ['paper', 'Paper'], ['midnight', 'Midnight'], ['editorial', 'Editorial'],
-  ['aurora', 'Aurora'], ['terminal', 'Terminal'], ['sunset', 'Sunset'], ['chalk', 'Chalkboard']];
+const SLIDE_SIZES = ['', ['16:9', '16:9'], ['4:3', '4:3'], ['16:10', '16:10'], ['A4', 'A4']];
+const THEMES = ['', ['slop', 'Slopographic'], 'paper', 'midnight', 'editorial', 'aurora', 'terminal', 'sunset', 'chalk'];
 const IN = ['json', 'md', 'txt'];
 const text = async (f) => (await f.file.text()).replace(/^\uFEFF/, '');
-const SLIDE_HELP = 'JSON { "title", "subtitle", "theme", "slides": [{ "title", "bullets": [..], "notes", "layout" }] }, or Markdown: "# Title", "## Slide", "- bullet", "> note".';
-const DOC_HELP = 'JSON { "title", "subtitle", "blocks": [{ "type": "heading", "text", "level" } | { "type": "paragraph", "text" } | { "type": "bullets", "items": [..] } | { "type": "table", "rows": [[..]] }] }, or Markdown.';
+// The outline formats, for the step's description (the assistant reads it): code, not words
+const SLIDE_HELP = 'JSON { "title", "subtitle", "theme", "slides": [{ "title", "bullets": [..], "notes", "layout" }] }; Markdown: "# Title", "## Slide", "- bullet", "> note".';   // i18n-ignore: format
+const DOC_HELP = 'JSON { "title", "subtitle", "blocks": [{ "type": "heading", "text", "level" } | { "type": "paragraph", "text" } | { "type": "bullets", "items": [..] } | { "type": "table", "rows": [[..]] }] }; Markdown.';   // i18n-ignore: format
 
 let slidesP = null;
 /** window.SS with the outline builder and both writers. */
@@ -38,16 +39,16 @@ async function toPresentation(files, o = {}) {
   if (o.size) outline.size = o.size;
   if (!outline.title) outline.title = stem(f.name);
   const deck = S.outline.build(outline), fmt = o.format || 'pptx', name = `${stem(f.name)}.${fmt}`;
-  const n = `${deck.slides.length} slide${deck.slides.length === 1 ? '' : 's'}.`;
+  const n = t('ui.ops.create.slides_n', { n: deck.slides.length });
   if (fmt === 'pdf') {
     const r = await S.pdfExport.write(deck);
     const out = [{ name, blob: r.blob, kind: 'pdf' }];
-    out.info = n + (r.missing.length ? ` Some text needs a font that was not downloaded (${r.missing.join(', ')}).` : '');
+    out.info = r.missing.length ? t('ui.ops.create.missing_fonts', { slides: n, fonts: r.missing.join(', ') }) : n;
     return out;
   }
   if (fmt === 'sslide') return Object.assign([{ name, blob: new Blob([JSON.stringify(deck)], { type: 'application/x-slop-slides' }), kind: 'sslide' }], { info: n });
   const r = await S.pptx.write(deck);
-  return Object.assign([{ name, blob: r.blob, kind: 'pptx' }], { info: n + ' Speaker notes stay in the .sslide and PDF outputs only.' });
+  return Object.assign([{ name, blob: r.blob, kind: 'pptx' }], { info: t('ui.ops.create.notes_pptx', { slides: n }) });
 }
 
 async function toDocument(files, o = {}) {
@@ -67,21 +68,19 @@ async function toDocument(files, o = {}) {
 }
 
 export const CREATE_SLIDES = register([
-  { id: 'outline-to-presentation', label: 'Outline to presentation', group: 'Create', from: IN, mode: 'each', ext: 'pptx',
-    description: 'Make a presentation from an outline with Slop Slides (title slide, then one slide per item with its bullet points and speaker notes). '
-      + 'Save the outline to Slop Drive first (e.g. outline.json), then run this on it. ' + SLIDE_HELP,
+  { id: 'outline-to-presentation', group: 'Create', from: IN, mode: 'each', ext: 'pptx',
+    get description() { return t('ui.ops.step.outline_to_presentation_desc', { format: SLIDE_HELP }); },
     keywords: ['presentation', 'slides', 'deck', 'powerpoint', 'pptx', 'keynote', 'outline', 'create', 'make', 'generate', 'slideshow'],
-    options: [{ key: 'format', type: 'select', label: 'Make', value: 'pptx', options: [['pptx', 'PowerPoint (.pptx)'], ['pdf', 'PDF'], ['sslide', 'Slop Slides (.sslide)']] },
-      { key: 'theme', type: 'select', label: 'Theme', value: '', options: THEMES }, { key: 'size', type: 'select', label: 'Slide size', value: '', options: SLIDE_SIZES }],
+    options: [opt('ui.ops.create.make', { key: 'format', type: 'select', value: 'pptx', options: [['pptx', 'PowerPoint (.pptx)'], ['pdf', 'PDF'], ['sslide', 'Slop Slides (.sslide)']] }),
+      opt('ui.ops.create.theme', { key: 'theme', type: 'select', value: '', options: THEMES }), opt('ui.ops.create.size', { key: 'size', type: 'select', value: '', options: SLIDE_SIZES })],
     run: toPresentation },
 ], { app: 'slides', label: 'Slop Slides' });
 
 export const CREATE_DOCS = register([
-  { id: 'outline-to-document', label: 'Outline to document', group: 'Create', from: IN, mode: 'each', ext: 'docx',
-    description: 'Make a document from an outline with Slop Docs (title, headings, paragraphs, lists, tables). Save the outline to Slop Drive first '
-      + '(e.g. outline.json or report.md), then run this on it. ' + DOC_HELP,
+  { id: 'outline-to-document', group: 'Create', from: IN, mode: 'each', ext: 'docx',
+    get description() { return t('ui.ops.step.outline_to_document_desc', { format: DOC_HELP }); },
     keywords: ['document', 'word', 'docx', 'report', 'letter', 'essay', 'outline', 'create', 'make', 'generate', 'write'],
-    options: [{ key: 'format', type: 'select', label: 'Make', value: 'docx', options: [['docx', 'Word (.docx)'], ['pdf', 'PDF'], ['md', 'Markdown'], ['sdoc', 'Slop Docs (.sdoc)']] },
-      { key: 'page', type: 'select', label: 'Page size', value: '', options: [['', 'As the outline says (A4)'], ['A4', 'A4'], ['Letter', 'US Letter']] }],
+    options: [opt('ui.ops.create.make', { key: 'format', type: 'select', value: 'docx', options: [['docx', 'Word (.docx)'], ['pdf', 'PDF'], ['md', 'Markdown'], ['sdoc', 'Slop Docs (.sdoc)']] }),
+      opt('ui.ops.create.page', { key: 'page', type: 'select', value: '', options: ['', ['A4', 'A4'], 'Letter'] })],
     run: toDocument },
 ], { app: 'docs', label: 'Slop Docs' });

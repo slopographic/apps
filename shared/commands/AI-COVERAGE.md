@@ -13,26 +13,26 @@ Covered: 62 of 62 apps. Full suite: 62 of 62 apps.
 
 | App | Create | Add | Edit | Export | Operations | State | Snapshot | Driven | Covered | Full |
 |---|---|---|---|---|---|---|---|---|---|---|
-| PhotoSlop (`photoslop`) | ✓ 1 | ✓ 7 | ✓ 34 | ✓ 1 | 2 | ✓ own | ✓ page | ✓ | yes | yes |
+| PhotoSlop (`photoslop`) | ✓ 1 | ✓ 7 | ✓ 34 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | SlopVector (`vector`) | ✓ 1 | ✓ 3 | ✓ 10 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
-| Slop PDF (`pdf`) | ✓ 1 | ✓ 5 | ✓ 12 | ✓ 2 | 2 | ✓ own | ✓ page | ✓ | yes | yes |
+| Slop PDF (`pdf`) | ✓ 1 | ✓ 5 | ✓ 12 | ✓ 2 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | SlopLabel (`label`) | ✓ 1 | ✓ 5 | ✓ 3 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | SlopIsolate (`cutout`) | ✓ 1 | ✓ 1 | ✓ 1 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop AI Tools (`aitools`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Reports (`reports`) | ✓ 1 | ✓ 1 | ✓ 5 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
-| Slop OCR (`ocr`) | ✓ 1 | ✓ 1 | ✓ 2 | ✓ 1 | 1 | ✓ own | ✓ page | ✓ | yes | yes |
+| Slop OCR (`ocr`) | ✓ 1 | ✓ 1 | ✓ 2 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop HTML to PDF (`html2pdf`) | ✓ 1 | ✓ 1 | ✓ 1 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
-| SlopClean (`clean`) | ✓ 1 | ✓ 1 | ✓ 2 | ✓ 1 | 1 | ✓ own | ✓ page | ✓ | yes | yes |
+| SlopClean (`clean`) | ✓ 1 | ✓ 1 | ✓ 2 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop AI (`ai`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
-| Slop Docs (`docs`) | ✓ 2 | ✓ 6 | ✓ 4 | ✓ 1 | 1 | ✓ own | ✓ page | ✓ | yes | yes |
-| Slop Tables (`tables`) | ✓ 3 | ✓ 3 | ✓ 8 | ✓ 1 | 1 | ✓ own | ✓ page | ✓ | yes | yes |
-| Slop Slides (`slides`) | ✓ 2 | ✓ 4 | ✓ 6 | ✓ 1 | 1 | ✓ own | ✓ page | ✓ | yes | yes |
+| Slop Docs (`docs`) | ✓ 2 | ✓ 6 | ✓ 4 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
+| Slop Tables (`tables`) | ✓ 3 | ✓ 3 | ✓ 8 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
+| Slop Slides (`slides`) | ✓ 2 | ✓ 4 | ✓ 6 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Press (`press`) | ✓ 2 | ✓ 4 | ✓ 5 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Reel Remix (`remix`) | ✓ 1 | ✓ 1 | ✓ 12 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
-| SlopCut (`slopedit`) | ✓ 2 | ✓ 9 | ✓ 22 | ✓ 1 | 4 | ✓ own | ✓ page | ✓ | yes | yes |
-| Slop Resize (`resize`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 | 1 | ✓ own | ✓ page | ✓ | yes | yes |
-| Slop Upscale (`upscale`) | ✓ 1 | ✓ 1 | ✓ 2 | ✓ 1 | 1 | ✓ own | ✓ page | ✓ | yes | yes |
-| Slop Watermark (`watermark`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 | 1 | ✓ own | ✓ page | ✓ | yes | yes |
+| SlopCut (`slopedit`) | ✓ 2 | ✓ 9 | ✓ 22 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
+| Slop Resize (`resize`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
+| Slop Upscale (`upscale`) | ✓ 1 | ✓ 1 | ✓ 2 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
+| Slop Watermark (`watermark`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Contacts (`contacts`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | ✓ records | ✓ page | ✓ | yes | yes |
 | Slop Inventory (`inventory`) | ✓ 1 | ✓ 1 | ✓ 4 | ✓ 1 |  | ✓ records | ✓ page | ✓ | yes | yes |
 | Slop Orders (`orders`) | ✓ 2 | ✓ 1 | ✓ 3 | ✓ 2 |  | ✓ records | ✓ page | ✓ | yes | yes |
@@ -49,14 +49,14 @@ Covered: 62 of 62 apps. Full suite: 62 of 62 apps.
 | Slop Hex (`hex`) | ✓ 1 | ✓ 2 | ✓ 4 | ✓ 2 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop EML (`eml`) | ✓ 1 | ✓ 2 | ✓ 4 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Checksum (`checksum`) | ✓ 1 | ✓ 2 | ✓ 1 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
-| Slop Compare (`diff`) | ✓ 1 | ✓ 2 | ✓ 2 | ✓ 1 | 1 | ✓ own | ✓ page | ✓ | yes | yes |
+| Slop Compare (`diff`) | ✓ 1 | ✓ 2 | ✓ 2 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slopnodes (`nodes`) | ✓ 2 | ✓ 1 | ✓ 4 | ✓ 2 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Serial counter (`serials`) | ✓ 1 | ✓ 3 | ✓ 4 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
-| Slop Transcribe (`transcribe`) | ✓ 1 | ✓ 1 | ✓ 6 | ✓ 1 | 1 | ✓ own | ✓ page | ✓ | yes | yes |
+| Slop Transcribe (`transcribe`) | ✓ 1 | ✓ 1 | ✓ 6 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Recorder (`recorder`) | ✓ 1 | ✓ 1 | ✓ 6 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Signature (`signature`) | ✓ 1 | ✓ 2 | ✓ 5 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | QR SLOP (`qr`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
-| Slop Colors (`colors`) | ✓ 1 | ✓ 2 | ✓ 7 | ✓ 1 | 1 | ✓ own | ✓ page | ✓ | yes | yes |
+| Slop Colors (`colors`) | ✓ 1 | ✓ 2 | ✓ 7 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Font (`fontcreator`) | ✓ 1 | ✓ 6 | ✓ 17 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Workflows (`workflows`) | ✓ 1 | ✓ 1 | ✓ 7 | ✓ 2 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | File convert (`convert`) | ✓ 1 | ✓ 1 | ✓ 2 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
@@ -84,7 +84,6 @@ Covered: 62 of 62 apps. Full suite: 62 of 62 apps.
 - add: `add_svg_layer`, `add_text`, `brush_stroke`, `click_tool`, `draw_shape`, `new_layer`, `use_tool`
 - edit: `add_noise`, `auto_enhance`, `brightness_contrast`, `canvas_size`, `crop`, `crop_to_selection`, `curves`, `delete_layer`, `denoise`, `desaturate`, `detect_tilt`, `duplicate_layer`, `fill`, `filter`, `flip`, `gaussian_blur`, `gradient_fill`, `hue_saturation`, `image_size`, `invert_selection`, `levels`, `motion_blur`, `portrait_retouch`, `remove_background`, `remove_object`, `rotate`, `select_all`, `select_subject`, `set_layer`, `sharpen`, `straighten`, `transform_layer`, `upscale`, `vignette`
 - export: `export`
-- operations: `photoslop.auto-enhance`, `photoslop.portrait`
 
 ### SlopVector
 
@@ -99,7 +98,6 @@ Covered: 62 of 62 apps. Full suite: 62 of 62 apps.
 - add: `add_image`, `add_pages`, `add_shape`, `add_text`, `insert_pdf`
 - edit: `arrange_page_object`, `delete_page_object`, `delete_pages`, `duplicate_page_object`, `fill_form_field`, `move_page`, `move_page_object`, `replace_page_image`, `resize_page_object`, `rotate_page_object`, `rotate_pages`, `set_metadata`
 - export: `export_pdf`, `export_pdf_contents`
-- operations: `pdf.compress`, `pdf.extract`
 
 ### SlopLabel
 
@@ -135,7 +133,6 @@ Covered: 62 of 62 apps. Full suite: 62 of 62 apps.
 - add: `add_files`
 - edit: `read_text`, `set_text`
 - export: `export_text`
-- operations: `ocr.read`
 
 ### Slop HTML to PDF
 
@@ -150,7 +147,6 @@ Covered: 62 of 62 apps. Full suite: 62 of 62 apps.
 - add: `add_files`
 - edit: `remove_file`, `set_options`
 - export: `export_cleaned`
-- operations: `clean.metadata`
 
 ### Slop AI
 
@@ -165,7 +161,6 @@ Covered: 62 of 62 apps. Full suite: 62 of 62 apps.
 - add: `insert_heading`, `insert_image`, `insert_list`, `insert_page_break`, `insert_paragraph`, `insert_table`
 - edit: `find_replace`, `format_text`, `set_alignment`, `set_paragraph_style`
 - export: `export_document`
-- operations: `outline-to-document`
 
 ### Slop Tables
 
@@ -173,7 +168,6 @@ Covered: 62 of 62 apps. Full suite: 62 of 62 apps.
 - add: `add_column`, `add_rows`, `add_sheet`
 - edit: `delete_column`, `delete_rows`, `fill_column`, `filter_rows`, `format_cells`, `set_cell`, `set_range`, `sort_column`
 - export: `export_workbook`
-- operations: `table-data-to-spreadsheet`
 
 ### Slop Slides
 
@@ -181,7 +175,6 @@ Covered: 62 of 62 apps. Full suite: 62 of 62 apps.
 - add: `add_image`, `add_shape`, `add_slide`, `add_text_box`
 - edit: `apply_theme`, `delete_slide`, `move_slide`, `set_layout`, `set_notes`, `set_text`
 - export: `export_presentation`
-- operations: `outline-to-presentation`
 
 ### Slop Press
 
@@ -203,7 +196,6 @@ Covered: 62 of 62 apps. Full suite: 62 of 62 apps.
 - add: `add_captions`, `add_clip`, `add_effect_layer`, `add_graphic`, `add_marker`, `add_music`, `add_title`, `add_transition`, `import_media`
 - edit: `check_edit_list`, `delete_clips`, `duplicate_clip`, `edit_title`, `fit_frame`, `look_at_frame`, `move_clip`, `picture_in_picture`, `random_edit`, `reframe`, `select_all`, `select_clips`, `set_colour`, `set_in_out`, `set_sequence`, `set_source_range`, `set_speed`, `set_track`, `set_transform`, `set_volume`, `split_clip`, `trim_clip`
 - export: `export_video`
-- operations: `slopedit.edl`, `slopedit.reframe`, `slopedit.captions`, `slopedit.reel`
 
 ### Slop Resize
 
@@ -211,7 +203,6 @@ Covered: 62 of 62 apps. Full suite: 62 of 62 apps.
 - add: `add_files`
 - edit: `resize_all`, `set_output_format`, `set_size`
 - export: `save_results`
-- operations: `resize.image`
 
 ### Slop Upscale
 
@@ -219,7 +210,6 @@ Covered: 62 of 62 apps. Full suite: 62 of 62 apps.
 - add: `add_file`
 - edit: `set_upscale`, `upscale`
 - export: `save_result`
-- operations: `upscale.image`
 
 ### Slop Watermark
 
@@ -227,7 +217,6 @@ Covered: 62 of 62 apps. Full suite: 62 of 62 apps.
 - add: `add_pictures`
 - edit: `apply_watermark`, `set_logo`, `set_watermark`
 - export: `save_results`
-- operations: `watermark.apply`
 
 ### Slop Contacts
 
@@ -347,7 +336,6 @@ Covered: 62 of 62 apps. Full suite: 62 of 62 apps.
 - add: `add_file`, `add_text`
 - edit: `compare`, `set_options`
 - export: `export_report`
-- operations: `diff.report`
 
 ### Slopnodes
 
@@ -369,7 +357,6 @@ Covered: 62 of 62 apps. Full suite: 62 of 62 apps.
 - add: `add_from_drive`
 - edit: `clear_files`, `correct_text`, `remove_file`, `select_file`, `stop`, `transcribe`
 - export: `save_transcript`
-- operations: `transcribe.text`
 
 ### Slop Recorder
 
@@ -398,7 +385,6 @@ Covered: 62 of 62 apps. Full suite: 62 of 62 apps.
 - add: `add_colors`, `add_from_picture`
 - edit: `check_contrast`, `convert_color`, `fix_contrast`, `make_palette`, `remove_color`, `rename_palette`, `set_color`
 - export: `export_palette`
-- operations: `colors.palette`
 
 ### Slop Font
 

@@ -8,6 +8,7 @@
  *   renameAll(names, pattern, { start, digits, date })  the pure part of Rename: unique names, extensions kept */
 import { register } from './registry.js';
 import { stem } from './load.js';
+import { t, opt } from './i18n.js';
 import { loadPdfLib } from '../../convert/js/core/lib.js';
 import { pdfToImages } from '../../convert/js/core/pdf-raster.js';
 import { imagesToPdf } from '../../convert/js/core/pdf-images.js';
@@ -34,7 +35,7 @@ async function rename(files, o) {
 }
 
 const pdfBlob = (bytes) => new Blob([bytes], { type: 'application/pdf' });
-const kb = (n) => (n < 1048576 ? `${Math.max(1, Math.round(n / 1024))} KB` : `${(n / 1048576).toFixed(1)} MB`);
+const kb = (n) => (n < 1048576 ? t('ui.ops.files.kb', { n: Math.max(1, Math.round(n / 1024)) }) : t('ui.ops.files.mb', { n: Math.round(n / 104857.6) / 10 }));
 
 async function compress(files, o, ctx = {}) {
   const f = files[0], src = new Uint8Array(await f.file.arrayBuffer());
@@ -50,38 +51,36 @@ async function compress(files, o, ctx = {}) {
     const { PDFDocument } = await loadPdfLib();
     let doc;
     try { doc = await PDFDocument.load(src, { updateMetadata: false }); } catch (e) {
-      throw new Error(/encrypt/i.test(String(e && e.message)) ? 'This PDF has a password. Remove it first.' : 'This is not a valid PDF, or it is damaged.');
+      throw new Error(/encrypt/i.test(String(e && e.message)) ? t('ui.ops.pdf.has_password') : t('ui.ops.pdf.not_pdf'));
     }
     bytes = await doc.save({ useObjectStreams: true });
   }
   if (bytes.length >= src.length) {
     const out = [{ name: f.name, blob: f.file, kind: 'pdf' }];
-    out.info = `${f.name} was already compact, so it is unchanged.`;
+    out.info = t('ui.ops.pdf.compact', { name: f.name });
     return out;
   }
   const out = [{ name: `${stem(f.name)}-compressed.pdf`, blob: pdfBlob(bytes), kind: 'pdf' }];
-  out.info = `${f.name}: ${kb(src.length)} → ${kb(bytes.length)}.`;
+  out.info = t('ui.ops.pdf.smaller', { name: f.name, from: kb(src.length), to: kb(bytes.length) });
   return out;
 }
 
 export const FILE_OPS = register([
-  { id: 'files.rename', label: 'Rename', group: 'Files', from: ['*'], mode: 'combine', out: (k) => k,
-    description: 'New file names from a pattern with the old name, a number and the date. The extension stays.',
+  { id: 'files.rename', group: 'Files', from: ['*'], mode: 'combine', out: (k) => k,
     keywords: ['rename', 'file names', 'numbering', 'batch rename'],
     options: [
-      { key: 'pattern', type: 'text', label: 'Pattern', value: '{name}-{n}', placeholder: '{name}-{n}', hint: '{name} the old name, {n} a number, {date} today.' },
-      { key: 'start', type: 'number', label: 'First number', min: 0, max: 1e6, value: 1 },
-      { key: 'digits', type: 'number', label: 'Digits (01, 001…)', min: 0, max: 8, value: 2 },
+      opt('ui.ops.files.pattern', { key: 'pattern', type: 'text', value: '{name}-{n}', placeholder: '{name}-{n}', hint: true }),
+      opt('ui.ops.files.start', { key: 'start', type: 'number', min: 0, max: 1e6, value: 1 }),
+      opt('ui.ops.files.digits', { key: 'digits', type: 'number', min: 0, max: 8, value: 2 }),
     ], run: rename },
-], { app: 'files', label: 'Files' });
+], { app: 'files', label: () => t('ui.ops.files.app') });
 
 export const PDF_OPS = register([
-  { id: 'pdf.compress', label: 'Compress PDF', group: 'PDF', from: ['pdf'], ext: 'pdf', mode: 'each',
-    description: 'Smaller PDFs: lossless keeps text and drawings; strong turns each page into a JPEG.',
+  { id: 'pdf.compress', group: 'PDF', from: ['pdf'], ext: 'pdf', mode: 'each',
     keywords: ['compress pdf', 'smaller', 'reduce size', 'optimise', 'shrink'],
     options: [
-      { key: 'mode', type: 'select', label: 'Compression', value: 'lossless', options: [['lossless', 'Lossless (text stays text)'], ['strong', 'Strong (pages become pictures)']] },
-      { key: 'dpi', type: 'select', label: 'Resolution (strong)', value: 110, options: [[72, '72 dpi (screen)'], [110, '110 dpi'], [150, '150 dpi (print)']] },
-      { key: 'quality', type: 'range', label: 'JPEG quality (strong)', min: 20, max: 95, value: 70 },
+      opt('ui.ops.pdf.mode', { key: 'mode', type: 'select', value: 'lossless', options: ['lossless', 'strong'] }),
+      opt('ui.ops.pdf.dpi', { key: 'dpi', type: 'select', value: 110, options: [72, [110, '110 dpi'], 150] }),
+      opt('ui.ops.pdf.quality', { key: 'quality', type: 'range', min: 20, max: 95, value: 70 }),
     ], run: compress },
 ], { app: 'pdf', label: 'Slop PDF' });

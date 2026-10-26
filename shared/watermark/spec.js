@@ -25,36 +25,42 @@
   'use strict';
   const VERSION = 1, MAX_LAYERS = 12;
   const POSITIONS = ['tl', 'tc', 'tr', 'ml', 'mc', 'mr', 'bl', 'bc', 'br'];
-  const POSITION_LABELS = { tl: 'Top left', tc: 'Top middle', tr: 'Top right', ml: 'Middle left', mc: 'Centre', mr: 'Middle right', bl: 'Bottom left', bc: 'Bottom middle', br: 'Bottom right' };
+  // Words through SlopI18n (shared/i18n/ui/<code>/watermark.js, keys ui.wm.*), read each time: getters, never constants
+  const tr = (k, v) => { const I = globalThis.SlopI18n; return I && I.t ? I.t(k, v) : k; };
+  const words = (o, map) => { for (const f of Object.keys(map)) Object.defineProperty(o, f, { get: () => tr(map[f]), enumerable: true, configurable: true }); return o; };
+  const choice = (v, k) => Object.defineProperty([v], 1, { get: () => tr(k), enumerable: true });
+  const POSITION_LABELS = words({}, Object.fromEntries(POSITIONS.map((p) => [p, 'ui.wm.pos_' + p])));
   /** The three font families: the CSS stack the canvas uses and the standard PDF font. */
   const FONTS = {
-    sans: { label: 'Sans serif', css: 'Inter Tight, system-ui, sans-serif', pdf: 'Helvetica' },
-    serif: { label: 'Serif', css: 'Georgia, serif', pdf: 'Times' },
-    mono: { label: 'Monospace', css: 'ui-monospace, Menlo, Consolas, monospace', pdf: 'Courier' },
+    sans: words({ css: 'Inter Tight, system-ui, sans-serif', pdf: 'Helvetica' }, { label: 'ui.wm.font_sans' }),
+    serif: words({ css: 'Georgia, serif', pdf: 'Times' }, { label: 'ui.wm.font_serif' }),
+    mono: words({ css: 'ui-monospace, Menlo, Consolas, monospace', pdf: 'Courier' }, { label: 'ui.wm.font_mono' }),
   };
   /** The size of each kind: a fraction of the shorter side (text: letter height; logo: width). */
   const SIZE = {
-    text: { label: 'Text size', min: 0.005, max: 0.4, step: 0.005, value: 0.045, pct: true },
-    logo: { label: 'Logo width', min: 0.02, max: 1, step: 0.01, value: 0.2, pct: true },
+    text: words({ min: 0.005, max: 0.4, step: 0.005, value: 0.045, pct: true }, { label: 'ui.wm.size_text' }),
+    logo: words({ min: 0.02, max: 1, step: 0.01, value: 0.2, pct: true }, { label: 'ui.wm.size_logo' }),
   };
-  /** Every other setting of a layer. pct: shown and typed as a percent. The panel and the Workflows options use this. */
+  /** Every other setting of a layer. pct: shown and typed as a percent. The panel and the Workflows options use this.
+   *  Each label is the key ui.wm.f_<field> (and the hint ui.wm.f_<field>_hint). */
   const FIELDS = {
-    text: { type: 'text', label: 'Text', value: '© Your name', max: 200 },
-    font: { type: 'select', label: 'Font', value: 'sans', options: Object.keys(FONTS).map((k) => [k, FONTS[k].label]) },
-    bold: { type: 'checkbox', label: 'Bold', value: true },
-    colour: { type: 'color', label: 'Colour', value: '#ffffff' },
-    shadow: { type: 'checkbox', label: 'Soft shadow behind the text', value: true },
-    opacity: { type: 'range', label: 'Opacity', min: 0, max: 1, step: 0.01, value: 0.5, pct: true },
-    position: { type: 'select', label: 'Position', value: 'br', options: POSITIONS.map((p) => [p, POSITION_LABELS[p]]) },
-    margin: { type: 'range', label: 'Space from the edge', min: 0, max: 0.3, step: 0.005, value: 0.03, pct: true },
-    dx: { type: 'range', label: 'Move across', min: -1, max: 1, step: 0.005, value: 0, pct: true },
-    dy: { type: 'range', label: 'Move down', min: -1, max: 1, step: 0.005, value: 0, pct: true },
-    rotate: { type: 'range', label: 'Rotation', min: -180, max: 180, step: 1, value: 0, unit: '°' },
-    tile: { type: 'checkbox', label: 'Repeat across the whole picture', value: false },
-    pages: { type: 'text', label: 'Pages', value: '', max: 120, hint: 'For PDFs. Empty is every page; or 1-3, 5, last, odd, even.' },
-    from: { type: 'number', label: 'From (seconds)', min: 0, max: 86400, step: 0.1, value: 0 },
-    to: { type: 'number', label: 'Until (seconds, 0 is the end)', min: 0, max: 86400, step: 0.1, value: 0 },
+    text: { type: 'text', value: '© Your name', max: 200 },   // i18n-ignore: the default mark is the person's content
+    font: { type: 'select', value: 'sans', options: Object.keys(FONTS).map((k) => choice(k, 'ui.wm.font_' + k)) },
+    bold: { type: 'checkbox', value: true },
+    colour: { type: 'color', value: '#ffffff' },
+    shadow: { type: 'checkbox', value: true },
+    opacity: { type: 'range', min: 0, max: 1, step: 0.01, value: 0.5, pct: true },
+    position: { type: 'select', value: 'br', options: POSITIONS.map((p) => choice(p, 'ui.wm.pos_' + p)) },
+    margin: { type: 'range', min: 0, max: 0.3, step: 0.005, value: 0.03, pct: true },
+    dx: { type: 'range', min: -1, max: 1, step: 0.005, value: 0, pct: true },
+    dy: { type: 'range', min: -1, max: 1, step: 0.005, value: 0, pct: true },
+    rotate: { type: 'range', min: -180, max: 180, step: 1, value: 0, unit: '°' },
+    tile: { type: 'checkbox', value: false },
+    pages: { type: 'text', value: '', max: 120 },
+    from: { type: 'number', min: 0, max: 86400, step: 0.1, value: 0 },
+    to: { type: 'number', min: 0, max: 86400, step: 0.1, value: 0 },
   };
+  for (const k of Object.keys(FIELDS)) words(FIELDS[k], k === 'pages' ? { label: 'ui.wm.f_pages', hint: 'ui.wm.f_pages_hint' } : { label: 'ui.wm.f_' + k });
 
   let seq = 0;
   const uid = () => 'l' + Date.now().toString(36).slice(-5) + (++seq).toString(36) + Math.random().toString(36).slice(2, 5);
@@ -107,17 +113,17 @@
   /** What stops the spec from drawing anything, in words for a person; '' when it is ready. */
   function check(spec) {
     const list = visible(spec);
-    if (!list.length) return (spec && spec.layers && spec.layers.length) ? 'Every layer is hidden. Show one to add it.' : 'Add some text or a logo.';
+    if (!list.length) return (spec && spec.layers && spec.layers.length) ? tr('ui.wm.check_hidden') : tr('ui.wm.check_empty');
     for (const L of list) {
-      if (L.kind === 'text' && !L.text.trim()) return 'Type the watermark text.';
-      if (L.kind === 'logo' && !L.logo) return 'Choose a logo picture.';
+      if (L.kind === 'text' && !L.text.trim()) return tr('ui.wm.check_text');
+      if (L.kind === 'logo' && !L.logo) return tr('ui.wm.check_logo');
       if (L.pages) { try { parsePages(L.pages, Infinity); } catch (e) { return e.message; } }
     }
     return '';
   }
   function label(L) {
-    if (L.kind === 'logo') return 'Logo' + (L.logoName ? ': ' + L.logoName : '');
-    return L.text.trim() ? '“' + L.text.trim().slice(0, 40) + '”' : 'Text (empty)';
+    if (L.kind === 'logo') return L.logoName ? tr('ui.wm.layer_logo_named', { name: L.logoName }) : tr('ui.wm.layer_logo');
+    return L.text.trim() ? tr('ui.wm.layer_text', { text: L.text.trim().slice(0, 40) }) : tr('ui.wm.layer_empty');
   }
 
   /** Page indices (0-based, sorted) a page range names, for n pages. Syntax: 2, 1-3, 4-, last, odd, even, all; comma
@@ -135,9 +141,9 @@
       if (p === 'even') { addAll((k) => k % 2 === 0); continue; }
       if (p === 'last') { if (finite && total > 0) out.add(total - 1); continue; }
       const m = /^(\d+)(?:\s*-\s*(\d+)?)?$/.exec(p);
-      if (!m) throw new Error('“' + p + '” is not a page number. Use numbers such as 2 or 1-3, or the words all, odd, even, last.');
+      if (!m) throw new Error(tr('ui.wm.pages_bad', { text: p }));
       const a = +m[1], b = m[2] != null ? +m[2] : (p.indexOf('-') >= 0 ? total : a);
-      if (a < 1 || b < a) throw new Error('“' + p + '” is not a valid page range.');
+      if (a < 1 || b < a) throw new Error(tr('ui.wm.pages_range', { text: p }));
       for (let k = a; k <= b && (finite ? k <= total : k <= a + 10000); k++) out.add(k - 1);
     }
     return Array.from(out).sort((x, y) => x - y);

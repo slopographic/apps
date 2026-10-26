@@ -17,11 +17,13 @@
   let ROOT = '';
   try { ROOT = SCRIPT && SCRIPT.src ? new URL('../../', SCRIPT.src).href : new URL('/', location.href).href; } catch (e) { ROOT = ''; }
   const toast = (m) => { if (g.SlopUI && g.SlopUI.toast) g.SlopUI.toast(m); };
+  // words: shared/i18n/ui/<code>/ops.js (read when a menu is built, so they follow the language)
+  const tr = (k) => (g.SlopI18n ? g.SlopI18n.t(k) : k);
 
   function open(o = {}) {
     return Promise.resolve().then(() => import(new URL('shared/ops/dialog.js', ROOT).href)).then((m) => m.open(o)).catch((e) => {
       console.warn(e);
-      toast('Workflows are not available offline. Open the page online once.');
+      toast(tr('ui.ops.entry.offline'));
       return null;
     });
   }
@@ -35,8 +37,8 @@
   }
   function menuItems(getFiles) {
     return [
-      { label: 'Run a workflow…', keywords: ['workflow', 'batch', 'pipeline'], act: async () => open({ files: [].concat((await getFiles()) || []), ask: false }) },
-      { label: 'Add to a workflow…', keywords: ['workflow', 'batch', 'pipeline'], act: () => addTo(getFiles) },
+      { label: tr('ui.cmd.workflow_dots'), keywords: ['workflow', 'batch', 'pipeline'], act: async () => open({ files: [].concat((await getFiles()) || []), ask: false }) },
+      { label: tr('ui.ops.entry.add_dots'), keywords: ['workflow', 'batch', 'pipeline'], act: () => addTo(getFiles) },
     ];
   }
   function register(addItems) { if (typeof addItems === 'function') addItems({ id: 'workflows', label: 'Slop Workflows', items: menuItems }); }
