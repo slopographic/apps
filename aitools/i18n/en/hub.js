@@ -64,4 +64,9 @@ window.SlopI18n && window.SlopI18n.add('en', {
   'aitools.sup.memory': 'This device reports {mem} GB of memory; this tool needs about {need} GB.',
   'aitools.first.title': 'Run this AI tool on this device',
   'aitools.first.line': 'This tool runs its model in your browser. The model is downloaded once and kept by this browser for next time.',
+  // the assistant's jobs on the status line (aitools/ai-commands.js, ai-jobs.js)
+  'aitools.job.working': '{tool}: working on {file}',
+  'aitools.job.done': '{tool}: done.',
+  'aitools.job.finding_person': 'Finding the person…',
+  'aitools.job.decoding': 'Decoding the audio…',
 });

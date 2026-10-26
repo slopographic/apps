@@ -96,4 +96,18 @@ window.SlopI18n && window.SlopI18n.add('en', {
   'ai.sys.get': 'Get',
   'ai.sys.can_run': 'What this device can run',
   'ai.sys.speeds': 'Speeds are estimates from the memory bandwidth benchmark; real numbers show in every chat reply.',
+  // the strength tags on a model card (shared/ai/catalog.js strengths)
+  'ai.models.tag_tiny': 'tiny',
+  'ai.models.tag_fast': 'fast',
+  'ai.models.tag_chat': 'chat',
+  'ai.models.tag_balanced': 'balanced',
+  'ai.models.tag_multilingual': 'multilingual',
+  'ai.models.tag_tools': 'tools',
+  'ai.models.tag_code': 'code',
+  'ai.models.tag_mini_apps': 'mini-apps',
+  'ai.models.tag_writing': 'writing',
+  'ai.models.tag_summaries': 'summaries',
+  'ai.models.tag_reasoning': 'reasoning',
+  'ai.models.tag_maths': 'maths',
+  'ai.models.tag_smartest': 'smartest',
 });

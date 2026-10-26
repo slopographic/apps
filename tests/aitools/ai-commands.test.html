@@ -50,6 +50,14 @@
       expect(await fails('set_options', { language: 'en' })).toMatch(/no language option/);
       v = await run('run_job', {});
       expect(v).toMatch(/40 × 30 PNG/);
+      expect(W.document.getElementById('status').textContent).toBe('Denoise: done.');   // aitools.job.done, not a key
+      // in Swedish the status line is Swedish (it was English); the replies to the assistant stay English
+      W.SlopI18n.set('sv');
+      await waitFor(() => W.SlopI18n.get() === 'sv' && W.SlopI18n.t('aitools.job.done', { tool: 'x' }) === 'x: klart.', { timeout: 10000 });
+      expect(await run('run_job', {})).toMatch(/40 × 30 PNG/);
+      expect(W.document.getElementById('status').textContent).toBe('Brusreducering: klart.');
+      W.SlopI18n.set('en');
+      await waitFor(() => W.SlopI18n.t('aitools.job.done', { tool: 'x' }) === 'x: done.', { timeout: 10000 });
       v = await run('export_result', { to: 'drive' });
       const id = /id ([^)\s]+)\)/.exec(v)[1], rec = await window.SlopHub.get(id);
       expect(rec.name).toBe('noisy-ai-test-denoised.png');

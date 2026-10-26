@@ -3,6 +3,8 @@
 // better model after a first read.
 // Run: node --test tests/node/ocr-models.test.mjs
 // Covers: aitools/ocr-models.js, shared/ocr/languages.js, shared/ocr/family.js, shared/ocr/suggest.js
+// Covers: aitools/speech-models.js, aitools/model-registry.js, shared/models/catalog.js, shared/speech/languages.js
+// Covers: shared/i18n/ui/en/models2.js, shared/i18n/ui/sv/models2.js
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
@@ -12,13 +14,16 @@ const O = require('../../aitools/ocr-models.js');
 const C = require('../../shared/cdn/assets.js');
 const R = require('../../aitools/model-registry.js');
 globalThis.SlopOcrModels = O;
-// SlopI18n with the English words of the model chooser (shared/i18n/ui/en/models.js), as on a page
+// SlopI18n with the English words of the model chooser (shared/i18n/ui/en/models.js, models2.js), as on a page
 require('../../shared/i18n/i18n.js');
 globalThis.SlopI18n = globalThis.SlopI18n.create({ defaultLang: 'en', profile: null });
 globalThis.window = globalThis.window || globalThis;
 require('../../shared/i18n/ui/en/models.js');
+require('../../shared/i18n/ui/en/models2.js');
 const { ocrLanguages, ocrLanguageName } = await import('../../shared/ocr/languages.js');
 const { ocrFamily } = await import('../../shared/ocr/family.js');
+const SP = await import('../../shared/speech/languages.js');
+const W = require('../../aitools/speech-models.js');
 const { suggestModel, scriptsIn, unread } = await import('../../shared/ocr/suggest.js');
 
 const ids = (list) => list.map((r) => r.model.id);
@@ -150,4 +155,46 @@ test('the chooser words follow the language (shared/i18n/ui/sv/models.js): the f
     assert.equal(L.filter('ident')[0].code, 'auto');
   } finally { globalThis.SlopI18n = en; }
   assert.equal(ocrFamily(O).title, 'Language and model');
+});
+
+test('the models\' words and the language names follow the language (models2.js, Intl.DisplayNames), search in both', () => {
+  // English: the tables' words and the English names, sorted in English
+  assert.equal(O.byId('ppocr-v5-cyrillic').name, 'Cyrillic script (PP-OCRv5)');
+  assert.equal(O.SCRIPTS.latin.name, 'Latin');
+  assert.match(O.byId('ppocr-v6-small').arch, /PP-OCRv6 small recogniser \(Latin, Chinese and Japanese\)/);
+  assert.equal(R.byId('mobilenetv3-l100').name, 'MobileNetV3 Large 100 (ImageNet tags)');
+  assert.equal(W.byId('kb-whisper-base').maker, 'KBLab, National Library of Sweden');
+  assert.equal(SP.languageName('de'), 'German');
+  assert.equal(SP.languageName('auto'), 'Detect automatically');
+  const en = globalThis.SlopI18n;
+  globalThis.SlopI18n = en.create({ defaultLang: 'sv', profile: null });
+  try {
+    require('../../shared/i18n/ui/sv/models.js');
+    require('../../shared/i18n/ui/sv/models2.js');
+    // the bug: notes, names, script names and makers stayed English in Swedish
+    assert.equal(O.byId('ppocr-v5-cyrillic').name, 'Kyrillisk skrift (PP-OCRv5)');
+    assert.equal(O.byId('ppocr-v4').note.slice(0, 22), 'Kinesiska och engelska');
+    assert.equal(O.SCRIPTS.cyrillic.name, 'kyrillisk skrift');
+    assert.match(O.byId('ppocr-v5-greek').arch, /igenkännare \(grekiska\)/);
+    assert.match(W.byId('kb-whisper-small').note, /bästa svenskan/);
+    assert.equal(W.byId('kb-whisper-small').maker, 'KBLab, Kungliga biblioteket');
+    assert.match(W.byId('whisper-base').arch, /flerspråkig \(74M parametrar\)/);
+    assert.equal(R.byId('modnet-portrait').name, 'MODNet porträttmaskning (delas med Slop Isolate)');
+    // language names in Swedish (Intl.DisplayNames), English where it has none, Swedish order, search in both
+    assert.equal(SP.languageName('de'), 'tyska');
+    assert.equal(SP.languageName('jw'), 'javanesiska');
+    const L = ocrLanguages(O);
+    assert.equal(L.name('zh'), 'förenklad kinesiska');
+    assert.equal(L.name('zh-Hant'), 'traditionell kinesiska');
+    assert.deepEqual(L.filter('tysk').map((l) => l.code), ['de']);
+    assert.deepEqual(L.filter('german').map((l) => l.code), ['de'], 'the English name still finds it');
+    assert.equal(L.filter('svenska')[0].name, 'Svenska', 'a list name starts with a capital');
+    const names = SP.shownLanguages().map((l) => l.name);
+    assert.deepEqual(names, names.slice().sort(new Intl.Collator('sv').compare), 'sorted in Swedish');
+    assert.ok(names.includes('Tyska') && !names.includes('German'));
+    assert.deepEqual(SP.filterLanguages('hungarian').map((l) => l.code), ['hu']);
+    assert.deepEqual(SP.filterLanguages('ungersk').map((l) => l.code), ['hu']);
+  } finally { globalThis.SlopI18n = en; }
+  assert.equal(O.byId('ppocr-v5-cyrillic').name, 'Cyrillic script (PP-OCRv5)', 'back in English');
+  assert.equal(ocrLanguages(O).name('zh'), 'Chinese (simplified)');
 });

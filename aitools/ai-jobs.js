@@ -14,6 +14,8 @@
   const one = (src) => new Promise((res, rej) => root.document.head.append(Object.assign(root.document.createElement('script'),
     { src: new URL(src, base).href, async: false, onload: res, onerror: () => rej(new Error('Could not load ' + src)) })));
   const IMAGE = /^image\//;
+  /** The status words the person reads (aitools/i18n/<code>/hub.js). */
+  const L = (k) => (root.SlopI18n ? root.SlopI18n.t(k) : k);
 
   const TOOLS = {
     denoise: { name: 'Denoise', accept: IMAGE, models: () => [] },
@@ -56,7 +58,7 @@
     async portrait(job, onStatus) {
       if (!root.SlopCutout) for (const f of ['../shared/cutout/pipeline.js', '../shared/cutout/models.js', '../shared/cutout/cutout.js']) await one(f);
       if (!root.SlopAIPortrait) await one('portrait/compose.js');
-      onStatus('Finding the person…');
+      onStatus(L('aitools.job.finding_person'));
       const img = await T().image(job.file.blob);
       const r = await root.SlopCutout.removeBackground(job.file.blob, { model: 'portrait', keep: false });
       const c = root.SlopAIPortrait.compose(img.bitmap, img.w, img.h, { mask: r.mask, maskW: r.width, maskH: r.height }, job.options.strength == null ? 60 : job.options.strength);
@@ -78,7 +80,7 @@
       return { kind: 'text', text: r.lines.map((l) => l.text).join('\n'), lines: r.lines.length };
     },
     async speech(job, onStatus) {
-      onStatus('Decoding the audio…');
+      onStatus(L('aitools.job.decoding'));
       const samples = await T().audioSamples(job.file.blob), C = SP();
       if (samples.length / 16000 > 2 * 3600) throw new Error('The audio is longer than 2 hours.');
       if (samples.length < 8000) throw new Error('The audio is too short to transcribe.');

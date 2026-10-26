@@ -98,34 +98,33 @@
   };
 
   // speed and accuracy: 1 (low) to 5 (high), for the bars in the Language and model dialog. languages: '*' (all 99) or codes.
+  // The note is ui.models.speech.<id>_note (shared/i18n/ui/<code>/models2.js); maker 'kb' and 'nb' are the libraries' names
+  // (ui.models.maker.kb / .nb), others are brand names shown as they are.
   const META = [
-    { id: 'whisper-tiny', name: 'Whisper tiny', maker: 'OpenAI', languages: '*', speed: 5, accuracy: 1, params: '39M', licence: 'MIT', upstream: OPENAI, hf: 'Xenova/whisper-tiny',
-      note: 'The quick model: finds the language and gives a first transcript fast. Makes mistakes on names and noisy audio.' },
-    { id: 'whisper-base', name: 'Whisper base', maker: 'OpenAI', languages: '*', speed: 4, accuracy: 2, params: '74M', licence: 'MIT', upstream: OPENAI, hf: 'onnx-community/whisper-base',
-      note: 'Every language, a little better than tiny and still quick.' },
-    { id: 'whisper-small', name: 'Whisper small', maker: 'OpenAI', languages: '*', speed: 2, accuracy: 4, params: '244M', licence: 'MIT', upstream: OPENAI, hf: 'onnx-community/whisper-small',
-      note: 'Every language, much better than tiny; about three times slower than base.' },
-    { id: 'whisper-base-en', name: 'Whisper base.en', maker: 'OpenAI', languages: ['en'], only: true, speed: 4, accuracy: 3, params: '74M', licence: 'MIT', upstream: OPENAI, hf: 'onnx-community/whisper-base.en',
-      note: 'English only, trained on English alone: better English than base.' },
-    { id: 'whisper-small-en', name: 'Whisper small.en', maker: 'OpenAI', languages: ['en'], only: true, speed: 2, accuracy: 5, params: '244M', licence: 'MIT', upstream: OPENAI, hf: 'onnx-community/whisper-small.en',
-      note: 'English only: the best English here.' },
-    { id: 'kb-whisper-base', name: 'KB-Whisper base', maker: 'KBLab, National Library of Sweden', languages: ['sv'], speed: 4, accuracy: 4, params: '74M', licence: 'Apache-2.0', upstream: 'https://huggingface.co/KBLab/kb-whisper-base', hf: 'KBLab/kb-whisper-base',
-      note: 'Whisper base trained further on more than 50 000 hours of Swedish: much better Swedish than the OpenAI models, at base speed.' },
-    { id: 'kb-whisper-small', name: 'KB-Whisper small', maker: 'KBLab, National Library of Sweden', languages: ['sv'], speed: 2, accuracy: 5, params: '244M', licence: 'Apache-2.0', upstream: 'https://huggingface.co/KBLab/kb-whisper-small', hf: 'KBLab/kb-whisper-small',
-      note: 'Whisper small trained further on Swedish: the best Swedish here.' },
-    { id: 'nb-whisper-base', name: 'NB-Whisper base', maker: 'NbAiLab, National Library of Norway', languages: ['no', 'nn'], speed: 4, accuracy: 4, params: '74M', licence: 'Apache-2.0', upstream: 'https://huggingface.co/NbAiLab/nb-whisper-base', hf: 'onnx-community/nb-whisper-base-ONNX',
-      note: 'Whisper base trained further on Norwegian (Bokmål and Nynorsk).' },
-    { id: 'nb-whisper-small', name: 'NB-Whisper small', maker: 'NbAiLab, National Library of Norway', languages: ['no', 'nn'], speed: 2, accuracy: 5, params: '244M', licence: 'Apache-2.0', upstream: 'https://huggingface.co/NbAiLab/nb-whisper-small', hf: 'onnx-community/nb-whisper-small-ONNX',
-      note: 'Whisper small trained further on Norwegian: the best Norwegian here.' },
+    { id: 'whisper-tiny', name: 'Whisper tiny', maker: 'OpenAI', languages: '*', speed: 5, accuracy: 1, params: '39M', licence: 'MIT', upstream: OPENAI, hf: 'Xenova/whisper-tiny' },
+    { id: 'whisper-base', name: 'Whisper base', maker: 'OpenAI', languages: '*', speed: 4, accuracy: 2, params: '74M', licence: 'MIT', upstream: OPENAI, hf: 'onnx-community/whisper-base' },
+    { id: 'whisper-small', name: 'Whisper small', maker: 'OpenAI', languages: '*', speed: 2, accuracy: 4, params: '244M', licence: 'MIT', upstream: OPENAI, hf: 'onnx-community/whisper-small' },
+    { id: 'whisper-base-en', name: 'Whisper base.en', maker: 'OpenAI', languages: ['en'], only: true, speed: 4, accuracy: 3, params: '74M', licence: 'MIT', upstream: OPENAI, hf: 'onnx-community/whisper-base.en' },
+    { id: 'whisper-small-en', name: 'Whisper small.en', maker: 'OpenAI', languages: ['en'], only: true, speed: 2, accuracy: 5, params: '244M', licence: 'MIT', upstream: OPENAI, hf: 'onnx-community/whisper-small.en' },
+    { id: 'kb-whisper-base', name: 'KB-Whisper base', maker: 'kb', languages: ['sv'], speed: 4, accuracy: 4, params: '74M', licence: 'Apache-2.0', upstream: 'https://huggingface.co/KBLab/kb-whisper-base', hf: 'KBLab/kb-whisper-base' },
+    { id: 'kb-whisper-small', name: 'KB-Whisper small', maker: 'kb', languages: ['sv'], speed: 2, accuracy: 5, params: '244M', licence: 'Apache-2.0', upstream: 'https://huggingface.co/KBLab/kb-whisper-small', hf: 'KBLab/kb-whisper-small' },
+    { id: 'nb-whisper-base', name: 'NB-Whisper base', maker: 'nb', languages: ['no', 'nn'], speed: 4, accuracy: 4, params: '74M', licence: 'Apache-2.0', upstream: 'https://huggingface.co/NbAiLab/nb-whisper-base', hf: 'onnx-community/nb-whisper-base-ONNX' },
+    { id: 'nb-whisper-small', name: 'NB-Whisper small', maker: 'nb', languages: ['no', 'nn'], speed: 2, accuracy: 5, params: '244M', licence: 'Apache-2.0', upstream: 'https://huggingface.co/NbAiLab/nb-whisper-small', hf: 'onnx-community/nb-whisper-small-ONNX' },
   ];
 
-  /** The entries for the model index (model-registry.js): the same shape as every other model there. */
-  const MODELS = META.map((m) => ({
-    id: m.id, name: m.name, tool: 'speech', maker: m.maker, languages: m.languages, only: !!m.only, speed: m.speed, accuracy: m.accuracy, note: m.note,
-    arch: `Whisper encoder-decoder, ${m.languages === '*' ? 'multilingual' : m.languages.includes('en') ? 'English only' : 'fine-tuned'} (${m.params} parameters), int8`,
+  const T = (k, v) => (globalThis.SlopI18n ? globalThis.SlopI18n.t(k, v) : k);
+  const MAKERS = { kb: 1, nb: 1 };
+  /** The entries for the model index (model-registry.js): the same shape as every other model there; the words people read
+   *  are getters, read when shown. */
+  const MODELS = META.map((m) => catalog.words({
+    id: m.id, name: m.name, tool: 'speech', languages: m.languages, only: !!m.only, speed: m.speed, accuracy: m.accuracy,
     licence: m.licence, upstream: m.upstream, source: 'https://github.com/slopographic/cdn/tree/main/models/whisper/' + m.id,
-    sourceNote: `ONNX files from huggingface.co/${m.hf}, kept on Slopographic's file host (github.com/slopographic/cdn) with their licence and SHA-256 checksums.`,
     files: FILES[m.id],
+  }, {
+    maker: () => (MAKERS[m.maker] ? T('ui.models.maker.' + m.maker) : m.maker),
+    note: () => T('ui.models.speech.' + m.id.replace(/-/g, '_') + '_note'),
+    arch: () => T('ui.models.speech.arch_' + (m.languages === '*' ? 'multi' : m.languages.includes('en') ? 'en' : 'tuned'), { params: m.params }),
+    sourceNote: () => T('ui.models.speech.source', { hf: m.hf }),
   }));
   // the ranking, badges and sizes are the shared model chooser's (shared/models/catalog.js), the same for every family
   const C = catalog.create({ family: 'speech', models: MODELS, quick: QUICK });
