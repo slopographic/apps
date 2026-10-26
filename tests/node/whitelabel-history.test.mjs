@@ -84,7 +84,7 @@ test('a history: folded start, mapped, dropped, coalesced, collapsed, incrementa
   const gen = mkdtempSync(path.join(os.tmpdir(), 'wl-gen-'));
   writeFileSync(path.join(gen, 'LICENSE'), 'MIT License, Acme Example\n');
   writeFileSync(path.join(gen, 'old.js'), 'an old file the build no longer has\n');
-  const H = { since: 'main~5', forbidPaths: ['^old\\.js$', '^feed/'], forbidWords: ['meme feed'] };
+  const H = { since: 'main~5', forbidPaths: ['^old\\.js$', '^feed/'], forbidWords: ['meme feed'], forbidMessages: ['\\bpicture\\b'] };
   const c0 = s.commit({ 'feed/a.txt': 'the feed\n', 'old.js': 'x\n' }, 'A meme feed', '2026-01-01T08:00:00');
   const c1 = s.commit({ 'index.html': '<p>Open Slop Drive</p>\n<p>See the meme feed</p>\n', 'shared/a.js': 'window.SlopUI = {};\n', 'notes.txt': 'A Sloppy draft\n' }, 'Start the Slop Drive page', '2026-01-02T08:00:00');
   const c2 = s.commit({ 'tools/whitelabel/x.mjs': 'export {};\n' }, 'Tooling only', '2026-01-02T09:00:00');
@@ -99,7 +99,7 @@ test('a history: folded start, mapped, dropped, coalesced, collapsed, incrementa
   assert.deepEqual(log(out, '%at'), [c1, c4, c5b].map((c) => sh(s.dir, ['log', '-1', '--format=%at', c])));
   assert.deepEqual(log(out, '%ad').map((d) => d.slice(-5)), ['+0000', '+0000', '+0000']);
   assert.deepEqual(log(out, '%s'), ['Initial version', 'Image Editor: notes', 'Shared components: updates']);
-  assert.match(sh(out, ['log', '-1', '--format=%B', 'main~1']), /Also in this commit:\n- A picture/);
+  assert.match(sh(out, ['log', '-1', '--format=%B', 'main~1']), /Also in this commit:\n- Assets: updates/);   // a message-only word
   assert.doesNotMatch(sh(out, ['log', '--format=%B', 'main']), /Co-Authored|Bot|meme|WIP|tested/i);
   assert.deepEqual(sh(out, ['ls-tree', '-r', '--name-only', 'main']).split('\n').sort(), ['LICENSE', 'imageeditor/notes.md', 'index.html', 'notes.txt', 'shared/a.js', 'shared/b.js']);
   assert.equal(sh(out, ['show', 'main:index.html']), '<p>Open Files</p>');           // the line with a forbidden word left out

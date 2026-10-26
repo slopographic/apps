@@ -48,10 +48,11 @@ export function setup(root, dir, id, opts = {}) {
   // the profile's history block (regular expressions): paths no mapped commit carries, and words no mapped file line or
   // message holds (a source line with one is left out of the mapped file, a message part with one is left out)
   const h = opts.history || p.history || {}, gone = (h.forbidPaths || []).map((r) => new RegExp(r)), drop = (h.forbidWords || []).map((r) => new RegExp(r, 'i'));
+  const mdrop = drop.concat((h.forbidMessages || []).map((r) => new RegExp(r, 'i')));   // in messages only
   const terms = [...new Set(forbiddenTerms(dir, p).concat(videos, opts.forbid || []).map((t) => t.toLowerCase()))];
-  const ok0 = checker(terms, account, map.stem[1]), ok = (x) => ok0(x) && !drop.some((re) => re.test(x)), names = areaNames(root);
+  const ok0 = checker(terms, account, map.stem[1]), ok = (x) => ok0(x) && !mdrop.some((re) => re.test(x)), names = areaNames(root);
   const skip = (f) => excluded(f, p) || gone.some((re) => re.test(f));
-  return { p, ctx, terms, videos, skip, gone, drop, account, ok, names, allow: SCAN_ALLOW.concat(HISTORY_ALLOW, p.scanAllow || [], artAllow(p)), fix: (s) => tokens(s, ctx.tokenRules) };
+  return { p, ctx, terms, videos, skip, gone, drop, mdrop, account, ok, names, allow: SCAN_ALLOW.concat(HISTORY_ALLOW, p.scanAllow || [], artAllow(p)), fix: (s) => tokens(s, ctx.tokenRules) };
 }
 
 export const fresh = () => ({ version: 1, base: null, tag: null, src: {}, out: {}, pinned: [], pending: [], map: {} });
@@ -206,7 +207,7 @@ export async function run(o) {
         continue;
       }
       const paths = r && S.base === prev ? r.paths : diffTree(o.source, prev, sha).map((d) => d.path);
-      const item = { sha, message: mapMessage(c.message, T.ctx, T.ok, T.drop), areas: areas(paths, T.names, T.fix), time: c.time };
+      const item = { sha, message: mapMessage(c.message, T.ctx, T.ok, T.mdrop), areas: areas(paths, T.names, T.fix), time: c.time };
       prev = sha;
       if (!r) { S.pending.push(item); rows.push([sha, null, 'coalesced', why]); continue; }
       const pendingRows = S.pending.map((x) => rows.find((w) => w[0] === x.sha) || rows[rows.push([x.sha, null, 'coalesced']) - 1]);
