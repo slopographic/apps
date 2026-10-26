@@ -35,14 +35,14 @@
     return out.join('\n');
   }
   const txt = (doc, sel) => doc.querySelector(sel).textContent.trim();
-  /** The tour file's words, read the way SlopTour reads them (a getter on each step). */
+  /** The tour's words, read the way SlopTour reads them: keys <ns>.tour.title, <ns>.tour.<step>_title in the app tables. */
   function tour(f) {
     const w = f.contentWindow, got = [], keep = w.SlopTour;
     w.SlopTour = { define: (t) => got.push(t) };
     return new Promise((res, rej) => {
       const s = f.contentDocument.createElement('script');
       s.src = '../shared/tour/tours/label.js';
-      s.onload = () => { w.SlopTour = keep; res(got[0]); };
+      s.onload = () => { w.SlopTour = keep; const d = got[0], say = (k) => w.SlopI18n.t((d.ns || d.app) + '.tour.' + k); res({ title: say('title'), steps: d.steps.map((x) => ({ title: say(x.id.replace(/-/g, '_') + '_title') })) }); };
       s.onerror = rej;
       f.contentDocument.head.append(s);
     });

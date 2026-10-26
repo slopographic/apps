@@ -1,14 +1,14 @@
-/* SlopTour: Slop Gallery. Targets are ids in gallery/index.html. */
+/* SlopTour: Slop Gallery. Targets are ids in gallery/index.html. The words are keys in gallery/i18n (gallery.tour.title,
+ * gallery.tour.<step>_title and _text), read when the tour shows them (shared/tour/HANDOFF.md). */
 SlopTour.define({
   app: 'gallery',
-  title: 'Slop Gallery tour',
   steps: [
-    { id: 'import', title: 'Import', text: 'Import photos from this device (Ctrl+O), at the foot of the panel.', target: '#topImport' },
-    { id: 'library', title: 'Library', text: 'Views, albums and filters. On a phone, Filters opens this drawer.', target: '#side' },
-    { id: 'views', title: 'Views', text: 'Photos, favourites and duplicates.', target: '#sideNav' },
-    { id: 'grid', title: 'Photos', text: 'Your photos. Use Select to pick several at once.', target: '#grid' },
-    { id: 'panel', title: 'Library tools', text: 'The panel on the right: the selection, adding photos, duplicates and backup, with Import photos at its foot. On a phone it is a sheet at the bottom.', target: '#gPanel' },
-    { id: 'duplicates', title: 'Duplicates', text: 'Find duplicate photos and review them.', target: '#btnDupes' },
-    { id: 'backup', title: 'Backup', text: 'Back up the whole library, or restore it.', target: '#btnBackup' },
+    { id: 'import', target: '#topImport' },
+    { id: 'library', target: '#side' },
+    { id: 'views', target: '#sideNav' },
+    { id: 'grid', target: '#grid' },
+    { id: 'panel', target: '#gPanel' },
+    { id: 'duplicates', target: '#btnDupes' },
+    { id: 'backup', target: '#btnBackup' },
   ],
 });

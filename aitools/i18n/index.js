@@ -3,6 +3,6 @@
 window.SlopI18n && window.SlopI18n.source({
   ns: 'aitools',
   base: ((document.currentScript || {}).src || '').replace(/[^/]*$/, ''),
-  parts: ['hub', 'pages'],
+  parts: ['hub', 'pages', 'tour'],
   langs: ['en', 'sv'],
 });

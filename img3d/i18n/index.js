@@ -3,6 +3,6 @@
 window.SlopI18n && window.SlopI18n.source({
   ns: 'img3d',
   base: ((document.currentScript || {}).src || '').replace(/[^/]*$/, ''),
-  parts: ['app'],
+  parts: ['app', 'tour'],
   langs: ['en', 'sv'],
 });

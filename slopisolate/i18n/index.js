@@ -3,6 +3,6 @@
 window.SlopI18n && window.SlopI18n.source({
   ns: 'cutout',
   base: ((document.currentScript || {}).src || '').replace(/[^/]*$/, ''),
-  parts: ['actions', 'app', 'menus', 'panel', 'video'],
+  parts: ['actions', 'app', 'menus', 'panel', 'tour', 'video'],
   langs: ['en', 'sv'],
 });
