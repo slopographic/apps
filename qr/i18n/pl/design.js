@@ -25,7 +25,7 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'qr.logo.width_aria': 'Szerokość logo',
   'qr.logo.builtin': 'Wbudowane: {name}',
   'qr.logo.logo': 'Logo',
-  'qr.logo.remove': 'Usunąć logo',
+  'qr.logo.remove': 'Usuń logo',
   'qr.logo.none': 'Nie ma jeszcze logo. Kod nie ma obrazu w środku.',
   'qr.logo.intro': 'Logo znajduje się w środku, na białym polu. Korekcja błędów jest ustawiona na H, najwyższą, aby kod nadal się skanował.',
   'qr.logo.width': 'Szerokość logo (udział w kodzie, najwyżej 22%)',

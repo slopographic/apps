@@ -11,6 +11,6 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'img3d.tour.subject_text': 'Usuń tło, aby w 3D powstał tylko obiekt. Działa na Twoim urządzeniu.',
   'img3d.tour.scale_title': 'Skala głębi',
   'img3d.tour.scale_text': 'Wysokość reliefu. Poniżej są wygładzanie i rozmiar punktu.',
-  'img3d.tour.send_title': 'Otworzyć w Slop 3D',
+  'img3d.tour.send_title': 'Otwórz w Slop 3D',
   'img3d.tour.send_text': 'Wyślij gotowy model do Slop 3D, aby go edytować.',
 });
