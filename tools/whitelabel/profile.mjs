@@ -5,6 +5,7 @@ import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';
 import { mascotProblems } from './mascot.mjs';
+import { fontProblems, fontManifest } from './font.mjs';
 
 const HEX = /^#[0-9a-f]{3,8}$/i;
 const TOKENS = ['background', 'surface', 'text', 'accent', 'border'];
@@ -22,7 +23,7 @@ export function validate(p) {
   need('defaultLang', (v) => LANGS.includes(v), `one of ${LANGS.join(', ')}`);
   need('naming', (v) => v === 'brand' || v === 'plain', "'brand' or 'plain'");
   need('tone', (v) => v === 'playful' || v === 'plain', "'playful' or 'plain'");
-  errs.push(...mascotProblems(p.mascot));
+  errs.push(...mascotProblems(p.mascot), ...fontProblems(p.font));
   need('github', (v) => /^[A-Za-z0-9-]+$/.test(v || ''), 'GitHub account of the site');
   need('brandTerms', (v) => Array.isArray(v) && v.length > 0 && v.every(isStr), 'words that only this brand uses');
   need('colors', (v) => v && ['ink', 'paper', 'accent'].every((k) => HEX.test(v[k])), 'ink, paper and accent as #hex');
@@ -55,6 +56,7 @@ export function loadProfile(dir, id) {
   const errs = validate(p);
   if (p.id !== id) errs.push(`id: '${p.id}' does not match the file name`);
   if (errs.length) throw new Error(`profile ${id}:\n  ${errs.join('\n  ')}`);
+  Object.defineProperty(p, 'fontManifest', { value: fontManifest(dir, p), enumerable: false });   // its type family (font.mjs)
   return p;
 }
 

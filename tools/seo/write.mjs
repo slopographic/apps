@@ -253,8 +253,10 @@ async function sitemap(apps, date, extra) {
   for (const a of apps) if (isPage(a)) urls.push(pageUrl(a));
   for (const a of apps) if (isPage(a) && existsSync(path.join(ROOT, a.path, 'about', 'index.html'))) urls.push(`${SITE}/${a.path}about/`);
   urls.push(...extra);
-  // Keep the pages that are not app pages (the convert converters and hub) as they are.
-  for (const m of old.matchAll(/<loc>([^<]+)<\/loc>/g)) if (!urls.includes(m[1])) urls.push(m[1]);
+  // Keep the pages that are not app pages (the convert converters and hub) as they are, while their file is there (a
+  // white-label build can leave a page out: the typeface page of a site without its own fonts).
+  const onDisk = (u) => { const rel = u.slice(SITE.length + 1); return existsSync(path.join(ROOT, rel === '' || rel.endsWith('/') ? rel + 'index.html' : rel)); };
+  for (const m of old.matchAll(/<loc>([^<]+)<\/loc>/g)) if (!urls.includes(m[1]) && onDisk(m[1])) urls.push(m[1]);
   // A URL keeps the date it was last written with; only a new URL gets this run's date, so the file changes when the pages do.
   const dated = new Map([...old.matchAll(/<loc>([^<]+)<\/loc>\s*<lastmod>([^<]+)<\/lastmod>/g)].map((m) => [m[1], m[2]]));
   const body = [...new Set(urls)].map((u) => `  <url><loc>${u}</loc><lastmod>${dated.get(u) || date}</lastmod></url>`).join('\n');

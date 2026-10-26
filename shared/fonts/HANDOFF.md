@@ -150,3 +150,33 @@ node tests/run.mjs font-library        # Node tests and the shared browser test 
 node tests/run.mjs fonts/              # the Fonts panel and the missing-font check (tests/fonts/)
 node tests/run.mjs pdf/pdf-text       # includes the PDF edit-text font tests (tests/pdf/pdf.spec-edit-fonts.js)
 ```
+
+## Brand family (the site's own type: Slopographic Sans, Serif, Mono and Condensed)
+
+The site's tokens (`style/base.css`: `--sans`, `--serif`, `--mono`, `--cond`) name the brand family first. It is built
+from the OFL fonts the site already used, changed and renamed (OFL 1.1 allows both; none of the upstream licences names
+a Reserved Font Name, and `build.py` checks again), so the metrics stay those of the upstream fonts and the existing
+`* Fallback` faces keep the layout still while it loads.
+
+| Path | Role |
+| --- | --- |
+| `tools/fonts/specs/slopographic.json` | The font spec: family name, roles (upstream source, axes, italic, kept features), the alternates made the default, the i/j dots, the stylistic sets, the ligatures, the Private Use Area brand marks and their drawings. |
+| `tools/fonts/build.py` | `python3 tools/fonts/build.py <spec> <out dir>`: builds a spec (needs `tools/fonts/requirements.txt`, pinned). Sources: `tools/fonts/sources.json` (google/fonts at one commit, SHA-256 each). Modules: `assemble.py` (one face), `ops.py` (design changes), `varglyph.py` (glyphs at every master, gvar deltas solved), `shapes.py` (drops, drips, drawings), `layout.py` (GSUB), `naming.py` (names), `output.py` (subsets, fallbacks, OFL.txt, FONTLOG.txt, zip). Deterministic: a rebuild gives the same bytes. |
+| `shared/fonts/brand/` | The built family: `faces.json` (the manifest), `<role>-<style>-<subset>.woff2` (the site's latin and latin-ext ranges), `OFL.txt`, `FONTLOG.txt`, `<slug>-fonts.zip` (full TTFs and both texts). Never edited by hand. |
+| `tools/fonts/css.mjs` | Writes the brand-font block of `fonts.css` from the manifest (`node tools/fonts/css.mjs`, `--check`), and gives the token marker values. |
+| `typeface/` | The typeface page (`/typeface/`): every style and weight, the sets next to the default, the drip ligature, the marks, the Latin set, a tester and the download. It reads the manifest, so it names no family. Linked from the homepage footer. |
+| `shared/fonts/picker.js` | The font pickers list the brand family next to the bundled library (from the manifest). |
+| `tests/node/brand-font.test.mjs`, `tests/fonts/brand-font.test.html` | Names, licence, sizes, CSS block and tokens; every style loads, the tokens resolve, the picker and the page. |
+
+What makes it ours: drop-shaped dots on i and j (all four), a single-storey a and a flat-top 3 in the Sans (ss01 and
+ss02 bring the upstream forms back, ss03 round dots, ss04 open digits), a discretionary "slop"/"Slop" ligature whose
+drips hang from the l and the o and follow the weight axis, and the Slopographic drop mark (U+E000). Only a plain brand
+mark goes into a font (`"kind": "mark"`): a glyph in an OFL font is OFL, and a mascot is all-rights-reserved art, so
+Sloppo (or a profile's mascot) never goes in. `build.py` and the white-label build refuse a spec that tries
+(`tools/fonts/spec-rules.mjs`, the spec's `"mascots"` list and the profile's mascot name).
+Weights: Sans 300-900 and Condensed 300-900 (width 62-100) with italics, Mono 400-800 with italic, Serif Regular and
+Italic. Every file is no larger than the upstream web font it replaces (the test checks).
+
+To change the design: edit the spec, run `build.py` (Python 3.10+, `pip install -r tools/fonts/requirements.txt`), then
+`node tools/fonts/css.mjs`. A white-label profile has its own spec and built folder (`"font": { "spec", "dir" }`,
+`tools/whitelabel/font.mjs`, brand/README.md); a build of it ships that family as `shared/fonts/brand/` and never this one.

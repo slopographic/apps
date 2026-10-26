@@ -17,6 +17,10 @@
       "mascot.js"
     ]
   },
+  "font": {
+    "spec": "fonts/acme/acme.json",
+    "dir": "fonts/acme/dist"
+  },
   "github": "acme-example",
   "mailDomain": "acme.example",
   "brandTerms": [

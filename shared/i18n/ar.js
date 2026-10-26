@@ -35,6 +35,7 @@
     'footer.accounts_home': 'لا حسابات. تبقى التحليلات والإعلانات متوقفة ما لم تفعّلها من الإعدادات.',
     'footer.accounts_settings': 'لا حسابات. التحليلات والإعلانات متوقفة ما لم تفعّلها من الإعدادات.',
     'footer.settings_link': 'الإعدادات والخصوصية',
+    'footer.typeface': 'الخط',
     'footer.code_license': 'الكود بترخيص MIT',
     'footer.trademarks': 'Sloppo™ وSlopographic™ علامتان تجاريتان',
     'footer.made': 'صُنع بـ ❤️ في السويد',

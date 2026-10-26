@@ -10,10 +10,13 @@
   --slop: #d4ff3a;
   --slop-deep: #9fcc00;
   --chrome: linear-gradient(180deg, #ffffff 0%, #d9d9d9 30%, #6f6f6f 48%, #f7f7f7 60%, #b9b9b9 78%, #ffffff 100%);
-  --cond: "Archivo", "Archivo Fallback", "Arial Narrow", sans-serif;
-  --serif: "Instrument Serif", "Instrument Serif Fallback", Georgia, serif;
-  --sans: "Inter Tight", "Inter Tight Fallback", Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --mono: "JetBrains Mono", "JetBrains Mono Fallback", ui-monospace, Menlo, monospace;
+  /* The brand family first (shared/fonts/fonts.css, tools/fonts/css.mjs), then a local font sized like it. */
+  --cond: /*profile:fontCond*/"Slopographic Condensed", /*profile:fontCondFallback*/"Archivo Fallback", "Arial Narrow", sans-serif;
+  --serif: /*profile:fontSerif*/"Slopographic Serif", /*profile:fontSerifFallback*/"Instrument Serif Fallback", Georgia, serif;
+  --sans: /*profile:fontSans*/"Slopographic Sans", /*profile:fontSansFallback*/"Inter Tight Fallback", Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: /*profile:fontMono*/"Slopographic Mono", /*profile:fontMonoFallback*/"JetBrains Mono Fallback", ui-monospace, Menlo, monospace;
+  --sui-font: var(--sans);   /* the shared UI (shared/slopui.css, the shell) in the same family on these pages */
+  --sui-mono: var(--mono);
   --emoji: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
   color-scheme: dark;
 }

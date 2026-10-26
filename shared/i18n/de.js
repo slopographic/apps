@@ -34,6 +34,7 @@
     'footer.accounts_home': 'Keine Konten. Analysen und Werbung bleiben aus, außer Sie schalten sie in den Einstellungen ein.',
     'footer.accounts_settings': 'Keine Konten. Analysen und Werbung sind aus, außer Sie schalten sie in den Einstellungen ein.',
     'footer.settings_link': 'Einstellungen und Datenschutz',
+    'footer.typeface': 'Schrift',
     'footer.code_license': 'Code MIT',
     'footer.trademarks': 'Sloppo™ und Slopographic™ sind Marken',
     'footer.made': 'Mit ❤️ in Schweden gemacht',
