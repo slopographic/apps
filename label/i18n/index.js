@@ -4,5 +4,5 @@ window.SlopI18n && window.SlopI18n.source({
   ns: 'label',
   base: ((document.currentScript || {}).src || '').replace(/[^/]*$/, ''),
   parts: ['defs', 'manual', 'page', 'tail', 'tour', 'ui1', 'ui2', 'ui3'],
-  langs: ['ar', 'de', 'en', 'es', 'fr', 'ja', 'pt-BR', 'sv', 'zh-CN'],
+  langs: ['ar', 'de', 'en', 'es', 'fr', 'ja', 'pt-BR', 'sv', 'tr', 'zh-CN'],
 });
