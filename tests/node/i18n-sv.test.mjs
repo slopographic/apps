@@ -8,6 +8,7 @@ import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { FACTS } from '../brand-facts.mjs';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const memStorage = (seed = {}) => {
@@ -15,7 +16,7 @@ const memStorage = (seed = {}) => {
   return { m, getItem: (k) => (m.has(k) ? m.get(k) : null), setItem: (k, v) => m.set(k, String(v)), removeItem: (k) => m.delete(k) };
 };
 const read = (f) => readFile(path.join(ROOT, f), 'utf8');
-const MARKER = /\/\*profile:defaultLang\*\/'en'/;
+const MARKER = /\/\*profile:defaultLang\*\/(?:'[\w-]+'|"[\w-]+")/;   // this repo: 'en'; a build writes its profile's
 
 /** Loads profile, i18n (with its default-choice literal rewritten the way tools/whitelabel does), English, Swedish. */
 async function boot({ defaultLang, storage = memStorage() } = {}) {
@@ -29,10 +30,12 @@ async function boot({ defaultLang, storage = memStorage() } = {}) {
   return { I: ctx.SlopI18n, storage };
 }
 
-test('the default choice is one literal after the profile marker, on one line, and English in this repo', async () => {
+test('the default choice is one literal after the profile marker, on one line, and the build\'s start language (this repo: English)', async () => {
   const src = await read('shared/i18n/i18n.js');
   assert.equal(src.match(/\/\*profile:defaultLang\*\//g).length, 1);
-  assert.match(src, /var DEFAULT_CHOICE = \/\*profile:defaultLang\*\/'en';/);
+  const lit = /var DEFAULT_CHOICE = \/\*profile:defaultLang\*\/('[\w-]+'|"[\w-]+");/.exec(src);
+  assert.ok(lit, 'one quoted literal on the DEFAULT_CHOICE line');
+  assert.equal(lit[1].slice(1, -1), FACTS.defaultLang);
 });
 
 test('with defaultLang sv and nothing stored the site starts in Swedish; English is still the fallback for a missing key', async () => {
@@ -60,7 +63,8 @@ test('switching to English is stored, and survives a new page with the same stor
 });
 
 test('with the default (en) the site starts in English, and an unknown stored code reads as the default choice', async () => {
-  assert.equal((await boot()).I.get(), 'en');
+  assert.equal((await boot()).I.get(), FACTS.defaultLang);   // the build's own start language (this repo: English)
+  assert.equal((await boot({ defaultLang: 'en' })).I.get(), 'en');
   assert.equal((await boot({ defaultLang: 'en' })).I.t('nav.apps'), 'Apps');
   const bad = memStorage({ 'slop-profile': JSON.stringify({ v: 1, data: { lang: { mode: 'zz' } } }) });
   assert.equal((await boot({ defaultLang: 'sv', storage: bad })).I.get(), 'sv');

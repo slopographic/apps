@@ -6,6 +6,7 @@ import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadInto, plain } from './fx-env.mjs';
+import { FACTS } from '../brand-facts.mjs';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const memStorage = (seed = {}) => {
@@ -50,17 +51,18 @@ test('the language list is data: English first, codes unique, each with a name a
     assert.ok(['ltr', 'rtl'].includes(l.dir), `dir of ${l.code}`);
   }
   assert.equal(I.DEFAULT, 'en');
-  assert.equal(I.DEFAULT_CHOICE, 'en', 'this repo starts in English');
+  assert.equal(I.DEFAULT_CHOICE, FACTS.defaultLang, 'the build starts in its own language (this repo: English)');
   assert.equal(Object.isFrozen(I.LANGS), true);
   I.langs().pop();
   assert.equal(I.langs().length, I.LANGS.length, 'langs() gives a copy');
 });
 
-test('with nothing stored the choice is English; an unknown stored code falls back to English', async () => {
+test('with nothing stored the choice is the start language; an unknown stored code falls back to it', async () => {
   const { I } = await global();
-  assert.equal(I.get(), 'en');
+  assert.equal(I.get(), FACTS.defaultLang);   // this repo: English
   const bad = instance({ seed: { 'slop-profile': JSON.stringify({ v: 1, data: { lang: { mode: 'zz' } } }) } });
   assert.equal(bad.get(), 'en');
+  assert.equal((await global({ 'slop-profile': JSON.stringify({ v: 1, data: { lang: { mode: 'zz' } } }) })).I.get(), FACTS.defaultLang);
 });
 
 test('set refuses a code that is not in the list and stores nothing', async () => {

@@ -21,6 +21,7 @@ const { TASKS } = await import(pathToFileURL(path.join(ROOT, 'shared/seo/tasks/i
 const { loadRegistry, SITE } = await import(pathToFileURL(path.join(ROOT, 'tools/seo/site.mjs')).href);
 const apps = await loadRegistry();
 const app = (id) => apps.find((a) => a.id === id);
+const { FACTS } = await import(pathToFileURL(path.join(ROOT, 'tests/brand-facts.mjs')).href);
 const good = { app: 'cutout', slug: 'x-y', h1: 'Do a thing', lead: 'A lead long enough to say what the page is about, in a sentence or two.',
   steps: ['one', 'two', 'three'], faq: [['Q one?', 'An answer that is forty characters or longer, at least.'], ['Q two?', 'An answer that is forty characters or longer, at least.'], ['Q three?', 'An answer that is forty characters or longer, at least.']] };
 
@@ -41,7 +42,8 @@ test('a page has the task, an Open link with the preset, the questions, and link
   assert.match(p.html, /href="\/slopisolate\/\?bg=white&amp;format=jpg"/);
   assert.match(p.html, /<h3>Is the background pure white \(#ffffff\)\?<\/h3>/);
   assert.match(p.html, /href="\/slopisolate\/bulk-background-remover\/"/);
-  assert.match(p.html, /yt-jKWTbl2PEIc\.jpg/);
+  // the app's tutorial thumbnail; a build without media has none
+  if (FACTS.media) assert.match(p.html, /yt-jKWTbl2PEIc\.jpg/); else assert.doesNotMatch(p.html, /yt-[\w-]+\.jpg|youtube/);
 });
 
 test('JSON-LD: breadcrumb to the app, HowTo steps, FAQ and the tutorial as a VideoObject', () => {
@@ -50,7 +52,8 @@ test('JSON-LD: breadcrumb to the app, HowTo steps, FAQ and the tutorial as a Vid
   assert.deepEqual(type('BreadcrumbList').itemListElement.map((i) => i.item), [`${SITE}/`, `${SITE}/apps/cutout/`, url]);
   assert.equal(type('HowTo').step.length, t.steps.length);
   assert.equal(type('FAQPage').mainEntity.length, t.faq.length);
-  assert.deepEqual([type('VideoObject').uploadDate, type('VideoObject').duration], ['2026-10-14T14:06:15-07:00', 'PT1M41S']);
+  if (FACTS.media) assert.deepEqual([type('VideoObject').uploadDate, type('VideoObject').duration], ['2026-10-14T14:06:15-07:00', 'PT1M41S']);
+  else assert.equal(type('VideoObject'), undefined);
   assert.equal(videoJsonLd(app('docs'), SITE), null);
 });
 

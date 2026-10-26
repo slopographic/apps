@@ -13,8 +13,9 @@ import { kit, sseResponse, sse } from './ai-cloud-env.mjs';
 const J = (x) => JSON.parse(JSON.stringify(x));
 function fresh() {
   const w = kit();
-  w.SLOP_APPS = [{ id: 'photoslop', name: 'PhotoSlop', kind: 'app', tagline: 'Photoshop, rebuilt for the browser.' },
-    { id: 'slides', name: 'Slop Slides', kind: 'app', tagline: 'Keynote and PowerPoint, rebuilt for the browser.', creates: [{ label: 'Presentation', ext: 'sslide' }] }];
+  // made-up names and taglines: the prompt is about the registry's shape, not this site's app names
+  w.SLOP_APPS = [{ id: 'photoslop', name: 'Pixo', kind: 'app', tagline: 'Pixel editing, rebuilt for the browser.' },
+    { id: 'slides', name: 'Deckard', kind: 'app', tagline: 'Decks and talks, rebuilt for the browser.', creates: [{ label: 'Presentation', ext: 'sslide' }] }];
   const ctx = vm.createContext(w);
   for (const f of ['shared/ai/filetools.js', 'shared/ai/toolbox.js', 'shared/ai/prompt.js']) vm.runInContext(readFileSync(new URL('../../' + f, import.meta.url), 'utf8'), ctx, { filename: f });
   w.SlopAIKit.appSkills = { slides: { create: ['build_presentation'], add: ['add_slide'], ops: [] } };
@@ -32,7 +33,7 @@ function page(w) {
   const cmd = { list: () => list, exec: async (id, args) => { ran.push([id, args]); return { ok: true, args, notes: [] }; },
     state: () => ({ document: 'Poster', layers: Array.from({ length: 30 }, (_, i) => ({ name: 'Layer ' + i, note: 'x'.repeat(400) })) }) };
   assert.ok(A, 'args.js is in the kit');
-  const env = { cmd, appId: 'photoslop', appName: 'PhotoSlop', apps: () => w.SLOP_APPS, hub: null, look: true };
+  const env = { cmd, appId: 'photoslop', appName: 'Pixo', apps: () => w.SLOP_APPS, hub: null, look: true };
   const tools = w.SlopAIKit.toolbox.arrange(w.SlopAIKit.appTools.build(env), env);
   return { ran, tools, cmd };
 }
@@ -70,7 +71,7 @@ test('find_tools: by words (strong matches only) or by name; other apps that mak
   assert.match(r.result, /^Loaded: gaussian_blur, motion_blur\. Call them directly\./);
   const byName = await T.dispatch({ name: 'find_tools', arguments: { names: ['draw_shape'], query: 'presentation' } }, tools);
   assert.deepEqual(J(byName.load), ['draw_shape']);
-  assert.match(byName.result, /In other apps \(open_in_app\):\n- slides \(Slop Slides\): build_presentation, add_slide/);
+  assert.match(byName.result, /In other apps \(open_in_app\):\n- slides \(Deckard\): build_presentation, add_slide/);
   const res = await T.run({ chat: async function* () { yield { type: 'done', text: '', raw: '', toolCalls: [] }; } }, [], { tools });   // no calls: nothing loaded
   assert.equal(res.messages.length, 1);
   await T.dispatch({ name: 'gaussian_blur', arguments: { radius: 8 } }, tools);
@@ -157,13 +158,13 @@ test('results stay small: app_state summarized (detail for all of it), data list
 
 test('the system prompt: short, names the tools to load, the apps in a line each (brief) for cloud, by name for local', () => {
   const w = fresh(), { tools } = page(w), K = w.SlopAIKit;
-  const cloud = K.prompt.system(tools, { kind: 'cloud' }, { appName: 'PhotoSlop' });
+  const cloud = K.prompt.system(tools, { kind: 'cloud' }, { appName: 'Pixo' });
   assert.match(cloud, /More tools here, not loaded yet \(.*find_tools.*\): .*gaussian_blur, motion_blur, draw_shape/);
-  assert.match(cloud, /- slides: Slop Slides, Keynote and PowerPoint\. Makes: Presentation \(\.sslide\)\./);
+  assert.match(cloud, /- slides: Deckard, Decks and talks\. Makes: Presentation \(\.sslide\)\./);
   assert.doesNotMatch(cloud, /Tools there|rebuilt for the browser/);
   assert.match(cloud, /run_operation does it on this page/); assert.match(cloud, /Be resourceful/);
-  const local = K.prompt.system(tools, { kind: 'webllm' }, { appName: 'PhotoSlop', capable: true });
-  assert.match(local, /Apps \(open_in_app\): photoslop \(PhotoSlop\), slides \(Slop Slides\)\./);
+  const local = K.prompt.system(tools, { kind: 'webllm' }, { appName: 'Pixo', capable: true });
+  assert.match(local, /Apps \(open_in_app\): photoslop \(Pixo\), slides \(Deckard\)\./);
   assert.ok(local.length < cloud.length);
   assert.equal(K.prompt.system([], { kind: 'cloud' }, { appName: 'X' }).includes('tools'), false);
 });

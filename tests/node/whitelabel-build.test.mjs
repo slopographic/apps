@@ -1,17 +1,16 @@
-// Covers: tools/whitelabel/build.mjs, tools/whitelabel/export.mjs, tools/whitelabel/images.mjs, tools/whitelabel/workflow.mjs, tools/whitelabel/mirror-skip.mjs
+// Covers: tools/whitelabel/build.mjs, tools/whitelabel/export.mjs, tools/whitelabel/images.mjs, tools/whitelabel/workflow.mjs
 // The build's parts that need no browser: what it leaves out, the model-file patch, the mirror's workflow, the icon file,
-// the share card. CI's white-label job runs the whole build, the scan and the smoke pages on the sample profile.
+// the share card, the repo-only tests. CI's white-label jobs run the whole build, the scan and its whole suite on the samples.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { excluded, patchBinary, SCAN_ALLOW } from '../../tools/whitelabel/build.mjs';
+import { execFileSync } from 'node:child_process';
+import { excluded, patchBinary, SCAN_ALLOW, REPO_ONLY, repoOnly } from '../../tools/whitelabel/build.mjs';
 import { exportProfile } from '../../tools/whitelabel/export.mjs';
 import { ico, cardHtml } from '../../tools/whitelabel/images.mjs';
-import { mirrorWorkflow, DROP_STEPS, SWEEP_SHARDS } from '../../tools/whitelabel/workflow.mjs';
-import { skipPattern, SKIP, smokeFor, SMOKE } from '../../tools/whitelabel/mirror-skip.mjs';
-import { loadProfile, profilesDir } from '../../tools/whitelabel/profile.mjs';
+import { mirrorWorkflow, DROP_STEPS, DROP_JOBS } from '../../tools/whitelabel/workflow.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const P = { support: { ads: false }, media: false };
@@ -32,22 +31,31 @@ test('model files: the tool name is patched at the same length', () => {
   assert.ok(SCAN_ALLOW.every((a) => a.file && a.why));
 });
 
-test('the mirror workflow drops the steps that only work here', () => {
+test('the mirror workflow: this repository\'s jobs and the whole suite in its slices, without what only works here', () => {
   const yml = readFileSync(path.join(ROOT, '.github/workflows/rules.yml'), 'utf8');
   const out = mirrorWorkflow(yml);
   for (const d of DROP_STEPS) assert.ok(yml.includes(d) && !out.includes(d), d);
   assert.doesNotMatch(out, /git config user\.name/);
-  assert.match(out, /node --test tests\/node/);
-  assert.doesNotMatch(out, /whitelabel/);
-  assert.doesNotMatch(out, /\n  (touch|browser|plan):\n/);
-  assert.match(mirrorWorkflow(yml, '', ['tests/x.test.html']), /\n  smoke:\n[\s\S]*tests\/x\.test\.html/);
-  // the contrast sweep in the profile's colours, sliced; never inside the smoke set
-  const sweep = out.slice(out.indexOf('\n  sweep:\n'));
-  assert.match(sweep, new RegExp(`shard: \\[1, 2, 3, 4, 5, 6\\]`));
-  assert.equal(SWEEP_SHARDS, 6);
-  assert.match(sweep, /node tests\/run\.mjs a11y\/sweep- --skip-node --jobs=3 --shard=\$\{\{ matrix\.shard \}\}\/6/);
-  assert.doesNotMatch(mirrorWorkflow(yml, '', [], false), /\n  sweep:\n/);
-  assert.ok(!SMOKE.some((f) => /a11y\/sweep-/.test(f)));
+  assert.match(out, /run: node --test tests\/node\/\*\.test\.mjs tests\/seo\/\*\.test\.mjs\n/, 'every Node test, none skipped');
+  assert.doesNotMatch(out, /whitelabel|test-skip-pattern|smoke/);
+  for (const j of DROP_JOBS) assert.ok(yml.includes(`\n  ${j}:\n`) && !out.includes(`\n  ${j}:\n`), j);
+  // the plan, the browser slices and the touch jobs, as here: a mirror runs the full suite on its testing branch
+  for (const j of ['check', 'plan', 'browser', 'touch']) assert.ok(out.includes(`\n  ${j}:\n`), j);
+  assert.match(out, /shard: \$\{\{ fromJSON\(needs\.plan\.outputs\.shards\) \}\}/);
+  assert.match(out, /node tests\/run\.mjs --touch --browser=\$\{\{ matrix\.engine \}\}/);
+  assert.match(out, /^# Generated with the site/m);
+});
+
+test('the tests about this repository only are declared in one place, each with its reason, and left out of a build', () => {
+  assert.ok(REPO_ONLY.length >= 5);
+  const files = execFileSync('git', ['ls-files', 'tests'], { cwd: ROOT, encoding: 'utf8' }).split('\n');
+  for (const r of REPO_ONLY) {
+    assert.ok(r.why && r.why.length > 10, r.file);
+    assert.ok(files.some((f) => (r.file.endsWith('*') ? f.startsWith(r.file.slice(0, -1)) : f === r.file)), `${r.file} exists`);
+    if (!r.file.endsWith('*')) assert.equal(excluded(r.file, P), true, r.file);
+  }
+  assert.equal(repoOnly('tests/node/whitelabel-facts.test.mjs'), true);
+  for (const f of ['tests/node/ci-config.test.mjs', 'tests/seo/seo.test.mjs', 'tests/brand-facts.js', 'tests/node/brand-facts.test.mjs']) assert.equal(excluded(f, P), false, f);
 });
 
 test('icons: a PNG-in-ICO header; the share card holds the name', () => {
@@ -56,25 +64,4 @@ test('icons: a PNG-in-ICO header; the share card holds the name', () => {
   assert.equal(f.readUInt16LE(2), 1); assert.equal(f.readUInt16LE(4), 2); assert.equal(f.readUInt32LE(6 + 12), 38);
   assert.match(cardHtml({ name: 'Acme Tools', tagline: 'x', colors: { ink: '#000', paper: '#fff', accent: '#00f' } }, '<svg ></svg>'), /Acme Tools/);
   assert.equal(typeof exportProfile, 'function');
-});
-
-test('the mirror skips only the tests that pin this site’s profile, and names each one', () => {
-  const dir = profilesDir(ROOT);
-  const own = skipPattern(loadProfile(dir, 'slopographic'));   // this site's own profile skips only what every build skips
-  assert.doesNotMatch(own, /system prompt|support block|tutorial/);
-  assert.match(own, /description of 120 to 160/);
-  const pat = skipPattern(loadProfile(dir, 'sample'));
-  assert.doesNotMatch(pat, /['"]/);
-  const sample = loadProfile(dir, 'sample');
-  for (const s of SKIP) assert.equal(new RegExp(pat).test(s.test), !!s.when(sample), s.test);
-  assert.ok(!new RegExp(pat).test('every app id in shared/apps.js has an icon entry'));
-  assert.deepEqual(smokeFor(sample), SMOKE);
-  assert.ok(!smokeFor(loadProfile(dir, 'sample-sv')).includes('tests/i18n/switch.test.html'));
-  const yml = mirrorWorkflow(readFileSync(path.join(ROOT, '.github/workflows/rules.yml'), 'utf8'), pat);
-  assert.ok(yml.includes(`run: |\n          node --test '--test-skip-pattern=${pat}' tests/node/`));
-  // a plain one-line YAML value may not hold ": " (the test names do): GitHub then rejects the whole file and runs nothing
-  for (const line of yml.split('\n')) {
-    const m = /^\s*(?:- )?[\w-]+: (.*)$/.exec(line);
-    if (m && !/^["'|>]/.test(m[1])) assert.doesNotMatch(m[1], /: /, line);
-  }
 });

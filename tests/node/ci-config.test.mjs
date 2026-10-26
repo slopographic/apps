@@ -29,9 +29,11 @@ test('the browser tests run only in the slices the plan job asks for, and tests/
   assert.match(browser, /--pages-file=plan-pages\.txt/);
   assert.doesNotMatch(browser, /^\s+if: .*github\.ref/m, 'the browser job takes the branch rule from the plan only');
   assert.match(job('plan'), /run: node tools\/ci\/plan\.mjs/);
-  // every run of the browser suite goes through the plan: no other job calls the runner on its own terms
+  // every run of this repository's browser suite goes through the plan: no other job calls the runner on its own terms.
+  // The white-label jobs (here only; a build drops them) run the whole suite of a sample build, after the plan.
   const runners = wf.split(/\n  (?=[\w-]+:\n)/).filter((b) => /node tests\/run\.mjs/.test(b)).map((b) => b.split(':')[0].trim());
-  assert.deepEqual(runners.filter((n) => n !== 'browser' && !/needs: plan/.test(job(n))), []);
+  assert.deepEqual(runners.filter((n) => n !== 'browser' && !/needs: (plan|\[plan, )/.test(job(n))), []);
+  for (const n of runners.filter((r) => /^whitelabel/.test(r))) assert.match(job(n), /name: wl-build-\$\{\{ matrix\.profile \}\}/, `${n} runs the build's pages`);
 });
 
 test('the plan: wip/* and other branches never get the full suite; main skips it only for a merge of a green commit', async () => {
@@ -71,7 +73,7 @@ test('every workflow limits its GITHUB_TOKEN: a top-level permissions block, rea
   const { readdirSync } = await import('node:fs');
   const dir = path.join(ROOT, '.github/workflows');
   const files = readdirSync(dir).filter((f) => /\.ya?ml$/.test(f));
-  assert.ok(files.length >= 5);
+  assert.ok(files.includes('rules.yml'));   // this repository's others: tests/node/site-workflows.test.mjs
   for (const f of files) {
     const text = readFileSync(path.join(dir, f), 'utf8');
     const top = /^permissions:\n((?: {2}.*\n)+)/m.exec(text);

@@ -211,12 +211,12 @@ jobs:
           cd "$OUT" && git init -q && git add -A && git -c user.name=mirror -c user.email=mirror@example.invalid commit -qm build
           npm ci --no-audit --no-fund && node --test tests/node/*.test.mjs tests/seo/*.test.mjs
 
-  # The whole browser suite of each sample build, served from the build, in WL_SLICES slices per profile (balanced by the
-  # build's tests/timings.json). The build's links to its own file host point at this site's (--net-alias): a sample has
-  # no cdn repository of its own, and the files are the same.
+  # The whole browser suite of each sample build, served from the build, in 8 slices per profile (balanced by the build's
+  # tests/timings.json); they run when a build's Node tests failed too (the build itself is uploaded before them).
   whitelabel-browser:
     name: White-label ${{ matrix.profile }} browser ${{ matrix.shard }}/8
     needs: [plan, whitelabel]
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     container:
@@ -246,6 +246,7 @@ jobs:
   whitelabel-touch:
     name: White-label ${{ matrix.profile }} touch ${{ matrix.engine }}
     needs: [plan, whitelabel]
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     container:

@@ -55,13 +55,12 @@ test('each app landing page has an Open now button to the app folder', () => {
   }
 });
 
-test('each landing page has a description of 120 to 160 characters, unique, and a canonical URL', () => {
+// the lengths (120 to 160) are this site's copy: tests/seo/site-copy.test.mjs (repo-only; a build's renamed copy differs)
+test('each landing page has a description, unique, and a canonical URL', () => {
   const seen = new Map();
   for (const p of found) {
     const d = descOf(html[p.id]);
     assert.ok(d, `${p.id}: no meta description`);
-    const plain = d.replace(/&amp;/g, '&').replace(/&quot;/g, '"');
-    assert.ok(plain.length >= 120 && plain.length <= 160, `${p.id}: description is ${plain.length} characters`);
     assert.ok(!seen.has(d), `${p.id}: description repeats ${seen.get(d)}`);
     seen.set(d, p.id);
     assert.equal(canonicalOf(html[p.id]), p.url, `${p.id}: canonical`);

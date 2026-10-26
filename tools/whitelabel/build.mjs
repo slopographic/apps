@@ -24,7 +24,6 @@ import { context, profileText, forward, forwardPath } from './transform.mjs';
 import { markerValues, applyMarkers, brandJson, markSvg, logoSvg, manifest, mit, notice, trademarks, security, readme } from './emit.mjs';
 import { mirrorWorkflow } from './workflow.mjs';
 import { themeProblems, sourceThemes } from './palette.mjs';
-import { skipPattern, smokeFor } from './mirror-skip.mjs';
 import { isText, scan, report } from './scan.mjs';
 import { DEST, overlayDir, overlayProblems, overlayIcons, filesIn, licenseArt, hasOverlay, artAllow } from './mascot.mjs';
 import { emitFont, fontExcluded, fontFolderProblems, fontDir } from './font.mjs';
@@ -43,15 +42,16 @@ export function patchBinary(file, buf) {
   return Buffer.from(buf.toString('latin1').split('slopographic').join('modelbuilder'), 'latin1');
 }
 
+/** The tests about this repository only (tests/repo-only.json: { files: [{ file, why }] }, a trailing * is a prefix). */
+export const REPO_ONLY = JSON.parse(readFileSync(path.join(ROOT, 'tests/repo-only.json'), 'utf8')).files;
+export const repoOnly = (file) => REPO_ONLY.some((r) => (r.file.endsWith('*') ? file.startsWith(r.file.slice(0, -1)) : file === r.file));
+
 /** Files of the source brand that a renamed build leaves out (it writes its own where one is needed). */
 export function excluded(file, p) {
   if (/^(brand\/profiles|brand\/copy|tools\/whitelabel|\.claude)\//.test(file) || file === 'brand/README.md') return true;   // .claude: this repo's agent settings
   // this repository's own automation: every workflow (deploys, pings, checks that only make sense here; the build writes the
-  // mirror's one rules.yml) and the commit identity test
-  if (/^\.github\/(workflows\/|dependabot\.yml$)/.test(file) || file === 'tests/node/attribution.test.mjs') return true;
-  // and the tests of those workflows (speed, the nightly model check, IndexNow): with the workflows gone they test nothing
-  if (/^tests\/node\/(speed-config|webgpu-check|indexnow)\.test\.mjs$/.test(file)) return true;
-  if (/^tests\/node\/whitelabel-/.test(file)) return true;
+  // mirror's one rules.yml), and the tests that are about this repository only, declared in one place (tests/repo-only.json)
+  if (/^\.github\/(workflows\/|dependabot\.yml$)/.test(file) || repoOnly(file)) return true;
   if (fontExcluded(file, p)) return true;                                                    // this site's type family (font.mjs)
   if (/^(TRADEMARKS\.md|NOTICE\.md|LICENSE|LICENSE-ART|README\.md|SECURITY\.md|CNAME|favicon\.svg|favicon\.ico|og-share\.png)$/.test(file)) return true;
   if (/^[^/]+\.png$/.test(file)) return true;                                               // stray root screenshots
@@ -154,7 +154,7 @@ function emit(out, p, opts, ctx) {
   const trial = path.join(out, 'shared/agent/trial-tokens.json');
   if (existsSync(trial)) { const t = JSON.parse(readFileSync(trial, 'utf8')); t.tokens = []; writeFileSync(trial, JSON.stringify(t, null, 2) + '\n'); }
   const wf = readFileSync(path.join(ROOT, '.github/workflows/rules.yml'), 'utf8');
-  write(out, '.github/workflows/rules.yml', tokens(phrases(urls(mirrorWorkflow(wf, skipPattern(p), smokeFor(p)), ctx.urls), ctx.phraseRules), ctx.tokenRules));
+  write(out, '.github/workflows/rules.yml', tokens(phrases(urls(mirrorWorkflow(wf), ctx.urls), ctx.phraseRules), ctx.tokenRules));
   write(out, '.nojekyll', '');
 }
 
