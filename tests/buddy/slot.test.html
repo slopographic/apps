@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta name="slop-test-needs" content="mascot=builtin|overlay">
   <title>Mascot slot · a profile's own mascot plays the page's moments</title>
   <style>body { margin: 0; background: #111; color: #eee; font: 13px system-ui; }</style>
 </head>
@@ -9,17 +10,25 @@
   <!-- Covers: shared/mascot/slot.js, shared/mascot/moments.js, brand/profiles/overlays/acme/mascot.js, brand/profiles/overlays/acme/icon.js -->
   <button type="button" id="open" data-mascot-point style="position:fixed;left:20px;top:20px">Open a file</button>
   <script src="../harness.js"></script>
+  <script src="../brand-facts.js"></script>
   <script type="module">
   import * as S from '../../shared/mascot/slot.js';
+  import { animationFor } from '../../shared/mascot/moments.js';
+  // the build's own mascot (brand/mascot/), else (this repository) the sample overlay, whose head shows the animation it plays
+  const OWN = BRAND_FACTS.mascot === 'overlay';
+  const OVERLAY = OWN ? '../../brand/mascot/' : '../../brand/profiles/overlays/acme/';
+  const mod = await import(OVERLAY + 'mascot.js');
+  const anim = (m) => animationFor(m, mod);
+  const shows = (m) => { if (!OWN) expect(document.querySelector('.mascot-slot [data-anim]').dataset.anim).toBe(anim(m)); };
   const { describe, it, expect, waitFor } = SlopTest;
   const played = [];
   document.addEventListener('mascot-played', (e) => played.push(e.detail.moment));
   const last = () => played[played.length - 1];
 
-  describe('the mascot slot with the sample overlay', () => {
+  describe(OWN ? 'the mascot slot with the build\'s own mascot' : 'the mascot slot with the sample overlay', () => {
     it('loads the overlay and greets when shown', async () => {
-      await S.start({ overlay: '../../brand/profiles/overlays/acme/', z: 10 });
-      expect(S.state().name).toBe('Acme Bot');
+      await S.start({ overlay: OVERLAY, z: 10 });
+      expect(S.state().name).toBe(OWN ? mod.name : 'Acme Bot');
       expect(S.state().live).toBe(true);
       expect(S.moment('greeting')).toBe(false);          // hidden: nothing plays
       S.show(true);
@@ -27,9 +36,12 @@
       const dock = document.querySelector('.mascot-slot');
       expect(dock.hidden).toBe(false);
       expect(getComputedStyle(dock).pointerEvents).toBe('none');
-      expect(dock.querySelector('[data-anim]').dataset.anim).toBe('hello');
-      await waitFor(() => last() === 'point', { timeout: 5000 });   // then it shows the page's [data-mascot-point]
-      expect(dock.querySelector('[data-anim]').dataset.anim).toBe('point');
+      if (!OWN) expect(anim('greeting')).toBe('hello');
+      shows('greeting');
+      if (anim('point')) {
+        await waitFor(() => last() === 'point', { timeout: 5000 });   // then it shows the page's [data-mascot-point]
+        shows('point');
+      }
     });
     it('a running task, its end and an error', async () => {
       const tile = document.createElement('div');
@@ -44,7 +56,8 @@
       await waitFor(() => last() === 'working');
       tile.dataset.state = 'error';
       await waitFor(() => last() === 'error');
-      expect(document.querySelector('.mascot-slot [data-anim]').dataset.anim).toBe('oops');
+      shows('error');
+      if (!OWN) expect(anim('error')).toBe('oops');
     });
     it('points at a control when a page asks, and plays any named moment', async () => {
       document.dispatchEvent(new CustomEvent('mascot-moment', { detail: { moment: 'point', target: document.getElementById('open') } }));
