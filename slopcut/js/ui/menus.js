@@ -27,7 +27,7 @@
       it('edit.selectAll'), it('edit.deselect'), it('edit.link')
     ],
     Clip: () => [
-      { label: U.t('slopedit.menu.apply_template'), sub: SE.templates.list.map((t) => it('tpl.apply.' + t.id, U.w('tpl', t.id, t.name))) },
+      { label: U.t('slopedit.menu.apply_template'), sub: SE.templates.list.map((t) => it('tpl.apply.' + t.id, t.name)) },
       { label: U.t('slopedit.menu.add_transition'), sub: SE.model.TRANSITIONS.map(([t, l]) => it('tr.' + t, U.w('tr', t, l))).concat(['-', it('tr.remove')]) },
       it('clip.fadeIn'), it('clip.fadeOut'), it('clip.speed'), it('clip.volKey'), '-',
       { label: U.t('slopedit.menu.mask'), sub: SE.maskMenu() }, '-',

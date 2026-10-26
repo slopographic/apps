@@ -129,3 +129,14 @@ test('fit letterboxes a 16:9 picture into a square region', () => {
   assert.ok(near(t.scale, 1, 1e-4)); // 1920x1080 in a 1000x1000 region fills its width exactly
   assert.equal(t.x, 0);
 });
+
+test('frame sizes and templates in Swedish (shared/i18n/ui/sv/video.js); the sizes keep their ids and pixels', async () => {
+  const { context, plain } = await import('./ui-tables-env.mjs');
+  const sv = context(['seed.js', 'presets.js', 'grid.js', 'templates.js'].map((f) => 'shared/video/' + f), 'sv').SlopVideo;
+  same(plain(sv.presets.LIST).map((x) => [x.id, x.w, x.h]), plain(SV.presets.LIST).map((x) => [x.id, x.w, x.h]));
+  assert.equal(sv.presets.get('phone').name, 'Mobil stående 1080×1920 (9:16)');
+  assert.equal(plain(sv.presets.choices()).pop()[1], 'Egen bredd och höjd');
+  assert.equal(sv.templates.get('three-up').name, 'Tre i rad');
+  assert.equal(sv.templates.get('grid-2x2').desc, '4 rutor (2 × 2)');
+  assert.equal(sv.templates.get('grid-1x1').desc, '1 ruta (1 × 1)');
+});

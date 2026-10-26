@@ -23,22 +23,28 @@
   /** Effect types. Each lists its parameters (all required) and the apps that can apply it. Names are the shared
    *  vocabulary; each app maps them to its own effects (photoslop/js/layers/fx-presets.js, slopcut/js/ui/presets.js). */
   const EFFECT_TYPES = {
-    'drop-shadow': { label: 'Drop shadow', apps: PS, params: { color: COLOUR, op: num(0, 100), a: num(-180, 180), dist: num(0, 300), size: num(0, 250) } },
-    'inner-shadow': { label: 'Inner shadow', apps: PS, params: { color: COLOUR, op: num(0, 100), a: num(-180, 180), dist: num(0, 300), size: num(0, 250) } },
-    glow: { label: 'Outer glow', apps: PS, params: { color: COLOUR, op: num(0, 100), spread: num(0, 40), size: num(1, 250) } },
-    'inner-glow': { label: 'Inner glow', apps: PS, params: { color: COLOUR, op: num(0, 100), size: num(1, 250) } },
-    stroke: { label: 'Stroke', apps: PS, params: { size: num(1, 60), color: COLOUR, pos: { t: 'enum', values: ['inside', 'outside'] } } },
-    bevel: { label: 'Bevel and emboss', apps: PS, params: { size: num(1, 60), depth: num(10, 500), a: num(-180, 180) } },
-    overlay: { label: 'Colour overlay', apps: PS, params: { color: COLOUR, op: num(0, 100), blend: { t: 'str', pattern: /^[a-z-]{1,20}$/ } } },
-    gradient: { label: 'Gradient overlay', apps: PS, params: { c1: COLOUR, c2: COLOUR, op: num(0, 100), a: num(-180, 180), scale: num(10, 300), blend: { t: 'str', pattern: /^[a-z-]{1,20}$/ } } },
-    blur: { label: 'Blur', apps: PS, params: { radius: num(0.1, 100) } },
-    sharpen: { label: 'Sharpen', apps: PS, params: {} },
-    grain: { label: 'Film grain', apps: PS, params: { amount: num(0.1, 100), mono: { t: 'bool' }, seed: num(1, 999) } },
-    vignette: { label: 'Vignette', apps: PS, params: { amount: num(0, 100), size: num(10, 150), color: COLOUR } },
-    'colour-shift': { label: 'Colour shift', apps: PS, params: { hue: num(-180, 180), sat: num(-100, 100), light: num(-100, 100) } },
-    glitch: { label: 'Glitch', apps: PS, params: { amount: num(1, 100), shift: num(0, 60), seed: num(1, 999) } },
-    'colour-look': { label: 'Colour look', apps: ['slopedit'], params: { temp: num(-100, 100), sat: num(-100, 100), contrast: num(-100, 100), bright: num(-100, 100) } },
+    'drop-shadow': { apps: PS, params: { color: COLOUR, op: num(0, 100), a: num(-180, 180), dist: num(0, 300), size: num(0, 250) } },
+    'inner-shadow': { apps: PS, params: { color: COLOUR, op: num(0, 100), a: num(-180, 180), dist: num(0, 300), size: num(0, 250) } },
+    glow: { apps: PS, params: { color: COLOUR, op: num(0, 100), spread: num(0, 40), size: num(1, 250) } },
+    'inner-glow': { apps: PS, params: { color: COLOUR, op: num(0, 100), size: num(1, 250) } },
+    stroke: { apps: PS, params: { size: num(1, 60), color: COLOUR, pos: { t: 'enum', values: ['inside', 'outside'] } } },
+    bevel: { apps: PS, params: { size: num(1, 60), depth: num(10, 500), a: num(-180, 180) } },
+    overlay: { apps: PS, params: { color: COLOUR, op: num(0, 100), blend: { t: 'str', pattern: /^[a-z-]{1,20}$/ } } },
+    gradient: { apps: PS, params: { c1: COLOUR, c2: COLOUR, op: num(0, 100), a: num(-180, 180), scale: num(10, 300), blend: { t: 'str', pattern: /^[a-z-]{1,20}$/ } } },
+    blur: { apps: PS, params: { radius: num(0.1, 100) } },
+    sharpen: { apps: PS, params: {} },
+    grain: { apps: PS, params: { amount: num(0.1, 100), mono: { t: 'bool' }, seed: num(1, 999) } },
+    vignette: { apps: PS, params: { amount: num(0, 100), size: num(10, 150), color: COLOUR } },
+    'colour-shift': { apps: PS, params: { hue: num(-180, 180), sat: num(-100, 100), light: num(-100, 100) } },
+    glitch: { apps: PS, params: { amount: num(1, 100), shift: num(0, 60), seed: num(1, 999) } },
+    'colour-look': { apps: ['slopedit'], params: { temp: num(-100, 100), sat: num(-100, 100), contrast: num(-100, 100), bright: num(-100, 100) } },
   };
+  /** A word people read (shared/i18n/ui/<code>/presets.js): ui.presets.<key>, read each time so it follows a language
+   *  change; the key itself without SlopI18n (tests load the en table). kid() turns an id into a key part. */
+  const word = (k, vars) => (g.SlopI18n ? g.SlopI18n.t('ui.presets.' + k, vars) : 'ui.presets.' + k);
+  const kid = (id) => String(id).toLowerCase().replace(/[^a-z0-9]+/g, '_');
+  // each effect type's label (ui.presets.type.<type>)
+  for (const id of Object.keys(EFFECT_TYPES)) Object.defineProperty(EFFECT_TYPES[id], 'label', { enumerable: true, get: () => word('type.' + kid(id)) });
 
   /** Motion properties: range of each value. x and y are frame fractions; scale is a multiplier; rot degrees. */
   const MOTION_PROPS = { x: [-4, 4], y: [-4, 4], scale: [0, 8], rot: [-3600, 3600], opacity: [0, 1] };
@@ -161,11 +167,12 @@
   function emit() {
     if (typeof g.dispatchEvent === 'function' && typeof g.CustomEvent === 'function') g.dispatchEvent(new g.CustomEvent('slop-presets:change'));
   }
-  /** Built-in presets, copies, flagged builtin: true. */
+  /** Built-in presets, copies, flagged builtin: true, with the name and description in the chosen language
+   *  (ui.presets.b.<id>, ui.presets.bd.<id>). */
   function builtins() {
-    return [].concat(SP.BUILTIN_EFFECTS || [], SP.BUILTIN_MOTION || []).map((b) => Object.assign(copy(b), { builtin: true }));
+    return [].concat(SP.BUILTIN_EFFECTS || [], SP.BUILTIN_MOTION || []).map((b) => Object.assign(copy(b), { label: word('b.' + kid(b.id)), description: word('bd.' + kid(b.id)), builtin: true }));
   }
-  const isBuiltin = (id) => builtins().some((b) => b.id === id);
+  const isBuiltin = (id) => [].concat(SP.BUILTIN_EFFECTS || [], SP.BUILTIN_MOTION || []).some((b) => b.id === id);
   const matches = (r, o) => (!o.kind || r.kind === o.kind) && (!o.app || r.apps.includes(o.app));
   /** Every preset (built-in first, then the person's by label), optionally { kind, app }. Copies. */
   function list(o = {}) {
@@ -226,7 +233,7 @@
 
   Object.assign(SP, {
     KINDS, APPS, MOTION_APPS, EFFECT_TYPES, MOTION_PROPS, EASES, LIMITS, ID_PREFIX,
-    validate, list, get, save, remove, load, setStore, builtins, isBuiltin, memoryStore,
+    validate, list, get, save, remove, load, setStore, builtins, isBuiltin, memoryStore, word, kid,
     isLoaded: () => loaded, skipped: 0,
   });
 })(typeof window !== 'undefined' ? window : globalThis);

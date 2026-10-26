@@ -4,10 +4,11 @@
 Any app can load it (no CDN, no build, no DOM needed to read the data). SlopCut uses it; Reel Remix and the others can use it later.
 
 ## API
-- `SlopGraphics.list()` → `[{ id, name, group, paths }]`, a copy of the library.
+- `SlopGraphics.list()` → `[{ id, name, group, groupId, paths }]`, a copy of the library. `name` and `group` are read from
+  the shared tables at each call (`ui.graphics.<id>`, `ui.graphics.group.<groupId>`, `shared/i18n/ui/<code>/graphics.js`).
 - `SlopGraphics.get(id)` → one shape, or `null`.
 - `SlopGraphics.svg(id, { color, stroke, size })` → a standalone `<svg>` string (`currentColor` by default).
-- `SlopGraphics.ANIMS` → `[['draw','Draw on'], ['pulse','Pulse'], ['bounce','Bounce'], ['pop','Pop'], ['none','None']]`.
+- `SlopGraphics.ANIMS` → `[[id, label]]` for `draw`, `pulse`, `bounce`, `pop`, `none` (a getter; labels `ui.graphics.anim.<id>`).
 - `SlopGraphics.STROKE` → stroke width in the 100 box (7).
 
 ## Shapes (id: meaning)

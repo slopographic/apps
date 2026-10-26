@@ -20,14 +20,14 @@
     if (!tpl) return;
     if (SE.doc.layout) {
       SE.change(U.t('slopedit.tpl.change_template'), (p) => L.setTemplate(p, id));
-      A.status(U.w('tpl', tpl.id, tpl.name) + ': ' + U.t('slopedit.tpl.reflowed'));
+      A.status(tpl.name + ': ' + U.t('slopedit.tpl.reflowed'));
       return;
     }
     const ids = A.selectedIds().filter((x) => { const c = SE.model.clip(SE.doc, x); return c && c.kind !== 'audio'; });
     if (ids.length) {
       let n = 0;
       SE.change(U.t('slopedit.menu.apply_template'), (p) => { n = L.apply(p, id, ids); return n ? undefined : false; });
-      if (n) A.status(U.w('tpl', tpl.id, tpl.name) + ': ' + U.t('slopedit.tpl.filled', { k: n, n: tpl.slots.length }));
+      if (n) A.status(tpl.name + ': ' + U.t('slopedit.tpl.filled', { k: n, n: tpl.slots.length }));
       return;
     }
     const metas = R.picked();
@@ -38,13 +38,13 @@
         const made = metas.slice(0, tpl.slots.length).map((m) => L.createMedia(p, m, t, tpl.dur));
         n = L.apply(p, id, made, { dur: tpl.dur });
       });
-      A.status(U.w('tpl', tpl.id, tpl.name) + ': ' + U.t('slopedit.tpl.placed', { n }));
+      A.status(tpl.name + ': ' + U.t('slopedit.tpl.placed', { n }));
       return;
     }
     // Nothing chosen: an empty layout at the playhead, one track and one cell per slot. Drag bin items into the cells.
     const t0 = U.snapFrame(SE.player ? SE.player.time : 0, SE.doc.fps);
     SE.change(U.t('slopedit.tpl.add_layout'), (p) => L.empty(p, id, t0));
-    A.status(U.w('tpl', tpl.id, tpl.name) + ': ' + U.t('slopedit.tpl.empty_slots', { n: tpl.slots.length }));
+    A.status(tpl.name + ': ' + U.t('slopedit.tpl.empty_slots', { n: tpl.slots.length }));
   };
   act.clearLayout = function () {
     if (!SE.doc.layout) return;

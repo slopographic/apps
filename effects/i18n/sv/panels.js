@@ -130,8 +130,4 @@ window.SlopI18n && window.SlopI18n.add('sv', {
   'effects.def.param.amount': 'Mängd',
   'effects.def.param.size': 'Kornstorlek',
   'effects.def.param.feather': 'Mjuk kant',
-  'effects.def.preset.fade_in': 'Tona in',
-  'effects.def.preset.slide_up': 'Glid upp',
-  'effects.def.preset.pop': 'Studs',
-  'effects.def.preset.spin_in': 'Snurra in',
 });

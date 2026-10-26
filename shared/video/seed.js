@@ -6,6 +6,11 @@
   const root = typeof window !== 'undefined' ? window : globalThis;
   const SV = (root.SlopVideo = root.SlopVideo || {});
   const S = (SV.seed = {});
+  /** A word people read from the shared tables (shared/i18n/ui/<code>/video.js): key ui.video.<list>.<id>, the id in
+   *  lower case with other characters as _. Read each time a list is shown (never kept), so it follows a language
+   *  change; the key itself without SlopI18n (tests load the en table). words(list, ids) gives [[id, label]]. */
+  SV.word = (list, id, vars) => { const I = root.SlopI18n, k = 'ui.video.' + list + '.' + String(id).toLowerCase().replace(/[^a-z0-9]+/g, '_'); return I ? I.t(k, vars) : k; };
+  SV.words = (list, ids) => ids.map((id) => [id, SV.word(list, id)]);
 
   /** A deterministic generator: rng() returns floats in [0, 1). */
   S.rng = function (seed) {

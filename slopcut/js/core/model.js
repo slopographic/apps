@@ -27,7 +27,8 @@
   /** Graphic clip defaults (kind 'graphic'): shape id, colour, size (fraction of the frame height), motion, counter target. */
   M.GFX_DEFAULT = { id: 'check', color: '#d4ff3a', size: 0.3, anim: 'draw', value: 100 };
   M.FONTS = ['Archivo', 'Inter Tight', 'JetBrains Mono', 'Instrument Serif', 'Caveat', 'Dancing Script', 'Great Vibes', 'Georgia', 'Impact', 'Arial', 'Times New Roman', 'Courier New'];
-  M.PRESETS = window.SlopVideo.presets.LIST.map((x) => [x.w + 'x' + x.h, x.name]); // sequence sizes: shared/video presets
+  // sequence sizes [['WxH', label]]: shared/video presets, read each time so the labels follow the language
+  Object.defineProperty(M, 'PRESETS', { enumerable: true, get: () => window.SlopVideo.presets.LIST.map((x) => [x.w + 'x' + x.h, x.name]) });
 
   M.newProject = function (o = {}) {
     const p = { v: 1, name: o.name || 'Untitled project', w: o.w || 1920, h: o.h || 1080, fps: o.fps || 30, bg: '#000000', tracks: [], clips: [], markers: [], media: [], io: null, layout: null, random: null, segments: [] };

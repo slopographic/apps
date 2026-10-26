@@ -3,6 +3,6 @@
 window.SlopI18n && window.SlopI18n.source({
   ns: 'remix',
   base: ((document.currentScript || {}).src || '').replace(/[^/]*$/, ''),
-  parts: ['lists', 'page', 'status', 'tour', 'ui'],
+  parts: ['page', 'status', 'tour', 'ui'],
   langs: ['en', 'sv'],
 });

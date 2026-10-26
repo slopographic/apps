@@ -403,13 +403,11 @@ Covers: recorder/i18n/sv/support.js
 Covers: reminders/i18n/en/app.js
 Covers: reminders/i18n/index.js
 Covers: reminders/i18n/sv/app.js
-Covers: remix/i18n/en/lists.js
 Covers: remix/i18n/en/page.js
 Covers: remix/i18n/en/status.js
 Covers: remix/i18n/en/tour.js
 Covers: remix/i18n/en/ui.js
 Covers: remix/i18n/index.js
-Covers: remix/i18n/sv/lists.js
 Covers: remix/i18n/sv/page.js
 Covers: remix/i18n/sv/status.js
 Covers: remix/i18n/sv/tour.js
@@ -461,6 +459,9 @@ Covers: shared/i18n/ui/am.js
 Covers: shared/i18n/ui/ar.js
 Covers: shared/i18n/ui/de.js
 Covers: shared/i18n/ui/en.js
+Covers: shared/i18n/ui/en/graphics.js
+Covers: shared/i18n/ui/en/presets.js
+Covers: shared/i18n/ui/en/video.js
 Covers: shared/i18n/ui/es.js
 Covers: shared/i18n/ui/fr.js
 Covers: shared/i18n/ui/ha.js
@@ -476,6 +477,9 @@ Covers: shared/i18n/ui/pl.js
 Covers: shared/i18n/ui/pt-BR.js
 Covers: shared/i18n/ui/ru.js
 Covers: shared/i18n/ui/sv.js
+Covers: shared/i18n/ui/sv/graphics.js
+Covers: shared/i18n/ui/sv/presets.js
+Covers: shared/i18n/ui/sv/video.js
 Covers: shared/i18n/ui/sw.js
 Covers: shared/i18n/ui/tr.js
 Covers: shared/i18n/ui/uk.js

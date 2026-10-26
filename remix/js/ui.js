@@ -63,7 +63,7 @@
       li.append(span);
     });
     const fx = st.plan && st.plan.effect ? SV.effects.at(st.plan.effect, i) : null;
-    if (fx) li.append(' · fx ' + RM.tn('fx', fx.kind, SV.effects.name(fx.kind)));
+    if (fx) li.append(' · fx ' + SV.effects.name(fx.kind));
     const sel = document.createElement('select');
     sel.className = 'rm-cutfill'; sel.setAttribute('aria-label', tx('remix.ui.fill_for', { n: i + 1 }));
     fill(sel, FILL_LABELS(), beat[0].fill || 'auto');
@@ -79,7 +79,7 @@
     $('rm-scrub').max = String(plan ? plan.total : 0);
     $('rm-total').textContent = plan ? tx('remix.ui.total', { total: fmt(plan.total), target: fmt(st.target), layouts: tx('remix.ui.layouts_n', { n: plan.segments.length }), seed: plan.seedHex }) : tx('remix.ui.nothing');
     cuts.replaceChildren(...(plan ? plan.cuts.map((beat, i) => cutItem(beat, i, st)) : []), RM.panel.effectRow());
-    RM.lane.update({ duration: plan ? plan.total : st.target, switches: st.lane, layouts: RM.layoutChoices(), playhead: st.playhead });
+    RM.lane.update({ duration: plan ? plan.total : st.target, switches: st.lane, layouts: RM.layoutChoices, playhead: st.playhead });
     RM.preview.setPlan();
     RM.preview.seek(Math.min(st.playhead, plan ? plan.total : 0));
     slotsCut = -2; renderSlots();
@@ -167,7 +167,7 @@
       l.className = 'rm-chk';
       const cb = Object.assign(document.createElement('input'), { type: 'checkbox', id: 'rm-g-' + g, checked: true });
       cb.addEventListener('change', readControls);
-      l.append(cb, ' ' + tx('remix.ui.grid_cells', { name: RM.tn('tpl', g, SV.templates.get(g).name), n: SV.templates.get(g).slots.length }));
+      l.append(cb, ' ' + tx('remix.ui.grid_cells', { name: SV.templates.get(g).name, n: SV.templates.get(g).slots.length }));
       return l;
     }));
   }
@@ -210,18 +210,18 @@
     row.replaceChildren(...out);
   }
   function lists() { // the option lists, in the chosen language (again after a language change)
-    const st = RM.state, T = RM.tl;
-    fill($('rm-pace'), T('pace', SV.random.PACES), st.pace);
-    fill($('rm-preset'), T('preset', SV.presets.choices()), st.preset);
+    const st = RM.state; // the shared lists carry their labels (ui.video.*), read again here
+    fill($('rm-pace'), SV.random.PACES, st.pace);
+    fill($('rm-preset'), SV.presets.choices(), st.preset);
     fill($('rm-fill'), FILL_LABELS(), st.fill);
-    fill($('rm-timing'), T('timing', SV.timing.MODES), st.timing);
-    fill($('rm-vtiming'), T('video', SV.timing.VIDEO), st.video);
-    fill($('rm-audio'), T('audio', SV.audio.MODES), st.audioMode);
-    fill($('rm-pshow'), T('show', SV.clipset.SHOW), st.photo.show);
-    fill($('rm-penter'), T('edge', SV.clipset.EDGE), st.photo.enter);
-    fill($('rm-pexit'), T('edge', SV.clipset.EDGE), st.photo.exit);
-    fill($('rm-vmode'), T('vmode', SV.clipset.VMODE), st.clipVideo.mode);
-    fill($('rm-base'), [['none', tx('remix.ui.base_none')], ['random', tx('remix.ui.base_random')]].concat(T('tpl', SV.templates.list.map((x) => [x.id, x.name]))).concat(T('tpl', RM.GRIDS.map((g) => [g, SV.templates.get(g).name]))), st.base);
+    fill($('rm-timing'), SV.timing.MODES, st.timing);
+    fill($('rm-vtiming'), SV.timing.VIDEO, st.video);
+    fill($('rm-audio'), SV.audio.MODES, st.audioMode);
+    fill($('rm-pshow'), SV.clipset.SHOW, st.photo.show);
+    fill($('rm-penter'), SV.clipset.EDGE, st.photo.enter);
+    fill($('rm-pexit'), SV.clipset.EDGE, st.photo.exit);
+    fill($('rm-vmode'), SV.clipset.VMODE, st.clipVideo.mode);
+    fill($('rm-base'), [['none', tx('remix.ui.base_none')], ['random', tx('remix.ui.base_random')]].concat(RM.layoutChoices()), st.base);
   }
   function init() {
     const st = RM.state;
@@ -237,7 +237,7 @@
     $('rm-seed').value = S.hex(st.seed);
     RM.preview.attach($('rm-canvas'));
     RM.lane = SV.laneView.mount($('rm-lanehost'), {
-      label: tx('remix.ui.lane'),
+      label: () => tx('remix.ui.lane'),
       onCommit: (list) => {
         st.lane = list; RM.lane.update({ switches: list }); renderPlan();
         status(tx(st.random ? 'remix.ui.lane_random' : 'remix.ui.lane_changed'));

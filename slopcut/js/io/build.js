@@ -18,7 +18,10 @@
     // the string tables: the copy runs in English (i18n.js fetches nothing in it), so the English parts and the shared
     // words follow slopcut/i18n/index.js inline
     const parts = (/parts:\s*\[([^\]]*)\]/.exec(files.get('slopcut/i18n/index.js') || '') || [])[1];
-    const tables = parts ? ['shared/i18n/ui/en.js'].concat(parts.split(',').map((x) => 'slopcut/i18n/en/' + x.trim().replace(/^'|'$/g, '') + '.js')) : [];
+    const list = (src) => (src ? src.split(',').map((x) => x.trim().replace(/^'|'$/g, '')).filter(Boolean) : []);
+    // the shared components' English parts (UI_PARTS in i18n.js: the video lists, graphics and presets words among them)
+    const uiParts = list((/\/\*ui-parts\*\/\{\s*parts:\s*\[([^\]]*)\]/.exec(files.get('shared/i18n/i18n.js') || '') || [])[1]);
+    const tables = parts ? ['shared/i18n/ui/en.js'].concat(uiParts.map((x) => 'shared/i18n/ui/en/' + x + '.js'), list(parts).map((x) => 'slopcut/i18n/en/' + x + '.js')) : [];
     for (const t of tables) files.set(t, await text(t));
     html = html.replace(/^[^\n]*data-offline="strip"[^\n]*\n/gm, () => '');
     html = html.replace(/<link\b[^>]*\bdata-src="([^"]+)"[^>]*>/g, (m, p) => '<style data-src="' + p + '">\n' + esc(files.get(p) || '') + '\n</style>');

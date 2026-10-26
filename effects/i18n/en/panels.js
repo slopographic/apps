@@ -130,8 +130,4 @@ window.SlopI18n && window.SlopI18n.add('en', {
   'effects.def.param.amount': 'Amount',
   'effects.def.param.size': 'Grain size',
   'effects.def.param.feather': 'Feather',
-  'effects.def.preset.fade_in': 'Fade in',
-  'effects.def.preset.slide_up': 'Slide up',
-  'effects.def.preset.pop': 'Pop',
-  'effects.def.preset.spin_in': 'Spin in',
 });

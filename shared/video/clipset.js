@@ -10,12 +10,12 @@
   const SV = (root.SlopVideo = root.SlopVideo || {});
   const CS = (SV.clipset = {});
 
-  CS.SHOW = [['cut', 'Cut length'], ['fixed', 'Fixed seconds'], ['range', 'Random range']];
-  CS.EDGE = [['none', 'None'], ['fade', 'Fade'], ['slide', 'Slide']];
-  CS.VMODE = [['full', 'Play the full video'], ['trim', 'Start and stop points'], ['speed', 'Set speed'], ['loop', 'Loop until the slot ends']];
+  const IDS = { SHOW: ['cut', 'fixed', 'range'], EDGE: ['none', 'fade', 'slide'], VMODE: ['full', 'trim', 'speed', 'loop'] };
+  /** SHOW, EDGE, VMODE: [[id, label]] in the chosen language (getters; labels ui.video.show / edge / vmode). */
+  for (const name of Object.keys(IDS)) Object.defineProperty(CS, name, { enumerable: true, get: () => SV.words(name.toLowerCase(), IDS[name]) });
   CS.EDGE_SECONDS = 0.5;
   const num = (v, lo, hi, d) => { const n = +v; return Number.isFinite(n) && v !== '' && v != null ? Math.min(hi, Math.max(lo, n)) : d; };
-  const pick = (v, list, d) => (list.some(([k]) => k === v) ? v : d);
+  const pick = (v, list, d) => (list.some((k) => (Array.isArray(k) ? k[0] : k) === v) ? v : d);
 
   /** Photo settings, checked and defaulted. */
   CS.photo = (o = {}) => {

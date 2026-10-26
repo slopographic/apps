@@ -118,7 +118,7 @@
       h('div', { class: 'tp-grid' }, P.PICK.map(([id, label, desc]) => tile(id, label, desc)), customTile())
     ];
     if (tpl) {
-      kids.push(h('h4', { class: 'fx-h' }, U.t('slopedit.tpl.slots', { name: U.w('tpl', tpl.id, tpl.name) })));
+      kids.push(h('h4', { class: 'fx-h' }, U.t('slopedit.tpl.slots', { name: tpl.name })));
       kids.push(h('p', { class: 'tp-note' }, U.t('slopedit.tpl.drag_a_bin_item_a')));
       kids.push(h('div', { class: 'tp-slots' + (tpl.aspect ? ' portrait' : '') }, tpl.slots.map((_, i) => slotCard(i))));
       kids.push(h('div', { class: 'tp-slotctl' }, tpl.slots.map((_, i) => h('div', { class: 'tp-row' }, h('span', { class: 'tp-lbl' }, U.t('slopedit.tpl.slot_n', { n: i + 1 })), slotControls(i)))));
@@ -132,7 +132,7 @@
     if (p.random) {
       const r = p.random;
       kids.push(h('h4', { class: 'fx-h' }, U.t('slopedit.tpl.last_random_edit')));
-      kids.push(h('p', { class: 'tp-note' }, U.t('slopedit.tpl.last_note', { seed: r.seedHex, cuts: r.cuts, s: r.total.toFixed(1) }) + ' · ' + r.pace + ' · ' + r.aspect + (r.tpl ? ' · ' + U.w('tpl', r.tpl, (T.get(r.tpl) || {}).name) : '')));
+      kids.push(h('p', { class: 'tp-note' }, U.t('slopedit.tpl.last_note', { seed: r.seedHex, cuts: r.cuts, s: r.total.toFixed(1) }) + ' · ' + r.pace + ' · ' + r.aspect + (r.tpl ? ' · ' + (T.get(r.tpl) || {}).name : '')));
       kids.push(h('div', { class: 'tp-actions' },
         h('button', { type: 'button', class: 'btn sm', onclick: () => SE.act.reshuffleRandom() }, U.t('slopedit.tpl.reshuffle_new_seed')), // i18n-ignore: class names
         h('button', { type: 'button', class: 'btn sm', onclick: () => SE.act.randomDialog() }, U.t('slopedit.cmd.random_edit')))); // i18n-ignore: class names

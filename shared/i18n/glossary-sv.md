@@ -770,3 +770,13 @@ history step and palette word, so never strip a suffix to get it. Layer names th
 | paper tape | pappersremsa | Slopculator |
 | expression / variable | uttryck / variabel |  |
 | exchange rate | växelkurs |  |
+
+## Shared media lists (ui.video, ui.graphics, ui.presets)
+
+| English | Svenska | Note |
+| --- | --- | --- |
+| layout switch (lane) | layoutbyte | «Byt vid uppspelningshuvudet», «Ta bort byte» |
+| pointers / marks / callouts (graphics groups) | Pekare / Markeringar / Pratbubblor |  |
+| colour look (effect type) | färglook | the looks themselves: «Varm look», «Kall look» |
+| emboss / bevel and emboss | Relief / Avfasning och relief | as PhotoSlop |
+| built-in (preset) | Inbyggd | «Mina» for the person's own |

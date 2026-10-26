@@ -78,3 +78,9 @@ validate, then save. A Drive file holds the same envelope, so it can also be imp
 - A preset is applied as one history step (PhotoSlop `setFxStack`, Cut `SE.change`, Slides/Remix through their own
   commit).
 - Keep each file under 300 lines.
+
+## Words (i18n)
+Built-ins carry no name or description in their data: `builtins()` (so `list()` and `get()`) adds `label` and
+`description` from `ui.presets.b.<id>` / `ui.presets.bd.<id>`, and `EFFECT_TYPES[type].label` is a getter on
+`ui.presets.type.<type>` (`shared/i18n/ui/<code>/presets.js`; ids with `-` as `_`). The dialogs in ui.js use
+`ui.presets.*` and the shared buttons. A person's own presets keep the name they typed.

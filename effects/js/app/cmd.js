@@ -53,8 +53,7 @@
     for (const kind of ['solid', 'shape', 'text', 'null']) {
       cmds.push({ id: `fx.add-${kind}`, title: t({ solid: 'effects.cmd.add_solid', shape: 'effects.cmd.add_shape', text: 'effects.cmd.add_text', null: 'effects.cmd.add_null' }[kind]), group: t('effects.app.layer'), run: () => act.addLayer(kind, kind === 'text' ? { size: 120 } : {}) });
     }
-    for (const [name, en] of ns.propsFx.PRESET_LIST) {
-      const label = D().word('preset', name, en);
+    for (const [name, label] of ns.propsFx.presetList()) {
       cmds.push({ id: `fx.in-${name}`, title: t('effects.cmd.anim_in', { name: label }), group: t('effects.app.motion'), when: hasLayer, run: () => ka.animate('in', name) });
       cmds.push({ id: `fx.out-${name}`, title: t('effects.cmd.anim_out', { name: label }), group: t('effects.app.motion'), when: hasLayer, run: () => ka.animate('out', name) });
     }

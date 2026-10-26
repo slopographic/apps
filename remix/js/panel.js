@@ -80,7 +80,7 @@
     const e = RM.state.effect, li = document.createElement('li');
     li.className = 'rm-fxrow';
     const when = e.kind === 'random' ? ', ' + tx(e.change === 'reel' ? 'remix.keys.fx_reel' : 'remix.keys.fx_cut') : '';
-    li.textContent = tx('remix.keys.fx_row', { fx: RM.tn('fx', e.kind, FX.name(e.kind)) }) + (e.kind === 'none' ? '' : ' · ' + Math.round(e.intensity * 100) + '%' + when);
+    li.textContent = tx('remix.keys.fx_row', { fx: FX.name(e.kind) }) + (e.kind === 'none' ? '' : ' · ' + Math.round(e.intensity * 100) + '%' + when);
     return li;
   };
   /** Sets the plan's option controls from the state (after Reset all). */
@@ -96,14 +96,14 @@
   P.init = function () {
     const lists = () => {   // again after a language change, keeping the choices
       const keep = ['rm-fx', 'rm-fxchange', 'rm-kease'].map((id) => $(id).value);
-      $('rm-fx').replaceChildren(...RM.tl('fx', FX.KINDS).map(([v, l]) => new Option(l, v)));
-      $('rm-fxchange').replaceChildren(...RM.tl('change', FX.CHANGE).map(([v, l]) => new Option(l, v)));
-      $('rm-kease').replaceChildren(...RM.tl('ease', KF.EASES).map(([v, l]) => new Option(l, v)));
+      $('rm-fx').replaceChildren(...FX.KINDS.map(([v, l]) => new Option(l, v)));
+      $('rm-fxchange').replaceChildren(...FX.CHANGE.map(([v, l]) => new Option(l, v)));
+      $('rm-kease').replaceChildren(...KF.EASES.map(([v, l]) => new Option(l, v)));
       ['rm-fx', 'rm-fxchange', 'rm-kease'].forEach((id, i) => { if (keep[i]) $(id).value = keep[i]; });
     };
     lists();
     /* Animate in choices: the shared motion library when it is on the page (refreshed when presets change), else the built-ins. */
-    const presetOptions = () => (window.SlopPresets ? SlopPresets.list({ kind: 'motion', app: 'remix' }).map((p) => new Option(p.label, p.id)) : RM.tl('anim', KF.ANIMATE).map(([v, l]) => new Option(l, v)));
+    const presetOptions = () => (window.SlopPresets ? SlopPresets.list({ kind: 'motion', app: 'remix' }).map((p) => new Option(p.label, p.id)) : KF.ANIMATE.map(([v, l]) => new Option(l, v)));
     const fillPresets = () => $('rm-kpreset').replaceChildren(...presetOptions());
     fillPresets();
     window.addEventListener('slop-presets:change', fillPresets);
@@ -124,7 +124,7 @@
     $('rm-kdel').addEventListener('click', () => { if (RM.keys.remove(RM.state.selKey)) { P.changed(); say(tx('remix.keys.deleted')); } });
     $('rm-kanim').addEventListener('click', () => { const name = $('rm-kpreset').value; if (RM.keys.animateIn(name)) { P.changed(); say(tx('remix.keys.animated', { name: $('rm-kpreset').options[$('rm-kpreset').selectedIndex].text, s: KF.ANIM_SECONDS })); } });
     $('rm-kreset').addEventListener('click', () => { if (RM.keys.reset()) { P.changed(); say(tx('remix.keys.reset')); } });
-    $('rm-fx').addEventListener('change', (e) => { RM.setEffect({ kind: e.target.value }); P.effectControls(); P.changed(); say(tx('remix.keys.effect', { fx: RM.tn('fx', RM.state.effect.kind, FX.name(RM.state.effect.kind)) })); });
+    $('rm-fx').addEventListener('change', (e) => { RM.setEffect({ kind: e.target.value }); P.effectControls(); P.changed(); say(tx('remix.keys.effect', { fx: FX.name(RM.state.effect.kind) })); });
     $('rm-fxchange').addEventListener('change', (e) => { RM.setEffect({ change: e.target.value }); P.changed(); say(tx('remix.keys.fx_changes', { when: e.target.options[e.target.selectedIndex].text })); });
     $('rm-fxint').addEventListener('input', (e) => { RM.setEffect({ intensity: +e.target.value / 100 }); P.effectControls(); P.changed(false); });
     $('rm-fxint').addEventListener('change', (e) => { RM.setEffect({ intensity: +e.target.value / 100 }); P.effectControls(); P.changed(); });

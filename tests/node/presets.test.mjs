@@ -174,3 +174,17 @@ test('motion conversions: Slides px, Cut px keys, Remix poses', () => {
   assert.equal(keys[keys.length - 1].t, 0.25, 'fitted to the slot');
   assert.equal(keys[keys.length - 1].pose.scale, 1);
 });
+
+test('built-in names, descriptions and effect type labels come from the ui tables, in Swedish too, and still validate', async () => {
+  const { context, plain: copy } = await import('./ui-tables-env.mjs');
+  assert.equal(SP.get('soft-shadow').label, 'ui.presets.b.soft_shadow', 'without SlopI18n the key shows (no English kept in the list)');
+  const files = ['shared/motion/easing.js', 'shared/motion/track.js', 'shared/presets/core.js', 'shared/presets/builtins-effect.js', 'shared/presets/builtins-motion.js'];
+  const sv = context(files, 'sv').SlopPresets;
+  assert.equal(sv.get('bw-look').label, 'Svartvitt');
+  assert.equal(sv.get('spin-in').description, 'Gör ett helt varv medan den växer in');
+  assert.equal(sv.EFFECT_TYPES.bevel.label, 'Avfasning och relief');
+  for (const b of sv.builtins()) assert.equal(sv.validate(strip(copy(b))).ok, true, b.id);
+  const en = context(files, 'en').SlopPresets;
+  assert.equal(en.get('soft-shadow').label, 'Soft shadow');
+  assert.equal(en.isBuiltin('pulse'), true);
+});

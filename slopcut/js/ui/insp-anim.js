@@ -110,7 +110,7 @@
     seedTxt.addEventListener('change', () => { const s = SV.seed.parse(seedTxt.value); setFx(U.t('slopedit.insp.seed'), (f) => { f.seed = s; }); after(); });
     const seedRow = { el: h('label', { class: 'ins-row' }, h('span', { title: U.t('slopedit.insp.the_same_seed_and_settings') }, U.t('slopedit.insp.seed')), seedTxt), sync: () => { if (document.activeElement !== seedTxt) seedTxt.value = SV.seed.hex(fx().seed); } };
     return F.section(U.t('slopedit.fx.random_effect'), 'sparkle',
-      t(F.chips(U.t('slopedit.app.effects'), U.wl('fxr', FX.TYPES), () => fx().types, (v) => {
+      t(F.chips(U.t('slopedit.app.effects'), FX.TYPES, () => fx().types, (v) => {
         setFx(U.t('slopedit.insp.effect_types'), (f) => { f.types = f.types.includes(v) ? f.types.filter((x) => x !== v) : FX.TYPES.map(([k]) => k).filter((k) => k === v || f.types.includes(k)); });
         after();
       })),
