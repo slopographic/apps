@@ -30,7 +30,7 @@ test('the menu lists every language from the list, in list order, each by its ow
   const rows = plain(S.items(I));
   assert.deepEqual(rows.map((r) => r.value), plain(I.LANGS).map((l) => l.code), 'from the data, not a copy of it');
   assert.deepEqual(rows.map((r) => r.label), ['English', 'Español', 'Français', 'Deutsch', 'Português (Brasil)', 'Italiano', 'العربية', 'Svenska']);
-  assert.deepEqual(rows.filter((r) => r.checked).map((r) => r.value), ['en']);
+  assert.deepEqual(rows.filter((r) => r.checked).map((r) => r.value), [I.DEFAULT_CHOICE], 'nothing stored: the build\'s start language');
   assert.equal(rows.find((r) => r.value === 'ar').dir, 'rtl');
   assert.ok(rows.every((r) => r.lang === r.value), 'each row says its own language');
 });
@@ -80,27 +80,30 @@ test('a choice goes through SlopI18n.set (the Settings picker\'s setter) and is 
   assert.deepEqual(plain(S0.pick(fake, 'sv')), { ok: true, code: 'sv' });
   assert.deepEqual(calls, ['sv'], 'the one setter, nothing of its own');
 
+  // German: not the start language of any build (this one starts in English, a white-label profile may start in Swedish)
   const { I, S, storage } = await page();
-  assert.equal(S.pick(I, 'sv').ok, true);
-  assert.equal(stored(storage).data.lang.mode, 'sv', 'stored where Settings stores it');
-  assert.equal(I.get(), 'sv');
-  assert.deepEqual(plain(S.items(I)).filter((r) => r.checked).map((r) => r.value), ['sv']);
-  assert.equal(I.t('shell.theme'), 'Tema');
-  // a new page over the same storage starts in Swedish
+  assert.equal(S.pick(I, 'de').ok, true);
+  assert.equal(stored(storage).data.lang.mode, 'de', 'stored where Settings stores it');
+  assert.equal(I.get(), 'de');
+  assert.deepEqual(plain(S.items(I)).filter((r) => r.checked).map((r) => r.value), ['de']);
+  assert.equal(I.t('shell.theme'), 'Design');
+  // a new page over the same storage starts in German
   const again = await page({ 'slop-profile': storage.getItem('slop-profile') });
-  assert.equal(again.I.get(), 'sv');
+  assert.equal(again.I.get(), 'de');
   // an unknown code is refused and nothing changes
   assert.equal(S.pick(I, 'xx').ok, false);
-  assert.equal(I.get(), 'sv');
-  // back to English (the default choice) clears the override, as in Settings
-  S.pick(I, 'en');
+  assert.equal(I.get(), 'de');
+  // back to the start language clears the override, as in Settings
+  S.pick(I, I.DEFAULT_CHOICE);
   assert.ok(!stored(storage).data.lang);
+  assert.equal(I.get(), I.DEFAULT_CHOICE);
 });
 
 test('the header strings are in every language: Theme, Install, Tours, Notifications, Language', async () => {
   const { I, S } = await page();
   const keys = ['shell.language', 'shell.language_now', 'shell.theme', 'shell.theme_system', 'shell.more', 'shell.install', 'shell.install_title',
     'shell.tours', 'shell.tours_title', 'shell.tour', 'shell.tour_title', 'shell.notifications', 'shell.notifications_new', 'shell.clear_all', 'shell.beta'];
+  S.pick(I, 'en');
   const en = Object.fromEntries(keys.map((k) => [k, I.t(k)]));
   assert.equal(en['shell.tours_title'], 'Guided tours for each app');
   for (const code of ['sv', 'de', 'es', 'fr', 'it', 'pt-BR', 'ar']) {
@@ -114,7 +117,8 @@ test('the header strings are in every language: Theme, Install, Tours, Notificat
 });
 
 test('{brand} is the brand profile\'s name, and data-i18n-vars fills placeholders on marked elements', async () => {
-  const { I, ctx } = await page();
+  const { I, S, ctx } = await page();
+  S.pick(I, 'en');   // English whatever the build starts in
   assert.equal(I.t('shell.install_title'), 'Install Slopographic', 'this site, before brand.js');
   ctx.SlopBrand = { config: { name: 'Northwind Studio' } };
   assert.equal(I.t('shell.install_title'), 'Install Northwind Studio', 'a white-label build names its own brand');
