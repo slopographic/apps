@@ -4,10 +4,10 @@
  * first stroke, a new tab, a file or Close removes it. */
 'use strict';
 
-/** The card's picture and steps, in the current language. */
+/** The card's picture and steps as keys: SlopDrop's preview draws them again on a language change. */
 const WELCOME = () => ({
-  picture: { src: '../assets/shots/photoslop.jpg', alt: tr('photoslop.welcome.alt') },
-  steps: [tr('photoslop.welcome.step_open'), tr('photoslop.welcome.step_edit'), tr('photoslop.welcome.step_export')],
+  picture: { src: '../assets/shots/photoslop.jpg', alt: 'photoslop.welcome.alt' },
+  steps: ['photoslop.welcome.step_open', 'photoslop.welcome.step_edit', 'photoslop.welcome.step_export'],
 });
 
 function showWelcome() {
@@ -24,14 +24,14 @@ function showWelcome() {
   };
   const onModel = (w) => { if (D !== doc || (w === 'history' && Hist.idx > 0)) close(); };
   const onDown = (e) => { if (card && !card.contains(e.target)) close(); };
-  const sample = h('button', { type: 'button', class: 'sd-sample', id: 'psWelcomeSample', onclick: () => {
+  const sample = h('button', { type: 'button', class: 'sd-sample', id: 'psWelcomeSample', 'data-i18n': 'photoslop.welcome.sample', onclick: () => {
     close();
     if (window.SlopSamples) SlopIntake.sample(() => SlopSamples.photos(1, { width: 1600, height: 1000 }), { to: 'photoslop', mode: 'new' });
   } }, tr('photoslop.welcome.sample'));
-  const shut = h('button', { type: 'button', class: 'sd-sample', onclick: close }, tr('photoslop.welcome.blank'));
+  const shut = h('button', { type: 'button', class: 'sd-sample', 'data-i18n': 'photoslop.welcome.blank', onclick: close }, tr('photoslop.welcome.blank'));
   const inner = h('div', { class: 'ps-welcome-card' }, pv, h('div', { class: 'sd-acts' }, sample, shut));
   inner.addEventListener('pointerdown', (e) => e.stopPropagation()); // a press on the card is not a stroke on the canvas
-  card = h('div', { class: 'ps-welcome', id: 'psWelcome', role: 'region', 'aria-label': tr('photoslop.welcome.region') }, inner);
+  card = h('div', { class: 'ps-welcome', id: 'psWelcome', role: 'region', 'aria-label': tr('photoslop.welcome.region'), 'data-i18n-attr': 'aria-label:photoslop.welcome.region' }, inner);
   vp.append(card);
   listeners.add(onModel);
   vp.addEventListener('pointerdown', onDown, true); // a stroke on the canvas starts work: the card goes, the stroke goes on

@@ -13,25 +13,36 @@
   let fields = null, opts = {}, st = { currency: 'USD', defaultTaxRate: 0 };
   const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
 
-  /** One labelled row: the control, a hint, and an error line that the save fills in. */
+  /** One labelled row: the control, a hint, and an error line that the save fills in. label and hint are keys (words()). */
   function fieldRow(label, control, hint) {
     const msg = h('span', { class: 'ferr', role: 'alert' });
-    const tip = hint != null ? h('span', { class: 'fhint', text: hint }) : null;
-    const row = h('label', { class: 'frow' }, h('span', { class: 'flabel', text: label }), control, tip, msg);
-    return { row, control, msg, tip };
+    const tip = hint != null ? h('span', { class: 'fhint' }) : null;
+    const lab = h('span', { class: 'flabel' });
+    const row = h('label', { class: 'frow' }, lab, control, tip, msg);
+    return { row, control, msg, tip, lab, keys: [label, hint] };
   }
+  /** The form's words in the current language (again on a language change). */
+  function words() {
+    if (!fields) return;
+    for (const f of Object.values(fields)) { f.lab.textContent = t(f.keys[0]); if (f.tip && f.keys[1]) f.tip.textContent = t(f.keys[1]); }
+    fields.price.tip.textContent = t('inventory.pf.price_hint', { cur: st.currency });
+    const p = opts.product || null;
+    $('pFormTitle').textContent = p ? t('inventory.pf.edit', { name: p.name }) : t('inventory.pf.new');
+    $('pSave').textContent = t(p ? 'inventory.pf.save' : 'inventory.pf.create');
+  }
+  if (g.SlopI18n && g.SlopI18n.on) g.SlopI18n.on(words);
 
   /** Builds the fields once, into the form in the page. */
   function build() {
     const input = (attrs) => h('input', { class: 'sui-input', autocomplete: 'off', spellcheck: 'false', ...attrs });
     fields = {
-      sku: fieldRow(t('inventory.f.sku'), input({ maxlength: 80 }), t('inventory.pf.sku_hint')),
-      ean: fieldRow(t('inventory.f.ean'), input({ inputmode: 'numeric', maxlength: 18 }), t('inventory.pf.ean_hint')),
-      name: fieldRow(t('inventory.f.name'), input({ maxlength: 200 })),
-      price: fieldRow(t('inventory.f.price'), input({ inputmode: 'decimal' }), ''),
-      taxRate: fieldRow(t('inventory.pf.tax'), input({ inputmode: 'decimal' }), t('inventory.pf.tax_hint')),
-      unit: fieldRow(t('inventory.f.unit'), input({ maxlength: 20 })),
-      reorderLevel: fieldRow(t('inventory.f.reorder'), input({ type: 'number', min: 0, step: 1, inputmode: 'numeric' }), t('inventory.pf.reorder_hint')),
+      sku: fieldRow('inventory.f.sku', input({ maxlength: 80 }), 'inventory.pf.sku_hint'),
+      ean: fieldRow('inventory.f.ean', input({ inputmode: 'numeric', maxlength: 18 }), 'inventory.pf.ean_hint'),
+      name: fieldRow('inventory.f.name', input({ maxlength: 200 })),
+      price: fieldRow('inventory.f.price', input({ inputmode: 'decimal' }), ''),
+      taxRate: fieldRow('inventory.pf.tax', input({ inputmode: 'decimal' }), 'inventory.pf.tax_hint'),
+      unit: fieldRow('inventory.f.unit', input({ maxlength: 20 })),
+      reorderLevel: fieldRow('inventory.f.reorder', input({ type: 'number', min: 0, step: 1, inputmode: 'numeric' }), 'inventory.pf.reorder_hint'),
     };
     $('pFields').replaceChildren(...Object.values(fields).map((f) => f.row));
     $('pForm').addEventListener('submit', (e) => { e.preventDefault(); save(); });
@@ -59,13 +70,11 @@
     F.ean.control.value = p ? p.ean || '' : o.ean || '';
     F.name.control.value = p ? p.name : '';
     F.price.control.value = p ? U.majorText(p.price, st.currency) : '';
-    F.price.tip.textContent = t('inventory.pf.price_hint', { cur: st.currency });
     F.taxRate.control.value = U.percentText(p ? p.taxRate : st.defaultTaxRate);
     F.unit.control.value = p ? p.unit || 'each' : 'each';
     F.reorderLevel.control.value = p && p.reorderLevel !== undefined ? String(p.reorderLevel) : '';
     clear();
-    $('pFormTitle').textContent = p ? t('inventory.pf.edit', { name: p.name }) : t('inventory.pf.new');
-    $('pSave').textContent = t(p ? 'inventory.pf.save' : 'inventory.pf.create');
+    words();
     $('pCancel').hidden = !p && !o.sku && !o.ean;
     if (o.show === false) return;
     if (NS.state.view !== 'products') await NS.app.show('products');

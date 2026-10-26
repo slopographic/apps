@@ -8,7 +8,7 @@
 
   function layout() {
     const fr = window.SlopFrame.mount($('em-frame'), {
-      list: $('em-list'), view: $('em-main'), panel: $('em-side'), phone: '(max-width: 900px)', panelLabel: t('eml.app.actions'), storageKey: 'eml',
+      list: $('em-list'), view: $('em-main'), panel: $('em-side'), phone: '(max-width: 900px)', panelLabel: 'eml.app.actions', storageKey: 'eml',
       button: document.querySelector('.smb-tools'), phoneButton: false, width: 300,
     });
     window.EmlView.frame = fr;

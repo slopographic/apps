@@ -43,8 +43,8 @@
       media: { pages: false, time: false },
       onChange: (spec) => { state.spec = spec; changed(); },
       actions: [
-        { label: t('watermark.set.reset'), title: t('watermark.set.reset_title'), act: () => { state.groups = {}; set(S.defaults()); } },
-        { label: t('watermark.set.workflow'), title: t('watermark.set.workflow_title'), act: () => opts.toWorkflow && opts.toWorkflow() },
+        { label: 'watermark.set.reset', title: 'watermark.set.reset_title', act: () => { state.groups = {}; set(S.defaults()); } },
+        { label: 'watermark.set.workflow', title: 'watermark.set.workflow_title', act: () => opts.toWorkflow && opts.toWorkflow() },
       ],
     });
     // the shared panel draws the two buttons once: marked, they follow a language change (shared/i18n apply())

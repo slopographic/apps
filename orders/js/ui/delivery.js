@@ -38,10 +38,10 @@
   function mount() {
     $('view-delivery').replaceChildren(
       h('div', { class: 'toolbar no-print' },
-        h('button', { type: 'button', class: 'btn small', text: t('orders.dn.back'), onclick: () => NS.app.go(orderId ? `o/${orderId}` : 'list') }),   // i18n-ignore: CSS class names and routes
+        h('button', { type: 'button', class: 'btn small', text: t('orders.dn.back'), 'data-i18n': 'orders.dn.back', onclick: () => NS.app.go(orderId ? `o/${orderId}` : 'list') }),   // i18n-ignore: CSS class names and routes
         h('h2', { class: 'h2', id: 'dnTitle', text: t('orders.page.delivery') }),
-        h('button', { type: 'button', class: 'btn primary', text: t('orders.dn.print'), onclick: () => g.print() }),   // i18n-ignore: CSS class names
-        h('button', { type: 'button', class: 'btn', text: t('orders.dn.label'), title: t('orders.dn.label_tip'),
+        h('button', { type: 'button', class: 'btn primary', text: t('orders.dn.print'), 'data-i18n': 'orders.dn.print', onclick: () => g.print() }),   // i18n-ignore: CSS class names
+        h('button', { type: 'button', class: 'btn', text: t('orders.dn.label'), title: t('orders.dn.label_tip'), 'data-i18n': 'orders.dn.label', 'data-i18n-attr': 'title:orders.dn.label_tip',
           onclick: async () => { if (!label) return; try { await g.SlopBiz.addressLabel.send(label); g.SlopUI.toast(t('orders.dn.label_done')); } catch (e) { g.SlopUI.toast(t('orders.dn.label_failed', { why: e.message })); } } })),
       h('div', { id: 'dnSheet' }));
   }

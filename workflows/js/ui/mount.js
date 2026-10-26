@@ -44,7 +44,7 @@ export function mountWorkflow(host, opts = {}) {
   ctx.root = ui.root;
   const $ = ui.$;
   const frame = !opts.compact && opts.frame !== false ? g.SlopFrame.mount(ui.root, {
-    list: ui.list, view: ui.main, panel: ui.side, storageKey: 'workflows', panelLabel: tr('workflows.run.panel', 'Files and run'),
+    list: ui.list, view: ui.main, panel: ui.side, storageKey: 'workflows', panelLabel: 'workflows.run.panel',
     phone: '(max-width: 900px)', width: 340, min: 280, max: 560, phoneButton: false, command: !!opts.commands,
   }) : null;
   ctx.frame = frame;

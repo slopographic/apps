@@ -8,7 +8,7 @@
   const t = (k) => (g.SlopI18n ? g.SlopI18n.t(k) : k);
   const $ = (id) => document.getElementById(id);
   const fr = g.SlopFrame.mount($('ui'), {
-    list: null, view: $('srView'), panel: $('srSide'), phone: '(max-width: 760px)', panelLabel: t('serials.app.options'),
+    list: null, view: $('srView'), panel: $('srSide'), phone: '(max-width: 760px)', panelLabel: 'serials.app.options',
     storageKey: 'serials', button: '.smb-tools', phoneButton: false, width: 300, min: 260,
   });
   const panel = g.SlopFrame.panel($('srSide'), { title: t('serials.app.count_serials') });

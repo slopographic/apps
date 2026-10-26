@@ -74,7 +74,7 @@
 
   // A language change: the parts built once (the view buttons, the kind filter) are made again, then everything is drawn
   // in the new words (the static page follows through data-i18n, SlopI18n.apply).
-  DR.onLang(() => { $('views').replaceChildren(); $('kind').replaceChildren(); DR.render(); if (DR.renderFolder) DR.renderFolder(); });
+  DR.onLang(() => { $('views').replaceChildren(); $('kind').replaceChildren(); DR.render(); if (DR.renderFolder) DR.renderFolder(); if (DR.renderInfo) DR.renderInfo(true); });   // the details pane: drawn again even when the selection is the same
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', DR.boot); else DR.boot();
 })(window.DR);

@@ -20,7 +20,7 @@
   const settings = pick('settings'), saves = pick('save'), main = pick('main');
   side.append(...settings, ...saves, ...main);
   const fr = g.SlopFrame.mount(ui, {
-    list: null, view, panel: side, phone: '(max-width: 760px)', panelLabel: tr('aitools.frame.settings', 'Settings'),
+    list: null, view, panel: side, phone: '(max-width: 760px)', panelLabel: 'aitools.frame.settings',
     storageKey: 'aitools-' + (location.pathname.split('/').filter(Boolean).pop() || 'tool'), phoneButton: false, width: 300, min: 260,
   });
   // the page's title, in the current language when it is marked (data-i18n: the markup is translated only once parsed)

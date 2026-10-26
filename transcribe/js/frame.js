@@ -8,7 +8,7 @@
   const t = (k) => (g.SlopI18n ? g.SlopI18n.t(k) : k);
   const $ = (id) => document.getElementById(id);
   const fr = g.SlopFrame.mount($('trUi'), {
-    list: null, view: $('trView'), panel: $('trSide'), phone: '(max-width: 760px)', panelLabel: t('transcribe.app.options'),
+    list: null, view: $('trView'), panel: $('trSide'), phone: '(max-width: 760px)', panelLabel: 'transcribe.app.options',
     storageKey: 'transcribe', button: '.smb-tools', phoneButton: false, width: 300, min: 260,
   });
   const panel = g.SlopFrame.panel($('trSide'), { title: t('transcribe.app.run') });

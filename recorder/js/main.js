@@ -101,7 +101,7 @@
 
   function boot() {
     bar = g.SlopAppBar.mount($('rc-bar'), { home: '../', title: 'Slop Recorder', subtitle: t('recorder.app.subtitle'), actions: [], menu: [] });
-    frame = g.SlopFrame.mount($('rc-main'), { list: null, view: $('rc-view'), panel: $('rc-panel'), panelLabel: t('recorder.app.panel'),
+    frame = g.SlopFrame.mount($('rc-main'), { list: null, view: $('rc-view'), panel: $('rc-panel'), panelLabel: 'recorder.app.panel',
       storageKey: 'recorder', phone: '(max-width: 860px)', phoneButton: false, width: 320, min: 280, max: 480 });
     side = g.SlopFrame.panel($('rc-panel'), { title: t('recorder.app.panel') });
     const groups = [...document.querySelectorAll('#rc-settings > .rc-group')];

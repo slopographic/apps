@@ -6,12 +6,15 @@
 //   opts: { key = 'id', label, count(n) (the count line from the app's plural key: "3 expenses", "1 expense"),
 //           noun: ['expense', 'expenses'] (older: the count and the empty message; English plurals only),
 //           empty (text, or an element such as a message with a button),
+//           label, noun's words and a text empty may be i18n keys (SlopI18n.label): drawn again on a language change,
 //           summary (an element for the count), open(rec), menu(rec) -> SlopUI menu items,
 //           row(rec) -> { title, amount, meta: [string | { chip, cls }], cls, selected (the record shown beside the list) } }
 (function (g) {
   'use strict';
   /** A word from the shared tables (shared/i18n/ui), the key without SlopI18n. */
   const tr = (key, vars) => (globalThis.SlopI18n ? globalThis.SlopI18n.t(key, vars) : key);
+  /** A word the app gave: an i18n key, a function or its own text. */
+  const lab = (v) => { const I = globalThis.SlopI18n; return I && I.label ? I.label(v) : typeof v === 'function' ? v() : v; };
   const doc = g.document;
 
   function el(tag, cls, text) { const n = doc.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; }
@@ -35,14 +38,22 @@
   function mount(host, opts = {}) {
     const key = opts.key || 'id', noun = opts.noun;
     const box = el('div', 'sl-list' + (opts.open ? '' : ' is-static'));
-    const empty = opts.empty && opts.empty.nodeType ? opts.empty
-      : el('p', 'sl-empty', opts.empty || (noun ? tr('ui.list.empty', { items: noun[1] }) : tr('ui.list.empty_any')));
+    const own = !(opts.empty && opts.empty.nodeType), empty = own ? el('p', 'sl-empty') : opts.empty;
     /** "3 expenses": the app's plural key (count), else the older noun pair, else "3 items". */
-    const countText = (n) => (opts.count ? opts.count(n) : noun ? tr('ui.list.count_noun', { n, noun: n === 1 ? noun[0] : noun[1] }) : tr('ui.list.count', { n }));
-    box.setAttribute('role', 'list'); if (opts.label) box.setAttribute('aria-label', opts.label);
+    const countText = (n) => (opts.count ? opts.count(n) : noun ? tr('ui.list.count_noun', { n, noun: lab(n === 1 ? noun[0] : noun[1]) }) : tr('ui.list.count', { n }));
+    box.setAttribute('role', 'list');
+    let recs = [], drawn = false;   // drawn: set() has run (the count shows from then on)
+    /** The list's own words, in the current language (again on every switch). */
+    function words() {
+      if (opts.label) box.setAttribute('aria-label', lab(opts.label));
+      if (own) empty.textContent = opts.empty ? lab(opts.empty) : noun ? tr('ui.list.empty', { items: lab(noun[1]) }) : tr('ui.list.empty_any');
+      if (opts.summary && drawn) opts.summary.textContent = countText(recs.length);
+    }
+    words();
+    const I = g.SlopI18n, offLang = I && I.on ? I.on(words) : null;
     empty.hidden = true;
     host.replaceChildren(box, empty);
-    let recs = [], byKey = new Map(), active = 0;
+    let byKey = new Map(), active = 0;
 
     const rowsEls = () => [...box.children];
     const recOf = (node) => { const r = node && node.closest ? node.closest('.sl-row') : null; return r ? byKey.get(r.dataset.key) : null; };
@@ -76,14 +87,14 @@
     /** Draws the rows (in the given order), the count and the empty message. Keeps the focused row where it can. */
     function set(list) {
       const had = box.contains(doc.activeElement);
-      recs = list || []; byKey = new Map(recs.map((r) => [String(r[key]), r]));
+      recs = list || []; drawn = true; byKey = new Map(recs.map((r) => [String(r[key]), r]));
       box.replaceChildren(...recs.map((r) => rowEl(r, opts.row ? opts.row(r) : { title: String(r[key]) }, key)));
       empty.hidden = recs.length > 0;
       if (opts.summary) opts.summary.textContent = countText(recs.length);
       focusRow(Math.min(active, recs.length - 1), had);
     }
 
-    return { set, rows: () => recs.slice(), focusRow, element: box, destroy() { host.replaceChildren(); } };
+    return { set, rows: () => recs.slice(), focusRow, element: box, destroy() { if (offLang) offLang(); host.replaceChildren(); } };
   }
 
   g.SlopList = { mount };

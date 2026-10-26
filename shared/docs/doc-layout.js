@@ -11,7 +11,7 @@
     const $ = (id) => document.getElementById(id);
     if (g.SlopBiz && g.SlopBiz.panel) {
       NS.recordPanel = g.SlopBiz.panel.mount({ app, root: $('view-edit'), view: $('view-edit').querySelector('.ws-stage'),
-        panel: $('view-edit').querySelector('.ws-panel'), label: g.SlopI18n ? g.SlopI18n.t('biz.doc.details') : undefined, button: '.biz-doc-actions', phone: '(max-width: 720px)' });
+        panel: $('view-edit').querySelector('.ws-panel'), label: 'biz.doc.details', button: '.biz-doc-actions', phone: '(max-width: 720px)' });
     }
     if (!g.SlopLayouts) return;
     /** Shows or hides a view. Showing the list redraws it: it skips drawing while hidden. */

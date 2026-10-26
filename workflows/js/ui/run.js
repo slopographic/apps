@@ -24,7 +24,7 @@ export function createRun(ctx, panelEl, { frame = null, drop: dropOpts = {}, onR
   const { S, R, on, emit, ns } = ctx;
   const checks = () => checksOf(ctx);
   let statusText = '';
-  const filesBox = h('div', { class: 'wf-files' }), zone = h('div', { class: 'wf-drop', id: `${ns}-drop` }), fileList = h('ul', { class: 'wf-file-list', 'aria-label': tr('workflows.run.files_in', 'Files in') });
+  const filesBox = h('div', { class: 'wf-files' }), zone = h('div', { class: 'wf-drop', id: `${ns}-drop` }), fileList = h('ul', { class: 'wf-file-list', 'aria-label': tr('workflows.run.files_in', 'Files in'), 'data-i18n-attr': 'aria-label:workflows.run.files_in' });
   const grid = h('div', { class: 'wf-grid-wrap' });
   filesBox.append(zone, fileList);
 

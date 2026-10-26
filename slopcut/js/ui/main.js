@@ -31,7 +31,7 @@
     const caps = () => { detect(); A.els.statusCaps.textContent = SE.caps.webcodecs ? SE.util.t('slopedit.main.webcodecs') : SE.caps.recorder ? SE.util.t('slopedit.main.webm_recorder') : SE.util.t('slopedit.main.no_encoder'); A.els.statusCaps.title = SE.caps.summary; };
     caps();
     // a language change: the panels draw again (menus, tabs and marked words follow data-i18n; commands: ui/commands.js)
-    SE.util.onLang(() => { caps(); SE.bin.render(); if (SE.inspector) SE.inspector.render(); if (SE.timeline && SE.timeline.renderHeads) SE.timeline.renderHeads(); SE.emit('change', { label: 'lang' }); });
+    SE.util.onLang(() => { caps(); SE.bin.render(); if (SE.inspector) SE.inspector.relabel(); if (SE.timeline && SE.timeline.renderHeads) SE.timeline.renderHeads(); SE.emit('change', { label: 'lang' }); });
     if (window.SlopHub && !SE.offline) try { SlopHub.register('slopedit'); } catch (e) { /* ignore */ }
     let restored = false;
     try { restored = await SE.session.restore(); } catch (e) { console.warn(e); }

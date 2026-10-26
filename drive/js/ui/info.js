@@ -126,7 +126,7 @@
   /** Phones: the details panel is a bottom sheet (SlopSheet, shared/ui/sheet.js: the Info button, ×, Escape, a tap
    * outside, swipe down). Its × is the panel's close on a wide screen too. */
   DR.wireSheet = function () {
-    DR.sheetUI = SlopSheet.attach({ root: document.body, panel: $('info'), phone: '(max-width: 760px)', toggles: [$('btnInfo')], label: DR.t('drive.info.details'),
+    DR.sheetUI = SlopSheet.attach({ root: document.body, panel: $('info'), phone: '(max-width: 760px)', toggles: [$('btnInfo')], label: 'drive.info.details',
       closeWide: () => DR.toggleInfo(false), onChange: () => DR.renderInfo(true) });
     matchMedia('(max-width: 760px)').addEventListener('change', () => DR.renderInfo(true));
   };

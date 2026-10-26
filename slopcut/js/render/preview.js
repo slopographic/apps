@@ -71,8 +71,8 @@
   /** An empty project shows what SlopCut makes and how (SlopDrop's preview; the bin has Import and Sample project). */
   let intro = null;
   const introOf = () => intro || (intro = window.SlopDrop.panel.preview({
-    picture: { src: '../assets/shots/slopedit.jpg', alt: U.t('slopedit.render.a_short_film_on_the') },
-    steps: [U.t('slopedit.render.step_drop'), U.t('slopedit.render.cut_and_arrange_them_on'), U.t('slopedit.render.export_a_video_file')] }));
+    picture: { src: '../assets/shots/slopedit.jpg', alt: 'slopedit.render.a_short_film_on_the' },   // keys: the preview follows a language change
+    steps: ['slopedit.render.step_drop', 'slopedit.render.cut_and_arrange_them_on', 'slopedit.render.export_a_video_file'] }));
   function updateMsg() {
     const p = SE.doc;
     if (!p.clips.length) {

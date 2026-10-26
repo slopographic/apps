@@ -9,7 +9,7 @@
   const U = g.SlopUpscale, $ = (id) => document.getElementById(id), t = U.t;
   const A = () => U.app, S = () => U.app.S;
   const fr = g.SlopFrame.mount($('up-frame'), {
-    list: $('up-list'), view: $('up-stage-wrap'), panel: $('up-panel'), phone: '(max-width: 900px)', panelLabel: t('ui.settings'),
+    list: $('up-list'), view: $('up-stage-wrap'), panel: $('up-panel'), phone: '(max-width: 900px)', panelLabel: 'ui.settings',
     storageKey: 'upscale', button: document.querySelector('.up-tools'), phoneButton: false, width: 300, min: 260,
   });
   const groups = [...$('up-panel').querySelectorAll('.up-group')];

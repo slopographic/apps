@@ -64,8 +64,8 @@
     $('oStatus').addEventListener('change', draw);
     $('oNew').addEventListener('click', () => NS.app.go('new'));
     NS.sampleActions.mount();
-    list = g.SlopList.mount($('oRows'), { label: t('orders.li.label'), noun: [t('orders.li.order'), t('orders.li.orders')], summary: $('oSummary'),
-      empty: t('orders.li.empty'), row, open: (x) => NS.app.go(`o/${x.id}`), menu: menuFor });
+    list = g.SlopList.mount($('oRows'), { label: 'orders.li.label', noun: ['orders.li.order', 'orders.li.orders'], summary: $('oSummary'),
+      empty: 'orders.li.empty', row, open: (x) => NS.app.go(`o/${x.id}`), menu: menuFor });
   }
 
   NS.listView = { mount, draw, menuFor };

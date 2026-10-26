@@ -8,9 +8,9 @@
  *     value: spec, onChange(spec, { label, key }),
  *     media: { pages: false, time: false },  // which ranges to offer: page range (PDFs), time range (videos)
  *     pageCount: () => n, currentPage: () => 1-based page in view (adds "This page"),
- *     toggle: { get: () => on, set: (on) => {}, label: 'Watermark on', note: (on) => text },  // an on/off switch (optional)
+ *     toggle: { get: () => on, set: (on) => {}, label: 'app.wm.on', note: (on) => text },  // an on/off switch (optional)
  *     newLayer: (kind) => ({ ...fields }),   // the app's defaults for a new layer (optional)
- *     actions: [{ label, title, act }],      // the app's own buttons under the panel (optional)
+ *     actions: [{ label, title, act }],      // the app's own buttons under the panel (optional; label/title may be keys)
  *     onFiles: (files) => {},                // files dropped on the panel that are not pictures (default: the page's intake)
  *     intake: 'app.logo',                    // the name of the panel's logo part in the page's intake (default watermark.logo.<n>)
  *     saved: true,                           // the My watermarks button
@@ -26,6 +26,7 @@
   const S = window.SlopWatermarkSpec, WM = window.SlopWatermark;
   const el = (...a) => window.SlopUI.el(...a);
   const tr = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
+  const lab = (v) => (window.SlopI18n && window.SlopI18n.label ? window.SlopI18n.label(v) : v);   // a key, a function or text
   const IMG = 'image/png,image/jpeg,image/webp,image/gif,image/svg+xml';
   const isPicture = (f) => /^image\/(png|jpeg|webp|gif|svg\+xml)$/.test(f.type || '') || /\.(png|jpe?g|webp|gif|svg)$/i.test(f.name || '');
 
@@ -101,11 +102,12 @@
 
     const editorBox = el('div', { class: 'swp-editor-box' }), msg = el('p', { class: 'swp-msg', role: 'status' });
     let editor = null;
-    const actions = el('div', { class: 'swp-actions' }, ...(opts.actions || []).map((a) => {
-      const b = el('button', { type: 'button', class: 'sui-btn', title: a.title || null }, a.label);
+    const acts = (opts.actions || []).map((a) => {
+      const b = el('button', { type: 'button', class: 'sui-btn' });
       b.addEventListener('click', () => a.act(spec));
-      return b;
-    }));
+      return { a, b };
+    });
+    const actions = el('div', { class: 'swp-actions' }, ...acts.map((x) => x.b));
     const root = el('div', { class: 'swp', role: 'group' }, sw && sw.el,
       el('div', { class: 'swp-top' }, addT, addL, saved && saved.el), list, stack, editorBox, msg, actions);
     actions.hidden = !actions.children.length;
@@ -114,12 +116,13 @@
     /** The words built once, in the chosen language (again after a switch, with the editor rebuilt). */
     function words() {
       const set = (b, text, title) => { b.textContent = text; if (title) b.title = title; };
-      if (sw) { const l = opts.toggle.label || tr('ui.wm.toggle'); sw.cb.setAttribute('aria-label', l); sw.text.textContent = l; }
+      if (sw) { const l = lab(opts.toggle.label) || tr('ui.wm.toggle'); sw.cb.setAttribute('aria-label', l); sw.text.textContent = l; }
       set(addT, tr('ui.wm.add_text')); set(addL, tr('ui.wm.add_logo'));
       set(up, tr('ui.wm.up'), tr('ui.wm.up_tip')); set(down, tr('ui.wm.down'), tr('ui.wm.down_tip'));
       set(dup, tr('ui.wm.duplicate'), tr('ui.wm.duplicate_tip')); set(del, tr('ui.wm.remove'), tr('ui.wm.remove_tip'));
       list.setAttribute('aria-label', tr('ui.wm.layers_aria')); stack.setAttribute('aria-label', tr('ui.wm.selected_aria'));
       root.setAttribute('aria-label', tr('ui.wm.mark'));
+      for (const { a, b } of acts) set(b, lab(a.label), a.title && lab(a.title));
     }
     words();
     const offLang = window.SlopI18n && window.SlopI18n.on ? window.SlopI18n.on(() => { words(); editorFor = ''; render(); if (saved && saved.relabel) saved.relabel(); }) : null;

@@ -9,7 +9,7 @@
   const NS = g.SlopResize, $ = (id) => document.getElementById(id);
   const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
   const fr = g.SlopFrame.mount($('rs-main'), {
-    list: null, view: $('rs-left'), panel: $('rs-panel'), phone: '(max-width: 900px)', panelLabel: t('resize.app.settings'),
+    list: null, view: $('rs-left'), panel: $('rs-panel'), phone: '(max-width: 900px)', panelLabel: 'resize.app.settings',
     storageKey: 'resize', button: document.querySelector('.rs-tools'), phoneButton: false, width: 340, min: 280,
   });
   const groups = [...$('rs-panel').querySelectorAll('.rs-group')];
