@@ -4,5 +4,5 @@ window.SlopI18n && window.SlopI18n.source({
   ns: 'orders',
   base: ((document.currentScript || {}).src || '').replace(/[^/]*$/, ''),
   parts: ['page', 'views'],
-  langs: ['en', 'sv'],
+  langs: ['de', 'en', 'sv'],
 });
