@@ -65,9 +65,9 @@
     if (!zone || !g.SlopDrop || drop) return;
     registerIntake();
     drop = g.SlopDrop.attach(zone, {
-      intake: 'projects', window: false, label: t('projects.files.drop'), chooseLabel: t('projects.files.open'), multiple: false,
-      preview: { steps: [t('projects.files.step1'), t('projects.files.step2'), t('projects.files.step3')] },
-      sample: { label: t('projects.files.try'), files: () => [sampleFile()] },
+      intake: 'projects', window: false, label: 'projects.files.drop', chooseLabel: 'projects.files.open', multiple: false,
+      preview: { steps: ['projects.files.step1', 'projects.files.step2', 'projects.files.step3'] },
+      sample: { label: 'projects.files.try', files: () => [sampleFile()] },
     });
   }
 

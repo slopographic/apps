@@ -120,7 +120,7 @@
       compact: true,
       targets: [view],
       // the sample's button is the empty library's (below): a compact strip draws none
-      sample: { label: t('music.lib.sample'), files: () => window.SlopSamples.media.melodies(3, 8) },
+      sample: { label: 'music.lib.sample', files: () => window.SlopSamples.media.melodies(3, 8) },
     });
     // the empty library's preview: drawn again on a language change, with the list (render)
     const preview = () => $('lib-preview').replaceChildren(SlopDrop.panel.preview({

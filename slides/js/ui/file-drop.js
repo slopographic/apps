@@ -45,7 +45,7 @@
     mounted = true;
     SlopDrop.attach(zone, {
       intake: 'slides', targets: [document.getElementById('app')], compact: true, toast: false, multiple: true,
-      label: SU.t('slides.io.drop_a_pptx_or_sslide_file_to_open_it'), chooseLabel: SU.t('slides.io.open_a_file'),
+      label: 'slides.io.drop_a_pptx_or_sslide_file_to_open_it', chooseLabel: 'slides.io.open_a_file',
     });
   };
   /** File ▸ Open a file from this computer. */

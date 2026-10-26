@@ -119,10 +119,10 @@ function wire() {
     process: async (file) => { const id = add([file]); if (!id) throw new Error('not an audio or video file'); return id; },
   });
   window.SlopDrop.attach($('trDrop'), {
-    intake: 'transcribe', label: t('transcribe.drop.label'), hint: t('transcribe.drop.hint'),
+    intake: 'transcribe', label: 'transcribe.drop.label', hint: 'transcribe.drop.hint',
     // the steps are in the intro (shown before the model is in, as the From → To picture is); the sample is NASA's
     // public-domain Moon landing recording (assets/samples/moon-landing.txt)
-    sample: { label: t('transcribe.drop.sample'), files: async () => [await window.SlopSamples.asset('moon-landing.ogg', 'Moon landing, Apollo 11.ogg', 'audio/ogg')] },
+    sample: { label: 'transcribe.drop.sample', files: async () => [await window.SlopSamples.asset('moon-landing.ogg', 'Moon landing, Apollo 11.ogg', 'audio/ogg')] },
   });
   for (const [sel, key] of [['.sd-msg', 'label'], ['.sd-msg + p', 'hint'], ['.sd-sample', 'sample']]) { const e = $('trDrop').querySelector(sel); if (e) e.dataset.i18n = 'transcribe.drop.' + key; }
   formats();

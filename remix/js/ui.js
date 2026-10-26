@@ -137,8 +137,8 @@
     dropZone = SlopDrop.attach($('rm-drop'), {
       intake: 'remix',
       targets: [$('rm-bin'), $('rm-stage')],
-      preview: { picture: { src: '../assets/shots/remix.jpg', alt: tx('remix.ui.shot_alt') }, steps: STEPS.map((k) => tx(k)) },
-      sample: { label: tx('remix.ui.sample'), files: async () => { const S = window.SlopSamples; status(tx('remix.ui.sample_making')); // painted in the page (shared/samples)
+      preview: { picture: { src: '../assets/shots/remix.jpg', alt: 'remix.ui.shot_alt' }, steps: STEPS },
+      sample: { label: 'remix.ui.sample', files: async () => { const S = window.SlopSamples; status(tx('remix.ui.sample_making')); // painted in the page (shared/samples)
         return (await Promise.all([S.media.clip(4, { scene: 'hills', width: 480, height: 640 }), S.media.clip(4, { scene: 'sea', width: 480, height: 640 }), S.photos(3, { width: 900, height: 1200 })])).flat(); } },
       reveal: (sum) => document.querySelector('#rm-bin li[data-id="' + sum.added[sum.added.length - 1].value + '"]'),
     });
