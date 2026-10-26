@@ -20,12 +20,12 @@ function propsDirty() {
 /** Puts the baseline back. The panel's own Reset button calls this. */
 async function resetProps() {
   if (!propBase) return;
-  if (propsDirty() && !(await SlopUI.confirm('Reset these properties?', 'Your changes to this selection are undone. The values from when it was selected come back.', 'Reset', { danger: true }))) return;
+  if (propsDirty() && !(await SlopUI.confirm(LT('label.reset.reset_these_properties'), LT('label.reset.your_changes_to_this_selection'), LT('label.props.reset'), { danger: true }))) return;
   const base = propBase;
   if (base.objs.length) {
-    editDoc((d) => { for (const b of base.objs) { const i = d.objects.findIndex((o) => o.id === b.id); if (i >= 0) d.objects[i] = deepClone(b); } }, 'Reset properties');
+    editDoc((d) => { for (const b of base.objs) { const i = d.objects.findIndex((o) => o.id === b.id); if (i >= 0) d.objects[i] = deepClone(b); } }, LT('label.reset.reset_properties'));
   } else {
-    editDoc((d) => Object.assign(d, deepClone(base.label)), 'Reset label');
+    editDoc((d) => Object.assign(d, deepClone(base.label)), LT('label.reset.reset_label'));
   }
   refresh();
 }

@@ -6,8 +6,8 @@
 /** A preset opens in a new tab ('tab') or is applied to the open label ('apply'). */
 function presetChoice(p, how) {
   if (how === 'apply') { applyConfigToLabel(p.name, p.body); return; }
-  const T = openDocTab(docFromConfig(p.body, p.name), { label: 'New from preset', dirty: true });
-  SlopUI.toast(`Opened “${p.name}” in a new tab`);
+  const T = openDocTab(docFromConfig(p.body, p.name), { label: LT('label.presets.new_from_preset'), dirty: true });
+  SlopUI.toast(LT('label.presets.opened', { name: p.name }));
   return T;
 }
 
@@ -19,20 +19,20 @@ function presetsDialog() {
     const preview = mk('span', { class: 'tp' });
     preview.innerHTML = presetPreviewSvg(b, p.name); // numbers and the escaped name only (core/presets.js)
     const round = b.label.radius >= Math.min(b.label.w, b.label.h) / 2 - 0.01; // a round label, not just rounded corners
-    const meta = [b.stock.kind === 'sheet' ? `${slots} per sheet` : null, round ? 'round' : null].filter(Boolean).join(' · ');
+    const meta = [b.stock.kind === 'sheet' ? LT('label.presets.per_sheet', { n: slots }) : null, round ? LT('label.presets.round') : null].filter(Boolean).join(' · ');
     const acts = mk('div', { class: 'cfg-acts' },
-      fBtn('New tab', () => { dlg.close(true); presetChoice(p, 'tab'); }, { cls: 'primary' }),
-      fBtn('This tab', () => { dlg.close(true); presetChoice(p, 'apply'); }),
-      mine ? fBtn('Remove', async () => { if (!(await SlopUI.confirm('Remove this preset?', `“${p.name}” is removed from this browser.`, 'Remove', { danger: true }))) return; LabelConfigs.removePreset(p.id); dlg.close(true); presetsDialog(); }) : null);
-    return mk('div', { class: 'tpl pst' }, preview, mk('b', null, p.name), mk('small', null, [p.desc, meta].filter(Boolean).join(' · ')), acts);
+      fBtn(LT('label.cmd.new_tab'), () => { dlg.close(true); presetChoice(p, 'tab'); }, { cls: 'primary' }),
+      fBtn(LT('label.presets.this_tab'), () => { dlg.close(true); presetChoice(p, 'apply'); }),
+      mine ? fBtn(LT('label.panels.remove'), async () => { if (!(await SlopUI.confirm(LT('label.presets.remove_this_preset'), LT('label.presets.removed_body', { name: p.name }), LT('label.panels.remove'), { danger: true }))) return; LabelConfigs.removePreset(p.id); dlg.close(true); presetsDialog(); }) : null);
+    return mk('div', { class: 'tpl pst' }, preview, mk('b', null, mine ? p.name : LW('preset', p.id, p.name)), mk('small', null, [mine ? p.desc : LW('preset_desc', p.id, p.desc), meta].filter(Boolean).join(' · ')), acts);
   };
-  const groups = PRESET_GROUPS.map((g) => mk('div', { class: 'pst-group' }, mk('h4', { class: 'sec-h' }, g),
+  const groups = PRESET_GROUPS.map((g) => mk('div', { class: 'pst-group' }, mk('h4', { class: 'sec-h' }, LW('pgroup', g, g)),
     mk('div', { class: 'tpl-grid' }, ...PRESETS.filter((p) => p.group === g).map((p) => tile(p, false)))));
   const mine = LabelConfigs.presets;
-  if (mine.length) groups.push(mk('div', { class: 'pst-group' }, mk('h4', { class: 'sec-h' }, 'Your presets'),
-    mk('div', { class: 'tpl-grid' }, ...mine.map((r) => tile({ id: r.id, name: r.name, desc: 'Saved from a config', group: 'mine', body: r.body }, true)))));
-  dlg = SlopUI.dialog({ title: 'Presets', cls: 'sl-wide', body: mk('div', null,
-    mk('p', { class: 'sui-p' }, 'Pick a preset to start a new tab with that layout, or apply it to this tab (one undo step). Sheet sizes follow the stock library; a sheet’s labels are checked to fit its page.'),
+  if (mine.length) groups.push(mk('div', { class: 'pst-group' }, mk('h4', { class: 'sec-h' }, LT('label.presets.your_presets')),
+    mk('div', { class: 'tpl-grid' }, ...mine.map((r) => tile({ id: r.id, name: r.name, desc: LT('label.presets.saved_from_a_config'), group: 'mine', body: r.body }, true)))));
+  dlg = SlopUI.dialog({ title: LT('label.presets.presets'), cls: 'sl-wide', body: mk('div', null,
+    mk('p', { class: 'sui-p' }, LT('label.presets.pick_a_preset_to_start')),
     ...groups),
-  buttons: [{ label: 'Close', primary: true }] });
+  buttons: [{ label: LT('label.print.close'), primary: true }] });
 }

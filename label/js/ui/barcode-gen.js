@@ -4,8 +4,8 @@
  * GS1 check digits on EAN and UPC). */
 'use strict';
 
-const GEN_SYMS = [['code128', 'Code 128'], ['ean13', 'EAN-13'], ['ean8', 'EAN-8'], ['upca', 'UPC-A'], ['code39', 'Code 39'], ['qrcode', 'QR Code'], ['datamatrix', 'Data Matrix']];
-const GEN_KINDS = [['digits', 'Digits'], ['letters', 'Letters'], ['alnum', 'Letters and digits']];
+const GEN_SYMS = [['code128', 'Code 128'], ['ean13', 'EAN-13'], ['ean8', 'EAN-8'], ['upca', 'UPC-A'], ['code39', 'Code 39'], ['qrcode', 'QR Code'], ['datamatrix', 'Data Matrix']]; // i18n-ignore: format names
+const GEN_KINDS = [['digits', 'label.bgen.digits'], ['letters', 'label.bgen.letters'], ['alnum', 'label.bgen.letters_and_digits']]; // keys, read when the dialog opens
 const GEN_FIXED = { ean13: 13, ean8: 8, upca: 12 }; // total length, check digit included
 const GEN_LEN = { code128: 12, code39: 10, qrcode: 16, datamatrix: 16 };
 const GEN = { symbology: 'code128', kind: 'alnum', length: 12, prefix: '', count: 10 };
@@ -19,9 +19,9 @@ function genValues(n = 0) {
 /** The generator block of the barcode Properties section. */
 function barcodeGenSection() {
   const fixed = GEN_FIXED[GEN.symbology] !== undefined;
-  const kind = fSel(GEN_KINDS, GEN.kind, (v) => { GEN.kind = v; }, { id: 'genKind' });
+  const kind = fSel(GEN_KINDS.map(([v, k]) => [v, LT(k)]), GEN.kind, (v) => { GEN.kind = v; }, { id: 'genKind' });
   kind.disabled = fixed;
-  const len = fNum(GEN.length, (v) => { GEN.length = Math.floor(v); }, { min: 1, step: 1, id: 'genLen', title: fixed ? 'Fixed by the symbology' : 'Characters (or modules) in the value' });
+  const len = fNum(GEN.length, (v) => { GEN.length = Math.floor(v); }, { min: 1, step: 1, id: 'genLen', title: fixed ? LT('label.bgen.fixed_by_the_symbology') : LT('label.bgen.characters_or_modules_in_the') });
   len.value = fixed ? String(GEN_FIXED[GEN.symbology]) : String(GEN.length);
   len.disabled = fixed;
   const sym = fSel(GEN_SYMS, GEN.symbology, (v) => {
@@ -30,18 +30,18 @@ function barcodeGenSection() {
     GEN.kind = 'alnum';
     rebuildPanel();
   }, { id: 'genSym' });
-  const prefix = fText(GEN.prefix, (v) => { GEN.prefix = v; }, { id: 'genPrefix', placeholder: fixed ? 'digits, e.g. 9 (for EAN-13 bodies)' : 'optional' });
-  const count = fNum(GEN.count, (v) => { GEN.count = Math.floor(v); }, { min: 1, max: 10000, step: 1, id: 'genCount', title: 'How many labels Generate many makes' });
-  const hint = fixed ? 'EAN and UPC values are digits with a valid check digit, so the scanner reads them.' : 'Each Generate picks a new random value.';
-  return fSec('Generate random value',
-    fRow('Symbology', sym),
-    fRow('Value', kind),
-    fRow('Length', len),
-    fRow('Prefix', prefix),
-    mk('div', { class: 'btnrow' }, fBtn('Generate', generateIntoBarcode, { cls: 'primary', title: 'Fill the selected barcode with one random value' })),
+  const prefix = fText(GEN.prefix, (v) => { GEN.prefix = v; }, { id: 'genPrefix', placeholder: fixed ? LT('label.bgen.digits_e_g_9_for') : 'optional' });
+  const count = fNum(GEN.count, (v) => { GEN.count = Math.floor(v); }, { min: 1, max: 10000, step: 1, id: 'genCount', title: LT('label.bgen.how_many_labels_generate_many') });
+  const hint = fixed ? LT('label.bgen.ean_and_upc_values_are') : LT('label.bgen.each_generate_picks_a_new');
+  return fSec(LT('label.bgen.generate_random_value'),
+    fRow(LT('label.ptypes.symbology'), sym),
+    fRow(LT('label.dlg.value'), kind),
+    fRow(LT('label.bgen.length'), len),
+    fRow(LT('label.dlg.prefix'), prefix),
+    mk('div', { class: 'btnrow' }, fBtn(LT('label.bgen.generate'), generateIntoBarcode, { cls: 'primary', title: LT('label.bgen.fill_the_selected_barcode_with') })),
     mk('p', { class: 'hint' }, hint),
-    fRow('Count', count),
-    mk('div', { class: 'btnrow' }, fBtn('Generate many…', generateManyLabels, { title: 'Make one label per random value (data column Barcode)' })));
+    fRow(LT('label.bgen.count'), count),
+    mk('div', { class: 'btnrow' }, fBtn(LT('label.bgen.generate_many'), generateManyLabels, { title: LT('label.bgen.make_one_label_per_random') })));
 }
 /** Re-renders the Properties panel so the generator fields match the chosen symbology. */
 function rebuildPanel() { if (typeof renderPanels === 'function') renderPanels(); }
@@ -49,21 +49,21 @@ function rebuildPanel() { if (typeof renderPanels === 'function') renderPanels()
 /** Fills the selected barcode with one random value of the chosen symbology. */
 function generateIntoBarcode() {
   const o = selOne();
-  if (!o || o.type !== 'barcode') { SlopUI.toast('Select a barcode first'); return; }
+  if (!o || o.type !== 'barcode') { SlopUI.toast(LT('label.bgen.select_a_barcode_first')); return; }
   let v;
   try { v = genValues(0)[0]; } catch (e) { SlopUI.toast(e.message); return; }
   const sym = GEN.symbology;
-  editSel((x) => { applySymbology(x, sym); x.content = v; }, 'Generate barcode');
-  SlopUI.toast(`Generated ${v}`);
+  editSel((x) => { applySymbology(x, sym); x.content = v; }, LT('label.bgen.generate_barcode'));
+  SlopUI.toast(LT('label.bgen.generated', { v: String(v) }));
 }
 
 /** N random values as data rows, one label each. The selected barcode shows {Barcode}. */
 async function generateManyLabels() {
   const d = App.doc, o = selOne();
-  if (!o || o.type !== 'barcode') { SlopUI.toast('Select a barcode first; it prints the generated value'); return; }
+  if (!o || o.type !== 'barcode') { SlopUI.toast(LT('label.bgen.select_a_barcode_first_it')); return; }
   let vals;
   try { vals = genValues(Math.max(1, GEN.count | 0)); } catch (e) { SlopUI.toast(e.message); return; }
-  if (d.data && !(await SlopUI.confirm('Replace the data?', `The data "${d.data.name}" is replaced by ${vals.length} generated values in a column named Barcode.`, 'Replace'))) return;
+  if (d.data && !(await SlopUI.confirm(LT('label.bgen.replace_the_data'), LT('label.bgen.replace_body', { name: d.data.name, n: vals.length }), LT('label.bgen.replace')))) return;
   const src = { name: 'Generated barcodes', columns: ['Barcode'], rows: vals.map((v) => [v]), map: {}, qtyCol: '' };
   const sym = GEN.symbology, id = o.id;
   App.rec = 0;
@@ -71,7 +71,7 @@ async function generateManyLabels() {
     x.data = src;
     const b = x.objects.find((ob) => ob.id === id);
     if (b) { applySymbology(b, sym); b.content = '{Barcode}'; }
-  }, 'Generate labels');
+  }, LT('label.bgen.generate_labels'));
   App.tab = 'data';
   refresh();
   SlopUI.toast(`${vals.length} labels, one random value each`);

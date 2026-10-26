@@ -33,15 +33,15 @@
 
   /** The file as a new label document, then opened (the open label is replaced after the person confirms). */
   async function apply(data, ctx) {
-    if (window.SlopUI && App.dirty && !(await SlopUI.confirm('Discard unsaved changes?', 'The open label has changes that are not saved. Replace it?', 'Replace', { danger: true }))) {
-      return { ok: false, message: 'the open label was kept' };
+    if (window.SlopUI && App.dirty && !(await SlopUI.confirm(LT('label.io.discard_unsaved_changes'), LT('label.io.the_open_label_has_changes'), LT('label.bgen.replace'), { danger: true }))) {
+      return { ok: false, message: LT('label.io.the_open_label_was_kept') };
     }
     const doc = newDoc({ name: ctx.name, unit: data.unit, dpi: data.dpi });
     Object.assign(doc.label, data.label, { margin: doc.label.margin });
     const s = data.stock && data.stock.id ? stockById(data.stock.id) : null;
     if (s) applyStock(doc, s);
     doc.objects = data.objects.map((o) => makeObject(o.type, Object.assign({}, o, { name: o.name })));
-    setDoc(doc, 'Import config');
+    setDoc(doc, LT('label.io.import_config'));
   }
 
   if (C && D && F) {

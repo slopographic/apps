@@ -46,10 +46,10 @@ function makeConfigStore(storage, key = CONFIG_KEY) {
   /** Save a new config from a validated body. → { ok, record } or { ok: false, error }. */
   function add(name, body, list = store.configs) {
     const clean = cleanConfigName(name), v = validateConfig(body);
-    if (!clean) return { ok: false, error: 'Give the config a name' };
+    if (!clean) return { ok: false, error: LT('label.store.give_the_config_a_name') };
     if (!v.ok) return { ok: false, error: v.errors[0] };
     if (list.some((r) => r.name.toLowerCase() === clean.toLowerCase())) return { ok: false, error: `A ${list === store.presets ? 'preset' : 'config'} called “${clean}” already exists` };
-    if (list.length >= CONFIG_MAX) return { ok: false, error: `There is room for ${CONFIG_MAX} saved items. Delete one first.` };
+    if (list.length >= CONFIG_MAX) return { ok: false, error: LT('label.store.full', { n: CONFIG_MAX }) };
     const now = Date.now(), rec = { id: newId(list === store.presets ? 'p' : 'c'), name: clean, created: now, updated: now, body: v.body };
     list.push(rec);
     write();
@@ -60,16 +60,16 @@ function makeConfigStore(storage, key = CONFIG_KEY) {
 
   function rename(id, name, list = store.configs) {
     const r = list.find((x) => x.id === id), clean = cleanConfigName(name);
-    if (!r) return { ok: false, error: 'That config is gone' };
-    if (!clean) return { ok: false, error: 'Give the config a name' };
+    if (!r) return { ok: false, error: LT('label.store.that_config_is_gone') };
+    if (!clean) return { ok: false, error: LT('label.store.give_the_config_a_name') };
     if (takenBy(list, id).some((n) => n.toLowerCase() === clean.toLowerCase())) return { ok: false, error: `A config called “${clean}” already exists` };
     r.name = clean; r.updated = Date.now(); write();
     return { ok: true, record: r };
   }
   function duplicate(id, list = store.configs) {
     const r = list.find((x) => x.id === id);
-    if (!r) return { ok: false, error: 'That config is gone' };
-    if (list.length >= CONFIG_MAX) return { ok: false, error: `There is room for ${CONFIG_MAX} saved items. Delete one first.` };
+    if (!r) return { ok: false, error: LT('label.store.that_config_is_gone') };
+    if (list.length >= CONFIG_MAX) return { ok: false, error: LT('label.store.full', { n: CONFIG_MAX }) };
     const now = Date.now(), copy = { id: newId(list === store.presets ? 'p' : 'c'), name: uniqueConfigName(list.map((x) => x.name), r.name + ' copy'), created: now, updated: now, body: deepClone(r.body) };
     list.push(copy); write();
     return { ok: true, record: copy };
@@ -83,7 +83,7 @@ function makeConfigStore(storage, key = CONFIG_KEY) {
   /** A config as a user preset (the same body, its own name). */
   function saveAsPreset(id) {
     const r = find(id);
-    if (!r) return { ok: false, error: 'That config is gone' };
+    if (!r) return { ok: false, error: LT('label.store.that_config_is_gone') };
     return add(uniqueConfigName(store.presets.map((x) => x.name), r.name), r.body, store.presets);
   }
 
@@ -95,17 +95,17 @@ function makeConfigStore(storage, key = CONFIG_KEY) {
   /** Imports a file. Each config is checked; a name already in use gets a number. → { ok, added, rejected: [{ name, error }] } */
   function importText(text) {
     let doc;
-    try { doc = JSON.parse(text); } catch (e) { return { ok: false, error: 'The file is not JSON' }; }
-    if (!doc || doc.format !== CONFIG_FORMAT) return { ok: false, error: 'This is not a SlopLabel config file' };
-    if (doc.version !== CONFIG_VERSION) return { ok: false, error: `This config file is version ${doc.version}; this app reads version ${CONFIG_VERSION}` };
-    if (!Array.isArray(doc.configs)) return { ok: false, error: 'The file has no configs' };
+    try { doc = JSON.parse(text); } catch (e) { return { ok: false, error: LT('label.store.the_file_is_not_json') }; }
+    if (!doc || doc.format !== CONFIG_FORMAT) return { ok: false, error: LT('label.store.this_is_not_a_sloplabel') };
+    if (doc.version !== CONFIG_VERSION) return { ok: false, error: LT('label.store.version', { file: String(doc.version), app: String(CONFIG_VERSION) }) };
+    if (!Array.isArray(doc.configs)) return { ok: false, error: LT('label.store.the_file_has_no_configs') };
     const rejected = [];
     let added = 0;
     for (const item of doc.configs) {
       const name = cleanConfigName(item && item.name), v = validateConfig(item && item.body);
-      if (!name) { rejected.push({ name: '(no name)', error: 'no name' }); continue; }
+      if (!name) { rejected.push({ name: '(no name)', error: LT('label.store.no_name') }); continue; }
       if (!v.ok) { rejected.push({ name, error: v.errors[0] }); continue; }
-      if (store.configs.length >= CONFIG_MAX) { rejected.push({ name, error: 'the list is full' }); continue; }
+      if (store.configs.length >= CONFIG_MAX) { rejected.push({ name, error: LT('label.store.the_list_is_full') }); continue; }
       const now = Date.now();
       store.configs.push({ id: newId('c'), name: uniqueConfigName(store.configs.map((x) => x.name), name), created: now, updated: now, body: v.body });
       added++;
