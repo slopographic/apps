@@ -1,7 +1,9 @@
 // A test page that is about a feature a brand profile can leave out says so in its head:
 //   <meta name="slop-test-needs" content="mascot=builtin">           the built-in buddy engine (shared/buddy)
 //   <meta name="slop-test-needs" content="mascot=builtin|overlay">   any mascot; "media=true", "tone=playful", ...
-// (conditions on the brand facts, tests/brand-facts.js; several are joined with ";", and every one must hold). tests/run.mjs
+//   <meta name="slop-test-needs" content="support.exportCard=true">  a part brand/brand.json can switch off
+// (conditions on the brand facts, tests/brand-facts.js, and brand.json's support flags; several are joined with ";", and
+// every one must hold). tests/run.mjs
 // runs such a page only in a build whose facts fit, and names the pages it left out and why. A build without the feature
 // has a page of its own for the switch's other side (for the mascot: tests/buddy/off.test.html). Node only.
 // Tests: tests/node/test-needs.test.mjs.
@@ -12,11 +14,12 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
-/** The brand facts of this checkout (tests/brand-facts.js). */
+/** The brand facts of this checkout (tests/brand-facts.js), with brand/brand.json's support flags as support.<part>. */
 export function loadFacts(root = ROOT) {
   const g = {};
   vm.runInNewContext(readFileSync(path.join(root, 'tests/brand-facts.js'), 'utf8'), g);
-  return g.BRAND_FACTS;
+  const support = JSON.parse(readFileSync(path.join(root, 'brand/brand.json'), 'utf8')).support || {};
+  return Object.assign({}, g.BRAND_FACTS, Object.fromEntries(Object.entries(support).map(([k, v]) => [`support.${k}`, v])));
 }
 
 /** A page's conditions, [{ key, values }], from its slop-test-needs meta (none: []). */

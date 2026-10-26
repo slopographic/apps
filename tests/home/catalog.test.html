@@ -106,7 +106,7 @@
       expect(+doc.getElementById('score').textContent).toBeGreaterThanOrEqual(0);
       doc.querySelector('.brand').click();
     });
-    it('clicks on the mascot do not count as navigation', async () => {
+    if (BRAND_FACTS.mascot === 'builtin') it('clicks on the mascot do not count as navigation', async () => {   // the built-in one (tests/brand-facts.js)
       await ready;
       await HomeTest.settled(win);
       doc.documentElement.style.scrollBehavior = 'auto';

@@ -57,7 +57,7 @@
       await ready;
       type('zzqxw');
       await waitFor(() => !doc.querySelector('.gx-hint').hidden, { timeout: 4000 });
-      expect(doc.querySelector('.gx-hint').textContent).toBe('No apps match');
+      expect(doc.querySelector('.gx-hint').textContent).toBe(SlopTest.said(win, 'hero.no_match', 'No apps match'));
       await settled();
       expect(win.SlopGlobe.icons().every((i) => Math.abs(i.em - 0.45) < 0.02)).toBe(true);
       type('');

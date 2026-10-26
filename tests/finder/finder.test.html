@@ -17,7 +17,7 @@
   const ITEMS = [
     { id: 'pdf', name: 'PDF', tag: 'Organise PDFs.', feats: ['Merge and split'], kind: 'Documents', types: ['PDF'], live: true, size: 10 },
     { id: 'inv', name: 'Invoices', tag: 'Gapless invoices.', feats: ['Payments'], kind: 'Business', types: ['No upload'], live: false, size: 3 },
-    { id: 'iso', name: 'Slop Isolate', tag: 'Remove backgrounds.', feats: ['Cut-out'], kind: 'Creative', types: ['Images'], live: true, size: 7 },
+    { id: 'iso', name: 'Quill Isolate', tag: 'Remove backgrounds.', feats: ['Cut-out'], kind: 'Creative', types: ['Images'], live: true, size: 7 },
     { id: 'cafe', name: 'Café Notes', tag: 'Notebooks and résumés.', feats: [], kind: 'Documents', types: ['Text'], live: true, size: 1 },
   ];
   const SPEC = {
@@ -144,12 +144,12 @@
       const f = mountIt({ columns: SPEC.columns });
       $('.fd-view[data-fd-view="table"]').click();
       const names = () => $$('.fd-table tbody tr td:first-child').map((td) => td.textContent);
-      expect(names()).toEqual(['PDF', 'Invoices', 'Slop Isolate', 'Café Notes']);
+      expect(names()).toEqual(['PDF', 'Invoices', 'Quill Isolate', 'Café Notes']);
       $$('.fd-sort').find((b) => b.textContent.startsWith('App')).click();
-      expect(names()).toEqual(['Café Notes', 'Invoices', 'PDF', 'Slop Isolate']);
+      expect(names()).toEqual(['Café Notes', 'Invoices', 'PDF', 'Quill Isolate']);
       expect($$('.fd-table th')[0].getAttribute('aria-sort')).toBe('ascending');
       $$('.fd-sort').find((b) => b.textContent.startsWith('App')).click();
-      expect(names()).toEqual(['Slop Isolate', 'PDF', 'Invoices', 'Café Notes']);
+      expect(names()).toEqual(['Quill Isolate', 'PDF', 'Invoices', 'Café Notes']);
       expect($$('.fd-table th')[0].getAttribute('aria-sort')).toBe('descending');
       expect(f.getFilter().sort).toEqual({ key: 'name', dir: 'desc' });
       f.destroy();

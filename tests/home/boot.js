@@ -1,5 +1,5 @@
 /* Loads the homepage in a same-origin iframe for the homepage tests.
- * openHome({ fresh }) resolves with the iframe's window once app.js, the catalog and the mascot are up. */
+ * openHome({ fresh }) resolves with the iframe's window once app.js, the catalog and (when the build has it) the mascot are up. */
 (function () {
   'use strict';
   async function openHome({ fresh = true, hash = '' } = {}) {
@@ -13,7 +13,9 @@
     document.body.prepend(f);
     await new Promise((r) => f.addEventListener('load', r, { once: true }));
     const win = f.contentWindow;
-    await SlopTest.waitFor(() => win.SlopMascot && win.document.querySelector('.app-card'), { timeout: 15000 });
+    // the built-in mascot is up too; a build without it (tests/brand-facts.js) has none to wait for
+    const mascot = () => window.BRAND_FACTS.mascot !== 'builtin' || win.SlopMascot;
+    await SlopTest.waitFor(() => mascot() && win.document.querySelector('.app-card'), { timeout: 15000 });
     return win;
   }
   /** Wait until the mascot is standing on something. */

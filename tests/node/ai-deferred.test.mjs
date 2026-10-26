@@ -166,7 +166,8 @@ test('the system prompt: short, names the tools to load, the apps in a line each
   const local = K.prompt.system(tools, { kind: 'webllm' }, { appName: 'Pixo', capable: true });
   assert.match(local, /Apps \(open_in_app\): photoslop \(Pixo\), slides \(Deckard\)\./);
   assert.ok(local.length < cloud.length);
-  assert.equal(K.prompt.system([], { kind: 'cloud' }, { appName: 'X' }).includes('tools'), false);
+  // no tools, no tool lines (the site's own address may hold the word: tools.example.com)
+  assert.equal(K.prompt.system([], { kind: 'cloud' }, { appName: 'X' }).replace(/\b[\w-]+(\.[\w-]+)+\b/g, '').includes('tools'), false);
 });
 
 test('the usage line on hover: this request, how much was cached, each model turn', () => {

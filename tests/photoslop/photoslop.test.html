@@ -29,8 +29,8 @@
 
   describe('util', () => {
     it('converts colours both ways', () => {
-      expect(W.hexToRgb('#d4ff3a')).toEqual([212, 255, 58]);
-      expect(W.rgbToHex(212, 255, 58)).toBe('#d4ff3a');
+      expect(W.hexToRgb('#2a7fd1')).toEqual([42, 127, 209]);
+      expect(W.rgbToHex(42, 127, 209)).toBe('#2a7fd1');
       const [h, s, v] = W.rgbToHsv(255, 0, 0); expect(h).toBe(0); expect(s).toBe(1); expect(v).toBe(1);
       const back = W.hslToRgb(...W.rgbToHsl(30, 120, 200)).map(Math.round); expect(back).toEqual([30, 120, 200]);
     });

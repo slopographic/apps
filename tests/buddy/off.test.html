@@ -10,7 +10,6 @@
   <!-- The other side of the mascot switch (brand profile "mascot": false): the buddy's own pages need the engine
        (tests/buddy/app.test.html), a mascot of the build's own runs in the slot (tests/buddy/overlay.test.html). -->
   <script src="../harness.js"></script>
-  <script src="../brand-facts.js"></script>
   <script>
   const { describe, it, expect, waitFor, sleep } = SlopTest;
   const loaded = (win, re) => win.performance.getEntriesByType('resource').some((e) => re.test(e.name));

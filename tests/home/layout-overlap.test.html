@@ -50,13 +50,17 @@
     document.body.prepend(f);
     await new Promise((r) => f.addEventListener('load', r, { once: true }));
     const win = f.contentWindow;
-    await waitFor(() => win.SlopMascot && win.document.querySelector('.app-card') && win.SlopGlobe && win.SlopGlobe.frames() > 0 && win.document.getElementById('slopc-banner'), { timeout: 30000 });
+    // the built-in mascot and the consent strip, when the build has them (tests/brand-facts.js)
+    const F = BRAND_FACTS, mascot = () => F.mascot !== 'builtin' || win.SlopMascot, consent = () => !F.analytics || win.document.getElementById('slopc-banner');
+    await waitFor(() => mascot() && win.document.querySelector('.app-card') && win.SlopGlobe && win.SlopGlobe.frames() > 0 && consent(), { timeout: 30000 });
     const doc = win.document;
     doc.documentElement.style.scrollBehavior = 'auto'; // the homepage scrolls smoothly; the checks need the jump to land at once
     win.SlopGlobe.pause(true);                          // the globe would keep moving under the checks
     return win;
   }
   const strip = (win) => win.document.getElementById('slopc-banner');
+  /** The mascot out of the way: the built-in one hidden, a build's own one switched off for this page. */
+  const hideMascot = (win) => { if (win.SlopMascot) win.SlopMascot.show(false); else if (win.SlopBuddyBoot && win.SlopBuddyBoot.on) win.SlopBuddyBoot.setOn(false, false); };
 
   function label(el) {
     const label = (el.getAttribute('aria-label') || el.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 40);
@@ -191,18 +195,23 @@
     describe(`homepage at ${w} px`, () => {
       it('no two visible buttons or links overlap, header controls included', async () => {
         const win = await openHome(w);
-        win.SlopMascot.show(false);
+        hideMascot(win);
         const out = overlapFailures(win);
         expect(out).toEqual([]);
       }, { timeout: 90000 });
       it('every visible control is above the consent strip and not covered by anything when scrolled into view', async () => {
         const win = await openHome(w);
-        win.SlopMascot.show(false);
+        hideMascot(win);
         const out = await coverageFailures(win);
         expect(out).toEqual([]);
       }, { timeout: 180000 });
       it('the page keeps room for the consent strip (bottom padding and --consent-h equal its height)', async () => {
         const win = await openHome(w);
+        if (!BRAND_FACTS.analytics) {   // a build without third parties shows no strip and keeps no room for one
+          expect(strip(win)).toBe(null);
+          expect(parseFloat(win.getComputedStyle(win.document.body).paddingBottom) || 0).toBe(0);
+          return;
+        }
         expect(roomFailures(win)).toEqual([]);
         // Accepting nothing removes the strip; the room goes with it.
         win.document.querySelector('#slopc-banner [data-act="close"]').click();
@@ -210,7 +219,7 @@
         const pad = parseFloat(win.getComputedStyle(win.document.body).paddingBottom) || 0;
         expect(pad).toBe(0);
       }, { timeout: 90000 });
-      it("Sloppo's speech bubble is not covered by the consent strip", async () => {
+      if (BRAND_FACTS.mascot === 'builtin') it("Sloppo's speech bubble is not covered by the consent strip", async () => {
         const win = await openHome(w);
         const out = await bubbleFailures(win);
         expect(out).toEqual([]);

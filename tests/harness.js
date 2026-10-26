@@ -2,7 +2,12 @@
  * Each tests/<app>.test.html loads the app's code plus this file, registers tests,
  * then calls SlopTest.run(). tests/run.mjs opens every page in headless Chromium,
  * reads window.__SLOPTEST__ and prints a report. Open a test page in any browser to
- * see the results on screen too. */
+ * see the results on screen too. It also loads the brand facts beside it (tests/brand-facts.js: window.BRAND_FACTS, the
+ * build's profile switches), before the page's own scripts, so every page can read them. */
+(function () {
+  const me = document.currentScript, facts = me && me.src.replace(/harness\.js(\?.*)?$/, 'brand-facts.js');
+  if (facts && !window.BRAND_FACTS && document.readyState === 'loading') document.write(`<script src="${facts}"><\/script>`);
+})();
 (function () {
   'use strict';
   const suites = [];
@@ -101,5 +106,8 @@
     const [x, y] = [L(a), L(b)].sort((p, q) => q - p);
     return (x + 0.05) / (y + 0.05);
   }
-  window.SlopTest = { describe, it, beforeEach, afterEach, expect, run, pixel, sleep, waitFor, topDialog, contrast };
+  /** The text a page shows for an i18n key: the English text when the page is in English (the build's start language may
+   *  be another: tests/brand-facts.js defaultLang), else that language's string. win: the page's window. */
+  const said = (win, key, english) => (win.SlopI18n && win.SlopI18n.get() !== 'en' ? win.SlopI18n.t(key) : english);
+  window.SlopTest = { describe, it, beforeEach, afterEach, expect, run, pixel, sleep, waitFor, topDialog, contrast, said };
 })();

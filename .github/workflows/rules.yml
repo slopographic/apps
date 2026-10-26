@@ -201,10 +201,13 @@ jobs:
         run: |
           node tools/whitelabel/build.mjs ${{ matrix.profile }} "$OUT"
           tar -cf wl-build.tar -C "$OUT" .
+          echo "$(node -p "require('./brand/profiles/${{ matrix.profile }}.json').github")/cdn=slopographic/cdn" > wl-net-alias.txt
       - uses: actions/upload-artifact@v5
         with:
           name: wl-build-${{ matrix.profile }}
-          path: wl-build.tar
+          path: |
+            wl-build.tar
+            wl-net-alias.txt
           retention-days: 1
       - name: The build as a mirror checkout is (one commit), and all its Node tests
         run: |
@@ -212,13 +215,15 @@ jobs:
           npm ci --no-audit --no-fund && node --test tests/node/*.test.mjs tests/seo/*.test.mjs
 
   # The whole browser suite of each sample build, served from the build, in 8 slices per profile (balanced by the build's
-  # tests/timings.json); they run when a build's Node tests failed too (the build itself is uploaded before them).
+  # tests/timings.json); they run when a build's Node tests failed too (the build itself is uploaded before them). A sample
+  # has no file host of its own, so its links to one fetch this site's files at the same tag (--net-alias), through the
+  # download cache of the browser jobs above.
   whitelabel-browser:
     name: White-label ${{ matrix.profile }} browser ${{ matrix.shard }}/8
     needs: [plan, whitelabel]
     if: ${{ !cancelled() }}
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 30
     container:
       image: mcr.microsoft.com/playwright:v1.64.1-noble
     strategy:
@@ -232,8 +237,14 @@ jobs:
           name: wl-build-${{ matrix.profile }}
       - name: Unpack the build
         run: tar -xf wl-build.tar && rm wl-build.tar && npm ci --no-audit --no-fund
+      - name: Restore the download cache
+        uses: actions/cache/restore@v6
+        with:
+          path: tests/.cache/net
+          key: testnet-${{ hashFiles('tests/net-urls.txt') }}
+          restore-keys: testnet-
       - name: Browser tests of the build, slice ${{ matrix.shard }} of 8
-        run: node tests/run.mjs --shard=${{ matrix.shard }}/8 --jobs=3 --skip-node --results=wl-results-${{ matrix.profile }}-${{ matrix.shard }}.json
+        run: node tests/run.mjs --shard=${{ matrix.shard }}/8 --jobs=3 --skip-node --net-alias=$(cat wl-net-alias.txt) --results=wl-results-${{ matrix.profile }}-${{ matrix.shard }}.json
       - uses: actions/upload-artifact@v5
         if: always()
         with:
@@ -263,4 +274,4 @@ jobs:
       - name: Unpack the build
         run: tar -xf wl-build.tar && rm wl-build.tar && npm ci --no-audit --no-fund
       - name: Touch tests of the build in ${{ matrix.engine }}
-        run: node tests/run.mjs --touch --browser=${{ matrix.engine }} --jobs=2 --skip-node
+        run: node tests/run.mjs --touch --browser=${{ matrix.engine }} --jobs=2 --skip-node --net-alias=$(cat wl-net-alias.txt)

@@ -6,7 +6,7 @@ import { mkdtemp, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { mergeResults, newTimings, netLines, parseNetUrls } from '../results.mjs';
-import { cacheable, keptHeaders, keyOf, load, store, cachedUrls } from '../netcache.mjs';
+import { cacheable, keptHeaders, keyOf, load, store, cachedUrls, aliased } from '../netcache.mjs';
 import { longestFirst } from '../shard.mjs';
 
 test('results of several slices merge, and become timings and net-urls lines', () => {
@@ -32,6 +32,12 @@ test('only whole-file GETs on the pinned model hosts and CDNs are cached; transf
   assert.ok(!cacheable('GET', 'http://huggingface.co/a'));
   assert.ok(!cacheable('GET', 'https://huggingface.co.evil.com/a'));
   assert.ok(!cacheable('GET', 'https://www.googleapis.com/drive/v3/files'));
+  // --net-alias: a sample build's file host is fetched from another account's, raw or through jsDelivr
+  const A = [['acme-x/cdn', 'other/cdn']];
+  assert.equal(aliased('https://raw.githubusercontent.com/acme-x/cdn/v1/m.onnx', A), 'https://raw.githubusercontent.com/other/cdn/v1/m.onnx');
+  assert.equal(aliased('https://cdn.jsdelivr.net/gh/acme-x/cdn@v1/m.onnx', A), 'https://cdn.jsdelivr.net/gh/other/cdn@v1/m.onnx');
+  assert.equal(aliased('https://huggingface.co/a', A), 'https://huggingface.co/a');
+  assert.equal(aliased('https://huggingface.co/a'), 'https://huggingface.co/a');
   assert.deepEqual(keptHeaders({ 'Content-Encoding': 'gzip', 'content-length': '9', 'content-type': 'x', 'access-control-allow-origin': '*' }),
     { 'content-type': 'x', 'access-control-allow-origin': '*' });
 });

@@ -12,6 +12,8 @@
 //   --skip-node                   no Node tests (CI runs them in their own job)
 //   --needs-net                   only print yes when a page of the slice is in tests/net-urls.txt (CI then restores the
 //                                 download cache), else no
+//   --net-alias=a/cdn=b/cdn        the pages that download (tests/net-urls.txt) fetch URLs holding a/cdn from b/cdn instead
+//                                 (CI's white-label samples: a sample has no file host of its own; the files are the same)
 //   --record-timings              write each page's seconds into tests/timings.json, for the shard balance
 //   --results=out.json            write every page's seconds, test times and network tally as JSON (a CI artifact per
 //                                 slice; tests/results.mjs turns those into tests/timings.json and tests/net-urls.txt)
@@ -111,6 +113,8 @@ if (flag('needs-net')) {
   process.exit(0);
 }
 const took = {}, results = {};
+// --net-alias=<from>=<to>[,...]: a white-label sample's links to its own file host fetch this site's (the same files)
+const NET_ALIAS = (value('net-alias') || '').split(',').filter(Boolean).map((a) => [a.slice(0, a.indexOf('=')), a.slice(a.indexOf('=') + 1)]);
 // The pages that download through the cache (tests/net-urls.txt): only these get its route (see tests/netcache.mjs).
 const NET_PAGES = parseNetUrls(await readFile(NET_URLS, 'utf8').catch(() => '')).pages;
 /** Opens one test page in its own context and returns its report as printed lines (a page prints all at once, so pages
@@ -118,7 +122,7 @@ const NET_PAGES = parseNetUrls(await readFile(NET_URLS, 'utf8').catch(() => ''))
 async function runPage(browser, base, p, scale) {
   const ctx = TOUCH ? await browser.newContext({ ...touchDevice(ENGINE, value('device')).options, acceptDownloads: true })
     : await browser.newContext({ viewport: { width: 1280, height: 800 }, acceptDownloads: true, permissions: ['clipboard-read', 'clipboard-write'] });
-  const net = await attachNet(ctx, { dir: NET_DIR, route: NET_PAGES.has(p.split(path.sep).join('/')) });
+  const net = await attachNet(ctx, { dir: NET_DIR, route: NET_PAGES.has(p.split(path.sep).join('/')), alias: NET_ALIAS });
   const page = await ctx.newPage();
   if (TOUCH) await touchPage(page, ENGINE, touchDevice(ENGINE, value('device')).name); // real touches for the test page (tests/touch.mjs)
   // real key presses for a page that needs the browser's own handling (Ctrl+A selecting a field's text): __slopKey('Control+A')

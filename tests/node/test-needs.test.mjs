@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { needsOf, unmet, loadFacts } from '../needs.mjs';
-import { FACTS, ROOT } from '../brand-facts.mjs';
+import { FACTS, BRAND, ROOT } from '../brand-facts.mjs';
 
 const F = { mascot: 'overlay', media: false, defaultLang: 'sv' };
 
@@ -19,7 +19,10 @@ test('a page with no tag runs everywhere; a tag runs a page only where every con
   assert.deepEqual(unmet(needsOf('<meta name="slop-test-needs" content="media=true">'), F).map((c) => c.key), ['media']);
   assert.throws(() => unmet(needsOf('<meta name="slop-test-needs" content="mascott=builtin">'), F), /no brand fact "mascott"/);
   assert.throws(() => needsOf('<meta name="slop-test-needs" content="mascot">'), /key=value/);
-  assert.equal(JSON.stringify(loadFacts()), JSON.stringify(FACTS));
+  const all = loadFacts();
+  for (const k of Object.keys(FACTS)) assert.equal(JSON.stringify(all[k]), JSON.stringify(FACTS[k]), k);
+  for (const k of ['exportCard', 'donate', 'ads']) assert.equal(all[`support.${k}`], BRAND.support[k], k);
+  assert.deepEqual(unmet(needsOf('<meta name="slop-test-needs" content="support.exportCard=true">'), { 'support.exportCard': false }).map((c) => c.key), ['support.exportCard']);
 });
 
 test('the pages of the buddy engine need it, the slot needs a mascot, and the off page needs none', () => {

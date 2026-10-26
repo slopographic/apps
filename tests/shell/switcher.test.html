@@ -84,7 +84,8 @@
         closeIfOpen();
         navigated = null;
         key(' ', { code: 'Space', ctrl: true });
-        typeQuery('slop');
+        typeQuery('pdf');   // an id and a word in several apps of every build (a brand word would match nothing in a plain build)
+        expect(document.querySelectorAll('.sh-opt').length >= 3).toBe(true);
         const q = document.getElementById('sh-q');
         const press = (k) => q.dispatchEvent(new KeyboardEvent('keydown', { key: k, bubbles: true, cancelable: true }));
         press('ArrowDown'); press('ArrowDown');

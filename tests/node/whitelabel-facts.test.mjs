@@ -8,7 +8,7 @@ import vm from 'node:vm';
 import path from 'node:path';
 import { FACTS, BRAND, ROOT } from '../brand-facts.mjs';
 import { loadProfile, profilesDir } from '../../tools/whitelabel/profile.mjs';
-import { markerValues, applyMarkers, brandJson } from '../../tools/whitelabel/emit.mjs';
+import { markerValues, applyMarkers, brandJson, manifest } from '../../tools/whitelabel/emit.mjs';
 
 const facts = (src) => { const g = {}; vm.runInNewContext(src, g); return g.BRAND_FACTS; };
 const SRC = readFileSync(path.join(ROOT, 'tests/brand-facts.js'), 'utf8');
@@ -20,6 +20,10 @@ test('here the facts are this site\'s profile: brand names, playful, the buddy, 
   assert.deepEqual([FACTS.naming, FACTS.tone, FACTS.mascot, FACTS.defaultLang], ['brand', 'playful', 'builtin', 'en']);
   assert.equal(applyMarkers(SRC, markerValues(p)), SRC, 'this site\'s profile leaves the file as it is');
   assert.deepEqual(BRAND.support, brandJson(BRAND, p).support);
+  // the manifest the browser tests compare with brand.json: this site's names and colours (Slopographic, Slop, #0a0a0a)
+  const m = JSON.parse(readFileSync(path.join(ROOT, 'manifest.webmanifest'), 'utf8')), want = JSON.parse(manifest(JSON.stringify(m), p));
+  for (const k of ['name', 'short_name', 'background_color', 'theme_color', 'lang']) assert.equal(m[k], want[k], k);
+  assert.deepEqual([m.name, m.short_name, m.background_color], ['Slopographic', 'Slop', '#0a0a0a']);
 });
 
 test('a build\'s facts follow its profile: the samples', () => {
