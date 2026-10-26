@@ -9,6 +9,7 @@
  *     empty: 'Nothing to choose',                           // shown when items() is empty
  *     onPick: (value) => { ... },
  *     search: 'auto',                                      // a search box at the top: true, false, or 'auto' (6+ choices)
+ *     anchor: () => element,                               // optional: open under this one instead (a More it is folded into)
  *   });
  *   mb.open(); mb.close(); mb.isOpen(); mb.destroy();
  *
@@ -155,7 +156,7 @@
     }
     function place() {
       if (!menu) return;
-      const b = button.getBoundingClientRect(), vw = win.innerWidth, vh = win.innerHeight;
+      const b = (o.anchor && o.anchor() || button).getBoundingClientRect(), vw = win.innerWidth, vh = win.innerHeight;
       const w = menu.offsetWidth, hgt = menu.offsetHeight;
       const rtl = win.getComputedStyle(button).direction === 'rtl';
       let x = rtl ? b.right - w : b.left;

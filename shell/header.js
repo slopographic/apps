@@ -1,4 +1,5 @@
-/* SlopHeader: adds the shell's buttons to the page header: AI (the Slop AI panel, loaded on click), the theme menu (every page, from SlopTheme), "Apps" (opens
+/* SlopHeader: adds the shell's buttons to the page header: AI (the Slop AI panel, loaded on click), the language menu
+ * (shared/i18n/switcher.js), the theme menu (every page, from SlopTheme), "Apps" (opens
  * the switcher), the notifications bell, and Tutorial (the app's YouTube tutorial, when the registry has one). Goes at the end of header.topbar, header.menubar or header.nav, or floats at the
  * top right when the page has no header. Loaded and mounted by shell/shell.js, which applies the language after.
  * The Apps text and the button's aria-label are marked for SlopI18n; the title is set here (it carries the shortcut). */
@@ -21,6 +22,9 @@
     return s && s !== 'shell.switch_title' ? s : 'Switch app (' + shortcut + ')';
   }
 
+  /** A shared-chrome string in the chosen language (shared/i18n), or the English given when SlopI18n is not on the page. */
+  function tr(key, en) { const I = window.SlopI18n, s = I ? I.t(key) : key; return s && s !== key ? s : en; }
+
   /** The theme button: a menu of System and every theme in SlopTheme, the current choice checked. None without SlopTheme. */
   function themeButton() {
     const T = window.SlopTheme;
@@ -30,9 +34,10 @@
     b.className = 'sh-hbtn slop-hbtn sh-theme';
     b.title = 'Theme';
     b.setAttribute('aria-label', 'Theme');
+    b.setAttribute('data-i18n-attr', 'title:shell.theme;aria-label:shell.theme');
     b.setAttribute('aria-haspopup', 'menu');
     b.setAttribute('aria-expanded', 'false');
-    b.innerHTML = ICON_THEME + '<span class="slop-hbtn-txt">Theme</span>';
+    b.innerHTML = ICON_THEME + '<span class="slop-hbtn-txt" data-i18n="shell.theme">Theme</span>';
     b.addEventListener('click', () => {
       if (!window.SlopUI) return;
       const now = T.get();
@@ -41,7 +46,7 @@
       const ai = document.querySelector('.sh-ai');
       const items = (ai && ai.hidden ? [{ label: 'Ask Slop AI…', act: openAI }] : []).concat(conv && conv.hidden ? [{ label: 'Convert files…', act: openConvert }] : [])
         .concat((ai && ai.hidden) || (conv && conv.hidden) ? ['-'] : [])
-        .concat([{ label: 'System', check: now === T.SYSTEM, act: pick(T.SYSTEM) }, '-'])
+        .concat([{ label: tr('shell.theme_system', 'System'), check: now === T.SYSTEM, act: pick(T.SYSTEM) }, '-'])
         .concat(T.THEMES.map((t) => ({ label: t.name, check: now === t.id, act: pick(t.id) })));
       const r = (window.SlopHbtn && window.SlopHbtn.anchor ? window.SlopHbtn.anchor(b) : b).getBoundingClientRect();   // folded into More: under it
       const m = window.SlopUI.menu(items, r.left, r.bottom + 4);
@@ -154,9 +159,11 @@
     sw.innerHTML = ICON_SEARCH + '<span class="sh-hbtn-txt slop-hbtn-txt" data-i18n="nav.apps">Apps</span>';
     sw.addEventListener('click', () => window.SlopSwitcher.toggle());
     const tut = tutorialLink(), theme = themeButton(), conv = convertButton(), ai = aiButton();
+    const lang = window.SlopLangSwitch ? window.SlopLangSwitch.button() : null;   // the language menu (shared/i18n/switcher.js)
     if (ai) box.append(ai);
     if (conv) box.append(conv);
     if (tut) box.append(tut);
+    if (lang) box.append(lang);
     if (theme) box.append(theme);
     box.append(sw);
     const host = document.querySelector('header.topbar, header.menubar, header.nav, header');

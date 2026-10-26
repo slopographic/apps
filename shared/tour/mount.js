@@ -51,11 +51,18 @@
       console.warn('SlopTour: the tour did not start. ' + e.message);
     }
   }
-  function button(label, title, fn) {
+  /** A shared-chrome string in the chosen language (shared/i18n), else the English given. */
+  function tr(key, en, vars) { const I = window.SlopI18n, s = I ? I.t(key, vars) : key; return s && s !== key ? s : en; }
+  /** keys: [label key, title key, vars]: marked for SlopI18n, so a later language change retranslates them. */
+  function button(label, title, fn, keys) {
     const b = document.createElement('button');
     // The shared header-button look (shared/ui/hbtn.css): a compass, and the label that gives way to it in a full header.
     b.type = 'button'; b.className = 'stour-btn slop-hbtn';
     b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="m15 9-2 4-4 2 2-4z"/></svg><span class="slop-hbtn-txt"></span>';
+    const [lk, tk, vars] = keys || [];
+    if (lk) { label = tr(lk, label); b.lastChild.setAttribute('data-i18n', lk); }
+    if (tk) { title = tr(tk, title, vars); b.setAttribute('data-i18n-attr', `title:${tk};aria-label:${tk}`); }
+    if (vars) b.setAttribute('data-i18n-vars', JSON.stringify(vars));
     b.lastChild.textContent = label;
     b.title = title; b.setAttribute('aria-label', title);
     b.addEventListener('click', fn);
@@ -64,7 +71,7 @@
   function headerButton() {
     const host = document.querySelector('.top-actions') || document.querySelector('header.topbar') || document.querySelector('header') || document.querySelector('main') || document.body;
     if (host.querySelector('.stour-btn')) return;
-    const b = button('Tour', 'Start the ' + NAME[APP] + ' tour', () => startTour(APP));
+    const b = button('Tour', 'Start the ' + NAME[APP] + ' tour', () => startTour(APP), ['shell.tour', 'shell.tour_title', { app: NAME[APP] }]);
     const slot = host.querySelector('.stour-slot');   // room kept for it in the page's own HTML, so nothing moves
     if (slot) slot.replaceWith(b); else if (host.matches('.top-actions, main, body')) host.prepend(b); else host.append(b);
   }
@@ -140,7 +147,7 @@
     const tours = button('Tours', 'Guided tours for each app', () => {
       opener = tours; search.value = ''; filter();
       dlg.showModal();
-    });
+    }, ['shell.tours', 'shell.tours_title']);
     tours.setAttribute('aria-haspopup', 'dialog');
     dlg.addEventListener('close', () => { if (opener) opener.focus(); opener = null; });
     document.body.append(dlg);

@@ -196,7 +196,7 @@ test('the picker lists every language by its own name, English first, and only A
 
 test('each language has one file, named by its code, that adds its strings under that code', async () => {
   // <code>-apps.js is a language's app-name table (sv-apps.js), loaded next to its main file.
-  const files = (await readdir(path.join(ROOT, 'shared', 'i18n'))).filter((f) => f.endsWith('.js') && !['i18n.js', 'strings.js'].includes(f) && !/-apps\.js$/.test(f));
+  const files = (await readdir(path.join(ROOT, 'shared', 'i18n'))).filter((f) => f.endsWith('.js') && !['i18n.js', 'strings.js', 'switcher.js'].includes(f) && !/-apps\.js$/.test(f));
   const codes = LANG_ORDER.map(([c]) => c).filter((c) => c !== 'en');
   assert.deepEqual(files.map((f) => f.slice(0, -3)).sort(), [...codes].sort(), 'one file per language, and no stray file');
   for (const code of codes) {
@@ -261,7 +261,7 @@ test('the Arabic table is right to left in the language list and the rule is wri
 });
 
 test('every shared-chrome key used by the shell, the consent strip, the support card and the homepage and Settings exists in English', async () => {
-  const files = ['shell/header.js', 'shell/switcher.js', 'shell/shell.js', 'shared/consent/banner.js', 'shared/support/card.js', 'index.html', 'settings/index.html'];
+  const files = ['shell/header.js', 'shell/switcher.js', 'shell/shell.js', 'shell/notify.js', 'shared/ui/hbtn.js', 'shared/tour/mount.js', 'shared/i18n/switcher.js', 'shared/consent/banner.js', 'shared/support/card.js', 'index.html', 'settings/index.html'];
   const en = await table('strings.js');
   const missing = [];
   for (const f of files) {
