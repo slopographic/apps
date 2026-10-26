@@ -21,9 +21,9 @@
   const SEARCH_FROM = 10;   // a longer list gets a filter box (by name or code: "sv", "deu", "中文")
   const search = (I) => I.langs().length > SEARCH_FROM;
   const short = (code) => String(code || '').split('-')[0].toUpperCase();
-  /** A language's English name, for the filter ("swahili" finds Kiswahili): the entry's own `english`, else the browser's. */
+  /** A language's English name, for the filter ("swahili" finds Kiswahili): the entry's own `en` (LANGS), else the browser's. */
   function english(l) {
-    if (l.english) return String(l.english);
+    if (l.en) return String(l.en);
     try { return new Intl.DisplayNames(['en'], { type: 'language' }).of(l.code) || ''; } catch (e) { return ''; }   // compat-ok: no DisplayNames, filter by name and code
   }
   /** The menu rows: every language in the instance's list, in list order, by its own name; the chosen one checked, and a
@@ -104,6 +104,7 @@
     if (g.SlopMenuButton) attach(g.SlopMenuButton);
     else { b.addEventListener('click', first); b.addEventListener('keydown', (e) => { if (!mb && e.key === 'ArrowDown') first(e); }); }
     g.addEventListener('slop-lang', render);
+    g.addEventListener('slopi18n', render);   // the chosen language's tables are in (they load lazily): its label now
     g.addEventListener('storage', (ev) => { if (!ev.key || ev.key === 'slop-profile') render(); });   // chosen in another tab
     return b;
   }

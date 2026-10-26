@@ -44,7 +44,7 @@
     var key = E.fontKey({ font: family, weight: weight, italic: italic });
     if (faces.has(key)) return faces.get(key);
     var C = window.SlopFontCatalog, face = await C.pickFace(family, weight, italic);
-    if (!face) throw new Error(family + ' is not installed.');
+    if (!face) throw new Error(SP.util.t('pdf.core.font_missing', { family: family }));
     return E.prepareFace(key, await C.bytesOf(face));
   };
   /** Readies every non-standard font the pages' text annotations use, so that measuring and saving them is exact. A font that
@@ -75,7 +75,7 @@
   E.embedTextFont = async function (out, key, cache) {
     if (cache[key]) return cache[key];
     var face = faces.get(key);
-    if (!face) return (cache[key] = out.embedStandardFont(key.indexOf('|') < 0 ? key : 'Helvetica'));
+    if (!face) return (cache[key] = out.embedStandardFont(key.indexOf('|') < 0 ? key : 'Helvetica')); // i18n-ignore: PDF names / font names / producer, not UI
     if (!kitted.has(out)) { out.registerFontkit(face.kit); kitted.add(out); }
     // a subset through the shared run drawer: CFF fonts (Noto Sans CJK) get a header PDF readers accept (shared/fonts/pdf-runs.js)
     return (cache[key] = await window.SlopPdfRuns.embed(out, face.bytes));

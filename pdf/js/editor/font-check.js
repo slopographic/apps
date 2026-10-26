@@ -5,7 +5,7 @@
    Asked once per document; cancelling the prompt cancels that edit. Classic script. */
 (function () {
   'use strict';
-  var SP = window.SP, E = SP.engine, S = SP.editor._;
+  var SP = window.SP, U = SP.util, E = SP.engine, S = SP.editor._;
   var STD = [['Helvetica', /arial|helvetica/i], ['Times', /times/i], ['Courier', /courier/i]];
 
   /** The standard family a document font stands for (Arial is Helvetica, Times New Roman is Times), or null. */
@@ -57,7 +57,8 @@
       if (facts.std || listed.has(facts.family)) continue;
       listed.add(facts.family);
       var installed = await C.hasFamily(facts.family);
-      uses.push(facts.family + (facts.subset ? ' (subset)' : ' (full)') + (installed ? '' : ' · not installed'));
+      var use = U.t(facts.subset ? 'pdf.ed.font_use_subset' : 'pdf.ed.font_use_full', { family: facts.family });
+      uses.push(installed ? use : U.t('pdf.ed.font_use_missing', { use: use }));
       if (facts.subset && !installed && !f.fontMap.has(facts.family)) needs.push({ family: facts.family, closest: C.closestFamily(facts.family), pack: await C.packFor(facts.family) });
     }
     if (!needs.length) return true;

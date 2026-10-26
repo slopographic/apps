@@ -6,7 +6,7 @@
    that cannot be saved are listed with the reason. Reading: io/assets-scan.js; saving: assets-save.js, extract-more.js. */
 (function () {
   'use strict';
-  var SP = window.SP, U = SP.util, E = SP.engine, Ed = SP.editor, A = SP.app, X = SP.assets, Mod = window.SlopPdfAssets, h = U.h;
+  var SP = window.SP, U = SP.util, E = SP.engine, Ed = SP.editor, A = SP.app, X = SP.assets, Mod = window.SlopPdfAssets, h = U.h, t = U.t;
 
   /** Everything the dialog lists: { images, inline, attachments, fonts }. */
   X.findAll = async function () {
@@ -16,27 +16,27 @@
   A.extractAssets = async function () {
     if (!E.state.pages.length) return;
     if (Ed.isEditingText()) Ed.commitText();
-    A.busy('Reading the images, files and fonts…', 0);
+    A.busy(t('pdf.act.ea_reading'), 0);
     var found;
     try { found = await X.findAll(); }
-    catch (e) { console.error(e); SlopUI.alert('Could not read the document', String((e && e.message) || e)); return; }
+    catch (e) { console.error(e); SlopUI.alert(t('pdf.act.ea_read_fail'), String((e && e.message) || e)); return; }
     finally { A.busy(null); }
     openList(found);
   };
 
   function openList(found) {
     var rows = Mod.rows(found.images, found.fonts), att = Mod.attachmentRows(found.attachments), chosen = new Set(), boxes = [];
-    var inl = found.inline.map(function (im) { return { id: im.id, title: im.name + ' (inline)', meta: [im.width + '×' + im.height, im.ext === 'jpg' ? 'JPEG as stored' : 'drawn as PNG', 'page ' + im.page], checked: true }; });
+    var inl = found.inline.map(function (im) { return { id: im.id, title: t('pdf.act.ea_inline', { name: im.name }), meta: [im.width + '×' + im.height, t(im.ext === 'jpg' ? 'pdf.act.ea_jpeg_stored' : 'pdf.act.ea_drawn_png'), t('pdf.act.ea_page', { p: String(im.page) })], checked: true }; });
     var base = X.baseName(), canDrive = !!window.SlopHub && !SP.offline, zipName = base + '-assets.zip';
     var sum = h('p', { class: 'sui-p ea-sum' });
-    var textSel = h('select', { class: 'ea-fmt', 'aria-label': 'Text format' }, h('option', { value: 'both' }, '.txt and .md'), h('option', { value: 'txt' }, '.txt'), h('option', { value: 'md' }, 'Markdown (.md)'));
-    var pageSel = h('select', { class: 'ea-fmt', 'aria-label': 'Page format' }, h('option', { value: 'png' }, 'PNG, 150 dpi'), h('option', { value: 'png300' }, 'PNG, 300 dpi'), h('option', { value: 'svg' }, 'SVG'));
+    var textSel = h('select', { class: 'ea-fmt', 'aria-label': t('pdf.act.ea_text_format') }, h('option', { value: 'both' }, t('pdf.act.ea_txt_md')), h('option', { value: 'txt' }, '.txt'), h('option', { value: 'md' }, t('pdf.act.ea_markdown')));
+    var pageSel = h('select', { class: 'ea-fmt', 'aria-label': t('pdf.act.ea_page_format') }, h('option', { value: 'png' }, t('pdf.act.ea_png_dpi', { dpi: '150' })), h('option', { value: 'png300' }, t('pdf.act.ea_png_dpi', { dpi: '300' })), h('option', { value: 'svg' }, 'SVG'));
     var textCb = h('input', { type: 'checkbox', 'data-part': 'text' }), pageCb = h('input', { type: 'checkbox', 'data-part': 'pages' });
-    var outSel = h('select', { class: 'ea-fmt', 'aria-label': 'Output' }, h('option', { value: 'zip' }, 'One .zip'), h('option', { value: 'files' }, 'One file each'));
+    var outSel = h('select', { class: 'ea-fmt', 'aria-label': t('pdf.act.ea_output') }, h('option', { value: 'zip' }, t('pdf.act.ea_one_zip')), h('option', { value: 'files' }, t('pdf.act.ea_each_file')));
     function count() {
       var n = chosen.size + (textCb.checked ? 1 : 0) + (pageCb.checked ? 1 : 0);
-      var k = function (v, one, many) { return v + ' ' + (v === 1 ? one : many); };
-      sum.textContent = n + ' selected · ' + k(rows.counts.images + inl.length, 'image', 'images') + ', ' + k(att.length, 'file', 'files') + ', ' + k(rows.counts.fonts, 'font', 'fonts');
+      sum.textContent = t('pdf.act.ea_sum', { n: n, images: t('pdf.act.ea_images', { n: rows.counts.images + inl.length }),
+        files: t('pdf.act.ea_files', { n: att.length }), fonts: t('pdf.act.ea_fonts', { n: rows.counts.fonts }) });
     }
     function setAll(on) {
       boxes.forEach(function (b) { if (!b.cb.disabled) { b.cb.checked = on; if (on) chosen.add(b.id); else chosen.delete(b.id); } });
@@ -53,25 +53,25 @@
     }
     function section(title, list, part) {
       if (!list.length) return null;
-      return h('section', { class: 'ea-sec', 'data-part': part }, h('h3', { class: 'ea-h' }, title + ' (' + list.length + ')'), h('div', { class: 'ea-items' }, list.map(row)));
+      return h('section', { class: 'ea-sec', 'data-part': part }, h('h3', { class: 'ea-h' }, t('pdf.act.ea_section', { title: title, n: list.length })), h('div', { class: 'ea-items' }, list.map(row)));
     }
     function opt(cb, label, sel) { cb.addEventListener('change', count); return h('label', { class: 'ea-row ea-opt' }, cb, h('span', { class: 'ea-main' }, h('span', { class: 'ea-title' }, label), sel)); }
     rows.images.concat(inl, att, rows.fonts).forEach(function (r) { if (r.checked) chosen.add(r.id); });
     var body = h('div', { class: 'ea-body' },
-      h('div', { class: 'ea-tools' }, sum, h('button', { type: 'button', class: 'sui-btn', onclick: function () { setAll(true); } }, 'All'),
-        h('button', { type: 'button', class: 'sui-btn', onclick: function () { setAll(false); } }, 'None')),
-      h('p', { class: 'sui-p ea-note' }, 'JPEG images are saved as stored, other images as PNG. Embedded files are saved as they are. A subset font holds only the glyphs the PDF uses.'),
-      section('Images', rows.images.concat(inl), 'images'), section('Embedded files', att, 'attachments'), section('Fonts', rows.fonts, 'fonts'),
-      h('section', { class: 'ea-sec', 'data-part': 'doc' }, h('h3', { class: 'ea-h' }, 'Text and pages'),
-        h('div', { class: 'ea-items' }, opt(textCb, 'The text of each page', textSel), opt(pageCb, 'Each page as a picture', pageSel))),
-      h('label', { class: 'ea-fmtrow' }, 'Output ', outSel));
+      h('div', { class: 'ea-tools' }, sum, h('button', { type: 'button', class: 'sui-btn', onclick: function () { setAll(true); } }, t('ui.all')),
+        h('button', { type: 'button', class: 'sui-btn', onclick: function () { setAll(false); } }, t('ui.none'))),
+      h('p', { class: 'sui-p ea-note' }, t('pdf.act.ea_note')),
+      section(t('pdf.act.ea_sec_images'), rows.images.concat(inl), 'images'), section(t('pdf.act.ea_sec_files'), att, 'attachments'), section(t('pdf.act.fonts_title'), rows.fonts, 'fonts'),
+      h('section', { class: 'ea-sec', 'data-part': 'doc' }, h('h3', { class: 'ea-h' }, t('pdf.act.ea_sec_doc')),
+        h('div', { class: 'ea-items' }, opt(textCb, t('pdf.act.ea_opt_text'), textSel), opt(pageCb, t('pdf.act.ea_opt_pages'), pageSel))),
+      h('label', { class: 'ea-fmtrow' }, t('pdf.act.ea_output') + ' ', outSel));
     count();
-    var buttons = [{ label: 'Close' }];
-    if (window.SlopOuttake && canDrive) buttons.push({ label: 'Open in…', act: function () { openIn(); return false; } });
-    if (canDrive) buttons.push({ label: 'Save to Slop Drive', act: function () { return run('drive'); } });
-    buttons.push({ label: 'Download ZIP', primary: true, act: function () { return run('download'); } });
-    SlopUI.dialog({ title: 'Extract all', cls: 'sui-wide ea-dlg', body: body, buttons: buttons });
-    outSel.addEventListener('change', function () { var b = document.querySelector('.ea-dlg .sui-btn.sui-primary'); if (b) b.textContent = outSel.value === 'zip' ? 'Download ZIP' : 'Download'; });
+    var buttons = [{ label: t('menu.close') }];
+    if (window.SlopOuttake && canDrive) buttons.push({ label: t('pdf.act.ea_open_in'), act: function () { openIn(); return false; } });
+    if (canDrive) buttons.push({ label: t('pdf.act.ea_save_drive'), act: function () { return run('drive'); } });
+    buttons.push({ label: t('pdf.act.ea_download_zip'), primary: true, act: function () { return run('download'); } });
+    SlopUI.dialog({ title: t('pdf.act.ea_title'), cls: 'sui-wide ea-dlg', body: body, buttons: buttons });
+    outSel.addEventListener('change', function () { var b = document.querySelector('.ea-dlg .sui-btn.sui-primary'); if (b) b.textContent = outSel.value === 'zip' ? t('pdf.act.ea_download_zip') : t('ui.download'); });
 
     function choice() {
       var pick = function (l) { return l.filter(function (x) { return chosen.has(x.id); }); };
@@ -81,32 +81,33 @@
     }
     async function collect() {
       var c = choice();
-      if (!c.images.length && !c.fonts.length && !c.attachments.length && !c.inline.length && !c.text && !c.pages) { SlopUI.toast('Select some items first.'); return null; }
-      A.busy('Preparing the files…', 0);
-      try { return await X.collect(c, function (f) { A.busy('Preparing the files…', f); }); } finally { A.busy(null); }
+      if (!c.images.length && !c.fonts.length && !c.attachments.length && !c.inline.length && !c.text && !c.pages) { SlopUI.toast(t('pdf.act.ea_select_some')); return null; }
+      A.busy(t('pdf.act.ea_preparing'), 0);
+      try { return await X.collect(c, function (f) { A.busy(t('pdf.act.ea_preparing'), f); }); } finally { A.busy(null); }
     }
     async function run(dest) {
       var out, asZip = outSel.value === 'zip';
       try {
         out = await collect(); if (!out) return false;
-        if (!out.entries.length) { SlopUI.alert('Nothing to save', skipText(out.skipped)); return false; }
-        A.busy(dest === 'drive' ? 'Saving to Slop Drive…' : 'Saving…', 0.5);
+        if (!out.entries.length) { SlopUI.alert(t('pdf.act.ea_nothing_title'), skipText(out.skipped)); return false; }
+        A.busy(t(dest === 'drive' ? 'pdf.act.ea_saving_drive' : 'pdf.act.ea_saving'), 0.5);
         if (dest === 'drive') await X.saveToDrive(out.entries, zipName, base, asZip);
         else await X.download(out.entries, zipName, asZip);
       } catch (e) {
-        console.error(e); SlopUI.alert('Could not save the files', String((e && e.message) || e)); return false;
+        console.error(e); SlopUI.alert(t('pdf.act.ea_save_fail'), String((e && e.message) || e)); return false;
       } finally { A.busy(null); }
-      var n = out.entries.length, where = dest === 'drive' ? ' to Slop Drive' : '';
-      var what = asZip ? 'Saved ' + n + ' file' + (n === 1 ? '' : 's') + ' in ' + zipName + where : 'Saved ' + n + ' file' + (n === 1 ? '' : 's') + where;
-      SlopUI.toast(what + (out.skipped.length ? ' · ' + out.skipped.length + ' skipped' : ''));
+      var n = out.entries.length, drive = dest === 'drive';
+      var v = { n: n, zip: zipName };
+      var what = asZip ? (drive ? t('pdf.act.ea_saved_zip_drive', v) : t('pdf.act.ea_saved_zip', v)) : drive ? t('pdf.act.ea_saved_drive', v) : t('pdf.act.ea_saved', v);
+      SlopUI.toast(out.skipped.length ? t('pdf.act.ea_with_skipped', { what: what, k: out.skipped.length }) : what);
       A.status(what, 'ok');
-      if (out.skipped.length) SlopUI.alert('Some items were skipped', skipText(out.skipped));
+      if (out.skipped.length) SlopUI.alert(t('pdf.act.ea_skipped_title'), skipText(out.skipped));
       return true;
     }
     /** Open in…: one file goes as it is, more as the ZIP (SlopOuttake builds the list of apps that take it). */
     function openIn() {
-      var made = null, at = Array.prototype.find.call(document.querySelectorAll('.ea-dlg .sui-btn'), function (b) { return b.textContent === 'Open in…'; }) || document.querySelector('.ea-dlg');
-      var one = function () { return (made = made || collect()).then(function (o) { if (!o || !o.entries.length) throw new Error('Select some items first.'); return o; }); };
+      var made = null, at = Array.prototype.find.call(document.querySelectorAll('.ea-dlg .sui-btn'), function (b) { return b.textContent === t('pdf.act.ea_open_in'); }) || document.querySelector('.ea-dlg');
+      var one = function () { return (made = made || collect()).then(function (o) { if (!o || !o.entries.length) throw new Error(t('pdf.act.ea_select_some')); return o; }); };
       var c = choice(), single = c.images.length + c.fonts.length + c.attachments.length + c.inline.length === 1 && !c.text && !c.pages;
       var a = single && c.attachments[0], type = a ? a.mime : single && (c.images[0] || c.inline[0]) ? 'image/' + ((c.images[0] || c.inline[0]).ext === 'jpg' ? 'jpeg' : 'png') : single ? 'font/sfnt' : 'application/zip';
       SlopOuttake.menu(at, { from: 'pdf', type: type,
@@ -114,5 +115,5 @@
         get: function () { return one().then(function (o) { return single ? new Blob([o.entries[0].data], { type: type }) : X.zipBlob(o.entries); }); } });
     }
   }
-  function skipText(list) { return list.length ? list.map(function (s) { return s.name + ': ' + s.reason; }).join('. ') : 'Nothing was skipped.'; }
+  function skipText(list) { return list.length ? list.map(function (s) { return t('pdf.act.ea_skip_item', { name: s.name, reason: s.reason }); }).join('. ') : t('pdf.act.ea_none_skipped'); }
 })();

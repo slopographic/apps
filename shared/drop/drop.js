@@ -10,6 +10,8 @@
   'use strict';
   const SD = (root.SlopDrop = root.SlopDrop || {});
   const R = SD.rules, PN = SD.panel, doc = root.document;
+  /** A word from the shared tables (shared/i18n/ui/en.js), or the English given when SlopI18n or the key is absent. */
+  function tr(key, en, vars) { const I = globalThis.SlopI18n; if (I && I.has && I.has(key)) return I.t(key, vars); return vars ? String(en).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en; }
 
   const isFiles = (e) => !!e.dataTransfer && Array.from(e.dataTransfer.types || []).includes('Files');
   /** One MIME type per file in the drag ('' when the browser does not say). The names are hidden until the drop. */
@@ -82,7 +84,7 @@
     const trySample = () => {
       if (!o.sample) return Promise.resolve();
       if (ui.sample) ui.sample.disabled = true;
-      ui.status.textContent = 'Preparing the sample…';
+      ui.status.textContent = tr('ui.drop.preparing', 'Preparing the sample…');
       const files = Promise.resolve().then(() => o.sample.files()).finally(() => { if (ui.sample) ui.sample.disabled = false; });
       return run(files, null, 'sample');
     };
@@ -133,7 +135,7 @@
       if (!isFiles(e)) return;
       e.preventDefault();
       hide();
-      if (!e.sdHandled && !e.sdSeen) PN.toast('Drop files on the highlighted area', 'warn');
+      if (!e.sdHandled && !e.sdSeen) PN.toast(tr('ui.drop.on_area', 'Drop files on the highlighted area'), 'warn');
       e.sdSeen = true;
     };
     const onScroll = () => { if (shown) PN.placeHints(); };

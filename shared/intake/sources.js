@@ -16,6 +16,8 @@
   'use strict';
   const SI = window.SlopIntake;
   if (!SI || !SI.take || SI.pick) return;
+  /** A word from the shared tables (shared/i18n/ui/en.js), or the English given when SlopI18n or the key is absent. */
+  function tr(key, en, vars) { const I = globalThis.SlopI18n; if (I && I.has && I.has(key)) return I.t(key, vars); return vars ? String(en).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en; }
 
   /* ---------- paste ---------- */
   const typing = (t) => !!t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)) && !(t.classList && t.classList.contains('paste-catcher'));
@@ -83,7 +85,7 @@
   SI.fromDrive = async function (o) {
     o = o || {};
     const H = hub(), spec = SI.spec(o.to);
-    if (!H) { SI.toast('Slop Drive is not available here', 'warn'); return null; }
+    if (!H) { SI.toast(tr('ui.no_drive', 'Slop Drive is not available here'), 'warn'); return null; }
     const rec = await H.pickFromDrive({ accept: o.accept || driveAccept(spec), title: o.title });
     if (!rec) return null;
     const full = rec.blob ? rec : await H.get(rec.id);

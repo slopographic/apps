@@ -27,16 +27,16 @@
   function change(id, label, fn) {
     S.commitPage(label, function (p) { p.annots.forEach(function (a) { if (a.id === id && a.type === 'note') fn(a); }); });
   }
-  Ed.addNote = function (note) { return Ed.addAnnot(note, 'Add comment'); };
+  Ed.addNote = function (note) { return Ed.addAnnot(note, U.t('pdf.ed.undo_add_comment')); };
   Ed.replyNote = function (id, text, author) {
     var r = { id: U.uid('r'), author: String(author), date: new Date().toISOString(), text: String(text) };
-    change(id, 'Reply to comment', function (a) { a.replies = (a.replies || []).concat([r]); });
+    change(id, U.t('pdf.ed.undo_reply_comment'), function (a) { a.replies = (a.replies || []).concat([r]); });
   };
   Ed.setNoteResolved = function (id, on) {
-    change(id, on ? 'Resolve comment' : 'Reopen comment', function (a) { a.resolved = !!on; });
+    change(id, U.t(on ? 'pdf.ed.undo_resolve_comment' : 'pdf.ed.undo_reopen_comment'), function (a) { a.resolved = !!on; });
   };
   Ed.deleteNote = function (id) {
-    S.commitPage('Delete comment', function (p) { p.annots = p.annots.filter(function (a) { return a.id !== id; }); });
+    S.commitPage(U.t('pdf.ed.undo_delete_comment'), function (p) { p.annots = p.annots.filter(function (a) { return a.id !== id; }); });
     Ed.select(null);
   };
   /** Every comment in the document, in page order: [{ pid, index, note }]. */

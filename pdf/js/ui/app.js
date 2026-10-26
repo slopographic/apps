@@ -7,10 +7,14 @@
   var A = SP.app = {};
   A.tool = 'organize'; A.mode = 'grid';
   A.insertOpts = { size: 'a4', orient: 'portrait', where: 'after' };
-  var $ = U.$, h = U.h;
+  var $ = U.$, h = U.h, t = U.t;
   var S = A._ = { els: {}, fileNameTouched: false, savedSession: null }; // shared by ui/*.js
-  var RAIL = [['organize', 'Organize', 'organize'], ['edit', 'Edit page', 'edit'], ['sign', 'Sign', 'sign'], ['redact', 'Redact', 'redact'], ['numbers', 'Page numbers', 'numbers'], ['watermark', 'Watermark', 'watermark'], ['comments', 'Comments', 'comments'],
-    ['forms', 'Forms', 'forms'], ['compress', 'Compress', 'compress'], ['convert', 'Convert', 'convert'], ['ocr', 'OCR', 'ocr'], ['split', 'Split', 'split'], ['metadata', 'Metadata', 'info']];
+  // [tool id, label in the current language, icon, label key]; the label is set from the key again on a language switch
+  // (S.labelRail) so S.RAIL's readers (ui/commands.js) and the rail buttons always have the current words.
+  var RAIL = [['organize', '', 'organize', 'pdf.app.rail_organize'], ['edit', '', 'edit', 'pdf.app.rail_edit'], ['sign', '', 'sign', 'pdf.app.rail_sign'], ['redact', '', 'redact', 'pdf.app.rail_redact'], ['numbers', '', 'numbers', 'pdf.app.rail_numbers'], ['watermark', '', 'watermark', 'pdf.app.rail_watermark'], ['comments', '', 'comments', 'pdf.app.rail_comments'],
+    ['forms', '', 'forms', 'pdf.app.rail_forms'], ['compress', '', 'compress', 'pdf.app.rail_compress'], ['convert', '', 'convert', 'pdf.app.rail_convert'], ['ocr', '', 'ocr', 'pdf.app.rail_ocr'], ['split', '', 'split', 'pdf.app.rail_split'], ['metadata', '', 'info', 'pdf.app.rail_metadata']];
+  function railLabels() { RAIL.forEach(function (r) { r[1] = t(r[3]); }); }
+  railLabels();
 
   var PAGE_TOOLS = { edit: 1, sign: 1, redact: 1, comments: 1 };
   S.RAIL = RAIL;
@@ -36,13 +40,13 @@
     PN.init(S.els.props);
     // phone width: the panel is a bottom sheet (shared/ui/sheet.js) that the rail's tools and the panel button open and close
     if (window.SlopSheet) S.sheet = SlopSheet.attach({ root: S.els.app, panel: S.els.props, phone: '(max-width: 900px)', openClass: 'sheet-open', triggers: S.els.rail,
-      isActive: function (b) { return b.classList.contains('on'); }, toggles: [S.els.btnPanel], label: 'Tool panel' });
+      isActive: function (b) { return b.classList.contains('on'); }, toggles: [S.els.btnPanel], label: t('pdf.app.tool_panel') });
     // the properties panel's width: dragged on its edge and kept (shared/ui/resize-panel.js, every side panel's one implementation)
     if (window.SlopResizePanel) SlopResizePanel.attach(S.els.props, { app: 'pdf', id: 'props', edge: 'start', width: 304, min: 260, max: 560,
-      phone: '(max-width: 900px)', cssVar: '--props-w', target: S.els.app, label: 'Properties' });
+      phone: '(max-width: 900px)', cssVar: '--props-w', target: S.els.app, label: t('pdf.app.properties') });
     // the suite rule (shared/frame/HANDOFF.md): Download, the main button, sits at the foot of the properties panel (the
     // shared footer, shared/frame/panel.js); on a phone the closed sheet still shows it above the rail. File ▸ Download too.
-    if (window.SlopFramePanel) SlopFramePanel.create(S.els.props, { bare: true }).footer([{ el: S.els.btnDownload }], { more: 'Properties', onMore: function () { if (S.sheet) S.sheet.toggle(); } });
+    if (window.SlopFramePanel) SlopFramePanel.create(S.els.props, { bare: true }).footer([{ el: S.els.btnDownload }], { more: t('pdf.app.properties'), onMore: function () { if (S.sheet) S.sheet.toggle(); } });
     S.els.btnPanel.addEventListener('click', function () { if (!S.sheet || !S.sheet.isPhone()) A.togglePanel(); });
     S.els.btnDownload.addEventListener('click', A.whenReady(function () { A.download(); }));
     S.els.btnUndo.addEventListener('click', A.whenReady(function () { A.undo(); }));
@@ -55,6 +59,7 @@
     A.paintMeta(); // the shared theme script has already painted the page
     S.markRail(A.tool); PN.show(A.tool); S.updateChrome();
     if (SP.offline) document.documentElement.classList.add('is-offline');
+    U.onLang(function () { S.labelRail(); S.updateUndo(); S.updateStatus(); }); // UI built once follows a language switch
   };
   A.bootRest = function () {
     S.buildCtxBars();
@@ -75,16 +80,24 @@
   function start() {
     A.boot();
     var later = window.SlopLoad ? SlopLoad.ready('pdf-later') : Promise.resolve();
-    later.then(A.bootRest).catch(function (e) { console.error('Slop PDF: could not start', e); A.status('Slop PDF could not start: ' + (e.message || e), 'err'); });
+    later.then(A.bootRest).catch(function (e) { console.error('Slop PDF: could not start', e); A.status(t('pdf.app.start_failed', { error: String(e.message || e) }), 'err'); });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 
   /* ---------------------------------------------------------------- rail */
   S.buildRail = function () {
-    RAIL.forEach(function (t) {
-      var b = h('button', { type: 'button', class: 'rail-b', role: 'tab', 'data-tool': t[0], 'aria-selected': 'false', title: t[1], html: U.icon(t[2]) + '<span>' + t[1] + '</span>' });
-      b.addEventListener('click', A.whenReady(function () { A.setTool(t[0]); })); // on a phone the sheet opens or closes with it (S.sheet)
+    RAIL.forEach(function (r) {
+      var b = h('button', { type: 'button', class: 'rail-b', role: 'tab', 'data-tool': r[0], 'aria-selected': 'false', title: r[1], html: U.icon(r[2]) + '<span>' + U.esc(r[1]) + '</span>' });
+      b.addEventListener('click', A.whenReady(function () { A.setTool(r[0]); })); // on a phone the sheet opens or closes with it (S.sheet)
       S.els.rail.appendChild(b);
+    });
+  };
+  /** A language switch: the rail's labels (and S.RAIL's) in the new language. */
+  S.labelRail = function () {
+    railLabels();
+    RAIL.forEach(function (r) {
+      var b = S.els.rail && S.els.rail.querySelector('.rail-b[data-tool="' + r[0] + '"]'); if (!b) return;
+      b.title = r[1]; var sp = b.querySelector('span'); if (sp) sp.textContent = r[1];
     });
   };
   S.markRail = function (t) {
@@ -157,8 +170,8 @@
   }
   S.updateUndo = function () {
     S.els.btnUndo.disabled = !E.canUndo(); S.els.btnRedo.disabled = !E.canRedo();
-    S.els.btnUndo.title = E.canUndo() ? 'Undo ' + E.undoLabel() + ' (Ctrl+Z)' : 'Nothing to undo';
-    S.els.btnRedo.title = E.canRedo() ? 'Redo ' + E.redoLabel() + ' (Ctrl+Shift+Z)' : 'Nothing to redo';
+    S.els.btnUndo.title = E.canUndo() ? t('ui.undo_what', { what: E.undoLabel() }) + ' (Ctrl+Z)' : t('pdf.app.nothing_undo');
+    S.els.btnRedo.title = E.canRedo() ? t('ui.redo_what', { what: E.redoLabel() }) + ' (Ctrl+Shift+Z)' : t('pdf.app.nothing_redo');
   }
   var statusMsg = '', statusT = 0;
   A.status = function (msg, kind) {
@@ -170,9 +183,10 @@
     // a copy made to take text off a page (editor/text-strip.js) counts as the file it was made from
     var root = function (id) { var f = E.files.get(id); return f && f.derived ? root(f.derived.from) : id; };
     var n = E.state.pages.length, files = new Set(E.state.pages.filter(function (p) { return p.f; }).map(function (p) { return root(p.f); })).size;
-    var left = n ? n + ' page' + (n === 1 ? '' : 's') + ' · ' + files + ' file' + (files === 1 ? '' : 's') + (O.sel.size ? ' · ' + O.sel.size + ' selected' : '') : 'No document';
-    $('#statusLeft').textContent = left;
-    $('#statusZoom').textContent = A.mode === 'page' && n ? 'Zoom ' + Math.round(Ed.zoom * 72 / 96 * 100) + '%' : '';
+    var bits = [t('pdf.app.pages_n', { n: n }), t('pdf.app.files_n', { n: files })];
+    if (O.sel.size) bits.push(t('pdf.app.selected_n', { n: O.sel.size }));
+    $('#statusLeft').textContent = n ? bits.join(' · ') : t('pdf.app.no_document');
+    $('#statusZoom').textContent = A.mode === 'page' && n ? t('pdf.app.zoom_pct', { pct: String(Math.round(Ed.zoom * 72 / 96 * 100)) }) : '';
   }
   A.announce = function (msg) { S.els.live.textContent = ''; setTimeout(function () { S.els.live.textContent = msg; }, 30); A.status(msg); };
 
@@ -191,7 +205,7 @@
   S.refreshAll = function () { O.render(); PN.refresh(); S.updateChrome(); }
 
   /* --------------------------------------------------------- undo/redo */
-  A.undo = function () { if (Ed.isEditingText()) { Ed.commitText(); } var l = E.undo(); if (l) A.announce('Undid: ' + l); return l; };
-  A.redo = function () { var l = E.redo(); if (l) A.announce('Redid: ' + l); };
+  A.undo = function () { if (Ed.isEditingText()) { Ed.commitText(); } var l = E.undo(); if (l) A.announce(t('pdf.app.undid', { what: l })); return l; };
+  A.redo = function () { var l = E.redo(); if (l) A.announce(t('pdf.app.redid', { what: l })); };
 
 })();

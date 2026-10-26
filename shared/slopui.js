@@ -4,6 +4,8 @@
 (function () {
   'use strict';
   if (window.SlopUI) return;
+  /** A word from the shared tables (shared/i18n/ui/en.js), or the English given when SlopI18n or the key is absent. */
+  function tr(key, en, vars) { const I = globalThis.SlopI18n; if (I && I.has && I.has(key)) return I.t(key, vars); return vars ? String(en).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en; }
   const isMac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
   function el(tag, attrs, ...kids) {
     const n = document.createElement(tag);
@@ -31,8 +33,8 @@
    */
   function dialog(o) {
     const back = el('div', { class: 'sui-back' + (o.modal === false || o.dock ? ' sui-modeless' : '') + (o.dock ? ' sui-dock-' + o.dock : '') });
-    const box = el('div', { class: 'sui-dlg ' + (o.cls || ''), role: 'dialog', 'aria-modal': o.modal === false ? 'false' : 'true', 'aria-label': o.title || 'Dialog' });
-    const closeBtn = el('button', { class: 'sui-x', type: 'button', 'aria-label': 'Close' }, '×');
+    const box = el('div', { class: 'sui-dlg ' + (o.cls || ''), role: 'dialog', 'aria-modal': o.modal === false ? 'false' : 'true', 'aria-label': o.title || tr('ui.dlg.dialog', 'Dialog') });
+    const closeBtn = el('button', { class: 'sui-x', type: 'button', 'aria-label': tr('menu.close', 'Close') }, '×');
     const head = el('div', { class: 'sui-head' }, el('span', { class: 'sui-title' }, o.title || ''), closeBtn);
     const body = el('div', { class: 'sui-body' }, typeof o.body === 'string' ? el('p', { class: 'sui-p' }, o.body) : o.body);
     const foot = el('div', { class: 'sui-foot' });
@@ -90,14 +92,14 @@
     });
     return { box, body, close };
   }
-  const alert = (title, msg, ok = 'OK') => new Promise((res) => dialog({ title, body: msg, buttons: [{ label: ok, primary: true }], onClose: () => res() }));
-  const confirm = (title, msg, ok = 'OK', { danger = false, cancel = 'Cancel' } = {}) => new Promise((res) => dialog({ title, body: msg, buttons: [{ label: cancel }, { label: ok, primary: true, danger }], onClose: (r) => res(r) }));
-  function prompt(title, label, value = '', { ok = 'OK', placeholder = '', multiline = false } = {}) {
+  const alert = (title, msg, ok = tr('menu.ok', 'OK')) => new Promise((res) => dialog({ title, body: msg, buttons: [{ label: ok, primary: true }], onClose: () => res() }));
+  const confirm = (title, msg, ok = tr('menu.ok', 'OK'), { danger = false, cancel = tr('menu.cancel', 'Cancel') } = {}) => new Promise((res) => dialog({ title, body: msg, buttons: [{ label: cancel }, { label: ok, primary: true, danger }], onClose: (r) => res(r) }));
+  function prompt(title, label, value = '', { ok = tr('menu.ok', 'OK'), placeholder = '', multiline = false } = {}) {
     return new Promise((res) => {
       const input = multiline ? el('textarea', { class: 'sui-input', rows: 4, placeholder }) : el('input', { class: 'sui-input', type: 'text', placeholder });
       input.value = value;
       let out = null;
-      dialog({ title, body: field(label, input), buttons: [{ label: 'Cancel' }, { label: ok, primary: true, act: () => { out = input.value; } }], onClose: (r) => res(r ? out : null) });
+      dialog({ title, body: field(label, input), buttons: [{ label: tr('menu.cancel', 'Cancel') }, { label: ok, primary: true, act: () => { out = input.value; } }], onClose: (r) => res(r ? out : null) });
     });
   }
   /** A labelled row for forms: field('Width', input, 'px'). */
@@ -119,9 +121,10 @@
 
   /* ---------- context menu ---------- */
   // items: [{ label, key, act, disabled, check, sub: [...] } | '-']
-  // A submenu opens beside its row: to the right of the menu, or to the left when there is no room.
-  // It opens on hover after a short delay, or at once on click, Enter or ArrowRight. Escape or ArrowLeft
-  // closes it. On a narrow screen (phones) it opens in place, as an indented list inside the menu.
+  // A submenu opens beside its row: to the right of the menu, or to the left when there is no room (mirrored on a
+  // right-to-left page: <html dir="rtl">, Arabic and Hebrew, opens left first and the arrow points left).
+  // It opens on hover after a short delay, or at once on click, Enter or ArrowRight (ArrowLeft in RTL). Escape or
+  // ArrowLeft (ArrowRight in RTL) closes it. On a narrow screen (phones) it opens in place, as an indented list.
   const SUB_DELAY = 180;
   let menuEl = null;
   let menuReturn = null; // the element that had focus before the menu opened: focus goes back to it on close
@@ -135,12 +138,14 @@
   }
   function keyLabel(k) { return isMac ? k.replace(/Ctrl\+/g, '⌘').replace(/Alt\+/g, '⌥').replace(/Shift\+/g, '⇧') : k; }
   const narrow = () => innerWidth <= 640;
+  const rtl = () => document.documentElement.getAttribute('dir') === 'rtl';
+  const subKeys = () => (rtl() ? { open: 'ArrowLeft', close: 'ArrowRight' } : { open: 'ArrowRight', close: 'ArrowLeft' });
   /** Puts a flyout beside its row: right of the parent menu, left when there is no room, inside the viewport. */
   function placeFlyout(sub, row) {
     const pr = row.closest('.sui-menu, .menu').getBoundingClientRect(), rr = row.getBoundingClientRect();
     const w = sub.offsetWidth, h = sub.offsetHeight;
-    let x = pr.right + 2;
-    if (x + w > innerWidth - 4) x = pr.left - w - 2;
+    let x = rtl() ? pr.left - w - 2 : pr.right + 2;
+    if (rtl() ? x < 4 : x + w > innerWidth - 4) x = rtl() ? pr.right + 2 : pr.left - w - 2;
     sub.style.left = clamp(x, 4, innerWidth - w - 4) + 'px';
     sub.style.top = clamp(rr.top - 4, 4, innerHeight - h - 4) + 'px';
   }
@@ -189,7 +194,7 @@
     });
     row.addEventListener('click', () => { clearTimeout(subTimer); if (narrow()) toggleInline(row, items, level); else openFlyout(row, items, level, false); });
     row.addEventListener('keydown', (e) => {
-      if (e.key !== 'ArrowRight' && e.key !== 'Enter') return;
+      if (e.key !== subKeys().open && e.key !== 'Enter') return;
       e.preventDefault(); e.stopPropagation(); clearTimeout(subTimer);
       if (narrow()) { if (!row.classList.contains('sui-open')) toggleInline(row, items, level); if (row.inlineEl) focusFirst(row.inlineEl); }
       else openFlyout(row, items, level, true);
@@ -200,7 +205,7 @@
       if (!it) continue;
       if (it === '-') { host.append(el('div', { class: 'sui-sep', role: 'separator' })); continue; }
       const row = el('button', { class: 'sui-row' + (it.sub ? ' sui-has-sub' : ''), type: 'button', role: 'check' in it ? (it.radio ? 'menuitemradio' : 'menuitemcheckbox') : 'menuitem', 'aria-checked': 'check' in it ? String(!!it.check) : null, disabled: !!it.disabled, 'aria-haspopup': it.sub ? 'menu' : null, 'aria-expanded': it.sub ? 'false' : null },
-        el('span', { class: 'sui-chk' }, it.check ? '✓' : ''), el('span', { class: 'sui-lbl' }, it.label), el('span', { class: 'sui-key' }, it.sub ? '▸' : it.key ? keyLabel(it.key) : ''));
+        el('span', { class: 'sui-chk' }, it.check ? '✓' : ''), el('span', { class: 'sui-lbl' }, it.label), el('span', { class: 'sui-key' }, it.sub ? (rtl() ? '◂' : '▸') : it.key ? keyLabel(it.key) : ''));
       if (it.sub) subRow(row, it.sub, level);
       else {
         row.addEventListener('pointerenter', () => { clearTimeout(subTimer); closeDeeper(level); });
@@ -217,7 +222,7 @@
       const cur = document.activeElement, rows = [...m.querySelectorAll('.sui-row:not([disabled])')], i = rows.indexOf(cur);
       if (e.key === 'ArrowDown') { e.preventDefault(); (rows[i + 1] || rows[0]).focus(); }
       else if (e.key === 'ArrowUp') { e.preventDefault(); (rows[i - 1] || rows[rows.length - 1]).focus(); }
-      else if (e.key === 'ArrowLeft' || e.key === 'Escape') {
+      else if (e.key === subKeys().close || e.key === 'Escape') {
         e.preventDefault(); e.stopPropagation();
         const grp = cur && cur.closest ? cur.closest('.sui-inline') : null;
         if (grp) { const p = grp.previousElementSibling; collapseInline(p); p.focus({ preventScroll: true }); }
@@ -263,5 +268,5 @@
     setTimeout(() => URL.revokeObjectURL(a.href), 4000);
   }
 
-  window.SlopUI = { el, dialog, alert, confirm, prompt, field, number, select, check, toast, menu, closeMenu, placeFlyout, narrow, pickFiles, download, get openDialogs() { return open; } };
+  window.SlopUI = { tr, el, dialog, alert, confirm, prompt, field, number, select, check, toast, menu, closeMenu, placeFlyout, narrow, pickFiles, download, get openDialogs() { return open; } };
 })();

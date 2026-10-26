@@ -29,6 +29,8 @@
 (function (g) {
   'use strict';
   if (g.SlopResizePanel) return;
+  /** A word from the shared tables (shared/i18n/ui/en.js), or the English given when SlopI18n or the key is absent. */
+  function tr(key, en, vars) { const I = globalThis.SlopI18n; if (I && I.has && I.has(key)) return I.t(key, vars); return vars ? String(en).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en; }
   const doc = g.document, all = new Set();
   const CSS = `
 .srp-grip { position: absolute; inset-block: 0; inline-size: 8px; z-index: 5; cursor: col-resize; touch-action: none; }
@@ -82,10 +84,13 @@
     grip.tabIndex = 0;
     grip.setAttribute('role', 'separator');
     grip.setAttribute('aria-orientation', 'vertical');
-    grip.setAttribute('aria-label', 'Resize the ' + String(o.label || id).toLowerCase() + ' panel (arrow keys; double-click resets)');
+    const words = () => {   // again after a language change (shared/i18n)
+      grip.setAttribute('aria-label', tr('ui.frame.resize_aria', 'Resize the {label} panel (arrow keys; double-click resets)', { label: String(o.label || id).toLowerCase() }));
+      grip.title = tr('ui.frame.resize_tip', 'Drag to resize. Double-click: the default width.');
+    };
+    words();
     grip.setAttribute('aria-valuemin', String(min));
     grip.setAttribute('aria-valuemax', String(max));
-    grip.title = 'Drag to resize. Double-click: the default width.';
 
     function apply() {
       grip.setAttribute('aria-valuenow', String(width));
@@ -141,7 +146,7 @@
     apply();
 
     const api = {
-      handle: grip, width: () => width, setWidth, reset, isPhone: () => mq.matches, app, id,
+      handle: grip, width: () => width, setWidth, reset, isPhone: () => mq.matches, app, id, words,
       destroy() {
         all.delete(api); mq.removeEventListener('change', apply); if (ro) ro.disconnect();
         grip.removeEventListener('pointerdown', down); grip.removeEventListener('pointermove', move); grip.removeEventListener('pointerup', up);
@@ -156,12 +161,13 @@
 
   function resetAll() { for (const r of all) r.reset(); }
   let registered = false;
-  function command() {
-    if (registered || !g.SlopCmd || !g.SlopCmd.register) return;
+  function command(again) {
+    if ((registered && !again) || !g.SlopCmd || !g.SlopCmd.register) return;
     registered = true;
-    g.SlopCmd.register([{ id: 'view.resetPanels', title: 'Reset panel sizes', group: 'View', keywords: ['panel', 'sidebar', 'width', 'size', 'default'], run: resetAll }]);
+    g.SlopCmd.register([{ id: 'view.resetPanels', title: tr('ui.frame.reset_sizes', 'Reset panel sizes'), group: 'View', keywords: ['panel', 'sidebar', 'width', 'size', 'default'], run: resetAll }]);
   }
 
+  if (g.SlopI18n && g.SlopI18n.on) g.SlopI18n.on(() => { for (const r of all) r.words(); if (registered) command(true); });
   if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', () => { if (all.size) command(); });
   g.SlopResizePanel = { attach, resetAll, panels: () => [...all] };
 })(typeof window !== 'undefined' ? window : globalThis);

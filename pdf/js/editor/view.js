@@ -7,12 +7,9 @@
   var Ed = SP.editor = {};
   var S = Ed._ = {}; // DOM + interaction state shared by the editor/*.js files
   Ed.pid = null; Ed.tool = 'select'; Ed.selId = null; Ed.zoomMode = 'fit'; Ed.zoom = 1; Ed.fitPid = null;
-  Ed.TOOLS = [
-    ['select', 'Select & move', 'select', 'V'], ['block', 'Block copy: drag a box, copy its text', 'block', 'K'], ['text', 'Text', 'text', 'T'], ['pen', 'Draw', 'pen', 'P'], ['marker', 'Highlighter', 'marker', 'H'],
-    ['rect', 'Rectangle', 'rect', 'R'], ['ellipse', 'Ellipse', 'ellipse', 'E'], ['line', 'Line', 'line', 'L'], ['arrow', 'Arrow', 'arrow', 'A'],
-    ['whiteout', 'Whiteout (cover content)', 'whiteout', 'W'], ['redact', 'Redact (remove content)', 'redact', 'X'], ['hlbox', 'Highlight box', 'hlbox', 'B'], ['texthl', 'Text highlight', 'texthl', 'U'], ['image', 'Image', 'image', 'I'], ['signature', 'Signature', 'sign', 'S'],
-    ['note', 'Comment', 'note', 'N'], ['callout', 'Callout', 'callout', 'C'], ['step', 'Step (numbered, click to add)', 'step', 'G']
-  ];
+  // [id, name key (pdf/i18n/en/tools.js: U.t(tool[1]) where it shows), icon, shortcut]
+  Ed.TOOLS = ['select', 'block', 'text', 'pen', 'marker', 'rect', 'ellipse', 'line', 'arrow', 'whiteout', 'redact', 'hlbox', 'texthl', 'image', 'signature', 'note', 'callout', 'step']
+    .map(function (id, i) { return [id, 'pdf.tool.edit.tool_' + id, id === 'signature' ? 'sign' : id, 'VKTPHRELAWXBUISNCG'.charAt(i)]; });
   var DEF = {
     text: { color: '#111111', font: 'Helvetica', size: 16, bold: false, italic: false, opacity: 1 },
     pen: { color: '#1d4ed8', width: 2.5, opacity: 1 },
@@ -42,7 +39,7 @@
     if (Ed.noteUI) Ed.noteUI.wire(viewerEl);
     S.pad = U.h('div', { class: 'pv-pad' });
     S.overlay = U.h('div', { class: 'pv-overlay' }); // moves to the active page element (placeTools)
-    S.ta = U.h('textarea', { class: 'pv-text', spellcheck: 'false', autocomplete: 'off', 'aria-label': 'Edit text', wrap: 'off', hidden: true, dir: 'auto' });
+    S.ta = U.h('textarea', { class: 'pv-text', spellcheck: 'false', autocomplete: 'off', 'aria-label': U.t('pdf.ed.text_box_field'), 'data-i18n-attr': 'aria-label:pdf.ed.text_box_field', wrap: 'off', hidden: true, dir: 'auto' });
     S.pageEl = null;
     S.viewer.appendChild(S.pad);
     S.viewer.addEventListener('pointerdown', function (e) {
@@ -108,7 +105,7 @@
   S.ctx = function () { var p = Ed.page(), g = E.geom(p); return { p: p, g: g, R: E.rotation(p), W: g.W, H: g.H, z: Ed.zoom }; };
   /** The lock badge on a locked layer's selection: its top-right corner. */
   function lockCue(r, z) {
-    var el = U.h('div', { class: 'sel-lock', title: 'Locked: unlock it in Layers to change it', 'aria-label': 'Locked', html: U.icon('lock') });
+    var el = U.h('div', { class: 'sel-lock', title: U.t('pdf.ed.locked_tip'), 'aria-label': U.t('pdf.ed.locked'), html: U.icon('lock') });
     el.style.left = ((r.x + r.w) * z) + 'px'; el.style.top = (r.y * z) + 'px';
     return el;
   }

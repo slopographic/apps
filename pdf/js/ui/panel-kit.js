@@ -2,7 +2,7 @@
    panel registers itself in SP.panels.PANELS (see tools/*-panel*.js). */
 (function () {
   'use strict';
-  var SP = window.SP, U = SP.util, E = SP.engine, h = U.h;
+  var SP = window.SP, U = SP.util, E = SP.engine, h = U.h, t = U.t;
   var P = SP.panels = {};
   var root, main, current = null, refreshers = [];
 
@@ -33,7 +33,7 @@
     return s;
   }
   function num(value, min, max, step, onChange) {
-    var i = h('input', { class: 'inp num', type: 'number', value: value, min: min, max: max, step: step || 1, inputmode: 'decimal' });
+    var i = h('input', { class: 'inp num', type: 'number', value: value, min: min, max: max, step: step || 1, inputmode: 'decimal' }); // i18n-ignore
     i.addEventListener('input', function () { var v = parseFloat(i.value); if (!isNaN(v)) onChange(U.clamp(v, min, max)); });
     return i;
   }
@@ -52,14 +52,14 @@
   var SWATCHES = ['#111111', '#ffffff', '#e0245e', '#ff9f1c', '#ffe14d', '#c6f432', '#2ee6a8', '#1d4ed8', '#7c3aed'];
   function colorPicker(value, onChange, allowNone) {
     var wrap = h('div', { class: 'swatches' });
-    var inp = h('input', { type: 'color', class: 'sw-input', value: value && value !== 'none' ? value : '#000000', 'aria-label': 'Custom colour' });
+    var inp = h('input', { type: 'color', class: 'sw-input', value: value && value !== 'none' ? value : '#000000', 'aria-label': t('pdf.app.colour_custom') });
     function mark(v) { U.$$('.sw', wrap).forEach(function (s) { s.classList.toggle('on', s.dataset.c === v); }); }
     if (allowNone) {
-      var n = h('button', { type: 'button', class: 'sw sw-none', 'data-c': 'none', title: 'None', 'aria-label': 'No colour' });
+      var n = h('button', { type: 'button', class: 'sw sw-none', 'data-c': 'none', title: t('ui.none'), 'aria-label': t('pdf.app.colour_none') });
       n.addEventListener('click', function () { mark('none'); onChange('none'); }); wrap.appendChild(n);
     }
     SWATCHES.forEach(function (c) {
-      var s = h('button', { type: 'button', class: 'sw', 'data-c': c, title: c, 'aria-label': 'Colour ' + c, style: { '--c': c } });
+      var s = h('button', { type: 'button', class: 'sw', 'data-c': c, title: c, 'aria-label': t('pdf.app.colour_n', { c: c }), style: { '--c': c } });
       s.addEventListener('click', function () { mark(c); inp.value = c; onChange(c); });
       wrap.appendChild(s);
     });
@@ -76,7 +76,7 @@
   function note(t, cls) { return h('p', { class: 'pp-note' + (cls ? ' ' + cls : '') }, t); }
   function needPages() {
     if (E.state.pages.length) return null;
-    return section(null, [note('Open a PDF first — or try the sample.'), h('div', { class: 'btn-row' }, btn('Open PDF', 'open', function () { SP.app.openDialog(); }, 'primary'), btn('Try a sample', 'sparkle', function () { SP.app.loadSample(); }))]);
+    return section(null, [note(t('pdf.app.need_pages')), h('div', { class: 'btn-row' }, btn(t('pdf.app.open_pdf'), 'open', function () { SP.app.openDialog(); }, 'primary'), btn(t('pdf.app.try_sample'), 'sparkle', function () { SP.app.loadSample(); }))]);
   }
   P.helpers = { section: section, row: row, btn: btn, seg: seg, select: select, num: num, text: text, slider: slider, colorPicker: colorPicker, check: check, note: note, needPages: needPages, onRefresh: function (fn) { onRefresh(fn); } };
 
@@ -87,7 +87,7 @@
     current = tool; refreshers = [];
     main.innerHTML = '';
     var def = PANELS[tool] || PANELS.organize;
-    main.appendChild(h('div', { class: 'pp-title' }, h('span', { html: U.icon(def.icon) }), h('h2', null, def.title)));
+    main.appendChild(h('div', { class: 'pp-title' }, h('span', { html: U.icon(def.icon) }), h('h2', null, typeof def.title === 'function' ? def.title() : def.title))); // a function: the title in the current language
     var body = h('div', { class: 'pp-body' });
     main.appendChild(body);
     def.build(body);
@@ -95,6 +95,8 @@
   /** Called on state changes; panels register small refreshers instead of rebuilding (keeps focus). */
   P.refresh = function (reason) { refreshers.forEach(function (fn) { try { fn(reason); } catch (e) { console.warn(e); } }); if (SP.dock) SP.dock.refresh(); };
   P.rebuild = function () { if (current) P.show(current); };
+  // A language switch: the panel on screen is built again in the new words (its builder calls t()), and the dock follows
+  U.onLang(function () { P.rebuild(); if (SP.dock && SP.dock.relabel) SP.dock.relabel(); });
   function onRefresh(fn) { refreshers.push(fn); fn(); }
 
   var PANELS = {};

@@ -59,7 +59,7 @@
     if (E.state.pages.length) { A.newTab(); X.made.push(SP.tabs && SP.tabs.current ? SP.tabs.current() : null); }
     var sz = X.size(a), pages = [];
     for (var i = 0; i < a.pages; i++) pages.push(E.blankPage(sz[0], sz[1]));
-    E.commit('New document', function (st) { E.ops.insert(st, 0, pages); if (a.title) st.meta = Object.assign({}, st.meta, { title: a.title }); });
+    E.commit(U.t('pdf.cmd.undo_new_document'), function (st) { E.ops.insert(st, 0, pages); if (a.title) st.meta = Object.assign({}, st.meta, { title: a.title }); });
     return 'A new PDF with ' + a.pages + ' blank page' + (a.pages === 1 ? '' : 's') + ' of ' + sz[0] + ' × ' + sz[1] + ' pt.';
   }, { description: 'Start a new PDF of blank pages (in a new tab when one is already open).' });
 
@@ -70,7 +70,7 @@
     var n = E.state.pages.length, at = a.after == null ? n : Math.min(a.after, n), sz;
     if (a.size === 'same') { var nb = E.state.pages[Math.max(0, at - 1)], vs = E.viewSize(nb); sz = [vs.w, vs.h]; } else sz = X.size(a);
     var pages = []; for (var i = 0; i < a.count; i++) pages.push(E.blankPage(sz[0], sz[1]));
-    E.commit('Insert blank page', function (st) { E.ops.insert(st, at, pages); });
+    E.commit(U.t('pdf.cmd.undo_insert_blank'), function (st) { E.ops.insert(st, at, pages); });
     return 'Added ' + a.count + ' blank page' + (a.count === 1 ? '' : 's') + ' from page ' + (at + 1) + '; the document has ' + E.state.pages.length + '.';
   });
 
@@ -87,19 +87,19 @@
   X.add('delete_pages', 'Delete pages', [Object.assign({}, X.PAGES, { required: true })], function (a) {
     var ids = X.ids(a.pages);
     if (ids.length >= E.state.pages.length) throw new Error('That would delete every page; keep at least one');
-    E.commit('Delete pages', function (st) { E.ops.remove(st, ids); });
+    E.commit(U.t('pdf.cmd.undo_delete_pages'), function (st) { E.ops.remove(st, ids); });
     return 'Deleted ' + ids.length + ' page' + (ids.length === 1 ? '' : 's') + '; ' + E.state.pages.length + ' left.';
   }, { destructive: true });
 
   X.add('rotate_pages', 'Rotate pages', [X.PAGES, { name: 'angle', type: 'enum', values: ['90', '180', '270', '-90'], default: '90', description: 'clockwise degrees' }], function (a) {
     var ids = X.ids(a.pages);
-    E.commit('Rotate pages', function (st) { E.ops.rotate(st, ids, Number(a.angle)); });
+    E.commit(U.t('pdf.cmd.undo_rotate_pages'), function (st) { E.ops.rotate(st, ids, Number(a.angle)); });
     return 'Rotated ' + ids.length + ' page' + (ids.length === 1 ? '' : 's') + ' by ' + a.angle + '°.';
   });
 
   X.add('move_page', 'Move a page', [Object.assign({}, X.PAGE, { required: true }), X.Num('to', 'its new page number', 1, 100000, { integer: true, required: true })], function (a) {
     var t = X.page(a.page), to = Math.min(a.to, E.state.pages.length) - 1, id = t.p.id;
-    E.commit('Move pages', function (st) { E.ops.move(st, [id], to > t.i ? to + 1 : to); });
+    E.commit(U.t('pdf.cmd.undo_move_pages'), function (st) { E.ops.move(st, [id], to > t.i ? to + 1 : to); });
     return 'Page ' + a.page + ' is now page ' + (E.indexOf(id) + 1) + '.';
   });
 })();

@@ -36,9 +36,9 @@
   T.family = function (style) {
     var f = String((style && style.fontFamily) || '').toLowerCase();
     if (!f) return null;
-    if (/mono|courier/.test(f)) return 'Courier';
-    if (/sans|helvet|arial/.test(f)) return 'Helvetica';
-    if (/times|serif/.test(f)) return 'Times';
+    if (/mono|courier/.test(f)) return 'Courier'; // i18n-ignore: PDF names / font names / producer, not UI
+    if (/sans|helvet|arial/.test(f)) return 'Helvetica'; // i18n-ignore: PDF names / font names / producer, not UI
+    if (/times|serif/.test(f)) return 'Times'; // i18n-ignore: PDF names / font names / producer, not UI
     return null;
   };
   function fontSize(it) { var t = it.transform; return Math.abs(t[3]) || Math.hypot(t[2], t[3]) || 0; }

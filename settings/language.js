@@ -12,7 +12,9 @@
     I.langs().forEach(function (l) {
       var o = document.createElement('option');
       o.value = l.code;
-      o.textContent = l.name;
+      // each in its own name; a table without a native review yet says so (LANGS quality: 'beta')
+      o.textContent = l.quality === 'beta' ? l.name + ' (beta)' : l.name;
+      if (l.en) o.title = l.en;
       o.lang = l.code;
       select.appendChild(o);
     });

@@ -18,7 +18,7 @@
     if (!f || !f.doc) return Promise.resolve([]);
     if (!f._ocList) f._ocList = f.doc.getOptionalContentConfig().then(function (cfg) {
       var out = [];
-      for (var it of cfg) { var id = it[0], g = it[1]; out.push({ id: id, name: g.name || 'Layer', on: g.visible !== false }); }
+      for (var it of cfg) { var id = it[0], g = it[1]; out.push({ id: id, name: g.name || SP.util.t('pdf.io.layer'), on: g.visible !== false }); }
       f._ocList.value = out;
       return out;
     }).catch(function () { f._ocList.value = []; return []; });
@@ -33,7 +33,7 @@
   /** Shows or hides a layer of a file (and of the files derived from it), one undo step. */
   X.set = function (fid, name, hide) {
     var root = X.root(fid);
-    E.commit((hide ? 'Hide layer “' : 'Show layer “') + name + '”', function (st) {
+    E.commit(SP.util.t(hide ? 'pdf.io.layer_hide' : 'pdf.io.layer_show', { name: name }), function (st) {
       var all = Object.assign({}, st.ocHidden || {}), m = Object.assign({}, all[root] || {});
       m[name] = !!hide; all[root] = m; st.ocHidden = all;
     });
@@ -68,7 +68,7 @@
     var props = look(doc.catalog.get(N('OCProperties')));
     if (!(props instanceof L.PDFDict)) return -1;
     var ocgs = look(props.get(N('OCGs'))), gone = new Set();
-    if (ocgs instanceof L.PDFArray) ocgs.asArray().forEach(function (r) { var d = look(r); if (d instanceof L.PDFDict && name(look(d.get(N('Name')))) === layer) gone.add(String(r)); });
+    if (ocgs instanceof L.PDFArray) ocgs.asArray().forEach(function (r) { var d = look(r); if (d instanceof L.PDFDict && name(look(d.get(N('Name')))) === layer) gone.add(String(r)); }); // i18n-ignore: PDF names / font names / producer, not UI
     if (!gone.size) return -1;
     var only = function (v) { // a group, or a membership dictionary of those groups only
       if (gone.has(String(v))) return true;
@@ -78,7 +78,7 @@
     };
     var changed = 0;
     doc.getPages().forEach(function (pg, k) {
-      var res = pg.node.Resources(), pr = res instanceof L.PDFDict ? look(res.get(N('Properties'))) : null, names = [];
+      var res = pg.node.Resources(), pr = res instanceof L.PDFDict ? look(res.get(N('Properties'))) : null, names = []; // i18n-ignore: PDF names / font names / producer, not UI
       if (pr instanceof L.PDFDict) pr.entries().forEach(function (e) { if (only(e[1])) names.push(e[0].decodeText()); }); // compat-ok: pdf-lib returns an array here, not an iterator
       if (!names.length) return;
       var c = Res.contentOf(doc, pg), t = Mv.stripMarked(c.text, Lx.lex(c.text), names);
@@ -90,10 +90,10 @@
       for (var j = arr.size() - 1; j >= 0; j--) { var v = arr.get(j); if (gone.has(String(v))) arr.remove(j); else if (look(v) instanceof L.PDFArray) strip(v); }
     };
     strip(ocgs);
-    var configs = [look(props.get(N('D')))].concat((look(props.get(N('Configs'))) || { asArray: function () { return []; } }).asArray().map(look));
+    var configs = [look(props.get(N('D')))].concat((look(props.get(N('Configs'))) || { asArray: function () { return []; } }).asArray().map(look)); // i18n-ignore: PDF names / font names / producer, not UI
     configs.forEach(function (d) {
       if (!(d instanceof L.PDFDict)) return;
-      ['ON', 'OFF', 'Order', 'Locked'].forEach(function (k2) { strip(d.get(N(k2))); });
+      ['ON', 'OFF', 'Order', 'Locked'].forEach(function (k2) { strip(d.get(N(k2))); }); // i18n-ignore: PDF names / font names / producer, not UI
       var rb = look(d.get(N('RBGroups'))); if (rb instanceof L.PDFArray) rb.asArray().forEach(strip);
       var as = look(d.get(N('AS'))); if (as instanceof L.PDFArray) as.asArray().forEach(function (u) { u = look(u); if (u instanceof L.PDFDict) strip(u.get(N('OCGs'))); });
     });
@@ -118,7 +118,7 @@
       made.set(p.f, r.to);
     }
     if (!Array.from(made.values()).some(Boolean)) return false;
-    E.commit('Delete layer “' + layer + '”', function (st) { st.pages.forEach(function (q) { if (made.get(q.f)) SP.editor._.strip.use(q, made.get(q.f)); }); });
+    E.commit(SP.util.t('pdf.io.layer_delete', { name: layer }), function (st) { st.pages.forEach(function (q) { if (made.get(q.f)) SP.editor._.strip.use(q, made.get(q.f)); }); });
     return true;
   };
 })();

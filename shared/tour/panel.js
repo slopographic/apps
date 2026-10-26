@@ -6,6 +6,8 @@
 (function () {
   'use strict';
   const T = (window.SlopTour = window.SlopTour || {});
+  /** A word from the shared tables (shared/i18n/ui/en.js), or the English given when SlopI18n or the key is absent. */
+  function tr(key, en, vars) { const I = globalThis.SlopI18n; if (I && I.has && I.has(key)) return I.t(key, vars); return vars ? String(en).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en; }
   let root = null, list = null, handlers = null, listening = false;
   const parts = {};
 
@@ -15,21 +17,31 @@
     if (text != null) n.textContent = text;
     return n;
   }
-  function btn(cls, text, label, fn) {
-    const b = mk('button', cls, text);
+  function btn(cls, fn) {
+    const b = mk('button', cls);
     b.type = 'button';
-    if (label) b.setAttribute('aria-label', label);
     b.addEventListener('click', () => handlers && fn());
     return b;
+  }
+  /** The panel's own words, set on every render so they follow a language change (shared/i18n). */
+  function words() {
+    const set = (b, text, label) => { if (text != null) b.textContent = text; b.setAttribute('aria-label', label); };
+    root.setAttribute('aria-label', tr('ui.tour.panel', 'Guided tour'));
+    set(parts.x, null, tr('ui.tour.close', 'Close tour'));
+    parts.steps.textContent = tr('ui.tour.all_steps', 'All steps');
+    set(parts.restart, tr('ui.tour.restart', 'Restart'), tr('ui.tour.restart_aria', 'Restart the tour'));
+    set(parts.back, tr('ui.back', 'Back'), tr('ui.tour.prev_aria', 'Previous step'));
+    set(parts.skip, tr('ui.tour.skip', 'Skip'), tr('ui.tour.skip_aria', 'Skip this step'));
+    parts.next.setAttribute('aria-label', tr('ui.tour.next_aria', 'Next step'));
   }
   function build() {
     root = mk('section', 'stour-panel');
     root.hidden = true;
-    root.setAttribute('aria-label', 'Guided tour');
     const head = mk('header', 'stour-head');
     parts.name = mk('span', 'stour-name');
     parts.count = mk('span', 'stour-count');
-    head.append(parts.name, parts.count, btn('stour-x', '×', 'Close tour', () => handlers.close()));
+    parts.x = btn('stour-x', () => handlers.close()); parts.x.textContent = '×';
+    head.append(parts.name, parts.count, parts.x);
     const bar = mk('div', 'stour-bar'); bar.setAttribute('aria-hidden', 'true');
     parts.fill = mk('i'); bar.append(parts.fill);
     const body = mk('div', 'stour-body');
@@ -38,14 +50,16 @@
     parts.hint = mk('p', 'stour-hint'); parts.hint.hidden = true;
     body.append(parts.title, parts.text, parts.hint);
     const queue = mk('details', 'stour-queue'); queue.open = innerWidth > 640;
-    queue.append(mk('summary', '', 'All steps'));
+    parts.steps = mk('summary', ''); queue.append(parts.steps);
     list = mk('ol', 'stour-list');
     queue.append(list);
     const foot = mk('footer', 'stour-foot');
-    parts.restart = btn('stour-restart', 'Restart', 'Restart the tour', () => handlers.restart());
-    parts.back = btn('stour-back', 'Back', 'Previous step', () => handlers.back());
-    parts.skip = btn('stour-skip', 'Skip', 'Skip this step', () => handlers.skip());
-    parts.next = btn('stour-next', 'Next', 'Next step', () => handlers.next());
+    parts.restart = btn('stour-restart', () => handlers.restart());
+    parts.back = btn('stour-back', () => handlers.back());
+    parts.skip = btn('stour-skip', () => handlers.skip());
+    parts.next = btn('stour-next', () => handlers.next());
+    parts.next.textContent = tr('ui.next', 'Next');
+    words();
     foot.append(parts.restart, mk('span', 'stour-spacer'), parts.back, parts.skip, parts.next);
     root.append(head, bar, body, queue, foot);
     document.body.append(root);
@@ -75,7 +89,8 @@
     parts.hint.textContent = v.hint || '';
     parts.hint.hidden = !v.hint;
     parts.back.disabled = v.index === 0;
-    parts.next.textContent = v.last ? 'Finish' : 'Next';
+    words();
+    parts.next.textContent = v.last ? tr('ui.tour.finish', 'Finish') : tr('ui.next', 'Next');
     list.replaceChildren(...v.steps.map((s, i) => {
       const li = mk('li');
       const b = mk('button', 'stour-q' + (i === v.index ? ' is-current' : '') + (s.done ? ' is-done' : ''));

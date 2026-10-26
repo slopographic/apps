@@ -5,17 +5,17 @@
    Drawing: core/watermark-annots.js (the same layers on screen and in the exported file, as real text and images). */
 (function () {
   'use strict';
-  var SP = window.SP, E = SP.engine, Ed = SP.editor, P = SP.panels, PANELS = P.PANELS, K = P.helpers;
+  var SP = window.SP, t = SP.util.t, E = SP.engine, Ed = SP.editor, P = SP.panels, PANELS = P.PANELS, K = P.helpers;
   /** A new layer in Slop PDF starts as the usual document stamp: grey, across the middle of the page. */
   var NEW = { text: { text: 'CONFIDENTIAL', colour: '#888888', size: 0.1, opacity: 0.25, rotate: -45, position: 'mc', margin: 0, shadow: false },
     logo: { size: 0.3, opacity: 0.25, position: 'mc', margin: 0 } };
   function curPage() { var i = Ed.pid ? E.indexOf(Ed.pid) : 0; return (i < 0 ? 0 : i) + 1; }
   function commit(spec, how) {
-    E.commit(how.label || 'Change watermark', function (st) { st.stamps.wm = spec; delete st.stamps.watermarks; delete st.stamps.watermark; }, how.key || null);
+    E.commit(how.label || t('pdf.tool.watermark.undo_change'), function (st) { st.stamps.wm = spec; delete st.stamps.watermarks; delete st.stamps.watermark; }, how.key || null);
   }
 
   PANELS.watermark = {
-    title: 'Watermark', icon: 'watermark', build: function (b) {
+    get title() { return t('pdf.tool.watermark.title'); }, icon: 'watermark', build: function (b) {
       var np = K.needPages(); if (np) { b.appendChild(np); return; }
       var host = document.createElement('div');
       host.className = 'pdf-wm';
@@ -27,7 +27,7 @@
         intake: 'pdf.logo',   // the logo part of the page's intake
         onFiles: function (files) { SlopIntake.take(files, { to: 'pdf', source: 'drop' }); }   // a PDF dropped on the panel opens as usual
       });
-      b.appendChild(K.note('Layers stack like sheets: the top one is drawn last. Sizes follow each page’s shorter side, so the watermark looks the same on every page size. Drop a picture here to add it as a logo.'));
+      b.appendChild(K.note(t('pdf.tool.watermark.note')));
       K.onRefresh(function () { panel.set(E.watermarkSpec()); });
     }
   };

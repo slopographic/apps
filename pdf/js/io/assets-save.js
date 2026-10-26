@@ -10,7 +10,7 @@
   A.baseName = function () {
     var p = E.state.pages.find(function (x) { return x.f && E.files.get(x.f); });
     var n = p ? String(E.files.get(p.f).name || '').replace(/\.pdf$/i, '').trim() : '';
-    return n || 'PDF assets';
+    return n || U.t('pdf.io.assets_name');
   };
   /** PNG bytes of RGBA pixels, through a canvas. */
   async function encodePng(rgba, w, h) {
@@ -33,7 +33,7 @@
       } catch (e) { skipped.push({ name: im.name + ' (' + im.pageText + ')', reason: e.message || String(e) }); }
     }
     for (var f of fonts) {
-      if (!f.embedded || !f.bytes) { skipped.push({ name: f.name, reason: f.reason || 'Not embedded, so there is no font file' }); continue; }
+      if (!f.embedded || !f.bytes) { skipped.push({ name: f.name, reason: f.reason || U.t('pdf.io.no_font_file') }); continue; }
       items.push({ group: 'font', name: Mod.safePart(f.name, 'font'), ext: f.ext, data: f.bytes });
     }
     var names = Mod.uniquify(items.map(function (it) { return (it.group === 'image' ? 'images/' : 'fonts/') + it.name + '.' + it.ext; }));

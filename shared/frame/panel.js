@@ -22,6 +22,8 @@
 (function (g) {
   'use strict';
   if (g.SlopFramePanel) return;
+  /** A word from the shared tables (shared/i18n/ui/en.js), or the English given when SlopI18n or the key is absent. */
+  function tr(key, en, vars) { const I = globalThis.SlopI18n; if (I && I.has && I.has(key)) return I.t(key, vars); return vars ? String(en).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en; }
   const doc = g.document;
   const el = (tag, cls, text) => { const n = doc.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
 
@@ -76,7 +78,7 @@
         return shown.map((it, i) => (it.heading ? { heading: it.heading } : { value: String(i), label: it.label, disabled: !!it.disabled, keywords: it.keywords }));
       };
       if (g.SlopMenuButton) {
-        g.SlopMenuButton.attach(b, { label: a.label, items, empty: a.empty || 'Nothing here', onPick: (v) => { const it = shown[Number(v)]; if (it && it.act) it.act(); } });
+        g.SlopMenuButton.attach(b, { label: a.label, items, empty: a.empty || tr('ui.nothing_here', 'Nothing here'), onPick: (v) => { const it = shown[Number(v)]; if (it && it.act) it.act(); } });
       } else {
         b.addEventListener('click', () => { const r = b.getBoundingClientRect(); items(); if (g.SlopUI) g.SlopUI.menu(shown.filter((it) => !it.heading), r.left, r.bottom + 4); });
       }
@@ -137,7 +139,7 @@
         if (s.title) sec.append(el('h3', 'sf-h', s.title));
         if (s.note) sec.append(el('p', 'sf-note', s.note));
         if (s.rows) sec.append(rows(s.rows));
-        if (s.list) sec.append(s.list.length ? items(s.list, skey) : el('p', 'sf-note', s.empty || 'None.'));
+        if (s.list) sec.append(s.list.length ? items(s.list, skey) : el('p', 'sf-note', s.empty || tr('ui.none_dot', 'None.')));
         if (s.settings) {   // the settings first, then the section's buttons
           const set = el('div', 'sf-set');
           set.append(...[].concat(s.settings).filter(Boolean));

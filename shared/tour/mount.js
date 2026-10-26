@@ -6,6 +6,8 @@
   'use strict';
   const me = document.currentScript;
   if (!me || !me.src) return;
+  /** A word from the shared tables (shared/i18n/ui/en.js), or the English given when SlopI18n or the key is absent. */
+  function tr(key, en, vars) { const I = globalThis.SlopI18n; if (I && I.has && I.has(key)) return I.t(key, vars); return vars ? String(en).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en; }
   const BASE = new URL('./', me.src).href;
   const APP = me.dataset.app || '';
   const HOME = me.dataset.home === '1';
@@ -78,10 +80,11 @@
   /** Register "Start tour: <name>". Pages without the palette get its registry core (no key handling) to hold it. */
   function paletteCommand() {
     const reg = () => window.SlopCmd && SlopCmd.register && SlopCmd.register([{
-      id: 'tour.start.' + APP, title: 'Start tour: ' + NAME[APP], group: 'Help',
+      id: 'tour.start.' + APP, title: tr('ui.tour.start_cmd', 'Start tour: {name}', { name: NAME[APP] }), group: 'Help',
       keywords: ['tour', 'guide', 'walkthrough', 'learn', 'help'], run: () => startTour(APP),
     }]);
     if (window.SlopCmd) reg(); else script(BASE + '../commands/commands.js').then(reg, () => {});
+    if (window.SlopI18n && SlopI18n.on) SlopI18n.on(reg);   // the title in the new language
   }
   /** The registry entry (window.SLOP_APPS) for a tour. Matched by path: the tour id can differ from the registry id (slopcut is slopedit). */
   function registryEntry(app) {
@@ -104,16 +107,16 @@
     const dlg = document.createElement('dialog');
     dlg.className = 'stour-menu'; dlg.setAttribute('aria-labelledby', 'stour-menu-title');
     const head = document.createElement('div'); head.className = 'stour-menu-head';
-    const h = document.createElement('h2'); h.id = 'stour-menu-title'; h.textContent = 'Guided tours';
+    const h = document.createElement('h2'); h.id = 'stour-menu-title'; h.textContent = tr('ui.tour.guided', 'Guided tours'); h.dataset.i18n = 'ui.tour.guided';
     const x = document.createElement('button');
     x.type = 'button'; x.className = 'stour-menu-x'; x.textContent = '×';
-    x.setAttribute('aria-label', 'Close guided tours'); x.addEventListener('click', () => dlg.close());
+    x.setAttribute('aria-label', tr('ui.tour.close_list', 'Close guided tours')); x.dataset.i18nAttr = 'aria-label:ui.tour.close_list'; x.addEventListener('click', () => dlg.close());
     head.append(h, x);
     const lede = document.createElement('p'); lede.className = 'stour-menu-lede';
-    lede.textContent = 'Pick an app to start its guided tour. You can stop at any step.';
+    lede.textContent = tr('ui.tour.lede', 'Pick an app to start its guided tour. You can stop at any step.'); lede.dataset.i18n = 'ui.tour.lede';
     const search = document.createElement('input');
-    search.type = 'search'; search.className = 'stour-search'; search.placeholder = 'Search tours';
-    search.setAttribute('aria-label', 'Search tours'); search.autocomplete = 'off';
+    search.type = 'search'; search.className = 'stour-search'; search.placeholder = tr('ui.tour.search', 'Search tours');
+    search.setAttribute('aria-label', search.placeholder); search.dataset.i18nAttr = 'placeholder:ui.tour.search;aria-label:ui.tour.search'; search.autocomplete = 'off';
     const ul = document.createElement('ul'); ul.className = 'stour-grid';
     const items = TOURS.map(([app, fallback]) => {
       const entry = registryEntry(app);
@@ -133,7 +136,7 @@
       return { li, key: name.toLowerCase() };
     });
     const empty = document.createElement('p'); empty.className = 'stour-empty'; empty.hidden = true;
-    empty.textContent = 'No tour matches that name.';
+    empty.textContent = tr('ui.tour.no_match', 'No tour matches that name.'); empty.dataset.i18n = 'ui.tour.no_match';
     const filter = () => {
       const q = search.value.trim().toLowerCase();
       let shown = 0;

@@ -19,6 +19,7 @@
     boot: { file: 'pdf/js/io/build.js', name: 'SP.build.BOOT' },
     drop: ['shared/profile/profile.js', 'shared/theme/theme.js', 'shared/hub.js', 'shared/intake/outtake.js', 'shared/ops/entry.js', 'shared/drive-link.js', 'shared/spotlight/spotlight.js'],
     files: [
+    'shared/i18n/i18n.js', 'shared/i18n/ui/en.js', 'pdf/i18n/index.js', 'pdf/i18n/en/actions.js', 'pdf/i18n/en/app.js', 'pdf/i18n/en/commands.js', 'pdf/i18n/en/editor.js', 'pdf/i18n/en/find.js', 'pdf/i18n/en/io.js', 'pdf/i18n/en/macro.js', 'pdf/i18n/en/menus.js', 'pdf/i18n/en/redact.js', 'pdf/i18n/en/tools.js', 'pdf/i18n/en/tools2.js',
     'shared/load/load.js', 'shared/ui/sheet.js', 'shared/ui/resize-panel.js', 'shared/frame/frame.css', 'shared/frame/panel.js',
     'shared/session/session.js', 'pdf/css/base.css', 'pdf/css/workspace.css', 'shared/workspace/workspace.css', 'shared/doctabs/pane-tabs.css', 'pdf/css/panels.css',
     'pdf/css/redact.css', 'pdf/css/page-acts.css', 'pdf/css/find.css', 'pdf/css/para.css', 'pdf/css/selbar.css', 'pdf/css/objects.css', 'pdf/css/assets.css',
@@ -64,6 +65,7 @@
     'vendor/pdfjs/standard_fonts/FoxitSymbol.pfb', 'vendor/pdfjs/standard_fonts/FoxitDingbats.pfb', 'favicon.ico',
     ],
     scripts: [
+    'shared/i18n/i18n.js', 'shared/i18n/ui/en.js', 'pdf/i18n/index.js', 'pdf/i18n/en/actions.js', 'pdf/i18n/en/app.js', 'pdf/i18n/en/commands.js', 'pdf/i18n/en/editor.js', 'pdf/i18n/en/find.js', 'pdf/i18n/en/io.js', 'pdf/i18n/en/macro.js', 'pdf/i18n/en/menus.js', 'pdf/i18n/en/redact.js', 'pdf/i18n/en/tools.js', 'pdf/i18n/en/tools2.js',
     'shared/load/load.js', 'shared/intake/rules.js', 'shared/intake/normalize.js', 'shared/intake/pipeline.js', 'shared/intake/intake.js', 'shared/intake/sources.js', 'shared/input/typing.js', 'shared/viewmode/grid.js', 'shared/viewmode/viewmode.js', 'pdf/js/core/util.js',
     'pdf/js/ui/icons.js', 'pdf/js/core/model.js', 'pdf/js/core/history.js', 'pdf/js/core/layers.js', 'pdf/js/ui/sheet.js',
     'pdf/js/organize/grid.js', 'pdf/js/editor/view.js', 'pdf/js/ui/panel-kit.js', 'pdf/js/ui/dock.js', 'pdf/js/tools/organize-panel.js',

@@ -4,44 +4,44 @@
    duplicates logic. Items that do not apply to the target are left out. */
 (function () {
   'use strict';
-  var SP = window.SP, Ed = SP.editor, A = SP.app, S = Ed._;
+  var SP = window.SP, Ed = SP.editor, A = SP.app, S = Ed._, t = SP.util.t;
   var KEY = function (id) { return A.key(id) || undefined; };
-  var isMenuKey = function (e) { return e.key === 'ContextMenu' || (e.shiftKey && e.key === 'F10'); };
+  var isMenuKey = function (e) { return e.key === 'ContextMenu' || (e.shiftKey && e.key === 'F10'); }; // i18n-ignore
 
   /** Item lists per target kind. Each returns SlopUI menu items. */
   var KINDS = {
     page: function () {
       var pid = Ed.pid;
       return [
-        Ed.canPaste() ? { label: 'Paste annotation', key: KEY('edit.paste'), act: function () { Ed.paste(); } } : null,
-        { label: 'Fit page', key: KEY('view.fit'), act: function () { Ed.fit('fit'); } },
-        { label: 'Fit width', key: KEY('view.fitWidth'), act: function () { Ed.fit('width'); } },
+        Ed.canPaste() ? { label: t('pdf.menu.paste_annot'), key: KEY('edit.paste'), act: function () { Ed.paste(); } } : null,
+        { label: t('pdf.menu.fit_page'), key: KEY('view.fit'), act: function () { Ed.fit('fit'); } },
+        { label: t('pdf.menu.fit_width'), key: KEY('view.fitWidth'), act: function () { Ed.fit('width'); } },
         '-',
-        { label: 'Rotate page right', key: KEY('pages.rotateRight'), act: function () { A.rotate([pid], 90); } },
-        { label: 'Rotate page left', key: KEY('pages.rotateLeft'), act: function () { A.rotate([pid], -90); } },
-        { label: 'Duplicate page', key: KEY('pages.duplicate'), act: function () { A.duplicate([pid]); } },
-        !SP.offline && window.SlopAITools ? { label: 'Run OCR on this page', act: function () { A.recognisePage(); } } : null,
-        !SP.offline && window.SlopAITools ? { label: 'Run OCR on document', act: function () { A.recogniseAll(); } } : null,
+        { label: t('pdf.menu.rotate_page_right'), key: KEY('pages.rotateRight'), act: function () { A.rotate([pid], 90); } },
+        { label: t('pdf.menu.rotate_page_left'), key: KEY('pages.rotateLeft'), act: function () { A.rotate([pid], -90); } },
+        { label: t('pdf.menu.duplicate_page'), key: KEY('pages.duplicate'), act: function () { A.duplicate([pid]); } },
+        !SP.offline && window.SlopAITools ? { label: t('pdf.menu.ocr_run_page'), act: function () { A.recognisePage(); } } : null,
+        !SP.offline && window.SlopAITools ? { label: t('pdf.menu.ocr_run_doc'), act: function () { A.recogniseAll(); } } : null,
         '-',
-        { label: 'Back to all pages', act: function () { A.showGrid(); } },
-        { label: 'Delete page', key: KEY('pages.delete'), act: function () { A.remove([pid]); } }
+        { label: t('pdf.menu.back_all'), act: function () { A.showGrid(); } },
+        { label: t('pdf.menu.delete_page'), key: KEY('pages.delete'), act: function () { A.remove([pid]); } }
       ];
     },
     annotation: function () {
       var a = Ed.getSelected();
       if (!a) return null;
       return [
-        { label: 'Copy', key: KEY('edit.copy'), act: function () { Ed.copy(); } },
-        Ed.canPaste() ? { label: 'Paste', key: KEY('edit.paste'), act: function () { Ed.paste(); } } : null,
-        { label: 'Duplicate', key: KEY('edit.duplicate'), act: function () { Ed.duplicateSelected(); } },
-        { label: 'Deselect', act: function () { Ed.select(null); } },
+        { label: t('ui.copy'), key: KEY('edit.copy'), act: function () { Ed.copy(); } },
+        Ed.canPaste() ? { label: t('ui.paste'), key: KEY('edit.paste'), act: function () { Ed.paste(); } } : null,
+        { label: t('ui.duplicate'), key: KEY('edit.duplicate'), act: function () { Ed.duplicateSelected(); } },
+        { label: t('pdf.menu.deselect'), act: function () { Ed.select(null); } },
         '-',
-        { label: 'Delete', key: KEY('edit.delete'), act: function () { Ed.deleteSelected(); } }
+        { label: t('ui.delete'), key: KEY('edit.delete'), act: function () { Ed.deleteSelected(); } }
       ];
     },
     text: function () {
       var rest = KINDS.annotation() || [];
-      return [{ label: 'Edit text…', key: KEY('annot.editText'), act: function () { Ed.editSelectedText(); } }, '-'].concat(rest);
+      return [{ label: t('pdf.menu.edit_text'), key: KEY('annot.editText'), act: function () { Ed.editSelectedText(); } }, '-'].concat(rest);
     }
   };
 

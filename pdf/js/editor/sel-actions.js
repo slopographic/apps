@@ -13,8 +13,10 @@
   A.coverOf = function (b, fill) { return coverOf(b, fill); }; // sel-lift.js covers the lines it lifts the same way
   /** The paper colour round a page-space box on a page as rendered, as '#rrggbb' (edit-colours.js; white when not rendered). */
   A.paperOf = function (pid, b) { return S.paperColour ? S.hex(S.paperColour(S.slots.get(pid), b)) : '#ffffff'; };
-  var LABELS = { highlight: 'Highlight text', underline: 'Underline text', strike: 'Strike through text' };
-  var NAME = { highlight: 'highlight', underline: 'underline', strike: 'strikethrough' };
+  // undo labels and toasts per markup style (keys: pdf/i18n/en/editor*.js)
+  var LABELS = { highlight: 'pdf.ed.undo_highlight_text', underline: 'pdf.ed.undo_underline_text', strike: 'pdf.ed.undo_strike_text' };
+  var REMOVE = { highlight: 'pdf.ed.undo_remove_highlight', underline: 'pdf.ed.undo_remove_underline', strike: 'pdf.ed.undo_remove_strike' };
+  var REMOVED = { highlight: 'pdf.ed.removed_highlight', underline: 'pdf.ed.removed_underline', strike: 'pdf.ed.removed_strike' };
   var STYLES = ['highlight', 'underline', 'strike'];
   var MATCH = 0.6; // the share of the selection's area that existing markup of the style must cover for a press to remove it
   var colour = null;
@@ -62,7 +64,7 @@
     colour = col;
     var snap = T.snap;
     if (snap) {
-      E.commit('Change markup colour', function (st) {
+      E.commit(U.t('pdf.ed.undo_markup_colour'), function (st) {
         snap.parts.forEach(function (part) {
           var q = st.pages.filter(function (x) { return x.id === part.pid; })[0];
           (q ? q.annots || [] : []).forEach(function (a) { if (a.type === 'texthl' && a.pts && touches(a.pts, part.rects)) a.color = col; });
@@ -71,13 +73,13 @@
       Ed.paint();
     }
     T.emit();
-    SlopUI.toast('Colour set. Highlight, underline and strikethrough use it.');
+    SlopUI.toast(U.t('pdf.ed.markup_colour_set'));
   };
 
   /** Removes the markup of this style under the selection: each annotation loses the parts the selection covers and keeps
       the rest; one left empty goes. One undo step. */
   function removeMarkup(geo, style) {
-    E.commit('Remove ' + NAME[style], function (st) {
+    E.commit(U.t(REMOVE[style]), function (st) {
       geo.forEach(function (g) {
         var cut = G.rectsOf(g.quads), pg = st.pages.filter(function (x) { return x.id === g.pid; })[0];
         if (!pg) return;
@@ -90,7 +92,7 @@
       });
     });
     Ed.selId = null; Ed.paint();
-    SlopUI.toast('Removed the ' + NAME[style] + '.');
+    SlopUI.toast(U.t(REMOVED[style]));
     T.emit();
   }
 
@@ -99,11 +101,11 @@
   A.markup = async function (style) {
     var snap = T.snap; if (!snap) return;
     var geo = await geometry(snap);
-    if (!geo.length) { SlopUI.toast('No text under the selection.'); return; }
+    if (!geo.length) { SlopUI.toast(U.t('pdf.ed.sel_no_text')); return; }
     if (alreadyMarked(geo, style)) { removeMarkup(geo, style); return; }
     var op = style === 'highlight' ? ((Ed.defaults && Ed.defaults.texthl && Ed.defaults.texthl.opacity) || 0.4) : 1;
     var made = geo.map(function (g) { return { pid: g.pid, a: { id: U.uid('a'), type: 'texthl', style: style, color: A.colour(), opacity: op, pts: g.quads } }; });
-    E.commit(LABELS[style], function (st) {
+    E.commit(U.t(LABELS[style]), function (st) {
       made.forEach(function (m) {
         var q = st.pages.filter(function (x) { return x.id === m.pid; })[0];
         if (q) q.annots.push(JSON.parse(JSON.stringify(m.a)));
@@ -128,10 +130,10 @@
     function fallback() {
       var ok = false;
       try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
-      SlopUI.toast(ok ? 'Copied the selected text.' : 'Could not copy. Press Ctrl+C with the text selected.');
+      SlopUI.toast(U.t(ok ? 'pdf.ed.sel_copied' : 'pdf.ed.sel_copy_failed'));
     }
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      try { await navigator.clipboard.writeText(text); SlopUI.toast('Copied the selected text.'); return; } catch (e) { /* the copy command below */ }
+      try { await navigator.clipboard.writeText(text); SlopUI.toast(U.t('pdf.ed.sel_copied')); return; } catch (e) { /* the copy command below */ }
     }
     fallback();
   };
@@ -226,7 +228,7 @@
   A.remove = async function () {
     var snap = T.snap; if (!snap) return;
     var geo = await geometry(snap);
-    if (!geo.length) { SlopUI.toast('No text under the selection.'); return; }
+    if (!geo.length) { SlopUI.toast(U.t('pdf.ed.sel_no_text')); return; }
     var covers = [], moves = [], plain = [];
     for (const g of geo) {
       var runs = await Ed.runsUnder(g.p, g.rects), took = { to: null, paper: [] };
@@ -236,7 +238,7 @@
       g.boxes.forEach(function (b, i) { covers.push({ pid: g.pid, a: coverOf(b, S.hex(S.paperColour(slot, b, took.paper[i] || took.paper[0]))) }); });
     }
     var files = await emptyOcrWords(geo.filter(function (g) { return plain.indexOf(g) < 0; }));
-    E.commit('Remove text', function (st) {
+    E.commit(U.t('pdf.ed.undo_remove_text'), function (st) {
       var page = function (pid) { return st.pages.filter(function (x) { return x.id === pid; })[0]; };
       moves.forEach(function (m) { var q = page(m.pid); if (q) S.strip.use(q, m.to); });
       covers.forEach(function (c) { var q = page(c.pid); if (q) q.annots.push(JSON.parse(JSON.stringify(c.a))); });
@@ -245,7 +247,7 @@
     Ed.selId = null;
     letGo();
     Ed.paint();
-    SlopUI.toast('Text removed. Undo brings it back.');
+    SlopUI.toast(U.t('pdf.ed.text_removed'));
   };
 
   /** Redact: the selected lines become redaction marks (R.mark, the Redact tool's marks). Nothing is applied: the marks are
@@ -254,15 +256,15 @@
     var snap = T.snap; if (!snap) return;
     var geo = await geometry(snap), made = [];
     geo.forEach(function (g) { g.boxes.forEach(function (b) { made.push({ pid: g.pid, a: R.mark(b, snap.text.slice(0, 40)) }); }); });
-    if (!made.length) { SlopUI.toast('No text under the selection.'); return; }
-    E.commit('Mark for redaction', function (st) {
+    if (!made.length) { SlopUI.toast(U.t('pdf.ed.sel_no_text')); return; }
+    E.commit(U.t('pdf.ed.undo_mark_redaction'), function (st) {
       made.forEach(function (m) {
         var q = st.pages.filter(function (x) { return x.id === m.pid; })[0];
         if (q) q.annots.push(JSON.parse(JSON.stringify(m.a)));
       });
     });
     Ed.selId = null; Ed.paint();
-    SlopUI.toast(made.length + ' area' + (made.length === 1 ? '' : 's') + ' marked for redaction. Apply them in the Redact tool.');
+    SlopUI.toast(U.t('pdf.ed.marked_redaction', { n: made.length }));
     T.emit();
   };
 })();

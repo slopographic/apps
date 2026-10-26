@@ -56,7 +56,7 @@
         case 'Q': if (stack.length) gs = stack.pop(); break;
         case 'cm': if (nn.length === 6) gs.ctm = mul(nn, gs.ctm); break;
         case 'g': case 'rg': case 'k': case 'sc': case 'scn': gs.fill = colourOf(a); break;
-        case 'cs': gs.fill = a[0] && /^(DeviceGray|DeviceRGB|DeviceCMYK|CalGray|CalRGB)$/.test(a[0].name) ? (a[0].name === 'DeviceCMYK' ? [1, 1, 1] : [0, 0, 0]) : null; break;
+        case 'cs': gs.fill = a[0] && /^(DeviceGray|DeviceRGB|DeviceCMYK|CalGray|CalRGB)$/.test(a[0].name) ? (a[0].name === 'DeviceCMYK' ? [1, 1, 1] : [0, 0, 0]) : null; break; // i18n-ignore: PDF names / font names / producer, not UI
         case 'm': if (nn.length === 2) { start(); to(nn[0], nn[1]); } break;
         case 'l': if (nn.length === 2) to(nn[0], nn[1]); break;
         case 'c': if (nn.length === 6) { to(nn[0], nn[1]); to(nn[2], nn[3]); to(nn[4], nn[5]); cur.curved = true; } break;
