@@ -16,7 +16,7 @@
     it('the empty bin shows a picture of a reel and three steps above Choose files and the sample button', async () => {
       await waitFor(() => win() && win().RM && win().RM.ready && doc().querySelector('#rm-drop .sd-preview'), { timeout: 20000 });
       const z = doc().getElementById('rm-drop');
-      expect(z.querySelector('.sd-pic img').getAttribute('src')).toBe('../assets/shots/remix.jpg');
+      SlopTest.shot(z.querySelector('.sd-pic img'), '../assets/shots/remix.jpg');
       expect([...z.querySelectorAll('.sd-steps li')].map((li) => li.textContent))
         .toEqual(['Drop clips and photos', 'Press Remix: it plans the cuts', 'Play it, then export a video']);
       expect(z.querySelector('.sd-sample').textContent).toBe('Try it with 2 clips and 3 photos');

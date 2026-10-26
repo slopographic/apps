@@ -158,8 +158,8 @@ describe('the cdn decoders (network mocked)', () => {
     try {
       await expect(readModel([{ name: 'd.gltf', blob: new Blob([draco]) }])).rejects(/Draco mesh decoder.*checksum/);
       expect(urls[0]).toBe(decoders.CDN_BASE + 'draco/three-0.170.0/draco_wasm_wrapper.js');
-      expect(urls[0]).toMatch(/^https:\/\/cdn\.jsdelivr\.net\/gh\/slopographic\/cdn@v\d+\.\d+\.\d+\//);
-      expect(urls[1]).toMatch(/^https:\/\/raw\.githubusercontent\.com\/slopographic\/cdn\/v\d+\.\d+\.\d+\//);   // wrong bytes: the fallback is tried too
+      expect(urls[0].startsWith(`https://cdn.jsdelivr.net/gh/${decoders.CDN_BASE.match(/gh\/(.+?)@/)[1]}@v`) && /@v\d+\.\d+\.\d+\//.test(urls[0])).toBe(true);
+      expect(urls[1].startsWith(`https://raw.githubusercontent.com/${decoders.CDN_BASE.match(/gh\/(.+?)@/)[1]}/v`) && /cdn\/v\d+\.\d+\.\d+\//.test(urls[1])).toBe(true);   // wrong bytes: the fallback is tried too
       decoders.setFetch(async () => ({ ok: false, status: 404 }));
       await expect(readModel([{ name: 'd.gltf', blob: new Blob([draco]) }])).rejects(/HTTP 404/);
     } finally { decoders.setFetch(null); }

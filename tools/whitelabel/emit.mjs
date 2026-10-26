@@ -80,6 +80,9 @@ export function logoSvg(p, icon) {
     + `<text x="42" y="22" font-family="Inter, Segoe UI, Helvetica, Arial, sans-serif" font-size="19" font-weight="600" fill="${esc(p.colors.ink)}">${esc(text)}</text></svg>\n`;
 }
 
+/** The homepage's theme-color: the profile's ink, as the manifest's (the browser's bar matches the installed app). */
+export const homeThemeColor = (html, p) => html.replace(/(<meta name="theme-color" content=")[^"]*(">)/, `$1${p.colors.ink}$2`);
+
 /** manifest.webmanifest: the copied one (names already plain) with the profile's names and colours. */
 export function manifest(src, p) {
   const m = JSON.parse(src);

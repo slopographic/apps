@@ -19,7 +19,7 @@
       const { win } = await freshApp();
       expect(!!card(win)).toBe(true);
       expect(card(win).querySelectorAll('.sd-steps li').length).toBe(3);
-      expect(card(win).querySelector('.sd-pic img').getAttribute('src')).toBe('../assets/shots/photoslop.jpg');
+      SlopTest.shot(card(win).querySelector('.sd-pic img'), '../assets/shots/photoslop.jpg');
       expect(win.document.querySelectorAll('.sd-zone').length).toBe(1);
     }, { timeout: 40000 });
 

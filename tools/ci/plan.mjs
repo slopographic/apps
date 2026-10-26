@@ -29,6 +29,18 @@ export function outputs(suite, pages, touch = false) {
   return { suite, count, shards: JSON.stringify(Array.from({ length: count }, (_, i) => i + 1)), pages: suite === 'changed' ? pages.join(' ') : '', touch: suite === 'full' || touch };
 }
 
+/** The white-label sample builds' browser and touch jobs (rules.yml whitelabel-*): the full sample suites wherever this
+ *  repository's suite is full; on a work branch only the plan's pages, unless the change is to the white-label build
+ *  itself (WL_FILES, or a file that holds a /*profile:...*\/ marker), which can touch every page of a build. The build and
+ *  its Node tests run on every push. */
+export const WL_SLICES = 8;
+export const WL_FILES = /^(?:tools\/whitelabel\/|brand\/|tests\/(?:brand-facts\.m?js|needs\.mjs|repo-only\.json)$)/;
+export function wlOutputs(suite, out, changed = [], hasMarker = () => false) {
+  const wl = suite === 'changed' && changed.some((f) => WL_FILES.test(f) || hasMarker(f)) ? 'full' : suite;
+  const count = wl === 'full' ? WL_SLICES : wl === 'none' ? 0 : out.count;
+  return { wl_suite: wl, wl_count: count, wl_shards: JSON.stringify(Array.from({ length: count }, (_, i) => i + 1)) };
+}
+
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const git = (...a) => execFileSync('git', a, { cwd: ROOT, encoding: 'utf8' }).trim();
 /** On main: is HEAD a merge whose tree is its second parent's, and did that parent pass "Rules and tests"? */
@@ -44,11 +56,13 @@ async function mergeOfGreen(env) {
 async function main(env) {
   const branch = env.GITHUB_HEAD_REF || env.GITHUB_REF_NAME || '';
   const suite = decide(branch, { mergeOfGreen: branch === 'main' && await mergeOfGreen(env) });
-  let pages = [];
-  if (suite === 'changed') pages = pagesFor(changedSince(env.PLAN_BASE || 'origin/testing'));
+  let pages = [], changed = [];
+  if (suite === 'changed') pages = pagesFor(changed = changedSince(env.PLAN_BASE || 'origin/testing'));
   const touch = pages.some((p) => /<meta name="slop-test-touch"/.test(readFileSync(path.join(ROOT, p), 'utf8')));
+  const marker = (f) => { try { return readFileSync(path.join(ROOT, f), 'utf8').includes('/*profile:'); } catch (e) { return false; } };
   const out = outputs(suite, pages, touch);
-  console.log(`${branch}: ${suite} suite, ${out.count} slice(s)${suite === 'changed' ? `, ${pages.length} pages:\n  ${pages.join('\n  ')}` : ''}`);
+  Object.assign(out, wlOutputs(suite, out, changed, marker));
+  console.log(`${branch}: ${suite} suite, ${out.count} slice(s); samples: ${out.wl_suite}, ${out.wl_count}${suite === 'changed' ? `, ${pages.length} pages:\n  ${pages.join('\n  ')}` : ''}`);
   if (env.GITHUB_OUTPUT) appendFileSync(env.GITHUB_OUTPUT, Object.entries(out).map(([k, v]) => `${k}=${v}`).join('\n') + '\n');
 }
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) await main(process.env);

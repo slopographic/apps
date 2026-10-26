@@ -32,6 +32,8 @@ test('only the site’s own styles and code', () => {
   assert.equal(paletteFile('tests/node/colors-core.test.mjs'), false);
   assert.equal(paletteFile('tests/pdf/look.test.html'), true);
   assert.equal(paletteFile('assets/a.png'), false);
+  assert.equal(paletteFile('bgremover/js/io/sample.js'), false);   // a sample picture: the model's input, drawn as it is
+  assert.equal(paletteFile('bgremover/js/io/files.js'), true);
 });
 
 test('every profile\u2019s themes read at least as well as this site\u2019s (4.5:1 text and accent, 3:1 borders), no browser needed', () => {

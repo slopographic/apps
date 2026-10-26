@@ -50,7 +50,7 @@
     it('shows what it makes and how; Try it with 8 sample photos imports them and the preview goes', async () => {
       await boot();
       expect(D.querySelectorAll('#empty .sd-steps li').length).toBe(3);
-      expect(D.querySelector('#empty .sd-pic img').getAttribute('src')).toBe('../assets/shots/gallery.jpg');
+      SlopTest.shot(D.querySelector('#empty .sd-pic img'), '../assets/shots/gallery.jpg');
       expect(D.querySelectorAll('.sd-zone').length).toBe(1); // still one drop zone: the strip
       D.getElementById('emptySample').click();
       await waitFor(() => G.library.size === 8, { timeout: 20000 });

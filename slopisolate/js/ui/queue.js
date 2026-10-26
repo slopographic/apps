@@ -11,6 +11,7 @@
   const tiles = new Map();
   const LONG = 500;
   let root = null, addBtn = null, head = null, quiet = 0; // quiet: a long press just selected, ignore its click and menu
+  let held = null;   // a tile's long press still to come (a finger down on it): selects at once
 
   /** What a working image is doing (the engine's progress phases). */
   const PHASE = { runtime: 'Loading', model: 'Loading', init: 'Starting', infer: 'Cutting out', refine: 'Edges' };
@@ -59,9 +60,11 @@
       start = { x: e.clientX, y: e.clientY };
       clearTimeout(timer);
       fired = false;
-      timer = setTimeout(() => { timer = null; fired = true; quiet = Date.now(); if (!S.sel.has(id)) CO.bulk.toggle(id); if (navigator.vibrate) try { navigator.vibrate(15); } catch (err) { /* not allowed */ } }, LONG);
+      const fire = () => { clearTimeout(timer); timer = null; held = null; fired = true; quiet = Date.now(); if (!S.sel.has(id)) CO.bulk.toggle(id); if (navigator.vibrate) try { navigator.vibrate(15); } catch (err) { /* not allowed */ } };
+      timer = setTimeout(fire, LONG);
+      held = fire;   // the touch layer's own long press (a contextmenu) may come first: it selects then (Q.init)
     });
-    const stop = () => { clearTimeout(timer); timer = null; };
+    const stop = () => { clearTimeout(timer); timer = null; held = null; };
     btn.addEventListener('pointermove', (e) => { if (timer && start && Math.hypot(e.clientX - start.x, e.clientY - start.y) > 10) stop(); });
     btn.addEventListener('pointerup', stop);
     btn.addEventListener('pointercancel', stop);
@@ -123,7 +126,7 @@
     addBtn.innerHTML = U.icon('plus');
     addBtn.addEventListener('click', () => CO.files.open());
     // A long press on a touch screen selects; the menu the browser opens for it is not wanted then.
-    root.addEventListener('contextmenu', (e) => { if (Date.now() - quiet < 1200) { e.preventDefault(); e.stopImmediatePropagation(); } }, true);
+    root.addEventListener('contextmenu', (e) => { if (held) held(); if (Date.now() - quiet < 1200) { e.preventDefault(); e.stopImmediatePropagation(); } }, true);
     // Files dropped on the sidebar are taken by the drop zone (CO.files.init lists #queue as one of its targets).
     CO.on('list', render);
     CO.on('activeItem', render);

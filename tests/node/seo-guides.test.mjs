@@ -17,6 +17,7 @@ const G = await import(pathToFileURL(path.join(ROOT, 'tools/seo/guides.mjs')).hr
 const { GUIDES } = await import(pathToFileURL(path.join(ROOT, 'shared/seo/guides/index.mjs')).href);
 const { loadRegistry, SITE } = await import(pathToFileURL(path.join(ROOT, 'tools/seo/site.mjs')).href);
 const apps = await loadRegistry(), app = (id) => apps.find((a) => a.id === id);
+const { FACTS } = await import(pathToFileURL(path.join(ROOT, 'tests/brand-facts.mjs')).href);
 const good = { app: 'photoslop', slug: 'getting-started', crumb: 'Getting started', title: 't', description: 'd', h1: 'Getting started with PhotoSlop', lead: 'l',
   sections: [{ h2: 'Open a picture', steps: ['Drop it', 'Look'] }, { h2: 'Layers', text: ['Each layer…'], image: { src: '/assets/shots/photoslop.jpg', alt: 'The Layers panel' } },
     { h2: 'Save', text: ['Export.'], tip: 'Ctrl+S saves.' }], shortcuts: [['Ctrl+Z', 'Undo']] };
@@ -34,11 +35,12 @@ test('a guide page: the guide sidebar with it marked, its sections listed, the v
   assert.equal(p.dir, 'photoslop/getting-started/');
   assert.match(p.html, /<a href="\/photoslop\/getting-started\/" aria-current="page">Getting started<\/a>/);
   assert.match(p.html, /On this page/);
-  assert.match(p.html, /yt-sasXp4d8rtg\.jpg/);   // PhotoSlop's tutorial video
+  // PhotoSlop's tutorial video; a build without media has none
+  if (FACTS.media) assert.match(p.html, /yt-sasXp4d8rtg\.jpg/); else assert.doesNotMatch(p.html, /yt-[\w-]+\.jpg|youtube/);
   assert.match(p.html, /<ol><li>Drop it<\/li><li>Look<\/li><\/ol>/);
   assert.match(p.html, /<td><code>Ctrl\+Z<\/code><\/td><td>Undo<\/td>/);
   const ld = G.guideJsonLd(good, app('photoslop'), `${SITE}/photoslop/getting-started/`, SITE);
-  assert.deepEqual(ld.map((x) => x['@type']), ['TechArticle', 'BreadcrumbList', 'VideoObject']);
+  assert.deepEqual(ld.map((x) => x['@type']), ['TechArticle', 'BreadcrumbList'].concat(FACTS.media ? ['VideoObject'] : []));
 });
 
 test('every guide in the copy passes the checks', () => {

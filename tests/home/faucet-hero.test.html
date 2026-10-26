@@ -41,13 +41,14 @@
       const input = doc.querySelector('#app-finder .fd-input');
       const first = () => {
         const t = doc.querySelector('#app-finder .fd-results .app-title, #app-finder .fd-results .fd-row .app-title');
-        return t ? t.textContent.trim() : '';
+        return t ? [t.textContent.trim(), t.dataset.id] : ['', ''];
       };
-      for (const [q, want] of [['pdf', 'PDF'], ['eml', 'EML']]) {
+      for (const [q, want, id] of [['pdf', 'PDF', 'pdf'], ['eml', 'EML', 'eml']]) {
         input.value = q;
         input.dispatchEvent(new win.Event('input', { bubbles: true }));
         await sleep(200);
-        expect(first().includes(want)).toBeTruthy();
+        expect(first()[1]).toBe(id);   // that app's card, whatever the build calls it
+        if (BRAND_FACTS.naming === 'brand') expect(first()[0].includes(want)).toBeTruthy();   // here: Slop PDF, Slop EML
       }
     });
   });

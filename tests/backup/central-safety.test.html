@@ -43,7 +43,7 @@
       const before = await BK.counts();
       const p = await C.plan(BK.blob(JSON.stringify(env)));
       expect(p.ok).toBe(false);
-      expect(p.errors[0]).toMatch(/Drive/);
+      expect(p.errors[0]).toMatch(/^[^:]+: files and folders: /);   // the Drive section, under the build's name for it (here Slop Drive)
       expect((await C.apply(p)).ok).toBe(false);
       expect(await BK.counts()).toEqual(before);
     });
@@ -62,7 +62,7 @@
       const text = await ex.blob.text();
       for (const s of ['SECRET-TOKEN-XYZ', 'CONSENT-SECRET-QRS', 'SYNC-ID-123']) expect(text).not.toContain(s);
       const listed = ex.excluded.map((x) => x.source).join(' | ');
-      expect(listed).toMatch(/Slop Sync sign-in tokens/);
+      expect(listed).toMatch(/Sync sign-in tokens \(IndexedDB /);   // here: Slop Sync sign-in tokens
       expect(listed).toMatch(/Consent record/);
       localStorage.removeItem('slop-consent'); localStorage.removeItem('slop-sync');
       await BK.deleteDb('slop-sync');

@@ -147,6 +147,9 @@ body { --s-bg2: var(--sui-bg2); --s-input: var(--sui-input); --s-line: var(--sui
 }
 @media (max-width: 420px) {
   .mu-top { padding: 8px 12px; }
+  /* the name gives way before the tabs wrap: a longer app name (a white-label build's) shortens with an ellipsis */
+  .mu-brand { flex: 1 0 0; min-width: 0; }
+  .mu-brand h1 { overflow: hidden; text-overflow: ellipsis; }
   .mu-main { padding: 12px 12px 96px; }
   .mu-controls { gap: 8px; }
   .mu-btn { width: 38px; height: 38px; }

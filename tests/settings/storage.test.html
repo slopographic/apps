@@ -11,6 +11,7 @@
   /** A page in a fresh iframe, once it is loaded. */
   async function open(src, ready) {
     for (const old of document.querySelectorAll('iframe')) old.remove();
+    SlopTest.english();   // the checks read the English copy (a build may start in another language)
     const f = document.createElement('iframe');
     f.src = src;
     document.body.append(f);

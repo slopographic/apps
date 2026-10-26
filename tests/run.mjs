@@ -23,6 +23,8 @@
 // window.__SLOPTEST__ (see tests/harness.js) and prints a report. Exit code 1 on failure.
 // What CI runs where (the full suite on testing, only the pages a change needs on work branches): tools/ci/plan.mjs.
 // Also runs Node-only tests (tests/node/*.test.mjs and tests/seo/*.test.mjs) with `node --test`.
+// A page that needs a feature a brand profile can leave out (<meta name="slop-test-needs">, tests/needs.mjs) runs only in a
+// build whose brand facts (tests/brand-facts.js) have it; the pages left out are named.
 import http from 'node:http';
 import { readFile, readdir, stat, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
@@ -33,6 +35,7 @@ import { parseShard, shardPages, pool, mergeTimings, longestFirst } from './shar
 import { attachNet, NET_DIR } from './netcache.mjs';
 import { parseNetUrls, NET_URLS } from './results.mjs';
 import { touchDevice, touchPage, isTouchPage, TOUCH_ARGS } from './touch.mjs';
+import { needsOf, unmet, loadFacts } from './needs.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const argv = process.argv.slice(2), flag = (name) => argv.find((a) => a === `--${name}` || a.startsWith(`--${name}=`));
@@ -92,6 +95,10 @@ if (nodeTests.length && !flag('skip-node')) {
 
 let pages = (await findTests(path.join(ROOT, 'tests'))).filter((p) => p.includes(filter)).sort();
 if (value('pages-file')) { const only = new Set((await readFile(value('pages-file'), 'utf8')).split(/\s+/).filter(Boolean)); pages = pages.filter((p) => only.has(p)); }
+// A page about a feature this build leaves out (<meta name="slop-test-needs">, tests/needs.mjs) is not run; it is named.
+{ const facts = loadFacts(), out = [];
+  pages = (await Promise.all(pages.map(async (p) => { const u = unmet(needsOf(await readFile(p, 'utf8')), facts); if (u.length) out.push(`${p} (${u.map((c) => `${c.key}=${c.values.join('|')}`).join('; ')})`); return u.length ? null : p; }))).filter(Boolean);
+  if (out.length && !flag('needs-net')) console.log(c.d(`\nNot for this build (its brand facts, tests/brand-facts.js): ${out.sort().join(', ')}`)); }
 if (TOUCH) { pages = (await Promise.all(pages.map(async (p) => (isTouchPage(await readFile(p, 'utf8')) ? p : null)))).filter(Boolean); console.log(c.b(`\nTouch: ${pages.length} pages in ${ENGINE} as ${touchDevice(ENGINE, value('device')).name}`)); }
 const timings = JSON.parse(await readFile(TIMINGS, 'utf8').catch(() => '{}'));
 if (SHARD) {

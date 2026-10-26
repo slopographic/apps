@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><title>Consent card and buddy above a sheet footer</title>
+<head><meta charset="utf-8">
+  <meta name="slop-test-needs" content="analytics=true"><title>Consent card and buddy above a sheet footer</title>
 <style>body { margin: 0; } iframe { border: 0; display: block; }</style></head>
 <body>
   <!-- Covers: shared/consent/banner.css, shared/consent/banner.js, contacts/css/contacts.css, shared/frame/panel.js, shared/buddy/boot.js, shared/slopui.css, shared/drop/panel.js -->
@@ -21,6 +22,7 @@
   const box = (f, sel) => f.contentDocument.querySelector(sel).getBoundingClientRect();
   /** The buddy's round button (bottom corner), when the page has it, stays clear of the footer's buttons. */
   async function buddyClear(f) {
+    if (BRAND_FACTS.mascot === 'none') { expect(f.contentDocument.querySelector('.buddy-toggle')).toBe(null); return; }   // a build without a mascot has no button
     const b = await waitFor(() => f.contentDocument.querySelector('.buddy-toggle'), { timeout: 15000 });
     const clear = () => { const r = b.getBoundingClientRect(), a = box(f, '.sf-foot-acts'); return r.bottom <= a.top + 0.5 || r.top >= a.bottom - 0.5 || r.right <= a.left || r.left >= a.right; };
     await waitFor(clear, { timeout: 5000 }).catch(() => {});   // the footer settles after the app's first paint

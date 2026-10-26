@@ -83,7 +83,7 @@ sites live outside this repository, with the publish script; pass their folder w
 | `logo` | `{ text, mark, color }`: the build draws a wordmark (`brand/logo.svg`), a square mark (`brand/mark.svg`, the favicon) and the PNG icons and share card from it. Replace the files in a later commit of the profile's folder if you have a real logo. |
 | `links`, `footer`, `support`, `analytics` | Footer and support links (empty hides them), the footer line, the export card parts, and third parties: `false` leaves out analytics, ads and the consent strip. |
 | `copy` | Extra phrase replacements for this site (`"source phrase": "replacement"`), on top of the tone's. |
-| `apps.hide`, `media` | Apps left out of every list, menu and sitemap (their guides and task pages too; the SEO tests of a mirror then need their names on the skip list); `false` leaves out screenshots, clips and videos (they show this brand). |
+| `apps.hide`, `media` | Apps left out of every list, menu and sitemap (their guides and task pages too; tests read them from the brand facts, `hideApps`); `false` leaves out screenshots, clips and videos (they show this brand). |
 | `seo` | `homeTitle`, `homeDescription`, `titleSuffix` for the generated head blocks and the sitemap. |
 | `legal` | `{ holder, year, trademarks? }`: the MIT licence's copyright holder, `NOTICE.md` and `TRADEMARKS.md` (`trademarks`: the names the holder claims; default the product name). |
 | `publish` | `{ repo, branch, secret, author, email }`: where the publish script pushes, the token's secret name, and the release commit's author. |
@@ -176,11 +176,33 @@ node tools/whitelabel/cdn.mjs <id> <build dir> <cdn checkout> <out dir> --profil
 
 ### Tests in a mirror
 
-A mirror keeps the whole test suite, renamed, and its own CI workflow runs it. The few Node tests that check this site's
-own profile values (its brand app names, its copy lengths, its media, its support links) are skipped by name there, and
-only when the profile differs (`tools/whitelabel/mirror-skip.mjs`, each with its reason). The mirror's workflow also runs
-the smoke pages and the whole contrast sweep (`tests/a11y/sweep-*`) in its own colours, in six parallel slices. CI here runs
-the same build checks on the samples.
+A mirror keeps the whole test suite, renamed, and its own CI workflow (`tools/whitelabel/workflow.mjs`, made from this
+repository's `rules.yml`) runs all of it the way CI runs it here: the file rules, every Node test, the plan, the browser
+suite in its parallel slices and the touch jobs. Nothing is skipped by name. The tests are written for any build:
+
+- **Brand facts.** A test reads the build's switches from `tests/brand-facts.js` (`window.BRAND_FACTS`; Node:
+  `tests/brand-facts.mjs`, which also gives the registry and the visible app names): `naming`, `tone`, `mascot`
+  (`builtin`, `overlay` or `none`), `media`, `analytics`, `defaultLang`, `hideApps`. They are the code's own profile
+  markers, so they always match the build (`tests/node/brand-facts.test.mjs`); here they are this site's profile
+  (`tests/node/whitelabel-facts.test.mjs`). A test of a switch checks its contract either way (with media, the tutorial;
+  without, none), a test of the start language reads `defaultLang`, and a name is the registry's (`slopAppName`) or a
+  made-up fixture name, never one of this site's app names that a plain build replaces.
+- **Pages for one side of a switch.** A page about a feature a profile can leave out says so in its head,
+  `<meta name="slop-test-needs" content="mascot=builtin">` (`tests/needs.mjs`; `|` between values, `;` between
+  conditions), and `tests/run.mjs` runs it only in a build whose facts fit, naming the pages it left out. The buddy
+  engine's pages need `mascot=builtin`; a build with its own mascot runs `tests/buddy/overlay.test.html` and the slot
+  test with its own overlay; a build without one runs `tests/buddy/off.test.html`.
+- **Language.** In a build that starts in another language the harness opens the apps in English, as a visitor who chose
+  English (`SlopTest.english()`), so a check reads the copy it was written against; a page about the start language says
+  `<meta name="slop-test-lang" content="default">` and reads the build's default and its strings (`SlopTest.said`).
+- **Repo-only tests.** The tests about this repository only (its other workflows, its commit identity, its SEO copy
+  lengths, the white-label tools) are listed with their reasons in one place, `tests/repo-only.json`, and a build leaves
+  those files out.
+
+CI here builds both samples on every push and runs each build's Node tests. On testing and main it also runs each
+build's whole browser suite (8 slices per profile) and its touch pages; on a work branch only the pages the plan picks
+(tools/ci/plan.mjs, renamed for the build by tools/whitelabel/pages.mjs), or the whole suite when the change is to the
+build itself (tools/whitelabel, brand/, the brand facts or a profile marker).
 
 ### Colours
 
@@ -253,4 +275,7 @@ profile's own words (they must not reach this public repository), regenerated fi
   by `shared/theme/theme.js` before the first paint. Style the plain tone in `style/tone.css` (loaded only in a plain build;
   every rule scoped to `:root[data-tone="plain"]`), mark copy for one tone with the class `tone-plain` or `tone-playful`,
   and give an i18n key a plain wording as `plain.<key>` (the homepage's `tr()` in `home/sections.js` reads it first).
+- Tests: names from the registry or made-up fixtures, switches and the start language from the brand facts
+  (`tests/brand-facts.js`), a page for one side of a switch tagged `slop-test-needs`; a test about this repository only
+  goes in `tests/repo-only.json`.
 - Run `node tools/whitelabel/build.mjs sample /tmp/acme` before you push a change that adds brand words; CI does it anyway.

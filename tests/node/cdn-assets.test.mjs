@@ -10,8 +10,10 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { allAssets, C, ROOT } from '../../tools/cdn-assets.mjs';
 
-const JSD = /^https:\/\/cdn\.jsdelivr\.net\/gh\/slopographic\/cdn@(v\d{4}\.\d{1,2}\.\d{1,2})\//;
-const RAW = /^https:\/\/raw\.githubusercontent\.com\/slopographic\/cdn\/(v\d{4}\.\d{1,2}\.\d{1,2})\//;
+// the file host's repository (here slopographic/cdn; a build's own account): shared/cdn/assets.js REPO
+const REPO = C.REPO.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&');
+const JSD = new RegExp(`^https://cdn\\.jsdelivr\\.net/gh/${REPO}@(v\\d{4}\\.\\d{1,2}\\.\\d{1,2})/`);
+const RAW = new RegExp(`^https://raw\\.githubusercontent\\.com/${REPO}/(v\\d{4}\\.\\d{1,2}\\.\\d{1,2})/`);
 
 test('the release tag is a fixed version (never latest, a branch or a range)', () => {
   assert.match(C.TAG, /^v\d{4}\.\d{1,2}\.\d{1,2}$/);
@@ -72,7 +74,7 @@ test('no app file writes a cdn URL of its own: they all come from shared/cdn/ass
   const hits = [];
   for (const f of appFiles()) {
     const t = readFileSync(path.join(ROOT, f), 'utf8');
-    if (/raw\.githubusercontent\.com\/slopographic\/cdn|jsdelivr\.net\/gh\/slopographic\/cdn|slopographic\/cdn\/[0-9a-f]{40}/.test(t)) hits.push(f);
+    if (new RegExp(`raw\\.githubusercontent\\.com/${REPO}|jsdelivr\\.net/gh/${REPO}|${REPO}/[0-9a-f]{40}`).test(t)) hits.push(f);
   }
   assert.deepEqual(hits, []);
 });

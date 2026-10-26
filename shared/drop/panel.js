@@ -6,6 +6,8 @@
   const SD = (root.SlopDrop = root.SlopDrop || {});
   const doc = root.document;
   const P = (SD.panel = {});
+  // The brand profile's media switch (set at build time): a build without this site's screenshots shows no picture of one.
+  const MEDIA = /*profile:media*/true;
   /** A word from the shared tables (shared/i18n/ui/en.js), or the English given when SlopI18n or the key is absent. */
   function tr(key, en, vars) { const I = globalThis.SlopI18n; if (I && I.has && I.has(key)) return I.t(key, vars); return vars ? String(en).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en; }
   const CSS = [
@@ -79,7 +81,7 @@
       if (pic.nodeType) fig.append(pic);
       else if (pic.flow && root.SlopFlow) fig.append(root.SlopFlow.create(Object.assign({ size: 'lg' }, pic.flow)).el);
       // a single-file offline build (opened from file://) has no assets folder beside it: the steps say it there
-      else if (pic.src && !(root.location && root.location.protocol === 'file:')) { const img = doc.createElement('img'); img.src = pic.src; img.alt = pic.alt || ''; img.width = 1280; img.height = 800; img.fetchPriority = 'high'; img.decoding = 'async'; fig.append(img); }   // the first view's largest picture: fetched first, never lazy; its size keeps the room
+      else if (pic.src && !(root.location && root.location.protocol === 'file:') && (MEDIA || !/assets\/shots\//.test(pic.src))) { const img = doc.createElement('img'); img.src = pic.src; img.alt = pic.alt || ''; img.width = 1280; img.height = 800; img.fetchPriority = 'high'; img.decoding = 'async'; fig.append(img); }   // the first view's largest picture: fetched first, never lazy; its size keeps the room
       if (fig.firstChild) box.append(fig);
     }
     if (o.steps && o.steps.length) {

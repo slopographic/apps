@@ -18,7 +18,7 @@
       await ready();
       const m = doc().getElementById('monMsg');
       expect(m.hidden).toBe(false);
-      expect(m.querySelector('.sd-pic img').getAttribute('src')).toBe('../assets/shots/slopedit.jpg');
+      SlopTest.shot(m.querySelector('.sd-pic img'), '../assets/shots/slopedit.jpg');
       expect([...m.querySelectorAll('.sd-steps li')].map((li) => li.textContent))
         .toEqual(['Drop video, audio or pictures', 'Cut and arrange them on the timeline', 'Export a video file']);
       expect([...doc().querySelectorAll('.bin-empty button')].map((b) => b.textContent)).toEqual(['Import files', 'Sample project']);
@@ -50,7 +50,8 @@
       old.replaceWith(f);
       await ready();
       const m = doc().getElementById('monMsg');
-      expect(win().getComputedStyle(m.querySelector('.sd-pic')).display).toBe('none');
+      const pic = m.querySelector('.sd-pic');   // a build without media has no picture at all
+      if (BRAND_FACTS.media) expect(win().getComputedStyle(pic).display).toBe('none'); else expect(pic).toBe(null);
       expect(m.querySelectorAll('.sd-steps li').length).toBe(3);
       expect(m.getBoundingClientRect().right <= 390).toBe(true);
       expect(doc().documentElement.scrollWidth <= 390).toBe(true);

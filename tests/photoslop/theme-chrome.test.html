@@ -38,10 +38,12 @@
 
   describe('theme switcher reaches the menu bar and panel headers', () => {
     it('Light and Dark change the menu bar and the panel header colours', () => {
+      // the bar is the theme's background (this site: #ebe7de and #0a0a0a; a build's profile sets its own, shared/theme/theme.js)
+      const bg = (id) => { const h = win.SlopTheme.THEMES.find((t) => t.id === id).tokens.background; return [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16)); };
       const light = pick('light');
-      expect(light.bar).toEqual([235, 231, 222]);
+      expect(light.bar).toEqual(bg('light'));
       const dark = pick('dark');
-      expect(dark.bar).toEqual([10, 10, 10]);
+      expect(dark.bar).toEqual(bg('dark'));
       expect(light.bar).not.toEqual(dark.bar);
       expect(light.head).not.toEqual(dark.head);
       expect(win.document.documentElement.getAttribute('data-slop-theme')).toBe('dark');

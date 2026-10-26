@@ -101,10 +101,11 @@
     it('File ▸ Send to is the SlopOuttake builder: the PDF to the apps and Workflows once, the page PNG to the apps', async () => {
       const items = W.PR.hub.sendItems().filter((x) => x !== '-');
       const labels = items.map((x) => x.label);
-      expect(labels.some((l) => /^Send PDF to Slop PDF$/.test(l))).toBe(true);
+      const names = (id) => { const a = W.SLOP_APPS.find((x) => x.id === id); return [a.name, W.slopAppName(a)]; };   // the build's names (here Slop PDF)
+      expect(labels.some((l) => names('pdf').some((n) => l === `Send PDF to ${n}`))).toBe(true);
       expect(labels.some((l) => /^Send page PNG to /.test(l))).toBe(true);
       expect(labels.filter((l) => l === 'Run a workflow…').length).toBe(1);
-      expect(labels.filter((l) => /Slop Workflows$/.test(l)).length).toBe(0);
+      expect(labels.filter((l) => names('workflows').some((n) => l.endsWith(n))).length).toBe(0);
       expect(labels[labels.length - 1]).toBe('Save to Slop Drive…');
     });
   });
