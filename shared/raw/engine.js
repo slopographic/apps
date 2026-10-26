@@ -32,7 +32,7 @@
   const NOTICE = {
     title: 'ui.firstrun.raw_title',
     lines: ['ui.firstrun.raw_text'],
-    downloads: [{ name: () => root.SlopI18n.t('ui.firstrun.raw_name', { version: '0.22.1' }), bytes: PACK.size }],
+    downloads: [{ name: () => tr('ui.firstrun.raw_name', { version: '0.22.1' }), bytes: PACK.size }],
   };
   // SlopUI too: SlopFirstRun lets everything through when a page has no dialog kit (File convert's pages), and the
   // engine must not download without the notice

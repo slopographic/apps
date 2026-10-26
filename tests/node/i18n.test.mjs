@@ -135,6 +135,9 @@ test('apply() on an English page sets lang="en" and dir="ltr"', async () => {
 
 test('every data-i18n key on the homepage and Settings has an English string', async () => {
   const { I } = await global();
+  // the shared components' words beyond ui/en.js (UI_PARTS: shared/i18n/ui/en/<part>.js), as a page has them
+  const { readdirSync } = await import('node:fs');
+  for (const f of readdirSync(path.join(ROOT, 'shared/i18n/ui/en')).filter((n) => n.endsWith('.js'))) new Function('window', await readFile(path.join(ROOT, 'shared/i18n/ui/en', f), 'utf8'))({ SlopI18n: I });
   // Settings keeps its own words like an app (settings/i18n/en/*.js, keys settings.<area>.<name>) beside the chrome's
   const { pageAreas, appTables } = await import('../../tools/i18n/tables.mjs');
   const own = appTables(pageAreas().find((a) => a.id === 'settings')).tables.en;

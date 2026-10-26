@@ -2,16 +2,17 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta name="slop-test-lang" content="default">   <!-- the page chooses Swedish itself: the harness leaves the language alone -->
   <title>AI agents in Swedish</title>
   <!-- Covers: shared/agent/about.js, shared/agent/bridge-ui.js, shared/agent/tools.js, shared/agent/clients-help.js, shared/agent/clients.js, shared/i18n/ui/en/agent.js, shared/i18n/ui/sv/agent.js -->
   <script>try { localStorage.setItem('slop-profile', JSON.stringify({ v: 1, data: { lang: { mode: 'sv' } } })); } catch (e) { /* private window */ }</script>
+  <script src="../harness.js"></script>
   <script src="../../shared/profile/profile.js"></script>
   <script src="../../shared/i18n/i18n.js"></script>
 </head>
 <body>
   <div data-slop-agents-note></div>
   <div data-slop-ai-clients></div>
-  <script src="../harness.js"></script>
   <script src="../../shared/slopui.js"></script>
   <script>
   // The AI agents note, the "Connect an AI app" dialog, the connected indicator, the question before a destructive

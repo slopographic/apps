@@ -32,7 +32,7 @@
   const NOTICE = {
     title: 'ui.firstrun.heic_title',
     lines: ['ui.firstrun.heic_text'],
-    downloads: [{ name: () => root.SlopI18n.t('ui.firstrun.heic_name', { version: '1.23.5' }), bytes: PACK.size }],
+    downloads: [{ name: () => tr('ui.firstrun.heic_name', { version: '1.23.5' }), bytes: PACK.size }],
   };
   // SlopUI too: SlopFirstRun lets everything through when a page has no dialog kit, and the engine must not download unasked
   const DEPS = [['SlopUI', '../slopui.js'], ['SlopLibraryManifest', '../library/manifest.js'], ['SlopLibraryStore', '../library/store.js'], ['SlopLibraryInstall', '../library/install.js'], ['SlopFirstRun', '../firstrun/notice.js']];

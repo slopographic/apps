@@ -177,7 +177,7 @@ test('motion conversions: Slides px, Cut px keys, Remix poses', () => {
 
 test('built-in names, descriptions and effect type labels come from the ui tables, in Swedish too, and still validate', async () => {
   const { context, plain: copy } = await import('./ui-tables-env.mjs');
-  assert.equal(SP.get('soft-shadow').label, 'ui.presets.b.soft_shadow', 'without SlopI18n the key shows (no English kept in the list)');
+  assert.equal(SP.get('soft-shadow').label, 'Soft shadow', 'read from the en table (shared/i18n/ui/en/presets.js), no English kept in the list');
   const files = ['shared/motion/easing.js', 'shared/motion/track.js', 'shared/presets/core.js', 'shared/presets/builtins-effect.js', 'shared/presets/builtins-motion.js'];
   const sv = context(files, 'sv').SlopPresets;
   assert.equal(sv.get('bw-look').label, 'Svartvitt');

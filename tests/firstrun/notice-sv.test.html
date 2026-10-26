@@ -2,14 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta name="slop-test-lang" content="default">   <!-- the page chooses Swedish itself: the harness leaves the language alone -->
   <title>First-use notice in Swedish</title>
   <!-- Covers: shared/firstrun/notice.js, shared/i18n/ui/en/firstrun.js, shared/i18n/ui/sv/firstrun.js, shared/heic/engine.js, shared/raw/engine.js, shared/3d-io/decoders.js -->
   <script>try { localStorage.setItem('slop-profile', JSON.stringify({ v: 1, data: { lang: { mode: 'sv' } } })); localStorage.removeItem('slop-firstrun:probe-sv'); } catch (e) { /* private window */ }</script>
+  <script src="../harness.js"></script>
   <script src="../../shared/profile/profile.js"></script>
   <script src="../../shared/i18n/i18n.js"></script>
 </head>
 <body>
-  <script src="../harness.js"></script>
   <script src="../../shared/slopui.js"></script>
   <script src="../../shared/firstrun/notice.js"></script>
   <script>

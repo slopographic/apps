@@ -2,18 +2,19 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta name="slop-test-lang" content="default">   <!-- the page chooses Swedish itself: the harness leaves the language alone -->
   <title>Shared components in Swedish: review, colour picker, buffer tray, Drive link, tip jar, theme, RAW engine</title>
   <!-- Covers: shared/review/review.js, shared/color/picker.js, shared/buffer/tray.js, shared/drive-link.js, shared/consent/donate.js, shared/theme/theme.js, shared/raw/engine.js, shared/i18n/ui/en/misc.js, shared/i18n/ui/sv/misc.js -->
   <link rel="stylesheet" href="../../shared/slopui.css">
   <style>body { margin: 0; background: #111; color: #eee; font: 12px system-ui; }</style>
   <script>try { localStorage.setItem('slop-profile', JSON.stringify({ v: 1, data: { lang: { mode: 'sv' } } })); } catch (e) { /* private window */ }</script>
+  <script src="../harness.js"></script>
   <script src="../../shared/profile/profile.js"></script>
   <script src="../../shared/theme/theme.js"></script>
   <script src="../../shared/i18n/i18n.js"></script>
 </head>
 <body>
   <div id="tip" data-donate hidden></div>
-  <script src="../harness.js"></script>
   <script>
   // the tray needs only these three parts of SlopBuffer; the consent config takes a test URL
   let onBuf = null;

@@ -26,7 +26,6 @@ import { urls, phrases, tokens } from './rename.mjs';
 import { context, forward, forwardPath } from './transform.mjs';
 import { brandJson, manifest } from './emit.mjs';
 import { mirrorWorkflow } from './workflow.mjs';
-import { skipPattern, smokeFor } from './mirror-skip.mjs';
 import { pinCdn, TEXT } from './cdnpin.mjs';
 import { isText, scan, report, listFiles } from './scan.mjs';
 import { artAllow } from './mascot.mjs';
@@ -86,7 +85,7 @@ export function outFile(T, f, buf, tag) {
 }
 /** The mirror workflow from the source's rules.yml (null when the old file does not fit the generator). */
 export function workflowFile(T, yml) {
-  try { return Buffer.from(tokens(phrases(urls(mirrorWorkflow(yml, skipPattern(T.p), smokeFor(T.p)), T.ctx.urls), T.ctx.phraseRules), T.ctx.tokenRules)); } catch (e) { return null; }
+  try { return Buffer.from(tokens(phrases(urls(mirrorWorkflow(yml), T.ctx.urls), T.ctx.phraseRules), T.ctx.tokenRules)); } catch (e) { return null; }
 }
 const tagOf = (buf) => { const m = buf && /const TAG = '([^']*)';/.exec(buf.toString('utf8')); return m ? m[1] : null; };
 

@@ -2,15 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta name="slop-test-lang" content="default">   <!-- the page chooses Swedish itself: the harness leaves the language alone -->
   <title>Buddy in Swedish</title>
   <!-- Covers: shared/buddy/boot.js, shared/buddy/hud.js, shared/buddy/care.js, shared/buddy/tips.js, shared/buddy/lines.js, shared/buddy/store.js, shared/buddy/levels.js, shared/buddy/power.js, shared/buddy/candy.js, shared/buddy/mood.js, shared/buddy/treats.js, shared/buddy/fx.js, shared/buddy/engine.js, shared/buddy/view3d.js, shared/i18n/ui/en/buddy.js, shared/i18n/ui/sv/buddy.js, shared/i18n/ui/en/buddy2.js, shared/i18n/ui/sv/buddy2.js -->
   <script>try { localStorage.setItem('slop-profile', JSON.stringify({ v: 1, data: { lang: { mode: 'sv' } } })); } catch (e) { /* private window */ }</script>
+  <script src="../harness.js"></script>
   <script src="../../shared/profile/profile.js"></script>
   <script src="../../shared/i18n/i18n.js"></script>
   <style>body { margin: 0; background: #111; color: #eee; font: 13px system-ui; }</style>
 </head>
 <body>
-  <script src="../harness.js"></script>
   <script src="boot.js"></script>
   <script type="module">
   // Sloppo's toggle, card, Give… tray, hats, tips and lines were English in every language. They are keys now

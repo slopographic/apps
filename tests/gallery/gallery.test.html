@@ -9,13 +9,14 @@
 </head>
 <body>
   <div id="scroller"><div id="content"></div></div>
+  <script src="../harness.js"></script>
+  <script src="../../shared/profile/profile.js"></script>
   <script src="../../shared/i18n/i18n.js"></script>   <!-- the shared components' words (shared/i18n/ui) -->
   <script>
     // Isolated databases for this page only: the real user library and Slop Drive are never touched.
     window.SLOP_GALLERY_DB = 'gallery-test-' + Math.random().toString(36).slice(2, 10);
     window.SLOP_DRIVE_DB = 'gallery-drive-test-' + Math.random().toString(36).slice(2, 10);
   </script>
-  <script src="../harness.js"></script>
   <script src="../../shared/apps.js"></script>
   <script src="../../shared/hub.js"></script>
   <script src="../../shared/intake/outtake.js"></script>
