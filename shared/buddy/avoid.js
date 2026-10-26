@@ -7,11 +7,9 @@ import { size } from './look.js';
 import * as P from './perches.js';
 import { place } from './motion.js';
 import { glideTo, savedSpot } from './glide.js';
+import { ringSpots } from '../roam/path.js';
+import { isControl } from '../roam/spots.js';   // the controls he never covers (shared with the mascot slot)
 
-const CONTROL = 'a[href], button, input, select, textarea, label, summary, [role=button], [role=link], [role=tab], '
-  + '[role=menuitem], [role=checkbox], [role=switch], [role=option], [contenteditable="true"], '
-  + '[tabindex]:not([tabindex="-1"]), nav, header, footer, form, [role=toolbar], [role=menubar], .buddy-toggle, .sloppo-hud, '
-  + '[data-controls]';   // a region whose controls move (the homepage's scrolling strip of app links): free now is not free later
 let dodged = false, passing = false;
 
 /** His hit box for feet at page point (x, y), in viewport coordinates (the same box fit() in engine.js sizes). */
@@ -20,7 +18,6 @@ function boxAt(x, y) {
   return { l: x - s * 0.62 - scrollX, r: x + s * 0.62 - scrollX, t: y - s * 1.16 - scrollY, b: y + s * 0.02 - scrollY };
 }
 const inside = (b, x, y, pad = 0) => x >= b.l - pad && x <= b.r + pad && y >= b.t - pad && y <= b.b + pad;
-const isControl = (el) => !!(el && el.closest && el.closest(CONTROL));
 const onScreen = (b) => b.l >= 8 && b.r <= innerWidth - 8 && b.t >= navH() + 8 && b.b <= innerHeight - 8;
 
 /** Is a control under the viewport point (x, y), not counting Sloppo himself? */
@@ -46,16 +43,8 @@ function free(b) {
 /** The nearest free feet point beside him that does not sit under the pointer (px, py, viewport). Sideways first. */
 function findSpot(px, py) {
   const s = size(), c = boxAt(M.x, M.y);
-  const cx = (c.l + c.r) / 2, cy = (c.t + c.b) / 2, opts = [];
-  for (let i = 0; i < 16; i++) {
-    const a = (i / 16) * Math.PI * 2;
-    for (const k of [1.4, 2, 2.8]) {
-      const dx = Math.cos(a) * s * k, dy = Math.sin(a) * s * k * 0.7;
-      const toward = dx * (px - cx) + dy * (py - cy) > 0;      // never run towards the pointer if avoidable
-      opts.push({ dx, dy, score: Math.hypot(dx, dy) * (toward ? 2 : 1) });
-    }
-  }
-  opts.sort((p, q) => p.score - q.score);
+  const cx = (c.l + c.r) / 2, cy = (c.t + c.b) / 2;
+  const opts = ringSpots(s, s * 0.7, px - cx, py - cy);   // never towards the pointer if another way is free
   for (const o of opts) {
     const x = M.x + o.dx, y = M.y + o.dy, b = boxAt(x, y);
     if (!onScreen(b) || inside(b, px, py, 14)) continue;

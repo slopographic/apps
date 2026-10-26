@@ -94,3 +94,15 @@ export const TIPS = [
 
 /** The next idle glance (ms from now): somewhere between 20 and 45 seconds, from a random number 0..1. */
 export const nextGlance = (rnd) => 20000 + Math.round(rnd * 25000);
+
+/** The drawing's box: W x H at full size (the overlay's own stage). */
+export const STAGE = { w: 112, h: 136 };
+/** How big the mascot is drawn: { desk, phone } (phone: up to 700 px wide), each { w, h, k (scale), real }. Without a
+ * profile size (mascot.size: { desktop, phone }, px tall, 32..360) the stage is drawn at scale (0.62 in a plain-tone build,
+ * 0.46 on a phone there). With one, the stage is laid out at that size (real: the overlay draws to fill it, sharp). */
+export function dims(size, scale = 1) {
+  const s = size || {}, ok = (v) => Number.isFinite(v) && v >= 32 && v <= 360;
+  const at = (h) => ({ w: Math.round((h * STAGE.w) / STAGE.h), h: Math.round(h), k: h / STAGE.h, real: true });
+  const scaled = (k) => ({ w: Math.round(STAGE.w * k), h: Math.round(STAGE.h * k), k, real: false });
+  return { desk: ok(s.desktop) ? at(s.desktop) : scaled(scale), phone: ok(s.phone) ? at(s.phone) : scaled(scale < 1 ? 0.46 : scale) };
+}
