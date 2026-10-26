@@ -4,5 +4,5 @@ window.SlopI18n && window.SlopI18n.source({
   ns: 'todo',
   base: ((document.currentScript || {}).src || '').replace(/[^/]*$/, ''),
   parts: ['app', 'editor', 'tour'],
-  langs: ['ar', 'de', 'en', 'es', 'fr', 'ja', 'pt-BR', 'sv', 'zh-CN'],
+  langs: ['ar', 'de', 'en', 'es', 'fr', 'ja', 'pl', 'pt-BR', 'sv', 'zh-CN'],
 });
