@@ -5,12 +5,15 @@ import assert from 'node:assert/strict';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { LANGS } from '../../tools/seo/lang.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const SKIP = new Set(['.git', 'node_modules', 'tests', 'apps', 'vendor', 'downloads', 'docs']);
+// The language folders at the root (/sv/...) hold copies of the app pages, made from these by tools/seo: the pages are checked once.
+const LANG_DIRS = new Set(LANGS.map((l) => l.code.toLowerCase()));
 const walk = (dir, ext, out = []) => {
   for (const name of readdirSync(dir)) {
-    if (SKIP.has(name) || name.startsWith('.')) continue;
+    if (SKIP.has(name) || name.startsWith('.') || (dir === ROOT && LANG_DIRS.has(name))) continue;
     const full = path.join(dir, name);
     if (statSync(full).isDirectory()) walk(full, ext, out);
     else if (name.endsWith(ext)) out.push(full);

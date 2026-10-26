@@ -16,6 +16,8 @@
   import { readZip } from '../../shared/office/zip.js';
   import { PAGES } from '../../convert/js/core/pages.js';
   import { CONVERT_PAGES } from '../../shared/seo/convert-copy.mjs';
+  // the English page: a build whose root language is another has it under /en/ (shared/seo/HANDOFF.md, "Languages")
+  const EN_DIR = window.BRAND_FACTS && window.BRAND_FACTS.defaultLang !== 'en' ? 'en/' : '';
   import { MORE_PAGES_2 } from '../../convert/js/core/more-pages-2.js';
   import { MORE_PAGES_3 } from '../../convert/js/core/more-pages-3.js';
   const { describe, it, expect } = SlopTest;
@@ -154,7 +156,7 @@
       for (const p of [...MORE_PAGES_2, ...MORE_PAGES_3]) {
         expect(PAGES.includes(p)).toBe(true);
         expect(CONVERT_PAGES[`convert/${p.slug}`].title).toBe(p.title);
-        const doc = new DOMParser().parseFromString(await (await fetch(`../../convert/${p.slug}/`)).text(), 'text/html');
+        const doc = new DOMParser().parseFromString(await (await fetch(`../../${EN_DIR}convert/${p.slug}/`)).text(), 'text/html');
         expect([doc.title, doc.querySelector('h1').textContent, doc.querySelector('[data-convert-root]').dataset.preset]).toEqual([p.title, p.h1, p.conv]);
         expect(doc.querySelectorAll('.cv-faq h3').length).toBe(p.faq.length);
         const first = p.conv.split('>')[0];

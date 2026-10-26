@@ -13,6 +13,7 @@
 .fnav ul { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 3px 20px; list-style: none; margin: 0; padding: 0; }
 .fnav .fn-long ul { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
 .fnav li { min-width: 0; }
+.fnav li a { display: inline-block; max-width: 100%; }   /* a title on two lines stays one box (a tap anywhere on it lands on the link) */
 .fnav summary { display: block; margin: 0 0 8px; list-style: none; color: var(--fn-fg);
   font: 600 11px/1.3 var(--mono, ui-monospace, monospace); letter-spacing: 0.08em; text-transform: uppercase; }
 .fnav summary::-webkit-details-marker { display: none; }
