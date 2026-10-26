@@ -3,6 +3,6 @@
 window.SlopI18n && window.SlopI18n.source({
   ns: 'upscale',
   base: ((document.currentScript || {}).src || '').replace(/[^/]*$/, ''),
-  parts: ['app', 'panel'],
+  parts: ['app', 'panel', 'tour'],
   langs: ['en', 'sv'],
 });

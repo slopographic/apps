@@ -1,17 +1,13 @@
-/* SlopTour: Slop To-do. Targets are ids in todo/index.html. */
-(function () {
-  /* The words are in the app's string tables (todo/i18n/<code>/tour.js), read when the tour loads. */
-  const T = (k) => (globalThis.SlopI18n ? globalThis.SlopI18n.t(k) : k);
-  SlopTour.define({
-    app: 'todo',
-    title: T('todo.tour.title'),
-    steps: [
-      { id: 'lists', title: T('todo.tour.s_lists'), text: T('todo.tour.s_lists_text'), target: '#tSide' },
-      { id: 'title', title: T('todo.tour.s_title'), text: T('todo.tour.s_title_text'), target: '#tTitle' },
-      { id: 'add', title: T('todo.tour.s_add'), text: T('todo.tour.s_add_text'), target: '#tAdd' },
-      { id: 'done', title: T('todo.tour.s_done'), text: T('todo.tour.s_done_text'), target: '#tDone' },
-      { id: 'find', title: T('todo.tour.s_find'), text: T('todo.tour.s_find_text'), target: '#tSearch' },
-      { id: 'tasks', title: T('todo.tour.s_tasks'), text: T('todo.tour.s_tasks_text'), target: '#tList' },
-    ],
-  });
-})();
+/* SlopTour: Slop To-do. Targets are ids in todo/index.html. The words are keys in todo/i18n (todo.tour.title,
+ * todo.tour.<step>_title and _text), read when the tour shows them (shared/tour/HANDOFF.md). */
+SlopTour.define({
+  app: 'todo',
+  steps: [
+    { id: 'lists', target: '#tSide' },
+    { id: 'title', target: '#tTitle' },
+    { id: 'add', target: '#tAdd' },
+    { id: 'done', target: '#tDone' },
+    { id: 'find', target: '#tSearch' },
+    { id: 'tasks', target: '#tList' },
+  ],
+});

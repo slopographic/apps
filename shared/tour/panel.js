@@ -6,8 +6,8 @@
 (function () {
   'use strict';
   const T = (window.SlopTour = window.SlopTour || {});
-  /** A word from the shared tables (shared/i18n/ui/en.js), or the English given when SlopI18n or the key is absent. */
-  function tr(key, en, vars) { const I = globalThis.SlopI18n; if (I && I.has && I.has(key)) return I.t(key, vars); return vars ? String(en).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en; }
+  /** A word from the shared tables (ui.tour.* in shared/i18n/ui/<code>.js); the key itself without SlopI18n. */
+  const tr = (key, vars) => { const I = globalThis.SlopI18n; return I && I.t ? I.t(key, vars) : key; };
   let root = null, list = null, handlers = null, listening = false;
   const parts = {};
 
@@ -26,13 +26,13 @@
   /** The panel's own words, set on every render so they follow a language change (shared/i18n). */
   function words() {
     const set = (b, text, label) => { if (text != null) b.textContent = text; b.setAttribute('aria-label', label); };
-    root.setAttribute('aria-label', tr('ui.tour.panel', 'Guided tour'));
-    set(parts.x, null, tr('ui.tour.close', 'Close tour'));
-    parts.steps.textContent = tr('ui.tour.all_steps', 'All steps');
-    set(parts.restart, tr('ui.tour.restart', 'Restart'), tr('ui.tour.restart_aria', 'Restart the tour'));
-    set(parts.back, tr('ui.back', 'Back'), tr('ui.tour.prev_aria', 'Previous step'));
-    set(parts.skip, tr('ui.tour.skip', 'Skip'), tr('ui.tour.skip_aria', 'Skip this step'));
-    parts.next.setAttribute('aria-label', tr('ui.tour.next_aria', 'Next step'));
+    root.setAttribute('aria-label', tr('ui.tour.panel'));
+    set(parts.x, null, tr('ui.tour.close'));
+    parts.steps.textContent = tr('ui.tour.all_steps');
+    set(parts.restart, tr('ui.tour.restart'), tr('ui.tour.restart_aria'));
+    set(parts.back, tr('ui.back'), tr('ui.tour.prev_aria'));
+    set(parts.skip, tr('ui.tour.skip'), tr('ui.tour.skip_aria'));
+    parts.next.setAttribute('aria-label', tr('ui.tour.next_aria'));
   }
   function build() {
     root = mk('section', 'stour-panel');
@@ -58,7 +58,7 @@
     parts.back = btn('stour-back', () => handlers.back());
     parts.skip = btn('stour-skip', () => handlers.skip());
     parts.next = btn('stour-next', () => handlers.next());
-    parts.next.textContent = tr('ui.next', 'Next');
+    parts.next.textContent = tr('ui.next');
     words();
     foot.append(parts.restart, mk('span', 'stour-spacer'), parts.back, parts.skip, parts.next);
     root.append(head, bar, body, queue, foot);
@@ -90,7 +90,7 @@
     parts.hint.hidden = !v.hint;
     parts.back.disabled = v.index === 0;
     words();
-    parts.next.textContent = v.last ? tr('ui.tour.finish', 'Finish') : tr('ui.next', 'Next');
+    parts.next.textContent = v.last ? tr('ui.tour.finish') : tr('ui.next');
     list.replaceChildren(...v.steps.map((s, i) => {
       const li = mk('li');
       const b = mk('button', 'stour-q' + (i === v.index ? ' is-current' : '') + (s.done ? ' is-done' : ''));

@@ -1,13 +1,13 @@
-/* SlopTour: Slop Notes. Targets are ids in notes/index.html. */
+/* SlopTour: Slop Notes. Targets are ids in notes/index.html. The words are keys in notes/i18n (notes.tour.title,
+ * notes.tour.<step>_title and _text), read when the tour shows them (shared/tour/HANDOFF.md). */
 SlopTour.define({
   app: 'notes',
-  title: 'Slop Notes tour',
   steps: [
-    { id: 'notebooks', title: 'Notebooks', text: 'Notebooks, folders and tags organise your notes.', target: '#nt-side' },
-    { id: 'new', title: 'New note', text: 'Start a note. Ctrl+Alt+N does the same.', target: '#nt-new' },
-    { id: 'search', title: 'Search', text: 'Search titles, text and tags.', target: '#nt-q' },
-    { id: 'list', title: 'Note list', text: 'Your notes. Pick one to open it in the editor.', target: '#nt-notes' },
-    { id: 'editor', title: 'Editor', text: 'Write here. The status line shows when the note was saved.', target: '#nt-main' },
-    { id: 'commands', title: 'Commands', text: 'Search every command in Notes.', target: '#nt-cmd' },
+    { id: 'notebooks', target: '#nt-side' },
+    { id: 'new', target: '#nt-new' },
+    { id: 'search', target: '#nt-q' },
+    { id: 'list', target: '#nt-notes' },
+    { id: 'editor', target: '#nt-main' },
+    { id: 'commands', target: '#nt-cmd' },
   ],
 });

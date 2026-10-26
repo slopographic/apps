@@ -1,13 +1,14 @@
-/* SlopTour: SlopVector. Targets are ids in slopvector/index.html. */
+/* SlopTour: SlopVector. Targets are ids in slopvector/index.html. The words are keys in slopvector/i18n (vector.tour.title,
+ * vector.tour.<step>_title and _text), read when the tour shows them (shared/tour/HANDOFF.md). */
 SlopTour.define({
   app: 'slopvector',
-  title: 'SlopVector tour',
+  ns: 'vector',
   steps: [
-    { id: 'menus', title: 'Menus', text: 'File, Edit, Object, Type and the other menus list every command.', target: '#menus' },
-    { id: 'controls', title: 'Control bar', text: 'Options for the active tool or the selection appear here.', target: '#controlbar' },
-    { id: 'tools', title: 'Tools', text: 'Pen, shapes, type and selection tools. Pick one, then draw on the artboard.', target: '#toolbar' },
-    { id: 'artboard', title: 'Artboard', text: 'Draw here. Drag from the rulers to make guides.', target: '#workspace' },
-    { id: 'panels', title: 'Panels', text: 'Layers and colour dock on the right. Tab shows or hides them.', target: '#dock' },
-    { id: 'status', title: 'Status bar', text: 'Zoom and document details are shown at the bottom.', target: '#statusbar' },
+    { id: 'menus', target: '#menus' },
+    { id: 'controls', target: '#controlbar' },
+    { id: 'tools', target: '#toolbar' },
+    { id: 'artboard', target: '#workspace' },
+    { id: 'panels', target: '#dock' },
+    { id: 'status', target: '#statusbar' },
   ],
 });

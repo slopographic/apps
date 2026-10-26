@@ -770,3 +770,12 @@ history step and palette word, so never strip a suffix to get it. Layer names th
 | paper tape | pappersremsa | Slopculator |
 | expression / variable | uttryck / variabel |  |
 | exchange rate | växelkurs |  |
+
+## Guided tours (the tour words in each app's tables)
+
+| English | Svenska | Example |
+| --- | --- | --- |
+| <App> tour (tour name) | Rundtur i <App> | «Rundtur i Slop Hex» |
+| drop zone | släppyta | «Släppyta» |
+| side bearings (font) | sidomarginaler | «Bredd och sidomarginaler» |
+| depth scale | djupskala | «Djupskala» |
