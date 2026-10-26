@@ -42,3 +42,22 @@ test('pdf: the offline file carries shared/compat/stream.js and runs it before p
   const boot = readFileSync(path.join(ROOT, 'pdf/js/io/build.js'), 'utf8');
   assert.ok(boot.indexOf("run(S['shared/compat/stream.js']") > -1 && boot.indexOf("run(S['shared/compat/stream.js']") < boot.indexOf("S['vendor/pdfjs/pdf.min.js']"));
 });
+
+// An offline copy fetches no tables (shared/i18n/i18n.js skips loading in a copy), so every English table the page
+// asks for must be in the file: the chrome's (strings.js: menu.file, ...) and every ui part of UI_PARTS, not only
+// ui/en.js. The PDF copy once showed menu.file and its kin as raw keys. UI_PARTS grows as parts are added.
+test('every offline entry with the shared English tables carries strings.js and every ui part, after i18n.js', async () => {
+  const { uiPartsIndex } = await import('../../tools/i18n/tables.mjs');
+  const ui = uiPartsIndex();
+  const parts = ui && ui.langs.includes('en') ? ui.parts.map((p) => `shared/i18n/ui/en/${p}.js`) : [];
+  const withUi = built.filter((a) => a.files.includes('shared/i18n/ui/en.js'));
+  assert.ok(withUi.some((a) => a.id === 'pdf'), 'the PDF copy carries the shared tables');
+  for (const a of withUi) {
+    for (const list of [a.files, a.scripts].filter(Boolean)) {
+      for (const f of ['shared/i18n/strings.js', ...parts]) {
+        assert.ok(list.includes(f), `${a.id} lacks ${f}`);
+        assert.ok(list.indexOf(f) > list.indexOf('shared/i18n/i18n.js'), `${a.id}: ${f} runs before i18n.js`);
+      }
+    }
+  }
+});
