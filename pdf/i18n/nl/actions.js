@@ -70,7 +70,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'pdf.act.zoom_presets': 'Zoomvoorinstellingen',
   'pdf.act.fit_page': 'Pagina passend maken',
   'pdf.act.fit_width': 'Breedte passend maken',
-  'pdf.act.tools_label': 'Annotatiegereedschappen',
+  'pdf.act.tools_label': 'Aantekeninggereedschappen',
   'pdf.act.with_key': '{label} ({key})',
   'pdf.act.bar_objects': 'Objecten op de pagina bewerken: verplaatsen, formaat wijzigen of afbeeldingen en tekeningen draaien (O)',
   'pdf.act.bar_objects_short': 'Objecten',
