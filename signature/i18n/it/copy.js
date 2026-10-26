@@ -14,5 +14,5 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'signature.msg.paste_steps': 'Incollarla nella casella della firma (passaggi qui sotto).',
   'signature.msg.ready': 'La firma per {client} è pronta. Il browser consente a una pagina di copiare solo dopo un clic:',
   'signature.msg.copy_code_now': 'Copiare ora il codice HTML',
-  'signature.msg.copy_for_now': 'Copiare ora per {client}',
+  'signature.msg.copy_for_now': 'Copia ora per {client}',
 });

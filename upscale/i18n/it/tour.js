@@ -11,6 +11,6 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'upscale.tour.model_text': 'Il modello di IA esegue l\'ingrandimento. La sua nota spiega per cosa è più adatto.',
   'upscale.tour.format_title': 'Formato',
   'upscale.tour.format_text': 'Scegliere il formato di uscita. Qualità compare per i formati compressi.',
-  'upscale.tour.run_title': 'Ingrandire',
+  'upscale.tour.run_title': 'Ingrandisci',
   'upscale.tour.run_text': 'Avviare l\'ingrandimento. Esc lo interrompe.',
 });

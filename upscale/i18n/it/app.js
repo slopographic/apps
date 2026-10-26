@@ -5,7 +5,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'upscale.app.tagline': 'Immagini più grandi e video brevi. Non viene caricato nulla.',
   'upscale.app.open': 'Aprire…',
   'upscale.app.from_drive': 'Da Slop Drive…',
-  'upscale.app.drive_title': 'Aprire da Slop Drive',
+  'upscale.app.drive_title': 'Apri da Slop Drive',
   'upscale.app.files_label': 'File',
   'upscale.app.picture_label': 'Immagine',
   'upscale.app.empty_label': 'Aprire un\'immagine o un video',

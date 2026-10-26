@@ -1,7 +1,7 @@
 /* Slop HTML to PDF, Italian: the page, the options panel, the status line and
  * the commands. Every other language copies these keys into html2pdf/i18n/<code>/app.js. Same keys as html2pdf/i18n/en/app.js. Terms: shared/i18n/glossary-it.md. */
 window.SlopI18n && window.SlopI18n.add('it', {
-  'html2pdf.app.open': 'Aprire HTML…',
+  'html2pdf.app.open': 'Apri HTML…',
   'html2pdf.app.local': '100% locale',
   'html2pdf.app.local_tip': 'L\'HTML viene letto e stampato in questo browser. Non viene caricato nulla.',
   'html2pdf.app.options': 'Opzioni',
@@ -16,9 +16,9 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'html2pdf.group.paper': 'Carta',
   'html2pdf.group.header': 'Intestazione di pagina',
   'html2pdf.source.note': 'Le immagini e i font remoti non vengono caricati. Le immagini incluse nel file (data: e blob:) sì. Per le immagini accanto al file, allegarle qui sotto indicandone il nome.',
-  'html2pdf.source.paste': 'Incollare HTML',
+  'html2pdf.source.paste': 'Incolla HTML',
   'html2pdf.source.paste_ph': '<h1>Incolla qui l\'HTML</h1>',
-  'html2pdf.source.use_paste': 'Usare l\'HTML incollato',
+  'html2pdf.source.use_paste': 'Usa l\'HTML incollato',
   'html2pdf.source.attach': 'Allegare immagini locali…',
   'html2pdf.source.no_images': 'Nessuna immagine locale allegata.',
   'html2pdf.source.attached': 'Allegate: {names}',

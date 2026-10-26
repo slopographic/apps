@@ -61,7 +61,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'paste.trash.title': 'Spostare nel Cestino?',
   'paste.trash.text': '“{title}” va nel Cestino di Slop Drive, da dove è possibile ripristinarlo.',
   'paste.trash.this_paste': 'Questo snippet',
-  'paste.trash.ok': 'Spostare nel Cestino',
+  'paste.trash.ok': 'Sposta nel Cestino',
   'paste.app.a_picture': 'un\'immagine',
   'paste.menu.open': 'Apri snippet',
   'paste.menu.copy_link': 'Copia link di condivisione',

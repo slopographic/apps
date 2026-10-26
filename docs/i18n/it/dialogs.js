@@ -30,7 +30,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'docs.tpl.preview_aria': 'Anteprima, apri a grandezza naturale',
   'docs.tpl.preview_tip': 'Apre l\'anteprima a grandezza naturale',
   'docs.tpl.reshuffle': 'Rimescola',
-  'docs.tpl.use': 'Usare questo modello',
+  'docs.tpl.use': 'Usa questo modello',
   'docs.tpl.describe': '{title} · {font1} con {font2} · {scheme} · tabella {table} · impaginazione {layout} · margini {margins}',
   'docs.ol.title': 'Struttura',
   'docs.ol.aria': 'Struttura del documento',
@@ -77,5 +77,5 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'docs.tour.page_title': 'Pagina',
   'docs.tour.page_text': 'Le pagine. Si scrive direttamente su di esse.',
   'docs.tour.save_title': 'Salva',
-  'docs.tour.save_text': 'Salvare in Slop Drive (Ctrl+S).',
+  'docs.tour.save_text': 'Salva in Slop Drive (Ctrl+S).',
 });
