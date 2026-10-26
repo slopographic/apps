@@ -19,10 +19,10 @@
   const set = (el, v) => { el.value = v; el.dispatchEvent(new W.Event('input', { bubbles: true })); el.dispatchEvent(new W.Event('change', { bubbles: true })); };
   const button = (text) => [...D.querySelectorAll('#eActions button, .ws-panel .sf-p-foot button')].find((b) => b.textContent === text);
   const APPS = [
-    { app: 'quotes', ns: 'SlopQuotes', summary: 'qSummary', one: '1 quote', zero: '0 quotes' },
-    { app: 'orders', ns: 'SlopOrders', summary: 'oSummary', one: '1 order', zero: '0 orders' },
-    { app: 'purchases', ns: 'SlopPurchases', summary: 'pSummary', one: '1 purchase order', zero: '0 purchase orders', supplier: true, next: 'Place order' },
-    { app: 'invoices', ns: 'SlopInvoices', summary: 'iSummary', one: '1 invoice', zero: '0 invoices', next: 'Issue…' },
+    { app: 'quotes', ns: 'SlopQuotes', core: 'quotes', saveFn: 'save', summary: 'qSummary', one: '1 quote', zero: '0 quotes' },
+    { app: 'orders', ns: 'SlopOrders', core: 'orders', saveFn: 'save', summary: 'oSummary', one: '1 order', zero: '0 orders' },
+    { app: 'purchases', ns: 'SlopPurchases', core: 'purchases', saveFn: 'save', summary: 'pSummary', one: '1 purchase order', zero: '0 purchase orders', supplier: true, next: 'Place order' },
+    { app: 'invoices', ns: 'SlopInvoices', core: 'invoices', saveFn: 'saveDraft', summary: 'iSummary', one: '1 invoice', zero: '0 invoices', next: 'Issue…' },
   ];
   /** Loads an app in a fresh frame (the old one's window would still answer until the new page starts). */
   async function boot(a, hash) {
@@ -87,6 +87,30 @@
         // nothing runs off the page: a table too wide for it scrolls inside it
         const paper = D.querySelector('#ePage .paper').getBoundingClientRect();
         expect(D.querySelector('#ePage .paper .pp-main').getBoundingClientRect().right <= paper.right).toBe(true);
+      });
+      // A change made while a save was being written or read back used to be overwritten by the saved record (the layout
+      // went back, and the next step saved the old one): the Bold header test below failed now and then on a busy machine.
+      const saveBtn = () => [...D.querySelectorAll('#eActions button, .ws-panel .sf-p-foot button')].find((b) => /^Save/.test(b.textContent));
+      /** Saves with obj[fn] held back, picks a layout meanwhile, then checks it stays unsaved and the next step's save writes it. */
+      async function pickDuringSave(obj, fn, layout) {
+        const orig = obj[fn];
+        let release, held = false;
+        const gate = new Promise((r) => { release = r; });
+        obj[fn] = async (...x) => { held = true; await gate; return orig.apply(obj, x); };
+        try {
+          saveBtn().click();
+          await waitFor(() => held);
+          set(D.querySelector('select[aria-label="PDF and print layout"]'), layout);
+        } finally { obj[fn] = orig; release(); }
+        await waitFor(() => !$('eMsg').textContent.includes('…'));
+        expect(D.querySelector(`#ePage .paper.l-${layout}`)).toBeTruthy();
+        expect(W[a.ns].editor.isDirty()).toBe(true);   // still unsaved, so a step (which saves only what is unsaved) writes it
+        W[a.ns].editor.saveIfNeeded();
+        await waitOr(async () => (await W.SlopData.store.list(a.app)).value[0].pdfLayout === layout, `the ${layout} layout saved`, 5000);
+      }
+      it('a layout picked while the draft is being saved stays, and the next save writes it', async () => {
+        await pickDuringSave(W[a.ns][a.core], a.saveFn, 'sidebar');
+        if (a.app === 'invoices') await pickDuringSave(W[a.ns].context, 'load', 'minimal');   // while the saved invoice is read back
       });
       it('the Bold header layout keeps the fields below the band readable, before and after the next step', async () => {
         const sel = D.querySelector('select[aria-label="PDF and print layout"]');
