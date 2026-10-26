@@ -3,7 +3,7 @@
 <head><meta charset="utf-8"><title>Slop Press · files, images, offline and Slop Hub tests</title>
 <style>body { margin: 0; background: #111; } iframe { width: 1280px; height: 760px; border: 0; }</style>
 <body>
-  <iframe id="app" src="../../press/index.html?fresh"></iframe>
+  <iframe id="app" src="../../press/index.html?new"></iframe>
   <script src="../harness.js"></script>
   <script src="boot.js"></script>
   <script>
@@ -109,7 +109,7 @@
     it('opens a .slpress from Slop Drive with ?drive= and offers Send to', async () => {
       const blob = await PR.io.projectBlob(PR.templates.make('card'));
       const id = await W.SlopHub.put(new Blob([blob], { type: 'application/x-slop-press' }), { name: 'Card.slpress', from: 'test' });
-      const f = await frameApp('../../press/index.html?fresh&drive=' + id);
+      const f = await frameApp('../../press/index.html?new&drive=' + id);
       const P2 = f.contentWindow.PR;
       await waitFor(() => P2.state.doc && P2.state.doc.name === 'Business Card');
       expect(P2.state.doc.pages.length).toBe(2);

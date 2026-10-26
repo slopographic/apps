@@ -6,7 +6,9 @@ import { createHash } from 'node:crypto';
 import { readFileSync, existsSync } from 'node:fs';
 
 export const EMPTY_TREE = '4b825dc642cb6eb9a060e54bf8d69288fbee4904';
-const BIG = { maxBuffer: 1 << 30, stdio: ['pipe', 'pipe', 'inherit'] };
+// git hooks export GIT_DIR and friends, which would point -C at the hook's repository instead of `repo`.
+export const ENV = Object.fromEntries(Object.entries(process.env).filter(([k]) => !/^GIT_(DIR|WORK_TREE|INDEX_FILE|OBJECT_DIRECTORY|ALTERNATE_OBJECT_DIRECTORIES|PREFIX|COMMON_DIR)$/.test(k)));
+const BIG = { maxBuffer: 1 << 30, stdio: ['pipe', 'pipe', 'inherit'], env: ENV };
 /** git in repo, output as a string (or a Buffer with raw). */
 export function git(repo, args, input, raw = false) {
   const out = execFileSync('git', ['-C', repo, ...args], Object.assign({ input }, BIG));
@@ -98,7 +100,7 @@ const quote = (p) => (/^"|[\n"\\]/.test(p) ? JSON.stringify(p) : p);
 export class FastImport {
   constructor(repo, marksFile) {
     this.marksFile = marksFile;
-    this.child = spawn('git', ['-C', repo, 'fast-import', '--quiet', '--date-format=raw', `--export-marks=${marksFile}`], { stdio: ['pipe', 'inherit', 'inherit'] });
+    this.child = spawn('git', ['-C', repo, 'fast-import', '--quiet', '--date-format=raw', `--export-marks=${marksFile}`], { stdio: ['pipe', 'inherit', 'inherit'], env: ENV });
     this.closed = new Promise((ok, fail) => this.child.on('close', (code) => (code ? fail(new Error(`git fast-import exited with ${code}`)) : ok())));
     this.n = 0;
   }

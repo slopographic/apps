@@ -34,12 +34,14 @@
     addEventListener('pagehide', function () { if (S.dirty) ST.autosave(); });
     PR.actions.loadSlopCmd();
     PR.tools.set('select');
-    // open: what the page was opened with (?drive=<id>, a PWA launch; the intake) → autosave → welcome template
+    // open: what the page was opened with (?drive=<id>, a PWA launch; the intake) → autosave → welcome template.
+    // ?new skips the autosave (it stays saved). Not ?fresh: on every page that loads the newest release and reloads
+    // without it (shared/pwa.js), so the reload restored the session anyway and swapped the document under its user.
     if (PR.hub) PR.hub.init();
     return PR.intake.launch().catch(function () { return false; }).then(function (opened) {
       if (opened) return true;
       return ST.restore().then(function (saved) {
-        if (saved && saved.doc && !/[?&]fresh\b/.test(location.search)) { return PR.io.openDoc(saved.doc, saved.fileName).then(function () { S.dirty = true; U.toast(U.t('press.app.restored')); return true; }); }
+        if (saved && saved.doc && !/[?&]new\b/.test(location.search)) { return PR.io.openDoc(saved.doc, saved.fileName).then(function () { S.dirty = true; U.toast(U.t('press.app.restored')); return true; }); }
         return PR.io.openDoc(welcomeDoc()).then(function () { return true; });
       });
     }).catch(function (e) {

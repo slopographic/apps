@@ -14,6 +14,7 @@
 // Node only. Tests: tests/node/whitelabel-cdn.test.mjs.
 import { readFileSync, writeFileSync, mkdirSync, rmSync, readdirSync, statSync, renameSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
+import { ENV } from './history-git.mjs';   // git without a hook's GIT_DIR
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -64,7 +65,7 @@ check each file's SHA-256 before they use it.
 Each file keeps the licence of its authors (see the LICENSE, COPYING and SOURCE files next to it).
 `;
 
-const sh = (cmd, args, opts = {}) => execFileSync(cmd, args, Object.assign({ encoding: 'utf8', maxBuffer: 1 << 28 }, opts));
+const sh = (cmd, args, opts = {}) => execFileSync(cmd, args, Object.assign({ encoding: 'utf8', maxBuffer: 1 << 28, env: ENV }, opts));
 function listDir(dir, rel = '') {
   const out = [];
   for (const e of readdirSync(path.join(dir, rel), { withFileTypes: true })) {
