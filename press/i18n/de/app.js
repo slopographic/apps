@@ -21,6 +21,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'press.app.snap_off': 'Einrasten aus',
   'press.app.no_masters': 'Noch keine Musterseiten',
   'press.app.pages_added': '{n} Seiten hinzugefügt',
+  'press.app.pages_added#one': '{n} Seite hinzugefügt',
   'press.app.style_redefined': 'Format neu definiert',
   'press.app.cannot_thread': 'Diese Rahmen können nicht verkettet werden',
   'press.app.thread_hint': 'Auf einen Textrahmen klicken (oder einen neuen aufziehen), um den Text fortzusetzen',

@@ -61,6 +61,7 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'docs.ol.rename_label': 'Titre',
   'docs.ol.delete': 'Supprimer la section',
   'docs.ol.delete_body': 'Supprimer seulement le titre « {name} », ou le titre et les {n} blocs qui le suivent ?',
+  'docs.ol.delete_body#one': 'Supprimer seulement le titre « {name} », ou le titre et le {n} bloc qui le suit ?',
   'docs.ol.heading_only': 'Titre seulement',
   'docs.ol.heading_content': 'Titre et contenu',
   'docs.tour.title': 'Visite guidée de Slop Docs',

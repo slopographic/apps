@@ -61,6 +61,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'docs.ol.rename_label': 'Überschrift',
   'docs.ol.delete': 'Abschnitt löschen',
   'docs.ol.delete_body': 'Nur die Überschrift „{name}“ löschen oder die Überschrift und die {n} Blöcke darunter?',
+  'docs.ol.delete_body#one': 'Nur die Überschrift „{name}“ löschen oder die Überschrift und den {n} Block darunter?',
   'docs.ol.heading_only': 'Nur Überschrift',
   'docs.ol.heading_content': 'Überschrift und Inhalt',
   'docs.tour.title': 'Rundgang durch Slop Docs',

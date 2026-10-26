@@ -24,6 +24,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'purchases.ed.ordered': '{number} ist bestellt.',
   'purchases.ed.receive_q': 'Bestellung buchen',
   'purchases.ed.receive_body': '{number} als eingegangen buchen? {n} Produktpositionen gehen in den Lagerbestand am Hauptstandort.',
+  'purchases.ed.receive_body#one': '{number} als eingegangen buchen? {n} Produktposition geht in den Lagerbestand am Hauptstandort.',
   'purchases.ed.receive_none': '{number} als eingegangen buchen? Keine Position ist ein Produkt, daher ändert sich der Lagerbestand nicht.',
   'purchases.ed.receive_ok': 'Buchen',
   'purchases.ed.received': '{number} ist eingegangen. Der Lagerbestand ist aktualisiert.',

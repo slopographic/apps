@@ -27,6 +27,7 @@ window.SlopI18n && window.SlopI18n.add('es', {
   'pdf.find.rep_unplaced': 'No se puede localizar la posición con exactitud: no se reemplazó',
   'pdf.find.rep_status': '{matches} · {n} marcadas',
   'pdf.find.rep_matches': '{n} coincidencias',
+  'pdf.find.rep_matches#one': '{n} coincidencia',
   'pdf.find.rep_none': 'Sin coincidencias.',
   'pdf.find.rep_done': 'Reemplazadas {done} de {total}.',
   'pdf.find.rep_skipped': '{n} sin reemplazar: no se pudo localizar la posición con exactitud.',

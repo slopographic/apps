@@ -31,6 +31,7 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'crm.li.no_match': 'Aucun client ne correspond à ces filtres.',
   'crm.li.none': 'Aucun client pour l’instant. Ajoutez-en un, ou importez vos contacts depuis Slop Contacts.',
   'crm.li.summary': '{shown} clients sur {n}',
+  'crm.li.summary#one': '{shown} client sur {n}',
   'crm.li.all_stages': 'Toutes les étapes',
   'crm.li.comfortable': 'Confortable',
   'crm.li.compact': 'Compacte',

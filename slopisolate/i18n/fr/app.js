@@ -28,6 +28,7 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'cutout.app.try_sample': 'Essayer un exemple',
   'cutout.app.download_fmt': 'Télécharger {fmt}',
   'cutout.app.export_n_zip': 'Exporter {n} images (ZIP)',
+  'cutout.app.export_n_zip#one': 'Exporter {n} image (ZIP)',
   'cutout.app.loading_model': 'Chargement du modèle d’IA…',
   'cutout.app.st_error': 'Impossible de détourer cette image',
   'cutout.app.st_cutting': 'Détourage…',

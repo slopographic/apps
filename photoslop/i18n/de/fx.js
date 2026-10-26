@@ -11,6 +11,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'photoslop.fx.nothing_applies': 'Nichts in „{name}“ lässt sich hier auf eine Ebene anwenden.',
   'photoslop.fx.applied': '„{name}“ angewendet',
   'photoslop.fx.applied_skipped': '„{name}“ angewendet ({n} Effekte übersprungen)',
+  'photoslop.fx.applied_skipped#one': '„{name}“ angewendet ({n} Effekt übersprungen)',
   'photoslop.fx.noun_preset': 'eine Effektvorgabe (.slop.json)',
   'photoslop.fx.imported': 'Importiert.',
   'photoslop.fx.delete_preset': 'Vorgabe löschen',

@@ -5,6 +5,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'music.pl.open': 'Aus Drive öffnen…',
   'music.pl.none': 'Noch keine Playlists.',
   'music.pl.tracks_n': '{n} Titel',
+  'music.pl.tracks_n#one': '{n} Titel',
   'music.pl.drag_label': 'Zum Umordnen ziehen oder die Pfeiltasten verwenden',
   'music.pl.drag': 'Zum Umordnen ziehen',
   'music.pl.not_in_drive': 'Nicht in Slop Drive',

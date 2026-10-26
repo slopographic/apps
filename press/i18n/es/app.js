@@ -20,6 +20,7 @@ window.SlopI18n && window.SlopI18n.add('es', {
   'press.app.snap_off': 'Ajuste desactivado',
   'press.app.no_masters': 'Todavía no hay páginas maestras',
   'press.app.pages_added': '{n} páginas añadidas',
+  'press.app.pages_added#one': '{n} página añadida',
   'press.app.style_redefined': 'Estilo redefinido',
   'press.app.cannot_thread': 'Esos marcos no se pueden enlazar',
   'press.app.thread_hint': 'Haz clic en un marco de texto (o arrastra uno nuevo) para continuar el texto',

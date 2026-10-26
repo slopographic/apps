@@ -51,6 +51,7 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'docs.style.code': 'Code',
   'docs.status.page_of': 'Page {page} sur {pages}',
   'docs.status.words': '{n} mots',
+  'docs.status.words#one': '{n} mot',
   'docs.status.zoom': 'Zoom',
   'docs.save.unsaved': 'Modifications non enregistrées',
   'docs.save.not_in_drive': 'Pas encore enregistré dans Slop Drive',

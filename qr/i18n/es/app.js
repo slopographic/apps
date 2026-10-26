@@ -24,6 +24,7 @@ window.SlopI18n && window.SlopI18n.add('es', {
   'qr.app.batch_empty': 'Escribe o pega un texto por línea.',
   'qr.app.batch_capped': 'Solo se dibujan las primeras {max} de {n} líneas.',
   'qr.app.batch_n': '{n} códigos.',
+  'qr.app.batch_n#one': '{n} código.',
   'qr.app.preview_label': 'Vista previa en vivo',
   'qr.app.preview_alt': 'Vista previa del código QR',
   'qr.app.empty': 'Rellena el formulario o elige una plantilla. El código aparece aquí mientras escribes.',

@@ -40,6 +40,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'code.app.unsaved': 'nicht gespeichert',
   'code.status.pos': 'Zeile {ln}, Spalte {col}',
   'code.status.cursors': '{n} Cursor',
+  'code.status.cursors#one': '{n} Cursor',
   'code.status.wrap_on': 'Zeilenumbruch an',
   'code.status.wrap_off': 'Zeilenumbruch aus',
   'code.status.unsaved': 'Nicht gespeicherte Änderungen',

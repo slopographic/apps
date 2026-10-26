@@ -22,6 +22,7 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'photoslop.io.wm_off_export': 'Aucun filigrane : le filigrane est désactivé.',
   'photoslop.io.cannot_encode': 'Ce navigateur ne peut pas encoder ce format',
   'photoslop.io.exported_layers': '{n} calques exportés',
+  'photoslop.io.exported_layers#one': '{n} calque exporté',
   'photoslop.io.buffer_merged': 'Copie fusionnée dans le presse-papiers',
   'photoslop.io.buffer_copied': 'Copié dans le presse-papiers',
   'photoslop.io.buffer_copy_failed': 'Copie dans le presse-papiers impossible',

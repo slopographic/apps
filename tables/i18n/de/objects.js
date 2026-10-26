@@ -61,6 +61,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'tables.pivot.replace_body': 'Die PivotTabelle benötigt Zellen, die bereits Daten enthalten. Sollen sie ersetzt werden?',
   'tables.pivot.refresh_failed': 'Aktualisieren nicht möglich',
   'tables.pivot.refreshed': '{n} PivotTabellen aktualisiert',
+  'tables.pivot.refreshed#one': 'PivotTabelle aktualisiert',
   'tables.pivot.none_to_refresh': 'Es gibt keine PivotTabellen zum Aktualisieren',
   'tables.err.not_range': 'Das ist kein Bereich. Einen wie A1 geben:C10 ein.',
   'tables.err.no_sheet': 'Es gibt kein Blatt namens „{name}“.',

@@ -11,7 +11,9 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'press.status.next': 'Nächste Seite',
   'press.status.last': 'Letzte Seite',
   'press.status.overset_n': '{n} überlaufende Texte',
+  'press.status.overset_n#one': '{n} überlaufender Text',
   'press.status.missing_n': '{n} fehlende Bilder',
+  'press.status.missing_n#one': '{n} fehlendes Bild',
   'press.status.no_errors': 'Keine Fehler',
   'press.status.jump_overset': 'Klicken, um zum überlaufenden Rahmen zu springen',
   'press.status.unsaved': 'Nicht gespeicherte Änderungen (in diesem Browser automatisch gespeichert)'

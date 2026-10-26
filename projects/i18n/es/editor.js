@@ -79,6 +79,7 @@ window.SlopI18n && window.SlopI18n.add('es', {
   'projects.files.open_first': 'Abre primero un proyecto.',
   'projects.files.opened_sample': 'Se abrió el ejemplo “{name}”',
   'projects.files.opened': 'Se abrió “{name}” con {n} tareas',
+  'projects.files.opened#one': 'Se abrió “{name}” con {n} tarea',
   'projects.files.not_saved': 'No se pudo guardar.',
   'projects.files.noun': 'una copia de seguridad de Slop Projects (.json)',
   'projects.files.drop': 'Suelta aquí una copia de seguridad de proyecto (.json)',

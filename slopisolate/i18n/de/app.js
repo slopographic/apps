@@ -28,6 +28,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'cutout.app.try_sample': 'Beispiel ausprobieren',
   'cutout.app.download_fmt': '{fmt} herunterladen',
   'cutout.app.export_n_zip': '{n} Bilder exportieren (ZIP)',
+  'cutout.app.export_n_zip#one': '{n} Bild exportieren (ZIP)',
   'cutout.app.loading_model': 'KI-Modell wird geladen…',
   'cutout.app.st_error': 'Dieses Bild konnte nicht freigestellt werden',
   'cutout.app.st_cutting': 'Wird freigestellt…',

@@ -43,6 +43,7 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'aitools.get.source': 'Source : {hosts}.',
   'aitools.get.bundled': 'fourni avec ce site',
   'aitools.get.download_n': 'Téléchargement : {size} en {n} fichiers. Chaque fichier est vérifié par son SHA-256 avant d’être stocké sur cet appareil.',
+  'aitools.get.download_n#one': 'Téléchargement : {size} en {n} fichier. Chaque fichier est vérifié par son SHA-256 avant d’être stocké sur cet appareil.',
   'aitools.get.nothing': 'Rien à télécharger. Le modèle est fourni avec le site.',
   'aitools.get.download': 'Télécharger {size}',
   'aitools.get.title': 'Obtenir {name}',

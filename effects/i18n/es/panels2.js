@@ -18,6 +18,7 @@ window.SlopI18n && window.SlopI18n.add('es', {
   'effects.tl.missing': 'Falta el medio: vuelve a vincularlo en el panel de la capa',
   'effects.tl.keys_at': '{name}: {keys} en {t} s',
   'effects.tl.keys_n': '{n} fotogramas clave',
+  'effects.tl.keys_n#one': '{n} fotograma clave',
   'effects.tl.zoom': 'Zoom de la línea de tiempo',
   'effects.tl.fit': 'Ajustar',
   'effects.tl.empty': 'Todavía no hay capas. Usa Capa para añadir una sólida, de forma, de texto, imagen, vídeo o nula.',

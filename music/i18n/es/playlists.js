@@ -4,6 +4,7 @@ window.SlopI18n && window.SlopI18n.add('es', {
   'music.pl.open': 'Abrir desde Drive…',
   'music.pl.none': 'Todavía no hay listas de reproducción.',
   'music.pl.tracks_n': '{n} pistas',
+  'music.pl.tracks_n#one': '{n} pista',
   'music.pl.drag_label': 'Arrastra para reordenar, o usa las flechas',
   'music.pl.drag': 'Arrastra para reordenar',
   'music.pl.not_in_drive': 'No está en Slop Drive',

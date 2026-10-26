@@ -27,6 +27,7 @@ window.SlopI18n && window.SlopI18n.add('es', {
   'press.export.boxes_note': 'TrimBox = tamaño de página, BleedBox = página + sangrado, MediaBox crece para caber las marcas. Las muestras de proceso (CMYK) se escriben como CMYK; las marcas usan el color de registro.',
   'press.export.no_font_file': 'No hay archivo de fuente que incrustar para: {fonts}. Las posiciones del texto siguen exactas; carga un .ttf/.otf (Archivo ▸ Cargar archivo de fuente) para incrustar el diseño real.',
   'press.export.overset': '{n} textos tienen texto desbordado que no se exportará.',
+  'press.export.overset#one': 'Un texto tiene texto desbordado que no se exportará.',
   'press.export.pdf_title': 'Exportar PDF',
   'press.export.ppi_screen': '{n} ppp (pantalla)',
   'press.export.ppi_print': '{n} ppp (impresión)',

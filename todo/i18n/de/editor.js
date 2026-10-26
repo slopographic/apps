@@ -37,6 +37,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'todo.ed.save_failed': 'Die Aufgabe konnte nicht gespeichert werden.',
   'todo.ed.del_q': 'Diese Aufgabe löschen?',
   'todo.ed.del_kids': 'Die {n} Teilaufgaben werden ebenfalls gelöscht.',
+  'todo.ed.del_kids#one': 'Die {n} Teilaufgabe wird ebenfalls gelöscht.',
   'todo.ed.del_final': 'Dies kann nicht rückgängig gemacht werden.',
   'todo.ed.edit_task': 'Aufgabe bearbeiten',
   'todo.ed.new_task': 'Neue Aufgabe',

@@ -47,6 +47,7 @@ window.SlopI18n && window.SlopI18n.add('es', {
   'settings.folder.changes': 'Al aplicar este archivo cambiará:',
   'settings.folder.same': 'No cambiaría nada. El archivo coincide con los ajustes de aquí.',
   'settings.folder.applied': 'Se aplicaron {n} cambios desde la carpeta.',
+  'settings.folder.applied#one': 'Se aplicó {n} cambio desde la carpeta.',
   'settings.folder.denied': 'El navegador no permitió el acceso. Pulsa el botón otra vez y permite el acceso.',
   'settings.folder.allowed': 'Acceso permitido.',
   'settings.folder.disconnected': 'Carpeta desconectada. No se borró nada de la carpeta.',

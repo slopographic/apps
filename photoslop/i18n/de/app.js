@@ -4,6 +4,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'photoslop.status.rotation': 'Ansichtsdrehung (wird nicht in der Datei gespeichert)',
   'photoslop.status.local_only': 'Nur lokal',
   'photoslop.status.size': '{w} × {h} px · {n} Ebenen',
+  'photoslop.status.size#one': '{w} × {h} px · {n} Ebene',
   'photoslop.status.transparent': 'transparent',
   'photoslop.app.panels': 'Bereiche',
   'photoslop.app.welcome_toast': 'Willkommen bei PhotoSlop. Alles bleibt auf dem Gerät.',

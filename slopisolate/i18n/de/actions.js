@@ -1,6 +1,7 @@
 /* Slop Isolate, German: the actions on pictures, the export and send messages, the Drive messages and the config. Same keys as slopisolate/i18n/en/actions.js. Rules: shared/i18n/APPS-HOWTO.md, words: shared/i18n/glossary-de.md. */
 window.SlopI18n && window.SlopI18n.add('de', {
   'cutout.act.pictures_n': '{n} Bilder',
+  'cutout.act.pictures_n#one': '{n} Bild',
   'cutout.act.copied': 'Einstellungen kopiert. Bilder auswählen und dann Einstellungen einfügen.',
   'cutout.act.copy_first': 'Zuerst die Einstellungen eines Bildes kopieren',
   'cutout.act.pasted': 'Einstellungen eingefügt bei {what}',
@@ -41,7 +42,9 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'cutout.export.failed_all': 'Export für alle Bilder fehlgeschlagen',
   'cutout.export.zipping': 'Wird gepackt…',
   'cutout.export.saved_zip': '{n} Freisteller in einer ZIP-Datei gespeichert',
+  'cutout.export.saved_zip#one': '{n} Freisteller in einer ZIP-Datei gespeichert',
   'cutout.export.saved_zip_failed': '{n} Freisteller in einer ZIP-Datei gespeichert ({failed} fehlgeschlagen)',
+  'cutout.export.saved_zip_failed#one': '{n} Freisteller in einer ZIP-Datei gespeichert ({failed} fehlgeschlagen)',
   'cutout.send.wait': 'Zuerst auf den Freisteller warten',
   'cutout.send.not_photoslop': 'Dieses Bild stammt nicht aus PhotoSlop. An PhotoSlop senden als neue Ebene nutzen.',
   'cutout.send.mask_sent': 'Maske an PhotoSlop gesendet',

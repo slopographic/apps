@@ -24,6 +24,7 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'eml.side.size': 'Taille',
   'eml.side.file': 'Fichier',
   'eml.side.n_selected': '{n} sélectionné(s)',
+  'eml.side.n_selected#one': '{n} sélectionné(s)',
   'eml.side.combine': 'Réunir en un seul PDF',
   'eml.side.save_atts': 'Enregistrer les pièces jointes (ZIP)',
   'eml.side.export_csv': 'Exporter la liste (CSV)',

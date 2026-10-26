@@ -28,6 +28,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'press.export.boxes_note': 'TrimBox = Seitengröße, BleedBox = Seite + Anschnitt, MediaBox wächst, um die Marken aufzunehmen. Farbfelder der Prozessfarben (CMYK) werden als CMYK geschrieben; Marken verwenden die Passerfarbe.',
   'press.export.no_font_file': 'Keine Schriftdatei zum Einbetten für: {fonts}. Die Textpositionen bleiben exakt; eine .ttf/.otf-Datei laden (Datei ▸ Schriftdatei laden), um das echte Layout einzubetten.',
   'press.export.overset': '{n} Texte haben überlaufenden Text, der nicht exportiert wird.',
+  'press.export.overset#one': 'Eine Story hat überlaufenden Text, der nicht exportiert wird.',
   'press.export.pdf_title': 'PDF exportieren',
   'press.export.ppi_screen': '{n} ppi (Bildschirm)',
   'press.export.ppi_print': '{n} ppi (Druck)',

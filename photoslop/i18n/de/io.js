@@ -22,6 +22,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'photoslop.io.wm_off_export': 'Kein Wasserzeichen: Das Wasserzeichen ist aus.',
   'photoslop.io.cannot_encode': 'Dieser Browser kann dieses Format nicht kodieren',
   'photoslop.io.exported_layers': '{n} Ebenen exportiert',
+  'photoslop.io.exported_layers#one': '{n} Ebene exportiert',
   'photoslop.io.buffer_merged': 'Zusammengeführte Kopie in der Zwischenablage',
   'photoslop.io.buffer_copied': 'In die Zwischenablage kopiert',
   'photoslop.io.buffer_copy_failed': 'Konnte nicht in die Zwischenablage kopiert werden',

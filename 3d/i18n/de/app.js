@@ -49,6 +49,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   '3d.app.err_webgl': 'WebGL ist in diesem Browser nicht verfügbar',
   '3d.app.err_picture': 'Das Bild konnte nicht erstellt werden',
   '3d.status.objects': '{n} Objekte',
+  '3d.status.objects#one': '{n} Objekt',
   '3d.status.selected': '{n} ausgewählt',
   '3d.status.nothing': 'Nichts ausgewählt',
   '3d.status.picked': '{name} ({type})',
@@ -63,6 +64,9 @@ window.SlopI18n && window.SlopI18n.add('de', {
   '3d.status.edit_edge': 'Bearbeiten: Kantenmodus',
   '3d.status.edit_face': 'Bearbeiten: Flächenmodus',
   '3d.status.sel_vertex': '{n} Punkte ausgewählt',
+  '3d.status.sel_vertex#one': '{n} Punkt ausgewählt',
   '3d.status.sel_edge': '{n} Kanten ausgewählt',
+  '3d.status.sel_edge#one': '{n} Kante ausgewählt',
   '3d.status.sel_face': '{n} Flächen ausgewählt',
+  '3d.status.sel_face#one': '{n} Fläche ausgewählt',
 });

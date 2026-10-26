@@ -16,6 +16,7 @@ window.SlopI18n && window.SlopI18n.add('es', {
   'colors.panel.copy_code': 'Copiar código',
   'colors.panel.open_in': 'Abrir en…',
   'colors.panel.count': '{n} colores en “{name}”',
+  'colors.panel.count#one': '{n} color en “{name}”',
   'colors.panel.empty': 'Añade colores a la paleta para exportarla',
   'colors.harmony.complementary': 'Complementarios',
   'colors.harmony.analogous': 'Análogos',

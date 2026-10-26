@@ -4,6 +4,7 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'photoslop.status.rotation': 'Rotation de la vue (non enregistrée dans le fichier)',
   'photoslop.status.local_only': 'Local uniquement',
   'photoslop.status.size': '{w} × {h} px · {n} calques',
+  'photoslop.status.size#one': '{w} × {h} px · {n} calque',
   'photoslop.status.transparent': 'transparent',
   'photoslop.app.panels': 'Panneaux',
   'photoslop.app.welcome_toast': 'Bienvenue dans PhotoSlop. Tout reste sur votre appareil.',

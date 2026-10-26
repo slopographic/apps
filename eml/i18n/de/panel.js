@@ -24,6 +24,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'eml.side.size': 'Größe',
   'eml.side.file': 'Datei',
   'eml.side.n_selected': '{n} ausgewählt',
+  'eml.side.n_selected#one': '{n} ausgewählt',
   'eml.side.combine': 'Zu einem PDF zusammenführen',
   'eml.side.save_atts': 'Anhänge speichern (ZIP)',
   'eml.side.export_csv': 'Liste exportieren (CSV)',

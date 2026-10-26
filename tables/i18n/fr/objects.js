@@ -61,6 +61,7 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'tables.pivot.replace_body': 'Le tableau croisé a besoin de cellules qui contiennent déjà des données. Les remplacer ?',
   'tables.pivot.refresh_failed': 'Actualisation impossible',
   'tables.pivot.refreshed': '{n} tableaux croisés actualisés',
+  'tables.pivot.refreshed#one': 'Tableau croisé actualisé',
   'tables.pivot.none_to_refresh': 'Il n’y a aucun tableau croisé à actualiser',
   'tables.err.not_range': 'Ce n’est pas une plage. Saisissez-en une comme A1:C10.',
   'tables.err.no_sheet': 'Il n’y a aucune feuille nommée « {name} ».',

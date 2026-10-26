@@ -28,6 +28,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'photoslop.core.need_one_layer': 'Ein Dokument braucht mindestens eine Ebene',
   'photoslop.core.step_delete_layer': 'Ebene löschen',
   'photoslop.core.n_layers': '{n} Ebenen',
+  'photoslop.core.n_layers#one': '{n} Ebene',
   'photoslop.core.remove_all_q': 'Alle Ebenen entfernen?',
   'photoslop.core.remove_all_body': 'Dies entfernt {count} aus „{name}“. Das Dokument behält eine leere Ebene.',
   'photoslop.core.continue': 'Weiter',

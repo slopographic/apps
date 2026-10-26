@@ -58,6 +58,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'slides.show.resume': 'Fortsetzen',
   'slides.show.count': 'Folie {i} von {n}',
   'slides.show.clicks': '{n} weitere Klicks auf dieser Folie',
+  'slides.show.clicks#one': '{n} weiterer Klick auf dieser Folie',
   'slides.show.no_notes': 'Keine Notizen zu dieser Folie.',
   'slides.show.ended': 'Die Präsentation ist beendet',
   'slides.show.title': 'Referentenansicht: {app}',

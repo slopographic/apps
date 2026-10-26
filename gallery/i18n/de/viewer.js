@@ -59,6 +59,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'gallery.reel.failed': 'Das Reel wurde nicht erstellt: {error} Nichts wurde behalten.',
   'gallery.reel.cut_first': 'Zuerst Motive freistellen (auf diesem Gerät, Schnellmodell; die Freisteller liegen über den Fotos)',
   'gallery.reel.selected': '{n} Fotos ausgewählt. Das Reel wird in Slop Drive erstellt und in SlopCut geöffnet.',
+  'gallery.reel.selected#one': '{n} Foto ausgewählt. Das Reel wird in Slop Drive erstellt und in SlopCut geöffnet.',
   'gallery.reel.template': 'Vorlage',
   'gallery.reel.length': 'Zieldauer',
   'gallery.reel.seconds': 'Sekunden',

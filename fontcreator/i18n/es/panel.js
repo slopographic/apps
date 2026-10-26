@@ -67,6 +67,7 @@ window.SlopI18n && window.SlopI18n.add('es', {
   'fontcreator.more.add': 'Añadir',
   'fontcreator.more.set_there': 'Todos los caracteres de ese conjunto ya están en la fuente',
   'fontcreator.more.set_added': 'Se añadieron {n} glifos vacíos para dibujar',
+  'fontcreator.more.set_added#one': 'Se añadió {n} glifo vacío para dibujar',
   'fontcreator.more.keep_label': 'Conservar solo estos (subconjunto)',
   'fontcreator.more.keep_note': 'Se quitan todos los demás glifos, con su interletraje. Deshacer los devuelve.',
   'fontcreator.more.keep': 'Conservar',
@@ -77,6 +78,7 @@ window.SlopI18n && window.SlopI18n.add('es', {
   'fontcreator.more.keep_ok': 'Conservar solo estos',
   'fontcreator.more.undo_keep': 'Conservar solo algunos caracteres',
   'fontcreator.more.removed': 'Se quitaron {n} glifos; quedan {left}',
+  'fontcreator.more.removed#one': 'Se quitó {n} glifo; queda {left}',
   'fontcreator.more.nothing_removed': 'Nada que quitar',
   'fontcreator.more.hand': 'Escritura a mano',
   'fontcreator.more.hand_note': 'Imprime una hoja con una casilla para cada letra, escribe en ella con bolígrafo oscuro, luego fotografíala o escanéala y léela de vuelta: cada casilla se convierte en un glifo.',
@@ -93,5 +95,6 @@ window.SlopI18n && window.SlopI18n.add('es', {
   'fontcreator.more.draw_first': 'Dibuja un glifo para crear una fuente',
   'fontcreator.more.note': '{drawn} de {glyphs} glifos dibujados',
   'fontcreator.more.pairs': '{n} pares de interletraje',
+  'fontcreator.more.pairs#one': '{n} par de interletraje',
   'fontcreator.more.changed': 'cambiado desde el último guardado',
 });

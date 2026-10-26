@@ -2,10 +2,12 @@
 window.SlopI18n && window.SlopI18n.add('es', {
   'effects.keys.select_copy': 'Selecciona los fotogramas clave que copiar',
   'effects.keys.copied': 'Copiados {n} fotogramas clave',
+  'effects.keys.copied#one': 'Copiado {n} fotograma clave',
   'effects.keys.select_layer_paste': 'Selecciona una capa donde pegar',
   'effects.keys.nothing': 'Nada que pegar',
   'effects.keys.pasted_skipped': 'Pegados {n}, omitidos {skipped}',
   'effects.keys.pasted': 'Pegados {n} fotogramas clave',
+  'effects.keys.pasted#one': 'Pegado {n} fotograma clave',
   'effects.keys.select_key': 'Selecciona primero un fotograma clave',
   'effects.keys.select_layer': 'Selecciona primero una capa',
   'effects.undo.set_key': 'Fijar fotograma clave',

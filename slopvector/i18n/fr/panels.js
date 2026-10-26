@@ -145,6 +145,7 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'vector.layers.delete': 'Supprimer la sélection / le calque',
   'vector.layers.need_one': 'Un document doit contenir au moins un calque',
   'vector.layers.count': '{n} calques',
+  'vector.layers.count#one': '{n} calque',
   'vector.layers.show': 'Afficher',
   'vector.layers.hide': 'Masquer',
   'vector.layers.unlock': 'Déverrouiller',

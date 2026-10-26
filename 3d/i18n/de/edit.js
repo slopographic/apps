@@ -41,6 +41,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   '3d.file.save_failed': 'Speichern nicht möglich: {error}',
   '3d.file.nothing_export': 'Noch nichts zu exportieren',
   '3d.file.zip_note': '{format} mit seinen {n} Begleitdateien in einer ZIP-Datei gespeichert',
+  '3d.file.zip_note#one': '{format} mit seiner {n} Begleitdatei in einer ZIP-Datei gespeichert',
   '3d.file.exported': '{format} exportiert',
   '3d.file.picture_saved': 'Bild gespeichert',
   '3d.file.render_failed': 'Rendern nicht möglich',
@@ -56,8 +57,10 @@ window.SlopI18n && window.SlopI18n.add('de', {
   '3d.config.not_imported': 'Konfiguration nicht importiert: {errors}',
   '3d.config.empty': 'Die Konfiguration hat keine Objekte oder Lichter',
   '3d.config.imported': '{n} Elemente importiert',
+  '3d.config.imported#one': '{n} Element importiert',
   '3d.config.nothing': 'Nichts zu exportieren: Die Szene hat keine Grundformen oder Lichter',
   '3d.config.export_failed': 'Exportieren nicht möglich: {error}',
   '3d.config.skipped': '{n} bearbeitete oder importierte Netze ausgelassen (nur Grundformen werden geschrieben)',
+  '3d.config.skipped#one': '{n} bearbeitetes oder importiertes Netz ausgelassen (nur Grundformen werden geschrieben)',
   '3d.config.noun': 'eine Konfigurationsdatei',
 });

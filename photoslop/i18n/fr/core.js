@@ -28,6 +28,7 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'photoslop.core.need_one_layer': 'Un document doit contenir au moins un calque',
   'photoslop.core.step_delete_layer': 'Supprimer le calque',
   'photoslop.core.n_layers': '{n} calques',
+  'photoslop.core.n_layers#one': '{n} calque',
   'photoslop.core.remove_all_q': 'Supprimer tous les calques ?',
   'photoslop.core.remove_all_body': 'Cela supprime {count} de « {name} ». Le document conserve un calque vide.',
   'photoslop.core.continue': 'Continuer',

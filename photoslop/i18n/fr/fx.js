@@ -11,6 +11,7 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'photoslop.fx.nothing_applies': 'Rien dans « {name} » ne peut s’appliquer à un calque ici.',
   'photoslop.fx.applied': '« {name} » appliqué',
   'photoslop.fx.applied_skipped': '« {name} » appliqué ({n} effets ignorés)',
+  'photoslop.fx.applied_skipped#one': '« {name} » appliqué ({n} effet ignoré)',
   'photoslop.fx.noun_preset': 'un préréglage d’effets (.slop.json)',
   'photoslop.fx.imported': 'Importé.',
   'photoslop.fx.delete_preset': 'Supprimer le préréglage',

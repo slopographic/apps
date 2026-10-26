@@ -47,6 +47,7 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'upscale.run.frame': 'Image {d} sur {n} avec {model}',
   'upscale.run.done': 'Terminé : {model}, {w} × {h} px. {note}',
   'upscale.run.done_video': 'Terminé : {n} images à {w} × {h}, {model}. {note}',
+  'upscale.run.done_video#one': 'Terminé : {n} image à {w} × {h}, {model}. {note}',
   'upscale.run.cancelled': 'Annulé.',
   'upscale.run.cancelling': 'Annulation…',
   'upscale.run.failed': 'Agrandissement impossible : {msg}',
