@@ -70,7 +70,7 @@
         const t = Math.min(total, (now - t0) / 1000);
         RM.preview.frame(g, W, H, t);
         if (audio) feedAudio(plan, t);
-        say(RM.tx('remix.export.progress', { pct: Math.min(100, Math.round((100 * t) / total)) }));
+        say(RM.t('remix.export.progress', { pct: Math.min(100, Math.round((100 * t) / total)) }));
         if (t >= total) return finish();
         raf = requestAnimationFrame(step);
       };
