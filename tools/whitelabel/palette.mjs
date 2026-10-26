@@ -66,10 +66,10 @@ const hexRgb = (h) => { const f = h.length === 4 ? h.slice(1).split('').map((c) 
 const mix = (a, b, t) => a.map((v, i) => v * t + b[i] * (1 - t));   // t of a over b
 export const contrast = (a, b) => { const [x, y] = [luminance(a), luminance(b)].sort((m, n) => n - m); return (x + 0.05) / (y + 0.05); };
 
-/** The source's Light and Dark theme tokens, read from shared/theme/theme.js (th('light', 'Light', 'light', bg, surface, text, accent, border)). */
+/** The source's Light and Dark theme tokens, read from shared/theme/theme.js (th('light', 'light', bg, surface, text, accent, border)). */
 export function sourceThemes(themeJs) {
   const out = {};
-  for (const m of themeJs.matchAll(/th\('(light|dark)', '[^']*', '\w+', '(#\w+)', '(#\w+)', '(#\w+)', '(#\w+)', '(#\w+)'\)/g)) out[m[1]] = { background: m[2], surface: m[3], text: m[4], accent: m[5], border: m[6] };
+  for (const m of themeJs.matchAll(/th\('(light|dark)', '\w+', '(#\w+)', '(#\w+)', '(#\w+)', '(#\w+)', '(#\w+)'\)/g)) out[m[1]] = { background: m[2], surface: m[3], text: m[4], accent: m[5], border: m[6] };
   return out;
 }
 

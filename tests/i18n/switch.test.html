@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <title>Language switch across pages</title>
-  <!-- Covers: settings/language.js, shared/i18n/i18n.js -->
+  <!-- Covers: settings/language.js, shared/i18n/i18n.js, index.html, shared/finder/app-search.js, shared/i18n/ui/en/shell2.js, shared/i18n/ui/sv/shell2.js -->
   <style>body { margin: 0; background: #111; color: #eee; font: 12px system-ui; } iframe { width: 1000px; height: 700px; border: 0; }</style>
 </head>
 <body>
@@ -66,6 +66,18 @@
       const btn = await waitFor(() => page.contentDocument.querySelector('.sh-switch .sh-hbtn-txt'), { timeout: 20000 });
       expect(btn.textContent).toBe('Aplicaciones');
       expect(page.contentDocument.documentElement.getAttribute('lang')).toBe('es');
+    });
+
+    it('the homepage finder\'s label and the long app descriptions are in the chosen language, and follow a switch', async () => {
+      // the finder's aria-label and the descriptions (shared/finder/app-search.js) stayed English in Swedish
+      localStorage.setItem('slop-profile', JSON.stringify({ v: 1, data: { lang: { mode: 'sv' } } }));
+      const h = await open('../../index.html');
+      const W = h.contentWindow, top = () => h.contentDocument.querySelector('.finder-top');
+      await waitFor(() => top().getAttribute('aria-label') === 'Hitta en app', { timeout: 20000 });
+      expect(W.SLOP_APP_SEARCH.pdf.desc.startsWith('Ordna, redigera, signera')).toBe(true);
+      W.SlopI18n.set('en');
+      await waitFor(() => top().getAttribute('aria-label') === 'Find an app', { timeout: 20000 });
+      expect(W.SLOP_APP_SEARCH.pdf.desc.startsWith('Organise, edit, sign')).toBe(true);
     });
 
     it('switching back to English restores the English nav text', async () => {

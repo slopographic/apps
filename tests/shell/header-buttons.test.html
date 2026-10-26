@@ -8,7 +8,7 @@
 <body>
   <script src="../harness.js"></script>
   <script>
-  // Covers: shared/ui/video.js, shell/header.js, shell/shell.js, shell/shell.css, shell/notify.js, shared/ui/hbtn.css, shared/ui/hbtn.js,
+  // Covers: shared/ui/video.js, shared/theme/theme.js, shell/header.js, shell/shell.js, shell/shell.css, shell/notify.js, shared/ui/hbtn.css, shared/ui/hbtn.js,
   //   shared/drive-link.js, shared/tour/mount.js, shared/tour/tour.css, slides/css/app.css,
   //   photoslop/css/layout.css, photoslop/css/extras.css, home/home.css, shared/viewmode/viewmode.css, brand/brand.css
   // Slides once had six looks in one bar (24 to 34 px tall, square to round, the browser's own button for Tour) and,
@@ -74,13 +74,22 @@
       const menu = await waitFor(() => D.querySelector('.sui-menu'));
       const labels = [...menu.querySelectorAll('.sui-lbl')].map((n) => n.textContent);
       // Convert… and AI give up their place in a full header (shared/ui/hbtn.js): the menu then offers them first
-      const moved = [['.sh-ai', 'Ask Slop AI…'], ['.sh-convert', 'Convert files…']].filter(([s]) => D.querySelector(s) && D.querySelector(s).hidden).map(([, l]) => l);
-      expect(labels).toEqual(moved.concat(['System'], W.SlopTheme.THEMES.map((t) => t.name)));
+      const moved = [['.sh-ai', 'Ask Slop AI…'], ['.sh-convert', 'Convert files…'], ['.sh-lang', 'Language…']].filter(([s]) => D.querySelector(s) && D.querySelector(s).hidden).map(([, l]) => l);
+      expect(labels).toEqual(moved.concat(['System', 'Light', 'Dark', 'Classic 98', 'Slopographic Lime']));
       expect(menu.querySelectorAll('[aria-checked="true"]').length).toBe(1);
       expect(b.getAttribute('aria-expanded')).toBe('true');
       [...menu.querySelectorAll('.sui-row')].find((r) => r.textContent.includes('Dark')).click();
       expect(D.documentElement.getAttribute('data-slop-theme')).toBe('dark');
       await waitFor(() => b.getAttribute('aria-expanded') === 'false');
+      // the theme names are chrome keys (shell.theme_<id>): in Swedish the menu, built on open, reads Swedish
+      const swapped = new Promise((ok) => W.addEventListener('slopi18n', ok, { once: true }));
+      W.SlopI18n.set('sv'); await swapped;
+      b.click();
+      const sv = await waitFor(() => D.querySelector('.sui-menu'));
+      const svLabels = [...sv.querySelectorAll('.sui-lbl')].map((n) => n.textContent);
+      expect(svLabels.slice(-4)).toEqual(['Ljust', 'Mörkt', 'Klassiskt 98', 'Slopographic Lime']);
+      D.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+      W.SlopI18n.set('en');
       W.SlopTheme.set(before);
       f.remove();
     }, { timeout: 40000 });

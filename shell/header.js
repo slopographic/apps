@@ -53,7 +53,7 @@
       const conv = document.querySelector('.sh-convert');   // no room for Convert… in the header: it is the first row here
       const ai = document.querySelector('.sh-ai'), lang = document.querySelector('.sh-lang');
       // the language button gave way in a full header: its menu is a row here (it opens once this menu has closed)
-      const langRow = lang && lang.hidden ? [{ label: tr('shell.language', 'Language') + '…', act: () => setTimeout(() => lang.click(), 0) }] : [];
+      const langRow = lang && lang.hidden ? [{ label: tx('shell.language_more'), act: () => setTimeout(() => lang.click(), 0) }] : [];
       const items = (ai && ai.hidden ? [{ label: tx('ui.shell.ask_ai'), act: openAI }] : []).concat(conv && conv.hidden ? [{ label: tx('ui.shell.convert_files'), act: openConvert }] : [])
         .concat((ai && ai.hidden) || (conv && conv.hidden) ? ['-'] : [])
         .concat(langRow.length ? langRow.concat(['-']) : [])

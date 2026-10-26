@@ -506,6 +506,7 @@ Covers: shared/i18n/ui/en/ops3.js
 Covers: shared/i18n/ui/en/preview.js
 Covers: shared/i18n/ui/en/sheets.js
 Covers: shared/i18n/ui/en/shell.js
+Covers: shared/i18n/ui/en/shell2.js
 Covers: shared/i18n/ui/en/watermark.js
 Covers: shared/i18n/ui/en/widgets.js
 Covers: shared/i18n/ui/es.js
@@ -541,6 +542,7 @@ Covers: shared/i18n/ui/sv/ops3.js
 Covers: shared/i18n/ui/sv/preview.js
 Covers: shared/i18n/ui/sv/sheets.js
 Covers: shared/i18n/ui/sv/shell.js
+Covers: shared/i18n/ui/sv/shell2.js
 Covers: shared/i18n/ui/sv/watermark.js
 Covers: shared/i18n/ui/sv/widgets.js
 Covers: shared/i18n/ui/sw.js

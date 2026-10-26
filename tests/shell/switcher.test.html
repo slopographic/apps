@@ -56,6 +56,23 @@
         expect(window.SlopSwitcher.isOpen()).toBe(false);
       });
 
+      it('tags an app in development "Preview" and a beta app "Beta", short words from the tables, in the chosen language', async () => {
+        // the tag read "In development" (long) and a lower-case "beta" (the language menu's word)
+        const tagOf = (name) => { const o = [...document.querySelectorAll('.sh-opt')].find((b) => b.querySelector('.sh-opt-name').textContent === name); return o && o.querySelector('.sh-tag') ? o.querySelector('.sh-tag').textContent : ''; };
+        closeIfOpen();
+        key(' ', { code: 'Space', ctrl: true });
+        typeQuery('Slop Docs');
+        expect(tagOf('Slop Docs')).toBe('Preview');
+        typeQuery('SlopLabel');
+        expect(tagOf('SlopLabel')).toBe('Beta');
+        const I = window.SlopI18n, swapped = () => new Promise((ok) => window.addEventListener('slopi18n', ok, { once: true }));
+        let w = swapped(); I.set('sv'); await w;
+        typeQuery('Slop Docs');
+        expect(tagOf('Slop Docs')).toBe('Förhandsversion');
+        w = swapped(); I.set('en'); await w;
+        closeIfOpen();
+      });
+
       it('filters the registry by name', () => {
         closeIfOpen();
         key(' ', { code: 'Space', ctrl: true });

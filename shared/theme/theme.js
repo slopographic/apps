@@ -13,13 +13,13 @@
   var doc = typeof document !== 'undefined' ? document : null;
   // A screenshot under assets/ that is not there (a white-label build ships without them) is hidden, never shown broken.
   if (doc) doc.addEventListener('error', function (e) { var t = e.target; if (t && t.tagName === 'IMG' && /assets\/(shots|guides|video)\//.test(t.getAttribute('src') || '')) t.style.display = 'none'; }, true);
-  var DEFAULT = 'system';
-  var SYSTEM = 'system';
-
-  function th(id, name, scheme, bg, surface, text, accent, border) {
-    return { id: id, name: name, scheme: scheme, tokens: { background: bg, surface: surface, text: text, accent: accent, border: border } };
+  var DEFAULT = 'system', SYSTEM = 'system';
+  var tx = function (k) { var I = g.SlopI18n; return I && I.has(k) ? I.t(k) : k; };   // a shared-table key in the chosen language
+  function th(id, scheme, bg, surface, text, accent, border) {
+    return { id: id, key: 'shell.theme_' + id, get name() { return tx(this.key); }, scheme: scheme, tokens: { background: bg, surface: surface, text: text, accent: accent, border: border } };
   }
-  /** The real themes. Every theme has all five tokens; System resolves to one of these. */
+  /** The real themes. Every theme has all five tokens; System resolves to one of these. `name` reads the chrome key
+   * 'shell.theme_<id>' (shared/i18n/strings.js) in the chosen language each time (the key on a page without SlopI18n). */
   /* The brand profile's colours (brand/profiles/<id>.json "themes", set at build time by tools/whitelabel/build.mjs):
    * { light: { background, surface, text, accent, border }, dark: {...}, hide: ['lime'] }. Empty here: this site's own. */
   var PROFILE = /*profile:themes*/{};
@@ -27,10 +27,10 @@
    * data-media="on|off">; a plain tone also loads style/tone.css (the calm business look) as a render-blocking stylesheet. */
   var TONE = /*profile:tone*/'playful', NAMING = /*profile:naming*/'brand', MEDIA = /*profile:media*/true;
   var THEMES = Object.freeze([
-    th('light', 'Light', 'light', '#ebe7de', '#f8f6f1', '#0a0a0a', '#4f6c00', '#8e8b82'),
-    th('dark', 'Dark', 'dark', '#0a0a0a', '#151518', '#f1ede4', '#d4ff3a', '#66666a'),
-    th('classic', 'Classic 98', 'light', '#c0c0c0', '#ffffff', '#000000', '#000080', '#808080'),
-    th('lime', 'Slopographic Lime', 'dark', '#0d1206', '#171f0c', '#f1ffb8', '#d4ff3a', '#5f713e'),
+    th('light', 'light', '#ebe7de', '#f8f6f1', '#0a0a0a', '#4f6c00', '#8e8b82'),
+    th('dark', 'dark', '#0a0a0a', '#151518', '#f1ede4', '#d4ff3a', '#66666a'),
+    th('classic', 'light', '#c0c0c0', '#ffffff', '#000000', '#000080', '#808080'),
+    th('lime', 'dark', '#0d1206', '#171f0c', '#f1ffb8', '#d4ff3a', '#5f713e'),
   ].filter(function (t) { return (PROFILE.hide || []).indexOf(t.id) < 0; }).map(function (t) {
     if (PROFILE[t.id]) Object.keys(t.tokens).forEach(function (k) { if (PROFILE[t.id][k]) t.tokens[k] = PROFILE[t.id][k]; });
     return t;
@@ -218,8 +218,8 @@
   }
   /** Saves a choice (a theme id or 'system'), mirrors it into each app's key and applies it here. */
   function set(choice) {
-    if (choice !== SYSTEM && !byId[choice]) return { ok: false, error: 'That theme is not in the list.' };
-    if (!prof) return { ok: false, error: 'Could not save: browser storage is blocked.' };
+    if (choice !== SYSTEM && !byId[choice]) return { ok: false, error: tx('ui.theme.not_listed') };
+    if (!prof) return { ok: false, error: tx('ui.theme.no_storage') };
     var r = prof.set('theme', 'mode', choice);
     if (!r.ok) return r;
     for (var app in APPS) {
