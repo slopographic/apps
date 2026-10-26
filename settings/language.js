@@ -26,4 +26,5 @@
     note.textContent = r.ok ? I.t('settings.language_saved', { name: name }) : r.error;
   });
   render();
+  window.addEventListener('slop-lang', () => { select.value = I.get(); });   // chosen in the header's language menu
 })();

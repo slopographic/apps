@@ -5,10 +5,11 @@
  *
  *   const mb = SlopMenuButton.attach(button, {
  *     label: 'Convert photo.png to',                       // the menu's accessible name
- *     items: () => [{ heading: 'Images' }, { value: 'to-jpg', label: 'To JPG', icon: node, checked: true }, ...],
+ *     items: () => [{ heading: 'Images' }, { value: 'to-jpg', label: 'To JPG', icon: node, checked: true, tag: 'beta' }, ...],
  *     empty: 'Nothing to choose',                           // shown when items() is empty
  *     onPick: (value) => { ... },
  *     search: 'auto',                                      // a search box at the top: true, false, or 'auto' (6+ choices)
+ *     anchor: () => element,                               // optional: open under this one instead (a More it is folded into)
  *   });
  *   mb.open(); mb.close(); mb.isOpen(); mb.destroy();
  *
@@ -47,6 +48,7 @@
 .smb-lbl { flex: 1 1 auto; min-inline-size: 0; }
 .smb-chk { flex: none; inline-size: 1.2em; text-align: center; color: ${T.fg}; }
 .smb-icon { flex: none; display: inline-flex; }
+.smb-tag { flex: none; padding-block: 1px; padding-inline: 6px; border: 1px solid ${T.line}; border-radius: 999px; font-size: 11px; color: ${T.fg}; }
 .smb-empty { margin: 0; padding: 8px 10px; color: ${T.dim}; }
 .smb-search { position: sticky; inset-block-start: -6px; z-index: 1; display: block; inline-size: 100%; box-sizing: border-box; margin-block-end: 6px; padding: 8px 10px;
   border: 1px solid ${T.line}; border-radius: 6px; background: ${T.bg}; color: inherit; font: inherit; }
@@ -118,6 +120,7 @@
         r.append(chk);
         if (it.icon) { const ic = doc.createElement('span'); ic.className = 'smb-icon'; ic.setAttribute('aria-hidden', 'true'); ic.append(it.icon); r.append(ic); }
         r.append(lbl);
+        if (it.tag) { const tg = doc.createElement('span'); tg.className = 'smb-tag'; tg.textContent = it.tag; r.append(tg); }
         r.addEventListener('click', () => { if (r.disabled) return; close(true); if (o.onPick) o.onPick(it.value); });
         group.append(r);
       }
@@ -155,7 +158,7 @@
     }
     function place() {
       if (!menu) return;
-      const b = button.getBoundingClientRect(), vw = win.innerWidth, vh = win.innerHeight;
+      const b = (o.anchor && o.anchor() || button).getBoundingClientRect(), vw = win.innerWidth, vh = win.innerHeight;
       const w = menu.offsetWidth, hgt = menu.offsetHeight;
       const rtl = win.getComputedStyle(button).direction === 'rtl';
       let x = rtl ? b.right - w : b.left;

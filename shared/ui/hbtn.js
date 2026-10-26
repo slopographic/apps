@@ -110,11 +110,12 @@
     const doc = host.ownerDocument;
     m = doc.createElement('button');
     m.type = 'button'; m.className = 'slop-hbtn slop-hmore'; m.hidden = true;
-    m.title = 'More'; m.setAttribute('aria-label', 'More');
+    const I = win.SlopI18n, more = I && I.t('shell.more') !== 'shell.more' ? I.t('shell.more') : 'More';
+    m.title = more; m.setAttribute('aria-label', more); m.setAttribute('data-i18n-attr', 'title:shell.more;aria-label:shell.more');
     m.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/></svg>';
     const away = () => [...host.querySelectorAll('[data-hbtn-yield], ' + FOLD.join(', '))].filter((b) => b.hidden && (b.dataset.hbtnFolded || b.hasAttribute('data-hbtn-yield')) && b !== m);
     win.SlopMenuButton.attach(m, {
-      label: 'More', search: false,
+      label: more, search: false,
       items: () => away().map((b, i) => { const ic = b.querySelector('svg'); return { value: String(i), label: labelOf(b), icon: ic ? ic.cloneNode(true) : null }; }),
       onPick: (v) => { const b = away()[+v]; if (b) b.click(); },
     });
