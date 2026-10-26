@@ -5,6 +5,12 @@
  *   rgbToHsl(r, g, b) → [h 0-360, s 0-100, l 0-100]   hslToRgb(h, s, l) → [r, g, b] (0-255, unrounded)
  *   rgbToOklch(r, g, b) → [L 0-1, C, h 0-360]          oklchToRgb(L, C, h) → [r, g, b], gamut mapped (chroma reduced)
  *   rgbToCmyk(r, g, b) → [c, m, y, k] (0-100)          cmykToRgb(c, m, y, k) → [r, g, b]
+ *   rgbToHsv(r, g, b) → [h, s 0-100, v 0-100]          hsvToRgb(h, s, v) → [r, g, b] (HSB, the colour wheel's disc;
+ *                                                      shared/color/model.js's maths)
+ *   hueToRyb(h) → angle, rybToHue(angle) → h           the artist's red-yellow-blue wheel: an RGB/HSL hue to its angle
+ *                                                      there and back (piecewise linear between the primaries and
+ *                                                      secondaries, RYB_STOPS; red 0, yellow 120, blue 240, so a
+ *                                                      complement is red–green, yellow–violet, blue–orange)
  *   parse(text) → '#rrggbb' or null: #rgb, #rrggbb, rgb(), hsl(), oklch(), cmyk(), or "r g b"
  *   format(hex, kind)  kind: hex | rgb | hsl | oklch | cmyk, as CSS text (cmyk() is not CSS; it is for print people)
  *   all(hex) → { hex, rgb, hsl, oklch, cmyk }          KINDS: the kinds in order */
@@ -80,6 +86,21 @@
   }
   const cmykToRgb = (c, m, y, k) => [c, m, y].map((v) => 255 * (1 - clamp(v, 0, 100) / 100) * (1 - clamp(k, 0, 100) / 100));
 
+  const wrap = (h) => ((h % 360) + 360) % 360;
+  const rgbToHsv = (r, g, b) => { const [h, s, v] = Model.rgbToHsb(r, g, b); return [h, s * 100, v * 100]; };
+  const hsvToRgb = (h, s, v) => Model.hsbToRgb(wrap(h), clamp(s, 0, 100) / 100, clamp(v, 0, 100) / 100);
+  /** [RYB angle, RGB hue]: red, orange, yellow, green, blue, violet and red again. */
+  const RYB_STOPS = [[0, 0], [60, 30], [120, 60], [180, 120], [240, 240], [300, 280], [360, 360]];
+  function stops(x, from, to) {
+    x = wrap(x);
+    for (let i = 1; i < RYB_STOPS.length; i++) {
+      const a = RYB_STOPS[i - 1], b = RYB_STOPS[i];
+      if (x <= b[from]) return a[to] + ((x - a[from]) / (b[from] - a[from])) * (b[to] - a[to]);
+    }
+    return 0;
+  }
+  const rybToHue = (angle) => wrap(stops(angle, 0, 1)), hueToRyb = (h) => wrap(stops(h, 1, 0));
+
   /** The numbers in a colour function's text: "50%" stays a percentage (flagged), "deg" is dropped. */
   function nums(body) {
     return body.replace(/[,/]/g, ' ').trim().split(/\s+/).filter(Boolean).map((t) => ({ v: parseFloat(t), pct: /%$/.test(t) }));
@@ -108,5 +129,6 @@
     return hexOf([r, g, b]);
   }
   const all = (hex) => Object.fromEntries(KINDS.map((k) => [k, format(hex, k)]));
-  return { KINDS, rgbToHsl, hslToRgb, rgbToOklab, oklabToRgb, rgbToOklch, oklchToRgb, outOfGamut, rgbToCmyk, cmykToRgb, parse, format, all, hexOf, rgbOf };
+  return { KINDS, rgbToHsl, hslToRgb, rgbToOklab, oklabToRgb, rgbToOklch, oklchToRgb, outOfGamut, rgbToCmyk, cmykToRgb, rgbToHsv, hsvToRgb,
+    RYB_STOPS, hueToRyb, rybToHue, parse, format, all, hexOf, rgbOf };
 });

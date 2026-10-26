@@ -61,7 +61,6 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'ui.frame.resize_aria': 'Redimensionner le panneau {label} (touches fléchées ; double-clic pour réinitialiser)',
   'ui.frame.resize_tip': 'Faites glisser pour redimensionner. Double-clic : largeur par défaut.',
   'ui.frame.reset_sizes': 'Réinitialiser la taille des panneaux',
-  'ui.list.empty': 'Pas encore de {items}.',
   'ui.flow.from_to': '{from} vers {to}',
   'ui.flow.file': 'Fichier',
   'ui.flow.file_lc': 'fichier',

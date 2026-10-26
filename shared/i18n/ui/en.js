@@ -64,7 +64,6 @@ window.SlopI18n && window.SlopI18n.add('en', {
   'ui.frame.resize_aria': 'Resize the {label} panel (arrow keys; double-click resets)',
   'ui.frame.resize_tip': 'Drag to resize. Double-click: the default width.',
   'ui.frame.reset_sizes': 'Reset panel sizes',
-  'ui.list.empty': 'No {items} yet.',
   'ui.flow.from_to': '{from} to {to}',
   'ui.flow.file': 'File',
   'ui.flow.file_lc': 'file',

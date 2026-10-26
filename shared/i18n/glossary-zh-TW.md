@@ -129,3 +129,25 @@ The terms the shared chrome (shared/i18n/zh-TW.js) and the app tables use. Add a
 | Full (view mode) | 完整 |  |
 | Focus (view mode) | 專注 |  |
 | Content (view mode) | 僅內容 |  |
+| preset | 預設集 | A saved set of values (brush, size, effect). 預設值 only means a default value |
+| default (value) | 預設值 | Not 預設集 |
+| template | 範本 | Never 模板 or 樣板 |
+| stencil (mask) | 型板 | Not 範本 |
+| ledger | 分類帳 | General ledger page: 總分類帳. Not 總帳 or 台帳 |
+| reel | 影片捲 | Short vertical video |
+| history (undo list) | 歷程記錄 | Not 歷史記錄 |
+| record (noun) | 記錄 | Not 紀錄 |
+| render (verb, video, 3D, PDF page) | 轉譯 | Not 渲染 or 算繪; 輸出 is only "output" |
+| trash | 垃圾桶 | Not 回收筒 |
+| mask | 遮罩 | Not 遮色片 or 蒙版 |
+| connect a folder | 連結資料夾 | Disconnect: 中斷連結 |
+| photo | 照片 | Not 相片 |
+| flatten image | 合併影像 | Photoshop TW |
+| blend modes | 色彩增值、濾色、覆蓋、加深顏色、加亮顏色、實光、柔光、差異化、明度 | Photoshop TW names, not 正片疊底 or 強光 |
+| nearest neighbour | 最近相鄰 |  |
+| checksum | 檢查碼 | Not 校驗碼 |
+| scroll | 捲動 | Not 滾動 |
+| change | 變更 | Not 更改 |
+| dialog | 對話方塊 | Not 對話框 |
+| script | 指令碼 | Not 腳本 |
+| aspect ratio | 長寬比 |  |
