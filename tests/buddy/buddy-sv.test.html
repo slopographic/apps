@@ -28,7 +28,7 @@
       expect(win.SlopI18n.get()).toBe('sv');
       // the toggle's tip: the table's words, or the name of a build's own mascot (boot.js names it once the art is in)
       const tip = () => win.document.querySelector('.buddy-toggle .bt-main').title;
-      const tipOk = (key) => tip() === win.SlopI18n.t(key) || /^[^()]+ \(Alt\+Shift\+S\)$/.test(tip()) && !/^(Sloppo|Helpbot) /.test(tip());
+      const tipOk = (key) => tip() === win.SlopI18n.t(key) || /^[^()]+ \(Alt\+Shift\+S\)$/.test(tip()) && !/^Sloppo /.test(tip());
       expect(tip() + ' ' + tipOk('ui.buddy.toggle_tip')).toBe(tip() + ' true');
       expect(win.SlopI18n.t('ui.buddy.toggle_tip')).toMatch(/-kompis \(Alt\+Shift\+S\)$/);
       S = await turnOn(win);
