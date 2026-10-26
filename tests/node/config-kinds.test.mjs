@@ -3,8 +3,14 @@
 // Run: node tests/run.mjs config   (or node --test tests/node/config.test.mjs)
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import vm from 'node:vm';
+import path from 'node:path';
+import { readFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
 import { loadInto, plain } from './fx-env.mjs';
 import { CORE, APPS, config, templateFile, stubTemplate, fakeStore } from './config-env.mjs';
+
+const SHARED = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'shared');
 
 test('buildPrompt names every field and allowed value, and its example is a valid file', async () => {
   const C = await config({ files: [...CORE, 'config/kinds.js'], extra: { SlopData: { store: fakeStore() } } });
@@ -90,11 +96,43 @@ test('settings apply without SlopData on the page says so, and applies nothing',
 });
 
 
+// The words come from shared/i18n/ui/<code>/widgets.js. SlopI18n with a stand-in profile (English first), so set('sv')
+// works as on a page: the tables are already in, and 'slopi18n' fires on the window (an EventTarget here).
+const PIN = "window.SlopI18n = window.SlopI18n.create({ defaultLang: 'en', profile: { v: {}, get(a, k, d) { return this.v[k] || d; }, set(a, k, c) { this.v[k] = c; return { ok: true }; } } });";
+async function withI18n(files, extra) {
+  const et = new EventTarget();
+  const ctx = await loadInto(['i18n/i18n.js'], { ...extra, CustomEvent, addEventListener: et.addEventListener.bind(et), removeEventListener: et.removeEventListener.bind(et), dispatchEvent: et.dispatchEvent.bind(et) });
+  vm.runInContext(PIN, ctx);
+  for (const f of ['i18n/ui/en/widgets.js', 'i18n/ui/sv/widgets.js', ...files]) vm.runInContext(await readFile(path.join(SHARED, f), 'utf8'), ctx, { filename: f });
+  return ctx;
+}
+const switched = (ctx, code) => new Promise((res) => { ctx.addEventListener('slopi18n', () => res(), { once: true }); ctx.SlopI18n.set(code); });
+
 test('the dialogs load without SlopUI on the page: menu items and the AI hook are wired', async () => {
-  const ctx = await loadInto([...CORE, 'config/dialog.js', 'config/dialog-ai.js'], { SLOP_APPS: APPS, Blob, File });
+  const ctx = await withI18n([...CORE, 'config/dialog.js', 'config/dialog-ai.js'], { SLOP_APPS: APPS, Blob, File });
   const D = ctx.SlopConfigDialog;
   assert.equal(typeof D.open, 'function');
   assert.deepEqual(plain(D.menuItems({ app: 'tables' }).map((i) => i.label)), ['Export current config…', 'Export plain template…', 'Import config…', 'Ask AI to write a config…']);
   assert.equal(typeof D.makeAi, 'function');
   assert.throws(() => D.open('nope'), /unknown dialog/);
+});
+
+// Covers: shared/config/schema.js, shared/config/kinds.js, shared/config/dialog.js, shared/i18n/ui/en/widgets.js, shared/i18n/ui/sv/widgets.js
+test('kind labels and the config items and commands follow a language change (keys, read when shown)', async () => {
+  const ctx = await withI18n([...CORE, 'config/kinds.js', 'config/dialog.js'], { SLOP_APPS: APPS, Blob, File, SlopData: { store: fakeStore() } });
+  const C = ctx.SlopConfig, D = ctx.SlopConfigDialog;
+  const kind = C.getKind('settings', C.consts.SHARED);
+  assert.equal(kind.label, 'Settings');
+  assert.equal(kind.description, 'Default currency, locale and tax rate');
+  const items = D.menuItems({ app: 'tables' });
+  const registered = new Map();   // SlopCmd keeps a copy of each command; the dialog retitles that copy
+  ctx.SlopCmd = { get: (id) => registered.get(id) || null };
+  for (const c of D.commands({ app: 'tables' })) registered.set(c.id, Object.assign({}, c));
+  assert.equal(registered.get('tables.config.import').title, 'Import config…');
+  await switched(ctx, 'sv');
+  assert.equal(kind.label, 'Inställningar');
+  assert.equal(kind.description, 'Standardvaluta, språkformat och momssats');
+  assert.equal(items[2].label, 'Importera konfiguration…');
+  assert.equal(registered.get('tables.config.import').title, 'Importera konfiguration…');
+  assert.equal(D.commands({ app: 'tables' })[0].title, 'Exportera aktuell konfiguration…');
 });

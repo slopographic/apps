@@ -33,7 +33,7 @@
     g.SlopIntake.register({
       id: 'colors',
       accept: { types: ['image/*', 'application/json', 'text/css', 'text/plain'], exts: ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.bmp', '.avif', '.svg', ...PALETTE_EXTS],
-        noun: t('colors.io.noun') },
+        noun: 'colors.io.noun' },
       driveAccept: ['image/*', 'application/json', 'text/css', 'text/plain', 'application/octet-stream'],
       process: take,
     });

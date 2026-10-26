@@ -102,8 +102,8 @@
   // The one way in (shared/intake, spec 'html2pdf'): Open, a drop anywhere on the page, a paste of an .html file,
   // ?drive=<id> (another app's Open in) and a PWA launch reach openFile; the local images are a part of their own.
   const SI = window.SlopIntake;
-  SI.register({ id: 'html2pdf', limit: 1, accept: { types: ['text/html'], exts: ['.html', '.htm'], noun: t('html2pdf.app.an_html_file') }, process: async (f) => { stage.classList.remove('h2p-over'); await openFile(f); return f.name; } });
-  SI.register({ id: 'html2pdf.images', main: false, paste: false, toast: false, accept: { types: ['image/*'], exts: ['.svg'], noun: t('html2pdf.app.a_picture') }, processAll: (files) => { attachImages(files); return files.map((f) => f.name); } });
+  SI.register({ id: 'html2pdf', limit: 1, accept: { types: ['text/html'], exts: ['.html', '.htm'], noun: 'html2pdf.app.an_html_file' }, process: async (f) => { stage.classList.remove('h2p-over'); await openFile(f); return f.name; } });
+  SI.register({ id: 'html2pdf.images', main: false, paste: false, toast: false, accept: { types: ['image/*'], exts: ['.svg'], noun: 'html2pdf.app.a_picture' }, processAll: (files) => { attachImages(files); return files.map((f) => f.name); } });
   const pickHtml = () => SI.pick({ to: 'html2pdf', multiple: false, accept: '.html,.htm,text/html' });
   $('h2p-open').addEventListener('click', pickHtml);
   $('h2p-open-empty').addEventListener('click', pickHtml);

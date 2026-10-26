@@ -122,7 +122,7 @@
     if (!a) return [];
     const type = window.EmlBatch.typeOf(a.name, a.type), blob = () => new Blob([a.bytes], { type });
     const items = [{ label: t('eml.side.save'), act: () => ui().download(blob(), window.EmlBatch.safeName(a.name, 'attachment')) }];
-    if (H && window.SlopOuttake) for (const it of window.SlopOuttake.items({ get: blob, name: a.name, type, from: 'eml', verb: t('eml.ex.send_to') })) items.push({ label: it.label, act: it.act });
+    if (H && window.SlopOuttake) for (const it of window.SlopOuttake.items({ get: blob, name: a.name, type, from: 'eml', verb: 'ui.outtake.send_to' })) items.push({ label: it.label, act: it.act });
     return items;
   };
 })();

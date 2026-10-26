@@ -20,18 +20,10 @@
     zone = g.SlopDrop.attach($('co-drop'), {
       intake: 'colors',
       targets: [$('co-drop'), $('co-pic')],
-      label: t('colors.drop.label'),
-      hint: t('colors.drop.hint'),
-      sample: { label: t('colors.drop.sample'), files: () => g.SlopSamples.photos(1) },
+      label: 'colors.drop.label',
+      hint: 'colors.drop.hint',
+      sample: { label: 'colors.drop.sample', files: () => g.SlopSamples.photos(1) },
     });
-    markDrop($('co-drop'));
-  }
-  /** The zone's words are drawn once (shared/drop): marked here, so a language change updates them. */
-  function markDrop(box) {
-    const I = g.SlopI18n, mark = (el, key) => { if (el && I) { el.dataset.i18n = key; el.textContent = t(key); } };
-    mark(box.querySelector('.sd-msg'), 'colors.drop.label');
-    mark(box.querySelector('.sd-msg + p'), 'colors.drop.hint');
-    mark(box.querySelector('.sd-sample'), 'colors.drop.sample');
   }
   /** The header's words, again on a language change. */
   function barText() {

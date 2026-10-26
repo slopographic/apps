@@ -27,7 +27,7 @@
     if (D) { D.importDialog({ app: APP }); return; }
     // without the shared config dialog: a part of the one intake of its own ('3d.config')
     const SI = window.SlopIntake;
-    if (!SI.spec('3d.config')) SI.register({ id: '3d.config', main: false, paste: false, toast: false, limit: 1, accept: { types: ['application/json'], exts: ['.json'], noun: t('3d.config.noun') }, process: async (f) => { await importText(await f.text()); return f.name; } });
+    if (!SI.spec('3d.config')) SI.register({ id: '3d.config', main: false, paste: false, toast: false, limit: 1, accept: { types: ['application/json'], exts: ['.json'], noun: '3d.config.noun' }, process: async (f) => { await importText(await f.text()); return f.name; } });
     SI.pick({ to: '3d.config', multiple: false, accept: '.json,application/json' });
   }
   function exportConfig() {

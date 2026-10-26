@@ -78,7 +78,7 @@ export async function addVideo() {
 function registerIntake() {
   if (window.SlopIntake.spec('notes')) return;
   window.SlopIntake.register({
-    id: 'notes', limit: 1, accept: { types: ['image/png', 'image/jpeg', 'image/gif', 'image/webp'], noun: t('notes.block.picture_noun'), maxBytes: MAX_IMAGE },
+    id: 'notes', limit: 1, accept: { types: ['image/png', 'image/jpeg', 'image/gif', 'image/webp'], noun: 'notes.block.picture_noun', maxBytes: MAX_IMAGE },
     process: async (file) => {
       const url = await readAsDataURL(file);
       const alt = file.name.replace(/\.[^.]+$/, '').replace(/[[\]()<>"\n]/g, ' ').trim() || 'Image';

@@ -68,7 +68,7 @@
     return dlg;
   }
   function pick() {
-    if (!partId) partId = g.SlopIntake.part({ id: 'fontcreator.trace', accept: { types: ['image/*'], noun: t('fontcreator.trace.noun') }, process: async (f) => { await open(f); return f.name; } });
+    if (!partId) partId = g.SlopIntake.part({ id: 'fontcreator.trace', accept: { types: ['image/*'], noun: 'fontcreator.trace.noun' }, process: async (f) => { await open(f); return f.name; } });
     return g.SlopIntake.pick({ to: partId, accept: 'image/*' });
   }
   g.FC.traceUi = { pick, open, apply, pixels, traced };

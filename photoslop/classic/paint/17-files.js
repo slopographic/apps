@@ -13,7 +13,7 @@ const { $, S, cancelOp, finishPending, h, isTyping, loadBlobImage, main, mctx, p
    Drive and ?drive=<id> (hub.js). Mode 'paste' pastes it in; otherwise it opens (a Drive file stays linked: P.linkDrive). */
 const SI = window.SlopIntake;
 SI.register({
-  id: 'paint-classic', limit: 1, toast: false, accept: { types: ['image/*'], noun: P.t('paint-classic.app.noun_picture') },
+  id: 'paint-classic', limit: 1, toast: false, accept: { types: ['image/*'], noun: 'paint-classic.app.noun_picture' },
   except: () => !!(P.st.clipInternalNewer && P.st.clip), // the app's own copy is newer: its paste uses that
   process: async (f, ctx) => {
     if (ctx.mode === 'paste' || ctx.source === 'paste') { await pasteBlob(f); return f.name; }

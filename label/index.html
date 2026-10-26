@@ -188,8 +188,7 @@
   <script>SlopPWA.mount();</script>
 <link rel="stylesheet" href="../shared/menubar/menubar.css">
 <script src="../shared/menubar/menubar.js"></script>
-<script>SlopMenuBar.mount({app: 'SlopLabel', host: '#menubar', tools: ['#btnDock'], menus: {File: menuFile, Edit: menuEdit, Insert: menuInsert, Object: menuObject, Data: menuData, View: menuView, Help: menuHelp}});
-  document.querySelectorAll('#menubar .smb-menu-b').forEach((b) => { const k = { Object: 'label.cmd.object', Data: 'label.cmd.data' }[b.textContent]; if (k) { b.dataset.i18n = k; b.textContent = LT(k); } }); // the menus the shared bar has no word for</script>
+<script>SlopMenuBar.mount({app: 'SlopLabel', host: '#menubar', tools: ['#btnDock'], menus: {File: menuFile, Edit: menuEdit, Insert: menuInsert, Object: menuObject, Data: menuData, View: menuView, Help: menuHelp}});</script>
   <script src="../shell/shell.js"></script>
   <script src="../shared/tour/mount.js" data-app="label"></script>
   <script src="../shared/urlstate/urlstate.js" data-src="shared/urlstate/urlstate.js"></script>

@@ -95,8 +95,7 @@
   <script src="js/frame.js"></script>
   <link rel="stylesheet" href="../shared/menubar/menubar.css">
   <script src="../shared/menubar/menubar.js"></script>
-  <script>SlopMenuBar.mount({ app: 'Photo Sorter', menus: { File: () => ['#soFolder', '-', '#soZip', '#soDrive', '#soCsv', '-', '#soClear'], Sort: () => ['#soStart'] } });</script>
-  <script src="js/menus.js"></script>
+  <script>SlopMenuBar.mount({ app: 'Photo Sorter', menus: { File: () => ['#soFolder', '-', '#soZip', '#soDrive', '#soCsv', '-', '#soClear'], 'sorter.app.menu_sort': () => ['#soStart'] } });</script>
   <script src="../shell/shell.js"></script>
 <i id="slop-built" hidden></i>
 </body>

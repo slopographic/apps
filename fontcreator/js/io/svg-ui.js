@@ -86,7 +86,7 @@
     for (const v of ['cap', 'x', 'em', 'font']) fit.append(el('option', { value: v }, t(`fontcreator.svg.fit_${v}`)));
     if (S().view().unicode != null && /\p{Ll}/u.test(String.fromCodePoint(S().view().unicode))) fit.value = 'x';
     const add = el('input', { type: 'checkbox', id: 'fc-svg-add' });
-    if (!partId) partId = g.SlopIntake.part({ id: 'fontcreator.svg', accept: { types: ['image/svg+xml'], exts: ['.svg'], noun: t('fontcreator.svg.noun') }, process: async (f) => { ta.value = await f.text(); return f.name; } });
+    if (!partId) partId = g.SlopIntake.part({ id: 'fontcreator.svg', accept: { types: ['image/svg+xml'], exts: ['.svg'], noun: 'fontcreator.svg.noun' }, process: async (f) => { ta.value = await f.text(); return f.name; } });
     const choose = el('button', { type: 'button', class: 'sui-btn', id: 'fc-svg-choose' }, t('fontcreator.svg.choose'));
     choose.addEventListener('click', () => g.SlopIntake.pick({ to: partId, accept: '.svg,image/svg+xml' }));
     const body = el('div', { class: 'fc-dlg' }, el('p', { class: 'sui-p' }, t('fontcreator.svg.intro', { glyph: S().view().name + (name ? ': ' + name : '') })), ta, choose,

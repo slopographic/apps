@@ -114,7 +114,7 @@
     const preset = new URLSearchParams(g.location.search).get('source');   // a task page's link (?source=camera…)
     if (preset && R.plan.SOURCES.some(([v]) => v === preset)) R.settings.set({ source: preset });
     g.SlopIntake.register({ id: 'recorder', limit: 1,
-      accept: { types: ['video/webm', 'video/mp4', 'video/quicktime', 'audio/webm', 'audio/ogg', 'audio/mp4', 'audio/mpeg', 'audio/wav'], exts: ['.webm', '.mp4', '.mov', '.m4a', '.ogg', '.mp3', '.wav'], noun: t('recorder.app.noun') },
+      accept: { types: ['video/webm', 'video/mp4', 'video/quicktime', 'audio/webm', 'audio/ogg', 'audio/mp4', 'audio/mpeg', 'audio/wav'], exts: ['.webm', '.mp4', '.mov', '.m4a', '.ogg', '.mp3', '.wav'], noun: 'recorder.app.noun' },
       process: (file) => openFile(file) });
     g.SlopIntake.dropTarget($('rc-stage'), { to: 'recorder' });
     syncFooter();

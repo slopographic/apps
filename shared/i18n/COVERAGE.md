@@ -11,10 +11,10 @@ finds in its code (`node tools/i18n/i18n.mjs extract <app>` lists them). The rat
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | Shared chrome (header, switcher, footer, Settings) | 246 | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% |
 | Shared components (shared/i18n/ui) | 220 | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% |
-| Shared components, more (shared/i18n/ui/<code>/) | 0 | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
+| Shared components, more (shared/i18n/ui/<code>/) | 11 | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
 | Shared biz (shared/biz/i18n/) | 240 | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
 
-Shared code (shell/, shared/) still has 5873 hard-coded strings; most belong to one app family (office, biz, watermark, ...).
+Shared code (shell/, shared/) still has 5860 hard-coded strings; most belong to one app family (office, biz, watermark, ...).
 
 ## Apps, by strings to translate
 
@@ -23,14 +23,14 @@ Shared code (shell/, shared/) still has 5873 hard-coded strings; most belong to 
 | 1 | File convert | convert | 2138 | 961 | 1177 | 0 of 29 |
 | 2 | Slop PDF | pdf | 1692 | 1477 | 215 | 0 of 29 |
 | 3 | PhotoSlop | photoslop | 1315 | 1315 | 0 | 2 of 29 |
-| 4 | SlopLabel | label | 1146 | 691 | 455 | 0 of 29 |
+| 4 | SlopLabel | label | 1143 | 691 | 452 | 0 of 29 |
 | 5 | SlopCut | slopedit | 1136 | 777 | 359 | 0 of 29 |
 | 6 | Slop Press | press | 1042 | 772 | 270 | 0 of 29 |
-| 7 | SlopVector | vector | 848 | 588 | 260 | 0 of 29 |
+| 7 | SlopVector | vector | 847 | 587 | 260 | 0 of 29 |
 | 8 | Slop Tables | tables | 674 | 262 | 412 | 0 of 29 |
 | 9 | Slop Drive | drive | 634 | 568 | 66 | 0 of 29 |
 | 10 | Slop Effects | effects | 516 | 315 | 201 | 0 of 29 |
-| 11 | Slop Docs | docs | 465 | 249 | 216 | 0 of 29 |
+| 11 | Slop Docs | docs | 464 | 248 | 216 | 0 of 29 |
 | 12 | Slop 3D | 3d | 449 | 285 | 164 | 0 of 29 |
 | 13 | Slop AI | ai | 419 | 308 | 111 | 0 of 29 |
 | 14 | Reel Remix | remix | 395 | 280 | 115 | 0 of 29 |
@@ -50,9 +50,9 @@ Shared code (shell/, shared/) still has 5873 hard-coded strings; most belong to 
 | 28 | Slop Projects | projects | 252 | 252 | 0 | 2 of 29 |
 | 29 | Slop Recorder | recorder | 240 | 143 | 97 | 0 of 29 |
 | 30 | QR SLOP | qr | 239 | 199 | 40 | 0 of 29 |
-| 31 | Slop Workflows | workflows | 236 | 150 | 86 | 0 of 29 |
+| 31 | Slop Workflows | workflows | 235 | 149 | 86 | 0 of 29 |
 | 32 | Slop Music | music | 224 | 122 | 102 | 0 of 29 |
-| 33 | Slop EML | eml | 212 | 143 | 69 | 0 of 29 |
+| 33 | Slop EML | eml | 211 | 142 | 69 | 0 of 29 |
 | 34 | Slop Compare | diff | 202 | 139 | 63 | 0 of 29 |
 | 35 | Slop Code | code | 178 | 127 | 51 | 0 of 29 |
 | 36 | Slop Colors | colors | 175 | 116 | 59 | 0 of 29 |
@@ -79,12 +79,12 @@ Shared code (shell/, shared/) still has 5873 hard-coded strings; most belong to 
 | 57 | Slopculator | calculator | 94 | 79 | 15 | 0 of 29 |
 | 58 | Paste | paste | 94 | 71 | 23 | 0 of 29 |
 | 59 | Slop HTML to PDF | html2pdf | 84 | 49 | 35 | 0 of 29 |
-| 60 | Slop Photo Sorter | sorter | 72 | 45 | 27 | 0 of 29 |
+| 60 | Slop Photo Sorter | sorter | 71 | 45 | 26 | 0 of 29 |
 | 61 | Serial counter | serials | 70 | 47 | 23 | 0 of 29 |
 | 62 | Slop Reminders | reminders | 44 | 44 | 0 | 2 of 29 |
 | 63 | Checksum | checksum | 42 | 24 | 18 | 0 of 29 |
 
-Total: 22080 strings in 63 apps.
+Total: 22072 strings in 63 apps.
 
 ## Apps with tables, per language
 
@@ -149,7 +149,7 @@ Total: 22080 strings in 63 apps.
 | calculator | 84% | 0% | 0% | 0% | 0% | 0% | 0% | 84% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
 | paste | 75% | 0% | 0% | 0% | 0% | 0% | 0% | 75% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
 | html2pdf | 58% | 0% | 0% | 0% | 0% | 0% | 0% | 58% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
-| sorter | 62% | 0% | 0% | 0% | 0% | 0% | 0% | 62% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
+| sorter | 63% | 0% | 0% | 0% | 0% | 0% | 0% | 63% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
 | serials | 67% | 0% | 0% | 0% | 0% | 0% | 0% | 67% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
 | reminders | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
 | checksum | 57% | 0% | 0% | 0% | 0% | 0% | 0% | 57% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |

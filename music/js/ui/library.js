@@ -93,7 +93,7 @@
   /** The one way in (shared/intake, spec 'music'): Add files, the empty library's button, a drop on the library, the
    *  sample, a paste, ?drive=<id> and a PWA launch. A file is added to Slop Drive (the library); a track the library
    *  already has (another app's Open in Slop Music) plays. */
-  const ACCEPT = () => ({ types: ['audio/*'], exts: ['.mp3', '.wav', '.ogg', '.oga', '.flac', '.m4a', '.aac', '.opus'], noun: t('music.lib.noun') });
+  const ACCEPT = () => ({ types: ['audio/*'], exts: ['.mp3', '.wav', '.ogg', '.oga', '.flac', '.m4a', '.aac', '.opus'], noun: 'music.lib.noun' });
   function register() {
     window.SlopIntake.register({
       id: 'music', accept: ACCEPT(), driveAccept: ['audio/*'],

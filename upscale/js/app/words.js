@@ -5,7 +5,7 @@
  *   words.fine()          the empty page's note, its model size (#up-quality-size) kept as it is
  *   words.firstUse(bytes) the intake's first-use notice (the Quality model's size in bytes)
  *   words.on(fn)          fn after a language change
- *   markDrop(zone)        marks the drop zone's words (shared/drop draws them once), so a language change updates them */
+ */
 (function (g) {
   'use strict';
   const U = (g.SlopUpscale = g.SlopUpscale || {});
@@ -39,14 +39,4 @@
   });
   const on = (fn) => { if (g.SlopI18n && g.SlopI18n.on) g.SlopI18n.on(fn); };
   U.words = { options, fine, firstUse, on };
-  U.markDrop = function (zone) {
-    if (!zone || !g.SlopI18n) return;
-    const mark = (el, key) => { if (el) { el.dataset.i18n = key; el.textContent = t(key); } };
-    mark(zone.querySelector('.sd-msg'), 'upscale.drop.label');
-    mark(zone.querySelector('.sd-msg + p'), 'upscale.drop.hint');
-    zone.querySelectorAll('.sd-steps li').forEach((li, i) => mark(li, 'upscale.drop.step' + (i + 1)));
-    mark(zone.querySelector('.sd-sample'), 'upscale.drop.sample');
-    const img = zone.querySelector('.sd-pic img');
-    if (img) img.dataset.i18nAttr = 'alt:upscale.drop.alt';
-  };
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -31,7 +31,7 @@
       NS.app.refresh();
       return true;
     };
-    g.SlopIntake.register({ id: 'inventory.csv', main: false, paste: false, toast: false, limit: 1, accept: { types: ['text/csv', 'text/plain', 'application/vnd.ms-excel'], exts: ['.csv'], noun: t('inventory.im.noun') },
+    g.SlopIntake.register({ id: 'inventory.csv', main: false, paste: false, toast: false, limit: 1, accept: { types: ['text/csv', 'text/plain', 'application/vnd.ms-excel'], exts: ['.csv'], noun: 'inventory.im.noun' },
       process: async (f) => {
         const text = await f.text();
         const cur = await S.store.list('products');

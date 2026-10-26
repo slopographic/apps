@@ -21,18 +21,9 @@ const t = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
 const say = (s) => { $('msg').textContent = s; };
 /** What the page makes and how: in the drop zone once the tool can run, and above the model prompt before that. */
 const PREVIEW = () => ({
-  picture: { src: '../assets/shots/ocr.jpg', alt: t('ocr.drop.alt') },
-  steps: [t('ocr.drop.step1'), t('ocr.drop.step2'), t('ocr.drop.step3')],
+  picture: { src: '../assets/shots/ocr.jpg', alt: 'ocr.drop.alt' },
+  steps: ['ocr.drop.step1', 'ocr.drop.step2', 'ocr.drop.step3'],
 });
-/** Marks the words SlopDrop draws once (the preview, the zone's label and sample), so they follow a language change. */
-function markDrop(box) {
-  const mark = (el, key) => { if (el) { el.dataset.i18n = key; el.textContent = t(key); } };
-  mark(box.querySelector('.sd-msg'), 'ocr.drop.label');
-  mark(box.querySelector('.sd-sample'), 'ocr.drop.sample');
-  box.querySelectorAll('.sd-steps li').forEach((li, i) => mark(li, 'ocr.drop.step' + (i + 1)));
-  const img = box.querySelector('.sd-pic img');
-  if (img) img.dataset.i18nAttr = 'alt:ocr.drop.alt';
-}
 const allRead = () => state.pages.length > 0 && state.pages.every((p) => p.done);
 const stem = () => {
   const f = state.pages[0] && state.pages[0].file;
@@ -204,17 +195,16 @@ function wire() {
   // only once the gate has passed).
   window.SlopIntake.register({
     id: 'ocr',
-    accept: { types: ['image/*', 'application/pdf'], exts: ['.pdf', '.png', '.jpg', '.jpeg', '.webp', '.gif', '.bmp', '.tif', '.tiff', '.avif'], noun: t('ocr.app.noun') },
+    accept: { types: ['image/*', 'application/pdf'], exts: ['.pdf', '.png', '.jpg', '.jpeg', '.webp', '.gif', '.bmp', '.tif', '.tiff', '.avif'], noun: 'ocr.app.noun' },
     gate: (batch) => !$('ui').hidden || batch.source !== 'paste', // a paste before the gate has shown the page is not taken
     processAll: async (files) => { await addFiles(files); return files.map((f) => f.name); },
   });
   dropZone = window.SlopDrop.attach($('drop'), {
     intake: 'ocr',
-    label: t('ocr.drop.label'),
+    label: 'ocr.drop.label',
     preview: PREVIEW(),
-    sample: { label: t('ocr.drop.sample'), files: async () => [await sampleReceipt()] },
+    sample: { label: 'ocr.drop.sample', files: async () => [await sampleReceipt()] },
   });
-  markDrop($('drop'));
   $('read').addEventListener('click', readAll);
   $('prev').addEventListener('click', () => show(state.cur - 1));
   $('next').addEventListener('click', () => show(state.cur + 1));
@@ -261,7 +251,7 @@ if (window.SlopCmd) {
 
 wire();
 const intro = window.SlopDrop.panel.preview(PREVIEW());
-if (intro) { $('intro').append(intro); markDrop(intro); }
+if (intro) $('intro').append(intro);
 // a language change: the page list (its "not read yet") in the new language
 if (window.SlopI18n && window.SlopI18n.on) window.SlopI18n.on(() => { if (!$('ui').hidden) refresh(); });
 T.gate('ocr', () => {

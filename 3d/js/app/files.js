@@ -101,7 +101,7 @@
     return files.map((x) => x.name);
   }
   window.SlopIntake.register({
-    id: '3d', accept: { any: true, noun: t('3d.file.noun') }, driveAccept: ACCEPT_DRIVE, processAll: read,
+    id: '3d', accept: { any: true, noun: '3d.file.noun' }, driveAccept: ACCEPT_DRIVE, processAll: read,
     gate: async (batch) => batch.mode !== 'open' || confirmDiscard(),
   });
   const pick = (mode) => window.SlopIntake.pick({ to: '3d', mode, accept: ACCEPT_UI });

@@ -65,7 +65,7 @@
    *  pasted photo while the editor is open. */
   function mount(say) {
     g.SlopIntake.register({
-      id: 'expenses', limit: 1, toast: false, accept: { types: ['image/*'], noun: t('expenses.rc.noun') },
+      id: 'expenses', limit: 1, toast: false, accept: { types: ['image/*'], noun: 'expenses.rc.noun' },
       gate: () => !$('view-edit').hidden,
       process: async (f) => { await scan(f, say); return f.name; },
     });

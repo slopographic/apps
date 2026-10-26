@@ -68,7 +68,7 @@ $('model').addEventListener('click', async () => openModelChooser({
   onChoose: (c) => { language = c.language; model = c.model; if (c.pin) prefs.pin(language); else if (prefs.pinned() !== language) prefs.pin(null); label(); },
 }));
 // the one way in (aitools/intake.js): a drop on the box, choose a file, a paste, a launch
-const intake = T.intake('ai-speech', { accept: { types: ['audio/*', 'video/*'], exts: ['.mp3', '.wav', '.m4a', '.aac', '.ogg', '.opus', '.flac', '.mp4', '.m4v', '.mov', '.webm', '.mkv'], noun: t('aitools.speech.noun') }, read: (f) => pick(f) });
+const intake = T.intake('ai-speech', { accept: { types: ['audio/*', 'video/*'], exts: ['.mp3', '.wav', '.m4a', '.aac', '.ogg', '.opus', '.flac', '.mp4', '.m4v', '.mov', '.webm', '.mkv'], noun: 'aitools.speech.noun' }, read: (f) => pick(f) });
 $('run').addEventListener('click', run);
 $('srt').addEventListener('click', () => T.download(baseName + '.srt', X.srt(segments), 'application/x-subrip'));
 $('txt').addEventListener('click', () => T.download(baseName + '.txt', X.txt(segments), 'text/plain'));

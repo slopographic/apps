@@ -116,7 +116,7 @@ function wire() {
   // ?drive=<id> (another app's Open in Slop Transcribe) and a PWA launch all reach add(). A paste waits for the gate.
   window.SlopIntake.register({
     id: 'transcribe', gate: (batch) => !$('trUi').hidden || batch.source !== 'paste', // no paste before the gate has shown the page
-    accept: { types: ['audio/*', 'video/*'], exts: ['.mp3', '.m4a', '.wav', '.ogg', '.opus', '.flac', '.webm', '.mp4', '.mov', '.mkv', '.amr', '.wma'], noun: t('transcribe.app.noun') },
+    accept: { types: ['audio/*', 'video/*'], exts: ['.mp3', '.m4a', '.wav', '.ogg', '.opus', '.flac', '.webm', '.mp4', '.mov', '.mkv', '.amr', '.wma'], noun: 'transcribe.app.noun' },
     process: async (file) => { const id = add([file]); if (!id) throw new Error('not an audio or video file'); return id; },
   });
   window.SlopDrop.attach($('trDrop'), {

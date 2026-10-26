@@ -11,6 +11,7 @@
  * apply() sets lang and dir on <html> and replaces the text of [data-i18n="key"] elements and the attributes listed in
  * [data-i18n-attr="attr:key"] (several separated by ';'), filling {placeholders} from the element's data-i18n-vars (JSON)
  * and {brand} from the brand profile (brand/brand.js). num(), date(), money(), list() format with Intl in the language.
+ * label(v, vars): t(v) when v is a known key, v() when a function, else v (how shared components take labels).
  * on(fn) calls fn whenever the language changes and its tables are in (the 'slopi18n' event on window).
  * create(opts) makes an independent instance (used by the node tests). See shared/i18n/HANDOFF.md and APPS-HOWTO.md. */
 (function (g) {
@@ -55,7 +56,7 @@
   var KEY_RE = /\{(\w+)\}/g;
   // The shared components' tables beyond ui/<code>.js: shared/i18n/ui/<code>/<part>.js, for the languages that have them
   // (the others read English). Written by node tools/i18n/i18n.mjs index ui; keep it on one line.
-  var UI_PARTS = /*ui-parts*/{ parts: [], langs: [] };
+  var UI_PARTS = /*ui-parts*/{ parts: ['widgets'], langs: ['en', 'sv'] };
   var me = typeof document !== 'undefined' ? document.currentScript : null;
 
   function create(opts) {
@@ -116,6 +117,9 @@
     }
     /** True when the key has a string in the chosen language or in English. */
     function has(key) { return find(get(), key) !== null || find(DEFAULT, key) !== null; }
+    /** A label a shared component was given: a function is called, a string that is a key is translated, any other
+     * string is the user's own text. Components keep the value and call label() again on every change (live switch). */
+    function label(v, vars) { if (typeof v === 'function') v = v(vars); return typeof v === 'string' && has(v) ? t(v, vars) : v; }
     /** Adds strings for one language code. Later calls add or replace keys; nothing is removed. */
     function add(code, dict) {
       if (!dict || typeof dict !== 'object') return;
@@ -266,6 +270,7 @@
       set: set,
       t: t,
       has: has,
+      label: label,
       add: add,
       apply: apply,
       load: load,

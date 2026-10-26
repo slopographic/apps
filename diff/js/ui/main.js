@@ -93,22 +93,11 @@ function wireIntake() {
   });
   zone = window.SlopDrop.attach($('df-drop'), {
     intake: 'diff', targets: [$('df-drop')], window: true,
-    label: t('diff.drop.label'),
-    hint: t('diff.drop.hint'),
-    preview: { steps: [t('diff.drop.step1'), t('diff.drop.step2'), t('diff.drop.step3')] },
-    sample: { label: t('diff.drop.sample'), files: sample },
+    label: 'diff.drop.label',
+    hint: 'diff.drop.hint',
+    preview: { steps: ['diff.drop.step1', 'diff.drop.step2', 'diff.drop.step3'] },
+    sample: { label: 'diff.drop.sample', files: sample },
   });
-  markDrop($('df-drop'));
-}
-
-/** SlopDrop draws its words once: marked with their keys, a language change rewrites them (shared/drop/panel.js). */
-function markDrop(zone) {
-  const I = window.SlopI18n, mark = (el, key) => { if (el && I) { el.dataset.i18n = key; el.textContent = I.t(key); } };
-  if (!zone || !I) return;
-  mark(zone.querySelector('.sd-msg'), 'diff.drop.label');
-  mark(zone.querySelector('.sd-msg + p'), 'diff.drop.hint');
-  zone.querySelectorAll('.sd-steps li').forEach((li, i) => mark(li, ['diff.drop.step1', 'diff.drop.step2', 'diff.drop.step3'][i]));
-  mark(zone.querySelector('.sd-sample'), 'diff.drop.sample');
 }
 
 function boot() {

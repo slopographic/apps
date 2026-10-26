@@ -94,7 +94,7 @@
     // and what the page was opened with (?drive=<id>: that file is shown; launchQueue files are uploaded). The
     // whole batch is uploaded at once into its folder (a drop's folder, else the open one); the strip shows each file.
     window.SlopIntake.register({
-      id: 'drive', accept: { any: true, allowEmpty: true, noun: DR.t('drive.dlg.a_file') }, paste: false, // Ctrl+V is Drive's own clipboard
+      id: 'drive', accept: { any: true, allowEmpty: true, noun: 'drive.dlg.a_file' }, paste: false, // Ctrl+V is Drive's own clipboard
       processAll: async (files, ctx) => {
         const rec = ctx.drive && S.files.get(ctx.drive.id);
         if (ctx.source === 'launch' && rec && files.length === 1) { DR.reveal(rec); return [rec.id]; } // Open in Slop Drive

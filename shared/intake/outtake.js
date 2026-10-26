@@ -10,9 +10,12 @@
    SlopHub.openIn(o) and SlopHub.sendMenuItems (shared/hub.js) are this builder. Classic script, after shared/hub.js (it
    needs SlopHub; without it the list is only the extensions). See
    shared/intake/HANDOFF.md.
-     SlopOuttake.items(o) → menu items ({ label, act, to? (the app it opens) }, for SlopUI.menu or an app menu; separators: true adds '-' lines)
+     SlopOuttake.items(o) → menu items ({ label, act, to? (the app it opens), plain? (true: an app's plain handover),
+       save? (true: Save to Slop Drive…) }, for SlopUI.menu or an app menu; separators: true adds '-' lines)
        o: { get() → Blob | Promise<Blob>, name: string | () => string, type, from? (the app id, default the page's),
-            verb? ('Open in'; 'Send to' for the older menus), folder? (Save to Slop Drive…, default true), exclude? [ids],
+            verb? (an i18n key whose text holds {app}, one per item: default 'ui.outtake.open_in' "Open in {app}";
+            'ui.outtake.send_to' "Send to {app}" for the older menus; or a function ({ app }) → text),
+            folder? (Save to Slop Drive…, default true), exclude? [ids],
             id? (the output is already this Slop Drive record: the apps open it, no copy is made, no Save to Slop Drive…) }
      SlopOuttake.menu(at, o)       opens the items in a SlopUI menu at an element or { x, y }
      SlopOuttake.button(o, opts)   a toolbar button "Open in…" that opens the menu under itself
@@ -27,6 +30,8 @@
   if (window.SlopOuttake) return;
   /** A word from the shared tables (shared/i18n/ui/en.js), or the English given when SlopI18n or the key is absent. */
   function tr(key, en, vars) { const I = globalThis.SlopI18n; if (I && I.has && I.has(key)) return I.t(key, vars); return vars ? String(en).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en; }
+  /** An item's words from a key ({app} filled in) or a function (SlopI18n.label); plain text is shown as it is. */
+  const lab = (v, vars) => { const I = globalThis.SlopI18n; return String(I && I.label ? I.label(v, vars) : typeof v === 'function' ? v(vars) : v); };
   const O = (window.SlopOuttake = {});
   const H = () => (document.documentElement.dataset.offline ? null : window.SlopHub || null);
   const toast = (m) => { if (window.SlopUI && window.SlopUI.toast) window.SlopUI.toast(m); };
@@ -82,7 +87,7 @@
     if (hub) {
       for (const a of hub.appsAccepting(ctx.type)) {
         if (exclude.has(a.id) || replaced.has(a.id) || a.id === ctx.from) continue;
-        out.push({ label: verb ? verb + ' ' + a.name : tr('ui.outtake.open_in', 'Open in {app}', { app: a.name }), to: a.id, act: guard(() => O.send(a.id, ctx)) });
+        out.push({ label: verb ? lab(verb, { app: a.name }) : tr('ui.outtake.open_in', 'Open in {app}', { app: a.name }), to: a.id, plain: true, act: guard(() => O.send(a.id, ctx)) });
       }
     }
     const extra = [];
@@ -94,7 +99,7 @@
     emit({ phase: 'items', from: ctx.from, type: ctx.type, ctx, add: (item) => { if (item) extra.push(item); } });
     if (extra.length) out.push(...(out.length && o.separators ? ['-'] : []), ...extra);
     if (hub && o.folder !== false && !ctx.id) {
-      out.push({ label: tr('ui.outtake.save_drive', 'Save to Slop Drive…'), act: async () => {
+      out.push({ label: tr('ui.outtake.save_drive', 'Save to Slop Drive…'), save: true, act: async () => {
         try {
           const id = await hub.saveToDrive(await ctx.blob(), ctx.name(), { from: ctx.from || undefined });
           if (id) emit({ phase: 'sent', from: ctx.from, to: 'drive', type: ctx.type, name: ctx.name(), id });

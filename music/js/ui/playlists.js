@@ -119,7 +119,7 @@
   function bind() {
     window.SlopIntake.register({
       id: 'music.playlist', main: false, paste: false, toast: false, driveAccept: [M.plfile.MIME],
-      accept: { types: [M.plfile.MIME, 'application/json'], exts: [M.plfile.EXT], noun: T('music.pl.noun') },
+      accept: { types: [M.plfile.MIME, 'application/json'], exts: [M.plfile.EXT], noun: 'music.pl.noun' },
       process: async (file) => {
         try {
           const parsed = M.plfile.parse(await file.text());

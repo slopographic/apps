@@ -8,6 +8,7 @@
  *   f.set({ from, to, label })     a new pair; the arrow draws again when it changed
  *   f.state('idle' | 'run' | 'done' | 'error');  f.progress(0..1)
  *   f.onTo(fn, label?)            the target tile becomes a button with a ▾: fn(tile) on click (pick another format)
+ *   Labels (create/set label, onTo label) may be i18n keys or functions: the spoken names follow a language change.
  *   SlopFlow.tile(kind, { size })  one tile on its own (a format picker's option)
  *   SlopFlow.family('docx') -> 'doc'   the colour family of a kind (pdf, doc, sheet, slide, image, video, audio, text, code, archive, file)
  *   SlopFlow.tag('jpeg') -> 'JPG'      the short name on a tile */
@@ -101,6 +102,12 @@
     more.textContent = '+' + (kinds.length - 1);
   }
 
+  /** A label given to create/set/onTo: an i18n key (translated, again on a language change), a function, or text. */
+  const lab = (v) => { const I = g.SlopI18n; return String(I && I.label ? I.label(v) : typeof v === 'function' ? v() : v); };
+  /** The pictures made so far (weakly held): their spoken names follow a language change (shared/i18n). */
+  const live = new Set();
+  if (g.SlopI18n && g.SlopI18n.on && g.WeakRef) g.SlopI18n.on(() => { for (const r of live) { const a = r.deref(); if (a) a.words(); else live.delete(r); } });
+
   function create(opts) {
     style();
     const el = g.document.createElement('span');
@@ -114,14 +121,15 @@
     track.setAttribute('aria-hidden', 'true');
     track.innerHTML = '<span class="sflow-fill"></span><span class="sflow-dot"></span>';
     el.append(from, track, to);
-    let key = '';
+    let key = '', cur = {}, pick = null;   // pick: the target tile's label once it is a button (onTo)
     const api = {
       el,
       set(o) {
         const f = list(o.from), t = list(o.to);
+        cur = o;
         paintTile(from, f.length ? f : ['file']);
         paintTile(to, t.length ? t : ['file']);
-        el.setAttribute('aria-label', o.label || tr('ui.flow.from_to', '{from} to {to}', { from: f.map(tag).join(', ') || tr('ui.flow.file', 'File'), to: t.map(tag).join(', ') || tr('ui.flow.file_lc', 'file') }));
+        api.words();
         const k = f.join() + '>' + t.join();
         if (k !== key) {   // a new pair starts idle and draws its arrow again (the class goes off and back on a fresh frame)
           key = k;
@@ -132,6 +140,13 @@
         }
         return api;
       },
+      /** The spoken names in the current language (called again on a language change). */
+      words() {
+        const f = list(cur.from), t = list(cur.to);
+        el.setAttribute('aria-label', cur.label ? lab(cur.label) : tr('ui.flow.from_to', '{from} to {to}', { from: f.map(tag).join(', ') || tr('ui.flow.file', 'File'), to: t.map(tag).join(', ') || tr('ui.flow.file_lc', 'file') }));
+        if (pick) to.setAttribute('aria-label', pick.label ? lab(pick.label) : tr('ui.flow.pick', 'Choose the format to make'));
+        return api;
+      },
       state(s) { el.dataset.state = s; if (s === 'idle') api.progress(0); return api; },
       progress(p) { el.style.setProperty('--sflow-p', String(Math.max(0, Math.min(1, Number(p) || 0)))); return api; },
       /** Makes the target tile a button (a small ▾ says it can be changed): fn(tile) on click, Enter or Space. */
@@ -139,7 +154,8 @@
         to.removeAttribute('aria-hidden');
         Object.assign(to, { tabIndex: 0 });
         to.setAttribute('role', 'button');
-        to.setAttribute('aria-label', label || tr('ui.flow.pick', 'Choose the format to make'));
+        pick = { label };
+        api.words();
         to.classList.add('sflow-pick');
         if (!to.querySelector('.sflow-caret')) { const c = g.document.createElement('span'); c.className = 'sflow-caret'; c.textContent = '\u25BE'; c.setAttribute('aria-hidden', 'true'); to.append(c); }
         const go = (e) => { if (e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ') return; e.preventDefault(); fn(to); };
@@ -147,6 +163,8 @@
         return api;
       },
     };
+    el.slopFlow = api;   // the element keeps its words alive while it is on the page (live holds them weakly)
+    if (g.WeakRef) live.add(new g.WeakRef(api));
     return api.set(opts || {});
   }
 

@@ -10,7 +10,7 @@ them in `LANGS` order, each by its own name (`name`; `en` is the English name, f
 text with tables of their own: the recipe is `APPS-HOWTO.md`, the progress `COVERAGE.md`, the terms `glossary-<code>.md`.
 
 ## Files
-- `i18n.js`: `window.SlopI18n`. The language list (`LANGS`), `t(key, vars)` (plural forms by `vars.n`), `has(key)`,
+- `i18n.js`: `window.SlopI18n`. The language list (`LANGS`), `t(key, vars)` (plural forms by `vars.n`), `has(key)`, `label(v, vars)`,
   `get()`, `set(code)`, `apply(scope)`, `add(code, dict)`, `source(spec)`, `need(code)`, `ready()`, `on(fn)`, `num()`,
   `date()`, `money()`, `list()`, `plural(n)`, `lang(code)`, `langs()`, and `create(opts)` for an independent instance.
 - `strings.js`: the English chrome table: the top bar and home link, the Apps button and switcher, the Settings labels,

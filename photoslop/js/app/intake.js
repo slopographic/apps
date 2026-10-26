@@ -12,7 +12,7 @@
 const PS_RULES = () => ({
   types: ['image/*'],
   exts: ['.psd', '.psb', '.ora', '.kra', '.tif', '.tiff', '.svg', '.ico', '.avif', '.bmp', '.gif', '.webp', '.jfif', ...(window.SlopRaw ? SlopRaw.EXTS.map((e) => '.' + e) : [])],
-  noun: tr('photoslop.app.noun_picture'),
+  noun: 'photoslop.app.noun_picture',
 });
 
 function registerIntake() {
@@ -33,7 +33,7 @@ function registerIntake() {
   });
   // Brushes: .abr, .slopbrush packs and picture tips, all of a pick at once (one toast).
   SI.register({ id: 'photoslop.brushes', main: false, paste: false, toast: false,
-    accept: { types: ['image/*', 'application/json'], exts: ['.abr', '.slopbrush', '.json'], noun: tr('photoslop.app.noun_brush') },
+    accept: { types: ['image/*', 'application/json'], exts: ['.abr', '.slopbrush', '.json'], noun: 'photoslop.app.noun_brush' },
     processAll: (files) => importBrushFiles(files) });
   // The watermark's logo ('photoslop.logo') is the shared watermark panel's own part (shared/watermark/panel.js, watermark/panel.js).
 }

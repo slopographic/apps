@@ -65,7 +65,7 @@
     $('dBackup').addEventListener('click', backup);
     $('dEverything').addEventListener('click', () => g.SlopBackup.openEverything());
     // a backup file comes in one way: the intake's part 'admin.backup' (shared/intake)
-    g.SlopIntake.register({ id: 'admin.backup', main: false, paste: false, toast: false, limit: 1, accept: { any: true, get noun() { return t('admin.da.noun'); } }, process: async (f) => { await restoreFrom(f); return f.name; } });
+    g.SlopIntake.register({ id: 'admin.backup', main: false, paste: false, toast: false, limit: 1, accept: { any: true, noun: 'admin.da.noun' }, process: async (f) => { await restoreFrom(f); return f.name; } });
     $('dRestore').addEventListener('click', () => g.SlopIntake.pick({ to: 'admin.backup', multiple: false, accept: 'application/json,.json' }));
     $('dReset').addEventListener('click', reset);
   }

@@ -71,7 +71,7 @@ function openFxPresetPicker(layerId) {
   exportBtn.addEventListener('click', () => { const f = sel && SP.exportFile(sel); if (f) SlopUI.download(f.blob, f.name); });
   // Import comes in the one way (shared/intake): a spec of its own, for this dialog.
   SlopIntake.register({ id: 'photoslop.fx-preset', main: false, paste: false, limit: 1, toast: false,
-    accept: { types: ['application/json'], exts: ['.json'], noun: tr('photoslop.fx.noun_preset') },
+    accept: { types: ['application/json'], exts: ['.json'], noun: 'photoslop.fx.noun_preset' },
     process: async (f) => {
       const r = await SP.importFile(f);
       status.textContent = r.ok ? tr('photoslop.fx.imported') : SP.errorText(r.errors);

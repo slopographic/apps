@@ -50,7 +50,7 @@
       buttons: [{ label: tr('photoslop.io.later') }, { label: tr('photoslop.io.add_pictures'), primary: true, act: async () => {
         // the pictures come in the one way (shared/intake): a spec of their own, each placed on its layer
         SlopIntake.register({ id: 'photoslop.layer-pictures', main: false, paste: false, toast: false,
-          accept: { types: ['image/*'], noun: tr('photoslop.io.noun_picture') }, process: (f) => place(f) });
+          accept: { types: ['image/*'], noun: 'photoslop.io.noun_picture' }, process: (f) => place(f) });
         await SlopIntake.pick({ to: 'photoslop.layer-pictures' });
         if (PS.waiting.length) askForPictures();
       } }],

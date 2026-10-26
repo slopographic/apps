@@ -83,7 +83,7 @@
   /** The one way in: every source reaches addFiles (a picture from Slop Drive keeps its record: Replace original). */
   function registerIntake() {
     window.SlopIntake.register({
-      id: 'clean', accept: { types: ['image/*'], exts: ['.jpg', '.jpeg', '.png', '.webp', '.tif', '.tiff'], noun: t('clean.app.a_picture') },
+      id: 'clean', accept: { types: ['image/*'], exts: ['.jpg', '.jpeg', '.png', '.webp', '.tif', '.tiff'], noun: 'clean.app.a_picture' },
       processAll: async (files, ctx) => {
         for (const f of files) S.items.push(await CL.io.load(f, f.name, f.slopDrive ? { driveId: f.slopDrive.id } : {}));
         await runClean();

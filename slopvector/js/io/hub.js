@@ -46,10 +46,10 @@
   // Workflows), then as PNG to the apps that take pictures.
   HUB.sendItems = function () {
     if (!HUB.available() || !window.SlopOuttake) return [{ label: SV.t('vector.hub.unavailable'), disabled: true }];
-    var name = function () { return IO.baseName(); }, O = window.SlopOuttake, sendPng = SV.t('vector.hub.send_png_to');
-    var svg = O.items({ get: function () { return HUB.svgBlob(); }, name: function () { return name() + '.svg'; }, type: 'image/svg+xml', from: 'vector', verb: SV.t('vector.hub.send_to'), folder: false });
-    var png = O.items({ get: function () { return HUB.pngBlob(); }, name: function () { return name() + '.png'; }, type: 'image/png', from: 'vector', verb: sendPng, folder: false })
-      .filter(function (it) { return it.label.indexOf(sendPng + ' ') === 0; }); // the workflow items are there once, with the SVG
+    var name = function () { return IO.baseName(); }, O = window.SlopOuttake;
+    var svg = O.items({ get: function () { return HUB.svgBlob(); }, name: function () { return name() + '.svg'; }, type: 'image/svg+xml', from: 'vector', verb: 'ui.outtake.send_to', folder: false });
+    var png = O.items({ get: function () { return HUB.pngBlob(); }, name: function () { return name() + '.png'; }, type: 'image/png', from: 'vector', verb: 'vector.hub.send_png_to', folder: false })
+      .filter(function (it) { return it.plain; }); // the workflow items are there once, with the SVG
     var items = svg.concat(svg.length && png.length ? ['-'] : [], png);
     if (!HUB.canSend()) items = items.map(function (it) { return it === '-' ? it : { label: it.label, disabled: true, title: SV.t('vector.hub.send_site') }; });
     return items.length ? items : [{ label: SV.t('vector.hub.no_apps'), disabled: true }];

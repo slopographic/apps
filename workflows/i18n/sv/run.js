@@ -45,7 +45,6 @@ window.SlopI18n && window.SlopI18n.add('sv', {
   'workflows.run.save_drive': 'Spara alla i Slop Drive',
   'workflows.run.saved_drive': 'Sparade {n} filer i Slop Drive',
   'workflows.run.saved_drive#one': 'Sparade {n} fil i Slop Drive',
-  'workflows.run.send_to': 'Skicka till',
   'workflows.run.starting': 'Startar…',
   'workflows.run.step_n': 'Steg {n}',
   'workflows.run.step_of': 'Steg {i} av {n}: {name}…',

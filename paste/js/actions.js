@@ -69,7 +69,7 @@ export async function onPaste(e) {
 /** The one way pictures come in (shared/intake, spec 'paste'): Add image… and a pasted picture each become a paste. */
 export function registerIntake() {
   window.SlopIntake.register({
-    id: 'paste', accept: { types: ['image/*'], noun: t('paste.app.a_picture') }, toast: false,
+    id: 'paste', accept: { types: ['image/*'], noun: 'paste.app.a_picture' }, toast: false,
     process: async (f, ctx) => { await newPaste({ kind: 'image', blob: f, title: ctx.source === 'paste' ? 'Image' : f.name.replace(/\.[^.]+$/, '') || 'Image' }); return f.name; },   // i18n-ignore: the paste's own title, saved
   });
 }

@@ -8,6 +8,9 @@
  *     tools: ['#id', { label, act }],           // optional buttons at the right; a '#id' button is moved here
  *     host: '#menubar'                          // optional: fill this element instead of adding a bar at the top
  *   })
+ * Menu titles and item labels may be i18n keys ('sorter.app.menu_sort', { label: 'pdf.menu.rotate' }) or functions
+ * (SlopI18n.label): a key is translated and follows a language change. A plain title File, Edit, View, Help, Insert,
+ * Format, Tools, Object or Data reads the shared word (menu.* and ui.mb.*); other text is shown as it is.
  * A menu given as a function is built each time it opens (for items that depend on the state of the app). An item with
  * sub opens a submenu. A '#id' item takes the button's own label. The bar is inserted at the top of <body>. Menus open on
  * click or Arrow Down; Arrow keys move, Right opens a submenu, Escape closes, a click elsewhere closes. A disabled item is
@@ -18,6 +21,8 @@
   if (window.SlopMenuBar) return;
   /** A word from the shared tables (shared/i18n/ui/en.js), or the English given when SlopI18n or the key is absent. */
   function tr(key, en, vars) { const I = globalThis.SlopI18n; if (I && I.has && I.has(key)) return I.t(key, vars); return vars ? String(en).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en; }
+  /** A menu title or item label: an i18n key (translated, again on a language change), a function or text (SlopI18n.label). */
+  const lab = (v) => { const I = globalThis.SlopI18n; return I && I.label ? I.label(v) : typeof v === 'function' ? v() : v; };
   const $ = (sel) => document.querySelector(sel);
   const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
 
@@ -58,7 +63,7 @@
       if (it === '-') { list.append(el('hr', 'smb-sep')); continue; }
       if (it.sub) {
         const wrap = el('div', 'smb-sub');
-        const b = el('button', 'smb-item smb-has-sub', it.label);
+        const b = el('button', 'smb-item smb-has-sub', lab(it.label));
         b.type = 'button'; b.setAttribute('role', 'menuitem'); b.setAttribute('aria-haspopup', 'menu'); b.setAttribute('aria-expanded', 'false');
         b.append(el('span', 'smb-caret', '›'));
         const pop = el('div', 'smb-pop smb-pop-sub'); pop.setAttribute('role', 'menu'); pop.hidden = true;
@@ -76,7 +81,7 @@
         list.append(wrap);
         continue;
       }
-      const b = el('button', 'smb-item', it.label);
+      const b = el('button', 'smb-item', lab(it.label));
       b.type = 'button'; b.setAttribute('role', 'menuitem');
       const keys = it.keys || it.key;
       if (keys) b.append(el('span', 'smb-keys', keys));
@@ -89,11 +94,16 @@
   }
 
   /** The menu names the shared tables have (menu.* in shared/i18n/strings.js); the title stays the menu's id. */
-  const TITLE_KEY = { File: 'menu.file', Edit: 'menu.edit', View: 'menu.view', Help: 'menu.help', Insert: 'ui.mb.insert', Format: 'ui.mb.format', Tools: 'ui.mb.tools' };
+  const TITLE_KEY = { File: 'menu.file', Edit: 'menu.edit', View: 'menu.view', Help: 'menu.help', Insert: 'ui.mb.insert', Format: 'ui.mb.format',
+    Tools: 'ui.mb.tools', Object: 'ui.mb.object', Data: 'ui.mb.data' };
+  /** The words of every mounted menu, again after a language change (shared/i18n). */
+  const relabel = [];
   function menuFor(title, source) {
     const wrap = el('div', 'smb-menu');
-    const btn = el('button', 'smb-menu-b', TITLE_KEY[title] ? tr(TITLE_KEY[title], title) : title);
-    if (TITLE_KEY[title]) btn.dataset.i18n = TITLE_KEY[title];   // the plain menu names follow a language change (shared/i18n)
+    const btn = el('button', 'smb-menu-b');
+    // A plain name ('File') reads the shared word, an i18n key ('sorter.app.menu_sort') is translated, other text stays.
+    const words = () => { btn.textContent = TITLE_KEY[title] ? tr(TITLE_KEY[title], title) : lab(title); };
+    words();
     btn.type = 'button'; btn.setAttribute('aria-haspopup', 'menu'); btn.setAttribute('aria-expanded', 'false');
     const list = el('div', 'smb-pop'); list.setAttribute('role', 'menu'); list.hidden = true;
     let state = { rows: [], pairs: [] };
@@ -110,6 +120,8 @@
     };
     function close() { list.hidden = true; btn.setAttribute('aria-expanded', 'false'); }
     if (typeof source !== 'function') build();
+    // a menu drawn at mount is drawn again after a language change (its item labels may be keys); one built on open reads them then
+    relabel.push(() => { words(); if (typeof source !== 'function') { close(); build(); } });
     btn.addEventListener('click', () => (list.hidden ? open() : close()));
     btn.addEventListener('keydown', (e) => { if (e.key === 'ArrowDown') { e.preventDefault(); open(); } });
     list.addEventListener('keydown', (e) => {
@@ -162,7 +174,9 @@
       if (typeof raw === 'string' && raw.startsWith('#')) { const own = owned.get(raw); if (own) tools.append(own); continue; }
       const t = entry(raw);
       if (!t || t === '-') continue;
-      const b = el('button', 'smb-tool', t.label); b.type = 'button'; b.title = t.label; b.setAttribute('aria-label', t.label);
+      const b = el('button', 'smb-tool'); b.type = 'button';
+      const tw = () => { const s = lab(t.label); b.textContent = s; b.title = s; b.setAttribute('aria-label', s); };
+      tw(); relabel.push(tw);
       b.disabled = !usable(t);
       b.addEventListener('click', () => run(t));
       tools.append(b);
@@ -177,5 +191,6 @@
     return bar;
   }
 
+  if (window.SlopI18n && window.SlopI18n.on) window.SlopI18n.on(() => relabel.forEach((f) => f()));
   window.SlopMenuBar = { mount };
 })();

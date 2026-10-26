@@ -79,7 +79,7 @@
     const W = window.SlopWatermark, exts = ['.png', '.jpg', '.jpeg', '.webp', '.avif', '.bmp', '.gif', '.svg', '.heic', '.heif', '.mp4', '.m4v', '.mov', '.webm', '.pdf'];
     window.SlopIntake.register({
       id: 'watermark',
-      accept: { types: W.ACCEPT.split(',').filter((t) => t.includes('/')), exts, noun: t('watermark.drop.noun') },
+      accept: { types: W.ACCEPT.split(',').filter((t) => t.includes('/')), exts, noun: 'watermark.drop.noun' },
       process: async (file) => {
         if (window.WMItems.count() >= window.WMItems.MAX) throw new Error(t('watermark.drop.full', { n: window.WMItems.MAX }));
         return (await window.WMItems.add(file)).id;
@@ -89,27 +89,15 @@
     dropZone = window.SlopDrop.attach($('wm-drop'), {
       intake: 'watermark',
       targets: [$('wm-drop'), $('wm-preview-box')],
-      label: t('watermark.drop.label'),
-      hint: t('watermark.drop.hint'),
-      preview: { picture: { src: '../assets/shots/watermark.jpg', alt: t('watermark.drop.alt') }, steps: STEPS.map((k) => t(k)) },
-      sample: { label: t('watermark.drop.sample'), files: () => window.SlopSamples.photos(4) },
+      label: 'watermark.drop.label',
+      hint: 'watermark.drop.hint',
+      preview: { picture: { src: '../assets/shots/watermark.jpg', alt: 'watermark.drop.alt' }, steps: STEPS },
+      sample: { label: 'watermark.drop.sample', files: () => window.SlopSamples.photos(4) },
       reveal: () => $('wm-list').lastElementChild,
     });
-    markDrop($('wm-drop'));
   }
 
   const STEPS = ['watermark.drop.step1', 'watermark.drop.step2', 'watermark.drop.step3'];
-  /** The zone's own words are drawn once (shared/drop/panel.js): marked, they follow a language change. */
-  function markDrop(zone) {
-    const mark = (node, key) => { if (node) node.dataset.i18n = key; };
-    mark(zone.querySelector('.sd-msg'), 'watermark.drop.label');
-    mark(zone.querySelector('.sd-msg + p'), 'watermark.drop.hint');
-    zone.querySelectorAll('.sd-steps li').forEach((li, i) => mark(li, STEPS[i]));
-    mark(zone.querySelector('.sd-sample'), 'watermark.drop.sample');
-    const img = zone.querySelector('.sd-pic img');
-    if (img) img.dataset.i18nAttr = 'alt:watermark.drop.alt';
-  }
-
   /** Slop Workflows: this watermark as a Watermark step (shared/ops/flowdoc.js; the mapping is the operation's). */
   function addToWorkflow() {
     window.SlopFlowDoc.addToWorkflow({ id: 'watermark.apply' }, { settings: { spec: window.WMSettings.spec() } })
