@@ -128,6 +128,7 @@
       expect(h1.closest('#hero') !== null).toBe(true);
       expect(win.getComputedStyle(h1.querySelector('em')).fontFamily).toMatch(/Instrument Serif/);
       win.SlopI18n.set('es');
+      await win.SlopI18n.ready();   // the Spanish tables load on demand (shared/i18n/i18n.js)
       expect(doc.querySelector('[data-i18n="hero.open"]').textContent).toBe('Abrir las apps');
       expect(h1.querySelector('em').textContent).toBe('gratis en tu navegador.');
       expect(doc.querySelector('.hx-marquee .mq-list').getAttribute('aria-label')).toBe('Lo que hacen las apps');

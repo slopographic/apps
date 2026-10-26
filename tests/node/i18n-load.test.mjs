@@ -56,7 +56,7 @@ function page({ lang, parsing = true, offline = false, late = false } = {}) {
 const urls = (writes) => writes.map((h) => (/(?:src|href)="([^"]+)"/.exec(h) || [])[1].slice(SITE.length));
 
 test('at parse time an English page writes only the English chrome and ui tables', () => {
-  const p = page();
+  const p = page({ lang: 'en' });   // stored, so a build that starts in another language reads the same
   p.script('shared/i18n/i18n.js');
   assert.deepEqual(urls(p.writes), ['shared/i18n/strings.js', 'shared/i18n/ui/en.js']);
   assert.equal(p.I().t('nav.apps'), 'Apps');
@@ -87,7 +87,7 @@ test("an app's index.js adds its parts for English and the chosen language, only
 });
 
 test('later (not parsing), set() applies at once, fetches the new tables and then fires slopi18n', async () => {
-  const p = page({ parsing: false, late: true });
+  const p = page({ lang: 'en', parsing: false, late: true });
   p.script('shared/i18n/i18n.js');
   await p.I().ready();
   assert.deepEqual(p.added.map((e) => e.src.slice(SITE.length)), ['shared/i18n/strings.js', 'shared/i18n/ui/en.js']);

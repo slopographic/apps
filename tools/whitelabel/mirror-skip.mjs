@@ -31,6 +31,7 @@ export const SKIP = [
   { test: 'the language list is data: English first', why: 'checks the start language too', when: otherLang },
   { test: 'with nothing stored the choice is English', why: 'this site starts in English', when: otherLang },
   { test: 'the shipped brand/brand.json has the support block, all on', why: 'this site’s support links', when: supportOff },
+  { test: 'COVERAGE.md and tables.covers.txt are up to date', why: 'the report names this site\'s apps and files; the build renames them', when: always },
   { test: 'each landing page has a description of 120 to 160 characters', why: 'the renamed copy is longer or shorter (the build writes it leniently)', when: always },
   { test: 'each page has a description of 120 to 160 characters', why: 'the renamed copy is longer or shorter (the build writes it leniently)', when: always },
 ];
