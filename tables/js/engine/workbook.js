@@ -19,8 +19,10 @@ export class Workbook {
     if (opts.sheets !== 0) this.addSheet();
   }
   /* ---------- sheets ---------- */
+  /** The default name of a new sheet n, "Sheet1". The app sets the chosen language's (tables/js/ui/storage.js). */
+  static defaultSheetName(n) { return 'Sheet' + n; }
   addSheet(name, index = this.sheets.length) {
-    if (!name) { let i = this.sheets.length + 1; while (this.sheetByName('Sheet' + i)) i++; name = 'Sheet' + i; }
+    if (!name) { let i = this.sheets.length + 1; while (this.sheetByName(Workbook.defaultSheetName(i))) i++; name = Workbook.defaultSheetName(i); }
     if (this.sheetByName(name)) throw new Error('A sheet named "' + name + '" already exists');
     const sh = new Sheet(this, name);
     this.sheets.splice(index, 0, sh);

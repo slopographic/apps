@@ -43,7 +43,7 @@
     const cols = DR.listCols();
     return cols.map((c, i) => (i === cols.length - 1 ? `minmax(${widthOf(c)}px, 1fr)` : `${widthOf(c)}px`)).join(' ');
   };
-  const where = (it) => (it.parent ? DR.pathOf(it.parent).map((f) => f.name).join(' / ') : 'Slop Drive');   // i18n-ignore: the app name
+  const where = (it) => (it.parent ? DR.pathOf(it.parent).map((f) => f.name).join(' / ') : DR.rootName());
   const CELL = {
     name: (it) => [DR.iconOf(it, 'badge sm'), el('span', { class: 'nm' }, it.name), it.starred ? DR.icon('star', 'ic st') : ''],
     type: (it) => DR.kindLabel(it),

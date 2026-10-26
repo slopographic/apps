@@ -110,4 +110,9 @@ window.SlopI18n && window.SlopI18n.add('pt-BR', {
   'drive.toast.copied_to_n#one': '{n} item copiado para {place}',
   'drive.toast.link_copied': 'Link copiado',
   'drive.toast.link_failed': 'Não foi possível copiar o link',
+  'drive.kind.sdoc': 'Documento',
+  'drive.kind.stab': 'Planilha',
+  'drive.kind.sslide': 'Apresentação',
+  'drive.kind.sfont': 'Fonte',
+  'drive.kind.s3d': 'Cena 3D',
 });

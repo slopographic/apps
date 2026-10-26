@@ -264,7 +264,8 @@ profile's own words (they must not reach this public repository), regenerated fi
 
 ### Checklist: a feature that works in every build
 
-- Show an app's name with `slopAppName(app)` (or `app.name`), never a hard-coded brand name in a new string.
+- Show an app's name with `slopAppName(app)` (or `app.name`), never a hard-coded brand name in a new string; in HTML,
+  `data-app-name="<app id>"` (the header's app name; `shared/i18n/i18n.js` fills it in the chosen language).
 - Playful text goes through the copy layer: add the plain wording to `brand/copy/plain.json`, not a second copy of the
   feature.
 - Behaviour that differs per site reads a profile flag through a marker (`/*profile:mascot*/true`,

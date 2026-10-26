@@ -70,6 +70,9 @@ them all (`APPS-HOWTO.md` § 6). An offline single-file copy lists the English p
 
 - Static HTML: `data-i18n="key"` for the text, `data-i18n-attr="title:key;aria-label:key2"` for attributes. Keep the
   English inside the element (it is the fallback). An element with child elements: wrap its text in a `<span data-i18n>`.
+- An app's name (the header's, a link to another app): `data-app-name="<app id>"`. `apply()` writes `slopAppName(id)`
+  there, the name the app list shows in that build and language (as the `aria-label` when the element has one). In
+  script, `slopAppName(id)`; never a second copy of the name.
 - Script: `SlopI18n.t('key', vars)` (the PDF app has `U.t`). Call it when the UI is built, never at load time into a
   constant (a constant keeps the old language): a list of labels becomes a function or a list of keys.
 - Live switching: menus, dialogs, toasts and palettes built on open pick the language up by themselves. UI built once

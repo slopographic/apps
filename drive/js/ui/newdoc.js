@@ -7,6 +7,10 @@
   /** [{ app, label, ext, mime }] for every app that creates a native file type. */
   DR.creatables = () => (window.SLOP_APPS || []).filter((a) => a.kind === 'app' && Array.isArray(a.creates))
     .flatMap((a) => a.creates.map((c) => ({ app: a, label: c.label, ext: c.ext, mime: c.mime })));
+  /** A creatable type's name in the chosen language (drive.kind.<ext>), else the registry's English label. */
+  DR.kindLabel = (c) => { const k = 'drive.kind.' + c.ext, s = DR.t(k); return s && s !== k ? s : c.label; };
+  /** The app's name as the app list shows it, in the chosen language (shared/apps.js). */
+  DR.appLabel = (a) => (window.slopAppName ? window.slopAppName(a) : a.name);
   /** The app that natively creates files of this mime / extension, if any. */
   DR.creatorOf = (r) => {
     if (!r || r.isFolder) return null;
@@ -34,7 +38,7 @@
   DR.newItems = (folder = DR.dest()) => {
     const list = DR.creatables();
     if (!list.length) return [{ label: DR.t('drive.menu.no_doc_types'), disabled: true }];
-    return list.map((c) => ({ label: DR.t('drive.menu.new_doc_of', { label: c.label, app: c.app.name }), act: () => DR.createNew(c, folder) }));
+    return list.map((c) => ({ label: DR.t('drive.menu.new_doc_of', { label: DR.kindLabel(c), app: DR.appLabel(c.app) }), act: () => DR.createNew(c, folder) }));
   };
   DR.newSub = (folder = DR.dest()) => ({ label: DR.t('drive.menu.new'), sub: DR.newItems(folder) });
 })(window.DR);

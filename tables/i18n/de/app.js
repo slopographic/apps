@@ -64,6 +64,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'tables.sheet.tab_tip': '{name} (Doppelklick zum Umbenennen)',
   'tables.sheet.rename_title': 'Blatt umbenennen',
   'tables.sheet.name': 'Blattname',
+  'tables.sheet.default': 'Tabelle{n}',
   'tables.sheet.need_one': 'Eine Arbeitsmappe braucht mindestens ein Blatt',
   'tables.sheet.delete_body': '„{name}“ und alles darauf löschen?',
   'tables.nf.general': 'Standard',

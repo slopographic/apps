@@ -103,4 +103,9 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'drive.toast.copied_to_n': '已将 {n} 项复制到 {place}',
   'drive.toast.link_copied': '链接已复制',
   'drive.toast.link_failed': '无法复制链接',
+  'drive.kind.sdoc': '文档',
+  'drive.kind.stab': '电子表格',
+  'drive.kind.sslide': '演示文稿',
+  'drive.kind.sfont': '字体',
+  'drive.kind.s3d': '3D 场景',
 });

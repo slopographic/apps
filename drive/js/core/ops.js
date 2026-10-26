@@ -36,7 +36,7 @@
       else await H().update(it.id, { folderId: dest, name });
       it.parent = dest; it.name = name; // keep later uniqueName checks in this batch honest
     }
-    await done(say('moved', items, { place: dest ? S.folders.get(dest).name : 'Slop Drive' }));   // i18n-ignore: the app name
+    await done(say('moved', items, { place: dest ? S.folders.get(dest).name : DR.rootName() }));
     return items.length;
   };
   async function copyFolder(f, dest, top) {

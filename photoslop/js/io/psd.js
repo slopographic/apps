@@ -288,7 +288,7 @@ async function readPSD(buf) {
       }
     } else throw new Error('Unsupported merged-image compression');
     if (!(info && info.mergedAlpha) && channels <= (mode === 1 ? 1 : mode === 4 ? 4 : 3)) delete planes[-1];
-    layers.push({ name: 'Background', canvas: planesToCanvas(w, hh, mode, planes), x: 0, y: 0, visible: true, opacity: 1, blend: 'normal', locked: false, mask: null }); // i18n-ignore: PSD block keys and layer names are file content
+    layers.push({ name: tr('photoslop.layer.background'), canvas: planesToCanvas(w, hh, mode, planes), x: 0, y: 0, visible: true, opacity: 1, blend: 'normal', locked: false, mask: null }); // the composite of a PSD without layers
   }
   return { w, h: hh, layers, guides, wm };
 }

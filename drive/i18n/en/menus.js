@@ -109,4 +109,9 @@ window.SlopI18n && window.SlopI18n.add('en', {
   'drive.toast.copied_to_n#one': 'Copied {n} item to {place}',
   'drive.toast.link_copied': 'Link copied',
   'drive.toast.link_failed': 'Could not copy the link',
+  'drive.kind.sdoc': 'Document',
+  'drive.kind.stab': 'Spreadsheet',
+  'drive.kind.sslide': 'Presentation',
+  'drive.kind.sfont': 'Font',
+  'drive.kind.s3d': 'Scene',
 });

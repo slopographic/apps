@@ -109,4 +109,9 @@ window.SlopI18n && window.SlopI18n.add('sv', {
   'drive.toast.copied_to_n#one': 'Kopierade {n} objekt till {place}',
   'drive.toast.link_copied': 'Länken kopierades',
   'drive.toast.link_failed': 'Det gick inte att kopiera länken',
+  'drive.kind.sdoc': 'Dokument',
+  'drive.kind.stab': 'Kalkylark',
+  'drive.kind.sslide': 'Presentation',
+  'drive.kind.sfont': 'Typsnitt',
+  'drive.kind.s3d': '3D-scen',
 });

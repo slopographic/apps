@@ -58,7 +58,7 @@ async function readORA(buf) {
     }
   };
   await walk(xml.querySelector('image > stack') || img, false, 1);
-  if (!layers.length && z.has('mergedimage.png')) layers.push({ name: 'Background', canvas: await bytesToCanvas(await z.get('mergedimage.png')) }); // i18n-ignore: layer names are the document's
+  if (!layers.length && z.has('mergedimage.png')) layers.push({ name: tr('photoslop.layer.background'), canvas: await bytesToCanvas(await z.get('mergedimage.png')) });
   return { w: w || layers[0].canvas.width, h: hh || layers[0].canvas.height, layers };
 }
 async function readKRA(buf) {
@@ -67,7 +67,7 @@ async function readKRA(buf) {
   if (!bytes) throw new Error('This Krita file has no merged image');
   const c = await bytesToCanvas(bytes);
   toast(tr('photoslop.io.krita_flat'), 3200);
-  return { w: c.width, h: c.height, layers: [{ name: 'Background', canvas: c }] }; // i18n-ignore: layer names are the document's
+  return { w: c.width, h: c.height, layers: [{ name: tr('photoslop.layer.background'), canvas: c }] };
 }
 async function writeORA() {
   const enc = new TextEncoder(), esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
@@ -172,7 +172,7 @@ async function readTIFF(buf) {
     else { let v = sample(x, y, 0); if (photo === 0) v = 255 - v; d[i] = d[i + 1] = d[i + 2] = v; d[i + 3] = extra > 0 ? sample(x, y, 1) : 255; }
   }
   g.putImageData(img, 0, 0);
-  return { w: W, h: H, layers: [{ name: 'Background', canvas: c }] }; // i18n-ignore: layer names are the document's
+  return { w: W, h: H, layers: [{ name: tr('photoslop.layer.background'), canvas: c }] };
 }
 
 /* ---------- open anything ---------- */
@@ -189,7 +189,7 @@ async function readAnyFile(f) {
     return readORA(await f.arrayBuffer());
   }
   const c = await fileToCanvas(f).catch(() => { throw new Error(`“${f.name}” isn't an image this browser can read`); });
-  return { w: c.width, h: c.height, layers: [{ name: 'Background', canvas: c }] }; // i18n-ignore: layer names are the document's
+  return { w: c.width, h: c.height, layers: [{ name: tr('photoslop.layer.background'), canvas: c }] };
 }
 function flattenDocLayers(doc) {
   const c = mkCanvas(doc.w, doc.h), g = cx(c);

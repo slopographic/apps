@@ -109,4 +109,9 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'drive.toast.copied_to_n#one': '{n} élément copié vers {place}',
   'drive.toast.link_copied': 'Lien copié',
   'drive.toast.link_failed': 'Impossible de copier le lien',
+  'drive.kind.sdoc': 'Document',
+  'drive.kind.stab': 'Feuille de calcul',
+  'drive.kind.sslide': 'Présentation',
+  'drive.kind.sfont': 'Police',
+  'drive.kind.s3d': 'Scène 3D',
 });

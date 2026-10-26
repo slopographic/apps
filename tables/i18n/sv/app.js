@@ -71,6 +71,7 @@ window.SlopI18n && window.SlopI18n.add('sv', {
   'tables.sheet.tab_tip': '{name} (dubbelklicka för att byta namn)',
   'tables.sheet.rename_title': 'Byt namn på blad',
   'tables.sheet.name': 'Bladnamn',
+  'tables.sheet.default': 'Blad{n}',
   'tables.sheet.need_one': 'En arbetsbok måste ha minst ett blad',
   'tables.sheet.delete_body': 'Ta bort ”{name}” och allt på det?',
 

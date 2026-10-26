@@ -93,7 +93,7 @@ async function rtRemoveObject(m, o = {}) {
   og.imageSmoothingQuality = 'high'; og.drawImage(rtCanvas(filled, w, hh), 0, 0, cr.w, cr.h);
   const edge = copyCanvas(grown); blurAlphaCanvas(edge, 1.5);
   og.globalCompositeOperation = 'destination-in'; og.drawImage(edge, -cr.x, -cr.y);
-  rtAddLayers([{ name: nextName('Remove Object'), canvas: out, x: cr.x, y: cr.y }], rtT('step_remove_object')); // i18n-ignore: the layer's name is the document's
+  rtAddLayers([{ name: nextName('photoslop.layer.remove_object'), canvas: out, x: cr.x, y: cr.y }], rtT('step_remove_object'));
   if (window.SlopMacros && o.note) SlopMacros.note('ps.retouch.remove-object', o.note, 'Remove object'); // i18n-ignore: saved in the macro
   dirty(true);
   return rtT('filled', { w: b.w, h: b.h, x: b.x, y: b.y }) + (rtIsBig(H0) ? ' ' + rtT('big_hint') : '');

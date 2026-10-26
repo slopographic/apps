@@ -137,4 +137,9 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'drive.toast.copied_to_n': 'تم نسخ {n} عنصر إلى {place}',
   'drive.toast.link_copied': 'تم نسخ الرابط',
   'drive.toast.link_failed': 'تعذّر نسخ الرابط',
+  'drive.kind.sdoc': 'مستند',
+  'drive.kind.stab': 'جدول بيانات',
+  'drive.kind.sslide': 'عرض تقديمي',
+  'drive.kind.sfont': 'خط',
+  'drive.kind.s3d': 'مشهد ثلاثي الأبعاد',
 });
