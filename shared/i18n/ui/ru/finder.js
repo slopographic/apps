@@ -22,6 +22,5 @@ window.SlopI18n && window.SlopI18n.add('ru', {
   'ui.list.count#one': '{n} элемент',
   'ui.list.count#few': '{n} элемента',
   'ui.list.count#many': '{n} элементов',
-  'ui.list.count_noun': '{n} {noun}',
   'ui.list.empty_any': 'Здесь пока ничего нет.',
 });

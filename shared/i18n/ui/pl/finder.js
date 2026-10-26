@@ -22,6 +22,5 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'ui.list.count#one': '{n} element',
   'ui.list.count#few': '{n} elementy',
   'ui.list.count#many': '{n} elementów',
-  'ui.list.count_noun': '{n} {noun}',
   'ui.list.empty_any': 'Na razie nic tutaj nie ma.',
 });

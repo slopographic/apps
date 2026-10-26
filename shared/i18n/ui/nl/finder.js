@@ -16,6 +16,5 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'ui.finder.not_sorted': 'niet gesorteerd',
   'ui.list.count': '{n} items',
   'ui.list.count#one': '{n} item',
-  'ui.list.count_noun': '{n} {noun}',
   'ui.list.empty_any': 'Hier staat nog niets.',
 });

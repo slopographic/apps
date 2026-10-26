@@ -12,6 +12,5 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'ui.finder.sorted_desc': '遞減',
   'ui.finder.not_sorted': '未排序',
   'ui.list.count': '{n} 項',
-  'ui.list.count_noun': '{n} 個{noun}',
   'ui.list.empty_any': '這裡還沒有任何內容。',
 });

@@ -12,6 +12,5 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'ui.finder.sorted_desc': '내림차순',
   'ui.finder.not_sorted': '정렬되지 않음',
   'ui.list.count': '{n}개 항목',
-  'ui.list.count_noun': '{n}개 {noun}',
   'ui.list.empty_any': '아직 아무것도 없습니다.',
 });
