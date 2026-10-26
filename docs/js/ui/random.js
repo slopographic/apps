@@ -22,8 +22,8 @@
   S.random = {};
   const schemeName = (id) => (E().TPL.SCHEMES.find((s) => s.id === id) || { name: id }).name;
   /** One line that says what the design is, for the dialog. */
-  const describe = (t) => {
-    const v = t.vars;
+  const describe = (d) => {
+    const v = d.vars;
     return t('docs.tpl.describe', { title: v.title, font1: v.fonts[0], font2: v.fonts[1], scheme: schemeName(v.scheme), table: v.table, layout: v.layout, margins: v.margins });
   };
 

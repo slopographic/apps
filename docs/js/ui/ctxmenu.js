@@ -42,7 +42,7 @@
   function selectionItems() {
     return [
       { label: t('ui.cut'), key: key('edit.cut', 'Ctrl+X'), act: act(() => { const t = A().cut(); if (t && navigator.clipboard) navigator.clipboard.writeText(t).catch(() => {}); }) },
-      { label: t('ui.copy'), key: key('edit.copy', 'Ctrl+C'), act: act(() => { const t = A().copyText(); if (t && navigator.clipboard) navigator.clipboard.writeText(t).catch(() => toast(t('docs.ctx.copy_blocked'))); }) },
+      { label: t('ui.copy'), key: key('edit.copy', 'Ctrl+C'), act: act(() => { const txt = A().copyText(); if (txt && navigator.clipboard) navigator.clipboard.writeText(txt).catch(() => toast(t('docs.ctx.copy_blocked'))); }) },
       pasteItem(),
       '-',
       ...formatRows(['bold', 'italic', 'underline', 'clear']),
@@ -66,19 +66,19 @@
     }) };
   }
   function cellItems(bi, r, c) {
-    const TB = E().TB, blocks = S.doc.blocks, t = blocks[bi], plain = TB.isPlain(blocks, bi);
+    const TB = E().TB, blocks = S.doc.blocks, tbl = blocks[bi], plain = TB.isPlain(blocks, bi);
     const out = [];
     if (plain) {
       out.push(
         { label: t('docs.ctx.row_above'), act: act(() => A().tableRow(bi, r, false)) },
         { label: t('docs.ctx.row_below'), act: act(() => A().tableRow(bi, r, true)) },
       );
-      if (t.rows.length > 1) out.push({ label: t('docs.ctx.row_delete'), act: act(() => A().tableRowDelete(bi, r)) });
+      if (tbl.rows.length > 1) out.push({ label: t('docs.ctx.row_delete'), act: act(() => A().tableRowDelete(bi, r)) });
       out.push('-',
         { label: t('docs.ctx.col_left'), act: act(() => A().tableCol(bi, c, false)) },
         { label: t('docs.ctx.col_right'), act: act(() => A().tableCol(bi, c, true)) },
       );
-      if (t.cols.length > 1) out.push({ label: t('docs.ctx.col_delete'), act: act(() => A().tableColDelete(bi, c)) });
+      if (tbl.cols.length > 1) out.push({ label: t('docs.ctx.col_delete'), act: act(() => A().tableColDelete(bi, c)) });
       out.push('-');
     }
     out.push({ label: t('docs.ctx.table_delete'), act: act(() => A().tableDelete(bi)) });

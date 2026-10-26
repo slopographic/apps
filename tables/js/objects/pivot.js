@@ -54,8 +54,8 @@ const cmpTuple = (x, y) => { for (let i = 0; i < x.length; i++) { const d = cmpV
 function keys(records, idx) {
   const map = new Map();
   for (const rec of records) {
-    const t = idx.map((j) => rec[j]), k = t.map(keyOf).join('\u0001');
-    if (!map.has(k)) { if (map.size >= MAX_KEYS) throw new Error(t('tables.err.pivot_keys', { n: MAX_KEYS })); map.set(k, t); }
+    const tup = idx.map((j) => rec[j]), k = tup.map(keyOf).join('\u0001');
+    if (!map.has(k)) { if (map.size >= MAX_KEYS) throw new Error(t('tables.err.pivot_keys', { n: MAX_KEYS })); map.set(k, tup); }
   }
   const list = [...map.values()].sort(cmpTuple);
   return { list, index: new Map(list.map((t, i) => [t.map(keyOf).join('\u0001'), i])) };

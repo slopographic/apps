@@ -47,8 +47,8 @@
     return n;
   }
   async function tagPrompt(ids) {
-    const t = await SlopUI.prompt(t('gallery.act.tag_title'), t('gallery.act.tag_label'), '', { ok: t('gallery.act.tag_ok'), placeholder: t('gallery.act.tag_ph') });
-    const tag = t && t.trim().toLowerCase();
+    const typed = await SlopUI.prompt(t('gallery.act.tag_title'), t('gallery.act.tag_label'), '', { ok: t('gallery.act.tag_ok'), placeholder: t('gallery.act.tag_ph') });
+    const tag = typed && typed.trim().toLowerCase();
     if (!tag || !ids.length) return;
     await G.library.retag(ids, (m) => ({ tags: [...m.tags, tag] }));
     toast(t('gallery.act.tagged', { n: ids.length, tag }));

@@ -51,10 +51,10 @@ export function level(b, delta) {
 export async function rename(b) {
   const cur = M.headingText(S.doc.blocks[b]);
   const v = await SlopUI.prompt(t('docs.ol.rename_title'), t('docs.ol.rename_label'), cur, { ok: t('ui.rename') });
-  const t = v == null ? '' : String(v).replace(/\s+/g, ' ').trim();
-  if (!t || t === cur) return;
-  const clamp = (p) => (p.b === b ? at(b, Math.min(p.o, t.length)) : p);
-  commit(M.renameSection(S.doc.blocks, b, t), { a: clamp(S.sel.a), f: clamp(S.sel.f) });
+  const name = v == null ? '' : String(v).replace(/\s+/g, ' ').trim();
+  if (!name || name === cur) return;
+  const clamp = (p) => (p.b === b ? at(b, Math.min(p.o, name.length)) : p);
+  commit(M.renameSection(S.doc.blocks, b, name), { a: clamp(S.sel.a), f: clamp(S.sel.f) });
   focus();
 }
 
