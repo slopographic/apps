@@ -80,7 +80,8 @@
       await seedApp('dt-app', { kv: [['autosave', { layers: [new W.Uint8Array([1, 2, 3])], when: new W.Date(5) }]], docs: [{ by: 'me', blob: new W.Blob(['doc'], { type: 'text/plain' }) }] });
       const { blob, name, manifest } = await B().exportAll();
       file = blob;
-      expect(name).toMatch(/^slopographic-backup-\d{4}-\d\d-\d\d\.slop$/);
+      expect(name).toMatch(/^slopographic-backup-\d{4}-\d\d-\d\d\./);
+      expect(name.endsWith(W.SlopBackup.EXT)).toBe(true);   // the profile's extension (shared/backup/index.js)
       expect([manifest.counts.driveFiles, manifest.counts.driveFolders, manifest.counts.localStorage]).toEqual([2, 2, 2]);
       expect(manifest.counts.databases).toBeGreaterThanOrEqual(2);
       const names = (await W.SlopZip.unzip(blob)).map((e) => e.name);

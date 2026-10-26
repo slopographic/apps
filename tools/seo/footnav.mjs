@@ -2,6 +2,7 @@
 // generated content page (landing.mjs siteFoot) and every converter page. Built only from the data those pages come
 // from, so a new app, round-up or converter is linked from the footer the next time tools/seo/write.mjs runs:
 //   Apps        one column per registry group (shared/apps.js group, headed by SLOP_GROUP_LABELS), each app's /apps/<id>/
+//               (in a build with plain names, the heading carries the i18n key footer.group_<group>)
 //               (an app with no group joins the group of the app whose folder holds it)
 //   Compare     /compare/, /best/ and every round-up (shared/seo/roundups/)
 //   Converters  the first converter page of each category (convert/js/core/pages.js order), and /convert/
@@ -29,7 +30,7 @@ function col(head, links, key) {
   return `<details class="fn-col${links.length > WIDE ? ' fn-wide' : ''}${long}" open><summary><span${key ? ` data-i18n="${key}"` : ''}>${esc(head)}</span></summary><ul>${links.map(li).join('')}</ul></details>`;
 }
 
-export function buildFootNav({ apps, groups = {}, roundups = [], guides = [], converters = [] }) {
+export function buildFootNav({ apps, groups = {}, plainNames = false, roundups = [], guides = [], converters = [] }) {
   const pages = apps.filter(isPage);
   const byGroup = new Map(Object.keys(groups).map((g) => [g, []]));
   // an app without a group joins the group of the app it lives in (photoslop/classic/ is PhotoSlop's), else More apps
@@ -39,7 +40,7 @@ export function buildFootNav({ apps, groups = {}, roundups = [], guides = [], co
     if (!byGroup.has(g)) byGroup.set(g, []);
     byGroup.get(g).push([`/apps/${a.id}/`, a.name]);
   }
-  const cols = [...byGroup].filter(([, l]) => l.length).map(([g, l]) => (g ? col(groups[g], l) : col('More apps', l, 'footer.more_apps')));
+  const cols = [...byGroup].filter(([, l]) => l.length).map(([g, l]) => (g ? col(groups[g], l, plainNames ? `footer.group_${g}` : '') : col('More apps', l, 'footer.more_apps')));
   cols.push(col('Compare', [['/compare/', 'All apps compared', 'footer.all_compared'], ['/best/', 'All comparisons', 'footer.all_comparisons'],
     ...roundups.map((r) => [`/best/${r.slug}/`, r.crumb || r.h1])], 'footer.compare'));
   const firsts = new Map();
@@ -58,7 +59,7 @@ let cached;
 export function footNav() {
   if (cached) return cached;
   const win = registryWindow();
-  cached = buildFootNav({ apps: win.SLOP_APPS, groups: win.SLOP_GROUP_LABELS || {}, roundups: ROUNDUPS, guides: GUIDES, converters: CONVERTERS });
+  cached = buildFootNav({ apps: win.SLOP_APPS, groups: win.SLOP_GROUP_LABELS || {}, plainNames: win.SLOP_NAMING === 'plain', roundups: ROUNDUPS, guides: GUIDES, converters: CONVERTERS });
   return cached;
 }
 export const footNavLinks = (html) => [...(/<nav class="fnav"[\s\S]*?<\/nav>/.exec(html) || [''])[0].matchAll(/<a href="([^"]+)"/g)].map((m) => m[1]);

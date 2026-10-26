@@ -132,7 +132,7 @@
       expect(h1.querySelector('em').textContent).toBe('gratis en tu navegador.');
       expect(doc.querySelector('.hx-marquee .mq-list').getAttribute('aria-label')).toBe('Lo que hacen las apps');
       win.SlopI18n.set('en');
-      expect(h1.textContent).toBe('Office and creative apps, free in your browser.');
+      expect(h1.querySelector('.tone-playful').textContent).toBe('Office and creative apps, free in your browser.');   // the plain tone's headline is hidden here
     });
   });
 

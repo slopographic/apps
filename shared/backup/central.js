@@ -62,7 +62,7 @@
     const errors = C.format.validateEnvelope(JSON.parse(text)); // the file must read back before it is offered
     if (errors.length) throw new Error(`The backup could not be checked: ${errors[0]}`);
     const d = new Date();
-    const name = `slopographic-backup-${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}.slop-backup.json`;
+    const name = `slopographic-backup-${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}${(window.SlopBackup && window.SlopBackup.JSON_EXT) || '.json'}`;
     const blob = new Blob([text], { type: 'application/json' });
     return { name, blob, size: blob.size, envelope: env, rows, excluded: env.excluded };
   }

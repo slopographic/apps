@@ -144,7 +144,8 @@
     dlg.append(head, lede, search, ul, empty);
     dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
     let opener = null;
-    const tours = button('Tours', 'Guided tours for each app', () => {
+    const I = window.SlopI18n, t = (k, en) => { const v = I && typeof I.t === 'function' ? I.t(k) : k; return v === k ? en : v; };
+    const tours = button(t('tour.tours', 'Tours'), t('tour.tours_title', 'Guided tours for each app'), () => {
       opener = tours; search.value = ''; filter();
       dlg.showModal();
     }, ['shell.tours', 'shell.tours_title']);
