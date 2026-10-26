@@ -2,7 +2,7 @@
    restores the drag; with Edit text on, a press on a text annotation moves it (it is not read as a press on the text under it);
    after an edit, the old run under the new text's white cover is not offered, and a double click on the new text edits it;
    a text selection shows a box with the handles, and dragging the box lifts the text into an annotation (one undo step). */
-// Covers: pdf/js/editor/sel-lift.js, pdf/js/editor/sel-actions.js, pdf/js/editor/pointer.js, pdf/js/editor/view-pages.js
+// Covers: pdf/js/editor/sel-lift.js, pdf/js/editor/sel-actions.js, pdf/js/editor/pointer.js, pdf/js/editor/view-pages.js, pdf/js/editor/select-edit.js, pdf/js/editor/view.js
 (function () {
   'use strict';
   const { describe, it, expect, waitFor, sleep } = SlopTest;
@@ -161,15 +161,18 @@
       expect(Ed().selId).toBe('TO');
     }, { timeout: 60000 });
 
-    it('a single click on a line of the page text selects it, with the box and handles that move it', async () => {
+    it('a single click on a line of the page text selects its block, with the frame and handles that move and edit it', async () => {
       await openFixture('click.pdf', [{ text: 'Hello world', w: 300, h: 200 }]);
       const span = await waitFor(() => spanFor('Hello world'), { timeout: 8000 });
-      const r = span.getBoundingClientRect();
-      span.dispatchEvent(new PT.win.MouseEvent('click', { clientX: r.left + 10, clientY: r.top + r.height / 2, bubbles: true, cancelable: true, detail: 1 }));
-      await waitFor(() => doc().querySelector('.sel-box.is-text'), { timeout: 5000 });
-      expect(PT.win.getSelection().toString()).toBe('Hello world');
-      expect(doc().querySelectorAll('.handle[data-tb]').length).toBe(8);
-      PT.win.getSelection().removeAllRanges();
+      const r = span.getBoundingClientRect(), at = { clientX: r.left + 10, clientY: r.top + r.height / 2 };
+      // the one-click selection is the block's frame now (select-edit.js), not a character selection with a lift box
+      span.dispatchEvent(pe('pointerdown', at));
+      pageEl().dispatchEvent(pe('pointerup', Object.assign({}, at, { buttons: 0 })));
+      const fr = await waitFor(() => { const f = doc().querySelector('.para-frame'); return f && !f.classList.contains('is-busy') ? f : null; }, { timeout: 8000 });
+      expect(fr.querySelectorAll('.para-h, .para-c, .para-r').length).toBe(7);
+      expect(PT.win.getSelection().isCollapsed).toBe(true);
+      expect(doc().querySelector('.sel-box.is-text')).toBe(null);
+      PT.SP.editor._.para.clear();
     }, { timeout: 60000 });
 
     it('moving text on a coloured band covers the old place in the band colour and keeps the text light', async () => {

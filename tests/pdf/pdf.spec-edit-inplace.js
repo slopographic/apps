@@ -82,7 +82,7 @@
   });
 
   describe('Slop PDF edit text: a double click on the page text', () => {
-    it('opens the line for editing with the select tool, without turning Edit text mode on', async () => {
+    it('opens its block for typing with the select tool, without turning Edit text mode on', async () => {
       if (!PT.SP) await PT.boot();
       PT.reset();
       await PT.open(await PT.makePdf([{ text: 'The browser is the new print shop', w: 400, h: 200 }]), 'dbl.pdf'); // standard font: no font question
@@ -92,14 +92,16 @@
       if (PT.SP.editor.editText) PT.SP.editor.toggleEditText();
       const r = span.getBoundingClientRect();
       span.dispatchEvent(new PT.win.MouseEvent('dblclick', { clientX: r.left + 30, clientY: r.top + r.height / 2, bubbles: true, cancelable: true, detail: 2 }));
-      const input = await waitFor(() => doc().querySelector('.edit-run'), { timeout: 8000 });
-      expect(input.value).toBe('The browser is the new print shop');
+      // the block's frame opens for typing (select-edit.js, para-edit.js), in the same box the click selects
+      const input = await waitFor(() => doc().querySelector('.para-edit'), { timeout: 8000 });
+      expect(input.textContent).toBe('The browser is the new print shop');
       expect(PT.SP.editor.editText).toBe(false, 'Edit text mode stays off');
       // the double click's word selection is let go (the editor's own text is selected in it, not the page's)
       const anchor = PT.win.getSelection().anchorNode;
       expect(!!(anchor && anchor.parentElement && anchor.parentElement.closest('.pv-textlayer'))).toBe(false);
       escape(input);
-      await waitFor(() => !doc().querySelector('.edit-run'));
+      await waitFor(() => !doc().querySelector('.para-edit'));
+      PT.SP.editor._.para.clear();
     });
   });
 

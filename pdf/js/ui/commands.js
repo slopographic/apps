@@ -10,6 +10,8 @@
   /** A paragraph frame has the focus (editor/para-mode.js): Escape lets it go, Enter opens it. */
   function paraFocus() { var a = document.activeElement; return !!(a && a.classList && a.classList.contains('para-frame')); }
   function idle() { return noMenu() && !inField(); }
+  /** The page's text is selected (the browser copies it). */
+  function textSel() { var s = window.getSelection && window.getSelection(); return !!(s && !s.isCollapsed); }
   /** The text selection bar is up: Escape belongs to it (sel-bar.js), not to the page. */
   function selBarOpen() { return !!(window.SlopSelBar && SlopSelBar.isOpen()); }
   function has() { return E.state.pages.length > 0; }
@@ -30,7 +32,7 @@
     return Object.assign({ id: id, title: title, group: group, keys: keys || [], run: run, when: when }, extra || {});
   }
   /** A page object is selected in Objects mode (editor/obj-mode.js): the arrows, Delete and Escape are its. */
-  function objSel() { return pg() && idle() && !!Ed.objMode && !!(Ed._.obj && Ed._.obj.selected()) && !Ed.getSelected(); }
+  function objSel() { return pg() && idle() && !!(Ed._.obj && Ed._.obj.live() && Ed._.obj.selected()) && !Ed.getSelected(); }
   /** A label another file owns: a key once that file is translated, else its English. */
   function lbl(s) { return /^pdf\./.test(s) ? t(s) : s; }
   function ten(title, step) { return step > 1 ? t('pdf.cmd.nudge_10', { what: title }) : title; }
@@ -60,9 +62,12 @@
       cmd('edit.redo', t('ui.redo'), G.edit, ['Shift+Mod+Z', 'Mod+Y'], function () { A.redo(); }, function () { return E.canRedo() && !inField() && noMenu(); }),
       cmd('edit.selectAll', t('pdf.cmd.edit_select_all'), G.edit, ['Mod+A'], function () { O.selectAll(); }, function () { return grid() && idle(); }),
       cmd('edit.selectNone', t('ui.select_none'), G.edit, [], function () { O.setSelection([]); }, function () { return O.sel.size > 0; }),
-      cmd('edit.duplicate', t('ui.duplicate'), G.edit, ['Mod+D'], function () { if (pg()) Ed.duplicateSelected(); else A.duplicate(A.targetIds()); }, function () { return idle() && (pg() ? !!Ed.getSelected() : has()); }, { keywords: ['copy', 'pages', 'annotation'] }),
-      cmd('edit.copy', t('pdf.cmd.edit_copy'), G.edit, ['Mod+C'], function () { Ed.copy(); }, function () { return pg() && idle() && !!Ed.getSelected(); }),
-      cmd('edit.paste', t('pdf.cmd.edit_paste'), G.edit, ['Mod+V'], function () { Ed.paste(); }, function () { return pg() && idle() && Ed.canPaste(); }),
+      cmd('edit.duplicate', t('ui.duplicate'), G.edit, ['Mod+D'], function () { if (pg()) Ed.duplicateSelected(); else A.duplicate(A.targetIds()); }, function () { return idle() && (pg() ? Ed.canCopy() : has()); }, { keywords: ['copy', 'pages', 'annotation'] }),
+      cmd('edit.copy', t('pdf.se.cmd_copy'), G.edit, ['Mod+C'], function () { Ed.copy(); }, function () { return pg() && idle() && Ed.canCopy() && !textSel(); }),
+      cmd('edit.cut', t('pdf.se.cmd_cut'), G.edit, ['Mod+X'], function () { Ed.cut(); }, function () { return pg() && idle() && Ed.canCopy() && !textSel(); }),
+      cmd('edit.paste', t('pdf.se.cmd_paste'), G.edit, ['Mod+V'], function () { Ed.paste(); }, function () { return pg() && idle() && Ed.canPaste(); }, { keywords: ['paste in place'] }),
+      cmd('edit.pasteAll', t('pdf.se.cmd_paste_all'), G.edit, [], function () { Ed.pasteOnPages(); }, function () { return pg() && Ed.canPaste(); }, { keywords: ['logo', 'stamp', 'every page'] }),
+      cmd('edit.pasteOnPages', t('pdf.se.cmd_paste_pages'), G.edit, [], function () { Ed.askPasteOnPages(); }, function () { return pg() && Ed.canPaste(); }, { keywords: ['logo', 'stamp', 'range'] }),
       cmd('edit.delete', t('ui.delete'), G.edit, ['Delete', 'Backspace'], function () { if (pg()) Ed.deleteSelected(); else A.remove(gridIds()); }, function () { return idle() && (pg() ? !!Ed.getSelected() : gridIds().length > 0); }, { keywords: ['remove', 'pages', 'annotation'] }),
       cmd('edit.escape', t('pdf.cmd.edit_escape'), G.view, ['Escape'], function () {
         if (!pg()) { O.setSelection([]); return; }
@@ -130,7 +135,7 @@
     // a language change: the same ids again with the new titles and groups (register replaces by id; nothing else re-runs)
     U.onLang(function () { C.register(all()); paintBtn(); });
     // the assistant's commands with arguments (ai-pages.js, ai-commands.js, ai-objects.js), loaded when the AI panel first asks
-    if (C.provide && !SP.offline) C.provide({ prepare: function () { return SP.aiPdf ? null : ['../shared/commands/sources.js', 'js/ui/ai-pages.js', 'js/ui/ai-commands.js', 'js/ui/ai-objects.js'].reduce(function (p, src) {
+    if (C.provide && !SP.offline) C.provide({ prepare: function () { return SP.aiPdf ? null : ['../shared/commands/sources.js', 'js/ui/ai-pages.js', 'js/ui/ai-commands.js', 'js/ui/ai-objects.js', 'js/ui/ai-edit.js'].reduce(function (p, src) {
       return p.then(function () { return src.indexOf('sources') >= 0 && window.SlopCmdSources ? null : new Promise(function (res, rej) {
         var s = document.createElement('script'); s.src = new URL(src, location.href).href; s.async = false;
         s.onload = res; s.onerror = function () { rej(new Error('Could not load ' + src)); }; document.head.append(s);

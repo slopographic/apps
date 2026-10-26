@@ -76,9 +76,10 @@
   }
   var same = function (x, y) { return JSON.stringify(x) === JSON.stringify(y); };
 
-  /** Opens the selected frame for typing (after its fonts are set up). */
-  P.edit = async function () {
-    var sel = P.sel;
+  /** Opens the selected frame for typing (after its fonts are set up). opts.at: a client point for the caret (a double
+   * click), opts.type: a letter typed on the selected frame (it goes in at the end). */
+  P.edit = async function (opts) {
+    var o = opts || {}, sel = P.sel;
     if (!sel || P.editor) return;
     await sel.ready;
     if (P.sel !== sel || P.editor) return;
@@ -99,6 +100,11 @@
       box.style.left = ((a.cx - a.w / 2) * z) + 'px'; box.style.top = ((a.cy - a.h / 2 + off) * z) + 'px';
       box.style.width = (a.w * zx) + 'px'; box.style.minHeight = ((a.h - off) * z) + 'px';
       box.style.fontSize = (a.fs * z) + 'px'; box.style.lineHeight = (a.lh * z) + 'px';
+      if (a.rot) { // turned with the frame, about its centre (the scale stays on the box's own left edge)
+        var fx = a.w * z / 2, fy = (a.h / 2 - off) * z;
+        box.style.transformOrigin = '0 0';
+        box.style.transform = 'translate(' + fx + 'px,' + fy + 'px) rotate(' + (-a.rot) + 'deg) translate(' + (-fx) + 'px,' + (-fy) + 'px)' + (k !== 1 ? ' scaleX(' + k + ')' : '');
+      }
       box.style.textAlign = a.align; box.style.color = a.color; box.style.background = S.hex(S.fieldColour(a.color, S.rgbOf(a.paper || '#ffffff'))); // never under 3:1
       U.$$(':scope > div', box).forEach(function (d, i, all) {
         d.style.marginBottom = i < all.length - 1 ? ((a.pgap || 0) * z) + 'px' : '0';
@@ -106,18 +112,21 @@
         d.style.textIndent = (((a.first || 0) - (a.rest || 0)) * zx) + 'px';
       });
     };
-    ed.cancel = function () { if (ed.done) return; ed.done = true; P.editor = null; box.remove(); P.draw(); };
+    ed.cancel = function () { if (ed.done) return; ed.done = true; P.editor = null; box.remove(); P.draw(); P.changed(); };
     ed.commit = function () {
-      if (ed.done) return;
+      if (ed.done) return P.applying || Promise.resolve();
       var paras = serialize(box, a);
       ed.cancel();
-      if (same(paras, before)) return;
+      if (same(paras, before)) return Promise.resolve();
       a.paras = paras;
-      apply(p, sel, a);
+      sel.pending = true; // its derived file is about to be used: a click elsewhere does not let it go (para-mode.js P.clear)
+      var run = P.applying = apply(p, sel, a).then(function () { sel.pending = false; if (P.applying === run) P.applying = null; });
+      return run;
     };
     box.addEventListener('keydown', function (e) {
       e.stopPropagation();
-      if (e.key === 'Escape') { e.preventDefault(); ed.cancel(); var f = U.$('.para-frame'); if (f) f.focus({ preventScroll: true }); }
+      // Escape keeps what was typed and leaves typing; the frame stays selected (as in a design tool)
+      if (e.key === 'Escape') { e.preventDefault(); ed.commit(); var f = U.$('.para-frame'); if (f) f.focus({ preventScroll: true }); }
       else if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); ed.commit(); }
     });
     box.addEventListener('input', function () { ed.place(); }); // a new paragraph takes the indents
@@ -132,8 +141,11 @@
     s.layer.appendChild(box);
     ed.place(); P.draw();
     box.focus({ preventScroll: true });
-    var r = document.createRange(); r.selectNodeContents(box); r.collapse(false);
+    var r = o.at && document.caretRangeFromPoint ? document.caretRangeFromPoint(o.at[0], o.at[1]) : null;
+    if (!r || !box.contains(r.startContainer)) { r = document.createRange(); r.selectNodeContents(box); r.collapse(false); }
     var ws = window.getSelection(); ws.removeAllRanges(); ws.addRange(r);
+    if (o.type) document.execCommand('insertText', false, o.type);
+    P.changed();
   };
   /** Lays the typed text out with the document's widths and commits it. */
   async function apply(p, sel, a) {
