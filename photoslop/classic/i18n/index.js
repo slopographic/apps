@@ -4,5 +4,5 @@ window.SlopI18n && window.SlopI18n.source({
   ns: 'paint-classic',
   base: ((document.currentScript || {}).src || '').replace(/[^/]*$/, ''),
   parts: ['app', 'dialogs', 'menus'],
-  langs: ['ar', 'de', 'en', 'es', 'fr', 'ja', 'pt-BR', 'sv', 'zh-CN'],
+  langs: ['ar', 'de', 'en', 'es', 'fr', 'ja', 'ko', 'pt-BR', 'sv', 'zh-CN'],
 });
