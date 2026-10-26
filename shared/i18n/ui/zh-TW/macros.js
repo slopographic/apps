@@ -56,5 +56,5 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'ui.macro.leave_out': '略過此步驟',
   'ui.macro.bar_count': '錄製中 · {n} 個步驟',
   'ui.macro.bar_idle': '正在錄製巨集',
-  'ui.macro.store_blocked': '此瀏覽器不允許頁面保存巨集（儲存空間已被封鎖）。請使用「匯出」保留檔案。',
+  'ui.macro.store_blocked': '此瀏覽器不允許頁面儲存巨集（儲存空間已被封鎖）。請使用「匯出」保留檔案。',
 });

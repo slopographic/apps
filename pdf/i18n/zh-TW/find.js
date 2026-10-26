@@ -3,7 +3,7 @@
 window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'pdf.find.input': '在文件中尋找',
   'pdf.find.match_case': '區分大小寫',
-  'pdf.find.whole_word': '全字匹配',
+  'pdf.find.whole_word': '全字相符',
   'pdf.find.prev_tip': '上一個（Shift+Enter）',
   'pdf.find.prev': '上一個符合項目',
   'pdf.find.next_tip': '下一個（Enter）',

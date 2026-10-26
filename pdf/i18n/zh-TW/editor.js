@@ -135,7 +135,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'pdf.ed.undo_add_arrow': '新增箭頭',
   'pdf.ed.undo_add_whiteout': '新增白色遮蓋',
   'pdf.ed.undo_add_hlbox': '新增醒目提示',
-  'pdf.ed.undo_move_tip': '移動標註框的指針',
+  'pdf.ed.undo_move_tip': '移動標註框的指標',
   'pdf.ed.undo_resize_annot': '調整標註大小',
 
   'pdf.ed.undo_add_step': '新增步驟 {n}',
@@ -146,7 +146,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'pdf.ed.texthl_none': '拖曳範圍內沒有文字。請拖曳經過文字行以醒目提示。',
   'pdf.ed.undo_add_texthl': '新增文字醒目提示',
 
-  'pdf.ed.undo_lift_text': '提取文字',
+  'pdf.ed.undo_lift_text': '擷取文字',
 
   'pdf.ed.text_box_field': '編輯文字',
   'pdf.ed.locked_tip': '已鎖定：請在「圖層」中解除鎖定以變更',

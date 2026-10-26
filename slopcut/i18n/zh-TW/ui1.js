@@ -117,7 +117,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'slopedit.menu.about_slopcut': '關於 SlopCut',
   'slopedit.menu.slopcut_is_a_free_video': 'SlopCut 是完全在瀏覽器中執行的免費影片剪輯器。您的影片素材永遠不會上傳：解碼、剪輯與編碼都在這台裝置上完成。',
   'slopedit.menu.export_uses_webcodecs_hardware_video': '匯出使用 WebCodecs（硬體影片編碼），並採用 Vanilagy 以 MIT 授權釋出的 mp4-muxer 與 webm-muxer。不支援 WebCodecs 的瀏覽器會改用即時 WebM 錄製。',
-  'slopedit.menu.autosave_keeps_your_project_and': '自動儲存會將您的專案與素材保存在此瀏覽器的 IndexedDB 中。可在「檔案 ▸ 自動儲存」中關閉。',
+  'slopedit.menu.autosave_keeps_your_project_and': '自動儲存會將您的專案與素材儲存在此瀏覽器的 IndexedDB 中。可在「檔案 ▸ 自動儲存」中關閉。',
   'slopedit.menu.nice': '很好',
   'slopedit.app.add_to_timeline': '加入時間軸',
   'slopedit.app.pro_dark': '專業（深色）',

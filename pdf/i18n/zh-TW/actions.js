@@ -59,7 +59,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'pdf.act.bar_insert': '從檔案插入頁面',
   'pdf.act.bar_insert_short': '插入',
   'pdf.act.bar_open_page': '開啟頁面檢視（Enter）',
-  'pdf.act.zoom_presets': '縮放預設',
+  'pdf.act.zoom_presets': '縮放預設集',
   'pdf.act.fit_page': '符合頁面',
   'pdf.act.fit_width': '符合寬度',
   'pdf.act.tools_label': '標註工具',

@@ -23,7 +23,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'vector.msg.click_anchor': '點選錨點以將其刪除',
   'vector.msg.rotate_select': '請選取要旋轉的物件',
   'vector.msg.scale_select': '請選取要縮放的物件',
-  'vector.msg.cut_endpoint': '無法在端點處剪切',
+  'vector.msg.cut_endpoint': '無法在端點處切斷',
   'vector.msg.clip_select': '請選取用來剪裁的形狀，以及位於其下方的物件',
   'vector.msg.clip_nothing_below': '其堆疊中，剪裁形狀下方沒有任何物件',
   'vector.msg.clip_release_select': '請選取要釋放的剪裁遮罩',

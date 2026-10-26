@@ -25,7 +25,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'expenses.page.mileage': '里程津貼…',
   'expenses.page.back': '← 費用',
   'expenses.page.receipt': '從收據建立…',
-  'expenses.page.receipt_note': '拍攝或選擇收據照片：會在此裝置上讀取，並保存在 Slop Drive 中。',
+  'expenses.page.receipt_note': '拍攝或選擇收據照片：會在此裝置上讀取，並儲存在 Slop Drive 中。',
   'expenses.page.date': '日期',
   'expenses.page.supplier': '供應商',
   'expenses.page.description': '說明',

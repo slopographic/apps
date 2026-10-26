@@ -45,7 +45,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
 
   'pdf.io.unknown': '未知',
   'pdf.io.none': '無',
-  'pdf.io.skip_stencil': '不解碼模板遮罩（1 位元）',
+  'pdf.io.skip_stencil': '不解碼型板遮罩（1 位元）',
   'pdf.io.skip_jpx': '不解碼 JPEG 2000 圖片',
   'pdf.io.skip_jbig2': '不解碼 JBIG2 圖片',
   'pdf.io.skip_ccitt': '不解碼 CCITT 傳真圖片',
@@ -71,7 +71,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'pdf.io.changes_replayed': '重播已儲存的變更',
 
   'pdf.io.log_found_title': '找到已儲存的編輯',
-  'pdf.io.log_found_body': 'Slop PDF 在此裝置上保存了對「{name}」的 {n} 項編輯。您可以將其重播到此檔案上，或捨棄。無論哪種方式，「儲存」或「匯出」都會寫出新的 PDF。',
+  'pdf.io.log_found_body': 'Slop PDF 在此裝置上儲存了對「{name}」的 {n} 項編輯。您可以將其重播到此檔案上，或捨棄。無論哪種方式，「儲存」或「匯出」都會寫出新的 PDF。',
   'pdf.io.log_discard': '捨棄',
   'pdf.io.log_replay': '重播',
   'pdf.io.log_replayed': '重播已儲存的編輯',

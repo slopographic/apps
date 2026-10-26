@@ -31,7 +31,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'reminders.empty.overdue': '沒有逾期的提醒。',
   'reminders.empty.today': '今天沒有其他提醒。',
   'reminders.empty.later': '之後沒有提醒。',
-  'reminders.app.note': '此分頁開啟時，提醒會以快顯視窗顯示。提醒來自活動和待辦事項，並保存在此瀏覽器中。',
+  'reminders.app.note': '此分頁開啟時，提醒會以快顯視窗顯示。提醒來自活動和待辦事項，並儲存在此瀏覽器中。',
   'reminders.perm.on': '瀏覽器通知已開啟。',
   'reminders.perm.blocked': '此瀏覽器已封鎖通知。快顯視窗仍會在這裡顯示。',
   'reminders.perm.none': '此瀏覽器沒有通知功能。快顯視窗仍會在這裡顯示。',

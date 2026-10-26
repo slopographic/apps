@@ -27,7 +27,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'orders.page.lines': '項目',
   'orders.page.add_line': '新增項目',
   'orders.page.backup': '完整備份',
-  'orders.page.backup_note': '備份會包含此瀏覽器中共用商業資料的所有紀錄：客戶、產品、訂單、發票、付款、庫存與分類帳。',
+  'orders.page.backup_note': '備份會包含此瀏覽器中共用商業資料的所有記錄：客戶、產品、訂單、發票、付款、庫存與分類帳。',
   'orders.page.dl_backup': '下載完整備份',
   'orders.page.restore': '從備份檔還原…',
   'orders.cmd.g_goto': '前往',

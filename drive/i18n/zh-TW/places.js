@@ -1,7 +1,7 @@
 /* Slop Drive, Traditional Chinese (Taiwan): local folders and drives, their access prompts, config files and the help text. Same keys as drive/i18n/en/places.js. Terms: shared/i18n/glossary-zh-TW.md. */
 window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'drive.folder.folder': '資料夾',
-  'drive.folder.unsupported': '資料夾需要 Chrome 或 Edge。Slop Drive 會將您的檔案保存在此瀏覽器的儲存空間中，不會寫入您的電腦。',
+  'drive.folder.unsupported': '資料夾需要 Chrome 或 Edge。Slop Drive 會將您的檔案儲存在此瀏覽器的儲存空間中，不會寫入您的電腦。',
   'drive.folder.config_na': '設定工具無法使用',
   'drive.folder.config_na_body': '無法在此載入 Slopographic 設定。{msg}',
   'drive.folder.need_chrome': '資料夾需要 Chrome 或 Edge',
@@ -74,7 +74,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'drive.prov.delete_folder_body': '資料夾「{name}」及其中的所有內容，將從這台電腦的「{place}」中刪除。此操作無法復原。',
   'drive.prov.delete_file_body': '「{name}」將從這台電腦的「{place}」中刪除。此操作無法復原。',
   'drive.prov.help_1': '本機磁碟是您選擇的這台電腦上的資料夾。Slop Drive 會透過此瀏覽器讀寫它。不會上傳任何內容。',
-  'drive.prov.help_2': '每個瀏覽器各自保存其本機磁碟清單。即使在同一台電腦上，一個瀏覽器也看不到另一個瀏覽器的磁碟。',
+  'drive.prov.help_2': '每個瀏覽器各自儲存其本機磁碟清單。即使在同一台電腦上，一個瀏覽器也看不到另一個瀏覽器的磁碟。',
   'drive.prov.help_3': '資料夾只有兩種方式可在瀏覽器之間共用：在每個瀏覽器中選擇同一個資料夾（在每台機器上，或在由同步或網路共用保持一致的資料夾中），或讓雲端服務保持副本同步。',
   'drive.prov.help_4': '將檔案從本機磁碟移出後，副本建立完成即會從該資料夾移除原始檔案。從 Slop Drive 移出則會將原始檔案移到垃圾桶，可以還原。',
   'drive.prov.help_5': '僅限 Chrome 與 Edge。需要重新授權存取的磁碟，會在其名稱上顯示「允許存取」。按下它，瀏覽器就會詢問。',

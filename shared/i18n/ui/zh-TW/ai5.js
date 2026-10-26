@@ -76,7 +76,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'ui.ai.prov.jan_name': '本機電腦上的 Jan',
   'ui.ai.prov.jan_who': '本機電腦上的 Jan',
   'ui.ai.prov.jan_start': '在 Jan 中：Settings › Local API Server › Start Server。',
-  'ui.ai.prov.textgen_start': '請以 --api 啟動（連接埠 5000；可用 --api-port 更改）。',
+  'ui.ai.prov.textgen_start': '請以 --api 啟動（連接埠 5000；可用 --api-port 變更）。',
   'ui.ai.prov.custom_name': '任何網址（OpenAI 相容）',
   'ui.ai.prov.custom_who': '您所輸入網址的服務',
   'ui.ai.prov.custom_short': '您的服務',

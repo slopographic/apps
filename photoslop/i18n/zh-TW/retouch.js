@@ -12,7 +12,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'photoslop.retouch.faces_found': '在此裝置上找到 {n} 張臉。',
   'photoslop.retouch.faces_off': '臉部偵測已關閉。紅眼和美白需要它；磨皮和瑕疵修復則不需要。',
   'photoslop.retouch.no_face': '找不到臉部：紅眼和美白沒有可處理的對象。',
-  'photoslop.retouch.rendering': '正在算繪預覽…',
+  'photoslop.retouch.rendering': '正在轉譯預覽…',
   'photoslop.retouch.skin_spots': '已找到膚色區域；有 {n} 處瑕疵需要修復。',
   'photoslop.retouch.no_skin': '此圖片中找不到膚色區域。',
   'photoslop.retouch.auto_enhance': '自動增強',

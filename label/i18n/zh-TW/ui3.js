@@ -44,7 +44,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'label.cfg.save_as_config': '另存為設定',
   'label.cfg.config_name': '設定名稱',
   'label.cfg.could_not_import_the_configs': '無法匯入設定',
-  'label.cfg.no_saved_configs_yet_use': '尚無已儲存的設定。請使用「檔案 ▸ 另存為設定…」，以名稱保存目前開啟標籤的尺寸、紙材、印表機設定與資料欄位。',
+  'label.cfg.no_saved_configs_yet_use': '尚無已儲存的設定。請使用「檔案 ▸ 另存為設定…」，以名稱儲存目前開啟標籤的尺寸、紙材、印表機設定與資料欄位。',
   'label.cfg.rename_config': '重新命名設定',
   'label.cfg.new_name': '新名稱',
   'label.cfg.save_as_preset': '另存為預設集',

@@ -44,7 +44,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'ui.ops.video.need_video': '請加入一部影片。',
   'ui.ops.video.need_clips': '請加入此影片捲所需的片段與圖片。',
   'ui.ops.step.slopedit_edl': '剪輯清單 → 影片',
-  'ui.ops.step.slopedit_edl_desc': '由 JSON 剪輯清單（含入點與出點的片段、標題、轉場、字幕、帶閃避效果的音樂）完成整段剪輯，由 SlopCut 算繪。請提供剪輯清單與其所指定的媒體。',
+  'ui.ops.step.slopedit_edl_desc': '由 JSON 剪輯清單（含入點與出點的片段、標題、轉場、字幕、帶閃避效果的音樂）完成整段剪輯，由 SlopCut 轉譯。請提供剪輯清單與其所指定的媒體。',
   'ui.ops.step.slopedit_reframe': '重新取景影片',
   'ui.ops.step.slopedit_reframe_desc': '另一種畫面比例（16:9 轉為 9:16，適用於短影音）：畫面會填滿新的畫框，並以焦點為中心保留。',
   'ui.ops.step.slopedit_captions': '為影片加上字幕',

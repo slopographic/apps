@@ -6,7 +6,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'settings.page.sections': '區段',
   'settings.page.title_lead': '您的',
   'settings.page.title_em': '選擇',
-  'settings.page.privacy': 'Slopographic 在您的瀏覽器中執行，您的檔案永遠不會離開您的裝置。您在此頁面上的選擇只會儲存在此瀏覽器的本機儲存空間中，不會存放在其他地方。分析與廣告在您開啟前一律關閉，第三方腳本也要等您開啟後才會載入。您隨時可以變更這些設定。',
+  'settings.page.privacy': 'Slopographic 在您的瀏覽器中執行，您的檔案永遠不會離開您的裝置。您在此頁面上的選擇只會儲存在此瀏覽器的本機儲存空間中，不會存放在其他地方。分析與廣告在您開啟前一律關閉，第三方指令碼也要等您開啟後才會載入。您隨時可以變更這些設定。',
   'settings.page.agents': 'AI 代理程式',
   'settings.consent.analytics': '分析',
   'settings.consent.analytics_help': 'Google Analytics 4 會計算頁面瀏覽次數，讓我們了解大家使用哪些應用程式。預設關閉。',

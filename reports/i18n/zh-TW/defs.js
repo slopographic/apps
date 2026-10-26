@@ -18,7 +18,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'reports.def.crm_by_stage.count': '客戶',
   'reports.def.crm_by_stage.sum_value': '金額',
   'reports.def.follow_ups_14.title': '未來 14 天內到期的跟進',
-  'reports.def.follow_ups_14.note': '跟進日期介於今天至 14 天後的客戶。若有相同電子郵件且從 Slop Contacts 匯入的紀錄，會顯示在旁邊。',
+  'reports.def.follow_ups_14.note': '跟進日期介於今天至 14 天後的客戶。若有相同電子郵件且從 Slop Contacts 匯入的記錄，會顯示在旁邊。',
   'reports.def.follow_ups_14.followUp': '跟進',
   'reports.def.follow_ups_14.name': '名稱',
   'reports.def.follow_ups_14.stage': '階段',

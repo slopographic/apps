@@ -20,7 +20,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'hex.app.find_as': '尋找方式',
   'hex.app.mode_hex': '十六進位位元組',
   'hex.app.mode_text': '文字',
-  'hex.app.find_ph': '4D 5A 或 文字',
+  'hex.app.find_ph': '4D 5A 或文字',
   'hex.app.find_aria': '尋找',
   'hex.app.prev': '上一個',
   'hex.app.prev_tip': '尋找上一個（Shift+F3）',

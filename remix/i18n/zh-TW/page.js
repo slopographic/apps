@@ -11,7 +11,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'remix.page.clips': '片段與照片',
   'remix.page.preview': '預覽',
   'remix.page.preview_canvas': '重新混剪的預覽',
-  'remix.page.export_tip': '依匯出預設渲染規劃並儲存',
+  'remix.page.export_tip': '依匯出預設轉譯規劃並儲存',
   'remix.page.send': '傳送到 SlopCut',
   'remix.page.playhead': '播放頭',
   'remix.page.slots': '播放頭位置的格位',

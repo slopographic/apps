@@ -10,7 +10,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'remix.tour.layout_title': '版型',
   'remix.tour.layout_text': '選擇格線版型。「隨機」會在您選擇的時間點切換版型。',
   'remix.tour.export_title': '匯出',
-  'remix.tour.export_text': '依匯出預設渲染影片並儲存。',
+  'remix.tour.export_text': '依匯出預設轉譯影片並儲存。',
   'remix.tour.config_title': '設定檔',
   'remix.tour.config_text': '將影片匯出或匯入為 .slop.json 設定檔。',
 });

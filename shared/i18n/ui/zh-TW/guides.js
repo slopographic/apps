@@ -1,7 +1,7 @@
 /* Shared components, Traditional Chinese (Taiwan): the Guides panel: layout forms, the grid notation, the intervals, margins, presets and their messages. Rules: shared/i18n/APPS-HOWTO.md. */
 window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'ui.guides.title': '參考線',
-  'ui.guides.no_target': '沒有可以放置參考線的對象',
+  'ui.guides.no_target': '沒有可以放置參考線的物件',
   'ui.guides.close_aria': '關閉參考線面板',
   'ui.guides.close_tip': '關閉（Esc）',
   'ui.guides.target_aria': '放置參考線於',
@@ -95,7 +95,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'ui.guides.iv_y_origin': '水平參考線起點',
   'ui.guides.every': '每',
   'ui.guides.from': '起於',
-  'ui.guides.iv_hint': '從起點開始，每隔 N 個單位設置一條參考線，填滿整個對象。% 為對象尺寸的百分比。',
+  'ui.guides.iv_hint': '從起點開始，每隔 N 個單位設定一條參考線，填滿整個物件。% 為物件尺寸的百分比。',
   'ui.guides.save': '儲存',
   'ui.guides.save_preset_dots': '另存為預設集…',
   'ui.guides.save_preset_title': '儲存參考線預設集',

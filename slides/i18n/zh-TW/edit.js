@@ -48,7 +48,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'slides.show.reset': '重設',
   'slides.show.previous': '上一張',
   'slides.show.next': '下一張',
-  'slides.show.black_screen': '黑屏',
+  'slides.show.black_screen': '黑畫面',
   'slides.show.end_show': '結束簡報',
   'slides.show.end_of_the_presentation': '簡報結束',
   'slides.show.the_screen_is_black_b_to_bring_it_back': '螢幕為黑色（按 B 可恢復）',

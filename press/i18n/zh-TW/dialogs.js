@@ -20,7 +20,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'press.dlg.tab_margins': '邊界與欄',
   'press.dlg.tab_bleed': '出血與頁邊資訊',
   'press.dlg.tab_grid': '格線',
-  'press.dlg.preset': '預設值',
+  'press.dlg.preset': '預設集',
   'press.dlg.width': '寬度',
   'press.dlg.height': '高度',
   'press.dlg.orientation': '方向',

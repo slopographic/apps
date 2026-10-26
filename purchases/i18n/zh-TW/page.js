@@ -30,7 +30,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'purchases.page.lines': '明細',
   'purchases.page.add_line': '新增明細',
   'purchases.page.backup': '完整備份',
-  'purchases.page.backup_note': '備份包含此瀏覽器中共用商業資料的每一筆紀錄：客戶與供應商、產品、報價、訂單、採購單、發票、付款、費用、庫存與總帳。',
+  'purchases.page.backup_note': '備份包含此瀏覽器中共用商業資料的每一筆記錄：客戶與供應商、產品、報價、訂單、採購單、發票、付款、費用、庫存與分類帳。',
   'purchases.page.dl_backup': '下載完整備份',
   'purchases.page.restore': '從備份檔還原…',
   'purchases.cmd.g_goto': '前往',

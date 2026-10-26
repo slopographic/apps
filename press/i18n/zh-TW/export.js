@@ -39,6 +39,6 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'press.export.q_normal': '一般（{n} ppi）',
   'press.export.q_high': '高（{n} ppi）',
   'press.export.quality': '品質',
-  'press.export.print_note': '頁面會以實際大小轉譯，並送到瀏覽器的列印對話框。若要交印刷廠，請使用「匯出 PDF」。',
+  'press.export.print_note': '頁面會以實際大小轉譯，並送到瀏覽器的列印對話方塊。若要交印刷廠，請使用「匯出 PDF」。',
   'press.export.pdf_instead': '改為 PDF…',
 });

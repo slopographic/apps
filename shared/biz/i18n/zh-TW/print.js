@@ -60,7 +60,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'biz.pr.k_payment': '付款，謝謝',
   'biz.pr.k_credit': '貸項通知單',
   'biz.pr.k_refund': '退款',
-  'biz.pr.nothing_period': '此期間沒有任何紀錄。',
+  'biz.pr.nothing_period': '此期間沒有任何記錄。',
   'biz.pr.still_open': '尚未結清：{list}。',
   'biz.pr.open_late': '{ref} {amount}（逾期 {n} 天）',
   'biz.pr.nothing_owed': '沒有應付款項。謝謝您。',

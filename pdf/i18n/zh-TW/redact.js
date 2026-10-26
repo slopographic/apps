@@ -87,7 +87,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'pdf.redact.apply_btn': '套用塗黑…',
   'pdf.redact.quality': '品質',
   'pdf.redact.strip_meta': '同時移除文件中繼資料（標題、作者、主旨、關鍵字）',
-  'pdf.redact.apply_note': '已塗黑的頁面會被圖片取代，因此被移除的文字無法被複製、搜尋或擷取。未變動的頁面會保留其文字。下載的檔案一律重新寫入，內部不含編輯紀錄。',
+  'pdf.redact.apply_note': '已塗黑的頁面會被圖片取代，因此被移除的文字無法被複製、搜尋或擷取。未變動的頁面會保留其文字。下載的檔案一律重新寫入，內部不含編輯記錄。',
   'pdf.redact.include_aria': '包含第 {n} 頁的符合項目',
   'pdf.redact.page_short': '第 {n} 頁',
   'pdf.redact.matches_found': '找到 {n} 個符合項目。',

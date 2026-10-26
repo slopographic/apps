@@ -24,7 +24,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'pdf.app.empty_lead': '直接在瀏覽器中合併、分割、重新排序、旋轉、簽署與加蓋 PDF。',
   'pdf.app.empty_images': '圖片（PNG、JPEG、WebP）會成為頁面。',
   'pdf.app.try_sample': '試用範例',
-  'pdf.app.empty_privacy': '您的檔案絕不會離開此裝置。無需上傳、無需帳號，也沒有浮水印。',
+  'pdf.app.empty_privacy': '您的檔案絕不會離開此裝置。無需上傳、無需帳戶，也沒有浮水印。',
   'pdf.app.feats': '您可以做的事',
   'pdf.app.feat_organize': '整理',
   'pdf.app.feat_organize_d': '重新排序、旋轉、刪除、複製',

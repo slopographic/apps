@@ -18,7 +18,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'photoslop.doc.bg_transparent': '透明',
   'photoslop.doc.new_title': '新增文件',
   'photoslop.doc.name': '名稱',
-  'photoslop.doc.preset': '預設值',
+  'photoslop.doc.preset': '預設集',
   'photoslop.doc.width': '寬度',
   'photoslop.doc.height': '高度',
   'photoslop.doc.background': '背景',

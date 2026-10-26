@@ -55,7 +55,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'projects.card.more_tip': '移動、編輯或刪除',
   'projects.card.role': '卡片',
   'projects.tl.task': '任務',
-  'projects.tl.bar_aria': '{title}，{range}。方向鍵可移動一天；Shift 加方向鍵可更改結束日期；Enter 可開啟。',
+  'projects.tl.bar_aria': '{title}，{range}。方向鍵可移動一天；Shift 加方向鍵可變更結束日期；Enter 可開啟。',
   'projects.tl.no_dates': '此處顯示的任務都還沒有日期。',
   'projects.tl.no_match': '沒有符合的任務。',
   'projects.tl.today': '今天',

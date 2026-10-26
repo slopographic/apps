@@ -6,7 +6,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'clean.app.open_label': '開啟圖片',
   'clean.app.drop_title': '將圖片拖放到這裡',
   'clean.app.drop_formats': 'JPEG、PNG、WebP 或 TIFF。可一次多張。每張圖片都在此瀏覽器中讀取，不會上傳。',
-  'clean.app.drop_fine': '複製並清除：原始檔案永遠不會更改。下載和儲存到 Drive 的內容為名稱加上「(clean)」的副本。不支援 HEIC、HEIF 和 RAW。',
+  'clean.app.drop_fine': '複製並清除：原始檔案永遠不會變更。下載和儲存到 Drive 的內容為名稱加上「(clean)」的副本。不支援 HEIC、HEIF 和 RAW。',
   'clean.app.list_label': '圖片及其包含的資訊',
   'clean.app.choices': '選項',
   'clean.app.remove_all': '全部移除',

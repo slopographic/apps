@@ -28,7 +28,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'projects.page.weeks': '週',
   'projects.page.months': '月',
   'projects.page.today': '今天',
-  'projects.page.tl_keys': '拖曳日期條即可移動，拖曳兩端即可更改日期。聚焦日期條後：方向鍵移動一天，Shift 加方向鍵更改結束日期。',
+  'projects.page.tl_keys': '拖曳日期條即可移動，拖曳兩端即可變更日期。聚焦日期條後：方向鍵移動一天，Shift 加方向鍵變更結束日期。',
   'projects.page.empty_h': '在看板與時間軸上規劃專案',
   'projects.page.new_project': '新增專案',
 });

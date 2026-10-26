@@ -44,7 +44,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   '3d.file.zip_note': '{format} 已與其 {n} 個附屬檔案一起儲存在一個 ZIP 中',
   '3d.file.exported': '已匯出 {format}',
   '3d.file.picture_saved': '圖片已儲存',
-  '3d.file.render_failed': '無法渲染',
+  '3d.file.render_failed': '無法轉譯',
   '3d.model.no_meshes': '此模型沒有 Slop 3D 能顯示的網格（點雲與線段不會顯示）。',
   '3d.model.left_out': '已略過：{what}。Slop 3D 只顯示網格。',
   '3d.model.points': '{n} 個點雲',

@@ -9,7 +9,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'timesheets.page.time': '時間',
   'timesheets.page.entry': '項目',
   'timesheets.page.bill': '帳單',
-  'timesheets.page.local_tip': '您的時間紀錄和帳目會留在此瀏覽器中。不會上傳任何內容。',
+  'timesheets.page.local_tip': '您的時間記錄和帳目會留在此瀏覽器中。不會上傳任何內容。',
   'timesheets.page.opening': '正在開啟您的工時表…',
   'timesheets.page.working_on': '您正在處理什麼？',
   'timesheets.page.start': '開始計時',

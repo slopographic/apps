@@ -52,7 +52,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'ai.sys.lead': 'Slop AI 會在此瀏覽器中，使用您自己的 GPU 執行語言模型。以下是此裝置的配備，以及它能執行的模型。',
   'ai.sys.check_again': '重新檢查',
   'ai.sys.checking': '檢查中…',
-  'ai.sys.v_good': '✅ 運行良好 約 {tps} 權杖/秒',
+  'ai.sys.v_good': '✅ 運作順暢 約 {tps} 權杖/秒',
   'ai.sys.v_slow': '⚠️ 較慢 約 {tps} 權杖/秒',
   'ai.sys.v_no': '❌ 放不下',
   'ai.sys.unnamed_gpu': '未命名的 GPU',

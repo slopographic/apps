@@ -68,7 +68,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'clean.field.processing_software': '處理軟體',
   'clean.field.rating': '評分',
   'clean.field.rating_percent': '評分（百分比）',
-  'clean.field.rendering': '渲染',
+  'clean.field.rendering': '轉譯',
   'clean.field.resolution_unit': '解析度單位',
   'clean.field.scene_type': '場景類型',
   'clean.field.sensitivity_type': '感光度類型',

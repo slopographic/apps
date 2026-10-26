@@ -78,7 +78,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'qr.tpl.email_signature': '電子郵件簽名檔',
   'qr.tpl.email_signature_desc': '放在電子郵件結尾：您的姓名、職稱、公司與網站。',
   'qr.tpl.review_link': '評價連結',
-  'qr.tpl.review_link_desc': '直接帶人到您的評價頁面。請替換 YOUR_PLACE_ID。',
+  'qr.tpl.review_link_desc': '直接帶人到您的評價頁面。請取代 YOUR_PLACE_ID。',
   'qr.tpl.restaurant_menu': '餐廳菜單',
   'qr.tpl.restaurant_menu_desc': '在桌上或門上開啟您的菜單。',
   'qr.tpl.event': '活動',

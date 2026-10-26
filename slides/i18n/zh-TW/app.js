@@ -58,7 +58,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'slides.app.slide': '投影片',
   'slides.app.current_slide': '目前的投影片',
   'slides.app.edit_text': '編輯文字',
-  'slides.app.local': '僅保存在此瀏覽器中。不會上傳任何內容。',
+  'slides.app.local': '僅儲存在此瀏覽器中。不會上傳任何內容。',
   'slides.layout.title': '標題',
   'slides.layout.title_content': '標題與內容',
   'slides.layout.two_content': '兩欄內容',

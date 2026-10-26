@@ -102,7 +102,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'contacts.cmd.clear_filters': '清除所有篩選',
   'contacts.cmd.about': '關於 Slop Contacts',
   'contacts.cmd.keys': '鍵盤快速鍵…',
-  'contacts.cmd.about_body': '您的聯絡人是 Slop CRM 與 Slop Orders 的客戶，保存在此瀏覽器中。不會上傳任何內容。請從「檔案」功能表匯入與匯出 vCard、CSV 或 .scontacts 檔案。',
+  'contacts.cmd.about_body': '您的聯絡人是 Slop CRM 與 Slop Orders 的客戶，儲存在此瀏覽器中。不會上傳任何內容。請從「檔案」功能表匯入與匯出 vCard、CSV 或 .scontacts 檔案。',
   'contacts.cmd.nothing_yet': '{title}：尚無可執行的動作。',
   'contacts.cmd.failed': '{title}失敗：{why}',
 });

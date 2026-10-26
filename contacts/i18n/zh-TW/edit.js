@@ -38,7 +38,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'contacts.ph.remove': '移除照片',
   'contacts.ph.none': '沒有照片。',
   'contacts.ph.stored': '照片，儲存為最大 256 px 的 JPEG。',
-  'contacts.ph.link': '連結以文字保存，未載入：{url}',
+  'contacts.ph.link': '連結以文字儲存，未載入：{url}',
   'contacts.ph.unread': '無法讀取該照片。',
   'contacts.ph.noun': '一張圖片',
   'contacts.new.ph': '姓名',

@@ -47,5 +47,5 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'serials.app.t_repeats': '重複（同一序號出現在多張照片）',
   'serials.app.cleared': '已清除。',
   'serials.app.a_photo': '一張照片',
-  'serials.app.notice': '每張照片都會在此裝置上，以與 OCR 頁面相同的文字辨識器讀取。序號依可更改的格式找出。',
+  'serials.app.notice': '每張照片都會在此裝置上，以與 OCR 頁面相同的文字辨識器讀取。序號依可變更的格式找出。',
 });

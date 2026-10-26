@@ -7,7 +7,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'resize.app.from_drive': '從 Slop Drive…',
   'resize.app.files': '檔案',
   'resize.app.open_files': '開啟檔案',
-  'resize.app.fine': '原始檔案永遠不會被更改。結果為副本：您可以下載，或將它們儲存到 Slop Drive 中的 Slop Resize 資料夾。快速鍵：Ctrl+O 開啟、Ctrl+Enter 調整大小、Esc 取消、Ctrl+S 壓縮為 ZIP。',
+  'resize.app.fine': '原始檔案永遠不會被變更。結果為副本：您可以下載，或將它們儲存到 Slop Drive 中的 Slop Resize 資料夾。快速鍵：Ctrl+O 開啟、Ctrl+Enter 調整大小、Esc 取消、Ctrl+S 壓縮為 ZIP。',
   'resize.app.queue': '佇列',
   'resize.app.noun': '一張圖片或一段影片',
   'resize.app.settings': '設定',

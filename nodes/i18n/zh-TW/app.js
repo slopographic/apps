@@ -89,7 +89,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'nodes.st.opened': '已開啟「{name}」。復原可以還原您先前的圖表。',
   'nodes.st.not_opened': '未開啟。',
   'nodes.st.new': '已新增圖表。新增節點即可開始。',
-  'nodes.st.example': '範例：更改價格或數量，看總額如何跟著變動。',
+  'nodes.st.example': '範例：變更價格或數量，看總額如何跟著變動。',
   'nodes.st.hint': '從節點右側的圓點拖到另一個節點左側的圓點，即可連接兩者。',
   'nodes.st.empty': '新增節點即可開始。',
   'nodes.err.no_node': '沒有這個節點',

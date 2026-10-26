@@ -2,7 +2,7 @@
 window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'photoslop.tour.title': 'PhotoSlop 導覽',
   'photoslop.tour.new_title': '開始一個檔案',
-  'photoslop.tour.new_text': '「新增」可設定文件的大小、預設值和背景（在窄視窗中位於「更多 ▾」）；「開啟」可載入 PSD、ORA 或圖片。每個檔案都會有一個分頁。',
+  'photoslop.tour.new_text': '「新增」可設定文件的大小、預設集和背景（在窄視窗中位於「更多 ▾」）；「開啟」可載入 PSD、ORA 或圖片。每個檔案都會有一個分頁。',
   'photoslop.tour.menus_title': '選單列',
   'photoslop.tour.menus_text': '檔案、編輯、影像、圖層、選取和濾鏡都在這裡。每個選單都會列出其命令。',
   'photoslop.tour.tools_title': '工具',

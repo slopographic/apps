@@ -39,7 +39,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'resize.panel.even': '四捨五入為偶數（影片需要）',
   'resize.panel.resample': '重新取樣',
   'resize.panel.r_best': '平滑，逐步縮放（縮小時最佳）',
-  'resize.panel.r_nearest': '硬像素（最近鄰，適用於像素藝術）',
+  'resize.panel.r_nearest': '硬像素（最近相鄰，適用於像素藝術）',
   'resize.panel.pic_format': '圖片格式',
   'resize.panel.pic_quality': '圖片品質',
   'resize.panel.vid_format': '影片格式',

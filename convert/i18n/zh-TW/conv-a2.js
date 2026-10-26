@@ -16,7 +16,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'convert.fin.lines': '{n} 行',
   'convert.fin.transactions': '{n} 筆交易',
   'convert.fin.pending': '（{n} 筆待處理，未計入）',
-  'convert.fin.no_vouchers': '此檔案沒有傳票，因此 CSV 會保存各會計科目的餘額。',
+  'convert.fin.no_vouchers': '此檔案沒有傳票，因此 CSV 會儲存各會計科目的餘額。',
   'convert.fin.not_statement': '這是會計 SIE 檔案，不是銀行對帳單。請使用「SIE 轉 CSV」或「SIE 轉 Excel」。',
   'convert.fin.sie_to_xlsx': 'SIE 轉 Excel（XLSX）',
   'convert.fin.sie_to_xlsx_note': '工作表包含：資訊、傳票（每筆交易明細一列）、會計科目、餘額（每年的期初、期末與結果），以及檔案含有期間餘額時的期間。',

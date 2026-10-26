@@ -96,7 +96,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'vector.obj.line': '線段',
   'vector.obj.rrect': '圓角矩形',
   'vector.status.zoom_level': '縮放比例',
-  'vector.status.zoom_presets': '縮放預設值',
+  'vector.status.zoom_presets': '縮放預設集',
   'vector.status.zoom_out_tip': '縮小（{key}）',
   'vector.status.zoom_in_tip': '放大（{key}）',
   'vector.status.artboard': '畫板 {w} × {h} px',

@@ -86,7 +86,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'code.dlg.delete_file': '此檔案會移到 Slop Drive 的垃圾桶，您可以從那裡還原。',
   'code.dlg.delete_folder': '此資料夾及其內容會移到 Slop Drive 的垃圾桶，您可以從那裡還原。',
   'code.dlg.language': '語言',
-  'code.dlg.language_note': '此檔案的語法醒目提示與自動完成會隨之改變。檔案名稱與其 Slop Drive 紀錄維持不變。',
+  'code.dlg.language_note': '此檔案的語法醒目提示與自動完成會隨之改變。檔案名稱與其 Slop Drive 記錄維持不變。',
   'code.dlg.language_mode': '語言模式',
   'code.dlg.set': '設定',
   'code.ext.formatter': '格式化工具',

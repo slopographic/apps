@@ -55,7 +55,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'pdf.menu.theme_light': '淺色',
   'pdf.menu.theme_classic': '經典 98',
   'pdf.menu.theme_set': '佈景主題：{name}',
-  'pdf.menu.theme_missing': '佈景主題腳本未能載入。',
+  'pdf.menu.theme_missing': '佈景主題指令碼未能載入。',
   'pdf.menu.props_panel': '屬性面板',
 
   'pdf.menu.search_cmds': '搜尋命令…',
@@ -65,9 +65,9 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'pdf.menu.about_title': '關於 Slop PDF',
   'pdf.menu.about_p1': 'Slop PDF 是一款完全在瀏覽器中執行的免費 PDF 編輯器。您的檔案永遠不會被上傳：它們只會在此裝置上被讀取、編輯與寫入。',
   'pdf.menu.about_p2': '頁面轉譯使用 pdf.js（Mozilla，Apache-2.0），寫入則使用 pdf-lib（MIT）。頁面內容會原樣複製，因此文字與向量圖形保持清晰；只有選用的有損壓縮會將頁面轉為圖片。',
-  'pdf.menu.about_p3': '自動儲存會將您的工作階段保存在此瀏覽器的 IndexedDB 中，因此重新整理不會遺失工作。可在「檔案 ▸ 自動儲存」中關閉。',
+  'pdf.menu.about_p3': '自動儲存會將您的工作階段儲存在此瀏覽器的 IndexedDB 中，因此重新整理不會遺失工作。可在「檔案 ▸ 自動儲存」中關閉。',
   'pdf.menu.about_p4': '編輯內容會保留在此裝置上；「儲存」或「匯出」會寫出新的 PDF。',
-  'pdf.menu.about_ok': '好',
+  'pdf.menu.about_ok': '確定',
 
   'pdf.menu.paste_annot': '貼上標註',
   'pdf.menu.fit_width': '符合寬度',

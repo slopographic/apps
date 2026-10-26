@@ -113,7 +113,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'convert.ff.failed': '轉換失敗。{why}',
   'convert.ff.unreadable': '此影片可能使用本瀏覽器引擎無法讀取的格式。',
   'convert.ff.notice_title': '要下載影片引擎嗎？',
-  'convert.ff.notice_text': '處理影片需要影片引擎。引擎只需下載一次，並會由此瀏覽器保存，供下次使用。您的檔案仍會在此裝置上讀取，不會上傳。',
+  'convert.ff.notice_text': '處理影片需要影片引擎。引擎只需下載一次，並會由此瀏覽器儲存，供下次使用。您的檔案仍會在此裝置上讀取，不會上傳。',
   'convert.ff.engine_name': '影片引擎（ffmpeg.wasm）',
   'convert.csv.bad_json': '這不是有效的 JSON。',
   'convert.html.no_text': '此 HTML 沒有可轉為 Markdown 的文字。',

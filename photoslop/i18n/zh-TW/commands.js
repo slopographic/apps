@@ -19,5 +19,5 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'photoslop.cmd.restore_aspect': '還原原始長寬比',
   'photoslop.cmd.guides_panel': '參考線面板（參考線版面）',
   'photoslop.cmd.search_key': '搜尋命令（{key}）',
-  'photoslop.cmd.nav_preset': '導覽預設值…',
+  'photoslop.cmd.nav_preset': '導覽預設集…',
 });

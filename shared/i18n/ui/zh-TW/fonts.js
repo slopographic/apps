@@ -56,7 +56,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'ui.fonts.err_ttf_otf_woff': '請選擇字型檔：TTF、OTF 或 WOFF。',
   'ui.fonts.err_woff2_pdf': 'PDF 目前無法使用 WOFF2 檔案。請拖放此字型的 TTF、OTF 或 WOFF 版本。',
   'ui.fonts.err_too_big': '該字型檔大於 {size}。',
-  'ui.fonts.err_no_store': '此瀏覽器無法在裝置上保存字型（IndexedDB 無法使用）。',
+  'ui.fonts.err_no_store': '此瀏覽器無法在裝置上儲存字型（IndexedDB 無法使用）。',
   'ui.fonts.own_pack_name': '{family}（您的檔案）',
   'ui.fonts.own_pack_desc': '在此裝置上新增的字型檔。不會上傳任何內容。',
   'ui.fonts.pack_sans': '拉丁文、希臘文與西里爾文',
