@@ -1,7 +1,7 @@
 /* Slop Gallery, German: the top bar, the side panel (views, albums, filters, library), the right panel, the timeline and the Drive list. Same keys as gallery/i18n/en/app.js. Terms: shared/i18n/glossary-de.md. */
 window.SlopI18n && window.SlopI18n.add('de', {
   'gallery.app.filters': 'Filter',
-  'gallery.app.import_tip': 'Fotos importieren (Strg+O)',
+  'gallery.app.import_tip': 'Fotos importieren (Ctrl+O)',
   'gallery.app.sort_tip': 'Fotos sortieren (Alt+S)',
   'gallery.app.select': 'Auswählen',
   'gallery.app.select_tip': 'Fotos mit einem Klick auswählen',
@@ -44,7 +44,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'gallery.side.restore': 'Aus einer Sicherung wiederherstellen…',
   'gallery.panel.selection': 'Auswahl',
   'gallery.panel.selection_n': 'Auswahl ({n})',
-  'gallery.panel.selection_note': 'Fotos mit „Auswählen“ (oder Strg+Klick) markieren, um sie zu sortieren, ein Reel zu erstellen oder etwas damit zu tun.',
+  'gallery.panel.selection_note': 'Fotos mit „Auswählen“ (oder Ctrl+Klick) markieren, um sie zu sortieren, ein Reel zu erstellen oder etwas damit zu tun.',
   'gallery.panel.sort_n': '{n} Fotos sortieren',
   'gallery.panel.sort_photos': 'Fotos sortieren',
   'gallery.panel.add_photos': 'Fotos hinzufügen',

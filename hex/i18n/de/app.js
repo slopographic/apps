@@ -1,11 +1,11 @@
 /* Slop Hex, German: the header, Go to and Find, the inspector, the status line, the toasts, the commands and the file types. Same keys as hex/i18n/en/app.js. Terms: shared/i18n/glossary-de.md. */
 window.SlopI18n && window.SlopI18n.add('de', {
   'hex.app.open': 'Öffnen',
-  'hex.app.open_tip': 'Eine Datei von diesem Computer öffnen (Strg+O)',
+  'hex.app.open_tip': 'Eine Datei von diesem Computer öffnen (Ctrl+O)',
   'hex.app.drive': 'Aus Drive öffnen',
   'hex.app.drive_tip': 'Eine Datei aus Slop Drive öffnen',
   'hex.app.save': 'Version speichern',
-  'hex.app.save_tip': 'Eine neue Version in Slop Drive speichern (Strg+S)',
+  'hex.app.save_tip': 'Eine neue Version in Slop Drive speichern (Ctrl+S)',
   'hex.app.saveas': 'Als neue Datei speichern',
   'hex.app.saveas_tip': 'In Slop Drive als neue Datei speichern',
   'hex.app.dl_tip': 'Auf diesen Computer herunterladen',
@@ -22,7 +22,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'hex.app.find_ph': '4D 5A  oder  Text',
   'hex.app.find_aria': 'Suchen',
   'hex.app.prev': 'Zurück',
-  'hex.app.prev_tip': 'Vorheriges suchen (Umschalt+F3)',
+  'hex.app.prev_tip': 'Vorheriges suchen (Shift+F3)',
   'hex.app.next': 'Weiter',
   'hex.app.next_tip': 'Nächstes suchen (F3)',
   'hex.app.i_file': 'Datei',

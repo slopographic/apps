@@ -6,7 +6,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   '3d.tour.open_title': 'Öffnen',
   '3d.tour.open_text': 'Eine 3D-Datei zum Bearbeiten öffnen.',
   '3d.tour.view_title': 'Ansicht',
-  '3d.tour.view_text': 'Ziehen zum Drehen, Umschalt-Ziehen zum Verschieben, Mausrad zum Zoomen. F drücken, um die Auswahl einzurahmen.',
+  '3d.tour.view_text': 'Ziehen zum Drehen, Shift-Ziehen zum Verschieben, Mausrad zum Zoomen. F drücken, um die Auswahl einzurahmen.',
   '3d.tour.outliner_title': 'Gliederung',
   '3d.tour.outliner_text': 'Jedes Objekt der Szene. Hier eines auswählen, um es zu bearbeiten.',
   '3d.tour.edit_title': 'Netz bearbeiten',

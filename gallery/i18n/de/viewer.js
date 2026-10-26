@@ -7,7 +7,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'gallery.viewer.seconds': '{n} s',
   'gallery.viewer.play': 'Abspielen',
   'gallery.viewer.pause': 'Pause',
-  'gallery.viewer.play_tip': 'Diashow (Leertaste)',
+  'gallery.viewer.play_tip': 'Diashow (Space)',
   'gallery.viewer.prev': 'Vorheriges Foto',
   'gallery.viewer.next': 'Nächstes Foto',
   'gallery.viewer.info': 'Info',

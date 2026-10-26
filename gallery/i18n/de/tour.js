@@ -2,7 +2,7 @@
 window.SlopI18n && window.SlopI18n.add('de', {
   'gallery.tour.title': 'Tour durch Slop Gallery',
   'gallery.tour.import_title': 'Importieren',
-  'gallery.tour.import_text': 'Fotos von diesem Gerät importieren (Strg+O), unten im Bereich.',
+  'gallery.tour.import_text': 'Fotos von diesem Gerät importieren (Ctrl+O), unten im Bereich.',
   'gallery.tour.library_title': 'Bibliothek',
   'gallery.tour.library_text': 'Ansichten, Alben und Filter. Auf dem Telefon öffnet „Filter“ diese Schublade.',
   'gallery.tour.views_title': 'Ansichten',
