@@ -18,18 +18,18 @@
 
   /** The toolbar control: preset buttons + range slider, kept in sync with every size change. */
   O.sizeControl = function () {
-    var wrap = h('div', { class: 'tz', role: 'group', 'aria-label': 'Thumbnail size' });
-    var seg = h('div', { class: 'seg seg-sm', role: 'radiogroup', 'aria-label': 'Thumbnail size presets' });
+    var wrap = h('div', { class: 'tz', role: 'group' });
+    var seg = h('div', { class: 'seg seg-sm', role: 'radiogroup' });
     O.PRESETS.forEach(function (s) {
-      var b = h('button', { type: 'button', class: 'seg-b', role: 'radio', 'data-size': s[0], title: 'Thumbnail size ' + s[1], 'aria-label': 'Thumbnail size ' + s[1] }, s[1]);
+      var b = h('button', { type: 'button', class: 'seg-b', role: 'radio', 'data-size': s[0] }, s[1]);
       b.addEventListener('click', function () { O.zoomTo(s[0]); });
       seg.appendChild(b);
     });
-    var range = h('input', { type: 'range', class: 'tz-range', min: O.MIN, max: 1200, step: 1, value: O.getSize(), 'aria-label': 'Thumbnail size', title: 'Thumbnail size (Ctrl + wheel or pinch on the pages)' });
+    var range = h('input', { type: 'range', class: 'tz-range', min: O.MIN, max: 1200, step: 1, value: O.getSize() });
     range.addEventListener('pointerdown', syncMax);
     range.addEventListener('focus', syncMax);
     range.addEventListener('input', function () { O.zoomTo(+range.value); });
-    var full = h('button', { type: 'button', class: 'tb tz-full', title: 'One page per row', 'aria-label': 'One page per row', html: U.icon('fit') });
+    var full = h('button', { type: 'button', class: 'tb tz-full', html: U.icon('fit') });
     full.addEventListener('click', function () { O.zoomTo(O.maxSize()); });
     function syncMax() { range.max = O.maxSize(); }
     function sync(px) {
@@ -37,6 +37,15 @@
       range.style.setProperty('--p', ((px - O.MIN) / Math.max(1, range.max - O.MIN) * 100) + '%');
       U.$$('.seg-b', seg).forEach(function (b) { var on = +b.dataset.size === px; b.classList.toggle('on', on); b.setAttribute('aria-checked', on ? 'true' : 'false'); });
     }
+    /** The words (again after a language switch). */
+    function words() {
+      var t = U.t, size = t('pdf.org.thumb_size');
+      wrap.setAttribute('aria-label', size); seg.setAttribute('aria-label', t('pdf.org.thumb_presets'));
+      U.$$('.seg-b', seg).forEach(function (b, i) { var s = t('pdf.org.thumb_size_n', { size: O.PRESETS[i][1] }); b.title = s; b.setAttribute('aria-label', s); });
+      range.setAttribute('aria-label', size); range.title = t('pdf.org.thumb_size_tip');
+      var one = t('pdf.org.one_per_row'); full.title = one; full.setAttribute('aria-label', one);
+    }
+    words(); U.onLang(words);
     O.onSize(sync);
     requestAnimationFrame(function () { sync(O.getSize()); });
     wrap.append(seg, range, full);

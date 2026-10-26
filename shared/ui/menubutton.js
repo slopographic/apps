@@ -22,6 +22,8 @@
 (function (g) {
   'use strict';
   if (g.SlopMenuButton) return;
+  /** A word from the shared tables (shared/i18n/ui/en.js), or the English given when SlopI18n or the key is absent. */
+  function tr(key, en, vars) { const I = globalThis.SlopI18n; if (I && I.has && I.has(key)) return I.t(key, vars); return vars ? String(en).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en; }
   /* Colours: the menu sits in <body>, outside the app's own themed boxes, so it reads only page-wide tokens: SlopUI's --s-*
    * (shared/slopui.css sets them on .smb-menu from the app's --sui-* map, as for its own menus), else the theme's --sl-*
    * (shared/theme/theme.js), else the system colours. Never an app's own --ink or --muted, which mean a background in some
@@ -122,9 +124,9 @@
         group.append(r);
       }
       if (!count) {
-        const p = doc.createElement('p'); p.className = 'smb-empty'; p.textContent = o.empty || 'Nothing to choose'; m.append(p);
+        const p = doc.createElement('p'); p.className = 'smb-empty'; p.textContent = o.empty || tr('ui.mb.nothing', 'Nothing to choose'); m.append(p);
       } else if (search) {
-        const p = doc.createElement('p'); p.className = 'smb-empty smb-nomatch'; p.textContent = 'No match'; p.hidden = true; m.append(p);
+        const p = doc.createElement('p'); p.className = 'smb-empty smb-nomatch'; p.textContent = tr('ui.mb.no_match', 'No match'); p.hidden = true; m.append(p);
       }
       m.addEventListener('keydown', onMenuKey);
       return m;
@@ -132,8 +134,8 @@
     /** The search box: filters the rows as you type; ArrowDown goes into the list, Enter picks the first match. */
     function searchBox(m) {
       const inp = doc.createElement('input');
-      inp.type = 'search'; inp.className = 'smb-search'; inp.placeholder = 'Search';
-      inp.setAttribute('aria-label', 'Search ' + (o.label || 'choices'));
+      inp.type = 'search'; inp.className = 'smb-search'; inp.placeholder = tr('ui.search', 'Search');
+      inp.setAttribute('aria-label', tr('ui.mb.search_aria', 'Search {what}', { what: o.label || tr('ui.mb.choices', 'choices') }));
       inp.setAttribute('autocomplete', 'off');
       inp.addEventListener('input', () => filter(inp.value));
       inp.addEventListener('keydown', (e) => {

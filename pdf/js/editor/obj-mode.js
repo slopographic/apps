@@ -12,8 +12,12 @@
   var O = S.obj = { sel: null, hover: null };
   var cache = new Map(), layerEl = null, act = null, HANDLES = ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'];
   Ed.objMode = false;
-  var NAMES = { image: 'Image', inline: 'Inline image', form: 'Placed artwork', vector: 'Vector drawing' };
-  O.name = function (o) { return NAMES[o.kind] || 'Object'; };
+  var NAMES = { image: 'Image', inline: 'Inline image', form: 'Placed artwork', vector: 'Vector drawing' }; // i18n-ignore: API (ui/ai-objects.js)
+  O.name = function (o) { return NAMES[o.kind] || 'Object'; }; // i18n-ignore: API, English for the agent tools
+  /** The object's kind as a person reads it inside a sentence ('Selected image', 'Move placed artwork'). */
+  O.label = function (o) { return U.t(NAMES[o.kind] ? 'pdf.ed.obj_kind_' + o.kind : 'pdf.ed.obj_kind_object'); };
+  // O.apply's verb: a key, or one of the English prefixes ui/ai-objects.js passes ('Move ', 'Turn ', 'Resize ')
+  var VERBS = { 'Move ': 'pdf.ed.undo_move_obj', 'Turn ': 'pdf.ed.undo_turn_obj', 'Resize ': 'pdf.ed.undo_resize_obj' }; // i18n-ignore
 
   /* ------------------------------------------------------------ the objects of a page */
   /** The objects of page p: a Promise of the list (each with its box in page space), read once per file page. */
@@ -70,7 +74,7 @@
     if (Ed.objMode && p) O.load(p).then(O.paint);
     O.paint();
     if (SP.app && SP.app.toolChanged) SP.app.toolChanged();
-    SlopUI.toast(Ed.objMode ? 'Objects: click an image or drawing on the page to move, resize or turn it.' : 'Objects mode is off.');
+    SlopUI.toast(U.t(Ed.objMode ? 'pdf.ed.obj_on' : 'pdf.ed.obj_off'));
   };
   O.select = function (o) {
     var p = Ed.page();
@@ -104,7 +108,7 @@
     if (hv && !act) el.appendChild(outline(O.quad(p, hv), 'is-hover'));
     var o = O.selected();
     if (!o) return;
-    var r = O.rect(p, o), box = px(U.h('div', { class: 'obj-box', role: 'img', 'aria-label': 'Selected ' + O.name(o).toLowerCase() }), r.x, r.y, r.w, r.h);
+    var r = O.rect(p, o), box = px(U.h('div', { class: 'obj-box', role: 'img', 'aria-label': U.t('pdf.ed.obj_selected', { what: O.label(o) }) }), r.x, r.y, r.w, r.h);
     box.addEventListener('pointerdown', function (e) { down(e, 'move'); });
     el.append(outline(O.quad(p, o), 'is-sel'), box);
     HANDLES.forEach(function (hh) {
@@ -113,7 +117,7 @@
       hd.addEventListener('pointerdown', function (e) { down(e, hh); });
       el.appendChild(hd);
     });
-    var rot = px(U.h('div', { class: 'obj-rot slop-hit', title: 'Turn (Shift: 15° steps)', 'aria-hidden': 'true' }), r.x + r.w / 2, r.y);
+    var rot = px(U.h('div', { class: 'obj-rot slop-hit', title: U.t('pdf.ed.obj_turn_tip'), 'aria-hidden': 'true' }), r.x + r.w / 2, r.y);
     rot.addEventListener('pointerdown', function (e) { down(e, 'rot'); });
     el.appendChild(rot);
   };
@@ -184,7 +188,7 @@
     S.pageEl.removeEventListener('pointermove', move); S.pageEl.removeEventListener('pointerup', up); S.pageEl.removeEventListener('pointercancel', up);
     var a = act; act = null;
     if (!a.moved || !a.T) { O.paint(); return; }
-    O.apply(a.p, a.o, a.T, a.h === 'move' ? 'Move ' : a.h === 'rot' ? 'Turn ' : 'Resize ', a.ghost);
+    O.apply(a.p, a.o, a.T, a.h === 'move' ? 'pdf.ed.undo_move_obj' : a.h === 'rot' ? 'pdf.ed.undo_turn_obj' : 'pdf.ed.undo_resize_obj', a.ghost);
   }
   /** Two fingers while dragging the object: the pinch scales it about the fingers and their move moves it (Ed.nav). */
   ['zoomAt', 'panBy'].forEach(function (k) {
@@ -207,9 +211,10 @@
    * Resolves the object on the new content (or true), false when it could not be changed. */
   O.apply = async function (p, o, T, verb, gh) {
     var A = O.toPage(p), Tu = Ob.mul(Ob.mul(A, T), Ob.inv(A)), want = Ob.boxOf(o.quad.map(function (q) { var v = Ob.apply(Tu, q[0], q[1]); return v; }));
-    SP.app.status((verb || 'Change ') + O.name(o).toLowerCase() + '…');
-    var to = await S.objCommit(p, { op: 'transform', id: o.id, T: Tu.map(function (v) { return +v.toFixed(6); }) }, (verb || 'Change ') + O.name(o).toLowerCase());
-    if (!to) { if (gh) gh.remove(); SlopUI.toast('This object could not be changed here.'); O.paint(); return false; }
+    var label = U.t(VERBS[verb] || verb || 'pdf.ed.undo_change_obj', { what: O.label(o) });
+    SP.app.status(label + '…');
+    var to = await S.objCommit(p, { op: 'transform', id: o.id, T: Tu.map(function (v) { return +v.toFixed(6); }) }, label);
+    if (!to) { if (gh) gh.remove(); SlopUI.toast(U.t('pdf.ed.obj_not_changed_here')); O.paint(); return false; }
     var now = await O.follow(p.id, o, want);
     if (gh) waitRaster(p.id, function () { gh.remove(); });
     SP.app.status('');

@@ -128,11 +128,11 @@
     return new Promise(function (res) {
       var choice = null, n = rec.entries.length;
       SlopUI.dialog({
-        title: 'Saved edits found',
-        body: 'Slop PDF kept ' + n + ' edit' + (n === 1 ? '' : 's') + ' to “' + f.name + '” on this device. Replay them on this file, or discard them. Save or Export writes a new PDF either way.',
+        title: U.t('pdf.io.log_found_title'),
+        body: U.t('pdf.io.log_found_body', { n: n, name: f.name }),
         buttons: [
-          { label: 'Discard', danger: true, act: function () { choice = 'discard'; } },
-          { label: 'Replay', primary: true, act: function () { choice = 'replay'; } }
+          { label: U.t('pdf.io.log_discard'), danger: true, act: function () { choice = 'discard'; } },
+          { label: U.t('pdf.io.log_replay'), primary: true, act: function () { choice = 'replay'; } }
         ],
         onClose: function () { res(choice || 'kept'); }
       });
@@ -146,7 +146,7 @@
     if (!rec || rec.v !== 1 || rec.fid !== f.id || !rec.entries || !rec.entries.length) return 'none';
     f.noLog = true; // nothing is written for this file until the choice is made
     var choice = await ask(f, rec);
-    if (choice === 'replay') { await L.replay(rec); f.noLog = false; E.emit('change', { label: 'Replay saved edits' }); return 'replay'; }
+    if (choice === 'replay') { await L.replay(rec); f.noLog = false; E.emit('change', { label: U.t('pdf.io.log_replayed') }); return 'replay'; }
     if (choice === 'discard') { try { await U.idb.del(KEY + f.fp); } catch (e) { /* ignore */ } f.noLog = false; return 'discard'; }
     return 'kept';
   };

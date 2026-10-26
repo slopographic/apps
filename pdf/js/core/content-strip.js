@@ -200,7 +200,7 @@
   function prefix(o) {
     var a = o.args;
     if (o.op === "'") return 'T* ';
-    if (o.op === '"') return Lx.num(a[0]) + ' Tw ' + Lx.num(a[1]) + ' Tc T* ';
+    if (o.op === '"') return Lx.num(a[0]) + ' Tw ' + Lx.num(a[1]) + ' Tc T* '; // i18n-ignore: PDF names / font names / producer, not UI
     return '';
   }
   /** A TJ operator from parts (strings and numbers), numbers next to each other added up. */

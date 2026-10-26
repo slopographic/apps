@@ -3,6 +3,14 @@
 (function () {
   'use strict';
   var M = window.SlopPdfMacro = window.SlopPdfMacro || {};
+  /** The chosen language's text for a key (SlopI18n), else the English given: a string, or [one, other] for vars.n
+   *  (node tests and pages without the tables). */
+  function tr(k, en, v) {
+    var I = window.SlopI18n;
+    if (I && I.has && I.has(k)) return I.t(k, v);
+    if (Array.isArray(en)) en = v && v.n === 1 ? en[0] : en[1];
+    return String(en).replace(/\{(\w+)\}/g, function (m, n) { return v && n in v ? String(v[n]) : m; });
+  }
 
   /** Parses a page list such as "1-3, 5, last" (1-based) into sorted 0-based indices.
    *  "" or "all" means every page. Keywords: all, odd, even, last. Throws a readable Error for bad
@@ -21,11 +29,11 @@
       if (p === 'even') return addAll(function (k) { return k % 2 === 0; });
       if (p === 'last') { if (finite && total > 0) out.add(total - 1); return; }
       var m = /^(\d+)(?:\s*-\s*(\d+))?$/.exec(p);
-      if (!m) throw new Error('“' + p + '” is not a page number. Use numbers such as 2 or 1-3, or the words all, odd, even, last.');
+      if (!m) throw new Error(tr('pdf.macro.err_page_word', '“{p}” is not a page number. Use numbers such as 2 or 1-3, or the words all, odd, even, last.', { p: p }));
       var a = +m[1], b = m[2] != null ? +m[2] : a;
       if (a > b) { var t = a; a = b; b = t; }
       for (var k = a; k <= b; k++) {
-        if (finite && (k < 1 || k > total)) throw new Error('Page ' + k + ' is not in this file, which has ' + total + ' page' + (total === 1 ? '' : 's') + '.');
+        if (finite && (k < 1 || k > total)) throw new Error(tr('pdf.macro.err_page_range', ['Page {k} is not in this file, which has {n} page.', 'Page {k} is not in this file, which has {n} pages.'], { k: String(k), n: total }));
         out.add(k - 1);
       }
     });

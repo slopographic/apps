@@ -86,7 +86,7 @@
     if (!p || !s || !live || live.locked) return;
     var a = JSON.parse(JSON.stringify(live));
     a.styles.forEach(function (st, i) { Object.defineProperty(st, 'info', { value: live.styles[i].info, enumerable: false, writable: true }); });
-    var box = U.h('div', { class: 'para-edit', contenteditable: 'true', spellcheck: 'false', role: 'textbox', 'aria-multiline': 'true', 'aria-label': 'Paragraph text', dir: a.rtl ? 'rtl' : 'ltr' });
+    var box = U.h('div', { class: 'para-edit', contenteditable: 'true', spellcheck: 'false', role: 'textbox', 'aria-multiline': 'true', 'aria-label': U.t('pdf.ed.pe_text'), dir: a.rtl ? 'rtl' : 'ltr' });
     fill(box, a);
     var before = serialize(box, a), ed = P.editor = { sel: sel, a: a, box: box, done: false };
     try { document.execCommand('defaultParagraphSeparator', false, 'div'); } catch (e) { /* the browser's own */ }
@@ -141,9 +141,9 @@
       await P.reloadInfos(p, a);
       await P.readyText(a);
       P.relayout(a);
-      P.commit(p, sel, a, 'Edit paragraph');
+      P.commit(p, sel, a, U.t('pdf.ed.undo_edit_para'));
       P.draw();
-    } catch (e) { SlopUI.toast('The paragraph could not be changed: ' + (e && e.message || e)); }
+    } catch (e) { SlopUI.toast(U.t('pdf.ed.pe_failed', { err: String(e && e.message || e) })); }
   }
   /** A double click on a frame annotation with the select tool (pointer.js): it opens for typing. */
   S.paraEditAnnot = function (a) {

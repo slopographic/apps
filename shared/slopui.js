@@ -4,6 +4,8 @@
 (function () {
   'use strict';
   if (window.SlopUI) return;
+  /** A word from the shared tables (shared/i18n/ui/en.js), or the English given when SlopI18n or the key is absent. */
+  function tr(key, en, vars) { const I = globalThis.SlopI18n; if (I && I.has && I.has(key)) return I.t(key, vars); return vars ? String(en).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en; }
   const isMac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
   function el(tag, attrs, ...kids) {
     const n = document.createElement(tag);
@@ -31,8 +33,8 @@
    */
   function dialog(o) {
     const back = el('div', { class: 'sui-back' + (o.modal === false || o.dock ? ' sui-modeless' : '') + (o.dock ? ' sui-dock-' + o.dock : '') });
-    const box = el('div', { class: 'sui-dlg ' + (o.cls || ''), role: 'dialog', 'aria-modal': o.modal === false ? 'false' : 'true', 'aria-label': o.title || 'Dialog' });
-    const closeBtn = el('button', { class: 'sui-x', type: 'button', 'aria-label': 'Close' }, '×');
+    const box = el('div', { class: 'sui-dlg ' + (o.cls || ''), role: 'dialog', 'aria-modal': o.modal === false ? 'false' : 'true', 'aria-label': o.title || tr('ui.dlg.dialog', 'Dialog') });
+    const closeBtn = el('button', { class: 'sui-x', type: 'button', 'aria-label': tr('menu.close', 'Close') }, '×');
     const head = el('div', { class: 'sui-head' }, el('span', { class: 'sui-title' }, o.title || ''), closeBtn);
     const body = el('div', { class: 'sui-body' }, typeof o.body === 'string' ? el('p', { class: 'sui-p' }, o.body) : o.body);
     const foot = el('div', { class: 'sui-foot' });
@@ -90,14 +92,14 @@
     });
     return { box, body, close };
   }
-  const alert = (title, msg, ok = 'OK') => new Promise((res) => dialog({ title, body: msg, buttons: [{ label: ok, primary: true }], onClose: () => res() }));
-  const confirm = (title, msg, ok = 'OK', { danger = false, cancel = 'Cancel' } = {}) => new Promise((res) => dialog({ title, body: msg, buttons: [{ label: cancel }, { label: ok, primary: true, danger }], onClose: (r) => res(r) }));
-  function prompt(title, label, value = '', { ok = 'OK', placeholder = '', multiline = false } = {}) {
+  const alert = (title, msg, ok = tr('menu.ok', 'OK')) => new Promise((res) => dialog({ title, body: msg, buttons: [{ label: ok, primary: true }], onClose: () => res() }));
+  const confirm = (title, msg, ok = tr('menu.ok', 'OK'), { danger = false, cancel = tr('menu.cancel', 'Cancel') } = {}) => new Promise((res) => dialog({ title, body: msg, buttons: [{ label: cancel }, { label: ok, primary: true, danger }], onClose: (r) => res(r) }));
+  function prompt(title, label, value = '', { ok = tr('menu.ok', 'OK'), placeholder = '', multiline = false } = {}) {
     return new Promise((res) => {
       const input = multiline ? el('textarea', { class: 'sui-input', rows: 4, placeholder }) : el('input', { class: 'sui-input', type: 'text', placeholder });
       input.value = value;
       let out = null;
-      dialog({ title, body: field(label, input), buttons: [{ label: 'Cancel' }, { label: ok, primary: true, act: () => { out = input.value; } }], onClose: (r) => res(r ? out : null) });
+      dialog({ title, body: field(label, input), buttons: [{ label: tr('menu.cancel', 'Cancel') }, { label: ok, primary: true, act: () => { out = input.value; } }], onClose: (r) => res(r ? out : null) });
     });
   }
   /** A labelled row for forms: field('Width', input, 'px'). */
@@ -263,5 +265,5 @@
     setTimeout(() => URL.revokeObjectURL(a.href), 4000);
   }
 
-  window.SlopUI = { el, dialog, alert, confirm, prompt, field, number, select, check, toast, menu, closeMenu, placeFlyout, narrow, pickFiles, download, get openDialogs() { return open; } };
+  window.SlopUI = { tr, el, dialog, alert, confirm, prompt, field, number, select, check, toast, menu, closeMenu, placeFlyout, narrow, pickFiles, download, get openDialogs() { return open; } };
 })();

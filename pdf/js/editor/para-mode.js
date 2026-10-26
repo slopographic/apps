@@ -16,10 +16,12 @@
   function buildBar() {
     var page = document.getElementById('ctxPage');
     if (!page || bar) return;
-    var seg = U.h('div', { class: 'seg seg-sm', role: 'radiogroup', 'aria-label': 'Edit text selects' });
-    [['lines', 'Lines', 'One line at a time'], ['paragraphs', 'Paragraphs', 'Whole paragraphs that rewrap, like a text frame']].forEach(function (m) {
-      var b = U.h('button', { type: 'button', class: 'seg-b', role: 'radio', 'data-mode': m[0], title: m[2] }, m[1]);
-      b.addEventListener('click', function () { Ed.setEditTextMode(m[0]); });
+    // built once: data-i18n / data-i18n-attr let SlopI18n.apply() retranslate it, sync() (from U.onLang) the hint
+    var seg = U.h('div', { class: 'seg seg-sm', role: 'radiogroup', 'aria-label': U.t('pdf.ed.pm_selects'), 'data-i18n-attr': 'aria-label:pdf.ed.pm_selects' });
+    ['lines', 'paragraphs'].forEach(function (m) {
+      var k = 'pdf.ed.pm_' + m;
+      var b = U.h('button', { type: 'button', class: 'seg-b', role: 'radio', 'data-mode': m, title: U.t(k + '_tip'), 'data-i18n': k, 'data-i18n-attr': 'title:' + k + '_tip' }, U.t(k));
+      b.addEventListener('click', function () { Ed.setEditTextMode(m); });
       b.addEventListener('keydown', function (e) {
         if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight' && e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
         e.preventDefault(); e.stopPropagation();
@@ -28,12 +30,13 @@
       });
       seg.appendChild(b);
     });
-    var done = U.h('button', { type: 'button', class: 'tb tb-l et-done', title: 'Turn Edit text off (Ctrl+E)' }, 'Done');
+    var done = U.h('button', { type: 'button', class: 'tb tb-l et-done', title: U.t('pdf.ed.pm_done_tip'), 'data-i18n': 'ui.done', 'data-i18n-attr': 'title:pdf.ed.pm_done_tip' }, U.t('ui.done'));
     done.addEventListener('click', function () { if (Ed.editText) Ed.toggleEditText(); });
-    bar = U.h('div', { class: 'ctxbar ctx-edittext', id: 'ctxEditText', role: 'toolbar', 'aria-label': 'Edit text', hidden: true },
-      U.h('span', { class: 'et-label' }, 'Edit text'), seg, U.h('span', { class: 'et-hint' }), U.h('span', { class: 'tb-flex' }), done);
+    bar = U.h('div', { class: 'ctxbar ctx-edittext', id: 'ctxEditText', role: 'toolbar', 'aria-label': U.t('pdf.ed.edit_text'), 'data-i18n-attr': 'aria-label:pdf.ed.edit_text', hidden: true },
+      U.h('span', { class: 'et-label', 'data-i18n': 'pdf.ed.edit_text' }, U.t('pdf.ed.edit_text')), seg, U.h('span', { class: 'et-hint' }), U.h('span', { class: 'tb-flex' }), done);
     page.after(bar);
     sync();
+    U.onLang(sync);
   }
   function sync() {
     if (!bar) return;
@@ -42,7 +45,7 @@
       var on = (b.dataset.mode === 'paragraphs') === !!Ed.paraMode;
       b.classList.toggle('on', on); b.setAttribute('aria-checked', on ? 'true' : 'false'); b.tabIndex = on ? 0 : -1;
     });
-    U.$('.et-hint', bar).textContent = Ed.paraMode ? 'Click a paragraph, then double-click or Enter to type. Drag a side to reflow, the frame to move.' : 'Click a line of text, type, Enter applies, Esc cancels.';
+    U.$('.et-hint', bar).textContent = U.t(Ed.paraMode ? 'pdf.ed.pm_hint_para' : 'pdf.ed.pm_hint_lines');
     if (S.viewer) S.viewer.classList.toggle('para-mode', !!(Ed.editText && Ed.paraMode));
   }
   Ed.setEditTextMode = function (mode) {
@@ -77,13 +80,14 @@
     var bs = sel.blocks, x0 = Math.min.apply(null, bs.map(function (b) { return b.x0; })), y0 = Math.min.apply(null, bs.map(function (b) { return b.top; }));
     return { x: x0, y: y0, w: Math.max.apply(null, bs.map(function (b) { return b.x1; })) - x0, h: Math.max.apply(null, bs.map(function (b) { return b.bottom; })) - y0 };
   };
+  var ALIGN = { left: 'pdf.ed.pm_align_left', right: 'pdf.ed.pm_align_right', center: 'pdf.ed.pm_align_center', justify: 'pdf.ed.pm_align_justify' }; // the alignments para-blocks.js finds
   P.draw = function (rect) {
     var sel = P.sel, s = sel && S.slots.get(sel.pid);
     if (!sel || !s || (sel.kind === 'annot' && !S.findAnnot(sel.id))) { if (sel && !P.editor) P.clear(); return; }
     var el = U.$('.para-frame', s.layer), z = Ed.zoom, r = rect || P.rectOf(sel);
     if (!el) {
-      el = U.h('div', { class: 'para-frame', tabindex: '0', role: 'group', 'aria-label': 'Paragraph frame. Enter edits the text, Escape lets it go.' },
-        U.h('div', { class: 'para-h', 'data-h': 'w', title: 'Drag to change the width' }), U.h('div', { class: 'para-h', 'data-h': 'e', title: 'Drag to change the width' }),
+      el = U.h('div', { class: 'para-frame', tabindex: '0', role: 'group', 'aria-label': U.t('pdf.ed.pm_frame'), 'data-i18n-attr': 'aria-label:pdf.ed.pm_frame' },
+        U.h('div', { class: 'para-h', 'data-h': 'w', title: U.t('pdf.ed.pm_drag_width'), 'data-i18n-attr': 'title:pdf.ed.pm_drag_width' }), U.h('div', { class: 'para-h', 'data-h': 'e', title: U.t('pdf.ed.pm_drag_width'), 'data-i18n-attr': 'title:pdf.ed.pm_drag_width' }),
         U.h('span', { class: 'para-tag' }));
       wire(el);
       s.layer.appendChild(el);
@@ -91,7 +95,7 @@
     var a = r.a || sel.model;
     el.classList.toggle('is-busy', !a);
     el.classList.toggle('is-editing', !!P.editor);
-    U.$('.para-tag', el).textContent = a ? 'Paragraph · ' + ({ justify: 'justified', center: 'centred' }[a.align] || a.align) + (a.rtl ? ' · right to left' : '') : 'Paragraph…';
+    U.$('.para-tag', el).textContent = a ? U.t(a.rtl ? 'pdf.ed.pm_tag_rtl' : 'pdf.ed.pm_tag', { align: ALIGN[a.align] ? U.t(ALIGN[a.align]) : String(a.align) }) : U.t('pdf.ed.pm_tag_busy');
     el.style.left = (r.x * z) + 'px'; el.style.top = (r.y * z) + 'px'; el.style.width = (r.w * z) + 'px'; el.style.height = (r.h * z) + 'px';
   };
   /** Selects blocks of a page: the frame shows at once and its fonts are set up behind it. */
@@ -103,7 +107,7 @@
       sel.model = m.annot; sel.covers = m.covers; sel.preview = m.preview; sel.to = m.to; P.draw(); return sel;
     }, function (e) {
       if (P.sel === sel) P.clear();
-      if (!(e && e.message === 'cancelled')) SlopUI.toast('This paragraph could not be set up: ' + (e && e.message || e));
+      if (!(e && e.message === 'cancelled')) SlopUI.toast(U.t('pdf.ed.pm_setup_failed', { err: String(e && e.message || e) }));
       return null;
     });
     P.draw();
@@ -137,11 +141,11 @@
     P.blocksOf(p).then(function (bs) {
       var go = function () {
         var hit = P.blocksIn(bs, start, end);
-        if (!hit.length) { P.clear(); SlopUI.toast('No text there. Click on a paragraph.'); return; }
+        if (!hit.length) { P.clear(); SlopUI.toast(U.t('pdf.ed.pm_no_text_there')); return; }
         P.selectBlocks(p, hit);
       };
       if (up) go(); else done = go;
-    }, function () { SlopUI.toast('This page has no text to edit.'); });
+    }, function () { SlopUI.toast(U.t('pdf.ed.et_no_text_page')); });
     return true;
   };
 
@@ -192,7 +196,7 @@
       window.removeEventListener('pointermove', mv); window.removeEventListener('pointerup', up); window.removeEventListener('pointercancel', up);
       p.annots = saved;
       if (!moved || !cur) { Ed.paint(); return; }
-      P.commit(p, sel, cur, h === 'move' ? 'Move paragraph' : 'Resize paragraph');
+      P.commit(p, sel, cur, U.t(h === 'move' ? 'pdf.ed.undo_move_para' : 'pdf.ed.undo_resize_para'));
     }
     window.addEventListener('pointermove', mv); window.addEventListener('pointerup', up); window.addEventListener('pointercancel', up);
   }

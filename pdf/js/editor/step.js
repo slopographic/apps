@@ -23,7 +23,7 @@
   /** A click with the step tool: place the next step. The tool stays on for the next one. */
   S.stepDown = function (e, p, pt) {
     var a = E.newStep(pt);
-    Ed.addAnnot(a, 'Add step ' + a.n);
+    Ed.addAnnot(a, U.t('pdf.ed.undo_add_step', { n: String(a.n) }));
   };
 
   /** SVG for a step: the filled circle, its number, and the comment (if any) to the right. Page space, as the other annotations. */

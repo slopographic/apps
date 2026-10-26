@@ -13,7 +13,9 @@
   'use strict';
   const doc = root.document;
   const C = (root.SlopDropChoice = root.SlopDropChoice || {});
-  const ZONES = { new: 'Create new', current: 'Add to current', newHint: 'Open as a new document', currentHint: 'Add to the document that is open' };
+  /** A word from the shared tables (shared/i18n/ui/en.js), or the English given when SlopI18n or the key is absent. */
+  function tr(key, en, vars) { const I = globalThis.SlopI18n; if (I && I.has && I.has(key)) return I.t(key, vars); return vars ? String(en).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en; }
+  const ZONES = () => ({ new: tr('ui.drop.create_new', 'Create new'), current: tr('ui.drop.add_current', 'Add to current'), newHint: tr('ui.drop.new_hint', 'Open as a new document'), currentHint: tr('ui.drop.current_hint', 'Add to the document that is open') });
   const CSS = [
     '.sdc-zones{position:absolute;inset:0;display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:14px;z-index:20;background:color-mix(in srgb,var(--app,#111) 60%,transparent)}',
     '.sdc-zones[hidden]{display:none}',
@@ -47,7 +49,7 @@
     if (!o.hasDocument) return Promise.resolve('new');
     const SI = root.SlopIntake;
     if (!SI || !SI.choose) return Promise.resolve('current');
-    const L = Object.assign({ title: 'Add files', message: 'Where should these files go?', current: 'Add to current', new: 'Create new' }, o.labels);
+    const L = Object.assign({ title: tr('ui.intake.add_files', 'Add files'), message: tr('ui.drop.where', 'Where should these files go?'), current: tr('ui.drop.add_current', 'Add to current'), new: tr('ui.drop.create_new', 'Create new') }, o.labels);
     return SI.choose({ count: files.length, names: files.map((f) => f.name), labels: { title: L.title, message: L.message, add: L.current, new: L.new, cancel: L.cancel } })
       .then((p) => (p === 'add' ? 'current' : p));
   };
@@ -57,7 +59,7 @@
     if (!host) return null; // no host on this page: nothing to attach
     o = o || {};
     style();
-    const L = Object.assign({}, ZONES, o.labels || {});
+    const L = Object.assign({}, ZONES(), o.labels || {});
     const accept = o.accept || isFiles;
     if (root.getComputedStyle && root.getComputedStyle(host).position === 'static') host.style.position = 'relative';
     const box = el('div', 'sdc-zones');

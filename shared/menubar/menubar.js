@@ -15,6 +15,8 @@
 (function () {
   'use strict';
   if (window.SlopMenuBar) return;
+  /** A word from the shared tables (shared/i18n/ui/en.js), or the English given when SlopI18n or the key is absent. */
+  function tr(key, en, vars) { const I = globalThis.SlopI18n; if (I && I.has && I.has(key)) return I.t(key, vars); return vars ? String(en).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en; }
   const $ = (sel) => document.querySelector(sel);
   const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
 
@@ -83,9 +85,12 @@
     return { rows, pairs };
   }
 
+  /** The menu names the shared tables have (menu.* in shared/i18n/strings.js); the title stays the menu's id. */
+  const TITLE_KEY = { File: 'menu.file', Edit: 'menu.edit', View: 'menu.view', Help: 'menu.help', Insert: 'ui.mb.insert', Format: 'ui.mb.format', Tools: 'ui.mb.tools' };
   function menuFor(title, source) {
     const wrap = el('div', 'smb-menu');
-    const btn = el('button', 'smb-menu-b', title);
+    const btn = el('button', 'smb-menu-b', TITLE_KEY[title] ? tr(TITLE_KEY[title], title) : title);
+    if (TITLE_KEY[title]) btn.dataset.i18n = TITLE_KEY[title];   // the plain menu names follow a language change (shared/i18n)
     btn.type = 'button'; btn.setAttribute('aria-haspopup', 'menu'); btn.setAttribute('aria-expanded', 'false');
     const list = el('div', 'smb-pop'); list.setAttribute('role', 'menu'); list.hidden = true;
     let state = { rows: [], pairs: [] };
@@ -126,16 +131,17 @@
     const bar = host || el('header', 'smb-bar');
     bar.classList.add('smb-bar');
     if (host) host.replaceChildren();
-    bar.setAttribute('aria-label', 'Application menu');
+    bar.setAttribute('aria-label', tr('ui.mb.app_menu', 'Application menu')); bar.dataset.i18nAttr = 'aria-label:ui.mb.app_menu';
     // The brand is the app's icon with the Slopographic mark as a corner badge (SlopBrand.appMark, brand/brand.js), as in
     // every app header; the plain mark when the page has no icon for the app.
     const brand = el('a', 'smb-brand brand');
-    brand.href = opts.home || '../'; brand.title = 'Slopographic home'; brand.setAttribute('aria-label', 'Slopographic home');
+    brand.href = opts.home || '../'; brand.title = tr('ui.mb.home', 'Slopographic home'); brand.setAttribute('aria-label', brand.title);
+    brand.dataset.i18nAttr = 'title:ui.mb.home;aria-label:ui.mb.home';
     brand.innerHTML = '<svg class="brand-mark smb-mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/></svg>';
     const name = el('span', 'smb-app', opts.app || document.title.split('|')[0].trim());
     // "100% local": the page's own badge (it carries what stays local in its title) moves next to the name, in every app.
 
-    const menubar = el('nav', 'smb-menus'); menubar.setAttribute('aria-label', 'Menus');
+    const menubar = el('nav', 'smb-menus'); menubar.setAttribute('aria-label', tr('ui.mb.menus', 'Menus')); menubar.dataset.i18nAttr = 'aria-label:ui.mb.menus';
     const closers = [];
     for (const title of Object.keys(opts.menus || {})) {
       const own = opts.menus[title];

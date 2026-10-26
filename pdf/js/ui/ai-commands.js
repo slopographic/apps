@@ -28,7 +28,7 @@
     await E.libs();
     var t = X.page(a.page);
     var an = { type: 'text', text: a.text, font: a.font, bold: a.bold, italic: a.italic, size: a.size, color: a.color, opacity: 1 }, L = E.textLayout(an);
-    return 'Added the text on page ' + (t.i + 1) + '.' + place(t, an, { x: a.x, y: a.y, w: L.w, h: L.h }, 'Add text', 'the text');
+    return 'Added the text on page ' + (t.i + 1) + '.' + place(t, an, { x: a.x, y: a.y, w: L.w, h: L.h }, U.t('pdf.cmd.undo_add_text'), 'the text');
   }, { description: 'Write text on a page (a text box in Helvetica, Times or Courier), as the Text tool does.' });
 
   var KINDS = { rect: 'Rectangle', ellipse: 'Ellipse', line: 'Line', arrow: 'Arrow', highlight: 'Highlight box', whiteout: 'Whiteout' };
@@ -46,12 +46,12 @@
       an = { type: a.kind, color: a.color, width: a.line_width, opacity: a.opacity == null ? 1 : a.opacity,
         pts: [E.toPage(R, g.W, g.H, r.x, r.y), E.toPage(R, g.W, g.H, r.x + r.w, r.y + r.h)] };
       var b = { x: Math.min(r.x, r.x + r.w), y: Math.min(r.y, r.y + r.h), w: Math.abs(r.w), h: Math.abs(r.h) };
-      return 'Added a ' + a.kind + ' on page ' + (t.i + 1) + '.' + place(t, an, b, 'Add ' + a.kind, 'the ' + a.kind);
+      return 'Added a ' + a.kind + ' on page ' + (t.i + 1) + '.' + place(t, an, b, U.t('pdf.cmd.undo_add_kind', { kind: a.kind }), 'the ' + a.kind);
     }
     if (a.kind === 'highlight') an = { type: 'hlbox', fill: fill || '#ffe14d', opacity: a.opacity == null ? 0.4 : a.opacity };
     else if (a.kind === 'whiteout') an = { type: 'whiteout', fill: fill || '#ffffff', opacity: 1 };
     else an = { type: a.kind, color: a.color, width: a.line_width, fill: fill || 'none', opacity: a.opacity == null ? 1 : a.opacity };
-    return 'Added a ' + KINDS[a.kind].toLowerCase() + ' on page ' + (t.i + 1) + '.' + place(t, an, r, 'Add ' + an.type, 'the shape');
+    return 'Added a ' + KINDS[a.kind].toLowerCase() + ' on page ' + (t.i + 1) + '.' + place(t, an, r, U.t('pdf.cmd.undo_add_kind', { kind: an.type }), 'the shape');
   }, { description: 'Draw a rectangle, ellipse, line, arrow, see-through highlight box or whiteout on a page.' });
 
   add('add_image', 'Add a picture', [X.PAGE, Str('file', 'a Slop Drive picture (name or id)', { maxLength: 300 }), Str('url', 'or a picture on this site, e.g. /og-share.png', { maxLength: 500 })].concat(BOX),
@@ -62,7 +62,7 @@
     var asset = E.addAsset({ mime: im.mime, url: U.bytesToDataURL(im.bytes, im.mime), w: im.w, h: im.h, name: pic.name });
     var vs = E.viewSize(t.p), w = a.width || (a.height ? a.height * im.w / im.h : Math.min(vs.w * 0.45, im.w * 0.75)), h = a.height || w * im.h / im.w;
     var r = { x: a.x == null ? (vs.w - w) / 2 : a.x, y: a.y == null ? (vs.h - h) / 2 : a.y, w: w, h: h };
-    return 'Added ' + pic.name + ' on page ' + (t.i + 1) + '.' + place(t, { type: 'image', asset: asset.id, opacity: 1 }, r, 'Add image', 'the picture');
+    return 'Added ' + pic.name + ' on page ' + (t.i + 1) + '.' + place(t, { type: 'image', asset: asset.id, opacity: 1 }, r, U.t('pdf.cmd.undo_add_image'), 'the picture');
   }, { description: 'Put a picture from Slop Drive or this site on a page.' });
 
   add('fill_form_field', 'Fill a form field', [Str('name', 'the field name (app_state lists them)', { required: true, maxLength: 300 }), Str('value', 'the text, the choice, or true/false for a checkbox', { maxLength: 5000, default: '' }),
@@ -75,7 +75,7 @@
       if (fld.readOnly) throw new Error('The field “' + a.name + '” is read-only');
       var v = fld.type === 'checkbox' ? /^(true|yes|on|1|x)$/i.test(a.value) : String(a.value);
       if (fld.options && fld.type !== 'checkbox') { var hit = fld.options.map(function (o) { return Array.isArray(o) ? o[0] : o; }).filter(function (o) { return String(o).toLowerCase() === String(v).toLowerCase(); })[0]; if (hit == null) throw new Error('“' + a.value + '” is not a choice of “' + a.name + '”'); v = hit; }
-      E.commit('Fill “' + a.name + '”', function (st) { st.forms[f.id] = Object.assign({}, st.forms[f.id] || {}); st.forms[f.id][a.name] = v; if (a.flatten != null) st.flattenForms = !!a.flatten; });
+      E.commit(U.t('pdf.cmd.undo_fill_field', { name: a.name }), function (st) { st.forms[f.id] = Object.assign({}, st.forms[f.id] || {}); st.forms[f.id][a.name] = v; if (a.flatten != null) st.flattenForms = !!a.flatten; });
       return 'Filled “' + a.name + '” with ' + JSON.stringify(v) + '.';
     }
     throw new Error('No form field “' + a.name + '”');
@@ -86,7 +86,7 @@
     X.need();
     var m = {}; ['title', 'author', 'subject', 'keywords'].forEach(function (k) { if (a[k] != null) m[k] = a[k]; });
     if (!Object.keys(m).length) throw new Error('Give title, author, subject or keywords');
-    E.commit('Document info', function (st) { st.meta = Object.assign({}, st.meta, m); });
+    E.commit(U.t('pdf.cmd.undo_document_info'), function (st) { st.meta = Object.assign({}, st.meta, m); });
     if (A.paintMeta) A.paintMeta();
     return 'Set ' + Object.keys(m).join(', ') + '.';
   });

@@ -6,7 +6,7 @@
    time. Classic script. */
 (function () {
   'use strict';
-  var SP = window.SP, E = SP.engine, A = SP.app, S = SP.editor._;
+  var SP = window.SP, E = SP.engine, A = SP.app, S = SP.editor._, t = SP.util.t;
 
   /** The families of the open files: names (subset or standard), the standard ones, and the files that use each. */
   async function gather() {
@@ -30,18 +30,18 @@
     if (SP.offline || !E.state.pages.length) return;
     var got = await gather();
     if (!got.names.length && !got.standard.length) {
-      SlopUI.toast(got.any ? 'Every font in this document is embedded in full, so none needs an answer.' : 'This document has no text, so there are no fonts to list.');
+      SlopUI.toast(t(got.any ? 'pdf.act.fonts_all_full' : 'pdf.act.fonts_no_text'));
       return;
     }
     await window.SlopFonts.ready();
     window.SlopFonts.openPanel({
-      title: 'Fonts',
-      note: got.names.length ? 'Fonts this document embeds as a subset. A missing one is needed to edit its text as it looks.' : 'This document uses only standard fonts (Helvetica, Times, Courier). Every PDF viewer has them, so nothing is missing.',
+      title: t('pdf.act.fonts_title'),
+      note: t(got.names.length ? 'pdf.act.fonts_subset_note' : 'pdf.act.fonts_std_note'),
       fonts: got.names,
       standard: got.standard,
       onUse: function (ans) {
         (got.filesOf.get(ans.family) || []).forEach(function (f) { f.fontMap = f.fontMap || new Map(); f.fontMap.set(ans.family, ans.use); });
-        SlopUI.toast('Using ' + ans.use + ' for ' + ans.family);
+        SlopUI.toast(t('pdf.act.fonts_using', { use: ans.use, family: ans.family }));
       },
     });
   };

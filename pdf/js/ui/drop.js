@@ -10,10 +10,10 @@
 (function () {
   'use strict';
   var SP = window.SP, U = SP.util, E = SP.engine, A = SP.app, S = A._; // SP.docs (io/doc-state.js) loads after the first paint: read it when used
-  var h = U.h;
+  var h = U.h, t = U.t;
   var OPENS = ['pdf', 'png', 'jpg', 'jpeg', 'webp', 'gif', 'bmp'];
   var OPEN_TYPE = /^application\/pdf$|^image\/(png|jpe?g|webp|gif|bmp)$/;
-  var RULES = { any: true, noun: 'a file' }; // every file is taken by the zone; the ones not opened here go to Convert
+  var RULES = { any: true, get noun() { return t('pdf.app.drop_noun'); } }; // every file is taken by the zone; the ones not opened here go to Convert
 
   /** 'open' for a PDF or a raster image, 'convert' for any other file (the Convert dialog says what it can make of it). */
   function kind(file) {
@@ -36,15 +36,15 @@
   async function openInTab(file) {
     var fp = await fingerprintOf(file);
     if (fp && SP.docs.holding(fp)) {
-      var again = await SlopUI.confirm('Already open', '“' + file.name + '” is already open in a tab. Open this copy in a new tab too?', 'Open again');
-      if (!again) throw new Error('is already open in a tab and was not opened again');
+      var again = await SlopUI.confirm(t('pdf.app.already_open'), t('pdf.app.already_open_msg', { name: file.name }), t('pdf.app.open_again'));
+      if (!again) throw new Error(t('pdf.app.err_not_again'));
     }
     await A.lockedOpen(async function () {
       A.newDocTab(file.name);
       await A.addFiles([file]);
       if (!E.state.pages.length) A.closeTab(); // the file did not open (an error was shown): no empty tab left behind
     });
-    if (!E.state.pages.length) throw new Error('could not be opened');
+    if (!E.state.pages.length) throw new Error(t('pdf.app.err_not_opened'));
     if (file.slopDrive) A.driveId = file.slopDrive.id; // a Slop Drive file: Save writes back to it
   }
 
@@ -52,7 +52,7 @@
    *  files they came from. */
   A.openConverted = async function (outs, names) {
     var r = await SlopIntake.fromConvert(outs, { to: 'pdf', mode: 'new', data: { tab: true } });
-    if (r && r.added.length) SlopUI.toast('Converted ' + (names.length === 1 ? names[0] : names.length + ' files') + ' to PDF');
+    if (r && r.added.length) SlopUI.toast(names.length === 1 ? t('pdf.app.converted_one', { name: names[0] }) : t('pdf.app.converted_n', { n: names.length }));
   };
 
   /** Files opened into split pane i (a drop on it, or Open a file in its empty state), from the intake's onNew. Each opens in a tab; the first one is
@@ -62,7 +62,7 @@
     if (!opens.length) return;
     var prev = SP.tabs.current(), first = null;
     for (var i = 0; i < opens.length; i++) {
-      try { await openInTab(opens[i]); } catch (err) { A.status('“' + opens[i].name + '” ' + err.message, 'err'); continue; }
+      try { await openInTab(opens[i]); } catch (err) { A.status(t('pdf.app.file_error', { name: opens[i].name, error: err.message }), 'err'); continue; }
       if (!first) first = SP.tabs.current();
     }
     SP.panes.placeIn(pane, first, prev);
@@ -76,7 +76,7 @@
       var file = files[i], fp = await fingerprintOf(file);
       var inDoc = !!fp && Array.from(E.files.values()).some(function (f) { return f.fp === fp; });
       if (inDoc) {
-        var again = await SlopUI.confirm('Already in this document', '“' + file.name + '” is already in this document. Add its pages again?', 'Add again');
+        var again = await SlopUI.confirm(t('pdf.app.already_in_doc'), t('pdf.app.already_in_doc_msg', { name: file.name }), t('pdf.app.add_again'));
         if (!again) continue;
       }
       keep.push(file);
@@ -92,16 +92,16 @@
     return new Promise(function (res) {
       var sel = document.createElement('select');
       sel.className = 'sui-input';
-      sel.setAttribute('aria-label', 'Insert position');
-      var choices = [['start', 'At the start of the document'], ['end', 'At the end of the document']];
-      for (var p = 1; p <= n; p++) choices.push(['after:' + p, 'After page ' + p]);
+      sel.setAttribute('aria-label', t('pdf.app.insert_position'));
+      var choices = [['start', t('pdf.app.pos_start')], ['end', t('pdf.app.pos_end')]];
+      for (var p = 1; p <= n; p++) choices.push(['after:' + p, t('pdf.app.pos_after', { n: String(p) })]);
       choices.forEach(function (c) { var o = document.createElement('option'); o.value = c[0]; o.textContent = c[1]; sel.append(o); });
       sel.value = 'end';
       var val = null;
-      var body = h('div', null, h('p', { class: 'sui-p' }, 'Where should the new pages go?'), SlopUI.field('Position', sel));
+      var body = h('div', null, h('p', { class: 'sui-p' }, t('pdf.app.pos_question')), SlopUI.field(t('pdf.app.position'), sel));
       SlopUI.dialog({
-        title: 'Add pages', body: body, cls: 'sui-narrow',
-        buttons: [{ label: 'Cancel' }, { label: 'Add pages', primary: true, act: function () { val = sel.value; } }],
+        title: t('pdf.app.add_pages'), body: body, cls: 'sui-narrow',
+        buttons: [{ label: t('menu.cancel') }, { label: t('pdf.app.add_pages'), primary: true, act: function () { val = sel.value; } }],
         onClose: function (ok) {
           if (!ok) { res(null); return; }
           res(val === 'start' ? 0 : val && val.indexOf('after:') === 0 ? Number(val.slice(6)) : n);
@@ -117,13 +117,13 @@
     if (data.pane >= 0) { await A.openFilesInPane(data.pane, files); return; }
     if (!data.tab && !E.state.pages.length) {
       await A.lockedOpen(function () { return A.addFiles(files); });
-      if (!E.state.pages.length) throw new Error('could not be opened');
+      if (!E.state.pages.length) throw new Error(t('pdf.app.err_not_opened'));
       if (files.length === 1 && files[0].slopDrive) A.driveId = files[0].slopDrive.id; // a Slop Drive file: Save writes back to it
       return;
     }
     var errs = [];
     for (var i = 0; i < files.length; i++) {
-      try { await openInTab(files[i]); } catch (err) { errs.push('“' + files[i].name + '” ' + err.message); }
+      try { await openInTab(files[i]); } catch (err) { errs.push(t('pdf.app.file_error', { name: files[i].name, error: err.message })); }
     }
     if (errs.length) throw new Error(errs.join('; '));
   }
@@ -133,8 +133,8 @@
     SlopIntake.register({
       id: 'pdf', accept: RULES, driveAccept: ['application/pdf', 'image/*'],
       hasOpen: function () { return !!E.state.pages.length; },
-      openName: function () { return 'this document'; },
-      labels: { title: 'Add files', message: 'Where should these files go?', add: 'Add to current', new: 'Create new' },
+      openName: function () { return t('pdf.app.this_document'); },
+      labels: { get title() { return t('pdf.app.add_files'); }, get message() { return t('pdf.app.add_files_msg'); }, get add() { return t('pdf.app.add_current'); }, get new() { return t('pdf.app.create_new'); } }, // getters: read when the question is asked
       // the files this page does not open go to the Convert dialog, which makes a PDF and hands it back (source 'convert')
       route: async function (files) {
         if (!A.isReady) await A.ready; // files before the rest of the app has loaded (ui/app.js) wait for it
@@ -144,7 +144,7 @@
       },
       gate: function () {
         if (!A.isLocked()) return true;
-        A.status('Wait for the current open to finish, then try again.', 'err');
+        A.status(t('pdf.app.wait_open'), 'err');
         return false;
       },
       onAdd: function (files, ctx) { return addToDocument(files, ctx.data && ctx.data.at); },
@@ -169,15 +169,23 @@
     register();
     if (!window.SlopDrop) return;
     SlopDrop.attach(document.getElementById('pdfDrop'), {
-      intake: 'pdf', compact: true, label: 'Drop PDFs, images or other files here', chooseLabel: 'Choose files',
+      intake: 'pdf', compact: true, label: t('pdf.app.drop_label'), chooseLabel: t('pdf.app.choose_files'),
       targets: [document.getElementById('stage'), document.getElementById('tabs')],
       mode: dropMode, data: dropData,
     });
     // The empty page shows a finished PDF and how (SlopDrop's preview), in place of the drawing; Try a sample stays below.
     var art = document.querySelector('#empty .empty-art');
-    if (art && SlopDrop.panel) art.replaceWith(SlopDrop.panel.preview({
-      picture: { src: '../assets/shots/pdf-preview.webp', alt: 'A four-page PDF open in Slop PDF, ready to reorder, sign or download' },
-      steps: ['Drop PDFs or pictures', 'Reorder, merge, sign or stamp the pages', 'Download the new PDF'],
-    }));
+    var preview = function () {
+      return SlopDrop.panel.preview({
+        picture: { src: '../assets/shots/pdf-preview.webp', alt: t('pdf.app.preview_alt') },
+        steps: [t('pdf.app.preview_step1'), t('pdf.app.preview_step2'), t('pdf.app.preview_step3')],
+      });
+    };
+    if (art && SlopDrop.panel) { var shown = preview(); if (shown) art.replaceWith(shown); art = shown || art; }
+    // A language switch: the zone's message and the preview are drawn again in the new words
+    U.onLang(function () {
+      var msg = document.querySelector('#pdfDrop .sd-msg'); if (msg) msg.textContent = t('pdf.app.drop_label');
+      if (art && art.classList && art.classList.contains('sd-preview') && art.parentNode) { var next = preview(); if (next) { art.replaceWith(next); art = next; } }
+    });
   };
 })();

@@ -1,0 +1,123 @@
+# Glossary: Turkish (tr)
+
+Register: formal «siz», as Microsoft Office, Google Workspace and Adobe Acrobat do in Turkish. Buttons and commands use the bare imperative stem («Kaydet», «Aç», «İptal», «Kapat»); running text uses the «siz» forms («seçin», «bağlayın», «dosyalarınız»). Suffixes on brand names take an apostrophe (GitHub’da, Slop Drive’da). Percent sign goes first (%60). Quotes are “çift”. Keep labels short.
+
+| English | Türkçe | Note |
+| --- | --- | --- |
+| app | uygulama |  |
+| apps | uygulamalar |  |
+| file | dosya |  |
+| files | dosyalar |  |
+| folder | klasör |  |
+| document | belge |  |
+| page | sayfa |  |
+| pages | sayfalar |  |
+| open | Aç |  |
+| save | Kaydet |  |
+| save as | Farklı kaydet |  |
+| download | İndir |  |
+| upload | Yükle | upload; this site uploads nothing |
+| export | Dışa aktar |  |
+| import | İçe aktar |  |
+| print | Yazdır |  |
+| close | Kapat |  |
+| cancel | İptal |  |
+| OK | Tamam |  |
+| delete | Sil |  |
+| remove | Kaldır |  |
+| rename | Yeniden adlandır |  |
+| duplicate | Çoğalt |  |
+| copy | Kopyala |  |
+| paste | Yapıştır |  |
+| cut | Kes |  |
+| undo | Geri al |  |
+| redo | Yinele |  |
+| select all | Tümünü seç |  |
+| search | Ara |  |
+| find | Bul |  |
+| replace | Değiştir |  |
+| settings | Ayarlar |  |
+| theme | Tema |  |
+| language | Dil |  |
+| help | Yardım |  |
+| about | Hakkında |  |
+| view | Görünüm |  |
+| edit | Düzen | Edit menu title, as in Office; the verb is «Düzenle» |
+| insert | Ekle |  |
+| format | Biçim |  |
+| tools | Araçlar |  |
+| menu | Menü |  |
+| toolbar | Araç çubuğu |  |
+| panel | Panel |  |
+| sidebar | Kenar çubuğu |  |
+| tab | Sekme |  |
+| dialog | İletişim kutusu |  |
+| shortcut | Kısayol |  |
+| keyboard shortcuts | Klavye kısayolları |  |
+| command | Komut |  |
+| zoom in | Yakınlaştır |  |
+| zoom out | Uzaklaştır |  |
+| fit page | Sayfaya sığdır |  |
+| rotate | Döndür |  |
+| rotate left | Sola döndür |  |
+| rotate right | Sağa döndür |  |
+| merge | Birleştir |  |
+| split | Böl |  |
+| extract | Ayıkla |  |
+| compress | Sıkıştır |  |
+| convert | Dönüştür |  |
+| sign | İmzala |  |
+| signature | İmza |  |
+| stamp | Damga |  |
+| watermark | Filigran |  |
+| layer | Katman |  |
+| layers | Katmanlar |  |
+| comment | Yorum |  |
+| annotation | Not | annotation in a PDF; Acrobat uses «Yorum» for both |
+| highlight | Vurgula |  |
+| redact | Karart | redact (black out content) |
+| form | Form |  |
+| field | Alan |  |
+| password | Parola |  |
+| protect | Koru |  |
+| image | Resim |  |
+| text | Metin |  |
+| font | Yazı tipi |  |
+| color | Renk |  |
+| page number | Sayfa numarası |  |
+| thumbnail | Küçük resim |  |
+| preview | Önizleme |  |
+| drag and drop | Sürükleyip bırakma |  |
+| drop files here | Dosyaları buraya bırakın |  |
+| untitled | Adsız |  |
+| recent | Son kullanılanlar |  |
+| sample | Örnek |  |
+| tour | Tur |  |
+| next | İleri |  |
+| back | Geri |  |
+| skip | Atla |  |
+| finish | Bitir |  |
+| done | Bitti |  |
+| apply | Uygula |  |
+| reset | Sıfırla |  |
+| loading… | Yükleniyor… |  |
+| working… | İşleniyor… |  |
+| offline | Çevrimdışı |  |
+| nothing is uploaded | Hiçbir şey karşıya yüklenmez |  |
+| your files stay on this device | Dosyalarınız bu cihazda kalır |  |
+| beta | Beta |  |
+| switch app | Uygulama değiştir |  |
+| tab (browser) | sekme |  |
+| browser | tarayıcı |  |
+| storage | depolama alanı |  |
+| backup | yedek |  |
+| analytics | analiz |  |
+| ads | reklamlar |  |
+| account | hesap |  |
+| privacy | gizlilik |  |
+| defaults | varsayılanlar |  |
+| tip jar | bahşiş kavanozu |  |
+| on / off | açık / kapalı |  |
+| AI | YZ |  |
+| kept (storage) | korunuyor | files the browser promised not to clear |
+| connect a folder | klasör bağla |  |

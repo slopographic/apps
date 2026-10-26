@@ -31,7 +31,7 @@
       var src = tag ? new URL(tag.getAttribute('src'), document.baseURI).href : new URL('../pdf-lib/pdf-lib.min.js', E.vendorBase()).href;
       writerP = (window.SlopLoad ? SlopLoad.script(src) : new Promise(function (res, rej) {
         var s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = rej; document.head.append(s);
-      })).then(function () { if (!window.PDFLib) throw new Error('The PDF writer did not load.'); return window.PDFLib; });
+      })).then(function () { if (!window.PDFLib) throw new Error(U.t('pdf.core.writer_missing')); return window.PDFLib; });
       writerP.catch(function () { writerP = null; });
     }
     return writerP;
@@ -56,7 +56,7 @@
       return new Promise(function (resolve, reject) {
         var last = '', task = lib.getDocument(E.docParams(bytes.slice()));
         task.onPassword = function (update, reason) {
-          if (!askPassword) { var e0 = new Error('This PDF needs a password.'); e0.code = 'password'; task.destroy(); reject(e0); return; }
+          if (!askPassword) { var e0 = new Error(U.t('pdf.core.needs_password')); e0.code = 'password'; task.destroy(); reject(e0); return; }
           askPassword(name, reason === lib.PasswordResponses.INCORRECT_PASSWORD).then(function (pw) {
             if (pw == null) { var e = new Error('Password entry cancelled.'); e.code = 'cancelled'; task.destroy(); reject(e); return; }
             last = pw; update(pw);
@@ -69,10 +69,10 @@
   E.friendlyError = function (e, name) {
     var n = e && e.name, msg = (e && e.message) || String(e);
     if (e && e.code === 'cancelled') return null;
-    if (n === 'InvalidPDFException') return '“' + name + '” is not a valid PDF, or it is damaged beyond repair.';
-    if (n === 'MissingPDFException') return '“' + name + '” is empty.';
-    if (n === 'PasswordException') return '“' + name + '” needs the correct password.';
-    return '“' + name + '” could not be opened: ' + msg;
+    if (n === 'InvalidPDFException') return U.t('pdf.core.err_invalid', { name: name });
+    if (n === 'MissingPDFException') return U.t('pdf.core.err_empty', { name: name });
+    if (n === 'PasswordException') return U.t('pdf.core.err_password', { name: name });
+    return U.t('pdf.core.err_open', { name: name, msg: msg });
   };
 
   /* --------------------------------------------------------------- files */
@@ -95,7 +95,7 @@
             await doc.destroy(); doc = r2.doc; finalBytes = dec; decrypted = true;
           }
         }
-      } catch (e) { locked = e.message || 'Unsupported encryption'; console.warn('Slop PDF: could not remove encryption', e); }
+      } catch (e) { locked = e.message || U.t('pdf.core.unsupported_encryption'); console.warn('Slop PDF: could not remove encryption', e); }
     }
     // A file's id comes from its fingerprint, so its pages and its saved edits line up when it is opened again.
     // A second copy of the same file in one session (or in another open tab) gets a random id and is not logged.

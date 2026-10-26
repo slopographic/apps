@@ -177,21 +177,24 @@ test('every key in English has a translation in each other language, with the sa
 
 /** The languages in the picker, in order: code, the name each language gives itself, and its text direction. */
 const LANG_ORDER = [
-  ['en', 'English', 'ltr'],
-  ['es', 'Español', 'ltr'],
-  ['fr', 'Français', 'ltr'],
-  ['de', 'Deutsch', 'ltr'],
-  ['pt-BR', 'Português (Brasil)', 'ltr'],
-  ['it', 'Italiano', 'ltr'],
-  ['ar', 'العربية', 'rtl'],
-  ['sv', 'Svenska', 'ltr'],
+  ['en', 'English', 'ltr'], ['es', 'Español', 'ltr'], ['fr', 'Français', 'ltr'], ['de', 'Deutsch', 'ltr'],
+  ['pt-BR', 'Português (Brasil)', 'ltr'], ['it', 'Italiano', 'ltr'], ['ar', 'العربية', 'rtl'], ['sv', 'Svenska', 'ltr'],
+  ['zh-CN', '简体中文', 'ltr'], ['zh-TW', '繁體中文', 'ltr'], ['ja', '日本語', 'ltr'], ['ko', '한국어', 'ltr'], ['hi', 'हिन्दी', 'ltr'],
+  ['ru', 'Русский', 'ltr'], ['uk', 'Українська', 'ltr'], ['pl', 'Polski', 'ltr'], ['nl', 'Nederlands', 'ltr'], ['tr', 'Türkçe', 'ltr'],
+  ['id', 'Bahasa Indonesia', 'ltr'], ['vi', 'Tiếng Việt', 'ltr'], ['he', 'עברית', 'rtl'],
+  ['sw', 'Kiswahili', 'ltr'], ['am', 'አማርኛ', 'ltr'], ['ha', 'Hausa', 'ltr'], ['yo', 'Yorùbá', 'ltr'], ['ig', 'Igbo', 'ltr'],
+  ['zu', 'isiZulu', 'ltr'], ['xh', 'isiXhosa', 'ltr'], ['af', 'Afrikaans', 'ltr'],
 ];
+const BETA = ['sw', 'am', 'ha', 'yo', 'ig', 'zu', 'xh', 'af'];
 
-test('the picker lists every language by its own name, English first, and only Arabic is right to left', async () => {
+test('the picker lists every language by its own name, English first; Arabic and Hebrew are right to left', async () => {
   const { I } = await global();
   const list = plain(I.LANGS);
   assert.deepEqual(list.map((l) => [l.code, l.name, l.dir]), LANG_ORDER);
   for (const l of list) assert.equal(l.complete, true, `${l.code} is complete`);
+  for (const l of list) assert.ok(typeof l.en === 'string' && l.en.length > 1, `${l.code} has an English name (for search)`);
+  assert.deepEqual(list.filter((l) => l.quality === 'beta').map((l) => l.code), BETA, 'the languages without a native review are marked beta');
+  assert.ok(!list.some((l) => l.code === 'so'), 'Somali is not offered');
 });
 
 test('each language has one file, named by its code, that adds its strings under that code', async () => {
@@ -206,13 +209,13 @@ test('each language has one file, named by its code, that adds its strings under
   }
 });
 
-test('every language file is loaded by the shell, the homepage and Settings, so the chosen language applies on every page', async () => {
+test('the shell, the homepage and Settings load i18n.js, which fetches the tables itself (no page lists a language file)', async () => {
   const loaders = { 'shell/shell.js': await readFile(path.join(ROOT, 'shell', 'shell.js'), 'utf8'), 'index.html': await readFile(path.join(ROOT, 'index.html'), 'utf8'), 'settings/index.html': await readFile(path.join(ROOT, 'settings', 'index.html'), 'utf8') };
-  const codes = LANG_ORDER.map(([c]) => c).filter((c) => c !== 'en');
   for (const [f, src] of Object.entries(loaders)) {
-    for (const code of codes) assert.match(src, new RegExp(`i18n/${code.replace('-', '\\-')}\\.js`), `${f} loads ${code}.js`);
-    assert.match(src, /i18n\/strings\.js/, `${f} loads strings.js`);
+    assert.match(src, /shared\/i18n\/i18n\.js/, `${f} loads i18n.js`);
+    assert.doesNotMatch(src, /i18n\/(strings|es|fr|de|sv)\.js/, `${f} leaves the tables to i18n.js`);
   }
+  assert.match(loaders['shell/shell.js'], /SlopI18n\.ready\(\)/, 'the shell waits for the tables before its header');
 });
 
 test('each language file loads on its own after strings.js, and the chosen language is in effect at boot', async () => {

@@ -179,7 +179,9 @@ PRECACHE.push(
   '/paste/js/actions.js', '/paste/js/commands.js', '/paste/js/dom.js', '/paste/js/highlight.js', '/paste/js/main.js', '/paste/js/state.js',
   '/paste/js/store.js', '/paste/js/view.js', '/pdf/css/assets.css', '/pdf/css/base.css', '/pdf/css/doc-tabs.css', '/pdf/css/dock.css', '/pdf/css/find.css',
   '/pdf/css/notes.css', '/pdf/css/objects.css', '/pdf/css/page-acts.css', '/pdf/css/panels.css', '/pdf/css/para.css', '/pdf/css/redact.css',
-  '/pdf/css/selbar.css', '/pdf/css/themes.css', '/pdf/css/workspace.css', '/pdf/index.html', '/pdf/js/core/content-fills.js', '/pdf/js/core/content-ink.js',
+  '/pdf/css/selbar.css', '/pdf/css/themes.css', '/pdf/css/workspace.css', '/pdf/i18n/en/actions.js', '/pdf/i18n/en/app.js', '/pdf/i18n/en/commands.js',
+  '/pdf/i18n/en/editor.js', '/pdf/i18n/en/find.js', '/pdf/i18n/en/io.js', '/pdf/i18n/en/macro.js', '/pdf/i18n/en/menus.js', '/pdf/i18n/en/redact.js',
+  '/pdf/i18n/en/tools.js', '/pdf/i18n/en/tools2.js', '/pdf/i18n/index.js', '/pdf/index.html', '/pdf/js/core/content-fills.js', '/pdf/js/core/content-ink.js',
   '/pdf/js/core/content-lex.js', '/pdf/js/core/content-move.js', '/pdf/js/core/content-objs.js', '/pdf/js/core/content-res.js',
   '/pdf/js/core/content-strip.js', '/pdf/js/core/content-svg.js', '/pdf/js/core/fonts-custom.js', '/pdf/js/core/history.js', '/pdf/js/core/layers.js',
   '/pdf/js/core/model.js', '/pdf/js/core/pdf-parts.js', '/pdf/js/core/pdfjs.js', '/pdf/js/core/text-intl.js', '/pdf/js/core/text.js', '/pdf/js/core/util.js',
@@ -201,7 +203,5 @@ PRECACHE.push(
   '/pdf/js/redact/find.js', '/pdf/js/redact/panel.js', '/pdf/js/tools/comments-panel.js', '/pdf/js/tools/doc-panels.js', '/pdf/js/tools/edit-panel.js',
   '/pdf/js/tools/history-panel.js', '/pdf/js/tools/layers-panel.js', '/pdf/js/tools/ocg-panel.js', '/pdf/js/tools/organize-panel.js', '/pdf/js/tools/sign.js',
   '/pdf/js/tools/stamp-panels.js', '/pdf/js/tools/watermark-panel.js', '/pdf/js/ui/actions.js', '/pdf/js/ui/app.js', '/pdf/js/ui/assets.js',
-  '/pdf/js/ui/commands.js', '/pdf/js/ui/context.js', '/pdf/js/ui/ctxbars.js', '/pdf/js/ui/doc-tabs.js', '/pdf/js/ui/dock.js', '/pdf/js/ui/drop.js',
-  '/pdf/js/ui/export-menu.js', '/pdf/js/ui/exports.js', '/pdf/js/ui/fonts.js', '/pdf/js/ui/icons.js', '/pdf/js/ui/input.js', '/pdf/js/ui/main.js',
 );
 // END PRECACHE

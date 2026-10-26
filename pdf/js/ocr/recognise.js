@@ -11,7 +11,7 @@
 (function () {
   'use strict';
   var SP = window.SP, U = SP.util, E = SP.engine, Ed = SP.editor, A = SP.app, O = SP.organizer;
-  var OCR = SP.ocr = {};
+  var OCR = SP.ocr = {}, t = U.t;
   var MODEL = 'ppocr-v4', DPI = 200, MAX_PX = 40e6;
   var SMALL_LINE = 40, ZOOM = 2; // a median line box under 40 px (about 14 pt at 200 dpi) is small text: read it at ZOOM
 
@@ -32,12 +32,12 @@
   /** Checks the device and the model. Throws (with needsModel set) when the model still has to be downloaded. */
   OCR.ready = async function (onStatus) {
     var T = window.SlopAITools, M = window.SlopAIManager;
-    if (!T || !M || !window.SlopAISupport) throw new Error('The OCR engine did not load. Reload the page.');
+    if (!T || !M || !window.SlopAISupport) throw new Error(t('pdf.ocr.engine_missing'));
     var sup = window.SlopAISupport.check('ocr');
     if (!sup.ok) throw new Error(sup.reason);
     var c = await OCR.choice(), model = await c.modelFor(c.language);
     if (!model || (await M.status(model)) === 'needs-download') {
-      var err = new Error('The OCR model is not on this device yet.');
+      var err = new Error(t('pdf.ocr.model_missing'));
       err.needsModel = true;
       throw err;
     }
@@ -55,12 +55,12 @@
   OCR.installed = function () {
     var pick = null;
     SlopUI.dialog({
-      title: 'Run text recognition now?', cls: 'sui-narrow ocr-ask',
-      body: 'The OCR model is on this device. The text is read here, and the words are added as an invisible layer you can find and copy.',
+      title: t('pdf.ocr.ask_title'), cls: 'sui-narrow ocr-ask',
+      body: t('pdf.ocr.ask_body'),
       buttons: [
-        { label: 'Not now' },
-        { label: 'Run on document', act: function () { pick = 'doc'; } },
-        { label: 'Run on this page', primary: true, act: function () { pick = 'page'; } }
+        { label: t('pdf.ocr.not_now') },
+        { label: t('pdf.ocr.run_doc'), act: function () { pick = 'doc'; } },
+        { label: t('pdf.ocr.run_page'), primary: true, act: function () { pick = 'page'; } }
       ],
       onClose: function () {
         if (pick === 'page') A.recognisePage();
@@ -134,10 +134,10 @@
   }
   /** Progress dialog with a Cancel button. cancelled() turns true when the person cancels (button, X or Escape). */
   function progressDialog() {
-    var msg = U.h('p', { class: 'sui-p', role: 'status' }, 'Starting…');
+    var msg = U.h('p', { class: 'sui-p', role: 'status' }, t('pdf.ocr.starting'));
     var bar = U.h('progress', { max: '1', value: '0', style: { width: '100%' } });
     var state = { done: false, cancelled: false };
-    var dlg = SlopUI.dialog({ title: 'Recognise text', cls: 'ocr-progress', body: U.h('div', null, msg, bar), buttons: [{ label: 'Cancel' }],
+    var dlg = SlopUI.dialog({ title: t('pdf.ocr.title'), cls: 'ocr-progress', body: U.h('div', null, msg, bar), buttons: [{ label: t('menu.cancel') }],
       onClose: function () { if (!state.done) state.cancelled = true; } });
     return {
       cancelled: function () { return state.cancelled; },
@@ -149,27 +149,27 @@
   /** Reads the given pages (ids) and adds their text layer. Resolves to the number of pages changed. */
   A.recognise = async function (ids) {
     var pages = ids.map(function (id) { return E.pageById(id); }).filter(function (p) { return p && !p.blank; });
-    if (!pages.length) { SlopUI.toast('Blank pages have no picture to read.'); return 0; }
+    if (!pages.length) { SlopUI.toast(t('pdf.ocr.blank_pages')); return 0; }
     if (Ed.isEditingText()) Ed.commitText();
     var todo = [], skipped = 0;
     for (var i = 0; i < pages.length; i++) {
       if (!(await hasText(pages[i]))) todo.push(pages[i]);
       else if (pages.length === 1) {
-        var again = await SlopUI.confirm('This page already has text', 'Recognised text is added on top of it, so its words would be found twice. Recognise it anyway?', 'Recognise anyway');
+        var again = await SlopUI.confirm(t('pdf.ocr.has_text_title'), t('pdf.ocr.has_text_body'), t('pdf.ocr.anyway'));
         if (again) todo.push(pages[i]); else return 0;
       } else skipped++;
     }
-    if (!todo.length) { SlopUI.toast('These pages already have text.'); return 0; }
+    if (!todo.length) { SlopUI.toast(t('pdf.ocr.all_have_text')); return 0; }
     var ui = progressDialog(), n = todo.length, results = [], error = null;
     try {
       await OCR.ready(function (s) { ui.set(s, null); });
       for (var k = 0; k < n && !ui.cancelled(); k++) {
-        var p = todo[k], label = n > 1 ? 'Page ' + (k + 1) + ' of ' + n : 'The page';
-        ui.set(label + ': rendering…', k / n);
+        var p = todo[k], label = n > 1 ? t('pdf.ocr.page_of', { i: String(k + 1), n: String(n) }) : t('pdf.ocr.the_page');
+        ui.set(t('pdf.ocr.rendering', { page: label }), k / n);
         var canvas = await pictureOf(p), px = { w: canvas.width, h: canvas.height };
         var lines = await OCR.readPicture(canvas, function (q) {
           var within = q.stage === 'detect' ? 0 : (q.total ? q.done / q.total : 0);
-          ui.set(label + (q.stage === 'detect' ? ': finding text lines…' : ': reading line ' + (q.done + 1) + ' of ' + q.total + '…'), (k + within) / n);
+          ui.set(q.stage === 'detect' ? t('pdf.ocr.detecting', { page: label }) : t('pdf.ocr.reading_line', { page: label, i: String(q.done + 1), n: String(q.total) }), (k + within) / n);
         });
         results.push({ id: p.id, f: p.f, i: p.i, lines: lines, px: px, g: E.geom(p) });
         canvas.width = canvas.height = 0;
@@ -179,10 +179,10 @@
     if (error && error.needsModel) { OCR.getModel(); return 0; }
     var stopped = ui.cancelled() && results.length < n;
     var changed = await writeResults(results);
-    if (error) SlopUI.alert('Could not read the text', String(error.message || error));
+    if (error) SlopUI.alert(t('pdf.ocr.failed'), String(error.message || error));
     else if (changed) {
-      SlopUI.toast('Text recognised on ' + changed + ' page' + (changed === 1 ? '' : 's') + (stopped ? '. Stopped early; the other pages are unchanged' : '') + (skipped ? '. ' + skipped + ' with text skipped' : '') + '.' + better(results));
-    } else SlopUI.toast(stopped ? 'Cancelled. Nothing was changed.' : 'No text was found on these pages.' + better(results));
+      SlopUI.toast(t('pdf.ocr.done', { n: changed }) + (stopped ? '. ' + t('pdf.ocr.stopped') : '') + (skipped ? '. ' + t('pdf.ocr.skipped', { n: skipped }) : '') + '.' + better(results));
+    } else SlopUI.toast(stopped ? t('pdf.ocr.cancelled') : t('pdf.ocr.none_found') + better(results));
     if (changed) Ed.paint();
     return changed;
   };
@@ -191,7 +191,7 @@
   function better(results) {
     var c = choiceNow;
     var s = c && c.suggest([].concat.apply([], results.map(function (r) { return r.lines; })), OCR.model, OCR.skipped);
-    return s ? ' ' + c.sentence(s) + ' Choose it under OCR › Language and model.' : '';
+    return s ? ' ' + c.sentence(s) + ' ' + t('pdf.ocr.choose_hint') : '';
   }
   /** Writes the layer into one copy of each source file, then one undo step per page. */
   async function writeResults(results) {
@@ -202,14 +202,14 @@
     for (var entry of byFile) {
       var f = E.files.get(entry[0]), rs = entry[1];
       var bytes = await SP.ocrLayer.write(f.bytes, rs.map(function (r) { return { index: r.i, lines: r.lines, g: r.g, px: r.px }; }));
-      var made = await E.registerPdf(bytes, 'Recognised text.pdf', null);
+      var made = await E.registerPdf(bytes, t('pdf.ocr.file_name'), null);
       made.noLog = true; // generated: its bytes cannot be replayed from the edit log
       made.ocr = true; // the file has the layer: edits to its words replace them (editor/edit-text.js)
       newFile.set(entry[0], made.id);
     }
     results.forEach(function (r) {
       var fid = newFile.get(r.f), n = E.indexOf(r.id) + 1;
-      E.commit('Recognise text on page ' + n, function (st) {
+      E.commit(t('pdf.ocr.commit', { n: String(n) }), function (st) {
         var q = st.pages.filter(function (x) { return x.id === r.id; })[0];
         if (q) q.f = fid;
       });

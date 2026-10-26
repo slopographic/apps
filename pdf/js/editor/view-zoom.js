@@ -87,14 +87,14 @@
 
   /** The zoom controls: the phone cluster (a floating bar, shown at phone width) and the attached engine. */
   S.initZoom = function () {
-    var zo = U.h('button', { type: 'button', class: 'pv-zf', title: 'Zoom out (Ctrl −)', 'aria-label': 'Zoom out' }, '−');
-    var zi = U.h('button', { type: 'button', class: 'pv-zf', title: 'Zoom in (Ctrl +)', 'aria-label': 'Zoom in' }, '+');
-    var zw = U.h('button', { type: 'button', class: 'pv-zf', title: 'Fit width (Ctrl 0)', 'aria-label': 'Fit width', html: U.icon('fit') });
+    var zo = U.h('button', { type: 'button', class: 'pv-zf', title: U.t('pdf.ed.zoom_out_tip'), 'aria-label': U.t('ui.zoom_out'), 'data-i18n-attr': 'title:pdf.ed.zoom_out_tip;aria-label:ui.zoom_out' }, '−');
+    var zi = U.h('button', { type: 'button', class: 'pv-zf', title: U.t('pdf.ed.zoom_in_tip'), 'aria-label': U.t('ui.zoom_in'), 'data-i18n-attr': 'title:pdf.ed.zoom_in_tip;aria-label:ui.zoom_in' }, '+');
+    var zw = U.h('button', { type: 'button', class: 'pv-zf', title: U.t('pdf.ed.fit_width_tip'), 'aria-label': U.t('pdf.ed.fit_width'), 'data-i18n-attr': 'title:pdf.ed.fit_width_tip;aria-label:pdf.ed.fit_width', html: U.icon('fit') });
     S.zoomPct = U.h('span', { class: 'pv-zpct' }, '100%');
     zo.addEventListener('click', function () { Ed.zoomBy(1 / 1.25); });
     zi.addEventListener('click', function () { Ed.zoomBy(1.25); });
     zw.addEventListener('click', function () { Ed.fit('width'); });
-    S.zoomFab = U.h('div', { class: 'pv-zoomfab', role: 'toolbar', 'aria-label': 'Zoom' }, zo, S.zoomPct, zi, zw);
+    S.zoomFab = U.h('div', { class: 'pv-zoomfab', role: 'toolbar', 'aria-label': U.t('pdf.ed.zoom'), 'data-i18n-attr': 'aria-label:pdf.ed.zoom' }, zo, S.zoomPct, zi, zw);
     S.viewer.parentNode.appendChild(S.zoomFab);
     attachNav();
   };

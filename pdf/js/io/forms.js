@@ -17,10 +17,10 @@
         var fld = { name: name, type: type, widgets: ws.map(function (w) { return { id: w.id, exportValue: w.exportValues, value: w.value, page: w.page }; }), readOnly: ws[0].editable === false, page: ws[0].page };
         if (type === 'radiobutton') {
           fld.options = ws.map(function (w) { return w.exportValues; });
-          var on = ws.filter(function (w) { return w.value && w.value !== 'Off' && w.value === w.exportValues; })[0];
-          fld.value = on ? on.exportValues : (ws[0].value && ws[0].value !== 'Off' ? ws[0].value : '');
+          var on = ws.filter(function (w) { return w.value && w.value !== 'Off' && w.value === w.exportValues; })[0]; // i18n-ignore: PDF names / font names / producer, not UI
+          fld.value = on ? on.exportValues : (ws[0].value && ws[0].value !== 'Off' ? ws[0].value : ''); // i18n-ignore: PDF names / font names / producer, not UI
         } else if (type === 'checkbox') {
-          fld.value = !!(ws[0].value && ws[0].value !== 'Off');
+          fld.value = !!(ws[0].value && ws[0].value !== 'Off'); // i18n-ignore: PDF names / font names / producer, not UI
         } else if (type === 'combobox' || type === 'listbox') {
           fld.options = (ws[0].items || []).map(function (it) { return [it.exportValue, it.displayValue]; });
           fld.value = Array.isArray(ws[0].value) ? (ws[0].value[0] || '') : (ws[0].value || '');
@@ -75,9 +75,9 @@
       var v = vals[name];
       try {
         var fld = form.getField(name);
-        if (fld instanceof L.PDFTextField) { var s = E.sanitize(String(v == null ? '' : v), 'Helvetica'); if (s) fld.setText(s); else fld.setText(undefined); }
+        if (fld instanceof L.PDFTextField) { var s = E.sanitize(String(v == null ? '' : v), 'Helvetica'); if (s) fld.setText(s); else fld.setText(undefined); } // i18n-ignore: PDF names / font names / producer, not UI
         else if (fld instanceof L.PDFCheckBox) { if (v) fld.check(); else fld.uncheck(); }
-        else if (fld instanceof L.PDFRadioGroup) { if (v && v !== 'Off') fld.select(String(v)); else fld.clear(); }
+        else if (fld instanceof L.PDFRadioGroup) { if (v && v !== 'Off') fld.select(String(v)); else fld.clear(); } // i18n-ignore: PDF names / font names / producer, not UI
         else if (fld instanceof L.PDFDropdown || fld instanceof L.PDFOptionList) { if (v) fld.select(String(v)); else fld.clear(); }
       } catch (e) { console.warn('Slop PDF: could not set field', name, e); }
     });

@@ -29,9 +29,10 @@
         if (!O.sel.size) O.setSelection([t.dataset.id], t.dataset.id);
         var idx = O.selectedIndices(), ids = O.selected(), before;
         if (step < 0) before = Math.max(0, idx[0] + step); else before = Math.min(pages.length, idx[idx.length - 1] + 1 + step);
-        E.commit('Move ' + (ids.length > 1 ? ids.length + ' pages' : 'page'), function (st) { E.ops.move(st, ids, before); });
+        E.commit(ids.length > 1 ? U.t('pdf.org.undo_move_pages', { n: ids.length }) : U.t('pdf.org.undo_move_page'), function (st) { E.ops.move(st, ids, before); });
         O.focus(t.dataset.id);
-        SP.app.announce((ids.length > 1 ? ids.length + ' pages' : 'Page') + ' moved to position ' + (E.indexOf(ids[0]) + 1) + ' of ' + E.state.pages.length);
+        var at = { n: ids.length, pos: String(E.indexOf(ids[0]) + 1), total: String(E.state.pages.length) };
+        SP.app.announce(U.t(ids.length > 1 ? 'pdf.org.key_moved_pages' : 'pdf.org.key_moved_page', at));
         return;
       }
       var j = U.clamp(i + step, 0, pages.length - 1), nid = pages[j].id;

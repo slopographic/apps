@@ -1,28 +1,54 @@
 # Language switcher (shared/i18n)
 
-Eight languages, each with a full table of the shared chrome: English (`en`, the default and the fallback), Spanish
-(`es`), French (`fr`), German (`de`), Portuguese (`pt-BR`), Italian (`it`), Arabic (`ar`, right to left) and Swedish (`sv`). The picker
-lists them in `LANGS` order, each by its own name. The switch works on the homepage, on Settings, and on every page
-that loads the shell (`shell/shell.js`). Only shared chrome is translated so far; each app's own text stays English
-(see "Still English" below).
+Twenty-nine languages, each with a full table of the shared chrome and of the shared components: English (`en`, the
+default and the fallback), Spanish (`es`), French (`fr`), German (`de`), Portuguese (`pt-BR`), Italian (`it`), Arabic
+(`ar`, right to left), Swedish (`sv`), Simplified and Traditional Chinese (`zh-CN`, `zh-TW`), Japanese (`ja`), Korean
+(`ko`), Hindi (`hi`), Russian (`ru`), Ukrainian (`uk`), Polish (`pl`), Dutch (`nl`), Turkish (`tr`), Indonesian (`id`),
+Vietnamese (`vi`), Hebrew (`he`, right to left), and, marked `quality: 'beta'` until a native review, Swahili (`sw`),
+Amharic (`am`), Hausa (`ha`), Yoruba (`yo`), Igbo (`ig`), Zulu (`zu`), Xhosa (`xh`) and Afrikaans (`af`). The picker lists
+them in `LANGS` order, each by its own name (`name`; `en` is the English name, for search). Apps translate their own
+text with tables of their own: the recipe is `APPS-HOWTO.md`, the progress `COVERAGE.md`, the terms `glossary-<code>.md`.
 
 ## Files
-- `i18n.js`: `window.SlopI18n`. The language list (`LANGS`), `t(key, vars)`, `get()`, `set(code)`, `apply()`,
-  `add(code, dict)`, `langs()`, and `create(opts)` for an independent instance (tests).
-- `strings.js`: the English table: the top bar and home link, the Apps button and switcher, the Settings labels, the
-  homepage footer, the consent strip, the support card, and the common menu words.
-- `es.js`, `fr.js`, `de.js`, `pt-BR.js`, `it.js`, `ar.js`, `sv.js`: one table per language. Each must hold every key in
-  `strings.js`, with the same `{placeholders}`, and keep the brand names (Sloppo, Slopographic, the app names).
-- `sv-apps.js`: Swedish app names, `app.<id>` (a plain business name such as `PDF-redigerare`) and `apptag.<id>` (a
-  one-line description), for every id in `shared/apps.js` (`tests/node/i18n-sv.test.mjs` checks it). These keys exist only
-  in Swedish: in English the plain names are the registry's `plain` field. A `<code>-apps.js` file loads after `<code>.js`.
-- `settings/language.js`: the Language picker in Settings > Appearance (lists `LANGS` in order).
+- `i18n.js`: `window.SlopI18n`. The language list (`LANGS`), `t(key, vars)` (plural forms by `vars.n`), `has(key)`,
+  `get()`, `set(code)`, `apply(scope)`, `add(code, dict)`, `source(spec)`, `need(code)`, `ready()`, `on(fn)`, `num()`,
+  `date()`, `money()`, `list()`, `plural(n)`, `lang(code)`, `langs()`, and `create(opts)` for an independent instance.
+- `strings.js`: the English chrome table: the top bar and home link, the Apps button and switcher, the Settings labels,
+  the homepage footer, the consent strip, the support card, the common menu words (`menu.*`) and the storage text.
+- `<code>.js` (one per language): the chrome table. Each must hold every key in `strings.js`, with the same
+  `{placeholders}`, and keep the brand names (Sloppo, Slopographic, the app names).
+- `ui/en.js` and `ui/<code>.js`: the words of the shared components (`ui.*`: SlopUI dialogs, SlopFrame, sheets, menu
+  buttons, the SlopCmd palette and shortcut editor, tours, SlopIntake/SlopOuttake, drop panels, document tabs, view modes).
+- `sv-apps.js`: Swedish app names, `app.<id>` and `apptag.<id>`, for every id in `shared/apps.js`
+  (`tests/node/i18n-sv.test.mjs`). It loads after `sv.js` because the `sv` entry has `appNames: true`.
+- `script/<script>.css`: per-script font fallbacks and line breaking (World-ready, below).
+- `settings/language.js`: the Language picker in Settings > Appearance (lists `LANGS` in order, `(beta)` after a beta one).
+- `tools/i18n/`: the extractor, the checker and the coverage report (`APPS-HOWTO.md` § 6).
 
 ## Loading
-- `shell/shell.js` loads `i18n.js`, `strings.js` and every language file when the page has no `SlopI18n`, then calls
-  `apply()` once the header is in. So every shell page shows the chosen language at boot, with no tag in its own HTML.
-- The homepage and Settings load all of them in their `<head>`, after `shared/profile/profile.js` and
-  `shared/theme/theme.js`, so their text is translated before first paint of the body.
+- A page loads `i18n.js` once (in its `<head>`, after `shared/profile/profile.js` and `shared/theme/theme.js`, or through
+  `shell/shell.js`). `i18n.js` fetches its own tables: English and the chosen language, for the chrome
+  (`strings.js` + `<code>.js`), the shared components (`ui/<code>.js`) and any app that registers a source (its
+  `i18n/index.js`). Nothing is fetched for the other languages.
+- In the `<head>` it writes the tables into the page while it is parsed (`document.write` of same-origin scripts), so
+  they run before the page's own scripts and the first paint is in the right language, with no layout shift.
+- Later (a language change, another tab's change, or `i18n.js` added by the shell) it appends them, applies the marked
+  elements once they are in, and fires `slopi18n` on `window` (`SlopI18n.on(fn)`); `slop-lang` fires at once on `set()`.
+  The shell marks its own tag `data-late` and waits for `SlopI18n.ready()` before it mounts the header.
+- An offline single-file copy (`<meta content="offline">`) fetches nothing: its manifest embeds the English tables.
+
+## World-ready
+- `<html lang>` and `dir` follow the language (`apply()`); `ar` and `he` are right to left.
+- Fonts: the brand fonts carry Latin only. A language with `script` in `LANGS` (`han-sc`, `han-tc`, `jpan`, `kore`,
+  `deva`, `ethi`, `hebr`, `cyrl`, `viet`) also gets `script/<script>.css`: `@font-face` rules that add that script's
+  glyphs to the brand families from fonts already on the device (`local()` only: nothing heavy is downloaded), plus line
+  breaking (`line-break: strict` for Chinese and Japanese, `word-break: keep-all` for Korean) and a taller line for
+  Devanagari and Ethiopic. Other text falls back to the browser's font for the page's `lang`.
+- Numbers, dates, money and lists: `SlopI18n.num/date/money/list` (Intl in the chosen language). A number passed in
+  `vars` is formatted the same way; pass a string for ids and years.
+- Plurals: `t('k', { n })` reads `k#<Intl.PluralRules category>` and then `k` (`APPS-HOWTO.md` § 2).
+- Text expansion: keep labels short; German and Russian run 30% longer. `tests/i18n/pdf-sv.test.html` checks the PDF
+  editor's top bar at 390 px in German.
 
 ## Default language (brand profile)
 `DEFAULT` (`en`) is the fallback: a key missing in the chosen language is read from English. `DEFAULT_CHOICE` is the
@@ -37,14 +63,13 @@ other settings and survives a reload. An unknown stored code reads as the defaul
 A change in another tab re-applies on `storage`.
 
 ## Adding a language
-1. Add an entry to `LANGS` in `i18n.js`: `{ code: 'fr', name: 'Français', dir: 'ltr', complete: false }`. Use a BCP 47
-   code. The picker lists every entry, in list order.
-2. Add `shared/i18n/<code>.js` with `window.SlopI18n.add('fr', { 'nav.apps': 'Applications', ... })`, and load it
-   after `strings.js` on the homepage and Settings (shell pages pick it up only if the shell loads it: add it to the
-   list in `shell/shell.js` too).
-3. Keys missing in the language fall back to English key by key, so a partial table is safe. Set `complete: true`
-   only when every key in `strings.js` is there. `tests/node/i18n.test.mjs` fails when a complete table misses a key
-   or changes a placeholder.
+1. Add an entry to `LANGS` in `i18n.js`: `L('fr', 'Français', 'French', 'ltr')`, with `{ quality: 'beta' }` until a native
+   speaker has reviewed it and `{ script: '...' }` when it needs a script stylesheet. Use a BCP 47 code.
+2. Add `shared/i18n/<code>.js` (every key in `strings.js`), `shared/i18n/ui/<code>.js` (every key in `ui/en.js`) and
+   `shared/i18n/glossary-<code>.md`. `node tools/i18n/i18n.mjs --check` fails until both tables are complete.
+3. Apps add the language by adding `<app>/i18n/<code>/` and running `node tools/i18n/i18n.mjs index <app>`; until then
+   that app reads English in it, key by key.
+4. Run `node tools/i18n/i18n.mjs coverage --baseline`.
 
 ## Right-to-left (rule)
 - `apply()` sets `lang` and `dir` on `<html>` from the language's entry in `LANGS`. An entry with `dir: 'rtl'` (Arabic

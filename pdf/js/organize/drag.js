@@ -136,9 +136,9 @@
     // no-op if dropping in place
     var contiguous = idx.every(function (v, k) { return k === 0 || v === idx[k - 1] + 1; });
     if (contiguous && before >= idx[0] && before <= idx[idx.length - 1] + 1) return;
-    E.commit('Move ' + (d.ids.length > 1 ? d.ids.length + ' pages' : 'page'), function (st) { E.ops.move(st, d.ids, before); });
+    E.commit(d.ids.length > 1 ? U.t('pdf.org.undo_move_pages', { n: d.ids.length }) : U.t('pdf.org.undo_move_page'), function (st) { E.ops.move(st, d.ids, before); });
     var ni = E.indexOf(d.ids[0]);
-    SP.app.announce('Moved ' + (d.ids.length > 1 ? d.ids.length + ' pages' : 'page') + ' to position ' + (ni + 1));
+    SP.app.announce(d.ids.length > 1 ? U.t('pdf.org.moved_pages', { n: d.ids.length, pos: String(ni + 1) }) : U.t('pdf.org.moved_page', { pos: String(ni + 1) }));
   }
 
   function startMarquee(e) {

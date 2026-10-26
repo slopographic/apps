@@ -39,19 +39,31 @@
     var o = opts || {};
     var root = U.h('div', { class: 'pv-pv' });
     var head = U.h('div', { class: 'pv-pv-head' });
-    var name = U.h('span', { class: 'pv-pv-name' }, o.title || 'Document');
-    var zo = U.h('button', { type: 'button', class: 'pv-pv-btn', 'aria-label': 'Zoom out' }, '−');
+    var named = !!o.title, noteKey = 'pdf.act.pv_click_edit';
+    var name = U.h('span', { class: 'pv-pv-name' }, o.title || U.t('pdf.act.document'));
+    var zo = U.h('button', { type: 'button', class: 'pv-pv-btn' }, '−');
     var pct = U.h('span', { class: 'pv-pv-pct' }, '');
-    var zi = U.h('button', { type: 'button', class: 'pv-pv-btn', 'aria-label': 'Zoom in' }, '+');
-    var fit = U.h('button', { type: 'button', class: 'pv-pv-btn' }, 'Fit');
+    var zi = U.h('button', { type: 'button', class: 'pv-pv-btn' }, '+');
+    var fit = U.h('button', { type: 'button', class: 'pv-pv-btn' });
     var body = U.h('div', { class: 'pv-pv-body' });
-    var note = U.h('p', { class: 'pv-pv-note', role: 'status' }, 'Click to edit this document.');
+    var note = U.h('p', { class: 'pv-pv-note', role: 'status' });
+    /** The words, again on a language change (a preview stays on screen). */
+    function words() {
+      zo.setAttribute('aria-label', U.t('ui.zoom_out')); zi.setAttribute('aria-label', U.t('ui.zoom_in'));
+      fit.textContent = U.t('pdf.act.pv_fit');
+      if (!named) name.textContent = U.t('pdf.act.document');
+      note.textContent = noteKey ? U.t(noteKey) : '';
+      pages.forEach(function (e) { e.canvas.setAttribute('aria-label', U.t('pdf.act.pv_page', { p: String(e.p.index + 1) })); });
+    }
+    function setNote(k) { noteKey = k; note.textContent = k ? U.t(k) : ''; }
     head.append(name, zo, pct, zi, fit);
     root.append(head, body, note);
     host.append(root);
 
     var cur = doc || null, pages = [], tasks = new Map(), zoom = o.zoom || 0, fitting = !o.zoom, io = null, gen = 0;
     var dpr = window.devicePixelRatio || 1;
+    words();
+    var offLang = U.onLang(function () { words(); if (!cur && o.empty) build(); });
 
     function fitZoom() {
       var widest = 0;
@@ -115,7 +127,7 @@
           return pg.getTextContent().then(function (tc) {
             if (mine !== gen || !entry.layer.isConnected) return;
             var vp = pg.getViewport({ scale: zoom, rotation: 0 });
-            var div = U.h('div', { class: 'pv-textlayer textLayer' });
+            var div = U.h('div', { class: 'pv-textlayer textLayer' }); // i18n-ignore
             div.style.setProperty('--scale-factor', String(zoom));
             div.style.setProperty('--total-scale-factor', String(zoom));
             div.style.setProperty('--scale-round-x', '1px');
@@ -145,16 +157,16 @@
       stop();
       body.replaceChildren();
       pages = [];
-      note.textContent = '';
+      setNote('');
       if (!cur) {
-        note.textContent = 'Drop a file here, or open one in this pane.';
+        setNote('pdf.act.pv_drop_here');
         if (o.empty) body.append(o.empty());
         return;
       }
-      if (cur.pending) { note.textContent = 'Open this document to see its pages.'; return; }
+      if (cur.pending) { setNote('pdf.act.pv_open_to_see'); return; }
       pages = pagesOf(cur).map(function (pg) {
         var box = U.h('div', { class: 'pv-pv-page' });
-        var canvas = U.h('canvas', { class: 'pv-pv-canvas', 'aria-label': 'Page ' + (pg.index + 1) });
+        var canvas = U.h('canvas', { class: 'pv-pv-canvas', 'aria-label': U.t('pdf.act.pv_page', { p: String(pg.index + 1) }) });
         var layer = U.h('div', { class: 'sheet-layer' });
         var svg = U.s('svg', { class: 'sheet-svg pv-svg', preserveAspectRatio: 'none' });
         layer.append(svg);
@@ -164,7 +176,7 @@
         box.__entry = entry;
         return entry;
       });
-      if (!pages.length) note.textContent = 'This document has no pages.';
+      if (!pages.length) setNote('pdf.act.pv_no_pages');
       var m = cur ? memory.get(cur) : null;
       if (m) { zoom = m.zoom; fitting = m.fitting; }
       if (fitting) zoom = fitZoom();
@@ -201,7 +213,7 @@
       setDoc: function (d, title) {
         remember();
         cur = d || null;
-        if (title) name.textContent = title;
+        if (title) { name.textContent = title; named = true; }
         build();
       },
       setZoom: function (z) { setZoom(z); },
@@ -209,6 +221,7 @@
       destroy: function () {
         remember();
         stop();
+        offLang();
         if (io) io.disconnect();
         root.remove();
       },

@@ -5,14 +5,16 @@
    Edit panel, the menus and the keys use. Classic script. */
 (function () {
   'use strict';
-  var SP = window.SP, E = SP.engine, Ed = SP.editor, S = Ed._;
+  var SP = window.SP, U = SP.util, E = SP.engine, Ed = SP.editor, S = Ed._;
   var N = S.annotAct = {};
   var EDITABLE = { text: 1, callout: 1, step: 1, para: 1 };
   // the property the bar's Colour sets, per annotation type (none: an image, a signature, a comment, a redaction mark)
   var COLOUR = { text: 'color', callout: 'color', texthl: 'color', para: 'color', pen: 'color', marker: 'color', line: 'color', arrow: 'color',
     rect: 'color', ellipse: 'color', hlbox: 'fill', whiteout: 'fill', step: 'fill' };
-  var NAMES = { text: 'Text box', callout: 'Callout', step: 'Step', para: 'Paragraph', texthl: 'Text highlight', pen: 'Drawing', marker: 'Highlighter',
-    line: 'Line', arrow: 'Arrow', rect: 'Rectangle', ellipse: 'Ellipse', hlbox: 'Highlight box', whiteout: 'Whiteout', image: 'Image', redact: 'Redaction mark' };
+  // the annotation's kind as read inside a sentence ('Selected text box')
+  var NAMES = { text: 'pdf.ed.an_text', callout: 'pdf.ed.an_callout', step: 'pdf.ed.an_step', para: 'pdf.ed.an_para', texthl: 'pdf.ed.an_texthl', pen: 'pdf.ed.an_pen',
+    marker: 'pdf.ed.an_marker', line: 'pdf.ed.an_line', arrow: 'pdf.ed.an_arrow', rect: 'pdf.ed.an_rect', ellipse: 'pdf.ed.an_ellipse', hlbox: 'pdf.ed.an_hlbox',
+    whiteout: 'pdf.ed.an_whiteout', image: 'pdf.ed.an_image', redact: 'pdf.ed.an_redact' };
 
   /** The selected annotation the bar acts on: selected, shown, unlocked and not being typed in; else null. */
   N.target = function () {
@@ -20,7 +22,7 @@
     if (!a || a.hidden || a.type === 'note' || (SP.layers && SP.layers.isLocked(a)) || (S.editing && S.editing.id === a.id)) return null;
     return a;
   };
-  N.name = function (a) { return a.sig ? 'Signature' : a.stamp ? 'Stamp' : NAMES[a.type] || 'Annotation'; };
+  N.name = function (a) { return U.t(a.sig ? 'pdf.ed.an_signature' : a.stamp ? 'pdf.ed.an_stamp' : NAMES[a.type] || 'pdf.ed.an_annotation'); };
   N.canEdit = function (a) { return !!a && EDITABLE[a.type] === 1; };
   N.colourKey = function (a) { return a ? COLOUR[a.type] || null : null; };
   N.colour = function (a) { var k = N.colourKey(a); return k && a[k] && a[k] !== 'none' ? a[k] : '#ffe14d'; };

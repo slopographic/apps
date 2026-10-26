@@ -8,9 +8,9 @@
 (function () {
   'use strict';
   var W = window.SlopPdfWm = window.SlopPdfWm || {};
-  var FONTS = ['Helvetica', 'Times', 'Courier'];
+  var FONTS = ['Helvetica', 'Times', 'Courier']; // i18n-ignore: PDF names / font names / producer, not UI
   W.ANCHORS = ['tl', 'tc', 'tr', 'ml', 'mc', 'mr', 'bl', 'bc', 'br'];
-  W.ANCHOR_LABELS = { tl: 'Top left', tc: 'Top centre', tr: 'Top right', ml: 'Middle left', mc: 'Centre', mr: 'Middle right', bl: 'Bottom left', bc: 'Bottom centre', br: 'Bottom right' };
+  W.ANCHOR_LABELS = { tl: 'Top left', tc: 'Top centre', tr: 'Top right', ml: 'Middle left', mc: 'Centre', mr: 'Middle right', bl: 'Bottom left', bc: 'Bottom centre', br: 'Bottom right' }; // i18n-ignore: unused by the UI
   var COL = { l: 0, c: 0.5, r: 1 }, ROW = { t: 0, m: 0.5, b: 1 };
   var seq = 0;
   function num(v, lo, hi, d) { var n = typeof v === 'number' ? v : parseFloat(v); if (!isFinite(n)) n = d; return Math.min(hi, Math.max(lo, n)); }
@@ -25,7 +25,7 @@
       id: typeof L.id === 'string' && L.id ? L.id : W.uid(),
       kind: L.kind === 'image' ? 'image' : 'text',
       text: String(L.text == null ? '' : L.text).slice(0, 200),
-      font: FONTS.indexOf(L.font) >= 0 ? L.font : 'Helvetica',
+      font: FONTS.indexOf(L.font) >= 0 ? L.font : 'Helvetica', // i18n-ignore: PDF names / font names / producer, not UI
       bold: !!L.bold,
       colour: colour,
       size: num(L.size, 4, 1000, 60),

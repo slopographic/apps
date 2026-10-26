@@ -68,8 +68,8 @@
   }
 
   Ed.toggleEditText = function () {
-    if (Ed.editText) { S.closeRun(); Ed.editText = false; SlopUI.toast('Edit text is off.'); }
-    else { Ed.editText = true; SlopUI.toast(Ed.paraMode ? 'Edit text, Paragraphs: click a paragraph, then double-click or Enter to type in it.' : 'Edit text: click a line of text, type, then Enter to apply (Esc cancels).', 5000); }
+    if (Ed.editText) { S.closeRun(); Ed.editText = false; SlopUI.toast(U.t('pdf.ed.et_off')); }
+    else { Ed.editText = true; SlopUI.toast(U.t(Ed.paraMode ? 'pdf.ed.et_on_para' : 'pdf.ed.et_on_lines'), 5000); }
     if (S.viewer) S.viewer.classList.toggle('edit-text', Ed.editText);
   };
 
@@ -95,9 +95,9 @@
     if (S.runEdit) { S.commitRun(); }
     runsOf(p).then(function (r) {
       var run = pick(visibleRuns(p, r.runs), pt);
-      if (!run) { SlopUI.toast('No text there. Click on a line of text.'); return; }
+      if (!run) { SlopUI.toast(U.t('pdf.ed.et_no_text_there')); return; }
       S.beginRun(p, run);
-    }, function () { SlopUI.toast('This page has no text to edit.'); });
+    }, function () { SlopUI.toast(U.t('pdf.ed.et_no_text_page')); });
   };
   /** A double click on the page's own text with the select tool (pointer.js): that run opens for editing, as a press does in
    * Edit text mode, and the mode stays off. The word the double click selected is let go, so the selection bar goes. */
@@ -115,7 +115,7 @@
       await S.strip.ready(p); // the run's colour from the content
       if (token === S.runToken) S.openRun(p, run, font);
     } catch (err) {
-      if (token === S.runToken) { SlopUI.toast('The font could not be set up: ' + (err && err.message || err)); S.openRun(p, run, { font: run.fam, bold: run.bold, italic: run.italic, std: true }); }
+      if (token === S.runToken) { SlopUI.toast(U.t('pdf.ed.et_font_failed', { err: String(err && err.message || err) })); S.openRun(p, run, { font: run.fam, bold: run.bold, italic: run.italic, std: true }); }
     }
   };
   /** The face pdf.js loaded to draw a run's embedded font ({ family, ascent, descent } in em), or null when the file does
@@ -155,7 +155,7 @@
     // the run's own ink on the paper round it; the field never shows the ink at under 3:1 (S.fieldColour)
     var paper01 = S.paperColour(s, run.box), ink = S.textInk(p, s, [S.strip.targetOfRun(run)], run.box, paper01);
     var paper = S.fieldColour(ink, paper01).map(function (v) { return Math.round(v * 255); });
-    var input = U.h('input', { type: 'text', class: 'edit-run', value: run.str, 'aria-label': 'Edit text', spellcheck: 'false', dir: 'auto' });
+    var input = U.h('input', { type: 'text', class: 'edit-run', value: run.str, 'aria-label': U.t('pdf.ed.edit_text'), spellcheck: 'false', dir: 'auto' });
     // widths are in the input's own (unscaled) pixels; scaleX(k) from its left edge makes them page pixels
     var minW = b.w * z / k, maxW = Math.max(minW, ((s.layer.clientWidth || Infinity) - b.x * z) / k);
     input.style.left = (b.x * z) + 'px'; input.style.top = ((b.y + 0.98 * fs - asc * fs) * z) + 'px';
@@ -169,7 +169,7 @@
       input.style.width = minW + 'px';
       if (input.scrollWidth > input.clientWidth) input.style.width = Math.min(maxW, input.scrollWidth + 0.12 * fs * z / k + 2) + 'px';
     }
-    var info = U.h('div', { class: 'edit-info' }, 'Checking the font…');
+    var info = U.h('div', { class: 'edit-info' }, U.t('pdf.ed.et_checking_font'));
     info.style.left = (b.x * z) + 'px'; info.style.top = ((b.y + b.h) * z + 4) + 'px';
     s.layer.append(input, info);
     S.runEdit = { p: p, run: run, font: font, input: input, info: info, done: false };
@@ -188,12 +188,12 @@
   function showFontInfo(run, info, font) {
     var fx = run.facts;
     if (!font.std && fx) {
-      info.textContent = fx.family + ' ' + fx.weight + (fx.subset ? ' · subset in the file' : ' · embedded in full') + ' · new text in ' + font.font + ' ' + font.weight +
-        (font.font === fx.family ? ' (installed)' : ' (the closest font the app has; the file’s subset is not reused)');
+      info.textContent = U.t('pdf.ed.et_font_info', { font: fx.family + ' ' + fx.weight, how: U.t(fx.subset ? 'pdf.ed.et_font_subset' : 'pdf.ed.et_font_full'),
+        set: font.font + ' ' + font.weight, note: U.t(font.font === fx.family ? 'pdf.ed.et_font_installed' : 'pdf.ed.et_font_closest') });
       return;
     }
     var embedded = !!run.ps, set = E.stdFontName({ font: font.font, bold: font.bold, italic: font.italic });
-    info.textContent = run.label + (embedded ? ' · embedded' : ' · not embedded') + ' · new text in ' + set + (embedded ? ' (an embedded font cannot be reused yet)' : '');
+    info.textContent = U.t(embedded ? 'pdf.ed.et_font_info_emb' : 'pdf.ed.et_font_info_std', { font: run.label, set: set });
   }
   S.closeRun = function () {
     var r = S.runEdit; if (!r) return;
@@ -208,11 +208,11 @@
         var b = run.box, ox = Math.min(b.x + b.w, rect.x1) - Math.max(b.x, rect.x0), oy = Math.min(b.y + b.h, rect.y1) - Math.max(b.y, rect.y0);
         if (ox > 0 && oy > 0 && ox * oy > bestA) { best = run; bestA = ox * oy; }
       });
-      if (!best) { SlopUI.toast('No text to edit there.'); return false; }
+      if (!best) { SlopUI.toast(U.t('pdf.ed.et_no_text_rect')); return false; }
       if (!Ed.editText) Ed.toggleEditText();
       S.beginRun(p, best);
       return true;
-    }, function () { SlopUI.toast('This page has no text to edit.'); return false; });
+    }, function () { SlopUI.toast(U.t('pdf.ed.et_no_text_page')); return false; });
   };
   /** The text runs of a page that a selection's rectangles {x0, y0, x1, y1} overlap (Remove, sel-actions.js). */
   Ed.runsUnder = function (p, rects) {
@@ -245,7 +245,7 @@
     var plan = M.coverPlan(m, E.sanitize(text, key), function (t, sz) { return E.measure(t, key, sz); });
     var annots = took.to ? [] : plan.covers.map(function (c) { return F.coverAnnot(p, c, S.hex(paper)); });
     if (plan.text) annots.push(F.textAnnot(p, run.x0, run.y, run.fs, plan.text.text, { font: font.font, bold: font.bold, italic: font.italic, weight: font.weight, color: color }));
-    E.commit('Edit text', function (st) {
+    E.commit(U.t('pdf.ed.undo_edit_text'), function (st) {
       var q = st.pages.filter(function (x) { return x.id === p.id; })[0];
       if (!q) return;
       S.strip.use(q, took.to);
@@ -262,12 +262,12 @@
       if (!bytes) { S.coverRun(p, run, font, text, s); return; }
       var made = await E.registerPdf(bytes, f.name, null);
       made.noLog = true; made.ocr = true; // generated: its bytes cannot be replayed from the edit log
-      E.commit('Edit text', function (st) {
+      E.commit(U.t('pdf.ed.undo_edit_text'), function (st) {
         var q = st.pages.filter(function (x) { return x.id === p.id; })[0];
         if (q) q.f = made.id;
       });
       if (F.refresh) F.refresh();
       Ed.paint();
-    })().catch(function (e) { SlopUI.toast('The text could not be changed: ' + (e && e.message || e)); });
+    })().catch(function (e) { SlopUI.toast(U.t('pdf.ed.et_change_failed', { err: String(e && e.message || e) })); });
   };
 })();

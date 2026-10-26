@@ -6,7 +6,16 @@
   var M = window.SlopPdfMacro = window.SlopPdfMacro || {};
   var P = M.pdf, OPS = M.ops = M.ops || {};
   var MARGIN = 28, RAD = Math.PI / 180;
-  function count(n, word) { return n + ' ' + word + (n === 1 ? '' : 's'); }
+  /** The chosen language's text for a key (SlopI18n), else the English given: a string, or [one, other] for vars.n
+   *  (node tests and pages without the tables). */
+  function tr(k, en, v) {
+    var I = window.SlopI18n;
+    if (I && I.has && I.has(k)) return I.t(k, v);
+    if (Array.isArray(en)) en = v && v.n === 1 ? en[0] : en[1];
+    return String(en).replace(/\{(\w+)\}/g, function (m, n) { return v && n in v ? String(v[n]) : m; });
+  }
+  function pages(n) { return tr('pdf.macro.n_pages', ['{n} page', '{n} pages'], { n: n }); }
+  function odd() { return ' ' + tr('pdf.macro.msg_question_marks', 'Some characters were written as “?”.'); }
   function tokens(text, i, n, ctx) {
     return M.expandTokens(text, { page: i + 1, pages: n, date: ctx.date, filename: ctx.filename });
   }
@@ -18,9 +27,9 @@
   /** Numbers for the page-number formats. total is the last number used. */
   function numberText(format, num, total) {
     switch (format) {
-      case 'page': return 'Page ' + num;
+      case 'page': return 'Page ' + num; // i18n-ignore: PDF names / font names / producer, not UI
       case 'n-of': return num + ' / ' + total;
-      case 'page-of': return 'Page ' + num + ' of ' + total;
+      case 'page-of': return 'Page ' + num + ' of ' + total; // i18n-ignore: PDF names / font names / producer, not UI
       case 'dash': return '– ' + num + ' –';
     }
     return String(num);
@@ -28,7 +37,7 @@
 
   OPS.addHeaderFooter = async function (bytes, s, ctx) {
     var L = P.lib(), doc = await P.load(bytes), n = doc.getPageCount(), idx = M.parsePages(s.pages, n);
-    var font = await P.font(doc, 'Helvetica'), col = P.rgb(s.colour), unsupported = 0;
+    var font = await P.font(doc, 'Helvetica'), col = P.rgb(s.colour), unsupported = 0; // i18n-ignore: PDF names / font names / producer, not UI
     idx.forEach(function (i) {
       var page = doc.getPage(i), fr = P.frame(page), text = tokens(s.text, i, n, ctx);
       if (P.hasUnsupported(font, text)) unsupported++;
@@ -40,12 +49,12 @@
       var p = fr.pt(vx, vy);
       page.drawText(text, { x: p[0], y: p[1], size: s.size, font: font, color: col, rotate: L.degrees(fr.rot) });
     });
-    return { bytes: await doc.save(), message: 'Added a ' + s.position + ' to ' + count(idx.length, 'page') + '.' + (unsupported ? ' Some characters were written as “?”.' : ''), warn: !!unsupported };
+    return { bytes: await doc.save(), message: (s.position === 'header' ? tr('pdf.macro.msg_header', 'Added a header to {pages}.', { pages: pages(idx.length) }) : tr('pdf.macro.msg_footer', 'Added a footer to {pages}.', { pages: pages(idx.length) })) + (unsupported ? odd() : ''), warn: !!unsupported };
   };
 
   OPS.addPageNumbers = async function (bytes, s, ctx) {
     var L = P.lib(), doc = await P.load(bytes), n = doc.getPageCount(), idx = M.parsePages(s.pages, n);
-    var font = await P.font(doc, 'Helvetica'), col = P.rgb(s.colour);
+    var font = await P.font(doc, 'Helvetica'), col = P.rgb(s.colour); // i18n-ignore: PDF names / font names / producer, not UI
     var where = String(s.position).split('-'), top = where[0] === 'top', align = where[1] || 'center';
     var last = s.start + n - 1;
     idx.forEach(function (i) {
@@ -56,7 +65,7 @@
       var p = fr.pt(vx, vy);
       page.drawText(text, { x: p[0], y: p[1], size: s.size, font: font, color: col, rotate: L.degrees(fr.rot) });
     });
-    return { bytes: await doc.save(), message: 'Numbered ' + count(idx.length, 'page') + ' (' + s.position + ').', warn: false };
+    return { bytes: await doc.save(), message: tr('pdf.macro.msg_numbered', 'Numbered {pages} ({position}).', { pages: pages(idx.length), position: s.position }), warn: false };
   };
 
   /** Watermark layers, bottom first (core/watermark.js). Each layer that applies to a page is drawn on top of what is
@@ -98,7 +107,7 @@
         touched.add(i);
       }
     }
-    return { bytes: await doc.save(), message: 'Added ' + count(layers.length, 'watermark layer') + ' on ' + count(touched.size, 'page') + '.' + (unsupported ? ' Some characters were written as “?”.' : ''), warn: !!unsupported };
+    return { bytes: await doc.save(), message: tr('pdf.macro.msg_watermark', 'Added {layers} on {pages}.', { layers: tr('pdf.macro.n_wm_layers', ['{n} watermark layer', '{n} watermark layers'], { n: layers.length }), pages: pages(touched.size) }) + (unsupported ? odd() : ''), warn: !!unsupported };
   };
 
   OPS.stamp = async function (bytes, s, ctx) {
@@ -107,7 +116,7 @@
     if (s.imageDataUrl) {
       var raw = dataBytes(s.imageDataUrl);
       img = /^data:image\/png/.test(s.imageDataUrl) ? await doc.embedPng(raw) : await doc.embedJpg(raw);
-    } else font = await P.font(doc, 'Helvetica');
+    } else font = await P.font(doc, 'Helvetica'); // i18n-ignore: PDF names / font names / producer, not UI
     idx.forEach(function (i) {
       var page = doc.getPage(i), fr = P.frame(page), x = fr.VW * s.x / 100, y = fr.VH * s.y / 100;
       if (img) {
@@ -118,6 +127,6 @@
         page.drawText(text, { x: q[0], y: q[1], size: size, font: font, color: P.rgb(s.colour), rotate: L.degrees(fr.rot) });
       }
     });
-    return { bytes: await doc.save(), message: 'Stamped ' + count(idx.length, 'page') + '.', warn: false };
+    return { bytes: await doc.save(), message: tr('pdf.macro.msg_stamped', 'Stamped {pages}.', { pages: pages(idx.length) }), warn: false };
   };
 })();
