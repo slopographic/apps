@@ -4,5 +4,5 @@ window.SlopI18n && window.SlopI18n.source({
   ns: 'remix',
   base: ((document.currentScript || {}).src || '').replace(/[^/]*$/, ''),
   parts: ['page', 'status', 'tour', 'ui'],
-  langs: ['en', 'pt-BR', 'sv'],
+  langs: ['en', 'es', 'pt-BR', 'sv'],
 });

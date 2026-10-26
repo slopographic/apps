@@ -4,5 +4,5 @@ window.SlopI18n && window.SlopI18n.source({
   ns: 'calendar',
   base: ((document.currentScript || {}).src || '').replace(/[^/]*$/, ''),
   parts: ['commands', 'page', 'tour', 'views'],
-  langs: ['en', 'pt-BR', 'sv'],
+  langs: ['en', 'es', 'pt-BR', 'sv'],
 });

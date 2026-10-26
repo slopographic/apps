@@ -4,5 +4,5 @@ window.SlopI18n && window.SlopI18n.source({
   ns: 'contacts',
   base: ((document.currentScript || {}).src || '').replace(/[^/]*$/, ''),
   parts: ['edit', 'io', 'page', 'tools', 'views'],
-  langs: ['en', 'pt-BR', 'sv'],
+  langs: ['en', 'es', 'pt-BR', 'sv'],
 });

@@ -4,5 +4,5 @@ window.SlopI18n && window.SlopI18n.source({
   ns: '3d',
   base: ((document.currentScript || {}).src || '').replace(/[^/]*$/, ''),
   parts: ['app', 'commands', 'edit', 'panels', 'tour'],
-  langs: ['en', 'pt-BR', 'sv'],
+  langs: ['en', 'es', 'pt-BR', 'sv'],
 });
