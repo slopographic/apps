@@ -21,7 +21,10 @@
    *  press/i18n/en part that press/i18n/index.js names. They run right after press/i18n/index.js. */
   B.tables = function (S) {
     var m = /parts:\s*\[([^\]]*)\]/.exec(S['press/i18n/index.js'] || ''), parts = (m && m[1].match(/'[^']+'/g)) || [];
-    return ['shared/i18n/strings.js', 'shared/i18n/ui/en.js'].concat(parts.map(function (q) { return 'press/i18n/en/' + q.slice(1, -1) + '.js'; }));
+    // and the shared components' English parts (UI_PARTS in i18n.js), which i18n.js would otherwise fetch
+    var u = /\/\*ui-parts\*\/\{\s*parts:\s*\[([^\]]*)\]/.exec(S['shared/i18n/i18n.js'] || ''), ui = (u && u[1].match(/'[^']+'/g)) || [];
+    return ['shared/i18n/strings.js', 'shared/i18n/ui/en.js'].concat(ui.map(function (q) { return 'shared/i18n/ui/en/' + q.slice(1, -1) + '.js'; }),
+      parts.map(function (q) { return 'press/i18n/en/' + q.slice(1, -1) + '.js'; }));
   };
   function b64(str) { return btoa(unescape(encodeURIComponent(str))); }
   /** Builds the offline HTML from a { path: text | 'base64:…' } map (pure). */

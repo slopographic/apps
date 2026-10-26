@@ -94,11 +94,12 @@
       const w = f.contentWindow;
       expect(w.offlineManifest(f.contentDocument.documentElement.outerHTML)).toContain('i18n/index.js');
       const idx = "window.SlopI18n && window.SlopI18n.source({ ns: 'label', parts: ['app', 'ui1'], langs: ['en', 'sv'] });";
-      const src = { 'index.html': '<!doctype html><html><head><script src="i18n/index.js" data-src="label/i18n/index.js"><\/script></head><body></body></html>', 'i18n/index.js': idx,
-        '../shared/i18n/ui/en.js': '/*ui*/', 'i18n/en/app.js': '/*app*/', 'i18n/en/ui1.js': '/*ui1*/' };
+      // the shared components' parts (UI_PARTS in i18n.js) go in too: an offline copy fetches none
+      const src = { 'index.html': '<!doctype html><html><head><script src="../shared/i18n/i18n.js"><\/script><script src="i18n/index.js" data-src="label/i18n/index.js"><\/script></head><body></body></html>', 'i18n/index.js': idx,
+        '../shared/i18n/i18n.js': "var UI_PARTS = /*ui-parts*/{ parts: ['widgets'], langs: ['en', 'sv'] };", '../shared/i18n/ui/en.js': '/*ui*/', '../shared/i18n/ui/en/widgets.js': '/*w*/', 'i18n/en/app.js': '/*app*/', 'i18n/en/ui1.js': '/*ui1*/' };
       const html = w.buildOfflineHTML(src);
       expect(html.indexOf('<meta name="sloplabel-build" content="offline">') < html.indexOf('data-src="i18n/index.js"')).toBe(true);
-      for (const p of ['../shared/i18n/ui/en.js', 'i18n/en/app.js', 'i18n/en/ui1.js']) expect(html).toContain('data-src="' + p + '"');
+      for (const p of ['../shared/i18n/ui/en.js', '../shared/i18n/ui/en/widgets.js', 'i18n/en/app.js', 'i18n/en/ui1.js']) expect(html).toContain('data-src="' + p + '"');
       expect(w.extractOfflineSources(html)).toEqual(src);
     });
 

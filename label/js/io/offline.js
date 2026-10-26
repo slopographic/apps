@@ -11,7 +11,9 @@ const SCRIPT_RE = /<script src="([^"]+)"(?: data-src="[^"]*")?><\/script>/g;
    and the shared words (shared/i18n/ui/en.js); i18n.js fetches nothing in an offline copy. */
 const I18N_UI = '../shared/i18n/ui/en.js';
 const i18nParts = (indexJs) => { const m = /parts:\s*\[([^\]]*)\]/.exec(String(indexJs || '')); return m ? m[1].split(',').map((x) => x.trim().replace(/^'|'$/g, '')).filter(Boolean) : []; };
-const i18nExtra = (sources) => (sources['i18n/index.js'] == null ? [] : [I18N_UI, ...i18nParts(sources['i18n/index.js']).map((p) => 'i18n/en/' + p + '.js')]);
+/** The shared components' English parts (UI_PARTS in i18n.js), which i18n.js would otherwise fetch. */
+const uiParts = (i18nJs) => { const m = /\/\*ui-parts\*\/\{\s*parts:\s*\[([^\]]*)\]/.exec(String(i18nJs || '')); return m ? m[1].split(',').map((x) => x.trim().replace(/^'|'$/g, '')).filter(Boolean).map((p) => '../shared/i18n/ui/en/' + p + '.js') : []; };
+const i18nExtra = (sources) => (sources['i18n/index.js'] == null ? [] : [I18N_UI, ...uiParts(sources['../shared/i18n/i18n.js']), ...i18nParts(sources['i18n/index.js']).map((p) => 'i18n/en/' + p + '.js')]);
 function escInlineScript(code) { return String(code).replace(/<\/(script)/gi, (m, w) => '<\\/' + w).replace(/<!--/g, () => '<\\!--'); }
 function escInlineStyle(css) { return String(css).replace(/<\/(style)/gi, (m, w) => '<\\/' + w); }
 function escJSONForHTML(json) { return json.replace(/</g, () => '\\u003c').replace(/\u2028/g, () => '\\u2028').replace(/\u2029/g, () => '\\u2029'); }
