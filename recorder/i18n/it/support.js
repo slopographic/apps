@@ -18,7 +18,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'recorder.support.pip': 'Schermo + webcam in un angolo',
   'recorder.support.trim': 'Taglio senza conversione',
   'recorder.support.format': 'Registrato come',
-  'recorder.support.n_screen_yes': 'Quando premi Registrare scegli lo schermo, una finestra o una scheda del browser.',
+  'recorder.support.n_screen_yes': 'Quando premi Registra scegli lo schermo, una finestra o una scheda del browser.',
   'recorder.support.n_screen_mobile': 'Telefoni e tablet non permettono alle pagine web di registrare lo schermo. Usa il registratore di schermo del telefono.',
   'recorder.support.n_screen_no': 'Questo browser non permette alle pagine di acquisire lo schermo.',
   'recorder.support.n_system_yes': 'Nella finestra di condivisione del browser metti la spunta su «Condividi audio della scheda» o «Condividi audio di sistema». Una sola finestra non condivide audio.',

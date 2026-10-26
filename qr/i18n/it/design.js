@@ -23,7 +23,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'qr.logo.width_aria': 'Larghezza del logo',
   'qr.logo.builtin': 'Integrato: {name}',
   'qr.logo.logo': 'Logo',
-  'qr.logo.remove': 'Rimuovere logo',
+  'qr.logo.remove': 'Rimuovi logo',
   'qr.logo.none': 'Ancora nessun logo. Il codice non ha immagini al centro.',
   'qr.logo.intro': 'Un logo sta al centro su una piastrella bianca. La correzione errori è impostata su H, la più alta, così il codice si legge ancora.',
   'qr.logo.width': 'Larghezza del logo (quota del codice, al massimo 22%)',

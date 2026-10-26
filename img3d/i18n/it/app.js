@@ -2,7 +2,7 @@
  * Stesse chiavi di img3d/i18n/en/app.js. Regole: shared/i18n/APPS-HOWTO.md, shared/i18n/glossary-it.md. */
 window.SlopI18n && window.SlopI18n.add('it', {
   'img3d.app.home': 'Pagina iniziale di Slopographic',
-  'img3d.app.open': 'Aprire immagine…',
+  'img3d.app.open': 'Apri immagine…',
   'img3d.app.open_tip': 'Apri un\'immagine dal disco',
   'img3d.app.drive': 'Da Slop Drive…',
   'img3d.app.drive_title': 'Apri un\'immagine da Slop Drive',
@@ -29,9 +29,9 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'img3d.out.scale': 'Scala di profondità',
   'img3d.out.smoothing': 'Levigatura',
   'img3d.out.size': 'Dimensione punto',
-  'img3d.btn.obj': 'Esportare OBJ',
-  'img3d.btn.glb': 'Esportare GLB',
-  'img3d.btn.send': 'Aprire in Slop 3D',
+  'img3d.btn.obj': 'Esporta OBJ',
+  'img3d.btn.glb': 'Esporta GLB',
+  'img3d.btn.send': 'Apri in Slop 3D',
   'img3d.controls.help': 'Trascina per ruotare. Trascina con il tasto destro o con Maiusc per spostare. Rotella per lo zoom. Doppio clic per inquadrare.',
   'img3d.stage.hint': 'Trascina un\'immagine qui, o aprine una.',
   'img3d.status.start': 'Apri un\'immagine per iniziare. Non viene caricato nulla.',

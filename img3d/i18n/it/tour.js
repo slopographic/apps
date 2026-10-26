@@ -11,6 +11,6 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'img3d.tour.subject_text': 'Rimuovi lo sfondo così che solo il soggetto diventi 3D. Funziona sul tuo dispositivo.',
   'img3d.tour.scale_title': 'Scala di profondità',
   'img3d.tour.scale_text': 'Quanto è alto il rilievo. Levigatura e dimensione del punto sono più sotto.',
-  'img3d.tour.send_title': 'Aprire in Slop 3D',
+  'img3d.tour.send_title': 'Apri in Slop 3D',
   'img3d.tour.send_text': 'Invia il modello finito a Slop 3D per modificarlo.',
 });

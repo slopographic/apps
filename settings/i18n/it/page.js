@@ -37,7 +37,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'settings.rates.date': 'Data',
   'settings.rates.rate': 'Tasso',
   'settings.rates.note': 'Nota',
-  'settings.rates.save': 'Salvare tasso',
+  'settings.rates.save': 'Salva tasso',
   'settings.rates.explain': 'Un\'unità della valuta di base equivale al tasso nella valuta quotata. I tassi salvati non si possono modificare: per correggerne uno, aggiungi una nuova riga per la data.',
   'settings.rates.recent': 'Tassi recenti',
   'settings.rates.pair': 'Coppia',
