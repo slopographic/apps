@@ -12,6 +12,8 @@ import { ROOT, sharedAreas, appTables, uiPartsIndex, UI_PARTS_RE } from '../../t
 import { usedKeys } from '../../tools/i18n/check.mjs';
 import { scan } from '../../tools/i18n/coverage.mjs';
 
+// the default-language literal a white-label build rewrites (built from pieces so the build leaves this file alone)
+const DEFAULT_RE = new RegExp('(/\\*profile:' + 'defaultLang\\*/)\'[^\']*\'');
 const SRC = readFileSync(path.join(ROOT, 'shared/i18n/i18n.js'), 'utf8');
 
 /** Runs i18n.js in a fake page whose language is `code`, with UI_PARTS replaced; returns the script URLs it asks for. */
@@ -26,7 +28,7 @@ function load(code, parts) {
   const ctx = { document: doc };   // no SlopProfile: the language is the default choice, set here as a white-label build does
   ctx.window = ctx; ctx.globalThis = ctx;
   vm.createContext(ctx);
-  const src = SRC.replace(UI_PARTS_RE, '/*ui-parts*/' + JSON.stringify(parts) + ';').replace("/*profile:defaultLang*/'en'", `/*profile:defaultLang*/'${code}'`);
+  const src = SRC.replace(UI_PARTS_RE, '/*ui-parts*/' + JSON.stringify(parts) + ';').replace(DEFAULT_RE, (m, mark) => `${mark}'${code}'`);
   vm.runInContext(src, ctx);
   return { urls, api: ctx.SlopI18n };
 }
