@@ -5,11 +5,12 @@
  * see the results on screen too. It also loads the brand facts beside it (tests/brand-facts.js: window.BRAND_FACTS, the
  * build's profile switches), before the page's own scripts, so every page can read them; and in a build that starts in
  * another language it opens the apps in English, as a visitor who chose English (SlopTest.english), so the checks read the
- * copy they were written against. A page about the start language says <meta name="slop-test-lang" content="default">. */
+ * copy they were written against (tests/english.js; tests/run.mjs stores it before the page loads). A page about the start
+ * language says <meta name="slop-test-lang" content="default">. */
 (function () {
-  const me = document.currentScript, facts = me && me.src.replace(/harness\.js(\?.*)?$/, 'brand-facts.js');
+  const me = document.currentScript, at = (f) => me && me.src.replace(/harness\.js(\?.*)?$/, f), facts = at('brand-facts.js');
   const lang = '<script>if (!document.querySelector(\'meta[name="slop-test-lang"][content="default"]\')) SlopTest.english();<\/script>';
-  if (facts && !window.BRAND_FACTS && document.readyState === 'loading') document.write(`<script src="${facts}"><\/script>${lang}`);
+  if (facts && !window.BRAND_FACTS && document.readyState === 'loading') document.write(`<script src="${facts}"><\/script><script src="${at('english.js')}"><\/script>${lang}`);
 })();
 (function () {
   'use strict';
@@ -116,10 +117,7 @@
    *  (tests/brand-facts.js) shows none. */
   const shot = (img, src) => { if (window.BRAND_FACTS.media) expect(img && img.getAttribute('src')).toBe(src); else expect(img).toBe(null); };
   /** For a page whose test reads its English copy: in a build that starts in another language, English is stored as the
-   *  visitor's choice (the profile in localStorage) before the page opens; a build that starts in English stores nothing. */
-  const english = () => {
-    if (window.BRAND_FACTS.defaultLang === 'en') return;
-    try { const p = JSON.parse(localStorage.getItem('slop-profile') || 'null') || { v: 1, data: {} }; p.data = Object.assign({}, p.data, { lang: { mode: 'en' } }); localStorage.setItem('slop-profile', JSON.stringify(p)); } catch (e) { /* storage blocked */ }
-  };
+   *  visitor's choice (tests/english.js) before the page opens; a build that starts in English stores nothing. */
+  const english = () => { if (window.BRAND_FACTS.defaultLang !== 'en' && window.SlopTestEnglish) window.SlopTestEnglish(); };
   window.SlopTest = { describe, it, beforeEach, afterEach, expect, run, pixel, sleep, waitFor, topDialog, contrast, said, shot, english };
 })();

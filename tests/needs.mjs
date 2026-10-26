@@ -40,3 +40,7 @@ export function unmet(needs, facts) {
     return !values.includes(String(facts[key]));
   });
 }
+
+/** Does tests/run.mjs store English as the visitor's choice before the page loads (tests/english.js)? In a build that
+ *  starts in another language, for every page but one about the start language (<meta name="slop-test-lang" content="default">). */
+export const englishFirst = (html, facts) => facts.defaultLang !== 'en' && !/<meta name="slop-test-lang" content="default">/.test(html);

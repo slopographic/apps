@@ -29,11 +29,28 @@
     await sleep(250);
   }
   const pixels = () => { const c = W.activeLayer().canvas; return { w: c.width, h: c.height, d: c.getContext('2d').getImageData(0, 0, c.width, c.height).data }; };
+  // What the app saw of a stroke, for a failure message: the pointer events that reached its window and its viewport
+  const seen = {};
+  const count = (where) => (e) => { const k = `${where}:${e.type.slice(7)}:${e.pointerType}`; seen[k] = (seen[k] || 0) + 1; };
+  function watchEvents() {
+    for (const type of ['pointerdown', 'pointermove', 'pointerup', 'pointercancel']) { win.addEventListener(type, count('window'), true); W.V.el.addEventListener(type, count('view'), true); }
+  }
+  /** The state a stroke from doc point (x, y) met: the tool, the view's fingers, what is under the finger, the page zoom. */
+  function why(x, y) {
+    const p = at(x, y), r = p.el.getBoundingClientRect(), hit = win.document.elementFromPoint(r.left + p.x, r.top + p.y), L = W.activeLayer();
+    const name = (el) => (el ? el.tagName.toLowerCase() + (el.id ? '#' + el.id : '') + (typeof el.className === 'string' && el.className ? '.' + el.className.trim().split(/\s+/).join('.') : '') : 'nothing');
+    const vv = window.visualViewport, fr = document.getElementById('app').getBoundingClientRect();
+    return ` [tool ${W.UI.tool}, layer ${L ? (L.locked ? 'locked' : 'unlocked') : 'none'}, zoom ${W.V.zoom}, fingers ${W.V.touches.size}${W.V.pinch ? ' (pinch)' : ''}${W.V.op ? ', a stroke open' : ''},`
+      + ` under the finger ${name(hit)}, frame at ${Math.round(fr.left)},${Math.round(fr.top)}, page zoom ${vv ? vv.scale : '?'} scrolled ${scrollX},${scrollY},`
+      + ` pen down ${win.SlopTouch.penDown()}, events ${JSON.stringify(seen)}]`;
+  }
+  const clearSeen = () => { for (const k of Object.keys(seen)) delete seen[k]; };
   const changed = (a) => { const b = pixels(); if (a.w !== b.w || a.h !== b.h) return 1e9; let n = 0; for (let i = 0; i < a.d.length; i += 4) if (Math.abs(a.d[i] - b.d[i]) + Math.abs(a.d[i + 1] - b.d[i + 1]) + Math.abs(a.d[i + 2] - b.d[i + 2]) + Math.abs(a.d[i + 3] - b.d[i + 3]) > 12) n++; return n; };
   describe('PhotoSlop painting by finger', () => {
     it('boots', async () => {
       ({ W, win } = await freshApp());
       await waitFor(() => win.SlopTouch && win.SlopTouch.ready, { timeout: 20000 });
+      watchEvents();
     }, { timeout: 40000 });
     it('a finger whose pointerup never came (its element left the page) does not turn the next stroke into a pinch', async () => {
       W.newDocTab(400, 300, '#ffffff', 'Lost'); W.actualPixels();
@@ -47,46 +64,50 @@
       tmp.remove();
       tmp.dispatchEvent(new win.PointerEvent('pointerup', { bubbles: true, cancelable: true, pointerId: 9001, pointerType: 'touch', isPrimary: true, clientX: 10, clientY: 10, button: 0, buttons: 0 }));
       await sleep(100);
+      clearSeen();
       await TouchKit.drag(at(60, 150), 260, 0, 12);
-      await sleep(100);
-      expect(opaque(W.activeLayer().canvas)).toBeGreaterThan(1000);
+      await waitFor(() => opaque(W.activeLayer().canvas) > 1000, { timeout: 3000 }).catch(() => { throw new Error('the stroke painted ' + opaque(W.activeLayer().canvas) + ' pixels' + why(60, 150)); });
       expect(W.V.zoom).toBe(1);
     });
-    it('a one-finger stroke paints with every painting tool, at a finger\'s pressure 0 (iOS) and in real touches', async () => {
-      for (const id of ['brush', 'pencil', 'eraser', 'clone', 'heal', 'smudge', 'dodge']) {
+    // One test per tool, each with its own time: fourteen strokes in one test outgrew its limit on a busy machine.
+    for (const id of ['brush', 'pencil', 'eraser', 'clone', 'heal', 'smudge', 'dodge']) {
+      it(`a one-finger stroke paints with the ${id}, at a finger's pressure 0 (iOS) and in real touches`, async () => {
         for (const how of [{ kind: 'touch', pressure: 0 }, {}]) {
+          const label = `${id} (${how.kind ? 'pressure 0' : 'real touch'})`;
           await stripes();
           W.selectTool(id); W.setColor('fg', '#20c020');
           Object.assign(W.T[id] || {}, { size: 40 });
           if (id === 'clone' || id === 'heal') {
             W.TOOL[id].src = null;
             await TouchKit.drag(at(40, 40), 0, 0, 1, how); // a finger has no Alt key: its first press sets the source
-            expect(W.TOOL[id].src).toBeTruthy();
+            if (!W.TOOL[id].src) throw new Error(`${label}: the first press set no source` + why(40, 40));
           }
           const before = pixels();
+          clearSeen();
           await TouchKit.drag(at(60, 150), 260, 0, 12, how);
-          await sleep(100);
-          const n = changed(before);
-          if (n < 500) throw new Error(`${id} (${how.kind ? 'pressure 0' : 'real touch'}) changed ${n} pixels`);
+          let n = 0;
+          await waitFor(() => (n = changed(before)) >= 500, { timeout: 3000 }).catch(() => { throw new Error(`${label} changed ${n} pixels` + why(60, 150)); });
         }
-      }
-    }, { timeout: 60000 });
+      }, { timeout: 30000 });
+    }
 
     it('on a locked layer a stroke says plainly why nothing paints, and offers a pixel layer that then paints', async () => {
       await stripes();
       const L = W.activeLayer(); W.setLayerProps(L.id, { locked: true }, 'Lock Layer');
       W.selectTool('brush');
       const before = pixels();
+      clearSeen();
       await TouchKit.drag(at(60, 150), 200, 0, 8);
-      const t = win.document.querySelector('.sui-toast');
-      expect(t && t.textContent).toContain('can\'t be painted on');
+      const toast = () => win.document.querySelector('.sui-toast.sui-show');
+      await waitFor(() => toast() && /can't be painted on/.test(toast().textContent), { timeout: 3000 })
+        .catch(() => { throw new Error(`the toast says "${toast() ? toast().textContent : '(none)'}"` + why(60, 150)); });
+      const t = toast();
       expect(changed(before)).toBe(0);
       const n = W.D.layers.length;
       t.querySelector('.sui-toast-act').click();
       expect(W.D.layers.length).toBe(n + 1);
       await TouchKit.drag(at(60, 150), 200, 0, 8);
-      await sleep(100);
-      expect(opaque(W.activeLayer().canvas)).toBeGreaterThan(1000);
+      await waitFor(() => opaque(W.activeLayer().canvas) > 1000, { timeout: 3000 });
     });
   });
   SlopTest.run({ name: 'PhotoSlop touch painting' });
