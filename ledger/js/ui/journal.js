@@ -126,8 +126,8 @@
       const f = NS.csv.journalCsv(list.value, accountsCache, s.base, NS.util.today());
       UI.download(f.blob, f.name);
     });
-    g.SlopCtx.bind($('jRows'), (t) => {
-      const card = t && t.closest && t.closest('.entry');
+    g.SlopCtx.bind($('jRows'), (target) => {
+      const card = target && target.closest && target.closest('.entry');
       if (!card) return null;
       if (card.dataset.reversed === '1') return [{ label: t('ledger.j.already'), disabled: true }];
       return [{ label: t('ledger.j.reverse'), act: () => reverseEntry({ id: card.dataset.id, memo: card.querySelector('.memo').textContent }) }];

@@ -32,8 +32,8 @@
       $('aMsg').textContent = r.ok ? '' : NS.util.refusal(r);
       if (r.ok) { UI.toast(t('ledger.ac.added', { code: r.value.code })); $('aCode').value = ''; $('aName').value = ''; }
     });
-    g.SlopCtx.bind($('aRows'), (t) => {
-      const tr = t && t.closest && t.closest('tr[data-code]');
+    g.SlopCtx.bind($('aRows'), (target) => {
+      const tr = target && target.closest && target.closest('tr[data-code]');
       return tr ? [{ label: t('ledger.ac.rename_dots'), act: () => rename({ code: tr.dataset.code, name: tr.dataset.name }) }] : null;
     });
   }

@@ -41,13 +41,13 @@
   }
 
   /** A new entry (a copy of copyOf when given, dated today), or the stored one for id. */
-  async function show(id, t = {}) {
+  async function show(id, o = {}) {
     say('');
     cur = null;
     let src = null;
-    if (id || t.copyOf) {
+    if (id || o.copyOf) {
       const r = await NS.entries.rows();
-      src = r.ok ? r.value.find((x) => x.id === (id || t.copyOf)) : null;
+      src = r.ok ? r.value.find((x) => x.id === (id || o.copyOf)) : null;
       if (!src) { say(t('timesheets.ed.gone'), true); return; }
       if (id) cur = src;
     }

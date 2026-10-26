@@ -13,11 +13,11 @@
     if (!r.ok) { $('kValue').textContent = U.refusal(r); return; }
     const st = NS.state.settings || { currency: 'USD', locale: 'en-US' };
     const rows = r.value;
-    const t = NS.rows.totalsOf(rows);
-    $('kValue').textContent = U.money(t.value, st.currency, st.locale);
-    $('kProducts').textContent = String(t.products);
-    $('kUnits').textContent = String(t.units);
-    $('kLow').textContent = String(t.low);
+    const tot = NS.rows.totalsOf(rows);
+    $('kValue').textContent = U.money(tot.value, st.currency, st.locale);
+    $('kProducts').textContent = String(tot.products);
+    $('kUnits').textContent = String(tot.units);
+    $('kLow').textContent = String(tot.low);
     const low = rows.filter((x) => x.low).sort((a, b) => (a.onHand - a.reorderLevel) - (b.onHand - b.reorderLevel) || a.sku.localeCompare(b.sku));
     $('lowList').replaceChildren(...low.map((x) => h('li', { class: 'out' },
       h('span', { text: `${x.sku} ${x.name}` }),
