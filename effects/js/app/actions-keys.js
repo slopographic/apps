@@ -5,7 +5,7 @@
   'use strict';
   const ns = (g.SlopEffects = g.SlopEffects || {});
   const K = () => ns.keys;
-  const C = () => ns.core;
+  const C = () => ns.core, T = (k, v) => ns.defs.t(k, v);
 
   /** Builds the key actions for a state and the base actions (see actions.js). */
   function create(S, base) {
@@ -17,12 +17,12 @@
     function copy() {
       const refs = selected();
       const { payload, count } = K().copyKeys(S.doc, refs);
-      if (!payload) { base.toast('Select keys to copy'); return 0; }
+      if (!payload) { base.toast(T('effects.keys.select_copy')); return 0; }
       clip = payload;
       if (g.SlopBuffer && g.SlopBuffer.put) {
         g.SlopBuffer.put({ kind: 'clip', source: 'effects', formats: { 'text/plain': JSON.stringify(payload) } }, { system: false }).catch(() => {});
       }
-      base.toast(`Copied ${count} key${count === 1 ? '' : 's'}`);
+      base.toast(T('effects.keys.copied', { n: count }));
       return count;
     }
 
@@ -40,27 +40,27 @@
     function paste() {
       const id = S.sel.layer;
       const payload = clipboardPayload();
-      if (!id) { base.toast('Select a layer to paste onto'); return; }
-      if (!payload) { base.toast('Nothing to paste'); return; }
+      if (!id) { base.toast(T('effects.keys.select_layer_paste')); return; }
+      if (!payload) { base.toast(T('effects.keys.nothing')); return; }
       let res = null;
       try {
-        S.edit('Paste keys', (d) => { res = K().pasteKeys(d, id, payload, S.playhead); return res.doc; });
+        S.edit(T('effects.undo.paste_keys'), (d) => { res = K().pasteKeys(d, id, payload, S.playhead); return res.doc; });
       } catch (e) { base.toast(e.message); return; }
-      if (res) base.toast(res.skipped ? `Pasted ${res.count}, skipped ${res.skipped}` : `Pasted ${res.count} key${res.count === 1 ? '' : 's'}`);
+      if (res) base.toast(res.skipped ? T('effects.keys.pasted_skipped', { n: res.count, skipped: res.skipped }) : T('effects.keys.pasted', { n: res.count }));
     }
 
     /** Sets the ease of the selected key (one key) to a name, or to [x1, y1, x2, y2]. */
     function setEase(ease) {
       const k = S.sel.keys[0];
-      if (!k) { base.toast('Select a key first'); return; }
-      S.edit('Set ease', (d) => K().setEase(d, k.layer, k.prop, k.t, ease));
+      if (!k) { base.toast(T('effects.keys.select_key')); return; }
+      S.edit(T('effects.undo.set_ease'), (d) => K().setEase(d, k.layer, k.prop, k.t, ease));
     }
 
     /** Sets the ease of every selected key to a name. */
     function setEaseAll(ease) {
       if (!S.sel.keys.length) return;
       const refs = selected();
-      S.edit('Set ease', (d) => refs.reduce((acc, k) => K().setEase(acc, k.layer, k.prop, k.t, ease), d));
+      S.edit(T('effects.undo.set_ease'), (d) => refs.reduce((acc, k) => K().setEase(acc, k.layer, k.prop, k.t, ease), d));
     }
 
     /** Moves the selected keys by a number of frames (the Alt+arrow nudge). */
@@ -68,20 +68,20 @@
       if (!S.sel.keys.length) return;
       const dt = frames / S.doc.comp.fps;
       const refs = selected();
-      S.edit('Move keys', (d) => K().moveKeys(d, refs, dt));
+      S.edit(T('effects.undo.move_keys'), (d) => K().moveKeys(d, refs, dt));
       S.select({ keys: refs.map((r) => ({ ...r, t: C().snap(S.doc.comp, r.t + dt) })) });
     }
 
     /** Animate in or out with a preset on the selected layer. */
     function animate(dir, preset, layerId = S.sel.layer) {
-      if (!layerId) { base.toast('Select a layer first'); return; }
-      try { S.edit(`Animate ${dir}`, (d) => ns.motion.animate(d, layerId, dir, preset)); } catch (e) { base.toast(e.message); }
+      if (!layerId) { base.toast(T('effects.keys.select_layer')); return; }
+      try { S.edit(T(dir === 'in' ? 'effects.motion.in' : 'effects.motion.out'), (d) => ns.motion.animate(d, layerId, dir, preset)); } catch (e) { base.toast(e.message); }
     }
 
     /** Random motion on the selected layer, with a seed, the properties and the bounds (see motion.randomMotion). */
     function randomMotion(opts, layerId = S.sel.layer) {
-      if (!layerId) { base.toast('Select a layer first'); return; }
-      try { S.edit('Random motion', (d) => ns.motion.randomMotion(d, layerId, opts)); } catch (e) { base.toast(e.message); }
+      if (!layerId) { base.toast(T('effects.keys.select_layer')); return; }
+      try { S.edit(T('effects.motion.random'), (d) => ns.motion.randomMotion(d, layerId, opts)); } catch (e) { base.toast(e.message); }
     }
 
     /** Begins a live drag of the selected keys (see state.live). */

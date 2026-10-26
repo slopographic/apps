@@ -101,8 +101,9 @@ PRECACHE.push(
   '/drive/js/ui/newdoc.js', '/drive/js/ui/preview-3d.js', '/drive/js/ui/preview-kinds.js', '/drive/js/ui/preview-size.js', '/drive/js/ui/prov-actions.js',
   '/drive/js/ui/prov-dnd.js', '/drive/js/ui/prov-drives.js', '/drive/js/ui/prov-picker.js', '/drive/js/ui/prov-tree.js', '/drive/js/ui/quicklook.js',
   '/drive/js/ui/select.js', '/drive/js/ui/shell.js', '/drive/js/ui/sidebar.js', '/drive/js/ui/view-columns.js', '/drive/js/ui/view-files.js',
-  '/drive/js/ui/view-nodes.js', '/drive/js/ui/view-usage.js', '/drive/js/ui/viewer.js', '/effects/css/effects.css', '/effects/index.html',
-  '/effects/js/app/actions-keys.js', '/effects/js/app/actions.js', '/effects/js/app/ai-commands.js', '/effects/js/app/ai-export.js',
+  '/drive/js/ui/view-nodes.js', '/drive/js/ui/view-usage.js', '/drive/js/ui/viewer.js', '/effects/css/effects.css', '/effects/i18n/en/app.js',
+  '/effects/i18n/en/keys.js', '/effects/i18n/en/panels.js', '/effects/i18n/en/panels2.js', '/effects/i18n/en/tour.js', '/effects/i18n/index.js',
+  '/effects/index.html', '/effects/js/app/actions-keys.js', '/effects/js/app/actions.js', '/effects/js/app/ai-commands.js', '/effects/js/app/ai-export.js',
   '/effects/js/app/ai-ops.js', '/effects/js/app/cmd.js', '/effects/js/app/io.js', '/effects/js/app/state.js', '/effects/js/main.js',
   '/effects/js/model/core.js', '/effects/js/model/defs.js', '/effects/js/model/history.js', '/effects/js/model/keys.js', '/effects/js/model/layers.js',
   '/effects/js/model/motion.js', '/effects/js/model/project.js', '/effects/js/model/values.js', '/effects/js/render/draw.js', '/effects/js/render/export.js',
@@ -202,6 +203,5 @@ PRECACHE.push(
   '/pdf/js/organize/drag.js', '/pdf/js/organize/grid.js', '/pdf/js/organize/keys.js', '/pdf/js/organize/zoom.js', '/pdf/js/redact/apply.js',
   '/pdf/js/redact/find.js', '/pdf/js/redact/panel.js', '/pdf/js/tools/comments-panel.js', '/pdf/js/tools/doc-panels.js', '/pdf/js/tools/edit-panel.js',
   '/pdf/js/tools/history-panel.js', '/pdf/js/tools/layers-panel.js', '/pdf/js/tools/ocg-panel.js', '/pdf/js/tools/organize-panel.js', '/pdf/js/tools/sign.js',
-  '/pdf/js/tools/stamp-panels.js', '/pdf/js/tools/watermark-panel.js', '/pdf/js/ui/actions.js', '/pdf/js/ui/app.js', '/pdf/js/ui/assets.js',
 );
 // END PRECACHE

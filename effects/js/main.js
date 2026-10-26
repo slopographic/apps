@@ -6,7 +6,7 @@
   const $ = (id) => document.getElementById(id);
 
   function boot() {
-    const doc = ns.core.newDoc({ name: 'Untitled', comp: ns.io.DEFAULT_COMP });
+    const doc = ns.core.newDoc({ name: 'Untitled', comp: ns.io.DEFAULT_COMP }); // i18n-ignore: the project's own name
     const S = ns.state.create(doc);
     const toast = (m) => { if (g.SlopUI) g.SlopUI.toast(m); };
     const act = ns.actions.create(S, { toast });
@@ -36,7 +36,7 @@
     // Phones: the side panel is a bottom sheet (SlopSheet, shared/ui/sheet.js), opened and closed by Properties in the
     // toolbar, with the shared ×, Escape, a tap outside and a swipe down. On a wide screen it stays in its column.
     const sheet = g.SlopSheet ? g.SlopSheet.attach({ root: $('fx-app'), panel: document.querySelector('.fx-side'), phone: '(max-width: 760px)',
-      toggles: [$('fx-props')], label: 'Properties' }) : null;
+      toggles: [$('fx-props')], label: ns.defs.t('effects.app.props') }) : null;
 
     // Timeline tabs: the timeline and the graph editor share the lower area.
     g.SlopTabs.mount($('fx-tl-tabs'), { panel: (k) => $(k === 'graph' ? 'fx-graph' : 'fx-timeline') }).show('timeline');
@@ -44,13 +44,16 @@
     // The suite rule (shared/frame/HANDOFF.md): Render, the main button, sits at the foot of the right panel; on a phone
     // the closed sheet still shows it, with Properties to open the rest (SlopFramePanel's footer, shared/frame/panel.js).
     g.SlopFramePanel.create(document.querySelector('.fx-side'), { bare: true })
-      .footer([{ el: $('fx-render') }], { more: 'Properties', onMore: () => sheet && sheet.toggle() });
+      .footer([{ el: $('fx-render') }], { more: ns.defs.t('effects.app.props'), onMore: () => sheet && sheet.toggle() });
+    document.querySelectorAll('.fx-side .sf-foot-more').forEach((b) => { b.dataset.i18n = 'effects.app.props'; });
     const menus = ns.menus.mount(S, Object.assign(act, { toast }), io);
     const renderDialog = () => ns.renderDialog.open(S, toast);
     const compDialog = () => ns.menus.compDialog(S, act);
     const focusMotion = () => { showTab('motion'); if (sheet) sheet.open(); };
     if (g.SlopCmd && g.SlopCmd.init) g.SlopCmd.init({ app: 'effects' });
     ns.cmd.init({ S, act, ka, io, tr, preview, toast, renderDialog, compDialog, focusMotion });
+    // a language change: the panels, the timeline and the readouts draw again with the new words (data-i18n does the rest)
+    ns.defs.onLang(() => { S.emit('doc'); S.emit('sel'); });
 
     // Status toasts from the store (undo labels etc.) are not needed; the toolbar shows undo state.
     S.on((what) => { if (what === 'doc') document.title = `${S.doc.name} — Slop Effects`; });

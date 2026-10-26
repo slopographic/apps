@@ -61,7 +61,7 @@
         if (!moved) return;
         if (total === 0) { S.cancelLive(); return; }
         const landed = base.map((k) => ({ ...k, t: ns.core.snap(S.doc.comp, Math.min(dur, Math.max(0, k.t + total))) }));
-        S.commitLive('Move keys');
+        S.commitLive(ns.defs.t('effects.undo.move_keys'));
         S.select({ keys: landed });
       };
       window.addEventListener('pointermove', move);
