@@ -36,6 +36,7 @@
     var choice = typeof opts.defaultLang === 'string' ? opts.defaultLang : DEFAULT_CHOICE;
     if (!byCode[choice]) choice = DEFAULT;
     var tables = {};
+    var applied = null;   // the brand name the last apply() filled in
     var prof = opts.profile !== undefined ? opts.profile : (g.SlopProfile && typeof g.SlopProfile.create === 'function'
       ? g.SlopProfile.create({
         storage: opts.storage,
@@ -79,6 +80,7 @@
     function apply() {
       if (!doc || !doc.documentElement) return get();
       var code = get(), root = doc.documentElement;
+      applied = brand();
       root.setAttribute('lang', code);
       root.setAttribute('dir', byCode[code].dir === 'rtl' ? 'rtl' : 'ltr');
       var varsOf = function (el) {
@@ -118,7 +120,8 @@
       if (!doc || !doc.documentElement) return;
       if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', apply); else apply();
       try { g.addEventListener && g.addEventListener('storage', function (ev) { if (!ev.key || ev.key === 'slop-profile') apply(); }); } catch (e) { /* no storage events */ }
-      if (doc.addEventListener) doc.addEventListener('slopbrand', apply);   // {brand} follows the profile's name once it is in
+      // {brand} follows the profile's name once it is in (only when it differs: a rewrite of every label moves the page)
+      if (doc.addEventListener) doc.addEventListener('slopbrand', function () { if (brand() !== applied) apply(); });
     }
     return {
       LANGS: list,

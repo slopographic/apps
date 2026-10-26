@@ -31,6 +31,7 @@
     'shell.notifications': 'Aviseringar',
     'shell.notifications_new': 'Aviseringar, {n} nya',
     'shell.clear_all': 'Rensa alla',
+    'shell.beta': 'beta',
 
     'switcher.search': 'Sök appar',
     'switcher.recent': 'Senaste',

@@ -35,6 +35,7 @@
     'shell.notifications': 'Notifications',
     'shell.notifications_new': 'Notifications, {n} new',
     'shell.clear_all': 'Clear all',
+    'shell.beta': 'beta',
 
     'switcher.search': 'Search apps',
     'switcher.recent': 'Recent',

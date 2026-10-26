@@ -17,6 +17,14 @@ that loads the shell (`shell/shell.js`). Only shared chrome is translated so far
   one-line description), for every id in `shared/apps.js` (`tests/node/i18n-sv.test.mjs` checks it). These keys exist only
   in Swedish: in English the plain names are the registry's `plain` field. A `<code>-apps.js` file loads after `<code>.js`.
 - `settings/language.js`: the Language picker in Settings > Appearance (lists `LANGS` in order).
+- `switcher.js`: `window.SlopLangSwitch`, the header's language button (a globe and the current code, `EN`, `SV`). The
+  shell loads it and `shell/header.js` mounts it in every header, the homepage's included. Its menu (SlopMenuButton,
+  loaded on the first open) lists `LANGS` in order by each language's own name, the current one checked, and a choice
+  goes through `set()`, the same setter as Settings (whose picker follows it on `slop-lang`). With more than 10 languages
+  the menu gets a filter box that matches the own name, the code and the English name (an entry's `english`, else
+  `Intl.DisplayNames`); an entry with `quality: 'beta'` shows a "beta" tag (`shell.beta`). In a full header it is the
+  first button to give way (`data-hbtn-yield="0"`, `shared/ui/hbtn.js`): its label, then itself; the More menu (phone)
+  or the Theme menu then offers it. It is not a language file: the one-file-per-language test skips it.
 
 ## Loading
 - `shell/shell.js` loads `i18n.js`, `strings.js` and every language file when the page has no `SlopI18n`, then calls
@@ -72,6 +80,9 @@ A change in another tab re-applies on `storage`.
    ```
 
    Keep the English text inside the element. It is the fallback if the script fails to load.
+   Placeholders on a marked element come from `data-i18n-vars` (JSON, `data-i18n-vars='{"app":"Slop PDF"}'`), and
+   `{brand}` is always the brand profile's name (`SlopBrand.config.name`; the page re-applies on `slopbrand`), so
+   `'Install {brand}'` names a white-label build's own brand.
 3. For text built in JavaScript, call `SlopI18n.t('key', { name: value })`. `{name}` placeholders are filled from vars and
    left as they are when a var is missing. Values go in as text, never as HTML. Elements built in JS can carry
    `data-i18n` too, so a later `apply()` (on a language change, or at boot) updates them.
@@ -89,6 +100,10 @@ A change in another tab re-applies on `storage`.
   existing in English.
 - `tests/i18n/switch.test.html`: in a browser, the Settings picker lists all eight codes; choosing Spanish changes the
   homepage nav text; a reload keeps it; a shell page (Ledger) shows it at boot; switching back restores English.
+- `tests/node/i18n-switcher.test.mjs`: the header menu's rows from the list (current checked), a choice through
+  `set()` stored as Settings stores it, the header strings in every language, `data-i18n-vars` and `{brand}`.
+- `tests/i18n/header-switch.test.html`: Svenska from an app header and from the homepage (the header's words, `lang`,
+  a reload), the keyboard, Arabic at 390 px (`dir="rtl"`, the header still fits), Settings following the header.
 - `tests/i18n/rtl.test.html`: the picker shows each language by its own name; choosing Arabic sets `lang="ar"` and
   `dir="rtl"`, the header's Apps button shows and is on screen, and the header's start margin is on the right; a shell
   page shows it at boot; choosing English puts `dir="ltr"` back.
@@ -110,6 +125,7 @@ A change in another tab re-applies on `storage`.
   bodies, the donate text) stay English until they are marked.
 - **Menu words** (File, Edit, View, Help, Save, Open, Export, Print, Cancel, OK, Close) are in `strings.js` and in
   every language file, but no app's own menus are marked yet. An app marks its menus with `menu.*` keys.
-- **Notifications** (`shell/notify.js`, the bell and its panel) and the navigation drawer (`shell/drawer.js`) are English,
-  and their CSS is not mirrored yet (see Right-to-left).
+- **Notifications** (`shell/notify.js`): the bell's title and label, the panel's heading and Clear all are translated;
+  the panel's other text and the navigation drawer (`shell/drawer.js`) are English, and their CSS is not mirrored yet
+  (see Right-to-left).
 - **Every app's own text** is English in all eight languages (see the first bullet above).

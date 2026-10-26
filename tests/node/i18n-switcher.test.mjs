@@ -42,6 +42,29 @@ test('a language added to the list shows in the menu with no change to the switc
   assert.deepEqual(plain(S.items(I)).map((r) => [r.value, r.label, r.checked]), [['en', 'English', false], ['nb', 'Norsk bokmål', true]]);
 });
 
+test('a long list (29 languages, some beta) gets a filter box that finds a language by its English name, and beta tags', async () => {
+  const { ctx, I: I8, S } = await page();
+  assert.equal(S.search(I8), false, 'the eight of today: no filter box');
+  const codes = ['en', 'es', 'fr', 'de', 'pt-BR', 'it', 'ar', 'sv', 'zh-CN', 'zh-TW', 'ja', 'ko', 'hi', 'ru', 'nl', 'pl', 'tr', 'uk', 'id', 'vi', 'he',
+    'sw', 'am', 'ha', 'yo', 'ig', 'zu', 'xh', 'af'];
+  const NAMES = { sw: 'Kiswahili', am: 'አማርኛ', he: 'עברית', 'zh-CN': '简体中文' };
+  const list = codes.map((code) => ({ code, name: NAMES[code] || code.toUpperCase(), dir: ['ar', 'he'].includes(code) ? 'rtl' : 'ltr', complete: false,
+    ...(['sw', 'am', 'ha'].includes(code) ? { quality: 'beta' } : {}), ...(code === 'yo' ? { english: 'Yoruba', quality: 'beta' } : {}) }));
+  const I = ctx.SlopI18n.create({ languages: list, storage: memStorage({ 'slop-profile': JSON.stringify({ v: 1, data: { lang: { mode: 'sw' } } }) }) });
+  I.add('en', { 'shell.beta': 'beta' });
+  assert.equal(S.search(I), true, 'more than ' + S.SEARCH_FROM + ': a filter box');
+  const rows = plain(S.items(I));
+  assert.deepEqual(rows.map((r) => r.value), codes, 'every entry, from the list, in its order');
+  assert.deepEqual(rows.filter((r) => r.checked).map((r) => r.value), ['sw']);
+  assert.deepEqual(rows.filter((r) => r.tag).map((r) => [r.value, r.tag]), [['sw', 'beta'], ['am', 'beta'], ['ha', 'beta'], ['yo', 'beta']]);
+  const find = (q) => rows.filter((r) => [r.label, r.value, ...r.keywords].join(' ').toLowerCase().includes(q)).map((r) => r.value);
+  assert.deepEqual(find('swahili'), ['sw'], 'typing "swahili" finds Kiswahili (the menu filters label, value and keywords)');
+  assert.deepEqual(find('kiswahili'), ['sw'], 'and by its own name');
+  assert.deepEqual(find('yoruba'), ['yo'], "an entry's own english name wins");
+  assert.ok(find('hebrew').includes('he'));
+  assert.equal(rows.find((r) => r.value === 'he').dir, 'rtl');
+});
+
 test('the button text is the short code', async () => {
   const { S } = await page();
   assert.equal(S.short('en'), 'EN');
@@ -77,7 +100,7 @@ test('a choice goes through SlopI18n.set (the Settings picker\'s setter) and is 
 test('the header strings are in every language: Theme, Install, Tours, Notifications, Language', async () => {
   const { I, S } = await page();
   const keys = ['shell.language', 'shell.language_now', 'shell.theme', 'shell.theme_system', 'shell.more', 'shell.install', 'shell.install_title',
-    'shell.tours', 'shell.tours_title', 'shell.tour', 'shell.tour_title', 'shell.notifications', 'shell.notifications_new', 'shell.clear_all'];
+    'shell.tours', 'shell.tours_title', 'shell.tour', 'shell.tour_title', 'shell.notifications', 'shell.notifications_new', 'shell.clear_all', 'shell.beta'];
   const en = Object.fromEntries(keys.map((k) => [k, I.t(k)]));
   assert.equal(en['shell.tours_title'], 'Guided tours for each app');
   for (const code of ['sv', 'de', 'es', 'fr', 'it', 'pt-BR', 'ar']) {
@@ -113,7 +136,8 @@ test('the shell loads the switcher and the header mounts it; the header strings 
   const header = await read('shell/header.js');
   assert.match(header, /SlopLangSwitch\.button\(\)/);
   assert.match(header, /data-i18n="shell\.theme"/);
-  assert.match(await read('shared/ui/hbtn.js'), /FOLD = \['\.sh-lang'/, 'on a phone it folds into More first');
+  assert.match(await read('shared/i18n/switcher.js'), /hbtnYield = '0'/, 'it gives way first in a full header');
+  assert.match(header, /lang && lang\.hidden/, 'then the Theme menu offers it');
   assert.match(await read('index.html'), /data-i18n="shell\.install"/);
   assert.match(await read('shared/tour/mount.js'), /'shell\.tours', 'shell\.tours_title'/);
   assert.match(await read('shell/notify.js'), /shell\.notifications_new/);

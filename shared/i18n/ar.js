@@ -32,6 +32,7 @@
     'shell.notifications': 'الإشعارات',
     'shell.notifications_new': 'الإشعارات، {n} جديدة',
     'shell.clear_all': 'مسح الكل',
+    'shell.beta': 'تجريبي',
 
     'switcher.search': 'البحث في التطبيقات',
     'switcher.recent': 'الأخيرة',

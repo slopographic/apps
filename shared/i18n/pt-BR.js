@@ -31,6 +31,7 @@
     'shell.notifications': 'Notificações',
     'shell.notifications_new': 'Notificações, {n} novas',
     'shell.clear_all': 'Limpar tudo',
+    'shell.beta': 'beta',
 
     'switcher.search': 'Buscar apps',
     'switcher.recent': 'Recentes',

@@ -4,7 +4,7 @@
  * that holds the Apps button.
  * Buttons that yield (data-hbtn-yield="1", "2", ...: Convert… and AI, shell/header.js) give way before anything else:
  * first their labels (class sh-icon-only), in that order, then the buttons themselves (hidden; the Theme menu offers them).
- * Then the header goes tight (icons only), and Language, Theme, the bell, Slop Drive, Tutorial and Apps fold one by one into a More (⋯)
+ * Then the header goes tight (icons only), and Theme, the bell, Slop Drive, Tutorial and Apps fold one by one into a More (⋯)
  * menu (SlopMenuButton) before a button marked data-hbtn-keep (AI) goes; it goes last, into More with its label. They never
  * make a header taller than it is without them, so they cannot wrap it onto a new row.
  *   SlopHbtn.anchor(b)    where a menu of b opens (the More button while b is folded into it).
@@ -79,7 +79,7 @@
   }
   /* The header's other shared buttons fold into a More (⋯) menu, in this order, before a button that stays (data-hbtn-keep:
    * AI) gives up its place; More then lists everything folded or hidden, by its label. */
-  const FOLD = ['.sh-lang', '.sh-theme', '.sn-bell', '[data-sdl]', '.sh-tutorial', '.sh-switch'];
+  const FOLD = ['.sh-theme', '.sn-bell', '[data-sdl]', '.sh-tutorial', '.sh-switch'];
   // only on a phone: a wide header keeps its old order (AI gives way after Convert…, into the Theme menu; nothing folds)
   const PHONE = '(max-width: 640px)';
   const phone = () => !!(win.matchMedia && win.matchMedia(PHONE).matches);

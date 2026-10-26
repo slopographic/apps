@@ -32,13 +32,19 @@
   const D = (f) => f.contentDocument;
   const html = (f) => D(f).documentElement;
   const rows = (f) => [...D(f).querySelectorAll('.smb-menu .smb-row')];
-  /** Opens the language menu the way a visitor does: its button, or More when it is folded there on a phone. */
+  /** Opens the language menu the way a visitor does: its button, or, when it gave way in a full header, its row in More
+   *  (on a phone) or in the Theme menu. */
   async function openMenu(f) {
-    const b = D(f).querySelector('.sh-lang');
-    if (b.hidden) {
-      D(f).querySelector('.slop-hmore').click();
-      const more = await waitFor(() => rows(f).find((r) => r.dataset.value !== undefined && /:/.test(r.textContent)), { timeout: 10000 });
+    const b = D(f).querySelector('.sh-lang'), more = D(f).querySelector('.slop-hmore');
+    if (b.hidden && more && !more.hidden) {
       more.click();
+      const row = await waitFor(() => rows(f).find((r) => /:/.test(r.textContent)), { timeout: 10000 });
+      row.click();
+    } else if (b.hidden) {
+      const t = D(f).querySelector('.sh-theme');
+      t.click();
+      const row = await waitFor(() => [...D(f).querySelectorAll('.sui-menu *')].find((n) => !n.children.length && /…$/.test(n.textContent) && n.textContent.length < 30), { timeout: 10000 });
+      row.click();
     } else b.click();
     return waitFor(() => rows(f).length >= 8 && rows(f).find((r) => r.dataset.value === 'en') && rows(f), { timeout: 15000 });
   }
@@ -133,6 +139,11 @@
         expect(html(f).getAttribute('dir')).toBe('rtl');
         await sleep(400);
         fits(f);
+        await openMenu(f);   // the open menu fits the phone, under right to left too
+        const m = D(f).querySelector('.smb-menu').getBoundingClientRect();
+        expect(m.left >= 0 && m.right <= 390 && m.bottom <= 800).toBe(true, `menu at ${Math.round(m.left)}–${Math.round(m.right)}`);
+        D(f).activeElement.dispatchEvent(new f.contentWindow.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+        await sleep(100);
         await choose(f, 'sv');
         expect(html(f).getAttribute('dir')).toBe('ltr');
         fits(f);
