@@ -152,7 +152,10 @@
     var m = ctx.paraFonts.get(page);
     if (!m) ctx.paraFonts.set(page, (m = new Map()));
     if (!m.has(ps)) {
-      var hit = P.pageFonts(out.context, page.node.Resources(), [], 0).find(function (x) { return sameName(x.name, ps); }), nm = null;
+      var find = function (pg) { return P.pageFonts(out.context, pg.node.Resources(), [], 0).find(function (x) { return sameName(x.name, ps); }); };
+      // a frame pasted or dragged onto another page: the font is found on the page it came from (any page of the output)
+      var hit = find(page), others = out.getPages(), nm = null;
+      for (var oi = 0; !hit && oi < others.length; oi++) if (others[oi] !== page) hit = find(others[oi]);
       if (hit) nm = page.node.newFontDictionary('SlopPara', hit.ref || out.context.register(hit.dict));
       m.set(ps, nm);
     }
@@ -160,7 +163,11 @@
   }
   E.drawPara = async function (out, page, a, g, ctx) {
     var L = PDFLib, c = SP.util.hexToRgb(a.color || '#000000'), col = L.rgb(c.r, c.g, c.b);
-    var left = g.x0 + a.cx - a.w / 2, top = g.y0 + g.H - (a.cy - a.h / 2), fs = a.fs;
+    var left = g.x0 + a.cx - a.w / 2, top = g.y0 + g.H - (a.cy - a.h / 2), fs = a.fs, turned = !!(a.rot && a.rot % 360);
+    if (turned) { // turned about its centre (counter-clockwise for a positive rot, as the screen draws it: para-view.js)
+      var th = a.rot * Math.PI / 180, cs = Math.cos(th), sn = Math.sin(th), px = g.x0 + a.cx, py = g.y0 + g.H - a.cy;
+      page.pushOperators(L.pushGraphicsState(), L.concatTransformationMatrix(cs, sn, -sn, cs, px - cs * px + sn * py, py - sn * px - cs * py));
+    }
     for (var li = 0; li < (a.lines || []).length; li++) {
       var line = a.lines[li], y = top - line.b;
       for (var si = 0; si < line.segs.length; si++) {
@@ -183,5 +190,6 @@
         }
       }
     }
+    if (turned) page.pushOperators(L.popGraphicsState());
   };
 })();

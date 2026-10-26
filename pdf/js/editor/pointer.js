@@ -32,7 +32,7 @@
     var p = Ed.page(); if (!p) return;
     if (S.runEdit && e.target === S.runEdit.input) return; // typing in the run being edited
     if (S.runEdit) S.commitRun();
-    var handle = e.target.closest('.handle'), hitG = e.target.closest('.annots [data-aid]');
+    var handle = e.target.closest('.handle, .sel-rot'), hitG = e.target.closest('.annots [data-aid]');
     var t = Ed.tool, tbox = t === 'select' && !Ed.selId && S.textBoxHit ? S.textBoxHit(e) : null; // a text selection's box (sel-actions.js)
     // The text layer's spans lie over the annotations, so a press on an annotation over page text reaches a span: with the
     // select tool the press is the annotation's when it is inside its box (select, move, resize), in Edit text mode or not.
@@ -152,7 +152,7 @@
       var x = S.findAnnot(S.act.id); if (!x) return;
       Object.keys(x).forEach(function (k) { delete x[k]; }); Object.assign(x, JSON.parse(JSON.stringify(S.act.orig)));
       var r = S.act.r0, n = { x: r.x, y: r.y, w: r.w, h: r.h };
-      if (S.act.h === 'move') { n.x += dx; n.y += dy; E.setAnnotViewRect(x, n, c.R, c.W, c.H); }
+      if (S.act.h === 'move') { n.x += dx; n.y += dy; E.setAnnotViewRect(x, n, c.R, c.W, c.H); if (S.cross) S.cross.over(ev); }
       else if (S.act.h === 'tip') { x.tip = E.toPage(c.R, c.W, c.H, v[0], v[1]); }
       else if (S.act.h === 'p1' || S.act.h === 'p2') { var k = S.act.h === 'p1' ? 0 : x.pts.length - 1; x.pts[k] = E.toPage(c.R, c.W, c.H, v[0], v[1]); }
       else {
@@ -181,13 +181,15 @@
       }
       Ed.paint();
     }
-    function up() {
+    function up(ev) {
       S.pageEl.removeEventListener('pointermove', mv); S.pageEl.removeEventListener('pointerup', up); S.pageEl.removeEventListener('pointercancel', up);
       if (!S.act) return;
       var x = S.findAnnot(S.act.id), A = S.act; S.act = null;
+      if (S.cross) S.cross.over(null);
       if (!x || !A.moved) { if (x && x.type === 'note') Ed.noteUI.open(x.id); Ed.paint(); return; }
       var fin = JSON.parse(JSON.stringify(x));
       Object.keys(x).forEach(function (k) { delete x[k]; }); Object.assign(x, A.orig);
+      if (A.h === 'move' && ev && ev.type === 'pointerup' && S.cross && S.cross.dropAnnot(ev, A, fin)) return; // onto another page, or Alt: a copy (cross-page.js)
       S.commitPage(U.t(A.h === 'move' ? 'pdf.ed.undo_move_annot' : A.h === 'tip' ? 'pdf.ed.undo_move_tip' : 'pdf.ed.undo_resize_annot'), function (p) { p.annots = p.annots.map(function (y) { return y.id === fin.id ? fin : y; }); });
     }
     S.pageEl.addEventListener('pointermove', mv); S.pageEl.addEventListener('pointerup', up); S.pageEl.addEventListener('pointercancel', up);

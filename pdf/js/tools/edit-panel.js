@@ -22,7 +22,7 @@
       onRefresh(function (reason) {
         U.$$('.tool-b', tools).forEach(function (x) { x.classList.toggle('on', x.dataset.tool === SP.editor.tool); });
         var a = SP.editor.getSelected(), type = a ? a.type : SP.editor.tool;
-        var key = (a ? a.id + ':' + a.type : 'tool:' + type) + ':' + SP.editor.pid;
+        var key = (a ? a.id + ':' + a.type : 'tool:' + type) + ':' + SP.editor.pid + (SP.selPanel ? ':' + SP.selPanel.key() : '');
         if (key !== lastKey || reason === 'history') { lastKey = key; buildProps(props, a, type); }
         var p = SP.editor.page();
         pageSec.innerHTML = '';
@@ -67,7 +67,8 @@
     var Ed = SP.editor, d = a || Ed.defaults[type] || {};
     var set = function (k) { return function (v) { Ed.setProp(k, v); }; };
     var kids = [];
-    if (type === 'select' && !a) { box.appendChild(section(t('pdf.tool.edit.selection'), [note(t('pdf.tool.edit.select_help'))])); return; }
+    if (SP.selPanel && SP.selPanel.build(box, a)) return; // a block of the page's text, or a page picture (sel-panel.js)
+    if (type === 'select' && !a) { box.appendChild(section(t('pdf.tool.edit.selection'), [note(t('pdf.se.select_help'))])); return; }
     if (type === 'text' || type === 'callout') {
       kids.push(row(t('pdf.tool.edit.font'), fontPicker(d.font, set('font'))));
       kids.push(row(t('pdf.tool.edit.size'), num(d.size || 16, 4, 400, 1, set('size')), 'pt'));
@@ -105,6 +106,7 @@
         btn(t('pdf.tool.edit.bring_front'), 'plus', function () { zorder(a.id, 1); }),
         btn(t('pdf.tool.edit.send_back'), 'reverse', function () { zorder(a.id, -1); }),
         btn(t('ui.delete'), 'trash', function () { Ed.deleteSelected(); }, 'danger-text'))]));
+      var g = SP.selPanel && SP.selPanel.geometry(a); if (g) box.appendChild(g); // position, size, rotation (sel-panel.js)
     }
   }
   /** A selected comment: who wrote it, how many replies, and the actions (the thread itself is the popup). */

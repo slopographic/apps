@@ -43,7 +43,7 @@
     S.pageEl = null;
     S.viewer.appendChild(S.pad);
     S.viewer.addEventListener('pointerdown', function (e) {
-      if (e.target.closest && e.target.closest('.pv-page')) return;
+      if (!e.target.isConnected || (e.target.closest && e.target.closest('.pv-page'))) return; // a mark repainted by the press itself is a press on its page
       if (e.pointerType === 'mouse' && e.button === 0) S.startPan(e); else if (e.pointerType !== 'mouse') S.startPan(e);
       Ed.select(null);
     });
