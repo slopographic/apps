@@ -75,7 +75,7 @@ The terms the shared chrome (shared/i18n/zh-CN.js) and the app tables use. Add a
 | layer | 图层 |  |
 | layers | 图层 |  |
 | comment | 评论 |  |
-| annotation | 注释 | Acrobat usage |
+| annotation | 批注 | PDF markup; comment (the threaded kind) stays 评论 |
 | highlight | 突出显示 | Office usage; 高亮 in casual text only |
 | redact | 涂黑 | Redact: remove for good; Acrobat says 编校, 涂黑 is plainer |
 | form | 表单 |  |
@@ -129,3 +129,22 @@ The terms the shared chrome (shared/i18n/zh-CN.js) and the app tables use. Add a
 | Full (view mode) | 完整 |  |
 | Focus (view mode) | 专注 |  |
 | Content (view mode) | 仅内容 |  |
+| config | 配置 | Config files and Config menus; never 选项 |
+| trash | 回收站 | Never 废纸篓 |
+| timeline | 时间线 | Never 时间轴 |
+| pipeline | 销售管道 | CRM and Contacts |
+| ledger | 账簿 | The books; General ledger is 总账, journal 日记账 |
+| duplicate (action) | 创建副本 | Layers, pages, nodes, contacts |
+| duplicates (found) | 重复项 | Find duplicates: 查找重复项 |
+| reel | 短片 | Gallery and Remix reels; not 成片 |
+| product | 产品 | Not 商品 |
+| expenses | 费用 | Money out in general is 支出 |
+| description | 说明 | Not 描述 (the verb describe is 描述) |
+| email | 电子邮件 | Field label; mailbox is 邮箱 |
+| bring forward | 前移一层 | Send backward is 后移一层 |
+| nudge | 微移 | 向左微移, not 左移 |
+| go to | 转到 | Not 前往 |
+| home (Slopographic home) | 首页 | Not 主页 |
+| font style | 字体样式 | Never 字型 (Taiwan) |
+| Slopify | Slopify | Brand verb, stays in Latin; never Slop 化 |
+| slop (joke word) | slop | Mascot lines keep the Latin word; never 史莱姆 |
