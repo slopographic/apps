@@ -81,6 +81,17 @@
       expect(SlopHbtn.check(h)).toBe(false);
       h.remove();
     });
+    it('content that runs into the header\'s end padding counts as full, so the last button never slides into it', () => {
+      const h = bar('wide');
+      h.style.cssText = 'box-sizing: border-box; padding: 6px 14px 6px 6px';
+      const need = () => h.lastElementChild.getBoundingClientRect().right - h.getBoundingClientRect().left + 14 + 1;   // + padding + border
+      const w = need();
+      h.style.width = w + 'px';
+      expect(SlopHbtn.check(h)).toBe(false);   // exactly as wide as its content: room
+      h.style.width = (w - 3) + 'px';          // 3 px into the padding, still inside the border box
+      expect(SlopHbtn.check(h)).toBe(true);
+      h.remove();
+    });
     it('a header that wraps its buttons onto a second row goes tight', () => {
       const h = SlopHbtn.fit(bar('wrap'));
       expect(h.classList.contains('slop-htight')).toBe(true);

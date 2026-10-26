@@ -7,6 +7,7 @@
   <iframe id="app" title="PDF app"></iframe>
   <script src="../harness.js"></script>
   <script>
+  // Covers: shared/ui/hbtn.js, shared/viewmode/viewmode.js
   // The PDF app's top bar stays fully on screen, and its view-mode control stays in one place, in every view mode.
   const { describe, it, expect, waitFor, run, sleep } = SlopTest;
   const frame = document.getElementById('app');
@@ -78,6 +79,23 @@
       expect(rect('.slopvm-reveal').right).toBeLessThanOrEqual(ctl().left);
       expect(ctl()).toEqual(before);
       V.set('full'); await settle();
+    });
+
+    // A brand with another font (other glyph widths) once moved the control 2 px in Full: the bar's content ran into
+    // its end padding and pushed the control along. Wider and narrower text must leave it where it is.
+    it('the view-mode control keeps its x and y in every mode with a wider or a narrower font', async () => {
+      for (const ls of [-0.3, 0.4, 1]) {
+        const st = D.createElement('style');
+        st.textContent = `.topbar, .topbar * { letter-spacing: ${ls}px !important; }`;
+        D.head.append(st);
+        V.set('full'); W.dispatchEvent(new W.Event('resize')); await settle();
+        const at = {};
+        for (const m of MODES) { V.set(m); await settle(); const c = ctl(); at[m] = { x: c.left, y: c.top }; }
+        expect({ ls, ...at.focus }).toEqual({ ls, ...at.full });
+        expect({ ls, ...at.content }).toEqual({ ls, ...at.full });
+        st.remove();
+        V.set('full'); W.dispatchEvent(new W.Event('resize')); await settle();
+      }
     });
   });
 
