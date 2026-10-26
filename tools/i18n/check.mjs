@@ -21,7 +21,7 @@ import { apps, appTables, sharedTables, sharedAreas, pageAreas, langs, ROOT } fr
 const CATS = new Set(['zero', 'one', 'two', 'few', 'many', 'other']);
 export const placeholders = (s) => [...String(s).matchAll(/\{(\w+)\}/g)].map((m) => m[1]).sort().join(',');
 /** "slop" written in the scripts of LANGS: Arabic, Hebrew, Cyrillic, Greek, Devanagari, Ethiopic, kana, Hangul, Han. */
-export const TRANSLIT = /سلوب|سلاب|סלופ|сл[оа]п|σλοπ|स्ल[ॉो]प|ስሎፕ|スロッ?プ|スロッポ|すろっぷ|슬롭|슬로포|斯洛普|斯洛波|斯罗普/i;
+export const TRANSLIT = /(?<![\u0600-\u06FF])سل[وا]ب|סלופ|сл[оа]п|σλοπ|स्ल[ॉो]प|ስሎፕ|スロッ?プ|スロッポ|すろっぷ|슬롭|슬로포|斯洛普|斯洛波|斯罗普/i;
 const baseOf = (k) => (k.includes('#') ? k.slice(0, k.indexOf('#')) : k);
 /** The plural forms a language needs besides 'other' for the counts a UI shows (CLDR, through Intl): the categories
  * some whole number 0..200 falls in. fr, es, it and pt 'many' (only for a million and up) is left to 'other'. */
