@@ -1,9 +1,10 @@
 /* SlopNav presets: the built-in navigation presets, as plain data. Classic script, no dependencies.
- * Sets window.SlopNav.presets. A preset is { id, name, blurb, custom?, bindings } and bindings has
+ * Sets window.SlopNav.presets. A preset is { id, name, blurb, custom?, bindings } (name and blurb in the chosen language) and bindings has
  * every key listed in SlopNav.validate.KEYS (see validate.js for the allowed values). */
 (function () {
   'use strict';
   const N = (window.SlopNav = window.SlopNav || {});
+  const say = (k, v) => { const I = window.SlopI18n; return I && I.t ? I.t(k, v) : k; };   // words: shared/i18n/ui/<code>/print.js (ui.nav.*)
 
   // Slop: the default. Plain wheel zooms around the pointer; Shift+wheel pans sideways.
   const SLOP = {
@@ -13,23 +14,23 @@
   const over = (o) => Object.assign({}, SLOP, o, { zoomInKeys: (o.zoomInKeys || SLOP.zoomInKeys).slice(), zoomOutKeys: (o.zoomOutKeys || SLOP.zoomOutKeys).slice() });
 
   const LIST = [
-    { id: 'slop', name: 'Slop', blurb: 'The default. Wheel zooms around the pointer, Space or middle drag pans, pinch zooms on touch.', bindings: over({}) },
+    { id: 'slop', get name() { return say('ui.nav.preset.slop'); }, get blurb() { return say('ui.nav.preset.slop_blurb'); }, bindings: over({}) },
     {
-      id: 'photoshop', name: 'Photoshop-style',
-      blurb: 'Alt + wheel zooms, the wheel scrolls, Space drag pans, Ctrl/⌘ +/- zooms, Ctrl/⌘ 0 fits, Ctrl/⌘ 1 is 100%.',
+      id: 'photoshop', get name() { return say('ui.nav.preset.photoshop'); },
+      get blurb() { return say('ui.nav.preset.photoshop_blurb'); },
       bindings: over({ zoomWheel: 'alt', panWheel: 'plain', fitKey: 'Mod+0', actualKey: 'Mod+1', zoomInKeys: ['Mod+='], zoomOutKeys: ['Mod+-'], clickZoomKey: 'Mod+Space' }),
     },
     {
-      id: 'illustrator', name: 'Illustrator-style',
-      blurb: 'Ctrl/⌘ + wheel zooms, the wheel scrolls, Space drag pans, H holds the hand tool, Ctrl/⌘ +/- zooms, Ctrl/⌘ 0 fits.',
+      id: 'illustrator', get name() { return say('ui.nav.preset.illustrator'); },
+      get blurb() { return say('ui.nav.preset.illustrator_blurb'); },
       bindings: over({ zoomWheel: 'ctrl', panWheel: 'plain', handKey: 'H', fitKey: 'Mod+0', actualKey: 'Mod+1', zoomInKeys: ['Mod+='], zoomOutKeys: ['Mod+-'] }),
     },
     {
-      id: 'figma', name: 'Figma-style',
-      blurb: 'Trackpad pinch zooms, two-finger drag pans, the wheel pans, Ctrl/⌘ + wheel zooms, Shift+1 fits, Shift+0 is 100%.',
+      id: 'figma', get name() { return say('ui.nav.preset.figma'); },
+      get blurb() { return say('ui.nav.preset.figma_blurb'); },
       bindings: over({ zoomWheel: 'ctrl', panWheel: 'plain', fitKey: 'Shift+1', actualKey: 'Shift+0', zoomInKeys: ['Mod+='], zoomOutKeys: ['Mod+-'] }),
     },
-    { id: 'custom', name: 'Custom', custom: true, blurb: 'Set each binding yourself. Starts from Slop and is saved for this app.', bindings: over({}) },
+    { id: 'custom', get name() { return say('ui.nav.preset.custom'); }, custom: true, get blurb() { return say('ui.nav.preset.custom_blurb'); }, bindings: over({}) },
   ];
 
   const byId = {};

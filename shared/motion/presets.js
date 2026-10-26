@@ -1,20 +1,19 @@
-// Named, reusable animations as data. A preset is { label, duration, tracks } with key times relative
+// Named, reusable animations as data. A preset is { duration, tracks } (its label: ui.motion.<name>, in the chosen language) with key times relative
 // to 0 (seconds). Any app can place one on any target: SlopMotion.presets.apply(timeline, 'pop', 'card-3', {at: 1}).
 // translateX / translateY are in px (scale them with opts.amount). Classic script: window.SlopMotion.presets.
 (function (g) {
   'use strict';
   const ns = (g.SlopMotion = g.SlopMotion || {});
+  const label = (name) => { const I = g.SlopI18n, k = 'ui.motion.' + name.replace(/-/g, '_'); return I && I.t ? I.t(k) : k; };   // shared/i18n/ui/<code>/templates.js
 
   const PRESETS = {
     'fade-in': {
-      label: 'Fade in',
       duration: 0.4,
       tracks: {
         opacity: [{ t: 0, value: 0, ease: 'easeOutQuad' }, { t: 0.4, value: 1 }],
       },
     },
     'slide-up': {
-      label: 'Slide up',
       duration: 0.5,
       tracks: {
         translateY: [{ t: 0, value: 40, ease: 'easeOutCubic' }, { t: 0.5, value: 0 }],
@@ -22,7 +21,6 @@
       },
     },
     pop: {
-      label: 'Pop',
       duration: 0.5,
       tracks: {
         scale: [{ t: 0, value: 0, ease: 'easeOutBack' }, { t: 0.5, value: 1 }],
@@ -30,7 +28,6 @@
       },
     },
     shake: {
-      label: 'Shake',
       duration: 0.5,
       tracks: {
         translateX: [
@@ -40,14 +37,12 @@
       },
     },
     pulse: {
-      label: 'Pulse',
       duration: 0.6,
       tracks: {
         scale: [{ t: 0, value: 1, ease: 'easeInOutQuad' }, { t: 0.3, value: 1.08, ease: 'easeInOutQuad' }, { t: 0.6, value: 1 }],
       },
     },
     'spin-in': {
-      label: 'Spin in',
       duration: 0.6,
       tracks: {
         rotate: [{ t: 0, value: -360, ease: 'easeOutCubic' }, { t: 0.6, value: 0 }],
@@ -60,13 +55,13 @@
 
   /** [{name, label, duration}] for UI menus, sorted by name. */
   function list() {
-    return Object.keys(PRESETS).sort().map((name) => ({ name, label: PRESETS[name].label, duration: PRESETS[name].duration }));
+    return Object.keys(PRESETS).sort().map((name) => ({ name, label: label(name), duration: PRESETS[name].duration }));
   }
 
   /** A fresh plain copy of one preset's data. Throws for unknown names. */
   function get(name) {
     if (!Object.prototype.hasOwnProperty.call(PRESETS, name)) throw new RangeError(`presets: unknown preset "${name}"`);
-    return { name, ...JSON.parse(JSON.stringify(PRESETS[name])) };
+    return { name, label: label(name), ...JSON.parse(JSON.stringify(PRESETS[name])) };
   }
 
   /**

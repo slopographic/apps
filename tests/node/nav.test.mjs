@@ -1,5 +1,6 @@
 // Node unit tests for shared/nav: presets validate, wheel and key decisions, clashes, the store
 // round trip (Custom bindings saved per app) and rejection of bad bindings. No DOM needed.
+// Covers: shared/nav/presets.js, shared/nav/validate.js, shared/nav/logic.js, shared/nav/describe.js, shared/nav/store.js, shared/nav/engine.js, shared/nav/pad.js, shared/nav/modal.js, shared/nav/index.js
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
@@ -15,12 +16,17 @@ function fakeStorage() {
   const data = {};
   return { data, getItem: (k) => (k in data ? data[k] : null), setItem: (k, v) => { data[k] = String(v); }, removeItem: (k) => { delete data[k]; } };
 }
-/** Loads the classic scripts into a fresh vm context and returns window.SlopNav. */
-async function load(storage) {
+const I18N = path.join(NAV, '..', 'i18n');
+/** Loads the classic scripts into a fresh vm context and returns window.SlopNav. The words (shared/i18n/ui/<code>/print.js)
+ * come first, as on a page: English, or Swedish with lang 'sv'. */
+async function load(storage, lang = 'en') {
   const ctx = { console, addEventListener() {} };
   ctx.window = ctx;
   if (storage) ctx.localStorage = storage;
   vm.createContext(ctx);
+  vm.runInContext(await readFile(path.join(I18N, 'i18n.js'), 'utf8'), ctx, { filename: 'i18n.js' });
+  vm.runInContext(`window.SlopI18n = window.SlopI18n.create({ defaultLang: '${lang}', profile: null });`, ctx);
+  for (const f of ['en.js', 'en/print.js', ...(lang === 'en' ? [] : [lang + '.js', lang + '/print.js'])]) vm.runInContext(await readFile(path.join(I18N, 'ui', f), 'utf8'), ctx, { filename: f });
   for (const f of FILES) vm.runInContext(await readFile(path.join(NAV, f), 'utf8'), ctx, { filename: f });
   return ctx.SlopNav;
 }
@@ -180,4 +186,15 @@ test('describe lines cover every binding and say when a key is unbound', () => {
   assert.equal(lines.length, N.validate.KEYS.length);
   assert.ok(lines.find((x) => x.name === 'fitKey').text === 'Not bound');
   assert.match(N.describe.describe(PS).find((x) => x.name === 'zoomWheel').text, /Alt/);
+});
+
+test('in Swedish the presets, the descriptions and the errors are Swedish (they were English in every language)', async () => {
+  const N = await load(null, 'sv');
+  assert.deepEqual(plain(N.presets.list().map((p) => p.name)), ['Slop', 'Photoshop-stil', 'Illustrator-stil', 'Figma-stil', 'Anpassad']);
+  const lines = N.describe.describe(N.presets.get('photoshop').bindings);
+  assert.equal(lines.find((x) => x.name === 'zoomWheel').text, 'Alt + hjul zoomar runt pekaren');
+  assert.equal(lines.find((x) => x.name === 'handKey').text, 'Ingen tangent');
+  assert.equal(N.describe.title('fitKey'), 'Tangent för Anpassa till skärm');
+  const bad = N.validate.validate(Object.assign({}, N.presets.get('slop').bindings, { panWheel: 'plain' }));
+  assert.deepEqual(plain(bad.errors), ['Hjulzoom och hjulpanorering använder samma kombinationstangent']);
 });

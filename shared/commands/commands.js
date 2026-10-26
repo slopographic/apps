@@ -6,7 +6,7 @@
 (function () {
   'use strict';
   if (window.SlopCmd) return;
-  function tr(key, en, vars) { const I = window.SlopI18n; if (I && I.has && I.has(key)) return I.t(key, vars); return vars ? String(en).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en; }   // shared/i18n/ui/en.js, else the English
+  function tr(key, vars) { const I = globalThis.SlopI18n; return I && I.t ? I.t(key, vars) : key; }   // shared/i18n/ui/<code>.js; the key where no table is loaded
   const SCRIPT = document.currentScript;
   const BASE = SCRIPT && SCRIPT.src ? new URL('./', SCRIPT.src).href : null;
   const PARTS = ['search', 'palette', 'recorder', 'keymap'];
@@ -121,9 +121,9 @@
   const list = () => [...cmds.values()].map(view);
   function run(id, ctx = {}) {
     const c = cmds.get(id);
-    if (!c || !enabled(c)) { if (c && window.SlopUI && ctx.source !== 'palette') SlopUI.toast(c.why || tr('ui.cmd.not_available', '{title} is not available right now.', { title: c.title || id })); return false; }
+    if (!c || !enabled(c)) { if (c && window.SlopUI && ctx.source !== 'palette') SlopUI.toast(c.why || tr('ui.cmd.not_available', { title: c.title || id })); return false; }
     if (ctx.record !== false && !c.noRecent) { const r = recents[id] || [0, 0]; stamp = Math.max(Date.now(), stamp + 1); recents[id] = [r[0] + 1, stamp]; trimRecents(); ls.set(recStore(), recents); }
-    try { call(c, ctx); } catch (err) { console.error(err); if (window.SlopUI) SlopUI.toast(tr('ui.cmd.failed', '{title} failed: {error}', { title: c.title || id, error: err.message })); }
+    try { call(c, ctx); } catch (err) { console.error(err); if (window.SlopUI) SlopUI.toast(tr('ui.cmd.failed', { title: c.title || id, error: err.message })); }
     emit('run', { id, source: ctx.source || 'api' });
     return true;
   }
@@ -246,7 +246,7 @@
   }
   const loadPart = (name) => new Promise((res, rej) => document.head.append(Object.assign(document.createElement('script'),
     { src: BASE + name + '.js', onload: res, onerror: () => rej(new Error('Could not load ' + name + '.js')) })));
-  const withUI = (fn) => ensureUI().then(fn, (err) => { console.warn(err); if (window.SlopUI) SlopUI.toast(tr('ui.cmd.offline', 'Command palette unavailable offline')); });
+  const withUI = (fn) => ensureUI().then(fn, (err) => { console.warn(err); if (window.SlopUI) SlopUI.toast(tr('ui.cmd.offline')); });
   let opts = {};
   function init(o = {}) {
     opts = o;
@@ -260,7 +260,7 @@
     if (document.readyState === 'complete') pre(); else addEventListener('load', pre, { once: true });
     return api;
   }
-  const OWN = { 'cmd.palette': ['ui.cmd.palette_dots', 'Search commands…'], 'cmd.keymap': ['ui.cmd.keymap_dots', 'Keyboard shortcuts…'], 'cmd.workflow': ['ui.cmd.workflow_dots', 'Run a workflow…'] }, own = (id) => tr(OWN[id][0], OWN[id][1]);   // titles follow a language change; groups stay ids
+  const OWN = { 'cmd.palette': 'ui.cmd.palette_dots', 'cmd.keymap': 'ui.cmd.keymap_dots', 'cmd.workflow': 'ui.cmd.workflow_dots' }, own = (id) => tr(OWN[id]);   // titles follow a language change; groups stay ids
   register([
     { id: 'cmd.palette', title: own('cmd.palette'), group: 'Help', keys: ['Mod+K', 'Shift+Mod+P', '/'], keywords: ['spotlight', 'palette', 'find', 'actions'], global: true, noRecent: true, run: () => (paletteOpen ? api.close() : api.open()) },
     { id: 'cmd.keymap', title: own('cmd.keymap'), group: 'Help', keywords: ['keys', 'keymap', 'hotkeys', 'bindings', 'customize'], noRecent: true, run: () => api.openKeymap() },

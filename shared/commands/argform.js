@@ -8,8 +8,8 @@
  *     cmd.prefill?() → { name: value }, cmd.ok? (the button's word), cmd.noForm (run with the defaults, no form) */
 (function (g) {
   'use strict';
-  /** A word from the shared tables (shared/i18n/ui/en.js), or the English given when SlopI18n or the key is absent. */
-  function tr(key, en, vars) { const I = globalThis.SlopI18n; if (I && I.has && I.has(key)) return I.t(key, vars); return vars ? String(en).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en; }
+  /** A word from the shared tables (shared/i18n/ui/<code>.js) in the chosen language. */
+  function tr(key, vars) { const I = globalThis.SlopI18n; return I && I.t ? I.t(key, vars) : key; }   // shared/i18n/ui/<code>.js; the key where no table is loaded
   const A = () => g.SlopCmdArgs, UI = () => g.SlopUI;
   const el = (tag, attrs) => Object.assign(document.createElement(tag), attrs || {});
   const choices = (a) => (a.options ? a.options.map((o) => (Array.isArray(o) ? o : [o, String(o)])) : (a.values || []).map((v) => [v, String(v)]));
@@ -32,7 +32,7 @@
       const body = el('div', { className: 'sui-form' });
       body.append(...rows);
       UI().dialog({ title: String(cmd.title || cmd.id).replace(/…$/, ''), body, onClose: () => { if (!done) resolve(null); },
-        buttons: [{ label: tr('menu.cancel', 'Cancel') }, { label: cmd.ok || tr('ui.cmd.run', 'Run'), primary: true, act: () => {
+        buttons: [{ label: tr('menu.cancel') }, { label: cmd.ok || tr('ui.cmd.run'), primary: true, act: () => {
           const raw = {};
           for (const [k, get] of read) { const x = get(); if (x !== '') raw[k] = x; }
           const r = A().validate(cmd.args, raw);
@@ -45,7 +45,7 @@
   function show(cmd, v) {
     if (v == null || v === true || v === false) return;
     if (typeof v === 'string') { UI().toast(v, 3600); return; }
-    if (v.media) { UI().toast(v.text || tr('ui.done', 'Done'), 3600); return; }
+    if (v.media) { UI().toast(v.text || tr('ui.done'), 3600); return; }
     UI().alert(String(cmd.title || cmd.id).replace(/…$/, ''), JSON.stringify(v, null, 1).slice(0, 4000));
   }
 

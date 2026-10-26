@@ -10,6 +10,7 @@
     const UI = window.SlopUI;
     if (!UI || !opts || !opts.app) return null;
     const app = opts.app, el = UI.el, D = N.describe, L = N.logic;
+    const say = (k, v) => { const I = window.SlopI18n; return I && I.t ? I.t(k, v) : k; };   // the dialog is built on open, in the chosen language (shared/i18n/ui/<code>/print.js)
     const S = { tab: 'presets', selected: N.store.resolve(app).id, draft: null, draftFrom: null, pad: null, refs: {} };
     const shortcuts = () => { try { return typeof opts.shortcuts === 'function' ? opts.shortcuts() : []; } catch (e) { return []; } };
     const storedCustom = () => N.store.get(app).custom;
@@ -17,7 +18,7 @@
     const clashLines = (b, name) => L.clashes(b, shortcuts()).filter((c) => !name || c.binding === name);
 
     /* ---- presets pane ---- */
-    const cards = el('div', { class: 'nav-cards', role: 'radiogroup', 'aria-label': 'Presets' });
+    const cards = el('div', { class: 'nav-cards', role: 'radiogroup', 'aria-label': say('ui.nav.presets') });
     const whatBox = el('ul', { class: 'nav-what' });
     const clashBox = el('div', { class: 'nav-clash-box' });
     const presetsPane = el('div', { class: 'nav-pane' }, cards, whatBox, clashBox);
@@ -31,7 +32,7 @@
       const b = bindingsFor(S.selected);
       whatBox.replaceChildren(...D.describe(b).map((x) => el('li', null, el('b', null, x.title + ': '), x.text)));
       const cl = clashLines(b);
-      clashBox.replaceChildren(...cl.map((c) => el('p', { class: 'nav-clash' }, `${D.TITLES[c.binding]} uses ${L.label(c.combo)}, which ${c.title} also uses in this app. While this preset is on, it wins.`)));
+      clashBox.replaceChildren(...cl.map((c) => el('p', { class: 'nav-clash' }, say('ui.nav.clash', { what: D.title(c.binding), key: L.label(c.combo), cmd: c.title }))));
     }
 
     /* ---- customise pane ---- */
@@ -52,13 +53,13 @@
       r.sel.value = D.valueOf(name, S.draft[name]);
       r.hint.textContent = D.describe(S.draft).find((x) => x.name === name).text;
       const cl = clashLines(S.draft, name);
-      r.clash.textContent = cl.length ? `Clashes with ${cl[0].title} (${L.label(cl[0].combo)}). This preset wins while it is on.` : '';
+      r.clash.textContent = cl.length ? say('ui.nav.clash_row', { cmd: cl[0].title, key: L.label(cl[0].combo) }) : '';
     }
     function buildRows() {
       rowsBox.replaceChildren();
       S.refs = {};
       for (const name of N.validate.KEYS) {
-        const sel = el('select', { class: 'sui-input', 'aria-label': D.TITLES[name] });
+        const sel = el('select', { class: 'sui-input', 'aria-label': D.title(name) });
         for (const [v, l] of D.optionsFor(name, S.draft[name])) sel.append(el('option', { value: v }, l));
         const hint = el('small', { class: 'nav-hint' });
         const clash = el('small', { class: 'nav-clash' });
@@ -66,22 +67,22 @@
           S.draft[name] = N.presets.clone(baseBindings())[name];
           refreshRow(name);
           if (S.pad) S.pad.refresh();
-        } }, 'Reset to preset');
+        } }, say('ui.nav.reset_row'));
         sel.addEventListener('change', () => { S.draft[name] = D.parseOption(name, sel.value); refreshRow(name); if (S.pad) S.pad.refresh(); });
         S.refs[name] = { sel, hint, clash };
-        rowsBox.append(el('div', { class: 'nav-row' }, el('label', { class: 'nav-row-head' }, el('span', { class: 'sui-label' }, D.TITLES[name]), sel), reset, hint, clash));
+        rowsBox.append(el('div', { class: 'nav-row' }, el('label', { class: 'nav-row-head' }, el('span', { class: 'sui-label' }, D.title(name)), sel), reset, hint, clash));
       }
       for (const name of N.validate.KEYS) refreshRow(name);
     }
-    const customHead = el('p', { class: 'nav-hint' }, 'Change any binding. Starts from the preset you picked; Apply saves it for this app.');
+    const customHead = el('p', { class: 'nav-hint' }, say('ui.nav.custom_note'));
     customPane.prepend(customHead);
 
     /* ---- try-it pad and messages ---- */
     const padBox = el('div', { class: 'nav-pad-wrap' });
     const padLine = el('p', { class: 'nav-hint nav-readout' });
     const errBox = el('p', { class: 'nav-err', role: 'alert' });
-    const tabPresets = el('button', { class: 'sui-btn nav-tab', type: 'button', role: 'tab', 'aria-selected': 'true' }, 'Presets');
-    const tabCustom = el('button', { class: 'sui-btn nav-tab', type: 'button', role: 'tab', 'aria-selected': 'false' }, 'Customise');
+    const tabPresets = el('button', { class: 'sui-btn nav-tab', type: 'button', role: 'tab', 'aria-selected': 'true' }, say('ui.nav.presets'));
+    const tabCustom = el('button', { class: 'sui-btn nav-tab', type: 'button', role: 'tab', 'aria-selected': 'false' }, say('ui.nav.customise'));
     function show(tab) {
       if (tab === 'custom') { ensureDraft(); buildRows(); }
       S.tab = tab;
@@ -97,8 +98,8 @@
     const body = el('div', { class: 'nav-body' },
       el('div', { class: 'nav-tabs', role: 'tablist' }, tabPresets, tabCustom),
       presetsPane, customPane,
-      el('div', { class: 'nav-try' }, el('b', { class: 'nav-try-title' }, 'Try it'),
-        el('p', { class: 'nav-hint' }, 'Wheel over the box, hold Space and drag, or press the keys. Nothing changes until you press Apply.'),
+      el('div', { class: 'nav-try' }, el('b', { class: 'nav-try-title' }, say('ui.nav.try')),
+        el('p', { class: 'nav-hint' }, say('ui.nav.try_note')),
         padBox, padLine, errBox));
 
     function apply() {
@@ -116,10 +117,10 @@
 
     renderWhat();
     const dlg = UI.dialog({
-      title: opts.title || 'Navigation preset',
+      title: opts.title || say('ui.nav.dialog'),
       body,
       cls: 'nav-dlg',
-      buttons: [{ label: 'Cancel' }, { label: 'Apply', primary: true, act: apply }],
+      buttons: [{ label: say('menu.cancel') }, { label: say('ui.apply'), primary: true, act: apply }],
       onClose: () => { if (S.pad) { S.pad.destroy(); S.pad = null; } },
     });
     S.pad = N.pad.mount(padBox, { bindings: () => (S.tab === 'custom' && S.draft ? S.draft : bindingsFor(S.selected)), onChange: (t) => { padLine.textContent = t; } });

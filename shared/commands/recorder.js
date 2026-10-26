@@ -4,8 +4,8 @@
   'use strict';
   const C = window.SlopCmd;
   if (!C || !C._parts || C._parts.recorder) return;
-  /** A word from the shared tables (shared/i18n/ui/en.js), or the English given when SlopI18n or the key is absent. */
-  function tr(key, en, vars) { const I = globalThis.SlopI18n; if (I && I.has && I.has(key)) return I.t(key, vars); return vars ? String(en).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en; }
+  /** A word from the shared tables (shared/i18n/ui/<code>.js) in the chosen language. */
+  function tr(key, vars) { const I = globalThis.SlopI18n; return I && I.t ? I.t(key, vars) : key; }   // shared/i18n/ui/<code>.js; the key where no table is loaded
 
   /**
    * Record the next key combination. While recording, app shortcuts are suspended and every key is
@@ -58,8 +58,8 @@
     const cl = C.conflicts(nb, id);
     if (cl.length) {
       const names = [...new Set(cl.map((c) => '“' + c.title + '”'))].join(', ');
-      const ask = opts.confirm || ((t, m) => (window.SlopUI ? SlopUI.confirm(t, m, tr('ui.replace', 'Replace')) : Promise.resolve(window.confirm(m))));
-      const ok = await ask(tr('ui.cmd.in_use', 'Shortcut already in use'), tr('ui.cmd.in_use_body', '{keys} is used by {names}. Replace it?', { keys: C.format(nb), names }));
+      const ask = opts.confirm || ((t, m) => (window.SlopUI ? SlopUI.confirm(t, m, tr('ui.replace')) : Promise.resolve(window.confirm(m))));
+      const ok = await ask(tr('ui.cmd.in_use'), tr('ui.cmd.in_use_body', { keys: C.format(nb), names }));
       if (!ok) return false;
       for (const c of cl) C.setKeys(c.id, C.bindings(c.id).filter((k) => C.canon(k) !== c.key));
     }
@@ -88,12 +88,12 @@
     if (!file) return 0;
     try {
       const data = JSON.parse(await file.text());
-      if (data && data.app && data.app !== C.app && window.SlopUI && !(await SlopUI.confirm(tr('ui.cmd.import_title', 'Import shortcuts'), tr('ui.cmd.import_other', 'This file holds shortcuts for “{app}”. Import them here anyway?', { app: data.app }), tr('ui.import', 'Import')))) return 0;
+      if (data && data.app && data.app !== C.app && window.SlopUI && !(await SlopUI.confirm(tr('ui.cmd.import_title'), tr('ui.cmd.import_other', { app: data.app }), tr('ui.import')))) return 0;
       const n = C.importKeys(data);
-      if (window.SlopUI) SlopUI.toast(tr('ui.cmd.imported', n === 1 ? 'Imported {n} shortcut' : 'Imported {n} shortcuts', { n }));
+      if (window.SlopUI) SlopUI.toast(tr('ui.cmd.imported', { n }));
       return n;
     } catch (err) {
-      if (window.SlopUI) SlopUI.alert(tr('ui.cmd.import_failed', 'Could not import shortcuts'), err.message); else console.warn(err);
+      if (window.SlopUI) SlopUI.alert(tr('ui.cmd.import_failed'), err.message); else console.warn(err);
       return -1;
     }
   }

@@ -20,6 +20,8 @@
 })(typeof globalThis !== 'undefined' ? globalThis : this, function (C, root) {
   'use strict';
   var err = C.err;
+  // Messages a person reads, in the chosen language (shared/i18n/ui/<code>/print.js); the key where no table is loaded.
+  var say = function (k, v) { var I = globalThis.SlopI18n; return I && I.t ? I.t(k, v) : k; };
   var lib = function (opts) { var L = (opts && opts.PDFLib) || root.PDFLib; if (!L) throw err('unsupported', 'pdf-lib is not loaded.'); return L; };
 
   function isEncrypted(bytes) {
@@ -61,7 +63,7 @@
     var enc = C.readEncrypt(L, ctx);
     if (!enc) return null;
     var fk = await C.fileKey(enc, password || '');
-    if (!fk) throw err('password', 'Incorrect password.');
+    if (!fk) throw err('password', say('ui.pdfc.wrong_password'));
     var cip = C.cipher(enc, fk.key);
     var all = ctx.enumerateIndirectObjects();
     for (var a = 0; a < all.length; a++) {
@@ -82,7 +84,7 @@
     ctx.trailerInfo.Encrypt = undefined;
     ctx.delete(enc.ref);
     var doc = new L.PDFDocument(ctx, true, false);
-    if (!doc.getPageCount()) throw err('unsupported', 'No pages survived decryption.');
+    if (!doc.getPageCount()) throw err('unsupported', say('ui.pdfc.no_pages'));
     var objStreams = !opts || opts.useObjectStreams !== false;
     return doc.save({ useObjectStreams: objStreams, addDefaultPage: false, updateFieldAppearances: false });
   }

@@ -2,7 +2,7 @@
 // samples in tests/finance/fixtures/, the quirks each format has in the wild, the balance check and the format sniff.
 // camt.053 is XML: the small DOMParser stand-in of the Tables tests reads it here (in the browser it is the real one).
 // Covers: shared/finance/ofx.js, shared/finance/qif.js, shared/finance/camt053.js, shared/finance/mt940.js, shared/finance/model.js, shared/finance/index.js
-import { inSwedish } from './finance-words.mjs';   // the warnings' English words
+import { inSwedish } from './ui-words.mjs';   // the warnings' English words
 import './tables-dom-shim.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
