@@ -4,5 +4,5 @@ window.SlopI18n && window.SlopI18n.source({
   ns: 'time',
   base: ((document.currentScript || {}).src || '').replace(/[^/]*$/, ''),
   parts: ['page', 'panels'],
-  langs: ['en', 'sv'],
+  langs: ['en', 'fr', 'sv'],
 });
