@@ -4,5 +4,5 @@ window.SlopI18n && window.SlopI18n.source({
   ns: 'paste',
   base: ((document.currentScript || {}).src || '').replace(/[^/]*$/, ''),
   parts: ['app', 'tour'],
-  langs: ['en', 'sv'],
+  langs: ['en', 'pt-BR', 'sv'],
 });
