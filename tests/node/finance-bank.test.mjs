@@ -2,6 +2,7 @@
 // samples in tests/finance/fixtures/, the quirks each format has in the wild, the balance check and the format sniff.
 // camt.053 is XML: the small DOMParser stand-in of the Tables tests reads it here (in the browser it is the real one).
 // Covers: shared/finance/ofx.js, shared/finance/qif.js, shared/finance/camt053.js, shared/finance/mt940.js, shared/finance/model.js, shared/finance/index.js
+import { inSwedish } from './finance-words.mjs';   // the warnings' English words
 import './tables-dom-shim.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -135,4 +136,11 @@ test('format sniff and dispatch: by content first, extension second; plain CSV i
   assert.equal(readFinance(bytes('fakt-4i.si'), 'FAKT.SI').kind, 'ledger');
   assert.throws(() => readStatement(bytes('fakt-4i.si'), 'FAKT.SI'), /SIE/);
   assert.throws(() => readFinance(new TextEncoder().encode('hello'), 'a.txt'), /not a file this reader knows/);
+});
+
+test('the readers\' warnings follow the chosen language (Swedish was English)', () => {
+  const m = inSwedish(() => readQif('nothing here\n'));
+  assert.equal(m.warnings[0], 'Inga banktransaktioner hittades. En QIF-fil börjar med en rad som !Type:Bank.');
+  const o = inSwedish(() => readOfx('<html></html>'));
+  assert.equal(o.warnings[0], 'Inget <OFX>-element hittades: det här är ingen OFX-fil.');
 });

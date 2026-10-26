@@ -10,7 +10,7 @@
  *   (signed by the spec from the customer's side; TRNTYPE does not change the sign), text NAME (or EXTDNAME, PAYEE NAME)
  *   and MEMO, ref CHECKNUM or REFNUM, id FITID, type TRNTYPE. Pending <STMTTRNP> lines are left out (not settled).
  *   Quirks read on purpose: a decimal comma, a "+" sign, CRLF or no line breaks, a missing end tag at the end. */
-import { decodeBytes, parseAmount, ymd, squash } from './text.js';
+import { decodeBytes, parseAmount, ymd, squash, say } from './text.js';
 import { statementModel, mergeStatements } from './model.js';
 
 const ENT = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ' };
@@ -78,7 +78,7 @@ function account(stmt) {
 function transaction(t, warn) {
   const amount = parseAmount(val(t, 'TRNAMT'));
   const date = ymd(val(t, 'DTPOSTED')) || ymd(val(t, 'DTUSER'));
-  if (amount === null || !date) { warn(`A transaction (${val(t, 'FITID') || val(t, 'NAME') || 'no id'}) has no date or amount and was left out.`); return null; }
+  if (amount === null || !date) { warn(val(t, 'FITID') || val(t, 'NAME') ? say('ui.fin.ofx_tx', { id: val(t, 'FITID') || val(t, 'NAME') }) : say('ui.fin.ofx_tx_noid')); return null; }
   const payee = kid(t, 'PAYEE');
   const name = squash(val(t, 'NAME') || val(t, 'EXTDNAME') || (payee ? val(payee, 'NAME') : ''));
   const memo = squash(val(t, 'MEMO'));
@@ -96,7 +96,7 @@ export function readOfx(input) {
   const warnings = [];
   const warn = (w) => { if (warnings.length < 200) warnings.push(w); };
   const at = text.search(/<OFX[\s>]/i);
-  if (at < 0) { const m = statementModel('ofx'); m.warnings.push('No <OFX> element was found: this is not an OFX file.'); return m; }
+  if (at < 0) { const m = statementModel('ofx'); m.warnings.push(say('ui.fin.ofx_not')); return m; }
   const tree = ofxTree(text.slice(at));
   const stmts = [...all(tree, 'STMTRS'), ...all(tree, 'CCSTMTRS')];
   const list = stmts.map((st) => {
@@ -111,7 +111,7 @@ export function readOfx(input) {
     if (bal && parseAmount(val(bal, 'BALAMT')) !== null) { s.closing = parseAmount(val(bal, 'BALAMT')); s.closingDate = ymd(val(bal, 'DTASOF')); }
     return s;
   });
-  if (!list.length) warn('The OFX file has no bank or credit card statement (<STMTRS> or <CCSTMTRS>).');
+  if (!list.length) warn(say('ui.fin.ofx_none'));
   const res = mergeStatements('ofx', list, warnings);
   res.version = ofxHeader(text).VERSION || '';   // 102, 103, 151, 160 (SGML) or 200, 211, 220 (XML)
   return res;

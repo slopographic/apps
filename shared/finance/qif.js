@@ -9,7 +9,7 @@
  *   a date in the file has a first number above 12 (then day first) or opts.dayFirst says so. A year is written with
  *   two or four digits; an apostrophe before it marks 2000 and later (1/ 2'26), and a two-digit year below 70 is 20xx.
  *   readQif(bytes | text, { dayFirst? }) -> statement model, format 'qif'.                                          */
-import { decodeBytes, parseAmount, isoDate, squash } from './text.js';
+import { decodeBytes, parseAmount, isoDate, squash, say } from './text.js';
 import { statementModel, mergeStatements } from './model.js';
 
 const KEEP = /^(bank|cash|ccard|oth a|oth l)$/i;
@@ -59,7 +59,7 @@ export function readQif(input, opts = {}) {
     if (!keep || !Object.keys(it).length) return;
     const amount = parseAmount(it.T ?? it.U, { thousands3: true });
     const date = qifDate(it.D, dayFirst);
-    if (amount === null || !date) { warn(`Line ${lineNo}: a transaction with no date or amount that can be read was left out.`); return; }
+    if (amount === null || !date) { warn(say('ui.fin.qif_line', { line: String(lineNo) })); return; }
     const payee = squash(it.P), memo = squash(it.M);
     const t = { date, amount, text: [payee, memo && memo !== payee ? memo : ''].filter(Boolean).join(' · '), ref: squash(it.N), counterparty: payee };
     if (it.L) t.category = squash(it.L);
@@ -80,7 +80,7 @@ export function readQif(input, opts = {}) {
       section = m ? m[1].trim() : h;
       keep = KEEP.test(section);
       if (keep) startStatement();
-      else if (!/^(cat|class|memorized|prices|security)$/i.test(section)) warn(`The ${section} section is not a bank section and was skipped.`);
+      else if (!/^(cat|class|memorized|prices|security)$/i.test(section)) warn(say('ui.fin.qif_section', { name: section }));
       return;
     }
     if (line[0] === '^') { finish(i + 1); return; }
@@ -91,7 +91,7 @@ export function readQif(input, opts = {}) {
   });
   if (Object.keys(item).length) finish(lines.length);
   const kept = list.filter((s) => s.transactions.length);
-  if (!kept.length && !warnings.length) warnings.push('No bank transactions were found. A QIF file starts with a line such as !Type:Bank.');
+  if (!kept.length && !warnings.length) warnings.push(say('ui.fin.qif_none'));
   const res = mergeStatements('qif', kept, warnings);
   res.dayFirst = dayFirst;
   res.accountType = accountType;

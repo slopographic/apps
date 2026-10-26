@@ -2,6 +2,7 @@
 // onto the chart, the opening balances and vouchers as balanced entries, what is skipped and why) and bank statement
 // lines from OFX, QIF, camt.053 and MT940 (ledger/js/core/bank.js linesFromStatement).
 // Covers: ledger/js/core/sie-import.js, ledger/js/core/bank.js
+import './finance-words.mjs';   // the warnings' English words
 import './tables-dom-shim.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';

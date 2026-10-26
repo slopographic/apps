@@ -28,11 +28,11 @@
     bankLineStatus: ['open', 'matched', 'ignored'],
   };
   const ACCT = { CASH: '1000', BANK: '1010', AR: '1200', AP: '2000', TAX_PAYABLE: '2100', EQUITY: '3000', REVENUE: '4000', EXPENSES: '5000' };
-  const DEFAULT_CHART = [
-    { code: '1000', name: 'Cash', type: 'asset' }, { code: '1010', name: 'Bank', type: 'asset' }, { code: '1200', name: 'Accounts Receivable', type: 'asset' },
-    { code: '2000', name: 'Accounts Payable', type: 'liability' }, { code: '2100', name: 'Sales Tax Payable', type: 'liability' }, { code: '3000', name: 'Equity', type: 'equity' },
-    { code: '4000', name: 'Sales Revenue', type: 'revenue' }, { code: '5000', name: 'Expenses', type: 'expense' },
-  ];
+  // The starting chart of accounts. Each name is read in the chosen language when the books are first set up (seeded),
+  // then it is the person's own record (ui.data.acct.<code>).
+  const acct = (code, type) => ({ code, type, get name() { return say('ui.data.acct.' + code); } });
+  const DEFAULT_CHART = [acct('1000', 'asset'), acct('1010', 'asset'), acct('1200', 'asset'), acct('2000', 'liability'), acct('2100', 'liability'),
+    acct('3000', 'equity'), acct('4000', 'revenue'), acct('5000', 'expense')];
   // defaultCurrency is the ledger's base currency. locale is refined from the browser by currency.js at seed time.
   const DEFAULT_SETTINGS = { id: 'main', defaultCurrency: 'USD', locale: 'en-US', defaultTaxRate: 0, paymentTermsDays: 30, ratesUpdateOnOpen: false };
   const DEFAULT_SEQUENCES = [{ id: 'invoice', prefix: 'INV-', pad: 4, next: 1 }, { id: 'order', prefix: 'ORD-', pad: 4, next: 1 }, { id: 'quote', prefix: 'QUO-', pad: 4, next: 1 }, { id: 'purchase', prefix: 'PO-', pad: 4, next: 1 }, { id: 'credit', prefix: 'CN-', pad: 4, next: 1 }];

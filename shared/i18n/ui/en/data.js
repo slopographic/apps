@@ -164,4 +164,12 @@ window.SlopI18n && window.SlopI18n.add('en', {
   'ui.data.ts.one_customer': 'bill one customer at a time',
   'ui.data.ts.one_currency': 'bill one currency at a time',
   'ui.data.ts.live': 'this time is on a live invoice; void the invoice first',
+  'ui.data.acct.1000': 'Cash',
+  'ui.data.acct.1010': 'Bank',
+  'ui.data.acct.1200': 'Accounts Receivable',
+  'ui.data.acct.2000': 'Accounts Payable',
+  'ui.data.acct.2100': 'Sales Tax Payable',
+  'ui.data.acct.3000': 'Equity',
+  'ui.data.acct.4000': 'Sales Revenue',
+  'ui.data.acct.5000': 'Expenses',
 });

@@ -43,7 +43,7 @@
       const who = await tx.get('customers', po.customerId);
       if (!who.ok) return who;
       const e = await ns.expenses.recordIn(tx, {
-        date: date || ns.ledger.today(), supplier: (who.value && who.value.name) || 'Supplier', description: `Purchase order ${po.number}`,
+        date: date || ns.ledger.today(), supplier: (who.value && who.value.name) || 'Supplier', description: `Purchase order ${po.number}`,   // i18n-ignore: stored in the bill
         account, amount: po.total, tax: po.tax || 0, currency: po.currency, method,
       });
       if (!e.ok) return e;

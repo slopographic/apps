@@ -1,5 +1,6 @@
 // Finance files as tables (shared/finance/tables.js): the sheets File convert writes for SIE files and bank statements.
 // Covers: shared/finance/tables.js
+import './finance-words.mjs';   // the warnings' English words
 import './tables-dom-shim.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';

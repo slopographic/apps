@@ -45,3 +45,8 @@ test('repeat schedules, barcodes, example files and import checks read Swedish',
   assert.equal(ctx.SlopExamples.info('inventory').title, 'Lagerprodukter (CSV-import)');
   assert.deepEqual([...D.bundleCheck.validateBundle({}).errors], ['inte en exportfil från slop-data']);
 });
+
+test('the starting chart of accounts is named in Swedish when the books are set up', () => {
+  assert.deepEqual([...D.schema.DEFAULT_CHART].map((a) => a.name), ['Kassa', 'Bank', 'Kundfordringar', 'Leverantörsskulder', 'Utgående moms', 'Eget kapital', 'Försäljning', 'Kostnader']);
+  assert.equal(JSON.parse(JSON.stringify(D.schema.DEFAULT_CHART[0])).name, 'Kassa');   // a copy keeps the name, as the store saves it
+});

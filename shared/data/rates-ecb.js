@@ -79,7 +79,7 @@
         const hit = ns.fx.pickRate(all.value, ECB_BASE, quote, today);
         if (hit && !hit.inverted && hit.row.date === today && hit.row.source === 'ecb' && hit.rate === rate) { out.unchanged.push(quote); continue; }
         const prev = hit && !hit.inverted ? hit.rate : null;
-        const w = await tx.put('exchangeRates', { base: ECB_BASE, quote, date: today, rate, source: 'ecb', note: `ECB reference ${parsed.date}` });
+        const w = await tx.put('exchangeRates', { base: ECB_BASE, quote, date: today, rate, source: 'ecb', note: `ECB reference ${parsed.date}` });   // i18n-ignore: stored with the rate
         if (!w.ok) return w;
         out.added.push({ quote, rate, previous: prev });
       }

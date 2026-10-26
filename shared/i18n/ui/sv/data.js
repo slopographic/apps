@@ -164,4 +164,12 @@ window.SlopI18n && window.SlopI18n.add('sv', {
   'ui.data.ts.one_customer': 'fakturera en kund i taget',
   'ui.data.ts.one_currency': 'fakturera en valuta i taget',
   'ui.data.ts.live': 'tiden finns på en aktiv faktura; makulera fakturan först',
+  'ui.data.acct.1000': 'Kassa',
+  'ui.data.acct.1010': 'Bank',
+  'ui.data.acct.1200': 'Kundfordringar',
+  'ui.data.acct.2000': 'Leverantörsskulder',
+  'ui.data.acct.2100': 'Utgående moms',
+  'ui.data.acct.3000': 'Eget kapital',
+  'ui.data.acct.4000': 'Försäljning',
+  'ui.data.acct.5000': 'Kostnader',
 });

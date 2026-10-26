@@ -1,6 +1,7 @@
 // SIE files (shared/finance/sie.js, sie-lex.js, text.js): the line reader, the records, the model, the checksum and the
 // real-world quirks, on the made-up sample files in tests/finance/fixtures/.
 // Covers: shared/finance/sie.js, shared/finance/sie-lex.js, shared/finance/text.js
+import './finance-words.mjs';   // the warnings' English words
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
