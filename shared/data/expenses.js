@@ -7,6 +7,7 @@
 (function (g) {
   'use strict';
   const ns = (g.SlopData = g.SlopData || {});
+  const say = (k, v) => { const I = g.SlopI18n; return I && I.t ? I.t(k, v) : k; };   // words: shared/i18n/ui/<code>/data.js, data2.js
   const { fail } = ns.result;
   const A = () => ns.schema.ACCT;
 
@@ -33,7 +34,7 @@
     const { payLater, ...e } = { ...(input || {}) };
     const acct = await tx.get('accounts', e.account || A().EXPENSES);
     if (!acct.ok) return acct;
-    if (!acct.value || acct.value.type !== 'expense') return fail('invalid', `account ${e.account} is not an expense account`, [{ field: 'account', message: 'choose an expense account' }]);
+    if (!acct.value || acct.value.type !== 'expense') return fail('invalid', say('ui.data.exp.not_expense', { code: String(e.account) }), [{ field: 'account', message: say('ui.data.exp.choose') }]);
     const id = ns.store.newId();
     const status = payLater ? 'owed' : 'posted';
     const rec = await tx.put('expenses', { ...e, id, account: acct.value.code, date: e.date || ns.ledger.today(), status, dueDate: payLater ? e.dueDate : undefined,
@@ -51,10 +52,10 @@
     return ns.store.transact(async (tx) => {
       const r = await tx.get('expenses', id);
       if (!r.ok) return r;
-      if (!r.value) return fail('not_found', `no expense ${id}`);
-      if (r.value.status !== 'owed') return fail('invalid_transition', 'only a bill that is owed can be paid');
+      if (!r.value) return fail('not_found', say('ui.data.exp.none', { id: String(id) }));
+      if (r.value.status !== 'owed') return fail('invalid_transition', say('ui.data.exp.pay_owed'));
       const day = date || ns.ledger.today();
-      if (day < r.value.date) return fail('invalid', 'a bill cannot be paid before its date', [{ field: 'date', message: 'pay on or after the bill date' }]);
+      if (day < r.value.date) return fail('invalid', say('ui.data.exp.pay_early'), [{ field: 'date', message: say('ui.data.exp.pay_on') }]);
       const base = r.value.amountBase !== undefined ? r.value.amountBase : r.value.amount;
       const j = await ns.ledger.postIn(tx, { date: day, memo: `Bill paid: ${r.value.supplier}`, source: `expense:${id}:paid`,
         lines: [{ account: A().AP, debit: base, credit: 0 }, { account: payFrom(method), debit: 0, credit: base }] });
@@ -69,8 +70,8 @@
     return ns.store.transact(async (tx) => {
       const r = await tx.get('expenses', id);
       if (!r.ok) return r;
-      if (!r.value) return fail('not_found', `no expense ${id}`);
-      if (r.value.status !== 'posted' && r.value.status !== 'owed') return fail('invalid_transition', 'only a posted expense or an owed bill can be voided');
+      if (!r.value) return fail('not_found', say('ui.data.exp.none', { id: String(id) }));
+      if (r.value.status !== 'posted' && r.value.status !== 'owed') return fail('invalid_transition', say('ui.data.exp.void'));
       const v = await tx.put('expenses', { ...r.value, status: 'void' }, { posting: true });
       if (!v.ok) return v;
       for (const src of [`expense:${id}:paid`, `expense:${id}`]) {

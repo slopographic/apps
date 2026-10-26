@@ -7,7 +7,7 @@
 //   const rp = SlopBiz.panel.mount({
 //     app: 'invoices',            // the key of the panel's size and shown/hidden state
 //     root, view, panel,          // the record view, its main part and the panel (elements or selectors)
-//     label: 'Details',           // the panel's name (header button, the footer's button that opens the sheet)
+//     label: 'app.key',           // the panel's name, an i18n key (header button, the footer's button that opens the sheet)
 //     button: '.biz-doc-actions', // where the header's show/hide button goes (optional)
 //     phone: '(max-width: 720px)' // when the panel is a sheet (the app's own phone width; default 900 px)
 //   });
@@ -27,10 +27,14 @@
   'use strict';
   const B = (g.SlopBiz = g.SlopBiz || {});
   const pick = (x) => (typeof x === 'string' ? document.querySelector(x) : x || null);
-  const SAVE = /^save\b/i;
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
+  /** A Save button, in English or in the chosen language ("Save", "Save changes"; "Spara"). */
+  const isSave = (n) => { const s = n.textContent.trim().toLowerCase(); return /^save\b/.test(s) || s.startsWith(t('menu.save').toLowerCase()); };
 
   function mount(o) {
-    const root = pick(o.root), panel = pick(o.panel), label = o.label || 'Details';
+    const root = pick(o.root), panel = pick(o.panel), label = o.label || 'biz.panel.details';
+    /** The name in the current language: a key, a function or text (SlopI18n.label; the frame reads it the same way). */
+    const name = () => (g.SlopI18n && g.SlopI18n.label ? g.SlopI18n.label(label) : typeof label === 'function' ? label() : label);
     if (!g.SlopFrame || !root || !panel) return { actions: (nodes, host) => { if (host) host.replaceChildren(...nodes); }, footer() {}, frame: null };
     // the header button's place: a bar the app draws later (the record bar) gets it once it is on the page
     const slot = o.button ? document.createElement('span') : null;
@@ -47,22 +51,25 @@
     const peek = document.createElement('button');
     peek.type = 'button';
     peek.className = 'btn biz-rp-peek';
-    peek.textContent = label;
+    peek.textContent = name();
     peek.setAttribute('aria-haspopup', 'dialog');
     peek.addEventListener('click', () => frame.openSheet());
 
     /** The footer: the given buttons (the page's own, moved in) and "Details" that opens the phone's sheet. */
+    let shown = null;   // the last footer, drawn again on a language change ("Details" is a word)
     function footer(list, opts) {
+      shown = [list, opts];
       const foot = (list || []).filter(Boolean);
       if (!foot.length) { p.footer([{ el: peek }]); return; }
-      p.footer(foot.map((b) => (b.nodeType ? { el: b } : b)), Object.assign({ more: label }, opts || {}));
+      p.footer(foot.map((b) => (b.nodeType ? { el: b } : b)), Object.assign({ more: name() }, opts || {}));
     }
+    if (g.SlopI18n && g.SlopI18n.on) g.SlopI18n.on(() => { peek.textContent = name(); if (shown) footer(shown[0], shown[1]); });
 
     /** Splits the record's actions: Save and the primary button(s) into the footer, the rest into host, in their order. */
     function actions(nodes, host) {
       const list = (nodes || []).filter(Boolean);
       const isBtn = (n) => n.tagName === 'BUTTON' || (n.tagName === 'A' && n.classList.contains('btn'));
-      const main = list.filter((n) => isBtn(n) && !n.hidden && (n.classList.contains('primary') || SAVE.test(n.textContent.trim())));
+      const main = list.filter((n) => isBtn(n) && !n.hidden && (n.classList.contains('primary') || isSave(n)));
       const save = main.filter((n) => !n.classList.contains('primary')), prim = main.filter((n) => n.classList.contains('primary'));
       if (host) host.replaceChildren(...list.filter((n) => !main.includes(n)));
       if (host) host.hidden = !host.childElementCount;
@@ -87,7 +94,7 @@
     rp.footer(foot);
     for (const h of homes) if (h && !h.childElementCount) h.hidden = true;   // the bar the buttons came from, now empty
     const redraw = () => { const v = NS.views && NS.views[o.listView || 'list'], fn = v && (v.refresh || v.render); if (fn) fn.call(v); };
-    let was = null, t = 0;
+    let was = null, timer = 0;
     function sync() {
       const v = app.dataset.view, on = v === o.view;
       wrap.classList.toggle('biz-lr-on', on || v === (o.listView || 'list'));
@@ -100,7 +107,7 @@
     new g.MutationObserver(sync).observe(app, { attributes: true, attributeFilter: ['data-view'] });
     sync();
     // the list beside an open record follows every change (a record saved, voided or paid)
-    if (g.SlopData && g.SlopData.store) g.SlopData.store.subscribe(() => { clearTimeout(t); t = setTimeout(() => { if (wrap.classList.contains('biz-lr-rec')) redraw(); }, 60); });
+    if (g.SlopData && g.SlopData.store) g.SlopData.store.subscribe(() => { clearTimeout(timer); timer = setTimeout(() => { if (wrap.classList.contains('biz-lr-rec')) redraw(); }, 60); });
     return rp;
   }
 

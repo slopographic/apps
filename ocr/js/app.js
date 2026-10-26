@@ -17,12 +17,13 @@ const state = { pages: [], cur: 0, busy: false, shown: null };
 const choice = createOcrChoice({ ui: window.SlopUI, storageHref: '../settings/#storage' });
 let dropZone = null;   // the SlopDrop zone (its preview shows while no page is open)
 
+const t = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
 const say = (s) => { $('msg').textContent = s; };
 /** What the page makes and how: in the drop zone once the tool can run, and above the model prompt before that. */
-const PREVIEW = {
-  picture: { src: '../assets/shots/ocr.jpg', alt: 'A receipt with a box around each line it read, and the text beside it' },
-  steps: ['Drop photos, scans or PDFs', 'Press Read text, then fix anything it misread', 'Save as text, Word or a searchable PDF'],
-};
+const PREVIEW = () => ({
+  picture: { src: '../assets/shots/ocr.jpg', alt: 'ocr.drop.alt' },
+  steps: ['ocr.drop.step1', 'ocr.drop.step2', 'ocr.drop.step3'],
+});
 const allRead = () => state.pages.length > 0 && state.pages.every((p) => p.done);
 const stem = () => {
   const f = state.pages[0] && state.pages[0].file;
@@ -35,7 +36,7 @@ function refresh() {
   $('work').hidden = n === 0;
   if (dropZone) dropZone.empty(!n); // the preview in the zone is for an empty page only
   $('read').disabled = state.busy || n === 0 || allRead();
-  $('pages').replaceChildren(...state.pages.map((p, i) => new Option(`${i + 1}. ${p.label}${p.done ? '' : ' (not read yet)'}`, String(i))));
+  $('pages').replaceChildren(...state.pages.map((p, i) => new Option(`${i + 1}. ${p.done ? p.label : t('ocr.app.not_read', { label: p.label })}`, String(i))));
   $('pages').value = String(state.cur);
   $('prev').disabled = state.cur <= 0;
   $('next').disabled = state.cur >= n - 1;
@@ -65,7 +66,7 @@ async function show(i) {
   state.cur = i;
   state.shown = null;
   refresh();
-  try { await paint(); } catch (e) { say('Could not draw this page: ' + e.message); }
+  try { await paint(); } catch (e) { say(t('ocr.app.draw_failed', { error: e.message })); }
 }
 
 async function addFiles(list) {
@@ -74,11 +75,11 @@ async function addFiles(list) {
   const skipped = files.filter((f) => !isSupported(f)).map((f) => f.name);
   const first = state.pages.length;
   for (const f of files.filter(isSupported)) {
-    say(`Opening ${f.name}…`);
+    say(t('ocr.app.opening', { name: f.name }));
     try { state.pages.push(...(await openFile(f))); } catch (e) { say(e.message); }
   }
-  if (skipped.length) say(`Only images and PDFs can be read. Skipped: ${skipped.join(', ')}.`);
-  else if (state.pages.length > first) say(`${state.pages.length} page${state.pages.length === 1 ? '' : 's'} ready. Press Read text.`);
+  if (skipped.length) say(t('ocr.app.skipped', { names: skipped.join(', ') }));
+  else if (state.pages.length > first) say(t('ocr.app.ready', { n: state.pages.length }));
   if (state.pages.length > first) await show(first);
   else refresh();
 }
@@ -105,15 +106,15 @@ async function readAll() {
   $('suggest').replaceChildren();
   try {
     const pick = await choice.pick();
-    if (!pick) { say('Choose the language of the text, and download its model, to read it.'); return; }
+    if (!pick) { say(t('ocr.app.choose_lang')); return; }
     await T.ensure(pick.model, say);
     for (let k = 0; k < todo.length; k++) {
       const { p, i } = todo[k];
-      say(`Reading ${p.label} (${k + 1} of ${todo.length})…`);
+      say(t('ocr.app.reading', { label: p.label, i: k + 1, n: todo.length }));
       try {
         await readPage(p, i, pick.model, (q) => {
           prog.value = q.total ? q.done / q.total : 0;
-          say(q.stage === 'detect' ? `Finding text lines in ${p.label}…` : `Reading line ${q.done + 1} of ${q.total} in ${p.label}…`);
+          say(q.stage === 'detect' ? t('ocr.app.finding', { label: p.label }) : t('ocr.app.line_of', { i: q.done + 1, n: q.total, label: p.label }));
         });
       } catch (e) {
         p.error = e.message; // the page stays unread, so Read text tries it again
@@ -124,11 +125,11 @@ async function readAll() {
     const lines = state.pages.reduce((n, p) => n + (p.lines ? rowsOf(p.lines).length : 0), 0);
     const failed = state.pages.filter((p) => p.error);
     say(failed.length
-      ? `Could not read ${failed.length} page${failed.length === 1 ? '' : 's'}: ${failed[0].error}`
-      : lines ? `${lines} line${lines === 1 ? '' : 's'} read. Check the text before you use it.` : 'No text found on these pages.');
+      ? t('ocr.app.failed_pages', { n: failed.length, error: failed[0].error })
+      : lines ? t('ocr.app.lines_read', { n: lines }) : t('ocr.app.no_text'));
     offer(pick.model);
   } catch (e) {
-    say('Could not read the text: ' + e.message);
+    say(t('ocr.app.read_failed', { error: e.message }));
   } finally {
     state.busy = false;
     prog.hidden = true;
@@ -147,7 +148,7 @@ function offer(model) {
 /** Reads every page again with the model just chosen; asks first when the person corrected the text. */
 async function again() {
   if (state.busy || !state.pages.length) return;
-  if (state.pages.some((p) => p.edited) && !(await window.SlopUI.confirm('Read the text again?', 'The new text replaces the text on every page, and the corrections you made are lost.', 'Read again'))) return;
+  if (state.pages.some((p) => p.edited) && !(await window.SlopUI.confirm(t('ocr.app.again_q'), t('ocr.app.again_body'), t('ocr.app.again')))) return;
   for (const p of state.pages) p.done = false;
   refresh();
   await readAll();
@@ -169,13 +170,13 @@ async function pdfBlob(onPage = () => {}) {
 async function exportPdf() {
   const prog = $('prog');
   prog.hidden = false; prog.value = 0;
-  setExporting(true, 'Making the searchable PDF…');
+  setExporting(true, t('ocr.app.making_pdf'));
   try {
     const blob = await pdfBlob((f) => { prog.value = f; });
     saveBlob(stem() + '.pdf', blob);
-    say('Searchable PDF saved. Its text layer is invisible; it is there for search and copy.');
+    say(t('ocr.app.pdf_saved'));
   } catch (e) {
-    say('The searchable PDF could not be made: ' + e.message);
+    say(t('ocr.app.pdf_failed', { error: e.message }));
   } finally {
     prog.hidden = true;
     setExporting(false);
@@ -194,15 +195,15 @@ function wire() {
   // only once the gate has passed).
   window.SlopIntake.register({
     id: 'ocr',
-    accept: { types: ['image/*', 'application/pdf'], exts: ['.pdf', '.png', '.jpg', '.jpeg', '.webp', '.gif', '.bmp', '.tif', '.tiff', '.avif'], noun: 'an image or a PDF' },
+    accept: { types: ['image/*', 'application/pdf'], exts: ['.pdf', '.png', '.jpg', '.jpeg', '.webp', '.gif', '.bmp', '.tif', '.tiff', '.avif'], noun: 'ocr.app.noun' },
     gate: (batch) => !$('ui').hidden || batch.source !== 'paste', // a paste before the gate has shown the page is not taken
     processAll: async (files) => { await addFiles(files); return files.map((f) => f.name); },
   });
   dropZone = window.SlopDrop.attach($('drop'), {
     intake: 'ocr',
-    label: 'Drop images or PDFs here, or choose files',
-    preview: PREVIEW,
-    sample: { label: 'Try it with a sample receipt', files: async () => [await sampleReceipt()] },
+    label: 'ocr.drop.label',
+    preview: PREVIEW(),
+    sample: { label: 'ocr.drop.sample', files: async () => [await sampleReceipt()] },
   });
   $('read').addEventListener('click', readAll);
   $('prev').addEventListener('click', () => show(state.cur - 1));
@@ -214,15 +215,15 @@ function wire() {
   $('dlTxt').addEventListener('click', () => saveBlob(stem() + '.txt', new Blob([plainText(outPages())], { type: 'text/plain' })));
   $('dlMd').addEventListener('click', () => saveBlob(stem() + '.md', new Blob([markdownText(outPages())], { type: 'text/markdown' })));
   $('dlDocx').addEventListener('click', async () => {
-    say('Making the Word file…');
+    say(t('ocr.app.making_docx'));
     try {
       saveBlob(stem() + '.docx', await docxFile(outPages(), { title: stem() }));
-      say('Word file saved.');
-    } catch (e) { say('The Word file could not be made: ' + e.message); }
+      say(t('ocr.app.docx_saved'));
+    } catch (e) { say(t('ocr.app.docx_failed', { error: e.message })); }
   });
   $('dlPdf').addEventListener('click', exportPdf);
   $('copy').addEventListener('click', async () => {
-    say((await copyText(plainText(outPages()))) ? 'Copied all the text.' : 'Copy was blocked here. Select the text and copy it.');
+    say((await copyText(plainText(outPages()))) ? t('ocr.app.copied') : t('ocr.app.copy_blocked'));
   });
   $('clear').addEventListener('click', clearAll);
 }
@@ -231,7 +232,7 @@ function clearAll() {
   state.pages = []; state.cur = 0; state.shown = null;
   $('suggest').replaceChildren();
   $('text').value = '';
-  say('Cleared.');
+  say(t('ocr.app.cleared'));
   refresh();
 }
 
@@ -240,14 +241,19 @@ window.SlopOcrPage = { state, addFiles, readAll, refresh, show, clearAll, outPag
 if (window.SlopCmd) {
   const C = window.SlopCmd, click = (id) => () => { if (!$(id).disabled) $(id).click(); };
   C.init({ app: 'ocr' });
-  C.register([['ocr.read', 'Read text', 'read'], ['ocr.txt', 'Save as text', 'dlTxt'], ['ocr.md', 'Save as Markdown', 'dlMd'], ['ocr.docx', 'Save as Word', 'dlDocx'],
-    ['ocr.pdf', 'Save as searchable PDF', 'dlPdf'], ['ocr.clear', 'Clear', 'clear']].map(([id, title, el]) => ({ id, title, group: 'OCR', keys: [], when: () => !$(el).disabled, run: click(el) })));
+  // built on every call, and again on a language change, so the palette reads the current language
+  const cmds = () => [['ocr.read', 'read', 'read'], ['ocr.txt', 'txt', 'dlTxt'], ['ocr.md', 'md', 'dlMd'], ['ocr.docx', 'docx', 'dlDocx'],
+    ['ocr.pdf', 'pdf', 'dlPdf'], ['ocr.clear', 'clear', 'clear']].map(([id, k, el]) => ({ id, title: t('ocr.cmd.' + k), group: t('ocr.cmd.group'), keys: [], when: () => !$(el).disabled, run: click(el) }));
+  C.register(cmds());
+  if (window.SlopI18n && window.SlopI18n.on) window.SlopI18n.on(() => C.register(cmds()));
   if (C.provide) C.provide({ prepare: () => import('./ai-commands.js') });
 }
 
 wire();
-const intro = window.SlopDrop.panel.preview(PREVIEW);
+const intro = window.SlopDrop.panel.preview(PREVIEW());
 if (intro) $('intro').append(intro);
+// a language change: the page list (its "not read yet") in the new language
+if (window.SlopI18n && window.SlopI18n.on) window.SlopI18n.on(() => { if (!$('ui').hidden) refresh(); });
 T.gate('ocr', () => {
   $('ui').hidden = false;
   $('intro').hidden = true; // the drop zone shows the same preview now

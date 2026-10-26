@@ -15,7 +15,7 @@ export const LANGS = [
   { id: 'json', label: 'JSON', ext: 'json', exts: ['json'], mime: 'application/json', support: () => json() },
   { id: 'markdown', label: 'Markdown', ext: 'md', exts: ['md', 'markdown'], mime: 'text/markdown', support: () => markdown() },
   { id: 'python', label: 'Python', ext: 'py', exts: ['py'], mime: 'text/x-python', support: () => python() },
-  { id: 'text', label: 'Plain text', ext: 'txt', exts: ['txt', 'text', 'log'], mime: 'text/plain', support: () => [] },
+  { id: 'text', label: 'Plain text', ext: 'txt', exts: ['txt', 'text', 'log'], mime: 'text/plain', support: () => [] },   // i18n-ignore (shown through langLabel)
 ];
 const TEXT = LANGS[LANGS.length - 1];
 
@@ -39,4 +39,6 @@ export function withExt(name, lang) {
   return languageFor(base).id === lang.id && extOf(base) ? base : base.replace(/\.[^.]*$/, '') + '.' + lang.ext;
 }
 /** The language of an open document: the one the mode switcher chose (doc.langId), else the one for its name. */
+/** The name a person reads for a language: the names of the languages stay, Plain text is a word. */
+export const langLabel = (l) => (l.id === 'text' && window.SlopI18n ? window.SlopI18n.t('code.lang.text') : l.label);
 export const langOf = (doc) => (doc && doc.langId ? languageById(doc.langId) : languageFor(doc ? doc.name : ''));

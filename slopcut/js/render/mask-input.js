@@ -7,11 +7,11 @@
   const SE = window.SE, U = SE.util, M = SE.model, MK = SE.mask, V = SE.maskView, A = SE.app, PV = SE.preview;
   const MI = (SE.maskInput = { tool: null, edit: null, pending: null });
   const HINT = {
-    rect: 'Drag on the monitor to draw a rectangle mask',
-    ellipse: 'Drag on the monitor to draw an ellipse mask',
-    rrect: 'Drag on the monitor to draw a rounded rectangle mask',
-    free: 'Drag to draw a freehand mask (release to close it)',
-    pen: 'Click to add points, drag for curves. Click the first point, double-click or press Enter to close. Esc cancels'
+    rect: U.t('slopedit.mask.drag_on_the_monitor_to'),
+    ellipse: U.t('slopedit.mask.drag_on_the_monitor_to_2'),
+    rrect: U.t('slopedit.mask.drag_on_the_monitor_to_3'),
+    free: U.t('slopedit.mask.drag_to_draw_a_freehand'),
+    pen: U.t('slopedit.mask.click_to_add_points_drag')
   };
   const KINDS = ['video', 'image', 'title', 'color'];
   let drag = null, stage = null;
@@ -42,29 +42,29 @@
     const c = A.primary();
     MI.pending = null; drag = null;
     if (!tool) { MI.tool = null; PV.request(); return; }
-    if (!eligible(c)) { MI.tool = null; toast(c ? 'Masks apply to video, image, title and colour clips' : 'Select a clip first'); PV.request(); return; }
+    if (!eligible(c)) { MI.tool = null; toast(c ? U.t('slopedit.mask.masks_apply_to_video_image') : U.t('slopedit.pre.select_a_clip_first')); PV.request(); return; }
     MI.tool = tool; MI.edit = c.id;
     toast(HINT[tool]);
     PV.request();
   };
   SE.act.maskAdd = function (shape) {
     const c = A.primary();
-    if (!eligible(c)) return toast('Select a video, image, title or colour clip first');
-    commit('Add mask', c.id, MK.make(shape, SE.doc), { tool: false });
+    if (!eligible(c)) return toast(U.t('slopedit.mask.select_a_video_image_title'));
+    commit(U.t('slopedit.mask.add_mask'), c.id, MK.make(shape, SE.doc), { tool: false });
     SE.emit('select', {});
   };
   SE.act.maskTool = (tool) => MI.setTool(MI.tool === tool ? null : tool);
   SE.act.maskRemove = function () {
     const c = A.primary();
     if (!c || !c.mask) return;
-    SE.change('Remove mask', (p) => { M.clip(p, c.id).mask = null; });
+    SE.change(U.t('slopedit.cmd.remove_mask'), (p) => { M.clip(p, c.id).mask = null; });
     if (MI.edit === c.id) MI.edit = null;
     SE.emit('select', {});
   };
   SE.act.maskInvert = function () {
     const c = A.primary();
     if (!c || !c.mask) return;
-    SE.change('Invert mask', (p) => { const m = M.clip(p, c.id).mask; m.invert = !m.invert; });
+    SE.change(U.t('slopedit.cmd.invert_mask'), (p) => { const m = M.clip(p, c.id).mask; m.invert = !m.invert; });
     SE.emit('select', {});
   };
   SE.act.maskEdit = function () {
@@ -91,8 +91,8 @@
   function finishPen(c) {
     const pen = MI.pending;
     MI.pending = null; drag = null;
-    if (!pen || pen.pts.length < 3) { toast('A path needs at least three points'); MI.tool = null; PV.request(); return; }
-    commit('Draw mask', c.id, MK.make('path', null, { pts: pen.pts }), { tool: true });
+    if (!pen || pen.pts.length < 3) { toast(U.t('slopedit.mask.a_path_needs_at_least')); MI.tool = null; PV.request(); return; }
+    commit(U.t('slopedit.mask.draw_mask'), c.id, MK.make('path', null, { pts: pen.pts }), { tool: true });
   }
   function down(e) {
     if (e.button !== 0 || SE.player.playing) return;
@@ -113,10 +113,10 @@
     if (h) {
       stop(e);
       const opp = h.kind === 'corner' ? { x: m.x - (h.sx * m.w) / 2, y: m.y - (h.sy * m.h) / 2 } : null;
-      drag = { kind: 'handle', id: c.id, h, opp, q0: q, label: h.kind === 'anchor' || h.kind === 'hi' || h.kind === 'ho' ? 'Edit mask point' : 'Reshape mask' };
+      drag = { kind: 'handle', id: c.id, h, opp, q0: q, label: h.kind === 'anchor' || h.kind === 'hi' || h.kind === 'ho' ? U.t('slopedit.mask.edit_mask_point') : U.t('slopedit.mask.reshape_mask') };
     } else if (MK.inside(m, q.x, q.y)) {
       stop(e);
-      drag = { kind: 'move', id: c.id, q0: q, s0: { x: m.x, y: m.y }, p0: m.pts.map((p) => ({ x: p.x, y: p.y })), label: 'Move mask' };
+      drag = { kind: 'move', id: c.id, q0: q, s0: { x: m.x, y: m.y }, p0: m.pts.map((p) => ({ x: p.x, y: p.y })), label: U.t('slopedit.mask.move_mask') };
     } else return;
     capture(e);
   }
@@ -160,14 +160,14 @@
     if (d.kind === 'box') {
       const b = MI.pending && MI.pending.b;
       if (b && Math.abs(b.x - d.a.x) >= 2 && Math.abs(b.y - d.a.y) >= 2) {
-        commit('Add mask', d.id, MK.make(d.shape, null, { x: (d.a.x + b.x) / 2, y: (d.a.y + b.y) / 2, w: Math.abs(b.x - d.a.x), h: Math.abs(b.y - d.a.y) }), { tool: true });
+        commit(U.t('slopedit.mask.add_mask'), d.id, MK.make(d.shape, null, { x: (d.a.x + b.x) / 2, y: (d.a.y + b.y) / 2, w: Math.abs(b.x - d.a.x), h: Math.abs(b.y - d.a.y) }), { tool: true });
       } else { MI.pending = null; PV.request(); }
       return;
     }
     if (d.kind === 'free') {
       const pts = d.pts;
-      if (pts.length >= 3) commit('Draw mask', d.id, MK.path(MK.simplify(pts, 0.75)), { tool: true });
-      else { MI.pending = null; toast('Draw a larger shape'); PV.request(); }
+      if (pts.length >= 3) commit(U.t('slopedit.mask.draw_mask'), d.id, MK.path(MK.simplify(pts, 0.75)), { tool: true });
+      else { MI.pending = null; toast(U.t('slopedit.mask.draw_a_larger_shape')); PV.request(); }
       return;
     }
     if (d.kind === 'pen') return;
@@ -178,7 +178,7 @@
   function key(e) {
     if (!MI.tool || document.querySelector('.sui-back, .sui-menu')) return;
     if (e.target && e.target.closest && e.target.closest('input,textarea,select,[contenteditable]')) return;
-    if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); cancelTool(); toast('Mask tool off'); }
+    if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); cancelTool(); toast(U.t('slopedit.mask.mask_tool_off')); }
     else if (e.key === 'Enter' && MI.tool === 'pen' && MI.pending) { const c = A.primary(); if (c) { e.preventDefault(); finishPen(c); } }
   }
 

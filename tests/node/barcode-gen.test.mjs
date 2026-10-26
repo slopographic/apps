@@ -6,11 +6,13 @@ import vm from 'node:vm';
 import path from 'node:path';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
+import { WORDS, PIN } from './data-env.mjs';
 
 const FILE = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'shared', 'data', 'barcode.js');
 const ctx = { crypto: globalThis.crypto };
 ctx.window = ctx;
 vm.createContext(ctx);
+for (const f of WORDS) { vm.runInContext(await readFile(f, 'utf8'), ctx, { filename: f }); if (f === WORDS[0]) vm.runInContext(PIN, ctx); }   // the messages' English words
 vm.runInContext(await readFile(FILE, 'utf8'), ctx, { filename: 'barcode.js' });
 const B = ctx.SlopData.barcode;
 const seeded = (seed) => B.seededRand(seed);

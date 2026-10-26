@@ -9,6 +9,7 @@
   /** Run fn, then give focus back to the typing area. */
   const act = (fn) => () => { try { fn(); } catch (e) { console.error(e); } if (S.focusIme) S.focusIme(); };
   const toast = (m) => window.SlopUI && SlopUI.toast(m);
+  const t = S.t;
 
   /* ---------- hit testing: what sits under a client point on a page ---------- */
   /** { kind: 'cell'|'image'|'text'|'page', pi, bi?, r?, c?, off?, pos? } for the page element under (cx, cy). */
@@ -34,62 +35,62 @@
 
   /* ---------- item lists ---------- */
   /** Clipboard and format rows for a selection (the format menu's own rows, so nothing is duplicated). */
-  function formatRows(labels) {
+  function formatRows(ids) {
     const all = S.menus.format();
-    return labels.map((l) => all.find((i) => i && i.label === l)).filter(Boolean);
+    return ids.map((id) => all.find((i) => i && i.fid === id)).filter(Boolean);
   }
   function selectionItems() {
     return [
-      { label: 'Cut', key: key('edit.cut', 'Ctrl+X'), act: act(() => { const t = A().cut(); if (t && navigator.clipboard) navigator.clipboard.writeText(t).catch(() => {}); }) },
-      { label: 'Copy', key: key('edit.copy', 'Ctrl+C'), act: act(() => { const t = A().copyText(); if (t && navigator.clipboard) navigator.clipboard.writeText(t).catch(() => toast('Copy is not allowed here')); }) },
+      { label: t('ui.cut'), key: key('edit.cut', 'Ctrl+X'), act: act(() => { const cut = A().cut(); if (cut && navigator.clipboard) navigator.clipboard.writeText(cut).catch(() => {}); }) },
+      { label: t('ui.copy'), key: key('edit.copy', 'Ctrl+C'), act: act(() => { const txt = A().copyText(); if (txt && navigator.clipboard) navigator.clipboard.writeText(txt).catch(() => toast(t('docs.ctx.copy_blocked'))); }) },
       pasteItem(),
       '-',
-      ...formatRows(['Bold', 'Italic', 'Underline', 'Clear formatting']),
+      ...formatRows(['bold', 'italic', 'underline', 'clear']),
       '-',
-      { label: 'Select all', key: key('edit.selectAll', 'Ctrl+A'), act: act(() => A().selectAll()) },
+      { label: t('docs.menu.select_all'), key: key('edit.selectAll', 'Ctrl+A'), act: act(() => A().selectAll()) },
     ];
   }
   function paragraphItems() {
     return [
       pasteItem(),
       '-',
-      ...formatRows(['Paragraph style', 'Align', 'List']),
+      ...formatRows(['style', 'align', 'list']),
       '-',
-      { label: 'Select all', key: key('edit.selectAll', 'Ctrl+A'), act: act(() => A().selectAll()) },
+      { label: t('docs.menu.select_all'), key: key('edit.selectAll', 'Ctrl+A'), act: act(() => A().selectAll()) },
     ];
   }
   function pasteItem() {
-    return { label: 'Paste', key: key('edit.paste', 'Ctrl+V'), act: act(() => {
-      if (!navigator.clipboard || !navigator.clipboard.readText) return toast('Paste with Ctrl+V');
-      navigator.clipboard.readText().then((t) => A().paste(t), () => toast('Paste with Ctrl+V'));
+    return { label: t('ui.paste'), key: key('edit.paste', 'Ctrl+V'), act: act(() => {
+      if (!navigator.clipboard || !navigator.clipboard.readText) return toast(t('docs.ctx.paste_keys'));
+      navigator.clipboard.readText().then((text) => A().paste(text), () => toast(t('docs.ctx.paste_keys')));
     }) };
   }
   function cellItems(bi, r, c) {
-    const TB = E().TB, blocks = S.doc.blocks, t = blocks[bi], plain = TB.isPlain(blocks, bi);
+    const TB = E().TB, blocks = S.doc.blocks, tbl = blocks[bi], plain = TB.isPlain(blocks, bi);
     const out = [];
     if (plain) {
       out.push(
-        { label: 'Insert row above', act: act(() => A().tableRow(bi, r, false)) },
-        { label: 'Insert row below', act: act(() => A().tableRow(bi, r, true)) },
+        { label: t('docs.ctx.row_above'), act: act(() => A().tableRow(bi, r, false)) },
+        { label: t('docs.ctx.row_below'), act: act(() => A().tableRow(bi, r, true)) },
       );
-      if (t.rows.length > 1) out.push({ label: 'Delete row', act: act(() => A().tableRowDelete(bi, r)) });
+      if (tbl.rows.length > 1) out.push({ label: t('docs.ctx.row_delete'), act: act(() => A().tableRowDelete(bi, r)) });
       out.push('-',
-        { label: 'Insert column left', act: act(() => A().tableCol(bi, c, false)) },
-        { label: 'Insert column right', act: act(() => A().tableCol(bi, c, true)) },
+        { label: t('docs.ctx.col_left'), act: act(() => A().tableCol(bi, c, false)) },
+        { label: t('docs.ctx.col_right'), act: act(() => A().tableCol(bi, c, true)) },
       );
-      if (t.cols.length > 1) out.push({ label: 'Delete column', act: act(() => A().tableColDelete(bi, c)) });
+      if (tbl.cols.length > 1) out.push({ label: t('docs.ctx.col_delete'), act: act(() => A().tableColDelete(bi, c)) });
       out.push('-');
     }
-    out.push({ label: 'Delete table', act: act(() => A().tableDelete(bi)) });
+    out.push({ label: t('docs.ctx.table_delete'), act: act(() => A().tableDelete(bi)) });
     return out;
   }
   function imageItems(bi, off) {
     const run = A().imageAt(bi, off), wrap = (run && run.wrap) || 'inline';
     const opt = (w, l) => ({ label: l, check: wrap === w, act: act(() => A().imageEdit(bi, off, w)) });
     return [
-      { label: 'Wrap text', sub: [opt('inline', 'Inline'), opt('left', 'Left'), opt('right', 'Right')] },
+      { label: t('docs.ctx.wrap'), sub: [opt('inline', t('docs.ctx.inline')), opt('left', t('docs.menu.left')), opt('right', t('docs.menu.right'))] },
       '-',
-      { label: 'Delete image', act: act(() => A().imageEdit(bi, off, null)) },
+      { label: t('docs.ctx.image_delete'), act: act(() => A().imageEdit(bi, off, null)) },
     ];
   }
   function pageItems(pi) {
@@ -98,12 +99,12 @@
     if (first) {
       const pos = { b: first.b, o: first.line.start };
       out.push(
-        { label: 'Go to start of page', act: act(() => S.select(pos, pos)) },
-        { label: 'Insert page break here', act: act(() => { S.select(pos, pos); A().pageBreak(); }) },
+        { label: t('docs.ctx.page_start'), act: act(() => S.select(pos, pos)) },
+        { label: t('docs.ctx.page_break'), act: act(() => { S.select(pos, pos); A().pageBreak(); }) },
         '-',
       );
     }
-    out.push({ label: 'Select all', key: key('edit.selectAll', 'Ctrl+A'), act: act(() => A().selectAll()) });
+    out.push({ label: t('docs.menu.select_all'), key: key('edit.selectAll', 'Ctrl+A'), act: act(() => A().selectAll()) });
     return out;
   }
 

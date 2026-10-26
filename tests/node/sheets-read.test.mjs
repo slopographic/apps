@@ -3,6 +3,9 @@
 // Run: node --test tests/node/sheets-read.test.mjs    (or: node tests/run.mjs sheets-read)
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { globalI18n } from './ui-i18n-env.mjs';
+
+const EN = globalI18n('en');   // the reader's messages, as a page has them (shared/i18n/ui/en/sheets.js)
 
 // ---- minimal DOMParser: elements with namespaces, attributes, text; enough for shared/office/xml.js ----
 const ENT = { lt: '<', gt: '>', amp: '&', quot: '"', apos: "'" };
@@ -157,8 +160,13 @@ test('CSV writer output reads back to the same text', async () => {
 
 test('XLS and ODS are refused with the reason, and a broken XLSX says so', async () => {
   const ole = new Uint8Array([0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1, 0, 0, 0, 0]);
-  await assert.rejects(read(Object.assign(new Blob([ole]), { name: 'old.xls' })), (e) => e.message === UNSUPPORTED);
+  await assert.rejects(read(Object.assign(new Blob([ole]), { name: 'old.xls' })), (e) => e.message === EN.t(UNSUPPORTED) && /^Old \.xls files/.test(e.message));
   await assert.rejects(read(Object.assign(new Blob([enc('not zip')]), { name: 'bad.xlsx' })), /not a valid workbook/);
+  globalI18n('sv');   // the message is in the chosen language
+  try {
+    await assert.rejects(read(Object.assign(new Blob([ole]), { name: 'old.xls' })), /^Error: Gamla \.xls-filer stöds inte/);
+    await assert.rejects(read(Object.assign(new Blob([enc('not zip')]), { name: 'bad.xlsx' })), /ingen giltig arbetsbok/);
+  } finally { globalThis.SlopI18n = EN; }
 });
 
 // ---- XLSX ----
@@ -238,4 +246,12 @@ test('number formats: dates and times, with 12-hour clocks and duration totals',
   assert.ok(isDateCode('d-mmm-yy'));
   assert.ok(!isDateCode('0.00'));
   assert.ok(!isDateCode('"days "0'), 'quoted letters are not date codes');
+});
+
+test('what a file holds that is not imported is listed in the chosen language', async () => {
+  const { skippedParts } = await import('../../shared/sheets/xlsx-charts.js');
+  const files = new Map([['xl/media/image1.png', new Uint8Array(1)], ['xl/vbaProject.bin', new Uint8Array(1)]]);
+  assert.deepEqual(skippedParts(files, true), ['pictures', 'chart sheets', 'macros']);
+  globalI18n('sv');
+  try { assert.deepEqual(skippedParts(files, true), ['bilder', 'diagramblad', 'makron']); } finally { globalThis.SlopI18n = EN; }
 });

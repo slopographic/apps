@@ -19,8 +19,12 @@
   const raw = (C.catalog = C.catalog || []);
   const origin = () => { try { return location.origin; } catch (e) { return 'https://slopographic.com'; } };
 
-  const GROUPS = [{ id: 'main', name: 'Main' }, { id: 'fast', name: 'Fast inference' }, { id: 'open-models', name: 'Open models' },
-    { id: 'cloud', name: 'Clouds' }, { id: 'local', name: 'Local on this computer' }, { id: 'images', name: 'Images' }, { id: 'other', name: 'More' }];
+  const T = (k, v) => (window.SlopI18n ? SlopI18n.t(k, v) : k);
+  const has = (k) => !!(window.SlopI18n && SlopI18n.has && SlopI18n.has(k));
+  const slug = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '_');
+  /** A group's name is read when shown (ui.ai.cloud.group_<id>), so it follows a language change. */
+  const group = (id) => { const g = { id }; Object.defineProperty(g, 'name', { get: () => T('ui.ai.cloud.group_' + slug(id)), enumerable: true }); return g; };
+  const GROUPS = ['main', 'fast', 'open-models', 'cloud', 'local', 'images', 'other'].map(group);
   /** Chat formats: catalog name → the file in cloud/ that speaks it. Picture formats are spoken by shared/ai/imagegen. */
   const FORMATS = { anthropic: 'anthropic', 'openai-responses': 'openai', 'openai-chat': 'compat', gemini: 'gemini' };
   const IMAGE_FORMATS = ['openai-images', 'fal', 'replicate', 'stability', 'bfl', 'ideogram', 'recraft', 'runpod-sync'];
@@ -28,10 +32,27 @@
     if (name !== file && !Object.getOwnPropertyDescriptor(C.formats, name)) Object.defineProperty(C.formats, name, { get: () => C.formats[file], configurable: true });
   }
 
+  /** The words people read live in the ui tables, not in the catalog: a getter per field that has a key, read when shown.
+   *   ui.ai.prov.<id>_<name|who|short|notes|where|cors|pull|start>, <id>_setup_<n> / <id>_after_<n> (lines),
+   *   <id>_free_<note|limits|reset|training> (else the group's: ui.ai.prov.local_free_note), <id>_<field>_help / _ph,
+   *   <id>_model_<model id> (a model's name); ui.ai.cloud.field_<field id> (a field's label), ui.ai.cloud.hint_<hint>
+   *   (a model's note: { hint: 'capable' }, { hint: 'recommended', by: 'OpenAI' }). */
+  const live = (o, field, keys, vars) => { const k = keys.find(has); if (k) Object.defineProperty(o, field, { get: () => T(k, vars), enumerable: true, configurable: true }); return !!k; };
+  const lines = (o, field, base) => { const ks = []; for (let i = 1; has(base + i); i++) ks.push(base + i); if (ks.length) Object.defineProperty(o, field, { get: () => ks.map((k) => T(k)), enumerable: true, configurable: true }); };
+  function words(p) {
+    const id = 'ui.ai.prov.' + slug(p.id) + '_', grp = 'ui.ai.prov.' + slug(p.group) + '_';
+    for (const [f, k] of [['name', 'name'], ['who', 'who'], ['short', 'short'], ['notes', 'notes'], ['where', 'where'], ['corsNote', 'cors'], ['pull', 'pull'], ['start', 'start']]) live(p, f, [id + k]);
+    lines(p, 'setup', id + 'setup_'); lines(p, 'after', id + 'after_');
+    if (p.free) for (const f of ['note', 'limits', 'reset', 'training']) if (p.free[f] !== null) live(p.free, f, [id + 'free_' + f, grp + 'free_' + f]);
+    for (const f of p.fields || []) { live(f, 'label', ['ui.ai.cloud.field_' + slug(f.id)]); live(f, 'help', [id + slug(f.id) + '_help']); live(f, 'placeholder', [id + slug(f.id) + '_ph']); }
+    for (const m of p.models || []) { live(m, 'name', [id + 'model_' + slug(m.id)]); if (m.hint) live(m, 'note', ['ui.ai.cloud.hint_' + m.hint], { who: m.by || '' }); }
+  }
   function norm(p) {
     if (p._n) return p;
     const auth = p.auth || 'bearer';
-    Object.assign(p, { _n: true, who: p.who || p.name, short: p.short || p.name, models: p.models || [], prefer: p.prefer || [/./], caps: p.caps || {},
+    words(p);
+    for (const f of ['who', 'short']) if (p[f] == null) Object.defineProperty(p, f, { get: () => p.name, enumerable: true, configurable: true });
+    Object.assign(p, { _n: true, models: p.models || [], prefer: p.prefer || [/./], caps: p.caps || {},
       needsKey: auth !== 'none' && auth !== 'optional', keyOptional: auth === 'optional', chat: !!FORMATS[p.format] });
     p.usable = p.cors !== 'needs-proxy';   // a picture-only provider can be chosen: its key is kept for AI pictures
     if (p.local || p.anyAddress) p.editBase = true;
@@ -88,15 +109,17 @@
     return all().map((p) => [p, score(p)]).filter((x) => x[1] > 0).sort((a, b) => b[1] - a[1] || order(a[0]) - order(b[0])).map((x) => x[0]);
   }
 
+  /** True for plain http to another machine from an https page (mixed content: the browser blocks it). */
+  function mixed(url) { try { const u = new URL(String(url || '').trim()); return u.protocol === 'http:' && !/^(localhost|127\.\d+\.\d+\.\d+|\[::1\])$/i.test(u.hostname); } catch (e) { return false; } }
   /** The address of a local or custom server: https anywhere, plain http only to this computer. An https page may not
    * call plain http on another machine (mixed content), so that is said before trying. */
   function checkBase(url) {
     let u;
-    try { u = new URL(String(url || '').trim()); } catch (e) { return 'Type the full address, for example http://localhost:11434/v1'; }
+    try { u = new URL(String(url || '').trim()); } catch (e) { return T('ui.ai.cloud.base_full'); }
     if (u.protocol === 'https:') return '';
     if (u.protocol === 'http:' && /^(localhost|127\.\d+\.\d+\.\d+|\[::1\])$/i.test(u.hostname)) return '';
-    if (u.protocol === 'http:') return `${u.host} is another machine, and this page is https, so the browser blocks plain http to it (mixed content). Use an https:// address, or http://localhost for a server on this computer. To reach a server on your network over https: Tailscale Serve, Caddy with a local certificate, or a tunnel (cloudflared, ngrok).`;
-    return 'Use an https:// address, or http://localhost for a server on this computer.';
+    if (u.protocol === 'http:') return T('ui.ai.cloud.base_mixed', { host: u.host });
+    return T('ui.ai.cloud.base_https');
   }
 
   function price(p, model, fetched) {
@@ -120,12 +143,11 @@
     return (out.length ? out : usable).slice(0, 4);
   }
 
-  const CHROME = 'Chrome and Edge ask once whether this website may connect to apps on your device (“Apps on device” or “Local network access”). Choose Allow. If you blocked it, click the icon left of the address, open Site settings and allow it again.';
   /** Plain help for a server on this computer: the entry's own setup lines ({site} = this website), then Chrome's prompt. */
   function localHelp(p) {
-    const site = origin(), lines = (p.setup || ['The address must speak the OpenAI Chat Completions API (it ends in /v1 for most servers) and allow requests from {site} (CORS).']).map((t) => t.split('{site}').join(site));
-    return [...lines, CHROME, ...(p.after || [])];
+    const site = origin(), lines = (p.setup || [T('ui.ai.cloud.setup_any')]).map((t) => t.split('{site}').join(site));
+    return [...lines, T('ui.ai.cloud.setup_chrome'), ...(p.after || [])];
   }
 
-  Object.assign(C, { byId, GROUPS, FORMATS, IMAGE_FORMATS, price, cost, suggested, search, resolve, baseFor, endpoint, authHeaders, checkBase, localHelp, norm });
+  Object.assign(C, { byId, GROUPS, FORMATS, IMAGE_FORMATS, price, cost, suggested, search, resolve, baseFor, endpoint, authHeaders, checkBase, mixed, localHelp, norm });
 })();

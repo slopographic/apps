@@ -1,6 +1,7 @@
 /* Converter pages (convert/<slug>/) for HEIC photos, SVG to JPG, GIF to MP4, audio and text to PDF or Word, added to PAGES
  * in pages.js. Same fields as the other pages; shared/seo/convert-copy.mjs writes their head from the same title and
  * description. Every claim is what the code does (core/heic.js, media-more.js, doc-out.js and the catalog). */
+import { withWords } from './page-words.js';
 const PRIVATE = ['Are my files uploaded?', 'No. The conversion runs in your browser, on this device. Your files are not sent to Slopographic or to any other server.'];
 const ENGINE = 'Audio is converted by ffmpeg.wasm, the video and audio engine, running in your browser. The page asks before its first download (about 32 MB), then the browser keeps it.';
 const HEIC_ENGINE = 'Safari opens HEIC photos by itself, so nothing is downloaded there. Other browsers need the HEIC decoder (libheif, about 1.5 MB, LGPL-3.0): the page asks first, then downloads it once from the Slopographic cdn, checks its SHA-256 and keeps it.';
@@ -8,33 +9,33 @@ const HEIC_FAQ = [['Why do iPhones save HEIC?', 'HEIC (High Efficiency Image Con
   ['Does it keep the photo upright?', 'Yes. The rotation and mirroring stored in the HEIC file are applied, so the picture comes out the way the phone showed it.'],
   ['What about Live Photos and bursts?', 'A HEIC file with several pictures gives its main picture, and the status line says how many the file holds.'], PRIVATE];
 
-const audio = (slug, conv, from, to, h1, title, description, lead, how, faq) => ({ slug, conv, from: [from], label: `${from.toUpperCase()} to ${to.toUpperCase()}`, pair: [from.toUpperCase(), to.toUpperCase()], cat: 'Audio and video',
-  summary: description.split('. ')[0] + '.', h1, title, description, lead, how, faq: [...faq, PRIVATE] });
+const audio = (slug, conv, from, to, h1, title, description, lead, how, faq) => ({ slug, conv, from: [from], pair: [from.toUpperCase(), to.toUpperCase()], cat: 'Audio and video',
+  h1, title, description, lead, how, faq: [...faq, PRIVATE] });
 
-export const MORE_PAGES = [
-  { slug: 'heic-to-jpg', conv: 'heic-to-jpg', from: ['heic'], accept: '.heic,.heif,image/heic,image/heif', label: 'HEIC to JPG', pair: ['HEIC', 'JPG'], cat: 'Images',
-    summary: 'Turn iPhone HEIC photos into JPG pictures that open everywhere.', h1: 'HEIC to JPG converter',
+export const MORE_PAGES = withWords([
+  { slug: 'heic-to-jpg', conv: 'heic-to-jpg', from: ['heic'], accept: '.heic,.heif,image/heic,image/heif', pair: ['HEIC', 'JPG'], cat: 'Images',
+    h1: 'HEIC to JPG converter',
     title: 'HEIC to JPG converter for iPhone photos, free and private | File convert',
     description: 'Convert iPhone HEIC and HEIF photos to JPG in your browser, one or many at once. Choose the quality and size. Your photos are never uploaded.',
     lead: 'iPhones save photos as HEIC. Turn them into JPG pictures that every app, website and computer opens, right here on your device.',
     how: ['Drop one or more .heic or .heif photos, straight from your phone or a cloud export.', HEIC_ENGINE, 'Pick the JPG quality (90 is a good default) and, if you like, a width or height. Download each photo or all of them as a ZIP.'],
     faq: HEIC_FAQ },
-  { slug: 'heic-to-png', conv: 'heic-to-png', from: ['heic'], accept: '.heic,.heif,image/heic,image/heif', label: 'HEIC to PNG', pair: ['HEIC', 'PNG'], cat: 'Images',
-    summary: 'Turn iPhone HEIC photos into lossless PNG pictures for editing.', h1: 'HEIC to PNG converter',
+  { slug: 'heic-to-png', conv: 'heic-to-png', from: ['heic'], accept: '.heic,.heif,image/heic,image/heif', pair: ['HEIC', 'PNG'], cat: 'Images',
+    h1: 'HEIC to PNG converter',
     title: 'HEIC to PNG converter: iPhone photos to lossless PNG, free | File convert',
     description: 'Convert HEIC and HEIF photos from an iPhone to lossless PNG in your browser, for editing or archiving. Optional resize. Nothing is uploaded.',
     lead: 'Turn HEIC photos into PNG: lossless, so every pixel the decoder reads is kept for editing.',
     how: ['Drop one or more .heic or .heif photos.', HEIC_ENGINE, 'Choose a width or height to resize, or keep the full size. PNG files are larger than JPG.'],
     faq: HEIC_FAQ },
-  { slug: 'svg-to-jpg', conv: 'to-jpg', from: ['svg'], label: 'SVG to JPG', pair: ['SVG', 'JPG'], cat: 'Images',
-    summary: 'Draw an SVG at the size you choose and save it as a JPG.', h1: 'SVG to JPG converter',
+  { slug: 'svg-to-jpg', conv: 'to-jpg', from: ['svg'], pair: ['SVG', 'JPG'], cat: 'Images',
+    h1: 'SVG to JPG converter',
     title: 'SVG to JPG converter, choose the size and background | File convert',
     description: 'Convert SVG vector images to JPG in your browser at the width or height you choose, on a background colour of your choice. Nothing is uploaded.',
     lead: 'Rasterise an SVG to a JPG for apps that do not take vector files. The browser draws it at your size, so edges stay sharp.',
     how: ['The SVG is drawn by this browser at the width or height you choose; with neither, its own size is used (1024 px on the long side when it has only a viewBox).', 'JPG has no transparency, so transparent areas are filled with the background colour, white by default.'],
     faq: [['Why choose a size?', 'An SVG has no fixed pixel size, so the JPG needs one. Pick the size the picture will be shown at.'], ['JPG or PNG?', 'PNG keeps transparency and sharp flat colours. JPG is smaller for pictures with gradients and photos.'], PRIVATE] },
-  { slug: 'gif-to-mp4', conv: 'gif-to-mp4', from: ['gif'], label: 'GIF to MP4', pair: ['GIF', 'MP4'], cat: 'Audio and video',
-    summary: 'Turn an animated GIF into a small MP4 video that plays everywhere.', h1: 'GIF to MP4 converter',
+  { slug: 'gif-to-mp4', conv: 'gif-to-mp4', from: ['gif'], pair: ['GIF', 'MP4'], cat: 'Audio and video',
+    h1: 'GIF to MP4 converter',
     title: 'GIF to MP4 converter: smaller animations, free | File convert',
     description: 'Convert animated GIFs to MP4 (H.264) in your browser. The video is often many times smaller than the GIF and plays everywhere. Nothing is uploaded.',
     lead: 'Turn an animated GIF into an MP4 video for chats, posts and slides. The animation is the same; the file is much smaller.',
@@ -70,25 +71,25 @@ export const MORE_PAGES = [
     'Make OGG Vorbis files from MP3s, the format many game engines and open-source players prefer.',
     [ENGINE, 'Pick the bitrate. Converting from MP3 cannot add back detail, so a bitrate at or below the MP3\'s is enough.'],
     [['Can I make Opus instead?', 'Yes. Drop the file on File convert and choose To Opus in its Convert to menu.']]),
-  { slug: 'markdown-to-pdf', conv: 'md-to-pdf', from: ['md'], label: 'Markdown to PDF', pair: ['MD', 'PDF'], cat: 'Documents',
-    summary: 'Turn a Markdown file into a paginated PDF in any language.', h1: 'Markdown to PDF converter',
+  { slug: 'markdown-to-pdf', conv: 'md-to-pdf', from: ['md'], pair: ['MD', 'PDF'], cat: 'Documents',
+    h1: 'Markdown to PDF converter',
     title: 'Markdown to PDF converter, any language, in your browser | File convert',
     description: 'Convert Markdown to a PDF in your browser, with headings, lists, quotes and code, on A4 or Letter pages. Any writing system works. Nothing is uploaded.',
     lead: 'Turn README files and notes written in Markdown into a PDF with real pages, selectable text and bookmarks for the headings.',
     how: ['The Markdown is laid out by the Slop Docs engine: headings, lists, quotes, code blocks, bold, italic and code spans. Tables, links and images stay as the Markdown text that was typed.', 'Text in Arabic, Chinese, Hindi and other writing systems is set with a Noto font for that script, downloaded once after the page asks.'],
     faq: [['Can I copy the text from the PDF?', 'Yes. The text is real text, not a picture, so it can be selected and searched.'], ['Which page sizes?', 'A4 or US Letter, with the font you choose: sans serif, serif or monospaced.'], PRIVATE] },
-  { slug: 'txt-to-pdf', conv: 'txt-to-pdf', from: ['txt'], label: 'TXT to PDF', pair: ['TXT', 'PDF'], cat: 'Documents',
-    summary: 'Turn a plain text file into a PDF with real, searchable text.', h1: 'Text (TXT) to PDF converter',
+  { slug: 'txt-to-pdf', conv: 'txt-to-pdf', from: ['txt'], pair: ['TXT', 'PDF'], cat: 'Documents',
+    h1: 'Text (TXT) to PDF converter',
     title: 'TXT to PDF converter: text files to PDF in any language | File convert',
     description: 'Convert plain text files to PDF in your browser, one paragraph per line, on A4 or Letter pages. Any language and script works. Nothing is uploaded.',
     lead: 'Turn a .txt file, a log or a letter into a PDF to print or send. The text stays real text that can be searched.',
     how: ['Each line of the text becomes a line on the page; long lines wrap. The default font is monospaced, so columns line up; choose sans serif or serif for prose.', 'Text in Arabic, Chinese, Hindi and other writing systems is set with a Noto font for that script, downloaded once after the page asks.'],
     faq: [['What encoding should the file be?', 'UTF-8, the encoding of almost every text file today. Save an older file as UTF-8 first if its accents come out wrong.'], ['Can I choose the page size?', 'Yes: A4 or US Letter.'], PRIVATE] },
-  { slug: 'markdown-to-docx', conv: 'md-to-docx', from: ['md'], label: 'Markdown to DOCX', pair: ['MD', 'DOCX'], cat: 'Documents',
-    summary: 'Turn a Markdown file into a Word document with real headings and lists.', h1: 'Markdown to Word (DOCX) converter',
+  { slug: 'markdown-to-docx', conv: 'md-to-docx', from: ['md'], pair: ['MD', 'DOCX'], cat: 'Documents',
+    h1: 'Markdown to Word (DOCX) converter',
     title: 'Markdown to DOCX converter: Word files with real headings | File convert',
     description: 'Convert Markdown to a Word (DOCX) document in your browser. Headings become Word headings, lists become Word lists, code stays monospaced. No upload.',
     lead: 'Turn Markdown into a Word document you can hand to anyone. Headings use Word\'s own Heading styles, so the navigation pane works.',
     how: ['The Markdown is read by the Slop Docs engine and written as DOCX by its Word writer: headings, bulleted and numbered lists, quotes, code blocks, bold, italic and code spans.', 'Tables, links and images stay as the Markdown text that was typed. Open the file in Word, LibreOffice, Google Docs or Slop Docs.'],
     faq: [['Can I edit it in Word?', 'Yes. It is an ordinary DOCX with Word\'s built-in styles.'], ['Which page size?', 'A4 or US Letter, with the font you choose.'], PRIVATE] },
-];
+]);

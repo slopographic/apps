@@ -59,20 +59,20 @@ function rtFaceScripts() {
 }
 async function rtFaces(c, mode = 'auto') {
   if (mode === 'off') return { faces: [], note: '' };
-  try { await rtFaceScripts(); } catch (e) { return { faces: [], note: 'Face detection could not load, so red-eye and whitening were skipped.' }; }
+  try { await rtFaceScripts(); } catch (e) { return { faces: [], note: rtT('faces_failed') }; }
   const F = window.SlopFaces;
   if (!F.enabled()) {
-    if (mode !== 'ask' || !(await F.askOptIn('photoslop'))) return { faces: [], off: true, note: 'Face detection is off (Profile ▸ Face detection), so red-eye and whitening were skipped.' };
+    if (mode !== 'ask' || !(await F.askOptIn('photoslop'))) return { faces: [], off: true, note: rtT('faces_off_skipped') };
   }
   const faces = (await F.detect(c)).filter((f) => f.w > 12);
-  return { faces, note: faces.length ? '' : 'No face was found, so red-eye and whitening were skipped.' };
+  return { faces, note: faces.length ? '' : rtT('no_face_skipped') };
 }
 async function rtSubject(c) {
   try {
     if (!window.SlopCutout) return null;
     const M = window.SlopCutoutModels && SlopCutoutModels.get && SlopCutoutModels.get('portrait');
     await rtPrepareAI();   // the shared first-use notice names the download once (it throws when the person says no)
-    await aiNotice('cutout-portrait', 'Find the person in the picture?', [{ name: 'Portrait model (MODNet)', bytes: (M && M.bytes) || 25888640 }, AI_RUNTIME]);
+    await aiNotice('cutout-portrait', rtT('find_person'), [{ name: rtT('portrait_model'), bytes: (M && M.bytes) || 25888640 }, AI_RUNTIME]);
     const flat = mkCanvas(c.width, c.height), g = cx(flat);
     g.fillStyle = '#ffffff'; g.fillRect(0, 0, c.width, c.height); g.drawImage(c, 0, 0);
     const r = await SlopCutout.removeBackground(flat, { model: 'portrait' });

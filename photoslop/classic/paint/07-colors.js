@@ -20,7 +20,7 @@ function renderPalette() {
   pal.textContent = '';
   PALETTE.forEach((c, i) => {
     let touchPrev = null; // the primary colour before a finger pressed this swatch
-    const b = h('button', { class: 'sw', type: 'button', 'aria-label': `Color ${c}`, title: 'Left-click: primary · Right-click: menu · Double-click: edit', style: { background: c } });
+    const b = h('button', { class: 'sw', type: 'button', 'aria-label': P.t('paint-classic.app.swatch', { color: c }), title: P.t('paint-classic.app.swatch_tip'), style: { background: c } });
     b.addEventListener('pointerdown', e => {
       if (e.button !== 0) return;
       const prev = S.primary;

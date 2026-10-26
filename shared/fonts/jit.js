@@ -19,6 +19,10 @@
   const DEPS = [['SlopScripts', 'scripts.js'], ['SlopLibraryManifest', '../library/manifest.js'], ['SlopLibraryStore', '../library/store.js'], ['SlopLibraryInstall', '../library/install.js']];
   let depsP = null;
   const faces = new Map();
+  /** A word of the download question and its toasts (ui.fonts.*), read when it is shown. */
+  const tr = (k, v) => { const I = root.SlopI18n; return I ? I.t(k, v) : k; };
+  /** A pack's language in the chosen language (SlopScripts.PACKS label), else the manifest's name without the family. */
+  const langOf = (p) => { const S = root.SlopScripts; return S && S.PACKS[p.id] ? S.PACKS[p.id].label : p.name.replace(/ \(.*\)$/, ''); };
 
   function load(src) {
     return new Promise((res, rej) => { const s = doc.createElement('script'); s.src = new URL(src, SELF).href; s.async = false; s.onload = res; s.onerror = () => rej(new Error('Could not load ' + src)); doc.head.append(s); });
@@ -41,16 +45,16 @@
   function ask(packs, M) {
     const names = packs.map((p) => p.name).join(', '), size = M.formatSize(packs.reduce((n, p) => n + p.size, 0));
     const UI = root.SlopUI;
-    if (!UI || !UI.dialog) return Promise.resolve(root.confirm(`This text needs ${names} (${size}). Download it now? It is kept in this browser.`));
+    if (!UI || !UI.dialog) return Promise.resolve(root.confirm(tr('ui.fonts.jit_confirm', { names, size })));
     return new Promise((res) => {
       const box = UI.el('input', { type: 'checkbox' });
       const body = UI.el('div', { class: 'sfj-ask' },
-        UI.el('p', null, `To write this text, the app needs a font for ${packs.map((p) => p.name.replace(/ \(.*\)$/, '')).join(', ')}.`),
+        UI.el('p', null, tr('ui.fonts.jit_needs', { langs: packs.map(langOf).join(', ') })),
         UI.el('ul', null, ...packs.map((p) => UI.el('li', null, `${p.name}: ${M.formatSize(p.size)}, ${M.LICENCES[p.licence] || p.licence}`))),
-        UI.el('p', null, 'It downloads once from Slopographic\'s file store and stays in this browser. Your document is not uploaded.'),
-        UI.el('label', null, box, ' Download language fonts automatically when needed'));
-      UI.dialog({ title: 'Download a font for this language?', body, onClose: (ok) => res(!!ok),
-        buttons: [{ label: 'Cancel' }, { label: `Download ${size}`, primary: true, act: () => { if (box.checked) setAuto(true); return true; } }] });
+        UI.el('p', null, tr('ui.fonts.jit_once')),
+        UI.el('label', null, box, ' ' + tr('ui.fonts.jit_auto')));
+      UI.dialog({ title: tr('ui.fonts.jit_title'), body, onClose: (ok) => res(!!ok),
+        buttons: [{ label: tr('menu.cancel') }, { label: tr('ui.fonts.jit_download', { size }), primary: true, act: () => { if (box.checked) setAuto(true); return true; } }] });
     });
   }
 
@@ -66,11 +70,11 @@
     if (packs.length < missing.length) return false;
     // ask: false (a document being opened, say) uses only what is installed: it never downloads without the person's say
     if (!auto()) { if (o.ask === false) return false; if (!(await ask(packs, M))) return false; }
-    const toast = (t) => { if (root.SlopUI && root.SlopUI.toast) root.SlopUI.toast(t, 4000); };
+    const toast = (msg) => { if (root.SlopUI && root.SlopUI.toast) root.SlopUI.toast(msg, 4000); };
     try {
-      for (const p of packs) { toast(`Downloading the ${p.name.replace(/ \(.*\)$/, '')} font…`); await I.install(p); }
-    } catch (e) { toast('The font could not be downloaded: ' + e.message); return false; }
-    toast(packs.length === 1 ? `${packs[0].name.replace(/ \(.*\)$/, '')} font ready.` : 'Fonts ready.');
+      for (const p of packs) { toast(tr('ui.fonts.jit_downloading', { lang: langOf(p) })); await I.install(p); }
+    } catch (e) { toast(tr('ui.fonts.jit_failed', { error: e.message })); return false; }
+    toast(packs.length === 1 ? tr('ui.fonts.jit_ready_one', { lang: langOf(packs[0]) }) : tr('ui.fonts.jit_ready_all'));
     return true;
   }
 

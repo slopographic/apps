@@ -44,7 +44,10 @@
       el('td', { class: 'num' }, money(r.balance, s.base))));
     $('gRows').replaceChildren(...body);
     $('gEmpty').hidden = rows.length > 0;
-    $('gSummary').textContent = `${a.name} (${a.type}): balance ${money(balance, s.base)} on the ${NS.util.TYPE_SIDE[a.type]} side.`;
+    const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
+    const TYPE = { asset: t('ledger.type.asset'), liability: t('ledger.type.liability'), equity: t('ledger.type.equity'), revenue: t('ledger.type.revenue'), expense: t('ledger.type.expense') };
+    const SIDE = { debit: t('ledger.side.debit'), credit: t('ledger.side.credit') };
+    $('gSummary').textContent = t('ledger.gl.summary', { name: a.name, type: TYPE[a.type] || a.type, amount: money(balance, s.base), side: SIDE[NS.util.TYPE_SIDE[a.type]] || NS.util.TYPE_SIDE[a.type] });
   }
 
   function mount() {

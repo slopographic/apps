@@ -9,7 +9,7 @@ function openBrushPicker(x, y, toolId = UI.tool) {
   closeMenus(); closePopover();
   const o = BRUSH_OPTS()[toolId]; if (!o) return;
   const t = TOOL[toolId];
-  const el = h('div', { class: 'brush-pop', role: 'dialog', 'aria-label': 'Brush picker' });
+  const el = h('div', { class: 'brush-pop', role: 'dialog', 'aria-label': tr('photoslop.popup.brush_picker') });
   const row = (label, key, min, max, toV = (v) => v, fromV = (v) => v, unit = 'px') => {
     const r = h('input', { type: 'range', min, max, value: Math.round(fromV(o[key])), 'aria-label': label });
     const n = h('input', { type: 'number', min, max, value: Math.round(fromV(o[key])), class: 'opt-num', 'aria-label': label });
@@ -17,22 +17,22 @@ function openBrushPicker(x, y, toolId = UI.tool) {
     r.addEventListener('input', () => set(r.value)); n.addEventListener('change', () => set(n.value));
     return h('label', { class: 'bp-row' }, h('span', null, label), r, n, h('span', { class: 'opt-u' }, unit));
   };
-  el.append(h('div', { class: 'bp-head' }, h('b', null, t.name.replace(' Tool', '')), h('span', null, 'Right-click on the canvas any time')));
-  el.append(row('Size', 'size', 1, toolId === 'pencil' ? 200 : 1000));
-  if (o.hardness != null) el.append(row('Hardness', 'hardness', 0, 100, (v) => v / 100, (v) => v * 100, '%'));
-  if (o.opacity != null) el.append(row('Opacity', 'opacity', 1, 100, (v) => v / 100, (v) => v * 100, '%'));
+  el.append(h('div', { class: 'bp-head' }, h('b', null, t.short), h('span', null, tr('photoslop.popup.right_click'))));
+  el.append(row(tr('photoslop.popup.size'), 'size', 1, toolId === 'pencil' ? 200 : 1000));
+  if (o.hardness != null) el.append(row(tr('photoslop.popup.hardness'), 'hardness', 0, 100, (v) => v / 100, (v) => v * 100, '%'));
+  if (o.opacity != null) el.append(row(tr('photoslop.popup.opacity'), 'opacity', 1, 100, (v) => v / 100, (v) => v * 100, '%'));
   if (o.tip != null) {
     for (const pack of allPacks()) {
       if (!pack.brushes.length) continue;
       const grid = h('div', { class: 'bp-grid' });
       for (const p of pack.brushes) {
-        const b = h('button', { type: 'button', class: 'bp-preset' + (o.preset === p.name ? ' on' : ''), title: `${p.name} · ${p.size}px`, 'aria-label': p.name }, presetPreview(p), h('span', null, p.name), h('em', null, p.size));
-        b.addEventListener('click', () => { applyPreset(p); closePopover(); toast(`${p.name} brush`, 900); });
+        const b = h('button', { type: 'button', class: 'bp-preset' + (o.preset === p.name ? ' on' : ''), title: `${brushLabel(p)} · ${p.size}px`, 'aria-label': brushLabel(p) }, presetPreview(p), h('span', null, brushLabel(p)), h('em', null, p.size));
+        b.addEventListener('click', () => { applyPreset(p); closePopover(); toast(tr('photoslop.popup.brush_named', { name: brushLabel(p) }), 900); });
         grid.append(b);
       }
-      el.append(h('div', { class: 'bp-sub' }, pack.name), grid);
+      el.append(h('div', { class: 'bp-sub' }, packLabel(pack)), grid);
     }
-    el.append(h('div', { class: 'bp-sub bp-tip' }, 'Tip: hold Shift and drag on the canvas: left/right = size, up/down = hardness (+Alt: opacity)'));
+    el.append(h('div', { class: 'bp-sub bp-tip' }, tr('photoslop.popup.tip')));
   }
   document.body.append(el);
   const r = el.getBoundingClientRect();
@@ -65,24 +65,24 @@ async function pasteFromSystem(inPlace) {
     if (blob) {
       const c = await fileToCanvas(blob);
       if (CLIP.canvas && c.width === CLIP.canvas.width && c.height === CLIP.canvas.height) { pasteInternal(inPlace); return; }
-      pasteCanvas(c, null, null, 'Pasted Image'); return;
+      pasteCanvas(c, null, null, 'Pasted Image'); return; // i18n-ignore: the layer's name is the document's
     }
   } catch (e) { /* permission denied or unsupported: fall back to the internal clipboard */ }
   if (pasteBuffer()) return; // nothing on the system clipboard: the shared buffer, if it is newer
   if (CLIP.canvas) pasteInternal(inPlace);
-  else toast(`Copy an image anywhere, then press ${MOD}V here to paste it`);
+  else toast(tr('photoslop.popup.copy_first', { key: MOD + 'V' }));
 }
 async function newFromClipboard() {
   let c = null;
   try { const blob = await clipboardImage(); if (blob) c = await fileToCanvas(blob); } catch (e) { /* fall through */ }
   if (!c && CLIP.canvas) c = copyCanvas(CLIP.canvas);
-  if (!c) { toast('The clipboard has no image'); return; }
-  openDocTab(c.width, c.height, [{ name: 'Background', canvas: c }], 'Pasted image');
+  if (!c) { toast(tr('photoslop.popup.no_clip_image')); return; }
+  openDocTab(c.width, c.height, [{ name: 'Background', canvas: c }], 'Pasted image'); // i18n-ignore: layer and document names are the document's
 }
 
 function brushPickerButton() {
   const o = BRUSH_OPTS()[UI.tool];
-  const b = h('button', { type: 'button', class: 'bp-btn', title: 'Brush picker (or right-click the canvas)', 'aria-label': 'Open brush picker' },
+  const b = h('button', { type: 'button', class: 'bp-btn', title: tr('photoslop.popup.picker_btn_tip'), 'aria-label': tr('photoslop.popup.picker_btn') },
     dabCanvas(clamp(o.size, 4, 22), o.hardness != null ? o.hardness : 1, theme() === 'pro' ? '#e8e8e8' : '#111111', o.tip || 'round', 0), h('span', null, o.size), h('i', null, '▾'));
   b.addEventListener('click', () => { const r = b.getBoundingClientRect(); openBrushPicker(r.left, r.bottom + 4); });
   return b;

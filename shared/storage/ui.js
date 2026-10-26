@@ -10,12 +10,9 @@
 (function (g) {
   'use strict';
   const SS = (g.SlopStorage = g.SlopStorage || {});
-  const FIXES = [
-    'Clear thumbnails and previews. Slop Drive makes them again when you open a folder.',
-    'Remove downloaded models you do not use (Settings, Storage).',
-    'Remove old offline caches (Settings, Storage). The current one is kept.',
-    'Connect a folder in Slop Drive (More, Connect folder). New files are then saved to your disk, not to this site.',
-  ];
+  const tr = (key, vars) => (g.SlopI18n ? g.SlopI18n.t(key, vars) : key);   // words: shared/i18n/ui/<code>/backup3.js (ui.storage.*)
+  const lab = (v) => (g.SlopI18n && g.SlopI18n.label ? g.SlopI18n.label(v) : v);   // opts.what may be a key
+  const FIXES = ['ui.storage.fix_thumbs', 'ui.storage.fix_models', 'ui.storage.fix_caches', 'ui.storage.fix_folder'];
 
   /** The parts that have a size: the browser's IndexedDB and Cache totals, measured localStorage, and Other. */
   function biggest(est) {
@@ -27,15 +24,15 @@
     const el = g.SlopUI.el;
     const list = biggest(est);
     const usage = est.usage == null
-      ? 'The browser did not say how full the disk for this site is.'
-      : `The disk for this site: ${SS.bytes(est.usage)} of ${SS.bytes(est.quota)} used (${Math.round(est.percent)}%).`;
+      ? tr('ui.storage.no_estimate')
+      : tr('ui.storage.usage', { used: SS.bytes(est.usage), quota: SS.bytes(est.quota), pct: Math.round(est.percent) });
     return [
-      el('p', { class: 'sui-p' }, `${app} could not save ${what || 'your work'}, because this site’s storage is full. Your changes are still in the editor and nothing was lost. Free some space, then save again.`),
+      el('p', { class: 'sui-p' }, tr('ui.storage.not_saved', { app, what: what ? lab(what) : tr('ui.storage.your_work') })),
       el('p', { class: 'sui-p' }, usage),
-      el('p', { class: 'sui-p' }, list.length ? 'Using the most space:' : 'Nothing measurable is using the space. The browser may share the disk with other sites.'),
+      el('p', { class: 'sui-p' }, list.length ? tr('ui.storage.most') : tr('ui.storage.nothing_big')),
       list.length ? el('ul', { class: 'sui-list' }, list.map((p) => el('li', null, `${p.label}: ${SS.bytes(p.bytes)}`))) : null,
-      el('p', { class: 'sui-p' }, 'Ways to free space:'),
-      el('ul', { class: 'sui-list' }, FIXES.map((f) => el('li', null, f))),
+      el('p', { class: 'sui-p' }, tr('ui.storage.ways')),
+      el('ul', { class: 'sui-list' }, FIXES.map((f) => el('li', null, tr(f)))),
       msg ? el('p', { class: 'sui-p', role: 'status' }, msg) : null,
     ].filter(Boolean);
   }
@@ -44,7 +41,7 @@
   let shownBox = null; // the open dialog: several failed writes in a row show one dialog, not a stack
   const showing = () => !!(shownBox && g.document.body.contains(shownBox) && !shownBox.classList.contains('sui-out'));
   /** The app's name from the page title ("Slop Notes: ..." -> "Slop Notes"), when the caller gives none. */
-  const titleApp = () => String((g.document && g.document.title) || '').split(/[:|·—–]/)[0].trim() || 'This app';
+  const titleApp = () => String((g.document && g.document.title) || '').split(/[:|·—–]/)[0].trim() || tr('ui.storage.this_app');
 
   function show(app, what, retry) {
     const el = g.SlopUI.el;
@@ -53,7 +50,7 @@
     const refresh = async (msg) => paint(await SS.estimate(), msg);
     const clearThumbs = async () => {
       const r = await SS.clear('thumbs');
-      await refresh(`Thumbnails and previews cleared: ${r.removed} removed. Save again.`);
+      await refresh(tr('ui.storage.cleared', { n: r.removed }));
       return false; // stay open so the person can see the change
     };
     const openElsewhere = (href) => () => { g.open(href, '_blank', 'noopener'); return false; };
@@ -61,21 +58,21 @@
       if (!retry) return true;
       try { await retry(); return true; } catch (e) {
         const still = SS.classify(e).quota;
-        await refresh(still ? 'Still full. Free more space, then save again.' : 'The save failed for another reason: ' + ((e && e.message) || e));
+        await refresh(still ? tr('ui.storage.still_full') : tr('ui.storage.other_fail', { err: String((e && e.message) || e) }));
         return false;
       }
     };
-    paint({ usage: null, quota: null, percent: 0, parts: [] }, 'Reading the storage…');
+    paint({ usage: null, quota: null, percent: 0, parts: [] }, tr('ui.storage.reading'));
     refresh(null).catch(() => {});
     const d = g.SlopUI.dialog({
-      title: 'This site’s storage is full',
+      title: tr('ui.storage.full_title'),
       body: holder,
       buttons: [
-        { label: retry ? 'Keep editing' : 'Close' },
-        { label: 'Clear thumbnails and previews', act: clearThumbs },
-        { label: 'Storage in Settings', act: openElsewhere('/settings/#storage') },
-        { label: 'Connect a folder', act: openElsewhere('/drive/') },
-        retry ? { label: 'Try again', primary: true, act: tryAgain } : null,
+        { label: retry ? tr('ui.storage.keep_editing') : tr('menu.close') },
+        { label: tr('ui.storage.clear_thumbs'), act: clearThumbs },
+        { label: tr('ui.storage.in_settings'), act: openElsewhere('/settings/#storage') },
+        { label: tr('ui.storage.connect_folder'), act: openElsewhere('/drive/') },
+        retry ? { label: tr('ui.storage.try_again'), primary: true, act: tryAgain } : null,
       ].filter(Boolean),
     });
     shownBox = d && d.box;
@@ -87,7 +84,7 @@
     if (showing()) return true;
     if (opts.once) { if (told.has(opts.once)) return true; told.add(opts.once); } // autosaves tell the person once per page
     if (!g.SlopUI || !g.SlopUI.dialog) {
-      g.alert && g.alert(`${app}: this site’s storage is full. Your changes were not saved. Free space in Settings, Storage, then save again.`);
+      g.alert && g.alert(tr('ui.storage.full_alert', { app }));
       return true;
     }
     show(app, opts.what, opts.retry);

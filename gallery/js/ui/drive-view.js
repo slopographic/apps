@@ -12,8 +12,9 @@
     query: { text: '', chips: [], sort: 'added' },
   };
 
+  const t = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
   const fmtSize = (n) => window.SlopHub.fmtSize(n);   // SlopHub.fmtSize (shared/hub.js)
-  const fmtDate = (t) => (t ? new Date(t).toLocaleDateString(undefined, { dateStyle: 'medium' }) : 'Unknown date');
+  const fmtDate = (d) => (d ? (window.SlopI18n ? window.SlopI18n.date(d, { dateStyle: 'medium' }) : new Date(d).toLocaleDateString(undefined, { dateStyle: 'medium' })) : t('gallery.drive.unknown_date'));
   const extOf = (name) => window.SlopKinds.extOf(name);
 
   function revokeThumbs() {
@@ -31,7 +32,7 @@
       '<span class="dname"></span><span class="dmeta"></span>';
     b.querySelector('.dk').textContent = window.SlopKinds.label(it.kind);
     const ext = extOf(it.name);
-    b.querySelector('.dx').textContent = ext ? '.' + ext : 'FILE';
+    b.querySelector('.dx').textContent = ext ? '.' + ext : t('gallery.drive.file');
     b.querySelector('.dname').textContent = it.name;
     b.querySelector('.dmeta').textContent = `${fmtSize(it.size)} · ${fmtDate(it.time)}`;
     b.addEventListener('click', () => G.driveOpen.open(it, state.visible, idx));
@@ -55,11 +56,11 @@
   }
   function observe(tiles) {
     if (state.io) state.io.disconnect();
-    if (!('IntersectionObserver' in window)) { for (const t of tiles.children) loadThumb(t); return; }
+    if (!('IntersectionObserver' in window)) { for (const tile of tiles.children) loadThumb(tile); return; }
     state.io = new IntersectionObserver((entries) => {
       for (const e of entries) if (e.isIntersecting) { state.io.unobserve(e.target); loadThumb(e.target); }
     }, { root: $('dgrid'), rootMargin: '240px' });
-    for (const t of tiles.children) state.io.observe(t);
+    for (const tile of tiles.children) state.io.observe(tile);
   }
 
   /** Redraws the grid for the current query. */
@@ -74,10 +75,10 @@
     observe(tiles);
     $('dempty').hidden = visible.length > 0;
     $('dEmptyText').textContent = state.items.length
-      ? 'No files match these filters.'
-      : 'Slop Drive has no files yet. Save a file to it from any Slopographic app.';
+      ? t('gallery.drive.empty_filtered')
+      : t('gallery.drive.empty');
     G.driveBar.sync(counts, state.query, state.items.length, visible.length);
-    $('status').textContent = `${visible.length} of ${state.items.length} files in Slop Drive`;
+    $('status').textContent = t('gallery.drive.status', { shown: visible.length, total: state.items.length });
   }
 
   /** Reads Slop Drive again and redraws. Each switch to the Drive source does this. */
@@ -85,7 +86,7 @@
     const my = ++state.token;
     const busy = $('busy');
     busy.hidden = false;
-    busy.textContent = 'Reading Slop Drive…';
+    busy.textContent = t('gallery.drive.reading');
     try {
       const items = await G.driveSource.load();
       if (my !== state.token) return;
@@ -93,7 +94,7 @@
     } catch (e) {
       if (my !== state.token) return;
       state.items = [];
-      if (window.SlopUI) SlopUI.toast('Could not read Slop Drive');
+      if (window.SlopUI) SlopUI.toast(t('gallery.drive.read_failed'));
     } finally {
       if (my === state.token) busy.hidden = true;
     }
@@ -122,6 +123,7 @@
   function init() {
     $('srcLibrary').addEventListener('click', () => setSource('library'));
     $('srcDrive').addEventListener('click', () => setSource('drive'));
+    if (window.SlopI18n) window.SlopI18n.on(() => render()); // the tiles, the empty text and the status
   }
 
   G.driveView = {

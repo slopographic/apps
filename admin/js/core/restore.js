@@ -16,16 +16,17 @@
   /** Checks a backup file's text without writing anything. Resolves to { counts } or a failed Result with errors. */
   function check(text) {
     let bundle;
-    try { bundle = JSON.parse(text); } catch (e) { return fail('invalid', 'That file is not a Slop backup (it is not valid JSON).'); }
+    const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
+    try { bundle = JSON.parse(text); } catch (e) { return fail('invalid', t('admin.core.not_json')); }
     const v = S.bundleCheck.validateBundle(bundle);
-    if (!v.ok) return fail('invalid', `The backup was not restored. ${v.errors[0]}`, { errors: v.errors });
+    if (!v.ok) return fail('invalid', t('admin.core.not_restored', { why: v.errors[0] }), { errors: v.errors });
     return ok({ counts: countsOf(bundle), exportedAt: bundle.exportedAt || '' });
   }
 
   /** Restores the whole backup, replacing every record. Refused files change nothing. */
   async function restore(text) {
     const r = await S.exporter.importBundle(text);
-    if (!r.ok) return fail(r.code || 'invalid', `The backup was not restored. Nothing was changed. ${r.message}`, { errors: r.errors });
+    if (!r.ok) return fail(r.code || 'invalid', g.SlopI18n ? g.SlopI18n.t('admin.core.nothing_changed', { why: r.message }) : r.message, { errors: r.errors });
     return ok(r.value);
   }
 

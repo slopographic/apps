@@ -2,7 +2,7 @@
 'use strict';
 
 /** Resampling choices shared by Image Size and Free Transform. */
-const RESAMPLE_MODES = [['nearest', 'Nearest Neighbor (hard edges)'], ['bilinear', 'Bilinear'], ['bicubic', 'Bicubic (smooth)']];
+const RESAMPLE_MODES = trPairs([['nearest', ''], ['bilinear', ''], ['bicubic', '']], 'photoslop.core.resample_');
 /** Canvas only offers three quality levels: 'low' is bilinear, 'high' is the browser's bicubic-class filter. */
 function setInterp(g, mode) {
   g.imageSmoothingEnabled = mode !== 'nearest';
@@ -29,7 +29,7 @@ function imageSize(w, hh, mode = 'bicubic') {
   });
   remapGuides((g) => ({ o: g.o, pos: g.pos * (g.o === 'v' ? sx : sy) }));
   D.w = Math.round(w); D.h = Math.round(hh); D.sel = null;
-  commit('Image Size');
+  commit(tr('photoslop.core.step_image_size'));
 }
 /** The new area of a canvas resize as one layer at the bottom (the other layers are untouched). null when nothing is new. */
 function canvasFillLayer(nw, nh, dx, dy, color) {
@@ -40,10 +40,10 @@ function canvasFillLayer(nw, nh, dx, dy, color) {
   if (!strips.length) return null;
   const c = mkCanvas(nw, nh), g = cx(c); g.fillStyle = color;
   for (const [a, b, e, f] of strips) g.fillRect(a, b, e - a, f - b);
-  return newLayerRecord({ name: 'Canvas Fill', canvas: c, x: 0, y: 0 });
+  return newLayerRecord({ name: 'Canvas Fill', canvas: c, x: 0, y: 0 }); // i18n-ignore: layer name
 }
 /** Canvas Size: resize the document. dx,dy = where the old (0,0) lands. fill: a colour for the new area (a bottom layer), or null for transparent. */
-function resizeCanvas(w, hh, dx, dy, label = 'Canvas Size', fill = null) {
+function resizeCanvas(w, hh, dx, dy, label = tr('photoslop.core.step_canvas_size'), fill = null) {
   const nw = Math.round(w), nh = Math.round(hh);
   const bottom = fill ? canvasFillLayer(nw, nh, dx, dy, fill) : null;
   D.layers = (bottom ? [bottom] : []).concat(D.layers.map((L) => Object.assign({}, L, {

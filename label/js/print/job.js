@@ -22,7 +22,7 @@ function buildJob(doc, opts = {}) {
     if (r >= 0 && qtyCol) {
       const ci = doc.data.columns.indexOf(qtyCol), raw = ci >= 0 ? doc.data.rows[r][ci] : '';
       const v = parseInt(raw, 10);
-      if (!(v >= 0)) { warnings.push(`Record ${r + 1}: quantity "${raw}" is not a number, printing 1`); q = 1; } else q = v;
+      if (!(v >= 0)) { warnings.push(LT('label.print.qty_nan', { n: r + 1, raw: String(raw) })); q = 1; } else q = v;
     } else if (r >= 0 && opts.qty > 1) q = opts.qty | 0;
     for (let k = 0; k < q; k++) {
       const get = makeResolver(doc, { record: r >= 0 ? recordAt(doc, r) : {}, recordIndex: Math.max(0, r), index: serial, prompts: opts.prompts || {}, now, counterBase: opts.counterBase });

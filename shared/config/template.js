@@ -9,18 +9,18 @@
 
   const BLOCK = F.obj({
     type: F.enum(['heading', 'text', 'list', 'table'], { required: true, desc: 'heading and text use "text"; list uses "items"; table uses "rows"' }),
-    text: F.text({ desc: 'the words of a heading or paragraph' }),
-    items: F.list(F.str({ max: 500 }), { desc: 'bullet points, one short line each' }),
+    text: F.text({ desc: 'the words of a heading or paragraph' }),   // i18n-ignore: schema notes for the AI prompt
+    items: F.list(F.str({ max: 500 }), { desc: 'bullet points, one short line each' }),   // i18n-ignore: schema notes for the AI prompt
     rows: F.list(F.list(F.cell({}), { max: LIMITS.cols }), { max: LIMITS.rows, desc: 'table rows; each row is a list of cells, top row first' }),
   });
 
   const PAGE = F.obj({
-    name: F.str({ max: 120, required: true, desc: 'the page or sheet name' }),
-    blocks: F.list(BLOCK, { desc: 'the content of the page, in order' }),
+    name: F.str({ max: 120, required: true, desc: 'the page or sheet name' }),   // i18n-ignore: schema notes for the AI prompt
+    blocks: F.list(BLOCK, { desc: 'the content of the page, in order' }),   // i18n-ignore: schema notes for the AI prompt
   });
 
   C.templateSchema = {
     type: 'object', strict: true,
-    fields: { pages: F.list(PAGE, { min: 1, max: LIMITS.items, required: true, desc: 'the pages or sheets, in order' }) },
+    fields: { pages: F.list(PAGE, { min: 1, max: LIMITS.items, required: true, desc: 'the pages or sheets, in order' }) },   // i18n-ignore: schema notes for the AI prompt
   };
 })(typeof window !== 'undefined' ? window : globalThis);

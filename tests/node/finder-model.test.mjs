@@ -2,7 +2,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
+import { globalI18n } from './ui-i18n-env.mjs';
 
+const EN = globalI18n('en');   // the chips' words, as a page has them (shared/i18n/ui/en/finder.js)
 const M = createRequire(import.meta.url)('../../shared/finder/model.js');
 
 const fields = [
@@ -136,4 +138,19 @@ test('a facet is a selection list: all ticked by default, unticking narrows, all
   st = M.setFacetValue(st, 'type', 'Audio', true, all);
   st = M.setFacetValue(st, 'type', 'PDF', true, all);
   assert.equal(st.facets.type, undefined, 'all ticked again means no filter');
+});
+
+test('chips in Swedish, and the count line\'s plural forms in English and Swedish (n = 1 and n = 2)', () => {
+  const st = M.toggleFacet({ ...M.defaultState(spec), q: 'pdf' }, 'section', 'Documents');
+  const SV = globalI18n('sv');
+  try {
+    assert.deepEqual(M.chips(st, spec).map((c) => c.label), ['Sök: ”pdf”', 'Section: Documents']);
+    // the homepage's count (shared/i18n/strings.js and sv.js) and the finder's default (ui.finder.count)
+    assert.deepEqual([SV.t('finder.count', { n: 1 }), SV.t('finder.count', { n: 2 }), SV.t('finder.count_of', { shown: 1, n: 2 })], ['1 app', '2 appar', '1 av 2 appar matchar']);
+    assert.deepEqual([EN.t('finder.count', { n: 1 }), EN.t('finder.count', { n: 2 }), EN.t('finder.count_of', { shown: 2, n: 1 })], ['1 app', '2 apps', '2 of 1 app match']);
+    assert.deepEqual([EN.t('ui.finder.count', { n: 1 }), EN.t('ui.finder.count', { n: 1234 })], ['1 item', '1,234 items']);
+    assert.equal(SV.t('ui.finder.count', { n: 1234 }), '1\u00a0234 objekt');
+    const RU = globalI18n('ru');   // Slavic plurals: one, few, many
+    assert.deepEqual([1, 3, 5, 21].map((n) => RU.t('finder.count', { n })), ['1 приложение', '3 приложения', '5 приложений', '21 приложение']);
+  } finally { globalThis.SlopI18n = EN; }
 });

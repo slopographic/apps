@@ -140,12 +140,17 @@ Tests: `tests/convert/finance.test.html`, `tests/node/finance-*.test.mjs`, sampl
 
 - `convert/js/core/pages.js` holds one entry per page (slug, title, description, h1, copy, FAQ, the
   conversion and the accepted kinds). The pages were written from it once; they are plain static HTML, edited by hand.
+  A page's label (hub card title, SEO crumb) and summary (the card's line) are not in the list: they are the tables'
+  `convert.card.<slug>` and `convert.card.<slug>_sum` (`convert/i18n/<code>/cards*.js`), read through
+  `core/page-words.js`. Code never keeps English next to a key: `tr(key, vars)` (`core/i18n.js`) reads the tables, in
+  Node too (the English tables from disk). `tests/node/convert-i18n.test.mjs` checks both.
 - Every converter page has: a unique title, meta description, one `h1`, a canonical link, Open Graph
   tags, `SoftwareApplication` JSON-LD, the working tool (`data-convert-root`), a FAQ, and a link list
   to the other converters.
 - `sitemap.xml` (site root) lists the hub and every converter page. `robots.txt` allows crawling and names the sitemap.
 
-**Rule:** when you add a page, add its entry to `convert/js/core/pages.js`, create `convert/<slug>/index.html`
+**Rule:** when you add a page, add its entry to `convert/js/core/pages.js` and its `convert.card.<slug>` and `_sum` keys
+to the en and sv card tables, create `convert/<slug>/index.html`
 (copy an existing page and change the head, h1, copy and `data-preset`/`data-from`), and add its URL to
 `sitemap.xml`. `tests/convert/seo.test.html` fails if a page in `pages.js` is missing from the sitemap, its
 file is missing, or its h1, canonical or JSON-LD is wrong.

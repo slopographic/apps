@@ -14,7 +14,7 @@
       b.addEventListener('click', () => { if (sec === 'folder') DR.go(null); else DR.goSection(sec); closeDrawer(); });
       return b;
     };
-    box.replaceChildren(row('folder', 'home', 'Slop Drive', 0, 'root'), row('recent', 'clock', 'Recent'), row('starred', 'star', 'Starred', starN, 'star'), row('trash', 'trash', 'Trash', trashN, 'trash'));
+    box.replaceChildren(row('folder', 'home', 'Slop Drive', 0, 'root'), row('recent', 'clock', DR.t('drive.place.recent')), row('starred', 'star', DR.t('drive.place.starred'), starN, 'star'), row('trash', 'trash', DR.t('drive.place.trash'), trashN, 'trash'));   // i18n-ignore: the app name
   };
 
   DR.renderTree = function () {
@@ -26,7 +26,7 @@
         const app = DR.appOfFolder(f);
         const tw = el('span', { class: 'twisty' + (has ? '' : ' none') + (open ? ' open' : ''), 'aria-hidden': 'true' }, DR.icon('chev'));
         const b = el('button', { type: 'button', class: 'node' + (on ? ' on' : '') + (app ? ' app' : ''), role: 'treeitem', 'aria-expanded': has ? String(open) : null, 'aria-selected': String(on),
-          'data-drop': f.id, 'data-key': 'd:' + f.id, 'data-app': app ? app.id : null, style: `--d:${depth}`, title: app ? `${f.name} (${app.name} keeps its files here)` : f.name },
+          'data-drop': f.id, 'data-key': 'd:' + f.id, 'data-app': app ? app.id : null, style: `--d:${depth}`, title: app ? DR.t('drive.side.app_folder_tip', { name: f.name, app: app.name }) : f.name },
           tw, DR.icon('folder'), el('span', { class: 'nm' }, f.name), f.starred ? DR.icon('star', 'ic st') : '');
         tw.addEventListener('click', (e) => { e.stopPropagation(); if (open) S.tree.delete(f.id); else S.tree.add(f.id); DR.savePrefs(); DR.renderTree(); });
         b.addEventListener('click', () => { DR.go(f.id); closeDrawer(); });
@@ -35,7 +35,7 @@
       }
     };
     walk(null, 0);
-    if (!box.children.length) box.append(el('p', { class: 'tree-empty' }, 'No folders yet.'));
+    if (!box.children.length) box.append(el('p', { class: 'tree-empty' }, DR.t('drive.side.no_folders')));
   };
 
   /** Tags: every tag on a live file, with how many files carry it. Click one to filter the drive by it. */
@@ -44,11 +44,11 @@
     const counts = DR.tagCounts();
     box.replaceChildren(...(counts.length ? counts.map(([t, n]) => {
       const on = S.tag === t;
-      const b = el('button', { type: 'button', class: 'place tagx' + (on ? ' on' : ''), 'data-tag': t, 'aria-pressed': String(on), title: `Files tagged ${t}` },
+      const b = el('button', { type: 'button', class: 'place tagx' + (on ? ' on' : ''), 'data-tag': t, 'aria-pressed': String(on), title: DR.t('drive.side.tagged_tip', { tag: t }) },
         el('span', { class: 'hash', 'aria-hidden': 'true' }, '#'), el('span', null, t), el('small', null, String(n)));
       b.addEventListener('click', () => { DR.setTagFilter(t); closeDrawer(); });
       return b;
-    }) : [el('p', { class: 'tree-empty' }, 'No tags yet. Add one in the details panel.')]));
+    }) : [el('p', { class: 'tree-empty' }, DR.t('drive.side.no_tags'))]));
   };
 
   /* ---------- storage ---------- */
@@ -56,7 +56,7 @@
   DR.requestPersist = async function (loud) {
     const answer = await window.SlopQuota.request();
     persisted = answer === 'granted';
-    if (loud) DR.toast(persisted ? 'The browser will keep Slop Drive' : 'The browser did not promise. See the note under Storage');
+    if (loud) DR.toast(DR.t(persisted ? 'drive.side.persist_yes' : 'drive.side.persist_no'));
     DR.renderMeter();
     return persisted;
   };
@@ -71,32 +71,32 @@
     const recorded = window.SlopPWA.persistAnswer();
     const state = persisted ? 'granted' : (recorded === 'denied' || recorded === 'unsupported' ? recorded : null);
     const pct = usage != null && quota ? Math.min(100, (usage / quota) * 100) : 0;
-    const bar = el('div', { class: 'meter-bar', role: 'meter', 'aria-valuemin': '0', 'aria-valuemax': '100', 'aria-valuenow': pct.toFixed(1), 'aria-label': 'Storage used' }, el('i', { style: `width:${Math.max(pct, usage ? 1 : 0)}%` }));
-    const keep = el('button', { type: 'button', class: 'linkish', 'data-act': 'persist' }, persisted ? 'Kept by the browser ✓' : 'Ask the browser to keep it');
+    const bar = el('div', { class: 'meter-bar', role: 'meter', 'aria-valuemin': '0', 'aria-valuemax': '100', 'aria-valuenow': pct.toFixed(1), 'aria-label': DR.t('drive.side.storage_used') }, el('i', { style: `width:${Math.max(pct, usage ? 1 : 0)}%` }));
+    const keep = el('button', { type: 'button', class: 'linkish', 'data-act': 'persist' }, DR.t(persisted ? 'drive.side.kept' : 'drive.side.ask_keep'));
     keep.disabled = !!persisted;
     keep.addEventListener('click', () => DR.requestPersist(true));
-    const bk = el('button', { type: 'button', class: 'linkish' }, 'Backup & restore…');
+    const bk = el('button', { type: 'button', class: 'linkish' }, DR.t('drive.menu.backup'));
     bk.addEventListener('click', () => DR.backupDialog());
-    const clear = el('button', { type: 'button', class: 'linkish', 'data-act': 'clear-cache', title: 'Removes only what is made again on demand' }, 'Clear local cache…');
+    const clear = el('button', { type: 'button', class: 'linkish', 'data-act': 'clear-cache', title: DR.t('drive.side.clear_cache_tip') }, DR.t('drive.side.clear_cache'));
     clear.addEventListener('click', () => DR.clearLocalCache());
     const note = state ? el('p', { class: 'meter-note persist-note', 'data-state': state }, window.SlopPWA.persistMessage(state)) : null;
     box.replaceChildren(
-      el('div', { class: 'meter-h' }, el('b', null, 'Storage'), el('span', null, usage != null ? Q.format(usage, quota, DR.fmtSize) : 'Unknown')), bar,
-      el('div', { class: 'meter-note' }, `Slop Drive: ${DR.fmtSize(drive)}. Everything stays in this browser.`), ...(note ? [note] : []), keep, bk, clear);
+      el('div', { class: 'meter-h' }, el('b', null, DR.t('drive.side.storage')), el('span', null, usage != null ? Q.format(usage, quota, DR.fmtSize) : DR.t('drive.side.unknown'))), bar,
+      el('div', { class: 'meter-note' }, DR.t('drive.side.meter_note', { size: DR.fmtSize(drive) })), ...(note ? [note] : []), keep, bk, clear);
   };
   /** Removes only the regenerable caches (thumbnails, waveforms, face results, downloaded models). Files and documents stay. */
   DR.clearLocalCache = async function () {
-    const yes = await window.SlopUI.confirm('Clear local cache?', 'This removes only what is made again on demand: thumbnails, waveforms, face results and downloaded AI and cut-out models. Your files, documents and backups are kept. A model downloads again when you use it.', 'Clear cache');
+    const yes = await window.SlopUI.confirm(DR.t('drive.side.clear_q'), DR.t('drive.side.clear_body'), DR.t('drive.side.clear_ok'));
     if (!yes) return;
     const n = await window.SlopRegen.clear();
-    DR.toast(`Cleared ${n.thumbs + n.faces + n.models + n.cutout} cached entries. Your files are unchanged.`);
+    DR.toast(DR.t('drive.side.cleared_n', { n: n.thumbs + n.faces + n.models + n.cutout }));
     DR.renderMeter();
   };
 
   /** Phones: the sidebar is a drawer from the start edge. SlopSheet (shared/ui/sheet.js) does the ×, the Folders button,
    * Escape, a tap outside and the swipe; wired before the app's own keys so its Escape comes first. */
   DR.wireDrawer = function () {
-    DR.drawerUI = SlopSheet.attach({ root: document.body, panel: $('side'), side: 'start', phone: '(max-width: 760px)', toggles: [$('btnSide')], label: 'Folders' });
+    DR.drawerUI = SlopSheet.attach({ root: document.body, panel: $('side'), side: 'start', phone: '(max-width: 760px)', toggles: [$('btnSide')], label: DR.t('drive.side.folders') });
   };
   DR.drawer = (open) => (open ? DR.drawerUI.open() : DR.drawerUI.close());
 })(window.DR);

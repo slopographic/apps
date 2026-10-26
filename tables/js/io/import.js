@@ -9,8 +9,8 @@ import { Workbook } from '../engine/index.js';
 import { errFrom, FErr, ERR } from '../engine/values.js';
 import { MAX_COLS } from '../engine/refs.js';
 import { importCharts } from './import-charts.js';
+import { t } from '../i18n.js';
 
-const plural = (n, one, many = one + 's') => `${n} ${n === 1 ? one : many}`;
 const cleanFormula = (f) => String(f).replace(/_xlfn\.|_xlws\.|_xludf\./g, '');
 
 function uniqueName(wb, name, i) {
@@ -70,9 +70,9 @@ export function importSheets(doc) {
       if (cell && cell.v instanceof FErr && cell.v === ERR.NAME && was !== '#NAME?') unknown++;
     }
   });
-  if (unknown) notes.push(`${plural(unknown, 'formula')} use${unknown === 1 ? 's' : ''} a function Slop Tables does not have yet, so ${unknown === 1 ? 'it shows' : 'they show'} #NAME?.`);
+  if (unknown) notes.push(t('tables.import.unknown_fn', { n: unknown }));
   notes.push(...chartNotes);
-  if (doc.skipped && doc.skipped.length) notes.push('Not imported: ' + doc.skipped.join(', ') + '.');
+  if (doc.skipped && doc.skipped.length) notes.push(t('tables.import.skipped', { list: doc.skipped.join(', ') }));
   wb.active = 0;
   return { wb, notes };
 }

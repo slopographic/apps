@@ -3,9 +3,9 @@
 import * as store from './store.js';
 import { S } from './state.js';
 import * as A from './actions.js';
-import { renderAll, wireView } from './view.js';
+import { renderAll, wireView, relabel } from './view.js';
 import { registerCommands, resolveMenu } from './commands.js';
-import { $ } from './dom.js';
+import { $, t, onLang } from './dom.js';
 
 function wire() {
   $('pb-new').addEventListener('click', () => A.newPaste({ kind: 'text' }));
@@ -14,7 +14,7 @@ function wire() {
   $('pb-cmd').addEventListener('click', () => { if (window.SlopCmd && SlopCmd.open) SlopCmd.open(); });
   $('pb-link-copy').addEventListener('click', () => {
     const v = $('pb-link').value;
-    navigator.clipboard.writeText(v).then(() => SlopUI.toast('Link copied'), () => { $('pb-link').select(); SlopUI.toast('Select the link and copy it'); });
+    navigator.clipboard.writeText(v).then(() => SlopUI.toast(t('paste.toast.link_copied')), () => { $('pb-link').select(); SlopUI.toast(t('paste.toast.select_link')); });
   });
   wireView(A);
   A.registerIntake();
@@ -24,12 +24,18 @@ function wire() {
 
 /** The save indicator, and the guard that asks before leaving while a paste is not yet in Slop Drive. */
 function wireSaves() {
+  let last = null;
+  const show = (state, err) => {
+    const box = $('pb-save');
+    box.dataset.state = state;
+    box.textContent = state === 'saving' ? t('paste.save.saving') : state === 'saved' ? t('paste.save.saved') : t('paste.save.failed', { msg: (err && err.message) || t('paste.save.unavailable') });
+  };
   store.onSaveState((state, err) => {
-    const t = $('pb-save');
-    t.dataset.state = state;
-    t.textContent = state === 'saving' ? 'Saving…' : state === 'saved' ? 'Saved to Slop Drive' : 'Not saved: ' + ((err && err.message) || 'Slop Drive is unavailable');
+    last = [state, err];
+    show(state, err);
     if (window.SlopGuard) SlopGuard.setUnsaved('paste', store.hasPending());
   });
+  onLang(() => { if (last) show(...last); relabel(); });   // a language change: the save line, the list and the selects
   addEventListener('pagehide', () => { store.flush(); });
 }
 
@@ -52,7 +58,7 @@ async function boot() {
     // First visit (nothing saved yet): open a new paste straight away, so the editor is ready to type in.
     if (!S.pastes.length && !S.id) await A.newPaste({ kind: 'text' });
   } catch (e) {
-    SlopUI.toast('Could not read Slop Drive: ' + e.message);
+    SlopUI.toast(t('paste.toast.read_failed', { msg: e.message }));
   }
   renderAll();
   document.body.classList.add('ready');

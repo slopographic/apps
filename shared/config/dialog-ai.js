@@ -7,26 +7,26 @@
   const D = g.SlopConfigDialog, C = g.SlopConfig, UI = () => g.SlopUI;
   if (!D || !C || D.makeAi) return;
   const el = (...a) => UI().el(...a);
-  const plural = (n) => (n === 1 ? '' : 's');
+  const tr = (key, vars) => (g.SlopI18n ? g.SlopI18n.t(key, vars) : key);   // words: shared/i18n/ui/<code>/config.js
 
   function makeAi(o = {}) {
     const app = o.app || C.consts.SHARED_APP;
     const kinds = C.kinds(app);
-    if (!kinds.length) { D.showResult({ ok: false, errors: [{ path: '', message: 'this app has no config kinds yet' }] }); return; }
+    if (!kinds.length) { D.showResult({ ok: false, errors: [{ path: '', message: tr('ui.config.ai_no_kinds') }] }); return; }
 
     const kindSel = UI().select(kinds.map((e) => [e.kind, e.label]), kinds[0].kind);
-    const request = el('textarea', { class: 'sui-input', rows: 3, placeholder: 'For example: 20% tax, EUR as the currency, en-GB' });
-    const prompt = el('textarea', { class: 'sui-input', rows: 8, readonly: true, 'aria-label': 'Prompt' });
-    const reply = el('textarea', { class: 'sui-input', rows: 6, placeholder: 'The reply appears here, or paste it here', 'aria-label': 'Reply' });
+    const request = el('textarea', { class: 'sui-input', rows: 3, placeholder: tr('ui.config.ai_example') });
+    const prompt = el('textarea', { class: 'sui-input', rows: 8, readonly: true, 'aria-label': tr('ui.config.ai_prompt') });
+    const reply = el('textarea', { class: 'sui-input', rows: 6, placeholder: tr('ui.config.ai_reply_ph'), 'aria-label': tr('ui.config.ai_reply') });
     const verdict = el('div', { class: 'sui-p', role: 'status', 'aria-live': 'polite' });
     const local = !!(g.SlopAI && g.SlopAI.ready);
-    const askBtn = el('button', { class: 'sui-btn', type: 'button', hidden: !local }, 'Ask the local AI');
-    const copyBtn = el('button', { class: 'sui-btn', type: 'button' }, 'Copy prompt');
-    const checkBtn = el('button', { class: 'sui-btn', type: 'button' }, 'Check reply');
-    const applyBtn = el('button', { class: 'sui-btn sui-primary', type: 'button', disabled: true }, 'Apply');
+    const askBtn = el('button', { class: 'sui-btn', type: 'button', hidden: !local }, tr('ui.config.ai_ask'));
+    const copyBtn = el('button', { class: 'sui-btn', type: 'button' }, tr('ui.config.ai_copy'));
+    const checkBtn = el('button', { class: 'sui-btn', type: 'button' }, tr('ui.config.ai_check'));
+    const applyBtn = el('button', { class: 'sui-btn sui-primary', type: 'button', disabled: true }, tr('ui.config.ai_apply'));
     const notice = local
-      ? 'A local model is loaded. Ask it, or copy the prompt into any assistant and paste the reply.'
-      : 'No local model is loaded here. Copy the prompt into any assistant, then paste its reply below.';
+      ? tr('ui.config.ai_local')
+      : tr('ui.config.ai_no_local');
 
     let checked = null; // { text, result } for the reply that was checked last
     let handle = null;
@@ -46,10 +46,10 @@
       checked = { text: reply.value, result: r };
       if (r.ok) {
         applyBtn.disabled = false;
-        setVerdict([el('p', { class: 'sui-p' }, `Valid: "${r.value.name}" (${r.value.kind}). Apply writes it to this app.`)]);
+        setVerdict([el('p', { class: 'sui-p' }, tr('ui.config.ai_valid', { name: r.value.name, kind: r.value.kind }))]);
       } else {
         applyBtn.disabled = true;
-        setVerdict([el('p', { class: 'sui-p' }, `Not applied. ${r.errors.length} problem${plural(r.errors.length)} to fix, then check again:`), errorList(r.errors)]);
+        setVerdict([el('p', { class: 'sui-p' }, tr('ui.config.ai_problems', { n: r.errors.length })), errorList(r.errors)]);
       }
     }
 
@@ -58,19 +58,19 @@
       askBtn.disabled = true;
       forget();
       reply.value = '';
-      setVerdict([el('p', { class: 'sui-p' }, 'Asking the local model…')]);
+      setVerdict([el('p', { class: 'sui-p' }, tr('ui.config.ai_asking'))]);
       try {
         const stream = g.SlopAI.ask(buildText(), { persona: 'plain', temperature: 0.2, max_tokens: 1500 });
         for await (const piece of stream) reply.value += piece;
-        setVerdict([el('p', { class: 'sui-p' }, 'Reply received. Check it before applying.')]);
+        setVerdict([el('p', { class: 'sui-p' }, tr('ui.config.ai_received'))]);
       } catch (e) {
-        setVerdict([el('p', { class: 'sui-p' }, `The local model stopped: ${e.message}`)]);
+        setVerdict([el('p', { class: 'sui-p' }, tr('ui.config.ai_stopped', { err: e.message }))]);
       }
       askBtn.disabled = false;
     }
 
     async function copy() {
-      try { await navigator.clipboard.writeText(prompt.value); note('Prompt copied'); } catch (e) { prompt.select(); note('Select the prompt and copy it'); }
+      try { await navigator.clipboard.writeText(prompt.value); note(tr('ui.config.ai_copied')); } catch (e) { prompt.select(); note(tr('ui.config.ai_select')); }
     }
 
     async function apply() {
@@ -83,7 +83,7 @@
     const note = (msg) => { try { UI().toast(msg); } catch (e) { /* no toast layer */ } };
     kindSel.addEventListener('change', () => { refresh(); forget(); });
     request.addEventListener('input', refresh);
-    reply.addEventListener('input', () => { forget(); setVerdict([el('p', { class: 'sui-p' }, 'Check the reply to see if it is valid.')]); });
+    reply.addEventListener('input', () => { forget(); setVerdict([el('p', { class: 'sui-p' }, tr('ui.config.ai_check_hint'))]); });
     askBtn.addEventListener('click', ask);
     copyBtn.addEventListener('click', copy);
     checkBtn.addEventListener('click', check);
@@ -92,14 +92,14 @@
 
     const body = el('div', null,
       el('p', { class: 'sui-p' }, notice),
-      UI().field('Kind', kindSel),
-      UI().field('What it should contain', request),
-      UI().field('Prompt', prompt),
+      UI().field(tr('ui.config.kind'), kindSel),
+      UI().field(tr('ui.config.ai_want'), request),
+      UI().field(tr('ui.config.ai_prompt'), prompt),
       el('div', { class: 'sui-foot' }, copyBtn, askBtn),
-      UI().field('Reply', reply),
+      UI().field(tr('ui.config.ai_reply'), reply),
       el('div', { class: 'sui-foot' }, checkBtn, applyBtn),
       verdict);
-    handle = UI().dialog({ title: o.title || 'Make one with AI', body, cls: 'sui-wide', buttons: [{ label: 'Close' }] });
+    handle = UI().dialog({ title: o.title || tr('ui.config.ai_title'), body, cls: 'sui-wide', buttons: [{ label: tr('menu.close') }] });
   }
 
   D.makeAi = makeAi;

@@ -51,11 +51,15 @@
   }
 
   /** The time as the viewer reads it, and as the event's zone reads it when that zone differs. */
+  const tr = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
+  /** The kind of an item in words: Event, Call, Meeting, or To-do for a task. */
+  const KINDS = { event: 'calendar.views.kind.event', call: 'calendar.views.kind.call', meeting: 'calendar.views.kind.meeting', task: 'calendar.views.kind.task' };
+  const kindText = (it) => (KINDS[it.kind === 'task' ? 'task' : it.eventKind] ? tr(KINDS[it.kind === 'task' ? 'task' : it.eventKind]) : it.eventKind);
   function timeLabel(it, zone, locale) {
-    if (it.allDay) return 'All day';
+    if (it.allDay) return tr('calendar.views.all_day');
     const mine = T.timeText(it.start, zone, locale);
     if (!it.zone || it.zone === zone) return mine;
-    return `${mine} (${T.timeText(it.start, it.zone, locale)} in ${it.zone})`;
+    return tr('calendar.views.in_zone', { time: mine, there: T.timeText(it.start, it.zone, locale), zone: it.zone });
   }
 
   /** The event's own zone and its short name at that time, for the zone line in the editor and the agenda. */
@@ -64,5 +68,5 @@
     return `${it.zone} (${T.zoneLabel(it.start, it.zone)})`;
   }
 
-  NS.model = { load, forDay, timeLabel, zoneNote, TASK_BLOCK };
+  NS.model = { load, forDay, timeLabel, zoneNote, kindText, TASK_BLOCK };
 })(typeof window !== 'undefined' ? window : globalThis);

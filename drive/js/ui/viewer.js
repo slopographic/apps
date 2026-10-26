@@ -19,10 +19,11 @@
       if (!ed || !ed.blob) return;
       const ch = v.changes && DR.item('f:' + v.changes);
       const n = v.n || i + 1, when = v.at ? DR.fmtDate(v.at) : '';
-      out.push({ label: `Version ${n}${when ? ' · ' + when : ''}`, rec: ed, changes: ch && ch.blob ? ch : null, n });
+      const name = DR.t('drive.pv.version_n', { n: String(n) });
+      out.push({ label: when ? DR.t('drive.pv.version_at', { version: name, when }) : name, name, rec: ed, changes: ch && ch.blob ? ch : null, n });
     });
     out.reverse(); // newest first, after the original
-    return [{ label: 'Original', rec: r, changes: null }, ...out];
+    return [{ label: DR.t('drive.pv.original'), rec: r, changes: null }, ...out];
   }
   DR.viewerFor = function (r, big, sink) {
     const tabs = tabsOf(r);
@@ -51,21 +52,21 @@
       return b;
     });
     const useBtn = document.createElement('button');
-    useBtn.type = 'button'; useBtn.className = 'pv-tab'; useBtn.textContent = 'Use this version';
+    useBtn.type = 'button'; useBtn.className = 'pv-tab'; useBtn.textContent = DR.t('drive.pv.use_version');
     useBtn.addEventListener('click', async () => {
       const t = tabs[current];
       useBtn.disabled = true;
       try {
         const orig = await window.SlopHub.get(tabs[0].rec.id);
         const done = await window.SlopVersions.restore(window.SlopHub, orig, t.rec.id);
-        if (window.DR && DR.toast) DR.toast(`${t.label.split(' · ')[0]} is now the current version (saved again as Version ${done.version}).`);
+        if (window.DR && DR.toast) DR.toast(DR.t('drive.pv.restored', { version: t.name, n: String(done.version) }));
       } catch (e) {
-        if (window.DR && DR.toast) DR.toast(e.message || 'Could not restore that version.');
+        if (window.DR && DR.toast) DR.toast(e.message || DR.t('drive.pv.restore_failed'));
       } finally { useBtn.disabled = false; }
     });
     const previewBtn = document.createElement('button'), changesBtn = document.createElement('button');
     previewBtn.type = changesBtn.type = 'button'; previewBtn.className = changesBtn.className = 'pv-tab';
-    previewBtn.textContent = 'Preview'; changesBtn.textContent = 'Changes';
+    previewBtn.textContent = DR.t('drive.pv.preview'); changesBtn.textContent = DR.t('drive.pv.changes');
     previewBtn.addEventListener('click', () => { view = 'preview'; show(); });
     changesBtn.addEventListener('click', () => { view = 'changes'; show(); });
     mode.append(previewBtn, changesBtn, useBtn);
@@ -79,7 +80,7 @@
       if (!hasChanges) view = 'preview';
       previewBtn.setAttribute('aria-selected', view === 'preview' ? 'true' : 'false');
       changesBtn.setAttribute('aria-selected', view === 'changes' ? 'true' : 'false');
-      body.replaceChildren(document.createTextNode('Loading…'));
+      body.replaceChildren(document.createTextNode(DR.t('drive.pv.loading')));
       if (view === 'changes' && t.changes) body.replaceChildren(await changeList(t.changes));
       else body.replaceChildren(plainViewer(t.rec, big, sink).el);
     };
@@ -92,7 +93,7 @@
     let items = [];
     try { items = JSON.parse(await rec.blob.text()); } catch (e) { items = []; }
     if (!Array.isArray(items) || !items.length) {
-      const pre = document.createElement('pre'); pre.className = 'pv-changes-raw'; pre.textContent = 'No changes saved.';
+      const pre = document.createElement('pre'); pre.className = 'pv-changes-raw'; pre.textContent = DR.t('drive.pv.no_changes');
       return pre;
     }
     const ul = document.createElement('ul'); ul.className = 'pv-changes';
@@ -108,7 +109,7 @@
     sink.push(blobUrl);
     const o = { title: r.name, blobUrl, kind, chrome: false };
     if (kind === 'pdf') o.renderPages = () => pdfPages(r.blob, big);
-    if (DR.isAi(r)) o.renderPages = () => DR.aiPdfBlob(r.blob).then((pdf) => (pdf ? pdfPages(pdf, big) : { pages: [], note: 'No PDF page inside this Illustrator file, so there is no preview.' }));
+    if (DR.isAi(r)) o.renderPages = () => DR.aiPdfBlob(r.blob).then((pdf) => (pdf ? pdfPages(pdf, big) : { pages: [], note: DR.t('drive.pv.ai_no_pdf') }));
     return window.SlopPreview.create(o);
   };
   /** The pages as canvases, each sized in CSS px (at 100%) and rendered at up to 2× for sharpness. */
@@ -123,7 +124,7 @@
         c.style.height = (base * c.height / c.width) + 'px';
         pages.push(c);
       }
-      const note = doc.numPages > n ? `Showing ${n} of ${doc.numPages} pages.${big ? ' Open it in Slop PDF for the rest.' : ''}` : '';
+      const note = doc.numPages > n ? DR.t(big ? 'drive.pv.pages_some_big' : 'drive.pv.pages_some', { n, total: doc.numPages }) : '';
       return { pages, note };
     } finally { doc.destroy(); }
   }

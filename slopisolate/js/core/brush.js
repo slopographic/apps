@@ -66,7 +66,7 @@
     if (!st.tiles.size) return null;
     const tiles = [];
     for (const t of st.tiles.values()) tiles.push({ x0: t.x0, y0: t.y0, w: t.w, h: t.h, bytes: t.orig });
-    return { kind: 'stroke', label: st.mode === 'keep' ? 'Keep brush' : st.mode === 'remove' ? 'Remove brush' : 'Brush', tiles, rect: st.dirty };
+    return { kind: 'stroke', label: st.mode === 'keep' ? 'cutout.menu.keep_brush' : st.mode === 'remove' ? 'cutout.menu.remove_brush' : 'cutout.undo.brush', tiles, rect: st.dirty };
   }
   /** Undo/redo: swap the saved tile bytes with the current ones (the entry then holds the other state). */
   function swap(it, entry) {

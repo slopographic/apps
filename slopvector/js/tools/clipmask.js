@@ -11,13 +11,13 @@
 
   C.makeClip = function () {
     var ids = selIds();
-    if (!ids.length) return SV.toast('Select the shape to clip with, and the objects below it');
+    if (!ids.length) return SV.toast(SV.t('vector.msg.clip_select'));
     var top = SV.find(ids[ids.length - 1]);
     if (!top) return;
     var sameStack = ids.filter(function (id) { var f = SV.find(id); return f && f.arr === top.arr; });
     var plan = CM.plan(top.arr, sameStack);
-    if (!plan) return SV.toast('Nothing below the clip shape in its stack');
-    var g = CM.apply(top.arr, plan, function (kids) { return SV.mk.group(kids, 'Clipping mask'); });
+    if (!plan) return SV.toast(SV.t('vector.msg.clip_nothing_below'));
+    var g = CM.apply(top.arr, plan, function (kids) { return SV.mk.group(kids, 'Clipping mask') /* i18n-ignore: a name stored in the document */; });
     SV.select([g.id]);
     SV.commit('make clipping mask');
   };
@@ -29,7 +29,7 @@
       any = true;
       CM.release(f.arr, f.idx).forEach(function (k) { out.push(k.id); });
     });
-    if (!any) return SV.toast('Select a clipping mask to release');
+    if (!any) return SV.toast(SV.t('vector.msg.clip_release_select'));
     SV.select(out);
     SV.commit('release clipping mask');
   };

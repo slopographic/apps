@@ -14,8 +14,9 @@
   const SS = (g.SlopStorage = g.SlopStorage || {});
   const nav = g.navigator || {};
   const MAX_DBS = 12;
-  const LABELS = { indexedDB: 'IndexedDB (saved records)', caches: 'Cache Storage (downloads and offline files)', localStorage: 'localStorage (settings and small saves)' };
-  const CACHE_LABELS = [[/^webllm\//, 'Downloaded AI models'], [/^slop-cutout/, 'Cut-out model'], [/^slopographic-/, 'Offline cache of the site']];
+  const tr = (key, vars) => (g.SlopI18n ? g.SlopI18n.t(key, vars) : key);   // words: shared/i18n/ui/<code>/backup3.js (ui.storage.*)
+  const LABELS = { indexedDB: 'ui.storage.idb', caches: 'ui.storage.caches', localStorage: 'ui.storage.local' };   // keys, read when listed
+  const CACHE_LABELS = [[/^webllm\//, 'ui.storage.c_models'], [/^slop-cutout/, 'ui.storage.c_cutout'], [/^slopographic-/, 'ui.storage.c_offline']];
 
   const quiet = (p, fallback = null) => Promise.resolve().then(() => p).catch(() => fallback);
 
@@ -27,9 +28,9 @@
     const out = [];
     for (const d of list) {
       const stores = await quiet(countStores(d.name), null);
-      if (!stores) { out.push({ id: 'idb:' + d.name, label: d.name, bytes: null, count: null, detail: 'could not be read' }); continue; }
+      if (!stores) { out.push({ id: 'idb:' + d.name, label: d.name, bytes: null, count: null, detail: tr('ui.storage.unread') }); continue; }
       const records = stores.reduce((n, s) => n + s.count, 0);
-      out.push({ id: 'idb:' + d.name, label: d.name, bytes: null, count: records, detail: stores.map((s) => `${s.name}: ${s.count}`).join(', ') || 'no stores' });
+      out.push({ id: 'idb:' + d.name, label: d.name, bytes: null, count: records, detail: stores.map((s) => `${s.name}: ${s.count}`).join(', ') || tr('ui.storage.no_stores') });
     }
     return out;
   }
@@ -58,7 +59,7 @@
       const c = await quiet(caches.open(n), null);
       const count = c ? (await quiet(c.keys(), [])).length : null;
       const hit = CACHE_LABELS.find(([re]) => re.test(n));
-      out.push({ id: 'cache:' + n, label: hit ? hit[1] : n, bytes: null, count, detail: n });
+      out.push({ id: 'cache:' + n, label: hit ? tr(hit[1]) : n, bytes: null, count, detail: n });
     }
     return out;
   }
@@ -69,7 +70,7 @@
       const ls = g.localStorage, n = ls.length;
       let bytes = 0;
       for (let i = 0; i < n; i++) { const k = ls.key(i) || ''; bytes += (k.length + (ls.getItem(k) || '').length) * 2; }
-      return [{ id: 'localstorage', label: LABELS.localStorage, bytes, count: n, detail: n + ' keys' }];
+      return [{ id: 'localstorage', label: tr(LABELS.localStorage), bytes, count: n, detail: tr('ui.storage.n_keys', { n }) }];
     } catch (e) { return []; }
   }
 
@@ -88,16 +89,16 @@
     const ls = localParts();
     const idbBytes = sizeOf(details, 'indexedDB'), cacheBytes = sizeOf(details, 'caches');
     const parts = [
-      { id: 'indexedDB', label: LABELS.indexedDB, bytes: idbBytes, count: idb.reduce((n, p) => n + (p.count || 0), 0), detail: idb.length + ' databases' },
+      { id: 'indexedDB', label: tr(LABELS.indexedDB), bytes: idbBytes, count: idb.reduce((n, p) => n + (p.count || 0), 0), detail: tr('ui.storage.n_dbs', { n: idb.length }) },
       ...idb,
-      { id: 'caches', label: LABELS.caches, bytes: cacheBytes, count: cache.reduce((n, p) => n + (p.count || 0), 0), detail: cache.length + ' caches' },
+      { id: 'caches', label: tr(LABELS.caches), bytes: cacheBytes, count: cache.reduce((n, p) => n + (p.count || 0), 0), detail: tr('ui.storage.n_caches', { n: cache.length }) },
       ...cache,
       ...ls,
     ];
     const known = [idbBytes, cacheBytes].filter((b) => typeof b === 'number'); // localStorage is measured, not in the browser total
     if (out.usage != null && known.length) {
       const other = Math.max(0, out.usage - known.reduce((a, b) => a + b, 0));
-      parts.push({ id: 'other', label: 'Other site data (service worker, files the browser counts)', bytes: other, count: null, detail: '' });
+      parts.push({ id: 'other', label: tr('ui.storage.other'), bytes: other, count: null, detail: '' });
     }
     out.parts = parts;
     return out;
@@ -110,9 +111,9 @@
 
   /** Asks the person first. Uses SlopUI when the page has it, else window.confirm. */
   function askFirst() {
-    const text = 'Ask the browser to keep this site’s data? The browser decides from how often you use the site, and may still say no. Clearing the site’s data still deletes everything, so keep a backup.';
-    if (g.SlopUI && g.SlopUI.confirm) return g.SlopUI.confirm('Keep this site’s data?', text, 'Ask the browser', { cancel: 'Not now' });
-    return Promise.resolve(!!(g.confirm && g.confirm('Keep this site’s data? ' + text)));
+    const text = tr('ui.storage.persist_body');
+    if (g.SlopUI && g.SlopUI.confirm) return g.SlopUI.confirm(tr('ui.storage.persist_q'), text, tr('ui.storage.persist_ok'), { cancel: tr('ui.storage.not_now') });
+    return Promise.resolve(!!(g.confirm && g.confirm(tr('ui.storage.persist_q') + ' ' + text)));
   }
   SS.requestPersist = async function () {
     if (!nav.storage || !nav.storage.persist) return 'unsupported';

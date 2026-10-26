@@ -7,19 +7,21 @@
   const el = (tag, attrs, ...kids) => window.SlopUI.el(tag, attrs, ...kids);
   const G = window.WMGroups;
   const POS = window.SlopWatermarkSpec.POSITION_LABELS;
+  /** A word that follows a language change by itself (marked: shared/i18n apply()). */
+  const word = (tag, key, attrs) => el(tag, Object.assign({ 'data-i18n': key }, attrs || {}), window.WMUtil.t(key));
 
   function makeRow(kind) {
     return el('li', { class: 'wm-group', 'data-kind': kind },
       el('img', { class: 'wm-thumb', alt: '', loading: 'lazy', decoding: 'async' }),
       el('div', { class: 'wm-meta' },
         el('strong', { class: 'wm-gname' }),
-        el('label', { class: 'wm-check' }, el('input', { type: 'checkbox', 'data-f': 'on' }), 'Own setting for this group'),
+        el('label', { class: 'wm-check' }, el('input', { type: 'checkbox', 'data-f': 'on' }), word('span', 'watermark.group.own')),
         el('div', { class: 'wm-gset' },
-          el('label', { class: 'wm-field' }, 'Position',
-            el('select', { class: 'sui-input', 'data-f': 'position' }, ...Object.keys(POS).map((p) => el('option', { value: p }, POS[p])))),
-          el('label', { class: 'wm-field' }, 'Size (of the shared size)',
+          el('label', { class: 'wm-field' }, word('span', 'watermark.group.position'),
+            el('select', { class: 'sui-input', 'data-f': 'position' }, ...Object.keys(POS).map((p) => word('option', 'watermark.pos.' + p, { value: p })))),
+          el('label', { class: 'wm-field' }, word('span', 'watermark.group.size'),
             el('span', { class: 'wm-range' }, el('input', { type: 'range', min: G.SCALE.min * 100, max: G.SCALE.max * 100, step: G.SCALE.step * 100, 'data-f': 'scale' }), el('output', { 'data-f': 'scale-out' }))),
-          el('label', { class: 'wm-field' }, 'Opacity',
+          el('label', { class: 'wm-field' }, word('span', 'watermark.group.opacity'),
             el('span', { class: 'wm-range' }, el('input', { type: 'range', min: 0, max: 100, step: 1, 'data-f': 'opacity' }), el('output', { 'data-f': 'opacity-out' }))))));
   }
 

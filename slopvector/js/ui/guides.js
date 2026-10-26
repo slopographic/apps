@@ -22,10 +22,10 @@
   SV.openGuidePanel = function () {
     if (SG.panel) { SG.panel.close(); return null; }
     return SG.openPanel({
-      title: 'Guide Layout', stateKey: 'slopvector.guidePanel',
+      title: SV.t('vector.guides.layout_title'), stateKey: 'slopvector.guidePanel',
       targets: [
-        { id: 'artboard', label: 'Artboard', rect: function () { return { x: 0, y: 0, w: S.doc.width, h: S.doc.height }; } },
-        { id: 'selection', label: 'Selection', rect: function () { var b = S.sel.length ? SV.selBBox(S.sel) : null; return b && b.w > 0 && b.h > 0 ? { x: b.x, y: b.y, w: b.w, h: b.h } : null; } },
+        { id: 'artboard', label: SV.t('vector.guides.artboard'), rect: function () { return { x: 0, y: 0, w: S.doc.width, h: S.doc.height }; } },
+        { id: 'selection', label: SV.t('vector.guides.selection'), rect: function () { var b = S.sel.length ? SV.selBBox(S.sel) : null; return b && b.w > 0 && b.h > 0 ? { x: b.x, y: b.y, w: b.w, h: b.h } : null; } },
       ],
       preview: function (gs) { S.guidePreview = gs; SV.requestRender(); },
       apply: function (gs, o) { SV.applyGuideList(gs, o.mode); },
@@ -36,21 +36,22 @@
 
   function newGuideDialog() {
     var U = window.SlopUI;
-    var o = U.select([['v', 'Vertical'], ['h', 'Horizontal']], 'v');
-    var pos = U.el('input', { type: 'text', class: 'sui-input', value: '50%', spellcheck: 'false', 'aria-label': 'Position' });
-    U.dialog({ title: 'New Guide', body: U.el('div', null, U.field('Orientation', o), U.field('Position', pos), U.el('p', { class: 'sui-p' }, 'From the artboard’s top-left corner: px, %, mm, in or pt.')),
-      buttons: [{ label: 'Cancel' }, { label: 'OK', primary: true, act: function () {
+    var t = SV.t;
+    var o = U.select([['v', t('vector.guides.vertical')], ['h', t('vector.guides.horizontal')]], 'v');
+    var pos = U.el('input', { type: 'text', class: 'sui-input', value: '50%', spellcheck: 'false', 'aria-label': t('vector.guides.position') });
+    U.dialog({ title: t('vector.guides.new_title'), body: U.el('div', null, U.field(t('vector.guides.orientation'), o), U.field(t('vector.guides.position'), pos), U.el('p', { class: 'sui-p' }, t('vector.guides.position_note'))),
+      buttons: [{ label: t('menu.cancel') }, { label: t('menu.ok'), primary: true, act: function () {
         var len = SG.parseLen(pos.value, 'px');
-        if (!len) { UI.toast('Type a position like 120, 50% or 2in'); return false; }
+        if (!len) { UI.toast(t('vector.guides.bad_position')); return false; }
         SV.applyGuideList([{ o: o.value, pos: SG.toPx(len, { ref: o.value === 'v' ? S.doc.width : S.doc.height }) }], 'add', 'guide');
       } }] });
   }
 
   if (S.prefs.snapGuides == null) S.prefs.snapGuides = true;
-  act('view.guideLayout', 'New Guide Layout…', ['mod+alt+shift+;'], function () { SV.openGuidePanel(); }, { checked: function () { return !!SG.panel; } });
-  act('view.newGuide', 'New Guide…', [], newGuideDialog);
-  act('view.snapGuides', 'Snap to Guides', ['mod+shift+;'], function () { S.prefs.snapGuides = !S.prefs.snapGuides; savePrefs(); UI.toast('Snap to guides ' + (S.prefs.snapGuides ? 'on' : 'off')); }, { checked: function () { return S.prefs.snapGuides !== false; } });
-  act('view.guidesFromSel', 'Guides from Selection', [], function () {
+  act('view.guideLayout', ['mod+alt+shift+;'], function () { SV.openGuidePanel(); }, { checked: function () { return !!SG.panel; } });
+  act('view.newGuide', [], newGuideDialog);
+  act('view.snapGuides', ['mod+shift+;'], function () { S.prefs.snapGuides = !S.prefs.snapGuides; savePrefs(); UI.toast(S.prefs.snapGuides ? SV.t('vector.msg.snap_guides_on') : SV.t('vector.msg.snap_guides_off')); }, { checked: function () { return S.prefs.snapGuides !== false; } });
+  act('view.guidesFromSel', [], function () {
     var b = SV.selBBox(S.sel);
     SV.applyGuideList([{ o: 'v', pos: b.x }, { o: 'v', pos: b.x + b.w / 2 }, { o: 'v', pos: b.x + b.w }, { o: 'h', pos: b.y }, { o: 'h', pos: b.y + b.h / 2 }, { o: 'h', pos: b.y + b.h }], 'add', 'guides from selection');
   }, { enabled: function () { return S.sel.length > 0; } });

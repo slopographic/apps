@@ -4,6 +4,7 @@
 import { insertAtCaret } from './editor.js';
 import { blankTable } from './table.js';
 import { videoCard } from './video.js';
+import { t } from './dom.js';
 
 const el = (tag, attrs, ...kids) => SlopUI.el(tag, attrs, ...kids);
 const clean = (s) => String(s || '').replace(/\s+/g, ' ').trim();
@@ -24,7 +25,7 @@ function form(title, ok, spec, read) {
     let out = null;
     SlopUI.dialog({
       title, body: el('div', { class: 'nt-form' }, ...rows),
-      buttons: [{ label: 'Cancel' }, { label: ok, primary: true, act: () => {
+      buttons: [{ label: t('menu.cancel') }, { label: ok, primary: true, act: () => {
         const values = Object.fromEntries(Object.entries(inputs).map(([k, i]) => [k, String(i.value).trim()]));
         const r = read(values);
         if (r === false) return false;
@@ -43,30 +44,30 @@ const readAsDataURL = (file) => new Promise((resolve, reject) => {
 });
 
 export async function addHeading(level) {
-  const t = await SlopUI.prompt('Heading ' + level, 'Heading text', '', { ok: 'Insert' });
-  if (t == null || !clean(t)) return;
-  insertAtCaret('#'.repeat(level) + ' ' + clean(t));
+  const txt = await SlopUI.prompt(t('notes.block.heading_n', { n: String(level) }), t('notes.block.heading_text'), '', { ok: t('notes.block.insert') });
+  if (txt == null || !clean(txt)) return;
+  insertAtCaret('#'.repeat(level) + ' ' + clean(txt));
 }
 
 export async function addTable() {
-  const v = await form('Insert table', 'Insert', {
-    rows: { label: 'Rows under the header', type: 'number', value: 2, min: 1, max: 50 },
-    cols: { label: 'Columns', type: 'number', value: 3, min: 1, max: 10 },
+  const v = await form(t('notes.block.table_title'), t('notes.block.insert'), {
+    rows: { label: t('notes.block.rows'), type: 'number', value: 2, min: 1, max: 50 },
+    cols: { label: t('notes.block.cols'), type: 'number', value: 3, min: 1, max: 10 },
   }, (x) => {
     const rows = whole(x.rows, 1, 50), cols = whole(x.cols, 1, 10);
-    if (!rows || !cols) { SlopUI.toast('Rows 1 to 50, columns 1 to 10'); return false; }
+    if (!rows || !cols) { SlopUI.toast(t('notes.block.table_range')); return false; }
     return { rows, cols };
   });
   if (v) insertAtCaret(blankTable(v.rows, v.cols));
 }
 
 export async function addVideo() {
-  const v = await form('Video link', 'Insert', {
-    url: { label: 'YouTube, Vimeo or video file link', type: 'text', placeholder: 'https://' },
-    title: { label: 'Title (optional)', type: 'text' },
+  const v = await form(t('notes.block.video_title'), t('notes.block.insert'), {
+    url: { label: t('notes.block.video_url'), type: 'text', placeholder: 'https://' },
+    title: { label: t('notes.block.video_name'), type: 'text' },
   }, (x) => {
     const card = videoCard(x.url, x.title);
-    if (!card) { SlopUI.toast('Use a YouTube, Vimeo or direct video (.mp4, .webm…) link'); return false; }
+    if (!card) { SlopUI.toast(t('notes.block.video_bad')); return false; }
     return card;
   });
   if (v) insertAtCaret(v);
@@ -77,11 +78,11 @@ export async function addVideo() {
 function registerIntake() {
   if (window.SlopIntake.spec('notes')) return;
   window.SlopIntake.register({
-    id: 'notes', limit: 1, accept: { types: ['image/png', 'image/jpeg', 'image/gif', 'image/webp'], noun: 'a PNG, JPEG, GIF or WebP picture', maxBytes: MAX_IMAGE },
+    id: 'notes', limit: 1, accept: { types: ['image/png', 'image/jpeg', 'image/gif', 'image/webp'], noun: 'notes.block.picture_noun', maxBytes: MAX_IMAGE },
     process: async (file) => {
       const url = await readAsDataURL(file);
       const alt = file.name.replace(/\.[^.]+$/, '').replace(/[[\]()<>"\n]/g, ' ').trim() || 'Image';
-      if (insertAtCaret('![' + alt + '](' + url + ')') === false) throw new Error('has no note to go in: open or make a note first');
+      if (insertAtCaret('![' + alt + '](' + url + ')') === false) throw new Error(t('notes.block.no_note', { name: file.name }));   // shown to the person (the intake's row)
       return file.name;
     },
   });
@@ -90,8 +91,8 @@ if (globalThis.SlopIntake) registerIntake();
 export function addImage() { return window.SlopIntake.pick({ to: 'notes', multiple: false, accept: 'image/png,image/jpeg,image/gif,image/webp' }); }
 
 export async function addCode() {
-  const v = await form('Code block', 'Insert', {
-    lang: { label: 'Language (optional)', type: 'text', placeholder: 'js, python, css…' },
+  const v = await form(t('notes.block.code_title'), t('notes.block.insert'), {
+    lang: { label: t('notes.block.code_lang'), type: 'text', placeholder: 'js, python, css…' },
   }, (x) => ({ lang: x.lang.replace(/[^\w+#.-]/g, '').slice(0, 20) }));
   if (!v) return;
   const head = '```' + v.lang + '\n';
@@ -99,35 +100,37 @@ export async function addCode() {
 }
 
 export async function addChecklist() {
-  const t = await SlopUI.prompt('Checklist', 'One item per line', '', { ok: 'Insert', multiline: true });
-  if (t == null) return;
-  const items = String(t).split('\n').map(clean).filter(Boolean);
+  const txt = await SlopUI.prompt(t('notes.block.checklist'), t('notes.block.one_per_line'), '', { ok: t('notes.block.insert'), multiline: true });
+  if (txt == null) return;
+  const items = String(txt).split('\n').map(clean).filter(Boolean);
   if (items.length) insertAtCaret(items.map((s) => '- [ ] ' + s).join('\n'));
 }
 
 export async function addQuote() {
-  const t = await SlopUI.prompt('Quote', 'Quoted text', '', { ok: 'Insert', multiline: true });
-  if (t == null) return;
-  const lines = String(t).split('\n').map((s) => s.trim()).filter(Boolean);
+  const txt = await SlopUI.prompt(t('notes.block.quote'), t('notes.block.quoted'), '', { ok: t('notes.block.insert'), multiline: true });
+  if (txt == null) return;
+  const lines = String(txt).split('\n').map((s) => s.trim()).filter(Boolean);
   if (lines.length) insertAtCaret(lines.map((s) => '> ' + s).join('\n'));
 }
 
+/** The callout kinds: the dialog title's key and the menu item's key. */
+const CALLOUT = { NOTE: ['notes.block.callout_note', 'notes.block.m_note'], TIP: ['notes.block.callout_tip', 'notes.block.m_tip'], WARNING: ['notes.block.callout_warning', 'notes.block.m_warning'] };
+
 /** A callout: a quote that starts with its [!KIND] marker (NOTE, TIP or WARNING). */
 export async function addCallout(kind) {
-  const label = kind[0] + kind.slice(1).toLowerCase();
-  const t = await SlopUI.prompt(label + ' callout', 'Text', '', { ok: 'Insert', multiline: true });
-  if (t == null) return;
-  const lines = String(t).split('\n').map((s) => s.trim()).filter(Boolean);
+  const txt = await SlopUI.prompt(t(CALLOUT[kind][0]), t('notes.block.text'), '', { ok: t('notes.block.insert'), multiline: true });
+  if (txt == null) return;
+  const lines = String(txt).split('\n').map((s) => s.trim()).filter(Boolean);
   if (lines.length) insertAtCaret(['> [!' + kind + ']', ...lines.map((s) => '> ' + s)].join('\n'));
 }
 
 export async function addLink() {
-  const v = await form('Link', 'Insert', {
-    text: { label: 'Text', type: 'text' },
-    url: { label: 'Web address', type: 'text', placeholder: 'https://' },
+  const v = await form(t('notes.block.link'), t('notes.block.insert'), {
+    text: { label: t('notes.block.text'), type: 'text' },
+    url: { label: t('notes.block.web_address'), type: 'text', placeholder: 'https://' },
   }, (x) => {
     const url = x.url;
-    if (!/^(https?:\/\/|mailto:)/i.test(url)) { SlopUI.toast('Use an http, https or mailto address'); return false; }
+    if (!/^(https?:\/\/|mailto:)/i.test(url)) { SlopUI.toast(t('notes.block.link_bad')); return false; }
     const safe = url.replace(/[()\s]/g, (c) => ({ '(': '%28', ')': '%29', ' ': '%20' })[c]);
     return { text: clean(x.text).replace(/[[\]]/g, '') || url, url: safe };
   });
@@ -137,15 +140,15 @@ export async function addLink() {
 /** The items of the block menu (the Insert block button and the right-click menu of the source). */
 export function blockItems() {
   return [
-    { label: 'Heading', sub: [1, 2, 3].map((n) => ({ label: 'Heading ' + n, act: () => addHeading(n) })) },
-    { label: 'Table…', act: addTable },
-    { label: 'Video link…', act: addVideo },
-    { label: 'Image…', act: addImage },
-    { label: 'Code block…', act: addCode },
-    { label: 'Checklist…', act: addChecklist },
-    { label: 'Quote…', act: addQuote },
-    { label: 'Divider', act: () => insertAtCaret('---') },
-    { label: 'Callout', sub: ['NOTE', 'TIP', 'WARNING'].map((k) => ({ label: k[0] + k.slice(1).toLowerCase() + '…', act: () => addCallout(k) })) },
-    { label: 'Link…', act: addLink },
+    { label: t('notes.block.heading'), sub: [1, 2, 3].map((n) => ({ label: t('notes.block.heading_n', { n: String(n) }), act: () => addHeading(n) })) },
+    { label: t('notes.block.m_table'), act: addTable },
+    { label: t('notes.block.m_video'), act: addVideo },
+    { label: t('notes.block.m_image'), act: addImage },
+    { label: t('notes.block.m_code'), act: addCode },
+    { label: t('notes.block.m_checklist'), act: addChecklist },
+    { label: t('notes.block.m_quote'), act: addQuote },
+    { label: t('notes.block.divider'), act: () => insertAtCaret('---') },
+    { label: t('notes.block.callout'), sub: ['NOTE', 'TIP', 'WARNING'].map((k) => ({ label: t(CALLOUT[k][1]), act: () => addCallout(k) })) },
+    { label: t('notes.block.m_link'), act: addLink },
   ];
 }

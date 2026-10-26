@@ -32,14 +32,17 @@
     }, { timeout: 40000 });
     it('Import shortcuts (keys.import)', async () => {
       W.SlopUI.pickFiles = async () => [json('keys.json', JSON.stringify({ app: W.SlopCmd.app || 'photoslop', keys: {} }))];
-      const p = W.SlopCmd._parts.recorder.importFile();
+      // a file from another app asks first ("Import them here anyway?"): yes (the page's app id can differ in a build)
+      const ask = W.SlopUI.confirm; W.SlopUI.confirm = async () => true;
+      const p = W.SlopCmd._parts.recorder.importFile().finally(() => { W.SlopUI.confirm = ask; });
       await waitFor(() => W.SlopIntake.spec('keys.import'));
       await p;
       expect(!!W.SlopIntake.spec('keys.import')).toBe(true);
     });
     it("the presets dialog's Import… (presets.import)", async () => {
       W.SlopPresets.openPicker({ title: 'Presets', onApply: () => {} });
-      const b = await button('Import…');
+      // the dialog's own Import… (a panel of the page, Brushes, has a button of that name too)
+      const b = await waitFor(() => [...D.querySelectorAll('.sp-dlg button')].find((x) => x.textContent.trim() === 'Import…'));
       W.SlopUI.pickFiles = async () => [json('preset.json')];
       b.click();
       await waitFor(() => W.SlopIntake.spec('presets.import'));

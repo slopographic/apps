@@ -5,10 +5,13 @@
 import './tables-dom-shim.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { globalI18n } from './ui-i18n-env.mjs';
 import { sheetRecords, tablesFromJson, workbookOf, headerNames } from '../../convert/js/core/sheet-json.js';
 import { DATA_MORE } from '../../convert/js/core/data-more.js';
 import { writeZip } from '../../shared/office/zip.js';
 import { read } from '../../shared/sheets/read.js';
+
+globalI18n('en');   // the reader's messages, as a page has them (shared/i18n/ui/en/sheets.js)
 
 const conv = (id) => DATA_MORE.find((c) => c.id === id);
 const item = (blob, name, kind) => ({ name, kind, file: Object.assign(blob, { name }) });

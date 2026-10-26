@@ -7,6 +7,7 @@
 (function (g) {
   'use strict';
   const ns = (g.SlopData = g.SlopData || {});
+  const say = (k, v) => { const I = g.SlopI18n; return I && I.t ? I.t(k, v) : k; };   // words: shared/i18n/ui/<code>/data.js, data2.js
   const { ok, fail } = ns.result;
   const A = () => ns.schema.ACCT;
 
@@ -39,15 +40,15 @@
       const r = await tx.get('invoices', invoiceId);
       if (!r.ok) return r;
       const inv = r.value;
-      if (!inv || inv.deletedAt) return fail('not_found', `no invoice ${invoiceId}`);
-      if (inv.status !== 'issued' && inv.status !== 'paid') return fail('invalid_transition', 'only an issued or paid invoice can be credited');
-      if (!Number.isSafeInteger(amount) || amount < 1) return fail('invalid', 'the amount must be a positive whole number of minor units');
-      if (amount > creditable(inv)) return fail('overcredit', `only ${creditable(inv)} of this invoice can still be credited`);
+      if (!inv || inv.deletedAt) return fail('not_found', say('ui.data.err.no_invoice', { id: String(invoiceId) }));
+      if (inv.status !== 'issued' && inv.status !== 'paid') return fail('invalid_transition', say('ui.data.cr.issued'));
+      if (!Number.isSafeInteger(amount) || amount < 1) return fail('invalid', say('ui.data.err.amount'));
+      if (amount > creditable(inv)) return fail('overcredit', say('ui.data.cr.over', { left: String(creditable(inv)) }));
       const pays = await tx.list('payments', { index: 'invoiceId', value: invoiceId });
       if (!pays.ok) return pays;
       const due = ns.billing.balanceDue(inv, pays.value);
       const { applied, refund } = effect(due, amount);
-      if (refund && !method) return fail('needs_method', 'part of this credit was already paid, so say how it is paid back');
+      if (refund && !method) return fail('needs_method', say('ui.data.cr.method'));
       const num = await ns.numbering.allocate(tx, 'credit');
       if (!num.ok) return num;
       const id = ns.store.newId(), day = date || ns.ledger.today(), { subtotal, tax } = split(inv, amount);

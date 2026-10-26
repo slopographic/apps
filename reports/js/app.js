@@ -19,6 +19,16 @@
     editor: $('editor'), json: $('json'), err: $('err'), edit: $('edit'), del: $('delete'), save: $('save'),
   };
   const S = { def: null, saved: false, result: null, shown: null, finder: null, ctx: {}, seq: 0 };
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
+  /** A built-in report in the chosen language (its title, note and column headings from reports.def.<id>.*); a saved
+   *  one as it is (the person's own words). */
+  function localDef(def) {
+    const I = g.SlopI18n, base = 'reports.def.' + def.id.replace(/-/g, '_');
+    if (!I || !R.BUILTIN.some((b) => b.id === def.id) || !I.has(base + '.title')) return def;
+    const w = (k, en) => (I.has(`${base}.${k}`) ? I.t(`${base}.${k}`) : en);
+    return { ...def, title: w('title', def.title), note: w('note', def.note), columns: def.columns.map((c) => ({ ...c, label: w(c.field, c.label) })) };
+  }
+  R.localDef = localDef;
 
   // Number, money and time cells line up on the right.
   const numCls = (c) => (['money', 'number', 'duration', 'percent'].includes(c.type) ? 'rp-num' : null);
@@ -27,12 +37,12 @@
   /** Fills the picker: the built-in reports, then the saved ones. */
   function fillPicker() {
     dom.select.replaceChildren();
-    const built = el('optgroup'); built.label = 'Built-in';
-    for (const d of R.BUILTIN) built.append(option(d.id, d.title));
+    const built = el('optgroup'); built.label = t('reports.app.builtin');
+    for (const d of R.BUILTIN) built.append(option(d.id, localDef(d).title));
     dom.select.append(built);
     const saved = R.saved.list();
     if (saved.length) {
-      const mine = el('optgroup'); mine.label = 'Saved';
+      const mine = el('optgroup'); mine.label = t('reports.app.saved');
       for (const d of saved) mine.append(option(d.id, d.title));
       dom.select.append(mine);
     }
@@ -48,10 +58,10 @@
 
   function choose(id) {
     const hit = findDef(id) || { def: R.BUILTIN[0], saved: false };
-    S.def = hit.def;
+    S.def = localDef(hit.def);
     S.saved = hit.saved;
     dom.select.value = hit.def.id;
-    dom.edit.textContent = hit.saved ? 'Edit' : 'Copy and edit';
+    dom.edit.textContent = hit.saved ? t('reports.page.edit') : t('reports.app.copy_edit');
     dom.del.hidden = !hit.saved;
     closeEditor();
     run();
@@ -62,7 +72,7 @@
     const empty = !loaded.found || !R.hasData(loaded.counts);
     dom.dataNote.hidden = !empty;
     dom.dataNote.textContent = empty
-      ? 'No data yet. Slop Contacts, Slop Invoices, Slop Expenses, Slop Timesheets and Slop CRM have no records in this browser, so these reports have nothing to show. Add records in those apps and this page fills in.'
+      ? t('reports.app.no_data')
       : '';
     dom.reportNote.textContent = S.def.note || '';
   }
@@ -82,7 +92,7 @@
 
   function showErrors(errors) {
     dropFinder();
-    dom.results.replaceChildren(el('p', 'rp-err', `This report cannot run: ${errors.join('; ')}`));
+    dom.results.replaceChildren(el('p', 'rp-err', t('reports.app.cannot_run', { why: errors.join('; ') })));
   }
 
   function dropFinder() {
@@ -107,7 +117,7 @@
     // A card names each value: the first column is its title, the rest read "Label: value".
     const card = (r) => {
       const box = el('div', 'rp-card');
-      box.append(el('b', 'rp-card-title', cellOf(r, cols[0]) || '(none)'));
+      box.append(el('b', 'rp-card-title', cellOf(r, cols[0]) || t('reports.app.none')));
       for (const c of cols.slice(1)) { const v = cellOf(r, c); if (v) box.append(el('span', 'rp-kv', `${c.label}: ${v}`)); }
       return box;
     };
@@ -120,10 +130,11 @@
       card,
       view: 'table',
       row: line,
-      placeholder: 'Search this report',
-      searchLabel: 'Search this report',
-      noun: ['row', 'rows'],
-      emptyText: 'No rows match the filters.',
+      placeholder: t('reports.app.search'),
+      searchLabel: t('reports.app.search'),
+      count: (n) => t('reports.app.rows_n', { n }),
+      countOf: (shown, n) => t('reports.app.rows_of', { shown, n }),
+      emptyText: t('reports.app.no_match'),
       onChange: (shown) => { S.shown = shown; },
     });
   }
@@ -131,7 +142,7 @@
   /** The plain table, when the Finder is not loaded. */
   function plainTable(res) {
     const cols = res.columns;
-    if (!res.rows.length) { dom.results.append(el('p', 'rp-empty', 'No rows to show yet.')); return; }
+    if (!res.rows.length) { dom.results.append(el('p', 'rp-empty', t('reports.app.no_rows'))); return; }
     const head = el('tr');
     for (const c of cols) { const th = el('th', numCls(c), c.label); th.scope = 'col'; head.append(th); }
     const body = el('tbody');
@@ -177,7 +188,7 @@
   /** Checks the JSON, then keeps it as a saved report. A built-in id is refused by the store. */
   function saveEditor() {
     let def;
-    try { def = JSON.parse(dom.json.value); } catch (e) { dom.err.textContent = `Not valid JSON: ${e.message}`; return; }
+    try { def = JSON.parse(dom.json.value); } catch (e) { dom.err.textContent = t('reports.app.bad_json', { why: e.message }); return; }
     const errors = E.validate(def);
     if (errors.length) { dom.err.textContent = errors.join('. '); return; }
     const res = R.saved.save(def);
@@ -187,7 +198,7 @@
   }
 
   function removeSaved() {
-    if (!S.saved || !g.confirm(`Delete the saved report "${S.def.title}"?`)) return;
+    if (!S.saved || !g.confirm(t('reports.app.del_q', { title: S.def.title }))) return;
     R.saved.remove(S.def.id);
     fillPicker();
     choose(R.BUILTIN[0].id);
@@ -195,14 +206,14 @@
 
   function newReport() {
     openEditor({
-      id: `report-${Date.now().toString(36)}`, title: 'My report', from: 'customers',
-      columns: [{ field: 'name', label: 'Name' }, { field: 'email', label: 'Email' }],
+      id: `report-${Date.now().toString(36)}`, title: t('reports.app.my_report'), from: 'customers',
+      columns: [{ field: 'name', label: t('reports.app.name_col') }, { field: 'email', label: t('reports.app.email_col') }],
     });
   }
 
   function editReport() {
     if (S.saved) { openEditor(S.def); return; }
-    openEditor({ ...S.def, id: `${S.def.id}-copy`, title: `${S.def.title} (copy)` });
+    openEditor({ ...S.def, id: `${S.def.id}-copy`, title: t('reports.app.copy', { title: S.def.title }) });
   }
 
   /** The preset in a page address: { report } when it names a built-in report, else {}. */
@@ -221,6 +232,8 @@
     dom.save.addEventListener('click', saveEditor);
     $('cancel').addEventListener('click', closeEditor);
     choose(R.presetOf(g.location.search).report || R.BUILTIN[0].id);
+    // a language change: the picker and the report again in the new words
+    if (g.SlopI18n) g.SlopI18n.on(() => { const id = S.def && S.def.id; fillPicker(); if (id) choose(id); });
   }
 
   init();

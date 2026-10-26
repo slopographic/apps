@@ -3,37 +3,38 @@
  * Tokens are never stored here (see tokens.js). Default client IDs are empty: the person adds their own. */
 (function () {
   'use strict';
+  const tr = (key, vars) => (window.SlopI18n ? window.SlopI18n.t(key, vars) : key);   // words: shared/i18n/ui/<code>/backup2.js
   const KEY = 'slop-sync';
   const CLIENT_ID_RE = /^[\w.-]{4,200}$/;
 
   const PROVIDERS = {
     gdrive: {
       id: 'gdrive',
-      label: 'Google Drive',
+      label: 'Google Drive',   // i18n-ignore: service names
       authUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
       tokenUrl: 'https://oauth2.googleapis.com/token',
       scope: 'https://www.googleapis.com/auth/drive.file',
       extraAuthParams: { access_type: 'offline', prompt: 'consent' },
       consoleUrl: 'https://console.cloud.google.com/apis/credentials',
-      consoleHelp: 'Google Cloud console: create an OAuth client ID of type "Web application" and add this page as an authorised redirect URI.'
+      get consoleHelp() { return tr('ui.sync.help_gdrive'); }
     },
     dropbox: {
       id: 'dropbox',
-      label: 'Dropbox',
+      label: 'Dropbox',   // i18n-ignore: service names
       authUrl: 'https://www.dropbox.com/oauth2/authorize',
       tokenUrl: 'https://api.dropboxapi.com/oauth2/token',
       scope: 'files.content.write files.content.read',
       extraAuthParams: { token_access_type: 'offline' },
       consoleUrl: 'https://www.dropbox.com/developers/apps',
-      consoleHelp: 'Dropbox app console: create an app (Scoped access, Full or App folder) and add this page as a redirect URI.'
+      get consoleHelp() { return tr('ui.sync.help_dropbox'); }
     },
     // No sign-in and no network: a folder the person picks (a mounted NAS or network share counts as a folder).
     local: {
       id: 'local',
-      label: 'Local or network folder',
+      get label() { return tr('ui.sync.local_label'); },
       local: true,
       consoleUrl: '',
-      consoleHelp: 'Browsers cannot speak SMB, NFS or WebDAV. Mount the share in your operating system first, then pick the folder. Chrome or Edge only.'
+      get consoleHelp() { return tr('ui.sync.help_local'); }
     }
   };
 
@@ -65,12 +66,12 @@
 
   // Returns {ok, error?}. An empty value clears the client ID.
   function setClientId(id, value) {
-    if (!provider(id)) return { ok: false, error: 'Unknown cloud provider.' };
+    if (!provider(id)) return { ok: false, error: tr('ui.sync.unknown') };
     const v = String(value == null ? '' : value).trim();
-    if (v && !CLIENT_ID_RE.test(v)) return { ok: false, error: 'That does not look like an OAuth client ID. Paste it exactly as the provider shows it.' };
+    if (v && !CLIENT_ID_RE.test(v)) return { ok: false, error: tr('ui.sync.bad_id') };
     const cfg = read();
     cfg[id].clientId = v;
-    return write(cfg) ? { ok: true } : { ok: false, error: 'Could not save settings: browser storage is blocked.' };
+    return write(cfg) ? { ok: true } : { ok: false, error: tr('ui.sync.blocked') };
   }
 
   function getLastSync(id) { return provider(id) ? read()[id].lastSync || 0 : 0; }

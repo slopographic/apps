@@ -8,6 +8,8 @@
 </head>
 <body>
   <script src="../harness.js"></script>
+  <script src="../../shared/profile/profile.js"></script>
+  <script src="../../shared/i18n/i18n.js"></script>
   <script src="../../shared/slopui.js"></script>
   <script src="../../shared/cdn/assets.js"></script>
   <script src="../../shared/models/catalog.js"></script>
@@ -115,6 +117,28 @@
       expect(d.language).toBe('no');
       await waitFor(() => rows(d.box)[0] && rows(d.box)[0].dataset.id === 'nb-whisper-small');
       d.close();
+    });
+    it('in Swedish: the dialog, its badges, sizes and buttons (shared/i18n/ui/sv/models.js), then English again', async () => {
+      const I18 = window.SlopI18n, swapped = new Promise((res) => { const off = I18.on(() => { off(); res(); }); });
+      I18.set('sv'); await swapped;
+      try {
+        expect(badgeText('recommended', 'svenska')).toBe('Rekommenderas för svenska');
+        expect(meter(2).label).toBe('2 av 5');
+        const d = openModelDialog({ installer: fakeInstaller() });
+        await waitFor(() => rows(d.box).length === 3);
+        expect(d.box.textContent).toContain('Språk och modell');
+        expect(d.box.querySelector('.spm-lang.is-on').textContent).toBe('Identifiera automatiskt');
+        expect(d.box.querySelector('.spm-search').placeholder).toBe('Sök språk');
+        expect(btn(d.box, 'Använd') || btn(d.box, 'Vald')).toBeTruthy();
+        expect(d.box.querySelector('.sui-foot .sui-btn').textContent).toBe('Avbryt');
+        expect(/\bui\.[a-z_]+\./.test(d.box.textContent)).toBe(false);
+        d.close();
+      } finally {
+        const back = new Promise((res) => { const off = I18.on(() => { off(); res(); }); });
+        I18.set('en'); await back;
+        try { localStorage.removeItem('slop-profile'); SlopTest.english(); } catch (e) { /* private window */ }
+      }
+      expect(badgeText('recommended', 'Swedish')).toBe('Recommended for Swedish');
     });
   });
   run();

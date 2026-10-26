@@ -65,3 +65,14 @@ test('an override on a clip replaces the defaults for that clip only', () => {
   const p = SV.random.plan({ ...base, seed: 6, clipVideo: { mode: 'full' }, overrides: { 'm:v1': { video: { mode: 'loop' } } } }, vids);
   for (const it of p.cuts.flat()) assert.equal(it.vset.mode, it.media === 'v1' ? 'loop' : 'full');
 });
+
+test('the clip setting lists read Swedish (shared/i18n/ui/sv/video.js) and keep their ids', async () => {
+  const { context, plain } = await import('./ui-tables-env.mjs');
+  const sv = context(['seed.js', 'presets.js', 'grid.js', 'templates.js', 'layout.js', 'segments.js', 'timing.js', 'locks.js', 'audio.js', 'clipset.js', 'orient.js', 'random-edit.js'].map((f) => 'shared/video/' + f), 'sv').SlopVideo;
+  assert.deepEqual(plain(sv.clipset.VMODE).map((v) => v[0]), ['full', 'trim', 'speed', 'loop']);
+  assert.equal(plain(sv.clipset.VMODE)[3][1], 'Upprepa tills platsen tar slut');
+  assert.equal(plain(sv.clipset.EDGE)[1][1], 'Tona');
+  assert.equal(plain(sv.timing.MODES)[1][1], 'Förskjutet (varje plats i sin egen takt)');
+  assert.equal(plain(sv.audio.MODES)[0][1], 'Av');
+  assert.equal(plain(sv.random.PACES)[2][1], 'Långsamt (klipp på 3–6 s)');
+});

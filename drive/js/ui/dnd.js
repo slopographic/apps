@@ -40,7 +40,7 @@
           keys = [...S.sel];
           const items = DR.items(keys);
           if (!items.length || items.some((i) => i.trashedAt)) { cleanup(); return; }
-          ghost = el('div', { class: 'ghost' }, DR.badge(items[0], 'badge xs'), el('span', null, items.length === 1 ? items[0].name : `${items.length} items`));
+          ghost = el('div', { class: 'ghost' }, DR.badge(items[0], 'badge xs'), el('span', null, items.length === 1 ? items[0].name : DR.t('drive.app.items_n', { n: items.length })));
           document.body.append(ghost); document.body.classList.add('dragging');
         }
         ghost.style.transform = `translate(${ev.clientX + 12}px, ${ev.clientY + 10}px)`;
@@ -94,7 +94,7 @@
     // and what the page was opened with (?drive=<id>: that file is shown; launchQueue files are uploaded). The
     // whole batch is uploaded at once into its folder (a drop's folder, else the open one); the strip shows each file.
     window.SlopIntake.register({
-      id: 'drive', accept: { any: true, allowEmpty: true, noun: 'a file' }, paste: false, // Ctrl+V is Drive's own clipboard
+      id: 'drive', accept: { any: true, allowEmpty: true, noun: 'drive.dlg.a_file' }, paste: false, // Ctrl+V is Drive's own clipboard
       processAll: async (files, ctx) => {
         const rec = ctx.drive && S.files.get(ctx.drive.id);
         if (ctx.source === 'launch' && rec && files.length === 1) { DR.reveal(rec); return [rec.id]; } // Open in Slop Drive
@@ -115,7 +115,7 @@
         if (DR.isPvTarget(batchDest)) { await DR.uploadToProvider(list, batchDest); return []; }
         const bext = (window.SlopBackup && window.SlopBackup.EXT || '').toLowerCase();   // the backup ZIP's extension (shared/backup/index.js)
         if (list.length === 1 && bext && list[0].file.name.toLowerCase().endsWith(bext)) {
-          if (await window.SlopUI.confirm('Restore this backup?', `“${list[0].file.name}” looks like a Slopographic backup. Open it in Backup & restore instead of uploading it?`, 'Open backup', { cancel: 'Just upload' })) {
+          if (await window.SlopUI.confirm(DR.t('drive.dlg.restore_q'), DR.t('drive.dlg.restore_body', { name: list[0].file.name }), DR.t('drive.dlg.open_backup'), { cancel: DR.t('drive.dlg.just_upload') })) {
             if (window.SlopBackupUI) window.SlopBackupUI.open.choose = null;
             DR.backupDialog();
             for (let i = 0; i < 100 && !(window.SlopBackupUI && window.SlopBackupUI.open.choose); i++) await new Promise((r) => setTimeout(r, 50));

@@ -26,7 +26,7 @@
   function dims(r) {
     const m = DR.mediaInfo(r);
     if (!m) return null;
-    if (m.pages) return `${m.pages} page${m.pages === 1 ? '' : 's'} · ${m.w} × ${m.h} pt`;
+    if (m.pages) return DR.t('drive.info.pages_pt', { n: m.pages, w: String(m.w), h: String(m.h) });
     const parts = [];
     if (m.w) parts.push(`${m.w} × ${m.h} px`);
     if (m.duration) parts.push(`${Math.floor(m.duration / 60)}:${String(Math.round(m.duration % 60)).padStart(2, '0')}`);
@@ -37,19 +37,19 @@
     const b = (label, act, cls = '') => { const x = el('button', { type: 'button', class: 'btn ' + cls }, label); x.addEventListener('click', act); return x; };
     if (r.trashedAt) return null;
     const apps = DR.orderedAppsFor(r), d = apps[0];
-    const openIn = r.isFolder ? [] : d ? [b('Open in…', (e) => { const x = e.currentTarget.getBoundingClientRect(); window.SlopUI.menu(DR.openInRows(r), x.left, x.bottom + 4); })] : [el('span', { class: 'muted' }, 'No app opens this type')];
+    const openIn = r.isFolder ? [] : d ? [b(DR.t('drive.info.open_in'), (e) => { const x = e.currentTarget.getBoundingClientRect(); window.SlopUI.menu(DR.openInRows(r), x.left, x.bottom + 4); })] : [el('span', { class: 'muted' }, DR.t('drive.menu.no_app'))];
     return el('div', { class: 'acts' }, ...openIn,
-      r.isFolder || !d ? null : b('Quick look', () => DR.quickLook(r)), b(r.starred ? 'Unstar' : 'Star', () => DR.setStar([r], !r.starred)),
-      DR.isCleanable(r) ? b('Remove metadata…', () => DR.openInClean(r)) : null,
-      DR.isFaceable(r) ? b('Find faces', () => DR.findFaces([r])) : null,
-      DR.isFaceable(r) ? b('Faces and people…', () => DR.openFaces()) : null);
+      r.isFolder || !d ? null : b(DR.t('drive.menu.quick_look'), () => DR.quickLook(r)), b(DR.t(r.starred ? 'drive.info.unstar' : 'drive.info.star'), () => DR.setStar([r], !r.starred)),
+      DR.isCleanable(r) ? b(DR.t('drive.clean.menu'), () => DR.openInClean(r)) : null,
+      DR.isFaceable(r) ? b(DR.t('drive.menu.find_faces'), () => DR.findFaces([r])) : null,
+      DR.isFaceable(r) ? b(DR.t('drive.menu.faces_people'), () => DR.openFaces()) : null);
   }
   /** The face row for a picture, when face detection is on: the badge with the count (it draws the boxes on the preview
    * when opened, shared/faces/view.js), or "Not checked yet". With the mode Off, the count as text. */
   function faceRow(r, facts, preview) {
     if (!DR.isFaceable(r) || !window.SlopFaces || !window.SlopFaces.enabled()) return;
-    const cell = el('dd', { class: 'faces-n' }, 'Not checked yet');
-    facts.append(el('dt', null, 'Faces'), cell);
+    const cell = el('dd', { class: 'faces-n' }, DR.t('drive.info.not_checked'));
+    facts.append(el('dt', null, DR.t('drive.info.faces')), cell);
     DR.facesOf(r).then((row) => {
       if (!row) return;
       if (window.SlopFaces.view.mode() === 'off') { cell.textContent = DR.faceText(row.faces.length); return; }
@@ -60,20 +60,20 @@
   let faceH = null; // the badge and boxes of the shown picture (destroyed when the panel is rebuilt)
   function single(r) {
     const head = el('div', { class: 'info-h' }, DR.badge(r, 'badge sm'), el('h2', { title: r.name }, r.name));
-    const loc = r.parent ? DR.pathOf(r.parent).map((f) => f.name).join(' / ') : 'Slop Drive';
+    const loc = r.parent ? DR.pathOf(r.parent).map((f) => f.name).join(' / ') : 'Slop Drive', t = DR.t;   // i18n-ignore: the app name
     if (r.isFolder) {
       const c = DR.children(r.id), sub = DR.descendants(r.id);
       return [head, el('div', { class: 'pv pv-folder' }, DR.icon('folder', 'ic huge')), actions(r),
-        rows([['Kind', 'Folder'], ['Contains', `${c.folders.length} folders, ${c.files.length} files`], ['All inside', `${sub.files.filter((x) => !DR.hidden(x)).length} files`], ['Size', DR.fmtSize(DR.sizeOf(r))],
-          ['Location', loc], ['Created', DR.fmtFull(r.time)], ['Modified', DR.fmtFull(r.modified)], r.trashedAt ? ['Trashed', DR.fmtFull(r.trashedAt)] : null])];
+        rows([[t('drive.info.kind'), t('drive.kind.one_folder')], [t('drive.info.contains'), t('drive.info.contains_v', { folders: t('drive.app.folders_n', { n: c.folders.length }), files: t('drive.app.files_n', { n: c.files.length }) })], [t('drive.info.all_inside'), t('drive.app.files_n', { n: sub.files.filter((x) => !DR.hidden(x)).length })], [t('drive.col.size'), DR.fmtSize(DR.sizeOf(r))],
+          [t('drive.col.location'), loc], [t('drive.info.created'), DR.fmtFull(r.time)], [t('drive.col.modified'), DR.fmtFull(r.modified)], r.trashedAt ? [t('drive.col.trashed'), DR.fmtFull(r.trashedAt)] : null])];
     }
     const dd = el('dd', { class: 'dims' }, dims(r) || '—');
     if (!dims(r)) DR.thumb(r).then(() => { const v = dims(r); dd.textContent = v || '—'; });
     const nv = DR.versionCount(r);
-    const facts = rows([['Kind', DR.kindLabel(r)], ['Type', r.type], ['Size', `${DR.fmtSize(r.size)} (${(r.size || 0).toLocaleString()} bytes)`], ['Made by', DR.appName(r.from)],
-      ['Location', loc], ['Added', DR.fmtFull(r.time)], ['Modified', DR.fmtFull(r.modified)], ['Opened', r.opened ? DR.fmtFull(r.opened) : 'Never'],
-      nv ? ['Versions', `${nv} saved. Switch between them in the preview above.`] : null, r.trashedAt ? ['Trashed', DR.fmtFull(r.trashedAt)] : null]);
-    if (['image', 'video', 'pdf'].includes(DR.kindOf(r))) facts.append(el('dt', null, DR.kindOf(r) === 'pdf' ? 'Pages' : 'Dimensions'), dd);
+    const facts = rows([[t('drive.info.kind'), DR.kindLabel(r)], [t('drive.info.mime'), r.type], [t('drive.col.size'), t('drive.info.size_bytes', { size: DR.fmtSize(r.size), n: r.size || 0 })], [t('drive.info.made_by'), DR.appName(r.from)],
+      [t('drive.col.location'), loc], [t('drive.col.added'), DR.fmtFull(r.time)], [t('drive.col.modified'), DR.fmtFull(r.modified)], [t('drive.col.opened'), r.opened ? DR.fmtFull(r.opened) : t('drive.info.never')],
+      nv ? [t('drive.info.versions'), t('drive.info.versions_v', { n: nv })] : null, r.trashedAt ? [t('drive.col.trashed'), DR.fmtFull(r.trashedAt)] : null]);
+    if (['image', 'video', 'pdf'].includes(DR.kindOf(r))) facts.append(el('dt', null, t(DR.kindOf(r) === 'pdf' ? 'drive.info.pages' : 'drive.info.dimensions')), dd);
     const pv = DR.previewOf(r);
     faceRow(r, facts, pv);
     return [head, pv, DR.pvGrip(), actions(r), facts, tagBox(r)];
@@ -81,33 +81,33 @@
   /** A file's tags: a chip per tag with a remove button, and a box that adds more (Enter or a comma). */
   function tagBox(r) {
     const focusTags = () => { const i = DR.$('info') && DR.$('info').querySelector('.tag-in'); if (i) i.focus(); };
-    const chips = DR.tagsOf(r).map((t) => {
-      const x = el('button', { type: 'button', class: 'tag-x', title: `Remove ${t}`, 'aria-label': `Remove tag ${t}` }, DR.icon('x'));
-      x.addEventListener('click', async () => { await DR.removeTag([r], t); focusTags(); });
-      return el('span', { class: 'tag' }, t, x);
+    const chips = DR.tagsOf(r).map((tag) => {
+      const x = el('button', { type: 'button', class: 'tag-x', title: DR.t('drive.info.remove_tag_tip', { tag: tag }), 'aria-label': DR.t('drive.info.remove_tag', { tag: tag }) }, DR.icon('x'));
+      x.addEventListener('click', async () => { await DR.removeTag([r], tag); focusTags(); });
+      return el('span', { class: 'tag' }, tag, x);
     });
-    const input = el('input', { type: 'text', class: 'tag-in', placeholder: 'Add a tag', 'aria-label': 'Add a tag', autocomplete: 'off', maxlength: '200' });
+    const input = el('input', { type: 'text', class: 'tag-in', placeholder: DR.t('drive.info.add_tag'), 'aria-label': DR.t('drive.info.add_tag'), autocomplete: 'off', maxlength: '200' });
     input.addEventListener('keydown', async (e) => {
       if (e.key !== 'Enter' && e.key !== ',') return;
       e.preventDefault();
       if (input.value.trim()) { await DR.addTags([r], input.value); focusTags(); }
     });
-    return el('div', { class: 'tags-box' }, el('h3', { class: 'tags-h' }, 'Tags'),
-      el('div', { class: 'tag-chips' }, ...(chips.length ? chips : [el('span', { class: 'muted' }, 'No tags yet')])), input);
+    return el('div', { class: 'tags-box' }, el('h3', { class: 'tags-h' }, DR.t('drive.col.tags')),
+      el('div', { class: 'tag-chips' }, ...(chips.length ? chips : [el('span', { class: 'muted' }, DR.t('drive.info.no_tags'))])), input);
   }
   function many(items) {
     const by = new Map();
     for (const it of items) { const k = DR.KIND[DR.kindOf(it)]; by.set(k, (by.get(k) || 0) + 1); }
-    return [el('div', { class: 'info-h' }, el('h2', null, `${items.length} items`)),
-      el('div', { class: 'kinds' }, [...by].map(([k, n]) => el('span', { class: 'chip', style: `--k:${k.color}` }, `${n} ${n === 1 ? k.one.toLowerCase() : k.label.toLowerCase()}`))),
-      rows([['Total size', DR.fmtSize(items.reduce((n, it) => n + DR.sizeOf(it), 0))]])];
+    return [el('div', { class: 'info-h' }, el('h2', null, DR.t('drive.app.items_n', { n: items.length }))),
+      el('div', { class: 'kinds' }, [...by].map(([k, n]) => el('span', { class: 'chip', style: `--k:${k.color}` }, DR.t(`drive.kind.count_${k.id}`, { n })))),
+      rows([[DR.t('drive.info.total_size'), DR.fmtSize(items.reduce((n, it) => n + DR.sizeOf(it), 0))]])];
   }
   function place() {
     const it = S.section === 'folder' && S.cwd ? S.folders.get(S.cwd) : null;
     if (it) return single(it);
     const list = DR.lastVisible || [];
-    return [el('div', { class: 'info-h' }, el('h2', null, DR.placeName())), el('p', { class: 'muted' }, 'Select a file to see its details and a preview.'),
-      rows([['Items here', String(list.length)], ['Size', DR.fmtSize(list.reduce((n, x) => n + DR.sizeOf(x), 0))]])];
+    return [el('div', { class: 'info-h' }, el('h2', null, DR.placeName())), el('p', { class: 'muted' }, DR.t('drive.info.select_hint')),
+      rows([[DR.t('drive.info.items_here'), String(list.length)], [DR.t('drive.col.size'), DR.fmtSize(list.reduce((n, x) => n + DR.sizeOf(x), 0))]])];
   }
   DR.renderInfo = function (force) {
     const box = $('info'), open = S.info || (DR.sheetUI && DR.sheetUI.isOpen());
@@ -126,7 +126,7 @@
   /** Phones: the details panel is a bottom sheet (SlopSheet, shared/ui/sheet.js: the Info button, ×, Escape, a tap
    * outside, swipe down). Its × is the panel's close on a wide screen too. */
   DR.wireSheet = function () {
-    DR.sheetUI = SlopSheet.attach({ root: document.body, panel: $('info'), phone: '(max-width: 760px)', toggles: [$('btnInfo')], label: 'Details',
+    DR.sheetUI = SlopSheet.attach({ root: document.body, panel: $('info'), phone: '(max-width: 760px)', toggles: [$('btnInfo')], label: 'drive.info.details',
       closeWide: () => DR.toggleInfo(false), onChange: () => DR.renderInfo(true) });
     matchMedia('(max-width: 760px)').addEventListener('change', () => DR.renderInfo(true));
   };

@@ -8,12 +8,14 @@
   let bar = null, name = null, play = null, time = null;
   function build() {
     name = el('span', { class: 'mp-name' });
-    play = button('▶', 'Play', () => P.toggle());
+    play = button('▶', DR.t('drive.audio.play'), () => P.toggle());
     time = el('span', { class: 'mp-time' });
-    bar = el('div', { class: 'mini-player', role: 'region', 'aria-label': 'Audio player', hidden: '' },
-      el('span', { class: 'mp-label' }, 'Now playing'), name,
-      button('⏮', 'Previous file', () => P.step(-1)), play, button('⏭', 'Next file', () => P.step(1)), time,
-      button('Stop', 'Stop playback', () => P.stop()));
+    bar = el('div', { class: 'mini-player', role: 'region', 'aria-label': DR.t('drive.audio.player'), hidden: '' },
+      el('span', { class: 'mp-label', 'data-i18n': 'drive.audio.now_playing' }, DR.t('drive.audio.now_playing')), name,
+      button('⏮', DR.t('drive.audio.prev'), () => P.step(-1)), play, button('⏭', DR.t('drive.audio.next'), () => P.step(1)), time,
+      button(DR.t('drive.audio.stop'), DR.t('drive.audio.stop_tip'), () => P.stop()));
+    // built once: the words follow a language switch (rebuilt in place)
+    DR.onLang(() => { const was = bar; bar = null; was.remove(); build(); });
     document.body.append(bar);
     P.subscribe(render);
     render();
@@ -26,7 +28,7 @@
     name.title = P.error || P.cur.name;
     const playing = !P.audio.paused;
     play.textContent = playing ? '❚❚' : '▶';
-    play.title = playing ? 'Pause' : 'Play';
+    play.title = DR.t(playing ? 'drive.audio.pause' : 'drive.audio.play');
     play.setAttribute('aria-label', play.title);
     time.textContent = `${clock(P.audio.currentTime)} / ${clock(P.audio.duration)}`;
   }

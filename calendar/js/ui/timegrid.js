@@ -5,6 +5,7 @@
 (function (g) {
   'use strict';
   const T = g.SlopTime, UI = g.SlopUI, el = UI.el;
+  const tr = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
   const NS = (g.SlopCal = g.SlopCal || {});
   const HOUR = 48;   // pixels per hour
   const HOURS = 24, DAY_MIN = 1440;
@@ -19,14 +20,14 @@
       days.map((d) => el('div', { class: `tg-dh${d === today ? ' is-today' : ''}${selectDay ? ' is-pick' : ''}`, 'data-day': d,
         onclick: selectDay ? () => selectDay(d) : null },
       T.dayText(d, locale, { weekday: 'short', day: 'numeric', month: 'short' }))));
-    const strip = el('div', { class: 'tg-allday', style: `--cols:${days.length}` }, el('div', { class: 'tg-gut' }, 'All day'),
+    const strip = el('div', { class: 'tg-allday', style: `--cols:${days.length}` }, el('div', { class: 'tg-gut' }, tr('calendar.views.all_day')),
       days.map((d) => el('div', { class: 'tg-ad', 'data-day': d }, NS.model.forDay(allDay, d, zone).map((it) => NS.chip(it, ctx)))));
     const labels = el('div', { class: 'tg-gut tg-hours', style: `height:${HOURS * HOUR}px` },
       Array.from({ length: HOURS }, (_, h) => el('span', { class: 'tg-hour', style: `top:${h * HOUR}px` },
         T.timeText(Date.UTC(2026, 0, 1, h, 0), 'UTC', locale))));
     const cols = days.map((d) => column(d, timed, ctx));
     const body = el('div', { class: 'tg-body', style: `--cols:${days.length}` }, labels, cols);
-    root.replaceChildren(el('div', { class: 'tg', role: 'region', 'aria-label': 'Time grid' }, head, strip, el('div', { class: 'tg-scroll' }, body)));
+    root.replaceChildren(el('div', { class: 'tg', role: 'region', 'aria-label': tr('calendar.views.grid_aria') }, head, strip, el('div', { class: 'tg-scroll' }, body)));
     const now = root.querySelector('.tg-col.is-today');
     if (now) {
       const line = el('div', { class: 'tg-now', 'aria-hidden': 'true' });
@@ -108,7 +109,7 @@
       },
       drop(p) {
         const r = plan(p);
-        if (r && r.res) ctx.commit(it, r.res.change, `Moved "${it.title}"`);
+        if (r && r.res) ctx.commit(it, r.res.change, tr('calendar.views.moved', { title: it.title }));
       },
       end() { block.style.transform = ''; NS.drag.tipHide(); },
     });
@@ -121,11 +122,11 @@
       move(p) {
         const r = NS.drag.resizeEnd(it, p.dy / PX_MIN);
         block.style.height = `${Math.max(NS.drag.RESIZE_SNAP * PX_MIN, baseH + (r ? (r.end - it.end) / 60000 : 0) * PX_MIN)}px`;
-        NS.drag.tip(`Ends ${T.timeText(r ? r.end : it.end, ctx.zone, ctx.locale)}`, p.x, p.y);
+        NS.drag.tip(tr('calendar.views.ends', { time: T.timeText(r ? r.end : it.end, ctx.zone, ctx.locale) }), p.x, p.y);
       },
       drop(p) {
         const r = NS.drag.resizeEnd(it, p.dy / PX_MIN);
-        if (r) ctx.commit(it, r.change, `Resized "${it.title}"`);
+        if (r) ctx.commit(it, r.change, tr('calendar.views.resized', { title: it.title }));
       },
       end() { block.style.height = ''; NS.drag.tipHide(); },
     });

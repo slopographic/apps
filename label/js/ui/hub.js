@@ -15,7 +15,7 @@ async function saveProjectToDrive() {
   if (!App.driveId) { const id = await SlopHub.saveToDrive(blob, name, { from: 'label' }); if (!id) return; linkDrive(id); }
   else if (!(await SlopHub.update(App.driveId, { blob, name, type: blob.type }))) await SlopHub.put(blob, { id: App.driveId, name, from: 'label' });
   markSaved();
-  status('Saved ' + name + ' to Slop Drive', '', 2500);
+  status(LT('label.hub.saved', { name }), '', 2500);
 }
 const pdfBlob = async () => new Blob([await pdfBytes({ prompts: App.prompts })], { type: 'application/pdf' });
 /** File → Send to ▸ rows: the PDF to the apps that take PDFs (and Slop Workflows), the PNG to the apps that take only
@@ -24,12 +24,12 @@ function sendToItems() {
   if (!hubAvailable() || !window.SlopOuttake) return [];
   const pdfApps = SlopHub.appsAccepting('application/pdf').map((a) => a.id); // outtake-ok: the ids only, left out of the PNG list
   const tag = (items, kind) => items.map((i) => Object.assign(i, {
-    label: i.label === 'Save to Slop Drive…' ? 'Save ' + kind + ' to Slop Drive…' : /^Send to /.test(i.label) ? i.label + ' (' + kind + ')' : i.label,
+    label: i.save ? LT('label.hub.save_kind', { kind }) : i.plain ? i.label + ' (' + kind + ')' : i.label,
   }));
-  const pdf = SlopOuttake.items({ get: pdfBlob, name: () => fileBase() + '.pdf', type: 'application/pdf', from: 'label', verb: 'Send to' });
-  const png = SlopOuttake.items({ get: () => labelPNGBlob(), name: () => fileBase() + '.png', type: 'image/png', from: 'label', verb: 'Send to', exclude: pdfApps })
-    .filter((i) => /^Send to |^Save to Slop Drive/.test(i.label)); // the workflow items are there once, with the PDF
-  const save = (items) => items.filter((i) => /^Save /.test(i.label)), send = (items) => items.filter((i) => !/^Save /.test(i.label));
+  const pdf = SlopOuttake.items({ get: pdfBlob, name: () => fileBase() + '.pdf', type: 'application/pdf', from: 'label', verb: 'ui.outtake.send_to' });
+  const png = SlopOuttake.items({ get: () => labelPNGBlob(), name: () => fileBase() + '.png', type: 'image/png', from: 'label', verb: 'ui.outtake.send_to', exclude: pdfApps })
+    .filter((i) => i.plain || i.save); // the workflow items are there once, with the PDF
+  const save = (items) => items.filter((i) => i.save), send = (items) => items.filter((i) => !i.save);
   const p = tag(pdf, 'PDF'), g = tag(png, 'PNG');
   return [...send(p), ...send(g), '-', ...save(p), ...save(g)];
 }

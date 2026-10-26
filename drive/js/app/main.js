@@ -43,13 +43,13 @@
     addEventListener('resize', DR.debounce(() => { DR.clampInfoWidth(); if (['usage', 'nodes', 'list'].includes(DR.viewNow())) DR.render(); }, 200));
   }
   // Other tabs and apps change the Drive too (Send to…, saves, a restore): follow along.
-  const outside = DR.debounce(async () => { await DR.timed('Updating Slop Drive', () => DR.refresh(), { onRetry: () => DR.render() }); DR.render(); }, 150);
+  const outside = DR.debounce(async () => { await DR.timed(DR.t('drive.app.updating'), () => DR.refresh(), { onRetry: () => DR.render() }); DR.render(); }, 150);
 
   DR.boot = async function () {
     wire();
     try { window.SlopHub.register('drive'); } catch (e) { /* no bus */ }
     window.SlopHub.on('drive:change', outside);
-    try { await DR.timed('Loading Slop Drive', () => DR.refresh(), { onRetry: () => DR.render() }); } catch (e) { window.SlopUI.alert('Slop Drive is unavailable', 'This browser blocked storage for this site (private mode or a storage setting). ' + e.message); }
+    try { await DR.timed(DR.t('drive.app.loading'), () => DR.refresh(), { onRetry: () => DR.render() }); } catch (e) { window.SlopUI.alert(DR.t('drive.app.unavailable'), DR.t('drive.app.blocked', { msg: e.message })); }
     try { await DR.restoreView(); } catch (e) { /* no saved place: start at the root */ }
     // A link's place (drv.* in the URL) wins over the saved place; its file opens in Quick look once Drive is drawn.
     const linkFile = DR.urlHasPlace() ? DR.placeFromUrl().file : null;
@@ -71,6 +71,10 @@
     if (r.length) window.SlopQuota.askIfBig((a[0] || []).reduce((n, x) => n + ((x && x.file && x.file.size) || 0), 0));
     return r;
   };
+
+  // A language change: the parts built once (the view buttons, the kind filter) are made again, then everything is drawn
+  // in the new words (the static page follows through data-i18n, SlopI18n.apply).
+  DR.onLang(() => { $('views').replaceChildren(); $('kind').replaceChildren(); DR.render(); if (DR.renderFolder) DR.renderFolder(); if (DR.renderInfo) DR.renderInfo(true); });   // the details pane: drawn again even when the selection is the same
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', DR.boot); else DR.boot();
 })(window.DR);

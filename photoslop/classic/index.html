@@ -4,6 +4,8 @@
   <script src="../../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../../shared/theme/theme.js" data-app="paint-classic" data-src="shared/theme/theme.js"></script>
   <link rel="expect" href="#slop-built" blocking="render">
+  <script src="../../shared/i18n/i18n.js" data-src="shared/i18n/i18n.js"></script>
+  <script src="i18n/index.js" data-src="photoslop/classic/i18n/index.js"></script>
 <script src="../../shared/consent/config.js"></script>
 <script src="../../shared/consent/state.js"></script>
 <script src="../../shared/consent/consent-mode.js"></script>
@@ -56,21 +58,21 @@
       <div class="titlebar" id="titlebar">
         <svg class="ticon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" shape-rendering="crispEdges"><use href="#i-app"/></svg>
         <span class="ttl" id="title">untitled - Slop Paint</span>
-        <button class="tbtn" id="btnMin" type="button" aria-label="Minimize" title="Minimize"><svg viewBox="0 0 8 7" width="8" height="7"><rect x="0" y="5" width="6" height="2"/></svg></button>
-        <button class="tbtn" id="btnMax" type="button" aria-label="Maximize" title="Maximize"><svg viewBox="0 0 9 9" width="9" height="9"><path d="M0 0h9v9H0zM1 2v6h7V2z" fill-rule="evenodd"/></svg></button>
-        <button class="tbtn close" id="btnClose" type="button" aria-label="Close Slop Paint and go back to slopographic.com" title="Close (back to slopographic.com)"><svg viewBox="0 0 8 7" width="8" height="7"><path d="M0 0h2l2 2 2-2h2v1L5 3.5 8 6v1H6L4 5 2 7H0V6l3-2.5L0 1z"/></svg></button>
+        <button class="tbtn" id="btnMin" type="button" aria-label="Minimize" title="Minimize" data-i18n-attr="aria-label:paint-classic.app.minimize;title:paint-classic.app.minimize"><svg viewBox="0 0 8 7" width="8" height="7"><rect x="0" y="5" width="6" height="2"/></svg></button>
+        <button class="tbtn" id="btnMax" type="button" aria-label="Maximize" title="Maximize" data-i18n-attr="aria-label:paint-classic.app.maximize;title:paint-classic.app.maximize"><svg viewBox="0 0 9 9" width="9" height="9"><path d="M0 0h9v9H0zM1 2v6h7V2z" fill-rule="evenodd"/></svg></button>
+        <button class="tbtn close" id="btnClose" type="button" aria-label="Close Slop Paint and go back to slopographic.com" title="Close (back to slopographic.com)" data-i18n-attr="aria-label:paint-classic.app.close_aria;title:paint-classic.app.close_tip"><svg viewBox="0 0 8 7" width="8" height="7"><path d="M0 0h2l2 2 2-2h2v1L5 3.5 8 6v1H6L4 5 2 7H0V6l3-2.5L0 1z"/></svg></button>
       </div>
-      <div class="menubar" id="menubar" role="menubar" aria-label="Menu"></div>
+      <div class="menubar" id="menubar" role="menubar" aria-label="Menu" data-i18n-attr="aria-label:paint-classic.app.menu"></div>
       <div class="body" id="body">
         <div class="toolbox" id="toolbox">
-          <div class="tools" id="tools" role="toolbar" aria-label="Tools"></div>
-          <div class="optbox" id="optbox" aria-label="Tool options"></div>
+          <div class="tools" id="tools" role="toolbar" aria-label="Tools" data-i18n-attr="aria-label:paint-classic.app.tools"></div>
+          <div class="optbox" id="optbox" aria-label="Tool options" data-i18n-attr="aria-label:paint-classic.app.tool_options"></div>
         </div>
         <div class="ws-frame">
           <div class="workspace" id="ws">
             <div class="stage" id="stage">
               <div class="wrap" id="wrap" data-touch-surface>
-                <canvas id="main" width="800" height="500" aria-label="Drawing canvas" role="img"></canvas>
+                <canvas id="main" width="800" height="500" aria-label="Drawing canvas" data-i18n-attr="aria-label:paint-classic.app.canvas" role="img"></canvas>
                 <canvas id="overlay" width="800" height="500" aria-hidden="true"></canvas>
                 <div class="grid" id="grid" hidden></div>
                 <div class="selbox" id="selbox" hidden>
@@ -79,36 +81,36 @@
                   <i class="sh" data-dir="sw"></i><i class="sh" data-dir="s"></i><i class="sh" data-dir="se"></i>
                 </div>
                 <div class="ghost" id="ghost" hidden></div>
-                <i class="hdl e" data-dir="e" title="Drag to resize the canvas"></i>
-                <i class="hdl s" data-dir="s" title="Drag to resize the canvas"></i>
-                <i class="hdl se" data-dir="se" title="Drag to resize the canvas"></i>
+                <i class="hdl e" data-dir="e" title="Drag to resize the canvas" data-i18n-attr="title:paint-classic.app.resize_tip"></i>
+                <i class="hdl s" data-dir="s" title="Drag to resize the canvas" data-i18n-attr="title:paint-classic.app.resize_tip"></i>
+                <i class="hdl se" data-dir="se" title="Drag to resize the canvas" data-i18n-attr="title:paint-classic.app.resize_tip"></i>
               </div>
             </div>
           </div>
         </div>
-        <div class="fontbar win" id="fontbar" hidden role="toolbar" aria-label="Fonts">
-          <div class="titlebar mini"><span class="ttl">Fonts</span><button class="tbtn" id="fbClose" type="button" aria-label="Close fonts toolbar"><svg viewBox="0 0 8 7" width="8" height="7"><path d="M0 0h2l2 2 2-2h2v1L5 3.5 8 6v1H6L4 5 2 7H0V6l3-2.5L0 1z"/></svg></button></div>
+        <div class="fontbar win" id="fontbar" hidden role="toolbar" aria-label="Fonts" data-i18n-attr="aria-label:paint-classic.app.fonts">
+          <div class="titlebar mini"><span class="ttl" data-i18n="paint-classic.app.fonts">Fonts</span><button class="tbtn" id="fbClose" type="button" aria-label="Close fonts toolbar" data-i18n-attr="aria-label:paint-classic.app.fonts_close"><svg viewBox="0 0 8 7" width="8" height="7"><path d="M0 0h2l2 2 2-2h2v1L5 3.5 8 6v1H6L4 5 2 7H0V6l3-2.5L0 1z"/></svg></button></div>
           <div class="fb-row">
-            <select id="fFamily" aria-label="Font"></select>
-            <select id="fSize" aria-label="Font size"></select>
-            <button class="fb-t" id="fBold" type="button" aria-label="Bold" aria-pressed="false" title="Bold"><b>B</b></button>
-            <button class="fb-t" id="fItalic" type="button" aria-label="Italic" aria-pressed="false" title="Italic"><i>I</i></button>
-            <button class="fb-t" id="fUnder" type="button" aria-label="Underline" aria-pressed="false" title="Underline"><u>U</u></button>
+            <select id="fFamily" aria-label="Font" data-i18n-attr="aria-label:paint-classic.app.font"></select>
+            <select id="fSize" aria-label="Font size" data-i18n-attr="aria-label:paint-classic.app.font_size"></select>
+            <button class="fb-t" id="fBold" type="button" aria-label="Bold" aria-pressed="false" title="Bold" data-i18n-attr="aria-label:paint-classic.app.bold;title:paint-classic.app.bold"><b>B</b></button>
+            <button class="fb-t" id="fItalic" type="button" aria-label="Italic" aria-pressed="false" title="Italic" data-i18n-attr="aria-label:paint-classic.app.italic;title:paint-classic.app.italic"><i>I</i></button>
+            <button class="fb-t" id="fUnder" type="button" aria-label="Underline" aria-pressed="false" title="Underline" data-i18n-attr="aria-label:paint-classic.app.underline;title:paint-classic.app.underline"><u>U</u></button>
           </div>
         </div>
         <div class="toast" id="toast" aria-live="polite"></div>
       </div>
       <div class="colorbox" id="colorbox">
-        <button class="curcolors" id="curcolors" type="button" aria-label="Current colors. Click to swap primary and secondary" title="Primary / secondary color (click to swap)">
+        <button class="curcolors" id="curcolors" type="button" aria-label="Current colors. Click to swap primary and secondary" title="Primary / secondary color (click to swap)" data-i18n-attr="aria-label:paint-classic.app.colors_aria;title:paint-classic.app.colors_tip">
           <span class="cc fg" id="ccFg"></span><span class="cc bg" id="ccBg"></span>
         </button>
-        <div class="palette" id="palette" role="group" aria-label="Color palette"></div>
+        <div class="palette" id="palette" role="group" aria-label="Color palette" data-i18n-attr="aria-label:paint-classic.app.palette"></div>
       </div>
       <div class="statusbar" id="statusbar">
         <div class="sb msg" id="sbMsg">For Help, click Help Topics on the Help Menu.</div>
-        <div class="sb pos" id="sbPos" title="Cursor position"></div>
-        <div class="sb size" id="sbSize" title="Selection / shape size"></div>
-        <div class="sb cv" id="sbCanvas" title="Canvas size"></div>
+        <div class="sb pos" id="sbPos" title="Cursor position" data-i18n-attr="title:paint-classic.app.pos_tip"></div>
+        <div class="sb size" id="sbSize" title="Selection / shape size" data-i18n-attr="title:paint-classic.app.size_tip"></div>
+        <div class="sb cv" id="sbCanvas" title="Canvas size" data-i18n-attr="title:paint-classic.app.canvas_tip"></div>
         <div class="grip" aria-hidden="true"></div>
       </div>
     </div>
@@ -119,23 +121,23 @@
       <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M8 1S2.5 7.3 2.5 10.6a5.5 5.5 0 0 0 11 0C13.5 7.3 8 1 8 1z" fill="#9fcc00" stroke="#0a0a0a"/><path d="M5.5 11a2.6 2.6 0 0 0 2 2.4" fill="none" stroke="#fff"/></svg>
       <span>Slop</span>
     </button>
-    <button class="task active" id="taskBtn" type="button" aria-label="Slop Paint window">
+    <button class="task active" id="taskBtn" type="button" aria-label="Slop Paint window" data-i18n-attr="aria-label:paint-classic.app.window">
       <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" shape-rendering="crispEdges"><use href="#i-app"/></svg>
       <span id="taskTitle">untitled - Slop Paint</span>
     </button>
     <div class="tray">
-      <a href="../../" class="home-link" title="Back to slopographic.com">&larr; slopographic.com</a>
+      <a href="../../" class="home-link" title="Back to slopographic.com" data-i18n-attr="title:paint-classic.app.home_tip">&larr; slopographic.com</a>
       <span id="clock">12:00 PM</span>
     </div>
   </div>
-  <div class="startmenu win" id="startmenu" hidden role="menu" aria-label="Start menu">
+  <div class="startmenu win" id="startmenu" hidden role="menu" aria-label="Start menu" data-i18n-attr="aria-label:paint-classic.app.start_menu">
     <div class="banner" aria-hidden="true"><b>Slop</b>98</div>
     <div class="sm-items">
-      <a class="sm-item" role="menuitem" href="../../"><svg viewBox="0 0 32 32" width="24" height="24" aria-hidden="true"><rect x="1" y="1" width="30" height="30" rx="6" fill="#0a0a0a"/><path d="M16 5S8 14 8 19.5a8 8 0 0 0 16 0C24 14 16 5 16 5z" fill="#d4ff3a"/></svg><span>Back to slopographic.com</span></a>
-      <button class="sm-item" role="menuitem" type="button" data-act="about"><svg viewBox="0 0 16 16" width="24" height="24" aria-hidden="true" shape-rendering="crispEdges"><use href="#i-app"/></svg><span>About Slop Paint</span></button>
-      <button class="sm-item" role="menuitem" type="button" data-act="help"><svg viewBox="0 0 16 16" width="24" height="24" aria-hidden="true"><path d="M2 2h12v10H6l-3 3v-3H2z" fill="#ffffc0" stroke="#000"/><path d="M6.3 5.2a1.8 1.8 0 1 1 2.4 1.7c-.5.2-.7.5-.7 1V8.6M8 10v1" fill="none" stroke="#000"/></svg><span>Help</span></button>
+      <a class="sm-item" role="menuitem" href="../../"><svg viewBox="0 0 32 32" width="24" height="24" aria-hidden="true"><rect x="1" y="1" width="30" height="30" rx="6" fill="#0a0a0a"/><path d="M16 5S8 14 8 19.5a8 8 0 0 0 16 0C24 14 16 5 16 5z" fill="#d4ff3a"/></svg><span data-i18n="paint-classic.app.start_home">Back to slopographic.com</span></a>
+      <button class="sm-item" role="menuitem" type="button" data-act="about"><svg viewBox="0 0 16 16" width="24" height="24" aria-hidden="true" shape-rendering="crispEdges"><use href="#i-app"/></svg><span data-i18n="paint-classic.app.start_about">About Slop Paint</span></button>
+      <button class="sm-item" role="menuitem" type="button" data-act="help"><svg viewBox="0 0 16 16" width="24" height="24" aria-hidden="true"><path d="M2 2h12v10H6l-3 3v-3H2z" fill="#ffffc0" stroke="#000"/><path d="M6.3 5.2a1.8 1.8 0 1 1 2.4 1.7c-.5.2-.7.5-.7 1V8.6M8 10v1" fill="none" stroke="#000"/></svg><span data-i18n="paint-classic.app.start_help">Help</span></button>
       <div class="sep"></div>
-      <a class="sm-item" role="menuitem" href="../../"><svg viewBox="0 0 16 16" width="24" height="24" aria-hidden="true"><rect x="2" y="3" width="12" height="9" fill="#008080" stroke="#000"/><rect x="5" y="12" width="6" height="2" fill="#808080" stroke="#000"/><circle cx="8" cy="7.5" r="2.5" fill="#d4ff3a"/></svg><span>Shut Down (go home)...</span></a>
+      <a class="sm-item" role="menuitem" href="../../"><svg viewBox="0 0 16 16" width="24" height="24" aria-hidden="true"><rect x="2" y="3" width="12" height="9" fill="#008080" stroke="#000"/><rect x="5" y="12" width="6" height="2" fill="#808080" stroke="#000"/><circle cx="8" cy="7.5" r="2.5" fill="#d4ff3a"/></svg><span data-i18n="paint-classic.app.start_shutdown">Shut Down (go home)...</span></a>
     </div>
   </div>
 

@@ -28,7 +28,7 @@
 
   describe('SlopResizePanel', () => {
     it('a handle on each panel\'s inner edge, a separator with its values, over the edge even though the panel scrolls', async () => {
-      localStorage.removeItem('slop-profile');
+      localStorage.removeItem('slop-profile'); SlopTest.english();
       const W = await open(1200), g = W.RIGHT.handle, r = W.document.getElementById('right').getBoundingClientRect();
       expect([w(W, 'right'), w(W, 'left')]).toEqual([300, 200]);
       expect([g.getAttribute('role'), g.getAttribute('aria-valuenow'), g.getAttribute('aria-valuemin'), g.getAttribute('aria-valuemax'), g.tabIndex]).toEqual(['separator', '300', '220', '500', 0]);

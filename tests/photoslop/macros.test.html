@@ -7,18 +7,22 @@
 </head>
 <body>
   <script src="../harness.js"></script>
+  <script src="../../shared/profile/profile.js"></script>
+  <script src="../../shared/i18n/i18n.js"></script>   <!-- the shared components' words (shared/i18n/ui) -->
   <script src="fresh-app.js"></script>
   <script type="module">
   // Covers: shared/macros/core.js, shared/macros/store.js, shared/macros/macros.js, shared/macros/panel.js, shared/macros/frame.js,
   //   shared/macros/macros.css, shared/ops/macros.js, photoslop/js/app/macros.js, photoslop/js/app/ai-commands.js, photoslop/js/app/commands.js,
-  //   photoslop/js/ui/filter-dialog.js, photoslop/js/ui/size-dialogs.js, shared/commands/commands.js
+  //   photoslop/js/ui/filter-dialog.js, photoslop/js/ui/size-dialogs.js, shared/commands/commands.js,
+  //   shared/i18n/ui/en/macros.js, shared/i18n/ui/sv/macros.js
   import * as R from '../../shared/ops/all.js';
   import { loadMacros } from '../../shared/ops/macros.js';
   import { dropHosts } from '../../shared/macros/frame.js';
   const { describe, it, expect, waitFor, sleep } = SlopTest;
   let app, win, W, SM;
 
-  const wipe = () => new Promise((res) => { const r = indexedDB.deleteDatabase('slop-macros'); r.onsuccess = r.onerror = r.onblocked = () => res(); });
+  // no macros, through the store: deleting the database would leave this page's open store on the deleted one
+  const wipe = async () => { for (const x of await window.SlopMacroStore.list()) await window.SlopMacroStore.remove(x.id); };
   /** A 400 × 300 picture: grey with a red block on the left half, so a crop and a flip show. */
   function picture() {
     W.newDocument(400, 300, '#808080', 'Test');
@@ -100,6 +104,16 @@
       expect(new Set(SM.list().map((m) => m.id)).size).toBe(2);   // an import of one already here gets a new id
       await SM.remove(SM.list()[0].id, { ask: false });
       expect(SM.list().length).toBe(1);
+      // the built panel follows a language switch (shared/i18n/ui/sv/macros.js): title, buttons, the list's rows
+      win.SlopI18n.set('sv');
+      await waitFor(() => panel.querySelector('.smac-title').textContent === 'Makron', { timeout: 15000 });
+      expect(panel.querySelector('#smac-record').textContent).toBe('Spela in');
+      expect(panel.querySelector('#smac-stop').textContent).toBe('Stoppa och spara');
+      expect(panel.querySelector('.sl-row').textContent).toContain('4 steg');
+      expect(panel.textContent).not.toMatch(/ui\.macro\./);
+      win.SlopI18n.set('en');
+      await waitFor(() => panel.querySelector('.smac-title').textContent === 'Macros', { timeout: 15000 });
+      expect(panel.querySelector('.sl-row').textContent).toContain('4 steps');
       win.SlopMacrosPanel.close();
     }, { timeout: 30000 });
 

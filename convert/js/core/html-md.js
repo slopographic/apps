@@ -6,6 +6,7 @@
  *   nodeToMarkdown(node) -> text     the same for a parsed element (an EPUB chapter's body)
  * Link and image addresses are checked by SlopSanitize.url (shared/sanitize/sanitize.js): javascript: and the like go. */
 import '../../../shared/sanitize/sanitize.js';
+import { tr } from './i18n.js';
 
 const BLOCK = new Set(['P', 'DIV', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'UL', 'OL', 'TABLE', 'BLOCKQUOTE', 'PRE', 'SECTION', 'ARTICLE',
   'HEADER', 'FOOTER', 'NAV', 'MAIN', 'ASIDE', 'HR', 'DL', 'DT', 'DD', 'FIGURE', 'FIGCAPTION', 'ADDRESS', 'DETAILS', 'SUMMARY', 'BODY', 'CENTER']);
@@ -117,6 +118,6 @@ export function nodeToMarkdown(node) {
 export function htmlToMarkdown(html) {
   const doc = new DOMParser().parseFromString(String(html), 'text/html');
   const md = nodeToMarkdown(doc.body);
-  if (!md.trim()) throw new Error('This HTML has no text to turn into Markdown.');
+  if (!md.trim()) throw new Error(tr('convert.html.no_text'));
   return md;
 }

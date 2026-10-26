@@ -9,14 +9,21 @@
 (function () {
   'use strict';
   if (window.HexBytes) return;
+  /** A word in the page's language (shared/i18n), or the English given: the node tests and the assistant run without
+   *  the tables, and a missing key never shows. */
+  function tr(key, en, vars) {
+    const I = window.SlopI18n;
+    if (I && I.has && I.has(key)) return I.t(key, vars);
+    return vars ? en.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en;
+  }
 
   function parseOffset(text, size) {
     const s = String(text || '').trim();
     let v = null;
     if (/^0x[0-9a-f]+$/i.test(s)) v = parseInt(s.slice(2), 16);
     else if (/^\d+$/.test(s)) v = parseInt(s, 10);
-    if (v === null || !Number.isSafeInteger(v)) return { error: 'Enter a decimal offset or a 0x hex offset' };
-    if (v < 0 || v >= size) return { error: size ? `Offset must be between 0 and ${size - 1}` : 'The file is empty' };
+    if (v === null || !Number.isSafeInteger(v)) return { error: tr('hex.bytes.bad_offset', 'Enter a decimal offset or a 0x hex offset') };
+    if (v < 0 || v >= size) return { error: size ? tr('hex.bytes.range', 'Offset must be between 0 and {max}', { max: String(size - 1) }) : tr('hex.bytes.empty', 'The file is empty') };
     return { value: v };
   }
 
@@ -41,46 +48,47 @@
     return '0x' + n.toString(16).toUpperCase().padStart(digits, '0');
   }
 
+  // [magic bytes, key, English]: the label shown is the key's text in the page's language
   const MAGIC = [
-    [[0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a], 'PNG image'],
-    [[0xff, 0xd8, 0xff], 'JPEG image'],
-    [[0x47, 0x49, 0x46, 0x38], 'GIF image'],
-    [[0x25, 0x50, 0x44, 0x46, 0x2d], 'PDF document'],
-    [[0x50, 0x4b, 0x03, 0x04], 'ZIP archive (also Office and EPUB files)'],
-    [[0x1f, 0x8b], 'gzip archive'],
-    [[0x37, 0x7a, 0xbc, 0xaf, 0x27, 0x1c], '7-Zip archive'],
-    [[0x52, 0x61, 0x72, 0x21, 0x1a, 0x07], 'RAR archive'],
-    [[0x7f, 0x45, 0x4c, 0x46], 'ELF executable'],
-    [[0x4d, 0x5a], 'Windows executable (MZ)'],
-    [[0xcf, 0xfa, 0xed, 0xfe], 'Mach-O 64-bit executable'],
-    [[0xce, 0xfa, 0xed, 0xfe], 'Mach-O 32-bit executable'],
-    [[0x00, 0x61, 0x73, 0x6d], 'WebAssembly module'],
-    [[0x1a, 0x45, 0xdf, 0xa3], 'WebM or Matroska video'],
-    [[0x4f, 0x67, 0x67, 0x53], 'Ogg media'],
-    [[0x49, 0x44, 0x33], 'MP3 audio (ID3 tag)'],
-    [[0xff, 0xfb], 'MP3 audio'],
-    [[0x66, 0x4c, 0x61, 0x43], 'FLAC audio'],
-    [[0x00, 0x00, 0x01, 0x00], 'ICO icon'],
-    [[0x3c, 0x3f, 0x78, 0x6d, 0x6c], 'XML document'],
-    [[0x53, 0x51, 0x4c, 0x69, 0x74, 0x65, 0x20, 0x66, 0x6f, 0x72, 0x6d, 0x61, 0x74, 0x20, 0x33, 0x00], 'SQLite database'],
+    [[0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a], 'hex.type.png', 'PNG image'],   // i18n-ignore
+    [[0xff, 0xd8, 0xff], 'hex.type.jpeg', 'JPEG image'],   // i18n-ignore
+    [[0x47, 0x49, 0x46, 0x38], 'hex.type.gif', 'GIF image'],   // i18n-ignore
+    [[0x25, 0x50, 0x44, 0x46, 0x2d], 'hex.type.pdf', 'PDF document'],   // i18n-ignore
+    [[0x50, 0x4b, 0x03, 0x04], 'hex.type.zip', 'ZIP archive (also Office and EPUB files)'],   // i18n-ignore
+    [[0x1f, 0x8b], 'hex.type.gzip', 'gzip archive'],   // i18n-ignore
+    [[0x37, 0x7a, 0xbc, 0xaf, 0x27, 0x1c], 'hex.type.7z', '7-Zip archive'],   // i18n-ignore
+    [[0x52, 0x61, 0x72, 0x21, 0x1a, 0x07], 'hex.type.rar', 'RAR archive'],   // i18n-ignore
+    [[0x7f, 0x45, 0x4c, 0x46], 'hex.type.elf', 'ELF executable'],   // i18n-ignore
+    [[0x4d, 0x5a], 'hex.type.mz', 'Windows executable (MZ)'],   // i18n-ignore
+    [[0xcf, 0xfa, 0xed, 0xfe], 'hex.type.macho64', 'Mach-O 64-bit executable'],   // i18n-ignore
+    [[0xce, 0xfa, 0xed, 0xfe], 'hex.type.macho32', 'Mach-O 32-bit executable'],   // i18n-ignore
+    [[0x00, 0x61, 0x73, 0x6d], 'hex.type.wasm', 'WebAssembly module'],   // i18n-ignore
+    [[0x1a, 0x45, 0xdf, 0xa3], 'hex.type.webm', 'WebM or Matroska video'],   // i18n-ignore
+    [[0x4f, 0x67, 0x67, 0x53], 'hex.type.ogg', 'Ogg media'],   // i18n-ignore
+    [[0x49, 0x44, 0x33], 'hex.type.mp3id3', 'MP3 audio (ID3 tag)'],   // i18n-ignore
+    [[0xff, 0xfb], 'hex.type.mp3', 'MP3 audio'],   // i18n-ignore
+    [[0x66, 0x4c, 0x61, 0x43], 'hex.type.flac', 'FLAC audio'],   // i18n-ignore
+    [[0x00, 0x00, 0x01, 0x00], 'hex.type.ico', 'ICO icon'],   // i18n-ignore
+    [[0x3c, 0x3f, 0x78, 0x6d, 0x6c], 'hex.type.xml', 'XML document'],   // i18n-ignore
+    [[0x53, 0x51, 0x4c, 0x69, 0x74, 0x65, 0x20, 0x66, 0x6f, 0x72, 0x6d, 0x61, 0x74, 0x20, 0x33, 0x00], 'hex.type.sqlite', 'SQLite database'],   // i18n-ignore
   ];
   const at = (b, off, sig) => sig.every((v, i) => b[off + i] === v);
 
   /** A label for the file type. Checks the magic bytes first, then whether the start reads as plain text. */
   function guessType(b) {
-    if (!b || !b.length) return 'Empty file';
-    if (b.length >= 12 && at(b, 0, [0x52, 0x49, 0x46, 0x46]) && at(b, 8, [0x57, 0x45, 0x42, 0x50])) return 'WebP image';
-    if (b.length >= 12 && at(b, 0, [0x52, 0x49, 0x46, 0x46]) && at(b, 8, [0x57, 0x41, 0x56, 0x45])) return 'WAV audio';
-    if (b.length >= 8 && at(b, 4, [0x66, 0x74, 0x79, 0x70])) return 'MP4 or QuickTime media (ISO base media)';
-    for (const [sig, label] of MAGIC) if (b.length >= sig.length && at(b, 0, sig)) return label;
+    if (!b || !b.length) return tr('hex.type.empty', 'Empty file');
+    if (b.length >= 12 && at(b, 0, [0x52, 0x49, 0x46, 0x46]) && at(b, 8, [0x57, 0x45, 0x42, 0x50])) return tr('hex.type.webp', 'WebP image');
+    if (b.length >= 12 && at(b, 0, [0x52, 0x49, 0x46, 0x46]) && at(b, 8, [0x57, 0x41, 0x56, 0x45])) return tr('hex.type.wav', 'WAV audio');
+    if (b.length >= 8 && at(b, 4, [0x66, 0x74, 0x79, 0x70])) return tr('hex.type.mp4', 'MP4 or QuickTime media (ISO base media)');
+    for (const [sig, key, label] of MAGIC) if (b.length >= sig.length && at(b, 0, sig)) return tr(key, label);
     const n = Math.min(b.length, 1024);
     let text = 0;
     for (let i = 0; i < n; i++) {
       const c = b[i];
-      if (c === 0) return 'Binary data';
+      if (c === 0) return tr('hex.type.binary', 'Binary data');
       if (c === 9 || c === 10 || c === 13 || (c >= 0x20 && c <= 0x7e) || c >= 0x80) text++;
     }
-    return text / n >= 0.95 ? 'Text (probably UTF-8 or ASCII)' : 'Binary data';
+    return text / n >= 0.95 ? tr('hex.type.text', 'Text (probably UTF-8 or ASCII)') : tr('hex.type.binary', 'Binary data');
   }
 
   /** First index >= from where pat occurs in hay, or -1. */

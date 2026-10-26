@@ -15,7 +15,10 @@
     filter: { assignee: '', tag: '', text: '' }, zoom: NS.bars.ZOOMS[get('slop-projects.zoom')] ? get('slop-projects.zoom') : 'day',
     sort: NS.listView.stored(), today: T.todayIn(T.deviceZone()), locale: undefined, view: 'board', seq: 0,
   };
-  let first = null;
+  let first = null, own;
+  /** Dates in the language the page is read in; in English, the company's locale (Admin) decides the format. */
+  const locale = () => { const l = g.SlopI18n ? g.SlopI18n.get() : 'en'; return l !== 'en' ? l : own; };
+  if (g.SlopI18n) g.SlopI18n.on(() => { state.locale = locale(); if (state.project !== undefined) draw(); });   // the views in the new language
 
   /** Reads the projects, the open project's tasks and the customers' names. */
   async function load() {
@@ -78,7 +81,8 @@
       g.SlopUndo.keys(NS.actions.history, () => NS.actions.undo());
       first = (async () => {
         const st = await S.store.get('settings', 'main');
-        state.locale = (st.ok && st.value && st.value.locale) || undefined;
+        own = (st.ok && st.value && st.value.locale) || undefined;
+        state.locale = locale();
         await load();
       })();
     },

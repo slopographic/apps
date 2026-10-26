@@ -3,6 +3,7 @@
  * and pan. Pointer events pass through. Classic script; adds to window.SlopFaces.drawBoxes. */
 (function (g) {
   'use strict';
+  const tr = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);   // words: shared/i18n/ui/<code>/preview.js
   const F = (g.SlopFaces = g.SlopFaces || {});
   const NS = 'http://www.w3.org/2000/svg';
   let styled = false;
@@ -37,7 +38,7 @@
         r.setAttribute('x', String(f.x)); r.setAttribute('y', String(f.y));
         r.setAttribute('width', String(f.w)); r.setAttribute('height', String(f.h));
         const t = g.document.createElementNS(NS, 'title');
-        t.textContent = `Face ${i + 1}`;
+        t.textContent = tr('ui.faces.face_n', { i: i + 1 });
         r.append(t);
         svg.append(r);
       });

@@ -141,7 +141,11 @@
     list,
     install() {
       if (!window.SlopCmd || !SlopCmd.register) return;
-      SlopCmd.register(list);
+      // the palette's titles and groups in the current language (music/i18n/<code>/commands.js), again after a change
+      const I = window.SlopI18n, tr = (k, en) => (I && I.has(k) ? I.t(k) : en);
+      const shown = () => list.map((c) => Object.assign({}, c, { title: tr('music.cmd.' + c.tool, c.title), group: tr('music.cmd.group_' + c.group.toLowerCase(), c.group) }));
+      SlopCmd.register(shown());
+      if (I && I.on) I.on(() => SlopCmd.register(shown()));
       SlopCmd.provide({ state: () => A().state(), checkpoint: () => A().checkpoint() });
     },
   };

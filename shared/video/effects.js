@@ -12,22 +12,25 @@
   const S = SV.seed;
   const SALT = 0x9e3779b9;
 
-  FX.KINDS = [['none', 'None'], ['random', 'Random: one per cut, from the seed'], ['grain', 'Film grain'], ['colour', 'Colour shift'], ['glitch', 'Glitch'], ['zoom', 'Zoom pulse'], ['vignette', 'Vignette']];
   /** The effects Random chooses from. */
   FX.PICKS = ['grain', 'colour', 'glitch', 'zoom', 'vignette'];
-  FX.CHANGE = [['cut', 'Changes at every cut'], ['reel', 'Once for the whole reel']];
+  const KIND_IDS = ['none', 'random'].concat(FX.PICKS), CHANGE_IDS = ['cut', 'reel'];
+  /** KINDS and CHANGE: [[id, label]] in the chosen language (getters; labels ui.video.fx / change). */
+  Object.defineProperty(FX, 'KINDS', { enumerable: true, get: () => SV.words('fx', KIND_IDS) });
+  Object.defineProperty(FX, 'CHANGE', { enumerable: true, get: () => SV.words('change', CHANGE_IDS) });
   FX.DEFAULT = { kind: 'none', intensity: 0.5, change: 'cut' };
-  FX.name = (kind) => (FX.KINDS.find((k) => k[0] === kind) || [kind, kind])[1];
+  /** The label of an effect kind (the kind itself when unknown). */
+  FX.name = (kind) => (KIND_IDS.includes(kind) ? SV.word('fx', kind) : kind);
 
   /** Options checked and defaulted: kind, intensity (0 to 1, two decimals) and change. */
   FX.norm = function (o) {
     const v = o || {};
-    const kind = FX.KINDS.some((k) => k[0] === v.kind) ? v.kind : FX.DEFAULT.kind;
+    const kind = KIND_IDS.includes(v.kind) ? v.kind : FX.DEFAULT.kind;
     const i = Number.isFinite(+v.intensity) && v.intensity !== null ? +v.intensity : FX.DEFAULT.intensity;
     return {
       kind,
       intensity: Math.round(Math.min(1, Math.max(0, i)) * 100) / 100,
-      change: FX.CHANGE.some((c) => c[0] === v.change) ? v.change : FX.DEFAULT.change,
+      change: CHANGE_IDS.includes(v.change) ? v.change : FX.DEFAULT.change,
     };
   };
   /**

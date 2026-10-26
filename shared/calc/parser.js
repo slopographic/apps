@@ -7,6 +7,8 @@
 (function (g) {
   'use strict';
   const ns = (g.SlopCalc = g.SlopCalc || {});
+  /** A word from the shared tables (shared/i18n/ui/<code>/calc.js), the key without SlopI18n. */
+  const say = (key, vars) => (g.SlopI18n ? g.SlopI18n.t(key, vars) : key);
   const { CalcError, lexer, units, dates } = { CalcError: ns.CalcError, lexer: ns.lexer, units: ns.units, dates: ns.dates };
   const own = (obj, k) => Object.prototype.hasOwnProperty.call(obj, k);
 
@@ -24,7 +26,7 @@
     const peek = (k = 0) => toks[Math.min(p + k, toks.length - 1)];
     const next = () => toks[p++];
     const word = (t) => (t.type === 'word' ? t.value.toLowerCase() : '');
-    const need = (type, what) => { const t = peek(); if (t.type !== type) throw new CalcError(`Expected ${what}`, t.pos); return next(); };
+    const need = (type, what) => { const t = peek(); if (t.type !== type) throw new CalcError(say('ui.calc.expected', { what }), t.pos); return next(); };
 
     function expr(minPrec) {
       let left = unary();
@@ -35,9 +37,9 @@
           if (minPrec > 1) break;
           next();
           const u = peek();
-          if (u.type !== 'word') throw new CalcError('Expected a unit after in', u.pos, 'syntax');
+          if (u.type !== 'word') throw new CalcError(say('ui.calc.unit_after_in'), u.pos, 'syntax');
           const target = units.lookup(u.value);
-          if (!target) throw new CalcError(`Unknown unit “${u.value}”`, u.pos, 'unit');
+          if (!target) throw new CalcError(say('ui.calc.unknown_unit', { unit: u.value }), u.pos, 'unit');
           next();
           left = { type: 'conv', x: left, to: target, pos: t.pos };
           continue;
@@ -83,16 +85,16 @@
           return postfix(e);
         }
         case 'date':
-          if (!dates.parse(t.value)) throw new CalcError(`“${t.value}” is not a real date`, t.pos, 'syntax');
+          if (!dates.parse(t.value)) throw new CalcError(say('ui.calc.bad_date', { text: t.value }), t.pos, 'syntax');
           return { type: 'date', iso: t.value, pos: t.pos };
         case 'time': {
           const [h, m] = t.value.split(':').map(Number);
-          if (h > 23 || m > 59) throw new CalcError(`“${t.value}” is not a time of day`, t.pos, 'syntax');
+          if (h > 23 || m > 59) throw new CalcError(say('ui.calc.bad_time', { text: t.value }), t.pos, 'syntax');
           return { type: 'tod', min: h * 60 + m, pos: t.pos };
         }
         case 'word': return wordTerm(t);
-        case 'end': throw new CalcError('The expression stops early', t.pos);
-        default: throw new CalcError(`Unexpected “${t.value}”`, t.pos);
+        case 'end': throw new CalcError(say('ui.calc.ends_early'), t.pos);
+        default: throw new CalcError(say('ui.calc.unexpected', { text: t.value }), t.pos);
       }
     }
 
@@ -116,7 +118,7 @@
       if (own(CAL_WORDS, lw)) { next(); return { type: 'qty', dim: 'calendar', unit: CAL_WORDS[lw], v: n, pos: t.pos }; }
       const u = units.lookup(lw);
       if (u) { next(); return { type: 'qty', dim: u.dim, unit: u.unit, v: n, pos: t.pos }; }
-      throw new CalcError(`Unknown unit “${w.value}”`, w.pos, 'unit');
+      throw new CalcError(say('ui.calc.unknown_unit', { unit: w.value }), w.pos, 'unit');
     }
 
     function wordTerm(t) {
@@ -132,7 +134,7 @@
           }
         }
         need('rp', ')');
-        if (args.length !== FUNCS[w]) throw new CalcError(`${w} takes ${FUNCS[w]} argument${FUNCS[w] === 1 ? '' : 's'}`, t.pos);
+        if (args.length !== FUNCS[w]) throw new CalcError(say('ui.calc.args', { fn: w, n: FUNCS[w] }), t.pos);
         return { type: 'call', fn: w, args, pos: t.pos };
       }
       if (w === 'today') return { type: 'today', pos: t.pos };
@@ -140,9 +142,9 @@
       return { type: 'var', name: w, raw: t.value, pos: t.pos }; // resolved when evaluated (a variable the page or graph holds)
     }
 
-    if (peek().type === 'end') throw new CalcError('Type an expression', 0);
+    if (peek().type === 'end') throw new CalcError(say('ui.calc.empty'), 0);
     const tree = expr(0);
-    if (peek().type !== 'end') { const t = peek(); throw new CalcError(`Unexpected “${t.value}”`, t.pos); }
+    if (peek().type !== 'end') { const t = peek(); throw new CalcError(say('ui.calc.unexpected', { text: t.value }), t.pos); }
     return tree;
   }
 

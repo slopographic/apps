@@ -4,9 +4,9 @@ import { S, curNote } from './state.js';
 import * as A from './actions.js';
 import { render } from './markdown.js';
 import { tablesFromHtml } from './table.js';
-import { $ } from './dom.js';
+import { $, t } from './dom.js';
 
-const tagsFrom = (text) => [...new Set(String(text).split(',').map((t) => t.trim().replace(/^#/, '').toLowerCase()).filter(Boolean))].slice(0, 30);
+const tagsFrom = (text) => [...new Set(String(text).split(',').map((tag) => tag.trim().replace(/^#/, '').toLowerCase()).filter(Boolean))].slice(0, 30);
 let redrawList = () => {};
 
 export function renderPreview() {
@@ -28,7 +28,7 @@ export function renderEditor() {
   $('nt-title').value = n.title;
   $('nt-tags-in').value = n.tags.join(', ');
   $('nt-body').value = n.body;
-  $('nt-pin').textContent = n.pinned ? 'Unpin' : 'Pin';
+  $('nt-pin').textContent = n.pinned ? t('notes.app.unpin') : t('notes.app.pin');
   $('nt-pin').setAttribute('aria-pressed', String(n.pinned));
   renderPreview();
   applyMode();

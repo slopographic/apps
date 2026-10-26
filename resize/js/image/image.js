@@ -7,7 +7,7 @@
  * Classic script; exposes window.SlopResize.image. Needs core/size.js and core/format.js. */
 (function (g) {
   'use strict';
-  const NS = g.SlopResize, I = (NS.image = {});
+  const NS = g.SlopResize, I = (NS.image = {}), tr = (k, en, v) => NS.tr(k, en, v);
   const canvas = (w, h) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
   const smooth = (ctx, best) => { ctx.imageSmoothingEnabled = best !== false; ctx.imageSmoothingQuality = 'high'; };
 
@@ -34,7 +34,7 @@
       if (!img.naturalWidth || !img.naturalHeight) throw new Error('empty');
       return { node: img, w: img.naturalWidth, h: img.naturalHeight, close: () => {} };
     } catch (e) {
-      throw new Error('The browser cannot read this picture');
+      throw new Error(tr('resize.err.no_read', 'The browser cannot read this picture'));
     } finally { URL.revokeObjectURL(url); }
   };
 
@@ -106,19 +106,19 @@
       const fill = chosen || (fmt.alpha ? null : '#ffffff');
       let note = s.note || '';
       if (!fmt.alpha && !chosen && hasTransparency(s)) {
-        note = `${fmt.label} has no transparency, so transparent areas are filled white. Pick a background colour to choose the fill.`;
+        note = tr('resize.note.filled_white', '{format} has no transparency, so transparent areas are filled white. Pick a background colour to choose the fill.', { format: fmt.label });
       }
       const r = I.render(s, spec, { bg: fill });
       let blob = await I.encode(r.canvas, fmt.mime, o.quality);
       let sizeNote = '';
       if (o.maxBytes > 0 && blob.size > o.maxBytes) {
         if (!fmt.lossy) {
-          sizeNote = `${fmt.label} cannot be made smaller by quality. Use JPEG, WebP or AVIF for a size limit.`;
+          sizeNote = tr('resize.note.lossless', '{format} cannot be made smaller by quality. Use JPEG, WebP or AVIF for a size limit.', { format: fmt.label });
         } else {
           const lowest = await I.encode(r.canvas, fmt.mime, 0.05);
           let best = lowest;
           if (lowest.size > o.maxBytes) {
-            sizeNote = `Even the lowest quality is ${NS.format.bytes(lowest.size)}, over the ${NS.format.bytes(o.maxBytes)} limit. Make the picture smaller as well.`;
+            sizeNote = tr('resize.note.over_limit', 'Even the lowest quality is {size}, over the {limit} limit. Make the picture smaller as well.', { size: NS.format.bytes(lowest.size), limit: NS.format.bytes(o.maxBytes) });
           } else {
             let lo = 0.05, hi = o.quality;
             for (let i = 0; i < 7 && hi - lo > 0.01; i++) {

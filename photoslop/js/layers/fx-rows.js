@@ -14,11 +14,11 @@ function fxRows(L) {
 }
 function fxRow(L, e, i) {
   const label = fxLabel(e), on = e.on !== false;
-  const eye = h('button', { type: 'button', class: 'lp-eye fx-eye' + (on ? ' on' : ''), title: on ? 'Hide effect' : 'Show effect', 'aria-label': (on ? 'Hide ' : 'Show ') + label, html: FX_EYE_SVG });
-  eye.addEventListener('click', (ev) => { ev.stopPropagation(); setFxProps(L.id, e.id, { on: !on }, on ? 'Hide Effect' : 'Show Effect'); });
-  const edit = h('button', { type: 'button', class: 'lp-btn fx-edit', title: 'Edit effect', 'aria-label': 'Edit ' + label, html: '<svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16zM14 6l4 4"/></svg>' });
+  const eye = h('button', { type: 'button', class: 'lp-eye fx-eye' + (on ? ' on' : ''), title: tr(on ? 'photoslop.fx.hide_tip' : 'photoslop.fx.show_tip'), 'aria-label': tr(on ? 'photoslop.fx.hide_named' : 'photoslop.fx.show_named', { name: label }), html: FX_EYE_SVG });
+  eye.addEventListener('click', (ev) => { ev.stopPropagation(); setFxProps(L.id, e.id, { on: !on }, tr(on ? 'photoslop.fx.hide_effect' : 'photoslop.fx.show_effect')); });
+  const edit = h('button', { type: 'button', class: 'lp-btn fx-edit', title: tr('photoslop.fx.edit_tip'), 'aria-label': tr('photoslop.fx.edit_named', { name: label }), html: '<svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16zM14 6l4 4"/></svg>' });
   edit.addEventListener('click', (ev) => { ev.stopPropagation(); openFxDialog(L.id, e.id); });
-  const row = h('li', { class: 'fx' + (on ? '' : ' off'), role: 'option', tabindex: '0', draggable: 'true', 'data-layer': String(L.id), 'data-fx': String(e.id), 'aria-label': `${i + 1}. ${label}`, title: 'Double-click or Enter to edit · Alt+Up/Down to move · Delete to remove' },
+  const row = h('li', { class: 'fx' + (on ? '' : ' off'), role: 'option', tabindex: '0', draggable: 'true', 'data-layer': String(L.id), 'data-fx': String(e.id), 'aria-label': `${i + 1}. ${label}`, title: tr('photoslop.fx.row_tip') },
     eye, h('span', { class: 'fx-n' }, String(i + 1)), h('span', { class: 'fx-name' }, label), edit);
   row.addEventListener('dblclick', (ev) => { ev.stopPropagation(); openFxDialog(L.id, e.id); });
   row.addEventListener('click', () => { if (D.activeId !== L.id) { D.activeId = L.id; UI.editMask = false; emit('doc'); emit('tool'); } });
@@ -48,13 +48,13 @@ function fxRow(L, e, i) {
 function fxItems(L, e) {
   const on = e.on !== false, idx = () => fxIndex(L.id, e.id), n = () => fxOf(L.id).length;
   return [
-    { label: 'Edit effect…', act: () => openFxDialog(L.id, e.id) },
-    { label: on ? 'Hide Effect' : 'Show Effect', act: () => setFxProps(L.id, e.id, { on: !on }, on ? 'Hide Effect' : 'Show Effect') },
+    { label: tr('photoslop.fx.edit_effect'), act: () => openFxDialog(L.id, e.id) },
+    { label: tr(on ? 'photoslop.fx.hide_effect' : 'photoslop.fx.show_effect'), act: () => setFxProps(L.id, e.id, { on: !on }, tr(on ? 'photoslop.fx.hide_effect' : 'photoslop.fx.show_effect')) },
     '-',
-    { label: 'Move Up', act: () => moveFx(L.id, idx(), idx() - 1), en: () => idx() > 0 },
-    { label: 'Move Down', act: () => moveFx(L.id, idx(), idx() + 1), en: () => idx() < n() - 1 },
+    { label: tr('photoslop.fx.move_up'), act: () => moveFx(L.id, idx(), idx() - 1), en: () => idx() > 0 },
+    { label: tr('photoslop.fx.move_down'), act: () => moveFx(L.id, idx(), idx() + 1), en: () => idx() < n() - 1 },
     '-',
-    { label: 'Delete Effect', act: () => removeFx(L.id, e.id) },
+    { label: tr('photoslop.fx.delete_effect'), act: () => removeFx(L.id, e.id) },
   ];
 }
 /** Keys on a focused effect row. Registered before SlopCmd's window handler, so Delete and Alt+arrows reach the stack. */

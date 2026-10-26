@@ -1,13 +1,13 @@
-/* SlopTour: Slop Docs. Targets are ids in docs/index.html. */
+/* SlopTour: Slop Docs. Targets are ids in docs/index.html. The words are keys in docs/i18n (docs.tour.title,
+ * docs.tour.<step>_title and _text), read when the tour shows them (shared/tour/HANDOFF.md). */
 SlopTour.define({
   app: 'docs',
-  title: 'Slop Docs tour',
   steps: [
-    { id: 'name', title: 'Document name', text: 'Rename the document here.', target: '#docName' },
-    { id: 'menus', title: 'Menus', text: 'File, Edit, Insert and the other menus.', target: '#menus' },
-    { id: 'formatting', title: 'Formatting', text: 'Font, size, bold and the other controls apply to the selected text.', target: '#toolbar' },
-    { id: 'style', title: 'Paragraph style', text: 'Headings and body styles for the paragraph you are in.', target: '#selStyle' },
-    { id: 'page', title: 'Page', text: 'Your pages. Type straight onto them.', target: '#stage' },
-    { id: 'save', title: 'Save', text: 'Save to Slop Drive (Ctrl+S).', target: '#btnSave' },
+    { id: 'name', target: '#docName' },
+    { id: 'menus', target: '#menus' },
+    { id: 'formatting', target: '#toolbar' },
+    { id: 'style', target: '#selStyle' },
+    { id: 'page', target: '#stage' },
+    { id: 'save', target: '#btnSave' },
   ],
 });

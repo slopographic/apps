@@ -1,13 +1,14 @@
-/* SlopTour: Slop Cut (the slopcut folder). Targets are ids in slopcut/index.html. */
+/* SlopTour: SlopCut (the slopcut folder). Targets are ids in slopcut/index.html. The words are keys in slopcut/i18n (slopedit.tour.title,
+ * slopedit.tour.<step>_title and _text), read when the tour shows them (shared/tour/HANDOFF.md). */
 SlopTour.define({
   app: 'slopcut',
-  title: 'Slop Cut tour',
+  ns: 'slopedit',
   steps: [
-    { id: 'bin', title: 'Media bin', text: 'Your clips, music and effects. Drag them onto the timeline to build the cut.', target: '#bin' },
-    { id: 'monitor', title: 'Program monitor', text: 'Shows the cut as it plays. Space plays and pauses.', target: '#monitor' },
-    { id: 'inspector', title: 'Inspector', text: 'Settings for the selected clip. Select a clip on the timeline to change it.', target: '#insp' },
-    { id: 'timeline', title: 'Timeline', text: 'Clips sit on tracks. S splits at the playhead; arrows step frame by frame.', target: '#timeline' },
-    { id: 'undo', title: 'Undo and redo', text: 'Undo and redo are in the top bar, next to the project name.', target: '#btnUndo' },
-    { id: 'export', title: 'Export', text: 'Export the finished cut as a video file.', target: '#btnExport' },
+    { id: 'bin', target: '#bin' },
+    { id: 'monitor', target: '#monitor' },
+    { id: 'inspector', target: '#insp' },
+    { id: 'timeline', target: '#timeline' },
+    { id: 'undo', target: '#btnUndo' },
+    { id: 'export', target: '#btnExport' },
   ],
 });

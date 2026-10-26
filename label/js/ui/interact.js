@@ -3,19 +3,19 @@
 'use strict';
 
 const TOOLS = [
-  { id: 'select', name: 'Select', key: 'V', svg: '<path d="M5 3l12 8-5 1.2 3 5.8-2.4 1.2-3-5.8L5 17z" fill="currentColor"/>' },
-  { id: 'hand', name: 'Hand (pan)', key: 'H', svg: '<path d="M7 11V5.5a1.5 1.5 0 013 0V10m0-5.5V4a1.5 1.5 0 013 0v6m0-4.5a1.5 1.5 0 013 0V11m0-3a1.5 1.5 0 013 0v5c0 4-3 7-6.5 7S7 18 5.5 15.5L3.8 12.6a1.4 1.4 0 012.3-1.6L7 12.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>' },
+  { id: 'select', get name() { return LT('label.interact.select'); }, key: 'V', svg: '<path d="M5 3l12 8-5 1.2 3 5.8-2.4 1.2-3-5.8L5 17z" fill="currentColor"/>' },
+  { id: 'hand', get name() { return LT('label.interact.hand_pan'); }, key: 'H', svg: '<path d="M7 11V5.5a1.5 1.5 0 013 0V10m0-5.5V4a1.5 1.5 0 013 0v6m0-4.5a1.5 1.5 0 013 0V11m0-3a1.5 1.5 0 013 0v5c0 4-3 7-6.5 7S7 18 5.5 15.5L3.8 12.6a1.4 1.4 0 012.3-1.6L7 12.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>' },
   '-',
-  { id: 'text', name: 'Text', key: 'T', create: 'text', svg: '<path d="M5 5h14M12 5v14M9 19h6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>' },
-  { id: 'para', name: 'Paragraph (wrapping text box)', key: 'P', create: 'para', svg: '<path d="M4 6h16M4 10h16M4 14h16M4 18h10" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/>' },
-  { id: 'barcode', name: 'Barcode', key: 'B', create: 'barcode', svg: '<path d="M4 5v14M6.5 5v14M8 5v14M11 5v14M13.5 5v14M15 5v14M17.5 5v14M20 5v14" stroke="currentColor" stroke-width="1.4" fill="none"/>' },
+  { id: 'text', get name() { return LT('label.menu.text'); }, key: 'T', create: 'text', svg: '<path d="M5 5h14M12 5v14M9 19h6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>' },
+  { id: 'para', get name() { return LT('label.interact.paragraph_wrapping_text_box'); }, key: 'P', create: 'para', svg: '<path d="M4 6h16M4 10h16M4 14h16M4 18h10" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/>' },
+  { id: 'barcode', get name() { return LT('label.interact.barcode'); }, key: 'B', create: 'barcode', svg: '<path d="M4 5v14M6.5 5v14M8 5v14M11 5v14M13.5 5v14M15 5v14M17.5 5v14M20 5v14" stroke="currentColor" stroke-width="1.4" fill="none"/>' },
   { id: 'qr', name: 'QR / 2D code', key: 'Q', create: 'barcode', svg: '<path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M6 6h2v2H6zM16 6h2v2h-2zM6 16h2v2H6zM14 14h2v2h-2zM18 14h2v2h-2zM16 16h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2z" fill="currentColor"/>' },
-  { id: 'image', name: 'Image', key: 'I', create: 'image', svg: '<rect x="3.5" y="5" width="17" height="14" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="9" cy="10" r="1.7" fill="currentColor"/><path d="M4 17l5-5 3.5 3.5L15 13l5 4.5" fill="none" stroke="currentColor" stroke-width="1.6"/>' },
+  { id: 'image', get name() { return LT('label.ptypes.image'); }, key: 'I', create: 'image', svg: '<rect x="3.5" y="5" width="17" height="14" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="9" cy="10" r="1.7" fill="currentColor"/><path d="M4 17l5-5 3.5 3.5L15 13l5 4.5" fill="none" stroke="currentColor" stroke-width="1.6"/>' },
   '-',
-  { id: 'rect', name: 'Box', key: 'R', create: 'rect', svg: '<rect x="4" y="6" width="16" height="12" fill="none" stroke="currentColor" stroke-width="1.8"/>' },
-  { id: 'line', name: 'Line', key: 'L', create: 'line', svg: '<path d="M4 19L20 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>' },
-  { id: 'ellipse', name: 'Ellipse', key: 'E', create: 'ellipse', svg: '<ellipse cx="12" cy="12" rx="8.5" ry="6.5" fill="none" stroke="currentColor" stroke-width="1.8"/>' },
-  { id: 'inverse', name: 'Inverse box (reverse print)', key: 'N', create: 'inverse', svg: '<rect x="4" y="6" width="16" height="12" fill="currentColor"/><path d="M8 12h8" stroke="var(--bg-panel)" stroke-width="2"/>' },
+  { id: 'rect', get name() { return LT('label.menu.box'); }, key: 'R', create: 'rect', svg: '<rect x="4" y="6" width="16" height="12" fill="none" stroke="currentColor" stroke-width="1.8"/>' },
+  { id: 'line', get name() { return LT('label.menu.line'); }, key: 'L', create: 'line', svg: '<path d="M4 19L20 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>' },
+  { id: 'ellipse', get name() { return LT('label.menu.ellipse'); }, key: 'E', create: 'ellipse', svg: '<ellipse cx="12" cy="12" rx="8.5" ry="6.5" fill="none" stroke="currentColor" stroke-width="1.8"/>' },
+  { id: 'inverse', get name() { return LT('label.interact.inverse_box_reverse_print'); }, key: 'N', create: 'inverse', svg: '<rect x="4" y="6" width="16" height="12" fill="currentColor"/><path d="M8 12h8" stroke="var(--bg-panel)" stroke-width="2"/>' },
 ];
 const toolById = (id) => TOOLS.find((t) => t && t.id === id);
 function setTool(id) {
@@ -136,8 +136,8 @@ function onPointerUp(e) {
   if (D0.mode === 'pinch') { if (pointers.size < 2) Drag = null; refresh({ keepProps: true }); return; }
   if (D0.mode === 'pan') { if (D0.tap && e.type === 'pointerup' && Math.hypot(App.panX - D0.px, App.panY - D0.py) < 4 && App.sel.length) { select([]); return; } refresh({ keepProps: true }); return; }
   if (D0.mode === 'marquee') { refresh(); return; }
-  if (D0.mode === 'move') { if (D0.moved) commit(D0.objs.length > 1 ? 'Move objects' : 'Move'); else refresh(); return; }
-  if (D0.mode === 'resize') { syncAutoSize(App.doc, D0.o, previewGet()); commit('Resize'); return; }
+  if (D0.mode === 'move') { if (D0.moved) commit(D0.objs.length > 1 ? LT('label.interact.move_objects') : LT('label.interact.move')); else refresh(); return; }
+  if (D0.mode === 'resize') { syncAutoSize(App.doc, D0.o, previewGet()); commit(LT('label.interact.resize')); return; }
   if (D0.mode === 'create') createFromDrag(D0);
 }
 const normRect = (x0, y0, x1, y1) => ({ x: Math.min(x0, x1), y: Math.min(y0, y1), w: Math.abs(x1 - x0), h: Math.abs(y1 - y0) });
@@ -209,9 +209,9 @@ async function insertImageFile(file, props = {}) {
     const a = await addImageAsset(App.doc, file);
     let w = props.w || Math.min(30, App.doc.label.w * 0.6), h = props.h || w / a.aspect;
     if (!props.h && h > App.doc.label.h * 0.8) { h = App.doc.label.h * 0.6; w = h * a.aspect; }
-    const o = makeObject('image', Object.assign({ x: 3, y: 3 }, props, { w: round(w, 3), h: round(h, 3), asset: a.id, aspect: a.aspect, name: (file.name || 'Image').replace(/\.[^.]+$/, '') }));
+    const o = makeObject('image', Object.assign({ x: 3, y: 3 }, props, { w: round(w, 3), h: round(h, 3), asset: a.id, aspect: a.aspect, name: (file.name || LT('label.ptypes.image')).replace(/\.[^.]+$/, '') }));
     await preloadImages(App.doc);
-    return addObject(o, 'Place image');
+    return addObject(o, LT('label.interact.place_image'));
   } catch (err) { SlopUI.toast(err.message); return null; }
 }
 

@@ -39,25 +39,26 @@ const CURSORS = (() => {
   };
 })();
 
+// [id, name key, tip key]: the words are in i18n/<lang>/menus.js (t(name), t(tip))
 const TOOLS = [
-  ['freesel', 'Free-Form Select', 'Selects a free-form part of the picture to move, copy, or edit.'],
-  ['select', 'Select', 'Selects a rectangular part of the picture to move, copy, or edit.'],
-  ['eraser', 'Eraser/Color Eraser', 'Erases a portion of the picture, using the selected eraser shape. Right-drag erases only the primary color.'],
-  ['fill', 'Fill With Color', 'Fills an area with the current drawing color.'],
-  ['picker', 'Pick Color', 'Picks up a color from the picture for drawing.'],
-  ['zoom', 'Magnifier', 'Changes the magnification.'],
-  ['pencil', 'Pencil', 'Draws a free-form line one pixel wide.'],
-  ['brush', 'Brush', 'Draws using a brush with the selected shape and size.'],
-  ['airbrush', 'Airbrush', 'Draws using an airbrush of the selected size.'],
-  ['text', 'Text', 'Inserts text into the picture.'],
-  ['line', 'Line', 'Draws a straight line with the selected line width. Shift snaps to 45°.'],
-  ['curve', 'Curve', 'Draws a curved line: drag a line, then click twice to bend it.'],
-  ['rect', 'Rectangle', 'Draws a rectangle with the selected fill style. Shift for a square.'],
-  ['poly', 'Polygon', 'Draws a polygon: drag the first side, click for more, double-click to finish.'],
-  ['ellipse', 'Ellipse', 'Draws an ellipse with the selected fill style. Shift for a circle.'],
-  ['rrect', 'Rounded Rectangle', 'Draws a rounded rectangle with the selected fill style.'],
-  ['slop', 'Slop Brush', 'Paints thick green slime that drips. Right-click for the dark batch.'],
-  ['stamp', 'Slop Stamp', 'Stamps premium emoji slop. Right-click for a surprise slop.'],
+  ['freesel', 'paint-classic.tool.freesel', 'paint-classic.tool.freesel_tip'],
+  ['select', 'paint-classic.tool.select', 'paint-classic.tool.select_tip'],
+  ['eraser', 'paint-classic.tool.eraser', 'paint-classic.tool.eraser_tip'],
+  ['fill', 'paint-classic.tool.fill', 'paint-classic.tool.fill_tip'],
+  ['picker', 'paint-classic.tool.picker', 'paint-classic.tool.picker_tip'],
+  ['zoom', 'paint-classic.tool.zoom', 'paint-classic.tool.zoom_tip'],
+  ['pencil', 'paint-classic.tool.pencil', 'paint-classic.tool.pencil_tip'],
+  ['brush', 'paint-classic.tool.brush', 'paint-classic.tool.brush_tip'],
+  ['airbrush', 'paint-classic.tool.airbrush', 'paint-classic.tool.airbrush_tip'],
+  ['text', 'paint-classic.tool.text', 'paint-classic.tool.text_tip'],
+  ['line', 'paint-classic.tool.line', 'paint-classic.tool.line_tip'],
+  ['curve', 'paint-classic.tool.curve', 'paint-classic.tool.curve_tip'],
+  ['rect', 'paint-classic.tool.rect', 'paint-classic.tool.rect_tip'],
+  ['poly', 'paint-classic.tool.poly', 'paint-classic.tool.poly_tip'],
+  ['ellipse', 'paint-classic.tool.ellipse', 'paint-classic.tool.ellipse_tip'],
+  ['rrect', 'paint-classic.tool.rrect', 'paint-classic.tool.rrect_tip'],
+  ['slop', 'paint-classic.tool.slop', 'paint-classic.tool.slop_tip'],
+  ['stamp', 'paint-classic.tool.stamp', 'paint-classic.tool.stamp_tip'],
 ];
 const TOOL_INFO = Object.fromEntries(TOOLS.map(t => [t[0], t]));
 

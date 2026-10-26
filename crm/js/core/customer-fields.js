@@ -56,14 +56,15 @@
   }
 
   /** Messages for rows of one kind, keyed 'phone:0', 'email:1' ... */
+  const tr = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
   function rowErrors(rows, kind, e) {
     (rows || []).forEach((r, i) => {
       const x = trim(r.value);
       if (!x) return;
       const key = `${kind}:${i}`;
-      if (x.length > LIMIT[kind]) e[key] = `Keep it to ${LIMIT[kind]} characters.`;
-      else if (kind === 'email' && !EMAIL_RX.test(x)) e[key] = 'That email does not look right, for example name@example.com.';
-      else if (kind === 'phone' && (!PHONE_RX.test(x) || digits(x) < 6 || digits(x) > 20)) e[key] = 'Use 6 to 20 digits. Spaces, + ( ) and - are fine.';
+      if (x.length > LIMIT[kind]) e[key] = tr('crm.core.keep_n', { n: String(LIMIT[kind]) });
+      else if (kind === 'email' && !EMAIL_RX.test(x)) e[key] = tr('crm.core.bad_email');
+      else if (kind === 'phone' && (!PHONE_RX.test(x) || digits(x) < 6 || digits(x) > 20)) e[key] = tr('crm.core.bad_phone');
     });
   }
 
@@ -74,16 +75,16 @@
   function validate(v) {
     const e = {};
     const name = trim(v.name);
-    if (!name) e.name = 'Name is needed.';
-    else if (name.length > LIMIT.name) e.name = `Keep the name to ${LIMIT.name} characters.`;
+    if (!name) e.name = tr('crm.core.need_name');
+    else if (name.length > LIMIT.name) e.name = tr('crm.core.name_n', { n: String(LIMIT.name) });
     rowErrors(v.phones, 'phone', e);
     rowErrors(v.emails, 'email', e);
     rowErrors(v.addresses, 'address', e);
     const web = trim(v.website);
-    if (web && (web.length > LIMIT.website || !WEB_RX.test(web))) e.website = 'Use a web address such as example.com.';
-    for (const k of ['company', 'department', 'title']) if (trim(v[k]).length > LIMIT.text) e[k] = `Keep it to ${LIMIT.text} characters.`;
-    if (trim(v.followUp) && !isDate(trim(v.followUp))) e.followUp = 'Use a real date, such as 2026-10-31.';
-    if (String(v.notes || '').length > LIMIT.notes) e.notes = `Keep the notes to ${LIMIT.notes} characters.`;
+    if (web && (web.length > LIMIT.website || !WEB_RX.test(web))) e.website = tr('crm.core.bad_web');
+    for (const k of ['company', 'department', 'title']) if (trim(v[k]).length > LIMIT.text) e[k] = tr('crm.core.keep_n', { n: String(LIMIT.text) });
+    if (trim(v.followUp) && !isDate(trim(v.followUp))) e.followUp = tr('crm.core.bad_date');
+    if (String(v.notes || '').length > LIMIT.notes) e.notes = tr('crm.core.notes_n', { n: String(LIMIT.notes) });
     return e;
   }
 

@@ -18,7 +18,7 @@
   IN.RULES = {
     types: ['video/*', 'audio/*', 'image/*', 'application/x-slopedit', 'application/zip', REEL, 'application/json'],
     exts: ['.mp4', '.m4v', '.mov', '.webm', '.mkv', '.mp3', '.wav', '.m4a', '.aac', '.ogg', '.opus', '.flac', '.jpg', '.jpeg', '.png', '.webp', '.gif', '.svg', '.slopedit'],
-    noun: 'a video, audio, picture or project',
+    noun: 'slopedit.io.a_video_audio_picture_or',
   };
   const DRIVE = ['video/*', 'audio/*', 'image/*', 'application/x-slopedit', 'application/zip'];
   const names = (files) => files.map((f) => f.name);
@@ -47,7 +47,7 @@
   IN.importMedia = () => SI.pick({ to: 'slopedit', accept: SE.app.ACCEPT + ',.slopedit' });
   /** Open project (.slopedit)… (Ctrl+O). */
   IN.openProject = () => SI.pick({ to: 'slopedit', multiple: false, accept: '.slopedit,application/zip,' + SE.project.MIME });
-  IN.fromDrive = () => SI.fromDrive({ to: 'slopedit', title: 'Import from Slop Drive' });
+  IN.fromDrive = () => SI.fromDrive({ to: 'slopedit', title: SE.util.t('slopedit.bin.import_from_slop_drive') });
   /** What the page was opened with (?drive=<id>, a PWA launch). Resolves true when something came in. */
   IN.launch = async () => { const r = await SI.launch({ to: 'slopedit' }); return !!(r && r.added && r.added.length); };
   /** Files (or Slop Drive records) another app handed over while SlopCut is open, with what they are for (data). */

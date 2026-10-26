@@ -2,7 +2,7 @@
 // none) that covers what shared/office/xml.js and the PPTX reader call. Helper for slides-*.test.mjs; not a test itself.
 import vm from 'node:vm';
 import path from 'node:path';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -72,8 +72,22 @@ export const CORE = ['slides/js/core/util.js', 'slides/js/core/themes.js', 'slid
 export const PPTX = ['slides/js/io/pptx-in-style.js', 'slides/js/io/pptx-in-text.js', 'slides/js/io/pptx-in-shape.js', 'slides/js/io/pptx-in.js', 'slides/js/io/pptx.js'];
 
 /** Runs the given scripts (repo paths) in this process as the browser would, and returns window.SS. */
+/** The app's English words (slides/i18n/en/*.js) behind a small SlopI18n: t(key, vars) with the #one plural, has(key). */
+function englishWords() {
+  if (globalThis.SlopI18n) return;
+  const T = {};
+  const fill = (s, v) => s.replace(/\{(\w+)\}/g, (m, n) => (v && n in v ? String(v[n]) : m));
+  globalThis.SlopI18n = {
+    add: (code, dict) => { if (code === 'en') Object.assign(T, dict); },
+    has: (k) => k in T,
+    t: (k, v) => { const s = v && v.n === 1 && T[k + '#one'] != null ? T[k + '#one'] : T[k]; return s == null ? k : fill(s, v); },
+  };
+  const dir = path.join(ROOT, 'slides', 'i18n', 'en');
+  for (const f of readdirSync(dir)) vm.runInThisContext(readFileSync(path.join(dir, f), 'utf8'), { filename: path.join(dir, f) });
+}
 export function loadSlides(files) {
   globalThis.window = globalThis;
+  englishWords();
   globalThis.SS = globalThis.SS || {};
   globalThis.location = globalThis.location || { href: pathToFileURL(path.join(ROOT, 'slides', 'index.html')).href };
   for (const f of files) {

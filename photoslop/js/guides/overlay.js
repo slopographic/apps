@@ -20,13 +20,13 @@ function drawGuidesLayer(g) {
   if (d && d.moved) {
     g.beginPath(); line(d.o, d.pos); g.strokeStyle = d.out ? 'rgba(255,80,80,.7)' : '#ff2dd4'; g.stroke();
     const s = d.o === 'v' ? { x: sx(d.pos) + 6, y: (GUIDE_PREFS.rulers ? RULER : 0) + 16 } : { x: (GUIDE_PREFS.rulers ? RULER : 0) + 6, y: sy(d.pos) - 6 };
-    pill(g, d.out ? 'Delete' : `${d.o === 'v' ? 'X' : 'Y'} ${fmtPos(d.pos)} px`, s.x, s.y);
+    pill(g, d.out ? tr('photoslop.guide.pill_delete') : `${d.o === 'v' ? 'X' : 'Y'} ${fmtPos(d.pos)} px`, s.x, s.y);
   }
   g.restore();
 }
 const fmtPos = (v) => String(Math.round(v * 100) / 100);
 function pill(g, text, x, y) {
-  g.font = '600 11px "JetBrains Mono", ui-monospace, monospace';
+  g.font = '600 11px "JetBrains Mono", ui-monospace, monospace'; // i18n-ignore: ids, key names, CSS
   const w = g.measureText(text).width + 10;
   x = clamp(x, 2, V.W - w - 2); y = clamp(y, 14, V.H - 4);
   g.fillStyle = 'rgba(0,0,0,.78)'; g.fillRect(x, y - 13, w, 17); g.fillStyle = '#fff'; g.fillText(text, x + 5, y);
@@ -72,7 +72,7 @@ function drawRulers(g) {
   g.save();
   g.fillStyle = c.bg; g.fillRect(0, 0, V.W, RULER); g.fillRect(0, 0, RULER, V.H);
   g.strokeStyle = c.line; g.lineWidth = 1; g.beginPath(); g.moveTo(0, RULER - 0.5); g.lineTo(V.W, RULER - 0.5); g.moveTo(RULER - 0.5, 0); g.lineTo(RULER - 0.5, V.H); g.stroke();
-  g.font = '9px "JetBrains Mono", ui-monospace, monospace'; g.fillStyle = c.fg; g.strokeStyle = c.fg; g.globalAlpha = 0.85;
+  g.font = '9px "JetBrains Mono", ui-monospace, monospace'; g.fillStyle = c.fg; g.strokeStyle = c.fg; g.globalAlpha = 0.85; // i18n-ignore: ids, key names, CSS
   g.beginPath();
   const ticks = (o) => {
     const off = o === 'v' ? V.ox : V.oy, len = o === 'v' ? V.W : V.H;

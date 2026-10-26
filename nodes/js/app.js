@@ -6,9 +6,10 @@
   const C = window.SlopCalc, G = C.graph, M = window.SlopNodesModel, V = window.SlopNodesView, CM = window.SlopNodesMenu;
   const P = window.SlopNodesProjects, K = window.SlopCalcKeep, R = window.SlopCalcRates;
   const $ = (id) => document.getElementById(id);
-  const KEY = 'slopnodes.graph', KIND_NAME = { value: 'Value', formula: 'Formula', output: 'Output', note: 'Note' };
+  const KEY = 'slopnodes.graph', TYPES = ['value', 'formula', 'output', 'note'];
+  const t = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k), kindName = (type) => t(`nodes.kind.${type}`);
   const S = { g: null, res: new Map(), cycles: new Set(), undo: [], redo: [], sel: { kind: null, id: null }, typing: false,
-    moveSnap: null, timer: 0, clip: null, last: { x: 80, y: 80 }, project: { driveId: null, name: 'Untitled project' } };
+    moveSnap: null, timer: 0, clip: null, last: { x: 80, y: 80 }, project: { driveId: null, name: '' } };
 
   const status = (msg) => { $('sn-status').textContent = msg; };
   const today = () => C.dates.localIso();
@@ -20,8 +21,8 @@
     S.res = r.results; S.cycles = r.cycles;
     V.paint(S.res, S.cycles);
     const shown = S.g.nodes.filter((n) => n.type !== 'note').length, errs = [...S.res.values()].filter((x) => !x.ok).length;
-    $('sn-count').textContent = S.g.nodes.length + (S.g.nodes.length === 1 ? ' node' : ' nodes') + ' · ' + S.g.links.length + (S.g.links.length === 1 ? ' wire' : ' wires') +
-      (S.cycles.size ? ' · ' + S.cycles.size + ' in a loop' : '') + (errs && shown ? ' · ' + errs + ' with errors' : '');
+    $('sn-count').textContent = [t('nodes.count.nodes', { n: S.g.nodes.length }), t('nodes.count.wires', { n: S.g.links.length })]
+      .concat(S.cycles.size ? [t('nodes.count.loop', { n: S.cycles.size })] : [], errs && shown ? [t('nodes.count.errors', { n: errs })] : []).join(' · ');
   }
   function persist() {
     clearTimeout(S.timer);
@@ -39,8 +40,8 @@
   function pushUndo(snap) { S.undo.push(snap); if (S.undo.length > 100) S.undo.shift(); S.redo = []; }
   function beginTyping() { if (!S.typing) { pushUndo(snapshot()); S.typing = true; } }
   function restore(snap) { S.g = M.load(JSON.parse(snap)); S.sel = { kind: null, id: null }; V.select(null, null); changed(true); }
-  function undo() { if (!S.undo.length) return status('Nothing to undo.'); S.redo.push(snapshot()); restore(S.undo.pop()); status('Undone.'); }
-  function redo() { if (!S.redo.length) return status('Nothing to redo.'); const next = S.redo.pop(); S.undo.push(snapshot()); restore(next); status('Redone.'); }
+  function undo() { if (!S.undo.length) return status(t('ui.undo.nothing')); S.redo.push(snapshot()); restore(S.undo.pop()); status(t('nodes.st.undone')); }
+  function redo() { if (!S.redo.length) return status(t('nodes.st.nothing_redo')); const next = S.redo.pop(); S.undo.push(snapshot()); restore(next); status(t('nodes.st.redone')); }
 
   // ---- the canvas handlers ----
   const H = {
@@ -57,22 +58,22 @@
     rename(id, text) {
       beginTyping();
       const problem = M.rename(S.g, id, text);
-      status(problem || 'Name set.');
+      status(problem || t('nodes.st.named'));
       changed(false);
     },
     connect(from, to) {
       pushUndo(snapshot());
       const problem = M.connect(S.g, from, to);
       if (problem) { S.undo.pop(); status(problem); return; }
-      changed(true); status('Connected.');
+      changed(true); status(t('nodes.st.connected'));
     },
     detach(linkId, to) {
       pushUndo(snapshot());
       if (to) {
         const problem = M.reconnect(S.g, linkId, to);
         if (problem) { S.undo.pop(); status(problem); return; }
-        changed(true); status('Wire moved.');
-      } else { M.disconnect(S.g, linkId); changed(true); status('Wire removed.'); }
+        changed(true); status(t('nodes.st.wire_moved'));
+      } else { M.disconnect(S.g, linkId); changed(true); status(t('nodes.st.wire_removed')); }
     },
     linksInto: (id) => S.g.links.filter((l) => l.to === id),
     nodeOf: (id) => node(id),
@@ -93,7 +94,7 @@
     changed(true);
     const box = document.querySelector('.sn-node[data-id="' + id + '"] .sn-name');
     if (box) box.focus();
-    status('Added a ' + KIND_NAME[type].toLowerCase() + '. Name it and type its formula.');
+    status(t(`nodes.st.added_${type}`));
     return id;
   }
   function addCenter(type) {
@@ -109,64 +110,61 @@
     copy.expr = n.expr;
     if (n.type !== 'note') { copy.name = M.uniqueName(S.g, n.type); }
     S.sel = { kind: 'node', id: nid };
-    changed(true); status('Duplicated ' + n.name + '.');
+    changed(true); status(t('nodes.st.duplicated', { name: n.name }));
   }
   function copySel() {
     const n = S.sel.kind === 'node' ? node(S.sel.id) : null;
-    if (!n) return status('Select a node to copy.');
+    if (!n) return status(t('nodes.st.select_copy'));
     S.clip = { type: n.type, expr: n.expr };
-    status('Copied ' + (n.name || KIND_NAME[n.type]) + '. Right-click the canvas to paste.');
+    status(t('nodes.st.copied', { name: n.name || kindName(n.type) }));
   }
   function pasteAt(pt) {
-    if (!S.clip) return status('Nothing copied yet.');
+    if (!S.clip) return status(t('nodes.st.nothing_copied'));
     pushUndo(snapshot());
     const id = M.addNode(S.g, S.clip.type, pt || { x: S.last.x + 30, y: S.last.y + 30 });
     node(id).expr = S.clip.expr;
     S.sel = { kind: 'node', id };
-    changed(true); status('Pasted.');
+    changed(true); status(t('nodes.st.pasted'));
   }
   async function deleteNode(id) {
     const n = node(id);
     if (!n) return;
     const usedBy = S.g.links.filter((l) => l.from === id).length;
-    const ok = await SlopUI.confirm('Delete ' + (n.name || 'this node'), usedBy ? 'Its ' + usedBy + ' wire' + (usedBy === 1 ? ' is' : 's are') + ' removed too. Undo brings it back.' : 'Remove this node? Undo brings it back.', 'Delete', { danger: true });
+    const ok = await SlopUI.confirm(n.name ? t('nodes.dlg.delete', { name: n.name }) : t('nodes.dlg.delete_this'), usedBy ? t('nodes.dlg.delete_wires', { n: usedBy }) : t('nodes.dlg.delete_body'), t('ui.delete'), { danger: true });
     if (!ok) return;
     pushUndo(snapshot());
     M.removeNode(S.g, id);
     S.sel = { kind: null, id: null };
-    changed(true); status('Deleted.');
+    changed(true); status(t('nodes.st.deleted'));
   }
   function deleteSel() {
-    if (S.sel.kind === 'link') { pushUndo(snapshot()); M.disconnect(S.g, S.sel.id); S.sel = { kind: null, id: null }; changed(true); return status('Wire removed.'); }
+    if (S.sel.kind === 'link') { pushUndo(snapshot()); M.disconnect(S.g, S.sel.id); S.sel = { kind: null, id: null }; changed(true); return status(t('nodes.st.wire_removed')); }
     if (S.sel.kind === 'node') return deleteNode(S.sel.id);
-    status('Select a node or a wire first.');
+    status(t('nodes.st.select_first'));
   }
 
   function openMenu(x, y, kind, id) {
     S.last = worldAt(x, y);
     if (kind === 'canvas') {
       const items = [
-        { label: 'Add a value', act: () => addAt('value', S.last) },
-        { label: 'Add a formula', act: () => addAt('formula', S.last) },
-        { label: 'Add an output', act: () => addAt('output', S.last) },
-        { label: 'Add a note', act: () => addAt('note', S.last) },
+        ...TYPES.map((type) => ({ label: t(`nodes.menu.add_${type}`), act: () => addAt(type, S.last) })),
       ];
-      if (S.clip) items.push('-', { label: 'Paste node', act: () => pasteAt(S.last) });
+      if (S.clip) items.push('-', { label: t('nodes.menu.paste'), act: () => pasteAt(S.last) });
       return CM.open(x, y, items);
     }
     if (kind === 'link') {
-      return CM.open(x, y, [{ label: 'Delete wire', act: () => { S.sel = { kind: 'link', id }; deleteSel(); } }]);
+      return CM.open(x, y, [{ label: t('nodes.menu.delete_wire'), act: () => { S.sel = { kind: 'link', id }; deleteSel(); } }]);
     }
     const n = node(id);
     if (!n) return;
-    const others = KIND_NAME, items = [
-      { label: 'Rename…', act: () => { const b = document.querySelector('.sn-node[data-id="' + id + '"] .sn-name'); if (b) b.focus(); } },
-      { label: 'Change type', sub: Object.keys(others).map((t) => ({ label: others[t], disabled: t === n.type, act: () => { pushUndo(snapshot()); M.setType(S.g, id, t); changed(true); status('Now a ' + others[t].toLowerCase() + '.'); } })) },
-      { label: 'Duplicate', keys: 'Ctrl+D', act: () => duplicate(id) },
-      { label: 'Copy', keys: 'Ctrl+C', act: () => { S.sel = { kind: 'node', id }; copySel(); } },
+    const items = [
+      { label: t('ui.rename_dots'), act: () => { const b = document.querySelector('.sn-node[data-id="' + id + '"] .sn-name'); if (b) b.focus(); } },
+      { label: t('nodes.menu.change_type'), sub: TYPES.map((k) => ({ label: kindName(k), disabled: k === n.type, act: () => { pushUndo(snapshot()); M.setType(S.g, id, k); changed(true); status(t(`nodes.st.now_${k}`)); } })) },
+      { label: t('ui.duplicate'), keys: 'Ctrl+D', act: () => duplicate(id) },
+      { label: t('ui.copy'), keys: 'Ctrl+C', act: () => { S.sel = { kind: 'node', id }; copySel(); } },
     ];
-    if (S.g.links.some((l) => l.from === id || l.to === id)) items.push({ label: 'Disconnect all wires', act: () => { pushUndo(snapshot()); S.g.links = S.g.links.filter((l) => l.from !== id && l.to !== id); changed(true); status('Wires removed.'); } });
-    items.push('-', { label: 'Delete', keys: 'Del', act: () => deleteNode(id) });
+    if (S.g.links.some((l) => l.from === id || l.to === id)) items.push({ label: t('nodes.menu.disconnect'), act: () => { pushUndo(snapshot()); S.g.links = S.g.links.filter((l) => l.from !== id && l.to !== id); changed(true); status(t('nodes.st.wires_removed')); } });
+    items.push('-', { label: t('ui.delete'), keys: 'Del', act: () => deleteNode(id) });
     CM.open(x, y, items);
   }
 
@@ -175,23 +173,23 @@
     try {
       let name = S.project.name;
       if (asNew || !S.project.driveId) {
-        name = await SlopUI.prompt(asNew ? 'Save a copy' : 'Save project', 'Project name', name, { ok: 'Save' });
+        name = await SlopUI.prompt(asNew ? t('nodes.dlg.save_copy') : t('nodes.dlg.save'), t('nodes.dlg.project_name'), name, { ok: t('menu.save') });
         if (!name) return;
-        name = String(name).trim().slice(0, 80) || 'Untitled project';
+        name = String(name).trim().slice(0, 80) || t('nodes.app.untitled');
       }
       const id = await P.save({ driveId: asNew ? null : S.project.driveId, name, graph: M.save(S.g) });
       S.project = { driveId: id, name };
       $('sn-project').textContent = name;
-      status('Saved “' + name + '” to Slop Drive.');
-    } catch (e) { status('Not saved: ' + (e.message || e)); }
+      status(t('nodes.st.saved', { name }));
+    } catch (e) { status(t('nodes.st.not_saved', { why: e.message || e })); }
   }
   // Open project… is the one shared Slop Drive picker (SlopIntake.fromDrive, part 'nodes.project'); a file that is not
   // a Slopnodes project is refused in plain words by P.open
   function openProject() {
     const SI = window.SlopIntake;
-    if (!SI) return status('Slop Drive is not available.');
-    return SI.fromDrive({ title: 'Open a project', accept: ['application/json'], to: SI.part({
-      id: 'nodes.project', limit: 1, accept: { types: ['application/json'], exts: ['.json'], noun: 'a Slopnodes project' },
+    if (!SI) return status(t('nodes.st.no_drive'));
+    return SI.fromDrive({ title: t('nodes.dlg.open'), accept: ['application/json'], to: SI.part({
+      id: 'nodes.project', limit: 1, accept: { types: ['application/json'], exts: ['.json'], noun: 'nodes.app.noun' },
       process: async (f, ctx) => { if (ctx.drive) await loadProject(ctx.drive.id); return f.name; },
     }) });
   }
@@ -203,27 +201,27 @@
       S.project = { driveId: id, name: pr.name };
       $('sn-project').textContent = pr.name;
       changed(true);
-      status('Opened “' + pr.name + '”. Undo brings back the graph you had.');
-    } catch (e) { status(e.message || 'Not opened.'); }
+      status(t('nodes.st.opened', { name: pr.name }));
+    } catch (e) { status(e.message || t('nodes.st.not_opened')); }
   }
   async function newGraph() {
     if (S.g.nodes.length) {
-      const ok = await SlopUI.confirm('New graph', 'Start an empty graph? Undo brings this one back.', 'New', { danger: true });
+      const ok = await SlopUI.confirm(t('nodes.menu.new'), t('nodes.dlg.new_body'), t('nodes.dlg.new_ok'), { danger: true });
       if (!ok) return;
     }
     pushUndo(snapshot());
-    S.g = M.newGraph(); S.project = { driveId: null, name: 'Untitled project' };
+    S.g = M.newGraph(); S.project = { driveId: null, name: t('nodes.app.untitled') };
     $('sn-project').textContent = S.project.name;
-    changed(true); status('New graph. Add a node to start.');
+    changed(true); status(t('nodes.st.new'));
   }
   async function example() {
     if (S.g.nodes.length) {
-      const ok = await SlopUI.confirm('Load the example', 'Replace the graph with the example? Undo brings it back.', 'Load', { danger: true });
+      const ok = await SlopUI.confirm(t('nodes.menu.example'), t('nodes.dlg.example_body'), t('nodes.dlg.example_ok'), { danger: true });
       if (!ok) return;
     }
     pushUndo(snapshot());
     S.g = sample();
-    changed(true); status('The example: change a price or a quantity and watch the total follow.');
+    changed(true); status(t('nodes.st.example'));
   }
   function sample() {
     const g = M.newGraph();
@@ -234,7 +232,7 @@
     set(price, 'price', '19.99 USD'); set(qty, 'qty', '3');
     set(sub, 'subtotal', 'price * qty'); set(total, 'total', 'tax(subtotal, 8)'); set(vat, 'vat', 'total - subtotal');
     M.connect(g, price, sub); M.connect(g, qty, sub); M.connect(g, sub, total); M.connect(g, sub, vat); M.connect(g, total, vat);
-    const note = M.addNode(g, 'note', pos(40, 380)); M.setExpr(g, note, 'Drag from a node’s right dot to another node’s left dot to connect them.');
+    const note = M.addNode(g, 'note', pos(40, 380)); M.setExpr(g, note, t('nodes.st.hint'));
     return g;
   }
 
@@ -260,6 +258,7 @@
     V.zoom(1);
     V.sync(S.g);
     compute();
+    if (!S.project.name) S.project.name = t('nodes.app.untitled');
     $('sn-project').textContent = S.project.name;
     $('sn-add-value').addEventListener('click', () => addCenter('value'));
     $('sn-add-formula').addEventListener('click', () => addCenter('formula'));
@@ -271,16 +270,19 @@
     $('sn-save').addEventListener('click', () => saveProject(false));
     document.addEventListener('keydown', onKey);
     document.addEventListener('focusout', (e) => { if (e.target.matches && e.target.matches('.sn-expr, .sn-name, .sn-note')) S.typing = false; });
+    // menus as functions: their words are read in the page's language each time one opens
     if (window.SlopMenuBar) SlopMenuBar.mount({ app: 'Slopnodes', tools: ['#sn-add-value', '#sn-add-formula', '#sn-add-output', '#sn-add-note', '#sn-save'], menus: {
-      File: [{ label: 'New graph', act: newGraph }, { label: 'Open project…', act: openProject }, '-', { label: 'Save to Slop Drive', act: () => saveProject(false), keys: 'Ctrl+S' }, { label: 'Save a copy…', act: () => saveProject(true) }, '-', { label: 'Load the example', act: example }],
-      Edit: [{ label: 'Undo', act: undo, keys: 'Ctrl+Z', disabled: () => !S.undo.length }, { label: 'Redo', act: redo, keys: 'Ctrl+Y', disabled: () => !S.redo.length }, '-',
-        { label: 'Copy node', act: copySel, keys: 'Ctrl+C' }, { label: 'Paste node', act: () => pasteAt(), keys: 'Ctrl+V', disabled: () => !S.clip }, { label: 'Duplicate node', act: () => S.sel.kind === 'node' && duplicate(S.sel.id), keys: 'Ctrl+D' }, '-',
-        { label: 'Delete selection', act: deleteSel, keys: 'Del' }],
-      Insert: [{ label: 'Value', act: () => addCenter('value') }, { label: 'Formula', act: () => addCenter('formula') }, { label: 'Output', act: () => addCenter('output') }, { label: 'Note', act: () => addCenter('note') }],
-      View: [{ label: 'Zoom in', act: () => V.zoom(V.zoomNow() * 1.2) }, { label: 'Zoom out', act: () => V.zoom(V.zoomNow() / 1.2) }, { label: 'Actual size', act: () => V.zoom(1) }],
-      Help: [{ label: 'Keyboard shortcuts', act: () => SlopUI.alert('Keyboard shortcuts', 'Ctrl+Z undo · Ctrl+Y or Ctrl+Shift+Z redo · Ctrl+D duplicate · Ctrl+C copy · Ctrl+V paste · Ctrl+S save to Slop Drive · Del delete the selected node or wire · Esc clear the selection · Ctrl+wheel zoom. Right-click a node, a wire or the canvas for more.') }],
+      File: () => [{ label: t('nodes.menu.new'), act: newGraph }, { label: t('nodes.menu.open'), act: openProject }, '-', { label: t('nodes.menu.save'), act: () => saveProject(false), keys: 'Ctrl+S' }, { label: t('nodes.menu.save_copy'), act: () => saveProject(true) }, '-', { label: t('nodes.menu.example'), act: example }],
+      Edit: () => [{ label: t('ui.undo'), act: undo, keys: 'Ctrl+Z', disabled: () => !S.undo.length }, { label: t('ui.redo'), act: redo, keys: 'Ctrl+Y', disabled: () => !S.redo.length }, '-',
+        { label: t('nodes.menu.copy'), act: copySel, keys: 'Ctrl+C' }, { label: t('nodes.menu.paste'), act: () => pasteAt(), keys: 'Ctrl+V', disabled: () => !S.clip }, { label: t('nodes.menu.duplicate'), act: () => S.sel.kind === 'node' && duplicate(S.sel.id), keys: 'Ctrl+D' }, '-',
+        { label: t('nodes.menu.delete_sel'), act: deleteSel, keys: 'Del' }],
+      Insert: () => TYPES.map((type) => ({ label: kindName(type), act: () => addCenter(type) })),
+      View: () => [{ label: t('ui.zoom_in'), act: () => V.zoom(V.zoomNow() * 1.2) }, { label: t('ui.zoom_out'), act: () => V.zoom(V.zoomNow() / 1.2) }, { label: t('nodes.menu.actual'), act: () => V.zoom(1) }],
+      Help: () => [{ label: t('nodes.menu.keys'), act: () => SlopUI.alert(t('nodes.menu.keys'), t('nodes.dlg.keys_body')) }],
     } });
-    status(S.g.nodes.length ? 'Drag from a node’s right dot to another node’s left dot to connect them.' : 'Add a node to start.');
+    status(S.g.nodes.length ? t('nodes.st.hint') : t('nodes.st.empty'));
+    // a language change: the boxes' type names, the counts and the hint again
+    if (window.SlopI18n && window.SlopI18n.on) window.SlopI18n.on(() => { V.sync(S.g); compute(); status(S.g.nodes.length ? t('nodes.st.hint') : t('nodes.st.empty')); });
   }
   document.addEventListener('DOMContentLoaded', boot);
   /** For the assistant's commands (ai-commands.js): edit(fn) is one change and one undo step (false from fn: no change). */

@@ -11,7 +11,7 @@ const LABEL_RULES = {
   // a known type decides (the extension counts only when the browser gives none): pictures, text, JSON and spreadsheets
   types: ['image/*', 'text/*', 'application/json', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'],
   exts: ['.sloplabel', '.json', '.zpl', '.prn', '.txt', '.csv', '.tsv', '.tab', '.xlsx', '.svg'],
-  noun: 'a label, picture or data file',
+  get noun() { return LT('label.intake.a_label_picture_or_data'); },
 };
 const OPEN_ACCEPT = '.sloplabel,.json,.zpl,.prn,.txt,.csv,.tsv,.xlsx,image/*,.svg';
 const IMAGE_ACCEPT = 'image/*,.svg';
@@ -43,13 +43,13 @@ function registerLabelIntake() {
     process: async (f) => {
       const a = await addImageAsset(App.doc, f);
       await preloadImages(App.doc);
-      editSel((x) => { x.asset = a.id; x.aspect = a.aspect; }, 'Replace image');
+      editSel((x) => { x.asset = a.id; x.aspect = a.aspect; }, LT('label.intake.replace_image'));
       pruneAssets(App.doc);
       return f.name;
     } });
-  SI.register({ id: 'label.configs', main: false, paste: false, accept: { types: ['application/json'], exts: ['.json'], noun: 'a configs file' }, limit: 1,
+  SI.register({ id: 'label.configs', main: false, paste: false, accept: { types: ['application/json'], exts: ['.json'], noun: 'label.intake.a_configs_file' }, limit: 1,
     process: async (f) => { importConfigsText(await f.text()); return f.name; } });
-  SI.register({ id: 'label.zpl-text', main: false, paste: false, toast: false, accept: { exts: ['.zpl', '.prn', '.txt'], noun: 'a ZPL file' }, limit: 1,
+  SI.register({ id: 'label.zpl-text', main: false, paste: false, toast: false, accept: { exts: ['.zpl', '.prn', '.txt'], noun: 'label.intake.a_zpl_file' }, limit: 1,
     process: (f) => f.text() });
 }
 registerLabelIntake();
@@ -61,9 +61,9 @@ function pickImage(props) { return pickLabel({ mode: 'image', multiple: false, a
 function pickData() { return pickLabel({ mode: 'data', multiple: false, accept: DATA_ACCEPT }); }
 function replaceImage() { return SlopIntake.pick({ to: 'label.replace', multiple: false, accept: IMAGE_ACCEPT }); }
 async function pickZPLText() { const r = await SlopIntake.pick({ to: 'label.zpl-text', multiple: false, accept: '.zpl,.prn,.txt' }); return r.added[0] ? r.added[0].value : null; }
-function openProjectDrive() { return SlopIntake.fromDrive({ to: 'label', accept: ['application/json'], title: 'Open label from Slop Drive' }); }
-function imageFromDrive() { return SlopIntake.fromDrive({ to: 'label', mode: 'image', accept: ['image/*'], title: 'Insert image from Slop Drive' }); }
-function dataFromDrive() { return SlopIntake.fromDrive({ to: 'label', mode: 'data', accept: DRIVE_DATA, title: 'Data from Slop Drive' }); }
+function openProjectDrive() { return SlopIntake.fromDrive({ to: 'label', accept: ['application/json'], title: LT('label.intake.open_label_from_slop_drive') }); }
+function imageFromDrive() { return SlopIntake.fromDrive({ to: 'label', mode: 'image', accept: ['image/*'], title: LT('label.intake.insert_image_from_slop_drive') }); }
+function dataFromDrive() { return SlopIntake.fromDrive({ to: 'label', mode: 'data', accept: DRIVE_DATA, title: LT('label.intake.data_from_slop_drive') }); }
 /** What the page was opened with (?drive=<id>, a PWA launch). */
 function launchLabel() { return SlopIntake.launch({ to: 'label' }); }
 function attachLabelDrop() {

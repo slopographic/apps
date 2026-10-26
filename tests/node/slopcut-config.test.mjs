@@ -4,6 +4,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
+import './ui-i18n-en.mjs';   // the config's words (shared/i18n/ui), handed to the vm as a page has them
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -17,7 +18,7 @@ const CREATED = '2026-10-11T09:00:00Z';
 function cutEnv() {
   let n = 0;
   const SE = {
-    util: { uid: (p) => (p || 'x') + (++n), lerp: (a, b, t) => a + (b - a) * t, clamp: (v, a, b) => Math.min(b, Math.max(a, v)) },
+    util: { uid: (p) => (p || 'x') + (++n), lerp: (a, b, t) => a + (b - a) * t, clamp: (v, a, b) => Math.min(b, Math.max(a, v)), t: (k) => k },
     media: {
       items: new Map(),
       get(id) { return this.items.get(id); },
@@ -26,7 +27,7 @@ function cutEnv() {
     change(label, fn) { return fn(SE.doc); },
     app: { select() {} },
   };
-  const ctx = { console, Blob, File, TextEncoder, SE };
+  const ctx = { console, Blob, File, TextEncoder, SE, SlopI18n: globalThis.SlopI18n };
   ctx.window = ctx;
   vm.createContext(ctx);
   SE.doc = null;

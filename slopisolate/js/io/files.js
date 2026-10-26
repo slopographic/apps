@@ -6,7 +6,7 @@
  * once, up to the pool size). The intake's accept rules are F.ACCEPT. */
 (function () {
   'use strict';
-  const CO = window.CO, U = CO.util;
+  const CO = window.CO, U = CO.util, t = U.t;
   const F = CO.files = {};
   const S = () => CO.state;
   const toast = (msg) => { if (window.SlopUI) SlopUI.toast(msg); };
@@ -16,17 +16,16 @@
   F.notice = function () {
     const M = window.SlopCutoutModels, m = M.get(CO.state.model);
     return {
-      title: 'Remove backgrounds on this device',
-      lines: ['Slop Isolate removes the background from a picture with an AI model that runs in your browser.',
-        'Another model is downloaded only if you choose it in the Model panel.'],
-      downloads: [{ name: `${m.name} model (${m.arch.split(' (')[0]})`, bytes: m.bytes }],
+      title: t('cutout.app.notice_title'),
+      lines: [t('cutout.app.notice_line1'), t('cutout.app.notice_line2')],
+      downloads: [{ name: t('cutout.app.notice_model', { name: m.name, arch: m.arch.split(' (')[0] }), bytes: m.bytes }],
     };
   };
   /** What the app takes: images and videos (SlopDrop's rule format; the drop zone and paste refuse the rest with a reason). */
   const ACCEPT = F.ACCEPT = {
     types: ['image/*', 'video/*'],
     exts: ['.jpg', '.jpeg', '.png', '.webp', '.avif', '.gif', '.bmp', '.tif', '.tiff', '.mp4', '.m4v', '.mov', '.webm'],
-    noun: 'an image or a video',
+    get noun() { return t('cutout.app.accept_noun'); },
   };
   F.accepts = (f) => U.isImage(f) || !!(CO.video && CO.video.isVideo(f));
 
@@ -46,7 +45,7 @@
     if (!list.length) return [];
     if (!(await F.gate())) return [];
     const ok = list.filter(F.accepts);
-    if (!ok.length) { toast(list.length === 1 ? 'That file is not an image' : 'Those files are not images'); return []; }
+    if (!ok.length) { toast(t(list.length === 1 ? 'cutout.app.not_image' : 'cutout.app.not_images')); return []; }
     return CO.process.add(ok, opts);
   };
 
@@ -93,15 +92,16 @@
   };
 
   /** What the app makes and how, in the empty card (the drop zone is a compact strip, so the card carries it). */
-  const PREVIEW = {
-    picture: { src: '../assets/shots/cutout.jpg', alt: 'A picture before and after: the busy background is gone, the subject is kept' },
-    steps: ['Drop images, several at once', 'The AI cuts out the subject; touch up with Keep and Remove', 'Download a PNG with a clear background'],
-  };
+  const PREVIEW = () => ({
+    picture: { src: '../assets/shots/cutout.jpg', alt: t('cutout.app.preview_alt') },
+    steps: [t('cutout.app.step_drop'), t('cutout.app.step_cut'), t('cutout.app.step_download')],
+  });
 
   /** Drag and drop onto the workspace (a compact zone above the stage, and the window). Pasting stays below. */
   F.init = function () {
-    const pv = SlopDrop.panel.preview(PREVIEW);
-    if (pv) U.$('#emptyIntro').append(pv);
+    const intro = () => { const pv = SlopDrop.panel.preview(PREVIEW()); U.$('#emptyIntro').replaceChildren(...(pv ? [pv] : [])); };
+    intro();
+    U.onLang(intro);   // the card's words follow a language switch
     // The workspace and the queue sidebar take drops; a paste, Choose files and the rest are the intake's too. Every
     // batch reaches take() once, through the spec's reader.
     F.register();

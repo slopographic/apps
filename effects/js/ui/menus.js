@@ -5,7 +5,7 @@
   'use strict';
   const ns = (g.SlopEffects = g.SlopEffects || {});
   const { h, numberOf } = ns.dom;
-  const D = () => ns.defs;
+  const D = () => ns.defs, t = (k, v) => ns.defs.t(k, v);
   const UI = () => g.SlopUI;
 
   /** Opens the render dialog for the document. */
@@ -21,32 +21,32 @@
   function compDialog(S, act) {
     const c = S.doc.comp;
     const preset = D().SIZES.find((s) => s.w === c.width && s.h === c.height) || D().SIZES.find((s) => s.id === 'custom');
-    const size = h('select', { class: 'sui-input', 'aria-label': 'Size preset' }, D().SIZES.map((s) => h('option', { value: s.id, selected: s.id === preset.id ? true : null }, s.name)));
-    const w = h('input', { class: 'sui-input', type: 'number', min: 16, max: 7680, step: 2, value: c.width, 'aria-label': 'Width' });
-    const hh = h('input', { class: 'sui-input', type: 'number', min: 16, max: 4320, step: 2, value: c.height, 'aria-label': 'Height' });
-    const fps = h('select', { class: 'sui-input', 'aria-label': 'Frame rate' }, D().FPS.map((f) => h('option', { value: f, selected: f === c.fps ? true : null }, `${f} fps`)));
-    const dur = h('input', { class: 'sui-input', type: 'number', min: D().LIMIT.minDur, max: D().LIMIT.maxDur, step: 0.1, value: c.duration, 'aria-label': 'Duration in seconds' });
+    const size = h('select', { class: 'sui-input', 'aria-label': t('effects.menu.size_preset') }, D().SIZES.map((s) => h('option', { value: s.id, selected: s.id === preset.id ? true : null }, D().word('size', s.id, s.name))));
+    const w = h('input', { class: 'sui-input', type: 'number', min: 16, max: 7680, step: 2, value: c.width, 'aria-label': t('effects.props.width') });
+    const hh = h('input', { class: 'sui-input', type: 'number', min: 16, max: 4320, step: 2, value: c.height, 'aria-label': t('effects.props.height') });
+    const fps = h('select', { class: 'sui-input', 'aria-label': t('effects.menu.fps') }, D().FPS.map((f) => h('option', { value: f, selected: f === c.fps ? true : null }, `${f} fps`)));
+    const dur = h('input', { class: 'sui-input', type: 'number', min: D().LIMIT.minDur, max: D().LIMIT.maxDur, step: 0.1, value: c.duration, 'aria-label': t('effects.menu.duration_s') });
     const bgHex = /^#[0-9a-f]{6}$/i.test(c.background) ? c.background : '#000000';
-    const bg = h('input', { class: 'sui-input', type: 'color', value: bgHex, 'aria-label': 'Background colour', style: 'height:32px;padding:2px' });
-    const clear = h('input', { type: 'checkbox', checked: c.background === 'transparent' ? true : null, 'aria-label': 'Transparent background' });
+    const bg = h('input', { class: 'sui-input', type: 'color', value: bgHex, 'aria-label': t('effects.menu.bg_colour'), style: 'height:32px;padding:2px' });
+    const clear = h('input', { type: 'checkbox', checked: c.background === 'transparent' ? true : null, 'aria-label': t('effects.menu.bg_clear') });
     size.addEventListener('change', () => {
       const p = D().SIZES.find((s) => s.id === size.value);
       if (p && p.id !== 'custom') { w.value = p.w; hh.value = p.h; }
     });
     const form = h('div', { class: 'fx-group' },
-      h('div', { class: 'fx-row' }, h('label', null, 'Format'), size, h('span')),
-      h('div', { class: 'fx-row' }, h('label', null, 'Size'), h('div', { class: 'fx-pair' }, w, hh), h('span', null, 'px')),
-      h('div', { class: 'fx-row' }, h('label', null, 'Frame rate'), fps, h('span')),
-      h('div', { class: 'fx-row' }, h('label', null, 'Duration'), dur, h('span', null, 's')),
-      h('div', { class: 'fx-row' }, h('label', null, 'Background'), h('div', { class: 'fx-pair' }, bg, h('label', { class: 'sui-check' }, clear, h('span', null, 'Transparent'))), h('span')),
-      h('p', { class: 'fx-empty', style: 'padding:0;text-align:left' }, 'Sizes are kept even. Changing the duration keeps the keys; keys past the end are not drawn.'));
+      h('div', { class: 'fx-row' }, h('label', null, t('effects.menu.format')), size, h('span')),
+      h('div', { class: 'fx-row' }, h('label', null, t('effects.props.size')), h('div', { class: 'fx-pair' }, w, hh), h('span', null, 'px')),
+      h('div', { class: 'fx-row' }, h('label', null, t('effects.menu.fps')), fps, h('span')),
+      h('div', { class: 'fx-row' }, h('label', null, t('effects.menu.duration')), dur, h('span', null, 's')),
+      h('div', { class: 'fx-row' }, h('label', null, t('effects.menu.bg')), h('div', { class: 'fx-pair' }, bg, h('label', { class: 'sui-check' }, clear, h('span', null, t('effects.menu.transparent')))), h('span')),
+      h('p', { class: 'fx-empty', style: 'padding:0;text-align:left' }, t('effects.menu.comp_note')));
     UI().dialog({
-      title: 'Composition', body: form,
-      buttons: [{ label: 'Cancel' }, {
-        label: 'Apply', primary: true,
+      title: t('effects.app.comp'), body: form,
+      buttons: [{ label: t('menu.cancel') }, {
+        label: t('ui.apply'), primary: true,
         act: () => {
           const W = numberOf(w), H = numberOf(hh), F = Number(fps.value), Dn = numberOf(dur);
-          if (W === null || H === null || Dn === null) { act.toast('Enter numbers for the size and duration'); return false; }
+          if (W === null || H === null || Dn === null) { act.toast(t('effects.menu.need_numbers')); return false; }
           act.setComp({ width: W, height: H, fps: F, duration: Dn, background: clear.checked ? 'transparent' : bg.value });
         },
       }],
@@ -60,27 +60,27 @@
   function fileItems(S, act, io) {
     const cfg = g.SlopConfigDialog && g.SlopConfigDialog.menuItems ? g.SlopConfigDialog.menuItems({ app: 'effects' }) : [];
     return [
-      { label: 'New project', act: () => io.newProject() },
+      { label: t('effects.menu.new'), act: () => io.newProject() },
       '-',
-      { label: 'Open from Slop Drive…', act: () => io.openDrive() },
-      { label: 'Save to Slop Drive…', act: () => io.saveDrive() },
+      { label: t('effects.menu.open_drive'), act: () => io.openDrive() },
+      { label: t('effects.menu.save_drive'), act: () => io.saveDrive() },
       '-',
       ...cfg,
       '-',
-      { label: 'Render…', key: 'Mod+E', act: () => openRender(S, act) },
+      { label: t('effects.app.render'), key: 'Mod+E', act: () => openRender(S, act) },
     ];
   }
 
   /** The Layer menu items: add by type, import media. */
   function layerItems(S, act, io) {
     return [
-      { label: 'Solid', act: () => act.addLayer('solid') },
-      { label: 'Shape', sub: D().SHAPES.map(([v, l]) => ({ label: l, act: () => act.addLayer('shape', { shape: v }) })) },
-      { label: 'Text', act: () => act.addLayer('text', { size: 120 }) },
-      { label: 'Null (a parent with no picture)', act: () => act.addLayer('null') },
+      { label: D().word('type', 'solid', 'Solid'), act: () => act.addLayer('solid') }, // i18n-ignore: English fallback of the effects.def.* words
+      { label: D().word('type', 'shape', 'Shape'), sub: D().SHAPES.map(([v, l]) => ({ label: D().word('shape', v, l), act: () => act.addLayer('shape', { shape: v }) })) }, // i18n-ignore: English fallback of the effects.def.* words
+      { label: D().word('type', 'text', 'Text'), act: () => act.addLayer('text', { size: 120 }) }, // i18n-ignore: English fallback of the effects.def.* words
+      { label: t('effects.menu.null_layer'), act: () => act.addLayer('null') },
       '-',
-      { label: 'Image or video from this computer…', act: () => io.importFromComputer() },
-      { label: 'Image or video from Slop Drive…', act: () => io.importFromDrive() },
+      { label: t('effects.menu.media_computer'), act: () => io.importFromComputer() },
+      { label: t('effects.menu.media_drive'), act: () => io.importFromDrive() },
     ];
   }
 
@@ -102,7 +102,7 @@
     function refresh() {
       undo.disabled = !S.canUndo();
       redo.disabled = !S.canRedo();
-      undo.title = S.canUndo() ? `Undo ${S.lastLabel || ''}`.trim() : 'Nothing to undo';
+      undo.title = S.canUndo() ? (S.lastLabel ? t('ui.undo_what', { what: S.lastLabel }) : t('ui.undo')) : t('effects.menu.nothing_undo');
       if (document.activeElement !== name) name.value = S.doc.name;
       document.title = `${S.doc.name} — Slop Effects`;
     }

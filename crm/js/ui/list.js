@@ -6,12 +6,14 @@
   const NS = (g.SlopCrm = g.SlopCrm || {});
   const UI = g.SlopUI;
   const el = UI.el;
+  const tr = (k, v) => NS.tr(k, v);   // the string tables (crm/i18n)
   const $ = (id) => document.getElementById(id);
-  const SORTS = [['name', 'Name'], ['stage', 'Stage'], ['activity', 'Last activity'], ['followUp', 'Follow-up']];
+  // [sort key, its heading's key]; the Sort box's choices are keys too (crm/i18n/<code>/views.js)
+  const SORTS = [['name', 'crm.li.name'], ['stage', 'crm.li.stage'], ['activity', 'crm.li.activity'], ['followUp', 'crm.li.followup']];
   const SORT_TEXT = {
-    'name:asc': 'Name, A to Z', 'name:desc': 'Name, Z to A', 'stage:asc': 'Stage, pipeline order', 'stage:desc': 'Stage, reverse order',
-    'activity:desc': 'Last activity, newest first', 'activity:asc': 'Last activity, oldest first',
-    'followUp:asc': 'Follow-up, soonest first', 'followUp:desc': 'Follow-up, latest first',
+    'name:asc': 'crm.li.name_asc', 'name:desc': 'crm.li.name_desc', 'stage:asc': 'crm.li.stage_asc', 'stage:desc': 'crm.li.stage_desc',
+    'activity:desc': 'crm.li.act_desc', 'activity:asc': 'crm.li.act_asc',
+    'followUp:asc': 'crm.li.fol_asc', 'followUp:desc': 'crm.li.fol_desc',
   };
   const pref = {
     get(k, d) { try { const v = JSON.parse(localStorage.getItem(`slop-crm.${k}`)); return v == null ? d : v; } catch (e) { return d; } },
@@ -30,9 +32,9 @@
     const cats = c.categories || [];
     const act = NS.query.activityOf(c);
     const overdue = !!c.followUp && c.followUp < NS.util.today();
-    const sub = [c.company, c.email, c.phone].filter(Boolean).join(' · ') || 'No contact details';
+    const sub = [c.company, c.email, c.phone].filter(Boolean).join(' · ') || tr('crm.li.no_details');
     return el('li', { class: 'row', role: 'listitem', 'data-id': c.id, 'data-name': c.name, 'data-stage': c.stage },
-      el('input', { type: 'checkbox', class: 'row-check', 'data-id': c.id, 'aria-label': `Select ${c.name}`,
+      el('input', { type: 'checkbox', class: 'row-check', 'data-id': c.id, 'aria-label': tr('crm.li.select', { name: c.name }),
         checked: NS.selection.has(c.id), onchange: (e) => NS.bulk.toggle(c.id, e.target.checked) }),
       el('button', { type: 'button', class: 'row-open', onclick: () => NS.app.show('customer', c.id) },
         NS.parts.avatar(c, 'av'),
@@ -41,17 +43,17 @@
             tags.map((t) => el('span', { class: `tag-chip tg-${t.color}` }, t.name)),
             cats.map((t) => el('span', { class: 'chip' }, t))) : null)),
       // a supplier (Slop Purchases) is not on the sales pipeline: it reads Supplier, not a stage
-      c.supplier ? el('span', { class: 'stage s-supplier' }, 'Supplier') : el('span', { class: `stage s-${c.stage}` }, NS.stageLabel(c.stage)),
+      c.supplier ? el('span', { class: 'stage s-supplier' }, tr('crm.li.supplier')) : el('span', { class: `stage s-${c.stage}` }, NS.stageLabel(c.stage)),
       el('span', { class: 'c-cell c-act' }, act ? NS.util.date(isoDay(act), loc) : '—'),
       el('span', { class: `c-cell c-fol${overdue ? ' overdue' : ''}` }, c.followUp ? NS.util.date(c.followUp, loc) : '—'),
-      el('button', { type: 'button', class: 'btn small', 'aria-label': `Actions for ${c.name}`,
-        onclick: (e) => { const r = e.currentTarget.getBoundingClientRect(); UI.menu(NS.menu.items(c), r.left, r.bottom + 4); } }, 'Actions ▾'));
+      el('button', { type: 'button', class: 'btn small', 'aria-label': tr('crm.li.actions_for', { name: c.name }),   // i18n-ignore: class names
+      onclick: (e) => { const r = e.currentTarget.getBoundingClientRect(); UI.menu(NS.menu.items(c), r.left, r.bottom + 4); } }, tr('crm.li.actions')));
   }
 
   /** Keeps the chosen category when the options are rebuilt. */
   function fillCategories(sel, cats) {
     const keep = sel.value;
-    sel.replaceChildren(el('option', { value: '' }, 'All categories'), ...cats.map((t) => el('option', { value: t }, t)));
+    sel.replaceChildren(el('option', { value: '' }, tr('crm.li.all_cats')), ...cats.map((x) => el('option', { value: x }, x)));
     sel.value = cats.includes(keep) ? keep : '';
   }
 
@@ -64,6 +66,15 @@
   }
 
   function setDensity(v) { density = v; pref.set('density', v); render(); }
+  /** The Stage and Sort choices and the density buttons, in the chosen language (again on each render). */
+  function fillChoices() {
+    const st = $('cStage'), keep = st.value, so = $('cSort'), keepSort = so.value;
+    st.replaceChildren(el('option', { value: '' }, tr('crm.li.all_stages')), ...NS.STAGES.map((s) => el('option', { value: s }, NS.stageLabel(s))));
+    st.value = keep;
+    so.replaceChildren(...Object.entries(SORT_TEXT).map(([v, k]) => el('option', { value: v }, tr(k))));
+    if (keepSort) so.value = keepSort;
+    for (const b of document.querySelectorAll('#cDensity [data-density]')) b.textContent = tr('crm.li.' + b.dataset.density);
+  }
 
   /** The column headers (they sit on the same grid as the rows) and the Sort box, drawn once; only the arrows move. */
   function paintHeads() {
@@ -71,7 +82,7 @@
     for (const b of document.querySelectorAll('#cSortHead [data-sort]')) {
       const key = b.dataset.sort, on = sort.key === key;
       b.parentElement.setAttribute('aria-sort', on ? (sort.dir === 'asc' ? 'ascending' : 'descending') : 'none');
-      b.textContent = SORTS.find(([k]) => k === key)[1] + arrow(key);
+      b.textContent = tr(SORTS.find(([k]) => k === key)[1]) + arrow(key);
     }
     $('cSort').value = `${sort.key}:${sort.dir}`;
     for (const b of document.querySelectorAll('#cDensity [data-density]')) b.setAttribute('aria-checked', String(b.dataset.density === density));
@@ -95,8 +106,9 @@
     NS.bulk.update(all, list);
     paintHeads();
     $('cEmpty').hidden = list.length > 0;
-    $('cEmpty').textContent = all.length ? 'No customers match these filters.' : 'No customers yet. Add one, or import your contacts from Slop Contacts.';
-    $('cSummary').textContent = `${list.length} of ${all.length} customer${all.length === 1 ? '' : 's'}`;
+    $('cEmpty').textContent = tr(all.length ? 'crm.li.no_match' : 'crm.li.none');
+    $('cSummary').textContent = tr('crm.li.summary', { shown: String(list.length), n: all.length });
+    fillChoices();
   }
 
   function mount() {
@@ -106,15 +118,14 @@
     NS.bulk.mount();
     $('cSearch').addEventListener('input', render);
     for (const id of ['cStage', 'cCat']) $(id).addEventListener('change', render);
-    $('cStage').replaceChildren(el('option', { value: '' }, 'All stages'), ...NS.STAGES.map((s) => el('option', { value: s }, NS.stageLabel(s))));
-    $('cSort').replaceChildren(...Object.entries(SORT_TEXT).map(([v, label]) => el('option', { value: v }, label)));
+    fillChoices();
     $('cSort').addEventListener('change', (e) => { const [k, d] = e.target.value.split(':'); setSort(k, d); });
     $('cSortHead').replaceChildren(...SORTS.map(([key]) => el('span', { class: `c-h c-h-${key}`, role: 'columnheader' },
       el('button', { type: 'button', class: 'sort-btn', 'data-sort': key, onclick: () => setSort(key) }))),
     el('span', { class: 'c-h c-h-actions', role: 'presentation' }));
-    $('cDensity').replaceChildren(...[['comfortable', 'Comfortable'], ['compact', 'Compact']].map(([v, label]) =>
+    $('cDensity').replaceChildren(...['comfortable', 'compact'].map((v) =>
       el('button', { type: 'button', role: 'radio', class: 'seg-btn', 'data-density': v, 'aria-checked': String(density === v),
-        onclick: () => setDensity(v) }, label)));
+        onclick: () => setDensity(v) }, tr('crm.li.' + v))));
     $('cAdd').addEventListener('click', () => NS.form.open(null));
     $('cImport').addEventListener('click', () => NS.importUi.open());
     g.SlopCtx.bind($('cRows'), (t) => {

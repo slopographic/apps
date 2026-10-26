@@ -11,9 +11,11 @@
   const $ = (id) => document.getElementById(id);
   const HOLD_MS = 2000; // a result stays on screen at least this long, so a missed read is noticed
   const LOG_MAX = 200;
-  const ACTION = { receive: 'Receive', sell: 'Sell', count: 'Count', lookup: 'Look up only' };
-  const STATUS = { received: 'Received', sold: 'Sold', counted: 'Counted', found: 'Found', refused: 'Refused', unknown: 'Not found', rejected: 'Rejected', undone: 'Undone', ignored: 'Ignored' };
-  const SOURCE = { scanner: 'Scanner', keyboard: 'Typed', camera: 'Camera' };
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
+  const ACTION = () => ({ receive: t('inventory.sc.receive'), sell: t('inventory.sc.sell'), count: t('inventory.sc.count'), lookup: t('inventory.sc.lookup') });
+  const STATUS = () => ({ received: t('inventory.sc.received'), sold: t('inventory.sc.sold'), counted: t('inventory.sc.counted'), found: t('inventory.sc.found'), refused: t('inventory.sc.refused'),
+    unknown: t('inventory.sc.unknown'), rejected: t('inventory.sc.rejected'), undone: t('inventory.sc.undone'), ignored: t('inventory.sc.ignored') });
+  const SOURCE = () => ({ scanner: t('inventory.sc.scanner'), keyboard: t('inventory.sc.typed'), camera: t('inventory.sc.camera') });
   const st = { mode: 'keyboard', log: [], camera: null, queue: Promise.resolve(), shownAt: 0, pending: null, holdTimer: 0, detach: null };
 
   const focusInput = () => {
@@ -59,19 +61,19 @@
     if (e.onHandBefore === null || e.onHandBefore === undefined) return '';
     const loc = e.location;
     if (e.onHandAfter !== null && e.onHandAfter !== undefined && e.onHandAfter !== e.onHandBefore) {
-      return `On hand ${e.onHandBefore} → ${e.onHandAfter} at ${loc}`;
+      return t('inventory.sc.on_hand_change', { before: e.onHandBefore, after: e.onHandAfter, loc });
     }
-    return `On hand ${e.onHandBefore} at ${loc}`;
+    return t('inventory.sc.on_hand', { n: e.onHandBefore, loc });
   }
 
   function renderResult(e) {
     const parts = [
       h('div', { class: 'res-head' },
-        h('span', { class: `pill s-${e.status}`, text: STATUS[e.status] || e.status }),
-        h('span', { class: 'mono code', text: e.code || '(empty)' }),
-        h('span', { class: 'sub', text: `${SOURCE[e.source] || e.source} · ${ACTION[e.action] || e.action}` })),
+        h('span', { class: `pill s-${e.status}`, text: STATUS()[e.status] || e.status }),
+        h('span', { class: 'mono code', text: e.code || t('inventory.sc.empty') }),   // i18n-ignore: CSS class names
+        h('span', { class: 'sub', text: `${SOURCE()[e.source] || e.source} · ${ACTION()[e.action] || e.action}` })),
     ];
-    if (e.productId) parts.push(h('p', { class: 'res-prod' }, h('b', { text: e.name }), h('span', { class: 'mono sub', text: ` ${e.sku}` })));
+    if (e.productId) parts.push(h('p', { class: 'res-prod' }, h('b', { text: e.name }), h('span', { class: 'mono sub', text: ` ${e.sku}` })));   // i18n-ignore: CSS class names
     if (e.productId) parts.push(h('p', { class: 'res-stock', text: stockLine(e) }));
     parts.push(h('p', { class: 'res-msg', text: e.message }));
     if (e.status === 'unknown') parts.push(unknownActions(e));
@@ -82,18 +84,18 @@
   function unknownActions(e) {
     const digits = S.barcode.normalizeEan(e.code);
     if (!e.canCreate) {
-      return h('div', { class: 'res-actions' }, h('button', { type: 'button', class: 'btn primary', text: 'Create product with this code as SKU', onclick: () => createFor(e, { sku: e.code }) }));
+      return h('div', { class: 'res-actions' }, h('button', { type: 'button', class: 'btn primary', text: t('inventory.sc.create_sku'), onclick: () => createFor(e, { sku: e.code }) }));   // i18n-ignore: CSS class names
     }
-    const pick = h('select', { class: 'sui-input', 'aria-label': 'Existing product to link' }, h('option', { value: '', text: 'Choose a product…' }));
+    const pick = h('select', { class: 'sui-input', 'aria-label': t('inventory.sc.existing') }, h('option', { value: '', text: t('inventory.sc.choose') }));
     S.store.list('products').then((r) => {
       for (const p of (r.ok ? r.value : []).filter((x) => !x.ean).sort((a, b) => a.name.localeCompare(b.name))) {
         pick.append(h('option', { value: p.id, text: `${p.name} (${p.sku})` }));
       }
     });
     return h('div', { class: 'res-actions' },
-      h('button', { type: 'button', class: 'btn primary', text: 'Create product with this EAN', onclick: () => createFor(e, { ean: digits, sku: digits }) }),
+      h('button', { type: 'button', class: 'btn primary', text: t('inventory.sc.create_ean'), onclick: () => createFor(e, { ean: digits, sku: digits }) }),   // i18n-ignore: CSS class names
       h('div', { class: 'link-row' }, pick,
-        h('button', { type: 'button', class: 'btn', text: 'Link EAN to this product', onclick: () => linkFor(e, pick.value) })));
+        h('button', { type: 'button', class: 'btn', text: t('inventory.sc.link'), onclick: () => linkFor(e, pick.value) })));
   }
 
   /** Opens the product form (the products view's panel) prefilled; once saved, Scan shows again and the same code is
@@ -103,24 +105,24 @@
   }
 
   async function linkFor(e, productId) {
-    if (!productId) { UI.toast('Choose a product first'); return; }
+    if (!productId) { UI.toast(t('inventory.sc.choose_first')); return; }
     const r = await S.store.get('products', productId);
-    if (!r.ok || !r.value) { UI.toast(r.ok ? 'That product no longer exists' : U.refusal(r)); return; }
-    if (r.value.ean) { UI.alert('Already has an EAN', `${r.value.name} already has EAN ${r.value.ean}.`); return; }
+    if (!r.ok || !r.value) { UI.toast(r.ok ? t('inventory.pr.gone') : U.refusal(r)); return; }
+    if (r.value.ean) { UI.alert(t('inventory.sc.has_ean'), t('inventory.sc.has_ean_body', { name: r.value.name, ean: r.value.ean })); return; }
     const saved = await NS.products.save({ ...r.value, ean: S.barcode.normalizeEan(e.code) });
-    if (!saved.ok) { UI.alert('Not linked', U.refusal(saved)); return; }
-    UI.toast(`Linked EAN to ${r.value.name}`);
+    if (!saved.ok) { UI.alert(t('inventory.sc.not_linked'), U.refusal(saved)); return; }
+    UI.toast(t('inventory.sc.linked', { name: r.value.name }));
     handle(e.code, e.source);
   }
 
   function renderLog() {
     const list = $('scanLog');
     list.replaceChildren(...st.log.map((e) => h('li', { class: `log-row s-${e.status}`, dataset: { id: e.id }, tabindex: 0 },
-      h('span', { class: 'mono sub', text: U.stamp(e.at) }),
-      h('span', { class: 'mono', text: e.code || '(empty)' }),
+      h('span', { class: 'mono sub', text: U.stamp(e.at) }),   // i18n-ignore: CSS class names
+      h('span', { class: 'mono', text: e.code || t('inventory.sc.empty') }),
       h('span', { class: 'lname', text: e.name || '—' }),
-      h('span', { class: 'pill s-' + e.status, text: STATUS[e.status] || e.status }),
-      h('span', { class: 'sub lmsg', text: e.message }))));
+      h('span', { class: 'pill s-' + e.status, text: STATUS()[e.status] || e.status }),
+      h('span', { class: 'sub lmsg', text: e.message }))));   // i18n-ignore: CSS class names
     $('scanLogEmpty').hidden = st.log.length > 0;
   }
 
@@ -128,7 +130,7 @@
     return enqueue(async () => {
       const r = await NS.scan.undoLast(st.log);
       if (!r.ok) { UI.toast(r.message); return; }
-      UI.toast('Undone');
+      UI.toast(t('inventory.sc.undone_toast'));
       showResult(r.value);
       renderLog();
     });
@@ -137,7 +139,7 @@
   function undoEntry(entry) {
     return enqueue(async () => {
       const r = await NS.scan.undo(entry);
-      if (!r.ok) { UI.alert('Not undone', r.message); return; }
+      if (!r.ok) { UI.alert(t('inventory.sc.not_undone'), r.message); return; }
       showResult(entry);
       renderLog();
     });
@@ -152,7 +154,7 @@
     if (st.mode === 'camera') {
       box.hidden = false;
       if (!st.camera) {
-        st.camera = NS.camera.createCamera({ video: $('cam'), onCode: (code, o) => handle(code, o.source), onStatus: (t) => { $('camMsg').textContent = t; } });
+        st.camera = NS.camera.createCamera({ video: $('cam'), onCode: (code, o) => handle(code, o.source), onStatus: (msg) => { $('camMsg').textContent = msg; } });
       }
       st.camera.start();
     } else {
@@ -176,15 +178,15 @@
         if (!entry) return null;
         const canUndo = NS.scan.UNDOABLE.includes(entry.status);
         return [
-          entry.productId ? { label: 'Edit product', act: () => NS.views.products.openEdit(entry.productId) } : null,
-          entry.productId ? { label: 'Show movements', act: () => NS.app.show('stock', entry.productId) } : null,
-          canUndo ? { label: 'Undo', act: () => undoEntry(entry) } : null,
+          entry.productId ? { label: t('inventory.pr.edit'), act: () => NS.views.products.openEdit(entry.productId) } : null,
+          entry.productId ? { label: t('inventory.pr.moves'), act: () => NS.app.show('stock', entry.productId) } : null,
+          canUndo ? { label: t('inventory.sc.undo'), act: () => undoEntry(entry) } : null,
           '-',
-          { label: 'Remove from log', act: () => { st.log = st.log.filter((x) => x !== entry); renderLog(); } },
+          { label: t('inventory.sc.remove'), act: () => { st.log = st.log.filter((x) => x !== entry); renderLog(); } },
         ];
       });
     }
-    $('scanResult').replaceChildren(h('p', { class: 'empty', text: 'Nothing scanned yet.' }));
+    $('scanResult').replaceChildren(h('p', { class: 'empty', text: t('inventory.page.nothing') }));
     renderLog();
   }
 

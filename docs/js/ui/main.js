@@ -12,7 +12,7 @@
     $('btnSave').addEventListener('click', () => S.save());
     const name = $('docName');
     name.addEventListener('change', () => {
-      const v = name.value.trim() || 'Untitled document';
+      const v = name.value.trim() || S.untitled();
       S.file.name = v.replace(/\.sdoc$/i, '') + '.sdoc';
       S.file.dirty = true;
       S.emit('change');
@@ -38,7 +38,7 @@
   async function boot() {
     if (S.booted) return;
     S.booted = true;
-    if (!window.SlopDocEngine) { $('pageInfo').textContent = 'Slop Docs could not start'; return; }
+    if (!window.SlopDocEngine) { $('pageInfo').textContent = S.t('docs.app.start_failed'); return; }
     try { if (window.SlopHub) SlopHub.register('docs'); } catch (e) { console.warn('Slop Docs: hub register failed', e); }
     wireChrome();
     fitZoom();

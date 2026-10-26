@@ -15,7 +15,7 @@
  *   /EREF/ tags). Anything else is the line's text as it stands.
  *   readMt940(bytes | text) -> statement model, format 'mt940'; one statement per :20: message. date is the entry date
  *   when given (the year taken from the value date, across a new year), else the value date.                       */
-import { decodeBytes, parseAmount, isoDate, squash } from './text.js';
+import { decodeBytes, parseAmount, isoDate, squash, say } from './text.js';
 import { statementModel, mergeStatements } from './model.js';
 
 const year = (yy) => (Number(yy) < 70 ? 2000 : 1900) + Number(yy);
@@ -115,7 +115,7 @@ export function readMt940(input) {
       }
       case '61': {
         const l = line61(f.value);
-        if (!l) { warn(`A statement line (:61:${f.value.split('\n')[0]}) could not be read and was left out.`); last = null; break; }
+        if (!l) { warn(say('ui.fin.mt940_line', { line: f.value.split('\n')[0] })); last = null; break; }
         last = { date: l.date, amount: l.amount, text: l.details, ref: l.ref || l.bankRef, counterparty: '', type: l.type };
         if (l.valueDate !== l.date) last.valueDate = l.valueDate;
         if (l.bankRef) last.id = l.bankRef;
@@ -141,7 +141,7 @@ export function readMt940(input) {
     st.to = ds[ds.length - 1] || st.closingDate;
   }
   const kept = list.filter((x) => x.transactions.length || x.opening !== null || x.closing !== null);
-  if (!kept.length) warnings.push('No MT940 statement was found (no :20:, :60F: or :61: fields).');
+  if (!kept.length) warnings.push(say('ui.fin.mt940_none'));
   return mergeStatements('mt940', kept, warnings);
 }
 

@@ -12,27 +12,27 @@
   else (root.SlopFont = root.SlopFont || {}).charset = factory();
 })(typeof window !== 'undefined' ? window : globalThis, function () {
   'use strict';
-  const BASIC = ('space exclam quotedbl numbersign dollar percent ampersand quotesingle parenleft parenright asterisk plus comma ' +
-    'hyphen period slash zero one two three four five six seven eight nine colon semicolon less equal greater question at ' +
-    'A B C D E F G H I J K L M N O P Q R S T U V W X Y Z bracketleft backslash bracketright asciicircum underscore grave ' +
-    'a b c d e f g h i j k l m n o p q r s t u v w x y z braceleft bar braceright asciitilde').split(' ');
-  const LATIN1 = ('uni00A0 exclamdown cent sterling currency yen brokenbar section dieresis copyright ordfeminine guillemotleft ' +
-    'logicalnot uni00AD registered macron degree plusminus twosuperior threesuperior acute mu paragraph periodcentered cedilla ' +
-    'onesuperior ordmasculine guillemotright onequarter onehalf threequarters questiondown Agrave Aacute Acircumflex Atilde ' +
-    'Adieresis Aring AE Ccedilla Egrave Eacute Ecircumflex Edieresis Igrave Iacute Icircumflex Idieresis Eth Ntilde Ograve ' +
-    'Oacute Ocircumflex Otilde Odieresis multiply Oslash Ugrave Uacute Ucircumflex Udieresis Yacute Thorn germandbls agrave ' +
-    'aacute acircumflex atilde adieresis aring ae ccedilla egrave eacute ecircumflex edieresis igrave iacute icircumflex ' +
-    'idieresis eth ntilde ograve oacute ocircumflex otilde odieresis divide oslash ugrave uacute ucircumflex udieresis yacute ' +
-    'thorn ydieresis').split(' ');
+  const BASIC = ('space exclam quotedbl numbersign dollar percent ampersand quotesingle parenleft parenright asterisk plus comma ' + // i18n-ignore
+    'hyphen period slash zero one two three four five six seven eight nine colon semicolon less equal greater question at ' + // i18n-ignore
+    'A B C D E F G H I J K L M N O P Q R S T U V W X Y Z bracketleft backslash bracketright asciicircum underscore grave ' + // i18n-ignore
+    'a b c d e f g h i j k l m n o p q r s t u v w x y z braceleft bar braceright asciitilde').split(' '); // i18n-ignore
+  const LATIN1 = ('uni00A0 exclamdown cent sterling currency yen brokenbar section dieresis copyright ordfeminine guillemotleft ' + // i18n-ignore
+    'logicalnot uni00AD registered macron degree plusminus twosuperior threesuperior acute mu paragraph periodcentered cedilla ' + // i18n-ignore
+    'onesuperior ordmasculine guillemotright onequarter onehalf threequarters questiondown Agrave Aacute Acircumflex Atilde ' + // i18n-ignore
+    'Adieresis Aring AE Ccedilla Egrave Eacute Ecircumflex Edieresis Igrave Iacute Icircumflex Idieresis Eth Ntilde Ograve ' + // i18n-ignore
+    'Oacute Ocircumflex Otilde Odieresis multiply Oslash Ugrave Uacute Ucircumflex Udieresis Yacute Thorn germandbls agrave ' + // i18n-ignore
+    'aacute acircumflex atilde adieresis aring ae ccedilla egrave eacute ecircumflex edieresis igrave iacute icircumflex ' + // i18n-ignore
+    'idieresis eth ntilde ograve oacute ocircumflex otilde odieresis divide oslash ugrave uacute ucircumflex udieresis yacute ' + // i18n-ignore
+    'thorn ydieresis').split(' '); // i18n-ignore
   const SETS = Object.freeze([
-    { id: 'basic', label: 'Basic Latin (A–Z, a–z, 0–9, punctuation)', ranges: [[0x20, 0x7e]] },
-    { id: 'latin1', label: 'Latin-1 (å ä ö é ñ ß and signs)', ranges: [[0xa0, 0xff]] },
-    { id: 'latinA', label: 'Latin Extended-A (ą č ł ő ş ž…)', ranges: [[0x100, 0x17f]] },
-    { id: 'upper', label: 'Capitals A–Z', ranges: [[0x41, 0x5a]] },
-    { id: 'lower', label: 'Small letters a–z', ranges: [[0x61, 0x7a]] },
-    { id: 'digits', label: 'Digits 0–9', ranges: [[0x30, 0x39]] },
-    { id: 'punct', label: 'Punctuation and symbols', ranges: [[0x20, 0x2f], [0x3a, 0x40], [0x5b, 0x60], [0x7b, 0x7e]] },
-    { id: 'nordic', label: 'Swedish, Danish, Norwegian, Finnish (å ä ö æ ø)', ranges: [[0xc4, 0xc6], [0xd6, 0xd6], [0xd8, 0xd8], [0xe4, 0xe6], [0xf6, 0xf6], [0xf8, 0xf8]] },
+    { id: 'basic', label: 'Basic Latin (A–Z, a–z, 0–9, punctuation)', ranges: [[0x20, 0x7e]] }, // i18n-ignore
+    { id: 'latin1', label: 'Latin-1 (å ä ö é ñ ß and signs)', ranges: [[0xa0, 0xff]] }, // i18n-ignore
+    { id: 'latinA', label: 'Latin Extended-A (ą č ł ő ş ž…)', ranges: [[0x100, 0x17f]] }, // i18n-ignore
+    { id: 'upper', label: 'Capitals A–Z', ranges: [[0x41, 0x5a]] }, // i18n-ignore
+    { id: 'lower', label: 'Small letters a–z', ranges: [[0x61, 0x7a]] }, // i18n-ignore
+    { id: 'digits', label: 'Digits 0–9', ranges: [[0x30, 0x39]] }, // i18n-ignore
+    { id: 'punct', label: 'Punctuation and symbols', ranges: [[0x20, 0x2f], [0x3a, 0x40], [0x5b, 0x60], [0x7b, 0x7e]] }, // i18n-ignore
+    { id: 'nordic', label: 'Swedish, Danish, Norwegian, Finnish (å ä ö æ ø)', ranges: [[0xc4, 0xc6], [0xd6, 0xd6], [0xd8, 0xd8], [0xe4, 0xe6], [0xf6, 0xf6], [0xf8, 0xf8]] }, // i18n-ignore
   ]);
   const ALL = ['basic', 'latin1', 'latinA'];
 

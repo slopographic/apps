@@ -5,12 +5,13 @@
  *   cutRange({ start, end }, duration) -> { from, to }   seconds within the file; a blank end is the end of the file;
  *                                          throws when the piece is empty
  *   cutChannels(channels, rate, { start, end, fadeIn, fadeOut }) -> channels   the piece, with a linear fade in and out */
+import { tr } from './i18n.js';
 export function parseClock(text) {
   const s = String(text ?? '').trim().replace(',', '.');
   if (!s) return null;
   const m = /^(?:(?:(\d+):)?(\d{1,2}):)?(\d+(?:\.\d*)?|\.\d+)$/.exec(s);
-  if (!m) throw new Error(`"${String(text).trim()}" is not a time. Type seconds (90) or minutes and seconds (1:30).`);
-  if ((m[1] || m[2]) && Number(m[3]) >= 60) throw new Error(`"${String(text).trim()}" is not a time: the seconds go up to 59.`);
+  if (!m) throw new Error(tr('convert.media.not_time', { text: String(text).trim() }));
+  if ((m[1] || m[2]) && Number(m[3]) >= 60) throw new Error(tr('convert.media.bad_seconds', { text: String(text).trim() }));
   return (Number(m[1] || 0) * 60 + Number(m[2] || 0)) * 60 + Number(m[3]);
 }
 
@@ -20,8 +21,8 @@ export function cutRange({ start, end } = {}, duration = Infinity) {
   const from = Math.max(0, parseClock(start) ?? 0);
   const asked = parseClock(end);
   const to = Math.min(duration, asked ?? duration);
-  if (from >= duration) throw new Error(`The start (${clock(from)}) is after the end of the file (${clock(duration)}).`);
-  if (!(to > from)) throw new Error('The end must be after the start.');
+  if (from >= duration) throw new Error(tr('convert.media.start_after_end', { start: clock(from), end: clock(duration) }));
+  if (!(to > from)) throw new Error(tr('convert.media.end_before_start'));
   return { from, to };
 }
 

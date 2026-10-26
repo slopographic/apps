@@ -7,6 +7,7 @@
  *   drawBulk(host, { items, selected, choices, target, options, route, then, onAll, onPick, onRemove, onNone })
  *     route: the shared route's tiles (chain-row.js); then: "+ Then…" for a shared one-step target */
 import { h } from './dom.js';
+import { tr } from '../core/i18n.js';
 import { targetButton } from './file-row.js';
 
 export function drawBulk(host, { items, selected, choices, target, options = null, route = null, then = null, onAll, onPick, onRemove, onNone }) {
@@ -17,20 +18,20 @@ export function drawBulk(host, { items, selected, choices, target, options = nul
   all.indeterminate = selected.length > 0 && !all.checked;
   all.addEventListener('change', () => onAll(all.checked));
   const n = selected.length;
-  const parts = [h('label', { class: 'cv-bulk-all' }, all, h('span', null, 'Select all'))];
+  const parts = [h('label', { class: 'cv-bulk-all' }, all, h('span', null, tr('ui.select_all')))];
   if (n) {
-    parts.push(h('span', { class: 'cv-bulk-n', role: 'status' }, `${n} selected`));
+    parts.push(h('span', { class: 'cv-bulk-n', role: 'status' }, tr('convert.bulk.n_selected', { n })));
     parts.push(choices.length
-      ? h('div', { class: 'cv-file-to' }, h('span', { class: 'cv-file-to-h', 'aria-hidden': 'true' }, 'Convert to'),
-        targetButton({ label: `Convert the ${n} selected file${n === 1 ? '' : 's'} to`, choices, target, onPick, empty: 'Choose', cls: 'cv-bulk-to' }), then)
-      : h('p', { class: 'cv-bulk-none' }, `No format fits ${n === 1 ? 'the selected file' : `all ${n} selected files`}. Select files of one kind, or set each row.`));
-    parts.push(h('button', { type: 'button', class: 'cv-btn cv-small cv-bulk-rm' }, 'Remove'));
-    parts.push(h('button', { type: 'button', class: 'cv-btn cv-small cv-bulk-clear' }, 'Clear selection'));
+      ? h('div', { class: 'cv-file-to' }, h('span', { class: 'cv-file-to-h', 'aria-hidden': 'true' }, tr('convert.row.convert_to')),
+        targetButton({ label: tr('convert.bulk.convert_sel', { n }), choices, target, onPick, empty: tr('convert.bulk.choose'), cls: 'cv-bulk-to' }), then)
+      : h('p', { class: 'cv-bulk-none' }, n === 1 ? tr('convert.bulk.none_fits_one') : tr('convert.bulk.none_fits', { n })));
+    parts.push(h('button', { type: 'button', class: 'cv-btn cv-small cv-bulk-rm' }, tr('ui.remove')));
+    parts.push(h('button', { type: 'button', class: 'cv-btn cv-small cv-bulk-clear' }, tr('convert.bulk.clear_sel')));
     if (route && choices.length) parts.push(route);
     if (options) parts.push(options);
   }
   host.replaceChildren(...parts);
   const rm = host.querySelector('.cv-bulk-rm'), none = host.querySelector('.cv-bulk-clear');
-  if (rm) { rm.setAttribute('aria-label', `Remove the ${n} selected file${n === 1 ? '' : 's'}`); rm.addEventListener('click', onRemove); }
+  if (rm) { rm.setAttribute('aria-label', tr('convert.bulk.remove_sel', { n })); rm.addEventListener('click', onRemove); }
   if (none) none.addEventListener('click', onNone);
 }

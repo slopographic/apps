@@ -8,6 +8,8 @@
   const NS = (g.SlopRecur = g.SlopRecur || {});
   const FREQS = ['daily', 'weekly', 'monthly', 'yearly'];
   const CAP = 5000; // occurrences examined per call, a guard against runaway repeats
+  /** A word from the shared tables (shared/i18n/ui/<code>/calendar.js), the key without SlopI18n. */
+  const tr = (key, vars) => (g.SlopI18n ? g.SlopI18n.t(key, vars) : key);
 
   const daysIn = (y, mo) => new Date(Date.UTC(y, mo, 0)).getUTCDate();
 
@@ -88,11 +90,14 @@
     return out;
   }
 
-  /** Short text for a repeat, such as "Every week" or "Every day until 2027-01-31". */
+  /** Short text for a repeat in the chosen language, such as "Every week" or "Every day until 31 Jan 2027" (the end day
+   *  in the language's date format). */
   function describe(ev) {
-    const words = { daily: 'Every day', weekly: 'Every week', monthly: 'Every month', yearly: 'Every year' };
-    if (!words[ev.freq]) return 'Does not repeat';
-    return ev.until ? `${words[ev.freq]} until ${ev.until}` : words[ev.freq];
+    if (!FREQS.includes(ev.freq)) return tr('ui.recur.none');
+    const p = ev.until ? T.parseDay(ev.until) : null;
+    if (!p) return tr('ui.recur.' + ev.freq);
+    const day = g.SlopI18n ? g.SlopI18n.date(new Date(p.y, p.mo - 1, p.d), { dateStyle: 'medium' }) : ev.until;
+    return tr('ui.recur.' + ev.freq + '_until', { date: day });
   }
 
   NS.FREQS = FREQS;

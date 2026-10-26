@@ -37,7 +37,7 @@
     const look = lookFrom(data.look);
     CO.state.defaults = clone(look);
     CO.util.store.set('look', CO.state.defaults);
-    if (window.SlopUI) SlopUI.toast('New pictures will start with this look');
+    if (window.SlopUI) SlopUI.toast(window.CO.util.t('cutout.config.applied'));
   }
 
   if (C && D && F) {

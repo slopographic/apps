@@ -12,14 +12,14 @@
   let tabs = null;        // the SlopDocTabs api, once mounted
   let switching = false;  // true while a tab is being put on screen: the copy-out must not run then
 
-  const baseName = (n) => String(n || 'Untitled document').replace(/\.sdoc$/i, '') || 'Untitled document';
+  const baseName = (n) => String(n || S.untitled()).replace(/\.sdoc$/i, '') || S.untitled();
   const current = () => (tabs ? tabs.current() : null);
 
   /** A new tab object: the document, its file (name, folder, dirty) and an empty caret and undo history. */
   function makeTab(doc, file) {
     return {
       doc,
-      file: Object.assign({ id: null, folderId: null, name: 'Untitled document', dirty: false, saved: 0 }, file || {}),
+      file: Object.assign({ id: null, folderId: null, name: S.untitled(), dirty: false, saved: 0 }, file || {}),
       sel: { a: { b: 0, o: 0 }, f: { b: 0, o: 0 } },
       undo: [], redo: [], lastKind: '', lastAt: 0,
     };
@@ -37,7 +37,7 @@
 
   /** The strip's adapter (the contract is shared/doctabs/HANDOFF.md). */
   const adapter = {
-    newDoc: () => makeTab(E().M.newDoc(), { name: 'Untitled document' }),
+    newDoc: () => makeTab(E().M.newDoc(), { name: S.untitled() }),
     serialize: (T) => ({
       doc: T.doc,
       file: { folderId: T.file.folderId == null ? null : T.file.folderId, name: T.file.name, dirty: !!T.file.dirty, saved: T.file.saved || 0 },
@@ -47,7 +47,7 @@
       const f = state.file || {};
       return makeTab(E().M.normalizeDoc(state.doc), {
         folderId: f.folderId == null ? null : f.folderId,
-        name: typeof f.name === 'string' ? f.name : 'Untitled document',
+        name: typeof f.name === 'string' ? f.name : S.untitled(),
         dirty: !!f.dirty, saved: f.saved || 0,
       });
     },

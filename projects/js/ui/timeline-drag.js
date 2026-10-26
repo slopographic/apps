@@ -42,7 +42,7 @@
     if (!commit) { if (started) NS.timeline.render(); return; }
     if (!started) { NS.editor.open({ task }); return; }
     NS.timeline.focus(task.id);
-    if (dates && (dates.start !== task.start || dates.end !== task.end)) NS.actions.setDates(task.id, dates, mode === 'move' ? 'Moved' : 'Changed');
+    if (dates && (dates.start !== task.start || dates.end !== task.end)) NS.actions.setDates(task.id, dates, mode === 'move' ? 'moved' : 'changed');
     else NS.timeline.render();
   }
 
@@ -58,7 +58,7 @@
     e.preventDefault();
     const mode = e.shiftKey ? 'end' : e.altKey ? 'start' : 'move';
     NS.timeline.focus(t.id);
-    NS.actions.setDates(t.id, NS.bars.drag(mode, t, step), mode === 'move' ? 'Moved' : 'Changed');
+    NS.actions.setDates(t.id, NS.bars.drag(mode, t, step), mode === 'move' ? 'moved' : 'changed');
   }
 
   function attach(root) {

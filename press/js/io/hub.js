@@ -22,7 +22,7 @@
       if (!S.driveId) return H.saveToDrive(b, name, { from: 'press' }).then(function (id) { if (id) S.driveId = id; return id; });
       return H.update(S.driveId, { blob: b, name: name, type: b.type }).then(function (rec) {
         if (!rec) return H.put(b, { id: S.driveId, name: name, from: 'press' }).then(function (id) { return id; });
-        U.toast('Saved ' + name + ' to Slop Drive'); return S.driveId;
+        U.toast(U.t('press.io.saved_drive', { name: name })); return S.driveId;
       });
     }).then(function (id) { if (id) { S.dirty = false; PR.emit('commit', 'save'); } return id; });
   };
@@ -31,13 +31,13 @@
   /** Items for File ▸ Send to (the one builder, SlopOuttake): the PDF to every app that takes it (and Slop Workflows), then
    *  the current page as a PNG to every app that takes pictures. */
   HB.sendItems = function () {
-    if (!HB.available() || !window.SlopOuttake) return [{ label: 'Slop Hub unavailable', disabled: true }];
+    if (!HB.available() || !window.SlopOuttake) return [{ label: U.t('press.menu.hub_unavailable'), disabled: true }];
     var name = function () { return PR.io.baseName(); }, O = window.SlopOuttake;
-    var pdf = O.items({ get: HB.pdfBlob, name: function () { return name() + '.pdf'; }, type: 'application/pdf', from: 'press', verb: 'Send PDF to', folder: false });
+    var pdf = O.items({ get: HB.pdfBlob, name: function () { return name() + '.pdf'; }, type: 'application/pdf', from: 'press', verb: 'press.io.send_pdf_to', folder: false });
     // the page PNG lists the apps only: the workflow items are already there once, for the PDF
-    var png = O.items({ get: HB.pngBlob, name: function () { return name() + '-p' + PR.pages.label(S.doc, S.page) + '.png'; }, type: 'image/png', from: 'press', verb: 'Send page PNG to', folder: false })
-      .filter(function (it) { return it.label.indexOf('Send page PNG to ') === 0; });
-    var items = pdf.concat(pdf.length && png.length ? ['-'] : [], png, ['-', { label: 'Save to Slop Drive…', act: HB.saveToDrive }]);
+    var png = O.items({ get: HB.pngBlob, name: function () { return name() + '-p' + PR.pages.label(S.doc, S.page) + '.png'; }, type: 'image/png', from: 'press', verb: 'press.io.send_png_to', folder: false })
+      .filter(function (it) { return it.plain; });
+    var items = pdf.concat(pdf.length && png.length ? ['-'] : [], png, ['-', { label: U.t('press.cmd.file_save_drive'), act: HB.saveToDrive }]);
     if (!HB.canSend()) items = items.map(function (it) { return it === '-' ? it : { label: it.label, disabled: true }; });
     return items;
   };

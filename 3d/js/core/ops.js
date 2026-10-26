@@ -68,7 +68,7 @@
     const top = topLevel(s, ids);
     if (!top.length) return null;
     const parent = s.nodes[top[0]].parent;
-    const g = M.makeNode(s, { type: 'group', name: 'Group' });
+    const g = M.makeNode(s, { type: 'group', name: 'Group' }); // i18n-ignore: object names: scene content
     s.nodes[g.id] = g;
     g.parent = parent;
     const list = M.siblingsOf(s, parent);

@@ -7,6 +7,8 @@
 </head>
 <body>
   <script src="../harness.js"></script>
+  <script src="../../shared/profile/profile.js"></script>
+  <script src="../../shared/i18n/i18n.js"></script>
   <script src="../../aitools/transcript.js"></script>
   <script type="module">
   // Covers: aitools/transcript.js, transcribe/js/languages.js, transcribe/js/queue.js, transcribe/js/exports.js, transcribe/js/record.js
@@ -148,10 +150,10 @@
       expect(codes.includes('jv')).toBe(false);   // Whisper's Javanese token is jw
     });
     it('names a code in English; Detect is auto; the menu has Detect first and keeps a known choice', () => {
-      expect([languageName('sv'), languageName('haw'), languageName('auto'), languageName('xx')]).toEqual(['Swedish', 'Hawaiian', 'Detect', 'xx']);
+      expect([languageName('sv'), languageName('haw'), languageName('auto'), languageName('xx')]).toEqual(['Swedish', 'Hawaiian', 'Detect automatically', 'xx']);
       const sel = fillLanguages(document.createElement('select'));
       expect(sel.options.length).toBe(100);
-      expect([sel.options[0].value, sel.options[0].textContent, sel.value]).toEqual(['auto', 'Detect', 'auto']);
+      expect([sel.options[0].value, sel.options[0].textContent, sel.value]).toEqual(['auto', 'Detect automatically', 'auto']);
       expect(sel.options[1].textContent).toBe('Afrikaans');
       expect(fillLanguages(sel, 'fo').value).toBe('fo');
       expect(fillLanguages(sel, 'nope').value).toBe('auto');

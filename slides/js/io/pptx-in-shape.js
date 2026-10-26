@@ -178,8 +178,8 @@
     var out = [];
     I.lib.kids(tree).forEach(function (el) {
       var n = el.localName, o = null;
-      if (n === 'AlternateContent') {
-        var alt = I.lib.kids(el, '*', 'Fallback')[0] || I.lib.kids(el, '*', 'Choice')[0];
+      if (n === 'AlternateContent') { // i18n-ignore
+        var alt = I.lib.kids(el, '*', 'Fallback')[0] || I.lib.kids(el, '*', 'Choice')[0]; // i18n-ignore
         if (alt) out.push.apply(out, I.objects(alt, ctx));
         return;
       }

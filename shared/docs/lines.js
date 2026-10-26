@@ -27,6 +27,7 @@
   }
 
   const NEW_PRODUCT = '__new__';
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
 
   const money = (minor, o) => S.money.formatMinor(minor, o.currency, o.locale);
 
@@ -39,10 +40,10 @@
   }
 
   function productSelect(line, o) {
-    const sel = h('select', { 'aria-label': 'Product', disabled: o.readOnly, dataset: { f: 'product' } },
-      h('option', { value: '', text: 'Custom line (no product)' }),
+    const sel = h('select', { 'aria-label': t('biz.ln.product'), disabled: o.readOnly, dataset: { f: 'product' } },
+    h('option', { value: '', text: t('biz.ln.custom') }),
       ...o.products.map((p) => h('option', { value: p.id, selected: p.id === line.productId, text: `${p.sku} · ${p.name} · ${money(p.price, o)}` })),
-      h('option', { value: NEW_PRODUCT, text: '+ New product…' }));
+      h('option', { value: NEW_PRODUCT, text: t('biz.ln.new_product') }));
     return sel;
   }
 
@@ -51,14 +52,14 @@
       h('input', { type: extra.type || 'text', value, disabled: o.readOnly, inputmode: extra.inputmode, maxlength: extra.maxlength, dataset: { f } }));
     const c = h('div', { class: 'line-card', dataset: { i: String(i) } },
       h('div', { class: 'line-grid' },
-        h('label', { class: 'wide' }, 'Product', productSelect(line, o)),
-        inp('description', 'Description', line.description, { wide: true, maxlength: 300 }),
-        inp('qty', 'Qty', line.qty ?? '', { inputmode: 'numeric' }),
-        inp('unitPrice', `Unit price (${o.currency})`, line.unitPrice == null ? '' : M.amountText(line.unitPrice, o.currency), { inputmode: 'decimal' }),
-        inp('taxRate', 'Tax %', M.percentText(line.taxRate ?? 0), { inputmode: 'decimal' }),
-        inp('discount', 'Discount %', M.percentText(line.discount || 0), { inputmode: 'decimal' })),
+        h('label', { class: 'wide' }, t('biz.ln.product'), productSelect(line, o)),
+        inp('description', t('biz.ln.desc'), line.description, { wide: true, maxlength: 300 }),
+        inp('qty', t('biz.ln.qty'), line.qty ?? '', { inputmode: 'numeric' }),
+        inp('unitPrice', t('biz.ln.unit_price', { currency: o.currency }), line.unitPrice == null ? '' : M.amountText(line.unitPrice, o.currency), { inputmode: 'decimal' }),
+        inp('taxRate', t('biz.ln.tax'), M.percentText(line.taxRate ?? 0), { inputmode: 'decimal' }),
+        inp('discount', t('biz.ln.discount'), M.percentText(line.discount || 0), { inputmode: 'decimal' })),
       h('div', { class: 'line-foot' }, h('span', { class: 'num', dataset: { role: 'total' } }),
-        o.readOnly ? null : h('button', { type: 'button', class: 'btn small danger', dataset: { f: 'remove' }, text: 'Remove line' })),
+        o.readOnly ? null : h('button', { type: 'button', class: 'btn small danger', dataset: { f: 'remove' }, text: t('biz.ln.remove') })),   // i18n-ignore: class names
       h('p', { class: 'line-err', role: 'status', dataset: { role: 'err' } }));
     paintCard(c, line, o);
     return c;
@@ -67,15 +68,15 @@
   /** Refreshes one card's total, error text and invalid marking from its line. */
   function paintCard(c, line, o) {
     const errs = M.lineErrors(line);
-    c.querySelector('[data-role="total"]').textContent = `Line total ${money(M.lineTotal(line), o)}`;
-    c.querySelector('[data-role="err"]').textContent = errs.length ? `Fix: ${errs.join('; ')}` : '';
+    c.querySelector('[data-role="total"]').textContent = t('biz.ln.total', { amount: money(M.lineTotal(line), o) });
+    c.querySelector('[data-role="err"]').textContent = errs.length ? t('biz.ln.fix', { errors: errs.join('; ') }) : '';
     c.classList.toggle('bad', errs.length > 0);
   }
 
   /** Draws every line card into box. o: { products, currency, locale, readOnly, onEdit(i, patch), onProduct(i, product), onNewProduct(i), onRemove(i) }. */
   function draw(box, lines, o) {
     box.replaceChildren(...lines.map((l, i) => card(l, i, o)));
-    if (!lines.length) box.append(h('p', { class: 'empty', text: 'No lines yet. Add one.' }));
+    if (!lines.length) box.append(h('p', { class: 'empty', text: t('biz.ln.none') }));
     if (box.dataset.bound) return;
     box.dataset.bound = '1';
     box.addEventListener('input', (e) => {
@@ -109,14 +110,15 @@
 
   /** Totals box: subtotal, tax by rate, total. Says so when a line is not complete yet. */
   function drawTotals(box, lines, o) {
-    const t = M.totals(lines);
+    const tot = M.totals(lines);
     box.replaceChildren();
-    if (!t) { box.append(h('p', { class: 'note', text: 'Totals appear when every line is complete.' })); return; }
+    if (!tot) { box.append(h('p', { class: 'note', text: g.SlopI18n ? g.SlopI18n.t('biz.ln.totals_later') : '' })); return; }
     const dl = h('dl', null);
     const add = (label, value, cls) => dl.append(h('dt', { class: cls, text: label }), h('dd', { class: cls, text: value }));
-    add('Subtotal (before tax)', money(t.subtotal, o));
-    for (const r of t.byRate) add(`Tax ${M.percentText(r.rate) || '0'}% on ${money(r.net, o)}`, money(r.tax, o));
-    add('Total', money(t.total, o), 'grand');
+    const w = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
+    add(w('biz.ln.subtotal'), money(tot.subtotal, o));
+    for (const r of tot.byRate) add(w('biz.ln.tax_on', { rate: M.percentText(r.rate) || '0', net: money(r.net, o) }), money(r.tax, o));
+    add(w('biz.ln.grand'), money(tot.total, o), 'grand');
     box.append(dl);
   }
 

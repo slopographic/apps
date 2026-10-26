@@ -67,7 +67,7 @@
 
     async function boot() {
       const S = g.SlopData, ready = await S.store.ready();
-      if (!ready.ok) { $('boot').textContent = `Storage is not available here: ${B.refusal(ready)}. Nothing can be saved in this window.`; return; }
+      if (!ready.ok) { $('boot').textContent = g.SlopI18n ? g.SlopI18n.t('biz.err.storage', { why: B.refusal(ready) }) : `Storage is not available here: ${B.refusal(ready)}.`; return; }   // i18n-ignore: the fallback when SlopI18n did not load
       $('boot').hidden = true;
       const editRoute = cfg.editRoute || (() => location.hash.slice(1) || 'new');
       const tabRoute = cfg.tabRoute || ((name) => (name === 'edit' ? editRoute() : name));
@@ -78,6 +78,7 @@
       if (cfg.mount) cfg.mount();
       if (g.SlopHub) { try { g.SlopHub.register(cfg.app); } catch (e) { /* the hub is optional */ } }
       S.store.subscribe(redraw);
+      if (g.SlopI18n) g.SlopI18n.on(redraw);   // the open view's words in the new language
       addEventListener('hashchange', route);
       if (cfg.start && !location.hash.slice(1)) { const h = await cfg.start(); if (h) history.replaceState(null, '', `#${h}`); }
       await route();

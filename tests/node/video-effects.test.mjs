@@ -103,3 +103,12 @@ test('each cut keeps its pick when there are fewer cuts than before (a prefix of
   const short = FX.plan({ kind: 'random', change: 'cut' }, Array.from({ length: 6 }), 99).picks;
   assert.equal(json(short), json(long.slice(0, 6)));
 });
+
+test('the effect and change lists keep their ids and read Swedish from shared/i18n/ui/sv/video.js', async () => {
+  const { context, plain } = await import('./ui-tables-env.mjs');
+  const sv = context(CORE.concat(['effects.js', 'random-edit.js']).map((f) => 'shared/video/' + f), 'sv').SlopVideo.effects;
+  assert.deepEqual(plain(sv.KINDS).map((k) => k[0]), plain(FX.KINDS).map((k) => k[0]));
+  assert.equal(sv.name('vignette'), 'Vinjett');
+  assert.equal(plain(sv.CHANGE).find((c) => c[0] === 'reel')[1], 'En gång för hela reelen');
+  assert.equal(sv.norm({ kind: 'glitch', change: 'reel' }).kind, 'glitch', 'norm checks ids, not labels');
+});

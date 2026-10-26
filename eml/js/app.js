@@ -12,6 +12,7 @@
   const docs = [];
   const checked = new Set();
   const list = { sort: 'date', dir: 'desc', query: '' };
+  const t = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
   const notify = () => { if (quiet) return; listeners.forEach((f) => { try { f(); } catch (e) { console.error(e); } }); };
 
   const find = (id) => docs.find((d) => d.id === id) || null;
@@ -36,7 +37,7 @@
     let first;
     if (X.isMbox(name, bytes.subarray(0, 8))) {
       const parts = X.split(bytes);
-      if (!parts.length) throw new Error('holds no messages');
+      if (!parts.length) throw new Error(t('eml.err.no_messages'));
       const stem = name.replace(/\.(mbox|mbx)$/i, '') || 'mailbox', w = String(parts.length).length;
       parts.forEach((p, i) => { const d = add(p, stem + ' ' + String(i + 1).padStart(w, '0') + '.eml', { fromMbox: name }); if (!first) first = d; });
     } else {
@@ -52,7 +53,7 @@
     quiet++;
     try {
       for (const f of all) {
-        try { await openFile(f, { pin: all.length === 1 }); res.opened.push(f.name); } catch (e) { res.failed.push({ name: f.name, reason: (e && e.message) || 'could not be read' }); }
+        try { await openFile(f, { pin: all.length === 1 }); res.opened.push(f.name); } catch (e) { res.failed.push({ name: f.name, reason: (e && e.message) || t('eml.err.unreadable') }); }
       }
     } finally { quiet--; }
     notify();

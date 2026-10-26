@@ -3,6 +3,7 @@
  *                                             place of the mistake (structured.js parseJson)
  *   jsonToJsonl(text) -> { text, count }      an array gives one line per item; any other value is one line */
 import { parseJson, formatJson } from './structured.js';
+import { tr } from './i18n.js';
 
 export function jsonlToJson(text, { indent = 2 } = {}) {
   const lines = String(text).replace(/^\uFEFF/, '').split(/\r?\n/);
@@ -12,10 +13,10 @@ export function jsonlToJson(text, { indent = 2 } = {}) {
     try { items.push(JSON.parse(line)); } catch (e) {
       let why = '';
       try { parseJson(line); } catch (err) { why = err.message.replace(/^This is not valid JSON:?\s*/, '').replace(/line 1, /, '').replace(/^\.\s*/, ''); }
-      throw new Error(`Line ${i + 1} is not valid JSON${why ? `: ${why}` : '.'}`);
+      throw new Error(why ? tr('convert.md.jsonl_bad_why', { line: String(i + 1), why }) : tr('convert.md.jsonl_bad', { line: String(i + 1) }));
     }
   });
-  if (!items.length) throw new Error('The file is empty: there are no JSON lines to read.');
+  if (!items.length) throw new Error(tr('convert.md.jsonl_empty'));
   return formatJson(JSON.stringify(items), { indent });
 }
 

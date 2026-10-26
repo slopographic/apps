@@ -65,7 +65,7 @@
     stage.addEventListener('pointermove', (e) => {
       if (!drag) { const b = PV.box, pt = local(e); stage.style.cursor = b && (Math.hypot(pt.x - b.rot[0], pt.y - b.rot[1]) < 12 ? 'grab' : b.pts.some(([x, y]) => Math.abs(pt.x - x) < 10 && Math.abs(pt.y - y) < 10) ? 'nwse-resize' : inside(b.pts, pt.x, pt.y) ? 'move' : '') || ''; return; }
       const pt = local(e), d = drag;
-      if (!d.begun) { if (Math.hypot(pt.x - d.pt.x, pt.y - d.pt.y) < 3) return; SE.history.begin(d.mode === 'move' ? 'Move' : d.mode === 'scale' ? 'Scale' : 'Rotate'); d.begun = true; }
+      if (!d.begun) { if (Math.hypot(pt.x - d.pt.x, pt.y - d.pt.y) < 3) return; SE.history.begin(d.mode === 'move' ? U.t('slopedit.render.move') : d.mode === 'scale' ? U.t('slopedit.insp.scale') : U.t('slopedit.render.rotate')); d.begun = true; }
       const c = M.clip(SE.doc, d.id); if (!c) return;
       if (d.mode === 'move') {
         let x = d.x0 + (pt.x - d.pt.x) / d.k, y = d.y0 + (pt.y - d.pt.y) / d.k;
@@ -81,7 +81,7 @@
         if (e.shiftKey) r = Math.round(r / 15) * 15;
         c.rot = U.round(r, 1);
       }
-      SE.emit('change', { label: 'Transform', live: true });
+      SE.emit('change', { label: U.t('slopedit.insp.transform'), live: true });
     });
     const end = () => { if (drag && drag.begun) SE.emit('autosave'); drag = null; };
     stage.addEventListener('pointerup', end);

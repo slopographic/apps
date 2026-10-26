@@ -6,7 +6,7 @@
   var O = SS.objects = {};
 
   O.SHAPES = ['rect', 'roundRect', 'ellipse', 'triangle', 'rightArrow', 'leftArrow', 'star5', 'diamond', 'hexagon', 'line', 'arrowLine', 'callout', 'cloudCallout'];
-  O.SHAPE_NAMES = { rect: 'Rectangle', roundRect: 'Rounded rectangle', ellipse: 'Oval', triangle: 'Triangle', rightArrow: 'Arrow', leftArrow: 'Left arrow', star5: 'Star', diamond: 'Diamond', hexagon: 'Hexagon', line: 'Line', arrowLine: 'Arrow line', callout: 'Callout', cloudCallout: 'Speech bubble' };
+  O.SHAPE_NAMES = { rect: 'Rectangle', roundRect: 'Rounded rectangle', ellipse: 'Oval', triangle: 'Triangle', rightArrow: 'Arrow', leftArrow: 'Left arrow', star5: 'Star', diamond: 'Diamond', hexagon: 'Hexagon', line: 'Line', arrowLine: 'Arrow line', callout: 'Callout', cloudCallout: 'Speech bubble' }; // i18n-ignore
   O.isLine = function (o) { return o.type === 'shape' && (o.shape === 'line' || o.shape === 'arrowLine'); };
 
   O.defaultText = function (s) { return { paras: [{ runs: [{ t: s || '' }] }], valign: 'top', autofit: 'none' }; };
@@ -30,7 +30,7 @@
     },
     chart: function () {
       return { chart: 'bar', legend: true, labels: false, title: '', style: { font: 'body', size: 14, color: 'text2' },
-        data: { cats: ['Q1', 'Q2', 'Q3', 'Q4'], series: [{ name: 'Revenue', values: [12, 19, 15, 27] }, { name: 'Costs', values: [8, 11, 10, 14] }] } };
+        data: { cats: ['Q1', 'Q2', 'Q3', 'Q4'], series: [{ name: 'Revenue', values: [12, 19, 15, 27] }, { name: 'Costs', values: [8, 11, 10, 14] }] } }; // i18n-ignore
     },
     media: function () { return { kind: 'video', media: null, poster: null, autoplay: false, loop: false, mime: '' }; },
     group: function () { return { children: [], ch: null }; }
@@ -43,16 +43,16 @@
     if (type === 'shape' && O.isLine(o)) { o.fill = null; o.stroke = o.stroke || { color: 'text', width: 3, dash: 'solid', tail: o.shape === 'arrowLine' ? 'arrow' : 'none' }; o.text = null; }
     if (type === 'table' && !o.cells) {
       o.cells = [];
-      for (var r = 0; r < o.rowsN; r++) { var row = []; for (var c = 0; c < o.cols; c++) row.push({ text: O.defaultText(r === 0 && o.header ? 'Header ' + (c + 1) : '') }); o.cells.push(row); }
+      for (var r = 0; r < o.rowsN; r++) { var row = []; for (var c = 0; c < o.cols; c++) row.push({ text: O.defaultText(r === 0 && o.header ? 'Header ' + (c + 1) : '') }); o.cells.push(row); } // i18n-ignore
     }
     if (type === 'table') { delete o.rowsN; delete o.cols; O.fixTable(o); }
     if (!o.name) o.name = O.defaultName(o);
     return o;
   };
   O.defaultName = function (o) {
-    if (o.type === 'shape') return O.SHAPE_NAMES[o.shape] || 'Shape';
-    if (o.type === 'media') return o.kind === 'audio' ? 'Audio' : 'Video';
-    return { text: 'Text', image: 'Image', table: 'Table', chart: 'Chart', group: 'Group' }[o.type] || 'Object';
+    if (o.type === 'shape') return O.SHAPE_NAMES[o.shape] || 'Shape'; // i18n-ignore
+    if (o.type === 'media') return o.kind === 'audio' ? 'Audio' : 'Video'; // i18n-ignore
+    return { text: 'Text', image: 'Image', table: 'Table', chart: 'Chart', group: 'Group' }[o.type] || 'Object'; // i18n-ignore
   };
   /** Table column widths / row heights default to an even split of the frame. */
   O.fixTable = function (t) {

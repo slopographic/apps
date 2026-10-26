@@ -19,6 +19,8 @@
   const SI = (root.SlopIntake = root.SlopIntake || {});
   /** A word from the shared tables (shared/i18n/ui/en.js), or the English given when SlopI18n or the key is absent. */
   function tr(key, en, vars) { const I = globalThis.SlopI18n; if (I && I.has && I.has(key)) return I.t(key, vars); return vars ? String(en).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en; }
+  /** A noun or label an app gave: an i18n key (read in the current language when used), a function, or text (SlopI18n.label). */
+  const lab = (v) => { const I = globalThis.SlopI18n; return String(I && I.label ? I.label(v) : typeof v === 'function' ? v() : v); };
 
   SI.createPipeline = function (env) {
     env = env || {};
@@ -62,7 +64,7 @@
       if (typeof a === 'function') {
         const r = a(file);
         if (r === true || (r && r.ok)) return { ok: true };
-        return { ok: false, reason: typeof r === 'string' ? r : (r && r.reason) || tr('ui.intake.not_noun', '{name} is not {noun}', { name: file.name || tr('ui.intake.file', 'file'), noun: s.noun || tr('ui.intake.supported', 'a supported file') }) };
+        return { ok: false, reason: typeof r === 'string' ? r : (r && r.reason) || tr('ui.intake.not_noun', '{name} is not {noun}', { name: file.name || tr('ui.intake.file', 'file'), noun: s.noun ? lab(s.noun) : tr('ui.intake.supported', 'a supported file') }) };
       }
       const rules = Object.assign({}, a || { any: true });
       if (s.noun && !rules.noun) rules.noun = s.noun;

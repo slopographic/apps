@@ -4,7 +4,7 @@
 (function () {
   'use strict';
   const ns = window.SlopTime;
-  const TABS = [['world', 'World clock'], ['my', 'My time'], ['meet', 'Meetings'], ['conv', 'Convert'], ['timers', 'Timers'], ['sync', 'Sync']];
+  const TABS = [['world'], ['my'], ['meet'], ['conv'], ['timers'], ['sync']];   // the tab ids; their words are on the page (time.tab.<id>)
   const $ = ns.ui.$;
   let active = 'world', tabs = null;
 
@@ -40,7 +40,8 @@
 
   function boot() {
     fillZoneList();
-    $('st-device').textContent = `This device: ${ns.state.device()}`;
+    const device = () => { $('st-device').textContent = window.SlopI18n ? SlopI18n.t('time.dev.this', { zone: ns.state.device() }) : ns.state.device(); };
+    device();
     tabs = window.SlopTabs.mount(document.querySelector('.st-tabs'), { select: show, panel: (k) => $('p-' + k) });
     ns.world.init();
     ns.my.init();
@@ -51,6 +52,8 @@
     const h = location.hash.slice(1);
     show(TABS.some(([k]) => k === h) ? h : tabOf(location.search) || 'world');
     setInterval(tick, 250);
+    // a language change: the words each panel writes, drawn again (the static ones follow data-i18n)
+    if (window.SlopI18n) SlopI18n.on(() => { device(); ns.world.render(true); ns.my.render(); ns.meet.render(); ns.conv.renderConvert(); ns.conv.renderDiff(); ns.syncPanel.render(); ns.clocks.tick(true); });
   }
 
   window.SlopTimeApp = { show, tick, tabOf, get active() { return active; } };

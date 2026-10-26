@@ -6,6 +6,7 @@
 // Covers: shared/retouch/patchmatch.js, shared/retouch/portrait.js, shared/ops/retouch.js
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import './ui-i18n-en.mjs';   // the shared components' words (shared/i18n/ui), as a page has them
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);

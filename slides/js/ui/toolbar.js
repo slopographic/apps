@@ -3,63 +3,63 @@
 (function () {
   'use strict';
   var SS = window.SS, A = SS.app, D = SS.dom, OP = SS.ops, T = SS.toolbar = {};
-  var $ = D.$;
+  var $ = D.$, t = SS.util.t;
 
   function keyOf(id) { return window.SlopCmd ? SlopCmd.keyFor(id) : ''; }
   function fileMenu(x, y) {
     var hub = !!window.SlopHub;
     SlopUI.menu([
-      { label: 'New presentation', key: keyOf('file.new'), act: SS.files.newDeck },
-      { label: 'New from template…', key: keyOf('file.newTemplate'), act: function () { SS.templatesUI.openNew(); } },
-      { label: 'Open from Slop Drive…', key: keyOf('file.open'), act: SS.files.openDrive, disabled: !hub },
-      { label: 'Open a file from this computer…', act: function () { SS.fileDrop.choose(); } },
-      { label: 'Import PowerPoint or picture from Slop Drive…', act: SS.files.importDrive, disabled: !hub },
+      { label: t('slides.menu.new_presentation'), key: keyOf('file.new'), act: SS.files.newDeck },
+      { label: t('slides.menu.new_from_template'), key: keyOf('file.newTemplate'), act: function () { SS.templatesUI.openNew(); } },
+      { label: t('slides.menu.open_from_slop_drive'), key: keyOf('file.open'), act: SS.files.openDrive, disabled: !hub },
+      { label: t('slides.menu.open_a_file_from_this_computer'), act: function () { SS.fileDrop.choose(); } },
+      { label: t('slides.menu.import_powerpoint_or_picture_from_slop_d'), act: SS.files.importDrive, disabled: !hub },
       '-',
-      { label: 'Save to Slop Drive', key: keyOf('file.save'), act: function () { SS.files.save(false); }, disabled: !hub },
-      { label: 'Save as a new Drive file…', act: function () { SS.files.save(true); }, disabled: !hub },
-      { label: 'Save as template…', key: keyOf('file.saveTemplate'), act: function () { SS.templatesUI.openSave(); } },
+      { label: t('slides.menu.save_to_slop_drive'), key: keyOf('file.save'), act: function () { SS.files.save(false); }, disabled: !hub },
+      { label: t('slides.menu.save_as_a_new_drive_file'), act: function () { SS.files.save(true); }, disabled: !hub },
+      { label: t('slides.menu.save_as_template'), key: keyOf('file.saveTemplate'), act: function () { SS.templatesUI.openSave(); } },
       '-',
-      { label: 'Download .sslide', act: SS.files.download },
-      { label: 'Download PDF', key: keyOf('file.pdf'), act: SS.files.exportPdf },
-      { label: 'Export PowerPoint (.pptx)', act: SS.files.exportPptx },
-      { label: 'Export this slide as PNG', act: SS.files.exportPng },
+      { label: t('slides.menu.download_sslide'), act: SS.files.download },
+      { label: t('slides.menu.download_pdf'), key: keyOf('file.pdf'), act: SS.files.exportPdf },
+      { label: t('slides.menu.export_powerpoint_pptx'), act: SS.files.exportPptx },
+      { label: t('slides.menu.export_this_slide_as_png'), act: SS.files.exportPng },
       '-',
       '-',
-      { label: 'Config', sub: SS.configio && SS.configio.menu ? SS.configio.menu() : [] },
-      { label: 'Present', key: keyOf('view.present') || 'F5', act: function () { SS.present.start(); } },
-      { label: 'Present with presenter view', key: keyOf('view.presenter'), act: function () { SS.presenter.start(); } }
+      { label: t('slides.menu.config'), sub: SS.configio && SS.configio.menu ? SS.configio.menu() : [] },
+      { label: t('slides.menu.present'), key: keyOf('view.present') || 'F5', act: function () { SS.present.start(); } },
+      { label: t('slides.menu.present_with_presenter_view'), key: keyOf('view.presenter'), act: function () { SS.presenter.start(); } }
     ], x, y);
   }
   function fillSelects() {
     var lay = $('selLayout'), th = $('selTheme');
-    lay.replaceChildren(...SS.layouts.list.map(function (l) { return D.option(l.id, l.name, ''); }));
-    th.replaceChildren(...SS.themes.list.map(function (t) { return D.option(t.id, t.name, ''); }));
+    lay.replaceChildren(...SS.layouts.list.map(function (l) { return D.option(l.id, SS.util.layoutName(l.id), ''); }));
+    th.replaceChildren(...SS.themes.list.map(function (x) { return D.option(x.id, SS.util.themeName(x), ''); }));
   }
   function saveText() {
     if (!A.doc) return '';
-    if (A.dirty) return A.doc.driveId ? 'Unsaved changes' : 'Not saved yet';
-    return A.doc.driveId ? 'Saved to Slop Drive' : 'Not saved yet';
+    if (A.dirty) return t(A.doc.driveId ? 'slides.app.unsaved' : 'slides.app.not_saved');
+    return t(A.doc.driveId ? 'slides.app.saved_drive' : 'slides.app.not_saved');
   }
   function refresh() {
     if (!A.deck) return;
     var s = A.slide(), undo = $('btnUndo'), redo = $('btnRedo');
     undo.disabled = !A.hist.canUndo() || A.mode !== 'edit';
     redo.disabled = !A.hist.canRedo() || A.mode !== 'edit';
-    undo.title = 'Undo' + (A.hist.label('undo') ? ': ' + A.hist.label('undo') : '');
-    redo.title = 'Redo' + (A.hist.label('redo') ? ': ' + A.hist.label('redo') : '');
+    undo.title = A.hist.label('undo') ? t('slides.app.undo_what', { what: A.hist.label('undo') }) : t('ui.undo');
+    redo.title = A.hist.label('redo') ? t('slides.app.redo_what', { what: A.hist.label('redo') }) : t('ui.redo');
     setVal($('selLayout'), s ? s.layout : '');
     var th = $('selTheme'), own = th.querySelector('option[data-own]');
     // a theme that came with the file (an imported PowerPoint theme) is listed by its own name
-    if (!SS.themes.list.some(function (t) { return t.id === A.deck.theme.id; })) {
+    if (!SS.themes.list.some(function (item) { return item.id === A.deck.theme.id; })) {
       if (!own) { own = D.option(A.deck.theme.id, '', ''); own.setAttribute('data-own', ''); th.prepend(own); }
-      own.value = A.deck.theme.id; own.textContent = A.deck.theme.name || 'This file’s theme';
+      own.value = A.deck.theme.id; own.textContent = A.deck.theme.name || t('slides.app.file_theme');
     } else if (own) own.remove();
     setVal(th, A.deck.theme.id);
     setVal($('title'), A.deck.title);
     $('saveState').textContent = saveText();
     $('saveState').classList.toggle('dirty', A.dirty);
-    $('statusSlide').textContent = 'Slide ' + (A.idx + 1) + ' of ' + A.deck.slides.length + (s && s.hidden ? ' (hidden)' : '');
-    $('statusSel').textContent = A.sel.length ? (A.sel.length + ' selected') : '';
+    $('statusSlide').textContent = t(s && s.hidden ? 'slides.app.status_slide_hidden' : 'slides.app.status_slide', { i: A.idx + 1, n: A.deck.slides.length });
+    $('statusSel').textContent = A.sel.length ? t('slides.app.n_selected', { n: A.sel.length }) : '';
   }
   function setVal(el, v) {
     if (el && document.activeElement !== el && el.value !== String(v)) el.value = v;
@@ -67,7 +67,7 @@
   T.mount = function () {
     fillSelects();
     var title = $('title');
-    title.addEventListener('change', function () { OP.setTitle(title.value.trim() || 'Untitled presentation'); });
+    title.addEventListener('change', function () { OP.setTitle(title.value.trim() || 'Untitled presentation'); }); // i18n-ignore (the document's own title)
     title.addEventListener('keydown', function (e) { if (e.key === 'Enter') title.blur(); });
     $('btnFile').addEventListener('click', function (e) { var r = e.currentTarget.getBoundingClientRect(); fileMenu(r.left, r.bottom + 4); });
     $('btnUndo').addEventListener('click', function () { A.undo(); });
@@ -88,6 +88,7 @@
     $('slUp').addEventListener('click', function () { OP.moveSlide(-1); });
     $('slDown').addEventListener('click', function () { OP.moveSlide(1); });
     ['load', 'deck', 'slide', 'select', 'change', 'mode'].forEach(function (ev) { A.on(ev, refresh); });
+    SS.util.onLang(function () { fillSelects(); refresh(); A.emit('render'); });   // the canvas: the placeholder hints
     refresh();
   };
   T.refresh = refresh;

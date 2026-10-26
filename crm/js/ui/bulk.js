@@ -5,8 +5,9 @@
   const NS = (g.SlopCrm = g.SlopCrm || {});
   const UI = g.SlopUI;
   const el = UI.el;
+  const tr = (k, v) => NS.tr(k, v);   // the string tables (crm/i18n)
   const $ = (id) => document.getElementById(id);
-  const plural = (n) => `${n} customer${n === 1 ? '' : 's'}`;
+  const plural = (n) => tr('crm.bk.n_customers', { n });
   NS.selection = new Set();
   let shown = []; // the customers the list shows now (after the search and filters)
 
@@ -14,7 +15,7 @@
   function refresh() {
     const n = NS.selection.size;
     $('cBulk').hidden = n === 0;
-    $('bCount').textContent = `${n} selected`;
+    $('bCount').textContent = tr('crm.bk.n_selected', { n: String(n) });
     const picked = shown.filter((c) => NS.selection.has(c.id)).length;
     const all = $('cSelAll');
     all.checked = shown.length > 0 && picked === shown.length;
@@ -56,36 +57,36 @@
   }
 
   function report(msg, res) {
-    UI.toast(res.why ? `${msg}: ${res.done} of ${res.total} done. ${res.why}` : `${msg}: ${plural(res.done)}`);
+    UI.toast(res.why ? tr('crm.bk.partly', { msg, done: String(res.done), total: String(res.total), why: res.why }) : tr('crm.bk.done', { msg, what: plural(res.done) }));
   }
 
   /** Changes one customer from its current record. A customer that is gone is a refusal, not a crash. */
   async function patch(id, change) {
     const r = await NS.customers.get(id);
     if (!r.ok) return r;
-    if (!r.value) return { ok: false, message: 'That customer no longer exists.' };
+    if (!r.value) return { ok: false, message: tr('crm.fm.gone') };
     return NS.customers.save(id, change(r.value));
   }
 
   async function setStage(stage) {
-    report(`Moved to ${NS.stageLabel(stage)}`, await each((id) => NS.customers.moveStage(id, stage)));
+    report(tr('crm.bk.moved', { stage: NS.stageLabel(stage) }), await each((id) => NS.customers.moveStage(id, stage)));
   }
 
   async function addCategory() {
-    const add = NS.util.tags(await UI.prompt('Add category', 'Category name', '', { ok: 'Add', placeholder: 'e.g. wholesale' }));
+    const add = NS.util.tags(await UI.prompt(tr('crm.bk.add_cat'), tr('crm.bk.cat_name'), '', { ok: tr('crm.bk.add'), placeholder: tr('crm.bk.cat_ph') }));
     if (!add.length) return;
-    report(`Added ${add.join(', ')}`, await each((id) => patch(id, (c) => ({ categories: NS.util.tags([...(c.categories || []), ...add].join(', ')) }))));
+    report(tr('crm.bk.added', { names: add.join(', ') }), await each((id) => patch(id, (c) => ({ categories: NS.util.tags([...(c.categories || []), ...add].join(', ')) }))));
   }
 
   async function removeCategory() {
-    const drop = NS.util.tags(await UI.prompt('Remove category', 'Category to remove', '', { ok: 'Remove' }));
+    const drop = NS.util.tags(await UI.prompt(tr('crm.bk.remove_cat'), tr('crm.bk.cat_remove'), '', { ok: tr('crm.bk.remove') }));
     if (!drop.length) return;
-    report(`Removed ${drop.join(', ')}`, await each((id) => patch(id, (c) => ({ categories: (c.categories || []).filter((t) => !drop.includes(t)) }))));
+    report(tr('crm.bk.removed', { names: drop.join(', ') }), await each((id) => patch(id, (c) => ({ categories: (c.categories || []).filter((x) => !drop.includes(x)) }))));
   }
 
   async function setFollowUp(date) {
-    if (!NS.util.isDate(date)) { UI.toast('Pick a real date first.'); return; }
-    report(`Follow-up set to ${date}`, await each((id) => NS.customers.setFollowUp(id, date)));
+    if (!NS.util.isDate(date)) { UI.toast(tr('crm.bk.real_date')); return; }
+    report(tr('crm.bk.follow_set', { date }), await each((id) => NS.customers.setFollowUp(id, date)));
   }
 
   /** Adds the selected customers to one group, or removes them, after the group is picked in a dialog. */
@@ -94,16 +95,16 @@
     if (!r.ok) { UI.toast(NS.util.refusal(r)); return; }
     const groups = r.value.groups;
     if (!groups.length) {
-      UI.dialog({ title: 'Groups', body: 'There are no groups yet. Make one first with Manage in the Groups list of the sidebar.', buttons: [{ label: 'OK', primary: true }] });
+      UI.dialog({ title: tr('crm.bk.groups'), body: tr('crm.bk.no_groups'), buttons: [{ label: tr('menu.ok'), primary: true }] });
       return;
     }
     const sel = UI.select(groups.map((x) => [x.id, x.name]), groups[0].id);
-    UI.dialog({ title: on ? 'Add to group' : 'Remove from group',
-      body: el('div', null, UI.field('Group', sel), el('p', { class: 'note' }, `${plural(NS.selection.size)} selected.`)),
-      buttons: [{ label: 'Cancel' }, { label: on ? 'Add' : 'Remove', primary: true, act: async () => {
+    UI.dialog({ title: tr(on ? 'crm.bk.add_group' : 'crm.bk.remove_group'),
+      body: el('div', null, UI.field(tr('crm.bk.group'), sel), el('p', { class: 'note' }, tr('crm.bk.selected', { what: plural(NS.selection.size) }))),
+      buttons: [{ label: tr('menu.cancel') }, { label: tr(on ? 'crm.bk.add' : 'crm.bk.remove'), primary: true, act: async () => {
         const name = groups.find((x) => x.id === sel.value).name;
         const res = await NS.labels.setMembers([...NS.selection], 'group', sel.value, on);
-        UI.toast(res.ok ? `${on ? 'Added to' : 'Removed from'} ${name}` : NS.util.refusal(res));
+        UI.toast(res.ok ? tr(on ? 'crm.bk.added_to' : 'crm.bk.removed_from', { name }) : NS.util.refusal(res));
         return res.ok;
       } }] });
   }
@@ -119,43 +120,43 @@
       const s = Array.isArray(v) ? v.join(', ') : String(v == null ? '' : v);
       return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
     };
-    const head = ['Name', 'Stage', 'Email', 'Phone', 'Address', 'Follow-up', 'Categories', 'Tags', 'Groups', 'Notes'];
+    const head = ['Name', 'Stage', 'Email', 'Phone', 'Address', 'Follow-up', 'Categories', 'Tags', 'Groups', 'Notes'];   // i18n-ignore: CSV column names (a file format)
     const lines = [head, ...rows.map((c) => [c.name, NS.stageLabel(c.stage), c.email, c.phone, c.address, c.followUp, c.categories,
       names(c.tagIds, lab.value.tags), names(c.groupIds, lab.value.groups), c.notes])];
     const text = '﻿' + lines.map((l) => l.map(cell).join(',')).join('\r\n') + '\r\n';
     UI.download(new Blob([text], { type: 'text/csv;charset=utf-8' }), `slop-crm-customers-${NS.util.today()}.csv`);
-    UI.toast(`Exported ${plural(rows.length)}`);
+    UI.toast(tr('crm.bk.exported', { what: plural(rows.length) }));
   }
 
   async function removeSelected() {
     const n = NS.selection.size;
     if (!n) return;
-    const yes = await UI.confirm(`Delete ${plural(n)}?`, 'They move to the deleted list. Their orders and invoices are kept.', 'Delete', { danger: true });
+    const yes = await UI.confirm(tr('crm.bk.del_q', { what: plural(n) }), tr('crm.bk.del_body'), tr('ui.delete'), { danger: true });
     if (!yes) return;
     const openGone = !!NS.state.current && NS.selection.has(NS.state.current);
     const res = await each((id) => NS.customers.remove(id), true);
-    report('Deleted', res);
+    report(tr('crm.bk.deleted'), res);
     if (openGone) NS.app.close();
   }
 
   /** Builds the bar, once, and wires the select-all box. Called when the Customers view mounts. */
   function mount() {
-    const stage = el('select', { 'aria-label': 'Change stage of selected customers',
+    const stage = el('select', { 'aria-label': tr('crm.bk.stage_aria'),
       onchange: (e) => { const s = e.target.value; e.target.value = ''; if (s) setStage(s); } },
-      el('option', { value: '' }, 'Change stage…'), NS.STAGES.map((s) => el('option', { value: s }, NS.stageLabel(s))));
-    const date = el('input', { type: 'date', 'aria-label': 'Follow-up date for selected customers' });
-    const btn = (label, act, cls) => el('button', { type: 'button', class: cls ? `btn small ${cls}` : 'btn small', onclick: () => act() }, label);
+      el('option', { value: '' }, tr('crm.bk.stage')), NS.STAGES.map((s) => el('option', { value: s }, NS.stageLabel(s))));
+      const date = el('input', { type: 'date', 'aria-label': tr('crm.bk.date_aria') });
+    const btn = (label, act, cls) => el('button', { type: 'button', class: cls ? `btn small ${cls}` : 'btn small', onclick: () => act() }, label);   // i18n-ignore: class names
     $('cBulk').replaceChildren(
       el('span', { class: 'bulk-count', id: 'bCount', role: 'status' }),
       stage,
-      btn('Add category', addCategory),
-      btn('Remove category', removeCategory),
-      btn('Add to group…', () => groupDialog(true)),
-      btn('Remove from group…', () => groupDialog(false)),
-      el('span', { class: 'bulk-date' }, date, btn('Apply', () => setFollowUp(date.value))),
-      btn('Export CSV', exportCsv),
-      btn('Delete', removeSelected, 'danger'),
-      btn('Clear selection', () => { NS.selection.clear(); refresh(); }));
+      btn(tr('crm.bk.add_cat'), addCategory),
+      btn(tr('crm.bk.remove_cat'), removeCategory),
+      btn(tr('crm.bk.add_to_group'), () => groupDialog(true)),
+      btn(tr('crm.bk.remove_from_group'), () => groupDialog(false)),
+      el('span', { class: 'bulk-date' }, date, btn(tr('crm.bk.apply'), () => setFollowUp(date.value))),
+      btn(tr('crm.bk.csv'), exportCsv),
+      btn(tr('ui.delete'), removeSelected, 'danger'),
+      btn(tr('crm.bk.clear'), () => { NS.selection.clear(); refresh(); }));
     $('cSelAll').addEventListener('change', (e) => setShown(e.target.checked));
   }
 

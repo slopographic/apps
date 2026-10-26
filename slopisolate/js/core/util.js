@@ -5,6 +5,10 @@
   const U = CO.util = {};
   U.$ = (s, r = document) => r.querySelector(s);
   U.h = (tag, attrs, ...kids) => SlopUI.el(tag, attrs, ...kids);
+  /** The app's words (slopisolate/i18n): t(key, vars) in the chosen language; onLang(fn) re-runs fn after a language
+   *  change, once the new tables are in (for UI built once). */
+  U.t = (key, vars) => (window.SlopI18n ? SlopI18n.t(key, vars) : key);
+  U.onLang = (fn) => (window.SlopI18n && SlopI18n.on ? SlopI18n.on(fn) : () => {});
   U.clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
   U.raf = () => new Promise((r) => requestAnimationFrame(() => r()));
   U.isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
@@ -35,7 +39,7 @@
       bmp = await new Promise((res, rej) => {
         const url = URL.createObjectURL(blob), img = new Image();
         img.onload = () => { const c = U.canvas(img.naturalWidth || 1024, img.naturalHeight || 1024); U.ctx(c).drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url); createImageBitmap(c).then(res, rej); };
-        img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('This file is not an image the browser can read')); };
+        img.onerror = () => { URL.revokeObjectURL(url); rej(new Error(U.t('cutout.app.not_image_file'))); };
         img.src = url;
       });
     }

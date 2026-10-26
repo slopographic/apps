@@ -10,18 +10,19 @@
   'use strict';
   const NS = (g.SlopCal = g.SlopCal || {}), T = g.SlopTime;
   const $ = (id) => document.getElementById(id);
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
   let p = null, editing = null, last = null, box = null;
   const phoneOpen = () => $('cSide').classList.contains('ssh-on');
 
   function mount() {
     if (!g.SlopFrame || p) return null;
     const side = $('cSide');
-    const frame = g.SlopFrame.mount($('cBody'), { view: $('main'), panel: side, panelLabel: 'Day', storageKey: 'calendar',
+    const frame = g.SlopFrame.mount($('cBody'), { view: $('main'), panel: side, panelLabel: 'calendar.panel.day', storageKey: 'calendar',
       button: '.toolbar', phoneButton: false, phone: '(max-width: 640px)', width: 290, min: 240, max: 440,
       onChange: () => { if (editing && NS.panel.frame && NS.panel.frame.isPhone() && !phoneOpen()) done(); } });   // the sheet closed: cancel
-    p = g.SlopFrame.panel(side, { title: 'Day' });
+    p = g.SlopFrame.panel(side, { title: t('calendar.panel.day') });
     for (const id of ['cTasks', 'cZone']) $(id).closest('label').classList.add('sf-field');
-    p.footer([{ el: $('cNew'), primary: true }], { more: 'Day' });
+    p.footer([{ el: $('cNew'), primary: true }], { more: t('calendar.panel.day') });
     NS.panel.frame = frame;
     // the panel reaches the window's bottom from where the calendar starts (under the menu bar and the toolbar)
     const top = () => document.documentElement.style.setProperty('--cal-top', Math.max(0, Math.round($('cBody').getBoundingClientRect().top + g.scrollY)) + 'px');
@@ -35,15 +36,15 @@
     last = [ctx, day];
     if (!p) return;
     const list = NS.model.forDay(ctx.items || [], day, ctx.zone).map((it) => ({
-      name: it.title || '(no title)',
-      meta: [it.allDay ? 'All day' : T.timeText(it.start, ctx.zone, ctx.locale), it.kind === 'task' ? 'To-do' : it.eventKind, it.location].filter(Boolean).join(' · '),
+      name: it.title || t('calendar.panel.untitled'),
+      meta: [it.allDay ? t('calendar.views.all_day') : T.timeText(it.start, ctx.zone, ctx.locale), NS.model.kindText(it), it.location].filter(Boolean).join(' · '),
       open: () => ctx.open(it),
     }));
     if (!editing) p.setTitle(T.dayText(day, ctx.locale, { weekday: 'long', day: 'numeric', month: 'long' }));
     p.render([
-      { key: 'day', title: day === ctx.today ? 'Today' : 'On this day', list, empty: 'Nothing on this day. New event adds one.' },
-      { key: 'show', title: 'Show', settings: [$('cTasks').closest('label'), $('cZone').closest('label'), $('cSplit')] },
-      { key: 'file', title: 'Calendar file', actions: [{ el: $('cImport') }, { el: $('cExport') }, { el: $('cConfig') }] },
+      { key: 'day', title: day === ctx.today ? t('calendar.panel.today') : t('calendar.panel.on_day'), list, empty: t('calendar.panel.empty') },
+      { key: 'show', title: t('calendar.panel.show'), settings: [$('cTasks').closest('label'), $('cZone').closest('label'), $('cSplit')] },
+      { key: 'file', title: t('calendar.panel.file'), actions: [{ el: $('cImport') }, { el: $('cExport') }, { el: $('cConfig') }] },
     ]);
   }
 
@@ -58,7 +59,7 @@
     box.replaceChildren(o.body);
     p.element.hidden = true;
     p.element.after(box);
-    p.footer([...o.buttons.map((b, i) => ({ id: 'ev-' + i, label: b.label, primary: !!b.primary, run: b.run })), { el: $('cNew'), hidden: true }], { more: 'Day' });
+    p.footer([...o.buttons.map((b, i) => ({ id: 'ev-' + i, label: b.label, primary: !!b.primary, run: b.run })), { el: $('cNew'), hidden: true }], { more: t('calendar.panel.day') });
     if (fr) { if (fr.isPhone()) fr.openSheet(); else if (!fr.panelShown()) fr.setPanel(true); }
     return { close: done };
   }
@@ -69,7 +70,7 @@
     editing = null;
     if (box) box.remove();
     p.element.hidden = false;
-    p.footer([{ el: $('cNew'), primary: true, hidden: false }], { more: 'Day' });
+    p.footer([{ el: $('cNew'), primary: true, hidden: false }], { more: t('calendar.panel.day') });
     const fr = NS.panel.frame;
     if (fr && fr.isPhone() && phoneOpen()) fr.closeSheet();
     if (last) paint(last[0], last[1]);

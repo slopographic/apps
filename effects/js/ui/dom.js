@@ -25,7 +25,7 @@
     const s = Math.max(0, t);
     const m = Math.floor(s / 60), sec = s - m * 60;
     const frame = Math.round(s * fps);
-    return `${String(m).padStart(2, '0')}:${sec.toFixed(2).padStart(5, '0')} · frame ${frame}`;
+    return `${String(m).padStart(2, '0')}:${sec.toFixed(2).padStart(5, '0')} · ` + g.SlopEffects.defs.t('effects.tr.frame_n', { n: String(frame) });
   }
 
   /** A number typed in an input, or null when it is not one. */

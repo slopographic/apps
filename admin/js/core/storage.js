@@ -9,7 +9,7 @@
     const { usage, quota, persisted } = await g.SlopQuota.estimate();   // shared/storage/quota.js: never throws
     const answer = g.SlopPWA ? g.SlopPWA.persistAnswer() : null;
     const message = g.SlopPWA && answer ? g.SlopPWA.persistMessage(answer) : '';
-    return { usage, quota, persisted, answer, message: message || 'The browser has not been asked yet. Ask it to keep your business data, so it is not cleared when space runs low.' };
+    return { usage, quota, persisted, answer, message: message || (g.SlopI18n ? g.SlopI18n.t('admin.sg.not_asked') : '') };
   }
 
   /** Asks the browser to keep this site's storage (a user-visible prompt in some browsers). Returns the answer. */

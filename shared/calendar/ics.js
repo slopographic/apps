@@ -9,6 +9,8 @@
   const NS = (g.SlopIcs = g.SlopIcs || {});
   const FREQS = ['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY'];
   const enc = new TextEncoder();
+  /** A word from the shared tables (shared/i18n/ui/<code>/calendar.js), the key without SlopI18n. */
+  const tr = (key, vars) => (g.SlopI18n ? g.SlopI18n.t(key, vars) : key);
 
   const esc = (s) => String(s || '').replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
   const unesc = (s) => s.replace(/\\n/gi, '\n').replace(/\\([,;\\])/g, '$1');
@@ -107,8 +109,9 @@
     const parts = Object.fromEntries(value.split(';').map((x) => x.split('=')).map(([k, v = '']) => [k.toUpperCase(), v]));
     const warn = [];
     const freq = FREQS.includes(parts.FREQ) ? parts.FREQ.toLowerCase() : null;
-    if (!freq) return { freq: 'none', warn: [`repeat ${value} is not supported, so the event is imported once`] };
-    for (const k of Object.keys(parts)) if (!['FREQ', 'UNTIL', 'WKST'].includes(k) && !(k === 'INTERVAL' && parts[k] === '1')) warn.push(`${k} is not supported, so it repeats ${freq} without it`);
+    if (!freq) return { freq: 'none', warn: [tr('ui.ics.rule_once', { rule: value })] };
+    const every = tr('ui.recur.' + freq).toLocaleLowerCase();   // "every week"
+    for (const k of Object.keys(parts)) if (!['FREQ', 'UNTIL', 'WKST'].includes(k) && !(k === 'INTERVAL' && parts[k] === '1')) warn.push(tr('ui.ics.part_dropped', { part: k, repeat: every }));
     let until;
     if (parts.UNTIL) {
       const m = /^(\d{4})(\d{2})(\d{2})(T(\d{2})(\d{2})(\d{2})(Z?))?$/.exec(parts.UNTIL);
@@ -152,10 +155,10 @@
   function finish(cur, zone, warnings) {
     const P = cur.props;
     const uid = P.UID ? unesc(P.UID.value) : '';
-    const title = P.SUMMARY ? unesc(P.SUMMARY.value) : '(untitled)';
+    const title = P.SUMMARY ? unesc(P.SUMMARY.value) : tr('ui.untitled');   // in the language of the import
     const warn = (message) => warnings.push({ uid, title, message });
     const s = P.DTSTART && when(P.DTSTART, zone);
-    if (!s) { warn('no usable start time, so it was skipped'); return null; }
+    if (!s) { warn(tr('ui.ics.no_start')); return null; }
     const rec = { title, uid, color: 'blue', kind: 'event', freq: 'none', tz: zone };
     if (P['X-SLOP-COLOR'] && /^[a-z]+$/.test(P['X-SLOP-COLOR'].value)) rec.color = P['X-SLOP-COLOR'].value;
     if (P['X-SLOP-KIND'] && ['event', 'call', 'meeting'].includes(P['X-SLOP-KIND'].value)) rec.kind = P['X-SLOP-KIND'].value;
@@ -175,7 +178,7 @@
       rec.start = s.ms;
       const e = P.DTEND && when(P.DTEND, zone);
       rec.end = e && !e.allDay && e.ms >= s.ms ? e.ms : s.ms + 3600000;
-      if (!(e && !e.allDay && e.ms >= s.ms)) warn('no usable end time, so it lasts one hour');
+      if (!(e && !e.allDay && e.ms >= s.ms)) warn(tr('ui.ics.no_end'));
     }
     if (P.RRULE) {
       const r = rule(P.RRULE.value, rec.tz);

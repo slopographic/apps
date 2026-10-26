@@ -4,17 +4,18 @@
   const NS = (g.SlopCrm = g.SlopCrm || {});
   const UI = g.SlopUI;
   const el = UI.el;
+  const tr = (k, v) => NS.tr(k, v);   // the string tables (crm/i18n)
   const $ = (id) => document.getElementById(id);
 
   function row(c, group, loc) {
     return el('li', { class: `row ${group}`, role: 'listitem' },
       el('button', { type: 'button', class: 'row-open', onclick: () => NS.app.show('customer', c.id) },
-        el('b', null, c.name), el('span', { class: 'row-sub' }, `${group === 'overdue' ? 'Overdue · ' : ''}${NS.util.date(c.followUp, loc)}`)),
+        el('b', null, c.name), el('span', { class: 'row-sub' }, group === 'overdue' ? tr('crm.fu.overdue', { date: NS.util.date(c.followUp, loc) }) : NS.util.date(c.followUp, loc))),
       el('span', { class: `stage s-${c.stage}` }, NS.stageLabel(c.stage)),
-      el('button', { type: 'button', class: 'btn small', onclick: async () => {
+      el('button', { type: 'button', class: 'btn small', onclick: async () => {   // i18n-ignore: class names
         const r = await NS.customers.setFollowUp(c.id, null);
-        UI.toast(r.ok ? 'Follow-up cleared' : NS.util.refusal(r));
-      } }, 'Done'));
+        UI.toast(r.ok ? tr('crm.fu.cleared') : NS.util.refusal(r));
+        } }, tr('crm.fu.done')));
   }
 
   /** Calendar events (repeats expanded, next 60 days) and open to-do tasks linked to a customer, soonest first. */
@@ -36,13 +37,13 @@
     for (const t of tk.value) {
       if (t.done || !t.customerId || !names.has(t.customerId)) continue;
       const at = t.due ? T.dayTimeToUtc(t.due, t.dueTime || '09:00', t.tz || tz) : Infinity;
-      out.push({ at, name: names.get(t.customerId), text: t.title, when: t.due ? NS.util.date(t.due, loc) : 'No due date', kind: 'task' });
+      out.push({ at, name: names.get(t.customerId), text: t.title, when: t.due ? NS.util.date(t.due, loc) : tr('crm.fu.no_due'), kind: 'task' });
     }
     return out.sort((a, b) => a.at - b.at);
   }
 
   function linkedRow(r) {
-    const kind = { call: 'Call', meeting: 'Meeting', event: 'Event', task: 'To-do' }[r.kind] || 'Event';
+    const kind = tr({ call: 'crm.fu.call', meeting: 'crm.fu.meeting', event: 'crm.fu.event', task: 'crm.fu.task' }[r.kind] || 'crm.fu.event');
     return el('li', { class: 'row', role: 'listitem' }, el('span', { class: 'row-open' }, el('b', null, r.name), el('span', { class: 'row-sub' }, `${kind} · ${r.text} · ${r.when}`)));
   }
 
@@ -58,7 +59,7 @@
     const extra = await linkedRows(r.value);
     $('fLinkedRows').replaceChildren(...extra.map(linkedRow));
     $('fLinkedEmpty').hidden = extra.length > 0;
-    $('fSummary').textContent = `${due.filter((c) => group(c) === 'overdue').length} overdue · ${due.filter((c) => group(c) === 'today').length} today`;
+    $('fSummary').textContent = tr('crm.fu.summary', { overdue: String(due.filter((c) => group(c) === 'overdue').length), today: String(due.filter((c) => group(c) === 'today').length) });
   }
 
   NS.views = NS.views || {};

@@ -13,9 +13,11 @@
   if (B.sample) return;
   const D = () => g.SlopData;
   const HERE = g.document && g.document.currentScript ? g.document.currentScript.src : '';
-  const LABEL = { quotes: 'Quote', invoices: 'Invoice (draft)', orders: 'Order', purchases: 'Purchase order', customers: 'Customer', products: 'Product',
-    expenses: 'Expense', timeEntries: 'Time entry', tasks: 'Task', events: 'Event' };
+  const LABEL = { quotes: 'Quote', invoices: 'Invoice (draft)', orders: 'Order', purchases: 'Purchase order', customers: 'Customer', products: 'Product',   // i18n-ignore: the assistant's words and the record errors (English: API); the page reads biz.kind.<collection>
+    expenses: 'Expense', timeEntries: 'Time entry', tasks: 'Task', events: 'Event' };   // i18n-ignore: the assistant's words and the record errors (English: API); the page reads biz.kind.<collection>
   const FILES = ['rng', 'en', 'sv', 'people', 'goods', 'records'];
+  // LABEL names the records in the assistant's words (English: API); the page reads biz.kind.<collection>.
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
   let lastSeed = '';
 
   /** shared/sample's scripts, when the page does not have them yet. */
@@ -30,7 +32,7 @@
   /** [[collection, label]] of the records this app keeps that a sample can be made of. */
   function kinds(app) {
     const cfg = cfgOf(app), all = (g.SlopSample && g.SlopSample.COLLECTIONS) || Object.keys(LABEL);
-    return (cfg ? cfg.collections : []).filter((c) => all.includes(c)).map((c) => [c, LABEL[c] || c]);
+    return (cfg ? cfg.collections : []).filter((c) => all.includes(c)).map((c) => [c, LABEL[c] ? t('biz.kind.' + c) : c]);
   }
   const unwrap = (r, what) => { if (!r || !r.ok) throw new Error(`${what}: ${(r && (r.message || (r.errors || []).map((e) => `${e.field} ${e.message}`).join('; '))) || 'refused'}`); return r.value; };
 
@@ -46,10 +48,10 @@
   }
   /** The customer a document is for: the one with that name, else saved now (a sample, so Delete all samples finds it). */
   async function customerFor(rec, remember) {
-    const S = D().store, list = unwrap(await S.list('customers'), 'Customers');
+    const S = D().store, list = unwrap(await S.list('customers'), 'Customers');   // i18n-ignore: the assistant's words and the record errors (English: API); the page reads biz.kind.<collection>
     const hit = list.find((c) => c.name === rec.name);
     if (hit) return hit;
-    const made = unwrap(await S.put('customers', rec), 'New customer');
+    const made = unwrap(await S.put('customers', rec), 'New customer');   // i18n-ignore: the assistant's words and the record errors (English: API); the page reads biz.kind.<collection>
     if (remember) remember({ kind: 'created', collection: 'customers', id: made.id });
     return made;
   }
@@ -66,36 +68,42 @@
       let who = null;
       if (out.customer) { who = await customerFor(out.customer, o.remember); rec.customerId = who.id; }
       const post = cfg.post && cfg.post[collection];
-      const saved = unwrap(post ? await post(rec) : await D().store.put(collection, rec), `New ${LABEL[collection] || collection}`);
+      const saved = unwrap(post ? await post(rec) : await D().store.put(collection, rec), `New ${LABEL[collection] || collection}`);   // i18n-ignore: the assistant's words and the record errors (English: API); the page reads biz.kind.<collection>
       if (o.remember) o.remember({ kind: 'created', collection, id: saved.id });
       made.push({ id: saved.id, number: saved.number || '', name: saved.name || saved.title || saved.description || saved.supplier || '', customer: who ? who.name : '' });
     }
     lastSeed = seed;
     return { seed, collection, made };
   }
-  /** "Made a sample quote Q-0012 for Harbour Studio Ltd (seed 4821)." */
+  /** The toast after the dialog, in the chosen language: "Skapade ett exempel: Offert Q-0012 (frö 4821)…". */
+  function saidHere(r) {
+    const one = r.made[0] || {}, ref = [one.number || (one.name ? `(${one.name})` : ''), one.customer ? `· ${one.customer}` : ''].filter(Boolean).join(' ');
+    const what = t('biz.kind.' + r.collection), seed = String(r.seed);
+    return r.made.length === 1 ? t('biz.sample.made_one', { what, ref, seed }) : t('biz.sample.made_n', { n: r.made.length, what, seed });
+  }
+  /** The assistant's words (English: API): "Made a sample quote Q-0012 for Harbour Studio Ltd (seed 4821)." */
   function said(r) {
     const noun = (LABEL[r.collection] || r.collection).toLowerCase().replace(/ \(draft\)$/, ''), one = r.made[0] || {};
     const what = r.made.length === 1 ? `a sample ${noun}${one.number ? ' ' + one.number : one.name ? ` (${one.name})` : ''}${one.customer ? ` for ${one.customer}` : ''}`
       : `${r.made.length} sample ${noun === 'time entry' ? 'time entries' : noun + 's'}`;
-    return `Made ${what} (seed ${r.seed}). The same seed makes the same sample again.`;
+    return `Made ${what} (seed ${r.seed}). The same seed makes the same sample again.`;   // i18n-ignore: the assistant's words and the record errors (English: API); the page reads biz.kind.<collection>
   }
 
   async function dialog(app) {
     const UI = g.SlopUI;
     await load();
     const list = kinds(app);
-    if (!list.length) { UI.toast('This app has no records to make samples of'); return; }
+    if (!list.length) { UI.toast(t('biz.sample.none')); return; }
     const what = UI.select(list, list[0][0]);
-    const seed = UI.el('input', { class: 'sui-input biz-seed', type: 'text', maxlength: '40', value: g.SlopSample.newSeed(), autocomplete: 'off', spellcheck: 'false', 'aria-label': 'Seed', style: 'flex:1;min-width:0' });
-    const again = UI.el('button', { type: 'button', class: 'sui-btn', onclick: () => { seed.value = g.SlopSample.newSeed(); seed.focus(); } }, 'New seed');
+    const seed = UI.el('input', { class: 'sui-input biz-seed', type: 'text', maxlength: '40', value: g.SlopSample.newSeed(), autocomplete: 'off', spellcheck: 'false', 'aria-label': t('biz.sample.seed'), style: 'flex:1;min-width:0' });
+    const again = UI.el('button', { type: 'button', class: 'sui-btn', onclick: () => { seed.value = g.SlopSample.newSeed(); seed.focus(); } }, t('biz.sample.new_seed'));
     const count = UI.number(1, 1, 20, 1);
     const lang = UI.select(g.SlopSample.LOCALES, String((g.document.documentElement.lang || 'en')).split('-')[0] === 'sv' ? 'sv' : 'en');
-    const note = UI.el('p', { class: 'sui-p', role: 'status' }, lastSeed ? `The last sample was seed ${lastSeed}.` : 'Type a seed to make the same sample again.');
-    const body = UI.el('div', { class: 'biz-sample' }, UI.field('Make', what), UI.el('label', { class: 'sui-field' }, UI.el('span', { class: 'sui-label' }, 'Seed'),
-      UI.el('span', { class: 'biz-seed-row', style: 'display:flex;gap:8px;align-items:center' }, seed, again)), UI.field('How many', count), UI.field('Language', lang), note);
-    UI.dialog({ title: 'Fill with a sample', body, buttons: [{ label: 'Cancel' }, { label: 'Make', primary: true, act: async () => {
-      try { const r = await make({ app, collection: what.value, seed: seed.value, count: count.value, locale: lang.value }); UI.toast(said(r), 6000); return true; } catch (e) { note.textContent = e.message; return false; }
+    const note = UI.el('p', { class: 'sui-p', role: 'status' }, lastSeed ? t('biz.sample.last', { seed: lastSeed }) : t('biz.sample.type_seed'));
+    const body = UI.el('div', { class: 'biz-sample' }, UI.field(t('biz.sample.make'), what), UI.el('label', { class: 'sui-field' }, UI.el('span', { class: 'sui-label' }, t('biz.sample.seed')),
+    UI.el('span', { class: 'biz-seed-row', style: 'display:flex;gap:8px;align-items:center' }, seed, again)), UI.field(t('biz.sample.how_many'), count), UI.field(t('biz.sample.language'), lang), note);
+    UI.dialog({ title: t('biz.sample.title'), body, buttons: [{ label: t('menu.cancel') }, { label: t('biz.sample.make'), primary: true, act: async () => {
+    try { const r = await make({ app, collection: what.value, seed: seed.value, count: count.value, locale: lang.value }); UI.toast(saidHere(r), 6000); return true; } catch (e) { note.textContent = e.message; return false; }
     } }] });
   }
 
@@ -103,11 +111,11 @@
   function command(add, cfg, app) {
     const list = kinds(app);
     if (!list.length) return;
-    add('make_sample', 'Make a sample record', [{ name: 'collection', type: 'enum', values: list.map((k) => k[0]), default: list[0][0], description: 'which records' },
+    add('make_sample', 'Make a sample record', [{ name: 'collection', type: 'enum', values: list.map((k) => k[0]), default: list[0][0], description: 'which records' },   // i18n-ignore: the assistant's words and the record errors (English: API); the page reads biz.kind.<collection>
       { name: 'seed', type: 'string', maxLength: 40, description: 'the same seed makes the same sample; empty for a new one' },
-      { name: 'count', type: 'number', min: 1, max: 20, integer: true, default: 1 }, { name: 'locale', type: 'enum', values: ['en', 'sv'], description: 'the language of names and goods' }],
+      { name: 'count', type: 'number', min: 1, max: 20, integer: true, default: 1 }, { name: 'locale', type: 'enum', values: ['en', 'sv'], description: 'the language of names and goods' }],   // i18n-ignore: the assistant's words and the record errors (English: API); the page reads biz.kind.<collection>
     async (a) => { const r = await make({ app, collection: a.collection, seed: a.seed, count: a.count, locale: a.locale, remember: g.SlopDataAI.remember }); return Object.assign({ done: said(r) }, r); },
-    { description: `Fill ${cfg.label} with realistic sample records (a ${list[0][1].toLowerCase()} with a customer and lines, say), from a seed you can give again.` });
+    { description: `Fill ${cfg.label} with realistic sample records (a ${list[0][1].toLowerCase()} with a customer and lines, say), from a seed you can give again.` });   // i18n-ignore: the assistant's words and the record errors (English: API); the page reads biz.kind.<collection>
   }
 
   B.sample = { make, dialog, command, kinds, load, said, LABEL };

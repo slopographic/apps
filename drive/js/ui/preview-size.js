@@ -37,9 +37,9 @@
     g.className = 'pv-grip';
     g.setAttribute('role', 'separator');
     g.setAttribute('aria-orientation', 'horizontal');
-    g.setAttribute('aria-label', 'Resize the preview');
+    g.setAttribute('aria-label', DR.t('drive.info.resize_pv'));
     g.setAttribute('tabindex', '0');
-    g.title = 'Drag to show more of the preview. Double-click to reset';
+    g.title = DR.t('drive.info.resize_pv_tip');
     return g;
   };
   /** Pointer drag on any grip in the details panel (touch-action: none, a 44 px band for a finger: drive/css/preview-size.css). */

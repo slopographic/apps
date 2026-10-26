@@ -13,11 +13,11 @@
     const thumb = h('div', { class: 'bi-thumb k-' + meta.kind });
     if (it.poster) { const c = U.canvas(it.poster.width, it.poster.height); c.getContext('2d').drawImage(it.poster, 0, 0); thumb.append(c); }
     else thumb.append(SE.icon(KIND_ICON[meta.kind] || 'film', 'bi-ph'));
-    if (it.status === 'loading' || it.status === 'analysing') thumb.append(h('span', { class: 'bi-spin', title: 'Analysing…' }));
-    if (it.status === 'error' || it.status === 'missing') thumb.append(h('span', { class: 'bi-err', title: it.error || 'Error' }, '!'));
-    const dur = meta.kind === 'image' ? 'Still' : U.dur(meta.dur);
+    if (it.status === 'loading' || it.status === 'analysing') thumb.append(h('span', { class: 'bi-spin', title: U.t('slopedit.bin.analysing') }));
+    if (it.status === 'error' || it.status === 'missing') thumb.append(h('span', { class: 'bi-err', title: it.error || U.t('slopedit.bin.error') }, '!'));
+    const dur = meta.kind === 'image' ? U.t('slopedit.bin.still') : U.dur(meta.dur);
     thumb.append(h('span', { class: 'bi-dur' }, dur));
-    if (it.status === 'ready') thumb.append(h('button', { type: 'button', class: 'bi-add', title: 'Add at playhead', 'aria-label': 'Add ' + meta.name + ' at the playhead', onclick: (e) => { e.stopPropagation(); addAtPlayhead(meta); } }, SE.icon('plus')));
+    if (it.status === 'ready') thumb.append(h('button', { type: 'button', class: 'bi-add', title: U.t('slopedit.bin.add_at_playhead'), 'aria-label': U.t('slopedit.bin.add_name', { name: meta.name }), onclick: (e) => { e.stopPropagation(); addAtPlayhead(meta); } }, SE.icon('plus')));
     const used = SE.doc.clips.some((c) => c.media === meta.id);
     const el = h('div', {
       class: 'bi' + (used ? ' used' : '') + (B.picked.has(meta.id) ? ' on' : ''), role: 'option', tabindex: '0', draggable: it.status === 'ready' ? 'true' : 'false', dataset: { id: meta.id }, 'aria-selected': B.picked.has(meta.id) ? 'true' : 'false',
@@ -30,7 +30,7 @@
       if (e.key === 'Enter') addAtPlayhead(meta);
       else if (e.key === ' ') { e.preventDefault(); B.picked.has(meta.id) ? B.picked.delete(meta.id) : B.picked.add(meta.id); B.render(); }
       else if (e.key === 'Delete' || e.key === 'Backspace') { e.stopPropagation(); removeItem(meta); }
-      else if (e.key === 'ContextMenu' || (e.shiftKey && e.key === 'F10')) { e.preventDefault(); const r = el.getBoundingClientRect(); itemMenu(meta, r.left + 16, r.top + 16); }
+      else if (e.key === 'ContextMenu' || (e.shiftKey && e.key === 'F10')) { e.preventDefault(); const r = el.getBoundingClientRect(); itemMenu(meta, r.left + 16, r.top + 16); } // i18n-ignore: key names and classes
     });
     el.addEventListener('contextmenu', (e) => { e.preventDefault(); itemMenu(meta, e.clientX, e.clientY); });
     // A long press is the contextmenu above: the touch layer (shared/input) sends it on iOS, Android its own.
@@ -44,31 +44,31 @@
     return el;
   }
   function addAtPlayhead(meta) {
-    if (!SE.media.ready(meta.id)) { SlopUI.toast('Still analysing ' + meta.name); return; }
+    if (!SE.media.ready(meta.id)) { SlopUI.toast(U.t('slopedit.bin.analysing_name', { name: meta.name })); return; }
     A.appendToTimeline([meta], SE.player ? SE.player.time : null);
-    A.status('Added ' + meta.name + ' at the playhead');
+    A.status(U.t('slopedit.bin.added_name', { name: meta.name }));
   }
   async function removeItem(meta) {
     const n = SE.doc.clips.filter((c) => c.media === meta.id).length;
-    if (n && !(await SlopUI.confirm('Remove media', `“${meta.name}” is used by ${n} clip${n > 1 ? 's' : ''} on the timeline. Remove it and those clips?`, 'Remove', { danger: true }))) return;
+    if (n && !(await SlopUI.confirm(U.t('slopedit.bin.remove_media'), `“${meta.name}” is used by ${n} clip${n > 1 ? 's' : ''} on the timeline. Remove it and those clips?`, U.t('slopedit.bin.remove'), { danger: true }))) return;
     SE.media.remove(meta.id);
   }
   async function rename(meta) {
-    const v = await SlopUI.prompt('Rename', 'Name', meta.name);
-    if (v && v.trim()) { meta.name = v.trim(); B.render(); SE.emit('change', { label: 'Rename' }); }
+    const v = await SlopUI.prompt(U.t('slopedit.bin.rename'), U.t('slopedit.bin.name'), meta.name);
+    if (v && v.trim()) { meta.name = v.trim(); B.render(); SE.emit('change', { label: U.t('slopedit.bin.rename') }); }
   }
   function itemMenu(meta, x, y) {
     const ready = SE.media.ready(meta.id);
     SlopUI.menu([
-      { label: 'Add at playhead', key: 'Enter', act: () => addAtPlayhead(meta), disabled: !ready },
-      { label: 'Append to end of timeline', act: () => A.appendToTimeline([meta]), disabled: !ready },
-      { label: 'Use as sequence size (' + meta.w + '×' + meta.h + ')', disabled: !meta.w || meta.kind === 'audio', act: () => SE.settings.apply({ w: meta.w + (meta.w % 2), h: meta.h + (meta.h % 2) }) },
+      { label: U.t('slopedit.bin.add_at_playhead'), key: 'Enter', act: () => addAtPlayhead(meta), disabled: !ready },
+      { label: U.t('slopedit.bin.append_to_end_of_timeline'), act: () => A.appendToTimeline([meta]), disabled: !ready },
+      { label: U.t('slopedit.bin.use_size', { w: String(meta.w), h: String(meta.h) }), disabled: !meta.w || meta.kind === 'audio', act: () => SE.settings.apply({ w: meta.w + (meta.w % 2), h: meta.h + (meta.h % 2) }) },
       '-',
-      { label: 'Rename…', act: () => rename(meta) },
-      window.SlopHub && !SE.offline ? { label: 'Save to Slop Drive…', act: () => SlopHub.saveToDrive(SE.media.get(meta.id).blob, meta.name) } : null,
-      { label: 'Download original', act: () => SlopUI.download(SE.media.get(meta.id).blob, meta.name) },
+      { label: U.t('slopedit.bin.rename_2'), act: () => rename(meta) },
+      window.SlopHub && !SE.offline ? { label: U.t('slopedit.bin.save_to_slop_drive'), act: () => SlopHub.saveToDrive(SE.media.get(meta.id).blob, meta.name) } : null,
+      { label: U.t('slopedit.bin.download_original'), act: () => SlopUI.download(SE.media.get(meta.id).blob, meta.name) },
       '-',
-      { label: 'Remove from project', key: 'Del', act: () => removeItem(meta) }
+      { label: U.t('slopedit.bin.remove_from_project'), key: 'Del', act: () => removeItem(meta) } // i18n-ignore: key names and classes
     ], x, y);
   }
 
@@ -85,29 +85,29 @@
     if (!SE.doc.media.length) {
       list.append(h('div', { class: 'bin-empty' },
         SE.icon('film', 'bin-empty-ic'),
-        h('b', null, 'Import media to start'),
-        h('p', null, 'Drop video, audio or images anywhere, or'),
+        h('b', null, U.t('slopedit.bin.import_media_to_start')),
+        h('p', null, U.t('slopedit.bin.drop_video_audio_or_images')),
         h('div', { class: 'bin-empty-actions' },
-          h('button', { type: 'button', class: 'btn primary', onclick: A.openDialog }, SE.icon('open'), 'Import files'),
-          h('button', { type: 'button', class: 'btn', onclick: () => SE.sample && SE.sample.load() }, SE.icon('sparkle'), 'Sample project')),
-        h('p', { class: 'bin-privacy' }, 'Your footage never leaves this device.')));
-    } else list.append(h('div', { class: 'bi-grid', role: 'listbox', 'aria-label': 'Media' }, items.map(card)));
+          h('button', { type: 'button', class: 'btn primary', onclick: A.openDialog }, SE.icon('open'), U.t('slopedit.bin.import_files')), // i18n-ignore: key names and classes
+          h('button', { type: 'button', class: 'btn', onclick: () => SE.sample && SE.sample.load() }, SE.icon('sparkle'), U.t('slopedit.bin.sample_project'))),
+        h('p', { class: 'bin-privacy' }, U.t('slopedit.bin.your_footage_never_leaves_this'))));
+    } else list.append(h('div', { class: 'bi-grid', role: 'listbox', 'aria-label': U.t('slopedit.app.media') }, items.map(card)));
     const total = SE.doc.media.length;
-    info.textContent = total ? total + ' item' + (total > 1 ? 's' : '') : 'Empty';
+    info.textContent = total ? U.t('slopedit.bin.items', { n: total }) : U.t('slopedit.bin.empty');
   };
   B.init = function (el) {
     root = el;
-    search = h('input', { class: 'inp bin-search', type: 'search', placeholder: 'Search media', 'aria-label': 'Search media', oninput: () => { B.filter = search.value; B.render(); } });
+    search = h('input', { class: 'inp bin-search', type: 'search', placeholder: U.t('slopedit.bin.search_media'), 'aria-label': U.t('slopedit.bin.search_media'), 'data-i18n-attr': 'placeholder:slopedit.bin.search_media;aria-label:slopedit.bin.search_media', oninput: () => { B.filter = search.value; B.render(); } });
     info = h('span', { class: 'bin-info' });
     const tabs = h('div', { class: 'bin-tabs', role: 'tablist' },
-      h('button', { type: 'button', class: 'bin-tab', role: 'tab', dataset: { tab: 'media' }, onclick: () => { B.tab = 'media'; B.render(); } }, 'Media'),
-      h('button', { type: 'button', class: 'bin-tab', role: 'tab', dataset: { tab: 'effects' }, onclick: () => { B.tab = 'effects'; B.render(); } }, 'Effects'),
-      h('button', { type: 'button', class: 'bin-tab', role: 'tab', dataset: { tab: 'templates' }, onclick: () => { B.tab = 'templates'; B.render(); } }, 'Templates'),
-      SE.watermark ? h('button', { type: 'button', class: 'bin-tab', role: 'tab', dataset: { tab: 'watermark' }, onclick: () => { B.tab = 'watermark'; B.render(); } }, 'Watermark') : null,
+      h('button', { type: 'button', class: 'bin-tab', role: 'tab', dataset: { tab: 'media', i18n: 'slopedit.app.media' }, onclick: () => { B.tab = 'media'; B.render(); } }, U.t('slopedit.app.media')),
+      h('button', { type: 'button', class: 'bin-tab', role: 'tab', dataset: { tab: 'effects', i18n: 'slopedit.app.effects' }, onclick: () => { B.tab = 'effects'; B.render(); } }, U.t('slopedit.app.effects')),
+      h('button', { type: 'button', class: 'bin-tab', role: 'tab', dataset: { tab: 'templates', i18n: 'slopedit.cmd.templates' }, onclick: () => { B.tab = 'templates'; B.render(); } }, U.t('slopedit.cmd.templates')),
+      SE.watermark ? h('button', { type: 'button', class: 'bin-tab', role: 'tab', dataset: { tab: 'watermark', i18n: 'slopedit.bin.watermark' }, onclick: () => { B.tab = 'watermark'; B.render(); } }, U.t('slopedit.bin.watermark')) : null,
       h('span', { class: 'tb-flex' }), info);
     const tools = h('div', { class: 'bin-tools' },
-      h('button', { type: 'button', class: 'btn sm', title: 'Import files (Ctrl+I)', onclick: A.openDialog }, SE.icon('plus'), 'Import'),
-      window.SlopHub ? h('button', { type: 'button', class: 'btn sm', title: 'Import from Slop Drive', onclick: A.openFromDrive, id: 'binDrive' }, SE.icon('drive'), 'Drive') : null,
+      h('button', { type: 'button', class: 'btn sm', title: U.t('slopedit.bin.import_files_ctrl_i'), 'data-i18n-attr': 'title:slopedit.bin.import_files_ctrl_i', onclick: A.openDialog }, SE.icon('plus'), h('span', { 'data-i18n': 'slopedit.bin.import' }, U.t('slopedit.bin.import'))), // i18n-ignore: key names and classes
+      window.SlopHub ? h('button', { type: 'button', class: 'btn sm', title: U.t('slopedit.bin.import_from_slop_drive'), 'data-i18n-attr': 'title:slopedit.bin.import_from_slop_drive', onclick: A.openFromDrive, id: 'binDrive' }, SE.icon('drive'), h('span', { 'data-i18n': 'slopedit.bin.drive' }, U.t('slopedit.bin.drive'))) : null, // i18n-ignore: key names and classes
       search);
     list = h('div', { class: 'bin-list' });
     root.append(h('div', { class: 'pane-head' }, tabs), tools, list);

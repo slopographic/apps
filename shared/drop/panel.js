@@ -10,6 +10,13 @@
   const MEDIA = /*profile:media*/true;
   /** A word from the shared tables (shared/i18n/ui/en.js), or the English given when SlopI18n or the key is absent. */
   function tr(key, en, vars) { const I = globalThis.SlopI18n; if (I && I.has && I.has(key)) return I.t(key, vars); return vars ? String(en).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en; }
+  /** The zone's own words (label, hint, steps, picture alt, sample and choose labels): an i18n key, translated and again
+   *  on a language change, a function, or plain text (SlopI18n.label). */
+  const lab = (v) => { const I = root.SlopI18n; return String(I && I.label ? I.label(v) : typeof v === 'function' ? v() : v); };
+  /** Only a key or a function is drawn again on a change: plain text an app gave (and may rewrite itself) is left alone. */
+  const live = (v) => typeof v === 'function' || !!(root.SlopI18n && root.SlopI18n.has && root.SlopI18n.has(v));
+  /** Draws a word now and, when it is a key or a function, again on a language change (ups). */
+  const word = (ups, set, v) => { set(lab(v)); if (live(v)) ups.push(() => set(lab(v))); };
   const CSS = [
     // Colours: the app's own --sui-* tokens when it has them, else mixed from the text colour round the zone (right in any
     // theme, light or dark) and the shared theme's accent (--sl-*, set on every page by shared/theme/theme.js).
@@ -70,7 +77,9 @@
   /** The preview: o.picture is { src, alt } (a picture of the result), { flow: { from, to } } (SlopFlow) or an element;
    *  o.steps is a short list of what to do. Below them, a line says everything stays on the device and links How it
    *  works (o.privacy: false leaves it out). Null when there is neither picture nor steps. */
-  P.preview = function (o) {
+  P.preview = function (o, ups) {
+    const own = !ups;   // drawn on its own (an app's intro): it follows a language change by itself
+    ups = ups || [];
     if (!o || (!o.picture && !(o.steps && o.steps.length))) return null;
     const box = doc.createElement('div');
     box.className = 'sd-preview';
@@ -81,13 +90,13 @@
       if (pic.nodeType) fig.append(pic);
       else if (pic.flow && root.SlopFlow) fig.append(root.SlopFlow.create(Object.assign({ size: 'lg' }, pic.flow)).el);
       // a single-file offline build (opened from file://) has no assets folder beside it: the steps say it there
-      else if (pic.src && !(root.location && root.location.protocol === 'file:') && (MEDIA || !/assets\/shots\//.test(pic.src))) { const img = doc.createElement('img'); img.src = pic.src; img.alt = pic.alt || ''; img.width = 1280; img.height = 800; img.fetchPriority = 'high'; img.decoding = 'async'; fig.append(img); }   // the first view's largest picture: fetched first, never lazy; its size keeps the room
+      else if (pic.src && !(root.location && root.location.protocol === 'file:') && (MEDIA || !/assets\/shots\//.test(pic.src))) { const img = doc.createElement('img'); img.src = pic.src; word(ups, (s) => { img.alt = s; }, pic.alt || ''); img.width = 1280; img.height = 800; img.fetchPriority = 'high'; img.decoding = 'async'; fig.append(img); }   // the first view's largest picture: fetched first, never lazy; its size keeps the room
       if (fig.firstChild) box.append(fig);
     }
     if (o.steps && o.steps.length) {
       const ol = doc.createElement('ol');
       ol.className = 'sd-steps'; ol.setAttribute('aria-label', tr('ui.drop.how', 'How it works')); ol.dataset.i18nAttr = 'aria-label:ui.drop.how';
-      for (const t of o.steps) { const li = doc.createElement('li'); li.textContent = t; ol.append(li); }
+      for (const step of o.steps) { const li = doc.createElement('li'); word(ups, (s) => { li.textContent = s; }, step); ol.append(li); }
       box.append(ol);
     }
     // Every app runs on the device: the preview says so, and links the page that shows how (not from a file:// build).
@@ -104,32 +113,35 @@
       }
       box.append(note);
     }
+    const I = root.SlopI18n;
+    if (own && I && I.on) I.on(() => ups.forEach((w) => w()));
     return box;
   };
-  /** Replace the zone's content with the module's panel. Returns { list, msg, status, choose, sample } (the buttons;
-   *  sample is null without o.sample). o.preview (not in a compact strip) and o.sample: see drop.js. */
+  /** Replace the zone's content with the module's panel. Returns { list, msg, status, choose, sample, words, off } (the
+   *  buttons; sample is null without o.sample; words() draws the words again, off() stops following language changes).
+   *  o.preview (not in a compact strip) and o.sample: see drop.js. Every word may be an i18n key (lab above). */
   P.build = function (zone, o) {
     style();
+    const ups = [];   // the words, drawn again on a language change
+    // a word the app gave (key, function or text), else the shared default, marked so apply() follows a change
+    const text = (node, v, key, en) => { if (v) word(ups, (s) => { node.textContent = s; }, v); else { node.textContent = tr(key, en); node.dataset.i18n = key; } };
     const wrap = doc.createElement('div');
     wrap.className = 'sd-zone' + (o.compact ? ' sd-compact' : '');
-    const pv = o.compact ? null : P.preview(o.preview);
+    const pv = o.compact ? null : P.preview(o.preview, ups);
     if (pv) wrap.append(pv);
     const msg = doc.createElement('p');
     msg.className = 'sd-msg';
-    msg.textContent = o.label || tr('ui.drop.label', 'Drop files here or choose files');
-    if (!o.label) msg.dataset.i18n = 'ui.drop.label';
+    text(msg, o.label, 'ui.drop.label', 'Drop files here or choose files');
     wrap.append(msg);
-    if (o.hint && !o.compact) { const h = doc.createElement('p'); h.textContent = o.hint; wrap.append(h); }
+    if (o.hint && !o.compact) { const h = doc.createElement('p'); text(h, o.hint); wrap.append(h); }
     const choose = doc.createElement('button');
     choose.type = 'button'; choose.className = 'sd-choose';
-    choose.textContent = o.chooseLabel || tr('ui.drop.choose', 'Choose files');
-    if (!o.chooseLabel) choose.dataset.i18n = 'ui.drop.choose';
+    text(choose, o.chooseLabel, 'ui.drop.choose', 'Choose files');
     let sample = null;
     if (o.sample && !o.compact) {   // a strip stays a strip: an app with its own empty state puts its button there and calls .sample()
       sample = doc.createElement('button');
       sample.type = 'button'; sample.className = 'sd-sample';
-      sample.textContent = o.sample.label || tr('ui.drop.sample', 'Try it with a sample');
-      if (!o.sample.label) sample.dataset.i18n = 'ui.drop.sample';
+      text(sample, o.sample.label, 'ui.drop.sample', 'Try it with a sample');
       const acts = doc.createElement('div');
       acts.className = 'sd-acts'; acts.append(choose, sample);
       wrap.append(acts);
@@ -141,7 +153,9 @@
     status.className = 'sd-status'; status.setAttribute('role', 'status'); status.setAttribute('aria-live', 'polite');
     wrap.append(status);
     zone.replaceChildren(wrap);
-    return { wrap, list, msg, status, choose, sample };
+    const words = () => ups.forEach((w) => w());
+    const I = root.SlopI18n, off = I && I.on ? I.on(words) : () => {};
+    return { wrap, list, msg, status, choose, sample, words, off };
   };
   /** One file's row in the progress list. state: 'reading' | 'ready' | 'error'. Returns { progress(p), set(state, text) }. */
   P.row = function (list, name, size, text) {

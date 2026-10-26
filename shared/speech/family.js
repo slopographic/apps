@@ -3,15 +3,18 @@
  * speechFamily() -> the family object openModelChooser({ family }) takes. See shared/models/HANDOFF.md. */
 import { filterLanguages, languageName } from './languages.js';
 
+/** The words (shared/i18n/ui/<code>/models.js), read when the dialog draws them. */
+const T = (k) => (globalThis.SlopI18n ? globalThis.SlopI18n.t(k) : k);
+
 export function speechFamily(catalog = globalThis.SlopSpeechModels) {
   return {
     id: 'speech',
-    title: 'Language and model',
-    languageStep: '1. The language you want to transcribe',
-    modelStep: '2. The model',
-    usageWords: 'Speech models',
-    autoName: 'Detect automatically',
+    get title() { return T('ui.models.title'); },
+    get languageStep() { return T('ui.models.speech_step'); },
+    get modelStep() { return T('ui.models.step_model'); },
+    get usageWords() { return T('ui.models.speech_usage'); },
+    get autoName() { return T('ui.models.auto'); },
     catalog,
-    languages: { filter: filterLanguages, name: (code) => (code === 'auto' ? 'Detect automatically' : languageName(code)) },
+    languages: { filter: filterLanguages, name: (code) => (code === 'auto' ? T('ui.models.auto') : languageName(code)) },
   };
 }

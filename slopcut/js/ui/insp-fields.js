@@ -23,7 +23,7 @@
     range.addEventListener('input', () => { const v = shown(); put(v); num.value = (+v).toFixed(dec); });
     range.addEventListener('change', () => SE.history.breakCoalescing());
     num.addEventListener('change', () => { if (num.value !== '' && isFinite(+num.value)) put(+num.value); SE.history.breakCoalescing(); });
-    const name = h('span', { title: o.reset != null ? 'Double-click to reset' : label }, label);
+    const name = h('span', { title: o.reset != null ? U.t('slopedit.insp.double_click_to_reset') : label }, label);
     if (o.reset != null) name.addEventListener('dblclick', () => { set(o.reset); SE.history.breakCoalescing(); });
     const el = h('label', { class: 'ins-row' }, name, range, num);
     const sync = () => { const v = get() * sc; if (document.activeElement !== range) range.value = String(cv ? cv.to(v / sc) : v); if (document.activeElement !== num) num.value = (+v).toFixed(dec); };

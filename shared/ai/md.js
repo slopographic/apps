@@ -5,6 +5,7 @@
 (function () {
   'use strict';
   const K = (window.SlopAIKit = window.SlopAIKit || {});
+  const T = (k, v) => (window.SlopI18n ? SlopI18n.t(k, v) : k);   // the words: shared/i18n/ui/<code>/ai.js
   const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
   function inline(s) {
@@ -58,9 +59,9 @@
     for (const c of cbs) {
       html += blocks(text.slice(pos, c.index));
       const isHtml = c.lang === 'html' || (!c.lang && /^\s*<(!doctype|html)/i.test(c.code));
-      html += `<div class="md-code" data-i="${n++}"><div class="md-code-h"><span>${esc(c.lang || 'code')}</span>` +
-        (isHtml && c.closed ? '<button type="button" data-act="preview">Preview</button>' : '') +
-        `<button type="button" data-act="copy">Copy</button></div><pre><code>${esc(c.code)}</code></pre></div>`;
+      html += `<div class="md-code" data-i="${n++}"><div class="md-code-h"><span>${esc(c.lang || T('ui.ai.md.code'))}</span>` +
+        (isHtml && c.closed ? `<button type="button" data-act="preview">${esc(T('ui.ai.md.preview'))}</button>` : '') +
+        `<button type="button" data-act="copy">${esc(T('ui.copy'))}</button></div><pre><code>${esc(c.code)}</code></pre></div>`;
       pos = c.end;
     }
     html += blocks(text.slice(pos));

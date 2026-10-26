@@ -18,8 +18,9 @@
     const got = await S.store.get('orders', id);
     if (!got.ok) return got;
     const order = got.value;
-    if (!order) return fail('not_found', 'this order no longer exists');
-    if (order.status !== 'open') return fail('invalid_transition', 'only a confirmed order can be fulfilled');
+    const t = (k) => (g.SlopI18n ? g.SlopI18n.t(k) : k);
+    if (!order) return fail('not_found', t('orders.core.gone'));
+    if (order.status !== 'open') return fail('invalid_transition', t('orders.core.only_confirmed'));
     const stockLines = order.lines.filter((l) => l.productId);
     for (const l of stockLines) {
       const have = await S.stock.onHand(l.productId, LOCATION);

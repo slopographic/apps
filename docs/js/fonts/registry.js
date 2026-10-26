@@ -7,14 +7,14 @@ import { parseTTF } from './ttf.js';
 import { langFace, hasLangFaces, langVersion, shapedWidth } from './lang.js';
 
 export const FAMILIES = [
-  { name: 'Carlito', dir: 'carlito', stem: 'Carlito', cat: 'sans-serif', aliases: ['calibri', 'aptos', 'calibri light', 'segoe ui', 'candara', 'corbel'] },
-  { name: 'Arimo', dir: 'arimo', stem: 'Arimo', cat: 'sans-serif', aliases: ['arial', 'helvetica', 'helvetica neue', 'liberation sans', 'verdana', 'tahoma', 'open sans', 'roboto', 'noto sans', 'sans-serif', 'trebuchet ms', 'lato', 'source sans pro'] },
-  { name: 'Tinos', dir: 'tinos', stem: 'Tinos', cat: 'serif', aliases: ['times new roman', 'times', 'liberation serif', 'georgia', 'garamond', 'book antiqua', 'palatino', 'palatino linotype', 'serif', 'merriweather', 'noto serif', 'pt serif', 'lora'] },
-  { name: 'Caladea', dir: 'caladea', stem: 'Caladea', cat: 'serif', aliases: ['cambria', 'constantia'] },
-  { name: 'Cousine', dir: 'cousine', stem: 'Cousine', cat: 'monospace', aliases: ['courier new', 'courier', 'liberation mono', 'consolas', 'monospace', 'lucida console', 'menlo', 'monaco', 'roboto mono', 'source code pro'] },
-  { name: 'Inter Tight', dir: 'inter-tight', stem: 'InterTight', cat: 'sans-serif', aliases: ['inter'] },
-  { name: 'Archivo', dir: 'archivo', stem: 'Archivo', cat: 'sans-serif', aliases: [] },
-  { name: 'JetBrains Mono', dir: 'jetbrains-mono', stem: 'JetBrainsMono', cat: 'monospace', aliases: [] },
+  { name: 'Carlito', dir: 'carlito', stem: 'Carlito', cat: 'sans-serif', aliases: ['calibri', 'aptos', 'calibri light', 'segoe ui', 'candara', 'corbel'] }, // i18n-ignore: font family names
+  { name: 'Arimo', dir: 'arimo', stem: 'Arimo', cat: 'sans-serif', aliases: ['arial', 'helvetica', 'helvetica neue', 'liberation sans', 'verdana', 'tahoma', 'open sans', 'roboto', 'noto sans', 'sans-serif', 'trebuchet ms', 'lato', 'source sans pro'] }, // i18n-ignore: font family names
+  { name: 'Tinos', dir: 'tinos', stem: 'Tinos', cat: 'serif', aliases: ['times new roman', 'times', 'liberation serif', 'georgia', 'garamond', 'book antiqua', 'palatino', 'palatino linotype', 'serif', 'merriweather', 'noto serif', 'pt serif', 'lora'] }, // i18n-ignore: font family names
+  { name: 'Caladea', dir: 'caladea', stem: 'Caladea', cat: 'serif', aliases: ['cambria', 'constantia'] }, // i18n-ignore: font family names
+  { name: 'Cousine', dir: 'cousine', stem: 'Cousine', cat: 'monospace', aliases: ['courier new', 'courier', 'liberation mono', 'consolas', 'monospace', 'lucida console', 'menlo', 'monaco', 'roboto mono', 'source code pro'] }, // i18n-ignore: font family names
+  { name: 'Inter Tight', dir: 'inter-tight', stem: 'InterTight', cat: 'sans-serif', aliases: ['inter'] }, // i18n-ignore: font family names
+  { name: 'Archivo', dir: 'archivo', stem: 'Archivo', cat: 'sans-serif', aliases: [] }, // i18n-ignore: font family names
+  { name: 'JetBrains Mono', dir: 'jetbrains-mono', stem: 'JetBrainsMono', cat: 'monospace', aliases: [] }, // i18n-ignore: font family names
 ];
 export const DEFAULT_FAMILY = 'Carlito';
 const STYLE = ['Regular', 'Bold', 'Italic', 'BoldItalic'];

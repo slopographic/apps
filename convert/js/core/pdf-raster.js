@@ -4,6 +4,7 @@ import { PDFJS_BASE, PDFJS_CMAP_URL } from './lib.js';
 import { loadPdfjs } from '../../../shared/compat/pdfjs.js';
 import { parseRange } from './range.js';
 import { makeCanvas, canvasToBlob } from './image.js';
+import { tr } from './i18n.js';
 
 const MAX_PIXELS = 40e6;
 let libPromise = null;
@@ -21,9 +22,9 @@ export async function openPdf(bytes) {
   try {
     return await lib.getDocument({ data: bytes.slice(), cMapUrl: PDFJS_CMAP_URL, cMapPacked: true, isEvalSupported: false, useSystemFonts: true, verbosity: 0 }).promise;
   } catch (e) {
-    if (e && e.name === 'PasswordException') throw new Error('This PDF is password protected. Unlock it first.');
-    if (e && e.name === 'InvalidPDFException') throw new Error('This is not a valid PDF, or it is damaged.');
-    throw new Error(`This PDF could not be opened: ${(e && e.message) || e}`);
+    if (e && e.name === 'PasswordException') throw new Error(tr('convert.pdf.password_protected')); // i18n-ignore: the exception name
+    if (e && e.name === 'InvalidPDFException') throw new Error(tr('convert.pdf.not_valid')); // i18n-ignore: the exception name
+    throw new Error(tr('convert.pdf.could_not_open', { error: (e && e.message) || String(e) }));
   }
 }
 

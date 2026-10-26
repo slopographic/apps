@@ -32,11 +32,18 @@
   const SHA = /^[0-9a-f]{64}$/;
   const MAX_PART = 95 * 1000 * 1000;   // GitHub refuses files over 100 MB
 
+  /** The words of the models listed here (name, how it is built, where it comes from) are keys ui.models.<k>_name, _arch and
+   *  _source (shared/i18n/ui/<code>/models2.js), read when shown so they follow the page's language. */
+  const T = (k, v) => (globalThis.SlopI18n ? globalThis.SlopI18n.t(k, v) : k);
+  const named = (m) => {
+    for (const [p, end] of [['name', '_name'], ['arch', '_arch'], ['sourceNote', '_source']]) Object.defineProperty(m, p, { enumerable: true, configurable: true, get: () => T('ui.models.' + m.k + end) });
+    return m;
+  };
   const MODELS = [
     {
-      id: 'ppocr-v4', name: 'PP-OCRv4 (text detection and recognition)', tool: 'ocr', arch: 'DB detector and CRNN recogniser (mobile, Chinese and Latin)',
+      id: 'ppocr-v4', tool: 'ocr', k: 'ocr.ppocr_v4',
       licence: 'Apache-2.0', upstream: 'https://github.com/PaddlePaddle/PaddleOCR',
-      source: HF + 'SWHL/RapidOCR', sourceNote: 'ONNX export of the PaddleOCR PP-OCRv4 mobile models, as published by RapidOCR.',
+      source: HF + 'SWHL/RapidOCR',
       files: [
         { name: 'ch_PP-OCRv4_det_infer.onnx', size: 4745517, sha256: 'd2a7720d45a54257208b1e13e36a8479894cb74155a5efe29462512d42f49da9', url: HF + 'SWHL/RapidOCR/resolve/main/PP-OCRv4/ch_PP-OCRv4_det_infer.onnx' },
         { name: 'ch_PP-OCRv4_rec_infer.onnx', size: 10857958, sha256: '48fc40f24f6d2a207a2b1091d3437eb3cc3eb6b676dc3ef9c37384005483683b', url: HF + 'SWHL/RapidOCR/resolve/main/PP-OCRv4/ch_PP-OCRv4_rec_infer.onnx' },
@@ -44,32 +51,32 @@
       ],
     },
     {
-      id: 'mobilenetv3-l100', name: 'MobileNetV3 Large 100 (ImageNet tags)', tool: 'tags', arch: 'MobileNetV3 image classifier, 1000 ImageNet classes',
+      id: 'mobilenetv3-l100', tool: 'tags', k: 'idx.mobilenet',
       licence: 'Apache-2.0', upstream: 'https://github.com/huggingface/pytorch-image-models',
-      source: HF + 'onnxmodelzoo/mobilenetv3_large_100_Opset17', sourceNote: 'ONNX export (opset 17) of timm mobilenetv3_large_100 weights.',
+      source: HF + 'onnxmodelzoo/mobilenetv3_large_100_Opset17',
       files: [
         { name: 'mobilenetv3_large_100_Opset17.onnx', size: 21919274, sha256: 'b0b785f44a068dee4ff35bd88b114d4fd17a8bd635816f8f0ee46fa8b196c29f', url: HF + 'onnxmodelzoo/mobilenetv3_large_100_Opset17/resolve/main/mobilenetv3_large_100_Opset17.onnx' },
         { name: 'imagenet-labels.json', size: 13489, sha256: '0507e07632759ad025d035ba6115d3bbae65dd4d83e01c0b294ad26bffb32979', path: 'vendor/models/imagenet-labels.json' },
       ],
     },
     {
-      id: 'modnet-portrait', name: 'MODNet portrait matting (shared with Slop Isolate)', tool: 'portrait', arch: 'MODNet portrait matting network',
+      id: 'modnet-portrait', tool: 'portrait', k: 'idx.modnet',
       licence: 'Apache-2.0', upstream: 'https://github.com/ZHKKKe/MODNet',
-      source: 'vendor/models/modnet-portrait.onnx', sourceNote: 'Bundled with the site. The same file Slop Isolate uses (shared/cutout).',
+      source: 'vendor/models/modnet-portrait.onnx',
       files: [
         { name: 'modnet-portrait.onnx', size: 25888640, sha256: '07c308cf0fc7e6e8b2065a12ed7fc07e1de8febb7dc7839d7b7f15dd66584df9', path: 'vendor/models/modnet-portrait.onnx' },
       ],
     },
-  ].concat(speech ? speech.MODELS : [])   // the speech models: aitools/speech-models.js (Whisper and its fine-tunes)
+  ].map(named).concat(speech ? speech.MODELS : [])   // the speech models: aitools/speech-models.js (Whisper and its fine-tunes)
     // the text recognition models per script: aitools/ocr-models.js (its ppocr-v4 is the entry above, kept here for pages without it)
     .concat(ocr ? ocr.MODELS.filter((m) => m.id !== 'ppocr-v4') : []);
 
   const TOOLS = [
-    { id: 'ocr', name: 'OCR', page: 'ocr/', models: ['ppocr-v4'], blurb: 'Read text from an image or a scanned PDF page.' },
-    { id: 'speech', name: 'Speech to text', page: 'speech/', models: ['whisper-tiny'], blurb: 'Transcribe audio or a video, with timestamps. Exports .srt and .txt.' },
-    { id: 'denoise', name: 'Denoise', page: 'denoise/', models: [], blurb: 'Median and bilateral filters with a before and after slider. No model needed.' },
-    { id: 'tags', name: 'Auto tags', page: 'tags/', models: ['mobilenetv3-l100'], blurb: 'Suggest tags for a photo. You accept or edit them, then they are saved to Slop Drive.' },
-    { id: 'portrait', name: 'Portrait blur', page: 'portrait/', models: ['modnet-portrait'], blurb: 'Blur the background of a portrait, with a strength slider.' },
+    { id: 'ocr', name: 'OCR', page: 'ocr/', models: ['ppocr-v4'], blurb: 'Read text from an image or a scanned PDF page.' },   // i18n-ignore: shown through aitools.tool.<id>_name/_blurb (hub.js)
+    { id: 'speech', name: 'Speech to text', page: 'speech/', models: ['whisper-tiny'], blurb: 'Transcribe audio or a video, with timestamps. Exports .srt and .txt.' },   // i18n-ignore: shown through aitools.tool.<id>_name/_blurb (hub.js)
+    { id: 'denoise', name: 'Denoise', page: 'denoise/', models: [], blurb: 'Median and bilateral filters with a before and after slider. No model needed.' },   // i18n-ignore: shown through aitools.tool.<id>_name/_blurb (hub.js)
+    { id: 'tags', name: 'Auto tags', page: 'tags/', models: ['mobilenetv3-l100'], blurb: 'Suggest tags for a photo. You accept or edit them, then they are saved to Slop Drive.' },   // i18n-ignore: shown through aitools.tool.<id>_name/_blurb (hub.js)
+    { id: 'portrait', name: 'Portrait blur', page: 'portrait/', models: ['modnet-portrait'], blurb: 'Blur the background of a portrait, with a strength slider.' },   // i18n-ignore: shown through aitools.tool.<id>_name/_blurb (hub.js)
   ];
 
   const byId = (id) => MODELS.find((m) => m.id === id) || null;

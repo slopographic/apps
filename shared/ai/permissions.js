@@ -29,18 +29,15 @@
 })(typeof window !== 'undefined' ? window : globalThis, function (g) {
   'use strict';
   const KEY = 'slop-ai.permissions', VISIT = 'slop-ai.permissions.visit';
-  const KINDS = {
-    change: { id: 'change', name: 'app changes', what: 'a change Undo can take back (crop, flatten, merge, replace…)' },
-    delete: { id: 'delete', name: 'deleting or clearing', what: 'deleting, clearing, closing or overwriting something' },
-    send: { id: 'send', name: 'sending files', what: 'sending a copy of a file or picture to the AI provider' },
-    control: { id: 'control', name: 'running commands in another app', what: 'letting the assistant run the commands of an app open beside the chat' },
-    'spend-image': { id: 'spend-image', name: 'spending on image generation', what: 'making or editing a picture at your provider, which charges your account' },
-  };
+  // the words (shared/i18n/ui/<code>/ai2.js) are read when shown, so a language change shows at once
+  const T = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
+  const kind = (id, key) => ({ id, get name() { return T(`ui.ai.perm.kind_${key}`); }, get what() { return T(`ui.ai.perm.kind_${key}_what`); } });
+  const KINDS = { change: kind('change', 'change'), delete: kind('delete', 'delete'), send: kind('send', 'send'), control: kind('control', 'control'), 'spend-image': kind('spend-image', 'spend') };
   const MODES = [
-    { id: 'ask', label: 'Ask each time', short: 'Ask each time', note: 'Actions that change, delete or send something ask you first. Reading and ordinary edits run.' },
-    { id: 'changes', label: 'Allow app changes, ask before deleting or sending files', short: 'Allow app changes', note: 'Changes Undo can take back run without asking. Deleting, clearing and sending a file to the AI provider still ask.' },
-    { id: 'all', label: 'Allow everything', short: 'Allow everything', note: 'Nothing asks.',
-      warning: 'The assistant can then delete or clear your work, send copies of your files to the AI provider and spend on image generation without asking you. “Undo all AI changes” still takes back app changes, but nothing can call back a file that was sent or deleted from Slop Drive.' },
+    { id: 'ask', get label() { return T('ui.ai.perm.mode_ask'); }, get short() { return T('ui.ai.perm.mode_ask'); }, get note() { return T('ui.ai.perm.mode_ask_note'); } },
+    { id: 'changes', get label() { return T('ui.ai.perm.mode_changes'); }, get short() { return T('ui.ai.perm.mode_changes_short'); }, get note() { return T('ui.ai.perm.mode_changes_note'); } },
+    { id: 'all', get label() { return T('ui.ai.perm.mode_all'); }, get short() { return T('ui.ai.perm.mode_all'); }, get note() { return T('ui.ai.perm.mode_all_note'); },
+      get question() { return T('ui.ai.perm.mode_all_q'); }, get warning() { return T('ui.ai.perm.mode_all_warning'); } },
   ];
   const DELETE = /\b(delete|remove|trash|purge|clear|erase|empty|wipe|destroy|discard|overwrite|reset|close|quit)\b/i;
   const kindOf = (text) => (DELETE.test(String(text || '').replace(/[._-]/g, ' ')) ? 'delete' : 'change');
@@ -88,7 +85,7 @@
   const api = {
     KINDS, MODES, kindOf, mode, setMode, rules, addRule, removeRule, startRequest, endRequest, decide, grant,
     /** Shows the question; permissions-ui.js replaces it. Without a UI, a plain confirm: yes = once. */
-    prompt: async (req) => (typeof g.confirm === 'function' && g.confirm(`${req.action || 'An action'} in ${req.appName || 'this app'}\n\n${req.detail || ''}`) ? 'once' : 'deny'),
+    prompt: async (req) => (typeof g.confirm === 'function' && g.confirm(`${T('ui.ai.perm.in_app', { action: req.action || T('ui.ai.perm.an_action'), app: req.appName || T('ui.ai.this_app') })}\n\n${req.detail || ''}`) ? 'once' : 'deny'),
     async ask(req) {
       const kind = KINDS[req.kind] ? req.kind : 'delete', app = req.app || 'site';
       if (decide(kind, app).allow) return true;

@@ -35,7 +35,7 @@
     st.textContent = '@media print { @page { size: ' + wmm.toFixed(2) + 'mm ' + hmm.toFixed(2) + 'mm; margin: 0; } .print-root img { width: ' + wmm.toFixed(2) + 'mm; height: ' + hmm.toFixed(2) + 'mm; } }';
     return pages.reduce(function (p, i) {
       return p.then(function () { return RA.pageBlob(i, dpi || 200, { bleed: o.bleed }); }).then(function (bl) {
-        return new Promise(function (res) { var img = new Image(); img.onload = res; img.onerror = res; img.src = URL.createObjectURL(bl); img.alt = 'Page ' + P.label(d, i); root.append(img); });
+        return new Promise(function (res) { var img = new Image(); img.onload = res; img.onerror = res; img.src = URL.createObjectURL(bl); img.alt = U.t('press.io.page_alt', { page: String(P.label(d, i)) }); root.append(img); });
       });
     }, Promise.resolve()).then(function () {
       setTimeout(function () { window.print(); }, 50);

@@ -4,6 +4,7 @@
 <body>
   <!-- Opt-in: the dialog on first use, "Not now" and "Turn on", turning it off on Profile stops detection, and one
        switch on Profile (the Drive and Gallery sections) that writes one stored value. Detector stubbed. -->
+  <!-- Covers: settings/app-settings.js, shared/profile/app-options.js -->
   <script src="../harness.js"></script>
   <script src="util.js"></script>
   <script>
@@ -97,6 +98,12 @@
       await waitFor(() => boxes[0].checked === false);
       expect(W.SlopFaces.enabled()).toBe(false);
       expect(S.SlopProfile.overrides('faces')).toEqual({});
+      // the sections' words follow a language switch (settings/app-settings.js draws them again from their keys)
+      S.SlopI18n.set('sv');
+      await waitFor(() => S.document.getElementById('app-drive').textContent.includes('Ansiktsdetektering'), { timeout: 15000 });
+      expect(S.document.getElementById('app-gallery').textContent).toContain('Tröskel för samma person');
+      S.SlopI18n.set('en');
+      await waitFor(() => S.document.getElementById('app-drive').textContent.includes('Face detection'), { timeout: 15000 });
       S.__frame.remove();
     });
   });

@@ -2,6 +2,9 @@
 //   apps()            every registry app with a folder: { id, name, dir, files: [its .js and index.html, relative to the repo] }
 //   appTables(app)    { parts, langs, index, tables: { code: Map(key → text) }, byPart: { code: { part: Map } } } from <dir>i18n/
 //   sharedTables(ns)  'chrome' (shared/i18n/strings.js + <code>.js) or 'ui' (shared/i18n/ui/<code>.js), same shape
+//   sharedAreas()     the shared tables kept like an app's: the ui parts (shared/i18n/ui/<code>/<part>.js, keys ui.*,
+//                     listed in UI_PARTS of shared/i18n/i18n.js) and every shared/<area>/i18n/index.js (shared/biz: biz.*)
+//   pageAreas()       site pages that are not registry apps but keep tables like an app's (settings/: keys settings.*)
 //   langs()           the LANGS list of shared/i18n/i18n.js
 // A table file is run in a small sandbox whose SlopI18n.add(code, dict) records what it adds, so a file is read exactly
 // as a page reads it.
@@ -49,13 +52,24 @@ export function sharedTables(ns) {
   return { ns, langs: Object.keys(tables), tables, files };
 }
 
-/** An app's tables, from <dir>i18n/index.js (its parts and languages) and <dir>i18n/<code>/<part>.js. */
+/** The UI_PARTS literal of shared/i18n/i18n.js (the ui parts a page loads): { parts, langs }. */
+export const UI_PARTS_RE = /\/\*ui-parts\*\/(\{[^\n]*?\});/;
+export function uiPartsIndex() {
+  const m = read('shared/i18n/i18n.js').match(UI_PARTS_RE);
+  return m ? Object.assign({ ns: 'ui' }, JSON.parse(m[1].replace(/'/g, '"').replace(/(\w+):/g, '"$1":'))) : null;
+}
+
+/** An app's tables, from <dir>i18n/index.js (its parts and languages) and <dir>i18n/<code>/<part>.js. A shared area
+ * (sharedAreas()) has its folder in app.base, and the ui parts their index in i18n.js (app.ns 'ui'). */
 export function appTables(app) {
-  const base = `${app.dir}i18n/`;
-  const out = { ns: app.id, base, index: null, parts: [], langs: [], tables: {}, byPart: {}, dirs: [] };
+  const base = app.base || `${app.dir}i18n/`;
+  const out = { ns: app.ns || app.id, base, index: null, parts: [], langs: [], tables: {}, byPart: {}, dirs: [] };
   if (!exists(base)) return out;
   out.dirs = readdirSync(path.join(ROOT, base)).filter((d) => statSync(path.join(ROOT, base, d)).isDirectory()).sort();
-  if (exists(base + 'index.js')) {
+  if (app.id === 'ui-parts') {
+    out.index = uiPartsIndex();
+    if (out.index) { out.parts = out.index.parts || []; out.langs = out.index.langs || []; }
+  } else if (exists(base + 'index.js')) {
     const spec = runTable(base + 'index.js').sources[0] || null;
     out.index = spec;
     if (spec) { out.parts = spec.parts || []; out.langs = spec.langs || []; }
@@ -113,14 +127,46 @@ export function sharedApp() {
   return { id: 'shared', name: 'Shared components', dir: 'shared/', files };
 }
 
+let AREAS_CACHE = null;
+/** The shared tables kept as an app's are (one folder per language, parts of at most 300 lines), as pseudo-apps
+ * { id, ns, name, base, files }: 'ui-parts' (shared/i18n/ui/<code>/<part>.js, keys ui.*) and each shared/<area>/i18n
+ * with an index.js (its ns, e.g. biz). Their keys may be asked for anywhere: files are the shared code and every app's. */
+export function sharedAreas() {
+  if (AREAS_CACHE) return AREAS_CACHE;
+  const files = [...new Set([...sharedApp().files, ...apps().flatMap((a) => a.files)])];
+  const out = [{ id: 'ui-parts', ns: 'ui', name: 'Shared components, more (shared/i18n/ui/<code>/)', base: 'shared/i18n/ui/', dir: 'shared/i18n/ui/', files }];
+  for (const d of readdirSync(path.join(ROOT, 'shared')).sort()) {
+    const base = `shared/${d}/i18n/`;
+    if (d === 'i18n' || !exists(base + 'index.js')) continue;
+    const spec = runTable(base + 'index.js').sources[0] || {};
+    out.push({ id: spec.ns || d, ns: spec.ns || d, name: `Shared ${d} (${base})`, base, dir: `shared/${d}/`, files });
+  }
+  return (AREAS_CACHE = out);
+}
+
+let PAGES_CACHE = null;
+/** The site's pages that are not registry apps but keep tables like an app's: a top-level folder with an index.html and
+ * an i18n/en/ folder (settings/: keys settings.*). { id, ns, name, dir, files }; the id and ns are the folder name. */
+export function pageAreas() {
+  if (PAGES_CACHE) return PAGES_CACHE;
+  const taken = new Set(apps().map((a) => a.dir));
+  const out = [];
+  for (const d of readdirSync(ROOT).sort()) {
+    const dir = d + '/';
+    if (taken.has(dir) || ['shared', 'shell', 'tests', 'tools', 'node_modules'].includes(d) || !exists(dir + 'index.html') || !exists(dir + 'i18n/en')) continue;
+    out.push({ id: d, ns: d, name: `${d[0].toUpperCase() + d.slice(1)} page`, dir, files: [dir + 'index.html', ...walk(dir, dir)] });
+  }
+  return (PAGES_CACHE = out);
+}
+
 /** Every string-table file in the repo (shared and apps, with each app's index.js), sorted: the list a test names. */
 export function tableFiles() {
   const out = [];
   for (const f of readdirSync(path.join(ROOT, 'shared/i18n'))) if (f.endsWith('.js') && f !== 'i18n.js') out.push('shared/i18n/' + f);
   if (exists('shared/i18n/ui')) for (const f of readdirSync(path.join(ROOT, 'shared/i18n/ui'))) if (f.endsWith('.js')) out.push('shared/i18n/ui/' + f);
-  for (const app of apps()) {
+  for (const app of [...apps(), ...pageAreas(), ...sharedAreas()]) {
     const t = appTables(app);
-    if (t.index) out.push(t.base + 'index.js');
+    if (t.index && app.id !== 'ui-parts') out.push(t.base + 'index.js');
     for (const code of t.dirs) for (const part of Object.keys(t.byPart[code])) out.push(`${t.base}${code}/${part}.js`);
   }
   return out.sort();

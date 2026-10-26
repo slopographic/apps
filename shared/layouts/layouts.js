@@ -9,6 +9,7 @@
   'use strict';
   const NS = (g.SlopLayouts = g.SlopLayouts || {});
   const mounts = {};
+  const say = (k, v) => { const I = g.SlopI18n; return I && I.t ? I.t(k, v) : k; };   // words: shared/i18n/ui/<code>/templates.js
 
   function storage() { try { return g.localStorage || null; } catch (e) { return null; } }
   function readRaw(app) { try { const s = storage(); return s ? s.getItem(NS.storageKey(app)) : null; } catch (e) { return null; } }
@@ -78,10 +79,15 @@
   function registerCommands(app) {
     const SC = g.SlopCmd;
     if (!SC || typeof SC.register !== 'function') return;
-    const list = NS.presetsFor(app).map((p) => ({ id: 'layout.' + p.id, title: 'Layout: ' + p.name, group: 'Layout', keywords: ['workspace', 'panels', 'arrange', p.category], keys: [], run: () => NS.choose(app, p.id) }));
-    if (!list.length) return;
-    list.push({ id: 'layout.reset', title: 'Layout: reset to default', group: 'Layout', keywords: ['workspace', 'panels', 'default', 'reset'], keys: [], run: () => NS.reset(app) });
-    SC.register(list);
+    const words = () => {   // again on a language change, so the palette follows it
+      const group = say('ui.layout.group');
+      const list = NS.presetsFor(app).map((p) => ({ id: 'layout.' + p.id, title: say('ui.layout.cmd', { name: p.name }), group, keywords: ['workspace', 'panels', 'arrange', p.category], keys: [], run: () => NS.choose(app, p.id) }));
+      if (!list.length) return false;
+      list.push({ id: 'layout.reset', title: say('ui.layout.cmd_reset'), group, keywords: ['workspace', 'panels', 'default', 'reset'], keys: [], run: () => NS.reset(app) });
+      SC.register(list);
+      return true;
+    };
+    if (words() && g.SlopI18n && g.SlopI18n.on) g.SlopI18n.on(words);
   }
 
   /** Mounts an app's panels. Safe to call once per page; without a root or panels it does nothing. */
@@ -117,6 +123,6 @@
   NS.menu = function (app) {
     const cur = NS.current(app);
     const items = NS.presetsFor(app).map((p) => ({ label: p.name, check: p.id === cur, act: () => NS.choose(app, p.id) }));
-    return items.length ? items.concat(['-', { label: 'Reset layout', act: () => NS.reset(app) }]) : [];
+    return items.length ? items.concat(['-', { label: say('ui.layout.reset'), act: () => NS.reset(app) }]) : [];
   };
 })(typeof window !== 'undefined' ? window : globalThis);

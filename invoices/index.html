@@ -4,6 +4,9 @@
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="invoices" data-src="shared/theme/theme.js"></script>
   <link rel="expect" href="#slop-built" blocking="render">
+  <script src="../shared/i18n/i18n.js" data-src="shared/i18n/i18n.js"></script>
+  <script src="../shared/biz/i18n/index.js" data-src="shared/biz/i18n/index.js"></script>
+  <script src="i18n/index.js" data-src="invoices/i18n/index.js"></script>
 <script src="../shared/consent/config.js"></script>
 <script src="../shared/consent/state.js"></script>
 <script src="../shared/consent/consent-mode.js"></script>
@@ -56,59 +59,59 @@
   <div class="app">
     <div class="smb-hold" hidden>
       <!-- File › Samples (the menu bar runs these; they are not in the toolbar) -->
-      <button type="button" class="btn" id="iSample">Random sample</button>
-      <button type="button" class="btn" id="iSamples">Random samples…</button>
-      <button type="button" class="btn danger" id="iDelSamples">Delete all samples</button>
-      <a id="tbAbout" href="about/">About</a>
-      <button type="button" class="tb-btn" id="tbCmd" data-cmd="cmd.palette" aria-label="Search commands" title="Search commands (Ctrl+K)">⌘K</button>
-      <button type="button" class="btn primary" id="tbNew" title="New invoice">New invoice</button>
-      <button type="button" class="btn primary" id="tbSave" title="Save the draft">Save</button>
-      <button type="button" class="btn" id="tbPrint" title="Preview and print the invoice">Print</button>
+      <button type="button" class="btn" id="iSample" data-i18n="biz.sample.one">Random sample</button>
+      <button type="button" class="btn" id="iSamples" data-i18n="biz.sample.many">Random samples…</button>
+      <button type="button" class="btn danger" id="iDelSamples" data-i18n="biz.sample.del_all">Delete all samples</button>
+      <a id="tbAbout" href="about/" data-i18n="biz.app.about">About</a>
+      <button type="button" class="tb-btn" id="tbCmd" data-cmd="cmd.palette" aria-label="Search commands" title="Search commands (Ctrl+K)" data-i18n-attr="aria-label:ui.cmd.search;title:biz.app.cmd_tip">⌘K</button>
+      <button type="button" class="btn primary" id="tbNew" title="New invoice" data-i18n-attr="title:invoices.page.new_tip" data-i18n="invoices.page.new_tip">New invoice</button>
+      <button type="button" class="btn primary" id="tbSave" title="Save the draft" data-i18n-attr="title:invoices.page.save_tip" data-i18n="invoices.page.save">Save</button>
+      <button type="button" class="btn" id="tbPrint" title="Preview and print the invoice" data-i18n-attr="title:invoices.page.print_tip" data-i18n="invoices.page.print">Print</button>
     </div>
-    <span class="local-badge" title="Invoices, payments and the ledger stay in this browser. Nothing is uploaded."><span>100% local</span></span>
+    <span class="local-badge" title="Invoices, payments and the ledger stay in this browser. Nothing is uploaded." data-i18n-attr="title:invoices.page.local_tip"><span data-i18n="biz.app.local">100% local</span></span>
 
 
-    <nav class="tabs no-print" role="tablist" aria-label="Invoice sections">
-      <button type="button" role="tab" class="tab" id="tab-list" data-view="list" aria-controls="view-list" aria-selected="true">Invoices</button>
-      <button type="button" role="tab" class="tab" id="tab-edit" data-view="edit" aria-controls="view-edit" aria-selected="false" hidden>Invoice</button>
-      <button type="button" role="tab" class="tab" id="tab-print" data-view="print" aria-controls="view-print" aria-selected="false" hidden>Print</button>
-      <button type="button" role="tab" class="tab" id="tab-statement" data-view="statement" aria-controls="view-statement" aria-selected="false" hidden>Statement</button>
-      <button type="button" role="tab" class="tab" id="tab-credit" data-view="credit" aria-controls="view-credit" aria-selected="false" hidden>Credit note</button>
-      <button type="button" role="tab" class="tab" id="tab-repeat" data-view="repeat" aria-controls="view-repeat" aria-selected="false">Repeating</button>
-      <button type="button" role="tab" class="tab" id="tab-data" data-view="data" aria-controls="view-data" aria-selected="false">Data</button>
+    <nav class="tabs no-print" role="tablist" aria-label="Invoice sections" data-i18n-attr="aria-label:invoices.page.sections">
+      <button type="button" role="tab" class="tab" id="tab-list" data-view="list" aria-controls="view-list" aria-selected="true" data-i18n="invoices.app.name">Invoices</button>
+      <button type="button" role="tab" class="tab" id="tab-edit" data-view="edit" aria-controls="view-edit" aria-selected="false" hidden data-i18n="invoices.page.invoice">Invoice</button>
+      <button type="button" role="tab" class="tab" id="tab-print" data-view="print" aria-controls="view-print" aria-selected="false" hidden data-i18n="invoices.page.print">Print</button>
+      <button type="button" role="tab" class="tab" id="tab-statement" data-view="statement" aria-controls="view-statement" aria-selected="false" hidden data-i18n="invoices.page.statement">Statement</button>
+      <button type="button" role="tab" class="tab" id="tab-credit" data-view="credit" aria-controls="view-credit" aria-selected="false" hidden data-i18n="invoices.page.credit_note">Credit note</button>
+      <button type="button" role="tab" class="tab" id="tab-repeat" data-view="repeat" aria-controls="view-repeat" aria-selected="false" data-i18n="invoices.page.repeating">Repeating</button>
+      <button type="button" role="tab" class="tab" id="tab-data" data-view="data" aria-controls="view-data" aria-selected="false" data-i18n="biz.tab.data">Data</button>
     </nav>
 
     <main class="main" id="main">
-      <div id="boot" class="boot no-print" role="status">Opening your invoices…</div>
+      <div id="boot" class="boot no-print" role="status" data-i18n="invoices.page.opening">Opening your invoices…</div>
 
       <section class="view" id="view-list" role="tabpanel" aria-labelledby="tab-list" hidden>
         <div class="toolbar">
-          <label class="search"><span class="sr">Search invoices</span>
-            <input id="iSearch" type="search" placeholder="Search number, customer or notes" autocomplete="off" spellcheck="false"></label>
-          <label>Status <select id="iStatus">
-            <option value="all">All</option><option value="draft">Draft</option><option value="issued">Issued</option>
-            <option value="overdue">Overdue</option><option value="paid">Paid</option><option value="credited">Credited</option><option value="void">Void</option>
+          <label class="search"><span class="sr" data-i18n="invoices.page.search">Search invoices</span>
+            <input id="iSearch" type="search" placeholder="Search number, customer or notes" autocomplete="off" spellcheck="false" data-i18n-attr="placeholder:invoices.page.search_ph"></label>
+          <label><span data-i18n="invoices.page.status">Status</span> <select id="iStatus">
+            <option value="all" data-i18n="invoices.page.all">All</option><option value="draft" data-i18n="invoices.page.draft">Draft</option><option value="issued" data-i18n="invoices.page.issued">Issued</option>
+            <option value="overdue" data-i18n="invoices.page.overdue">Overdue</option><option value="paid" data-i18n="invoices.page.paid">Paid</option><option value="credited" data-i18n="invoices.page.credited">Credited</option><option value="void" data-i18n="invoices.page.void">Void</option>
           </select></label>
-          <button type="button" class="btn primary" id="iNew">New invoice</button>
-          <button type="button" class="btn" id="iFromOrder">From an order…</button>
+          <button type="button" class="btn primary" id="iNew" data-i18n="invoices.page.new_tip">New invoice</button>
+          <button type="button" class="btn" id="iFromOrder" data-i18n="invoices.page.from_order">From an order…</button>
         </div>
-        <p class="card notice" id="iDue" role="status" hidden><span></span> <button type="button" class="btn small primary" id="iDueMake">Make the drafts</button></p>
-        <h2 class="h2">Owed by customer</h2>
+        <p class="card notice" id="iDue" role="status" hidden><span></span> <button type="button" class="btn small primary" id="iDueMake" data-i18n="invoices.page.make_drafts">Make the drafts</button></p>
+        <h2 class="h2" data-i18n="invoices.page.owed">Owed by customer</h2>
         <div class="table" id="iOutstanding"></div>
-        <h2 class="h2">Invoices</h2>
+        <h2 class="h2" data-i18n="invoices.app.name">Invoices</h2>
         <p class="note" id="iSummary" role="status"></p>
         <div class="table" id="iRows"></div>
         <div class="empty-state" id="iEmpty" hidden>
-          <p>No invoices match. Start one with New invoice, or from an order.</p>
-          <button type="button" class="btn primary" id="iEmptyNew">New invoice</button>
+          <p data-i18n="invoices.page.empty">No invoices match. Start one with New invoice, or from an order.</p>
+          <button type="button" class="btn primary" id="iEmptyNew" data-i18n="invoices.page.new_tip">New invoice</button>
         </div>
       </section>
 
       <section class="view" id="view-edit" role="tabpanel" aria-labelledby="tab-edit" hidden>
         <div class="ws-stage">
         <div class="head-row no-print">
-          <button type="button" class="btn small" id="eBack">← Invoices</button>
-          <h2 class="h2" id="eTitle">New invoice</h2>
+          <button type="button" class="btn small" id="eBack" data-i18n="invoices.page.back">← Invoices</button>
+          <h2 class="h2" id="eTitle" data-i18n="invoices.page.new_tip">New invoice</h2>
           <span class="chip" id="eStatus"></span>
         </div>
         <p class="msg" id="eMsg" role="status"></p>
@@ -116,67 +119,67 @@
         <div class="toolbar no-print" id="eLayout"></div>
         <div id="ePage" class="page-wrap"></div>
         </div>
-        <aside class="ws-panel" aria-label="Invoice details">
+        <aside class="ws-panel" aria-label="Invoice details" data-i18n-attr="aria-label:invoices.page.details">
         <form class="card" id="eForm" novalidate data-form-only>
           <div class="form-grid">
-            <label class="wide">Customer
-              <span class="inline"><select id="eCustomer"></select><button type="button" class="btn" id="eNewCustomer">New customer</button></span>
+            <label class="wide"><span data-i18n="invoices.page.customer">Customer</span>
+              <span class="inline"><select id="eCustomer"></select><button type="button" class="btn" id="eNewCustomer" data-i18n="invoices.page.new_customer">New customer</button></span>
             </label>
-            <label>Invoice date <input id="eDate" type="date" required></label>
-            <label>Due date <input id="eDue" type="date"></label>
-            <label>Currency <input id="eCurrency" type="text" readonly tabindex="-1"></label>
-            <label class="wide">Notes <textarea id="eNotes" rows="2" maxlength="5000"></textarea></label>
+            <label><span data-i18n="invoices.page.date">Invoice date</span> <input id="eDate" type="date" required></label>
+            <label><span data-i18n="invoices.page.due">Due date</span> <input id="eDue" type="date"></label>
+            <label><span data-i18n="invoices.page.currency">Currency</span> <input id="eCurrency" type="text" readonly tabindex="-1"></label>
+            <label class="wide"><span data-i18n="invoices.page.notes">Notes</span> <textarea id="eNotes" rows="2" maxlength="5000"></textarea></label>
           </div>
         </form>
-        <h2 class="h2" data-form-only>Lines</h2>
+        <h2 class="h2" data-form-only data-i18n="invoices.page.lines">Lines</h2>
         <div id="eLines" class="lines" data-form-only></div>
-        <div class="toolbar" data-form-only><button type="button" class="btn" id="eAddLine">Add line</button></div>
+        <div class="toolbar" data-form-only><button type="button" class="btn" id="eAddLine" data-i18n="invoices.page.add_line">Add line</button></div>
         <div class="card totals" id="eTotals" aria-live="polite" data-form-only></div>
         <p class="note" id="eBalance"></p>
         <p class="note" id="eOrder"></p>
-        <h2 class="h2">Payments</h2>
-        <div id="ePayments"></div><h2 class="h2" id="eCreditsHead" hidden>Credit notes</h2><ul class="report" id="eCredits"></ul>
+        <h2 class="h2" data-i18n="invoices.page.payments">Payments</h2>
+        <div id="ePayments"></div><h2 class="h2" id="eCreditsHead" hidden data-i18n="invoices.page.credit_notes">Credit notes</h2><ul class="report" id="eCredits"></ul>
         <div class="toolbar actions" id="eActions"></div>
         </aside>
       </section>
 
       <section class="view" id="view-print" role="tabpanel" aria-labelledby="tab-print" hidden>
         <div class="toolbar no-print">
-          <button type="button" class="btn" id="pBack">← Back to invoice</button>
-          <button type="button" class="btn primary" id="pPrint">Print…</button>
-          <button type="button" class="btn" id="pPdf">Export PDF</button>
+          <button type="button" class="btn" id="pBack" data-i18n="invoices.page.back_invoice">← Back to invoice</button>
+          <button type="button" class="btn primary" id="pPrint" data-i18n="invoices.page.print_dots">Print…</button>
+          <button type="button" class="btn" id="pPdf" data-i18n="invoices.page.pdf">Export PDF</button>
         </div>
         <div id="pSheet"></div>
       </section>
 
       <section class="view" id="view-statement" role="tabpanel" aria-labelledby="tab-statement" hidden>
         <div class="toolbar no-print">
-          <label>From (optional) <input id="stFrom" type="date"></label>
-          <label>Currency <select id="stCurrency"></select></label>
-          <button type="button" class="btn primary" id="stPrint">Print…</button>
-          <button type="button" class="btn" id="stCsv">Download CSV</button>
-          <button type="button" class="btn" id="stRemind">Reminder…</button>
+          <label><span data-i18n="invoices.page.from_opt">From (optional)</span> <input id="stFrom" type="date"></label>
+          <label><span data-i18n="invoices.page.currency">Currency</span> <select id="stCurrency"></select></label>
+          <button type="button" class="btn primary" id="stPrint" data-i18n="invoices.page.print_dots">Print…</button>
+          <button type="button" class="btn" id="stCsv" data-i18n="invoices.page.csv">Download CSV</button>
+          <button type="button" class="btn" id="stRemind" data-i18n="invoices.page.reminder">Reminder…</button>
         </div>
         <div id="stSheet"></div>
       </section>
       <section class="view" id="view-credit" role="tabpanel" aria-labelledby="tab-credit" hidden>
-        <div class="toolbar no-print"><button type="button" class="btn primary" id="cnPrint">Print…</button><a class="btn" id="cnInvoice" href="#list">Open the invoice</a></div>
+        <div class="toolbar no-print"><button type="button" class="btn primary" id="cnPrint" data-i18n="invoices.page.print_dots">Print…</button><a class="btn" id="cnInvoice" href="#list" data-i18n="invoices.page.open_invoice">Open the invoice</a></div>
         <div id="cnSheet"></div>
       </section>
 
       <section class="view" id="view-repeat" role="tabpanel" aria-labelledby="tab-repeat" hidden>
         <div class="toolbar"><p class="note" id="rSummary" role="status"></p>
-          <button type="button" class="btn primary" id="rMake" disabled>Nothing due</button></div>
+          <button type="button" class="btn primary" id="rMake" disabled data-i18n="invoices.page.nothing_due">Nothing due</button></div>
         <div class="table" id="rRows"></div>
-        <p class="note">A schedule copies an invoice onto a new draft every week or month. Open an invoice and choose Repeat… to start one.</p>
+        <p class="note" data-i18n="invoices.page.repeat_note">A schedule copies an invoice onto a new draft every week or month. Open an invoice and choose Repeat… to start one.</p>
       </section>
 
       <section class="view" id="view-data" role="tabpanel" aria-labelledby="tab-data" hidden>
         <div class="card">
-          <h2 class="h2">Full backup</h2>
-          <p class="note">A backup holds every record in the shared business data for this browser: customers, products, orders, invoices, payments, stock and the ledger.</p>
-          <div class="toolbar"><button type="button" class="btn primary" id="dBackup">Download full backup</button></div>
-          <div class="file"><button type="button" class="btn" id="dRestore">Restore from a backup file…</button></div>
+          <h2 class="h2" data-i18n="invoices.page.backup">Full backup</h2>
+          <p class="note" data-i18n="invoices.page.backup_note">A backup holds every record in the shared business data for this browser: customers, products, orders, invoices, payments, stock and the ledger.</p>
+          <div class="toolbar"><button type="button" class="btn primary" id="dBackup" data-i18n="invoices.page.dl_backup">Download full backup</button></div>
+          <div class="file"><button type="button" class="btn" id="dRestore" data-i18n="invoices.page.restore">Restore from a backup file…</button></div>
           <ul class="report" id="dRestoreMsg" aria-live="polite"></ul>
         </div>
       </section>
@@ -275,7 +278,7 @@
   <script>SlopPWA.mount();</script>
 <link rel="stylesheet" href="../shared/menubar/menubar.css">
 <script src="../shared/menubar/menubar.js"></script>
-<script>SlopMenuBar.mount({"app": "Invoices", "tools": ["#tbNew"], "menus": {"File": ["#tbNew", "#iFromOrder", "-", "#tbSave", "#tbPrint", "-", {"label": "Samples", "sub": ["#iSample", "#iSamples", "-", "#iDelSamples"]}], "Help": ["#tbAbout", "#tbCmd"]}});</script>
+<script>SlopMenuBar.mount({ app: 'Invoices', tools: ['#tbNew'], menus: { File: () => ['#tbNew', '#iFromOrder', '-', '#tbSave', '#tbPrint', '-', { label: window.SlopI18n ? SlopI18n.t('biz.menu.samples') : 'Samples', sub: ['#iSample', '#iSamples', '-', '#iDelSamples'] }], Help: () => ['#tbAbout', '#tbCmd'] } }); (function (n) { if (n) { n.dataset.i18n = 'invoices.app.name'; if (window.SlopI18n) SlopI18n.apply(n.parentNode); } })(document.querySelector('.smb-app'));</script>
   <script src="../shell/shell.js"></script>
   <script src="../shared/tour/mount.js" data-app="invoices"></script>
   <script src="../shared/spotlight/spotlight.js"></script>

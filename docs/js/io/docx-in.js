@@ -8,7 +8,7 @@ import { twipsToPt, halfPtToPt, ooxmlToHex } from '../../../shared/office/units.
 import { newDoc, normalizeDoc, para, uid, OBJ, defaultSection } from '../model/doc.js';
 import { bulletList, numberList } from '../model/styles.js';
 
-const STYLE_IN = { title: 'Title', subtitle: 'Subtitle', quote: 'Quote', intensequote: 'Quote', code: 'Code' };
+const STYLE_IN = { title: 'Title', subtitle: 'Subtitle', quote: 'Quote', intensequote: 'Quote', code: 'Code' }; // i18n-ignore: Word style id
 function styleIn(v) {
   const k = String(v || '').replace(/\s+/g, '').toLowerCase();
   const h = /^heading([1-6])$/.exec(k);

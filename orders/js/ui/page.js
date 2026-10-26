@@ -4,7 +4,7 @@
   'use strict';
   const NS = (g.SlopOrders = g.SlopOrders || {});
   NS.page = g.SlopDocs.docPage.create({
-    ns: NS, kind: 'order', title: 'Order', statusLabel: g.SlopDocs.model.STATUS_LABEL,
+    ns: NS, kind: 'order',
     editable: (st) => st.status === 'draft' || st.status === 'open',
     pdf: (id) => NS.pdf.orderPdf(id),
   });

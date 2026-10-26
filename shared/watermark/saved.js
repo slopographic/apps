@@ -9,6 +9,7 @@
   'use strict';
   if (window.SlopWatermarkSaved) return;
   const S = window.SlopWatermarkSpec;
+  const tr = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);   // words: shared/i18n/ui/<code>/watermark.js
   const NAME = 'slop-watermarks', STORE = 'marks', CHANNEL = 'slop-watermarks';
   const SCRIPT = document.currentScript;
   // the site root from this script's own address; a script run inline (an offline copy, a test frame) uses the page's base
@@ -60,7 +61,7 @@
   }
   async function save(name, spec, id) {
     const d = await db();
-    if (!d) throw new Error('This browser does not let the site keep saved watermarks (private window or storage turned off).');
+    if (!d) throw new Error(tr('ui.wm.saved_blocked'));
     const sp = S.normalize(spec), title = String(name || sp.name || '').trim().slice(0, 80) || 'Watermark';
     const rec = { id: id || 'wm' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), name: title, spec: Object.assign(sp, { name: title }), time: Date.now() };
     await d.put(STORE, rec);

@@ -8,6 +8,7 @@ import { mimeFor, langOf } from './lang.js';
 import { mediaKind } from './viewers.js';
 import { renderChrome, setStatus, env, toast } from './ui.js';
 import { setActive, refresh as refreshTree, revealFolder } from './tree.js';
+import { t } from './dom.js';
 
 const H = () => window.SlopHub;
 const TABS_KEY = 'slop-code.tabs';
@@ -19,7 +20,7 @@ export async function openRecord(rec, { quiet = false, activate = true } = {}) {
   if (!rec) return null;
   const have = docs.find(rec.id);
   if (have) { if (activate) showDoc(have); return have; }
-  if (rec.trashedAt) { if (!quiet) toast(`“${rec.name}” is in the Trash`); return null; }
+  if (rec.trashedAt) { if (!quiet) toast(t('code.toast.in_trash', { name: rec.name })); return null; }
   const media = mediaKind(rec.name);
   const text = media ? null : await readText(rec);
   if (media || text === null) {
@@ -32,7 +33,7 @@ export async function openRecord(rec, { quiet = false, activate = true } = {}) {
   const restore = !!draft && typeof draft.text === 'string' && draft.text !== text;
   const doc = docs.openDoc(rec, restore ? draft.text : text, text);
   H().touch(rec.id);
-  if (restore && !quiet) toast('Restored your unsaved changes');
+  if (restore && !quiet) toast(t('code.toast.restored'));
   if (activate) showDoc(doc); else { renderChrome(); persistTabs(); }
   return doc;
 }
@@ -51,33 +52,33 @@ export function showDoc(doc) {
 export async function saveDoc(doc = docs.current()) {
   if (!doc || doc.kind !== 'text') return false;
   const text = docs.textOf(doc);
-  try { await writeText(doc.id, text, doc.name); } catch (e) { toast('Could not save: ' + e.message); return false; }
+  try { await writeText(doc.id, text, doc.name); } catch (e) { toast(t('code.toast.save_failed', { error: e.message })); return false; }
   docs.markSaved(doc, text);
   clearTimeout(timers.get(doc.id));
   await dropDraft(doc.id);
   renderChrome();
-  toast('Saved to Slop Drive');
+  toast(t('code.toast.saved'));
   return true;
 }
 
 /** Save a copy into a folder the user picks. Opens the copy in a new tab. */
 export async function saveAs(doc = docs.current()) {
   if (!doc || doc.kind !== 'text') return null;
-  const name = await SlopUI.prompt('Save as', 'File name', doc.name, { ok: 'Next' });
+  const name = await SlopUI.prompt(t('code.app.saveas'), t('code.dlg.file_name'), doc.name, { ok: t('ui.next') });
   if (!name || !name.trim()) return null;
-  const folderId = await H().pickFolder({ title: `Save “${name.trim()}” to…`, ok: 'Save here', start: doc.folderId ?? await H().appFolderId('code') });
+  const folderId = await H().pickFolder({ title: t('code.dlg.save_to', { name: name.trim() }), ok: t('code.dlg.save_here'), start: doc.folderId ?? await H().appFolderId('code') });
   if (folderId === undefined) return null;
   const fname = await uniqueName(name.trim(), folderId);
   const id = await H().put(new Blob([docs.textOf(doc)], { type: mimeFor(fname) }), { name: fname, from: 'code', folderId });
   await refreshTree();
-  toast('Saved as ' + fname);
+  toast(t('code.toast.saved_as', { name: fname }));
   return openRecord(await H().get(id));
 }
 
 /** New file: pick a type and a name, in the folder given (null: the root). */
 export async function newFile(folderId = null) {
   const label = await pathOf(folderId ?? null);
-  const picked = await askNewFile(label === '/' ? 'the root' : label);
+  const picked = await askNewFile(label === '/' ? t('code.dlg.root') : label);
   if (!picked) return null;
   const name = await uniqueName(picked.name, folderId ?? null);
   const rec = await createFile(name, folderId ?? null);
@@ -105,7 +106,7 @@ export async function closeDoc(doc = docs.current()) {
 
 /** Switch a Markdown tab between the editor and its rendered preview. Only the view changes, not the text. */
 export function togglePreview(doc = docs.current()) {
-  if (!doc || doc.kind !== 'text' || langOf(doc).id !== 'markdown') { toast('The preview is for Markdown files'); return false; }
+  if (!doc || doc.kind !== 'text' || langOf(doc).id !== 'markdown') { toast(t('code.toast.md_only')); return false; }
   doc.preview = !doc.preview;
   renderChrome();
   if (env.view && !doc.preview) env.view.focus();

@@ -7,11 +7,13 @@ import vm from 'node:vm';
 import path from 'node:path';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
+import { withI18n } from './ui-i18n-env.mjs';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const ctx = { TextEncoder };
 ctx.window = ctx;
 vm.createContext(ctx);
+const I18N = withI18n(ctx, 'en');   // the repeat words and snooze choices, as a page has them (shared/i18n/ui/en/calendar.js)
 for (const f of ['calendar/tz.js', 'calendar/rrule.js', 'tasks/logic.js', 'reminders/core.js']) {
   vm.runInContext(await readFile(path.join(ROOT, 'shared', f), 'utf8'), ctx, { filename: f });
 }
@@ -144,4 +146,20 @@ test('a weekly event shows once in Later (its next occurrence, saying "Every wee
   same(later.map((x) => [x.refId, x.repeat]), [['w1', 'Every week'], ['o1', null]]);
   assert.equal(later[0].at, start - 15 * 60000);
   assert.equal(later[0].more, all.filter((x) => x.refId === 'w1').length - 1);
+});
+
+test('the snooze choices read the chosen language each time (shared/i18n/ui/<code>/calendar.js)', () => {
+  same(NR.SNOOZES.map((s) => s.label), ['5 minutes', '1 hour', 'Tomorrow, 09:00']);
+  withI18n(ctx, 'sv');   // the same context, now in Swedish
+  try { same(NR.SNOOZES.map((s) => s.label), ['5 minuter', '1 timme', 'I morgon 09:00']); } finally { ctx.SlopI18n = I18N; }
+});
+
+// Covers: shared/tasks/logic.js, shared/i18n/ui/en/backup3.js, shared/i18n/ui/sv/backup3.js
+test('the edit checks speak the chosen language (keys ui.tasks.*, read when checked)', () => {
+  assert.deepEqual([...TK.editErrors({ dueTime: '10:00' })], ['give the task a due date before a due time']);
+  withI18n(ctx, 'sv');
+  try {
+    assert.deepEqual([...TK.editErrors({ dueTime: '10:00', due: '2026-10-12', tz: 'Nowhere/Land' })], ['tidszonen är okänd']);
+    assert.deepEqual([...TK.editErrors({ dueTime: '10:00' })], ['ge uppgiften ett förfallodatum innan du anger en förfallotid']);
+  } finally { ctx.SlopI18n = I18N; }
 });

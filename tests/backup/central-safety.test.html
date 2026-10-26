@@ -7,6 +7,8 @@
 </head>
 <body>
   <script src="../harness.js"></script>
+  <script src="../../shared/profile/profile.js"></script>   <!-- the language choice (SlopI18n.set) -->
+  <script src="../../shared/i18n/i18n.js"></script>   <!-- the shared components' words (shared/i18n/ui) -->
   <script src="util.js"></script>
   <script src="../../shared/backup/index.js"></script>
   <script>
@@ -104,6 +106,21 @@
       const p = await C.plan(BK.blob('{"hello":"world"}'));
       expect(p.ok).toBe(false);
       expect(p.errors[0]).toMatch(/not a Slopographic backup/);
+    });
+
+    // Covers: shared/backup/central-format.js, shared/backup/central.js, shared/i18n/ui/en/backup.js, shared/i18n/ui/sv/backup.js
+    it('the refusals and the excluded list are in the chosen language (keys ui.backup.*, read when made)', async () => {
+      const C = await BK.central();
+      const switched = (code) => new Promise((res) => { addEventListener('slopi18n', () => res(), { once: true }); SlopI18n.set(code); });
+      await switched('sv');
+      try {
+        expect((await C.plan(BK.blob('{"hello":"world"}'))).errors[0]).toBe('Det här är inte en säkerhetskopia från Slopographic.');
+        expect((await C.plan(BK.blob('{not json'))).errors[0]).toMatch(/^Det här är inte en säkerhetskopia från Slopographic: filen är inte giltig JSON/);
+        expect(C.EXCLUDED[0].reason).toBe('hemligheter: de lämnar aldrig webbläsaren');
+        expect(SlopBackup.registeredApps().find((a) => a.id === 'drive').label).toBe('Slop Drive: filer och mappar');
+      } finally { await switched('en'); }
+      expect((await C.plan(BK.blob('{"hello":"world"}'))).errors[0]).toBe('This is not a Slopographic backup file.');
+      expect(SlopBackup.registeredApps().find((a) => a.id === 'drive').label).toBe('Slop Drive: files and folders');
     });
   });
 

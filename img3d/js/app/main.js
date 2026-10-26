@@ -5,16 +5,20 @@
   'use strict';
   const ns = window.SlopImg3D, hf = ns.hf;
   const $ = (id) => document.getElementById(id);
+  const t = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
   const LIB = ['manifest.js', 'store.js', 'install.js', 'get-more.js'];
   const S = { img: null, depth: null, depthFailed: false, depthInstalled: false, mask: null, prep: null, item: null,
     viewer: null, viewerP: null, busy: false, again: false };
   let libP = null;
 
+  let said = null;   // the last status as a function of the language (sayT), so a language change says it again
   function say(msg, isErr) {
     const el = $('status');
     el.textContent = msg;
     el.classList.toggle('err', !!isErr);
+    said = null;
   }
+  function sayT(fn, isErr) { say(fn(), isErr); said = [fn, isErr]; }
   function toast(msg) { if (window.SlopUI) SlopUI.toast(msg); else say(msg); }
 
   /** Loads the Get more library scripts once (no network except the local store). */
@@ -36,10 +40,9 @@
     S.depthInstalled = on;
     ns.jit.noteInstalled(on);
     if (on !== was && S.img) build(); // installed or removed while a picture is open
-    $('depthNote').textContent = on
-      ? 'Depth model: Depth Anything V2 Small, on this device.'
-      : 'No depth model: using brightness as depth (brighter reads as nearer). It is a fallback, not real depth. It downloads when you open a picture (Depth Anything V2 Small, Apache-2.0, 27 MB), or Get more… adds it.';
+    depthNote();
   }
+  function depthNote() { $('depthNote').textContent = S.depthInstalled ? t('img3d.depth.note_on') : t('img3d.depth.note_off'); }
 
   function opts() {
     return { scale: +$('scale').value, smooth: +$('smooth').value, size: +$('size').value };
@@ -73,7 +76,7 @@
       S.depth = await ns.depth.estimate(S.img.rgba, S.img.W, S.img.H, say);
     } catch (e) {
       S.depthFailed = true;
-      say('The depth model could not run (' + e.message + '). Using brightness instead.', true);
+      sayT(() => t('img3d.status.depth_failed', { error: e.message }), true);
     }
     return S.depth;
   }
@@ -81,10 +84,10 @@
   /** The subject mask from SlopCutout (the Quality matting model), once per picture. */
   async function ensureMask() {
     if (S.mask) return S.mask;
-    say('Separating the subject on this device. The first time, the background remover loads its model.');
+    sayT(() => t('img3d.status.separating'));
     const input = new ImageData(new Uint8ClampedArray(S.img.rgba), S.img.W, S.img.H);
     const r = await window.SlopCutout.removeBackground(input, { model: 'quality',
-      onProgress: (p) => { if (p && p.phase) say('Separating the subject (' + p.phase + ')…'); } });
+      onProgress: (p) => { if (p && p.phase) sayT(() => t('img3d.status.separating_phase', { phase: p.phase })); } });
     const data = Float32Array.from(r.mask, (v) => v / 255);
     S.mask = { data, w: r.width, h: r.height };
     return S.mask;
@@ -104,8 +107,12 @@
       const v = await viewer();
       v.show(S.item);
       $('hint').hidden = true;
-      const src = S.prep.source === 'model' ? 'depth model' : S.prep.source === 'map' ? 'depth map ' + S.depth.name : 'brightness fallback (not real depth)';
-      say(`${S.item.kind === 'mesh' ? 'Mesh' : S.item.kind === 'points' ? 'Point cloud' : 'Splats'} · ${S.prep.gw}×${S.prep.gh} grid · ${src}${subject ? ' · subject only' : ''}.`);
+      const prep = S.prep, kind = S.item.kind, map = S.depth && S.depth.name;
+      sayT(() => {
+        const source = prep.source === 'model' ? t('img3d.src.model') : prep.source === 'map' ? t('img3d.src.map', { name: map }) : t('img3d.src.fallback');
+        const k = t(kind === 'mesh' ? 'img3d.kind.mesh' : kind === 'points' ? 'img3d.kind.points' : 'img3d.kind.splats');
+        return t(subject ? 'img3d.status.built_subject' : 'img3d.status.built', { kind: k, gw: String(prep.gw), gh: String(prep.gh), source });
+      });
     } catch (e) {
       say(e.message || String(e), true);
     } finally {
@@ -131,17 +138,16 @@
 
   /** The first-use notice (the intake's, once per batch whichever way the picture came): Continue agrees to the depth model
    *  download, made the first time a picture is opened (js/model/jit.js, through the shared installer). Cancel opens nothing. */
-  const FIRST_USE = {
-    title: 'Make a 3D model on this device',
-    lines: ['Slop Image to 3D estimates depth with a model that runs in your browser.',
-      'Continue downloads the depth model (Depth Anything V2 Small, Apache-2.0) when your first picture opens. Until it is here, or if you remove it in Get more…, brightness stands in for depth.'],
-    downloads: [{ name: 'Depth model (Depth Anything V2 Small)', bytes: 27258801 }],
+  const FIRST_USE = {   // getters: the words are read when the notice shows, in the language of that moment
+    get title() { return t('img3d.first.title'); },
+    get lines() { return [t('img3d.first.line1'), t('img3d.first.line2')]; },
+    get downloads() { return [{ name: t('img3d.first.download'), bytes: 27258801 }]; },
   };
   /** The intake's reader: the notice has been agreed to when it runs. */
   async function openBlob(blob, name) {
     const consent = !!window.SlopFirstRun;
     try {
-      say('Reading the picture…');
+      sayT(() => t('img3d.status.reading'));
       const img = await ns.image.decode(blob, name);
       Object.assign(S, { img: null, depth: null, depthFailed: false, mask: null, prep: null, item: null });
       $('picName').textContent = `${img.name} · ${img.W}×${img.H} px`;
@@ -168,19 +174,19 @@
   async function sendTo3d() {
     try {
       await ns.exporter.sendTo3d(meshNow(), S.img.name, S.img.canvas);
-    } catch (e) { say('Could not send to Slop 3D: ' + e.message, true); }
+    } catch (e) { sayT(() => t('img3d.status.send_failed', { error: e.message }), true); }
   }
 
   function bind() {
     // The one way in (shared/intake, spec 'img3d'): Open image…, a drop on the view, From Slop Drive…, a paste, ?drive=<id>
     // and a PWA launch; one picture at a time, after the first-use notice.
     SlopIntake.register({
-      id: 'img3d', limit: 1, notice: FIRST_USE, accept: { types: ['image/*'], noun: 'a picture' },
+      id: 'img3d', limit: 1, notice: FIRST_USE, accept: { types: ['image/*'], get noun() { return t('img3d.app.a_picture'); } },
       process: async (f) => { await openBlob(f, f.name); return f.name; },
     });
     $('btnOpen').addEventListener('click', () => SlopIntake.pick({ to: 'img3d', multiple: false }));
     SlopIntake.dropTarget($('vp'), { to: 'img3d' });
-    $('btnDrive').addEventListener('click', () => SlopIntake.fromDrive({ to: 'img3d', title: 'Open a picture from Slop Drive' }));
+    $('btnDrive').addEventListener('click', () => SlopIntake.fromDrive({ to: 'img3d', title: t('img3d.app.drive_title') }));
     $('btnMore').addEventListener('click', async () => { await loadLib(); if (window.SlopLibrary) SlopLibrary.open({ onInstalled: refreshDepthNote }); });
     $('btnObj').addEventListener('click', exportObj);
     $('btnGlb').addEventListener('click', exportGlb);
@@ -207,7 +213,14 @@
     bind();
     commands();
     $('scaleVal').textContent = (+$('scale').value).toFixed(2);
-    say('Open a picture to begin. Nothing is uploaded.');
+    sayT(() => t('img3d.status.start'));
+    $('picName').textContent = t('img3d.pic.none');
+    // a language change: the status line, the depth note and the empty picture line again, in the new language
+    if (window.SlopI18n && window.SlopI18n.on) window.SlopI18n.on(() => {
+      if (said) sayT(said[0], said[1]);
+      depthNote();
+      if (!S.img) $('picName').textContent = t('img3d.pic.none');
+    });
     refreshDepthNote();
     loadLib().then(() => { if (window.SlopLibrary) SlopLibrary.onChange(refreshDepthNote); });
     const H = window.SlopHub;

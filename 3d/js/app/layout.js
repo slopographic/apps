@@ -5,6 +5,7 @@
 (function () {
   'use strict';
   const PHONE = '(max-width: 900px)', $ = (s) => document.querySelector(s);
+  const t = (k) => (window.SlopI18n ? SlopI18n.t(k) : k);
   if (window.SlopLayouts) {
     SlopLayouts.mount({
       app: '3d',
@@ -19,10 +20,15 @@
   }
   if (!window.SlopSheet) return;
   const root = $('.workspace');
-  const scene = SlopSheet.attach({ root, panel: $('.panel-left'), side: 'start', phone: PHONE, toggles: [$('#btnScene')], label: 'Scene' });
-  const props = SlopSheet.attach({ root, panel: $('.panel-right'), phone: PHONE, toggles: [$('#btnProps')], label: 'Properties' });
+  const scene = SlopSheet.attach({ root, panel: $('.panel-left'), side: 'start', phone: PHONE, toggles: [$('#btnScene')], get label() { return t('3d.app.scene'); } });
+  const props = SlopSheet.attach({ root, panel: $('.panel-right'), phone: PHONE, toggles: [$('#btnProps')], get label() { return t('3d.app.properties'); } });
   window.Slop3DSheets = { scene, props };   // for the tests
   // The suite rule (shared/frame/HANDOFF.md): Save, the main button, sits at the foot of the Properties panel (the shared
   // footer, shared/frame/panel.js); on a phone the closed Properties sheet still shows it. Ctrl+S and File ▸ Save too.
-  if (window.SlopFramePanel) SlopFramePanel.create($('.panel-right'), { bare: true }).footer([{ el: $('#btnSave') }], { more: 'Properties', onMore: () => props.toggle() });
+  if (window.SlopFramePanel) {
+    const fp = SlopFramePanel.create($('.panel-right'), { bare: true });
+    const foot = () => fp.footer([{ el: $('#btnSave') }], { more: t('3d.app.properties'), onMore: () => props.toggle() });
+    foot();
+    if (window.SlopI18n && SlopI18n.on) SlopI18n.on(foot);   // the More button in the new language
+  }
 })();

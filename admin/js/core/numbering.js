@@ -18,13 +18,14 @@
   async function save(id, input) {
     const cur = await S.store.get('numbering', id);
     if (!cur.ok) return cur;
-    if (!cur.value) return fail('not_found', `No numbering sequence ${id}.`);
+    const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
+    if (!cur.value) return fail('not_found', t('admin.core.no_seq', { id }));
     const prefix = String(input.prefix ?? '');
     const pad = Number(String(input.pad ?? '').trim());
     const next = Number(String(input.next ?? '').trim());
-    if (!Number.isInteger(pad) || pad < 1 || pad > 12) return fail('invalid', 'Zero-padding is a whole number from 1 to 12.');
-    if (!Number.isSafeInteger(next) || next < 1) return fail('invalid', 'The next number is a whole number from 1 upward.');
-    if (next < cur.value.next) return fail('invalid', `The next number can only move forward (it is ${cur.value.next} now). Issued numbers are never reused.`);
+    if (!Number.isInteger(pad) || pad < 1 || pad > 12) return fail('invalid', t('admin.core.pad'));
+    if (!Number.isSafeInteger(next) || next < 1) return fail('invalid', t('admin.core.next'));
+    if (next < cur.value.next) return fail('invalid', t('admin.core.forward', { n: String(cur.value.next) }));
     return S.store.put('numbering', { ...cur.value, prefix, pad, next });
   }
 

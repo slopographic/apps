@@ -3,7 +3,7 @@
  * controls. A PDF is the browser's own PDF view, set to page 1. A binary file gets the "Open in an app" list, the
  * same apps Slop Drive offers (SlopHub.appsAccepting). Nothing here fetches anything: every source is a blob URL. */
 import * as docs from './docs.js';
-import { el } from './dom.js';
+import { el, t } from './dom.js';
 import { renderMarkdown } from './markdown.js';
 
 const MEDIA = {
@@ -39,7 +39,7 @@ export function syncViewer(cur) {
 }
 
 function markdownNodes(text) {
-  return [el('article', { class: 'cd-md', 'aria-label': 'Rendered Markdown' }, renderMarkdown(text))];
+  return [el('article', { class: 'cd-md', 'aria-label': t('code.view.rendered') }, renderMarkdown(text))];
 }
 
 /** The node for a file tab: a picture, a player, a PDF page, or the binary message. */
@@ -51,24 +51,31 @@ function mountFile(doc) {
   if (doc.kind === 'audio') return el('div', { class: 'cd-media cd-audio' }, el('p', { class: 'cd-media-name' }, doc.name),
     el('audio', { controls: true, preload: 'metadata', src: doc.url, 'aria-label': doc.name }));
   if (doc.kind === 'video') return el('div', { class: 'cd-media' }, el('video', { controls: true, preload: 'metadata', src: doc.url, 'aria-label': doc.name, class: 'cd-video' }));
-  if (doc.kind === 'pdf') return el('iframe', { class: 'cd-pdf', src: doc.url + '#page=1&view=FitH', title: 'PDF: ' + doc.name });
+  if (doc.kind === 'pdf') return el('iframe', { class: 'cd-pdf', src: doc.url + '#page=1&view=FitH', title: t('code.view.pdf', { name: doc.name }) });
   return binaryNode(doc);
+}
+
+/** An app's name from the shared 'Open in {app}' label (SlopOuttake), in the page's language: the verb is dropped. */
+function appName(label) {
+  const I = window.SlopI18n, mark = '\u0000';
+  const pre = (I && I.has('ui.outtake.open_in') ? I.t('ui.outtake.open_in', { app: mark }) : 'Open in ' + mark).split(mark)[0];
+  return pre && label.startsWith(pre) ? label.slice(pre.length) : label;
 }
 
 /** "Not text": the message, and an "Open in an app" list (apps that accept this type, as in Slop Drive). */
 function binaryNode(doc) {
   const box = el('div', { class: 'cd-bin' },
     el('h2', null, doc.name),
-    el('p', null, 'This is not a text file, so Slop Code cannot show or edit it.'));
+    el('p', null, t('code.view.not_text')));
   const list = el('div', { class: 'cd-bin-apps' });
   const rec = { id: doc.id, name: doc.name };
   // The one builder (SlopOuttake): the file is already in Slop Drive, so the app opens that record (no copy).
   const openers = () => (window.SlopOuttake && window.SlopHub ? window.SlopOuttake.items({ id: rec.id, name: rec.name, type: doc.mime || 'application/octet-stream', from: 'code', folder: false }) : []);
   const showApps = () => {
     const items = openers();
-    list.replaceChildren(items.length ? el('p', { class: 'cd-hint' }, 'Open it in:') : el('p', { class: 'cd-hint' }, 'No app opens this type.'),
-      ...items.map((it) => el('button', { type: 'button', class: 'sui-btn', onclick: it.act }, it.label.replace(/^Open in /, ''))));
+    list.replaceChildren(items.length ? el('p', { class: 'cd-hint' }, t('code.view.open_in')) : el('p', { class: 'cd-hint' }, t('code.view.no_app')),
+      ...items.map((it) => el('button', { type: 'button', class: 'sui-btn', onclick: it.act }, appName(it.label))));
   };
-  box.append(el('button', { type: 'button', class: 'sui-btn sui-primary', id: 'cd-bin-open', onclick: showApps }, 'Open in an app'), list);
+  box.append(el('button', { type: 'button', class: 'sui-btn sui-primary', id: 'cd-bin-open', onclick: showApps }, t('code.view.open_app')), list);
   return box;
 }

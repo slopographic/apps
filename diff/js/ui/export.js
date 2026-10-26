@@ -8,6 +8,7 @@ import { reportHtml, reportName } from '../core/report.js';
 import { unified } from '../core/patch.js';
 import { diffLines } from '../core/text.js';
 import { withUrls } from '../io/files.js';
+import { t } from './i18n.js';
 
 const TYPES = { html: 'text/html', pdf: 'application/pdf', patch: 'text/x-diff' };
 const names = () => ({ nameA: S.sides.a.name || 'A', nameB: S.sides.b.name || 'B' });
@@ -15,10 +16,10 @@ const names = () => ({ nameA: S.sides.a.name || 'A', nameB: S.sides.b.name || 'B
 export const canPatch = () => !!S.result && !S.sides.a.file && !S.sides.b.file;
 
 export async function blobOf(format = 'html') {
-  if (!S.result) throw new Error('Compare two files first');
+  if (!S.result) throw new Error(t('diff.err.compare_first'));
   const n = names();
   if (format === 'patch') {
-    if (!canPatch()) throw new Error('A .patch is made from two texts; pictures and PDFs have none');
+    if (!canPatch()) throw new Error(t('diff.err.no_patch'));
     const text = S.result.text && S.result.kind === 'text' ? S.result.text : diffLines(S.sides.a.text, S.sides.b.text, { ignoreWs: S.opts.ignoreWs, ignoreCase: S.opts.ignoreCase });
     const strip = (s) => String(s).replace(/\s+/g, '_');
     const body = unified(text, { nameA: `a/${strip(n.nameA)}`, nameB: `b/${strip(n.nameB)}`, context: 3 });

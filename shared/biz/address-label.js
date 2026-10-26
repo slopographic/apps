@@ -12,13 +12,13 @@
   function project({ name, lines = [], from = '', ref = '' }) {
     const text = (id, x, y, w, h, content, props) => ({ id, type: 'text', name: id, x, y, w, h, content, ...props });
     const objects = [
-      from ? text('from', 4, 2.5, W - 8, 4, `From: ${from}`, { size: 7 }) : null,
+      from ? text('from', 4, 2.5, W - 8, 4, `From: ${from}`, { size: 7 }) : null,   // i18n-ignore: the label and the sheet are documents the user prints
       text('name', 4, 8, W - 8, 8, name || '', { size: 15, bold: true, fit: 'box', shrink: true }),
       { id: 'address', type: 'para', name: 'address', x: 4, y: 17.5, w: W - 8, h: 25, content: lines.filter(Boolean).join('\n'), size: 11, fit: 'box', shrink: true, wrap: true },
       ref ? text('ref', 4, H - 6.5, W - 8, 4, ref, { size: 7, align: 'right' }) : null,
     ].filter(Boolean);
     return {
-      app: 'sloplabel', version: 1, name: `Address label${ref ? ` ${ref}` : ''}`, unit: 'in', dpi: 203,
+      app: 'sloplabel', version: 1, name: `Address label${ref ? ` ${ref}` : ''}`, unit: 'in', dpi: 203,   // i18n-ignore: the label and the sheet are documents the user prints
       label: { w: W, h: H, radius: 1.5, margin: [1.5, 1.5, 1.5, 1.5], gap: 3, orientation: 'landscape' },
       stock: { kind: 'roll', id: 'roll-4x2', name: '4 × 2"', cols: 1, left: 0, hpitch: 0 },
       objects, vars: [], data: null, assets: {},

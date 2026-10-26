@@ -11,11 +11,11 @@
   const L = 42, R = 553;                    // left and right edges of the body
   const TOP = 790, BOTTOM = 84;             // first baseline and the lowest body line (the footer sits below)
   const SIDE_X = 190;                       // the side bar layout: where the body (table) starts; the column is 130 wide
-  const FAMILY = { sans: ['Helvetica', 'HelveticaBold'], serif: ['TimesRoman', 'TimesRomanBold'] };
+  const FAMILY = { sans: ['Helvetica', 'HelveticaBold'], serif: ['TimesRoman', 'TimesRomanBold'] };   // i18n-ignore: pdf-lib font names
   const COLS = { wide: { qty: 36, unit: 70, disc: 44, tax: 66, total: 76 }, side: { qty: 30, unit: 58, disc: 38, tax: 54, total: 64 } };
 
-  /** WinAnsi text for pdf-lib: line breaks kept for wrapping by the caller; characters it cannot draw become "?". */
-  const clean = (t) => String(t ?? '').replace(/\r\n?/g, '\n').replace(/\t/g, ' ').replace(/[  ]/g, ' ')
+  /** WinAnsi text for pdf-lib: line breaks kept for wrapping by the caller; characters it cannot draw become "?" (the minus sign of sv and others reads as a hyphen). */
+  const clean = (t) => String(t ?? '').replace(/\r\n?/g, '\n').replace(/\t/g, ' ').replace(/\u2212/g, '-').replace(/[  ]/g, ' ')
     .replace(/[^\n\x20-\x7e\xa0-\xff€]/g, '?');
   const oneLine = (t) => clean(t).replace(/\n/g, ' ');
 
@@ -45,13 +45,14 @@
   /** Renders a view to PDF bytes: { ok: true, value: Uint8Array } or a refusal { ok: false, code, message }. */
   async function renderPdf(view) {
     const PDFLib = g.PDFLib;
-    if (!PDFLib) return { ok: false, code: 'unavailable', message: 'the PDF library did not load' };
+    if (!PDFLib) return { ok: false, code: 'unavailable', message: 'the PDF library did not load' };   // i18n-ignore: a developer message (the app shows its own words)
     const st = view.style;
     const { rgb, StandardFonts } = PDFLib;
     const doc = await PDFLib.PDFDocument.create({ updateMetadata: false });
     doc.setTitle(oneLine(`${view.title} ${view.number}`));
-    doc.setProducer('Slopographic');
-    doc.setCreator('Slopographic');
+    doc.setProducer('Slopographic');   // i18n-ignore: brand name in the PDF metadata
+    doc.setCreator('Slopographic');   // i18n-ignore: brand name in the PDF metadata
+    if (view.lang) doc.setLanguage(view.lang);
     const fam = FAMILY[st.family] || FAMILY.sans;
     const f = { reg: await doc.embedFont(StandardFonts[fam[0]]), bold: await doc.embedFont(StandardFonts[fam[1]]) };
     const acc = st.accent.rgb;
@@ -114,8 +115,8 @@
   function header(ctx) {
     const { st, view, c } = ctx;
     const company = view.company;
-    const addr = [...company.lines.slice(0, 4), ...(company.taxNumber ? [`Tax number ${company.taxNumber}`] : [])];
-    const metaRows = [['Number', view.number], ...view.meta.filter((m) => m.value).map((m) => [m.label, m.value])];
+    const addr = [...company.lines.slice(0, 4), ...(view.words.taxNumber ? [view.words.taxNumber] : [])];
+    const metaRows = [[view.words.number, view.number], ...view.meta.filter((m) => m.value).map((m) => [m.label, m.value])];
     if (st.sidebar) { ctx.y = TOP; return; }
     if (st.header === 'band') {
       const h = 150;
@@ -153,7 +154,7 @@
     ctx.y -= 10;
     text(ctx, b.title.toUpperCase(), L, ctx.y, 7.5, { bold: true, color: c.grey });
     ctx.y -= 14;
-    text(ctx, b.name || '(no customer)', L, ctx.y, 11, { bold: true });
+    text(ctx, b.name || ctx.view.words.noCustomer, L, ctx.y, 11, { bold: true });
     ctx.y -= 13;
     for (const l of b.lines.slice(0, 4)) { text(ctx, l, L, ctx.y, 9, { color: c.grey }); ctx.y -= 12; }
     ctx.y -= 18;
@@ -166,13 +167,13 @@
     text(ctx, view.company.name, L, y, 12, { bold: true, color: c.accent });
     y -= 14;
     for (const l of view.company.lines.slice(0, 4)) { text(ctx, l, L, y, 8.5, { color: c.grey }); y -= 11; }
-    if (view.company.taxNumber) { text(ctx, `Tax number ${view.company.taxNumber}`, L, y, 8, { color: c.grey }); y -= 11; }
+    if (view.words.taxNumber) { text(ctx, view.words.taxNumber, L, y, 8, { color: c.grey }); y -= 11; }
     y -= 14;
     text(ctx, view.bill.title.toUpperCase(), L, y, 7.5, { bold: true, color: c.grey }); y -= 13;
-    text(ctx, view.bill.name || '(no customer)', L, y, 10, { bold: true }); y -= 12;
+    text(ctx, view.bill.name || view.words.noCustomer, L, y, 10, { bold: true }); y -= 12;
     for (const l of view.bill.lines.slice(0, 3)) { text(ctx, l, L, y, 8.5, { color: c.grey }); y -= 11; }
     y -= 14;
-    text(ctx, 'NUMBER', L, y, 7.5, { bold: true, color: c.grey }); y -= 12;
+    text(ctx, view.words.number.toUpperCase(), L, y, 7.5, { bold: true, color: c.grey }); y -= 12;
     text(ctx, view.number, L, y, 9.5); y -= 14;
     for (const m of view.meta.filter((x) => x.value)) { text(ctx, `${m.label}  ${m.value}`, L, y, 9); y -= 12; }
     if (view.statusText) text(ctx, view.statusText.toUpperCase(), L, y - 2, 7.5, { color: c.grey });
@@ -186,10 +187,10 @@
     const { cols, c, st, view } = ctx;
     const hc = st.accent.id === 'ink' ? c.ink : c.accent;
     ctx.y -= 4;
-    const heads = [['desc', 'Description', 'left'], ['qty', 'Qty', 'right'], ['unit', 'Unit price', 'right'], ['disc', 'Disc.', 'right'], ['tax', 'Tax', 'right'], ['total', 'Total', 'right']];
-    for (const [k, label, align] of heads) {
+    for (const k of ['desc', 'qty', 'unit', 'disc', 'tax', 'total']) {
       if (k === 'disc' && !view.hasDiscount) continue;
-      text(ctx, label.toUpperCase(), k === 'desc' ? cols.desc.x : cols[k].right, ctx.y - 10, 7.5, { bold: true, color: hc, align });
+      const align = k === 'desc' ? 'left' : 'right';
+      text(ctx, view.words.cols[k].toUpperCase(), k === 'desc' ? cols.desc.x : cols[k].right, ctx.y - 10, 7.5, { bold: true, color: hc, align });
     }
     ctx.page.drawLine({ start: { x: ctx.x0, y: ctx.y - 16 }, end: { x: R, y: ctx.y - 16 }, thickness: 0.8, color: c.ink });
     ctx.y -= 22;
@@ -203,7 +204,7 @@
     tableHead(ctx);
     const size = 9.5;
     view.rows.forEach((r, i) => {
-      const lines = wrap(f.reg, r.description || '(no description)', size, cols.desc.w);
+      const lines = wrap(f.reg, r.description || view.words.noDesc, size, cols.desc.w);
       const h = Math.max(1, lines.length) * 12 + 8;
       ensure(h);
       if (st.table === 'zebra' && i % 2 === 1) ctx.page.drawRectangle({ x: ctx.x0, y: ctx.y - h + 3, width: R - ctx.x0, height: h, color: c.tint });
@@ -217,7 +218,7 @@
       if (st.table === 'rules' || st.table === 'zebra') ctx.page.drawLine({ start: { x: ctx.x0, y: ctx.y - h + 3 }, end: { x: R, y: ctx.y - h + 3 }, thickness: 0.4, color: c.rule });
       ctx.y -= h;
     });
-    if (!view.rows.length) { ensure(20); text(ctx, 'No lines.', ctx.x0, ctx.y - 12, 9, { color: c.grey }); ctx.y -= 20; }
+    if (!view.rows.length) { ensure(20); text(ctx, view.words.noLines, ctx.x0, ctx.y - 12, 9, { color: c.grey }); ctx.y -= 20; }
     ctx.inTable = false;
     ctx.y -= 12;
   }
@@ -247,7 +248,7 @@
     if (!t) return;
     const lines = wrap(ctx.f.reg, t, 9, R - ctx.x0);
     ensure(lines.length * 12 + 22);
-    text(ctx, 'NOTES', ctx.x0, ctx.y - 6, 7.5, { bold: true, color: ctx.c.grey });
+    text(ctx, ctx.view.words.notes.toUpperCase(), ctx.x0, ctx.y - 6, 7.5, { bold: true, color: ctx.c.grey });
     ctx.y -= 18;
     for (const ln of lines) { ensure(12); text(ctx, ln, ctx.x0, ctx.y, 9); ctx.y -= 12; }
   }
@@ -255,12 +256,12 @@
   /** The footer on every page: company and tax number on the left, "Page n of N" on the right. */
   function footers(ctx) {
     const n = ctx.pages.length;
-    const left = [ctx.view.company.name, ctx.view.company.taxNumber ? `Tax number ${ctx.view.company.taxNumber}` : ''].filter(Boolean).join('  ·  ');
+    const left = [ctx.view.company.name, ctx.view.words.taxNumber].filter(Boolean).join('  ·  ');
     ctx.pages.forEach((p, i) => {
       ctx.page = p;
       p.drawLine({ start: { x: L, y: 52 }, end: { x: R, y: 52 }, thickness: 0.4, color: ctx.c.rule });
       text(ctx, left, L, 40, 7.5, { color: ctx.c.grey });
-      text(ctx, `Page ${i + 1} of ${n}`, R, 40, 7.5, { color: ctx.c.grey, align: 'right' });
+      text(ctx, ctx.view.words.pageOf(i + 1, n), R, 40, 7.5, { color: ctx.c.grey, align: 'right' });
     });
   }
 

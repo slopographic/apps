@@ -1,6 +1,7 @@
 /* PDF merge, page extraction and split, with pdf-lib. Pure bytes in, bytes out. */
 import { loadPdfLib } from './lib.js';
 import { parseRange } from './range.js';
+import { tr } from './i18n.js';
 
 const SAVE = { useObjectStreams: false };
 
@@ -9,14 +10,14 @@ async function open(bytes) {
   try {
     return { PDFDocument, src: await PDFDocument.load(bytes, { updateMetadata: false }) };
   } catch (e) {
-    if (/encrypt/i.test(String(e && e.name)) || /encrypt/i.test(String(e && e.message))) throw new Error('This PDF is encrypted. Unlock it first.');
-    throw new Error('This is not a valid PDF, or it is damaged.');
+    if (/encrypt/i.test(String(e && e.name)) || /encrypt/i.test(String(e && e.message))) throw new Error(tr('convert.pdf.encrypted'));
+    throw new Error(tr('convert.pdf.not_valid'));
   }
 }
 
 /** Concatenate PDFs in the order given. */
 export async function mergePdfs(list) {
-  if (!list.length) throw new Error('Add at least one PDF.');
+  if (!list.length) throw new Error(tr('convert.pdf.add_one'));
   const { PDFDocument } = await loadPdfLib();
   const out = await PDFDocument.create();
   for (const bytes of list) {

@@ -13,22 +13,23 @@
 import { emlToHtml, emlToText } from '../../convert/js/core/mail.js';
 
 export const FORMATS = [
-  { id: 'pdf', label: 'PDF, one file', ext: 'pdf', pdf: true },
-  { id: 'pdfzip', label: 'PDF, one per message (ZIP)', ext: 'zip', pdf: true, many: true },
-  { id: 'txt', label: 'Plain text', ext: 'txt' },
-  { id: 'html', label: 'HTML', ext: 'html' },
-  { id: 'md', label: 'Markdown', ext: 'md' },
-  { id: 'csv', label: 'List of messages (CSV)', ext: 'csv' },
-  { id: 'eml', label: 'Original .eml files', ext: 'eml' },
-  { id: 'atts', label: 'Attachments (ZIP)', ext: 'zip' },
+  { id: 'pdf', label: 'PDF, one file', ext: 'pdf', pdf: true },   // i18n-ignore: not on screen (the Export menu has its own words)
+  { id: 'pdfzip', label: 'PDF, one per message (ZIP)', ext: 'zip', pdf: true, many: true },   // i18n-ignore: not on screen (the Export menu has its own words)
+  { id: 'txt', label: 'Plain text', ext: 'txt' },   // i18n-ignore: not on screen (the Export menu has its own words)
+  { id: 'html', label: 'HTML', ext: 'html' },   // i18n-ignore: not on screen (the Export menu has its own words)
+  { id: 'md', label: 'Markdown', ext: 'md' },   // i18n-ignore: not on screen (the Export menu has its own words)
+  { id: 'csv', label: 'List of messages (CSV)', ext: 'csv' },   // i18n-ignore: not on screen (the Export menu has its own words)
+  { id: 'eml', label: 'Original .eml files', ext: 'eml' },   // i18n-ignore: not on screen (the Export menu has its own words)
+  { id: 'atts', label: 'Attachments (ZIP)', ext: 'zip' },   // i18n-ignore: not on screen (the Export menu has its own words)
 ];
 const B = () => window.EmlBatch;
+const t = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
 const zip = (entries) => window.SlopZip.zip(entries);
 
 /** A message as Markdown: the subject as a heading, the address lines, the text, and the attachment names. */
 export function toMarkdown(d) {
   const s = d.summary, m = d.msg;
-  const esc = (t) => String(t || '').replace(/([\\`*_[\]<>#|])/g, '\\$1');
+  const esc = (str) => String(str || '').replace(/([\\`*_[\]<>#|])/g, '\\$1');
   const head = [['From', s.from], ['To', s.to], ['Cc', s.cc], ['Date', s.date]].filter((r) => r[1]).map(([k, v]) => '**' + k + ':** ' + esc(v));
   const body = m.text != null ? m.text : m.html != null ? window.EmlText.htmlToText(m.html) : '';
   const atts = m.attachments.length ? ['', '## Attachments', '', ...m.attachments.map((a) => '- ' + esc(a.name))] : [];
@@ -79,7 +80,7 @@ export async function make(id, docs, o = {}) {
   }
   if (id === 'atts') {
     const withAtts = docs.filter((d) => d.msg.attachments.length);
-    if (!withAtts.length) throw new Error(one ? 'This message has no attachments.' : 'These messages have no attachments.');
+    if (!withAtts.length) throw new Error(one ? t('eml.err.no_atts_one') : t('eml.err.no_atts'));
     const folders = stemsOf(withAtts), entries = [];
     withAtts.forEach((d, i) => {
       const names = B().uniqueNames(d.msg.attachments.map((a) => a.name), 'attachment');

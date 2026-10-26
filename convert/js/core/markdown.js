@@ -32,7 +32,7 @@ const ITEM = /^(\s*)([-*+]|\d+[.)])\s+(.*)$/;
 const FENCE = /^\s{0,3}(`{3,}|~{3,})\s*([\w-]*)/;
 
 /** Convert Markdown text to an HTML fragment (or a full page with standalone: true). */
-export function markdownToHtml(md, { standalone = false, title = 'Document' } = {}) {
+export function markdownToHtml(md, { standalone = false, title = 'Document' } = {}) { // i18n-ignore: the title written into the HTML file
   const lines = String(md).replace(/\r\n?/g, '\n').split('\n');
   const out = [];
   let i = 0;

@@ -19,53 +19,53 @@
     const tpl = T.get(id);
     if (!tpl) return;
     if (SE.doc.layout) {
-      SE.change('Change template', (p) => L.setTemplate(p, id));
-      A.status(tpl.name + ': clips kept and re-flowed');
+      SE.change(U.t('slopedit.tpl.change_template'), (p) => L.setTemplate(p, id));
+      A.status(tpl.name + ': ' + U.t('slopedit.tpl.reflowed'));
       return;
     }
     const ids = A.selectedIds().filter((x) => { const c = SE.model.clip(SE.doc, x); return c && c.kind !== 'audio'; });
     if (ids.length) {
       let n = 0;
-      SE.change('Apply template', (p) => { n = L.apply(p, id, ids); return n ? undefined : false; });
-      if (n) A.status(tpl.name + ': ' + n + ' of ' + tpl.slots.length + ' slot' + (tpl.slots.length > 1 ? 's' : '') + ' filled');
+      SE.change(U.t('slopedit.menu.apply_template'), (p) => { n = L.apply(p, id, ids); return n ? undefined : false; });
+      if (n) A.status(tpl.name + ': ' + U.t('slopedit.tpl.filled', { k: n, n: tpl.slots.length }));
       return;
     }
     const metas = R.picked();
     if (metas.length) {
       const t = U.snapFrame(SE.player ? SE.player.time : 0, SE.doc.fps);
       let n = 0;
-      SE.change('Apply template', (p) => {
+      SE.change(U.t('slopedit.menu.apply_template'), (p) => {
         const made = metas.slice(0, tpl.slots.length).map((m) => L.createMedia(p, m, t, tpl.dur));
         n = L.apply(p, id, made, { dur: tpl.dur });
       });
-      A.status(tpl.name + ': ' + n + ' item' + (n > 1 ? 's' : '') + ' placed at the playhead');
+      A.status(tpl.name + ': ' + U.t('slopedit.tpl.placed', { n }));
       return;
     }
     // Nothing chosen: an empty layout at the playhead, one track and one cell per slot. Drag bin items into the cells.
     const t0 = U.snapFrame(SE.player ? SE.player.time : 0, SE.doc.fps);
-    SE.change('Add layout', (p) => L.empty(p, id, t0));
-    A.status(tpl.name + ': ' + tpl.slots.length + ' empty slots at the playhead. Drag bin items into them (or onto the monitor cells)');
+    SE.change(U.t('slopedit.tpl.add_layout'), (p) => L.empty(p, id, t0));
+    A.status(tpl.name + ': ' + U.t('slopedit.tpl.empty_slots', { n: tpl.slots.length }));
   };
   act.clearLayout = function () {
     if (!SE.doc.layout) return;
-    SE.change('Clear layout', (p) => L.clear(p));
-    A.status('Layout cleared; the clips stay on the timeline');
+    SE.change(U.t('slopedit.tpl.clear_layout'), (p) => L.clear(p));
+    A.status(U.t('slopedit.tpl.layout_cleared_the_clips_stay'));
   };
   /** Build a random edit from options (see R.norm). Returns the plan, or false when there is nothing to use. */
   act.randomEdit = function (o) {
     const plan = R.plan(o || {}, R.pool());
-    if (!plan) { SlopUI.toast('No usable clips: import video or still images first'); return false; }
-    SE.change('Random edit', (p) => { R.build(p, plan); });
+    if (!plan) { SlopUI.toast(U.t('slopedit.tpl.no_usable_clips_import_video')); return false; }
+    SE.change(U.t('slopedit.rnd.random_edit'), (p) => { R.build(p, plan); });
     A.select([]);
     if (SE.player) SE.player.seek(0);
     SE.emit('settings', {});
-    A.status('Random edit: ' + plan.total.toFixed(1) + ' s, ' + plan.cuts.length + ' cuts, seed ' + plan.seedHex + ' (Undo restores the timeline)');
+    A.status(U.t('slopedit.tpl.random_done', { s: plan.total.toFixed(1), n: plan.cuts.length, seed: plan.seedHex }));
     return plan;
   };
   /** Same options as the last random edit with a new seed (or the given seed). */
   act.reshuffleRandom = function (seed) {
     const last = SE.doc.random;
-    if (!last) { A.status('Make a random edit first (Shift+R)'); return false; }
+    if (!last) { A.status(U.t('slopedit.tpl.make_a_random_edit_first')); return false; }
     return act.randomEdit({ target: last.target, pace: last.pace, aspect: last.aspect, size: last.size, tpl: last.tpl, switches: last.switches, layouts: last.layouts, seed: seed == null ? S.make() : seed });
   };
 })();

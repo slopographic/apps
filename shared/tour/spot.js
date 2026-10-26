@@ -69,18 +69,26 @@
     if (!current) { hole.hidden = true; tip.hidden = true; return false; }
     if (step.action === 'focus' && current.focus) { try { current.focus({ preventScroll: true }); } catch (e) { /* not focusable */ } }
     if (step.action !== 'none') current.scrollIntoView({ block: 'center', inline: 'nearest' });
-    tip.replaceChildren();
-    const h = document.createElement('b'); h.textContent = title;
-    const p = document.createElement('span'); p.textContent = text;
-    tip.append(h, p);
+    words(title, text);
     hole.hidden = false; tip.hidden = false;
     place();
     return true;
+  }
+  function words(title, text) {
+    const h = document.createElement('b'); h.textContent = title;
+    const p = document.createElement('span'); p.textContent = text;
+    tip.replaceChildren(h, p);
+  }
+  /** New words for the shown tip (a language change): nothing scrolls or moves focus. */
+  function retext(title, text) {
+    if (!current || !tip) return;
+    words(title, text);
+    place();
   }
   /** Hide every layer. The page is not touched. */
   function hide() {
     current = null;
     if (dim) { dim.hidden = true; hole.hidden = true; tip.hidden = true; }
   }
-  T.spot = { show, hide, refresh: schedule, find, visible, get target() { return current; } };
+  T.spot = { show, retext, hide, refresh: schedule, find, visible, get target() { return current; } };
 })();

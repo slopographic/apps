@@ -34,7 +34,7 @@
   /** Copy to buffer: the selection as HTML and as plain text (paragraphs joined by line breaks, as Docs copies them). */
   A.copyToBuffer = function () {
     const sel = S.sel;
-    if (!sel || O().collapsed(sel) || !SB) { toast('Select some text to copy to the buffer'); return; }
+    if (!sel || O().collapsed(sel) || !SB) { toast(S.t('docs.buf.select_first')); return; }
     const [a, f] = O().ordered(sel), paras = [], text = [];
     for (let i = a.b; i <= f.b && i < S.doc.blocks.length; i++) {
       const p = S.doc.blocks[i];
@@ -45,7 +45,7 @@
     }
     const html = paras.map((runs) => '<p>' + runs.map(runHtml).join('') + '</p>').join('');
     SB.put({ kind: 'text', formats: { 'text/html': html, 'text/plain': text.join('\n') }, source: 'docs' })
-      .then(() => toast('Copied to the buffer'), () => toast('Could not copy to the buffer'));
+      .then(() => toast(S.t('docs.buf.copied')), () => toast(S.t('docs.buf.failed')));
   };
 
   /** Inserts a parsed HTML block list at the caret: each run with its marks, a new paragraph between blocks. */

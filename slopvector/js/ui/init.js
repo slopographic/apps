@@ -46,7 +46,7 @@
     SV.resetHistory();
     SV.restoreView(recovered);
     SV.hub.init();
-    if (recovered && !/[?&]drive=/.test(location.search)) { S.savedIdx = -1; setTimeout(function () { UI.toast('Recovered document “' + S.doc.name + '” from your last session'); }, 300); }
+    if (recovered && !/[?&]drive=/.test(location.search)) { S.savedIdx = -1; setTimeout(function () { UI.toast(SV.t('vector.msg.recovered', { name: S.doc.name })); }, 300); }
     setTheme(UI.st.currentTheme);
     SV.updateCursor();
     SV.fitArtboard();

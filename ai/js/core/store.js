@@ -27,7 +27,7 @@
   }
   function blank(kind = 'chat', o = {}) {
     const now = Date.now(), p = AI.prefs;
-    return Object.assign({ id: AI.uid(), kind, title: kind === 'build' ? 'New mini-app' : 'New chat', created: now, updated: now,
+    return Object.assign({ id: AI.uid(), kind, title: AI.t(kind === 'build' ? 'ai.build.new' : 'ai.chat.new'), created: now, updated: now,
       persona: kind === 'build' ? 'builder' : p.persona, system: null, temperature: kind === 'build' ? 0.4 : p.temperature, maxTokens: kind === 'build' ? 2048 : p.maxTokens,
       tools: kind === 'build' ? false : !!p.tools, messages: [], html: null }, o);
   }
@@ -58,7 +58,7 @@
   AI.toJSON = (c) => JSON.stringify({ format: 'slop-ai-conversation', version: 1, conversation: strip(c) }, null, 2);
   AI.fromJSON = function (text) {
     const o = JSON.parse(text), c = o && o.format === 'slop-ai-conversation' ? o.conversation : o;
-    if (!c || !Array.isArray(c.messages)) throw new Error('Not a Slop AI conversation');
+    if (!c || !Array.isArray(c.messages)) throw new Error(AI.t('ai.store.not_conv'));
     return blank(c.kind || 'chat', Object.assign({}, c, { id: AI.uid() }));
   };
 })(window.AI);

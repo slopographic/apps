@@ -6,7 +6,7 @@
   'use strict';
   const NS = (g.SlopSignature = g.SlopSignature || {});
   const M = NS.model, esc = M.esc;
-  const LIST = [['classic', 'Classic'], ['side', 'Picture beside'], ['compact', 'Compact'], ['banner', 'Banner']];
+  const LIST = [['classic', 'Classic'], ['side', 'Picture beside'], ['compact', 'Compact'], ['banner', 'Banner']];   // i18n-ignore: the mail programs' own names, and the templates' words stamped into the signature
   const GREY = '#5f6368', FAINT = '#6b7079', INK = '#202124';
 
   const a = (url, text, colour) => `<a href="${esc(url)}" style="color:${colour};text-decoration:none">${esc(text)}</a>`;
@@ -66,8 +66,8 @@
   /** The plain-text signature (for mail sent as plain text), starting with the usual "-- " line. */
   function text(s) {
     const role = [s.title, s.department].filter(Boolean).join(', ');
-    const lines = [s.name, role, s.company, s.phone && `Phone ${s.phone}`, s.mobile && `Mobile ${s.mobile}`, s.email && `Email ${s.email}`,
-      s.website && `Web ${s.website}`, s.address, ...s.socials.map((x) => `${x.label} ${x.url}`), s.cta && (s.ctaHref ? `${s.cta}: ${s.ctaHref}` : s.cta), s.legal && `\n${s.legal}`].filter(Boolean);
+    const lines = [s.name, role, s.company, s.phone && `Phone ${s.phone}`, s.mobile && `Mobile ${s.mobile}`, s.email && `Email ${s.email}`,   // i18n-ignore: the mail programs' own names, and the templates' words stamped into the signature
+      s.website && `Web ${s.website}`, s.address, ...s.socials.map((x) => `${x.label} ${x.url}`), s.cta && (s.ctaHref ? `${s.cta}: ${s.ctaHref}` : s.cta), s.legal && `\n${s.legal}`].filter(Boolean);   // i18n-ignore: the mail programs' own names, and the templates' words stamped into the signature
     return lines.length ? '-- \n' + lines.join('\n') : '';
   }
 

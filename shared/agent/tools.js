@@ -17,6 +17,8 @@
   root.SlopAgentTools = api;
 })(typeof window !== 'undefined' ? window : globalThis, function () {
   'use strict';
+  /** The question a person reads before a destructive call (shared/i18n/ui/en/agent.js); the key alone where no tables are (Node). */
+  const tr = (k, v) => { const I = globalThis.SlopI18n; return I ? I.t(k, v) : k; };
   /** Tool names: letters, digits, _ . - (the WebMCP and MCP rule), at most 64 characters. */
   const NAME_RE = /^[A-Za-z0-9_.-]{1,64}$/;
   const MAX_TEXT = 60000;
@@ -82,7 +84,7 @@
         const args = input && typeof input === 'object' ? input : {};
         try {
           if (isDestructive(d, args)) {
-            const what = d.confirmText ? d.confirmText(args) : `An AI agent wants to run “${d.title || d.name}”. This may change or remove your work.`;
+            const what = d.confirmText ? d.confirmText(args) : tr('ui.agent.wants_run', { what: d.title || d.name });
             const ok = confirm ? await confirm(what, client) : false;
             if (!ok) return result('The person did not allow this action, so nothing was changed.', true);
           }

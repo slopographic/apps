@@ -1,13 +1,13 @@
-/* SlopTour: Slop CRM. Targets are ids in crm/index.html. */
+/* SlopTour: Slop CRM. Targets are ids in crm/index.html. The words are keys in crm/i18n (crm.tour.title,
+ * crm.tour.<step>_title and _text), read when the tour shows them (shared/tour/HANDOFF.md). */
 SlopTour.define({
   app: 'crm',
-  title: 'Slop CRM tour',
   steps: [
-    { id: 'views', title: 'Views', text: 'Switch between Customers, Pipeline and Follow-ups.', target: '#tab-customers' },
-    { id: 'search', title: 'Search', text: 'Find a customer by name, email, phone or address.', target: '#cSearch' },
-    { id: 'stage', title: 'Stage and category', text: 'Filter by pipeline stage, or by category.', target: '#cStage' },
-    { id: 'groups', title: 'Groups and tags', text: 'Filter the list by group or tag from this side panel.', target: '#cSide' },
-    { id: 'pipeline', title: 'Pipeline', text: 'The Pipeline tab shows your customers by stage.', target: '#tab-pipeline' },
-    { id: 'import', title: 'Import', text: 'Bring customers in from Slop Contacts.', target: '#cImport' },
+    { id: 'views', target: '#tab-customers' },
+    { id: 'search', target: '#cSearch' },
+    { id: 'stage', target: '#cStage' },
+    { id: 'groups', target: '#cSide' },
+    { id: 'pipeline', target: '#tab-pipeline' },
+    { id: 'import', target: '#cImport' },
   ],
 });

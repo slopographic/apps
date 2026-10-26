@@ -154,8 +154,8 @@
     if (!d || !d.moved) return;
     if (d.target != null && d.target !== d.slot) {
       RM.swapSlots(d.cut, d.slot, d.target);
-      M.say('Swapped slots ' + (d.slot + 1) + ' and ' + (d.target + 1) + ' of cut ' + (d.cut + 1) + '.');
-    } else if (d.target === d.slot) M.say('Panned slot ' + (d.slot + 1) + ' of cut ' + (d.cut + 1) + '. Reset position clears it.');
+      M.say(RM.t('remix.drop.swapped', { a: d.slot + 1, b: d.target + 1, cut: d.cut + 1 }));
+    } else if (d.target === d.slot) M.say(RM.t('remix.drop.panned', { slot: d.slot + 1, cut: d.cut + 1 }));
     M.redraw();
   }
   /** Start the pointer moves on the preview canvas. o: { redraw(), say(msg) }. */
@@ -180,8 +180,8 @@
     if (raw === '') return;
     e.preventDefault();
     const from = +raw, to = ci;
-    if (!RM.moveCut(from, to)) M.say('Cuts can only change places within the same layout, with the same number of slots.');
-    else M.say('Moved cut ' + (from + 1) + ' to ' + (to + 1) + '.');
+    if (!RM.moveCut(from, to)) M.say(RM.t('remix.drop.no_move'));
+    else M.say(RM.t('remix.drop.moved', { from: from + 1, to: to + 1 }));
     M.redraw();
   };
 })();

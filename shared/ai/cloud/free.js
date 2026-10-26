@@ -15,10 +15,11 @@
   'use strict';
   const K = (window.SlopAIKit = window.SlopAIKit || {});
   const C = (K.cloud = K.cloud || {});
-  const TIERS = { free: 'Free', 'free-models': 'Free models', 'free-trial': 'Free trial' };
+  const T = (k, v) => (window.SlopI18n ? SlopI18n.t(k, v) : k);
+  const TIERS = { free: 'ui.ai.cloud.tier_free', 'free-models': 'ui.ai.cloud.tier_free_models', 'free-trial': 'ui.ai.cloud.tier_free_trial' };   // the badge's key
 
   const tier = (p) => (p && p.free && TIERS[p.free.tier] ? p.free : null);
-  const label = (p) => { const f = tier(p); return f ? TIERS[f.tier] : ''; };
+  const label = (p) => { const f = tier(p); return f ? T(TIERS[f.tier]) : ''; };
 
   function priced(raw) {
     if (!raw) return false;
@@ -48,9 +49,9 @@
 
   function wait(secs) {
     const s = Math.max(1, Math.round(Number(secs) || 0));
-    if (s < 90) return `about ${s} second${s === 1 ? '' : 's'}`;
-    if (s < 90 * 60) return `about ${Math.round(s / 60)} minutes`;
-    return `about ${Math.round(s / 3600)} hour${Math.round(s / 3600) === 1 ? '' : 's'}`;
+    if (s < 90) return T('ui.ai.cloud.wait_s', { n: s });
+    if (s < 90 * 60) return T('ui.ai.cloud.wait_m', { n: Math.round(s / 60) });
+    return T('ui.ai.cloud.wait_h', { n: Math.round(s / 3600) });
   }
 
   /** The words after "too many requests": only for a provider with a free offer (and, at OpenRouter, a free model). */
@@ -59,11 +60,11 @@
     if (!f) return '';
     if (f.tier === 'free-models' && modelId && model(p, { id: modelId }) === false) return '';
     const out = [];
-    if (f.limits) out.push(`On the free tier ${p.short} allows ${f.limits}.`);
-    if (secs) out.push(`Try again in ${wait(secs)}.`);
-    else out.push(f.reset ? `Wait a minute and try again; the daily limit resets ${f.reset}.` : 'Wait a minute and try again.');
-    const alt = others(p).slice(0, 2);
-    out.push(`Or switch to ${alt.length ? 'another free provider (' + alt.join(' or ') + ') or ' : ''}a model on this device (AI settings › Models on this device, or Ollama or LM Studio on this computer).`);
+    if (f.limits) out.push(T('ui.ai.cloud.rate_limits', { name: p.short, limits: f.limits }));
+    if (secs) out.push(T('ui.ai.cloud.rate_retry', { wait: wait(secs) }));
+    else out.push(f.reset ? T('ui.ai.cloud.rate_reset', { reset: f.reset }) : T('ui.ai.cloud.err_rate_wait'));
+    const alt = others(p).slice(0, 2), I = window.SlopI18n;
+    out.push(alt.length ? T('ui.ai.cloud.rate_switch_alt', { names: I && I.list ? I.list(alt, { type: 'disjunction' }) : alt.join(' / ') }) : T('ui.ai.cloud.rate_switch'));
     return out.join(' ');
   }
 

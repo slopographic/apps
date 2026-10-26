@@ -42,7 +42,7 @@
 
   E.alphaWebm = async function (src, res, o) {
     const S = await L.probe();
-    if (!S.alphaWebm) throw new Error('This browser cannot write WebM with alpha');
+    if (!S.alphaWebm) throw new Error(CO.util.t('cutout.video.err_alpha'));
     const { w, h } = src.out, writer = V.webm.writer({ w, h, fps: src.fps });
     const cfg = { codec: 'vp09.00.10.08', width: w, height: h, alpha: 'keep', bitrate: o.bitrate || 4e6, framerate: src.fps };
     await encodeLoop(src, res, o, cfg, (chunk, meta) => writer.add(chunk, meta && meta.alphaSideData ? meta.alphaSideData : null, chunk.timestamp),
@@ -68,7 +68,7 @@
   /** Generic MP4: H.264 when the browser encodes it, else VP9 in MP4. */
   async function mp4(src, res, o, draw) {
     const S = await L.probe();
-    if (!S.mp4Codec) throw new Error('This browser cannot write MP4 video');
+    if (!S.mp4Codec) throw new Error(CO.util.t('cutout.video.err_mp4'));
     const { w, h } = src.out, isAvc = S.mp4Codec.startsWith('avc');
     const muxer = new Mp4Muxer.Muxer({
       target: new Mp4Muxer.ArrayBufferTarget(),

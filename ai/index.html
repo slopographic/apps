@@ -4,6 +4,8 @@
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="ai" data-src="shared/theme/theme.js"></script>
   <link rel="expect" href="#slop-built" blocking="render">
+  <script src="../shared/i18n/i18n.js" data-src="shared/i18n/i18n.js"></script>
+  <script src="i18n/index.js" data-src="ai/i18n/index.js"></script>
 <script src="../shared/consent/config.js"></script>
 <script src="../shared/consent/state.js"></script>
 <script src="../shared/consent/consent-mode.js"></script>
@@ -52,22 +54,22 @@
 <body>
   <div class="app" id="app">
     <header class="topbar">
-      <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home"><svg viewBox="0 0 32 32" class="brand-mark" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/></svg></a>
-      <div class="appname"><b>Slop AI</b><a class="home-link" href="../">slopographic</a></div>
-      <nav class="tabs" id="tabs" role="tablist" aria-label="Sections"></nav>
+      <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home" data-i18n-attr="title:ai.app.home;aria-label:ai.app.home"><svg viewBox="0 0 32 32" class="brand-mark" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/></svg></a>
+      <div class="appname"><b>Slop AI</b><a class="home-link" href="../">slopographic</a></div><!-- i18n-ignore -->
+      <nav class="tabs" id="tabs" role="tablist" aria-label="Sections" data-i18n-attr="aria-label:ai.app.sections"></nav>
       <div class="tb-group">
-        <button type="button" class="chip" id="modelChip" title="Model"><i class="dot"></i><span>No model</span></button>
-        <button type="button" class="sloppo" id="sloppo" title="Ask Sloppo" aria-label="Ask Sloppo"><canvas width="88" height="88"></canvas></button>
-        <button type="button" class="tb" id="btnCmd" title="Search commands (⌘K)" aria-label="Search commands" hidden></button>
-        <button type="button" class="tb" id="btnMore" title="More" aria-label="More"></button>
+        <button type="button" class="chip" id="modelChip" title="Model" data-i18n-attr="title:ai.chip.model"><i class="dot"></i><span data-i18n="ai.chip.no_model">No model</span></button>
+        <button type="button" class="sloppo" id="sloppo" title="Ask Sloppo" aria-label="Ask Sloppo" data-i18n-attr="title:ai.sloppo.ask;aria-label:ai.sloppo.ask"><canvas width="88" height="88"></canvas></button>
+        <button type="button" class="tb" id="btnCmd" title="Search commands (⌘K)" aria-label="Search commands" data-i18n-attr="title:ai.app.search_tip;aria-label:ai.app.search" hidden></button>
+        <button type="button" class="tb" id="btnMore" title="More" aria-label="More" data-i18n-attr="title:ui.more;aria-label:ui.more"></button>
       </div>
     </header>
     <main class="views" id="views">
       <div class="views-main">
-        <section class="view chat-view" id="view-chat" data-view="chat" aria-label="Chat"></section>
-        <section class="view build-view" id="view-build" data-view="build" aria-label="Build a mini-app"></section>
-        <section class="view page" id="view-models" data-view="models" aria-label="Models"></section>
-        <section class="view page" id="view-sys" data-view="sys" aria-label="System check"></section>
+        <section class="view chat-view" id="view-chat" data-view="chat" aria-label="Chat" data-i18n-attr="aria-label:ai.tab.chat"></section>
+        <section class="view build-view" id="view-build" data-view="build" aria-label="Build a mini-app" data-i18n-attr="aria-label:ai.build.hello"></section>
+        <section class="view page" id="view-models" data-view="models" aria-label="Models" data-i18n-attr="aria-label:ai.tab.models"></section>
+        <section class="view page" id="view-sys" data-view="sys" aria-label="System check" data-i18n-attr="aria-label:ai.app.view_sys"></section>
       </div>
     </main>
   </div>

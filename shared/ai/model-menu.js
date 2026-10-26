@@ -9,6 +9,7 @@
 (function () {
   'use strict';
   const K = (window.SlopAIKit = window.SlopAIKit || {});
+  const T = (k, v) => (window.SlopI18n ? SlopI18n.t(k, v) : k);   // the words: shared/i18n/ui/<code>/ai.js
   let connected = [];   // [{ provider, models: [{ id, name, note }] }], refreshed before the menu is needed
 
   async function refresh() {
@@ -34,11 +35,11 @@
       list.push({ heading: p.name + (tier ? ` · ${tier}` : '') });
       for (const m of models) {
         const free = !!F && !p.local && F.model(p, m) === true;
-        list.push({ value: `use|${p.id}|${m.id}`, label: m.name + (m.note ? ` · ${m.note}` : '') + (free ? ' · Free' : ''), keywords: free ? ['free'] : [], checked: !!cur && cur.provider.id === p.id && cur.model.id === m.id });
+        list.push({ value: `use|${p.id}|${m.id}`, label: m.name + (m.note ? ` · ${m.note}` : '') + (free ? ' · ' + T('ui.ai.menu.free') : ''), keywords: free ? ['free'] : [], checked: !!cur && cur.provider.id === p.id && cur.model.id === m.id });
       }
     }
-    list.push({ heading: 'More' }, { value: 'own', label: connected.length ? 'Add another AI account…' : 'Use your own AI account…' }, { value: 'settings', label: 'AI settings…' }, { value: 'permissions', label: 'AI permissions…' });
-    if (cur) list.push({ value: 'forget', label: `Disconnect ${cur.provider.short} (forget the key)` });
+    list.push({ heading: T('ui.more') }, { value: 'own', label: T(connected.length ? 'ui.ai.menu.add_account' : 'ui.ai.menu.own_account') }, { value: 'settings', label: T('ui.ai.menu.settings') }, { value: 'permissions', label: T('ui.ai.menu.permissions') });
+    if (cur) list.push({ value: 'forget', label: T('ui.ai.menu.disconnect', { name: cur.provider.short }) });
     return list;
   }
 
@@ -73,7 +74,7 @@
 
   function attach(P) {
     if (!window.SlopMenuButton || P.modelMenu) { if (!P.modelMenu) P.status.addEventListener('click', () => P.choose()); return; }
-    P.modelMenu = SlopMenuButton.attach(P.status, { label: 'Model', items: () => items(P), onPick: (v) => pick(P, v), search: false });
+    P.modelMenu = SlopMenuButton.attach(P.status, { label: T('ui.ai.menu.model'), items: () => items(P), onPick: (v) => pick(P, v), search: false });
     refresh();
     // the list is read again as the menu opens (a key added or forgotten in another tab); an open menu redraws with it
     const again = () => refresh().then(() => { if (P.modelMenu.isOpen()) { P.modelMenu.close(); P.modelMenu.open(); } }).catch(() => {});

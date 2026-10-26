@@ -7,18 +7,16 @@
   const NS = (g.SlopInv = g.SlopInv || {});
 
   // Plain words for each refusal code. The data layer's own message follows in brackets.
+  // words in the chosen language, read each time a refusal is shown (getters)
+  const t = (k) => (g.SlopI18n ? g.SlopI18n.t(k) : k);
   const PLAIN = {
-    insufficient_stock: 'Refused: this would take stock below zero',
-    in_use: 'Cannot delete',
-    conflict: 'Another product already uses that SKU or EAN',
-    not_found: 'That item no longer exists',
-    invalid: 'Not saved',
-    immutable: 'Stock history cannot be changed',
-    posting_required: 'Stock changes go through the stock rules only',
-    blocked: 'Blocked by another tab',
-    unavailable: 'Storage is not available in this browser',
+    get insufficient_stock() { return t('inventory.u.insufficient_stock'); }, get in_use() { return t('inventory.u.in_use'); },
+    get conflict() { return t('inventory.u.conflict'); }, get not_found() { return t('inventory.u.not_found'); }, get invalid() { return t('inventory.u.invalid'); },
+    get immutable() { return t('inventory.u.immutable'); }, get posting_required() { return t('inventory.u.posting_required'); },
+    get blocked() { return t('inventory.u.blocked'); }, get unavailable() { return t('inventory.u.unavailable'); },
   };
-  const FIELD = { sku: 'SKU', ean: 'EAN', name: 'Name', price: 'Price', taxRate: 'Tax rate', unit: 'Unit', reorderLevel: 'Reorder level', description: 'Description' };
+  const FIELD = { get sku() { return t('inventory.f.sku'); }, get ean() { return t('inventory.f.ean'); }, get name() { return t('inventory.f.name'); }, get price() { return t('inventory.f.price'); },
+    get taxRate() { return t('inventory.f.tax_rate'); }, get unit() { return t('inventory.f.unit'); }, get reorderLevel() { return t('inventory.f.reorder'); }, get description() { return t('inventory.f.description'); } };
 
   const B = g.SlopBiz;
   /** One readable line for a failed Result (SlopBiz.refusal with the inventory's words, the message in brackets). */
@@ -32,8 +30,8 @@
 
   /** A whole number from typed text, or NaN. */
   function wholeOf(v) {
-    const t = String(v ?? '').trim();
-    return /^-?\d+$/.test(t) ? Number(t) : NaN;
+    const str = String(v ?? '').trim();
+    return /^-?\d+$/.test(str) ? Number(str) : NaN;
   }
 
   /** A location name as typed, or 'main' when blank. */

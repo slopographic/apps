@@ -18,35 +18,39 @@
     const loading = E.state === 'loading' && E.loadingId === m.id, paused = E.state === 'paused' && E.loadingId === m.id;
     const v = AI.sys ? K.sysinfo.verdict(AI.sys, m) : null;
     const b = [];
-    if (loading) b.push(el('button', { type: 'button', class: 'btn sm', 'data-act': 'pause', onclick: () => E.pause() }, AI.icon('pause'), 'Pause'), el('button', { type: 'button', class: 'btn sm', 'data-act': 'cancel', onclick: () => E.cancel() }, AI.icon('x'), 'Cancel'));
-    else if (loaded) b.push(el('button', { type: 'button', class: 'btn sm primary', onclick: () => AI.setTab('chat') }, AI.icon('chat'), 'Chat'), el('button', { type: 'button', class: 'btn sm', onclick: () => E.unload() }, 'Unload'));
+    if (loading) b.push(el('button', { type: 'button', class: 'btn sm', 'data-act': 'pause', onclick: () => E.pause() }, AI.icon('pause'), AI.t('ai.models.pause')), el('button', { type: 'button', class: 'btn sm', 'data-act': 'cancel', onclick: () => E.cancel() }, AI.icon('x'), AI.t('menu.cancel')));
+    else if (loaded) b.push(el('button', { type: 'button', class: 'btn sm primary', onclick: () => AI.setTab('chat') }, AI.icon('chat'), AI.tabLabel('chat')), el('button', { type: 'button', class: 'btn sm', onclick: () => E.unload() }, AI.t('ai.models.unload')));
     else {
-      const label = paused ? 'Resume' : st.state === 'ready' || m.custom ? 'Load' : st.state === 'partial' ? 'Resume download' : 'Download';
+      const label = loadLabel(m, st, paused);
       b.push(el('button', { type: 'button', class: 'btn sm' + (v && v.level === 'no' ? '' : ' primary'), 'data-act': 'load', onclick: () => load(m, paused) }, AI.icon(st.state === 'ready' ? 'play' : 'download'), label));
-      if (paused) b.push(el('button', { type: 'button', class: 'btn sm', 'data-act': 'cancel', onclick: () => E.cancel() }, AI.icon('x'), 'Cancel'));
+      if (paused) b.push(el('button', { type: 'button', class: 'btn sm', 'data-act': 'cancel', onclick: () => E.cancel() }, AI.icon('x'), AI.t('menu.cancel')));
     }
     const isDef = AI.prefs.defaultModel === m.id;
-    b.push(el('button', { type: 'button', class: 'btn sm', 'data-act': 'default', 'aria-pressed': String(isDef), title: 'Load this model automatically when Slop AI opens', onclick: () => setDefault(m) }, AI.icon('star'), isDef ? 'Default' : 'Set default'));
-    if (st.state !== 'none' && !loading) b.push(el('button', { type: 'button', class: 'btn sm danger', 'data-act': 'delete', onclick: () => del(m) }, AI.icon('trash'), 'Delete'));
+    b.push(el('button', { type: 'button', class: 'btn sm', 'data-act': 'default', 'aria-pressed': String(isDef), title: AI.t('ai.models.default_tip'), onclick: () => setDefault(m) }, AI.icon('star'), AI.t(isDef ? 'ai.models.default' : 'ai.models.set_default')));
+    if (st.state !== 'none' && !loading) b.push(el('button', { type: 'button', class: 'btn sm danger', 'data-act': 'delete', onclick: () => del(m) }, AI.icon('trash'), AI.t('ui.delete')));
     return el('div', { class: 'm-acts' }, b);
   }
 
+  /** Resume, Load, Resume download or Download: what the card's main button does now. */
+  function loadLabel(m, st, paused) {
+    return AI.t(paused ? 'ai.models.resume' : st.state === 'ready' || m.custom ? 'ai.models.load' : st.state === 'partial' ? 'ai.chip.resume' : 'ui.download');
+  }
   async function load(m, resume) {
     const v = AI.sys ? K.sysinfo.verdict(AI.sys, m) : null;
-    if (v && v.level === 'no' && !E.isFake() && !(await window.SlopUI.confirm('This may not work', `${v.reason}. Try anyway?`, 'Try anyway'))) return;
+    if (v && v.level === 'no' && !E.isFake() && !(await window.SlopUI.confirm(AI.t('ai.models.may_fail'), AI.t('ai.models.may_fail_body', { reason: v.reason }), AI.t('ai.models.try_anyway')))) return;
     // The first model download of a visit asks the browser to keep this site's data (SlopQuota.askIfBig, once per visit).
     if (!E.isFake() && !m.custom && (statuses.get(m.id) || {}).state !== 'ready') window.SlopQuota.askIfBig((m.sizeMB || 0) * 1048576);
     const ok = await E.load(m.id, { skipConsent: !!resume });
-    if (ok) { AI.toast(m.name + ' is ready'); if (AI.prefs.defaultModel == null) setDefault(m, true); }
+    if (ok) { AI.toast(AI.t('ai.models.ready', { name: m.name })); if (AI.prefs.defaultModel == null) setDefault(m, true); }
   }
   function setDefault(m, quiet) {
     AI.prefs.defaultModel = AI.prefs.defaultModel === m.id && !quiet ? null : m.id; AI.savePrefs();
-    if (!quiet) AI.toast(AI.prefs.defaultModel ? m.name + ' loads when Slop AI opens' : 'No default model');
+    if (!quiet) AI.toast(AI.prefs.defaultModel ? AI.t('ai.models.default_on', { name: m.name }) : AI.t('ai.models.default_off'));
     render();
   }
   async function del(m) {
     const st = statuses.get(m.id) || {};
-    if (!(await window.SlopUI.confirm('Delete ' + m.name + '?', `This removes ${st.bytes ? AI.fmtBytes(st.bytes) : 'its files'} from this browser. You can download it again later.`, 'Delete', { danger: true }))) return;
+    if (!(await window.SlopUI.confirm(AI.t('ai.models.delete_q', { name: m.name }), st.bytes ? AI.t('ai.models.delete_body', { size: AI.fmtBytes(st.bytes) }) : AI.t('ai.models.delete_body_files'), AI.t('ui.delete'), { danger: true }))) return;
     await E.remove(m.id);
     if (AI.prefs.defaultModel === m.id) { AI.prefs.defaultModel = null; AI.savePrefs(); }
     await refreshStatus(); render();
@@ -58,19 +62,20 @@
     const loading = E.loadingId === m.id && (E.state === 'loading' || E.state === 'paused');
     const loaded = E.model && E.model.id === m.id && E.engine && E.engine.loaded;
     const failed = E.state === 'error' && E.loadingId === m.id;
-    const stateText = failed ? 'Failed: ' + E.error : loaded ? 'Loaded and ready' : st.state === 'ready' ? `Downloaded · ${AI.fmtBytes(st.bytes)}` : st.state === 'partial' ? `Partly downloaded · ${AI.fmtBytes(st.bytes)}` : m.custom ? 'From a folder on this computer' : 'Not downloaded';
+    const size = AI.fmtBytes(st.bytes);
+    const stateText = failed ? AI.t('ai.models.failed', { why: E.error }) : loaded ? AI.t('ai.models.loaded') : st.state === 'ready' ? AI.t('ai.models.downloaded_size', { size }) : st.state === 'partial' ? AI.t('ai.models.partial_size', { size }) : AI.t(m.custom ? 'ai.models.from_folder' : 'ai.models.not_downloaded');
     return el('article', { class: 'mcard' + (loaded ? ' loaded' : '') + (AI.focusModel === m.id ? ' focus' : ''), 'data-id': m.id },
-      el('div', { class: 'm-head' }, el('div', null, el('h3', null, m.name), el('div', { class: 'faint' }, [m.maker, m.params ? m.params + 'B parameters' : ''].filter(Boolean).join(' · '))),
-        el('div', { class: 'm-badges' }, m.id === rec ? el('span', { class: 'badge rec' }, 'Recommended') : null, m.id === recCode ? el('span', { class: 'badge rec' }, 'Best for code') : null,
-          AI.prefs.defaultModel === m.id ? el('span', { class: 'badge' }, '★ Default') : null, v ? el('span', { class: 'badge ' + v.level, title: v.reason || '' }, AI.verdictText(v)) : null)),
+      el('div', { class: 'm-head' }, el('div', null, el('h3', null, m.name), el('div', { class: 'faint' }, [m.maker, m.params ? AI.t('ai.models.params', { n: String(m.params) }) : ''].filter(Boolean).join(' · '))),
+        el('div', { class: 'm-badges' }, m.id === rec ? el('span', { class: 'badge rec' }, AI.t('ai.models.recommended')) : null, m.id === recCode ? el('span', { class: 'badge rec' }, AI.t('ai.models.best_code')) : null,
+          AI.prefs.defaultModel === m.id ? el('span', { class: 'badge' }, '★ ' + AI.t('ai.models.default')) : null, v ? el('span', { class: 'badge ' + v.level, title: v.reason || '' }, AI.verdictText(v)) : null)),
       el('p', { class: 'm-blurb' }, m.blurb),
-      el('div', { class: 'm-tags' }, m.strengths.map((s) => el('span', { class: 'tag' }, s))),
+      el('div', { class: 'm-tags' }, m.strengths.map((s) => el('span', { class: 'tag', 'data-tag': s }, AI.t('ai.models.tag_' + s.replace(/-/g, '_'))))),
       el('dl', { class: 'm-facts' },
-        el('dt', null, 'Download'), el('dd', null, m.sizeMB ? '~' + AI.fmtMB(m.sizeMB) : '—'),
-        el('dt', null, 'GPU memory'), el('dd', null, m.vramMB ? AI.fmtMB(v && v.vram || m.vramMB) : '—'),
-        el('dt', null, 'Context'), el('dd', null, Math.round(m.ctx / 1024) + 'k tokens'),
-        el('dt', null, 'Licence'), el('dd', null, m.license.url ? el('a', { href: m.license.url, target: '_blank', rel: 'noopener' }, m.license.name) : m.license.name)),
-      el('div', { class: 'm-state' + (loading ? ' on' : '') + (failed ? ' bad' : '') }, el('span', { class: 'm-st' }, loading ? (E.state === 'paused' ? 'Paused at ' + Math.round(E.progress * 100) + '%' : E.text) : stateText),
+        el('dt', null, AI.t('ai.models.size')), el('dd', null, m.sizeMB ? '~' + AI.fmtMB(m.sizeMB) : '—'),
+        el('dt', null, AI.t('ai.models.gpu_mem')), el('dd', null, m.vramMB ? AI.fmtMB(v && v.vram || m.vramMB) : '—'),
+        el('dt', null, AI.t('ai.models.context')), el('dd', null, AI.t('ai.models.ctx_k', { n: String(Math.round(m.ctx / 1024)) })),
+        el('dt', null, AI.t('ai.models.licence')), el('dd', null, m.license.url ? el('a', { href: m.license.url, target: '_blank', rel: 'noopener' }, m.license.name) : m.license.name)),
+      el('div', { class: 'm-state' + (loading ? ' on' : '') + (failed ? ' bad' : '') }, el('span', { class: 'm-st' }, loading ? (E.state === 'paused' ? AI.t('ai.models.paused_at', { pct: Math.round(E.progress * 100) }) : E.text) : stateText),
         loading ? el('div', { class: 'pbar' }, el('i', { style: `width:${Math.round(E.progress * 100)}%` })) : null),
       el('div', { class: 'faint mono m-id' }, m.loadId || (AI.sys ? K.catalog.idFor(m, AI.sys) : m.id)),
       actions(m, st));
@@ -80,7 +85,7 @@
     let total = 0; for (const s of statuses.values()) total += s.bytes || 0;
     const est = await window.SlopQuota.estimate();
     const box = AI.$('mUsage');
-    if (box) box.textContent = `Models use ${AI.fmtBytes(total)} on this device` + (est.quota ? ` · ${AI.fmtBytes(est.quota - (est.usage || 0))} free for this site` : '');
+    if (box) box.textContent = est.quota ? AI.t('ai.models.usage_free', { size: AI.fmtBytes(total), free: AI.fmtBytes(est.quota - (est.usage || 0)) }) : AI.t('ai.models.usage', { size: AI.fmtBytes(total) });
     paintStorage(est);
   }
   /** Storage: each downloaded model with its size and a Delete button (the same cache the engine uses), and a plain
@@ -92,11 +97,11 @@
     const total = rows.reduce((n, r) => n + (r.st.bytes || 0), 0);
     const free = est && est.quota ? est.quota - (est.usage || 0) : null;
     body.replaceChildren(
-      free != null && free < LOW_BYTES ? el('p', { class: 'msg err', id: 'mFull', role: 'alert' }, `Storage is full for this site (${AI.fmtBytes(Math.max(0, free))} left). To free space, delete a model below, or use Slop Drive ▸ Storage ▸ Clear local cache. Then try again.`) : null,
-      el('p', { class: 'faint' }, rows.length ? `Downloaded models use ${AI.fmtBytes(total)} in this browser. Deleting one removes only its files; you can download it again.` : 'No model is stored in this browser yet.'),
+      free != null && free < LOW_BYTES ? el('p', { class: 'msg err', id: 'mFull', role: 'alert' }, AI.t('ai.models.full', { left: AI.fmtBytes(Math.max(0, free)) })) : null,
+      el('p', { class: 'faint' }, rows.length ? AI.t('ai.models.stored', { size: AI.fmtBytes(total) }) : AI.t('ai.models.none_stored')),
       rows.length ? el('table', { class: 'mtable' }, el('tbody', null, rows.map(({ m, st }) => el('tr', { 'data-id': m.id },
-        el('th', { scope: 'row' }, m.name), el('td', null, st.state === 'partial' ? 'Partly downloaded' : 'Downloaded'), el('td', { class: 'num' }, AI.fmtBytes(st.bytes)),
-        el('td', null, el('button', { type: 'button', class: 'btn sm danger', 'data-act': 'delete-storage', onclick: () => del(m) }, AI.icon('trash'), 'Delete')))))) : null);
+        el('th', { scope: 'row' }, m.name), el('td', null, AI.t(st.state === 'partial' ? 'ai.models.partial' : 'ai.models.downloaded')), el('td', { class: 'num' }, AI.fmtBytes(st.bytes)),
+        el('td', null, el('button', { type: 'button', class: 'btn sm danger', 'data-act': 'delete-storage', onclick: () => del(m) }, AI.icon('trash'), AI.t('ui.delete'))))))) : null);
   }
 
   async function importDisk() {
@@ -112,8 +117,8 @@
       files = await AI.intake.pickModelFolder(); // the intake's folder picker (part 'ai.model', ui/intake.js)
       if (!files.length) return;
     }
-    try { AI.toast('Importing the model folder…', 6000); const id = await K.models.importFolder(files); await refreshStatus(); render(); AI.toast('Imported ' + id.slice(6)); await E.load(id, { skipConsent: true }); }
-    catch (e) { window.SlopUI.alert('Could not use this folder', e.message); }
+    try { AI.toast(AI.t('ai.models.importing'), 6000); const id = await K.models.importFolder(files); await refreshStatus(); render(); AI.toast(AI.t('ai.models.imported', { name: id.slice(6) })); await E.load(id, { skipConsent: true }); }
+    catch (e) { window.SlopUI.alert(AI.t('ai.models.folder_failed'), e.message); }
   }
 
   async function render() {
@@ -122,12 +127,12 @@
     const rec = AI.recommended('chat'), recCode = AI.recommended('code');
     v.textContent = '';
     v.append(el('div', { class: 'page-in' },
-      el('div', { class: 'page-head' }, el('div', null, el('h1', null, 'Models'), el('p', { class: 'lead' }, E.isFake() ? 'Demo engine: downloads are simulated and replies are canned. Switch to the real engine in the ⋯ menu.' : 'Each model downloads once from huggingface.co after you click Download, then runs offline on your GPU. Your chats never leave your device.'),
+      el('div', { class: 'page-head' }, el('div', null, el('h1', null, AI.tabLabel('models')), el('p', { class: 'lead' }, AI.t(E.isFake() ? 'ai.models.lead_demo' : 'ai.models.lead')),
         el('p', { class: 'faint', id: 'mUsage' }, '…')),
-      el('div', { class: 'head-acts' }, el('button', { type: 'button', class: 'btn', id: 'btnDisk', onclick: importDisk, disabled: E.isFake() }, AI.icon('folder'), 'Load from disk…'),
-        !AI.sys ? el('button', { type: 'button', class: 'btn', onclick: () => AI.setTab('sys') }, 'Check my PC') : null)),
+      el('div', { class: 'head-acts' }, el('button', { type: 'button', class: 'btn', id: 'btnDisk', onclick: importDisk, disabled: E.isFake() }, AI.icon('folder'), AI.t('ai.models.from_disk')),
+        !AI.sys ? el('button', { type: 'button', class: 'btn', onclick: () => AI.setTab('sys') }, AI.t('ai.models.check_pc')) : null)),
       el('div', { class: 'mgrid' }, all().map((m) => card(m, rec, recCode))),
-      el('section', { class: 'mstore', id: 'mStorage', 'aria-labelledby': 'mStorageH' }, el('h2', { id: 'mStorageH' }, 'Storage'), el('div', { id: 'mStorageBody' }, '…'))));
+      el('section', { class: 'mstore', id: 'mStorage', 'aria-labelledby': 'mStorageH' }, el('h2', { id: 'mStorageH' }, AI.t('ai.models.storage')), el('div', { id: 'mStorageBody' }, '…'))));
     const f = v.querySelector('.mcard.focus'); if (f) { f.scrollIntoView({ block: 'center' }); AI.focusModel = null; }
     usage();
   }
@@ -148,6 +153,7 @@
   AI.on('engine', onEngine);
   AI.on('sys', () => { if (AI.tab === 'models') render(); });
   AI.on('tab', ({ tab }) => { if (tab === 'models') AI.renderModels(); });
+  AI.onLang(() => { if (AI.tab === 'models') render(); });
   /** Menu rows for a model card (the right-click menu): the same actions as its buttons. */
   AI.modelItems = function (id) {
     const m = all().find((x) => x.id === id);
@@ -156,16 +162,15 @@
     const loaded = E.model && E.model.id === m.id && E.engine && E.engine.loaded;
     const loading = E.state === 'loading' && E.loadingId === m.id, paused = E.state === 'paused' && E.loadingId === m.id;
     const out = [];
-    if (loading) out.push({ label: 'Pause', act: () => E.pause() }, { label: 'Cancel', act: () => E.cancel() });
-    else if (loaded) out.push({ label: 'Chat with this model', act: () => AI.setTab('chat') }, { label: 'Unload', act: () => E.unload() });
+    if (loading) out.push({ label: AI.t('ai.models.pause'), act: () => E.pause() }, { label: AI.t('menu.cancel'), act: () => E.cancel() });
+    else if (loaded) out.push({ label: AI.t('ai.models.chat_with'), act: () => AI.setTab('chat') }, { label: AI.t('ai.models.unload'), act: () => E.unload() });
     else {
-      const label = paused ? 'Resume' : st.state === 'ready' || m.custom ? 'Load' : st.state === 'partial' ? 'Resume download' : 'Download';
-      out.push({ label, act: () => load(m, paused) });
-      if (paused) out.push({ label: 'Cancel', act: () => E.cancel() });
+      out.push({ label: loadLabel(m, st, paused), act: () => load(m, paused) });
+      if (paused) out.push({ label: AI.t('menu.cancel'), act: () => E.cancel() });
     }
     const isDef = AI.prefs.defaultModel === m.id;
-    out.push('-', { label: isDef ? 'Clear default' : 'Set as default', act: () => setDefault(m) });
-    if (st.state !== 'none' && !loading) out.push({ label: 'Delete…', act: () => del(m) });
+    out.push('-', { label: AI.t(isDef ? 'ai.models.clear_default' : 'ai.models.set_as_default'), act: () => setDefault(m) });
+    if (st.state !== 'none' && !loading) out.push({ label: AI.t('ai.chat.delete_dots'), act: () => del(m) });
     return out;
   };
 })(window.AI);

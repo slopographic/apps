@@ -28,6 +28,12 @@
   const skipIfNoGL = (fn) => async () => { if (hasGL) await fn(); };
 
   describe('Slop 3D files (no WebGL needed)', () => {
+    it('the Mesh button stays hidden outside edit mode (.actions display must not override hidden)', async () => {
+      await openApp();
+      const b = doc().getElementById('btnMesh');
+      expect(b.hidden).toBe(true);
+      expect(app().getComputedStyle(b).display).toBe('none');
+    }, { timeout: 60000 });
     it('opens a .s3d record from Slop Drive with ?drive= and names the scene after it', async () => {
       await openApp();
       const scene = docNow();

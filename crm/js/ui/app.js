@@ -51,7 +51,7 @@
   async function boot() {
     const ready = await S.store.ready();
     if (!ready.ok) {
-      $('boot').textContent = `Storage is not available here: ${ready.message}. Nothing can be saved in this window.`;
+      $('boot').textContent = g.SlopI18n ? g.SlopI18n.t('crm.app.storage', { why: ready.message }) : ready.message;
       return;
     }
     for (const v of Object.values(NS.views)) if (v.mount) v.mount();
@@ -59,7 +59,7 @@
     // SlopTabs (shared/ui/tabs.js) marks the tabs and gives them the arrow keys; the views and the split are this file's
     tabs = g.SlopTabs.mount(document.querySelector('.tabs'), { select: (n) => show(n), panel: () => null });
     // a phone: the customer is a bottom sheet over the list (shared/ui/sheet.js); its ×, Escape, a tap outside or a swipe closes it
-    if (g.SlopSheet) sheet = g.SlopSheet.attach({ root: $('main'), panel: $('view-customer'), side: 'bottom', phone: '(max-width: 959px)', label: 'Customer details',
+    if (g.SlopSheet) sheet = g.SlopSheet.attach({ root: $('main'), panel: $('view-customer'), side: 'bottom', phone: '(max-width: 959px)', label: NS.tr('crm.app.sheet'),
       onChange: (open, why) => { if (!open && why !== 'api' && why !== 'wide' && NS.state.sheet) close(); } });
     S.store.subscribe(() => refreshSoon());
     if (WIDE && WIDE.addEventListener) WIDE.addEventListener('change', () => show(NS.state.view, NS.state.current));
@@ -68,6 +68,7 @@
     const start = TABS.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'customers';
     await show(start);
     $('boot').hidden = true;
+    if (g.SlopI18n) g.SlopI18n.on(() => render());   // the open views in the new language
   }
 
   /** Closes the customer detail: back to the list on a wide screen, to the tab it was opened from otherwise. */

@@ -12,8 +12,8 @@
   const amount = (distance, rateMinor) => Math.round(distance * rateMinor);
   /** The expense's description: "Mileage: Leeds to York and back, 42 km at 0.45 (client visit)". */
   function describe({ from, to, distance, unit, rateText, purpose, roundTrip }) {
-    const route = [from, to].filter(Boolean).join(' to ') + (roundTrip ? ' and back' : '');
-    return `Mileage: ${route ? route + ', ' : ''}${distance} ${unit} at ${rateText}${purpose ? ` (${purpose})` : ''}`.slice(0, 300);
+    const route = [from, to].filter(Boolean).join(' to ') + (roundTrip ? ' and back' : '');   // i18n-ignore: CSV columns and the claim text stored on the expense (records stay as written)
+    return `Mileage: ${route ? route + ', ' : ''}${distance} ${unit} at ${rateText}${purpose ? ` (${purpose})` : ''}`.slice(0, 300);   // i18n-ignore: CSV columns and the claim text stored on the expense (records stay as written)
   }
   NS.mileage = { amount, describe, parseDistance };
 })(typeof window !== 'undefined' ? window : globalThis);

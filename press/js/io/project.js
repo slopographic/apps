@@ -18,7 +18,8 @@
     d.assets = {}; d.assetIndex = index;
     files.unshift({ name: 'mimetype', data: 'application/x-slop-press', store: true },
       { name: 'document.json', data: JSON.stringify(d) },
-      { name: 'manifest.json', data: JSON.stringify({ app: 'Slop Press', format: 1, created: new Date().toISOString(), pages: doc.pages.length, size: doc.size }) });
+      { name: 'manifest.json', data: JSON.stringify({ app: 'Slop Press', // i18n-ignore: file format
+        format: 1, created: new Date().toISOString(), pages: doc.pages.length, size: doc.size }) });
     return Z.write(files).then(function (b) { return new Blob([b], { type: 'application/x-slop-press' }); });
   };
   /** Parses .slpress bytes (or a bare JSON document) into a document object. */
@@ -39,11 +40,11 @@
       S.doc.name = name;
       return IO.projectBlob().then(function (b) {
         window.SlopUI.download(b, name + '.slpress');
-        S.fileName = name + '.slpress'; S.dirty = false; PR.emit('commit', 'save'); U.toast('Saved ' + name + '.slpress');
+        S.fileName = name + '.slpress'; S.dirty = false; PR.emit('commit', 'save'); U.toast(U.t('press.io.saved', { name: name + '.slpress' }));
         return b;
       });
     };
-    if (ask || !S.fileName) return window.SlopUI.prompt('Save As', 'File name', IO.baseName()).then(function (n) { if (n) return go(n.replace(/\.slpress$/i, '')); });
+    if (ask || !S.fileName) return window.SlopUI.prompt(U.t('press.io.save_as_title'), U.t('press.io.file_name'), IO.baseName()).then(function (n) { if (n) return go(n.replace(/\.slpress$/i, '')); });
     return go(IO.baseName());
   };
   /** Opens a document object (after fonts and images are ready the view re-lays out by itself). */
@@ -57,12 +58,12 @@
   /** Opens any file: .slpress/.json project, or creates a document around an image / text file. */
   IO.openAny = function (file) {
     var name = file.name || 'Untitled';
-    if (/\.(slpress|json)$/i.test(name) || /slop-press|zip/.test(file.type)) return file.arrayBuffer().then(function (b) { return IO.openBytes(new Uint8Array(b), name); }).then(function () { U.toast('Opened ' + name); });
+    if (/\.(slpress|json)$/i.test(name) || /slop-press|zip/.test(file.type)) return file.arrayBuffer().then(function (b) { return IO.openBytes(new Uint8Array(b), name); }).then(function () { U.toast(U.t('press.io.opened', { name: name })); });
     if (/^image\//.test(file.type) || /^text\//.test(file.type) || /\.(txt|md)$/i.test(name) || file.type === 'application/pdf') {
       var M = PR.model, doc = M.create({ name: name.replace(/\.[^.]+$/, ''), pages: 1, facing: false });
       return IO.openDoc(doc).then(function () { return PR.place.files([file], { fill: true }); });
     }
-    U.toast('Slop Press cannot open ' + (file.type || name));
+    U.toast(U.t('press.io.cannot_open', { name: file.type || name }));
     return Promise.resolve();
   };
   /** File ▸ Open…: a source of the one intake (io/intake.js). */

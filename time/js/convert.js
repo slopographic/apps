@@ -36,7 +36,7 @@
       const t = Z.localParts(zone, instant);
       return {
         zone, city: Z.cityOf(zone), time: `${pad(t.h)}:${pad(t.mi)}`,
-        day: `${Z.WEEKDAYS[t.wd]} ${t.d} ${Z.MONTHS[t.mo - 1]}`,
+        day: Z.dayText(t),
         dayShift: Math.round((Date.UTC(t.y, t.mo - 1, t.d) - sourceDay) / DAY),
         gmt: Z.gmtLabel(Z.offsetMinutes(zone, instant)),
       };
@@ -44,17 +44,18 @@
     return { instant, rows };
   }
 
+  const tr = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
   function fmtHours(minutes) {
     const a = Math.abs(minutes), h = Math.floor(a / 60), m = a % 60;
-    if (!m) return h === 1 ? '1 hour' : `${h} hours`;
-    return h ? `${h} h ${m} min` : `${m} min`;
+    if (!m) return tr('time.conv.hours', { n: h });
+    return h ? tr('time.conv.h_min', { h: String(h), m: String(m) }) : tr('time.conv.min', { m: String(m) });
   }
 
   function difference(a, b, ms) {
     const minutes = Z.offsetMinutes(b, ms) - Z.offsetMinutes(a, ms);
     let text;
-    if (!minutes) text = `${Z.cityOf(b)} and ${Z.cityOf(a)} are on the same clock time`;
-    else text = `${Z.cityOf(b)} is ${fmtHours(minutes)} ${minutes > 0 ? 'ahead of' : 'behind'} ${Z.cityOf(a)}`;
+    if (!minutes) text = tr('time.conv.same', { a: Z.cityOf(a), b: Z.cityOf(b) });
+    else text = tr(minutes > 0 ? 'time.conv.ahead' : 'time.conv.behind', { a: Z.cityOf(a), b: Z.cityOf(b), hours: fmtHours(minutes) });
     return { minutes, text };
   }
 

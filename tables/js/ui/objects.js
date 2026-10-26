@@ -9,6 +9,7 @@ import { openChartDialog } from './chart-dialog.js';
 import { openPivotDialog } from './pivot-dialog.js';
 import { writePivot, pivotAt } from '../objects/pivot-write.js';
 import { parseRange, quoteSheet, rangeText } from '../engine/refs.js';
+import { t, onLang } from '../i18n.js';
 
 /** Refreshes one pivot table, or every one in the workbook. One undo step. Resolves the count refreshed. */
 export function refresh(only = null) {
@@ -20,8 +21,8 @@ export function refresh(only = null) {
       try { writePivot(wb, sh, pv); n++; } catch (e) { errors.push(`${sh.name}: ${e.message}`); }
     }
   }));
-  if (errors.length) window.SlopUI.alert('Could not refresh', errors.join('\n'));
-  else toast(n === 1 ? 'Pivot table refreshed' : n ? `${n} pivot tables refreshed` : 'There are no pivot tables to refresh');
+  if (errors.length) window.SlopUI.alert(t('tables.pivot.refresh_failed'), errors.join('\n'));
+  else toast(n ? t('tables.pivot.refreshed', { n }) : t('tables.pivot.none_to_refresh'));
   redraw();
   return n;
 }
@@ -41,22 +42,22 @@ export const editChart = (ch = charts.current()) => (ch ? openChartDialog(ch) : 
 export const insertPivot = () => openPivotDialog(null);
 
 export const commands = () => [
-  { id: 'insert.chart', title: 'Chart…', group: 'Insert', run: insertChart },
-  { id: 'insert.pivot', title: 'Pivot table…', group: 'Insert', run: insertPivot },
-  { id: 'data.refreshPivots', title: 'Refresh pivot tables', group: 'Insert', run: () => refresh() },
+  { id: 'insert.chart', tk: 'insert_chart', group: 'insert', run: insertChart },
+  { id: 'insert.pivot', tk: 'insert_pivot', group: 'insert', run: insertPivot },
+  { id: 'data.refreshPivots', tk: 'refresh_pivots', group: 'insert', run: () => refresh() },
 ];
 
 /** Context menu rows for a cell in a pivot table (null when it is not in one). */
 export function pivotItems(r, c) {
   const sh = sheet(), pv = pivotAt(sh, r, c);
   if (!pv) return null;
-  return [{ label: 'Refresh pivot table', act: () => refresh(pv.id) }, { label: 'Edit pivot table…', act: () => openPivotDialog(pv, sh) },
-    { label: 'Delete pivot table', act: () => removePivot(pv.id) }];
+  return [{ label: t('tables.ctx.pivot_refresh'), act: () => refresh(pv.id) }, { label: t('tables.ctx.pivot_edit'), act: () => openPivotDialog(pv, sh) },
+    { label: t('tables.ctx.pivot_delete'), act: () => removePivot(pv.id) }];
 }
 /** Context menu rows for a chart. */
 export function chartItems(id) {
   charts.select(id);
-  return [{ label: 'Edit chart…', act: () => editChart() }, { label: 'Delete chart', act: () => charts.remove(id) }];
+  return [{ label: t('tables.ctx.chart_edit'), act: () => editChart() }, { label: t('tables.chart.delete'), act: () => charts.remove(id) }];
 }
 
 /** After a sheet rename: sources that named the old sheet name the new one. */
@@ -72,21 +73,21 @@ export function renamed(wb, oldName, newName) {
 }
 
 /* ---- sidebar ---- */
-let sideKey = '';
+let sideKey = '', langSeq = 0;
 export function renderSide() {
   const list = $('sideObjects');
   if (!list || !S.wb) return;
-  const sh = sheet(), key = JSON.stringify([S.si, (sh.charts || []).map((c) => [c.id, c.title, c.type]), (sh.pivots || []).map((p) => p.id)]);
+  const sh = sheet(), key = JSON.stringify([langSeq, S.si, (sh.charts || []).map((c) => [c.id, c.title, c.type]), (sh.pivots || []).map((p) => p.id)]);
   if (key === sideKey) return;
   sideKey = key;
   const li = (...kids) => { const e = document.createElement('li'); e.className = 'side-obj'; e.append(...kids); return e; };
   const btn = (cls, text, title, fn) => { const b = document.createElement('button'); b.type = 'button'; b.className = cls; b.textContent = text; b.title = title; b.addEventListener('click', fn); return b; };
   const rows = [
-    ...(sh.charts || []).map((ch) => li(btn('side-item', (ch.title || 'Untitled chart') + ' · ' + ch.type, 'Select this chart', () => reveal(ch.id)))),
-    ...(sh.pivots || []).map((pv, i) => li(btn('side-item', 'Pivot table ' + (i + 1), 'Select this pivot table', () => { S.sel = { r: pv.at.r, c: pv.at.c, er: pv.at.r + (pv.extent ? pv.extent.rows - 1 : 0), ec: pv.at.c + (pv.extent ? pv.extent.cols - 1 : 0) }; redraw(); }),
-      btn('side-mini', 'Refresh', 'Refresh this pivot table', () => refresh(pv.id)))),
+    ...(sh.charts || []).map((ch) => li(btn('side-item', (ch.title || t('tables.side.untitled_chart')) + ' · ' + t(`tables.chart.type_${ch.type}`), t('tables.side.select_chart'), () => reveal(ch.id)))),
+    ...(sh.pivots || []).map((pv, i) => li(btn('side-item', t('tables.side.pivot_n', { n: i + 1 }), t('tables.side.select_pivot'), () => { S.sel = { r: pv.at.r, c: pv.at.c, er: pv.at.r + (pv.extent ? pv.extent.rows - 1 : 0), ec: pv.at.c + (pv.extent ? pv.extent.cols - 1 : 0) }; redraw(); }),
+      btn('side-mini', t('tables.side.refresh'), t('tables.side.refresh_pivot'), () => refresh(pv.id)))),
   ];
-  if (!rows.length) { const e = document.createElement('span'); e.className = 'side-empty'; e.textContent = 'None on this sheet'; rows.push(li(e)); }
+  if (!rows.length) { const e = document.createElement('span'); e.className = 'side-empty'; e.textContent = t('tables.side.none_here'); rows.push(li(e)); }
   list.replaceChildren(...rows);
 }
 
@@ -100,6 +101,7 @@ function reveal(id) {
 }
 
 export function init() {
+  onLang(() => { langSeq++; renderSide(); });
   charts.init({ edit: (ch) => editChart(ch) });
   const ins = $('sideInsert');
   if (ins) {

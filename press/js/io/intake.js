@@ -12,7 +12,7 @@
   IN.RULES = {
     types: ['image/*', 'text/*', 'application/pdf', 'font/*', 'application/x-font-ttf', 'application/font-sfnt', 'application/x-slop-press', 'application/json', 'application/zip'],
     exts: ['.slpress', '.json', '.txt', '.md', '.csv', '.pdf', '.ttf', '.otf'],
-    noun: 'an image, text, PDF, font or .slpress file',
+    get noun() { return PR.util.t('press.io.intake_noun'); },
   };
   var DRIVE_OPEN = ['application/x-slop-press', 'application/zip', 'application/json', 'image/*', 'text/*', 'application/pdf', 'application/octet-stream'];
   var DRIVE_PLACE = ['image/*', 'text/*', 'application/pdf'];
@@ -43,8 +43,8 @@
   IN.open = function () { return SI().pick({ to: 'press', mode: 'new', multiple: false, accept: OPEN_ACCEPT }); };
   /** File ▸ Place… (into `frame` when given: one picture). */
   IN.place = function (frame) { return SI().pick({ to: 'press', mode: 'add', multiple: !frame, accept: PLACE_ACCEPT, data: { frame: frame || null } }); };
-  IN.openFromDrive = function () { return SI().fromDrive({ to: 'press', mode: 'new', title: 'Open from Slop Drive' }); };
-  IN.placeFromDrive = function () { return SI().fromDrive({ to: 'press', mode: 'add', accept: DRIVE_PLACE, title: 'Place from Slop Drive' }); };
+  IN.openFromDrive = function () { return SI().fromDrive({ to: 'press', mode: 'new', title: PR.util.t('press.io.open_drive_title') }); };
+  IN.placeFromDrive = function () { return SI().fromDrive({ to: 'press', mode: 'add', accept: DRIVE_PLACE, title: PR.util.t('press.io.place_drive_title') }); };
   /** What the page was opened with (?drive=<id>, a PWA launch): opened as a document. Resolves true when something opened. */
   IN.launch = function () {
     if (!SI() || !SI().launch) return Promise.resolve(false);

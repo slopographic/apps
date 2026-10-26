@@ -8,6 +8,7 @@ import { htmlToText } from './html-text.js';
 import { rowsToCsv } from './csv.js';
 import { uniqueName } from '../io/files.js';
 import '../../../shared/sanitize/sanitize.js';
+import { tr } from './i18n.js';
 
 const SAFE = () => globalThis.SlopSanitize;
 const PURIFY = new URL('../../../vendor/dompurify/purify.min.js', import.meta.url).href;
@@ -44,12 +45,12 @@ const CSP = "default-src 'none'; img-src data:; style-src 'unsafe-inline'; font-
 
 /** The message in a file: headers, bodies and attachments, as EmlMime reads them. Bytes in, record out. */
 export async function readEml(bytes) {
-  return (await reader('EmlMime')).parse(bytes);
+  return (await reader('EmlMime')).parse(bytes); // i18n-ignore: reader globals and the CSV header written into the file
 }
 
 /** A message as one HTML page: the address and date lines, then the HTML body (or the plain text, in a <pre>). */
 export async function emlToHtml(bytes) {
-  const M = await reader('EmlMime'), msg = M.parse(bytes), s = M.summary(msg);
+  const M = await reader('EmlMime'), msg = M.parse(bytes), s = M.summary(msg); // i18n-ignore: reader globals and the CSV header written into the file
   const rows = [['From', s.from], ['To', s.to], ['Cc', s.cc], ['Date', s.date], ['Subject', s.subject]]
     .filter(([, v]) => v)
     .map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('');
@@ -68,7 +69,7 @@ export async function emlToHtml(bytes) {
 /** A message as plain text: the address and date lines, a blank line, then the text body (the HTML body's text when there
  *  is no plain text part). */
 export async function emlToText(bytes) {
-  const M = await reader('EmlMime'), msg = M.parse(bytes), s = M.summary(msg);
+  const M = await reader('EmlMime'), msg = M.parse(bytes), s = M.summary(msg); // i18n-ignore: reader globals and the CSV header written into the file
   const head = [['From', s.from], ['To', s.to], ['Cc', s.cc], ['Date', s.date], ['Subject', s.subject]]
     .filter(([, v]) => v).map(([k, v]) => `${k}: ${v}`).join('\n');
   const body = msg.text != null ? msg.text : (msg.html ? htmlToText(msg.html) : '');
@@ -78,7 +79,7 @@ export async function emlToText(bytes) {
 /** The attachments of a message as one ZIP (names kept, duplicates numbered). Throws when there are none. */
 export async function emlAttachmentsZip(bytes) {
   const msg = await readEml(bytes);
-  if (!msg.attachments || !msg.attachments.length) throw new Error('This message has no attachments.');
+  if (!msg.attachments || !msg.attachments.length) throw new Error(tr('convert.mail.no_attachments'));
   const taken = new Set();
   const entries = msg.attachments.map((a, i) => {
     const name = uniqueName(a.name || `attachment-${i + 1}`, taken);
@@ -89,7 +90,7 @@ export async function emlAttachmentsZip(bytes) {
 
 /** The events of an iCalendar file as rows: title, start, end, all day, location, notes. Returns { rows, warnings }. */
 export async function icsRows(text) {
-  const { events, warnings } = (await reader('SlopIcs')).parse(text);
+  const { events, warnings } = (await reader('SlopIcs')).parse(text); // i18n-ignore: reader globals and the CSV header written into the file
   const iso = (ms) => new Date(ms).toISOString().replace('.000Z', 'Z');
   const rows = events.map((e) => (e.allDay
     ? [e.title, e.startDay, e.endDay, 'yes', e.location || '', e.notes || '']
@@ -100,19 +101,19 @@ export async function icsRows(text) {
 /** The events as CSV, with a header line. */
 export async function icsToCsv(text) {
   const { rows } = await icsRows(text);
-  return rowsToCsv([['Title', 'Start', 'End', 'All day', 'Location', 'Notes'], ...rows]);
+  return rowsToCsv([['Title', 'Start', 'End', 'All day', 'Location', 'Notes'], ...rows]); // i18n-ignore: reader globals and the CSV header written into the file
 }
 
 /** The events as JSON: the records as the calendar reads them, and the warnings about what was skipped. */
 export async function icsToJson(text) {
-  const { events, warnings } = (await reader('SlopIcs')).parse(text);
+  const { events, warnings } = (await reader('SlopIcs')).parse(text); // i18n-ignore: reader globals and the CSV header written into the file
   return JSON.stringify({ events: events.map(({ title, uid, allDay, startDay, endDay, start, end, location, notes }) => ({ title, uid, allDay, startDay, endDay, start: start ?? null, end: end ?? null, location, notes })), warnings }, null, 2) + '\n';
 }
 
 /** An XML document as JSON: each element is { name, attributes?, text?, children? }. Throws when the XML is not well formed. */
 export function xmlToJson(text) {
   const doc = new DOMParser().parseFromString(SAFE().xmlText(text), 'application/xml');
-  if (doc.getElementsByTagName('parsererror').length) throw new Error('This XML could not be read: check that it is well formed.');
+  if (doc.getElementsByTagName('parsererror').length) throw new Error(tr('convert.mail.bad_xml'));
   const node = (el) => {
     const o = { name: el.localName || el.tagName };
     if (el.attributes.length) o.attributes = Object.fromEntries([...el.attributes].map((a) => [a.name, a.value]));

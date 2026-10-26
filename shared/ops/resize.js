@@ -5,24 +5,25 @@
  * specOf(options) turns these options into Slop Resize's spec (size.js normalize). */
 import { register } from './registry.js';
 import { scripts, stem, pictureKind, MIME, IMAGE_IN } from './load.js';
+import { opt } from './i18n.js';
 
 const g = globalThis;
 const FILES = ['resize/js/core/size.js', 'resize/js/core/format.js', 'resize/js/image/image.js'];
-const ANCHORS = [['center', 'Centre'], ['top', 'Top'], ['bottom', 'Bottom'], ['left', 'Left'], ['right', 'Right'], ['top-left', 'Top left'], ['top-right', 'Top right'], ['bottom-left', 'Bottom left'], ['bottom-right', 'Bottom right']];
+const R = 'ui.ops.resize.';
 
 export const RESIZE_OPTIONS = [
-  { key: 'mode', type: 'select', label: 'Resize by', value: 'size', options: [['size', 'Width and height'], ['long', 'Longest side'], ['scale', 'Percentage']] },
-  { key: 'width', type: 'number', label: 'Width (px)', min: 0, max: 16384, hint: 'Blank: follows the height and the picture’s proportions.' },
-  { key: 'height', type: 'number', label: 'Height (px)', min: 0, max: 16384 },
-  { key: 'long', type: 'number', label: 'Longest side (px)', min: 1, max: 16384, value: 1600 },
-  { key: 'scale', type: 'number', label: 'Percentage', min: 1, max: 400, value: 50 },
-  { key: 'fit', type: 'select', label: 'Fit', value: 'fit', options: [['fit', 'Fit in the box (adds a border)'], ['cover', 'Fill the box (crops)'], ['within', 'Fit inside, no border'], ['stretch', 'Stretch to the box']] },
-  { key: 'anchor', type: 'select', label: 'Keep (crop and border position)', value: 'center', options: ANCHORS },
-  { key: 'background', type: 'select', label: 'Border and see-through areas', value: 'transparent', options: [['transparent', 'See-through (white for JPG)'], ['color', 'A colour']] },
-  { key: 'bgColor', type: 'color', label: 'Colour', value: '#ffffff' },
-  { key: 'format', type: 'select', label: 'Format', value: 'keep', options: [['keep', 'Keep the format'], ['jpg', 'JPG'], ['png', 'PNG'], ['webp', 'WebP'], ['avif', 'AVIF']] },
-  { key: 'quality', type: 'range', label: 'Quality', min: 10, max: 100, value: 90 },
-  { key: 'maxKB', type: 'number', label: 'Largest file size (KB)', min: 0, max: 1e6, hint: 'Blank for no limit. JPG, WebP and AVIF lower their quality to fit.' },
+  opt(R + 'mode', { key: 'mode', type: 'select', value: 'size', options: ['size', 'long', 'scale'] }),
+  opt(R + 'width', { key: 'width', type: 'number', min: 0, max: 16384, hint: true }),
+  opt(R + 'height', { key: 'height', type: 'number', min: 0, max: 16384 }),
+  opt(R + 'long', { key: 'long', type: 'number', min: 1, max: 16384, value: 1600 }),
+  opt(R + 'scale', { key: 'scale', type: 'number', min: 1, max: 400, value: 50 }),
+  opt(R + 'fit', { key: 'fit', type: 'select', value: 'fit', options: ['fit', 'cover', 'within', 'stretch'] }),
+  opt(R + 'anchor', { key: 'anchor', type: 'select', value: 'center', options: ['center', 'top', 'bottom', 'left', 'right', 'top-left', 'top-right', 'bottom-left', 'bottom-right'] }),
+  opt(R + 'background', { key: 'background', type: 'select', value: 'transparent', options: ['transparent', 'color'] }),
+  opt(R + 'bg_color', { key: 'bgColor', type: 'color', value: '#ffffff' }),
+  opt(R + 'format', { key: 'format', type: 'select', value: 'keep', options: ['keep', ['jpg', 'JPG'], ['png', 'PNG'], ['webp', 'WebP'], ['avif', 'AVIF']] }),
+  opt(R + 'quality', { key: 'quality', type: 'range', min: 10, max: 100, value: 90 }),
+  opt(R + 'max_kb', { key: 'maxKB', type: 'number', min: 0, max: 1e6, hint: true }),
 ];
 
 export function specOf(o = {}) {
@@ -43,7 +44,6 @@ async function resize(files, o) {
 }
 
 export const RESIZE_OPS = register([
-  { id: 'resize.image', label: 'Resize', group: 'Pictures', from: IMAGE_IN, mode: 'each', out: outKind,
-    description: 'Exact pixels, the longest side or a percentage; fit, fill or stretch; a target file size; JPG, PNG, WebP or AVIF.',
+  { id: 'resize.image', group: 'Pictures', from: IMAGE_IN, mode: 'each', out: outKind,   // i18n-ignore: a group id (search words), an app name
     keywords: ['resize', 'scale', 'square', 'thumbnail', 'smaller', 'compress image', 'dimensions'], options: RESIZE_OPTIONS, run: resize },
-], { app: 'resize', label: 'Slop Resize' });
+], { app: 'resize', label: 'Slop Resize' });   // i18n-ignore: a group id (search words), an app name

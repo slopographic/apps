@@ -74,7 +74,7 @@ function setFxProps(layerId, fxId, patch, label) {
   setFxStack(layerId, fxOf(layerId).map((e) => (e.id === fxId ? Object.assign({}, e, patch) : e)), label);
 }
 function removeFx(layerId, fxId) {
-  setFxStack(layerId, fxOf(layerId).filter((e) => e.id !== fxId), 'Delete Effect');
+  setFxStack(layerId, fxOf(layerId).filter((e) => e.id !== fxId), tr('photoslop.fx.delete_effect'));
 }
 /** Move an effect to index `to` in the stack (0 = applied first, drawn lowest). */
 function moveFx(layerId, from, to) {
@@ -84,5 +84,5 @@ function moveFx(layerId, from, to) {
   if (to === from) return;
   const [e] = list.splice(from, 1);
   list.splice(to, 0, e);
-  setFxStack(layerId, list, 'Move Effect');
+  setFxStack(layerId, list, tr('photoslop.fx.step_move_effect'));
 }

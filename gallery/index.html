@@ -4,6 +4,8 @@
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="gallery" data-src="shared/theme/theme.js"></script>
   <link rel="expect" href="#slop-built" blocking="render">
+  <script src="../shared/i18n/i18n.js" data-src="shared/i18n/i18n.js"></script>
+  <script src="i18n/index.js" data-src="gallery/i18n/index.js"></script>
 <script src="../shared/consent/config.js"></script>
 <script src="../shared/consent/state.js"></script>
 <script src="../shared/consent/consent-mode.js"></script>
@@ -52,75 +54,75 @@
 <body>
   <div class="app">
     <header class="topbar">
-      <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home">
+      <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home" data-i18n-attr="title:ui.mb.home;aria-label:ui.mb.home">
         <svg viewBox="0 0 32 32" class="brand-mark" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/><path class="shine" d="M11.5 20.5a4.5 4.5 0 0 0 3.5 4.4"/></svg>
       </a>
-      <div class="appname"><b>Slop Gallery</b><a class="home-link" href="../">slopographic</a></div>
-      <button type="button" class="tb-btn tb-filters" id="btnFilters" aria-expanded="false" aria-controls="side">Filters</button>
+      <div class="appname"><b>Slop Gallery</b><a class="home-link" href="../">slopographic</a></div> <!-- i18n-ignore: the app name -->
+      <button type="button" class="tb-btn tb-filters" id="btnFilters" aria-expanded="false" aria-controls="side" data-i18n="gallery.app.filters">Filters</button>
       <div class="tb-group">
-        <button type="button" class="tb-btn primary" id="topImport" title="Import photos (Ctrl+O)">Import</button>
-        <button type="button" class="tb-btn" id="topSort" title="Sort photos (Alt+S)">Sort</button>
-        <button type="button" class="tb-btn" id="btnSelectMode" aria-pressed="false" title="Select photos with a click">Select</button>
-        <button type="button" class="tb-btn" id="topReel" title="Make a reel from the selected photos" hidden>Make reel</button>
-        <button type="button" class="tb-btn" id="btnActions" aria-haspopup="menu" title="More actions">Actions</button>
+        <button type="button" class="tb-btn primary" id="topImport" title="Import photos (Ctrl+O)" data-i18n-attr="title:gallery.app.import_tip">Import</button> <!-- i18n-ignore: ui/panel.js sets its label (gallery.panel.import_photos) -->
+        <button type="button" class="tb-btn" id="topSort" title="Sort photos (Alt+S)" data-i18n-attr="title:gallery.app.sort_tip">Sort</button> <!-- i18n-ignore: ui/panel.js sets its label -->
+        <button type="button" class="tb-btn" id="btnSelectMode" aria-pressed="false" title="Select photos with a click" data-i18n="gallery.app.select" data-i18n-attr="title:gallery.app.select_tip">Select</button>
+        <button type="button" class="tb-btn" id="topReel" title="Make a reel from the selected photos" data-i18n="gallery.app.make_reel" data-i18n-attr="title:gallery.app.make_reel_tip" hidden>Make reel</button>
+        <button type="button" class="tb-btn" id="btnActions" aria-haspopup="menu" title="More actions" data-i18n-attr="title:gallery.app.more_actions">Actions</button> <!-- i18n-ignore: ui/panel.js sets its label (gallery.app.more_actions_dots) -->
       </div>
       <span class="tb-flex"></span>
-      <span class="local-badge" title="Your photos are processed on this device. Nothing is uploaded."><span>100% local</span></span>
+      <span class="local-badge" title="Your photos are processed on this device. Nothing is uploaded." data-i18n-attr="title:gallery.app.local_tip"><span data-i18n="gallery.app.local_badge">100% local</span></span>
     </header>
 
     <div class="body">
-      <aside class="side" id="side" aria-label="Library">
-        <nav class="nav" id="sideNav" aria-label="Views">
-          <button type="button" class="nav-item" data-view="photos"><span class="nav-l">Photos</span><span class="nav-n" id="cntAll">0</span></button>
-          <button type="button" class="nav-item" data-view="favourites"><span class="nav-l">Favourites</span><span class="nav-n" id="cntFav">0</span></button>
-          <button type="button" class="nav-item" data-view="dupes"><span class="nav-l">Duplicates</span><span class="nav-n" id="cntDupes"></span></button>
-          <button type="button" class="nav-item" data-view="people"><span class="nav-l">People</span></button>
+      <aside class="side" id="side" aria-label="Library" data-i18n-attr="aria-label:gallery.side.library">
+        <nav class="nav" id="sideNav" aria-label="Views" data-i18n-attr="aria-label:gallery.side.views">
+          <button type="button" class="nav-item" data-view="photos"><span class="nav-l" data-i18n="gallery.side.photos">Photos</span><span class="nav-n" id="cntAll">0</span></button>
+          <button type="button" class="nav-item" data-view="favourites"><span class="nav-l" data-i18n="gallery.side.favourites">Favourites</span><span class="nav-n" id="cntFav">0</span></button>
+          <button type="button" class="nav-item" data-view="dupes"><span class="nav-l" data-i18n="gallery.side.duplicates">Duplicates</span><span class="nav-n" id="cntDupes"></span></button>
+          <button type="button" class="nav-item" data-view="people"><span class="nav-l" data-i18n="gallery.side.people">People</span></button>
         </nav>
 
         <div class="side-sec" id="secAlbums">
-          <div class="side-h"><h2>Albums</h2><button type="button" class="link" id="btnNewAlbum">New album</button></div>
+          <div class="side-h"><h2 data-i18n="gallery.side.albums">Albums</h2><button type="button" class="link" id="btnNewAlbum" data-i18n="gallery.side.new_album">New album</button></div>
           <ul class="albums" id="albumList"></ul>
-          <p class="muted" id="albumEmpty">No albums yet. An album links to photos; it never copies them.</p>
+          <p class="muted" id="albumEmpty" data-i18n="gallery.side.no_albums">No albums yet. An album links to photos; it never copies them.</p>
         </div>
 
         <div class="side-sec" id="secFilters">
-          <h2>Filters</h2>
-          <label class="fld"><span>Name</span><input id="fText" type="search" placeholder="Search by file name" autocomplete="off"></label>
-          <label class="fld"><span>Year</span><select id="fYear"><option value="">All years</option></select></label>
-          <label class="fld"><span>Month</span><select id="fMonth"></select></label>
-          <label class="fld"><span>Camera</span><select id="fCamera"><option value="">All cameras</option></select></label>
-          <label class="fld"><span>Tag</span><select id="fTag">
-            <option value="">Any tag</option><option value="liked">Liked only</option><option value="disliked">Disliked only</option><option value="untagged">Untagged only</option>
+          <h2 data-i18n="gallery.app.filters">Filters</h2>
+          <label class="fld"><span data-i18n="gallery.side.name">Name</span><input id="fText" type="search" placeholder="Search by file name" data-i18n-attr="placeholder:gallery.side.search_name" autocomplete="off"></label>
+          <label class="fld"><span data-i18n="gallery.side.year">Year</span><select id="fYear"><option value="" data-i18n="gallery.side.all_years">All years</option></select></label>
+          <label class="fld"><span data-i18n="gallery.side.month">Month</span><select id="fMonth"></select></label>
+          <label class="fld"><span data-i18n="gallery.side.camera">Camera</span><select id="fCamera"><option value="" data-i18n="gallery.side.all_cameras">All cameras</option></select></label>
+          <label class="fld"><span data-i18n="gallery.side.tag">Tag</span><select id="fTag">
+            <option value="" data-i18n="gallery.side.any_tag">Any tag</option><option value="liked" data-i18n="gallery.side.liked_only">Liked only</option><option value="disliked" data-i18n="gallery.side.disliked_only">Disliked only</option><option value="untagged" data-i18n="gallery.side.untagged_only">Untagged only</option>
           </select></label>
-          <button type="button" class="link" id="btnClearFilters">Clear filters</button>
+          <button type="button" class="link" id="btnClearFilters" data-i18n="gallery.side.clear_filters">Clear filters</button>
         </div>
 
         <div class="side-sec">
-          <h2>Library</h2>
-          <button type="button" class="side-btn" id="btnImport">Import photos…</button>
-          <button type="button" class="side-btn" id="btnFolder">Import a folder…</button>
-          <button type="button" class="side-btn" id="btnDrive">From Slop Drive…</button>
-          <label class="check"><input type="checkbox" id="keepDup"><span>Keep exact duplicates on import</span></label>
-          <button type="button" class="side-btn" id="btnSort">Sort photos (swipe deck)</button>
-          <button type="button" class="side-btn" id="btnDupes">Find duplicates…</button>
-          <button type="button" class="side-btn" id="btnBackup">Back up the whole library</button>
-          <button type="button" class="side-btn" id="btnRestore">Restore from a backup…</button>
+          <h2 data-i18n="gallery.side.library">Library</h2>
+          <button type="button" class="side-btn" id="btnImport" data-i18n="gallery.side.import_photos">Import photos…</button>
+          <button type="button" class="side-btn" id="btnFolder" data-i18n="gallery.side.import_folder">Import a folder…</button>
+          <button type="button" class="side-btn" id="btnDrive" data-i18n="gallery.side.from_drive">From Slop Drive…</button>
+          <label class="check"><input type="checkbox" id="keepDup"><span data-i18n="gallery.side.keep_dupes">Keep exact duplicates on import</span></label>
+          <button type="button" class="side-btn" id="btnSort" data-i18n="gallery.side.sort_deck">Sort photos (swipe deck)</button>
+          <button type="button" class="side-btn" id="btnDupes" data-i18n="gallery.side.find_dupes">Find duplicates…</button>
+          <button type="button" class="side-btn" id="btnBackup" data-i18n="gallery.side.backup">Back up the whole library</button>
+          <button type="button" class="side-btn" id="btnRestore" data-i18n="gallery.side.restore">Restore from a backup…</button>
         </div>
       </aside>
 
       <main class="grid-area">
         <div class="srcbar">
-          <div class="seg" role="group" aria-label="Source">
-            <button type="button" class="seg-btn" id="srcLibrary" aria-pressed="true">Library</button>
-            <button type="button" class="seg-btn" id="srcDrive" aria-pressed="false">Drive</button>
+          <div class="seg" role="group" aria-label="Source" data-i18n-attr="aria-label:gallery.grid.source">
+            <button type="button" class="seg-btn" id="srcLibrary" aria-pressed="true" data-i18n="gallery.grid.library">Library</button>
+            <button type="button" class="seg-btn" id="srcDrive" aria-pressed="false" data-i18n="gallery.grid.drive">Drive</button>
           </div>
           <div class="dbar" id="dbar" hidden>
-            <div class="chips" id="dchips" role="group" aria-label="File kinds"></div>
+            <div class="chips" id="dchips" role="group" aria-label="File kinds" data-i18n-attr="aria-label:gallery.drive.kinds"></div>
             <div class="dtools">
-              <input type="search" id="dSearch" placeholder="Search by name" autocomplete="off" aria-label="Search Slop Drive files">
-              <select id="dSort" aria-label="Sort Slop Drive files"><option value="added">Date added</option><option value="name">Name</option></select>
+              <input type="search" id="dSearch" placeholder="Search by name" autocomplete="off" aria-label="Search Slop Drive files" data-i18n-attr="placeholder:gallery.drive.search;aria-label:gallery.drive.search_aria">
+              <select id="dSort" aria-label="Sort Slop Drive files" data-i18n-attr="aria-label:gallery.drive.sort_aria"><option value="added" data-i18n="gallery.drive.date_added">Date added</option><option value="name" data-i18n="gallery.drive.name">Name</option></select>
               <span class="dcount" id="dCount"></span>
-              <button type="button" class="link" id="dClear">Clear</button>
+              <button type="button" class="link" id="dClear" data-i18n="gallery.drive.clear">Clear</button>
             </div>
           </div>
         </div>
@@ -129,23 +131,23 @@
           <p class="people-status muted" id="peopleStatus" aria-live="polite"></p>
           <progress class="people-prog" id="peopleProg" hidden></progress>
           <div class="people-acts">
-            <button type="button" class="tb-btn" id="peopleOn" hidden>Turn on face detection…</button>
-            <button type="button" class="tb-btn" id="peopleGo" hidden>Find faces</button>
-            <button type="button" class="tb-btn" id="peopleStop" hidden>Stop</button>
-            <label class="people-mode">Show faces <select id="peopleMode" class="set-select"><option value="off">Off</option><option value="boxes">Boxes on photos</option><option value="count">Count only</option></select></label>
-            <button type="button" class="tb-btn" id="peopleAll">Faces and people…</button>
+            <button type="button" class="tb-btn" id="peopleOn" data-i18n="gallery.people.turn_on" hidden>Turn on face detection…</button>
+            <button type="button" class="tb-btn" id="peopleGo" data-i18n="gallery.people.find" hidden>Find faces</button>
+            <button type="button" class="tb-btn" id="peopleStop" data-i18n="gallery.people.stop" hidden>Stop</button>
+            <label class="people-mode"><span data-i18n="gallery.people.show_faces">Show faces</span> <select id="peopleMode" class="set-select"><option value="off" data-i18n="gallery.people.mode_off">Off</option><option value="boxes" data-i18n="gallery.people.mode_boxes">Boxes on photos</option><option value="count" data-i18n="gallery.people.mode_count">Count only</option></select></label>
+            <button type="button" class="tb-btn" id="peopleAll" data-i18n="gallery.people.all">Faces and people…</button>
           </div>
         </div>
         <div id="gDrop" class="g-dropstrip"></div>
-        <div class="grid" id="grid" tabindex="0" aria-label="Photos, newest first">
+        <div class="grid" id="grid" tabindex="0" aria-label="Photos, newest first" data-i18n-attr="aria-label:gallery.grid.aria">
           <div class="sticky" id="sticky" hidden><span class="sticky-l"></span><span class="sticky-n"></span></div>
           <div class="tl-content" id="tlContent"></div>
           <div class="empty" id="empty" hidden>
             <div class="g-intro" id="emptyIntro" data-empty-intro></div>
             <p data-empty-text></p>
             <div class="g-empty-acts">
-              <button type="button" class="tb-btn primary" id="emptyImport">Import photos</button>
-              <button type="button" class="sd-sample" id="emptySample" data-empty-intro>Try it with 8 sample photos</button>
+              <button type="button" class="tb-btn primary" id="emptyImport" data-i18n="gallery.panel.import_photos">Import photos</button>
+              <button type="button" class="sd-sample" id="emptySample" data-empty-intro data-i18n="gallery.grid.sample">Try it with 8 sample photos</button>
             </div>
           </div>
         </div>
@@ -156,10 +158,10 @@
         <div class="astrip" id="astrip" hidden>
           <span class="astrip-n" id="astripName"></span>
           <audio id="astripAudio" controls preload="auto"></audio>
-          <button type="button" class="link" id="astripClose">Close</button>
+          <button type="button" class="link" id="astripClose" data-i18n="menu.close">Close</button>
         </div>
       </main>
-      <aside class="g-panel" id="gPanel" aria-label="Library"></aside>
+      <aside class="g-panel" id="gPanel" aria-label="Library" data-i18n-attr="aria-label:gallery.side.library"></aside>
     </div>
 
     <footer class="statusbar"><span id="status" aria-live="polite"></span><span class="busy" id="busy" hidden></span></footer>

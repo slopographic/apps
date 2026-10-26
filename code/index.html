@@ -4,6 +4,8 @@
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="code" data-src="shared/theme/theme.js"></script>
   <link rel="expect" href="#slop-built" blocking="render">
+  <script src="../shared/i18n/i18n.js" data-src="shared/i18n/i18n.js"></script>
+  <script src="i18n/index.js" data-src="code/i18n/index.js"></script>
 <script src="../shared/consent/config.js"></script>
 <script src="../shared/consent/state.js"></script>
 <script src="../shared/consent/consent-mode.js"></script>
@@ -99,65 +101,65 @@
 <body>
   <div class="cd-app" id="cd-app">
     <header class="cd-top">
-      <button type="button" class="sui-btn cd-files-btn" id="cd-files" aria-controls="cd-tree" aria-expanded="false">Files</button>
-      <div class="cd-brand"><a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home"><svg viewBox="0 0 32 32" class="brand-mark" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/></svg></a><h1>Slop Code</h1></div>
-      <div class="cd-tools" role="toolbar" aria-label="File and run">
-        <button type="button" class="sui-btn" id="cd-open" title="Open from Slop Drive (Ctrl+O)">Open</button>
-        <button type="button" class="sui-btn" id="cd-new" title="New file (Ctrl+Alt+N)">New</button>
-        <button type="button" class="sui-btn sui-primary" id="cd-save" title="Save to the same Slop Drive file (Ctrl+S)" disabled>Save</button>
-        <button type="button" class="sui-btn" id="cd-saveas" title="Save as (Ctrl+Shift+S)" disabled>Save as</button>
-        <button type="button" class="sui-btn" id="cd-md" title="Show the rendered Markdown preview" aria-pressed="false" hidden>Preview</button>
-        <button type="button" class="sui-btn" id="cd-run" title="Run preview (Ctrl+Enter)" disabled>Run</button>
-        <button type="button" class="sui-btn cd-cmd" id="cd-cmd" aria-label="Commands (search every command)">Commands</button>
+      <button type="button" class="sui-btn cd-files-btn" id="cd-files" aria-controls="cd-tree" aria-expanded="false" data-i18n="code.app.files">Files</button>
+      <div class="cd-brand"><a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home" data-i18n-attr="title:ui.mb.home;aria-label:ui.mb.home"><svg viewBox="0 0 32 32" class="brand-mark" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/></svg></a><h1>Slop Code</h1></div>
+      <div class="cd-tools" role="toolbar" aria-label="File and run" data-i18n-attr="aria-label:code.app.bar_aria">
+        <button type="button" class="sui-btn" id="cd-open" title="Open from Slop Drive (Ctrl+O)" data-i18n-attr="title:code.app.open_tip" data-i18n="menu.open">Open</button>
+        <button type="button" class="sui-btn" id="cd-new" title="New file (Ctrl+Alt+N)" data-i18n-attr="title:code.app.new_tip" data-i18n="code.app.new">New</button>
+        <button type="button" class="sui-btn sui-primary" id="cd-save" title="Save to the same Slop Drive file (Ctrl+S)" data-i18n-attr="title:code.app.save_tip" data-i18n="menu.save" disabled>Save</button>
+        <button type="button" class="sui-btn" id="cd-saveas" title="Save as (Ctrl+Shift+S)" data-i18n-attr="title:code.app.saveas_tip" data-i18n="code.app.saveas" disabled>Save as</button>
+        <button type="button" class="sui-btn" id="cd-md" title="Show the rendered Markdown preview" data-i18n-attr="title:code.app.md_tip" aria-pressed="false" hidden>Preview</button><!-- i18n-ignore: js/ui.js writes Preview or Edit -->
+        <button type="button" class="sui-btn" id="cd-run" title="Run preview (Ctrl+Enter)" data-i18n-attr="title:code.app.run_tip" data-i18n="code.app.run" disabled>Run</button>
+        <button type="button" class="sui-btn cd-cmd" id="cd-cmd" aria-label="Commands (search every command)" data-i18n-attr="aria-label:code.app.cmd_aria" data-i18n="code.app.cmd">Commands</button>
       </div>
     </header>
 
-    <aside class="cd-tree" id="cd-tree" aria-label="Explorer">
+    <aside class="cd-tree" id="cd-tree" aria-label="Explorer" data-i18n-attr="aria-label:code.app.explorer">
       <section class="cd-sec cd-sec-grow" data-sec="explorer" id="cd-sec-explorer">
         <div class="cd-sec-head">
-          <button type="button" class="cd-sec-toggle" data-sec-toggle="explorer" aria-controls="cd-sec-explorer-body" aria-expanded="true">Explorer</button>
+          <button type="button" class="cd-sec-toggle" data-sec-toggle="explorer" aria-controls="cd-sec-explorer-body" aria-expanded="true" data-i18n="code.app.explorer">Explorer</button>
           <span class="cd-sec-tools">
-            <button type="button" class="sui-btn cd-mini" id="cd-tree-new" title="New file (Ctrl+Alt+N)">File</button>
-            <button type="button" class="sui-btn cd-mini" id="cd-tree-folder" title="New folder (Ctrl+Alt+Shift+N)">Folder</button>
+            <button type="button" class="sui-btn cd-mini" id="cd-tree-new" title="New file (Ctrl+Alt+N)" data-i18n-attr="title:code.app.new_tip" data-i18n="code.app.file">File</button>
+            <button type="button" class="sui-btn cd-mini" id="cd-tree-folder" title="New folder (Ctrl+Alt+Shift+N)" data-i18n-attr="title:code.app.folder_tip" data-i18n="code.app.folder">Folder</button>
           </span>
         </div>
-        <div class="cd-sec-body" id="cd-sec-explorer-body"><div class="cd-tree-list" id="cd-tree-list" aria-label="Slop Drive files"></div></div>
+        <div class="cd-sec-body" id="cd-sec-explorer-body"><div class="cd-tree-list" id="cd-tree-list" aria-label="Slop Drive files" data-i18n-attr="aria-label:code.app.drive_files"></div></div>
       </section>
       <section class="cd-sec" data-sec="open" id="cd-sec-open">
-        <div class="cd-sec-head"><button type="button" class="cd-sec-toggle" data-sec-toggle="open" aria-controls="cd-sec-open-body" aria-expanded="true">Open editors</button></div>
-        <div class="cd-sec-body" id="cd-sec-open-body"><ul class="cd-open-list" id="cd-open-list" aria-label="Open editors"></ul></div>
+        <div class="cd-sec-head"><button type="button" class="cd-sec-toggle" data-sec-toggle="open" aria-controls="cd-sec-open-body" aria-expanded="true" data-i18n="code.app.open_editors">Open editors</button></div>
+        <div class="cd-sec-body" id="cd-sec-open-body"><ul class="cd-open-list" id="cd-open-list" aria-label="Open editors" data-i18n-attr="aria-label:code.app.open_editors"></ul></div>
       </section>
       <section class="cd-sec" data-sec="ext" id="cd-sec-ext">
-        <div class="cd-sec-head"><button type="button" class="cd-sec-toggle" data-sec-toggle="ext" aria-controls="cd-sec-ext-body" aria-expanded="true">Extensions</button></div>
-        <div class="cd-sec-body" id="cd-sec-ext-body"><ul class="cd-ext-list" id="cd-ext-list" aria-label="Built-in helpers"></ul></div>
+        <div class="cd-sec-head"><button type="button" class="cd-sec-toggle" data-sec-toggle="ext" aria-controls="cd-sec-ext-body" aria-expanded="true" data-i18n="code.app.extensions">Extensions</button></div>
+        <div class="cd-sec-body" id="cd-sec-ext-body"><ul class="cd-ext-list" id="cd-ext-list" aria-label="Built-in helpers" data-i18n-attr="aria-label:code.app.helpers"></ul></div>
       </section>
-      <div class="cd-resize" id="cd-resize" data-touch-hit role="separator" aria-orientation="vertical" aria-label="Resize Explorer" aria-valuemin="160" aria-valuemax="480" aria-valuenow="232" tabindex="0" title="Drag, or use the arrow keys, to resize"></div>
+      <div class="cd-resize" id="cd-resize" data-touch-hit role="separator" aria-orientation="vertical" aria-label="Resize Explorer" aria-valuemin="160" aria-valuemax="480" aria-valuenow="232" tabindex="0" title="Drag, or use the arrow keys, to resize" data-i18n-attr="aria-label:code.app.resize;title:code.app.resize_tip"></div>
     </aside>
 
     <main class="cd-main">
-      <div class="cd-tabs" id="cd-tabs" role="tablist" aria-label="Open files"></div>
-      <section class="cd-empty" id="cd-empty" aria-label="Get started">
-        <h2>Open a file from Slop Drive</h2>
-        <p>Pick a file to edit, or make a new one. Edits autosave on this device until you save, and Save writes back to the same Slop Drive file.</p>
+      <div class="cd-tabs" id="cd-tabs" role="tablist" aria-label="Open files" data-i18n-attr="aria-label:code.app.open_files"></div>
+      <section class="cd-empty" id="cd-empty" aria-label="Get started" data-i18n-attr="aria-label:code.app.get_started">
+        <h2 data-i18n="code.app.empty_h">Open a file from Slop Drive</h2>
+        <p data-i18n="code.app.empty_p">Pick a file to edit, or make a new one. Edits autosave on this device until you save, and Save writes back to the same Slop Drive file.</p>
         <div class="cd-empty-actions">
-          <button type="button" class="sui-btn sui-primary" id="cd-empty-open">Open from Slop Drive…</button>
-          <button type="button" class="sui-btn" id="cd-empty-new">New file…</button>
+          <button type="button" class="sui-btn sui-primary" id="cd-empty-open" data-i18n="code.cmd.open">Open from Slop Drive…</button>
+          <button type="button" class="sui-btn" id="cd-empty-new" data-i18n="code.cmd.new">New file…</button>
         </div>
-        <p class="cd-fine">Ctrl+O open · Ctrl+S save · Ctrl+F find · Ctrl+Enter run · Ctrl+Space complete</p>
+        <p class="cd-fine" data-i18n="code.app.keys">Ctrl+O open · Ctrl+S save · Ctrl+F find · Ctrl+Enter run · Ctrl+Space complete</p>
       </section>
       <div class="cd-editor" id="cd-editor" hidden></div>
       <div class="cd-viewer" id="cd-viewer" hidden></div>
       <div class="cd-status" id="cd-status" aria-live="polite"></div>
     </main>
 
-    <section class="cd-preview" id="cd-preview" aria-label="Preview" hidden>
+    <section class="cd-preview" id="cd-preview" aria-label="Preview" data-i18n-attr="aria-label:code.app.preview" hidden>
       <div class="cd-pv-head">
-        <b>Preview</b><span class="cd-pv-note">Sandboxed, no network</span>
-        <button type="button" class="sui-btn" id="cd-pv-close">Close</button>
+        <b data-i18n="code.app.preview">Preview</b><span class="cd-pv-note" data-i18n="code.app.sandboxed">Sandboxed, no network</span>
+        <button type="button" class="sui-btn" id="cd-pv-close" data-i18n="menu.close">Close</button>
       </div>
-      <iframe class="cd-frame" id="cd-frame" sandbox="allow-scripts" title="Preview output"></iframe>
-      <div class="cd-console-head">Console</div>
-      <ol class="cd-console" id="cd-console" aria-live="polite" aria-label="Console output"></ol>
+      <iframe class="cd-frame" id="cd-frame" sandbox="allow-scripts" title="Preview output" data-i18n-attr="title:code.app.pv_output"></iframe>
+      <div class="cd-console-head" data-i18n="code.app.console">Console</div>
+      <ol class="cd-console" id="cd-console" aria-live="polite" aria-label="Console output" data-i18n-attr="aria-label:code.app.console_out"></ol>
     </section>
   </div>
   <script src="../shell/shell.js"></script>

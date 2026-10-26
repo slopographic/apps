@@ -34,19 +34,24 @@
     scissors: ic('<circle cx="6.5" cy="17" r="2.6"/><circle cx="17.5" cy="17" r="2.6"/><path d="M8.3 15L17 4M15.7 15L7 4"/>'),
     gradient: ic('<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 20L20 4" class="thin"/><path d="M4 14l6-6M10 20l10-10"/>')
   };
+  // name: the tool's name in the current language (vector.tool.<id in snake case>, slopvector/i18n/en/tools.js).
   SV.TOOL_LIST = [
-    { id: 'select', name: 'Selection', key: 'V' }, { id: 'direct', name: 'Direct Selection', key: 'A' },
-    { id: 'pen', name: 'Pen', key: 'P' }, { id: 'addAnchor', name: 'Add Anchor Point', key: '+' },
-    { id: 'deleteAnchor', name: 'Delete Anchor Point', key: '−' }, { id: 'convertAnchor', name: 'Anchor Point (Convert)', key: 'Shift+C' },
-    { id: 'pencil', name: 'Pencil', key: 'N' }, { id: 'brush', name: 'Paintbrush', key: 'B' },
-    { id: 'type', name: 'Type', key: 'T' }, { id: 'line', name: 'Line Segment', key: '\\' },
-    { id: 'rect', name: 'Rectangle', key: 'M' }, { id: 'rrect', name: 'Rounded Rectangle', key: 'Shift+M' },
-    { id: 'ellipse', name: 'Ellipse', key: 'L' }, { id: 'polygon', name: 'Polygon', key: 'Shift+L' },
-    { id: 'star', name: 'Star', key: 'Shift+S' }, { id: 'rotate', name: 'Rotate', key: 'R' },
-    { id: 'scale', name: 'Scale', key: 'S' }, { id: 'scissors', name: 'Scissors', key: 'C' },
-    { id: 'gradient', name: 'Gradient', key: 'G' }, { id: 'eyedropper', name: 'Eyedropper', key: 'I' },
-    { id: 'hand', name: 'Hand', key: 'H' }, { id: 'zoom', name: 'Zoom', key: 'Z' }
+    { id: 'select', key: 'V' }, { id: 'direct', key: 'A' },
+    { id: 'pen', key: 'P' }, { id: 'addAnchor', key: '+' },
+    { id: 'deleteAnchor', key: '−' }, { id: 'convertAnchor', key: 'Shift+C' },
+    { id: 'pencil', key: 'N' }, { id: 'brush', key: 'B' },
+    { id: 'type', key: 'T' }, { id: 'line', key: '\\' },
+    { id: 'rect', key: 'M' }, { id: 'rrect', key: 'Shift+M' },
+    { id: 'ellipse', key: 'L' }, { id: 'polygon', key: 'Shift+L' },
+    { id: 'star', key: 'Shift+S' }, { id: 'rotate', key: 'R' },
+    { id: 'scale', key: 'S' }, { id: 'scissors', key: 'C' },
+    { id: 'gradient', key: 'G' }, { id: 'eyedropper', key: 'I' },
+    { id: 'hand', key: 'H' }, { id: 'zoom', key: 'Z' }
   ];
+  SV.TOOL_LIST.forEach(function (tl) {
+    var k = 'vector.tool.' + tl.id.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase();
+    Object.defineProperty(tl, 'name', { get: function () { return SV.t(k); }, enumerable: true });
+  });
   var TOOLS = SV.TOOLS = {};
   var TOOL_KEYS = { v: 'select', a: 'direct', p: 'pen', '=': 'addAnchor', '-': 'deleteAnchor', 'shift+c': 'convertAnchor', 'shift+=': 'addAnchor', n: 'pencil', b: 'brush', t: 'type', '\\': 'line', m: 'rect', 'shift+m': 'rrect', l: 'ellipse', 'shift+l': 'polygon', 'shift+s': 'star', r: 'rotate', s: 'scale', c: 'scissors', g: 'gradient', i: 'eyedropper', h: 'hand', z: 'zoom' };
 

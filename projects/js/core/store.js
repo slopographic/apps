@@ -28,7 +28,7 @@
           r = await api.remove(o.collection, o.id);
           if (r.ok) undo.unshift({ op: 'put', collection: o.collection, value: bare(prev) });
         } else {
-          if (o.op === 'patch' && !prev) return { ok: false, code: 'not_found', message: 'That task no longer exists.' };
+          if (o.op === 'patch' && !prev) return { ok: false, code: 'not_found', message: g.SlopI18n ? g.SlopI18n.t('projects.core.gone') : 'projects.core.gone' };
           const value = o.op === 'patch' ? { ...bare(prev), ...o.changes } : o.value;
           for (const k of Object.keys(value)) if (value[k] === undefined) delete value[k];
           r = await api.put(o.collection, value);

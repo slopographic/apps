@@ -7,23 +7,24 @@
 import { parseRange, rangeText, quoteSheet, MAX_ROWS, MAX_COLS } from '../engine/refs.js';
 import { format } from '../engine/index.js';
 import { FErr } from '../engine/values.js';
+import { t } from '../i18n.js';
 
 const filled = (sh, r, c) => { const v = sh.value(r, c); return v !== null && v !== undefined && v !== ''; };
 
 export function resolveRange(wb, host, text) {
   const p = parseRange(String(text || '').replace(/^=/, ''));
-  if (!p) return { error: 'That is not a range. Type one like A1:C10.' };
+  if (!p) return { error: t('tables.err.not_range') };
   const sheet = p.sheet ? wb.sheetByName(p.sheet) : host;
-  if (!sheet) return { error: `There is no sheet named “${p.sheet}”.` };
+  if (!sheet) return { error: t('tables.err.no_sheet', { name: p.sheet }) };
   let { r1, c1, r2, c2 } = p;
   if (r2 === MAX_ROWS - 1 || c2 === MAX_COLS - 1) {
     const u = sheet.usedRange(false);
-    if (!u) return { error: 'That range is empty.' };
+    if (!u) return { error: t('tables.err.range_empty') };
     if (r2 === MAX_ROWS - 1) { r1 = Math.max(r1, u.r1); r2 = u.r2; }
     if (c2 === MAX_COLS - 1) { c1 = Math.max(c1, u.c1); c2 = u.c2; }
-    if (r1 > r2 || c1 > c2) return { error: 'That range is empty.' };
+    if (r1 > r2 || c1 > c2) return { error: t('tables.err.range_empty') };
   }
-  if ((r2 - r1 + 1) * (c2 - c1 + 1) > 200000) return { error: 'That range is too large (at most 200,000 cells).' };
+  if ((r2 - r1 + 1) * (c2 - c1 + 1) > 200000) return { error: t('tables.err.range_too_large') };
   return { sheet, r1, c1, r2, c2 };
 }
 

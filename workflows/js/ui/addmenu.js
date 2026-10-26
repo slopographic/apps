@@ -6,6 +6,7 @@
  *   mountAdd(ctx, button) */
 import { checksOf } from './steps.js';
 import { kindsLabel } from '../core/compat.js';
+import { tr } from '../core/text.js';
 
 /** The kinds the next step gets: what the last step makes, or the files in. */
 function lastKinds(ctx) {
@@ -22,7 +23,7 @@ export function addStep(ctx, id, options = {}, { at = null } = {}) {
   if (op.kind === 'macro') { step.app = op.app; step.macroId = op.macroId || id; }
   const defs = R.defaultsOf(op);
   for (const [k, val] of Object.entries(v.options)) if (val !== defs[k] && !op.options.some((o) => o.key === k && o.type === 'password')) step.options[k] = val;
-  ctx.edit(`Add ${op.label}`, (d) => { if (at === null || at >= d.steps.length) d.steps.push(step); else d.steps.splice(Math.max(0, at), 0, step); });
+  ctx.edit(tr('workflows.undo.add', 'Add {name}', { name: op.label }), (d) => { if (at === null || at >= d.steps.length) d.steps.push(step); else d.steps.splice(Math.max(0, at), 0, step); });
   return { step, notes: v.notes, errors: v.errors };
 }
 
@@ -34,7 +35,7 @@ function items(ctx) {
       if (op.available && !op.available()) continue;
       const bad = kinds ? kinds.filter((k) => !R.accepts(op, k)) : [];
       const made = R.outOf(op, kinds ? kinds[0] : op.from[0], R.defaultsOf(op));
-      out.push({ value: op.id, label: op.label + (kinds && bad.length === kinds.length ? ` (cannot take ${kindsLabel(bad)})` : ''),
+      out.push({ value: op.id, label: kinds && bad.length === kinds.length ? tr('workflows.add.cannot', '{name} (cannot take {kinds})', { name: op.label, kinds: kindsLabel(bad) }) : op.label,
         icon: globalThis.SlopFlow.tile(made && made !== '*' ? made : 'file', { size: 'sm' }),
         keywords: [g.label, op.group || '', op.ext || '', ...(op.keywords || [])] });
     }
@@ -44,7 +45,7 @@ function items(ctx) {
 
 export function mountAdd(ctx, button) {
   globalThis.SlopMenuButton.attach(button, {
-    label: 'Add a step', search: true, empty: 'No step matches', items: () => items(ctx),
+    label: tr('workflows.tool.add_step_tip', 'Add a step'), search: true, empty: tr('workflows.add.none', 'No step matches'), items: () => items(ctx),
     onPick: (id) => {
       const { step } = addStep(ctx, id);
       requestAnimationFrame(() => {

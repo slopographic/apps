@@ -6,14 +6,15 @@
   'use strict';
   const SC = (window.SlopContacts = window.SlopContacts || {});
   const M = SC.model, T = SC.text;
+  const tr = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
 
   const COLS = [
-    { id: 'name', label: 'Name', get: (c) => c.fn, raw: (c) => c.fn, edit: true },
-    { id: 'org', label: 'Organisation', get: (c) => c.org, raw: (c) => c.org, edit: true },
-    { id: 'email', label: 'E-mail', get: (c) => c.emails.map((e) => e.value).join(', '), raw: (c) => c.emails.map((e) => e.value).join(', '), edit: true },
-    { id: 'phone', label: 'Phone', get: (c) => c.phones.map((p) => p.value).join(', '), raw: (c) => c.phones.map((p) => p.value).join(', '), edit: true },
-    { id: 'groups', label: 'Groups', get: (c) => c.groups.join(', '), raw: (c) => c.groups.join(', '), edit: true },
-    { id: 'note', label: 'Notes', get: (c) => c.note.replace(/\s+/g, ' ').trim(), raw: (c) => c.note, edit: true, multi: true },
+    { id: 'name', get label() { return tr('contacts.tbl.name'); }, get: (c) => c.fn, raw: (c) => c.fn, edit: true },
+    { id: 'org', get label() { return tr('contacts.tbl.org'); }, get: (c) => c.org, raw: (c) => c.org, edit: true },
+    { id: 'email', get label() { return tr('contacts.tbl.email'); }, get: (c) => c.emails.map((e) => e.value).join(', '), raw: (c) => c.emails.map((e) => e.value).join(', '), edit: true },
+    { id: 'phone', get label() { return tr('contacts.tbl.phone'); }, get: (c) => c.phones.map((p) => p.value).join(', '), raw: (c) => c.phones.map((p) => p.value).join(', '), edit: true },
+    { id: 'groups', get label() { return tr('contacts.tbl.groups'); }, get: (c) => c.groups.join(', '), raw: (c) => c.groups.join(', '), edit: true },
+    { id: 'note', get label() { return tr('contacts.tbl.notes'); }, get: (c) => c.note.replace(/\s+/g, ' ').trim(), raw: (c) => c.note, edit: true, multi: true },
   ];
   const col = (id) => COLS.find((c) => c.id === id) || null;
 
@@ -38,12 +39,12 @@
     const v = T.tidy(text);
     switch (id) {
       case 'name':
-        if (!v) return { error: 'A name cannot be empty.' };
+        if (!v) return { error: tr('contacts.tbl.empty_name') };
         return { contact: M.normalise({ ...c, name: SC.customerMap.splitName(v), fn: v }) };
       case 'org': return { contact: M.normalise({ ...c, org: v }) };
       case 'email': {
         const vals = splitList(text), bad = vals.find((x) => !x.includes('@'));
-        if (bad) return { error: `“${bad}” is not an e-mail address.` };
+        if (bad) return { error: tr('contacts.tbl.bad_email', { value: bad }) };
         return { contact: M.normalise({ ...c, emails: vals.map((value, i) => ({ value, types: (c.emails[i] || {}).types || [] })) }) };
       }
       case 'phone': {
@@ -52,7 +53,7 @@
       }
       case 'groups': return { contact: M.normalise({ ...c, groups: splitList(text) }) };
       case 'note': return { contact: M.normalise({ ...c, note: String(text || '') }) };
-      default: return { error: 'This column cannot be edited here.' };
+      default: return { error: tr('contacts.tbl.not_here') };
     }
   }
 

@@ -29,14 +29,14 @@
   };
   /** Wraps a deck in the template envelope. */
   TF.wrap = function (name, deck) {
-    return { kind: TF.KIND, format: TF.FORMAT, name: name || deck.title || 'Untitled template', created: Date.now(), deck: deck };
+    return { kind: TF.KIND, format: TF.FORMAT, name: name || deck.title || 'Untitled template', created: Date.now(), deck: deck }; // i18n-ignore
   };
   TF.toText = function (file) { return JSON.stringify(file); };
   TF.toBlob = function (file) { return new Blob([TF.toText(file)], { type: TF.MIME }); };
   /** Plain file name for a template name ("Pitch deck" -> "Pitch deck.sslide-template"). */
   TF.fileName = function (name) {
-    var base = String(name || 'Template').replace(/[\\/:*?"<>|]+/g, ' ').replace(/\s+/g, ' ').trim();
-    return (base || 'Template') + '.' + TF.EXT;
+    var base = String(name || 'Template').replace(/[\\/:*?"<>|]+/g, ' ').replace(/\s+/g, ' ').trim(); // i18n-ignore
+    return (base || 'Template') + '.' + TF.EXT; // i18n-ignore
   };
 
   /**

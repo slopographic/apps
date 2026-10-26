@@ -32,6 +32,21 @@ print sheet, and the PDF. The data (money, numbering, totals) is unchanged: this
 - The template applies to the PDF, the print sheet, and the paper on the editor screen, which is the same page the PDF
   draws (the screen paper is "the same layout as the PDF").
 
+## The document language
+
+- Every printed word (titles, labels, column heads, totals, statuses, "Page n of N") is a `biz.pr.*` / `biz.st.*` key of
+  `shared/biz/i18n/<code>/print.js` and `print2.js`, read in the document's language with `SlopI18n.at(code, locale)`, never
+  in the page's. Money and dates on the document use that language's Intl locale (the company locale when it is of the same
+  language, such as en-GB). Stored text (names, addresses, descriptions, notes) is printed as stored.
+- `SlopBiz.docLang` (shared/biz/biz.js) owns the rule: the document's own `docLang` (the editor's Document language pick,
+  empty = the company's), else the company's `settings.docLang` (Slop Admin), else the page's language when the business
+  tables ship it, else English. Settings saved without one store the page's language of that moment. The choices are
+  `SlopI18n.shipped('biz')`, so a language appears once its business tables do. A quote's language carries to its order or
+  invoice; a credit note and a delivery note follow their invoice and order; statements, reminders and price lists use the
+  company's.
+- `doc-view.js` takes `words` (SlopBiz.docLang.words) and puts the fixed words in `view.words`; `paper.js` and
+  `pdf-render.js` print only what the view gives them.
+
 ## The PDF
 
 - Standard fonts only: Helvetica (sans layouts) and Times (`classic`), with their bold faces. pdf-lib cannot embed the

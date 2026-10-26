@@ -3,15 +3,17 @@
 (function (g) {
   'use strict';
   if (g.QRMatrix) return;
+  /** The words for a key (qr/i18n), or the English given when SlopI18n or the key is absent (node tests, other pages). */
+  const tr = (k, en, v) => { const I = g.SlopI18n; return I && I.has && I.has(k) ? I.t(k, v) : (v ? String(en).replace(/\{(\w+)\}/g, (m, x) => (x in v ? String(v[x]) : m)) : en); };
   const LEVELS = ['L', 'M', 'Q', 'H'];
 
   /** Encodes text. Returns { cols, rows, pixs }, pixs row-major with a truthy value for each dark module. Throws on failure. */
   function encode(text, level) {
-    if (!g.bwipjs) throw new Error('The QR encoder did not load.');
+    if (!g.bwipjs) throw new Error(tr('qr.err.encoder', 'The QR encoder did not load.'));
     const eclevel = LEVELS.includes(level) ? level : 'M';
     let r;
     try { r = g.bwipjs.raw({ bcid: 'qrcode', text: String(text), eclevel })[0]; } catch (e) {
-      throw new Error('This text does not fit in one QR code at level ' + eclevel + '. Use a lower error correction level or shorter text.');
+      throw new Error(tr('qr.err.no_fit', 'This text does not fit in one QR code at level {ec}. Use a lower error correction level or shorter text.', { ec: eclevel }));
     }
     return { cols: r.pixx, rows: r.pixy, pixs: r.pixs };
   }

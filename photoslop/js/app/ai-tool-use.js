@@ -19,7 +19,7 @@ function psToolOptions(id) {
 }
 /** The tools and their options, as one line each, for the command's description and for list_tools. */
 function psToolCatalog() {
-  return TOOLS.map((t) => ({ id: t.id, name: t.name.replace(/ Tool$/, ''), options: Object.entries(psToolOptions(t.id)).map(([n, ty]) => `${n} (${ty}${PS_FRACTIONS.has(n) ? ' 0–1 or %' : ''})`) }));
+  return TOOLS.map((t) => ({ id: t.id, name: t.short, options: Object.entries(psToolOptions(t.id)).map(([n, ty]) => `${n} (${ty}${PS_FRACTIONS.has(n) ? ' 0–1 or %' : ''})`) }));
 }
 function psSetToolOptions(id, o = {}) {
   const k = psToolOptKey(id), have = k ? T[k] : {}, notes = [], A = window.SlopCmdArgs;
@@ -54,7 +54,7 @@ async function aiUseTool(a) {
   selectTool(a.tool);
   const notes = psSetToolOptions(a.tool, a.options);
   const before = Hist.idx, fgBefore = C.fg;
-  const result = await aiOneStep(t.name.replace(/ Tool$/, ''), async () => {
+  const result = await aiOneStep(t.short, async () => {
     if (a.source) { const s = psPoints([a.source])[0]; if (!s) throw new Error('source must be [x, y]'); t.down(psPt(s), psEv('pointerdown', s, { alt: true })); if (t.up) t.up(psPt(s), psEv('pointerup', s, { alt: true })); }
     if (a.tool === 'polylasso') {
       for (const p of pts) t.down(psPt(p), psEv('pointerdown', p, a));
@@ -74,11 +74,11 @@ async function aiUseTool(a) {
     dirty(true);
   });
   const did = Hist.idx > before ? Hist.states[Hist.idx].label : null;
-  const bits = [did ? `Done: ${did}.` : `Used the ${t.name.replace(/ Tool$/, '')} (no change to the picture).`];
-  if (a.tool === 'eyedropper') bits.push(`Picked ${C.fg}${C.fg === fgBefore ? ' (the same colour as before)' : ''}.`);
-  if (PS_SEL_TOOLS.includes(a.tool) || a.tool === 'wand') bits.push(D.sel ? `Selection: ${D.sel.bounds.w} × ${D.sel.bounds.h} px at ${D.sel.bounds.x}, ${D.sel.bounds.y}.` : 'Nothing is selected.');
-  if (did && ['shape', 'type', 'move'].includes(a.tool)) bits.push(psBoundsNote('The layer', psLayerBounds(activeLayer())).trim());
-  if (notes.length) bits.push('Note: ' + notes.join('; ') + '.');
+  const bits = [did ? `Done: ${did}.` : `Used the ${t.short} (no change to the picture).`]; // i18n-ignore: the assistant's commands, their docs and replies are API
+  if (a.tool === 'eyedropper') bits.push(`Picked ${C.fg}${C.fg === fgBefore ? ' (the same colour as before)' : ''}.`); // i18n-ignore: the assistant's commands, their docs and replies are API
+  if (PS_SEL_TOOLS.includes(a.tool) || a.tool === 'wand') bits.push(D.sel ? `Selection: ${D.sel.bounds.w} × ${D.sel.bounds.h} px at ${D.sel.bounds.x}, ${D.sel.bounds.y}.` : 'Nothing is selected.'); // i18n-ignore: the assistant's commands, their docs and replies are API
+  if (did && ['shape', 'type', 'move'].includes(a.tool)) bits.push(psBoundsNote('The layer', psLayerBounds(activeLayer())).trim()); // i18n-ignore: the assistant's commands, their docs and replies are API
+  if (notes.length) bits.push('Note: ' + notes.join('; ') + '.'); // i18n-ignore: the assistant's commands, their docs and replies are API
   return result || bits.join(' ');
 }
 
@@ -94,7 +94,7 @@ async function aiTransformLayer(a) {
   tf.rot = ((a.rotate || 0) * Math.PI) / 180;
   tf.tx = a.move_x || 0; tf.ty = a.move_y || 0;
   if (a.interpolation) tf.interp = a.interpolation;
-  await aiOneStep('Free Transform', () => commitTransform());
+  await aiOneStep(tr('photoslop.ai.step_free_transform'), () => commitTransform());
   const L = activeLayer();
-  return `Transformed “${L.name}”: ${Math.round(tf.sx * 100)}% × ${Math.round(tf.sy * 100)}%, ${a.rotate || 0}°, moved ${tf.tx}, ${tf.ty} px.`;
+  return `Transformed “${L.name}”: ${Math.round(tf.sx * 100)}% × ${Math.round(tf.sy * 100)}%, ${a.rotate || 0}°, moved ${tf.tx}, ${tf.ty} px.`; // i18n-ignore: the assistant's commands, their docs and replies are API
 }

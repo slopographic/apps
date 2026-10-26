@@ -49,11 +49,11 @@
     var svg = IO.exportSVG({ metadata: true });
     IO.download(new Blob([svg], { type: 'image/svg+xml' }), IO.baseName() + '.svg');
     SV.markSaved(); SV.scheduleAutosave();
-    SV.toast('Saved “' + IO.baseName() + '.svg” (editable SlopVector SVG)');
+    SV.toast(SV.t('vector.msg.saved_svg', { file: IO.baseName() + '.svg' }));
   };
   IO.exportPlainSVG = function () {
     IO.download(new Blob([IO.exportSVG({})], { type: 'image/svg+xml' }), IO.baseName() + '.svg');
-    SV.toast('Exported SVG'); SlopSupport.afterExport('slopvector');
+    SV.toast(SV.t('vector.msg.exported_svg')); SlopSupport.afterExport('slopvector');
   };
 
   /* ================= raster export ================= */
@@ -79,10 +79,10 @@
       return new Promise(function (res) {
         c.toBlob(function (blob) {
           IO.download(blob, IO.baseName() + (scale !== 1 ? '@' + scale + 'x' : '') + (type === 'jpg' ? '.jpg' : '.png'));
-          SV.toast('Exported ' + type.toUpperCase() + ' · ' + c.width + '×' + c.height + ' px'); SlopSupport.afterExport('slopvector');
+          SV.toast(SV.t('vector.msg.exported_raster', { type: type.toUpperCase(), w: String(c.width), h: String(c.height) })); SlopSupport.afterExport('slopvector');
           res(blob);
         }, type === 'jpg' ? 'image/jpeg' : 'image/png', quality || 0.92);
       });
-    }).catch(function (e) { SV.toast('Export failed: ' + e.message, 'warn'); });
+    }).catch(function (e) { SV.toast(SV.t('vector.msg.export_failed', { error: e.message }), 'warn'); });
   };
 })();

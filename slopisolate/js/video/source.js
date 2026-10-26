@@ -30,7 +30,7 @@
   async function probe(file, url) {
     const el = document.createElement('video');
     el.preload = 'auto'; el.muted = true; el.playsInline = true; el.src = url;
-    await new Promise((res, rej) => { el.onloadedmetadata = res; el.onerror = () => rej(new Error('This video format is not supported by your browser')); });
+    await new Promise((res, rej) => { el.onloadedmetadata = res; el.onerror = () => rej(new Error(CO.util.t('cutout.video.err_format'))); });
     const info = { w: el.videoWidth, h: el.videoHeight, duration: el.duration || 0, fps: 30, el };
     return info;
   }

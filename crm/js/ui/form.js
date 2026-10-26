@@ -6,6 +6,7 @@
   const NS = (g.SlopCrm = g.SlopCrm || {});
   const UI = g.SlopUI;
   const el = UI.el;
+  const tr = (k, v) => NS.tr(k, v);   // the string tables (crm/i18n)
   const FIELD_NAMES = ['name', 'company', 'department', 'title', 'website', 'followUp', 'notes', 'photo', 'stage'];
   const sub = (title, ...kids) => el('div', { class: 'sub' }, el('span', { class: 'sub-t' }, title), kids);
 
@@ -53,7 +54,7 @@
     let cur = {};
     if (id) {
       const r = await NS.customers.get(id);
-      if (!r.ok || !r.value) { UI.toast(r.ok ? 'That customer no longer exists.' : NS.util.refusal(r)); return; }
+      if (!r.ok || !r.value) { UI.toast(r.ok ? tr('crm.fm.gone') : NS.util.refusal(r)); return; }
       cur = r.value;
     }
     const P = NS.parts;
@@ -69,27 +70,27 @@
 
     const body = el('form', { class: 'crm-form', novalidate: true, onsubmit: (e) => e.preventDefault(),
       oninput: () => clearErrors(body), onchange: () => clearErrors(body) },
-    P.section('Contact',
-      P.fld('name', 'Name', text('name')),
+    P.section(tr('crm.fm.contact'),
+    P.fld('name', tr('crm.fm.name'), text('name')),
       P.photo(v),
-      sub('Phone numbers', P.entries('phone', v.phones)),
-      sub('Email addresses', P.entries('email', v.emails))),
-    P.section('Company',
-      P.fld('company', 'Company', text('company')),
-      P.fld('department', 'Department', text('department')),
-      P.fld('title', 'Job title', text('title')),
-      P.fld('website', 'Website', text('website', 300), 'Optional, for example example.com')),
-    P.section('Addresses', sub('Postal addresses', P.entries('address', v.addresses))),
-    P.section('Tags and groups',
-      el('p', { class: 'note' }, 'Tags are coloured and shared by all customers. Categories are free text on this customer only.'),
-      sub('Tags', P.labelPicker('tag', v.tagIds, (ids) => { v.tagIds = ids; })),
-      sub('Groups', P.labelPicker('group', v.groupIds, (ids) => { v.groupIds = ids; })),
-      P.fld('categories', 'Categories (comma separated)', cats, 'Kept as before. Use tags for colours and filters.')),
-    P.section('Notes',
-      P.fld('notes', 'Notes', notes, 'One line per note. Start a line with a date such as [2026-10-11] to date it.')),
-    P.section('Follow-up',
-      P.fld('stage', 'Pipeline stage', stage),
-      P.fld('followUp', 'Follow-up date', followUp, 'Shows on the Follow-ups tab.')),
+      sub(tr('crm.fm.phones'), P.entries('phone', v.phones)),
+      sub(tr('crm.fm.emails'), P.entries('email', v.emails))),
+      P.section(tr('crm.fm.company_sec'),
+      P.fld('company', tr('crm.fm.company'), text('company')),
+      P.fld('department', tr('crm.fm.dept'), text('department')),
+      P.fld('title', tr('crm.fm.job'), text('title')),
+      P.fld('website', tr('crm.fm.website'), text('website', 300), tr('crm.fm.website_hint'))),
+      P.section(tr('crm.fm.addresses'), sub(tr('crm.fm.postal'), P.entries('address', v.addresses))),
+      P.section(tr('crm.fm.tags_groups'),
+      el('p', { class: 'note' }, tr('crm.fm.tg_note')),
+      sub(tr('crm.fm.tags'), P.labelPicker('tag', v.tagIds, (ids) => { v.tagIds = ids; })),
+      sub(tr('crm.fm.groups'), P.labelPicker('group', v.groupIds, (ids) => { v.groupIds = ids; })),
+      P.fld('categories', tr('crm.fm.cats'), cats, tr('crm.fm.cats_hint'))),
+      P.section(tr('crm.fm.notes'),
+      P.fld('notes', tr('crm.fm.notes'), notes, tr('crm.fm.notes_hint'))),
+      P.section(tr('crm.fm.followup'),
+      P.fld('stage', tr('crm.fm.stage'), stage),
+      P.fld('followUp', tr('crm.fm.follow_date'), followUp, tr('crm.fm.follow_hint'))),
     el('p', { class: 'msg fld-err', 'data-err': 'form', role: 'alert' }));
 
     const save = async () => {
@@ -98,13 +99,13 @@
       if (Object.keys(errs).length) { showErrors(body, errs); return false; }
       const r = await NS.customers.save(id, NS.fields.toChanges(v));
       if (!r.ok) { showErrors(body, serverErrors(r)); return false; }
-      UI.toast(id ? 'Customer saved' : 'Customer added');
+      UI.toast(tr(id ? 'crm.fm.saved' : 'crm.fm.added'));
       return true;
     };
     SlopFormReset.snapshot(body);
     UI.dialog({
-      title: id ? 'Edit customer' : 'Add customer', cls: 'crm-dlg', body,
-      buttons: [{ label: 'Cancel' }, SlopFormReset.dialogButton(body), { label: 'Save', primary: true, act: save }],
+      title: tr(id ? 'crm.fm.edit' : 'crm.fm.add'), cls: 'crm-dlg', body,
+      buttons: [{ label: tr('menu.cancel') }, SlopFormReset.dialogButton(body), { label: tr('menu.save'), primary: true, act: save }],
     });
   }
 

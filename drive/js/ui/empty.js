@@ -14,28 +14,31 @@
     starred: { eyes: 'heart', mouth: 'blep' },
     recent: { eyes: 'wink', mouth: 'smirk' },
   };
-  const TEXT = {
-    drive: ['Slop Drive is empty', 'Drop files here, upload a folder, or use “Send to…” in any Slopographic app. Everything stays in this browser.'],
-    folder: ['This folder is empty', 'Drag files in from your computer or from another folder.'],
-    trash: ['The Trash is empty', 'Deleted files wait here until you empty the Trash.'],
-    search: ['Nothing found', 'Try another word, or clear the kind filter.'],
-    starred: ['No stars yet', 'Star the files you use most (press S) and they show up here.'],
-    recent: ['Nothing recent', 'Files you add or open show up here.'],
+  // The heading and the text of each situation come from drive.empty.<what>_h and _p; this English is the fallback for a
+  // page without the tables (the white-label Node test loads this file alone).
+  const TEXT = {   // i18n-ignore
+    drive: ['Slop Drive is empty', 'Drop files here, upload a folder, or use “Send to…” in any Slopographic app. Everything stays in this browser.'],   // i18n-ignore
+    folder: ['This folder is empty', 'Drag files in from your computer or from another folder.'],   // i18n-ignore
+    trash: ['The Trash is empty', 'Deleted files wait here until you empty the Trash.'],   // i18n-ignore
+    search: ['Nothing found', 'Try another word, or clear the kind filter.'],   // i18n-ignore
+    starred: ['No stars yet', 'Star the files you use most (press S) and they show up here.'],   // i18n-ignore
+    recent: ['Nothing recent', 'Files you add or open show up here.'],   // i18n-ignore
   };
+  const tr = (key, en) => (DR.t ? DR.t(key) : en);
   /** The empty-state block for a situation (drive | folder | trash | search | starred | recent). */
   DR.emptyState = function (what) {
-    const [h, p] = TEXT[what] || TEXT.folder;
+    const w = TEXT[what] ? what : 'folder', h = tr('drive.empty.' + w + '_h', TEXT[w][0]), p = tr('drive.empty.' + w + '_p', TEXT[w][1]);
     const cv = el('canvas', { class: 'sloppo', width: 360, height: 300, 'aria-hidden': 'true' });
     const acts = el('div', { class: 'acts' });
     if (what === 'drive' || what === 'folder') {
-      const up = el('button', { type: 'button', class: 'btn primary' }, DR.icon('upload'), 'Upload files');
+      const up = el('button', { type: 'button', class: 'btn primary' }, DR.icon('upload'), tr('drive.empty.upload', 'Upload files'));
       up.addEventListener('click', () => DR.uploadPicker(false));
-      const nf = el('button', { type: 'button', class: 'btn' }, DR.icon('folder'), 'New folder');
+      const nf = el('button', { type: 'button', class: 'btn' }, DR.icon('folder'), tr('drive.menu.new_folder', 'New folder'));
       nf.addEventListener('click', () => DR.newFolder(DR.dest()));
       acts.append(up, nf);
-      if (what === 'drive') { const bk = el('button', { type: 'button', class: 'btn' }, 'Restore a backup…'); bk.addEventListener('click', () => DR.backupDialog()); acts.append(bk); }
+      if (what === 'drive') { const bk = el('button', { type: 'button', class: 'btn' }, tr('drive.empty.restore_backup', 'Restore a backup…')); bk.addEventListener('click', () => DR.backupDialog()); acts.append(bk); }
     } else if (what === 'search') {
-      const clr = el('button', { type: 'button', class: 'btn' }, 'Clear search');
+      const clr = el('button', { type: 'button', class: 'btn' }, tr('drive.empty.clear_search', 'Clear search'));
       clr.addEventListener('click', () => { DR.S.query = ''; DR.S.tag = ''; DR.S.kind = 'all'; DR.$('search').value = ''; DR.render(); });
       acts.append(clr);
     }

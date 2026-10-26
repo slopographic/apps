@@ -10,23 +10,23 @@ const withoutNulls = (items) => items.filter((it) => it !== null && it !== undef
 const KINDS = {
   canvas: () => contextItems(),
   selection: () => [
-    App.sel.length >= 3 ? { label: 'Distribute', sub: [{ label: 'Horizontally', key: K('distribute.h'), act: () => distributeSel('h') }, { label: 'Vertically', key: K('distribute.v'), act: () => distributeSel('v') }] } : null,
+    App.sel.length >= 3 ? { label: LT('label.keys.distribute'), sub: [{ label: LT('label.ctx.horizontally'), key: K('distribute.h'), act: () => distributeSel('h') }, { label: LT('label.ctx.vertically'), key: K('distribute.v'), act: () => distributeSel('v') }] } : null,
     App.sel.length >= 3 ? '-' : null, ...contextItems()
   ],
   text: (o) => [
-    { label: 'Edit text…', key: K('editContent'), act: focusContent },
-    { label: o.bold ? 'Not bold' : 'Bold', act: () => setProp('bold', !o.bold, 'Bold') },
+    { label: LT('label.ctx.edit_text'), key: K('editContent'), act: focusContent },
+    { label: o.bold ? LT('label.ctx.not_bold') : LT('label.ptypes.bold'), act: () => setProp('bold', !o.bold, LT('label.ptypes.bold')) },
     '-', ...contextItems()
   ],
-  barcode: () => [{ label: 'Edit data…', key: K('editContent'), act: focusContent }, '-', ...contextItems()],
+  barcode: () => [{ label: LT('label.ctx.edit_data'), key: K('editContent'), act: focusContent }, '-', ...contextItems()],
   image: () => [
-    { label: 'Replace image…', act: () => replaceImage() },
-    { label: 'Original ratio', act: () => originalRatio() },
+    { label: LT('label.ptypes.replace_image'), act: () => replaceImage() },
+    { label: LT('label.ptypes.original_ratio'), act: () => originalRatio() },
     '-', ...contextItems()
   ],
   shape: (o) => [
     o.type === 'rect' || o.type === 'ellipse'
-      ? { label: 'Fill', sub: [['none', 'None'], ['black', 'Black'], ['white', 'White']].map(([v, l]) => ({ label: l, check: (o.fill || 'none') === v, act: () => setProp('fill', v, 'Fill', true) })) }
+      ? { label: LT('label.ptypes.fill'), sub: [['none', LT('label.ptypes.none')], ['black', LT('label.dlg.black')], ['white', LT('label.dlg.white')]].map(([v, l]) => ({ label: l, check: (o.fill || 'none') === v, act: () => setProp('fill', v, LT('label.ptypes.fill'), true) })) }
       : null,
     o.type === 'rect' || o.type === 'ellipse' ? '-' : null,
     ...contextItems()

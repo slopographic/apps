@@ -6,7 +6,9 @@
   const UI = g.SlopUI;
   const el = UI.el;
   const $ = (id) => document.getElementById(id);
-  const LABEL = { invoice: 'Invoices', order: 'Orders' };
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
+  const LABEL = { invoice: 'admin.nu.invoices', order: 'admin.nu.orders' };   // keys
+  const label = (id) => (LABEL[id] ? t(LABEL[id]) : id);
 
   function card(seq) {
     const f = { prefix: el('input', { type: 'text', maxlength: 20, value: seq.prefix || '', 'data-field': 'prefix', autocomplete: 'off' }),
@@ -20,16 +22,16 @@
     };
     for (const k of Object.keys(f)) f[k].addEventListener('input', update);
     return el('section', { class: 'card', 'data-seq': seq.id },
-      el('h2', { class: 'h3' }, LABEL[seq.id] || seq.id),
-      el('p', { class: 'note' }, 'Next number: ', shown),
+      el('h2', { class: 'h3' }, label(seq.id)),
+      el('p', { class: 'note' }, t('admin.nu.next') + ' ', shown),
       el('div', { class: 'grid3' },
-        UI.field('Prefix', f.prefix), UI.field('Digits (padding)', f.pad), UI.field(`Next number (issued so far: ${seq.next - 1})`, f.next)),
-      el('div', { class: 'toolbar' }, el('button', { type: 'button', class: 'btn primary', onclick: async () => {
+        UI.field(t('admin.nu.prefix'), f.prefix), UI.field(t('admin.nu.digits'), f.pad), UI.field(t('admin.nu.next_issued', { n: String(seq.next - 1) }), f.next)),
+      el('div', { class: 'toolbar' }, el('button', { type: 'button', class: 'btn primary', onclick: async () => {   // i18n-ignore: a class name
         msg.textContent = '';
         const r = await NS.numbering.save(seq.id, { prefix: f.prefix.value, pad: f.pad.value, next: f.next.value });
-        if (!r.ok) { msg.textContent = `Not saved. ${NS.util.refusal(r)}`; return; }
-        UI.toast(`${LABEL[seq.id] || seq.id} numbering saved`);
-      } }, 'Save numbering')),
+        if (!r.ok) { msg.textContent = t('admin.co.not_saved', { why: NS.util.refusal(r) }); return; }
+        UI.toast(t('admin.nu.saved', { name: label(seq.id) }));
+        } }, t('admin.nu.save'))),
       msg);
   }
 

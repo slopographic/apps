@@ -46,7 +46,10 @@ body { background: var(--bg); color: var(--fg); font: 13px/1.4 var(--font-ui); o
 .tb-flex { flex: 1; }
 .local-badge { color: var(--faint); font-size: 11px; white-space: nowrap; }
 .fname, .nf-wrap { position: relative; }
-.fname input { font: inherit; color: var(--fg); background: var(--input); border: 1px solid var(--line-2); border-radius: 6px; padding: 4px 8px; width: 170px; }
+.fname input { font: inherit; color: var(--fg); background: var(--input); border: 1px solid var(--line-2); border-radius: 6px; padding: 4px 8px; width: 100%; }
+/* The name field is the bar's give: it starts at its width and shrinks (down to 48 px) before anything passes the edge,
+   so longer menu names (Swedish, a white-label brand) still fit in one row (tests/tables/look.test.html). */
+.fname { flex: 0 1 170px; min-width: 48px; }
 .btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
 /* One height in the bar: the icon buttons, the number format, the name and Save are 34 px like the shared header buttons
    (Drive, Tour, View, Theme, Apps: shared/ui/hbtn.css), which take this bar's colours. */
@@ -59,14 +62,14 @@ body { background: var(--bg); color: var(--fg); font: 13px/1.4 var(--font-ui); o
   .topbar { gap: 6px; }
   .menu-b { padding: 4px 6px; }
   .nf { max-width: 128px; }
-  .fname input { width: 132px; }
+  .fname { flex-basis: 132px; }
 }
 @container tables-app (max-width: 1100px) {
   .topbar { gap: 4px; }
   .menu-b { padding: 4px 3px; }
   .topbar .tb { min-width: 30px; padding: 4px 6px; }
   .nf { max-width: 96px; }
-  .fname input { width: 96px; }
+  .fname { flex-basis: 96px; }
 }
 
 /* formula bar */

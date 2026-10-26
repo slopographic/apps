@@ -19,6 +19,7 @@
   const q = (s) => doc().querySelector(s);
   const panel = () => { const p = q('.stour-panel'); return p && !p.hidden ? p : null; };
   const counter = () => q('.stour-count').textContent;
+  const words = (tour) => win().SlopTour.logic.words(tour);   // the step words from the app tables (shared/tour/core.js)
   const stored = () => { try { return JSON.parse(win().localStorage.getItem('slop.tour.' + APP)); } catch (e) { return null; } };
   const press = (key) => doc().body.dispatchEvent(new (win().KeyboardEvent)('keydown', { key, bubbles: true }));
   const sleepBlink = () => sleep(320); // the spotlight eases to its new place over .18s
@@ -50,6 +51,7 @@
       await waitFor(panel, { timeout: 20000 });
       const tour = await win().SlopTour.load(APP);
       const first = tour.steps[0];
+      expect(q('.stour-name').textContent).toBe('PhotoSlop tour');
       expect(tour.steps.length).toBeGreaterThanOrEqual(4);
       expect(counter()).toBe('1 of ' + tour.steps.length);
       await sleepBlink();
@@ -59,7 +61,8 @@
       expect(Math.abs(hr.left - (tr.left - 6))).toBeLessThanOrEqual(3);
       expect(Math.abs(hr.width - (tr.width + 12))).toBeLessThanOrEqual(3);
       expect(q('.stour-dim').hidden).toBeTruthy();
-      expect(q('.stour-tip b').textContent).toBe(first.title);
+      expect(q('.stour-tip b').textContent).toBe(words(tour).steps[0].title);
+      expect(q('.stour-tip b').textContent).toBe('Start a file');
       expect(getComputedStyle(hole).pointerEvents).toBe('none');
     }, { timeout: 60000 });
 
@@ -69,7 +72,7 @@
       const tour = await win().SlopTour.load(APP);
       q('.stour-next').click();
       await waitFor(() => counter() === '2 of ' + tour.steps.length);
-      expect(q('.stour-title').textContent).toBe(tour.steps[1].title);
+      expect(q('.stour-title').textContent).toBe(words(tour).steps[1].title);
       expect(q('.stour-q.is-current').dataset.i).toBe('1');
       expect(stored().data.index).toBe(1);
     }, { timeout: 60000 });
@@ -80,7 +83,7 @@
       const tour = await win().SlopTour.load(APP);
       q('.stour-q[data-i="3"]').click();
       await waitFor(() => counter() === '4 of ' + tour.steps.length);
-      expect(q('.stour-title').textContent).toBe(tour.steps[3].title);
+      expect(q('.stour-title').textContent).toBe(words(tour).steps[3].title);
       expect(q('.stour-q[data-i="0"]').classList.contains('is-done')).toBeFalsy();
       expect(stored().v).toBe(1);
       expect(stored().data.index).toBe(3);

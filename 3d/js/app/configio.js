@@ -9,32 +9,33 @@
   const C = window.SlopConfig, D = window.SlopConfigDialog;
   const APP = '3d';
   const toast = (m) => { if (window.SlopUI) SlopUI.toast(m); };
+  const t = S.t;
 
   /** Validates config text and adds it to the scene. Returns true when it was added. Accepts the shared envelope or bare JSON. */
   function importText(text) {
     let data;
-    try { data = JSON.parse(String(text)); } catch (e) { toast('That file is not valid JSON'); return false; }
+    try { data = JSON.parse(String(text)); } catch (e) { toast(t('3d.config.bad_json')); return false; }
     if (C && data && data.format === C.consts.FORMAT) { C.importText(String(text), { app: APP }).then((res) => D.showResult(res)); return true; }
     const r = S.config.validate(data);
-    if (!r.ok) { toast('Config not imported: ' + r.errors.slice(0, 3).join('; ')); return false; }
-    if (!r.trees.length) { toast('The config has no objects or lights'); return false; }
+    if (!r.ok) { toast(t('3d.config.not_imported', { errors: r.errors.slice(0, 3).join('; ') })); return false; }
+    if (!r.trees.length) { toast(t('3d.config.empty')); return false; }
     A.addTrees(r.trees);
-    toast(`Imported ${r.trees.length} item${r.trees.length === 1 ? '' : 's'}`);
+    toast(t('3d.config.imported', { n: r.trees.length }));
     return true;
   }
   function importDialog() {
     if (D) { D.importDialog({ app: APP }); return; }
     // without the shared config dialog: a part of the one intake of its own ('3d.config')
     const SI = window.SlopIntake;
-    if (!SI.spec('3d.config')) SI.register({ id: '3d.config', main: false, paste: false, toast: false, limit: 1, accept: { types: ['application/json'], exts: ['.json'], noun: 'a config file' }, process: async (f) => { await importText(await f.text()); return f.name; } });
+    if (!SI.spec('3d.config')) SI.register({ id: '3d.config', main: false, paste: false, toast: false, limit: 1, accept: { types: ['application/json'], exts: ['.json'], noun: '3d.config.noun' }, process: async (f) => { await importText(await f.text()); return f.name; } });
     SI.pick({ to: '3d.config', multiple: false, accept: '.json,application/json' });
   }
   function exportConfig() {
     const r = S.config.exportScene(s.doc);
-    if (!r.data.objects.length && !r.data.lights.length) { toast('Nothing to export: the scene has no primitives or lights'); return false; }
-    if (C) { C.exportKind('scene', APP, (s.file.name || 'scene')).then((f) => SlopUI.download(f, f.name)).catch((e) => toast('Could not export: ' + e.message)); }
+    if (!r.data.objects.length && !r.data.lights.length) { toast(t('3d.config.nothing')); return false; }
+    if (C) { C.exportKind('scene', APP, (s.file.name || 'scene')).then((f) => SlopUI.download(f, f.name)).catch((e) => toast(t('3d.config.export_failed', { error: String(e.message) }))); }
     else if (window.SlopUI) SlopUI.download(new Blob([JSON.stringify(r.data, null, 2)], { type: 'application/json' }), (s.file.name || 'scene') + '.config.json');
-    if (r.skipped) toast(`${r.skipped} edited or imported mesh${r.skipped === 1 ? '' : 'es'} left out (only primitives are written)`);
+    if (r.skipped) toast(t('3d.config.skipped', { n: r.skipped }));
     return true;
   }
 
@@ -49,15 +50,15 @@
     C.registerKind('scene', APP, {
       strict: true,
       fields: {
-        objects: F.list(free, { max: 2000, desc: 'primitives: box, sphere, cylinder and the rest, each with a name, a position, rotation and scale, and a material' }),
-        lights: F.list(free, { max: 200, desc: 'lights: point, directional or spot, with position and colour' }),
+        objects: F.list(free, { max: 2000, desc: 'primitives: box, sphere, cylinder and the rest, each with a name, a position, rotation and scale, and a material' }), // i18n-ignore: config schema text (API)
+        lights: F.list(free, { max: 200, desc: 'lights: point, directional or spot, with position and colour' }), // i18n-ignore: config schema text (API)
       },
     }, async (data) => {
       const r = S.config.validate(data);
       if (!r.ok) throw new Error(r.errors.slice(0, 3).join('; '));
       if (r.trees.length) A.addTrees(r.trees); // one undo step
     }, {
-      label: 'Scene', description: 'Primitives and lights with positions, sizes and colours',
+      label: 'Scene', description: 'Primitives and lights with positions, sizes and colours', // i18n-ignore: config schema text (API)
       read: () => S.config.exportScene(s.doc).data, check,
     });
     return true;
@@ -67,8 +68,8 @@
   function commands(C2) {
     const cfg = D ? D.commands({ app: APP, prefix: '3d' }) : [];
     return [
-      C2('3d.file.importConfig', 'Import config…', 'File', [], () => importDialog()),
-      C2('3d.file.exportConfig', 'Export config…', 'File', [], () => exportConfig()),
+      C2('3d.file.importConfig', t('3d.cmd.import_config'), 'File', [], () => importDialog()),
+      C2('3d.file.exportConfig', t('3d.cmd.export_config'), 'File', [], () => exportConfig()),
     ].concat(cfg.map((c) => C2(c.id, c.title, 'Config', [], c.run)));
   }
 

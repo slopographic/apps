@@ -4,24 +4,29 @@
  * and Menu stay in the header. On a phone the panel is a bottom sheet whose closed state still shows Export.
  *   mountPanel({ has: () => bool }) → { paint() }   paint() after every render (Export and Slop Table need a sheet) */
 const $ = (id) => document.getElementById(id);
+const t = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
 
 export function mountPanel({ has }) {
   if (!window.SlopFrame) return { paint() {} };
   const side = $('sv-side');
-  const frame = window.SlopFrame.mount($('sv-body'), { view: $('sv-main'), panel: side, panelLabel: 'Sheet', storageKey: 'sheetview',
+  const frame = window.SlopFrame.mount($('sv-body'), { view: $('sv-main'), panel: side, panelLabel: 'sheetview.app.sheet', storageKey: 'sheetview',
     width: 260, min: 220, max: 420 });   // shown and hidden with Ctrl+Alt+B (the View command); no header button
   $('sv-export').classList.add('sv-primary');
-  const p = window.SlopFrame.panel(side, { title: 'Sheet' });
+  const p = window.SlopFrame.panel(side, { title: t('sheetview.app.sheet') });
   const pick = (id) => { const l = $(id).closest('label'); l.classList.add('sf-field'); return l; };
-  p.render([
-    { key: 'look', title: 'Look', settings: [pick('sv-style'), pick('sv-palette')] },
-    { key: 'send', title: 'Send', note: 'The current sheet, all rows, as a new table.', actions: [{ el: $('sv-hub') }] },
+  const look = [pick('sv-style'), pick('sv-palette')], hub = $('sv-hub');
+  // built again on a language change: the section titles, the note and the phone's Sheet button read the language
+  const draw = () => p.render([
+    { key: 'look', title: t('sheetview.panel.look'), settings: look },
+    { key: 'send', title: t('sheetview.panel.send'), note: t('sheetview.panel.send_note'), actions: [{ el: hub }] },
   ]);
   const paint = () => {
     const on = has();
-    p.footer([{ el: $('sv-export'), primary: true, disabled: !on, title: 'Export the rows you see, or all rows' }], { more: 'Sheet' });
+    p.footer([{ el: $('sv-export'), primary: true, disabled: !on, title: t('sheetview.app.export_title') }], { more: t('sheetview.app.sheet') });
     $('sv-hub').disabled = !on;
   };
+  draw();
   paint();
+  if (window.SlopI18n && window.SlopI18n.on) window.SlopI18n.on(() => { p.setTitle(t('sheetview.app.sheet')); draw(); paint(); });
   return { frame, paint };
 }

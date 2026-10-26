@@ -13,7 +13,7 @@
  *   not flipped. A batch entry with several TxDtls stays one line with the entry's amount.
  *   readCamt(bytes | text) -> statement model, format 'camt053' (message: 'camt.053.001.02' and so on).          */
 import { parseXml } from '../office/xml.js';
-import { decodeBytes, parseAmount, ymd, squash } from './text.js';
+import { decodeBytes, parseAmount, ymd, squash, say } from './text.js';
 import { statementModel, mergeStatements } from './model.js';
 
 const isEl = (n) => n && n.nodeType === 1;
@@ -32,7 +32,7 @@ function entry(n, warn) {
   const ind = txt(n, 'CdtDbtInd');
   const amount = signed(parseAmount(amtEl ? amtEl.textContent : ''), ind);
   const booked = date(kid(n, 'BookgDt')), value = date(kid(n, 'ValDt'));
-  if (amount === null || !(booked || value)) { warn(`An entry (${txt(n, 'AcctSvcrRef') || txt(n, 'NtryRef') || 'no reference'}) has no amount or date and was left out.`); return null; }
+  if (amount === null || !(booked || value)) { warn(txt(n, 'AcctSvcrRef') || txt(n, 'NtryRef') ? say('ui.fin.camt_entry', { ref: txt(n, 'AcctSvcrRef') || txt(n, 'NtryRef') }) : say('ui.fin.camt_entry_noref')); return null; }
   const tx = kids(n, 'NtryDtls').flatMap((d) => kids(d, 'TxDtls'));
   const first = tx[0] || null;
   const ustrd = tx.flatMap((t) => kids(at(t, 'RmtInf'), 'Ustrd').map((u) => squash(u.textContent))).filter(Boolean);
@@ -80,11 +80,11 @@ export function readCamt(input) {
   const warnings = [];
   const warn = (w) => { if (warnings.length < 200) warnings.push(w); };
   let doc;
-  try { doc = parseXml(text); } catch (e) { const m = statementModel('camt053'); m.warnings.push(`The XML could not be read: ${e.message}`); return m; }
+  try { doc = parseXml(text); } catch (e) { const m = statementModel('camt053'); m.warnings.push(say('ui.fin.camt_xml', { message: e.message })); return m; }
   const root = doc.documentElement;
   const ns = (root && root.namespaceURI) || '';
   const body = root && root.localName === 'Document' ? kids(root).find((k) => ROOTS[k.localName]) : root && ROOTS[root.localName] ? root : null;
-  if (!body) { const m = statementModel('camt053'); m.warnings.push('This XML is not an ISO 20022 bank statement (no BkToCstmrStmt).'); return m; }
+  if (!body) { const m = statementModel('camt053'); m.warnings.push(say('ui.fin.camt_not')); return m; }
   const list = kids(body, ROOTS[body.localName]).map((st) => statement(st, warn));
   const res = mergeStatements('camt053', list, warnings);
   const v = /camt\.\d{3}\.\d{3}\.\d{2}/.exec(ns);

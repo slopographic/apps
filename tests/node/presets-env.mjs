@@ -4,6 +4,7 @@ import vm from 'node:vm';
 import path from 'node:path';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
+import { useLang } from './ui-tables-env.mjs';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const FILES = [
@@ -17,6 +18,7 @@ export async function load() {
   const ctx = { Blob: globalThis.Blob, console };
   ctx.window = ctx;
   vm.createContext(ctx);
+  useLang(ctx, 'en', { parts: ['presets', 'config', 'motion', 'templates'] });   // the words a page has (shared/i18n/ui/en/<part>.js)
   for (const [dir, files] of FILES) {
     for (const f of files) vm.runInContext(await readFile(path.join(ROOT, dir, f), 'utf8'), ctx, { filename: `${dir}/${f}` });
   }

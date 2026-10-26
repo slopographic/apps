@@ -6,8 +6,11 @@
   const S = g.SlopData, B = g.SlopBiz, UI = g.SlopUI, el = g.SlopUI.el;
   const NS = (g.SlopExpenses = g.SlopExpenses || {});
   const $ = (id) => document.getElementById(id);
-  const FIELDS = { supplier: 'Supplier', date: 'Date', amount: 'Amount', tax: 'Tax', account: 'Category', currency: 'Currency' };
-  const METHODS = [['bank', 'Bank transfer'], ['card', 'Card'], ['cash', 'Cash'], ['other', 'Other']];
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
+  // field names for refusals and the payment methods, in the chosen language (getters, read when shown)
+  const FIELDS = { get supplier() { return t('expenses.f.supplier'); }, get date() { return t('expenses.f.date'); }, get amount() { return t('expenses.f.amount'); },
+    get tax() { return t('expenses.f.tax'); }, get account() { return t('expenses.f.category'); }, get currency() { return t('expenses.f.currency'); } };
+  const METHOD = () => ({ bank: t('expenses.m.bank'), card: t('expenses.m.card'), cash: t('expenses.m.cash'), other: t('expenses.m.other') });
   let taxTouched = false, cur = null;
 
   const today = () => S.ledger.today();
@@ -17,7 +20,7 @@
   async function fillAccounts(selected) {
     const accts = await B.expenseAccounts();
     $('eAccount').replaceChildren(...accts.map((a) => el('option', { value: a.code, selected: a.code === selected }, `${a.code} ${a.name}`)),
-      el('option', { value: '+' }, 'New category…'));
+      el('option', { value: '+' }, t('expenses.ed.new_cat')));
   }
   async function suppliers() {
     const r = await S.store.list('expenses');
@@ -26,13 +29,13 @@
   }
   /** Adds an expense account (the next free 5xxx code) named by the person, and selects it. */
   async function newCategory() {
-    const name = await UI.prompt('New category', 'Name of the expense category', '', { ok: 'Add', placeholder: 'Travel' });
+    const name = await UI.prompt(t('expenses.ed.new_cat_q'), t('expenses.ed.new_cat_name'), '', { ok: t('expenses.ed.add'), placeholder: t('expenses.ed.travel') });
     if (!name || !name.trim()) { await fillAccounts(cur && cur.account); return; }
     const r = await S.store.list('accounts');
     const used = new Set((r.ok ? r.value : []).map((a) => a.code));
     let code = 5010; while (used.has(String(code)) && code < 5999) code += 10;
     const w = await S.store.put('accounts', { code: String(code), name: name.trim(), type: 'expense' });
-    if (!w.ok) { UI.alert('Category not added', B.refusal(w)); await fillAccounts(); return; }
+    if (!w.ok) { UI.alert(t('expenses.ed.cat_not'), B.refusal(w)); await fillAccounts(); return; }
     await fillAccounts(String(code));
   }
   /** The tax from the amount and rate, until the person types a tax of their own. */
@@ -58,7 +61,7 @@
     if (copyOf) { const r = await S.store.get('expenses', copyOf); src = r.ok ? r.value : null; }
     cur = null; taxTouched = !!src; setForm(true); say('');
     if (NS.receiptScan) NS.receiptScan.clear();
-    $('eTitle').textContent = src ? `Copy of ${src.supplier}` : 'New expense';
+    $('eTitle').textContent = src ? t('expenses.ed.copy_of', { name: src.supplier }) : t('expenses.ed.new');
     $('eDate').value = today();
     $('eSupplier').value = src ? src.supplier : '';
     $('eDescription').value = src ? src.description || '' : '';
@@ -76,17 +79,17 @@
   /** A recorded expense, read only. */
   async function showOne(id) {
     const [r, s, accts] = await Promise.all([S.store.get('expenses', id), B.settings(), B.expenseAccounts()]);
-    if (!r.ok || !r.value) { setForm(false); $('eView').replaceChildren(el('p', { class: 'note' }, 'That expense no longer exists.')); return; }
+    if (!r.ok || !r.value) { setForm(false); $('eView').replaceChildren(el('p', { class: 'note' }, t('expenses.ed.gone'))); return; }
     cur = r.value; setForm(false); say('');
     const e = cur, c = e.currency || s.currency, m = (v) => B.money(v, c, s.locale), acct = accts.find((a) => a.code === e.account);
     $('eTitle').textContent = `${e.supplier} · ${e.date}`;
     const row = (k, v) => [el('dt', null, k), el('dd', null, v)];
-    $('eView').replaceChildren(el('dl', { class: 'facts' }, ...row('Supplier', e.supplier), ...row('Description', e.description || '—'),
-      ...row('Category', acct ? `${acct.code} ${acct.name}` : e.account), ...row('Amount', m(e.amount)), ...row('Tax', m(e.tax || 0)),
-      ...row('Without tax', m(e.amount - (e.tax || 0))), ...row('Paid by', (METHODS.find((x) => x[0] === e.method) || [, e.method])[1]),
-      ...row('Status', e.status === 'void' ? 'Void (the entry is reversed)' : e.status === 'owed' ? `Owed to the supplier${e.dueDate ? `, due ${e.dueDate}` : ''}` : `Recorded in the books${e.paidDate && e.paidDate !== e.date ? `, paid ${e.paidDate}` : ''}`),
-      ...row('Notes', e.notes || '—'),
-      ...(e.receiptId ? row('Receipt', el('button', { type: 'button', class: 'btn small', onclick: () => viewReceipt(e.receiptId) }, 'View the receipt')) : [])));
+    $('eView').replaceChildren(el('dl', { class: 'facts' }, ...row(t('expenses.f.supplier'), e.supplier), ...row(t('expenses.ed.description'), e.description || '—'),
+      ...row(t('expenses.f.category'), acct ? `${acct.code} ${acct.name}` : e.account), ...row(t('expenses.f.amount'), m(e.amount)), ...row(t('expenses.f.tax'), m(e.tax || 0)),
+      ...row(t('expenses.ed.without_tax'), m(e.amount - (e.tax || 0))), ...row(t('expenses.ed.paid_by'), METHOD()[e.method] || e.method),
+      ...row(t('expenses.ed.status'), e.status === 'void' ? t('expenses.ed.void') : e.status === 'owed' ? (e.dueDate ? t('expenses.ed.owed_due', { date: e.dueDate }) : t('expenses.ed.owed')) : (e.paidDate && e.paidDate !== e.date ? t('expenses.ed.recorded_paid', { date: e.paidDate }) : t('expenses.ed.recorded'))),
+      ...row(t('expenses.ed.notes'), e.notes || '—'),
+      ...(e.receiptId ? row(t('expenses.ed.receipt'), el('button', { type: 'button', class: 'btn small', onclick: () => viewReceipt(e.receiptId) }, t('expenses.ed.view_receipt'))) : [])));   // i18n-ignore: CSS class names
     $('eVoid').hidden = e.status !== 'posted' && e.status !== 'owed';
     $('ePay').hidden = e.status !== 'owed';
   }
@@ -94,15 +97,15 @@
   /** The receipt photo kept in Slop Drive, in a new tab. */
   async function viewReceipt(id) {
     const f = g.SlopHub ? await g.SlopHub.get(id).catch(() => null) : null;
-    if (!f || !f.blob) { UI.alert('Receipt not found', 'The photo is no longer in Slop Drive.'); return; }
+    if (!f || !f.blob) { UI.alert(t('expenses.ed.no_receipt'), t('expenses.ed.no_receipt_body')); return; }
     g.open(URL.createObjectURL(f.blob), '_blank', 'noopener');
   }
 
   async function record() {
     const currency = ($('eCurrency').value || '').trim().toUpperCase();
     const amount = S.money.parseMinor($('eAmount').value, currency), tax = $('eTax').value.trim() ? S.money.parseMinor($('eTax').value, currency) : 0;
-    if (amount == null || amount < 1) { say('Amount: type what was paid, like 24.00.', true); $('eAmount').focus(); return; }
-    if (tax == null) { say('Tax: type an amount like 4.00, or leave it empty.', true); $('eTax').focus(); return; }
+    if (amount == null || amount < 1) { say(t('expenses.ed.bad_amount'), true); $('eAmount').focus(); return; }
+    if (tax == null) { say(t('expenses.ed.bad_tax'), true); $('eTax').focus(); return; }
     const later = $('eMethod').value === 'later';
     const r = await S.expenses.record({ date: $('eDate').value, supplier: $('eSupplier').value.trim(), description: $('eDescription').value.trim() || undefined,
       account: $('eAccount').value, amount, tax, currency, method: later ? 'bank' : $('eMethod').value, notes: $('eNotes').value.trim() || undefined,
@@ -110,7 +113,7 @@
       receiptId: (NS.receiptScan && NS.receiptScan.current()) || undefined });
     if (!r.ok) { say(B.refusal(r, { fields: FIELDS }), true); return; }
     if (NS.receiptScan) NS.receiptScan.clear();
-    UI.toast(`Expense from ${r.value.supplier} recorded`);
+    UI.toast(t('expenses.ed.recorded_toast', { name: r.value.supplier }));
     NS.app.go(`e/${r.value.id}`);
   }
 
@@ -130,5 +133,5 @@
 
   NS.editor = { record, current: () => cur };
   NS.views = NS.views || {};
-  NS.views.edit = { mount, show: (id, t) => (id ? showOne(id) : showNew(t && t.copyOf)) };
+  NS.views.edit = { mount, show: (id, opts) => (id ? showOne(id) : showNew(opts && opts.copyOf)) };
 })(typeof window !== 'undefined' ? window : globalThis);

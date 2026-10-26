@@ -9,6 +9,7 @@ import * as F from './storage.js';
 import { fromNative } from '../io/native.js';
 import { fnNames } from '../fn/index.js';
 import { startEdit } from './editor.js';
+import { t as tr, onLang } from '../i18n.js';
 
 const KEY = 'slop-tables.sidebar';
 const LIMIT_MS = 1500; // My templates is read from IndexedDB; a read that never answers shows an empty list
@@ -36,8 +37,8 @@ function applyCollapsed(collapsed) {
   if (drawer && drawer.isPhone()) return phoneToggle(drawer.isOpen());   // the strip's toggle is the drawer's
   side.classList.toggle('collapsed', collapsed);
   t.setAttribute('aria-expanded', String(!collapsed));
-  t.setAttribute('aria-label', collapsed ? 'Show sidebar' : 'Hide sidebar');
-  t.title = collapsed ? 'Show sidebar' : 'Hide sidebar';
+  t.setAttribute('aria-label', tr(collapsed ? 'tables.side.show' : 'tables.side.hide'));
+  t.title = t.getAttribute('aria-label');
   t.textContent = collapsed ? '›' : '‹';
 }
 function savedCollapsed() {
@@ -78,13 +79,13 @@ async function loadMine() {
     Promise.resolve().then(() => TPL.listMine()).then((v) => { clearTimeout(t); res(v || []); }, () => { clearTimeout(t); res([]); });
   });
   if (seq !== mineSeq) return; // a newer load has started
-  if (!recs.length) { list.replaceChildren(wrap(el('span', 'side-empty', 'None saved yet'))); return; }
+  if (!recs.length) { list.replaceChildren(wrap(el('span', 'side-empty', tr('tables.side.none_saved')))); return; }
   list.replaceChildren(...recs.map((rec) => {
-    const b = el('button', 'side-item', rec.name || 'Untitled template');
+    const b = el('button', 'side-item', rec.name || tr('tables.tpl.untitled'));
     b.type = 'button';
     b.title = rec.description || rec.name || '';
     b.addEventListener('click', async () => {
-      try { await F.useWorkbook(fromNative(rec.native), rec.name); } catch (e) { window.SlopUI.toast('That template could not be opened'); }
+      try { await F.useWorkbook(fromNative(rec.native), rec.name); } catch (e) { window.SlopUI.toast(tr('tables.tpl.open_failed')); }
       loadMine();
     });
     return wrap(b);
@@ -98,7 +99,7 @@ function buildFunctions() {
   list.replaceChildren(...fnNames().map((name) => {
     const b = el('button', 'side-item side-fn-b', name);
     b.type = 'button';
-    b.title = 'Start a formula with ' + name;
+    b.title = tr('tables.side.fn_tip', { name });
     b.dataset.name = name;
     b.addEventListener('click', () => { if (!S.edit) { closeDrawer(); startEdit('=' + name + '('); } });
     return wrap(b);
@@ -114,14 +115,14 @@ function buildFunctions() {
 function phoneToggle(open) {
   const t = $('sideToggle');
   t.textContent = open ? '‹' : '›';
-  t.setAttribute('aria-label', open ? 'Hide sidebar' : 'Show sidebar');
+  t.setAttribute('aria-label', tr(open ? 'tables.side.hide' : 'tables.side.show'));
   t.title = t.getAttribute('aria-label');
   t.setAttribute('aria-expanded', String(open));
 }
 
 /** Wires the sidebar. Called once at boot. */
 export function init() {
-  drawer = window.SlopSheet.attach({ root: $('side'), panel: $('sideBody'), side: 'start', phone: PHONE, toggles: [$('sideToggle')], label: 'Sidebar',
+  drawer = window.SlopSheet.attach({ root: $('side'), panel: $('sideBody'), side: 'start', phone: PHONE, toggles: [$('sideToggle')], label: tr('tables.side.sidebar'),
     onChange: (open) => { phoneToggle(open); if (open) loadMine(); } });
   matchMedia(PHONE).addEventListener('change', () => applyCollapsed(savedCollapsed()));
   applyCollapsed(savedCollapsed());
@@ -130,6 +131,11 @@ export function init() {
   $('sideFromTpl').addEventListener('click', () => TPL.openTemplates());
   buildFunctions();
   if (!savedCollapsed()) loadMine();
+  onLang(() => { // the toggle, the function tips and My templates in the new language
+    if (drawer && drawer.isPhone()) phoneToggle(drawer.isOpen()); else applyCollapsed(savedCollapsed());
+    for (const b of document.querySelectorAll('#sideFns .side-fn-b')) b.title = tr('tables.side.fn_tip', { name: b.dataset.name });
+    loadMine();
+  });
 }
 
 /** Repaint hook: keeps the sheet list in step with the workbook. */

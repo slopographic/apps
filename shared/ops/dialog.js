@@ -12,6 +12,7 @@
 import { mountWorkflow } from '../../workflows/js/ui/mount.js';
 import { ask as askApp } from '../convert/provided.js';
 import { scripts } from './load.js';
+import { t } from './i18n.js';
 
 const g = globalThis;
 const NEEDS = [
@@ -44,14 +45,14 @@ export function open(o = {}) {
     if (!files.length && o.ask !== false) { from = await askApp(); files = from.files; }
     const wrap = el('div', 'sl-wf'), note = el('p', 'sl-wf-from'), host = el('div', 'sl-wf-host');
     note.hidden = !(from && files.length);
-    if (from && files.length) note.textContent = `From ${from.app}: ${files.map((f) => f.name).join(', ')}`;
-    wrap.append(note, host, el('p', 'sl-wf-foot', 'Every step runs on this device. Nothing is uploaded.'));
-    dlg = g.SlopUI.dialog({ title: o.title || 'Run a workflow', body: wrap, cls: 'sl-wf-dlg', onClose: () => { if (ctl.tool) ctl.tool.destroy(); resolveDone(); } });
+    if (from && files.length) note.textContent = t('ui.ops.dialog.from', { app: from.app, files: files.map((f) => f.name).join(', ') });
+    wrap.append(note, host, el('p', 'sl-wf-foot', t('ui.ops.dialog.foot')));
+    dlg = g.SlopUI.dialog({ title: o.title || t('ui.ops.dialog.title'), body: wrap, cls: 'sl-wf-dlg', onClose: () => { if (ctl.tool) ctl.tool.destroy(); resolveDone(); } });
     const back = dlg.box.parentElement;
-    for (const t of ['dragenter', 'dragover', 'dragleave', 'drop']) back.addEventListener(t, (e) => e.stopPropagation());
+    for (const type of ['dragenter', 'dragover', 'dragleave', 'drop']) back.addEventListener(type, (e) => e.stopPropagation());
     ctl.tool = mountWorkflow(host, { compact: true, files, workflow: o.workflow, drop: { window: false, targets: [back], paste: false } });
     await ctl.tool.ready;
     return ctl.tool;
-  })().catch((e) => { console.warn(e); if (g.SlopUI) g.SlopUI.toast('Workflows could not open: ' + ((e && e.message) || e)); resolveDone(); throw e; });
+  })().catch((e) => { console.warn(e); if (g.SlopUI) g.SlopUI.toast(t('ui.ops.dialog.failed', { message: String((e && e.message) || e) })); resolveDone(); throw e; });
   return ctl;
 }

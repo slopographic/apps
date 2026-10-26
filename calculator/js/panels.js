@@ -5,6 +5,7 @@
   'use strict';
   const R = window.SlopCalcRates;
   const $ = (id) => document.getElementById(id);
+  const t = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
   /* Looked up when used, because this script runs in the <head>, before the page's elements exist. */
   const els = () => ({ hist: $('sc-history'), none: $('sc-history-none'), q: $('sc-hq'), clear: $('sc-history-clear'),
     rateList: $('sc-rate-list'), rateForm: $('sc-rate-form'), ledger: $('sc-ledger-note') });
@@ -28,34 +29,34 @@
       return li;
     }));
     el.none.hidden = shown.length > 0;
-    el.none.textContent = (o.history() || []).length ? 'No history matches the search.' : 'Calculations you finish appear here.';
+    el.none.textContent = t((o.history() || []).length ? 'calculator.hist.no_match' : 'calculator.hist.none');
     el.clear.disabled = !(o.history() || []).length;
   }
 
   function renderRates() {
     const el = els();
     el.ledger.textContent = R.ledgerReady()
-      ? 'Rates from Slop Ledger are used when there is no manual rate for the pair.'
-      : 'Slop Ledger rates are not loaded, so only manual rates are used.';
+      ? t('calculator.rates.ledger')
+      : t('calculator.rates.no_ledger');
     const rows = R.manual();
     el.rateList.replaceChildren(...rows.map((r) => {
       const li = document.createElement('li');
       li.className = 'sc-rate-row';
-      const t = document.createElement('span');
-      t.textContent = `1 ${r.from} = ${Number(r.factor.toPrecision(10))} ${r.to}`;
+      const s = document.createElement('span');
+      s.textContent = `1 ${r.from} = ${Number(r.factor.toPrecision(10))} ${r.to}`;
       const d = document.createElement('button');
       d.type = 'button';
       d.className = 'sc-btn sc-small';
-      d.textContent = 'Remove';
-      d.setAttribute('aria-label', `Remove the rate from ${r.from} to ${r.to}`);
+      d.textContent = t('calculator.rates.remove');
+      d.setAttribute('aria-label', t('calculator.rates.remove_label', { from: r.from, to: r.to }));
       d.addEventListener('click', () => { R.removeManual(r.from, r.to); renderRates(); o.ratesChanged(); });
-      li.append(t, d);
+      li.append(s, d);
       return li;
     }));
     if (!rows.length) {
       const li = document.createElement('li');
       li.className = 'sc-none';
-      li.textContent = 'No manual rates yet.';
+      li.textContent = t('calculator.rates.none');
       el.rateList.append(li);
     }
   }
@@ -67,11 +68,11 @@
       const from = $('sc-rate-from').value.trim().toUpperCase();
       const to = $('sc-rate-to').value.trim().toUpperCase();
       const f = Number($('sc-rate-factor').value);
-      if (!/^[A-Z]{3}$/.test(from) || !/^[A-Z]{3}$/.test(to)) { o.status('Currency codes are three letters, such as USD and EUR'); return; }
-      if (!R.setManual(from, to, f)) { o.status('Enter a rate above zero, and two different currencies'); return; }
+      if (!/^[A-Z]{3}$/.test(from) || !/^[A-Z]{3}$/.test(to)) { o.status(t('calculator.status.codes')); return; }
+      if (!R.setManual(from, to, f)) { o.status(t('calculator.status.bad_rate')); return; }
       el.rateForm.reset();
       renderRates();
-      o.status(`Saved: 1 ${from} = ${f} ${to}`);
+      o.status(t('calculator.status.rate_saved', { from, factor: String(f), to }));
       o.ratesChanged();
     });
   }
@@ -80,7 +81,7 @@
     o = Object.assign(o, opts);
     const el = els();
     el.q.addEventListener('input', () => renderHistory(o.history()));
-    el.clear.addEventListener('click', () => { o.setHistory([]); renderHistory([]); o.status('History cleared'); });
+    el.clear.addEventListener('click', () => { o.setHistory([]); renderHistory([]); o.status(t('calculator.status.history_cleared')); });
     bindRateForm();
     renderRates();
   }

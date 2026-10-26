@@ -5,6 +5,7 @@
   'use strict';
   const A = (window.EmlActions = {});
   const app = () => window.EmlApp;
+  const t = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
   const toast = (msg, ms, action) => window.SlopUI.toast(msg, ms, action);
 
   /** Open messages… (Ctrl+O, the Open buttons): a source of the one intake (main.js). */
@@ -16,12 +17,12 @@
     const doc = app().current();
     if (!doc) return;
     const w = window.open('', '_blank');
-    if (!w) { toast('Allow pop-ups for this page to print the message.', 6000); return; }
+    if (!w) { toast(t('eml.toast.popups'), 6000); return; }
     const html = window.EmlFrame.printable(doc.msg, doc.summary, doc.view);
     w.document.open();
     w.document.write(html);
     w.document.close();
-    setTimeout(() => { try { w.focus(); w.print(); } catch (e) { toast('The print window could not start.', 5000); } }, 250);
+    setTimeout(() => { try { w.focus(); w.print(); } catch (e) { toast(t('eml.toast.print_failed'), 5000); } }, 250);
   };
 
   /** Convert to PDF: the Export dialog with PDF chosen, for this message (or the ticked ones). */
@@ -41,7 +42,7 @@
   A.openInPdf = function () {
     const picked = app().checkedDocs();
     const docs = picked.length > 1 ? picked : window.EmlExport.scope('current');
-    if (!docs.length) { toast('Open a message first.'); return null; }
+    if (!docs.length) { toast(t('eml.toast.open_first')); return null; }
     return window.EmlExport.toApp('pdf', 'pdf', docs, { attachments: true });
   };
 })();

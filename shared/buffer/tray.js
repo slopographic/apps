@@ -14,7 +14,9 @@
       '.sbuf-tray[hidden]{display:none}.buffer-over{outline:2px dashed #4a8cff;outline-offset:-2px}';
     g.document.head.appendChild(s);
   }
-  var LABEL = { vector: 'vector', image: 'image', text: 'text', table: 'table', clip: 'item' };
+  /** The tray's words (ui.buffer.*): the kind of what is held, read when it is painted. */
+  var KINDS = ['vector', 'image', 'text', 'table', 'clip'];
+  function tr(k, v) { var I = g.SlopI18n; return I ? I.t(k, v) : k; }
 
   B.tray = function (host) {
     style();
@@ -22,16 +24,20 @@
     el.type = 'button';
     el.className = 'sbuf-tray';
     el.hidden = true;
-    el.setAttribute('aria-label', 'Copy buffer. Drag it onto the canvas to place it.');
     B.makeDraggable(el);
+    var last = null;
     function paint(rec) {
+      last = rec;
+      el.setAttribute('aria-label', tr('ui.buffer.aria'));
       el.hidden = !rec;
       if (!rec) return;
-      el.textContent = 'Buffer: ' + (LABEL[rec.kind] || rec.kind) + ' from ' + rec.source;
-      el.title = 'Drag onto a canvas to place it. Paste also uses it.';
+      var kind = KINDS.indexOf(rec.kind) >= 0 ? tr('ui.buffer.kind_' + rec.kind) : rec.kind;
+      el.textContent = tr('ui.buffer.label', { kind: kind, source: rec.source });
+      el.title = tr('ui.buffer.tip');
     }
     B.onChange(paint);
     B.ready.then(paint);
+    if (g.SlopI18n && g.SlopI18n.on) g.SlopI18n.on(function () { paint(last); });
     (host || g.document.body).appendChild(el);
     return el;
   };

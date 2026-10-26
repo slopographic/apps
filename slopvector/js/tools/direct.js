@@ -58,7 +58,7 @@
     else if (op.primary) { var t = SV.snapPoint(op.snap, { x: op.primary.x + dx, y: op.primary.y + dy }); dx = t.x - op.primary.x; dy = t.y - op.primary.y; }
     restoreObjs(op.origs);
     movePoints(op.ids, dx, dy);
-    readout(ev, 'dX: ' + n1(dx) + ' px\ndY: ' + n1(dy) + ' px');
+    readout(ev, SV.t('vector.readout.move', { x: n1(dx), y: n1(dy) }));
   }
   function movePoints(ids, dx, dy) {
     ids.forEach(function (id) {

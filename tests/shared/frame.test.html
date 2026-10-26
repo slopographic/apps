@@ -29,7 +29,7 @@
 
   describe('SlopFrame: the layout', () => {
     it('three regions in order: list, view, panel at its width; a header button names the panel', async () => {
-      localStorage.removeItem(KEY); localStorage.removeItem('slop-profile');
+      localStorage.removeItem(KEY); localStorage.removeItem('slop-profile'); SlopTest.english();
       const W = await open(1280);
       expect(box(W, 'list').right).toBeLessThanOrEqual(box(W, 'view').left + 1);
       expect(box(W, 'view').right).toBeLessThanOrEqual(box(W, 'panel').left + 1);

@@ -8,6 +8,7 @@
   const el = UI.el;
   const $ = (id) => document.getElementById(id);
   let last = null;
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
 
   async function render() {
     const s = await NS.util.settings();
@@ -16,7 +17,7 @@
     const tb = r.ok ? r.value : r.summary || null;
     last = tb ? { tb, base: s.base } : null;
     if (!tb) {
-      $('tCheck').textContent = `The trial balance could not be read. ${NS.util.refusal(r)}`;
+      $('tCheck').textContent = t('ledger.tb.unread', { why: NS.util.refusal(r) });
       $('tRows').replaceChildren();
       return;
     }
@@ -26,18 +27,18 @@
     $('tDr').textContent = money(tb.debit, s.base);
     $('tCr').textContent = money(tb.credit, s.base);
     $('tCheck').textContent = r.ok
-      ? `Check: base debits equal base credits (${money(tb.debit, s.base)}). The trial balance agrees.`
-      : `Check failed: base debits and credits differ. ${tb.errors.join(' ')}`;
-    $('tCheck').className = r.ok ? 'note ok' : 'note msg';
+      ? t('ledger.tb.ok', { amount: money(tb.debit, s.base) })
+      : t('ledger.tb.bad', { why: tb.errors.join(' ') });
+    $('tCheck').className = r.ok ? 'note ok' : 'note msg';   // i18n-ignore: CSS class names and the stored supplier fallback
     const fx = tb.foreign || [];
     $('tForeign').hidden = fx.length === 0;
     $('tForeignRows').replaceChildren(...fx.map((f) => el('li', null,
-      `${f.currency}: debits ${NS.util.money(f.debit, f.currency, s.locale)}, credits ${NS.util.money(f.credit, f.currency, s.locale)} · ${f.balanced ? 'balanced' : 'not balanced'}`)));
+      t('ledger.tb.foreign', { cur: f.currency, dr: NS.util.money(f.debit, f.currency, s.locale), cr: NS.util.money(f.credit, f.currency, s.locale), state: t(f.balanced ? 'ledger.tb.balanced' : 'ledger.tb.not_balanced') }))));
   }
 
   function mount() {
     $('tExport').addEventListener('click', () => {
-      if (!last) { UI.toast('Nothing to export yet.'); return; }
+      if (!last) { UI.toast(t('ledger.tb.nothing')); return; }
       const f = NS.csv.trialCsv(last.tb, last.base, NS.util.today());
       UI.download(f.blob, f.name);
     });

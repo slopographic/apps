@@ -7,19 +7,20 @@
   const UI = g.SlopUI;
   const el = UI.el;
   const $ = (id) => document.getElementById(id);
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
 
   async function render() {
     const r = await NS.overview.counts();
     if (!r.ok) { $('dCounts').replaceChildren(el('tr', null, el('td', { colspan: 3, class: 'msg' }, NS.util.refusal(r)))); return; }
     $('dCounts').replaceChildren(...Object.entries(r.value).map(([name, c]) => el('tr', { 'data-collection': name },
-      el('td', null, name), el('td', { class: 'num' }, String(c.live)), el('td', { class: 'num' }, String(c.deleted)))));
+      el('td', null, name), el('td', { class: 'num' }, String(c.live)), el('td', { class: 'num' }, String(c.deleted)))));   // i18n-ignore: collection names are ids
   }
 
   async function backup() {
     const f = await NS.restore.exportFile();
     if (!f.ok) { UI.toast(NS.util.refusal(f)); return; }
     UI.download(f.value.blob, f.value.name);
-    UI.toast('Backup downloaded');
+    UI.toast(t('admin.da.downloaded'));
   }
 
   /** Reads the chosen file, checks it whole, then asks before replacing everything. */
@@ -31,28 +32,28 @@
     const c = NS.restore.check(text);
     if (!c.ok) { msg.textContent = c.message; return; }
     const total = Object.values(c.value.counts).reduce((a, b) => a + b, 0);
-    UI.confirm('Replace all data with this backup?', `The backup holds ${total} records${c.value.exportedAt ? ` (exported ${c.value.exportedAt.slice(0, 10)})` : ''}. Every record in this browser is replaced by them.`,
-      'Restore', { danger: true }).then(async (yes) => {
+    UI.confirm(t('admin.da.replace_q'), c.value.exportedAt ? t('admin.da.replace_body_at', { n: String(total), date: c.value.exportedAt.slice(0, 10) }) : t('admin.da.replace_body', { n: String(total) }),
+      t('admin.da.restore'), { danger: true }).then(async (yes) => {
       if (!yes) return;
       const r = await NS.restore.restore(text);
-      msg.textContent = r.ok ? `Restored ${total} records.` : r.message;
-      if (r.ok) UI.toast('Backup restored');
+      msg.textContent = r.ok ? t('admin.da.restored_n', { n: String(total) }) : r.message;
+      if (r.ok) UI.toast(t('admin.da.restored'));
     });
   }
 
   /** The reset dialog: type RESET, and the full backup downloads before anything is erased. */
   function reset() {
-    const input = el('input', { type: 'text', autocomplete: 'off', 'aria-label': 'Type RESET to confirm', placeholder: 'RESET', id: 'rInput' });
+    const input = el('input', { type: 'text', autocomplete: 'off', 'aria-label': t('admin.da.type_reset'), placeholder: 'RESET', id: 'rInput' });
     const msg = el('p', { class: 'msg', role: 'alert' });
     UI.dialog({
-      title: 'Reset all data', cls: 'danger-dlg',
-      body: el('div', null, el('p', { class: 'sui-p' }, 'This erases every record in this browser: customers, products, orders, invoices, payments, the ledger and settings. A full backup downloads first.'),
-        UI.field('Type RESET in capitals to confirm', input), msg),
-      buttons: [{ label: 'Cancel' }, { label: 'Export backup and reset', primary: true, danger: true, act: async () => {
-        if (input.value.trim() !== 'RESET') { msg.textContent = 'Type RESET (in capitals) to confirm. Nothing was erased.'; return false; }
+      title: t('admin.da.reset_title'), cls: 'danger-dlg',
+      body: el('div', null, el('p', { class: 'sui-p' }, t('admin.da.reset_body')),
+        UI.field(t('admin.da.type_caps'), input), msg),
+      buttons: [{ label: t('menu.cancel') }, { label: t('admin.da.export_reset'), primary: true, danger: true, act: async () => {
+        if (input.value.trim() !== 'RESET') { msg.textContent = t('admin.da.not_typed'); return false; }
         const r = await NS.overview.exportAndReset((blob, name) => UI.download(blob, name));
-        if (!r.ok) { msg.textContent = `Not erased. ${NS.util.refusal(r)}`; return false; }
-        UI.toast('Everything was reset. The backup was downloaded first.');
+        if (!r.ok) { msg.textContent = t('admin.da.not_erased', { why: NS.util.refusal(r) }); return false; }
+        UI.toast(t('admin.da.reset_done'));
         await NS.app.render();
         return true;
       } }],
@@ -64,7 +65,7 @@
     $('dBackup').addEventListener('click', backup);
     $('dEverything').addEventListener('click', () => g.SlopBackup.openEverything());
     // a backup file comes in one way: the intake's part 'admin.backup' (shared/intake)
-    g.SlopIntake.register({ id: 'admin.backup', main: false, paste: false, toast: false, limit: 1, accept: { any: true, noun: 'a backup file (.json)' }, process: async (f) => { await restoreFrom(f); return f.name; } });
+    g.SlopIntake.register({ id: 'admin.backup', main: false, paste: false, toast: false, limit: 1, accept: { any: true, noun: 'admin.da.noun' }, process: async (f) => { await restoreFrom(f); return f.name; } });
     $('dRestore').addEventListener('click', () => g.SlopIntake.pick({ to: 'admin.backup', multiple: false, accept: 'application/json,.json' }));
     $('dReset').addEventListener('click', reset);
   }

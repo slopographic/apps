@@ -5,7 +5,13 @@
 const ICON = (d) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${d}"/></svg>`;
 const TOOLS = [];
 const TOOL = {};
-function defTool(t) { TOOLS.push(t); TOOL[t.id] = t; return t; }
+/** A tool: t.nk names its words, photoslop.tool.<nk> (the full name, toolbox and palette) and <nk>_short (history steps,
+ *  palette cycles); both are getters, so they follow a language change. */
+function defTool(t) {
+  if (t.nk) Object.defineProperties(t, { name: { get: () => tr('photoslop.tool.' + t.nk), enumerable: true, configurable: true },
+    short: { get: () => tr('photoslop.tool.' + t.nk + '_short'), enumerable: true, configurable: true } });
+  TOOLS.push(t); TOOL[t.id] = t; return t;
+}
 function currentTool() { return TRANSFORM.active ? TRANSFORM_TOOL : TOOL[UI.tool]; }
 function selectTool(id) {
   if (!TOOL[id]) return;
@@ -20,11 +26,11 @@ function selectTool(id) {
 }
 
 /* Move */
-defTool({ id: 'move', name: 'Move Tool', key: 'V', icon: ICON('M12 2v20M2 12h20M12 2l-3 3M12 2l3 3M12 22l-3-3M12 22l3-3M2 12l3-3M2 12l3 3M22 12l-3-3M22 12l-3 3'),
+defTool({ id: 'move', nk: 'move', key: 'V', icon: ICON('M12 2v20M2 12h20M12 2l-3 3M12 2l3 3M12 22l-3-3M12 22l3-3M2 12l3-3M2 12l3 3M22 12l-3-3M22 12l-3 3'),
   down(p, e) {
     let L = activeLayer();
     if (T.move.auto || e.ctrlKey || e.metaKey) { const hit = layerAt(p); if (hit) { L = hit; D.activeId = hit.id; emit('doc'); } }
-    if (!L || L.locked) { if (L) toast('That layer is locked'); this.s = null; return; }
+    if (!L || L.locked) { if (L) toast(tr('photoslop.tool.locked')); this.s = null; return; }
     const s = this.s = { L, start: p, dx: 0, dy: 0, box: D.sel ? D.sel.bounds : layerBoundsDoc(L) };
     if (D.sel && !e.altKey) {
       // Lift the selected pixels and float them.
@@ -79,7 +85,7 @@ function moveBy(s, dx, dy) {
   } else {
     patchLayer(L.id, { x: L.x + dx, y: L.y + dy, mask: L.mask && Object.assign({}, L.mask, { x: L.mask.x + dx, y: L.mask.y + dy }), text: L.text && Object.assign({}, L.text, { x: L.text.x + dx, y: L.text.y + dy }) });
   }
-  commit('Move');
+  commit(TOOL.move.short);
 }
 function nudge(dx, dy) {
   const L = activeLayer(); if (!L || L.locked) return;
@@ -110,7 +116,7 @@ function selectionTool(def) {
       const s = this.s; this.s = null; if (!s) return;
       if (s.moveSel) {
         live = null;
-        if (s.dx || s.dy) { const m = mkCanvas(D.w, D.h); cx(m).drawImage(s.sel.mask, s.dx, s.dy); D.sel = makeSel(m); commit('Move Selection'); }
+        if (s.dx || s.dy) { const m = mkCanvas(D.w, D.h); cx(m).drawImage(s.sel.mask, s.dx, s.dy); D.sel = makeSel(m); commit(tr('photoslop.tool.step_move_selection')); }
         return;
       }
       if (Math.hypot(p.x - s.start.x, p.y - s.start.y) * V.zoom < 3 && !this.freehand) { if (s.mode === 'replace' && D.sel) deselect(); return; }
@@ -133,18 +139,18 @@ function insideSel(p) {
   if (x < 0 || y < 0 || x >= D.w || y >= D.h) return false;
   return cxr(D.sel.mask).getImageData(x, y, 1, 1).data[3] >= 128;
 }
-selectionTool({ id: 'marquee', name: 'Rectangular Marquee Tool', key: 'M', icon: ICON('M4 4h3M10 4h4M17 4h3v3M20 10v4M20 17v3h-3M14 20h-4M7 20H4v-3M4 14v-4M4 7V4'),
+selectionTool({ id: 'marquee', nk: 'marquee', key: 'M', icon: ICON('M4 4h3M10 4h4M17 4h3v3M20 10v4M20 17v3h-3M14 20h-4M7 20H4v-3M4 14v-4M4 7V4'),
   rect(s) { const e = s.e || {}; return rectFrom(s.start, s.cur, e.shiftKey && s.mode === 'replace', e.altKey && s.mode === 'replace'); },
   path(g, s) { const r = this.rect(s); g.beginPath(); g.rect(r.x, r.y, r.w, r.h); },
-  apply(s) { const r = this.rect(s); selectShape((g) => g.fillRect(Math.round(r.x), Math.round(r.y), Math.round(r.w), Math.round(r.h)), s.mode, T.select.feather); commit('Rectangular Marquee'); } });
-selectionTool({ id: 'ellipse', name: 'Elliptical Marquee Tool', key: 'M', icon: ICON('M12 4c4.4 0 8 3.6 8 8s-3.6 8-8 8-8-3.6-8-8 3.6-8 8-8z'),
+  apply(s) { const r = this.rect(s); selectShape((g) => g.fillRect(Math.round(r.x), Math.round(r.y), Math.round(r.w), Math.round(r.h)), s.mode, T.select.feather); commit(TOOL.marquee.short); } });
+selectionTool({ id: 'ellipse', nk: 'ellipse', key: 'M', icon: ICON('M12 4c4.4 0 8 3.6 8 8s-3.6 8-8 8-8-3.6-8-8 3.6-8 8-8z'),
   rect(s) { const e = s.e || {}; return rectFrom(s.start, s.cur, e.shiftKey && s.mode === 'replace', e.altKey && s.mode === 'replace'); },
   path(g, s) { const r = this.rect(s); g.beginPath(); g.ellipse(r.x + r.w / 2, r.y + r.h / 2, Math.max(0.1, r.w / 2), Math.max(0.1, r.h / 2), 0, 0, Math.PI * 2); },
-  apply(s) { const r = this.rect(s); selectShape((g) => { g.beginPath(); g.ellipse(r.x + r.w / 2, r.y + r.h / 2, Math.max(0.1, r.w / 2), Math.max(0.1, r.h / 2), 0, 0, Math.PI * 2); g.fill(); }, s.mode, T.select.feather); commit('Elliptical Marquee'); } });
-selectionTool({ id: 'lasso', name: 'Lasso Tool', key: 'L', freehand: true, icon: ICON('M7 15c-3-1.5-4-4-2.5-6.5C6.5 5 12 4 16 5.5s5 5 2 7.5-8 3-11 2zM7 15c-1 2 0 4 2 5'),
+  apply(s) { const r = this.rect(s); selectShape((g) => { g.beginPath(); g.ellipse(r.x + r.w / 2, r.y + r.h / 2, Math.max(0.1, r.w / 2), Math.max(0.1, r.h / 2), 0, 0, Math.PI * 2); g.fill(); }, s.mode, T.select.feather); commit(TOOL.ellipse.short); } });
+selectionTool({ id: 'lasso', nk: 'lasso', key: 'L', freehand: true, icon: ICON('M7 15c-3-1.5-4-4-2.5-6.5C6.5 5 12 4 16 5.5s5 5 2 7.5-8 3-11 2zM7 15c-1 2 0 4 2 5'),
   path(g, s) { g.beginPath(); s.pts.forEach((q, i) => (i ? g.lineTo(q.x, q.y) : g.moveTo(q.x, q.y))); },
-  apply(s) { if (s.pts.length < 3) { if (s.mode === 'replace') deselect(); return; } selectShape((g) => { g.beginPath(); s.pts.forEach((q, i) => (i ? g.lineTo(q.x, q.y) : g.moveTo(q.x, q.y))); g.closePath(); g.fill(); }, s.mode, T.select.feather); commit('Lasso'); } });
-defTool({ id: 'polylasso', name: 'Polygonal Lasso Tool', key: 'L', icon: ICON('M4 18 7 5l7 4 6-3-2 12z'),
+  apply(s) { if (s.pts.length < 3) { if (s.mode === 'replace') deselect(); return; } selectShape((g) => { g.beginPath(); s.pts.forEach((q, i) => (i ? g.lineTo(q.x, q.y) : g.moveTo(q.x, q.y))); g.closePath(); g.fill(); }, s.mode, T.select.feather); commit(TOOL.lasso.short); } });
+defTool({ id: 'polylasso', nk: 'polylasso', key: 'L', icon: ICON('M4 18 7 5l7 4 6-3-2 12z'),
   down(p, e) {
     const s = this.s;
     if (!s) { this.s = { mode: modeFrom(e), pts: [p], cur: p }; return; }
@@ -158,7 +164,7 @@ defTool({ id: 'polylasso', name: 'Polygonal Lasso Tool', key: 'L', icon: ICON('M
   finish() {
     const s = this.s; this.s = null; if (!s || s.pts.length < 3) return;
     selectShape((g) => { g.beginPath(); s.pts.forEach((q, i) => (i ? g.lineTo(q.x, q.y) : g.moveTo(q.x, q.y))); g.closePath(); g.fill(); }, s.mode, T.select.feather);
-    commit('Polygonal Lasso');
+    commit(TOOL.polylasso.short);
   },
   onKey(e) { if (!this.s) return false; if (e.key === 'Enter') { this.finish(); return true; } if (e.key === 'Escape') { this.s = null; dirty(); return true; } if (e.key === 'Backspace' || e.key === 'Delete') { this.s.pts.pop(); if (!this.s.pts.length) this.s = null; dirty(); return true; } return false; },
   cancel() { this.s = null; },
@@ -171,15 +177,15 @@ defTool({ id: 'polylasso', name: 'Polygonal Lasso Tool', key: 'L', icon: ICON('M
     g.restore();
   },
 });
-defTool({ id: 'wand', name: 'Magic Wand Tool', key: 'W', icon: ICON('M4 20 14 10M14 10l2-2M17 3v3M17 12v3M12 7.5h3M19 7.5h3M14.5 5l1.5 1.5M19.5 10l-1.5-1.5M19.5 5 18 6.5'),
+defTool({ id: 'wand', nk: 'wand', key: 'W', icon: ICON('M4 20 14 10M14 10l2-2M17 3v3M17 12v3M12 7.5h3M19 7.5h3M14.5 5l1.5 1.5M19.5 10l-1.5-1.5M19.5 5 18 6.5'),
   down(p, e) {
     const src = sampleSource(T.wand.sampleAll), m = regionMask(src, p.x, p.y, T.wand.tol, T.wand.contiguous);
     if (!m) { if (modeFrom(e) === 'replace') deselect(); return; }
     const mc = maskToCanvas(m, D.w, D.h);
     selectShape((g) => g.drawImage(mc, 0, 0), modeFrom(e), T.select.feather);
-    commit('Magic Wand');
+    commit(TOOL.wand.short);
   } });
-defTool({ id: 'crop', name: 'Crop Tool', key: 'C', icon: ICON('M6 2v16h16M2 6h16v16'),
+defTool({ id: 'crop', nk: 'crop', key: 'C', icon: ICON('M6 2v16h16M2 6h16v16'),
   activate() { this.r = { x: 0, y: 0, w: D.w, h: D.h }; },
   deactivate() { this.r = null; this.s = null; },
   handleAt(p) {
@@ -219,6 +225,6 @@ defTool({ id: 'crop', name: 'Crop Tool', key: 'C', icon: ICON('M6 2v16h16M2 6h16
     g.stroke();
     g.fillStyle = '#fff';
     for (const [i, j] of [[0, 0], [0.5, 0], [1, 0], [0, 0.5], [1, 0.5], [0, 1], [0.5, 1], [1, 1]]) g.fillRect(a.x + w * i - 4, a.y + hh * j - 4, 8, 8);
-    g.font = '11px "JetBrains Mono", monospace'; g.fillStyle = '#fff'; g.fillText(`${Math.round(r.w)} × ${Math.round(r.h)} px · Enter to crop`, a.x + 4, a.y - 8);
+    g.font = '11px "JetBrains Mono", monospace'; g.fillStyle = '#fff'; g.fillText(`${Math.round(r.w)} × ${Math.round(r.h)} px · Enter to crop`, a.x + 4, a.y - 8); // i18n-ignore: a CSS font
   },
 });

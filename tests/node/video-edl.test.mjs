@@ -5,6 +5,7 @@
 // Covers: shared/video/edl.js, shared/commands/args.js, shared/macros/core.js, shared/ops/video.js, shared/ai/cmdtools.js, shared/ops/speech.js
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import './ui-i18n-en.mjs';   // the shared components' words (shared/i18n/ui), as a page has them
 import vm from 'node:vm';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
@@ -15,7 +16,8 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '.
 const ctx = { console };
 ctx.window = ctx;
 vm.createContext(ctx);
-for (const f of ['shared/video/presets.js', 'shared/video/edl.js', 'shared/commands/args.js', 'shared/ai/cmdtools.js']) vm.runInContext(readFileSync(path.join(ROOT, f), 'utf8'), ctx, { filename: f });
+// SlopI18n with the English words of the questions (shared/i18n/ui/en/ai*.js), so they read as on a page
+for (const f of ['shared/i18n/i18n.js', 'shared/i18n/ui/en/ai.js', 'shared/i18n/ui/en/ai2.js', 'shared/video/presets.js', 'shared/video/edl.js', 'shared/commands/args.js', 'shared/ai/cmdtools.js']) vm.runInContext(readFileSync(path.join(ROOT, f), 'utf8'), ctx, { filename: f });
 const E = ctx.SlopVideo.edl, A = ctx.SlopCmdArgs, K = ctx.SlopAIKit;
 const require = createRequire(import.meta.url);
 const opts = { transitions: ['cross', 'wipe', 'black'], fonts: ['Archivo'] };

@@ -1,6 +1,7 @@
 /* The preview model. Runs the real converter on the first input (or on every input for a combined run), using
  * the first part of a large text file and a smaller copy of a large picture, and returns the before and after
  * panels. Browser only. The panels are plain data; view.js draws them. */
+import { tr } from '../core/i18n.js';
 import { KIND_LABEL, TEXT_KINDS } from '../core/detect.js';
 import { decodeBytes } from '../../../shared/finance/text.js';
 
@@ -35,7 +36,7 @@ export function previewInput(i) {
 /** Page 1 of a PDF as a PNG at 72 dpi. */
 async function firstPage(blob) {
   const [page] = await pdfToImages(new Uint8Array(await blob.arrayBuffer()), { pages: '1', scale: 1, format: 'png' });
-  if (!page) throw new Error('This PDF has no pages.');
+  if (!page) throw new Error(tr('convert.pv.no_pages'));
   return page.blob;
 }
 
@@ -47,21 +48,21 @@ async function looksBinary(blob) {
 function textPanel(text, { size, truncated = false, label = '' } = {}) {
   const all = (text.endsWith('\n') ? text.slice(0, -1) : text).split('\n');   // a final newline is not a line
   const notes = [];
-  if (all.length > MAX_LINES) notes.push(`Showing the first ${MAX_LINES} of ${all.length} lines.`);
-  if (truncated) notes.push(`Large file: only the first ${fmtSize(TEXT_LIMIT)} is read here.`);
+  if (all.length > MAX_LINES) notes.push(tr('convert.pv.first_lines', { n: MAX_LINES, total: all.length }));
+  if (truncated) notes.push(tr('convert.pv.large_text', { size: fmtSize(TEXT_LIMIT) }));
   return { kind: 'text', text, lines: all.slice(0, MAX_LINES), size, label, note: notes.join(' ') };
 }
 
 export async function beforePanel(p) {
   if (RAW_KINDS.includes(p.kind)) {   // a camera RAW photo: its embedded JPEG (the RAW engine runs on Convert only)
     const blob = await rawPreviewBlob(p.file);
-    if (blob) return { kind: 'image', blob, size: p.size, label: KIND_LABEL[p.kind], note: 'Camera RAW: the preview is the camera\'s embedded JPEG. Convert develops the RAW file.' };
+    if (blob) return { kind: 'image', blob, size: p.size, label: KIND_LABEL[p.kind], note: tr('convert.pv.raw_note') };
   }
   if (IMAGE_KINDS.includes(p.kind)) {
-    return { kind: 'image', blob: p.file, size: p.size, label: KIND_LABEL[p.kind] || 'Picture' };
+    return { kind: 'image', blob: p.file, size: p.size, label: KIND_LABEL[p.kind] || tr('convert.pv.picture') };
   }
   if (p.kind === 'pdf') {
-    return { kind: 'image', blob: await firstPage(p.file), size: p.size, label: 'PDF, page 1', note: p.large ? 'Large PDF: only page 1 is drawn.' : '' };
+    return { kind: 'image', blob: await firstPage(p.file), size: p.size, label: tr('convert.pv.pdf_p1'), note: p.large ? tr('convert.pv.large_pdf') : '' };
   }
   if (FINANCE_KINDS.includes(p.kind)) {
     return textPanel(decodeBytes(new Uint8Array(await p.file.arrayBuffer())).text, { size: p.size, truncated: p.truncated, label: KIND_LABEL[p.kind] });
@@ -69,21 +70,22 @@ export async function beforePanel(p) {
   if (TEXT_KINDS.includes(p.kind)) {
     return textPanel(await p.file.text(), { size: p.size, truncated: p.truncated, label: KIND_LABEL[p.kind] });
   }
-  return { kind: 'info', text: `${KIND_LABEL[p.kind] || 'File'}, ${fmtSize(p.size)}. Its contents are not shown.`, size: p.size, label: KIND_LABEL[p.kind] || 'File' };
+  const kind = KIND_LABEL[p.kind] || tr('convert.row.file');
+  return { kind: 'info', text: tr('convert.pv.not_shown', { kind, size: fmtSize(p.size) }), size: p.size, label: kind };
 }
 
 export async function afterPanel(outs, inputText) {
   const o = outs[0], ext = extOf(o.name);
-  const more = outs.length > 1 ? `, 1 of ${outs.length} files` : '';
+  const more = outs.length > 1 ? tr('convert.pv.one_of', { n: outs.length }) : '';
   const size = o.blob.size;
-  if (PICTURE_EXT.includes(ext)) return { kind: 'image', blob: o.blob, size, label: `${ext.toUpperCase()} picture${more}` };
-  if (ext === 'pdf') return { kind: 'image', blob: await firstPage(o.blob), size, label: `PDF, page 1${more}` };
-  if (ext === 'xlsx' && outs.preview) return textPanel(outs.preview, { size, label: 'Spreadsheet, main sheet (tab separated)' });   // the converter's own view
+  if (PICTURE_EXT.includes(ext)) return { kind: 'image', blob: o.blob, size, label: tr('convert.pv.ext_picture', { ext: ext.toUpperCase() }) + more };
+  if (ext === 'pdf') return { kind: 'image', blob: await firstPage(o.blob), size, label: tr('convert.pv.pdf_p1') + more };
+  if (ext === 'xlsx' && outs.preview) return textPanel(outs.preview, { size, label: tr('convert.pv.sheet_main') });   // the converter's own view
   if (ext === 'xlsx') {
     const rows = parseCsv(inputText);
-    return textPanel(rows.map((r) => r.join('\t')).join('\n'), { size, label: 'Spreadsheet, first sheet (tab separated)' });
+    return textPanel(rows.map((r) => r.join('\t')).join('\n'), { size, label: tr('convert.pv.sheet_first') });
   }
-  if (await looksBinary(o.blob)) return { kind: 'info', text: `Binary file, ${fmtSize(size)}. Download to open it.`, size, label: 'Binary' };
+  if (await looksBinary(o.blob)) return { kind: 'info', text: tr('convert.pv.binary', { size: fmtSize(size) }), size, label: tr('convert.pv.binary_label') };
   const truncated = size > TEXT_LIMIT;
   const text = await o.blob.slice(0, TEXT_LIMIT).text();
   return textPanel(text, { size, truncated, label: `${(ext || 'text').toUpperCase()}${more}` });
@@ -97,10 +99,10 @@ export async function afterPanel(outs, inputText) {
 export async function buildPreview(conv, items, opts) {
   // an engine conversion (ffmpeg) is not run for a preview: its first download asks first, on Convert
   if (conv.engine) return { before: await beforePanel(previewInput(pickInputs(conv, items)[0])).catch((e) => ({ kind: 'error', message: e.message || String(e) })),
-    after: { kind: 'info', text: 'Press Convert to make this file. Video and audio conversions run with the video engine, which is not started for a preview.' }, note: '', outputs: null };
+    after: { kind: 'info', text: tr('convert.pv.engine') }, note: '', outputs: null };
   // a password conversion (Protect PDF, Remove PDF password) runs on Convert only, so a password is not used while it is typed
-  if (conv.secret) return { before: await beforePanel(previewInput(pickInputs(conv, items)[0])).catch(() => ({ kind: 'info', text: 'This PDF is password protected, so it is not drawn here.' })),
-    after: { kind: 'info', text: 'Press Convert to make this file. Password conversions are not previewed.' }, note: '', outputs: null, secret: true };
+  if (conv.secret) return { before: await beforePanel(previewInput(pickInputs(conv, items)[0])).catch(() => ({ kind: 'info', text: tr('convert.pv.locked') })),
+    after: { kind: 'info', text: tr('convert.pv.secret') }, note: '', outputs: null, secret: true };
   // 3D models are read whole (a cut model, .bin or .mtl cannot be read at all)
   const inputs = pickInputs(conv, items).map((i) => (is3d(conv) ? { ...i, truncated: false, large: false } : previewInput(i)));
   const runOpts = { ...opts };
@@ -114,19 +116,19 @@ export async function buildPreview(conv, items, opts) {
   let after, outputs = null;
   try {
     const outs = await conv.run(inputs.map(({ name, file, kind }) => ({ name, file, kind })), runOpts);
-    after = !outs.length ? { kind: 'info', text: 'The conversion made no file.' } : is3d(conv) ? modelAfter(outs) : await afterPanel(outs, before.text || '');
+    after = !outs.length ? { kind: 'info', text: tr('convert.pv.none') } : is3d(conv) ? modelAfter(outs) : await afterPanel(outs, before.text || '');
     if (!cut) outputs = outs;
   } catch (e) {
     after = { kind: 'error', message: (e && e.message) || String(e) };
-    if (cut) after.hint = 'This preview uses the first part of the file. Download converts the whole file.';
+    if (cut) after.hint = tr('convert.pv.cut_hint');
   }
   const notes = [];
-  if (drawSmaller) notes.push(`Large picture: the preview is drawn ${PREVIEW_PX} px wide. Download converts it at full size.`);
-  else if (cut) notes.push('Preview of the first part only. Download runs the full conversion.');
+  if (drawSmaller) notes.push(tr('convert.pv.large_pic', { px: PREVIEW_PX }));
+  else if (cut) notes.push(tr('convert.pv.cut_note'));
   if (LINE_DIFF.includes(conv.id) && before.kind === 'text' && after.kind === 'text') {
     const d = changedLines(before.lines, after.lines);
     if (d) { before.changed = d.a; after.changed = d.b; }
-    else notes.push('Input too long to mark the changes.');
+    else notes.push(tr('convert.pv.too_long'));
   }
   if (before.note) notes.push(before.note);
   if (after.note) notes.push(after.note);

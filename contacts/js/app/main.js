@@ -18,7 +18,7 @@
     const storage = window.SlopData && (await window.SlopData.store.ready());
     if (storage && !storage.ok) {
       $('empty').hidden = false;
-      $('empty').textContent = `Storage is not available here: ${storage.message}. Nothing can be saved in this window.`;
+      $('empty').textContent = SC.tr('contacts.list.storage', { why: storage.message });
       return;
     }
     SC.list.mount();
@@ -46,6 +46,7 @@
     S.ready = true;
     SC.ready = true;
     S.emit('render');
+    if (window.SlopI18n) window.SlopI18n.on(() => { SC.card.redraw(); S.emit('render'); });   // every column in the new language
   }
 
   if (document.readyState === 'loading') addEventListener('DOMContentLoaded', boot); else boot();

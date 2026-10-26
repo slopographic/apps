@@ -81,11 +81,17 @@
   });
 
   describe('offline single file', () => {
+    // Covers: press/js/io/build.js
     it('builds a self-contained HTML that boots without the site', async () => {
       const html = await PR.build.make();
       expect(html).toContain('slop-press-build');
       expect(html).not.toMatch(/<script[^>]+src="js\//);
       expect(html).not.toContain('shared/hub.js"');
+      // every English table rides along (it fetches none): the shared components' parts too (UI_PARTS in i18n.js)
+      const i18n = await (await fetch('../../shared/i18n/i18n.js')).text();
+      const parts = /\/\*ui-parts\*\/\{\s*parts:\s*\[([^\]]*)\]/.exec(i18n)[1].match(/[\w-]+/g);
+      const tables = PR.build.tables({ 'shared/i18n/i18n.js': i18n, 'press/i18n/index.js': '' });
+      expect(parts.filter((x) => !tables.includes('shared/i18n/ui/en/' + x + '.js'))).toEqual([]);
       const f = document.createElement('iframe'); f.style.cssText = 'width:900px;height:600px;border:0';
       f.src = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
       document.body.append(f);

@@ -19,7 +19,7 @@
   }
 
   /** A file name safe on every system: no slashes, no control characters, at most 80 characters. */
-  const safe = (s) => String(s || '').replace(/[\\/:*?"<>|\x00-\x1f]/g, '-').replace(/\s+/g, ' ').trim().slice(0, 80) || 'Contact';
+  const safe = (s) => String(s || '').replace(/[\\/:*?"<>|\x00-\x1f]/g, '-').replace(/\s+/g, ' ').trim().slice(0, 80) || 'Contact';   // i18n-ignore: file names and the format list the exporter keeps (the page shows contacts.io.f_<id>)
   const textBlob = (text, type) => new Blob([text], { type });
 
   /** One zip entry per contact, named after its display name (duplicates get " (2)"). */
@@ -30,24 +30,24 @@
 
   /** The export table. base is the list name without extension. XLSX is not here: it is built by the app (async). */
   const FORMATS = [
-    { id: 'vcf', label: 'vCard 3.0 (.vcf), one file for iOS and Android', ext: 'vcf',
+    { id: 'vcf', label: 'vCard 3.0 (.vcf), one file for iOS and Android', ext: 'vcf',   // i18n-ignore: file names and the format list the exporter keeps (the page shows contacts.io.f_<id>)
       build: (list, base) => ({ blob: textBlob(SC.vcard.write(list, '3.0'), 'text/vcard'), name: `${safe(base)}.vcf` }) },
-    { id: 'vcf40', label: 'vCard 4.0 (.vcf), one file', ext: 'vcf',
+    { id: 'vcf40', label: 'vCard 4.0 (.vcf), one file', ext: 'vcf',   // i18n-ignore: file names and the format list the exporter keeps (the page shows contacts.io.f_<id>)
       build: (list, base) => ({ blob: textBlob(SC.vcard.write(list, '4.0'), 'text/vcard'), name: `${safe(base)} (4.0).vcf` }) },
-    { id: 'zip', label: 'vCard 3.0, one file per contact (.zip)', ext: 'zip',
+    { id: 'zip', label: 'vCard 3.0, one file per contact (.zip)', ext: 'zip',   // i18n-ignore: file names and the format list the exporter keeps (the page shows contacts.io.f_<id>)
       build: (list, base) => ({ blob: zipOf(list, '3.0'), name: `${safe(base)} vcards.zip` }) },
-    { id: 'zip40', label: 'vCard 4.0, one file per contact (.zip)', ext: 'zip',
+    { id: 'zip40', label: 'vCard 4.0, one file per contact (.zip)', ext: 'zip',   // i18n-ignore: file names and the format list the exporter keeps (the page shows contacts.io.f_<id>)
       build: (list, base) => ({ blob: zipOf(list, '4.0'), name: `${safe(base)} vcards 4.0.zip` }) },
-    { id: 'csv', label: 'CSV (.csv), one column per e-mail and phone', ext: 'csv',
+    { id: 'csv', label: 'CSV (.csv), one column per e-mail and phone', ext: 'csv',   // i18n-ignore: file names and the format list the exporter keeps (the page shows contacts.io.f_<id>)
       build: (list, base) => ({ blob: textBlob(SC.csv.genericCsv(list), 'text/csv'), name: `${safe(base)}.csv` }) },
-    { id: 'google', label: 'Google Contacts CSV', ext: 'csv',
+    { id: 'google', label: 'Google Contacts CSV', ext: 'csv',   // i18n-ignore: file names and the format list the exporter keeps (the page shows contacts.io.f_<id>)
       build: (list, base) => ({ blob: textBlob(SC.csv.googleCsv(list), 'text/csv'), name: `${safe(base)} (Google).csv` }) },
-    { id: 'outlook', label: 'Outlook CSV', ext: 'csv',
+    { id: 'outlook', label: 'Outlook CSV', ext: 'csv',   // i18n-ignore: file names and the format list the exporter keeps (the page shows contacts.io.f_<id>)
       build: (list, base) => ({ blob: textBlob(SC.csv.outlookCsv(list), 'text/csv'), name: `${safe(base)} (Outlook).csv` }) },
   ];
   const formatById = (id) => FORMATS.find((f) => f.id === id) || FORMATS[0];
   /** The export for a format id. Returns { blob, name, count }. */
-  function exportAs(id, list, base = 'Contacts') {
+  function exportAs(id, list, base = 'Contacts') {   // i18n-ignore: file names and the format list the exporter keeps (the page shows contacts.io.f_<id>)
     const f = formatById(id);
     return { ...f.build(list, base), count: list.length };
   }

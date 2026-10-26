@@ -36,9 +36,9 @@
       rows.push(el('h3', { class: 'clean-h' }, p.r.name));
       rows.push(removed.length
         ? el('ul', { class: 'clean-list' }, removed.map((f) => el('li', null, `${f.label}${f.value && f.value !== 'present' ? ': ' + f.value : ''}`)))
-        : el('p', { class: 'muted' }, 'Nothing to remove.'));
-      if (kept.length) rows.push(el('p', { class: 'muted' }, `Kept: ${[...new Set(kept.map((f) => f.label))].join(', ')}`));
-      rows.push(el('p', { class: 'muted' }, `A cleaned copy named “${copyName(p.r.name)}” is added here. The original stays as it is.`));
+        : el('p', { class: 'muted' }, DR.t('drive.clean.nothing')));
+      if (kept.length) rows.push(el('p', { class: 'muted' }, DR.t('drive.clean.kept', { list: [...new Set(kept.map((f) => f.label))].join(', ') })));
+      rows.push(el('p', { class: 'muted' }, DR.t('drive.clean.copy_note', { name: copyName(p.r.name) })));
     }
     return el('div', { class: 'clean-confirm' }, rows);
   }
@@ -46,29 +46,29 @@
   /** Remove metadata from pictures now: confirm, then write "<name> (clean).<ext>" next to each original. */
   DR.removeMetadataNow = async function (items) {
     const files = items.filter(DR.isCleanable);
-    if (!files.length) return DR.toast('Pick a picture (JPEG, PNG, WebP or TIFF) to remove its metadata');
+    if (!files.length) return DR.toast(DR.t('drive.clean.pick'));
     let C;
-    try { C = await loadCore(); } catch (e) { return DR.toast('SlopClean is not available right now'); }
+    try { C = await loadCore(); } catch (e) { return DR.toast(DR.t('drive.clean.na')); }
     const plans = [], skipped = [];
     for (const r of files) {
       const bytes = new Uint8Array(await r.blob.arrayBuffer());
       const ins = C.inspect(bytes);
-      if (!ins.supported) { skipped.push(`${r.name}: ${ins.format ? ins.label + ' is not supported' : 'not a picture SlopClean reads'}`); continue; }
+      if (!ins.supported) { skipped.push(ins.format ? DR.t('drive.clean.unsupported', { name: r.name, format: ins.label }) : DR.t('drive.clean.not_picture', { name: r.name })); continue; }
       const res = C.strip(bytes);
       plans.push({ r, res, before: res.before, remove: C.resolve(), name: copyName(r.name) });
     }
     if (skipped.length) DR.toast(skipped[0]);
     if (!plans.length) return;
     const ok = await window.SlopUI.confirm(
-      plans.length === 1 ? 'Remove metadata from this picture?' : `Remove metadata from ${plans.length} pictures?`,
-      body(plans, C), 'Write cleaned copy', { cancel: 'Cancel' });
+      DR.t('drive.clean.confirm_n', { n: plans.length }),
+      body(plans, C), DR.t('drive.clean.write'), { cancel: DR.t('menu.cancel') });
     if (!ok) return;
     for (const p of plans) {
       await H().put(new Blob([p.res.bytes], { type: p.res.mime }), { name: p.name, from: 'clean', folderId: p.r.folderId == null ? null : p.r.folderId });
     }
     await DR.refresh();
     DR.render();
-    DR.toast(plans.length === 1 ? `Saved “${plans[0].name}”` : `Saved ${plans.length} cleaned copies`);
+    DR.toast(plans.length === 1 ? DR.t('drive.toast.saved_q', { name: plans[0].name }) : DR.t('drive.clean.saved_n', { n: plans.length }));
   };
 
   /** Opens SlopClean on the file (the same path as Open in). */
@@ -78,8 +78,8 @@
     if (!files.length || items.some((i) => i.isFolder)) return [];
     const one = files.length === 1 && items.length === 1;
     return [
-      one ? { label: 'Remove metadata…', act: () => DR.openInClean(files[0]) } : null,
-      { label: files.length === 1 ? 'Remove metadata now' : `Remove metadata from ${files.length} pictures`, act: () => DR.removeMetadataNow(files) },
+      one ? { label: DR.t('drive.clean.menu'), act: () => DR.openInClean(files[0]) } : null,
+      { label: files.length === 1 ? DR.t('drive.clean.now') : DR.t('drive.clean.from_n', { n: files.length }), act: () => DR.removeMetadataNow(files) },
     ].filter(Boolean);
   };
 })(window.DR);

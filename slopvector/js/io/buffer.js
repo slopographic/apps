@@ -23,18 +23,18 @@
   /** Edit ▸ Copy as buffer: the selection as SVG. The ordinary clipboard copy happens too. */
   BUF.copyAsBuffer = function () {
     var ids = selectedEditable();
-    if (!ids.length) { toast('Select something to copy to the buffer', 'warn'); return false; }
+    if (!ids.length) { toast(SV.t('vector.msg.buffer_select'), 'warn'); return false; }
     SV.cmd.copy();
     var svg = IO.exportSVG({ ids: ids });
     SB.put({ kind: 'vector', formats: { 'image/svg+xml': svg }, source: 'vector' });
-    toast('Copied to the buffer');
+    toast(SV.t('vector.msg.buffer_copied'));
     return true;
   };
 
   /** File ▸ Export ▸ Export to buffer: the whole artboard as SVG. */
   BUF.exportToBuffer = function () {
     SB.put({ kind: 'vector', formats: { 'image/svg+xml': IO.exportSVG({}) }, source: 'vector' });
-    toast('The artboard is in the buffer');
+    toast(SV.t('vector.msg.buffer_artboard'));
   };
 
   /** Places a buffer record at a document point (or the view centre). Returns true when something was placed. */
@@ -43,9 +43,9 @@
     if (!c) return false;
     var done;
     if (c.type === 'image/svg+xml') {
-      done = IO.importSVGText(c.data, { name: 'Buffer SVG', group: true, at: at || null });
+      done = IO.importSVGText(c.data, { name: 'Buffer SVG', group: true, at: at || null }); // i18n-ignore: a name stored in the document
     } else {
-      done = Promise.resolve(c.data).then(dataUrl).then(function (u) { return IO.placeImageURL(u, 'Buffer image', at || null); });
+      done = Promise.resolve(c.data).then(dataUrl).then(function (u) { return IO.placeImageURL(u, 'Buffer image', at || null); }); // i18n-ignore: a name stored in the document
     }
     if (c.simplified) toast(c.note, 'warn');
     return !!done;

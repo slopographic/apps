@@ -4,6 +4,8 @@
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="photoslop" data-src="shared/theme/theme.js"></script>
   <link rel="expect" href="#slop-built" blocking="render">
+  <script src="../shared/i18n/i18n.js" data-src="shared/i18n/i18n.js"></script>
+  <script src="i18n/index.js" data-src="photoslop/i18n/index.js"></script>
 <script>/* the hidden copy that runs macros for Slop Workflows (shared/macros/frame.js) adds no third-party scripts */ if (/[?&]macro-host=1(&|$)/.test(location.search)) window.SLOP_CONSENT_LOADER = function () {};</script>
 <script src="../shared/consent/config.js"></script>
 <script src="../shared/consent/state.js"></script>
@@ -63,40 +65,40 @@
 <body>
   <div class="app" id="app">
     <header class="topbar">
-      <a class="logo" href="../" title="Back to slopographic.com" aria-label="Slopographic home">
+      <a class="logo" href="../" title="Back to slopographic.com" aria-label="Slopographic home" data-i18n-attr="title:photoslop.app.back_home;aria-label:photoslop.app.home">
         <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/><path class="shine" d="M11.5 20.5a4.5 4.5 0 0 0 3.5 4.4"/></svg>
-        <span class="logo-word">PhotoSlop</span>
+        <span class="logo-word">PhotoSlop</span><!-- i18n-ignore: the app name -->
       </a>
-      <nav class="menubar" id="menubar" aria-label="Menu"></nav>
-      <div class="doc-title" id="docTitle">Untitled</div>
+      <nav class="menubar" id="menubar" aria-label="Menu" data-i18n-attr="aria-label:photoslop.app.menu"></nav>
+      <div class="doc-title" id="docTitle">Untitled</div><!-- i18n-ignore: the document name, set by the app -->
       <div class="top-actions">
-        <button class="top-btn" id="newBtn" type="button" title="New document (Ctrl+N)" aria-label="New document">New</button>
-        <button class="top-btn" id="themeToggle" type="button" title="Switch theme: Pro, Light, Paint ’98" aria-label="Switch theme">
+        <button class="top-btn" id="newBtn" type="button" title="New document (Ctrl+N)" aria-label="New document" data-i18n="photoslop.app.new" data-i18n-attr="title:photoslop.app.new_tip;aria-label:photoslop.tab.new">New</button>
+        <button class="top-btn" id="themeToggle" type="button" title="Switch theme: Pro, Light, Paint ’98" aria-label="Switch theme" data-i18n-attr="title:photoslop.app.theme_tip;aria-label:photoslop.app.theme">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9c0-.8-.7-1.3-1.5-1.1A5 5 0 0 1 13.1 4.5C13.3 3.7 12.8 3 12 3z"/></svg>
         </button>
-        <button class="top-btn" id="cmdBtn" type="button" title="Search commands" aria-label="Search commands" hidden>
+        <button class="top-btn" id="cmdBtn" type="button" title="Search commands" aria-label="Search commands" data-i18n-attr="aria-label:photoslop.app.search" hidden>
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.5 15.5 21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
         </button>
-        <button class="top-btn" id="macrosBtn" type="button" title="Record and play macros" aria-label="Macros" hidden>Macros</button>
-        <button class="top-btn panel-toggle" id="panelToggle" type="button" aria-expanded="false" aria-controls="panels">Layers</button>
+        <button class="top-btn" id="macrosBtn" type="button" title="Record and play macros" aria-label="Macros" data-i18n="photoslop.app.macros" data-i18n-attr="title:photoslop.app.macros_tip;aria-label:photoslop.app.macros" hidden>Macros</button>
+        <button class="top-btn panel-toggle" id="panelToggle" type="button" aria-expanded="false" aria-controls="panels" data-i18n="photoslop.app.layers">Layers</button>
       </div>
     </header>
-    <div class="options" id="options" role="toolbar" aria-label="Tool options"></div>
+    <div class="options" id="options" role="toolbar" aria-label="Tool options" data-i18n-attr="aria-label:photoslop.app.tool_options"></div>
     <div class="main">
-      <aside class="toolbox" id="toolbox" aria-label="Tools"></aside>
+      <aside class="toolbox" id="toolbox" aria-label="Tools" data-i18n-attr="aria-label:photoslop.app.tools"></aside>
       <div class="docarea">
-        <div class="tabs" id="tabs" role="tablist" aria-label="Open documents"></div>
+        <div class="tabs" id="tabs" role="tablist" aria-label="Open documents" data-i18n-attr="aria-label:photoslop.app.open_documents"></div>
         <div class="viewport" id="viewport" data-touch-surface="nav">
           <div class="ps-dropstrip" id="psDrop"></div>
-          <canvas id="view" aria-label="Image canvas"></canvas>
+          <canvas id="view" aria-label="Image canvas" data-i18n-attr="aria-label:photoslop.app.canvas"></canvas>
         </div>
       </div>
-      <aside class="panels" id="panels" aria-label="Panels"><button class="top-btn export" id="exportBtn" type="button" title="Export As… (Alt+Shift+Ctrl+W)">Export…</button></aside>
+      <aside class="panels" id="panels" aria-label="Panels" data-i18n-attr="aria-label:photoslop.app.panels"><button class="top-btn export" id="exportBtn" type="button" title="Export As… (Alt+Shift+Ctrl+W)" data-i18n="photoslop.app.export" data-i18n-attr="title:photoslop.app.export_tip">Export…</button></aside>
     </div>
-    <footer class="status" id="status" aria-label="Status"></footer>
+    <footer class="status" id="status" aria-label="Status" data-i18n-attr="aria-label:photoslop.app.status"></footer>
   </div>
   <input type="file" id="fileIn" multiple hidden>
-  <noscript><p class="noscript">PhotoSlop needs JavaScript to run. Nothing is uploaded: it all runs on your device.</p></noscript>
+  <noscript><p class="noscript">PhotoSlop needs JavaScript to run. Nothing is uploaded: it all runs on your device.</p></noscript><!-- i18n-ignore: no script, no tables -->
 
   <script src="../shared/slopui.js"></script>
   <script src="../shared/intake/rules.js"></script>

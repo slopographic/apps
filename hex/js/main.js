@@ -6,6 +6,7 @@
   'use strict';
   const $ = (id) => document.getElementById(id);
   const A = () => window.HexApp;
+  const t = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
 
   function wire() {
     const act = (id, fn) => $(id).addEventListener('click', fn);
@@ -33,10 +34,10 @@
        Slop Drive (linked to its record), the sample, a paste, ?drive=<id> and a PWA launch open in a tab, one file at a time; a file
        already open is not opened again. Files wait for the tabs to come back (boot). */
     window.SlopIntake.register({
-      id: 'hex', accept: { any: true, allowEmpty: true, noun: 'a file' }, limit: 1,
+      id: 'hex', accept: { any: true, allowEmpty: true, noun: 'hex.app.a_file' }, limit: 1,
       before: () => tabsBack,
       process: async (file, ctx) => {
-        if (A().isOpen(file)) throw new Error('is already open');
+        if (A().isOpen(file)) throw new Error(t('hex.app.already_open', { name: file.name }));   // shown to the person (the intake's row)
         await A().openBlob(file, { name: file.name, driveId: ctx.drive ? ctx.drive.id : null });
         return file.name;
       },
@@ -48,11 +49,15 @@
     });
     // The empty page shows a file's bytes and how (SlopDrop's preview); the sample (a small PDF) goes through the strip.
     const empty = $('hx-empty'), row = empty.querySelector('.hx-empty-b'), sample = document.createElement('button');
-    empty.insertBefore(window.SlopDrop.panel.preview({
-      picture: { src: '../assets/shots/hex.jpg', alt: 'A PDF open in Slop Hex: offsets, hex bytes and the text beside them' },
-      steps: ['Drop any file', 'Read, find and change its bytes', 'Download the changed file'],
-    }), row);
-    sample.type = 'button'; sample.className = 'sd-sample'; sample.id = 'hx-sample'; sample.textContent = 'Try it with a sample PDF';
+    const pre = window.SlopDrop.panel.preview({
+      picture: { src: '../assets/shots/hex.jpg', alt: t('hex.drop.alt') },
+      steps: [t('hex.drop.step1'), t('hex.drop.step2'), t('hex.drop.step3')],
+    });
+    // the preview is drawn once: its steps and picture text are marked so they follow a language change
+    pre.querySelectorAll('.sd-steps li').forEach((li, i) => { li.dataset.i18n = 'hex.drop.step' + (i + 1); });
+    const img = pre.querySelector('img'); if (img) img.dataset.i18nAttr = 'alt:hex.drop.alt';
+    empty.insertBefore(pre, row);
+    sample.type = 'button'; sample.className = 'sd-sample'; sample.id = 'hx-sample'; sample.dataset.i18n = 'hex.drop.sample'; sample.textContent = t('hex.drop.sample');
     sample.addEventListener('click', () => window.SlopIntake.sample([window.SlopSamples.docs.pdf()], { to: 'hex' }));
     row.append(sample);
   }
@@ -74,7 +79,7 @@
     // Its file opens once the tabs are back.
     let back;
     tabsBack = new Promise((r) => { back = r; });
-    const launching = window.SlopIntake.launch({ to: 'hex' }).catch((e) => { SlopUI.toast('Could not open that file: ' + e.message); });
+    const launching = window.SlopIntake.launch({ to: 'hex' }).catch((e) => { SlopUI.toast(t('hex.app.open_failed', { error: e.message })); });
     const session = HexTabs.mount($('hx-tabs'), { activate: A().activate, deactivate: A().deactivate, refresh: A().refresh });
     try { await session.restore(); } catch (e) { console.warn('Slop Hex: restore failed', e); }
     if (!HexTabs.current()) HexTabs.api().newTab();
@@ -85,6 +90,6 @@
   }
 
   document.addEventListener('DOMContentLoaded', () => {
-    boot().catch((e) => { console.error(e); document.body.classList.add('ready'); if (window.SlopUI) SlopUI.toast('Slop Hex could not start: ' + e.message); });
+    boot().catch((e) => { console.error(e); document.body.classList.add('ready'); if (window.SlopUI) SlopUI.toast(t('hex.app.start_failed', { error: e.message })); });
   });
 })();

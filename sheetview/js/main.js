@@ -13,6 +13,7 @@ import { mountPanel } from './panel.js';
 
 const $ = (id) => document.getElementById(id);
 const toast = (msg) => { if (window.SlopUI) window.SlopUI.toast(msg); };
+const t = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
 const ACCEPT = '.xlsx,.xlsm,.csv,.tsv,.xls,.ods';
 const MIME = [
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel',
@@ -35,7 +36,7 @@ async function openFile(file) {
 function registerIntake() {
   window.SlopIntake.register({
     id: 'sheetview', limit: 20, process: (file) => openFile(file),
-    accept: { types: MIME, exts: ['.xlsx', '.xlsm', '.csv', '.tsv', '.xls', '.ods'], noun: 'a spreadsheet' },
+    accept: { types: MIME, exts: ['.xlsx', '.xlsm', '.csv', '.tsv', '.xls', '.ods'], noun: 'sheetview.app.a_spreadsheet' },
   });
 }
 const pickFiles = () => window.SlopIntake.pick({ to: 'sheetview', accept: ACCEPT });
@@ -50,16 +51,16 @@ async function openInTables() {
     // No byte-order mark: Slop Tables reads the text as it is, and a BOM would sit in cell A1. The one way out.
     await window.SlopOuttake.send('tables', { from: 'sheetview', get: () => csvBlob(sheet, null, ',', { bom: false }), name, type: 'text/csv' });
   } catch (e) {
-    toast('Could not send to Slop Table: ' + e.message);
+    toast(t('sheetview.toast.send_failed', { msg: e.message }));
   }
 }
 
 async function runExport(kind, scope, ctx) {
   try {
     const name = await exportFile(kind, scope, ctx);
-    toast(`Exported ${name}`);
+    toast(t('sheetview.toast.exported', { name }));
   } catch (e) {
-    toast('Could not export: ' + e.message);
+    toast(t('sheetview.toast.export_failed', { msg: e.message }));
   }
 }
 
@@ -70,27 +71,27 @@ function exportContext() {
 
 function exportMenu(anchor) {
   const ctx = exportContext();
-  if (!ctx) { toast('Open a spreadsheet first'); return; }
+  if (!ctx) { toast(t('sheetview.toast.open_first')); return; }
   const r = anchor.getBoundingClientRect();
   window.SlopUI.menu(exportItems(ctx, runExport), r.left, r.bottom + 4);
 }
 
 /** Convert… (shared/convert/dialog.js, loaded on first use): File convert's tool in a dialog, with the open document
  *  as XLSX (its provider is in export.js). This page has no shell header, so the Menu and the palette offer it. */
-const openConvert = () => import('../../shared/convert/dialog.js').then((m) => m.open({})).catch(() => toast('Convert is not available offline'));
+const openConvert = () => import('../../shared/convert/dialog.js').then((m) => m.open({})).catch(() => toast(t('sheetview.toast.convert_offline')));
 
 function menuItems() {
   const has = !!store.doc();
   const v = store.view();
   const nothingToClear = !v || (!v.sort && ![...v.filters.values()].length);
   return [
-    { label: 'Open spreadsheet…', key: cmdKey('open'), act: pickFiles },
+    { label: t('sheetview.menu.open'), key: cmdKey('open'), act: pickFiles },
     '-',
     ...exportItems(exportContext() || { doc: null, sheet: null, order: [] }, runExport).map((it) => (it === '-' ? it : { ...it, disabled: !has })),
     '-',
-    { label: 'Open current sheet in Slop Table', disabled: !has, act: openInTables },
-    { label: 'Convert files…', act: openConvert },
-    { label: 'Clear sort and filters', disabled: !has || nothingToClear, act: () => store.clearView() },
+    { label: t('sheetview.menu.hub'), disabled: !has, act: openInTables },
+    { label: t('sheetview.menu.convert'), act: openConvert },
+    { label: t('sheetview.app.clear'), disabled: !has || nothingToClear, act: () => store.clearView() },
   ];
 }
 
@@ -99,15 +100,18 @@ const cmdKey = (id) => (window.SlopCtx ? SlopCtx.keyFor('sheetview.' + id) : '')
 function registerCommands() {
   if (!window.SlopCmd) return;
   SlopCmd.init({ app: 'sheetview' });
-  const C = (id, title, keys, run, extra = {}) => ({ id: 'sheetview.' + id, title, group: 'File', keys, run, ...extra });
-  SlopCmd.register([
-    C('open', 'Open spreadsheet…', ['Mod+O'], pickFiles, { keywords: ['load', 'csv', 'xlsx', 'computer'] }),
-    C('hub', 'Open current sheet in Slop Table', [], openInTables, { keywords: ['tables', 'edit', 'drive'], when: () => !!store.doc() }),
-    C('export-visible-csv', 'Export visible rows as CSV', [], () => runExport('csv', 'visible', exportContext()), { keywords: ['save', 'filter'], when: () => !!store.doc() }),
-    C('export-all-xlsx', 'Export all rows as XLSX', [], () => runExport('xlsx', 'all', exportContext()), { keywords: ['excel', 'save'], when: () => !!store.doc() }),
-    C('convert', 'Convert files…', [], openConvert, { keywords: ['convert', 'format', 'pdf', 'json', 'csv'] }),
-    C('clear', 'Clear sort and filters', [], () => store.clearView(), { keywords: ['reset', 'sort', 'filter'], when: () => !!store.doc() }),
+  const C = (id, title, keys, run, extra = {}) => ({ id: 'sheetview.' + id, title: t(title), group: t('menu.file'), keys, run, ...extra });
+  // registered again on a language change, so the palette reads the new language
+  const register = () => SlopCmd.register([
+    C('open', 'sheetview.menu.open', ['Mod+O'], pickFiles, { keywords: ['load', 'csv', 'xlsx', 'computer'] }),
+    C('hub', 'sheetview.menu.hub', [], openInTables, { keywords: ['tables', 'edit', 'drive'], when: () => !!store.doc() }),
+    C('export-visible-csv', 'sheetview.cmd.export_visible_csv', [], () => runExport('csv', 'visible', exportContext()), { keywords: ['save', 'filter'], when: () => !!store.doc() }),
+    C('export-all-xlsx', 'sheetview.cmd.export_all_xlsx', [], () => runExport('xlsx', 'all', exportContext()), { keywords: ['excel', 'save'], when: () => !!store.doc() }),
+    C('convert', 'sheetview.menu.convert', [], openConvert, { keywords: ['convert', 'format', 'pdf', 'json', 'csv'] }),
+    C('clear', 'sheetview.app.clear', [], () => store.clearView(), { keywords: ['reset', 'sort', 'filter'], when: () => !!store.doc() }),
   ]);
+  register();
+  if (window.SlopI18n && window.SlopI18n.on) window.SlopI18n.on(register);
   // the assistant's commands with arguments (ai-commands.js), loaded when the AI panel first asks
   if (SlopCmd.provide) SlopCmd.provide({ prepare: () => import('./ai-commands.js').then((m) => m.install(store, openFile)) });
 }
@@ -125,12 +129,13 @@ function wireHeader() {
   });
 
   const fill = (sel, list, value) => {
-    sel.replaceChildren(...list.map(([id, label]) => { const o = document.createElement('option'); o.value = id; o.textContent = label; return o; }));
+    sel.replaceChildren(...list.map(([id, key]) => { const o = document.createElement('option'); o.value = id; o.textContent = t(key); return o; }));
     sel.value = value;
   };
   const style = $('sv-style'), palette = $('sv-palette');
-  fill(style, STYLES, appearance.style);
-  fill(palette, PALETTES, appearance.palette);
+  const fillBoth = () => { fill(style, STYLES, appearance.style); fill(palette, PALETTES, appearance.palette); };
+  fillBoth();
+  if (window.SlopI18n && window.SlopI18n.on) window.SlopI18n.on(fillBoth);   // the option names in the new language
   const change = () => {
     appearance.style = style.value;
     appearance.palette = palette.value;
@@ -141,6 +146,7 @@ function wireHeader() {
   palette.addEventListener('change', change);
 }
 
+const STEPS = ['sheetview.drop.step1', 'sheetview.drop.step2', 'sheetview.drop.step3'];
 function wireDrop() {
   window.SlopDrop.attach($('sv-drop'), {
     intake: 'sheetview',
@@ -150,10 +156,15 @@ function wireDrop() {
   // The empty page shows what a sheet looks like here and how (SlopDrop's preview); the sample goes through the strip.
   const empty = $('sv-empty'), sample = document.createElement('button');
   empty.insertBefore(window.SlopDrop.panel.preview({
-    picture: { src: '../assets/shots/sheetview.jpg', alt: 'A price list open in Slop Sheets, sorted by price' },
-    steps: ['Drop an .xlsx, .csv or .tsv file', 'Sort and filter any column', 'Export the rows you need'],
+    picture: { src: '../assets/shots/sheetview.jpg', alt: t('sheetview.drop.alt') },
+    steps: STEPS.map((k) => t(k)),
   }), empty.querySelector('.sv-empty-b'));
-  sample.type = 'button'; sample.className = 'sd-sample'; sample.id = 'sv-sample'; sample.textContent = 'Try it with a sample price list';
+  // the preview's words are drawn once: marked, they follow a language change (shared/i18n apply)
+  empty.querySelectorAll('.sd-steps li').forEach((li, i) => { li.dataset.i18n = STEPS[i]; });
+  const img = empty.querySelector('.sd-pic img');
+  if (img) img.dataset.i18nAttr = 'alt:sheetview.drop.alt';
+  sample.type = 'button'; sample.className = 'sd-sample'; sample.id = 'sv-sample'; sample.textContent = t('sheetview.drop.sample');
+  sample.dataset.i18n = 'sheetview.drop.sample';
   sample.addEventListener('click', () => window.SlopIntake.sample(() => window.SlopSamples.docs.xlsx().then((f) => [f]), { to: 'sheetview' }));
   empty.querySelector('.sv-empty-b').append(sample);
 }
@@ -171,10 +182,11 @@ async function boot() {
   registerCommands();
   window.SlopSheetView = { open: (files) => window.SlopIntake.take(Array.from(files), { to: 'sheetview' }), store };
   view.render();
-  try { await window.SlopIntake.launch({ to: 'sheetview' }); } catch (e) { toast('Could not open that file: ' + e.message); }
+  if (window.SlopI18n && window.SlopI18n.on) window.SlopI18n.on(() => view.render());   // tabs and status line
+  try { await window.SlopIntake.launch({ to: 'sheetview' }); } catch (e) { toast(t('sheetview.toast.open_failed', { msg: e.message })); }
   view.render();
   document.body.classList.add('ready');
 }
 
 // Module scripts run once the page is parsed, so the elements exist here.
-boot().catch((e) => { console.error(e); document.body.classList.add('ready'); toast('Slop Sheets could not start: ' + e.message); });
+boot().catch((e) => { console.error(e); document.body.classList.add('ready'); toast(t('sheetview.toast.start_failed', { msg: e.message })); });

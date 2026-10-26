@@ -30,8 +30,8 @@
   IO.downloadApp = function () {
     return IO.buildOfflineHTML().then(function (html) {
       IO.download(new Blob([html], { type: 'text/html' }), 'slop-vector.html');
-      SV.toast('Downloaded slop-vector.html — open it from disk, works fully offline');
+      SV.toast(SV.t('vector.msg.app_downloaded', { file: 'slop-vector.html' }));
       return html;
-    }).catch(function (e) { SV.toast('Could not build offline copy: ' + e.message, 'warn'); });
+    }).catch(function (e) { SV.toast(SV.t('vector.msg.app_failed', { error: e.message }), 'warn'); });
   };
 })();

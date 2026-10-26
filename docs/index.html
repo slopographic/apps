@@ -4,6 +4,8 @@
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="docs" data-src="shared/theme/theme.js"></script>
   <link rel="expect" href="#slop-built" blocking="render">
+  <script src="../shared/i18n/i18n.js" data-src="shared/i18n/i18n.js"></script>
+  <script src="i18n/index.js" data-src="docs/i18n/index.js"></script>
 <script src="../shared/consent/config.js"></script>
 <script src="../shared/consent/state.js"></script>
 <script src="../shared/consent/consent-mode.js"></script>
@@ -101,76 +103,76 @@
 <body>
   <div class="app" id="app">
     <header class="topbar">
-      <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home">
+      <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home" data-i18n-attr="title:docs.app.home;aria-label:docs.app.home">
         <svg viewBox="0 0 32 32" class="brand-mark" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/><path class="shine" d="M11.5 20.5a4.5 4.5 0 0 0 3.5 4.4"/></svg>
       </a>
-      <label class="docname"><span class="sr">Document name</span><input id="docName" type="text" value="Untitled document" spellcheck="false" autocomplete="off"></label>
-      <nav class="menus" id="menus" aria-label="Main menu">
-        <button type="button" class="menu-btn" data-menu="file" aria-haspopup="menu">File</button>
-        <button type="button" class="menu-btn" data-menu="edit" aria-haspopup="menu">Edit</button>
-        <button type="button" class="menu-btn" data-menu="format" aria-haspopup="menu">Format</button>
-        <button type="button" class="menu-btn" data-menu="help" aria-haspopup="menu">Help</button>
+      <label class="docname"><span class="sr" data-i18n="docs.app.doc_name">Document name</span><input id="docName" type="text" value="Untitled document" spellcheck="false" autocomplete="off"></label>
+      <nav class="menus" id="menus" aria-label="Main menu" data-i18n-attr="aria-label:docs.app.main_menu">
+        <button type="button" class="menu-btn" data-menu="file" aria-haspopup="menu" data-i18n="menu.file">File</button>
+        <button type="button" class="menu-btn" data-menu="edit" aria-haspopup="menu" data-i18n="menu.edit">Edit</button>
+        <button type="button" class="menu-btn" data-menu="format" aria-haspopup="menu" data-i18n="docs.menu.format">Format</button>
+        <button type="button" class="menu-btn" data-menu="help" aria-haspopup="menu" data-i18n="menu.help">Help</button>
       </nav>
       <span class="tb-flex"></span>
-      <span class="local-badge" title="Your documents stay on this device. Nothing is uploaded."><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span>Local · nothing uploaded</span></span>
-      <button type="button" class="btn primary" id="btnSave" title="Save to Slop Drive (Ctrl+S)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h11l3 3v13H5z"/><path d="M8 4v5h7V4M8 20v-6h8v6"/></svg><span>Save</span></button>
+      <span class="local-badge" title="Your documents stay on this device. Nothing is uploaded." data-i18n-attr="title:docs.app.local_tip"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span data-i18n="docs.app.local_badge">Local · nothing uploaded</span></span>
+      <button type="button" class="btn primary" id="btnSave" title="Save to Slop Drive (Ctrl+S)" data-i18n-attr="title:docs.app.save_tip"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h11l3 3v13H5z"/><path d="M8 4v5h7V4M8 20v-6h8v6"/></svg><span data-i18n="menu.save">Save</span></button>
     </header>
 
     <div id="tabs" class="doctabs-host"></div>
-    <div class="toolbar" id="toolbar" role="toolbar" aria-label="Formatting">
-      <button type="button" class="tb" id="tbUndo" aria-label="Undo" title="Undo (Ctrl+Z)" disabled><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button>
-      <button type="button" class="tb" id="tbRedo" aria-label="Redo" title="Redo (Ctrl+Shift+Z)" disabled><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg></button>
+    <div class="toolbar" id="toolbar" role="toolbar" aria-label="Formatting" data-i18n-attr="aria-label:docs.tb.formatting">
+      <button type="button" class="tb" id="tbUndo" aria-label="Undo" title="Undo (Ctrl+Z)" data-i18n-attr="aria-label:ui.undo;title:docs.tb.undo_tip" disabled><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button>
+      <button type="button" class="tb" id="tbRedo" aria-label="Redo" title="Redo (Ctrl+Shift+Z)" data-i18n-attr="aria-label:ui.redo;title:docs.tb.redo_tip" disabled><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg></button>
       <span class="sep" aria-hidden="true"></span>
-      <select id="selStyle" class="sel style-sel" aria-label="Paragraph style" title="Paragraph style">
-        <option value="Normal">Normal text</option>
-        <option value="Title">Title</option>
-        <option value="H1">Heading 1</option>
-        <option value="H2">Heading 2</option>
-        <option value="H3">Heading 3</option>
-        <option value="Quote">Quote</option>
-        <option value="Code">Code</option>
+      <select id="selStyle" class="sel style-sel" aria-label="Paragraph style" title="Paragraph style" data-i18n-attr="aria-label:docs.tb.style;title:docs.tb.style">
+        <option value="Normal" data-i18n="docs.style.normal">Normal text</option>
+        <option value="Title" data-i18n="docs.style.title">Title</option>
+        <option value="H1" data-i18n="docs.style.h1">Heading 1</option>
+        <option value="H2" data-i18n="docs.style.h2">Heading 2</option>
+        <option value="H3" data-i18n="docs.style.h3">Heading 3</option>
+        <option value="Quote" data-i18n="docs.style.quote">Quote</option>
+        <option value="Code" data-i18n="docs.style.code">Code</option>
       </select>
-      <select id="selFont" class="sel font-sel" aria-label="Font" title="Font"></select>
-      <button type="button" class="tb" id="tbFonts" aria-label="Fonts" title="Fonts: the fonts this document uses, and your own font file">Fonts…</button>
-      <button type="button" class="tb" id="tbSmaller" aria-label="Smaller text" title="Smaller text">A<sup>−</sup></button>
-      <input id="selSize" class="size-in" type="number" min="6" max="96" step="1" value="11" aria-label="Font size" title="Font size">
-      <button type="button" class="tb" id="tbBigger" aria-label="Larger text" title="Larger text">A<sup>+</sup></button>
+      <select id="selFont" class="sel font-sel" aria-label="Font" title="Font" data-i18n-attr="aria-label:docs.tb.font;title:docs.tb.font"></select>
+      <button type="button" class="tb" id="tbFonts" aria-label="Fonts" title="Fonts: the fonts this document uses, and your own font file" data-i18n="docs.tb.fonts_dots" data-i18n-attr="aria-label:docs.tb.fonts;title:docs.tb.fonts_tip">Fonts…</button>
+      <button type="button" class="tb" id="tbSmaller" aria-label="Smaller text" title="Smaller text" data-i18n-attr="aria-label:docs.tb.smaller;title:docs.tb.smaller">A<sup>−</sup></button>
+      <input id="selSize" class="size-in" type="number" min="6" max="96" step="1" value="11" aria-label="Font size" title="Font size" data-i18n-attr="aria-label:docs.tb.size;title:docs.tb.size">
+      <button type="button" class="tb" id="tbBigger" aria-label="Larger text" title="Larger text" data-i18n-attr="aria-label:docs.tb.bigger;title:docs.tb.bigger">A<sup>+</sup></button>
       <span class="sep" aria-hidden="true"></span>
-      <button type="button" class="tb" id="tbBold" aria-label="Bold" title="Bold (Ctrl+B)" aria-pressed="false"><b>B</b></button>
-      <button type="button" class="tb" id="tbItalic" aria-label="Italic" title="Italic (Ctrl+I)" aria-pressed="false"><i>I</i></button>
-      <button type="button" class="tb" id="tbUnderline" aria-label="Underline" title="Underline (Ctrl+U)" aria-pressed="false"><u>U</u></button>
-      <button type="button" class="tb" id="tbClear" aria-label="Clear formatting" title="Clear formatting">Tx</button>
+      <button type="button" class="tb" id="tbBold" aria-label="Bold" title="Bold (Ctrl+B)" data-i18n-attr="aria-label:docs.tb.bold;title:docs.tb.bold_tip" aria-pressed="false"><b>B</b></button>
+      <button type="button" class="tb" id="tbItalic" aria-label="Italic" title="Italic (Ctrl+I)" data-i18n-attr="aria-label:docs.tb.italic;title:docs.tb.italic_tip" aria-pressed="false"><i>I</i></button>
+      <button type="button" class="tb" id="tbUnderline" aria-label="Underline" title="Underline (Ctrl+U)" data-i18n-attr="aria-label:docs.tb.underline;title:docs.tb.underline_tip" aria-pressed="false"><u>U</u></button>
+      <button type="button" class="tb" id="tbClear" aria-label="Clear formatting" title="Clear formatting" data-i18n-attr="aria-label:docs.tb.clear;title:docs.tb.clear">Tx</button><!-- i18n-ignore: an icon -->
       <span class="sep" aria-hidden="true"></span>
-      <button type="button" class="tb" id="tbLeft" aria-label="Align left" title="Align left" data-align="left"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 10h10M4 14h16M4 18h10"/></svg></button>
-      <button type="button" class="tb" id="tbCenter" aria-label="Align centre" title="Align centre" data-align="center"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M7 10h10M4 14h16M7 18h10"/></svg></button>
-      <button type="button" class="tb" id="tbRight" aria-label="Align right" title="Align right" data-align="right"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M10 10h10M4 14h16M10 18h10"/></svg></button>
-      <button type="button" class="tb" id="tbJustify" aria-label="Justify" title="Justify" data-align="justify"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg></button>
+      <button type="button" class="tb" id="tbLeft" aria-label="Align left" title="Align left" data-i18n-attr="aria-label:docs.tb.align_left;title:docs.tb.align_left" data-align="left"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 10h10M4 14h16M4 18h10"/></svg></button>
+      <button type="button" class="tb" id="tbCenter" aria-label="Align centre" title="Align centre" data-i18n-attr="aria-label:docs.tb.align_center;title:docs.tb.align_center" data-align="center"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M7 10h10M4 14h16M7 18h10"/></svg></button>
+      <button type="button" class="tb" id="tbRight" aria-label="Align right" title="Align right" data-i18n-attr="aria-label:docs.tb.align_right;title:docs.tb.align_right" data-align="right"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M10 10h10M4 14h16M10 18h10"/></svg></button>
+      <button type="button" class="tb" id="tbJustify" aria-label="Justify" title="Justify" data-i18n-attr="aria-label:docs.tb.justify;title:docs.tb.justify" data-align="justify"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg></button>
       <span class="sep" aria-hidden="true"></span>
-      <button type="button" class="tb" id="tbBullets" aria-label="Bulleted list" title="Bulleted list (Ctrl+Shift+L)" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="7" r="1.4"/><circle cx="5" cy="12" r="1.4"/><circle cx="5" cy="17" r="1.4"/><path d="M9 7h11M9 12h11M9 17h11"/></svg></button>
-      <button type="button" class="tb" id="tbNumbers" aria-label="Numbered list" title="Numbered list (Ctrl+Shift+7)" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 7h10M10 12h10M10 17h10"/><path d="M4 6l1.5-1V10M4 14.5a1.5 1.5 0 1 1 2.6 1L4 19h3"/></svg></button>
+      <button type="button" class="tb" id="tbBullets" aria-label="Bulleted list" title="Bulleted list (Ctrl+Shift+L)" data-i18n-attr="aria-label:docs.tb.bullets;title:docs.tb.bullets_tip" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="7" r="1.4"/><circle cx="5" cy="12" r="1.4"/><circle cx="5" cy="17" r="1.4"/><path d="M9 7h11M9 12h11M9 17h11"/></svg></button>
+      <button type="button" class="tb" id="tbNumbers" aria-label="Numbered list" title="Numbered list (Ctrl+Shift+7)" data-i18n-attr="aria-label:docs.tb.numbers;title:docs.tb.numbers_tip" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 7h10M10 12h10M10 17h10"/><path d="M4 6l1.5-1V10M4 14.5a1.5 1.5 0 1 1 2.6 1L4 19h3"/></svg></button>
       <span class="sep" aria-hidden="true"></span>
-      <button type="button" class="tb tb-text" id="tbRandom" aria-label="Random template" title="Random template: a new document from a random design (File ▸ New)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="3"/><circle cx="8.5" cy="8.5" r="1.2"/><circle cx="15.5" cy="15.5" r="1.2"/><circle cx="12" cy="12" r="1.2"/></svg><span>Random</span></button>
+      <button type="button" class="tb tb-text" id="tbRandom" aria-label="Random template" title="Random template: a new document from a random design (File ▸ New)" data-i18n-attr="aria-label:docs.tb.random;title:docs.tb.random_tip"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="3"/><circle cx="8.5" cy="8.5" r="1.2"/><circle cx="15.5" cy="15.5" r="1.2"/><circle cx="12" cy="12" r="1.2"/></svg><span data-i18n="docs.tb.random_short">Random</span></button>
     </div>
 
     <aside class="outline" id="outline"></aside>
-    <main class="stage" id="stage" aria-label="Document">
+    <main class="stage" id="stage" aria-label="Document" data-i18n-attr="aria-label:docs.app.document">
       <div class="pages" id="pages"></div>
     </main>
-    <aside class="doc-panel" id="docPanel" aria-label="Document"></aside>
+    <aside class="doc-panel" id="docPanel" aria-label="Document" data-i18n-attr="aria-label:docs.app.document"></aside>
 
     <footer class="statusbar">
-      <span id="pageInfo">Page 1 of 1</span>
+      <span id="pageInfo">Page 1 of 1</span><!-- i18n-ignore: toolbar.js writes it (docs.status.page_of) -->
       <span id="wordInfo"></span>
       <span id="saveState" class="st-msg" aria-live="polite"></span>
       <span class="tb-flex"></span>
-      <label class="zoom"><span class="sr">Zoom</span><select id="zoomSel" class="sel" aria-label="Zoom">
+      <label class="zoom"><span class="sr" data-i18n="docs.status.zoom">Zoom</span><select id="zoomSel" class="sel" aria-label="Zoom" data-i18n-attr="aria-label:docs.status.zoom">
         <option value="0.75">75%</option><option value="1" selected>100%</option><option value="1.25">125%</option><option value="1.5">150%</option><option value="2">200%</option>
       </select></label>
     </footer>
-    <textarea id="ime" class="ime" data-slop-keys="app" aria-label="Type here" autocapitalize="sentences" autocomplete="off" autocorrect="on" spellcheck="false" rows="1"></textarea>
+    <textarea id="ime" class="ime" data-slop-keys="app" aria-label="Type here" data-i18n-attr="aria-label:docs.app.type_here" autocapitalize="sentences" autocomplete="off" autocorrect="on" spellcheck="false" rows="1"></textarea>
   </div>
   <div class="sr" id="live" aria-live="polite"></div>
-  <noscript><p class="noscript">Slop Docs needs JavaScript. It runs entirely in your browser; nothing is uploaded.</p></noscript>
+  <noscript><p class="noscript" data-i18n="docs.app.noscript">Slop Docs needs JavaScript. It runs entirely in your browser; nothing is uploaded.</p></noscript>
 
   <script src="../shared/session/session.js"></script>
   <script src="../shared/storage/classify.js"></script>

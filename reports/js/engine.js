@@ -42,31 +42,31 @@
   function validate(def) {
     if (!def || typeof def !== 'object' || Array.isArray(def)) return ['a report is a JSON object'];
     const e = [];
-    if (typeof def.id !== 'string' || !def.id.trim()) e.push('id is needed');
-    if (typeof def.title !== 'string' || !def.title.trim()) e.push('title is needed');
+    if (typeof def.id !== 'string' || !def.id.trim()) e.push('id is needed');   // i18n-ignore: the definition checker's words name JSON keys (the report language)
+    if (typeof def.title !== 'string' || !def.title.trim()) e.push('title is needed');   // i18n-ignore: the definition checker's words name JSON keys (the report language)
     if (!SOURCES.includes(def.from)) e.push(`from must be one of ${SOURCES.join(', ')}`);
     try { Q.checkWhere(def.where || []); } catch (err) { e.push(`where: ${err.message}`); }
     if (def.enrich !== undefined && (!Array.isArray(def.enrich) || def.enrich.some((n) => !ENRICH_NAMES().includes(n)))) {
       e.push(`enrich must name some of ${ENRICH_NAMES().join(', ')}`);
     }
-    if (def.unwind !== undefined && (typeof def.unwind !== 'string' || !def.unwind)) e.push('unwind must be a field name');
+    if (def.unwind !== undefined && (typeof def.unwind !== 'string' || !def.unwind)) e.push('unwind must be a field name');   // i18n-ignore: the definition checker's words name JSON keys (the report language)
     if (def.join !== undefined) {
       const j = def.join || {};
-      if (!SOURCES.includes(j.from)) e.push('join.from must be a collection');
-      if (!isStrings(j.on, 2)) e.push('join.on needs two field names');
-      if (j.type !== undefined && !['inner', 'left'].includes(j.type)) e.push('join.type is inner or left');
+      if (!SOURCES.includes(j.from)) e.push('join.from must be a collection');   // i18n-ignore: the definition checker's words name JSON keys (the report language)
+      if (!isStrings(j.on, 2)) e.push('join.on needs two field names');   // i18n-ignore: the definition checker's words name JSON keys (the report language)
+      if (j.type !== undefined && !['inner', 'left'].includes(j.type)) e.push('join.type is inner or left');   // i18n-ignore: the definition checker's words name JSON keys (the report language)
       try { Q.checkWhere(j.where || []); } catch (err) { e.push(`join.where: ${err.message}`); }
     }
-    if (!isStringList(def.by)) e.push('by must be a list of fields');
-    if (!isStringList(def.sum)) e.push('sum must be a list of fields');
-    if (!isStringList(def.avg)) e.push('avg must be a list of fields');
-    if (def.count !== undefined && typeof def.count !== 'boolean') e.push('count is true or false');
-    if (def.orderBy !== undefined && typeof def.orderBy !== 'string') e.push('orderBy is a field name');
-    if (def.limit !== undefined && !(Number.isInteger(def.limit) && def.limit >= 0)) e.push('limit is a whole number');
-    if (!Array.isArray(def.columns) || !def.columns.length) e.push('columns needs at least one column');
+    if (!isStringList(def.by)) e.push('by must be a list of fields');   // i18n-ignore: the definition checker's words name JSON keys (the report language)
+    if (!isStringList(def.sum)) e.push('sum must be a list of fields');   // i18n-ignore: the definition checker's words name JSON keys (the report language)
+    if (!isStringList(def.avg)) e.push('avg must be a list of fields');   // i18n-ignore: the definition checker's words name JSON keys (the report language)
+    if (def.count !== undefined && typeof def.count !== 'boolean') e.push('count is true or false');   // i18n-ignore: the definition checker's words name JSON keys (the report language)
+    if (def.orderBy !== undefined && typeof def.orderBy !== 'string') e.push('orderBy is a field name');   // i18n-ignore: the definition checker's words name JSON keys (the report language)
+    if (def.limit !== undefined && !(Number.isInteger(def.limit) && def.limit >= 0)) e.push('limit is a whole number');   // i18n-ignore: the definition checker's words name JSON keys (the report language)
+    if (!Array.isArray(def.columns) || !def.columns.length) e.push('columns needs at least one column');   // i18n-ignore: the definition checker's words name JSON keys (the report language)
     else {
       for (const c of def.columns) {
-        if (!c || typeof c.field !== 'string' || typeof c.label !== 'string') e.push('each column needs a field and a label');
+        if (!c || typeof c.field !== 'string' || typeof c.label !== 'string') e.push('each column needs a field and a label');   // i18n-ignore: the definition checker's words name JSON keys (the report language)
         else if (c.type !== undefined && !TYPES.includes(c.type)) e.push(`column ${c.field}: type is ${TYPES.join(', ')}`);
       }
     }

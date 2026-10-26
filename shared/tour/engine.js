@@ -1,6 +1,8 @@
 /* SlopTour engine: tours are data. SlopTour.define() registers one; start(app) loads the app's tour file
  * (tours/<app>.js) on demand, resumes it from saved progress and drives the spotlight and the panel.
  * A tour never changes app data: steps only point, scroll and focus. Closing leaves the page as it was.
+ * The words come from the app's tables (SlopTour.logic.words) on every render, and an open tour re-renders when the
+ * language changes (SlopI18n.on), so it follows a live switch.
  * Classic script. Sets window.SlopTour (see core.js, spot.js, panel.js). HANDOFF.md has the full contract. */
 (function () {
   'use strict';
@@ -8,8 +10,8 @@
   const BASE = document.currentScript && document.currentScript.src ? new URL('./', document.currentScript.src).href : '';
   const defs = Object.create(null);
   const L = T.logic;
-  /** A word from the shared tables (shared/i18n/ui/en.js), or the English given when SlopI18n or the key is absent. */
-  function tr(key, en, vars) { const I = globalThis.SlopI18n; if (I && I.has && I.has(key)) return I.t(key, vars); return vars ? String(en).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en; }
+  /** A word from the shared tables (ui.tour.* in shared/i18n/ui/<code>.js); the key itself without SlopI18n. */
+  const tr = (key, vars) => { const I = globalThis.SlopI18n; return I && I.t ? I.t(key, vars) : key; };
   let cur = null;          // { app, tour, index, done: Set, status }
   const subs = [];
 
@@ -35,22 +37,30 @@
     if (!cur) return;
     L.write(cur.app, { index: cur.index, done: [...cur.done], status: cur.status, at: Date.now() });
   }
-  function view() {
+  function view(w) {
     const steps = cur.tour.steps;
     const i = cur.index, s = steps[i];
     return {
-      name: cur.tour.title, counter: tr('ui.tour.counter', L.counter(i, steps.length), { i: i + 1, n: steps.length }), index: i, n: steps.length,
-      title: s.title, text: s.text, last: i === steps.length - 1,
-      hint: s.target && !T.spot.target ? tr('ui.tour.offscreen', 'This control is not on screen right now (it may be hidden at this window width). Next keeps going.') : '',
-      steps: steps.map((x) => ({ title: x.title, done: cur.done.has(x.id) })),
+      name: w.title, counter: tr('ui.tour.counter', { i: i + 1, n: steps.length }), index: i, n: steps.length,
+      title: w.steps[i].title, text: w.steps[i].text, last: i === steps.length - 1,
+      hint: s.target && !T.spot.target ? tr('ui.tour.offscreen') : '',
+      steps: steps.map((x, k) => ({ title: w.steps[k].title, done: cur.done.has(x.id) })),
     };
   }
   function show() {
-    const s = cur.tour.steps[cur.index];
-    T.spot.show(s, s.title, s.text);
-    T.panel.render(view());
+    const w = L.words(cur.tour), s = cur.tour.steps[cur.index];
+    T.spot.show(s, w.steps[cur.index].title, w.steps[cur.index].text);
+    T.panel.render(view(w));
     emit();
   }
+  /** The language changed: the same step again in the new words, without scrolling or moving focus. */
+  function retext() {
+    if (!cur) return;
+    const w = L.words(cur.tour);
+    T.spot.retext(w.steps[cur.index].title, w.steps[cur.index].text);
+    T.panel.render(view(w));
+  }
+  if (globalThis.SlopI18n && SlopI18n.on) SlopI18n.on(retext);
   function go(i) {
     cur.index = L.clamp(i, cur.tour.steps.length);
     cur.status = 'active';

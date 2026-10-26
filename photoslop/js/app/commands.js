@@ -16,16 +16,22 @@ function menuKey(it) {
   if (CMD_ON && it.cmdId && window.SlopCmd) return SlopCmd.keyFor(it.cmdId);
   return it.key ? keyLabel(it.key) : '';
 }
+/** The palette's group for an English group id: SlopCmd's search names File, Edit, View and Help itself (and keeps Help
+ * last); the others are PhotoSlop's own words. */
+const cmdGroup = (g) => (['File', 'Edit', 'View', 'Help'].includes(g) ? g : tr('photoslop.menu.bar_' + slug(g).replace(/-/g, '_')));   // i18n-ignore: ids, class names, key names or text for agents
+/** A menu item's part of its command id: its k (menus.js), or the slug of its label for items from shared code. */
+const idPart = (it) => (it.k ? it.k.replace(/_/g, '-') : slug(it.label || ''));
 function menuCommands() {
   const out = [];
   const walk = (items, group, path) => {
     for (const it of items) {
       if (!it || it === '-') continue;
-      if (it.sub) { walk(it.sub, group, path.concat(it.label)); continue; }
+      if (it.sub) { walk(it.sub, group, path.concat(it)); continue; }
       if (!it.act || /^(cmd|macro)\./.test(it.cmdId || '')) continue;   // shared commands keep their own ids
-      const id = it.cmdId || (it.cmdId = 'ps.' + slug([group].concat(path, it.label).join(' ')));
+      const id = it.cmdId || (it.cmdId = 'ps.' + [slug(group)].concat(path.map(idPart), idPart(it)).filter(Boolean).join('-'));
       const keys = NATIVE_KEYS.has(it.key) ? [] : [it.key].concat(it.alt || []).filter(Boolean).map(cmdKey).concat(EXTRA_KEYS[id] || []);
-      out.push({ id, title: path.concat(it.label.replace(/…$/, '')).join(' › ') + (it.label.endsWith('…') ? '…' : ''), group, keys, keywords: [group].concat(path),
+      const names = path.map((p) => p.label);
+      out.push({ id, title: names.concat(it.label.replace(/…$/, '')).join(' › ') + (it.label.endsWith('…') ? '…' : ''), group: cmdGroup(group), keys, keywords: [group].concat(names),
         when: () => menuEnabled(it), checked: it.check, run: () => it.act() });
     }
   };
@@ -45,32 +51,32 @@ function brushStep(up, hard) {
   else { const s = o.size, step = s < 10 ? 1 : s < 50 ? 5 : s < 100 ? 10 : s < 300 ? 25 : 50; o.size = clamp(s + (up ? step : -step), 1, 1000); }
   saveToolOptions(); buildOptions(); dirty();
 }
-function toolOpacity(n) { const o = BRUSH_OPTS()[UI.tool]; if (!o || o.opacity == null) return; o.opacity = n === 0 ? 1 : n / 10; saveToolOptions(); buildOptions(); toast(`Opacity ${Math.round(o.opacity * 100)}%`, 900); }
+function toolOpacity(n) { const o = BRUSH_OPTS()[UI.tool]; if (!o || o.opacity == null) return; o.opacity = n === 0 ? 1 : n / 10; saveToolOptions(); buildOptions(); toast(tr('photoslop.cmd.opacity_toast', { pct: Math.round(o.opacity * 100) }), 900); }
 function toolCommands() {
   const out = [], hasBrush = () => !!BRUSH_OPTS()[UI.tool];
   for (const k in TOOL_KEYS) {
     const ids = TOOL_KEYS[k];
-    ids.forEach((id, i) => out.push({ id: 'ps.tool.' + id, title: TOOL[id].name, group: 'Tools', icon: TOOL[id].icon, keys: i ? [] : [k], keywords: ['tool', k], checked: () => UI.tool === id, run: () => (i ? selectTool(id) : pickToolKey(k, false)) }));
-    if (ids.length > 1) out.push({ id: 'ps.tool.cycle-' + slug(k), title: 'Cycle ' + ids.map((id) => TOOL[id].name.replace(/ Tool$/, '')).join(' / '), group: 'Tools', keys: ['Shift+' + k], run: () => pickToolKey(k, true) });
+    ids.forEach((id, i) => out.push({ id: 'ps.tool.' + id, title: TOOL[id].name, group: cmdGroup('Tools'), icon: TOOL[id].icon, keys: i ? [] : [k], keywords: ['tool', k], checked: () => UI.tool === id, run: () => (i ? selectTool(id) : pickToolKey(k, false)) }));   // i18n-ignore: ids, class names, key names or text for agents
+    if (ids.length > 1) out.push({ id: 'ps.tool.cycle-' + slug(k), title: tr('photoslop.cmd.cycle_tools', { tools: ids.map((id) => TOOL[id].short || TOOL[id].name).join(' / ') }), group: cmdGroup('Tools'), keys: ['Shift+' + k], run: () => pickToolKey(k, true) });   // i18n-ignore: ids, class names, key names or text for agents
   }
-  const C2 = (id, title, keys, run, extra) => out.push(Object.assign({ id: 'ps.' + id, title, group: 'Canvas', keys, run }, extra));
-  C2('swap-colors', 'Swap foreground and background colours', ['X'], swapColors);
-  C2('default-colors', 'Default colours (black / white)', ['D'], defaultColors);
-  C2('brush-bigger', 'Brush size up', [']'], () => brushStep(true), { when: hasBrush, repeat: true });
-  C2('brush-smaller', 'Brush size down', ['['], () => brushStep(false), { when: hasBrush, repeat: true });
-  C2('brush-harder', 'Brush hardness up', ['Shift+]'], () => brushStep(true, true), { when: hasBrush });
-  C2('brush-softer', 'Brush hardness down', ['Shift+['], () => brushStep(false, true), { when: hasBrush });
-  for (let n = 0; n <= 9; n++) C2('opacity-' + n, `Tool opacity ${n ? n * 10 : 100}%`, [String(n)], () => toolOpacity(n), { when: hasBrush, hidden: true });
+  const C2 = (id, key, keys, run, extra, vars) => out.push(Object.assign({ id: 'ps.' + id, title: tr('photoslop.cmd.' + key, vars), group: cmdGroup((extra && extra.group) || 'Canvas'), keys, run }, extra, extra && extra.group ? { group: cmdGroup(extra.group) } : {}));   // i18n-ignore: ids, class names, key names or text for agents
+  C2('swap-colors', 'swap_colors', ['X'], swapColors);
+  C2('default-colors', 'default_colors', ['D'], defaultColors);
+  C2('brush-bigger', 'brush_bigger', [']'], () => brushStep(true), { when: hasBrush, repeat: true });
+  C2('brush-smaller', 'brush_smaller', ['['], () => brushStep(false), { when: hasBrush, repeat: true });
+  C2('brush-harder', 'brush_harder', ['Shift+]'], () => brushStep(true, true), { when: hasBrush });
+  C2('brush-softer', 'brush_softer', ['Shift+['], () => brushStep(false, true), { when: hasBrush });
+  for (let n = 0; n <= 9; n++) C2('opacity-' + n, 'tool_opacity', [String(n)], () => toolOpacity(n), { when: hasBrush, hidden: true }, { pct: n ? n * 10 : 100 });
   for (const [dir, dx, dy] of [['left', -1, 0], ['right', 1, 0], ['up', 0, -1], ['down', 0, 1]]) {
-    const A = 'Arrow' + dir[0].toUpperCase() + dir.slice(1), isMove = () => UI.tool === 'move' && !TRANSFORM.active;
-    C2('nudge-' + dir, `Nudge ${dir} 1 px`, [A], () => nudge(dx, dy), { when: isMove, repeat: true });
-    C2('nudge-' + dir + '-10', `Nudge ${dir} 10 px`, ['Shift+' + A], () => nudge(dx * 10, dy * 10), { when: isMove, repeat: true });
+    const A = 'Arrow' + dir[0].toUpperCase() + dir.slice(1), isMove = () => UI.tool === 'move' && !TRANSFORM.active;   // i18n-ignore: ids, class names, key names or text for agents
+    C2('nudge-' + dir, 'nudge_' + dir, [A], () => nudge(dx, dy), { when: isMove, repeat: true }, { n: 1 });
+    C2('nudge-' + dir + '-10', 'nudge_' + dir, ['Shift+' + A], () => nudge(dx * 10, dy * 10), { when: isMove, repeat: true }, { n: 10 });
   }
-  C2('next-doc', 'Next document', ['Mod+Tab'], () => cycleDoc(1), { group: 'Window', when: () => DOCS.length > 1 });
-  C2('prev-doc', 'Previous document', ['Shift+Mod+Tab'], () => cycleDoc(-1), { group: 'Window', when: () => DOCS.length > 1 });
-  for (let i = 1; i <= 9; i++) C2('doc-' + i, `Go to document ${i}`, ['Alt+' + i], () => { if (DOCS[i - 1]) switchToDoc(DOCS[i - 1]); }, { group: 'Window', when: () => !!DOCS[i - 1], hidden: true });
-  C2('transform-restore-aspect', 'Restore original aspect ratio', [], () => restoreAspect(null), { group: 'Edit', when: tfCanRestore, keywords: ['transform', 'proportion', 'ratio', 'free transform'] });
-  C2('guides-panel', 'Guides panel (guide layouts)', [], () => openGuidesPanel(), { group: 'Window', keywords: ['guideguide', 'grid', 'columns', 'layout'] });
+  C2('next-doc', 'next_doc', ['Mod+Tab'], () => cycleDoc(1), { group: 'Window', when: () => DOCS.length > 1 });   // i18n-ignore: ids, class names, key names or text for agents
+  C2('prev-doc', 'prev_doc', ['Shift+Mod+Tab'], () => cycleDoc(-1), { group: 'Window', when: () => DOCS.length > 1 });   // i18n-ignore: ids, class names, key names or text for agents
+  for (let i = 1; i <= 9; i++) C2('doc-' + i, 'go_to_doc', ['Alt+' + i], () => { if (DOCS[i - 1]) switchToDoc(DOCS[i - 1]); }, { group: 'Window', when: () => !!DOCS[i - 1], hidden: true }, { i: String(i) });   // i18n-ignore: ids, class names, key names or text for agents
+  C2('transform-restore-aspect', 'restore_aspect', [], () => restoreAspect(null), { group: 'Edit', when: tfCanRestore, keywords: ['transform', 'proportion', 'ratio', 'free transform'] });   // i18n-ignore: ids, class names, key names or text for agents
+  C2('guides-panel', 'guides_panel', [], () => openGuidesPanel(), { group: 'Window', keywords: ['guideguide', 'grid', 'columns', 'layout'] });   // i18n-ignore: ids, class names, key names or text for agents
   return out;
 }
 
@@ -80,22 +86,26 @@ function toolCommands() {
 function inMenu(e) { return !!(e.target.closest && e.target.closest('[role="menu"]')); }
 function onEarlyKey(e) {
   if (!CMD_ON || SlopUI.openDialogs || isTyping(e.target) || inMenu(e) || (window.SlopCmd && SlopCmd.isOpen)) return;
-  if (e.code === 'Space' && !e.ctrlKey && !e.metaKey) { if (!e.repeat) { V.space = true; V.el.classList.add('space'); } e.preventDefault(); e.stopImmediatePropagation(); return; }
+  if (e.code === 'Space' && !e.ctrlKey && !e.metaKey) { if (!e.repeat) { V.space = true; V.el.classList.add('space'); } e.preventDefault(); e.stopImmediatePropagation(); return; }   // i18n-ignore: ids, class names, key names or text for agents
   const t = currentTool();
   if (t.onKey && t.onKey(e)) { e.preventDefault(); e.stopImmediatePropagation(); dirty(); return; }
   if (openMenu && e.key === 'Escape') { closeMenus(); e.stopImmediatePropagation(); }
+}
+/** Registers the menu, tool and canvas commands (again after a language change: the ids stay, the titles follow). */
+function registerCommands() {
+  SlopCmd.register(menuCommands().concat(toolCommands()));
+  SlopCmd.register(psGenCommands());   // ps.generate / ps.edit-ai with arguments (over the menu items' own entries)
+  SlopCmd.register(psRetouchCommands());   // Auto retouch on this device (js/retouch/boot.js)
+  const b = $('#cmdBtn'); if (b) { b.hidden = false; b.title = tr('photoslop.cmd.search_key', { key: SlopCmd.keyFor('cmd.palette') }); }
 }
 function wireCommands() {
   window.addEventListener('keydown', onEarlyKey, true);
   if (!window.SlopCmd || !SlopCmd.register) return false;
   try {
     SlopCmd.init({ app: 'photoslop' });
-    SlopCmd.register(menuCommands().concat(toolCommands()));
     CMD_ON = true;
+    registerCommands();
     if (SlopCmd.provide) SlopCmd.provide({ prepare: loadAICommands });   // the assistant's commands load when the AI panel first needs them
-    SlopCmd.register(psGenCommands());   // ps.generate / ps.edit-ai with arguments (over the menu items' own entries)
-    SlopCmd.register(psRetouchCommands());   // Auto retouch on this device (js/retouch/boot.js)
-    const b = $('#cmdBtn'); if (b) { b.hidden = false; b.title = 'Search commands (' + SlopCmd.keyFor('cmd.palette') + ')'; }
   } catch (err) { console.warn(err); CMD_ON = false; }
   return CMD_ON;
 }
@@ -114,16 +124,17 @@ function psGenLoad() {
   return psGenP;
 }
 function psImageGen(mode, args) { return psGenLoad().then(() => psImageGenOpen(mode, args)).catch((e) => { toast(e.message); return e.message; }); }
-window.SlopImageSink = { app: 'photoslop', name: 'PhotoSlop', targets: ['layer', 'document', 'drive'],
+window.SlopImageSink = { app: 'photoslop', name: 'PhotoSlop', targets: ['layer', 'document', 'drive'],   // i18n-ignore: ids, class names, key names or text for agents
   place: (images, o) => psGenLoad().then(() => psImageSink.place(images, o)), source: () => psGenLoad().then(() => psImageSink.source()) };
 function psGenCommands() {
   const S = (name, description, extra) => Object.assign({ name, type: 'string', maxLength: 4000, description }, extra);
   const E = (name, values, description) => ({ name, type: 'enum', values, description });
-  const args = [S('prompt', 'what the picture shows'), E('aspect', ['1:1', '3:2', '2:3', '4:3', '3:4', '16:9', '9:16', '21:9'], 'width:height'), E('resolution', ['1K', '2K', '4K']),
+  const args = [S('prompt', 'what the picture shows'), E('aspect', ['1:1', '3:2', '2:3', '4:3', '3:4', '16:9', '9:16', '21:9'], 'width:height'), E('resolution', ['1K', '2K', '4K']),   // i18n-ignore: ids, class names, key names or text for agents
     E('quality', ['low', 'medium', 'high']), E('style', ['none', 'photo', 'illustration', 'painting', '3d', 'pixel-art', 'line-art', 'anime', 'watercolor']),
     { name: 'n', type: 'number', min: 1, max: 4, integer: true }, { name: 'transparent', type: 'boolean' }, E('target', ['layer', 'document', 'drive']), S('provider', 'openai, gemini, openrouter, …', { maxLength: 40 }), S('model', '', { maxLength: 120 })];
-  const C = (id, mode, title, extra) => Object.assign({ id, title, group: 'Layer', keywords: ['ai', 'image', 'picture', 'generate', 'dall-e', 'gpt image', 'gemini', 'nano banana'], ai: false, macro: false, args, run: (a) => psImageGen(mode, a) }, extra);
-  return [C('ps.generate', 'generate', 'Layer › Generate Image…'), C('ps.edit-ai', 'edit', 'Layer › Edit with AI…', { when: () => !!activeLayer() })];
+  const C = (id, mode, title, extra) => Object.assign({ id, title, group: cmdGroup('Layer'), keywords: ['ai', 'image', 'picture', 'generate', 'dall-e', 'gpt image', 'gemini', 'nano banana'], ai: false, macro: false, args, run: (a) => psImageGen(mode, a) }, extra);   // i18n-ignore: ids, class names, key names or text for agents
+  const title = (k) => tr('photoslop.menu.bar_layer') + ' › ' + tr('photoslop.menu.' + k);
+  return [C('ps.generate', 'generate', title('generate_image')), C('ps.edit-ai', 'edit', title('edit_with_ai'), { when: () => !!activeLayer() })];
 }
 function openCommandPalette(q) { if (CMD_ON) SlopCmd.open(q); else dlgShortcuts(); }
 function openKeymap() { if (CMD_ON) SlopCmd.openKeymap(); else dlgShortcuts(); }

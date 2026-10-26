@@ -8,8 +8,9 @@
   const NS = (g.SlopInv = g.SlopInv || {});
   const { ok, fail } = S.result;
   const COLS = ['sku', 'ean', 'name', 'price', 'reorderLevel'];
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
   const REQUIRED = ['sku', 'name', 'price'];
-  const norm = (t) => String(t ?? '').toLowerCase().replace(/[^a-z]/g, '');
+  const norm = (str) => String(str ?? '').toLowerCase().replace(/[^a-z]/g, '');
 
   /** Column index for each known column, by normalised header name ("Reorder level" -> reorderlevel). */
   function columnsOf(header) {
@@ -26,8 +27,8 @@
     const [header = [], ...body] = parsed.rows;
     const col = columnsOf(header);
     const headerErrors = REQUIRED.filter((k) => col[k] === undefined).map((k) => `the header has no "${k === 'reorderLevel' ? 'reorder level' : k}" column`);
-    if (!parsed.rows.length) headerErrors.push('the file is empty');
-    if (!body.length && !headerErrors.length) headerErrors.push('the file has a header and no product rows');
+    if (!parsed.rows.length) headerErrors.push(t('inventory.im.e_empty'));
+    if (!body.length && !headerErrors.length) headerErrors.push(t('inventory.im.e_no_rows'));
     const cur = settings.currency;
     const bySku = new Map(products.map((p) => [p.sku, p]));
     const byEan = new Map(products.filter((p) => p.ean).map((p) => [p.ean, p]));
@@ -42,18 +43,18 @@
       const existing = bySku.get(sku) || null;
       const priceText = get('price') ?? '';
       const price = S.money.parseMinor(priceText, cur);
-      if (priceText === '') errors.push({ field: 'price', message: 'is required' });
-      else if (price === null) errors.push({ field: 'price', message: 'use a plain amount such as 12.50, with no currency sign and no more decimals than the currency has' });
+      if (priceText === '') errors.push({ field: 'price', message: t('inventory.pf.required') });
+      else if (price === null) errors.push({ field: 'price', message: t('inventory.im.e_price') });
       let reorderLevel = existing ? existing.reorderLevel : undefined;
       const reorderText = get('reorderLevel');
       if (reorderText !== undefined) {
         if (reorderText === '') reorderLevel = undefined;
         else if (/^\d+$/.test(reorderText) && Number.isSafeInteger(Number(reorderText))) reorderLevel = Number(reorderText);
-        else errors.push({ field: 'reorderLevel', message: 'must be a whole number of zero or more, or blank' });
+        else errors.push({ field: 'reorderLevel', message: t('inventory.im.e_reorder') });
       }
       const eanText = get('ean');
       const ean = eanText === undefined ? (existing ? existing.ean : undefined) : S.barcode.normalizeEan(eanText) || undefined;
-      if (sku && seenSku.has(sku)) errors.push({ field: 'sku', message: `appears again, first on line ${seenSku.get(sku)}` });
+      if (sku && seenSku.has(sku)) errors.push({ field: 'sku', message: t('inventory.im.e_again', { n: seenSku.get(sku) }) });
       if (ean && seenEan.has(ean)) errors.push({ field: 'ean', message: `appears again, first on line ${seenEan.get(ean)}` });
       if (ean && byEan.get(ean) && (!existing || byEan.get(ean).id !== existing.id)) {
         errors.push({ field: 'ean', message: `already belongs to product ${byEan.get(ean).sku}` });
@@ -79,7 +80,7 @@
 
   /** Writes a valid plan in one transaction. A plan with any error changes nothing. */
   function applyImport(plan) {
-    if (!plan || !plan.ok) return Promise.resolve(fail('invalid', 'the file has errors, so nothing was imported'));
+    if (!plan || !plan.ok) return Promise.resolve(fail('invalid', t('inventory.im.e_errors')));
     return S.store.transact(async (tx) => {
       for (const rec of plan.records) {
         const w = await tx.put('products', rec);
@@ -91,7 +92,7 @@
 
   /** The product list as CSV rows: the import columns, then tax rate, unit and on hand. */
   function exportRows(rows, settings) {
-    const head = ['SKU', 'EAN', 'Name', 'Price', 'Reorder level', 'Tax rate %', 'Unit', 'On hand'];
+    const head = ['SKU', 'EAN', 'Name', 'Price', 'Reorder level', 'Tax rate %', 'Unit', 'On hand'];   // i18n-ignore: CSV columns, a file format for other programs
     const body = rows.map((r) => [
       r.sku, r.ean || '', r.name, NS.util.majorText(r.price, settings.currency),
       r.reorderLevel ?? '', NS.util.percentText(r.taxRate), r.unit || '', r.onHand,

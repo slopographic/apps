@@ -52,7 +52,7 @@
   }
   async function save(macro) {
     const d = await db();
-    if (!d) throw new Error('This browser does not let the page keep macros (storage is blocked). Use Export to keep a file.');
+    if (!d) throw new Error(globalThis.SlopI18n ? globalThis.SlopI18n.t('ui.macro.store_blocked') : 'ui.macro.store_blocked');   // shared/i18n/ui/<code>/macros.js
     const rec = JSON.parse(JSON.stringify(Object.assign({}, macro, { modified: Date.now() })));
     await d.put(STORE, rec);
     fire(rec.app, true);

@@ -12,15 +12,16 @@
 (function (root) {
   'use strict';
   const SG = root.SlopGuides = root.SlopGuides || {};
+  const tr = (k, v) => (root.SlopI18n ? root.SlopI18n.t(k, v) : k);   // words: shared/i18n/ui/<code>/guides.js
 
   const HELP = [
-    ['|', 'a guide'],
-    ['~', 'wildcard: shares the leftover space'],
-    ['10px  5%  2mm  1in  12pt', 'a fixed space'],
-    ['(| ~ |)*4', 'repeat a group 4 times'],
-    ['(|20px|)*', 'fill: repeat as many as fit'],
-    ['$c = | ~ |', 'a variable, used as $c*3'],
-    ['( v ) ( h ) ( hp, 10px, 10px )', 'end options: columns / rows, p = whole pixels, start and end insets'],
+    ['|', 'ui.guides.help_guide'],   // [syntax, the key of its meaning] (shared/i18n/ui/<code>/guides.js)
+    ['~', 'ui.guides.help_wild'],
+    ['10px  5%  2mm  1in  12pt', 'ui.guides.help_fixed'],
+    ['(| ~ |)*4', 'ui.guides.help_repeat'],
+    ['(|20px|)*', 'ui.guides.help_fill'],
+    ['$c = | ~ |', 'ui.guides.help_var'],
+    ['( v ) ( h ) ( hp, 10px, 10px )', 'ui.guides.help_opts'],
   ];
 
   function tokenize(src) {
@@ -30,7 +31,7 @@
       if (/\s/.test(src[i])) { i++; continue; }
       re.lastIndex = i;
       const m = re.exec(src);
-      if (!m) throw new Error(`Unexpected “${src[i]}” at column ${i + 1}`);
+      if (!m) throw new Error(tr('ui.guides.err_unexpected_at', { text: src[i], col: String(i + 1) }));
       if (m[1]) toks.push({ t: 'var', v: m[1] });
       else if (m[2]) toks.push({ t: 'len', v: m[2].replace(/\s+/g, '') });
       else if (m[3]) toks.push({ t: m[3] });
@@ -46,23 +47,23 @@
     let opts = null;
     while (pos.i < toks.length) {
       const tk = toks[pos.i];
-      if (tk.t === ')') { if (!depth) throw new Error('Unmatched “)”'); break; }
+      if (tk.t === ')') { if (!depth) throw new Error(tr('ui.guides.err_unmatched')); break; }
       pos.i++;
       let item;
       if (tk.t === '|') item = { k: 'g' };
       else if (tk.t === '~') item = { k: 'w' };
       else if (tk.t === 'len') item = { k: 'f', len: tk.v };
       else if (tk.t === 'var') {
-        if (!vars[tk.v]) throw new Error(`Unknown variable ${tk.v}`);
+        if (!vars[tk.v]) throw new Error(tr('ui.guides.err_variable', { name: tk.v }));
         item = { k: 'grp', items: vars[tk.v], n: 1 };
       } else if (tk.t === '(') {
         if (toks[pos.i] && toks[pos.i].t === 'word') { opts = parseOpts(toks, pos); continue; }
         const inner = parseSeq(toks, pos, vars, depth + 1);
-        if (!toks[pos.i] || toks[pos.i].t !== ')') throw new Error('Missing “)”');
+        if (!toks[pos.i] || toks[pos.i].t !== ')') throw new Error(tr('ui.guides.err_missing'));
         pos.i++;
         item = { k: 'grp', items: inner.items, n: 1 };
-      } else throw new Error(`Unexpected “${tk.v || tk.t}”`);
-      if (opts) throw new Error('Options ( v ) / ( h ) go at the end of the line');
+      } else throw new Error(tr('ui.guides.err_unexpected', { text: tk.v || tk.t }));
+      if (opts) throw new Error(tr('ui.guides.err_opts_end'));
       if (toks[pos.i] && toks[pos.i].t === '*') {
         pos.i++;
         const nt = toks[pos.i];
@@ -78,14 +79,14 @@
     for (const ch of flags) {
       if (ch === 'v' || ch === 'h') opts.dir = ch;
       else if (ch === 'p') opts.pixel = true;
-      else throw new Error(`Unknown option “${ch}” (use v, h or p)`);
+      else throw new Error(tr('ui.guides.err_option', { text: ch }));
     }
     const lens = [];
     while (toks[pos.i] && toks[pos.i].t === ',') {
       pos.i++;
       if (toks[pos.i] && toks[pos.i].t === 'len') lens.push(toks[pos.i++].v); else lens.push(null);
     }
-    if (!toks[pos.i] || toks[pos.i].t !== ')') throw new Error('Missing “)” after options');
+    if (!toks[pos.i] || toks[pos.i].t !== ')') throw new Error(tr('ui.guides.err_missing_opts'));
     pos.i++;
     opts.start = lens[0] || null; opts.end = lens[1] || null;
     return opts;
@@ -101,7 +102,7 @@
         const vm = src.match(/^(\$[a-z_]\w*)\s*=(.*)$/i);
         const toks = tokenize(vm ? vm[2] : src), pos = { i: 0 };
         const r = parseSeq(toks, pos, vars, 0);
-        if (pos.i < toks.length) throw new Error('Unmatched “)”');
+        if (pos.i < toks.length) throw new Error(tr('ui.guides.err_unmatched'));
         if (vm) vars[vm[1]] = r.items;
         else lines.push({ items: r.items, opts: r.opts || { dir: 'v', pixel: false }, src, n: n + 1 });
       } catch (e) { errors.push({ line: n + 1, msg: e.message }); }
@@ -129,12 +130,12 @@
     const pixel = o.pixel || snap !== 'off';
     const fills = { n: 0 };
     let flat = flatten(line.items, [], fills);
-    if (fills.n > 1) throw new Error('Only one fill group (…)* per line');
+    if (fills.n > 1) throw new Error(tr('ui.guides.err_one_fill'));
     const size = (it) => (it.k === 'f' ? (pixel ? Math.round(px(it.len, len)) : px(it.len, len)) : 0);
     const fixedOf = (list) => list.reduce((a, it) => a + size(it), 0);
     if (fills.n) {
       const fi = flat.findIndex((it) => it.k === 'fill'), grp = flat[fi].items;
-      if (grp.some((it) => it.k === 'w')) throw new Error('A fill group (…)* cannot hold wildcards');
+      if (grp.some((it) => it.k === 'w')) throw new Error(tr('ui.guides.err_fill_wild'));
       const unitLen = fixedOf(grp), rest = flat.filter((it) => it.k !== 'fill');
       const n = unitLen > 0 ? Math.max(0, Math.floor((len - fixedOf(rest) + 1e-6) / unitLen)) : 0;
       const exp = []; for (let r = 0; r < Math.min(n, 2000); r++) exp.push(...grp);

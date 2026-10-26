@@ -18,6 +18,9 @@
   const WEIGHTS = { thin: 100, extralight: 200, ultralight: 200, light: 300, regular: 400, normal: 400, book: 400, medium: 500, semibold: 600, demibold: 600, bold: 700, extrabold: 800, ultrabold: 800, black: 900, heavy: 900 };
   const WEIGHT_WORDS = Object.keys(WEIGHTS).sort((a, b) => b.length - a.length);
   const SUBSET = /^[A-Z]{6}\+/;
+  /** A refusal shown to the person (ui.fonts.err_*), in the chosen language at throw time. */
+  const tr = (k, v) => { const I = root.SlopI18n; return I ? I.t(k, v) : k; };
+  const fail = (k, v) => new Error(tr('ui.fonts.err_' + k, v));
   let fkP = null;
 
   /** Resolves once the picker's library scripts (store, manifest, Get more) are on the page. */
@@ -97,7 +100,7 @@
       return new Uint8Array(await r.arrayBuffer());
     }
     const blob = await root.SlopLibraryStore.getBlob(face.key);
-    if (!blob) throw new Error('The font file is not on this device any more.');
+    if (!blob) throw fail('gone');
     return new Uint8Array(await blob.arrayBuffer());
   }
   /** A PostScript font name as { family, weight, italic, subset, name }. "ABCDEF+BarlowCondensed-SemiBold" is the subset
@@ -151,19 +154,19 @@
   /** Family name, weight and italic flag of a font file (fontkit). Throws a message for a file it cannot read. */
   async function fontNames(bytes) {
     let f;
-    try { const fk = await fontkit(); f = fk.create(bytes); if (f.fonts) f = f.fonts[0]; } catch (e) { throw new Error('That file is not a font this app can read.'); }
+    try { const fk = await fontkit(); f = fk.create(bytes); if (f.fonts) f = f.fonts[0]; } catch (e) { throw fail('not_font'); }
     const family = String(f.familyName || '').trim();
-    if (!family) throw new Error('That font file has no family name.');
+    if (!family) throw fail('no_family');
     return { family, weight: (f['OS/2'] && f['OS/2'].usWeightClass) || 400, italic: /italic|oblique/i.test(f.subfamilyName || '') };
   }
   /** Reads a font file the person chose for one app (app: its name, for the message): { family, weight, italic, bytes, ext }.
    * Only TTF and OTF: WOFF and WOFF2 are refused with a message, because the apps' engines read the sfnt tables of a file. */
   async function readFontFile(file, app) {
     const ext = (String(file.name).split('.').pop() || '').toLowerCase();
-    if (ext === 'woff' || ext === 'woff2') throw new Error(`${ext.toUpperCase()} fonts cannot be used in ${app} yet. Use the TTF or OTF file of this font.`);
-    if (ext !== 'ttf' && ext !== 'otf') throw new Error('Choose a font file: TTF or OTF.');
+    if (ext === 'woff' || ext === 'woff2') throw fail('woff_app', { format: ext.toUpperCase(), app });
+    if (ext !== 'ttf' && ext !== 'otf') throw fail('ttf_otf');
     const bytes = new Uint8Array(await file.arrayBuffer());
-    if (bytes.length > 20 * 1024 * 1024) throw new Error('That font file is larger than 20 MB.');
+    if (bytes.length > 20 * 1024 * 1024) throw fail('too_big', { size: '20 MB' });
     return { ...(await fontNames(bytes)), bytes, ext };
   }
   /** A font file as a data URL (what a document keeps in its file) and back. */
@@ -181,17 +184,17 @@
    * same way a pack is (one pack per file, marked as the person's own). Resolves { family, weight, italic }. */
   async function addUserFile(file) {
     const ext = (String(file.name).split('.').pop() || '').toLowerCase();
-    if (!['ttf', 'otf', 'woff', 'woff2'].includes(ext)) throw new Error('Choose a font file: TTF, OTF or WOFF.');
-    if (ext === 'woff2') throw new Error('WOFF2 files cannot be used in a PDF yet. Drop the TTF, OTF or WOFF version of the font.');
+    if (!['ttf', 'otf', 'woff', 'woff2'].includes(ext)) throw fail('ttf_otf_woff');
+    if (ext === 'woff2') throw fail('woff2_pdf');
     const bytes = new Uint8Array(await file.arrayBuffer());
-    if (bytes.length > 20 * 1024 * 1024) throw new Error('That font file is larger than 20 MB.');
+    if (bytes.length > 20 * 1024 * 1024) throw fail('too_big', { size: '20 MB' });
     await ready();
     const store = root.SlopLibraryStore;
-    if (!store || !(await store.available())) throw new Error('This browser cannot keep fonts on the device (IndexedDB is unavailable).');
+    if (!store || !(await store.available())) throw fail('no_store');
     const { family, weight: w, italic } = await fontNames(bytes);
     const sha = await root.SlopLibraryManifest.sha256Hex(bytes), id = 'user-' + family.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + sha.slice(0, 8);
     const name = 'font.' + ext, style = italic ? 'italic' : 'normal';
-    const pack = { id, kind: 'font', name: family + ' (your file)', licence: 'user', licenceUrl: '', description: 'A font file added on this device. Nothing is uploaded.', size: bytes.length,
+    const pack = { id, kind: 'font', name: tr('ui.fonts.own_pack_name', { family }), licence: 'user', licenceUrl: '', description: tr('ui.fonts.own_pack_desc'), size: bytes.length,
       files: [{ name, url: '', size: bytes.length, sha256: sha, family, weight: String(w), style }] };
     await store.savePack(pack, { [name]: new Blob([bytes], { type: 'font/' + ext }) });
     return { family, weight: w, italic, id };

@@ -10,12 +10,14 @@
   'use strict';
   const T = root.SlopUpscaleTiling, E = root.SlopUpscaleEngine;
   const MAX_OUT = 64e6, MAX_SIDE = 16384;
+  // the reason in the page's language; English when the page has no tables (a test page)
+  const tr = (k, en, v) => (root.SlopI18n && root.SlopI18n.has(k) ? root.SlopI18n.t(k, v) : en);
 
   /** Null when the result fits; otherwise the reason. */
   function check(W, H, scale) {
     const ow = W * scale, oh = H * scale;
-    if (ow > MAX_SIDE || oh > MAX_SIDE) return `The result would be ${ow} × ${oh} px. The largest side is ${MAX_SIDE} px.`;
-    if (ow * oh > MAX_OUT) return `The result would be ${(ow * oh / 1e6).toFixed(1)} megapixels. The limit is ${MAX_OUT / 1e6}. Use 2× or a smaller picture.`;
+    if (ow > MAX_SIDE || oh > MAX_SIDE) return tr('upscale.run.too_big', `The result would be ${ow} × ${oh} px. The largest side is ${MAX_SIDE} px.`, { w: String(ow), h: String(oh), max: String(MAX_SIDE) });   // i18n-ignore: English fallback
+    if (ow * oh > MAX_OUT) return tr('upscale.run.too_many', `The result would be ${(ow * oh / 1e6).toFixed(1)} megapixels. The limit is ${MAX_OUT / 1e6}. Use 2× or a smaller picture.`, { mp: (ow * oh / 1e6).toFixed(1), max: String(MAX_OUT / 1e6) });   // i18n-ignore: English fallback
     return null;
   }
 

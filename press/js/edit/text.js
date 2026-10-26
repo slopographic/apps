@@ -75,7 +75,7 @@
     // a new paragraph after a style with "next style" takes that style
     if (str === '\n') { var k = ST.paraAt(s, o), prev = s.paras[k - 1], ps = prev && S.doc.styles.para[prev.ps]; if (ps && ps.nextStyle && S.doc.styles.para[ps.nextStyle] && o === ST.paraRange(s, k)[1]) s.paras[k] = { ps: ps.nextStyle, ov: {} }; }
     S.text.caret = S.text.anchor = o;
-    H.commit(label || 'Typing', !label);
+    H.commit(label || PR.util.t('press.edit.undo_typing'), !label);
     TE.changed(); TE.reveal();
   };
   TE.deleteDir = function (dir, word) {
@@ -87,7 +87,7 @@
     }
     ST.remove(s, r[0], r[1]);
     S.text.caret = S.text.anchor = r[0];
-    H.commit('Delete text', true); TE.changed(); TE.reveal();
+    H.commit(PR.util.t('press.edit.undo_delete_text'), true); TE.changed(); TE.reveal();
   };
   function wordStart(t, o) { while (o > 0 && /\s/.test(t[o - 1])) o--; while (o > 0 && !/\s/.test(t[o - 1])) o--; return o; }
   function wordEnd(t, o) { while (o < t.length && /\s/.test(t[o])) o++; while (o < t.length && !/\s/.test(t[o])) o++; return o; }
@@ -165,8 +165,8 @@
     if (styledClip && styledClip.frag.text.replace(/\u2028/g, '\n').split(M.PAGE_NUM).join('#') === t) {
       var r = TE.range(); if (r[0] !== r[1]) ST.remove(s, r[0], r[1]);
       var o = ST.insertFragment(s, r[0], PR.util.clone(styledClip.frag));
-      S.text.caret = S.text.anchor = o; H.commit('Paste'); TE.changed(); return;
+      S.text.caret = S.text.anchor = o; H.commit(PR.util.t('press.edit.undo_paste')); TE.changed(); return;
     }
-    if (t) TE.insert(t.replace(/\r\n?/g, '\n').replace(/\t/g, '\t'), 'Paste');
+    if (t) TE.insert(t.replace(/\r\n?/g, '\n').replace(/\t/g, '\t'), PR.util.t('press.edit.undo_paste'));
   };
 })();

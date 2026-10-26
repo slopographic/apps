@@ -15,18 +15,18 @@
 
   /** Trial balance in base currency, with the totals and the foreign totals as their own rows. */
   function trialCsv(tb, base, date) {
-    const rows = [['Code', 'Account', 'Type', `Debit (${base})`, `Credit (${base})`, `Balance (${base})`]];
+    const rows = [['Code', 'Account', 'Type', `Debit (${base})`, `Credit (${base})`, `Balance (${base})`]];   // i18n-ignore: CSV columns, a file format for other programs
     for (const r of tb.rows) rows.push([r.code, r.name, r.type, U.decimal(r.debit, base), U.decimal(r.credit, base), U.decimal(r.balance, base)]);
-    rows.push(['', 'Total', '', U.decimal(tb.debit, base), U.decimal(tb.credit, base), '']);
-    rows.push(['', `Check: base totals ${tb.balanced ? 'agree' : 'DO NOT agree'}`, '', '', '', '']);
-    for (const f of tb.foreign) rows.push(['', `Foreign total ${f.currency} (original amounts)`, '', U.decimal(f.debit, f.currency), U.decimal(f.credit, f.currency), f.balanced ? 'balanced' : 'not balanced']);
+    rows.push(['', 'Total', '', U.decimal(tb.debit, base), U.decimal(tb.credit, base), '']);   // i18n-ignore: CSV columns, a file format for other programs
+    rows.push(['', `Check: base totals ${tb.balanced ? 'agree' : 'DO NOT agree'}`, '', '', '', '']);   // i18n-ignore: CSV columns, a file format for other programs
+    for (const f of tb.foreign) rows.push(['', `Foreign total ${f.currency} (original amounts)`, '', U.decimal(f.debit, f.currency), U.decimal(f.credit, f.currency), f.balanced ? 'balanced' : 'not balanced']);   // i18n-ignore: CSV columns, a file format for other programs
     return { name: `trial-balance-${date}.csv`, blob: blobOf(rows) };
   }
 
   /** The journal: one row per line. Foreign lines also carry the original amounts and the rate used. */
   function journalCsv(entries, accounts, base, date) {
     const names = new Map(accounts.map((a) => [a.code, a.name]));
-    const rows = [['Date', 'Entry', 'Memo', 'Source', 'Account', 'Account name', `Debit (${base})`, `Credit (${base})`, 'Currency', 'Original debit', 'Original credit', 'Rate']];
+    const rows = [['Date', 'Entry', 'Memo', 'Source', 'Account', 'Account name', `Debit (${base})`, `Credit (${base})`, 'Currency', 'Original debit', 'Original credit', 'Rate']];   // i18n-ignore: CSV columns, a file format for other programs
     for (const e of entries) {
       for (const l of e.lines) {
         const fx = !!e.rateId;

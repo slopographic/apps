@@ -26,6 +26,8 @@
   'use strict';
   const VERSION = 1, KIND = 'slopflow', EXT = '.slopflow', MIME = 'application/json';
   const MAX_STEPS = 40;
+  // words: shared/i18n/ui/<code>/ops.js (keys ui.ops.flow.*), read when a message is made
+  const tr = (k, v) => (root.SlopI18n && root.SlopI18n.t ? root.SlopI18n.t(k, v) : k);
   const SCRIPT = typeof document !== 'undefined' && document.currentScript && document.currentScript.src;
   const SITE = SCRIPT ? new URL('../../', SCRIPT).href : null;
 
@@ -41,23 +43,23 @@
 
   function normalize(raw) {
     const errors = [];
-    if (!plain(raw)) return { doc: null, errors: ['This is not a workflow.'] };
-    if (raw.kind !== undefined && raw.kind !== KIND) return { doc: null, errors: ['This is not a Slop Workflows file.'] };
-    if (Number(raw.v) > VERSION) errors.push(`Made by a newer Slop Workflows (version ${raw.v}); some parts may be left out.`);
+    if (!plain(raw)) return { doc: null, errors: [tr('ui.ops.flow.not_workflow')] };
+    if (raw.kind !== undefined && raw.kind !== KIND) return { doc: null, errors: [tr('ui.ops.flow.not_file')] };
+    if (Number(raw.v) > VERSION) errors.push(tr('ui.ops.flow.newer', { v: String(raw.v) }));
     const steps = [];
     (Array.isArray(raw.steps) ? raw.steps : []).slice(0, MAX_STEPS).forEach((s, i) => {
-      if (!plain(s) || typeof s.id !== 'string' || !s.id) { errors.push(`Step ${i + 1} has no operation, so it was left out.`); return; }
+      if (!plain(s) || typeof s.id !== 'string' || !s.id) { errors.push(tr('ui.ops.flow.no_op', { n: String(i + 1) })); return; }
       const kind = s.kind === 'macro' ? 'macro' : 'op';
       const step = { kind, id: s.id.slice(0, 120), options: cleanOptions(s.options), uid: typeof s.uid === 'string' && s.uid ? s.uid.slice(0, 40) : uid() };
       if (s.keep) step.keep = true;
       if (kind === 'macro') {
-        if (typeof s.app !== 'string' || typeof s.macroId !== 'string') { errors.push(`Step ${i + 1} is a macro without its app, so it was left out.`); return; }
+        if (typeof s.app !== 'string' || typeof s.macroId !== 'string') { errors.push(tr('ui.ops.flow.no_app', { n: String(i + 1) })); return; }
         step.app = s.app.slice(0, 40); step.macroId = s.macroId.slice(0, 120);
       }
       steps.push(step);
     });
-    if (Array.isArray(raw.steps) && raw.steps.length > MAX_STEPS) errors.push(`Only the first ${MAX_STEPS} steps were kept.`);
-    const name = String(raw.name == null ? '' : raw.name).replace(/\s+/g, ' ').trim().slice(0, 120) || 'Untitled workflow';
+    if (Array.isArray(raw.steps) && raw.steps.length > MAX_STEPS) errors.push(tr('ui.ops.flow.max_steps', { n: MAX_STEPS }));
+    const name = String(raw.name == null ? '' : raw.name).replace(/\s+/g, ' ').trim().slice(0, 120) || tr('ui.ops.flow.untitled');
     return { doc: { kind: KIND, v: VERSION, name, steps }, errors };
   }
 
@@ -74,7 +76,7 @@
   const toText = (doc) => JSON.stringify(bare(doc), null, 2) + '\n';
   function fromText(text) {
     let raw;
-    try { raw = JSON.parse(String(text)); } catch (e) { return { doc: null, errors: ['This file is not a workflow (it is not JSON).'] }; }
+    try { raw = JSON.parse(String(text)); } catch (e) { return { doc: null, errors: [tr('ui.ops.flow.not_json')] }; }
     return normalize(raw);
   }
 
@@ -96,13 +98,13 @@
       const json = s[0] === 'z' ? await pipe(bytes, root.DecompressionStream) : s[0] === 'j' ? bytes : null;
       if (!json) throw new Error('bad');
       return fromText(new TextDecoder().decode(json));
-    } catch (e) { return { doc: null, errors: ['This workflow link is damaged or cut short.'] }; }
+    } catch (e) { return { doc: null, errors: [tr('ui.ops.flow.bad_link')] }; }
   }
 
   /* ---------- the hook: "Add to a workflow…" from another app ---------- */
   const ADD = 'slopflow:add:';
   async function addToWorkflow(step, { name = '', settings = null, open = true } = {}) {
-    const doc = { kind: KIND, v: VERSION, name: name || 'Untitled workflow', steps: [Object.assign({ kind: 'op', options: {} }, step)] };
+    const doc = { kind: KIND, v: VERSION, name: name || tr('ui.ops.flow.untitled'), steps: [Object.assign({ kind: 'op', options: {} }, step)] };
     const id = uid();
     let param = id;
     try { root.localStorage.setItem(ADD + id, JSON.stringify({ time: Date.now(), doc: bare(normalize(doc).doc), settings })); } catch (e) { param = await encode(normalize(doc).doc); }
@@ -115,7 +117,7 @@
     if (/^[zj]/.test(param) && param.length > 30) return decode(param);
     let rec = null;
     try { rec = JSON.parse(root.localStorage.getItem(ADD + param) || 'null'); root.localStorage.removeItem(ADD + param); } catch (e) { rec = null; }
-    return rec ? Object.assign(normalize(rec.doc), { settings: rec.settings || null }) : { doc: null, errors: ['The step to add was not found (it may have been added already).'] };
+    return rec ? Object.assign(normalize(rec.doc), { settings: rec.settings || null }) : { doc: null, errors: [tr('ui.ops.flow.add_gone')] };
   }
 
   return { VERSION, KIND, EXT, MIME, MAX_STEPS, uid, normalize, toText, fromText, encode, decode, addToWorkflow, takeAdd };

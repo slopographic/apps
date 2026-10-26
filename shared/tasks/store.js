@@ -7,15 +7,16 @@
   const NS = (g.SlopTaskStore = g.SlopTaskStore || {});
   const PRIORITIES = ['none', 'low', 'high'];
   const HHMM = /^([01]\d|2[0-3]):[0-5]\d$/;
+  const tr = (key, vars) => (g.SlopI18n ? g.SlopI18n.t(key, vars) : key);   // words: shared/i18n/ui/<code>/backup3.js (ui.tasks.*)
 
   /** The editor's values as a task record. Errors come back as { ok: false, error }. */
   function fromForm(form, existing = null) {
     const title = String(form.title || '').trim();
-    if (!title) return { ok: false, error: 'Give the task a title.' };
+    if (!title) return { ok: false, error: tr('ui.tasks.need_title') };
     const due = form.due ? String(form.due) : undefined;
-    if (due && !T.parseDay(due)) return { ok: false, error: 'The due date is not a date.' };
+    if (due && !T.parseDay(due)) return { ok: false, error: tr('ui.tasks.bad_due') };
     const dueTime = form.dueTime ? String(form.dueTime) : undefined;
-    if (dueTime && !HHMM.test(dueTime)) return { ok: false, error: 'Use the due time as HH:MM.' };
+    if (dueTime && !HHMM.test(dueTime)) return { ok: false, error: tr('ui.tasks.bad_time') };
     const rec = {
       ...(existing ? { id: existing.id } : {}), title, due, dueTime,
       tz: form.tz || T.deviceZone(), notes: form.notes || undefined,
@@ -28,7 +29,7 @@
       remind: form.remind === '' || form.remind === undefined || form.remind === null ? undefined : Number(form.remind),
     };
     if (!due) rec.tz = undefined;
-    if (rec.until && !T.parseDay(rec.until)) return { ok: false, error: 'The repeat end date is not a date.' };
+    if (rec.until && !T.parseDay(rec.until)) return { ok: false, error: tr('ui.tasks.bad_until') };
     const errs = TK.editErrors(rec);
     if (errs.length) return { ok: false, error: errs[0] };
     return { ok: true, value: rec };
@@ -42,7 +43,7 @@
     if (!record.id) return S.store.put('tasks', { done: false, ...record });
     const cur = await S.store.get('tasks', record.id);
     if (!cur.ok) return cur;
-    if (!cur.value) return { ok: false, code: 'not_found', message: 'That task no longer exists.' };
+    if (!cur.value) return { ok: false, code: 'not_found', message: tr('ui.tasks.gone') };
     return S.store.put('tasks', { ...cur.value, ...record });
   }
 
@@ -50,7 +51,7 @@
   async function patch(id, changes) {
     const cur = await S.store.get('tasks', id);
     if (!cur.ok) return cur;
-    if (!cur.value) return { ok: false, code: 'not_found', message: 'That task no longer exists.' };
+    if (!cur.value) return { ok: false, code: 'not_found', message: tr('ui.tasks.gone') };
     return S.store.put('tasks', { ...cur.value, ...changes });
   }
 
@@ -61,7 +62,7 @@
   async function complete(id, now = Date.now()) {
     const cur = await S.store.get('tasks', id);
     if (!cur.ok) return cur;
-    if (!cur.value) return { ok: false, code: 'not_found', message: 'That task no longer exists.' };
+    if (!cur.value) return { ok: false, code: 'not_found', message: tr('ui.tasks.gone') };
     const change = TK.complete(cur.value, now);
     if (!change) return { ok: true, value: cur.value };
     return S.store.put('tasks', { ...cur.value, ...change });

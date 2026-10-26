@@ -8,13 +8,14 @@
 (function (g) {
   'use strict';
   const U = (g.SlopUpscale = g.SlopUpscale || {}), IO = (U.io = {});
+  const t = (k, v) => (U.t ? U.t(k, v) : k);
   const MIME = { png: 'image/png', jpeg: 'image/jpeg', webp: 'image/webp' };
   const EXT = { png: 'png', jpeg: 'jpg', webp: 'webp' };
 
   IO.kind = function (file) {
-    const t = file.type || '';
-    if (t.startsWith('image/')) return 'image';
-    if (t.startsWith('video/')) return 'video';
+    const type = file.type || '';
+    if (type.startsWith('image/')) return 'image';
+    if (type.startsWith('video/')) return 'video';
     const n = (file.name || '').toLowerCase();
     if (/\.(jpe?g|png|webp|avif|gif|bmp)$/.test(n)) return 'image';
     if (/\.(mp4|webm|mov|m4v)$/.test(n)) return 'video';
@@ -28,7 +29,7 @@
     catch (e) {
       const url = URL.createObjectURL(blob);
       try {
-        src = await new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = () => rej(new Error('This picture cannot be read')); im.src = url; });
+        src = await new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = () => rej(new Error(t('upscale.io.unreadable'))); im.src = url; });
       } finally { URL.revokeObjectURL(url); }
     }
     const c = document.createElement('canvas');
@@ -42,8 +43,8 @@
   IO.encode = function (canvas, fmt, q) {
     const type = MIME[fmt];
     return new Promise((res, rej) => canvas.toBlob((b) => {
-      if (!b) rej(new Error('The picture could not be written'));
-      else if (b.type !== type) rej(new Error(`This browser cannot write ${fmt.toUpperCase()}. Choose PNG.`));
+      if (!b) rej(new Error(t('upscale.io.not_written')));
+      else if (b.type !== type) rej(new Error(t('upscale.io.no_format', { fmt: fmt.toUpperCase() })));
       else res(b);
     }, type, fmt === 'png' ? undefined : q));
   };

@@ -8,6 +8,8 @@
   const st = S.state, s = st.s, A = S.actions, O = S.ops, MH = S.mesh, SEL = S.meshsel, MO = S.meshops, MX = S.meshxf, X = S.xform;
   const ed = (s.edit = { id: null, mode: 'vertex', sel: SEL.empty('vertex'), info: '' });
   const toast = (m) => { if (window.SlopUI) SlopUI.toast(m); };
+  const t = S.t;
+  const ERR = { delete_all: '3d.edit.err_delete_all', merge_all: '3d.edit.err_merge_all', fill_loop: '3d.edit.err_fill_loop' };
   let sessions = 0;
 
   const node = () => (ed.id && s.doc.nodes[ed.id]) || null;
@@ -39,7 +41,7 @@
   /** Enters edit mode on a mesh (primitives are baked into an editable mesh first, as one undo step). */
   function enter(id = st.primary()) {
     const n = id && s.doc.nodes[id];
-    if (!n || n.type !== 'mesh') { toast('Select a mesh to edit'); return false; }
+    if (!n || n.type !== 'mesh') { toast(t('3d.edit.pick_mesh')); return false; }
     if (ed.id !== id) exit();
     if (n.geom.kind !== 'mesh') A.commit(O.setField(s.doc, id, 'geom', MH.toGeom(MH.bake(n.geom))));
     ed.id = id;
@@ -86,8 +88,8 @@
   function run(label, fn, key = null) {
     if (!active()) return false;
     const r = fn(mesh(), ed.sel);
-    if (!r) { toast(`${label}: nothing to do with this selection`); return false; }
-    if (r.error) { toast(r.error); return false; }
+    if (!r) { toast(t('3d.edit.nothing_to_do', { op: t(label) })); return false; }
+    if (r.error) { toast(ERR[r.code] ? t(ERR[r.code]) : r.error); return false; }
     store(r.mesh, key);
     ed.sel = r.sel;
     ed.mode = r.sel.mode;
@@ -121,7 +123,7 @@
     const m = mesh(), v = SEL.vertsOf(m, ed.sel);
     return v.size ? X.point(S.model.worldMatrix(s.doc, ed.id), MX.centre(m, v)) : null;
   }
-  function setInfo(t) { ed.info = t || ''; emit(); }
+  function setInfo(msg) { ed.info = msg || ''; emit(); }
 
   st.on('doc', () => {
     if (!ed.id) return;
@@ -134,15 +136,15 @@
   S.edit = {
     active, node, mesh, sel: () => ed.sel, mode: () => ed.mode, info: () => ed.info, hasSel, setInfo,
     enter, exit, toggle, setMode, setSelection, loopSelect, selectAll, invert, clear, run,
-    extrude: () => run('Extrude', (m, sel) => MO.extrude(m, asFaces(m, sel))),
-    remove: () => run('Delete', (m, sel) => MO.remove(m, sel)),
-    subdivide: () => run('Subdivide', (m, sel) => MO.subdivide(m, asFaces(m, sel))),
-    mergeCentre: () => run('Merge', (m, sel) => MO.mergeCentre(m, sel)),
-    mergeByDistance: (tol = 0.0001) => run('Merge by distance', (m, sel) => MO.mergeByDistance(m, sel, tol)),
-    flip: () => run('Flip normals', (m, sel) => MO.flip(m, asFaces(m, sel))),
-    fill: () => run('Fill', (m, sel) => MO.fill(m, sel)),
-    hide: () => run('Hide', (m, sel) => MO.hide(m, sel)),
-    reveal: () => run('Reveal', (m) => MO.reveal(m)),
+    extrude: () => run('3d.edit.op_extrude', (m, sel) => MO.extrude(m, asFaces(m, sel))),
+    remove: () => run('3d.edit.op_delete', (m, sel) => MO.remove(m, sel)),
+    subdivide: () => run('3d.edit.op_subdivide', (m, sel) => MO.subdivide(m, asFaces(m, sel))),
+    mergeCentre: () => run('3d.edit.op_merge', (m, sel) => MO.mergeCentre(m, sel)),
+    mergeByDistance: (tol = 0.0001) => run('3d.edit.op_merge_dist', (m, sel) => MO.mergeByDistance(m, sel, tol)),
+    flip: () => run('3d.edit.op_flip', (m, sel) => MO.flip(m, asFaces(m, sel))),
+    fill: () => run('3d.edit.op_fill', (m, sel) => MO.fill(m, sel)),
+    hide: () => run('3d.edit.op_hide', (m, sel) => MO.hide(m, sel)),
+    reveal: () => run('3d.edit.op_reveal', (m) => MO.reveal(m)),
     worldNormal, begin, pivot,
   };
 })();

@@ -4,6 +4,7 @@
 (function (g) {
   'use strict';
   const ns = (g.SlopData = g.SlopData || {});
+  const say = (k, v) => { const I = g.SlopI18n; return I && I.t ? I.t(k, v) : k; };   // words: shared/i18n/ui/<code>/data.js, data2.js
   // The pure helpers load on their own (Slop Reports prices time with amountOf); the writes need SlopData.result.
   const ok = (v) => ns.result.ok(v), fail = (code, msg) => ns.result.fail(code, msg);
 
@@ -28,13 +29,13 @@
   /** Bills open entries on one draft invoice, in one transaction. All must be open, billable, for one customer and in one
    *  currency. opts: { dueDate, taxRate (basis points for every line, default 0) }. Resolves to the invoice. */
   function toInvoice(ids, { dueDate, taxRate = 0 } = {}) {
-    if (!Array.isArray(ids) || !ids.length) return Promise.resolve(fail('invalid', 'choose the time to bill'));
+    if (!Array.isArray(ids) || !ids.length) return Promise.resolve(fail('invalid', say('ui.data.ts.choose')));
     return ns.store.transact(async (tx) => {
       const entries = [];
       for (const id of ids) {
         const r = await tx.get('timeEntries', id);
         if (!r.ok) return r;
-        if (!r.value) return fail('not_found', `no time entry ${id}`);
+        if (!r.value) return fail('not_found', say('ui.data.ts.none', { id: String(id) }));
         entries.push(r.value);
       }
       const invoices = new Map();
@@ -44,9 +45,9 @@
         if (!r.ok) return r;
         invoices.set(e.invoiceId, r.value);
       }
-      if (entries.some((e) => !isOpen(e, invoices))) return fail('conflict', 'some of this time is already billed or not billable');
-      if (new Set(entries.map((e) => e.customerId)).size > 1) return fail('invalid', 'bill one customer at a time');
-      if (new Set(entries.map((e) => e.currency)).size > 1) return fail('invalid', 'bill one currency at a time');
+      if (entries.some((e) => !isOpen(e, invoices))) return fail('conflict', say('ui.data.ts.billed'));
+      if (new Set(entries.map((e) => e.customerId)).size > 1) return fail('invalid', say('ui.data.ts.one_customer'));
+      if (new Set(entries.map((e) => e.currency)).size > 1) return fail('invalid', say('ui.data.ts.one_currency'));
       const sorted = entries.slice().sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
       const doc = { customerId: entries[0].customerId, currency: entries[0].currency, date: ns.ledger.today(), lines: sorted.map((e) => lineOf(e, taxRate)) };
       if (dueDate) doc.dueDate = dueDate;
@@ -65,11 +66,11 @@
     return ns.store.transact(async (tx) => {
       const r = await tx.get('timeEntries', id);
       if (!r.ok) return r;
-      if (!r.value) return fail('not_found', `no time entry ${id}`);
+      if (!r.value) return fail('not_found', say('ui.data.ts.none', { id: String(id) }));
       if (!r.value.invoiceId) return ok(r.value);
       const inv = await tx.get('invoices', r.value.invoiceId);
       if (!inv.ok) return inv;
-      if (!deadInvoice(inv.value)) return fail('invalid_transition', 'this time is on a live invoice; void the invoice first');
+      if (!deadInvoice(inv.value)) return fail('invalid_transition', say('ui.data.ts.live'));
       const { invoiceId, ...rest } = r.value;
       return tx.put('timeEntries', rest);
     });

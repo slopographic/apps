@@ -45,6 +45,12 @@ zero-byte files). `input`: an existing `<input type=file>` to use for Choose fil
 for a strip. `window: false`: leave the rest of the page alone (only the targets take drops, marked `.sd-over`). `overlay:
 false`: no outlines or label. `toast: false`. `label`, `hint`, `chooseLabel`, `multiple`.
 
+Words: `label`, `hint`, `chooseLabel`, `preview.steps[i]`, `preview.picture.alt` and `sample.label` take an i18n key
+(`'diff.drop.label'`), a function, or plain text (`SlopI18n.label`). A key is translated when drawn and again on every
+language change (the zone listens to `slopi18n`; `destroy()` stops it), so an app passes keys, not `t(key)`, and never
+marks the zone's nodes itself (the per-app `markDrop` helpers are gone). `SlopDrop.panel.preview(o)` drawn on its own
+(an app's intro) follows a change too.
+
 `preview: { picture, steps }`: an empty page explains itself. Above the prompt the zone shows what the app makes
 (`picture`: `{ src, alt }`, usually `assets/shots/<app>.jpg`, a screenshot of a finished result; `{ flow: { from, to } }`
 for a converter, drawn by SlopFlow; or an element) and how (`steps`: three short lines). Not drawn in a `compact` strip.

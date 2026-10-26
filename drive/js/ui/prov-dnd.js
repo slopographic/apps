@@ -47,7 +47,7 @@
         cleanup();
         if (!was) return;
         endedAt = Date.now();
-        if (t) DR.dropToProvider([entry], t.value, copy).catch((err) => window.SlopUI.alert('Not copied', (err && err.message) || String(err)));
+        if (t) DR.dropToProvider([entry], t.value, copy).catch((err) => window.SlopUI.alert(DR.t('drive.prov.not_copied'), (err && err.message) || String(err)));
       };
       addEventListener('pointermove', move);
       addEventListener('pointerup', up);

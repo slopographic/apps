@@ -8,7 +8,7 @@
   const U = NS.util;
 
   const P = g.SlopDocs.docPdf.create({
-    ns: NS, collection: 'invoices', kind: 'invoice', title: 'Invoice', statusLabel: U.STATUS,
+    ns: NS, collection: 'invoices', kind: 'invoice',
     /** The payments and balance; a draft's balance is its total. */
     async more(inv, ctx) {
       const r = await S.store.list('payments', { index: 'invoiceId', value: inv.id });
@@ -18,11 +18,11 @@
       return { invoice: inv, payments, credits: cr && cr.ok ? cr.value : [], paid: S.billing.paidOn(payments), balance, totals: S.money.documentTotals(inv.lines),
         money: (minor) => U.money(minor, inv.currency, ctx.locale) };
     },
-    view: (inv, ctx) => ({ dueDate: inv.dueDate || '', paid: ctx.paid || 0,
+    view: (inv, ctx) => ({ dueDate: inv.dueDate || '', paid: ctx.paid || 0, status: inv.status === 'issued' && ctx.balance <= 0 ? 'paid' : inv.status,
       balance: inv.status === 'issued' || inv.status === 'paid' ? ctx.balance : null }),
   });
 
-  /** Resolves to { invoice, customer, payments, credits, paid, balance, totals, company, locale, money(minor) } or a failed Result. */
+  /** Resolves to { invoice, customer, payments, credits, paid, balance, totals, company, locale, words, money(minor) } or a failed Result. */
   NS.context = { load: P.load };
   /** The view of a loaded context (the print sheet and the PDF both draw it), and the PDF bytes for one. */
   NS.pdf = { viewOf: P.viewOf, invoicePdf: async (ctx) => g.SlopDocs.pdf.renderPdf(P.viewOf(ctx)) };

@@ -20,7 +20,7 @@
     let input;
     if (SELECT.has(name)) {
       input = h('select', { 'aria-label': label },
-        h('option', { value: '', text: 'Choose a customer…' }),
+        h('option', { value: '', text: g.SlopI18n ? g.SlopI18n.t('biz.pg.choose_customer') : '' }),
         ...o.customers().map((c) => h('option', { value: c.id, text: c.name, selected: c.id === raw })));
     } else if (AREA.has(name)) {
       input = h('textarea', { rows: 3, maxlength: MAX.notes, 'aria-label': label });

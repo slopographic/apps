@@ -54,25 +54,25 @@ const rtIsBig = (H) => H.count / (D.w * D.h) > RT_BIG.area || Math.max(H.box.w /
 
 function rtChooseEngine(H) {
   const pct = Math.round((H.count / (D.w * D.h)) * 100);
-  return new Promise((res) => dialog({ title: 'Remove a big object', cls: 'rt-choice',
+  return new Promise((res) => dialog({ title: rtT('big_title'), cls: 'rt-choice',
     body: h('div', null,
-      h('p', null, `This area is big (${pct || '<1'} % of the picture). On this device it is filled by copying texture from around it, which works best for small and medium areas.`),
-      h('p', null, h('strong', null, 'Edit with AI'), ' uses an image model with your own API key (it costs a little and sends the picture to that provider) and usually does better on a big area.')),
-    buttons: [{ label: 'Cancel', act: () => res(null) }, { label: 'Fill on this device', act: () => res('device') }, { label: 'Edit with AI (your key)…', primary: true, act: () => res('ai') }],
+      h('p', null, rtT('big_body', { pct: pct ? String(pct) : '<1' })),
+      h('p', null, h('strong', null, rtT('edit_with_ai')), ' ' + rtT('big_ai'))),
+    buttons: [{ label: tr('menu.cancel'), act: () => res(null) }, { label: rtT('fill_device'), act: () => res('device') }, { label: rtT('edit_ai_key'), primary: true, act: () => res('ai') }],
     onClose: () => res(null) }));
 }
 
 async function rtRemoveWithAI(m) {
   D.sel = makeSel(rtGrow(m, 4));
-  commit('Select Object');
-  return psImageGen('edit', { prompt: 'Remove the object in the selected area. Fill the area with the background around it, matching its texture, light and perspective. Change nothing outside the area.' });
+  commit(rtT('step_select_object'));
+  return psImageGen('edit', { prompt: 'Remove the object in the selected area. Fill the area with the background around it, matching its texture, light and perspective. Change nothing outside the area.' }); // i18n-ignore: the prompt for the image model
 }
 
 async function rtRemoveObject(m, o = {}) {
   await rtSettle();
-  if (!activeLayer()) throw new Error('There is no picture to work on');
+  if (!activeLayer()) throw new Error(rtT('no_picture_work'));
   const H0 = rtHoleOf(m);
-  if (!H0.box) throw new Error('Nothing was marked to remove');
+  if (!H0.box) throw new Error(rtT('nothing_marked'));
   let engine = o.engine || 'device';
   if (o.ask && engine === 'device' && rtIsBig(H0)) engine = await rtChooseEngine(H0);
   if (!engine) return '';
@@ -86,18 +86,17 @@ async function rtRemoveObject(m, o = {}) {
   hg.drawImage(grown, cr.x, cr.y, cr.w, cr.h, 0, 0, w, hh);
   const hd = rtPixels(hm).data, hole = new Uint8Array(w * hh);
   for (let i = 0; i < hole.length; i++) hole[i] = hd[i * 4 + 3] > 20 ? 1 : 0;
-  if (o.progress) o.progress('Filling…'); else toast('Filling from the surroundings…', 1500);
+  if (o.progress) o.progress(rtT('filling')); else toast(rtT('filling_around'), 1500);
   const filled = await rtInpaint(rtPixels(small).data, w, hh, hole);
   // the fill at full size, shown only inside the (feathered) area
   const out = mkCanvas(cr.w, cr.h), og = cx(out);
   og.imageSmoothingQuality = 'high'; og.drawImage(rtCanvas(filled, w, hh), 0, 0, cr.w, cr.h);
   const edge = copyCanvas(grown); blurAlphaCanvas(edge, 1.5);
   og.globalCompositeOperation = 'destination-in'; og.drawImage(edge, -cr.x, -cr.y);
-  rtAddLayers([{ name: nextName('Remove Object'), canvas: out, x: cr.x, y: cr.y }], 'Remove Object');
-  if (window.SlopMacros && o.note) SlopMacros.note('ps.retouch.remove-object', o.note, 'Remove object');
+  rtAddLayers([{ name: nextName('Remove Object'), canvas: out, x: cr.x, y: cr.y }], rtT('step_remove_object')); // i18n-ignore: the layer's name is the document's
+  if (window.SlopMacros && o.note) SlopMacros.note('ps.retouch.remove-object', o.note, 'Remove object'); // i18n-ignore: saved in the macro
   dirty(true);
-  return `Filled ${b.w} × ${b.h} px at ${b.x}, ${b.y} from the surroundings on the new “Remove Object” layer.` +
-    (rtIsBig(H0) ? ' This is a big area: Edit with AI (engine ai, your own key) may do better.' : '');
+  return rtT('filled', { w: b.w, h: b.h, x: b.x, y: b.y }) + (rtIsBig(H0) ? ' ' + rtT('big_hint') : '');
 }
 
 /** The command: the given area, or the selection. */
@@ -109,6 +108,6 @@ async function rtRemoveObjectCmd(a = {}) {
     if (a.shape === 'rect') g.fillRect(a.x, a.y, a.width, a.height);
     else { g.beginPath(); g.ellipse(a.x + a.width / 2, a.y + a.height / 2, a.width / 2, a.height / 2, 0, 0, Math.PI * 2); g.fill(); }
   } else if (D.sel) m = D.sel.mask;
-  else throw new Error('Select the object first (or give x, y, width and height)');
+  else throw new Error(rtT('select_first'));
   return rtRemoveObject(m, { engine: a.engine || 'device' });
 }

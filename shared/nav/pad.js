@@ -13,17 +13,19 @@
    */
   function mount(el, opts) {
     el.classList.add('nav-pad');
+    const say = (k, v) => { const I = window.SlopI18n; return I && I.t ? I.t(k, v) : k; };   // shared/i18n/ui/<code>/print.js
     el.innerHTML = '';
     const world = document.createElement('div');
     world.className = 'nav-world';
     world.style.width = W + 'px'; world.style.height = H + 'px';
-    world.innerHTML = '<span class="nav-world-tag">Try it here</span>';
+    world.innerHTML = '<span class="nav-world-tag"></span>';
+    world.firstChild.textContent = say('ui.nav.try_here');
     el.append(world);
     const st = { z: 1, ox: 0, oy: 0, last: '' };
     const box = () => el.getBoundingClientRect();
     const readout = () => {
       const pct = Math.round(st.z * 100);
-      if (opts.onChange) opts.onChange(`Zoom ${pct}%${st.last ? ' · last: ' + st.last : ''}`);
+      if (opts.onChange) opts.onChange(st.last ? say('ui.nav.pad_last', { pct: String(pct), last: st.last }) : say('ui.nav.pad', { pct: String(pct) }));
     };
     const paint = () => { world.style.transform = `translate(${st.ox}px, ${st.oy}px) scale(${st.z})`; readout(); };
     const centre = (z) => { const r = box(); st.z = z; st.ox = (r.width - W * z) / 2; st.oy = (r.height - H * z) / 2; paint(); };
@@ -39,7 +41,7 @@
     };
     const eng = N.engine.attach({
       host: el, adapter, keys: 'hover', bindings: () => (opts.bindings ? opts.bindings() : N.presets.get('slop').bindings),
-      onAction(a) { st.last = ({ zoom: 'zoom', pan: 'pan', pinch: 'pinch', fit: 'fit', actual: '100%', zoomIn: 'zoom in', zoomOut: 'zoom out', clickZoom: 'click zoom', hand: 'hold to pan' })[a.type] + (a.via ? ' (' + a.via + ')' : ''); readout(); },
+      onAction(a) { st.last = say('ui.nav.act.' + a.type.replace(/[A-Z]/g, (c) => '_' + c.toLowerCase())) + (a.via ? ' (' + say('ui.nav.via.' + a.via) + ')' : ''); readout(); },
     });
     requestAnimationFrame(() => centre(1));
     return {

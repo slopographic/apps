@@ -1,4 +1,5 @@
 /* CSV (RFC 4180 with lenient line endings) and JSON ↔ CSV. Pure. */
+import { tr } from './i18n.js';
 
 /** The delimiter that appears most often on the first line, counted outside quotes. */
 export function detectDelimiter(text) {
@@ -89,7 +90,7 @@ export function flattenRecord(v, prefix = '', out = {}) {
  */
 export function jsonToCsv(text, { delimiter = ',', eol = '\n', flatten = false } = {}) {
   let data;
-  try { data = JSON.parse(text); } catch (e) { throw new Error('This is not valid JSON.'); }
+  try { data = JSON.parse(text); } catch (e) { throw new Error(tr('convert.csv.bad_json')); }
   if (!Array.isArray(data)) data = [data];
   if (flatten && data.every((r) => r && typeof r === 'object' && !Array.isArray(r))) data = data.map((r) => flattenRecord(r));
   let rows;

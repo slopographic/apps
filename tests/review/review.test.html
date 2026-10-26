@@ -6,9 +6,11 @@
   <link rel="stylesheet" href="../../shared/slopui.css">
   <link rel="stylesheet" href="../../shared/review/review.css">
   <style>body { margin: 0; background: #111; color: #eee; font: 12px system-ui; }</style>
+  <script src="../harness.js"></script>
+  <script src="../../shared/profile/profile.js"></script>
+  <script src="../../shared/i18n/i18n.js"></script>
 </head>
 <body>
-  <script src="../harness.js"></script>
   <script src="../../shared/slopui.js"></script>
   <script src="../../shared/review/model.js"></script>
   <script src="../../shared/review/review.js"></script>
@@ -159,7 +161,7 @@
       btn('Select none').click();
       expect(confirmBtn().disabled).toBe(true);
       btn('Select all').click();
-      expect(sumText()).toContain('1200 of 1200 checked');
+      expect(sumText()).toContain('1,200 of 1,200 checked');
       confirmBtn().click();
       expect((await p).length).toBe(1200);
     }, { timeout: 30000 });

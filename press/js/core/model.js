@@ -39,10 +39,10 @@
     };
   };
   M.defaultSwatches = function () {
-    return [{ name: '[Paper]', color: '#ffffff' }, { name: '[Black]', color: 'cmyk(0,0,0,100)' }, { name: 'Ink', color: '#1a1a1a' },
-      { name: 'Slop Lime', color: '#d4ff3a' }, { name: 'Magenta', color: 'cmyk(0,100,0,0)' }, { name: 'Cyan', color: 'cmyk(100,0,0,0)' },
-      { name: 'Yellow', color: 'cmyk(0,0,100,0)' }, { name: 'Red', color: '#e0245e' }, { name: 'Blue', color: '#2f6fed' },
-      { name: 'Sea', color: '#0f8a8a' }, { name: 'Sand', color: '#efe6d2' }, { name: 'Grey 20', color: '#cccccc' }];
+    return [{ name: '[Paper]', color: '#ffffff' }, { name: '[Black]', color: 'cmyk(0,0,0,100)' }, { name: 'Ink', color: '#1a1a1a' },   // i18n-ignore: swatch names in the document
+      { name: 'Slop Lime', color: '#d4ff3a' }, { name: 'Magenta', color: 'cmyk(0,100,0,0)' }, { name: 'Cyan', color: 'cmyk(100,0,0,0)' },   // i18n-ignore: swatch names in the document
+      { name: 'Yellow', color: 'cmyk(0,0,100,0)' }, { name: 'Red', color: '#e0245e' }, { name: 'Blue', color: '#2f6fed' },   // i18n-ignore: swatch names in the document
+      { name: 'Sea', color: '#0f8a8a' }, { name: 'Sand', color: '#efe6d2' }, { name: 'Grey 20', color: '#cccccc' }];   // i18n-ignore: swatch names in the document
   };
 
   /* ---------- factories ---------- */

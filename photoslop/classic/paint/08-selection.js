@@ -82,7 +82,7 @@ function copySel() {
   if (P.st.op) return false;
   P.commitText();
   const c = selCanvas();
-  if (!c) { status('Select something first.'); return false; }
+  if (!c) { status(P.t('paint-classic.status.select_first')); return false; }
   P.st.clip = c; P.st.clipInternalNewer = true;
   try {
     if (navigator.clipboard && navigator.clipboard.write && window.ClipboardItem) {
@@ -90,7 +90,7 @@ function copySel() {
       navigator.clipboard.write([item]).catch(() => {});
     }
   } catch (_) { /* in-app clipboard still works */ }
-  status(`Copied ${c.width}x${c.height} pixels of premium slop.`);
+  status(P.t('paint-classic.status.copied', { w: String(c.width), h: String(c.height) }));
   return true;
 }
 function cutSel() { if (copySel()) clearSelection(); }
@@ -101,7 +101,7 @@ async function pasteCanvas(src) {
   if (P.st.op) P.cancelOp();
   P.finishPending();
   if (src.width > S.w || src.height > S.h) {
-    const r = await P.msgBox('The image in the clipboard is larger than the bitmap.\nWould you like the bitmap enlarged?', ['Yes', 'No', 'Cancel'], 'question');
+    const r = await P.msgBox(P.t('paint-classic.msg.enlarge'), ['Yes', 'No', 'Cancel'], 'question');
     if (r === 'Cancel' || r == null) return;
     if (r === 'Yes') { pushUndo(); setCanvasSize(Math.max(S.w, src.width), Math.max(S.h, src.height)); }
   }
@@ -110,14 +110,14 @@ async function pasteCanvas(src) {
   const v = viewOrigin();
   P.st.sel = { x: v.x, y: v.y, w: src.width, h: src.height, canvas: copyCanvas(src), ver: 1 };
   renderFloating(); updateSelBox(); updateSize();
-  status('Pasted. Drag it into place, then click outside to drop it.');
+  status(P.t('paint-classic.status.pasted'));
 }
 async function pasteBlob(blob) {
   try {
     const img = await loadBlobImage(blob);
     const c = mkCanvas(img.naturalWidth, img.naturalHeight); ctx2d(c).drawImage(img, 0, 0);
     await pasteCanvas(c);
-  } catch (_) { P.msgBox('Slop Paint cannot paste this.\nZe clipboard contains no picture.', ['OK'], 'warn'); }
+  } catch (_) { P.msgBox(P.t('paint-classic.msg.cannot_paste'), ['OK'], 'warn'); }
 }
 async function pasteMenu() {
   if (P.st.clipInternalNewer && P.st.clip) return pasteCanvas(P.st.clip);
@@ -131,7 +131,7 @@ async function pasteMenu() {
     }
   } catch (_) { /* permission denied: fall back */ }
   if (P.st.clip) return pasteCanvas(P.st.clip);
-  status('The clipboard is empty. Copy something first (or press Ctrl+V).');
+  status(P.t('paint-classic.status.clip_empty'));
 }
 function selectAll() {
   if (P.st.op) return;

@@ -47,7 +47,8 @@
 
   /**
    * registerKind(kind, app, schema, apply, opts): schema = { fields, strict = true }; apply(data, ctx) runs after the
-   * file has validated (it may return a promise, and throw to roll back). opts: { read(), label, description }; read gives
+   * file has validated (it may return a promise, and throw to roll back). opts: { read(), label, description }; label and
+   * description may be i18n keys or functions (read when shown, so they follow a language change); read gives
    * the current data so the Export dialog can offer the kind. opts.check(data) → [{ path, message }] adds rules the schema
    * cannot express; it runs only after the shape passed. Throws on a bad or duplicate registration.
    */
@@ -60,10 +61,13 @@
     assertSpec(spec, kind);
     const key = `${app}/${kind}`;
     if (entries.has(key)) throw new Error(`registerKind: ${key} is already registered`);
+    const lab = (v) => { const I = g.SlopI18n; return String(I && I.label ? I.label(v) : typeof v === 'function' ? v() : v); };
     entries.set(key, {
       kind, app, schema: spec, apply,
       read: typeof opts.read === 'function' ? opts.read : null,
-      label: opts.label || kind, description: opts.description || '',
+      // read each time: a key ('ui.config.kind_settings') or a function follows a language change (SlopI18n.label)
+      get label() { return opts.label ? lab(opts.label) : kind; },
+      get description() { return opts.description ? lab(opts.description) : ''; },
       check: typeof opts.check === 'function' ? opts.check : null,
     });
   }

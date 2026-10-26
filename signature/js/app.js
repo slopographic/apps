@@ -12,6 +12,7 @@
   'use strict';
   const NS = (g.SlopSignature = g.SlopSignature || {});
   const M = NS.model, T = NS.templates, F = NS.form, UI = g.SlopUI;
+  const tr = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
   const KEY = 'slop-signature';
   const $ = (id) => document.getElementById(id);
   const load = () => { try { return JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { return null; } };
@@ -39,7 +40,7 @@
   async function copyFor(client) {
     if (!current.html) return false;
     const ok = await NS.copy.copyFor(client);
-    if (!ok) say(client === 'html' ? 'The browser did not allow copying: use Download HTML.' : 'The browser did not allow copying: select the signature above and press Ctrl+C (⌘C on a Mac).');
+    if (!ok) say(tr(client === 'html' ? 'signature.msg.no_copy_html' : 'signature.msg.no_copy'));
     return ok;
   }
   const copy = () => copyFor('all');
@@ -49,7 +50,7 @@
     const page = `<!doctype html>\n<html><head><meta charset="utf-8"><title>${M.esc(s.name || 'Signature')}</title></head><body>\n${current.html}\n</body></html>\n`;
     UI.download(new Blob([page], { type: 'text/html' }), `${name}-signature.html`);
   }
-  function reset() { F.fill(M.blank()); render(); say('Cleared. Type your details.'); }
+  function reset() { F.fill(M.blank()); render(); say(tr('signature.msg.cleared')); }
   function example() { F.fill(M.sample()); render(); say(''); }
   /** A random signature from a seed (a new one when none is given), with its logo drawn. Resolves the sample. */
   async function random(seed, locale) {
@@ -58,7 +59,7 @@
     let st = r.state;
     if (r.logo) { try { st = Object.assign({}, st, { image: await NS.logo.png(Object.assign({ colour: st.accent }, r.logo)) }); } catch (e) { /* no canvas: the signature without a logo */ } }
     F.fill(st); render();
-    say(`Sample seed ${r.seed}. Type that seed again to get the same signature.`);
+    say(tr('signature.msg.seed', { seed: String(r.seed) }));
     return r;
   }
 
@@ -87,6 +88,14 @@
     NS.logoUI.mount(document.querySelector('#sgForm [data-group="picture"]'));
     // a picture dropped on the email or the Picture box goes the one way in (shared/intake), like the button and a paste
     for (const t of [$('sgView'), document.querySelector('#sgForm [data-group="picture"]')]) g.SlopIntake.dropTarget(t, { to: 'signature' });
+    // a language change draws the form again in the new words, with what was typed (the static text follows data-i18n)
+    if (g.SlopI18n) g.SlopI18n.on(() => {
+    F.mount($('sgForm'), F.read(), render);
+    const pic = document.querySelector('#sgForm [data-group="picture"]');
+    NS.logoUI.mount(pic); g.SlopIntake.dropTarget(pic, { to: 'signature' });
+    if (NS.layout && NS.layout.relabel) NS.layout.relabel();
+    render();
+    });
     const preset = presetOf(location.search);
     if (preset.mail) showMail(preset.mail);
     render();

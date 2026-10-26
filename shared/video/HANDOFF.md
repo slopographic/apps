@@ -10,7 +10,7 @@ Classic scripts, no DOM except the lane widget, no fetch, no storage. Each file 
 | `seed.js` | `SlopVideo.seed` | mulberry32 `rng(seed)`, `make()`, `parse(text)` (hex or any text), `hex()`, `shuffle()`. |
 | `presets.js` | `SlopVideo.presets` | Frame size presets (`LIST`), `aspectSize('16:9'…)`, `size(id, w, h)`, `choices()`, `idFor(w, h)`, `clamp()`. |
 | `grid.js` | `SlopVideo.grid` | `grid(rows, cols, {gap, border})` equal cells as fractions; `parse('1x3')`; `id(rows, cols)`; `specs()`. |
-| `templates.js` | `SlopVideo.templates` | The named templates (Single, Split horizontal, Split vertical, Picture-in-picture, Grid 2×2, Grid 3×3, Three-up, Vertical reel) in `list`; `get(id)` also resolves any grid id; `grid()`, `region()`, `slotCount()`, `label()`, `tiles()`. |
+| `templates.js` | `SlopVideo.templates` | The named templates (`single`, `split-h`, `split-v`, `pip`, `grid2`, `grid3`, `three-up`, `reel`, `title-two`) in `list` (a getter: `name` and `desc` in the chosen language); `get(id)` also resolves any grid id; `grid()`, `region()`, `slotCount()`, `label()`, `tiles()`. |
 | `layout.js` | `SlopVideo.layout` | `fit(frame, media, region)`: the transform that letterboxes a picture into a region. `trackOf(slot)`. |
 | `segments.js` | `SlopVideo.segments` | Layout switches over time: `clean`, `norm(list, total)`, `at(segs, t)`, `add`, `move`, `remove`, `maxSlots`. All pure. |
 | `orient.js` | `SlopVideo.orient` | Clip orientation (`of`, `classify`, `mixed`); grids that suit the clips (`prefer`); cell order (`assign`); `resolve(fill, mixed)` (auto is cover, or blur when mixed). |
@@ -101,3 +101,11 @@ app (`dur` on each media item; stills use `Infinity`). The lane widget needs `do
 `empty`, `cellAt` (layered templates: the top-most slot wins), `resize`, `fill` (a clip already in another slot swaps),
 `swap`, `free`, `filled`. Geometry comes from `templates.js`. Tests: `tests/node/slopcut-grid.test.mjs`.
 `title-two` (a title band over two clips) joined the named templates, so Reel Remix's layout list shows it too.
+
+## Words (i18n)
+The lists here hold ids only. Their labels are `ui.video.<list>.<id>` in `shared/i18n/ui/<code>/video.js` (English is the
+source), read through `SlopVideo.word(list, id, vars)` / `words(list, ids)` (seed.js) each time a list is read:
+`random.PACES`, `presets.LIST` / `choices()`, `timing.MODES` / `VIDEO`, `audio.MODES`, `clipset.SHOW` / `EDGE` / `VMODE`,
+`effects.KINDS` / `CHANGE` / `name()`, `keys.EASES` / `ANIMATE`, `templates.list` / `get()` / `label()` and the Layout
+lane are getters, so a panel that fills them again on `SlopI18n.on` shows the new language. Without SlopI18n (Node) a
+label reads as its key; tests load the tables (`tests/node/ui-tables-env.mjs`). Apps never keep their own copies.

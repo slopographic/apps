@@ -7,8 +7,8 @@
   'use strict';
   const ns = (g.SlopEffects = g.SlopEffects || {});
   const { h } = ns.dom;
-  const D = () => ns.defs;
-  const ICON = { solid: 'Sd', shape: 'Sh', text: 'T', image: 'Im', video: 'Vd', null: 'Nl' };
+  const D = () => ns.defs, t = (k, v) => ns.defs.t(k, v);
+  const ICON = { solid: 'Sd', shape: 'Sh', text: 'T', image: 'Im', video: 'Vd', null: 'Nl' }; // i18n-ignore: the icons are letters
   const STEPS = [0.1, 0.25, 0.5, 1, 2, 5, 10, 30, 60];
   /** Gap between the label column and time 0, so a key at 0 is not hidden under the labels. */
   const PAD = 8;
@@ -19,7 +19,7 @@
     const keyEls = new Map(); // "layer|prop|t" -> diamond element, for moving them during a drag
     // The playhead moves through the transport when there is one (main.js): the player owns the time, and a plain
     // S.seek is put back to the player's time on its next frame.
-    const seek = (t) => { const tr = ns.app && ns.app.tr; if (tr && tr.seekTo) tr.seekTo(t); else S.seek(t); };
+    const seek = (time) => { const tr = ns.app && ns.app.tr; if (tr && tr.seekTo) tr.seekTo(time); else S.seek(time); };
     const pps = () => {
       if (view.zoom) return view.zoom;
       const w = host.clientWidth || 640;
@@ -32,11 +32,11 @@
     /** The keys of a layer as { prop, label, times } rows, in display order (props, then each effect's numeric parameters). */
     function propRows(layer) {
       const rows = [];
-      for (const pd of D().PROPS) rows.push({ prop: pd.name, label: pd.label });
+      for (const pd of D().PROPS) rows.push({ prop: pd.name, label: D().word('prop', pd.name, pd.label) });
       for (const fx of layer.effects) {
-        rows.push({ head: true, label: `${D().EFFECTS[fx.kind].label}${fx.on ? '' : ' (off)'}` });
+        rows.push({ head: true, label: D().word('fx', fx.kind, D().EFFECTS[fx.kind].label) + (fx.on ? '' : ' ' + t('effects.tl.off')) });
         for (const [name, def] of Object.entries(D().EFFECTS[fx.kind].params)) {
-          if (def.type !== 'colour') rows.push({ prop: `fx.${fx.id}.${name}`, label: def.label, indent: true });
+          if (def.type !== 'colour') rows.push({ prop: `fx.${fx.id}.${name}`, label: D().word('param', name, def.label), indent: true });
         }
       }
       return rows;
@@ -60,13 +60,13 @@
 
     /** A diamond at time t for the given refs (bound to drag and select). */
     function diamond(refs, p, title, easeHold) {
-      const t = refs[0].t;
+      const at = refs[0].t;
       const el = h('div', {
         class: 'fx-diamond' + (refs.some(isSel) ? ' is-sel' : '') + (easeHold ? ' is-hold' : ''),
-        style: `left:${(PAD + t * p).toFixed(3)}px`,
+        style: `left:${(PAD + at * p).toFixed(3)}px`,
         role: 'button', tabindex: 0, title,
         'aria-label': `${title}`,
-        'data-t': t,
+        'data-t': at,
       });
       refs.forEach((r) => keyEls.set(`${r.layer}|${r.prop}|${r.t.toFixed(6)}`, el));
       ns.timelineKeys.bind(el, refs, { S, act, pps: () => pps(), moveDiamonds });
@@ -101,22 +101,22 @@
         },
         onkeydown: (e) => { if (e.key === 'Enter') S.select({ layer: layer.id, keys: [], fx: null }); },
       },
-      h('button', { type: 'button', 'aria-label': isOpen ? 'Collapse' : 'Expand', 'aria-expanded': String(isOpen), onclick: () => { if (isOpen) view.open.delete(layer.id); else view.open.add(layer.id); render(); } }, isOpen ? '▾' : '▸'),
-      h('button', { type: 'button', 'aria-label': layer.hidden ? 'Show layer' : 'Hide layer', 'aria-pressed': String(!layer.hidden), title: layer.hidden ? 'Hidden' : 'Visible',
-        onclick: () => S.edit(layer.hidden ? 'Show layer' : 'Hide layer', (d) => ns.layers.setHidden(d, layer.id, !layer.hidden)) }, layer.hidden ? '◌' : '●'),
-      h('span', { class: 'fx-ic', title: D().label(D().LAYER_TYPES, layer.type) }, ICON[layer.type] || '?'),
+      h('button', { type: 'button', 'aria-label': t(isOpen ? 'effects.tl.collapse' : 'effects.tl.expand'), 'aria-expanded': String(isOpen), onclick: () => { if (isOpen) view.open.delete(layer.id); else view.open.add(layer.id); render(); } }, isOpen ? '▾' : '▸'),
+      h('button', { type: 'button', 'aria-label': t(layer.hidden ? 'effects.tl.show' : 'effects.tl.hide'), 'aria-pressed': String(!layer.hidden), title: t(layer.hidden ? 'effects.tl.hidden' : 'effects.props.visible'),
+        onclick: () => S.edit(t(layer.hidden ? 'effects.tl.show' : 'effects.tl.hide'), (d) => ns.layers.setHidden(d, layer.id, !layer.hidden)) }, layer.hidden ? '◌' : '●'),
+      h('span', { class: 'fx-ic', title: D().word('type', layer.type, D().label(D().LAYER_TYPES, layer.type)) }, ICON[layer.type] || '?'), // i18n-ignore: the icons are letters
       h('b', { title: layer.name }, layer.name),
-      parent ? h('span', { class: 'fx-ic', title: `Parent: ${parent.name}` }, '↳') : null,
-      missing ? h('span', { class: 'fx-warn', title: 'Media missing: relink it in the layer panel' }, '!') : null);
+      parent ? h('span', { class: 'fx-ic', title: t('effects.tl.parent', { name: parent.name }) }, '↳') : null,
+      missing ? h('span', { class: 'fx-warn', title: t('effects.tl.missing') }, '!') : null);
       const sum = summaryOf(layer);
-      const summaryItems = sum.map((s) => ({ t: s.t, refs: s.refs, title: `${layer.name}: ${s.refs.length} key${s.refs.length === 1 ? '' : 's'} at ${s.t.toFixed(2)} s`, hold: s.refs.every((r) => keyOf(layer, r.prop, r.t) === 'hold') }));
+      const summaryItems = sum.map((s) => ({ t: s.t, refs: s.refs, title: t('effects.tl.keys_at', { name: layer.name, keys: t('effects.tl.keys_n', { n: s.refs.length }), t: s.t.toFixed(2) }), hold: s.refs.every((r) => keyOf(layer, r.prop, r.t) === 'hold') }));
       const out = [h('div', { class: 'fx-lrow' + (sel ? ' is-sel' : ''), 'data-layer': layer.id }, cell, lane(p, width, summaryItems))];
       if (isOpen) {
         for (const row of propRows(layer)) {
           if (row.head) { out.push(h('div', { class: 'fx-prow' }, h('div', { class: 'fx-lcell', style: 'padding-left:26px' }, h('i', null, row.label)), h('div', { class: 'fx-lane', style: `width:${width}px` }))); continue; }
           const tracks = S.doc.tl.tracks[layer.id] || {};
           const keys = tracks[row.prop] || [];
-          const items = keys.map((k) => ({ t: k.t, refs: [{ layer: layer.id, prop: row.prop, t: k.t }], title: `${row.label} at ${k.t.toFixed(2)} s`, hold: k.ease === 'hold' }));
+          const items = keys.map((k) => ({ t: k.t, refs: [{ layer: layer.id, prop: row.prop, t: k.t }], title: t('effects.graph.at', { what: row.label, t: k.t.toFixed(2) }), hold: k.ease === 'hold' }));
           out.push(h('div', { class: 'fx-prow' }, h('div', { class: 'fx-lcell', style: `padding-left:${row.indent ? 40 : 26}px` }, h('span', null, row.label)), lane(p, width, items)));
         }
       }
@@ -124,17 +124,17 @@
     }
 
     /** The ease of one key, for the hold marker. */
-    function keyOf(layer, prop, t) {
+    function keyOf(layer, prop, at) {
       const keys = (S.doc.tl.tracks[layer.id] || {})[prop] || [];
-      const k = keys.find((x) => Math.abs(x.t - t) < 1e-6);
+      const k = keys.find((x) => Math.abs(x.t - at) < 1e-6);
       return k ? k.ease : null;
     }
 
     /** The ruler: step labels, the zoom control in the label column, and a drag to scrub. */
     function ruler(p, width) {
       const dur = S.doc.comp.duration, step = stepFor(p);
-      const zoom = h('input', { type: 'range', min: 20, max: 400, step: 1, value: Math.round(p), 'aria-label': 'Timeline zoom', oninput: (e) => { view.zoom = Number(e.target.value); render(); } });
-      const label = h('div', { class: 'fx-head-cell fx-zoom', style: `width:${view.labelW}px` }, zoom, h('button', { type: 'button', class: 'sui-btn', onclick: () => { view.zoom = null; render(); } }, 'Fit'));
+      const zoom = h('input', { type: 'range', min: 20, max: 400, step: 1, value: Math.round(p), 'aria-label': t('effects.tl.zoom'), oninput: (e) => { view.zoom = Number(e.target.value); render(); } });
+      const label = h('div', { class: 'fx-head-cell fx-zoom', style: `width:${view.labelW}px` }, zoom, h('button', { type: 'button', class: 'sui-btn', onclick: () => { view.zoom = null; render(); } }, t('effects.tl.fit')));
       const track = h('div', { class: 'fx-ruler-track', style: `left:${view.labelW}px;width:${width + PAD}px` });
       for (let s = 0; s <= dur + 1e-9; s += step) track.append(h('div', { class: 'fx-tick', style: `left:${(PAD + s * p).toFixed(3)}px` }, `${s.toFixed(s % 1 ? 2 : 0)}s`));
       const r = h('div', { class: 'fx-ruler', style: `width:${view.labelW + width + PAD}px` }, label, track);
@@ -158,7 +158,7 @@
       const grid = h('div', { class: 'fx-tl-grid', style: `width:${view.labelW + width + PAD}px` });
       grid.append(ruler(p, width));
       for (const layer of S.doc.layers) for (const row of layerRows(layer, p, width)) grid.append(row);
-      if (!S.doc.layers.length) grid.append(h('div', { class: 'fx-empty' }, 'No layers yet. Use Layer to add a solid, shape, text, image, video or null.'));
+      if (!S.doc.layers.length) grid.append(h('div', { class: 'fx-empty' }, t('effects.tl.empty')));
       grid.append(h('div', { class: 'fx-playhead', 'aria-hidden': 'true' }));
       host.replaceChildren(grid);
       placePlayhead();

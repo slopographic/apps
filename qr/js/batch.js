@@ -6,8 +6,10 @@
   const MAX = 100;
   const $ = (id) => document.getElementById(id);
   const E = (tag, attrs, ...kids) => window.SlopUI.el(tag, attrs, ...kids);
+  const t = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
 
   let items = []; // the texts drawn now, in order
+  let count = null; // the number of lines read by the last make(), or null before it
 
   function lines() {
     return $('qr-batch-in').value.split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
@@ -17,10 +19,15 @@
   function make() {
     const all = lines();
     items = all.slice(0, MAX);
-    $('qr-batch-note').textContent = !all.length ? 'Type or paste one text per line.'
-      : all.length > MAX ? 'Only the first ' + MAX + ' of ' + all.length + ' lines are drawn.'
-        : all.length + (all.length === 1 ? ' code.' : ' codes.');
+    count = all.length;
+    note();
     draw();
+  }
+  /** The line under the button: how many codes, in the current language. */
+  function note() {
+    const n = count;
+    $('qr-batch-note').textContent = !n ? t('qr.app.batch_empty')
+      : n > MAX ? t('qr.app.batch_capped', { max: MAX, n }) : t('qr.app.batch_n', { n });
   }
 
   /** One card: the code (or the reason it failed), the text, and the two downloads. */
@@ -41,7 +48,7 @@
   function draw() {
     const grid = $('qr-grid');
     if (!items.length) { grid.replaceChildren(); return; }
-    grid.replaceChildren(...items.map((t, i) => card(t, i + 1)));
+    grid.replaceChildren(...items.map((item, i) => card(item, i + 1)));
   }
 
   /** Shown again when the tab opens, so the cards follow the current design. */
@@ -49,6 +56,7 @@
 
   function init() {
     $('qr-batch-go').addEventListener('click', make);
+    if (window.SlopI18n && window.SlopI18n.on) window.SlopI18n.on(() => { if (count !== null) note(); });
   }
 
   window.QRBatch = { init, make, refresh, items: () => items.slice() };

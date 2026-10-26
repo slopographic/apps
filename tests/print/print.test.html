@@ -5,10 +5,13 @@
   <title>Shared · SlopPrint (print dialog)</title>
   <link rel="stylesheet" href="../../shared/slopui.css">
   <link rel="stylesheet" href="../../shared/commands/commands.css">
+  <script>try { localStorage.setItem('slop-profile', JSON.stringify({ v: 1, data: { lang: { mode: 'en' } } })); } catch (e) { /* private window */ }</script>
+  <script src="../harness.js"></script>
+  <script src="../../shared/profile/profile.js"></script>
+  <script src="../../shared/i18n/i18n.js"></script>   <!-- the dialog's words (shared/i18n/ui/en/print.js) -->
   <style>body { margin: 0; background: #111; color: #eee; font: 13px system-ui; }</style>
 </head>
 <body>
-  <script src="../harness.js"></script>
   <script src="../../shared/slopui.js"></script>
   <script src="../../shared/input/typing.js"></script><script src="../../shared/commands/commands.js"></script>
   <script src="../../vendor/dompurify/purify.min.js"></script>
@@ -16,7 +19,7 @@
   <script src="../../shared/print/print.js"></script>
   <div id="source"><h1 class="title">Quarterly report</h1><p>Total: 42</p><script>window.__ran = true</script><img src="https://example.com/x.png" alt="remote"><a href="https://example.com/" onclick="x()">link</a></div>
   <script>
-  // Covers: shared/print/print.js, shared/sanitize/sanitize.js
+  // Covers: shared/print/print.js, shared/sanitize/sanitize.js, shared/i18n/ui/en/print.js, shared/i18n/ui/sv/print.js
   const { describe, it, beforeEach, expect, waitFor, sleep, run } = SlopTest;
   const U = window.SlopUI;
   const P = window.SlopPrint;
@@ -167,6 +170,21 @@
       await sleep(30);
       expect(e.defaultPrevented).toBe(false);
       expect(U.openDialogs).toBe(0);
+    });
+  });
+
+  describe('in Swedish', () => {
+    beforeEach(closeAll);
+    it('the dialog and the Print command speak the chosen language (they were English in every language)', async () => {
+      await new Promise((res) => { addEventListener('slopi18n', () => res(), { once: true }); SlopI18n.set('sv'); });
+      expect(SlopCmd.get('print.open').title).toBe('Skriv ut…');
+      P.open({ title: 'Doc', html: '<p>x</p>' });
+      await waitFor(() => U.openDialogs === 1);
+      expect([...dlg().querySelectorAll('.sui-foot button')].map((b) => b.textContent)).toEqual(['Avbryt', 'Spara som PDF', 'Skriv ut']);
+      expect(field('Orientering').value).toBe('portrait');
+      await closeAll();
+      await new Promise((res) => { addEventListener('slopi18n', () => res(), { once: true }); SlopI18n.set('en'); });
+      expect(SlopCmd.get('print.open').title).toBe('Print…');
     });
   });
 

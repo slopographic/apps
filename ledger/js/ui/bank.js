@@ -10,7 +10,8 @@
   const S = g.SlopData, UI = g.SlopUI, el = UI.el;
   const NS = (g.SlopLedger = g.SlopLedger || {});
   const $ = (id) => document.getElementById(id);
-  const STATUS = { open: 'To review', matched: 'Matched', ignored: 'Set aside' };
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
+  const STATUS = () => ({ open: t('ledger.bk.open'), matched: t('ledger.bk.matched'), ignored: t('ledger.bk.ignored') });
   let cache = null;   // { lines, moves, invoices, settings } of the last render
 
   const account = () => $('bkAccount').value;
@@ -21,7 +22,7 @@
     const s = await NS.util.settings();
     const parsed = await readLines(file, s);
     if (!parsed) return;
-    if (!parsed.columns) { UI.alert('Not a statement', 'No date and amount columns were found. A bank CSV needs a header row with a date and an amount (or money in and money out). OFX, QFX, QIF, camt.053 and MT940 files are read as they are.'); return; }
+    if (!parsed.columns) { UI.alert(t('ledger.bk.not_stmt'), t('ledger.bk.not_stmt_body')); return; }
     const have = new Set((await list('bankLines')).map((l) => l.key)), acct = account();
     let added = 0;
     for (const l of parsed.lines) {
@@ -31,7 +32,7 @@
       if (w.ok) added++;
     }
     const matched = await autoMatch();
-    UI.toast(`${added} new line${added === 1 ? '' : 's'} from ${file.name}${matched ? `, ${matched} matched` : ''}${parsed.skipped ? `; ${parsed.skipped} skipped (no date or amount${typeof parsed.columns === 'string' ? ', or not booked yet' : ''})` : ''}`);
+    UI.toast(t('ledger.bk.new_lines', { n: added, file: file.name }) + (matched ? t('ledger.bk.and_matched', { n: matched }) : '') + (parsed.skipped ? t(typeof parsed.columns === 'string' ? 'ledger.bk.skipped_booked' : 'ledger.bk.skipped', { n: parsed.skipped }) : ''));
     await render();
   }
 
@@ -41,11 +42,11 @@
     const bytes = new Uint8Array(await file.arrayBuffer());
     const fin = await import(new URL('../shared/finance/index.js', document.baseURI).href);
     const format = fin.formatOf(file.name, bytes.subarray(0, 4096));
-    if (format === 'sie') { UI.alert('Not a bank statement', 'This is an SIE accounting file. Bring it in with Import SIE… in the Journal tab.'); return null; }
+    if (format === 'sie') { UI.alert(t('ledger.bk.sie'), t('ledger.bk.sie_body')); return null; }
     if (format) {
       let model;
-      try { model = fin.readStatement(bytes, file.name); } catch (e) { UI.alert('Not read', (e && e.message) || String(e)); return null; }
-      if (model.currency && model.currency !== s.base) { UI.alert('Another currency', `This statement is in ${model.currency} and the books are in ${s.base}. Bank matching works in the base currency, so nothing was imported.`); return null; }
+      try { model = fin.readStatement(bytes, file.name); } catch (e) { UI.alert(t('ledger.bk.not_read'), (e && e.message) || String(e)); return null; }
+      if (model.currency && model.currency !== s.base) { UI.alert(t('ledger.bk.other_cur'), t('ledger.bk.other_cur_body', { cur: model.currency, base: s.base })); return null; }
       return { ...NS.bank.linesFromStatement(model, { digits: S.money.digits(s.base) }), columns: format };
     }
     const { parseCsv } = await import(new URL('../convert/js/core/csv.js', document.baseURI).href);
@@ -63,7 +64,7 @@
 
   async function setStatus(line, status) {
     const r = await S.store.put('bankLines', { ...line, status, journalId: status === 'matched' ? line.journalId : undefined });
-    if (!r.ok) UI.alert('Not changed', NS.util.refusal(r));
+    if (!r.ok) UI.alert(t('ledger.bk.not_changed'), NS.util.refusal(r));
     await render();
   }
 
@@ -79,29 +80,29 @@
   }
   async function payBill(line, bill) {
     const r = await S.expenses.pay(bill.id, { date: line.date, method: line.account === '1000' ? 'cash' : 'bank' });
-    if (!r.ok) { UI.alert('Bill not paid', NS.util.refusal(r)); return; }
+    if (!r.ok) { UI.alert(t('ledger.bk.bill_not_paid'), NS.util.refusal(r)); return; }
     await autoMatch();
-    UI.toast(`Bill from ${bill.supplier} paid and matched`);
+    UI.toast(t('ledger.bk.bill_paid', { supplier: bill.supplier }));
     await render();
   }
   async function recordPayment(line, inv) {
     const r = await S.billing.recordPayment({ invoiceId: inv.id, amount: line.amount, date: line.date, method: line.account === '1000' ? 'cash' : 'bank', note: line.description.slice(0, 300) || undefined });
-    if (!r.ok) { UI.alert('Payment not recorded', NS.util.refusal(r)); return; }
+    if (!r.ok) { UI.alert(t('ledger.bk.pay_not'), NS.util.refusal(r)); return; }
     await autoMatch();
-    UI.toast(`Payment for ${inv.number} recorded and matched`);
+    UI.toast(t('ledger.bk.pay_done', { number: inv.number }));
     await render();
   }
   /** Money out as an expense: the supplier (the statement's text to start with) and the category; no tax to reclaim. */
   async function recordExpense(line) {
     const accts = (await list('accounts')).filter((a) => a.type === 'expense').sort((a, b) => a.code.localeCompare(b.code));
-    const supplier = UI.field('Supplier', el('input', { value: line.description.slice(0, 200), maxlength: 200 }));
+    const supplier = UI.field(t('ledger.bk.supplier'), el('input', { value: line.description.slice(0, 200), maxlength: 200 }));
     const cat = UI.select(accts.map((a) => [a.code, `${a.code} ${a.name}`]), accts[0] ? accts[0].code : '5000');
     UI.dialog({
-      title: 'Record as an expense', body: el('div', null, el('p', { class: 'note' }, `${line.date} · ${NS.util.money(-line.amount, cache.settings.base, cache.settings.locale)} paid from ${line.account === '1000' ? 'cash' : 'the bank'}`), supplier, UI.field('Category', cat)),
-      buttons: [{ label: 'Cancel' }, { label: 'Record expense', primary: true, act: async () => {
-        const r = await S.expenses.record({ date: line.date, supplier: supplier.querySelector('input').value.trim() || 'Bank', description: line.description.slice(0, 300) || undefined,
+      title: t('ledger.bk.exp_title'), body: el('div', null, el('p', { class: 'note' }, t(line.account === '1000' ? 'ledger.bk.exp_line_cash' : 'ledger.bk.exp_line_bank', { date: line.date, amount: NS.util.money(-line.amount, cache.settings.base, cache.settings.locale) })), supplier, UI.field(t('ledger.bk.category'), cat)),
+      buttons: [{ label: t('ledger.bk.cancel') }, { label: t('ledger.bk.record'), primary: true, act: async () => {
+        const r = await S.expenses.record({ date: line.date, supplier: supplier.querySelector('input').value.trim() || 'Bank', description: line.description.slice(0, 300) || undefined,   // i18n-ignore: CSS class names and the stored supplier fallback
           account: cat.value, amount: -line.amount, tax: 0, currency: cache.settings.base, method: line.account === '1000' ? 'cash' : 'bank' });
-        if (!r.ok) { UI.alert('Expense not recorded', NS.util.refusal(r)); return false; }
+        if (!r.ok) { UI.alert(t('ledger.bk.exp_not'), NS.util.refusal(r)); return false; }
         await autoMatch(); await render();
         return undefined;
       } }],
@@ -112,15 +113,15 @@
     const s = cache.settings, m = (v) => NS.util.money(v, s.base, s.locale);
     const acts = [];
     if (line.status === 'open') {
-      for (const inv of invoicesFor(line).slice(0, 2)) acts.push(el('button', { type: 'button', class: 'btn small primary', onclick: () => recordPayment(line, inv) }, `Payment for ${inv.number}`));
-      for (const bill of billsFor(line).slice(0, 2)) acts.push(el('button', { type: 'button', class: 'btn small primary', onclick: () => payBill(line, bill) }, `Pay bill from ${bill.supplier}`));
-      if (line.amount < 0) acts.push(el('button', { type: 'button', class: 'btn small', onclick: () => recordExpense(line) }, 'Record as expense…'));
-      acts.push(el('button', { type: 'button', class: 'btn small', onclick: () => setStatus(line, 'ignored') }, 'Set aside'));
-    } else if (line.status === 'matched') acts.push(el('button', { type: 'button', class: 'btn small', onclick: () => setStatus(line, 'open') }, 'Unmatch'));
-    else acts.push(el('button', { type: 'button', class: 'btn small', onclick: () => setStatus(line, 'open') }, 'Bring back'));
+      for (const inv of invoicesFor(line).slice(0, 2)) acts.push(el('button', { type: 'button', class: 'btn small primary', onclick: () => recordPayment(line, inv) }, t('ledger.bk.pay_for', { number: inv.number })));   // i18n-ignore: CSS class names and the stored supplier fallback
+      for (const bill of billsFor(line).slice(0, 2)) acts.push(el('button', { type: 'button', class: 'btn small primary', onclick: () => payBill(line, bill) }, t('ledger.bk.pay_bill', { supplier: bill.supplier })));   // i18n-ignore: CSS class names and the stored supplier fallback
+      if (line.amount < 0) acts.push(el('button', { type: 'button', class: 'btn small', onclick: () => recordExpense(line) }, t('ledger.bk.as_expense')));   // i18n-ignore: CSS class names and the stored supplier fallback
+      acts.push(el('button', { type: 'button', class: 'btn small', onclick: () => setStatus(line, 'ignored') }, t('ledger.bk.set_aside')));   // i18n-ignore: CSS class names and the stored supplier fallback
+      } else if (line.status === 'matched') acts.push(el('button', { type: 'button', class: 'btn small', onclick: () => setStatus(line, 'open') }, t('ledger.bk.unmatch')));   // i18n-ignore: CSS class names and the stored supplier fallback
+      else acts.push(el('button', { type: 'button', class: 'btn small', onclick: () => setStatus(line, 'open') }, t('ledger.bk.bring_back')));   // i18n-ignore: CSS class names and the stored supplier fallback
     const move = line.journalId && cache.moves.find((x) => x.journalId === line.journalId);
-    return el('tr', { class: `bk-${line.status}` }, el('td', null, line.date), el('td', null, line.description || '—', move ? el('div', { class: 'note' }, `Matched: ${move.memo || 'journal entry'} (${move.date})`) : null),
-      el('td', { class: 'num' }, m(line.amount)), el('td', null, el('span', { class: `chip ${line.status === 'matched' ? 'paid' : line.status === 'ignored' ? 'void' : 'issued'}` }, STATUS[line.status])),
+    return el('tr', { class: `bk-${line.status}` }, el('td', null, line.date), el('td', null, line.description || '—', move ? el('div', { class: 'note' }, t('ledger.bk.matched_to', { what: move.memo || t('ledger.bk.journal_entry'), date: move.date })) : null),
+    el('td', { class: 'num' }, m(line.amount)), el('td', null, el('span', { class: `chip ${line.status === 'matched' ? 'paid' : line.status === 'ignored' ? 'void' : 'issued'}` }, STATUS()[line.status])),
       el('td', null, el('div', { class: 'toolbar' }, acts)));
   }
 
@@ -133,22 +134,22 @@
     cache = { lines: mine, moves: NS.bank.moves(journal, acct), invoices: due, bills: bills.filter((b) => (b.amountBase !== undefined ? b.amountBase : b.amount) === b.amount), settings: s };
     const count = (st) => mine.filter((l) => l.status === st).length, m = (v) => NS.util.money(v, s.base, s.locale);
     const open = mine.filter((l) => l.status === 'open');
-    $('bkStats').replaceChildren(...[[String(mine.length), 'Statement lines'], [String(count('matched')), 'Matched'], [String(open.length), 'To review'],
-      [String(count('ignored')), 'Set aside'], [m(open.reduce((t, l) => t + l.amount, 0)), 'Still to explain']].map(([v, k]) => el('div', { class: 'stat' }, el('b', null, v), el('span', null, k))));
+    $('bkStats').replaceChildren(...[[String(mine.length), t('ledger.bk.lines')], [String(count('matched')), t('ledger.bk.matched')], [String(open.length), t('ledger.bk.open')],
+      [String(count('ignored')), t('ledger.bk.ignored')], [m(open.reduce((x, l) => x + l.amount, 0)), t('ledger.bk.to_explain')]].map(([v, k]) => el('div', { class: 'stat' }, el('b', null, v), el('span', null, k))));
     const shown = $('bkShowAll').checked ? mine : open;
     $('bkRows').replaceChildren(...shown.map(row));
     $('bkEmpty').hidden = shown.length > 0;
-    $('bkEmpty').textContent = mine.length ? 'Every line is matched or set aside. Tick the box to see them.' : 'No statement yet. Import your bank’s statement (CSV, OFX, QIF, camt.053 or MT940): each line is matched to the books where it can be.';
+    $('bkEmpty').textContent = t(mine.length ? 'ledger.bk.all_done' : 'ledger.bk.none');
   }
 
   function mount() {
     // Import a statement…: a part of the one intake of its own ('ledger.bank', shared/intake)
-    g.SlopIntake.register({ id: 'ledger.bank', main: false, paste: false, toast: false, limit: 1, accept: { any: true, noun: 'a bank statement' }, process: async (f) => { await importFile(f); return f.name; } });
+    g.SlopIntake.register({ id: 'ledger.bank', main: false, paste: false, toast: false, limit: 1, accept: { any: true, noun: 'ledger.bk.noun' }, process: async (f) => { await importFile(f); return f.name; } });
     NS.bankPick = () => g.SlopIntake.pick({ to: 'ledger.bank', multiple: false, accept: '.csv,.txt,text/csv,.ofx,.qfx,.qif,.xml,.sta,.mt940,.940' });
     $('bkImport').addEventListener('click', NS.bankPick);
     $('bkAccount').addEventListener('change', render);
     $('bkShowAll').addEventListener('change', render);
-    $('bkMatch').addEventListener('click', async () => { const n = await autoMatch(); UI.toast(n ? `${n} matched` : 'Nothing new to match'); await render(); });
+    $('bkMatch').addEventListener('click', async () => { const n = await autoMatch(); UI.toast(n ? t('ledger.bk.matched_n', { n }) : t('ledger.bk.nothing_new')); await render(); });
   }
 
   NS.views = NS.views || {};

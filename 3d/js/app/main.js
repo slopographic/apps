@@ -6,7 +6,7 @@
   const S = (window.Slop3D = window.Slop3D || {});
   const st = S.state, s = st.s;
   const $ = (id) => document.getElementById(id);
-  const fmtCount = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
+  const t = S.t;
 
   function showNoGL(msg) {
     const box = $('nogl');
@@ -20,19 +20,27 @@
       if (b && !b.disabled && window.SlopCmd) { e.preventDefault(); SlopCmd.run(b.dataset.cmd); }
     });
     const snap = $('snap');
-    for (const step of S.snap.STEPS) snap.append(new Option(step ? String(step) : 'Off', String(step)));
+    for (const step of S.snap.STEPS) snap.append(new Option(step ? String(step) : t('3d.app.snap_off'), String(step)));
+    S.onLang(() => { if (snap.options[0] && snap.options[0].value === '0') snap.options[0].text = t('3d.app.snap_off'); });
     snap.addEventListener('change', () => S.actions.setSnap(snap.value));
   }
   function statusLine(cam) {
     const meshes = Object.values(s.doc.nodes).filter((n) => n.type === 'mesh').length;
     const picked = st.primary() && s.doc.nodes[st.primary()];
-    const name = picked ? `${picked.name} (${S.model.typeLabel(picked)})` : 'Nothing selected';
-    const view = cam && cam.st.view ? cam.st.view[0].toUpperCase() + cam.st.view.slice(1) : 'Free';
-    const snapTxt = s.snapStep > 0 ? ` · snap ${s.snapStep}` : '';
-    const editTxt = S.edit.active()
-      ? ` · Edit: ${S.edit.mode()} mode · ${S.edit.sel().ids.size} ${({ vertex: 'vertex|vertices', edge: 'edge|edges', face: 'face|faces' })[S.edit.mode()].split('|')[S.edit.sel().ids.size === 1 ? 0 : 1]} selected${S.edit.info() ? ' · ' + S.edit.info() : ''}`
-      : '';
-    $('status').textContent = `${fmtCount(meshes, 'object')}${s.sel.length > 1 ? ` · ${s.sel.length} selected` : ''} · ${name} · ${view} view${snapTxt}${editTxt}`;
+    const name = picked ? t('3d.status.picked', { name: picked.name, type: S.typeLabel(picked) }) : t('3d.status.nothing');
+    const VIEW = { front: '3d.status.front', top: '3d.status.top', side: '3d.status.side', perspective: '3d.status.perspective' };
+    const view = cam && cam.st.view ? (VIEW[cam.st.view] ? t(VIEW[cam.st.view]) : cam.st.view) : t('3d.status.free');
+    const parts = [t('3d.status.objects', { n: meshes })];
+    if (s.sel.length > 1) parts.push(t('3d.status.selected', { n: s.sel.length }));
+    parts.push(name, t('3d.status.view', { view }));
+    if (s.snapStep > 0) parts.push(t('3d.status.snap', { step: String(s.snapStep) }));
+    if (S.edit.active()) {
+      const m = S.edit.mode(), n = S.edit.sel().ids.size;
+      parts.push(t({ vertex: '3d.status.edit_vertex', edge: '3d.status.edit_edge', face: '3d.status.edit_face' }[m]),
+        t({ vertex: '3d.status.sel_vertex', edge: '3d.status.sel_edge', face: '3d.status.sel_face' }[m], { n }));
+      if (S.edit.info()) parts.push(S.edit.info());
+    }
+    $('status').textContent = parts.join(' · ');
   }
   /** Toolbar state for mesh edit mode: the Edit button's pressed state and the mode and Mesh buttons. */
   function editToolbar() {
@@ -54,19 +62,21 @@
     const rename = (id) => {
       const n = s.doc.nodes[id];
       if (!n || !window.SlopUI) return;
-      SlopUI.prompt('Rename', 'Name', n.name).then((v) => { if (v && v.trim()) S.actions.setField(id, 'name', v.trim()); });
+      SlopUI.prompt(t('ui.rename'), t('3d.insp.name'), n.name).then((v) => { if (v && v.trim()) S.actions.setField(id, 'name', v.trim()); });
     };
     S.outliner.create($('outliner'), { rename });
     S.inspector.create($('inspector'));
+    S.onLang(() => st.emit('lang'));   // the outliner and the inspector in the new words
     st.on('file', setTitle);
     st.on('doc', setTitle);
     st.on('sel', setTitle);
-    if (!S.stage.hasWebGL()) showNoGL('This browser has no WebGL, so the 3D view cannot draw. Files still open, save and export.');
+    if (!S.stage.hasWebGL()) showNoGL(t('3d.app.no_webgl'));
     let THREE = null, stage = null;
     try {
       if (S.stage.hasWebGL()) { THREE = await S.stage.loadThree(); stage = S.stage.create(canvas, THREE); }
-    } catch (e) { showNoGL('The 3D view could not start: ' + (e.message || e)); stage = null; }
+    } catch (e) { showNoGL(t('3d.app.no_start', { error: String(e.message || e) })); stage = null; }
     if (!stage) {
+      S.onLang(() => statusLine(null));
       st.on('doc', () => statusLine(null));
       st.on('sel', () => statusLine(null));
       statusLine(null);
@@ -90,8 +100,15 @@
       stage.request();
     };
     const ui = { applyView, rename, frame: (ids) => view.frame(ids), setView: (name) => { cam.setView(name); view.redraw(); } };
-    const cmds = S.commands.list(ui);
+    let cmds = S.commands.list(ui);
     if (window.SlopCmd) { SlopCmd.init({ app: '3d' }); SlopCmd.register(cmds); if (SlopCmd.provide) SlopCmd.provide({ prepare: aiPrepare }); }
+    // a language change: the palette titles, the status bar and the panels in the new words
+    S.onLang(() => {
+      cmds = S.commands.list(ui);
+      if (window.SlopCmd) SlopCmd.register(cmds);
+      if (S.app) S.app.commands = cmds;
+      statusLine(cam);
+    });
     const sync = () => {
       objects.sync(s.doc, { selected: s.sel });
       applyView();
@@ -128,5 +145,5 @@
     return one('ai-io.js').then(() => one('ai-commands.js')).then(() => { S.ai.ready = true; });
   }
 
-  boot().catch((e) => { console.error(e); showNoGL('Slop 3D could not start: ' + (e.message || e)); });
+  boot().catch((e) => { console.error(e); showNoGL(t('3d.app.app_no_start', { error: String(e.message || e) })); });
 })();

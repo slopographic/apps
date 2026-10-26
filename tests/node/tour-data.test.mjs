@@ -1,4 +1,5 @@
 // SlopTour data: every shared/tour/tours/<app>.js is a valid tour (checked with the engine's own validator),
+// (its words are checked in tests/node/tour-words.test.mjs),
 // its app id matches the file and the app folder, each step target matches an element in that app's index.html
 // (checked in headless Chromium with the scripts and styles stripped), and each app page loads the tour mount.
 // Run: node tests/run.mjs tour
@@ -54,16 +55,14 @@ test('every tour file is valid: 4 to 8 steps with the required fields and allowe
     assert.equal(problems.length, 0, file + ' has problems: ' + problems.join('; '));
     assert.equal(tour.app, app, file + ': app must match the file name');
     assert.ok(tour.steps.length >= MIN_STEPS && tour.steps.length <= MAX_STEPS, file + ' has ' + tour.steps.length + ' steps');
-    for (const s of tour.steps) {
-      assert.ok(s.title.length <= 40, file + ' step "' + s.id + '" title is long');
-      assert.ok(s.text.length <= 160, file + ' step "' + s.id + '" text is long');
-      assert.ok(s.target, file + ' step "' + s.id + '" should point at a control');
-    }
+    for (const s of tour.steps) assert.ok(s.target, file + ' step "' + s.id + '" should point at a control');
   }
 });
 
-test('every app page loads the tour mount with its own app id', async () => {
+test('every app page loads the tour mount with its own app id, and mount.js lists the app (its Tour button)', async () => {
+  const mount = await readFile(path.join(ROOT, 'shared', 'tour', 'mount.js'), 'utf8');
   for (const { app } of tours) {
+    assert.ok(mount.includes("['" + app + "', '"), 'shared/tour/mount.js TOURS lacks ' + app + ' (no Tour button)');
     const html = await readFile(path.join(ROOT, app, 'index.html'), 'utf8');
     assert.match(html, new RegExp('<script src="\\.\\./shared/tour/mount\\.js" data-app="' + app + '"[^>]*></script>'), app + '/index.html');
   }

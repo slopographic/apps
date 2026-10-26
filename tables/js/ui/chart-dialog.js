@@ -8,6 +8,7 @@ import { chartData, TYPES } from '../objects/chart-data.js';
 import { chartSvg } from '../objects/chart-svg.js';
 import { currentRegion, regionText, resolveRange } from '../objects/region.js';
 import { newId } from '../objects/store.js';
+import { t } from '../i18n.js';
 
 const UI = () => window.SlopUI;
 
@@ -36,14 +37,14 @@ function placeFor(rangeText, w, h) {
 /** Opens the dialog. chart: an existing chart to edit, or null to insert one. Resolves with the chart id or null. */
 export function openChartDialog(chart = null) {
   const sh = sheet(), ui = UI(), el = ui.el;
-  const type = ui.select(TYPES, chart ? chart.type : 'column');
-  const rangeIn = el('input', { class: 'sui-input', type: 'text', spellcheck: 'false', autocomplete: 'off', placeholder: 'A1:C10', 'aria-label': 'Data range' });
+  const type = ui.select(TYPES.map(([id]) => [id, t(`tables.chart.type_${id}`)]), chart ? chart.type : 'column');
+  const rangeIn = el('input', { class: 'sui-input', type: 'text', spellcheck: 'false', autocomplete: 'off', placeholder: 'A1:C10', 'aria-label': t('tables.chart.data_range') });
   rangeIn.value = chart ? chart.range : startRange();
-  const by = ui.select([['cols', 'Columns'], ['rows', 'Rows']], chart ? chart.by : 'cols');
-  type.setAttribute('aria-label', 'Chart type'); by.setAttribute('aria-label', 'Series in');
-  const title = el('input', { class: 'sui-input', type: 'text', placeholder: 'No title', 'aria-label': 'Chart title' });
+  const by = ui.select([['cols', t('tables.chart.by_cols')], ['rows', t('tables.chart.by_rows')]], chart ? chart.by : 'cols');
+  type.setAttribute('aria-label', t('tables.chart.type')); by.setAttribute('aria-label', t('tables.chart.series_in'));
+  const title = el('input', { class: 'sui-input', type: 'text', placeholder: t('tables.chart.no_title'), 'aria-label': t('tables.chart.title_aria') });
   title.value = chart ? chart.title : '';
-  const legend = ui.check('Show legend', chart ? chart.legend !== false : true);
+  const legend = ui.check(t('tables.chart.show_legend'), chart ? chart.legend !== false : true);
   const preview = el('div', { class: 'chart-preview', 'aria-live': 'polite' }), msg = el('p', { class: 'chart-msg', role: 'status' });
   const draft = () => ({ ...(chart || {}), type: type.value, range: rangeIn.value.trim(), by: by.value, title: title.value.trim(), legend: legend.input.checked,
     ...(chart && chart.range !== rangeIn.value.trim() ? { header: undefined, catCol: undefined } : {}) });
@@ -55,14 +56,14 @@ export function openChartDialog(chart = null) {
   };
   for (const c of [type, rangeIn, by, title, legend.input]) c.addEventListener(c.tagName === 'SELECT' || c.type === 'checkbox' ? 'change' : 'input', paint);
   const body = el('div', { class: 'chart-dlg' },
-    el('div', { class: 'chart-form' }, ui.field('Type', type), ui.field('Data', rangeIn), ui.field('Series in', by), ui.field('Title', title), legend.el, msg),
+    el('div', { class: 'chart-form' }, ui.field(t('tables.chart.f_type'), type), ui.field(t('tables.chart.f_data'), rangeIn), ui.field(t('tables.chart.series_in'), by), ui.field(t('tables.chart.f_title'), title), legend.el, msg),
     preview);
   let out = null;
   return new Promise((res) => {
     ui.dialog({
-      title: chart ? 'Edit chart' : 'Insert chart', body, cls: 'chart-dialog',
-      buttons: [{ label: 'Cancel' }, {
-        label: chart ? 'Save' : 'Insert', primary: true,
+      title: t(chart ? 'tables.chart.edit' : 'tables.chart.insert'), body, cls: 'chart-dialog',
+      buttons: [{ label: t('menu.cancel') }, {
+        label: t(chart ? 'menu.save' : 'tables.chart.insert_btn'), primary: true,
         act: () => {
           const d = draft(), data = paint();
           if (data.error) { toast(data.error); return false; }

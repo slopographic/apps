@@ -25,8 +25,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#0e0e10">
   <meta name="color-scheme" content="dark light">
+  <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="html2pdf" data-src="shared/theme/theme.js"></script>
   <link rel="expect" href="#slop-built" blocking="render">
+  <script src="../shared/i18n/i18n.js" data-src="shared/i18n/i18n.js"></script>
+  <script src="i18n/index.js" data-src="html2pdf/i18n/index.js"></script>
   <link rel="icon" href="../favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="../shared/fonts/fonts.css">
   <link rel="stylesheet" href="../shared/slopui.css">
@@ -37,26 +40,26 @@
 <body>
   <div class="h2p-app">
     <div class="smb-hold" hidden>
-      <button type="button" class="sui-btn" id="h2p-open">Open HTML…</button>
+      <button type="button" class="sui-btn" id="h2p-open" data-i18n="html2pdf.app.open">Open HTML…</button>
     </div>
-    <span class="local-badge" title="The HTML is read and printed in this browser. Nothing is uploaded.">100% local</span>
+    <span class="local-badge" title="The HTML is read and printed in this browser. Nothing is uploaded." data-i18n-attr="title:html2pdf.app.local_tip" data-i18n="html2pdf.app.local">100% local</span>
 
     <!-- View · Panel (shared/frame): the preview, and the options with Print at the foot of the panel on the right -->
     <div class="h2p-main" id="h2p-main">
-      <aside class="h2p-side" id="h2p-side" aria-label="Options">
-        <button type="button" class="sui-btn sui-primary" id="h2p-print" disabled>Print or save as PDF…</button>
-        <section class="h2p-group" data-title="Source">
-          <p class="h2p-note">Remote images and fonts do not load. Images inside the file (data: and blob:) do. For pictures next to the file, attach them below by file name.</p>
-          <label class="h2p-field">Paste HTML
-            <textarea class="h2p-input" id="h2p-paste" rows="5" spellcheck="false" placeholder="<h1>Paste HTML here</h1>"></textarea>
+      <aside class="h2p-side" id="h2p-side" aria-label="Options" data-i18n-attr="aria-label:html2pdf.app.options">
+        <button type="button" class="sui-btn sui-primary" id="h2p-print" disabled data-i18n="html2pdf.app.print">Print or save as PDF…</button>
+        <section class="h2p-group" data-title="Source" data-key="html2pdf.group.source">
+          <p class="h2p-note" data-i18n="html2pdf.source.note">Remote images and fonts do not load. Images inside the file (data: and blob:) do. For pictures next to the file, attach them below by file name.</p>
+          <label class="h2p-field"><span data-i18n="html2pdf.source.paste">Paste HTML</span>
+            <textarea class="h2p-input" id="h2p-paste" rows="5" spellcheck="false" placeholder="<h1>Paste HTML here</h1>" data-i18n-attr="placeholder:html2pdf.source.paste_ph"></textarea>
           </label>
-          <button type="button" class="sui-btn" id="h2p-use-paste">Use pasted HTML</button>
-          <button type="button" class="sui-btn" id="h2p-images">Attach local images…</button>
+          <button type="button" class="sui-btn" id="h2p-use-paste" data-i18n="html2pdf.source.use_paste">Use pasted HTML</button>
+          <button type="button" class="sui-btn" id="h2p-images" data-i18n="html2pdf.source.attach">Attach local images…</button>
           <p class="h2p-note" id="h2p-image-list">No local images attached.</p>
         </section>
 
-        <section class="h2p-group" data-title="Paper">
-          <label class="h2p-field">Paper size
+        <section class="h2p-group" data-title="Paper" data-key="html2pdf.group.paper">
+          <label class="h2p-field"><span data-i18n="html2pdf.paper.size">Paper size</span>
             <select class="h2p-input" id="h2p-paper">
               <option value="A4" selected>A4</option>
               <option value="Letter">Letter</option>
@@ -64,35 +67,35 @@
               <option value="Legal">Legal</option>
             </select>
           </label>
-          <label class="h2p-field">Orientation
+          <label class="h2p-field"><span data-i18n="html2pdf.paper.orientation">Orientation</span>
             <select class="h2p-input" id="h2p-orient">
-              <option value="portrait" selected>Portrait</option>
-              <option value="landscape">Landscape</option>
+              <option value="portrait" selected data-i18n="html2pdf.paper.portrait">Portrait</option>
+              <option value="landscape" data-i18n="html2pdf.paper.landscape">Landscape</option>
             </select>
           </label>
-          <label class="h2p-field">Margins
+          <label class="h2p-field"><span data-i18n="html2pdf.paper.margins">Margins</span>
             <select class="h2p-input" id="h2p-margin">
-              <option value="normal" selected>Normal (15 mm)</option>
-              <option value="narrow">Narrow (6 mm)</option>
-              <option value="none">None</option>
+              <option value="normal" selected data-i18n="html2pdf.paper.normal">Normal (15 mm)</option>
+              <option value="narrow" data-i18n="html2pdf.paper.narrow">Narrow (6 mm)</option>
+              <option value="none" data-i18n="html2pdf.paper.none">None</option>
             </select>
           </label>
-          <label class="h2p-field">Scale
+          <label class="h2p-field"><span data-i18n="html2pdf.paper.scale">Scale</span>
             <select class="h2p-input" id="h2p-scale">
-              <option value="fit" selected>Fit to width</option>
-              <option value="100">100 percent</option>
+              <option value="fit" selected data-i18n="html2pdf.paper.fit">Fit to width</option>
+              <option value="100" data-i18n="html2pdf.paper.full">100 percent</option>
             </select>
           </label>
-          <label class="h2p-check"><input type="checkbox" id="h2p-bg"> Background graphics</label>
+          <label class="h2p-check"><input type="checkbox" id="h2p-bg"> <span data-i18n="html2pdf.paper.bg">Background graphics</span></label>
         </section>
 
-        <section class="h2p-group" data-title="Page header">
-          <label class="h2p-check"><input type="checkbox" id="h2p-header" checked> Show on every page</label>
-          <label class="h2p-field">QR code shows
+        <section class="h2p-group" data-title="Page header" data-key="html2pdf.group.header">
+          <label class="h2p-check"><input type="checkbox" id="h2p-header" checked> <span data-i18n="html2pdf.header.show">Show on every page</span></label>
+          <label class="h2p-field"><span data-i18n="html2pdf.header.qr">QR code shows</span>
             <select class="h2p-input" id="h2p-qr-mode">
-              <option value="file" selected>The file name</option>
-              <option value="url">A URL I type</option>
-              <option value="text">Custom text</option>
+              <option value="file" selected data-i18n="html2pdf.header.qr_file">The file name</option>
+              <option value="url" data-i18n="html2pdf.header.qr_url">A URL I type</option>
+              <option value="text" data-i18n="html2pdf.header.qr_text">Custom text</option>
             </select>
           </label>
           <label class="h2p-field"><span id="h2p-qr-label">Custom text</span>
@@ -101,14 +104,14 @@
         </section>
       </aside>
 
-      <main class="h2p-stage" id="h2p-stage" aria-label="Preview">
+      <main class="h2p-stage" id="h2p-stage" aria-label="Preview" data-i18n-attr="aria-label:html2pdf.app.preview">
         <div class="h2p-empty" id="h2p-empty">
-          <h2>Drop an HTML file here</h2>
-          <p>Or open one, or paste HTML under Source. The file is read in this browser and never uploaded.</p>
-          <button type="button" class="sui-btn sui-primary" id="h2p-open-empty">Open HTML…</button>
+          <h2 data-i18n="html2pdf.app.drop_title">Drop an HTML file here</h2>
+          <p data-i18n="html2pdf.app.drop_text">Or open one, or paste HTML under Source. The file is read in this browser and never uploaded.</p>
+          <button type="button" class="sui-btn sui-primary" id="h2p-open-empty" data-i18n="html2pdf.app.open">Open HTML…</button>
         </div>
         <div class="h2p-paper-box" id="h2p-paper-box" hidden>
-          <iframe class="h2p-paper" id="h2p-paper-frame" title="Print preview" sandbox="allow-same-origin"></iframe>
+          <iframe class="h2p-paper" id="h2p-paper-frame" title="Print preview" data-i18n-attr="title:html2pdf.app.preview_title" sandbox="allow-same-origin"></iframe>
         </div>
       </main>
     </div>
@@ -143,7 +146,7 @@
   <script src="../shared/spotlight/spotlight.js"></script>
 <link rel="stylesheet" href="../shared/menubar/menubar.css">
 <script src="../shared/menubar/menubar.js"></script>
-<script>SlopMenuBar.mount({"app": "HTML to PDF", "tools": ["#h2p-open"], "menus": {"File": ["#h2p-open", "#h2p-print"]}});</script>
+<script>SlopMenuBar.mount({"app": "HTML to PDF", "tools": ["#h2p-open"], "menus": {"File": () => ["#h2p-open", "#h2p-print"]}});</script>
   <script src="../shell/shell.js"></script>
 <i id="slop-built" hidden></i>
 </body>

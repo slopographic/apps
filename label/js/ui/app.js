@@ -18,7 +18,7 @@ Object.defineProperty(App, 'sel', {
   get: () => selIds,
   set(ids) { selIds = ids; if (App.doc && typeof markPropsOpen === 'function') markPropsOpen(); },
 });
-const THEMES = [['pro', 'Pro (dark)'], ['light', 'Light'], ['classic', 'Classic 98']];
+const THEMES = [['pro', 'label.app.pro_dark'], ['light', 'label.app.light'], ['classic', 'label.app.classic_98']]; // keys (LT at use)
 
 /* ---------------- document access ---------------- */
 function previewGet() { return previewResolver(App.doc, App.rec, App.prompts); }
@@ -49,17 +49,17 @@ function selectAll() { App.sel = App.doc.objects.filter((o) => !o.locked && !o.h
 function deselect() { if (App.sel.length) { App.sel = []; refresh(); } }
 
 /* ---------------- history ---------------- */
-function commit(label = 'Edit', coalesce = '', opts = {}) {
+function commit(label = LT('label.cmd.edit'), coalesce = '', opts = {}) {
   if (App.hist.push(App.doc, label, coalesce)) { App.dirty = true; tabChanged(); }
   refresh(opts);
 }
 /** Mutate the selected objects, re-fit auto-sized ones and commit. */
-function editSel(fn, label = 'Edit', coalesce = '', opts = {}) {
+function editSel(fn, label = LT('label.cmd.edit'), coalesce = '', opts = {}) {
   const get = previewGet();
   for (const o of selObjs()) { fn(o); syncAutoSize(App.doc, o, get); }
   commit(label, coalesce, opts);
 }
-function editDoc(fn, label = 'Edit', coalesce = '', opts = {}) { fn(App.doc); commit(label, coalesce, opts); }
+function editDoc(fn, label = LT('label.cmd.edit'), coalesce = '', opts = {}) { fn(App.doc); commit(label, coalesce, opts); }
 function restore(d) {
   App.doc = d;
   App.sel = App.sel.filter((id) => objById(id));
@@ -67,10 +67,10 @@ function restore(d) {
   tabChanged();
   refresh();
 }
-function undo() { const d = App.hist.undo(App.doc); if (d) { restore(d); status('Undo ' + App.hist.redoLabel); } }
-function redo() { const d = App.hist.redo(App.doc); if (d) { restore(d); status('Redo ' + App.hist.undoLabel); } }
+function undo() { const d = App.hist.undo(App.doc); if (d) { restore(d); status(LT('ui.undo_what', { what: App.hist.redoLabel })); } }
+function redo() { const d = App.hist.redo(App.doc); if (d) { restore(d); status(LT('ui.redo_what', { what: App.hist.undoLabel })); } }
 /** Replace the document of the current tab (config import, the starter label). New labels open in a new tab: openDocTab. */
-function setDoc(doc, label = 'Open') {
+function setDoc(doc, label = LT('label.form.open')) {
   App.doc = normalizeDoc(doc);
   App.hist = new History(); App.hist.reset(App.doc, label);
   App.sel = []; App.rec = 0; App.prompts = {}; App.dirty = false; App.driveId = null; // a new label is no longer linked to a Drive file
@@ -82,7 +82,7 @@ function setDoc(doc, label = 'Open') {
 }
 
 /* ---------------- add / remove objects ---------------- */
-function addObject(o, label = 'Add ' + (TYPE_NAMES[o.type] || o.type)) {
+function addObject(o, label = LT('label.undo.add', { what: LW('type', o.type, TYPE_NAMES[o.type] || o.type) })) {
   App.doc.objects.push(o);
   syncAutoSize(App.doc, o, previewGet());
   App.sel = [o.id];
@@ -96,7 +96,7 @@ function deleteSel() {
   App.doc.objects = App.doc.objects.filter((o) => !ids.has(o.id));
   App.sel = [];
   pruneAssets(App.doc);
-  commit(ids.size > 1 ? `Delete ${ids.size} objects` : 'Delete');
+  commit(ids.size > 1 ? LT('label.undo.delete_n', { n: ids.size }) : LT('ui.delete'));
 }
 function duplicateSel(dx = 2, dy = 2) {
   const src = selObjs(); if (!src.length) return;
@@ -108,7 +108,7 @@ function duplicateSel(dx = 2, dy = 2) {
   }
   App.doc.objects.push(...out);
   App.sel = out.map((o) => o.id);
-  commit(out.length > 1 ? 'Duplicate objects' : 'Duplicate');
+  commit(out.length > 1 ? LT('label.app.duplicate_objects') : LT('label.cmd.duplicate'));
 }
 
 /* ---------------- refresh scheduling ---------------- */
@@ -131,12 +131,12 @@ function updateChrome() {
   $('recNav').hidden = !n;
   if (n) $('recInfo').textContent = `${App.rec + 1} / ${n}`;
   $('btnUndo').disabled = !App.hist.canUndo; $('btnRedo').disabled = !App.hist.canRedo;
-  $('btnUndo').title = App.hist.canUndo ? 'Undo ' + App.hist.undoLabel + ' (Ctrl+Z)' : 'Undo';
+  $('btnUndo').title = App.hist.canUndo ? LT('ui.undo_what', { what: App.hist.undoLabel }) + ' (Ctrl+Z)' : LT('label.cmd.undo');
   $('zoomVal').textContent = Math.round((App.zoom / (96 / 25.4)) * 100) + '%';
   const errs = sceneErrors(App.scene), warns = App.scene.filter((i) => i.warn).length;
-  if (errs.length) status(errs[0] + (errs.length > 1 ? ` (+${errs.length - 1} more)` : ''), 'err');
-  else if (warns) status(`${warns} text object${warns > 1 ? 's do' : ' does'} not fit ${warns > 1 ? 'their boxes' : 'its box'}`, 'warn');
-  else if (statusSticky < Date.now()) status(`${d.objects.length} object${d.objects.length === 1 ? '' : 's'}${App.sel.length ? ` · ${App.sel.length} selected` : ''}${n ? ` · ${n} records` : ''}`);
+  if (errs.length) status(errs[0] + (errs.length > 1 ? ' ' + LT('label.st.more', { n: errs.length - 1 }) : ''), 'err');
+  else if (warns) status(LT('label.st.no_fit', { n: warns }), 'warn');
+  else if (statusSticky < Date.now()) status(LT('label.st.objects', { n: d.objects.length }) + (App.sel.length ? ' · ' + LT('label.st.selected', { n: App.sel.length }) : '') + (n ? ' · ' + LT('label.st.records', { n }) : ''));
 }
 let statusSticky = 0;
 function status(msg, cls = '', sticky = 0) {
@@ -167,7 +167,7 @@ const narrow = () => matchMedia('(max-width: 760px)').matches;
 /** Phones: the dock is a bottom sheet. SlopSheet (shared/ui/sheet.js) does the Panels button, the ×, Escape, a tap
  * outside and the swipe down; on a wide screen the dock stays in its column. */
 function wireDock() {
-  App.sheet = SlopSheet.attach({ root: $('app'), panel: $('dock'), phone: '(max-width: 760px)', toggles: [$('btnDock')], label: 'Panels',
+  App.sheet = SlopSheet.attach({ root: $('app'), panel: $('dock'), phone: '(max-width: 760px)', toggles: [$('btnDock')], label: LT('label.boot.panels'),
     onChange: (open) => { if (open) renderPanels(); } });
 }
 function showDock(tab, open = true) {

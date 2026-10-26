@@ -15,9 +15,10 @@
   'use strict';
   const K = (window.SlopAIKit = window.SlopAIKit || {});
   const G = K.imageGen;
-  const PERMISSION = { kind: 'spend-image', title: 'Spend on image generation' };
+  const T = (k, v) => (window.SlopI18n ? SlopI18n.t(k, v) : k);
+  const PERMISSION = { kind: 'spend-image', get title() { return T('ui.ai.img.spend'); } };   // the question's title, read when asked
   const TARGETS = ['layer', 'document', 'drive'];
-  const money = (c) => (c == null ? '' : c === 0 ? 'free' : c < 0.005 ? 'less than $0.01' : 'about $' + c.toFixed(2));
+  const money = (c) => (c == null ? '' : c === 0 ? T('ui.ai.img.free') : c < 0.005 ? T('ui.ai.cloud.money_lt') : T('ui.ai.cloud.money_about', { amount: (window.SlopI18n ? SlopI18n.num(c, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : c.toFixed(2)) }));
   const short = (s, n = 48) => { s = String(s || '').replace(/\s+/g, ' ').trim(); return s.length > n ? s.slice(0, n - 1) + '…' : s; };
   const fileName = (prompt, i, n) => 'ai-' + (short(prompt, 40).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'picture') + (n > 1 ? '-' + (i + 1) : '') + '.png';
 
@@ -32,25 +33,23 @@
   function describe(r) {
     const p = G.byId(r.provider);
     if (!p) return null;
-    const m = G.model(p.id, r.model) || { name: r.model || 'its default model' }, est = G.estimate(r);
+    const m = G.model(p.id, r.model) || { name: r.model || T('ui.ai.img.default_model') }, est = G.estimate(r);
     const px = p.format === 'openai' && !r.edit ? G.size(r.aspect, r.resolution) : null;
-    const size = r.edit ? (r.image ? `${r.image.width} × ${r.image.height} px` : 'the picture’s own shape') : px ? `${px.w} × ${px.h} px` : `${r.aspect}, ${r.resolution}`;
-    const price = est.perImage != null ? `${money(est.perImage)} per picture${est.exact ? '' : ' (estimate)'}` : `price not known before (${est.note})`;
+    const size = r.edit ? (r.image ? `${r.image.width} × ${r.image.height} px` : T('ui.ai.img.own_shape')) : px ? `${px.w} × ${px.h} px` : `${r.aspect}, ${r.resolution}`;
+    const price = est.perImage != null ? T('ui.ai.img.per_picture', { each: money(est.perImage) }) + (est.exact ? '' : ' ' + T('ui.ai.img.estimate')) : T('ui.ai.img.price_before', { why: est.note });
     return { p, m, size, price, est };
   }
   function confirmText(r, sourceWords) {
     const d = describe(r);
-    if (!d) return 'No picture provider is connected.';
-    const what = `${r.n} picture${r.n > 1 ? 's' : ''} with ${d.p.short} (${d.m.name || d.m.id}, ${d.size}): ${d.price}.`;
-    const sent = `The prompt${sourceWords ? ' and ' + sourceWords + ' go' : ' goes'} to ${d.p.who}`;
-    const goes = d.p.local ? `${sent}; nothing leaves this computer.`
-      : `${sent}, which makes the picture and charges your account. ${d.p.who}’s terms and content rules apply.`;
-    return `${r.edit ? 'Edit' : 'Make'} ${what} ${goes}`;
+    if (!d) return T('ui.ai.img.none_short');
+    const v = { n: r.n, name: d.p.short, model: d.m.name || d.m.id, size: d.size, price: d.price, who: d.p.who };
+    const what = T(r.edit ? 'ui.ai.img.ask_edit' : 'ui.ai.img.ask_make', v);
+    return `${what} ${T((sourceWords ? 'ui.ai.img.goes_copy' : 'ui.ai.img.goes') + (d.p.local ? '_local' : ''), v)}`;
   }
 
   async function deliver(images, { target, name = 'AI picture', sink = window.SlopImageSink, hub = window.SlopHub, prompt = '' } = {}) {
     if (sink && target !== 'drive' && (sink.targets || TARGETS).includes(target)) return sink.place(images, { target, name });
-    if (!hub || !hub.put) throw new Error('Slop Drive is not available on this page, so the picture has nowhere to go.');
+    if (!hub || !hub.put) throw new Error(T('ui.ai.img.no_drive'));
     const names = [];
     for (let i = 0; i < images.length; i++) { const n = fileName(prompt || name, i, images.length); await hub.put(images[i].blob, { name: n, from: 'ai' }); names.push(n); }
     return `Saved ${names.map((n) => `“${n}”`).join(', ')} to Slop Drive. Any app opens ${names.length > 1 ? 'them' : 'it'} from there (open_app with the file name).`;
@@ -60,9 +59,9 @@
   async function source(file, env) {
     const sink = env.sink !== undefined ? env.sink : window.SlopImageSink;
     if (sink && sink.source && (!file || /^(open|current|layer|selection|this)$/i.test(String(file)))) return sink.source();
-    if (!file) throw new Error('Say which picture to edit: a Slop Drive file name.');
+    if (!file) throw new Error(T('ui.ai.img.which_file'));
     const f = await K.appTools.findFile(env.hub !== undefined ? env.hub : window.SlopHub, file);
-    if (!/^image\//.test(f.type || f.blob.type || '')) throw new Error(`${f.name} is not a picture.`);
+    if (!/^image\//.test(f.type || f.blob.type || '')) throw new Error(T('ui.ai.img.not_picture', { name: f.name }));
     return { canvas: await createImageBitmap(f.blob), selection: null, name: f.name };
   }
 
@@ -86,8 +85,8 @@
       // before() has found the provider (a key added after the panel opened counts too), so the price can be shown.
       before: async () => { if (!G.current || !G.byId(G.current.provider)) await G.choose(); },
       confirmTitle: () => PERMISSION.title + '?',
-      confirmText: (a) => confirmText(request(a, edit), edit ? 'a copy of the picture (at most 1536 px)' : ''),
-      label: (a) => `${edit ? 'Edit picture' : 'Make a picture'}: ${short(a.prompt, 40)}`,
+      confirmText: (a) => confirmText(request(a, edit), edit),
+      label: (a) => T(edit ? 'ui.ai.img.step_edit' : 'ui.ai.img.step_make', { prompt: short(a.prompt, 40) }),
       run: async (a, runEnv = {}) => {
         if (!G.current || !G.byId(G.current.provider)) await G.choose();
         const r = request(a, edit);
@@ -124,7 +123,7 @@
     }
     return back;
   };
-  G.noneText = () => 'No picture provider is connected. The chat models cannot draw; pictures need an image model. Add an OpenAI, Gemini or OpenRouter key in the AI panel (click the model name at its top, then “Use your own AI account”), then ask again.';
+  G.noneText = () => T('ui.ai.img.none_text');
 
   function build(env = {}) {
     if (G.choose) G.choose().catch(() => null);   // a key added since: offered from the next request on

@@ -59,21 +59,21 @@
     var dock = document.getElementById('dock');
     // Phones: the dock is a drawer from the right. SlopSheet (shared/ui/sheet.js) does the Panels button, the ×, Escape, a
     // tap outside and the swipe.
-    UI.dockSheet = SlopSheet.attach({ root: document.getElementById('app'), panel: dock, side: 'end', phone: '(max-width: 899px)', toggles: [document.getElementById('panelsToggle')], label: 'Panels' });
+    UI.dockSheet = SlopSheet.attach({ root: document.getElementById('app'), panel: dock, side: 'end', phone: '(max-width: 899px)', toggles: [document.getElementById('panelsToggle')], label: SV.t('vector.dock.panels') });
     GROUPS.forEach(function (g) {
       var ge = h('section', { class: 'dock-group dg-' + g.id, id: 'dg-' + g.id });
       var tabs = h('div', { class: 'dock-tabs', role: 'tablist' });
       g.panels.forEach(function (p) {
-        var t = h('button', { type: 'button', class: 'dock-tab', role: 'tab', 'data-tab': p, text: PANEL_NAMES[p] });
+        var t = h('button', { type: 'button', class: 'dock-tab', role: 'tab', 'data-tab': p, i18n: { text: PANEL_NAMES[p] } });
         t.addEventListener('click', function () { UI.st.activeTabs[g.id] = p; UI.st.collapsed[g.id] = false; savePrefs(); applyDock(); });
         t.addEventListener('dblclick', function () { UI.setGroupCollapsed(g.id, true); });
         tabs.appendChild(t);
       });
       tabs.appendChild(h('span', { class: 'grow' }));
-      tabs.appendChild(h('button', { type: 'button', class: 'dock-collapse', title: 'Collapse', 'aria-label': 'Collapse panel group', html: '<svg viewBox="0 0 12 12"><path d="M3 4.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>', onclick: function () { UI.setGroupCollapsed(g.id, !UI.st.collapsed[g.id]); } }));
+      tabs.appendChild(h('button', { type: 'button', class: 'dock-collapse', i18n: { title: 'vector.dock.collapse', 'aria-label': 'vector.dock.collapse_group' }, html: '<svg viewBox="0 0 12 12"><path d="M3 4.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>', onclick: function () { UI.setGroupCollapsed(g.id, !UI.st.collapsed[g.id]); } }));
       ge.appendChild(tabs);
       g.panels.forEach(function (p) {
-        var body = h('div', { class: 'panel-body panel-' + p, role: 'tabpanel', 'aria-label': PANEL_NAMES[p] });
+        var body = h('div', { class: 'panel-body panel-' + p, role: 'tabpanel', i18n: { 'aria-label': PANEL_NAMES[p] } });
         panelEls[p] = { body: body };
         ge.appendChild(body);
       });
@@ -84,9 +84,12 @@
     // the dock (the shared footer, shared/frame/panel.js).
     if (window.SlopFramePanel) {
       var EXPORTS = ['file.exportSVG', 'file.exportPNG', 'file.exportJPG', 'file.exportPDF', 'file.exportAI', 'file.exportBuffer'];
-      SlopFramePanel.create(dock, { bare: true }).footer([{ id: 'dockExport', label: 'Export', primary: true, title: 'Export the document',
-        menu: function () { return EXPORTS.map(function (id) { var a = SV.actions[id]; return a && { label: a.label, act: function () { a.run(); } }; }).filter(Boolean); } }],
-      { more: 'Panels', onMore: function () { UI.dockSheet.toggle(); } });
+      var frame = SlopFramePanel.create(dock, { bare: true });
+      SV.live(function () {   // footer() redraws only the footer, in the current language
+        frame.footer([{ id: 'dockExport', label: SV.t('menu.export'), primary: true, title: SV.t('vector.dock.export_tip'),
+          menu: function () { return EXPORTS.map(function (id) { var a = SV.actions[id]; return a && { label: a.label, act: function () { a.run(); } }; }).filter(Boolean); } }],
+        { more: SV.t('vector.dock.panels'), onMore: function () { UI.dockSheet.toggle(); } });
+      });
     }
     applyDock();
   }

@@ -13,15 +13,15 @@
   const ui = () => window.SlopDocs;
 
   const SECTION = C ? C.F.obj({
-    size: C.F.enum(SIZES, { required: true, desc: 'paper size' }),
-    orient: C.F.enum(['portrait', 'landscape'], { required: true, desc: 'page orientation' }),
+    size: C.F.enum(SIZES, { required: true, desc: 'paper size' }), // i18n-ignore: config schema and sample content (API)
+    orient: C.F.enum(['portrait', 'landscape'], { required: true, desc: 'page orientation' }), // i18n-ignore: config schema and sample content (API)
     margin: C.F.obj({
-      top: C.F.num({ min: 0, max: 300, desc: 'top margin in points (72 is one inch)' }),
-      right: C.F.num({ min: 0, max: 300, desc: 'right margin in points' }),
-      bottom: C.F.num({ min: 0, max: 300, desc: 'bottom margin in points' }),
-      left: C.F.num({ min: 0, max: 300, desc: 'left margin in points' }),
-    }, { desc: 'page margins' }),
-  }, { required: true, desc: 'page setup' }) : null;
+      top: C.F.num({ min: 0, max: 300, desc: 'top margin in points (72 is one inch)' }), // i18n-ignore: config schema and sample content (API)
+      right: C.F.num({ min: 0, max: 300, desc: 'right margin in points' }), // i18n-ignore: config schema and sample content (API)
+      bottom: C.F.num({ min: 0, max: 300, desc: 'bottom margin in points' }), // i18n-ignore: config schema and sample content (API)
+      left: C.F.num({ min: 0, max: 300, desc: 'left margin in points' }), // i18n-ignore: config schema and sample content (API)
+    }, { desc: 'page margins' }), // i18n-ignore: config schema and sample content (API)
+  }, { required: true, desc: 'page setup' }) : null; // i18n-ignore: config schema and sample content (API)
 
   /** The document as file data. Tables with more rows or columns than the format allows are refused by name. */
   function docData(doc) {
@@ -68,7 +68,7 @@
   async function apply(data, ctx) {
     const doc = docFrom(data);
     const S = ui();
-    if (S && S.confirmDiscard && !(await S.confirmDiscard())) return { ok: false, message: 'the open document was kept' };
+    if (S && S.confirmDiscard && !(await S.confirmDiscard())) return { ok: false, message: 'the open document was kept' }; // i18n-ignore: config schema and sample content (API)
     S.setDoc(engine().M.normalizeDoc(doc), { file: { id: null, name: ctx.name, dirty: true } });
   }
 
@@ -79,21 +79,21 @@
         section: SECTION,
         blocks: C.F.list(C.F.obj({
           type: C.F.enum(['p', 'table'], { required: true, desc: 'p: a paragraph; table: a table of cell text' }),
-          style: C.F.enum(STYLES, { desc: 'paragraph style: Normal, Title, Subtitle, H1 to H6, Quote, Code, List' }),
-          align: C.F.enum(['left', 'center', 'right', 'justify'], { desc: 'alignment of a paragraph' }),
-          text: C.F.text({ desc: 'the words of a paragraph' }),
+          style: C.F.enum(STYLES, { desc: 'paragraph style: Normal, Title, Subtitle, H1 to H6, Quote, Code, List' }), // i18n-ignore: config schema and sample content (API)
+          align: C.F.enum(['left', 'center', 'right', 'justify'], { desc: 'alignment of a paragraph' }), // i18n-ignore: config schema and sample content (API)
+          text: C.F.text({ desc: 'the words of a paragraph' }), // i18n-ignore: config schema and sample content (API)
           rows: C.F.list(C.F.list(C.F.text({}), { max: MAX_COLS }), { max: MAX_ROWS, desc: 'table rows; each row is a list of cell texts' }),
-        }), { required: true, max: 2000, desc: 'the content, in order' }),
+        }), { required: true, max: 2000, desc: 'the content, in order' }), // i18n-ignore: config schema and sample content (API)
       },
     }, apply, {
-      label: 'Document', description: 'Page setup, paragraphs in their styles, and tables with their text',
+      label: 'Document', description: 'Page setup, paragraphs in their styles, and tables with their text', // i18n-ignore: config schema and sample content (API)
       read: () => docData(ui().doc),
     });
     const example = { kind: 'document', value: { section: { size: 'Letter', orient: 'portrait', margin: { top: 72, right: 72, bottom: 72, left: 72 } },
-      blocks: [{ type: 'p', style: 'Title', text: 'Document title' }, { type: 'p', style: 'Normal', text: 'Replace this with your text.' }] } };
+      blocks: [{ type: 'p', style: 'Title', text: 'Document title' }, { type: 'p', style: 'Normal', text: 'Replace this with your text.' }] } }; // i18n-ignore: config schema and sample content (API)
     window.SlopDocsConfig = {
       commands: () => D.commands({ app: APP, prefix: 'docs', example }),
-      menu: () => ({ label: 'Config', sub: D.menuItems({ app: APP, example }) }),
+      menu: () => ({ label: window.SlopI18n ? SlopI18n.t('docs.menu.config') : 'Config', sub: D.menuItems({ app: APP, example }) }),
     };
     D.install({ app: APP, dragover: true });
   }

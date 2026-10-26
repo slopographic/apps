@@ -47,14 +47,14 @@ function message(e, first, o) {
   if (!lines.some((l) => l.trim())) out.push(p([{ text: '(This message has no text body.)', i: true, color: GREY }]));
   else for (const l of lines) out.push(p([{ text: l.replace(/\t/g, '    ') }], { after: 0, line: 1.2 }));
   if (o.list !== false && e.atts.length) {
-    out.push(p([{ text: 'Attachments (' + e.atts.length + ')' }], { before: 14 }, 'H3'));
+    out.push(p([{ text: 'Attachments (' + e.atts.length + ')' }], { before: 14 }, 'H3'));   // i18n-ignore: text in the PDF
     for (const a of e.atts) {
       out.push(p([{ text: '• ' + a.name, size: 10 }, { text: '  ' + (a.type || 'file') + ', ' + size(a.size || 0) + (a.note ? ' · ' + a.note : ''), size: 9, color: GREY }],
         { after: 1, indL: 10, indF: -10 }));
     }
   }
   for (const im of e.images || []) {
-    out.push(p([{ text: 'Attachment: ' + im.name, size: 9, color: GREY }], { pageBreakBefore: true, keepNext: true, after: 6 }));
+    out.push(p([{ text: 'Attachment: ' + im.name, size: 9, color: GREY }], { pageBreakBefore: true, keepNext: true, after: 6 }));   // i18n-ignore: text in the PDF
     const k = Math.min(1, BODY / im.w, (BODY_H - 40) / im.h);
     out.push(p([{ text: OBJ, obj: 'img', src: im.src, w: Math.max(1, Math.round(im.w * k)), h: Math.max(1, Math.round(im.h * k)), alt: im.name }], { after: 0 }));
   }

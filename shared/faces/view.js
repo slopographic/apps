@@ -8,6 +8,7 @@
  * destroy }. Classic script; adds to window.SlopFaces.view. Needs overlay.js (drawBoxes) for the boxes. */
 (function (g) {
   'use strict';
+  const tr = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);   // words: shared/i18n/ui/<code>/preview.js
   const F = (g.SlopFaces = g.SlopFaces || {});
   const V = (F.view = F.view || {});
   const MODES = ['off', 'count', 'boxes'];
@@ -70,13 +71,13 @@
       if (gone || !host || !faces.length || !V.shown(scope, id) || V.mode() === 'off') return;
       if (F.drawBoxes) undraw = F.drawBoxes(host, faces);
     };
-    const label = (n) => (n === 1 ? '1 face' : `${n} faces`);
+    const label = (n) => tr('ui.faces.faces_n', { n });
     function paintBadge() {
       if (!badge) return;
       const on = V.shown(scope, id);
       badge.textContent = label(faces.length);
       badge.setAttribute('aria-pressed', on ? 'true' : 'false');
-      badge.title = on ? 'Hide the face boxes on this photo' : 'Show the face boxes on this photo';
+      badge.title = tr(on ? 'ui.faces.hide_boxes' : 'ui.faces.show_boxes');
       badge.classList.toggle('on', on);
     }
     const onMode = () => { if (badge && V.mode() === 'off') { badge.remove(); badge = null; } else if (!badge && opts.badgeHost && faces.length && V.mode() !== 'off') mountBadge(); clearOrDraw(); };

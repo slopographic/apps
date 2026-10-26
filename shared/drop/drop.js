@@ -40,7 +40,8 @@
    *   files?(dataTransfer, event) → File[] (or a Promise): the files of a drop, read inside the drop event (folders).
    *   mode?(event) → 'add' | 'new' | null and data?(event): what the drop's own place decides (a zone it landed on).
    *   targets?, input?, overlay?, window?, label?, hint?, toast?, multiple?, compact?, quiet?, preview?, sample?: the
-   *     zone's look and where it takes drops (see shared/drop/HANDOFF.md).
+   *     zone's look and where it takes drops (see shared/drop/HANDOFF.md). The words (label, hint, chooseLabel,
+   *     preview.steps[i], preview.picture.alt, sample.label) may be i18n keys: translated, and again on a language change.
    *  Returns { id, choose(), run(files, at), sample(), empty(v), destroy() }. */
   SD.attach = function (zone, o) {
     if (!zone) return null; // the page has no drop zone: nothing to attach, and no error
@@ -67,7 +68,7 @@
     // A strip whose drops land on a bigger area (the app's targets) is not a second place to add files: at rest it is
     // hidden (.sd-quiet), and it shows only while files are added or a result is shown. quiet: false keeps it on view.
     if (o.compact && o.window !== false && o.quiet !== false && listed.some((t) => t !== zone)) zone.classList.add('sd-quiet');
-    const ui = PN.build(zone, { label: o.label, hint: o.hint || rules().hint, compact: o.compact, preview: o.preview, sample: o.sample });
+    const ui = PN.build(zone, { label: o.label, hint: o.hint || rules().hint, chooseLabel: o.chooseLabel, compact: o.compact, preview: o.preview, sample: o.sample });
     const input = o.input || doc.createElement('input');
     input.type = 'file';
     input.multiple = o.multiple != null ? o.multiple !== false : spec().limit !== 1;
@@ -196,6 +197,7 @@
           t.removeEventListener('drop', onTargetDrop);
         }
         input.removeEventListener('change', onPick);
+        ui.off();
         offView();
         if (unregister) unregister();
         hide();

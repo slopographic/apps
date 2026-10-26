@@ -41,11 +41,11 @@
   B.run = async function (label, items, fn) {
     let ok = 0;
     for (let i = 0; i < items.length; i++) {
-      CO.emit('busy', { on: true, msg: `${label} ${i + 1} of ${items.length}`, progress: i / items.length });
+      CO.emit('busy', { on: true, msg: CO.util.t('cutout.act.progress', { what: label, i: i + 1, n: items.length }), progress: i / items.length });
       try { await fn(items[i], i); ok++; } catch (e) { CO.emit('toast', `${items[i].name}: ${e.message || e}`); }
     }
     CO.emit('busy', { on: false });
-    CO.emit('toast', `${label}: ${ok} of ${items.length} done`);
+    CO.emit('toast', CO.util.t('cutout.act.done_n', { what: label, ok, n: items.length }));
     return ok;
   };
 

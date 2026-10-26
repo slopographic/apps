@@ -32,9 +32,9 @@
   I.relsOf = function (files, part) {
     var dir = part.replace(/[^/]*$/, ''), map = {};
     var root = I.xml(files, dir + '_rels/' + part.slice(dir.length) + '.rels');
-    I.lib.kids(root, I.lib.NS.rel, 'Relationship').forEach(function (r) {
-      var ext = I.att(r, 'TargetMode') === 'External', t = I.att(r, 'Target') || '';
-      map[I.att(r, 'Id')] = { type: String(I.att(r, 'Type') || '').replace(/^.*\//, ''), target: ext ? t : I.resolve(dir, t), external: ext };
+    I.lib.kids(root, I.lib.NS.rel, 'Relationship').forEach(function (r) { // i18n-ignore
+      var ext = I.att(r, 'TargetMode') === 'External', t = I.att(r, 'Target') || ''; // i18n-ignore
+      map[I.att(r, 'Id')] = { type: String(I.att(r, 'Type') || '').replace(/^.*\//, ''), target: ext ? t : I.resolve(dir, t), external: ext }; // i18n-ignore
     });
     return map;
   };

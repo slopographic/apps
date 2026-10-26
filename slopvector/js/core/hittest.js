@@ -165,7 +165,7 @@
   /* ================= misc doc ops used by tools ================= */
   SV.insertObj = function (o, layer, opts) {
     layer = layer || activeLayer();
-    if (layer.locked || layer.hidden) { SV.toast('Layer “' + layer.name + '” is ' + (layer.locked ? 'locked' : 'hidden') + ' — unlock it or pick another layer', 'warn'); return false; }
+    if (layer.locked || layer.hidden) { SV.toast(layer.locked ? SV.t('vector.msg.layer_locked', { name: layer.name }) : SV.t('vector.msg.layer_hidden', { name: layer.name }), 'warn'); return false; }
     if (opts && opts.index != null) layer.children.splice(opts.index, 0, o); else layer.children.push(o);
     return true;
   };
@@ -179,7 +179,7 @@
   SV.replaceObj = function (id, o) { var f = find(id); if (f) f.arr[f.idx] = o; };
   SV.canDraw = function () {
     var L = activeLayer();
-    if (L.locked || L.hidden) { SV.toast('Layer “' + L.name + '” is ' + (L.locked ? 'locked' : 'hidden') + ' — unlock it or pick another layer', 'warn'); return false; }
+    if (L.locked || L.hidden) { SV.toast(L.locked ? SV.t('vector.msg.layer_locked', { name: L.name }) : SV.t('vector.msg.layer_hidden', { name: L.name }), 'warn'); return false; }
     return true;
   };
   SV.newStyle = function (kind) {

@@ -19,25 +19,25 @@ export function sheetXml(rows) {
 
 export async function rowsToXlsx(rows) {
   const parts = [
-    { path: '[Content_Types].xml', data: doc(x('Types', { xmlns: NS.ct }, [
-      x('Default', { Extension: 'rels', ContentType: 'application/vnd.openxmlformats-package.relationships+xml' }),
-      x('Default', { Extension: 'xml', ContentType: 'application/xml' }),
-      x('Override', { PartName: '/xl/workbook.xml', ContentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml' }),
-      x('Override', { PartName: '/xl/worksheets/sheet1.xml', ContentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml' }),
-      x('Override', { PartName: '/xl/styles.xml', ContentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml' }),
+    { path: '[Content_Types].xml', data: doc(x('Types', { xmlns: NS.ct }, [ // i18n-ignore: XLSX package XML and names
+      x('Default', { Extension: 'rels', ContentType: 'application/vnd.openxmlformats-package.relationships+xml' }), // i18n-ignore: XLSX package XML and names
+      x('Default', { Extension: 'xml', ContentType: 'application/xml' }), // i18n-ignore: XLSX package XML and names
+      x('Override', { PartName: '/xl/workbook.xml', ContentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml' }), // i18n-ignore: XLSX package XML and names
+      x('Override', { PartName: '/xl/worksheets/sheet1.xml', ContentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml' }), // i18n-ignore: XLSX package XML and names
+      x('Override', { PartName: '/xl/styles.xml', ContentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml' }), // i18n-ignore: XLSX package XML and names
     ])) },
-    { path: '_rels/.rels', data: doc(x('Relationships', { xmlns: NS.rel }, [
-      x('Relationship', { Id: 'rId1', Type: `${NS.r}/officeDocument`, Target: 'xl/workbook.xml' }),
+    { path: '_rels/.rels', data: doc(x('Relationships', { xmlns: NS.rel }, [ // i18n-ignore: XLSX package XML and names
+      x('Relationship', { Id: 'rId1', Type: `${NS.r}/officeDocument`, Target: 'xl/workbook.xml' }), // i18n-ignore: XLSX package XML and names
     ])) },
     { path: 'xl/workbook.xml', data: doc(x('workbook', { xmlns: NS.s, 'xmlns:r': NS.r }, [
-      x('sheets', null, [x('sheet', { name: 'Sheet1', sheetId: 1, 'r:id': 'rId1' })]),
+      x('sheets', null, [x('sheet', { name: 'Sheet1', sheetId: 1, 'r:id': 'rId1' })]), // i18n-ignore: XLSX package XML and names
     ])) },
-    { path: 'xl/_rels/workbook.xml.rels', data: doc(x('Relationships', { xmlns: NS.rel }, [
-      x('Relationship', { Id: 'rId1', Type: `${NS.r}/worksheet`, Target: 'worksheets/sheet1.xml' }),
-      x('Relationship', { Id: 'rId2', Type: `${NS.r}/styles`, Target: 'styles.xml' }),
+    { path: 'xl/_rels/workbook.xml.rels', data: doc(x('Relationships', { xmlns: NS.rel }, [ // i18n-ignore: XLSX package XML and names
+      x('Relationship', { Id: 'rId1', Type: `${NS.r}/worksheet`, Target: 'worksheets/sheet1.xml' }), // i18n-ignore: XLSX package XML and names
+      x('Relationship', { Id: 'rId2', Type: `${NS.r}/styles`, Target: 'styles.xml' }), // i18n-ignore: XLSX package XML and names
     ])) },
     { path: 'xl/styles.xml', data: doc(x('styleSheet', { xmlns: NS.s }, [
-      x('fonts', { count: 1 }, [x('font', null, [x('sz', { val: 11 }), x('name', { val: 'Calibri' })])]),
+      x('fonts', { count: 1 }, [x('font', null, [x('sz', { val: 11 }), x('name', { val: 'Calibri' })])]), // i18n-ignore: XLSX package XML and names
       x('fills', { count: 2 }, [x('fill', null, [x('patternFill', { patternType: 'none' })]), x('fill', null, [x('patternFill', { patternType: 'gray125' })])]),
       x('borders', { count: 1 }, [x('border', null, [x('left'), x('right'), x('top'), x('bottom'), x('diagonal')])]),
       x('cellStyleXfs', { count: 1 }, [x('xf', { numFmtId: 0, fontId: 0, fillId: 0, borderId: 0 })]),

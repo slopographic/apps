@@ -4,6 +4,8 @@
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="qr" data-src="shared/theme/theme.js"></script>
   <link rel="expect" href="#slop-built" blocking="render">
+  <script src="../shared/i18n/i18n.js" data-src="shared/i18n/i18n.js"></script>
+  <script src="i18n/index.js" data-src="qr/i18n/index.js"></script>
 <script src="../shared/consent/config.js"></script>
 <script src="../shared/consent/state.js"></script>
 <script src="../shared/consent/consent-mode.js"></script>
@@ -87,8 +89,8 @@
 
     <!-- View · Panel (shared/frame): the live preview, and the editor with PNG at the panel's foot on the right -->
     <div class="qr-work" id="qr-work">
-      <aside class="qr-left" id="qr-edit" aria-label="Edit the code">
-        <div class="qr-tabs" role="tablist" aria-label="Edit sections" id="qr-tabs">
+      <aside class="qr-left" id="qr-edit" aria-label="Edit the code" data-i18n-attr="aria-label:qr.app.edit_label">
+        <div class="qr-tabs" role="tablist" aria-label="Edit sections" data-i18n-attr="aria-label:qr.app.sections_label" id="qr-tabs">
           <button type="button" role="tab" class="qr-tab" id="qr-tab-templates" data-view="templates" aria-controls="qr-panel-templates" aria-selected="false" tabindex="-1"></button>
           <button type="button" role="tab" class="qr-tab" id="qr-tab-content" data-view="content" aria-controls="qr-panel-content" aria-selected="true" tabindex="0"></button>
           <button type="button" role="tab" class="qr-tab" id="qr-tab-design" data-view="design" aria-controls="qr-panel-design" aria-selected="false" tabindex="-1"></button>
@@ -98,14 +100,14 @@
         </div>
 
         <div class="qr-panel" role="tabpanel" id="qr-panel-templates" aria-labelledby="qr-tab-templates" hidden>
-          <p class="qr-note">Pick a template to fill in its fields. Each one uses a standard card or a public link format. Replace the placeholders.</p>
+          <p class="qr-note" data-i18n="qr.app.tpl_note">Pick a template to fill in its fields. Each one uses a standard card or a public link format. Replace the placeholders.</p>
           <div class="qr-tpls" id="qr-templates"></div>
         </div>
 
         <div class="qr-panel" role="tabpanel" id="qr-panel-content" aria-labelledby="qr-tab-content">
-          <label class="sui-field"><span class="sui-label">Name (used for file names and the print page)</span>
-            <input class="sui-input" id="qr-name" type="text" maxlength="80" placeholder="Front door" autocomplete="off"></label>
-          <div class="qr-kinds" id="qr-kinds" role="group" aria-label="Kind of code"></div>
+          <label class="sui-field"><span class="sui-label" data-i18n="qr.app.name_label">Name (used for file names and the print page)</span>
+            <input class="sui-input" id="qr-name" type="text" maxlength="80" placeholder="Front door" data-i18n-attr="placeholder:qr.app.name_ph" autocomplete="off"></label>
+          <div class="qr-kinds" id="qr-kinds" role="group" aria-label="Kind of code" data-i18n-attr="aria-label:qr.app.kinds_label"></div>
           <div class="qr-form" id="qr-form"></div>
         </div>
 
@@ -118,34 +120,34 @@
         </div>
 
         <div class="qr-panel" role="tabpanel" id="qr-panel-raw" aria-labelledby="qr-tab-raw" hidden>
-          <label class="qr-label" for="qr-raw">Encoded text</label>
+          <label class="qr-label" for="qr-raw" data-i18n="qr.app.raw_label">Encoded text</label>
           <textarea class="sui-input qr-raw" id="qr-raw" rows="8" spellcheck="false" aria-describedby="qr-raw-note"></textarea>
           <p class="qr-note" id="qr-raw-note"></p>
           <div class="qr-row">
-            <button type="button" class="sui-btn" id="qr-raw-reset">Use the form again</button>
-            <button type="button" class="sui-btn" id="qr-copy" disabled>Copy text</button>
+            <button type="button" class="sui-btn" id="qr-raw-reset" data-i18n="qr.app.raw_reset">Use the form again</button>
+            <button type="button" class="sui-btn" id="qr-copy" disabled data-i18n="qr.app.copy_text">Copy text</button>
           </div>
         </div>
 
         <div class="qr-panel" role="tabpanel" id="qr-panel-batch" aria-labelledby="qr-tab-batch" hidden>
-          <label class="qr-label" for="qr-batch-in">One text per line</label>
-          <textarea class="sui-input qr-batch-in" id="qr-batch-in" rows="6" spellcheck="false" placeholder="https://example.com&#10;Ticket 0001&#10;Ticket 0002"></textarea>
+          <label class="qr-label" for="qr-batch-in" data-i18n="qr.app.batch_label">One text per line</label>
+          <textarea class="sui-input qr-batch-in" id="qr-batch-in" rows="6" spellcheck="false" placeholder="https://example.com&#10;Ticket 0001&#10;Ticket 0002" data-i18n-attr="placeholder:qr.app.batch_ph"></textarea>
           <div class="qr-row">
-            <button type="button" class="sui-btn sui-primary" id="qr-batch-go">Make codes</button>
+            <button type="button" class="sui-btn sui-primary" id="qr-batch-go" data-i18n="qr.app.batch_go">Make codes</button>
             <span class="qr-note" id="qr-batch-note" role="status" aria-live="polite"></span>
           </div>
           <div class="qr-grid" id="qr-grid"></div>
         </div>
       </aside>
 
-      <main class="qr-right" id="qr-view" aria-label="Live preview">
+      <main class="qr-right" id="qr-view" aria-label="Live preview" data-i18n-attr="aria-label:qr.app.preview_label">
         <div class="qr-stage" id="qr-stage">
-          <img class="qr-img" id="qr-img" alt="QR code preview" hidden>
-          <p class="qr-off" id="qr-off">Fill in the form, or pick a template. The code appears here as you type.</p>
+          <img class="qr-img" id="qr-img" alt="QR code preview" data-i18n-attr="alt:qr.app.preview_alt" hidden>
+          <p class="qr-off" id="qr-off" data-i18n="qr.app.empty">Fill in the form, or pick a template. The code appears here as you type.</p>
         </div>
         <p class="qr-meta" id="qr-meta" aria-live="polite"></p>
         <p class="qr-err" id="qr-err" role="alert"></p>
-        <p class="qr-note qr-hint">Drag the picture into another app, or use Copy to buffer in the header. Save to Slop Drive keeps the settings, so Open from Slop Drive can edit the code again.</p>
+        <p class="qr-note qr-hint" data-i18n="qr.app.hint">Drag the picture into another app, or use Copy to buffer in the header. Save to Slop Drive keeps the settings, so Open from Slop Drive can edit the code again.</p>
       </main>
     </div>
   </div>

@@ -6,6 +6,7 @@
   const ns = (g.SlopTime = g.SlopTime || {});
   const Z = ns.zones, S = ns.state, UI = ns.ui, $ = UI.$;
   let signature = null;
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
   const cards = new Map();
 
   function makeCard(zone) {
@@ -22,8 +23,8 @@
     const remove = document.createElement('button');
     remove.type = 'button';
     remove.className = 'st-btn st-small';
-    remove.textContent = 'Remove';
-    remove.setAttribute('aria-label', `Remove ${Z.cityOf(zone)}`);
+    remove.textContent = t('time.world.remove');
+    remove.setAttribute('aria-label', t('time.world.remove_aria', { city: Z.cityOf(zone) }));
     remove.addEventListener('click', () => { S.setCities(S.cities().filter((z) => z !== zone)); signature = null; render(); });
     head.append(name, remove);
     const time = document.createElement('p');
@@ -38,20 +39,20 @@
     return li;
   }
 
-  function updateCard(zone, t, prefs) {
+  function updateCard(zone, at, prefs) {
     const li = cards.get(zone);
-    const p = Z.localParts(zone, t);
+    const p = Z.localParts(zone, at);
     li.querySelector('.st-hm').textContent = `${UI.pad(p.h)}:${UI.pad(p.mi)}`;
     li.querySelector('.st-sec').textContent = `:${UI.pad(p.s)}`;
-    li.querySelector('.st-day').textContent = UI.dayLabel(zone, t) + ' · ' + Z.gmtLabel(Z.offsetMinutes(zone, t));
+    li.querySelector('.st-day').textContent = UI.dayLabel(zone, at) + ' · ' + Z.gmtLabel(Z.offsetMinutes(zone, at));
     const workDay = prefs.days.includes(p.wd);
     const minutes = p.h * 60 + p.mi;
     const inHours = workDay && minutes >= prefs.start * 60 && minutes < prefs.end * 60;
     const badges = li.querySelector('.st-badges');
     badges.replaceChildren();
     const add = (text, cls) => { const s = document.createElement('span'); s.className = 'st-badge ' + cls; s.textContent = text; badges.append(s); };
-    add(workDay ? 'Working day' : 'Not a working day', workDay ? 'st-ok' : 'st-off');
-    if (inHours) add('In working hours', 'st-ok');
+    add(t(workDay ? 'time.world.work_day' : 'time.world.off_day'), workDay ? 'st-ok' : 'st-off');
+    if (inHours) add(t('time.world.in_hours'), 'st-ok');
   }
 
   function rebuild(zones) {
@@ -61,16 +62,16 @@
     $('st-world-empty').hidden = zones.length > 0;
   }
 
-  function render() {
+  function render(again) {
     const zones = S.cities();
     const key = zones.join('|');
-    if (key !== signature) { signature = key; rebuild(zones); }
-    const t = S.nowMs(), prefs = S.prefs();
-    for (const z of zones) updateCard(z, t, prefs);
+    if (key !== signature || again === true) { signature = key; rebuild(zones); }
+    const now = S.nowMs(), prefs = S.prefs();
+    for (const z of zones) updateCard(z, now, prefs);
     const off = S.offset();
     $('st-world-note').textContent = off
-      ? 'Times are your device clock moved by a manual offset you typed. This is not a network sync. See Sync.'
-      : `Times are from this device's clock and the browser's zone rules. Your time zone: ${S.device()}.`;
+      ? t('time.world.note_offset')
+      : t('time.world.note', { zone: S.device() });
   }
 
   function addZone(zone) {
@@ -86,19 +87,19 @@
     const q = $('st-add').value.trim();
     const list = $('st-add-results');
     if (!q) { list.replaceChildren(); return; }
-    const t = S.nowMs();
+    const now = S.nowMs();
     const hits = Z.search(Z.list(), q, 12);
     list.replaceChildren(...hits.map((zone) => {
       const li = document.createElement('li');
       const b = document.createElement('button');
       b.type = 'button';
       b.className = 'st-result';
-      b.textContent = `${Z.cityOf(zone)} · ${zone} · ${UI.hm(zone, t)} ${Z.gmtLabel(Z.offsetMinutes(zone, t))}`;
+      b.textContent = `${Z.cityOf(zone)} · ${zone} · ${UI.hm(zone, now)} ${Z.gmtLabel(Z.offsetMinutes(zone, now))}`;
       b.addEventListener('click', () => addZone(zone));
       li.append(b);
       return li;
     }));
-    if (!hits.length) { const li = document.createElement('li'); li.className = 'st-note'; li.textContent = 'No zone matches. Try a city name such as Lisbon or Sydney.'; list.append(li); }
+    if (!hits.length) { const li = document.createElement('li'); li.className = 'st-note'; li.textContent = t('time.world.no_match'); list.append(li); }
   }
 
   function init() {

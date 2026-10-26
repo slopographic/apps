@@ -37,7 +37,7 @@
     x.lineWidth = s * 0.06; x.strokeStyle = '#0a0a0a'; x.beginPath(); x.arc(bx, by + s * 0.3, s * 0.25, 0.15 * Math.PI, 0.85 * Math.PI); x.stroke();
     return c.toDataURL('image/jpeg', 0.86);
   }
-  /** Helpers used by every template. */
+  /** Helpers used by every template. A template's name and description in the picker are press.tpl.<id>_name / _desc. */
   TP.text = function (doc, items, x, y, w, h, text, ps, extra) { var f = M.item('text', x, y, w, h, extra); I.add(doc, items, f, { text: text, ps: ps, layer: doc.layers[doc.layers.length - 1].id }); return f; };
   TP.shape = function (doc, items, type, x, y, w, h, extra) { var s = M.item(type, x, y, w, h, extra); I.add(doc, items, s, { layer: doc.layers[0].id }); return s; };
   TP.image = function (doc, items, x, y, w, h, url, extra) { var id = U.uid('A'); doc.assets[id] = url; var s = M.item('image', x, y, w, h, U.assign({ asset: id, fit: 'fill' }, extra)); I.add(doc, items, s, { layer: doc.layers[0].id }); return s; };
@@ -46,26 +46,26 @@
 
   var COPY = [
     'Desktop publishing used to need a workstation, a licence server and a font budget. Now it needs a browser tab. Slop Press lays out pages the way print designers expect: spreads with an inside and an outside, master pages that carry the furniture, and text that flows through threaded frames from one page to the next.',
-    'Every line here was broken by the paragraph composer, which looks at the whole paragraph before it decides where each line ends. Words are hyphenated with English patterns when the measure is tight, and justified columns keep an even texture from top to bottom.',
-    'Styles do the heavy lifting. Change the body style once and every page reflows; change a master and every folio follows. Wrap text around a picture, nudge a pull quote, and export a PDF with crop marks that a print shop will accept without a phone call.',
-    'Nothing leaves your computer. The document lives in this browser until you save a .slpress file, and the PDF writer, the line breaker and the font subsetter all run right here on the page.'];
+    'Every line here was broken by the paragraph composer, which looks at the whole paragraph before it decides where each line ends. Words are hyphenated with English patterns when the measure is tight, and justified columns keep an even texture from top to bottom.', // i18n-ignore: sample document content
+    'Styles do the heavy lifting. Change the body style once and every page reflows; change a master and every folio follows. Wrap text around a picture, nudge a pull quote, and export a PDF with crop marks that a print shop will accept without a phone call.', // i18n-ignore: sample document content
+    'Nothing leaves your computer. The document lives in this browser until you save a .slpress file, and the PDF writer, the line breaker and the font subsetter all run right here on the page.']; // i18n-ignore: sample document content
   TP.COPY = COPY;
 
-  TP.defs.magazine = { name: 'Magazine spread', desc: 'A4 facing pages: cover, a two-page feature with drop cap, pull quote and wrapped image', make: function () {
-    var doc = M.create({ name: 'Slop Monthly', pages: 4, facing: true, columns: { count: 2, gutter: 5 * mm }, margins: { top: 20 * mm, bottom: 22 * mm, inside: 18 * mm, outside: 14 * mm } });
-    doc.layers.push(M.layer('Text', 1));
+  TP.defs.magazine = { make: function () {
+    var doc = M.create({ name: 'Slop Monthly', pages: 4, facing: true, columns: { count: 2, gutter: 5 * mm }, margins: { top: 20 * mm, bottom: 22 * mm, inside: 18 * mm, outside: 14 * mm } }); // i18n-ignore: sample document content
+    doc.layers.push(M.layer('Text', 1)); // i18n-ignore: sample document content
     var ps = doc.styles.para;
-    ps['Kicker'] = { basedOn: '[Basic Paragraph]', font: 'Liberation Sans', fontStyle: 'Bold', size: 9, leading: 12, tracking: 120, caps: 'allcaps', color: '#e0245e', spaceAfter: 6, hyphenate: false };
-    ps['Title'] = { basedOn: 'Heading 1', size: 44, leading: 46, tracking: -25, spaceAfter: 14 };
-    ps['Deck'] = { basedOn: '[Basic Paragraph]', font: 'Georgia', fontStyle: 'Italic', size: 14, leading: 19, color: '#444444', spaceAfter: 18, hyphenate: false };
-    ps['Body Drop'] = { basedOn: 'Body First', dropLines: 3, dropChars: 1 };
-    ps['Cover Title'] = { basedOn: '[Basic Paragraph]', font: 'Liberation Sans', fontStyle: 'Bold', size: 92, leading: 84, tracking: -40, color: '#ffffff', hyphenate: false };
-    ps['Cover Line'] = { basedOn: '[Basic Paragraph]', font: 'Liberation Sans', fontStyle: 'Bold', size: 16, leading: 19, color: '#ffffff', spaceAfter: 8, hyphenate: false };
+    ps['Kicker'] = { basedOn: '[Basic Paragraph]', font: 'Liberation Sans', fontStyle: 'Bold', size: 9, leading: 12, tracking: 120, caps: 'allcaps', color: '#e0245e', spaceAfter: 6, hyphenate: false }; // i18n-ignore: sample document content
+    ps['Title'] = { basedOn: 'Heading 1', size: 44, leading: 46, tracking: -25, spaceAfter: 14 }; // i18n-ignore: sample document content
+    ps['Deck'] = { basedOn: '[Basic Paragraph]', font: 'Georgia', fontStyle: 'Italic', size: 14, leading: 19, color: '#444444', spaceAfter: 18, hyphenate: false }; // i18n-ignore: sample document content
+    ps['Body Drop'] = { basedOn: 'Body First', dropLines: 3, dropChars: 1 }; // i18n-ignore: sample document content
+    ps['Cover Title'] = { basedOn: '[Basic Paragraph]', font: 'Liberation Sans', fontStyle: 'Bold', size: 92, leading: 84, tracking: -40, color: '#ffffff', hyphenate: false }; // i18n-ignore: sample document content
+    ps['Cover Line'] = { basedOn: '[Basic Paragraph]', font: 'Liberation Sans', fontStyle: 'Bold', size: 16, leading: 19, color: '#ffffff', spaceAfter: 8, hyphenate: false }; // i18n-ignore: sample document content
     var A = doc.masters[0], W = doc.size.w, H = doc.size.h;
     // master: folios + running head on both sides
     A.pages.forEach(function (mp, side) {
       var m = PR.pages.marginsSide(doc, side ? 'right' : 'left');
-      var fol = TP.text(doc, mp.items, side ? W - m.right - 120 : m.left, H - 14 * mm, 120, 14, side ? 'Slop Monthly  ·  ' + M.PAGE_NUM : M.PAGE_NUM + '  ·  Slop Monthly', 'Folio');
+      var fol = TP.text(doc, mp.items, side ? W - m.right - 120 : m.left, H - 14 * mm, 120, 14, side ? 'Slop Monthly  ·  ' + M.PAGE_NUM : M.PAGE_NUM + '  ·  Slop Monthly', 'Folio'); // i18n-ignore: sample document content
       doc.stories[fol.story].paras[0].ov = { align: side ? 'right' : 'left' };
       TP.shape(doc, mp.items, 'line', m.left, 12 * mm, W - m.left - m.right, 0, { stroke: '#1a1a1a', sw: 0.5 });
     });
@@ -73,27 +73,27 @@
     doc.pages[0].master = null;
     var p1 = doc.pages[0].items, b = doc.bleed.top;
     TP.image(doc, p1, -b, -b, W + 2 * b, H + 2 * b, TP.art(720, 1016, ['#2f1d6b', '#0f8a8a', '#e0245e', '#f5a623', '#3b82f6'], 7));
-    TP.text(doc, p1, 14 * mm, 20 * mm, W - 28 * mm, 90 * mm, 'SLOP\nMONTHLY', 'Cover Title');
-    TP.text(doc, p1, 14 * mm, H - 70 * mm, 90 * mm, 50 * mm, 'The browser is the new print shop\nThreads, masters & styles explained\nWhy your PDF needs crop marks', 'Cover Line');
+    TP.text(doc, p1, 14 * mm, 20 * mm, W - 28 * mm, 90 * mm, 'SLOP\nMONTHLY', 'Cover Title'); // i18n-ignore: sample document content
+    TP.text(doc, p1, 14 * mm, H - 70 * mm, 90 * mm, 50 * mm, 'The browser is the new print shop\nThreads, masters & styles explained\nWhy your PDF needs crop marks', 'Cover Line'); // i18n-ignore: sample document content
     // feature spread (pages 2–3)
     var mL = PR.pages.marginsSide(doc, 'left'), mR = PR.pages.marginsSide(doc, 'right'), top = mL.top, colH = H - mL.top - mL.bottom;
     var p2 = doc.pages[1].items, p3 = doc.pages[2].items, cw = W - mL.left - mL.right;
-    TP.text(doc, p2, mL.left, top, cw, 70 * mm, 'Feature\nSetting type in a browser tab\nHow a page layout engine fits real typography into a few hundred kilobytes of script.', 'Kicker');
-    var head = doc.stories[p2[p2.length - 1].story]; head.paras[1].ps = 'Title'; head.paras[2].ps = 'Deck';
-    var t1 = TP.text(doc, p2, mL.left, top + 72 * mm, cw, colH - 72 * mm, COPY.concat(COPY, COPY, COPY, COPY).join('\n'), 'Body', { cols: 2, gutter: 5 * mm });
-    var st = doc.stories[t1.story]; st.paras[0].ps = 'Body Drop';
-    var t2 = TP.text(doc, p3, mR.left, top, cw, colH, '', 'Body', { cols: 2, gutter: 5 * mm }); TP.thread(doc, t1, t2);
+    TP.text(doc, p2, mL.left, top, cw, 70 * mm, 'Feature\nSetting type in a browser tab\nHow a page layout engine fits real typography into a few hundred kilobytes of script.', 'Kicker'); // i18n-ignore: sample document content
+    var head = doc.stories[p2[p2.length - 1].story]; head.paras[1].ps = 'Title'; head.paras[2].ps = 'Deck'; // i18n-ignore: sample document content
+    var t1 = TP.text(doc, p2, mL.left, top + 72 * mm, cw, colH - 72 * mm, COPY.concat(COPY, COPY, COPY, COPY).join('\n'), 'Body', { cols: 2, gutter: 5 * mm }); // i18n-ignore: sample document content
+    var st = doc.stories[t1.story]; st.paras[0].ps = 'Body Drop'; // i18n-ignore: sample document content
+    var t2 = TP.text(doc, p3, mR.left, top, cw, colH, '', 'Body', { cols: 2, gutter: 5 * mm }); TP.thread(doc, t1, t2); // i18n-ignore: sample document content
     var art = TP.image(doc, p3, mR.left + cw / 2 - 32 * mm, top + 40 * mm, 64 * mm, 64 * mm, TP.art(500, 500, ['#ffd166', '#ef476f', '#06d6a0', '#118ab2'], 3), { radius: 0 });
     var ell = TP.shape(doc, p3, 'ellipse', art.x, art.y, art.w, art.h, { fill: null, stroke: '#1a1a1a', sw: 1.5, wrap: { type: 'contour', off: 5 } }); void ell;
     art.wrap = { type: 'none', off: 0 };
     art.radius = 32 * mm; // rounded corners clip the picture into a circle
-    var pq = TP.text(doc, p3, mR.left, top + colH - 48 * mm, cw, 34 * mm, '“The composer looks at the whole paragraph before it decides where a single line ends.”', 'Pull Quote', { wrap: { type: 'box', off: 6 } });
+    var pq = TP.text(doc, p3, mR.left, top + colH - 48 * mm, cw, 34 * mm, '“The composer looks at the whole paragraph before it decides where a single line ends.”', 'Pull Quote', { wrap: { type: 'box', off: 6 } }); // i18n-ignore: sample document content
     void pq;
     // back page
     var p4 = doc.pages[3].items;
     TP.shape(doc, p4, 'rect', -b, H * 0.55, W + 2 * b, H * 0.45 + b, { fill: '#d4ff3a' });
-    TP.text(doc, p4, mL.left, H * 0.62, cw, 60 * mm, 'Print it\nExport a press-ready PDF with bleed, crop marks and embedded fonts — straight from this tab.', 'Title');
-    doc.stories[p4[p4.length - 1].story].paras[1].ps = 'Deck';
+    TP.text(doc, p4, mL.left, H * 0.62, cw, 60 * mm, 'Print it\nExport a press-ready PDF with bleed, crop marks and embedded fonts — straight from this tab.', 'Title'); // i18n-ignore: sample document content
+    doc.stories[p4[p4.length - 1].story].paras[1].ps = 'Deck'; // i18n-ignore: sample document content
     return doc;
   } };
 })();

@@ -6,16 +6,23 @@
 (function () {
   'use strict';
   const $ = (id) => document.getElementById(id);
+  const t = (k) => (window.SlopI18n ? window.SlopI18n.t(k) : k);
   function mount() {
     if (!window.SlopFrame) return null;
     const side = $('hx-side');
-    const frame = window.SlopFrame.mount($('hx-body'), { view: $('hx-main'), panel: side, panelLabel: 'Inspector', storageKey: 'hex',
+    const frame = window.SlopFrame.mount($('hx-body'), { view: $('hx-main'), panel: side, panelLabel: 'hex.app.inspector', storageKey: 'hex',
       button: '.smb-tools', phoneButton: false, width: 300, min: 240, max: 480 });
-    const p = window.SlopFrame.panel(side, { title: 'Inspector' });
+    const p = window.SlopFrame.panel(side, { title: t('hex.app.inspector') });
     const none = document.createElement('p');
-    none.className = 'sf-note hx-none'; none.textContent = 'Open a file to see its size, type, hash and the bytes you select.';
-    p.render([{ key: 'file', title: 'Details', settings: [$('hx-info'), none] }]);
-    p.footer([{ el: $('hx-save'), primary: true }, { el: $('hx-dl') }], { more: 'Inspector' });
+    none.className = 'sf-note hx-none'; none.dataset.i18n = 'hex.app.none_note'; none.textContent = t('hex.app.none_note');
+    // built again on a language change: the panel's title, its section and the phone's button follow it
+    function draw() {
+      if (p.setTitle) p.setTitle(t('hex.app.inspector'));
+      p.render([{ key: 'file', title: t('hex.app.details'), settings: [$('hx-info'), none] }]);
+      p.footer([{ el: $('hx-save'), primary: true }, { el: $('hx-dl') }], { more: t('hex.app.inspector') });
+    }
+    draw();
+    if (window.SlopI18n && window.SlopI18n.on) window.SlopI18n.on(draw);
     return { frame, panel: p };
   }
   window.HexPanel = { mount };

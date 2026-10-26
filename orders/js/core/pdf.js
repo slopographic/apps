@@ -2,6 +2,6 @@
 (function (g) {
   'use strict';
   const NS = (g.SlopOrders = g.SlopOrders || {});
-  const P = g.SlopDocs.docPdf.create({ ns: NS, collection: 'orders', kind: 'order', title: 'Order', statusLabel: g.SlopDocs.model.STATUS_LABEL });
+  const P = g.SlopDocs.docPdf.create({ ns: NS, collection: 'orders', kind: 'order' });
   NS.pdf = { load: P.load, viewOf: P.viewOf, orderPdf: P.pdf };
 })(typeof window !== 'undefined' ? window : globalThis);

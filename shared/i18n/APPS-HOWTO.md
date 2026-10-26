@@ -40,6 +40,17 @@ change the new tables are added and `slopi18n` fires (below). Offline single-fil
 list `shared/i18n/i18n.js`, `shared/i18n/ui/en.js`, `<app>/i18n/index.js` and every `<app>/i18n/en/*.js` in `files`
 and at the start of `scripts`; they run in English.
 
+### Shared components (shared/, shell/)
+
+The words of a shared component go in `shared/i18n/ui/<code>/<part>.js` (keys `ui.<area>.<name>`, one part per area:
+`ai.js`, `calc.js`, ...; at most 300 lines, so `ai2.js` when it grows). Every page loads them with `ui/<code>.js`
+(`UI_PARTS` in `i18n.js`, written by `node tools/i18n/i18n.mjs index ui`), English and the languages with a folder;
+a language without one reads English. `ui/<code>.js` itself stays the base table every language has in full. The
+business suite's words are `shared/biz/i18n` (keys `biz.*`, loaded by the business pages); another
+`shared/<area>/i18n/index.js` works the same way (`index <ns>` writes it). The checker and the coverage report read
+them all (`APPS-HOWTO.md` § 6). An offline single-file copy lists the English parts it needs in
+`shared/offline/manifest.js`.
+
 ## 2. Keys
 
 - `<app id>.<area>.<name>`: the registry id (`pdf`, `vector`, `slopedit`), not the folder. Lower case, digits and `_`.
@@ -65,6 +76,14 @@ and at the start of `scripts`; they run in English.
   (a toolbar, a rail, a panel, a status bar) must follow a change: mark its elements with `data-i18n` /
   `data-i18n-attr` (then `apply()` updates them), or re-render it from `SlopI18n.on(fn)` (the PDF app has `U.onLang`).
   The `slopi18n` event on `window` fires after the new tables are in; `slop-lang` fires at once.
+- Shared components take keys: a label, title, noun or verb given to SlopSheet, SlopResizePanel, SlopFrame
+  (`panelLabel`, `listLabel`), SlopMenuBar (menu titles, item and tool labels), SlopDrop (`label`, `hint`, `chooseLabel`,
+  `preview.steps`, `preview.picture.alt`, `sample.label`), SlopIntake (`noun`), SlopOuttake (`verb`, one key with `{app}`),
+  SlopFlow (`label`, `onTo` label), SlopConfig (`registerKind` label and description), SlopList (`label`, `noun`, a text
+  `empty`), SlopBiz.panel (`label`) and SlopWatermarkPanel (`toggle.label`, `actions[].label` and `title`) may be an i18n key or a function
+  (`SlopI18n.label(v, vars)`: a string that is a known key is translated, a function is called, other text is shown as
+  given). Pass the key (`label: 'diff.drop.label'`), not `t('diff.drop.label')`: the component reads it again on every
+  language change. Never mark a component's nodes from the app.
 - SlopCmd: the title, group and description of each command come from `t()`; register them again from
   `SlopI18n.on(...)` so the palette follows a switch. Never translate command ids, argument names or AI tool names
   and descriptions written for agents (they are API).

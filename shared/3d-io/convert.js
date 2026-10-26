@@ -9,7 +9,10 @@ import { writeModel } from './write.js';
 import { stats as statsOf, bounds as boundsOf, transform, bake, merge } from './scene.js';
 import { KEEPS, LABEL } from './formats.js';
 
-const n = (k, one, many = one + 's') => `${k.toLocaleString('en')} ${k === 1 ? one : many}`;
+/** A word shown to the person (ui.d3.*, shared/i18n/ui/en/misc.js), in the chosen language when it is made. */
+const tr = (k, v) => { const I = globalThis.SlopI18n; return I ? I.t(k, v) : k; };
+/** A count with its noun, in the chosen language (ui.d3.n_<what> and its #one form). */
+const n = (k, what) => tr('ui.d3.n_' + what, { n: k });
 
 /** What the target format drops from a model with these stats. */
 export function dropped(s, to, opts = {}) {
@@ -18,14 +21,14 @@ export function dropped(s, to, opts = {}) {
   if (s.materials && !keep.materials) out.push(n(s.materials, 'material'));
   else if (s.materials && to === 'obj' && opts.materials === false) out.push(n(s.materials, 'material'));
   if (s.textures && (!keep.textures || (to === 'obj' && opts.materials === false))) out.push(n(s.textures, 'texture'));
-  if (s.colors && !keep.colors) out.push('vertex colours');
-  if (s.uvs && !keep.uvs) out.push('texture coordinates (UVs)');
+  if (s.colors && !keep.colors) out.push(tr('ui.d3.vertex_colours'));
+  if (s.uvs && !keep.uvs) out.push(tr('ui.d3.uvs'));
   const anim = s.animations && (!keep.animations || opts.merge || opts.animations === false);
   if (anim) out.push(n(s.animations, 'animation'));
-  if (s.skinning && (!keep.skinning || opts.merge)) out.push('the skeleton (kept in the pose it stands in)');
-  if (s.morphs && (!keep.morphs || opts.merge)) out.push('morph targets (kept in their current shape)');
-  if (s.points && !keep.points) out.push(n(s.points, 'point cloud'));
-  if (s.lines && !keep.lines) out.push(n(s.lines, 'line object'));
+  if (s.skinning && (!keep.skinning || opts.merge)) out.push(tr('ui.d3.skeleton'));
+  if (s.morphs && (!keep.morphs || opts.merge)) out.push(tr('ui.d3.morphs'));
+  if (s.points && !keep.points) out.push(n(s.points, 'point_cloud'));
+  if (s.lines && !keep.lines) out.push(n(s.lines, 'line_object'));
   if (s.lights && !keep.lights) out.push(n(s.lights, 'light'));
   if (s.cameras && !keep.cameras) out.push(n(s.cameras, 'camera'));
   return out;
@@ -35,10 +38,10 @@ const fmtSize = (v) => +Number(v).toPrecision(4);
 
 /** The status line: what was made, the size, and what was left out. */
 function summary(s, b, from, to, lost, notes, warnings) {
-  const parts = [`${LABEL[from]} read: ${n(s.meshes, 'mesh', 'meshes')}, ${n(s.triangles, 'triangle')}, ${n(s.vertices, 'vertex', 'vertices')}.`];
-  if (b) parts.push(`Size ${b.size.map(fmtSize).join(' × ')} units.`);
-  if (lost.length) parts.push(`${LABEL[to]} cannot hold ${lost.join(', ')}, so ${lost.length > 1 ? 'they were' : 'it was'} left out.`);
-  if (s.meshes > 1 && (to === 'stl' || to === 'ply')) parts.push(`The ${s.meshes} parts are joined into one ${to === 'stl' ? 'solid' : 'mesh'}.`);
+  const parts = [tr('ui.d3.read', { format: LABEL[from], meshes: n(s.meshes, 'mesh'), triangles: n(s.triangles, 'triangle'), vertices: n(s.vertices, 'vertex') })];
+  if (b) parts.push(tr('ui.d3.size', { size: b.size.map(fmtSize).join(' × ') }));
+  if (lost.length) parts.push(tr('ui.d3.cannot_hold', { format: LABEL[to], list: lost.join(', '), n: lost.length }));
+  if (s.meshes > 1 && (to === 'stl' || to === 'ply')) parts.push(tr(to === 'stl' ? 'ui.d3.joined_solid' : 'ui.d3.joined_mesh', { n: s.meshes }));
   return [...parts, ...warnings, ...notes].join(' ');
 }
 

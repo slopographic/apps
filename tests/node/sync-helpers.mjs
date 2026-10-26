@@ -4,6 +4,7 @@ import vm from 'node:vm';
 import path from 'node:path';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
+import './ui-i18n-en.mjs';   // the sync messages' words (shared/i18n/ui/<code>/backup2.js), handed to the vm as a page has them
 
 export const SYNC = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'shared', 'sync');
 export const FILES = ['config.js', 'pkce.js', 'tokens.js', 'providers/gdrive.js', 'providers/dropbox.js', 'providers/local.js', 'sync.js'];
@@ -46,7 +47,7 @@ export async function makeEnv({ url = 'https://apps.example.com/pdf/?x=1#top', f
     },
     localStorage: memStorage(),
     sessionStorage: memStorage(),
-    crypto: globalThis.crypto, TextEncoder, TextDecoder, URL, URLSearchParams, Blob, btoa, atob, JSON, Date, Math, Promise
+    SlopI18n: globalThis.SlopI18n, crypto: globalThis.crypto, TextEncoder, TextDecoder, URL, URLSearchParams, Blob, btoa, atob, JSON, Date, Math, Promise
   };
   ctx.window = ctx;
   vm.createContext(ctx);

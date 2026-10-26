@@ -14,7 +14,7 @@
       rvfc: 'requestVideoFrameCallback' in HTMLVideoElement.prototype,
       mp4mux: !!window.Mp4Muxer, webmmux: !!window.WebMMuxer
     };
-    c.summary = c.webcodecs ? 'WebCodecs available: fast, frame-accurate export.' : c.recorder ? 'No WebCodecs: export records in real time to WebM.' : 'This browser cannot encode video; try Chrome, Edge or a recent Safari.';
+    c.summary = c.webcodecs ? SE.util.t('slopedit.main.webcodecs_available_fast_frame_accurate') : c.recorder ? SE.util.t('slopedit.main.no_webcodecs_export_records_in') : SE.util.t('slopedit.main.this_browser_cannot_encode_video');
     return c;
   }
   async function boot() {
@@ -28,12 +28,14 @@
     if (SE.timeline) SE.timeline.init();
     SE.menus.build();
     await SE.cmd.load();
-    A.els.statusCaps.textContent = SE.caps.webcodecs ? 'WebCodecs ✓' : SE.caps.recorder ? 'WebM recorder' : 'no encoder';
-    A.els.statusCaps.title = SE.caps.summary;
+    const caps = () => { detect(); A.els.statusCaps.textContent = SE.caps.webcodecs ? SE.util.t('slopedit.main.webcodecs') : SE.caps.recorder ? SE.util.t('slopedit.main.webm_recorder') : SE.util.t('slopedit.main.no_encoder'); A.els.statusCaps.title = SE.caps.summary; };
+    caps();
+    // a language change: the panels draw again (menus, tabs and marked words follow data-i18n; commands: ui/commands.js)
+    SE.util.onLang(() => { caps(); SE.bin.render(); if (SE.inspector) SE.inspector.relabel(); if (SE.timeline && SE.timeline.renderHeads) SE.timeline.renderHeads(); SE.emit('change', { label: 'lang' }); });
     if (window.SlopHub && !SE.offline) try { SlopHub.register('slopedit'); } catch (e) { /* ignore */ }
     let restored = false;
     try { restored = await SE.session.restore(); } catch (e) { console.warn(e); }
-    if (restored) A.status('Restored your last project');
+    if (restored) A.status(SE.util.t('slopedit.main.restored_your_last_project'));
     await SE.viewState.restore(); // ui/view-state.js: the timeline zoom, scroll, tool and phone pane
     await SE.session.launch().catch((e) => console.warn(e));
     if (A.isPhone()) A.setPane(SE.doc.clips.length ? 'timeline' : 'media');

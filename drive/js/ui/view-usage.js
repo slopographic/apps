@@ -77,7 +77,7 @@
     };
     walk(tree, 0, Math.PI * 2, 1);
     const center = sv('g', { class: 'sb-c', 'data-tip': tip(tree, 0), 'data-up': '1' }, sv('circle', { cx, cy, r: ring - 2 }),
-      sv('text', { x: cx, y: cy - 2, 'text-anchor': 'middle', class: 'c1' }, fit(tree.it ? tree.it.name : 'Slop Drive', ring * 2 - 10)),
+      sv('text', { x: cx, y: cy - 2, 'text-anchor': 'middle', class: 'c1' }, fit(tree.it ? tree.it.name : 'Slop Drive', ring * 2 - 10)),   // i18n-ignore: the app name
       sv('text', { x: cx, y: cy + 14, 'text-anchor': 'middle', class: 'c2' }, DR.fmtSize(tree.size)));
     svg.append(center);
   }
@@ -91,16 +91,16 @@
 
   DR.renderUsage = function (pane) {
     const tree = DR.usageTree(S.cwd);
-    const seg = el('div', { class: 'seg' }, ['treemap', 'sunburst'].map((m) => { const b = el('button', { type: 'button', 'data-usage': m, 'aria-pressed': String(S.usageMode === m), style: 'width:auto;padding:0 10px' }, m === 'treemap' ? 'Treemap' : 'Sunburst'); b.addEventListener('click', () => { S.usageMode = m; DR.savePrefs(); DR.render(); }); return b; }));
-    const legend = el('div', { class: 'legend' }, DR.KINDS.filter((k) => k.id !== 'folder').map((k) => el('span', { style: `--k:${k.color}` }, k.label)));
+    const seg = el('div', { class: 'seg' }, ['treemap', 'sunburst'].map((m) => { const b = el('button', { type: 'button', 'data-usage': m, 'aria-pressed': String(S.usageMode === m), style: 'width:auto;padding:0 10px' }, DR.t(m === 'treemap' ? 'drive.view.treemap' : 'drive.view.sunburst')); b.addEventListener('click', () => { S.usageMode = m; DR.savePrefs(); DR.render(); }); return b; }));
+    const legend = el('div', { class: 'legend' }, DR.KINDS.filter((k) => k.id !== 'folder').map((k) => el('span', { style: `--k:${k.color}` }, DR.kindName(k.id))));
     const box = el('div', { class: 'usage' }, el('div', { class: 'viz-tools top' }, seg, el('b', null, `${DR.placeName()} · ${DR.fmtSize(tree.size)}`), legend));
     const stage = el('div', { class: 'stage' }), tipEl = el('div', { class: 'viz-tip', hidden: true });
     box.append(stage, tipEl);
     pane.append(box);
     const r = stage.getBoundingClientRect(), W = Math.max(200, r.width), H = Math.max(200, r.height);
-    const svg = sv('svg', { class: 'viz', viewBox: `0 0 ${W} ${H}`, width: W, height: H, role: 'img', 'aria-label': `Disk usage of ${DR.placeName()}` });
+    const svg = sv('svg', { class: 'viz', viewBox: `0 0 ${W} ${H}`, width: W, height: H, role: 'img', 'aria-label': DR.t('drive.view.usage_of', { place: DR.placeName() }) });
     stage.append(svg);
-    if (!tree.size) { stage.replaceChildren(el('p', { class: 'muted center' }, 'Nothing here takes up any space yet.')); return; }
+    if (!tree.size) { stage.replaceChildren(el('p', { class: 'muted center' }, DR.t('drive.view.usage_empty'))); return; }
     if (S.usageMode === 'sunburst') sunburst(svg, tree, W, H); else treemap(svg, tree, W, H);
     svg.addEventListener('pointermove', (e) => {
       const t = e.target.closest('[data-tip]'); tipEl.hidden = !t; if (!t) return;

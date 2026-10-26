@@ -6,19 +6,19 @@
  * such as Mobile or Work, sets the vCard TYPE). For the other fields the first non-empty column wins.
  * Exports: mapHeaders, contactsFromTable, contactsToTable, FIELD_LABEL. */
 
-export const FIELD_LABEL = { fn: 'Name', given: 'First name', family: 'Last name', org: 'Organisation', title: 'Job title',
-  email: 'E-mail', phone: 'Phone', address: 'Address', url: 'Website', note: 'Note' };
+export const FIELD_LABEL = { fn: 'Name', given: 'First name', family: 'Last name', org: 'Organisation', title: 'Job title', // i18n-ignore: CSV column names in the file, and header aliases (data)
+  email: 'E-mail', phone: 'Phone', address: 'Address', url: 'Website', note: 'Note' }; // i18n-ignore: CSV column names in the file, and header aliases (data)
 
 const SYNONYMS = {
-  fn: ['name', 'full name', 'display name', 'fn', 'contact name'],
-  given: ['first name', 'given name', 'firstname', 'forename'],
-  family: ['last name', 'surname', 'family name', 'lastname'],
+  fn: ['name', 'full name', 'display name', 'fn', 'contact name'], // i18n-ignore: CSV column names in the file, and header aliases (data)
+  given: ['first name', 'given name', 'firstname', 'forename'], // i18n-ignore: CSV column names in the file, and header aliases (data)
+  family: ['last name', 'surname', 'family name', 'lastname'], // i18n-ignore: CSV column names in the file, and header aliases (data)
   org: ['organisation', 'organization', 'company', 'org', 'business', 'employer'],
-  title: ['title', 'job title', 'position'],
-  email: ['email', 'e mail', 'email address', 'e mail address', 'mail'],
-  phone: ['phone', 'telephone', 'tel', 'phone number', 'mobile', 'mobile phone', 'cell', 'cell phone', 'work phone', 'home phone', 'business phone', 'main phone'],
-  address: ['address', 'street', 'street address', 'postal address', 'mailing address', 'home address', 'work address', 'business address'],
-  url: ['website', 'web site', 'web page', 'url', 'homepage', 'web'],
+  title: ['title', 'job title', 'position'], // i18n-ignore: CSV column names in the file, and header aliases (data)
+  email: ['email', 'e mail', 'email address', 'e mail address', 'mail'], // i18n-ignore: CSV column names in the file, and header aliases (data)
+  phone: ['phone', 'telephone', 'tel', 'phone number', 'mobile', 'mobile phone', 'cell', 'cell phone', 'work phone', 'home phone', 'business phone', 'main phone'], // i18n-ignore: CSV column names in the file, and header aliases (data)
+  address: ['address', 'street', 'street address', 'postal address', 'mailing address', 'home address', 'work address', 'business address'], // i18n-ignore: CSV column names in the file, and header aliases (data)
+  url: ['website', 'web site', 'web page', 'url', 'homepage', 'web'], // i18n-ignore: CSV column names in the file, and header aliases (data)
   note: ['note', 'notes', 'comment', 'comments', 'memo'],
 };
 const FIELD_OF = new Map(Object.entries(SYNONYMS).flatMap(([field, names]) => names.map((n) => [n, field])));
@@ -81,7 +81,7 @@ export function contactsFromTable(table) {
 /** A read vCard contact to one export row: the headers are the names the import above recognises, so a CSV or XLSX
  *  written here reads back the same. Several values in a column are joined with "; ". */
 export function contactsToTable(contacts) {
-  const headers = ['Name', 'First name', 'Last name', 'Organisation', 'Job title', 'E-mail', 'Phone', 'Address', 'Website', 'Note'];
+  const headers = ['Name', 'First name', 'Last name', 'Organisation', 'Job title', 'E-mail', 'Phone', 'Address', 'Website', 'Note']; // i18n-ignore: CSV column names in the file, and header aliases (data)
   const rows = (contacts || []).map((c) => {
     const n = c.name || {};
     return [c.fn || '', n.given || '', n.family || '', c.org || '', c.title || '',

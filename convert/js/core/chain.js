@@ -17,6 +17,7 @@
  *                                          already on the route, no encoding, none that keeps the kind)
  *   dropLast(key)                          { key, fmt }: the route without its last step (fmt: the new last step's fixed format)
  *   routeLabel(source, key, convs)         'JSON · via CSV'; stepLabel(kinds, i) 'Step 1 · SIE → CSV' */
+import { tr } from './i18n.js';
 import { CONVERSIONS } from './catalog.js';
 
 export const MAX_STEPS = 3;   // a found route
@@ -161,7 +162,8 @@ export function thenChoices(source, key, opts = {}) {
   const last = steps[steps.length - 1], end = kinds[kinds.length - 1];
   const f = formatOpt(last.conv), fixed = f && end !== String(f.value) ? `${last.id}@${end}` : last.id;
   const head = joinSteps([...steps.slice(0, -1), { key: fixed }]);
-  return convs.filter((c) => c.from.includes(end) && !(end === 'txt' && c.from.length > 1) && !c.from.includes('*') && !c.with && c.chain !== 'first' && c.chain !== false && c.group !== 'Encoding' && !kinds.includes(c.ext) && canDo(c) && !steps.some((s) => s.id === c.id))
+  return convs.filter((c) => c.from.includes(end) && !(end === 'txt' && c.from.length > 1) && !c.from.includes('*') && !c.with && c.chain !== 'first' && c.chain !== false && c.group !== 'Encoding' &&   // i18n-ignore: group ids
+      !kinds.includes(c.ext) && canDo(c) && !steps.some((s) => s.id === c.id))
     .map((c) => ({ conv: c, key: `${head}>${c.id}` }));
 }
 
@@ -175,6 +177,6 @@ export function dropLast(key) {
 export function routeLabel(source, key, convs = CONVERSIONS) {
   const kinds = kindsOf(source, key, convs) || [];
   if (kinds.length < 3) return '';
-  return `${TAG(kinds[kinds.length - 1])} · via ${kinds.slice(1, -1).map(TAG).join(', ')}`;
+  return tr('convert.chain.via', { to: TAG(kinds[kinds.length - 1]), steps: kinds.slice(1, -1).map(TAG).join(', ') });
 }
-export const stepLabel = (kinds, i) => `Step ${i + 1} · ${TAG(kinds[i])} → ${TAG(kinds[i + 1])}`;
+export const stepLabel = (kinds, i) => tr('convert.chain.step', { i: String(i + 1), from: TAG(kinds[i]), to: TAG(kinds[i + 1]) });

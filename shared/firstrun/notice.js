@@ -2,6 +2,8 @@
  * the app downloads (with sizes) before it can start. Shown once per app and kept in localStorage (key 'slop-firstrun:<app>').
  * If storage is unavailable the notice is shown each time, and nothing else changes. Classic script: window.SlopFirstRun.
  *   SlopFirstRun.once(app, { title, lines: [string], downloads: [{ name, bytes }] })  ->  Promise<boolean> (true = carry on)
+ *   title, each line and each download's name may be i18n keys or functions (SlopI18n.label), read when the notice shows;
+ *   the notice's own words are ui.firstrun.* (shared/i18n/ui/<code>/firstrun.js).
  * Only the notice is shown on the first use; an app with no downloads passes downloads: [] and gets a plain privacy note.
  *   SlopFirstRun.mark(app)  counts the notice as seen (another consent step covered it); SlopFirstRun.seen(app) -> boolean
  *   SlopFirstRun.size(bytes) -> '64 MB': the one way a download's size is written (1 MB = 1024 × 1024 bytes, as the
@@ -10,8 +12,8 @@
 (function () {
   'use strict';
   const KEY = (app) => 'slop-firstrun:' + app;
-  /** The line every notice ends with: where the files go. True for every app on the site. */
-  const PRIVACY = 'Your files stay in this browser. Nothing is uploaded: the site is hosted on GitHub Pages and has no server or backend storage.';
+  /** A word of the notice (ui.firstrun.*, menu.cancel), or an app's label: a key, a function or text (SlopI18n.label). */
+  const lab = (v, vars) => { const I = window.SlopI18n; return String(I && I.label ? I.label(v, vars) : typeof v === 'function' ? v() : v); };
   const size = (b) => (b >= 1048576 ? (b / 1048576).toFixed(b >= 10485760 ? 0 : 1) + ' MB' : Math.max(1, Math.round(b / 1024)) + ' KB');
 
   function seen(app) {
@@ -26,26 +28,25 @@
     if (seen(app) || !window.SlopUI) return Promise.resolve(true);
     return new Promise((resolve) => {
       const body = document.createElement('div');
-      o.lines.concat([PRIVACY]).forEach((t) => { const p = document.createElement('p'); p.className = 'sui-p'; p.textContent = t; body.append(p); });
+      o.lines.concat(['ui.firstrun.privacy']).forEach((line) => { const p = document.createElement('p'); p.className = 'sui-p'; p.textContent = lab(line); body.append(p); });   // the last line: where the files go
       if (o.downloads && o.downloads.length) {
         const total = o.downloads.reduce((n, d) => n + d.bytes, 0), one = o.downloads.length === 1;
         const ul = document.createElement('ul');
         ul.className = 'sui-p';
-        o.downloads.forEach((d) => { const li = document.createElement('li'); li.textContent = `${d.name}, ${size(d.bytes)}`; ul.append(li); });
+        o.downloads.forEach((d) => { const li = document.createElement('li'); li.textContent = `${lab(d.name)}, ${size(d.bytes)}`; ul.append(li); });
         const p = document.createElement('p');
         p.className = 'sui-p';
-        p.textContent = one ? `This is downloaded once, ${size(total)}, and kept by this browser for next time.`
-          : `These are downloaded once, about ${size(total)} in all, and kept by this browser for next time.`;
+        p.textContent = lab(one ? 'ui.firstrun.download_one' : 'ui.firstrun.download_many', { size: size(total) });
         body.append(p, ul);
       }
       let done = false;
       const finish = (ok) => { if (done) return; done = true; if (ok) remember(app); resolve(ok); };
       SlopUI.dialog({
-        title: o.title,
+        title: lab(o.title),
         body,
         buttons: [
-          { label: 'Cancel', act: () => finish(false) },
-          { label: 'Continue', primary: true, act: () => finish(true) },
+          { label: lab('menu.cancel'), act: () => finish(false) },
+          { label: lab('ui.firstrun.continue'), primary: true, act: () => finish(true) },
         ],
         onClose: (ok) => finish(!!ok),
       });

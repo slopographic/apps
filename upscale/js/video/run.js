@@ -9,14 +9,14 @@
 (function (g) {
   'use strict';
   const U = (g.SlopUpscale = g.SlopUpscale || {}), V = (U.video = {});
-  const P = () => g.SlopUpscalePipeline;
+  const P = () => g.SlopUpscalePipeline, t = (k, v) => (U.t ? U.t(k, v) : k);
   const AVC = ['avc1.640034', 'avc1.640028', 'avc1.42001f'];
   V.MAX_SECONDS = 15;
   const tick = (ms) => new Promise((r) => setTimeout(r, ms));
 
   V.support = async function () {
-    if (!g.VideoEncoder || !g.VideoFrame) return { ok: false, reason: 'This browser has no WebCodecs video encoder, so video cannot be written here. Pictures still work.' };
-    if (!g.Mp4Muxer || !g.WebMMuxer) return { ok: false, reason: 'The video muxers did not load.' };
+    if (!g.VideoEncoder || !g.VideoFrame) return { ok: false, reason: t('upscale.video.no_webcodecs') };
+    if (!g.Mp4Muxer || !g.WebMMuxer) return { ok: false, reason: t('upscale.video.no_muxers') };
     return { ok: true, reason: '' };
   };
 
@@ -29,7 +29,7 @@
     }
     const cfg = { codec: 'vp09.00.10.08', width: W, height: H, bitrate, framerate: fps, latencyMode: 'quality' };
     try { const r = await g.VideoEncoder.isConfigSupported(cfg); if (r.supported) return { mux: 'webm', cfg: r.config || cfg }; } catch (e) { /* none */ }
-    throw new Error(`No video encoder for ${W} × ${H} in this browser. Try 2× or a smaller clip.`);
+    throw new Error(t('upscale.video.no_encoder', { w: String(W), h: String(H) }));
   }
 
   function muxer(kind, W, H, fps) {
@@ -42,13 +42,13 @@
   }
 
   /** Resolves once the video shows the frame at t (a seek that the browser has finished). */
-  function seek(video, t) {
-    if (Math.abs(video.currentTime - t) < 1e-3 && video.readyState >= 2) return Promise.resolve();
+  function seek(video, at) {
+    if (Math.abs(video.currentTime - at) < 1e-3 && video.readyState >= 2) return Promise.resolve();
     return new Promise((res, rej) => {
-      const to = setTimeout(() => { video.removeEventListener('seeked', done); rej(new Error('The video stopped responding while reading frames')); }, 5000);
+      const to = setTimeout(() => { video.removeEventListener('seeked', done); rej(new Error(t('upscale.video.stalled'))); }, 5000);
       const done = () => { clearTimeout(to); video.removeEventListener('seeked', done); res(); };
       video.addEventListener('seeked', done);
-      video.currentTime = Math.min(t, Math.max(0, video.duration - 0.001));
+      video.currentTime = Math.min(at, Math.max(0, video.duration - 0.001));
     });
   }
 
@@ -64,13 +64,13 @@
     try {
       await new Promise((res, rej) => {
         video.onloadeddata = () => res();
-        video.onerror = () => rej(new Error('This video cannot be read in this browser'));
+        video.onerror = () => rej(new Error(t('upscale.video.unreadable')));
       });
       const dur = video.duration;
-      if (!(dur > 0)) throw new Error('This video has no length');
-      if (dur > V.MAX_SECONDS) throw new Error(`Videos up to ${V.MAX_SECONDS} seconds (this one is ${Math.round(dur)} s). Trim it first.`);
+      if (!(dur > 0)) throw new Error(t('upscale.video.no_length'));
+      if (dur > V.MAX_SECONDS) throw new Error(t('upscale.video.too_long', { max: V.MAX_SECONDS, s: Math.round(dur) }));
       const sw = video.videoWidth & ~1, sh = video.videoHeight & ~1;
-      if (!sw || !sh) throw new Error('This file has no picture track');
+      if (!sw || !sh) throw new Error(t('upscale.video.no_track'));
       const why = P().check(sw, sh, o.scale);
       if (why) throw new Error(why);
       const W = sw * o.scale, H = sh * o.scale;

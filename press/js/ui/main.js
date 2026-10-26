@@ -41,7 +41,7 @@
     return PR.intake.launch().catch(function () { return false; }).then(function (opened) {
       if (opened) return true;
       return ST.restore().then(function (saved) {
-        if (saved && saved.doc && !/[?&]new\b/.test(location.search)) { return PR.io.openDoc(saved.doc, saved.fileName).then(function () { S.dirty = true; U.toast('Restored your last session'); return true; }); }
+        if (saved && saved.doc && !/[?&]new\b/.test(location.search)) { return PR.io.openDoc(saved.doc, saved.fileName).then(function () { S.dirty = true; U.toast(U.t('press.app.restored')); return true; }); }
         return PR.io.openDoc(welcomeDoc()).then(function () { return true; });
       });
     }).catch(function (e) {

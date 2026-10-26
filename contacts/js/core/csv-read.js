@@ -49,19 +49,19 @@
   }
 
   const norm = (h) => String(h || '').replace(/^﻿/, '').trim().toLowerCase().replace(/\s+/g, ' ');
-  const SIMPLE = { 'first name': ['name', 'given'], 'given name': ['name', 'given'], 'middle name': ['name', 'additional'],
-    'additional name': ['name', 'additional'], 'last name': ['name', 'family'], 'family name': ['name', 'family'], surname: ['name', 'family'],
-    title: ['name', 'prefix'], 'name prefix': ['name', 'prefix'], suffix: ['name', 'suffix'], 'name suffix': ['name', 'suffix'],
+  const SIMPLE = { 'first name': ['name', 'given'], 'given name': ['name', 'given'], 'middle name': ['name', 'additional'],   // i18n-ignore: CSV and vCard column names (file formats)
+    'additional name': ['name', 'additional'], 'last name': ['name', 'family'], 'family name': ['name', 'family'], surname: ['name', 'family'],   // i18n-ignore: CSV and vCard column names (file formats)
+    title: ['name', 'prefix'], 'name prefix': ['name', 'prefix'], suffix: ['name', 'suffix'], 'name suffix': ['name', 'suffix'],   // i18n-ignore: CSV and vCard column names (file formats)
     name: ['fn'], company: ['org'], organization: ['org'], 'organization 1 - name': ['org'], department: ['dept'],
-    'organization 1 - department': ['dept'], 'job title': ['title'], 'organization 1 - title': ['title'], birthday: ['bday'],
-    notes: ['note'], note: ['note'], 'web page': ['url'], website: ['url'], 'website 1 - value': ['url'], categories: ['groups'],
-    labels: ['groups'], 'group membership': ['groups'] };
-  const OUTLOOK_PHONE = { 'business phone': 'WORK', 'business phone 2': 'WORK', 'home phone': 'HOME', 'home phone 2': 'HOME',
-    'mobile phone': 'CELL', 'other phone': 'OTHER', pager: 'PAGER', 'business fax': 'WORK,FAX', 'home fax': 'HOME,FAX',
-    'car phone': 'CAR', 'primary phone': 'MAIN' };
+    'organization 1 - department': ['dept'], 'job title': ['title'], 'organization 1 - title': ['title'], birthday: ['bday'],   // i18n-ignore: CSV and vCard column names (file formats)
+    notes: ['note'], note: ['note'], 'web page': ['url'], website: ['url'], 'website 1 - value': ['url'], categories: ['groups'],   // i18n-ignore: CSV and vCard column names (file formats)
+    labels: ['groups'], 'group membership': ['groups'] };   // i18n-ignore: CSV and vCard column names (file formats)
+  const OUTLOOK_PHONE = { 'business phone': 'WORK', 'business phone 2': 'WORK', 'home phone': 'HOME', 'home phone 2': 'HOME',   // i18n-ignore: CSV and vCard column names (file formats)
+    'mobile phone': 'CELL', 'other phone': 'OTHER', pager: 'PAGER', 'business fax': 'WORK,FAX', 'home fax': 'HOME,FAX',   // i18n-ignore: CSV and vCard column names (file formats)
+    'car phone': 'CAR', 'primary phone': 'MAIN' };   // i18n-ignore: CSV and vCard column names (file formats)
   const OUTLOOK_ADR = { business: 'WORK', home: 'HOME', other: 'OTHER' };
-  const ADR_PART = { street: 'street', city: 'locality', state: 'region', region: 'region', 'postal code': 'postal',
-    'country/region': 'country', country: 'country', 'po box': 'po', 'extended address': 'ext', type: 'type', formatted: 'formatted' };
+  const ADR_PART = { street: 'street', city: 'locality', state: 'region', region: 'region', 'postal code': 'postal',   // i18n-ignore: CSV and vCard column names (file formats)
+    'country/region': 'country', country: 'country', 'po box': 'po', 'extended address': 'ext', type: 'type', formatted: 'formatted' };   // i18n-ignore: CSV and vCard column names (file formats)
 
   /** Classify one header. Returns null for a column we do not use. */
   function classify(h) {
@@ -86,9 +86,9 @@
   /** Which program wrote the file, from its headers (for the report only). */
   function detect(headers) {
     const h = new Set(headers.map(norm));
-    if (h.has('phone 1 - value') || h.has('given name') || h.has('group membership')) return 'Google';
-    if (h.has('business phone') || h.has('e-mail address') || h.has('mobile phone') || h.has('first name') && h.has('business street')) return 'Outlook';
-    if ([...h].some((x) => /\((mobile|home|work|cell|other)\)/.test(x))) return 'Apple';
+    if (h.has('phone 1 - value') || h.has('given name') || h.has('group membership')) return 'Google';   // i18n-ignore: CSV and vCard column names (file formats)
+    if (h.has('business phone') || h.has('e-mail address') || h.has('mobile phone') || h.has('first name') && h.has('business street')) return 'Outlook';   // i18n-ignore: CSV and vCard column names (file formats)
+    if ([...h].some((x) => /\((mobile|home|work|cell|other)\)/.test(x))) return 'Apple';   // i18n-ignore: CSV and vCard column names (file formats)
     return 'generic';
   }
 

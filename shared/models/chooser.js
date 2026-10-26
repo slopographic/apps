@@ -12,19 +12,22 @@
  *   ui: SlopUI (defaults to the page's)
  *   onChoose({ language, model, pin }) when the person presses Use (the model must be installed). */
 
-const fmt = (n) => (n >= 1e9 ? `${(n / 1e9).toFixed(1)} GB` : n >= 1e6 ? `${Math.round(n / 1e6)} MB` : `${Math.max(1, Math.round(n / 1e3))} KB`);
+/** The words (shared/i18n/ui/<code>/models.js), read when drawn. */
+const T = (k, v) => (globalThis.SlopI18n ? globalThis.SlopI18n.t(k, v) : k);
+const one = (x) => (globalThis.SlopI18n ? globalThis.SlopI18n.num(x, { minimumFractionDigits: 1, maximumFractionDigits: 1 }) : x.toFixed(1));
+const fmt = (n) => (n >= 1e9 ? T('ui.models.size_gb', { n: one(n / 1e9) }) : n >= 1e6 ? T('ui.models.size_mb', { n: Math.round(n / 1e6) }) : T('ui.models.size_kb', { n: Math.max(1, Math.round(n / 1e3)) }));
 const LICENCE = { MIT: 'MIT', 'Apache-2.0': 'Apache 2.0' };
 
 /** Pure: the words for a badge. name: the language's name, or '' when it is not known. only: the model's languages' names. */
 export function badgeText(badge, name, only) {
-  if (badge === 'recommended') return name ? `Recommended for ${name}` : 'Recommended';
-  if (badge === 'made-for') return name ? `Made for ${name}` : 'Made for one language';
-  if (badge === 'only') return `${only || name} only`;
-  if (badge === 'fastest') return 'Fastest';
+  if (badge === 'recommended') return name ? T('ui.models.badge_rec_for', { lang: name }) : T('ui.models.badge_rec');
+  if (badge === 'made-for') return name ? T('ui.models.badge_made_for', { lang: name }) : T('ui.models.badge_made');
+  if (badge === 'only') return T('ui.models.badge_only', { lang: only || name });
+  if (badge === 'fastest') return T('ui.models.badge_fastest');
   return badge;
 }
 /** Pure: five dots, n of them filled, as text for screen readers and a bar for the eye. */
-export const meter = (n) => ({ label: `${n} of 5`, dots: '●'.repeat(n) + '○'.repeat(5 - n) });
+export const meter = (n) => ({ label: T('ui.models.of_5', { n }), dots: '●'.repeat(n) + '○'.repeat(5 - n) });
 
 export function openModelChooser(o = {}) {
   const F = o.family, UI = o.ui || globalThis.SlopUI, C = F.catalog, I = o.installer || globalThis.SlopAIManager;
@@ -34,16 +37,16 @@ export function openModelChooser(o = {}) {
   const states = new Map();
 
   // step 1: the language
-  const search = el('input', { type: 'search', class: 'spm-search', placeholder: 'Search languages', 'aria-label': 'Search languages', autocomplete: 'off', 'aria-controls': 'spmLangs' });
-  const list = el('ul', { class: 'spm-langs', id: 'spmLangs', role: 'listbox', 'aria-label': 'Language', tabindex: '-1' });
+  const search = el('input', { type: 'search', class: 'spm-search', placeholder: T('ui.models.search'), 'aria-label': T('ui.models.search'), autocomplete: 'off', 'aria-controls': 'spmLangs' });
+  const list = el('ul', { class: 'spm-langs', id: 'spmLangs', role: 'listbox', 'aria-label': T('ui.models.language'), tabindex: '-1' });
   const pinBox = el('input', { type: 'checkbox', class: 'spm-pin-box' });
   const pinText = el('span');
   const pinRow = el('label', { class: 'spm-pin' }, pinBox, pinText);
-  const models = el('ol', { class: 'spm-models', 'aria-label': 'Models' });
+  const models = el('ol', { class: 'spm-models', 'aria-label': T('ui.models.models') });
   const usage = el('p', { class: 'spm-usage' });
   const body = el('div', { class: 'spm' },
-    el('h3', { class: 'spm-step' }, F.languageStep || '1. The language'), search, list, pinRow,
-    el('h3', { class: 'spm-step' }, F.modelStep || '2. The model'), models, usage);
+    el('h3', { class: 'spm-step' }, F.languageStep || T('ui.models.step_language')), search, list, pinRow,
+    el('h3', { class: 'spm-step' }, F.modelStep || T('ui.models.step_model')), models, usage);
 
   function drawLanguages() {
     const opts = filterLanguages(search.value);
@@ -52,12 +55,12 @@ export function openModelChooser(o = {}) {
       li.addEventListener('click', () => chooseLanguage(l.code));
       return li;
     }));
-    if (!opts.length) list.append(el('li', { class: 'spm-none' }, 'No language by that name.'));
+    if (!opts.length) list.append(el('li', { class: 'spm-none' }, T('ui.models.no_language')));
     const on = list.querySelector('.is-on');
     if (on) list.scrollTop += on.getBoundingClientRect().top - list.getBoundingClientRect().top - list.clientHeight / 2;   // in view
     pinRow.hidden = language === 'auto';
     pinBox.checked = pin;
-    pinText.textContent = ` Always use ${languageName(language)} (otherwise each new file is detected afresh)`;
+    pinText.textContent = ' ' + T('ui.models.pin', { lang: languageName(language) });
   }
   function chooseLanguage(code) {
     language = code;
@@ -82,10 +85,10 @@ export function openModelChooser(o = {}) {
     const ranked = C.rank(language);
     for (const r of ranked) if (!busy.has(r.model.id)) states.set(r.model.id, await I.status(r.model.id));
     models.replaceChildren(...ranked.map(row));
-    try { usage.replaceChildren(`${F.usageWords || 'These models'} use ${fmt(await I.usage(C.MODELS.map((m) => m.id)))} on this device. `, el('a', { href: o.storageHref || '../settings/#storage', target: '_blank', rel: 'noopener' }, 'Settings › Storage')); }
+    try { usage.replaceChildren(T('ui.models.usage', { what: F.usageWords || T('ui.models.these'), size: fmt(await I.usage(C.MODELS.map((m) => m.id))) }) + ' ', el('a', { href: o.storageHref || '../settings/#storage', target: '_blank', rel: 'noopener' }, T('ui.models.storage'))); }
     catch (e) { usage.textContent = ''; }
     useBtn().disabled = !installed(model);
-    useBtn().textContent = installed(model) ? `Use ${C.byId(model).name}` : 'Use';
+    useBtn().textContent = installed(model) ? T('ui.models.use_name', { name: C.byId(model).name }) : T('ui.models.use');
   }
   const installed = (id) => { const s = states.get(id); return s === 'installed' || s === 'update' || s === 'bundled'; };
   function row({ model: m, badges }) {
@@ -94,11 +97,11 @@ export function openModelChooser(o = {}) {
     const sp = meter(m.speed), ac = meter(m.accuracy);
     const li = el('li', { class: 'spm-model' + (on ? ' is-on' : ''), 'data-id': m.id, 'data-state': st },
       el('div', { class: 'spm-name' }, el('strong', null, m.name), ...badges.map((b) => el('span', { class: 'spm-badge is-' + b }, badgeText(b, language === 'auto' ? '' : languageName(language), m.languages === '*' ? '' : m.languages.map(languageName).join(', '))))),
-      el('div', { class: 'spm-by' }, `${m.maker} · ${fmt(C.bytesOf(m))} · ${LICENCE[m.licence] || m.licence} licence`),
+      el('div', { class: 'spm-by' }, T('ui.models.by', { maker: m.maker, size: fmt(C.bytesOf(m)), licence: LICENCE[m.licence] || m.licence })),
       el('p', { class: 'spm-note' }, m.note),
       el('div', { class: 'spm-meters' },
-        el('span', { title: `Speed: ${sp.label}` }, 'Speed ', el('span', { class: 'spm-dots', 'aria-label': sp.label }, sp.dots)),
-        el('span', { title: `Accuracy: ${ac.label}` }, 'Accuracy ', el('span', { class: 'spm-dots', 'aria-label': ac.label }, ac.dots))),
+        el('span', { title: T('ui.models.speed_of', { value: sp.label }) }, T('ui.models.speed') + ' ', el('span', { class: 'spm-dots', 'aria-label': sp.label }, sp.dots)),
+        el('span', { title: T('ui.models.accuracy_of', { value: ac.label }) }, T('ui.models.accuracy') + ' ', el('span', { class: 'spm-dots', 'aria-label': ac.label }, ac.dots))),
       actions(m, st, on));
     return li;
   }
@@ -106,21 +109,21 @@ export function openModelChooser(o = {}) {
     const box = el('div', { class: 'spm-act' });
     if (st === 'downloading') {
       const b = busy.get(m.id);
-      const bar = el('progress', { class: 'spm-prog', max: '100', value: String(b.pct), 'aria-label': `Downloading ${m.name}` });
-      const cancel = el('button', { type: 'button', class: 'sui-btn' }, 'Cancel');
+      const bar = el('progress', { class: 'spm-prog', max: '100', value: String(b.pct), 'aria-label': T('ui.models.downloading_name', { name: m.name }) });
+      const cancel = el('button', { type: 'button', class: 'sui-btn' }, T('menu.cancel'));
       cancel.addEventListener('click', () => b.ctrl.abort());
-      box.append(el('span', { class: 'spm-pct' }, `Downloading ${b.pct}%`), bar, cancel);
+      box.append(el('span', { class: 'spm-pct' }, T('ui.models.downloading_pct', { pct: b.pct })), bar, cancel);
     } else if (st === 'installed') {
-      const use = el('button', { type: 'button', class: 'sui-btn' + (on ? ' sui-primary' : ''), 'aria-pressed': String(on) }, on ? 'Selected' : 'Use');
+      const use = el('button', { type: 'button', class: 'sui-btn' + (on ? ' sui-primary' : ''), 'aria-pressed': String(on) }, T(on ? 'ui.models.selected' : 'ui.models.use'));
       use.addEventListener('click', () => { model = m.id; drawModels(); });
       box.append(use);
       if (m.id !== C.QUICK) {
-        const rm = el('button', { type: 'button', class: 'sui-btn spm-remove' }, 'Remove');
+        const rm = el('button', { type: 'button', class: 'sui-btn spm-remove' }, T('ui.remove'));
         rm.addEventListener('click', () => remove(m));
         box.append(rm);
       }
     } else {
-      const dl = el('button', { type: 'button', class: 'sui-btn sui-primary' }, `Download ${fmt(C.bytesOf(m))}`);
+      const dl = el('button', { type: 'button', class: 'sui-btn sui-primary' }, T('ui.models.download_size', { size: fmt(C.bytesOf(m)) }));
       dl.addEventListener('click', () => download(m));
       box.append(dl);
     }
@@ -136,21 +139,21 @@ export function openModelChooser(o = {}) {
         if (b.pct === last) return;
         last = b.pct;
         const li = models.querySelector(`[data-id="${m.id}"]`);
-        if (li) { const bar = li.querySelector('progress'), t = li.querySelector('.spm-pct'); if (bar) bar.value = b.pct; if (t) t.textContent = `Downloading ${b.pct}%`; }
+        if (li) { const bar = li.querySelector('progress'), t = li.querySelector('.spm-pct'); if (bar) bar.value = b.pct; if (t) t.textContent = T('ui.models.downloading_pct', { pct: b.pct }); }
       }, { signal: ctrl.signal });
       busy.delete(m.id);
       model = m.id;
-      say(`${m.name} is installed.`);
+      say(T('ui.models.installed', { name: m.name }));
     } catch (e) {
       busy.delete(m.id);
-      say(e && e.name === 'AbortError' ? `${m.name}: download cancelled. Nothing was stored.` : `${m.name} was not installed: ${(e && e.message) || e}. Nothing was stored.`);
+      say(e && e.name === 'AbortError' ? T('ui.models.cancelled', { name: m.name }) : T('ui.models.not_installed', { name: m.name, error: String((e && e.message) || e) }));
     }
     drawModels();
   }
   async function remove(m) {
-    try { await I.remove(m.id); } catch (e) { say(`Could not remove ${m.name}: ${e.message}`); return; }
+    try { await I.remove(m.id); } catch (e) { say(T('ui.models.remove_failed', { name: m.name, error: e.message })); return; }
     if (model === m.id) model = C.QUICK;
-    say(`${m.name} was removed from this device.`);
+    say(T('ui.models.removed', { name: m.name }));
     drawModels();
   }
   const status = el('p', { class: 'spm-status', role: 'status', 'aria-live': 'polite' });
@@ -158,9 +161,9 @@ export function openModelChooser(o = {}) {
   const say = (t) => { status.textContent = t; };
 
   const dlg = UI.dialog({
-    title: F.title || 'Language and model', body, cls: 'spm-dlg', dismissable: true,
-    buttons: [{ label: 'Cancel' }, { label: 'Use', primary: true, act: () => {
-      if (!installed(model)) { say('Download the model first, or choose one that is installed.'); return false; }
+    title: F.title || T('ui.models.title'), body, cls: 'spm-dlg', dismissable: true,
+    buttons: [{ label: T('menu.cancel') }, { label: T('ui.models.use'), primary: true, act: () => {
+      if (!installed(model)) { say(T('ui.models.first')); return false; }
       if (o.onChoose) o.onChoose({ language, model, pin: pin && language !== 'auto' });
       return true;
     } }],

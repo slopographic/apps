@@ -25,10 +25,14 @@
     id: 'engine-libheif', kind: 'model', name: 'HEIC photo decoder (libheif 1.23.5, WebAssembly)', licence: 'LGPL-3.0',
     licenceUrl: 'https://github.com/slopographic/cdn/blob/main/' + BASE + 'SOURCE.md', size: FILES.reduce((n, f) => n + f.size, 0), files: FILES.map((f) => ({ ...f, cdn: BASE + f.name })),
   };
+  // the words are keys (shared/i18n/ui/<code>/firstrun.js), read by SlopFirstRun when the notice shows
+  /** A word shown to the person (ui.heic.*): status lines and errors, in the chosen language when they are made. A worker's
+   * error is a key it gives (its own failures) or the decoder's own text, shown as it is (SlopI18n.label). */
+  const tr = (k, v) => { const I = root.SlopI18n; return I ? I.label(k, v) : k; };
   const NOTICE = {
-    title: 'Download the HEIC photo decoder?',
-    lines: ['This browser cannot open HEIC photos (the iPhone format) by itself, so converting one needs the HEIC decoder (libheif, compiled to run in your browser; LGPL-3.0 licence). It is downloaded once from Slopographic\'s file store, checked, and kept in this browser. Your photos are never uploaded.'],
-    downloads: [{ name: 'HEIC photo decoder (libheif 1.23.5)', bytes: PACK.size }],
+    title: 'ui.firstrun.heic_title',
+    lines: ['ui.firstrun.heic_text'],
+    downloads: [{ name: () => tr('ui.firstrun.heic_name', { version: '1.23.5' }), bytes: PACK.size }],
   };
   // SlopUI too: SlopFirstRun lets everything through when a page has no dialog kit, and the engine must not download unasked
   const DEPS = [['SlopUI', '../slopui.js'], ['SlopLibraryManifest', '../library/manifest.js'], ['SlopLibraryStore', '../library/store.js'], ['SlopLibraryInstall', '../library/install.js'], ['SlopFirstRun', '../firstrun/notice.js']];
@@ -54,7 +58,7 @@
     return r && FILES.every((f) => r.files.some((g) => g.name === f.name && g.sha256 === f.sha256)) ? r : null;
   }
   async function installed() { await deps(); return !!(await record()); }
-  function declined() { const e = new Error('The HEIC photo decoder was not downloaded'); e.code = 'declined'; return e; }
+  function declined() { const e = new Error(tr('ui.heic.declined')); e.code = 'declined'; return e; }
 
   function call(msg, transfer) {
     return new Promise((resolve, reject) => {
@@ -67,37 +71,37 @@
   function reset(err) {
     try { if (worker) worker.terminate(); } catch (e) { /* gone */ }
     worker = null; readyP = null;
-    for (const p of pending.values()) p.reject(err || new Error('The HEIC decoder was stopped'));
+    for (const p of pending.values()) p.reject(err || new Error(tr('ui.heic.stopped')));
     pending.clear();
   }
   /** Starts the worker with the stored files (the script as a blob URL, the WebAssembly as bytes). */
   async function start() {
     const S = root.SlopLibraryStore;
     const [js, wasm] = await Promise.all(FILES.map((f) => S.getBlob(`${PACK.id}/${f.name}`)));
-    if (!js || !wasm) throw new Error('The HEIC decoder is missing from this browser');
+    if (!js || !wasm) throw new Error(tr('ui.heic.missing'));
     const jsUrl = URL.createObjectURL(new Blob([js], { type: 'text/javascript' }));
     worker = new Worker(new URL('worker.js', SELF).href);
     worker.onmessage = ({ data }) => {
       const p = pending.get(data.id);
       if (!p) return;
       pending.delete(data.id);
-      if (data.ok) p.resolve(data.out); else p.reject(new Error(data.error));
+      if (data.ok) p.resolve(data.out); else p.reject(new Error(tr(data.error)));
     };
-    worker.onerror = (e) => reset(new Error('The HEIC decoder stopped' + (e && e.message ? ': ' + e.message : '')));
+    worker.onerror = (e) => reset(new Error(e && e.message ? tr('ui.heic.crashed_why', { error: e.message }) : tr('ui.heic.crashed')));
     const buf = await wasm.arrayBuffer();
     await call({ op: 'init', jsUrl, wasm: buf }, [buf]);
   }
 
   async function prepare(o) {
-    const say = (t) => { if (o.onStatus) o.onStatus(t); };
+    const say = (s) => { if (o.onStatus) o.onStatus(s); };
     await deps();
     if (!(await record())) {
       if (o.ask === false) throw declined();
       if (!(await root.SlopFirstRun.once('heic-engine', NOTICE))) throw declined();
-      say('Downloading the HEIC photo decoder…');
-      try { await root.SlopLibraryInstall.install(PACK, (t) => say('HEIC decoder: ' + t)); } catch (e) { throw new Error('The HEIC photo decoder could not be downloaded (' + e.message + ')'); }
+      say(tr('ui.heic.downloading'));
+      try { await root.SlopLibraryInstall.install(PACK, (s) => say(tr('ui.heic.progress', { status: s }))); } catch (e) { throw new Error(tr('ui.heic.download_failed', { error: e.message })); }
     }
-    say('Starting the HEIC photo decoder…');
+    say(tr('ui.heic.starting'));
     await start();
   }
   function ready(o = {}) {

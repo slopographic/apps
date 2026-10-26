@@ -25,7 +25,7 @@ export function slideText(slide, { notes = false } = {}) {
   const rest = order(objs.filter((o) => !title.includes(o)));
   const out = [...title.flatMap(objectLines), ...rest.flatMap(objectLines)];
   const n = String(slide.notes || '').trim();
-  if (notes && n) out.push('', 'Notes:', n);
+  if (notes && n) out.push('', 'Notes:', n); // i18n-ignore: written into the text file
   return out;
 }
 

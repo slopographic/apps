@@ -34,15 +34,19 @@ import { MEDIA_GEO } from './media-geo.js';
 import { KEYWORDS } from './keywords.js';
 import { CHAIN_FLAGS } from './chain-flags.js';
 import { register } from '../../../shared/ops/registry.js';
+import { tr } from './i18n.js';
+
+/** A select option [value, label] whose label follows the language (labels and hints of the entries are getters too). */
+const ch = (v, label) => Object.defineProperty([v], 1, { get: label, enumerable: true });
 
 const IMAGE = ['png', 'jpg', 'webp', 'bmp', 'gif', 'svg', 'avif', 'ico'];
 const SIZE = [
-  { key: 'width', type: 'number', label: 'Width (px)', min: 1, max: 10000, hint: 'Leave blank to keep the original size. Height follows the proportions.' },
-  { key: 'height', type: 'number', label: 'Height (px)', min: 1, max: 10000 },
+  { key: 'width', type: 'number', get label() { return tr('convert.opt.width_px'); }, min: 1, max: 10000, get hint() { return tr('convert.opt.width_px_hint'); } },
+  { key: 'height', type: 'number', get label() { return tr('convert.opt.height_px'); }, min: 1, max: 10000 },
 ];
-const QUALITY = { key: 'quality', type: 'range', label: 'Quality', min: 10, max: 100, value: 90 };
-const BACKGROUND = { key: 'background', type: 'color', label: 'Background for transparency', value: '#ffffff' };
-const EOL = { key: 'eol', type: 'select', label: 'Line endings', value: 'lf', options: [['lf', 'LF (Mac, Linux)'], ['crlf', 'CRLF (Windows)'], ['cr', 'CR (old Mac)']] };
+const QUALITY = { key: 'quality', type: 'range', get label() { return tr('convert.opt.quality'); }, min: 10, max: 100, value: 90 };
+const BACKGROUND = { key: 'background', type: 'color', get label() { return tr('convert.opt.background_for_transparency'); }, value: '#ffffff' };
+const EOL = { key: 'eol', type: 'select', get label() { return tr('convert.opt.line_endings'); }, value: 'lf', options: [ch('lf', () => tr('convert.opt.eol_lf')), ch('crlf', () => tr('convert.opt.eol_crlf')), ch('cr', () => tr('convert.opt.eol_cr'))] };
 
 function imageTo(to) {
   return async (files, o) => {
@@ -52,7 +56,7 @@ function imageTo(to) {
   };
 }
 const AUDIO_IN = ['mp4', 'webm', 'mov', 'm4a', 'mp3', 'wav', 'ogg', 'flac'];
-const BITRATE = { key: 'bitrate', type: 'select', label: 'Bitrate', value: '128', options: [['128', '128 kbps'], ['192', '192 kbps'], ['320', '320 kbps']] };
+const BITRATE = { key: 'bitrate', type: 'select', get label() { return tr('convert.opt.bitrate'); }, value: '128', options: [['128', '128 kbps'], ['192', '192 kbps'], ['320', '320 kbps']] };
 /** The sound of a video or audio file, as WAV or MP3. Video files give their audio track only. */
 function audioTo(to) {
   return async (files, o) => {
@@ -65,10 +69,10 @@ function audioTo(to) {
   };
 }
 const VIDEO_IN = ['mp4', 'webm', 'mov'];
-const CRF = { key: 'crf', type: 'range', label: 'Quality (lower is better)', min: 18, max: 40, value: 23 };
-const TIME = { key: 'time', type: 'number', label: 'Time (seconds)', min: 0, max: 36000, value: 1, hint: 'The moment to take the picture from. Past the end, the last frame is used.' };
-const GIF_WIDTH = { key: 'width', type: 'number', label: 'Width (px)', min: 16, max: 1920, value: 480, hint: 'Height follows the picture proportions.' };
-const GIF_FPS = { key: 'fps', type: 'number', label: 'Frames per second', min: 1, max: 30, value: 10 };
+const CRF = { key: 'crf', type: 'range', get label() { return tr('convert.opt.quality_lower_is_better'); }, min: 18, max: 40, value: 23 };
+const TIME = { key: 'time', type: 'number', get label() { return tr('convert.opt.time_seconds'); }, min: 0, max: 36000, value: 1, get hint() { return tr('convert.opt.time_seconds_hint'); } };
+const GIF_WIDTH = { key: 'width', type: 'number', get label() { return tr('convert.opt.width_px'); }, min: 16, max: 1920, value: 480, get hint() { return tr('convert.opt.width_px_hint2'); } };
+const GIF_FPS = { key: 'fps', type: 'number', get label() { return tr('convert.opt.frames_per_second'); }, min: 1, max: 30, value: 10 };
 /** Video conversions with ffmpeg.wasm. Where the codecs already fit the new container, the streams are copied (no quality loss).
  *  Their catalog entries say engine: 'ffmpeg', so the page asks before the engine's first download, and only then. */
 function videoTo(to) {
@@ -111,151 +115,151 @@ const text = (blob) => blob.text();
 const out = (name, data, type) => ({ name, blob: new Blob([data], { type }) });
 
 export const CONVERSIONS = [
-  { id: 'to-mp4', engine: 'ffmpeg', label: 'To MP4', group: 'Audio and video', from: ['webm', 'mov'], ext: 'mp4', mode: 'each', options: [CRF], run: videoTo('mp4') },
-  { id: 'to-mov', engine: 'ffmpeg', label: 'To MOV', group: 'Audio and video', from: ['mp4', 'webm'], ext: 'mov', mode: 'each', options: [CRF], run: videoTo('mov') },
-  { id: 'to-webm', engine: 'ffmpeg', label: 'To WebM', group: 'Audio and video', from: VIDEO_IN, ext: 'webm', mode: 'each', options: [], run: videoTo('webm') },
-  { id: 'video-to-gif', engine: 'ffmpeg', label: 'To GIF', group: 'Audio and video', from: VIDEO_IN, ext: 'gif', mode: 'each', options: [GIF_WIDTH, GIF_FPS], run: videoTo('gif') },
-  { id: 'frame-to-webp', engine: 'ffmpeg', label: 'Frame to WebP', group: 'Audio and video', from: VIDEO_IN, ext: 'webp', mode: 'each', options: [TIME], run: videoTo('webp') },
-  { id: 'frame-to-png', engine: 'ffmpeg', label: 'Frame to PNG', group: 'Audio and video', from: VIDEO_IN, ext: 'png', mode: 'each', options: [TIME], run: videoTo('png') },
-  { id: 'frame-to-jpg', engine: 'ffmpeg', label: 'Frame to JPG', group: 'Audio and video', from: VIDEO_IN, ext: 'jpg', mode: 'each', options: [TIME], run: videoTo('jpg') },
-  { id: 'to-wav', label: 'To WAV', group: 'Audio and video', from: AUDIO_IN, ext: 'wav', mode: 'each', options: [], run: audioTo('wav') },
-  { id: 'to-mp3', label: 'To MP3', group: 'Audio and video', from: AUDIO_IN, ext: 'mp3', mode: 'each', options: [BITRATE], run: audioTo('mp3') },
-  { id: 'to-png', label: 'To PNG', group: 'Images', from: ['jpg', 'webp', 'bmp', 'gif', 'svg', 'avif', 'ico'], ext: 'png', mode: 'each', options: [...SIZE], run: imageTo('png') },
-  { id: 'to-jpg', label: 'To JPG', group: 'Images', from: ['png', 'webp', 'bmp', 'gif', 'svg', 'avif', 'ico'], ext: 'jpg', mode: 'each', options: [...SIZE, QUALITY, BACKGROUND], run: imageTo('jpg') },
-  { id: 'to-webp', label: 'To WebP', group: 'Images', from: ['png', 'jpg', 'bmp', 'gif', 'svg', 'avif', 'ico'], ext: 'webp', mode: 'each', options: [...SIZE, QUALITY], run: imageTo('webp') },
-  { id: 'to-bmp', label: 'To BMP', group: 'Images', from: ['png', 'jpg', 'webp', 'gif', 'svg', 'avif', 'ico'], ext: 'bmp', mode: 'each', options: [...SIZE, BACKGROUND], run: imageTo('bmp') },
-  { id: 'to-ico', label: 'To ICO (icon)', group: 'Images', from: IMAGE, ext: 'ico', mode: 'each', options: [{ key: 'icoSize', type: 'select', label: 'Icon size', value: 256, options: [[16, '16 × 16'], [32, '32 × 32'], [48, '48 × 48'], [64, '64 × 64'], [128, '128 × 128'], [256, '256 × 256']] }, BACKGROUND], run: imageTo('ico') },
-  { id: 'images-to-pdf', label: 'Images to PDF', group: 'PDF', from: IMAGE, ext: 'pdf', mode: 'combine', options: [
-    { key: 'page', type: 'select', label: 'Page size', value: 'a4', options: [['a4', 'A4'], ['letter', 'US Letter'], ['fit', 'Fit to each image']] },
-    { key: 'margin', type: 'select', label: 'Margin', value: 36, options: [[0, 'None'], [18, 'Small (¼ inch)'], [36, 'Normal (½ inch)']] },
+  { id: 'to-mp4', engine: 'ffmpeg', get label() { return tr('convert.conv.to_mp4'); }, group: 'Audio and video', from: ['webm', 'mov'], ext: 'mp4', mode: 'each', options: [CRF], run: videoTo('mp4') },   // i18n-ignore: group is an id (groupLabel)
+  { id: 'to-mov', engine: 'ffmpeg', get label() { return tr('convert.conv.to_mov'); }, group: 'Audio and video', from: ['mp4', 'webm'], ext: 'mov', mode: 'each', options: [CRF], run: videoTo('mov') },   // i18n-ignore: group is an id (groupLabel)
+  { id: 'to-webm', engine: 'ffmpeg', get label() { return tr('convert.conv.to_webm'); }, group: 'Audio and video', from: VIDEO_IN, ext: 'webm', mode: 'each', options: [], run: videoTo('webm') },   // i18n-ignore: group is an id (groupLabel)
+  { id: 'video-to-gif', engine: 'ffmpeg', get label() { return tr('convert.conv.video_to_gif'); }, group: 'Audio and video', from: VIDEO_IN, ext: 'gif', mode: 'each', options: [GIF_WIDTH, GIF_FPS], run: videoTo('gif') },   // i18n-ignore: group is an id (groupLabel)
+  { id: 'frame-to-webp', engine: 'ffmpeg', get label() { return tr('convert.conv.frame_to_webp'); }, group: 'Audio and video', from: VIDEO_IN, ext: 'webp', mode: 'each', options: [TIME], run: videoTo('webp') },   // i18n-ignore: group is an id (groupLabel)
+  { id: 'frame-to-png', engine: 'ffmpeg', get label() { return tr('convert.conv.frame_to_png'); }, group: 'Audio and video', from: VIDEO_IN, ext: 'png', mode: 'each', options: [TIME], run: videoTo('png') },   // i18n-ignore: group is an id (groupLabel)
+  { id: 'frame-to-jpg', engine: 'ffmpeg', get label() { return tr('convert.conv.frame_to_jpg'); }, group: 'Audio and video', from: VIDEO_IN, ext: 'jpg', mode: 'each', options: [TIME], run: videoTo('jpg') },   // i18n-ignore: group is an id (groupLabel)
+  { id: 'to-wav', get label() { return tr('convert.conv.to_wav'); }, group: 'Audio and video', from: AUDIO_IN, ext: 'wav', mode: 'each', options: [], run: audioTo('wav') },   // i18n-ignore: group is an id (groupLabel)
+  { id: 'to-mp3', get label() { return tr('convert.conv.to_mp3'); }, group: 'Audio and video', from: AUDIO_IN, ext: 'mp3', mode: 'each', options: [BITRATE], run: audioTo('mp3') },   // i18n-ignore: group is an id (groupLabel)
+  { id: 'to-png', get label() { return tr('convert.conv.to_png'); }, group: 'Images', from: ['jpg', 'webp', 'bmp', 'gif', 'svg', 'avif', 'ico'], ext: 'png', mode: 'each', options: [...SIZE], run: imageTo('png') },   // i18n-ignore: group is an id (groupLabel)
+  { id: 'to-jpg', get label() { return tr('convert.conv.to_jpg'); }, group: 'Images', from: ['png', 'webp', 'bmp', 'gif', 'svg', 'avif', 'ico'], ext: 'jpg', mode: 'each', options: [...SIZE, QUALITY, BACKGROUND], run: imageTo('jpg') },   // i18n-ignore: group is an id (groupLabel)
+  { id: 'to-webp', get label() { return tr('convert.conv.to_webp'); }, group: 'Images', from: ['png', 'jpg', 'bmp', 'gif', 'svg', 'avif', 'ico'], ext: 'webp', mode: 'each', options: [...SIZE, QUALITY], run: imageTo('webp') },   // i18n-ignore: group is an id (groupLabel)
+  { id: 'to-bmp', get label() { return tr('convert.conv.to_bmp'); }, group: 'Images', from: ['png', 'jpg', 'webp', 'gif', 'svg', 'avif', 'ico'], ext: 'bmp', mode: 'each', options: [...SIZE, BACKGROUND], run: imageTo('bmp') },   // i18n-ignore: group is an id (groupLabel)
+  { id: 'to-ico', get label() { return tr('convert.conv.to_ico'); }, group: 'Images', from: IMAGE, ext: 'ico', mode: 'each', options: [{ key: 'icoSize', type: 'select', get label() { return tr('convert.opt.icon_size'); }, value: 256, options: [[16, '16 × 16'], [32, '32 × 32'], [48, '48 × 48'], [64, '64 × 64'], [128, '128 × 128'], [256, '256 × 256']] }, BACKGROUND], run: imageTo('ico') },   // i18n-ignore: group is an id (groupLabel)
+  { id: 'images-to-pdf', get label() { return tr('convert.conv.images_to_pdf'); }, group: 'PDF', from: IMAGE, ext: 'pdf', mode: 'combine', options: [   // i18n-ignore: group is an id (groupLabel)
+    { key: 'page', type: 'select', get label() { return tr('convert.opt.page_size'); }, value: 'a4', options: [['a4', 'A4'], ch('letter', () => tr('convert.opt.page_letter')), ch('fit', () => tr('convert.opt.page_fit'))] },
+    { key: 'margin', type: 'select', get label() { return tr('convert.opt.margin'); }, value: 36, options: [ch(0, () => tr('convert.opt.margin_none')), ch(18, () => tr('convert.opt.margin_small')), ch(36, () => tr('convert.opt.margin_normal'))] },
   ], run: async (files, o) => {
     const items = [];
     for (const f of files) items.push(await imageForPdf(f.file, f.kind));
     const bytes = await imagesToPdf(items, { page: o.page, margin: Number(o.margin) });
     return [{ name: files.length === 1 ? `${base(files[0].name)}.pdf` : 'images.pdf', blob: new Blob([bytes], { type: 'application/pdf' }) }];
   } },
-  { id: 'pdf-to-images', label: 'PDF to images', group: 'PDF', from: ['pdf'], ext: 'png', mode: 'each', options: [
-    { key: 'format', type: 'select', label: 'Format', value: 'png', options: [['png', 'PNG'], ['jpg', 'JPG']] },
-    { key: 'pages', type: 'text', label: 'Pages', placeholder: 'All pages, or e.g. 1-3, 7', hint: 'Blank for every page.' },
-    { key: 'scale', type: 'select', label: 'Resolution', value: 2, options: [[1, '72 dpi'], [2, '144 dpi'], [3, '216 dpi']] },
+  { id: 'pdf-to-images', get label() { return tr('convert.conv.pdf_to_images'); }, group: 'PDF', from: ['pdf'], ext: 'png', mode: 'each', options: [   // i18n-ignore: group is an id (groupLabel)
+    { key: 'format', type: 'select', get label() { return tr('convert.opt.format'); }, value: 'png', options: [['png', 'PNG'], ['jpg', 'JPG']] },
+    { key: 'pages', type: 'text', get label() { return tr('convert.opt.pages'); }, get placeholder() { return tr('convert.opt.pages_ph'); }, get hint() { return tr('convert.opt.pages_hint'); } },
+    { key: 'scale', type: 'select', get label() { return tr('convert.opt.resolution'); }, value: 2, options: [[1, '72 dpi'], [2, '144 dpi'], [3, '216 dpi']] },
     QUALITY,
   ], run: async (files, o) => {
     const f = files[0];
     const pages = await pdfToImages(new Uint8Array(await f.file.arrayBuffer()), { pages: o.pages, scale: o.scale, format: o.format, quality: (o.quality ?? 92) / 100 });
     return pages.map((p) => ({ name: `${base(f.name)}-page-${p.pageNo}.${o.format === 'jpg' ? 'jpg' : 'png'}`, blob: p.blob }));
   } },
-  { id: 'pdf-to-html', label: 'PDF to HTML', group: 'PDF', from: ['pdf'], ext: 'html', mode: 'each',
-    note: 'A close copy, not an identical one. Each page’s text and images stay where they were, in reading order. Vector drawing, colours and the exact fonts are not kept.',
-    options: [{ key: 'pages', type: 'text', label: 'Pages', placeholder: 'All pages, or e.g. 1-3, 7', hint: 'Blank for every page.' }],
+  { id: 'pdf-to-html', get label() { return tr('convert.conv.pdf_to_html'); }, group: 'PDF', from: ['pdf'], ext: 'html', mode: 'each',   // i18n-ignore: group is an id (groupLabel)
+    get note() { return tr('convert.conv.pdf_to_html_note'); },
+    options: [{ key: 'pages', type: 'text', get label() { return tr('convert.opt.pages'); }, get placeholder() { return tr('convert.opt.pages_ph'); }, get hint() { return tr('convert.opt.pages_hint'); } }],
     run: async (files, o) => {
       const f = files[0];
       const html = await pdfToHtml(new Uint8Array(await f.file.arrayBuffer()), { pages: o.pages, title: base(f.name) });
       return [out(`${base(f.name)}.html`, html, 'text/html')];
     } },
-  { id: 'pdf-to-docx', label: 'PDF to Word (DOCX)', group: 'PDF', from: ['pdf'], ext: 'docx', mode: 'each',
-    note: 'Text-based. Paragraphs and column-aligned tables are kept as Word text and tables. Images, drawings, colours and fonts are not. Pages with no text layer are marked.',
-    options: [{ key: 'pages', type: 'text', label: 'Pages', placeholder: 'All pages, or e.g. 1-3, 7', hint: 'Blank for every page.' }], run: async (files, o) => {
+  { id: 'pdf-to-docx', get label() { return tr('convert.conv.pdf_to_docx'); }, group: 'PDF', from: ['pdf'], ext: 'docx', mode: 'each',   // i18n-ignore: group is an id (groupLabel)
+    get note() { return tr('convert.conv.pdf_to_docx_note'); },
+    options: [{ key: 'pages', type: 'text', get label() { return tr('convert.opt.pages'); }, get placeholder() { return tr('convert.opt.pages_ph'); }, get hint() { return tr('convert.opt.pages_hint'); } }], run: async (files, o) => {
       const f = files[0];
       return [{ name: `${base(f.name)}.docx`, blob: await pdfToDocx(new Uint8Array(await f.file.arrayBuffer()), { pages: o.pages, title: base(f.name) }) }];
     } },
-  { id: 'pdf-to-xlsx', label: 'PDF to Excel (XLSX)', group: 'PDF', from: ['pdf'], ext: 'xlsx', mode: 'each',
-    note: 'Text-based. Each line goes to a row and each column of text to a column, so tables aligned in columns become a grid. Numbers become numbers. No images, formulas or formats.',
-    options: [{ key: 'pages', type: 'text', label: 'Pages', placeholder: 'All pages, or e.g. 1-3, 7', hint: 'Blank for every page.' }], run: async (files, o) => {
+  { id: 'pdf-to-xlsx', get label() { return tr('convert.conv.pdf_to_xlsx'); }, group: 'PDF', from: ['pdf'], ext: 'xlsx', mode: 'each',   // i18n-ignore: group is an id (groupLabel)
+    get note() { return tr('convert.conv.pdf_to_xlsx_note'); },
+    options: [{ key: 'pages', type: 'text', get label() { return tr('convert.opt.pages'); }, get placeholder() { return tr('convert.opt.pages_ph'); }, get hint() { return tr('convert.opt.pages_hint'); } }], run: async (files, o) => {
       const f = files[0];
       return [{ name: `${base(f.name)}.xlsx`, blob: await pdfToXlsx(new Uint8Array(await f.file.arrayBuffer()), { pages: o.pages }) }];
     } },
-  { id: 'pdf-to-pptx', label: 'PDF to PowerPoint (PPTX)', group: 'PDF', from: ['pdf'], ext: 'pptx', mode: 'each',
-    note: 'One slide per page, each page a picture at 144 dpi. The text is not editable in the deck.',
-    options: [{ key: 'pages', type: 'text', label: 'Pages', placeholder: 'All pages, or e.g. 1-3, 7', hint: 'Blank for every page.' }], run: async (files, o) => {
+  { id: 'pdf-to-pptx', get label() { return tr('convert.conv.pdf_to_pptx'); }, group: 'PDF', from: ['pdf'], ext: 'pptx', mode: 'each',   // i18n-ignore: group is an id (groupLabel)
+    get note() { return tr('convert.conv.pdf_to_pptx_note'); },
+    options: [{ key: 'pages', type: 'text', get label() { return tr('convert.opt.pages'); }, get placeholder() { return tr('convert.opt.pages_ph'); }, get hint() { return tr('convert.opt.pages_hint'); } }], run: async (files, o) => {
       const f = files[0];
       return [{ name: `${base(f.name)}.pptx`, blob: await pdfToPptx(new Uint8Array(await f.file.arrayBuffer()), { pages: o.pages }) }];
     } },
-  { id: 'merge-pdf', label: 'Merge PDFs', group: 'PDF', from: ['pdf'], ext: 'pdf', mode: 'combine', options: [], run: async (files) => {
+  { id: 'merge-pdf', get label() { return tr('convert.conv.merge_pdf'); }, group: 'PDF', from: ['pdf'], ext: 'pdf', mode: 'combine', options: [], run: async (files) => {   // i18n-ignore: group is an id (groupLabel)
     const bytes = await mergePdfs(await Promise.all(files.map(async (f) => new Uint8Array(await f.file.arrayBuffer()))));
     return [{ name: 'merged.pdf', blob: new Blob([bytes], { type: 'application/pdf' }) }];
   } },
-  { id: 'split-pdf', label: 'Split PDF', group: 'PDF', from: ['pdf'], ext: 'pdf', mode: 'each', options: [
-    { key: 'pages', type: 'text', label: 'Pages to extract', placeholder: 'Blank: one file per page', hint: 'e.g. 2-4, 9 makes one PDF with those pages. Blank splits every page into its own file.' },
+  { id: 'split-pdf', get label() { return tr('convert.conv.split_pdf'); }, group: 'PDF', from: ['pdf'], ext: 'pdf', mode: 'each', options: [   // i18n-ignore: group is an id (groupLabel)
+    { key: 'pages', type: 'text', get label() { return tr('convert.opt.pages_to_extract'); }, get placeholder() { return tr('convert.opt.pages_to_extract_ph'); }, get hint() { return tr('convert.opt.pages_to_extract_hint'); } },
   ], run: async (files, o) => {
     const f = files[0];
     const bytes = new Uint8Array(await f.file.arrayBuffer());
     if (String(o.pages || '').trim()) return [{ name: `${base(f.name)}-pages.pdf`, blob: new Blob([await extractPages(bytes, o.pages)], { type: 'application/pdf' }) }];
     return (await splitPages(bytes)).map((p) => ({ name: `${base(f.name)}-page-${p.pageNo}.pdf`, blob: new Blob([p.bytes], { type: 'application/pdf' }) }));
   } },
-  { id: 'csv-to-json', label: 'CSV to JSON', group: 'Data', from: ['csv', 'txt'], ext: 'json', mode: 'each', options: [
+  { id: 'csv-to-json', get label() { return tr('convert.conv.csv_to_json'); }, group: 'Data', from: ['csv', 'txt'], ext: 'json', mode: 'each', options: [   // i18n-ignore: group is an id (groupLabel)
     DELIM,
-    { key: 'header', type: 'checkbox', label: 'First row has column names', value: true },
-    { key: 'numbers', type: 'checkbox', label: 'Write plain numbers as JSON numbers', value: false },
+    { key: 'header', type: 'checkbox', get label() { return tr('convert.opt.first_row_has_column_names'); }, value: true },
+    { key: 'numbers', type: 'checkbox', get label() { return tr('convert.opt.write_plain_numbers_as_json_numbers'); }, value: false },
   ], run: async (files, o) => {
     const { json } = csvToJson(decodeText(new Uint8Array(await files[0].file.arrayBuffer())), { header: o.header !== false, numbers: !!o.numbers, delimiter: o.delimiter === 'auto' ? undefined : o.delimiter });
     return [out(`${base(files[0].name)}.json`, json, 'application/json')];
   } },
-  { id: 'json-to-csv', label: 'JSON to CSV', group: 'Data', from: ['json', 'txt'], ext: 'csv', mode: 'each', options: [
-    { key: 'delimiter', type: 'select', label: 'Separator', value: ',', options: [[',', 'Comma'], [';', 'Semicolon'], ['\t', 'Tab']] }, EOL,
-    { key: 'flatten', type: 'checkbox', label: 'Nested values in their own columns (a.b, tags.0)', value: false },
+  { id: 'json-to-csv', get label() { return tr('convert.conv.json_to_csv'); }, group: 'Data', from: ['json', 'txt'], ext: 'csv', mode: 'each', options: [   // i18n-ignore: group is an id (groupLabel)
+    { key: 'delimiter', type: 'select', get label() { return tr('convert.opt.separator'); }, value: ',', options: [ch(',', () => tr('convert.opt.sep_comma')), ch(';', () => tr('convert.opt.sep_semicolon')), ch('\t', () => tr('convert.opt.sep_tab'))] }, EOL,
+    { key: 'flatten', type: 'checkbox', get label() { return tr('convert.opt.nested_values_in_their_own_columns_a_b_t'); }, value: false },
   ], run: async (files, o) => {
     const csv = jsonToCsv(decodeText(new Uint8Array(await files[0].file.arrayBuffer())), { delimiter: o.delimiter, eol: EOLS[o.eol] || '\n', flatten: !!o.flatten });
     return [out(`${base(files[0].name)}.csv`, csv, 'text/csv')];
   } },
-  { id: 'csv-to-xlsx', label: 'CSV to XLSX', group: 'Data', from: ['csv', 'txt'], ext: 'xlsx', mode: 'each', options: [DELIM], run: async (files, o) => {
+  { id: 'csv-to-xlsx', get label() { return tr('convert.conv.csv_to_xlsx'); }, group: 'Data', from: ['csv', 'txt'], ext: 'xlsx', mode: 'each', options: [DELIM], run: async (files, o) => {   // i18n-ignore: group is an id (groupLabel)
     const rows = parseCsv(decodeText(new Uint8Array(await files[0].file.arrayBuffer())), { delimiter: o.delimiter === 'auto' ? undefined : o.delimiter });
     return [{ name: `${base(files[0].name)}.xlsx`, blob: await rowsToXlsx(rows) }];
   } },
-  { id: 'csv-to-vcf', label: 'CSV to vCard', group: 'Data', from: ['csv', 'txt'], ext: 'vcf', mode: 'each', options: [DELIM], run: csvToVcf },
+  { id: 'csv-to-vcf', get label() { return tr('convert.conv.csv_to_vcf'); }, group: 'Data', from: ['csv', 'txt'], ext: 'vcf', mode: 'each', options: [DELIM], run: csvToVcf },   // i18n-ignore: group is an id (groupLabel)
   ...DATA_MORE.slice(0, 1),   // Spreadsheet to CSV first: the default for a workbook (core/data-more.js)
-  { id: 'xlsx-to-vcf', label: 'XLSX to vCard', group: 'Data', from: ['xlsx'], ext: 'vcf', mode: 'each', options: [], run: xlsxToVcf },
+  { id: 'xlsx-to-vcf', get label() { return tr('convert.conv.xlsx_to_vcf'); }, group: 'Data', from: ['xlsx'], ext: 'vcf', mode: 'each', options: [], run: xlsxToVcf },   // i18n-ignore: group is an id (groupLabel)
   ...DATA_MORE.slice(1),   // spreadsheets and JSON, YAML, TOML, XML, subtitles (core/data-more.js)
-  { id: 'vcf-to-csv', label: 'vCard to CSV', group: 'Data', from: ['vcf'], ext: 'csv', mode: 'each', options: [], run: vcfToCsv },
-  { id: 'vcf-to-xlsx', label: 'vCard to XLSX', group: 'Data', from: ['vcf'], ext: 'xlsx', mode: 'each', options: [], run: vcfToXlsx },
-  { id: 'vcf-to-json', label: 'vCard to JSON', group: 'Data', from: ['vcf'], ext: 'json', mode: 'each', options: [], run: vcfToJson },
-  { id: 'md-to-html', label: 'Markdown to HTML', group: 'Text', from: ['md', 'txt'], ext: 'html', mode: 'each', options: [
-    { key: 'standalone', type: 'checkbox', label: 'Full web page (not just the fragment)', value: true },
+  { id: 'vcf-to-csv', get label() { return tr('convert.conv.vcf_to_csv'); }, group: 'Data', from: ['vcf'], ext: 'csv', mode: 'each', options: [], run: vcfToCsv },   // i18n-ignore: group is an id (groupLabel)
+  { id: 'vcf-to-xlsx', get label() { return tr('convert.conv.vcf_to_xlsx'); }, group: 'Data', from: ['vcf'], ext: 'xlsx', mode: 'each', options: [], run: vcfToXlsx },   // i18n-ignore: group is an id (groupLabel)
+  { id: 'vcf-to-json', get label() { return tr('convert.conv.vcf_to_json'); }, group: 'Data', from: ['vcf'], ext: 'json', mode: 'each', options: [], run: vcfToJson },   // i18n-ignore: group is an id (groupLabel)
+  { id: 'md-to-html', get label() { return tr('convert.conv.md_to_html'); }, group: 'Text', from: ['md', 'txt'], ext: 'html', mode: 'each', options: [   // i18n-ignore: group is an id (groupLabel)
+    { key: 'standalone', type: 'checkbox', get label() { return tr('convert.opt.full_web_page_not_just_the_fragment'); }, value: true },
   ], run: async (files, o) => {
     const html = markdownToHtml(await text(files[0].file), { standalone: o.standalone !== false, title: base(files[0].name) });
     return [out(`${base(files[0].name)}.html`, html, 'text/html')];
   } },
-  { id: 'html-to-text', label: 'HTML to plain text', group: 'Text', from: ['html'], ext: 'txt', mode: 'each', options: [], run: async (files) => {
+  { id: 'html-to-text', get label() { return tr('convert.conv.html_to_text'); }, group: 'Text', from: ['html'], ext: 'txt', mode: 'each', options: [], run: async (files) => {   // i18n-ignore: group is an id (groupLabel)
     return [out(`${base(files[0].name)}.txt`, htmlToText(await text(files[0].file)), 'text/plain')];
   } },
-  { id: 'base64-encode', label: 'Base64 encode', group: 'Encoding', from: ['*'], ext: 'txt', mode: 'each', options: [
-    { key: 'wrap', type: 'select', label: 'Line length', value: 0, options: [[0, 'One line'], [76, '76 characters (MIME)']] },
+  { id: 'base64-encode', get label() { return tr('convert.conv.base64_encode'); }, group: 'Encoding', from: ['*'], ext: 'txt', mode: 'each', options: [   // i18n-ignore: group is an id (groupLabel)
+    { key: 'wrap', type: 'select', get label() { return tr('convert.opt.line_length'); }, value: 0, options: [ch(0, () => tr('convert.opt.wrap_none')), ch(76, () => tr('convert.opt.wrap_mime'))] },
   ], run: async (files, o) => {
     const bytes = new Uint8Array(await files[0].file.arrayBuffer());
     return [out(`${base(files[0].name)}.base64.txt`, bytesToBase64(bytes, { wrap: Number(o.wrap) || 0 }), 'text/plain')];
   } },
-  { id: 'base64-decode', label: 'Base64 decode', group: 'Encoding', from: ['txt', 'csv', 'json', 'md', 'html'], mode: 'each', options: [], run: async (files) => {
+  { id: 'base64-decode', get label() { return tr('convert.conv.base64_decode'); }, group: 'Encoding', from: ['txt', 'csv', 'json', 'md', 'html'], mode: 'each', options: [], run: async (files) => {   // i18n-ignore: group is an id (groupLabel)
     const bytes = base64ToBytes(await text(files[0].file));
     const kind = detectKind('', '', bytes.subarray(0, 512));
     const ext = EXT_OF_KIND[kind] || 'bin';
     const name = base(files[0].name).replace(/\.base64$/, '');
     return [{ name: `${name}.${ext}`, blob: new Blob([bytes]) }];
   } },
-  { id: 'url-encode', label: 'URL encode', group: 'Encoding', from: ['txt', 'csv', 'json', 'md', 'html'], ext: 'txt', mode: 'each', options: [
-    { key: 'full', type: 'checkbox', label: 'Keep URL punctuation (: / ? & =)', value: false },
+  { id: 'url-encode', get label() { return tr('convert.conv.url_encode'); }, group: 'Encoding', from: ['txt', 'csv', 'json', 'md', 'html'], ext: 'txt', mode: 'each', options: [   // i18n-ignore: group is an id (groupLabel)
+    { key: 'full', type: 'checkbox', get label() { return tr('convert.opt.keep_url_punctuation'); }, value: false },
   ], run: async (files, o) => [out(`${base(files[0].name)}.url.txt`, urlEncode(await text(files[0].file), { full: !!o.full }), 'text/plain')] },
-  { id: 'url-decode', label: 'URL decode', group: 'Encoding', from: ['txt', 'csv', 'json', 'md', 'html'], ext: 'txt', mode: 'each', options: [], run: async (files) => {
+  { id: 'url-decode', get label() { return tr('convert.conv.url_decode'); }, group: 'Encoding', from: ['txt', 'csv', 'json', 'md', 'html'], ext: 'txt', mode: 'each', options: [], run: async (files) => {   // i18n-ignore: group is an id (groupLabel)
     return [out(`${base(files[0].name)}.decoded.txt`, urlDecode(await text(files[0].file)), 'text/plain')];
   } },
   ...DOC_OUT,   // text and Markdown to PDF and DOCX with the Slop Docs engine (core/doc-out.js)
   ...OFFICE,   // Word to PDF, HTML, Markdown, text (core/office.js, Slop Docs); PowerPoint to PDF, pictures, text (core/slides-out.js, Slop Slides)
-  { id: 'line-endings', label: 'Line endings', group: 'Text', from: ['txt', 'csv', 'json', 'md', 'html', 'yaml', 'toml', 'xml', 'srt', 'vtt'], ext: 'txt', mode: 'each', options: [EOL], run: async (files, o) => {
+  { id: 'line-endings', get label() { return tr('convert.conv.line_endings'); }, group: 'Text', from: ['txt', 'csv', 'json', 'md', 'html', 'yaml', 'toml', 'xml', 'srt', 'vtt'], ext: 'txt', mode: 'each', options: [EOL], run: async (files, o) => {   // i18n-ignore: group is an id (groupLabel)
     const f = files[0];
     const ext = /\.[^.]+$/.test(f.name) ? f.name.split('.').pop().toLowerCase() : 'txt';
     const body = setLineEndings(decodeText(new Uint8Array(await f.file.arrayBuffer())), o.eol);
     return [out(`${base(f.name)}-${o.eol}.${ext}`, body, 'text/plain')];
   } },
   // Mail, calendar and XML. The readers are the apps' own (shared/mail, shared/calendar); see core/mail.js.
-  { id: 'eml-to-html', label: 'Email to HTML', group: 'Email', from: ['eml'], ext: 'html', mode: 'each', options: [], run: async (files) => { const f = files[0]; return [{ name: `${base(f.name)}.html`, blob: new Blob([await emlToHtml(new Uint8Array(await f.file.arrayBuffer()))], { type: 'text/html' }) }]; } },
-  { id: 'eml-to-text', label: 'Email to plain text', group: 'Email', from: ['eml'], ext: 'txt', mode: 'each', options: [], run: async (files) => { const f = files[0]; return [{ name: `${base(f.name)}.txt`, blob: new Blob([await emlToText(new Uint8Array(await f.file.arrayBuffer()))], { type: 'text/plain' }) }]; } },
-  { id: 'eml-attachments', label: 'Email attachments to ZIP', group: 'Email', from: ['eml'], ext: 'zip', mode: 'each', options: [], run: async (files) => { const f = files[0]; return [{ name: `${base(f.name)}-attachments.zip`, blob: await emlAttachmentsZip(new Uint8Array(await f.file.arrayBuffer())) }]; } },
-  { id: 'ics-to-csv', label: 'Calendar to CSV', group: 'Calendar', from: ['ics'], ext: 'csv', mode: 'each', options: [], run: async (files) => { const f = files[0]; return [{ name: `${base(f.name)}.csv`, blob: new Blob([await icsToCsv(await text(f.file))], { type: 'text/csv' }) }]; } },
-  { id: 'ics-to-json', label: 'Calendar to JSON', group: 'Calendar', from: ['ics'], ext: 'json', mode: 'each', options: [], run: async (files) => { const f = files[0]; return [{ name: `${base(f.name)}.json`, blob: new Blob([await icsToJson(await text(f.file))], { type: 'application/json' }) }]; } },
-  { id: 'xml-to-json', label: 'XML to JSON', group: 'Data', from: ['xml'], ext: 'json', mode: 'each', options: [], run: async (files) => { const f = files[0]; return [{ name: `${base(f.name)}.json`, blob: new Blob([xmlToJson(await text(f.file))], { type: 'application/json' }) }]; } },
+  { id: 'eml-to-html', get label() { return tr('convert.conv.eml_to_html'); }, group: 'Email', from: ['eml'], ext: 'html', mode: 'each', options: [], run: async (files) => { const f = files[0]; return [{ name: `${base(f.name)}.html`, blob: new Blob([await emlToHtml(new Uint8Array(await f.file.arrayBuffer()))], { type: 'text/html' }) }]; } },   // i18n-ignore: group is an id (groupLabel)
+  { id: 'eml-to-text', get label() { return tr('convert.conv.eml_to_text'); }, group: 'Email', from: ['eml'], ext: 'txt', mode: 'each', options: [], run: async (files) => { const f = files[0]; return [{ name: `${base(f.name)}.txt`, blob: new Blob([await emlToText(new Uint8Array(await f.file.arrayBuffer()))], { type: 'text/plain' }) }]; } },   // i18n-ignore: group is an id (groupLabel)
+  { id: 'eml-attachments', get label() { return tr('convert.conv.eml_attachments'); }, group: 'Email', from: ['eml'], ext: 'zip', mode: 'each', options: [], run: async (files) => { const f = files[0]; return [{ name: `${base(f.name)}-attachments.zip`, blob: await emlAttachmentsZip(new Uint8Array(await f.file.arrayBuffer())) }]; } },   // i18n-ignore: group is an id (groupLabel)
+  { id: 'ics-to-csv', get label() { return tr('convert.conv.ics_to_csv'); }, group: 'Calendar', from: ['ics'], ext: 'csv', mode: 'each', options: [], run: async (files) => { const f = files[0]; return [{ name: `${base(f.name)}.csv`, blob: new Blob([await icsToCsv(await text(f.file))], { type: 'text/csv' }) }]; } },   // i18n-ignore: group is an id (groupLabel)
+  { id: 'ics-to-json', get label() { return tr('convert.conv.ics_to_json'); }, group: 'Calendar', from: ['ics'], ext: 'json', mode: 'each', options: [], run: async (files) => { const f = files[0]; return [{ name: `${base(f.name)}.json`, blob: new Blob([await icsToJson(await text(f.file))], { type: 'application/json' }) }]; } },   // i18n-ignore: group is an id (groupLabel)
+  { id: 'xml-to-json', get label() { return tr('convert.conv.xml_to_json'); }, group: 'Data', from: ['xml'], ext: 'json', mode: 'each', options: [], run: async (files) => { const f = files[0]; return [{ name: `${base(f.name)}.json`, blob: new Blob([xmlToJson(await text(f.file))], { type: 'application/json' }) }]; } },   // i18n-ignore: group is an id (groupLabel)
   // SIE accounting files and bank statements (OFX, QIF, camt.053, MT940): core/finance.js, readers in shared/finance.
   ...FINANCE,
-  { id: 'unzip', label: 'Unzip', group: 'Archives', from: ['zip'], mode: 'each', options: [], run: async (files) => unzipEntries(files[0].file) },
-  { id: 'zip-files', label: 'Files to ZIP', group: 'Archives', from: ['*'], ext: 'zip', mode: 'combine', keywords: ['add to zip', 'archive', 'bundle'],
-    options: [{ key: 'zipName', type: 'text', label: 'ZIP name', value: 'files', placeholder: 'files' }],
+  { id: 'unzip', get label() { return tr('convert.conv.unzip'); }, group: 'Archives', from: ['zip'], mode: 'each', options: [], run: async (files) => unzipEntries(files[0].file) },   // i18n-ignore: group is an id (groupLabel)
+  { id: 'zip-files', get label() { return tr('convert.conv.zip_files'); }, group: 'Archives', from: ['*'], ext: 'zip', mode: 'combine', keywords: ['add to zip', 'archive', 'bundle'],   // i18n-ignore: group is an id (groupLabel)
+    options: [{ key: 'zipName', type: 'text', get label() { return tr('convert.opt.zip_name'); }, value: 'files', placeholder: 'files' }],
     run: async (files, o = {}) => [{ name: `${String(o.zipName || 'files').trim().replace(/\.zip$/i, '').replace(/[\\/:*?"<>|]+/g, '_') || 'files'}.zip`, blob: await zipFiles(files) }] },
   ...RAW,   // camera RAW photos (core/raw.js)
   ...HEIC,   // HEIC and HEIF photos (core/heic.js)
@@ -273,7 +277,10 @@ for (const c of CONVERSIONS) Object.assign(c, CHAIN_FLAGS[c.id]);   // lossy, co
 
 // The one operation registry (shared/ops/registry.js): File convert's entries are its 'convert' app; Slop Workflows adds the
 // apps' own operations beside them. CONVERSIONS stays File convert's list.
-register(CONVERSIONS, { app: 'convert', label: 'File convert' });
+register(CONVERSIONS, { app: 'convert', label: 'File convert' });   // i18n-ignore: the app's name
+
+/** A group (c.group, an English id that chain.js compares) or a card category as the menus and cards show it. */
+export const groupLabel = (g) => tr('convert.cat.' + String(g || 'Other').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, ''));   // i18n-ignore: 'Other' is the fallback id
 
 export const conversionById = (id) => CONVERSIONS.find((c) => c.id === id);
 

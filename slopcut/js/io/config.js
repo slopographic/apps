@@ -28,11 +28,11 @@
     if (!missing.length || !window.SlopUI) return;
     const list = SlopUI.el('ul', { class: 'sui-errors' }, missing.map((m) => SlopUI.el('li', null, `${m.name} (${MB(m.size || 0)})`)));
     SlopUI.dialog({
-      title: 'Add the media for this config',
+      title: U.t('slopedit.io.add_the_media_for_this'),
       body: SlopUI.el('div', null,
-        SlopUI.el('p', { class: 'sui-p' }, 'The timeline is in place. These files are not in the bin yet. Add them; each one is matched by its name:'),
+        SlopUI.el('p', { class: 'sui-p' }, U.t('slopedit.io.the_timeline_is_in_place')),
         list),
-      buttons: [{ label: 'Later' }, { label: 'Add files…', primary: true, act: () => { SE.app.openDialog(); } }],
+      buttons: [{ label: U.t('slopedit.io.later') }, { label: U.t('slopedit.io.add_files'), primary: true, act: () => { SE.app.openDialog(); } }],
     });
   }
 
@@ -41,7 +41,7 @@
     const p = SE.doc, created = [];
     const parts = CM.fromData(d, resolver(p, created));
     for (const m of created) SE.media.addMissing(m);
-    SE.change('Import config', (doc) => {
+    SE.change(U.t('slopedit.io.import_config'), (doc) => {
       Object.assign(doc, { w: parts.w, h: parts.h, fps: parts.fps, tracks: parts.tracks, clips: parts.clips, markers: parts.markers });
       for (const m of created) doc.media.push(m);
     });

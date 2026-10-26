@@ -10,23 +10,24 @@
   const A = () => window.EmlApp, B = () => window.EmlBatch;
   const L = (window.EmlList = {});
   let queued = false, anchor = null, onOpen = null;
-  const SORTS = [['date:desc', 'Newest first'], ['date:asc', 'Oldest first'], ['from:asc', 'Sender A to Z'], ['from:desc', 'Sender Z to A'],
-    ['subject:asc', 'Subject A to Z'], ['subject:desc', 'Subject Z to A']];
+  const t = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
+  const SORTS = () => [['date:desc', t('eml.list.newest')], ['date:asc', t('eml.list.oldest')], ['from:asc', t('eml.list.from_az')], ['from:desc', t('eml.list.from_za')],
+    ['subject:asc', t('eml.list.subject_az')], ['subject:desc', t('eml.list.subject_za')]];
   const CLIP = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5l-8.6 8.6a5.5 5.5 0 0 1-7.8-7.8l8.6-8.6a3.7 3.7 0 0 1 5.2 5.2l-8.6 8.6a1.8 1.8 0 0 1-2.6-2.6l7.9-7.9"/></svg>';
 
   function el(tag, cls, text) { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; }
-  function when(t) {
-    if (t == null) return '';
-    const d = new Date(t), now = new Date();
-    if (d.toDateString() === now.toDateString()) return d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
-    return d.toLocaleDateString(undefined, d.getFullYear() === now.getFullYear() ? { day: 'numeric', month: 'short' } : { dateStyle: 'medium' });
+  function when(ts) {
+    if (ts == null) return '';
+    const d = new Date(ts), now = new Date();
+    const o = d.toDateString() === now.toDateString() ? { hour: '2-digit', minute: '2-digit' } : d.getFullYear() === now.getFullYear() ? { day: 'numeric', month: 'short' } : { dateStyle: 'medium' };
+    return window.SlopI18n ? window.SlopI18n.date(d, o) : d.toLocaleString(undefined, o);   // in the page's language
   }
 
   /** Builds the bar once and wires it. open(doc) runs when a row is opened by a click or Enter. */
   L.init = function (opts = {}) {
     onOpen = opts.open || null;
     const sort = $('em-sort');
-    sort.replaceChildren(...SORTS.map(([v, l]) => { const o = el('option', null, l); o.value = v; return o; }));
+    sortOptions();
     sort.addEventListener('change', () => { const [key, dir] = sort.value.split(':'); A().setList({ sort: key, dir }); });
     $('em-search').addEventListener('input', (e) => A().setList({ query: e.target.value }));
     $('em-check-all').addEventListener('change', (e) => A().checkAll(e.target.checked));
@@ -34,6 +35,14 @@
     rows.addEventListener('click', onClick);
     rows.addEventListener('keydown', onKey);
   };
+
+  /** The sort menu in the page's language (again on a language change, keeping the choice). */
+  function sortOptions() {
+    const sort = $('em-sort'), was = sort.value;
+    sort.replaceChildren(...SORTS().map(([v, l]) => { const o = el('option', null, l); o.value = v; return o; }));
+    if (was) sort.value = was;
+  }
+  L.relang = function () { sortOptions(); L.render(); };
 
   const idOf = (n) => { const r = n && n.closest && n.closest('.em-row'); return r ? Number(r.dataset.id) : null; };
   const ids = () => A().visible().map((d) => d.id);
@@ -79,17 +88,17 @@
   function row(d, cur) {
     const li = el('li', 'em-row' + (cur ? ' em-on' : '') + (A().isChecked(d.id) ? ' em-checked' : ''));
     li.dataset.id = String(d.id);
-    const s = d.summary, subject = s.subject || '(no subject)';
+    const s = d.summary, subject = s.subject || t('eml.list.no_subject');
     const box = el('input', 'em-row-check');
     box.type = 'checkbox';
     box.checked = A().isChecked(d.id);
-    box.setAttribute('aria-label', 'Select ' + subject);
+    box.setAttribute('aria-label', t('eml.list.select', { subject }));
     const b = el('button', 'em-row-open');
     b.type = 'button';
     b.tabIndex = cur ? 0 : -1;
     if (cur) b.setAttribute('aria-current', 'true');
     const top = el('span', 'em-row-top');
-    top.append(el('span', 'em-row-from', B().person(s.from) || '(no sender)'), el('span', 'em-row-date', when(d.time)));
+    top.append(el('span', 'em-row-from', B().person(s.from) || t('eml.list.no_sender')), el('span', 'em-row-date', when(d.time)));
     const bottom = el('span', 'em-row-bottom');
     bottom.append(el('span', 'em-row-subj', subject));
     const n = d.msg.attachments.filter((a) => !a.inline).length;
@@ -97,7 +106,7 @@
       const c = el('span', 'em-row-att');
       c.innerHTML = CLIP;
       c.append(String(n));
-      c.title = n + (n === 1 ? ' attachment' : ' attachments');
+      c.title = t('eml.view.n_atts', { n });
       bottom.append(c);
     }
     b.append(top, bottom);
@@ -116,7 +125,7 @@
     const all_ = $('em-check-all');
     all_.checked = vis.length > 0 && k === vis.length;
     all_.indeterminate = k > 0 && k < vis.length;
-    $('em-count').textContent = k ? k + ' of ' + vis.length + ' selected' : vis.length === all ? all + ' messages' : vis.length + ' of ' + all + ' messages';
+    $('em-count').textContent = k ? t('eml.list.k_selected', { k: String(k), n: vis.length }) : vis.length === all ? t('eml.list.n_messages', { n: all }) : t('eml.list.k_of_n', { k: String(vis.length), n: all });
     rows.replaceChildren(...vis.map((d) => row(d, cur && cur.id === d.id)));
     if (!rows.querySelector('.em-row-open[tabindex="0"]') && rows.firstChild) rows.firstChild.querySelector('.em-row-open').tabIndex = 0;
     $('em-noresults').hidden = vis.length > 0;

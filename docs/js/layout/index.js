@@ -18,7 +18,7 @@ function tocPara(text, level, page, pid, width) {
   }
   return tocCache.get(k);
 }
-const TOC_TITLE = { type: 'p', id: 'toc-title', style: 'Normal', toc: true, props: { after: 8 }, runs: [{ text: 'Contents', size: 16, b: true }] };
+const TOC_TITLE = { type: 'p', id: 'toc-title', style: 'Normal', toc: true, props: { after: 8 }, runs: [{ text: 'Contents', size: 16, b: true }] }; // i18n-ignore: text written into the document (TOC title)
 
 /** Headings of the body in order (for the outline, the TOC and PDF bookmarks). */
 export function scanHeadings(doc) {

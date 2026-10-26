@@ -5,6 +5,8 @@
 (function (g) {
   'use strict';
   if (g.QRSave) return;
+  /** The words for a key (qr/i18n), or the English given when SlopI18n or the key is absent (node tests, other pages). */
+  const tr = (k, en, v) => { const I = g.SlopI18n; return I && I.has && I.has(k) ? I.t(k, v) : (v ? String(en).replace(/\{(\w+)\}/g, (m, x) => (x in v ? String(v[x]) : m)) : en); };
   const H = () => g.SlopHub, B = () => g.SlopBuffer;
   const JSON_TYPE = 'application/json';
 
@@ -25,7 +27,7 @@
   /** Asks for a folder (the QR app's folder opens first). Resolves the folder id, null for the root, or undefined when cancelled. */
   async function chooseFolder() {
     const start = await H().appFolderId('qr');
-    return H().pickFolder({ title: 'Save the QR code to Slop Drive', start });
+    return H().pickFolder({ title: tr('qr.app.save_title', 'Save the QR code to Slop Drive'), start });
   }
 
   /** The settings a picked Drive record holds: the record itself (JSON), or the one a PNG points to. Null when there are none. */
@@ -42,7 +44,7 @@
   async function openPicked() {
     const SI = g.SlopIntake;
     if (!SI.spec('qr.open')) {
-      SI.register({ id: 'qr.open', main: false, paste: false, toast: false, limit: 1, accept: { types: ['image/png', JSON_TYPE], exts: ['.json'], noun: 'a QR code' },
+      SI.register({ id: 'qr.open', main: false, paste: false, toast: false, limit: 1, accept: { types: ['image/png', JSON_TYPE], exts: ['.json'], noun: 'qr.app.noun_qr' },
         process: async (file, ctx) => {
           const rec = ctx.drive ? ctx.drive.record : null;
           let snapshot = null;
@@ -50,7 +52,7 @@
           return { snapshot, id: rec && rec.id, name: file.name };
         } });
     }
-    const r = await SI.fromDrive({ to: 'qr.open', title: 'Open a QR code from Slop Drive', accept: ['image/png', JSON_TYPE] });
+    const r = await SI.fromDrive({ to: 'qr.open', title: tr('qr.app.open_title', 'Open a QR code from Slop Drive'), accept: ['image/png', JSON_TYPE] });
     return r && r.added[0] ? r.added[0].value : null;
   }
 

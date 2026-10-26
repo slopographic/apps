@@ -4,6 +4,8 @@
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="drive" data-src="shared/theme/theme.js"></script>
   <link rel="expect" href="#slop-built" blocking="render">
+  <script src="../shared/i18n/i18n.js" data-src="shared/i18n/i18n.js"></script>
+  <script src="i18n/index.js" data-src="drive/i18n/index.js"></script>
 <script src="../shared/consent/config.js"></script>
 <script src="../shared/consent/state.js"></script>
 <script src="../shared/consent/consent-mode.js"></script>
@@ -55,46 +57,46 @@
 <body>
   <div class="app" id="app">
     <header class="topbar">
-      <button type="button" class="tb only-mobile" id="btnSide" aria-label="Folders"><svg class="ic" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
-      <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home"><svg viewBox="0 0 32 32" class="brand-mark" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/></svg></a>
-      <div class="appname"><b>Slop Drive</b><a class="home-link" href="../">slopographic</a></div>
-      <label class="search"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.5-4.5"/></svg><input id="search" type="search" placeholder="Search Slop Drive" aria-label="Search Slop Drive" autocomplete="off"></label>
+      <button type="button" class="tb only-mobile" id="btnSide" aria-label="Folders" data-i18n-attr="aria-label:drive.side.folders"><svg class="ic" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+      <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home" data-i18n-attr="title:ui.mb.home;aria-label:ui.mb.home"><svg viewBox="0 0 32 32" class="brand-mark" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/></svg></a>
+      <div class="appname"><b>Slop Drive</b><a class="home-link" href="../">slopographic</a></div><!-- i18n-ignore: the app and brand names -->
+      <label class="search"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.5-4.5"/></svg><input id="search" type="search" placeholder="Search Slop Drive" aria-label="Search Slop Drive" data-i18n-attr="placeholder:drive.app.search;aria-label:drive.app.search" autocomplete="off"></label>
       <div class="tb-group">
         <button type="button" class="btn pwa-install" id="pwa-install" data-i18n="shell.install_title" hidden>Install Slopographic</button>
-        <button type="button" class="btn primary" id="btnNew"><svg class="ic" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span>New</span></button>
-        <button type="button" class="tb" id="btnCmd" title="Search commands (⌘K)" aria-label="Search commands" hidden><svg class="ic" viewBox="0 0 24 24"><path d="M9 6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3z"/></svg></button>
-        <button type="button" class="tb" id="btnBackup" title="Backup & restore" aria-label="Backup and restore"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v3h16v-3"/></svg></button>
-        <button type="button" class="tb" id="btnMore" title="More" aria-label="More"><svg class="ic" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/></svg></button>
+        <button type="button" class="btn primary" id="btnNew"><svg class="ic" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span data-i18n="drive.menu.new">New</span></button>
+        <button type="button" class="tb" id="btnCmd" title="Search commands (⌘K)" aria-label="Search commands" data-i18n-attr="title:drive.app.cmd_tip;aria-label:ui.cmd.search" hidden><svg class="ic" viewBox="0 0 24 24"><path d="M9 6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3z"/></svg></button>
+        <button type="button" class="tb" id="btnBackup" title="Backup & restore" aria-label="Backup and restore" data-i18n-attr="title:drive.app.backup_tip;aria-label:drive.app.backup_label"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v3h16v-3"/></svg></button>
+        <button type="button" class="tb" id="btnMore" title="More" aria-label="More" data-i18n-attr="title:ui.more;aria-label:ui.more"><svg class="ic" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/></svg></button>
       </div>
     </header>
-    <aside class="side" id="side" aria-label="Places and folders">
+    <aside class="side" id="side" aria-label="Places and folders" data-i18n-attr="aria-label:drive.side.places">
       <nav class="places" id="places"></nav>
-      <div class="tree-h">Folders</div>
+      <div class="tree-h" data-i18n="drive.side.folders">Folders</div>
       <div class="tree" id="tree" role="tree"></div>
-      <div class="tree-h">Drives</div>
-      <div class="pvtree" id="providers" aria-label="Local drives and folders"></div>
-      <div class="tree-h">Tags</div>
-      <nav class="tags" id="tags" aria-label="Filter by tag"></nav>
-      <div class="tree-h">Local folder</div>
+      <div class="tree-h" data-i18n="drive.side.drives">Drives</div>
+      <div class="pvtree" id="providers" aria-label="Local drives and folders" data-i18n-attr="aria-label:drive.side.drives_label"></div>
+      <div class="tree-h" data-i18n="drive.col.tags">Tags</div>
+      <nav class="tags" id="tags" aria-label="Filter by tag" data-i18n-attr="aria-label:drive.side.by_tag"></nav>
+      <div class="tree-h" data-i18n="drive.side.local_folder">Local folder</div>
       <div class="folder-box" id="folderBox"></div>
       <div class="meter" id="meter"></div>
     </aside>
     <main class="main" id="main">
       <div class="bar">
-        <nav class="crumbs" id="crumbs" aria-label="Folder path"></nav>
+        <nav class="crumbs" id="crumbs" aria-label="Folder path" data-i18n-attr="aria-label:drive.app.path"></nav>
         <div class="bar-tools">
-          <select id="kind" class="inp" aria-label="Filter by kind"></select>
-          <div class="seg" id="views" role="group" aria-label="View"></div>
-          <button type="button" class="tb" id="btnSort" title="Sort (Alt+S)" aria-label="Sort" aria-haspopup="menu"><svg class="ic" viewBox="0 0 24 24"><path d="M7 4v16m0 0-3-3m3 3 3-3M17 20V4m0 0-3 3m3-3 3 3"/></svg></button>
-          <button type="button" class="tb" id="btnInfo" title="Info panel (I)" aria-label="Info panel" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg></button>
+          <select id="kind" class="inp" aria-label="Filter by kind" data-i18n-attr="aria-label:drive.app.by_kind"></select>
+          <div class="seg" id="views" role="group" aria-label="View" data-i18n-attr="aria-label:menu.view"></div>
+          <button type="button" class="tb" id="btnSort" title="Sort (Alt+S)" aria-label="Sort" data-i18n-attr="title:drive.app.sort_tip;aria-label:drive.app.sort" aria-haspopup="menu"><svg class="ic" viewBox="0 0 24 24"><path d="M7 4v16m0 0-3-3m3 3 3-3M17 20V4m0 0-3 3m3-3 3 3"/></svg></button>
+          <button type="button" class="tb" id="btnInfo" title="Info panel (I)" aria-label="Info panel" data-i18n-attr="title:drive.app.info_tip;aria-label:drive.menu.info_panel" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg></button>
         </div>
       </div>
       <div class="selbar" id="selbar" hidden></div>
       <div id="drvDrop" class="drv-dropstrip"></div>
-      <section class="pane" id="pane" tabindex="0" aria-label="Files"></section>
+      <section class="pane" id="pane" tabindex="0" aria-label="Files" data-i18n-attr="aria-label:drive.cmd.files"></section>
       <footer class="status" id="status" role="status"></footer>
     </main>
-    <aside class="info" id="info" aria-label="Details" hidden><div class="info-grip" id="infoGrip" role="separator" aria-orientation="vertical" tabindex="0" title="Drag to resize. Double-click to reset"></div></aside>
+    <aside class="info" id="info" aria-label="Details" data-i18n-attr="aria-label:drive.info.details" hidden><div class="info-grip" id="infoGrip" role="separator" aria-orientation="vertical" tabindex="0" title="Drag to resize. Double-click to reset" data-i18n-attr="title:drive.info.grip_tip"></div></aside>
   </div>
   <script src="../shared/pwa.js"></script>
   <script>SlopPWA.mount({ install: '#pwa-install' });</script>

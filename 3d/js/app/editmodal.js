@@ -7,6 +7,7 @@
   const S = (window.Slop3D = window.Slop3D || {});
   const E = S.edit, MX = S.meshxf, X = S.xform, st = S.state;
   const AX = { x: [1, 0, 0], y: [0, 1, 0], z: [0, 0, 1] };
+  const tr = S.t;
   let M = null;
 
   const env = () => S.editenv;
@@ -42,20 +43,20 @@
           amt = l2 > 1e-9 ? (dx * sx + dy * sy) / l2 : 0;
         }
         d = av.map((c) => c * amt);
-        text = `Move ${M.axis === 'n' ? 'normal' : M.axis.toUpperCase()} ${amt.toFixed(3)}`;
+        text = tr('3d.edit.move_axis', { axis: M.axis === 'n' ? tr('3d.edit.normal') : M.axis.toUpperCase(), amount: amt.toFixed(3) });
       } else {
         const el = cam.matrixWorld.elements, dist = Math.hypot(cam.position.x - P[0], cam.position.y - P[1], cam.position.z - P[2]);
         const k = 2 * dist * Math.tan(cam.fov * Math.PI / 360) / Math.max(1, env().canvas.getBoundingClientRect().height);
         const right = [el[0], el[1], el[2]], up = [el[4], el[5], el[6]];
         d = [0, 1, 2].map((i) => right[i] * dx * k - up[i] * dy * k);
-        text = 'Move (type X, Y or Z to pick an axis)';
+        text = tr('3d.edit.move_free');
       }
       A = MX.translate(d);
     } else if (M.kind === 'rotate') {
       const deg = t !== null ? t : dx * 0.5;
       const dir = av || (() => { const v = new e.THREE.Vector3(); cam.getWorldDirection(v); return [v.x, v.y, v.z]; })();
       A = MX.about(P, MX.rotation(dir, deg));
-      text = `Rotate ${deg.toFixed(1)}°${M.axis ? ' ' + M.axis.toUpperCase() : ''}`;
+      text = M.axis ? tr('3d.edit.rotate_axis', { deg: deg.toFixed(1), axis: M.axis.toUpperCase() }) : tr('3d.edit.rotate_by', { deg: deg.toFixed(1) });
     } else {
       let f = t;
       if (f === null) {
@@ -67,7 +68,7 @@
         }
       }
       A = MX.about(P, MX.scale(f, M.axis && M.axis !== 'n' ? AX[M.axis] : null));
-      text = `Scale ${f.toFixed(3)}${M.axis ? ' ' + M.axis.toUpperCase() : ''}`;
+      text = M.axis ? tr('3d.edit.scale_axis', { f: f.toFixed(3), axis: M.axis.toUpperCase() }) : tr('3d.edit.scale_by', { f: f.toFixed(3) });
     }
     M.sess.apply(A);
     E.setInfo(text);
@@ -75,7 +76,7 @@
   /** Starts a gesture. kind: 'move' | 'rotate' | 'scale' | 'extrude' (extrude, then move along the normal). */
   function start(kind) {
     if (M || !E.active() || !env()) return false;
-    if (!E.hasSel()) { if (window.SlopUI) SlopUI.toast('Select something first'); return false; }
+    if (!E.hasSel()) { if (window.SlopUI) SlopUI.toast(tr('3d.edit.select_first')); return false; }
     let axis = null, nrm = null;
     if (kind === 'extrude') {
       if (!E.extrude()) return false;
@@ -86,7 +87,7 @@
     const sess = E.begin();
     if (!sess) return false;
     M = { kind, sess, axis, nrm, typed: '', base: null, last: null };
-    E.setInfo(kind === 'move' ? 'Move' : kind === 'rotate' ? 'Rotate' : 'Scale');
+    E.setInfo(tr(kind === 'move' ? '3d.edit.move' : kind === 'rotate' ? '3d.edit.rotate' : '3d.edit.scale'));
     return true;
   }
   function confirm() { if (!M) return; M = null; E.setInfo(''); }

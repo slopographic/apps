@@ -19,7 +19,7 @@ const C = window.SlopCmd;
 const tool = () => { const r = document.querySelector('[data-convert-root]'); if (!r || !r.convertTool) throw new Error('The converter is not on this page'); return r.convertTool; };
 const plural = (n, one, many = one + 's') => `${n} ${n === 1 ? one : many}`;
 const convOf = (t) => (isRoute(t) ? stepsOf(t).pop().conv : conversionById(t));
-const labelOf = (t) => { const c = convOf(t); return t === WITH ? 'goes with its model' : c ? (isRoute(t) ? `${c.label} (by way of ${stepsOf(t).length} steps)` : c.label) : 'none'; };
+const labelOf = (t) => { const c = convOf(t); return t === WITH ? 'goes with its model' : c ? (isRoute(t) ? `${c.label} (by way of ${stepsOf(t).length} steps)` : c.label) : 'none'; };   // i18n-ignore: for the assistant (API)
 const notBusy = (t) => { if (t.busy) throw new Error('A conversion is running; wait for it to finish'); return t; };
 
 /** The files a command works on: those named (a name or a part of it), else every file. */
@@ -53,17 +53,17 @@ async function convert(t) { await t.run(); t.outputs.sig = sig(t); }   // after 
 const list = [];
 const add = C.aiAdder('cv', list);   // shared/commands/commands.js
 
-add('new_conversion', 'Start a new conversion', [{ name: 'to', type: 'string', maxLength: 120, description: 'optional: the format files added next start on (a kind like png, pdf, csv, or a conversion id)' }], (a) => {
+add('new_conversion', 'Start a new conversion', [{ name: 'to', type: 'string', maxLength: 120, description: 'optional: the format files added next start on (a kind like png, pdf, csv, or a conversion id)' }], (a) => {   // i18n-ignore: for the assistant (API)
   const t = notBusy(tool()), n = t.items.length;
   t.clear();
   if (a.to) t.setDefaultTarget(a.to);
-  return `Cleared the list (${plural(n, 'file')} and the results removed)${a.to ? `; new files start on ${a.to} where they can` : ''}. Use add_files next.`;
-}, { destructive: true, description: 'Clear the file list and the results to start a new conversion. Results not exported are dropped.' });
+  return `Cleared the list (${plural(n, 'file')} and the results removed)${a.to ? `; new files start on ${a.to} where they can` : ''}. Use add_files next.`;   // i18n-ignore: for the assistant (API)
+}, { destructive: true, description: 'Clear the file list and the results to start a new conversion. Results not exported are dropped.' });   // i18n-ignore: for the assistant (API)
 
-add('add_files', 'Add files', [
-  { name: 'files', type: 'array', maxItems: 200, items: { type: 'string' }, description: 'Slop Drive file names or ids' },
-  { name: 'urls', type: 'array', maxItems: 50, items: { type: 'string' }, description: 'or addresses of files on this site' },
-  { name: 'text', type: 'string', maxLength: 500000, description: 'or a text to convert (CSV, JSON, Markdown, YAML…)' },
+add('add_files', 'Add files', [   // i18n-ignore: hidden assistant command (API)
+  { name: 'files', type: 'array', maxItems: 200, items: { type: 'string' }, description: 'Slop Drive file names or ids' },   // i18n-ignore: for the assistant (API)
+  { name: 'urls', type: 'array', maxItems: 50, items: { type: 'string' }, description: 'or addresses of files on this site' },   // i18n-ignore: for the assistant (API)
+  { name: 'text', type: 'string', maxLength: 500000, description: 'or a text to convert (CSV, JSON, Markdown, YAML…)' },   // i18n-ignore: for the assistant (API)
   { name: 'name', type: 'string', maxLength: 200, default: 'pasted.txt', description: 'the text\'s file name; its extension says what it is (data.csv)' },
 ], async (a) => {
   const t = notBusy(tool()), S = window.SlopCmdSources, files = [];
@@ -75,16 +75,16 @@ add('add_files', 'Add files', [
   await t.addFiles(files, 'drive');
   const added = t.items.slice(before);
   if (!added.length) throw new Error('No file was added');
-  return `Added ${added.map((i) => `${i.name} (${KIND_LABEL[i.kind] || i.kind} → ${labelOf(t.targetOf(i))})`).join(', ')}. Use set_target to change the format, then export_results.`;
-}, { description: 'Add files from Slop Drive (or this site, or a text) to the list. Each starts on its usual format; set_target changes it.' });
+  return `Added ${added.map((i) => `${i.name} (${KIND_LABEL[i.kind] || i.kind} → ${labelOf(t.targetOf(i))})`).join(', ')}. Use set_target to change the format, then export_results.`;   // i18n-ignore: for the assistant (API)
+}, { description: 'Add files from Slop Drive (or this site, or a text) to the list. Each starts on its usual format; set_target changes it.' });   // i18n-ignore: for the assistant (API)
 
-add('list_targets', 'List the formats', [{ name: 'files', type: 'array', maxItems: 200, items: { type: 'string' }, description: 'only these files (names); default all' }], (a) => {
+add('list_targets', 'List the formats', [{ name: 'files', type: 'array', maxItems: 200, items: { type: 'string' }, description: 'only these files (names); default all' }], (a) => {   // i18n-ignore: hidden assistant command (API)
   const t = tool(), items = pick(t, a.files);
   if (!items.length) throw new Error('The list is empty: add_files first');
   const kinds = [...new Set(items.map((i) => i.kind))];
   const byKind = kinds.map((k) => ({ kind: k, targets: candidatesOf(t, items.find((i) => i.kind === k)) }));
   return { files: items.map((i) => ({ name: i.name, kind: i.kind, target: t.targetOf(i) })), byKind };
-}, { macro: false, description: 'List the formats the files can become (conversion ids, labels, output kinds and options).' });
+}, { macro: false, description: 'List the formats the files can become (conversion ids, labels, output kinds and options).' });   // i18n-ignore: for the assistant (API)
 /** One file's choices: the single conversions and the routes ("More formats") the tool offers it. */
 function candidatesOf(t, it) {
   const sel = t.items.map((i) => i.selected);
@@ -93,8 +93,8 @@ function candidatesOf(t, it) {
   finally { t.items.forEach((i, n) => { i.selected = sel[n]; }); }
 }
 
-add('set_target', 'Choose the format', [
-  { name: 'to', type: 'string', required: true, maxLength: 200, description: 'a kind (png, jpg, pdf, csv, json, mp3…), a conversion id (to-png) or a route from list_targets' },
+add('set_target', 'Choose the format', [   // i18n-ignore: hidden assistant command (API)
+  { name: 'to', type: 'string', required: true, maxLength: 200, description: 'a kind (png, jpg, pdf, csv, json, mp3…), a conversion id (to-png) or a route from list_targets' },   // i18n-ignore: for the assistant (API)
   { name: 'files', type: 'array', maxItems: 200, items: { type: 'string' }, description: 'only these files (names); default all, and the files added later' },
   { name: 'options', type: 'json', maxLength: 4000, description: 'option values for that conversion, like {"quality": 80, "width": 800} (list_targets shows them)' },
 ], (a) => {
@@ -113,20 +113,20 @@ add('set_target', 'Choose the format', [
   }
   t.render();
   return `${set.map((i) => i.name).join(', ')} → ${labelOf(set[0].target)}` + (a.options ? ` with ${JSON.stringify(a.options)}` : '') + (skipped.length ? `. ${skipped.join(', ')} cannot become ${a.to} and kept their format` : '') + '.';
-}, { description: 'Choose what the files become, and that conversion\'s options. A format no single conversion makes goes by a route of several.' });
+}, { description: 'Choose what the files become, and that conversion\'s options. A format no single conversion makes goes by a route of several.' });   // i18n-ignore: for the assistant (API)
 
-add('run_conversion', 'Convert', [], async () => {
+add('run_conversion', 'Convert', [], async () => {   // i18n-ignore: hidden assistant command (API)
   const t = notBusy(tool());
   if (!t.groups().length) throw new Error('Nothing to convert: add_files first');
   await convert(t);
   const bad = t.items.filter((i) => i.error);
-  if (!t.outputs.length) throw new Error(bad.length ? `${bad[0].name}: ${bad[0].error}` : 'Nothing was converted');
+  if (!t.outputs.length) throw new Error(bad.length ? `${bad[0].name}: ${bad[0].error}` : 'Nothing was converted');   // i18n-ignore: for the assistant (API)
   return `${plural(t.outputs.length, 'file')} ready: ${t.outputs.slice(0, 10).map((o) => `${o.name} (${o.blob.size} bytes)`).join(', ')}` + (bad.length ? `. ${bad.length} could not be converted (${bad[0].name}: ${bad[0].error})` : '') + '. Use export_results to keep them.';
-}, { description: 'Convert every file with its own format and options. The results stay on the page until exported.' });
+}, { description: 'Convert every file with its own format and options. The results stay on the page until exported.' });   // i18n-ignore: for the assistant (API)
 
-add('export_results', 'Export the results', [
-  { name: 'to', type: 'enum', options: [['drive', 'Slop Drive'], ['download', 'a download'], ['both', 'both']], default: 'drive' },
-  { name: 'zip', type: 'boolean', default: false, description: 'one zip of all the results instead of separate files' },
+add('export_results', 'Export the results', [   // i18n-ignore: hidden assistant command (API)
+  { name: 'to', type: 'enum', options: [['drive', 'Slop Drive'], ['download', 'a download'], ['both', 'both']], default: 'drive' },   // i18n-ignore: for the assistant (API)
+  { name: 'zip', type: 'boolean', default: false, description: 'one zip of all the results instead of separate files' },   // i18n-ignore: for the assistant (API)
 ], async (a) => {
   const t = notBusy(tool());
   if (t.groups().length && t.outputs.sig !== sig(t)) await convert(t);   // the results are for other files or choices: convert again
@@ -142,14 +142,14 @@ add('export_results', 'Export the results', [
   }
   if (a.to !== 'drive') { for (const f of files) saveBlob(f.blob, f.name); done.push(`downloaded ${plural(files.length, 'file')}`); }
   return done.join(' and ').replace(/^./, (c) => c.toUpperCase()) + '.';
-}, { description: 'Save the converted files to Slop Drive (other apps can open them there) and/or download them. Converts first when needed.' });
+}, { description: 'Save the converted files to Slop Drive (other apps can open them there) and/or download them. Converts first when needed.' });   // i18n-ignore: for the assistant (API)
 
 /** Option values without passwords or pictures (never in the state). */
 const shown = (conv, v) => Object.fromEntries(Object.entries(v).filter(([k]) => { const o = conv.options.find((x) => x.key === k); return !o || !/^(password|image|watermark)$/.test(o.type); }));
 function state() {
   const t = tool();
   return {
-    app: 'File convert', busy: t.busy, page: t.only || 'all conversions', startsOn: t.defaultTarget || null,
+    app: 'File convert', busy: t.busy, page: t.only || 'all conversions', startsOn: t.defaultTarget || null,   // i18n-ignore: for the assistant (API)
     files: t.items.slice(0, 60).map((i) => {
       const key = t.targetOf(i), conv = convOf(key);
       return { name: i.name, kind: i.kind, bytes: i.size, target: key || null, makes: conv ? conv.ext || 'file' : null, options: conv ? shown(conv, valuesOf(i, conv)) : undefined, error: i.error || undefined };
@@ -168,4 +168,6 @@ function checkpoint() {
     return true;
   };
 }
-if (C && !C.get('cv.ai.set-target')) { C.register(list); C.provide({ state, checkpoint }); }
+if (C && !C.get('cv.ai.set-target')) {
+  C.register(list); C.provide({ state, checkpoint });
+}

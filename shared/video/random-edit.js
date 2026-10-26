@@ -14,7 +14,8 @@
   const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 
   R.PACE = { fast: [0.6, 1.4], medium: [1.5, 3], slow: [3, 6] };
-  R.PACES = [['fast', 'Fast (0.6–1.4 s cuts)'], ['medium', 'Medium (1.5–3 s cuts)'], ['slow', 'Slow (3–6 s cuts)']];
+  /** [[id, label]] in the chosen language (a getter: read it when the list is shown). */
+  Object.defineProperty(R, 'PACES', { enumerable: true, get: () => SV.words('pace', Object.keys(R.PACE)) });
   /** Length range (s) of a layout before a random switch, by pace. */
   R.SWITCH = { fast: [2, 4], medium: [4, 8], slow: [6, 12] };
   /** Layouts a random switch picks from when none are given. */

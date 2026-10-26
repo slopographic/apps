@@ -14,7 +14,8 @@
   const QUOTA_NAMES = ['QuotaExceededError', 'NS_ERROR_DOM_QUOTA_REACHED'];
   const QUOTA_CODES = [22, 1014];
   const QUOTA_TEXT = /quota (exceeded|reached|limit)|exceeded (its|the|this) quota|storage quota|quota ?exceeded/i;
-  const MESSAGE = 'This site’s storage is full. Your changes are still on screen and were not saved yet. Free some space, then save again.';
+  // read when an error is classified, in the current language (shared/i18n/ui/<code>/backup3.js)
+  const MESSAGE = () => (g.SlopI18n ? g.SlopI18n.t('ui.storage.full_msg') : 'ui.storage.full_msg');
 
   /** Walks the error and the errors it wraps (IDB request.error, transaction.error, cause), up to a few levels. */
   function candidates(err) {
@@ -53,11 +54,12 @@
       const list = candidates(err);
       const quota = list.some(isQuota);
       if (!quota) return { quota: false, store: 'unknown', message: '' };
-      return { quota: true, store: storeOf(err, list), message: MESSAGE };
+      return { quota: true, store: storeOf(err, list), message: MESSAGE() };
     } catch (e) {
       return { quota: false, store: 'unknown', message: '' };
     }
   }
 
-  g.SlopStorage = Object.assign(g.SlopStorage || {}, { classify, QUOTA_MESSAGE: MESSAGE });
+  g.SlopStorage = Object.assign(g.SlopStorage || {}, { classify });
+  Object.defineProperty(g.SlopStorage, 'QUOTA_MESSAGE', { get: MESSAGE, enumerable: true, configurable: true });
 })(typeof window !== 'undefined' ? window : globalThis);

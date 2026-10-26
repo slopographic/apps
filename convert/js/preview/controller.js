@@ -1,6 +1,7 @@
 /* Keeps a preview block in step with a ConvertTool. Updates are debounced (150 ms) and a stale result is
  * dropped. Copy, Swap and Download run the whole conversion, so the preview's first-part limits never reach
  * the file. Browser only. */
+import { tr, onLang } from '../core/i18n.js';
 import { conversionById } from '../core/catalog.js';
 import { writeZip } from '../io/zip.js';
 import { saveBlob } from '../io/files.js';
@@ -16,7 +17,7 @@ async function toPng(blob) {
   canvas.width = bmp.width; canvas.height = bmp.height;
   canvas.getContext('2d').drawImage(bmp, 0, 0);
   bmp.close();
-  return new Promise((resolve, reject) => canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('This picture cannot be copied'))), 'image/png'));
+  return new Promise((resolve, reject) => canvas.toBlob((b) => (b ? resolve(b) : reject(new Error(tr('convert.pv.no_copy_pic')))), 'image/png'));
 }
 
 export class PreviewPanel {
@@ -37,6 +38,7 @@ export class PreviewPanel {
     v.swap.addEventListener('click', () => this.swap());
     v.download.addEventListener('click', () => this.download());
     this.update();
+    onLang(() => { this.dirty = true; this.update(); });   // a language change: the notes and labels again in the new language
   }
 
   schedule() {
@@ -54,7 +56,7 @@ export class PreviewPanel {
     if (!items.some((i) => i.pasted) && ta.value !== '') ta.value = '';
     const fileInput = items.some((i) => !i.pasted);
     ta.disabled = fileInput;
-    this.view.taHint.textContent = fileInput ? 'A file is the input. Remove it to type text instead.' : 'Type or paste text. The output below updates as you type. Nothing is uploaded.';
+    this.view.taHint.textContent = fileInput ? tr('convert.pv.file_is_input') : tr('convert.pv.type_hint');
   }
 
   async update() {
@@ -66,16 +68,16 @@ export class PreviewPanel {
     this.route = !!steps;
     if (!conv || !items.length) {
       this.model = null;
-      this.view.empty(this.tool.items.length ? 'No conversion on this page for these files.' : 'Add a file or type text to see the preview.');
+      this.view.empty(this.tool.items.length ? tr('convert.pv.no_conv') : tr('convert.pv.add_file'));
       this.setActions(null);
       return;
     }
-    this.view.setStatus('Updating…');
+    this.view.setStatus(tr('convert.pv.updating'));
     const model = steps ? await buildRoutePreview(steps, items) : await buildPreview(conv, items, opts);
     if (id !== this.seq) return;
     this.model = model;
     this.view.render(model);
-    this.view.setStatus('Up to date.');
+    this.view.setStatus(tr('convert.pv.up_to_date'));
     this.setActions(model);
   }
 
@@ -111,9 +113,9 @@ export class PreviewPanel {
         const [out] = await this.full();
         await navigator.clipboard.write([new ClipboardItem({ 'image/png': await toPng(out.blob) })]);
       } else return;
-      this.view.setStatus('Copied.');
+      this.view.setStatus(tr('convert.pv.copied'));
     } catch (e) {
-      this.view.setStatus(`Could not copy: ${e.message || e}`);
+      this.view.setStatus(tr('convert.pv.copy_failed', { why: e.message || String(e) }));
     }
   }
 
@@ -126,22 +128,22 @@ export class PreviewPanel {
       const text = await this.fullText();
       this.tool.swapText(text, rev);
       if (this.view.ta) this.view.ta.value = text;
-      this.view.setStatus(`Swapped. Now: ${rev.label}.`);
+      this.view.setStatus(tr('convert.pv.swapped', { name: rev.label }));
     } catch (e) {
-      this.view.setStatus(`Could not swap: ${e.message || e}`);
+      this.view.setStatus(tr('convert.pv.swap_failed', { why: e.message || String(e) }));
     }
   }
 
   async download() {
-    this.view.setStatus('Converting the whole file…');
+    this.view.setStatus(tr('convert.pv.converting'));
     try {
       const outs = await this.full();
-      if (!outs.length) throw new Error('Nothing to download.');
+      if (!outs.length) throw new Error(tr('convert.pv.nothing'));
       if (outs.length === 1) saveBlob(outs[0].blob, outs[0].name);
       else saveBlob(await writeZip(outs.map((o) => ({ path: o.name, data: o.blob }))), 'slop-convert.zip');
-      this.view.setStatus('Download started.');
+      this.view.setStatus(tr('convert.pv.started'));
     } catch (e) {
-      this.view.setStatus(`Could not convert: ${e.message || e}`);
+      this.view.setStatus(tr('convert.pv.convert_failed', { why: e.message || String(e) }));
     }
   }
 }

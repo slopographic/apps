@@ -6,11 +6,13 @@ import vm from 'node:vm';
 import path from 'node:path';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
+import { withI18n } from './ui-i18n-env.mjs';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const ctx = { TextEncoder };
 ctx.window = ctx;
 vm.createContext(ctx);
+withI18n(ctx, 'en');   // the repeat words and import notes, as a page has them (shared/i18n/ui/en/calendar.js)
 for (const f of ['tz.js', 'rrule.js', 'ics.js']) {
   vm.runInContext(await readFile(path.join(ROOT, 'shared', 'calendar', f), 'utf8'), ctx, { filename: f });
 }
@@ -167,4 +169,27 @@ test('.ics import reads a UTC DTSTART with an alarm as minutes before', () => {
 test('a plain JSON check: records survive the store shape', () => {
   const ev = timed('s1', 'Shape', PARIS, 2026, 10, 1, 9, 0, 30, { freq: 'weekly' });
   same(plain(ev).freq, 'weekly');
+});
+
+test('SlopRecur.describe in English and Swedish: the repeat, and the end day in the language\'s date format', async () => {
+  assert.equal(R.describe({ freq: 'weekly' }), 'Every week');
+  assert.equal(R.describe({ freq: 'none' }), 'Does not repeat');
+  assert.match(R.describe({ freq: 'daily', until: '2027-01-31' }), /^Every day until Jan 31, 2027$/);
+  const sv = { TextEncoder };
+  sv.window = sv;
+  vm.createContext(sv);
+  withI18n(sv, 'sv');
+  for (const f of ['tz.js', 'rrule.js', 'ics.js', 'store.js']) vm.runInContext(await readFile(path.join(ROOT, 'shared', 'calendar', f), 'utf8'), sv, { filename: f });
+  const RS = sv.SlopRecur;
+  assert.equal(RS.describe({ freq: 'monthly' }), 'Varje månad');
+  assert.equal(RS.describe({ freq: 'none' }), 'Upprepas inte');
+  assert.match(RS.describe({ freq: 'weekly', until: '2027-01-31' }), /^Varje vecka till och med 31 jan\.? 2027$/);
+  // the event editor's reminder choices and checks (shared/calendar/store.js)
+  same(sv.SlopEvents.REMINDERS.map((r) => r.label), ['Ingen påminnelse', 'Vid tidpunkten', '5 minuter före', '15 minuter före', '1 timme före', '1 dag före']);
+  same(sv.SlopEvents.fromForm({ title: ' ' }), { ok: false, error: 'Ge händelsen en rubrik.' });
+  // an import note in Swedish: an RRULE part the app does not keep
+  const ics = 'BEGIN:VCALENDAR\r\nBEGIN:VEVENT\r\nUID:x\r\nSUMMARY:A\r\nDTSTART:20260105T090000Z\r\nDTEND:20260105T100000Z\r\nRRULE:FREQ=WEEKLY;BYDAY=MO\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n';
+  same(sv.SlopIcs.parse(ics, { fallbackZone: 'UTC' }).warnings.map((w) => w.message), ['BYDAY stöds inte, så den upprepas varje vecka utan det']);
+  // an event with no SUMMARY was titled "(untitled)" in every language
+  same(sv.SlopIcs.parse(ics.replace('SUMMARY:A\r\n', ''), { fallbackZone: 'UTC' }).events.map((e) => e.title), ['Namnlös']);
 });

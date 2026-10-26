@@ -10,17 +10,19 @@ import { toXlsxBlob } from '../../../shared/sheets/write.js';
 import { KEY } from '../../../shared/sheets/csv.js';
 import { rowsToCsv } from './csv.js';
 import { stemOf as base } from '../io/files.js';
+import { tr } from './i18n.js';
 
 export const STATEMENT_KINDS = ['ofx', 'qif', 'camt053', 'mt940'];
 const MONEY = '#,##0.00';
-const SEP = { key: 'delimiter', type: 'select', label: 'Separator', value: ',', options: [[',', 'Comma (decimal point)'], [';', 'Semicolon (decimal comma, for Excel in Swedish, German and others)'], ['\t', 'Tab']],
-  hint: 'With semicolons, amounts are written 1234,50 so a European Excel reads them as numbers.' };
+const SEP = { key: 'delimiter', type: 'select', get label() { return tr('convert.fin.separator'); }, value: ',',
+  get options() { return [[',', tr('convert.fin.sep_comma')], [';', tr('convert.fin.sep_semicolon')], ['\t', tr('convert.fin.sep_tab')]]; },
+  get hint() { return tr('convert.fin.sep_hint'); } };
 
 /** The file read by the shared reader; the detected kind is a hint, the content decides. */
 const read = async (f) => readFinance(new Uint8Array(await f.file.arrayBuffer()), f.name);
 async function readSieFile(f) {
   const r = await read(f);
-  if (r.kind !== 'ledger') throw new Error('This is a bank statement, not an SIE file. Use Bank statement to CSV or to Excel.');
+  if (r.kind !== 'ledger') throw new Error(tr('convert.fin.not_sie'));
   return r;
 }
 
@@ -47,18 +49,24 @@ export function csvText(rows, delimiter = ',') {
 }
 
 const tsv = (rows, n = 60) => rows.slice(0, n).map((r) => r.map((v) => (typeof v === 'number' ? v.toFixed(2) : String(v ?? ''))).join('\t')).join('\n');
-const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
+/** ' 2 notes: the first note.' after a summary, or ''. */
+const warnOf = (m) => (m.warnings.length ? ' ' + tr('convert.fin.notes', { n: m.warnings.length, first: m.warnings[0] }) : '');
 
 function sieInfo(m) {
   const lines = m.vouchers.reduce((t, v) => t + v.lines.length, 0);
-  const cs = m.checksum && m.checksum.present ? (m.checksum.ok ? ' Checksum matches.' : ' Checksum does not match.') : '';
-  const warn = m.warnings.length ? ` ${plural(m.warnings.length, 'note')}: ${m.warnings[0]}` : '';
-  return `${m.company || 'SIE file'}, SIE type ${m.type}, ${m.currency}: ${plural(m.accounts.length, 'account')}, ${plural(m.vouchers.length, 'voucher')} (${plural(lines, 'line')}).${cs}${warn}`;
+  const cs = m.checksum && m.checksum.present ? ' ' + (m.checksum.ok ? tr('convert.fin.checksum_ok') : tr('convert.fin.checksum_bad')) : '';
+  return tr('convert.fin.sie_info', {
+    company: m.company || tr('convert.fin.sie_file'), type: String(m.type), currency: m.currency,
+    accounts: tr('convert.fin.accounts', { n: m.accounts.length }),
+    vouchers: tr('convert.fin.vouchers', { n: m.vouchers.length }),
+    lines: tr('convert.fin.lines', { n: lines }) }) + cs + warnOf(m);
 }
 function statementInfo(m) {
   const t = totals(m);
-  const warn = m.warnings.length ? ` ${plural(m.warnings.length, 'note')}: ${m.warnings[0]}` : '';
-  return `${FORMAT_LABEL[m.format]}${m.account ? ` for ${m.account}` : ''}: ${plural(t.count, 'transaction')}, in ${t.moneyIn.toFixed(2)}, out ${t.moneyOut.toFixed(2)}${m.currency ? ` ${m.currency}` : ''}${t.pending ? ` (${t.pending} pending, not counted)` : ''}.${warn}`;
+  const v = { format: FORMAT_LABEL[m.format], account: m.account || '', count: tr('convert.fin.transactions', { n: t.count }),
+    in: t.moneyIn.toFixed(2), out: t.moneyOut.toFixed(2), currency: m.currency ? ` ${m.currency}` : '',
+    pending: t.pending ? ' ' + tr('convert.fin.pending', { n: t.pending }) : '' };
+  return tr(m.account ? 'convert.fin.statement_info_for' : 'convert.fin.statement_info', v) + warnOf(m);
 }
 const result = (files, info, preview) => Object.assign(files, { info, preview });
 
@@ -72,7 +80,7 @@ export async function sieToCsv(files, o = {}) {
   const f = files[0], { model } = await readSieFile(f);
   const vouchers = model.vouchers.length > 0;
   const rows = vouchers ? sieVoucherRows(model) : sieBalanceRows(model);
-  const info = sieInfo(model) + (vouchers ? '' : ' The file has no vouchers, so the CSV holds the balances per account.');
+  const info = sieInfo(model) + (vouchers ? '' : ' ' + tr('convert.fin.no_vouchers'));
   return result([{ name: `${base(f.name)}${vouchers ? '' : '-balances'}.csv`, blob: new Blob([csvText(rows, o.delimiter || ',')], { type: 'text/csv' }) }], info, tsv(rows));
 }
 
@@ -90,17 +98,17 @@ export async function statementToXlsx(files) {
 
 async function readStatementFile(f) {
   const r = await read(f);
-  if (r.kind !== 'statement') throw new Error('This is an SIE accounting file, not a bank statement. Use SIE to CSV or SIE to Excel.');
+  if (r.kind !== 'statement') throw new Error(tr('convert.fin.not_statement'));
   return r;
 }
 
 export const FINANCE = [
-  { id: 'sie-to-xlsx', label: 'SIE to Excel (XLSX)', group: 'Finance', from: ['sie'], ext: 'xlsx', mode: 'each', options: [], run: sieToXlsx,
-    note: 'Sheets: Info, Vouchers (one row per transaction line), Accounts, Balances (opening, closing and result per year) and Periods when the file has period balances.' },
-  { id: 'sie-to-csv', label: 'SIE to CSV', group: 'Finance', from: ['sie'], ext: 'csv', mode: 'each', options: [SEP], run: sieToCsv,
-    note: 'One row per transaction line. A file without vouchers (SIE 1, 2 or 3) gives its balances per account instead.' },
-  { id: 'bank-to-csv', label: 'Bank statement to CSV', group: 'Finance', from: STATEMENT_KINDS, ext: 'csv', mode: 'each', options: [SEP], run: statementToCsv,
-    note: 'One row per transaction: date, value date, amount (money out is negative), currency, text, counterparty, reference.' },
-  { id: 'bank-to-xlsx', label: 'Bank statement to Excel (XLSX)', group: 'Finance', from: STATEMENT_KINDS, ext: 'xlsx', mode: 'each', options: [], run: statementToXlsx,
-    note: 'Sheets: Transactions, and Statement with the account, the period, the balances and a check that they add up.' },
+  { id: 'sie-to-xlsx', get label() { return tr('convert.fin.sie_to_xlsx'); }, group: 'Finance', from: ['sie'], ext: 'xlsx', mode: 'each', options: [], run: sieToXlsx, // i18n-ignore: group id (shown through groupLabel)
+    get note() { return tr('convert.fin.sie_to_xlsx_note'); } },
+  { id: 'sie-to-csv', get label() { return tr('convert.fin.sie_to_csv'); }, group: 'Finance', from: ['sie'], ext: 'csv', mode: 'each', options: [SEP], run: sieToCsv, // i18n-ignore: group id (shown through groupLabel)
+    get note() { return tr('convert.fin.sie_to_csv_note'); } },
+  { id: 'bank-to-csv', get label() { return tr('convert.fin.bank_to_csv'); }, group: 'Finance', from: STATEMENT_KINDS, ext: 'csv', mode: 'each', options: [SEP], run: statementToCsv, // i18n-ignore: group id (shown through groupLabel)
+    get note() { return tr('convert.fin.bank_to_csv_note'); } },
+  { id: 'bank-to-xlsx', get label() { return tr('convert.fin.bank_to_xlsx'); }, group: 'Finance', from: STATEMENT_KINDS, ext: 'xlsx', mode: 'each', options: [], run: statementToXlsx, // i18n-ignore: group id (shown through groupLabel)
+    get note() { return tr('convert.fin.bank_to_xlsx_note'); } },
 ];

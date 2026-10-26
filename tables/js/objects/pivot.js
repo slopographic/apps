@@ -7,9 +7,11 @@
  * and a Grand total row. With no row fields there is one Total row; with no column fields the values are the columns.
  * fn: sum, count (non-blank cells), average, min, max. A cell with no records is blank. */
 import { compare } from '../engine/values.js';
+import { t } from '../i18n.js';
 
-export const FNS = [['sum', 'Sum'], ['count', 'Count'], ['average', 'Average'], ['min', 'Min'], ['max', 'Max']];
-const FN_LABEL = Object.fromEntries(FNS);
+/** The summaries, by id; their names are tables.pivot.fn_<id>. */
+export const FNS = [['sum'], ['count'], ['average'], ['min'], ['max']];
+const FN_IDS = FNS.map(([f]) => f);
 export const MAX_KEYS = 2000;
 
 export function fieldNames(row) {
@@ -22,10 +24,11 @@ export function fieldNames(row) {
   });
 }
 
-export const valueLabel = (v) => `${FN_LABEL[v.fn] || 'Sum'} of ${v.field}`;
+/** The labels written into cells read the language at the time the pivot is (re)built, as a spreadsheet's do. */
+export const valueLabel = (v) => t('tables.pivot.value_of', { fn: t(`tables.pivot.fn_${FN_IDS.includes(v.fn) ? v.fn : 'sum'}`), field: v.field });
 const blank = (v) => v === null || v === undefined || v === '';
 const keyOf = (v) => (blank(v) ? '\u0000' : typeof v === 'number' ? 'n' + v : typeof v === 'boolean' ? 'b' + v : 's' + String(v).toLowerCase());
-const shown = (v) => (blank(v) ? '(blank)' : v);
+const shown = (v) => (blank(v) ? t('tables.pivot.blank') : v);
 
 function acc() { return { sum: 0, nums: 0, count: 0, min: Infinity, max: -Infinity }; }
 function add(a, v) {
@@ -53,15 +56,15 @@ const cmpTuple = (x, y) => { for (let i = 0; i < x.length; i++) { const d = cmpV
 function keys(records, idx) {
   const map = new Map();
   for (const rec of records) {
-    const t = idx.map((j) => rec[j]), k = t.map(keyOf).join('\u0001');
-    if (!map.has(k)) { if (map.size >= MAX_KEYS) throw new Error(`A pivot table can show at most ${MAX_KEYS} different keys in its rows or columns.`); map.set(k, t); }
+    const tup = idx.map((j) => rec[j]), k = tup.map(keyOf).join('\u0001');
+    if (!map.has(k)) { if (map.size >= MAX_KEYS) throw new Error(t('tables.err.pivot_keys', { n: MAX_KEYS })); map.set(k, tup); }
   }
   const list = [...map.values()].sort(cmpTuple);
-  return { list, index: new Map(list.map((t, i) => [t.map(keyOf).join('\u0001'), i])) };
+  return { list, index: new Map(list.map((tup, i) => [tup.map(keyOf).join('\u0001'), i])) };
 }
 
 export function pivotGrid(headers, records, spec) {
-  const pos = (f) => { const j = headers.indexOf(f); if (j < 0) throw new Error(`The source has no column named “${f}”.`); return j; };
+  const pos = (f) => { const j = headers.indexOf(f); if (j < 0) throw new Error(t('tables.err.no_column', { name: f })); return j; };
   const ri = (spec.rows || []).map(pos), ci = (spec.cols || []).map(pos);
   const vals = (spec.values && spec.values.length ? spec.values : [{ field: headers[0], fn: 'count' }]).map((v) => ({ ...v, j: pos(v.field) }));
   const R = keys(records, ri), C = keys(records, ci);
@@ -78,8 +81,8 @@ export function pivotGrid(headers, records, spec) {
   const head = [];
   for (let k = 0; k < keyCols; k++) head.push({ v: ri.length ? spec.rows[k] : '', b: true });
   if (hasCols) {
-    for (const t of C.list) for (const v of vals) head.push({ v: t.map(shown).join(' / ') + (nv > 1 ? ' · ' + valueLabel(v) : ''), b: true });
-    for (const v of vals) head.push({ v: nv > 1 ? 'Total · ' + valueLabel(v) : 'Total', b: true });
+    for (const tup of C.list) for (const v of vals) head.push({ v: tup.map(shown).join(' / ') + (nv > 1 ? ' · ' + valueLabel(v) : ''), b: true });
+    for (const v of vals) head.push({ v: nv > 1 ? t('tables.pivot.total') + ' · ' + valueLabel(v) : t('tables.pivot.total'), b: true });
   } else for (const v of vals) head.push({ v: valueLabel(v), b: true });
   const out = [head];
   const numbers = (accs, i) => ({ v: result(accs && accs[i], vals[i].fn), nf: vals[i].fn === 'count' ? null : vals[i].j, fn: vals[i].fn });
@@ -91,9 +94,9 @@ export function pivotGrid(headers, records, spec) {
     } else for (let i = 0; i < nv; i++) row.push(numbers(rowT.get(r), i));
     return row;
   };
-  if (!ri.length) { out.push([{ v: 'Total', b: true }, ...rowCells(0)]); return { cells: out, keyCols, fields: ri }; }
-  R.list.forEach((t, r) => out.push([...t.map((v, k) => ({ v: shown(v), key: ri[k] })), ...rowCells(r)]));
-  const total = [{ v: 'Grand total', b: true }];
+  if (!ri.length) { out.push([{ v: t('tables.pivot.total'), b: true }, ...rowCells(0)]); return { cells: out, keyCols, fields: ri }; }
+  R.list.forEach((tup, r) => out.push([...tup.map((v, k) => ({ v: shown(v), key: ri[k] })), ...rowCells(r)]));
+  const total = [{ v: t('tables.pivot.grand_total'), b: true }];
   for (let k = 1; k < keyCols; k++) total.push({ v: null, b: true });
   if (hasCols) {
     for (let c = 0; c < nc; c++) for (let i = 0; i < nv; i++) total.push({ ...numbers(colT.get(c), i), b: true });

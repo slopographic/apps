@@ -19,19 +19,19 @@
   }
   function track(p) {
     live.add(p);
-    while (live.size > MAX_LIVE) release([...live][0], 'This 3D view was paused to free graphics memory. Select the file again to open it.');
+    while (live.size > MAX_LIVE) release([...live][0], DR.t('drive.pv.paused3d'));
     if (!sweeper) sweeper = setInterval(sweep, 1000);
   }
   /** A 3D preview element for a .s3d file. big: the Quick look size. */
   DR.preview3d = function (r, big = false) {
-    if (!DR.webgl3d()) return DR.cardPreview(r, 'The 3D view needs WebGL, which this browser does not offer.');
-    const box = el('div', { class: 'pv3d' + (big ? ' big' : '') }, el('p', { class: 'pv-note' }, 'Loading the 3D view…'));
+    if (!DR.webgl3d()) return DR.cardPreview(r, DR.t('drive.pv.no_webgl'));
+    const box = el('div', { class: 'pv3d' + (big ? ' big' : '') }, el('p', { class: 'pv-note' }, DR.t('drive.pv.loading3d')));
     DR.load3d().then(async ({ THREE, S }) => {
       if (!box.isConnected) return;
       const scene = await DR.scene3d(r.blob);
-      const canvas = el('canvas', { class: 'pv3d-cv', role: 'img', 'aria-label': `3D view of ${r.name}` });
-      const reset = el('button', { type: 'button', class: 'btn pv3d-reset', title: 'Frame the whole scene again' }, 'Reset view');
-      box.replaceChildren(canvas, reset, el('p', { class: 'pv3d-hint' }, 'Drag to orbit · Shift-drag or right-drag to pan · Wheel to zoom'));
+      const canvas = el('canvas', { class: 'pv3d-cv', role: 'img', 'aria-label': DR.t('drive.pv.view3d_of', { name: r.name }) });
+      const reset = el('button', { type: 'button', class: 'btn pv3d-reset', title: DR.t('drive.pv.reset_tip') }, DR.t('drive.pv.reset'));
+      box.replaceChildren(canvas, reset, el('p', { class: 'pv3d-hint' }, DR.t('drive.pv.hint3d')));
       const stage = S.stage.create(canvas, THREE), cam = S.camera.create(THREE, stage);
       S.objects.create(THREE, stage.world, stage.request).sync(scene, { selected: [] });
       const frame = () => { cam.setView('perspective'); cam.frame(S.ops.bounds(scene, null)); stage.request(); };
@@ -64,7 +64,7 @@
       stage.request();
     }).catch((err) => {
       console.error('Slop Drive: the 3D view could not be opened', err);
-      if (box.isConnected) box.replaceChildren(el('p', { class: 'pv-note' }, 'The 3D view could not be opened: ' + err.message));
+      if (box.isConnected) box.replaceChildren(el('p', { class: 'pv-note' }, DR.t('drive.pv.open3d_failed', { msg: err.message })));
     });
     return box;
   };

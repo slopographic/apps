@@ -6,8 +6,9 @@
  *   firstProblem(result) → { index, message } | null
  *   kindsLabel(kinds) → 'PNG, JPG'  */
 import { TAG } from '../../../convert/js/core/chain.js';
+import { tr } from './text.js';
 
-export const kindsLabel = (kinds) => (kinds && kinds.length ? kinds.map(TAG).join(', ') : 'any file');
+export const kindsLabel = (kinds) => (kinds && kinds.length ? kinds.map(TAG).join(', ') : tr('workflows.step.any', 'any file'));
 const uniq = (list) => [...new Set(list)];
 
 /** The kinds a workflow with no files yet is checked against: what its first step takes (none for "any file"). */
@@ -21,15 +22,15 @@ export function check(steps, inputKinds, R) {
   let kinds = inputKinds && inputKinds.length ? uniq(inputKinds) : null;
   steps.forEach((s, i) => {
     const op = R.byId(s.id);
-    if (!op) { out.push({ ok: false, op: null, in: kinds, out: null, message: `This step (${s.id}) is not available on this page.` }); kinds = null; return; }
+    if (!op) { out.push({ ok: false, op: null, in: kinds, out: null, message: tr('workflows.check.na', 'This step ({id}) is not available on this page.', { id: s.id }) }); kinds = null; return; }
     if (i === 0 && kinds === null) kinds = assumedKinds(op);
     const opts = { ...R.defaultsOf(op), ...(s.options || {}) };
     const bad = kinds ? kinds.filter((k) => !R.accepts(op, k)) : [];
     let message = '';
     if (kinds && bad.length) {
-      const prev = i ? `step ${i} (${(R.byId(steps[i - 1].id) || { label: steps[i - 1].id }).label})` : '';
-      message = i === 0 ? `${op.label} cannot take ${kindsLabel(bad)} files. It takes ${kindsLabel(op.from)}.`
-        : `${op.label} cannot take ${kindsLabel(bad)}, which ${prev} makes. It takes ${kindsLabel(op.from)}.`;
+      const v = { name: op.label, bad: kindsLabel(bad), takes: kindsLabel(op.from), i: String(i), prev: i ? (R.byId(steps[i - 1].id) || { label: steps[i - 1].id }).label : '' };
+      message = i === 0 ? tr('workflows.check.first', '{name} cannot take {bad} files. It takes {takes}.', v)
+        : tr('workflows.check.next', '{name} cannot take {bad}, which step {i} ({prev}) makes. It takes {takes}.', v);
     }
     if (!message && op.check) { try { message = op.check(opts) || ''; } catch (e) { message = e.message; } }
     // what goes on to the next step; when the kinds are not known (or none fit), the next step is not judged by them
@@ -42,5 +43,5 @@ export function check(steps, inputKinds, R) {
 
 export function firstProblem(result) {
   const i = result.findIndex((r) => !r.ok);
-  return i < 0 ? null : { index: i, message: `Step ${i + 1}: ${result[i].message}` };
+  return i < 0 ? null : { index: i, message: tr('workflows.check.step', 'Step {n}: {message}', { n: String(i + 1), message: result[i].message }) };
 }

@@ -6,7 +6,7 @@
   const NS = (g.SlopCrm = g.SlopCrm || {});
   const UI = g.SlopUI;
   const el = UI.el;
-  const SC_INFO = SlopExamples.info('crm');
+  const tr = (k, v) => NS.tr(k, v);   // the string tables (crm/i18n)
 
   /** The plan for the list the person picked: reads the file and checks it against the customers. */
   async function planFor(rec) {
@@ -21,8 +21,8 @@
   async function open() {
     const lists = await NS.contactsImport.findLists();
     if (!lists.length) {
-      UI.dialog({ title: 'Import from Slop Contacts', body: 'No saved Contacts list was found in Slop Drive. Save your contacts in Slop Contacts first, then come back here.',
-        buttons: [{ label: 'OK', primary: true }] });
+      UI.dialog({ title: tr('crm.im.title'), body: tr('crm.im.none'),
+        buttons: [{ label: tr('menu.ok'), primary: true }] });
       return;
     }
     let current = lists[0];
@@ -34,27 +34,27 @@
       const p = await planFor(current);
       plan = p.ok ? p.value : null;
       info.textContent = p.ok
-        ? `${plan.add.length} new customer${plan.add.length === 1 ? '' : 's'}, ${plan.skipped} already linked or without an id, ${plan.invalid} that cannot be stored.`
+        ? tr('crm.im.plan', { add: plan.add.length, n: plan.add.length, skipped: String(plan.skipped), invalid: String(plan.invalid) })
         : NS.util.refusal(p);
     };
     const SI = g.SlopIntake;
-    const other = () => SI.fromDrive({ title: 'Choose a saved Contacts list', accept: ['application/x-slop-contacts', 'application/json'], to: SI.part({
-      id: 'crm.contacts', limit: 1, accept: { types: ['application/x-slop-contacts', 'application/json'], exts: ['.scontacts', '.json'], noun: 'a Slop Contacts list' },
+    const other = () => SI.fromDrive({ title: tr('crm.im.choose'), accept: ['application/x-slop-contacts', 'application/json'], to: SI.part({
+      id: 'crm.contacts', limit: 1, accept: { types: ['application/x-slop-contacts', 'application/json'], exts: ['.scontacts', '.json'], get noun() { return tr('crm.im.noun'); } },
       process: async (f, ctx) => { current = ctx.drive ? Object.assign({}, ctx.drive.record, { blob: f }) : { name: f.name, blob: f }; await show(); return f.name; },
     }) });
     UI.dialog({
-      title: 'Import from Slop Contacts',
-      body: el('div', null, el('p', { class: 'note' }, 'Saved list: ', name, ' ', el('button', { type: 'button', class: 'sui-btn', onclick: other }, 'Choose another list…')), info,
-        el('p', { class: 'note' }, 'Each contact becomes a lead. Contacts already linked to a customer are skipped.'),
-        el('p', { class: 'note' }, SC_INFO.note),
-        el('button', { type: 'button', class: 'sui-btn', onclick: () => SlopExamples.download('crm') }, 'Download example CSV')),
+      title: tr('crm.im.title'),
+      body: el('div', null, el('p', { class: 'note' }, tr('crm.im.saved_list') + ' ', name, ' ', el('button', { type: 'button', class: 'sui-btn', onclick: other }, tr('crm.im.another'))), info,
+        el('p', { class: 'note' }, tr('crm.im.note')),
+        el('p', { class: 'note' }, SlopExamples.info('crm').note),
+        el('button', { type: 'button', class: 'sui-btn', onclick: () => SlopExamples.download('crm') }, tr('crm.im.example'))),
       buttons: [
-        { label: 'Cancel' },
-        { label: 'Import', primary: true, act: async () => {
-          if (!plan || !plan.add.length) { UI.toast('Nothing new to import.'); return false; }
+        { label: tr('menu.cancel') },
+        { label: tr('crm.im.import'), primary: true, act: async () => {
+          if (!plan || !plan.add.length) { UI.toast(tr('crm.im.nothing')); return false; }
           const r = await NS.contactsImport.apply(plan);
           if (!r.ok) { UI.toast(NS.util.refusal(r)); return false; }
-          UI.toast(`Imported ${r.value} customer${r.value === 1 ? '' : 's'}`);
+          UI.toast(tr('crm.im.imported', { n: r.value }));
           return true;
         } },
       ],

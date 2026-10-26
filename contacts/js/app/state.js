@@ -100,5 +100,9 @@
   };
   SC.state = S;
   SC.STAGES = STAGES;
-  SC.stageLabel = (s) => ({ lead: 'Lead', contacted: 'Contacted', customer: 'Customer', lost: 'Lost' })[s] || s;
+  /** A word from the string tables (contacts/i18n), in the chosen language; the key when SlopI18n is absent. */
+  SC.tr = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
+  SC.stageLabel = (s) => (STAGES.includes(s) ? SC.tr('contacts.stage.' + s) : s);
+  /** A phone, e-mail or address label (mobile, work, home, other) in words; another label as it is. */
+  SC.labelWord = (l) => (['mobile', 'work', 'home', 'other'].includes(l) ? SC.tr('contacts.lbl.' + l) : l);
 })();

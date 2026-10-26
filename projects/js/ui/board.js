@@ -9,6 +9,7 @@
   const UI = g.SlopUI, el = UI.el;
   const st = () => NS.state, A = () => NS.actions, B = () => NS.board;
   let root = null, focusId = null;
+  const tr = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
 
   /** Where a card dropped before `beforeId` (null: after the last card shown) lands among all of a column's cards. */
   function indexFor(column, beforeId, movingId) {
@@ -23,16 +24,16 @@
     const p = st().project, cols = p.columns;
     const at = B().indexOf(st().tasks, t), n = B().inColumn(st().tasks, t.column).length, ci = cols.findIndex((c) => c.id === t.column);
     return [
-      { label: 'Open', act: () => NS.editor.open({ task: t }) },
-      { label: 'Move to', sub: cols.map((c) => ({ label: c.name, check: c.id === t.column, disabled: c.id === t.column,
+      { label: tr('projects.board.open'), act: () => NS.editor.open({ task: t }) },
+      { label: tr('projects.board.move_to'), sub: cols.map((c) => ({ label: c.name, check: c.id === t.column, disabled: c.id === t.column,
         act: () => { focusId = t.id; A().moveCard(t.id, c.id, B().inColumn(st().tasks, c.id).length); } })) },
-      { label: 'Move left', key: 'Shift+←', disabled: ci <= 0, act: () => { focusId = t.id; A().nudge(t.id, -1, 0); } },
-      { label: 'Move right', key: 'Shift+→', disabled: ci >= cols.length - 1, act: () => { focusId = t.id; A().nudge(t.id, 1, 0); } },
-      { label: 'Move up', key: 'Shift+↑', disabled: at <= 0, act: () => { focusId = t.id; A().nudge(t.id, 0, -1); } },
-      { label: 'Move down', key: 'Shift+↓', disabled: at >= n - 1, act: () => { focusId = t.id; A().nudge(t.id, 0, 1); } },
-      t.start ? null : { label: 'Put on the timeline', act: () => A().schedule(t.id) },
+      { label: tr('projects.board.move_left'), key: 'Shift+←', disabled: ci <= 0, act: () => { focusId = t.id; A().nudge(t.id, -1, 0); } },
+      { label: tr('projects.board.move_right'), key: 'Shift+→', disabled: ci >= cols.length - 1, act: () => { focusId = t.id; A().nudge(t.id, 1, 0); } },
+      { label: tr('projects.board.move_up'), key: 'Shift+↑', disabled: at <= 0, act: () => { focusId = t.id; A().nudge(t.id, 0, -1); } },
+      { label: tr('projects.board.move_down'), key: 'Shift+↓', disabled: at >= n - 1, act: () => { focusId = t.id; A().nudge(t.id, 0, 1); } },
+      t.start ? null : { label: tr('projects.board.on_timeline'), act: () => A().schedule(t.id) },
       '-',
-      { label: 'Delete', key: 'Delete', act: () => A().deleteTask(t.id) },
+      { label: tr('ui.delete'), key: 'Delete', act: () => A().deleteTask(t.id) },
     ].filter(Boolean);
   }
 
@@ -40,18 +41,18 @@
     const p = st().project, cols = p.columns;
     const save = (columns, moves) => A().saveProject({ ...p, columns }, moves);
     return [
-      { label: 'Rename…', act: async () => { const nm = await UI.prompt('Rename column', 'Name', c.name); if (nm && nm.trim()) save(cols.map((x) => (x.id === c.id ? { ...x, name: nm.trim().slice(0, 40) } : x))); } },
-      { label: 'Limit of cards (WIP)…', act: async () => {
-        const v = await UI.prompt('Limit of cards', `How many cards ${c.name} should hold at most (0 for no limit)`, String(c.wip || 0));
+      { label: tr('projects.board.rename_dots'), act: async () => { const nm = await UI.prompt(tr('projects.board.rename_col'), tr('projects.board.name'), c.name); if (nm && nm.trim()) save(cols.map((x) => (x.id === c.id ? { ...x, name: nm.trim().slice(0, 40) } : x))); } },
+      { label: tr('projects.board.wip_dots'), act: async () => {
+        const v = await UI.prompt(tr('projects.board.wip'), tr('projects.board.wip_q', { name: c.name }), String(c.wip || 0));
         if (v === null) return;
         const n = Math.max(0, Math.min(999, parseInt(v, 10) || 0));
         save(cols.map((x) => (x.id === c.id ? { ...x, wip: n || undefined } : x)));
       } },
-      { label: 'Finished work goes here', check: !!c.done, act: () => save(cols.map((x) => (x.id === c.id ? { ...x, done: !c.done || undefined } : x))) },
-      { label: 'Move left', disabled: i === 0, act: () => save(B().moveColumn(cols, c.id, i - 1)) },
-      { label: 'Move right', disabled: i === cols.length - 1, act: () => save(B().moveColumn(cols, c.id, i + 1)) },
+      { label: tr('projects.board.done_col'), check: !!c.done, act: () => save(cols.map((x) => (x.id === c.id ? { ...x, done: !c.done || undefined } : x))) },
+      { label: tr('projects.board.move_left'), disabled: i === 0, act: () => save(B().moveColumn(cols, c.id, i - 1)) },
+      { label: tr('projects.board.move_right'), disabled: i === cols.length - 1, act: () => save(B().moveColumn(cols, c.id, i + 1)) },
       '-',
-      { label: 'Delete column', disabled: cols.length <= 1, act: () => {
+      { label: tr('projects.board.del_col'), disabled: cols.length <= 1, act: () => {
         const r = B().removeColumn(cols, st().tasks, c.id);
         if (r.ok) save(r.columns, r.moves); else UI.toast(r.message);
       } },
@@ -64,13 +65,13 @@
     const w = B().wip(s.tasks, c);
     const done = B().isDone(p, { column: c.id });
     const isDone = (t) => B().isDone(p, t);
-    const input = el('input', { type: 'text', maxlength: 200, placeholder: 'Add a task', 'aria-label': `Add a task to ${c.name}`, autocomplete: 'off' });
+    const input = el('input', { type: 'text', maxlength: 200, placeholder: tr('projects.board.add_task'), 'aria-label': tr('projects.board.add_task_to', { name: c.name }), autocomplete: 'off' });
     const add = (e) => { e.preventDefault(); const v = input.value.trim(); if (!v) return; input.value = ''; NS.boardView.keepAdd = c.id; A().addTask(v, c.id); };
-    return el('section', { class: `pcol${w.over ? ' is-over' : ''}`, 'data-col': c.id, 'aria-label': `${c.name}, ${w.count} card${w.count === 1 ? '' : 's'}` },
+    return el('section', { class: `pcol${w.over ? ' is-over' : ''}`, 'data-col': c.id, 'aria-label': tr('projects.board.col_aria', { name: c.name, n: w.count }) },
       el('header', { class: 'pcol-h' },
-        el('h3', null, c.name, done ? el('span', { class: 'sr' }, ' (finished work)') : null),
-        el('span', { class: `wip${w.over ? ' over' : ''}`, title: w.limit ? `${w.count} cards, limit ${w.limit}` : `${w.count} cards` }, w.limit ? `${w.count} / ${w.limit}` : String(w.count)),
-        el('button', { type: 'button', class: 'pcol-more', 'aria-label': `Actions for the ${c.name} column`, onclick: (e) => { const r = e.currentTarget.getBoundingClientRect(); UI.menu(columnMenu(c, i), r.left, r.bottom + 4); } }, '⋯')),
+        el('h3', null, c.name, done ? el('span', { class: 'sr' }, ' ' + tr('projects.board.finished')) : null),
+        el('span', { class: `wip${w.over ? ' over' : ''}`, title: w.limit ? tr('projects.board.wip_tip', { n: w.count, limit: w.limit }) : tr('projects.board.n_cards', { n: w.count }) }, w.limit ? `${w.count} / ${w.limit}` : String(w.count)),
+        el('button', { type: 'button', class: 'pcol-more', 'aria-label': tr('projects.board.col_actions', { name: c.name }), onclick: (e) => { const r = e.currentTarget.getBoundingClientRect(); UI.menu(columnMenu(c, i), r.left, r.bottom + 4); } }, '⋯')),
       el('div', { class: 'pcol-body', role: 'list', 'aria-label': c.name },
         shown.map((t) => NS.card.build(t, { locale: s.locale, today: s.today, done, columnName: c.name, customer: t.customerId ? s.customers.get(t.customerId) : '',
           blockers: NS.deps.blockers(s.tasks, t, isDone), open: (x) => NS.editor.open({ task: x }) }))),
@@ -86,11 +87,11 @@
     if (!focusId && had) focusId = had.dataset.id;
     const cols = s.project.columns.map(column);
     const addCol = el('button', { type: 'button', class: 'padd-col', onclick: async () => {
-      const nm = await UI.prompt('New column', 'Name', '');
+      const nm = await UI.prompt(tr('projects.board.new_col'), tr('projects.board.name'), '');
       if (nm === null) return;
       const r = B().addColumn(s.project.columns, nm);
       if (r.ok) A().saveProject({ ...s.project, columns: r.value }); else UI.toast(r.message);
-    } }, '+ Add column');
+    } }, tr('projects.board.add_col'));
     root.replaceChildren(...cols, addCol);
     root.scrollLeft = scroll;
     if (focusId) { const c = root.querySelector(`.pcard[data-id="${CSS.escape(focusId)}"]`); if (c) c.focus({ preventScroll: false }); focusId = null; }

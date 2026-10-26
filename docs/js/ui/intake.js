@@ -8,20 +8,20 @@
   const S = window.SlopDocs, SI = window.SlopIntake;
   const SDOC_MIME = 'application/x-slop-doc', DOCX_MIME = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
   const IMPORT = [DOCX_MIME, 'text/markdown', 'text/plain', 'text/html'];
-  const baseName = (n) => String(n || 'Untitled document').replace(/\.(sdoc|docx|md|txt|html?)$/i, '') || 'Untitled document';
+  const baseName = (n) => String(n || S.untitled()).replace(/\.(sdoc|docx|md|txt|html?)$/i, '') || S.untitled();
   let tabsReady = null, ready = null;
   /** Called by boot before the tabs come back; ready() once they have. */
   S.intakeWait = () => { tabsReady = new Promise((r) => { ready = r; }); return () => ready(); };
 
   async function read(file, ctx) {
-    try { return await readOne(file, ctx); } catch (e) { if (window.SlopUI) SlopUI.toast('Could not open: ' + e.message); throw e; }
+    try { return await readOne(file, ctx); } catch (e) { if (window.SlopUI) SlopUI.toast(S.t('docs.file.open_failed', { error: e.message })); throw e; }
   }
   async function readOne(file, ctx) {
     const rec = ctx.drive ? Object.assign({}, ctx.drive.record, { blob: file }) : { name: file.name, type: file.type, blob: file };
     if (ctx.mode === 'import') {
       const r = await S.readRecord(rec);
       S.tabsApi().openDoc(S.makeTab(r.doc, { name: baseName(rec.name) + '.sdoc' }), { origName: rec.name });
-      if (window.SlopUI) SlopUI.toast(`Opened ${rec.name} as a new Slop Docs file`);
+      if (window.SlopUI) SlopUI.toast(S.t('docs.file.opened_new', { name: rec.name }));
     } else await S.openRecord(rec, { silent: ctx.source === 'launch' });
     return file.name;
   }
@@ -31,9 +31,9 @@
     before: () => tabsReady,
   });
   /** File ▸ Open from Slop Drive: a .sdoc, linked to its record. */
-  S.openFromDrive = () => SI.fromDrive({ to: 'docs', accept: [SDOC_MIME], title: 'Open from Slop Drive' });
+  S.openFromDrive = () => SI.fromDrive({ to: 'docs', accept: [SDOC_MIME], title: S.t('docs.file.open_title') });
   /** File ▸ Import: a Word, Markdown or text file from Slop Drive, as a new tab that is not linked to the file. */
-  S.importFromDrive = () => SI.fromDrive({ to: 'docs', mode: 'import', accept: IMPORT, title: 'Import from Slop Drive' });
+  S.importFromDrive = () => SI.fromDrive({ to: 'docs', mode: 'import', accept: IMPORT, title: S.t('docs.file.import_title') });
   /** What the page was opened with; resolves true when a document opened. */
   S.launch = async () => { const r = await SI.launch({ to: 'docs' }); return !!(r && r.added && r.added.length); };
   SI.dropTarget(document.getElementById('stage'), { to: 'docs' });

@@ -6,6 +6,7 @@
 (function (g) {
   'use strict';
   const ns = (g.SlopData = g.SlopData || {});
+  const say = (k, v) => { const I = g.SlopI18n; return I && I.t ? I.t(k, v) : k; };   // words: shared/i18n/ui/<code>/data.js, data2.js
   const { ok, fail } = ns.result;
   const A = () => ns.schema.ACCT;
 
@@ -36,7 +37,7 @@
   async function loadInvoice(tx, id) {
     const r = await tx.get('invoices', id);
     if (!r.ok) return r;
-    return r.value && !r.value.deletedAt ? ok(r.value) : fail('not_found', `no invoice ${id}`);
+    return r.value && !r.value.deletedAt ? ok(r.value) : fail('not_found', say('ui.data.err.no_invoice', { id: String(id) }));
   }
 
   /** Draft -> issued. Takes the next invoice number, writes the journal (AR / revenue / tax) in the same transaction. */
@@ -44,10 +45,10 @@
     return ns.store.transact(async (tx) => {
       const inv = await loadInvoice(tx, id);
       if (!inv.ok) return inv;
-      if (inv.value.status !== 'draft') return fail('invalid_transition', 'only a draft can be issued');
+      if (inv.value.status !== 'draft') return fail('invalid_transition', say('ui.data.bill.draft_only'));
       const cust = await tx.get('customers', inv.value.customerId);
       if (!cust.ok) return cust;
-      if (!cust.value || cust.value.deletedAt) return fail('not_found', 'the customer on this invoice no longer exists');
+      if (!cust.value || cust.value.deletedAt) return fail('not_found', say('ui.data.bill.no_customer'));
       const up = await tx.put('invoices', { ...inv.value, status: 'issued', issuedAt: Date.now() }, { posting: true });
       if (!up.ok) return up;
       const lines = invoiceLines(up.value);
@@ -64,12 +65,12 @@
     return ns.store.transact(async (tx) => {
       const inv = await loadInvoice(tx, invoiceId);
       if (!inv.ok) return inv;
-      if (inv.value.status !== 'issued') return fail('invalid_transition', 'payments can be recorded only against an issued invoice');
-      if (!Number.isSafeInteger(amount) || amount < 1) return fail('invalid', 'amount must be a positive whole number of minor units');
+      if (inv.value.status !== 'issued') return fail('invalid_transition', say('ui.data.bill.pay_issued'));
+      if (!Number.isSafeInteger(amount) || amount < 1) return fail('invalid', say('ui.data.err.amount'));
       const pays = await tx.list('payments', { index: 'invoiceId', value: invoiceId });
       if (!pays.ok) return pays;
       const due = balanceDue(inv.value, pays.value);
-      if (amount > due) return fail('overpayment', `only ${due} is due on this invoice`);
+      if (amount > due) return fail('overpayment', say('ui.data.bill.overpay', { due: String(due) }));
       const base = paymentBase(inv.value, pays.value, amount, due);
       const id = ns.store.newId();
       const day = date || ns.ledger.today();
@@ -97,11 +98,11 @@
     return ns.store.transact(async (tx) => {
       const inv = await loadInvoice(tx, id);
       if (!inv.ok) return inv;
-      if (inv.value.status !== 'issued') return fail('invalid_transition', 'only an issued invoice can be voided');
+      if (inv.value.status !== 'issued') return fail('invalid_transition', say('ui.data.bill.void_issued'));
       const pays = await tx.list('payments', { index: 'invoiceId', value: id });
       if (!pays.ok) return pays;
-      if (pays.value.length) return fail('has_payments', 'this invoice has payments and cannot be voided');
-      if (inv.value.credited) return fail('has_credits', 'this invoice has credit notes and cannot be voided');
+      if (pays.value.length) return fail('has_payments', say('ui.data.bill.void_paid'));
+      if (inv.value.credited) return fail('has_credits', say('ui.data.bill.void_credited'));
       const v = await tx.put('invoices', { ...inv.value, status: 'void' }, { posting: true });
       if (!v.ok) return v;
       const je = await tx.list('journal', { index: 'source', value: `invoice:${id}:issue`, includeDeleted: true });
@@ -121,13 +122,13 @@
     return ns.store.transact(async (tx) => {
       const o = await tx.get('orders', orderId);
       if (!o.ok) return o;
-      if (!o.value || o.value.deletedAt) return fail('not_found', `no order ${orderId}`);
+      if (!o.value || o.value.deletedAt) return fail('not_found', say('ui.data.err.no_order', { id: String(orderId) }));
       const order = o.value;
-      if (order.status === 'draft' || order.status === 'cancelled') return fail('invalid_transition', 'only a confirmed or fulfilled order can be invoiced');
+      if (order.status === 'draft' || order.status === 'cancelled') return fail('invalid_transition', say('ui.data.bill.order_open'));
       if (order.invoiceId) {
         const old = await tx.get('invoices', order.invoiceId);
         if (!old.ok) return old;
-        if (old.value && !old.value.deletedAt) return fail('conflict', `this order already has invoice ${old.value.number || 'draft'}`);
+        if (old.value && !old.value.deletedAt) return fail('conflict', (old.value.number ? say('ui.data.bill.order_has', { number: old.value.number }) : say('ui.data.bill.order_has_draft')));
       }
       const inv = await tx.put('invoices', {
         customerId: order.customerId, date: ns.ledger.today(), dueDate, currency: order.currency,

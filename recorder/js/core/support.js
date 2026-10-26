@@ -5,6 +5,7 @@
  *   rows(caps, ua)       [{ id, what, status: 'yes' | 'no' | 'partial', note }] for this browser, from
  *                        caps = { display, user, recorder, canvasStream, mediaStream, types: [the MediaRecorder types it writes] }
  *   TABLE                the same facts for every browser (the page shows it under "Other browsers")
+ *   Each row also carries key names for the page's language (view.js): a row's `nk` (its note), a TABLE row's `k` and `sk`.
  * Facts (2026): only desktop browsers have getDisplayMedia (screen capture); sound from the screen is a Chromium feature:
  * a tab's sound in Chrome and Edge everywhere, the whole screen's sound on Windows and ChromeOS only, never a window's;
  * Firefox and Safari share no system sound. Every browser here records the webcam and the microphone. */
@@ -40,28 +41,30 @@
     const sound = sa.tab === 'yes' && sa.screen === 'yes' ? 'yes' : sa.tab === 'yes' ? 'partial' : 'no';
     return [
       { id: 'screen', what: 'Screen, window or tab', status: yes(caps.display && caps.recorder),
+        nk: caps.display ? 'screen_yes' : b.mobile ? 'screen_mobile' : 'screen_no',
         note: caps.display ? 'You pick the screen, a window or a browser tab when you press Record.' : b.mobile ? 'Phones and tablets do not let web pages record the screen. Use the phone\'s own screen recorder.' : 'This browser does not let pages capture the screen.' },
-      { id: 'system', what: 'Sound from the screen', status: caps.display ? sound : 'no',
+      { id: 'system', what: 'Sound from the screen', status: caps.display ? sound : 'no', nk: 'system_' + sound,
         note: sound === 'yes' ? 'Tick “Share tab audio” or “Share system audio” in the browser\'s sharing window. A single window shares no sound.'
           : sound === 'partial' ? 'Only a browser tab\'s sound: pick a tab and tick “Share tab audio”. A whole screen or a window shares no sound here (it does on Windows and ChromeOS).'
             : 'This browser shares no sound from the screen. Your microphone still records.' },
-      { id: 'camera', what: 'Webcam', status: yes(caps.user && caps.recorder), note: caps.user ? 'The browser asks you once for the camera.' : 'This browser gives pages no camera.' },
-      { id: 'mic', what: 'Microphone', status: yes(caps.user && caps.recorder), note: caps.user ? 'Recorded with the screen or webcam, or on its own.' : 'This browser gives pages no microphone.' },
+      { id: 'camera', what: 'Webcam', status: yes(caps.user && caps.recorder), nk: caps.user ? 'camera_yes' : 'camera_no', note: caps.user ? 'The browser asks you once for the camera.' : 'This browser gives pages no camera.' },
+      { id: 'mic', what: 'Microphone', status: yes(caps.user && caps.recorder), nk: caps.user ? 'mic_yes' : 'mic_no', note: caps.user ? 'Recorded with the screen or webcam, or on its own.' : 'This browser gives pages no microphone.' },
       { id: 'pip', what: 'Screen + webcam in a corner', status: yes(caps.display && caps.user && caps.canvasStream && caps.recorder),
-        note: 'The two are drawn together on this device while you record.' },
-      { id: 'trim', what: 'Trim without converting', status: caps.mediaStream ? 'yes' : 'partial',
+        nk: 'pip', note: 'The two are drawn together on this device while you record.' },
+      { id: 'trim', what: 'Trim without converting', status: caps.mediaStream ? 'yes' : 'partial', nk: caps.mediaStream ? 'trim_yes' : 'trim_engine',
         note: caps.mediaStream ? 'The kept part plays once in real time and is recorded again.' : 'Trimming uses the video engine (a one-time download) in this browser.' },
       { id: 'format', what: 'Recorded as', status: caps.recorder ? 'yes' : 'no',
+        nk: !caps.recorder ? 'format_none' : webm ? (mp4 ? 'format_webm_mp4' : 'format_webm') : mp4 ? 'format_mp4' : 'format_unknown',
         note: !caps.recorder ? 'This browser cannot record media.' : webm ? 'WebM' + (mp4 ? ' or MP4' : '') + '. MP4 and GIF are made on this device with the video engine.' : mp4 ? 'MP4 (this browser writes no WebM).' : 'An unknown type.' },
     ];
   }
 
   const TABLE = [
-    { browser: 'Chrome, Edge (Windows, ChromeOS)', screen: 'yes', system: 'Tab and whole screen', camera: 'yes' },
-    { browser: 'Chrome, Edge (macOS, Linux)', screen: 'yes', system: 'A tab only', camera: 'yes' },
-    { browser: 'Firefox (desktop)', screen: 'yes', system: 'none', camera: 'yes' },
-    { browser: 'Safari (macOS)', screen: 'yes', system: 'none', camera: 'yes' },
-    { browser: 'Phones and tablets (iOS, Android)', screen: 'no', system: 'none', camera: 'yes' },
+    { k: 'win', sk: 'both', browser: 'Chrome, Edge (Windows, ChromeOS)', screen: 'yes', system: 'Tab and whole screen', camera: 'yes' },
+    { k: 'mac', sk: 'tab', browser: 'Chrome, Edge (macOS, Linux)', screen: 'yes', system: 'A tab only', camera: 'yes' },
+    { k: 'firefox', sk: 'none', browser: 'Firefox (desktop)', screen: 'yes', system: 'none', camera: 'yes' },
+    { k: 'safari', sk: 'none', browser: 'Safari (macOS)', screen: 'yes', system: 'none', camera: 'yes' },
+    { k: 'mobile', sk: 'none', browser: 'Phones and tablets (iOS, Android)', screen: 'no', system: 'none', camera: 'yes' },
   ];
-  return { browserOf, systemAudio, rows, TABLE };
+  return { browserOf, systemAudio, rows, TABLE, NAMES, OSES };
 });

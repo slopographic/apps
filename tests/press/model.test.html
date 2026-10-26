@@ -2,6 +2,11 @@
 <html lang="en">
 <head><meta charset="utf-8"><title>Slop Press · model tests</title></head>
 <body>
+  <!-- the app's English words (press/i18n), which the core reads through PR.util.t -->
+  <script src="../harness.js"></script>
+  <script src="../../shared/profile/profile.js"></script>
+  <script src="../../shared/i18n/i18n.js"></script>
+  <script src="../../press/i18n/index.js"></script>
   <script src="../../press/js/core/util.js"></script>
   <script src="../../press/js/core/model.js"></script>
   <script src="../../press/js/core/pages.js"></script>
@@ -18,7 +23,6 @@
   <script src="../../press/js/text/layout.js"></script>
   <script src="../../press/js/text/engine.js"></script>
   <script src="../../press/js/text/nav.js"></script>
-  <script src="../harness.js"></script>
   <script src="layout-helpers.js"></script>
   <script>
   const { describe, it, expect } = SlopTest;

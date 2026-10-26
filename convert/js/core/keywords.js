@@ -10,7 +10,7 @@ export const KEYWORDS = {
   'pdf-to-images': ['png', 'jpg', 'jpeg', 'picture', 'pages'], 'pdf-to-html': ['web', 'page'], 'pdf-to-docx': ['word', 'doc', 'edit'],
   'pdf-to-xlsx': ['excel', 'table', 'spreadsheet'], 'pdf-to-pptx': ['powerpoint', 'slides', 'presentation'], 'merge-pdf': ['combine', 'join'],
   'split-pdf': ['extract', 'pages'], 'csv-to-json': ['table'], 'json-to-csv': ['table', 'spreadsheet'], 'csv-to-xlsx': ['excel', 'spreadsheet'],
-  'csv-to-vcf': ['contacts', 'vcard', 'address book'], 'xlsx-to-vcf': ['contacts', 'vcard', 'excel'], 'vcf-to-csv': ['contacts', 'address book'],
+  'csv-to-vcf': ['contacts', 'vcard', 'address book'], 'xlsx-to-vcf': ['contacts', 'vcard', 'excel'], 'vcf-to-csv': ['contacts', 'address book'],   // i18n-ignore: search words
   'vcf-to-xlsx': ['contacts', 'excel'], 'vcf-to-json': ['contacts'], 'md-to-html': ['markdown', 'web'], 'html-to-text': ['plain', 'strip'],
   'base64-encode': ['data uri', 'encode'], 'base64-decode': ['decode'], 'url-encode': ['percent', 'escape'], 'url-decode': ['percent', 'unescape'],
   'line-endings': ['crlf', 'lf', 'newline', 'windows', 'unix'], 'eml-to-html': ['email', 'mail'], 'eml-to-text': ['email', 'mail'],

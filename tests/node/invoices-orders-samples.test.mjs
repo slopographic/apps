@@ -8,9 +8,11 @@ import vm from 'node:vm';
 import path from 'node:path';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
+const PIN = "window.SlopI18n = window.SlopI18n.create({ defaultLang: 'en', profile: null });";   // English in any build (a white-label build may choose another language first)
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
-const FILES = ['shared/data/money.js', 'shared/data/barcode.js', 'shared/data/schema-checks.js', 'shared/data/schema-defs.js', 'shared/data/schema.js',
+// shared/i18n with the English business tables first, so messages read as on the page
+const FILES = ['shared/i18n/i18n.js', 'shared/biz/i18n/en/biz.js', 'shared/biz/i18n/en/docs.js', 'shared/data/money.js', 'shared/data/barcode.js', 'shared/data/schema-checks.js', 'shared/data/schema-defs.js', 'shared/data/schema.js',
   'shared/data/currency.js', 'shared/data/ledger.js', 'shared/docs/model.js',
   'shared/sample/rng.js', 'shared/sample/en.js', 'shared/sample/sv.js', 'shared/sample/people.js', 'shared/sample/goods.js', 'shared/sample/records.js', 'shared/docs/samples.js', 'shared/docs/samples-run.js'];
 
@@ -18,7 +20,7 @@ async function load() {
   const ctx = {};
   ctx.window = ctx;
   vm.createContext(ctx);
-  for (const f of FILES) vm.runInContext(await readFile(path.join(ROOT, f), 'utf8'), ctx, { filename: f });
+  for (const f of FILES) { vm.runInContext(await readFile(path.join(ROOT, f), 'utf8'), ctx, { filename: f }); if (f === 'shared/i18n/i18n.js') vm.runInContext(PIN, ctx); }
   return ctx;
 }
 const plain = (v) => JSON.parse(JSON.stringify(v));

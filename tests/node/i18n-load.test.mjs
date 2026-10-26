@@ -2,7 +2,8 @@
 // language's tables into the page (chrome, ui, an app's index.js parts), later it adds them and fires 'slopi18n';
 // languages an app does not ship are not fetched; the offline copy fetches nothing; plural forms through
 // Intl.PluralRules; num/date/money/list through Intl in the chosen language; the script stylesheet for CJK and friends.
-// Covers: shared/i18n/i18n.js, pdf/i18n/index.js, shell/shell.js
+// at(code) and need(code, false, ns): another language's words without switching the page (printed business documents).
+// Covers: shared/i18n/i18n.js, pdf/i18n/index.js, shell/shell.js, shared/biz/i18n/index.js
 // Run: node --test tests/node/i18n-load.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -53,19 +54,24 @@ function page({ lang, parsing = true, offline = false, late = false } = {}) {
   vm.runInContext(read('shared/profile/profile.js'), ctx);
   return { ctx, doc, writes, added, events, attrs, script, I: () => ctx.SlopI18n };
 }
+/** The shared components' parts of a language after ui/<code>.js (UI_PARTS in i18n.js; none for a language without them). */
+function uiParts(code) {
+  const P = JSON.parse(/var UI_PARTS = \/\*ui-parts\*\/(\{.*\});/.exec(read('shared/i18n/i18n.js'))[1].replace(/(\w+):/g, '"$1":').replace(/'/g, '"'));
+  return P.langs.includes(code) ? P.parts.map((p) => `shared/i18n/ui/${code}/${p}.js`) : [];
+}
 const urls = (writes) => writes.map((h) => (/(?:src|href)="([^"]+)"/.exec(h) || [])[1].slice(SITE.length));
 
 test('at parse time an English page writes only the English chrome and ui tables', () => {
   const p = page({ lang: 'en' });   // stored, so a build that starts in another language reads the same
   p.script('shared/i18n/i18n.js');
-  assert.deepEqual(urls(p.writes), ['shared/i18n/strings.js', 'shared/i18n/ui/en.js']);
+  assert.deepEqual(urls(p.writes), ['shared/i18n/strings.js', 'shared/i18n/ui/en.js', ...uiParts('en')]);
   assert.equal(p.I().t('nav.apps'), 'Apps');
 });
 
 test('a Swedish page writes English and Swedish (and the Swedish app names), and t() reads Swedish at once', () => {
   const p = page({ lang: 'sv' });
   p.script('shared/i18n/i18n.js');
-  assert.deepEqual(urls(p.writes), ['shared/i18n/strings.js', 'shared/i18n/sv.js', 'shared/i18n/sv-apps.js', 'shared/i18n/ui/en.js', 'shared/i18n/ui/sv.js']);
+  assert.deepEqual(urls(p.writes), ['shared/i18n/strings.js', 'shared/i18n/sv.js', 'shared/i18n/sv-apps.js', 'shared/i18n/ui/en.js', ...uiParts('en'), 'shared/i18n/ui/sv.js', ...uiParts('sv')]);
   assert.equal(p.I().t('nav.apps'), 'Appar');
 });
 
@@ -90,7 +96,7 @@ test('later (not parsing), set() applies at once, fetches the new tables and the
   const p = page({ lang: 'en', parsing: false, late: true });
   p.script('shared/i18n/i18n.js');
   await p.I().ready();
-  assert.deepEqual(p.added.map((e) => e.src.slice(SITE.length)), ['shared/i18n/strings.js', 'shared/i18n/ui/en.js']);
+  assert.deepEqual(p.added.map((e) => e.src.slice(SITE.length)), ['shared/i18n/strings.js', 'shared/i18n/ui/en.js', ...uiParts('en')]);
   let heard = 0;
   const stop = p.I().on((code) => { heard++; assert.equal(code, 'de'); });
   assert.equal(p.I().set('de').ok, true);
@@ -103,6 +109,35 @@ test('later (not parsing), set() applies at once, fetches the new tables and the
   assert.equal(p.events[p.events.length - 1], 'slopi18n');
   stop();
   assert.equal(p.attrs.lang, 'de');
+});
+
+test('at(code) reads another language without switching the page; need(code, false, ns) fetches only that source', async () => {
+  const p = page({ lang: 'en', parsing: false, late: true });
+  p.script('shared/i18n/i18n.js');
+  p.script('shared/biz/i18n/index.js');
+  await p.I().ready();
+  const I = p.I();
+  assert.deepEqual([...I.shipped('biz')], ['en', 'sv'], 'the languages the business tables ship');
+  assert.equal(I.shipped('nope').length, 0);
+  const before = p.added.length;
+  await I.need('sv', false, 'biz');
+  const got = p.added.slice(before).map((e) => e.src.slice(SITE.length));
+  assert.ok(got.length > 0 && got.every((u) => /^shared\/biz\/i18n\/sv\/\w+\.js$/.test(u)), `only the Swedish business tables: ${got}`);
+  const sv = I.at('sv', 'sv-SE');
+  assert.equal(I.get(), 'en', 'the page stays English');
+  assert.equal(I.t('biz.pr.t_invoice'), 'Invoice');
+  assert.equal(sv.code, 'sv');
+  assert.equal(sv.t('biz.pr.t_invoice'), 'Faktura');
+  assert.equal(sv.t('biz.pr.terms_days', { n: 1 }), '1 dag netto', 'plural forms of the language');
+  assert.equal(sv.t('biz.pr.terms_days', { n: 30 }), '30 dagar netto');
+  assert.equal(sv.t('nav.apps'), 'Apps', 'a key the language has no table for reads English');
+  assert.equal(sv.t('no.such.key'), 'no.such.key');
+  assert.equal(sv.money(1234.5, 'SEK'), new Intl.NumberFormat('sv-SE', { style: 'currency', currency: 'SEK' }).format(1234.5));
+  assert.equal(sv.t('biz.pr.d_lines', { n: 1234 }), `${new Intl.NumberFormat('sv-SE').format(1234)} rader`, 'numbers in vars in its locale');
+  assert.equal(sv.date('2026-10-26T12:00:00', { year: 'numeric', month: '2-digit', day: '2-digit' }), '2026-10-26');
+  assert.equal(I.at('sv').locale, 'sv', 'the locale defaults to the code');
+  assert.equal(I.at('xx').code, 'en', 'a code not in the list reads English');
+  assert.equal(I.num(1234.5), new Intl.NumberFormat('en').format(1234.5), 'the page formats stay English');
 });
 
 test('an offline single-file copy fetches nothing', () => {

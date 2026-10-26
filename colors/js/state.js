@@ -11,6 +11,7 @@
   const DEFAULTS = Object.freeze({ current: '#3366cc', palette: { name: 'My palette', colors: [] }, fg: '#1f2937', bg: '#ffffff',
     harmony: 'complementary', scale: 'tints', steps: 6, k: 6, format: 'css' });
   const C = () => g.SlopColors.convert;
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
   const fns = new Set();
   const clone = (x) => JSON.parse(JSON.stringify(x));
   let s = clone(DEFAULTS);
@@ -22,7 +23,7 @@
   /** Checks a patch: colours parsed, numbers in range, the palette's colours cleaned and capped. */
   function clean(p) {
     const out = {};
-    for (const k of ['current', 'fg', 'bg']) if (p[k] != null) { const h = C().parse(p[k]); if (!h) throw new Error(`“${p[k]}” is not a colour`); out[k] = h; }
+    for (const k of ['current', 'fg', 'bg']) if (p[k] != null) { const h = C().parse(p[k]); if (!h) throw new Error(t('colors.app.not_colour', { text: p[k] })); out[k] = h; }
     if (p.palette) {
       const cols = (p.palette.colors || []).map((c) => ({ hex: C().parse(typeof c === 'string' ? c : c.hex), name: typeof c === 'object' && c.name ? String(c.name).slice(0, 60) : undefined }))
         .filter((c) => c.hex).slice(0, MAX).map((c) => (c.name ? c : { hex: c.hex }));
@@ -46,8 +47,8 @@
   /** The palette with one more colour (not twice in a row the same one), or an error when it is full. */
   function addColor(hex, name) {
     const cols = s.palette.colors.slice(), h = C().parse(hex);
-    if (!h) throw new Error(`“${hex}” is not a colour`);
-    if (cols.length >= MAX) throw new Error(`The palette is full (${MAX} colours)`);
+    if (!h) throw new Error(t('colors.app.not_colour', { text: hex }));
+    if (cols.length >= MAX) throw new Error(t('colors.app.full', { n: MAX }));
     cols.push(name ? { hex: h, name } : { hex: h });
     set({ palette: { name: s.palette.name, colors: cols } });
     return cols.length;

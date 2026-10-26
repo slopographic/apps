@@ -29,7 +29,7 @@
     }
   }
   SE.order = {
-    front: (ids) => SE.change('Bring to front', (p) => place(p, ids, true)),
-    back: (ids) => SE.change('Send to back', (p) => place(p, ids, false)),
+    front: (ids) => SE.change(SE.util.t('slopedit.tl.bring_to_front'), (p) => place(p, ids, true)),
+    back: (ids) => SE.change(SE.util.t('slopedit.tl.send_to_back'), (p) => place(p, ids, false)),
   };
 })();

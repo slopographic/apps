@@ -10,13 +10,14 @@
  *   jsonToXml(text, { root }) -> text             objects become elements, arrays repeat their element, keys that
  *                                                 are not XML names are made into names; the {name, attributes,
  *                                                 children, text} shape that XML to JSON writes goes back as it was */
+import { tr } from './i18n.js';
 const yaml = () => import('../../../vendor/js-yaml/js-yaml.mjs');
 const toml = () => import('../../../vendor/smol-toml/index.js');
 
 /** Line and column of a character offset. */
 function where(text, at) {
   const before = text.slice(0, at), line = before.split('\n').length;
-  return `line ${line}, column ${at - before.lastIndexOf('\n')}`;
+  return tr('convert.struct.line_column', { line: String(line), col: String(at - before.lastIndexOf('\n')) });
 }
 /** The offset of the first mistake in JSON text, found by a small scanner (engines word their messages differently and some
  *  give no position), or -1 when the scanner finds none. */
@@ -48,11 +49,12 @@ export function jsonErrorAt(t) {
 }
 export function parseJson(text) {
   const t = String(text).replace(/^\uFEFF/, '');
-  if (!t.trim()) throw new Error('The file is empty: there is no JSON to read.');
+  if (!t.trim()) throw new Error(tr('convert.struct.empty'));
   try { return JSON.parse(t); } catch (e) {
     const at = jsonErrorAt(t);
-    const near = at >= 0 ? (at >= t.length ? 'the end of the file' : `"${t.slice(at, at + 12).split('\n')[0]}"`) : '';
-    throw new Error(`This is not valid JSON${at >= 0 ? `: the mistake is at ${where(t, at)}, near ${near}` : ''}. Check for a missing comma, quote or bracket.`);
+    const near = at >= 0 ? (at >= t.length ? tr('convert.struct.end_of_file') : tr('convert.struct.quoted', { text: t.slice(at, at + 12).split('\n')[0] })) : '';
+    throw new Error(at >= 0 ? tr('convert.struct.bad_json_at', { where: where(t, at), near })
+      : tr('convert.struct.bad_json'));
   }
 }
 const indentOf = (i) => (i === 'tab' || i === '\t' ? '\t' : Math.max(0, Math.min(8, Number(i ?? 2) || 0)));
@@ -67,7 +69,8 @@ export async function jsonToYaml(text) {
 export async function yamlToJson(text, { indent = 2 } = {}) {
   const Y = await yaml();
   let docs;
-  try { docs = Y.loadAll(String(text).replace(/^﻿/, '')); } catch (e) { throw new Error(`This YAML could not be read: ${e.reason || e.message}${e.mark ? ` (line ${e.mark.line + 1}, column ${e.mark.column + 1})` : ''}.`); }
+  try { docs = Y.loadAll(String(text).replace(/^﻿/, '')); } catch (e) { throw new Error(e.mark ? tr('convert.struct.bad_yaml_at', { error: e.reason || e.message, where: tr('convert.struct.line_column', { line: String(e.mark.line + 1), col: String(e.mark.column + 1) }) })
+    : tr('convert.struct.bad_yaml', { error: e.reason || e.message })); }
   return json(docs.length === 1 ? docs[0] : docs.length ? docs : null, indent);
 }
 
@@ -83,7 +86,7 @@ function dropNulls(v, count) {
 }
 export async function jsonToToml(text) {
   const v = parseJson(text);
-  if (!v || typeof v !== 'object' || Array.isArray(v)) throw new Error('A TOML file is a table of keys, so the JSON must be an object ({ … }) at the top, not a list or a single value.');
+  if (!v || typeof v !== 'object' || Array.isArray(v)) throw new Error(tr('convert.struct.toml_object'));
   const count = { n: 0 };
   const T = await toml();
   return { text: T.stringify(dropNulls(v, count)) + '\n', dropped: count.n };
@@ -91,7 +94,7 @@ export async function jsonToToml(text) {
 export async function tomlToJson(text, { indent = 2 } = {}) {
   const T = await toml();
   let v;
-  try { v = T.parse(String(text).replace(/^﻿/, '')); } catch (e) { throw new Error(`This TOML could not be read: ${String(e.message).split('\n')[0]}`); }
+  try { v = T.parse(String(text).replace(/^﻿/, '')); } catch (e) { throw new Error(tr('convert.struct.bad_toml', { error: String(e.message).split('\n')[0] })); }
   const i = indentOf(indent);
   const out = JSON.stringify(v, (k, x) => (typeof x === 'bigint' ? (Number.isSafeInteger(Number(x)) ? Number(x) : String(x)) : x), i === 0 ? undefined : i);
   return i === 0 ? out : out + '\n';

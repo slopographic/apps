@@ -17,12 +17,15 @@
   UI.setCursorPos = function (p) { curPos = p; var el = document.getElementById('sbPos'); if (el) el.textContent = 'X ' + SV.fmtNum(p.x) + '  Y ' + SV.fmtNum(p.y); };
   function buildStatus() {
     var sb = document.getElementById('statusbar');
-    var zin = h('input', { class: 'zin mono', id: 'zoomIn', 'aria-label': 'Zoom level', type: 'text' });
+    var zin = h('input', { class: 'zin mono', id: 'zoomIn', i18n: { 'aria-label': 'vector.status.zoom_level' }, type: 'text' });
     zin.addEventListener('change', function () { var v = parseFloat(zin.value); if (v > 0) SV.zoomTo(v / 100); zin.blur(); });
     zin.addEventListener('keydown', function (e) { if (e.key === 'Enter') zin.dispatchEvent(new Event('change')); });
-    var zsel = h('select', { class: 'zsel', 'aria-label': 'Zoom presets' }, [h('option', { value: '', text: '' })].concat([3200, 1600, 800, 400, 200, 150, 100, 66.67, 50, 33.33, 25, 12.5].map(function (z) { return h('option', { value: z, text: z + '%' }); })).concat([h('option', { value: 'fit', text: 'Fit Artboard' })]));
+    var zsel = h('select', { class: 'zsel', i18n: { 'aria-label': 'vector.status.zoom_presets' } }, [h('option', { value: '', text: '' })].concat([3200, 1600, 800, 400, 200, 150, 100, 66.67, 50, 33.33, 25, 12.5].map(function (z) { return h('option', { value: z, text: z + '%' }); })).concat([h('option', { value: 'fit', i18n: { text: 'vector.props.fit_artboard' } })]));
     zsel.addEventListener('change', function () { if (zsel.value === 'fit') SV.fitArtboard(); else if (zsel.value) SV.zoomTo(parseFloat(zsel.value) / 100); zsel.value = ''; });
-    sb.appendChild(h('div', { class: 'sb-zoom' }, [h('button', { type: 'button', class: 'sbb', title: 'Zoom out (' + keyLabel('mod+-') + ')', 'aria-label': 'Zoom out', text: '−', onclick: function () { SV.zoomStep(-1); } }), zin, zsel, h('button', { type: 'button', class: 'sbb', title: 'Zoom in (' + keyLabel('mod+=') + ')', 'aria-label': 'Zoom in', text: '+', onclick: function () { SV.zoomStep(1); } })]));
+    var zOut = h('button', { type: 'button', class: 'sbb', i18n: { 'aria-label': 'ui.zoom_out' }, text: '−', onclick: function () { SV.zoomStep(-1); } });
+    var zIn = h('button', { type: 'button', class: 'sbb', i18n: { 'aria-label': 'ui.zoom_in' }, text: '+', onclick: function () { SV.zoomStep(1); } });
+    SV.live(function () { zOut.title = SV.t('vector.status.zoom_out_tip', { key: keyLabel('mod+-') }); zIn.title = SV.t('vector.status.zoom_in_tip', { key: keyLabel('mod+=') }); });
+    sb.appendChild(h('div', { class: 'sb-zoom' }, [zOut, zin, zsel, zIn]));
     sb.appendChild(h('span', { class: 'sb-item mono', id: 'sbArt' }));
     sb.appendChild(h('span', { class: 'sb-item mono', id: 'sbPos', text: 'X 0  Y 0' }));
     sb.appendChild(h('span', { class: 'sb-item', id: 'sbSel' }));
@@ -31,19 +34,19 @@
     sb.appendChild(h('span', { class: 'sb-item sb-tool', id: 'sbTool' }));
     bind('status', function () {
       setVal(zin, (Math.round(S.view.zoom * 10000) / 100) + '%');
-      document.getElementById('sbArt').textContent = 'Artboard ' + SV.fmtNum(S.doc.width) + ' × ' + SV.fmtNum(S.doc.height) + ' px';
+      document.getElementById('sbArt').textContent = SV.t('vector.status.artboard', { w: SV.fmtNum(S.doc.width), h: SV.fmtNum(S.doc.height) });
       var n = S.sel.length;
-      document.getElementById('sbSel').textContent = n ? n + ' selected' : '';
+      document.getElementById('sbSel').textContent = n ? SV.t('vector.status.selected', { n: n }) : '';
       var flags = [];
-      if (S.prefs.smart) flags.push('Smart Guides'); if (S.prefs.snapGrid) flags.push('Snap'); if (S.prefs.outline) flags.push('Outline');
+      if (S.prefs.smart) flags.push(SV.t('vector.act.view_smart')); if (S.prefs.snapGrid) flags.push(SV.t('vector.status.snap')); if (S.prefs.outline) flags.push(SV.t('vector.act.view_outline'));
       document.getElementById('sbFlags').textContent = flags.join(' · ');
       var t = SV.TOOL_LIST.filter(function (x) { return x.id === S.tool; })[0];
       document.getElementById('sbTool').textContent = t ? t.name : '';
       var dirty = SV.isDirty();
       var title = S.doc.name + (dirty ? ' •' : '');
-      document.getElementById('docTab').innerHTML = '<span class="dt-name">' + esc(S.doc.name) + '.svg</span><span class="dt-meta mono">@ ' + (Math.round(S.view.zoom * 1000) / 10) + '% (RGB/' + (S.prefs.outline ? 'Outline' : 'Preview') + ')</span>' + (dirty ? '<span class="dt-dirty" title="Unsaved changes">●</span>' : '');
+      document.getElementById('docTab').innerHTML = '<span class="dt-name">' + esc(S.doc.name) + '.svg</span><span class="dt-meta mono">@ ' + (Math.round(S.view.zoom * 1000) / 10) + '% (RGB/' + esc(S.prefs.outline ? SV.t('vector.act.view_outline') : SV.t('vector.status.preview')) + ')</span>' + (dirty ? '<span class="dt-dirty" title="' + esc(SV.t('vector.status.unsaved')) + '">●</span>' : '');
       document.getElementById('docTitle').textContent = title;
-      document.title = (dirty ? '• ' : '') + 'SlopVector — Slopographic';
+      document.title = (dirty ? '• ' : '') + 'SlopVector — Slopographic'; // i18n-ignore: app and site names
     });
   }
 

@@ -4,51 +4,51 @@
  *   FC.panelMore.sections() → the panel's sections   paint()   subset(text)   addSet(id) */
 (function (g) {
   'use strict';
-  const S = () => g.FC.state, F = () => g.SlopFont;
+  const S = () => g.FC.state, F = () => g.SlopFont, t = (k, v) => g.FC.t(k, v);
   const el = (tag, attrs = {}, ...kids) => { const n = document.createElement(tag); for (const k in attrs) if (attrs[k] != null) n.setAttribute(k, attrs[k]); n.append(...kids); return n; };
   const parts = {};
   const safe = (fn) => () => Promise.resolve().then(fn).catch((e) => g.SlopUI.toast(e.message));
-  const button = (id, label, run) => { const b = el('button', { type: 'button', class: 'sui-btn', id }, label); b.addEventListener('click', safe(run)); return b; };
-  const field = (label, control, note) => { const l = el('label', { class: 'sf-field' }, el('span', { class: 'sf-lab' }, label), control); if (note) l.append(el('span', { class: 'sf-note' }, note)); return l; };
+  const button = (id, label, run) => { const b = el('button', { type: 'button', class: 'sui-btn', id }, t(label)); b.addEventListener('click', safe(run)); return b; };
+  const field = (label, control, note) => { const l = el('label', { class: 'sf-field' }, el('span', { class: 'sf-lab' }, t(label)), control); if (note) l.append(el('span', { class: 'sf-note' }, t(note))); return l; };   // keys
 
   function addSet(id) {
     const cps = F().charset.codes(id), p = S().project(), missing = cps.filter((c) => !p.glyphs.some((x) => x.unicode === c));
-    if (!missing.length) { g.SlopUI.toast('Every character of that set is in the font already'); return 0; }
-    S().edit(`Add ${missing.length} characters`, 'project', (pp) => { for (const c of missing) F().model.ensure(pp, c); });
-    g.SlopUI.toast(`Added ${missing.length} empty glyphs to draw`);
+    if (!missing.length) { g.SlopUI.toast(t('fontcreator.more.set_there')); return 0; }
+    S().edit(t('fontcreator.grid.undo_add', { n: missing.length }), 'project', (pp) => { for (const c of missing) F().model.ensure(pp, c); });
+    g.SlopUI.toast(t('fontcreator.more.set_added', { n: missing.length }));
     return missing.length;
   }
   function subset(textOrSet) {
     const CS = F().charset;
     const cps = CS.SETS.some((s) => s.id === textOrSet) || textOrSet === 'all' ? CS.codes(textOrSet) : CS.parseChars(textOrSet);
-    if (!cps.length) throw new Error('Give the characters to keep');
+    if (!cps.length) throw new Error(t('fontcreator.more.keep_none'));
     const before = S().project().glyphs.length;
-    S().edit('Keep only some characters', 'project', (p) => { F().model.subset(p, cps.concat(0x20)); });
+    S().edit(t('fontcreator.more.undo_keep'), 'project', (p) => { F().model.subset(p, cps.concat(0x20)); });
     const n = before - S().project().glyphs.length;
-    g.SlopUI.toast(n ? `Removed ${n} glyph${n === 1 ? '' : 's'}; ${S().project().glyphs.length} left` : 'Nothing to remove');
+    g.SlopUI.toast(n ? t('fontcreator.more.removed', { n, left: S().project().glyphs.length }) : t('fontcreator.more.nothing_removed'));
     return n;
   }
   function sections() {
     const setSel = el('select', { id: 'fc-add-set' });
-    for (const s of F().charset.SETS) setSel.append(el('option', { value: s.id }, s.label));
-    const keep = el('input', { type: 'text', id: 'fc-keep', placeholder: 'ABC abc 0123 .,!?', autocomplete: 'off', spellcheck: 'false' });
+    for (const s of F().charset.SETS) setSel.append(el('option', { value: s.id }, g.FC.setName(s.id)));
+    const keep = el('input', { type: 'text', id: 'fc-keep', placeholder: 'ABC abc 0123 .,!?', autocomplete: 'off', spellcheck: 'false' }); // i18n-ignore
     const format = el('select', { id: 'fc-format' });
-    for (const f of g.FC.io.FORMATS) format.append(el('option', { value: f.id }, f.label));
+    for (const f of g.FC.io.FORMATS) format.append(el('option', { value: f.id }, t(`fontcreator.format.${f.id}`)));
     format.addEventListener('change', () => S().set({ format: format.value }));
     Object.assign(parts, { setSel, keep, format });
     return [
-      { title: 'Characters', key: 'chars', settings: [
-        el('div', { class: 'fc-row' }, field('Add a set', setSel), button('fc-add-set-go', 'Add', () => addSet(setSel.value))),
-        el('div', { class: 'fc-row' }, field('Keep only these (subset)', keep, 'Every other glyph is removed, with its kerning. Undo brings them back.'),
-          button('fc-keep-go', 'Keep', async () => {
-            if (!keep.value.trim()) throw new Error('Type the characters to keep');
-            if (await g.SlopUI.confirm('Make a subset?', `Keep only the characters “${keep.value.trim().slice(0, 80)}” and remove the rest?`, 'Keep only these', { danger: true })) subset(keep.value);
+      { title: t('fontcreator.more.chars'), key: 'chars', settings: [
+        el('div', { class: 'fc-row' }, field('fontcreator.more.add_set', setSel), button('fc-add-set-go', 'fontcreator.more.add', () => addSet(setSel.value))),
+        el('div', { class: 'fc-row' }, field('fontcreator.more.keep_label', keep, 'fontcreator.more.keep_note'),
+          button('fc-keep-go', 'fontcreator.more.keep', async () => {
+            if (!keep.value.trim()) throw new Error(t('fontcreator.more.keep_type'));
+            if (await g.SlopUI.confirm(t('fontcreator.more.keep_title'), t('fontcreator.more.keep_msg', { chars: keep.value.trim().slice(0, 80) }), t('fontcreator.more.keep_ok'), { danger: true })) subset(keep.value);
           }))] },
-      { title: 'Handwriting', key: 'hand', settings: [
-        el('p', { class: 'sf-note' }, 'Print a sheet with a box for each letter, write in it with a dark pen, then photograph or scan it and read it back: every box becomes a glyph.'),
-        el('div', { class: 'fc-btns' }, button('fc-sheet-print', 'Print a sheet…', () => g.FC.sheetUi.template()), button('fc-sheet-read', 'Read a filled sheet…', () => g.FC.sheetUi.pick()))] },
-      { title: 'Export', key: 'export', settings: [field('Format', format, 'WOFF2 and WOFF are for websites; TTF and OTF install on a computer.'),
-        el('div', { class: 'fc-btns' }, button('fc-css', 'Copy CSS @font-face', () => g.FC.io.copyCss()), button('fc-dl-project', 'Download project (.sfont)', () => g.FC.io.download('sfont')))] },
+      { title: t('fontcreator.more.hand'), key: 'hand', settings: [
+        el('p', { class: 'sf-note' }, t('fontcreator.more.hand_note')),
+        el('div', { class: 'fc-btns' }, button('fc-sheet-print', 'fontcreator.more.sheet_print', () => g.FC.sheetUi.template()), button('fc-sheet-read', 'fontcreator.more.sheet_read', () => g.FC.sheetUi.pick()))] },
+      { title: t('menu.export'), key: 'export', settings: [field('fontcreator.more.format', format, 'fontcreator.more.format_note'),
+        el('div', { class: 'fc-btns' }, button('fc-css', 'fontcreator.more.css', () => g.FC.io.copyCss()), button('fc-dl-project', 'fontcreator.app.download_project', () => g.FC.io.download('sfont')))] },
     ];
   }
   function paint() {
@@ -59,11 +59,11 @@
     if (!side) return;
     const none = !st.drawn, IO = g.FC.io, phone = g.matchMedia && g.matchMedia('(max-width: 860px)').matches;
     side.footer([
-      { id: 'fc-download', label: `Download font (.${f.ext})`, primary: true, disabled: none && f.id !== 'sfont', run: () => IO.download().catch((e) => g.SlopUI.toast(e.message)) },
-      { id: 'fc-drive', label: 'Save to Slop Drive…', disabled: none && f.id !== 'sfont', run: () => IO.saveToDrive().catch((e) => g.SlopUI.toast('Could not save: ' + e.message)) },
-      phone ? null : { id: 'fc-save-project', label: 'Save project', run: () => IO.saveToDrive('sfont').catch((e) => g.SlopUI.toast('Could not save: ' + e.message)) },   // phones: in the ⋯ menu
-      { id: 'fc-openin', label: 'Open in…', disabled: none, menu: () => IO.openInItems() },
-    ], { stack: true, more: 'Settings', note: none ? 'Draw a glyph to make a font' : `${st.drawn} of ${st.glyphs} glyphs drawn · ${st.pairs} kerning pair${st.pairs === 1 ? '' : 's'}${S().dirty() ? ' · changed since saved' : ''}` });
+      { id: 'fc-download', label: t('fontcreator.more.download', { ext: f.ext }), primary: true, disabled: none && f.id !== 'sfont', run: () => IO.download().catch((e) => g.SlopUI.toast(e.message)) },
+      { id: 'fc-drive', label: t('fontcreator.more.drive'), disabled: none && f.id !== 'sfont', run: () => IO.saveToDrive().catch((e) => g.SlopUI.toast(t('fontcreator.more.save_failed', { error: e.message }))) },
+      phone ? null : { id: 'fc-save-project', label: t('fontcreator.more.save_project'), run: () => IO.saveToDrive('sfont').catch((e) => g.SlopUI.toast(t('fontcreator.more.save_failed', { error: e.message }))) },   // phones: in the ⋯ menu
+      { id: 'fc-openin', label: t('fontcreator.more.open_in'), disabled: none, menu: () => IO.openInItems() },
+    ], { stack: true, more: t('ui.settings'), note: none ? t('fontcreator.more.draw_first') : t('fontcreator.more.note', { drawn: st.drawn, glyphs: st.glyphs }) + ' · ' + t('fontcreator.more.pairs', { n: st.pairs }) + (S().dirty() ? ' · ' + t('fontcreator.more.changed') : '') });
   }
   g.FC.panelMore = { sections, paint, subset, addSet };
 })(window);

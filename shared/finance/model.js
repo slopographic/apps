@@ -16,7 +16,7 @@
  *   amount is signed from the account holder's side: money in is positive, money out negative. opening and closing are
  *   null when the file does not give them. id is the bank's own id for the line (OFX FITID, camt AcctSvcrRef);
  *   account is set on each transaction when the file holds several statements.      */
-import { cents } from './text.js';
+import { cents, say } from './text.js';
 
 /** An empty statement model of a format. */
 export function statementModel(format) {
@@ -37,11 +37,12 @@ export function mergeStatements(format, list, warnings = []) {
   m.from = list.map((s) => s.from).filter(Boolean).sort()[0] || dates[0] || null;
   m.to = list.map((s) => s.to).filter(Boolean).sort().pop() || dates[dates.length - 1] || null;
   if (list.length > 1) m.statements = list;
+  let told = false;   // the several-accounts note, once
   for (const s of list) {
     const acct = s.account && s.account !== first.account;
-    if (acct && !m.warnings.some((w) => w.startsWith('The file holds more than one account'))) m.warnings.push(`The file holds more than one account (${first.account}, ${s.account}). Every transaction is listed; the Account column says which.`);
+    if (acct && !told) { told = true; m.warnings.push(say('ui.fin.accounts', { first: first.account, other: s.account })); }
     const diff = checkBalance(s);
-    if (diff) m.warnings.push(`Statement ${s.id || s.account || ''}: the opening balance plus the transactions is ${diff.expected.toFixed(2)}, but the closing balance says ${diff.closing.toFixed(2)}.`.replace(/ {2}/g, ' '));
+    if (diff) m.warnings.push(say('ui.fin.off', { id: s.id || s.account || '', expected: diff.expected.toFixed(2), closing: diff.closing.toFixed(2) }).replace(/ {2}/g, ' '));
   }
   return m;
 }

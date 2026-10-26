@@ -1,8 +1,8 @@
-// Helpers for the SlopLabel model tests: the real label scripts (units, stock library, document model, configs, presets,
+// Helpers for the SlopLabel model tests: the English string tables and the real label scripts (units, stock library, document model, configs, presets,
 // config store, tab state) in one vm context, with an in-memory storage. Not a test file itself.
 import vm from 'node:vm';
 import path from 'node:path';
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 
 const LABEL = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'label', 'js');
@@ -14,6 +14,9 @@ export async function labelEnv(files = MODEL_FILES, { storage = null } = {}) {
   ctx.window = ctx;
   if (storage) ctx.localStorage = storage;
   vm.createContext(ctx);
+  // the string tables in English (shared/i18n/i18n.js and label/i18n/en), so messages read as the page shows them
+  const ROOT = path.join(LABEL, '..', '..');
+  for (const f of ['shared/i18n/i18n.js', ...(await readdir(path.join(ROOT, 'label/i18n/en'))).sort().map((x) => 'label/i18n/en/' + x)]) vm.runInContext(await readFile(path.join(ROOT, f), 'utf8'), ctx, { filename: f });
   for (const f of files) vm.runInContext(await readFile(path.join(LABEL, f), 'utf8'), ctx, { filename: f });
   /** Reads a top-level name (a function, const or class) of the loaded scripts. */
   ctx.get = (name) => vm.runInContext(name, ctx);

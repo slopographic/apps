@@ -11,6 +11,7 @@
   const h = U.h;
   const $ = (id) => document.getElementById(id);
   let list = null, owed = null, settings = null, openId = null;
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
 
   async function draw() {
     if (!$('view-list') || $('view-list').hidden) return;
@@ -27,39 +28,39 @@
    *  The invoice open beside the list is the selected row. */
   function row(x) {
     const s = settings;
-    return { title: `${x.number || 'draft'} · ${x.customerName}`, amount: U.money(x.total, x.currency || s.currency, s.locale),
+    return { title: `${x.number || t('invoices.li.draft')} · ${x.customerName}`, amount: U.money(x.total, x.currency || s.currency, s.locale),
       cls: x.overdue ? 'is-overdue' : '', selected: x.id === openId,
-      meta: [{ chip: x.overdue ? 'Overdue' : U.STATUS[x.status], cls: x.overdue ? 'bad' : { paid: 'good', void: 'void' }[x.status] || '' },
-        x.dueDate ? `Due ${x.dueDate}` : x.date, x.status === 'issued' ? `Balance ${U.money(x.balance, x.currency, s.locale)}` : null,
-        x.orderId ? 'from order' : null, x.sample ? { chip: 'Sample', cls: 'warn' } : null] };
+      meta: [{ chip: x.overdue ? t('invoices.li.overdue') : g.SlopBiz.statusText(x.status), cls: x.overdue ? 'bad' : { paid: 'good', void: 'void' }[x.status] || '' },
+        x.dueDate ? t('invoices.li.due', { date: x.dueDate }) : x.date, x.status === 'issued' ? t('invoices.li.balance', { amount: U.money(x.balance, x.currency, s.locale) }) : null,
+        x.orderId ? t('invoices.li.from_order') : null, x.sample ? { chip: t('invoices.li.sample'), cls: 'warn' } : null] };
   }
 
   /** What one customer owes: the total due, the number of invoices, and the overdue part. */
   function owedRow(d) {
     const s = settings;
     return { title: d.customerName, amount: U.money(d.due, d.currency, s.locale),
-      meta: [`${d.count} invoice${d.count === 1 ? '' : 's'}`, d.overdue ? { chip: `${U.money(d.overdue, d.currency, s.locale)} overdue`, cls: 'bad' } : null] };
+      meta: [t('invoices.li.invoices_n', { n: d.count }), d.overdue ? { chip: t('invoices.li.overdue_amt', { amount: U.money(d.overdue, d.currency, s.locale) }), cls: 'bad' } : null] };
   }
 
   async function run(promise, okText) {
     const r = await promise;
-    if (!r.ok) { UI.alert('Not done', U.refusal(r)); return r; }
+    if (!r.ok) { UI.alert(t('invoices.li.not_done'), U.refusal(r)); return r; }
     if (okText) UI.toast(okText);
     draw();
     return r;
   }
 
   function menuFor(x) {
-    const items = [{ label: 'Open invoice', act: () => NS.app.go(`i/${x.id}`) }, { label: 'Preview / print', act: () => NS.app.go(`p/${x.id}`) }];
+    const items = [{ label: t('invoices.li.open'), act: () => NS.app.go(`i/${x.id}`) }, { label: t('invoices.li.preview'), act: () => NS.app.go(`p/${x.id}`) }];
     if (x.status === 'draft') {
-      items.push({ label: 'Issue…', act: async () => { if (await UI.confirm('Issue invoice', 'Issue this invoice? It gets the next invoice number and is posted to the ledger. Issued invoices cannot be edited.', 'Issue')) run(NS.invoices.issue(x.id), 'Invoice issued'); } });
-      items.push({ label: 'Delete draft…', act: async () => { if (await UI.confirm('Delete draft', 'Delete this draft? It has no number yet, so nothing else changes.', 'Delete', { danger: true })) run(NS.invoices.removeDraft(x.id), 'Draft deleted'); } });
+      items.push({ label: t('invoices.ed.issue'), act: async () => { if (await UI.confirm(t('invoices.ed.issue_q'), t('invoices.ed.issue_body'), t('invoices.ed.issue_ok'))) run(NS.invoices.issue(x.id), t('invoices.li.issued')); } });
+      items.push({ label: t('invoices.ed.delete'), act: async () => { if (await UI.confirm(t('invoices.ed.del_q'), t('invoices.ed.del_body'), t('invoices.ed.del_ok'), { danger: true })) run(NS.invoices.removeDraft(x.id), t('invoices.li.deleted')); } });
     }
-    items.push({ label: 'Export PDF', act: () => NS.preview.pdf(x.id) });
-    if (x.status !== 'draft') items.push({ label: `Statement for ${x.customerName}`, act: () => NS.app.go(`s/${x.customerId}`) });
+    items.push({ label: t('invoices.ed.pdf'), act: () => NS.preview.pdf(x.id) });
+    if (x.status !== 'draft') items.push({ label: t('invoices.li.statement_for', { name: x.customerName }), act: () => NS.app.go(`s/${x.customerId}`) });
     if (x.status === 'issued') {
-      items.push({ label: 'Record payment…', act: () => NS.paymentDialog.open(x.id, () => draw()) });
-      if (!x.paid) items.push({ label: 'Void…', act: async () => { if (await UI.confirm('Void invoice', `Void ${x.number}? The journal entry is reversed. The number stays used.`, 'Void', { danger: true })) run(NS.invoices.voidInvoice(x.id), `${x.number} voided`); } });
+      items.push({ label: t('invoices.ed.payment'), act: () => NS.paymentDialog.open(x.id, () => draw()) });
+      if (!x.paid) items.push({ label: t('invoices.ed.void'), act: async () => { if (await UI.confirm(t('invoices.ed.void_q'), t('invoices.ed.void_body', { number: x.number }), t('invoices.ed.void_ok'), { danger: true })) run(NS.invoices.voidInvoice(x.id), t('invoices.li.voided', { number: x.number })); } });
     }
     return items;
   }
@@ -68,23 +69,23 @@
   async function fromOrder() {
     const o = await S.store.list('orders');
     const c = await NS.invoices.customers();
-    if (!o.ok || !c.ok) { UI.alert('Not available', U.refusal(o.ok ? c : o)); return; }
+    if (!o.ok || !c.ok) { UI.alert(t('invoices.li.not_available'), U.refusal(o.ok ? c : o)); return; }
     const names = new Map(c.value.map((x) => [x.id, x.name]));
     const eligible = o.value.filter((x) => (x.status === 'open' || x.status === 'fulfilled') && !x.invoiceId)
       .sort((a, b) => String(b.number).localeCompare(String(a.number)));
-    if (!eligible.length) { UI.alert('No order to invoice', 'Only a confirmed or fulfilled order without an invoice can be invoiced here. Confirm an order first.'); return; }
-    const sel = h('select', { class: 'sui-input' }, eligible.map((x) => h('option', { value: x.id, text: `${x.number} · ${names.get(x.customerId) || '(no customer)'} · ${x.date}` })));
+    if (!eligible.length) { UI.alert(t('invoices.li.no_order'), t('invoices.li.no_order_body')); return; }
+    const sel = h('select', { class: 'sui-input' }, eligible.map((x) => h('option', { value: x.id, text: `${x.number} · ${names.get(x.customerId) || t('invoices.li.no_customer')} · ${x.date}` })));
     UI.dialog({
-      title: 'Invoice an order',
-      body: UI.field('Order', sel),
-      buttons: [{ label: 'Cancel' }, {
-        label: 'Create draft', primary: true,
+      title: t('invoices.li.inv_order'),
+      body: UI.field(t('invoices.li.order'), sel),
+      buttons: [{ label: t('invoices.li.cancel') }, {
+        label: t('invoices.li.create'), primary: true,
         act: async () => {
           const s = await U.settings();
           const ord = eligible.find((x) => x.id === sel.value);
           const r = await S.billing.invoiceFromOrder(sel.value, { dueDate: M.addDays(ord.date, s.paymentTermsDays) });
-          if (!r.ok) { UI.alert('Not created', U.refusal(r)); return false; }
-          UI.toast('Draft created from the order');
+          if (!r.ok) { UI.alert(t('invoices.li.not_created'), U.refusal(r)); return false; }
+          UI.toast(t('invoices.li.created'));
           NS.app.go(`i/${r.value.id}`);
           return undefined;
         },
@@ -99,11 +100,11 @@
     $('iEmptyNew').addEventListener('click', () => NS.app.go('new'));
     $('iFromOrder').addEventListener('click', fromOrder);
     NS.sampleActions.mount();
-    list = g.SlopList.mount($('iRows'), { label: 'Invoices', noun: ['invoice', 'invoices'], summary: $('iSummary'), empty: $('iEmpty'),
+    list = g.SlopList.mount($('iRows'), { label: 'invoices.li.label', noun: ['invoices.li.invoice', 'invoices.li.invoices'], summary: $('iSummary'), empty: $('iEmpty'),
       row, open: (x) => NS.app.go(`i/${x.id}`), menu: menuFor });
-    owed = g.SlopList.mount($('iOutstanding'), { key: 'key', label: 'Outstanding balances', noun: ['customer', 'customers'],
-      empty: 'Nothing is owed. Every issued invoice is paid or void.', row: owedRow,
-      open: (d) => NS.app.go(`s/${d.customerId}`), menu: (d) => [{ label: 'Customer statement', act: () => NS.app.go(`s/${d.customerId}`) }] });
+    owed = g.SlopList.mount($('iOutstanding'), { key: 'key', label: 'invoices.li.owed_label', noun: ['invoices.li.customer', 'invoices.li.customers'],
+      empty: 'invoices.li.owed_empty', row: owedRow,
+      open: (d) => NS.app.go(`s/${d.customerId}`), menu: (d) => [{ label: t('invoices.li.statement'), act: () => NS.app.go(`s/${d.customerId}`) }] });
   }
 
   NS.views = NS.views || {};

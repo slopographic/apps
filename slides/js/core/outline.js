@@ -56,7 +56,7 @@
     if (s.bullets && [].concat(s.bullets).length) {
       var body = ph(slide, 'body');
       if (!body) {
-        body = O.make('text', { x: deck.size.w * 0.07, y: deck.size.h * 0.3, w: deck.size.w * 0.86, h: deck.size.h * 0.6, name: 'Points',
+        body = O.make('text', { x: deck.size.w * 0.07, y: deck.size.h * 0.3, w: deck.size.w * 0.86, h: deck.size.h * 0.6, name: 'Points', // i18n-ignore
           style: { font: 'body', size: Math.round(24 * deck.size.h / 540), color: 'text', bold: false, italic: false, align: 'l', lineHeight: 1.2 } });
         slide.objects.push(body);
       }
@@ -69,7 +69,7 @@
 
   X.build = function (input) {
     var o = X.parse(input);
-    var deck = M.newDeck({ size: M.SIZES[o.size] ? o.size : '16:9', theme: o.theme || 'slop', title: str(o.title, 200) || 'Untitled presentation', empty: true });
+    var deck = M.newDeck({ size: M.SIZES[o.size] ? o.size : '16:9', theme: o.theme || 'slop', title: str(o.title, 200) || 'Untitled presentation', empty: true }); // i18n-ignore
     if (o.title && o.titleSlide !== false) X.fill(deck, M.addSlide(deck, 'title'), { title: o.title, subtitle: o.subtitle, notes: o.notes });
     (o.slides || []).slice(0, X.MAX_SLIDES).forEach(function (s) {
       s = typeof s === 'string' ? { title: s } : (s || {});

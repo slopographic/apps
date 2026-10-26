@@ -13,7 +13,8 @@
  *     triggers: railEl,                // optional: the tool buttons; a tap opens the sheet, a tap on the active one closes it
  *     isActive: (btn) => btn.classList.contains('on'),   // which trigger is the open tool (default: aria-selected/pressed)
  *     toggles: [btnPanel],             // optional: buttons that open and close it (aria-expanded is kept)
- *     label: 'Tool panel',             // what the × closes ("Close tool panel")
+ *     label: 'Tool panel',             // what the × closes ("Close tool panel"); an i18n key ('pdf.panel.tools') or a
+ *                                      //   function is read again on a language change (SlopI18n.label)
  *     closeWide: () => {},             // optional: the × shows on a wide screen too, and calls this there (the app hides
  *                                      //   its panel its own way); without it the × is a phone-only thing
  *     onChange: (open, why) => {},     // why: 'trigger', 'toggle', 'close', 'outside', 'wide', 'api', 'destroy'
@@ -36,6 +37,8 @@
   if (g.SlopSheet) return;
   /** A word from the shared tables (shared/i18n/ui/en.js), or the English given when SlopI18n or the key is absent. */
   function tr(key, en, vars) { const I = globalThis.SlopI18n; if (I && I.has && I.has(key)) return I.t(key, vars); return vars ? String(en).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en; }
+  /** label: an i18n key (translated, and again on a language change), a function, or plain text (SlopI18n.label). */
+  const lab = (v) => { const I = g.SlopI18n; return String(I && I.label ? I.label(v) : typeof v === 'function' ? v() : v); };
   const CSS = `
 :root { --slop-sheet-bg: var(--sl-surface, Canvas); --slop-sheet-dim: rgba(0, 0, 0, .4); }
 .ssh-phone .ssh-sheet { background-color: var(--slop-sheet-bg) !important; opacity: 1 !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
@@ -103,7 +106,7 @@
 
     const x = doc.createElement('button');
     x.type = 'button'; x.className = 'ssh-x' + (o.closeWide ? ' ssh-x-wide' : ''); x.textContent = '×';
-    const xWords = () => { x.title = o.label ? tr('ui.close_name', 'Close {name}', { name: o.label.toLowerCase() }) : tr('menu.close', 'Close'); x.setAttribute('aria-label', x.title); };
+    const xWords = () => { x.title = o.label ? tr('ui.close_name', 'Close {name}', { name: lab(o.label).toLowerCase() }) : tr('menu.close', 'Close'); x.setAttribute('aria-label', x.title); };
     xWords();
     const offLang = g.SlopI18n && g.SlopI18n.on ? g.SlopI18n.on(xWords) : null;   // a language change (shared/i18n)
     // The × is the panel's first child; an app that redraws the panel's content gets it back at once.

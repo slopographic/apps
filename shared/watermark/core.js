@@ -12,6 +12,7 @@
  *   SlopWatermark.ROOT ; load(paths) → Promise                  the site root, and classic scripts from it (once each) */
 (function () {
   'use strict';
+  const tr = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);   // words: shared/i18n/ui/<code>/watermark.js
   if (window.SlopWatermark && window.SlopWatermark.draw) return;
   const S = window.SlopWatermarkSpec;
   const SCRIPT = document.currentScript;
@@ -80,13 +81,13 @@
     }
   }
 
-  const dataUrl = (blob) => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result)); r.onerror = () => rej(new Error('That file could not be read.')); r.readAsDataURL(blob); });
+  const dataUrl = (blob) => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result)); r.onerror = () => rej(new Error(tr('ui.wm.file_unread'))); r.readAsDataURL(blob); });
   async function readLogo(file) {
-    if (!file || !/^image\//.test(file.type || '') && !/\.(png|jpe?g|webp|gif|svg)$/i.test(file.name || '')) throw new Error('Choose a picture (PNG, JPEG, WebP, GIF or SVG) for the logo.');
+    if (!file || !/^image\//.test(file.type || '') && !/\.(png|jpe?g|webp|gif|svg)$/i.test(file.name || '')) throw new Error(tr('ui.wm.logo_choose'));
     let url = await dataUrl(file.type ? file : new Blob([file], { type: /\.svg$/i.test(file.name) ? 'image/svg+xml' : 'image/png' }));
     const e = logo(url);
     await e.ready;
-    if (!e.ok) { logos.delete(url); throw new Error('That picture could not be read. Use a PNG, JPEG, WebP, GIF or SVG.'); }
+    if (!e.ok) { logos.delete(url); throw new Error(tr('ui.wm.logo_unread')); }
     const keep = /^data:image\/(png|jpeg)/.test(url) && file.size <= KEEP_BYTES && Math.max(e.w, e.h) < LOGO_SIDE;
     if (!keep) { url = e.img.toDataURL('image/png'); logos.set(url, e); }
     return { logo: url, logoName: String(file.name || 'logo').slice(0, 120), logoW: e.w, logoH: e.h };
@@ -100,7 +101,7 @@
         if ([...document.scripts].some((s) => s.src === src)) { resolve(); return; }
         const s = Object.assign(document.createElement('script'), { src, async: false });
         s.onload = () => resolve();
-        s.onerror = () => { loaded.delete(src); s.remove(); reject(new Error('Could not load ' + rel + '. Check the connection.')); };
+        s.onerror = () => { loaded.delete(src); s.remove(); reject(new Error(tr('ui.wm.load_failed', { file: rel }))); };
         document.head.append(s);
       }));
     }

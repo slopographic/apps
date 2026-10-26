@@ -7,9 +7,10 @@
 import { S, on, emit, redraw, $ } from './state.js';
 import { Workbook } from '../engine/index.js';
 import { toBlob, fromBlob, fromNative, toNative, MIME } from '../io/native.js';
+import { t } from '../i18n.js';
 
 let api = null, session = null, switching = false;
-const safe = (s) => String(s || '').replace(/[\\/:*?"<>|]/g, '-').trim() || 'Untitled spreadsheet';
+const safe = (s) => String(s || '').replace(/[\\/:*?"<>|]/g, '-').trim() || t('tables.app.untitled');
 const toast = (m) => { if (window.SlopUI) window.SlopUI.toast(m); };
 
 function makeT(wb, file = {}, view = {}, untouched = false) {
@@ -18,7 +19,7 @@ function makeT(wb, file = {}, view = {}, untouched = false) {
     si: Math.min(Number.isInteger(view.si) ? view.si : (wb.active || 0), wb.sheets.length - 1),
     sel: view.sel || { r: 0, c: 0, er: 0, ec: 0 },
     scroll: view.scroll || { top: 0, left: 0 },
-    file: { name: file.name || 'Untitled spreadsheet', driveId: null, folderId: file.folderId ?? null, dirty: !!file.dirty },
+    file: { name: file.name || t('tables.app.untitled'), driveId: null, folderId: file.folderId ?? null, dirty: !!file.dirty },
     hist: { undo: [], redo: [] },
     untouched,
   };
@@ -43,7 +44,7 @@ function setUrl(id) {
 const current = () => (api ? api.current() : null);
 
 const adapter = {
-  newDoc: () => makeT(new Workbook(), { name: 'Untitled spreadsheet' }, {}, true),
+  newDoc: () => makeT(new Workbook(), { name: t('tables.app.untitled') }, {}, true),
   serialize: (T) => ({
     native: toNative(T.wb), name: T.file.name, folderId: T.file.folderId == null ? null : T.file.folderId,
     dirty: !!T.file.dirty, si: T.si, sel: T.sel, untouched: !!T.untouched,
@@ -94,8 +95,8 @@ export const tabs = {
     api = SlopDocTabs.mount($('doc-tabs'), adapter, { appId: 'tables' });
     session = SlopDocTabs.session('tables', api, { notice: (m) => toast(m) });
     on('change', syncChange);
-    api.on((why, t) => {
-      if (why === 'drive' && t && t.doc.file) t.doc.file.driveId = t.driveId; // the file keeps the Drive id its tab is linked to
+    api.on((why, tab) => {
+      if (why === 'drive' && tab && tab.doc.file) tab.doc.file.driveId = tab.driveId; // the file keeps the Drive id its tab is linked to
       guard();
     });
     return session;
@@ -109,12 +110,12 @@ export const tabs = {
   /** A workbook in a new tab. driveId links it to a Drive record; without it the tab is an unsaved workbook. */
   open(wb, file = {}, driveId = null) { return api.openDoc(makeT(wb, file), { driveId, origName: file.origName || null }); },
   /** The tab that shows this Drive record, if one is open. */
-  tabFor: (driveId) => api.tabs().find((t) => t.driveId === driveId) || null,
+  tabFor: (driveId) => api.tabs().find((tab) => tab.driveId === driveId) || null,
   /** A tab nobody has edited and that is not linked to a file: a launch may replace it. */
   isPristine: (T) => !!T && !!T.untouched && !api.driveIdOf(T),
   /** Writes the open tab's state before a save or a close. */
   sync() { if (current()) copyOut(current()); },
-  anyDirty: () => (api ? api.tabs().some((t) => t.dirty) : false),
+  anyDirty: () => (api ? api.tabs().some((tab) => tab.dirty) : false),
   setUrl,
 };
 

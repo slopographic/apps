@@ -4,6 +4,8 @@
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="colors" data-src="shared/theme/theme.js"></script>
   <link rel="expect" href="#slop-built" blocking="render">
+  <script src="../shared/i18n/i18n.js" data-src="shared/i18n/i18n.js"></script>
+  <script src="i18n/index.js" data-src="colors/i18n/index.js"></script>
   <script src="../shared/consent/config.js"></script>
   <script src="../shared/consent/state.js"></script>
   <script src="../shared/consent/consent-mode.js"></script>
@@ -46,70 +48,70 @@
   <!-- View · Panel (shared/frame): the colour and its values (with Copy), the picture, the palette and the contrast check in
        the middle; the settings (what to generate, the picture's colours, the export) on the right, Download palette at its foot -->
   <main class="co-main" id="co-main">
-    <section class="co-view" id="co-view" aria-label="Colours">
-      <section class="co-hero" id="co-hero" aria-label="Current colour">
+    <section class="co-view" id="co-view" aria-label="Colours" data-i18n-attr="aria-label:colors.app.view_label">
+      <section class="co-hero" id="co-hero" aria-label="Current colour" data-i18n-attr="aria-label:colors.app.current_label">
         <div class="co-big-col">
-          <div class="co-big" id="co-big" role="img" aria-label="The current colour"><span id="co-big-hex"></span></div>
-          <input type="color" id="co-native" class="co-native" aria-label="Choose a colour">
+          <div class="co-big" id="co-big" role="img" aria-label="The current colour" data-i18n-attr="aria-label:colors.app.big_label"><span id="co-big-hex"></span></div>
+          <input type="color" id="co-native" class="co-native" aria-label="Choose a colour" data-i18n-attr="aria-label:colors.app.native_label">
         </div>
         <div class="co-vals">
-          <ul class="co-values" id="co-values" aria-label="The colour in each format: type in any one, the others follow"></ul>
+          <ul class="co-values" id="co-values" aria-label="The colour in each format: type in any one, the others follow" data-i18n-attr="aria-label:colors.app.values_label"></ul>
           <p class="co-note" id="co-gamut" aria-live="polite"></p>
-          <div class="co-btns"><button type="button" class="sui-btn" id="co-as-fg">Use as text colour</button>
-            <button type="button" class="sui-btn" id="co-as-bg">Use as background</button></div>
+          <div class="co-btns"><button type="button" class="sui-btn" id="co-as-fg" data-i18n="colors.app.as_fg">Use as text colour</button>
+            <button type="button" class="sui-btn" id="co-as-bg" data-i18n="colors.app.as_bg">Use as background</button></div>
         </div>
       </section>
 
       <section class="co-card" aria-labelledby="co-pic-h">
-        <div class="co-head"><h2 id="co-pic-h">Pick from a picture</h2>
-          <button type="button" class="sui-btn" id="co-pic-open">Open picture…</button>
-          <button type="button" class="sui-btn" id="co-screen" hidden>Pick from screen</button></div>
+        <div class="co-head"><h2 id="co-pic-h" data-i18n="colors.app.pic_h">Pick from a picture</h2>
+          <button type="button" class="sui-btn" id="co-pic-open" data-i18n="colors.app.pic_open">Open picture…</button>
+          <button type="button" class="sui-btn" id="co-screen" hidden data-i18n="colors.app.screen">Pick from screen</button></div>
         <div class="co-pic" id="co-pic" hidden>
-          <canvas id="co-canvas" class="co-canvas" data-touch-surface tabindex="0" aria-label="The picture. Move over it, or use the arrow keys, to pick a colour; Enter adds it to the palette"></canvas>
+          <canvas id="co-canvas" class="co-canvas" data-touch-surface tabindex="0" aria-label="The picture. Move over it, or use the arrow keys, to pick a colour; Enter adds it to the palette" data-i18n-attr="aria-label:colors.app.canvas_label"></canvas>
           <canvas id="co-loupe" class="co-loupe" width="132" height="132" aria-hidden="true" hidden></canvas>
         </div>
         <p class="co-note" id="co-pic-note" aria-live="polite"></p>
         <div class="co-row" id="co-dominant-wrap" hidden>
-          <h3>Main colours of the picture</h3>
-          <div class="co-swatches" id="co-dominant" role="list" aria-label="The picture's main colours"></div>
-          <button type="button" class="sui-btn" id="co-dominant-add">Add all to the palette</button>
+          <h3 data-i18n="colors.app.dominant_h">Main colours of the picture</h3>
+          <div class="co-swatches" id="co-dominant" role="list" aria-label="The picture's main colours" data-i18n-attr="aria-label:colors.app.dominant_label"></div>
+          <button type="button" class="sui-btn" id="co-dominant-add" data-i18n="colors.app.dominant_add">Add all to the palette</button>
         </div>
         <div class="co-drop" id="co-drop"></div>
       </section>
 
       <section class="co-card" aria-labelledby="co-pal-h">
-        <div class="co-head"><h2 id="co-pal-h">Palette</h2>
-          <button type="button" class="sui-btn" id="co-pal-add">Add this colour</button>
-          <button type="button" class="sui-btn" id="co-pal-clear">Clear</button></div>
-        <div class="co-swatches co-palette" id="co-palette" role="list" aria-label="The palette"></div>
+        <div class="co-head"><h2 id="co-pal-h" data-i18n="colors.app.pal_h">Palette</h2>
+          <button type="button" class="sui-btn" id="co-pal-add" data-i18n="colors.app.pal_add">Add this colour</button>
+          <button type="button" class="sui-btn" id="co-pal-clear" data-i18n="colors.app.pal_clear">Clear</button></div>
+        <div class="co-swatches co-palette" id="co-palette" role="list" aria-label="The palette" data-i18n-attr="aria-label:colors.app.pal_label"></div>
         <p class="co-note" id="co-pal-note"></p>
       </section>
 
       <section class="co-card" aria-labelledby="co-gen-h">
-        <h2 id="co-gen-h">Made from this colour</h2>
+        <h2 id="co-gen-h" data-i18n="colors.app.gen_h">Made from this colour</h2>
         <div class="co-row"><h3 id="co-harm-h"></h3><div class="co-swatches" id="co-harmony" role="list" aria-labelledby="co-harm-h"></div>
-          <button type="button" class="sui-btn" id="co-harm-use">Use as the palette</button></div>
+          <button type="button" class="sui-btn" id="co-harm-use" data-i18n="colors.app.use_palette">Use as the palette</button></div>
         <div class="co-row"><h3 id="co-scale-h"></h3><div class="co-swatches" id="co-scale" role="list" aria-labelledby="co-scale-h"></div>
-          <button type="button" class="sui-btn" id="co-scale-use">Use as the palette</button></div>
-        <div class="co-row"><h3 id="co-ramp-h">Ramp (50 to 950)</h3><div class="co-swatches" id="co-ramp" role="list" aria-labelledby="co-ramp-h"></div>
-          <button type="button" class="sui-btn" id="co-ramp-use">Use as the palette</button></div>
+          <button type="button" class="sui-btn" id="co-scale-use" data-i18n="colors.app.use_palette">Use as the palette</button></div>
+        <div class="co-row"><h3 id="co-ramp-h" data-i18n="colors.app.ramp_h">Ramp (50 to 950)</h3><div class="co-swatches" id="co-ramp" role="list" aria-labelledby="co-ramp-h"></div>
+          <button type="button" class="sui-btn" id="co-ramp-use" data-i18n="colors.app.use_palette">Use as the palette</button></div>
       </section>
 
       <section class="co-card" aria-labelledby="co-con-h">
-        <div class="co-head"><h2 id="co-con-h">Contrast check (WCAG 2)</h2>
-          <button type="button" class="sui-btn" id="co-con-swap">Swap</button>
-          <button type="button" class="sui-btn" id="co-con-fix">Fix the text colour</button></div>
+        <div class="co-head"><h2 id="co-con-h" data-i18n="colors.app.con_h">Contrast check (WCAG 2)</h2>
+          <button type="button" class="sui-btn" id="co-con-swap" data-i18n="colors.app.con_swap">Swap</button>
+          <button type="button" class="sui-btn" id="co-con-fix" data-i18n="colors.app.con_fix">Fix the text colour</button></div>
         <div class="co-con-pair">
-          <label class="sf-field"><span class="sf-lab">Text</span><input type="text" id="co-con-fg" spellcheck="false" autocomplete="off"></label>
-          <label class="sf-field"><span class="sf-lab">Background</span><input type="text" id="co-con-bg" spellcheck="false" autocomplete="off"></label>
+          <label class="sf-field"><span class="sf-lab" data-i18n="colors.app.con_fg">Text</span><input type="text" id="co-con-fg" spellcheck="false" autocomplete="off"></label>
+          <label class="sf-field"><span class="sf-lab" data-i18n="colors.app.con_bg">Background</span><input type="text" id="co-con-bg" spellcheck="false" autocomplete="off"></label>
         </div>
-        <div class="co-sample" id="co-sample" data-contrast-skip><p class="co-sample-big">Large text, 24 px</p><p>Normal text reads like this paragraph, at 16 px.</p></div>
+        <div class="co-sample" id="co-sample" data-contrast-skip><p class="co-sample-big" data-i18n="colors.app.sample_big">Large text, 24 px</p><p data-i18n="colors.app.sample">Normal text reads like this paragraph, at 16 px.</p></div>
         <p class="co-ratio"><output id="co-ratio" aria-live="polite"></output></p>
-        <ul class="co-verdicts" id="co-verdicts" aria-label="WCAG levels"></ul>
+        <ul class="co-verdicts" id="co-verdicts" aria-label="WCAG levels" data-i18n-attr="aria-label:colors.app.verdicts_label"></ul>
       </section>
     </section>
 
-    <aside class="co-panel" id="co-panel" aria-label="Colour settings"></aside>
+    <aside class="co-panel" id="co-panel" aria-label="Colour settings" data-i18n-attr="aria-label:colors.app.panel_label"></aside>
   </main>
   <div hidden id="co-parts"></div>
 

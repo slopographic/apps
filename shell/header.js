@@ -24,6 +24,16 @@
 
   /** A shared-chrome string in the chosen language (shared/i18n), or the English given when SlopI18n is not on the page. */
   function tr(key, en) { const I = window.SlopI18n, s = I ? I.t(key) : key; return s && s !== key ? s : en; }
+  /** A word from the shared tables (strings.js, ui/<code>/shell.js), filled with vars; the key without SlopI18n. */
+  const tx = (key, vars) => (window.SlopI18n ? window.SlopI18n.t(key, vars) : key);
+  /** The app's name as the chosen language shows it (shared/apps.js), for {app} in the header's labels. */
+  const appName = (app) => (window.slopAppName ? window.slopAppName(app) : app.name);
+  /** Marks an element's attributes for SlopI18n (re-applied on a language change) and fills them now. */
+  function mark(el, attrs, vars) {
+    if (vars) el.setAttribute('data-i18n-vars', JSON.stringify(vars));
+    el.setAttribute('data-i18n-attr', Object.keys(attrs).map((a) => a + ':' + attrs[a]).join(';'));
+    for (const a in attrs) el.setAttribute(a, tx(attrs[a], vars));
+  }
 
   /** The theme button: a menu of System and every theme in SlopTheme, the current choice checked. None without SlopTheme. */
   function themeButton() {
@@ -32,9 +42,7 @@
     const b = document.createElement('button');
     b.type = 'button';
     b.className = 'sh-hbtn slop-hbtn sh-theme';
-    b.title = 'Theme';
-    b.setAttribute('aria-label', 'Theme');
-    b.setAttribute('data-i18n-attr', 'title:shell.theme;aria-label:shell.theme');
+    mark(b, { title: 'shell.theme', 'aria-label': 'shell.theme' });
     b.setAttribute('aria-haspopup', 'menu');
     b.setAttribute('aria-expanded', 'false');
     b.innerHTML = ICON_THEME + '<span class="slop-hbtn-txt" data-i18n="shell.theme">Theme</span>';
@@ -45,8 +53,8 @@
       const conv = document.querySelector('.sh-convert');   // no room for Convert… in the header: it is the first row here
       const ai = document.querySelector('.sh-ai'), lang = document.querySelector('.sh-lang');
       // the language button gave way in a full header: its menu is a row here (it opens once this menu has closed)
-      const langRow = lang && lang.hidden ? [{ label: tr('shell.language', 'Language') + '…', act: () => setTimeout(() => lang.click(), 0) }] : [];
-      const items = (ai && ai.hidden ? [{ label: 'Ask Slop AI…', act: openAI }] : []).concat(conv && conv.hidden ? [{ label: 'Convert files…', act: openConvert }] : [])
+      const langRow = lang && lang.hidden ? [{ label: tx('shell.language_more'), act: () => setTimeout(() => lang.click(), 0) }] : [];
+      const items = (ai && ai.hidden ? [{ label: tx('ui.shell.ask_ai'), act: openAI }] : []).concat(conv && conv.hidden ? [{ label: tx('ui.shell.convert_files'), act: openConvert }] : [])
         .concat((ai && ai.hidden) || (conv && conv.hidden) ? ['-'] : [])
         .concat(langRow.length ? langRow.concat(['-']) : [])
         .concat([{ label: tr('shell.theme_system', 'System'), check: now === T.SYSTEM, act: pick(T.SYSTEM) }, '-'])
@@ -69,9 +77,8 @@
     a.className = 'sh-hbtn slop-hbtn sh-tutorial';
     a.href = 'https://www.youtube.com/watch?v=' + v.id;
     a.target = '_blank'; a.rel = 'noopener';
-    a.title = 'Watch the video tutorial';
-    a.dataset.slopVideo = v.id; a.dataset.slopVideoTitle = app.name + ' tutorial';
-    a.setAttribute('aria-label', 'Watch the ' + app.name + ' video tutorial');
+    a.dataset.slopVideo = v.id;
+    mark(a, { title: 'ui.shell.tutorial_tip', 'aria-label': 'ui.shell.tutorial_aria', 'data-slop-video-title': 'ui.shell.tutorial_title' }, { app: appName(app) });
     a.innerHTML = ICON_PLAY;   // an icon only: the app's own controls keep the header's room (title and label say what it is)
     return a;
   }
@@ -83,7 +90,7 @@
     const url = new URL('shared/convert/dialog.js', window.SlopShell.ROOT).href;
     return import(url).then((m) => m.open({})).catch((e) => {
       console.warn(e);
-      if (window.SlopUI && window.SlopUI.toast) window.SlopUI.toast('Convert is not available offline. Open the page online once.');
+      if (window.SlopUI && window.SlopUI.toast) window.SlopUI.toast(tx('ui.shell.convert_offline'));
     });
   }
   function convertButton() {
@@ -93,15 +100,15 @@
     b.type = 'button';
     b.className = 'sh-hbtn slop-hbtn sh-convert';
     b.dataset.hbtnYield = '1';   // gives way first when the header is full (shared/ui/hbtn.js), then shows in the Theme and More menus
-    b.dataset.hbtnLabel = 'Convert files…';
-    b.title = 'Convert files to another format, on this device';
-    b.setAttribute('aria-label', 'Convert files');
+    mark(b, { 'data-hbtn-label': 'ui.shell.convert_files', title: 'ui.shell.convert_tip', 'aria-label': 'ui.shell.convert_aria' });
     b.setAttribute('aria-haspopup', 'dialog');
     b.innerHTML = ICON_CONVERT + '<span class="slop-hbtn-txt" data-i18n="shell.convert">Convert…</span>';
     b.addEventListener('click', openConvert);
     const C = window.SlopCmd;
     if (C && C.register && C.get && !C.get('shell.convert')) {
-      C.register([{ id: 'shell.convert', title: 'Convert files…', group: 'File', keywords: ['convert', 'export', 'format', 'pdf', 'png', 'docx', 'xlsx'], run: openConvert }]);
+      const reg = () => C.register([{ id: 'shell.convert', title: tx('ui.shell.convert_files'), group: 'File', keywords: ['convert', 'export', 'format', 'pdf', 'png', 'docx', 'xlsx'], run: openConvert }]);
+      reg();
+      if (window.SlopI18n) window.SlopI18n.on(reg);   // the palette's title in the new language
     }
     return b;
   }
@@ -115,7 +122,7 @@
       const s = document.createElement('script'), app = window.SlopShell.currentApp;
       s.src = new URL('shared/ai/panel.js', window.SlopShell.ROOT).href;
       s.dataset.button = 'false'; if (app) s.dataset.app = app.id;
-      s.onload = res; s.onerror = () => { aiP = null; rej(new Error('Slop AI is not available offline. Open the page online once.')); };
+      s.onload = res; s.onerror = () => { aiP = null; rej(new Error(tx('ui.shell.ai_offline'))); };
       document.head.append(s);
     });
   }
@@ -135,13 +142,17 @@
     b.className = 'sh-hbtn slop-hbtn sh-ai';
     // gives up its label right after Convert… (shared/ui/hbtn.js), but stays as an icon: Theme, the bell, Drive and Apps fold
     // into More (⋯) first; only a header with no room at all puts it in More, with its label
-    b.dataset.hbtnYield = '2'; b.dataset.hbtnKeep = ''; b.dataset.hbtnLabel = 'Ask Slop AI…';
-    b.title = 'Slop AI: ask, or let it work in ' + app.name;
-    b.setAttribute('aria-label', 'Slop AI');
+    b.dataset.hbtnYield = '2'; b.dataset.hbtnKeep = '';
+    mark(b, { 'data-hbtn-label': 'ui.shell.ask_ai', title: 'ui.shell.ai_tip' }, { app: appName(app) });
+    b.setAttribute('aria-label', 'Slop AI');   // the product's name
     b.innerHTML = ICON_AI + '<span class="slop-hbtn-txt" data-i18n="shell.ai">AI</span>';
     b.addEventListener('click', openAI);
     const C = window.SlopCmd;
-    if (C && C.register && C.get && !C.get('shell.ai')) C.register([{ id: 'shell.ai', title: 'Ask Slop AI…', group: 'Help', keywords: ['ai', 'assistant', 'chat', 'llm', 'help'], run: openAI }]);
+    if (C && C.register && C.get && !C.get('shell.ai')) {
+      const reg = () => C.register([{ id: 'shell.ai', title: tx('ui.shell.ask_ai'), group: 'Help', keywords: ['ai', 'assistant', 'chat', 'llm', 'help'], run: openAI }]);
+      reg();
+      if (window.SlopI18n) window.SlopI18n.on(reg);
+    }
     // a request handed over from another app (shared/ai/handoff.js): open the panel so it continues here
     try { const h = JSON.parse(sessionStorage.getItem('slop-ai.handoff') || 'null'); if (h && h.to === app.id && Date.now() - h.at < 6e5) { setTimeout(openAI, 0); return b; } } catch (e) { /* no storage */ }
     setTimeout(reopenAI, 0);
@@ -155,8 +166,7 @@
     sw = document.createElement('button');
     sw.type = 'button';
     sw.className = 'sh-hbtn slop-hbtn sh-switch';
-    sw.setAttribute('aria-label', 'Switch app');
-    sw.setAttribute('data-i18n-attr', 'aria-label:shell.switch_app');
+    mark(sw, { 'aria-label': 'shell.switch_app' });
     sw.setAttribute('aria-haspopup', 'dialog');
     sw.title = title();
     sw.innerHTML = ICON_SEARCH + '<span class="sh-hbtn-txt slop-hbtn-txt" data-i18n="nav.apps">Apps</span>';

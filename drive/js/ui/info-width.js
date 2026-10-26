@@ -31,7 +31,7 @@
       grip.setAttribute('aria-valuemin', String(MIN));
       grip.setAttribute('aria-valuemax', String(DR.infoMax()));
       grip.setAttribute('aria-valuenow', String(shown != null ? shown : DEFAULT));
-      grip.setAttribute('aria-label', rail ? 'Details panel, collapsed. Use the arrow keys to widen it' : 'Resize the details panel');
+      grip.setAttribute('aria-label', DR.t(rail ? 'drive.info.rail_label' : 'drive.info.resize_panel'));
     }
   }
   function nudge(key) {
@@ -68,5 +68,5 @@
   const s = stored();
   if (s) DR.setInfoWidth(s, { save: false });
   const grip = DR.$('infoGrip');
-  if (grip) { wire(grip); paint(); }
+  if (grip) { wire(grip); paint(); DR.onLang(paint); }
 })(window.DR);

@@ -1,6 +1,7 @@
 /* Images into one PDF with pdf-lib. Page size A4, Letter or fit-to-image; the image is centred and
  * scaled to the printable area. Object streams are off so the file is readable by old PDF tools. */
 import { loadPdfLib } from './lib.js';
+import { tr } from './i18n.js';
 
 export const PAGE_SIZES = { a4: [595.28, 841.89], letter: [612, 792] };
 const PX_TO_PT = 0.75; // 96 px per inch, 72 pt per inch
@@ -11,11 +12,11 @@ const PX_TO_PT = 0.75; // 96 px per inch, 72 pt per inch
  * Returns Uint8Array of the PDF.
  */
 export async function imagesToPdf(items, { page = 'a4', margin = 36 } = {}) {
-  if (!items.length) throw new Error('Add at least one image.');
+  if (!items.length) throw new Error(tr('convert.pdf.add_image'));
   const { PDFDocument } = await loadPdfLib();
   const doc = await PDFDocument.create();
-  doc.setProducer('File convert');
-  doc.setCreator('File convert');
+  doc.setProducer('File convert'); // i18n-ignore: PDF metadata
+  doc.setCreator('File convert'); // i18n-ignore: PDF metadata
   for (const it of items) {
     const img = it.mime === 'image/png' ? await doc.embedPng(it.bytes) : await doc.embedJpg(it.bytes);
     const m = Math.max(0, Number(margin) || 0);

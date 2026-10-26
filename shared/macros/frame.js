@@ -15,7 +15,7 @@ function frameFor(app, url) {
   if (h) { clearTimeout(h.idle); return h; }
   const f = document.createElement('iframe');
   f.src = new URL(url, SITE).href;
-  f.title = `${app} (working in the background)`;
+  f.title = globalThis.SlopI18n ? globalThis.SlopI18n.t('ui.macro.frame_title', { app }) : app;   // shared/i18n/ui/<code>/macros.js
   f.setAttribute('aria-hidden', 'true'); f.tabIndex = -1; f.inert = true;
   f.dataset.macroHost = app;
   // in the page and drawn (an iframe that is not shown is slowed down by the browser), but out of sight and out of the way

@@ -12,6 +12,7 @@
  * models are not passed on (several providers refuse sampling settings; thinking models need room). */
 (function () {
   'use strict';
+  const T = (k, v) => (window.SlopI18n ? SlopI18n.t(k, v) : k);
   const K = (window.SlopAIKit = window.SlopAIKit || {});
   const C = K.cloud;
   const now = () => performance.now();
@@ -49,7 +50,7 @@
     /** Test connection: the provider's own check (OpenRouter), else its model list. Resolves with the models ([] when it has none). */
     async test({ signal } = {}) {
       const key = await this.getKey(), F = C.formats[this.provider.format];
-      if (this.provider.needsKey && !key) throw new C.CloudError('key', 'Paste your key first.');
+      if (this.provider.needsKey && !key) throw new C.CloudError('key', T('ui.ai.cloud.paste_key'));
       const cfg = this.cfg(key, signal);
       if (this.provider.test) await this.provider.test(cfg);
       if (this.provider.modelsEndpoint === false) return [];   // no model list (Azure deployments): the first request checks the key
@@ -63,7 +64,7 @@
         const t0 = now();
         let first = 0, streamed = '', parse = null;
         const key = await self.getKey();
-        if (p.needsKey && !key) throw new C.CloudError('key', `Connect ${p.short} first: paste your key in the AI panel.`);
+        if (p.needsKey && !key) throw new C.CloudError('key', T('ui.ai.cloud.connect_first', { name: p.short }));
         const { url, init } = F.request(self.cfg(key), C.seal(sent.messages), tools, { maxTokens: opts.maxTokens });
         init.signal = opts.signal;
         let aborted = false;
@@ -87,7 +88,7 @@
         usage.ms = Math.round(end - t0); usage.ttft = Math.round((first || end) - t0); usage.tps = Math.round((usage.output / (genMs / 1000)) * 10) / 10;
         let text = r.text;
         if (!text && !r.calls.length && r.stop === 'refusal') text = C.plain('refusal', p.short);
-        else if (r.stop === 'length' && !r.calls.length) text += (text ? '\n\n' : '') + '(The reply was cut off at its length limit.)';
+        else if (r.stop === 'length' && !r.calls.length) text += (text ? '\n\n' : '') + T('ui.ai.cloud.cut_off');
         yield { type: 'done', text, raw: text, toolCalls: aborted ? [] : r.calls, native: aborted ? null : r.native, usage, stop: r.stop, aborted: aborted || !!(opts.signal && opts.signal.aborted) };
       }
       if (opts.stream === false) return (async () => { let last = null; for await (const c of gen()) last = c; return last; })();

@@ -7,17 +7,23 @@
   if (g.SlopConfigDialog) return;
   const C = g.SlopConfig, UI = () => g.SlopUI;
 
+  const tr = (key, vars) => (g.SlopI18n ? g.SlopI18n.t(key, vars) : key);   // dialog words: shared/i18n/ui/<code>/config.js
+  /** The four actions' words (shared/i18n/ui/<code>/widgets.js): menu items read them when drawn, commands are retitled
+   *  after a language change. */
+  const WORDS = { export: 'ui.config.export_current', template: 'ui.config.export_template', import: 'ui.config.import', ai: 'ui.config.ask_ai' };
+  const issued = new Map();   // command id → key, for the retitle
+  if (g.SlopI18n && g.SlopI18n.on) g.SlopI18n.on(() => { for (const [id, key] of issued) { const c = g.SlopCmd && g.SlopCmd.get(id); if (c) c.title = tr(key); } });
   const appOf = (o = {}) => o.app || (g.SlopHub && g.SlopHub.self && g.SlopHub.self.app) || C.consts.SHARED_APP;
   const note = (msg) => { try { UI().toast(msg); } catch (e) { /* no toast layer on this page */ } };
   const errorList = (errors) => UI().el('ul', { class: 'sui-errors' },
     (errors || []).map((e) => UI().el('li', null, e.path ? `${e.path}: ${e.message}` : e.message)));
 
   /** Shows the outcome of an import or an apply. Success is a toast; anything else lists what was wrong. */
-  function showResult(res, title = 'Not imported') {
+  function showResult(res, title = tr('ui.config.not_imported')) {
     if (!res || res.cancelled) return;
-    if (res.ok) { note(`Applied: ${res.value.name}`); return; }
-    const body = UI().el('div', null, UI().el('p', { class: 'sui-p' }, 'Nothing was applied.'), errorList(res.errors));
-    UI().dialog({ title, body, buttons: [{ label: 'OK', primary: true }] });
+    if (res.ok) { note(tr('ui.config.applied', { name: res.value.name })); return; }
+    const body = UI().el('div', null, UI().el('p', { class: 'sui-p' }, tr('ui.config.nothing_applied')), errorList(res.errors));
+    UI().dialog({ title, body, buttons: [{ label: tr('menu.ok'), primary: true }] });
   }
 
   /* A config file comes in one way where the page has the intake (shared/intake): the part 'config' (From this computer…,
@@ -26,7 +32,7 @@
   const SI = () => (g.SlopIntake && g.SlopIntake.part ? g.SlopIntake : null);
   const part = () => SI().part({
     id: 'config', limit: 1,
-    accept: (f) => /\.slop\.json$/i.test(f.name || '') || (f.name || 'file') + ' is not a .slop.json file',
+    accept: (f) => /\.slop\.json$/i.test(f.name || '') || tr('ui.config.not_slop', { name: f.name || 'file' }),
     process: async (f, ctx) => { showResult(await C.importFile(f, { app: (ctx.data && ctx.data.app) || (zone && zone.dataset.app) || appOf() })); return f.name; },
   });
   async function runFile(app) {
@@ -35,7 +41,7 @@
     if (files && files[0]) showResult(await C.importFile(files[0], { app }));
   }
   function runDrive(app) {
-    if (SI()) return SI().fromDrive({ to: part(), data: { app }, accept: ['application/json', 'text/plain'], title: 'Import a config from Slop Drive' });
+    if (SI()) return SI().fromDrive({ to: part(), data: { app }, accept: ['application/json', 'text/plain'], title: tr('ui.config.from_drive_title') });
     return C.importFromDrive({ app }).then((res) => showResult(res)); // intake-ok: a page without shared/intake
   }
 
@@ -55,16 +61,16 @@
   /** "Import config…": a file from this computer, or from Slop Drive. The file is checked before anything changes. */
   function importDialog(o = {}) {
     const app = appOf(o);
-    const kids = [UI().el('p', { class: 'sui-p' }, 'Choose a .slop.json file. It is checked in full first; nothing changes unless every part is valid.')];
+    const kids = [UI().el('p', { class: 'sui-p' }, tr('ui.config.import_body'))];
     const z = importZone();
     if (z) { z.dataset.app = app; kids.push(z); }
     const body = UI().el('div', null, ...kids);
     UI().dialog({
-      title: o.title || 'Import config', body,
+      title: o.title || tr('ui.config.import_title'), body,
       buttons: [
-        { label: 'Cancel' },
-        { label: 'From Slop Drive…', act: () => { runDrive(app); } },
-        { label: 'From this computer…', primary: true, act: () => { runFile(app); } },
+        { label: tr('menu.cancel') },
+        { label: tr('ui.config.from_drive'), act: () => { runDrive(app); } },
+        { label: tr('ui.config.from_computer'), primary: true, act: () => { runFile(app); } },
       ],
     });
   }
@@ -73,20 +79,20 @@
   function exportDialog(o = {}) {
     const app = appOf(o);
     const choices = C.kinds(app).filter((e) => e.read);
-    if (!choices.length) { note('Nothing to export here yet'); return; }
+    if (!choices.length) { note(tr('ui.config.nothing_export')); return; }
     const sel = UI().select(choices.map((e) => [e.kind, e.label]), choices[0].kind);
     const name = UI().el('input', { class: 'sui-input', type: 'text', value: `${app}-${choices[0].kind}`, maxlength: 120 });
-    const desc = UI().el('input', { class: 'sui-input', type: 'text', placeholder: 'Optional', maxlength: 1000 });
-    const body = UI().el('div', null, UI().field('Kind', sel), UI().field('Name', name), UI().field('Description', desc));
+    const desc = UI().el('input', { class: 'sui-input', type: 'text', placeholder: tr('ui.config.optional'), maxlength: 1000 });
+    const body = UI().el('div', null, UI().field(tr('ui.config.kind'), sel), UI().field(tr('ui.config.name'), name), UI().field(tr('ui.config.description'), desc));
     UI().dialog({
-      title: o.title || 'Export config', body,
+      title: o.title || tr('ui.config.export_title'), body,
       buttons: [
-        { label: 'Cancel' },
-        { label: 'Export', primary: true, act: async () => {
+        { label: tr('menu.cancel') },
+        { label: tr('menu.export'), primary: true, act: async () => {
           try {
             const file = await C.exportKind(sel.value, app, name.value.trim() || 'config', { description: desc.value.trim() || undefined });
             UI().download(file, file.name);
-          } catch (e) { note(`Could not export: ${e.message}`); return false; }
+          } catch (e) { note(tr('ui.config.export_failed', { err: e.message })); return false; }
         } },
       ],
     });
@@ -94,7 +100,7 @@
 
   /** The AI dialog is in dialog-ai.js; it sets makeAi when loaded. */
   function aiDialog(o = {}) {
-    if (!api.makeAi) { note('The AI dialog is not loaded on this page'); return; }
+    if (!api.makeAi) { note(tr('ui.config.no_ai')); return; }
     api.makeAi({ ...o, app: appOf(o) });
   }
 
@@ -110,21 +116,21 @@
   function templateDialog(o = {}) {
     const app = appOf(o);
     const choices = C.kinds(app);
-    if (!choices.length) { note('No config kinds for this app yet'); return; }
+    if (!choices.length) { note(tr('ui.config.no_kinds')); return; }
     const sel = UI().select(choices.map((e) => [e.kind, e.label]), choices[0].kind);
-    const body = UI().el('div', null, UI().field('Kind', sel),
-      UI().el('p', { class: 'sui-p' }, 'The file has every key with an example value. Replace the values, keep the keys, then import it.'));
+    const body = UI().el('div', null, UI().field(tr('ui.config.kind'), sel),
+      UI().el('p', { class: 'sui-p' }, tr('ui.config.template_body')));
     UI().dialog({
-      title: o.title || 'Export plain template', body,
+      title: o.title || tr('ui.config.template_title'), body,
       buttons: [
-        { label: 'Cancel' },
-        { label: 'Export', primary: true, act: () => {
+        { label: tr('menu.cancel') },
+        { label: tr('menu.export'), primary: true, act: () => {
           try {
             const example = o.example && o.example.kind === sel.value ? o.example.value : C.exampleValue(sel.value, app);
             const file = C.exportFile(sel.value, app, `${app}-${sel.value}-template`, example,
-              { description: 'Template: replace the example values and keep every key' });
+              { description: tr('ui.config.template_desc') });
             UI().download(file, file.name);
-          } catch (e) { note(`Could not export: ${e.message}`); return false; }
+          } catch (e) { note(tr('ui.config.export_failed', { err: e.message })); return false; }
         } },
       ],
     });
@@ -157,24 +163,28 @@
   /** Call once per page: binds drag and drop. Returns the four menu items (see menuItems). */
   function install(o = {}) { bindDrop(o); return menuItems(o); }
 
-  /** The four Config items for a SlopUI.menu: export current config, plain template, import, ask AI. */
+  /** The four Config items for a SlopUI.menu: export current config, plain template, import, ask AI. Each label is a
+   *  getter: a menu drawn again (SlopMenuBar after a language change, a menu built on open) reads the current language. */
   function menuItems(o = {}) {
+    const item = (w, act) => ({ get label() { return tr(WORDS[w]); }, act });
     return [
-      { label: 'Export current config…', act: () => exportDialog(o) },
-      { label: 'Export plain template…', act: () => templateDialog(o) },
-      { label: 'Import config…', act: () => importDialog(o) },
-      { label: 'Ask AI to write a config…', act: () => aiDialog(o) },
+      item('export', () => exportDialog(o)),
+      item('template', () => templateDialog(o)),
+      item('import', () => importDialog(o)),
+      item('ai', () => aiDialog(o)),
     ];
   }
 
-  /** The same four actions as palette commands (SlopCmd shape): ids '<prefix>.config.export' and so on. */
+  /** The same four actions as palette commands (SlopCmd shape): ids '<prefix>.config.export' and so on. The titles are in
+   *  the current language; once registered in SlopCmd they are retitled after a language change (issued above). */
   function commands(o = {}) {
     const pre = o.prefix || appOf(o);
+    const cmd = (w, keywords, run) => { const id = `${pre}.config.${w}`; issued.set(id, WORDS[w]); return { id, title: tr(WORDS[w]), group: 'Config', keywords, run }; };   // i18n-ignore: command group id
     return [
-      { id: `${pre}.config.export`, title: 'Export current config…', group: 'Config', keywords: ['save', 'json', 'slop'], run: () => exportDialog(o) },
-      { id: `${pre}.config.template`, title: 'Export plain template…', group: 'Config', keywords: ['example', 'blank', 'empty'], run: () => templateDialog(o) },
-      { id: `${pre}.config.import`, title: 'Import config…', group: 'Config', keywords: ['load', 'open', 'drop'], run: () => importDialog(o) },
-      { id: `${pre}.config.ai`, title: 'Ask AI to write a config…', group: 'Config', keywords: ['make', 'generate', 'model'], run: () => aiDialog(o) },
+      cmd('export', ['save', 'json', 'slop'], () => exportDialog(o)),
+      cmd('template', ['example', 'blank', 'empty'], () => templateDialog(o)),
+      cmd('import', ['load', 'open', 'drop'], () => importDialog(o)),
+      cmd('ai', ['make', 'generate', 'model'], () => aiDialog(o)),
     ];
   }
 

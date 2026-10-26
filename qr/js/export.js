@@ -4,6 +4,8 @@
 (function (g) {
   'use strict';
   if (g.QRExport) return;
+  /** The words for a key (qr/i18n), or the English given when SlopI18n or the key is absent (node tests, other pages). */
+  const tr = (k, en, v) => { const I = g.SlopI18n; return I && I.has && I.has(k) ? I.t(k, v) : (v ? String(en).replace(/\{(\w+)\}/g, (m, x) => (x in v ? String(v[x]) : m)) : en); };
 
   /** The SVG for a text at the given render options (see QRState.renderOpts). Throws when the text does not fit. */
   function svgFor(text, ro) {
@@ -23,9 +25,9 @@
         cx.clearRect(0, 0, n, n);
         cx.drawImage(img, 0, 0, n, n);
         URL.revokeObjectURL(url);
-        cv.toBlob((b) => (b ? resolve(b) : reject(new Error('The PNG could not be made.'))), 'image/png');
+        cv.toBlob((b) => (b ? resolve(b) : reject(new Error(tr('qr.err.png', 'The PNG could not be made.')))), 'image/png');
       };
-      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('The picture could not be drawn.')); };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error(tr('qr.err.draw', 'The picture could not be drawn.'))); };
       img.src = url;
     });
   }
@@ -37,8 +39,8 @@
     if (!libP) libP = new Promise((resolve, reject) => {
       const s = document.createElement('script');
       s.src = '../vendor/pdf-lib/pdf-lib.min.js';
-      s.onload = () => (g.PDFLib ? resolve(g.PDFLib) : reject(new Error('The PDF library did not start.')));
-      s.onerror = () => { libP = null; reject(new Error('The PDF library could not load.')); };
+      s.onload = () => (g.PDFLib ? resolve(g.PDFLib) : reject(new Error(tr('qr.err.pdf_start', 'The PDF library did not start.'))));
+      s.onerror = () => { libP = null; reject(new Error(tr('qr.err.pdf_load', 'The PDF library could not load.'))); };
       document.head.append(s);
     });
     return libP;

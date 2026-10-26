@@ -16,7 +16,10 @@
   const list = [];
   const add = C.aiAdder('ait', list);   // shared/commands/commands.js
   const need = () => { if (!job) throw new Error('No job yet: new_job first'); return job; };
-  const say = (t) => { const s = document.getElementById('status'); if (s) s.textContent = t; };
+  const say = (text) => { const s = document.getElementById('status'); if (s) s.textContent = text; };
+  /** The person's words on the status line (aitools/i18n/<code>/hub.js); the replies to the assistant stay English. */
+  const L = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
+  const toolName = (id) => L('aitools.tool.' + id + '_name');
   const stem = (n) => String(n).replace(/\.[^.]+$/, '') || 'result';
   const TOOL_IDS = Object.keys(J.TOOLS);
 
@@ -81,10 +84,10 @@
 
   add('run_job', 'Run the job', [], async () => {
     const j = need();
-    say(`${J.TOOLS[j.tool].name}: working on ${j.file ? j.file.name : '…'}`);
+    say(L('aitools.job.working', { tool: toolName(j.tool), file: j.file ? j.file.name : '…' }));
     try { j.result = await J.run(j, say); } catch (e) { say(''); throw e; }
     const r = j.result;
-    say(`${J.TOOLS[j.tool].name}: done.`);
+    say(L('aitools.job.done', { tool: toolName(j.tool) }));
     if (r.kind === 'image') return `Made a ${r.w} × ${r.h} PNG. Use export_result to keep it.`;
     if (r.kind === 'text') return r.text ? `Read ${r.lines} line(s):\n${r.text.slice(0, 4000)}` : 'No text found on this picture.';
     if (r.kind === 'speech') return r.segments.length ? `${r.segments.length} segments (${r.language}, ${r.model}):\n${window.SlopTranscript.txt(r.segments).slice(0, 4000)}` : 'No speech found in this file.';

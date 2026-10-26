@@ -5,6 +5,7 @@
  * type 'watermark' (Watermark's spec option) is a choice of My watermarks, the watermarks saved in any app
  * (shared/watermark/saved.js, loaded on first use): the chosen one's spec, as JSON, is the value. */
 import { h } from './dom.js';
+import { tr } from '../core/i18n.js';
 
 /** prefix: a file's id and a dash ('3-') on its card, 'bulk-' in the bulk bar, so every id on the page is unique. */
 const idOf = (key, prefix = '') => `cv-o-${prefix}${key}`;
@@ -59,8 +60,8 @@ export function readOptions(container, specs, prefix = '') {
 /** A picture option: the file field holds the chosen picture as a data URL in data-value. */
 function imageField(s, id, value, hint, describe) {
   const control = h('input', { type: 'file', id, accept: 'image/png,image/jpeg,image/webp,image/gif,image/svg+xml', 'aria-describedby': describe }); // intake-ok: a conversion option's picture field (a value of the option, not a file into the app)
-  const thumb = h('img', { class: 'cv-img-thumb', alt: `${s.label}: chosen picture`, hidden: !value, src: value || undefined });
-  const clear = h('button', { type: 'button', class: 'cv-img-clear', hidden: !value }, 'Remove');
+  const thumb = h('img', { class: 'cv-img-thumb', alt: tr('convert.opts.chosen_pic', { label: s.label }), hidden: !value, src: value || undefined });
+  const clear = h('button', { type: 'button', class: 'cv-img-clear', hidden: !value }, tr('ui.remove'));
   const set = (v) => {
     control.dataset.value = v || '';
     if (v) thumb.src = v; else thumb.removeAttribute('src');
@@ -100,10 +101,10 @@ function savedMarks() {
 }
 /** A saved watermark: a choice of My watermarks; the value is the chosen spec as JSON ('' for none). */
 function watermarkField(s, id, value, hint, describe) {
-  const control = h('select', { id, 'aria-describedby': describe }, h('option', { value: '' }, 'None: use the settings above'));
+  const control = h('select', { id, 'aria-describedby': describe }, h('option', { value: '' }, tr('convert.opts.wm_none')));
   let rows = [], name = '';
-  try { name = value ? JSON.parse(value).name || 'A watermark chosen before' : ''; } catch (e) { name = ''; }
-  if (value) control.append(h('option', { value: '=', selected: true }, name || 'A watermark chosen before'));
+  try { name = value ? JSON.parse(value).name || tr('convert.opts.wm_before') : ''; } catch (e) { name = ''; }
+  if (value) control.append(h('option', { value: '=', selected: true }, name || tr('convert.opts.wm_before')));
   control.dataset.value = value || '';
   savedMarks().then((list) => {
     rows = list;

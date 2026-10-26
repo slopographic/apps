@@ -1,4 +1,8 @@
-/* Slop Code: a tiny element builder (children may be nodes, strings, numbers, arrays, null or false). */
+/* Slop Code: a tiny element builder (children may be nodes, strings, numbers, arrays, null or false), and the words. */
+/** A word in the page's language (shared/i18n): read when the UI is drawn, never kept in a constant. */
+export const t = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
+/** Runs fn after a language change, once the new tables are in. */
+export const onLang = (fn) => (window.SlopI18n && window.SlopI18n.on ? window.SlopI18n.on(fn) : null);
 export function el(tag, attrs, ...kids) {
   const n = document.createElement(tag);
   for (const k in attrs || {}) {

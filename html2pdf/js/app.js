@@ -5,7 +5,8 @@
   'use strict';
   const H = window.H2P, S = H.sheet, SRC = H.source;
   const $ = (id) => document.getElementById(id);
-  const PASTED = 'Pasted HTML';
+  const t = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
+  const PASTED = 'Pasted HTML';   // i18n-ignore: the name printed in the document's header
   const st = { name: PASTED, html: '', images: new Map(), dims: [210, 297] };
   const px = (mm) => (mm * 96) / 25.4;
 
@@ -22,7 +23,9 @@
   }
   const hasSource = () => st.html.trim() !== '';
   const cleaned = () => SRC.prepare(st.html, st.images);
-  const status = (msg) => { $('h2p-status').textContent = msg; };
+  // the status line keeps its key, so a language change says it again in the new language
+  let said = null;
+  const status = (k, v) => { said = [k, v]; $('h2p-status').textContent = t(k, v); };
 
   /** Scales the paper to the stage width. The frame keeps its paper size inside, so the page lays out as printed. */
   function fit() {
@@ -39,7 +42,7 @@
     $('h2p-paper-box').hidden = !has;
     $('h2p-print').disabled = !has;
     $('h2p-qr-text').disabled = mode === 'file';
-    $('h2p-qr-label').textContent = mode === 'url' ? 'URL' : 'Custom text';
+    $('h2p-qr-label').textContent = mode === 'url' ? t('html2pdf.header.url') : t('html2pdf.header.qr_text');
     if (!has) return;
     const o = options();
     st.dims = S.sizeMm(o);
@@ -51,21 +54,25 @@
     st.name = name;
     st.html = String(text || '');
     render();
-    status(hasSource() ? `${name} is ready. Remote images and fonts do not load.` : 'That is empty. Choose another file or paste HTML.');
+    if (hasSource()) status('html2pdf.status.ready', { name }); else status('html2pdf.status.empty');
   }
 
   async function openFile(file) {
     if (!file) return;
-    if (!/\.html?$/i.test(file.name) && file.type !== 'text/html') { status('Choose an .html or .htm file.'); return; }
-    try { setSource(file.name, await file.text()); } catch (e) { status('Could not read that file.'); }
+    if (!/\.html?$/i.test(file.name) && file.type !== 'text/html') { status('html2pdf.status.not_html'); return; }
+    try { setSource(file.name, await file.text()); } catch (e) { status('html2pdf.status.read_failed'); }
+  }
+
+  function imageList() {
+    const names = [...st.images.keys()];
+    $('h2p-image-list').textContent = names.length ? t('html2pdf.source.attached', { names: names.join(', ') }) : t('html2pdf.source.no_images');
   }
 
   function attachImages(files) {
     for (const url of st.images.values()) URL.revokeObjectURL(url);
     st.images = new Map();
     for (const f of files) if (/^image\//.test(f.type) || /\.(png|jpe?g|gif|webp|svg|bmp|avif)$/i.test(f.name)) st.images.set(f.name, URL.createObjectURL(f));
-    const names = [...st.images.keys()];
-    $('h2p-image-list').textContent = names.length ? 'Attached: ' + names.join(', ') : 'No local images attached.';
+    imageList();
     render();
   }
 
@@ -76,7 +83,8 @@
       title: o.fileName, paper: o.paper, orientation: o.orientation,
       html: S.printHtml(o, src), fullDocument: () => S.printDocument(o, src, o.fileName),
     });
-    status(used ? `Print dialog opened (${used}). Choose Save as PDF there to keep a PDF.` : 'The print dialog did not open.');
+    if (used) status('html2pdf.status.opened', { path: used === 'built-in' ? t('html2pdf.status.builtin') : used });
+    else status('html2pdf.status.not_opened');
   }
 
   /* Ctrl+P (Cmd+P) on this page prints this document through SlopPrint. */
@@ -94,14 +102,14 @@
   // The one way in (shared/intake, spec 'html2pdf'): Open, a drop anywhere on the page, a paste of an .html file,
   // ?drive=<id> (another app's Open in) and a PWA launch reach openFile; the local images are a part of their own.
   const SI = window.SlopIntake;
-  SI.register({ id: 'html2pdf', limit: 1, accept: { types: ['text/html'], exts: ['.html', '.htm'], noun: 'an HTML file' }, process: async (f) => { stage.classList.remove('h2p-over'); await openFile(f); return f.name; } });
-  SI.register({ id: 'html2pdf.images', main: false, paste: false, toast: false, accept: { types: ['image/*'], exts: ['.svg'], noun: 'a picture' }, processAll: (files) => { attachImages(files); return files.map((f) => f.name); } });
+  SI.register({ id: 'html2pdf', limit: 1, accept: { types: ['text/html'], exts: ['.html', '.htm'], noun: 'html2pdf.app.an_html_file' }, process: async (f) => { stage.classList.remove('h2p-over'); await openFile(f); return f.name; } });
+  SI.register({ id: 'html2pdf.images', main: false, paste: false, toast: false, accept: { types: ['image/*'], exts: ['.svg'], noun: 'html2pdf.app.a_picture' }, processAll: (files) => { attachImages(files); return files.map((f) => f.name); } });
   const pickHtml = () => SI.pick({ to: 'html2pdf', multiple: false, accept: '.html,.htm,text/html' });
   $('h2p-open').addEventListener('click', pickHtml);
   $('h2p-open-empty').addEventListener('click', pickHtml);
   $('h2p-use-paste').addEventListener('click', () => {
     const text = $('h2p-paste').value;
-    if (text.trim()) setSource(PASTED, text); else status('Paste some HTML first.');
+    if (text.trim()) setSource(PASTED, text); else status('html2pdf.status.paste_first');
   });
   $('h2p-images').addEventListener('click', () => SI.pick({ to: 'html2pdf.images', accept: 'image/*' }));
   $('h2p-print').addEventListener('click', print);
@@ -116,15 +124,22 @@
   addEventListener('resize', fit);
 
   render();
-  status('Open an HTML file, drop one here, or paste HTML. Nothing is uploaded.');
+  imageList();
+  status('html2pdf.status.start');
+  // a language change: the status line, the image list, the QR label and the commands again, in the new language
+  if (window.SlopI18n && window.SlopI18n.on) window.SlopI18n.on(() => { if (said) status(said[0], said[1]); imageList(); render(); cmds(); });
 
   /* The page's actions for the commands: Ctrl+K and the assistant (ai-commands.js, loaded by SlopCmd.prepare()). */
   H.app = { st, setSource, attachImages, options, cleaned, hasSource, render, status: () => $('h2p-status').textContent };
+  function cmds() {
+    if (!window.SlopCmd) return;
+    window.SlopCmd.register([{ id: 'h2p.open', title: t('html2pdf.cmd.open'), group: t('menu.file'), keys: [], run: () => $('h2p-open').click() },
+      { id: 'h2p.print', title: t('html2pdf.app.print'), group: t('menu.file'), keys: [], when: hasSource, run: print }]);
+  }
   if (window.SlopCmd) {
     const C = window.SlopCmd;
     C.init({ app: 'html2pdf' });
-    C.register([{ id: 'h2p.open', title: 'Open an HTML file…', group: 'File', keys: [], run: () => $('h2p-open').click() },
-      { id: 'h2p.print', title: 'Print or save as PDF…', group: 'File', keys: [], when: hasSource, run: print }]);
+    cmds();
     if (C.provide) C.provide({ prepare: () => import(new URL('js/ai-commands.js', location.href).href) });
   }
 })();

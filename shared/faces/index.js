@@ -9,6 +9,7 @@
  * copy.js first, and profile.js with app-options.js for the setting. recognize.js adds the embeddings (see HANDOFF.md). Everything is in try/catch. See shared/faces/HANDOFF.md. */
 (function (g) {
   'use strict';
+  const tr = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);   // words: shared/i18n/ui/<code>/preview.js
   const F = (g.SlopFaces = g.SlopFaces || {});
   const MODEL = Object.freeze({
     id: 'yunet-2023mar', file: 'face_detection_yunet_2023mar.onnx', bytes: 232589, licence: 'MIT',
@@ -44,13 +45,13 @@
   F.setEnabled = function (on) {
     try {
       const P = profile();
-      if (!P) return { ok: false, error: 'Settings are not available in this page.' };
+      if (!P) return { ok: false, error: tr('ui.faces.no_settings') };
       const r = P.set('faces', 'detect', !!on);
-      if (!r || !r.ok) return { ok: false, error: (r && r.error) || 'Could not save the setting.' };
+      if (!r || !r.ok) return { ok: false, error: (r && r.error) || tr('ui.faces.not_saved') };
       if (!on) { backend = null; state = 'idle'; loading = null; }
       changed();
       return { ok: true };
-    } catch (e) { return { ok: false, error: 'Could not save the setting.' }; }
+    } catch (e) { return { ok: false, error: tr('ui.faces.not_saved') }; }
   };
   F.status = () => (!F.enabled() ? 'off' : state);
   F.lastError = () => lastError;
@@ -75,10 +76,10 @@
   async function loadModel() {
     const modelUrl = new URL('face/' + MODEL.file, VENDOR).href;
     const res = await fetch(modelUrl);
-    if (!res.ok) throw new Error('The face model could not be loaded (' + res.status + ').');
+    if (!res.ok) throw new Error(tr('ui.faces.model_load', { status: String(res.status) }));
     const bytes = await res.arrayBuffer();
-    if (!g.crypto || !g.crypto.subtle) throw new Error('This browser cannot check the face model.');
-    if (hex(await g.crypto.subtle.digest('SHA-256', bytes)) !== MODEL.sha256) throw new Error('The face model failed its checksum.');
+    if (!g.crypto || !g.crypto.subtle) throw new Error(tr('ui.faces.model_check'));
+    if (hex(await g.crypto.subtle.digest('SHA-256', bytes)) !== MODEL.sha256) throw new Error(tr('ui.faces.model_sum'));
     const ort = await F.runtime(); // recognize.js: the same runtime, one thread
     const session = await ort.InferenceSession.create(new Uint8Array(bytes), { executionProviders: ['wasm'], graphOptimizationLevel: 'all' });
     const input = session.inputNames[0];

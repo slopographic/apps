@@ -2,9 +2,12 @@
 <html lang="en">
 <head><meta charset="utf-8"><title>Slop AI: apps, files and layout</title></head>
 <body>
+<script src="../harness.js"></script>
+    <script src="../../shared/profile/profile.js"></script>
+    <script src="../../shared/i18n/i18n.js"></script>   <!-- the shared components' words (shared/i18n/ui) -->
     <script>try { localStorage.setItem('slop-firstrun:aitools', '1'); } catch (e) { /* private window */ }</script>
   <script>try { localStorage.setItem('slop-firstrun:slopisolate', '1'); } catch (e) { /* private window */ }</script>
-<script src="../harness.js"></script>
+  <script src="../../shared/i18n/i18n.js"></script>
   <script src="util.js"></script>
   <script>window.SLOP_DRIVE_DB = 'slop-apps-test-' + Math.random().toString(36).slice(2, 8);</script>
   <script src="../../shared/apps.js"></script>

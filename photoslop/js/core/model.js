@@ -7,30 +7,31 @@
 'use strict';
 
 const BLENDS = [
-  // key, label, canvas composite op, PSD key
-  ['normal', 'Normal', 'source-over', 'norm'],
-  ['darken', 'Darken', 'darken', 'dark'],
-  ['multiply', 'Multiply', 'multiply', 'mul '],
-  ['color-burn', 'Color Burn', 'color-burn', 'idiv'],
-  ['lighten', 'Lighten', 'lighten', 'lite'],
-  ['screen', 'Screen', 'screen', 'scrn'],
-  ['color-dodge', 'Color Dodge', 'color-dodge', 'div '],
-  ['add', 'Linear Dodge (Add)', 'lighter', 'lddg'],
-  ['overlay', 'Overlay', 'overlay', 'over'],
-  ['soft-light', 'Soft Light', 'soft-light', 'sLit'],
-  ['hard-light', 'Hard Light', 'hard-light', 'hLit'],
-  ['difference', 'Difference', 'difference', 'diff'],
-  ['exclusion', 'Exclusion', 'exclusion', 'smud'],
-  ['hue', 'Hue', 'hue', 'hue '],
-  ['saturation', 'Saturation', 'saturation', 'sat '],
-  ['color', 'Color', 'color', 'colr'],
-  ['luminosity', 'Luminosity', 'luminosity', 'lum '],
+  // key, label (a getter: photoslop.core.blend_<key>, set by trPairs below), canvas composite op, PSD key
+  ['normal', '', 'source-over', 'norm'],
+  ['darken', '', 'darken', 'dark'],
+  ['multiply', '', 'multiply', 'mul '],
+  ['color-burn', '', 'color-burn', 'idiv'],
+  ['lighten', '', 'lighten', 'lite'],
+  ['screen', '', 'screen', 'scrn'],
+  ['color-dodge', '', 'color-dodge', 'div '],
+  ['add', '', 'lighter', 'lddg'],
+  ['overlay', '', 'overlay', 'over'],
+  ['soft-light', '', 'soft-light', 'sLit'],
+  ['hard-light', '', 'hard-light', 'hLit'],
+  ['difference', '', 'difference', 'diff'],
+  ['exclusion', '', 'exclusion', 'smud'],
+  ['hue', '', 'hue', 'hue '],
+  ['saturation', '', 'saturation', 'sat '],
+  ['color', '', 'color', 'colr'],
+  ['luminosity', '', 'luminosity', 'lum '],
 ];
+trPairs(BLENDS, 'photoslop.core.blend_');
 const BLEND_OP = Object.fromEntries(BLENDS.map((b) => [b[0], b[2]]));
 const BLEND_PSD = Object.fromEntries(BLENDS.map((b) => [b[0], b[3]]));
 const PSD_BLEND = Object.fromEntries(BLENDS.map((b) => [b[3], b[0]]));
 
-const D = { w: 1200, h: 800, name: 'Untitled', layers: [], activeId: 0, sel: null, dirty: false, fileHandleName: null, guides: [], wm: null };
+const D = { w: 1200, h: 800, name: 'Untitled', layers: [], activeId: 0, sel: null, dirty: false, fileHandleName: null, guides: [], wm: null }; // i18n-ignore: the document's own name (its file name)
 const Hist = { states: [], idx: -1 };
 /** Live (uncommitted) edit shown in previews: brush strokes, filter previews, transforms. */
 let live = null;
@@ -42,7 +43,7 @@ function emit(what) { for (const f of listeners) f(what); }
 const LAYER_META = ['text', 'fx', 'fill', 'adj', 'shape', 'label', 'clip', 'fillOp'];
 const layerMeta = (L) => { const o = {}; for (const k of LAYER_META) if (L[k] != null && L[k] !== false) o[k] = L[k]; return o; };
 function newLayerRecord(props) {
-  return Object.assign({ id: uid(), name: 'Layer', canvas: mkCanvas(D.w, D.h), x: 0, y: 0, visible: true, opacity: 1, blend: 'normal', locked: false, mask: null, text: null }, props);
+  return Object.assign({ id: uid(), name: 'Layer', canvas: mkCanvas(D.w, D.h), x: 0, y: 0, visible: true, opacity: 1, blend: 'normal', locked: false, mask: null, text: null }, props); // i18n-ignore: layer names are the document's
 }
 const activeLayer = () => D.layers.find((l) => l.id === D.activeId) || D.layers[D.layers.length - 1];
 const layerIndex = (id) => D.layers.findIndex((l) => l.id === id);

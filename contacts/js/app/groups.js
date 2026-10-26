@@ -8,6 +8,7 @@
   const UI = window.SlopUI;
   const $ = (id) => document.getElementById(id);
   const esc = (s) => SC.text.html(s);   // the one HTML escape (core/text.js)
+  const tr = (k, v) => SC.tr(k, v);
 
   /** One button of the group list. key is the group key (empty for All). */
   function item(key, label, count, extra = '') {
@@ -19,10 +20,10 @@
   function render() {
     const c = S.groupCounts();
     const cats = c.cats.map(([name, n]) => item(`cat:${name}`, name, n, ' is-drop')).join('');
-    $('groups').innerHTML = `<div class="grp-sec"><h2 class="grp-h">Library</h2><ul class="grp-list">`
-      + item('', 'All Contacts', c.all) + item('recent', 'Recent', c.recent) + `</ul></div>`
-      + `<div class="grp-sec"><h2 class="grp-h">Groups</h2><ul class="grp-list">${cats || '<li class="grp-empty">No groups yet. Add a contact to a group from the card or the list.</li>'}</ul></div>`
-      + `<div class="grp-sec"><h2 class="grp-h">Pipeline</h2><ul class="grp-list">${S.STAGES.map((s) => item(`stage:${s}`, SC.stageLabel(s), c.stages[s] || 0)).join('')}</ul></div>`;
+    $('groups').innerHTML = `<div class="grp-sec"><h2 class="grp-h">${esc(tr('contacts.grp.library'))}</h2><ul class="grp-list">`
+      + item('', tr('contacts.page.all'), c.all) + item('recent', tr('contacts.list.recent'), c.recent) + `</ul></div>`
+      + `<div class="grp-sec"><h2 class="grp-h">${esc(tr('contacts.grp.groups'))}</h2><ul class="grp-list">${cats || `<li class="grp-empty">${esc(tr('contacts.grp.none'))}</li>`}</ul></div>`
+      + `<div class="grp-sec"><h2 class="grp-h">${esc(tr('contacts.grp.pipeline'))}</h2><ul class="grp-list">${S.STAGES.map((s) => item(`stage:${s}`, SC.stageLabel(s), c.stages[s] || 0)).join('')}</ul></div>`;
   }
 
   /** Shows or hides the sheet (narrow screens only; wide screens always show the column). */
@@ -44,7 +45,7 @@
       moved = out.changed;
     }
     if (r.changed || moved) S.setList(r.list);
-    UI.toast(moved ? `Moved ${r.changed} to “${name}”` : `Added ${r.changed} to “${name}”`);
+    UI.toast(tr(moved ? 'contacts.grp.moved' : 'contacts.grp.added', { n: String(r.changed), name }));
   }
 
   function mount() {

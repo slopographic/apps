@@ -27,15 +27,20 @@ window.DR = window.DR || {};
   DR.el = el;
   DR.$ = (id) => document.getElementById(id);
   DR.fmtSize = (n) => window.SlopHub.fmtSize(n);   // one copy: SlopHub.fmtSize (shared/hub.js)
+  /** The words: DR.t(key, vars) reads drive/i18n (shared/i18n/APPS-HOWTO.md); onLang(fn) re-runs fn after a language
+   * change, once the new tables are in (for UI built once). loc() is the locale for dates ([] = the browser's in English). */
+  DR.t = (key, vars) => { const I = window.SlopI18n; return I ? I.t(key, vars) : key; };
+  DR.onLang = (fn) => { const I = window.SlopI18n; return I && I.on ? I.on(fn) : () => {}; };
+  DR.loc = () => { const I = window.SlopI18n, c = I && I.get && I.get(); return c && c !== 'en' ? c : []; };
   DR.fmtDate = (t) => {
     if (!t) return '—';
-    const d = new Date(t), now = new Date();
-    if (d.toDateString() === now.toDateString()) return 'Today ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const d = new Date(t), now = new Date(), hm = () => d.toLocaleTimeString(DR.loc(), { hour: '2-digit', minute: '2-digit' });
+    if (d.toDateString() === now.toDateString()) return DR.t('drive.app.today_at', { time: hm() });
     const y = new Date(now); y.setDate(y.getDate() - 1);
-    if (d.toDateString() === y.toDateString()) return 'Yesterday ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    return d.toLocaleDateString([], { year: d.getFullYear() === now.getFullYear() ? undefined : 'numeric', month: 'short', day: 'numeric' });
+    if (d.toDateString() === y.toDateString()) return DR.t('drive.app.yesterday_at', { time: hm() });
+    return d.toLocaleDateString(DR.loc(), { year: d.getFullYear() === now.getFullYear() ? undefined : 'numeric', month: 'short', day: 'numeric' });
   };
-  DR.fmtFull = (t) => (t ? new Date(t).toLocaleString() : '—');
+  DR.fmtFull = (t) => (t ? new Date(t).toLocaleString(DR.loc()) : '—');
   DR.debounce = (fn, ms) => { let t = 0; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
   DR.keyOf = (item) => (item.isFolder ? 'd:' : 'f:') + item.id;
   DR.isMobile = () => matchMedia('(max-width: 760px)').matches;

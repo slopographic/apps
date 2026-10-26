@@ -8,6 +8,8 @@
  * Node-safe like xlsx.js (the XML helpers only). */
 import { readText } from '../office/zip.js';
 import { parseXml, kids, kid, all, attr, textOf, NS } from '../office/xml.js';
+/** A word from the shared tables (shared/i18n/ui/<code>/sheets.js), the key without SlopI18n (node tests). */
+const tr = (key, vars) => (globalThis.SlopI18n ? globalThis.SlopI18n.t(key, vars) : key);
 
 const XDR = 'http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing';
 const EMU_PX = 9525;
@@ -87,18 +89,18 @@ export function readCharts(files, sheetPath) {
   return out;
 }
 
-/** What the package holds that a reader of cells does not import, as plain words for a notice. */
+/** What the package holds that a reader of cells does not import, as plain words for a notice (in the chosen language). */
 export function skippedParts(files, chartSheets = false) {
   const names = [...files.keys()], out = [];
   const has = (re) => names.some((n) => re.test(n));
-  if (has(/^xl\/media\//)) out.push('pictures');
-  if (chartSheets) out.push('chart sheets');
-  if (has(/^xl\/pivotTables\//)) out.push('pivot tables (their values are kept)');
-  if (has(/^xl\/(comments|threadedComments)/)) out.push('comments');
-  if (has(/^xl\/vbaProject\.bin$/)) out.push('macros');
+  if (has(/^xl\/media\//)) out.push(tr('ui.sheets.part_pictures'));
+  if (chartSheets) out.push(tr('ui.sheets.part_chart_sheets'));
+  if (has(/^xl\/pivotTables\//)) out.push(tr('ui.sheets.part_pivots'));
+  if (has(/^xl\/(comments|threadedComments)/)) out.push(tr('ui.sheets.part_comments'));
+  if (has(/^xl\/vbaProject\.bin$/)) out.push(tr('ui.sheets.part_macros'));
   const sheetXml = names.filter((n) => /^xl\/worksheets\/[^/]+\.xml$/.test(n)).map((n) => readText(files, n) || '');
-  if (sheetXml.some((x) => x.includes('<conditionalFormatting'))) out.push('conditional formatting');
-  if (sheetXml.some((x) => x.includes('<dataValidations'))) out.push('data validation');
-  if (sheetXml.some((x) => x.includes('<autoFilter'))) out.push('filters');
+  if (sheetXml.some((x) => x.includes('<conditionalFormatting'))) out.push(tr('ui.sheets.part_cond'));
+  if (sheetXml.some((x) => x.includes('<dataValidations'))) out.push(tr('ui.sheets.part_validation'));
+  if (sheetXml.some((x) => x.includes('<autoFilter'))) out.push(tr('ui.sheets.part_filters'));
   return out;
 }

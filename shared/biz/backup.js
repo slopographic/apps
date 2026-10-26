@@ -8,14 +8,15 @@
   'use strict';
   const B = (g.SlopBiz = g.SlopBiz || {});
   const $ = (id) => document.getElementById(id);
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
 
   /** Downloads every record as one backup file. */
   async function backup() {
     const S = g.SlopData, UI = g.SlopUI;
     const r = await S.exporter.exportFile();
-    if (!r.ok) { UI.alert('Backup failed', B.refusal(r)); return false; }
+    if (!r.ok) { UI.alert(t('biz.backup.failed'), B.refusal(r)); return false; }
     UI.download(r.value.blob, r.value.name);
-    UI.toast('Backup downloaded');
+    UI.toast(t('biz.backup.downloaded'));
     return true;
   }
 
@@ -24,24 +25,22 @@
     const S = g.SlopData, UI = g.SlopUI, h = B.h, out = $('dRestoreMsg');
     out.replaceChildren();
     if (!file) return false;
-    const yes = await UI.confirm('Restore this backup?',
-      'This replaces every record in this browser with the contents of the file: customers, quotes, orders, invoices, payments, credit notes, expenses, stock and the ledger. Download a backup first if you are not sure.',
-      'Restore', { danger: true });
+    const yes = await UI.confirm(t('biz.backup.restore_q'), t('biz.backup.restore_body'), t('biz.backup.restore'), { danger: true });
     if (!yes) return false;
     const r = await S.exporter.importBundle(await file.text());
     if (!r.ok) {
       const errs = (r.errors || [r.message]).slice(0, 20);
-      out.append(h('li', { class: 'rep-error', text: 'The file was not restored. Nothing changed.' }), ...errs.map((e) => h('li', { class: 'rep-error', text: String(e) })));
+      out.append(h('li', { class: 'rep-error', text: t('biz.backup.not_restored') }), ...errs.map((e) => h('li', { class: 'rep-error', text: String(e) })));
       return false;
     }
-    out.append(h('li', { class: 'rep-ok', text: 'Restored. Every record now matches the file.' }));
-    UI.toast('Backup restored');
+    out.append(h('li', { class: 'rep-ok', text: t('biz.backup.restored_all') }));
+    UI.toast(t('biz.backup.restored'));
     return true;
   }
 
   function mount(opts = {}) {
     const SI = g.SlopIntake;
-    SI.register({ id: 'biz.backup', main: false, paste: false, toast: false, limit: 1, accept: { types: ['application/json'], exts: ['.json'], noun: 'a backup file (.json)' },
+    SI.register({ id: 'biz.backup', main: false, paste: false, toast: false, limit: 1, accept: { types: ['application/json'], exts: ['.json'], get noun() { return t('biz.backup.noun'); } },
       process: async (file) => { if ((await restore(file)) && opts.done) opts.done(); return file.name; } });
     $('dBackup').addEventListener('click', backup);
     $('dRestore').addEventListener('click', () => SI.pick({ to: 'biz.backup', multiple: false, accept: 'application/json,.json' }));

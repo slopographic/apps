@@ -7,6 +7,7 @@ import { decodeText } from './text.js';
 import { stemOf as base } from '../io/files.js';
 import { readXlsx } from '../../../shared/sheets/xlsx.js';
 import { contactsFromTable, contactsToTable } from './vcf-map.js';
+import { tr } from './i18n.js';
 
 const CORE = ['text', 'photo', 'model', 'vcard-read', 'vcard-write'];
 let loading = null;
@@ -16,7 +17,7 @@ function loadScript(src) {
     const s = document.createElement('script');
     s.src = src;
     s.onload = () => resolve();
-    s.onerror = () => reject(new Error('The vCard code could not be loaded. Check the connection and reload the page.'));
+    s.onerror = () => reject(new Error(tr('convert.vcf.load_failed')));
     document.head.append(s);
   });
 }
@@ -40,15 +41,15 @@ const nonBlank = (rows) => rows.filter((r) => r.some((v) => String(v == null ? '
 /** "Recognised: Name, E-mail, Phone. Not used: Department." (the line the tool shows after a conversion). */
 export function describeMapping(mapping, count) {
   const seen = [...new Set(mapping.recognised.map((r) => r.label))];
-  const got = seen.length ? `Recognised columns: ${seen.join(', ')}.` : 'No columns were recognised.';
-  const skip = mapping.unrecognised.length ? ` Not used: ${mapping.unrecognised.join(', ')}.` : '';
-  return `${got}${skip} ${count} contact${count === 1 ? '' : 's'}.`;
+  const got = seen.length ? tr('convert.vcf.recognised', { list: seen.join(', ') }) : tr('convert.vcf.none_recognised');
+  const skip = mapping.unrecognised.length ? ' ' + tr('convert.vcf.not_used', { list: mapping.unrecognised.join(', ') }) : '';
+  return `${got}${skip} ` + tr('convert.vcf.n_contacts', { n: count });
 }
 
 /** A table (CSV rows or XLSX text) to one vCard 3.0 file. The info line says which columns were recognised. */
 async function tableToVcf(name, table) {
   const { contacts, mapping } = contactsFromTable(nonBlank(table));
-  if (!contacts.length) throw new Error('No contacts found. The first row needs column names, such as Name, E-mail or Phone.');
+  if (!contacts.length) throw new Error(tr('convert.vcf.no_contacts'));
   const SC = await vcardCore();
   const res = [{ name: `${name}.vcf`, blob: new Blob([SC.vcard.write(contacts, '3.0')], { type: 'text/vcard' }) }];
   res.info = describeMapping(mapping, contacts.length);
@@ -71,7 +72,7 @@ export async function xlsxToVcf(files) {
 async function readVcf(file) {
   const SC = await vcardCore();
   const contacts = SC.vcard.read(decodeText(await bytesOf(file)), { photos: false });
-  if (!contacts.length) throw new Error('No vCard (BEGIN:VCARD) was found in this file.');
+  if (!contacts.length) throw new Error(tr('convert.vcf.no_vcard'));
   return contacts;
 }
 

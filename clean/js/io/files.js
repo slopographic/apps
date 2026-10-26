@@ -19,17 +19,21 @@
       item.bytes = new Uint8Array(await blob.arrayBuffer());
       const ins = C().inspect(item.bytes);
       item.format = ins.format; item.label = ins.label; item.findings = ins.findings || [];
-      if (!ins.supported) item.error = ins.format ? `${ins.label} files are not supported. Export the picture as JPEG, PNG, WebP or TIFF first.` : 'This is not a JPEG, PNG, WebP or TIFF picture.';
+      if (!ins.supported) {   // error stays English (the assistant reads it); errorMsg is the key the card shows (ui/report.js)
+        item.error = ins.format ? `${ins.label} files are not supported. Export the picture as JPEG, PNG, WebP or TIFF first.` : 'This is not a JPEG, PNG, WebP or TIFF picture.';   // i18n-ignore
+        item.errorMsg = ins.format ? { k: 'clean.err.unsupported', v: { format: ins.label } } : { k: 'clean.err.not_picture' };
+      }
       else if (ins.format !== 'tiff') item.thumb = URL.createObjectURL(blob);
     } catch (err) {
-      item.error = err.message || 'This file could not be read.';
+      item.error = err.message || 'This file could not be read.';   // i18n-ignore (shown as clean.err.unreadable)
+      item.errorMsg = err.message ? null : { k: 'clean.err.unreadable' };
     }
     return item;
   }
 
   /** Clean one item with the chosen categories. The result is checked by decoding it (TIFF: the structure only). */
   async function clean(item, remove) {
-    item.out = null; item.error = '';
+    item.out = null; item.error = ''; item.errorMsg = null;
     if (!item.bytes || !item.format || item.error) return item;
     try {
       const out = C().strip(item.bytes, { remove });
@@ -41,7 +45,10 @@
       }
       item.out = out;
     } catch (err) {
-      item.error = `Could not clean this picture: ${String(err.message || err).replace(/\.+$/, '')}. The original is untouched.`;
+      const reason = String(err.message || err).replace(/\.+$/, '');
+      item.error = `Could not clean this picture: ${reason}. The original is untouched.`;   // i18n-ignore (shown as clean.err.clean_failed)
+      // a format the core cannot write (HEIC...): the card says so in the person's language; else the core's reason
+      item.errorMsg = /^(jpeg|png|webp|tiff)$/.test(item.format) ? { k: 'clean.err.clean_failed', v: { reason } } : { k: 'clean.err.cannot_write', v: { format: String(item.format).toUpperCase() } };
     }
     return item;
   }

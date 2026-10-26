@@ -6,6 +6,8 @@
   const NS = (g.SlopExpenses = g.SlopExpenses || {});
   const $ = (id) => document.getElementById(id);
   let list = null, all = [], settings = null, names = {};
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
+  const METHOD = () => ({ bank: t('expenses.m.bank'), card: t('expenses.m.card'), cash: t('expenses.m.cash'), other: t('expenses.m.other') });
 
   /** The date range of a period choice, as YYYY-MM-DD ends (both included), counted from today. */
   function period(choice, today = new Date()) {
@@ -28,16 +30,16 @@
     const shown = NS.core.filter(all, { search: $('xSearch').value, status: $('xStatus').value, ...period($('xPeriod').value) });
     list.set(shown);
     const live = shown.filter((e) => e.status === 'posted' || e.status === 'owed'), cur = settings.currency, m = (v) => B.money(v, cur, settings.locale);
-    const same = live.every((e) => (e.currency || cur) === cur), owed = live.filter((e) => e.status === 'owed').reduce((t, e) => t + e.amount, 0);
-    $('xTotal').textContent = live.length && same ? `Total ${m(live.reduce((t, e) => t + e.amount, 0))}${owed ? ` · to pay ${m(owed)}` : ''}` : '';
+    const same = live.every((e) => (e.currency || cur) === cur), owed = live.filter((e) => e.status === 'owed').reduce((sum, e) => sum + e.amount, 0);
+    $('xTotal').textContent = live.length && same ? t('expenses.li.total', { amount: m(live.reduce((x, e) => x + e.amount, 0)) }) + (owed ? ' ' + t('expenses.li.to_pay', { amount: m(owed) }) : '') : '';
   }
 
   async function voidOne(e) {
-    const yes = await UI.confirm('Void expense', `Void the expense from ${e.supplier} on ${e.date}? Its entry in the books is reversed; the expense stays in the list as void.`, 'Void expense', { danger: true });
+    const yes = await UI.confirm(t('expenses.li.void_q'), t('expenses.li.void_body', { name: e.supplier, date: e.date }), t('expenses.li.void_q'), { danger: true });
     if (!yes) return;
     const r = await S.expenses.voidExpense(e.id);
-    if (!r.ok) { UI.alert('Not voided', B.refusal(r)); return; }
-    UI.toast(`Expense from ${e.supplier} voided`);
+    if (!r.ok) { UI.alert(t('expenses.li.not_voided'), B.refusal(r)); return; }
+    UI.toast(t('expenses.li.voided', { name: e.supplier }));
     refresh();
   }
 
@@ -45,26 +47,26 @@
   function owedChip(e) {
     if (e.status !== 'owed') return null;
     const late = S.expenses.overdue(e, S.ledger.today());
-    return { chip: `${late ? 'Overdue' : 'To pay'}${e.dueDate ? ` · due ${e.dueDate}` : ''}`, cls: late ? 'overdue' : 'draft' };
+    return { chip: t(late ? 'expenses.li.overdue' : 'expenses.li.to_pay_chip') + (e.dueDate ? ' ' + t('expenses.li.due', { date: e.dueDate }) : ''), cls: late ? 'overdue' : 'draft' };
   }
 
   function menu(e) {
-    const items = [{ label: 'Open', act: () => NS.app.go(`e/${e.id}`) }, { label: 'Record a copy…', act: () => NS.app.go(`new/${e.id}`) }];
-    if (e.status === 'owed') items.push({ label: 'Mark as paid…', act: () => NS.payDialog.open(e, refresh) });
-    if (e.status === 'posted' || e.status === 'owed') items.push({ label: 'Void…', act: () => voidOne(e) });
+    const items = [{ label: t('expenses.li.open'), act: () => NS.app.go(`e/${e.id}`) }, { label: t('expenses.li.copy'), act: () => NS.app.go(`new/${e.id}`) }];
+    if (e.status === 'owed') items.push({ label: t('expenses.li.pay'), act: () => NS.payDialog.open(e, refresh) });
+    if (e.status === 'posted' || e.status === 'owed') items.push({ label: t('expenses.li.void'), act: () => voidOne(e) });
     return items;
   }
 
   function mount() {
     if (NS.mileageDialog) NS.mileageDialog.mount();   // Mileage… (ui/mileage.js)
     list = g.SlopList.mount($('xRows'), {
-      label: 'Expenses', noun: ['expense', 'expenses'], summary: $('xSummary'),
-      empty: 'No expenses match. Record one with New expense.',
+      label: 'expenses.li.label', noun: ['expenses.li.expense', 'expenses.li.expenses'], summary: $('xSummary'),
+      empty: 'expenses.li.empty',
       row: (e) => ({
         title: e.supplier + (e.description ? ` · ${e.description}` : ''),
         amount: B.money(e.amount, e.currency || settings.currency, settings.locale), cls: e.status === 'void' ? 'is-void' : '',
-        meta: [e.date, names[e.account] || e.account, e.tax ? `tax ${B.money(e.tax, e.currency || settings.currency, settings.locale)}` : null,
-          e.status === 'owed' ? null : e.method, e.status === 'void' ? { chip: 'Void', cls: 'void' } : null, owedChip(e), e.sample ? { chip: 'Sample', cls: 'warn' } : null],
+        meta: [e.date, names[e.account] || e.account, e.tax ? t('expenses.li.tax', { amount: B.money(e.tax, e.currency || settings.currency, settings.locale) }) : null,
+          e.status === 'owed' ? null : METHOD()[e.method] || e.method, e.status === 'void' ? { chip: g.SlopBiz.statusText('void'), cls: 'void' } : null, owedChip(e), e.sample ? { chip: t('expenses.li.sample'), cls: 'warn' } : null],
       }),
       open: (e) => NS.app.go(`e/${e.id}`), menu,
     });

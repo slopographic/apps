@@ -11,7 +11,7 @@
 
   /** Reads a file into the list. Rejects with a reason when the list is full or the file cannot be read. */
   async function add(file) {
-    if (list.length >= MAX) throw new Error('the list is full (' + MAX + ' files); clear some first');
+    if (list.length >= MAX) throw new Error(window.WMUtil.t('watermark.drop.full_clear', { n: MAX }));
     const info = await window.WMProbe.of(file);
     const item = { id: 'wm' + (++seq), file, name: file.name, media: info.media, type: info.type, url: info.thumb, w: info.w, h: info.h,
       pages: info.pages, duration: info.duration, group: window.WMGroups.classify(info.w, info.h), out: null, error: '', note: '' };

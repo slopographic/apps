@@ -10,13 +10,13 @@
   // for its own pan. Mirror Space into the app's state here, first, so V.space (read by view.js and the guides) is
   // set under every preset. Keyup needs nothing: main.js's keyup handler clears V.space and is not stopped.
   window.addEventListener('keydown', (e) => {
-    if (e.code !== 'Space' || e.repeat || e.ctrlKey || e.metaKey) return;
+    if (e.code !== 'Space' || e.repeat || e.ctrlKey || e.metaKey) return;   // i18n-ignore: ids, class names, key names or text for agents
     if (window.SlopUI && SlopUI.openDialogs) return;
     if ((!!window.SlopTyping && window.SlopTyping.isTyping(e, { controls: true }))) return;   // shared/input/typing.js
     V.space = true; V.el.classList.add('space');
   }, true);
   SlopNav.attach(APP, {
-    title: 'PhotoSlop',
+    title: 'PhotoSlop',   // i18n-ignore: ids, class names, key names or text for agents
     host,
     adapter: {
       zoomAt: (f, x, y) => setZoom(V.zoom * f, viewPt(x, y)), // x, y are viewport points
@@ -27,9 +27,10 @@
       // A second finger takes over from a stroke the first finger started.
       cancelStroke: () => { if (V.op) { const t = V.op.tool; if (t.cancel) t.cancel(); V.op = null; dirty(); } },
     },
-    shortcuts: SlopNav.shortcutsFrom({ fit: 'Fit on Screen', actual: '100%', zoomIn: 'Zoom In', zoomOut: 'Zoom Out', handTool: 'Hand Tool' }),
+    // matched by command title, so the titles are read in the current language each time
+    shortcuts: SlopNav.shortcutsFrom({ get fit() { return tr('photoslop.menu.fit_on_screen'); }, actual: '100%', get zoomIn() { return tr('photoslop.menu.zoom_in'); },
+      get zoomOut() { return tr('photoslop.menu.zoom_out'); }, get handTool() { return TOOL.hand ? TOOL.hand.name : 'Hand Tool'; } }),   // i18n-ignore: fallback
   });
-  if (window.SlopCmd && SlopCmd.register) {
-    SlopCmd.register([{ id: 'ps.nav-preset', title: 'Navigation preset…', group: 'View', keywords: ['navigation', 'zoom', 'pan', 'wheel', 'trackpad', 'touch', 'preset', 'mouse'], keys: [], run: () => SlopNav.openModal(APP) }]);
-  }
+  const register = () => SlopCmd.register([{ id: 'ps.nav-preset', title: tr('photoslop.cmd.nav_preset'), group: 'View', keywords: ['navigation', 'zoom', 'pan', 'wheel', 'trackpad', 'touch', 'preset', 'mouse'], keys: [], run: () => SlopNav.openModal(APP) }]);   // i18n-ignore: ids, class names, key names or text for agents
+  if (window.SlopCmd && SlopCmd.register) { register(); onLang(register); }
 })();

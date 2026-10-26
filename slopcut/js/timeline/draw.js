@@ -124,7 +124,7 @@
       const w = c.trIn.dur * TL.pps, x = r.x - w / 2;
       g.fillStyle = 'rgba(0,0,0,.6)'; rr(g, x, r.y + r.h - 15, w, 14, 3); g.fill();
       g.strokeStyle = C.accentLine; g.lineWidth = 1; g.stroke();
-      if (w > 30) { g.fillStyle = '#fff'; g.font = '600 9px ' + C.ui; g.textBaseline = 'middle'; g.fillText((M.TRANSITIONS.find((x) => x[0] === c.trIn.type) || ['', ''])[1], x + 4, r.y + r.h - 8, w - 8); }
+      if (w > 30) { g.fillStyle = '#fff'; g.font = '600 9px ' + C.ui; g.textBaseline = 'middle'; g.fillText(U.w('tr', c.trIn.type, (M.TRANSITIONS.find((x) => x[0] === c.trIn.type) || ['', ''])[1]), x + 4, r.y + r.h - 8, w - 8); }
     }
   }
   TL.draw = function () {

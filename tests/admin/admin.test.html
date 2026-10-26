@@ -8,7 +8,7 @@
 <body>
   <script src="../harness.js"></script>
   <script>
-  // Covers: admin/js/ui/app.js, shared/biz/router.js
+  // Covers: admin/js/ui/app.js, shared/biz/router.js, admin/js/ui/company.js
   const { describe, it, expect, waitFor, run } = SlopTest;
   const frame = document.createElement('iframe');
   frame.style.cssText = 'width:390px;height:820px;border:0;position:fixed;left:0;top:0;background:#111';
@@ -52,6 +52,47 @@
       const s = (await S().store.get('settings', 'main')).value;
       expect(s.defaultTaxRate).toBe(750);
       expect(s.defaultCurrency).toBe('USD');
+      expect(s.docLang).toBe('en');   // none stored: the first save keeps the page's language as the documents' (SlopBiz.docLang)
+    });
+
+    it('the Document language lists the languages with business tables and persists the choice', async () => {
+      // a render that read the profile before a save must not put the old values back when it finishes (the form went stale)
+      const U = win().SlopAdmin.util, real = U.settings;
+      const held = [];   // every read made while it is held (the app may read too) waits for release()
+      U.settings = async () => { const s = await real(); await new Promise((r) => held.push(r)); return s; };
+      const release = () => held.splice(0).forEach((r) => r());
+      if (doc().activeElement) doc().activeElement.blur();   // a render leaves a form being typed in alone
+      const late = win().SlopAdmin.views.company.render();
+      await waitFor(() => held.length);
+      U.settings = real;
+      $('cName').value = 'Acme Test Ltd';
+      $('cSave').click();
+      await waitFor(async () => (await S().store.get('settings', 'main')).value.companyName === 'Acme Test Ltd', { timeout: 8000 });
+      $('cName').value = 'Acme Newer Ltd';
+      $('cSave').click();
+      await waitFor(async () => (await S().store.get('settings', 'main')).value.companyName === 'Acme Newer Ltd', { timeout: 8000 });
+      release();
+      await late;
+      expect($('cName').value).toBe('Acme Newer Ltd');
+      $('cName').value = 'Acme Test Ltd';
+      $('cSave').click();
+      await waitFor(async () => (await S().store.get('settings', 'main')).value.companyName === 'Acme Test Ltd', { timeout: 8000 });
+      doc().activeElement.blur();
+      await win().SlopAdmin.views.company.render();
+      expect($('cName').value).toBe('Acme Test Ltd');
+      const opts = [...$('cDocLang').options].map((o) => o.value);
+      expect(opts).toEqual(win().SlopI18n.shipped('biz'));
+      expect(opts.includes('sv')).toBe(true);
+      $('cDocLang').value = 'sv';
+      $('cSave').click();
+      await waitFor(async () => (await S().store.get('settings', 'main')).value.docLang === 'sv', { timeout: 8000 });
+      $('cDocLang').value = 'en';
+      await win().SlopAdmin.views.company.render();
+      expect($('cDocLang').value).toBe('sv');
+      expect((await S().store.get('settings', 'main')).value.defaultTaxRate).toBe(750);   // the rest of the profile is kept
+      const bad = await win().SlopAdmin.profile.save({ companyName: 'Acme Test Ltd', defaultCurrency: 'USD', locale: 'en-US', defaultTaxRate: '7.5', docLang: 'xx' });
+      expect(bad.ok).toBe(false);
+      expect((await S().store.get('settings', 'main')).value.docLang).toBe('sv');
     });
 
     it('follows the site theme (shared/biz/app.css): text reads on its background in every theme', async () => {

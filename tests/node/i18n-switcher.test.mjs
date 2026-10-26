@@ -108,7 +108,7 @@ test('a choice goes through SlopI18n.set (the Settings picker\'s setter) and is 
 
 test('the header strings are in every language: Theme, Install, Tours, Notifications, Language', async () => {
   const { I, S } = await page();
-  const keys = ['shell.language', 'shell.language_now', 'shell.theme', 'shell.theme_system', 'shell.more', 'shell.install', 'shell.install_title',
+  const keys = ['shell.language', 'shell.language_more', 'shell.language_now', 'shell.theme', 'shell.theme_system', 'shell.theme_light', 'shell.theme_dark', 'shell.theme_classic', 'shell.theme_lime', 'shell.more', 'shell.install', 'shell.install_title',
     'shell.tours', 'shell.tours_title', 'shell.tour', 'shell.tour_title', 'shell.notifications', 'shell.notifications_new', 'shell.clear_all', 'shell.beta'];
   S.pick(I, 'en');
   const en = Object.fromEntries(keys.map((k) => [k, I.t(k)]));
@@ -120,6 +120,13 @@ test('the header strings are in every language: Theme, Install, Tours, Notificat
   S.pick(I, 'sv');
   assert.equal(I.t('shell.tours'), 'Guider');
   assert.equal(I.t('shell.notifications_new', { n: 3 }), 'Aviseringar, 3 nya');
+  assert.equal(I.t('shell.notifications_new', { n: 1 }), 'Aviseringar, 1 ny');   // plural forms: shell/notify.js
+  assert.equal(I.t('shell.language_more'), 'Språk…');
+  S.pick(I, 'ru');
+  assert.deepEqual([1, 3, 5].map((n) => I.t('shell.notifications_new', { n })), ['Уведомления, 1 новое', 'Уведомления, 3 новых', 'Уведомления, 5 новых']);
+  S.pick(I, 'ar');
+  assert.equal(I.t('shell.notifications_new', { n: 2 }), 'الإشعارات، إشعاران جديدان');
+  S.pick(I, 'sv');
   assert.equal(I.t('shell.language_now', { name: 'Svenska' }), 'Språk: Svenska');
 });
 

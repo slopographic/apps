@@ -7,7 +7,7 @@
   const NS = (g.SlopCrm = g.SlopCrm || {});
   const { ok, fail } = S.result;
   const MAX = { group: 60, tag: 40 };
-  const COLOR_NAME = { blue: 'Blue', green: 'Green', amber: 'Amber', red: 'Red', violet: 'Violet', teal: 'Teal', pink: 'Pink', grey: 'Grey' };
+  const COLOR_NAME = { blue: 'Blue', green: 'Green', amber: 'Amber', red: 'Red', violet: 'Violet', teal: 'Teal', pink: 'Pink', grey: 'Grey' };   // i18n-ignore: English colour names (NS.labels API); the page shows crm.col.<id>
   const KIND = { group: { store: 'customerGroups', field: 'groupIds', word: 'group' }, tag: { store: 'customerTags', field: 'tagIds', word: 'tag' } };
 
   const norm = (s) => String(s == null ? '' : s).replace(/\s+/g, ' ').trim();
@@ -18,13 +18,14 @@
   const without = (ids, id) => (ids || []).filter((x) => x !== id);
 
   /** The message for a bad name, or null. `all` are the existing records of that kind; exceptId is the one being renamed. */
+  const tr = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
   function nameError(kind, name, all, exceptId) {
     const n = norm(name);
-    if (!n) return 'Give it a name.';
-    if (n.length > MAX[kind]) return `Keep the name to ${MAX[kind]} characters.`;
+    if (!n) return tr('crm.core.give_name');
+    if (n.length > MAX[kind]) return tr('crm.core.name_n', { n: String(MAX[kind]) });
     const clash = all.find((x) => x.id !== exceptId && same(x.name, n));
     if (!clash) return null;
-    return `“${clash.name}” is already a ${KIND[kind].word}. Pick another name${kind === 'tag' ? ', or merge the two' : ''}.`;
+    return tr(kind === 'tag' ? 'crm.core.clash_tag' : 'crm.core.clash_group', { name: clash.name });
   }
 
   /** Customer changes that move every live customer from one tag to another. A customer with both gets it once. */
@@ -55,7 +56,7 @@
   async function findKind(api, kind, id) {
     const r = await api.get(KIND[kind].store, id);
     if (!r.ok) return r;
-    return r.value && !r.value.deletedAt ? ok(r.value) : fail('not_found', `That ${KIND[kind].word} no longer exists.`);
+    return r.value && !r.value.deletedAt ? ok(r.value) : fail('not_found', tr(kind === 'tag' ? 'crm.core.gone_tag' : 'crm.core.gone_group'));
   }
 
   async function createLabel(api, kind, name, extra) {
@@ -107,7 +108,7 @@
 
   /** Merges tag `from` into tag `to`: customers move across (once each), then `from` is removed. */
   async function mergeTags(api, from, to) {
-    if (from === to) return fail('invalid', 'Pick a different tag to merge into.');
+    if (from === to) return fail('invalid', tr('crm.core.other_tag'));
     const a = await findKind(api, 'tag', from);
     if (!a.ok) return a;
     const b = await findKind(api, 'tag', to);

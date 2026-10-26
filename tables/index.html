@@ -4,6 +4,8 @@
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="tables" data-src="shared/theme/theme.js"></script>
   <link rel="expect" href="#slop-built" blocking="render">
+  <script src="../shared/i18n/i18n.js" data-src="shared/i18n/i18n.js"></script>
+  <script src="i18n/index.js" data-src="tables/i18n/index.js"></script>
 <script src="../shared/consent/config.js"></script>
 <script src="../shared/consent/state.js"></script>
 <script src="../shared/consent/consent-mode.js"></script>
@@ -56,62 +58,62 @@
 <body>
   <div class="app">
     <header class="topbar">
-      <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home">
+      <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home" data-i18n-attr="title:ui.mb.home;aria-label:ui.mb.home">
         <svg viewBox="0 0 32 32" class="brand-mark" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/><path class="shine" d="M11.5 20.5a4.5 4.5 0 0 0 3.5 4.4"/></svg>
       </a>
-      <div class="appname"><b>Slop Tables</b><a class="home-link" href="../">slopographic</a></div>
-      <nav class="menus" id="menus" aria-label="Main menu"></nav>
+      <div class="appname"><b>Slop Tables</b><a class="home-link" href="../">slopographic</a></div> <!-- i18n-ignore: the app's and the site's names (a white-label build renames them) -->
+      <nav class="menus" id="menus" aria-label="Main menu" data-i18n-attr="aria-label:tables.app.main_menu"></nav>
       <div class="tb-group">
-        <button type="button" class="tb" id="btnUndo" aria-label="Undo" title="Undo" disabled>↶</button>
-        <button type="button" class="tb" id="btnRedo" aria-label="Redo" title="Redo" disabled>↷</button>
-        <button type="button" class="tb" id="btnBold" aria-label="Bold" title="Bold (Ctrl+B)" aria-pressed="false"><b>B</b></button>
-        <button type="button" class="tb" id="btnItalic" aria-label="Italic" title="Italic (Ctrl+I)" aria-pressed="false"><i>I</i></button>
-        <label class="nf-wrap"><span class="sr">Number format</span><select id="nf" class="nf" title="Number format"></select></label>
+        <button type="button" class="tb" id="btnUndo" aria-label="Undo" title="Undo" data-i18n-attr="aria-label:ui.undo;title:ui.undo" disabled>↶</button>
+        <button type="button" class="tb" id="btnRedo" aria-label="Redo" title="Redo" data-i18n-attr="aria-label:ui.redo;title:ui.redo" disabled>↷</button>
+        <button type="button" class="tb" id="btnBold" aria-label="Bold" title="Bold (Ctrl+B)" data-i18n-attr="aria-label:tables.app.bold;title:tables.app.bold_tip" aria-pressed="false"><b data-i18n="tables.app.bold_short">B</b></button>
+        <button type="button" class="tb" id="btnItalic" aria-label="Italic" title="Italic (Ctrl+I)" data-i18n-attr="aria-label:tables.app.italic;title:tables.app.italic_tip" aria-pressed="false"><i data-i18n="tables.app.italic_short">I</i></button>
+        <label class="nf-wrap"><span class="sr" data-i18n="tables.app.number_format">Number format</span><select id="nf" class="nf" title="Number format" data-i18n-attr="title:tables.app.number_format"></select></label>
       </div>
       <span class="tb-flex"></span>
-      <span class="local-badge" title="Your workbook is processed on this device. Nothing is uploaded."><span>100% local</span></span>
-      <label class="fname"><span class="sr">Workbook name</span><input id="fileName" type="text" value="Untitled spreadsheet" spellcheck="false" autocomplete="off" aria-label="Workbook name"></label>
-      <button type="button" class="btn primary" id="btnSave" title="Save to Slop Drive (Ctrl+S)">Save</button>
+      <span class="local-badge" title="Your workbook is processed on this device. Nothing is uploaded." data-i18n-attr="title:tables.app.local_tip"><span data-i18n="tables.app.local_badge">100% local</span></span>
+      <label class="fname"><span class="sr" data-i18n="tables.app.workbook_name">Workbook name</span><input id="fileName" type="text" value="Untitled spreadsheet" spellcheck="false" autocomplete="off" aria-label="Workbook name" data-i18n-attr="aria-label:tables.app.workbook_name"></label>
+      <button type="button" class="btn primary" id="btnSave" title="Save to Slop Drive (Ctrl+S)" data-i18n="menu.save" data-i18n-attr="title:tables.app.save_tip">Save</button>
     </header>
     <div id="doc-tabs" class="doctabs-host"></div>
 
     <div class="fbar">
-      <input id="namebox" class="namebox" type="text" spellcheck="false" autocomplete="off" aria-label="Name box" value="A1">
+      <input id="namebox" class="namebox" type="text" spellcheck="false" autocomplete="off" aria-label="Name box" data-i18n-attr="aria-label:tables.app.name_box" value="A1">
       <span class="fx-label" aria-hidden="true">fx</span>
-      <input id="fx" class="fx" type="text" spellcheck="false" autocomplete="off" aria-label="Formula bar">
+      <input id="fx" class="fx" type="text" spellcheck="false" autocomplete="off" aria-label="Formula bar" data-i18n-attr="aria-label:tables.app.formula_bar">
     </div>
 
     <div class="mid">
-      <aside class="side" id="side" aria-label="Sidebar">
-        <button type="button" class="side-toggle" id="sideToggle" aria-controls="sideBody" aria-expanded="true" aria-label="Hide sidebar" title="Hide sidebar">‹</button>
+      <aside class="side" id="side" aria-label="Sidebar" data-i18n-attr="aria-label:tables.side.sidebar">
+        <button type="button" class="side-toggle" id="sideToggle" aria-controls="sideBody" aria-expanded="true" aria-label="Hide sidebar" title="Hide sidebar">‹</button><!-- i18n-ignore: its words are set by js/ui/sidebar.js -->
         <div class="side-body" id="sideBody">
           <section class="side-sec" aria-labelledby="secSheets">
-            <h2 class="side-h" id="secSheets">Sheets</h2>
+            <h2 class="side-h" id="secSheets" data-i18n="tables.side.sheets">Sheets</h2>
             <ul class="side-list" id="sideSheets"></ul>
-            <button type="button" class="side-act" id="sideAddSheet">+ Add sheet</button>
+            <button type="button" class="side-act" id="sideAddSheet" data-i18n="tables.side.add_sheet">+ Add sheet</button>
           </section>
           <section class="side-sec" aria-labelledby="secObj">
-            <h2 class="side-h" id="secObj">Charts and pivots</h2>
+            <h2 class="side-h" id="secObj" data-i18n="tables.side.objects">Charts and pivots</h2>
             <div class="side-row" id="sideInsert">
-              <button type="button" class="side-act" data-act="chart">+ Chart…</button>
-              <button type="button" class="side-act" data-act="pivot">+ Pivot table…</button>
+              <button type="button" class="side-act" data-act="chart" data-i18n="tables.side.add_chart">+ Chart…</button>
+              <button type="button" class="side-act" data-act="pivot" data-i18n="tables.side.add_pivot">+ Pivot table…</button>
             </div>
             <ul class="side-list" id="sideObjects"></ul>
           </section>
           <section class="side-sec" aria-labelledby="secTpl">
-            <h2 class="side-h" id="secTpl">Templates</h2>
-            <button type="button" class="side-act" id="sideFromTpl">From template…</button>
-            <h3 class="side-sub">My templates</h3>
+            <h2 class="side-h" id="secTpl" data-i18n="tables.side.templates">Templates</h2>
+            <button type="button" class="side-act" id="sideFromTpl" data-i18n="tables.cmd.file_from_template">From template…</button>
+            <h3 class="side-sub" data-i18n="tables.tpl.mine">My templates</h3>
             <ul class="side-list" id="sideMine"></ul>
           </section>
           <section class="side-sec" aria-labelledby="secFn">
-            <h2 class="side-h" id="secFn">Functions</h2>
-            <input id="fnFilter" class="side-search" type="search" placeholder="Filter functions" aria-label="Filter functions" autocomplete="off" spellcheck="false">
+            <h2 class="side-h" id="secFn" data-i18n="tables.side.functions">Functions</h2>
+            <input id="fnFilter" class="side-search" type="search" placeholder="Filter functions" aria-label="Filter functions" data-i18n-attr="placeholder:tables.side.filter_fns;aria-label:tables.side.filter_fns" autocomplete="off" spellcheck="false">
             <ul class="side-list side-fns" id="sideFns"></ul>
           </section>
         </div>
       </aside>
-    <main class="grid" id="grid" tabindex="0" aria-label="Spreadsheet grid" aria-multiselectable="true">
+    <main class="grid" id="grid" tabindex="0" aria-label="Spreadsheet grid" data-i18n-attr="aria-label:tables.app.grid" aria-multiselectable="true">
       <div class="corner" id="corner" data-touch-surface></div>
       <div class="colhead" id="colhead" data-touch-surface></div>
       <div class="rowhead" id="rowhead" data-touch-surface></div>
@@ -122,13 +124,13 @@
         <div class="cursor" id="cursor"></div>
         <div class="selknob" id="selknob" data-touch-surface data-touch-hit aria-hidden="true"></div>
         <div class="objects" id="objects"></div>
-        <input id="editor" class="editor" type="text" spellcheck="false" autocomplete="off" aria-label="Cell editor">
+        <input id="editor" class="editor" type="text" spellcheck="false" autocomplete="off" aria-label="Cell editor" data-i18n-attr="aria-label:tables.app.cell_editor">
       </div>
     </main>
     </div>
 
     <div class="bottombar">
-      <div class="tabs" id="tabs" role="tablist" aria-label="Sheets"></div>
+      <div class="tabs" id="tabs" role="tablist" aria-label="Sheets" data-i18n-attr="aria-label:tables.side.sheets"></div>
       <span class="status" id="status" aria-live="polite"></span>
       <span class="save-state" id="saveState"></span>
     </div>

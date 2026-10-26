@@ -9,6 +9,17 @@
   let els = null, vl = null, cur = { ids: [], rows: [], heads: [], cols: 1, cell: 120, count: 0 };
   let lastCols = -1, lastCell = -1, lastKey = '';
 
+  const t = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
+  const I = () => window.SlopI18n || null;
+  const nPhotos = (n) => (I() ? t('gallery.grid.photos_n', { n }) : n + (n === 1 ? ' photo' : ' photos'));
+  /** A group's heading in the chosen language: the month (Intl) or the People group; English without SlopI18n. */
+  const GROUPS = { 'faces-1': 'gallery.people.group_faces_1', 'faces-2': 'gallery.people.group_faces_2', 'faces-0': 'gallery.people.group_faces_0' };
+  function labelOf(g, people) {
+    if (!I()) return g.label;
+    if (people) return GROUPS[g.key] ? t(GROUPS[g.key]) : g.label;
+    const [y, m] = g.key.split('-').map(Number);
+    return isFinite(y) && isFinite(m) ? I().date(new Date(y, m - 1, 1), { month: 'long', year: 'numeric' }) : g.label;
+  }
   const tileSize = () => (window.matchMedia && matchMedia('(max-width: 600px)').matches ? 104 : 150);
 
   /** The filtered, newest-first photo list for the current view and filters. */
@@ -30,22 +41,22 @@
 
   function tileEl(item, cell) {
     const m = item.meta, st = G.state.state;
-    const t = document.createElement('button');
-    t.type = 'button';
-    t.className = 'tile' + (st.selected.has(m.id) ? ' sel' : '');
-    t.dataset.id = m.id;
-    t.dataset.idx = String(item.idx);
-    t.tabIndex = -1;
-    t.setAttribute('aria-label', m.name + ', ' + new Date(m.takenAt || 0).toLocaleDateString());
-    t.style.width = cell + 'px'; t.style.height = cell + 'px';
+    const tile = document.createElement('button');
+    tile.type = 'button';
+    tile.className = 'tile' + (st.selected.has(m.id) ? ' sel' : '');
+    tile.dataset.id = m.id;
+    tile.dataset.idx = String(item.idx);
+    tile.tabIndex = -1;
+    tile.setAttribute('aria-label', m.name + ', ' + new Date(m.takenAt || 0).toLocaleDateString(I() && I().get() !== 'en' ? I().get() : undefined));
+    tile.style.width = cell + 'px'; tile.style.height = cell + 'px';
     const img = document.createElement('img');
     img.alt = ''; img.decoding = 'async'; img.draggable = false;
-    G.urls.thumb(m.id).then((u) => { if (u && t.isConnected) img.src = u; });
-    t.append(img);
-    if (m.fav) t.insertAdjacentHTML('beforeend', '<span class="mk fav" aria-hidden="true">★</span>');
-    if (m.liked) t.insertAdjacentHTML('beforeend', '<span class="mk ' + m.liked + '" aria-hidden="true"></span>');
-    t.insertAdjacentHTML('beforeend', '<span class="tick" aria-hidden="true"></span>');
-    return t;
+    G.urls.thumb(m.id).then((u) => { if (u && tile.isConnected) img.src = u; });
+    tile.append(img);
+    if (m.fav) tile.insertAdjacentHTML('beforeend', '<span class="mk fav" aria-hidden="true">★</span>');
+    if (m.liked) tile.insertAdjacentHTML('beforeend', '<span class="mk ' + m.liked + '" aria-hidden="true"></span>');
+    tile.insertAdjacentHTML('beforeend', '<span class="tick" aria-hidden="true"></span>');
+    return tile;
   }
   function renderRow(row) {
     if (row.kind === 'head') {
@@ -54,7 +65,7 @@
       h.dataset.month = row.key;
       h.innerHTML = '<span class="vhead-l"></span><span class="vhead-n"></span>';
       h.firstChild.textContent = row.label;
-      h.lastChild.textContent = row.count + (row.count === 1 ? ' photo' : ' photos');
+      h.lastChild.textContent = nPhotos(row.count);
       return h;
     }
     const r = document.createElement('div');
@@ -73,7 +84,7 @@
     if (found) {
       const label = els.sticky.querySelector('.sticky-l'), n = els.sticky.querySelector('.sticky-n');
       if (label.textContent !== found.label) label.textContent = found.label;
-      const txt = found.count + (found.count === 1 ? ' photo' : ' photos');
+      const txt = nPhotos(found.count);
       if (n.textContent !== txt) n.textContent = txt;
     }
   }
@@ -85,9 +96,9 @@
     const people = G.state.state.view === 'people';
     const { cols, cell } = layout();
     // People groups by face count (core/people.js); every other view groups by month. The grid order is the groups' order.
-    const groups = people ? G.people.groups(list) : G.query.groupMonths(list);
+    const groups = (people ? G.people.groups(list) : G.query.groupMonths(list)).map((g) => Object.assign({}, g, { label: labelOf(g, people) }));
     const ids = groups.flatMap((g) => g.items.map((m) => m.id));
-    const key = ids.length + '|' + cols + '|' + cell + '|' + ids.join(',') + (people ? '|people|' + groups.map((g) => g.key + ':' + g.items.length).join(',') : '');
+    const key = ids.length + '|' + cols + '|' + cell + '|' + ids.join(',') + (people ? '|people|' + groups.map((g) => g.key + ':' + g.items.length).join(',') : '') + '|' + (I() ? I().get() : '');
     const sameLayout = key === lastKey;
     lastKey = key;
     if (!sameLayout || cols !== lastCols || cell !== lastCell) {
@@ -98,22 +109,23 @@
     }
     G.state.pruneSelection({ has: (id) => !!G.library.photo(id) }); // hidden by a filter is not gone: only removed photos leave the selection
     els.empty.hidden = people || list.length > 0 || !G.library.loaded; // People explains its own empty state in the bar
-    els.empty.querySelector('[data-empty-text]').textContent = G.library.size ? 'Nothing matches these filters.' : 'Your library is empty. Import photos to start.';
+    els.empty.querySelector('[data-empty-text]').textContent = t(G.library.size ? 'gallery.grid.empty_filtered' : 'gallery.grid.empty');
     for (const n of els.empty.querySelectorAll('[data-empty-intro]')) n.hidden = G.library.size > 0; // the preview is for an empty library
     markSelection();
   }
   function markSelection() {
     const sel = G.state.state.selected;
-    for (const t of els.content.querySelectorAll('.tile')) t.classList.toggle('sel', sel.has(t.dataset.id));
-    els.status.textContent = G.library.size ? `${cur.ids.length} of ${G.library.size} photos` + (sel.size ? ` · ${sel.size} selected` : '') : '';
+    for (const tile of els.content.querySelectorAll('.tile')) tile.classList.toggle('sel', sel.has(tile.dataset.id));
+    const vars = { shown: cur.ids.length, total: G.library.size, sel: sel.size };
+    els.status.textContent = G.library.size ? t(sel.size ? 'gallery.grid.status_sel' : 'gallery.grid.status', vars) : '';
   }
 
   function tileOf(target) { return target && target.closest ? target.closest('.tile') : null; }
   function openAt(idx) { G.viewer && G.viewer.open(cur.ids, idx); }
   function onClick(e) {
-    const t = tileOf(e.target);
-    if (!t) return;
-    const id = t.dataset.id, st = G.state.state;
+    const tile = tileOf(e.target);
+    if (!tile) return;
+    const id = tile.dataset.id, st = G.state.state;
     if (e.ctrlKey || e.metaKey || e.shiftKey || st.selectMode) {
       if (e.shiftKey && st.lastId && cur.ids.includes(st.lastId)) {
         const a = cur.ids.indexOf(st.lastId), b = cur.ids.indexOf(id);
@@ -124,16 +136,16 @@
       return;
     }
     st.lastId = id;
-    openAt(Number(t.dataset.idx));
+    openAt(Number(tile.dataset.idx));
   }
   function onKey(e) {
-    const t = tileOf(document.activeElement);
-    if (e.key === 'Enter' && t) { e.preventDefault(); openAt(Number(t.dataset.idx)); return; }
-    if (e.key === ' ' && t) { e.preventDefault(); G.state.select(t.dataset.id, !G.state.state.selected.has(t.dataset.id)); markSelection(); return; }
+    const tile = tileOf(document.activeElement);
+    if (e.key === 'Enter' && tile) { e.preventDefault(); openAt(Number(tile.dataset.idx)); return; }
+    if (e.key === ' ' && tile) { e.preventDefault(); G.state.select(tile.dataset.id, !G.state.state.selected.has(tile.dataset.id)); markSelection(); return; }
     const step = { ArrowRight: 1, ArrowLeft: -1, ArrowDown: cur.cols, ArrowUp: -cur.cols }[e.key];
     if (!step) return;
     e.preventDefault();
-    const from = t ? Number(t.dataset.idx) : -1;
+    const from = tile ? Number(tile.dataset.idx) : -1;
     const to = Math.max(0, Math.min(cur.ids.length - 1, from < 0 ? 0 : from + step));
     focusIndex(to);
   }
@@ -155,12 +167,13 @@
     vl = G.createVlist({ scroller: els.scroller, content: els.content, render: renderRow, onScroll });
     els.scroller.addEventListener('click', onClick);
     els.scroller.addEventListener('keydown', onKey);
-    els.scroller.addEventListener('focusin', (e) => { const t = tileOf(e.target); if (t) { els.content.querySelectorAll('.tile[tabindex="0"]').forEach((x) => (x.tabIndex = -1)); t.tabIndex = 0; } });
+    els.scroller.addEventListener('focusin', (e) => { const tile = tileOf(e.target); if (tile) { els.content.querySelectorAll('.tile[tabindex="0"]').forEach((x) => (x.tabIndex = -1)); tile.tabIndex = 0; } });
     let w = els.scroller.clientWidth;
     const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(() => { if (els.scroller.clientWidth !== w) { w = els.scroller.clientWidth; render(); } }) : null;
     if (ro) ro.observe(els.scroller); else window.addEventListener('resize', render);
     G.state.subscribe((what) => { if (what === 'selection') markSelection(); else render(); });
     G.library.on(() => render());
+    if (I()) I().on(() => render()); // a language switch: the headings, counts and status
     G.people.subscribe(() => { if (G.state.state.view === 'people') render(); }); // a face result arrives: regroup
     render();
   }

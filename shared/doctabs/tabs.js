@@ -39,7 +39,9 @@
     let cur = null, dragId = null, menuOpen = false, edit = null; // edit = { id, value, input } while a tab name is being typed
 
     // the tabs' tablist (a tab needs one as its parent), named by the host's label
-    const strip = make(d, 'div', { class: 'sl-doctabs-strip', role: 'tablist', 'aria-label': host.getAttribute('aria-label') || tr('ui.tabs.open_docs', 'Open documents'), 'data-i18n-attr': host.getAttribute('aria-label') ? null : 'aria-label:ui.tabs.open_docs' });
+    const hostKey = (/(?:^|;)\s*aria-label:([\w.-]+)/.exec(host.getAttribute('data-i18n-attr') || '') || [])[1];   // a marked host label: its key, kept
+    const hostLabel = hostKey && win.SlopI18n ? win.SlopI18n.t(hostKey) : host.getAttribute('aria-label');
+    const strip = make(d, 'div', { class: 'sl-doctabs-strip', role: 'tablist', 'aria-label': hostLabel || tr('ui.tabs.open_docs', 'Open documents'), 'data-i18n-attr': hostKey ? 'aria-label:' + hostKey : hostLabel ? null : 'aria-label:ui.tabs.open_docs' });
     const plus = make(d, 'button', { type: 'button', class: 'sl-doctabs-new', title: tr('ui.tabs.new_tip', 'New document (Ctrl+T)'), 'aria-label': tr('ui.new_document', 'New document'), 'data-i18n-attr': 'title:ui.tabs.new_tip;aria-label:ui.new_document' }, ['+']);
     const more = make(d, 'button', { type: 'button', class: 'sl-doctabs-more', title: tr('ui.tabs.all', 'All open documents'), 'aria-label': tr('ui.tabs.all', 'All open documents'), 'data-i18n-attr': 'title:ui.tabs.all;aria-label:ui.tabs.all', 'aria-haspopup': 'menu', 'aria-expanded': 'false' }, ['⋯']);
     const menu = make(d, 'div', { class: 'sl-doctabs-menu', role: 'menu' });

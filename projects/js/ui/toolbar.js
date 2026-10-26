@@ -7,19 +7,20 @@
   const UI = g.SlopUI, el = UI.el;
   const $ = (id) => document.getElementById(id);
   const st = () => NS.state;
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
 
   function menuItems() {
     const p = st().project, F = NS.files;
     return [
-      { label: 'Project settings and columns…', disabled: !p, act: () => NS.projectDialog.open() },
-      { label: 'New project…', act: () => NS.projectDialog.create() },
+      { label: t('projects.bar.settings'), disabled: !p, act: () => NS.projectDialog.open() },
+      { label: t('projects.bar.new_project'), act: () => NS.projectDialog.create() },
       '-',
-      { label: 'Download backup (.json)', disabled: !p, act: F.exportJson },
-      { label: 'Download tasks (.csv)', disabled: !p, act: F.exportCsv },
-      { label: 'Open a project backup (.json)…', act: F.importFile },
-      { label: 'Try a sample project', act: F.trySample },
+      { label: t('projects.bar.dl_backup'), disabled: !p, act: F.exportJson },
+      { label: t('projects.bar.dl_csv'), disabled: !p, act: F.exportCsv },
+      { label: t('projects.bar.open_backup'), act: F.importFile },
+      { label: t('projects.bar.sample'), act: F.trySample },
       '-',
-      { label: 'Delete this project…', disabled: !p, act: () => NS.actions.deleteProject(p) },
+      { label: t('projects.bar.delete'), disabled: !p, act: () => NS.actions.deleteProject(p) },
     ];
   }
 
@@ -32,9 +33,9 @@
     const who = NS.board.peopleOf(p, s.tasks), tags = NS.board.tagsOf(s.tasks), f = s.filter;
     if (f.assignee && f.assignee !== '-' && !who.includes(f.assignee)) f.assignee = '';
     if (f.tag && !tags.includes(f.tag)) f.tag = '';
-    $('fWho').replaceChildren(el('option', { value: '' }, 'Anyone'), el('option', { value: '-', selected: f.assignee === '-' }, 'Nobody'),
+    $('fWho').replaceChildren(el('option', { value: '' }, t('projects.bar.anyone')), el('option', { value: '-', selected: f.assignee === '-' }, t('projects.bar.nobody')),
       ...who.map((n) => el('option', { value: n, selected: f.assignee === n }, n)));
-    $('fTag').replaceChildren(el('option', { value: '' }, 'Any tag'), ...tags.map((n) => el('option', { value: n, selected: f.tag === n }, n)));
+    $('fTag').replaceChildren(el('option', { value: '' }, t('projects.bar.any_tag')), ...tags.map((n) => el('option', { value: n, selected: f.tag === n }, n)));
     $('fTag').disabled = !tags.length;
     if ($('fText').value !== f.text) $('fText').value = f.text;
   }

@@ -7,6 +7,7 @@
   const $ = (id) => document.getElementById(id);
   const K = window.EmlCodec, M = window.EmlMime, F = window.EmlFrame;
   const V = (window.EmlView = {});
+  const t = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
 
   function el(tag, cls, text) {
     const n = document.createElement(tag);
@@ -17,7 +18,9 @@
   const size = (n) => (n < 1024 ? n + ' B' : n < 1048576 ? (n / 1024).toFixed(1) + ' KB' : (n / 1048576).toFixed(1) + ' MB');
   function fmtDate(raw) {
     const d = K.parseDate(raw);
-    return d ? d.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }) : raw;
+    if (!d) return raw;
+    const o = { dateStyle: 'medium', timeStyle: 'short' };
+    return window.SlopI18n ? window.SlopI18n.date(d, o) : d.toLocaleString(undefined, o);   // in the page's language
   }
 
   /** The tabs: the pinned messages (a message opened on its own is pinned; a batch is in the list). */
@@ -35,7 +38,7 @@
       pick.addEventListener('click', () => window.EmlApp.select(d.id));
       const x = el('button', 'em-tab-x', '×');
       x.type = 'button';
-      x.setAttribute('aria-label', 'Close ' + d.name);
+      x.setAttribute('aria-label', t('eml.view.close_tab', { name: d.name }));
       x.addEventListener('click', () => window.EmlApp.close(d.id));
       tab.append(pick, x);
       nav.append(tab);
@@ -44,15 +47,15 @@
 
   function drawHead(doc) {
     const s = doc.summary;
-    $('em-subject').textContent = s.subject || '(no subject)';
+    $('em-subject').textContent = s.subject || t('eml.list.no_subject');
     const dl = $('em-head');
     dl.replaceChildren();
-    [['From', s.from], ['To', s.to], ['Cc', s.cc], ['Bcc', s.bcc], ['Date', s.date ? fmtDate(s.date) : '']].forEach(([k, v]) => {
+    [['eml.head.from', s.from], ['eml.head.to', s.to], ['eml.head.cc', s.cc], ['eml.head.bcc', s.bcc], ['eml.head.date', s.date ? fmtDate(s.date) : '']].forEach(([k, v]) => {
       if (!v) return;
       const row = el('div');
       const dd = el('dd', '', v);
-      if (k === 'Date') dd.title = s.date;
-      row.append(el('dt', '', k), dd);
+      if (k === 'eml.head.date') dd.title = s.date;
+      row.append(el('dt', '', t(k)), dd);
       dl.append(row);
     });
   }
@@ -69,13 +72,13 @@
     $('em-v-text').setAttribute('aria-pressed', String(view === 'text'));
 
     const key = doc.id + ':' + (doc.rev || 0) + ':' + view + ':' + !!doc.cids;
-    if (body.dataset.key === key && body.firstChild) return;   // the same body: a tick or a sort does not reload the frame
+    if (body.dataset.key === key && body.firstChild) { notices(doc, m, view, hasHtml); return; }   // the same body: a tick or a sort does not reload the frame
     body.dataset.key = key;
     body.replaceChildren();
     if (view === 'html') {
       const f = document.createElement('iframe');
       f.className = 'em-frame';
-      f.title = 'Message body';
+      f.title = t('eml.view.body');
       f.setAttribute('sandbox', 'allow-popups allow-popups-to-escape-sandbox');
       f.setAttribute('referrerpolicy', 'no-referrer');
       f.srcdoc = F.preview(F.bodyHtml(m, doc.cids));
@@ -83,7 +86,7 @@
     } else if (view === 'text') {
       body.append(el('pre', 'em-plain', m.text));
     } else {
-      body.append(el('p', 'em-none', 'This message has no body.'));
+      body.append(el('p', 'em-none', t('eml.view.no_body')));
     }
 
     notices(doc, m, view, hasHtml);
@@ -93,10 +96,10 @@
     const cids = hasHtml && view === 'html' ? M.cidRefs(m.html) : 0;
     $('em-notice').hidden = !(remote || cids);
     $('em-notice-t').textContent = remote
-      ? 'Remote images are blocked. This app loads nothing from the network.'
-      : 'This message has embedded images. They are not shown until you choose to.';
+      ? t('eml.view.remote_blocked')
+      : t('eml.view.embedded');
     $('em-cid').hidden = !cids;
-    $('em-cid').textContent = doc.cids ? 'Hide embedded images' : 'Show embedded images';
+    $('em-cid').textContent = doc.cids ? t('eml.view.hide_images') : t('eml.view.show_images');
     $('em-cid').setAttribute('aria-pressed', String(!!doc.cids));
   }
 
@@ -104,14 +107,14 @@
   function drawChip(doc) {
     const n = doc.msg.attachments.length, chip = $('em-atts-chip');
     chip.hidden = n === 0;
-    chip.textContent = n + (n === 1 ? ' attachment' : ' attachments');
+    chip.textContent = t('eml.view.n_atts', { n });
   }
 
   function drawWarn(doc) {
     const w = doc.msg.warnings;
     $('em-warn').hidden = w.length === 0;
     const list = $('em-warn-list');
-    list.replaceChildren(...w.map((t) => el('li', '', t)));
+    list.replaceChildren(...w.map((item) => el('li', '', item)));
   }
 
   /** Saves the decoded bytes of one attachment. */

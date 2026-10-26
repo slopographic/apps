@@ -11,26 +11,38 @@
   const { h } = U;
   const $ = (id) => document.getElementById(id);
   let fields = null, opts = {}, st = { currency: 'USD', defaultTaxRate: 0 };
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
 
-  /** One labelled row: the control, a hint, and an error line that the save fills in. */
+  /** One labelled row: the control, a hint, and an error line that the save fills in. label and hint are keys (words()). */
   function fieldRow(label, control, hint) {
     const msg = h('span', { class: 'ferr', role: 'alert' });
-    const tip = hint != null ? h('span', { class: 'fhint', text: hint }) : null;
-    const row = h('label', { class: 'frow' }, h('span', { class: 'flabel', text: label }), control, tip, msg);
-    return { row, control, msg, tip };
+    const tip = hint != null ? h('span', { class: 'fhint' }) : null;
+    const lab = h('span', { class: 'flabel' });
+    const row = h('label', { class: 'frow' }, lab, control, tip, msg);
+    return { row, control, msg, tip, lab, keys: [label, hint] };
   }
+  /** The form's words in the current language (again on a language change). */
+  function words() {
+    if (!fields) return;
+    for (const f of Object.values(fields)) { f.lab.textContent = t(f.keys[0]); if (f.tip && f.keys[1]) f.tip.textContent = t(f.keys[1]); }
+    fields.price.tip.textContent = t('inventory.pf.price_hint', { cur: st.currency });
+    const p = opts.product || null;
+    $('pFormTitle').textContent = p ? t('inventory.pf.edit', { name: p.name }) : t('inventory.pf.new');
+    $('pSave').textContent = t(p ? 'inventory.pf.save' : 'inventory.pf.create');
+  }
+  if (g.SlopI18n && g.SlopI18n.on) g.SlopI18n.on(words);
 
   /** Builds the fields once, into the form in the page. */
   function build() {
     const input = (attrs) => h('input', { class: 'sui-input', autocomplete: 'off', spellcheck: 'false', ...attrs });
     fields = {
-      sku: fieldRow('SKU', input({ maxlength: 80 }), 'Short code, no spaces. Must be unique.'),
-      ean: fieldRow('EAN', input({ inputmode: 'numeric', maxlength: 18 }), 'Optional barcode. Its check digit is checked.'),
-      name: fieldRow('Name', input({ maxlength: 200 })),
-      price: fieldRow('Price', input({ inputmode: 'decimal' }), ''),
-      taxRate: fieldRow('Tax rate %', input({ inputmode: 'decimal' }), 'For example 20, or 7.5.'),
-      unit: fieldRow('Unit', input({ maxlength: 20 })),
-      reorderLevel: fieldRow('Reorder level', input({ type: 'number', min: 0, step: 1, inputmode: 'numeric' }), 'Alert when on hand is at or below this. Blank means no alert.'),
+      sku: fieldRow('inventory.f.sku', input({ maxlength: 80 }), 'inventory.pf.sku_hint'),
+      ean: fieldRow('inventory.f.ean', input({ inputmode: 'numeric', maxlength: 18 }), 'inventory.pf.ean_hint'),
+      name: fieldRow('inventory.f.name', input({ maxlength: 200 })),
+      price: fieldRow('inventory.f.price', input({ inputmode: 'decimal' }), ''),
+      taxRate: fieldRow('inventory.pf.tax', input({ inputmode: 'decimal' }), 'inventory.pf.tax_hint'),
+      unit: fieldRow('inventory.f.unit', input({ maxlength: 20 })),
+      reorderLevel: fieldRow('inventory.f.reorder', input({ type: 'number', min: 0, step: 1, inputmode: 'numeric' }), 'inventory.pf.reorder_hint'),
     };
     $('pFields').replaceChildren(...Object.values(fields).map((f) => f.row));
     $('pForm').addEventListener('submit', (e) => { e.preventDefault(); save(); });
@@ -58,13 +70,11 @@
     F.ean.control.value = p ? p.ean || '' : o.ean || '';
     F.name.control.value = p ? p.name : '';
     F.price.control.value = p ? U.majorText(p.price, st.currency) : '';
-    F.price.tip.textContent = `Amount in ${st.currency}, before tax.`;
     F.taxRate.control.value = U.percentText(p ? p.taxRate : st.defaultTaxRate);
     F.unit.control.value = p ? p.unit || 'each' : 'each';
     F.reorderLevel.control.value = p && p.reorderLevel !== undefined ? String(p.reorderLevel) : '';
     clear();
-    $('pFormTitle').textContent = p ? `Edit ${p.name}` : 'New product';
-    $('pSave').textContent = p ? 'Save' : 'Create product';
+    words();
     $('pCancel').hidden = !p && !o.sku && !o.ean;
     if (o.show === false) return;
     if (NS.state.view !== 'products') await NS.app.show('products');
@@ -82,16 +92,16 @@
     const reorder = reorderText === '' ? undefined : U.wholeOf(reorderText);
     let bad = false;
     const flag = (k, text) => { F[k].msg.textContent = text; bad = true; };
-    if (F.price.control.value.trim() === '') flag('price', 'is required');
-    else if (price === null) flag('price', 'use a plain amount such as 12.50');
-    if (tax === null || tax < 0 || tax > 10000) flag('taxRate', 'use a percentage from 0 to 100, with at most two decimals');
-    if (reorderText !== '' && (!Number.isSafeInteger(reorder) || reorder < 0)) flag('reorderLevel', 'must be a whole number of zero or more');
-    if (bad) { $('pFormErr').textContent = 'Not saved. Fix the fields marked above.'; return false; }
+    if (F.price.control.value.trim() === '') flag('price', t('inventory.pf.required'));
+    else if (price === null) flag('price', t('inventory.pf.bad_price'));
+    if (tax === null || tax < 0 || tax > 10000) flag('taxRate', t('inventory.pf.bad_tax'));
+    if (reorderText !== '' && (!Number.isSafeInteger(reorder) || reorder < 0)) flag('reorderLevel', t('inventory.pf.bad_reorder'));
+    if (bad) { $('pFormErr').textContent = t('inventory.pf.not_saved'); return false; }
     Object.assign(rec, { sku: F.sku.control.value, ean: F.ean.control.value, name: F.name.control.value, price, taxRate: tax, unit: F.unit.control.value, reorderLevel: reorder });
     const r = await NS.products.save(rec);
     if (!r.ok) { showErrors(r); return false; }
     const done = opts;
-    if (UI && UI.toast) UI.toast(p ? 'Product saved' : `Created ${r.value.sku}`);
+    if (UI && UI.toast) UI.toast(p ? t('inventory.pf.saved') : t('inventory.pf.created', { sku: r.value.sku }));
     const rp = NS.productPanel;
     if (rp && rp.frame && rp.frame.isPhone()) rp.frame.closeSheet();
     await open({ show: false });   // back to a new product

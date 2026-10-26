@@ -7,6 +7,7 @@
  * The scripts load on first use (nothing runs at import time). */
 import { register } from './registry.js';
 import { scripts, stem } from './load.js';
+import { t, opt } from './i18n.js';
 import { loadPdfLib } from '../../convert/js/core/lib.js';
 
 const ready = () => !!(globalThis.SlopPdfParts && globalThis.SlopPdfAssets);
@@ -27,7 +28,7 @@ export async function extractParts(bytes, { parts = 'all' } = {}) {
   const PL = await loadPdfLib(), P = globalThis.SlopPdfParts, Mod = globalThis.SlopPdfAssets;
   let doc;
   try { doc = await PL.PDFDocument.load(bytes, { updateMetadata: false, ignoreEncryption: true, throwOnInvalidObject: false }); }
-  catch (e) { throw new Error('This is not a valid PDF, or it is damaged.'); }
+  catch (e) { throw new Error(t('ui.ops.pdf.not_pdf')); }
   const idx = doc.getPages().map((p, i) => i), files = [], skipped = [];
   const want = (k) => parts === 'all' || parts === k;
   const found = await P.scan(PL, doc, idx, { fid: 'op', file: 'pdf' });
@@ -50,8 +51,8 @@ async function run(files, o) {
   const out = [], notes = [];
   for (const f of files) {
     const r = await extractParts(new Uint8Array(await f.file.arrayBuffer()), { parts: o.parts });
-    if (r.skipped.length) notes.push(`${f.name}: ${r.skipped.length} skipped (${r.skipped.slice(0, 3).join('; ')})`);
-    if (!r.files.length) { notes.push(`${f.name}: nothing to extract.`); continue; }
+    if (r.skipped.length) notes.push(t('ui.ops.extract.skipped', { name: f.name, n: r.skipped.length, list: r.skipped.slice(0, 3).join('; ') }));
+    if (!r.files.length) { notes.push(t('ui.ops.extract.nothing', { name: f.name })); continue; }
     if (o.zip) {
       const { writeZip } = await import('../office/zip.js');
       out.push({ name: `${stem(f.name)}-extracted.zip`, blob: await writeZip(r.files.map((x) => ({ path: x.name, data: x.data }))), kind: 'zip' });
@@ -62,17 +63,16 @@ async function run(files, o) {
       }
     }
   }
-  out.info = notes.join(' ') || `${out.length} file${out.length === 1 ? '' : 's'} extracted.`;
+  out.info = notes.join(' ') || t('ui.ops.extract.done', { n: out.length });
   return out;
 }
 
 export const PDF_EXTRACT_OPS = register([
-  { id: 'pdf.extract', label: 'PDF → extract images, attachments and fonts', group: 'PDF', from: ['pdf'], mode: 'each',
+  { id: 'pdf.extract', group: 'PDF', from: ['pdf'], mode: 'each',
     out: (k, o) => (o.zip ? 'zip' : o.parts === 'images' ? 'png' : 'file'),
-    description: 'The pictures stored in a PDF (JPEG as stored, others as PNG), its attached files (such as a ZUGFeRD or Factur-X invoice) and its embedded fonts, as files or one ZIP.',
     keywords: ['extract images', 'extract attachments', 'embedded files', 'pdf attachments', 'factur-x', 'zugferd', 'fonts', 'pictures from pdf'],
     options: [
-      { key: 'parts', type: 'select', label: 'What', value: 'all', options: [['all', 'Images, attachments and fonts'], ['images', 'Images'], ['attachments', 'Attachments (embedded files)'], ['fonts', 'Fonts']] },
-      { key: 'zip', type: 'checkbox', label: 'One ZIP per PDF', value: false },
+      opt('ui.ops.extract.parts', { key: 'parts', type: 'select', value: 'all', options: ['all', 'images', 'attachments', 'fonts'] }),
+      opt('ui.ops.extract.zip', { key: 'zip', type: 'checkbox', value: false }),
     ], run },
-], { app: 'pdf', label: 'Slop PDF' });
+], { app: 'pdf', label: 'Slop PDF' });   // i18n-ignore: a group id (search words), an app name

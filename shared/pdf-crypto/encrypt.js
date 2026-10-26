@@ -21,6 +21,8 @@
 })(typeof globalThis !== 'undefined' ? globalThis : this, function (C, root) {
   'use strict';
   var err = C.err;
+  // Messages a person reads, in the chosen language (shared/i18n/ui/<code>/print.js); the key where no table is loaded.
+  var say = function (k, v) { var I = globalThis.SlopI18n; return I && I.t ? I.t(k, v) : k; };
 
   function randomPassword(rnd) {
     var abc = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789', b = rnd(32), s = '';
@@ -34,7 +36,7 @@
     if (major >= 2) return;
     if (minor < 7) ctx.header = L.PDFHeader.forVersion(1, 7);
     var cat = ctx.lookup(ctx.trailerInfo.Root);
-    if (!(cat instanceof L.PDFDict)) throw err('unsupported', 'This PDF has no document catalog.');
+    if (!(cat instanceof L.PDFDict)) throw err('unsupported', say('ui.pdfc.no_catalog'));
     var ext = cat.lookup(L.PDFName.of('Extensions'));
     if (!(ext instanceof L.PDFDict)) { ext = ctx.obj({}); cat.set(L.PDFName.of('Extensions'), ext); }
     ext.set(L.PDFName.of('ADBE'), ctx.obj({ BaseVersion: '1.7', ExtensionLevel: 8 }));
@@ -51,7 +53,7 @@
       if (plain) bytes = plain;
     }
     var ctx = (await C.parseRaw(L, bytes, true)).ctx;
-    if (!ctx.trailerInfo.Root || !(ctx.lookup(ctx.trailerInfo.Root) instanceof L.PDFDict)) throw err('unsupported', 'This is not a valid PDF, or it is damaged.');
+    if (!ctx.trailerInfo.Root || !(ctx.lookup(ctx.trailerInfo.Root) instanceof L.PDFDict)) throw err('unsupported', say('ui.pdfc.not_pdf'));
     var info = ctx.trailerInfo.Info;
     if (info instanceof L.PDFDict) ctx.trailerInfo.Info = ctx.register(info);   // strings of a direct Info would have no object number
     markVersion(L, ctx);

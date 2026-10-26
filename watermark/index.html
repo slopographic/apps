@@ -4,6 +4,8 @@
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="watermark" data-src="shared/theme/theme.js"></script>
   <link rel="expect" href="#slop-built" blocking="render">
+  <script src="../shared/i18n/i18n.js" data-src="shared/i18n/i18n.js"></script>
+  <script src="i18n/index.js" data-src="watermark/i18n/index.js"></script>
   <script src="../shared/consent/config.js"></script>
   <script src="../shared/consent/state.js"></script>
   <script src="../shared/consent/consent-mode.js"></script>
@@ -44,42 +46,42 @@
 <body>
   <div class="wm-bar" id="wm-bar"></div>
   <main class="wm-main" id="wm-main">
-    <section class="wm-files" id="wm-files" aria-label="Files">
+    <section class="wm-files" id="wm-files" aria-label="Files" data-i18n-attr="aria-label:watermark.app.files">
       <div class="wm-list-wrap" id="wm-list-wrap" hidden>
         <p class="wm-count" id="wm-count" aria-live="polite"></p>
-        <ol class="wm-list" id="wm-list" aria-label="Files"></ol>
+        <ol class="wm-list" id="wm-list" aria-label="Files" data-i18n-attr="aria-label:watermark.app.files"></ol>
       </div>
-      <section class="wm-groups" id="wm-groups" aria-label="Groups by shape" hidden>
-        <p class="wm-count">Groups by shape. Each group uses the shared watermark unless you turn on its own.</p>
+      <section class="wm-groups" id="wm-groups" aria-label="Groups by shape" data-i18n-attr="aria-label:watermark.app.groups_label" hidden>
+        <p class="wm-count" data-i18n="watermark.app.groups_intro">Groups by shape. Each group uses the shared watermark unless you turn on its own.</p>
         <ol class="wm-group-list" id="wm-group-list"></ol>
       </section>
     </section>
 
-    <section class="wm-work" id="wm-work" aria-label="Preview">
-      <button type="button" class="sui-btn wm-back" id="wm-back">‹ All files</button>
+    <section class="wm-work" id="wm-work" aria-label="Preview" data-i18n-attr="aria-label:watermark.app.preview">
+      <button type="button" class="sui-btn wm-back" id="wm-back" data-i18n="watermark.app.back">‹ All files</button>
       <div class="wm-stage" id="wm-preview-box">
         <p class="wm-preview-name" id="wm-preview-name"></p>
-        <div class="wm-preview" id="wm-preview" aria-label="Preview of the chosen file with the watermark" hidden></div>
-        <p class="wm-off" id="wm-off">Your first file shows here, with the watermark on it.</p>
+        <div class="wm-preview" id="wm-preview" aria-label="Preview of the chosen file with the watermark" data-i18n-attr="aria-label:watermark.app.preview_label" hidden></div>
+        <p class="wm-off" id="wm-off" data-i18n="watermark.app.first_here">Your first file shows here, with the watermark on it.</p>
       </div>
       <p class="wm-note" id="wm-preview-note" aria-live="polite"></p>
-      <button type="button" class="sui-btn sui-primary wm-panel-open" id="wm-panel-open" aria-controls="wm-panel">Watermark settings</button>
+      <button type="button" class="sui-btn sui-primary wm-panel-open" id="wm-panel-open" aria-controls="wm-panel" data-i18n="watermark.app.settings_open">Watermark settings</button>
       <div class="wm-progress" id="wm-progress" hidden>
         <progress id="wm-prog-bar" max="1" value="0"></progress>
         <span id="wm-prog-text" role="status"></span>
-        <button type="button" class="sui-btn" id="wm-cancel">Stop</button>
+        <button type="button" class="sui-btn" id="wm-cancel" data-i18n="watermark.app.stop">Stop</button>
       </div>
       <p class="wm-note" id="wm-run-note" role="status" aria-live="polite"></p>
       <div class="wm-drop" id="wm-drop"></div>
     </section>
 
-    <aside class="wm-panel" id="wm-panel" aria-label="Watermark settings"></aside>
+    <aside class="wm-panel" id="wm-panel" aria-label="Watermark settings" data-i18n-attr="aria-label:watermark.app.settings_open"></aside>
   </main>
   <div hidden>
     <div class="wm-settings-box" id="wm-settings-box">
       <div id="wm-settings"></div>
       <p class="wm-fine" id="wm-saved" role="status"></p>
-      <p class="wm-fine">The setup is kept in this browser. Save it in My watermarks to use it in PhotoSlop, SlopCut, Slop PDF and Slop Workflows too.</p>
+      <p class="wm-fine" data-i18n="watermark.app.kept_note">The setup is kept in this browser. Save it in My watermarks to use it in PhotoSlop, SlopCut, Slop PDF and Slop Workflows too.</p>
     </div>
   </div>
 

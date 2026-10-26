@@ -6,6 +6,7 @@
  * Classic script; adds to window.SlopFaces: runtime(), recognizer, embedFaces(), setEmbedder(), recogniserReady(). */
 (function (g) {
   'use strict';
+  const tr = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);   // words: shared/i18n/ui/<code>/preview.js
   const F = (g.SlopFaces = g.SlopFaces || {});
   const RECOG = Object.freeze({
     id: 'sface-2021dec', file: 'face_recognition_sface_2021dec.onnx', bytes: 38696353, licence: 'Apache-2.0',
@@ -61,10 +62,10 @@
   async function session() {
     if (!sessionP) sessionP = (async () => {
       const res = await fetch(new URL('face/' + RECOG.file, F.VENDOR).href);
-      if (!res.ok) throw new Error('The face recognition model is not installed (' + res.status + ').');
+      if (!res.ok) throw new Error(tr('ui.faces.recog_missing', { status: String(res.status) }));
       const bytes = await res.arrayBuffer();
-      if (!g.crypto || !g.crypto.subtle) throw new Error('This browser cannot check the face model.');
-      if (hex(await g.crypto.subtle.digest('SHA-256', bytes)) !== RECOG.sha256) throw new Error('The face recognition model failed its checksum.');
+      if (!g.crypto || !g.crypto.subtle) throw new Error(tr('ui.faces.model_check'));
+      if (hex(await g.crypto.subtle.digest('SHA-256', bytes)) !== RECOG.sha256) throw new Error(tr('ui.faces.recog_sum'));
       const ort = await F.runtime();
       const s = await ort.InferenceSession.create(new Uint8Array(bytes), { executionProviders: ['wasm'], graphOptimizationLevel: 'all' });
       return { s, ort, input: s.inputNames[0], output: s.outputNames[0] };

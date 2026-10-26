@@ -13,7 +13,12 @@
    *  panoramaMax / panoramaMin: width / height above panoramaMax or below panoramaMin is a panorama. */
   const THRESHOLDS = { tol: 0.10, panoramaMax: 2.2, panoramaMin: 0.45 };
   const KINDS = ['portrait', 'landscape', 'square', 'panorama'];
-  const LABEL = { portrait: 'Portrait', landscape: 'Landscape', square: 'Square', panorama: 'Panorama' };
+  /* The words, in the current language (watermark/i18n); English when the tables are not loaded (the pure tests). */
+  const I = () => window.SlopI18n;
+  const tr = (k, v, en) => (I() && I().has(k) ? I().t(k, v) : en);
+  const EN = { portrait: 'Portrait', landscape: 'Landscape', square: 'Square', panorama: 'Panorama' };
+  /** A group's name (watermark.group.<kind>). */
+  const label = (kind) => tr('watermark.group.' + kind, null, EN[kind]);
   const SCALE = { min: 0.25, max: 3, step: 0.05 };
   const S = window.SlopWatermarkSpec;
 
@@ -35,9 +40,10 @@
       if (!list.length) continue;
       const sides = list.map((x) => Math.min(x.w, x.h));
       const min = Math.min(...sides), max = Math.max(...sides), n = list.length;
-      const noun = list.every((x) => !x.media || x.media === 'picture') ? 'picture' : 'file';
-      const sizeText = (min === max ? String(min) : min + ' to ' + max) + ' px';
-      out.push({ kind, label: LABEL[kind], items: list, first: list[0], sizeText, text: LABEL[kind] + ', ' + n + ' ' + noun + (n === 1 ? '' : 's') + ', ' + sizeText });
+      const pics = list.every((x) => !x.media || x.media === 'picture'), noun = (pics ? 'picture' : 'file') + (n === 1 ? '' : 's');
+      const size = min === max ? String(min) : tr('watermark.group.range', { min: String(min), max: String(max) }, min + ' to ' + max);
+      const text = tr('watermark.group.text_' + (pics ? 'pictures' : 'files'), { label: label(kind), n, size }, label(kind) + ', ' + n + ' ' + noun + ', ' + size + ' px');
+      out.push({ kind, label: label(kind), items: list, first: list[0], sizeText: size + ' px', text });
     }
     return out;
   }
@@ -64,5 +70,5 @@
     return S.normalize(Object.assign({}, spec, { layers: spec.layers.map((L) => Object.assign({}, L, { position: ov.position, opacity: ov.opacity, size: L.size * (ov.scale || 1) })) }));
   }
 
-  window.WMGroups = { THRESHOLDS, KINDS, LABEL, SCALE, classify, summarise, overrideFrom, clean, applyOverride };
+  window.WMGroups = { THRESHOLDS, KINDS, label, SCALE, classify, summarise, overrideFrom, clean, applyOverride };
 })();

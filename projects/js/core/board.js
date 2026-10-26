@@ -4,9 +4,10 @@
 (function (g) {
   'use strict';
   const NS = (g.SlopProjects = g.SlopProjects || {});
-  const DEFAULT_COLUMNS = [{ id: 'todo', name: 'To do' }, { id: 'doing', name: 'Doing' }, { id: 'done', name: 'Done', done: true }];
+  const DEFAULT_COLUMNS = [{ id: 'todo', name: 'To do' }, { id: 'doing', name: 'Doing' }, { id: 'done', name: 'Done', done: true }];   // i18n-ignore: the default columns' stored names (the UI names new ones from projects.col.<id>)
   const PRIORITY_RANK = { high: 0, medium: 1, low: 2, none: 3 };
   const MAX_COLUMNS = 12;
+  const tr = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
 
   const byOrder = (a, b) => (a.order || 0) - (b.order || 0) || String(a.title || '').localeCompare(String(b.title || ''));
   /** The tasks in one column, in their order on the board. */
@@ -59,8 +60,8 @@
   /** Columns with one added at the end. Refuses a blank name and more than 12 columns. */
   function addColumn(columns, name) {
     const nm = String(name || '').trim().slice(0, 40);
-    if (!nm) return { ok: false, message: 'Give the column a name.' };
-    if (columns.length >= MAX_COLUMNS) return { ok: false, message: `A board has at most ${MAX_COLUMNS} columns.` };
+    if (!nm) return { ok: false, message: tr('projects.core.col_name') };
+    if (columns.length >= MAX_COLUMNS) return { ok: false, message: tr('projects.core.max_cols', { n: MAX_COLUMNS }) };
     return { ok: true, value: [...columns, { id: newColumnId(columns, nm), name: nm }] };
   }
 
@@ -79,9 +80,9 @@
    * be removed. Returns { ok, columns, moves: [{ id, column, order }] }.
    */
   function removeColumn(columns, tasks, id, into) {
-    if (columns.length <= 1) return { ok: false, message: 'A board needs at least one column.' };
+    if (columns.length <= 1) return { ok: false, message: tr('projects.core.one_col') };
     const i = columns.findIndex((c) => c.id === id);
-    if (i < 0) return { ok: false, message: 'That column is not on the board.' };
+    if (i < 0) return { ok: false, message: tr('projects.core.no_col') };
     const rest = columns.filter((c) => c.id !== id);
     const dest = rest.some((c) => c.id === into) ? into : (columns[i - 1] || columns[i + 1]).id;
     const start = inColumn(tasks, dest).length;

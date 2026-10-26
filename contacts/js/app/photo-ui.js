@@ -9,6 +9,7 @@
   const el = UI.el;
   const MAX = 256, QUALITY = 0.85;
   const esc = (s) => SC.text.html(s);   // the one HTML escape (core/text.js)
+  const tr = (k, v) => SC.tr(k, v);
 
   /** A picture file to an image element. The object URL is released when it has loaded or failed. */
   function decode(file) {
@@ -16,7 +17,7 @@
       const url = URL.createObjectURL(file);
       const img = new Image();
       img.onload = () => { URL.revokeObjectURL(url); res(img); };
-      img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('That file is not a picture this browser can read.')); };
+      img.onerror = () => { URL.revokeObjectURL(url); rej(new Error(tr('contacts.ph.not_pic'))); };
       img.src = url;
     });
   }
@@ -24,7 +25,7 @@
   async function toJpegDataUri(file) {
     const img = await decode(file);
     const w0 = img.naturalWidth || img.width, h0 = img.naturalHeight || img.height;
-    if (!w0 || !h0) throw new Error('That picture has no size.');
+    if (!w0 || !h0) throw new Error(tr('contacts.ph.no_size'));
     const k = Math.min(1, MAX / Math.max(w0, h0));
     const w = Math.max(1, Math.round(w0 * k)), h = Math.max(1, Math.round(h0 * k));
     const cv = document.createElement('canvas');
@@ -48,16 +49,16 @@
     let photo = c.photo || '';
     const box = el('span', { class: 'avatar av-big' });
     const note = el('span', { class: 'ed-hint ed-photo-note' });
-    const choose = el('button', { type: 'button', class: 'sui-btn' }, 'Choose photo…');
-    const drop = el('button', { type: 'button', class: 'sui-btn' }, 'Remove photo');
+    const choose = el('button', { type: 'button', class: 'sui-btn' }, tr('contacts.ph.choose'));
+    const drop = el('button', { type: 'button', class: 'sui-btn' }, tr('contacts.ph.remove'));
     const paint = () => {
       const img = SC.photo.isImage(photo);
       box.replaceChildren(img ? el('img', { src: photo, alt: '' }) : el('span', { class: 'av-init' }, SC.photo.initials(c)));
-      note.textContent = !photo ? 'No photo.' : img ? 'Photo, stored as JPEG at most 256 px.' : `Link kept as text, not loaded: ${photo}`;
+      note.textContent = !photo ? tr('contacts.ph.none') : img ? tr('contacts.ph.stored') : tr('contacts.ph.link', { url: photo });
       drop.hidden = !photo;
     };
     choose.addEventListener('click', async () => {
-      try { const p = await SC.dropImport.pickPhoto(); if (p) { photo = p; paint(); } } catch (e) { UI.toast(e.message || 'That photo could not be read.'); }
+      try { const p = await SC.dropImport.pickPhoto(); if (p) { photo = p; paint(); } } catch (e) { UI.toast(e.message || tr('contacts.ph.unread')); }
     });
     drop.addEventListener('click', () => { photo = ''; paint(); });
     paint();

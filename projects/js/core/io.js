@@ -25,7 +25,7 @@
     const cols = project.columns || [];
     const colName = new Map(cols.map((c) => [c.id, c.name]));
     const title = new Map(tasks.map((t) => [t.id, t.title]));
-    const head = ['Title', 'Column', 'Assignee', 'Priority', 'Start', 'End', 'Due', 'Tags', 'Checklist', 'Depends on', 'Customer', 'Description'];
+    const head = ['Title', 'Column', 'Assignee', 'Priority', 'Start', 'End', 'Due', 'Tags', 'Checklist', 'Depends on', 'Customer', 'Description'];   // i18n-ignore: CSV column names (file format)
     const rows = B.sort(tasks, 'column', 'asc', project).map((t) => {
       const p = B.progress(t);
       return [t.title, colName.get(t.column) || '', t.assignee || '', t.priority && t.priority !== 'none' ? t.priority : '', t.start || '', t.end || '', t.due || '',
@@ -52,13 +52,14 @@
    * are dropped). Returns { ok: true, project, tasks, notes } with fresh ids, or { ok: false, message }.
    */
   function read(data, newId, customers = new Set()) {
-    if (!isObj(data)) return { ok: false, message: 'This file is not a Slop Projects backup.' };
-    if (data.format !== undefined && data.format !== FORMAT) return { ok: false, message: 'This file is not a Slop Projects backup.' };
-    if (data.version !== undefined && !(Number.isInteger(data.version) && data.version >= 1 && data.version <= VERSION)) return { ok: false, message: 'This backup comes from a newer version of Slop Projects.' };
+    const tr = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
+    if (!isObj(data)) return { ok: false, message: tr('projects.core.not_backup') };
+    if (data.format !== undefined && data.format !== FORMAT) return { ok: false, message: tr('projects.core.not_backup') };
+    if (data.version !== undefined && !(Number.isInteger(data.version) && data.version >= 1 && data.version <= VERSION)) return { ok: false, message: tr('projects.core.newer') };
     const p = data.project;
-    if (!isObj(p) || typeof p.name !== 'string' || !p.name.trim()) return { ok: false, message: 'The backup has no project name.' };
-    if (!Array.isArray(data.tasks)) return { ok: false, message: 'The backup has no task list.' };
-    if (data.tasks.length > MAX_TASKS) return { ok: false, message: `A backup holds at most ${MAX_TASKS} tasks.` };
+    if (!isObj(p) || typeof p.name !== 'string' || !p.name.trim()) return { ok: false, message: tr('projects.core.no_name') };
+    if (!Array.isArray(data.tasks)) return { ok: false, message: tr('projects.core.no_tasks') };
+    if (data.tasks.length > MAX_TASKS) return { ok: false, message: tr('projects.core.max_tasks', { n: MAX_TASKS }) };
     const notes = [];
     const project = { ...pick(p, PROJECT_FIELDS), id: newId(), name: p.name.trim().slice(0, 120) };
     let cols = Array.isArray(p.columns) ? p.columns.filter((c) => isObj(c) && typeof c.id === 'string' && c.id && typeof c.name === 'string' && c.name.trim()) : [];
@@ -91,14 +92,14 @@
     });
     let loops = 0;   // one at a time, so breaking one loop keeps the rest of the links
     for (const t of tasks) if (t.deps.length && NS.deps.wouldLoop(tasks, t.id, t.deps)) { t.deps = []; loops++; }
-    if (loops) notes.push(`${loops} dependencies that made a loop were left out.`);
+    if (loops) notes.push(tr('projects.core.loops', { n: loops }));
     return { ok: true, project, tasks, notes };
   }
 
   /** Reads backup text: JSON.parse, then read(). */
   function readText(text, newId, customers) {
     let data;
-    try { data = JSON.parse(String(text).replace(/^﻿/, '')); } catch (e) { return { ok: false, message: 'This file is not JSON, so it is not a Slop Projects backup.' }; }
+    try { data = JSON.parse(String(text).replace(/^﻿/, '')); } catch (e) { return { ok: false, message: g.SlopI18n ? g.SlopI18n.t('projects.core.not_json') : 'projects.core.not_json' }; }
     return read(data, newId, customers);
   }
 

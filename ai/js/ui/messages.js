@@ -3,7 +3,7 @@
 (function (AI) {
   const K = AI.K, el = AI.el;
 
-  AI.statsText = (u) => (u ? `${u.tokens} tokens · ${u.tps} tok/s · ${(u.ttft / 1000).toFixed(1)} s to first token` : '');
+  AI.statsText = (u) => (u ? AI.t('ai.msg.stats', { n: u.tokens, tps: String(u.tps), ttft: AI.num1(u.ttft / 1000) }) : '');
 
   function attChips(atts) {
     if (!atts || !atts.length) return null;
@@ -11,7 +11,7 @@
   }
   function toolLine(m) {
     return el('details', { class: 'msg tool' + (m.ok === false ? ' bad' : '') },
-      el('summary', null, AI.icon('tool'), el('b', null, m.name), el('span', null, m.ok === false ? ' failed' : ' done')),
+      el('summary', null, AI.icon('tool'), el('b', null, m.name), el('span', null, ' ' + AI.t(m.ok === false ? 'ai.msg.tool_failed' : 'ai.msg.tool_done'))),
       el('pre', null, String(m.content).slice(0, 3000)));
   }
 
@@ -23,8 +23,8 @@
     const calls = (m.toolCalls || []).map((c) => el('span', { class: 'call' }, AI.icon('tool'), `${c.name}(${Object.keys(c.arguments || {}).length ? JSON.stringify(c.arguments).slice(0, 80) : ''})`));
     const meta = el('div', { class: 'meta' },
       m.usage ? el('span', { class: 'stats' }, AI.statsText(m.usage)) : null,
-      !opts.live ? el('button', { type: 'button', class: 'mini', 'data-act': 'copy-msg', title: 'Copy reply' }, 'Copy') : null,
-      opts.last && opts.onRegen && !opts.live ? el('button', { type: 'button', class: 'mini', 'data-act': 'regen', title: 'Regenerate' }, AI.icon('redo'), 'Regenerate') : null);
+      !opts.live ? el('button', { type: 'button', class: 'mini', 'data-act': 'copy-msg', title: AI.t('ai.msg.copy_reply') }, AI.t('ui.copy')) : null,
+      opts.last && opts.onRegen && !opts.live ? el('button', { type: 'button', class: 'mini', 'data-act': 'regen', title: AI.t('ai.msg.regenerate') }, AI.icon('redo'), AI.t('ai.msg.regenerate')) : null);
     return el('div', { class: 'msg bot' + (opts.live ? ' live' : ''), 'data-i': i }, el('div', { class: 'avatar', 'aria-hidden': 'true' }, AI.icon('spark')),
       el('div', { class: 'col' }, calls.length ? el('div', { class: 'calls' }, calls) : null, body, meta));
   };
@@ -60,7 +60,7 @@
     try { await navigator.clipboard.writeText(text); } catch (e) {
       const t = el('textarea', { style: 'position:fixed;left:-9999px' }); t.value = text; document.body.append(t); t.select(); try { document.execCommand('copy'); } catch (e2) { /* ignore */ } t.remove();
     }
-    if (btn) { const o = btn.textContent; btn.textContent = 'Copied'; setTimeout(() => { btn.textContent = o; }, 1200); }
+    if (btn) { const o = btn.textContent; btn.textContent = AI.t('ai.msg.copied'); setTimeout(() => { btn.textContent = o; }, 1200); }
     AI.lastCopied = text;
   }
   AI.copyText = copy;

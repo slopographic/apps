@@ -20,6 +20,7 @@
 (function () {
   'use strict';
   const K = (window.SlopAIKit = window.SlopAIKit || {});
+  const T = (k, v) => (window.SlopI18n ? SlopI18n.t(k, v) : k);   // words people read (steps, questions): shared/i18n/ui/<code>/ai2.js
   const WORDS = /\b(delete|remove|trash|purge|clear|erase|empty|reset|close|discard|revert|overwrite|replace|wipe|destroy|new|flatten|merge|crop|quit)\b/i;
   const A = () => window.SlopCmdArgs || null;
 
@@ -68,8 +69,9 @@
   function build(cmd, env = {}) {
     if (!cmd || !cmd.list || !(cmd.run || cmd.exec)) return [];
     const where = env.label || 'this app', all = listAll(cmd), names = new Set(['app_state', 'list_commands', 'run_command']);
-    const confirmText = (c) => (c && c.sends ? `The assistant wants to use “${plainTitle(c)}” in ${where}. A small copy of what it shows goes to ${env.who || 'the AI provider'}. Nothing is changed.`
-      : `The assistant wants to run “${c ? plainTitle(c) : 'a command'}” in ${where}. This may change or remove your work.`);
+    const app = env.appName || T('ui.ai.this_app'), who = () => env.who || T('ui.ai.the_provider');   // the questions people read
+    const confirmText = (c) => (c && c.sends ? T('ui.ai.step.use_cmd', { cmd: plainTitle(c), app, who: who() })
+      : T('ui.ai.step.run_cmd', { cmd: c ? plainTitle(c) : T('ui.ai.step.a_command'), app }));
     const ask = (c) => !!c && !c.readOnly && (c.sends || isDestructive(c));
     const kindFor = (c) => (c && c.sends ? 'send' : kindOf(c));   // a sending command asks as look_at_file does (permissions.js 'send')
     const tools = [];
@@ -81,14 +83,14 @@
       tools.push({ name, cmdId: c.id, description: c.description || plainTitle(c), params: params(c.args),
         schema: A() ? A().jsonSchema(c.args) : { type: 'object', properties: {} },
         destructive: () => ask(c), kind: () => kindFor(c), confirmText: () => confirmText(c), label: (a) => label(c, a), readOnly: !!c.readOnly, sends: !!c.sends,
-        confirmTitle: c.sends ? () => `Send a copy to ${env.who || 'the AI provider'}?` : undefined,
+        confirmTitle: c.sends ? () => T('ui.ai.step.send_copy_q', { who: who() }) : undefined,
         run: (a, e) => exec(cmd, c, a, Object.assign({}, env, e)) });
     }
     if (cmd.state) {
       // a summary by default (long lists and texts cut, toolbox.summarize); detail: true for all of it
       const DETAIL = { type: 'boolean', description: 'all of it, not a summary' };
       tools.unshift({ name: 'app_state', description: `${where} right now as JSON (document, layers, selection…), summarized; detail: true for all of it. Call it first.`,
-        params: { detail: DETAIL }, schema: { type: 'object', properties: { detail: DETAIL } }, maxChars: 6000, label: () => 'Read the app state',
+        params: { detail: DETAIL }, schema: { type: 'object', properties: { detail: DETAIL } }, maxChars: 6000, label: () => T('ui.ai.step.app_state'),
         run: async (a = {}) => {
           const st = await cmd.state();   // the app's own, else the page's summary (shared/commands/view.js)
           if (!st) return `${where} shares no state.`;
@@ -97,12 +99,12 @@
     }
     const byId = (id) => listAll(cmd).find((c) => c.id === id) || null;
     tools.push(
-      { name: 'list_commands', description: `List the other commands of ${where} that can run now (id, title, and the arguments a command takes).`, params: {}, label: () => 'List the commands',
+      { name: 'list_commands', description: `List the other commands of ${where} that can run now (id, title, and the arguments a command takes).`, params: {}, label: () => T('ui.ai.step.list_commands'),
         run: () => listAll(cmd).filter(usable).filter((c) => !c.hidden || c.args).map((c) => (c.args && A() ? { id: c.id, title: c.title, args: A().normalize(c.args).map((p) => `${p.name}: ${A().hint(p)}`) } : { id: c.id, title: c.title, group: c.group || '' })) },
       { name: 'run_command', description: `Run one command of ${where} by its id (ids from list_commands), with optional arguments.`,
         params: { id: { type: 'string', description: 'command id', required: true }, args: { type: 'object', description: 'arguments, when the command takes any' } },
         destructive: (a) => ask(byId(a.id) || { id: a.id }), kind: (a) => kindFor(byId(a.id) || { id: a.id }), confirmText: (a) => confirmText(byId(a.id) || { id: a.id }),
-        confirmTitle: (a) => { const c = byId(a.id); return c && c.sends ? `Send a copy to ${env.who || 'the AI provider'}?` : undefined; },   // else the permission question's own
+        confirmTitle: (a) => { const c = byId(a.id); return c && c.sends ? T('ui.ai.step.send_copy_q', { who: who() }) : undefined; },   // else the permission question's own
         label: (a) => { const c = byId(a.id); return c ? label(c, a.args) : String(a.id); },
         cmdIdOf: (a) => a.id,
         run: (a, e) => {

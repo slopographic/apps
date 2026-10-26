@@ -14,20 +14,20 @@
   var TYPE = { title: 'title', ctrTitle: 'title', subTitle: 'body', body: 'body', obj: 'body' };
 
   function themeOf(files, path) {
-    var el = I.a(I.xml(files, path), 'themeElements'), t = { path: path, scheme: {}, fonts: {}, lnWidths: [], bgFills: [], name: '' };
-    if (!el) return t;
-    t.name = I.att(el.parentNode, 'name') || '';
+    var el = I.a(I.xml(files, path), 'themeElements'), theme = { path: path, scheme: {}, fonts: {}, lnWidths: [], bgFills: [], name: '' };
+    if (!el) return theme;
+    theme.name = I.att(el.parentNode, 'name') || '';
     I.lib.kids(I.a(el, 'clrScheme')).forEach(function (c) {
       var s = I.a(c, 'srgbClr'), y = I.a(c, 'sysClr');
-      t.scheme[c.localName] = (s && I.lib.ooxmlToHex(I.att(s, 'val'))) || (y && I.lib.ooxmlToHex(I.att(y, 'lastClr'))) || '#000000';
+      theme.scheme[c.localName] = (s && I.lib.ooxmlToHex(I.att(s, 'val'))) || (y && I.lib.ooxmlToHex(I.att(y, 'lastClr'))) || '#000000';
     });
     var fs = I.a(el, 'fontScheme');
-    t.fonts.major = I.att(I.a(I.a(fs, 'majorFont'), 'latin'), 'typeface') || '';
-    t.fonts.minor = I.att(I.a(I.a(fs, 'minorFont'), 'latin'), 'typeface') || '';
+    theme.fonts.major = I.att(I.a(I.a(fs, 'majorFont'), 'latin'), 'typeface') || '';
+    theme.fonts.minor = I.att(I.a(I.a(fs, 'minorFont'), 'latin'), 'typeface') || '';
     var fmt = I.a(el, 'fmtScheme');
-    t.lnWidths = I.as(I.a(fmt, 'lnStyleLst'), 'ln').map(function (l) { return I.pt(I.num(l, 'w', 9525)); });
-    t.bgFills = I.lib.kids(I.a(fmt, 'bgFillStyleLst'));
-    return t;
+    theme.lnWidths = I.as(I.a(fmt, 'lnStyleLst'), 'ln').map(function (l) { return I.pt(I.num(l, 'w', 9525)); });
+    theme.bgFills = I.lib.kids(I.a(fmt, 'bgFillStyleLst'));
+    return theme;
   }
   function clrMapOf(el) {
     if (!el) return null;
@@ -79,7 +79,7 @@
   function bgSpec(f, ctx) {
     if (!f || f.type === 'none') return null;
     if (f.type === 'solid') return { type: 'solid', colors: [f.color] };
-    if (f.type === 'blip') { var id = I.mediaOf(I.rid(I.a(f.el, 'blip')), ctx, 'Background'); return id ? { type: 'image', media: id } : null; }
+    if (f.type === 'blip') { var id = I.mediaOf(I.rid(I.a(f.el, 'blip')), ctx, 'Background'); return id ? { type: 'image', media: id } : null; } // i18n-ignore
     return f;
   }
   /** A cSld's own background, or null (then the layout's, then the master's). */
@@ -94,12 +94,12 @@
     return c ? { type: 'solid', colors: [c.ref] } : null;
   }
   function transition(root) {
-    var t = root.getElementsByTagNameNS(I.lib.NS.p, 'transition')[0], out = { name: 'none', duration: 0.6 };
-    if (!t) return out;
+    var trans = root.getElementsByTagNameNS(I.lib.NS.p, 'transition')[0], out = { name: 'none', duration: 0.6 };
+    if (!trans) return out;
     var dur = null;
-    Array.prototype.forEach.call(t.attributes, function (a) { if ((a.localName || a.name).replace(/^.*:/, '') === 'dur') dur = +a.value / 1000; });
-    out.duration = dur || { slow: 1, med: 0.75, fast: 0.5 }[I.att(t, 'spd') || 'fast'] || 0.5;
-    var k = I.lib.kids(t).filter(function (e) { return e.localName !== 'sndAc' && e.localName !== 'extLst'; })[0];
+    Array.prototype.forEach.call(trans.attributes, function (a) { if ((a.localName || a.name).replace(/^.*:/, '') === 'dur') dur = +a.value / 1000; });
+    out.duration = dur || { slow: 1, med: 0.75, fast: 0.5 }[I.att(trans, 'spd') || 'fast'] || 0.5;
+    var k = I.lib.kids(trans).filter(function (e) { return e.localName !== 'sndAc' && e.localName !== 'extLst'; })[0];
     if (!k) return out;
     var n = k.localName, dir = I.att(k, 'dir');
     var DIR = { l: 'left', r: 'right', u: 'up', d: 'down', lu: 'left', ru: 'right', ld: 'left', rd: 'right' };
@@ -130,8 +130,8 @@
     return { w: Math.round(w * 100) / 100, h: Math.round(h * 100) / 100, preset: preset };
   }
   function title(files, name) {
-    var core = I.xml(files, 'docProps/core.xml'), t = core && I.lib.kids(core, I.lib.NS.dc, 'title')[0];
-    return (t && t.textContent.trim()) || String(name || '').replace(/\.[^.]+$/, '') || 'Imported presentation';
+    var core = I.xml(files, 'docProps/core.xml'), node = core && I.lib.kids(core, I.lib.NS.dc, 'title')[0];
+    return (node && node.textContent.trim()) || String(name || '').replace(/\.[^.]+$/, '') || 'Imported presentation'; // i18n-ignore
   }
 
   I.fromFiles = function (files, lib, opts) {
@@ -151,9 +151,9 @@
     env.theme = m0 ? m0.theme : { path: '', scheme: {}, fonts: {} };
     if (m0) {
       var c0 = context(env, m0, m0, null), col = function (n) { return I.schemeHex(n, c0); };
-      deck.theme = { id: 'pptx', name: env.theme.name || 'PowerPoint theme', colors: { bg: col('bg1'), bg2: col('bg2'), text: col('tx1'), text2: col('tx2'),
+      deck.theme = { id: 'pptx', name: env.theme.name || 'PowerPoint theme', colors: { bg: col('bg1'), bg2: col('bg2'), text: col('tx1'), text2: col('tx2'), // i18n-ignore
         accent1: col('accent1'), accent2: col('accent2'), accent3: col('accent3'), accent4: col('accent4'), accent5: col('accent5'), accent6: col('accent6') },
-        fonts: { heading: env.theme.fonts.major || 'Calibri Light', body: env.theme.fonts.minor || 'Calibri', headingBold: false } };
+        fonts: { heading: env.theme.fonts.major || 'Calibri Light', body: env.theme.fonts.minor || 'Calibri', headingBold: false } }; // i18n-ignore
       deck.theme.background = background(m0.cSld, c0, m0.theme) || { type: 'solid', colors: [deck.theme.colors.bg] };
       deck.theme.dark = U.luma(deck.theme.colors.bg) < 0.45;
     }
@@ -189,12 +189,10 @@
 
   /** One sentence about what was left out, or '' when everything came in. */
   I.summary = function (r) {
-    var n = function (k, one, many) { return r[k] ? r[k] + ' ' + (r[k] === 1 ? one : many) : null; };
-    var out = [n('charts', 'chart', 'charts'), n('smartart', 'SmartArt graphic', 'SmartArt graphics'), n('media', 'video or sound (its poster picture is kept)', 'videos or sounds (their poster pictures are kept)'),
-      n('ole', 'embedded object', 'embedded objects'), n('pictures', 'picture in a format browsers cannot show (EMF, WMF or TIFF)', 'pictures in formats browsers cannot show (EMF, WMF or TIFF)'),
-      n('other', 'other object (ink or an unknown kind)', 'other objects (ink or unknown kinds)')].filter(Boolean);
-    var s = out.length ? 'Not imported: ' + out.join(', ') + '.' : '';
-    if (r.approx) s += (s ? ' ' : '') + r.approx + ' shape' + (r.approx === 1 ? ' is' : 's are') + ' drawn as a rectangle (Slop Slides has no such outline).';
+    var t = SS.util.t, n = function (k) { return r[k] ? t(`slides.io.ni_${k}`, { n: r[k] }) : null; };   // the words: slides/i18n/<code>/io.js
+    var out = ['charts', 'smartart', 'media', 'ole', 'pictures', 'other'].map(n).filter(Boolean);
+    var s = out.length ? t('slides.io.not_imported', { list: out.join(', ') }) : '';
+    if (r.approx) s += (s ? ' ' : '') + t('slides.io.approx', { n: r.approx });
     return s;
   };
 })();

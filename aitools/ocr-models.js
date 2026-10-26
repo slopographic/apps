@@ -31,19 +31,26 @@
   const QUICK = 'ppocr-v4';
   const PADDLE = 'https://github.com/PaddlePaddle/PaddleOCR';
 
+  /** The words people read (names, notes, how a model is built and where it comes from) are keys of
+   *  shared/i18n/ui/<code>/models2.js, read when shown (getters), so they follow the page's language. */
+  const T = (k, v) => (globalThis.SlopI18n ? globalThis.SlopI18n.t(k, v) : k);
+  const key = (id) => 'ui.models.ocr.' + id.replace(/-/g, '_');
+  const words = catalog.words;
+  /** A script group: its name (ui.models.script.<id>) and the languages its model reads. */
+  const S = (id, languages) => words({ languages }, { name: () => T('ui.models.script.' + id) });
   /** Which languages each script group's model reads. A language may sit in two groups (Serbian: Latin and Cyrillic). */
   const SCRIPTS = {
-    latin: { name: 'Latin', languages: ['af', 'az', 'br', 'bs', 'ca', 'cs', 'cy', 'da', 'de', 'en', 'es', 'et', 'eu', 'fi', 'fo', 'fr', 'ga', 'gl', 'ha', 'hr', 'ht', 'hu', 'id', 'is', 'it', 'jw', 'la', 'lb', 'ln', 'lt', 'lv', 'mg', 'mi', 'ms', 'mt', 'nl', 'nn', 'no', 'oc', 'pl', 'pt', 'ro', 'sk', 'sl', 'sn', 'so', 'sq', 'sr', 'su', 'sv', 'sw', 'tk', 'tl', 'tr', 'uz'] },
-    cyrillic: { name: 'Cyrillic', languages: ['ba', 'be', 'bg', 'kk', 'ky', 'mk', 'mn', 'ru', 'sr', 'tg', 'tt', 'uk'] },
-    arabic: { name: 'Arabic', languages: ['ar', 'fa', 'ku', 'ps', 'sd', 'ug', 'ur'] },
-    devanagari: { name: 'Devanagari', languages: ['hi', 'mr', 'ne', 'sa'] },
-    korean: { name: 'Korean', languages: ['ko'] },
-    cjk: { name: 'Chinese and Japanese', languages: ['zh', 'zh-Hant', 'ja', 'en'] },
-    greek: { name: 'Greek', languages: ['el'] },
-    thai: { name: 'Thai', languages: ['th'] },
-    tamil: { name: 'Tamil', languages: ['ta'] },
-    telugu: { name: 'Telugu', languages: ['te'] },
-    han: { name: 'Chinese', languages: ['zh', 'en'] },
+    latin: S('latin', ['af', 'az', 'br', 'bs', 'ca', 'cs', 'cy', 'da', 'de', 'en', 'es', 'et', 'eu', 'fi', 'fo', 'fr', 'ga', 'gl', 'ha', 'hr', 'ht', 'hu', 'id', 'is', 'it', 'jw', 'la', 'lb', 'ln', 'lt', 'lv', 'mg', 'mi', 'ms', 'mt', 'nl', 'nn', 'no', 'oc', 'pl', 'pt', 'ro', 'sk', 'sl', 'sn', 'so', 'sq', 'sr', 'su', 'sv', 'sw', 'tk', 'tl', 'tr', 'uz']),
+    cyrillic: S('cyrillic', ['ba', 'be', 'bg', 'kk', 'ky', 'mk', 'mn', 'ru', 'sr', 'tg', 'tt', 'uk']),
+    arabic: S('arabic', ['ar', 'fa', 'ku', 'ps', 'sd', 'ug', 'ur']),
+    devanagari: S('devanagari', ['hi', 'mr', 'ne', 'sa']),
+    korean: S('korean', ['ko']),
+    cjk: S('cjk', ['zh', 'zh-Hant', 'ja', 'en']),
+    greek: S('greek', ['el']),
+    thai: S('thai', ['th']),
+    tamil: S('tamil', ['ta']),
+    telugu: S('telugu', ['te']),
+    han: S('han', ['zh', 'en']),
   };
 
   const DET = { name: 'ch_PP-OCRv4_det_infer.onnx', size: 4745517, sha256: 'd2a7720d45a54257208b1e13e36a8479894cb74155a5efe29462512d42f49da9', url: B('ppocr-det-v4', 'ch_PP-OCRv4_det_infer.onnx') };
@@ -60,45 +67,42 @@
     'ppocr-v5-telugu': [['te_PP-OCRv5_rec_mobile.onnx', 7923102, 'a3690451b50028a09a3316a1274f7c05728151ea3f8fd392696397a7fefcbd92'], ['ppocrv5_te_dict.txt', 1831, '42f83f5d3fdb50778e4fa5b66c58d99a59ab7792151c5e74f34b8ffd7b61c9d6']],
   };
 
-  // speed and accuracy: 1 (low) to 5 (high), for the bars in the Language and model dialog.
+  // speed and accuracy: 1 (low) to 5 (high), for the bars in the Language and model dialog. Name and note: ui.models.ocr.<id>_name/_note.
   const META = [
-    { id: 'ppocr-v6-small', scripts: ['latin', 'cjk'], name: 'Latin script, Chinese and Japanese (PP-OCRv6 small)', speed: 3, accuracy: 5,
-      note: 'Swedish, German, French, Spanish, Polish, Czech, Romanian, Turkish and about 50 more languages in Latin letters with their accents (å, ä, ö, ß, ł, ș …), and Chinese (simplified and traditional) and Japanese.' },
-    { id: 'ppocr-v5-cyrillic', scripts: ['cyrillic'], name: 'Cyrillic script (PP-OCRv5)', speed: 5, accuracy: 4,
-      note: 'Russian, Ukrainian, Belarusian, Bulgarian, Serbian, Macedonian, Kazakh, Kyrgyz, Mongolian and more, and Latin letters among them.' },
-    { id: 'ppocr-v5-arabic', scripts: ['arabic'], name: 'Arabic script (PP-OCRv5)', speed: 5, accuracy: 4,
-      note: 'Arabic, Persian, Urdu, Pashto, Kurdish, Sindhi and Uyghur. Lines come out in reading order, right to left.' },
-    { id: 'ppocr-v5-devanagari', scripts: ['devanagari'], name: 'Devanagari (PP-OCRv5)', speed: 5, accuracy: 4,
-      note: 'Hindi, Marathi, Nepali and Sanskrit.' },
-    { id: 'ppocr-v5-korean', scripts: ['korean'], name: 'Korean (PP-OCRv5)', speed: 4, accuracy: 4, note: 'Korean Hangul, with Latin letters and digits.' },
-    { id: 'ppocr-v5-greek', scripts: ['greek'], name: 'Greek (PP-OCRv5)', speed: 5, accuracy: 4, note: 'Greek, with its accents, and Latin letters.' },
-    { id: 'ppocr-v5-thai', scripts: ['thai'], name: 'Thai (PP-OCRv5)', speed: 5, accuracy: 4, note: 'Thai, with Latin letters and digits.' },
-    { id: 'ppocr-v5-tamil', scripts: ['tamil'], name: 'Tamil (PP-OCRv5)', speed: 5, accuracy: 4, note: 'Tamil, with Latin letters and digits.' },
-    { id: 'ppocr-v5-telugu', scripts: ['telugu'], name: 'Telugu (PP-OCRv5)', speed: 5, accuracy: 4, note: 'Telugu, with Latin letters and digits.' },
+    { id: 'ppocr-v6-small', scripts: ['latin', 'cjk'], speed: 3, accuracy: 5 },
+    { id: 'ppocr-v5-cyrillic', scripts: ['cyrillic'], speed: 5, accuracy: 4 },
+    { id: 'ppocr-v5-arabic', scripts: ['arabic'], speed: 5, accuracy: 4 },
+    { id: 'ppocr-v5-devanagari', scripts: ['devanagari'], speed: 5, accuracy: 4 },
+    { id: 'ppocr-v5-korean', scripts: ['korean'], speed: 4, accuracy: 4 },
+    { id: 'ppocr-v5-greek', scripts: ['greek'], speed: 5, accuracy: 4 },
+    { id: 'ppocr-v5-thai', scripts: ['thai'], speed: 5, accuracy: 4 },
+    { id: 'ppocr-v5-tamil', scripts: ['tamil'], speed: 5, accuracy: 4 },
+    { id: 'ppocr-v5-telugu', scripts: ['telugu'], speed: 5, accuracy: 4 },
   ];
 
   /** The bundled model: the one every OCR page has used since the start, from Hugging Face (and its dictionary bundled). */
-  const BUNDLED = {
-    id: QUICK, name: 'PP-OCRv4 (text detection and recognition)', tool: 'ocr', arch: 'DB detector and CRNN recogniser (mobile, Chinese and Latin)',
+  const BUNDLED = words({
+    id: QUICK, tool: 'ocr',
     maker: 'PaddlePaddle (Baidu)', scripts: ['han'], languages: SCRIPTS.han.languages, only: false, speed: 5, accuracy: 3,
-    note: 'Chinese and English, the quick first read. Reads other Latin-script text without its accents (a for å).',
     licence: 'Apache-2.0', upstream: PADDLE,
-    source: HF + 'SWHL/RapidOCR', sourceNote: 'ONNX export of the PaddleOCR PP-OCRv4 mobile models, as published by RapidOCR.',
+    source: HF + 'SWHL/RapidOCR',
     files: [
       { name: 'ch_PP-OCRv4_det_infer.onnx', size: 4745517, sha256: 'd2a7720d45a54257208b1e13e36a8479894cb74155a5efe29462512d42f49da9', url: HF + 'SWHL/RapidOCR/resolve/main/PP-OCRv4/ch_PP-OCRv4_det_infer.onnx' },
       { name: 'ch_PP-OCRv4_rec_infer.onnx', size: 10857958, sha256: '48fc40f24f6d2a207a2b1091d3437eb3cc3eb6b676dc3ef9c37384005483683b', url: HF + 'SWHL/RapidOCR/resolve/main/PP-OCRv4/ch_PP-OCRv4_rec_infer.onnx' },
       { name: 'ppocr_keys_v1.txt', size: 26249, sha256: '28b2362ad4ab2dc38769aa72feb535e3a9ddb3fd2a7585a05920e6393b1dc7f7', path: 'vendor/models/ppocr_keys_v1.txt' },
     ],
-  };
+  }, { name: () => T(key(QUICK) + '_name'), note: () => T(key(QUICK) + '_note'), arch: () => T(key(QUICK) + '_arch'), sourceNote: () => T(key(QUICK) + '_source') });
 
   /** The entries for the model index (model-registry.js): the same shape as every other model there. */
-  const MODELS = [BUNDLED].concat(META.map((m) => ({
-    id: m.id, name: m.name, tool: 'ocr', maker: 'PaddlePaddle (Baidu)', scripts: m.scripts, languages: [...new Set(m.scripts.flatMap((x) => SCRIPTS[x].languages))], only: false,
-    speed: m.speed, accuracy: m.accuracy, note: m.note,
-    arch: `PP-OCRv4 DB detector and ${m.id.startsWith('ppocr-v6') ? 'PP-OCRv6 small' : 'PP-OCRv5 mobile'} recogniser (${m.scripts.map((x) => SCRIPTS[x].name).join(', ')})`,
+  const MODELS = [BUNDLED].concat(META.map((m) => words({
+    id: m.id, tool: 'ocr', maker: 'PaddlePaddle (Baidu)', scripts: m.scripts, languages: [...new Set(m.scripts.flatMap((x) => SCRIPTS[x].languages))], only: false,
+    speed: m.speed, accuracy: m.accuracy,
     licence: 'Apache-2.0', upstream: PADDLE, source: 'https://github.com/slopographic/cdn/tree/main/models/ocr/' + m.id,
-    sourceNote: 'ONNX files from the RapidOCR model hub (modelscope.cn/models/RapidAI/RapidOCR, tag v3.10.0), kept on Slopographic\'s file host (github.com/slopographic/cdn) with their licence and SHA-256 checksums.',
     files: [DET].concat(REC[m.id].map(([name, size, sha256]) => ({ name, size, sha256, url: B(m.id, name) }))),
+  }, {
+    name: () => T(key(m.id) + '_name'), note: () => T(key(m.id) + '_note'),
+    arch: () => T('ui.models.ocr.arch', { rec: m.id.startsWith('ppocr-v6') ? 'PP-OCRv6 small' : 'PP-OCRv5 mobile', scripts: m.scripts.map((x) => SCRIPTS[x].name).join(', ') }),   // i18n-ignore: model names
+    sourceNote: () => T('ui.models.ocr.source'),
   })));
 
   const C = catalog.create({ family: 'ocr', models: MODELS, quick: QUICK });

@@ -12,10 +12,11 @@
   // source and the feedback: the outline, each file's row and the toast. Dropped folders are walked by SlopDrop.folders
   // inside the drop event. The zone is a compact strip, so the empty library carries the preview (what it makes, and
   // how) and the sample button.
-  const PREVIEW = {
-    picture: { src: '../assets/shots/gallery.jpg', alt: 'A photo library: eight photos under the month they were taken' },
-    steps: ['Drop photos or a whole folder', 'Browse by month, make albums, find duplicates', 'Back up the library as a ZIP'],
-  };
+  const t = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
+  const preview = () => ({
+    picture: { src: '../assets/shots/gallery.jpg', alt: t('gallery.grid.preview_alt') },
+    steps: [t('gallery.grid.step_drop'), t('gallery.grid.step_browse'), t('gallery.grid.step_backup')],
+  });
   function bindDrop() {
     window.SlopIntake.register({
       id: 'gallery', accept: G.source.rules(), driveAccept: ['image/*'],
@@ -28,8 +29,9 @@
       targets: [document.querySelector('main.grid-area') || document.body],
       files: (dt) => window.SlopDrop.folders.read(dt),
     });
-    const pv = window.SlopDrop.panel.preview(PREVIEW);
+    const pv = window.SlopDrop.panel.preview(preview());
     if (pv) $('emptyIntro').append(pv);
+    if (window.SlopI18n) window.SlopI18n.on(() => { const n = window.SlopDrop.panel.preview(preview()); if (n) $('emptyIntro').replaceChildren(n); });
     $('emptySample').addEventListener('click', () => window.SlopIntake.sample(() => window.SlopSamples.photos(8), { to: 'gallery' }));
   }
 

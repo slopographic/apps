@@ -8,10 +8,12 @@
   const RM = window.RM, $ = (id) => document.getElementById(id);
   const PHONE = '(max-width: 900px)', side = document.querySelector('.rm-side');
   if (!side || !window.SlopFramePanel) return;
-  const sheet = window.SlopSheet ? SlopSheet.attach({ root: document.body, panel: side, side: 'bottom', phone: PHONE, label: 'Options' }) : null;
+  const sheet = window.SlopSheet ? SlopSheet.attach({ root: document.body, panel: side, side: 'bottom', phone: PHONE, label: RM.t('remix.page.options') }) : null;
   SlopFramePanel.create(side, { bare: true }).footer([
-    { el: $('rm-remix'), primary: true, title: 'Plan a new remix of the clips with these options' },
+    { el: $('rm-remix'), primary: true, title: RM.t('remix.side.remix_tip') },
     { el: $('rm-export') },
-  ], { more: 'Options', onMore: () => sheet && sheet.toggle() });
+  ], { more: RM.t('remix.page.options'), onMore: () => sheet && sheet.toggle() });
+  $('rm-remix').dataset.i18nAttr = 'title:remix.side.remix_tip';
+  side.querySelectorAll('.sf-foot-more').forEach((b) => { b.dataset.i18n = 'remix.page.options'; });
   RM.side = { sheet };
 })();

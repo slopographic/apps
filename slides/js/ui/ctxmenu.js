@@ -4,6 +4,7 @@
    Exposes window.SS.ctxmenu. */
 (function () {
   'use strict';
+  var SU = window.SS.util;
   var SS = window.SS, A = SS.app, OP = SS.ops;
 
   /** Runs fn with slide i current (the slide actions work on the current slide). */
@@ -13,32 +14,32 @@
   /** A thumbnail: the slide's own actions. */
   function thumbItems(i) {
     var n = A.deck.slides.length, s = A.deck.slides[i], out = [
-      { label: 'New slide after', key: keyOf('slide.new'), act: onSlide(i, OP.newSlide) },
-      { label: 'Duplicate slide', key: keyOf('slide.duplicate'), act: onSlide(i, OP.dupSlide) },
+      { label: SU.t('slides.ctx.new_slide_after'), key: keyOf('slide.new'), act: onSlide(i, OP.newSlide) },
+      { label: SU.t('slides.ctx.duplicate_slide'), key: keyOf('slide.duplicate'), act: onSlide(i, OP.dupSlide) },
     ];
-    if (i > 0) out.push({ label: 'Move up', key: keyOf('slide.up'), act: onSlide(i, function () { OP.moveSlide(-1); }) });
-    if (i < n - 1) out.push({ label: 'Move down', key: keyOf('slide.down'), act: onSlide(i, function () { OP.moveSlide(1); }) });
-    out.push('-', { label: s.hidden ? 'Show slide' : 'Hide slide', act: onSlide(i, function () { OP.setHidden(!s.hidden); }) });
-    if (n > 1) out.push('-', { label: 'Delete slide', key: keyOf('slide.delete'), act: onSlide(i, OP.delSlide) });
+    if (i > 0) out.push({ label: SU.t('slides.ctx.move_up'), key: keyOf('slide.up'), act: onSlide(i, function () { OP.moveSlide(-1); }) });
+    if (i < n - 1) out.push({ label: SU.t('slides.ctx.move_down'), key: keyOf('slide.down'), act: onSlide(i, function () { OP.moveSlide(1); }) });
+    out.push('-', { label: SU.t(s.hidden ? 'slides.ctx.show_slide' : 'slides.ctx.hide_slide'), act: onSlide(i, function () { OP.setHidden(!s.hidden); }) });
+    if (n > 1) out.push('-', { label: SU.t('slides.ctx.delete_slide'), key: keyOf('slide.delete'), act: onSlide(i, OP.delSlide) });
     return out;
   }
 
   /** An object or text box (the selection, when the pointer is on one of them). */
   function objectItems(objs, at) {
     var one = objs.length === 1 ? objs[0] : null, out = [];
-    if (one && SS.textEdit.canEdit(one)) out.push({ label: 'Edit text', key: keyOf('edit.text'), act: function () { SS.textEdit.open(one); } }, '-');
-    out.push({ label: 'Restore original aspect ratio', disabled: !SS.aspect.target(), act: function () { SS.aspect.restore(SS.aspect.keepAt(at)); } }, '-');
+    if (one && SS.textEdit.canEdit(one)) out.push({ label: SU.t('slides.ctx.edit_text'), key: keyOf('edit.text'), act: function () { SS.textEdit.open(one); } }, '-');
+    out.push({ label: SU.t('slides.ctx.restore_original_aspect_ratio'), disabled: !SS.aspect.target(), act: function () { SS.aspect.restore(SS.aspect.keepAt(at)); } }, '-');
     out.push(
-      { label: 'Copy', key: keyOf('edit.copy'), act: function () { OP.copy(); } },
-      { label: 'Paste', key: keyOf('edit.paste'), act: function () { OP.paste(); }, disabled: !A.clip },
-      { label: 'Duplicate', key: keyOf('edit.duplicate'), act: function () { OP.duplicateSel(); } },
+      { label: SU.t('slides.ctx.copy'), key: keyOf('edit.copy'), act: function () { OP.copy(); } },
+      { label: SU.t('slides.ctx.paste'), key: keyOf('edit.paste'), act: function () { OP.paste(); }, disabled: !A.clip },
+      { label: SU.t('slides.ctx.duplicate'), key: keyOf('edit.duplicate'), act: function () { OP.duplicateSel(); } },
       '-',
-      { label: 'Bring to front', key: keyOf('arrange.front'), act: function () { OP.arrange('front'); } },
-      { label: 'Bring forward', act: function () { OP.arrange('forward'); } },
-      { label: 'Send backward', act: function () { OP.arrange('backward'); } },
-      { label: 'Send to back', key: keyOf('arrange.back'), act: function () { OP.arrange('back'); } },
+      { label: SU.t('slides.ctx.bring_to_front'), key: keyOf('arrange.front'), act: function () { OP.arrange('front'); } },
+      { label: SU.t('slides.ctx.bring_forward'), act: function () { OP.arrange('forward'); } },
+      { label: SU.t('slides.ctx.send_backward'), act: function () { OP.arrange('backward'); } },
+      { label: SU.t('slides.ctx.send_to_back'), key: keyOf('arrange.back'), act: function () { OP.arrange('back'); } },
       '-',
-      { label: 'Delete', key: keyOf('edit.delete'), act: function () { OP.deleteSel(); } }
+      { label: SU.t('slides.ctx.delete'), key: keyOf('edit.delete'), act: function () { OP.deleteSel(); } }
     );
     return out;
   }
@@ -46,14 +47,14 @@
   /** The empty slide: insert the basic objects, paste, or hide this slide. */
   function emptyItems() {
     return [
-      { label: 'Add text', key: keyOf('insert.text'), act: function () { OP.addText(); } },
-      { label: 'Add rectangle', key: keyOf('insert.rect'), act: function () { OP.addShape('rect'); } },
-      { label: 'Add ellipse', key: keyOf('insert.ellipse'), act: function () { OP.addShape('ellipse'); } },
-      { label: 'Add picture…', key: keyOf('insert.image'), act: function () { OP.addImage(); } },
+      { label: SU.t('slides.ctx.add_text'), key: keyOf('insert.text'), act: function () { OP.addText(); } },
+      { label: SU.t('slides.ctx.add_rectangle'), key: keyOf('insert.rect'), act: function () { OP.addShape('rect'); } },
+      { label: SU.t('slides.ctx.add_ellipse'), key: keyOf('insert.ellipse'), act: function () { OP.addShape('ellipse'); } },
+      { label: SU.t('slides.ctx.add_picture'), key: keyOf('insert.image'), act: function () { OP.addImage(); } },
       '-',
-      { label: 'Paste', key: keyOf('edit.paste'), act: function () { OP.paste(); }, disabled: !A.clip },
+      { label: SU.t('slides.ctx.paste'), key: keyOf('edit.paste'), act: function () { OP.paste(); }, disabled: !A.clip },
       '-',
-      { label: A.slide() && A.slide().hidden ? 'Show slide' : 'Hide slide', act: function () { OP.setHidden(!(A.slide() && A.slide().hidden)); } },
+      { label: SU.t(A.slide() && A.slide().hidden ? 'slides.ctx.show_slide' : 'slides.ctx.hide_slide'), act: function () { OP.setHidden(!(A.slide() && A.slide().hidden)); } },
     ];
   }
 

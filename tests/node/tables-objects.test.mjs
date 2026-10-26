@@ -3,8 +3,10 @@
 // Run: node --test tests/node/tables-objects.test.mjs
 // Covers: tables/js/objects/region.js, tables/js/objects/chart-data.js, tables/js/objects/chart-svg.js,
 // tables/js/objects/pivot.js, tables/js/objects/pivot-write.js, tables/js/objects/store.js, tables/js/io/native.js
+import './tables-i18n-en.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { Workbook } from '../../tables/js/engine/index.js';
 import { seriesFrom, chartData } from '../../tables/js/objects/chart-data.js';
 import { chartSvg, niceScale, shortNum, DARK } from '../../tables/js/objects/chart-svg.js';
@@ -90,6 +92,23 @@ test('pivot: rows by Region, columns by Quarter, Sum of Sales, with totals', () 
     ['Grand total', 230, 270, 500],
   ]);
   assert.equal(g.cells[0][0].b, true);
+});
+// The pivot's own labels (Sum of, Total, Grand total, (blank)) were English in every language; they follow the language
+// the pivot is built in, as a spreadsheet's do.
+test('pivot: in Swedish the labels it writes are Swedish', () => {
+  const sv = {}, win = { SlopI18n: { add: (code, d) => Object.assign(sv, d) } };
+  new Function('window', readFileSync(new URL('../../tables/i18n/sv/objects.js', import.meta.url), 'utf8'))(win);
+  const was = globalThis.SlopI18n.t;
+  globalThis.SlopI18n.t = (key, vars) => (sv[key] ? sv[key].replace(/\{(\w+)\}/g, (m, k) => (vars && k in vars ? String(vars[k]) : m)) : was(key, vars));
+  try {
+    const [head, ...recs] = SALES;
+    const g = pivotGrid(fieldNames(head), recs.map((r) => r.map((v) => (v === '' ? null : v))), { rows: ['Rep'], cols: [], values: [{ field: 'Sales', fn: 'sum' }, { field: 'Sales', fn: 'count' }] });
+    const v = g.cells.map((row) => row.map((c) => c.v));
+    assert.deepEqual(v[0], ['Rep', 'Summa av Sales', 'Antal av Sales']);
+    assert.equal(v[v.length - 1][0], 'Totalsumma');
+    const blank = pivotGrid(['A', 'B'], [[null, 1]], { rows: ['A'], cols: [], values: [{ field: 'B', fn: 'sum' }] });
+    assert.equal(blank.cells[1][0].v, '(tom)');
+  } finally { globalThis.SlopI18n.t = was; }
 });
 test('pivot: count, average, min and max, no column fields, two row fields', () => {
   const [head, ...recs] = SALES;

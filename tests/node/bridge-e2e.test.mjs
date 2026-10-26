@@ -68,6 +68,8 @@ test('Claude Code ↔ bridge ↔ the Workflows tab: pair, tools, a file in, a wo
     const url = /(http:\/\/127\.0\.0\.1:\d+\/workflows\/\?connect=1&port=\d+)/.exec(said)[1];
 
     const page = await browser.newPage({ viewport: { width: 1280, height: 860 } });
+    // the checks read the English copy: a visitor who chose English (a build may start in another language, as SlopTest.english)
+    await page.addInitScript(() => { try { localStorage.setItem('slop-profile', JSON.stringify({ v: 1, data: { lang: { mode: 'en' } } })); } catch (e) { /* storage blocked */ } });
     await page.goto(url);
     await page.waitForSelector('.sbr-dialog .sbr-code', { timeout: 60000 });
     await page.waitForFunction(() => /Claude Code is there/.test(document.querySelector('.sbr-status').textContent), null, { timeout: 30000 });

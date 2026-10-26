@@ -239,7 +239,7 @@ async function readPSD(buf) {
       while (R.p + 12 <= lmEnd) {
         const sig = R.ascii(4); if (sig !== '8BIM' && sig !== '8B64') break;
         const key = R.ascii(4), len = R.u32(), dEnd = R.p + len;
-        if (key === 'Lr16' || key === 'Lr32' || key === 'Layr') { info = await readLayerInfo(R, dEnd, depth, mode); }
+        if (key === 'Lr16' || key === 'Lr32' || key === 'Layr') { info = await readLayerInfo(R, dEnd, depth, mode); } // i18n-ignore: PSD block keys and layer names are file content
         R.p = dEnd + (len % 4 ? 4 - (len % 4) : 0);
         if (R.p > lmEnd) break;
       }
@@ -258,7 +258,7 @@ async function readPSD(buf) {
         (stack.length ? stack[stack.length - 1] : layers).push(...kids);
         continue;
       }
-      const L = { name: r.name || 'Layer', canvas: r.canvas || mkCanvas(1, 1), x: r.canvas ? r.left : 0, y: r.canvas ? r.top : 0, visible: !(r.flags & 2), opacity: r.opacity, blend: PSD_BLEND[r.blend] || 'normal', locked: false, mask: null, clip: !!r.clip };
+      const L = { name: r.name || 'Layer', canvas: r.canvas || mkCanvas(1, 1), x: r.canvas ? r.left : 0, y: r.canvas ? r.top : 0, visible: !(r.flags & 2), opacity: r.opacity, blend: PSD_BLEND[r.blend] || 'normal', locked: false, mask: null, clip: !!r.clip }; // i18n-ignore: PSD block keys and layer names are file content
       if (r.meta) Object.assign(L, r.meta);
       if (!r.canvas) cx(L.canvas).clearRect(0, 0, 1, 1);
       if (r.mask && r.maskPlane && r.mask.right > r.mask.left) {
@@ -288,7 +288,7 @@ async function readPSD(buf) {
       }
     } else throw new Error('Unsupported merged-image compression');
     if (!(info && info.mergedAlpha) && channels <= (mode === 1 ? 1 : mode === 4 ? 4 : 3)) delete planes[-1];
-    layers.push({ name: 'Background', canvas: planesToCanvas(w, hh, mode, planes), x: 0, y: 0, visible: true, opacity: 1, blend: 'normal', locked: false, mask: null });
+    layers.push({ name: 'Background', canvas: planesToCanvas(w, hh, mode, planes), x: 0, y: 0, visible: true, opacity: 1, blend: 'normal', locked: false, mask: null }); // i18n-ignore: PSD block keys and layer names are file content
   }
   return { w, h: hh, layers, guides, wm };
 }

@@ -23,7 +23,7 @@ function redEyeData(d, tol, dark) {
 }
 
 FILTERS.push(
-  { id: 'redeye', menu: 'Repair', name: 'Red-Eye Removal…',
-    params: [R('tol', 'Tolerance', 0, 100, 50, { unit: '%' }), R('dark', 'Darkening', 0, 100, 60, { unit: '%' })],
+  { id: 'redeye', menu: 'Repair', // i18n-ignore: menu ids
+    params: [R('tol', 'tolerance', 0, 100, 50, { unit: '%' }), R('dark', 'darkening', 0, 100, 60, { unit: '%' })],
     fn: (s, p) => withPixels(s, (d) => redEyeData(d, p.tol, p.dark)) }
 );

@@ -6,8 +6,8 @@
 
 const DYN = { angle: 0, roundness: 1, sizeJitter: 0, angleJitter: 0, follow: false, scatter: 0, count: 1, opacityJitter: 0, hueJitter: 0, pressureOpacity: false, tipImage: null };
 const TIP_IMAGES = new Map(); // id → alpha-mask canvas (black where it paints)
-const ALL_TIPS = [['round', 'Round'], ['square', 'Square'], ['flat', 'Flat'], ['spray', 'Spray'], ['chalk', 'Chalk'], ['charcoal', 'Charcoal'], ['bristle', 'Bristle'], ['sponge', 'Sponge'], ['grass', 'Grass'], ['leaf', 'Leaf'], ['star', 'Star'], ['heart', 'Heart'], ['ring', 'Bubble'], ['splat', 'Splat'], ['slime', 'Slime drip'], ['sloppo', 'Sloppo']];
-const tipOptions = (o) => ALL_TIPS.concat(o.tip === 'image' ? [['image', 'Image tip']] : []);
+const ALL_TIPS = trPairs([['round', ''], ['square', ''], ['flat', ''], ['spray', ''], ['chalk', ''], ['charcoal', ''], ['bristle', ''], ['sponge', ''], ['grass', ''], ['leaf', ''], ['star', ''], ['heart', ''], ['ring', ''], ['splat', ''], ['slime', ''], ['sloppo', '']], 'photoslop.brush.tip_');
+const tipOptions = (o) => ALL_TIPS.concat(o.tip === 'image' ? [['image', tr('photoslop.brush.tip_image')]] : []);
 const MULTI = { spray: 6, chalk: 4, bristle: 4, charcoal: 4, sponge: 4, splat: 4 };
 
 /* ---------- procedural tips ---------- */

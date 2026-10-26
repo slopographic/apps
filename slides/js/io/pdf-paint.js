@@ -34,14 +34,14 @@
   /** The ExtGState name for a fill and stroke opacity a (cached per page). */
   function alphaName(env, a) {
     var k = Math.round(a * 1000) / 1000;
-    if (!env.gs[k]) env.gs[k] = resource(env, 'ExtGState', 'GSa', env.doc.context.obj({ Type: 'ExtGState', ca: k, CA: k }));
+    if (!env.gs[k]) env.gs[k] = resource(env, 'ExtGState', 'GSa', env.doc.context.obj({ Type: 'ExtGState', ca: k, CA: k })); // i18n-ignore
     return env.gs[k];
   }
   function shading(env, p) {
     var ctx = env.doc.context, fn = gradFn(ctx, p.stops);
-    var sh = p.type === 'radial' ? { ShadingType: 3, ColorSpace: 'DeviceRGB', Coords: [p.cx, p.cy, 0, p.cx, p.cy, p.r], Function: fn, Extend: [true, true] }
-      : { ShadingType: 2, ColorSpace: 'DeviceRGB', Coords: [p.x0, p.y0, p.x1, p.y1], Function: fn, Extend: [true, true] };
-    return resource(env, 'Shading', 'Sh', ctx.obj(sh));
+    var sh = p.type === 'radial' ? { ShadingType: 3, ColorSpace: 'DeviceRGB', Coords: [p.cx, p.cy, 0, p.cx, p.cy, p.r], Function: fn, Extend: [true, true] } // i18n-ignore
+      : { ShadingType: 2, ColorSpace: 'DeviceRGB', Coords: [p.x0, p.y0, p.x1, p.y1], Function: fn, Extend: [true, true] }; // i18n-ignore
+    return resource(env, 'Shading', 'Sh', ctx.obj(sh)); // i18n-ignore
   }
 
   function drawPath(env, n, alpha) {
@@ -98,13 +98,13 @@
     var l = L(), pm = PM.pageMatrix(scene.h), names = new Map(), fontNames = new Map();
     env.ops = []; env.gs = {}; env.seq = 0;
     env.alpha = function (a) { return alphaName(env, a); };
-    env.imageName = function (img) { if (!names.has(img)) names.set(img, env.page.node.newXObject('Im', img.ref)); return names.get(img); };
+    env.imageName = function (img) { if (!names.has(img)) names.set(img, env.page.node.newXObject('Im', img.ref)); return names.get(img); }; // i18n-ignore
     env.fontName = function (font) { if (!fontNames.has(font)) fontNames.set(font, env.page.node.newFontDictionary(font.name, font.ref)); return fontNames.get(font); };
     env.link = function (x, y, w, h, url) {
       var pts = [[x, y], [x + w, y], [x + w, y + h], [x, y + h]].map(function (p) { var q = U.mat.apply(env.m, p[0], p[1]); return [q[0], scene.h - q[1]]; });
       var xs = pts.map(function (p) { return p[0]; }), ys = pts.map(function (p) { return p[1]; }), ctx = env.doc.context;
-      var annot = ctx.obj({ Type: 'Annot', Subtype: 'Link', Rect: [Math.min.apply(null, xs), Math.min.apply(null, ys), Math.max.apply(null, xs), Math.max.apply(null, ys)], Border: [0, 0, 0],
-        A: { Type: 'Action', S: 'URI', URI: l.PDFString.of(url) } });
+      var annot = ctx.obj({ Type: 'Annot', Subtype: 'Link', Rect: [Math.min.apply(null, xs), Math.min.apply(null, ys), Math.max.apply(null, xs), Math.max.apply(null, ys)], Border: [0, 0, 0], // i18n-ignore
+        A: { Type: 'Action', S: 'URI', URI: l.PDFString.of(url) } }); // i18n-ignore
       env.page.node.addAnnot(ctx.register(annot));
     };
     env.ops.push(l.pushGraphicsState(), l.concatTransformationMatrix(pm[0], pm[1], pm[2], pm[3], pm[4], pm[5]));

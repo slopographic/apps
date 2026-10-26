@@ -12,6 +12,7 @@ import { compareSides, sideKind } from '../io/files.js';
 import { kindOf } from '../core/kind.js';
 import { sample } from './samples.js';
 import { init as initCommands } from './commands.js';
+import { t, onLang } from './i18n.js';
 
 const $ = (id) => document.getElementById(id);
 const toast = (m) => window.SlopUI.toast(m, 4000);
@@ -20,7 +21,7 @@ let bar = null, frame = null, side = null, settings = null, zone = null, run = 0
 /** Compares the two sides now; resolves the result (or null with S.error set). */
 async function compare({ quiet = false } = {}) {
   if (!filled('a') || !filled('b')) {
-    S.result = null; S.error = quiet ? '' : `Add ${!filled('a') ? 'A' : 'B'} first: type or paste a text, or open a file.`;
+    S.result = null; S.error = quiet ? '' : t('diff.app.add_first', { side: !filled('a') ? 'A' : 'B' });
     view.render(); sync(); return null;
   }
   const mine = ++run;
@@ -43,30 +44,30 @@ async function compare({ quiet = false } = {}) {
 function sync() {
   const has = !!S.result, any = filled('a') || filled('b');
   if (zone) zone.empty(!any);
-  bar.setActions([{ id: 'open', label: 'Open files…', icon: 'open', onClick: () => window.SlopIntake.pick({ to: 'diff' }) }]);
-  bar.setMenu([{ id: 'sample', label: 'Try a sample', onClick: loadSample }, { id: 'clear', label: 'Clear both', disabled: !any, onClick: clearAll }]);
+  bar.setActions([{ id: 'open', label: t('diff.app.open'), icon: 'open', onClick: () => window.SlopIntake.pick({ to: 'diff' }) }]);
+  bar.setMenu([{ id: 'sample', label: t('diff.app.sample'), onClick: loadSample }, { id: 'clear', label: t('diff.app.clear_both'), disabled: !any, onClick: clearAll }]);
   const kind = has ? S.result.kind : null;
   if (kind !== shownKind) {
     shownKind = kind;
-    const result = has ? [{ title: 'Report', key: 'report', actions: [
-      { id: 'df-drive', label: 'Save to Slop Drive…', run: saveReport },
-      { id: 'df-openin', label: 'Open in…', menu: () => ex.openInItems('html') }] }] : [];
+    const result = has ? [{ title: t('diff.panel.report'), key: 'report', actions: [
+      { id: 'df-drive', label: t('diff.app.to_drive'), run: saveReport },
+      { id: 'df-openin', label: t('diff.app.open_in'), menu: () => ex.openInItems('html') }] }] : [];
     side.render(settings.sections(kind).concat(result));
   }
   side.footer([
-    { id: 'df-compare', label: S.busy ? 'Comparing…' : 'Compare', primary: true, disabled: S.busy || !filled('a') || !filled('b'), run: () => compare() },
-    { id: 'df-export', label: 'Export', disabled: !has, menu: () => [
-      { label: 'Download the report (HTML)', act: () => ex.download('html').catch((e) => toast(e.message)) },
-      { label: 'Download the report (PDF)', act: () => ex.download('pdf').catch((e) => toast(e.message)) },
-      { label: 'Download a .patch', disabled: !ex.canPatch(), act: () => ex.download('patch').catch((e) => toast(e.message)) },
-      { label: 'Save the report to Slop Drive…', act: saveReport }] },
-  ], { more: 'Settings', note: 'Ctrl+Enter compares' });
+    { id: 'df-compare', label: S.busy ? t('diff.app.comparing') : t('diff.app.compare'), primary: true, disabled: S.busy || !filled('a') || !filled('b'), run: () => compare() },
+    { id: 'df-export', label: t('menu.export'), disabled: !has, menu: () => [
+      { label: t('diff.cmd.report_html'), act: () => ex.download('html').catch((e) => toast(e.message)) },
+      { label: t('diff.cmd.report_pdf'), act: () => ex.download('pdf').catch((e) => toast(e.message)) },
+      { label: t('diff.cmd.patch'), disabled: !ex.canPatch(), act: () => ex.download('patch').catch((e) => toast(e.message)) },
+      { label: t('diff.app.report_drive'), act: saveReport }] },
+  ], { more: t('ui.settings'), note: t('diff.app.ctrl_enter') });
   panelUI.sync();
   slots.refresh();
 }
 
 async function saveReport() {
-  try { const id = await ex.saveToDrive('html'); toast('The report is saved in Slop Drive.'); return id; } catch (e) { toast('Could not save: ' + e.message); return null; }
+  try { const id = await ex.saveToDrive('html'); toast(t('diff.app.saved')); return id; } catch (e) { toast(t('diff.app.save_failed', { why: e.message })); return null; }
 }
 function clearAll() { setSide('a', {}); setSide('b', {}); }
 const loadSample = () => window.SlopIntake.sample(sample, { to: 'diff' });
@@ -75,7 +76,7 @@ const loadSample = () => window.SlopIntake.sample(sample, { to: 'diff' });
 function wireIntake() {
   window.SlopIntake.register({
     id: 'diff', limit: 2,
-    accept: (f) => (kindOf(f.name, f.type) ? true : 'is not a text, a PDF or a picture'),
+    accept: (f) => (kindOf(f.name, f.type) ? true : t('diff.err.not_kind')),
     driveAccept: ['text/*', 'application/json', 'application/pdf', 'image/*'],
     processAll: async (files, ctx) => {
       const want = ctx.data && ctx.data.side;
@@ -92,18 +93,18 @@ function wireIntake() {
   });
   zone = window.SlopDrop.attach($('df-drop'), {
     intake: 'diff', targets: [$('df-drop')], window: true,
-    label: 'Drop two files here to compare them',
-    hint: 'Texts, code, Markdown, JSON, CSV, PDFs or pictures. Read in this browser, never uploaded.',
-    preview: { steps: ['Drop or paste the original as A and the changed version as B', 'See every change, word by word, side by side', 'Download a report or a .patch'] },
-    sample: { label: 'Try it with a sample', files: sample },
+    label: 'diff.drop.label',
+    hint: 'diff.drop.hint',
+    preview: { steps: ['diff.drop.step1', 'diff.drop.step2', 'diff.drop.step3'] },
+    sample: { label: 'diff.drop.sample', files: sample },
   });
 }
 
 function boot() {
   bar = window.SlopCompareBar;   // js/ui/bar.js, mounted before the shell
-  frame = window.SlopFrame.mount($('df-main'), { list: null, view: $('df-work'), panel: $('df-panel'), panelLabel: 'Settings',
+  frame = window.SlopFrame.mount($('df-main'), { list: null, view: $('df-work'), panel: $('df-panel'), panelLabel: 'ui.settings',
     storageKey: 'diff', phone: '(max-width: 860px)', phoneButton: false, width: 320, min: 280, max: 480 });
-  side = window.SlopFrame.panel($('df-panel'), { title: 'Compare' });
+  side = window.SlopFrame.panel($('df-panel'), { title: t('diff.panel.compare') });
   settings = panelUI.build($('df-settings'));
   if (frame.isPhone() && !panelUI.chosen()) S.opts.view = 'unified';   // side by side is cramped on a phone, until chosen
   slots.wire({ onEdit: () => { if (S.result || S.error) compare({ quiet: true }); else sync(); } });
@@ -114,11 +115,13 @@ function boot() {
     else { if (what !== 'opts') view.render(); sync(); }
   });
   sync();
+  // a language change: the panel's sections and foot, the header's menu and the result's words again
+  onLang(() => { shownKind = undefined; if (S.result || S.error) view.render(); sync(); });
   window.SlopCompare = { S, compare, go: view.go, at: view.at, count: view.count, setSide, clearAll, sideKind, export: ex, frame: () => frame, ready: false };
   initCommands(window.SlopCompare);
   if (window.SlopHub) window.SlopHub.register('diff');
   Promise.resolve(window.SlopIntake.launch({ to: 'diff' })).finally(() => { window.SlopCompare.ready = true; });
 }
 
-try { boot(); } catch (e) { console.error(e); if (window.SlopUI) toast('Slop Compare could not start: ' + e.message); }
+try { boot(); } catch (e) { console.error(e); if (window.SlopUI) toast(t('diff.app.boot_failed', { why: e.message })); }
 document.body.classList.add('ready');

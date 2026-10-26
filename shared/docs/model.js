@@ -10,10 +10,10 @@
 
   /** Basis points from typed percent text: "20" -> 2000, "7.5" -> 750. Blank is 0. Null when not 0 to 100. */
   function bpFromPercent(text) {
-    const t = String(text ?? '').trim();
-    if (t === '') return 0;
-    if (!PCT.test(t)) return null;
-    const bp = S.money.parseMinor(t, 'USD');   // two decimals of a percent are exactly basis points
+    const str = String(text ?? '').trim();
+    if (str === '') return 0;
+    if (!PCT.test(str)) return null;
+    const bp = S.money.parseMinor(str, 'USD');   // two decimals of a percent are exactly basis points
     return bp !== null && bp >= 0 && bp <= 10000 ? bp : null;
   }
 
@@ -22,9 +22,9 @@
 
   /** Minor units from typed money text in a currency, or null. Negative and blank are null. */
   function amountFromText(text, currency) {
-    const t = String(text ?? '').trim();
-    if (t === '') return null;
-    const v = S.money.parseMinor(t, currency);
+    const str = String(text ?? '').trim();
+    if (str === '') return null;
+    const v = S.money.parseMinor(str, currency);
     return v !== null && v >= 0 ? v : null;
   }
 
@@ -49,11 +49,12 @@
   /** Plain-words problems with one line (empty when it is fine). Mirrors the schema's rules for a line. */
   function lineErrors(l) {
     const e = [];
-    if (!l.description) e.push('needs a description');
-    if (!Number.isSafeInteger(l.qty) || l.qty < 1) e.push('quantity must be a whole number, 1 or more');
-    if (!Number.isSafeInteger(l.unitPrice) || l.unitPrice < 0) e.push('unit price must be an amount, zero or more');
-    if (!Number.isSafeInteger(l.taxRate) || l.taxRate < 0 || l.taxRate > 10000) e.push('tax rate must be 0 to 100%');
-    if (!Number.isSafeInteger(l.discount ?? 0) || (l.discount ?? 0) < 0 || (l.discount ?? 0) > 10000) e.push('discount must be 0 to 100%');
+    const t = (k) => (g.SlopI18n ? g.SlopI18n.t(k) : k);
+    if (!l.description) e.push(t('biz.ln.e_desc'));
+    if (!Number.isSafeInteger(l.qty) || l.qty < 1) e.push(t('biz.ln.e_qty'));
+    if (!Number.isSafeInteger(l.unitPrice) || l.unitPrice < 0) e.push(t('biz.ln.e_price'));
+    if (!Number.isSafeInteger(l.taxRate) || l.taxRate < 0 || l.taxRate > 10000) e.push(t('biz.ln.e_tax'));
+    if (!Number.isSafeInteger(l.discount ?? 0) || (l.discount ?? 0) < 0 || (l.discount ?? 0) > 10000) e.push(t('biz.ln.e_disc'));
     return e;
   }
 
@@ -72,7 +73,6 @@
   /** ISO date plus n days (UTC arithmetic, so the day never shifts). */
   const addDays = (iso, n) => S.ledger.addDays(iso, n);
 
-  const STATUS_LABEL = { draft: 'Draft', open: 'Confirmed', fulfilled: 'Fulfilled', cancelled: 'Cancelled' };
 
-  NS.model = { bpFromPercent, percentText, amountFromText, amountText, newLine, cleanLine, lineErrors, totals, lineTotal, addDays, STATUS_LABEL };
+  NS.model = { bpFromPercent, percentText, amountFromText, amountText, newLine, cleanLine, lineErrors, totals, lineTotal, addDays };
 })(typeof window !== 'undefined' ? window : globalThis);

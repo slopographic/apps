@@ -4,7 +4,8 @@
    A rule set: { types: ['image/*', 'video/*', 'application/pdf'], exts: ['.heic'], noun: 'a picture or video', maxBytes }.
    any: true takes every type; allowEmpty: true takes zero-byte files.
    types: MIME patterns (type/* or an exact type). exts: used only when the browser gives no type (or octet-stream).
-   noun: how a refusal reads, "notes.txt is not <noun>". */
+   noun: how a refusal reads, "notes.txt is not <noun>": an i18n key ('sorter.app.a_photo') or a function, read when a file
+   is refused (so it follows a language change), or plain text. */
 (function (root) {
   'use strict';
   const SI = (root.SlopIntake = root.SlopIntake || {});
@@ -12,6 +13,9 @@
   const R = (SI.rules = SD.rules = SI.rules || {});
   /** A word from the shared tables (shared/i18n/ui/en.js), or the English given when SlopI18n or the key is absent. */
   function tr(key, en, vars) { const I = globalThis.SlopI18n; if (I && I.has && I.has(key)) return I.t(key, vars); return vars ? String(en).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en; }
+
+  /** A noun or label an app gave: an i18n key (read in the current language when used), a function, or text (SlopI18n.label). */
+  const lab = (v) => { const I = globalThis.SlopI18n; return String(I && I.label ? I.label(v) : typeof v === 'function' ? v() : v); };
 
   /** The extension of a file name, lower case, with its dot ('' when none). */
   R.ext = function (name) {
@@ -38,7 +42,7 @@
     const name = file.name || tr('ui.intake.file', 'file'), size = Number(file.size) || 0;
     const known = R.knownType(file.type);
     const byType = rules.any || (known ? R.typeOk(file.type, rules) : (rules.exts || []).includes(R.ext(name)));
-    if (!byType) return { ok: false, reason: tr('ui.intake.not_noun', '{name} is not {noun}', { name, noun: rules.noun || tr('ui.intake.supported', 'a supported file') }) };
+    if (!byType) return { ok: false, reason: tr('ui.intake.not_noun', '{name} is not {noun}', { name, noun: rules.noun ? lab(rules.noun) : tr('ui.intake.supported', 'a supported file') }) };
     if (size === 0 && !rules.allowEmpty) return { ok: false, reason: tr('ui.intake.empty', '{name} is empty', { name }) };
     if (rules.maxBytes && size > rules.maxBytes) return { ok: false, reason: tr('ui.intake.larger', '{name} is larger than {size}', { name, size: R.size(rules.maxBytes) }) };
     return { ok: true };

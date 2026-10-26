@@ -5,7 +5,8 @@
   'use strict';
   const S = g.SlopData, T = g.SlopTime, TS = g.SlopTaskStore, TK = g.SlopTasks, UI = g.SlopUI, el = UI.el;
   const NS = (g.SlopTodo = g.SlopTodo || {});
-  const REMINDERS = [{ v: '', label: 'No reminder' }, { v: 0, label: 'At the due time' }, { v: 15, label: '15 minutes before' }, { v: 60, label: '1 hour before' }, { v: 1440, label: '1 day before' }];
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
+  const REMINDERS = [{ v: '', key: 'todo.ed.no_reminder' }, { v: 0, key: 'todo.ed.at_due' }, { v: 15, key: 'todo.ed.15m' }, { v: 60, key: 'todo.ed.1h' }, { v: 1440, key: 'todo.ed.1d' }];
   const FALLBACK = ['UTC', 'Europe/London', 'Europe/Paris', 'America/New_York', 'America/Los_Angeles', 'Asia/Tokyo'];
   const field = (id, label, node) => el('label', { class: 'field' }, el('span', null, label), node);
   const inp = (id, type, value, label, extra = {}) => el('input', { id, type, value: value ?? '', 'aria-label': label, ...extra });
@@ -20,7 +21,7 @@
   /** The editor's starting values for a task, or for a new one (list and due day preset). */
   function start(task, opts) {
     if (task) return { ...task, tags: (task.tags || []).join(', '), remind: task.remind ?? '', freq: task.freq || 'none', tz: task.tz || T.deviceZone() };
-    return { title: opts.title || '', notes: '', due: opts.due || '', dueTime: '', tz: T.deviceZone(), priority: 'none', list: opts.list || 'Inbox',
+    return { title: opts.title || '', notes: '', due: opts.due || '', dueTime: '', tz: T.deviceZone(), priority: 'none', list: opts.list || 'Inbox',   // i18n-ignore: the stored name of the default list
       tags: '', freq: 'none', until: '', remind: '', customerId: opts.customerId || '', parentId: opts.parentId || '' };
   }
 
@@ -34,36 +35,36 @@
     const cust = await S.store.list('customers');
     const customers = cust.ok ? cust.value.slice().sort((a, b) => String(a.name).localeCompare(String(b.name))) : [];
     const lists = await listNames();
-    const kids = task ? (await S.store.list('tasks')).value.filter((t) => t.parentId === task.id) : [];
-    const subs = el('ul', { class: 'sub-list', 'aria-label': 'Subtasks' }, kids.sort(TK.compare).map((k) => subRow(k)));
-    const subInput = inp('tSubTitle', 'text', '', 'New subtask', { maxlength: 200, placeholder: 'Add a subtask' });
+    const kids = task ? (await S.store.list('tasks')).value.filter((sub) => sub.parentId === task.id) : [];
+    const subs = el('ul', { class: 'sub-list', 'aria-label': t('todo.ed.subtasks') }, kids.sort(TK.compare).map((k) => subRow(k)));
+    const subInput = inp('tSubTitle', 'text', '', t('todo.ed.new_subtask'), { maxlength: 200, placeholder: t('todo.ed.add_subtask') });
     const subAdd = el('button', { type: 'button', class: 'btn', onclick: async () => {
       const title = subInput.value.trim();
       if (!task || !title) return;
-      const r = await TS.save({ title, list: f.list || 'Inbox', parentId: task.id, done: false });
+      const r = await TS.save({ title, list: f.list || 'Inbox', parentId: task.id, done: false });   // i18n-ignore: the stored name of the default list
       if (!r.ok) UI.toast(r.message); else { subInput.value = ''; subs.append(subRow(r.value)); }
-    } }, 'Add');
+    } }, t('todo.ed.add'));
     const body = el('form', { class: 'task-form', id: 'tForm', onsubmit: (e) => e.preventDefault() },
-      field('teTitle', 'Title', inp('teTitle', 'text', f.title, 'Title', { maxlength: 200, required: true, autofocus: true })),
-      field('tNotes', 'Notes', el('textarea', { id: 'tNotes', rows: 3, maxlength: 5000, 'aria-label': 'Notes' }, f.notes || '')),
+      field('teTitle', t('todo.ed.title'), inp('teTitle', 'text', f.title, t('todo.ed.title'), { maxlength: 200, required: true, autofocus: true })),
+      field('tNotes', t('todo.ed.notes'), el('textarea', { id: 'tNotes', rows: 3, maxlength: 5000, 'aria-label': t('todo.ed.notes') }, f.notes || '')),
       el('div', { class: 'ev-row' },
-        field('tDue', 'Due date', inp('tDue', 'date', f.due, 'Due date')),
-        field('tTime', 'Due time', inp('tTime', 'time', f.dueTime, 'Due time'))),
-      field('tTz', 'Zone of the due time', sel('tTz', zones(f.tz).map((z) => ({ v: z, label: z })), f.tz, 'Zone of the due time')),
+        field('tDue', t('todo.ed.due_date'), inp('tDue', 'date', f.due, t('todo.ed.due_date'))),
+        field('tTime', t('todo.ed.due_time'), inp('tTime', 'time', f.dueTime, t('todo.ed.due_time')))),
+        field('tTz', t('todo.ed.zone'), sel('tTz', zones(f.tz).map((z) => ({ v: z, label: z })), f.tz, t('todo.ed.zone'))),
       el('div', { class: 'ev-row' },
-        field('tPriority', 'Priority', sel('tPriority', [{ v: 'none', label: 'None' }, { v: 'low', label: 'Low' }, { v: 'high', label: 'High' }], f.priority, 'Priority')),
-        field('teList', 'List', el('span', null, inp('teList', 'text', f.list, 'List', { list: 'tListNames', maxlength: 40 }),
+        field('tPriority', t('todo.ed.priority'), sel('tPriority', [{ v: 'none', label: t('todo.ed.p_none') }, { v: 'low', label: t('todo.ed.p_low') }, { v: 'high', label: t('todo.ed.p_high') }], f.priority, t('todo.ed.priority'))),
+        field('teList', t('todo.ed.list'), el('span', null, inp('teList', 'text', f.list, t('todo.ed.list'), { list: 'tListNames', maxlength: 40 }),
           el('datalist', { id: 'tListNames' }, lists.map((n) => el('option', { value: n })))))),
-      field('tTags', 'Tags, separated by commas', inp('tTags', 'text', f.tags, 'Tags', { maxlength: 400 })),
+      field('tTags', t('todo.ed.tags'), inp('tTags', 'text', f.tags, t('todo.ed.tags_aria'), { maxlength: 400 })),
       el('div', { class: 'ev-row' },
-        field('tRepeat', 'Repeat', sel('tRepeat', [{ v: 'none', label: 'Does not repeat' }, { v: 'daily', label: 'Every day' }, { v: 'weekly', label: 'Every week' }, { v: 'monthly', label: 'Every month' }, { v: 'yearly', label: 'Every year' }], f.freq, 'Repeat')),
-        field('tUntil', 'Repeat until (optional)', inp('tUntil', 'date', f.until, 'Repeat until'))),
+        field('tRepeat', t('todo.ed.repeat'), sel('tRepeat', [['none', t('todo.ed.r_none')], ['daily', t('todo.ed.r_daily')], ['weekly', t('todo.ed.r_weekly')], ['monthly', t('todo.ed.r_monthly')], ['yearly', t('todo.ed.r_yearly')]].map(([v, label]) => ({ v, label })), f.freq, t('todo.ed.repeat'))),
+        field('tUntil', t('todo.ed.until'), inp('tUntil', 'date', f.until, t('todo.ed.until_aria')))),
       el('div', { class: 'ev-row' },
-        field('tRemind', 'Reminder', sel('tRemind', REMINDERS.map((r) => ({ v: r.v, label: r.label })), f.remind, 'Reminder'))),
-      field('tCustomer', 'Customer', sel('tCustomer', [{ v: '', label: 'No customer' }, ...customers.map((c) => ({ v: c.id, label: c.name }))], f.customerId, 'Customer')),
-      el('p', { class: 'note' }, 'A due time shows in Slop Calendar as a block. A task with no due date is not on the calendar.'),
-      task ? el('section', { class: 'sub-sec' }, el('h4', { class: 'sub-t' }, 'Subtasks'), subs,
-        el('div', { class: 'inline' }, subInput, subAdd)) : el('p', { class: 'note' }, 'Save the task first to add subtasks.'));
+        field('tRemind', t('todo.ed.reminder'), sel('tRemind', REMINDERS.map((r) => ({ v: r.v, label: t(r.key) })), f.remind, t('todo.ed.reminder')))),
+        field('tCustomer', t('todo.ed.customer'), sel('tCustomer', [{ v: '', label: t('todo.ed.no_customer') }, ...customers.map((c) => ({ v: c.id, label: c.name }))], f.customerId, t('todo.ed.customer'))),
+        el('p', { class: 'note' }, t('todo.ed.cal_note')),
+        task ? el('section', { class: 'sub-sec' }, el('h4', { class: 'sub-t' }, t('todo.ed.subtasks')), subs,
+        el('div', { class: 'inline' }, subInput, subAdd)) : el('p', { class: 'note' }, t('todo.ed.save_first')));
     const read = () => {
       const v = (id) => body.querySelector(`#${id}`).value;
       return { title: v('teTitle'), notes: v('tNotes'), due: v('tDue'), dueTime: v('tTime'), tz: v('tTz'), priority: v('tPriority'),
@@ -74,29 +75,29 @@
       const res = TS.fromForm(read(), task);
       if (!res.ok) { UI.toast(res.error); return false; }
       const r = await TS.save(res.value);
-      if (!r.ok) { UI.toast(r.message || 'Could not save the task.'); return false; }
+      if (!r.ok) { UI.toast(r.message || t('todo.ed.save_failed')); return false; }
       if (opts.onDone) opts.onDone(r.value);
       return true;
     };
     const remove = async () => {
       const kidCount = kids.length;
-      const yes = await UI.confirm('Delete this task?', kidCount ? `Its ${kidCount} subtask${kidCount === 1 ? '' : 's'} are deleted too.` : 'This cannot be undone.', 'Delete', { danger: true });
+      const yes = await UI.confirm(t('todo.ed.del_q'), kidCount ? t('todo.ed.del_kids', { n: kidCount }) : t('todo.ed.del_final'), t('ui.delete'), { danger: true });
       if (!yes) return false;
       const r = await TS.remove(task.id);
       if (!r.ok) { UI.toast(r.message); return false; }
       if (opts.onDone) opts.onDone(null);
       return true;
     };
-    const buttons = [{ label: 'Cancel' }];
-    if (task) buttons.push({ label: 'Delete', danger: true, act: remove });
-    buttons.push({ label: 'Save', primary: true, act: async () => ((await save()) ? undefined : false) });
-    return UI.dialog({ title: task ? 'Edit task' : 'New task', body, buttons, cls: 'task-dlg', dismissable: true });
+    const buttons = [{ label: t('menu.cancel') }];
+    if (task) buttons.push({ label: t('ui.delete'), danger: true, act: remove });
+    buttons.push({ label: t('menu.save'), primary: true, act: async () => ((await save()) ? undefined : false) });
+    return UI.dialog({ title: task ? t('todo.ed.edit_task') : t('todo.ed.new_task'), body, buttons, cls: 'task-dlg', dismissable: true });
   }
 
   /** One subtask in the dialog: its title and a checkbox that completes it at once. */
   function subRow(k) {
     return el('li', { class: `sub-row${k.done ? ' is-done' : ''}` },
-      el('input', { type: 'checkbox', checked: !!k.done, 'aria-label': `Complete ${k.title}`, onchange: async (e) => {
+      el('input', { type: 'checkbox', checked: !!k.done, 'aria-label': t('todo.row.complete', { title: k.title }), onchange: async (e) => {
         const r = e.target.checked ? await TS.complete(k.id) : await TS.reopen(k.id);
         if (!r.ok) UI.toast(r.message);
       } }),

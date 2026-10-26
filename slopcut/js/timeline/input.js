@@ -35,7 +35,7 @@
     drag = { kind: 'scrub', move: (p) => go(p.x), end: () => { TL.snapLine = null; } };
   }
   function startMarker(e, pt, k) {
-    const ed = live('Move marker'); const t0 = k.t, x0 = pt.x;
+    const ed = live(U.t('slopedit.tl.move_marker')); const t0 = k.t, x0 = pt.x;
     SE.player.seek(k.t);
     drag = { kind: 'marker', move: (p) => ed.apply((d) => { const m = d.markers.find((x) => x.id === k.id); m.t = Math.max(0, TL.snapT(t0 + (p.x - x0) / TL.pps, null)); }), end: () => { TL.snapLine = null; } };
   }
@@ -46,7 +46,7 @@
     const ids = A.selectedIds(), g = E.group(SE.doc, ids);
     const clips = SE.doc.clips.filter((x) => g.has(x.id));
     const s0 = Math.min(...clips.map((x) => x.start)), e0 = Math.max(...clips.map(M.end));
-    const ed = live(clips.length > 1 ? 'Move clips' : 'Move clip');
+    const ed = live(clips.length > 1 ? U.t('slopedit.tl.move_clips') : U.t('slopedit.insp.move_clip'));
     const kind = h.row.track.kind, rows = TL.rows().filter((r) => r.track.kind === kind), r0 = rows.findIndex((r) => r.track.id === h.row.track.id);
     let started = false;
     drag = {
@@ -70,7 +70,7 @@
   function startTrim(e, pt, h) {
     const c = h.clip, edge = h.part, rip = ripple(e);
     if (!A.sel.has(c.id)) A.select([...E.group(SE.doc, [c.id])]);
-    const ed = live(rip ? 'Ripple trim' : 'Trim');
+    const ed = live(rip ? U.t('slopedit.tl.ripple_trim') : U.t('slopedit.tl.trim'));
     const t0 = edge === 'in' ? c.start : M.end(c), g = E.group(SE.doc, [c.id]);
     // A plain trim of a selected clip trims the same edge of every other selected clip by as much (one per linked group)
     const done = new Set(g), others = [];
@@ -88,25 +88,25 @@
   }
   function startFade(e, pt, h) {
     const c = h.clip, which = h.part, key = c.kind === 'audio' ? (which === 'fadein' ? 'afIn' : 'afOut') : which === 'fadein' ? 'fadeIn' : 'fadeOut';
-    const ed = live('Fade'), r = TL.clipRect(c);
+    const ed = live(U.t('slopedit.tl.fade')), r = TL.clipRect(c);
     drag = { kind: 'fade', move(p) {
       const v = which === 'fadein' ? (p.x - r.x) / TL.pps : (r.x + r.w - p.x) / TL.pps;
       ed.apply((d) => { const cc = M.clip(d, c.id); cc[key] = U.round(U.clamp(v, 0, cc.dur), 3); });
     } };
   }
   function startTransition(e, pt, h) {
-    const c = h.clip, cut = TL.x(c.start), ed = live('Transition length');
+    const c = h.clip, cut = TL.x(c.start), ed = live(U.t('slopedit.insp.transition_length'));
     A.select([c.id]);
     drag = { kind: 'tr', move(p) { ed.apply((d) => E.setTransition(d, c.id, c.trIn.type, Math.abs(p.x - cut) * 2 / TL.pps)); } };
   }
   function startVolume(e, pt, h) {
     const c = h.clip, r = TL.clipRect(c);
     if (h.part === 'volume' && (e.ctrlKey || e.metaKey || e.altKey)) {
-      SE.change('Add keyframe', (d) => { const cc = M.clip(d, c.id); const u = U.round((pt.x - r.x) / TL.pps, 3); const v = TL.volFromY(r, pt.y) / (cc.vol || 1); cc.keys = (cc.keys || []).concat({ t: u, v: U.round(v, 3) }).sort((a, b) => a.t - b.t); });
+      SE.change(U.t('slopedit.tl.add_keyframe'), (d) => { const cc = M.clip(d, c.id); const u = U.round((pt.x - r.x) / TL.pps, 3); const v = TL.volFromY(r, pt.y) / (cc.vol || 1); cc.keys = (cc.keys || []).concat({ t: u, v: U.round(v, 3) }).sort((a, b) => a.t - b.t); });
       drag = { kind: 'none' }; return;
     }
     A.select([c.id], { add: e.shiftKey });
-    const ed = live(h.part === 'key' ? 'Move keyframe' : 'Volume');
+    const ed = live(h.part === 'key' ? U.t('slopedit.tl.move_keyframe') : U.t('slopedit.insp.volume'));
     drag = { kind: 'vol', move(p) {
       ed.apply((d) => {
         const cc = M.clip(d, c.id);
@@ -117,7 +117,7 @@
         } else if (cc.keys && cc.keys.length) { const f = TL.volFromY(r, p.y) / Math.max(0.001, TL.volFromY(r, pt.y)); cc.keys.forEach((k, i) => { k.v = U.round(U.clamp(c.keys[i].v * f, 0, 4), 3); }); }
         else cc.vol = TL.volFromY(r, p.y);
       });
-      SE.app.status('Volume ' + (20 * Math.log10(Math.max(1e-4, M.clip(SE.doc, c.id).vol))).toFixed(1) + ' dB');
+      SE.app.status(U.t('slopedit.insp.volume') + ' ' + (20 * Math.log10(Math.max(1e-4, M.clip(SE.doc, c.id).vol))).toFixed(1) + ' dB');
     } };
   }
   /** A selection box from an empty spot: every clip it touches, across tracks (added to the selection with Shift or in Select mode). */

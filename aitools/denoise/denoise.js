@@ -3,6 +3,7 @@
 (function () {
   'use strict';
   const T = window.SlopAITools, F = window.SlopAIFilters, $ = (id) => document.getElementById(id);
+  const t = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
   const MAX = 2048;
   let src = null, outCanvas = null;
 
@@ -19,31 +20,31 @@
   }
   function apply() {
     if (!src) return;
-    $('run').disabled = true; $('msg').textContent = 'Filtering…';
+    $('run').disabled = true; $('msg').textContent = t('aitools.denoise.filtering');
     // Yield once so the message shows before the loop starts.
     setTimeout(() => {
       const t0 = performance.now();
       const rgba = F.denoise(src.rgba, src.w, src.h, { mode: $('mode').value, strength: +$('strength').value });
       paint($('after'), rgba, src.w, src.h);
       outCanvas = $('after');
-      $('msg').textContent = `Done in ${((performance.now() - t0) / 1000).toFixed(1)} s. Drag the slider to compare.`;
+      $('msg').textContent = t('aitools.denoise.done', { s: ((performance.now() - t0) / 1000).toFixed(1) });
       $('compare').hidden = false; $('dl').disabled = false; $('run').disabled = false;
     }, 30);
   }
   function pick(f) {
-    if (!f || !/^image\//.test(f.type)) { $('msg').textContent = 'Choose an image file.'; return; }
+    if (!f || !/^image\//.test(f.type)) { $('msg').textContent = t('aitools.page.choose_image'); return; }
     createImageBitmap(f).then((bmp) => {
       src = load(bmp);
       paint($('before'), src.rgba, src.w, src.h);
       paint($('after'), src.rgba, src.w, src.h);
-      $('run').disabled = false; $('msg').textContent = `${f.name}: ${src.w} × ${src.h} px. Press Apply.`;
+      $('run').disabled = false; $('msg').textContent = t('aitools.denoise.loaded', { name: f.name, w: src.w, h: src.h });
       $('compare').hidden = false; $('dl').disabled = true;
       applySplit();
-    }).catch(() => { $('msg').textContent = 'That picture could not be read.'; });
+    }).catch(() => { $('msg').textContent = t('aitools.page.unreadable'); });
   }
   function applySplit() { $('after').style.clipPath = `inset(0 ${100 - +$('split').value}% 0 0)`; }
   // the one way in (aitools/intake.js): a drop on the box, choose a file, a paste, a launch
-  const intake = T.intake('ai-denoise', { accept: { types: ['image/*'], exts: ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.bmp', '.avif'], noun: 'an image' }, read: (f) => pick(f) });
+  const intake = T.intake('ai-denoise', { accept: { types: ['image/*'], exts: ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.bmp', '.avif'], noun: 'aitools.page.an_image' }, read: (f) => pick(f) });
   $('strength').addEventListener('input', (e) => { $('sv').textContent = e.target.value; });
   $('run').addEventListener('click', apply);
   $('split').addEventListener('input', applySplit);

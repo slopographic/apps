@@ -8,11 +8,12 @@
  *   readInto(img, { set, page, paper }) → { glyphs, empty }   (paper: a4 | letter) */
 (function (g) {
   'use strict';
-  const S = () => g.FC.state, F = () => g.SlopFont;
+  const S = () => g.FC.state, F = () => g.SlopFont, t = (k, v) => g.FC.t(k, v);
   const HERE = (document.currentScript && document.currentScript.src) || location.href;
   const SETS = ['upper', 'lower', 'digits', 'punct', 'nordic', 'basic', 'latin1', 'latinA'];
   let partId = null;
   const lay = (set, paper) => F().sheet.layout(F().charset.codes(set).filter((c) => c > 0x20 && c !== 0xa0 && c !== 0xad), S().project().metrics, { page: paper });
+  // the printed sheet is a document (its words stay English, like the font's own data); the page's own words are keys
   const setLabel = (id) => (F().charset.SETS.find((s) => s.id === id) || { label: id }).label;
 
   function draw(L, index) {
@@ -38,7 +39,7 @@
     }
     return c;
   }
-  const load = (src) => new Promise((res, rej) => { const s = Object.assign(document.createElement('script'), { src: new URL(src, HERE).href }); s.onload = res; s.onerror = () => rej(new Error('Could not load the PDF maker')); document.head.append(s); });
+  const load = (src) => new Promise((res, rej) => { const s = Object.assign(document.createElement('script'), { src: new URL(src, HERE).href }); s.onload = res; s.onerror = () => rej(new Error(t('fontcreator.sheet.no_pdf_maker'))); document.head.append(s); });
   const png = (c) => new Promise((res) => c.toBlob(res, 'image/png'));
   async function pdf(L) {
     if (!g.PDFLib) await load('../../../vendor/pdf-lib/pdf-lib.min.js');
@@ -52,36 +53,36 @@
   }
   function setSelect(id, value) {
     const el = g.SlopUI.el('select', { class: 'sui-input', id });
-    for (const s of SETS) el.append(g.SlopUI.el('option', { value: s }, setLabel(s)));
+    for (const s of SETS) el.append(g.SlopUI.el('option', { value: s }, g.FC.setName(s)));
     el.value = value;
     return el;
   }
   function paperSelect(id) {
     const el = g.SlopUI.el('select', { class: 'sui-input', id });
-    for (const [k, v] of Object.entries(F().sheet.PAGES)) el.append(g.SlopUI.el('option', { value: k }, v.label));
+    for (const k of Object.keys(F().sheet.PAGES)) el.append(g.SlopUI.el('option', { value: k }, t(`fontcreator.sheet.paper_${k}`)));
     el.value = S().settings().sheetPage;
     return el;
   }
   function template() {
     const U = g.SlopUI, el = U.el, set = setSelect('fc-sheet-set', S().settings().sheetSet), paper = paperSelect('fc-sheet-paper');
     const note = el('p', { class: 'sf-note', id: 'fc-sheet-note' });
-    const upd = () => { S().set({ sheetSet: set.value, sheetPage: paper.value }); const L = lay(set.value, paper.value); note.textContent = `${L.pages.reduce((n, p) => n + p.cells.length, 0)} boxes on ${L.pages.length} page${L.pages.length === 1 ? '' : 's'}.`; };
+    const upd = () => { S().set({ sheetSet: set.value, sheetPage: paper.value }); const L = lay(set.value, paper.value); note.textContent = t('fontcreator.sheet.boxes', { boxes: L.pages.reduce((n, p) => n + p.cells.length, 0) }) + ' ' + t('fontcreator.sheet.pages', { n: L.pages.length }); };
     set.addEventListener('change', upd); paper.addEventListener('change', upd);
-    const pngB = el('button', { type: 'button', class: 'sui-btn', id: 'fc-sheet-png' }, 'Download page 1 as PNG');
+    const pngB = el('button', { type: 'button', class: 'sui-btn', id: 'fc-sheet-png' }, t('fontcreator.sheet.png'));
     pngB.addEventListener('click', async () => { const L = lay(set.value, paper.value); U.download(await png(draw(L, 0)), `handwriting-sheet-${set.value}.png`); });
     upd();
-    U.dialog({ title: 'Print a handwriting sheet', cls: 'fc-dialog', body: el('div', { class: 'fc-dlg' },
-      el('p', { class: 'sui-p' }, 'Print it at 100% (no "fit to page"), write each character in its box with a black pen, then photograph it flat and in good light, or scan it. Keep the four black corner squares in the picture.'),
-      U.field('Characters', set), U.field('Paper', paper), note, pngB),
-    buttons: [{ label: 'Close' }, { label: 'Download PDF', primary: true, act: async () => {
+    U.dialog({ title: t('fontcreator.sheet.print_title'), cls: 'fc-dialog', body: el('div', { class: 'fc-dlg' },
+      el('p', { class: 'sui-p' }, t('fontcreator.sheet.print_note')),
+      U.field(t('fontcreator.more.chars'), set), U.field(t('fontcreator.sheet.paper'), paper), note, pngB),
+    buttons: [{ label: t('menu.close') }, { label: t('fontcreator.sheet.pdf'), primary: true, act: async () => {
       try { U.download(await pdf(lay(set.value, paper.value)), `handwriting-sheet-${set.value}.pdf`); } catch (e) { U.toast(e.message); return false; }
     } }] });
   }
   function readInto(img, o) {
     const T = F().trace, SH = F().sheet, L = lay(o.set, o.paper || 'a4'), page = L.pages[(o.page || 1) - 1];
-    if (!page) throw new Error(`That sheet has ${L.pages.length} page${L.pages.length === 1 ? '' : 's'}`);
+    if (!page) throw new Error(t('fontcreator.sheet.has_pages', { n: L.pages.length }));
     const gray = T.binarize(img), marks = SH.findMarkers(gray.bits, img.width, img.height);
-    if (!marks) throw new Error('The four black corner squares were not found: photograph the whole sheet, flat and in good light');
+    if (!marks) throw new Error(t('fontcreator.sheet.no_marks'));
     const H = SH.homography(L.markers.map((m) => ({ x: m.cx, y: m.cy })), marks);
     const levels = []; for (let i = 0; i < img.data.length; i += 4 * 97) levels.push(0.2126 * img.data[i] + 0.7152 * img.data[i + 1] + 0.0722 * img.data[i + 2]);
     levels.sort((a, b) => a - b);
@@ -93,23 +94,23 @@
       const r = T.trace(px, { threshold, minArea: 12, place: { mode: 'lines', baseline: cell.lines.base - rect.y, capline: cell.lines.cap - rect.y, capHeight: m.capHeight, left: 50 } });
       if (r.contours.length) done.push({ cp: cell.cp, contours: r.contours, advance: r.advance });
     }
-    if (done.length) S().edit(`Read ${done.length} handwritten glyphs`, 'project', (p) => { for (const d of done) { const gl = F().model.ensure(p, d.cp); gl.contours = d.contours; gl.advance = d.advance; } });
+    if (done.length) S().edit(t('fontcreator.sheet.undo_read', { n: done.length }), 'project', (p) => { for (const d of done) { const gl = F().model.ensure(p, d.cp); gl.contours = d.contours; gl.advance = d.advance; } });
     return { glyphs: done.length, empty: page.cells.length - done.length, threshold };
   }
   function read(img, name) {
     const U = g.SlopUI, el = U.el, set = setSelect('fc-read-set', S().settings().sheetSet), paper = paperSelect('fc-read-paper');
     const pageN = el('input', { class: 'sui-input', type: 'number', id: 'fc-read-page', min: '1', max: '20', value: '1' });
-    U.dialog({ title: 'Read a handwriting sheet', cls: 'fc-dialog', body: el('div', { class: 'fc-dlg' },
-      el('p', { class: 'sui-p' }, `Which sheet is ${name || 'this'}? Its top line says the characters and the page.`), U.field('Characters', set), U.field('Paper', paper), U.field('Page', pageN)),
-    buttons: [{ label: 'Cancel' }, { label: 'Read the sheet', primary: true, act: () => {
+    U.dialog({ title: t('fontcreator.sheet.read_title'), cls: 'fc-dialog', body: el('div', { class: 'fc-dlg' },
+      el('p', { class: 'sui-p' }, name ? t('fontcreator.sheet.which', { name }) : t('fontcreator.sheet.which_this')), U.field(t('fontcreator.more.chars'), set), U.field(t('fontcreator.sheet.paper'), paper), U.field(t('fontcreator.sheet.page'), pageN)),
+    buttons: [{ label: t('menu.cancel') }, { label: t('fontcreator.sheet.read_ok'), primary: true, act: () => {
       try {
         const r = readInto(img, { set: set.value, page: Number(pageN.value) || 1, paper: paper.value });
-        U.toast(r.glyphs ? `Read ${r.glyphs} glyph${r.glyphs === 1 ? '' : 's'}${r.empty ? ` (${r.empty} boxes were empty)` : ''}` : 'Every box was empty: write with a darker pen', 5000);
+        U.toast(r.glyphs ? t('fontcreator.sheet.read_n', { n: r.glyphs }) + (r.empty ? ' ' + t('fontcreator.sheet.empty_n', { n: r.empty }) : '') : t('fontcreator.sheet.all_empty'), 5000);
       } catch (e) { U.toast(e.message, 5000); return false; }
     } }] });
   }
   function pick() {
-    if (!partId) partId = g.SlopIntake.part({ id: 'fontcreator.sheet', accept: { types: ['image/*'], noun: 'a photo or scan of the sheet' }, process: async (f) => { read(await g.FC.traceUi.pixels(f, 2000), f.name); return f.name; } });
+    if (!partId) partId = g.SlopIntake.part({ id: 'fontcreator.sheet', accept: { types: ['image/*'], noun: 'fontcreator.sheet.noun' }, process: async (f) => { read(await g.FC.traceUi.pixels(f, 2000), f.name); return f.name; } });
     return g.SlopIntake.pick({ to: partId, accept: 'image/*' });
   }
   g.FC.sheetUi = { template, draw, pdf, pick, read, readInto, lay };

@@ -6,6 +6,7 @@
    close(), view (the open view, for tests). opts.win: a window to build the view in instead of a new one. */
 (function () {
   'use strict';
+  var SU = window.SS.util;
   var SS = window.SS, A = SS.app, P = SS.present, D = SS.dom;
   var PR = SS.presenter = { view: null };
   var own = false;
@@ -30,7 +31,7 @@
     opts = opts || {};
     if (PR.view && !PR.view.win.closed) { try { PR.view.win.focus(); } catch (e) { /* another window */ } sync(); return PR.view; }
     var win = opts.win || window.open('', 'slop-slides-presenter', 'width=1100,height=720');
-    if (!win) { D.toast('The presenter view needs a second window. Allow pop-ups for this site, then try again.', 5200); return null; }
+    if (!win) { D.toast(SU.t('slides.show.the_presenter_view_needs_a_second_window'), 5200); return null; }
     own = !opts.win || !!opts.own;
     PR.view = SS.presenterView.mount(win, actions);
     if (own) win.addEventListener('beforeunload', function () { PR.view = null; });

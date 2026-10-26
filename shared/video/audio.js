@@ -9,14 +9,16 @@
   const AU = (SV.audio = {});
   const S = SV.seed;
 
-  AU.MODES = [['off', 'Off'], ['original', 'Original (each clip keeps its sound)'], ['music', 'Music (one track under the reel)']];
+  const MODE_IDS = ['off', 'original', 'music'];
+  /** [[id, label]] in the chosen language (a getter; labels ui.video.audio.<id>). */
+  Object.defineProperty(AU, 'MODES', { enumerable: true, get: () => SV.words('audio', MODE_IDS) });
   AU.FADE = 2; // seconds of fade-out at the end of the reel
   /**
    * The audio of a plan. o: { mode, track } where track is a bin id for music, or 'random', or 'file' (a picked file).
    * media: the bin items (only videos can supply music). Returns { mode, track } with track a bin id, 'file' or null.
    */
   AU.choose = function (o, seed, media) {
-    const mode = AU.MODES.some(([v]) => v === (o && o.mode)) ? o.mode : 'off';
+    const mode = MODE_IDS.includes(o && o.mode) ? o.mode : 'off';
     if (mode !== 'music') return { mode, track: null };
     const pool = (media || []).filter((m) => m.kind === 'video' && m.dur > 0).sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
     if (o.track === 'file') return { mode, track: 'file' };

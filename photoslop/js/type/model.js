@@ -6,10 +6,10 @@
 
 const TYPE_CHAR = ['font', 'size', 'bold', 'italic', 'color', 'tracking'];
 const TYPE_PARA = ['align', 'leading', 'aa', 'warp'];
-const TYPE_DEFAULTS = { font: 'Archivo', size: 96, bold: true, italic: false, color: '#000000', tracking: 0, align: 'left', leading: 120, aa: 'smooth', warp: { style: 'none', bend: 0 } };
-const TYPE_FONTS = ['Archivo', 'Inter Tight', 'Instrument Serif', 'JetBrains Mono', 'Impact', 'Comic Sans MS', 'Georgia', 'Times New Roman', 'Arial', 'Courier New'];
-const WARP_STYLES = [['none', 'None'], ['arc', 'Arc'], ['arch', 'Arch'], ['bulge', 'Bulge'], ['flag', 'Flag'], ['wave', 'Wave'], ['rise', 'Rise']];
-const AA_MODES = [['none', 'None'], ['sharp', 'Sharp'], ['crisp', 'Crisp'], ['strong', 'Strong'], ['smooth', 'Smooth']];
+const TYPE_DEFAULTS = { font: 'Archivo', size: 96, bold: true, italic: false, color: '#000000', tracking: 0, align: 'left', leading: 120, aa: 'smooth', warp: { style: 'none', bend: 0 } }; // i18n-ignore: font names
+const TYPE_FONTS = ['Archivo', 'Inter Tight', 'Instrument Serif', 'JetBrains Mono', 'Impact', 'Comic Sans MS', 'Georgia', 'Times New Roman', 'Arial', 'Courier New']; // i18n-ignore: font names
+const WARP_STYLES = trPairs([['none', ''], ['arc', ''], ['arch', ''], ['bulge', ''], ['flag', ''], ['wave', ''], ['rise', '']], 'photoslop.type.warp_');
+const AA_MODES = trPairs([['none', ''], ['sharp', ''], ['crisp', ''], ['strong', ''], ['smooth', '']], 'photoslop.type.aa_');
 
 function typeFont(t, z = 1) { return `${t.italic ? 'italic ' : ''}${t.bold ? '700 ' : '400 '}${t.size * z}px ${fontStack(t.font)}`; }
 function fontStack(f) { return `"${f}", ${/Mono|Courier/.test(f) ? 'ui-monospace, monospace' : /Serif|Georgia|Times/.test(f) ? 'Georgia, serif' : 'system-ui, -apple-system, "Segoe UI", sans-serif'}`; }

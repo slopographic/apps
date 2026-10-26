@@ -5,7 +5,7 @@
  * CO.kit.look() turns a slider drag into one undo step: the look is snapshotted on the first move. */
 (function () {
   'use strict';
-  const CO = window.CO, U = CO.util, S = CO.state, h = U.h;
+  const CO = window.CO, U = CO.util, S = CO.state, h = U.h, t = U.t;
   const K = CO.kit = {};
 
   const ctl = (el, input, sync) => Object.assign(el, { input, sync });
@@ -23,8 +23,8 @@
     const sync = (v, mixed) => {
       row.classList.toggle('mixed', !!mixed);
       input.value = String(mixed ? (+min + +max) / 2 : v);
-      out.textContent = mixed ? 'Mixed' : fmt(+input.value);
-      input.setAttribute('aria-valuetext', mixed ? 'Mixed' : out.textContent);
+      out.textContent = mixed ? t('cutout.panel.mixed') : fmt(+input.value);
+      input.setAttribute('aria-valuetext', out.textContent);
     };
     sync(value == null ? min : value);
     input.addEventListener('input', () => { row.classList.remove('mixed'); out.textContent = fmt(+input.value); input.removeAttribute('aria-valuetext'); if (onInput) onInput(+input.value); });
@@ -34,7 +34,7 @@
 
   /** Drop-down row. options: [[value, text], …]. */
   K.select = function ({ label, options, value, onChange }) {
-    const sel = h('select', { class: 'inp', 'aria-label': label }, ...options.map(([v, t]) => h('option', { value: v }, t)));
+    const sel = h('select', { class: 'inp', 'aria-label': label }, ...options.map(([v, label]) => h('option', { value: v }, label)));
     const sync = (v) => { sel.value = String(v); };
     sync(value);
     sel.addEventListener('change', () => { if (onChange) onChange(sel.value); });
@@ -44,16 +44,16 @@
   /** Segmented buttons. options: [[value, text, iconName?], …]. */
   K.seg = function ({ options, value, onChange }) {
     let cur = value;
-    const btns = options.map(([v, t, icon], i) => {
+    const btns = options.map(([v, label, icon], i) => {
       const b = h('button', { type: 'button', class: 'seg-b', 'data-i': i });
       if (icon) b.innerHTML = U.icon(icon);
-      b.append(t);
+      b.append(label);
       return b;
     });
     const sync = (v, mixed) => {
       cur = mixed ? null : v;
       wrap.classList.toggle('mixed', !!mixed);
-      wrap.title = mixed ? 'Mixed: the selected pictures differ' : '';
+      wrap.title = mixed ? t('cutout.panel.mixed_tip') : '';
       btns.forEach((b, i) => { const on = options[i][0] === cur; b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on)); });
     };
     const wrap = h('div', { class: 'seg', role: 'group' }, ...btns);
@@ -69,7 +69,7 @@
 
   /** Colour row. onInput runs while the picker moves; onCommit when it closes. */
   K.color = function ({ label, value, onInput, onCommit }) {
-    const input = h('input', { type: 'color', 'aria-label': label }), note = h('span', { class: 'pp-mixed' }, 'Mixed');
+    const input = h('input', { type: 'color', 'aria-label': label }), note = h('span', { class: 'pp-mixed' }, t('cutout.panel.mixed'));
     const row = h('div', { class: 'pp-row wide' }, h('span', null, label), h('span', { class: 'color' }, input, note));
     const sync = (v, mixed) => { input.value = v; row.classList.toggle('mixed', !!mixed); };
     sync(value);
@@ -99,7 +99,8 @@
 
   /**
    * Look edits for what the panel edits (S.targets(): the image on screen, or every selected picture), through the one
-   * code path of ui/edit.js. `path` is the field ('s.threshold', 'bg.color', …: core/settings.js).
+   * code path of ui/edit.js. `path` is the field ('s.threshold', 'bg.color', …: core/settings.js). `label` names the undo
+   * step: a key of the app's tables (H.label reads it in the chosen language).
    *  input(v): live change (snapshot on the first move).
    *  commit(): the drag ended, push one undo step for the whole drag (one for all the pictures).
    *  once(v):  a discrete change (check, seg), one undo step.

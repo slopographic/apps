@@ -16,6 +16,7 @@
       if (k === 'class') el.className = v;
       else if (k === 'text') el.textContent = v;
       else if (k === 'html') el.innerHTML = v;
+      else if (k === 'i18n') SV.mark(el, v);   // { text: key, title: key, ... }: the words, kept live (core/state.js)
       else if (k.slice(0, 2) === 'on') el.addEventListener(k.slice(2), v);
       else if (k === 'style' && typeof v === 'object') Object.keys(v).forEach(function (s) { el.style.setProperty(s, v[s]); });
       else el.setAttribute(k, v === true ? '' : v);

@@ -6,6 +6,9 @@
   const G = (window.SlopGallery = window.SlopGallery || {});
   const $ = (id) => document.getElementById(id);
   const MONTH_NAMES = G.query.MONTHS;
+  const t = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
+  /** The month names in the chosen language (Intl), English without SlopI18n. */
+  const monthNames = () => (window.SlopI18n ? MONTH_NAMES.map((n, i) => window.SlopI18n.date(new Date(2000, i, 1), { month: 'long' })) : MONTH_NAMES);
 
   function fillSelect(sel, options, keep) {
     const cur = keep != null ? String(keep) : sel.value;
@@ -16,8 +19,8 @@
   function renderFacets() {
     const L = G.library, list = L.list();
     const f = G.query.facets(list), st = G.state.state.query;
-    fillSelect($('fYear'), [['', 'All years'], ...f.years.map((y) => [String(y), String(y)])], st.year);
-    fillSelect($('fCamera'), [['', 'All cameras'], ...f.cameras.map((c) => [c, c])], st.camera);
+    fillSelect($('fYear'), [['', t('gallery.side.all_years')], ...f.years.map((y) => [String(y), String(y)])], st.year);
+    fillSelect($('fCamera'), [['', t('gallery.side.all_cameras')], ...f.cameras.map((c) => [c, c])], st.camera);
     const dupes = G.query.dupeGroups(list).reduce((n, g) => n + g.items.length - 1, 0);
     $('cntAll').textContent = String(list.length);
     $('cntFav').textContent = String(list.filter((m) => m.fav).length);
@@ -39,8 +42,8 @@
   function syncViewButtons() {
     const v = G.state.state.view;
     for (const b of document.querySelectorAll('[data-view]')) b.classList.toggle('on', b.dataset.view === v);
-    const t = $('fTag'), q = G.state.state.query;
-    if (t.value !== q.tag) t.value = q.tag;
+    const sel = $('fTag'), q = G.state.state.query;
+    if (sel.value !== q.tag) sel.value = q.tag;
     if ($('fText').value !== q.text) $('fText').value = q.text;
     $('fMonth').value = q.month === '' ? '' : String(q.month);
     $('fYear').value = q.year || '';
@@ -57,7 +60,7 @@
     $('fMonth').addEventListener('change', (e) => G.state.setQuery({ month: e.target.value }));
     $('fCamera').addEventListener('change', (e) => G.state.setQuery({ camera: e.target.value }));
     $('fTag').addEventListener('change', (e) => G.state.setQuery({ tag: e.target.value }));
-    $('fMonth').replaceChildren(...[['', 'Any month'], ...MONTH_NAMES.map((n, i) => [String(i), n])].map(([v, l]) => { const o = document.createElement('option'); o.value = v; o.textContent = l; return o; }));
+    fillMonths();
     $('btnNewAlbum').addEventListener('click', () => G.albums.create());
     $('btnClearFilters').addEventListener('click', () => G.state.setQuery({ text: '', year: '', month: '', camera: '', tag: '' }));
     $('btnDupes').addEventListener('click', () => G.actions.dupes());
@@ -73,16 +76,22 @@
   /** Phones: the panel is a drawer from the left. SlopSheet (shared/ui/sheet.js) does the Filters button, the ×, Escape, a
    * tap outside and the swipe; a view picked in it closes it. */
   let sheet = null;
+  function fillMonths() {
+    const keep = $('fMonth').value;
+    $('fMonth').replaceChildren(...[['', t('gallery.side.any_month')], ...monthNames().map((n, i) => [String(i), n])].map(([v, l]) => { const o = document.createElement('option'); o.value = v; o.textContent = l; return o; }));
+    $('fMonth').value = keep;
+  }
   function closeDrawer() { if (sheet) sheet.close(); }
 
   function init(side) {
-    sheet = G.sidebar.sheet = SlopSheet.attach({ root: document.body, panel: side, side: 'start', phone: '(max-width: 700px)', toggles: [$('btnFilters')], label: 'Filters' });
+    sheet = G.sidebar.sheet = SlopSheet.attach({ root: document.body, panel: side, side: 'start', phone: '(max-width: 700px)', toggles: [$('btnFilters')], label: t('gallery.app.filters') });
     bindControls();
     G.menus.bind(side);
     const refresh = () => { renderFacets(); syncViewButtons(); };
     G.library.on(refresh);
     G.state.subscribe(() => { syncViewButtons(); renderFacets(); });
     refresh();
+    if (window.SlopI18n) window.SlopI18n.on(() => { fillMonths(); refresh(); });
   }
 
   G.sidebar = { init, closeDrawer, renderFacets, sheet: null };

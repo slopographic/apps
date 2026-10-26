@@ -58,13 +58,15 @@
   };
   /** Imports a File or Blob (a .slop.json from disk or Slop Drive). Refuses files over 5 MB before reading them. */
   SP.importFile = async function (file) {
-    if (!file || typeof file.text !== 'function') return { ok: false, errors: [{ path: '', message: 'no file was given' }] };
-    if (file.size > MAX_BYTES) return { ok: false, errors: [{ path: '', message: 'the file is larger than 5 MB' }] };
+    if (!file || typeof file.text !== 'function') return { ok: false, errors: [{ path: '', message: SP.word('err_no_file') }] };
+    if (file.size > MAX_BYTES) return { ok: false, errors: [{ path: '', message: SP.word('err_too_big', { size: '5 MB' }) }] };
     return SP.importText(await file.text());
   };
-  /** The first few problems as one line, for toasts and alerts. */
+  /** The first few problems as one line, for toasts and alerts, in the page's language around them (the field-by-field
+   *  details name the file's own fields, so they stay as the format writes them). */
   SP.errorText = function (errors) {
-    return (errors || []).slice(0, 3).map((e) => (e.path ? e.path + ': ' : '') + e.message).join('; ') || 'not a valid preset';
+    const list = (errors || []).slice(0, 3).map((e) => (e.path ? e.path + ': ' : '') + e.message).join('; ');
+    return list ? SP.word('err_problems', { list }) : SP.word('err_invalid');
   };
 
   /* SlopConfig: the 'preset' kind (app '*', so every app's Import dialog accepts it). */

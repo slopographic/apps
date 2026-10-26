@@ -9,6 +9,8 @@
 (function (g) {
   'use strict';
   const ns = (g.SlopCalc = g.SlopCalc || {});
+  /** A word from the shared tables (shared/i18n/ui/<code>/calc.js), the key without SlopI18n. */
+  const say = (key, vars) => (g.SlopI18n ? g.SlopI18n.t(key, vars) : key);
 
   const gcd = (a, b) => { if (a < 0n) a = -a; if (b < 0n) b = -b; while (b) [a, b] = [b, a % b]; return a; };
   const norm = (n, d) => {
@@ -25,7 +27,7 @@
   /** Parses "12", "-0.5", "1e3", "2.50". Throws on anything else. */
   function parseDecimal(text) {
     const m = /^\s*([+-]?)(\d*)(?:\.(\d*))?(?:[eE]([+-]?\d{1,3}))?\s*$/.exec(String(text));
-    if (!m || (!m[2] && !m[3])) throw new Error(`“${text}” is not a number.`);
+    if (!m || (!m[2] && !m[3])) throw new Error(say('ui.calc.nan_text', { text: String(text) }));
     const frac = m[3] || '';
     let n = BigInt((m[2] || '0') + frac);
     let d = 10n ** BigInt(frac.length);
@@ -66,11 +68,11 @@
     let r;
     if (dim === 'temp') {
       const f = TEMP[from], t = TEMP[to];
-      if (!f || !t) throw new Error('Unknown temperature unit.');
+      if (!f || !t) throw new Error(say('ui.calc.bad_temp_unit'));
       r = t.fromK(f.toK(v));
     } else {
       const f = ns.units.rational(dim, from), t = ns.units.rational(dim, to);
-      if (!f || !t) throw new Error('Unknown unit.');
+      if (!f || !t) throw new Error(say('ui.calc.bad_unit'));
       r = div(mul(v, f), t);
     }
     return { ...formatDecimal(r), value: r };

@@ -53,12 +53,12 @@ async function readORA(buf) {
       if (el.tagName === 'stack') await walk(el, !vis, op);
       else if (el.tagName === 'layer' && el.getAttribute('src')) {
         const bytes = await z.get(el.getAttribute('src')); if (!bytes) continue;
-        layers.push({ name: el.getAttribute('name') || 'Layer', canvas: await bytesToCanvas(bytes), x: +(el.getAttribute('x') || 0), y: +(el.getAttribute('y') || 0), visible: vis, opacity: op, blend: ORA_OPS[el.getAttribute('composite-op')] || 'normal' });
+        layers.push({ name: el.getAttribute('name') || 'Layer', canvas : await bytesToCanvas(bytes), x: +(el.getAttribute('x') || 0), y: +(el.getAttribute('y') || 0), visible: vis, opacity: op, blend: ORA_OPS[el.getAttribute('composite-op')] || 'normal' }); // i18n-ignore: layer names are the document's
       }
     }
   };
   await walk(xml.querySelector('image > stack') || img, false, 1);
-  if (!layers.length && z.has('mergedimage.png')) layers.push({ name: 'Background', canvas: await bytesToCanvas(await z.get('mergedimage.png')) });
+  if (!layers.length && z.has('mergedimage.png')) layers.push({ name: 'Background', canvas: await bytesToCanvas(await z.get('mergedimage.png')) }); // i18n-ignore: layer names are the document's
   return { w: w || layers[0].canvas.width, h: hh || layers[0].canvas.height, layers };
 }
 async function readKRA(buf) {
@@ -66,8 +66,8 @@ async function readKRA(buf) {
   const bytes = await z.get('mergedimage.png');
   if (!bytes) throw new Error('This Krita file has no merged image');
   const c = await bytesToCanvas(bytes);
-  toast('Krita files open flattened (Krita stores layers in its own format)', 3200);
-  return { w: c.width, h: c.height, layers: [{ name: 'Background', canvas: c }] };
+  toast(tr('photoslop.io.krita_flat'), 3200);
+  return { w: c.width, h: c.height, layers: [{ name: 'Background', canvas: c }] }; // i18n-ignore: layer names are the document's
 }
 async function writeORA() {
   const enc = new TextEncoder(), esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
@@ -86,8 +86,8 @@ async function writeORA() {
 }
 async function saveORA() {
   document.body.classList.add('busy');
-  try { download(await writeORA(), safeName() + '.ora'); toast(`Saved ${safeName()}.ora (opens in Krita, GIMP and MyPaint)`); }
-  catch (e) { alertDlg('Could not save', e.message); }
+  try { download(await writeORA(), safeName() + '.ora'); toast(tr('photoslop.io.saved_ora', { name: safeName() })); }
+  catch (e) { alertDlg(tr('photoslop.io.save_failed'), e.message); }
   document.body.classList.remove('busy');
 }
 
@@ -172,7 +172,7 @@ async function readTIFF(buf) {
     else { let v = sample(x, y, 0); if (photo === 0) v = 255 - v; d[i] = d[i + 1] = d[i + 2] = v; d[i + 3] = extra > 0 ? sample(x, y, 1) : 255; }
   }
   g.putImageData(img, 0, 0);
-  return { w: W, h: H, layers: [{ name: 'Background', canvas: c }] };
+  return { w: W, h: H, layers: [{ name: 'Background', canvas: c }] }; // i18n-ignore: layer names are the document's
 }
 
 /* ---------- open anything ---------- */
@@ -189,7 +189,7 @@ async function readAnyFile(f) {
     return readORA(await f.arrayBuffer());
   }
   const c = await fileToCanvas(f).catch(() => { throw new Error(`“${f.name}” isn't an image this browser can read`); });
-  return { w: c.width, h: c.height, layers: [{ name: 'Background', canvas: c }] };
+  return { w: c.width, h: c.height, layers: [{ name: 'Background', canvas: c }] }; // i18n-ignore: layer names are the document's
 }
 function flattenDocLayers(doc) {
   const c = mkCanvas(doc.w, doc.h), g = cx(c);

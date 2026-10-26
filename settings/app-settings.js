@@ -1,12 +1,16 @@
 /* Settings page: one section per registry app that has its own options (shared/profile/app-options.js) or shares an option
  * group (SLOP_APP_SHARED: such as face detection, one stored value shown in Drive's and Gallery's sections). Read and
  * written through SlopProfile. A change saves at once and every control showing that value is updated. Only overrides
- * are stored; "Reset this app" clears an app's own. Classic script. Needs shared/apps.js and shared/profile/profile.js. */
+ * are stored; "Reset this app" clears an app's own. Classic script. Needs shared/apps.js, shared/profile/profile.js,
+ * shared/i18n/i18n.js and settings/say.js. */
 (function () {
   'use strict';
   var host = document.getElementById('app-settings');
   var P = window.SlopProfile;
+  var I = window.SlopI18n, Say = window.SlopSettingsSay;
   var controls = []; // { owner, key, opt, input }: kept in step with the stored values
+  /** An option's label, help or group heading: an i18n key, a function or text (SlopI18n.label). */
+  var lab = function (v) { var I = window.SlopI18n; return String(I && I.label ? I.label(v) : typeof v === 'function' ? v() : v); };
 
   function el(tag, props, kids) {
     var n = document.createElement(tag);
@@ -27,7 +31,7 @@
   function save(ctx, owner, key, value) {
     var r = P.set(owner, key, value);
     syncAll();
-    ctx.note.textContent = r.ok ? 'Saved.' : r.error;
+    if (r.ok) Say.key(ctx.note, 'settings.apps.saved'); else Say.text(ctx.note, r.error);
   }
 
   /** One control for one option. */
@@ -37,7 +41,7 @@
     if (opt.type === 'bool') {
       input = el('input', { type: 'checkbox', id: id });
       input.addEventListener('change', function () { save(ctx, owner, key, input.checked); });
-      row = el('div', { class: 'app-opt' }, [el('label', { class: 'set-check', for: id }, [input, el('span', { text: opt.label })])]);
+      row = el('div', { class: 'app-opt' }, [el('label', { class: 'set-check', for: id }, [input, el('span', { text: lab(opt.label) })])]);
     } else {
       if (opt.type === 'enum') {
         input = el('select', { id: id, class: 'set-select' });
@@ -51,9 +55,9 @@
         }
         input.addEventListener('change', function () { save(ctx, owner, key, opt.type === 'number' ? Number(input.value) : input.value); });
       }
-      row = el('div', { class: 'app-opt' }, [el('label', { for: id, text: opt.label }), input]);
+      row = el('div', { class: 'app-opt' }, [el('label', { for: id, text: lab(opt.label) }), input]);
     }
-    if (opt.help) row.appendChild(el('p', { class: 'muted app-opt-help', text: opt.help }));
+    if (opt.help) row.appendChild(el('p', { class: 'muted app-opt-help', text: lab(opt.help) }));
     controls.push({ owner: owner, key: key, opt: opt, input: input });
     return row;
   }
@@ -67,16 +71,16 @@
     ownKeys.forEach(function (key) { section.appendChild(control(app.id, key, own[key], ctx)); });
     var groups = shared[app.id] || {};
     Object.keys(groups).forEach(function (owner) {
-      section.appendChild(el('h4', { class: 'app-group', text: groups[owner] }));
+      section.appendChild(el('h4', { class: 'app-group', text: lab(groups[owner]) }));
       var o = opts[owner] || {};
       Object.keys(o).forEach(function (key) { section.appendChild(control(owner, key, o[key], ctx)); });
     });
     if (ownKeys.length) {
-      var reset = el('button', { type: 'button', class: 'btn', text: 'Reset this app' });
+      var reset = el('button', { type: 'button', class: 'btn', text: I.t('settings.apps.reset') });
       reset.addEventListener('click', function () {
         var r = P.reset(app.id);
         syncAll();
-        ctx.note.textContent = r.ok ? 'Back on this app\'s own defaults.' : r.error;
+        if (r.ok) Say.key(ctx.note, 'settings.apps.reset_done'); else Say.text(ctx.note, r.error);
       });
       section.appendChild(reset);
     }
@@ -91,12 +95,13 @@
     var has = function (id) { return Object.keys(opts[id] || {}).length > 0 || Object.keys(shared[id] || {}).length > 0; };
     var apps = (window.SLOP_APPS || []).filter(function (a) { return has(a.id); });
     if (!P || !apps.length) {
-      host.appendChild(el('p', { text: 'No app has settings yet. When an app adds options, they appear here.' }));
+      host.appendChild(el('p', { text: I.t('settings.apps.none') }));
       return;
     }
     apps.forEach(function (a) { renderApp(a, opts, shared); });
   }
 
   render();
+  if (window.SlopI18n && window.SlopI18n.on) window.SlopI18n.on(render);   // the options' words follow a language switch
   window.SlopAppSettings = { render: render };
 })();

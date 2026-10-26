@@ -6,6 +6,7 @@
 (function () {
   'use strict';
   const K = (window.SlopAIKit = window.SlopAIKit || {});
+  const T = (k, v) => (window.SlopI18n ? SlopI18n.t(k, v) : k);   // the words: shared/i18n/ui/<code>/ai2.js
   const GB = 1024;
 
   async function browserInfo() {
@@ -61,10 +62,10 @@
 
   async function collect({ bench = false, onStep } = {}) {
     const step = (t) => onStep && onStep(t);
-    step('Looking for WebGPU…');
+    step(T('ui.ai.sys.looking'));
     const [gpu, browser, storage] = await Promise.all([gpuInfo(), browserInfo(), storageInfo()]);
     const sys = { time: Date.now(), gpu, browser, storage, ramGB: navigator.deviceMemory || null, cores: navigator.hardwareConcurrency || null, bench: null };
-    if (bench && gpu.ok && K.bench) { step('Running the GPU benchmark…'); try { sys.bench = await K.bench.run(gpu.adapter, { onStep: step }); } catch (e) { sys.bench = { error: String(e && e.message || e) }; } }
+    if (bench && gpu.ok && K.bench) { step(T('ui.ai.sys.benchmark')); try { sys.bench = await K.bench.run(gpu.adapter, { onStep: step }); } catch (e) { sys.bench = { error: String(e && e.message || e) }; } }
     return sys;
   }
 
@@ -90,19 +91,19 @@
 
   function verdict(sys, model) {
     const gpu = sys && sys.gpu;
-    if (!gpu || !gpu.ok) return { level: 'no', tps: 0, id: model.id, reason: 'No WebGPU in this browser' };
+    if (!gpu || !gpu.ok) return { level: 'no', tps: 0, id: model.id, reason: T('ui.ai.sys.no_webgpu') };
     const f32 = !gpu.f16;
-    if (f32 && !model.f32Id) return { level: 'no', tps: 0, id: model.id, reason: 'Needs shader-f16, which this GPU lacks' };
+    if (f32 && !model.f32Id) return { level: 'no', tps: 0, id: model.id, reason: T('ui.ai.sys.no_f16') };
     const id = f32 ? model.f32Id : model.id, vram = f32 ? model.vram32 || model.vramMB * 1.3 : model.vramMB;
     const bind = gpu.limits && gpu.limits.maxStorageBufferBindingSize;
-    if (!model.lowResource && bind && bind < (1 << 30)) return { level: 'no', tps: 0, id, vram, reason: 'GPU buffer limit (' + Math.round(bind / 1048576) + ' MB) is too small for this model' };
+    if (!model.lowResource && bind && bind < (1 << 30)) return { level: 'no', tps: 0, id, vram, reason: T('ui.ai.sys.buffer', { mb: Math.round(bind / 1048576) }) };
     const budget = budgetMB(sys);
-    if (vram > budget * 1.15) return { level: 'no', tps: 0, id, vram, reason: `Needs ~${(vram / GB).toFixed(1)} GB of GPU memory; this machine can spare about ${(budget / GB).toFixed(1)} GB` };
+    if (vram > budget * 1.15) return { level: 'no', tps: 0, id, vram, reason: T('ui.ai.sys.memory', { need: Math.round((vram / GB) * 10) / 10, have: Math.round((budget / GB) * 10) / 10 }) };
     const weightGB = Math.max(0.2, (model.sizeMB || vram * 0.7) / GB) * (f32 ? 1.35 : 1);
     const tps = Math.max(0.3, Math.min(250, (bandwidth(sys) * 0.55) / weightGB));
-    const out = { id, vram, tps: round(tps), level: 'good', reason: f32 ? 'Runs the f32 build (no shader-f16)' : '' };
-    if (vram > budget * 0.85) Object.assign(out, { level: 'slow', reason: 'Tight fit: close other tabs and apps first' });
-    else if (tps < 6) Object.assign(out, { level: 'slow', reason: 'Runs, but slowly' });
+    const out = { id, vram, tps: round(tps), level: 'good', reason: f32 ? T('ui.ai.sys.f32') : '' };
+    if (vram > budget * 0.85) Object.assign(out, { level: 'slow', reason: T('ui.ai.sys.tight') });
+    else if (tps < 6) Object.assign(out, { level: 'slow', reason: T('ui.ai.sys.slowly') });
     return out;
   }
 
@@ -121,14 +122,14 @@
   /** Advice when WebGPU is missing or software-only. */
   function help(sys) {
     const b = (sys && sys.browser) || {}, g = (sys && sys.gpu) || {}, tips = [];
-    if (g.ok && g.isFallback) tips.push('Your browser only offers a software GPU (no hardware acceleration). Turn on "Use graphics acceleration when available" in the browser settings and restart it.');
+    if (g.ok && g.isFallback) tips.push(T('ui.ai.sys.tip_software'));
     if (!g.ok) {
-      if (g.reason === 'no-adapter') tips.push('WebGPU is there but found no usable GPU. Your GPU may be blocklisted or hardware acceleration is off: enable it in the browser settings, update your graphics driver, or try chrome://flags/#enable-unsafe-webgpu.');
-      if (b.name === 'Firefox') tips.push('Firefox has WebGPU on Windows since version 141. On macOS and Linux use Firefox Nightly, or set dom.webgpu.enabled to true in about:config.');
-      else if (b.name === 'Safari') tips.push('Safari has WebGPU from Safari 26 (macOS 26, iOS/iPadOS 26). On older versions: Develop menu ▸ Feature Flags ▸ WebGPU.');
-      else if (b.os === 'Linux') tips.push('Chrome on Linux: open chrome://flags, enable "Unsafe WebGPU Support" and "Vulkan", then relaunch.');
-      else tips.push('Use a current Chrome or Edge (version 113 or newer on Windows, macOS and ChromeOS; 121 or newer on Android).');
-      tips.push('Browsers with WebGPU today: Chrome, Edge, Opera and Brave 113+, Safari 26+, Firefox 141+ on Windows.');
+      if (g.reason === 'no-adapter') tips.push(T('ui.ai.sys.tip_no_adapter'));
+      if (b.name === 'Firefox') tips.push(T('ui.ai.sys.tip_firefox'));
+      else if (b.name === 'Safari') tips.push(T('ui.ai.sys.tip_safari'));
+      else if (b.os === 'Linux') tips.push(T('ui.ai.sys.tip_linux'));
+      else tips.push(T('ui.ai.sys.tip_chrome'));
+      tips.push(T('ui.ai.sys.tip_browsers'));
     }
     return tips;
   }

@@ -9,21 +9,25 @@
   });
   /** The assistant's commands, with the shared file sources they read Slop Drive through. */
   const loadAI = () => (window.SlopCmdSources ? Promise.resolve() : script('../shared/commands/sources.js')).then(() => script('js/ai-commands.js'));
+  const t = (k) => (window.SlopI18n ? window.SlopI18n.t(k) : k);
   function init() {
     const C = window.SlopCmd, A = window.SlopRec && window.SlopRec.app;
     if (!C || !A) return;
     C.init({ app: 'recorder' });
     const on = () => ['recording', 'paused'].includes(A.state());
     const quiet = (p) => Promise.resolve(p).catch(() => {});
-    C.register([
-      { id: 'recorder.record', title: 'Record or stop', group: 'Record', keys: ['Alt+R'], keywords: ['start', 'capture', 'screen', 'webcam', 'microphone'],
+    // the titles and groups in the page's language; registered again on a language change
+    const register = () => C.register([
+      { id: 'recorder.record', title: t('recorder.cmd.record'), group: t('recorder.cmd.g_record'), keys: ['Alt+R'], keywords: ['start', 'capture', 'screen', 'webcam', 'microphone'],
         run: () => quiet(A.state() === 'countdown' ? A.cancel() : on() ? A.stop() : A.record()) },
-      { id: 'recorder.pause', title: 'Pause or resume', group: 'Record', keys: ['Alt+P'], keywords: ['hold', 'continue'], when: on, run: () => A.togglePause() },
-      { id: 'recorder.open', title: 'Open recording…', group: 'File', keys: [], keywords: ['trim', 'convert', 'webm'], when: () => !on(), run: () => window.SlopIntake.pick({ to: 'recorder', multiple: false }) },
-      { id: 'recorder.download', title: 'Download the recording', group: 'File', keys: [], when: () => !!A.recording() && !on(), run: () => quiet(window.SlopRec.save.download()) },
-      { id: 'recorder.drive', title: 'Save the recording to Slop Drive', group: 'File', keys: [], when: () => !!A.recording() && !on(), run: () => quiet(window.SlopRec.save.toDrive()) },
-      { id: 'recorder.discard', title: 'Discard the recording', group: 'Edit', keys: [], when: () => !!A.recording() && !on(), run: () => A.discard() },
+      { id: 'recorder.pause', title: t('recorder.cmd.pause'), group: t('recorder.cmd.g_record'), keys: ['Alt+P'], keywords: ['hold', 'continue'], when: on, run: () => A.togglePause() },
+      { id: 'recorder.open', title: t('recorder.app.open'), group: t('menu.file'), keys: [], keywords: ['trim', 'convert', 'webm'], when: () => !on(), run: () => window.SlopIntake.pick({ to: 'recorder', multiple: false }) },
+      { id: 'recorder.download', title: t('recorder.cmd.download'), group: t('menu.file'), keys: [], when: () => !!A.recording() && !on(), run: () => quiet(window.SlopRec.save.download()) },
+      { id: 'recorder.drive', title: t('recorder.cmd.drive'), group: t('menu.file'), keys: [], when: () => !!A.recording() && !on(), run: () => quiet(window.SlopRec.save.toDrive()) },
+      { id: 'recorder.discard', title: t('recorder.cmd.discard'), group: t('menu.edit'), keys: [], when: () => !!A.recording() && !on(), run: () => A.discard() },
     ]);
+    register();
+    if (window.SlopI18n && window.SlopI18n.on) window.SlopI18n.on(register);
     if (C.provide) C.provide({ prepare: loadAI });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();

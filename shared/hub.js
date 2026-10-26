@@ -183,7 +183,7 @@
    * after this file). openIn(o) is SlopOuttake.items(o); sendMenuItems(getBlob, name, type, { folder }) is the older call
    * ("Send to PhotoSlop", …, and "Save to Slop Drive…" with folder). */
   const openIn = (o) => (window.SlopOuttake ? window.SlopOuttake.items(o) : []);
-  const sendMenuItems = (getBlob, name, type, opts = {}) => openIn({ get: getBlob, name, type, verb: 'Send to', folder: !!opts.folder });
+  const sendMenuItems = (getBlob, name, type, opts = {}) => openIn({ get: getBlob, name, type, verb: 'ui.outtake.send_to', folder: !!opts.folder });
   /** If this page was opened with ?drive=<id>, return that Drive record (once) and tidy the URL. */
   async function consumeLaunch() {
     const u = new URL(location.href), id = u.searchParams.get('drive');
@@ -191,9 +191,18 @@
     u.searchParams.delete('drive'); history.replaceState(null, '', u.pathname + u.search + u.hash);
     try { const r = await get(id); if (r) touch(id); return r; } catch (e) { return null; }
   }
-  /** A file size for people: "512 B", "3.4 KB", "48 KB", "2.5 MB", "1.20 GB"; "—" when unknown. The one copy for every app. */
-  const fmtSize = (n) => (n == null || !Number.isFinite(n) ? '—' : n < 1024 ? n + ' B' : n < 1048576 ? (n / 1024).toFixed(n < 10240 ? 1 : 0) + ' KB'
-    : n < 1073741824 ? (n / 1048576).toFixed(1) + ' MB' : (n / 1073741824).toFixed(2) + ' GB');
+  /** A word from the shared tables (shared/i18n: ui/<code>.js and ui/<code>/shell.js), the key without SlopI18n. */
+  const word = (key, vars) => (window.SlopI18n ? window.SlopI18n.t(key, vars) : key);
+  /** A file size for people, in the chosen language: "512 B", "3.4 KB", "48 KB", "2.5 MB", "1.20 GB" in English, "3,4 kB" in
+   *  Swedish; "—" when unknown. The number is SlopI18n.num with that many decimals. The one copy for every app. */
+  function fmtSize(n) {
+    if (n == null || !Number.isFinite(n)) return '—';
+    const [v, d, key] = n < 1024 ? [n, 0, 'ui.size.b'] : n < 1048576 ? [n / 1024, n < 10240 ? 1 : 0, 'ui.size.kb']
+      : n < 1073741824 ? [n / 1048576, 1, 'ui.size.mb'] : [n / 1073741824, 2, 'ui.size.gb'];
+    const r = Number(v.toFixed(d));   // rounded as before (toFixed), then written in the language
+    const num = window.SlopI18n ? window.SlopI18n.num(r, { minimumFractionDigits: d, maximumFractionDigits: d, useGrouping: false }) : r.toFixed(d);
+    return word(key, { size: num });
+  }
 
   /* ---------- Pickers (shared/drive/picker.js, loaded on first use) ---------- */
   const loaded = new Map();
@@ -204,17 +213,17 @@
   }
   const picker = () => loadScript('shared/drive/picker.js').then(() => window.SlopDrivePicker);
   /** A Slop Drive file picker with folder navigation. Resolves with a record or null. */
-  const pickFromDrive = (opts = {}) => picker().then((p) => p.pickFile(opts)).catch((e) => { console.warn(e); if (window.SlopUI) SlopUI.toast('Slop Drive is not available'); return null; });
+  const pickFromDrive = (opts = {}) => picker().then((p) => p.pickFile(opts)).catch((e) => { console.warn(e); if (window.SlopUI) SlopUI.toast(word('ui.no_drive')); return null; });
   /** Choose a Drive folder. Resolves with a folder id, null for the root, or undefined if cancelled. */
   const pickFolder = (opts = {}) => picker().then((p) => p.pickFolder(opts));
   /** Ask for a folder, then put blob there. The picker opens in the app's folder (see appFolderId), so a plain
    * "Save here" keeps the file in its app's folder. Resolves with the new file id, or null if cancelled. */
   async function saveToDrive(blob, name, { from = self.app || 'unknown', app, title } = {}) {
     const start = await appFolderId(app || from);
-    const folderId = await pickFolder({ title: title || `Save “${name}” to Slop Drive`, start });
+    const folderId = await pickFolder({ title: title || word('ui.tabs.save_title', { name }), start });
     if (folderId === undefined) return null;
     const id = await put(blob, { name, from, folderId });
-    if (window.SlopUI) SlopUI.toast('Saved to Slop Drive');
+    if (window.SlopUI) SlopUI.toast(word('ui.hub.saved_drive'));
     return id;
   }
 

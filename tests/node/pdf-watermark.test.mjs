@@ -13,7 +13,8 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '.
 const ctx = { console };
 ctx.window = ctx;
 vm.createContext(ctx);
-for (const f of ['shared/watermark/spec', 'pdf/js/core/util', 'pdf/js/core/model', 'pdf/js/core/history', 'pdf/js/core/watermark']) {
+// the shared components' English words first (shared/i18n/ui), as a page has them: the spec's messages read them
+for (const f of ['shared/i18n/i18n', 'shared/i18n/ui/en', 'shared/i18n/ui/en/watermark', 'shared/watermark/spec', 'pdf/js/core/util', 'pdf/js/core/model', 'pdf/js/core/history', 'pdf/js/core/watermark']) {
   vm.runInContext(readFileSync(path.join(ROOT, f + '.js'), 'utf8'), ctx, { filename: f + '.js' });
 }
 const W = ctx.SlopPdfWm, E = ctx.SP.engine, S = ctx.SlopWatermarkSpec;

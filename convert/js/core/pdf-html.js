@@ -53,7 +53,7 @@ async function pageSection(page, n, lib) {
   const images = drawing.images.map((im) => `<img class="im" alt="" src="${im.src}" style="transform:matrix(${im.m.join(',')})">`).join('');
   const text = tc.items.map((item) => textSpan(item, tc.styles, vp, drawing.hiddenText)).join('');
   page.cleanup();
-  return `<section class="pg" aria-label="Page ${n}" style="width:${f(vp.width)}px;height:${f(vp.height)}px">\n${images}${text}\n</section>`;
+  return `<section class="pg" aria-label="Page ${n}" style="width:${f(vp.width)}px;height:${f(vp.height)}px">\n${images}${text}\n</section>`; // i18n-ignore: written into the HTML file
 }
 
 const STYLE = `html,body{margin:0;background:#8a8a8a}
@@ -64,7 +64,7 @@ body{padding:16px 0}
 .s{font-family:${SANS}}.r{font-family:${SERIF}}.b{font-weight:700}.i{font-style:italic}.hid{color:transparent}`;
 
 /** The whole PDF (or the pages asked for) as one HTML document. */
-export async function pdfToHtml(bytes, { pages = '', title = 'Document' } = {}) {
+export async function pdfToHtml(bytes, { pages = '', title = 'Document' } = {}) { // i18n-ignore: written into the HTML file
   const lib = await pdfjs();
   const doc = await openPdf(bytes);
   try {
