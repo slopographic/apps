@@ -110,8 +110,9 @@ test('our app is first in every round-up, and every feature row moved with it', 
 });
 
 test('the install facts are stated once and every app landing page shows how to install it', async () => {
-  const { INSTALL } = await import(pathToFileURL(path.join(ROOT, 'shared/seo/install-copy.mjs')).href);
-  for (const k of ['short', 'pro', 'con', 'how']) assert.ok(typeof INSTALL[k] === 'string' && INSTALL[k].length > 10, k);
+  const { INSTALL: EN_INSTALL, installIn } = await import(pathToFileURL(path.join(ROOT, 'shared/seo/install-copy.mjs')).href);
+  for (const k of ['short', 'pro', 'con', 'how']) assert.ok(typeof EN_INSTALL[k] === 'string' && EN_INSTALL[k].length > 10, k);
+  const INSTALL = installIn(ROOT_LANG);   // the root pages are in the root language
   const { readFileSync, readdirSync } = await import('node:fs');
   for (const d of readdirSync(path.join(ROOT, 'apps'))) {
     const html = readFileSync(path.join(ROOT, 'apps', d, 'index.html'), 'utf8');

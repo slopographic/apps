@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="sv" data-lang-page="sv">
-<head><base href="../../hex/">
+<head><base href="../../hex/"><script>document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href^="#"]');if(!a||e.defaultPrevented)return;e.preventDefault();location.hash=a.getAttribute('href')})</script>
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="hex" data-src="shared/theme/theme.js"></script>
   <link rel="expect" href="#slop-built" blocking="render">
@@ -147,5 +147,5 @@
 <script>SlopMenuBar.mount({"app": "Slop Hex", "tools": ["#hx-open"], "menus": {"File": () => ["#hx-open", "#hx-drive", "#hx-save", "#hx-saveas", "#hx-dl"], "Edit": () => ["#hx-prev", "#hx-next", "#hx-sha-btn"], "Help": () => ["#hx-cmd"]}});</script>
   <script src="../shell/shell.js"></script>
 <i id="slop-built" hidden></i>
-<script>document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href^="#"]');if(!a||e.defaultPrevented)return;e.preventDefault();location.hash=a.getAttribute('href')})</script></body>
+</body>
 </html>

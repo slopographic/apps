@@ -98,13 +98,14 @@ test('a Swedish plain build reads Swedish on the homepage: sections, statuses, f
 test('the globe turns slower in a plain build; the landing pages use the same status words', async () => {
   assert.match(read('home/globe/globe.js'), /IDLE = G\.TAU \/ \(CALM \? 150000 : 75000\)/);
   const mod = async (values) => {
-    const f = path.join(ROOT, 'tools/seo', `.landing-${values.tone}.test-tmp.mjs`);
+    const f = path.join(ROOT, 'tools/seo', `.frame-${values.tone}.test-tmp.mjs`);
     const { writeFileSync, rmSync } = await import('node:fs');
-    writeFileSync(f, as(values, 'tools/seo/landing.mjs'));
+    writeFileSync(f, as(values, 'tools/seo/frame.mjs'));   // the status words of the SEO pages (tools/seo/frame.mjs)
     try { return await import(pathToFileURL(f).href); } finally { rmSync(f); }
   };
-  assert.deepEqual((await mod(SAMPLE)).STATUS, { live: 'Available', beta: 'Beta', building: 'Preview' });
-  assert.deepEqual((await mod(SITE)).STATUS, { live: 'Live', beta: 'Beta', building: 'In development' });
+  const { context } = await import(pathToFileURL(path.join(ROOT, 'tools/seo/lang.mjs')).href), en = context('en');   // in English: the root language may be another
+  assert.deepEqual((await mod(SAMPLE)).statusWords(en), { live: 'Available', beta: 'Beta', building: 'Preview' });
+  assert.deepEqual((await mod(SITE)).statusWords(en), { live: 'Live', beta: 'Beta', building: 'In development' });
 });
 
 test('the cards, list, table and finder take their words from sections.js and the i18n keys, not their own copies', () => {

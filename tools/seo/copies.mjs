@@ -117,7 +117,7 @@ export function copyPage(html, { dir, L, paths }) {
   const base = '../'.repeat(depth) + dir;
   // the links first: they are read against the original folder; then the <base> that sends the rest back there
   let out = localizeAll(html.replace(/<base\s[^>]*>/i, ''), dir, L.prefix, paths);
-  out = setHtmlLang(out.replace(/<head([^>]*)>/i, (m) => `${m}<base href="${base}">`), L, { page: true });
-  if (!out.includes(HASH_FIX)) out = out.replace(/<\/body>/i, `${HASH_FIX}</body>`);
+  // in the head, on the <base> line: the page keeps its line count and its last element (an app's paint mark)
+  out = setHtmlLang(out.replace(/<head([^>]*)>/i, (m) => `${m}<base href="${base}">${HASH_FIX}`), L, { page: true });
   return out;
 }

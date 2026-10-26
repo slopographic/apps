@@ -22,7 +22,7 @@ const NOTE = (L) => ({ beta: L.t('seo.ui.note.beta'), building: L.t('seo.ui.note
 export function regWords(app, L = ROOT_L) {
   if (L.code === 'en') return { title: app.title || app.name, features: [...(app.features || [])] };
   const k = `seo.reg.${seg(app.id)}`;
-  return { title: app.title ? L.t(`${k}.title`) : app.name, features: (app.features || []).map((f, i) => L.t(`${k}.features.${i}`)) };
+  return { title: app.title ? L.t(`${k}.title`) : app.name, features: [...(app.features || [])].map((f, i) => L.t(`${k}.features.${i}`)) };   // an array of this realm (the registry is read in a VM)
 }
 
 /** The offline download link, for an app with a shared offline build (shared/offline/manifest.js). */

@@ -84,11 +84,12 @@ test('descriptions are checked by script; titles and descriptions are unique wit
 });
 
 test('a copy of a hand-made page: base back to its folder, its language, links in the language, # links kept on the copy', () => {
-  const sv = context('sv'), html = '<!doctype html>\n<html lang="en">\n<head><meta charset="utf-8"></head>\n<body><a href="../">Home</a><a href="#x">x</a></body>\n</html>';
-  const out = copyPage(html, { dir: 'pdf/', L: sv, paths: new Set(['/']) });
-  assert.match(out, /<head><base href="..\/..\/pdf\/">/);
-  assert.match(out, /<html lang="sv" data-lang-page="sv">/);
-  assert.match(out, /<a href="\/sv\/">Home<\/a>/);
+  const de = context(ROOT_LANG === 'de' ? 'fr' : 'de'), html = '<!doctype html>\n<html lang="en">\n<head><meta charset="utf-8"></head>\n<body><a href="../">Home</a><a href="#x">x</a></body>\n</html>';
+  const out = copyPage(html, { dir: 'pdf/', L: de, paths: new Set(['/']) });
+  assert.match(out, /<head><base href="..\/..\/pdf\/"><script>/);
+  assert.match(out, /<\/a><\/body>/, 'the body ends as it did (an app page\'s paint mark stays last)');
+  assert.ok(out.includes(`<html lang="${de.code}" data-lang-page="${de.code}">`));
+  assert.ok(out.includes(`<a href="${de.prefix}/">Home</a>`));
   assert.match(out, /location\.hash=a\.getAttribute\('href'\)/);
   assert.equal(out.split('\n').length, html.split('\n').length, 'no line added (the 300-line rule)');
   const table = new Map([['k.a', 'Öppna'], ['k.b', 'Stäng'], ['k.v', 'Hej {name}']]);

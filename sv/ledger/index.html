@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="sv" data-lang-page="sv" data-theme="pro">
-<head><base href="../../ledger/">
+<head><base href="../../ledger/"><script>document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href^="#"]');if(!a||e.defaultPrevented)return;e.preventDefault();location.hash=a.getAttribute('href')})</script>
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="ledger" data-src="shared/theme/theme.js"></script>
   <link rel="expect" href="#slop-built" blocking="render">
@@ -264,5 +264,5 @@
 <link rel="stylesheet" href="../shared/menubar/menubar.css"><script src="../shared/menubar/menubar.js"></script>
 <script>SlopMenuBar.mount({"app": "Ledger", "tools": ["#baseLabel"], "menus": {"File": ["cmd:journal.new", "cmd:journal.export", "cmd:journal.importSie", "cmd:trial.export", "-", "cmd:accounts.new", "cmd:rates.new", "-", "cmd:bank.import"], "View": ["cmd:view.journal", "cmd:view.gl", "cmd:view.trial", "cmd:view.accounts", "cmd:view.rates", "cmd:view.bank", "cmd:view.fin"], "Help": ["cmd:cmd.palette", "cmd:cmd.keymap"]}, "host": "#menubar"}); (function (n) { if (n) { n.dataset.i18n = 'ledger.app.name'; if (window.SlopI18n) SlopI18n.apply(n.parentNode); } })(document.querySelector('.smb-app'));</script>
 <i id="slop-built" hidden></i>
-<script>document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href^="#"]');if(!a||e.defaultPrevented)return;e.preventDefault();location.hash=a.getAttribute('href')})</script></body>
+</body>
 </html>

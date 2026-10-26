@@ -14,7 +14,10 @@ const text = async (url) => { const r = await fetch(url, { cache: 'no-store' });
 const pageUrl = (slug) => `${SITE}/convert/${slug}/`;
 const parse = (html) => new DOMParser().parseFromString(html, 'text/html');
 const htmlOf = {};
-const load = async (slug) => (htmlOf[slug] ??= await text(`../../convert/${slug}/index.html`));
+// The English page: a build whose root language is another has it under /en/ (shared/seo/HANDOFF.md, "Languages").
+const EN_DIR = window.BRAND_FACTS && window.BRAND_FACTS.defaultLang !== 'en' ? 'en/' : '';
+const enUrl = (slug) => `${SITE}/${EN_DIR}convert/${slug}/`;
+const load = async (slug) => (htmlOf[slug] ??= await text(`../../${EN_DIR}convert/${slug}/index.html`));
 
 describe('sitemap and robots', () => {
   it('sitemap.xml lists the hub and every converter page', async () => {
@@ -51,12 +54,12 @@ describe('each converter page', () => {
       const doc = parse(html);
       expect(doc.querySelectorAll('h1').length).toBe(1);
       expect(doc.querySelector('h1').textContent.trim()).toBe(p.h1);
-      expect(doc.querySelector('link[rel="canonical"]').getAttribute('href')).toBe(pageUrl(p.slug));
+      expect(doc.querySelector('link[rel="canonical"]').getAttribute('href')).toBe(enUrl(p.slug));
       expect(doc.title.length).toBeGreaterThan(20);
       expect(doc.querySelector('meta[name="description"]').getAttribute('content').length).toBeGreaterThan(60);
       expect(doc.querySelector('meta[property="og:title"]')).toBeTruthy();
       const ld = [...doc.querySelectorAll('script[type="application/ld+json"]')].map((s) => JSON.parse(s.textContent));
-      expect(ld.some((o) => o['@type'] === 'SoftwareApplication' && o.url === pageUrl(p.slug))).toBeTruthy();
+      expect(ld.some((o) => o['@type'] === 'SoftwareApplication' && o.url === enUrl(p.slug))).toBeTruthy();
       expect(doc.querySelector('[data-convert-root]')).toBeTruthy();
       expect(doc.querySelector('[data-convert-root]').dataset.preset).toBe(p.conv);
       expect(html).toContain('Your files stay on this device');
