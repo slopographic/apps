@@ -6,7 +6,6 @@
     function gtag(){dataLayer.push(arguments);}
     gtag('consent','default',{analytics_storage:'denied',ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied',wait_for_update:500});
   </script>
-  <script>document.documentElement.dataset.view = location.hash === '#detector' ? 'detector' : 'home';</script>
   <script src="shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="shared/theme/theme.js" data-app="home" data-src="shared/theme/theme.js"></script>
   <script src="shared/i18n/i18n.js" data-src="shared/i18n/i18n.js"></script>
@@ -52,7 +51,6 @@
   <!--profile:fontCondPreload--><link rel="preload" href="shared/fonts/brand/cond-normal-latin.woff2" as="font" type="font/woff2" crossorigin data-offline="strip"><!--/profile:fontCondPreload-->
   <link rel="stylesheet" href="shared/fonts/fonts.css" data-offline="strip">
   <link rel="stylesheet" href="style/base.css">
-  <link rel="stylesheet" href="style/detector.css">
   <link rel="stylesheet" href="style/footer.css">
   <link rel="stylesheet" href="shared/footnav/footnav.css">
   <link rel="stylesheet" href="home/home.css">
@@ -145,49 +143,7 @@
       </section>
     </section>
 
-    <section id="view-detector" class="view" hidden>
-      <div class="hero small">
-        <p class="kicker"><span>Slopographic</span><span>Authentication Department</span></p>
-        <h1 class="page-title" data-perch>The <em>Authenticator</em></h1>
-        <p class="lede">Is it genuine slop, or a cheap human counterfeit? Paste any text and get a certificate.</p>
-      </div>
-      <div class="detector">
-        <label for="detect-input" class="sr">Text to authenticate</label>
-        <textarea id="detect-input" placeholder="Paste a LinkedIn post, a cover letter, your boss’s email, your own soul…" spellcheck="false"></textarea>
-        <div class="detect-actions">
-          <button class="btn" id="sample-slop">Paste genuine slop</button>
-          <button class="btn" id="sample-human">Paste a counterfeit</button>
-          <button class="btn ghost" id="clear">Clear</button>
-        </div>
-        <div id="result" class="cert" hidden>
-          <div class="cert-head">
-            <span>Slopographic</span>
-            <span>Certificate of Authenticity</span>
-            <span id="serial"></span>
-          </div>
-          <div class="cert-main">
-            <div class="score"><span id="score">0</span><small>%</small><p>slop content</p></div>
-            <div class="verdict">
-              <div class="tier"><span id="tier-emoji"></span> <span id="tier-name"></span></div>
-              <p id="tier-blurb"></p>
-              <div class="bar" aria-hidden="true"><div id="bar-fill"></div></div>
-            </div>
-            <div id="stamp" class="stamp" aria-hidden="true"></div>
-          </div>
-          <h3>Tells detected</h3>
-          <ul id="tells"></ul>
-          <h3>Annotated text</h3>
-          <div id="annotated"></div>
-          <div class="cert-foot">
-            <span>Authenticated by Slopographic</span>
-            <span id="cert-date"></span>
-          </div>
-          <div class="detect-actions">
-            <button class="btn" id="copy-verdict">Copy verdict</button>
-          </div>
-        </div>
-      </div>
-    </section>
+    <section id="view-detector" class="view" aria-label="The Authenticator" hidden></section><!-- filled by detector/detector.js (home/view.js loads it) -->
   </main>
 
   <footer class="footer">
@@ -214,8 +170,6 @@
     <p class="fine legal"><a href="settings/" data-i18n="footer.settings_link">Settings and privacy</a> · <!--profile:font--><a href="typeface/" data-i18n="footer.typeface">Typeface</a> · <!--/profile:font--><a href="https://github.com/slopographic/apps/blob/main/LICENSE" data-i18n="footer.code_license">Code MIT</a> · <a href="https://github.com/slopographic/apps/blob/main/TRADEMARKS.md"><span class="tone-playful" data-i18n="footer.trademarks">Sloppo™ and Slopographic™ are trademarks</span><span class="tone-plain" data-i18n="plain.footer.trademarks">Trademarks</span></a></p>
   </footer>
 
-  <div id="toast" class="toast" role="status" aria-live="polite"></div>
-
   <script src="shared/pwa.js"></script>
   <script>SlopPWA.mount({ install: '#pwa-install' });</script>
   <script src="shared/apps.js"></script>
@@ -224,12 +178,7 @@
   <script src="shared/intake/outtake.js"></script>
   <script src="shared/ops/entry.js"></script>
   <script src="shared/guard.js" defer></script>
-  <script src="slop/core.js"></script>
-  <script src="slop/gen-feeds.js"></script>
-  <script src="slop/gen-more.js"></script>
-  <script src="slop/engine.js"></script>
-  <script src="slop/detect.js"></script>
-  <script src="app.js"></script>
+  <script src="home/view.js"></script>
   <script src="shared/app-icons.js"></script>
   <script src="shared/urlstate/urlstate.js"></script>
   <script src="shared/finder/model.js"></script>
@@ -245,7 +194,7 @@
   <script src="home/globe/drag.js"></script>
   <script src="home/globe/list.js"></script>
   <script src="home/marquee.js"></script>
-  <script src="motion.js"></script>
+  <script src="home/footer-mark.js"></script>
   <script src="brand/brand.js"></script>
   <script type="module" src="home/mascot/index.js"></script>
   <script src="shell/shell.js"></script>

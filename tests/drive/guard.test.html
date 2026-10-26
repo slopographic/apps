@@ -72,7 +72,7 @@
       W.SlopGuard.setUnsaved('doc-1', false);
       expect(ev()).toBe(false);
     });
-    it('works on a page that owns a different window.SlopUI (the homepage)', async () => {
+    it('works on a page that owns a different window.SlopUI', async () => {
       const F = await DT.frame('frame.html?foreign=1', (w) => w.SlopGuard);
       F.localStorage.removeItem('slop-guard-off');
       F.document.body.dispatchEvent(DT.key('R', { ctrlKey: true, shiftKey: true }));

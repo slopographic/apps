@@ -1,9 +1,21 @@
-/* Slopographic content engine, part 5 of 5: the rules behind the Slop Detector (the Authenticator). */
+/* The Authenticator's rules: which phrases read as machine-written, how much each weighs, and the score tiers.
+ * Pure (no DOM): SlopDetect.analyze(text) -> { score 0-100, tier, tally {label: count}, spans [{start, end, label}], words }.
+ * Also runs under Node: require('./detector/rules.js') returns the same object. */
 (function (root) {
   'use strict';
-  const S = root.Slop;
+  const S = (root.SlopDetect = root.SlopDetect || {});
 
-  // -------------------------------------------------------------- detector
+  /** A 32-bit hash of a string (the certificate's serial number). */
+  function hashString(str) {
+    let h = 1779033703 ^ str.length;
+    for (let i = 0; i < str.length; i++) {
+      h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
+      h = (h << 13) | (h >>> 19);
+    }
+    h = Math.imul(h ^ (h >>> 16), 2246822507);
+    h = Math.imul(h ^ (h >>> 13), 3266489909);
+    return (h ^= h >>> 16) >>> 0;
+  }
 
   const VOCAB = ['delve', 'delves', 'delving', 'tapestry', 'testament', 'realm', 'landscape', 'multifaceted', 'intricate', 'pivotal', 'robust', 'seamless', 'seamlessly', 'elevate', 'unlock', 'unleash', 'harness', 'harnessing', 'foster', 'fostering', 'embark', 'vibrant', 'bustling', 'cutting-edge', 'ever-evolving', 'synergy', 'synergies', 'leverage', 'paradigm', 'holistic', 'transformative', 'meticulous', 'meticulously', 'nuanced', 'showcase', 'showcasing', 'boasts', 'resonate', 'resonates', 'beacon', 'symphony', 'labyrinth', 'navigate', 'navigating', 'underscore', 'underscores', 'commendable', 'invaluable', 'unparalleled', 'game-changer', 'game-changing', 'empower', 'empowering', 'streamline', 'revolutionize', 'journey'];
 
@@ -74,5 +86,6 @@
     return { score, tier, tally, spans, words };
   }
 
-  Object.assign(S, { analyze, TIERS });
+  Object.assign(S, { analyze, TIERS, RULES, hashString });
+  if (typeof module !== 'undefined' && module.exports) module.exports = S;
 })(typeof window !== 'undefined' ? window : globalThis);
