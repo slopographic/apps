@@ -21,7 +21,7 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'press.dlg.tab_margins': 'Marginesy i kolumny',
   'press.dlg.tab_bleed': 'Spad i pole opisowe',
   'press.dlg.tab_grid': 'Siatka',
-  'press.dlg.preset': 'Ustawienie',
+  'press.dlg.preset': 'Ustawienie wstępne',
   'press.dlg.width': 'Szerokość',
   'press.dlg.height': 'Wysokość',
   'press.dlg.orientation': 'Orientacja',

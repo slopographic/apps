@@ -92,7 +92,7 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'resize.cmd.run': 'Zmień rozmiar wszystkich',
   'resize.cmd.cancel': 'Anuluj przebieg',
   'resize.cmd.clear': 'Wyczyść listę',
-  'resize.cmd.preset_save': 'Zapisz ustawienia jako szablon…',
+  'resize.cmd.preset_save': 'Zapisz ustawienia jako ustawienie wstępne…',
   'resize.cmd.preset_apply': 'Zastosuj zapisane ustawienia',
   'resize.cmd.mode_size': 'Zmień rozmiar według szerokości i wysokości',
   'resize.cmd.mode_scale': 'Zmień rozmiar według procentu',
@@ -101,6 +101,6 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'resize.cmd.fill': 'Wypełnienie: {fill}',
   'resize.cmd.target': 'Rozmiar docelowy: {size}',
   'resize.cmd.g_resize': 'Zmiana rozmiaru',
-  'resize.cmd.g_presets': 'Szablony',
+  'resize.cmd.g_presets': 'Ustawienia wstępne',
   'resize.cmd.g_target': 'Rozmiar docelowy',
 });

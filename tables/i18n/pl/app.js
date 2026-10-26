@@ -12,12 +12,12 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'tables.app.local_badge': '100% lokalnie',
   'tables.app.workbook_name': 'Nazwa skoroszytu',
   'tables.app.untitled': 'Arkusz bez tytułu',
-  'tables.app.save_tip': 'Zapisz w Slop Drive (Ctrl+S)',
+  'tables.app.save_tip': 'Zapisz na Slop Drive (Ctrl+S)',
   'tables.app.name_box': 'Pole nazwy',
   'tables.app.formula_bar': 'Pasek formuły',
   'tables.app.grid': 'Siatka arkusza',
   'tables.app.cell_editor': 'Edytor komórki',
-  'tables.app.about': 'Arkusz kalkulacyjny działający w całości w tej przeglądarce. Skoroszyty są zapisywane w Slop Drive na tym urządzeniu; nic nie jest przesyłane. Formuły: silnik ma ponad 300 funkcji.',
+  'tables.app.about': 'Arkusz kalkulacyjny działający w całości w tej przeglądarce. Skoroszyty są zapisywane na Slop Drive na tym urządzeniu; nic nie jest przesyłane. Formuły: silnik ma ponad 300 funkcji.',
 
   'tables.side.sidebar': 'Pasek boczny',
   'tables.side.show': 'Pokaż pasek boczny',
@@ -43,7 +43,7 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'tables.status.count': 'Liczba {n}',
   'tables.status.sum_avg': 'Suma {sum}   Średnia {avg}',
   'tables.status.unsaved': 'Niezapisane zmiany',
-  'tables.status.saved': 'Zapisano w Slop Drive',
+  'tables.status.saved': 'Zapisano na Slop Drive',
   'tables.status.not_saved': 'Jeszcze nie zapisano',
 
   'tables.toast.namebox': 'Wpisz komórkę, na przykład B7, albo zakres, na przykład A1:C9',

@@ -77,7 +77,7 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'ledger.rt.e_foreign': 'Waluta obca musi mieć trzy litery, na przykład EUR.',
   'ledger.rt.e_base': 'Wybierz walutę inną niż podstawowa ({cur}).',
   'ledger.rt.e_date': 'Wybierz prawidłową datę kursu.',
-  'ledger.rt.e_rate': 'Kurs musi być dodatnią liczbą z najwyżej sześcioma miejscami po przecinku, na przykład 1.0842.',
+  'ledger.rt.e_rate': 'Kurs musi być dodatnią liczbą z najwyżej sześcioma miejscami po przecinku, na przykład 1,0842.',
   'ledger.rt.e_online': 'Najpierw zaznacz „Zezwól na aktualizację kursów online”.',
   'ledger.fs.nothing': 'Nic w tym okresie',
   'ledger.fs.total': 'Razem: {what}',

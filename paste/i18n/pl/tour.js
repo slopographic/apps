@@ -8,7 +8,7 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'paste.tour.image_title': 'Wklejka z obrazem',
   'paste.tour.image_text': 'Dodaj wklejkę będącą obrazem.',
   'paste.tour.items_title': 'Twoje wklejki',
-  'paste.tour.items_text': 'Każda wklejka jest na bieżąco zapisywana w Slop Drive.',
+  'paste.tour.items_text': 'Każda wklejka jest na bieżąco zapisywana na Slop Drive.',
   'paste.tour.editor_title': 'Edytor',
   'paste.tour.editor_text': 'Wklej tutaj tekst, kod lub obraz, a potem skopiuj go albo udostępnij.',
   'paste.tour.commands_title': 'Polecenia',

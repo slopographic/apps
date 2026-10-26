@@ -14,7 +14,7 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'tables.cmd.file_open': 'Otwórz z Slop Drive…',
   'tables.cmd.file_open_file': 'Otwórz plik z tego urządzenia…',
   'tables.cmd.file_save': 'Zapisz',
-  'tables.cmd.file_save_as': 'Zapisz w Slop Drive…',
+  'tables.cmd.file_save_as': 'Zapisz na Slop Drive…',
   'tables.cmd.file_rename': 'Zmień nazwę…',
   'tables.cmd.file_stab': 'Pobierz plik .stab',
   'tables.cmd.file_csv': 'Pobierz CSV (aktywny arkusz)',

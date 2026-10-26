@@ -27,7 +27,7 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'contacts.ed.notes_hint': 'Notatki z datą są zachowane bez zmian. Dodaj je w sekcji Aktywność na karcie.',
   'contacts.ed.pipe_groups': 'Lejek i grupy',
   'contacts.ed.groups': 'Grupy (rozdzielone przecinkami)',
-  'contacts.ed.pipe_hint': 'Etap lejka i kolejne przypomnienie ustawia się na karcie i są one zachowane bez zmian.',
+  'contacts.ed.pipe_hint': 'Etap lejka i kolejny kontakt zwrotny ustawia się na karcie i są one zachowane bez zmian.',
   'contacts.kind.phone': 'telefon',
   'contacts.kind.email': 'e-mail',
   'contacts.kind.address': 'adres',

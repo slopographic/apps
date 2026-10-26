@@ -53,7 +53,7 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'eml.ex.eml': 'Oryginalny .eml',
   'eml.ex.atts': 'Załączniki (ZIP)',
   'eml.ex.pdf_combined': 'PDF, jeden plik (połączony)',
-  'eml.ex.to_drive': 'Zapisz PDF w Slop Drive…',
+  'eml.ex.to_drive': 'Zapisz PDF na Slop Drive…',
   'eml.ex.more': 'Więcej opcji…',
   'eml.ex.this': 'Ta wiadomość',
   'eml.ex.selected': 'Zaznaczone ({n})',

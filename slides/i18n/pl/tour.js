@@ -11,6 +11,6 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'slides.tour.layout_text': 'Zmień układ zaznaczonego slajdu.',
   'slides.tour.theme_title': 'Motyw',
   'slides.tour.theme_text': 'Wybierz motyw dla całej prezentacji.',
-  'slides.tour.present_title': 'Prezentować',
+  'slides.tour.present_title': 'Prezentuj',
   'slides.tour.present_text': 'Odtwórz slajdy na pełnym ekranie.',
 });

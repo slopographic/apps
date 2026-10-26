@@ -3,7 +3,7 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'paint-classic.app.untitled': 'bez tytułu',
   'paint-classic.app.minimize': 'Minimalizuj',
   'paint-classic.app.maximize': 'Maksymalizuj',
-  'paint-classic.app.close_aria': 'Zamknij Slop Paint i wrócić do slopographic.com',
+  'paint-classic.app.close_aria': 'Zamknij Slop Paint i wróć do slopographic.com',
   'paint-classic.app.close_tip': 'Zamknij (wróć do slopographic.com)',
   'paint-classic.app.menu': 'Menu',
   'paint-classic.app.tools': 'Narzędzia',

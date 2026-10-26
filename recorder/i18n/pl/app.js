@@ -71,7 +71,7 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'recorder.set.engine_note': 'MP4 i GIF tworzy na tym urządzeniu silnik wideo, pobierany raz (około 32 MB) przy pierwszym użyciu.',
   'recorder.cmd.g_record': 'Nagrywanie',
   'recorder.cmd.record': 'Nagraj albo zatrzymaj',
-  'recorder.cmd.pause': 'Wstrzymaj albo wznowić',
+  'recorder.cmd.pause': 'Wstrzymaj albo wznów',
   'recorder.cmd.download': 'Pobierz nagranie',
   'recorder.cmd.drive': 'Zapisz nagranie na Slop Drive',
   'recorder.cmd.discard': 'Odrzuć nagranie',

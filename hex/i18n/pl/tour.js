@@ -12,5 +12,5 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'hex.tour.find_title': 'Szukanie',
   'hex.tour.find_text': 'Znajdź bajty, na przykład 4D 5A, albo tekst. F3 znajduje następne wystąpienie.',
   'hex.tour.save_title': 'Zapisywanie',
-  'hex.tour.save_text': 'Zapisz nową wersję w Slop Drive (Ctrl+S) albo zapisz jako nowy plik.',
+  'hex.tour.save_text': 'Zapisz nową wersję na Slop Drive (Ctrl+S) albo zapisz jako nowy plik.',
 });

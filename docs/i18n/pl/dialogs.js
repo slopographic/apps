@@ -85,5 +85,5 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'docs.tour.page_title': 'Strona',
   'docs.tour.page_text': 'Twoje strony. Pisz na nich od razu.',
   'docs.tour.save_title': 'Zapis',
-  'docs.tour.save_text': 'Zapisz w Slop Drive (Ctrl+S).',
+  'docs.tour.save_text': 'Zapisz na Slop Drive (Ctrl+S).',
 });

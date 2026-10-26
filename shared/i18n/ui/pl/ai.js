@@ -86,7 +86,7 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'ui.ai.pick.downloaded': 'Pobrano',
   'ui.ai.pick.download_size': 'Pobierz {size}',
   'ui.ai.pick.facts': '{what} · wymaga około {vram} pamięci GPU · {licence}',
-  'ui.ai.pick.net_failed': 'pobieranie się nie powiodło. Sprawdź połączenie i naciśnij Pobrać ponownie (ukończone części są zachowane).',
+  'ui.ai.pick.net_failed': 'pobieranie się nie powiodło. Sprawdź połączenie i naciśnij Pobierz ponownie (ukończone części są zachowane).',
   'ui.ai.pick.no_storage': 'ta strona nie ma już miejsca na dane. Zwolnij miejsce w Slop Drive ▸ Pamięć, potem spróbuj ponownie.',
   // menu modelu w nagłówku panelu
   'ui.ai.menu.model': 'Model',

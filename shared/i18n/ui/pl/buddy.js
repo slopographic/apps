@@ -13,7 +13,7 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'ui.buddy.lv': 'Poz.',
   'ui.buddy.tog_open': 'Poziom Sloppo: {n}. Naciśnij, by otworzyć (H)',
   'ui.buddy.tog_close': 'Poziom Sloppo: {n}. Naciśnij, by zamknąć',
-  'ui.buddy.close_panel': 'Zamknąć panel Sloppo',
+  'ui.buddy.close_panel': 'Zamknij panel Sloppo',
   'ui.buddy.xp_aria': 'PD do następnego poziomu',
   'ui.buddy.xp_tip': '{xp} / {need} PD do poziomu {n}',
   'ui.buddy.rage': 'Furia',

@@ -52,7 +52,7 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'photoslop.chrome.angle': 'Kąt',
   'photoslop.chrome.fg_bg': 'Pierwszy plan → tło',
   'photoslop.chrome.fg_transparent': 'Pierwszy plan → przezroczysty',
-  'photoslop.chrome.slop_green': 'Slop zielony',
+  'photoslop.chrome.slop_green': 'Slop Green',
   'photoslop.chrome.spectrum': 'Spektrum',
   'photoslop.chrome.reverse': 'Odwróć',
   'photoslop.chrome.rect': 'Prostokąt',

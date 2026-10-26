@@ -19,5 +19,5 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'photoslop.cmd.restore_aspect': 'Przywróć oryginalne proporcje',
   'photoslop.cmd.guides_panel': 'Panel prowadnic (układy prowadnic)',
   'photoslop.cmd.search_key': 'Szukaj poleceń ({key})',
-  'photoslop.cmd.nav_preset': 'Ustawienie nawigacji…',
+  'photoslop.cmd.nav_preset': 'Ustawienie wstępne nawigacji…',
 });

@@ -68,5 +68,5 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'upscale.io.no_format': 'Ta przeglądarka nie zapisze formatu {fmt}. Wybierz PNG.',
   'upscale.out.no_drive': 'Slop Drive nie jest dostępny na tej stronie',
   'upscale.out.saved': 'Zapisano w folderze Slop Upscale w Slop Drive',
-  'upscale.out.save_failed': 'Nie udało się zapisać w Slop Drive: {msg}',
+  'upscale.out.save_failed': 'Nie udało się zapisać na Slop Drive: {msg}',
 });

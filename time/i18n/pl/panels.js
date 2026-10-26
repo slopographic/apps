@@ -77,7 +77,7 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'time.cmd.timers': 'Stoper i minutnik',
   'time.cmd.sync': 'Ręczne przesunięcie zegara (nie synchronizacja z siecią)',
   'time.cmd.add': 'Dodaj miasto',
-  'time.cmd.now': 'Konwerter: użyć bieżącego czasu',
+  'time.cmd.now': 'Konwerter: użyj bieżącego czasu',
   'time.cmd.sw_toggle': 'Stoper: start lub stop',
   'time.cmd.sw_lap': 'Stoper: okrążenie',
   'time.cmd.sw_reset': 'Stoper: wyzeruj',

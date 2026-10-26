@@ -18,7 +18,7 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'photoslop.doc.bg_transparent': 'Przezroczyste',
   'photoslop.doc.new_title': 'Nowy dokument',
   'photoslop.doc.name': 'Nazwa',
-  'photoslop.doc.preset': 'Ustawienie',
+  'photoslop.doc.preset': 'Ustawienie wstępne',
   'photoslop.doc.width': 'Szerokość',
   'photoslop.doc.height': 'Wysokość',
   'photoslop.doc.background': 'Tło',

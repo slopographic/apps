@@ -83,7 +83,7 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'convert.geo.sep_comma': 'Przecinek',
   'convert.geo.sep_semicolon': 'Średnik',
   'convert.geo.sep_tab': 'Tabulator',
-  'convert.heic.preview_needs': 'Podgląd wymaga dekodera HEIC. Konwertować pyta przed pobraniem go (około 1,5 MB, raz).',
+  'convert.heic.preview_needs': 'Podgląd wymaga dekodera HEIC. Konwerter pyta przed pobraniem go (około 1,5 MB, raz).',
   'convert.heic.declined': 'Dekoder zdjęć HEIC nie został pobrany, więc tego zdjęcia nie dało się przekonwertować.',
   'convert.heic.many': '{name} zawiera {n} obrazów; przekonwertowano główny.',
   'convert.heic.width_hint': 'Zostaw puste, aby zachować pełny rozmiar. Wysokość zachowuje proporcje.',

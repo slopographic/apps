@@ -95,7 +95,7 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'crm.bk.csv': 'Eksportuj CSV',
   'crm.bk.clear': 'Wyczyść zaznaczenie',
   'crm.im.title': 'Import z Slop Contacts',
-  'crm.im.none': 'Nie znaleziono zapisanej listy kontaktów w Slop Drive. Najpierw zapisz kontakty w Slop Contacts, a potem wróć tutaj.',
+  'crm.im.none': 'Nie znaleziono zapisanej listy kontaktów na Slop Drive. Najpierw zapisz kontakty w Slop Contacts, a potem wróć tutaj.',
   'crm.im.plan': '{add} nowych klientów, {skipped} już powiązanych lub bez identyfikatora, {invalid} nie do zapisania.',
   'crm.im.plan#one': '{add} nowy klient, {skipped} już powiązanych lub bez identyfikatora, {invalid} nie do zapisania.',
   'crm.im.plan#few': '{add} nowi klienci, {skipped} już powiązanych lub bez identyfikatora, {invalid} nie do zapisania.',

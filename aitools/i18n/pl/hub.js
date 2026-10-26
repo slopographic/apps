@@ -29,7 +29,7 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'aitools.tool.denoise_name': 'Redukcja szumów',
   'aitools.tool.denoise_blurb': 'Filtry medianowe i dwustronne z suwakiem przed i po. Model nie jest potrzebny.',
   'aitools.tool.tags_name': 'Automatyczne tagi',
-  'aitools.tool.tags_blurb': 'Proponuje tagi dla zdjęcia. Akceptujesz je lub edytujesz, a potem są zapisywane w Slop Drive.',
+  'aitools.tool.tags_blurb': 'Proponuje tagi dla zdjęcia. Akceptujesz je lub edytujesz, a potem są zapisywane na Slop Drive.',
   'aitools.tool.portrait_name': 'Rozmycie portretu',
   'aitools.tool.portrait_blurb': 'Rozmyj tło portretu, z suwakiem siły.',
   'aitools.gate.unsupported': 'Nieobsługiwane na tym urządzeniu',

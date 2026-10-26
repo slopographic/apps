@@ -43,7 +43,7 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'cutout.panel.offset_y': 'Przesunięcie Y',
   'cutout.panel.crop': 'Kadrowanie',
   'cutout.panel.original': 'Oryginał',
-  'cutout.panel.subject': 'Temat',
+  'cutout.panel.subject': 'Obiekt',
   'cutout.panel.padding': 'Dopełnienie',
   'cutout.panel.export': 'Eksport',
   'cutout.panel.quality': 'Jakość',

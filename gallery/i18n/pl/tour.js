@@ -8,7 +8,7 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'gallery.tour.views_title': 'Widoki',
   'gallery.tour.views_text': 'Zdjęcia, ulubione i duplikaty.',
   'gallery.tour.grid_title': 'Zdjęcia',
-  'gallery.tour.grid_text': 'Twoje zdjęcia. Użyj przycisku „Zaznaczyć”, aby wybrać kilka naraz.',
+  'gallery.tour.grid_text': 'Twoje zdjęcia. Użyj przycisku „Zaznacz”, aby wybrać kilka naraz.',
   'gallery.tour.panel_title': 'Narzędzia biblioteki',
   'gallery.tour.panel_text': 'Panel po prawej: zaznaczenie, dodawanie zdjęć, duplikaty i kopia zapasowa, a u dołu Importuj zdjęcia. Na telefonie to arkusz na dole ekranu.',
   'gallery.tour.duplicates_title': 'Duplikaty',

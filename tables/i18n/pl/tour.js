@@ -12,5 +12,5 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'tables.tour.side_title': 'Arkusze i szablony',
   'tables.tour.side_text': 'Arkusze, szablony i lista funkcji. Przycisk strzałki ukrywa ten pasek boczny.',
   'tables.tour.save_title': 'Zapisz',
-  'tables.tour.save_text': 'Zapisz w Slop Drive (Ctrl+S).',
+  'tables.tour.save_text': 'Zapisz na Slop Drive (Ctrl+S).',
 });

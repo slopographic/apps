@@ -46,6 +46,6 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'biz.pr.rm_thanks': 'Dziękujemy.',
   'biz.dl.label': 'Język dokumentów',
   'biz.dl.default': 'Domyślny dla firmy ({lang})',
-  'biz.dl.note': 'Język dokumentów, które drukujesz, pobierasz lub wysyłasz e-mailem: faktur, ofert, zamówień, zamówień zakupu, not korygujących, dowodów wydania, wyciągów, cenników i przypomnień o płatności. Każdy dokument może mieć inny język.',
+  'biz.dl.note': 'Język dokumentów, które drukujesz, pobierasz lub wysyłasz e-mailem: faktur, ofert, zamówień, zamówień zakupu, faktur korygujących, dowodów dostawy, zestawień, cenników i przypomnień o płatności. Każdy dokument może mieć inny język.',
   'biz.dl.bad': 'Wybierz język dokumentu z listy.',
 });

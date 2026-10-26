@@ -74,7 +74,7 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'eml.cmd.selectnone': 'Wyczyść zaznaczenie',
   'eml.cmd.next': 'Następna wiadomość',
   'eml.cmd.prev': 'Poprzednia wiadomość',
-  'eml.cmd.pin': 'Przypnij lub odpiąć wiadomość jako kartę',
+  'eml.cmd.pin': 'Przypnij lub odepnij wiadomość jako kartę',
   'eml.cmd.html': 'Pokaż treść HTML',
   'eml.cmd.plain': 'Pokaż treść jako zwykły tekst',
   'eml.cmd.images': 'Pokaż wbudowane obrazy',

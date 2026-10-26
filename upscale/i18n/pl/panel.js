@@ -17,9 +17,9 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'upscale.panel.quality': 'Jakość',
   'upscale.panel.fps': 'Liczba klatek na sekundę',
   'upscale.panel.video_note': 'Film zachowuje tylko obrazy (bez dźwięku). Klatki są powiększane jedna po drugiej, więc klip zajmie chwilę.',
-  'upscale.panel.copies_note': 'Wyniki są kopiami. Zapisz je w Slop Drive, w folderze Slop Upscale.',
+  'upscale.panel.copies_note': 'Wyniki są kopiami. Zapisz je na Slop Drive, w folderze Slop Upscale.',
   'upscale.panel.result': 'Wynik',
-  'upscale.panel.save': 'Zapisz w Slop Drive',
+  'upscale.panel.save': 'Zapisz na Slop Drive',
   'upscale.panel.save_tip': 'Zapisz w folderze Slop Upscale w Slop Drive',
   'upscale.panel.zip': 'Pobierz wszystko (ZIP, {n})',
   'upscale.panel.open_in': 'Otwórz w…',
@@ -49,5 +49,5 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'upscale.cmd.open': 'Otwórz obraz lub film…',
   'upscale.cmd.drive': 'Otwórz z Slop Drive…',
   'upscale.cmd.download': 'Pobierz wynik',
-  'upscale.cmd.save': 'Zapisz wynik w Slop Drive',
+  'upscale.cmd.save': 'Zapisz wynik na Slop Drive',
 });

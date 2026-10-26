@@ -65,7 +65,7 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'vector.msg.pdf_failed': 'Eksport PDF się nie powiódł: {error}',
   'vector.msg.app_downloaded': 'Pobrano {file} — otwórz z dysku, działa w pełni offline',
   'vector.msg.app_failed': 'Nie udało się utworzyć kopii offline: {error}',
-  'vector.msg.saved_drive': 'Zapisano „{file}” w Slop Drive',
+  'vector.msg.saved_drive': 'Zapisano „{file}” na Slop Drive',
   'vector.msg.save_failed': 'Nie udało się zapisać: {error}',
   'vector.msg.buffer_select': 'Zaznacz coś, aby skopiować do schowka',
   'vector.msg.buffer_copied': 'Skopiowano do schowka',

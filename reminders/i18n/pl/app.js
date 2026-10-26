@@ -5,7 +5,7 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'reminders.app.allow': 'Zezwól na powiadomienia przeglądarki',
   'reminders.app.show_dismissed': 'Pokaż odrzucone',
   'reminders.app.custom': 'Własne przypomnienie',
-  'reminders.app.custom_ph': 'Oddzwonić do banku',
+  'reminders.app.custom_ph': 'Oddzwoń do banku',
   'reminders.app.date': 'Data',
   'reminders.app.time': 'Godzina',
   'reminders.app.add': 'Dodaj przypomnienie',

@@ -6,7 +6,7 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'docs.app.main_menu': 'Menu główne',
   'docs.app.local_tip': 'Twoje dokumenty zostają na tym urządzeniu. Nic nie jest przesyłane.',
   'docs.app.local_badge': 'Lokalnie · nic nie jest przesyłane',
-  'docs.app.save_tip': 'Zapisz w Slop Drive (Ctrl+S)',
+  'docs.app.save_tip': 'Zapisz na Slop Drive (Ctrl+S)',
   'docs.app.search_cmds': 'Szukaj poleceń',
   'docs.app.search_cmds_key': 'Szukaj poleceń ({key})',
   'docs.app.document': 'Dokument',
@@ -63,8 +63,8 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'docs.status.words#many': '{n} słów',
   'docs.status.zoom': 'Powiększenie',
   'docs.save.unsaved': 'Niezapisane zmiany',
-  'docs.save.not_in_drive': 'Jeszcze nie zapisano w Slop Drive',
-  'docs.save.saved': 'Zapisano w Slop Drive',
+  'docs.save.not_in_drive': 'Jeszcze nie zapisano na Slop Drive',
+  'docs.save.saved': 'Zapisano na Slop Drive',
   'docs.save.draft': 'Szkic zapisany automatycznie w tej przeglądarce',
 
   // the Fonts panel
@@ -83,7 +83,7 @@ window.SlopI18n && window.SlopI18n.add('pl', {
 
   // files: open, save, download, the buffer
   'docs.file.discard_title': 'Odrzuć niezapisane zmiany?',
-  'docs.file.discard_body': 'Ten dokument ma zmiany, które nie są jeszcze zapisane w Slop Drive. Najpierw zapisz je albo je odrzuć.',
+  'docs.file.discard_body': 'Ten dokument ma zmiany, które nie są jeszcze zapisane na Slop Drive. Najpierw zapisz je albo je odrzuć.',
   'docs.file.discard': 'Odrzuć',
   'docs.file.save_failed': 'Nie udało się zapisać: {error}',
   'docs.file.downloaded': 'Pobrano {name}',

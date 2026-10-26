@@ -106,7 +106,7 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'convert.epub.part_container': 'spisu treści (META-INF/container.xml)',
   'convert.epub.part_opf': 'pliku pakietu (.opf)',
   'convert.epub.part_encryption': 'listy szyfrowania',
-  'convert.epub.drm': 'Ta książka jest chroniona DRM, więc jej tekst nie może zostać odczytany. Konwertować można tylko pliki EPUB bez DRM.',
+  'convert.epub.drm': 'Ta książka jest chroniona DRM, więc jej tekst nie może zostać odczytany. Można konwertować tylko pliki EPUB bez DRM.',
   'convert.epub.no_spine': 'Ten EPUB nie ma rozdziałów w kolejności czytania (spine).',
   'convert.ff.load_failed': 'Nie udało się wczytać silnika wideo. Sprawdź połączenie i spróbuj ponownie.',
   'convert.ff.too_big': 'Ten plik jest większy niż 400 MB, więc jest za duży, by przeglądarka mogła go przekonwertować.',

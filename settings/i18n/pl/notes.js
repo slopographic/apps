@@ -23,7 +23,7 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'settings.rates.stored': 'Kursy z dnia {date} zapisane z referencji EBC z {ref}.',
   'settings.rates.downloading': 'Pobieranie kursów EBC...',
   'settings.rates.checking': 'Sprawdzanie kursów EBC...',
-  'settings.rates.bad_rate': 'Wpisz kurs jako zwykłą dodatnią liczbę, na przykład 1.0842 (do sześciu miejsc po przecinku).',
+  'settings.rates.bad_rate': 'Wpisz kurs jako zwykłą dodatnią liczbę, na przykład 1,0842 (do sześciu miejsc po przecinku).',
   'settings.rates.same_pair': 'Wybierz dwie różne waluty.',
   'settings.rates.saved': 'Zapisano {pair} {rate} na dzień {date}.',
   'settings.rates.unreadable': 'Nie udało się odczytać kursów walut w tej przeglądarce.',

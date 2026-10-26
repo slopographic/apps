@@ -2,7 +2,7 @@
 window.SlopI18n && window.SlopI18n.add('pl', {
   'photoslop.tour.title': 'Przewodnik po PhotoSlop',
   'photoslop.tour.new_title': 'Rozpocznij plik',
-  'photoslop.tour.new_text': 'Nowy ustawia rozmiar, ustawienie i tło dokumentu (w menu Więcej ▾ przy wąskim oknie); Otwórz wczytuje PSD, ORA lub obraz. Każdy plik dostaje kartę.',
+  'photoslop.tour.new_text': 'Nowy ustawia rozmiar, ustawienie wstępne i tło dokumentu (w menu Więcej ▾ przy wąskim oknie); Otwórz wczytuje PSD, ORA lub obraz. Każdy plik dostaje kartę.',
   'photoslop.tour.menus_title': 'Pasek menu',
   'photoslop.tour.menus_text': 'Plik, Edycja, Obraz, Warstwa, Zaznaczenie i Filtr są tutaj. Każde menu zawiera swoje polecenia.',
   'photoslop.tour.tools_title': 'Narzędzia',

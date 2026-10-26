@@ -1,12 +1,12 @@
 /* SlopVector, Polish: the dialogs (New, Document Setup, Save As, export, Preferences, Guides), the shortcut sheet, the About box and the open-document prompt. Same keys as slopvector/i18n/en/dialogs.js. Terms: shared/i18n/glossary-pl.md. */
 window.SlopI18n && window.SlopI18n.add('pl', {
   'vector.dlg.name': 'Nazwa',
-  'vector.dlg.preset': 'Ustawienie',
+  'vector.dlg.preset': 'Ustawienie wstępne',
   'vector.dlg.preset_letter': 'Letter (612 × 792)',
   'vector.dlg.preset_a4': 'A4 (595 × 842)',
   'vector.dlg.preset_square': 'Instagram (1080 × 1080)',
   'vector.dlg.preset_hd': 'HD (1920 × 1080)',
-  'vector.dlg.preset_slop': 'Domyślny Slop (1200 × 800)',
+  'vector.dlg.preset_slop': 'Slop Default (1200 × 800)',
   'vector.dlg.preset_story': 'Relacja (1080 × 1920)',
   'vector.dlg.preset_custom': 'Własne',
   'vector.dlg.new_title': 'Nowy dokument',
