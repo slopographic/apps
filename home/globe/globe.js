@@ -34,7 +34,9 @@
     return n;
   };
   const t = (k, en) => (window.SlopI18n && window.SlopI18n.t ? window.SlopI18n.t(k) || en : en);
-  const TILT = 0.3, IDLE = G.TAU / 75000, RESUME_MS = 1400, BIG = 1.7;   // tipped towards you; a turn in 75 s
+  // tipped towards you; a turn in 75 s (150 s in a plain-tone build: calmer, shared/theme/theme.js)
+  const CALM = !!(window.SlopTheme && window.SlopTheme.tone === 'plain');
+  const TILT = 0.3, IDLE = G.TAU / (CALM ? 150000 : 75000), RESUME_MS = 1400, BIG = 1.7;
   const LINES = { full: G.grid(30, 30, 6), lite: G.grid(30, 30, 12) };   // the lite globe draws coarser lines
   const big = (a) => ((a.weight || 1) > 1 ? BIG : 1);
 

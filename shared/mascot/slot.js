@@ -12,18 +12,33 @@
 // The slot plays an animation for each moment (moments.js): greeting when shown, working / done / error from the page's
 // busy regions (SlopFlow tiles, aria-busy), idle -> sleep after a minute without input and wake on the next one, point
 // when a page asks (document event 'mascot-moment', detail { moment: 'point', target }) or at [data-mascot-point] after
-// the greeting. Pages and apps may send any moment the same way. Pointer events pass through the mascot.
-// Tests: tests/node/mascot-moments.test.mjs (the moment logic), tests/buddy/slot.test.html (the slot on a page).
+// the greeting. Pages and apps may send any moment the same way.
+// The mascot is a button (ui.js): a helper menu, drag to move, and optional look() / react() hooks on the instance. It is
+// the only presence while shown (the buddy's toggle steps aside, shared/buddy/boot.js); in a plain-tone build it is drawn
+// smaller (SCALE). Tests: tests/node/mascot-moments.test.mjs, tests/node/mascot-interact.test.mjs (the logic),
+// tests/buddy/slot.test.html (the slot on a page).
 import { animationFor, stateOf, workTracker, idleTracker, sideOf, MOMENTS } from './moments.js';
+import { attach } from './ui.js';
 
 export const OVERLAY = new URL('../../brand/mascot/', import.meta.url).href;
 const W = 112, H = 136;
-const CSS = `.mascot-slot{position:fixed;width:${W}px;height:${H}px;pointer-events:none;transition:opacity .3s}
-.mascot-slot[hidden]{display:none}.mascot-slot>*{width:100%;height:100%;display:block}
+/** The drawing's scale: calm and small in a plain-tone build (shared/theme/theme.js), full size otherwise. */
+export const SCALE = typeof window !== 'undefined' && window.SlopTheme && window.SlopTheme.tone === 'plain' ? 0.62 : 1;
+const SW = Math.round(W * SCALE), SH = Math.round(H * SCALE);
+const CSS = `.mascot-slot{position:fixed;width:${SW}px;height:${SH}px;padding:0;margin:0;border:0;background:none;color:inherit;font:inherit;cursor:pointer;touch-action:none;
+-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;transition:opacity .3s;translate:0 calc(var(--consent-h,0px)*-1);
+--ms-safe-t:env(safe-area-inset-top,0px);--ms-safe-r:env(safe-area-inset-right,0px);--ms-safe-b:env(safe-area-inset-bottom,0px);--ms-safe-l:env(safe-area-inset-left,0px)}
+.mascot-slot[hidden]{display:none}.mascot-slot.is-dragging{cursor:grabbing}
+.mascot-slot:focus-visible{outline:2px solid var(--sl-accent,Highlight);outline-offset:2px;border-radius:12px}
+.mascot-slot .ms-stage{position:absolute;right:0;bottom:0;width:${W}px;height:${H}px;transform:scale(${SCALE});transform-origin:100% 100%;pointer-events:none}
+.mascot-slot .ms-stage>*{width:100%;height:100%;display:block}
 .mascot-slot .ms-icon{display:grid;place-items:end center}.mascot-slot .ms-icon svg{width:64px;height:64px}
-@media print{.mascot-slot{display:none}}`;
+.ms-say{position:fixed;z-index:2001;max-width:min(300px,calc(100vw - 32px));margin:0;padding:10px 12px;border:1px solid var(--sl-border,GrayText);border-radius:10px;
+background:var(--sl-surface,Canvas);color:var(--sl-text,CanvasText);font:14px/1.4 var(--sans,system-ui);box-shadow:0 8px 24px rgba(0,0,0,.25)}.ms-say[hidden]{display:none}
+${SCALE < 1 ? `@media (max-width:700px){.mascot-slot{width:${Math.round(W * .46)}px;height:${Math.round(H * .46)}px}.mascot-slot .ms-stage{transform:scale(.46)}}` : ''}
+@media print{.mascot-slot,.ms-say{display:none}}`;
 
-let mod = null, inst = null, dock = null, cfg = null, visible = false, holding = null, base = OVERLAY;
+let mod = null, inst = null, dock = null, stage = null, ui = null, cfg = null, visible = false, holding = null, base = OVERLAY;
 const reduce = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /** Loads the overlay's icon module (the toggle button shows it before the mascot itself loads). */
@@ -72,19 +87,23 @@ export async function start(c) {
   if (!document.getElementById('mascot-slot-css')) {
     const st = document.createElement('style'); st.id = 'mascot-slot-css'; st.textContent = CSS; document.head.append(st);
   }
-  dock = document.createElement('div');
+  dock = document.createElement('button');
   dock.className = 'mascot-slot';
-  dock.setAttribute('aria-hidden', 'true');
-  Object.assign(dock.style, { right: '6px', bottom: '62px', zIndex: String((cfg.z || 900) + 1) });
+  stage = document.createElement('span');
+  stage.className = 'ms-stage';
+  dock.append(stage);
+  Object.assign(dock.style, { zIndex: String((cfg.z || 900) + 1) });
   dock.hidden = true;
   document.body.append(dock);
   mod = await import(base + 'mascot.js');
-  try { inst = mod.create(dock, { reduce: reduce() }); } catch (e) { inst = null; }
+  try { inst = mod.create(stage, { reduce: reduce() }); } catch (e) { inst = null; }
   if (!inst) {                                    // no 3D here: the flat icon stands in
     const icon = await loadIcon().catch(() => null);
-    if (icon) { const s = document.createElement('div'); s.className = 'ms-icon'; s.innerHTML = icon.svg(64, false); dock.append(s); }
+    if (icon) { const s = document.createElement('div'); s.className = 'ms-icon'; s.innerHTML = icon.svg(64, false); stage.append(s); }
   }
   dock.dataset.mascot = mod.name || '';
+  ui = attach(dock, { name: mod.name || 'Helper', size: { w: SW, h: SH }, inst: () => inst, moment: (m) => moment(m), reduce,
+    hide: () => (typeof cfg.hide === 'function' ? cfg.hide() : show(false)) });
   watch();
 }
 
@@ -93,6 +112,7 @@ export function show(v) {
   if (!dock) return;
   dock.hidden = !visible;
   if (!visible) return;
+  if (ui) ui.place();
   moment('greeting');
   const target = document.querySelector('[data-mascot-point]');
   if (target) setTimeout(() => point(target), 2600);
@@ -102,4 +122,6 @@ export function toggleHud() { /* the slot has no HUD */ }
 
 /** For tests: the state of the slot. */
 export const state = () => ({ visible, name: mod && mod.name, live: !!inst, holding, busy: work ? work.busy : 0, asleep: idle ? idle.asleep : false });
-export function stop() { clearInterval(timer); if (observer) observer.disconnect(); if (inst && inst.dispose) inst.dispose(); }
+export function stop() { clearInterval(timer); if (observer) observer.disconnect(); if (ui) ui.dispose(); if (inst && inst.dispose) inst.dispose(); }
+/** For tests: the dock (the mascot's button) and the interaction layer. */
+export const parts = () => ({ dock, stage, ui, size: { w: SW, h: SH } });

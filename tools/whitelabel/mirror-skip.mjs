@@ -41,7 +41,7 @@ export const SKIP = [
 export const SMOKE = ['tests/i18n/default-lang.test.html', 'tests/i18n/switch.test.html', 'tests/shell/drawer.test.html',
   'tests/shell/brand.test.html', 'tests/photoslop/welcome.test.html', 'tests/pdf/pages.test.html', 'tests/drive/look.test.html',
   'tests/tables/look.test.html', 'tests/docs/look.test.html', 'tests/settings/look.test.html', 'tests/how-it-works/how-it-works.test.html',
-  'tests/invoices/workspace.test.html'];
+  'tests/invoices/workspace.test.html', 'tests/home/plain-tone.test.html'];
 
 /** The smoke pages for a profile: the language switch test starts from English, so a build that starts elsewhere skips it. */
 export const smokeFor = (p) => SMOKE.filter((f) => !(otherLang(p) && f === 'tests/i18n/switch.test.html'));

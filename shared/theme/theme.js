@@ -23,6 +23,9 @@
   /* The brand profile's colours (brand/profiles/<id>.json "themes", set at build time by tools/whitelabel/build.mjs):
    * { light: { background, surface, text, accent, border }, dark: {...}, hide: ['lime'] }. Empty here: this site's own. */
   var PROFILE = /*profile:themes*/{};
+  /* The profile's voice, names and media, set before first paint as <html data-tone="playful|plain" data-naming="brand|plain"
+   * data-media="on|off">; a plain tone also loads style/tone.css (the calm business look) as a render-blocking stylesheet. */
+  var TONE = /*profile:tone*/'playful', NAMING = /*profile:naming*/'brand', MEDIA = /*profile:media*/true;
   var THEMES = Object.freeze([
     th('light', 'Light', 'light', '#ebe7de', '#f8f6f1', '#0a0a0a', '#4f6c00', '#8e8b82'),
     th('dark', 'Dark', 'dark', '#0a0a0a', '#151518', '#f1ede4', '#d4ff3a', '#66666a'),
@@ -35,7 +38,6 @@
   var IDS = THEMES.map(function (t) { return t.id; });
   var byId = {};
   THEMES.forEach(function (t) { byId[t.id] = t; });
-
   /* Native values each app's own CSS and boot code understand, per shared theme id. */
   var STD = { light: 'light', dark: 'pro', classic: 'classic', lime: 'pro' };       // Light, Pro and Classic 98
   var NO_CLASSIC = { light: 'light', dark: 'pro', classic: 'pro', lime: 'pro' };    // Light and Pro only
@@ -63,16 +65,10 @@
     inventory: { key: 'slop-inventory.theme', fmt: 'json', native: NO_CLASSIC },
     vector: { key: 'slopvector.theme', fmt: 'raw', native: STD },
     label: { key: 'sloplabel-theme', fmt: 'raw', native: STD },
-    contacts: { key: null, native: DARK_CSS },
-    convert: { key: null, native: DARK_CSS },
-    slides: { key: null, native: DARK_CSS },
-    music: { key: null, native: DARK_CSS },
+    contacts: { key: null, native: DARK_CSS }, convert: { key: null, native: DARK_CSS }, slides: { key: null, native: DARK_CSS }, music: { key: null, native: DARK_CSS },
     /* Their CSS follows the system with data-theme light or dark: without these the page kept the system's look under the
      * chosen theme, so the shared header's buttons (theme colours) were light text on a light bar. */
-    resize: { key: null, native: DARK_CSS },
-    clean: { key: null, native: DARK_CSS },
-    remix: { key: null, native: DARK_CSS },
-    hex: { key: null, native: DARK_CSS },
+    resize: { key: null, native: DARK_CSS }, clean: { key: null, native: DARK_CSS }, remix: { key: null, native: DARK_CSS }, hex: { key: null, native: DARK_CSS },
     photoslop: { key: 'slopshop.theme', fmt: 'json', native: { light: 'light', dark: 'pro', classic: 'paint', lime: 'pro' } },
   };
 
@@ -96,8 +92,9 @@
     'html:root[data-slop-theme][data-slop-app=home],html:root[data-slop-theme][data-slop-app=settings]{',
     '--ink:var(--sl-background) !important;--bone:var(--sl-text) !important;--slop:var(--sl-accent) !important;',
     '--slop-deep:var(--sl-accent) !important}',
+    /* Copy written for one tone only: class tone-plain shows in a plain build, tone-playful in a playful one. */
+    'html:root:not([data-tone=plain]) .tone-plain,html:root[data-tone=plain] .tone-playful{display:none!important}',
   ].join('');
-
   var prof = g.SlopProfile && typeof g.SlopProfile.create === 'function'
     ? g.SlopProfile.create({ options: { theme: { mode: { label: 'Theme', type: 'enum', values: [SYSTEM].concat(IDS), default: DEFAULT } } } })
     : null;
@@ -170,7 +167,6 @@
     var lum = (0.2126 * ((n >> 16) & 255) + 0.7152 * ((n >> 8) & 255) + 0.0722 * (n & 255)) / 255;
     return lum > 0.6 ? '#0a0a0a' : '#ffffff';
   }
-
   /** The theme whose colours a page is painted with. An app whose own look is dark (its native value maps back to a dark
    * theme) takes the dark colours where the choice is light, so Classic 98 never puts light surfaces under its dark text. */
   function tokenTheme(e, id) {
@@ -220,7 +216,6 @@
       if (mq.addEventListener) mq.addEventListener('change', on); else mq.addListener(on);
     } catch (e) { /* no media queries: stays on its first resolution */ }
   }
-
   /** Saves a choice (a theme id or 'system'), mirrors it into each app's key and applies it here. */
   function set(choice) {
     if (choice !== SYSTEM && !byId[choice]) return { ok: false, error: 'That theme is not in the list.' };
@@ -247,6 +242,15 @@
     }
   }
 
+  /** style/tone.css: written by the parser while the head loads (it blocks the first paint like any stylesheet, so nothing
+   * jumps), or appended when the page has already loaded. */
+  function toneSheet(self) {
+    if (!self || !self.src || doc.getElementById('slop-tone-css')) return;
+    var href = new URL('../../style/tone.css', self.src).href;
+    if (doc.readyState === 'loading' && !self.async && !self.defer && doc.write) return doc.write('<link rel="stylesheet" id="slop-tone-css" href="' + href + '">');
+    var l = doc.createElement('link'); l.rel = 'stylesheet'; l.id = 'slop-tone-css'; l.href = href; doc.head.appendChild(l);
+  }
+
   /** Runs at first paint from the page's <head>. */
   function load() {
     var self = doc && doc.currentScript;
@@ -257,7 +261,12 @@
       s.textContent = CSS;
       doc.head.appendChild(s);
     }
-    if (doc && doc.documentElement) doc.documentElement.setAttribute('data-slop-app', page.app);
+    var root = doc && doc.documentElement;
+    if (root) {
+      root.setAttribute('data-slop-app', page.app);
+      root.setAttribute('data-tone', TONE); root.setAttribute('data-naming', NAMING); root.setAttribute('data-media', MEDIA ? 'on' : 'off');
+      if (TONE === 'plain') toneSheet(self);
+    }
     // ?fresh on any page loads the newest release (SlopPWA.refresh in shared/pwa.js, which runs it on load when the address has ?fresh)
     try {
       if (self && self.src && !g.SlopPWA && new URLSearchParams(g.location.search).has('fresh')) {
@@ -276,6 +285,8 @@
 
   g.SlopTheme = Object.freeze({
     THEMES: THEMES,
+    tone: TONE,
+    naming: NAMING,
     SYSTEM: SYSTEM,
     DEFAULT: DEFAULT,
     get: current,

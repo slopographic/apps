@@ -3,7 +3,10 @@
 (() => {
   'use strict';
   const APPS = window.SLOP_APPS || [];
-  const STATUS = { live: 'Live', beta: 'Beta', building: 'In development' };
+  // Status words, links and the tone's choices: home/sections.js (loaded first), so cards, list and table say the same.
+  const H = window.SlopHomeSections || {};
+  const tr = H.tr || ((k, en) => en);
+  const STATUS = { live: tr('status.live', 'Live'), beta: tr('status.beta', 'Beta'), building: tr('status.building', 'In development') };
   const ICONS = {
     page: '<path d="M12 6h17l9 9v27H12z"/><path d="M29 6v9h9M17 22h14M17 27h14M17 32h10"/>',
     grid: '<rect x="6" y="8" width="36" height="32" rx="2"/><path d="M6 17h36M6 26h36M6 33h36M17 8v32M29 8v32"/>',
@@ -45,7 +48,7 @@
     return s;
   };
   /** The status badge. Live tiles stay unbadged; app cards always show their status. */
-  const badge = (a, always) => (a.status === 'live' && !always ? null : el('span', { class: 'badge ' + a.status }, STATUS[a.status]));
+  const badge = (a, always) => { const t = H.badgeLabel ? H.badgeLabel(a.status, always) : (a.status === 'live' && !always ? '' : STATUS[a.status]); return t ? el('span', { class: 'badge ' + a.status }, t) : null; };
 
   /** A screenshot, or (until one exists) a generated tile in the app's colours. */
   function shot(a) {
@@ -141,7 +144,7 @@
       el('div', { class: 'app-body' },
         el('div', { class: 'app-name' }, el('h3', { class: 'app-title', 'data-id': a.id }, label(a)), badge(a, true)),
         el('p', { class: 'app-tag' }, line || tag(a)),
-        el('span', { class: 'go' }, a.status === 'building' ? 'Preview →' : 'Open →')));
+        el('span', { class: 'go' }, (a.status === 'building' && !H.PLAIN ? tr('home.preview', 'Preview') : tr('home.open', 'Open')) + ' →')));
   }
   function tile(a) {
     return el('a', { class: 'tile', href: a.path, 'data-perch': 'card', 'data-id': a.id, ...(a.path.startsWith('#') ? { 'data-view': a.path.slice(1) } : {}) },
@@ -153,8 +156,9 @@
   if (board) {
     const counts = { live: 0, beta: 0, building: 0 };
     APPS.forEach((a) => counts[a.status]++);
-    document.getElementById('status-sum').textContent = `${APPS.length} projects: ${counts.live} live, ${counts.beta} in beta, ${counts.building} in development. Statuses come straight from the app registry, so this board is always current.`;
-    const kinds = { app: 'App', game: 'Game', experiment: 'Experiment' };
+    document.getElementById('status-sum').textContent = tr('home.status_sum', '{n} projects: {live} live, {beta} in beta, {building} in development. Statuses come straight from the app registry, so this board is always current.',
+      { n: APPS.length, live: counts.live, beta: counts.beta, building: counts.building });
+    const kinds = { app: tr('home.kind_app', 'App'), game: tr('home.kind_game', 'Game'), experiment: H.PLAIN ? tr('home.kind_app', 'App') : tr('home.kind_experiment', 'Experiment') };
     const order = { building: 0, beta: 1, live: 2 };
     [...APPS].sort((a, b) => order[a.status] - order[b.status] || a.name.localeCompare(b.name)).forEach((a) => {
       board.append(el('a', { class: 'status-row', href: a.path, role: 'row', ...(a.path.startsWith('#') ? { 'data-view': a.path.slice(1) } : {}) },
@@ -162,7 +166,7 @@
         el('b', { role: 'cell', class: 'app-title', 'data-id': a.id }, label(a)),
         el('span', { class: 'kind', role: 'cell' }, kinds[a.kind]),
         el('span', { class: 'state', role: 'cell' }, STATUS[a.status]),
-        el('span', { class: 'tagline', role: 'cell' }, a.tagline)));
+        el('span', { class: 'tagline', role: 'cell' }, tag(a))));
     });
   }
 
