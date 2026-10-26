@@ -10,7 +10,7 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'fontcreator.tour.kerning_title': 'カーニング',
   'fontcreator.tour.kerning_text': 'AV や To などのペアを拡大して、サンプル行の変化を確認します。',
   'fontcreator.tour.test_title': 'タイプ テスト',
-  'fontcreator.tour.test_text': '実際のフォントで、あなたのテキストを複数のサイズで、明るい背景または暗い背景に表示します。',
+  'fontcreator.tour.test_text': '実際のフォントで、テキストを複数のサイズで、明るい背景または暗い背景に表示します。',
   'fontcreator.tour.panel_title': '設定と書き出し',
   'fontcreator.tour.panel_text': '幅とサイドベアリング、文字、手書きシート、名前とライセンス、メトリクス、そして下部の「フォントをダウンロード」。',
 });

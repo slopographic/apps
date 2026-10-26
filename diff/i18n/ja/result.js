@@ -50,5 +50,5 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'diff.sum.text_same': '2 つのテキストは同じです。',
   'diff.sum.newline': 'テキストの違いは、末尾の改行だけです。',
   'diff.sum.in_place': '（{n} 行をその場で変更）',
-  'diff.sum.text': '{n} 件の変更：+{added} −{removed} 行{in_place}。',
+  'diff.sum.text': '{n} 件の変更：+{added} −{removed} 行 {in_place}。',
 });

@@ -25,7 +25,7 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'tables.cmd.edit_clear_all': '内容と書式をクリア',
   'tables.cmd.format_bold': '太字',
   'tables.cmd.format_italic': '斜体',
-  'tables.cmd.number_format': '表示形式: {name}',
+  'tables.cmd.number_format': '表示形式：{name}',
   'tables.cmd.insert_chart': 'グラフ…',
   'tables.cmd.insert_pivot': 'ピボットテーブル…',
   'tables.cmd.refresh_pivots': 'ピボットテーブルを更新',

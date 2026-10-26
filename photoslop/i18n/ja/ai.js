@@ -1,7 +1,7 @@
 /* PhotoSlop, Japanese: the AI tools (background removal, upscale, generation) and the names of the steps in the history. Same keys as photoslop/i18n/en/ai.js. Terms: shared/i18n/glossary-ja.md. */
 window.SlopI18n && window.SlopI18n.add('ja', {
   'photoslop.ai.notice_local': 'これはお使いのデバイスで動作します。写真がどこかにアップロードされることはありません。',
-  'photoslop.ai.notice_cancelled': 'キャンセルしました: モデルは読み込まれませんでした',
+  'photoslop.ai.notice_cancelled': 'キャンセルしました：モデルは読み込まれませんでした',
   'photoslop.ai.notice_cutout': '背景を削除しますか？',
   'photoslop.ai.model_subject': '被写体モデル（U²-Netp）',
   'photoslop.ai.finding_subject': '被写体を検出しています…',

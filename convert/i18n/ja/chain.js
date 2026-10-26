@@ -2,7 +2,7 @@
 window.SlopI18n && window.SlopI18n.add('ja', {
   'convert.chain.cancelled': 'キャンセルされました',
   'convert.chain.no_file': 'ファイルは作成されませんでした。',
-  'convert.chain.step_failed': 'ステップ {i} / {n}（{label}）が失敗しました: {message}',
+  'convert.chain.step_failed': 'ステップ {i} / {n}（{label}）が失敗しました：{message}',
   'convert.chain.via': '{to} · {steps} 経由',
   'convert.chain.step': 'ステップ {i} · {from} → {to}',
   'convert.chain.pdf_lib': 'PDF ライブラリを読み込めませんでした',

@@ -56,8 +56,8 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'gallery.cmd.view_photos': 'すべての写真を表示',
   'gallery.cmd.view_favourites': 'お気に入りを表示',
   'gallery.cmd.view_dupes': '重複のみ表示',
-  'gallery.cmd.filter_liked': 'フィルター: いいねのみ',
-  'gallery.cmd.filter_disliked': 'フィルター: よくないのみ',
-  'gallery.cmd.filter_untagged': 'フィルター: タグなしのみ',
+  'gallery.cmd.filter_liked': 'フィルター：いいねのみ',
+  'gallery.cmd.filter_disliked': 'フィルター：よくないのみ',
+  'gallery.cmd.filter_untagged': 'フィルター：タグなしのみ',
   'gallery.cmd.filter_clear': 'すべてのフィルターをクリア',
 });

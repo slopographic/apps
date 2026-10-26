@@ -31,7 +31,7 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'photoslop.guide.vertical': '縦',
   'photoslop.guide.horizontal': '横',
   'photoslop.guide.position': '位置',
-  'photoslop.guide.pos_hint': '左上の角からの位置。単位: px、%、mm、in、pt（72 ppi）。',
+  'photoslop.guide.pos_hint': '左上の角からの位置。単位：px、%、mm、in、pt（72 ppi）。',
   'photoslop.guide.edit_title': 'ガイドを編集',
   'photoslop.guide.new_title': '新しいガイド',
   'photoslop.guide.orientation': '向き',

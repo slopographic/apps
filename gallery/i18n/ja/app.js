@@ -1,8 +1,8 @@
 /* Slop Gallery（日本語）: ページ、サイドバー、選択パネル、写真の一覧、Slop Drive の表示。キーは gallery/i18n/en/app.js と同じです。用語: shared/i18n/glossary-ja.md */
 window.SlopI18n && window.SlopI18n.add('ja', {
   'gallery.app.filters': 'フィルター',
-  'gallery.app.import_tip': '写真を読み込む (Ctrl+O)',
-  'gallery.app.sort_tip': '写真を並べ替え (Alt+S)',
+  'gallery.app.import_tip': '写真を読み込む（Ctrl+O）',
+  'gallery.app.sort_tip': '写真を並べ替え（Alt+S）',
   'gallery.app.select': '選択',
   'gallery.app.select_tip': 'クリックして写真を選択',
   'gallery.app.make_reel': 'リールを作成',
@@ -59,7 +59,7 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'gallery.grid.photos_n': '{n} 枚の写真',
   'gallery.grid.status': '{total} 枚中 {shown} 枚の写真',
   'gallery.grid.status_sel': '{total} 枚中 {shown} 枚の写真 · {sel} 枚を選択',
-  'gallery.grid.preview_alt': '写真ライブラリ: 撮影された月ごとに並んだ 8 枚の写真',
+  'gallery.grid.preview_alt': '写真ライブラリ：撮影された月ごとに並んだ 8 枚の写真',
   'gallery.grid.step_drop': '写真またはフォルダー全体をドロップ',
   'gallery.grid.step_browse': '月ごとに表示、アルバムを作成、重複を検索',
   'gallery.grid.step_backup': 'ライブラリを ZIP でバックアップ',

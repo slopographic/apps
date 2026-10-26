@@ -58,7 +58,7 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'label.def.tpl.address': '宛名ラベル — Avery 5160',
   'label.def.tpl_desc.shipping': '差出人、宛先、郵便用 GS1-128 と Code 128 の追跡バーコード',
   'label.def.tpl_desc.product': '名前、EAN-13、価格、SKU。価格表から差し込み印刷できます',
-  'label.def.tpl_desc.sscc': 'GS1 物流ラベル: チェックデジット付きの SSCC シリアル、GTIN、数量、ロット、賞味期限',
+  'label.def.tpl_desc.sscc': 'GS1 物流ラベル：チェックデジット付きの SSCC シリアル、GTIN、数量、ロット、賞味期限',
   'label.def.tpl_desc.asset': '連番の資産 ID、スキャン可能な QR リンク、反転ヘッダー',
   'label.def.tpl_desc.badge': '自動で縮小する名前、会社名、役職、連絡先 QR',
   'label.def.tpl_desc.address': 'レター判シート 1 枚に 30 枚。サンプル CSV の宛先一覧から差し込み',

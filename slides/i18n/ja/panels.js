@@ -14,7 +14,7 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'slides.anim.move_down': '下へ移動',
   'slides.anim.delete': '削除',
   'slides.anim.save_this_object_s_first_animation_with': 'このオブジェクトの最初のアニメーションを、タイミングとともにプリセットとして保存',
-  'slides.anim.off_every_slide_appears_whole_and_each_c': 'オフ: すべてのスライドは一度に表示され、クリックごとに次へ進みます。',
+  'slides.anim.off_every_slide_appears_whole_and_each_c': 'オフ：すべてのスライドは一度に表示され、クリックごとに次へ進みます。',
   'slides.anim.no_animation': 'アニメーションなし。',
   'slides.anim.transition_duration_in_seconds': '画面切り替えの時間（秒）',
   'slides.anim.effect': '効果',

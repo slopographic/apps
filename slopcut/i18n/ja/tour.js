@@ -11,6 +11,6 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'slopedit.tour.timeline_text': 'クリップはトラックに並びます。S キーで再生ヘッドの位置で分割し、矢印キーで 1 フレームずつ移動します。',
   'slopedit.tour.undo_title': '元に戻す・やり直し',
   'slopedit.tour.undo_text': '元に戻す・やり直しは、プロジェクト名の隣の上部バーにあります。',
-  'slopedit.tour.export_title': 'エクスポート',
-  'slopedit.tour.export_text': '完成したカットを動画ファイルとしてエクスポートします。',
+  'slopedit.tour.export_title': '書き出し',
+  'slopedit.tour.export_text': '完成したカットを動画ファイルとして書き出しします。',
 });

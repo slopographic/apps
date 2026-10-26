@@ -1,6 +1,6 @@
 # Glossary: Japanese (ja)
 
-Register: polite です/ます form in sentences and messages, as Microsoft Office, Google Workspace and Adobe Acrobat in Japanese do; buttons and menu items are short noun or dictionary-form verb phrases (保存, 開く, エクスポート, アプリを開く), never ください on a button. Katakana loanwords follow the Microsoft style with a long-vowel mark at the end (ブラウザー, フォルダー). Use full-width 「」 for quoting UI text, half-width space around Latin words and numbers, ASCII colon in label: value pairs. Brand and app names stay in Latin script.
+Register: polite です/ます form in sentences and messages, as Microsoft Office, Google Workspace and Adobe Acrobat in Japanese do; buttons and menu items are short noun or dictionary-form verb phrases (保存, 開く, エクスポート, アプリを開く), never ください on a button. Katakana loanwords follow the Microsoft style with a long-vowel mark at the end (ブラウザー, フォルダー). Use full-width 「」 for quoting UI text (not “ ”), full-width 、。：（） in Japanese text, half-width punctuation only inside ASCII words, numbers, times and code, and a half-width space between Japanese and Latin words or numbers. Katakana compounds follow the majority spelling (ファイル サイズ is ファイルサイズ, タイムゾーン, メールアドレス, プレーンテキスト; テキスト ボックス, ローカル フォルダー keep the space). Brand and app names (Sloppo, PhotoSlop, Slopographic, Slopify, every Slop …) stay in Latin script. Sample data (names, companies, addresses, cities, numbers) stays as English writes it.
 
 The terms the shared chrome (shared/i18n/ja.js) and the app tables use. Add a term here when you choose one.
 
@@ -19,8 +19,8 @@ The terms the shared chrome (shared/i18n/ja.js) and the app tables use. Add a te
 | save as | 名前を付けて保存 |  |
 | download | ダウンロード |  |
 | upload | アップロード |  |
-| export | エクスポート |  |
-| import | インポート |  |
+| export | 書き出し | Verb 書き出す (Adobe usage); エクスポート only for another program's own export |
+| import | インポート | Not 取り込み; 読み込み is for load/open |
 | print | 印刷 |  |
 | close | 閉じる |  |
 | cancel | キャンセル |  |
@@ -184,3 +184,25 @@ Terms chosen for Slop PDF (pdf/i18n/ja/). Undo-step labels are noun phrases (ペ
 | autosave | 自動保存 |  |
 | session | セッション |  |
 | pane | 画面 | Split view panes |
+
+## Business apps (one term per concept)
+
+Chosen in the review so Quotes, Orders, Purchases, Invoices, CRM, Reports, Admin and the shared documents say the same thing.
+
+| English | 日本語 | Note |
+| --- | --- | --- |
+| quote | 見積書 | The document and the app name; 見積日 and 見積もり (an estimate) are unchanged |
+| order (sales order) | 注文書 | The document, the list and the app name; 注文日, 注文番号, 注文者 are unchanged. Not 受注 (that stays for win rate and amounts: 受注率, 受注額) |
+| purchase order | 発注書 | The document; 発注する / 発注済み / 発注点 for the action and the reorder level |
+| purchases (app) | 仕入 | The app name only; 仕入先 is the supplier |
+| supplier | 仕入先 |  |
+| credit note | クレジットノート | Not 貸方票; status credited is クレジット済み |
+| reminder (invoice, dunning) | 督促 | やわらかい督促 / 強めの督促 / 最終督促. Calendar, To-do and Reminders keep リマインダー |
+| fulfilled (order status) | 出荷済み | Not 完了 |
+| delivery note | 納品書 |  |
+| customer | 顧客 | 取引先 only for a generic business partner |
+| invoice | 請求書 |  |
+| statement | 取引明細書 |  |
+| already | すでに | Not 既に |
+| again | もう一度 | Not 再度 |
+| range (numbers) | 50～950 | Full-width tilde, no spaces |

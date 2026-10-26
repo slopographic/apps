@@ -63,9 +63,9 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'eml.toast.open_first': '先にメッセージを開いてください。',
   'eml.toast.making': 'PDF を作成しています…',
   'eml.toast.making_n': '{n} 件のメッセージの PDF を作成しています…',
-  'eml.toast.export_failed': '書き出しできませんでした: {error}',
+  'eml.toast.export_failed': '書き出しできませんでした：{error}',
   'eml.toast.saved': '{name} を保存しました。',
   'eml.toast.opened_in': '{name} を {app} で開きました。',
-  'eml.toast.open_failed': '開けませんでした: {error}',
+  'eml.toast.open_failed': '開けませんでした：{error}',
   'eml.toast.font_missing': '一部の文字にはダウンロードされていない言語フォントが必要なため、四角で表示される場合があります。',
 });

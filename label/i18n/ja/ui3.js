@@ -1,4 +1,4 @@
-/* Slop Label（日本語）: 印刷ダイアログ、一括印刷、設定の保存と読み込み、データの取り込み、ZPL、印刷フォーム、ツール、バーコードの生成、起動画面。キーは label/i18n/en/ui3.js と同じです。用語: shared/i18n/glossary-ja.md */
+/* Slop Label（日本語）: 印刷ダイアログ、一括印刷、設定の保存と読み込み、データのインポート、ZPL、印刷フォーム、ツール、バーコードの生成、起動画面。キーは label/i18n/en/ui3.js と同じです。用語: shared/i18n/glossary-ja.md */
 window.SlopI18n && window.SlopI18n.add('ja', {
   'label.print.values_for_this_print_job': 'この印刷ジョブの値です。',
   'label.print.print_values': '印刷する値',
@@ -21,7 +21,7 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'label.print.browser_print': 'ブラウザー印刷',
   'label.print.print_through_the_browser_at': 'ブラウザー経由で、ラベル / シートの正確なサイズで印刷',
   'label.print.zpl_preview': 'ZPL プレビュー',
-  'label.print.browser_printing_choose_your_label': 'ブラウザー印刷: ラベル プリンターを選び、拡大率を 100%（または「実寸」）、余白を「なし」に設定します。Zebra プリンターへの USB / ネットワークによる直接印刷には、Zebra Browser Print などのヘルパーが必要です。それ以外の場合は、.zpl ファイルをプリンターに送ってください（共有フォルダーにコピーするか、プリンターの Web ページを使います）。',
+  'label.print.browser_printing_choose_your_label': 'ブラウザー印刷：ラベル プリンターを選び、拡大率を 100%（または「実寸」）、余白を「なし」に設定します。Zebra プリンターへの USB / ネットワークによる直接印刷には、Zebra Browser Print などのヘルパーが必要です。それ以外の場合は、.zpl ファイルをプリンターに送ってください（共有フォルダーにコピーするか、プリンターの Web ページを使います）。',
   'label.print.close': '閉じる',
   'label.print.first_label_decoded_from_the': '上の ZPL から読み取った 1 枚目のラベルです。コードを編集すると変更を試せます。',
   'label.print.zpl_copied': 'ZPL をコピーしました',
@@ -39,7 +39,7 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'label.bulk.labels_across_down': '横 / 縦のラベル数',
   'label.bulk.gap_across_down_mm': '横 / 縦の間隔（mm）',
   'label.bulk.margin_mm': '余白（mm）',
-  'label.bulk.browser_printing_set_the_scale': 'ブラウザー印刷: 拡大率を 100%（または「実寸」）、余白を「なし」に設定すると、ラベルが設計どおりの位置に印刷されます。',
+  'label.bulk.browser_printing_set_the_scale': 'ブラウザー印刷：拡大率を 100%（または「実寸」）、余白を「なし」に設定すると、ラベルが設計どおりの位置に印刷されます。',
   'label.cfg.this_label_cannot_be_saved': 'このラベルは設定として保存できません',
   'label.cfg.save_as_config': '設定として保存',
   'label.cfg.config_name': '設定名',
@@ -134,7 +134,7 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'label.bgen.letters_and_digits': '英字と数字',
   'label.bgen.fixed_by_the_symbology': 'シンボル体系により固定',
   'label.bgen.characters_or_modules_in_the': '値の文字数（またはモジュール数）',
-  'label.bgen.digits_e_g_9_for': '桁数（例: EAN-13 の本体には 9）',
+  'label.bgen.digits_e_g_9_for': '桁数（例：EAN-13 の本体には 9）',
   'label.bgen.how_many_labels_generate_many': '「複数生成」で作成するラベルの数',
   'label.bgen.ean_and_upc_values_are': 'EAN と UPC の値は、有効なチェックデジットを付けた数字なので、スキャナーで読み取れます。',
   'label.bgen.each_generate_picks_a_new': '「生成」を押すたびに、新しいランダムな値を選びます。',

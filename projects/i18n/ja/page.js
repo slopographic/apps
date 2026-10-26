@@ -28,7 +28,7 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'projects.page.weeks': '週',
   'projects.page.months': '月',
   'projects.page.today': '今日',
-  'projects.page.tl_keys': 'バーをドラッグして移動するか、両端をドラッグして日付を変更します。フォーカスしたバー: 矢印キーで 1 日ずつ移動し、Shift と矢印キーで終了日を変更します。',
+  'projects.page.tl_keys': 'バーをドラッグして移動するか、両端をドラッグして日付を変更します。フォーカスしたバー：矢印キーで 1 日ずつ移動し、Shift と矢印キーで終了日を変更します。',
   'projects.page.empty_h': 'ボードとタイムラインでプロジェクトを計画しましょう',
   'projects.page.new_project': '新しいプロジェクト',
 });

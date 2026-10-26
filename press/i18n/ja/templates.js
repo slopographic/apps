@@ -3,7 +3,7 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'press.tpl.title': 'テンプレートから新規作成',
   'press.tpl.opened': '「{name}」から新規ドキュメントを作成しました',
   'press.tpl.magazine_name': '雑誌の見開き',
-  'press.tpl.magazine_desc': 'A4 の見開き: 表紙、ドロップ キャップと引用文、回り込み画像を含む 2 ページの特集',
+  'press.tpl.magazine_desc': 'A4 の見開き：表紙、ドロップ キャップと引用文、回り込み画像を含む 2 ページの特集',
   'press.tpl.flyer_name': 'イベント チラシ',
   'press.tpl.flyer_desc': 'US レター、塗り足しありの 1 ページ',
   'press.tpl.card_name': '名刺',

@@ -3,7 +3,7 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'time.app.name': '時刻',
   'time.page.local_tip': '時計、タイムゾーン、タイマーはこのブラウザーに残ります。何もアップロードされません。',
   'time.page.sections': 'セクション',
-  'time.page.add_ph': 'リスボン, シドニー, America/Chicago',
+  'time.page.add_ph': 'Lisbon, Sydney, America/Chicago',
   'time.page.working_days': '勤務日',
   'time.page.zone_ph': 'Asia/Tokyo',
   'time.page.meet_zones': '会議のタイムゾーン',

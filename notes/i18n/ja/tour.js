@@ -9,7 +9,7 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'notes.tour.search_title': '検索',
   'notes.tour.search_text': 'タイトル、本文、タグを検索します。',
   'notes.tour.list_title': 'メモの一覧',
-  'notes.tour.list_text': 'あなたのメモです。1 つ選ぶと、エディターで開きます。',
+  'notes.tour.list_text': 'メモの一覧です。1 つ選ぶと、エディターで開きます。',
   'notes.tour.editor_title': 'エディター',
   'notes.tour.editor_text': 'ここに入力します。ステータス行には、メモが保存された時刻が表示されます。',
   'notes.tour.commands_title': 'コマンド',

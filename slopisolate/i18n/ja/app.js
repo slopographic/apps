@@ -18,7 +18,7 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'cutout.app.drop_title': 'ここに画像をドロップ',
   'cutout.app.empty_lead': 'AI がブラウザー内で、被写体を切り抜きます。',
   'cutout.app.empty_formats': 'PNG、JPEG、WebP、AVIF… 一括で複数同時に指定できます。',
-  'cutout.app.paste_hint': 'または画像を貼り付け:',
+  'cutout.app.paste_hint': 'または画像を貼り付け：',
   'cutout.app.empty_privacy': '写真がこのデバイスの外に出ることはありません。アップロードもアカウントも不要で、透かしも一切入りません。',
   'cutout.app.working': '処理中…',
   'cutout.app.settings': '設定',

@@ -12,7 +12,7 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'signature.note.html': 'HTML コードがコピーされます。HTML 署名を求められる場所に貼り付けてください。',
   'signature.msg.copied': '{client} 用にコピーしました。{notes}',
   'signature.msg.paste_steps': '署名の入力欄に貼り付けてください（手順は下記）。',
-  'signature.msg.ready': '{client} 用の署名の準備ができました。ブラウザーの仕様上、クリックの後にのみコピーできます:',
+  'signature.msg.ready': '{client} 用の署名の準備ができました。ブラウザーの仕様上、クリックの後にのみコピーできます：',
   'signature.msg.copy_code_now': '今すぐ HTML コードをコピー',
   'signature.msg.copy_for_now': '今すぐ {client} 用にコピー',
 });

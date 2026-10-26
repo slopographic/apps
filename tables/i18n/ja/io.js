@@ -11,7 +11,7 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'tables.file.damaged': 'この Slop Tables ファイルは破損しています（{what}）。',
   'tables.file.newer': 'この Slop Tables ファイルは、新しいバージョンの Slop Tables で作成されています。',
   'tables.import.unknown_fn': '{n} 件の数式が、Slop Tables にまだない関数を使用しているため、#NAME? と表示されます。',
-  'tables.import.skipped': '読み込まれませんでした: {list}。',
+  'tables.import.skipped': '読み込まれませんでした：{list}。',
   'tables.import.chart_kind': '{n} 件の {kind} グラフは読み込まれませんでした。Slop Tables は縦棒、横棒、折れ線、円グラフを描画します。',
   'tables.import.chart_shape': '{n} 件のグラフは読み込まれませんでした。系列が 1 つのセルのブロックになっていません。',
   'tables.drop.label': 'スプレッドシートをドロップして開く',

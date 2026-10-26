@@ -35,7 +35,7 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'colors.app.remove_one': '{name} を削除',
   'colors.app.rename_title': '色の名前を変更',
   'colors.app.rename_name': '名前',
-  'colors.app.not_colour': '“{text}” は色ではありません',
+  'colors.app.not_colour': '「{text}」は色ではありません',
   'colors.app.full': 'パレットがいっぱいです（{n} 色）',
   'colors.app.gen_h': 'この色から生成',
   'colors.app.use_palette': 'パレットとして使用',

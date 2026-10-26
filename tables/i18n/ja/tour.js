@@ -12,5 +12,5 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'tables.tour.side_title': 'シートとテンプレート',
   'tables.tour.side_text': 'シート、テンプレート、関数の一覧です。矢印ボタンでこのサイドバーを非表示にします。',
   'tables.tour.save_title': '保存',
-  'tables.tour.save_text': 'Slop Drive に保存します (Ctrl+S)。',
+  'tables.tour.save_text': 'Slop Drive に保存します（Ctrl+S）。',
 });

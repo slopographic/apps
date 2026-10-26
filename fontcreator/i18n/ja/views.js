@@ -1,7 +1,7 @@
 /* Slop Font, Japanese: the glyph grid, the path operations, the kerning view, the type test and their undo labels. Same keys as fontcreator/i18n/en/views.js. Rules: shared/i18n/APPS-HOWTO.md. Terms: shared/i18n/glossary-ja.md. */
 window.SlopI18n && window.SlopI18n.add('ja', {
   'fontcreator.grid.show': '表示する文字',
-  'fontcreator.grid.add_ph': '文字を追加: 入力して Enter',
+  'fontcreator.grid.add_ph': '文字を追加：入力して Enter',
   'fontcreator.grid.add_label': 'フォントに文字を追加',
   'fontcreator.grid.added': '{n} 文字を追加しました',
   'fontcreator.grid.undo_add': '{n} 文字を追加',
@@ -58,6 +58,6 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'fontcreator.test.s_digits': '数字',
   'fontcreator.test.s_spacing': '字間',
   'fontcreator.test.empty': 'グリフを描くと、ここにフォントが表示されます。',
-  'fontcreator.test.load_failed': 'ブラウザーがフォントを読み込めませんでした: {error}',
-  'fontcreator.test.built': '{font}、プロジェクトから作成: {n} バイト。',
+  'fontcreator.test.load_failed': 'ブラウザーがフォントを読み込めませんでした：{error}',
+  'fontcreator.test.built': '{font}、プロジェクトから作成：{n} バイト。',
 });

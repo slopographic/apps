@@ -2,7 +2,7 @@
 window.SlopI18n && window.SlopI18n.add('ja', {
   'ai.build.new': '新しいミニアプリ',
   'ai.build.hello': 'ミニアプリを作る',
-  'ai.build.hello_lead': 'アプリ、ゲーム、ページを説明してください。モデルが HTML ファイルを 1 つ作成し、ここでサンドボックス内に表示して動かします。または、テンプレートから始めてください:',
+  'ai.build.hello_lead': 'アプリ、ゲーム、ページを説明してください。モデルが HTML ファイルを 1 つ作成し、ここでサンドボックス内に表示して動かします。または、テンプレートから始めてください：',
   'ai.build.placeholder': '作りたいアプリの内容、または変更したい点を書いてください',
   'ai.build.none_yet': 'まだミニアプリがありません',
   'ai.build.delete_q': 'このミニアプリを削除しますか？',

@@ -20,7 +20,7 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'ai.cmd.save': 'チャットを Slop Drive に保存',
   'ai.cmd.open_drive': 'Slop Drive からチャットを開く…',
   'ai.cmd.new_build': '新しいミニアプリ',
-  'ai.cmd.template': 'ミニアプリ テンプレート: {name}',
+  'ai.cmd.template': 'ミニアプリ テンプレート：{name}',
   'ai.cmd.go_to': '{name} に移動',
   'ai.cmd.unload': 'モデルを取り出す',
   'ai.cmd.pause': 'ダウンロードを一時停止',
@@ -30,7 +30,7 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'ai.cmd.check': 'システム チェックを実行',
   'ai.cmd.spec_card': 'スペック カードを共有…',
   'ai.cmd.sloppo': 'Sloppo に質問する',
-  'ai.cmd.theme': 'テーマ: {name}',
+  'ai.cmd.theme': 'テーマ：{name}',
   'ai.cmd.palette': 'コマンドを検索…',
   'ai.cmd.shortcuts': 'キーボード ショートカット…',
 });

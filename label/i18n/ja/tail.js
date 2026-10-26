@@ -11,7 +11,7 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'label.cfg.roll': 'ロール',
   'label.cfg.data_cols': 'データ列 {n} 列',
   'label.cfg.delete_body': '「{name}」はこのブラウザーから削除されます。そこから保存したプリセットは残ります。',
-  'label.cfg.missing_cols': '設定にある {n} 列がこのデータにありません: {list}',
+  'label.cfg.missing_cols': '設定にある {n} 列がこのデータにありません：{list}',
   'label.bulk.no_fit': '{size} mm の {grid} ラベルは、この間隔と余白では {paper} に収まりません。',
   'label.bulk.labels': '{n} 枚のラベル',
   'label.bulk.per_page': '1 ページあたり {n} 枚',

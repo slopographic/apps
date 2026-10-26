@@ -18,6 +18,6 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'photoslop.cmd.go_to_doc': 'ドキュメント {i} に移動',
   'photoslop.cmd.restore_aspect': '元の縦横比に戻す',
   'photoslop.cmd.guides_panel': 'ガイド パネル（ガイド レイアウト）',
-  'photoslop.cmd.search_key': 'コマンドを検索 ({key})',
+  'photoslop.cmd.search_key': 'コマンドを検索（{key}）',
   'photoslop.cmd.nav_preset': 'ナビゲーションのプリセット…',
 });

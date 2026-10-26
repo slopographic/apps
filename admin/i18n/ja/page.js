@@ -44,7 +44,7 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'admin.page.export_all': '全データの書き出しまたは読み込み…',
   'admin.page.restore': '復元',
   'admin.page.restore_note': 'ファイル全体が先に検証されます。不正なファイルの場合は何も変更されません。正しいファイルの場合は、ここにあるすべての記録が置き換えられます。',
-  'admin.page.restore_from': 'バックアップ ファイルから復元…',
+  'admin.page.restore_from': 'バックアップファイルから復元…',
   'admin.page.reset': 'リセット',
   'admin.page.reset_note': 'このブラウザー内のすべての記録を消去します。先に完全バックアップがダウンロードされ、確認のため RESET と入力します。',
   'admin.page.reset_all': 'すべてのデータをリセット…',

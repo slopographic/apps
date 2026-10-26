@@ -60,5 +60,5 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'slides.show.clicks': 'このスライドにはあと {n} 回のクリックがあります',
   'slides.show.no_notes': 'このスライドにノートはありません。',
   'slides.show.ended': 'スライドショーは終了しました',
-  'slides.show.title': '発表者ツール: {app}',
+  'slides.show.title': '発表者ツール：{app}',
 });

@@ -11,7 +11,7 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'calendar.tour.zone_title': 'タイムゾーン',
   'calendar.tour.zone_text': '時刻を表示するタイムゾーンを選びます。',
   'calendar.tour.ics_title': '読み込みと書き出し',
-  'calendar.tour.ics_text': '.ics を読み込むと予定を取り込めます。.ics を書き出すと、ほかのカレンダーと予定を共有できます。',
+  'calendar.tour.ics_text': '.ics を読み込むと予定をインポートできます。.ics を書き出すと、ほかのカレンダーと予定を共有できます。',
   'calendar.tour.config_title': '設定',
   'calendar.tour.config_text': 'カレンダーの設定と、書き出しと読み込みのオプションです。',
 });

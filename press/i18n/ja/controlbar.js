@@ -4,7 +4,7 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'press.ctl.char_style': '文字スタイル',
   'press.ctl.font_family': 'フォント ファミリー',
   'press.ctl.fonts': 'フォント…',
-  'press.ctl.fonts_tip': 'フォント: このドキュメントのフォントと、お使いのフォント ファイル',
+  'press.ctl.fonts_tip': 'フォント：このドキュメントのフォントと、お使いのフォントファイル',
   'press.ctl.font_style': 'フォント スタイル',
   'press.ctl.size_tip': 'フォント サイズ（pt）',
   'press.ctl.leading_tip': '行送り（pt または「自動」）',

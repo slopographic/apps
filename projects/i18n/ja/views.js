@@ -1,7 +1,7 @@
 /* Slop Projects, Japanese: the board, the timeline, the list and the activity messages. Same keys as projects/i18n/en/views.js. Terms: shared/i18n/glossary-ja.md. */
 window.SlopI18n && window.SlopI18n.add('ja', {
   'projects.act.not_saved': '保存されていません',
-  'projects.act.undone': '元に戻しました: {what}。',
+  'projects.act.undone': '元に戻しました：{what}。',
   'projects.act.moved_place': '「{title}」を {column} の {n} 番目に移動しました',
   'projects.act.moved_col': '「{title}」を {column} に移動しました',
   'projects.act.dates_moved': '「{title}」を {when} に移動しました',

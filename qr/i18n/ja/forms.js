@@ -45,7 +45,7 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'qr.err.url_empty': 'Web アドレスを入力してください。',
   'qr.err.url_spaces': 'Web アドレスに空白を含めることはできません。',
   'qr.err.email_to': '送信先のメールアドレスを入力してください。',
-  'qr.err.wpa': 'WPA のパスワードは 8 〜 63 文字です。',
+  'qr.err.wpa': 'WPA のパスワードは 8～63 文字です。',
   'qr.err.wep': 'WEP キーは 5 文字または 13 文字、または 10 桁か 26 桁の 16 進数です。',
   'qr.err.ssid_empty': 'ネットワーク名を入力してください。',
   'qr.err.ssid_long': 'ネットワーク名は最大 32 バイトです。',

@@ -2,7 +2,7 @@
  * bar, Slop Drive saves, file sizes and pack downloads. Terms: shared/i18n/glossary-ja.md. */
 window.SlopI18n && window.SlopI18n.add('ja', {
   'ui.shell.ask_ai': 'Slop AI に質問…',
-  'ui.shell.ai_tip': 'Slop AI: 質問する、または {app} で作業させる',
+  'ui.shell.ai_tip': 'Slop AI：質問する、または {app} で作業させる',
   'ui.shell.ai_offline': 'Slop AI はオフラインでは利用できません。ページを一度オンラインで開いてください。',
   'ui.shell.convert_files': 'ファイルを変換…',
   'ui.shell.convert_tip': 'このデバイスでファイルを別の形式に変換します',
@@ -38,7 +38,7 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'ui.size.kb': '{size} KB',
   'ui.size.mb': '{size} MB',
   'ui.size.gb': '{size} GB',
-  'ui.library.list_failed': 'パックの一覧を読み込めませんでした ({why})。',
-  'ui.library.downloading': '{name} をダウンロードしています ({n} 件中 {i} 件目)…',
+  'ui.library.list_failed': 'パックの一覧を読み込めませんでした（{why}）。',
+  'ui.library.downloading': '{name} をダウンロードしています（{n} 件中 {i} 件目）…',
   'ui.library.storing': '保存しています…',
 });

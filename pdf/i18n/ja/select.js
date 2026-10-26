@@ -16,7 +16,7 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'pdf.se.obj_help': "ドラッグで移動、ハンドルでサイズ変更や回転。Delete でページから削除します。",
   'pdf.se.paste': "貼り付け",
   'pdf.se.pasted_pages': "{n} ページに貼り付けました。",
-  'pdf.se.paste_pages_label': "ページ（例: 1-3, 5, 8-。文書は {n} ページ）",
+  'pdf.se.paste_pages_label': "ページ（例：1-3, 5, 8-。文書は {n} ページ）",
   'pdf.se.paste_pages_title': "ページを指定して貼り付け",
   'pdf.se.position': "位置とサイズ",
   'pdf.se.rotation': "回転",

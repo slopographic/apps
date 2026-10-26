@@ -50,7 +50,7 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'photoslop.filter.autoenhance': '自動補正…',
   'photoslop.filter.vhs': 'VHS テープ…',
   'photoslop.filter.slopify': 'Slopify（溶解）…',
-  'photoslop.filter.shadow': 'ドロップ シャドウ…',
+  'photoslop.filter.shadow': 'ドロップシャドウ…',
   'photoslop.filter.glow': '外側のグロー…',
   'photoslop.filter.stroke': '境界線…',
   'photoslop.filter.overlay': 'カラー オーバーレイ…',

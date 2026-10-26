@@ -117,7 +117,7 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'convert.ff.engine_name': '動画エンジン（ffmpeg.wasm）',
   'convert.csv.bad_json': '有効な JSON ではありません。',
   'convert.html.no_text': 'この HTML には、Markdown に変換するテキストがありません。',
-  'convert.md.jsonl_bad_why': '{line} 行目は有効な JSON ではありません: {why}',
+  'convert.md.jsonl_bad_why': '{line} 行目は有効な JSON ではありません：{why}',
   'convert.md.jsonl_bad': '{line} 行目は有効な JSON ではありません。',
   'convert.md.jsonl_empty': 'ファイルが空です。読み取る JSON 行がありません。',
   'convert.mail.no_attachments': 'このメッセージには添付ファイルがありません。',
