@@ -461,8 +461,11 @@ Covers: shared/i18n/ui/am.js
 Covers: shared/i18n/ui/ar.js
 Covers: shared/i18n/ui/de.js
 Covers: shared/i18n/ui/en.js
+Covers: shared/i18n/ui/en/guides.js
 Covers: shared/i18n/ui/en/ops.js
 Covers: shared/i18n/ui/en/ops2.js
+Covers: shared/i18n/ui/en/ops3.js
+Covers: shared/i18n/ui/en/preview.js
 Covers: shared/i18n/ui/en/watermark.js
 Covers: shared/i18n/ui/es.js
 Covers: shared/i18n/ui/fr.js
@@ -479,8 +482,11 @@ Covers: shared/i18n/ui/pl.js
 Covers: shared/i18n/ui/pt-BR.js
 Covers: shared/i18n/ui/ru.js
 Covers: shared/i18n/ui/sv.js
+Covers: shared/i18n/ui/sv/guides.js
 Covers: shared/i18n/ui/sv/ops.js
 Covers: shared/i18n/ui/sv/ops2.js
+Covers: shared/i18n/ui/sv/ops3.js
+Covers: shared/i18n/ui/sv/preview.js
 Covers: shared/i18n/ui/sv/watermark.js
 Covers: shared/i18n/ui/sw.js
 Covers: shared/i18n/ui/tr.js

@@ -68,19 +68,19 @@ async function toDocument(files, o = {}) {
 }
 
 export const CREATE_SLIDES = register([
-  { id: 'outline-to-presentation', group: 'Create', from: IN, mode: 'each', ext: 'pptx',
+  { id: 'outline-to-presentation', group: 'Create', from: IN, mode: 'each', ext: 'pptx',   // i18n-ignore: a group id (search words), an app name
     get description() { return t('ui.ops.step.outline_to_presentation_desc', { format: SLIDE_HELP }); },
     keywords: ['presentation', 'slides', 'deck', 'powerpoint', 'pptx', 'keynote', 'outline', 'create', 'make', 'generate', 'slideshow'],
     options: [opt('ui.ops.create.make', { key: 'format', type: 'select', value: 'pptx', options: [['pptx', 'PowerPoint (.pptx)'], ['pdf', 'PDF'], ['sslide', 'Slop Slides (.sslide)']] }),
       opt('ui.ops.create.theme', { key: 'theme', type: 'select', value: '', options: THEMES }), opt('ui.ops.create.size', { key: 'size', type: 'select', value: '', options: SLIDE_SIZES })],
     run: toPresentation },
-], { app: 'slides', label: 'Slop Slides' });
+], { app: 'slides', label: 'Slop Slides' });   // i18n-ignore: a group id (search words), an app name
 
 export const CREATE_DOCS = register([
-  { id: 'outline-to-document', group: 'Create', from: IN, mode: 'each', ext: 'docx',
+  { id: 'outline-to-document', group: 'Create', from: IN, mode: 'each', ext: 'docx',   // i18n-ignore: a group id (search words), an app name
     get description() { return t('ui.ops.step.outline_to_document_desc', { format: DOC_HELP }); },
     keywords: ['document', 'word', 'docx', 'report', 'letter', 'essay', 'outline', 'create', 'make', 'generate', 'write'],
     options: [opt('ui.ops.create.make', { key: 'format', type: 'select', value: 'docx', options: [['docx', 'Word (.docx)'], ['pdf', 'PDF'], ['md', 'Markdown'], ['sdoc', 'Slop Docs (.sdoc)']] }),
       opt('ui.ops.create.page', { key: 'page', type: 'select', value: '', options: ['', ['A4', 'A4'], 'Letter'] })],
     run: toDocument },
-], { app: 'docs', label: 'Slop Docs' });
+], { app: 'docs', label: 'Slop Docs' });   // i18n-ignore: a group id (search words), an app name

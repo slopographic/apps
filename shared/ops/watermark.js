@@ -50,8 +50,8 @@ async function apply(files, o, ctx = {}) {
 }
 
 export const WATERMARK_OPS = register([
-  { id: 'watermark.apply', group: 'Pictures', from: WATERMARK_IN, mode: 'each', out: (k) => OUT[k] || 'png',
+  { id: 'watermark.apply', group: 'Pictures', from: WATERMARK_IN, mode: 'each', out: (k) => OUT[k] || 'png',   // i18n-ignore: a group id (search words), an app name
     keywords: ['watermark', 'logo', 'copyright', 'stamp', 'brand', 'video watermark', 'pdf watermark'], options: WATERMARK_OPTIONS, run: apply,
     fromApp,   // an app's "Add to a workflow…" (shared/ops/flowdoc.js)
     check: (o = {}) => S.check(specOf(o)) },
-], { app: 'watermark', label: 'Slop Watermark' });
+], { app: 'watermark', label: 'Slop Watermark' });   // i18n-ignore: a group id (search words), an app name

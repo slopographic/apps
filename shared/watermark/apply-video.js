@@ -10,6 +10,7 @@
 (function () {
   'use strict';
   const WM = window.SlopWatermark, S = window.SlopWatermarkSpec;
+  const tr = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);   // words: shared/i18n/ui/<code>/watermark.js
   const ENGINE = new URL('convert/js/core/ffmpeg-engine.js', WM.ROOT).href;
   const MIME = { mp4: 'video/mp4', mov: 'video/quicktime', webm: 'video/webm', gif: 'image/gif' };
 
@@ -18,10 +19,10 @@
     return new Promise((resolve, reject) => {
       const v = document.createElement('video'), url = URL.createObjectURL(file);
       const done = (fn, x) => { clearTimeout(t); v.removeAttribute('src'); v.load(); URL.revokeObjectURL(url); fn(x); };
-      const t = setTimeout(() => done(reject, new Error('This video could not be read in this browser.')), 20000);
+      const t = setTimeout(() => done(reject, new Error(tr('ui.wm.video_unread'))), 20000);
       v.preload = 'metadata'; v.muted = true;
-      v.onloadedmetadata = () => (v.videoWidth > 0 ? done(resolve, { w: v.videoWidth, h: v.videoHeight, duration: v.duration }) : done(reject, new Error('This file has no picture track.')));
-      v.onerror = () => done(reject, new Error('This video could not be read in this browser. Try MP4 (H.264) or WebM.'));
+      v.onloadedmetadata = () => (v.videoWidth > 0 ? done(resolve, { w: v.videoWidth, h: v.videoHeight, duration: v.duration }) : done(reject, new Error(tr('ui.wm.video_no_track'))));
+      v.onerror = () => done(reject, new Error(tr('ui.wm.video_unread_try')));
       v.src = url;
     });
   }

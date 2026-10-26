@@ -1,15 +1,13 @@
 /* The face detection wording, in one place: the opt-in dialog (shared/faces/consent.js) and the Profile switch
  * (shared/profile/app-options.js, shown on settings/) both read it, so they say the same thing. Classic script;
- * sets window.SLOP_FACES_COPY. Load it before app-options.js. */
+ * sets window.SLOP_FACES_COPY. Load it before app-options.js. The words are the keys ui.faces.copy_* (shared/i18n/ui/
+ * <code>/preview.js), read each time a field is read (getters), so a reader built after a language switch has the new words. */
 (function (g) {
   'use strict';
+  const tr = (k) => (g.SlopI18n ? g.SlopI18n.t(k) : k);
   g.SLOP_FACES_COPY = Object.freeze({
-    title: 'Find faces on this device?',
-    switchLabel: 'Find faces on this device',
-    lines: Object.freeze([
-      'Slop can find the faces in your pictures. You then see how many faces each picture has, and Gallery can group photos by face count.',
-      'It runs on this device, with one small open model (YuNet, MIT licence, about 230 KB). Nothing is uploaded, and no one is identified.',
-      'It is off by default. You can turn it on or off again at any time in Profile, under Face detection.',
-    ]),
+    get title() { return tr('ui.faces.copy_title'); },
+    get switchLabel() { return tr('ui.faces.copy_switch'); },
+    get lines() { return Object.freeze([tr('ui.faces.copy_line1'), tr('ui.faces.copy_line2'), tr('ui.faces.copy_line3')]); },
   });
 })(typeof window !== 'undefined' ? window : globalThis);

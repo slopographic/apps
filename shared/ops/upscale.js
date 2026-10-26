@@ -52,10 +52,10 @@ async function upscale(files, o, ctx = {}) {
 }
 
 export const UPSCALE_OPS = register([
-  { id: 'upscale.image', group: 'Pictures', from: IMAGE_IN, mode: 'each', out: (k) => pictureKind(k), engine: 'upscale', notice: 'upscale',
+  { id: 'upscale.image', group: 'Pictures', from: IMAGE_IN, mode: 'each', out: (k) => pictureKind(k), engine: 'upscale', notice: 'upscale',   // i18n-ignore: a group id (search words), an app name
     keywords: ['upscale', 'enlarge', 'super resolution', 'bigger', 'sharpen', 'enhance'],
     options: [
       opt('ui.ops.upscale.scale', { key: 'scale', type: 'select', value: 2, options: [[2, '2×'], [4, '4×']] }),
       opt('ui.ops.upscale.model', { key: 'model', type: 'select', value: 'fast', options: ['fast', 'quality', 'lanczos'] }),
     ], run: upscale },
-], { app: 'upscale', label: 'Slop Upscale' });
+], { app: 'upscale', label: 'Slop Upscale' });   // i18n-ignore: a group id (search words), an app name

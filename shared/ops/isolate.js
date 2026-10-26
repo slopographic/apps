@@ -82,11 +82,11 @@ async function background(files, o) {
 }
 
 export const ISOLATE_OPS = register([
-  { id: 'slopisolate.remove-bg', group: 'Pictures', from: IMAGE_IN, ext: 'png', mode: 'each', engine: 'cutout',
+  { id: 'slopisolate.remove-bg', group: 'Pictures', from: IMAGE_IN, ext: 'png', mode: 'each', engine: 'cutout',   // i18n-ignore: a group id (search words), an app name
     keywords: ['background remover', 'cut out', 'transparent', 'isolate', 'product photo'], notice: 'slopisolate',
     options: [MODEL, BACKGROUND, COLOR, BLUR, SHADOW, CROP, PAD], run: removeBg,
     fromApp: (s = {}) => fromLook(s.look || {}, s.model) },   // SlopIsolate's "Add to a workflow…" (shared/ops/flowdoc.js)
-  { id: 'slopisolate.background', group: 'Pictures', from: ['png', 'webp', 'avif', 'gif'], ext: 'png', mode: 'each',
+  { id: 'slopisolate.background', group: 'Pictures', from: ['png', 'webp', 'avif', 'gif'], ext: 'png', mode: 'each',   // i18n-ignore: a group id (search words), an app name
     keywords: ['white background', 'fill transparency', 'flatten', 'backdrop'],
     options: [like(COLOR, { hint: '' }), SHADOW, CROP, PAD], run: background },
-], { app: 'slopisolate', label: 'SlopIsolate' });
+], { app: 'slopisolate', label: 'SlopIsolate' });   // i18n-ignore: a group id (search words), an app name

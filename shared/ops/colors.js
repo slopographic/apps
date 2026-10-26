@@ -36,10 +36,10 @@ async function palette(files, o) {
 }
 
 export const COLORS_OPS = register([
-  { id: 'colors.palette', group: 'Pictures', from: IMAGE_IN, mode: 'each', out: (k, o = {}) => KIND[o.format] || 'json',
+  { id: 'colors.palette', group: 'Pictures', from: IMAGE_IN, mode: 'each', out: (k, o = {}) => KIND[o.format] || 'json',   // i18n-ignore: a group id (search words), an app name
     keywords: ['palette', 'colours', 'colors', 'dominant colors', 'swatches', 'ase', 'gpl', 'tailwind', 'css variables'],
     options: [
       opt('ui.ops.colors.count', { key: 'count', type: 'number', min: 2, max: 12, value: 6 }),
       opt('ui.ops.colors.format', { key: 'format', type: 'select', value: 'json', options: [['json', 'JSON'], 'css', 'tailwind', 'ase', 'gpl'] }),
     ], run: palette },
-], { app: 'colors', label: 'Slop Colors' });
+], { app: 'colors', label: 'Slop Colors' });   // i18n-ignore: a group id (search words), an app name

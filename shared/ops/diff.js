@@ -40,7 +40,7 @@ async function run(files, o) {
 }
 
 export const DIFF_OPS = register([
-  { id: 'diff.report', group: 'Files', from: ['*'], mode: 'combine', out: (k, o) => (o && MIME[o.format] ? o.format : 'html'),
+  { id: 'diff.report', group: 'Files', from: ['*'], mode: 'combine', out: (k, o) => (o && MIME[o.format] ? o.format : 'html'),   // i18n-ignore: a group id (search words), an app name
     keywords: ['compare', 'diff', 'difference', 'changes', 'patch', 'report', 'versions'],
     options: [
       opt('ui.ops.diff.format', { key: 'format', type: 'select', value: 'html', options: ['html', 'pdf', 'patch'] }),
@@ -52,4 +52,4 @@ export const DIFF_OPS = register([
       opt('ui.ops.diff.threshold', { key: 'threshold', type: 'range', min: 0, max: 100, value: 10 }),
     ],
     run },
-], { app: 'diff', label: 'Slop Compare' });
+], { app: 'diff', label: 'Slop Compare' });   // i18n-ignore: a group id (search words), an app name

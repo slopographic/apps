@@ -75,4 +75,4 @@ export const PDF_EXTRACT_OPS = register([
       opt('ui.ops.extract.parts', { key: 'parts', type: 'select', value: 'all', options: ['all', 'images', 'attachments', 'fonts'] }),
       opt('ui.ops.extract.zip', { key: 'zip', type: 'checkbox', value: false }),
     ], run },
-], { app: 'pdf', label: 'Slop PDF' });
+], { app: 'pdf', label: 'Slop PDF' });   // i18n-ignore: a group id (search words), an app name

@@ -44,6 +44,6 @@ async function resize(files, o) {
 }
 
 export const RESIZE_OPS = register([
-  { id: 'resize.image', group: 'Pictures', from: IMAGE_IN, mode: 'each', out: outKind,
+  { id: 'resize.image', group: 'Pictures', from: IMAGE_IN, mode: 'each', out: outKind,   // i18n-ignore: a group id (search words), an app name
     keywords: ['resize', 'scale', 'square', 'thumbnail', 'smaller', 'compress image', 'dimensions'], options: RESIZE_OPTIONS, run: resize },
-], { app: 'resize', label: 'Slop Resize' });
+], { app: 'resize', label: 'Slop Resize' });   // i18n-ignore: a group id (search words), an app name

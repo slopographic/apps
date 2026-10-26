@@ -66,7 +66,7 @@ async function compress(files, o, ctx = {}) {
 }
 
 export const FILE_OPS = register([
-  { id: 'files.rename', group: 'Files', from: ['*'], mode: 'combine', out: (k) => k,
+  { id: 'files.rename', group: 'Files', from: ['*'], mode: 'combine', out: (k) => k,   // i18n-ignore: a group id (search words), an app name
     keywords: ['rename', 'file names', 'numbering', 'batch rename'],
     options: [
       opt('ui.ops.files.pattern', { key: 'pattern', type: 'text', value: '{name}-{n}', placeholder: '{name}-{n}', hint: true }),
@@ -83,4 +83,4 @@ export const PDF_OPS = register([
       opt('ui.ops.pdf.dpi', { key: 'dpi', type: 'select', value: 110, options: [72, [110, '110 dpi'], 150] }),
       opt('ui.ops.pdf.quality', { key: 'quality', type: 'range', min: 20, max: 95, value: 70 }),
     ], run: compress },
-], { app: 'pdf', label: 'Slop PDF' });
+], { app: 'pdf', label: 'Slop PDF' });   // i18n-ignore: a group id (search words), an app name

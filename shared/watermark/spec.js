@@ -143,7 +143,7 @@
       const m = /^(\d+)(?:\s*-\s*(\d+)?)?$/.exec(p);
       if (!m) throw new Error(tr('ui.wm.pages_bad', { text: p }));
       const a = +m[1], b = m[2] != null ? +m[2] : (p.indexOf('-') >= 0 ? total : a);
-      if (a < 1 || b < a) throw new Error(tr('ui.wm.pages_range', { text: p }));
+      if (a < 1 || b < a) throw new Error(tr('ui.wm.pages_bad_range', { text: p }));
       for (let k = a; k <= b && (finite ? k <= total : k <= a + 10000); k++) out.add(k - 1);
     }
     return Array.from(out).sort((x, y) => x - y);

@@ -8,6 +8,7 @@
 (function () {
   'use strict';
   const WM = window.SlopWatermark, S = window.SlopWatermarkSpec;
+  const tr = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);   // words: shared/i18n/ui/<code>/watermark.js
   const SCRIPTS = ['pdf/js/core/watermark.js', 'pdf/js/macro/pattern.js', 'pdf/js/macro/model.js', 'pdf/js/macro/frame.js', 'pdf/js/macro/ops-draw.js'];
   const MAX_RANGE = 120;   // a Slop PDF layer's page range is at most this long (pdf/js/core/watermark.js)
 
@@ -67,14 +68,14 @@
     const bytes = new Uint8Array(await file.arrayBuffer());
     let doc;
     try { doc = await P.load(bytes); } catch (e) {
-      throw new Error(/encrypt/i.test(String(e && e.message)) ? 'This PDF has a password. Remove it first.' : 'This is not a valid PDF, or it is damaged.');
+      throw new Error(tr(/encrypt/i.test(String(e && e.message)) ? 'ui.ops.pdf.has_password' : 'ui.ops.pdf.not_pdf'));
     }
     const frames = doc.getPages().map((page) => P.frame(page));
     if (opts.signal && opts.signal.aborted) throw new DOMException('Cancelled', 'AbortError');
     const layers = pdfLayers(sized, frames, (font, t, px) => P.measure(font, t, px), embeddable);
     if (!layers.length) return new Blob([bytes], { type: 'application/pdf' });
     const r = await M.ops.addWatermark(bytes, { type: 'addWatermark', layers }, { filename: file.name || 'document.pdf', date: M.isoDate() });
-    if (r.warn && opts.notice) opts.notice((file.name || 'The PDF') + ': some characters cannot be written with the standard PDF fonts, so they show as “?”.');
+    if (r.warn && opts.notice) opts.notice(tr('ui.wm.pdf_chars', { name: file.name || 'PDF' }));
     if (opts.progress) opts.progress(1);
     return new Blob([r.bytes], { type: 'application/pdf' });
   }

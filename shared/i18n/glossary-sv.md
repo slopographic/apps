@@ -770,3 +770,45 @@ history step and palette word, so never strip a suffix to get it. Layer names th
 | paper tape | pappersremsa | Slopculator |
 | expression / variable | uttryck / variabel |  |
 | exchange rate | växelkurs |  |
+
+## Shared panels: workflow steps, watermark, preview, deck, faces, guides (wave 1, shared components)
+
+| English | Svenska | Note |
+| --- | --- | --- |
+| step (workflow) | steg | «Steg 1 har ingen åtgärd» |
+| Run a workflow… / Add to a workflow… | Kör ett arbetsflöde… / Lägg till i ett arbetsflöde… |  |
+| see-through (background) | genomskinlig | «Genomskinlig (PNG)» |
+| cut-out | urklipp |  |
+| drop shadow | skugga |  |
+| crop to the subject | Beskär till motivet |  |
+| fit / fill / stretch (resize) | Anpassa / Fyll / Sträck ut |  |
+| longest side | längsta sidan |  |
+| lossless / strong (compression) | förlustfri / stark |  |
+| searchable PDF | sökbar PDF |  |
+| plain text | oformaterad text |  |
+| frame (aspect, video) | bildformat | «Stående 9:16», «Liggande 16:9» |
+| frame rate | bildfrekvens |  |
+| seed (random edit) | startvärde |  |
+| pace | tempo |  |
+| edit list (EDL) | redigeringslista |  |
+| outline (deck, document) | disposition |  |
+| speaker notes | talaranteckningar |  |
+| denoise | brusreducering |  |
+| blemish | hudfläck | «Läk hudfläckar» |
+| whiten teeth / eyes | Bleka tänder / Ljusa upp ögonvitor |  |
+| layer (watermark) | lager | «Lägg till textlager» |
+| My watermarks | Mina vattenstämplar |  |
+| shorter side | kortsidan | «% av kortsidan» |
+| move across / move down | Flytta i sidled / Flytta nedåt |  |
+| tile (repeat a mark) | Upprepa över bilden | «sida vid sida» in the step option |
+| actual size | verklig storlek |  |
+| like / dislike (photo deck) | Gilla / Ogilla; stamp «Gillad» / «Ogillad» |  |
+| tag (photo) | tagg | «Taggade ”a”, ”b”.» |
+| merge / split (people) | Slå ihop / Dela upp |  |
+| face boxes | ansiktsrutor |  |
+| margins / columns / rows / gutter (guides) | marginaler / kolumner / rader / mellanrum |  |
+| baseline grid | baslinjeraster |  |
+| wildcard (guide notation) | jokertecken |  |
+| Live preview | Direkt förhandsgranskning |  |
+| Rule of thirds / Golden ratio | Tredjedelsregeln / Gyllene snittet |  |
+| kinds: Images, Code and text, Archives, Other | Bilder, Kod och text, Arkiv, Övrigt | Gallery filters |

@@ -100,23 +100,23 @@ async function transcript(files, o, ctx) {
 }
 
 export const VIDEO_OPS = register([
-  { id: 'slopedit.edl', group: 'Video', from: ['json'], with: VIDEO.concat(AUDIO, PICS, ['srt', 'vtt']), ext: 'mp4', mode: 'combine', out: (k, o) => o.format || 'mp4',
+  { id: 'slopedit.edl', group: 'Video', from: ['json'], with: VIDEO.concat(AUDIO, PICS, ['srt', 'vtt']), ext: 'mp4', mode: 'combine', out: (k, o) => o.format || 'mp4',   // i18n-ignore: a group id (search words), an app name
     keywords: ['edit decision list', 'edl', 'montage', 'assemble', 'video editor', 'slopcut'], options: [ASPECT].concat(OUT), run: edl },
-  { id: 'slopedit.reframe', group: 'Video', from: VIDEO, ext: 'mp4', mode: 'each', out: (k, o) => o.format || 'mp4',
+  { id: 'slopedit.reframe', group: 'Video', from: VIDEO, ext: 'mp4', mode: 'each', out: (k, o) => o.format || 'mp4',   // i18n-ignore: a group id (search words), an app name
     keywords: ['vertical', '9:16', 'reel', 'shorts', 'tiktok', 'crop', 'aspect ratio', 'portrait'],
     options: [VERTICAL, opt(V + 'focus', { key: 'focus', type: 'range', min: 0, max: 100, value: 50 })].concat(OUT), run: (f, o, c) => onVideo('slopedit.reframe', f, o, c) },
-  { id: 'slopedit.captions', group: 'Video', from: VIDEO, with: ['srt', 'vtt'], ext: 'mp4', mode: 'combine', out: (k, o) => o.format || 'mp4',
+  { id: 'slopedit.captions', group: 'Video', from: VIDEO, with: ['srt', 'vtt'], ext: 'mp4', mode: 'combine', out: (k, o) => o.format || 'mp4',   // i18n-ignore: a group id (search words), an app name
     keywords: ['subtitles', 'burn in', 'captions', 'srt', 'open captions'], options: CAPTIONS.map((x) => (x.key === 'captions' ? like(x, { value: 'transcribe', options: x.options.slice(1) }) : x)).concat(OUT), run: (f, o, c) => onVideo('slopedit.captions', f, o, c) },
-  { id: 'slopedit.reel', group: 'Video', from: VIDEO.concat(PICS), with: ['srt', 'vtt'], ext: 'mp4', mode: 'combine', out: (k, o) => o.format || 'mp4',
+  { id: 'slopedit.reel', group: 'Video', from: VIDEO.concat(PICS), with: ['srt', 'vtt'], ext: 'mp4', mode: 'combine', out: (k, o) => o.format || 'mp4',   // i18n-ignore: a group id (search words), an app name
     keywords: ['reel', 'remix', 'montage', 'highlights', 'shorts', 'random edit', 'tiktok'],
     options: [opt(V + 'target', { key: 'target', type: 'number', min: 1, max: 600, value: 15 }), opt(V + 'pace', { key: 'pace', type: 'select', value: 'fast', options: ['fast', 'medium', 'slow'] }),
       opt(V + 'layout', { key: 'layout', type: 'text', value: 'none', hint: true }), opt(V + 'seed', { key: 'seed', type: 'text', value: '', hint: true }),
       VERTICAL].concat(CAPTIONS, OUT), run: reel },
-], { app: 'slopedit', label: 'SlopCut' });
+], { app: 'slopedit', label: 'SlopCut' });   // i18n-ignore: a group id (search words), an app name
 
 export const TRANSCRIBE_OPS = register([
-  { id: 'transcribe.text', group: 'Audio and video', from: VIDEO.concat(AUDIO), ext: 'srt', mode: 'each', out: (k, o) => (o.format === 'txt-times' ? 'txt' : o.format || 'srt'),
+  { id: 'transcribe.text', group: 'Audio and video', from: VIDEO.concat(AUDIO), ext: 'srt', mode: 'each', out: (k, o) => (o.format === 'txt-times' ? 'txt' : o.format || 'srt'),   // i18n-ignore: a group id (search words), an app name
     engine: 'whisper',
     keywords: ['transcribe', 'speech to text', 'subtitles', 'srt', 'captions', 'whisper'],
     options: [opt('ui.ops.transcribe.format', { key: 'format', type: 'select', value: 'srt', options: ['srt', 'vtt', 'txt', 'txt-times'] }), LANGUAGE], run: transcript },
-], { app: 'transcribe', label: 'Slop Transcribe' });
+], { app: 'transcribe', label: 'Slop Transcribe' });   // i18n-ignore: a group id (search words), an app name

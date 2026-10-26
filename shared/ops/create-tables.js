@@ -24,9 +24,9 @@ async function toSpreadsheet(files, o = {}) {
 }
 
 export const CREATE_TABLES = register([
-  { id: 'table-data-to-spreadsheet', group: 'Create', from: ['json', 'csv', 'txt'], mode: 'each', ext: 'xlsx',
+  { id: 'table-data-to-spreadsheet', group: 'Create', from: ['json', 'csv', 'txt'], mode: 'each', ext: 'xlsx',   // i18n-ignore: a group id (search words), an app name
     get description() { return t('ui.ops.step.table_data_to_spreadsheet_desc', { format: TABLE_HELP }); },
     keywords: ['spreadsheet', 'excel', 'xlsx', 'table', 'sheet', 'workbook', 'create', 'make', 'generate', 'data', 'csv'],
     options: [opt('ui.ops.create.make', { key: 'format', type: 'select', value: 'xlsx', options: [['xlsx', 'Excel (.xlsx)'], ['stab', 'Slop Tables (.stab)'], 'csv'] })],
     run: toSpreadsheet },
-], { app: 'tables', label: 'Slop Tables' });
+], { app: 'tables', label: 'Slop Tables' });   // i18n-ignore: a group id (search words), an app name

@@ -38,8 +38,8 @@ async function read(files, o, ctx = {}) {
 }
 
 export const OCR_OPS = register([
-  { id: 'ocr.read', group: 'Text', from: ['png', 'jpg', 'webp', 'bmp', 'gif', 'pdf'], mode: 'each', out: (k, o) => OUT[o.output] || 'pdf',
+  { id: 'ocr.read', group: 'Text', from: ['png', 'jpg', 'webp', 'bmp', 'gif', 'pdf'], mode: 'each', out: (k, o) => OUT[o.output] || 'pdf',   // i18n-ignore: a group id (search words), an app name
     keywords: ['ocr', 'searchable pdf', 'scan to text', 'read text', 'recognise'], engine: 'ocr',
     options: [opt('ui.ops.ocr.output', { key: 'output', type: 'select', value: 'pdf', options: ['pdf', 'txt', ['md', 'Markdown']] })],
     run: read },
-], { app: 'ocr', label: 'Slop OCR' });
+], { app: 'ocr', label: 'Slop OCR' });   // i18n-ignore: a group id (search words), an app name

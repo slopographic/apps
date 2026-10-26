@@ -12,6 +12,7 @@
  *   isAnimated(bytes, type) → true for a GIF with more than one frame or an animated WebP */
 (function () {
   'use strict';
+  const tr = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);   // words: shared/i18n/ui/<code>/watermark.js
   const WM = window.SlopWatermark, S = window.SlopWatermarkSpec;
   const EXT = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', webp: 'image/webp', avif: 'image/avif', bmp: 'image/bmp', gif: 'image/gif',
     svg: 'image/svg+xml', heic: 'image/heic', heif: 'image/heif', mp4: 'video/mp4', m4v: 'video/mp4', mov: 'video/quicktime', webm: 'video/webm', pdf: 'application/pdf' };
@@ -91,12 +92,12 @@
     let src = null, w = 0, h = 0;
     if (type === 'image/svg+xml') {
       const size = svgSize(await file.text()), url = URL.createObjectURL(new Blob([file], { type }));
-      try { src = new Image(); src.src = url; await src.decode(); } catch (e) { throw new Error('This SVG could not be read.'); } finally { URL.revokeObjectURL(url); }
+      try { src = new Image(); src.src = url; await src.decode(); } catch (e) { throw new Error(tr('ui.wm.svg_unread')); } finally { URL.revokeObjectURL(url); }
       w = size.w; h = size.h;
     } else {
       try { src = await createImageBitmap(file, { imageOrientation: 'from-image' }); w = src.width; h = src.height; } catch (e) {
         const url = URL.createObjectURL(file);
-        try { src = new Image(); src.src = url; await src.decode(); w = src.naturalWidth; h = src.naturalHeight; } catch (x) { throw new Error('This picture could not be read.'); } finally { URL.revokeObjectURL(url); }
+        try { src = new Image(); src.src = url; await src.decode(); w = src.naturalWidth; h = src.naturalHeight; } catch (x) { throw new Error(tr('ui.wm.picture_unread')); } finally { URL.revokeObjectURL(url); }
       }
     }
     const c = canvas(w, h);
@@ -104,7 +105,7 @@
     if (src.close) src.close();
     return c;
   }
-  const encode = (c, type, q) => new Promise((res, rej) => c.toBlob((b) => (b ? res(b) : rej(new Error('The picture could not be written.'))), type, q));
+  const encode = (c, type, q) => new Promise((res, rej) => c.toBlob((b) => (b ? res(b) : rej(new Error(tr('ui.ops.load.not_written')))), type, q));
 
   async function picture(file, spec, opts) {
     const type = typeOf(file);
@@ -112,7 +113,7 @@
       const bytes = new Uint8Array(await file.slice(0, 1 << 20).arrayBuffer());
       if (isAnimated(type === 'image/gif' ? new Uint8Array(await file.arrayBuffer()) : bytes, type)) {
         if (type === 'image/gif') return video(file, spec, opts);
-        if (opts.notice) opts.notice((file.name || 'This WebP') + ' is animated. The site cannot write animated WebP yet, so its watermarked copy is a still picture (the first frame).');
+        if (opts.notice) opts.notice(tr('ui.wm.webp_animated', { name: file.name || 'WebP' }));
       }
     }
     const c = await decode(file, type, opts);
@@ -142,7 +143,7 @@
     if (media === 'picture') return picture(file, sp, opts);
     if (media === 'video') return video(file, sp, opts);
     if (media === 'pdf') return pdf(file, sp, opts);
-    throw new Error((file && file.name || 'This file') + ' is not a picture, a video or a PDF.');
+    throw new Error(tr('ui.wm.not_media', { name: (file && file.name) || '?' }));
   }
 
   Object.assign(WM, { apply, mediaOf, typeOf, extOf, outName, isAnimated, svgSize, ACCEPT });

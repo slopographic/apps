@@ -27,8 +27,8 @@ async function strip(files, o) {
 }
 
 export const CLEAN_OPS = register([
-  { id: 'clean.metadata', group: 'Pictures', from: ['jpg', 'png', 'webp'], mode: 'each', out: (k) => k,
+  { id: 'clean.metadata', group: 'Pictures', from: ['jpg', 'png', 'webp'], mode: 'each', out: (k) => k,   // i18n-ignore: a group id (search words), an app name
     keywords: ['exif', 'gps', 'metadata', 'privacy', 'location', 'strip', 'clean'],
     options: [opt('ui.ops.clean.remove', { key: 'remove', type: 'select', value: 'app', options: ['app', 'location', 'all'] })],
     run: strip },
-], { app: 'clean', label: 'SlopClean' });
+], { app: 'clean', label: 'SlopClean' });   // i18n-ignore: a group id (search words), an app name

@@ -33,7 +33,7 @@ export function toArgs(id, o = {}) {
 /** A step (its label and description come from its id, shared/ops/i18n.js); its label names the command in the replay's messages. */
 function op(id, options, keywords) {
   return {
-    id, group: 'Pictures', from: IMAGE_IN, ext: 'png', mode: 'each', out: outKind, engine: 'photoslop', keywords,
+    id, group: 'Pictures', from: IMAGE_IN, ext: 'png', mode: 'each', out: outKind, engine: 'photoslop', keywords,   // i18n-ignore: a group id (search words), an app name
     options: options.concat([FORMAT, QUALITY]),
     async run(files, o = {}, ctx = {}) {
       const f = files[0], kind = outKind(f.kind, o), [cmd, args] = toArgs(id, o), run = await runner();
@@ -60,4 +60,4 @@ export const RETOUCH_OPS = register([
     opt(P + 'teeth', { key: 'teeth', type: 'range', min: 0, max: 100, step: 1, value: 0 }),
     opt(P + 'eyes', { key: 'eyes', type: 'range', min: 0, max: 100, step: 1, value: 0 }),
   ], ['portrait', 'skin', 'smooth skin', 'blemish', 'acne', 'red eye', 'teeth whitening', 'retouch', 'beauty']),
-], { app: 'photoslop', label: 'PhotoSlop' });
+], { app: 'photoslop', label: 'PhotoSlop' });   // i18n-ignore: a group id (search words), an app name

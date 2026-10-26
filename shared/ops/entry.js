@@ -41,7 +41,7 @@
       { label: tr('ui.ops.entry.add_dots'), keywords: ['workflow', 'batch', 'pipeline'], act: () => addTo(getFiles) },
     ];
   }
-  function register(addItems) { if (typeof addItems === 'function') addItems({ id: 'workflows', label: 'Slop Workflows', items: menuItems }); }
+  function register(addItems) { if (typeof addItems === 'function') addItems({ id: 'workflows', label: 'Slop Workflows', items: menuItems }); }   // i18n-ignore: a group id (search words), an app name
 
   g.SlopWorkflowEntry = { open, menuItems, register, ROOT };
 })(window);

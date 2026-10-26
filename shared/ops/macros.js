@@ -20,10 +20,10 @@ import '../macros/store.js';
 const g = globalThis;
 const M = g.SlopMacrosCore;
 export const HOSTS = {
-  photoslop: { label: 'PhotoSlop', url: 'photoslop/?macro-host=1', from: IMAGE_IN.concat(['psd']) },
-  slopisolate: { label: 'SlopIsolate', op: 'slopisolate.remove-bg', fold: ['co.look'], from: IMAGE_IN },
+  photoslop: { label: 'PhotoSlop', url: 'photoslop/?macro-host=1', from: IMAGE_IN.concat(['psd']) },   // i18n-ignore: a group id (search words), an app name
+  slopisolate: { label: 'SlopIsolate', op: 'slopisolate.remove-bg', fold: ['co.look'], from: IMAGE_IN },   // i18n-ignore: a group id (search words), an app name
   // SlopCut's hidden copy opens the video, replays the macro and renders it (slopcut/js/ai/host.js)
-  slopedit: { label: 'SlopCut', url: 'slopcut/?macro-host=1', from: ['mp4', 'webm', 'mov', 'mp3', 'wav', 'm4a', 'png', 'jpg', 'webp'], video: true },
+  slopedit: { label: 'SlopCut', url: 'slopcut/?macro-host=1', from: ['mp4', 'webm', 'mov', 'mp3', 'wav', 'm4a', 'png', 'jpg', 'webp'], video: true },   // i18n-ignore: a group id (search words), an app name
 };
 const VFORMAT = opt('ui.ops.macro.format', { key: 'format', type: 'select', value: 'mp4', options: [['mp4', 'MP4'], ['webm', 'WebM']] });
 
@@ -48,13 +48,13 @@ export function macroOp(app, macro) {
   const H = HOSTS[app], titles = macro.steps.map((s) => s.title);
   if (H.op) {
     const base = byId(H.op);
-    return describe({ id: M.opId(app, macro.id), macroId: macro.id, kind: 'macro', app, label: macro.name, group: 'Macros', mode: 'each',
+    return describe({ id: M.opId(app, macro.id), macroId: macro.id, kind: 'macro', app, label: macro.name, group: 'Macros', mode: 'each',   // i18n-ignore: a group id (search words), an app name
       from: H.from, ext: base.ext, options: [], engine: base.engine, notice: base.notice,
       keywords: ['macro', 'recorded', H.label, ...titles],
       async run(files, o, ctx) { const f = await foldOptions(app, macro.steps); return f.op.run(files, f.options, ctx); } }, H, titles);
   }
   if (H.video) return describe({
-    id: M.opId(app, macro.id), macroId: macro.id, kind: 'macro', app, label: macro.name, group: 'Macros', mode: 'each',
+    id: M.opId(app, macro.id), macroId: macro.id, kind: 'macro', app, label: macro.name, group: 'Macros', mode: 'each',   // i18n-ignore: a group id (search words), an app name
     from: H.from, ext: 'mp4', out: (k, o = {}) => o.format || 'mp4', options: [VFORMAT],
     keywords: ['macro', 'recorded', H.label, ...titles],
     async run(files, o, ctx = {}) {
@@ -64,7 +64,7 @@ export function macroOp(app, macro) {
     },
   }, H, titles);
   return describe({
-    id: M.opId(app, macro.id), macroId: macro.id, kind: 'macro', app, label: macro.name, group: 'Macros', mode: 'each',
+    id: M.opId(app, macro.id), macroId: macro.id, kind: 'macro', app, label: macro.name, group: 'Macros', mode: 'each',   // i18n-ignore: a group id (search words), an app name
     from: H.from, ext: 'png', out: outKind, options: [FORMAT, QUALITY],
     keywords: ['macro', 'recorded', H.label, ...titles],
     async run(files, o, ctx = {}) {
