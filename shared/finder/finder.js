@@ -57,7 +57,7 @@
       'aria-autocomplete': opts.suggest ? 'list' : null, 'aria-expanded': opts.suggest ? 'false' : null, 'aria-controls': opts.suggest ? id + '-list' : null });
     search.value = st.q;
     const suggest = opts.suggest ? el('ul', { class: 'fd-suggest', id: id + '-list', role: 'listbox', hidden: true, 'aria-label': 'Matching apps' }) : null;
-    // The attribute is data-fd-view, not data-view: app.js routes every click on [data-view] to a page view, which hid the homepage.
+    // The attribute is data-fd-view, not data-view: home/view.js routes every click on [data-view] to a page view, which hid the homepage.
   const views = M.VIEWS.map((v) => el('button', { type: 'button', class: 'fd-view', 'data-fd-view': v, 'aria-pressed': 'false',
       onclick: () => { st = { ...st, view: v }; update(); } }, VIEW_LABELS[v]));
     const facetBox = el('div', { class: 'fd-facets' });

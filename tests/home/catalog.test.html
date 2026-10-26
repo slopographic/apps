@@ -83,7 +83,7 @@
     it('switches to the Authenticator and back home', async () => {
       await ready;
       doc.defaultView.location.hash = '#detector';
-      await waitFor(() => !doc.getElementById('view-detector').hidden);
+      await waitFor(() => !doc.getElementById('view-detector').hidden, { timeout: 8000 });
       expect(doc.getElementById('view-home').hidden).toBe(true);
       expect(win.location.hash).toBe('#detector');
       doc.querySelector('.brand').click();
@@ -93,7 +93,7 @@
     it('a jump link works from the Authenticator view too', async () => {
       await ready;
       doc.defaultView.location.hash = '#detector';
-      await waitFor(() => doc.getElementById('view-home').hidden);
+      await waitFor(() => doc.getElementById('view-home').hidden, { timeout: 8000 });
       doc.querySelector('.tabs a[data-jump][href="#apps"]').click();
       await waitFor(() => !doc.getElementById('view-home').hidden);
       await waitFor(() => Math.abs(doc.getElementById('apps').getBoundingClientRect().top) < 120, { timeout: 5000 });
@@ -101,6 +101,7 @@
     it('the Authenticator certifies pasted slop', async () => {
       await ready;
       doc.defaultView.location.hash = '#detector';
+      await waitFor(() => doc.getElementById('sample-slop'), { timeout: 8000 });   // home/view.js loads detector/ on first open
       doc.getElementById('sample-slop').click();
       await waitFor(() => !doc.getElementById('result').hidden);
       expect(+doc.getElementById('score').textContent).toBeGreaterThanOrEqual(0);

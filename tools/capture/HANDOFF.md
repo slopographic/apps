@@ -12,7 +12,7 @@ Node + Playwright scripts that make the homepage media and the promo video. Noth
 ## Run it
 ```
 node tools/capture/capture.mjs                       # every app in shared/apps.js
-node tools/capture/capture.mjs --only pdf,tank       # just these ids
+node tools/capture/capture.mjs --only pdf,label      # just these ids
 node tools/capture/capture.mjs --no-clips            # stills only (fast)
 node tools/capture/render-promo.mjs                  # both promo cuts (~30-40 min each on a software GPU)
 node tools/capture/render-promo.mjs --only h --from 0 --to 10   # a quick test range -> *-test.mp4
@@ -57,11 +57,11 @@ node tools/capture/render-promo.mjs --only h --from 0 --to 10   # a quick test r
 
 ## Status (at hand-off)
 - **Done.**
-  - Shots and clips exist for photoslop, vector, pdf, label, ai, press, slopedit, drive, all six games, shots and unsubscribe (~4.5 MB in total).
+  - Shots and clips exist for photoslop, vector, pdf, label, ai, press, slopedit and drive.
   - Homepage card behaviour, with `tests/home/clips.test.html` green (6 tests; catalog and chaos are green too).
   - `/promo/` plays live with sound, `?t=`, `?v=1` and `__promo.seek()`. Frames for both cuts were checked by eye.
 - **Half done.**
-  - No shot or clip yet for 2100 and the Authenticator: the screenshot timed out while other jobs loaded the CPU, so re-run them alone. Also missing for tank, lighter, reel and paint-classic (the run was stopped), and for cutout, docs, tables and slides (no page yet).
+  - No shot or clip yet for the Authenticator: the screenshot timed out while other jobs loaded the CPU, so re-run them alone. Also missing for paint-classic (the run was stopped), and for cutout, docs, tables and slides (no page yet).
   - Re-capture `photoslop`, `vector`, `label` and `drive`. Their recipes were improved after the last run: smaller vector shapes, the PhotoSlop still taken after the stroke, label drags, Drive thumbnails and real PDFs.
   - The promo has **not been rendered to MP4 yet**, so `assets/promo/` is empty. `render-promo.mjs` is written but has only been tried through single-frame peeks.
 - **Next steps, in order.**
