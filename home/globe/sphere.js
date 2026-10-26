@@ -17,7 +17,11 @@
  *   weighted(weights) -> [{x,y,z}]          one point per weight: the heavy ones (weight > 1) spread round the equator, so
  *                                           they pass the front on every turn, the rest on a Fibonacci sphere kept clear of them
  *   centroid(points, weights?) -> {x,y,z}|null  the (weighted) mean direction of some points (null when they cancel out)
- *   zoomFor(n) -> factor                    how far the globe leans in for n search matches (1 for none or many) */
+ *   zoomFor(n) -> factor                    how far the globe leans in for n search matches (1 for none or many)
+ *   leadRank(lead) -> (id) -> 0..n          an id's place in the lead list (shared/apps.js SLOP_LEAD); n for the rest
+ *   leadFirst(items, lead) -> items         the lead apps first, in the lead order; the rest after, as they were
+ *   gather(points, weights, lead) -> points the lead indices moved next to the first one (its nearest points of their own
+ *                                           size, nearest first) by swapping places: the same points, the same spread */
 (function () {
   'use strict';
   const TAU = Math.PI * 2, GOLDEN = Math.PI * (3 - Math.sqrt(5));
@@ -141,9 +145,25 @@
     const l = Math.hypot(c.x, c.y, c.z);
     return l / sum < 0.2 ? null : { x: c.x / l, y: c.y / l, z: c.z / l };
   }
+  const leadRank = (lead) => (id) => { const i = (lead || []).indexOf(id); return i < 0 ? (lead || []).length : i; };
+  function leadFirst(items, lead) {
+    const r = leadRank(lead);
+    return items.map((x, i) => ({ x, i, k: r(x.id) })).sort((a, b) => a.k - b.k || a.i - b.i).map((e) => e.x);
+  }
+  function gather(points, weights, lead) {
+    const out = points.slice(), done = new Set(lead.slice(0, 1)), heavy = (i) => (weights[i] || 1) > 1;
+    const anchor = out[lead[0]];
+    for (const i of lead.slice(1)) {
+      let best = -1, bd = Infinity;
+      out.forEach((p, j) => { const d = angle(p, anchor); if (!done.has(j) && heavy(j) === heavy(i) && d < bd) { bd = d; best = j; } });
+      if (best >= 0) [out[i], out[best]] = [out[best], out[i]];
+      done.add(i);
+    }
+    return out;
+  }
   const zoomFor = (n) => (n === 1 ? 1.22 : n > 1 && n <= 6 ? 1.12 : 1);
 
-  const M = { TAU, TIERS, clamp, smooth, tier, fibonacci, rotate, project, look, spin, seek, frontOf, nearAngle, keepOut, grid, due, weighted, centroid, zoomFor };
+  const M = { TAU, TIERS, clamp, smooth, tier, fibonacci, rotate, project, look, spin, seek, frontOf, nearAngle, keepOut, grid, due, weighted, centroid, zoomFor, leadRank, leadFirst, gather };
   if (typeof window !== 'undefined') window.SlopGlobeMath = M;
   if (typeof module !== 'undefined' && module.exports) module.exports = M;
 })();

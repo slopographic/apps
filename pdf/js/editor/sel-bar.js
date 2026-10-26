@@ -8,7 +8,7 @@
    dismisses it and returns focus to the page. Styles: css/selbar.css.
    Other selections use the same bar: SlopSelBar.provide({ id, label(), active(), box() → client rect, build(h) → row,
    refresh?(row), dismiss() }) adds a row shown (mode 'p:' + id) while active(), before the annotation and text rows (the
-   selected page object in Objects mode, obj-bar.js). */
+   selected page object in Objects mode, obj-bar.js; a text block, para-bar.js, with its Mark up group, block-mark.js). */
 (function () {
   'use strict';
   var SP = window.SP, U = SP.util, Ed = SP.editor, S = Ed._, T = S.sel, A = S.selAct, N = S.annotAct;
@@ -236,5 +236,6 @@
   S.drawSelection = function () { var r = draw.apply(this, arguments); render(); return r; };
   window.addEventListener('slopkeyboard', function () { if (bar && mode) place(); });
   window.SlopSelBar = { place: place, leave: leave, update: render, mode: function () { return mode; }, isOpen: function () { return !!bar && !bar.hidden; },
-    provide: function (p) { providers.push(p); render(); } };
+    provide: function (p) { providers.push(p); render(); },
+    colours: COLOURS, swatch: swatch }; // the markup colours and their swatch, for a provided row's own picker (block-mark.js)
 })();
