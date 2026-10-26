@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 // The leak gate over a range of commits of a white-label copy, before it is pushed: every commit object (author,
 // committer, their dates and zones, any extra header, the message) and every file each commit adds or changes (its path
-// and its bytes, through the build's scan). A message may not hold a forbidden term nor talk about how the copy is made
-// (history-message.mjs TALK); author and committer must be the profile's publish identity.
+// and its bytes, through the build's scan). A message must pass the history's message rules (history-message.mjs: no
+// forbidden term, no talk about how the copy or the work was made, not the rename map's target stem); author and
+// committer must be the profile's publish identity; no commit may carry a path of the profile's history.forbidPaths.
 //   node tools/whitelabel/history-gate.mjs <profile id> <repo> <range> [--profiles=<dir>] [--name=..] [--email=..] [--forbid=..]
 // range: "a..b", or one commit for its whole history. Exit 1 with the problems listed.
 // Node only. Tests: tests/node/whitelabel-history.test.mjs.
@@ -42,9 +43,16 @@ export function gate(T, repo, range, who, scratch) {
     }
     if (findTerms(obj, T.terms, { account: T.account }).length) problems.push(`${c.slice(0, 10)}: a forbidden word in the commit: ${message.split('\n')[0]}`);
     if (TALK.test(message)) problems.push(`${c.slice(0, 10)}: the message talks about how the copy is made: ${message.split('\n')[0]}`);
-    const files = newFiles(repo, c).filter((f) => !seen.has(f.sha + f.path));
+    else if (!T.ok(message)) problems.push(`${c.slice(0, 10)}: the message breaks the message rules (process talk, the rename stem, a forbidden word): ${message.split('\n')[0]}`);
+    const all = newFiles(repo, c);
+    for (const f of all.filter((x) => T.gone.some((re) => re.test(x.path)))) problems.push(`${c.slice(0, 10)}: ${f.path} is a path no commit may carry (history.forbidPaths)`);
+    const files = all.filter((f) => !seen.has(f.sha + f.path));
     files.forEach((f) => seen.add(f.sha + f.path));
     const blobs = readBlobs(repo, files.map((f) => f.sha));
+    for (const f of files) {                                   // history.forbidWords: never in a file line
+      const b = blobs.get(f.sha);
+      if (T.drop.length && !b.subarray(0, 8192).includes(0)) { const t = b.toString('utf8'); const re = T.drop.find((x) => x.test(t)); if (re) problems.push(`${c.slice(0, 10)}: ${f.path} holds /${re.source}/ (history.forbidWords)`); }
+    }
     const res = scanFiles(T, files.map((f) => ({ path: f.path, data: blobs.get(f.sha) })), scratch);
     for (const h of res.found.slice(0, 20)) problems.push(`${c.slice(0, 10)}: ${h.file}${h.line > 0 ? ':' + h.line : ''} [${h.term}] ${h.text}`);
   }
