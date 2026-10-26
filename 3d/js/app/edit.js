@@ -123,7 +123,7 @@
     const m = mesh(), v = SEL.vertsOf(m, ed.sel);
     return v.size ? X.point(S.model.worldMatrix(s.doc, ed.id), MX.centre(m, v)) : null;
   }
-  function setInfo(t) { ed.info = t || ''; emit(); }
+  function setInfo(msg) { ed.info = msg || ''; emit(); }
 
   st.on('doc', () => {
     if (!ed.id) return;

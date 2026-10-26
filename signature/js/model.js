@@ -34,13 +34,13 @@
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   /** A link a mail program will follow: https:// added to a bare address; mailto and tel for those kinds; '' if unsafe. */
   function href(kind, v) {
-    const t = String(v || '').trim();
-    if (!t) return '';
-    if (kind === 'email') return /^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/.test(t) ? 'mailto:' + t : '';
-    if (kind === 'tel') { const d = t.replace(/[^\d+]/g, ''); return d.replace(/\+/g, '').length >= 5 ? 'tel:' + d : ''; }
-    if (/^https?:\/\//i.test(t)) return /[\s<>"]/.test(t) ? '' : t;
-    if (/^[a-z][a-z0-9+.-]*:/i.test(t)) return '';   // javascript:, data: and the like are never links here
-    return /^[^\s<>"]+\.[^\s<>"]+$/.test(t) ? 'https://' + t : '';
+    const str = String(v || '').trim();
+    if (!str) return '';
+    if (kind === 'email') return /^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/.test(str) ? 'mailto:' + str : '';
+    if (kind === 'tel') { const d = str.replace(/[^\d+]/g, ''); return d.replace(/\+/g, '').length >= 5 ? 'tel:' + d : ''; }
+    if (/^https?:\/\//i.test(str)) return /[\s<>"]/.test(str) ? '' : str;
+    if (/^[a-z][a-z0-9+.-]*:/i.test(str)) return '';   // javascript:, data: and the like are never links here
+    return /^[^\s<>"]+\.[^\s<>"]+$/.test(str) ? 'https://' + str : '';
   }
   const COLOUR = /^#[0-9a-f]{6}$/i;
   function clean(state) {

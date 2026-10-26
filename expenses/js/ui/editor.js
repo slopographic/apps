@@ -133,5 +133,5 @@
 
   NS.editor = { record, current: () => cur };
   NS.views = NS.views || {};
-  NS.views.edit = { mount, show: (id, t) => (id ? showOne(id) : showNew(t && t.copyOf)) };
+  NS.views.edit = { mount, show: (id, opts) => (id ? showOne(id) : showNew(opts && opts.copyOf)) };
 })(typeof window !== 'undefined' ? window : globalThis);

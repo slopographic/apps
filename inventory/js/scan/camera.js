@@ -40,7 +40,7 @@
   /** Creates a camera reader bound to a video element. onCode(text, { source: 'camera' }); onStatus(text). */
   function createCamera({ video, onCode, onStatus }) {
     let stream = null, timer = 0, detector = null, busy = false, held = null, blanks = 0;
-    const say = (t) => onStatus && onStatus(t);
+    const say = (msg) => onStatus && onStatus(msg);
 
     async function tick() {
       if (busy || !detector || video.readyState < 2) return;
@@ -97,7 +97,7 @@
     function stop() {
       clearInterval(timer);
       timer = 0;
-      if (stream) stream.getTracks().forEach((t) => t.stop());
+      if (stream) stream.getTracks().forEach((track) => track.stop());
       stream = null;
       video.srcObject = null;
       held = null;

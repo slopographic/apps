@@ -28,16 +28,16 @@
   function kindOf(r) {
     if (!r) return 'other';
     if (r.isFolder) return 'folder';
-    const t = (r.type || '').toLowerCase(), e = ext(r.name);
-    if (e === 's3d' || t === 'application/x-slop-3d') return 'model';
-    if (DOC_COLOR[e] || /x-slop-(doc|table|slides|invoice)/.test(t)) return 'doc';
-    if (t === 'image/vnd.adobe.photoshop' || t === 'application/x-openraster' || DESIGN_EXT.includes(e)) return 'design';
-    if (t.startsWith('image/')) return 'image';
-    if (t === 'application/pdf' || e === 'pdf') return 'pdf';
-    if (t.startsWith('audio/')) return 'audio';
-    if (t.startsWith('video/')) return 'video';
-    if (/zip|x-tar|gzip|x-7z|x-rar|slopographic-backup/.test(t) || ARCH_EXT.includes(e) || e === backupExt()) return 'archive';
-    if (t.startsWith('text/') || /json|xml|javascript|csv|yaml/.test(t) || TEXT_EXT.includes(e)) return 'text';
+    const mime = (r.type || '').toLowerCase(), e = ext(r.name);
+    if (e === 's3d' || mime === 'application/x-slop-3d') return 'model';
+    if (DOC_COLOR[e] || /x-slop-(doc|table|slides|invoice)/.test(mime)) return 'doc';
+    if (mime === 'image/vnd.adobe.photoshop' || mime === 'application/x-openraster' || DESIGN_EXT.includes(e)) return 'design';
+    if (mime.startsWith('image/')) return 'image';
+    if (mime === 'application/pdf' || e === 'pdf') return 'pdf';
+    if (mime.startsWith('audio/')) return 'audio';
+    if (mime.startsWith('video/')) return 'video';
+    if (/zip|x-tar|gzip|x-7z|x-rar|slopographic-backup/.test(mime) || ARCH_EXT.includes(e) || e === backupExt()) return 'archive';
+    if (mime.startsWith('text/') || /json|xml|javascript|csv|yaml/.test(mime) || TEXT_EXT.includes(e)) return 'text';
     // Images, audio and video by name or MIME type, from the shared kind table (shared/kinds/kinds.js) that every app uses.
     const shared = window.SlopKinds ? window.SlopKinds.kindOf(r.name, r.type) : 'other';
     return shared === 'image' || shared === 'audio' || shared === 'video' ? shared : 'other';

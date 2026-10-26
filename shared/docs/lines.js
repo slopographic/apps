@@ -110,15 +110,15 @@
 
   /** Totals box: subtotal, tax by rate, total. Says so when a line is not complete yet. */
   function drawTotals(box, lines, o) {
-    const t = M.totals(lines);
+    const tot = M.totals(lines);
     box.replaceChildren();
-    if (!t) { box.append(h('p', { class: 'note', text: g.SlopI18n ? g.SlopI18n.t('biz.ln.totals_later') : '' })); return; }
+    if (!tot) { box.append(h('p', { class: 'note', text: g.SlopI18n ? g.SlopI18n.t('biz.ln.totals_later') : '' })); return; }
     const dl = h('dl', null);
     const add = (label, value, cls) => dl.append(h('dt', { class: cls, text: label }), h('dd', { class: cls, text: value }));
     const w = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
-    add(w('biz.ln.subtotal'), money(t.subtotal, o));
-    for (const r of t.byRate) add(w('biz.ln.tax_on', { rate: M.percentText(r.rate) || '0', net: money(r.net, o) }), money(r.tax, o));
-    add(w('biz.ln.grand'), money(t.total, o), 'grand');
+    add(w('biz.ln.subtotal'), money(tot.subtotal, o));
+    for (const r of tot.byRate) add(w('biz.ln.tax_on', { rate: M.percentText(r.rate) || '0', net: money(r.net, o) }), money(r.tax, o));
+    add(w('biz.ln.grand'), money(tot.total, o), 'grand');
     box.append(dl);
   }
 

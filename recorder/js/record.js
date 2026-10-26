@@ -43,7 +43,7 @@
      *  start was called. */
     function startRecorder() {
       const M = g.MediaRecorder;
-      mime = R.plan.pickMime((t) => M.isTypeSupported(t), cap.audioOnly);
+      mime = R.plan.pickMime((type) => M.isTypeSupported(type), cap.audioOnly);
       rec = new M(cap.stream, mime ? { mimeType: mime, videoBitsPerSecond: 6e6, audioBitsPerSecond: 128000 } : undefined);
       chunks = [];
       rec.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };

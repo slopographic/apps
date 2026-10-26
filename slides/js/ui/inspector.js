@@ -71,8 +71,8 @@
         addFile: function (file, forName) { return addOwnFont(file, forName); },
         onUse: function (r) {
           edit('slides.insp.font', function () {
-            var t = A.deck.theme;
-            if (t && t.fonts) ['body', 'heading'].forEach(function (k) { if (t.fonts[k] === r.family) t.fonts[k] = r.use; });
+            var theme = A.deck.theme;
+            if (theme && theme.fonts) ['body', 'heading'].forEach(function (k) { if (theme.fonts[k] === r.family) theme.fonts[k] = r.use; });
             A.selObjs().forEach(function (x) { if (x.style && x.style.font === r.family) x.style = Object.assign({}, x.style, { font: r.use }); });
           });
         }

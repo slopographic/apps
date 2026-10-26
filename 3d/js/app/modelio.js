@@ -82,7 +82,7 @@
     if (o.isSkinnedMesh) warn.posed = true;
     const meshes = o.isMesh && o.geometry && o.geometry.attributes.position ? await meshNodes(o, warn) : [];
     const kids = [];
-    for (const c of o.children) { const t = await nodeOf(c, warn); if (t) kids.push(t); }
+    for (const c of o.children) { const kid = await nodeOf(c, warn); if (kid) kids.push(kid); }
     if (meshes.length === 1 && !kids.length) return Object.assign(meshes[0], { transform });
     if (!meshes.length && !kids.length) return null;
     return { type: 'group', name: o.name || 'Node', transform, children: [...meshes, ...kids] };
@@ -95,7 +95,7 @@
     const tree = await nodeOf(r.root, warn);
     if (!tree) throw new Error(t('3d.model.no_meshes'));
     let top = tree.type === 'group' ? tree : { type: 'group', name, children: [tree] };
-    const still = (t) => !t || (t.p.every((v) => v === 0) && t.r.every((v) => v === 0) && t.s.every((v) => v === 1));
+    const still = (xf) => !xf || (xf.p.every((v) => v === 0) && xf.r.every((v) => v === 0) && xf.s.every((v) => v === 1));
     // a file whose root holds one group (a glTF scene around its model) opens as that group, not two levels
     if (top.children.length === 1 && top.children[0].type === 'group' && still(top.transform)) top = top.children[0];
     if (!top.name || top.name === 'Node') top.name = name;
@@ -124,16 +124,16 @@
         const m = n.material;
         const mat = new T.MeshStandardMaterial({ name: n.name, color: new T.Color(m.color), roughness: m.roughness, metalness: m.metallic, opacity: m.opacity, transparent: m.opacity < 1, side: T.DoubleSide });
         if (m.map) {
-          if (!textures.has(m.map)) textures.set(m.map, new T.TextureLoader().loadAsync(m.map).then((t) => { t.colorSpace = T.SRGBColorSpace; return t; }).catch(() => null));
+          if (!textures.has(m.map)) textures.set(m.map, new T.TextureLoader().loadAsync(m.map).then((tex) => { tex.colorSpace = T.SRGBColorSpace; return tex; }).catch(() => null));
           mat.map = await textures.get(m.map);
         }
         o = new T.Mesh(S.objects.toGeometry(T, S.geometry.build(n.geom)), mat);
       }
       o.name = n.name;
-      const t = n.transform;
-      o.position.set(t.p[0], t.p[1], t.p[2]);
-      o.rotation.set(t.r[0] * D, t.r[1] * D, t.r[2] * D, 'XYZ');
-      o.scale.set(t.s[0], t.s[1], t.s[2]);
+      const xf = n.transform;
+      o.position.set(xf.p[0], xf.p[1], xf.p[2]);
+      o.rotation.set(xf.r[0] * D, xf.r[1] * D, xf.r[2] * D, 'XYZ');
+      o.scale.set(xf.s[0], xf.s[1], xf.s[2]);
       return o;
     };
     for (const id of doc.roots) { const o = await build(id); if (o) root.add(o); }

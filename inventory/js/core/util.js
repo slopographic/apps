@@ -30,8 +30,8 @@
 
   /** A whole number from typed text, or NaN. */
   function wholeOf(v) {
-    const t = String(v ?? '').trim();
-    return /^-?\d+$/.test(t) ? Number(t) : NaN;
+    const str = String(v ?? '').trim();
+    return /^-?\d+$/.test(str) ? Number(str) : NaN;
   }
 
   /** A location name as typed, or 'main' when blank. */

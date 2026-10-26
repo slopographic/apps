@@ -30,9 +30,9 @@
     b.addEventListener('click', () => (o.onPick || pick)(hex));
     li.append(b);
     if (o.tools) {
-      const t = el('div', 'co-sw-tools');
-      for (const [label, aria, fn] of o.tools) { const x = el('button', 'co-sw-tool', label); x.type = 'button'; x.setAttribute('aria-label', aria); x.title = aria; x.addEventListener('click', fn); t.append(x); }
-      li.append(t);
+      const tools = el('div', 'co-sw-tools');
+      for (const [label, aria, fn] of o.tools) { const x = el('button', 'co-sw-tool', label); x.type = 'button'; x.setAttribute('aria-label', aria); x.title = aria; x.addEventListener('click', fn); tools.append(x); }
+      li.append(tools);
     }
     return li;
   }

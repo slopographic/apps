@@ -27,7 +27,7 @@
       progress(done + failed, items.length, item.name, 0);
       let note = '';
       try {
-        const blob = await window.SlopWatermark.apply(item.file, specOf(item), { signal, progress: (p) => progress(done + failed, items.length, item.name, p), notice: (t) => { note = t; } });
+        const blob = await window.SlopWatermark.apply(item.file, specOf(item), { signal, progress: (p) => progress(done + failed, items.length, item.name, p), notice: (msg) => { note = msg; } });
         window.WMItems.setOut(item.id, { blob, name: outName(item.name, blob, used) }, note);
         done++;
       } catch (err) {

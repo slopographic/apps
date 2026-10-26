@@ -13,8 +13,8 @@
   const toast = (m) => { if (g.SlopUI && g.SlopUI.toast) g.SlopUI.toast(m); };
 
   function want() {
-    const t = R.view.trim(), f = R.settings.format();
-    return { trim: t, format: f, key: `${f}|${t.start}|${t.end}` };
+    const trim = R.view.trim(), f = R.settings.format();
+    return { trim: trim, format: f, key: `${f}|${trim.start}|${trim.end}` };
   }
   function use(r) { rec = r; made = null; key = ''; name = r ? (r.name || R.plan.fileName(new Date(), 'x')) : ''; }
   function stale() { made = null; key = ''; }

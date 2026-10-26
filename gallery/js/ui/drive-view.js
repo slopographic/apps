@@ -56,11 +56,11 @@
   }
   function observe(tiles) {
     if (state.io) state.io.disconnect();
-    if (!('IntersectionObserver' in window)) { for (const t of tiles.children) loadThumb(t); return; }
+    if (!('IntersectionObserver' in window)) { for (const tile of tiles.children) loadThumb(tile); return; }
     state.io = new IntersectionObserver((entries) => {
       for (const e of entries) if (e.isIntersecting) { state.io.unobserve(e.target); loadThumb(e.target); }
     }, { root: $('dgrid'), rootMargin: '240px' });
-    for (const t of tiles.children) state.io.observe(t);
+    for (const tile of tiles.children) state.io.observe(tile);
   }
 
   /** Redraws the grid for the current query. */

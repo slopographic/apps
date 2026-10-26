@@ -48,7 +48,7 @@
   function draw() {
     const grid = $('qr-grid');
     if (!items.length) { grid.replaceChildren(); return; }
-    grid.replaceChildren(...items.map((t, i) => card(t, i + 1)));
+    grid.replaceChildren(...items.map((item, i) => card(item, i + 1)));
   }
 
   /** Shown again when the tab opens, so the cards follow the current design. */

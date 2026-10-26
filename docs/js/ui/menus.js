@@ -10,7 +10,7 @@
   const t = S.t;
   /** The saved templates, for File ▸ New ▸ My templates (the list is loaded by templates.js). */
   const mine = () => (S.tplList.length
-    ? S.tplList.map((t) => ({ label: t.name, act: act(() => S.random.useDoc(t.doc)) }))
+    ? S.tplList.map((tpl) => ({ label: tpl.name, act: act(() => S.random.useDoc(tpl.doc)) }))
     : [{ label: t('docs.menu.no_templates'), disabled: true }]);
 
   S.menus = {

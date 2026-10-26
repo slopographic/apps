@@ -49,10 +49,10 @@
   /** Fill the converter with the current time in its zone. */
   function useNow() {
     const from = $('st-conv-from').value.trim() || S.prefs().zone;
-    const t = S.nowMs();
-    const p = Z.localParts(from, t);
+    const now = S.nowMs();
+    const p = Z.localParts(from, now);
     $('st-conv-from').value = from;
-    $('st-conv-date').value = Z.dateIso(from, t);
+    $('st-conv-date').value = Z.dateIso(from, now);
     $('st-conv-time').value = `${UI.pad(p.h)}:${UI.pad(p.mi)}`;
     renderConvert();
   }

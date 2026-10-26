@@ -64,7 +64,7 @@
 
   /** Fills the body for one attachment. Object URLs made here go into `urls` (revoked on close). */
   function fill(slot, a, kind, urls) {
-    const note = (t) => el('p', 'em-prev-note', t);
+    const note = (text) => el('p', 'em-prev-note', text);
     const ext = extOf(a.name);
     if (kind === 'image') {
       dataUrl(a, IMG[ext]).then((u) => {

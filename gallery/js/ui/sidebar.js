@@ -42,8 +42,8 @@
   function syncViewButtons() {
     const v = G.state.state.view;
     for (const b of document.querySelectorAll('[data-view]')) b.classList.toggle('on', b.dataset.view === v);
-    const t = $('fTag'), q = G.state.state.query;
-    if (t.value !== q.tag) t.value = q.tag;
+    const sel = $('fTag'), q = G.state.state.query;
+    if (sel.value !== q.tag) sel.value = q.tag;
     if ($('fText').value !== q.text) $('fText').value = q.text;
     $('fMonth').value = q.month === '' ? '' : String(q.month);
     $('fYear').value = q.year || '';

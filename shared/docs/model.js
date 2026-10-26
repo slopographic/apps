@@ -10,10 +10,10 @@
 
   /** Basis points from typed percent text: "20" -> 2000, "7.5" -> 750. Blank is 0. Null when not 0 to 100. */
   function bpFromPercent(text) {
-    const t = String(text ?? '').trim();
-    if (t === '') return 0;
-    if (!PCT.test(t)) return null;
-    const bp = S.money.parseMinor(t, 'USD');   // two decimals of a percent are exactly basis points
+    const str = String(text ?? '').trim();
+    if (str === '') return 0;
+    if (!PCT.test(str)) return null;
+    const bp = S.money.parseMinor(str, 'USD');   // two decimals of a percent are exactly basis points
     return bp !== null && bp >= 0 && bp <= 10000 ? bp : null;
   }
 
@@ -22,7 +22,7 @@
 
   /** Minor units from typed money text in a currency, or null. Negative and blank are null. */
   function amountFromText(text, currency) {
-    const t = String(text ?? '').trim();
+    const str = String(text ?? '').trim();
     if (t === '') return null;
     const v = S.money.parseMinor(t, currency);
     return v !== null && v >= 0 ? v : null;

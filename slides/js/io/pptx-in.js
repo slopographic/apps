@@ -94,12 +94,12 @@
     return c ? { type: 'solid', colors: [c.ref] } : null;
   }
   function transition(root) {
-    var t = root.getElementsByTagNameNS(I.lib.NS.p, 'transition')[0], out = { name: 'none', duration: 0.6 };
-    if (!t) return out;
+    var trans = root.getElementsByTagNameNS(I.lib.NS.p, 'transition')[0], out = { name: 'none', duration: 0.6 };
+    if (!trans) return out;
     var dur = null;
-    Array.prototype.forEach.call(t.attributes, function (a) { if ((a.localName || a.name).replace(/^.*:/, '') === 'dur') dur = +a.value / 1000; });
-    out.duration = dur || { slow: 1, med: 0.75, fast: 0.5 }[I.att(t, 'spd') || 'fast'] || 0.5;
-    var k = I.lib.kids(t).filter(function (e) { return e.localName !== 'sndAc' && e.localName !== 'extLst'; })[0];
+    Array.prototype.forEach.call(trans.attributes, function (a) { if ((a.localName || a.name).replace(/^.*:/, '') === 'dur') dur = +a.value / 1000; });
+    out.duration = dur || { slow: 1, med: 0.75, fast: 0.5 }[I.att(trans, 'spd') || 'fast'] || 0.5;
+    var k = I.lib.kids(trans).filter(function (e) { return e.localName !== 'sndAc' && e.localName !== 'extLst'; })[0];
     if (!k) return out;
     var n = k.localName, dir = I.att(k, 'dir');
     var DIR = { l: 'left', r: 'right', u: 'up', d: 'down', lu: 'left', ru: 'right', ld: 'left', rd: 'right' };

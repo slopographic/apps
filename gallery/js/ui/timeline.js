@@ -41,22 +41,22 @@
 
   function tileEl(item, cell) {
     const m = item.meta, st = G.state.state;
-    const t = document.createElement('button');
-    t.type = 'button';
-    t.className = 'tile' + (st.selected.has(m.id) ? ' sel' : '');
-    t.dataset.id = m.id;
-    t.dataset.idx = String(item.idx);
-    t.tabIndex = -1;
-    t.setAttribute('aria-label', m.name + ', ' + new Date(m.takenAt || 0).toLocaleDateString(I() && I().get() !== 'en' ? I().get() : undefined));
-    t.style.width = cell + 'px'; t.style.height = cell + 'px';
+    const tile = document.createElement('button');
+    tile.type = 'button';
+    tile.className = 'tile' + (st.selected.has(m.id) ? ' sel' : '');
+    tile.dataset.id = m.id;
+    tile.dataset.idx = String(item.idx);
+    tile.tabIndex = -1;
+    tile.setAttribute('aria-label', m.name + ', ' + new Date(m.takenAt || 0).toLocaleDateString(I() && I().get() !== 'en' ? I().get() : undefined));
+    tile.style.width = cell + 'px'; tile.style.height = cell + 'px';
     const img = document.createElement('img');
     img.alt = ''; img.decoding = 'async'; img.draggable = false;
-    G.urls.thumb(m.id).then((u) => { if (u && t.isConnected) img.src = u; });
-    t.append(img);
-    if (m.fav) t.insertAdjacentHTML('beforeend', '<span class="mk fav" aria-hidden="true">★</span>');
-    if (m.liked) t.insertAdjacentHTML('beforeend', '<span class="mk ' + m.liked + '" aria-hidden="true"></span>');
-    t.insertAdjacentHTML('beforeend', '<span class="tick" aria-hidden="true"></span>');
-    return t;
+    G.urls.thumb(m.id).then((u) => { if (u && tile.isConnected) img.src = u; });
+    tile.append(img);
+    if (m.fav) tile.insertAdjacentHTML('beforeend', '<span class="mk fav" aria-hidden="true">★</span>');
+    if (m.liked) tile.insertAdjacentHTML('beforeend', '<span class="mk ' + m.liked + '" aria-hidden="true"></span>');
+    tile.insertAdjacentHTML('beforeend', '<span class="tick" aria-hidden="true"></span>');
+    return tile;
   }
   function renderRow(row) {
     if (row.kind === 'head') {
@@ -115,7 +115,7 @@
   }
   function markSelection() {
     const sel = G.state.state.selected;
-    for (const t of els.content.querySelectorAll('.tile')) t.classList.toggle('sel', sel.has(t.dataset.id));
+    for (const tile of els.content.querySelectorAll('.tile')) tile.classList.toggle('sel', sel.has(tile.dataset.id));
     const vars = { shown: cur.ids.length, total: G.library.size, sel: sel.size };
     els.status.textContent = G.library.size ? t(sel.size ? 'gallery.grid.status_sel' : 'gallery.grid.status', vars) : '';
   }
@@ -123,9 +123,9 @@
   function tileOf(target) { return target && target.closest ? target.closest('.tile') : null; }
   function openAt(idx) { G.viewer && G.viewer.open(cur.ids, idx); }
   function onClick(e) {
-    const t = tileOf(e.target);
-    if (!t) return;
-    const id = t.dataset.id, st = G.state.state;
+    const tile = tileOf(e.target);
+    if (!tile) return;
+    const id = tile.dataset.id, st = G.state.state;
     if (e.ctrlKey || e.metaKey || e.shiftKey || st.selectMode) {
       if (e.shiftKey && st.lastId && cur.ids.includes(st.lastId)) {
         const a = cur.ids.indexOf(st.lastId), b = cur.ids.indexOf(id);
@@ -136,16 +136,16 @@
       return;
     }
     st.lastId = id;
-    openAt(Number(t.dataset.idx));
+    openAt(Number(tile.dataset.idx));
   }
   function onKey(e) {
-    const t = tileOf(document.activeElement);
-    if (e.key === 'Enter' && t) { e.preventDefault(); openAt(Number(t.dataset.idx)); return; }
-    if (e.key === ' ' && t) { e.preventDefault(); G.state.select(t.dataset.id, !G.state.state.selected.has(t.dataset.id)); markSelection(); return; }
+    const tile = tileOf(document.activeElement);
+    if (e.key === 'Enter' && tile) { e.preventDefault(); openAt(Number(tile.dataset.idx)); return; }
+    if (e.key === ' ' && tile) { e.preventDefault(); G.state.select(tile.dataset.id, !G.state.state.selected.has(tile.dataset.id)); markSelection(); return; }
     const step = { ArrowRight: 1, ArrowLeft: -1, ArrowDown: cur.cols, ArrowUp: -cur.cols }[e.key];
     if (!step) return;
     e.preventDefault();
-    const from = t ? Number(t.dataset.idx) : -1;
+    const from = tile ? Number(tile.dataset.idx) : -1;
     const to = Math.max(0, Math.min(cur.ids.length - 1, from < 0 ? 0 : from + step));
     focusIndex(to);
   }
@@ -167,7 +167,7 @@
     vl = G.createVlist({ scroller: els.scroller, content: els.content, render: renderRow, onScroll });
     els.scroller.addEventListener('click', onClick);
     els.scroller.addEventListener('keydown', onKey);
-    els.scroller.addEventListener('focusin', (e) => { const t = tileOf(e.target); if (t) { els.content.querySelectorAll('.tile[tabindex="0"]').forEach((x) => (x.tabIndex = -1)); t.tabIndex = 0; } });
+    els.scroller.addEventListener('focusin', (e) => { const tile = tileOf(e.target); if (tile) { els.content.querySelectorAll('.tile[tabindex="0"]').forEach((x) => (x.tabIndex = -1)); tile.tabIndex = 0; } });
     let w = els.scroller.clientWidth;
     const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(() => { if (els.scroller.clientWidth !== w) { w = els.scroller.clientWidth; render(); } }) : null;
     if (ro) ro.observe(els.scroller); else window.addEventListener('resize', render);

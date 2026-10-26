@@ -39,7 +39,7 @@ async function loadBlobImage(blob) {
 const hexToRgb = hx => { const n = parseInt(hx.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
 const rgbHex = (r, g, b) => '#' + [r, g, b].map(v => clamp(Math.round(v), 0, 255).toString(16).padStart(2, '0')).join('');
 const pack = hx => { const [r, g, b] = hexToRgb(hx); return ((255 << 24) | (b << 16) | (g << 8) | r) >>> 0; };
-const isTyping = t => t && t.closest && !!t.closest('input, textarea, select, [contenteditable]');
+const isTyping = node => node && node.closest && !!node.closest('input, textarea, select, [contenteditable]');
 const EMOJI_FONT = '"Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Twemoji Mozilla", sans-serif';
 
 function rgbToHsl(r, g, b) {
@@ -57,7 +57,7 @@ function rgbToHsl(r, g, b) {
 function hslToRgb(hh, s, l) {
   if (s === 0) { const v = Math.round(l * 255); return [v, v, v]; }
   const q = l < 0.5 ? l * (1 + s) : l + s - l * s, p = 2 * l - q;
-  const f = t => { if (t < 0) t += 1; if (t > 1) t -= 1; if (t < 1 / 6) return p + (q - p) * 6 * t; if (t < 1 / 2) return q; if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6; return p; };
+  const f = h => { if (h < 0) h += 1; if (h > 1) h -= 1; if (h < 1 / 6) return p + (q - p) * 6 * h; if (h < 1 / 2) return q; if (h < 2 / 3) return p + (q - p) * (2 / 3 - h) * 6; return p; };
   return [f(hh + 1 / 3), f(hh), f(hh - 1 / 3)].map(v => Math.round(v * 255));
 }
 

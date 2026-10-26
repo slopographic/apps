@@ -33,7 +33,7 @@
 
   /** "Waits for": the deps of task `id` among the project's tasks (id is null for a new task). */
   function waitsFor(id, deps, tasks) {
-    let cur = (deps || []).filter((d) => tasks.some((t) => t.id === d));
+    let cur = (deps || []).filter((d) => tasks.some((task) => task.id === d));
     const others = tasks.filter((x) => x.id !== id);
     const chips = el('div', { class: 'pe-deps' });
     const pick = el('select', { id: 'peDepAdd', 'aria-label': t('projects.ed.dep_add_aria') });
