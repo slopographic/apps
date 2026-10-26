@@ -45,7 +45,7 @@ export function patchBinary(file, buf) {
 
 /** Files of the source brand that a renamed build leaves out (it writes its own where one is needed). */
 export function excluded(file, p) {
-  if (/^(brand\/profiles|brand\/copy|tools\/whitelabel|\.claude)\//.test(file) || file === 'brand/README.md') return true;   // .claude: this repo's agent settings
+  if (/^(brand\/profiles|brand\/copy|tools\/whitelabel)\//.test(file) || file === 'brand/README.md') return true;
   // this repository's own automation: every workflow (deploys, pings, checks that only make sense here; the build writes the
   // mirror's one rules.yml) and the commit identity test
   if (/^\.github\/(workflows\/|dependabot\.yml$)/.test(file) || file === 'tests/node/attribution.test.mjs') return true;
