@@ -8,7 +8,7 @@
        label/js/ui/commands.js, label/js/ui/configs-dlg.js, label/js/ui/context.js, label/js/ui/datadlg.js, label/js/ui/dialogs.js, label/js/ui/export.js,
        label/js/ui/form.js, label/js/ui/hub.js, label/js/ui/intake.js, label/js/ui/interact.js, label/js/ui/keys.js, label/js/ui/menus.js, label/js/ui/panels.js,
        label/js/ui/presets-dlg.js, label/js/ui/printdlg.js, label/js/ui/props-reset.js, label/js/ui/props-types.js, label/js/ui/props.js, label/js/ui/tabs.js,
-       shared/tour/tours/label.js, label/css/panels.css -->
+       shared/tour/tours/label.js, label/css/panels.css, shared/doctabs/tabs.js -->
   <style>body { margin: 0; background: #111; color: #eee; font: 12px system-ui; } iframe { width: 1280px; height: 800px; border: 0; display: block; }</style>
 </head>
 <body>
@@ -68,6 +68,8 @@
       expect(t.title).toBe('Rundtur i SlopLabel');
       expect(t.steps[0].title).toBe('Etikettinställningar');
       expect(KEY.test(visible(doc))).toBe(false);
+      // the tab strip's own label is the host's key (shared/doctabs/tabs.js copied the English before the marks applied)
+      expect(doc.querySelector('#tabs .sl-doctabs-strip').getAttribute('aria-label')).toBe('Öppna etiketter');
       // a stock with no name of its own read "Sheet" or "Roll" in every language
       const App = w.eval('App'), body = doc.createElement('div'), name = App.doc.stock.name;
       App.doc.stock.name = '';
