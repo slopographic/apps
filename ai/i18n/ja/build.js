@@ -23,7 +23,7 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'ai.build.nothing': 'まだプレビューするものがありません',
   'ai.build.nothing_lead': 'モデルが完全な HTML ファイルを送ると、ここにアプリが表示されます。',
   'ai.tpl.game': 'ゲーム',
-  'ai.tpl.game_blurb': '落ちてくるスロップをキャッチ',
+  'ai.tpl.game_blurb': '落ちてくる slop をキャッチ',
   'ai.tpl.calculator': '電卓',
   'ai.tpl.calculator_blurb': 'シンプルな電卓',
   'ai.tpl.landing': 'ランディング ページ',

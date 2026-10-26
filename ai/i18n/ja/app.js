@@ -65,7 +65,7 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'ai.launch.computer_file': 'このコンピューターのファイルをこのアプリで開く…',
   'ai.sloppo.ask': 'Sloppo に質問する',
   'ai.sloppo.placeholder': 'Sloppo に何でも質問',
-  'ai.sloppo.no_model': 'SLURP。私はスロップです。何でも聞いてください。（先にモデルを読み込むと、私の頭脳が働きます）',
+  'ai.sloppo.no_model': 'SLURP。私は slop です。何でも聞いてください。（先にモデルを読み込むと、私の頭脳が働きます）',
   'ai.spec.title': 'スペック カード',
   'ai.spec.share': '共有…',
   'ai.spec.save_drive': 'Slop Drive に保存',
