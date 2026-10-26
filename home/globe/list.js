@@ -1,5 +1,5 @@
 /* The app globe's keyboard and screen-reader way in (home/globe/globe.js): every app in .gx-nav as one tab stop; the arrow
- * keys, Home and End move along it; the focused app shows as a chip and its icon comes round to the front
+ * keys, Home and End move along it (the lead apps first, then the registry order); the focused app shows as a chip and its icon comes round to the front
  * (SlopGlobe.focusApp). Built once the globe starts, in an idle task of its own, so neither task is long on a phone.
  * Its nav is data-live (index.html): it is filled late, so page snapshots leave it out. Classic script, after globe.js. */
 (function () {
@@ -7,7 +7,8 @@
   const hero = document.getElementById('hero'), nav = hero && hero.querySelector('.gx-nav'), C = window.SlopHomeCards;
   const ICONS = window.SLOP_ICONS || {};
   if (!nav || !C || !window.SlopGlobe) return;
-  const APPS = (window.SLOP_APPS || []).filter((a) => a.path && !a.path.startsWith('#') && ICONS[a.id]);
+  const M = window.SlopGlobeMath, all = (window.SLOP_APPS || []).filter((a) => a.path && !a.path.startsWith('#') && ICONS[a.id]);
+  const APPS = M ? M.leadFirst(all, window.SLOP_LEAD) : all;   // the lead apps first (shared/apps.js SLOP_LEAD), as the globe opens on them
   const name = (a) => (window.slopAppLabel ? window.slopAppLabel(a, !!(window.slopBrandNamesOn && window.slopBrandNamesOn())) : a.name);
   const el = (tag, attrs, ...kids) => {
     const n = document.createElement(tag);

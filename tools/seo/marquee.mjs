@@ -1,4 +1,5 @@
-// The capability strip under the homepage hero: one short label per app (shared/apps.js, kind "app"), in registry order,
+// The capability strip under the homepage hero: one short label per app (shared/apps.js, kind "app"): the lead apps first
+// (SLOP_LEAD, the PDF family the globe opens on, in its order; home/globe/sphere.js leadFirst), then the registry order,
 // with File convert shown as its number of conversions (convert/js/core/pages.js). tools/seo/write.mjs writes it into
 // index.html between <!-- site:marquee --> and <!-- /site:marquee -->, so a new app joins the strip the next time it runs.
 // data-controls: its links move (it scrolls), so Sloppo treats the whole strip as controls (shared/buddy/avoid.js).
@@ -8,12 +9,15 @@
 //   capability(app) -> the short label, from the app's title: "PhotoSlop: photo editor" -> "photo editor",
 //     "OCR: read text from images" -> "OCR" (the part before the colon when it is not the app's own name),
 //     "Contacts (address book)" -> "Contacts"; a long label is cut at its first comma, or before "for", "with"...
-//   entries(apps, conversions) -> [{ id, path, label }] (no repeated labels; apps only, with a page)
-//   capabilities(apps, conversions) -> [label]
+//   entries(apps, conversions, lead) -> [{ id, path, label }] (no repeated labels; apps only, with a page; lead ids first)
+//   capabilities(apps, conversions, lead) -> [label]
 //   buildMarquee(entries) -> html
 //   marquee() -> the html for the site's own data
 import { registryWindow } from './site.mjs';
 import { PAGES as CONVERTERS } from '../../convert/js/core/pages.js';
+import { createRequire } from 'node:module';
+
+const { leadFirst } = createRequire(import.meta.url)('../../home/globe/sphere.js');
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const LONG = 26;
@@ -27,16 +31,16 @@ export function capability(a) {
   return x.trim();
 }
 
-export function entries(apps, conversions) {
+export function entries(apps, conversions, lead = []) {
   const out = [];
-  for (const a of apps) {
+  for (const a of leadFirst(apps, lead)) {
     if (a.kind !== 'app' || !a.path || a.path.startsWith('#')) continue;
     const label = a.id === 'convert' && conversions ? `${conversions} conversions` : capability(a);
     if (label && !out.some((x) => x.label.toLowerCase() === label.toLowerCase())) out.push({ id: a.id, path: a.path, label });
   }
   return out;
 }
-export const capabilities = (apps, conversions) => entries(apps, conversions).map((e) => e.label);
+export const capabilities = (apps, conversions, lead) => entries(apps, conversions, lead).map((e) => e.label);
 
 export function buildMarquee(list) {
   const items = (copy) => list.map((e, i) => `<li><a href="${esc(e.path)}" data-id="${esc(e.id)}" tabindex="${!copy && !i ? 0 : -1}">${esc(e.label)}</a></li>`).join('');
@@ -46,6 +50,6 @@ export function buildMarquee(list) {
 
 let cached;
 export function marquee() {
-  if (!cached) cached = buildMarquee(entries(registryWindow().SLOP_APPS, CONVERTERS.length));
+  if (!cached) { const win = registryWindow(); cached = buildMarquee(entries(win.SLOP_APPS, CONVERTERS.length, win.SLOP_LEAD)); }
   return cached;
 }
