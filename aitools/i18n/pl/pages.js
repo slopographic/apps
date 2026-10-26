@@ -39,7 +39,7 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'aitools.speech.drop': 'Upuść tutaj plik audio lub wideo albo ',
   'aitools.speech.limit': 'Do 2 godzin. Długie pliki są odczytywane w 30-sekundowych fragmentach.',
   'aitools.speech.auto': 'Wykryj automatycznie',
-  'aitools.speech.run': 'Transkrybować',
+  'aitools.speech.run': 'Transkrybuj',
   'aitools.speech.out': 'Transkrypcja',
   'aitools.speech.out_ph': 'Transkrypcja pojawi się tutaj, z sygnaturami czasowymi w pliku .srt.',
   'aitools.speech.srt': 'Pobierz .srt',
