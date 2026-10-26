@@ -38,7 +38,7 @@ test('theme.js: a plain build marks <html> and loads style/tone.css with the par
   assert.deepEqual([plain.attrs['data-tone'], plain.attrs['data-naming'], plain.attrs['data-media']], ['plain', 'plain', 'off']);
   assert.equal(plain.T.tone, 'plain');
   assert.equal(plain.written.length, 1);
-  assert.match(plain.written[0], /^<link rel="stylesheet" id="slop-tone-css" href="https:\/\/tools\.example\/style\/tone\.css">$/);
+  assert.match(plain.written[0], /^<link id="slop-tone-css" rel="stylesheet" href="https:\/\/tools\.example\/style\/tone\.css">$/);
   const site = theme(SITE);
   assert.deepEqual([site.attrs['data-tone'], site.attrs['data-naming'], site.attrs['data-media']], ['playful', 'brand', 'on']);
   assert.equal(site.written.length, 0);

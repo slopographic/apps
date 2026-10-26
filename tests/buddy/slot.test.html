@@ -104,6 +104,7 @@
       expect(r.left >= 8 && r.top >= 8).toBe(true);
     });
     it('Move to the other side, Tips and Hide', async () => {
+      await new Promise((r) => setTimeout(r, 20));          // the last drag's click guard lapses (a real click comes at once)
       const side = dock().getBoundingClientRect().left < innerWidth / 2;
       dock().click(); await waitFor(() => menu());
       [...menu().querySelectorAll('.smb-row')].find((r) => /other side/.test(r.textContent)).click();

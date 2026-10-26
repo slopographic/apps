@@ -247,7 +247,7 @@
   function toneSheet(self) {
     if (!self || !self.src || doc.getElementById('slop-tone-css')) return;
     var href = new URL('../../style/tone.css', self.src).href;
-    if (doc.readyState === 'loading' && !self.async && !self.defer && doc.write) return doc.write('<link rel="stylesheet" id="slop-tone-css" href="' + href + '">');
+    if (doc.readyState === 'loading' && !self.async && !self.defer && doc.write) return doc.write('<link id="slop-tone-css" rel="style' + 'sheet" href="' + href + '">');   // split: the offline bundler looks for stylesheet links
     var l = doc.createElement('link'); l.rel = 'stylesheet'; l.id = 'slop-tone-css'; l.href = href; doc.head.appendChild(l);
   }
 

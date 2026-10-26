@@ -40,7 +40,9 @@
 
 /* ---------- the trust row in place of the moving capability strip ---------- */
 :root[data-tone="plain"] .hx-marquee { display: none; }
-.hx-trust { position: relative; z-index: 2; margin: 0 calc(50% - 50vw); padding: 14px max(16px, calc((100vw - 1200px) / 2)); list-style: none;
+/* the hero's last row, edge to edge across its padding (it is in #hero, so the hero is still followed by the strip) */
+.hx-trust { grid-column: 1 / -1; position: relative; z-index: 2; margin: clamp(24px, 4vw, 40px) calc(-1 * var(--hx-gutter)) calc(-1 * clamp(40px, 5vw, 64px));
+  padding: 14px var(--hx-gutter); list-style: none;
   display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 28px; border-block: 1px solid var(--line); background: var(--ink);
   font: 500 14.5px/1.4 var(--sans); color: var(--bone-dim); }
 .hx-trust li { display: inline-flex; align-items: center; gap: 8px; }
