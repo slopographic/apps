@@ -113,7 +113,8 @@
         batchDest = dropDest(e);
         const list = await DR.readDrop(dt);
         if (DR.isPvTarget(batchDest)) { await DR.uploadToProvider(list, batchDest); return []; }
-        if (list.length === 1 && /\.slop$/i.test(list[0].file.name)) {
+        const bext = (window.SlopBackup && window.SlopBackup.EXT || '').toLowerCase();   // the backup ZIP's extension (shared/backup/index.js)
+        if (list.length === 1 && bext && list[0].file.name.toLowerCase().endsWith(bext)) {
           if (await window.SlopUI.confirm('Restore this backup?', `“${list[0].file.name}” looks like a Slopographic backup. Open it in Backup & restore instead of uploading it?`, 'Open backup', { cancel: 'Just upload' })) {
             if (window.SlopBackupUI) window.SlopBackupUI.open.choose = null;
             DR.backupDialog();

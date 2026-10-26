@@ -5,6 +5,7 @@ import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';
 import { mascotProblems } from './mascot.mjs';
+import { backupExt } from './emit.mjs';
 
 const HEX = /^#[0-9a-f]{3,8}$/i;
 const TOKENS = ['background', 'surface', 'text', 'accent', 'border'];
@@ -23,6 +24,7 @@ export function validate(p) {
   need('naming', (v) => v === 'brand' || v === 'plain', "'brand' or 'plain'");
   need('tone', (v) => v === 'playful' || v === 'plain', "'playful' or 'plain'");
   errs.push(...mascotProblems(p.mascot));
+  if (p.backupExt !== undefined && !/^\.[a-z0-9][a-z0-9-]{1,15}$/.test(p.backupExt)) errs.push("backupExt: the backup file's extension, like '.backup'");
   need('github', (v) => /^[A-Za-z0-9-]+$/.test(v || ''), 'GitHub account of the site');
   need('brandTerms', (v) => Array.isArray(v) && v.length > 0 && v.every(isStr), 'words that only this brand uses');
   need('colors', (v) => v && ['ink', 'paper', 'accent'].every((k) => HEX.test(v[k])), 'ink, paper and accent as #hex');
@@ -73,6 +75,16 @@ export function phrasePairs(root, p) {
   if (p.tone === 'plain') {
     const tone = JSON.parse(readFileSync(path.join(root, 'brand', 'copy', 'plain.json'), 'utf8'));
     for (const [a, b] of Object.entries(tone)) if (a !== '_') map.set(a, b);
+  }
+  // The backup file's extension where the text names it (docs, guides, the homepage); the code reads the markers.
+  const ext = backupExt(p);
+  if (ext) {
+    map.set('.slop-backup.json', ext + '.json');
+    for (const w of ['file', 'files', 'ZIP']) map.set(`.slop ${w}`, `${ext} ${w}`);
+    map.set('.slop backups', `${ext} files`);
+    map.set('.slop backup', `${ext} file`);
+    map.set('-YYYY-MM-DD.slop', `-YYYY-MM-DD${ext}`);
+    map.set('`.slop` ZIP', `\`${ext}\` ZIP`);
   }
   for (const [a, b] of Object.entries(p.copy || {})) map.set(a, b);
   if (p.seo && p.seo.titleSuffix) map.set(' | Slopographic', p.seo.titleSuffix);   // page titles have a length limit

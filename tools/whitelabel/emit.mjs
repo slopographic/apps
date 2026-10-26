@@ -12,8 +12,12 @@ export function markerValues(p) {
     naming: p.naming, tone: p.tone, mascot: p.mascot === true, mascotOverlay: hasOverlay(p), media: p.media, analytics: p.analytics, defaultLang: p.defaultLang,
     hideApps: (p.apps && p.apps.hide) || [], themes: p.themes || {},
     seoHomeTitle: seo.homeTitle, seoHomeDescription: seo.homeDescription,
+    backupExt: backupExt(p), backupJson: backupExt(p) && backupExt(p) + '.json',
   };
 }
+/** The backup ZIP's extension for a profile: its backupExt, '.backup' for the plain tone, or undefined (the source's own,
+ * renamed like any other token). The "Export everything" file is that extension plus .json. */
+export const backupExt = (p) => p.backupExt || (p.tone === 'plain' ? '.backup' : undefined);
 const LITERAL = String.raw`'(?:[^'\\\n]|\\.)*'|"(?:[^"\\\n]|\\.)*"|true|false|null|-?\d+(?:\.\d+)?|\[\]|\{\}`;
 const MARKER = new RegExp(String.raw`/\*profile:(\w+)\*/(${LITERAL})`, 'g');
 /** The value of a marker's literal (single-quoted strings read as JSON strings). */

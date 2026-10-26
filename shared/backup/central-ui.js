@@ -42,7 +42,7 @@
   async function open(opts = {}) {
     const UI = await B.kit(), el = UI.el;
     let current = null;
-    const status = el('div', { class: 'ev-status', role: 'status' }, 'Everything in one file: every app in this suite, in one .slop-backup.json.');
+    const status = el('div', { class: 'ev-status', role: 'status' }, `Everything in one file: every app in this suite, in one ${B.JSON_EXT}.`);
     const session = el('input', { type: 'checkbox', checked: true });
     const exportBtn = el('button', { type: 'button', class: 'sui-btn sui-primary', 'data-act': 'export-all' }, 'Export everything');
     exportBtn.addEventListener('click', async () => {
@@ -65,7 +65,7 @@
     const pickBtn = el('button', { type: 'button', class: 'sui-btn', 'data-act': 'import-all' }, 'Choose backup file…');
     const confirmBtn = el('button', { type: 'button', class: 'sui-btn sui-primary', 'data-act': 'confirm-import' }, 'Confirm import');
     const imp = el('section', { class: 'ev-sec' }, el('h3', null, 'Import'),
-      el('p', { class: 'sui-p' }, 'Choose a .slop-backup.json file, or a version 1 Slop Data or Slopographic backup. The file is checked whole first. Nothing changes until you confirm.'),
+      el('p', { class: 'sui-p' }, `Choose a ${B.JSON_EXT} file, or a version 1 Slop Data or Slopographic backup. The file is checked whole first. Nothing changes until you confirm.`),
       el('div', { class: 'ev-row' }, pickBtn), planArea);
 
     async function choose(file) {
@@ -81,7 +81,7 @@
         el('div', { class: 'ev-row' }, confirmBtn, pickBtn)));
     }
     confirmBtn.disabled = true;
-    const ACCEPT = '.json,.slop,.zip,application/json,application/zip';
+    const ACCEPT = `.json,${B.EXT},.zip,application/json,application/zip`;
     pickBtn.addEventListener('click', async () => {
       const SI = window.SlopIntake; // the backup file is a part of the one intake ('backup.everything') where the page has it
       if (SI && SI.part) { await SI.pick({ to: SI.part({ id: 'backup.everything', limit: 1, accept: { any: true, noun: 'a backup file' }, process: async (f) => { await choose(f); return f.name; } }), multiple: false, accept: ACCEPT }); return; }
