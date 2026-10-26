@@ -54,6 +54,16 @@ test('every strip entry links to its app\'s own page, from the registry', () => 
   assert.deepEqual(list.map((e) => e.label), capabilities(win.SLOP_APPS, PAGES.length));
 });
 
+test('the strip starts with the lead apps (shared/apps.js SLOP_LEAD, the PDF family the globe opens on), in their order', () => {
+  const apps = ['a', 'b', 'c', 'd'].map((id) => ({ id, kind: 'app', name: id.toUpperCase(), path: id + '/', title: `${id.toUpperCase()}: ${id} tool` }));
+  assert.deepEqual(entries(apps, 0, ['c', 'a', 'zz']).map((e) => e.id), ['c', 'a', 'b', 'd']);
+  assert.deepEqual(entries(apps, 0).map((e) => e.id), ['a', 'b', 'c', 'd'], 'no lead: the registry order');
+  const win = registryWindow(), lead = [...win.SLOP_LEAD];   // (an array from the registry's own realm)
+  if (win.SLOP_APPS.some((a) => a.id === 'pdf')) assert.deepEqual(lead.slice(0, 3), ['pdf', 'html2pdf', 'ocr']);
+  const ids = [...marquee().split('aria-hidden')[0].matchAll(/data-id="([^"]+)"/g)].map((m) => m[1]);
+  assert.deepEqual(ids.slice(0, lead.length), lead, 'the first labels are the lead family');
+});
+
 test('index.html holds the strip the generator writes (run node tools/seo/write.mjs after changing the apps)', () => {
   const html = readFileSync(path.join(ROOT, 'index.html'), 'utf8');
   const m = /<!-- site:marquee -->\n([\s\S]*?)\n<!-- \/site:marquee -->/.exec(html);

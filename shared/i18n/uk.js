@@ -253,7 +253,7 @@
     'type.models': '3D-моделі',
     'type.data': 'Таблиці й дані',
     'type.office': 'Word і презентації',
-    'type.email': 'Електронна пошта',
+    'type.email': 'Е-пошта',
     'type.web': 'Вебсторінки',
     'type.contacts': 'Контакти',
     'type.design': 'Файли дизайну',

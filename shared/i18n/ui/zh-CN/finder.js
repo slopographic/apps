@@ -12,6 +12,5 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'ui.finder.sorted_desc': '降序',
   'ui.finder.not_sorted': '未排序',
   'ui.list.count': '{n} 项',
-  'ui.list.count_noun': '{n} {noun}',
   'ui.list.empty_any': '这里还没有内容。',
 });

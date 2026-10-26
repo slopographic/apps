@@ -53,7 +53,7 @@
     $('qSearch').addEventListener('input', draw);
     $('qStatus').addEventListener('change', draw);
     $('qNew').addEventListener('click', () => NS.app.go('new'));
-    list = g.SlopList.mount($('qRows'), { label: 'quotes.li.label', noun: ['quotes.li.quote', 'quotes.li.quotes'], summary: $('qSummary'),
+    list = g.SlopList.mount($('qRows'), { label: 'quotes.li.label', count: 'quotes.li.count', summary: $('qSummary'),
       empty: 'quotes.li.empty', row, open: (x) => NS.app.go(`q/${x.id}`), menu: menuFor });
   }
 

@@ -61,7 +61,6 @@ window.SlopI18n && window.SlopI18n.add('vi', {
   'ui.frame.resize_aria': 'Đổi kích thước bảng {label} (phím mũi tên; nhấp đúp để đặt lại)',
   'ui.frame.resize_tip': 'Kéo để đổi kích thước. Nhấp đúp: chiều rộng mặc định.',
   'ui.frame.reset_sizes': 'Đặt lại kích thước bảng',
-  'ui.list.empty': 'Chưa có {items} nào.',
   'ui.flow.from_to': '{from} sang {to}',
   'ui.flow.file': 'Tệp',
   'ui.flow.file_lc': 'tệp',

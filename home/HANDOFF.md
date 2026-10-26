@@ -61,6 +61,12 @@
   tests/node/globe-labels.test.mjs. A small pool of `.gx-tag` spans in the aria-hidden layer moves by transform only; the
   text changes only when a span takes another app; the fade is a CSS transition on `is-on` (none under reduced motion).
   The text is the icon's accessible name, so a plain-names profile shows its own names.
+- Lead apps: `SLOP_LEAD` in shared/apps.js (the PDF family: pdf, html2pdf, ocr, watermark, convert; ids a profile hides
+  drop out) is the one ordered list. The globe takes them first (so the lite globe keeps them), `SlopGlobeMath.gather`
+  swaps them onto the points nearest the first one (same-size points only, so the spread stays), and the start turns
+  the first square to the front; the idle turn carries on from there. The keyboard list (list.js) and the capability
+  strip (tools/seo/marquee.mjs, via `leadFirst`) start with them too. Tests: hero-links, hero-marquee, globe-sphere,
+  home-marquee.
 - Icon sizes come from `weight` in shared/apps.js (2 for the apps most people come for): those are 1.7 times larger
   and sit round the equator, so they pass the front on every turn; the finder also lists them first when nothing is
   searched (home/browse.js rank).

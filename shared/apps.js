@@ -15,6 +15,7 @@
   const NAMING = /*profile:naming*/'brand';
   const HIDE = /*profile:hideApps*/[];
   const MEDIA = /*profile:media*/true;
+  const LEAD = ['pdf', 'html2pdf', 'ocr', 'watermark', 'convert'];   // the homepage leads with the PDF family, in this order: the globe opens on them side by side (PDF square in front), its keyboard list and the capability strip start with them (window.SLOP_LEAD: home/globe/globe.js, list.js, tools/seo/marquee.mjs)
   const GROUP_LABELS = Object.freeze(NAMING === 'plain' ? { business: 'Business', creative: 'Creative' } : { business: 'Slop 365', creative: 'Creative Slop' });
   window.SLOP_GROUP_LABELS = GROUP_LABELS;
   // extra.video: the app's YouTube tutorial { id, title, date (ISO upload time), duration (ISO 8601) }: the landing page
@@ -280,8 +281,7 @@
     if (NAMING === 'plain') { a.name = a.plain; a.title = a.plain; a.tagline = a.plainTagline; }
     if (!MEDIA) { delete a.shot; delete a.video; }
   }
-  window.SLOP_NAMING = NAMING;
-  window.SLOP_HIDDEN_APPS = HIDE;
+  window.SLOP_NAMING = NAMING; window.SLOP_HIDDEN_APPS = HIDE; window.SLOP_LEAD = LEAD.filter((id) => window.SLOP_APPS.some((a) => a.id === id));
   /** The name to show for an app (a registry entry or an id): the profile's name, in the chosen language when that
    * language has an 'app.<id>' string and the profile uses plain names. Brand names stay as they are in every language. */
   window.slopAppName = (app) => {

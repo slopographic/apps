@@ -15,6 +15,7 @@
   <script src="../../shared/slopui.js"></script>
   <script src="../../shared/ctxmenu.js"></script>
   <script src="../../shared/ui/list.js"></script>
+  <script src="../../expenses/i18n/en/views.js"></script>
   <script>
   const { describe, it, expect, beforeEach, waitFor, run } = SlopTest;
   const host = document.getElementById('host'), count = document.getElementById('count');
@@ -28,7 +29,7 @@
   ];
   let opened, list;
   const make = (extra = {}) => SlopList.mount(host, {
-    label: 'Expenses', noun: ['expense', 'expenses'], summary: count, empty: 'Nothing spent yet.',
+    label: 'Expenses', count: 'expenses.li.count', summary: count, empty: 'Nothing spent yet.',
     row: (r) => ({ title: r.who, amount: r.amt, cls: r.status === 'void' ? 'is-void' : '', meta: ['2026-10-20', r.status === 'void' ? { chip: 'Void', cls: 'void' } : null, ''] }),
     open: (r) => { opened = r.id; },
     menu: (r) => [{ label: 'Open ' + r.who, act: () => { opened = 'menu:' + r.id; } }, { label: 'Void…' }],
@@ -47,7 +48,7 @@
       expect(host.querySelector('.sl-list').getAttribute('role')).toBe('list');
       expect(host.querySelector('.sl-list').getAttribute('aria-label')).toBe('Expenses');
     });
-    it('the count names the noun in the singular or plural, and an empty list shows the empty message', () => {
+    it('the count is the app\'s plural family in the singular or plural, and an empty list shows the empty message', () => {
       expect(count.textContent).toBe('3 expenses');
       list.set([RECS[0]]);
       expect(count.textContent).toBe('1 expense');
@@ -103,6 +104,31 @@
       expect(host.querySelector('.my-empty').hidden).toBe(false);
       expect(host.querySelector('.my-empty button')).toBeTruthy();
       list = make(); list.set(RECS);
+    });
+    it('the count takes each CLDR form of the language: Polish 1 faktura, 2 faktury, 5 faktur, 22 faktury', () => {
+      // one SlopI18n in Polish with the invoices count family (the shipped pl table will carry the same forms)
+      const real = window.SlopI18n, pl = real.create({ defaultLang: 'pl', profile: null, document: null });
+      pl.add('en', { 'invoices.li.count': '{n} invoices', 'invoices.li.count#one': '{n} invoice' });
+      pl.add('pl', { 'invoices.li.count': '{n} faktury', 'invoices.li.count#one': '{n} faktura', 'invoices.li.count#few': '{n} faktury', 'invoices.li.count#many': '{n} faktur' });
+      window.SlopI18n = pl;
+      try {
+        const L = SlopList.mount(host, { count: 'invoices.li.count', summary: count });
+        const n = (k) => Array.from({ length: k }, (_, i) => ({ id: 'r' + i }));
+        const read = (k) => { L.set(n(k)); return count.textContent; };
+        expect([1, 2, 5, 22].map(read)).toEqual(['1 faktura', '2 faktury', '5 faktur', '22 faktury']);
+        expect(read(12)).toBe('12 faktur');   // 12 to 14 are many in Polish, 22 to 24 few
+        L.destroy();
+      } finally { window.SlopI18n = real; }
+      list = make(); list.set(RECS);
+    });
+    it('without a count the list reads "N items", and count may be a function of n', () => {
+      const L = SlopList.mount(host, {});
+      L.set(RECS);
+      expect(count.textContent).toBe('3 expenses');   // no summary given: the app's line is untouched
+      const M = SlopList.mount(host, { summary: count, count: (k) => `${k} rows` });
+      M.set(RECS.slice(1));
+      expect(count.textContent).toBe('2 rows');
+      L.destroy(); M.destroy(); list = make(); list.set(RECS);
     });
     it('redrawing keeps the focused row where it was', () => {
       rows()[1].focus();

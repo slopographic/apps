@@ -63,7 +63,6 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'ui.frame.resize_aria': 'تغيير حجم لوحة {label} (مفاتيح الأسهم؛ النقر المزدوج يعيد التعيين)',
   'ui.frame.resize_tip': 'اسحب لتغيير الحجم. النقر المزدوج: العرض الافتراضي.',
   'ui.frame.reset_sizes': 'إعادة تعيين أحجام اللوحات',
-  'ui.list.empty': 'لا توجد {items} بعد.',
   'ui.flow.from_to': 'من {from} إلى {to}',
   'ui.flow.file': 'ملف',
   'ui.flow.file_lc': 'ملف',

@@ -61,7 +61,6 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'ui.frame.resize_aria': '调整{label}面板的大小（箭头键；双击可重置）',
   'ui.frame.resize_tip': '拖动可调整大小。双击：恢复默认宽度。',
   'ui.frame.reset_sizes': '重置面板大小',
-  'ui.list.empty': '还没有{items}。',
   'ui.flow.from_to': '{from} 转 {to}',
   'ui.flow.file': '文件',
   'ui.flow.file_lc': '文件',

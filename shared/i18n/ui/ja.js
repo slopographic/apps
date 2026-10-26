@@ -61,7 +61,6 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'ui.frame.resize_aria': '{label} パネルのサイズを変更 (矢印キー、ダブルクリックでリセット)',
   'ui.frame.resize_tip': 'ドラッグでサイズを変更。ダブルクリック: 既定の幅に戻す。',
   'ui.frame.reset_sizes': 'パネルのサイズをリセット',
-  'ui.list.empty': '{items}はまだありません。',
   'ui.flow.from_to': '{from} から {to}',
   'ui.flow.file': 'ファイル',
   'ui.flow.file_lc': 'ファイル',

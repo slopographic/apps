@@ -6,14 +6,45 @@
   const iso = (d) => `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}`;
   const day = (s) => new Date(`${s}T00:00:00Z`);
 
-  /** Minutes from typed text, or null: "1:30", "1.5" or "1,5" (hours), "90m", "2h", "2h 15m", "2 h 15 min". 1 to 1440. */
+  // The words for hours and minutes in every language the site ships (i18n-ignore: parser data, not shown), the one
+  // source of truth for parseDuration. A plain table here, not the i18n tables: the parser is pure (Node tests, no
+  // SlopI18n), and what a person types must not depend on the UI language or on whether that language's timesheets
+  // tables have shipped yet ("90м" works in a page that still reads English). No word is an hour in one language and a
+  // minute in another. Written lower case and without Latin accents (fold() strips them from the input too).
+  const UNITS = {
+    h: 'h hr hrs hour hours hora horas heure heures std stunde stunden ora ore t tim timme timmar u uur ure g godz godzina godziny godzin '   // i18n-ignore
+      + 'ч час часа часов г год година години годин sa saat j jam gio saa ሰዓት awa sa\'a wakati elekere ihora amahora iyure iiyure '
+      + 'س ساعة ساعات ساعه ש ש׳ ש\' שעה שעות घंटा घंटे घं 小时 小時 時 時間 시간',
+    m: 'm min mins minute minutes mn minuto minutos minuti minuten minut minuter minuut minuta minuty м мин минута минуты минут хв хвилина '   // i18n-ignore
+      + 'хвилини хвилин dk dakika mnt menit p phut dakika ደቂቃ minti mintuna iseju nkeji minit umzuzu imizuzu د دقيقة دقائق دقيقه ד ד׳ ד\' '
+      + 'דקה דקות मिनट मि 分 分钟 分鐘 분',
+  };
+  /** Arabic-Indic, Persian and Devanagari digits as ASCII (full-width ones NFKC already maps). */
+  const DIGITS = /[\u0660-\u0669\u06f0-\u06f9\u0966-\u096f]/g;
+  const ascii = (d) => { const c = d.charCodeAt(0); return String(c - (c >= 0x966 ? 0x966 : c >= 0x6f0 ? 0x6f0 : 0x660)); };
+  /** Lower case, digits as ASCII, the Arabic decimal sign as a dot, Latin accents and Arabic vowel marks dropped. */
+  const fold = (s) => String(s).normalize('NFKC').toLowerCase().replace(DIGITS, ascii).replace(/\u066b/g, '.')
+    .normalize('NFD').replace(/[\u0300-\u036f\u064b-\u065f]/g, '').normalize('NFC');
+  const esc = (w) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  /** One unit as a regex part: any of its words (longest first), an optional dot after an abbreviation ("Std.", "мин."). */
+  const unit = (list) => `(?:${[...new Set(fold(list).split(' '))].sort((a, b) => b.length - a.length).map(esc).join('|')})\\.?`;
+  const H = unit(UNITS.h), M = unit(UNITS.m);
+  const RE = {
+    hours: new RegExp(`^(\\d{1,2}(?:\\.\\d{1,2})?)\\s*(?:${H})?$`, 'u'),
+    minutes: new RegExp(`^(\\d{1,4})\\s*${M}$`, 'u'),
+    both: new RegExp(`^(\\d{1,2})\\s*${H}\\s*(\\d{1,2})\\s*(?:${M})?$`, 'u'),
+  };
+
+  /** Minutes from typed text, or null: "1:30", "1.5" or "1,5" (hours), "90m", "2h", "2h 15m", "2 h 15 min", and the same
+   *  with any shipped language's unit words ("90 мин", "2 Std. 15 Min.", "1時間30分", "١٫٥ ساعة"). Case and spaces do
+   *  not matter. 1 to 1440. */
   function parseDuration(text) {
-    const t = String(text ?? '').trim().toLowerCase().replace(',', '.');
+    const t = fold(text ?? '').trim().replace(/\s+/g, ' ').replace(',', '.');
     let m = null, x;
     if ((x = /^(\d{1,2}):([0-5]\d)$/.exec(t))) m = Number(x[1]) * 60 + Number(x[2]);
-    else if ((x = /^(\d{1,2}(?:\.\d{1,2})?)\s*(?:h|hr|hrs|hours?)?$/.exec(t))) m = Math.round(Number(x[1]) * 60);
-    else if ((x = /^(\d{1,4})\s*(?:m|min|mins|minutes?)$/.exec(t))) m = Number(x[1]);
-    else if ((x = /^(\d{1,2})\s*(?:h|hr|hrs|hours?)\s*(\d{1,2})\s*(?:m|min|mins|minutes?)?$/.exec(t))) m = Number(x[1]) * 60 + Number(x[2]);
+    else if ((x = RE.hours.exec(t))) m = Math.round(Number(x[1]) * 60);
+    else if ((x = RE.minutes.exec(t))) m = Number(x[1]);
+    else if ((x = RE.both.exec(t))) m = Number(x[1]) * 60 + Number(x[2]);
     return m !== null && m >= 1 && m <= 1440 ? m : null;
   }
 
@@ -74,7 +105,7 @@
     return [head.join(','), ...lines].join('\r\n') + '\r\n';
   }
 
-  const api = { parseDuration, hm, periodRange, filter, summary, csv };
+  const api = { parseDuration, UNITS, fold, hm, periodRange, filter, summary, csv };
   const NS = (g.SlopTimesheets = g.SlopTimesheets || {});
   NS.core = api;
   if (typeof module === 'object' && module.exports) module.exports = api;

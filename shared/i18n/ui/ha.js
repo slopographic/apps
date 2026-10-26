@@ -62,7 +62,6 @@ window.SlopI18n && window.SlopI18n.add('ha', {
   'ui.frame.resize_aria': 'Canza girman fanel: {label} (maɓallan kibiya; danna sau biyu yana sake saitawa)',
   'ui.frame.resize_tip': 'Ja don canza girma. Danna sau biyu: faɗin asali.',
   'ui.frame.reset_sizes': 'Sake saita girman fanel',
-  'ui.list.empty': 'Babu {items} tukuna.',
   'ui.flow.from_to': '{from} zuwa {to}',
   'ui.flow.file': 'Fayil',
   'ui.flow.file_lc': 'fayil',

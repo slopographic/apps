@@ -13,6 +13,5 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'ui.finder.sorted_desc': '降順',
   'ui.finder.not_sorted': '並べ替えなし',
   'ui.list.count': '{n} 件',
-  'ui.list.count_noun': '{n} {noun}',
   'ui.list.empty_any': 'まだ何もありません。',
 });

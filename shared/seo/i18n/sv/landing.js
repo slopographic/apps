@@ -93,7 +93,7 @@ window.SlopI18n && window.SlopI18n.add('sv', {
   'seo.landing.qr.title': 'Gratis QR-kodgenerator med logotyp, Wi-Fi och vCard | QR SLOP',
   'seo.landing.qr.description': 'Gratis QR-kodgenerator: länkar, Wi-Fi, vCard, sms och händelser, med logotyp, färger, batchläge och nedladdning i SVG eller PNG. Inget konto, inget laddas upp.',
   'seo.landing.colors.title': 'Gratis pipett, palettgenerator och kontrastkontroll | Slop Colors',
-  'seo.landing.colors.description': 'Gratis pipett och palettgenerator: hämta färger ur dina bilder, harmonier, en skala från 50 till 950, WCAG-kontrastkontroll och export till CSS, Tailwind, ASE.',
+  'seo.landing.colors.description': 'Gratis pipett och palettgenerator: ett färghjul med harmonier, pipett för dina bilder, en skala från 50 till 950, WCAG-kontrastkontroll och export.',
   'seo.landing.fontcreator.title': 'Gratis typsnittsskapare: gör ett typsnitt av din handstil | Slop Font',
   'seo.landing.fontcreator.description': 'Gratis typsnittsskapare i webbläsaren: rita bokstäver, spåra ett handstilsark, kerna par, ladda ned TTF, OTF och WOFF2 med CSS. Inget konto, inget laddas upp.',
   'seo.landing.workflows.title': 'Gratis bulkflöden för foton och PDF:er i webbläsaren | Slopographic',

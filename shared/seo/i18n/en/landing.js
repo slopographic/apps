@@ -93,7 +93,7 @@ window.SlopI18n && window.SlopI18n.add('en', {
   'seo.landing.qr.title': 'Free QR code generator with logo, Wi-Fi and vCard | QR SLOP',
   'seo.landing.qr.description': 'Free QR code generator: links, Wi-Fi, vCard, SMS and events, with your logo, colours, batch mode and SVG or PNG download. No account, nothing uploaded.',
   'seo.landing.colors.title': 'Free colour picker, palette generator and contrast checker | Slop Colors',
-  'seo.landing.colors.description': 'Free colour picker and palette generator: eyedropper on your pictures, harmonies, a 50 to 950 ramp, a WCAG contrast checker and CSS, Tailwind, ASE exports.',
+  'seo.landing.colors.description': 'Free colour picker and palette generator: a colour wheel with harmonies, an eyedropper on your pictures, a 50 to 950 ramp, a WCAG contrast checker and exports.',
   'seo.landing.fontcreator.title': 'Free font maker: make a font from your handwriting | Slop Font',
   'seo.landing.fontcreator.description': 'Free font maker in your browser: draw letters, trace a handwriting sheet, kern pairs and download TTF, OTF and WOFF2 with CSS. No account, no upload.',
   'seo.landing.workflows.title': 'Batch photo and PDF workflows in your browser, free | Slopographic',

@@ -130,3 +130,17 @@ Register: formal «siz», as Microsoft Office, Google Workspace and Adobe Acroba
 | view mode Full / Focus / Content | Tam / Odak / İçerik |  |
 | count forms | no #one: a noun stays singular after a number («3 dosya») |  |
 | app noun in a sentence | «Henüz yok: {items}», «Panel: {label}» | avoids suffix harmony on unknown words |
+| stroke (outline of a shape or glyph) | Kontur | never «Çizgi» or «Vuruş»; «Çizgi» is only the line shape or tool |
+| opacity | Opaklık | «Saydamlık» only for transparency (PNG, «Saydam» background) |
+| gradient | Degrade | not «Gradyan» |
+| reel (assembled video) | kurgu | not «makara» |
+| library | kitaplık | not «kütüphane» (except proper names such as national libraries) |
+| preset | ön ayar | not «hazır ayar»; «hazır şablon» is a ready-made template |
+| credit note | İade faturası | not «alacak dekontu»; ledger «Alacak» stays the accounting credit side |
+| purchase order | satın alma siparişi | written apart; app label «Satın alma» |
+| Record (button) | Kaydı başlat | «Kayıt» only as the noun; never «Kaydet» (Save) |
+| decimal in typed examples | «12,50», «7,5», «1,0842» | comma; CSV-format messages keep the dot |
+| percent in a value | %{pct} | column headings as «Opaklık (%)» |
+| download as a format | «Word olarak indir» | format name plus «olarak» |
+| or | ya da | not «veya» |
+| Drive suffixes | Slop Drive’a, ’dan, ’da | not «Drive’ye» |

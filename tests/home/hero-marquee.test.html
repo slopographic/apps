@@ -10,7 +10,7 @@
   <script src="../harness.js"></script>
   <script src="hero-boot.js"></script>
   <script>
-  // Covers: home/marquee.js, tools/seo/marquee.mjs, home/hero.css, index.html
+  // Covers: home/marquee.js, tools/seo/marquee.mjs, shared/apps.js, home/hero.css, index.html
   /* Each label in the strip under the hero is a link to its app (from the registry); pointing at one or focusing it turns
    * the globe to that app, highlights it and shows its name, and the strip pauses. One tab stop, the arrow keys move; the
    * looping copy is aria-hidden and never focusable. A plain-names profile shows the registry's names (slopAppName). */
@@ -37,6 +37,10 @@
       expect(two.every((a) => a.tabIndex === -1)).toBe(true);
       expect(doc.querySelectorAll('.hx-marquee a[tabindex="0"]').length).toBe(1);
       expect(one[0].tabIndex).toBe(0);
+      // it starts with the lead apps (shared/apps.js SLOP_LEAD: the PDF family the globe opens on), in their order
+      const lead = win.SLOP_LEAD || [];
+      if (win.SLOP_APPS.some((x) => x.id === 'pdf')) expect(lead[0]).toBe('pdf');
+      expect(one.slice(0, lead.length).map((a) => a.dataset.id)).toEqual(lead);
     }, { timeout: 60000 });
 
     it('focus turns the globe to the app, highlights it and shows its name; arrows move; the strip pauses', async () => {

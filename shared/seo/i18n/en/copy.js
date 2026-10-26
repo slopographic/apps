@@ -89,7 +89,7 @@ window.SlopI18n && window.SlopI18n.add('en', {
   'seo.app.qr.title': 'QR SLOP: QR codes for links, Wi-Fi and contacts | Slopographic',
   'seo.app.qr.description': 'QR codes for text, links, email, Wi-Fi, contacts, locations and events. Download SVG or PNG, with transparency if you need it. Nothing is uploaded.',
   'seo.app.colors.title': 'Slop Colors: colour picker, palettes and contrast | Slopographic',
-  'seo.app.colors.description': 'Pick colours from any picture, find its main colours, make palettes and harmonies, check WCAG contrast and export CSS, Tailwind, ASE or GPL. Nothing uploaded.',
+  'seo.app.colors.description': 'Pick colours from any picture, make palettes on a colour wheel (RGB, RYB or OKLCH), check WCAG contrast and export CSS, Tailwind, ASE or GPL. Nothing uploaded.',
   'seo.app.fontcreator.title': 'Slop Font: make your own font in the browser | Slopographic',
   'seo.app.fontcreator.description': 'Draw a font, trace your handwriting or edit a TTF, OTF or WOFF2. Pen, shapes, kerning and a type test; export TTF, OTF, WOFF2 and CSS. Nothing uploaded.',
   'seo.app.workflows.title': 'Slop Workflows: batch workflows across apps | Slopographic',
