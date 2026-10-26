@@ -32,6 +32,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'pdf.find.rep_unplaced': 'تعذّر تحديد الموضع بدقة: لم يُستبدل',
   'pdf.find.rep_status': '{matches} · {n} محدد',
   'pdf.find.rep_matches': '{n} تطابق',
+  'pdf.find.rep_matches#zero': '{n} تطابق',
   'pdf.find.rep_matches#one': 'تطابق واحد',
   'pdf.find.rep_matches#two': 'تطابقان',
   'pdf.find.rep_matches#few': '{n} تطابقات',
@@ -72,18 +73,12 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   // organize/drag.js
   'pdf.org.undo_move_page': 'نقل الصفحة',
   'pdf.org.undo_move_pages': 'نقل {n} صفحة',
-  'pdf.org.undo_move_pages#two': 'نقل صفحتين',
-  'pdf.org.undo_move_pages#few': 'نقل {n} صفحات',
   'pdf.org.moved_page': 'تم نقل الصفحة إلى الموضع {pos}',
   'pdf.org.moved_pages': 'تم نقل {n} صفحة إلى الموضع {pos}',
-  'pdf.org.moved_pages#two': 'تم نقل صفحتين إلى الموضع {pos}',
-  'pdf.org.moved_pages#few': 'تم نقل {n} صفحات إلى الموضع {pos}',
 
   // organize/keys.js
   'pdf.org.key_moved_page': 'نُقلت الصفحة إلى الموضع {pos} من {total}',
   'pdf.org.key_moved_pages': 'نُقلت {n} صفحة إلى الموضع {pos} من {total}',
-  'pdf.org.key_moved_pages#two': 'نُقلت صفحتان إلى الموضع {pos} من {total}',
-  'pdf.org.key_moved_pages#few': 'نُقلت {n} صفحات إلى الموضع {pos} من {total}',
 
   // organize/zoom.js
   'pdf.org.thumb_size': 'حجم الصور المصغرة',
