@@ -54,7 +54,7 @@
 
   function meta(text) {
     // numbers as strings: a pixel size and a byte count read best without grouping (1024 px)
-    const v = { px: String(px()), ec: opts().ec, bytes: String(window.QRPayload.byteLength(text)), pct: String(Math.round(opts().logo.frac * 100)) };
+    const v = { px: String(px()), ec: opts().ec, bytes: String(window.QRPayload.byteLength(text)), pct: S().logo.href ? String(Math.round(opts().logo.frac * 100)) : '' };
     return t(S().logo.href ? 'qr.app.meta_logo' : 'qr.app.meta', v);
   }
 

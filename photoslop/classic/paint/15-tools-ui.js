@@ -79,46 +79,46 @@ function opaqueSection(get, set) {
 }
 function renderOptions() {
   optbox.textContent = '';
-  const t = S.tool, add = s => optbox.append(s);
-  if (t === 'select' || t === 'freesel') {
+  const tool = S.tool, add = s => optbox.append(s);
+  if (tool === 'select' || tool === 'freesel') {
     add(opaqueSection(() => S.transparent, v => { S.transparent = v; renderFloating(); }));
-  } else if (t === 'text') {
+  } else if (tool === 'text') {
     add(opaqueSection(() => !S.textOpaque, v => { S.textOpaque = !v; styleTextBox(); }));
-  } else if (t === 'eraser') {
+  } else if (tool === 'eraser') {
     add(section(1, [4, 6, 8, 10].map(s => opt(prev(16, 12, x => x.fillRect(8 - (s >> 1), 6 - (s >> 1), s, s)), S.eraser === s, () => { S.eraser = s; }, t('paint-classic.opt.eraser', { n: s })))));
-  } else if (t === 'brush') {
+  } else if (tool === 'brush') {
     add(section(3, BRUSHES.map(([shape, size], i) => opt(prev(11, 11, x => {
       const sp = shape === 'circle' ? discSpans(size) : shape === 'square' ? squareSpans(size) : slashSpans(size, shape === 'back');
       stamp(x, 5, 5, sp);
     }), S.brush === i, () => { S.brush = i; }, t(BRUSH_KEYS[shape], { n: size })))));
-  } else if (t === 'airbrush') {
+  } else if (tool === 'airbrush') {
     add(section(1, [4, 8, 12].map(r => opt(prev(30, 26, x => {
       let seed = r * 99;
       const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
       for (let i = 0; i < r * 5; i++) { const a = rnd() * 6.283, d = Math.sqrt(rnd()) * r; x.fillRect(Math.round(15 + Math.cos(a) * d), Math.round(13 + Math.sin(a) * d), 1, 1); }
     }), S.air === r, () => { S.air = r; }, t('paint-classic.opt.airbrush', { n: r })))));
-  } else if (t === 'zoom') {
+  } else if (tool === 'zoom') {
     add(section(1, [1, 2, 4, 6, 8].map(z => opt(z + 'x', z === 1 ? S.zoom === 1 : S.zoom === z || (S.zoom === 1 && S.magZoom === z && false), () => {
       S.magZoom = z === 1 ? S.magZoom : z;
       setZoom(z); setTool(S.prevTool);
     }, t('paint-classic.opt.zoom', { pct: String(z * 100) })))));
-  } else if (t === 'line' || t === 'curve') {
+  } else if (tool === 'line' || tool === 'curve') {
     add(lineWidthSection());
-  } else if (['rect', 'poly', 'ellipse', 'rrect'].includes(t)) {
+  } else if (['rect', 'poly', 'ellipse', 'rrect'].includes(tool)) {
     add(section(1, [0, 1, 2].map(m => opt(prev(34, 13, x => {
       if (m === 1) { x.fillStyle = '#808080'; x.fillRect(5, 3, 24, 7); }
       if (m === 2) { x.fillStyle = '#808080'; x.fillRect(4, 2, 26, 9); return; }
       x.fillStyle = '#000'; x.fillRect(4, 2, 26, 1); x.fillRect(4, 10, 26, 1); x.fillRect(4, 2, 1, 9); x.fillRect(29, 2, 1, 9);
     }, false), S.fillMode === m, () => { S.fillMode = m; }, t(['paint-classic.opt.outline', 'paint-classic.opt.outline_fill', 'paint-classic.opt.fill'][m])))));
     add(lineWidthSection());
-  } else if (t === 'slop') {
+  } else if (tool === 'slop') {
     add(section(1, [8, 14, 22].map(s => opt(prev(34, 26, x => {
       x.fillStyle = SLOP_PAL.shadow; stamp(x, 18, 12, discSpans(s));
       x.fillStyle = SLOP_PAL.body; stamp(x, 17, 10, discSpans(s));
       x.fillRect(17 - (s >> 3), 10, Math.max(2, s >> 3), Math.min(15, s));
       x.fillStyle = SLOP_PAL.shine; stamp(x, 17 - Math.round(s * 0.2), 10 - Math.round(s * 0.2), discSpans(Math.max(2, Math.round(s * 0.26))));
     }, false), S.slop === s, () => { S.slop = s; }, t('paint-classic.opt.slop', { n: s })))));
-  } else if (t === 'stamp') {
+  } else if (tool === 'stamp') {
     add(section(2, EMOJIS.map(em => { const b = opt(em, S.emoji === em, () => { S.emoji = em; }, t('paint-classic.opt.stamp', { emoji: em })); b.classList.remove('txt'); b.classList.add('emo'); return b; })));
     add(section(1, [[24, 'S'], [40, 'M'], [64, 'L']].map(([s, l]) => opt(l, S.emojiSize === s, () => { S.emojiSize = s; }, t('paint-classic.opt.stamp_size', { n: s })))));
   }
