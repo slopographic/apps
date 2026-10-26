@@ -14,8 +14,8 @@
 //  - no value writes "slop" (the products' word and the mascot's name) in another script: a transliteration (سلوبو,
 //    スロップ) would carry it past a white-label build's rename map and its leak scan, which both read Latin words.
 //    Keep it in Latin letters or leave it out;
-//  - no value holds a white-label rename target (brand/profiles/*.map.json compounds, e.g. "vectoreditor"): a build
-//    renames slopvector to it, and its reverse would turn the translated word back into slopvector.
+//  - no value holds a white-label rename target (brand/profiles/*.map.json compounds): a build
+//    renames an app id to it, and its reverse would turn the translated word back into that id.
 import { readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { apps, appTables, sharedTables, sharedAreas, pageAreas, langs, ROOT } from './tables.mjs';

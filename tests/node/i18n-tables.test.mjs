@@ -41,10 +41,11 @@ test('"slop" written in another script is refused, so a white-label rename still
 
 test('a translation never holds a white-label rename target (its reverse would rewrite the word)', () => {
   const targets = renameTargets();
-  assert.ok(targets.includes('vectoreditor'), 'the targets come from brand/profiles/*.map.json');
-  const en = new Map([['a.blurb', 'A real vector editor']]);
-  assert.equal(compare('x/nl', en, new Map([['a.blurb', 'Een echte vectoreditor']])).length, 1);
-  assert.deepEqual(compare('x/nl', en, new Map([['a.blurb', 'Een echt vectortekenprogramma']])), []);
+  assert.ok(targets.length > 0, 'the targets come from brand/profiles/*.map.json');
+  const t = targets[0];   // never written out here: the source must not hold a target
+  const en = new Map([['a.blurb', 'A real editor']]);
+  assert.equal(compare('x/nl', en, new Map([['a.blurb', `Een echte ${t}`]])).length, 1);
+  assert.deepEqual(compare('x/nl', en, new Map([['a.blurb', 'Een echt tekenprogramma']])), []);
 });
 
 test('COVERAGE.md and tables.covers.txt are up to date (node tools/i18n/i18n.mjs coverage)', () => {
