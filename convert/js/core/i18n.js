@@ -5,8 +5,8 @@
  *   onLang(fn)     re-runs fn after a language change, once the new tables are in (for UI built once).
  *   ready()        resolves once the tables are in.
  * In a page, this module waits (top-level await) until the tables are in, so no code of convert runs without its words:
- * a page that has SlopI18n but not these tables (another app's Convert dialog, Slop Workflows, the ops) gets
- * convert/i18n/index.js added, and a page without SlopI18n at all (a test page) gets shared/i18n/i18n.js first.
+ * a page that has SlopI18n but not these tables (another app's Convert dialog, Slop Workflows, the ops) gets the table
+ * files that convert/i18n/index.js names, and a page without SlopI18n at all (a test page) gets shared/i18n/i18n.js first.
  * In Node (the tests, tools/seo, the shared ops) there is no page: tr reads the English tables from disk (nodeTable), the
  * same files a page runs, so Node and the page say the same words. */
 const g = globalThis;
@@ -29,7 +29,27 @@ function addScript(src) {
   });
 }
 
-/** Brings the tables into a page that lacks them; resolves once they are in. */
+/** The table files of convert/i18n/index.js (its parts and languages), read from the file the generator writes. */
+let spec = null;
+async function indexSpec() {
+  if (!spec) {
+    spec = fetch(INDEX).then((r) => r.text()).then((src) => {
+      const list = (name) => JSON.parse((src.match(new RegExp(name + ':\\s*(\\[[^\\]]*\\])')) || [0, '[]'])[1].replace(/'/g, '"'));
+      return { base: INDEX.replace(/[^/]*$/, ''), parts: list('parts'), langs: list('langs') };
+    }).catch(() => ({ base: '', parts: [], langs: [] }));
+  }
+  return spec;
+}
+/** Adds the tables of English and a language. Through SlopI18n.add only: registering them as a source would re-apply
+ * the whole page when they are in (a redraw that takes the focus from the button that opened Convert). */
+async function addTables(code) {
+  const { base, parts, langs } = await indexSpec();
+  const codes = [...new Set(['en', code])].filter((c) => langs.includes(c));
+  await Promise.all(codes.flatMap((c) => parts.map((p) => addScript(`${base}${c}/${p}.js`))));
+}
+
+/** Brings the tables into a page that lacks them; resolves once they are in. A language switch later adds that
+ * language's tables, then tells the onLang listeners (and the marked elements) again. */
 function ensure() {
   const d = g.document;
   if (loading) return loading;
@@ -37,9 +57,12 @@ function ensure() {
   loading = (async () => {
     if (!g.SlopI18n) await addScript(FRAMEWORK);
     const S = g.SlopI18n;
-    if (!S || (S.has && S.has(PROBE))) return;
-    await addScript(INDEX);
-    if (S.ready) await S.ready();
+    if (!S || (S.has && S.has(PROBE)) || [...d.scripts].some((x) => x.src === INDEX)) return;
+    await addTables(S.get());
+    g.addEventListener('slop-lang', () => addTables(S.get()).then(() => {
+      if (S.apply) S.apply();
+      g.dispatchEvent(new CustomEvent('slopi18n', { detail: { code: S.get() } }));
+    }));
   })();
   return loading;
 }
