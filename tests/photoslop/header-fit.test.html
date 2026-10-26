@@ -64,13 +64,38 @@
       const app = await freshApp({ query: '?tour=1' }), win = app.win, D = win.document;
       const T = await waitFor(() => win.SlopTour && win.SlopTour.spot && win.SlopTour.spot.target && win.SlopTour);
       expect(T.spot.target.id).toBe('newBtn');
-      app.frame.style.width = '901px';
+      app.frame.style.width = '820px';   // narrow enough for New to fold once the shell's buttons gave way (shared/ui/hbtn.js)
       await waitFor(() => D.getElementById('newBtn').classList.contains('ps-fold') && !D.getElementById('topMore').hidden, { timeout: 5000 });
       await T.start('photoslop', { restart: true });
       await waitFor(() => T.spot.target);
       expect(T.spot.target.id).toBe('topMore');
       expect(vis(T.spot.target)).toBe(true);
       T.close && T.close();
+    }, { timeout: 60000 });
+  });
+
+  // Regression: the shell's buttons (shared/ui/hbtn.js) and PhotoSlop's own (topbar-fit.js) both fit the same bar. When the
+  // shell measured first after a resize, it hid AI, Convert… and Language, and New then had room: the bar's look (and the
+  // tour's first step) hung on which ran first. Now topbar-fit.js sets the order: the shell's buttons give way first, then the app's fold.
+  describe('the shell\'s buttons and PhotoSlop\'s own fit the same bar', () => {
+    it('at 820px the result is the same whichever measures first: the shell\'s buttons give way, then New folds into More ▾', async () => {
+      const app = await freshApp(), win = app.win, D = win.document;
+      await waitFor(() => win.SlopHbtn && D.querySelector('.topbar [data-hbtn-yield]') && win.PSTopbarFit);
+      app.frame.style.width = '820px';
+      await waitFor(() => win.innerWidth === 820);
+      const bar = D.querySelector('.topbar');
+      const state = () => [...bar.querySelectorAll('.ps-fold, [data-hbtn-yield][hidden]')].map((n) => n.id || n.className).join(' | ');
+      // the app first, the shell's buttons still as at full width (all shown, with their labels)
+      for (const b of bar.querySelectorAll('[data-hbtn-yield]')) { b.hidden = false; b.classList.remove('sh-icon-only'); }
+      bar.classList.remove('slop-htight');
+      win.PSTopbarFit.fit(); win.SlopHbtn.check(bar);
+      const appFirst = state();
+      // the shell first, the app's buttons still as at full width (none folded)
+      for (const n of bar.querySelectorAll('.ps-fold')) n.classList.remove('ps-fold');
+      win.SlopHbtn.check(bar); win.PSTopbarFit.fit();
+      expect(state()).toBe(appFirst);
+      expect(D.getElementById('newBtn').classList.contains('ps-fold')).toBe(true);
+      expect(bar.scrollWidth).toBeLessThanOrEqual(bar.clientWidth + 1);
     }, { timeout: 60000 });
   });
 
