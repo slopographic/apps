@@ -21,16 +21,16 @@ Shared code (shell/, shared/) still has 2974 hard-coded strings; most belong to 
 | # | App | Id | Strings | In tables | Hard-coded | Languages at 100% |
 |---:|---|---|---:|---:|---:|---:|
 | 1 | File convert | convert | 1940 | 977 | 963 | 0 of 29 |
-| 2 | Slop PDF | pdf | 1729 | 1522 | 207 | 0 of 29 |
+| 2 | Slop PDF | pdf | 1728 | 1522 | 206 | 0 of 29 |
 | 3 | PhotoSlop | photoslop | 1337 | 1332 | 5 | 0 of 29 |
 | 4 | SlopLabel | label | 1146 | 693 | 453 | 0 of 29 |
 | 5 | SlopCut | slopedit | 1101 | 745 | 356 | 0 of 29 |
 | 6 | Slop Press | press | 1019 | 772 | 247 | 0 of 29 |
 | 7 | SlopVector | vector | 833 | 600 | 233 | 0 of 29 |
-| 8 | Slop Tables | tables | 670 | 266 | 404 | 0 of 29 |
+| 8 | Slop Tables | tables | 669 | 266 | 403 | 0 of 29 |
 | 9 | Slop Drive | drive | 627 | 568 | 59 | 0 of 29 |
 | 10 | Slop Effects | effects | 526 | 311 | 215 | 0 of 29 |
-| 11 | Slop 3D | 3d | 472 | 298 | 174 | 0 of 29 |
+| 11 | Slop 3D | 3d | 471 | 298 | 173 | 0 of 29 |
 | 12 | Slop Docs | docs | 461 | 248 | 213 | 0 of 29 |
 | 13 | Slop AI | ai | 397 | 321 | 76 | 0 of 29 |
 | 14 | Slop Contacts | contacts | 389 | 389 | 0 | 2 of 29 |
@@ -85,7 +85,7 @@ Shared code (shell/, shared/) still has 2974 hard-coded strings; most belong to 
 | 63 | Slop Reminders | reminders | 44 | 44 | 0 | 2 of 29 |
 | 64 | Checksum | checksum | 42 | 24 | 18 | 0 of 29 |
 
-Total: 22070 strings in 64 apps.
+Total: 22067 strings in 64 apps.
 
 ## Apps with tables, per language
 
