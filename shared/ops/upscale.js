@@ -6,6 +6,7 @@
  * The first use asks Slop Upscale's own first-use notice (key 'upscale'), once. */
 import { register } from './registry.js';
 import { scripts, notice, abortable, decode, encode, stem, pictureKind, kindOfBlob, IMAGE_IN } from './load.js';
+import { t, opt } from './i18n.js';
 
 const g = globalThis;
 const FILES = ['upscale/js/core/tiling.js', 'upscale/js/core/lanczos.js', 'upscale/js/core/models.js', 'upscale/js/engine/engine.js', 'upscale/js/engine/pipeline.js'];
@@ -28,16 +29,16 @@ async function choice(o) {
     if (g.SlopUpscaleEngine.isLoaded(QUALITY_ID)) return { id: QUALITY_ID, scale, bytes: null, note: '' };
     const bytes = await qualityBytes();
     if (bytes) return { id: QUALITY_ID, scale, bytes, note: '' };
-    return { id: null, scale, note: 'The Quality upscale model is not installed, so Lanczos was used. Slop Upscale’s Get more adds it.' };
+    return { id: null, scale, note: t('ui.ops.upscale.no_quality') };
   }
-  return { id: `fsrcnn-x${scale}`, scale, note: o.model === 'quality' ? 'Quality is 4× only, so Fast was used for 2×.' : '' };
+  return { id: `fsrcnn-x${scale}`, scale, note: o.model === 'quality' ? t('ui.ops.upscale.quality_4x') : '' };
 }
 
 async function upscale(files, o, ctx = {}) {
   await scripts(FILES, () => !!(g.SlopUpscalePipeline && g.SlopUpscaleModels));
   const M = g.SlopUpscaleModels;
-  await notice('upscale', { title: 'Sharpen pictures on this device', lines: ['Upscale enlarges pictures with Slop Upscale’s models, which run in your browser.'],
-    downloads: [{ name: 'Quality model (Real-ESRGAN x4plus), only if you choose it', bytes: M.get(QUALITY_ID).bytes }] });
+  await notice('upscale', { title: t('ui.ops.upscale.notice_title'), lines: [t('ui.ops.upscale.notice_line')],
+    downloads: [{ name: t('ui.ops.upscale.notice_model'), bytes: M.get(QUALITY_ID).bytes }] });
   abortable(ctx.signal);
   const f = files[0], c = await choice(o), src = (await decode(f.file)).canvas;
   const stop = { cancelled: false };
@@ -51,11 +52,10 @@ async function upscale(files, o, ctx = {}) {
 }
 
 export const UPSCALE_OPS = register([
-  { id: 'upscale.image', label: 'Upscale', group: 'Pictures', from: IMAGE_IN, mode: 'each', out: (k) => pictureKind(k), engine: 'upscale', notice: 'upscale',
-    description: 'Makes pictures 2× or 4× bigger with an AI model on this device (or plain Lanczos).',
+  { id: 'upscale.image', group: 'Pictures', from: IMAGE_IN, mode: 'each', out: (k) => pictureKind(k), engine: 'upscale', notice: 'upscale',   // i18n-ignore: a group id (search words), an app name
     keywords: ['upscale', 'enlarge', 'super resolution', 'bigger', 'sharpen', 'enhance'],
     options: [
-      { key: 'scale', type: 'select', label: 'Scale', value: 2, options: [[2, '2×'], [4, '4×']] },
-      { key: 'model', type: 'select', label: 'Model', value: 'fast', options: [['fast', 'Fast (FSRCNN, comes with the site)'], ['quality', 'Quality (Real-ESRGAN, 4× only, once installed)'], ['lanczos', 'Lanczos (no AI)']] },
+      opt('ui.ops.upscale.scale', { key: 'scale', type: 'select', value: 2, options: [[2, '2×'], [4, '4×']] }),
+      opt('ui.ops.upscale.model', { key: 'model', type: 'select', value: 'fast', options: ['fast', 'quality', 'lanczos'] }),
     ], run: upscale },
-], { app: 'upscale', label: 'Slop Upscale' });
+], { app: 'upscale', label: 'Slop Upscale' });   // i18n-ignore: a group id (search words), an app name

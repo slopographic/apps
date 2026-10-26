@@ -26,6 +26,7 @@
  *   validateOptions(op, raw)       { ok, options, errors, notes }: through SlopCmdArgs.validate, so a typed "1080px"
  *                                  becomes 1080, a number is clamped, an unknown key is dropped with a note */
 import '../commands/args.js';
+import { stepWords } from './i18n.js';
 
 const OPS = [];
 const BY = new Map();
@@ -35,8 +36,8 @@ const ORDER = ['convert'];
 
 export const STEP_KINDS = ['op', 'macro'];
 
-/** The app's label for the step menu ('slopisolate' → 'SlopIsolate'), as given when it registered. */
-export const appLabel = (app) => LABELS.get(app) || app;
+/** The app's label for the step menu ('slopisolate' → 'SlopIsolate'), as given when it registered (a function: read now). */
+export const appLabel = (app) => { const l = LABELS.get(app); return (typeof l === 'function' ? l() : l) || app; };
 
 export function register(list, { app = 'convert', label } = {}) {
   if (label) LABELS.set(app, label);
@@ -46,6 +47,7 @@ export function register(list, { app = 'convert', label } = {}) {
     op.kind = op.kind || 'op';
     op.options = op.options || [];
     op.mode = op.mode || 'each';
+    stepWords(op);   // label and description from the step's id (shared/ops/i18n.js) unless it names its own
     if (BY.has(op.id)) OPS.splice(OPS.indexOf(BY.get(op.id)), 1, op); else OPS.push(op);
     BY.set(op.id, op);
   }

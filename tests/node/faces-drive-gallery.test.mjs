@@ -136,7 +136,8 @@ describe('YuNet decoding (decode.js)', () => {
 describe('opt-in gate (index.js)', () => {
   /** The core with the profile, the copy and the cache (no IndexedDB here, so the cache is in memory). */
   function gated(storage) {
-    return load(['shared/faces/copy.js', 'shared/profile/profile.js', 'shared/profile/app-options.js', 'shared/faces/decode.js', 'shared/faces/cache.js', 'shared/faces/index.js'], { storage });
+    // the words as a page has them: SlopI18n with the English tables of the shared components (shared/i18n/ui)
+    return load(['shared/i18n/i18n.js', 'shared/i18n/ui/en.js', 'shared/i18n/ui/en/preview.js', 'shared/faces/copy.js', 'shared/profile/profile.js', 'shared/profile/app-options.js', 'shared/faces/decode.js', 'shared/faces/cache.js', 'shared/faces/index.js'], { storage });
   }
   const picture = { width: 40, height: 30 };
 

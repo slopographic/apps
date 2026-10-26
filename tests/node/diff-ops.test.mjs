@@ -2,6 +2,7 @@
 // the page's own comparison (diff/js/io/files.js) and options; the step refuses one file, and a .patch of pictures.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import './ui-i18n-en.mjs';   // the shared components' words (shared/i18n/ui), as a page has them
 import { byId, outOf, validateOptions, argsOf } from '../../shared/ops/registry.js';
 import { reportOf } from '../../shared/ops/diff.js';
 import { applyPatch } from '../../diff/js/core/patch.js';

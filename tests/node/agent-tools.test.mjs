@@ -5,6 +5,7 @@
 // Covers: shared/agent/tools.js, shared/agent/workspace.js, shared/ai/cmdtools.js, shared/ai/apptools.js, shared/ai/optools.js
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import './ui-i18n-en.mjs';   // the shared components' words (shared/i18n/ui), as a page has them
 import { readFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import vm from 'node:vm';

@@ -9,13 +9,14 @@
  * command's arguments. */
 import { register } from './registry.js';
 import { IMAGE_IN, pictureKind, stem } from './load.js';
+import { t, opt, stepKey } from './i18n.js';
 
 const HOST = { app: 'photoslop', url: 'photoslop/?macro-host=1' };
 let runInHost = null;
 const runner = async () => (runInHost = runInHost || (await import('../macros/frame.js')).runInHost);
 
-const FORMAT = { key: 'format', type: 'select', label: 'Save as', value: 'same', options: [['same', 'Same as the file'], ['png', 'PNG'], ['jpg', 'JPG'], ['webp', 'WebP']] };
-const QUALITY = { key: 'quality', type: 'range', label: 'Quality (JPG, WebP)', min: 40, max: 100, step: 1, value: 92 };
+const FORMAT = opt('ui.ops.retouch.format', { key: 'format', type: 'select', value: 'same', options: ['same', ['png', 'PNG'], ['jpg', 'JPG'], ['webp', 'WebP']] });
+const QUALITY = opt('ui.ops.retouch.quality', { key: 'quality', type: 'range', min: 40, max: 100, step: 1, value: 92 });
 const outKind = (k, o = {}) => (!o.format || o.format === 'same' ? pictureKind(k) : o.format);
 const bool = (v, d) => (v === undefined ? d : !!v);
 
@@ -29,34 +30,34 @@ export function toArgs(id, o = {}) {
     teeth: Number(o.teeth ?? 0), eyes: Number(o.eyes ?? 0), faces: 'auto', subject: false }];
 }
 
-function op(id, title, options, description, keywords) {
+/** A step (its label and description come from its id, shared/ops/i18n.js); its label names the command in the replay's messages. */
+function op(id, options, keywords) {
   return {
-    group: 'Pictures', from: IMAGE_IN, ext: 'png', mode: 'each', out: outKind, engine: 'photoslop', description, keywords,
+    id, group: 'Pictures', from: IMAGE_IN, ext: 'png', mode: 'each', out: outKind, engine: 'photoslop', keywords,   // i18n-ignore: a group id (search words), an app name
     options: options.concat([FORMAT, QUALITY]),
     async run(files, o = {}, ctx = {}) {
       const f = files[0], kind = outKind(f.kind, o), [cmd, args] = toArgs(id, o), run = await runner();
-      const r = await run(HOST, f.file, [{ cmd, args, title }], { format: kind, quality: Number(o.quality ?? 92) / 100 }, { signal: ctx.signal, timeout: 5 * 60 * 1000 });
+      const r = await run(HOST, f.file, [{ cmd, args, title: t(stepKey(id)) }], { format: kind, quality: Number(o.quality ?? 92) / 100 }, { signal: ctx.signal, timeout: 5 * 60 * 1000 });
       if (ctx.progress) ctx.progress(1);
       return [{ name: `${stem(f.name)}.${r.kind}`, blob: r.blob, kind: r.kind }];
     },
   };
 }
 
+const P = 'ui.ops.retouch.';
 export const RETOUCH_OPS = register([
-  { id: 'photoslop.auto-enhance', label: 'Auto enhance photos', ...op('photoslop.auto-enhance', 'Auto enhance', [
-    { key: 'strength', type: 'range', label: 'Strength (%)', min: 0, max: 100, step: 1, value: 100 },
-    { key: 'white_balance', type: 'checkbox', label: 'Fix the colour cast (white balance)', value: true },
-    { key: 'sharpen', type: 'range', label: 'Sharpen (%)', min: 0, max: 100, step: 1, value: 25 },
-    { key: 'denoise', type: 'select', label: 'Denoise', value: 'none', options: [['none', 'Off'], ['light', 'Light'], ['medium', 'Medium'], ['strong', 'Strong']] },
-    { key: 'straighten', type: 'checkbox', label: 'Straighten a tilted horizon (rotates and crops)', value: false },
-  ], 'Fixes each photo on this device: levels and contrast, white balance, exposure, shadows and highlights, vibrance and gentle sharpening (PhotoSlop’s Auto enhance).',
-  ['auto enhance', 'auto fix', 'white balance', 'colour cast', 'levels', 'exposure', 'brighten', 'photo fix', 'retouch']) },
-  { id: 'photoslop.portrait', label: 'Portrait retouch', ...op('photoslop.portrait', 'Portrait retouch', [
-    { key: 'smoothing', type: 'range', label: 'Skin smoothing (%)', min: 0, max: 100, step: 1, value: 45 },
-    { key: 'blemishes', type: 'checkbox', label: 'Heal blemishes', value: true },
-    { key: 'red_eye', type: 'checkbox', label: 'Fix red eyes (needs face detection, Profile)', value: true },
-    { key: 'teeth', type: 'range', label: 'Whiten teeth (%)', min: 0, max: 100, step: 1, value: 0 },
-    { key: 'eyes', type: 'range', label: 'Whiten eyes (%)', min: 0, max: 100, step: 1, value: 0 },
-  ], 'Retouches portraits on this device: smooths skin (keeping pores and edges), heals small blemishes, fixes red eyes, optional teeth and eye whitening (PhotoSlop’s Portrait retouch).',
-  ['portrait', 'skin', 'smooth skin', 'blemish', 'acne', 'red eye', 'teeth whitening', 'retouch', 'beauty']) },
-], { app: 'photoslop', label: 'PhotoSlop' });
+  op('photoslop.auto-enhance', [
+    opt(P + 'strength', { key: 'strength', type: 'range', min: 0, max: 100, step: 1, value: 100 }),
+    opt(P + 'white_balance', { key: 'white_balance', type: 'checkbox', value: true }),
+    opt(P + 'sharpen', { key: 'sharpen', type: 'range', min: 0, max: 100, step: 1, value: 25 }),
+    opt(P + 'denoise', { key: 'denoise', type: 'select', value: 'none', options: ['none', 'light', 'medium', 'strong'] }),
+    opt(P + 'straighten', { key: 'straighten', type: 'checkbox', value: false }),
+  ], ['auto enhance', 'auto fix', 'white balance', 'colour cast', 'levels', 'exposure', 'brighten', 'photo fix', 'retouch']),
+  op('photoslop.portrait', [
+    opt(P + 'smoothing', { key: 'smoothing', type: 'range', min: 0, max: 100, step: 1, value: 45 }),
+    opt(P + 'blemishes', { key: 'blemishes', type: 'checkbox', value: true }),
+    opt(P + 'red_eye', { key: 'red_eye', type: 'checkbox', value: true }),
+    opt(P + 'teeth', { key: 'teeth', type: 'range', min: 0, max: 100, step: 1, value: 0 }),
+    opt(P + 'eyes', { key: 'eyes', type: 'range', min: 0, max: 100, step: 1, value: 0 }),
+  ], ['portrait', 'skin', 'smooth skin', 'blemish', 'acne', 'red eye', 'teeth whitening', 'retouch', 'beauty']),
+], { app: 'photoslop', label: 'PhotoSlop' });   // i18n-ignore: a group id (search words), an app name

@@ -1,9 +1,13 @@
 /* SlopPreview — chrome: the stylesheet (injected once), the small DOM pieces of a viewer (header, toolbar,
  * footer) and the file actions (open in a new tab, download, share). Classic script; it adds to window.SlopPreview,
- * which preview.js completes with create(). Colours come from the --sui-* tokens when a page has them. */
+ * which preview.js completes with create(). Colours come from the --sui-* tokens when a page has them.
+ * Words: shared/i18n/ui/<code>/preview.js (keys ui.pv.*). The viewer's own words are marked (data-i18n, data-i18n-attr),
+ * so a language switch rewrites them in place (SlopI18n.apply). */
 (function () {
   'use strict';
   const SP = (window.SlopPreview = window.SlopPreview || {});
+  const tr = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
+  SP.tr = tr;
   const CSS = [
     '.spv{--spv-fg:var(--sui-fg,var(--fg,#f1ede4));--spv-line:var(--sui-line,var(--line-2,#3d3d3d));',
     'display:flex;flex-direction:column;position:relative;box-sizing:border-box;width:100%;height:100%;min-width:0;min-height:0;',
@@ -43,6 +47,14 @@
     if (text != null) n.textContent = text;
     return n;
   };
+  /** A button with the words of keys (textKey: its text, or null for a symbol given as text; titleKey: its title and
+   *  accessible name), marked so a language switch rewrites them. */
+  SP.keyed = function (text, textKey, titleKey, act) {
+    const b = SP.button(textKey ? tr(textKey) : text, titleKey ? tr(titleKey) : null, act);
+    if (textKey) b.setAttribute('data-i18n', textKey);
+    if (titleKey) b.setAttribute('data-i18n-attr', 'title:' + titleKey + ';aria-label:' + titleKey);
+    return b;
+  };
   /** A button whose accessible name is its title (or its label when there is no title). */
   SP.button = function (label, title, act, cls = 'spv-b') {
     const b = SP.el('button', cls, label);
@@ -74,7 +86,7 @@
   /** The header: the file name and a close button. */
   SP.head = function (title, onClose) {
     const h = SP.el('div', 'spv-head');
-    h.append(SP.el('span', 'spv-title', title), SP.button('×', 'Close', onClose));
+    h.append(SP.el('span', 'spv-title', title), SP.keyed('×', null, 'ui.pv.close', onClose));
     return h;
   };
   /** The footer: one button per host action ({ label, act, primary }). */
@@ -89,14 +101,15 @@
     const pct = SP.el('span', 'spv-pct', '100%');
     pct.setAttribute('aria-live', 'polite');
     const zoom = h.zoom ? [
-      SP.button('−', 'Zoom out (-)', h.zoomOut), pct, SP.button('+', 'Zoom in (+)', h.zoomIn),
-      SP.button('Fit', 'Fit to window (0)', h.fit), SP.button('1:1', 'Actual size (1)', h.actual),
+      SP.keyed('−', null, 'ui.pv.zoom_out', h.zoomOut), pct, SP.keyed('+', null, 'ui.pv.zoom_in', h.zoomIn),
+      SP.keyed('', 'ui.pv.fit', 'ui.pv.fit_tip', h.fit), SP.keyed('1:1', null, 'ui.pv.actual_tip', h.actual),
     ] : [];
-    const files = [SP.button('Open in new tab', 'Open in a new tab', h.openTab), SP.button('Download', 'Download', h.download)];
-    if (h.share) files.push(SP.button('Share', 'Share', h.share));
+    const files = [SP.keyed('', 'ui.pv.open_tab', 'ui.pv.open_tab_tip', h.openTab), SP.keyed('', 'ui.download', 'ui.download', h.download)];
+    if (h.share) files.push(SP.keyed('', 'ui.pv.share', 'ui.pv.share', h.share));
     const bar = SP.el('div', 'spv-bar');
     bar.setAttribute('role', 'toolbar');
-    bar.setAttribute('aria-label', 'Zoom and file actions');
+    bar.setAttribute('aria-label', tr('ui.pv.bar_aria'));
+    bar.setAttribute('data-i18n-attr', 'aria-label:ui.pv.bar_aria');
     bar.append(...zoom, SP.el('span', 'spv-sp'), ...files);
     return { bar, pct };
   };

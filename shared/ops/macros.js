@@ -13,21 +13,24 @@
 import { provide, byId, validateOptions } from './registry.js';
 import './isolate.js';
 import { IMAGE_IN, pictureKind, stem } from './load.js';
+import { t, opt } from './i18n.js';
 import '../macros/core.js';
 import '../macros/store.js';
 
 const g = globalThis;
 const M = g.SlopMacrosCore;
 export const HOSTS = {
-  photoslop: { label: 'PhotoSlop', url: 'photoslop/?macro-host=1', from: IMAGE_IN.concat(['psd']) },
-  slopisolate: { label: 'SlopIsolate', op: 'slopisolate.remove-bg', fold: ['co.look'], from: IMAGE_IN },
+  photoslop: { label: 'PhotoSlop', url: 'photoslop/?macro-host=1', from: IMAGE_IN.concat(['psd']) },   // i18n-ignore: a group id (search words), an app name
+  slopisolate: { label: 'SlopIsolate', op: 'slopisolate.remove-bg', fold: ['co.look'], from: IMAGE_IN },   // i18n-ignore: a group id (search words), an app name
   // SlopCut's hidden copy opens the video, replays the macro and renders it (slopcut/js/ai/host.js)
-  slopedit: { label: 'SlopCut', url: 'slopcut/?macro-host=1', from: ['mp4', 'webm', 'mov', 'mp3', 'wav', 'm4a', 'png', 'jpg', 'webp'], video: true },
+  slopedit: { label: 'SlopCut', url: 'slopcut/?macro-host=1', from: ['mp4', 'webm', 'mov', 'mp3', 'wav', 'm4a', 'png', 'jpg', 'webp'], video: true },   // i18n-ignore: a group id (search words), an app name
 };
-const VFORMAT = { key: 'format', type: 'select', label: 'Save as', value: 'mp4', options: [['mp4', 'MP4'], ['webm', 'WebM']] };
+const VFORMAT = opt('ui.ops.macro.format', { key: 'format', type: 'select', value: 'mp4', options: [['mp4', 'MP4'], ['webm', 'WebM']] });
 
-const FORMAT = { key: 'format', type: 'select', label: 'Save as', value: 'same', options: [['same', 'Same as the file (PSD and others as PNG)'], ['png', 'PNG'], ['jpg', 'JPG'], ['webp', 'WebP']] };
-const QUALITY = { key: 'quality', type: 'range', label: 'Quality (JPG, WebP)', min: 40, max: 100, step: 1, value: 90 };
+const FORMAT = opt('ui.ops.macro.format', { key: 'format', type: 'select', value: 'same', options: ['same', ['png', 'PNG'], ['jpg', 'JPG'], ['webp', 'WebP']] });
+const QUALITY = opt('ui.ops.retouch.quality', { key: 'quality', type: 'range', min: 40, max: 100, step: 1, value: 90 });
+/** A macro step's description: the app and its steps' titles, in the chosen language. */
+const describe = (op, H, titles) => Object.defineProperty(op, 'description', { get: () => t('ui.ops.macro.desc', { app: H.label, steps: titles.join(' → ') }), enumerable: true, configurable: true });
 const outKind = (inKind, o = {}) => (!o.format || o.format === 'same' ? pictureKind(inKind) : o.format);
 
 let runInHost = null;
@@ -37,7 +40,7 @@ const hostRunner = async () => (runInHost = runInHost || (await import('../macro
 export async function foldOptions(app, steps) {
   const H = HOSTS[app], op = byId(H.op), acc = {};
   await M.replay(steps, { exec: async (cmd, args) => (H.fold.includes(cmd) ? (Object.assign(acc, args), { ok: true })
-    : { ok: false, error: `it only works in ${H.label} itself, not in a workflow` }) });
+    : { ok: false, error: t('ui.ops.macro.app_only', { app: H.label }) }) });
   return { op, options: validateOptions(op, acc).options };
 }
 
@@ -45,25 +48,25 @@ export function macroOp(app, macro) {
   const H = HOSTS[app], titles = macro.steps.map((s) => s.title);
   if (H.op) {
     const base = byId(H.op);
-    return { id: M.opId(app, macro.id), macroId: macro.id, kind: 'macro', app, label: macro.name, group: 'Macros', mode: 'each',
+    return describe({ id: M.opId(app, macro.id), macroId: macro.id, kind: 'macro', app, label: macro.name, group: 'Macros', mode: 'each',   // i18n-ignore: a group id (search words), an app name
       from: H.from, ext: base.ext, options: [], engine: base.engine, notice: base.notice,
-      description: `Your ${H.label} macro: ${titles.join(' → ')}.`, keywords: ['macro', 'recorded', H.label, ...titles],
-      async run(files, o, ctx) { const f = await foldOptions(app, macro.steps); return f.op.run(files, f.options, ctx); } };
+      keywords: ['macro', 'recorded', H.label, ...titles],
+      async run(files, o, ctx) { const f = await foldOptions(app, macro.steps); return f.op.run(files, f.options, ctx); } }, H, titles);
   }
-  if (H.video) return {
-    id: M.opId(app, macro.id), macroId: macro.id, kind: 'macro', app, label: macro.name, group: 'Macros', mode: 'each',
+  if (H.video) return describe({
+    id: M.opId(app, macro.id), macroId: macro.id, kind: 'macro', app, label: macro.name, group: 'Macros', mode: 'each',   // i18n-ignore: a group id (search words), an app name
     from: H.from, ext: 'mp4', out: (k, o = {}) => o.format || 'mp4', options: [VFORMAT],
-    description: `Your ${H.label} macro: ${titles.join(' → ')}.`, keywords: ['macro', 'recorded', H.label, ...titles],
+    keywords: ['macro', 'recorded', H.label, ...titles],
     async run(files, o, ctx = {}) {
       const f = files[0], run = await hostRunner();
       const r = await run({ app, url: H.url }, f.file, macro.steps, { format: o.format || 'mp4' }, { signal: ctx.signal, progress: ctx.progress, timeout: 60 * 60 * 1000 });
       return [{ name: `${stem(f.name)}-${macro.name}.${r.kind}`.replace(/[\\/:*?"<>|]+/g, '-'), blob: r.blob, kind: r.kind }];
     },
-  };
-  return {
-    id: M.opId(app, macro.id), macroId: macro.id, kind: 'macro', app, label: macro.name, group: 'Macros', mode: 'each',
+  }, H, titles);
+  return describe({
+    id: M.opId(app, macro.id), macroId: macro.id, kind: 'macro', app, label: macro.name, group: 'Macros', mode: 'each',   // i18n-ignore: a group id (search words), an app name
     from: H.from, ext: 'png', out: outKind, options: [FORMAT, QUALITY],
-    description: `Your ${H.label} macro: ${titles.join(' → ')}.`, keywords: ['macro', 'recorded', H.label, ...titles],
+    keywords: ['macro', 'recorded', H.label, ...titles],
     async run(files, o, ctx = {}) {
       const f = files[0], kind = outKind(f.kind, o);
       const run = await hostRunner();
@@ -72,7 +75,7 @@ export function macroOp(app, macro) {
       const ext = r.kind === 'jpg' ? 'jpg' : r.kind;
       return [{ name: `${stem(f.name)}.${ext}`, blob: r.blob, kind: r.kind }];
     },
-  };
+  }, H, titles);
 }
 
 const cache = new Map(Object.keys(HOSTS).map((a) => [a, []]));

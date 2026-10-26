@@ -8,6 +8,7 @@
  * { cfg, logo }) onto these options. */
 import { register } from './registry.js';
 import { scripts, stem } from './load.js';
+import { t } from './i18n.js';
 import '../watermark/spec.js';
 import '../watermark/spec-layout.js';
 import '../watermark/spec-convert.js';
@@ -33,7 +34,7 @@ export function fromApp(s = {}) {
 const logoAspects = new Map();
 async function aspectOf(url) {
   if (!url) return 0;
-  if (!logoAspects.has(url)) logoAspects.set(url, fetch(url).then((r) => r.blob()).then((b) => createImageBitmap(b)).then((b) => { const a = b.height / b.width; b.close(); return a; }).catch(() => { logoAspects.delete(url); throw new Error('The logo picture could not be read.'); }));
+  if (!logoAspects.has(url)) logoAspects.set(url, fetch(url).then((r) => r.blob()).then((b) => createImageBitmap(b)).then((b) => { const a = b.height / b.width; b.close(); return a; }).catch(() => { logoAspects.delete(url); throw new Error(t('ui.ops.watermark.no_logo')); }));
   return logoAspects.get(url);
 }
 
@@ -49,9 +50,8 @@ async function apply(files, o, ctx = {}) {
 }
 
 export const WATERMARK_OPS = register([
-  { id: 'watermark.apply', label: 'Watermark', group: 'Pictures', from: WATERMARK_IN, mode: 'each', out: (k) => OUT[k] || 'png',
-    description: 'Your text or logo on every picture, video and PDF: nine positions, size, opacity, rotation and tiling.',
+  { id: 'watermark.apply', group: 'Pictures', from: WATERMARK_IN, mode: 'each', out: (k) => OUT[k] || 'png',   // i18n-ignore: a group id (search words), an app name
     keywords: ['watermark', 'logo', 'copyright', 'stamp', 'brand', 'video watermark', 'pdf watermark'], options: WATERMARK_OPTIONS, run: apply,
     fromApp,   // an app's "Add to a workflow…" (shared/ops/flowdoc.js)
     check: (o = {}) => S.check(specOf(o)) },
-], { app: 'watermark', label: 'Slop Watermark' });
+], { app: 'watermark', label: 'Slop Watermark' });   // i18n-ignore: a group id (search words), an app name

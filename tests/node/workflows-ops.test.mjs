@@ -5,6 +5,7 @@
 // Covers: shared/ops/upscale.js, shared/ops/clean.js, shared/ops/ocr.js, shared/ops/files.js, shared/ops/load.js, convert/js/core/catalog.js
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import './ui-i18n-en.mjs';   // the shared components' words (shared/i18n/ui), as a page has them
 import * as R from '../../shared/ops/all.js';
 import { CONVERSIONS } from '../../convert/js/core/catalog.js';
 import { toLook, fromLook } from '../../shared/ops/isolate.js';

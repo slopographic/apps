@@ -7,10 +7,12 @@
  *   label(kind)               → 'Code and text', '3D', …
  *   chipMatch(kind, chipId)   → true if the kind is in that chip
  *   chipsMatching(kind)       → every chip id the kind belongs to
- *   countChips(items)         → { chipId: n } for items (each item's kind from kindOf(item.name, item.type)) */
+ *   countChips(items)         → { chipId: n } for items (each item's kind from kindOf(item.name, item.type))
+ * Words: shared/i18n/ui/<code>/preview.js (ui.kinds.<kind>, ui.kinds.chip_<id>), read each time (a chip's label is a getter). */
 (function () {
   'use strict';
   const words = (s) => s.split(' ');
+  const tr = (k) => (window.SlopI18n ? window.SlopI18n.t(k) : k);
   const KIND_EXT = {};
   const addExt = (kind, list) => { for (const e of words(list)) KIND_EXT[e] = kind; };
   addExt('image', 'jpg jpeg jpe png gif webp avif bmp tif tiff heic heif ico svg');
@@ -35,17 +37,11 @@
     ['image/', 'image'], ['video/', 'video'], ['audio/', 'audio'], ['text/', 'code'], ['model/', 'model3d'],
   ];
 
-  const LABEL = { image: 'Images', video: 'Video', audio: 'Audio', document: 'Documents', code: 'Code and text', model3d: '3D', archive: 'Archives', other: 'Other' };
+  const KINDS = ['image', 'video', 'audio', 'document', 'code', 'model3d', 'archive', 'other'];
+  const chip = (id, kinds) => Object.defineProperty({ id, kinds }, 'label', { get: () => tr('ui.kinds.chip_' + id), enumerable: true });
   const CHIPS = [
-    { id: 'media', label: 'Media', kinds: ['image', 'video', 'audio'] },
-    { id: 'photos', label: 'Photos', kinds: ['image'] },
-    { id: 'videos', label: 'Videos', kinds: ['video'] },
-    { id: 'audio', label: 'Audio', kinds: ['audio'] },
-    { id: 'documents', label: 'Documents', kinds: ['document'] },
-    { id: 'code', label: 'Code and text', kinds: ['code'] },
-    { id: '3d', label: '3D', kinds: ['model3d'] },
-    { id: 'archives', label: 'Archives', kinds: ['archive'] },
-    { id: 'other', label: 'Other', kinds: ['other'] },
+    chip('media', ['image', 'video', 'audio']), chip('photos', ['image']), chip('videos', ['video']), chip('audio', ['audio']),
+    chip('documents', ['document']), chip('code', ['code']), chip('3d', ['model3d']), chip('archives', ['archive']), chip('other', ['other']),
   ];
 
   /** The extension of a name, lower case, without the dot ('' if none). */
@@ -58,7 +54,7 @@
     for (const [p, kind] of MIME_PREFIX) if (mime.startsWith(p)) return kind;
     return 'other';
   }
-  const label = (kind) => LABEL[kind] || LABEL.other;
+  const label = (kind) => tr('ui.kinds.' + (KINDS.includes(kind) ? kind : 'other'));
   const chipMatch = (kind, chipId) => { const c = CHIPS.find((x) => x.id === chipId); return !!c && c.kinds.includes(kind); };
   const chipsMatching = (kind) => CHIPS.filter((c) => c.kinds.includes(kind)).map((c) => c.id);
   function countChips(items) {

@@ -24,7 +24,10 @@
     const root = SP.el('div', 'spv');
     root.tabIndex = -1;
     root.setAttribute('role', 'group');
-    root.setAttribute('aria-label', o.title ? `Preview of ${o.title}` : 'Preview');
+    const aria = o.title ? 'ui.pv.preview_of' : 'ui.pv.preview';
+    root.setAttribute('aria-label', SP.tr(aria, { name: o.title || '' }));
+    root.setAttribute('data-i18n-attr', 'aria-label:' + aria);   // a language switch rewrites it (SlopI18n.apply)
+    if (o.title) root.setAttribute('data-i18n-vars', JSON.stringify({ name: o.title }));
     const stage = SP.el('div', zoomable ? 'spv-stage' : 'spv-stage spv-static');
     stage.setAttribute('data-touch-surface', ''); // a touch surface with its own pinch and pan (shared/input/HANDOFF.md)
     const content = SP.el('div', 'spv-content');
@@ -80,10 +83,12 @@
     });
 
     function setSize(w, h) { v.w = w; v.h = h; if (v.fit) v.s = fitScale(); place(true); }
-    function notice(text, mid) {
+    /** A note over the stage: the host's text, or the words of a key (marked, so a language switch rewrites them). */
+    function notice(text, mid, key) {
       if (!note) { note = SP.el('div', 'spv-note'); stage.append(note); }
       note.classList.toggle('spv-mid', !!mid);
-      note.textContent = text;
+      if (key) note.setAttribute('data-i18n', key); else note.removeAttribute('data-i18n');
+      note.textContent = key ? SP.tr(key) : text;
     }
     const hideNote = () => { if (note) note.remove(); note = null; };
 
@@ -186,11 +191,11 @@
       img.alt = o.title || '';
       img.draggable = false;
       img.addEventListener('load', () => { setSize(img.naturalWidth || 640, img.naturalHeight || 480); hideNote(); });
-      img.addEventListener('error', () => notice('This image could not be shown.', true));
+      img.addEventListener('error', () => notice('', true, 'ui.pv.image_failed'));
       content.append(img);
       img.src = o.blobUrl;
     } else if (pdf) {
-      notice('Rendering…');
+      notice('', false, 'ui.pv.rendering');
       Promise.resolve().then(() => o.renderPages()).then((r) => {
         if (closed) return;
         const pages = (r && r.pages) || [];
@@ -201,9 +206,9 @@
         h += Math.max(0, pages.length - 1) * SP.GAP;
         setSize(w || 640, h || 480);
         if (r && r.note) notice(r.note); else hideNote();
-      }).catch(() => { if (!closed) notice('This PDF could not be rendered.', true); });
+      }).catch(() => { if (!closed) notice('', true, 'ui.pv.pdf_failed'); });
     } else {
-      notice('No preview for this kind of file.', true);
+      notice('', true, 'ui.pv.no_preview');
     }
 
     if (o.chrome !== false) root.append(SP.head(o.title || '', close));

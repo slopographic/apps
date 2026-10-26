@@ -8,6 +8,7 @@
 <body>
   <!-- loaded after the first paint, in this order; b is in the page already, so it is not fetched again -->
   <template id="t-paint" data-load="paint">
+    <script src="../../shared/i18n/i18n.js"></script>   <!-- the shared components' words (shared/i18n/ui) -->
     <script src="fixtures/load/a.js"></script>
     <script src="fixtures/load/b.js"></script>
     <script>(window.__loadOrder = window.__loadOrder || []).push('inline');</script>

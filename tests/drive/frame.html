@@ -5,6 +5,7 @@
   <title>Slop Drive test frame</title>
   <!-- A bare page with the shared kit, for the Drive model, picker, backup and guard tests.
        ?db=<name> picks the Slop Drive database; ?foreign=1 gives the page its own window.SlopUI (like the homepage). -->
+  <script src="../../shared/i18n/i18n.js"></script>   <!-- the shared components' words (shared/i18n/ui) -->
   <script>
     var q = new URLSearchParams(location.search);
     if (q.get('db')) window.SLOP_DRIVE_DB = q.get('db');

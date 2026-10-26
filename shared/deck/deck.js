@@ -28,35 +28,42 @@
     const next = Math.min(Math.max(0, start + k.move), length - 1);
     return { tag: k.tag, pos: next, moved: next !== start, atEnd: k.move > 0 && start === length - 1 };
   }
-  const TAG_LABEL = { liked: 'Liked', disliked: 'Disliked' };
+  // Words: shared/i18n/ui/<code>/preview.js (keys ui.deck.*). The markup's words are marked (data-i18n, data-i18n-attr), so a
+  // language switch rewrites them; the counts and notes are written again then (SlopI18n.on).
+  const tr = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
+  const TAG_KEY = { liked: 'ui.deck.liked', disliked: 'ui.deck.disliked' };
   const CHAR = /^[\p{L}\p{N}]$/u;
-  const MARKUP = `
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+  /** Marked words for the markup: text (key), or attributes ({ attr: key }). */
+  const W = (k) => `data-i18n="${k}">${esc(tr(k))}`;
+  const A = (map) => Object.entries(map).map(([at, k]) => `${at}="${esc(tr(k))}"`).join(' ') + ` data-i18n-attr="${Object.entries(map).map(([at, k]) => at + ':' + k).join(';')}"`;
+  const markup = () => `
       <div class="s-top">
-        <button type="button" class="dk-btn" data-act="close" title="Close (Esc)">Done</button>
+        <button type="button" class="dk-btn" data-act="close" ${A({ title: 'ui.deck.close_tip' })} ${W('ui.done')}</button>
         <span class="s-count"></span>
         <span class="s-tally"></span>
         <span class="dk-spacer"></span>
-        <span class="s-hint">↑ like · ↓ dislike · ← back · → skip · Enter tag</span>
+        <span class="s-hint" ${W('ui.deck.hint')}</span>
       </div>
       <div class="s-progress" aria-hidden="true"><i></i></div>
       <div class="s-stage">
-        <button type="button" class="dk-nav prev" data-act="back" aria-label="Back, no tag">‹</button>
+        <button type="button" class="dk-nav prev" data-act="back" ${A({ 'aria-label': 'ui.deck.back_aria' })}>‹</button>
         <div class="s-pic"><img alt=""><span class="s-mark" hidden></span><span class="s-stamp" aria-hidden="true"></span></div>
-        <button type="button" class="dk-nav next" data-act="skip" aria-label="Skip ahead, no tag">›</button>
-        <div class="s-end" hidden role="group" aria-label="All photos seen">
-          <h2>All done</h2><p class="s-end-sum"></p>
-          <div class="s-end-acts"><button type="button" class="s-big like" data-act="close">See the results</button>
+        <button type="button" class="dk-nav next" data-act="skip" ${A({ 'aria-label': 'ui.deck.skip_aria' })}>›</button>
+        <div class="s-end" hidden role="group" ${A({ 'aria-label': 'ui.deck.end_aria' })}>
+          <h2 ${W('ui.deck.all_done')}</h2><p class="s-end-sum"></p>
+          <div class="s-end-acts"><button type="button" class="s-big like" data-act="close" ${W('ui.deck.see_results')}</button>
             <button type="button" class="dk-btn" data-act="rest" hidden></button>
-            <button type="button" class="dk-btn" data-act="unend">Back to the last photo</button></div>
+            <button type="button" class="dk-btn" data-act="unend" ${W('ui.deck.back_last')}</button></div>
         </div>
       </div>
-      <div class="s-quick" hidden><input type="text" maxlength="64" autocomplete="off" placeholder="Tag, or several separated by commas. Enter adds, Esc cancels" aria-label="Tags for this photo"></div>
+      <div class="s-quick" hidden><input type="text" maxlength="64" autocomplete="off" ${A({ placeholder: 'ui.deck.quick_placeholder', 'aria-label': 'ui.deck.quick_aria' })}></div>
       <div class="s-bar">
-        <button type="button" class="s-big like" data-act="like" aria-label="Like and next">Like</button>
-        <button type="button" class="s-big dislike" data-act="dislike" aria-label="Dislike and next">Dislike</button>
+        <button type="button" class="s-big like" data-act="like" ${A({ 'aria-label': 'ui.deck.like_aria' })} ${W('ui.deck.like')}</button>
+        <button type="button" class="s-big dislike" data-act="dislike" ${A({ 'aria-label': 'ui.deck.dislike_aria' })} ${W('ui.deck.dislike')}</button>
       </div>
       <div class="s-tags">
-        <form class="s-tagform"><input type="text" maxlength="64" placeholder="Add a tag" aria-label="Add a tag to this photo"><button type="submit" class="dk-btn">Add tag</button></form>
+        <form class="s-tagform"><input type="text" maxlength="64" ${A({ placeholder: 'ui.deck.tag_placeholder', 'aria-label': 'ui.deck.tag_aria' })}><button type="submit" class="dk-btn" ${W('ui.deck.add_tag')}</button></form>
         <div class="s-taglist"></div>
         <p class="s-status" role="status" aria-live="polite"></p>
       </div>`;
@@ -72,8 +79,8 @@
       root = document.createElement('div');
       root.className = 'sortmode';
       root.hidden = true; root.tabIndex = -1;
-      root.setAttribute('role', 'dialog'); root.setAttribute('aria-label', 'Sort photos');
-      root.innerHTML = MARKUP;
+      root.setAttribute('role', 'dialog'); root.setAttribute('aria-label', tr('ui.deck.aria')); root.setAttribute('data-i18n-attr', 'aria-label:ui.deck.aria');
+      root.innerHTML = markup();
       document.body.append(root);
       root.addEventListener('click', (e) => {
         const b = e.target.closest('[data-act]'); if (!b) return;
@@ -90,6 +97,8 @@
         if (pos >= queue.length) pos = Math.max(0, queue.length - 1);
         if (!queue.length) close(); else paint();
       });
+      // a language switch: the marked words are rewritten by SlopI18n.apply; the counts and the end card here
+      if (g.SlopI18n && g.SlopI18n.on) g.SlopI18n.on(() => { if (root.hidden) return; setStatus(''); paint(); if (endOpen()) showEnd(); });
     }
 
     /** One key: the position moves at once; the tag (if any) is written, then the deck repaints. */
@@ -100,11 +109,12 @@
       const d = decide(key, pos, queue.length);
       if (!d) return Promise.resolve(null);
       hideQuick();
-      const id = queue[pos], m = cur(), name = m ? m.name : 'Photo';
+      const id = queue[pos], m = cur(), name = m ? m.name : tr('ui.deck.photo');
       pos = d.pos;
       const write = d.tag && id ? Promise.resolve(src.setLiked(id, d.tag)) : Promise.resolve(null);
       if (d.tag) stamp(d.tag);
-      setStatus(d.tag ? `${TAG_LABEL[d.tag]}: ${name}.${d.atEnd ? '' : ` Photo ${pos + 1} of ${queue.length}.`}` : (d.atEnd ? '' : `Photo ${pos + 1} of ${queue.length}.`));
+      const at = d.atEnd ? '' : tr('ui.deck.photo_of_dot', { i: pos + 1, n: queue.length });
+      setStatus(d.tag ? tr('ui.deck.tagged_photo', { tag: tr(TAG_KEY[d.tag]), name, at }).trim() : at);
       paint();
       return write.then(() => { paint(); if (d.atEnd) showEnd(); return { pos: d.pos, tag: d.tag, atEnd: d.atEnd }; });
     }
@@ -132,12 +142,12 @@
       const id = queue[pos];
       if (!id) { hideQuick(); return Promise.resolve(null); }
       const tags = parseTags($('.s-quick input').value, cur());
-      if (!tags.length) { hideQuick(); setStatus('No tag added.'); return Promise.resolve(null); }
+      if (!tags.length) { hideQuick(); setStatus(tr('ui.deck.no_tag')); return Promise.resolve(null); }
       hideQuick();
       const d = decide('ArrowRight', pos, queue.length);
       pos = d.pos;
       const writes = tags.reduce((p, t) => p.then(() => src.addTag(id, t)), Promise.resolve());
-      setStatus(`Tagged “${tags.join('”, “')}”.`);
+      setStatus(tr('ui.deck.tagged', { tags: tags.map((x) => tr('ui.deck.quoted', { text: x })).join(', ') }));
       paint();
       return writes.then(() => { paint(); if (d.atEnd) showEnd(); return { pos: d.pos, tags, atEnd: d.atEnd }; });
     }
@@ -145,7 +155,7 @@
       const input = $('.s-tagform input'), t = input.value.trim().toLowerCase();
       if (!t || !queue[pos]) return;
       input.value = '';
-      Promise.resolve(src.addTag(queue[pos], t)).then(() => { paint(); setStatus(`Tagged “${t}”.`); });
+      Promise.resolve(src.addTag(queue[pos], t)).then(() => { paint(); setStatus(tr('ui.deck.tagged', { tags: tr('ui.deck.quoted', { text: t }) })); });
     }
 
     /** The decisions in this queue: { liked, disliked, left }. */
@@ -154,11 +164,10 @@
       for (const id of queue) { const m = src.photo(id); if (m && m.liked === 'liked') t.liked++; else if (m && m.liked === 'disliked') t.disliked++; else t.left++; }
       return t;
     }
-    const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
     /** The big stamp over the photo for a moment: ♥ Liked or ✕ Disliked. */
     function stamp(tag) {
       const el = $('.s-stamp');
-      el.textContent = tag === 'liked' ? '♥ Liked' : '✕ Disliked';
+      el.textContent = tr(tag === 'liked' ? 'ui.deck.stamp_liked' : 'ui.deck.stamp_disliked');
       el.className = 's-stamp ' + tag;
       void el.offsetWidth;
       el.classList.add('go');
@@ -167,38 +176,37 @@
     /** The end card: what was decided in this round, and what to do next. */
     function showEnd() {
       const t = tally(), rest = $('[data-act="rest"]');
-      $('.s-end-sum').textContent = `You have been through all ${plural(queue.length, 'photo')}: ${t.liked} liked, ${t.disliked} disliked` +
-        (t.left ? `, ${t.left} not sorted yet.` : '.');
-      rest.hidden = !t.left; rest.textContent = `Sort the ${t.left} left`;
+      $('.s-end-sum').textContent = tr(t.left ? 'ui.deck.end_sum_left' : 'ui.deck.end_sum', { n: queue.length, liked: t.liked, disliked: t.disliked, left: t.left });
+      rest.hidden = !t.left; rest.textContent = tr('ui.deck.sort_left', { n: t.left });
       $('.s-end').hidden = false;
       root.classList.add('is-end');
-      setStatus(`All done. ${$('.s-end-sum').textContent}`);
+      setStatus(tr('ui.deck.all_done_sum', { sum: $('.s-end-sum').textContent }));
       $('.s-end .s-big').focus({ preventScroll: true });
     }
-    function hideEnd() { if (!endOpen()) return; $('.s-end').hidden = true; root.classList.remove('is-end'); root.focus({ preventScroll: true }); setStatus(`Photo ${pos + 1} of ${queue.length}.`); }
+    function hideEnd() { if (!endOpen()) return; $('.s-end').hidden = true; root.classList.remove('is-end'); root.focus({ preventScroll: true }); setStatus(tr('ui.deck.photo_of_dot', { i: pos + 1, n: queue.length })); }
     /** Another round with only the photos not liked or disliked yet. */
     function sortRest() {
       const left = queue.filter((id) => { const m = src.photo(id); return m && !m.liked; });
       $('.s-end').hidden = true; root.classList.remove('is-end');
-      if (left.length) { queue = left; pos = 0; setStatus(`Sorting the ${plural(left.length, 'photo')} left.`); paint(); }
+      if (left.length) { queue = left; pos = 0; setStatus(tr('ui.deck.sorting_left', { n: left.length })); paint(); }
       root.focus({ preventScroll: true });
     }
 
     async function paint() {
       const id = queue[pos], m = cur(), my = ++token;
       const t = tally();
-      $('.s-count').textContent = queue.length ? `Photo ${pos + 1} of ${queue.length}` : 'No photos';
-      $('.s-tally').textContent = queue.length ? `♥ ${t.liked} · ✕ ${t.disliked} · ${t.left} left` : '';
+      $('.s-count').textContent = queue.length ? tr('ui.deck.photo_of', { i: pos + 1, n: queue.length }) : tr('ui.deck.no_photos');
+      $('.s-tally').textContent = queue.length ? tr('ui.deck.tally', { liked: t.liked, disliked: t.disliked, left: t.left }) : '';
       $('.s-progress i').style.width = queue.length ? `${Math.round((100 * (t.liked + t.disliked)) / queue.length)}%` : '0';
       const mark = $('.s-mark');
       mark.hidden = !(m && m.liked);
       mark.className = 's-mark ' + (m && m.liked ? m.liked : '');
-      mark.textContent = m && m.liked === 'liked' ? '♥ Liked' : m && m.liked === 'disliked' ? '✕ Disliked' : '';
+      mark.textContent = m && m.liked === 'liked' ? tr('ui.deck.stamp_liked') : m && m.liked === 'disliked' ? tr('ui.deck.stamp_disliked') : '';
       $('[data-act="like"]').setAttribute('aria-pressed', String(!!m && m.liked === 'liked'));
       $('[data-act="dislike"]').setAttribute('aria-pressed', String(!!m && m.liked === 'disliked'));
       $('.s-taglist').replaceChildren(...(m ? m.tags : []).map((t) => {
         const chip = document.createElement('button');
-        chip.type = 'button'; chip.className = 'chip'; chip.textContent = t + ' ×'; chip.title = 'Remove tag ' + t;
+        chip.type = 'button'; chip.className = 'chip'; chip.textContent = t + ' ×'; chip.title = tr('ui.deck.remove_tag', { tag: t });
         chip.addEventListener('click', () => Promise.resolve(src.removeTag(id, t)).then(paint));
         return chip;
       }));
@@ -235,7 +243,7 @@
       root.hidden = false;
       $('.s-end').hidden = true; root.classList.remove('is-end');
       hideQuick(false);
-      setStatus(queue.length ? '' : 'Nothing to sort here.');
+      setStatus(queue.length ? '' : tr('ui.deck.nothing'));
       paint();
       root.focus({ preventScroll: true });
     }

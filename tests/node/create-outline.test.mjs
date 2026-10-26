@@ -5,6 +5,7 @@
 // Run: node --test tests/node/create-outline.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import './ui-i18n-en.mjs';   // the shared components' words (shared/i18n/ui), as a page has them
 import { createRequire } from 'node:module';
 import { loadSlides, CORE } from './slides-env.mjs';
 import { buildDoc, listBlocks, tableBlock, parseOutline } from '../../docs/js/model/build.js';

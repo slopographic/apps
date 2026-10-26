@@ -5,6 +5,7 @@
  *                    The palette is named after the picture; the same picture gives the same colours every time. */
 import { register } from './registry.js';
 import { scripts, stem, decode, IMAGE_IN } from './load.js';
+import { t, opt } from './i18n.js';
 
 const g = globalThis;
 const FILES = ['shared/color/model.js', 'shared/color/contrast.js', 'colors/js/core/convert.js', 'colors/js/core/kmeans.js', 'colors/js/core/formats.js', 'colors/js/core/ase.js'];
@@ -26,7 +27,7 @@ async function palette(files, o) {
   const f = files[0], X = g.SlopColors, F = X.formats, fmt = KIND[o.format] ? o.format : 'json';
   const { canvas } = await decode(f.file);
   const p = paletteOf(canvas, stem(f.name), Math.max(2, Math.min(12, Math.round(Number(o.count) || 6))));
-  if (!p.colors.length) throw new Error(`${f.name} has no visible pixels`);
+  if (!p.colors.length) throw new Error(t('ui.ops.colors.no_pixels', { name: f.name }));
   const meta = F.FORMATS.find((x) => x.id === fmt), base = F.slug(p.name) || 'palette';
   const body = fmt === 'ase' ? X.ase.write(p) : fmt === 'css' ? F.toCss(p) : fmt === 'tailwind' ? F.toTailwind(p) : fmt === 'gpl' ? F.toGpl(p) : F.toJson(p);
   const out = [{ name: fmt === 'tailwind' ? `${base}.tailwind.js` : `${base}.${meta.ext}`, blob: new Blob([body], { type: meta.mime }), kind: KIND[fmt] }];
@@ -35,11 +36,10 @@ async function palette(files, o) {
 }
 
 export const COLORS_OPS = register([
-  { id: 'colors.palette', label: 'Picture to colour palette', group: 'Pictures', from: IMAGE_IN, mode: 'each', out: (k, o = {}) => KIND[o.format] || 'json',
-    description: 'The main colours of each picture (k-means, the same every time) as a palette: CSS variables, Tailwind, JSON, Adobe .ase or GIMP .gpl.',
+  { id: 'colors.palette', group: 'Pictures', from: IMAGE_IN, mode: 'each', out: (k, o = {}) => KIND[o.format] || 'json',   // i18n-ignore: a group id (search words), an app name
     keywords: ['palette', 'colours', 'colors', 'dominant colors', 'swatches', 'ase', 'gpl', 'tailwind', 'css variables'],
     options: [
-      { key: 'count', type: 'number', label: 'Colours', min: 2, max: 12, value: 6 },
-      { key: 'format', type: 'select', label: 'Format', value: 'json', options: [['json', 'JSON'], ['css', 'CSS variables'], ['tailwind', 'Tailwind config'], ['ase', 'Adobe Swatch Exchange (.ase)'], ['gpl', 'GIMP palette (.gpl)']] },
+      opt('ui.ops.colors.count', { key: 'count', type: 'number', min: 2, max: 12, value: 6 }),
+      opt('ui.ops.colors.format', { key: 'format', type: 'select', value: 'json', options: [['json', 'JSON'], 'css', 'tailwind', 'ase', 'gpl'] }),
     ], run: palette },
-], { app: 'colors', label: 'Slop Colors' });
+], { app: 'colors', label: 'Slop Colors' });   // i18n-ignore: a group id (search words), an app name

@@ -9,16 +9,17 @@
   'use strict';
   const WM = window.SlopWatermark;
   const el = (...a) => window.SlopUI.el(...a);
+  const tr = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);   // words: shared/i18n/ui/<code>/watermark.js
   const RASTER = 'convert/js/core/pdf-raster.js';
 
   window.SlopWatermarkPreview = { mount(host, opts = {}) {
     const maxW = opts.maxW || 960, maxH = opts.maxH || 640;
-    const canvas = el('canvas', { class: 'swv-canvas', 'aria-label': 'Preview with the watermark' });
+    const canvas = el('canvas', { class: 'swv-canvas', 'aria-label': tr('ui.wm.preview_aria'), 'data-i18n-attr': 'aria-label:ui.wm.preview_aria' });
     const video = el('video', { class: 'swv-video', controls: true, muted: true, playsinline: true, preload: 'metadata', hidden: true });
     const over = el('canvas', { class: 'swv-over', 'aria-hidden': 'true', hidden: true });
-    const prev = el('button', { type: 'button', class: 'sui-btn', 'aria-label': 'Previous page' }, '‹');
-    const next = el('button', { type: 'button', class: 'sui-btn', 'aria-label': 'Next page' }, '›');
-    const pageNo = el('span', { class: 'swv-page', 'aria-live': 'polite' });
+    const prev = el('button', { type: 'button', class: 'sui-btn', 'aria-label': tr('ui.wm.prev_page'), 'data-i18n-attr': 'aria-label:ui.wm.prev_page' }, '‹');
+    const next = el('button', { type: 'button', class: 'sui-btn', 'aria-label': tr('ui.wm.next_page'), 'data-i18n-attr': 'aria-label:ui.wm.next_page' }, '›');
+    const pageNo = el('span', { class: 'swv-page', 'aria-live': 'polite', 'data-i18n': 'ui.wm.page_of' });   // marked: a language switch rewrites it
     const nav = el('div', { class: 'swv-nav', hidden: true }, prev, pageNo, next);
     const stage = el('div', { class: 'swv-stage' }, canvas, video, over);
     const root = el('div', { class: 'swv' }, stage, nav);
@@ -63,7 +64,8 @@
       await p.render({ canvasContext: g, viewport: vp }).promise;
       if (my !== seq) return;
       base = c;
-      pageNo.textContent = 'Page ' + (page + 1) + ' of ' + pages;
+      const at = { page: String(page + 1), pages: String(pages) };
+      pageNo.dataset.i18nVars = JSON.stringify(at); pageNo.textContent = tr('ui.wm.page_of', at);
       prev.disabled = page <= 0; next.disabled = page >= pages - 1;
       paint();
     }

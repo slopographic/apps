@@ -18,12 +18,14 @@
  *   p.el ; p.set(spec) ; p.get() ; p.setMedia({ pages, time }) ; p.select(layerId) ; p.selected() ; p.sync() ; p.destroy()
  * A logo comes in through the page's one intake (shared/intake, SlopIntake) when the page has it: each panel is a part of
  * its own (opts.intake, else 'watermark.logo.<n>'; picked or dropped), registered when the panel mounts, so the page can
- * reach it by name (SlopIntake.pick({ to })) from boot; without the intake, through SlopUI.pickFiles and the panel's drop. */
+ * reach it by name (SlopIntake.pick({ to })) from boot; without the intake, through SlopUI.pickFiles and the panel's drop.
+ * Words: shared/i18n/ui/<code>/watermark.js (keys ui.wm.*); a language switch relabels the panel and rebuilds the editor. */
 (function () {
   'use strict';
   const P = (window.SlopWatermarkPanel = window.SlopWatermarkPanel || {});
   const S = window.SlopWatermarkSpec, WM = window.SlopWatermark;
   const el = (...a) => window.SlopUI.el(...a);
+  const tr = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
   const IMG = 'image/png,image/jpeg,image/webp,image/gif,image/svg+xml';
   const isPicture = (f) => /^image\/(png|jpeg|webp|gif|svg\+xml)$/.test(f.type || '') || /\.(png|jpe?g|webp|gif|svg)$/i.test(f.name || '');
 
@@ -42,7 +44,7 @@
       const SI = window.SlopIntake;
       if (!offIntake && SI && SI.register && SI.pick) {
         offIntake = SI.register({ id: IID, main: false, paste: false, limit: 1, toast: false,
-          accept: { types: IMG.split(','), exts: ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.svg'], noun: 'a picture (PNG, JPEG, WebP, GIF or SVG)' },
+          accept: { types: IMG.split(','), exts: ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.svg'], get noun() { return tr('ui.wm.logo_noun'); } },
           process: (file, ctx) => useLogo(file, !!(ctx && ctx.data && ctx.data.add)) }) || (() => {});
       }
       return !!offIntake;
@@ -56,13 +58,13 @@
       let fields;
       try { fields = await WM.readLogo(file); } catch (e) { window.SlopUI.toast(e.message, 4000); return; }
       const cur = layer();
-      if (!add && cur && cur.kind === 'logo') { emit(S.updateLayer(spec, cur.id, fields), 'Change logo'); return; }
+      if (!add && cur && cur.kind === 'logo') { emit(S.updateLayer(spec, cur.id, fields), tr('ui.wm.undo_change_logo')); return; }
       const L = Object.assign(fresh('logo'), fields);
       sel = L.id;
-      emit(S.addLayer(spec, L), 'Add logo');
+      emit(S.addLayer(spec, L), tr('ui.wm.undo_add_logo'));
     }
     intake();
-    function addText() { const L = fresh('text'); sel = L.id; emit(S.addLayer(spec, L), 'Add text layer'); }
+    function addText() { const L = fresh('text'); sel = L.id; emit(S.addLayer(spec, L), tr('ui.wm.undo_add_text')); }
 
     const ctx = { layer, media: () => media, pageCount: () => (opts.pageCount ? opts.pageCount() : 0), currentPage: opts.currentPage || null,
       pickLogo: () => pickLogo(false), patch: (p, label, key) => { const L = layer(); if (L) emit(S.updateLayer(spec, L.id, p), label, key ? 'wm:' + L.id + ':' + key : null); } };
@@ -70,31 +72,31 @@
     // the switch
     let sw = null, swNote = null;
     if (opts.toggle) {
-      const cb = el('input', { type: 'checkbox', role: 'switch', 'aria-label': opts.toggle.label || 'Watermark on' });
+      const cb = el('input', { type: 'checkbox', role: 'switch' }), swText = el('span');
       cb.addEventListener('change', () => opts.toggle.set(cb.checked));
       swNote = el('p', { class: 'swp-fine swp-note', 'aria-live': 'polite' });
-      sw = { cb, el: el('div', { class: 'swp-toggle' }, el('label', { class: 'swp-switch' }, cb, el('span', null, opts.toggle.label || 'Watermark on')), swNote) };
+      sw = { cb, text: swText, el: el('div', { class: 'swp-toggle' }, el('label', { class: 'swp-switch' }, cb, swText), swNote) };
     }
 
     // layers
-    const addT = el('button', { type: 'button', class: 'sui-btn swp-add', 'data-add': 'text' }, '+ Text');
-    const addL = el('button', { type: 'button', class: 'sui-btn swp-add', 'data-add': 'logo' }, '+ Logo…');
+    const addT = el('button', { type: 'button', class: 'sui-btn swp-add', 'data-add': 'text' });
+    const addL = el('button', { type: 'button', class: 'sui-btn swp-add', 'data-add': 'logo' });
     addT.addEventListener('click', addText);
     addL.addEventListener('click', () => pickLogo(true));
     const saved = opts.saved !== false && window.SlopWatermarkSaved && window.SlopMenuButton
-      ? P.savedButton({ get: () => spec, use: (sp) => { sel = sp.layers.length ? sp.layers[sp.layers.length - 1].id : null; emit(sp, 'Use a saved watermark'); } }) : null;
-    const list = el('ol', { class: 'swp-layers', 'aria-label': 'Layers, top first' });
-    const stackBtn = (label, title, fn) => { const b = el('button', { type: 'button', class: 'sui-btn', title }, label); b.addEventListener('click', fn); return b; };
-    const up = stackBtn('Up', 'Move the layer up (drawn over the ones below)', () => emit(S.moveLayer(spec, sel, 1), 'Move layer up'));
-    const down = stackBtn('Down', 'Move the layer down', () => emit(S.moveLayer(spec, sel, -1), 'Move layer down'));
-    const dup = stackBtn('Duplicate', 'A copy of this layer', () => { const id = S.uid(), next = S.duplicateLayer(spec, sel, id); sel = id; emit(next, 'Duplicate layer'); });
-    const del = stackBtn('Remove', 'Remove this layer', () => { const i = spec.layers.findIndex((L) => L.id === sel), next = S.removeLayer(spec, sel); sel = next.layers.length ? next.layers[Math.max(0, i - 1)].id : null; emit(next, 'Remove layer'); });
+      ? P.savedButton({ get: () => spec, use: (sp) => { sel = sp.layers.length ? sp.layers[sp.layers.length - 1].id : null; emit(sp, tr('ui.wm.undo_use_saved')); } }) : null;
+    const list = el('ol', { class: 'swp-layers' });
+    const stackBtn = (fn) => { const b = el('button', { type: 'button', class: 'sui-btn' }); b.addEventListener('click', fn); return b; };
+    const up = stackBtn(() => emit(S.moveLayer(spec, sel, 1), tr('ui.wm.undo_up')));
+    const down = stackBtn(() => emit(S.moveLayer(spec, sel, -1), tr('ui.wm.undo_down')));
+    const dup = stackBtn(() => { const id = S.uid(), next = S.duplicateLayer(spec, sel, id); sel = id; emit(next, tr('ui.wm.undo_duplicate')); });
+    const del = stackBtn(() => { const i = spec.layers.findIndex((L) => L.id === sel), next = S.removeLayer(spec, sel); sel = next.layers.length ? next.layers[Math.max(0, i - 1)].id : null; emit(next, tr('ui.wm.undo_remove')); });
     del.classList.add('swp-danger');
-    const stack = el('div', { class: 'swp-stack', role: 'group', 'aria-label': 'Selected layer' }, up, down, dup, del);
+    const stack = el('div', { class: 'swp-stack', role: 'group' }, up, down, dup, del);
     list.addEventListener('click', (e) => { const b = e.target.closest('.swp-item'); if (b) { sel = b.dataset.id; render(); } });
     list.addEventListener('change', (e) => {
       const cb = e.target.closest('input[data-show]');
-      if (cb) { sel = cb.dataset.show; emit(S.updateLayer(spec, cb.dataset.show, { show: cb.checked }), cb.checked ? 'Show layer' : 'Hide layer'); }
+      if (cb) { sel = cb.dataset.show; emit(S.updateLayer(spec, cb.dataset.show, { show: cb.checked }), tr(cb.checked ? 'ui.wm.undo_show' : 'ui.wm.undo_hide')); }
     });
 
     const editorBox = el('div', { class: 'swp-editor-box' }), msg = el('p', { class: 'swp-msg', role: 'status' });
@@ -104,10 +106,23 @@
       b.addEventListener('click', () => a.act(spec));
       return b;
     }));
-    const root = el('div', { class: 'swp', role: 'group', 'aria-label': 'Watermark' }, sw && sw.el,
+    const root = el('div', { class: 'swp', role: 'group' }, sw && sw.el,
       el('div', { class: 'swp-top' }, addT, addL, saved && saved.el), list, stack, editorBox, msg, actions);
     actions.hidden = !actions.children.length;
     host.append(root);
+
+    /** The words built once, in the chosen language (again after a switch, with the editor rebuilt). */
+    function words() {
+      const set = (b, text, title) => { b.textContent = text; if (title) b.title = title; };
+      if (sw) { const l = opts.toggle.label || tr('ui.wm.toggle'); sw.cb.setAttribute('aria-label', l); sw.text.textContent = l; }
+      set(addT, tr('ui.wm.add_text')); set(addL, tr('ui.wm.add_logo'));
+      set(up, tr('ui.wm.up'), tr('ui.wm.up_tip')); set(down, tr('ui.wm.down'), tr('ui.wm.down_tip'));
+      set(dup, tr('ui.wm.duplicate'), tr('ui.wm.duplicate_tip')); set(del, tr('ui.wm.remove'), tr('ui.wm.remove_tip'));
+      list.setAttribute('aria-label', tr('ui.wm.layers_aria')); stack.setAttribute('aria-label', tr('ui.wm.selected_aria'));
+      root.setAttribute('aria-label', tr('ui.wm.mark'));
+    }
+    words();
+    const offLang = window.SlopI18n && window.SlopI18n.on ? window.SlopI18n.on(() => { words(); editorFor = ''; render(); if (saved && saved.relabel) saved.relabel(); }) : null;
 
     // a picture dropped on the panel is a new logo layer
     const hasFiles = (e) => [...((e.dataTransfer && e.dataTransfer.types) || [])].includes('Files');
@@ -127,9 +142,9 @@
       if (!sel && spec.layers.length) sel = spec.layers[spec.layers.length - 1].id;
       if (sw) { const on = !!opts.toggle.get(); sw.cb.checked = on; swNote.textContent = opts.toggle.note ? opts.toggle.note(on) : ''; swNote.hidden = !swNote.textContent; }
       list.replaceChildren(...(spec.layers.length ? spec.layers.slice().reverse().map((L) => el('li', { class: 'swp-row' + (L.id === sel ? ' swp-on' : '') + (L.show ? '' : ' swp-hidden') },
-        el('input', { type: 'checkbox', 'data-show': L.id, checked: L.show, 'aria-label': 'Show ' + S.label(L) }),
+        el('input', { type: 'checkbox', 'data-show': L.id, checked: L.show, 'aria-label': tr('ui.wm.show_aria', { name: S.label(L) }) }),
         el('button', { type: 'button', class: 'swp-item', 'data-id': L.id, 'aria-pressed': String(L.id === sel), title: S.label(L) }, S.label(L)),
-        el('span', { class: 'swp-kind' }, L.kind === 'logo' ? 'logo' : 'text'))) : [el('li', { class: 'swp-empty' }, 'No layers. Add text or a logo.')]));
+        el('span', { class: 'swp-kind' }, tr(L.kind === 'logo' ? 'ui.wm.kind_logo' : 'ui.wm.kind_text')))) : [el('li', { class: 'swp-empty' }, tr('ui.wm.no_layers'))]));
       const i = spec.layers.findIndex((L) => L.id === sel);
       stack.hidden = i < 0;
       up.disabled = i >= spec.layers.length - 1; down.disabled = i <= 0;
@@ -149,7 +164,7 @@
       select(id) { sel = id; render(); },
       selected: () => sel,
       sync: render,
-      destroy() { if (saved) saved.destroy(); if (offIntake) offIntake(); root.remove(); },
+      destroy() { if (saved) saved.destroy(); if (offIntake) offIntake(); if (offLang) offLang(); root.remove(); },
     };
   };
 })();

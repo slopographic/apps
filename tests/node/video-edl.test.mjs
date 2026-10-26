@@ -5,6 +5,7 @@
 // Covers: shared/video/edl.js, shared/commands/args.js, shared/macros/core.js, shared/ops/video.js, shared/ai/cmdtools.js, shared/ops/speech.js
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import './ui-i18n-en.mjs';   // the shared components' words (shared/i18n/ui), as a page has them
 import vm from 'node:vm';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';

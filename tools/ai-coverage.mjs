@@ -98,7 +98,8 @@ export function opsByApp(src = source()) {
     for (const part of src.read(f).split(/\bregister\(\[/).slice(1)) {
       const m = /\],\s*\{\s*app:\s*'([\w-]+)'/.exec(part);
       if (!m) continue;
-      for (const o of part.slice(0, m.index).matchAll(/\{\s*id:\s*'([\w.:-]+)',\s*label:/g)) (out[m[1]] = out[m[1]] || []).push(o[1]);
+      // a step: { id: '…', … } (its label is in the tables, shared/ops/i18n.js), or op('…', …) (shared/ops/retouch.js)
+      for (const o of part.slice(0, m.index).matchAll(/(?:\{\s*id:\s*|\bop\(\s*)'([\w.:-]+)',/g)) (out[m[1]] = out[m[1]] || []).push(o[1]);
     }
   }
   return out;

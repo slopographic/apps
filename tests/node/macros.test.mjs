@@ -4,6 +4,7 @@
 // Covers: shared/macros/core.js, shared/macros/store.js, shared/ops/macros.js, shared/ops/all.js
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import './ui-i18n-en.mjs';   // the shared components' words (shared/i18n/ui), as a page has them
 import { createRequire } from 'node:module';
 import * as R from '../../shared/ops/all.js';
 import { macroOp, loadMacros, onMacros, HOSTS, foldOptions } from '../../shared/ops/macros.js';
