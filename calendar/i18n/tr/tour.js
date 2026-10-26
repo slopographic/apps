@@ -1,7 +1,7 @@
 /* Slop Calendar, Turkish: the guided tour. Same keys as calendar/i18n/en/tour.js.
  * Terms: shared/i18n/glossary-tr.md. */
 window.SlopI18n && window.SlopI18n.add('tr', {
-  'calendar.tour.title': 'Slop Takvim turu',
+  'calendar.tour.title': 'Slop Calendar turu',
   'calendar.tour.period_title': 'Dönem',
   'calendar.tour.period_text': 'Görüntülediğiniz dönem. Oklar zamanda ilerler; Bugün ise bugüne döndürür.',
   'calendar.tour.new_title': 'Yeni etkinlik',
