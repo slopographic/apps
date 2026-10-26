@@ -25,7 +25,8 @@ window.SlopI18n && window.SlopI18n.add('en', {
 ```
 
 One key per line, single quotes, the language code in `add()` equal to the folder name. The app's page loads the
-tables in its `<head>`, after `shared/theme/theme.js`:
+tables in its `<head>`, after `shared/theme/theme.js` and its `<link rel="expect" ...>` (which must follow the theme
+script directly, `tests/node/render-ready.test.mjs`):
 
 ```html
 <script src="../shared/i18n/i18n.js" data-src="shared/i18n/i18n.js"></script>

@@ -135,7 +135,7 @@ test('plural forms follow Intl.PluralRules of the language, then the plain key, 
   assert.equal(I.t('x.pages', { n: 1 }), '1 strona');
   assert.equal(I.t('x.pages', { n: 3 }), '3 strony', 'few: no #few form, so the plain key');
   assert.equal(I.t('x.pages', { n: 5 }), '5 stron');
-  const en = p.I().create({ storage: memStorage() });
+  const en = p.I().create({ storage: memStorage(seedLang('en')) });
   en.add('en', { 'x.pages': '{n} pages', 'x.pages#one': '{n} page' });
   assert.equal(en.t('x.pages', { n: 1 }), '1 page');
   assert.equal(en.t('x.pages', { n: 1200 }), '1,200 pages', 'a number var is formatted with Intl');
