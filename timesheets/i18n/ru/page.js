@@ -33,7 +33,7 @@ window.SlopI18n && window.SlopI18n.add('ru', {
   'timesheets.page.desc_ph': 'Проверка дизайна главной страницы',
   'timesheets.page.date': 'Дата',
   'timesheets.page.time_worked': 'Отработанное время',
-  'timesheets.page.duration_ph': '1:30, 1.5 или 90м',
+  'timesheets.page.duration_ph': '1:30, 1,5 или 90м',
   'timesheets.page.project': 'Проект',
   'timesheets.page.optional': 'Необязательно',
   'timesheets.page.rate': 'Почасовая ставка',

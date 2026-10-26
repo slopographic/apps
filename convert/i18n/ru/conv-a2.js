@@ -73,7 +73,7 @@ window.SlopI18n && window.SlopI18n.add('ru', {
   'convert.geo.tracks#many': 'треков: {n}',
   'convert.geo.outlines': '; контуров областей, записанных как треки: {n}',
   'convert.geo.outlines#one': '; контур области, записанный как трек: {n}',
-  'convert.geo.outlines#few': '; контура областей, записанных как треки: {n}',
+  'convert.geo.outlines#few': '; контуров областей, записанных как треки: {n}',
   'convert.geo.outlines#many': '; контуров областей, записанных как треки: {n}',
   'convert.geo.gpx_to_geojson': 'GPX в GeoJSON',
   'convert.geo.kml_to_geojson': 'KML в GeoJSON',

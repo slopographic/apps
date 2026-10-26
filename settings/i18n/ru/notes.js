@@ -22,7 +22,7 @@ window.SlopI18n && window.SlopI18n.add('ru', {
   'settings.rates.stored': 'Курсы на {date} сохранены по справочным данным ЕЦБ от {ref}.',
   'settings.rates.downloading': 'Загрузка курсов ЕЦБ…',
   'settings.rates.checking': 'Проверка курсов ЕЦБ…',
-  'settings.rates.bad_rate': 'Введите курс простым положительным числом, например 1.0842 (до шести знаков после запятой).',
+  'settings.rates.bad_rate': 'Введите курс простым положительным числом, например 1,0842 (до шести знаков после запятой).',
   'settings.rates.same_pair': 'Выберите две разные валюты.',
   'settings.rates.saved': 'Сохранено: {pair} {rate} на {date}.',
   'settings.rates.unreadable': 'В этом браузере не удалось прочитать курсы валют.',

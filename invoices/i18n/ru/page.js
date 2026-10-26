@@ -12,7 +12,7 @@ window.SlopI18n && window.SlopI18n.add('ru', {
   'invoices.page.print': 'Печать',
   'invoices.page.invoices': 'Счета',
   'invoices.page.invoice': 'Счёт',
-  'invoices.page.statement': 'Выписка',
+  'invoices.page.statement': 'Акт сверки',
   'invoices.page.credit_note': 'Кредит-нота',
   'invoices.page.repeating': 'Повторяющиеся',
   'invoices.page.opening': 'Открываем ваши счета…',

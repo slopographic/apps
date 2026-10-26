@@ -62,7 +62,7 @@ window.SlopI18n && window.SlopI18n.add('ru', {
   'ui.deck.tagged_photo': '{tag}: {name}. {at}',
   'ui.deck.no_tag': 'Метка не добавлена.',
   'ui.deck.tagged': 'Метки: {tags}.',
-  'ui.deck.quoted': '“{text}”',
+  'ui.deck.quoted': '«{text}»',
   'ui.deck.end_sum': 'Вы просмотрели {n} фотографий: «нравится» — {liked}, «не нравится» — {disliked}.',
   'ui.deck.end_sum#one': 'Вы просмотрели {n} фотографию: «нравится» — {liked}, «не нравится» — {disliked}.',
   'ui.deck.end_sum#few': 'Вы просмотрели {n} фотографии: «нравится» — {liked}, «не нравится» — {disliked}.',

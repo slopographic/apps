@@ -46,7 +46,7 @@ window.SlopI18n && window.SlopI18n.add('ru', {
   'biz.pd.add': 'Добавить товар',
   'biz.pd.sku_needed': 'Укажите артикул (SKU) без пробелов.',
   'biz.pd.name_needed': 'Укажите название.',
-  'biz.pd.bad_price': 'Введите цену, например 12.50.',
+  'biz.pd.bad_price': 'Введите цену, например 12,50.',
   'biz.pd.bad_tax': 'Введите ставку налога, например 20.',
   'biz.pd.not_saved': 'Не сохранено. Возможно, этот артикул уже используется.',
   'biz.pd.added': 'Добавлено: {name}',

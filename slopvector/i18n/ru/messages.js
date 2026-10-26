@@ -27,7 +27,7 @@ window.SlopI18n && window.SlopI18n.add('ru', {
   'vector.msg.cut_endpoint': 'Нельзя разрезать в конечной точке',
   'vector.msg.clip_select': 'Выделите фигуру для обрезки и объекты под ней',
   'vector.msg.clip_nothing_below': 'Под фигурой обрезки в её стопке ничего нет',
-  'vector.msg.clip_release_select': 'Выделите маску обрезки, которую нужно снять',
+  'vector.msg.clip_release_select': 'Выделите обтравочную маску, которую нужно снять',
   'vector.msg.compound_select': 'Выделите контуры, чтобы создать составной контур',
   'vector.msg.no_compound': 'Составные контуры не выделены',
   'vector.msg.nothing_expand': 'Нечего преобразовывать (выделите живые фигуры)',
