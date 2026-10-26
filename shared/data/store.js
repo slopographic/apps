@@ -5,6 +5,7 @@
 (function (g) {
   'use strict';
   const ns = (g.SlopData = g.SlopData || {});
+  const say = (k, v) => { const I = g.SlopI18n; return I && I.t ? I.t(k, v) : k; };   // words: shared/i18n/ui/<code>/data.js, data2.js
   const { ok, fail, isResult } = ns.result;
   const DB_NAME = 'slop-data';
   const DB_VERSION = 12; // 2 adds exchangeRates; 3 adds customerGroups and customerTags; 4 adds events, tasks and reminders; 5 adds expenses; 6 quotes; 7 timeEntries; 8 schedules; 9 purchases; 10 creditNotes; 11 bankLines; 12 projects and projectTasks. Every version needs an entry in UPGRADES below.
@@ -16,7 +17,7 @@
   // A DOMException's numeric code (22 for a full quota) is not a SlopData code: only a string code counts.
   const codeOf = (e) => (e && typeof e.code === 'string' && e.code) || ERR_CODES[e && e.name] || 'idb';
   /** A full quota also shows the storage dialog (shared/storage/ui.js); the Result still goes to the caller. */
-  const errOf = (e) => { const r = fail(codeOf(e), (e && e.message) || String(e)); if (r.code === 'quota') try { g.SlopStorage && g.SlopStorage.handle(e, { what: 'this change' }); } catch (x) { /* no dialog here */ } return r; };
+  const errOf = (e) => { const r = fail(codeOf(e), (e && e.message) || String(e)); if (r.code === 'quota') try { g.SlopStorage && g.SlopStorage.handle(e, { what: say('ui.data.this_change') }); } catch (x) { /* no dialog here */ } return r; };
   const req = (r) => new Promise((res, rej) => {
     r.onsuccess = () => res(r.result);
     r.onerror = (ev) => { if (ev && ev.preventDefault) ev.preventDefault(); rej(r.error || new Error('request failed')); };
@@ -64,7 +65,7 @@
           resolve(dbH);
         };
         rq.onerror = () => reject(rq.error);
-        rq.onblocked = () => { const e = new Error('the database is blocked by another tab'); e.code = 'blocked'; reject(e); };
+        rq.onblocked = () => { const e = new Error(say('ui.data.err.blocked')); e.code = 'blocked'; reject(e); };
       }).catch((e) => { dbP = null; throw e; });
     }
     return dbP;
@@ -103,17 +104,17 @@
   /** Validates, numbers, stamps and writes one record. Used inside a transaction only. */
   async function putIn(api, name, input, opts = {}) {
     const d = ns.schema.def(name);
-    if (!d) return fail('unknown_collection', `unknown collection ${name}`);
-    if (!input || typeof input !== 'object') return fail('invalid', 'record must be an object');
+    if (!d) return fail('unknown_collection', say('ui.data.err.collection', { name }));
+    if (!input || typeof input !== 'object') return fail('invalid', say('ui.data.err.record_object'));
     let key = input[d.key];
     if (key === undefined || key === null || key === '') key = d.singleton || (d.key === 'id' ? newId() : undefined);
-    if (key === undefined) return fail('invalid', `${name} needs a ${d.key}`);
+    if (key === undefined) return fail('invalid', say('ui.data.err.needs_key', { name, key: d.key }));
     const cur = await api.get(name, key);
     if (!cur.ok) return cur;
     const prev = cur.value;
-    if (prev && d.immutable) return fail('immutable', `${name} records cannot be changed`);
-    if (prev && prev.deletedAt) return fail('deleted', `${name} ${key} was deleted`);
-    if (d.postingOnly && !opts.posting) return fail('posting_required', `${name} is written by the billing, ledger and stock modules only`);
+    if (prev && d.immutable) return fail('immutable', say('ui.data.err.immutable', { name }));
+    if (prev && prev.deletedAt) return fail('deleted', say('ui.data.err.deleted', { name, id: String(key) }));
+    if (d.postingOnly && !opts.posting) return fail('posting_required', say('ui.data.err.posting_only', { name }));
     const defaults = await ns.fx.docDefaults(api, d, prev, input);
     const first = ns.schema.prepare(name, { ...input, ...defaults, [d.key]: key }, { deferNumber: !!d.autoNumber });
     if (!first.ok) return fail('invalid', ns.schema.errorText(first.errors), { errors: first.errors });
@@ -132,13 +133,13 @@
       if (t) return fail('invalid_transition', t);
     }
     if (name === 'invoices' && !opts.posting && value.status !== (prev ? prev.status : 'draft')) {
-      return fail('posting_required', 'an invoice changes status only through billing (issue, record payment, void)');
+      return fail('posting_required', say('ui.data.err.invoice_status'));
     }
     for (const f of d.unique || []) {
       if (value[f] === undefined) continue;
       const rows = await api.list(name, { index: f, value: value[f], includeDeleted: true });
       if (!rows.ok) return rows;
-      if (rows.value.some((r) => r[d.key] !== key)) return fail('conflict', `${f} ${value[f]} is already used`);
+      if (rows.value.some((r) => r[d.key] !== key)) return fail('conflict', say('ui.data.err.used', { field: f, value: String(value[f]) }));
     }
     const now = Date.now();
     const rec = { ...value, [d.key]: key, createdAt: prev ? prev.createdAt : now, updatedAt: now, version: prev ? prev.version + 1 : 1 };
@@ -151,17 +152,17 @@
   /** Soft-deletes (customers, invoices) or hard-deletes one record, if the rules allow it. */
   async function removeIn(api, name, key) {
     const d = ns.schema.def(name);
-    if (!d) return fail('unknown_collection', `unknown collection ${name}`);
+    if (!d) return fail('unknown_collection', say('ui.data.err.collection', { name }));
     const cur = await api.get(name, key);
     if (!cur.ok) return cur;
     const prev = cur.value;
-    if (!prev || prev.deletedAt) return fail('not_found', `no ${name} record ${key}`);
+    if (!prev || prev.deletedAt) return fail('not_found', say('ui.data.err.no_record', { name, id: String(key) }));
     const why = ns.schema.removable(name, prev);
     if (why) return fail(d.immutable ? 'immutable' : 'forbidden', why);
     for (const ref of d.refs || []) {
       const rows = await api.list(ref.collection, { index: ref.index, value: key, includeDeleted: true });
       if (!rows.ok) return rows;
-      if (rows.value.length) return fail('in_use', `${name} ${key} is used by ${ref.collection}`);
+      if (rows.value.length) return fail('in_use', say('ui.data.err.in_use', { name, id: String(key), by: ref.collection }));
     }
     if (d.softDelete) {
       const now = Date.now();
@@ -192,7 +193,7 @@
         }
         resolve(isResult(out) ? out : ok(out));
       };
-      tx.onabort = () => resolve(st.poison || (isResult(out) && !out.ok ? out : errOf(tx.error || { name: 'AbortError', message: 'transaction aborted' })));
+      tx.onabort = () => resolve(st.poison || (isResult(out) && !out.ok ? out : errOf(tx.error || { name: 'AbortError', message: say('ui.data.err.aborted') })));
       (async () => {
         try { out = await body(api); } catch (e) { st.poison = st.poison || errOf(e); }
         if (!st.poison && isResult(out) && !out.ok) st.poison = out;
@@ -271,7 +272,7 @@
   async function erase() {
     if (dbH) dbH.close();
     dbH = null; dbP = null; readyP = null;
-    if (!g.indexedDB) return fail('unavailable', 'IndexedDB is not available in this browser');
+    if (!g.indexedDB) return fail('unavailable', say('ui.data.err.no_idb'));
     return new Promise((resolve) => {
       const rq = g.indexedDB.deleteDatabase(DB_NAME);
       rq.onsuccess = () => resolve(ok(true));

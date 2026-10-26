@@ -4,6 +4,7 @@
 (function (g) {
   'use strict';
   const ns = (g.SlopData = g.SlopData || {});
+  const say = (k, v) => { const I = g.SlopI18n; return I && I.t ? I.t(k, v) : k; };   // words: shared/i18n/ui/<code>/data.js, data2.js
 
   /** Check digit for `body`, the code without its last digit. Weights 3 and 1 counted from the right. */
   function checkDigit(body) {
@@ -46,7 +47,7 @@
     let a = seed >>> 0;
     return () => { a = (a + 0x6d2b79f5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
   }
-  const digitsOnly = (s, what) => { if (!/^\d*$/.test(String(s))) throw new Error(`${what} must be digits only`); return String(s); };
+  const digitsOnly = (s) => { if (!/^\d*$/.test(String(s))) throw new Error(say('ui.data.bc.prefix_digits')); return String(s); };
 
   /**
    * One random value. opts: { symbology ('code128'|'ean13'|'ean8'|'upca'|'code39'|'qrcode'|'datamatrix'),
@@ -58,18 +59,18 @@
     const sym = opts.symbology || 'code128', prefix = String(opts.prefix || ''), rand = opts.rand;
     if (GS1_TOTAL[sym]) {
       const total = GS1_TOTAL[sym], bodyLen = total - 1;
-      digitsOnly(prefix, 'The prefix');
-      if (prefix.length >= bodyLen) throw new Error(`The prefix must be shorter than ${bodyLen} digits`);
+      digitsOnly(prefix);
+      if (prefix.length >= bodyLen) throw new Error(say('ui.data.bc.prefix_short', { n: bodyLen }));
       let body = prefix;
       while (body.length < bodyLen) body += ALPHABET.digits[randomIndex(10, rand)];
       return body + checkDigit(body);
     }
-    if (!DEFAULT_LEN[sym]) throw new Error(`No random generator for ${sym}`);
+    if (!DEFAULT_LEN[sym]) throw new Error(say('ui.data.bc.no_gen', { name: sym }));
     const kind = ALPHABET[opts.kind] ? opts.kind : 'alnum';
     const alphabet = ALPHABET[kind];
     const len = opts.length == null || opts.length === '' ? DEFAULT_LEN[sym] : Math.floor(+opts.length);
-    if (!(len >= 1 && len <= MAX_LEN[sym])) throw new Error(`Length must be from 1 to ${MAX_LEN[sym]}`);
-    if (prefix.length > len) throw new Error('The prefix is longer than the value');
+    if (!(len >= 1 && len <= MAX_LEN[sym])) throw new Error(say('ui.data.bc.length', { max: String(MAX_LEN[sym]) }));
+    if (prefix.length > len) throw new Error(say('ui.data.bc.prefix_long'));
     let out = prefix;
     while (out.length < len) out += alphabet[randomIndex(alphabet.length, rand)];
     return out;
@@ -80,12 +81,12 @@
    */
   function randomValues(count, opts = {}) {
     const n = Math.floor(+count);
-    if (!(n >= 1 && n <= 10000)) throw new Error('Count must be from 1 to 10,000');
+    if (!(n >= 1 && n <= 10000)) throw new Error(say('ui.data.bc.count', { max: 10000 }));
     const seen = new Set(), out = [];
     let misses = 0;
     while (out.length < n) {
       const v = randomValue(opts);
-      if (seen.has(v)) { if (++misses > 1000 + n * 20) throw new Error('Not enough distinct values for that length'); continue; }
+      if (seen.has(v)) { if (++misses > 1000 + n * 20) throw new Error(say('ui.data.bc.distinct')); continue; }
       seen.add(v); out.push(v);
     }
     return out;

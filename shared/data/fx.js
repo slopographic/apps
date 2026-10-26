@@ -6,6 +6,7 @@
 (function (g) {
   'use strict';
   const ns = (g.SlopData = g.SlopData || {});
+  const say = (k, v) => { const I = g.SlopI18n; return I && I.t ? I.t(k, v) : k; };   // words: shared/i18n/ui/<code>/data.js, data2.js
   const { ok, fail } = ns.result;
   const ONE = 1000000; // the rate scale: 1.0000 is 1000000
   const DATE_RX = /^\d{4}-\d{2}-\d{2}$/;
@@ -56,7 +57,7 @@
     const rows = await tx.list('exchangeRates');
     if (!rows.ok) return rows;
     const hit = pickRate(rows.value, base, quote, date);
-    if (!hit) return fail('no_rate', `no exchange rate for ${base} to ${quote} on or before ${date}. Add one under Exchange rates in Settings.`);
+    if (!hit) return fail('no_rate', say('ui.data.fx.no_rate', { base, quote, date: String(date) }));
     return ok({ id: hit.row.id, rate: hit.rate, inverted: hit.inverted });
   }
 
@@ -88,14 +89,14 @@
     if (name !== 'settings' || !prev || prev.defaultCurrency === value.defaultCurrency) return ok(true);
     const j = await api.list('journal', { limit: 1, includeDeleted: true });
     if (!j.ok) return j;
-    return j.value.length ? fail('base_locked', 'the default currency cannot change once entries are posted') : ok(true);
+    return j.value.length ? fail('base_locked', say('ui.data.fx.base_locked')) : ok(true);
   }
 
   /** The rate on a date, read in its own transaction. Returns { id, rate, inverted, base, quote }. */
   function rateOn(base, quote, date) {
     const b = String(base || '').toUpperCase(), q = String(quote || '').toUpperCase();
-    if (!ns.locale.isCurrency(b) || !ns.locale.isCurrency(q)) return Promise.resolve(fail('invalid', 'currencies are 3-letter ISO codes'));
-    if (!DATE_RX.test(String(date || ''))) return Promise.resolve(fail('invalid', 'the date must be YYYY-MM-DD'));
+    if (!ns.locale.isCurrency(b) || !ns.locale.isCurrency(q)) return Promise.resolve(fail('invalid', say('ui.data.fx.iso')));
+    if (!DATE_RX.test(String(date || ''))) return Promise.resolve(fail('invalid', say('ui.data.fx.date')));
     return ns.store.readAll(async (tx) => {
       const r = await rateIn(tx, b, q, date);
       return r.ok ? ok({ ...r.value, base: b, quote: q, date }) : r;

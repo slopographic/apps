@@ -5,6 +5,7 @@
 (function (g) {
   'use strict';
   const ns = (g.SlopData = g.SlopData || {});
+  const say = (k, v) => { const I = g.SlopI18n; return I && I.t ? I.t(k, v) : k; };   // words: shared/i18n/ui/<code>/data.js, data2.js
   const ok = (v) => ns.result.ok(v), fail = (code, msg) => ns.result.fail(code, msg);
   const CATCH_UP = 12;
   const pad = (n) => String(n).padStart(2, '0');
@@ -21,8 +22,8 @@
     return iso(new Date(Date.UTC(y, m, Math.min(want, last))));
   }
 
-  /** Pure: "every month", "every 2 weeks". */
-  const describe = (s) => (s.every === 1 ? `every ${s.unit}` : `every ${s.every} ${s.unit}s`);
+  /** "every month", "every 2 weeks", in the chosen language. */
+  const describe = (s) => say('ui.data.every.' + s.unit, { n: s.every });
 
   /** Pure: the dates of the periods due on or before today, oldest first (at most CATCH_UP), and the next date after them. */
   function dueDates(s, today) {
@@ -41,7 +42,7 @@
     return ns.store.transact(async (tx) => {
       const r = await tx.get('invoices', invoiceId);
       if (!r.ok) return r;
-      if (!r.value || r.value.deletedAt) return fail('not_found', `no invoice ${invoiceId}`);
+      if (!r.value || r.value.deletedAt) return fail('not_found', say('ui.data.err.no_invoice', { id: String(invoiceId) }));
       const inv = r.value;
       const rec = { customerId: inv.customerId, currency: inv.currency, notes: inv.notes, lines: inv.lines.map((l) => ({ ...l })),
         every, unit, nextDate: start, anchorDay: unit === 'month' ? Number(String(start).slice(8, 10)) : undefined, sourceInvoiceId: inv.id };

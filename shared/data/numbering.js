@@ -4,6 +4,7 @@
 (function (g) {
   'use strict';
   const ns = (g.SlopData = g.SlopData || {});
+  const say = (k, v) => { const I = g.SlopI18n; return I && I.t ? I.t(k, v) : k; };   // words: shared/i18n/ui/<code>/data.js, data2.js
   const { ok, fail } = ns.result;
 
   /** "INV-" + zero-padded number. Numbers wider than the padding are kept whole. */
@@ -26,7 +27,7 @@
   async function allocate(tx, name) {
     const r = await tx.get('numbering', name);
     if (!r.ok) return r;
-    if (!r.value) return fail('not_found', `no numbering sequence ${name}`);
+    if (!r.value) return fail('not_found', say('ui.data.err.no_sequence', { name }));
     const t = take(r.value);
     const w = await tx.put('numbering', t.seq);
     if (!w.ok) return w;
@@ -39,7 +40,7 @@
   /** The number the next document would get, without taking it. */
   async function peek(name) {
     const r = await ns.store.get('numbering', name);
-    if (!r.ok || !r.value) return r.ok ? fail('not_found', `no numbering sequence ${name}`) : r;
+    if (!r.ok || !r.value) return r.ok ? fail('not_found', say('ui.data.err.no_sequence', { name })) : r;
     return ok(format(r.value, r.value.next));
   }
 

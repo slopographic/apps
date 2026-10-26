@@ -15,6 +15,7 @@ const BIZ = [path.join(ROOT, 'shared', 'biz', 'biz.js')];
 const CRM = ['util.js', 'notes.js', 'labels.js', 'customer-fields.js', 'query.js'].map((f) => path.join(ROOT, 'crm', 'js', 'core', f));
 // SlopI18n with the English tables (crm/i18n/en, shared/biz/i18n/en), so messages read as on the page
 const I18N = [path.join(ROOT, 'shared', 'i18n', 'i18n.js'), path.join(ROOT, 'shared', 'biz', 'i18n', 'en', 'biz.js'),
+  ...['en.js', 'en/data.js', 'en/data2.js'].map((p) => path.join(ROOT, 'shared', 'i18n', 'ui', p)),   // the records' messages
   ...['page', 'views', 'forms'].map((p) => path.join(ROOT, 'crm', 'i18n', 'en', p + '.js'))];
 const ctx = {};
 ctx.window = ctx;

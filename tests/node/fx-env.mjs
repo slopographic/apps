@@ -15,9 +15,10 @@ export async function loadInto(files, extra = {}) {
   const ctx = { ...extra };
   ctx.window = ctx;
   vm.createContext(ctx);
-  for (const f of files) {
+  for (const f of ['i18n/i18n.js', 'i18n/ui/en.js', 'i18n/ui/en/data.js', 'i18n/ui/en/data2.js', ...files]) {   // the messages' English words first
     const src = await readFile(path.join(ROOT, f), 'utf8');
     vm.runInContext(src, ctx, { filename: f });
+    if (f === 'i18n/i18n.js') vm.runInContext("window.SlopI18n = window.SlopI18n.create({ defaultLang: 'en', profile: null });", ctx);   // English in any build
   }
   return ctx;
 }

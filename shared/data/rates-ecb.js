@@ -6,6 +6,7 @@
 (function (g) {
   'use strict';
   const ns = (g.SlopData = g.SlopData || {});
+  const say = (k, v) => { const I = g.SlopI18n; return I && I.t ? I.t(k, v) : k; };   // words: shared/i18n/ui/<code>/data.js, data2.js
   const { ok, fail } = ns.result;
   const ECB_URL = 'https://data-api.ecb.europa.eu/service/data/EXR/D..EUR.SP00.A?lastNObservations=1&format=csvdata';
   const ECB_HOST = 'data-api.ecb.europa.eu';
@@ -43,14 +44,14 @@
    *  with rate scaled by 1e6. Rows with an empty OBS_VALUE are skipped. The API returns the last observation of
    *  every series, so discontinued currencies carry old dates: only rows on the newest day are kept. */
   function parseEcb(text) {
-    if (typeof text !== 'string' || !text.trim()) return fail('invalid', 'The file from the ECB is empty.');
+    if (typeof text !== 'string' || !text.trim()) return fail('invalid', say('ui.data.ecb.empty'));
     const rows = csvRows(text.replace(/^﻿/, ''));
     const [head, ...body] = rows;
     const col = (name) => (head ? head.findIndex((h) => h.trim() === name) : -1);
     const iCur = col('CURRENCY');
     const iTime = col('TIME_PERIOD');
     const iObs = col('OBS_VALUE');
-    if (iCur < 0 || iTime < 0 || iObs < 0) return fail('invalid', 'The file from the ECB has no CURRENCY, TIME_PERIOD or OBS_VALUE column.');
+    if (iCur < 0 || iTime < 0 || iObs < 0) return fail('invalid', say('ui.data.ecb.columns'));
     const obs = [];
     for (const r of body) {
       const value = (r[iObs] || '').trim();
@@ -58,11 +59,11 @@
       const quote = (r[iCur] || '').trim();
       const date = (r[iTime] || '').trim();
       const rate = ns.locale.parseRate(value);
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return fail('invalid', 'The file from the ECB has no reference date.');
-      if (!ns.locale.isCurrency(quote) || rate === null) return fail('invalid', `The file from the ECB has a bad rate for ${quote}.`);
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return fail('invalid', say('ui.data.ecb.no_date'));
+      if (!ns.locale.isCurrency(quote) || rate === null) return fail('invalid', say('ui.data.ecb.bad_rate', { quote }));
       obs.push({ quote, date, rate });
     }
-    if (!obs.length) return fail('invalid', 'The file from the ECB has no rates.');
+    if (!obs.length) return fail('invalid', say('ui.data.ecb.no_rates'));
     const date = obs.map((o) => o.date).sort().pop();
     const rates = obs.filter((o) => o.date === date).map(({ quote, rate }) => ({ quote, rate }));
     return ok({ date, rates });
@@ -89,19 +90,19 @@
   /** Downloads and stores the ECB rates. opts (for tests): fetch, allowed, today.
    *  Nothing is fetched while consent is off. A failed download stores nothing and says so. */
   async function updateRates(opts = {}) {
-    if (!(opts.allowed || consentAllowed)()) return fail('consent_off', 'Exchange rate updates are off. Turn on Exchange rates in Settings first.');
+    if (!(opts.allowed || consentAllowed)()) return fail('consent_off', say('ui.data.ecb.consent'));
     const f = opts.fetch || g.fetch;
-    if (typeof f !== 'function') return fail('unavailable', 'This browser cannot download the rates. No rates were stored.');
+    if (typeof f !== 'function') return fail('unavailable', say('ui.data.ecb.no_fetch'));
     let text;
     try {
       const res = await f(ECB_URL, { cache: 'no-store', credentials: 'omit', referrerPolicy: 'no-referrer' });
-      if (!res || !res.ok) return fail('http', `The European Central Bank did not answer (${res ? res.status : 'no response'}). No rates were stored.`);
+      if (!res || !res.ok) return fail('http', (res ? say('ui.data.ecb.http', { status: String(res.status) }) : say('ui.data.ecb.no_answer')));
       text = await res.text();
     } catch (e) {
-      return fail('network', 'Could not reach the European Central Bank. No rates were stored.');
+      return fail('network', say('ui.data.ecb.network'));
     }
     const parsed = parseEcb(text);
-    if (!parsed.ok) return fail(parsed.code, `${parsed.message} No rates were stored.`);
+    if (!parsed.ok) return fail(parsed.code, say('ui.data.ecb.parse', { message: parsed.message }));
     return storeToday(parsed.value, opts.today || ns.ledger.today());
   }
 

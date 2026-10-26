@@ -4,6 +4,7 @@
 (function (g) {
   'use strict';
   const ns = (g.SlopData = g.SlopData || {});
+  const say = (k, v) => { const I = g.SlopI18n; return I && I.t ? I.t(k, v) : k; };   // words: shared/i18n/ui/<code>/data.js, data2.js
 
   const ENUM = {
     stage: ['lead', 'contacted', 'customer', 'lost'],
@@ -41,15 +42,15 @@
   const QUOTE_NEXT = { draft: ['sent', 'accepted', 'declined'], sent: ['draft', 'accepted', 'declined'], accepted: [], declined: ['draft'] };
   const PURCHASE_NEXT = { draft: ['ordered', 'cancelled'], ordered: ['received', 'cancelled'], received: [], cancelled: [] };
   // The status flow of a document (schema.checkTransition): the statuses each may go to, the statuses it can still be
-  // edited in, the fields that are locked otherwise, and the refusals in plain words.
+  // edited in, the fields that are locked otherwise, and the refusals in plain words (keys: schema.js translates them).
   const flow = (noun, next, open, lock, locked) => ({ noun, next, open, lock, locked });
   const FLOWS = {
-    invoices: flow('an invoice', INVOICE_NEXT, ['draft'], ['customerId', 'date', 'dueDate', 'number', 'currency', 'lines', 'notes', 'orderId', 'subtotal', 'tax', 'total'],
-      'an issued invoice cannot be changed; void it and issue a new one'),
-    orders: flow('an order', ORDER_NEXT, ['draft', 'open'], ['customerId', 'date', 'number', 'currency', 'lines', 'notes'], 'a closed order cannot be changed'),
-    quotes: flow('a quote', QUOTE_NEXT, ['draft', 'sent', 'declined'], ['customerId', 'date', 'validUntil', 'number', 'currency', 'lines', 'notes'], 'an accepted quote cannot be changed'),
-    purchases: flow('a purchase order', PURCHASE_NEXT, ['draft', 'ordered'], ['customerId', 'date', 'expectedDate', 'number', 'currency', 'lines', 'notes'],
-      'a received or cancelled purchase order cannot be changed'),
+    invoices: flow('ui.data.flow.invoice', INVOICE_NEXT, ['draft'], ['customerId', 'date', 'dueDate', 'number', 'currency', 'lines', 'notes', 'orderId', 'subtotal', 'tax', 'total'],
+      'ui.data.lock.invoice'),
+    orders: flow('ui.data.flow.order', ORDER_NEXT, ['draft', 'open'], ['customerId', 'date', 'number', 'currency', 'lines', 'notes'], 'ui.data.lock.order'),
+    quotes: flow('ui.data.flow.quote', QUOTE_NEXT, ['draft', 'sent', 'declined'], ['customerId', 'date', 'validUntil', 'number', 'currency', 'lines', 'notes'], 'ui.data.lock.quote'),
+    purchases: flow('ui.data.flow.purchase', PURCHASE_NEXT, ['draft', 'ordered'], ['customerId', 'date', 'expectedDate', 'number', 'currency', 'lines', 'notes'],
+      'ui.data.lock.purchase'),
   };
   const RX = { currency: /^[A-Z]{3}$/, locale: /^[A-Za-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$/ };
 
@@ -110,7 +111,7 @@
       description: F.text({}), price: F.mny({ req: true }), taxRate: F.rate({ req: true }), unit: F.str({ max: 20, def: 'each' }),
       reorderLevel: F.int({ min: 0, max: 1e9 }), sample: F.bool({}) } },
     orders: { key: 'id', derive: true, unique: ['number'], autoNumber: { seq: 'order', when: () => true }, check: orderCheck, docCurrency: true,
-      noRemove: 'orders cannot be deleted; cancel them instead',
+      noRemove: 'ui.data.rm.orders',
       indexes: [{ name: 'number', key: 'number', unique: true }, { name: 'customerId', key: 'customerId' }, { name: 'status', key: 'status' }, { name: 'date', key: 'date' }], fields: {
       id: F.id({ req: true }), number: F.str({ max: 40 }), customerId: F.id({ req: true }), date: F.date({ req: true }), currency: F.cur({}),
       status: F.en(ENUM.orderStatus, { def: 'draft' }), lines: { t: 'lines', min: 1, req: true }, subtotal: F.mny(), tax: F.mny(), total: F.mny(),
@@ -118,7 +119,7 @@
       pdfSeed: F.int({ min: 0, max: 2147483647 }), pdfLayout: F.en(ENUM.pdfLayout, {}) } },
     invoices: { key: 'id', softDelete: true, derive: true, unique: ['number'], check: invoiceCheck, docCurrency: true,
       autoNumber: { seq: 'invoice', when: (r) => r.status !== 'draft' },
-      removeRule: (r) => (r.status !== 'draft' ? 'issued invoices cannot be deleted; void them instead' : null),
+      removeRule: (r) => (r.status !== 'draft' ? 'ui.data.rm.invoices' : null),
       indexes: [{ name: 'number', key: 'number', unique: true }, { name: 'customerId', key: 'customerId' }, { name: 'status', key: 'status' }, { name: 'date', key: 'date' }], fields: {
       id: F.id({ req: true }), number: F.str({ max: 40 }), customerId: F.id({ req: true }), date: F.date({ req: true }), dueDate: F.date({}),
       currency: F.cur({}), status: F.en(ENUM.invoiceStatus, { def: 'draft' }), lines: { t: 'lines', min: 0, def: [] }, subtotal: F.mny(), tax: F.mny(), total: F.mny(),
@@ -128,7 +129,7 @@
       pdfSeed: F.int({ min: 0, max: 2147483647 }), pdfLayout: F.en(ENUM.pdfLayout, {}) } },
     // Quotes (estimates): a priced offer. Nothing is posted; an accepted quote becomes an order or a draft invoice (quotes.js).
     quotes: { key: 'id', derive: true, unique: ['number'], autoNumber: { seq: 'quote', when: () => true }, check: quoteCheck, docCurrency: true,
-      noRemove: 'quotes cannot be deleted; decline them instead',
+      noRemove: 'ui.data.rm.quotes',
       indexes: [{ name: 'number', key: 'number', unique: true }, { name: 'customerId', key: 'customerId' }, { name: 'status', key: 'status' }, { name: 'date', key: 'date' }], fields: {
       id: F.id({ req: true }), number: F.str({ max: 40 }), customerId: F.id({ req: true }), date: F.date({ req: true }), validUntil: F.date({}),
       currency: F.cur({}), status: F.en(ENUM.quoteStatus, { def: 'draft' }), lines: { t: 'lines', min: 1, req: true }, subtotal: F.mny(), tax: F.mny(), total: F.mny(),
@@ -137,7 +138,7 @@
     // Purchase orders: goods or services ordered from a supplier (customerId: a contact flagged supplier). Receiving puts the
     // product lines into stock, and the supplier's bill is recorded as an expense (shared/data/purchases.js, expenseId).
     purchases: { key: 'id', derive: true, unique: ['number'], autoNumber: { seq: 'purchase', when: () => true }, check: purchaseCheck, docCurrency: true,
-      noRemove: 'purchase orders cannot be deleted; cancel them instead',
+      noRemove: 'ui.data.rm.purchases',
       indexes: [{ name: 'number', key: 'number', unique: true }, { name: 'customerId', key: 'customerId' }, { name: 'status', key: 'status' }, { name: 'date', key: 'date' }], fields: {
       id: F.id({ req: true }), number: F.str({ max: 40 }), customerId: F.id({ req: true }), date: F.date({ req: true }), expectedDate: F.date({}),
       currency: F.cur({}), status: F.en(ENUM.purchaseStatus, { def: 'draft' }), lines: { t: 'lines', min: 1, req: true }, subtotal: F.mny(), tax: F.mny(), total: F.mny(),
@@ -162,7 +163,7 @@
       id: F.id({ req: true }), key: F.str({ req: true, max: 400 }), account: F.str({ req: true, max: 4, pattern: /^\d{4}$/ }), date: F.date({ req: true }),
       description: F.str({ max: 300 }), amount: F.int({ req: true, min: -1e12, max: 1e12 }), currency: F.cur({}),
       status: F.en(ENUM.bankLineStatus, { def: 'open' }), journalId: F.id({}), source: F.str({ max: 200 }), importedAt: F.ts({}) } },
-    accounts: { key: 'code', noRemove: 'accounts cannot be deleted', indexes: [{ name: 'type', key: 'type' }], fields: {
+    accounts: { key: 'code', noRemove: 'ui.data.rm.accounts', indexes: [{ name: 'type', key: 'type' }], fields: {
       code: F.str({ req: true, max: 4, pattern: /^\d{4}$/ }), name: F.str({ req: true }), type: F.en(ENUM.accountType, { req: true }) } },
     journal: { key: 'id', immutable: true, postingOnly: true, unique: ['source'], check: (r) => [...journalErrors(r.lines), ...fxErrors(r)],
       indexes: [{ name: 'source', key: 'source', unique: true }, { name: 'date', key: 'date' }, { name: 'reverses', key: 'reverses' }], fields: {
@@ -180,7 +181,7 @@
     stockCounts: { key: 'id', immutable: true, postingOnly: true, check: countCheck, indexes: [{ name: 'location', key: 'location' }, { name: 'date', key: 'date' }], fields: {
       id: F.id({ req: true }), location: F.str({ req: true, max: 40 }), date: F.date({ req: true }), lines: { t: 'countLines', min: 1, req: true },
       notes: F.text({}), status: F.en(['posted'], { def: 'posted' }) } },
-    numbering: { key: 'id', noRemove: 'sequences cannot be deleted', fields: {
+    numbering: { key: 'id', noRemove: 'ui.data.rm.numbering', fields: {
       id: F.id({ req: true }), prefix: F.str({ max: 20 }), pad: F.int({ min: 1, max: 12, def: 4 }), next: F.int({ req: true, min: 1, max: 1e12 }) } },
     // Calendar events. Timed events keep epoch ms in start and end; all-day events keep startDay and endDay (inclusive).
     // tz is the zone the event was made in. freq, until and remind (minutes before start) describe repeats and reminders.
@@ -203,19 +204,19 @@
     // needs a customer. invoiceId is the invoice it was billed on; time on a void or deleted invoice is open again.
     // Repeating invoices (shared/data/recurring.js makes their drafts): the customer, currency, notes and lines to copy, every
     // `every` weeks or months from nextDate (anchorDay keeps a month's day, such as the 31st, clamped to short months).
-    schedules: { key: 'id', derive: true, docCurrency: true, check: (r) => (r.endDate && r.endDate < r.nextDate ? ['the end date is before the next date'] : []),
+    schedules: { key: 'id', derive: true, docCurrency: true, check: (r) => (r.endDate && r.endDate < r.nextDate ? [say('ui.data.chk.end_before_next')] : []),
       indexes: [{ name: 'customerId', key: 'customerId' }, { name: 'nextDate', key: 'nextDate' }], fields: {
       id: F.id({ req: true }), customerId: F.id({ req: true }), currency: F.cur({}), notes: F.text({}), lines: { t: 'lines', min: 1, req: true },
       subtotal: F.mny(), tax: F.mny(), total: F.mny(), every: F.int({ req: true, min: 1, max: 36 }), unit: F.en(ENUM.repeatUnit, { def: 'month' }), nextDate: F.date({ req: true }),
       anchorDay: F.int({ min: 1, max: 31 }), endDate: F.date({}), dueDays: F.int({ min: 0, max: 365 }), active: F.bool({ def: true }),
       made: F.int({ min: 0, max: 1e6, def: 0 }), lastInvoiceId: F.id({}), sourceInvoiceId: F.id({}) } },
-    timeEntries: { key: 'id', check: (r) => (r.billable && !r.customerId ? ['billable time needs a customer'] : []),
-      removeRule: (r) => (r.invoiceId ? 'billed time cannot be deleted; void its invoice first' : null),
+    timeEntries: { key: 'id', check: (r) => (r.billable && !r.customerId ? [say('ui.data.chk.billable_customer')] : []),
+      removeRule: (r) => (r.invoiceId ? 'ui.data.rm.billed_time' : null),
       indexes: [{ name: 'date', key: 'date' }, { name: 'customerId', key: 'customerId' }, { name: 'invoiceId', key: 'invoiceId' }], fields: {
       id: F.id({ req: true }), date: F.date({ req: true }), customerId: F.id({}), project: F.str({ max: 80 }), description: F.str({ req: true, max: 300 }),
       minutes: F.int({ req: true, min: 1, max: 1440 }), rate: F.mny({ def: 0 }), currency: F.cur({}), billable: F.bool({ def: true }),
       invoiceId: F.id({}), sample: F.bool({}) } },
-    expenses: { key: 'id', postingOnly: true, check: (r) => (r.tax > r.amount ? ['tax cannot be more than the amount paid'] : []),
+    expenses: { key: 'id', postingOnly: true, check: (r) => (r.tax > r.amount ? [say('ui.data.chk.tax_over_amount')] : []),
       indexes: [{ name: 'date', key: 'date' }, { name: 'supplier', key: 'supplier' }, { name: 'status', key: 'status' }], fields: {
       id: F.id({ req: true }), date: F.date({ req: true }), supplier: F.str({ req: true, max: 200 }), description: F.str({ max: 300 }),
       account: F.str({ req: true, max: 4, pattern: /^\d{4}$/ }), amount: F.mny({ req: true, min: 1 }), tax: F.mny({ def: 0 }),
@@ -226,11 +227,11 @@
     // Slop Projects. A project has its board columns (id, name, a WIP limit, done marks the finished column), the people
     // tasks are assigned to, and dates. A task sits in one column at a place (order); start and end (inclusive) put it on
     // the timeline, deps are the ids of the tasks that must finish before it starts (finish-to-start).
-    projects: { key: 'id', check: (r) => (r.start && r.end && r.end < r.start ? ['the end date is before the start date'] : []), fields: {
+    projects: { key: 'id', check: (r) => (r.start && r.end && r.end < r.start ? [say('ui.data.chk.end_before_start')] : []), fields: {
       id: F.id({ req: true }), name: F.str({ req: true, max: 120 }), color: F.en(ENUM.tagColor, { def: 'blue' }), start: F.date({}), end: F.date({}),
       notes: F.text({}), columns: F.rows({ id: F.str({ req: true, max: 40 }), name: F.str({ req: true, max: 40 }), wip: F.int({ min: 0, max: 999 }), done: F.bool({}) }, { min: 1, max: 12, req: true }),
       people: { t: 'strings', max: 50, itemMax: 80, def: [] }, customerId: F.id({}), sample: F.bool({}) } },
-    projectTasks: { key: 'id', check: (r) => ((!r.start) !== (!r.end) ? ['a task needs both a start and an end date, or neither'] : r.start && r.end < r.start ? ['the end date is before the start date'] : (r.deps || []).includes(r.id) ? ['a task cannot depend on itself'] : []),
+    projectTasks: { key: 'id', check: (r) => ((!r.start) !== (!r.end) ? [say('ui.data.chk.task_dates')] : r.start && r.end < r.start ? [say('ui.data.chk.end_before_start')] : (r.deps || []).includes(r.id) ? [say('ui.data.chk.task_self')] : []),
       indexes: [{ name: 'projectId', key: 'projectId' }, { name: 'customerId', key: 'customerId' }], fields: {
       id: F.id({ req: true }), projectId: F.id({ req: true }), title: F.str({ req: true, max: 200 }), description: F.text({}), column: F.str({ req: true, max: 40 }),
       order: F.int({ min: 0, max: 1e6, def: 0 }), assignee: F.str({ max: 80 }), priority: F.en(ENUM.taskPriority, { def: 'none' }),

@@ -4,6 +4,7 @@
 (function (g) {
   'use strict';
   const ns = (g.SlopData = g.SlopData || {});
+  const say = (k, v) => { const I = g.SlopI18n; return I && I.t ? I.t(k, v) : k; };   // words: shared/i18n/ui/<code>/data.js, data2.js
   const { ENUM, ACCT, DEFAULT_CHART, DEFAULT_SETTINGS, DEFAULT_SEQUENCES, FLOWS, RX, LINE, JLINE, COUNT, DEFS, COLLECTIONS, movementError, journalErrors, fxErrors } = ns.schemaDefs;
   const MAX = 9e12;
   const META = ['createdAt', 'updatedAt', 'version', 'deletedAt'];
@@ -34,48 +35,48 @@
   function checkValue(s, v, field, errors) {
     const bad = (message) => errors.push({ field, message });
     switch (s.t) {
-      case 'id': if (typeof v !== 'string' || v.length > 80) bad('must be an id of up to 80 characters'); break;
+      case 'id': if (typeof v !== 'string' || v.length > 80) bad(say('ui.data.v.id')); break;
       case 'string': case 'text': case 'currency': case 'locale': {
         const max = s.max || (s.t === 'text' ? 5000 : 200);
-        if (typeof v !== 'string' || v.length > max) bad(`must be text of at most ${max} characters`);
-        else if (s.pattern && !s.pattern.test(v)) bad('has an invalid format');
-        else if (s.t === 'currency' && !RX.currency.test(v)) bad('must be a 3-letter currency code');
-        else if (s.t === 'locale' && !RX.locale.test(v)) bad('must be a language tag such as en-US');
+        if (typeof v !== 'string' || v.length > max) bad(say('ui.data.v.text_max', { n: max }));
+        else if (s.pattern && !s.pattern.test(v)) bad(say('ui.data.v.format'));
+        else if (s.t === 'currency' && !RX.currency.test(v)) bad(say('ui.data.v.currency'));
+        else if (s.t === 'locale' && !RX.locale.test(v)) bad(say('ui.data.v.locale'));
         break;
       }
-      case 'bool': if (typeof v !== 'boolean') bad('must be true or false'); break;
-      case 'int': if (!Number.isSafeInteger(v) || v < s.min || v > s.max) bad(`must be a whole number from ${s.min} to ${s.max}`); break;
-      case 'money': if (!Number.isSafeInteger(v) || v < s.min || v > MAX) bad(`must be a whole amount in minor units, from ${s.min} to ${MAX}`); break;
-      case 'rate': if (!Number.isSafeInteger(v) || v < 0 || v > 10000) bad('must be a tax rate in basis points, 0 to 10000'); break;
-      case 'date': if (typeof v !== 'string' || !isDate(v)) bad('must be a date as YYYY-MM-DD'); break;
-      case 'ts': if (!Number.isSafeInteger(v) || v < 0) bad('must be a timestamp in milliseconds'); break;
-      case 'enum': if (!s.values.includes(v)) bad(`must be one of ${s.values.join(', ')}`); break;
-      case 'ean': if (!ns.barcode.isValidEan(v)) bad('must be an EAN-8, UPC-A, EAN-13 or GTIN-14 with a valid check digit'); break;
-      case 'entries': if (!Array.isArray(v) || v.length > s.max || v.some((e) => !isObj(e) || typeof e.value !== 'string' || !e.value || e.value.length > s.valMax || (e.label !== undefined && (typeof e.label !== 'string' || e.label.length > 40)))) bad(`must be up to ${s.max} labelled values of at most ${s.valMax} characters`); break;
-      case 'strings': if (!Array.isArray(v) || v.length > s.max || v.some((x) => typeof x !== 'string' || !x || x.length > s.itemMax)) bad(`must be up to ${s.max} tags of up to ${s.itemMax} characters`); break;
+      case 'bool': if (typeof v !== 'boolean') bad(say('ui.data.v.bool')); break;
+      case 'int': if (!Number.isSafeInteger(v) || v < s.min || v > s.max) bad(say('ui.data.v.int', { min: String(s.min), max: String(s.max) })); break;
+      case 'money': if (!Number.isSafeInteger(v) || v < s.min || v > MAX) bad(say('ui.data.v.money', { min: String(s.min), max: String(MAX) })); break;
+      case 'rate': if (!Number.isSafeInteger(v) || v < 0 || v > 10000) bad(say('ui.data.v.rate')); break;
+      case 'date': if (typeof v !== 'string' || !isDate(v)) bad(say('ui.data.v.date')); break;
+      case 'ts': if (!Number.isSafeInteger(v) || v < 0) bad(say('ui.data.v.ts')); break;
+      case 'enum': if (!s.values.includes(v)) bad(say('ui.data.v.enum', { list: s.values.join(', ') })); break;
+      case 'ean': if (!ns.barcode.isValidEan(v)) bad(say('ui.data.v.ean')); break;
+      case 'entries': if (!Array.isArray(v) || v.length > s.max || v.some((e) => !isObj(e) || typeof e.value !== 'string' || !e.value || e.value.length > s.valMax || (e.label !== undefined && (typeof e.label !== 'string' || e.label.length > 40)))) bad(say('ui.data.v.entries', { max: String(s.max), len: String(s.valMax) })); break;
+      case 'strings': if (!Array.isArray(v) || v.length > s.max || v.some((x) => typeof x !== 'string' || !x || x.length > s.itemMax)) bad(say('ui.data.v.tags', { max: String(s.max), len: String(s.itemMax) })); break;
       case 'lines': case 'jlines': case 'countLines': checkList(s, v, field, errors); break;
       case 'rows': checkRows(s, v, field, errors); break;
     }
   }
 
   function checkList(s, v, field, errors) {
-    if (!Array.isArray(v) || v.length < (s.min || 0)) { errors.push({ field, message: `needs at least ${s.min || 0} entr${s.min > 1 ? 'ies' : 'y'}` }); return; }
+    if (!Array.isArray(v) || v.length < (s.min || 0)) { errors.push({ field, message: say('ui.data.v.min_entries', { n: s.min || 0 }) }); return; }
     const specs = s.t === 'lines' ? LINE : s.t === 'jlines' ? JLINE : COUNT;
     v.forEach((l, i) => {
       const f = `${field}[${i}]`;
-      if (!isObj(l)) { errors.push({ field: f, message: 'must be an object' }); return; }
+      if (!isObj(l)) { errors.push({ field: f, message: say('ui.data.v.object') }); return; }
       checkFields(specs, l, errors, `${f}.`, []);
-      if (s.t === 'lines' && Math.abs(l.qty * l.unitPrice) > MAX) errors.push({ field: f, message: 'line amount is too large' });
+      if (s.t === 'lines' && Math.abs(l.qty * l.unitPrice) > MAX) errors.push({ field: f, message: say('ui.data.v.line_too_large') });
     });
   }
 
   /** A list of small records with their own field specs (s.of), at most s.max of them: a project's columns, a checklist. */
   function checkRows(s, v, field, errors) {
-    if (!Array.isArray(v) || v.length < (s.min || 0) || v.length > s.max) { errors.push({ field, message: `must be a list of ${s.min || 0} to ${s.max} entries` }); return; }
+    if (!Array.isArray(v) || v.length < (s.min || 0) || v.length > s.max) { errors.push({ field, message: say('ui.data.v.rows', { min: String(s.min || 0), max: String(s.max) }) }); return; }
     v.forEach((r, i) => {
       const f = `${field}[${i}]`;
-      if (!isObj(r)) { errors.push({ field: f, message: 'must be an object' }); return; }
-      for (const k of Object.keys(r)) if (!(k in s.of)) errors.push({ field: `${f}.${k}`, message: 'is not a field here' });
+      if (!isObj(r)) { errors.push({ field: f, message: say('ui.data.v.object') }); return; }
+      for (const k of Object.keys(r)) if (!(k in s.of)) errors.push({ field: `${f}.${k}`, message: say('ui.data.v.no_field_here') });
       checkFields(s.of, r, errors, `${f}.`, []);
     });
   }
@@ -84,7 +85,7 @@
     for (const [k, s] of Object.entries(specs)) {
       const v = rec[k];
       if (v === undefined || v === null || v === '') {
-        if (s.req && !skip.includes(k)) errors.push({ field: prefix + k, message: 'is required' });
+        if (s.req && !skip.includes(k)) errors.push({ field: prefix + k, message: say('ui.data.v.required') });
         continue;
       }
       checkValue(s, v, prefix + k, errors);
@@ -92,8 +93,8 @@
   }
 
   function checkMeta(rec, errors) {
-    for (const k of ['createdAt', 'updatedAt', 'deletedAt']) if (rec[k] !== undefined && !(Number.isSafeInteger(rec[k]) && rec[k] >= 0)) errors.push({ field: k, message: 'must be a timestamp' });
-    if (rec.version !== undefined && !(Number.isSafeInteger(rec.version) && rec.version >= 1)) errors.push({ field: 'version', message: 'must be a whole number from 1' });
+    for (const k of ['createdAt', 'updatedAt', 'deletedAt']) if (rec[k] !== undefined && !(Number.isSafeInteger(rec[k]) && rec[k] >= 0)) errors.push({ field: k, message: say('ui.data.v.timestamp') });
+    if (rec.version !== undefined && !(Number.isSafeInteger(rec.version) && rec.version >= 1)) errors.push({ field: 'version', message: say('ui.data.v.from_one') });
   }
 
   /** Totals must match what the lines say (skipped when the lines already have errors). */
@@ -103,16 +104,16 @@
     derive(c);
     const bad = ['subtotal', 'tax', 'total'].some((k) => c[k] !== rec[k])
       || c.lines.some((l, i) => ['net', 'tax', 'total'].some((k) => l[k] !== rec.lines[i][k]));
-    if (bad) errors.push({ field: 'total', message: 'does not match the lines' });
+    if (bad) errors.push({ field: 'total', message: say('ui.data.v.totals') });
   }
 
   /** Checks a record in its stored shape. opts: skipKey (no id yet), deferNumber (number assigned later). */
   function validate(name, rec, opts = {}) {
     const d = DEFS[name];
-    if (!d) return [{ field: '', message: `unknown collection ${name}` }];
-    if (!isObj(rec)) return [{ field: '', message: 'record must be an object' }];
+    if (!d) return [{ field: '', message: say('ui.data.err.collection', { name }) }];
+    if (!isObj(rec)) return [{ field: '', message: say('ui.data.err.record_object') }];
     const errors = [];
-    for (const k of Object.keys(rec)) if (!(k in d.fields) && !META.includes(k)) errors.push({ field: k, message: `is not a field of ${name}` });
+    for (const k of Object.keys(rec)) if (!(k in d.fields) && !META.includes(k)) errors.push({ field: k, message: say('ui.data.v.no_field', { name }) });
     checkFields(d.fields, rec, errors, '', opts.skipKey ? [d.key] : []);
     checkMeta(rec, errors);
     if (d.derive) checkDerived(rec, errors);
@@ -124,10 +125,10 @@
    *  Returns { ok, value, errors }. Unknown fields are errors; meta fields (createdAt...) are ignored. */
   function prepare(name, input, opts = {}) {
     const d = DEFS[name];
-    if (!d) return { ok: false, value: null, errors: [{ field: '', message: `unknown collection ${name}` }] };
-    if (!isObj(input)) return { ok: false, value: null, errors: [{ field: '', message: 'record must be an object' }] };
+    if (!d) return { ok: false, value: null, errors: [{ field: '', message: say('ui.data.err.collection', { name }) }] };
+    if (!isObj(input)) return { ok: false, value: null, errors: [{ field: '', message: say('ui.data.err.record_object') }] };
     const errors = [], out = {};
-    for (const k of Object.keys(input)) if (!(k in d.fields) && !META.includes(k)) errors.push({ field: k, message: `is not a field of ${name}` });
+    for (const k of Object.keys(input)) if (!(k in d.fields) && !META.includes(k)) errors.push({ field: k, message: say('ui.data.v.no_field', { name }) });
     for (const [k, s] of Object.entries(d.fields)) {
       let v = typeof input[k] === 'string' ? input[k].trim() : input[k];
       if (v === '' || v === null) v = undefined;
@@ -153,34 +154,35 @@
   /** Why a store.put may not move a record from prev to next, or null. */
   function checkTransition(name, prev, next) {
     const d = DEFS[name];
-    if (!d) return 'unknown collection';
-    if (d.immutable) return `${name} records cannot be changed`;
+    if (!d) return say('ui.data.err.collection', { name });
+    if (d.immutable) return say('ui.data.err.immutable', { name });
     const same = (keys) => keys.every((k) => JSON.stringify(prev[k]) === JSON.stringify(next[k]));
     const f = FLOWS[name];
     if (f) {
-      if (prev.status !== next.status && !(f.next[prev.status] || []).includes(next.status)) return `${f.noun} cannot go from ${prev.status} to ${next.status}`;
-      if (!f.open.includes(prev.status) && !same(f.lock)) return f.locked;
+      if (prev.status !== next.status && !(f.next[prev.status] || []).includes(next.status)) return say(f.noun, { from: say('ui.data.status.' + prev.status), to: say('ui.data.status.' + next.status) });
+      if (!f.open.includes(prev.status) && !same(f.lock)) return say(f.locked);
     }
     if (name === 'timeEntries' && prev.invoiceId && prev.invoiceId === next.invoiceId && !same(['date', 'customerId', 'minutes', 'rate', 'currency', 'billable'])) {
-      return 'billed time cannot be changed; void its invoice first';
+      return say('ui.data.err.billed_time_change');
     }
-    if (name === 'numbering' && next.next < prev.next) return 'a numbering sequence can only move forward';
+    if (name === 'numbering' && next.next < prev.next) return say('ui.data.err.numbering_back');
     return null;
   }
 
   /** Why a record may not be deleted, or null. */
   function removable(name, rec) {
     const d = DEFS[name];
-    if (!d) return 'unknown collection';
-    if (d.immutable) return `${name} records cannot be deleted`;
-    if (d.noRemove) return d.noRemove;
-    return d.removeRule ? d.removeRule(rec) : null;
+    if (!d) return say('ui.data.err.collection', { name });
+    if (d.immutable) return say('ui.data.err.immutable_rm', { name });
+    if (d.noRemove) return say(d.noRemove);
+    const why = d.removeRule ? d.removeRule(rec) : null;
+    return why ? say(why) : null;
   }
 
   /** Joins errors into one readable line: "lines[0].qty must be a whole number...". */
   function errorText(errors) {
     const e = (errors || [])[0];
-    return !e ? 'invalid record' : e.field ? `${e.field} ${e.message}` : e.message;
+    return !e ? say('ui.data.err.invalid') : e.field ? say('ui.data.err.field', { field: e.field, message: e.message }) : e.message;
   }
 
   ns.schema = {

@@ -4,6 +4,7 @@
 (function (g) {
   'use strict';
   const ns = (g.SlopData = g.SlopData || {});
+  const say = (k, v) => { const I = g.SlopI18n; return I && I.t ? I.t(k, v) : k; };   // words: shared/i18n/ui/<code>/data.js, data2.js
   const { ok, fail } = ns.result;
 
   /** Pure: quantity on hand for a product, optionally at one location. */
@@ -54,13 +55,13 @@
   async function moveIn(tx, m) {
     const p = await tx.get('products', m.productId);
     if (!p.ok) return p;
-    if (!p.value) return tx.fail(fail('not_found', `no product ${m.productId}`));
+    if (!p.value) return tx.fail(fail('not_found', say('ui.data.st.no_product', { id: String(m.productId) })));
     const location = m.location || 'main';
     if (m.qty < 0 && !m.allowNegative) {
       const rows = await tx.list('stockMovements', { index: 'productId', value: m.productId });
       if (!rows.ok) return rows;
       const have = onHandOf(rows.value, m.productId, location);
-      if (have + m.qty < 0) return tx.fail(fail('insufficient_stock', `only ${have} on hand at ${location}`));
+      if (have + m.qty < 0) return tx.fail(fail('insufficient_stock', say('ui.data.st.short', { have: String(have), location })));
     }
     return tx.put('stockMovements', {
       id: ns.store.newId(), productId: m.productId, location, qty: m.qty, reason: m.reason,
@@ -74,8 +75,8 @@
   /** Moves qty from one location to another, as two movements sharing one ref. */
   function transfer({ productId, from, to, qty, date, note } = {}) {
     return ns.store.transact(async (tx) => {
-      if (!Number.isSafeInteger(qty) || qty < 1) return fail('invalid', 'quantity must be a positive whole number');
-      if (!from || !to || from === to) return fail('invalid', 'a transfer needs two different locations');
+      if (!Number.isSafeInteger(qty) || qty < 1) return fail('invalid', say('ui.data.st.qty'));
+      if (!from || !to || from === to) return fail('invalid', say('ui.data.st.transfer'));
       const ref = `transfer:${ns.store.newId()}`;
       const out = await moveIn(tx, { productId, location: from, qty: -qty, reason: 'transfer', date, ref, note });
       if (!out.ok) return out;
@@ -87,8 +88,8 @@
   /** Stock count: one 'count' movement per difference and one stockCounts record, in one transaction. */
   function postCount({ location, date, counts = [], notes } = {}) {
     return ns.store.transact(async (tx) => {
-      if (!counts.length) return fail('invalid', 'a count needs at least one product');
-      if (counts.some((c) => !Number.isSafeInteger(c.counted) || c.counted < 0)) return fail('invalid', 'counted quantities must be whole numbers, zero or more');
+      if (!counts.length) return fail('invalid', say('ui.data.st.count_one'));
+      if (counts.some((c) => !Number.isSafeInteger(c.counted) || c.counted < 0)) return fail('invalid', say('ui.data.st.count_whole'));
       const all = await tx.list('stockMovements');
       if (!all.ok) return all;
       const id = ns.store.newId();
