@@ -44,8 +44,8 @@
       case 'Delete': TE.deleteDir(1, word); break;
       case 'Enter':
         if (mod) { handled = false; break; }
-        TE.insert(shift ? '\u2028' : '\n', shift ? 'Line break' : 'New paragraph'); break;
-      case 'Tab': if (mod) { handled = false; break; } TE.insert('\t', 'Tab'); break;
+        TE.insert(shift ? '\u2028' : '\n', PR.util.t(shift ? 'press.edit.undo_line_break' : 'press.edit.undo_new_paragraph')); break;
+      case 'Tab': if (mod) { handled = false; break; } TE.insert('\t', PR.util.t('press.edit.undo_tab')); break;
       case 'Escape': TE.exit(); PR.tools.set('select'); break;
       default: handled = false;
     }

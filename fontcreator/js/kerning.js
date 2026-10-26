@@ -4,7 +4,7 @@
  * Classic script. FC.kerning: mount(host), paint(), setPair(a, b), pair() → [a, b] ids, render(canvas, text, size). */
 (function (g) {
   'use strict';
-  const S = () => g.FC.state, F = () => g.SlopFont, M = () => g.SlopFont.model;
+  const S = () => g.FC.state, F = () => g.SlopFont, M = () => g.SlopFont.model, t = (k, v) => g.FC.t(k, v);
   const el = (tag, attrs = {}, ...kids) => { const n = document.createElement(tag); for (const k in attrs) if (attrs[k] != null) n.setAttribute(k, attrs[k]); n.append(...kids); return n; };
   let host = null, parts = {}, pair = ['u0041', 'u0056'], boxes = [];
 
@@ -45,21 +45,21 @@
   }
   function setPair(a, b) {
     const p = S().project(), A = M().find(p, a), B = M().find(p, b);
-    if (!A || !B) throw new Error(`Both letters must be in the font (${!A ? a : b} is not)`);
+    if (!A || !B) throw new Error(t('fontcreator.kern.not_in_font', { char: !A ? a : b }));
     pair = [A.id, B.id];
     paint();
     return pair;
   }
   function label(id) { const gl = M().find(S().project(), id); return gl && gl.unicode != null ? F().charset.label(gl.unicode) : id; }
-  function setValue(v) { S().edit(`Kern ${label(pair[0])}${label(pair[1])}`, 'meta', (p) => { M().setKern(p, pair[0], pair[1], v); }); }
+  function setValue(v) { S().edit(t('fontcreator.kern.undo_kern', { pair: label(pair[0]) + label(pair[1]) }), 'meta', (p) => { M().setKern(p, pair[0], pair[1], v); }); }
   function list() {
     const p = S().project(), rows = M().pairs(p).sort((x, y) => (label(x[0]) + label(x[1])).localeCompare(label(y[0]) + label(y[1])));
-    parts.count.textContent = rows.length ? `${rows.length} pair${rows.length === 1 ? '' : 's'}` : 'No pairs yet: pick two letters above.';
+    parts.count.textContent = rows.length ? t('fontcreator.kern.count', { n: rows.length }) : t('fontcreator.kern.empty');
     parts.list.replaceChildren(...rows.slice(0, 400).map(([a, b, v]) => {
       const pick = el('button', { type: 'button', class: 'sui-btn fc-kern-pair' + (a === pair[0] && b === pair[1] ? ' fc-on' : ''), 'data-pair': a + ' ' + b }, `${label(a)}${label(b)}  ${v > 0 ? '+' : ''}${v}`);
       pick.addEventListener('click', () => setPair(a, b));
-      const del = el('button', { type: 'button', class: 'sui-btn fc-kern-del', 'aria-label': `Remove the pair ${label(a)}${label(b)}` }, '×');
-      del.addEventListener('click', () => S().edit('Remove a kerning pair', 'meta', (pp) => { M().setKern(pp, a, b, 0); }));
+      const del = el('button', { type: 'button', class: 'sui-btn fc-kern-del', 'aria-label': t('fontcreator.kern.remove_pair', { pair: label(a) + label(b) }) }, '×');
+      del.addEventListener('click', () => S().edit(t('fontcreator.kern.undo_remove'), 'meta', (pp) => { M().setKern(pp, a, b, 0); }));
       return el('li', {}, pick, del);
     }));
   }
@@ -78,14 +78,15 @@
   }
   function mount(el0) {
     host = el0;
-    const a = el('input', { type: 'text', id: 'fc-kern-a', maxlength: '2', 'aria-label': 'Left letter', autocomplete: 'off', spellcheck: 'false' });
-    const b = el('input', { type: 'text', id: 'fc-kern-b', maxlength: '2', 'aria-label': 'Right letter', autocomplete: 'off', spellcheck: 'false' });
-    const range = el('input', { type: 'range', id: 'fc-kern-range', step: '1', 'aria-label': 'Kerning of the pair' });
-    const num = el('input', { type: 'number', id: 'fc-kern-value', step: '1', 'aria-label': 'Kerning in font units' });
-    const sample = el('input', { type: 'text', id: 'fc-kern-sample', 'aria-label': 'Sample text', autocomplete: 'off' });
+    const mk = g.FC.mark, lab = (k) => mk(el('span', { class: 'sf-lab' }), { text: k });
+    const a = mk(el('input', { type: 'text', id: 'fc-kern-a', maxlength: '2', autocomplete: 'off', spellcheck: 'false' }), { 'aria-label': 'fontcreator.kern.left_label' });
+    const b = mk(el('input', { type: 'text', id: 'fc-kern-b', maxlength: '2', autocomplete: 'off', spellcheck: 'false' }), { 'aria-label': 'fontcreator.kern.right_label' });
+    const range = mk(el('input', { type: 'range', id: 'fc-kern-range', step: '1' }), { 'aria-label': 'fontcreator.kern.range_label' });
+    const num = mk(el('input', { type: 'number', id: 'fc-kern-value', step: '1' }), { 'aria-label': 'fontcreator.kern.value_label' });
+    const sample = mk(el('input', { type: 'text', id: 'fc-kern-sample', autocomplete: 'off' }), { 'aria-label': 'fontcreator.kern.sample_label' });
     const pairCanvas = el('canvas', { id: 'fc-kern-pair-canvas', class: 'fc-kern-canvas', 'aria-hidden': 'true' });
-    const canvas = el('canvas', { id: 'fc-kern-canvas', class: 'fc-kern-canvas', role: 'img', 'aria-label': 'The sample text with the kerning. Click between two letters to pick that pair.' });
-    const listEl = el('ul', { class: 'fc-kern-list', id: 'fc-kern-list', 'aria-label': 'Kerning pairs' }), count = el('p', { class: 'sf-note', id: 'fc-kern-count' });
+    const canvas = mk(el('canvas', { id: 'fc-kern-canvas', class: 'fc-kern-canvas', role: 'img' }), { 'aria-label': 'fontcreator.kern.canvas_label' });
+    const listEl = mk(el('ul', { class: 'fc-kern-list', id: 'fc-kern-list' }), { 'aria-label': 'fontcreator.kern.list_label' }), count = el('p', { class: 'sf-note', id: 'fc-kern-count' });
     parts = { a, b, range, num, sample, canvas, pairCanvas, list: listEl, count };
     const pick = () => { if (a.value && b.value) { try { setPair(a.value, b.value); } catch (e) { g.SlopUI.toast(e.message); } } };
     a.addEventListener('change', pick); b.addEventListener('change', pick);
@@ -101,13 +102,14 @@
       if (best) setPair(best.prev, best.id);
     });
     host.append(
-      el('div', { class: 'fc-kern-head' }, el('label', { class: 'sf-field fc-kern-letter' }, el('span', { class: 'sf-lab' }, 'Left'), a),
-        el('label', { class: 'sf-field fc-kern-letter' }, el('span', { class: 'sf-lab' }, 'Right'), b),
-        el('label', { class: 'sf-field fc-kern-amount' }, el('span', { class: 'sf-lab' }, 'Kerning (units)'), el('span', { class: 'fc-kern-ctl' }, range, num))),
+      el('div', { class: 'fc-kern-head' }, el('label', { class: 'sf-field fc-kern-letter' }, lab('fontcreator.kern.left'), a),
+        el('label', { class: 'sf-field fc-kern-letter' }, lab('fontcreator.kern.right'), b),
+        el('label', { class: 'sf-field fc-kern-amount' }, lab('fontcreator.kern.amount'), el('span', { class: 'fc-kern-ctl' }, range, num))),
       el('div', { class: 'fc-kern-view' }, pairCanvas),
-      el('label', { class: 'sf-field' }, el('span', { class: 'sf-lab' }, 'Sample line'), sample),
+      el('label', { class: 'sf-field' }, lab('fontcreator.kern.sample'), sample),
       el('div', { class: 'fc-kern-view' }, canvas), count, listEl);
     S().on((e) => { if (e.what !== 'select') paint(); });
+    g.FC.onLang(paint);   // the count and the list (the labels: data-i18n)
   }
   g.FC.kerning = { mount, paint, setPair, pair: () => pair.slice(), render, layout };
 })(window);

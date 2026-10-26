@@ -25,7 +25,7 @@
         it = M.item('image', x0 + (bw - w) / 2, y0 + (bh - h) / 2, w, h, { asset: aid, fit: 'fill', name: name || '', layer: PR.layers.active || null });
         I.add(S.doc, s.items, it);
       }
-      if (!opts.noCommit) { H.commit('Place image'); PR.select([it.id]); }
+      if (!opts.noCommit) { H.commit(U.t('press.edit.undo_place_image')); PR.select([it.id]); }
       return it;
     });
   };
@@ -40,15 +40,15 @@
     if (st.paras.length > 1 && /^.{1,80}$/.test(st.text.split('\n')[0])) st.paras[0].ps = d.styles.para['Heading 1'] ? 'Heading 1' : st.paras[0].ps;
     PR.touch();
     var added = opts.autoflow && s.pageIdx != null ? PR.engine.autoflow(fr.story) : 0;
-    H.commit('Place text'); PR.select([fr.id]);
-    if (added) U.toast('Placed text: ' + added + ' page' + (added === 1 ? '' : 's') + ' added');
+    H.commit(U.t('press.edit.undo_place_text')); PR.select([fr.id]);
+    if (added) U.toast(U.t('press.io.placed_text', { n: added }));
     return fr;
   };
   /** Renders a PDF's pages to images and places them one per page (adding pages as needed). */
   PL.pdf = function (bytes, name) {
     var base = SCRIPT ? new URL('../../../vendor/pdfjs/', SCRIPT).href : new URL('../vendor/pdfjs/', document.baseURI).href;
     var libP = window.pdfjsLib ? Promise.resolve(window.pdfjsLib) : import(new URL('../../shared/compat/pdfjs.js', base).href).then(function (m) { return m.loadPdfjs(base); }).then(function (lib) { window.pdfjsLib = lib; return lib; });
-    U.toast('Rendering PDF pages…');
+    U.toast(U.t('press.io.rendering_pdf'));
     return libP.then(function (lib) {
       return lib.getDocument({ data: bytes.slice(), isEvalSupported: false, standardFontDataUrl: base + 'standard_fonts/', cMapUrl: base + 'cmaps/', cMapPacked: true }).promise;
     }).then(function (pdf) {
@@ -60,12 +60,13 @@
             var idx = start + k - 1;
             if (!S.doc.pages[idx]) P.insertPages(S.doc, idx, 1);
             S.page = idx;
-            return PL.image(c.toDataURL('image/jpeg', 0.9), null, (name || 'PDF') + ' p' + k, { fill: true, noCommit: true, surface: { items: S.doc.pages[idx].items, side: P.side(S.doc, idx), pageIdx: idx } });
+            return PL.image(c.toDataURL('image/jpeg', 0.9), null, (name || 'PDF') + ' p' + k, // i18n-ignore: the frame's name in the document
+                 { fill: true, noCommit: true, surface: { items: S.doc.pages[idx].items, side: P.side(S.doc, idx), pageIdx: idx } });
           });
         });
       })(k);
-      return chain.then(function () { H.commit('Place PDF'); PR.goPage(start); U.toast('Placed ' + n + ' PDF page' + (n === 1 ? '' : 's')); });
-    }).catch(function (e) { U.toast('Could not read PDF: ' + e.message); });
+      return chain.then(function () { H.commit(U.t('press.edit.undo_place_pdf')); PR.goPage(start); U.toast(U.t('press.io.placed_pdf', { n: n })); });
+    }).catch(function (e) { U.toast(U.t('press.io.pdf_failed', { error: e.message })); });
   };
   /** Places files (from a picker, drop or paste). opts.fill: images fill the page. */
   PL.files = function (files, opts) {
@@ -76,8 +77,8 @@
         if (f.type === 'application/pdf' || /\.pdf$/i.test(f.name)) return f.arrayBuffer().then(function (b) { return PL.pdf(new Uint8Array(b), f.name); });
         if (/\.(slpress)$/i.test(f.name)) return PR.io.openAny(f);
         if (/^text\//.test(f.type) || /\.(txt|md|csv)$/i.test(f.name)) return f.text().then(function (t) { return PL.text(t, { autoflow: true }); });
-        if (/\.(ttf|otf)$/i.test(f.name)) return PR.fonts.addFile(S.doc, f).then(function (fam) { H.commit('Load font'); U.toast('Font loaded: ' + fam); });
-        U.toast('Cannot place ' + f.name);
+        if (/\.(ttf|otf)$/i.test(f.name)) return PR.fonts.addFile(S.doc, f).then(function (fam) { H.commit(U.t('press.edit.undo_load_font')); U.toast(U.t('press.io.font_loaded', { name: fam })); });
+        U.toast(U.t('press.io.cannot_place', { name: f.name }));
       });
     }, Promise.resolve());
   };

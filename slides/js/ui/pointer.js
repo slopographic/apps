@@ -6,6 +6,7 @@
    Exposes window.SS.pointer.bind(canvas). */
 (function () {
   'use strict';
+  var SU = window.SS.util;
   var SS = window.SS, A = SS.app, O = SS.objects, U = SS.util, St = SS.stage, OV = SS.overlay, SN = SS.snap;
   var P = SS.pointer = {};
   var last = null, drag = null;
@@ -25,7 +26,7 @@
     var sel = A.selObjs();
     if (h) {
       var o = sel[0];
-      drag = { kind: 'resize', h: h, o: o, b0: { x: o.x, y: o.y, w: o.w, h: o.h }, p0: p, label: 'Resize' };
+      drag = { kind: 'resize', h: h, o: o, b0: { x: o.x, y: o.y, w: o.w, h: o.h }, p0: p, label: SU.t('slides.op.resize') };
     } else {
       if (e.shiftKey) {
         var ids = A.sel.slice(), i = ids.indexOf(hit.id);
@@ -35,7 +36,7 @@
       var items = A.selObjs().map(function (o2) { return { o: o2, x: o2.x, y: o2.y }; });
       var ids2 = items.map(function (it) { return it.o.id; });
       drag = {
-        kind: 'move', items: items, p0: p, label: 'Move',
+        kind: 'move', items: items, p0: p, label: SU.t('slides.op.move'),
         box: O.union(items.map(function (it) { return it.o; })),
         others: A.slide().objects.filter(function (o3) { return ids2.indexOf(o3.id) < 0; }).map(O.bounds)
       };

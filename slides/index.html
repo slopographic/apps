@@ -4,6 +4,8 @@
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="slides" data-src="shared/theme/theme.js"></script>
   <link rel="expect" href="#slop-built" blocking="render">
+  <script src="../shared/i18n/i18n.js" data-src="shared/i18n/i18n.js"></script>
+  <script src="i18n/index.js" data-src="slides/i18n/index.js"></script>
 <script src="../shared/consent/config.js"></script>
 <script src="../shared/consent/state.js"></script>
 <script src="../shared/consent/consent-mode.js"></script>
@@ -48,61 +50,61 @@
 <body>
   <div class="app" id="app">
     <header class="top">
-      <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home">
+      <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home" data-i18n-attr="title:slides.app.home;aria-label:slides.app.home">
         <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/></svg>
       </a>
       <div class="appname"><b>Slop Slides</b></div>
-      <label class="doc-title"><span class="sr">Presentation title</span><input id="title" type="text" spellcheck="false" autocomplete="off" value="Untitled presentation"></label>
+      <label class="doc-title"><span class="sr" data-i18n="slides.app.doc_title">Presentation title</span><input id="title" type="text" spellcheck="false" autocomplete="off" value="Untitled presentation"></label>
       <div class="tb-group">
-        <button type="button" class="tb-btn" id="btnFile" aria-haspopup="menu">File</button>
-        <button type="button" class="tb-btn icon" id="btnUndo" aria-label="Undo" disabled>&#8630;</button>
-        <button type="button" class="tb-btn icon" id="btnRedo" aria-label="Redo" disabled>&#8631;</button>
+        <button type="button" class="tb-btn" id="btnFile" aria-haspopup="menu" data-i18n="menu.file">File</button>
+        <button type="button" class="tb-btn icon" id="btnUndo" aria-label="Undo" data-i18n-attr="aria-label:ui.undo" disabled>&#8630;</button>
+        <button type="button" class="tb-btn icon" id="btnRedo" aria-label="Redo" data-i18n-attr="aria-label:ui.redo" disabled>&#8631;</button>
       </div>
-      <div class="tb-group tb-tools" role="toolbar" aria-label="Insert">
-        <button type="button" class="tb-btn" id="insText">Text</button>
-        <button type="button" class="tb-btn" id="insRect">Rectangle</button>
-        <button type="button" class="tb-btn" id="insEllipse">Ellipse</button>
-        <button type="button" class="tb-btn" id="insImage">Picture</button>
+      <div class="tb-group tb-tools" role="toolbar" aria-label="Insert" data-i18n-attr="aria-label:slides.app.insert">
+        <button type="button" class="tb-btn" id="insText" data-i18n="slides.app.ins_text">Text</button>
+        <button type="button" class="tb-btn" id="insRect" data-i18n="slides.app.ins_rect">Rectangle</button>
+        <button type="button" class="tb-btn" id="insEllipse" data-i18n="slides.app.ins_ellipse">Ellipse</button>
+        <button type="button" class="tb-btn" id="insImage" data-i18n="slides.app.ins_image">Picture</button>
       </div>
       <div class="tb-group tb-tools">
-        <label class="sel">Layout <select id="selLayout" aria-label="Layout of this slide"></select></label>
-        <label class="sel">Theme <select id="selTheme" aria-label="Theme"></select></label>
+        <label class="sel"><span data-i18n="slides.app.layout">Layout</span> <select id="selLayout" aria-label="Layout of this slide" data-i18n-attr="aria-label:slides.app.layout_label"></select></label>
+        <label class="sel"><span data-i18n="slides.app.theme">Theme</span> <select id="selTheme" aria-label="Theme" data-i18n-attr="aria-label:slides.app.theme"></select></label>
       </div>
       <span class="tb-flex"></span>
       <span class="save-state" id="saveState" aria-live="polite"></span>
-      <button type="button" class="tb-btn primary" id="btnSave">Save</button>
-      <button type="button" class="tb-btn" id="btnPresent">Present</button>
-      <button type="button" class="tb-btn sl-phone" id="btnInspector" aria-expanded="false">Properties</button>
-      <button type="button" class="tb-btn icon" id="btnPalette" aria-label="Search commands" title="Search commands" hidden>&#8984;K</button>
+      <button type="button" class="tb-btn primary" id="btnSave" data-i18n="menu.save">Save</button>
+      <button type="button" class="tb-btn" id="btnPresent" data-i18n="slides.app.present">Present</button>
+      <button type="button" class="tb-btn sl-phone" id="btnInspector" aria-expanded="false" data-i18n="slides.app.properties">Properties</button>
+      <button type="button" class="tb-btn icon" id="btnPalette" aria-label="Search commands" title="Search commands" data-i18n-attr="aria-label:slides.app.search_cmds;title:slides.app.search_cmds" hidden>&#8984;K</button>
     </header>
     <div id="tabs" class="doctabs-host"></div>
 
     <div class="body">
-      <aside class="slides-pane" aria-label="Slides">
-        <ul class="slides-list" id="slides-list" aria-label="Slides"></ul>
-        <div class="slide-tools" role="toolbar" aria-label="Slide actions">
-          <button type="button" id="slNew" title="New slide">+ Slide</button>
-          <button type="button" id="slDup" title="Duplicate slide">Duplicate</button>
-          <button type="button" id="slDel" title="Delete slide">Delete</button>
-          <button type="button" id="slUp" title="Move slide up" aria-label="Move slide up">&#8593;</button>
-          <button type="button" id="slDown" title="Move slide down" aria-label="Move slide down">&#8595;</button>
+      <aside class="slides-pane" aria-label="Slides" data-i18n-attr="aria-label:slides.app.slides">
+        <ul class="slides-list" id="slides-list" aria-label="Slides" data-i18n-attr="aria-label:slides.app.slides"></ul>
+        <div class="slide-tools" role="toolbar" aria-label="Slide actions" data-i18n-attr="aria-label:slides.app.slide_actions">
+          <button type="button" id="slNew" title="New slide" data-i18n-attr="title:slides.app.new_slide" data-i18n="slides.app.new_slide_short">+ Slide</button>
+          <button type="button" id="slDup" title="Duplicate slide" data-i18n-attr="title:slides.app.dup_slide" data-i18n="ui.duplicate">Duplicate</button>
+          <button type="button" id="slDel" title="Delete slide" data-i18n-attr="title:slides.app.del_slide" data-i18n="ui.delete">Delete</button>
+          <button type="button" id="slUp" title="Move slide up" aria-label="Move slide up" data-i18n-attr="title:slides.app.slide_up;aria-label:slides.app.slide_up">&#8593;</button>
+          <button type="button" id="slDown" title="Move slide down" aria-label="Move slide down" data-i18n-attr="title:slides.app.slide_down;aria-label:slides.app.slide_down">&#8595;</button>
         </div>
       </aside>
 
-      <main class="stage" id="stage" aria-label="Slide">
-        <canvas id="canvas" tabindex="0" role="img" aria-label="Current slide"></canvas>
-        <textarea id="editor" class="editor" hidden aria-label="Edit text" spellcheck="true"></textarea>
+      <main class="stage" id="stage" aria-label="Slide" data-i18n-attr="aria-label:slides.app.slide">
+        <canvas id="canvas" tabindex="0" role="img" aria-label="Current slide" data-i18n-attr="aria-label:slides.app.current_slide"></canvas>
+        <textarea id="editor" class="editor" hidden aria-label="Edit text" data-i18n-attr="aria-label:slides.app.edit_text" spellcheck="true"></textarea>
         <div class="ss-drop" id="ssDrop"></div>
       </main>
 
-      <aside class="inspector" id="inspector" aria-label="Properties"></aside>
+      <aside class="inspector" id="inspector" aria-label="Properties" data-i18n-attr="aria-label:slides.app.properties"></aside>
     </div>
 
     <footer class="status">
       <span id="statusSlide"></span>
       <span id="statusSel"></span>
       <span class="tb-flex"></span>
-      <span class="local">Local to this browser. Nothing is uploaded.</span>
+      <span class="local" data-i18n="slides.app.local">Local to this browser. Nothing is uploaded.</span>
     </footer>
   </div>
 

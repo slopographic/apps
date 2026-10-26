@@ -87,7 +87,7 @@
     var geom = '<a:prstGeom prst="' + (PRST[o.shape] || 'rect') + '"><a:avLst>' + adj + '</a:avLst></a:prstGeom>';
     var fill = line ? '<a:noFill/>' : fillXml(theme, o.fill);
     var hasText = o.text && O.plain(o.text).trim() && !line;
-    return '<p:sp><p:nvSpPr><p:cNvPr id="' + id + '" name="' + U.esc(o.name || 'Shape') + '"/><p:cNvSpPr/><p:nvPr/></p:nvSpPr>' +
+    return '<p:sp><p:nvSpPr><p:cNvPr id="' + id + '" name="' + U.esc(o.name || 'Shape') + '"/><p:cNvSpPr/><p:nvPr/></p:nvSpPr>' + // i18n-ignore
       '<p:spPr>' + xfrm(o) + geom + fill + lineXml(theme, o) + '</p:spPr>' +
       (hasText ? txBody(o, theme, o.style || {}) : '') + '</p:sp>';
   }
@@ -95,7 +95,7 @@
     var c = o.crop || {};
     var crop = (c.l || c.t || c.r || c.b) ? '<a:srcRect l="' + Math.round((c.l || 0) * 100000) + '" t="' + Math.round((c.t || 0) * 100000) +
       '" r="' + Math.round((c.r || 0) * 100000) + '" b="' + Math.round((c.b || 0) * 100000) + '"/>' : '';
-    return '<p:pic><p:nvPicPr><p:cNvPr id="' + id + '" name="' + U.esc(o.name || 'Picture') + '"/><p:cNvPicPr><a:picLocks noChangeAspect="1"/></p:cNvPicPr><p:nvPr/></p:nvPicPr>' +
+    return '<p:pic><p:nvPicPr><p:cNvPr id="' + id + '" name="' + U.esc(o.name || 'Picture') + '"/><p:cNvPicPr><a:picLocks noChangeAspect="1"/></p:cNvPicPr><p:nvPr/></p:nvPicPr>' + // i18n-ignore
       '<p:blipFill><a:blip r:embed="' + rid + '"/>' + crop + '<a:stretch><a:fillRect/></a:stretch></p:blipFill>' +
       '<p:spPr>' + xfrm(o) + '<a:prstGeom prst="rect"><a:avLst/></a:prstGeom></p:spPr></p:pic>';
   }
@@ -136,7 +136,7 @@
   function themeXml(theme) {
     var c = theme.colors, f = theme.fonts, lnFill = '<a:solidFill><a:schemeClr val="phClr"/></a:solidFill>';
     var clr = function (k, v) { return '<a:' + k + '><a:srgbClr val="' + hex(theme, v) + '"/></a:' + k + '>'; };
-    return HDR + '<a:theme xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" name="' + U.esc(theme.name || 'Slop') + '"><a:themeElements>' +
+    return HDR + '<a:theme xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" name="' + U.esc(theme.name || 'Slop') + '"><a:themeElements>' + // i18n-ignore
       '<a:clrScheme name="Slop">' + clr('dk1', c.text) + clr('lt1', c.bg) + clr('dk2', c.text2) + clr('lt2', c.bg2) +
       ['accent1', 'accent2', 'accent3', 'accent4', 'accent5', 'accent6'].map(function (k, i) { return clr('accent' + (i + 1), c[k]); }).join('') +
       clr('hlink', c.accent3) + clr('folHlink', c.accent4) + '</a:clrScheme>' +

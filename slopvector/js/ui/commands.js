@@ -10,7 +10,9 @@
   function keyLabel() { return $.keyLabel.apply(this, arguments); }
   SV.cmdOn = false;
 
-  var GROUPS = { file: 'File', edit: 'Edit', object: 'Object', arrange: 'Object', transform: 'Object', compound: 'Object', pf: 'Object', type: 'Type', select: 'Select', view: 'View', theme: 'View', window: 'Window', help: 'Help' };
+  var t = SV.t;
+  /** The palette groups: the menu titles (keys), read on every registration so they follow a language switch. */
+  var GROUPS = { file: 'menu.file', edit: 'menu.edit', object: 'vector.menu.object', arrange: 'vector.menu.object', transform: 'vector.menu.object', compound: 'vector.menu.object', pf: 'vector.menu.object', type: 'vector.menu.type', select: 'vector.menu.select', view: 'menu.view', theme: 'menu.view', window: 'vector.menu.window', help: 'menu.help' };
   // The native copy/cut/paste events carry the clipboard, so those keys stay with keys.js.
   var NATIVE = { 'edit.copy': 1, 'edit.cut': 1, 'edit.paste': 1 };
   var EXTRA = { 'edit.clear': ['Delete', 'Backspace'], 'window.togglePanels': ['Tab'], 'help.shortcuts': ['F1', 'Shift+Mod+/'], 'file.new': ['Mod+N'] };
@@ -29,7 +31,7 @@
     return Object.keys(A).map(function (id) {
       var a = A[id];
       var keys = NATIVE[id] ? [] : a.keys.map(toCmd).concat(EXTRA[id] || []);
-      return { id: 'sv.' + id, title: a.label, group: GROUPS[id.split('.')[0]] || 'Other', keys: keys, keywords: [id.split('.')[0]],
+      return { id: 'sv.' + id, title: a.label, group: t(GROUPS[id.split('.')[0]] || 'vector.cmd.group_other'), keys: keys, keywords: [id.split('.')[0]],
         when: gate(a.enabled), checked: a.checked, run: function () { SV.runAction(id); } };
     });
   }
@@ -37,24 +39,25 @@
     var keysOf = {};
     var TK = SV._tools.TOOL_KEYS;
     Object.keys(TK).forEach(function (k) { (keysOf[TK[k]] = keysOf[TK[k]] || []).push(k.replace(/^shift\+/, 'Shift+').replace(/^([a-z])$/, function (m) { return m.toUpperCase(); }).replace(/\+([a-z])$/, function (m, c) { return '+' + c.toUpperCase(); })); });
-    return SV.TOOL_LIST.map(function (t) {
-      return { id: 'sv.tool.' + t.id, title: t.name + ' tool', group: 'Tools', keys: keysOf[t.id] || [], keywords: ['tool'], when: gate(), checked: function () { return S.tool === t.id; }, run: function () { SV.setTool(t.id); } };
+    return SV.TOOL_LIST.map(function (tl) {
+      return { id: 'sv.tool.' + tl.id, title: t('vector.cmd.tool_title', { name: tl.name }), group: t('vector.cmd.group_tools'), keys: keysOf[tl.id] || [], keywords: ['tool'], when: gate(), checked: function () { return S.tool === tl.id; }, run: function () { SV.setTool(tl.id); } };
     });
   }
   function canvasCommands() {
     var C = SV.cmd, out = [];
-    function K(id, title, keys, run, when, extra) { out.push(Object.assign({ id: 'sv.' + id, title: title, group: 'Canvas', keys: keys, run: run, when: gate(when) }, extra || {})); }
-    K('focus.toggle', 'Toggle fill / stroke focus', [], function () { S.focus = S.focus === 'fill' ? 'stroke' : 'fill'; SV.requestRender(true); });
-    K('paint.swap', 'Swap fill and stroke colours', ['X', 'Shift+X'], function () { SV.swapFillStroke(); });
-    K('paint.default', 'Default fill and stroke', ['D'], function () { SV.defaultFillStroke(); });
-    K('paint.none', 'Set focused paint to None', ['/'], function () { SV.applyStyle(S.focus, null); });
-    K('paint.color', 'Set focused paint to a colour', [','], function () { var cp = SV.currentPaint(S.focus); SV.applyStyle(S.focus, typeof cp === 'string' ? cp : (cp && cp.stops ? cp.stops[0].c : '#d4ff3a')); });
-    K('paint.gradient', 'Set focused paint to a gradient', ['.'], function () { var gp = SV.currentPaint(S.focus); SV.applyStyle(S.focus, gp && typeof gp === 'object' ? gp : SV.defaultGradient(gp)); });
+    var group = t('vector.cmd.group_canvas');
+    function K(id, title, keys, run, when, extra) { out.push(Object.assign({ id: 'sv.' + id, title: title, group: group, keys: keys, run: run, when: gate(when) }, extra || {})); }
+    K('focus.toggle', t('vector.cmd.focus_toggle'), [], function () { S.focus = S.focus === 'fill' ? 'stroke' : 'fill'; SV.requestRender(true); });
+    K('paint.swap', t('vector.cmd.paint_swap'), ['X', 'Shift+X'], function () { SV.swapFillStroke(); });
+    K('paint.default', t('vector.cmd.paint_default'), ['D'], function () { SV.defaultFillStroke(); });
+    K('paint.none', t('vector.cmd.paint_none'), ['/'], function () { SV.applyStyle(S.focus, null); });
+    K('paint.color', t('vector.cmd.paint_color'), [','], function () { var cp = SV.currentPaint(S.focus); SV.applyStyle(S.focus, typeof cp === 'string' ? cp : (cp && cp.stops ? cp.stops[0].c : '#d4ff3a')); });
+    K('paint.gradient', t('vector.cmd.paint_gradient'), ['.'], function () { var gp = SV.currentPaint(S.focus); SV.applyStyle(S.focus, gp && typeof gp === 'object' ? gp : SV.defaultGradient(gp)); });
     var noShapeOp = function () { return !(S.op && S.op.kind === 'shape'); };
-    [['left', -1, 0], ['right', 1, 0], ['up', 0, -1], ['down', 0, 1]].forEach(function (d) {
+    [['left', -1, 0, t('vector.cmd.nudge_left')], ['right', 1, 0, t('vector.cmd.nudge_right')], ['up', 0, -1, t('vector.cmd.nudge_up')], ['down', 0, 1, t('vector.cmd.nudge_down')]].forEach(function (d) {
       var key = 'Arrow' + d[0][0].toUpperCase() + d[0].slice(1);
-      K('nudge.' + d[0], 'Nudge ' + d[0], [key], function () { var i = S.prefs.keyInc; C.nudge(d[1] * i, d[2] * i); }, noShapeOp, { repeat: true });
-      K('nudge.' + d[0] + '10', 'Nudge ' + d[0] + ' ×10', ['Shift+' + key], function () { var i = S.prefs.keyInc * 10; C.nudge(d[1] * i, d[2] * i); }, noShapeOp, { repeat: true });
+      K('nudge.' + d[0], d[3], [key], function () { var i = S.prefs.keyInc; C.nudge(d[1] * i, d[2] * i); }, noShapeOp, { repeat: true });
+      K('nudge.' + d[0] + '10', t('vector.cmd.nudge_10', { what: d[3] }), ['Shift+' + key], function () { var i = S.prefs.keyInc * 10; C.nudge(d[1] * i, d[2] * i); }, noShapeOp, { repeat: true });
     });
     return out;
   }
@@ -65,7 +68,7 @@
     if (SV.cmdOn && !NATIVE[a.id]) return window.SlopCmd.keyFor('sv.' + a.id);
     return a.keyText || keyLabel(a.keys[0]);
   };
-  act('help.commands', 'Search Commands…', [], function () { if (SV.cmdOn) window.SlopCmd.open(); else SV.runAction('help.shortcuts'); });
+  act('help.commands', [], function () { if (SV.cmdOn) window.SlopCmd.open(); else SV.runAction('help.shortcuts'); });
   var oldShortcuts = A['help.shortcuts'].run;
   A['help.shortcuts'].run = function () { if (SV.cmdOn) window.SlopCmd.openKeymap(); else oldShortcuts(); };
 
@@ -83,13 +86,18 @@
   SV.wireCommands = function () {
     var SC = window.SlopCmd;
     if (!SC || !SC.register) return false;
+    // Built on every call (registration and each language change), so titles and groups read the current language.
+    function all() { return actionCommands().filter(function (c) { return c.id !== 'sv.help.commands'; }).concat(toolCommands(), canvasCommands()); }
     try {
       SC.init({ app: 'vector' });
-      SC.register(actionCommands().filter(function (c) { return c.id !== 'sv.help.commands'; }).concat(toolCommands(), canvasCommands()));
+      var b = document.getElementById('cmdBtn');
+      SV.live(function () {
+        SC.register(all());
+        if (b) b.title = t('ui.cmd.fab_tip', { key: SC.keyFor('cmd.palette') });
+      });
       SV.cmdOn = true;
       if (SC.provide) SC.provide({ prepare: SV.prepareAI });
-      var b = document.getElementById('cmdBtn');
-      if (b) { b.hidden = false; b.title = 'Search commands (' + SC.keyFor('cmd.palette') + ')'; b.addEventListener('click', function () { SC.open(); }); }
+      if (b) { b.hidden = false; b.addEventListener('click', function () { SC.open(); }); }
     } catch (e) { console.warn(e); SV.cmdOn = false; }
     return SV.cmdOn;
   };

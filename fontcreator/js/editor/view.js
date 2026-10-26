@@ -101,7 +101,7 @@
   function mount(host) {
     canvas = document.createElement('canvas');
     canvas.id = 'fc-canvas'; canvas.className = 'fc-canvas'; canvas.tabIndex = 0;
-    canvas.setAttribute('aria-label', 'The glyph. Draw with the tools above; arrow keys move the selected points.');
+    g.FC.mark(canvas, { 'aria-label': 'fontcreator.ops.canvas_label' });
     canvas.setAttribute('data-touch-surface', 'wheel');
     host.append(canvas);
     ctx = canvas.getContext('2d');

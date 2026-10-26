@@ -53,12 +53,12 @@
   SV.undo = function () {
     if (S.editing) return;
     if (S.pen) SV.finishPen();
-    if (S.hIdx <= 0) return SV.toast('Nothing to undo');
+    if (S.hIdx <= 0) return SV.toast(SV.t('ui.undo.nothing'));
     S.hIdx--; restore(S.history[S.hIdx]); SV.scheduleAutosave();
   };
   SV.redo = function () {
     if (S.editing) return;
-    if (S.hIdx >= S.history.length - 1) return SV.toast('Nothing to redo');
+    if (S.hIdx >= S.history.length - 1) return SV.toast(SV.t('vector.msg.nothing_redo'));
     S.hIdx++; restore(S.history[S.hIdx]); SV.scheduleAutosave();
   };
   SV.revert = function () { if (S.hIdx >= 0) restore(S.history[S.hIdx]); };
@@ -81,7 +81,7 @@
       var lite;
       try { lite = JSON.stringify({ savedAt: Date.now(), doc: Object.assign({}, S.doc, { assets: {} }), fileName: S.fileName, lite: true }); } catch (e2) { return; }
       var r2 = lsSet(AUTOSAVE_KEY, lite);
-      if (!quotaWarned) { quotaWarned = true; SV.toast(r2 === true ? 'Autosave: images too large for browser storage — saved without them' : 'Autosave unavailable (browser storage full or blocked)', 'warn'); }
+      if (!quotaWarned) { quotaWarned = true; SV.toast(r2 === true ? SV.t('vector.msg.autosave_no_images') : SV.t('vector.msg.autosave_off'), 'warn'); }
     }
   };
   SV.clearAutosave = function () { clearTimeout(autosaveTimer); lsDel(AUTOSAVE_KEY); };

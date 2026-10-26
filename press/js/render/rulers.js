@@ -65,7 +65,7 @@
           PR.snap.clear();
           var inside = ev.clientX > cv.left && ev.clientY > cv.top;
           if (!inside) { var i = s.guides.indexOf(g); if (i >= 0) s.guides.splice(i, 1); PR.touch(); return; }
-          PR.history.commit('New guide');
+          PR.history.commit(U.t('press.edit.undo_new_guide'));
         };
         addEventListener('pointermove', drag); addEventListener('pointerup', up);
       });

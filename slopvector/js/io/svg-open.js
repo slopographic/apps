@@ -29,7 +29,7 @@
   };
   IO.openSVGText = function (text, fileName) {
     var r;
-    try { r = IO.parseSVG(text, { asLayers: true }); } catch (e) { SV.toast(e.message, 'warn'); return false; }
+    try { r = IO.parseSVG(text, { asLayers: true }); } catch (e) { SV.toast(SV.t('vector.msg.bad_svg'), 'warn'); return false; }
     var base = (fileName || 'Untitled').replace(/\.svg$/i, '');
     var doc;
     if (r.slop) { doc = r.doc; doc.name = doc.name || base; }
@@ -37,19 +37,19 @@
       doc = SV.newDoc(Math.round(r.width * 100) / 100, Math.round(r.height * 100) / 100, base);
       doc.layers = r.layers.length ? r.layers : doc.layers;
       doc.assets = r.assets;
-      if (r.warnings.external) SV.toast('External (linked) images were skipped — only embedded images are supported', 'warn');
+      if (r.warnings.external) SV.toast(SV.t('vector.msg.external_images'), 'warn');
     }
     S.fileName = fileName || null;
     SV.loadDoc(doc, { fit: true });
     SV.commit('open');
     SV.markSaved();
-    SV.toast(r.slop ? 'Opened “' + doc.name + '” — fully editable SlopVector document' : 'Opened “' + doc.name + '”');
+    SV.toast(r.slop ? SV.t('vector.msg.opened_slop', { name: doc.name }) : SV.t('vector.msg.opened', { name: doc.name }));
     return true;
   };
   IO.importSVGText = function (text, opts) {
     opts = opts || {};
     var r;
-    try { r = IO.parseSVG(text, {}); } catch (e) { SV.toast(e.message, 'warn'); return null; }
+    try { r = IO.parseSVG(text, {}); } catch (e) { SV.toast(SV.t('vector.msg.bad_svg'), 'warn'); return null; }
     if (r.slop) {
       if (opts.allowOpen) return IO.openSVGText(text, opts.name);
       var objs = []; r.doc.layers.forEach(function (L) { if (!L.hidden) L.children.forEach(function (o) { objs.push(SV.reId(o)); }); });
@@ -58,7 +58,7 @@
     }
     Object.keys(r.assets || {}).forEach(function (k) { S.doc.assets[k] = r.assets[k]; });
     var kids = r.layers[0] ? r.layers[0].children : [];
-    if (!kids.length) { SV.toast('Nothing to import in that SVG', 'warn'); return null; }
+    if (!kids.length) { SV.toast(SV.t('vector.msg.nothing_import'), 'warn'); return null; }
     if (!SV.canDraw()) return null;
     var o = kids.length === 1 && !opts.group ? kids[0] : SV.mk.group(kids, opts.name || 'Placed SVG');
     if (opts.name && !o.name) o.name = opts.name;

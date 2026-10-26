@@ -4,6 +4,7 @@
    stays put; a turned object keeps its centre. One undo step. Exposes window.SS.aspect. */
 (function () {
   'use strict';
+  var SU = window.SS.util;
   var SS = window.SS, A = SS.app, OV = SS.overlay, Aspect = window.SlopAspect;
 
   /** The one selected object with a source ratio, or null. */
@@ -19,7 +20,7 @@
   function restore(keep) {
     var o = target(); if (!o) return false;
     var b = Aspect.restore({ w: o.w, h: o.h }, o, keep === 'h' ? 'h' : 'w');
-    A.change('Restore aspect ratio', function () {
+    A.change(SU.t('slides.op.restore_aspect_ratio'), function () {
       var cx = o.x + o.w / 2, cy = o.y + o.h / 2;
       o.w = b.w; o.h = b.h;
       if (o.rot) { o.x = cx - o.w / 2; o.y = cy - o.h / 2; }

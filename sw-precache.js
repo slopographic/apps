@@ -114,7 +114,8 @@ PRECACHE.push(
   '/expenses/css/expenses.css', '/expenses/index.html', '/expenses/js/core/expenses.js', '/expenses/js/core/mileage.js', '/expenses/js/core/receipt.js',
   '/expenses/js/ui/app.js', '/expenses/js/ui/commands.js', '/expenses/js/ui/editor.js', '/expenses/js/ui/list.js', '/expenses/js/ui/mileage.js',
   '/expenses/js/ui/pay.js', '/expenses/js/ui/receipt.js', '/expenses/js/ui/summary.js', '/favicon.svg', '/fontcreator/css/fontcreator.css',
-  '/fontcreator/css/views.css', '/fontcreator/index.html', '/fontcreator/js/commands.js', '/fontcreator/js/core/build.js', '/fontcreator/js/core/charset.js',
+  '/fontcreator/css/views.css', '/fontcreator/i18n/en/app.js', '/fontcreator/i18n/en/io.js', '/fontcreator/i18n/en/panel.js', '/fontcreator/i18n/en/views.js',
+  '/fontcreator/i18n/index.js', '/fontcreator/index.html', '/fontcreator/js/commands.js', '/fontcreator/js/core/build.js', '/fontcreator/js/core/charset.js',
   '/fontcreator/js/core/import.js', '/fontcreator/js/core/model.js', '/fontcreator/js/core/paths.js', '/fontcreator/js/core/sfnt.js',
   '/fontcreator/js/core/sheet.js', '/fontcreator/js/core/stroke.js', '/fontcreator/js/core/trace.js', '/fontcreator/js/core/ttf.js',
   '/fontcreator/js/editor/draw.js', '/fontcreator/js/editor/ops.js', '/fontcreator/js/editor/select.js', '/fontcreator/js/editor/toolbar.js',
@@ -202,6 +203,5 @@ PRECACHE.push(
   '/pdf/js/organize/drag.js', '/pdf/js/organize/grid.js', '/pdf/js/organize/keys.js', '/pdf/js/organize/zoom.js', '/pdf/js/redact/apply.js',
   '/pdf/js/redact/find.js', '/pdf/js/redact/panel.js', '/pdf/js/tools/comments-panel.js', '/pdf/js/tools/doc-panels.js', '/pdf/js/tools/edit-panel.js',
   '/pdf/js/tools/history-panel.js', '/pdf/js/tools/layers-panel.js', '/pdf/js/tools/ocg-panel.js', '/pdf/js/tools/organize-panel.js', '/pdf/js/tools/sign.js',
-  '/pdf/js/tools/stamp-panels.js', '/pdf/js/tools/watermark-panel.js', '/pdf/js/ui/actions.js', '/pdf/js/ui/app.js', '/pdf/js/ui/assets.js',
 );
 // END PRECACHE

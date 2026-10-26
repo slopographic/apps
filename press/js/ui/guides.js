@@ -12,11 +12,11 @@
     if (!window.SlopGuides || !window.SlopGuides.openPanel) return simple();
     var d = S.doc;
     window.SlopGuides.openPanel({
-      title: 'Create Guides', stateKey: 'slopguides.state.press',
+      title: PR.util.t('press.guide.title'), stateKey: 'slopguides.state.press',
       targets: [
-        { id: 'margins', label: 'Margins', rect: function () { var m = P.marginsSide(d, side()); return { x: m.left, y: m.top, w: d.size.w - m.left - m.right, h: d.size.h - m.top - m.bottom }; } },
-        { id: 'canvas', label: 'Page', rect: function () { return { x: 0, y: 0, w: d.size.w, h: d.size.h }; } },
-        { id: 'selection', label: 'Selection', rect: function () { var b = PR.items.unionBounds(PR.selected()); return b && b.w > 0 ? b : null; } }
+        { id: 'margins', label: PR.util.t('press.guide.margins'), rect: function () { var m = P.marginsSide(d, side()); return { x: m.left, y: m.top, w: d.size.w - m.left - m.right, h: d.size.h - m.top - m.bottom }; } },
+        { id: 'canvas', label: PR.util.t('press.guide.page'), rect: function () { return { x: 0, y: 0, w: d.size.w, h: d.size.h }; } },
+        { id: 'selection', label: PR.util.t('press.guide.selection'), rect: function () { var b = PR.items.unionBounds(PR.selected()); return b && b.w > 0 ? b : null; } }
       ],
       dpi: function () { return 72; }, // 1 pt = 1 px: guides arrive in points
       preview: function (g) { preview = g; V.request(); },
@@ -24,9 +24,9 @@
         var list = PR.layers.guideList(d, S);
         if (o && o.mode === 'replace') list.length = 0;
         guides.forEach(function (g) { list.push({ axis: g.o === 'v' ? 'x' : 'y', pos: PR.util.round(g.pos, 3) }); });
-        H.commit('Create guides');
+        H.commit(PR.util.t('press.guide.undo_create'));
       },
-      clear: function () { PR.layers.guideList(d, S).length = 0; H.commit('Clear guides'); },
+      clear: function () { PR.layers.guideList(d, S).length = 0; H.commit(PR.util.t('press.guide.undo_clear')); },
       toast: PR.util.toast,
       onClose: function () { preview = null; V.request(); }
     });

@@ -3,22 +3,22 @@
   'use strict';
   var PR = window.PR, U = PR.util, h = U.h, S = PR.state, P = PR.pages, M = PR.model, H = PR.history, R = PR.render;
   var UI = PR.ui = PR.ui || {};
-  var picked = [], thumbW = 44;
+  var picked = [], thumbW = 44, tr = U.t;
 
   function masterChip(m) {
     var on = S.editMaster && S.editMaster.id === (m && m.id);
-    var b = h('button', { type: 'button', class: 'mchip' + (on ? ' on' : ''), title: m ? 'Double-click to edit ' + m.prefix + '-' + m.name + ' (drag onto a page to apply)' : 'No master' },
-      h('b', null, m ? m.prefix : '–'), m ? m.name : '[None]');
+    var b = h('button', { type: 'button', class: 'mchip' + (on ? ' on' : ''), title: m ? tr('press.panel.master_tip', { name: m.prefix + '-' + m.name }) : tr('press.panel.no_master') },
+      h('b', null, m ? m.prefix : '–'), m ? m.name : tr('press.panel.none_master'));
     b.addEventListener('dblclick', function () { if (m) UI.editMaster(m.id, 0); });
     b.addEventListener('click', function () { if (m && S.editMaster) UI.editMaster(m.id, 0); });
     b.draggable = true;
     b.addEventListener('dragstart', function (e) { e.dataTransfer.setData('text/x-press-master', m ? m.id : ''); e.dataTransfer.effectAllowed = 'copy'; });
     b.addEventListener('contextmenu', function (e) {
       e.preventDefault(); if (!m) return;
-      window.SlopUI.menu([{ label: 'Edit ' + m.prefix + '-' + m.name, act: function () { UI.editMaster(m.id, 0); } },
-        { label: 'Apply to Selected Pages', act: function () { P.applyMaster(S.doc, picked.length ? picked : [S.page], m.id); H.commit('Apply master'); } },
-        { label: 'Master Options…', act: function () { UI.newMaster(m); } },
-        { label: 'Delete Master', disabled: S.doc.masters.length < 1, act: function () { P.deleteMaster(S.doc, m.id); if (S.editMaster && S.editMaster.id === m.id) S.editMaster = null; H.commit('Delete master'); } }], e.clientX, e.clientY);
+      window.SlopUI.menu([{ label: tr('press.panel.edit_master', { name: m.prefix + '-' + m.name }), act: function () { UI.editMaster(m.id, 0); } },
+        { label: tr('press.panel.apply_to_selected'), act: function () { P.applyMaster(S.doc, picked.length ? picked : [S.page], m.id); H.commit(tr('press.panel.undo_apply_master')); } },
+        { label: tr('press.panel.master_options'), act: function () { UI.newMaster(m); } },
+        { label: tr('press.panel.delete_master'), disabled: S.doc.masters.length < 1, act: function () { P.deleteMaster(S.doc, m.id); if (S.editMaster && S.editMaster.id === m.id) S.editMaster = null; H.commit(tr('press.panel.undo_delete_master')); } }], e.clientX, e.clientY);
     });
     return b;
   }
@@ -29,7 +29,7 @@
     var ctx = c.getContext('2d'); ctx.scale(sc * 2, sc * 2);
     try { R.page(ctx, doc, i, { zoom: sc * 2, greek: true }); } catch (e) { /* ignore render glitches in thumbnails */ }
     var page = doc.pages[i], mm = page.master && M.findMaster(doc, page.master);
-    var el = h('div', { class: 'pthumb' + (i === S.page && !S.editMaster ? ' on' : '') + (picked.indexOf(i) >= 0 ? ' sel' : ''), 'data-i': i, tabindex: '0', title: 'Page ' + P.label(doc, i) + (mm ? ' · master ' + mm.prefix : '') },
+    var el = h('div', { class: 'pthumb' + (i === S.page && !S.editMaster ? ' on' : '') + (picked.indexOf(i) >= 0 ? ' sel' : ''), 'data-i': i, tabindex: '0', title: mm ? tr('press.panel.page_tip_master', { page: P.label(doc, i), master: mm.prefix }) : tr('press.panel.page_tip', { page: P.label(doc, i) }) },
       h('div', { class: 'pthumb-wrap' }, c, mm ? h('span', { class: 'pmaster', style: { left: 0, top: 0 } }, mm.prefix) : null), h('span', { class: 'plabel' }, P.label(doc, i)));
     var pm = el.querySelector('.pmaster'); if (pm) { pm.style.position = 'absolute'; }
     el.addEventListener('click', function (e) {
@@ -42,17 +42,17 @@
     el.addEventListener('contextmenu', function (e) {
       e.preventDefault(); if (picked.indexOf(i) < 0) picked = [i];
       var targets = picked.slice();
-      window.SlopUI.menu([{ label: 'Insert Page After', act: function () { P.insertPages(doc, i + 1, 1); H.commit('Add page'); PR.goPage(i + 1); } },
-        { label: 'Duplicate Page', act: function () { P.duplicatePage(doc, i); H.commit('Duplicate page'); } },
-        { label: targets.length > 1 ? 'Delete ' + targets.length + ' Pages' : 'Delete Page', disabled: doc.pages.length <= targets.length, act: function () { P.deletePages(doc, targets); picked = []; H.commit('Delete pages'); PR.goPage(Math.min(S.page, doc.pages.length - 1)); } },
-        '-', { label: 'Apply Master', sub: [{ label: '[None]', act: function () { P.applyMaster(doc, targets, null); H.commit('Apply master'); } }].concat(doc.masters.map(function (m) { return { label: m.prefix + '-' + m.name, check: targets.every(function (t) { return doc.pages[t].master === m.id; }), act: function () { P.applyMaster(doc, targets, m.id); H.commit('Apply master'); } }; })) },
-        { label: 'Override All Master Items', act: function () { PR.goPage(i); PR.actions.run('layout.overrideMaster'); } }], e.clientX, e.clientY);
+      window.SlopUI.menu([{ label: tr('press.panel.insert_after'), act: function () { P.insertPages(doc, i + 1, 1); H.commit(tr('press.panel.add_page')); PR.goPage(i + 1); } },
+        { label: tr('press.panel.duplicate_page_m'), act: function () { P.duplicatePage(doc, i); H.commit(tr('press.panel.duplicate_page')); } },
+        { label: tr('press.panel.delete_pages_n', { n: targets.length }), disabled: doc.pages.length <= targets.length, act: function () { P.deletePages(doc, targets); picked = []; H.commit(tr('press.panel.undo_delete_pages', { n: targets.length })); PR.goPage(Math.min(S.page, doc.pages.length - 1)); } },
+        '-', { label: tr('press.panel.apply_master'), sub: [{ label: tr('press.panel.none_master'), act: function () { P.applyMaster(doc, targets, null); H.commit(tr('press.panel.undo_apply_master')); } }].concat(doc.masters.map(function (m) { return { label: m.prefix + '-' + m.name, check: targets.every(function (t) { return doc.pages[t].master === m.id; }), act: function () { P.applyMaster(doc, targets, m.id); H.commit(tr('press.panel.undo_apply_master')); } }; })) },
+        { label: tr('press.panel.override_all'), act: function () { PR.goPage(i); PR.actions.run('layout.overrideMaster'); } }], e.clientX, e.clientY);
     });
     // drop a master chip onto a page
     el.addEventListener('dragover', function (e) { if (Array.prototype.indexOf.call(e.dataTransfer.types, 'text/x-press-master') >= 0) { e.preventDefault(); el.classList.add('sel'); } });
     el.addEventListener('dragleave', function () { el.classList.toggle('sel', picked.indexOf(i) >= 0); });
     el.addEventListener('drop', function (e) { // intake-ok: a master chip dragged onto a page, not a file
-      var id = e.dataTransfer.getData('text/x-press-master'); if (id === undefined) return; e.preventDefault(); P.applyMaster(doc, [i], id || null); H.commit('Apply master'); });
+      var id = e.dataTransfer.getData('text/x-press-master'); if (id === undefined) return; e.preventDefault(); P.applyMaster(doc, [i], id || null); H.commit(tr('press.panel.undo_apply_master')); });
     reorder(el, i);
     return el;
   }
@@ -74,17 +74,17 @@
         if (!active || target == null) return;
         var to = target + (after ? 1 : 0); if (to > i) to--;
         if (to === i) return;
-        P.movePage(S.doc, i, to); picked = [to]; H.commit('Move page'); PR.goPage(to);
+        P.movePage(S.doc, i, to); picked = [to]; H.commit(tr('press.panel.undo_move_page')); PR.goPage(to);
       }
       addEventListener('pointermove', mv); addEventListener('pointerup', up);
     });
   }
   UI.panel({
-    id: 'pages', title: 'Pages',
+    id: 'pages', title: 'press.panel.pages',
     build: function (body, foot) {
       var doc = S.doc;
       var ms = h('div', { class: 'masters' }, masterChip(null), doc.masters.map(masterChip));
-      var add = h('button', { type: 'button', class: 'mchip', title: 'New master' }, '+');
+      var add = h('button', { type: 'button', class: 'mchip', title: tr('press.panel.new_master') }, '+');
       add.addEventListener('click', function () { UI.newMaster(); }); ms.append(add);
       var sp = h('div', { class: 'spreads' });
       P.spreads(doc).forEach(function (s) {
@@ -94,10 +94,10 @@
         sp.append(row);
       });
       body.append(ms, sp);
-      foot.append(h('span', { class: 'count' }, doc.pages.length + ' page' + (doc.pages.length === 1 ? '' : 's') + ' in ' + P.spreads(doc).length + ' spread' + (P.spreads(doc).length === 1 ? '' : 's')),
-        UI.footBtn('plus', 'Add page', function () { PR.actions.run('layout.addPage'); }),
-        UI.footBtn('dup', 'Duplicate page', function () { PR.actions.run('layout.duplicatePage'); }),
-        UI.footBtn('trash', 'Delete page', function () { PR.actions.run('layout.deletePage'); }));
+      foot.append(h('span', { class: 'count' }, tr('press.panel.pages_n', { n: doc.pages.length }) + ' · ' + tr('press.panel.spreads_n', { n: P.spreads(doc).length })),
+        UI.footBtn('plus', tr('press.panel.add_page'), function () { PR.actions.run('layout.addPage'); }),
+        UI.footBtn('dup', tr('press.panel.duplicate_page'), function () { PR.actions.run('layout.duplicatePage'); }),
+        UI.footBtn('trash', tr('press.panel.delete_page'), function () { PR.actions.run('layout.deletePage'); }));
     }
   });
   var refreshSoon = U.debounce(function () { if (UI.visiblePanel && UI.visiblePanel('pages')) UI.refreshPanels('pages'); }, 350);

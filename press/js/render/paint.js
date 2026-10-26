@@ -77,7 +77,7 @@
     // page label under the page
     ctx.fillStyle = 'rgba(255,255,255,.55)';
     ctx.font = (11 / z) + 'px system-ui, sans-serif';
-    var lbl = s.pageIdx != null ? P.label(doc, s.pageIdx) + (doc.pages[s.pageIdx].master ? '  ·  ' + (M.findMaster(doc, doc.pages[s.pageIdx].master) || { prefix: '' }).prefix : '') : s.master.prefix + '-' + s.master.name + (s.mside ? ' (right)' : doc.facing ? ' (left)' : '');
+    var lbl = s.pageIdx != null ? P.label(doc, s.pageIdx) + (doc.pages[s.pageIdx].master ? '  ·  ' + (M.findMaster(doc, doc.pages[s.pageIdx].master) || { prefix: '' }).prefix : '') : (s.mside || doc.facing ? PR.util.t(s.mside ? 'press.app.master_right' : 'press.app.master_left', { name: s.master.prefix + '-' + s.master.name }) : s.master.prefix + '-' + s.master.name);
     ctx.textAlign = s.side === 'left' ? 'left' : s.side === 'right' ? 'right' : 'center';
     ctx.fillText(lbl, s.side === 'left' ? 0 : s.side === 'right' ? w : w / 2, h + b.bottom + 14 / z);
     ctx.textAlign = 'left';

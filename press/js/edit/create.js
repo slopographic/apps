@@ -8,6 +8,8 @@
 
   function activeLayer() { return PR.layers.active || S.doc.layers[S.doc.layers.length - 1].id; }
   /** Creates an item of `type` on surface s with rect r (surface coords). */
+  /** The undo step of each drawing tool (keys: press/i18n/<code>/core.js). */
+  var UNDO = { frame: 'press.edit.undo_new_frame', text: 'press.edit.undo_new_text', rect: 'press.edit.undo_new_rect', ellipse: 'press.edit.undo_new_ellipse', line: 'press.edit.undo_new_line', polygon: 'press.edit.undo_new_polygon' };
   C.make = function (type, s, r) {
     var extra = { layer: activeLayer() };
     if (type === 'rect' || type === 'ellipse' || type === 'polygon') { extra.fill = S.defaults.fill; extra.stroke = S.defaults.stroke; extra.sw = S.defaults.sw; }
@@ -58,7 +60,7 @@
         var it = C.make(type, s, r);
         PR.selectTool.activate(s);
         if (onDone) onDone(it);
-        H.commit('New ' + (type === 'frame' ? 'image frame' : type));
+        H.commit(PR.util.t(UNDO[type] || UNDO.rect));
         PR.select([it.id]);
         if (type === 'text' && !onDone) PR.textEdit.enter(it, 0);
       }

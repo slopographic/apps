@@ -8,11 +8,11 @@
   var F = SS.fonts = {};
   F.BASE = new URL('../../fonts/', (document.currentScript && document.currentScript.src) || location.href).href;
   F.FAMILIES = {
-    'Inter Tight': { regular: 'InterTight-Regular', bold: 'InterTight-Bold', kind: 'sans' },
-    'Archivo': { regular: 'Archivo-Regular', bold: 'Archivo-ExtraBold', kind: 'sans' },
-    'Instrument Serif': { regular: 'InstrumentSerif-Regular', italic: 'InstrumentSerif-Italic', kind: 'serif' },
-    'JetBrains Mono': { regular: 'JetBrainsMono-Regular', bold: 'JetBrainsMono-SemiBold', kind: 'mono' },
-    'Caveat': { regular: 'Caveat-Regular', kind: 'hand' }
+    'Inter Tight': { regular: 'InterTight-Regular', bold: 'InterTight-Bold', kind: 'sans' }, // i18n-ignore
+    'Archivo': { regular: 'Archivo-Regular', bold: 'Archivo-ExtraBold', kind: 'sans' }, // i18n-ignore
+    'Instrument Serif': { regular: 'InstrumentSerif-Regular', italic: 'InstrumentSerif-Italic', kind: 'serif' }, // i18n-ignore
+    'JetBrains Mono': { regular: 'JetBrainsMono-Regular', bold: 'JetBrainsMono-SemiBold', kind: 'mono' }, // i18n-ignore
+    'Caveat': { regular: 'Caveat-Regular', kind: 'hand' } // i18n-ignore
   };
   F.LIST = Object.keys(F.FAMILIES);
   var faces = {}, ready = false, loading = null;
@@ -21,11 +21,11 @@
   F.family = function (name) {
     if (F.FAMILIES[name]) return name;
     var n = String(name || '').toLowerCase();
-    if (/mono|courier|consol|code|menlo/.test(n)) return 'JetBrains Mono';
-    if (/serif|times|georgia|garamond|baskerville|cambria|palatino|didot|playfair|merriweather|book/.test(n) && !/sans/.test(n)) return 'Instrument Serif';
-    if (/hand|script|caveat|comic|marker|brush/.test(n)) return 'Caveat';
-    if (/archivo|impact|black|display|oswald|bebas/.test(n)) return 'Archivo';
-    return 'Inter Tight';
+    if (/mono|courier|consol|code|menlo/.test(n)) return 'JetBrains Mono'; // i18n-ignore
+    if (/serif|times|georgia|garamond|baskerville|cambria|palatino|didot|playfair|merriweather|book/.test(n) && !/sans/.test(n)) return 'Instrument Serif'; // i18n-ignore
+    if (/hand|script|caveat|comic|marker|brush/.test(n)) return 'Caveat'; // i18n-ignore
+    if (/archivo|impact|black|display|oswald|bebas/.test(n)) return 'Archivo'; // i18n-ignore
+    return 'Inter Tight'; // i18n-ignore
   };
   /** Resolves family + bold/italic to a face, noting what has to be synthesised. */
   F.face = function (family, bold, italic) {
@@ -49,7 +49,7 @@
     faces[key] = { key: key, u8: u8, font: font };
     var ff = new FontFace('SSF-' + key, u8.slice().buffer), gf = new FontFace('SSG-' + key, u8.slice().buffer);
     document.fonts.add(ff); document.fonts.add(gf);
-    return Promise.all([ff.load(), gf.load()]).then(function () { if (SS.app) SS.app.emit('render'); }, function (e) { console.warn('Slop Slides: ' + label + ' did not load', e); });
+    return Promise.all([ff.load(), gf.load()]).then(function () { if (SS.app) SS.app.emit('render'); }, function (e) { console.warn('Slop Slides: ' + label + ' did not load', e); }); // i18n-ignore
   };
   /** Registers the fonts a deck keeps in its file (deck.fonts: [{ family, file, data }]). A font already registered from the same data is
    * left alone, so a deck that is read again costs nothing. */
@@ -57,7 +57,7 @@
     (deck.fonts || []).forEach(function (r) {
       var have = F.FAMILIES[r.family];
       if (have && have.user && have.data === r.data) return;
-      try { F.addUser(r.family, SS.util.dataUrlToU8(r.data), r.data); } catch (e) { console.warn('Slop Slides: ' + r.family + ' is not used: ' + e.message); }
+      try { F.addUser(r.family, SS.util.dataUrlToU8(r.data), r.data); } catch (e) { console.warn('Slop Slides: ' + r.family + ' is not used: ' + e.message); } // i18n-ignore
     });
   };
 

@@ -49,7 +49,7 @@
   function textOf(o, theme, box, opts) {
     var empty = SS.objects.isEmpty(o) || (o.text && !SS.objects.plain(o.text).length);
     if (empty && o.placeholder && opts.editor && !opts.noPrompts) {
-      var pr = Object.assign({}, o, { x: 0, y: 0, w: box.w, h: box.h, text: Object.assign({}, o.text, { paras: [Object.assign({}, o.text.paras[0], { runs: [{ t: o.prompt || 'Click to add text' }] })] }) });
+      var pr = Object.assign({}, o, { x: 0, y: 0, w: box.w, h: box.h, text: Object.assign({}, o.text, { paras: [Object.assign({}, o.text.paras[0], { runs: [{ t: SS.util.promptText(o.prompt || 'Click to add text') }] })] }) }); // i18n-ignore (the English hint is the key)
       return { nodes: S.textNodes(X.layout(pr, theme), 0.42), lay: null };
     }
     if (empty) return { nodes: [], lay: null };

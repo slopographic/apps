@@ -37,7 +37,7 @@
   function originOf() { var b = SV.selBBox(); if (!b) return null; return S.origin || { x: b.x + b.w / 2, y: b.y + b.h / 2 }; }
   TOOLS.rotate = {
     down: function (ev) {
-      if (!S.sel.length) return SV.toast('Select objects to rotate');
+      if (!S.sel.length) return SV.toast(SV.t('vector.msg.rotate_select'));
       if (ev.alt) { S.origin = ev.p; SV.ui.transformDialog('rotate'); return; }
       var org = originOf();
       if (nearScreen(org, ev, 9) || ev.dbl) { if (ev.dbl) SV.ui.transformDialog('rotate'); return; }
@@ -51,7 +51,7 @@
   };
   TOOLS.scale = {
     down: function (ev) {
-      if (!S.sel.length) return SV.toast('Select objects to scale');
+      if (!S.sel.length) return SV.toast(SV.t('vector.msg.scale_select'));
       if (ev.alt) { S.origin = ev.p; SV.ui.transformDialog('scale'); return; }
       var org = originOf(), ids = selectableTopIds();
       S.op = { kind: 'scaletool', tool: 'scale', o: org, start: ev.p, ids: ids, origs: snapshotObjs(ids), sx: ev.sx, sy: ev.sy };
@@ -67,7 +67,7 @@
       var M = G.scale(sx, sy, op.o.x, op.o.y);
       op.ids.forEach(function (id) { var o = getObj(id); if (o) SV.transformObj(o, M); });
       op.changed = true;
-      readout(ev, 'Scale: ' + n1(sx * 100) + '% × ' + n1(sy * 100) + '%');
+      readout(ev, SV.t('vector.readout.scale', { x: n1(sx * 100), y: n1(sy * 100) }));
     },
     up: function (ev) { if (S.op.changed) SV.commit('scale'); else S.origin = ev.p; },
     hover: function () { setCursor('crosshair'); }
@@ -78,7 +78,7 @@
     down: function (ev) {
       var cands = allLeafCandidates(ev.p);
       var seg = SV.hitSegment(cands, ev.p);
-      if (!seg) return SV.toast('Click on a path to cut it');
+      if (!seg) return SV.toast(SV.t('vector.hint.scissors'));
       var o = seg.o; SV.toPath(o);
       var sp = o.subpaths[seg.si], idx;
       var A = sp.pts[seg.i], B = sp.pts[(seg.i + 1) % sp.pts.length];
@@ -94,7 +94,7 @@
         o.subpaths[seg.si] = { closed: false, pts: rot };
         SV.select([o.id]);
       } else {
-        if (idx === 0 || idx === pts.length - 1) return SV.toast('Cannot cut at an endpoint');
+        if (idx === 0 || idx === pts.length - 1) return SV.toast(SV.t('vector.msg.cut_endpoint'));
         var first = pts.slice(0, idx + 1), second = pts.slice(idx).map(function (q) { return clone(q); });
         first[first.length - 1] = Object.assign({}, a, { ox: a.x, oy: a.y, s: false });
         second[0] = Object.assign({}, a, { ix: a.x, iy: a.y, s: false });

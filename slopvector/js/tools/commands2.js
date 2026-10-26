@@ -12,7 +12,7 @@
   C.makeCompound = function () {
     var ids = topSel(), objs = [];
     ids.forEach(function (id) { SV.leaves(getObj(id)).forEach(function (l) { if (pathish(l)) objs.push(l); }); });
-    if (objs.length < 1) return SV.toast('Select paths to make a compound path');
+    if (objs.length < 1) return SV.toast(SV.t('vector.msg.compound_select'));
     var subs = []; objs.forEach(function (o) { subs = subs.concat(SV.docSubs(o)); });
     var np = SV.mk.path(subs, clone(objs[0].style), 'Compound Path'); np.style.rule = 'evenodd';
     SV.replaceObj(ids[ids.length - 1], np);
@@ -30,14 +30,14 @@
         parts.forEach(function (p) { out.push(p.id); });
       } else out.push(id);
     });
-    if (!any) return SV.toast('No compound paths selected');
+    if (!any) return SV.toast(SV.t('vector.msg.no_compound'));
     SV.select(out); SV.commit('release compound');
   };
   C.expand = function () {
     var ids = topSel(), n = 0;
     ids.forEach(function (id) { SV.leaves(getObj(id)).forEach(function (l) { if (pathish(l) && l.type !== 'path') { SV.toPath(l); n++; } }); });
-    if (!n) return SV.toast('Nothing to expand (select live shapes)');
-    SV.commit('expand'); SV.toast('Expanded ' + n + ' shape' + (n > 1 ? 's' : '') + ' to paths');
+    if (!n) return SV.toast(SV.t('vector.msg.nothing_expand'));
+    SV.commit('expand'); SV.toast(SV.t('vector.msg.expanded', { n: n }));
   };
   function operandOf(o) {
     var ls = SV.leaves(o).filter(pathish);
@@ -50,12 +50,12 @@
     var ids = topSel(), objs = ids.map(getObj);
     var bad = objs.filter(function (o) { return !SV.leaves(o).some(pathish); });
     objs = objs.filter(function (o) { return bad.indexOf(o) < 0; });
-    if (objs.length < 2) return SV.toast('Select two or more overlapping shapes' + (bad.length ? ' (text and images are skipped)' : ''), 'warn');
+    if (objs.length < 2) return SV.toast(bad.length ? SV.t('vector.msg.pf_select_skip') : SV.t('vector.msg.pf_select'), 'warn');
     var ck = new Set();
     objs.forEach(function (o) { SV.leaves(o).filter(pathish).forEach(function (l) { G.cornerKeysOf(SV.docSubs(l), ck); }); });
     var operands = objs.map(operandOf);
     var rings = G.boolean(operands, op, ck);
-    if (!rings.length) return SV.toast('The result is empty — shapes do not overlap', 'warn');
+    if (!rings.length) return SV.toast(SV.t('vector.msg.pf_empty'), 'warn');
     var subs = G.fitRings(rings, ck);
     var styleSrc = op === 'minus' ? objs[0] : objs[objs.length - 1];
     var leaf = SV.leaves(styleSrc).filter(pathish).pop();
@@ -68,7 +68,7 @@
     return np;
   };
   C.slopify = function () {
-    var ids = topSel(); if (!ids.length) return SV.toast('Select a shape to slopify');
+    var ids = topSel(); if (!ids.length) return SV.toast(SV.t('vector.msg.slopify_select'));
     var out = [], skipped = 0;
     ids.forEach(function (id) {
       var o = getObj(id), ls = SV.leaves(o).filter(pathish);
@@ -91,8 +91,8 @@
       SV.replaceObj(id, g); out.push(g.id);
     });
     SV.select(out); SV.commit('slopify');
-    if (skipped) SV.toast('Slopify skipped ' + skipped + ' object' + (skipped > 1 ? 's' : '') + ' (text/images)', 'warn');
-    else SV.toast('Slopified. Certified sloppy.');
+    if (skipped) SV.toast(SV.t('vector.msg.slopify_skipped', { n: skipped }), 'warn');
+    else SV.toast(SV.t('vector.msg.slopified'));
   };
   C.transformSel = function (M, copy, label) {
     var ids = topSel(); if (!ids.length) return;
@@ -122,7 +122,7 @@
     SV.commit('align');
   };
   C.distribute = function (how) {
-    var ids = topSel(); if (ids.length < 3) return SV.toast('Select three or more objects to distribute');
+    var ids = topSel(); if (ids.length < 3) return SV.toast(SV.t('vector.msg.distribute_select'));
     var items = ids.map(function (id) { return { o: getObj(id), b: SV.objBBox(getObj(id)) }; });
     var horiz = how === 'hcenter' || how === 'hspace';
     items.sort(function (a, b) { return horiz ? a.b.x - b.b.x : a.b.y - b.b.y; });
@@ -143,7 +143,7 @@
     SV.select(ids);
   };
   C.selectSame = function (attr) {
-    var src = SV.selObjs()[0]; if (!src || !src.style) return SV.toast('Select an object first');
+    var src = SV.selObjs()[0]; if (!src || !src.style) return SV.toast(SV.t('vector.msg.select_object'));
     var v = JSON.stringify(src.style[attr]), ids = [];
     S.doc.layers.forEach(function (L) { if (!L.hidden && !L.locked) L.children.forEach(function (o) { if (!o.hidden && !o.locked && SV.leaves(o).some(function (l) { return l.style && JSON.stringify(l.style[attr]) === v; })) ids.push(o.id); }); });
     SV.select(ids);

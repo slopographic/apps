@@ -8,7 +8,7 @@
   if (!window.SlopNav || !host) return;
   const S = window.SV.state; // the app state (core/state.js); a classic script has no global S
   SlopNav.attach('vector', {
-    title: 'SlopVector',
+    title: 'SlopVector', // i18n-ignore: the app's name
     host,
     adapter: {
       zoomAt: (f, x, y, live) => (live ? SV.setZoom(S.view.zoom * f, x, y) : SV.zoomBy(f, x, y)),
@@ -19,6 +19,7 @@
       // A second finger ends a drag the first finger started (same as Esc does).
       cancelStroke: () => { if (S.op) { SV.revert(); S.op = null; S.marquee = null; S.readout = null; SV.requestRender(true); } },
     },
-    shortcuts: SlopNav.shortcutsFrom({ fit: 'Fit Artboard in Window', actual: 'Actual Size', zoomIn: 'Zoom In', zoomOut: 'Zoom Out' }),
+    // Matched by command title, so the titles are read in the current language each time (as SlopCmd has them).
+    shortcuts: () => SlopNav.shortcutsFrom({ fit: SV.t('vector.act.view_fit'), actual: SV.t('vector.act.view_actual'), zoomIn: SV.t('vector.act.view_zoom_in'), zoomOut: SV.t('vector.act.view_zoom_out') })(),
   });
 })();

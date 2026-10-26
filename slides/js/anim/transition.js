@@ -8,8 +8,8 @@
   ANIM.DUR_MIN = 0.2;
   ANIM.DUR_MAX = 3;
   ANIM.DUR_DEFAULT = 0.6;
-  var LABELS = { none: 'None', fade: 'Fade', 'push-left': 'Push left', 'push-right': 'Push right', 'push-up': 'Push up',
-    'push-down': 'Push down', wipe: 'Wipe', 'zoom-in': 'Zoom in', 'zoom-out': 'Zoom out', cube: 'Cube' };
+  var LABELS = { none: 'None', fade: 'Fade', 'push-left': 'Push left', 'push-right': 'Push right', 'push-up': 'Push up', // i18n-ignore
+    'push-down': 'Push down', wipe: 'Wipe', 'zoom-in': 'Zoom in', 'zoom-out': 'Zoom out', cube: 'Cube' }; // i18n-ignore
 
   /** The engine's transition names, sorted. */
   ANIM.transitionNames = function () { return MO.transitions.names(); };

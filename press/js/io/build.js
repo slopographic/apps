@@ -17,12 +17,20 @@
     while ((m = re.exec(html))) if (!/data-offline="strip"/.test(m[0])) out.push({ kind: m[1], path: m[2] });
     return out;
   };
+  /** The English tables the offline copy carries (it fetches nothing, so it reads English): the shared words and every
+   *  press/i18n/en part that press/i18n/index.js names. They run right after press/i18n/index.js. */
+  B.tables = function (S) {
+    var m = /parts:\s*\[([^\]]*)\]/.exec(S['press/i18n/index.js'] || ''), parts = (m && m[1].match(/'[^']+'/g)) || [];
+    return ['shared/i18n/strings.js', 'shared/i18n/ui/en.js'].concat(parts.map(function (q) { return 'press/i18n/en/' + q.slice(1, -1) + '.js'; }));
+  };
   function b64(str) { return btoa(unescape(encodeURIComponent(str))); }
   /** Builds the offline HTML from a { path: text | 'base64:…' } map (pure). */
   B.buildHTML = function (S) {
     var html = S['press/index.html'];
     if (!html) throw new Error('index.html missing');
     var scripts = B.paths(html).filter(function (p) { return p.kind === 'script'; }).map(function (p) { return p.path; });
+    var at = scripts.indexOf('press/i18n/index.js');
+    if (at >= 0) scripts.splice.apply(scripts, [at + 1, 0].concat(B.tables(S)));
     html = html.replace(/^[^\n]*data-offline="strip"[^\n]*\n/gm, function () { return ''; });
     html = html.replace(/<link\b[^>]*\bdata-src="([^"]+)"[^>]*>/g, function (m, p) {
       var css = S[p]; if (css == null) throw new Error('Missing ' + p);
@@ -55,7 +63,7 @@
     return text('press/index.html').then(function () {
       var list = B.paths(S['press/index.html']).map(function (p) { return p.path; }).concat(B.EXTRA);
       return Promise.all(list.map(text));
-    }).then(function () {
+    }).then(function () { return Promise.all(B.tables(S).map(text)); }).then(function () {
       return Promise.all(B.BINARY.map(function (p) {
         return fetch(root + p).then(function (r) { return r.ok ? r.arrayBuffer() : null; }).then(function (buf) {
           if (!buf) return; var u8 = new Uint8Array(buf), s = '';
@@ -67,11 +75,11 @@
   };
   B.make = function () { return B.collect().then(B.buildHTML); };
   B.download = function () {
-    if (PR.util) PR.util.toast('Building offline copy…');
+    if (PR.util) PR.util.toast(PR.util.t('press.io.building_offline'));
     return B.make().then(function (html) {
       window.SlopUI.download(new Blob([html], { type: 'text/html' }), 'slop-press.html');
-      if (PR.util) PR.util.toast('Downloaded slop-press.html — open it from disk, it works offline');
+      if (PR.util) PR.util.toast(PR.util.t('press.io.offline_done', { name: 'slop-press.html' }));
       return html;
-    }).catch(function (e) { if (PR.util) PR.util.toast('Could not build offline copy: ' + e.message); });
+    }).catch(function (e) { if (PR.util) PR.util.toast(PR.util.t('press.io.offline_failed', { error: e.message })); });
   };
 })();

@@ -7,7 +7,7 @@
  *   apply({ text, fit: cap | x | em | font, add }) → contour count (one undo step) */
 (function (g) {
   'use strict';
-  const S = () => g.FC.state, P = () => g.SlopFont.paths;
+  const S = () => g.FC.state, P = () => g.SlopFont.paths, t = (k, v) => g.FC.t(k, v);
   const NS = 'http://www.w3.org/2000/svg';
   const n2 = (v) => Math.round(v * 1000) / 1000;
   function shapeD(e) {
@@ -27,18 +27,18 @@
   }
   /** Path data of every shape of an SVG document, in its viewBox's units, and that box. */
   function read(text) {
-    const t = String(text || '').trim();
-    if (!t) throw new Error('Paste an SVG or its path data first');
-    if (!t.startsWith('<')) return { d: t, box: null };
-    const clean = g.SlopSanitize ? g.SlopSanitize.svg(t) : '';
-    if (!clean) throw new Error('This SVG could not be read');
+    const src = String(text || '').trim();
+    if (!src) throw new Error(t('fontcreator.svg.paste_first'));
+    if (!src.startsWith('<')) return { d: src, box: null };
+    const clean = g.SlopSanitize ? g.SlopSanitize.svg(src) : '';
+    if (!clean) throw new Error(t('fontcreator.svg.unreadable'));
     const host = document.createElement('div');
     host.style.cssText = 'position:fixed;left:-10000px;top:0;width:10px;height:10px;overflow:hidden;visibility:hidden';
     host.innerHTML = clean;
     document.body.append(host);
     try {
       const svg = host.querySelector('svg');
-      if (!svg) throw new Error('No <svg> in the text');
+      if (!svg) throw new Error(t('fontcreator.svg.no_svg'));
       const vb = svg.viewBox && svg.viewBox.baseVal && svg.viewBox.baseVal.width ? svg.viewBox.baseVal : null;
       const box = vb ? { x: vb.x, y: vb.y, w: vb.width, h: vb.height } : { x: 0, y: 0, w: parseFloat(svg.getAttribute('width')) || 1000, h: parseFloat(svg.getAttribute('height')) || 1000 };
       svg.setAttribute('width', box.w); svg.setAttribute('height', box.h);
@@ -53,7 +53,7 @@
         const mat = m ? [m.a, m.b, m.c, m.d, m.e + box.x, m.f + box.y] : [1, 0, 0, 1, 0, 0];
         out.push(g.SVGeom.toD(g.SVGeom.transformSubs(subs, mat)));
       }
-      if (!out.length) throw new Error('This SVG has no shapes (paths, rectangles, circles, polygons)');
+      if (!out.length) throw new Error(t('fontcreator.svg.no_shapes'));
       return { d: out.join(' '), box };
     } finally { host.remove(); }
   }
@@ -69,8 +69,8 @@
   }
   function apply(o) {
     const r = contoursOf(o.text, o.fit || 'cap');
-    if (!r.contours.length) throw new Error('No outline came from that SVG');
-    S().edit('Draw from SVG', 'glyph', (p, gl) => {
+    if (!r.contours.length) throw new Error(t('fontcreator.svg.no_outline'));
+    S().edit(t('fontcreator.svg.title'), 'glyph', (p, gl) => {
       gl.contours = o.add ? gl.contours.concat(r.contours) : r.contours;
       if (r.advance != null && !o.add) gl.advance = r.advance;
       else if (!o.add) { const b = P().bbox(gl.contours); if (b) gl.advance = Math.round(b.x + b.w + 50); }
@@ -80,19 +80,19 @@
   let partId = null;
   function open(text, name) {
     const U = g.SlopUI, el = U.el;
-    const ta = el('textarea', { class: 'sui-input fc-svg-text', id: 'fc-svg-text', rows: 7, placeholder: '<svg viewBox="0 0 100 100"><path d="M10 90 L50 10 L90 90 Z"/></svg>  or only  M10 90 L50 10 L90 90 Z', spellcheck: 'false' });
+    const ta = el('textarea', { class: 'sui-input fc-svg-text', id: 'fc-svg-text', rows: 7, placeholder: t('fontcreator.svg.placeholder', { svg: '<svg viewBox="0 0 100 100"><path d="M10 90 L50 10 L90 90 Z"/></svg>', d: 'M10 90 L50 10 L90 90 Z' }), spellcheck: 'false' });
     ta.value = text || '';
     const fit = el('select', { class: 'sui-input', id: 'fc-svg-fit' });
-    for (const [v, t] of [['cap', 'Fit to the cap height (capitals, digits)'], ['x', 'Fit to the x-height (small letters)'], ['em', 'The SVG\'s box is the em square (keep its position)'], ['font', 'The numbers are font units (y up, baseline 0)']]) fit.append(el('option', { value: v }, t));
+    for (const v of ['cap', 'x', 'em', 'font']) fit.append(el('option', { value: v }, t(`fontcreator.svg.fit_${v}`)));
     if (S().view().unicode != null && /\p{Ll}/u.test(String.fromCodePoint(S().view().unicode))) fit.value = 'x';
     const add = el('input', { type: 'checkbox', id: 'fc-svg-add' });
-    if (!partId) partId = g.SlopIntake.part({ id: 'fontcreator.svg', accept: { types: ['image/svg+xml'], exts: ['.svg'], noun: 'an SVG file' }, process: async (f) => { ta.value = await f.text(); return f.name; } });
-    const choose = el('button', { type: 'button', class: 'sui-btn', id: 'fc-svg-choose' }, 'Choose an .svg file…');
+    if (!partId) partId = g.SlopIntake.part({ id: 'fontcreator.svg', accept: { types: ['image/svg+xml'], exts: ['.svg'], noun: t('fontcreator.svg.noun') }, process: async (f) => { ta.value = await f.text(); return f.name; } });
+    const choose = el('button', { type: 'button', class: 'sui-btn', id: 'fc-svg-choose' }, t('fontcreator.svg.choose'));
     choose.addEventListener('click', () => g.SlopIntake.pick({ to: partId, accept: '.svg,image/svg+xml' }));
-    const body = el('div', { class: 'fc-dlg' }, el('p', { class: 'sui-p' }, `For ${S().view().name}${name ? ': ' + name : ''}. Paste an SVG or its path data, or choose a file.`), ta, choose,
-      U.field('Place it', fit), el('label', { class: 'fc-check' }, add, ' Add to the glyph (keep what is drawn)'));
-    U.dialog({ title: 'Draw from SVG', body, cls: 'fc-dialog', buttons: [{ label: 'Cancel' }, { label: 'Draw', primary: true, act: () => {
-      try { const n = apply({ text: ta.value, fit: fit.value, add: add.checked }); U.toast(`Drew ${n} contour${n === 1 ? '' : 's'} from the SVG`); } catch (e) { U.toast(e.message); return false; }
+    const body = el('div', { class: 'fc-dlg' }, el('p', { class: 'sui-p' }, t('fontcreator.svg.intro', { glyph: S().view().name + (name ? ': ' + name : '') })), ta, choose,
+      U.field(t('fontcreator.svg.place'), fit), el('label', { class: 'fc-check' }, add, ' ' + t('fontcreator.svg.add')));
+    U.dialog({ title: t('fontcreator.svg.title'), body, cls: 'fc-dialog', buttons: [{ label: t('menu.cancel') }, { label: t('fontcreator.svg.draw'), primary: true, act: () => {
+      try { const n = apply({ text: ta.value, fit: fit.value, add: add.checked }); U.toast(t('fontcreator.svg.drew', { n })); } catch (e) { U.toast(e.message); return false; }
     } }] });
   }
   g.FC.svgUi = { open, read, apply, contoursOf, n2, NS };

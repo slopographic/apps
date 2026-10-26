@@ -42,7 +42,8 @@
       ctx.stroke();
     }
     ctx.font = '11px system-ui, sans-serif'; ctx.textBaseline = 'bottom';
-    const rows = [['Ascender', m.ascender], ['Cap height', m.capHeight], ['x-height', m.xHeight], ['Baseline', 0], ['Descender', m.descender]];
+    const t = (k) => (g.FC && g.FC.t ? g.FC.t(k) : k);
+    const rows = [[t('fontcreator.metric.ascender'), m.ascender], [t('fontcreator.metric.capHeight'), m.capHeight], [t('fontcreator.metric.xHeight'), m.xHeight], [t('fontcreator.metric.baseline'), 0], [t('fontcreator.metric.descender'), m.descender]];
     for (const [name, v] of rows) {
       ctx.strokeStyle = v === 0 ? C.base : C.line; ctx.lineWidth = v === 0 ? 1.5 : 1;
       ctx.setLineDash(v === 0 ? [] : [4, 4]);
@@ -54,7 +55,7 @@
     for (const x of [0, glyph.advance]) { ctx.beginPath(); ctx.moveTo(X(x), 0); ctx.lineTo(X(x), h); ctx.stroke(); }
     const sd = g.SlopFont.model.sides({ advance: glyph.advance, contours: o.contours });
     ctx.fillStyle = C.dim; ctx.textBaseline = 'top';
-    ctx.fillText(`Width ${glyph.advance}` + (sd.box ? ` · left ${sd.lsb} · right ${sd.rsb}` : ''), X(0) + 4, Y(m.descender) + 4);
+    ctx.fillText(sd.box ? g.FC.t('fontcreator.ops.width_sides', { w: glyph.advance, l: sd.lsb, r: sd.rsb }) : g.FC.t('fontcreator.ops.width', { w: glyph.advance }), X(0) + 4, Y(m.descender) + 4);
   }
   function points(ctx, o, C) {
     const { cam, contours, sel } = o, r = (g.matchMedia && g.matchMedia('(pointer: coarse)').matches) ? 5 : 3.5;

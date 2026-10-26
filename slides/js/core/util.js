@@ -16,6 +16,33 @@
     in: function (t) { return t * t * t; },
     spring: function (t) { return t === 1 ? 1 : 1 - Math.pow(2, -9 * t) * Math.cos(t * 9.5); }
   };
+  /* ---------- language (shared/i18n/APPS-HOWTO.md; the words are in slides/i18n/<code>/*.js) ---------- */
+  /** The chosen language's text for a key, English when that language lacks it. Call it when UI is built, never at load. */
+  U.t = function (key, vars) { var I = window.SlopI18n; return I ? I.t(key, vars) : key; };
+  /** Runs fn after a language change, once the new tables are in (for UI built once: toolbars, panels, the status bar). */
+  /** True when the chosen language or English has the key. */
+  U.has = function (key) { var I = window.SlopI18n; return !!(I && I.has && I.has(key)); };
+  U.onLang = function (fn) { var I = window.SlopI18n; return I && I.on ? I.on(fn) : function () {}; };
+  /** Fills a node from keys ({ text, title, 'aria-label', placeholder }) and marks it, so SlopI18n.apply() follows a switch. */
+  U.mark = function (n, keys) {
+    var at = [];
+    Object.keys(keys).forEach(function (a) {
+      if (a === 'text') { n.textContent = U.t(keys[a]); n.setAttribute('data-i18n', keys[a]); } else { n.setAttribute(a, U.t(keys[a])); at.push(a + ':' + keys[a]); }
+    });
+    if (at.length) n.setAttribute('data-i18n-attr', at.join(';'));
+    return n;
+  };
+  /** The name of an object kind as the page shows it (text, shape, image, table, chart, group, audio, video). */
+  /** A layout's and a built-in theme's name as the page shows it (the model keeps the English name: it is document data). */
+  U.layoutName = function (id) { return U.t(`slides.layout.${String(id).replace(/-/g, '_')}`); };
+  U.themeName = function (th) { return th && U.t(`slides.theme.${th.id}`) !== `slides.theme.${th.id}` ? U.t(`slides.theme.${th.id}`) : (th && th.name) || ''; };
+  /** A placeholder's hint as the editor shows it: the layouts store their English hint in the deck; the page shows it in
+   * the chosen language when the tables have it (slides.prompt.<words>), else as stored. */
+  U.promptText = function (en) {
+    var k = 'slides.prompt.' + String(en).toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 40).replace(/_+$/, '');
+    return U.has(k) ? U.t(k) : en;
+  };
+  U.kindName = function (type) { return U.t(`slides.kind.${type || 'object'}`); };
   U.esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
 
   /* ---------- colours ---------- */

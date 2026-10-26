@@ -30,7 +30,7 @@
         if (ps.every((p) => p.bullet)) blocks.push({ type: 'list', items: ps.map((p) => p.t.slice(0, 500)) });
         else blocks.push({ type: 'text', text: ps.map((p) => p.t).join('\n').slice(0, 5000) });
       }
-      return { name: (head || `Slide ${i + 1}`).slice(0, 120), blocks };
+      return { name: (head || `Slide ${i + 1}`).slice(0, 120), blocks }; // i18n-ignore
     }) };
   }
 
@@ -62,15 +62,16 @@
   async function apply(data, ctx) {
     const deck = deckFrom(data);
     if (window.SlopUI && SS.app.deck && SS.app.deck.slides.length) {
-      const ok = await SlopUI.confirm('Open presentation', 'Replace the open presentation with “' + ctx.name + '”?', 'Open');
-      if (!ok) return { ok: false, message: 'the open presentation was kept' };
+      const t = SS.util.t;
+      const ok = await SlopUI.confirm(t('slides.io.replace_title'), t('slides.io.replace_msg', { name: ctx.name }), t('menu.open'));
+      if (!ok) return { ok: false, message: 'the open presentation was kept' }; // i18n-ignore (for the assistant)
     }
     SS.app.load(deck, { name: ctx.name, dirty: true });
   }
 
   if (C && D) {
     C.registerKind('template', APP, C.templateSchema, apply, {
-      label: 'Presentation', description: 'Slides: a heading, text and bulleted lists per slide',
+      label: 'Presentation', description: 'Slides: a heading, text and bulleted lists per slide', // i18n-ignore (the config kind, API)
       read: () => pagesOf(SS.app.deck),
     });
     CFG.commands = () => D.commands({ app: APP, prefix: 'slides', example: EXAMPLE() });
@@ -80,8 +81,8 @@
 
   function EXAMPLE() {
     return { kind: 'template', value: { pages: [
-      { name: 'Welcome', blocks: [{ type: 'heading', text: 'Welcome' }, { type: 'text', text: 'Replace this with your opening line' }] },
-      { name: 'Points', blocks: [{ type: 'heading', text: 'Three points' }, { type: 'list', items: ['First point', 'Second point', 'Third point'] }] },
+      { name: 'Welcome', blocks: [{ type: 'heading', text: 'Welcome' }, { type: 'text', text: 'Replace this with your opening line' }] }, // i18n-ignore
+      { name: 'Points', blocks: [{ type: 'heading', text: 'Three points' }, { type: 'list', items: ['First point', 'Second point', 'Third point'] }] }, // i18n-ignore
     ] } };
   }
 })();

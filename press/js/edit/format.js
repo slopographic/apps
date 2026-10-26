@@ -30,13 +30,13 @@
       } else ST.formatChars(t.story, t.a, t.b, patch);
     });
     if (ts[0].caret) { PR.emit('textsel'); PR.view.request(); return true; }
-    done(label || 'Character format');
+    done(label || U.t('press.edit.undo_character_format'));
     return true;
   };
   FM.para = function (patch, label) {
     var ts = FM.targets(); if (!ts.length) return false;
     ts.forEach(function (t) { ST.formatParas(t.story, t.a, t.b, patch); });
-    done(label || 'Paragraph format');
+    done(label || U.t('press.edit.undo_paragraph_format'));
     return true;
   };
   /** Applies a paragraph style. clear: also removes local overrides (paragraph and character). */
@@ -46,23 +46,23 @@
       ST.formatParas(t.story, t.a, t.b, { ps: name }, clear);
       if (clear) { var k0 = ST.paraRange(t.story, ST.paraAt(t.story, t.a))[0], k1 = ST.paraRange(t.story, ST.paraAt(t.story, t.b))[1]; ST.formatChars(t.story, k0, k1, {}, true); }
     });
-    done('Apply ' + name);
+    done(U.t('press.edit.undo_apply_style', { name: name }));
     return true;
   };
   FM.charStyle = function (name) {
-    return FM.char({ cs: !name || name === '[None]' ? null : name }, 'Apply ' + (name || '[None]'));
+    return FM.char({ cs: !name || name === '[None]' ? null : name }, U.t('press.edit.undo_apply_style', { name: name || '[None]' }));
   };
   FM.clearOverrides = function () {
     var ts = FM.targets(); if (!ts.length) return false;
     ts.forEach(function (t) { ST.formatParas(t.story, t.a, t.b, {}, true); if (t.a !== t.b) ST.formatChars(t.story, t.a, t.b, {}, true); });
-    done('Clear overrides'); return true;
+    done(U.t('press.edit.undo_clear_overrides')); return true;
   };
   /** Toggles bold/italic by switching fontStyle. */
   FM.toggle = function (what) {
     var cur = FM.current(); if (!cur) return;
     var st = cur.char.fontStyle || 'Regular', b = /bold/i.test(st), i = /italic/i.test(st);
     if (what === 'bold') b = !b; else i = !i;
-    FM.char({ fontStyle: b && i ? 'Bold Italic' : b ? 'Bold' : i ? 'Italic' : 'Regular' }, what === 'bold' ? 'Bold' : 'Italic');
+    FM.char({ fontStyle: b && i ? 'Bold Italic' : b ? 'Bold' : i ? 'Italic' : 'Regular' }, U.t(what === 'bold' ? 'press.edit.undo_bold' : 'press.edit.undo_italic'));
   };
   /** Effective attributes where the caret is (or at the start of the first selected story). */
   FM.current = function () {

@@ -50,7 +50,7 @@
   }
 
   function docFrom(data) {
-    const doc = SV.newDoc(data.artboard.width, data.artboard.height, 'Imported');
+    const doc = SV.newDoc(data.artboard.width, data.artboard.height, 'Imported'); // i18n-ignore: a name stored in the document
     doc.layers = data.layers.map((l) => {
       const layer = SV.mk.layer(l.name, l.color || '#4f8bff');
       layer.hidden = !!l.hidden; layer.locked = !!l.locked;
@@ -63,53 +63,54 @@
   async function apply(data, ctx) {
     const S = SV._core.S;
     if (window.SlopUI && S.doc && S.doc.layers.some((l) => l.children && l.children.length)) {
-      const ok = await SlopUI.confirm('Open document', 'Replace the open document with “' + ctx.name + '”?', 'Open');
-      if (!ok) return { ok: false, message: 'the open document was kept' };
+      const ok = await SlopUI.confirm(SV.t('vector.config.open_title'), SV.t('vector.config.replace', { name: ctx.name }), SV.t('menu.open'));
+      if (!ok) return { ok: false, message: SV.t('vector.config.kept') };
     }
     const doc = docFrom(data);
     SV.loadDoc(doc, { fit: true, resetHistory: true });
     SV.commit('Import config');
   }
 
-  const EXAMPLE = { kind: 'document', value: { artboard: { width: 800, height: 600 }, layers: [{ name: 'Shapes', color: '#4f8bff', hidden: false, locked: false,
-    objects: [{ type: 'rect', name: 'Card', x: 40, y: 40, w: 320, h: 200, fill: '#ffd24a', stroke: '#0a0a0a', strokeWidth: 4, opacity: 1 }] }] } };
+  const EXAMPLE = { kind: 'document', value: { artboard: { width: 800, height: 600 }, layers: [{ name: 'Shapes', color: '#4f8bff', hidden: false, locked: false, // i18n-ignore: sample config content
+    objects: [{ type: 'rect', name: 'Card', x: 40, y: 40, w: 320, h: 200, fill: '#ffd24a', stroke: '#0a0a0a', strokeWidth: 4, opacity: 1 }] }] } }; // i18n-ignore: sample config content
 
   if (C && D && F && SV) {
     const obj = F.obj({
-      type: F.enum(['rect', 'ellipse', 'path', 'text'], { required: true, desc: 'rect, ellipse, path (d holds SVG path data) or text' }),
-      name: F.str({ max: 120, desc: 'object name' }),
-      x: F.num({ min: -1e6, max: 1e6, desc: 'x (rect, text) or centre x (ellipse)' }),
-      y: F.num({ min: -1e6, max: 1e6, desc: 'y (rect, text) or centre y (ellipse)' }),
+      type: F.enum(['rect', 'ellipse', 'path', 'text'], { required: true, desc: 'rect, ellipse, path (d holds SVG path data) or text' }), // i18n-ignore: config schema (API for config files and agents)
+      name: F.str({ max: 120, desc: 'object name' }), // i18n-ignore: config schema (API for config files and agents)
+      x: F.num({ min: -1e6, max: 1e6, desc: 'x (rect, text) or centre x (ellipse)' }), // i18n-ignore: config schema (API for config files and agents)
+      y: F.num({ min: -1e6, max: 1e6, desc: 'y (rect, text) or centre y (ellipse)' }), // i18n-ignore: config schema (API for config files and agents)
       w: F.num({ min: 0, max: 1e6, desc: 'width (rect)' }), h: F.num({ min: 0, max: 1e6, desc: 'height (rect)' }),
-      rx: F.num({ min: 0, max: 1e6, desc: 'horizontal radius (ellipse)' }), ry: F.num({ min: 0, max: 1e6, desc: 'vertical radius (ellipse)' }),
-      d: F.text({ max: 20000, desc: 'SVG path data such as M0 0L100 0L100 100Z (path)' }),
-      text: F.text({ max: 2000, desc: 'the words (text)' }),
-      fill: F.str({ max: 7, pattern: HEX, desc: 'fill colour #rrggbb, or leave out for none' }),
-      stroke: F.str({ max: 7, pattern: HEX, desc: 'stroke colour #rrggbb, or leave out for none' }),
-      strokeWidth: F.num({ min: 0, max: 200, desc: 'stroke width in pixels' }),
+      rx: F.num({ min: 0, max: 1e6, desc: 'horizontal radius (ellipse)' }), ry: F.num({ min: 0, max: 1e6, desc: 'vertical radius (ellipse)' }), // i18n-ignore: config schema (API for config files and agents)
+      d: F.text({ max: 20000, desc: 'SVG path data such as M0 0L100 0L100 100Z (path)' }), // i18n-ignore: config schema (API for config files and agents)
+      text: F.text({ max: 2000, desc: 'the words (text)' }), // i18n-ignore: config schema (API for config files and agents)
+      fill: F.str({ max: 7, pattern: HEX, desc: 'fill colour #rrggbb, or leave out for none' }), // i18n-ignore: config schema (API for config files and agents)
+      stroke: F.str({ max: 7, pattern: HEX, desc: 'stroke colour #rrggbb, or leave out for none' }), // i18n-ignore: config schema (API for config files and agents)
+      strokeWidth: F.num({ min: 0, max: 200, desc: 'stroke width in pixels' }), // i18n-ignore: config schema (API for config files and agents)
       opacity: F.num({ min: 0, max: 1, desc: '0 to 1' }),
     });
     C.registerKind('document', APP, {
       strict: true,
       fields: {
         artboard: F.obj({
-          width: F.int({ min: 1, max: 20000, required: true, desc: 'artboard width in pixels' }),
-          height: F.int({ min: 1, max: 20000, required: true, desc: 'artboard height in pixels' }),
-        }, { required: true, desc: 'the artboard size' }),
+          width: F.int({ min: 1, max: 20000, required: true, desc: 'artboard width in pixels' }), // i18n-ignore: config schema (API for config files and agents)
+          height: F.int({ min: 1, max: 20000, required: true, desc: 'artboard height in pixels' }), // i18n-ignore: config schema (API for config files and agents)
+        }, { required: true, desc: 'the artboard size' }), // i18n-ignore: config schema (API for config files and agents)
         layers: F.list(F.obj({
-          name: F.str({ max: 120, required: true, desc: 'layer name' }),
-          color: F.str({ max: 7, pattern: HEX, desc: 'layer colour in the panel, #rrggbb' }),
+          name: F.str({ max: 120, required: true, desc: 'layer name' }), // i18n-ignore: config schema (API for config files and agents)
+          color: F.str({ max: 7, pattern: HEX, desc: 'layer colour in the panel, #rrggbb' }), // i18n-ignore: config schema (API for config files and agents)
           hidden: F.bool(), locked: F.bool(),
-          objects: F.list(obj, { max: 2000, desc: 'the objects on this layer, bottom first' }),
-        }), { min: 1, max: 100, required: true, desc: 'layers, bottom first' }),
+          objects: F.list(obj, { max: 2000, desc: 'the objects on this layer, bottom first' }), // i18n-ignore: config schema (API for config files and agents)
+        }), { min: 1, max: 100, required: true, desc: 'layers, bottom first' }), // i18n-ignore: config schema (API for config files and agents)
       },
-    }, apply, { label: 'Document', description: 'Artboard and layers with rectangles, ellipses, paths and text', read });
-    const cfg = (id, label, act) => { SV.actions[id] = { id, label, keys: [], run: act }; };
+    }, apply, { label: 'Document', description: 'Artboard and layers with rectangles, ellipses, paths and text', read }); // i18n-ignore: config schema (API for config files and agents)
+    // File ▸ Config: actions like the others (ui/actions.js), labelled vector.act.file_config_<name>.
+    const cfg = (id, act) => { SV.ui._p.act(id, [], act); };
     const ad = (fn) => () => fn();
-    cfg('file.config.export', 'Config: export current config…', ad(() => D.exportDialog({ app: APP })));
-    cfg('file.config.template', 'Config: export plain template…', ad(() => D.templateDialog({ app: APP, example: EXAMPLE })));
-    cfg('file.config.import', 'Config: import config…', ad(() => D.importDialog({ app: APP })));
-    cfg('file.config.ai', 'Config: ask AI to write a config…', ad(() => D.aiDialog({ app: APP })));
+    cfg('file.config.export', ad(() => D.exportDialog({ app: APP })));
+    cfg('file.config.template', ad(() => D.templateDialog({ app: APP, example: EXAMPLE })));
+    cfg('file.config.import', ad(() => D.importDialog({ app: APP })));
+    cfg('file.config.ai', ad(() => D.aiDialog({ app: APP })));
     D.install({ app: APP });
   }
 })();

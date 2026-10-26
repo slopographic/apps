@@ -3,6 +3,7 @@
    that change nothing add no undo step. Exposes window.SS.textEdit. */
 (function () {
   'use strict';
+  var SU = window.SS.util;
   var SS = window.SS, A = SS.app, O = SS.objects, TH = SS.themes, F = SS.fonts, St = SS.stage;
   var TE = SS.textEdit = { editing: null };
   var ta = null, ALIGN = { l: 'left', c: 'center', r: 'right', j: 'justify' };
@@ -47,7 +48,7 @@
     TE.editing = null;
     var val = ta.value, slide = A.slide(), o = slide && O.find(slide, id);
     ta.hidden = true;
-    if (o && val !== O.plain(o.text)) A.change('Edit text', function () { SS.textParse.apply(o, val); });
+    if (o && val !== O.plain(o.text)) A.change(SU.t('slides.op.edit_text'), function () { SS.textParse.apply(o, val); });
     A.emit('render');
   };
 })();

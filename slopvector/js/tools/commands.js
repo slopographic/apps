@@ -40,11 +40,11 @@
   };
   C.cut = function () { if (C.copy()) { topSel().forEach(SV.removeObj); S.sel = []; SV.commit('cut'); } };
   C.paste = function (mode) {
-    var cb = S.clipboard; if (!cb || !cb.objs.length) return SV.toast('Clipboard is empty');
+    var cb = S.clipboard; if (!cb || !cb.objs.length) return SV.toast(SV.t('vector.msg.clipboard_empty'));
     Object.keys(cb.assets || {}).forEach(function (k) { if (!S.doc.assets[k]) S.doc.assets[k] = cb.assets[k]; });
     var objs = cb.objs.map(function (o) { return SV.reId(clone(o)); }), ids = objs.map(function (o) { return o.id; });
     var L = SV.activeLayer();
-    if (L.locked || L.hidden) return SV.toast('Active layer is locked or hidden', 'warn');
+    if (L.locked || L.hidden) return SV.toast(SV.t('vector.msg.layer_unusable'), 'warn');
     var sel = topSel();
     if (mode === 'front' && sel.length) {
       var f = find(sel[sel.length - 1]); f.arr.splice.apply(f.arr, [f.idx + 1, 0].concat(objs));
@@ -91,7 +91,7 @@
         ch.forEach(function (c) { out.push(c.id); });
       } else out.push(id);
     });
-    if (!any) return SV.toast('No groups selected');
+    if (!any) return SV.toast(SV.t('vector.msg.no_groups'));
     SV.select(out); SV.commit('ungroup');
   };
   C.arrange = function (how) {

@@ -8,9 +8,9 @@
   var N = SS.native = {};
   N.MIME = 'application/x-slop-slides';
   N.EXT = 'sslide';
-  N.DEFAULT_NAME = 'Untitled presentation.sslide';
+  N.DEFAULT_NAME = 'Untitled presentation.sslide'; // i18n-ignore
 
-  N.blank = function (opts) { return M.newDeck(Object.assign({ title: 'Untitled presentation' }, opts || {})); };
+  N.blank = function (opts) { return M.newDeck(Object.assign({ title: 'Untitled presentation' }, opts || {})); }; // i18n-ignore
   N.toBlob = function (deck) { return new Blob([JSON.stringify(deck)], { type: N.MIME }); };
 
   /** The one deck validator (io/validate.js): throws with the reason if d is not a deck. Then fills in defaults
@@ -43,14 +43,14 @@
 
   /** A deck with one slide holding the picture, fitted and centred (for "Send to Slides" with an image). */
   N.fromImage = function (dataUrl, name) {
-    var d = M.newDeck({ empty: true, title: (name || 'Picture').replace(/\.[^.]+$/, '') });
+    var d = M.newDeck({ empty: true, title: (name || 'Picture').replace(/\.[^.]+$/, '') }); // i18n-ignore
     var s = M.addSlide(d, 'blank');
     return new Promise(function (res) {
       var im = new Image();
       im.onload = im.onerror = function () {
         var iw = im.naturalWidth || 800, ih = im.naturalHeight || 600, k = Math.min(d.size.w * 0.9 / iw, d.size.h * 0.9 / ih, 1e9);
         var w = iw * k, h = ih * k;
-        var o = SS.objects.make('image', { x: (d.size.w - w) / 2, y: (d.size.h - h) / 2, w: w, h: h, name: name || 'Picture', media: M.addMedia(d, dataUrl, name) });
+        var o = SS.objects.make('image', { x: (d.size.w - w) / 2, y: (d.size.h - h) / 2, w: w, h: h, name: name || 'Picture', media: M.addMedia(d, dataUrl, name) }); // i18n-ignore
         s.objects.push(o);
         res(d);
       };
@@ -72,13 +72,13 @@
       return { deck: N.normalize(r.deck), kind: 'pptx', report: r.report };
     }
     if (type === N.MIME || /json/.test(type) || /\.sslide$/i.test(name || '')) return { deck: N.parse(await blob.text()), kind: 'deck' };
-    if (/^image\//.test(type)) return { deck: await N.fromImage(await U.blobToDataUrl(blob), name || 'Picture'), kind: 'image' };
+    if (/^image\//.test(type)) return { deck: await N.fromImage(await U.blobToDataUrl(blob), name || 'Picture'), kind: 'image' }; // i18n-ignore
     return { deck: N.blank(), kind: 'foreign', type: type };
   };
 
   /** Plain file name for a deck title ("Gooey launch" → "Gooey launch.sslide"). */
   N.fileName = function (title) {
-    var base = String(title || 'Untitled presentation').replace(/[\\/:*?"<>|]+/g, ' ').replace(/\s+/g, ' ').trim();
-    return (base || 'Untitled presentation') + '.' + N.EXT;
+    var base = String(title || 'Untitled presentation').replace(/[\\/:*?"<>|]+/g, ' ').replace(/\s+/g, ' ').trim(); // i18n-ignore
+    return (base || 'Untitled presentation') + '.' + N.EXT; // i18n-ignore
   };
 })();

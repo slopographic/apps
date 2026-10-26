@@ -28,6 +28,8 @@
     'Comic Sans MS': "'Comic Sans MS', 'Comic Sans', cursive"
   };
   var BLENDS = ['normal', 'multiply', 'screen', 'overlay', 'darken', 'lighten', 'color-dodge', 'color-burn', 'hard-light', 'soft-light', 'difference', 'exclusion', 'hue', 'saturation', 'color', 'luminosity'];
+  /** Font weights and the keys of their names (Type ▸ Weight, the weight selects). */
+  SV.WEIGHTS = [[300, 'vector.weight.light'], [400, 'vector.weight.regular'], [500, 'vector.weight.medium'], [600, 'vector.weight.semibold'], [700, 'vector.weight.bold'], [800, 'vector.weight.extrabold'], [900, 'vector.weight.black']];
   SV.FONTS = FONTS; SV.BLENDS = BLENDS; SV.LAYER_COLORS = LAYER_COLORS;
   SV.fontStack = function (fam) { return FONTS[fam] || ("'" + String(fam).replace(/'/g, '') + "', sans-serif"); };
 
@@ -66,6 +68,35 @@
   SV.lsGet = lsGet; SV.lsSet = lsSet; SV.lsDel = lsDel;
   SV.modKey = function (e) { return IS_MAC ? e.metaKey : e.ctrlKey; };
 
+  /* ================= words (slopvector/i18n/<code>/*.js, shared/i18n/APPS-HOWTO.md) ================= */
+  // t('vector.<area>.<name>', vars): the chosen language, English when it lacks the key. onLang(fn) re-runs fn after a
+  // language change, once the new tables are in (UI built once). mark(el, { text: key, title: key }) sets the words and
+  // marks the element, so SlopI18n.apply() follows a switch. The UI helpers take a key (isKey) or plain text (tx).
+  SV.t = function (key, vars) { var I = window.SlopI18n; return I ? I.t(key, vars) : key; };
+  SV.onLang = function (fn) { var I = window.SlopI18n; return I && I.on ? I.on(fn) : function () {}; };
+  SV.isKey = function (s) { return typeof s === 'string' && /^(vector|ui|menu)\.[a-z0-9_]+(\.[a-z0-9_]+)*$/.test(s); };
+  SV.tx = function (s) { return SV.isKey(s) ? SV.t(s) : s; };
+  SV.mark = function (el, keys) {
+    var at = (el.getAttribute('data-i18n-attr') || '').split(';').filter(Boolean);
+    Object.keys(keys).forEach(function (a) {
+      var k = keys[a];
+      if (a === 'text') { el.textContent = SV.t(k); el.setAttribute('data-i18n', k); return; }
+      el.setAttribute(a, SV.t(k));
+      at = at.filter(function (p) { return p.split(':')[0] !== a; }).concat([a + ':' + k]);
+    });
+    if (at.length) el.setAttribute('data-i18n-attr', at.join(';'));
+    return el;
+  };
+  /** Sets one attribute ('text' for the text) to a key's words (marked) or to plain text. */
+  SV.label = function (el, attr, s) {
+    if (s == null || s === '') return el;
+    if (SV.isKey(s)) { var o = {}; o[attr] = s; return SV.mark(el, o); }
+    if (attr === 'text') el.textContent = s; else el.setAttribute(attr, s);
+    return el;
+  };
+  /** Runs fn now and again after every language change (labels composed from words, which data-i18n cannot hold). */
+  SV.live = function (fn) { fn(); SV.onLang(fn); };
+
   /* ================= object factories ================= */
   function mkStyle(o) { return Object.assign({ fill: null, stroke: null, sw: 1, cap: 'butt', join: 'miter', miter: 10, dash: null, opacity: 1, blend: 'normal', rule: 'nonzero' }, o || {}); }
   SV.mkStyle = mkStyle;
@@ -84,7 +115,7 @@
   };
   var mk = SV.mk;
   SV.newDoc = function (w, h, name) {
-    var d = { version: 1, name: name || ('Untitled-' + S.docCounter++), width: w || 1200, height: h || 800, layers: [mk.layer('Layer 1', LAYER_COLORS[0])], guides: { h: [], v: [] }, swatches: null, assets: {} };
+    var d = { version: 1, name: name || ('Untitled-' + S.docCounter++), width: w || 1200, height: h || 800, layers: [mk.layer('Layer 1', LAYER_COLORS[0])], guides: { h: [], v: [] }, swatches: null, assets: {} }; // i18n-ignore: names stamped into the document
     return d;
   };
 

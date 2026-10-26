@@ -29,16 +29,16 @@
   UI.canvasMenu = function (x, y) {
     var any = S.sel.length > 0, txt = selectedText();
     var items = [];
-    if (any) items.push({ label: 'Restore original aspect ratio', disabled: !SV.aspectTarget(), act: function () { SV.restoreAspect(SV.aspectKeepAt(x, y)); } }, '-');
-    if (txt) items.push({ label: 'Edit Text', act: function () { SV.startTextEdit(txt, null); } }, '-');
+    if (any) items.push({ label: SV.t('vector.act.transform_restore_aspect'), disabled: !SV.aspectTarget(), act: function () { SV.restoreAspect(SV.aspectKeepAt(x, y)); } }, '-');
+    if (txt) items.push({ label: SV.t('vector.ctx.edit_text'), act: function () { SV.startTextEdit(txt, null); } }, '-');
     items.push(mi('edit.undo'), mi('edit.redo'), '-');
     if (any) items.push(mi('edit.cut'), mi('edit.copy'), mi('edit.copyBuffer'));
     if (S.clipboard) items.push(mi('edit.paste'), mi('edit.pasteFront'));
     if (any) {
       items.push(mi('edit.duplicate'), mi('edit.clear'), '-', mi('object.group'), mi('object.ungroup'),
-        { label: 'Arrange', sub: [mi('arrange.front'), mi('arrange.forward'), mi('arrange.backward'), mi('arrange.back')] },
-        { label: 'Transform', sub: [mi('transform.move'), mi('transform.rotate'), mi('transform.scale'), mi('transform.reflect'), '-', mi('transform.flipH'), mi('transform.flipV'), '-', mi('transform.restoreAspect')] },
-        { label: 'Pathfinder', sub: [mi('pf.unite'), mi('pf.minus'), mi('pf.intersect'), mi('pf.exclude')] },
+        { label: SV.t('vector.menu.arrange'), sub: [mi('arrange.front'), mi('arrange.forward'), mi('arrange.backward'), mi('arrange.back')] },
+        { label: SV.t('vector.menu.transform'), sub: [mi('transform.move'), mi('transform.rotate'), mi('transform.scale'), mi('transform.reflect'), '-', mi('transform.flipH'), mi('transform.flipV'), '-', mi('transform.restoreAspect')] },
+        { label: SV.t('vector.menu.pathfinder'), sub: [mi('pf.unite'), mi('pf.minus'), mi('pf.intersect'), mi('pf.exclude')] },
         mi('compound.make'), mi('object.expand'), '-', mi('object.lock'), mi('object.hide'), '-', mi('object.slopify'));
     } else {
       items.push('-', mi('select.all'), mi('object.unlockAll'), mi('object.showAll'), '-', mi('view.fit'), mi('view.outline'), mi('view.grid'), mi('view.rulers'), '-', mi('file.docSetup'));
@@ -48,19 +48,19 @@
   /** Rename, show or hide, lock or unlock: shared by layer and object rows. */
   function rowItems(it, id) {
     return [
-      { label: 'Rename…', act: function () { UI.st.renaming = id; UI.st.layersSig = ''; renderLayers(); } },
-      { label: it.hidden ? 'Show' : 'Hide', act: function () { it.hidden = !it.hidden; SV.commit(it.hidden ? 'hide' : 'show'); } },
-      { label: it.locked ? 'Unlock' : 'Lock', act: function () { it.locked = !it.locked; SV.commit(it.locked ? 'lock' : 'unlock'); } }];
+      { label: SV.t('ui.rename_dots'), act: function () { UI.st.renaming = id; UI.st.layersSig = ''; renderLayers(); } },
+      { label: it.hidden ? SV.t('vector.layers.show') : SV.t('vector.layers.hide'), act: function () { it.hidden = !it.hidden; SV.commit(it.hidden ? 'hide' : 'show'); } },
+      { label: it.locked ? SV.t('vector.layers.unlock') : SV.t('vector.props.lock'), act: function () { it.locked = !it.locked; SV.commit(it.locked ? 'lock' : 'unlock'); } }];
   }
   function layerItems(L) {
-    return rowItems(L, L.id).concat(['-', { label: 'Select All on Layer', act: function () { C.selectLayer(); } }, { label: 'New Layer', act: newLayer },
-      { label: 'Delete Layer', disabled: S.doc.layers.length <= 1, act: function () { var i = S.doc.layers.indexOf(L); if (i < 0 || S.doc.layers.length <= 1) return; S.doc.layers.splice(i, 1); S.activeLayer = S.doc.layers[Math.max(0, i - 1)].id; SV.commit('delete layer'); } }]);
+    return rowItems(L, L.id).concat(['-', { label: SV.t('vector.ctx.select_layer'), act: function () { C.selectLayer(); } }, { label: SV.t('vector.ctx.new_layer'), act: newLayer },
+      { label: SV.t('vector.ctx.delete_layer'), disabled: S.doc.layers.length <= 1, act: function () { var i = S.doc.layers.indexOf(L); if (i < 0 || S.doc.layers.length <= 1) return; S.doc.layers.splice(i, 1); S.activeLayer = S.doc.layers[Math.max(0, i - 1)].id; SV.commit('delete layer'); } }]);
   }
   /** Object and group rows: a group selects its contents, a text object edits its text. */
   function objItems(o, id) {
     var pre = [];
-    if (o.type === 'group') pre.push({ label: 'Select Group Contents', act: function () { SV.select(SV.leaves(o).map(function (l) { return l.id; })); } }, '-');
-    if (o.type === 'text') pre.push({ label: 'Edit Text', act: function () { SV.startTextEdit(o, null); } }, '-');
+    if (o.type === 'group') pre.push({ label: SV.t('vector.ctx.select_group'), act: function () { SV.select(SV.leaves(o).map(function (l) { return l.id; })); } }, '-');
+    if (o.type === 'text') pre.push({ label: SV.t('vector.ctx.edit_text'), act: function () { SV.startTextEdit(o, null); } }, '-');
     return pre.concat(rowItems(o, id), ['-', mi('edit.duplicate'), mi('edit.clear'), '-', mi('arrange.front'), mi('arrange.back'), mi('object.group'), mi('object.ungroup')]);
   }
   UI.layerMenu = function (id, x, y) {
@@ -136,6 +136,8 @@
     ['toolbar', 'cb', 'props', 'app', 'layers', 'swatches', 'grad', 'align', 'status'].forEach(runBinds);
     document.getElementById('stage').setAttribute('data-tool', S.tool);
   };
+  // A language switch: rebuild the control bar and the layer rows and run every binding (their words come from t()).
+  SV.onLang(function () { UI.st.cbSig = ''; UI.st.layersSig = ''; if (SV.requestRender) SV.requestRender(true); });
 
   $.bindContextMenus = bindContextMenus; $.loadPrefs = loadPrefs; $.mi = mi; $.savePrefs = savePrefs; $.setTheme = setTheme;
 })();

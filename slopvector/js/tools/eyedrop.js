@@ -39,18 +39,18 @@
     if (src.type !== 'image') keys.forEach(function (k) { S.style[k] = SV.clone(src.style[k]); });
     if (src.type === 'text') S.font = SV.clone(src.font);
     if (targets.length) SV.commit('eyedropper'); else SV.requestRender(true);
-    SV.toast(targets.length ? 'Applied sampled appearance' : 'Sampled appearance: select objects first to apply it');
+    SV.toast(targets.length ? SV.t('vector.msg.eyedrop_applied') : SV.t('vector.msg.eyedrop_sampled'));
   }
 
   TOOLS.eyedropper = {
     down: function (ev) {
       if (ev.shift) { copyAppearance(ev); return; }
       var s = sampleAt(ev.p);
-      if (!s) { SV.toast('Nothing solid under the pointer'); return; }
+      if (!s) { SV.toast(SV.t('vector.msg.eyedrop_nothing')); return; }
       var which = ev.alt ? 'stroke' : 'fill';
       var n = SV.applyStyle(which, s.hex);
       SV.ui.noteRecent(s.hex); // SV.ui is created by ui/color.js, which loads after this file
-      SV.toast(n ? 'Set the ' + which + ' to ' + s.hex.toUpperCase() : 'Sampled ' + s.hex.toUpperCase() + ': select objects to apply it');
+      SV.toast(n ? (which === 'fill' ? SV.t('vector.msg.eyedrop_set_fill', { hex: s.hex.toUpperCase() }) : SV.t('vector.msg.eyedrop_set_stroke', { hex: s.hex.toUpperCase() })) : SV.t('vector.msg.eyedrop_color', { hex: s.hex.toUpperCase() }));
     },
     hover: function (ev) { var h = SV.hitTest(ev.p); S.hover = h ? h.obj.id : null; $.setCursor(CURSORS.eyedropper); },
   };

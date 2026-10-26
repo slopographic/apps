@@ -8,7 +8,7 @@
   'use strict';
   var SS = window.SS, U = SS.util, MO = window.SlopMotion;
   var ANIM = SS.anim = SS.anim || {};
-  ANIM.TRIGGERS = [['with', 'With previous'], ['click', 'On click']];
+  ANIM.TRIGGERS = [['with', 'With previous'], ['click', 'On click']]; // i18n-ignore
   ANIM.TS_MIN = 0.1;
   ANIM.TS_MAX = 10;
   var num = function (v, lo, hi, dflt) { v = Number(v); return isFinite(v) ? Math.max(lo, Math.min(hi, v)) : dflt; };

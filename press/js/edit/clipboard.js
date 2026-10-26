@@ -20,7 +20,7 @@
   CB.copyItems = function (cut) {
     if (!S.sel.length) return null;
     CB.data = pack(S.sel);
-    if (cut) { S.sel.slice().forEach(function (id) { I.remove(S.doc, id); }); S.sel = []; H.commit('Cut'); }
+    if (cut) { S.sel.slice().forEach(function (id) { I.remove(S.doc, id); }); S.sel = []; H.commit(U.t('press.edit.undo_cut')); }
     return CB.data;
   };
   /** Pastes the clipboard items onto the active page (in place, or offset when pasting on the same spot). */
@@ -39,7 +39,7 @@
       }
       list.push(c); return c;
     });
-    H.commit('Paste'); PR.select(made.map(function (c) { return c.id; }));
+    H.commit(U.t('press.edit.undo_paste')); PR.select(made.map(function (c) { return c.id; }));
     return true;
   };
   /** Runs a clipboard command from a menu (uses the system clipboard events where allowed). */
@@ -48,7 +48,7 @@
     var ok = false;
     try { ok = document.execCommand(what); } catch (e) { ok = false; }
     if (ok) return;
-    if (what === 'paste') { if (!S.text) CB.pasteItems(false); else if (navigator.clipboard && navigator.clipboard.readText) navigator.clipboard.readText().then(function (t) { if (t) PR.textEdit.insert(t, 'Paste'); }).catch(function () { U.toast('Use Ctrl/Cmd+V to paste'); }); }
+    if (what === 'paste') { if (!S.text) CB.pasteItems(false); else if (navigator.clipboard && navigator.clipboard.readText) navigator.clipboard.readText().then(function (t) { if (t) PR.textEdit.insert(t, U.t('press.edit.undo_paste')); }).catch(function () { U.toast(U.t('press.app.paste_hint')); }); }
     else if (!S.text) CB.copyItems(what === 'cut');
   };
   function editable(t) { return t && (t.tagName === 'INPUT' || (t.tagName === 'TEXTAREA' && t.id !== 'textInput') || t.tagName === 'SELECT' || t.isContentEditable); }

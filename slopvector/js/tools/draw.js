@@ -80,18 +80,18 @@
       else { w = abs(dx); h = abs(dy); x = min(p0.x, p0.x + dx); y = min(p0.y, p0.y + dy); }
       if (kind === 'ellipse') { o.cx = x + w / 2; o.cy = y + h / 2; o.rx = w / 2; o.ry = h / 2; }
       else { o.x = x; o.y = y; o.w = w; o.h = h; }
-      readout(ev, 'W: ' + n1(w) + ' px\nH: ' + n1(h) + ' px');
+      readout(ev, SV.t('vector.readout.size', { w: n1(w), h: n1(h) }));
     } else if (kind === 'polygon' || kind === 'star') {
       var r = hypot(dx, dy), ang = ev.shift ? 0 : Math.atan2(dy, dx) + PI / 2;
       o.cx = p0.x; o.cy = p0.y;
       if (kind === 'polygon') { o.r = r; o.sides = S.shape.sides; } else { o.r1 = r; o.r2 = r * S.shape.inner; o.points = S.shape.points; }
       o.m = G.rotate(ang, p0.x, p0.y);
-      readout(ev, (kind === 'polygon' ? 'Sides: ' + S.shape.sides : 'Points: ' + S.shape.points) + '  (↑/↓)\nRadius: ' + n1(r) + ' px');
+      readout(ev, kind === 'polygon' ? SV.t('vector.readout.polygon', { n: S.shape.sides, r: n1(r) }) : SV.t('vector.readout.star', { n: S.shape.points, r: n1(r) }));
     } else if (kind === 'line') {
       var e = ev.shift ? SV.constrain45(p0, ev.p) : p, a = ev.alt ? { x: 2 * p0.x - e.x, y: 2 * p0.y - e.y } : p0;
       var sp = o.subpaths[0]; sp.pts = [G.A(a.x, a.y), G.A(e.x, e.y)];
       var deg = -Math.atan2(e.y - a.y, e.x - a.x) * 180 / PI;
-      readout(ev, 'L: ' + n1(hypot(e.x - a.x, e.y - a.y)) + ' px\n∠: ' + n1(deg) + '°');
+      readout(ev, SV.t('vector.readout.line', { l: n1(hypot(e.x - a.x, e.y - a.y)), deg: n1(deg) }));
     }
   }
   SV.updateShapeOp = function () { if (S.op && S.op.kind === 'shape' && S.op.obj && S.op.last) { updateShape(S.op, S.op.last); SV.requestRender(); } };

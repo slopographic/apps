@@ -3,18 +3,18 @@
  * selection (several items), page (nothing selected). Items are command ids run through the menu
  * bar's builder (UI.toItems), so labels, shortcuts and checks match the menu bar. Items that do not
  * apply (disabled commands, empty submenus) are left out. Panels (pages, layers, styles, swatches,
- * masters) keep their own menus; the Menu key reaches them through a synthetic contextmenu event. */
+ * masters) keep their own menus; submenu labels are keys (UI.toItems reads them); the Menu key reaches them through a synthetic contextmenu event. */
 (function () {
   'use strict';
   var PR = window.PR, S = PR.state, UI = PR.ui = PR.ui || {};
   var CANVAS = 'view', PANEL_TARGETS = '.pthumb, .lrow, .srow, .mchip, .sw';
   var COMMON = ['edit.cut', 'edit.copy', 'edit.paste', 'edit.duplicate', 'edit.delete', '-'];
-  var ARRANGE = { label: 'Arrange', items: ['arrange.front', 'arrange.forward', 'arrange.backward', 'arrange.back'] };
-  var WRAP = { label: 'Text Wrap', items: ['wrap.none', 'wrap.box', 'wrap.contour', 'wrap.jump'] };
-  var FIT = { label: 'Fitting', items: ['object.fitFill', 'object.fitFit', 'object.fitCenter', 'object.fitStretch'] };
+  var ARRANGE = { label: 'press.menu.arrange', items: ['arrange.front', 'arrange.forward', 'arrange.backward', 'arrange.back'] };
+  var WRAP = { label: 'press.menu.text_wrap', items: ['wrap.none', 'wrap.box', 'wrap.contour', 'wrap.jump'] };
+  var FIT = { label: 'press.menu.fitting', items: ['object.fitFill', 'object.fitFit', 'object.fitCenter', 'object.fitStretch'] };
   var KINDS = {
-    text: ['edit.cut', 'edit.copy', 'edit.paste', '-', { label: 'Paragraph Style', dyn: 'para' }, { label: 'Character Style', dyn: 'char' },
-      { label: 'Insert Special Character', items: ['type.pageNumber', 'type.emDash', 'type.enDash', 'type.nbsp', 'type.softHyphen', 'type.lineBreak'] }, '-', 'type.placeholder'],
+    text: ['edit.cut', 'edit.copy', 'edit.paste', '-', { label: 'press.menu.para_style', dyn: 'para' }, { label: 'press.menu.char_style', dyn: 'char' },
+      { label: 'press.menu.special_char', items: ['type.pageNumber', 'type.emDash', 'type.enDash', 'type.nbsp', 'type.softHyphen', 'type.lineBreak'] }, '-', 'type.placeholder'],
     textFrame: COMMON.concat([ARRANGE, WRAP, '-', 'object.textFrameOptions', 'object.breakThread', '-', 'object.lock']),
     imageFrame: COMMON.concat([ARRANGE, WRAP, FIT, 'object.placeImage', '-', 'object.lock']),
     graphic: COMMON.concat([ARRANGE, WRAP, 'object.rotate90', '-', 'object.lock']),
