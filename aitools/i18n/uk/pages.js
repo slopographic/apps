@@ -21,7 +21,7 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'aitools.ocr.pdf_pages#one': 'У цьому PDF {n} сторінка.',
   'aitools.ocr.pdf_pages#few': 'У цьому PDF {n} сторінки.',
   'aitools.ocr.pdf_pages#many': 'У цьому PDF {n} сторінок.',
-  'aitools.ocr.choose_lang': 'Оберіть мову тексту та завантажте її модель, щоб розпізнати текст.',
+  'aitools.ocr.choose_lang': 'Виберіть мову тексту та завантажте її модель, щоб розпізнати текст.',
   'aitools.ocr.finding': 'Шукаємо рядки тексту…',
   'aitools.ocr.line_of': 'Розпізнаємо рядок {i} з {n}…',
   'aitools.ocr.read_n': '{n} рядків розпізнано. Перевірте текст, перш ніж ним користуватися.',

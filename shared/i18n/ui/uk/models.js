@@ -54,7 +54,7 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'ui.models.not_installed': '{name} не встановлено: {error}. Нічого не збережено.',
   'ui.models.remove_failed': 'Не вдалося видалити {name}: {error}',
   'ui.models.removed': '{name} видалено з цього пристрою.',
-  'ui.models.first': 'Спершу завантажте модель або оберіть встановлену.',
+  'ui.models.first': 'Спершу завантажте модель або виберіть встановлену.',
   'ui.models.badge_rec': 'Рекомендовано',
   'ui.models.badge_rec_for': 'Рекомендовано для: {lang}',
   'ui.models.badge_made': 'Створено для однієї мови',
@@ -73,7 +73,7 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'ui.models.ocr_accents': '{model} читає літери з діакритикою (å, ä, ö, é …), які швидка модель пропускає.',
   'ui.models.ocr_accents_for': '{model} читає літери з діакритикою (å, ä, ö, é …), які швидка модель пропускає, для мови {lang}.',
   'ui.models.ocr_unclear_in': 'Деякі рядки прочитано нечітко. Якщо текст мовою {lang}, його читає {model}.',
-  'ui.models.ocr_unclear': 'Деякі рядки прочитано нечітко. Якщо текст не китайською й не англійською, оберіть його мову.',
+  'ui.models.ocr_unclear': 'Деякі рядки прочитано нечітко. Якщо текст не китайською й не англійською, виберіть його мову.',
   'ui.models.ocr_use': 'Використати {name}…',
-  'ui.models.ocr_choose': 'Оберіть мову…',
+  'ui.models.ocr_choose': 'Виберіть мову…',
 });

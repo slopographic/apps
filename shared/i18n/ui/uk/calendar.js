@@ -34,8 +34,8 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'ui.cal.days_before': 'за {n} днів',
   'ui.cal.need_title': 'Дайте події назву.',
   'ui.cal.bad_zone': 'Цей часовий пояс невідомий.',
-  'ui.cal.need_start': 'Оберіть дату початку.',
-  'ui.cal.need_end': 'Оберіть дату завершення.',
+  'ui.cal.need_start': 'Виберіть дату початку.',
+  'ui.cal.need_end': 'Виберіть дату завершення.',
   'ui.cal.until_bad': 'Дата завершення повторів не є датою.',
   'ui.cal.until_early': 'Дата завершення повторів передує початку.',
   'ui.cal.end_day_early': 'Дата завершення передує даті початку.',
@@ -58,5 +58,5 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'ui.reminders.hours#many': '{n} годин',
   'ui.reminders.hours': '{n} годин',
   'ui.reminders.tomorrow': 'Завтра, {time}',
-  'ui.reminders.pick_snooze': 'Оберіть час для повторного нагадування.',
+  'ui.reminders.pick_snooze': 'Виберіть час для повторного нагадування.',
 });

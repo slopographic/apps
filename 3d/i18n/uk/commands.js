@@ -108,7 +108,7 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   '3d.menu.show': 'Показати',
   '3d.menu.add': 'Додати',
   '3d.menu.view': 'Вигляд',
-  '3d.menu.layout': 'Розкладка',
+  '3d.menu.layout': 'Макет',
   '3d.menu.select_all': 'Вибрати все',
   '3d.menu.move': 'Перемістити',
   '3d.menu.rotate': 'Повернути',

@@ -33,5 +33,5 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'ai.cmd.sloppo': 'Запитати Sloppo',
   'ai.cmd.theme': 'Тема: {name}',
   'ai.cmd.palette': 'Пошук команд…',
-  'ai.cmd.shortcuts': 'Клавіатурні скорочення…',
+  'ai.cmd.shortcuts': 'Сполучення клавіш…',
 });

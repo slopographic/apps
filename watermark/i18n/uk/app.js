@@ -61,7 +61,7 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'watermark.drop.hint': 'Зображення (PNG, JPEG, WebP, GIF, SVG, HEIC), відео (MP4, MOV, WebM) і PDF, багато одразу. Читаються в цьому браузері, нічого не передається в мережу.',
   'watermark.drop.alt': 'Фото заходу сонця з текстовим водяним знаком © у правому нижньому куті',
   'watermark.drop.step1': 'Перетягніть фото, відео й PDF, багато одразу',
-  'watermark.drop.step2': 'Введіть текст або додайте логотип, оберіть кут',
+  'watermark.drop.step2': 'Введіть текст або додайте логотип, виберіть кут',
   'watermark.drop.step3': 'Завантажте все одним ZIP-архівом',
   'watermark.drop.sample': 'Спробуйте на 4 прикладах фото',
   'watermark.probe.unreadable': 'не вдалося прочитати',

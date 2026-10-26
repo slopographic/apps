@@ -11,7 +11,7 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'convert.app.search_ph': 'Спробуйте PDF, WebP або CSV',
   'convert.app.skip': 'Перейти до конвертера',
   'convert.app.what_h': 'Що перетворюється',
-  'convert.app.what_p1': 'Зображення в PNG, JPG, WebP, BMP і ICO, а також у PDF. Листи електронної пошти в HTML, текст і ZIP із вкладеннями. Файли календаря в CSV і JSON. XML у JSON. ZIP-архіви розпаковуються, а будь-які файли можна запакувати в ZIP. Сторінки PDF у зображення, а також об’єднання й розділення PDF. CSV у JSON, JSON у CSV, CSV в Excel. Markdown у HTML, HTML у текст, кодування Base64 і URL, а також закінчення рядків. Кожен конвертер має й власну сторінку.',
+  'convert.app.what_p1': 'Зображення в PNG, JPG, WebP, BMP і ICO, а також у PDF. Листи е-пошти в HTML, текст і ZIP із вкладеннями. Файли календаря в CSV і JSON. XML у JSON. ZIP-архіви розпаковуються, а будь-які файли можна запакувати в ZIP. Сторінки PDF у зображення, а також об’єднання й розділення PDF. CSV у JSON, JSON у CSV, CSV в Excel. Markdown у HTML, HTML у текст, кодування Base64 і URL, а також закінчення рядків. Кожен конвертер має й власну сторінку.',
   'convert.app.what_p2': 'Пакетна обробка: перетягніть скільки завгодно файлів. Перетворені файли завантажуються по одному або одним ZIP-архівом.',
   'convert.frame.convert_n': 'Перетворити файлів: {n}',
   'convert.frame.convert_tip': 'Перетворити файли (Enter)',

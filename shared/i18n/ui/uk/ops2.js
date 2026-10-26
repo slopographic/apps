@@ -39,7 +39,7 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'ui.ops.video.layout_hint': 'none, random, single, split-h, pip, grid-2x2…',
   'ui.ops.video.seed': 'Зерно (seed)',
   'ui.ops.video.seed_hint': 'те саме зерно дає той самий монтаж',
-  'ui.ops.video.need_subs': 'Додайте файл .srt або .vtt до відео або оберіть «Транскрибувати».',
+  'ui.ops.video.need_subs': 'Додайте файл .srt або .vtt до відео або виберіть «Транскрибувати».',
   'ui.ops.video.need_edl': 'Додайте список монтажу (файл .json) з медіа, які він називає.',
   'ui.ops.video.need_video': 'Додайте відео.',
   'ui.ops.video.need_clips': 'Додайте кліпи й зображення для ролика.',

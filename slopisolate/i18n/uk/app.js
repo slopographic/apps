@@ -41,7 +41,7 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'cutout.app.not_images': 'Ці файли не є зображеннями',
   'cutout.app.notice_title': 'Вилучення фону на цьому пристрої',
   'cutout.app.notice_line1': 'Slop Isolate вилучає фон зі зображення за допомогою моделі ШІ, яка працює у вашому браузері.',
-  'cutout.app.notice_line2': 'Інша модель завантажується, лише якщо ви її оберете на панелі «Модель».',
+  'cutout.app.notice_line2': 'Інша модель завантажується, лише якщо ви її виберете на панелі «Модель».',
   'cutout.app.notice_model': 'Модель {name} ({arch})',
   'cutout.app.accept_noun': 'зображення або відео',
   'cutout.app.preview_alt': 'Зображення до й після: зайвий фон зник, об’єкт збережено',

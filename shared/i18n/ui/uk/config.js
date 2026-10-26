@@ -7,7 +7,7 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'ui.config.not_slop': '{name} не є файлом .slop.json',
   'ui.config.from_drive_title': 'Імпортувати конфігурацію з Slop Drive',
   'ui.config.import_title': 'Імпорт конфігурації',
-  'ui.config.import_body': 'Оберіть файл .slop.json. Спершу його перевіряють повністю; нічого не змінюється, доки кожна частина не буде дійсною.',
+  'ui.config.import_body': 'Виберіть файл .slop.json. Спершу його перевіряють повністю; нічого не змінюється, доки кожна частина не буде дійсною.',
   'ui.config.from_drive': 'З Slop Drive…',
   'ui.config.from_computer': 'З цього комп’ютера…',
   'ui.config.nothing_export': 'Поки що тут нічого експортувати',

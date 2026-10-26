@@ -59,7 +59,7 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'pdf.menu.props_panel': 'Панель властивостей',
 
   'pdf.menu.search_cmds': 'Пошук команд…',
-  'pdf.menu.shortcuts': 'Клавіатурні скорочення…',
+  'pdf.menu.shortcuts': 'Сполучення клавіш…',
   'pdf.menu.about': 'Про Slop PDF і конфіденційність',
   'pdf.menu.agents': 'ШІ-агенти…',
   'pdf.menu.about_title': 'Про Slop PDF',
@@ -67,10 +67,10 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'pdf.menu.about_p2': 'Побудовано на pdf.js (Mozilla, Apache-2.0) для відтворення та pdf-lib (MIT) для запису. Вміст сторінок копіюється як є, тож текст і векторна графіка лишаються чіткими; лише необов’язкове стиснення з втратами перетворює сторінки на зображення.',
   'pdf.menu.about_p3': 'Автозбереження зберігає ваш сеанс у IndexedDB цього браузера, щоб оновлення сторінки не втратило роботи. Вимкнути його можна в меню «Файл ▸ Автозбереження».',
   'pdf.menu.about_p4': 'Правки зберігаються на цьому пристрої, а «Зберегти» або «Експорт» створюють новий PDF.',
-  'pdf.menu.about_ok': 'Добре',
+  'pdf.menu.about_ok': 'OK',
 
   'pdf.menu.paste_annot': 'Вставити анотацію',
-  'pdf.menu.fit_width': 'Умістити ширину',
+  'pdf.menu.fit_width': 'Умістити за шириною',
   'pdf.menu.rotate_page_right': 'Повернути сторінку праворуч',
   'pdf.menu.rotate_page_left': 'Повернути сторінку ліворуч',
   'pdf.menu.duplicate_page': 'Дублювати сторінку',

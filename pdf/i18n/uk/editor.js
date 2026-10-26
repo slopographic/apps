@@ -177,8 +177,8 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   // editor/view-zoom.js
   'pdf.ed.zoom_out_tip': 'Зменшити (Ctrl −)',
   'pdf.ed.zoom_in_tip': 'Збільшити (Ctrl +)',
-  'pdf.ed.fit_width_tip': 'Умістити ширину (Ctrl 0)',
-  'pdf.ed.fit_width': 'Умістити ширину',
+  'pdf.ed.fit_width_tip': 'Умістити за шириною (Ctrl 0)',
+  'pdf.ed.fit_width': 'Умістити за шириною',
   'pdf.ed.zoom': 'Масштаб',
 
   // editor/edit-text.js

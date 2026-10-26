@@ -41,7 +41,7 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'pdf.find.rep_skipped': 'Не замінено: {n}. Місце не вдалося точно визначити.',
   'pdf.find.rep_unticked': 'Без позначки лишилося: {n}.',
   'pdf.find.rep_wide': 'Ширші за оригінал: {n}. Можуть перекривати сусідній текст.',
-  'pdf.find.rep_unsupported': 'Деякі символи немає в стандартному шрифті, тому їх записано як «?».',
+  'pdf.find.rep_unsupported': 'Деяких символів немає в стандартному шрифті, тому їх записано як «?».',
 
   // find/replace.js
   'pdf.find.undo_replace': 'Замінити «{text}»',

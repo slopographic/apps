@@ -22,7 +22,7 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'convert.card.video_to_wav': 'Відео у WAV',
   'convert.card.video_to_wav_sum': 'Витягти звук із відео в нестиснений файл WAV.',
   'convert.card.png_to_jpg': 'PNG у JPG',
-  'convert.card.png_to_jpg_sum': 'Зробити плоску копію PNG у JPG. Прозорі ділянки отримають обраний вами колір фону.',
+  'convert.card.png_to_jpg_sum': 'Зробити плоску копію PNG у JPG. Прозорі ділянки отримають вибраний вами колір фону.',
   'convert.card.jpg_to_png': 'JPG у PNG',
   'convert.card.jpg_to_png_sum': 'Перетворити фото JPG на PNG без втрат для редагування або архівування.',
   'convert.card.png_to_webp': 'PNG у WebP',

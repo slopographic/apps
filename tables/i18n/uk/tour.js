@@ -9,7 +9,7 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'tables.tour.grid_title': 'Клітинки',
   'tables.tour.grid_text': 'Клацніть клітинку або перетягніть через клітинки, щоб їх виділити.',
   'tables.tour.format_title': 'Числовий формат',
-  'tables.tour.format_text': 'Оберіть, як показувати числа: валюта, відсотки, дати тощо.',
+  'tables.tour.format_text': 'Виберіть, як показувати числа: валюта, відсотки, дати тощо.',
   'tables.tour.side_title': 'Аркуші й шаблони',
   'tables.tour.side_text': 'Аркуші, шаблони та список функцій. Кнопка зі стрілкою ховає цю бічну панель.',
   'tables.tour.save_title': 'Зберегти',

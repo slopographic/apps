@@ -30,7 +30,7 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'ai.chip.choose': 'Виберіть модель…',
 
   'ai.more.search': 'Пошук команд…',
-  'ai.more.shortcuts': 'Клавіатурні скорочення…',
+  'ai.more.shortcuts': 'Сполучення клавіш…',
   'ai.more.no_shortcuts': 'Скорочення недоступні',
   'ai.more.import': 'Імпортувати розмову (.json)…',
   'ai.more.open_drive': 'Відкрити чат із Slop Drive…',

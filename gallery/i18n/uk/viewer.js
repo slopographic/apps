@@ -31,7 +31,7 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'gallery.viewer.liked': 'Оцінка',
   'gallery.viewer.liked_liked': 'подобається',
   'gallery.viewer.liked_disliked': 'не подобається',
-  'gallery.viewer.tags': 'Мітки',
+  'gallery.viewer.tags': 'Теги',
   'gallery.viewer.drive_file': 'Файл Drive',
   'gallery.viewer.from_drive': 'Імпортовано з Slop Drive',
   'gallery.viewer.from_device': 'Імпортовано з цього пристрою',

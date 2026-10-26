@@ -15,7 +15,7 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'ui.presets.delete_ask': 'Видалити «{name}»? Його буде видалено з Slop Drive для кожного застосунку.',
   'ui.presets.imported': 'Імпортовано.',
   'ui.presets.noun': 'файл пресета (.json)',
-  'ui.presets.choose_first': 'Спершу оберіть пресет.',
+  'ui.presets.choose_first': 'Спершу виберіть пресет.',
   'ui.presets.applies_in': 'Застосовується в: {apps}.',
   'ui.presets.save_title': 'Зберегти як пресет',
   'ui.presets.nothing_effect': 'Тут немає нічого, що можна зберегти як пресет ефекту',

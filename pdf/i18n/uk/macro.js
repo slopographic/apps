@@ -108,7 +108,7 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'pdf.macro.msg_not_found': 'На вибраних сторінках «{find}» не знайдено, тож нічого не змінено.',
   'pdf.macro.msg_replaced': 'Замінено {matches} на {pages}.',
   'pdf.macro.msg_imprecise': '{matches} лишено без змін, бо його місце не вдалося визначити точно ({list}).',
-  'pdf.macro.msg_unsupported': 'Деякі символи немає в стандартному шрифті, тому їх записано як «?».',
+  'pdf.macro.msg_unsupported': 'Деяких символів немає в стандартному шрифті, тому їх записано як «?».',
   'pdf.macro.msg_under_box': 'Початковий текст лишається у файлі під рамкою; щоб його вилучити, скористайтеся інструментом «Приховати дані».',
   'pdf.macro.msg_rotated': 'Повернуто {pages} на {angle}°.',
   'pdf.macro.err_delete_none': 'Не вибрано сторінок для видалення.',

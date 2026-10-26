@@ -5,7 +5,7 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'transcribe.model.auto': 'Визначати автоматично',
   'transcribe.model.detected': 'Визначено: {name} ({pct})',
   'transcribe.model.read_with': '{lang} · розшифровано за допомогою {model}.',
-  'transcribe.model.not_right': 'Невірно? Змініть мову',
+  'transcribe.model.not_right': 'Неправильно? Змініть мову',
   'transcribe.model.change': 'Змінити мову',
   'transcribe.model.on_device': '{model} є на цьому пристрої й краще розпізнає {name}. ',
   'transcribe.model.again_with': 'Розшифрувати знову з моделлю {model}',

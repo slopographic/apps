@@ -65,7 +65,7 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'ui.dpick.empty_folder': 'Ця папка порожня.',
   'ui.dpick.empty_drive': 'Slop Drive порожній. Щоб покласти сюди файли, скористайтеся командою «Надіслати до…» в будь-якому застосунку {brand}. Файли лишаються на цьому пристрої.',
   'ui.dpick.open_drive': 'Відкрити Slop Drive',
-  'ui.dpick.folder_title': 'Оберіть папку',
+  'ui.dpick.folder_title': 'Виберіть папку',
   'ui.dpick.save_here': 'Зберегти тут',
   'ui.dpick.new_folder': 'Нова папка',
   'ui.dpick.name': 'Назва',

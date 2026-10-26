@@ -124,7 +124,7 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'contacts.cmd.cards': 'Показувати контакти картками',
   'contacts.cmd.clear_filters': 'Очистити всі фільтри',
   'contacts.cmd.about': 'Про Slop Contacts',
-  'contacts.cmd.keys': 'Клавіатурні скорочення…',
+  'contacts.cmd.keys': 'Сполучення клавіш…',
   'contacts.cmd.about_body': 'Ваші контакти — це клієнти Slop CRM і Slop Orders, які зберігаються в цьому браузері. Нічого не передається в мережу. Імпортуйте й експортуйте файли vCard, CSV або .scontacts через меню «Файл».',
   'contacts.cmd.nothing_yet': '{title}: поки нема чого робити.',
   'contacts.cmd.failed': '{title} не вдалося: {why}',

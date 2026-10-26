@@ -1,4 +1,4 @@
-/* Slop Gallery, українська: діалоги і сповіщення (імпорт, вилучення, мітки, альбоми, дублікати, резервна копія і
+/* Slop Gallery, українська: діалоги і сповіщення (імпорт, вилучення, теги, альбоми, дублікати, резервна копія і
  * відновлення) та смуга «Люди». Правила: shared/i18n/APPS-HOWTO.md. Терміни: shared/i18n/glossary-uk.md. */
 window.SlopI18n && window.SlopI18n.add('uk', {
   'gallery.act.not_image': 'не є зображенням, яке може відкрити цей браузер',
@@ -15,14 +15,14 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'gallery.act.removed#one': 'Вилучено фото: {n}',
   'gallery.act.removed#few': 'Вилучено фото: {n}',
   'gallery.act.removed#many': 'Вилучено фото: {n}',
-  'gallery.act.tag_title': 'Додати мітку',
-  'gallery.act.tag_label': 'Назва мітки',
-  'gallery.act.tag_ok': 'Додати мітку',
+  'gallery.act.tag_title': 'Додати тег',
+  'gallery.act.tag_label': 'Назва тега',
+  'gallery.act.tag_ok': 'Додати тег',
   'gallery.act.tag_ph': 'наприклад, свята',
-  'gallery.act.tagged': 'Позначено фото: {n}, мітка «{tag}»',
-  'gallery.act.tagged#one': 'Позначено фото: {n}, мітка «{tag}»',
-  'gallery.act.tagged#few': 'Позначено фото: {n}, мітка «{tag}»',
-  'gallery.act.tagged#many': 'Позначено фото: {n}, мітка «{tag}»',
+  'gallery.act.tagged': 'Позначено фото: {n}, тег «{tag}»',
+  'gallery.act.tagged#one': 'Позначено фото: {n}, тег «{tag}»',
+  'gallery.act.tagged#few': 'Позначено фото: {n}, тег «{tag}»',
+  'gallery.act.tagged#many': 'Позначено фото: {n}, тег «{tag}»',
   'gallery.act.saved_zip': 'Збережено фото: {n} у zip-архіві',
   'gallery.act.saved': 'Збережено',
   'gallery.act.nothing_saved': 'Немає що зберігати',

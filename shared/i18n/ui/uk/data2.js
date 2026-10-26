@@ -33,7 +33,7 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'ui.data.io.missing_ref': '{where}: {field} {value} не існує',
   'ui.data.io.missing_product': '{where}: товару {id} не існує',
   'ui.data.io.missing_account': '{where}: рахунку {code} не існує',
-  'ui.data.io.ledger': 'журнал: {message}',
+  'ui.data.io.ledger': 'головна книга: {message}',
   'ui.data.io.no_sequence': 'нумерація: немає послідовності {name}',
   'ui.data.io.gap': 'у номерах {name} пропуск або неправильний префікс на номері {number}',
   'ui.data.io.behind': 'нумерація: лічильник {name} відстає від свого останнього номера',

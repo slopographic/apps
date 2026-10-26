@@ -63,7 +63,7 @@ window.SlopI18n && window.SlopI18n.add('uk', {
 
   'resize.preset.g_common': 'Загальні',
   'resize.preset.g_social': 'Соцмережі',
-  'resize.preset.g_email': 'Електронна пошта',
+  'resize.preset.g_email': 'Е-пошта',
   'resize.preset.sq1080': 'Квадрат 1080 × 1080',
   'resize.preset.story': 'Вертикально 1080 × 1920',
   'resize.preset.fhd': 'Full HD 1920 × 1080',

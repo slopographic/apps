@@ -3,10 +3,10 @@
  * (SlopBiz.docLang), not the page's. Rules: shared/i18n/APPS-HOWTO.md. */
 window.SlopI18n && window.SlopI18n.add('uk', {
   'biz.pr.t_invoice': 'Рахунок',
-  'biz.pr.t_quote': 'Комерційна пропозиція',
+  'biz.pr.t_quote': 'Пропозиція',
   'biz.pr.t_order': 'Замовлення',
   'biz.pr.t_purchase': 'Замовлення постачальнику',
-  'biz.pr.t_credit': 'Кредитова нотатка',
+  'biz.pr.t_credit': 'Кредитова нота',
   'biz.pr.t_delivery': 'Накладна',
   'biz.pr.t_statement': 'Виписка',
   'biz.pr.t_prices': 'Прайс-лист',
@@ -63,7 +63,7 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'biz.pr.opening': 'Початковий залишок',
   'biz.pr.k_invoice': 'Рахунок',
   'biz.pr.k_payment': 'Оплата, дякуємо',
-  'biz.pr.k_credit': 'Кредитова нотатка',
+  'biz.pr.k_credit': 'Кредитова нота',
   'biz.pr.k_refund': 'Повернення',
   'biz.pr.nothing_period': 'За цей період нічого немає.',
   'biz.pr.still_open': 'Ще відкрито: {list}.',

@@ -13,7 +13,7 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'cutout.panel.mixed': 'Різне',
   'cutout.panel.mixed_tip': 'Різне: вибрані зображення відрізняються',
   'cutout.panel.model': 'Модель',
-  'cutout.panel.model_mixed': 'Різне: вибрані зображення використовують різні моделі. Оберіть одну для всіх.',
+  'cutout.panel.model_mixed': 'Різне: вибрані зображення використовують різні моделі. Виберіть одну для всіх.',
   'cutout.panel.on_device': 'на пристрої · {size}',
   'cutout.panel.stored': 'Зберігається на цьому пристрої',
   'cutout.panel.downloads_once': 'Завантажується один раз, потім працює без мережі',

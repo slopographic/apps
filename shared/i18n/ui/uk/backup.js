@@ -50,7 +50,7 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'ui.backup.ev_export_body': 'Slop Data (записи, контакти, налаштування), файли й папки Slop Drive, Gallery, плейлисти Music, шаблони Tables, Slides і Docs, а також налаштування профілю.',
   'ui.backup.ev_session': 'Додати стан відкритих застосунків (де був кожен і незбережений вигляд)',
   'ui.backup.confirm_import': 'Підтвердити імпорт',
-  'ui.backup.ev_import_body': 'Оберіть файл {ext} або резервну копію Slop Data чи {brand} версії 1. Спершу файл перевіряється цілком. Нічого не змінюється, доки ви не підтвердите.',
+  'ui.backup.ev_import_body': 'Виберіть файл {ext} або резервну копію Slop Data чи {brand} версії 1. Спершу файл перевіряється цілком. Нічого не змінюється, доки ви не підтвердите.',
   'ui.backup.checking': 'Перевіряємо файл…',
   'ui.backup.not_imported': 'Цю резервну копію не імпортовано. Нічого не змінено.',
   'ui.backup.importing': 'Імпортуємо…',

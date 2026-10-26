@@ -65,7 +65,7 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'ui.calc.cat_temp': 'Температура',
   'ui.calc.node_name': 'Дайте вузлу назву',
   'ui.calc.node_name_rule': 'Назва складається з літер, цифр і _ та починається з літери',
-  'ui.calc.node_builtin': '«{name}» є вбудованою; оберіть іншу назву',
+  'ui.calc.node_builtin': '«{name}» є вбудованою; виберіть іншу назву',
   'ui.calc.node_taken': 'Інший вузол уже має назву «{name}»',
   'ui.calc.node_dupe': 'Інший вузол уже має цю назву',
   'ui.calc.cycle': 'Ця формула залежить сама від себе',

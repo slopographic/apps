@@ -47,7 +47,7 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'pdf.cmd.view_single': 'Одна сторінка',
   'pdf.cmd.view_two': 'Дві сторінки поруч',
   'pdf.cmd.view_fit': 'Умістити сторінку',
-  'pdf.cmd.view_fit_width': 'Умістити ширину',
+  'pdf.cmd.view_fit_width': 'Умістити за шириною',
   'pdf.cmd.view_thumbs_row': 'Ескізи: одна сторінка в рядку',
   'pdf.cmd.view_panel': 'Панель властивостей',
   'pdf.cmd.redact_panel': 'Знайти й приховати дані…',

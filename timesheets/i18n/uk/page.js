@@ -33,7 +33,7 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'timesheets.page.desc_ph': 'Огляд дизайну головної сторінки',
   'timesheets.page.date': 'Дата',
   'timesheets.page.time_worked': 'Відпрацьований час',
-  'timesheets.page.duration_ph': '1:30, 1.5 або 90m',
+  'timesheets.page.duration_ph': '1:30, 1,5 або 90 хв',
   'timesheets.page.project': 'Проєкт',
   'timesheets.page.optional': 'Необов’язково',
   'timesheets.page.rate': 'Погодинна ставка',
