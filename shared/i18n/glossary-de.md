@@ -104,7 +104,7 @@ Register: formal, without direct address where possible. Buttons and commands ar
 | working… | Wird verarbeitet… |  |
 | offline | Offline |  |
 | nothing is uploaded | Es wird nichts hochgeladen |  |
-| your files stay on this device | Ihre Dateien bleiben auf diesem Gerät |  |
+| your files stay on this device | Die Dateien bleiben auf diesem Gerät |  |
 | beta | Beta |  |
 | switch app | App wechseln |  |
 | browser | Browser |  |
@@ -128,3 +128,13 @@ Register: formal, without direct address where possible. Buttons and commands ar
 | recording | Aufnahme |  |
 | show / hide (panel) | einblenden / ausblenden |  |
 | view mode Full / Focus / Content | Vollständig / Fokus / Inhalt |  |
+| order (sales order) | Auftrag | customer order; «Aufträge», «Auftragsnummer»; never «Bestellung» |
+| purchase order | Bestellung | order to a supplier; «Lieferantenbestellung» where it must stay distinct from «Auftrag» |
+| follow-up | Wiedervorlage | CRM follow-up date; not «Nachfassaktion» |
+| duplicate (copy found) | Duplikat | contacts, files and photos alike; not «Dublette» |
+| duplicate (command) | Duplizieren | as above |
+| cut-out (result) | Freisteller | the image with the background removed; «freistellen» is the verb, «Freisteller-Modell»; «Freistellungswerkzeug» is the crop tool in PhotoSlop |
+| keyframe | Keyframe | as Adobe and Blackmagic do; not «Schlüsselbild» |
+| ease (easing) | Beschleunigung | «Beschleunigungskurve» for the curve; not «Bewegungskurve» |
+| preset | Vorgabe | saved settings, brush, effect, filter, export; «Vorgabendatei»; template = «Vorlage» (documents, layouts) |
+| template | Vorlage | document or layout template |

@@ -12,7 +12,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'pdf.tool.forms.reset': 'Werte zurücksetzen',
   'pdf.tool.forms.undo_reset': 'Formularwerte zurücksetzen',
   'pdf.tool.forms.fields_n': '{n} Felder',
-  'pdf.tool.forms.none': 'Keine der geöffneten PDFs hat ausfüllbare Formularfelder (AcroForm). Die letzte Seite des Beispiels hat welche – oder schreiben Sie mit dem Werkzeug Seite bearbeiten auf eine beliebige Seite.',
+  'pdf.tool.forms.none': 'Keine der geöffneten PDFs hat ausfüllbare Formularfelder (AcroForm). Die letzte Seite des Beispiels hat welche – oder mit dem Werkzeug Seite bearbeiten auf eine beliebige Seite schreiben.',
   'pdf.tool.forms.undo_fill': '„{name}“ ausfüllen',
   'pdf.tool.forms.field_page': 'S. {page}',
 
@@ -31,7 +31,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   /* tools/doc-panels.js: OCR */
   'pdf.tool.ocr.title': 'OCR',
   'pdf.tool.ocr.offline': 'Die Texterkennung braucht das OCR-Modell, das verfügbar ist, wenn die App online ist.',
-  'pdf.tool.ocr.intro': 'Liest den Text gescannter Seiten, damit Sie ihn auswählen, durchsuchen und bearbeiten können. Läuft auf diesem Gerät.',
+  'pdf.tool.ocr.intro': 'Liest den Text gescannter Seiten, damit er sich auswählen, durchsuchen und bearbeiten lässt. Läuft auf diesem Gerät.',
   'pdf.tool.ocr.recognise': 'Text erkennen',
   'pdf.tool.ocr.run_page': 'OCR auf dieser Seite ausführen',
   'pdf.tool.ocr.run_doc': 'OCR für das Dokument ausführen',
@@ -142,14 +142,14 @@ window.SlopI18n && window.SlopI18n.add('de', {
   /* tools/watermark-panel.js */
   'pdf.tool.watermark.title': 'Wasserzeichen',
   'pdf.tool.watermark.undo_change': 'Wasserzeichen ändern',
-  'pdf.tool.watermark.note': 'Ebenen liegen wie Blätter übereinander: Die oberste wird zuletzt gezeichnet. Größen richten sich nach der kürzeren Seitenkante, sodass das Wasserzeichen auf jedem Format gleich aussieht. Legen Sie hier ein Bild ab, um es als Logo hinzuzufügen.',
+  'pdf.tool.watermark.note': 'Ebenen liegen wie Blätter übereinander: Die oberste wird zuletzt gezeichnet. Größen richten sich nach der kürzeren Seitenkante, sodass das Wasserzeichen auf jedem Format gleich aussieht. Hier ein Bild ablegen, um es als Logo hinzuzufügen.',
 
   /* tools/comments-panel.js (replies and resolved: pdf.tool.edit.*) */
   'pdf.tool.comments.title': 'Kommentare',
   'pdf.tool.comments.f_open': 'Offen',
   'pdf.tool.comments.f_resolved': 'Erledigt',
   'pdf.tool.comments.show': 'Anzeigen',
-  'pdf.tool.comments.note': 'Kommentare werden beim Herunterladen als PDF-Kommentare gespeichert, mit Antworten und Erledigt-Status. Wählen Sie das Kommentarwerkzeug und klicken Sie auf eine Seite, um einen hinzuzufügen.',
+  'pdf.tool.comments.note': 'Kommentare werden beim Herunterladen als PDF-Kommentare gespeichert, mit Antworten und Erledigt-Status. Das Kommentarwerkzeug wählen und auf eine Seite klicken, um einen hinzuzufügen.',
   'pdf.tool.comments.empty': 'Noch keine Kommentare.',
   'pdf.tool.comments.empty_filter': 'Hier keine Kommentare.',
   'pdf.tool.comments.go_tip': 'Zu diesem Kommentar',
@@ -169,20 +169,20 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'pdf.tool.layers.scope_all': 'Alle Seiten',
   'pdf.tool.layers.page_empty': 'Noch keine Ebenen auf dieser Seite.',
   'pdf.tool.layers.list_aria': 'Ebenen auf Seite {page}, oberste zuerst',
-  'pdf.tool.layers.doc_empty': 'Noch keine Ebenen in diesem Dokument. Text, Formen, Hervorhebungen und Bilder, die Sie hinzufügen, werden zu Ebenen, oberste zuerst.',
+  'pdf.tool.layers.doc_empty': 'Noch keine Ebenen in diesem Dokument. Hinzugefügter Text, Formen, Hervorhebungen und Bilder werden zu Ebenen, oberste zuerst.',
   'pdf.tool.layers.pages_with': '{n} Seiten mit Ebenen',
   'pdf.tool.layers.pages_with#one': '{n} Seite mit Ebenen',
   'pdf.tool.layers.page': 'Seite {page}',
   'pdf.tool.layers.page_n': 'Seite {page} · {n} Ebenen',
   'pdf.tool.layers.page_n#one': 'Seite {page} · {n} Ebene',
-  'pdf.tool.layers.no_doc': 'Öffnen Sie eine PDF, um ihre Ebenen zu sehen.',
+  'pdf.tool.layers.no_doc': 'PDF öffnen, um ihre Ebenen zu sehen.',
   'pdf.tool.layers.hint': 'Ausgeblendete Ebenen werden nicht gezeichnet oder exportiert. Gesperrte Ebenen lassen sich nicht verschieben, bearbeiten oder löschen.',
 
   /* tools/history-panel.js */
   'pdf.tool.history.title': 'Verlauf',
   'pdf.tool.history.original': 'Original',
-  'pdf.tool.history.empty': 'Öffnen Sie eine PDF. Jede Änderung ist hier ein Schritt; klicken Sie auf einen Schritt, um dorthin zurückzukehren.',
-  'pdf.tool.history.hint': 'Klicken Sie auf einen Schritt, um zum Dokumentstand nach diesem Schritt zurückzukehren.',
+  'pdf.tool.history.empty': 'PDF öffnen. Jede Änderung ist hier ein Schritt; auf einen Schritt klicken, um dorthin zurückzukehren.',
+  'pdf.tool.history.hint': 'Auf einen Schritt klicken, um zum Dokumentstand nach diesem Schritt zurückzukehren.',
   'pdf.tool.history.list_aria': 'Verlauf, älteste zuerst',
 
   /* tools/ocg-panel.js */
