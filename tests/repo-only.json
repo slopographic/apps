@@ -30,6 +30,10 @@
       "why": "the mascot slot with the sample overlay (brand/profiles/overlays), which a build does not ship; a build's own mascot runs tests/buddy/overlay.test.html"
     },
     {
+      "file": "tests/buddy/roam.test.html",
+      "why": "the mascot slot's size and roaming with the sample overlay (brand/profiles/overlays), which a build does not ship; a build's own mascot runs tests/buddy/overlay.test.html"
+    },
+    {
       "file": "tests/node/whitelabel-*",
       "why": "the white-label tools (tools/whitelabel), which a build does not get"
     }

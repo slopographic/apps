@@ -1,6 +1,7 @@
 // A profile's own mascot: "mascot": { "overlay": "<folder>", "name": "...", "files": [...], "icon": true, "holder"?: "...",
-// "trademarks"?: [...] } (holder: who owns the character when it is not legal.holder; trademarks: the names that owner
-// claims, default the mascot's name). The overlay
+// "trademarks"?: [...], "size"?: { "desktop": <px tall>, "phone": <px tall> }, "roam"?: true | "float" | "hop" } (holder:
+// who owns the character when it is not legal.holder; trademarks: the names that owner claims, default the mascot's name;
+// size and roam: how big the slot draws it and whether it roams the page, shared/mascot/slot.js). The overlay
 // folder (relative to the profiles folder; kept with the profile, outside this repository for real brands) holds the
 // mascot's ES modules, which the build copies to brand/mascot/ for the mascot slot (shared/mascot/slot.js; the contract
 // is described there). Every file of the folder must be in "files" and every listed file must exist: LICENSE-ART lists
@@ -19,6 +20,15 @@ export const REQUIRED = ['mascot.js', 'icon.js'];
 /** The build's files drawn from the overlay's icon (they are the character's art too). */
 export const ICON_FILES = ['brand/mark.svg', 'brand/logo.svg', 'favicon.svg', 'favicon.ico', 'assets/icons/icon-192.png', 'assets/icons/icon-512.png', 'og-share.png'];
 
+/** The roaming styles of the mascot slot (shared/mascot/roam.js); true is the first. */
+export const ROAM = ['float', 'hop'];
+/** The slot's profile markers (shared/mascot/slot.js OPTIONS): the size on a desktop and a phone, the roaming style.
+ * Undefined (no overlay, or the field unset) keeps the source's literal: the default size, no roaming. */
+export function slotMarkers(p) {
+  const m = hasOverlay(p) ? p.mascot : {}, size = m.size || {};
+  return { mascotDesktop: size.desktop, mascotPhone: size.phone, mascotRoam: m.roam === true ? ROAM[0] : m.roam || undefined };
+}
+
 export const hasOverlay = (p) => !!(p.mascot && typeof p.mascot === 'object' && p.mascot.overlay);
 const iconOn = (p) => hasOverlay(p) && p.mascot.icon !== false;
 
@@ -33,6 +43,9 @@ export function mascotProblems(m) {
   if (m.icon !== undefined && typeof m.icon !== 'boolean') errs.push('mascot.icon: true or false');
   if (m.holder !== undefined && (typeof m.holder !== 'string' || !m.holder.trim())) errs.push("mascot.holder: the character's owner");
   if (m.trademarks !== undefined && !(Array.isArray(m.trademarks) && m.trademarks.every((t) => typeof t === 'string' && t.trim()))) errs.push('mascot.trademarks: the names its owner claims');
+  const px = (v) => v === undefined || (Number.isInteger(v) && v >= 32 && v <= 360);
+  if (m.size !== undefined && !(m.size && typeof m.size === 'object' && !Array.isArray(m.size) && Object.keys(m.size).every((k) => k === 'desktop' || k === 'phone') && px(m.size.desktop) && px(m.size.phone))) errs.push('mascot.size: { desktop, phone }, whole px tall (32 to 360)');
+  if (m.roam !== undefined && !(typeof m.roam === 'boolean' || ROAM.includes(m.roam))) errs.push(`mascot.roam: true, false or ${ROAM.map((r) => `"${r}"`).join(' or ')}`);
   return errs;
 }
 

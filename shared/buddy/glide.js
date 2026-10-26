@@ -2,9 +2,9 @@
 // that avoid.js picked. He then floats there ("float" mode) until his idle timer sends him back to a
 // perch. Where he rests is kept per page in sessionStorage, so a reload leaves him where he was.
 import { M, reduced, now } from './state.js';
+import { easeOut as ease, glideTime } from '../roam/path.js';   // the paths both mascots move along
 
 const KEY = 'slop.mascot.spot';
-const ease = (u) => 1 - Math.pow(1 - u, 3);
 const idleSoon = () => now() + 4000 + Math.random() * 5000;
 
 /** Glide from where he is to the feet point (x, y) in page coordinates. Reduced motion: at once. */
@@ -16,7 +16,7 @@ export function glideTo(x, y) {
     rememberSpot();
     return;
   }
-  M.glide = { x0: M.x, y0: M.y, x1: x, y1: y, t: 0, T: Math.min(0.6, 0.22 + dist / 1100) };
+  M.glide = { x0: M.x, y0: M.y, x1: x, y1: y, t: 0, T: glideTime(dist) };
   M.mode = 'glide';
 }
 
