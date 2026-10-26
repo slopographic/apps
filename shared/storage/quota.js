@@ -68,12 +68,12 @@
     function browser(ua) {
       const n = nav();
       ua = ua != null ? String(ua) : String(n.userAgent || '');
-      if (/iPhone|iPad|iPod/.test(ua)) return { engine: 'safari', name: 'Safari' };
-      if (/Firefox\//.test(ua)) return { engine: 'firefox', name: 'Firefox' };
-      if (/Edg\//.test(ua)) return { engine: 'chromium', name: 'Edge' };
-      if (/OPR\//.test(ua)) return { engine: 'chromium', name: 'Opera' };
-      if (/Chrome\/|Chromium\//.test(ua)) return { engine: 'chromium', name: 'Chrome' };
-      if (/Safari\//.test(ua)) return { engine: 'safari', name: 'Safari' };
+      if (/iPhone|iPad|iPod/.test(ua)) return { engine: 'safari', name: 'Safari' };   // i18n-ignore: browser names
+      if (/Firefox\//.test(ua)) return { engine: 'firefox', name: 'Firefox' };   // i18n-ignore: browser names
+      if (/Edg\//.test(ua)) return { engine: 'chromium', name: 'Edge' };   // i18n-ignore: browser names
+      if (/OPR\//.test(ua)) return { engine: 'chromium', name: 'Opera' };   // i18n-ignore: browser names
+      if (/Chrome\/|Chromium\//.test(ua)) return { engine: 'chromium', name: 'Chrome' };   // i18n-ignore: browser names
+      if (/Safari\//.test(ua)) return { engine: 'safari', name: 'Safari' };   // i18n-ignore: browser names
       return { engine: 'other', name: '' };
     }
     function persisted() {

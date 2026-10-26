@@ -9,10 +9,10 @@
  * list(auth, prefix, opts). auth is ignored (there is no token). opts.folder is a subfolder of the picked folder. */
 (function () {
   'use strict';
+  const tr = (key, vars) => (window.SlopI18n ? window.SlopI18n.t(key, vars) : key);   // words: shared/i18n/ui/<code>/backup2.js
   const DB_NAME = 'slop-sync-local';
   const STORE = 'handles';
   const KEY = 'dir';
-  const NEEDS_CHROME = 'Local folder backup needs Chrome or Edge. Use "Download backup file" and "Upload backup file" instead.';
   let store = null; // {get(), put(v), del()} as promises; tests inject one with setHandleStore
 
   const err = (message, code) => Object.assign(new Error(message), { code });
@@ -24,7 +24,7 @@
       const r = indexedDB.open(DB_NAME, 1);
       r.onupgradeneeded = () => r.result.createObjectStore(STORE);
       r.onsuccess = () => resolve(r.result);
-      r.onerror = () => { dbp = null; reject(new Error('Browser storage for the folder choice is unavailable.')); };
+      r.onerror = () => { dbp = null; reject(new Error(tr('ui.sync.store_folder'))); };
     }));
     const tx = async (mode, fn) => {
       const db = await open();
@@ -32,8 +32,8 @@
         const t = db.transaction(STORE, mode);
         const req = fn(t.objectStore(STORE));
         t.oncomplete = () => resolve(req ? req.result : undefined);
-        t.onerror = () => reject(t.error || new Error('Browser storage write failed.'));
-        t.onabort = () => reject(t.error || new Error('Browser storage write was aborted.'));
+        t.onerror = () => reject(t.error || new Error(tr('ui.sync.store_write')));
+        t.onabort = () => reject(t.error || new Error(tr('ui.sync.store_abort')));
       });
     };
     return {
@@ -47,14 +47,14 @@
   // Plain names only: one path segment, the same rule as sync.js.
   function safe(name) {
     const s = String(name == null ? '' : name);
-    if (!s || s.length > 200 || s === '.' || s === '..' || /[\/\\\u0000-\u001f]/.test(s)) throw err('That file name cannot be used in a folder.', 'name');
+    if (!s || s.length > 200 || s === '.' || s === '..' || /[\/\\\u0000-\u001f]/.test(s)) throw err(tr('ui.sync.bad_name'), 'name');
     return s;
   }
 
   // The picked folder, or a message when none is chosen. No prompt, no network.
   async function root() {
     const h = await hs().get(KEY);
-    if (!h) throw err('No folder chosen yet. Choose a folder first.', 'not-connected');
+    if (!h) throw err(tr('ui.sync.no_folder'), 'not-connected');
     return h;
   }
 
@@ -63,7 +63,7 @@
     const opts = { mode };
     if (!handle.queryPermission || (await handle.queryPermission(opts)) === 'granted') return;
     if (handle.requestPermission && (await handle.requestPermission(opts)) === 'granted') return;
-    throw err('Permission to use this folder was not granted. Press the button again and allow access, or choose the folder again.', 'permission');
+    throw err(tr('ui.sync.no_permission'), 'permission');
   }
 
   // A subfolder of the picked folder; null when it is missing and create is false.
@@ -113,10 +113,10 @@
 
   // Asks the person to pick a folder (needs a button press). Resolves to {ok, name} or {ok: false, error}.
   async function pick() {
-    if (!supported()) return { ok: false, unsupported: true, error: NEEDS_CHROME };
+    if (!supported()) return { ok: false, unsupported: true, error: tr('ui.sync.needs_chrome') };
     let h;
     try { h = await window.showDirectoryPicker({ id: 'slop-backup', mode: 'readwrite' }); } catch (e) {
-      if (e && e.name === 'AbortError') return { ok: false, cancelled: true, error: 'No folder was chosen. Nothing was connected.' };
+      if (e && e.name === 'AbortError') return { ok: false, cancelled: true, error: tr('ui.sync.no_pick') };
       throw e;
     }
     await hs().put(KEY, h);
@@ -150,7 +150,7 @@
 
   window.SlopSyncProviders = window.SlopSyncProviders || {};
   window.SlopSyncProviders.local = {
-    label: 'Local or network folder', upload, download, list, pick, chosen, forget, supported, permission, allow,
+    get label() { return tr('ui.sync.local_label'); }, upload, download, list, pick, chosen, forget, supported, permission, allow,
     setHandleStore(s) { store = s; }
   };
 })();

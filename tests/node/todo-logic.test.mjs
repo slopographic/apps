@@ -153,3 +153,13 @@ test('the snooze choices read the chosen language each time (shared/i18n/ui/<cod
   withI18n(ctx, 'sv');   // the same context, now in Swedish
   try { same(NR.SNOOZES.map((s) => s.label), ['5 minuter', '1 timme', 'I morgon 09:00']); } finally { ctx.SlopI18n = I18N; }
 });
+
+// Covers: shared/tasks/logic.js, shared/i18n/ui/en/backup3.js, shared/i18n/ui/sv/backup3.js
+test('the edit checks speak the chosen language (keys ui.tasks.*, read when checked)', () => {
+  assert.deepEqual([...TK.editErrors({ dueTime: '10:00' })], ['give the task a due date before a due time']);
+  withI18n(ctx, 'sv');
+  try {
+    assert.deepEqual([...TK.editErrors({ dueTime: '10:00', due: '2026-10-12', tz: 'Nowhere/Land' })], ['tidszonen är okänd']);
+    assert.deepEqual([...TK.editErrors({ dueTime: '10:00' })], ['ge uppgiften ett förfallodatum innan du anger en förfallotid']);
+  } finally { ctx.SlopI18n = I18N; }
+});

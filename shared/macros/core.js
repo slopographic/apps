@@ -24,6 +24,8 @@
 })(typeof window !== 'undefined' ? window : globalThis, function () {
   'use strict';
   const KIND = 'slopmacro', LIST = 'slopmacros', VERSION = 1, EXT = '.slopmacro', MAX_STEPS = 200;
+  // Words: shared/i18n/ui/<code>/macros.js (keys ui.macro.*), read when a message is made
+  const tr = (key, vars) => { const I = (typeof window !== 'undefined' ? window : globalThis).SlopI18n; return I && I.t ? I.t(key, vars) : key; };
   const plain = (v) => v && typeof v === 'object' && !Array.isArray(v);
   let seq = 0;
   const newId = () => 'm' + Date.now().toString(36) + (++seq).toString(36) + Math.random().toString(36).slice(2, 6);
@@ -48,16 +50,16 @@
 
   function normalize(raw, app) {
     const errors = [];
-    if (!plain(raw) || (raw.kind !== undefined && raw.kind !== KIND)) return { macro: null, errors: ['This is not a macro.'] };
-    if (app && raw.app && raw.app !== app) errors.push(`This macro was made in ${raw.app}.`);
+    if (!plain(raw) || (raw.kind !== undefined && raw.kind !== KIND)) return { macro: null, errors: [tr('ui.macro.not_macro')] };
+    if (app && raw.app && raw.app !== app) errors.push(tr('ui.macro.made_in', { app: raw.app }));
     const steps = [];
     (Array.isArray(raw.steps) ? raw.steps : []).slice(0, MAX_STEPS).forEach((s, i) => {
       const st = cleanStep(s);
-      if (st) steps.push(st); else errors.push(`Step ${i + 1} is not a command, so it was left out.`);
+      if (st) steps.push(st); else errors.push(tr('ui.macro.bad_step', { i: i + 1 }));
     });
     const now = Date.now();
     const macro = { kind: KIND, v: VERSION, id: typeof raw.id === 'string' && /^[\w-]{1,60}$/.test(raw.id) ? raw.id : newId(),
-      app: clip(raw.app || app || '', 40), name: clip(raw.name, 80) || 'Untitled macro', steps,
+      app: clip(raw.app || app || '', 40), name: clip(raw.name, 80) || tr('ui.macro.untitled'), steps,
       created: Number(raw.created) || now, modified: Number(raw.modified) || now };
     return { macro, errors };
   }
@@ -70,7 +72,7 @@
   }
   function fromText(text, app) {
     let raw;
-    try { raw = JSON.parse(String(text)); } catch (e) { return { macros: [], errors: ['This file is not a macro (it is not JSON).'] }; }
+    try { raw = JSON.parse(String(text)); } catch (e) { return { macros: [], errors: [tr('ui.macro.not_json')] }; }
     const list = plain(raw) && raw.kind === LIST && Array.isArray(raw.macros) ? raw.macros : [raw];
     const macros = [], errors = [];
     for (const r of list) {
@@ -87,7 +89,7 @@
   async function replay(steps, { exec, prepare = null, signal = null, onStep = null } = {}) {
     if (typeof exec !== 'function') throw new Error('Nothing to run the macro with.');
     const list = [].concat(steps || []), out = [];
-    if (!list.length) throw new Error('This macro has no steps.');
+    if (!list.length) throw new Error(tr('ui.macro.no_steps'));
     if (prepare) await prepare();
     for (let i = 0; i < list.length; i++) {
       if (signal && signal.aborted) throw abortError();
@@ -97,7 +99,7 @@
       try { r = await exec(s.cmd, cleanArgs(s.args)); } catch (e) { r = { ok: false, error: (e && e.message) || String(e) }; }
       if (!r || !r.ok) {
         if (onStep) onStep({ index: i, step: s, state: 'error' });
-        throw new Error(`Step ${i + 1} of ${list.length} (${s.title || s.cmd}) did not work: ${(r && r.error) || 'no answer'}`);
+        throw new Error(tr('ui.macro.step_failed', { i: i + 1, of: list.length, title: s.title || s.cmd, err: (r && r.error) || tr('ui.macro.no_answer') }));
       }
       out.push(r.value);
       if (onStep) onStep({ index: i, step: s, state: 'done', value: r.value });

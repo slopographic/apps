@@ -16,17 +16,18 @@
   const P = () => window.SlopSyncPkce;
   const T = () => window.SlopSyncTokens;
   const PR = () => window.SlopSyncProviders || {};
+  const tr = (key, vars) => (window.SlopI18n ? window.SlopI18n.t(key, vars) : key);   // words: shared/i18n/ui/<code>/backup2.js
 
   const fail = (error, extra) => Object.assign({ ok: false, error }, extra || {});
 
   function msg(e) {
-    if (e && e.status === 401) return 'Your sign-in has expired. Connect again.';
-    return (e && e.message) ? e.message : 'Something went wrong. Nothing was changed.';
+    if (e && e.status === 401) return tr('ui.sync.expired');
+    return (e && e.message) ? e.message : tr('ui.sync.wrong');
   }
 
   function providerModule(id) {
     const m = C().provider(id) ? PR()[id] : null;
-    if (!m) throw new Error('Unknown cloud provider.');
+    if (!m) throw new Error(tr('ui.sync.unknown'));
     return m;
   }
 
@@ -34,7 +35,7 @@
   function safeName(name) {
     const s = String(name == null ? '' : name);
     if (!s || s.length > 200 || s === '.' || s === '..' || /[\/\\\u0000-\u001f]/.test(s)) {
-      throw new Error('That file name cannot be used in cloud storage.');
+      throw new Error(tr('ui.sync.bad_cloud_name'));
     }
     return s;
   }
@@ -61,9 +62,9 @@
     const rec = await T().load(id);
     if (!rec) throw new Error('Not connected to ' + C().provider(id).label + '. Connect it first.');
     if (!T().needsRefresh(rec)) return rec.access;
-    if (!rec.refresh) throw new Error('Your sign-in has expired. Connect again.');
+    if (!rec.refresh) throw new Error(tr('ui.sync.expired'));
     const clientId = C().getClientId(id);
-    if (!clientId) throw new Error('Add your OAuth client ID first.');
+    if (!clientId) throw new Error(tr('ui.sync.need_id'));
     const t = await P().refresh(id, { clientId, refreshToken: rec.refresh });
     const next = { access: t.access, refresh: t.refresh || rec.refresh, expiresAt: t.expiresAt };
     await T().save(id, next);
@@ -73,7 +74,7 @@
   // The central "Export everything" module (shared/backup/central.js). Loads it on first use.
   async function central() {
     const SC = window.SlopCentral || (window.SlopBackup && await window.SlopBackup.central());
-    if (!SC) throw new Error('Backup is not available in this app yet.');
+    if (!SC) throw new Error(tr('ui.sync.no_backup'));
     return SC;
   }
 
@@ -81,7 +82,7 @@
   async function exportLocal() {
     const SC = await central();
     const out = await SC.exportEverything();
-    if (!out || !out.blob || typeof out.blob.size !== 'number') throw new Error('The export did not produce a file.');
+    if (!out || !out.blob || typeof out.blob.size !== 'number') throw new Error(tr('ui.sync.no_export'));
     return out;
   }
 
@@ -89,9 +90,9 @@
   async function restoreLocal(input) {
     const SC = await central();
     const p = await SC.plan(input);
-    if (!p.ok) throw new Error(p.errors[0] || 'The backup file is not valid. Nothing was changed.');
+    if (!p.ok) throw new Error(p.errors[0] || tr('ui.sync.invalid'));
     const r = await SC.apply(p);
-    if (!r.ok) throw new Error(r.errors[0] || 'The backup could not be restored.');
+    if (!r.ok) throw new Error(r.errors[0] || tr('ui.sync.not_restored'));
     return r;
   }
 
@@ -101,21 +102,21 @@
 
     // Stores the person's OAuth client ID. No network.
     configure(id, opts = {}) {
-      if (!C().provider(id)) return fail('Unknown cloud provider.');
-      if (C().provider(id).local) return fail('This option has no client ID. Choose a folder instead.');
+      if (!C().provider(id)) return fail(tr('ui.sync.unknown'));
+      if (C().provider(id).local) return fail(tr('ui.sync.no_id_local'));
       return C().setClientId(id, opts.clientId);
     },
 
     // Starts the PKCE sign-in by navigating this page to the provider. No network from this page.
     async connect(id) {
       try {
-        if (!C().provider(id)) return fail('Unknown cloud provider.');
+        if (!C().provider(id)) return fail(tr('ui.sync.unknown'));
         if (C().provider(id).local) {
           const r = await PR().local.pick();
           return r.ok ? { ok: true, folder: r.name } : fail(r.error, { cancelled: !!r.cancelled, unsupported: !!r.unsupported });
         }
         const clientId = C().getClientId(id);
-        if (!clientId) return fail('Add your OAuth client ID first. Open the Cloud backup panel to paste it.');
+        if (!clientId) return fail(tr('ui.sync.need_id_panel'));
         const pk = await P().create();
         const redirectUri = C().redirectUri();
         savePending({ id, clientId, redirectUri, verifier: pk.verifier, state: pk.state, createdAt: Date.now() });
@@ -132,10 +133,10 @@
         if (!q.has('code') && !q.has('error')) return null;
         const pending = takePending();
         try { history.replaceState(null, '', window.location.pathname + window.location.hash); } catch (e) { /* keep URL */ }
-        if (!pending) return fail('This sign-in was not started from this page, so nothing was connected.');
+        if (!pending) return fail(tr('ui.sync.not_ours'));
         id = pending.id;
-        if (q.has('error')) return fail('Sign-in was cancelled or refused. Nothing was connected.', { id });
-        if (!P().checkState(pending.state, q.get('state'))) return fail('Sign-in check failed (state mismatch). Nothing was connected.', { id });
+        if (q.has('error')) return fail(tr('ui.sync.refused'), { id });
+        if (!P().checkState(pending.state, q.get('state'))) return fail(tr('ui.sync.state'), { id });
         const tokens = await P().exchangeCode(id, {
           clientId: pending.clientId,
           code: q.get('code'),
@@ -186,12 +187,12 @@
     // after showing the person a warning. Checked before any network call.
     async pullBackup(id, opts = {}) {
       try {
-        if (opts.confirmed !== true) return fail('Restoring replaces your local data. Confirm first.');
+        if (opts.confirmed !== true) return fail(tr('ui.sync.confirm_first'));
         const mod = providerModule(id);
         await central();
         const auth = await authFor(id);
         const blob = await mod.download(auth, BACKUP_NAME);
-        if (!blob) return fail('No cloud backup found yet. Back up first.');
+        if (!blob) return fail(tr('ui.sync.none_cloud'));
         await restoreLocal(blob);
         return { ok: true, bytes: blob.size };
       } catch (e) { return fail(msg(e)); }
@@ -208,7 +209,7 @@
     // Local file (no network): restores a backup file the person chose. Refuses unless confirmed: true.
     async restoreFile(file, opts = {}) {
       try {
-        if (opts.confirmed !== true) return fail('Restoring replaces your local data. Confirm first.');
+        if (opts.confirmed !== true) return fail(tr('ui.sync.confirm_first'));
         const r = await restoreLocal(file);
         return { ok: true, applied: r.applied.length };
       } catch (e) { return fail(msg(e)); }
@@ -218,7 +219,7 @@
     async pushAppFile(id, name, blob) {
       try {
         const mod = providerModule(id);
-        if (!blob || typeof blob.size !== 'number') throw new Error('No file to upload.');
+        if (!blob || typeof blob.size !== 'number') throw new Error(tr('ui.sync.no_upload'));
         const auth = await authFor(id);
         const out = await mod.upload(auth, safeName(name), blob, { folder: APPS_FOLDER });
         return { ok: true, name: out.name || name, bytes: blob.size };
@@ -231,7 +232,7 @@
         const mod = providerModule(id);
         const auth = await authFor(id);
         const blob = await mod.download(auth, safeName(name), { folder: APPS_FOLDER });
-        if (!blob) return fail('That file is not in the Apps folder.');
+        if (!blob) return fail(tr('ui.sync.not_in_apps'));
         return { ok: true, blob };
       } catch (e) { return fail(msg(e)); }
     },
@@ -240,15 +241,15 @@
     // their Google Account or Dropbox settings (no network call here, by design).
     async disconnect(id) {
       try {
-        if (!C().provider(id)) return fail('Unknown cloud provider.');
+        if (!C().provider(id)) return fail(tr('ui.sync.unknown'));
         if (C().provider(id).local) {
           await PR().local.forget();
           C().setLastSync(id, 0);
-          return { ok: true, note: 'Forgot the folder on this device. Files in the folder are not deleted.' };
+          return { ok: true, note: tr('ui.sync.forgot') };
         }
         await T().clear(id);
         C().setLastSync(id, 0);
-        return { ok: true, note: 'Disconnected on this device. To revoke access completely, remove this app in your Google Account or Dropbox settings.' };
+        return { ok: true, note: tr('ui.sync.disconnected') };
       } catch (e) { return fail(msg(e)); }
     }
   };

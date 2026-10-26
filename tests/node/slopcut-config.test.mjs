@@ -4,6 +4,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
+import './ui-i18n-en.mjs';   // the config's words (shared/i18n/ui), handed to the vm as a page has them
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -26,7 +27,7 @@ function cutEnv() {
     change(label, fn) { return fn(SE.doc); },
     app: { select() {} },
   };
-  const ctx = { console, Blob, File, TextEncoder, SE };
+  const ctx = { console, Blob, File, TextEncoder, SE, SlopI18n: globalThis.SlopI18n };
   ctx.window = ctx;
   vm.createContext(ctx);
   SE.doc = null;

@@ -75,7 +75,8 @@
     const migrations = Object.assign({}, def.migrations || {});
     for (let v = 2; v <= def.version; v++) if (typeof migrations[v] !== 'function') throw new Error(`registerApp: ${id} is version ${def.version} but has no migrations[${v}]`);
     apps.set(id, {
-      id, label: def.label || id, version: def.version, part: def.part === 'settings' ? 'settings' : 'apps',
+      // the label may be an i18n key (central-apps.js): read in the current language each time it is shown
+      id, get label() { const I = window.SlopI18n; return (I && I.label ? I.label(def.label) : def.label) || id; }, version: def.version, part: def.part === 'settings' ? 'settings' : 'apps',
       mode: def.mode === 'replace' ? 'replace' : 'merge', exportData: def.exportData, importData: def.importData, migrations,
       check: typeof def.check === 'function' ? def.check : () => [], legacy: def.legacy || null, optional: !!def.optional,
     });

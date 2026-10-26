@@ -4,7 +4,7 @@
 // Covers: shared/macros/core.js, shared/macros/store.js, shared/ops/macros.js, shared/ops/all.js
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import './ui-i18n-en.mjs';   // the shared components' words (shared/i18n/ui), as a page has them
+import { setLang } from './ui-i18n-en.mjs';   // the shared components' words (shared/i18n/ui), as a page has them
 import { createRequire } from 'node:module';
 import * as R from '../../shared/ops/all.js';
 import { macroOp, loadMacros, onMacros, HOSTS, foldOptions } from '../../shared/ops/macros.js';
@@ -49,6 +49,19 @@ test('replay runs every step in order through exec, stops at the first that does
   const ac = new AbortController(); ac.abort();
   await assert.rejects(M.replay([{ cmd: 'a' }], { exec, signal: ac.signal }), (e) => e.name === 'AbortError');
   await assert.rejects(M.replay([], { exec }), /no steps/);
+});
+
+// Covers: shared/i18n/ui/en/macros.js, shared/i18n/ui/sv/macros.js
+test('the replay and the file checks speak the chosen language (keys ui.macro.*, read when the message is made)', async () => {
+  const exec = async (cmd) => (cmd === 'bad' ? { ok: false, error: 'x' } : { ok: true, value: cmd });
+  setLang('sv');
+  try {
+    await assert.rejects(M.replay([{ cmd: 'a' }, { cmd: 'bad', title: 'Skärpa' }], { exec }), /^Error: Steg 2 av 2 \(Skärpa\) fungerade inte: x$/);
+    await assert.rejects(M.replay([], { exec }), /Makrot har inga steg/);
+    assert.deepEqual(M.fromText('{', 'photoslop').errors, ['Filen är inte ett makro (den är inte JSON).']);
+    assert.equal(M.normalize({ app: 'photoslop', steps: [{ cmd: 'a' }] }).macro.name, 'Namnlöst makro');
+  } finally { setLang('en'); }
+  await assert.rejects(M.replay([], { exec }), /This macro has no steps/);
 });
 
 /** A small stand-in for SlopCmd: exec checks nothing and emits 'run' like the real one. */

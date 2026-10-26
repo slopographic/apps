@@ -10,9 +10,11 @@
   const { FORMAT, VERSION, LIMITS } = C.consts;
 
   const TYPE_NAME = {
-    string: 'text', text: 'long text', number: 'number', bool: 'true or false', enum: 'one of the allowed values',
+    string: 'text', text: 'long text', number: 'number', bool: 'true or false', enum: 'one of the allowed values',   // i18n-ignore: the AI prompt and its example file
     currency: 'currency code', locale: 'language tag', cell: 'text, number, true, false or null', array: 'list', object: 'object',
   };
+  // Words a person reads (the reply's problems): shared/i18n/ui/<code>/config.js. The prompt itself is for the model: English.
+  const tr = (key, vars) => (g.SlopI18n ? g.SlopI18n.t(key, vars) : key);
   const DEFAULT_MAX = { string: LIMITS.str, text: LIMITS.text };
 
   /** One line for a key: its type, whether it is required, its limits and allowed values, then its description. */
@@ -73,8 +75,8 @@
     const e = C.getKind(kind, app);
     if (!e) throw new Error(`no kind "${kind}" for app "${app}"`);
     const example = {
-      format: FORMAT, version: VERSION, kind, app, name: 'Example name',
-      description: 'One line about this file.', created: '2026-01-01T00:00:00Z', data: sample(e.schema),
+      format: FORMAT, version: VERSION, kind, app, name: 'Example name',   // i18n-ignore: the AI prompt and its example file
+      description: 'One line about this file.', created: '2026-01-01T00:00:00Z', data: sample(e.schema),   // i18n-ignore: the AI prompt and its example file
     };
     const want = String(request || '').trim().slice(0, 2000) || '(the person did not say; make a sensible example)';
     return [
@@ -126,15 +128,15 @@
   /** parseAiReply(text, { app }) → { ok, value, errors }. Never applies anything and never throws. */
   function parseAiReply(text, opts = {}) {
     try {
-      if (typeof text !== 'string' || !text.trim()) return fail('the reply is empty');
-      if (text.length > LIMITS.bytes) return fail('the reply is larger than 5 MB');
+      if (typeof text !== 'string' || !text.trim()) return fail(tr('ui.cfgv.reply_empty'));
+      if (text.length > LIMITS.bytes) return fail(tr('ui.cfgv.reply_big'));
       const raw = firstObject(text);
-      if (raw === null) return fail('the reply has no complete JSON object: it needs one { ... } with every brace closed');
+      if (raw === null) return fail(tr('ui.cfgv.reply_no_object'));
       let obj;
-      try { obj = JSON.parse(raw); } catch (e) { return fail(`the JSON in the reply is not valid: ${e.message}`); }
+      try { obj = JSON.parse(raw); } catch (e) { return fail(tr('ui.cfgv.reply_bad_json', { err: e.message })); }
       return C.validate(obj, opts);
     } catch (e) {
-      return fail(`could not read the reply: ${e && e.message ? e.message : e}`);
+      return fail(tr('ui.cfgv.reply_failed', { err: e && e.message ? e.message : String(e) }));
     }
   }
 

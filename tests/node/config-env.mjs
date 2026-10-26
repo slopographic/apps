@@ -1,12 +1,13 @@
 // Helpers for the config tests (shared/config): the real scripts in one vm context, a template file, a stub apply and
 // an in-memory stand-in for SlopData.store. Not a test file itself.
 import { loadInto } from './fx-env.mjs';
+import './ui-i18n-en.mjs';   // the config's words (shared/i18n/ui/<code>/config.js), handed to the vm as a page has them
 
 export const CORE = ['config/schema.js', 'config/validate.js', 'config/template.js', 'config/io.js', 'config/prompt.js'];
 export const APPS = [{ id: 'tables' }, { id: 'slides' }, { id: 'orders' }];
 
 export async function config({ files = CORE, extra = {} } = {}) {
-  const ctx = await loadInto(files, { SLOP_APPS: APPS, Blob, File, ...extra });
+  const ctx = await loadInto(files, { SLOP_APPS: APPS, Blob, File, SlopI18n: globalThis.SlopI18n, ...extra });
   return ctx.SlopConfig;
 }
 
