@@ -130,3 +130,17 @@ Register: informal singular, as Microsoft Office, Google Workspace and Adobe Acr
 | view mode Full / Focus / Content | Pełny / Skupienie / Treść |  |
 | count forms | #one 1 «plik»; #few 2–4, 22–24 «pliki»; #many 0, 5–21 «plików»; plain key = #many form |  |
 | app noun in a sentence | «{items}: na razie brak», «Panel „{label}”» | keeps any noun in the nominative |
+| quote (offer) | oferta | Slop Quotes: «Oferta», «Nowa oferta»; never «wycena» or «kosztorys» |
+| credit note | faktura korygująca | on screen and in printed documents; never «nota korygująca» |
+| delivery note | dowód dostawy | never «dowód wydania» or «WZ» |
+| statement (customer) | zestawienie | customer account statement; a bank statement is «wyciąg bankowy» |
+| statements (financial) | sprawozdania | profit and loss, balance sheet |
+| preset | ustawienie wstępne | as Adobe does; not «szablon», «wzór» or «ustawienie» alone; size and zoom lists stay «gotowe rozmiary / powiększenia» |
+| follow-up | kontakt zwrotny | CRM and Contacts; not «przypomnienie» (that is a reminder) |
+| pipeline | lejek sprzedaży | «lejek» where space is tight |
+| expense | wydatek | Slop Expenses and the shared business data; «koszt» only for the ledger accounts («konto kosztów») |
+| purchase order | zamówienie zakupu |  |
+| subject (of a photo) | obiekt | PhotoSlop and Slop Isolate, as Photoshop's «Wybierz obiekt» |
+| save to Slop Drive | zapisz na Slop Drive | «na», like Google «na Dysku»; open and import: «z Slop Drive» |
+| imperative in menus | Przejdź do, Wyjdź z, Znajdź, Przenieś | never the infinitive in a label; questions may use it («Usunąć stronę?») |
+| decimal in a hint | 12,50 | typed examples use the comma; file-format descriptions keep the dot |
