@@ -56,8 +56,11 @@
     return hide;
   }
 
+  // Words: shared/i18n/ui/<code>/backup3.js (keys ui.dpick.*). A caller's title or ok may be an i18n key (SlopI18n.label).
+  const tr = (key, vars) => (window.SlopI18n ? window.SlopI18n.t(key, vars) : key);
+  const lab = (v) => (window.SlopI18n && window.SlopI18n.label ? window.SlopI18n.label(v) : v);
   function crumbs(path, go) {
-    const el = UI().el, box = el('nav', { class: 'hub-crumbs', 'aria-label': 'Folder path' });
+    const el = UI().el, box = el('nav', { class: 'hub-crumbs', 'aria-label': tr('ui.dpick.path') });
     box.append(el('button', { type: 'button', onclick: () => go(null) }, 'Slop Drive'));
     for (const f of path) box.append(el('i', null, '›'), el('button', { type: 'button', onclick: () => go(f.id) }, f.name));
     return box;
@@ -66,14 +69,14 @@
   const visibleFolders = async () => { const all = await H().listFolders(); const m = new Map(all.map((f) => [f.id, f])); return { all: all.filter((f) => !H().inTrash(f, m)), map: m }; };
 
   /** pickFile({ accept, title }): resolves with a file record or null. */
-  function pickFile({ accept, title = 'Open from Slop Drive' } = {}) {
+  function pickFile({ accept, title = 'ui.dpick.open_title' } = {}) {
     return new Promise((res) => {
       const UIx = UI(), el = UIx.el, urls = [];
       let chosen = null, cwd = null, query = '', gen = 0;
       const peeks = new Set();
-      const search = el('input', { class: 'sui-input hub-search', type: 'search', placeholder: 'Search all folders', 'aria-label': 'Search Slop Drive' });
+      const search = el('input', { class: 'sui-input hub-search', type: 'search', placeholder: tr('ui.dpick.search_all'), 'aria-label': tr('ui.dpick.search') });
       const bar = el('div', { class: 'hub-bar' }), grid = el('div', { class: 'hub-grid' });
-      const note = el('p', { class: 'sui-p' }, 'Files shared between Slopographic apps. Stored only in this browser.');
+      const note = el('p', { class: 'sui-p' }, tr('ui.dpick.note'));
       const body = el('div', { class: 'hub-pick-body' }, note, bar, grid);
       search.addEventListener('input', () => { query = search.value.trim().toLowerCase(); render(); });
       async function render() {
@@ -90,25 +93,25 @@
         const shown = query ? files.filter((r) => r.name.toLowerCase().includes(query)) : files.filter((r) => (map.has(r.folderId) ? r.folderId : null) === cwd);
         for (const f of folders) {
           const n = files.filter((r) => r.folderId === f.id).length;
-          const b = el('button', { type: 'button', class: 'hub-item hub-folder', 'data-folder': f.id }, el('span', { class: 'hub-thumb' }, folderIcon()), el('b', null, f.name), el('small', null, n + (n === 1 ? ' file' : ' files')));
+          const b = el('button', { type: 'button', class: 'hub-item hub-folder', 'data-folder': f.id }, el('span', { class: 'hub-thumb' }, folderIcon()), el('b', null, f.name), el('small', null, tr('ui.dpick.n_files', { n })));
           b.addEventListener('click', () => { cwd = f.id; search.value = query = ''; render(); });
           grid.append(b);
         }
         for (const r of shown) {
           const app = H().appById(r.from), thumb = el('span', { class: 'hub-thumb' });
           preview(r, thumb, urls);
-          const b = el('button', { type: 'button', class: 'hub-item', 'data-id': r.id }, thumb, el('b', { title: r.name }, r.name), el('small', null, `${app ? app.name : r.from} · ${H().fmtSize(r.size)} · ${new Date(r.time).toLocaleString()}`));
+          const b = el('button', { type: 'button', class: 'hub-item', 'data-id': r.id }, thumb, el('b', { title: r.name }, r.name), el('small', null, `${app ? app.name : r.from} · ${H().fmtSize(r.size)} · ${window.SlopI18n && window.SlopI18n.date ? window.SlopI18n.date(r.time, { dateStyle: 'medium', timeStyle: 'short' }) : new Date(r.time).toLocaleString()}`));
           const unpeek = peekOn(b, r, body, urls);
           peeks.add(unpeek);
           b.addEventListener('click', () => { unpeek(); chosen = r; H().touch(r.id); d.close(true); });
-          b.addEventListener('contextmenu', (e) => { e.preventDefault(); UIx.menu([{ label: 'Move to Trash', act: async () => { await H().update(r.id, { trashedAt: Date.now() }); b.remove(); } }], e.clientX, e.clientY); });
+          b.addEventListener('contextmenu', (e) => { e.preventDefault(); UIx.menu([{ label: tr('ui.dpick.trash'), act: async () => { await H().update(r.id, { trashedAt: Date.now() }); b.remove(); } }], e.clientX, e.clientY); });
           grid.append(b);
         }
-        if (!grid.children.length) grid.append(el('p', { class: 'sui-p hub-empty' }, query ? 'Nothing matches “' + search.value + '”.' : cwd ? 'This folder is empty.'
-          : 'Slop Drive is empty. Use “Send to…” in any Slopographic app to put files here. Files stay on this device.'));
+        if (!grid.children.length) grid.append(el('p', { class: 'sui-p hub-empty' }, query ? tr('ui.dpick.no_match', { q: search.value }) : cwd ? tr('ui.dpick.empty_folder')
+          : tr('ui.dpick.empty_drive')));
       }
-      const d = UIx.dialog({ title, cls: 'sui-wide', body,
-        buttons: [{ label: 'Open Slop Drive', act: () => { window.open(new URL('drive/', H().ROOT).href, '_blank'); return false; } }, { label: 'Cancel' }],
+      const d = UIx.dialog({ title: lab(title), cls: 'sui-wide', body,
+        buttons: [{ label: tr('ui.dpick.open_drive'), act: () => { window.open(new URL('drive/', H().ROOT).href, '_blank'); return false; } }, { label: tr('menu.cancel') }],
         onClose: () => { urls.forEach((u) => URL.revokeObjectURL(u)); res(chosen); } });
       // the Drive's cached thumbnails (shared/drive/thumb-read.js) and the kind names of the file cards (shared/kinds)
       // come in before the first draw (small, and loaded once); without them the grid still draws
@@ -118,7 +121,7 @@
   }
 
   /** pickFolder({ title, ok, start }): resolves with a folder id, null for the root, or undefined if cancelled. */
-  function pickFolder({ title = 'Choose a folder', ok = 'Save here', start = null, exclude = [] } = {}) {
+  function pickFolder({ title = 'ui.dpick.folder_title', ok = 'ui.dpick.save_here', start = null, exclude = [] } = {}) {
     return new Promise((res) => {
       const UIx = UI(), el = UIx.el;
       let cwd = start, result;
@@ -126,8 +129,8 @@
       async function render() {
         const { all } = await visibleFolders().catch(() => ({ all: [] }));
         if (cwd && !all.some((f) => f.id === cwd)) cwd = null;
-        const newBtn = el('button', { type: 'button', class: 'sui-btn' }, 'New folder');
-        newBtn.addEventListener('click', async () => { const n = await UIx.prompt('New folder', 'Name', 'New folder'); if (n && n.trim()) { cwd = await H().createFolder(n.trim(), cwd); render(); } });
+        const newBtn = el('button', { type: 'button', class: 'sui-btn' }, tr('ui.dpick.new_folder'));
+        newBtn.addEventListener('click', async () => { const n = await UIx.prompt(tr('ui.dpick.new_folder'), tr('ui.dpick.name'), tr('ui.dpick.new_folder')); if (n && n.trim()) { cwd = await H().createFolder(n.trim(), cwd); render(); } });
         bar.replaceChildren(crumbs(cwd ? await H().folderPath(cwd) : [], (id) => { cwd = id; render(); }), newBtn);
         rows.replaceChildren();
         for (const f of all.filter((x) => x.parentId === cwd && !exclude.includes(x.id))) {
@@ -135,9 +138,9 @@
           b.addEventListener('click', () => { cwd = f.id; render(); });
           rows.append(b);
         }
-        if (!rows.children.length) rows.append(el('p', { class: 'sui-p' }, 'No folders here. This is where the file will go.'));
+        if (!rows.children.length) rows.append(el('p', { class: 'sui-p' }, tr('ui.dpick.no_folders')));
       }
-      UIx.dialog({ title, body: el('div', null, bar, rows), buttons: [{ label: 'Cancel' }, { label: ok, primary: true, act: () => { result = cwd; } }],
+      UIx.dialog({ title: lab(title), body: el('div', null, bar, rows), buttons: [{ label: tr('menu.cancel') }, { label: lab(ok), primary: true, act: () => { result = cwd; } }],
         onClose: (okd) => res(okd ? result : undefined) });
       render();
     });

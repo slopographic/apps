@@ -6,6 +6,8 @@
   'use strict';
   const C = (g.SlopConfig = g.SlopConfig || {});
   const { LIMITS } = C.consts;
+  // Words: shared/i18n/ui/<code>/config.js (keys ui.cfgv.*), read when a message is made
+  const tr = (key, vars) => (g.SlopI18n ? g.SlopI18n.t(key, vars) : key);
   let chain = Promise.resolve(); // applies queue up, so two imports never interleave
 
   const fail = (message) => ({ ok: false, applied: false, value: null, errors: [{ path: '', message }] });
@@ -18,7 +20,7 @@
   /** A File named <name>.slop.json holding the validated envelope. Throws when the data is not valid for the kind. */
   function exportFile(kind, app, name, data, opts = {}) {
     const r = C.validate(C.envelope(kind, app, name, data, opts));
-    if (!r.ok) throw new Error(`cannot export ${kind}: ${C.errorText(r.errors)}`);
+    if (!r.ok) throw new Error(tr('ui.cfgv.cannot_export', { kind, err: C.errorText(r.errors) }));
     const text = JSON.stringify(r.value, null, 2);
     const fname = `${safeName(name)}.slop.json`;
     const type = 'application/json';
@@ -32,8 +34,8 @@
   /** Reads the kind's current data with its read() and exports it. Throws when the kind has no read(). */
   async function exportKind(kind, app, name, opts = {}) {
     const e = C.getKind(kind, app);
-    if (!e) throw new Error(`no kind "${kind}" for app "${app}"`);
-    if (!e.read) throw new Error(`"${kind}" has no export yet`);
+    if (!e) throw new Error(tr('ui.cfgv.unknown_kind', { kind, app }));
+    if (!e.read) throw new Error(tr('ui.cfgv.no_export', { kind }));
     return exportFile(kind, app, name, await e.read(), opts);
   }
 
@@ -56,12 +58,12 @@
     };
     try {
       const res = await entry.apply(v.data, ctx);
-      if (res && res.ok === false) throw new Error(res.message || 'the change was refused');
+      if (res && res.ok === false) throw new Error(res.message || tr('ui.cfgv.refused'));
       return { ok: true, applied: true, value: v, errors: [] };
     } catch (e) {
       for (const fn of undo.reverse()) { try { await fn(); } catch (e2) { /* keep undoing the rest */ } }
       const why = e && e.message ? e.message : String(e);
-      return { ok: false, applied: false, rolledBack: true, value: null, errors: [{ path: '', message: `could not apply: ${why}` }] };
+      return { ok: false, applied: false, rolledBack: true, value: null, errors: [{ path: '', message: tr('ui.cfgv.apply_failed', { err: why }) }] };
     }
   }
 
@@ -74,21 +76,21 @@
 
   /** A File or Blob from the picker or from Slop Drive. Refuses anything over 5 MB before reading it. */
   async function importFile(file, opts = {}) {
-    if (!file || typeof file.text !== 'function') return fail('no file was given');
-    if (file.size > LIMITS.bytes) return fail('the file is larger than 5 MB');
+    if (!file || typeof file.text !== 'function') return fail(tr('ui.cfgv.no_file'));
+    if (file.size > LIMITS.bytes) return fail(tr('ui.cfgv.too_big'));
     let text;
-    try { text = await file.text(); } catch (e) { return fail(`could not read the file: ${e.message}`); }
+    try { text = await file.text(); } catch (e) { return fail(tr('ui.cfgv.read_failed', { err: e.message })); }
     return importText(text, opts);
   }
 
   /** Picks a file from Slop Drive, then imports it. Resolves cancelled: true when the picker is closed. */
   async function importFromDrive(opts = {}) {
     const H = g.SlopHub;
-    if (!H || !H.pickFromDrive || !H.get) return fail('Slop Drive is not available here');
-    const pick = await H.pickFromDrive({ accept: ['application/json', 'text/plain'], title: opts.title || 'Import a config from Slop Drive' });
+    if (!H || !H.pickFromDrive || !H.get) return fail(tr('ui.cfgv.no_drive'));
+    const pick = await H.pickFromDrive({ accept: ['application/json', 'text/plain'], title: opts.title || tr('ui.config.from_drive_title') });
     if (!pick) return { ok: false, cancelled: true, applied: false, value: null, errors: [] };
     const rec = await H.get(pick.id);
-    if (!rec || !rec.blob) return fail('that Slop Drive file has no content');
+    if (!rec || !rec.blob) return fail(tr('ui.cfgv.drive_empty'));
     return importFile(rec.blob, opts);
   }
 

@@ -3,6 +3,7 @@
  * when exchangeCode / refresh is called (from sync.js, which is itself only called on user action). */
 (function () {
   'use strict';
+  const tr = (key, vars) => (window.SlopI18n ? window.SlopI18n.t(key, vars) : key);   // words: shared/i18n/ui/<code>/backup2.js
 
   function b64url(bytes) {
     let s = '';
@@ -30,7 +31,7 @@
 
   function authUrl(id, { clientId, redirectUri, state, challenge }) {
     const p = window.SlopSyncConfig.provider(id);
-    if (!p) throw new Error('Unknown cloud provider.');
+    if (!p) throw new Error(tr('ui.sync.unknown'));
     const u = new URL(p.authUrl);
     const params = Object.assign({
       client_id: clientId,
@@ -55,7 +56,7 @@
 
   async function postToken(id, fields) {
     const p = window.SlopSyncConfig.provider(id);
-    if (!p) throw new Error('Unknown cloud provider.');
+    if (!p) throw new Error(tr('ui.sync.unknown'));
     const res = await fetch(p.tokenUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },

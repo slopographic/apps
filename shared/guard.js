@@ -12,7 +12,8 @@
   const me = document.currentScript && document.currentScript.src;
   const ROOT = me ? new URL('../', me).href : new URL('/', location.href).href;
   const OFF_KEY = 'slop-guard-off';
-  const MSG = 'Everything you make lives only in this browser. A hard reload is safe, but clearing browser data or site data deletes it all. Export a backup first?';
+  // Words: shared/i18n/ui/<code>/backup3.js (keys ui.guard.*), read when the dialog opens
+  const tr = (key, vars) => (window.SlopI18n ? window.SlopI18n.t(key, vars) : key);
   const store = { get: (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) { /* blocked */ } } };
   const enabled = () => store.get(OFF_KEY) !== '1';
   const setEnabled = (on) => store.set(OFF_KEY, on ? null : '1');
@@ -58,26 +59,26 @@
         // The backup kit did not load: ask with the plain SlopUI dialog instead of a browser prompt.
         let U = null;
         try { U = await plainKit(); } catch (err) { return 'cancel'; }
-        const ok = await U.confirm('Before you reload', MSG.replace(' Export a backup first?', ' Reload now?'), 'Reload now', { cancel: 'Cancel' });
+        const ok = await U.confirm(tr('ui.guard.title'), tr('ui.guard.msg_reload'), tr('ui.guard.reload_now'), { cancel: tr('menu.cancel') });
         if (ok) { reload(); return 'reload'; }
         return 'cancel';
       }
       return new Promise((resolve) => {
-        const el = UI.el, never = UI.check('Don’t show this again', false);
+        const el = UI.el, never = UI.check(tr('ui.guard.never'), false);
         const status = el('p', { class: 'sui-p slop-guard-status', role: 'status' });
         let result = 'cancel';
         const remember = () => { if (never.input.checked) setEnabled(false); };
-        const d = UI.dialog({ title: 'Before you reload', cls: 'slop-guard',
-          body: el('div', null, el('p', { class: 'sui-p' }, MSG), status, never.el),
+        const d = UI.dialog({ title: tr('ui.guard.title'), cls: 'slop-guard',
+          body: el('div', null, el('p', { class: 'sui-p' }, tr('ui.guard.msg')), status, never.el),
           buttons: [
-            { label: 'Export backup', primary: true, act: async () => {
-              result = 'export'; status.textContent = 'Preparing your backup…';
-              try { const r = await B.exportNow({ onProgress: (t) => { status.textContent = t; } }); status.textContent = `Saved ${r.name}. You can reload now.`; }
-              catch (e) { status.textContent = 'Export failed: ' + e.message; }
+            { label: tr('ui.guard.export'), primary: true, act: async () => {
+              result = 'export'; status.textContent = tr('ui.guard.preparing');
+              try { const r = await B.exportNow({ onProgress: (t) => { status.textContent = t; } }); status.textContent = tr('ui.guard.saved', { name: r.name }); }
+              catch (e) { status.textContent = tr('ui.backup.export_failed', { err: e.message }); }
               return false;
             } },
-            { label: 'Reload anyway', act: () => { result = 'reload'; remember(); setTimeout(reload, 0); } },
-            { label: 'Cancel', act: () => { result = result === 'export' ? 'export' : 'cancel'; remember(); } },
+            { label: tr('ui.guard.reload_anyway'), act: () => { result = 'reload'; remember(); setTimeout(reload, 0); } },
+            { label: tr('menu.cancel'), act: () => { result = result === 'export' ? 'export' : 'cancel'; remember(); } },
           ],
           onClose: () => { remember(); showing = null; resolve(result); } });
         d.box.dataset.guard = '1';
@@ -103,5 +104,5 @@
     return '';
   });
 
-  window.SlopGuard = { show, isHardReload, enabled, setEnabled, setUnsaved, hasUnsaved, MSG, ROOT, reload: () => location.reload() };
+  window.SlopGuard = { show, isHardReload, enabled, setEnabled, setUnsaved, hasUnsaved, get MSG() { return tr('ui.guard.msg'); }, ROOT, reload: () => location.reload() };
 })();

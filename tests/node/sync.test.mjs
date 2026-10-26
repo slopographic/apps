@@ -4,6 +4,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { makeEnv, seedTokens, reply, defaultFetch } from './sync-helpers.mjs';
+import { setLang } from './ui-i18n-en.mjs';
 
 const RFC_VERIFIER = 'dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk';
 const RFC_CHALLENGE = 'E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM';
@@ -233,4 +234,20 @@ test('errors come back as messages, and a missing SlopCentral is reported withou
   const r2 = await env.S.pushBackup('gdrive');
   assert.match(r2.error, /not available/);
   assert.equal(env.calls.length, calls);
+});
+
+// Covers: shared/i18n/ui/en/backup2.js, shared/i18n/ui/sv/backup2.js, shared/sync/config.js, shared/sync/pkce.js, shared/sync/tokens.js,
+//   shared/sync/providers/gdrive.js, shared/sync/providers/dropbox.js, shared/sync/providers/local.js, shared/sync/sync.js
+test('the messages and the folder option speak the chosen language (keys ui.sync.*, read when made)', async () => {
+  const env = await makeEnv();
+  const CF = env.ctx.SlopSyncConfig;
+  setLang('sv');
+  try {
+    assert.equal(CF.setClientId('nope', 'x').error, 'Okänd molntjänst.');
+    assert.equal(CF.provider('local').label, 'Lokal mapp eller nätverksmapp');
+    assert.equal(env.ctx.SlopSyncProviders.local.label, 'Lokal mapp eller nätverksmapp');
+    assert.match(CF.provider('gdrive').consoleHelp, /^Google Cloud-konsolen/);
+    assert.equal(CF.provider('gdrive').label, 'Google Drive');
+  } finally { setLang('en'); }
+  assert.equal(CF.provider('local').label, 'Local or network folder');
 });

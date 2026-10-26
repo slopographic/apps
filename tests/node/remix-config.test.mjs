@@ -4,6 +4,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
+import './ui-i18n-en.mjs';   // the config's words (shared/i18n/ui), handed to the vm as a page has them
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -22,7 +23,7 @@ const FILES = [
 ];
 
 function remixEnv() {
-  const ctx = { console, Blob, File, TextEncoder, URL: { revokeObjectURL() {} } };
+  const ctx = { console, Blob, File, TextEncoder, URL: { revokeObjectURL() {} }, SlopI18n: globalThis.SlopI18n };
   ctx.window = ctx;
   vm.createContext(ctx);
   for (const f of FILES) vm.runInContext(src(f), ctx, { filename: f });

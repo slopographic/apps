@@ -10,6 +10,7 @@
  *   JavaScript running on this origin from using the key, so the apps must not load third-party scripts. */
 (function () {
   'use strict';
+  const tr = (key, vars) => (window.SlopI18n ? window.SlopI18n.t(key, vars) : key);   // words: shared/i18n/ui/<code>/backup2.js
   const DB_NAME = 'slop-sync';
   const STORE = 'kv';
   const SKEW_MS = 60 * 1000;   // refresh one minute before the access token expires
@@ -22,7 +23,7 @@
       const r = indexedDB.open(DB_NAME, 1);
       r.onupgradeneeded = () => r.result.createObjectStore(STORE);
       r.onsuccess = () => resolve(r.result);
-      r.onerror = () => { dbp = null; reject(new Error('Browser storage for sync is unavailable.')); };
+      r.onerror = () => { dbp = null; reject(new Error(tr('ui.sync.store_none'))); };
     }));
     const tx = async (mode, fn) => {
       const db = await open();
@@ -30,8 +31,8 @@
         const t = db.transaction(STORE, mode);
         const req = fn(t.objectStore(STORE));
         t.oncomplete = () => resolve(req ? req.result : undefined);
-        t.onerror = () => reject(t.error || new Error('Browser storage write failed.'));
-        t.onabort = () => reject(t.error || new Error('Browser storage write was aborted.'));
+        t.onerror = () => reject(t.error || new Error(tr('ui.sync.store_write')));
+        t.onabort = () => reject(t.error || new Error(tr('ui.sync.store_abort')));
       });
     };
     return {

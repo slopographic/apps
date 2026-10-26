@@ -45,7 +45,7 @@ class FakeDir {
 async function setup({ dir = new FakeDir('Config'), store = fakeStore() } = {}) {
   const ctx = await loadInto(
     ['config/schema.js', 'config/validate.js', 'config/io.js', 'config/kinds.js', 'sync/providers/local.js', 'config/folder.js'],
-    { SLOP_APPS: APPS, SlopData: { store }, Blob, File, fetch: () => { throw new Error('no network'); } },
+    { SLOP_APPS: APPS, SlopData: { store }, Blob, File, SlopI18n: globalThis.SlopI18n, fetch: () => { throw new Error('no network'); } },
   );
   const handles = memBackend();
   await handles.put('dir', dir);

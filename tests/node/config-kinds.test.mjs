@@ -103,11 +103,12 @@ async function withI18n(files, extra) {
   const et = new EventTarget();
   const ctx = await loadInto(['i18n/i18n.js'], { ...extra, CustomEvent, addEventListener: et.addEventListener.bind(et), removeEventListener: et.removeEventListener.bind(et), dispatchEvent: et.dispatchEvent.bind(et) });
   vm.runInContext(PIN, ctx);
-  for (const f of ['i18n/ui/en/widgets.js', 'i18n/ui/sv/widgets.js', ...files]) vm.runInContext(await readFile(path.join(SHARED, f), 'utf8'), ctx, { filename: f });
+  for (const f of ['i18n/ui/en/widgets.js', 'i18n/ui/sv/widgets.js', 'i18n/ui/en/config.js', 'i18n/ui/sv/config.js', ...files]) vm.runInContext(await readFile(path.join(SHARED, f), 'utf8'), ctx, { filename: f });
   return ctx;
 }
 const switched = (ctx, code) => new Promise((res) => { ctx.addEventListener('slopi18n', () => res(), { once: true }); ctx.SlopI18n.set(code); });
 
+// Covers: shared/config/dialog-ai.js
 test('the dialogs load without SlopUI on the page: menu items and the AI hook are wired', async () => {
   const ctx = await withI18n([...CORE, 'config/dialog.js', 'config/dialog-ai.js'], { SLOP_APPS: APPS, Blob, File });
   const D = ctx.SlopConfigDialog;
@@ -117,7 +118,8 @@ test('the dialogs load without SlopUI on the page: menu items and the AI hook ar
   assert.throws(() => D.open('nope'), /unknown dialog/);
 });
 
-// Covers: shared/config/schema.js, shared/config/kinds.js, shared/config/dialog.js, shared/i18n/ui/en/widgets.js, shared/i18n/ui/sv/widgets.js
+// Covers: shared/config/schema.js, shared/config/kinds.js, shared/config/dialog.js, shared/i18n/ui/en/widgets.js, shared/i18n/ui/sv/widgets.js,
+//   shared/config/validate.js, shared/config/prompt.js, shared/config/template.js, shared/config/io.js, shared/i18n/ui/en/config.js, shared/i18n/ui/sv/config.js
 test('kind labels and the config items and commands follow a language change (keys, read when shown)', async () => {
   const ctx = await withI18n([...CORE, 'config/kinds.js', 'config/dialog.js'], { SLOP_APPS: APPS, Blob, File, SlopData: { store: fakeStore() } });
   const C = ctx.SlopConfig, D = ctx.SlopConfigDialog;
@@ -135,4 +137,10 @@ test('kind labels and the config items and commands follow a language change (ke
   assert.equal(items[2].label, 'Importera konfiguration…');
   assert.equal(registered.get('tables.config.import').title, 'Importera konfiguration…');
   assert.equal(D.commands({ app: 'tables' })[0].title, 'Exportera aktuell konfiguration…');
+  // the checks a file goes through and the AI reply's problems, in the new language (shared/i18n/ui/sv/config.js)
+  assert.match(C.validate('{', {}).errors[0].message, /^inte giltig JSON: /);
+  assert.equal(C.validate({ format: 'slop-config' }, {}).errors.find((e) => e.path === 'name').message, 'krävs: 1 till 120 tecken');
+  assert.equal(C.parseAiReply('', {}).errors[0].message, 'svaret är tomt');
+  await switched(ctx, 'en');
+  assert.match(C.validate('{', {}).errors[0].message, /^not valid JSON: /);
 });

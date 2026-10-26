@@ -7,9 +7,10 @@ import vm from 'node:vm';
 import path from 'node:path';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
+import { setLang } from './ui-i18n-en.mjs';   // the task checks' words (shared/i18n/ui/<code>/backup3.js), as a page has them
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
-const ctx = { TextEncoder };
+const ctx = { TextEncoder, SlopI18n: globalThis.SlopI18n };
 ctx.window = ctx;
 vm.createContext(ctx);
 for (const f of ['calendar/tz.js', 'calendar/rrule.js', 'tasks/logic.js', 'reminders/core.js']) {
@@ -144,4 +145,14 @@ test('a weekly event shows once in Later (its next occurrence, saying "Every wee
   same(later.map((x) => [x.refId, x.repeat]), [['w1', 'Every week'], ['o1', null]]);
   assert.equal(later[0].at, start - 15 * 60000);
   assert.equal(later[0].more, all.filter((x) => x.refId === 'w1').length - 1);
+});
+
+// Covers: shared/tasks/logic.js, shared/i18n/ui/en/backup3.js, shared/i18n/ui/sv/backup3.js
+test('the edit checks speak the chosen language (keys ui.tasks.*, read when checked)', () => {
+  assert.deepEqual([...TK.editErrors({ dueTime: '10:00' })], ['give the task a due date before a due time']);
+  setLang('sv');
+  try {
+    assert.deepEqual([...TK.editErrors({ dueTime: '10:00', due: '2026-10-12', tz: 'Nowhere/Land' })], ['tidszonen är okänd']);
+    assert.deepEqual([...TK.editErrors({ dueTime: '10:00' })], ['ge uppgiften ett förfallodatum innan du anger en förfallotid']);
+  } finally { setLang('en'); }
 });

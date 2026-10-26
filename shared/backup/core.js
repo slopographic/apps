@@ -14,6 +14,7 @@
   const req = (r) => new Promise((res, rej) => { r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
   const done = (t) => new Promise((res, rej) => { t.oncomplete = res; t.onerror = () => rej(t.error); t.onabort = () => rej(t.error || new Error('Aborted')); });
   const pad = (n) => String(n).padStart(2, '0');
+  const tr = (key, vars) => (window.SlopI18n ? window.SlopI18n.t(key, vars) : key);   // words: shared/i18n/ui/<code>/backup.js
   // The extension is SlopBackup.EXT (index.js, which loads this file); '.zip' only when this file is used on its own.
   const fileName = (d = new Date()) => `slopographic-backup-${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}${(window.SlopBackup && window.SlopBackup.EXT) || '.zip'}`;
 
@@ -56,18 +57,18 @@
   /** Build the backup. Resolves with { blob, name, manifest }. */
   async function exportAll({ onProgress = () => {} } = {}) {
     const enc = window.SlopBackupCodec.encode, blobs = [], local = {};
-    onProgress('Reading settings…');
+    onProgress(tr('ui.backup.reading_settings'));
     for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); local[k] = localStorage.getItem(k); }
     const dbs = [];
     for (const n of await dbNames()) {
-      onProgress(`Reading ${n}…`);
+      onProgress(tr('ui.backup.reading', { name: n }));
       try { dbs.push(await readDb(n, blobs, enc)); } catch (e) { console.warn('Backup: skipped database', n, e); }
     }
     const drive = dbs.find((d) => d.name === DRIVE), count = (sn) => ((drive && drive.stores.find((s) => s.name === sn)) || { records: [] }).records.length;
     const manifest = { format: FORMAT, version: VERSION, created: new Date().toISOString(), origin: location.origin, app: 'Slopographic',
       counts: { localStorage: Object.keys(local).length, databases: dbs.length, driveFiles: count('files'), driveFolders: count('folders'), blobs: blobs.length },
       bytes: blobs.reduce((n, b) => n + b.size, 0) };
-    onProgress('Packing…');
+    onProgress(tr('ui.backup.packing'));
     const entries = [{ name: 'manifest.json', data: JSON.stringify(manifest, null, 1) }, { name: 'local.json', data: JSON.stringify(local) }, { name: 'idb.json', data: JSON.stringify(dbs) }];
     blobs.forEach((b, i) => entries.push({ name: 'blobs/' + i, data: b }));
     const blob = await window.SlopZip.zip(entries);
@@ -77,11 +78,11 @@
   /* ---------- import ---------- */
   /** Read a backup file. Resolves with { manifest, local, dbs, bytesOf }. */
   async function read(file) {
-    const entries = await window.SlopZip.unzip(file).catch(() => { throw new Error('This is not a Slopographic backup file.'); });
+    const entries = await window.SlopZip.unzip(file).catch(() => { throw new Error(tr('ui.backup.not_backup')); });
     const map = new Map(entries.map((e) => [e.name, e.bytes])), json = (n) => { const b = map.get(n); return b ? JSON.parse(new TextDecoder().decode(b)) : null; };
     const manifest = json('manifest.json');
-    if (!manifest || manifest.format !== FORMAT) throw new Error('This is not a Slopographic backup file.');
-    if (manifest.version > VERSION) throw new Error('This backup was made by a newer version of Slopographic.');
+    if (!manifest || manifest.format !== FORMAT) throw new Error(tr('ui.backup.not_backup'));
+    if (manifest.version > VERSION) throw new Error(tr('ui.backup.newer'));
     return { manifest, local: json('local.json') || {}, dbs: json('idb.json') || [], bytesOf: (ref) => map.get('blobs/' + ref) || new Uint8Array(0) };
   }
   async function existing() { try { return indexedDB.databases ? (await indexedDB.databases()).map((d) => d.name) : null; } catch (e) { return null; } }
@@ -122,14 +123,14 @@
     const b = file.manifest ? file : await read(file), replace = mode === 'replace';
     const out = { localStorage: 0, databases: 0, records: 0, skipped: [], errors: [] };
     if (parts.local !== false) {
-      onProgress('Restoring settings…');
+      onProgress(tr('ui.backup.restoring_settings'));
       if (replace) localStorage.clear();
       for (const [k, v] of Object.entries(b.local)) try { localStorage.setItem(k, v); out.localStorage++; } catch (e) { out.errors.push('localStorage ' + k + ': ' + e.message); }
     }
     if (parts.idb !== false) {
       const dec = (j) => window.SlopBackupCodec.decode(j, b.bytesOf), names = await existing();
       for (const spec of b.dbs) {
-        onProgress(`Restoring ${spec.name}…`);
+        onProgress(tr('ui.backup.restoring', { name: spec.name }));
         try { const r = await restoreDb(spec, replace, dec, names); out.databases++; out.records += r.records; out.skipped.push(...r.skipped); }
         catch (e) { out.errors.push(spec.name + ': ' + e.message); }
       }

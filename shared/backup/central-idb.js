@@ -8,6 +8,7 @@
   const C = window.SlopCentral;
   const B64_RX = /^[A-Za-z0-9+/]*={0,2}$/;
   const REF_TAGS = ['file', 'blob', 'ab', 'ta', 'img'];
+  const tr = (key, vars) => (window.SlopI18n ? window.SlopI18n.t(key, vars) : key);   // words: shared/i18n/ui/<code>/backup.js
   const req = (r) => new Promise((res, rej) => { r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error || new Error('request failed')); });
   const enc = (v, blobs) => window.SlopBackupCodec.encode(v, blobs);
 
@@ -94,7 +95,7 @@
       r.onupgradeneeded = () => { if (upgrade) upgrade(r.result); };
       r.onsuccess = () => { clearTimeout(timer); const d = r.result; d.onversionchange = () => d.close(); res(d); };
       r.onerror = () => { clearTimeout(timer); rej(r.error || new Error(`could not open ${name}`)); };
-      r.onblocked = () => { timer = setTimeout(() => rej(new Error(`“${name}” is open in another tab. Close other Slopographic tabs and try again.`)), 6000); };
+      r.onblocked = () => { timer = setTimeout(() => rej(new Error(tr('ui.backup.db_blocked', { name }))), 6000); };
     });
   }
 
@@ -150,13 +151,13 @@
       await new Promise((res, rej) => {
         const t = d.transaction(names, 'readwrite');
         t.oncomplete = () => res();
-        t.onerror = () => rej(t.error || new Error('the write failed'));
-        t.onabort = () => rej(t.error || new Error('the write was aborted'));
+        t.onerror = () => rej(t.error || new Error(tr('ui.backup.write_failed')));
+        t.onabort = () => rej(t.error || new Error(tr('ui.backup.write_aborted')));
         (async () => {
           try {
             for (const n of names) {
               const os = t.objectStore(n), st = stores[n];
-              if (os.keyPath !== (st.keyPath == null ? null : st.keyPath)) throw new Error(`store ${n} has a different key in this browser`);
+              if (os.keyPath !== (st.keyPath == null ? null : st.keyPath)) throw new Error(tr('ui.backup.key_differs', { store: n }));
               for (const r of st.records) {
                 const key = st.keyPath == null ? r.k : r.v[st.keyPath];
                 const old = await req(os.get(key));
@@ -179,8 +180,8 @@
       await new Promise((res, rej) => {
         const t = d.transaction(names, 'readwrite');
         t.oncomplete = () => res();
-        t.onerror = () => rej(t.error || new Error('undo failed'));
-        t.onabort = () => rej(t.error || new Error('undo aborted'));
+        t.onerror = () => rej(t.error || new Error(tr('ui.backup.undo_failed')));
+        t.onabort = () => rej(t.error || new Error(tr('ui.backup.undo_aborted')));
         for (const p of pre.slice().reverse()) {
           const os = t.objectStore(p.store);
           if (!p.had) os.delete(p.key);

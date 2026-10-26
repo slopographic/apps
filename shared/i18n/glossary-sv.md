@@ -879,3 +879,26 @@ history step and palette word, so never strip a suffix to get it. Layer names th
 | prompt | prompt | kept as «prompt» in AI contexts |
 | content rules | innehållsregler | |
 | charges your account | debiterar ditt konto | |
+
+## wip/i18n-r2-macros (macros, config, backup, sync, storage, Drive picker, guard, tasks)
+
+| English | Swedish | Notes |
+| --- | --- | --- |
+| macro (pl.) | makron | «Sparade makron», «Importera makron» |
+| Play (a macro) | Spela upp | «Spela upp ”{name}”» |
+| Leave out (a step) | Utelämna | |
+| Apply (a config) | Tillämpa | «Tillämpad: {name}» |
+| kind (of config) | typ | field label «Typ» |
+| Locale (settings field) | Språkformat | as in the base table's settings kind |
+| Default tax rate | Standardmomssats | |
+| Merge / Replace (restore modes) | Sammanfoga / Ersätt | |
+| Everything in one file | Allt i en fil | backup dialog |
+| Cloud backup | Molnsäkerhetskopia | panel title |
+| Back up now | Säkerhetskopiera nu | |
+| client ID (OAuth) | klient-id | «OAuth-klient-id» |
+| Disconnect | Koppla från | |
+| Local or network folder | Lokal mapp eller nätverksmapp | |
+| sign-in token | inloggningstoken | |
+| cache (noun) | cacheminne | plural «cacheminnen» |
+| hard reload | hård omladdning | «Läs in igen» for the button |
+| due date / due time | förfallodatum / förfallotid | tasks |
