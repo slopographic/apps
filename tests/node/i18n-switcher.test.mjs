@@ -116,8 +116,8 @@ test('the header strings are in every language: Theme, Install, Tours, Notificat
 test('{brand} is the brand profile\'s name, and data-i18n-vars fills placeholders on marked elements', async () => {
   const { I, ctx } = await page();
   assert.equal(I.t('shell.install_title'), 'Install Slopographic', 'this site, before brand.js');
-  ctx.SlopBrand = { config: { name: 'Acme Tools' } };
-  assert.equal(I.t('shell.install_title'), 'Install Acme Tools', 'a white-label build names its own brand');
+  ctx.SlopBrand = { config: { name: 'Northwind Studio' } };
+  assert.equal(I.t('shell.install_title'), 'Install Northwind Studio', 'a white-label build names its own brand');
   const el = (attrs, text = '') => ({ attrs: { ...attrs }, textContent: text, getAttribute(n) { return n in this.attrs ? this.attrs[n] : null; }, setAttribute(n, v) { this.attrs[n] = String(v); } });
   const root = el({}), tour = el({ 'data-i18n-attr': 'title:shell.tour_title', 'data-i18n-vars': '{"app":"Slop PDF"}' }), inst = el({ 'data-i18n': 'shell.install_title' });
   const nodes = { '[data-i18n]': [inst], '[data-i18n-attr]': [tour] };
@@ -126,7 +126,7 @@ test('{brand} is the brand profile\'s name, and data-i18n-vars fills placeholder
   J.add('sv', { 'shell.tour_title': 'Starta guiden för {app}', 'shell.install_title': 'Installera {brand}' });
   J.apply();
   assert.equal(tour.attrs.title, 'Starta guiden för Slop PDF');
-  assert.equal(inst.textContent, 'Installera Acme Tools');
+  assert.equal(inst.textContent, 'Installera Northwind Studio');
   assert.equal(root.attrs.lang, 'sv');
 });
 
