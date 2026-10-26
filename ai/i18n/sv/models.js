@@ -96,4 +96,18 @@ window.SlopI18n && window.SlopI18n.add('sv', {
   'ai.sys.get': 'Hämta',
   'ai.sys.can_run': 'Det här klarar enheten',
   'ai.sys.speeds': 'Hastigheterna är uppskattningar från testet av minnesbandbredd; verkliga siffror visas i varje chattsvar.',
+  // the strength tags on a model card (shared/ai/catalog.js strengths)
+  'ai.models.tag_tiny': 'pytteliten',
+  'ai.models.tag_fast': 'snabb',
+  'ai.models.tag_chat': 'chatt',
+  'ai.models.tag_balanced': 'balanserad',
+  'ai.models.tag_multilingual': 'flerspråkig',
+  'ai.models.tag_tools': 'verktyg',
+  'ai.models.tag_code': 'kod',
+  'ai.models.tag_mini_apps': 'miniappar',
+  'ai.models.tag_writing': 'skrivande',
+  'ai.models.tag_summaries': 'sammanfattningar',
+  'ai.models.tag_reasoning': 'resonemang',
+  'ai.models.tag_maths': 'matte',
+  'ai.models.tag_smartest': 'smartast',
 });

@@ -63,4 +63,9 @@ window.SlopI18n && window.SlopI18n.add('sv', {
   'aitools.sup.memory': 'Den här enheten anger {mem} GB minne; verktyget behöver ungefär {need} GB.',
   'aitools.first.title': 'Kör det här AI-verktyget på den här enheten',
   'aitools.first.line': 'Verktyget kör sin modell i din webbläsare. Modellen laddas ned en gång och sparas i webbläsaren till nästa gång.',
+  // the assistant's jobs on the status line (aitools/ai-commands.js, ai-jobs.js)
+  'aitools.job.working': '{tool}: arbetar med {file}',
+  'aitools.job.done': '{tool}: klart.',
+  'aitools.job.finding_person': 'Letar efter personen…',
+  'aitools.job.decoding': 'Avkodar ljudet…',
 });

@@ -69,7 +69,7 @@
         el('div', { class: 'm-badges' }, m.id === rec ? el('span', { class: 'badge rec' }, AI.t('ai.models.recommended')) : null, m.id === recCode ? el('span', { class: 'badge rec' }, AI.t('ai.models.best_code')) : null,
           AI.prefs.defaultModel === m.id ? el('span', { class: 'badge' }, '★ ' + AI.t('ai.models.default')) : null, v ? el('span', { class: 'badge ' + v.level, title: v.reason || '' }, AI.verdictText(v)) : null)),
       el('p', { class: 'm-blurb' }, m.blurb),
-      el('div', { class: 'm-tags' }, m.strengths.map((s) => el('span', { class: 'tag' }, s))),
+      el('div', { class: 'm-tags' }, m.strengths.map((s) => el('span', { class: 'tag', 'data-tag': s }, AI.t('ai.models.tag_' + s.replace(/-/g, '_'))))),
       el('dl', { class: 'm-facts' },
         el('dt', null, AI.t('ai.models.size')), el('dd', null, m.sizeMB ? '~' + AI.fmtMB(m.sizeMB) : '—'),
         el('dt', null, AI.t('ai.models.gpu_mem')), el('dd', null, m.vramMB ? AI.fmtMB(v && v.vram || m.vramMB) : '—'),

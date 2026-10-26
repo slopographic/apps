@@ -61,6 +61,9 @@
       await waitFor(() => doc.querySelector('#view-models h1') && doc.querySelector('#view-models .mcard'), { timeout: 10000 });
       expect(doc.querySelector('#view-models h1').textContent).toBe('Modeller');
       expect(doc.querySelector('#mStorageH').textContent).toBe('Lagring');
+      // the strength tags on the model cards (ai/js/ui/models.js, ai.models.tag_*)
+      expect(doc.querySelector('#view-models .mcard .tag[data-tag="fast"]').textContent).toBe('snabb');
+      expect(doc.querySelector('#view-models .mcard .tag[data-tag="mini-apps"]').textContent).toBe('miniappar');
       W.AI.setTab('build');
       expect(doc.querySelector('.build-hello b').textContent).toBe('Bygg en miniapp');
       expect(KEY.test(visible(doc))).toBe(false);

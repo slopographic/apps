@@ -956,3 +956,17 @@ history step and palette word, so never strip a suffix to get it. Layer names th
 | downloaded extras | nedladdade tillägg | Storage: «Rensa alla nedladdade tillägg» |
 | offline caches | offlinecacher | |
 | Light / Dark (theme) | Ljust / Mörkt | neuter, agrees with «tema» |
+
+## wip/i18n-r2-ai (model notes, script and language names, AI model tags)
+
+| English | Swedish | Note |
+|---|---|---|
+| script (writing system) | skrift | «latinsk skrift», «kyrillisk skrift»; lower case in running text |
+| recogniser (OCR model part) | igenkännare | «CRNN-igenkännare» |
+| detector (OCR) | detektor | «DB-detektor» |
+| accents (diacritics) | diakritiska tecken | as in ui.models.ocr_accents |
+| encoder-decoder | kodare-avkodare | Whisper |
+| fine-tuned / trained further | finjusterad / vidaretränad |  |
+| language names | from Intl.DisplayNames («svenska», «förenklad kinesiska») | capital first letter in lists only |
+| strength tags (Slop AI cards) | pytteliten, snabb, chatt, balanserad, flerspråkig, verktyg, kod, miniappar, skrivande, sammanfattningar, resonemang, matte, smartast | lower case, as the English tags |
+| National Library of Sweden / Norway | Kungliga biblioteket / Norges nationalbibliotek |  |

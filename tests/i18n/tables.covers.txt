@@ -510,6 +510,7 @@ Covers: shared/i18n/ui/en/firstrun.js
 Covers: shared/i18n/ui/en/graphics.js
 Covers: shared/i18n/ui/en/guides.js
 Covers: shared/i18n/ui/en/models.js
+Covers: shared/i18n/ui/en/models2.js
 Covers: shared/i18n/ui/en/ops.js
 Covers: shared/i18n/ui/en/ops2.js
 Covers: shared/i18n/ui/en/ops3.js
@@ -548,6 +549,7 @@ Covers: shared/i18n/ui/sv/firstrun.js
 Covers: shared/i18n/ui/sv/graphics.js
 Covers: shared/i18n/ui/sv/guides.js
 Covers: shared/i18n/ui/sv/models.js
+Covers: shared/i18n/ui/sv/models2.js
 Covers: shared/i18n/ui/sv/ops.js
 Covers: shared/i18n/ui/sv/ops2.js
 Covers: shared/i18n/ui/sv/ops3.js
