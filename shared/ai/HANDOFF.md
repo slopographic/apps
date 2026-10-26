@@ -132,6 +132,7 @@ blocks with signatures, OpenAI's reasoning items, Gemini's parts with `thoughtSi
 | `cloud/keys.js` | Keys: IndexedDB `slop-ai-keys` when "Remember on this device" is on, else this tab only (memory + sessionStorage). Settings (`slop-ai.cloud` in localStorage) never hold a key. `shared/backup/core.js` and `central.js` leave the database out. |
 | `cloud/meter.js` | Tokens per reply and this visit (sessionStorage), cost when the price is known, the cap, and the one-time notice per provider (`slop-firstrun:ai-cloud:<id>`). |
 | `cloud/connect.js` | The form: provider, address, key (password field, autocomplete off), Test connection, Forget key, model, cap, steps, Use; `restore()` brings the last provider back on the next page when its key is still here. |
+| `cloud/signin.js` | `K.cloud.signin`: "Sign in with OpenRouter" (a catalog entry's `signin: { auth, keys, manage }`), OAuth PKCE with the one helper `shared/sync/pkce.js`. `start` keeps the verifier and state in this tab (sessionStorage `slop-ai.signin`) and goes to the consent page with this page's own address as `callback_url` (so white-label origins work); back with `?code=`, the script takes the code out of the address at once (`replaceState`; `shell/header.js` loads it first and opens the panel, `panel.js` shows the model choice); `finish` checks the state (CSRF), POSTs code + verifier straight to OpenRouter, stores the key like a pasted one (keys.js) and connect.js runs Test connection. Denied, wrong state, a used or expired code (403), offline, network and other errors each say so. The picker's "Sign in" badge and the free guide point at it. |
 | `filetools.js` | `look_at_file`: asks every time ("Send a copy to Anthropic?"), sends a picture scaled to 1024 px (JPEG) or the first 8,000 characters of a text. |
 | `optools.js` | `list_operations`, `run_operation`, `run_workflow` from `shared/ops/registry.js` and the one runner (`workflows/js/core/plan.js`); results saved to Slop Drive. |
 | `toolbox.js` | `K.toolbox`: what the panel sends stays small (below, "Token budget"): `arrange` (core tools + `find_tools`, the rest deferred), `visible`, `loaded`, `compact` (schemas), `summarize` (results), `trim` (earlier requests' results). |
@@ -236,7 +237,7 @@ list through `K.toolSets` (a function env → tools that `apptools.js build` add
 `node tests/run.mjs ai` covers all of this; see `ai/HANDOFF.md`. Own keys: `tests/node/ai-cloud-formats.test.mjs`
 (request building, streams from documented SSE fixtures, conversion both ways), `tests/node/ai-cloud-engine.test.mjs`
 (the loop per provider, errors, cap, redaction, settings), `tests/ai/cloud.test.html`, `tests/ai/cloud-keys.test.html`
-and `tests/photoslop/ai-cloud.test.html` (a fake fetch per provider, `tests/ai/cloud-util.js`).
+and `tests/photoslop/ai-cloud.test.html` (a fake fetch per provider, `tests/ai/cloud-util.js`). Sign in with OpenRouter: `tests/ai/cloud-signin.test.html` (the auth URL's S256 challenge and state, the exchange, the key stored, the address cleaned, a wrong state, a denied consent, a used code, offline).
 
 ## The provider catalog (shared/ai/cloud/catalog/, 2026-10)
 About fifty providers, as data. One file per group, each pushing entries into `K.cloud.catalog`: `main.js` (Claude,

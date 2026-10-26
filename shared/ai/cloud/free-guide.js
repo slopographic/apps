@@ -1,8 +1,9 @@
 /* SlopAIKit cloud freeGuide: "Get a free key in 2 minutes", the collapsible guide in "Use your own AI account"
- * (connect.js). Classic script; adds SlopAIKit.cloud.freeGuide = { render({ onChoose(id), tools() }) → <details> }.
+ * (connect.js). Classic script; adds SlopAIKit.cloud.freeGuide = { render({ onChoose(id), onSignin(id), tools() }) → <details> }.
  * Steps for Gemini, Groq and OpenRouter in plain words (keys ui.ai.cloud.guide_*). Their sign-up links, limits and what the provider may do with
  * free-tier data come from the catalog's `free` field (cloud/catalog/*.js), so the guide and the badges say the same.
- * Gemini and Groq come first: they use the app's tools on their free tier. At OpenRouter only some free models can. */
+ * Gemini and Groq come first: they use the app's tools on their free tier. At OpenRouter only some free models can.
+ * A provider with a sign-in (OpenRouter, cloud/signin.js) gets "Sign in with <name>" first: the easiest way, no key to copy. */
 (function () {
   'use strict';
   const K = (window.SlopAIKit = window.SlopAIKit || {});
@@ -34,7 +35,8 @@
       h('p', { class: 'sap-dim' }, T(`ui.ai.cloud.guide_${id}_why`)), h('ol', null, steps),
       h('p', { class: 'sap-dim' }, h('b', null, T('ui.ai.cloud.guide_limits') + ' '), f.note),
       f.training ? h('p', { class: 'sap-dim' }, h('b', null, T('ui.ai.cloud.guide_data') + ' '), f.training) : null, tools,
-      h('button', { type: 'button', class: 'sap-btn sap-free-choose', onclick: () => o.onChoose && o.onChoose(id) }, T('ui.ai.cloud.guide_choose', { name: p.short })));
+      h('div', { class: 'sap-acts' }, p.signin ? h('button', { type: 'button', class: 'sap-btn primary sap-free-signin', onclick: () => o.onSignin && o.onSignin(id) }, T('ui.ai.cloud.or_signin', { name: p.short })) : null,
+        h('button', { type: 'button', class: 'sap-btn sap-free-choose', onclick: () => o.onChoose && o.onChoose(id) }, T('ui.ai.cloud.guide_choose', { name: p.short }))));
   }
 
   function render(o = {}) {

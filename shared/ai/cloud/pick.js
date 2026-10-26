@@ -3,7 +3,8 @@
  * script; adds SlopAIKit.cloud.pick = { providers(select, { onPick }), fields(p, saved), models(select, p), remember(p, id),
  * recent(p) }.
  *   providers(select): a button naming the chosen provider; it opens a search box and the catalog's groups (Main open,
- *     the others collapsible), each row with badges (tools, vision, images) and "browser OK" / "needs a proxy". Rows the
+ *     the others collapsible), each row with badges (tools, vision, images, "Sign in" when it needs no key to paste:
+ *     cloud/signin.js) and "browser OK" / "needs a proxy". Rows the
  *     browser cannot use are greyed, say why, and cannot be chosen. Picking sets the (hidden) select and fires change,
  *     so the form keeps one value. Search covers names, aliases, the company and model names (providers.js search).
  *   fields(p, saved): { node, values(), missing() } inputs for the {fields} of p's address template.
@@ -51,6 +52,8 @@
   function badges(p) {
     const out = [], free = C.free ? C.free.label(p) : '';
     if (free) out.push(h('span', { class: 'sap-pp-b free', title: p.free.note || '' }, free));
+    // no key yet: "Sign in" says there is a one-click way (cloud/signin.js), in the list only
+    if (p.signin) out.push(h('span', { class: 'sap-pp-b ok', 'data-cap': 'signin', title: T('ui.ai.cloud.or_badge_t', { name: p.short }) }, T('ui.ai.cloud.or_badge')));
     // data-cap: what it can do (the list shows those; the chosen provider's button leaves them out for room)
     if (p.caps.tools) out.push(h('span', { class: 'sap-pp-b', 'data-cap': 'tools', title: T('ui.ai.cloud.cap_tools_t') }, T('ui.ai.cloud.cap_tools')));
     if (p.caps.vision) out.push(h('span', { class: 'sap-pp-b', 'data-cap': 'vision', title: T('ui.ai.cloud.cap_vision_t') }, T('ui.ai.cloud.cap_vision')));
