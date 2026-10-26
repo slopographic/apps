@@ -9,7 +9,7 @@ that this file is up to date and that no covered app loses a create, add or expo
 the picture look_at_canvas and app_snapshot take (`own` or `page`), **Driven** whether those commands reach an assistant
 in another app (the Slop AI workspace, open_in_app, agents). **Full** is all of it. ✗ marks a gap.
 
-Covered: 61 of 62 apps. Full suite: 61 of 62 apps.
+Covered: 62 of 62 apps. Full suite: 62 of 62 apps.
 
 | App | Create | Add | Edit | Export | Operations | State | Snapshot | Driven | Covered | Full |
 |---|---|---|---|---|---|---|---|---|---|---|
@@ -59,7 +59,7 @@ Covered: 61 of 62 apps. Full suite: 61 of 62 apps.
 | Slop Colors (`colors`) | ✓ 1 | ✓ 2 | ✓ 7 | ✓ 1 | 1 | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Font (`fontcreator`) | ✓ 1 | ✓ 6 | ✓ 17 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Workflows (`workflows`) | ✓ 1 | ✓ 1 | ✓ 7 | ✓ 2 |  | ✓ own | ✓ page | ✓ | yes | yes |
-| File convert (`convert`) | ✗ | ✗ | ✗ | ✗ |  | ✓ own | ✓ page | ✗ | no | no |
+| File convert (`convert`) | ✓ 1 | ✓ 1 | ✓ 2 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slopculator (`calculator`) | ✓ 1 | ✓ 1 | ✓ 1 | ✓ 2 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Time (`time`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop CRM (`crm`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | ✓ records | ✓ page | ✓ | yes | yes |
@@ -413,6 +413,13 @@ Covered: 61 of 62 apps. Full suite: 61 of 62 apps.
 - add: `add_step`
 - edit: `move_step`, `open_template`, `remove_step`, `rename_workflow`, `run_workflow`, `set_option`, `set_step`
 - export: `export_workflow`, `save_workflow`
+
+### File convert
+
+- create: `new_conversion`
+- add: `add_files`
+- edit: `run_conversion`, `set_target`
+- export: `export_results`
 
 ### Slopculator
 

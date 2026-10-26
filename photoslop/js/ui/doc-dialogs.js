@@ -6,12 +6,13 @@ function dlgNumber(title, label, v, min, max, unit, fn) {
   const i = numInput(v, min, max, 0.5);
   dialog({ title, body: field(label, i, unit), buttons: [{ label: tr('menu.cancel') }, { label: tr('menu.ok'), primary: true, act: () => fn(clamp(+i.value, min, max)) }] });
 }
-/** New-document presets: [key of the name (photoslop.doc.preset_*), width, height]. */
-const PRESETS = [['default', 1600, 1000], ['ig_post', 1080, 1080], ['ig_story', 1080, 1920], ['hd', 1920, 1080], ['uhd', 3840, 2160], ['x_header', 1500, 500], ['a4', 1240, 1754], ['meme', 800, 800], ['icon', 512, 512]];
+/** New-document presets: [name, width, height]; the name is a getter for photoslop.doc.preset_<key>. */
+const PRESETS = [['default', 1600, 1000], ['ig_post', 1080, 1080], ['ig_story', 1080, 1920], ['hd', 1920, 1080], ['uhd', 3840, 2160], ['x_header', 1500, 500], ['a4', 1240, 1754], ['meme', 800, 800], ['icon', 512, 512]]
+  .map((r) => { const k = r[0]; Object.defineProperty(r, 0, { get: () => tr('photoslop.doc.preset_' + k), enumerable: true }); return r; });
 const D_ = (k, v) => tr('photoslop.doc.' + k, v);
 function dlgNew() {
   const w = numInput(1600, 1, 12000), hh = numInput(1000, 1, 12000);
-  const preset = h('select', null, PRESETS.map(([n, a, b], i) => h('option', { value: i }, D_('preset_row', { name: D_('preset_' + n), w: String(a), h: String(b) }))), h('option', { value: 'clip' }, D_('clip_size')));
+  const preset = h('select', null, PRESETS.map(([n, a, b], i) => h('option', { value: i }, D_('preset_row', { name: n, w: String(a), h: String(b) }))), h('option', { value: 'clip' }, D_('clip_size')));
   preset.addEventListener('change', () => { if (preset.value === 'clip') { if (CLIP.canvas) { w.value = CLIP.canvas.width; hh.value = CLIP.canvas.height; } return; } const p = PRESETS[+preset.value]; w.value = p[1]; hh.value = p[2]; });
   const bg = h('select', null, [['#ffffff', 'white'], ['#000000', 'black'], ['fg', 'fg'], ['bg', 'bg'], ['transparent', 'transparent']].map(([v, l]) => h('option', { value: v }, D_('bg_' + l))));
   const name = h('input', { type: 'text', value: tr('ui.untitled') });

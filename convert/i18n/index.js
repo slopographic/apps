@@ -3,6 +3,6 @@
 window.SlopI18n && window.SlopI18n.source({
   ns: 'convert',
   base: ((document.currentScript || {}).src || '').replace(/[^/]*$/, ''),
-  parts: ['ai', 'app', 'cards', 'cards2', 'catalog', 'chain', 'conv-a', 'conv-a2', 'conv-b', 'conv-b2', 'preview', 'tool'],
+  parts: ['app', 'cards', 'cards2', 'catalog', 'chain', 'conv-a', 'conv-a2', 'conv-b', 'conv-b2', 'preview', 'tool'],
   langs: ['en', 'sv'],
 });

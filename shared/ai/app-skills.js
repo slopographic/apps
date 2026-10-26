@@ -51,6 +51,7 @@
     "colors": {"create":["new_palette"],"add":["add_colors","add_from_picture"],"ops":["colors.palette"]},
     "fontcreator": {"create":["new_font"],"add":["add_characters","add_kerning","add_shape","draw_glyph","draw_glyphs","draw_strokes"],"ops":[]},
     "workflows": {"create":["new_workflow"],"add":["add_step"],"ops":[]},
+    "convert": {"create":["new_conversion"],"add":["add_files"],"ops":[]},
     "calculator": {"create":["new_sheet"],"add":["add_calculation"],"ops":[]},
     "time": {"create":["create_meeting"],"add":["add_city"],"ops":[]},
     "crm": {"create":["create_record"],"add":["create_record"],"ops":[]},

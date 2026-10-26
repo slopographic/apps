@@ -48,7 +48,7 @@ async function rtAutoEnhance(a = {}) {
   });
   if (window.SlopMacros && a.fromDialog) SlopMacros.note('ps.retouch.auto-enhance', rtArgsOnly(a), 'Auto enhance'); // i18n-ignore: saved in the macro
   dirty(true);
-  const what = rtDescribe(p) + (a.denoise && a.denoise !== 'none' ? rtT('d_denoise', { level: rtT('denoise_' + (a.denoise === 'none' ? 'off' : a.denoise)) }) : '');
+  const what = rtDescribe(p) + (a.denoise && a.denoise !== 'none' ? rtT('d_denoise_' + a.denoise) : '');
   return rtT('added_enhance', { what }) + (a.straighten ? ' ' + (fix ? rtT('straightened_by', { deg: String(-tilt.angle) }) : rtT('looks_level')) : '');
 }
 /** The command's own arguments (what a macro records), without the dialog's extras. */
