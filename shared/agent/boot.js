@@ -19,6 +19,7 @@
   const ROOT = SCRIPT && SCRIPT.src ? new URL('../../', SCRIPT.src).href : new URL('/', location.href).href;
   const KEY = 'slop.agents';
   const listeners = new Set();
+  const tr = (k, v) => { const I = g.SlopI18n; return I ? I.t(k, v) : k; };
 
   function enabled() { try { return localStorage.getItem(KEY) !== 'off'; } catch (e) { return true; } }
   function set(on) {
@@ -99,21 +100,30 @@
   function connect(opts = {}) {
     return load().then(() => script('shared/agent/bridge.js')).then(() => script('shared/agent/bridge-ui.js'))
       .then(() => g.SlopBridgeUI.start(opts))
-      .catch((e) => { console.warn('SlopAgents', e); if (g.SlopUI) g.SlopUI.toast('Connecting an AI app needs the page to be online once.'); return false; });
+      .catch((e) => { console.warn('SlopAgents', e); if (g.SlopUI) g.SlopUI.toast(tr('ui.agent.offline_connect')); return false; });
   }
 
   function about() {
-    return script('shared/agent/about.js').then(() => g.SlopAgentAbout.open()).catch((e) => { console.warn(e); if (g.SlopUI) g.SlopUI.toast('The note on AI agents could not open offline.'); });
+    return script('shared/agent/about.js').then(() => g.SlopAgentAbout.open()).catch((e) => { console.warn(e); if (g.SlopUI) g.SlopUI.toast(tr('ui.agent.offline_note')); });
   }
   /** Some apps load SlopCmd after the page: looked for again for a few seconds. */
   function command(tries = 0) {
     const C = g.SlopCmd;
     if (!C || !C.register) { if (tries < 10) setTimeout(() => command(tries + 1), 1000); return; }
-    if (!C.get('agents.about')) C.register([{ id: 'agents.about', title: 'AI agents…', group: 'Help', ai: false, noRecent: true,
+    if (!C.get('agents.about')) C.register([{ id: 'agents.about', title: tr('ui.agent.cmd_about'), group: 'Help', ai: false, noRecent: true,
       keywords: ['agents', 'webmcp', 'mcp', 'ai', 'automation', 'assistant', 'privacy'], run: about }]);
-    if (!C.get('agents.connect')) C.register([{ id: 'agents.connect', title: 'Connect an AI app…', group: 'Help', ai: false, noRecent: true,
+    if (!C.get('agents.connect')) C.register([{ id: 'agents.connect', title: tr('ui.agent.connect_dots'), group: 'Help', ai: false, noRecent: true,
       keywords: ['claude code', 'codex', 'cursor', 'gemini', 'vs code', 'mcp', 'connect', 'pair', 'ai', 'agent'], run: () => connect({ ask: true }) }]);
+    if (!worded && g.SlopI18n && g.SlopI18n.on) {   // the titles follow a language switch (the group is an English id)
+      worded = true;
+      g.SlopI18n.on(() => {
+        for (const [id, key] of [['agents.about', 'ui.agent.cmd_about'], ['agents.connect', 'ui.agent.connect_dots']]) {
+          const c = C.get(id); if (c) { c.title = tr(key); }
+        }
+      });
+    }
   }
+  let worded = false;
 
   g.SlopAgents = { KEY, ROOT, enabled: isOn, set, api, supported: () => !!api(), start, about, token, script, load, connect,
     onChange: (fn) => { listeners.add(fn); return () => listeners.delete(fn); } };

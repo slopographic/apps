@@ -17,7 +17,7 @@ import { say, placeBubble, hush } from './fx.js';
 import { count } from './journal.js';
 import { count as bodyCount } from './bodies.js';
 import { impact } from './blast.js';
-import { line } from './lines.js';
+import { line, tr } from './lines.js';
 import { tickRage, hardLanding, enrage, calmRage } from './rage.js';
 import { set3d, renderer3d } from './view3d.js';
 import { CFG, configure } from './config.js';
@@ -47,7 +47,7 @@ function build() {
   const stars = el('div', 'sloppo-stars', { 'aria-hidden': 'true' });
   stars.innerHTML = '<i>✦</i><i>✦</i><i>✦</i>';
   const bubble = el('div', 'sloppo-say', { role: 'status', 'aria-live': 'polite' });
-  const hit = el('div', 'sloppo-hit', { role: 'button', tabindex: '0', 'aria-label': 'Sloppo the buddy. Press to pet him, or drag to throw him.' });
+  const hit = el('div', 'sloppo-hit', { role: 'button', tabindex: '0', 'aria-label': tr('ui.buddy.hit_aria') });
   const svg = setup(m);
   m.append(stars, bubble, hit);
   layer.append(m);
@@ -125,7 +125,7 @@ function spawn() {
   M.el.hidden = false;
   if (!restoreSpot()) arrive();              // back where he rested on this page, or a fresh arrival
   // his hello, unless he is already saying something (a page's say() in the meantime keeps its own time)
-  setTimeout(() => { if (!M.bubble.classList.contains('show')) say(M.xp ? line('hello') : 'Hi! Pet me.', 2200); }, 900);
+  setTimeout(() => { if (!M.bubble.classList.contains('show')) say(M.xp ? line('hello') : tr('ui.buddy.say.hello_1'), 2200); }, 900);
   if (!CFG.home) setTimeout(() => tips.maybeTip(true), 6000);
 }
 

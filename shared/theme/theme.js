@@ -98,8 +98,7 @@
   var prof = g.SlopProfile && typeof g.SlopProfile.create === 'function'
     ? g.SlopProfile.create({ options: { theme: { mode: { label: 'Theme', type: 'enum', values: [SYSTEM].concat(IDS), default: DEFAULT } } } })
     : null;
-  var page = { app: '', choice: DEFAULT };
-  var watching = false;
+  var page = { app: '', choice: DEFAULT }, watching = false;
 
   function store() { try { return g.localStorage || null; } catch (e) { return null; } }
   function prefersLight() { try { return !!(g.matchMedia && g.matchMedia('(prefers-color-scheme: light)').matches); } catch (e) { return false; } }
@@ -218,8 +217,9 @@
   }
   /** Saves a choice (a theme id or 'system'), mirrors it into each app's key and applies it here. */
   function set(choice) {
-    if (choice !== SYSTEM && !byId[choice]) return { ok: false, error: 'That theme is not in the list.' };
-    if (!prof) return { ok: false, error: 'Could not save: browser storage is blocked.' };
+    var tr = function (k) { return g.SlopI18n ? g.SlopI18n.t(k) : k; };   // refusals in the chosen language (ui.theme.*)
+    if (choice !== SYSTEM && !byId[choice]) return { ok: false, error: tr('ui.theme.not_listed') };
+    if (!prof) return { ok: false, error: tr('ui.theme.blocked') };
     var r = prof.set('theme', 'mode', choice);
     if (!r.ok) return r;
     for (var app in APPS) {

@@ -7,7 +7,7 @@
  *   hanFor(text, lang) -> 'jp' when the text has kana, 'kr' when it has hangul, else from the language tag
  *                   (zh-TW, zh-HK, zh-Hant -> tc; ja -> jp; ko -> kr), else 'sc'.
  *   isRtl(cp) -> true for the right-to-left scripts (Arabic, Hebrew, Thaana, Syriac, N'Ko).
- *   PACKS: { id: { label, scripts } } for the language packs; packsFor(text, covered, opts) -> the packs a text needs
+ *   PACKS: { id: { label, scripts } } for the language packs (label: the name in the chosen language, SlopI18n); packsFor(text, covered, opts) -> the packs a text needs
  *   beyond what covered(cp) says the current font can set. */
 (function (root, factory) {
   const api = factory();
@@ -37,21 +37,24 @@
     [0xffa0, 0xffdc, 'hangul'], [0x20000, 0x2fa1f, 'han'],
   ];
   const PACKS = {
-    'noto-sans': { label: 'Latin, Greek and Cyrillic', scripts: ['latin', 'greek', 'cyrillic'] },
-    'noto-arabic': { label: 'Arabic', scripts: ['arabic', 'arabic-digit'] }, 'noto-hebrew': { label: 'Hebrew', scripts: ['hebrew'] },
-    'noto-devanagari': { label: 'Devanagari (Hindi, Marathi, Nepali)', scripts: ['devanagari'] }, 'noto-bengali': { label: 'Bengali', scripts: ['bengali'] },
-    'noto-tamil': { label: 'Tamil', scripts: ['tamil'] }, 'noto-telugu': { label: 'Telugu', scripts: ['telugu'] },
-    'noto-kannada': { label: 'Kannada', scripts: ['kannada'] }, 'noto-malayalam': { label: 'Malayalam', scripts: ['malayalam'] },
-    'noto-gujarati': { label: 'Gujarati', scripts: ['gujarati'] }, 'noto-gurmukhi': { label: 'Gurmukhi (Punjabi)', scripts: ['gurmukhi'] },
-    'noto-oriya': { label: 'Odia', scripts: ['oriya'] }, 'noto-sinhala': { label: 'Sinhala', scripts: ['sinhala'] },
-    'noto-thai': { label: 'Thai', scripts: ['thai'] }, 'noto-lao': { label: 'Lao', scripts: ['lao'] }, 'noto-khmer': { label: 'Khmer', scripts: ['khmer'] },
-    'noto-myanmar': { label: 'Myanmar (Burmese)', scripts: ['myanmar'] }, 'noto-georgian': { label: 'Georgian', scripts: ['georgian'] },
-    'noto-armenian': { label: 'Armenian', scripts: ['armenian'] }, 'noto-ethiopic': { label: 'Ethiopic (Amharic)', scripts: ['ethiopic'] },
-    'noto-tibetan': { label: 'Tibetan', scripts: ['tibetan'] }, 'noto-thaana': { label: 'Thaana (Dhivehi)', scripts: ['thaana'] },
-    'noto-mongolian': { label: 'Mongolian', scripts: ['mongolian'] }, 'noto-cherokee': { label: 'Cherokee', scripts: ['cherokee'] },
-    'noto-sc': { label: 'Chinese (simplified)', scripts: [] }, 'noto-tc': { label: 'Chinese (traditional)', scripts: [] },
-    'noto-jp': { label: 'Japanese', scripts: ['kana'] }, 'noto-kr': { label: 'Korean', scripts: ['hangul'] },
+    'noto-sans': { scripts: ['latin', 'greek', 'cyrillic'] },
+    'noto-arabic': { scripts: ['arabic', 'arabic-digit'] }, 'noto-hebrew': { scripts: ['hebrew'] },
+    'noto-devanagari': { scripts: ['devanagari'] }, 'noto-bengali': { scripts: ['bengali'] },
+    'noto-tamil': { scripts: ['tamil'] }, 'noto-telugu': { scripts: ['telugu'] },
+    'noto-kannada': { scripts: ['kannada'] }, 'noto-malayalam': { scripts: ['malayalam'] },
+    'noto-gujarati': { scripts: ['gujarati'] }, 'noto-gurmukhi': { scripts: ['gurmukhi'] },
+    'noto-oriya': { scripts: ['oriya'] }, 'noto-sinhala': { scripts: ['sinhala'] },
+    'noto-thai': { scripts: ['thai'] }, 'noto-lao': { scripts: ['lao'] }, 'noto-khmer': { scripts: ['khmer'] },
+    'noto-myanmar': { scripts: ['myanmar'] }, 'noto-georgian': { scripts: ['georgian'] },
+    'noto-armenian': { scripts: ['armenian'] }, 'noto-ethiopic': { scripts: ['ethiopic'] },
+    'noto-tibetan': { scripts: ['tibetan'] }, 'noto-thaana': { scripts: ['thaana'] },
+    'noto-mongolian': { scripts: ['mongolian'] }, 'noto-cherokee': { scripts: ['cherokee'] },
+    'noto-sc': { scripts: [] }, 'noto-tc': { scripts: [] },
+    'noto-jp': { scripts: ['kana'] }, 'noto-kr': { scripts: ['hangul'] },
   };
+  const tr = (k) => { const I = globalThis.SlopI18n; return I ? I.t(k) : k; };
+  // each pack's name is a key (ui.fonts.pack_*, shared/i18n/ui/en/fonts.js), read in the chosen language when it is shown
+  for (const id of Object.keys(PACKS)) Object.defineProperty(PACKS[id], 'label', { enumerable: true, get: () => tr('ui.fonts.pack_' + id.slice(5)) });
   const BY_SCRIPT = {};
   for (const [id, p] of Object.entries(PACKS)) for (const s of p.scripts) BY_SCRIPT[s] = id;
   const RTL = new Set(['arabic', 'hebrew', 'thaana', 'syriac', 'nko']);

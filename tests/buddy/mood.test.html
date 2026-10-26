@@ -4,13 +4,14 @@
   <meta charset="utf-8">
   <title>Buddy · candy, happy repair, dizzy falls and mood timing</title>
   <style>body { margin: 0; background: #111; color: #eee; font: 13px system-ui; }</style>
+  <script src="../../shared/i18n/i18n.js"></script>
 </head>
 <body>
   <script src="../harness.js"></script>
   <script src="boot.js"></script>
   <script type="module">
   import { OLD, TIMING } from '../../shared/buddy/timing.js';
-  import { LINES } from '../../shared/buddy/lines.js';
+  import { pool } from '../../shared/buddy/lines.js';
   const LOAD = Math.max(1, Number(window.__SLOPTEST_SCALE__) || 1);   // the test runner's load factor (tests/harness.js)
   const { describe, it, expect, waitFor, sleep, run } = SlopTest;
   const { openApp, turnOn } = BuddyTest;
@@ -39,7 +40,7 @@
       expect(M.rage).toBeLessThan(1);                       // 2 - 1.2
       expect(M.rage).toBeGreaterThanOrEqual(0);
       expect(M.glad).toBeGreaterThan(0.5);                  // and he is happy
-      expect(LINES.candyyes).toContain(M.bubble.querySelector('.say-text').textContent);
+      expect(pool('candyyes')).toContain(M.bubble.querySelector('.say-text').textContent);
       expect(doc.querySelector('.sh-mk').disabled).toBe(false);
       await waitFor(() => doc.querySelectorAll('.sloppo-candy').length === 0, { timeout: 3000 });   // eaten: it fades away
       calm();
@@ -62,7 +63,7 @@
       expect(M.rage).toBe(0);
       S.pet();
       expect(M.rage).toBeGreaterThanOrEqual(1);
-      expect(LINES.poke).toContain(M.bubble.querySelector('.say-text').textContent);
+      expect(pool('poke')).toContain(M.bubble.querySelector('.say-text').textContent);
       calm();
     });
   });
@@ -79,7 +80,7 @@
       S.cheer(1);
       await waitFor(() => S.journal === 0, { timeout: 4000 });
       expect(M.layer.querySelectorAll('.sloppo-goo').length).toBe(0);
-      expect(LINES.repair).toContain(M.bubble.querySelector('.say-text').textContent);
+      expect(pool('repair')).toContain(M.bubble.querySelector('.say-text').textContent);
       expect(panel.style.maskImage || panel.style.webkitMaskImage || '').toBe('');
     }, { timeout: 15000 });
     it('not happy, no repair: the damage stays until Restore page', async () => {

@@ -4,13 +4,8 @@ const KEY = 'slop.mascot.v1';
 /** One new hat per level, in unlock order (drawn in hats.js). */
 export const HAT_ORDER = ['sprout', 'party', 'beanie', 'bow', 'headphones', 'cowboy', 'chef', 'pirate', 'tophat',
   'viking', 'wizard', 'ninja', 'knight', 'gradcap', 'propeller', 'catears', 'halo', 'crown'];
-const LABEL = {
-  sprout: 'Sprout', party: 'Party hat', beanie: 'Beanie', bow: 'Bow', headphones: 'Headphones', cowboy: 'Cowboy hat',
-  chef: 'Chef hat', pirate: 'Pirate hat', tophat: 'Top hat', viking: 'Viking helmet', wizard: 'Wizard hat',
-  ninja: 'Ninja band', knight: 'Knight helmet', gradcap: 'Grad cap', propeller: 'Propeller cap', catears: 'Cat ears',
-  halo: 'Halo', crown: 'Crown',
-};
-export const hatLabel = (h) => (h ? LABEL[h] || h : 'No hat');
+/** A hat's name in the chosen language (ui.buddy.hat.<id>, shared/i18n/ui/<code>/buddy.js); no hat reads ui.buddy.hat.none. */
+export const hatLabel = (h) => { const I = globalThis.SlopI18n, k = 'ui.buddy.hat.' + (h || 'none'); return !h || HAT_ORDER.includes(h) ? (I ? I.t(k) : k) : h; };
 
 export const levelFor = (xp) => 1 + Math.floor(Math.sqrt(Math.max(0, xp) / 8));
 /** XP needed to reach a level. */

@@ -7,6 +7,8 @@
   'use strict';
   if (g.SlopBridgeUI) return;
   const B = g.SlopBridge, U = () => g.SlopUI;
+  const tr = (k, v) => { const I = g.SlopI18n; return I ? I.t(k, v) : k; };
+  const who = () => ({ client: B.client() });
   const el = (tag, attrs, ...kids) => { const n = document.createElement(tag); for (const k in attrs || {}) n.setAttribute(k, attrs[k]); n.append(...kids.filter((x) => x != null)); return n; };
 
   const css = `.sbr-pill{position:fixed;left:72px;bottom:34px;z-index:2147483000;display:flex;align-items:center;gap:8px;padding:6px 8px 6px 12px;border-radius:999px;
@@ -22,65 +24,65 @@
   let pillEl = null;
   function pill() {
     style();
+    const words = () => {
+      if (!pillEl) return;
+      pillEl.querySelector('.sbr-text').textContent = tr('ui.agent.pill', who());
+      pillEl.querySelector('.sui-btn').textContent = tr('ui.agent.disconnect');
+      pillEl.title = tr('ui.agent.pill_tip', { client: B.client(), n: B.tools().length });
+    };
+    if (g.SlopI18n && g.SlopI18n.on) g.SlopI18n.on(words);
     const show = (s) => {
       if (s === 'paired') {
         if (!pillEl) {
-          const btn = el('button', { type: 'button', class: 'sui-btn' }, 'Disconnect');
-          btn.addEventListener('click', () => { B.disconnect(); if (U()) U().toast(`${B.client()} is disconnected. It can no longer use this tab.`); });
+          const btn = el('button', { type: 'button', class: 'sui-btn' });
+          btn.addEventListener('click', () => { B.disconnect(); if (U()) U().toast(tr('ui.agent.disconnected', who())); });
           pillEl = el('div', { class: 'sbr-pill', role: 'status', 'data-slop-bridge': '' }, el('span', { class: 'sbr-dot', 'aria-hidden': 'true' }), el('span', { class: 'sbr-text' }), btn);
           document.body.append(pillEl);
         }
-        pillEl.querySelector('.sbr-text').textContent = `${B.client()} is connected`;
-        pillEl.title = `${B.client()} on this computer can use this tab's tools (${B.tools().length}). Actions that delete or replace your work still ask you here.`;
+        words();
       } else if (pillEl) {
         pillEl.remove(); pillEl = null;
-        if (s === 'closed' && U()) U().toast(`${B.client()} disconnected (it stopped, or the session ended).`, 4000);
+        if (s === 'closed' && U()) U().toast(tr('ui.agent.closed', who()), 4000);
       }
     };
     B.on(show);
     show(B.state());
   }
 
-  const LINES = {
-    intro: 'An AI app on this computer (Claude Code, Codex, Cursor, VS Code, Claude Desktop and others) can use this app with its own commands: the same tools as the AI panel. Your files stay on this device; the page and the AI app talk over this computer only (127.0.0.1).',
-    steps: [
-      'In the AI app, connect to Slopographic. In Claude Code: /slopographic:slop-connect (after /plugin install slopographic@slopographic). It shows a code.',
-      'Chrome may ask to let this site use apps and services on this device. Choose Allow: that is how this page reaches the AI app on this computer. Nothing on your network is contacted.',
-      'Type the code here.',
-    ],
-    unreachable: 'No AI app answered on this computer. Start it, ask it to connect to Slopographic, then press Try again. If Chrome asked about apps on this device and you chose Block, allow it in the site settings (the icon left of the address).',
-  };
+  /** The dialog's words in the chosen language, read when it opens. */
+  const lines = () => ({ intro: tr('ui.agent.intro'), steps: [1, 2, 3].map((i) => tr('ui.agent.step_' + i)), unreachable: tr('ui.agent.unreachable') });
 
   function dialog({ port = 0 } = {}) {
     style();
     const status = el('p', { class: 'sbr-status', role: 'status' });
-    const input = el('input', { class: 'sui-input sbr-code', type: 'text', maxlength: '9', autocomplete: 'off', spellcheck: 'false', 'aria-label': 'Pairing code', placeholder: 'ABC-DEF' });
+    const input = el('input', { class: 'sui-input sbr-code', type: 'text', maxlength: '9', autocomplete: 'off', spellcheck: 'false', 'aria-label': tr('ui.agent.code_aria'), placeholder: 'ABC-DEF' });
     const say = (t, bad) => { status.textContent = t; if (bad) status.setAttribute('data-bad', ''); else status.removeAttribute('data-bad'); };
-    const body = el('div', { class: 'sbr-dlg' }, el('p', {}, LINES.intro), el('ol', {}, ...LINES.steps.map((t) => el('li', {}, t))),
-      el('label', { class: 'sui-field' }, el('span', { class: 'sui-label' }, 'Code'), input), status);
+    const L = lines();
+    const body = el('div', { class: 'sbr-dlg' }, el('p', {}, L.intro), el('ol', {}, ...L.steps.map((line) => el('li', {}, line))),
+      el('label', { class: 'sui-field' }, el('span', { class: 'sui-label' }, tr('ui.agent.code')), input), status);
     let d = null;
     async function reach() {
-      say('Looking for the AI app on this computer…');
+      say(tr('ui.agent.looking'));
       const s = await B.connect({ port });
       if (s === 'paired') { done(); return true; }
-      if (s === 'need-code') { say(`${B.client()} is there. Type the code it shows.`); input.focus(); return true; }
-      say(s === 'refused' ? (B.detail().reason || 'The AI app refused this page.') : LINES.unreachable, true);
+      if (s === 'need-code') { say(tr('ui.agent.need_code', who())); input.focus(); return true; }
+      say(s === 'refused' ? (B.detail().reason || tr('ui.agent.refused')) : L.unreachable, true);
       return false;
     }
-    function done() { if (d) d.close(true); if (U()) U().toast(`${B.client()} is connected. It can now use this tab.`, 3500); }
+    function done() { if (d) d.close(true); if (U()) U().toast(tr('ui.agent.connected', who()), 3500); }
     const go = async () => {
       if (B.state() !== 'need-code') { await reach(); return false; }
       const code = input.value.trim();
-      if (!code) { say('Type the code from the AI app.', true); return false; }
+      if (!code) { say(tr('ui.agent.type_code'), true); return false; }
       if (g.SlopAgents && !g.SlopAgents.enabled()) g.SlopAgents.set(true);   // connecting is the person's own choice
       const r = await B.pair(code);
       if (r.ok) { done(); return false; }
-      say(r.left != null ? `That code is not right. ${r.left} ${r.left === 1 ? 'try' : 'tries'} left.${port ? '' : ' With more than one AI app session open, open the link the AI app shows with the code: it names the right one.'}` : (r.reason || 'Pairing failed.'), true);
+      say(r.left != null ? tr('ui.agent.wrong_code', { n: r.left }) + (port ? '' : ' ' + tr('ui.agent.wrong_code_hint')) : (r.reason || tr('ui.agent.pair_failed')), true);
       input.select();
       return false;
     };
-    d = U().dialog({ title: 'Connect an AI app', cls: 'sbr-dialog', body, dismissable: true,
-      buttons: [{ label: 'Cancel', act: () => { if (B.state() !== 'paired') B.disconnect(); } }, { label: 'Connect', primary: true, act: go }] });
+    d = U().dialog({ title: tr('ui.agent.connect_title'), cls: 'sbr-dialog', body, dismissable: true,
+      buttons: [{ label: tr('menu.cancel'), act: () => { if (B.state() !== 'paired') B.disconnect(); } }, { label: tr('ui.agent.connect'), primary: true, act: go }] });
     reach();
     return d;
   }
@@ -88,12 +90,12 @@
   let pilled = false;
   async function start({ ask = false, port = 0 } = {}) {
     if (!pilled) { pilled = true; pill(); }
-    if (B.state() === 'paired') { if (ask && U()) U().toast(`${B.client()} is already connected to this tab.`); return true; }
+    if (B.state() === 'paired') { if (ask && U()) U().toast(tr('ui.agent.already', who())); return true; }
     if (ask) { dialog({ port }); return true; }
     const s = await B.connect({ port });
     if (s === 'need-code') B.disconnect();   // the AI app was restarted: pairing again is the person's choice
     return s === 'paired';
   }
 
-  g.SlopBridgeUI = { start, dialog, pill, LINES };
+  g.SlopBridgeUI = { start, dialog, pill, get LINES() { return lines(); } };
 })(window);

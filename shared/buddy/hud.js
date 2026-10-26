@@ -9,6 +9,7 @@ import { count } from './journal.js';
 import { cycleHat } from './levels.js';
 import { rageLevel } from './rage.js';
 import { size } from './look.js';
+import { tr } from './lines.js';
 import '../input/typing.js';   // window.SlopTyping: the H key is never taken from a field
 
 const IDLE_MS = 6000, TOG = 40, GAP = 8;
@@ -22,22 +23,20 @@ export function mountHud({ onUnleash, onRestore, on3d, onAsk }) {
   hud.style.zIndex = CFG.z + 1;
   hud.hidden = true;
   hud.setAttribute('role', 'group');
-  hud.setAttribute('aria-label', 'Sloppo the mascot');
-  hud.title = 'Pet Sloppo to level him up. Drag him to throw.';
   hud.innerHTML =
-    '<button type="button" class="sh-toggle" aria-expanded="false" aria-controls="sloppo-hud-panel"><span class="sh-lv">Lv <b>1</b></span></button>' +
+    '<button type="button" class="sh-toggle" aria-expanded="false" aria-controls="sloppo-hud-panel"><span class="sh-lv"><span class="sh-lv-w"></span> <b>1</b></span></button>' +
     '<div class="sh-panel" id="sloppo-hud-panel" hidden>' +
-    '<button type="button" class="sh-grip" aria-label="Close Sloppo panel" title="Close"></button>' +
+    '<button type="button" class="sh-grip"></button>' +
     '<div class="sh-meters">' +
-    '<span class="sh-bar" role="progressbar" aria-label="XP to the next level" aria-valuemin="0" aria-valuemax="100"><i></i></span>' +
-    '<span class="sh-rage" hidden title="Rage"><i></i></span></div>' +
+    '<span class="sh-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100"><i></i></span>' +
+    '<span class="sh-rage" hidden><i></i></span></div>' +
     '<div class="sh-row">' +
-    '<button type="button" class="sh-btn sh-ask" title="Ask Sloppo">Ask</button>' +
-    '<button type="button" class="sh-btn sh-3d" aria-pressed="false" aria-label="3D Sloppo">3D</button>' +
-    '<button type="button" class="sh-btn sh-restore" hidden>Restore page</button></div>' +
+    '<button type="button" class="sh-btn sh-ask"></button>' +
+    '<button type="button" class="sh-btn sh-3d" aria-pressed="false">3D</button>' +
+    '<button type="button" class="sh-btn sh-restore" hidden></button></div>' +
     '<div class="sh-row">' +
-    '<button type="button" class="sh-btn sh-hat" hidden><span class="sh-hat-n"></span><span class="sh-hat-s">Hat</span></button>' +
-    '<button type="button" class="sh-btn sh-unleash" aria-pressed="false">Unleash</button></div>' +
+    '<button type="button" class="sh-btn sh-hat" hidden><span class="sh-hat-n"></span><span class="sh-hat-s"></span></button>' +
+    '<button type="button" class="sh-btn sh-unleash" aria-pressed="false"></button></div>' +
     '</div>';
   tog = hud.querySelector('.sh-toggle');
   panel = hud.querySelector('.sh-panel');
@@ -75,6 +74,23 @@ export function mountHud({ onUnleash, onRestore, on3d, onAsk }) {
     }
   });
 
+  /** The words that do not change with his state: drawn on mount and again on a language switch. */
+  function words() {
+    hud.setAttribute('aria-label', tr('ui.buddy.hud_aria'));
+    hud.title = tr('ui.buddy.hud_tip');
+    $('.sh-lv-w').textContent = tr('ui.buddy.lv');
+    const grip = $('.sh-grip');
+    grip.setAttribute('aria-label', tr('ui.buddy.close_panel'));
+    grip.title = tr('menu.close');
+    bar.setAttribute('aria-label', tr('ui.buddy.xp_aria'));
+    rage.title = tr('ui.buddy.rage');
+    const ask = $('.sh-ask');
+    ask.title = tr('ui.buddy.ask_sloppo');
+    ask.textContent = tr('ui.buddy.ask');
+    three.setAttribute('aria-label', tr('ui.buddy.three_d'));
+    restore.textContent = tr('ui.buddy.restore');
+    $('.sh-hat-s').textContent = tr('ui.buddy.hat_btn');
+  }
   function render() {
     const angry = M.rage >= 1 || !!M.raging;
     hud.hidden = !M.visible;
@@ -82,33 +98,35 @@ export function mountHud({ onUnleash, onRestore, on3d, onAsk }) {
     hud.classList.toggle('is-open', !!M.hudOpen);
     panel.hidden = !M.hudOpen;
     tog.setAttribute('aria-expanded', String(!!M.hudOpen));
-    tog.title = `Sloppo's level ${M.level}. ${M.hudOpen ? 'Press to close' : 'Press to open (H)'}`;
+    tog.title = tr(M.hudOpen ? 'ui.buddy.tog_close' : 'ui.buddy.tog_open', { n: M.level });
     const lo = xpFor(M.level), hi = xpFor(M.level + 1);
     const pct = Math.round(((M.xp - lo) / (hi - lo)) * 100);
     lv.textContent = M.level;
     fill.style.width = pct + '%';
     bar.setAttribute('aria-valuenow', pct);
-    bar.title = `${M.xp - lo} / ${hi - lo} XP to level ${M.level + 1}`;
+    bar.title = tr('ui.buddy.xp_tip', { xp: M.xp - lo, need: hi - lo, n: M.level + 1 });
     hat.hidden = M.level < 2;
     $('.sh-hat-n').textContent = hatLabel(M.hat);
-    hat.setAttribute('aria-label', `Change hat (wearing: ${hatLabel(M.hat)})`);
+    hat.setAttribute('aria-label', tr('ui.buddy.change_hat', { hat: hatLabel(M.hat) }));
     const rl = rageLevel();
     rage.hidden = rl <= 0.01;
     rage.firstChild.style.width = Math.round(rl * 100) + '%';
     rage.classList.toggle('full', !!M.raging);
-    rage.setAttribute('aria-label', M.raging ? 'RAGE' : `Rage ${Math.round(rl * 100)}%`);
+    rage.setAttribute('aria-label', M.raging ? tr('ui.buddy.rage_full') : tr('ui.buddy.rage_pct', { pct: Math.round(rl * 100) }));
     three.setAttribute('aria-pressed', String(M.is3d));
-    unleash.textContent = M.raging ? 'RAGE' : M.chaos ? 'Calm down' : 'Unleash';
+    unleash.textContent = tr(M.raging ? 'ui.buddy.rage_full' : M.chaos ? 'ui.buddy.calm_down' : 'ui.buddy.unleash');
     unleash.setAttribute('aria-pressed', String(M.chaos));
     const n = count();
     restore.hidden = n === 0;
-    restore.setAttribute('aria-label', `Restore page (undo ${n} change${n === 1 ? '' : 's'})`);
+    restore.setAttribute('aria-label', tr('ui.buddy.restore_n', { n }));
     if (M.hudOpen) { clearTimeout(idleT); hud.classList.remove('is-faded'); }
     else if (wasOpen) restartIdle();
     wasOpen = !!M.hudOpen;
   }
   listeners.add(render);
+  words();
   render();
+  if (globalThis.SlopI18n && globalThis.SlopI18n.on) globalThis.SlopI18n.on(() => { words(); render(); });
   document.body.append(hud);
   restartIdle();
   return hud;

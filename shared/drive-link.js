@@ -30,7 +30,9 @@
     const a = document.createElement('a');
     a.className = 'sdl slop-hbtn';
     a.href = url;
-    a.title = 'Open Slop Drive (Shift- or middle-click: new tab)';
+    // the tooltip is a key (ui.misc.drive_tip), marked so a language switch redraws it (SlopI18n.apply)
+    a.setAttribute('data-i18n-attr', 'title:ui.misc.drive_tip');
+    a.title = window.SlopI18n ? window.SlopI18n.t('ui.misc.drive_tip') : 'ui.misc.drive_tip';
     a.setAttribute('aria-label', 'Slop Drive');
     a.dataset.sdl = '';
     a.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true">${ICON}</svg><span class="slop-hbtn-txt">Slop Drive</span>`;

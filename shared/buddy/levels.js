@@ -2,6 +2,7 @@
 import { M, now, changed } from './state.js';
 import { levelFor, hatsFor, hatLabel, save } from './store.js';
 import { say, sparkle } from './fx.js';
+import { tr } from './lines.js';
 
 const lastGain = {};
 /** Add XP. `throttle` (ms) limits how often one source (e.g. petting) can pay out. */
@@ -15,7 +16,7 @@ export function gain(n, { source = 'any', throttle = 0 } = {}) {
     M.level = lv;
     const hats = hatsFor(lv);
     M.hat = hats[hats.length - 1] || null;
-    say(`Level ${lv}! ${M.hat ? 'New hat: ' + hatLabel(M.hat) + '.' : ''}`, 2600);
+    say(M.hat ? tr('ui.buddy.level_hat', { n: lv, hat: hatLabel(M.hat) }) : tr('ui.buddy.level', { n: lv }), 2600);
     sparkle();
     M.squash = 0.7;
   }

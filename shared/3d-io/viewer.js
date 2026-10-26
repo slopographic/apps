@@ -6,14 +6,16 @@ import * as T from '../../vendor/three/three.module.min.js';
 import { stats, bounds } from './scene.js';
 
 const fmt = (v) => +Number(v).toPrecision(4);   // the same rounding as the status line (convert.js)
-const plural = (n, w, many = w + 's') => `${n.toLocaleString('en')} ${n === 1 ? w : many}`;
+/** A word shown to the person (ui.d3.*, shared/i18n/ui/en/misc.js), in the chosen language when it is made. */
+const tr = (k, v) => { const I = globalThis.SlopI18n; return I ? I.t(k, v) : k; };
+const plural = (k, what) => tr('ui.d3.n_' + what, { n: k });
 
 export function describe(root, animations = []) {
   const s = stats(root, animations), b = bounds(root);
   const parts = [];
-  if (s.meshes) parts.push(plural(s.meshes, 'mesh', 'meshes'), plural(s.triangles, 'triangle'));
+  if (s.meshes) parts.push(plural(s.meshes, 'mesh'), plural(s.triangles, 'triangle'));
   if (s.points) parts.push(plural(s.vertices, 'point'));
-  if (b) parts.push(b.size.map(fmt).join(' × ') + ' units');
+  if (b) parts.push(tr('ui.d3.units', { size: b.size.map(fmt).join(' × ') }));
   if (s.animations) parts.push(plural(s.animations, 'animation'));
   return parts.join(' · ');
 }
@@ -25,7 +27,7 @@ export function view(el, root, { background = null } = {}) {
   const canvas = renderer.domElement;
   canvas.className = 'slop-3dview';
   canvas.setAttribute('role', 'img');
-  canvas.setAttribute('aria-label', 'The model in 3D. Drag to turn it, scroll to zoom.');
+  canvas.setAttribute('aria-label', tr('ui.d3.view_aria'));
   canvas.style.cssText = 'display:block;width:100%;height:100%;touch-action:none;cursor:grab';
   el.replaceChildren(canvas);
   const scene = new T.Scene();

@@ -22,6 +22,8 @@
   const SCRIPT = document.currentScript;
   const BASE = SCRIPT && SCRIPT.src ? new URL('./', SCRIPT.src).href : new URL('shared/cutout/', location.href).href;
   const conf = { workerUrl: BASE + 'worker.js', init: null, workers: 0 };
+  /** A failure shown to the person (ui.cutout.*), in the chosen language when it happens. */
+  const tr = (k, v) => { const I = window.SlopI18n; return I ? I.t(k, v) : k; };
   // A pool of workers, each with its own ONNX Runtime and model session: without cross-origin isolation WebAssembly runs
   // single-threaded, so separate workers are the only way to segment several images at once. Worker 0 also answers the
   // plain calls (load, cached, info, ping). One more worker, 'edit', holds the jobs made by createJob (the image on screen):
@@ -63,9 +65,9 @@
       if (!p) return;
       if (type === 'progress') { if (p.onProgress) try { p.onProgress(data); } catch (err) { console.warn(err); } return; }
       s.pending.delete(id);
-      if (type === 'error') p.reject(new Error(message || 'Background removal failed')); else p.resolve(data);
+      if (type === 'error') p.reject(new Error(message || tr('ui.cutout.failed'))); else p.resolve(data);
     };
-    s.worker.onerror = (e) => { e.preventDefault(); fail('The background remover stopped' + (e.message ? ': ' + e.message : ' (out of memory?)'), s); };
+    s.worker.onerror = (e) => { e.preventDefault(); fail(e.message ? tr('ui.cutout.stopped_why', { error: e.message }) : tr('ui.cutout.stopped_oom'), s); };
     if (conf.init) s.worker.postMessage({ id: ++seq, type: 'init', data: conf.init });
     slots.set(key, s);
     return s;
@@ -113,7 +115,7 @@
     return new Promise((res, rej) => {
       const url = URL.createObjectURL(blob), img = new Image();
       img.onload = () => { const c = document.createElement('canvas'); c.width = img.naturalWidth || 1024; c.height = img.naturalHeight || 1024; c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url); createImageBitmap(c).then(res, rej); };
-      img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('Could not read this image')); };
+      img.onerror = () => { URL.revokeObjectURL(url); rej(new Error(tr('ui.cutout.unreadable'))); };
       img.src = url;
     });
   }

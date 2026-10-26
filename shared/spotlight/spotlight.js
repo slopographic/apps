@@ -29,6 +29,13 @@
   @media (prefers-color-scheme: light){ .sps-box{background:#fff;color:#111;border-color:#ddd} .sps-in{border-color:#ddd} .sps-pill{background:rgba(255,255,255,.9);color:#111} }`;
 
   let back = null, input = null, list = null, shown = [], sel = 0, apps = null;
+  /** Words: the chrome's (nav.*, switcher.*) and ui.spot.*; an app's name and tagline in the chosen language when the
+   *  tables have it (app.<id>, apptag.<id>), else the registry's. */
+  const I = () => window.SlopI18n;
+  const tr = (k, v) => (I() ? I().t(k, v) : k);
+  const own = (k, fallback) => (I() && I().has(k) ? I().t(k) : fallback);
+  const nameOf = (a) => own('app.' + a.id, a.name);
+  const descOf = (a) => own('apptag.' + a.id, ((window.SLOP_APP_SEARCH || {})[a.id] || {}).desc || a.tagline || '');
 
   function addStyle() {
     const st = document.createElement('style');
@@ -51,7 +58,7 @@
   }
   const hay = (a) => {
     const d = (window.SLOP_APP_SEARCH || {})[a.id] || {};
-    return [a.name, a.tagline, d.desc, ...(d.keywords || [])].join(' ').toLowerCase();
+    return [a.name, nameOf(a), a.tagline, descOf(a), d.desc, ...(d.keywords || [])].join(' ').toLowerCase();
   };
   function matches(q) {
     const words = q.toLowerCase().split(/\s+/).filter(Boolean);
@@ -59,14 +66,14 @@
   }
   function paint() {
     list.replaceChildren();
-    if (!shown.length) { const p = document.createElement('p'); p.className = 'sps-none'; p.textContent = 'No app matches. Try another word.'; list.append(p); return; }
+    if (!shown.length) { const p = document.createElement('p'); p.className = 'sps-none'; p.textContent = tr('ui.spot.none'); list.append(p); return; }
     shown.forEach((a, i) => {
       const li = document.createElement('li');
       li.className = 'sps-item';
       li.setAttribute('role', 'option');
       li.setAttribute('aria-selected', String(i === sel));
-      const n = document.createElement('div'); n.className = 'sps-name'; n.textContent = a.name;
-      const d = document.createElement('div'); d.className = 'sps-desc'; d.textContent = (window.SLOP_APP_SEARCH || {})[a.id]?.desc || a.tagline || '';
+      const n = document.createElement('div'); n.className = 'sps-name'; n.textContent = nameOf(a);
+      const d = document.createElement('div'); d.className = 'sps-desc'; d.textContent = descOf(a);
       li.append(n, d);
       li.addEventListener('mousedown', (e) => { e.preventDefault(); go(a); }); // touch-ok: before the field's blur; a tap sends it too
       list.append(li);
@@ -77,8 +84,8 @@
   function registerWithCommands() {
     const C = window.SlopCmd;
     if (!C || !C.addProvider) return false;
-    C.addProvider({ id: 'slop-apps', title: 'Open an app', search: (q) => matches(q).slice(0, 12).map((a) => ({
-      id: 'app.open.' + a.id, title: a.name, group: 'Apps', keywords: [], run: () => go(a),
+    C.addProvider({ id: 'slop-apps', get title() { return tr('ui.spot.open_app'); }, search: (q) => matches(q).slice(0, 12).map((a) => ({
+      id: 'app.open.' + a.id, title: nameOf(a), group: 'Apps', keywords: [], run: () => go(a),
     })) });
     return true;
   }
@@ -91,25 +98,32 @@
     input.focus();
   }
   function close() { back.classList.remove('on'); }
+  /** Fills the marked words of a part (SlopI18n.apply does it on a switch; this does it when the part is made). */
+  function words(el) {
+    for (const n of [el, ...el.querySelectorAll('[data-i18n],[data-i18n-attr]')]) {
+      if (n.hasAttribute('data-i18n')) n.textContent = tr(n.getAttribute('data-i18n'));
+      for (const pair of (n.getAttribute('data-i18n-attr') || '').split(';')) { const c = pair.indexOf(':'); if (c > 0) n.setAttribute(pair.slice(0, c).trim(), tr(pair.slice(c + 1).trim())); }
+    }
+  }
 
   function build() {
     addStyle();
     const pill = document.createElement('button');
     pill.type = 'button';
     pill.className = 'sps-pill';
-    pill.setAttribute('aria-label', 'All apps');
-    pill.innerHTML = '<span>All apps</span><kbd>Ctrl K</kbd>';
+    pill.setAttribute('data-i18n-attr', 'aria-label:switcher.all_apps');
+    pill.innerHTML = '<span data-i18n="switcher.all_apps"></span><kbd>Ctrl K</kbd>';
     pill.addEventListener('click', () => open());
     const home = document.createElement('a');
     home.className = 'sps-pill';
     home.href = root;
-    home.textContent = 'Home';
+    home.setAttribute('data-i18n', 'nav.home');
     const dock = document.createElement('div');
     dock.className = 'sps-dock';
     dock.append(home, pill);
     back = document.createElement('div');
     back.className = 'sps-back';
-    back.innerHTML = '<div class="sps-box" role="dialog" aria-label="All apps"><input class="sps-in" type="search" placeholder="Find an app" aria-label="Find an app" autocomplete="off"><ul class="sps-list" role="listbox"></ul></div>';
+    back.innerHTML = '<div class="sps-box" role="dialog" data-i18n-attr="aria-label:switcher.all_apps"><input class="sps-in" type="search" data-i18n-attr="placeholder:ui.spot.find;aria-label:ui.spot.find" autocomplete="off"><ul class="sps-list" role="listbox"></ul></div>';
     input = back.querySelector('input');
     list = back.querySelector('.sps-list');
     input.addEventListener('input', () => { shown = matches(input.value).slice(0, 12); sel = 0; paint(); });
@@ -123,6 +137,8 @@
     // A page whose header has the brand (Home) and the shell (Apps) does not need the corner pills: they would repeat them.
     const shell = !!(window.SlopShell || document.querySelector('script[src*="shell/shell.js"]'));
     const header = shell && !!document.querySelector('header a.brand, .smb-brand');
+    // the marked words (data-i18n, data-i18n-attr) are filled now and again by SlopI18n.apply on a language switch
+    for (const el of [dock, back]) words(el);
     document.body.append(...(header ? [] : [dock]), back);
     document.addEventListener('keydown', (e) => {
       if (!window.SlopCmd && (e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) { e.preventDefault(); open(); }

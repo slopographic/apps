@@ -1,6 +1,7 @@
 // Particles and the speech bubble: hearts, sparkles, crumbs, landing dust, goo splats.
 import { M, reduced, rand, clamp, pageW } from './state.js';
 import { size, CW, BASE } from './look.js';
+import { tr } from './lines.js';
 
 const HEART = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.4-4.5-9.5-9.1C1 8.3 3.1 4.6 6.6 4.6c2.1 0 3.6 1.2 5.4 3.2 1.8-2 3.3-3.2 5.4-3.2 3.5 0 5.6 3.7 4.1 7.3C19.4 16.5 12 21 12 21z"/></svg>';
 const STAR = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1l2.6 8.4L23 12l-8.4 2.6L12 23l-2.6-8.4L1 12l8.4-2.6z"/></svg>';
@@ -113,7 +114,7 @@ export async function stream(chunks, ms = 6000, opts = {}) {
   let all = '';
   try {
     for await (const piece of chunks) { all += piece; if (t) { t.textContent = all; placeBubble(); } }
-  } catch (e) { if (!all && t) t.textContent = 'blorp. my brain hiccuped.'; }
+  } catch (e) { if (!all && t) t.textContent = tr('ui.buddy.brain_hiccup'); }
   clearTimeout(sayTimer);
   sayTimer = setTimeout(hush, ms);
   return all;

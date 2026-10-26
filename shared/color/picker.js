@@ -15,13 +15,21 @@
     (kids || []).forEach(function (k) { if (k != null) e.appendChild(typeof k === 'string' ? document.createTextNode(k) : k); });
     return e;
   }
-  function input(label, max, wide) {
+  /** Puts a word (ui.color.*) on an element, as its text or as attr, and marks it so a language switch redraws it
+   *  (data-i18n, data-i18n-attr, data-i18n-vars: SlopI18n.apply). */
+  function word(el, key, attr, vars) {
+    var I = window.SlopI18n, v = I ? I.t(key, vars) : key;
+    if (vars) el.setAttribute('data-i18n-vars', JSON.stringify(vars));
+    if (attr) { el.setAttribute(attr, v); el.setAttribute('data-i18n-attr', attr + ':' + key); } else { el.textContent = v; el.setAttribute('data-i18n', key); }
+    return el;
+  }
+  function input(key, max, wide) {
     var i = document.createElement('input');
     i.type = 'number'; i.min = 0; i.max = max; i.step = 1; i.className = 'scp-n' + (wide ? ' scp-w' : '');
-    i.setAttribute('aria-label', label);
-    return i;
+    return word(i, key, 'aria-label');
   }
-  function field(label, inp) { return E('label', 'scp-f', [E('span', 'scp-fl', [label]), inp]); }
+  /** A field: its short label is a key (ui.color.*) or a symbol shown as it is (#, R, G, B, A %). */
+  function field(label, inp) { var l = E('span', 'scp-fl', /^ui\./.test(label) ? [] : [label]); if (/^ui\./.test(label)) word(l, label); return E('label', 'scp-f', [l, inp]); }
   /** Pointer drag: fn(event) runs on the press and on every move until release.
    *  touch-ok: the field and the bars have touch-action: none (picker.css .scp-sv, .scp-bar), so a finger drags them. */
   function drag(el, fn) {
@@ -47,15 +55,15 @@
     alpha.appendChild(alphaFill); alpha.appendChild(alphaDot);
     var prev = E('div', 'scp-prev scp-checker'), prevFill = E('div', 'scp-prev-fill'); prev.appendChild(prevFill);
     var hexIn = document.createElement('input');
-    hexIn.type = 'text'; hexIn.maxLength = 7; hexIn.spellcheck = false; hexIn.className = 'scp-hex'; hexIn.setAttribute('aria-label', 'Hex colour');
-    var rIn = input('Red', 255), gIn = input('Green', 255), bIn = input('Blue', 255);
-    var hIn = input('Hue', 360), sIn = input('Saturation', 100), vIn = input('Brightness', 100), aIn = input('Alpha', 100);
+    hexIn.type = 'text'; hexIn.maxLength = 7; hexIn.spellcheck = false; hexIn.className = 'scp-hex'; word(hexIn, 'ui.color.hex', 'aria-label');
+    var rIn = input('ui.color.red', 255), gIn = input('ui.color.green', 255), bIn = input('ui.color.blue', 255);
+    var hIn = input('ui.color.hue', 360), sIn = input('ui.color.saturation', 100), vIn = input('ui.color.brightness', 100), aIn = input('ui.color.alpha', 100);
 
     var top = E('div', 'scp-top', [prev, field('#', hexIn)]);
     var rgbRow = E('div', 'scp-row', [field('R', rIn), field('G', gIn), field('B', bIn)]);
-    var hsbRow = E('div', 'scp-row', [field('H', hIn), field('S', sIn), field('Bri', vIn)]);
+    var hsbRow = E('div', 'scp-row', [field('ui.color.h', hIn), field('ui.color.s', sIn), field('ui.color.bri', vIn)]);
     var recentRow = E('div', 'scp-swatches'), paletteRow = E('div', 'scp-swatches');
-    var sections = [E('div', 'scp-sec', [E('span', 'scp-fl', ['Recent']), recentRow])];
+    var sections = [E('div', 'scp-sec', [word(E('span', 'scp-fl'), 'ui.color.recent'), recentRow])];
     if (opts.palette && opts.palette.length) sections.push(E('div', 'scp-sec', [paletteRow]));
     var bars = [sv, E('div', 'scp-bars', alphaOn ? [hue, alpha] : [hue])];
     var rows = [top, E('div', 'scp-grid', [rgbRow, hsbRow].concat(alphaOn ? [E('div', 'scp-row', [field('A %', aIn)])] : []))];
@@ -91,9 +99,9 @@
       A = alphaOn ? c.a : 1;
       render();
     }
-    function swatchBtn(c, cls, label) {
+    function swatchBtn(c, cls, key) {
       var b = E('button', 'scp-sw scp-checker' + (cls ? ' ' + cls : ''));
-      b.type = 'button'; b.title = c; b.setAttribute('aria-label', label + ' ' + c);
+      b.type = 'button'; b.title = c; word(b, key, 'aria-label', { color: c });
       b.appendChild(E('span', 'scp-sw-fill')); b.firstChild.style.background = c;
       b.addEventListener('click', function () { set(c); change(); });
       return b;
@@ -101,10 +109,10 @@
     function renderRecent() {
       recentRow.textContent = '';
       var list = recents && recents.list ? recents.list() : [];
-      list.slice(0, 12).forEach(function (c) { recentRow.appendChild(swatchBtn(c, 'scp-recent', 'Recent colour')); });
-      if (!list.length) recentRow.appendChild(E('span', 'scp-none', ['None yet']));
+      list.slice(0, 12).forEach(function (c) { recentRow.appendChild(swatchBtn(c, 'scp-recent', 'ui.color.recent_sw')); });
+      if (!list.length) recentRow.appendChild(word(E('span', 'scp-none'), 'ui.color.none_yet'));
     }
-    (opts.palette || []).forEach(function (c) { paletteRow.appendChild(swatchBtn(c, '', 'Palette colour')); });
+    (opts.palette || []).forEach(function (c) { paletteRow.appendChild(swatchBtn(c, '', 'ui.color.palette_sw')); });
 
     drag(sv, function (e) {
       var r = sv.getBoundingClientRect(); if (!r.width || !r.height) return;

@@ -12,7 +12,9 @@ const MASCOT = /*profile:mascot*/true;
 // A profile with its own mascot ("mascot": { "overlay": ... }): the same toggle loads the mascot slot (shared/mascot/slot.js)
 // with the overlay copied to brand/mascot/, in place of this buddy's engine.
 const OVERLAY = /*profile:mascotOverlay*/false;
-let NAME = 'Sloppo';
+let NAME = 'Sloppo', named = false;
+/** A word of the toggle in the chosen language (ui.buddy.*, shared/i18n/ui/<code>/buddy.js). */
+const tr = (k, v) => { const I = window.SlopI18n; return I ? I.t(k, v) : k; };
 const SHORTCUT = (e) => e.altKey && e.shiftKey && !e.ctrlKey && !e.metaKey && (e.code === 'KeyS' || e.key === 'S' || e.key === 's');
 
 /** Which app is this? SlopHub's id, the html data-app attribute, or the registry path. */
@@ -77,7 +79,7 @@ function makeToggle() {
   }
   btn = document.createElement('div');
   btn.className = 'buddy-toggle';
-  btn.innerHTML = `<button type="button" class="bt-main" aria-pressed="false" title="Sloppo buddy (Alt+Shift+S)">${FACE}</button><button type="button" class="bt-more" aria-label="Sloppo menu" title="Sloppo menu" hidden>⋯</button>`;
+  btn.innerHTML = `<button type="button" class="bt-main" aria-pressed="false">${FACE}</button><button type="button" class="bt-more" hidden>⋯</button>`;
   if (OVERLAY) overlayFace(btn.querySelector('.bt-main'));
   Object.assign(btn.style, { position: 'fixed', zIndex: String((cfg.z || 900) + 2), width: '44px', height: '44px' });
   const main = btn.querySelector('.bt-main');
@@ -106,6 +108,8 @@ function makeToggle() {
   main.addEventListener('click', () => { if (main.dataset.moved) { delete main.dataset.moved; return; } toggle(); });
   btn.querySelector('.bt-more').addEventListener('click', () => engine && engine.toggleHud());
   document.body.append(btn);
+  render();
+  if (window.SlopI18n && window.SlopI18n.on) window.SlopI18n.on(render);
   addEventListener('resize', () => place(parseFloat(btn.style.right), parseFloat(btn.style.bottom)));
 }
 /** The overlay's flat icon and name on the toggle (its icon module is small; the mascot itself loads when switched on). */
@@ -114,7 +118,7 @@ async function overlayFace(main) {
   if (!m) return;
   main.innerHTML = m.svg(36, false);
   NAME = m.name || NAME;
-  main.title = `${NAME} (Alt+Shift+S)`;
+  named = true;
   render();
 }
 function place(right, bottom) {
@@ -125,7 +129,11 @@ function render() {
   if (!btn) return;
   const main = btn.querySelector('.bt-main');
   main.setAttribute('aria-pressed', String(on));
-  main.setAttribute('aria-label', on ? `Hide ${NAME} (Alt+Shift+S)` : `Show ${NAME} (Alt+Shift+S)`);
+  main.title = named ? `${NAME} (Alt+Shift+S)` : tr('ui.buddy.toggle_tip');
+  main.setAttribute('aria-label', tr(on ? 'ui.buddy.hide_name' : 'ui.buddy.show_name', { name: NAME }));
+  const more = btn.querySelector('.bt-more');
+  more.title = tr('ui.buddy.menu');
+  more.setAttribute('aria-label', more.title);
   btn.classList.toggle('is-on', on);
   btn.querySelector('.bt-more').hidden = !on || cfg.home || OVERLAY;
   btn.hidden = on && OVERLAY;   // one presence: a profile's mascot is its own button (shared/mascot/ui.js) while it shows
