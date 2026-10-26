@@ -4,5 +4,5 @@ window.SlopI18n && window.SlopI18n.source({
   ns: 'timesheets',
   base: ((document.currentScript || {}).src || '').replace(/[^/]*$/, ''),
   parts: ['page', 'views'],
-  langs: ['en', 'sv'],
+  langs: ['en', 'sv', 'zh-CN'],
 });
