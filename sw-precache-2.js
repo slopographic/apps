@@ -56,7 +56,8 @@ PRECACHE.push(
   '/recorder/css/recorder.css', '/recorder/index.html', '/recorder/js/capture.js', '/recorder/js/commands.js', '/recorder/js/core/plan.js',
   '/recorder/js/core/state.js', '/recorder/js/core/support.js', '/recorder/js/core/webm.js', '/recorder/js/main.js', '/recorder/js/output.js',
   '/recorder/js/record.js', '/recorder/js/save.js', '/recorder/js/settings.js', '/recorder/js/view.js', '/reminders/css/reminders.css',
-  '/reminders/index.html', '/reminders/js/app.js', '/remix/css/remix-auto.css', '/remix/css/remix.css', '/remix/index.html', '/remix/js/ai-commands.js',
+  '/reminders/index.html', '/reminders/js/app.js', '/remix/css/remix-auto.css', '/remix/css/remix.css', '/remix/i18n/en/lists.js', '/remix/i18n/en/page.js',
+  '/remix/i18n/en/status.js', '/remix/i18n/en/tour.js', '/remix/i18n/en/ui.js', '/remix/i18n/index.js', '/remix/index.html', '/remix/js/ai-commands.js',
   '/remix/js/ai-spec.js', '/remix/js/audio.js', '/remix/js/auto.js', '/remix/js/config-map.js', '/remix/js/config.js', '/remix/js/core.js',
   '/remix/js/drop.js', '/remix/js/export.js', '/remix/js/fab.js', '/remix/js/fx.js', '/remix/js/intake.js', '/remix/js/items.js', '/remix/js/keys.js',
   '/remix/js/moves.js', '/remix/js/panel.js', '/remix/js/preview.js', '/remix/js/randomise.js', '/remix/js/send.js', '/remix/js/side.js', '/remix/js/ui.js',
@@ -200,6 +201,5 @@ PRECACHE.push(
   '/slopcut/js/ai/cmd-clips.js', '/slopcut/js/ai/cmd-export.js', '/slopcut/js/ai/cmd-project.js', '/slopcut/js/ai/cmd-text.js', '/slopcut/js/ai/core.js',
   '/slopcut/js/ai/host.js', '/slopcut/js/core/anim.js', '/slopcut/js/core/edit.js', '/slopcut/js/core/fit.js', '/slopcut/js/core/fx-random.js',
   '/slopcut/js/core/history.js', '/slopcut/js/core/lane.js', '/slopcut/js/core/layout.js', '/slopcut/js/core/mask.js', '/slopcut/js/core/model.js',
-  '/slopcut/js/core/pick.js', '/slopcut/js/core/random-edit.js', '/slopcut/js/core/util.js', '/slopcut/js/core/zip.js', '/slopcut/js/io/build.js',
 );
 // END PRECACHE

@@ -20,17 +20,17 @@
     const missing = items.filter((m) => m.missing);
     if (missing.length && window.SlopUI) {
       SlopUI.dialog({
-        title: 'Add the clips for this config',
+        title: RM.t('remix.config.add_title'),
         body: SlopUI.el('div', null,
-          SlopUI.el('p', { class: 'sui-p' }, 'The reel is set up. These clips are not loaded yet. Add them; each one is matched by its name, and the edit is planned again:'),
+          SlopUI.el('p', { class: 'sui-p' }, RM.t('remix.config.add_body')),
           SlopUI.el('ul', { class: 'sui-errors' }, missing.map((m) => SlopUI.el('li', null, `${m.name} (${MB(m.size || 0)})`)))),
-        buttons: [{ label: 'Later' }, { label: 'Add files…', primary: true, act: () => { window.SlopIntake.pick({ to: 'remix' }); } }],
+        buttons: [{ label: RM.t('remix.config.later') }, { label: RM.t('remix.config.add_files'), primary: true, act: () => { window.SlopIntake.pick({ to: 'remix' }); } }],
       });
     }
   }
 
   C.registerKind('project', APP, CM.SCHEMA, apply, {
-    label: 'Reel', description: 'Clips by name and size, plan options, layout lane, locks and keyframes',
+    label: 'Reel', description: 'Clips by name and size, plan options, layout lane, locks and keyframes', // i18n-ignore: the config kind (shared/config, API)
     check: CM.check,
     read: () => CM.toData(RM.state, RM.size()),
   });

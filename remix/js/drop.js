@@ -28,10 +28,10 @@
   };
   /** Replace a slot with a bin item and redraw the plan. */
   function place(ci, slot, id) {
-    const name = (RM.state.items.find((x) => x.id === id) || {}).name || 'clip';
-    if (!RM.replaceSlot(ci, slot, id)) { opts.say('That slot is not in the plan'); return; }
+    const name = (RM.state.items.find((x) => x.id === id) || {}).name || RM.t('remix.drop.clip');
+    if (!RM.replaceSlot(ci, slot, id)) { opts.say(RM.t('remix.drop.no_slot')); return; }
     opts.redraw();
-    opts.say('Put ' + name + ' in cut ' + (ci + 1) + ', slot ' + (slot + 1) + '. Remix or Reshuffle plans again and clears this.');
+    opts.say(RM.t('remix.drop.put', { name, cut: ci + 1, slot: slot + 1 }));
   }
   /** Make a cut item (a span in the cut list) a drop target for bin items. */
   D.cutTargets = function (el, ci, slot) {
@@ -56,10 +56,10 @@
     stage.addEventListener('drop', (e) => { // intake-ok: a bin clip dropped on a slot, not a file
       if (!isItem(e)) return;
       e.preventDefault(); stage.classList.remove('over');
-      if (!RM.state.plan) { o.say('Press Remix first, then drop a clip on a slot'); return; }
+      if (!RM.state.plan) { o.say(RM.t('remix.drop.first')); return; }
       const hit = D.slotAt(e.clientX, e.clientY);
       if (hit) place(hit.cut, hit.slot, itemId(e));
-      else o.say('Drop the clip on a slot in the preview, or on a cut in the list');
+      else o.say(RM.t('remix.drop.miss'));
     });
   };
 })();

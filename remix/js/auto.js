@@ -30,13 +30,13 @@
   function cancel(quiet) {
     if (timer) { clearTimeout(timer); timer = null; }
     hide();
-    if (!quiet && RM.say) RM.say('Auto remix cancelled. Press Remix or Randomise when you are ready.');
+    if (!quiet && RM.say) RM.say(RM.t('remix.auto.cancelled'));
   }
   /** Show the banner and start the wait (one wait at a time; a later batch joins it). */
   function start() {
     if (!RM.auto.enabled() || !RM.pendingCount()) { cancel(true); return; }
     const n = RM.media().length;
-    show('Remixing ' + n + ' clip' + (n === 1 ? '' : 's') + '…');
+    show(RM.t('remix.auto.remixing', { n }));
     if (!timer) timer = setTimeout(run, WAIT_MS);
   }
   function run() {

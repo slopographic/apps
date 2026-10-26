@@ -56,6 +56,17 @@ Covers: pdf/i18n/sv/menus.js
 Covers: pdf/i18n/sv/redact.js
 Covers: pdf/i18n/sv/tools.js
 Covers: pdf/i18n/sv/tools2.js
+Covers: remix/i18n/en/lists.js
+Covers: remix/i18n/en/page.js
+Covers: remix/i18n/en/status.js
+Covers: remix/i18n/en/tour.js
+Covers: remix/i18n/en/ui.js
+Covers: remix/i18n/index.js
+Covers: remix/i18n/sv/lists.js
+Covers: remix/i18n/sv/page.js
+Covers: remix/i18n/sv/status.js
+Covers: remix/i18n/sv/tour.js
+Covers: remix/i18n/sv/ui.js
 Covers: shared/i18n/af.js
 Covers: shared/i18n/am.js
 Covers: shared/i18n/ar.js

@@ -1,13 +1,11 @@
-/* SlopTour: Reel Remix. Targets are ids in remix/index.html. */
-SlopTour.define({
-  app: 'remix',
-  title: 'Reel Remix tour',
-  steps: [
-    { id: 'clips', title: 'Add clips', text: 'Drop clips and photos here. Each one fills a slot in the reel.', target: '#rm-drop' },
-    { id: 'preview', title: 'Preview', text: 'The reel plays here. Use Play, or drag the playhead under it to scrub.', target: '#rm-stage' },
-    { id: 'keys', title: 'Keyframes', text: 'Pick a slot, then add keys at the playhead and choose an ease.', target: '#rm-keys' },
-    { id: 'layout', title: 'Layout', text: 'Pick the grid layout. Random switches layouts at points you choose.', target: '#rm-base' },
-    { id: 'export', title: 'Export', text: 'Render the reel at the export preset and save it.', target: '#rm-export' },
-    { id: 'config', title: 'Config', text: 'Export or import the reel as a .slop.json config.', target: '#rm-config' },
-  ],
-});
+/* SlopTour: Reel Remix. Targets are ids in remix/index.html. The words are in remix/i18n (remix.tour.*), read when
+   the tour shows them, so they follow the chosen language. */
+(function () {
+  const t = (k) => (globalThis.SlopI18n ? SlopI18n.t(k) : k);
+  const step = (id, target) => ({ id, target, get title() { return t('remix.tour.' + id); }, get text() { return t('remix.tour.' + id + '_text'); } });
+  SlopTour.define({
+    app: 'remix',
+    get title() { return t('remix.tour.title'); },
+    steps: [step('clips', '#rm-drop'), step('preview', '#rm-stage'), step('keys', '#rm-keys'), step('layout', '#rm-base'), step('export', '#rm-export'), step('config', '#rm-config')],
+  });
+})();

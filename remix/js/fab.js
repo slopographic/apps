@@ -15,7 +15,7 @@
     const n = RM.pendingCount();
     b.classList.toggle('pulse', n > 0 || !RM.state.plan);
     $('rm-remix').classList.toggle('pulse', n > 0 || !RM.state.plan);   // the panel's Remix (side.js) carries the pulse
-    b.title = (n ? 'Remix the ' + n + ' new clip' + (n === 1 ? '' : 's') : 'Remix') + '. Long press for settings.';
+    b.title = n ? RM.t('remix.fab.title_n', { n }) : RM.t('remix.fab.title');
   }
   function openSettings() {
     const d = $('rm-settings'); if (!d) return;
@@ -42,13 +42,17 @@
   $('rm-set-close').addEventListener('click', closeSettings);
   $('rm-set-auto').addEventListener('change', (e) => {
     RM.auto.setEnabled(e.target.checked);
-    if (RM.say) RM.say(e.target.checked ? 'Auto remix is on: new clips are remixed when their upload finishes.' : 'Auto remix is off: press Remix to plan new clips.');
+    if (RM.say) RM.say(RM.t(e.target.checked ? 'remix.fab.auto_on' : 'remix.fab.auto_off'));
   });
   $('rm-settings').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeSettings(); }); // a click on the backdrop
   RM.onPlan(refresh);
   RM.fab = { refresh, openSettings };
   refresh();
-  try {
-    if (window.SlopCmd && SlopCmd.register) SlopCmd.register([{ id: 'remix.settings', title: 'Remix settings', group: 'Reel Remix', run: openSettings }]);
-  } catch (e) { console.warn('Remix: settings command not registered', e); }
+  const reg = () => {   // the palette title in the chosen language (again after a change)
+    try {
+      if (window.SlopCmd && SlopCmd.register) SlopCmd.register([{ id: 'remix.settings', title: RM.t('remix.page.settings_title'), group: 'Reel Remix', run: openSettings }]); // i18n-ignore: the app's name
+    } catch (e) { console.warn('Remix: settings command not registered', e); }
+  };
+  reg();
+  RM.onLang(() => { reg(); refresh(); });
 })();

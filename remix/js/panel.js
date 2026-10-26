@@ -3,7 +3,7 @@
    the slot's window (drag it, or Left and Right keys; Delete removes the selected key). Exposes RM.panel. */
 (function () {
   'use strict';
-  const RM = window.RM, SV = window.SlopVideo, KF = SV.keys, FX = SV.effects, $ = (id) => document.getElementById(id);
+  const RM = window.RM, SV = window.SlopVideo, KF = SV.keys, FX = SV.effects, $ = (id) => document.getElementById(id), tx = RM.t;
   const P = (RM.panel = {});
   const say = (msg) => { if (RM.say) RM.say(msg); };
 
@@ -20,7 +20,7 @@
       b.type = 'button'; b.className = 'rm-kkey' + (i === RM.state.selKey ? ' on' : '');
       b.setAttribute('data-touch-hit', ''); // a 44 px grab area for a finger (shared/input/touch.css); touch-ok: .rm-kkey has touch-action: none
       b.style.left = (cur.span > 0 ? (k.t / cur.span) * 100 : 0) + '%';
-      b.title = 'Key ' + (i + 1) + ' at ' + k.t.toFixed(2) + ' s. Drag, or Left and Right keys. Delete removes it.';
+      b.title = tx('remix.keys.key_tip', { n: i + 1, t: k.t.toFixed(2) });
       b.setAttribute('aria-label', b.title); b.setAttribute('aria-pressed', String(i === RM.state.selKey));
       b.addEventListener('pointerdown', (e) => dragKey(e, i, cur));
       b.addEventListener('keydown', (e) => keyKey(e, i, cur));
@@ -43,7 +43,7 @@
     b.addEventListener('pointermove', move); b.addEventListener('pointerup', up); b.addEventListener('pointercancel', up);
   }
   function keyKey(e, i, cur) {
-    if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); RM.keys.remove(i); say('Key ' + (i + 1) + ' deleted.'); P.changed(); return; }
+    if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); RM.keys.remove(i); say(tx('remix.keys.key_n_deleted', { n: i + 1 })); P.changed(); return; }
     const step = e.key === 'ArrowLeft' ? -0.05 : e.key === 'ArrowRight' ? 0.05 : 0;
     if (!step) return;
     e.preventDefault();
@@ -55,18 +55,18 @@
     const st = RM.state, plan = st.plan, cur = RM.keys.current();
     const ci = RM.keys.cutAt(RM.preview.t), beat = plan && ci >= 0 ? plan.cuts[ci] : [];
     const slots = $('rm-kslot');
-    slots.replaceChildren(...beat.map((x) => new Option('Slot ' + (x.slot + 1), String(x.slot))));
+    slots.replaceChildren(...beat.map((x) => new Option(tx('remix.ui.slot_btn', { n: x.slot + 1 }), String(x.slot))));
     if (cur) slots.value = String(cur.item.slot);
     const on = !!cur;
     // rm-ksave is made in the setup code below, so it may not exist yet when the first render runs.
     ['rm-kslot', 'rm-kease', 'rm-kadd', 'rm-kdel', 'rm-kpreset', 'rm-kanim', 'rm-kreset', 'rm-ksave'].forEach((id) => { const el = $(id); if (el) el.disabled = !on; });
     $('rm-ktrack').classList.toggle('off', !on);
-    if (!on) { $('rm-ktrack').replaceChildren(); $('rm-kinfo').textContent = plan ? 'The playhead is outside the cuts.' : 'Press Remix to plan the reel, then add keys.'; return; }
+    if (!on) { $('rm-ktrack').replaceChildren(); $('rm-kinfo').textContent = tx(plan ? 'remix.keys.outside' : 'remix.keys.plan_first'); return; }
     markers(cur);
     const sel = cur.keys[st.selKey];
     $('rm-kease').value = sel ? sel.ease : 'linear';
-    $('rm-kinfo').textContent = 'Cut ' + (ci + 1) + ', slot ' + (cur.item.slot + 1) + ': ' + cur.keys.length + ' key' + (cur.keys.length === 1 ? '' : 's') +
-      ' in ' + cur.span.toFixed(2) + ' s' + (sel ? ' · key ' + (st.selKey + 1) + ' at ' + sel.t.toFixed(2) + ' s' : '');
+    $('rm-kinfo').textContent = tx('remix.keys.info', { cut: ci + 1, slot: cur.item.slot + 1, keys: tx('remix.keys.keys_n', { n: cur.keys.length }), span: cur.span.toFixed(2) }) +
+      (sel ? ' · ' + tx('remix.keys.sel', { n: st.selKey + 1, t: sel.t.toFixed(2) }) : '');
   };
   /** The effect layer's controls, from the state. */
   P.effectControls = function () {
@@ -79,8 +79,8 @@
   P.effectRow = function () {
     const e = RM.state.effect, li = document.createElement('li');
     li.className = 'rm-fxrow';
-    const when = e.kind === 'random' ? (e.change === 'reel' ? ', once for the whole reel' : ', changes at every cut') : '';
-    li.textContent = 'Effect layer: ' + FX.name(e.kind) + (e.kind === 'none' ? '' : ' · ' + Math.round(e.intensity * 100) + '%' + when);
+    const when = e.kind === 'random' ? ', ' + tx(e.change === 'reel' ? 'remix.keys.fx_reel' : 'remix.keys.fx_cut') : '';
+    li.textContent = tx('remix.keys.fx_row', { fx: RM.tn('fx', e.kind, FX.name(e.kind)) }) + (e.kind === 'none' ? '' : ' · ' + Math.round(e.intensity * 100) + '%' + when);
     return li;
   };
   /** Sets the plan's option controls from the state (after Reset all). */
@@ -94,39 +94,44 @@
   };
   /** Wires the keyframe row and the effect controls. Called once by ui.js. */
   P.init = function () {
-    const fxList = FX.KINDS.map(([v, l]) => new Option(l, v));
-    $('rm-fx').replaceChildren(...fxList);
-    $('rm-fxchange').replaceChildren(...FX.CHANGE.map(([v, l]) => new Option(l, v)));
-    $('rm-kease').replaceChildren(...KF.EASES.map(([v, l]) => new Option(l, v)));
+    const lists = () => {   // again after a language change, keeping the choices
+      const keep = ['rm-fx', 'rm-fxchange', 'rm-kease'].map((id) => $(id).value);
+      $('rm-fx').replaceChildren(...RM.tl('fx', FX.KINDS).map(([v, l]) => new Option(l, v)));
+      $('rm-fxchange').replaceChildren(...RM.tl('change', FX.CHANGE).map(([v, l]) => new Option(l, v)));
+      $('rm-kease').replaceChildren(...RM.tl('ease', KF.EASES).map(([v, l]) => new Option(l, v)));
+      ['rm-fx', 'rm-fxchange', 'rm-kease'].forEach((id, i) => { if (keep[i]) $(id).value = keep[i]; });
+    };
+    lists();
     /* Animate in choices: the shared motion library when it is on the page (refreshed when presets change), else the built-ins. */
-    const presetOptions = () => (window.SlopPresets ? SlopPresets.list({ kind: 'motion', app: 'remix' }).map((p) => new Option(p.label, p.id)) : KF.ANIMATE.map(([v, l]) => new Option(l, v)));
+    const presetOptions = () => (window.SlopPresets ? SlopPresets.list({ kind: 'motion', app: 'remix' }).map((p) => new Option(p.label, p.id)) : RM.tl('anim', KF.ANIMATE).map(([v, l]) => new Option(l, v)));
     const fillPresets = () => $('rm-kpreset').replaceChildren(...presetOptions());
     fillPresets();
     window.addEventListener('slop-presets:change', fillPresets);
     if (window.SlopPresets) SlopPresets.useDrive().catch(() => null);
     const saveKeys = document.createElement('button');
     saveKeys.type = 'button'; saveKeys.id = 'rm-ksave'; saveKeys.className = 'rm-btn';
-    saveKeys.title = "Save this slot's keys as a motion preset (works in Slides and Slop Cut too)";
-    saveKeys.textContent = 'Save as preset…';
+    saveKeys.title = tx('remix.keys.save_tip'); saveKeys.dataset.i18nAttr = 'title:remix.keys.save_tip';
+    saveKeys.textContent = tx('remix.keys.save'); saveKeys.dataset.i18n = 'remix.keys.save';
     $('rm-kanim').after(saveKeys);
     saveKeys.addEventListener('click', () => {
       if (!window.SlopPresets) return;
       const cur = RM.keys.current();
-      SlopPresets.openSave({ app: 'remix', apps: SlopPresets.MOTION_APPS, kinds: ['motion'], title: 'Save slot motion as preset', build: () => (cur ? RM.keys.motionParams(cur.keys) : null) });
+      SlopPresets.openSave({ app: 'remix', apps: SlopPresets.MOTION_APPS, kinds: ['motion'], title: tx('remix.keys.save_title'), build: () => (cur ? RM.keys.motionParams(cur.keys) : null) });
     });
     $('rm-kslot').addEventListener('change', (e) => { RM.state.kslot = +e.target.value; RM.state.selKey = 0; P.renderKeys(); });
-    $('rm-kease').addEventListener('change', (e) => { RM.keys.setEase(RM.state.selKey, e.target.value); P.changed(false); P.renderKeys(); say('Ease: ' + e.target.options[e.target.selectedIndex].text + '.'); });
-    $('rm-kadd').addEventListener('click', () => { if (RM.keys.addAtPlayhead()) { P.changed(); say('Key added at the playhead.'); } });
-    $('rm-kdel').addEventListener('click', () => { if (RM.keys.remove(RM.state.selKey)) { P.changed(); say('Key deleted.'); } });
-    $('rm-kanim').addEventListener('click', () => { const name = $('rm-kpreset').value; if (RM.keys.animateIn(name)) { P.changed(); say('Animate in: ' + $('rm-kpreset').options[$('rm-kpreset').selectedIndex].text + ' over the first ' + KF.ANIM_SECONDS + ' s.'); } });
-    $('rm-kreset').addEventListener('click', () => { if (RM.keys.reset()) { P.changed(); say('Keys of this slot reset.'); } });
-    $('rm-fx').addEventListener('change', (e) => { RM.setEffect({ kind: e.target.value }); P.effectControls(); P.changed(); say('Effect: ' + FX.name(RM.state.effect.kind) + '.'); });
-    $('rm-fxchange').addEventListener('change', (e) => { RM.setEffect({ change: e.target.value }); P.changed(); say('Effect changes: ' + e.target.options[e.target.selectedIndex].text + '.'); });
+    $('rm-kease').addEventListener('change', (e) => { RM.keys.setEase(RM.state.selKey, e.target.value); P.changed(false); P.renderKeys(); say(tx('remix.keys.ease', { ease: e.target.options[e.target.selectedIndex].text })); });
+    $('rm-kadd').addEventListener('click', () => { if (RM.keys.addAtPlayhead()) { P.changed(); say(tx('remix.keys.added')); } });
+    $('rm-kdel').addEventListener('click', () => { if (RM.keys.remove(RM.state.selKey)) { P.changed(); say(tx('remix.keys.deleted')); } });
+    $('rm-kanim').addEventListener('click', () => { const name = $('rm-kpreset').value; if (RM.keys.animateIn(name)) { P.changed(); say(tx('remix.keys.animated', { name: $('rm-kpreset').options[$('rm-kpreset').selectedIndex].text, s: KF.ANIM_SECONDS })); } });
+    $('rm-kreset').addEventListener('click', () => { if (RM.keys.reset()) { P.changed(); say(tx('remix.keys.reset')); } });
+    $('rm-fx').addEventListener('change', (e) => { RM.setEffect({ kind: e.target.value }); P.effectControls(); P.changed(); say(tx('remix.keys.effect', { fx: RM.tn('fx', RM.state.effect.kind, FX.name(RM.state.effect.kind)) })); });
+    $('rm-fxchange').addEventListener('change', (e) => { RM.setEffect({ change: e.target.value }); P.changed(); say(tx('remix.keys.fx_changes', { when: e.target.options[e.target.selectedIndex].text })); });
     $('rm-fxint').addEventListener('input', (e) => { RM.setEffect({ intensity: +e.target.value / 100 }); P.effectControls(); P.changed(false); });
     $('rm-fxint').addEventListener('change', (e) => { RM.setEffect({ intensity: +e.target.value / 100 }); P.effectControls(); P.changed(); });
-    $('rm-fxreset').addEventListener('click', () => { RM.setEffect(FX.DEFAULT); P.effectControls(); P.changed(); say('Effect layer reset.'); });
-    $('rm-resetall').addEventListener('click', () => { RM.resetAll(); P.sync(); if (RM.renderPlan) RM.renderPlan(); say('Reset all: the plan is back to its defaults. The clips are kept.'); });
+    $('rm-fxreset').addEventListener('click', () => { RM.setEffect(FX.DEFAULT); P.effectControls(); P.changed(); say(tx('remix.keys.fx_reset')); });
+    $('rm-resetall').addEventListener('click', () => { RM.resetAll(); P.sync(); if (RM.renderPlan) RM.renderPlan(); say(tx('remix.keys.reset_all')); });
     P.effectControls();
     P.renderKeys();
+    RM.onLang(() => { lists(); fillPresets(); P.effectControls(); });
   };
 })();
