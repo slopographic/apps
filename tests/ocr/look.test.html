@@ -39,7 +39,7 @@
       const D = await open(1280);
       const where = D.getElementById('ui').hidden ? '#intro' : '#drop';
       expect(D.querySelectorAll(where + ' .sd-steps li').length).toBe(3);
-      expect(D.querySelector(where + ' .sd-pic img').getAttribute('src')).toBe('../assets/shots/ocr.jpg');
+      SlopTest.shot(D.querySelector(where + ' .sd-pic img'), '../assets/shots/ocr.jpg');
       expect([...D.querySelectorAll('.sd-preview')].filter(shown).length).toBe(1);
     }, { timeout: 40000 });
 

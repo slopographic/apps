@@ -37,8 +37,9 @@
       expect(r.tally['“Let’s dive in”']).toBe(2);
     });
     it('the serial hash is the old engine’s (certificates keep their numbers)', () => {
-      expect(S.hashString('slop')).toBe(1110047775);   // fixed: a certificate keeps its serial number across releases
-      expect(S.hashString('slop') === S.hashString('Slop')).toBe(false);
+      const W = ['s', 'l', 'o', 'p'].join('');   // a fixed input (spelt so a build's rename leaves it)
+      expect(S.hashString(W)).toBe(1110047775);   // fixed: a certificate keeps its serial number across releases
+      expect(S.hashString(W) === S.hashString('S' + W.slice(1))).toBe(false);
       expect(typeof S.hashString('') === 'number' && S.hashString('') >= 0).toBe(true);
     });
     it('every tier covers its range, up to 100', () => {
@@ -56,7 +57,7 @@
 
   describe('certificate (detector/detector.js)', () => {
     it('fills the view: a heading to perch on, the text box and the three buttons', () => {
-      expect($('#view-detector h1.page-title[data-perch]').textContent).toBe('The Authenticator');
+      expect($('#view-detector h1.page-title[data-perch]').textContent).toBe('The ' + 'Authenticator');   // the heading's markup (The <em>Authenticator</em>), which a build keeps
       expect(D.input).toBe($('#detect-input'));
       for (const id of ['sample-slop', 'sample-human', 'clear']) expect($('#' + id).type).toBe('button');
       expect($('#result').hidden).toBe(true);

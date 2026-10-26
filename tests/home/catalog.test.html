@@ -33,12 +33,13 @@
       for (const a of win.SLOP_APPS.filter((x) => x.kind === 'app')) {
         const card = doc.querySelector(`.app-card[data-id="${a.id}"]`);
         // A converter card shows its one-line "in and out" from SECTIONS, so the tagline is one of the two.
-        const lines = [a.tagline].concat([].concat(win.SlopHomeSections.SECTIONS[a.id] || []).map((p) => p.line).filter(Boolean));
+        const lines = [a.tagline, win.slopAppTagline(a)].concat([].concat(win.SlopHomeSections.SECTIONS[a.id] || []).map((p) => p.line).filter(Boolean));
         expect(lines.includes(card.querySelector('.app-tag').textContent)).toBe(true);
         expect(card.querySelector('.feats')).toBe(null);
         const badge = card.querySelector('.badge');
+        if (BRAND_FACTS.tone === 'plain' && a.status === 'live') { expect(badge).toBe(null); continue; }   // a plain build badges only what is not ready
         expect(badge.classList.contains(a.status)).toBe(true);
-        expect(badge.textContent).toBe(labels[a.status]);
+        expect(badge.textContent).toBe(BRAND_FACTS.tone === 'plain' ? HomeTest.words(win, 'status.' + a.status) : labels[a.status]);
       }
     });
     it('every app card draws its own Sloppo badge, a lime tile holding the glyph', async () => {
@@ -59,7 +60,10 @@
       const apps = win.SLOP_APPS;
       expect(doc.querySelectorAll('#status-board .status-row').length).toBe(apps.length);
       const live = apps.filter((a) => a.status === 'live').length;
-      expect(doc.getElementById('status-sum').textContent).toContain(`${apps.length} projects: ${live} live`);
+      if (BRAND_FACTS.tone === 'plain') {   // the plain wording (plain.home.status_sum)
+        const count = (s) => apps.filter((a) => a.status === s).length;
+        expect(doc.getElementById('status-sum').textContent).toContain(HomeTest.words(win, 'home.status_sum', { n: apps.length, live, beta: count('beta'), building: count('building') }));
+      } else expect(doc.getElementById('status-sum').textContent).toContain(`${apps.length} projects: ${live} live`);
       // In development first, live last.
       const states = [...doc.querySelectorAll('#status-board .dot')].map((d) => d.className.split(' ')[1]);
       const rank = { building: 0, beta: 1, live: 2 };
@@ -107,7 +111,7 @@
       expect(+doc.getElementById('score').textContent).toBeGreaterThanOrEqual(0);
       doc.querySelector('.brand').click();
     });
-    it('clicks on the mascot do not count as navigation', async () => {
+    if (BRAND_FACTS.mascot === 'builtin') it('clicks on the mascot do not count as navigation', async () => {   // the built-in one (tests/brand-facts.js)
       await ready;
       await HomeTest.settled(win);
       doc.documentElement.style.scrollBehavior = 'auto';

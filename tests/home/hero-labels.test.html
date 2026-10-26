@@ -118,7 +118,7 @@
       expect(win.SlopGlobe.labels().length).toBeLessThanOrEqual(L().limit(false, true));
       expect(doc.querySelector('.gx-layer').classList.contains('gx-narrow')).toBe(true);
       const l = win.SlopGlobe.labels()[0].el;
-      expect(win.getComputedStyle(l).fontSize).toBe('10px');
+      expect(win.getComputedStyle(l).fontSize).toBe(BRAND_FACTS.tone === 'plain' ? '12.5px' : '10px');   // the plain tone's labels (style/tone.css)
       await sleep(400);
       noOverlap();
       for (const b of boxes()) expect(b.left >= 0 && b.right <= 390).toBe(true);

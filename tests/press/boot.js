@@ -1,5 +1,5 @@
 /* Shared setup for the Slop Press app tests: waits for the app in #app (a same-origin iframe) and exposes
-   its namespace. The app runs with ?fresh so autosave never leaks between test pages. */
+   its namespace. The app runs with ?new so autosave never leaks between test pages. */
 /* exported W, PR, bootPress, freshDoc, frameApp, ascii, loadPdfjs */
 var W, PR;
 function appReady(win) { try { return !!(win && win.document.querySelector('#app.ready') && win.PR); } catch (e) { return false; } }

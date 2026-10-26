@@ -47,7 +47,7 @@
       const got = [];
       const d = SlopDrop.attach(document.getElementById('zone'), {
         accept: { types: ['image/*'], noun: 'a picture' }, toast: false,
-        preview: { picture: { src: '../../assets/shots/sorter.jpg', alt: 'Result' }, steps: ['Drop', 'Sort', 'Save'] },
+        preview: { picture: { src: '../ocr/fixtures/swedish.png', alt: 'Result' }, steps: ['Drop', 'Sort', 'Save'] },
         sample: { label: 'Try 2 sample photos', files: () => SlopSamples.photos(2, { width: 60, height: 40 }) },
         process: async (f) => { got.push(f.name); return f.name; },
       });

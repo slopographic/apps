@@ -87,11 +87,11 @@
 
   describe('variables', () => {
     it('interpolates fields with filters and leaves unknown names', () => {
-      const get = (n) => ({ Name: 'sloppo', Price: '4.5', Code: '42' }[n]);
-      expect(W.interpolate('{Name|upper} costs {Price|fixed:2}', get)).toBe('SLOPPO costs 4.50');
+      const get = (n) => ({ Name: 'gadget', Price: '4.5', Code: '42' }[n]);
+      expect(W.interpolate('{Name|upper} costs {Price|fixed:2}', get)).toBe('GADGET costs 4.50');
       expect(W.interpolate('{Code|pad:6}-{Missing}', get)).toBe('000042-{Missing}');
       expect(W.interpolate('{{literal}} {Price|mul:2}', get)).toBe('{literal} 9');
-      expect(W.interpolate('{Name|left:3}{Name|right:2}', get)).toBe('slopo');
+      expect(W.interpolate('{Name|left:3}{Name|right:2}', get)).toBe('gadet');
       expect(W.varRefs('{A} and {B|upper} {{x}}')).toEqual(['A', 'B']);
     });
     it('resolves prompts, counters, dates, formulas and system fields', () => {

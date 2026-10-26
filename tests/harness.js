@@ -2,7 +2,16 @@
  * Each tests/<app>.test.html loads the app's code plus this file, registers tests,
  * then calls SlopTest.run(). tests/run.mjs opens every page in headless Chromium,
  * reads window.__SLOPTEST__ and prints a report. Open a test page in any browser to
- * see the results on screen too. */
+ * see the results on screen too. It also loads the brand facts beside it (tests/brand-facts.js: window.BRAND_FACTS, the
+ * build's profile switches), before the page's own scripts, so every page can read them; and in a build that starts in
+ * another language it opens the apps in English, as a visitor who chose English (SlopTest.english), so the checks read the
+ * copy they were written against (tests/english.js; tests/run.mjs stores it before the page loads). A page about the start
+ * language says <meta name="slop-test-lang" content="default">. */
+(function () {
+  const me = document.currentScript, at = (f) => me && me.src.replace(/harness\.js(\?.*)?$/, f), facts = at('brand-facts.js');
+  const lang = '<script>if (!document.querySelector(\'meta[name="slop-test-lang"][content="default"]\')) SlopTest.english();<\/script>';
+  if (facts && !window.BRAND_FACTS && document.readyState === 'loading') document.write(`<script src="${facts}"><\/script><script src="${at('english.js')}"><\/script>${lang}`);
+})();
 (function () {
   'use strict';
   const suites = [];
@@ -101,5 +110,14 @@
     const [x, y] = [L(a), L(b)].sort((p, q) => q - p);
     return (x + 0.05) / (y + 0.05);
   }
-  window.SlopTest = { describe, it, beforeEach, afterEach, expect, run, pixel, sleep, waitFor, topDialog, contrast };
+  /** The text a page shows for an i18n key: the English text when the page is in English (the build's start language may
+   *  be another: tests/brand-facts.js defaultLang), else that language's string. win: the page's window. */
+  const said = (win, key, english) => (win.SlopI18n && win.SlopI18n.get() !== 'en' ? win.SlopI18n.t(key) : english);
+  /** A preview picture of this site's screenshots (assets/shots): img shows src; a build without media
+   *  (tests/brand-facts.js) shows none. */
+  const shot = (img, src) => { if (window.BRAND_FACTS.media) expect(img && img.getAttribute('src')).toBe(src); else expect(img).toBe(null); };
+  /** For a page whose test reads its English copy: in a build that starts in another language, English is stored as the
+   *  visitor's choice (tests/english.js) before the page opens; a build that starts in English stores nothing. */
+  const english = () => { if (window.BRAND_FACTS.defaultLang !== 'en' && window.SlopTestEnglish) window.SlopTestEnglish(); };
+  window.SlopTest = { describe, it, beforeEach, afterEach, expect, run, pixel, sleep, waitFor, topDialog, contrast, said, shot, english };
 })();

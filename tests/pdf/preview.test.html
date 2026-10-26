@@ -29,9 +29,11 @@
       await boot(1280);
       expect(D.querySelectorAll('#empty .sd-steps li').length).toBe(3);
       const img = $('#empty .sd-pic img');
-      expect(img.getAttribute('src')).toBe('../assets/shots/pdf-preview.webp');
-      expect(img.alt.length > 10).toBe(true);
-      await waitFor(() => img.complete && img.naturalWidth > 300);
+      SlopTest.shot(img, '../assets/shots/pdf-preview.webp');   // a build without media has no picture
+      if (img) {
+        expect(img.alt.length > 10).toBe(true);
+        await waitFor(() => img.complete && img.naturalWidth > 300);
+      }
       expect($('#empty .empty-art')).toBe(null);
       expect($('#empty .sd-preview').nextElementSibling.tagName).toBe('H1');
       $('#emptySample').click();

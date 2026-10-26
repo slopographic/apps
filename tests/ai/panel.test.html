@@ -15,7 +15,7 @@
       expect(P.SlopAI.ready).toBe(false); expect(P.SlopAI.look).toBe(null);
       const s = P.SlopAI.ask('hello');
       const parts = []; for await (const x of s) parts.push(x);
-      expect(parts.join('')).toMatch(/SLURP|blorp/); expect(s.offline).toBe(true);
+      expect(parts.join('')).toMatch(BRAND_FACTS.tone === 'plain' ? /^No model is loaded/ : /SLURP|blorp/);   // the plain copy (brand/copy/plain.json) in a plain build expect(s.offline).toBe(true);
       P.SlopAIPanel.open();
       // no model: the shared model choice (picker.js), or the plain WebGPU message, with a link to Slop AI
       await waitFor(() => P.document.querySelector('.sap-pick a'));

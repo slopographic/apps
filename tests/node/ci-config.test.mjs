@@ -29,9 +29,11 @@ test('the browser tests run only in the slices the plan job asks for, and tests/
   assert.match(browser, /--pages-file=plan-pages\.txt/);
   assert.doesNotMatch(browser, /^\s+if: .*github\.ref/m, 'the browser job takes the branch rule from the plan only');
   assert.match(job('plan'), /run: node tools\/ci\/plan\.mjs/);
-  // every run of the browser suite goes through the plan: no other job calls the runner on its own terms
+  // every run of this repository's browser suite goes through the plan: no other job calls the runner on its own terms.
+  // The white-label jobs (here only; a build drops them) run the whole suite of a sample build, after the plan.
   const runners = wf.split(/\n  (?=[\w-]+:\n)/).filter((b) => /node tests\/run\.mjs/.test(b)).map((b) => b.split(':')[0].trim());
-  assert.deepEqual(runners.filter((n) => n !== 'browser' && !/needs: plan/.test(job(n))), []);
+  assert.deepEqual(runners.filter((n) => n !== 'browser' && !/needs: (plan|\[plan, )/.test(job(n))), []);
+  for (const n of runners.filter((r) => /^whitelabel/.test(r))) assert.match(job(n), /name: wl-build-\$\{\{ matrix\.profile \}\}/, `${n} runs the build's pages`);
 });
 
 test('the plan: wip/* and other branches never get the full suite; main skips it only for a merge of a green commit', async () => {
@@ -57,6 +59,27 @@ test('the plan: wip/* and other branches never get the full suite; main skips it
   assert.match(src, /w\.name === 'Rules and tests' && w\.conclusion === 'success'/);
 });
 
+test('the white-label sample suites: in full on testing and main; on a work branch the plan\'s pages, or in full for a change to the build', async () => {
+  const { outputs, wlOutputs, WL_SLICES, WL_FILES } = await import('../../tools/ci/plan.mjs');
+  const changed = outputs('changed', ['tests/a.test.html'], false);
+  assert.deepEqual(wlOutputs('changed', changed, ['pdf/js/a.js']), { wl_suite: 'changed', wl_count: changed.count, wl_shards: changed.shards });
+  for (const f of ['tools/whitelabel/build.mjs', 'brand/brand.json', 'tests/brand-facts.js', 'tests/needs.mjs', 'tests/repo-only.json']) {
+    assert.ok(WL_FILES.test(f), f);
+    assert.equal(wlOutputs('changed', changed, ['pdf/js/a.js', f]).wl_suite, 'full', f);
+  }
+  assert.equal(wlOutputs('changed', changed, ['shared/apps.js'], (f) => f === 'shared/apps.js').wl_count, WL_SLICES);   // a profile marker
+  assert.equal(wlOutputs('full', outputs('full', null)).wl_count, WL_SLICES);
+  assert.deepEqual(wlOutputs('none', outputs('none', [])), { wl_suite: 'none', wl_count: 0, wl_shards: '[]' });
+  // the jobs themselves are this repository's (a mirror's workflow has none: tools/whitelabel/workflow.mjs DROP_JOBS)
+  if (!/\n  whitelabel:\n/.test(wf)) return;
+  const browser = job('whitelabel-browser'), touch = job('whitelabel-touch');
+  assert.match(browser, /shard: \$\{\{ fromJSON\(needs\.plan\.outputs\.wl_shards\) \}\}/);
+  assert.match(browser, /needs\.plan\.outputs\.wl_suite == 'changed' && ' --pages-file=wl-pages\.txt'/);
+  assert.match(touch, /needs\.plan\.outputs\.wl_suite == 'changed' && needs\.plan\.outputs\.touch == 'true'/);
+  assert.match(job('whitelabel'), /node tools\/whitelabel\/pages\.mjs \$\{\{ matrix\.profile \}\} > wl-pages\.txt/);
+  assert.match(job('whitelabel'), /node --test tests\/node\/\*\.test\.mjs/);   // the build and its Node tests on every push
+});
+
 test('the touch jobs run the touch-marked pages in WebKit (iPad) and Chromium (Android)', () => {
   const engines = (wf.match(/engine: \[([a-z, ]+)\]/) || [])[1].split(',').map((s) => s.trim());
   assert.deepEqual(engines.sort(), ['chromium', 'webkit']);
@@ -71,7 +94,7 @@ test('every workflow limits its GITHUB_TOKEN: a top-level permissions block, rea
   const { readdirSync } = await import('node:fs');
   const dir = path.join(ROOT, '.github/workflows');
   const files = readdirSync(dir).filter((f) => /\.ya?ml$/.test(f));
-  assert.ok(files.length >= 5);
+  assert.ok(files.includes('rules.yml'));   // this repository's others: tests/node/site-workflows.test.mjs
   for (const f of files) {
     const text = readFileSync(path.join(dir, f), 'utf8');
     const top = /^permissions:\n((?: {2}.*\n)+)/m.exec(text);

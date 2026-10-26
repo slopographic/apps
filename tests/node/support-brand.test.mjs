@@ -69,7 +69,9 @@ test('only a real false hides a part: strings and other values keep it on', asyn
   assert.deepEqual({ ...b.config.support }, { exportCard: true, donate: true, ads: true });
 });
 
-test('the shipped brand/brand.json has the support block, all on', () => {
+test('the shipped brand/brand.json has the support block, a true or false for each part', () => {
   const j = JSON.parse(readFileSync(path.join(ROOT, 'brand', 'brand.json'), 'utf8'));
-  assert.deepEqual(j.support, { exportCard: true, donate: true, ads: true });
+  assert.deepEqual(Object.keys(j.support).sort(), ['ads', 'donate', 'exportCard']);
+  for (const [k, v] of Object.entries(j.support)) assert.equal(typeof v, 'boolean', k);
+  // its values are the profile's: all on for this site (tests/node/whitelabel-facts.test.mjs checks them against it)
 });

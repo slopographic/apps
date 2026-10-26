@@ -12,12 +12,12 @@ import { PAGES } from '../../convert/js/core/pages.js';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 
 test('a label is the short part of the app title', () => {
-  assert.equal(capability({ name: 'PhotoSlop', title: 'PhotoSlop: photo editor' }), 'photo editor');
-  assert.equal(capability({ name: 'Slop OCR', title: 'OCR: read text from images and scans' }), 'OCR');
-  assert.equal(capability({ name: 'Slop Contacts', title: 'Contacts (address book)' }), 'Contacts');
-  assert.equal(capability({ name: 'Slop Colors', title: 'Colour picker, palette generator and contrast checker' }), 'Colour picker');
-  assert.equal(capability({ name: 'Slop Workflows', title: 'Batch workflows across apps' }), 'Batch workflows');
-  assert.equal(capability({ name: 'Slop Notes' }), 'Slop Notes');
+  assert.equal(capability({ name: 'Pixo', title: 'Pixo: photo editor' }), 'photo editor');
+  assert.equal(capability({ name: 'Pixo OCR', title: 'OCR: read text from images and scans' }), 'OCR');
+  assert.equal(capability({ name: 'Pixo Contacts', title: 'Contacts (address book)' }), 'Contacts');
+  assert.equal(capability({ name: 'Pixo Colors', title: 'Colour picker, palette generator and contrast checker' }), 'Colour picker');
+  assert.equal(capability({ name: 'Pixo Workflows', title: 'Batch workflows across apps' }), 'Batch workflows');
+  assert.equal(capability({ name: 'Pixo Notes' }), 'Pixo Notes');
 });
 
 test('the strip lists every app once, in registry order, with File convert as its number of conversions', () => {

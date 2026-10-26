@@ -19,7 +19,7 @@
       W = await DT.frame('../../music/', (w) => w.SlopMusic && w.document.querySelector('#lib-preview .sd-preview'));
       D = W.document;
       expect(D.getElementById('lib-empty').hidden).toBe(false);
-      expect(D.querySelector('#lib-preview .sd-pic img').getAttribute('src')).toBe('../assets/shots/music.jpg');
+      SlopTest.shot(D.querySelector('#lib-preview .sd-pic img'), '../assets/shots/music.jpg');
       expect([...D.querySelectorAll('#lib-preview .sd-steps li')].map((li) => li.textContent))
         .toEqual(['Drop MP3, WAV or other audio files', 'Search, tag and make playlists', 'Play, shuffle and repeat']);
       expect(D.querySelector('#lib-drop .sd-sample')).toBe(null);   // a compact strip never gets one

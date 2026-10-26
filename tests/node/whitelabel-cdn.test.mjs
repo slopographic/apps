@@ -10,6 +10,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { selection, sortHits, readme, makeCdn, SIDECAR } from '../../tools/whitelabel/cdn.mjs';
 import { findTerms } from '../../tools/whitelabel/scan.mjs';
+import { ENV } from '../../tools/whitelabel/history-git.mjs';   // without a git hook's GIT_DIR
 
 test('the selection: the assets and the licence, source notes and manifest in their folders', () => {
   const tree = ['models/a/x.onnx', 'models/a/LICENSE-MIT.txt', 'models/a/SOURCE.md', 'models/a/manifest.json', 'models/a/notes.txt',
@@ -53,7 +54,7 @@ test('a cdn for the sample: fresh content at the tag, renamed notes, README, sca
     put(repo, 'models/a/vocab.json', vocab);
     put(repo, 'models/a/notes.txt', 'not a sidecar\n');
     put(repo, 'other/y.bin', 'never asked for\n');
-    const git = (...a) => execFileSync('git', ['-C', repo, '-c', 'user.name=t', '-c', 'user.email=t@example.invalid', ...a], { stdio: 'ignore' });
+    const git = (...a) => execFileSync('git', ['-C', repo, '-c', 'user.name=t', '-c', 'user.email=t@example.invalid', ...a], { stdio: 'ignore', env: ENV });
     git('init', '-q'); git('add', '-A'); git('commit', '-qm', 'source history that must not travel'); git('tag', 'v2026.1.2');
     put(repo, 'models/a/x.bin', 'changed after the tag');                               // the tag's bytes are what count
     put(build, 'shared/cdn/assets.js', "const TAG = 'v2026.1.2';\n");

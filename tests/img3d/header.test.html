@@ -38,7 +38,11 @@
       const f = await open(390), D = f.contentDocument;
       expect(D.documentElement.scrollWidth).toBeLessThanOrEqual(390);
       expect(Math.abs(box(D, 'header .stour-btn').top - box(D, 'header a.brand').top)).toBeLessThan(6);
-      expect(box(D, '#btnDrive').top).toBeGreaterThan(box(D, 'header a.brand').bottom - 1);
+      // the actions wrap under the first row; a build's shorter Drive label may keep it there, between the name and Tour
+      const drive = box(D, '#btnDrive'), wraps = drive.top > box(D, 'header a.brand').bottom - 1;
+      const apart = (a, b) => a.right <= b.left || b.right <= a.left || a.bottom <= b.top || b.bottom <= a.top;
+      const name = D.createRange(); name.selectNodeContents(D.querySelector('header .appname'));
+      expect(wraps || [box(D, 'header a.brand'), box(D, 'header .stour-btn'), name.getBoundingClientRect()].every((b) => apart(drive, b))).toBe(true);
       f.remove();
     });
     it('at 1280px the settings are a panel on the right, with the exports and Open in Slop 3D at its foot, not in the header', async () => {
