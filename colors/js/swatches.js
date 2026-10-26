@@ -1,5 +1,6 @@
 /* Slop Colors: swatches and the parts of the page drawn from them (the current colour and its values: js/values.js):
- * the palette (pick, move, rename, remove) and the rows made from the current colour (harmony, scale, ramp).
+ * the palette (pick, move, rename, remove) and the rows made from the current colour (harmony, scale, ramp). The harmony
+ * row is the colour wheel's colours (js/wheel.js): the rule and the wheel (RGB, RYB, OKLCH) of the state.
  * A swatch's label is in black or white, whichever reads better on it (shared/color/contrast.js). Classic script. */
 (function (g) {
   'use strict';
@@ -70,7 +71,7 @@
   const made = { harmony: [], scale: [], ramp: [] };
   function generated(s) {
     const H = X().harmony;
-    made.harmony = H.harmony(s.current, s.harmony);
+    made.harmony = X().wheel.colours(s);   // the colour wheel's handles (js/wheel.js): one rule, one wheel
     made.scale = H.scale(s.current, s.scale, s.steps);
     const r = H.ramp(s.current);
     made.ramp = H.RAMP_KEYS.map((k) => ({ hex: r[k], name: String(k) }));
