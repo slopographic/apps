@@ -68,8 +68,8 @@
       expect([...$(w, '.sap-mode').options].map((o) => o.textContent)).toEqual(['Fråga varje gång', 'Tillåt appändringar', 'Tillåt allt']);
       P.settings();
       await waitFor(() => $(w, '.sap-perm'));
-      expect($(w, '.sap-perm').textContent).toContain('Alltid tillåtet på den här enheten');
-      expect($(w, '.sap-perm').textContent).toContain('När en uppgift använder andra appar');
+      expect($(w, '.sap-settings').textContent).toContain('Alltid tillåtet på den här enheten');
+      expect($(w, '.sap-settings').textContent).toContain('När en uppgift använder andra appar');
       expect($(w, '.sap-back').textContent).toBe('← Tillbaka till chatten');
       P.settings();
       // a note in the chat and a code block in a reply

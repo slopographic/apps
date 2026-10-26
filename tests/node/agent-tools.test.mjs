@@ -24,7 +24,8 @@ async function classic(rels, extra = {}) {
   for (const rel of [].concat(rels)) vm.runInContext(await readFile(path.join(ROOT, rel), 'utf8'), ctx, { filename: rel });
   return win;
 }
-const KIT = ['shared/ai/apptools.js', 'shared/ai/cmdtools.js', 'shared/ai/optools.js'];
+// SlopI18n with the English words of the questions people read (shared/i18n/ui/en/ai*.js), then the kit
+const KIT = ['shared/i18n/i18n.js', 'shared/i18n/ui/en/ai.js', 'shared/i18n/ui/en/ai2.js', 'shared/ai/apptools.js', 'shared/ai/cmdtools.js', 'shared/ai/optools.js'];
 /** The one tool list, as WebMCP takes it: appTools.build (with the operations and the page's commands), cmdTools.neutral. */
 const oneList = (w, env) => w.SlopAIKit.appTools.build(Object.assign({ ops: true, hub: null }, env)).map(w.SlopAIKit.cmdTools.neutral);
 

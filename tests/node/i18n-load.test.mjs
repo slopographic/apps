@@ -53,19 +53,22 @@ function page({ lang, parsing = true, offline = false, late = false } = {}) {
   vm.runInContext(read('shared/profile/profile.js'), ctx);
   return { ctx, doc, writes, added, events, attrs, script, I: () => ctx.SlopI18n };
 }
+// the shared components' parts (UI_PARTS in i18n.js, node tools/i18n/i18n.mjs index ui), for a language that has them
+const UI = JSON.parse(read('shared/i18n/i18n.js').match(/\/\*ui-parts\*\/(\{.*?\});/)[1].replace(/'/g, '"').replace(/(\w+):/g, '"$1":'));
+const ui = (code) => ['shared/i18n/ui/' + code + '.js', ...(UI.langs.includes(code) ? UI.parts.map((p) => `shared/i18n/ui/${code}/${p}.js`) : [])];
 const urls = (writes) => writes.map((h) => (/(?:src|href)="([^"]+)"/.exec(h) || [])[1].slice(SITE.length));
 
 test('at parse time an English page writes only the English chrome and ui tables', () => {
   const p = page({ lang: 'en' });   // stored, so a build that starts in another language reads the same
   p.script('shared/i18n/i18n.js');
-  assert.deepEqual(urls(p.writes), ['shared/i18n/strings.js', 'shared/i18n/ui/en.js']);
+  assert.deepEqual(urls(p.writes), ['shared/i18n/strings.js', ...ui('en')]);
   assert.equal(p.I().t('nav.apps'), 'Apps');
 });
 
 test('a Swedish page writes English and Swedish (and the Swedish app names), and t() reads Swedish at once', () => {
   const p = page({ lang: 'sv' });
   p.script('shared/i18n/i18n.js');
-  assert.deepEqual(urls(p.writes), ['shared/i18n/strings.js', 'shared/i18n/sv.js', 'shared/i18n/sv-apps.js', 'shared/i18n/ui/en.js', 'shared/i18n/ui/sv.js']);
+  assert.deepEqual(urls(p.writes), ['shared/i18n/strings.js', 'shared/i18n/sv.js', 'shared/i18n/sv-apps.js', ...ui('en'), ...ui('sv')]);
   assert.equal(p.I().t('nav.apps'), 'Appar');
 });
 
@@ -90,7 +93,7 @@ test('later (not parsing), set() applies at once, fetches the new tables and the
   const p = page({ lang: 'en', parsing: false, late: true });
   p.script('shared/i18n/i18n.js');
   await p.I().ready();
-  assert.deepEqual(p.added.map((e) => e.src.slice(SITE.length)), ['shared/i18n/strings.js', 'shared/i18n/ui/en.js']);
+  assert.deepEqual(p.added.map((e) => e.src.slice(SITE.length)), ['shared/i18n/strings.js', ...ui('en')]);
   let heard = 0;
   const stop = p.I().on((code) => { heard++; assert.equal(code, 'de'); });
   assert.equal(p.I().set('de').ok, true);
