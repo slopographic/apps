@@ -98,8 +98,7 @@
   var prof = g.SlopProfile && typeof g.SlopProfile.create === 'function'
     ? g.SlopProfile.create({ options: { theme: { mode: { label: 'Theme', type: 'enum', values: [SYSTEM].concat(IDS), default: DEFAULT } } } })
     : null;
-  var page = { app: '', choice: DEFAULT };
-  var watching = false;
+  var page = { app: '', choice: DEFAULT }, watching = false;
 
   function store() { try { return g.localStorage || null; } catch (e) { return null; } }
   function prefersLight() { try { return !!(g.matchMedia && g.matchMedia('(prefers-color-scheme: light)').matches); } catch (e) { return false; } }

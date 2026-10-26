@@ -4,6 +4,7 @@
  * Classic script; needs shared/fonts/picker.js (it loads the panel). */
 (function (root) {
   'use strict';
+  const tr = (k, v) => { const I = root.SlopI18n; return I ? I.t(k, v) : k; };
   /** Asks about the needed families (needs: [{ family, closest, pack }]); uses: the names listed in the prompt. */
   function ask(needs, uses) {
     if (!needs.length) return Promise.resolve(new Map());
@@ -17,9 +18,10 @@
         if (answers.size === needs.length) { finish(answers); if (handle) handle.close(false); }
       };
       handle = root.SlopFonts.openPanel({
-        title: 'Fonts this document uses are not installed',
-        closeLabel: 'Cancel edit',
-        note: ['This document uses: ' + (uses || needs.map((n) => n.family)).join(', ') + '.', 'Choose how to edit the text. Nothing is downloaded until you confirm it in the library.'],
+        title: 'ui.fonts.missing_title',
+        closeLabel: 'ui.fonts.cancel_edit',
+        // the panel reads its notes again on a language switch; the names stay as the document gives them
+        note: [() => tr('ui.fonts.doc_uses', { names: (uses || needs.map((n) => n.family)).join(', ') }), 'ui.fonts.choose_how'],
         fonts: needs.map((n) => n.family),
         library: false,
         onUse: ({ family, use }) => answer(family, 'closest', use),

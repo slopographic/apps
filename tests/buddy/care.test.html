@@ -5,13 +5,14 @@
   <meta name="slop-test-needs" content="mascot=builtin">
   <title>Buddy · shake anger, treats and faces</title>
   <style>body { margin: 0; background: #111; color: #eee; font: 13px system-ui; }</style>
+  <script src="../../shared/i18n/i18n.js"></script>
 </head>
 <body>
   <script src="../harness.js"></script>
   <script src="boot.js"></script>
   <script type="module">
   import { shakeScore, SHAKE, calmValue, ITEMS } from '../../shared/buddy/care.js';
-  import { LINES } from '../../shared/buddy/lines.js';
+  import { pool } from '../../shared/buddy/lines.js';
   import { delayFor } from '../../shared/buddy/treats.js';
   const { describe, it, expect, waitFor, sleep, run } = SlopTest;
   const { openApp, turnOn, frames } = BuddyTest;
@@ -35,7 +36,7 @@
       let t = performance.now();
       for (let i = 0; i < 20; i++) S.care.onDrag((t += 50), 200 + (i % 2 ? 60 : -60), 300);
       expect(M.rage).toBeGreaterThanOrEqual(1);
-      expect(LINES.shake.concat(LINES.ouch)).toContain(M.bubble.querySelector('.say-text').textContent);
+      expect(pool('shake').concat(pool('ouch'))).toContain(M.bubble.querySelector('.say-text').textContent);
       M.rage = 0;
     });
   });
@@ -52,7 +53,7 @@
       M.hate = 'cookie'; M.fav = 'juice'; M.rage = 1.6;
       const d = S.care.feed('cookie');
       expect(d).toBeCloseTo(0.5, 1e-6);
-      expect(LINES.spit).toContain(M.bubble.querySelector('.say-text').textContent);
+      expect(pool('spit')).toContain(M.bubble.querySelector('.say-text').textContent);
       S.care.feed('juice');
       expect(M.rage).toBe(0);
       expect(M.bubble.textContent).toContain('OMG GOO JUICE');
@@ -72,7 +73,7 @@
       const xp = S.xp;
       S.pet();
       expect(S.xp).toBe(xp);
-      expect(LINES.nopets).toContain(M.bubble.querySelector('.say-text').textContent);
+      expect(pool('nopets')).toContain(M.bubble.querySelector('.say-text').textContent);
       M.rage = 1.2;
       S.pet();
       expect(M.rage).toBeLessThan(1.2);

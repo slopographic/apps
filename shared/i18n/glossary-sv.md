@@ -987,3 +987,46 @@ history step and palette word, so never strip a suffix to get it. Layer names th
 | keyframes / easing | nyckelrutor / easing |  |
 | sandboxed preview | isolerad förhandsvisning |  |
 | leads (CRM) | leads |  |
+
+## wip/i18n-r2-misc (fonts, Sloppo, AI agents, shared engines and small components)
+
+| English | Swedish | Note |
+|---|---|---|
+| font (typeface) | teckensnitt | «Teckensnitt…», «Hämta fler…» |
+| Bundled (offline) / Downloaded / Your own | Inbyggda (offline) / Nedladdade / Dina egna | font groups |
+| Built in. / Missing. | Inbyggt. / Saknas. | Fonts panel rows |
+| set in (a font) | sätts i | «sätts i Carlito» |
+| character widths | teckenbredder | |
+| closest font | närmaste teckensnitt | |
+| font library | teckensnittsbibliotek | |
+| sample line (pangram) | Flygande bäckasiner söka hwila på 13 mjuka tuvor | the Swedish pangram, shows å ä ö |
+| language font | språkteckensnitt | download just in time |
+| AI agent | AI-agent | «AI-agenten», «en AI-agent» |
+| AI app (on your computer) | AI-app | «Anslut en AI-app…» |
+| Connect / Disconnect (AI app) | Anslut / Koppla från | |
+| pair / pairing code | parkoppla / parkopplingskod | |
+| Allow (this action) | Tillåt | |
+| Select and copy | Markera och kopiera | |
+| Sloppo buddy | Sloppo-kompis | toggle tooltip |
+| Unleash / Calm down | Släpp lös / Lugna ner | |
+| RAGE / Rage | RASERI / Ilska | |
+| Lv (level, compact) | Nv | «Nivå {n}!» |
+| Restore page | Återställ sidan | |
+| Give… / Make candy | Ge… / Gör godis | |
+| hat | hatt | Partyhatt, Höghatt, Studentmössa, Gloria |
+| goo | gegga | |
+| Ask Sloppo | Fråga Sloppo | |
+| HEIC photo decoder | HEIC-avkodare | |
+| camera RAW engine | RAW-motor | |
+| Developing… (RAW) | Framkallar… | |
+| mesh / vertex / triangle | nät / hörn / triangel | 3D |
+| texture / morph targets | textur / morfmål | |
+| point cloud | punktmoln | |
+| units (3D size) | enheter | |
+| Hue / Saturation / Brightness | Nyans / Mättnad / Ljusstyrka | short H S B: N M L |
+| Hex colour | Hexfärg | |
+| Recent (colours) | Senaste | |
+| Review (clean-up window) | Granska | |
+| Invert (selection) | Invertera | |
+| {n} of {total} checked | {n} av {total} markerade | |
+| copy buffer | kopieringsbuffert | |

@@ -15,6 +15,10 @@ import * as decoders from './decoders.js';
 
 /** Larger files are refused before any work: the whole model must fit in the browser's memory. */
 export const MAX_BYTES = 512 * 1024 * 1024;
+/** A word shown to the person (ui.d3.*, shared/i18n/ui/en/misc.js), in the chosen language when it is made. */
+const tr = (k, v) => { const I = globalThis.SlopI18n; return I ? I.t(k, v) : k; };
+/** An error whose message is already written for the person (the catch in readModel passes it on as it is). */
+const fail = (k, v) => Object.assign(new Error(tr('ui.d3.' + k, v)), { shown: true });
 const lazy = (p) => () => import(p);
 const LOADERS = {
   gltf: lazy('../../vendor/three/addons/loaders/GLTFLoader.js'), draco: lazy('../../vendor/three/addons/loaders/DRACOLoader.js'),
@@ -47,9 +51,9 @@ async function readObj(f, res, warnings) {
     mc.preload();
     loader.setMaterials(mc);
     for (const n of referencedFiles('mtl', mtlText)) if (!res.has(n)) res.missing.add(n);
-  } else if (libs.length) warnings.push(`The materials file ${libs.join(', ')} was not given, so the model has plain grey materials.`);
+  } else if (libs.length) warnings.push(tr('ui.d3.no_mtl', { names: libs.join(', ') }));
   const root = loader.parse(text);
-  if (!root.children.length) throw new Error('This OBJ file has no faces, lines or points.');
+  if (!root.children.length) throw fail('obj_empty');
   return { root };
 }
 
@@ -58,15 +62,15 @@ async function readGltf(f, format, res, opts) {
   let json;
   if (format === 'glb') {
     const dv = new DataView(buf);
-    if (buf.byteLength < 20 || dv.getUint32(0, true) !== 0x46546c67) throw new Error('This is not a GLB file.');
-    if (dv.getUint32(4, true) !== 2) throw new Error('Only glTF 2.0 is supported; this file is glTF 1.');
+    if (buf.byteLength < 20 || dv.getUint32(0, true) !== 0x46546c67) throw fail('not_glb');
+    if (dv.getUint32(4, true) !== 2) throw fail('gltf1');
     json = JSON.parse(new TextDecoder().decode(new Uint8Array(buf, 20, dv.getUint32(12, true))));
   } else {
-    try { json = JSON.parse(new TextDecoder().decode(buf)); } catch (e) { throw new Error('This .gltf file is not valid JSON.'); }
+    try { json = JSON.parse(new TextDecoder().decode(buf)); } catch (e) { throw fail('gltf_json'); }
   }
-  if (!json.asset || String(json.asset.version).split('.')[0] !== '2') throw new Error('Only glTF 2.0 is supported.');
+  if (!json.asset || String(json.asset.version).split('.')[0] !== '2') throw fail('gltf2_only');
   const lost = (json.buffers || []).filter((b) => b.uri && !/^data:/.test(b.uri) && !res.has(decodeURIComponent(b.uri))).map((b) => b.uri);
-  if (lost.length) throw new Error(`This glTF keeps its data in ${lost.join(', ')}. Add ${lost.length > 1 ? 'those files' : 'that file'} together with the .gltf.`);
+  if (lost.length) throw fail('gltf_buffers', { names: lost.join(', '), n: lost.length });
   const { GLTFLoader } = await LOADERS.gltf();
   const loader = new GLTFLoader(res.manager);
   const ids = decoders.needed(json);
@@ -75,23 +79,23 @@ async function readGltf(f, format, res, opts) {
     const L = { DRACOLoader: ids.includes('draco') ? (await LOADERS.draco()).DRACOLoader : null, KTX2Loader: ids.includes('basis') ? (await LOADERS.ktx2()).KTX2Loader : null };
     await decoders.attach(loader, ids, urls, T, L);
   }
-  const gltf = await new Promise((resolve, reject) => loader.parse(buf, '', resolve, (e) => reject(new Error('This glTF file could not be read: ' + ((e && e.message) || e)))));
+  const gltf = await new Promise((resolve, reject) => loader.parse(buf, '', resolve, (e) => reject(fail('gltf_bad', { error: (e && e.message) || String(e) }))));
   return { root: gltf.scene || gltf.scenes[0], animations: gltf.animations || [], cameras: gltf.cameras };
 }
 
 async function readOther(f, format, res) {
   if (format === 'stl') {
     const geo = new STLLoader().parse(await bytesOf(f.blob));
-    if (!geo.attributes.position || !geo.attributes.position.count) throw new Error('This STL file has no triangles.');
+    if (!geo.attributes.position || !geo.attributes.position.count) throw fail('stl_empty');
     const g = new T.Group();
     g.add(new T.Mesh(geo, material(geo)));
     return { root: g };
   }
   if (format === 'ply') {
     const buf = await bytesOf(f.blob);
-    if (!plyEncoding(new Uint8Array(buf, 0, Math.min(512, buf.byteLength)))) throw new Error('This PLY file has no format line in its header.');
+    if (!plyEncoding(new Uint8Array(buf, 0, Math.min(512, buf.byteLength)))) throw fail('ply_header');
     const geo = new PLYLoader().parse(buf);
-    if (!geo.attributes.position || !geo.attributes.position.count) throw new Error('This PLY file has no vertices.');
+    if (!geo.attributes.position || !geo.attributes.position.count) throw fail('ply_empty');
     const g = new T.Group();
     g.add(geo.index ? new T.Mesh(geo, material(geo)) : new T.Points(geo, new T.PointsMaterial({ size: 0.01, vertexColors: !!geo.attributes.color })));
     return { root: g };
@@ -104,7 +108,7 @@ async function readOther(f, format, res) {
   if (format === 'dae') {
     const { ColladaLoader } = await LOADERS.dae();
     const r = new ColladaLoader(res.manager).parse(await f.blob.text(), '');
-    if (!r || !r.scene) throw new Error('This Collada file could not be read.');
+    if (!r || !r.scene) throw fail('dae_bad');
     return { root: r.scene, animations: r.scene.animations || [] };
   }
   const { FBXLoader } = await LOADERS.fbx();
@@ -116,9 +120,9 @@ async function readOther(f, format, res) {
 export async function readModel(files, opts = {}) {
   const list = files.map((f) => ({ name: f.name, blob: f.blob || f.file }));
   const pick = await pickModel(list);
-  if (!pick) throw new Error('None of these files is a 3D model this tool reads (OBJ, STL, PLY, glTF, GLB, 3MF, DAE or FBX).');
+  if (!pick) throw fail('no_model', { formats: 'OBJ, STL, PLY, glTF, GLB, 3MF, DAE, FBX' });
   const { file, format } = pick;
-  if (file.blob.size > MAX_BYTES) throw new Error('This model is larger than 512 MB, too big to read in the browser.');
+  if (file.blob.size > MAX_BYTES) throw fail('too_big', { size: '512 MB' });
   const res = new Resources(T, list);
   const warnings = [];
   let out;
@@ -130,10 +134,13 @@ export async function readModel(files, opts = {}) {
   } catch (e) {
     res.dispose();
     const msg = (e && e.message) || String(e);
-    throw new Error(/^(This|None|Only|Could)/.test(msg) ? msg : `This ${LABEL[format]} file could not be read: ${msg}`);
+    throw e && e.shown ? e : fail('unreadable', { format: LABEL[format], error: msg });
   }
   res.dispose();
-  if (res.missing.size) warnings.push(`Not found among the files, so left out: ${[...res.missing].slice(0, 6).join(', ')}${res.missing.size > 6 ? ' and more' : ''}. Add them with the model to keep them.`);
+  if (res.missing.size) {
+    const names = [...res.missing].slice(0, 6).join(', ');
+    warnings.push(tr('ui.d3.not_found', { names: res.missing.size > 6 ? tr('ui.d3.and_more', { names }) : names }));
+  }
   const root = out.root;
   root.updateMatrixWorld(true);
   return { root, format, name: stemOf(file.name), animations: out.animations || [], warnings, file: file.name };

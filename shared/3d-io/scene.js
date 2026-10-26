@@ -7,6 +7,8 @@
  *   bake(root, T)                      → a flat Group of world-space copies of every mesh, points and line object
  *   merge(group, T, mergeGeometries)   → one mesh (material groups kept) plus the points and lines */
 import * as T from '../../vendor/three/three.module.min.js';
+/** A word shown to the person (ui.d3.*, shared/i18n/ui/en/misc.js), in the chosen language when it is made. */
+const tr = (k, v) => { const I = globalThis.SlopI18n; return I ? I.t(k, v) : k; };
 
 const MAPS = ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'emissiveMap', 'aoMap', 'alphaMap', 'bumpMap', 'specularMap'];
 const mats = (o) => (Array.isArray(o.material) ? o.material : o.material ? [o.material] : []);
@@ -147,7 +149,7 @@ export function merge(group, mergeGeometries) {
     } else { g.clearGroups(); geos.push(g); materials.push(list[0]); }
   }
   const joined = mergeGeometries(common(geos), true);
-  if (!joined) throw new Error('These meshes could not be merged.');
+  if (!joined) throw new Error(tr('ui.d3.merge_failed'));
   const out = new T.Group();
   out.name = group.name;
   const one = new T.Mesh(joined, materials);

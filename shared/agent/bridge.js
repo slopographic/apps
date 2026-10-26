@@ -7,7 +7,7 @@
  *   pair(code) → Promise<{ ok, left?, reason? }>
  *   disconnect()                         ends it here and in the AI app; forgets this tab's pairing
  *   state()  'idle' | 'connecting' | 'need-code' | 'paired' | 'closed' | 'unreachable' | 'refused'
- *   client() the AI app's name ('Claude Code')    on(fn) → off: fn(state, detail) on every change
+ *   client() the AI app's name ('Claude Code'; ui.agent.your_app until it says)    on(fn) → off: fn(state, detail) on every change
  * Wire format: tools/claude-plugin/server/bridge.mjs. */
 (function (g) {
   'use strict';
@@ -15,8 +15,9 @@
   const PORTS = Array.from({ length: 10 }, (_, i) => 47821 + i);   // the same as bridge.mjs (a test checks)
   const KEY = 'slop.bridge', CHUNK = 256 * 1024;
   const S = () => g.SlopAgentToolset;
+  const tr = (k, v) => { const I = g.SlopI18n; return I ? I.t(k, v) : k; };
   const subs = new Set();
-  let ws = null, st = 'idle', detail = {}, clientName = 'your AI app', tools = new Map(), sig = '', off = null, waiting = null;
+  let ws = null, st = 'idle', detail = {}, clientName = '', tools = new Map(), sig = '', off = null, waiting = null;
   const incoming = new Map();   // call id → [base64 chunks]
 
   function set(s, d = {}) { st = s; detail = d; for (const fn of subs) try { fn(s, d); } catch (e) { console.warn(e); } }
@@ -91,7 +92,7 @@
   }
 
   function pair(code) {
-    if (st !== 'need-code') return Promise.resolve({ ok: false, reason: 'Not waiting for a code.' });
+    if (st !== 'need-code') return Promise.resolve({ ok: false, reason: tr('ui.agent.not_waiting') });
     return new Promise((r) => { pairing = r; send({ t: 'pair', code: String(code || '') }); });
   }
 
@@ -169,6 +170,6 @@
     set('idle');
   }
 
-  g.SlopBridge = { PORTS, KEY, connect, pair, disconnect, state: () => st, detail: () => detail, client: () => clientName,
+  g.SlopBridge = { PORTS, KEY, connect, pair, disconnect, state: () => st, detail: () => detail, client: () => clientName || tr('ui.agent.your_app'),
     tools: () => [...tools.keys()], on(fn) { subs.add(fn); return () => subs.delete(fn); } };
 })(window);

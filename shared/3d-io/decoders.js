@@ -15,14 +15,14 @@ export const CDN_DIR = 'engines/';
 export const CDN_BASE = C.url(CDN_DIR);
 
 export const ENGINES = {
-  draco: { label: 'Draco mesh decoder', dir: 'draco/three-0.170.0/', ext: ['KHR_draco_mesh_compression'], files: {
+  draco: { label: 'ui.d3.engine_draco', dir: 'draco/three-0.170.0/', ext: ['KHR_draco_mesh_compression'], files: {
     'draco_wasm_wrapper.js': ['8bb2952d2ba7d67e1414f8df819410cb0434a666be53f671fff75f68843d76f6', 58456],
     'draco_decoder.wasm': ['a680d927bed9cb864ddbd63521868891af2bfbe755092761b4837487618df8ac', 192420],
   } },
-  meshopt: { label: 'meshoptimizer decoder', dir: 'meshopt/three-0.170.0/', ext: ['EXT_meshopt_compression', 'KHR_meshopt_compression'], files: {
+  meshopt: { label: 'ui.d3.engine_meshopt', dir: 'meshopt/three-0.170.0/', ext: ['EXT_meshopt_compression', 'KHR_meshopt_compression'], files: {
     'meshopt_decoder.module.js': ['01f48524f4bac6141eaba07e94cc36e7ee56f311796fa6117c159842941b0468', 24850],
   } },
-  basis: { label: 'Basis Universal texture transcoder (KTX2)', dir: 'basis/three-0.170.0/', ext: ['KHR_texture_basisu'], files: {
+  basis: { label: 'ui.d3.engine_basis', dir: 'basis/three-0.170.0/', ext: ['KHR_texture_basisu'], files: {
     'basis_transcoder.js': ['8478b5b6d6b74e7d3082b89f6417321d8d1dc0307f2b30d4484bb11b441696a1', 57529],
     'basis_transcoder.wasm': ['6cf17dc889352c42e9acf8897107978d127005fe3386c36a0e3845e27967630a', 527333],
   } },
@@ -63,6 +63,8 @@ function load(id) {
   return loaded.get(id);
 }
 
+/** A word shown to the person (ui.d3.*, shared/i18n/ui/en/misc.js), in the chosen language when it is made. */
+const tr = (k, v) => { const I = globalThis.SlopI18n; return I ? I.t(k, v) : k; };
 let asked = null;
 /** The first-use notice before the first decoder download (once per browser, like the video engine's). */
 function askOnce(ids) {
@@ -78,11 +80,11 @@ function askOnce(ids) {
 /** Loads the engines a file needs. Throws a readable error when the person says no or the download fails. */
 export async function prepare(ids, { ask = true } = {}) {
   if (!ids.length) return {};
-  if (ask && !(await askOnce(ids))) throw new Error('This model needs a decoder that was not downloaded.');
+  if (ask && !(await askOnce(ids))) throw Object.assign(new Error(tr('ui.d3.declined')), { shown: true });
   const out = {};
   for (const id of ids) {
     try { out[id] = await load(id); } catch (e) {
-      throw new Error(`Could not load the ${ENGINES[id].label} (${e.message}). Check the connection and try again.`);
+      throw Object.assign(new Error(tr('ui.d3.load_failed', { engine: tr(ENGINES[id].label), error: e.message })), { shown: true });
     }
   }
   return out;

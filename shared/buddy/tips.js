@@ -2,35 +2,35 @@
 // command when the app registered one with SlopCmd, plus "Don't show tips again".
 import { M, now, pick } from './state.js';
 import { say } from './fx.js';
-import { line } from './lines.js';
+import { line, tr } from './lines.js';
 import { CFG } from './config.js';
 import { getPrefs, setPrefs } from './prefs.js';
 
-// cmd: words to look up in the app's SlopCmd registry; the first match becomes a button.
+// text: the tip's key (ui.buddy.tip.*, read when it shows). cmd: words to look up in the app's SlopCmd registry; the first match becomes a button.
 export const TIPS = {
   photoslop: [
-    { text: "It looks like you're editing a photo! Want to try a filter?", cmd: 'filter' },
-    { text: 'Need guides? Try the Guides panel.', cmd: 'guides' },
-    { text: 'Layers make everything undoable-er. Want a new layer?', cmd: 'new layer' },
+    { text: 'ui.buddy.tip.photo_filter', cmd: 'filter' },
+    { text: 'ui.buddy.tip.guides', cmd: 'guides' },
+    { text: 'ui.buddy.tip.photo_layer', cmd: 'new layer' },
   ],
   vector: [
-    { text: "It looks like you're drawing a vector! The pen tool is on P.", cmd: 'pen' },
-    { text: 'Need guides? Try the Guides panel.', cmd: 'guides' },
+    { text: 'ui.buddy.tip.vector_pen', cmd: 'pen' },
+    { text: 'ui.buddy.tip.guides', cmd: 'guides' },
   ],
   pdf: [
-    { text: "It looks like you're redacting a PDF… want me to black things out?", cmd: 'redact' },
-    { text: 'Merging PDFs? Drag pages between files.', cmd: 'merge' },
+    { text: 'ui.buddy.tip.pdf_redact', cmd: 'redact' },
+    { text: 'ui.buddy.tip.pdf_merge', cmd: 'merge' },
   ],
   label: [
-    { text: "It looks like you're designing a label! Want a barcode?", cmd: 'barcode' },
-    { text: 'Printing a sheet? Check the label size first.', cmd: 'print' },
+    { text: 'ui.buddy.tip.label_barcode', cmd: 'barcode' },
+    { text: 'ui.buddy.tip.label_print', cmd: 'print' },
   ],
-  cutout: [{ text: "It looks like you're cutting something out! Want the background gone?", cmd: 'background' }],
-  press: [{ text: "It looks like you're writing a story! Need a headline?", cmd: 'headline' }],
-  slopedit: [{ text: "It looks like you're editing a video! Add a title?", cmd: 'title' }],
-  drive: [{ text: "It looks like you're organising files! A new folder, maybe?", cmd: 'folder' }],
-  ai: [{ text: "It looks like you're talking to an AI. I am also an AI. Sort of.", cmd: null }],
-  default: [{ text: 'Psst: Ctrl+K finds every command.', cmd: null }, { text: 'Everything here runs in your browser. No uploads. No watermarks.' }],
+  cutout: [{ text: 'ui.buddy.tip.cutout', cmd: 'background' }],
+  press: [{ text: 'ui.buddy.tip.press', cmd: 'headline' }],
+  slopedit: [{ text: 'ui.buddy.tip.video', cmd: 'title' }],
+  drive: [{ text: 'ui.buddy.tip.drive', cmd: 'folder' }],
+  ai: [{ text: 'ui.buddy.tip.ai', cmd: null }],
+  default: [{ text: 'ui.buddy.tip.palette', cmd: null }, { text: 'ui.buddy.tip.local' }],
 };
 
 let shownAt = 0, last = null, current = '';
@@ -47,8 +47,8 @@ export function actionsFor(tip) {
     const hit = (C.search(tip.cmd) || [])[0];
     if (hit) out.push({ label: hit.title || tip.cmd, run: () => C.run(hit.id, { source: 'buddy' }) });
   }
-  if (!out.length) out.push({ label: 'Thanks', run: null });
-  out.push({ label: "Don't show tips again", run: () => { setPrefs({ tips: false }); say(line('tipsoff'), 1600, { force: true }); } });
+  if (!out.length) out.push({ label: tr('ui.buddy.thanks'), run: null });
+  out.push({ label: tr('ui.buddy.tips_off'), run: () => { setPrefs({ tips: false }); say(line('tipsoff'), 1600, { force: true }); } });
   return out;
 }
 
@@ -61,8 +61,8 @@ export function maybeTip(force = false) {
   const tip = pick(list.length ? list : tipsFor());
   shownAt = t;
   last = tip;
-  current = tip.text;
+  current = tr(tip.text);
   M.squash = 0.4;
-  say(tip.text, 12000, { actions: actionsFor(tip) });
+  say(current, 12000, { actions: actionsFor(tip) });
   return true;
 }

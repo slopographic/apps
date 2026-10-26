@@ -5,6 +5,7 @@
   <meta name="slop-test-needs" content="mascot=builtin">
   <title>Homepage · Sloppo mascot</title>
   <style>body { margin: 0; background: #111; color: #eee; font: 13px system-ui; }</style>
+  <script src="../../shared/i18n/i18n.js"></script>
 </head>
 <body>
   <!-- Covers: shared/buddy/perches.js (he lands on a perch beside the consent card, whatever its height in the machine's fonts) -->
@@ -14,7 +15,7 @@
   <script type="module">
   import { levelFor, xpFor, hatsFor, scaleFor, HAT_ORDER } from '../../shared/buddy/store.js';
   import { HAT_SVG as HATS } from '../../shared/buddy/hats.js';
-  import { LINES, line } from '../../shared/buddy/lines.js';
+  import { LINES, line, pool } from '../../shared/buddy/lines.js';
   const { describe, it, expect, waitFor, sleep, run } = SlopTest;
   let win, S, M;
   const ready = HomeTest.openHome().then((w) => { win = w; S = w.SlopMascot; M = S.M; });
@@ -34,7 +35,7 @@
     it('never says the same line twice in a row', () => {
       for (const kind of Object.keys(LINES)) {
         let prev = line(kind);
-        for (let i = 0; i < 40; i++) { const l = line(kind); expect(LINES[kind]).toContain(l); if (LINES[kind].length > 1) expect(l === prev).toBe(false); prev = l; }
+        for (let i = 0; i < 40; i++) { const l = line(kind); expect(pool(kind)).toContain(l); if (LINES[kind].length > 1) expect(l === prev).toBe(false); prev = l; }
       }
     });
   });

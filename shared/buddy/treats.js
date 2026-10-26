@@ -7,6 +7,7 @@ import { M, now, rand, reduced, sleep, setMood, changed } from './state.js';
 import * as P from './perches.js';
 import { hopTo } from './motion.js';
 import { say } from './fx.js';
+import { tr as word } from './lines.js';
 import { size } from './look.js';
 import { record } from './journal.js';
 import { MAD, persistRage } from './rage.js';
@@ -67,11 +68,11 @@ function plan(t) {
   const d = delayFor(t.id);
   t.eatAt = d === Infinity ? 0 : now() + d;
   if (d === Infinity) snub(t);
-  else if (M.rage > 0) say('hmph.', 900, { force: true });
+  else if (M.rage > 0) say(word('ui.buddy.hmph'), 900, { force: true });
 }
 function snub(t) {
   M.backUntil = now() + 2600;               // turns his back on it
-  say(Math.random() < 0.5 ? 'not hungry. ANGRY.' : 'i do NOT want your ' + item(t.id).name, 1800, { force: true });
+  say(Math.random() < 0.5 ? word('ui.buddy.not_hungry') : word('ui.buddy.dont_want', { item: word(item(t.id).name) }), 1800, { force: true });
 }
 
 /** Per frame: keep treats on their perches, fade old ones, melt rage, and go eat when ready. */
@@ -119,7 +120,7 @@ async function kick(tr) {
   busy = true;
   try {
     if (!(await hopTo({ el: tr.perch.el, off: tr.perch.off + (M.x < tr.x ? -30 : 30), frac: 0.5 })) || !treats.includes(tr)) return;
-    say('HMPH. *kick*', 1200, { force: true });
+    say(word('ui.buddy.kick'), 1200, { force: true });
     M.squash = -0.5;
     const dir = M.x < tr.x ? 1 : -1;
     treats.splice(treats.indexOf(tr), 1);

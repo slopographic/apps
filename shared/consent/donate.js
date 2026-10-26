@@ -18,7 +18,9 @@
     a.href = cfg.patreonUrl;
     a.target = '_blank';
     a.rel = 'noopener';
-    a.textContent = 'Tip jar';
+    // the same word as Settings' button (strings.js), marked so a language switch redraws it
+    a.setAttribute('data-i18n', 'settings.donate');
+    a.textContent = window.SlopI18n ? window.SlopI18n.t('settings.donate') : 'settings.donate';
     el.append(a);
     el.hidden = false;
     return true;

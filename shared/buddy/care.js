@@ -7,7 +7,7 @@
 // unlock with levels. Petting helps a little, but not at full rage.
 import { M, now, reduced, setMood, changed, rand, cheer, listeners } from './state.js';
 import { say, hearts, sparkle, crumbs } from './fx.js';
-import { line } from './lines.js';
+import { line, tr } from './lines.js';
 import { size } from './look.js';
 import { save } from './store.js';
 import { addRage, calmRage, MAD, persistRage } from './rage.js';
@@ -15,11 +15,11 @@ import { offer, tickTreats } from './treats.js';
 import { makeCandy, candyOut } from './candy.js';
 
 export const ITEMS = [
-  { id: 'cookie', icon: '🍪', name: 'cookie', calm: 1.0, cd: 20000, level: 1, act: 'eat' },
-  { id: 'candy', icon: '🍬', name: 'slop candy', calm: 0.8, cd: 25000, level: 1, act: 'eat' },
-  { id: 'juice', icon: '🧃', name: 'goo juice', calm: 1.2, cd: 40000, level: 2, act: 'eat' },
-  { id: 'plush', icon: '🧸', name: 'plushie', calm: 1.5, cd: 60000, level: 3, act: 'hug' },
-  { id: 'hat', icon: '🎩', name: 'new hat', calm: 2.0, cd: 120000, level: 4, act: 'hat' },
+  { id: 'cookie', icon: '🍪', name: 'ui.buddy.item.cookie', calm: 1.0, cd: 20000, level: 1, act: 'eat' },
+  { id: 'candy', icon: '🍬', name: 'ui.buddy.item.candy', calm: 0.8, cd: 25000, level: 1, act: 'eat' },
+  { id: 'juice', icon: '🧃', name: 'ui.buddy.item.juice', calm: 1.2, cd: 40000, level: 2, act: 'eat' },
+  { id: 'plush', icon: '🧸', name: 'ui.buddy.item.plush', calm: 1.5, cd: 60000, level: 3, act: 'hug' },
+  { id: 'hat', icon: '🎩', name: 'ui.buddy.item.hat', calm: 2.0, cd: 120000, level: 4, act: 'hat' },
 ];
 const byId = Object.fromEntries(ITEMS.map((i) => [i.id, i]));
 
@@ -61,7 +61,7 @@ export function feed(id) {
     setMood(it.act === 'hug' || fav ? 'love' : 'chomp', fav ? 1600 : 900);
     M.squash = 0.6;
     if (!reduced()) { hearts(fav ? 6 : 2); if (fav) sparkle(); }
-    say(fav ? `OMG ${it.name.toUpperCase()}` : line(it.act === 'hug' ? 'hug' : 'snack'), 1800, { force: true });
+    say(fav ? tr('ui.buddy.omg', { item: tr(it.name).toLocaleUpperCase() }) : line(it.act === 'hug' ? 'hug' : 'snack'), 1800, { force: true });
     if (M.raging && v >= 1.5) calmRage();
     M.rage = Math.max(0, M.rage - v);
     if (before >= MAD && M.rage < MAD && !M.raging) setTimeout(() => say(line('calmed'), 1600), 1900);
@@ -137,7 +137,6 @@ export function mount(panel) {
   giveBtn = document.createElement('button');
   giveBtn.type = 'button';
   giveBtn.className = 'sh-give-l';
-  giveBtn.textContent = 'Give…';
   giveBtn.setAttribute('aria-controls', 'sh-give-body');
   giveBtn.addEventListener('click', () => { giveOpen = !giveOpen; render(); });
   giveBody = document.createElement('div');
@@ -147,8 +146,6 @@ export function mount(panel) {
   candyBtn = document.createElement('button');
   candyBtn.type = 'button';
   candyBtn.className = 'sh-mk';
-  candyBtn.textContent = 'Make candy';
-  candyBtn.title = 'Make a candy: drag it onto Sloppo to calm him';
   candyBtn.addEventListener('click', () => makeCandy());
   giveBody.append(candyBtn);
   for (const it of ITEMS) {
@@ -157,8 +154,6 @@ export function mount(panel) {
     b.className = 'sh-item';
     b.dataset.item = it.id;
     b.textContent = it.icon;
-    b.title = `Give him a ${it.name}`;
-    b.setAttribute('aria-label', `Give Sloppo a ${it.name}`);
     b.addEventListener('click', () => { if (take(it.id)) offer(it.id); });
     giveBody.append(b);
   }
@@ -175,10 +170,16 @@ function render() {
   if (tray.hidden || !M.hudOpen) giveOpen = false;
   giveBody.hidden = !giveOpen;
   giveBtn.setAttribute('aria-expanded', String(giveOpen));
+  // the words, here so a language switch reaches them on the next render
+  giveBtn.textContent = tr('ui.buddy.give');
+  candyBtn.textContent = tr('ui.buddy.make_candy');
+  candyBtn.title = tr('ui.buddy.make_candy_tip');
   candyBtn.disabled = candyOut();
   for (const b of giveBody.querySelectorAll('.sh-item')) {
     const it = byId[b.dataset.item];
     b.hidden = it.level > M.level;
+    b.title = tr('ui.buddy.give_him', { item: tr(it.name) });
+    b.setAttribute('aria-label', tr('ui.buddy.give_sloppo', { item: tr(it.name) }));
     b.disabled = !ready(it.id, t);
     const left = Math.max(0, ((M.stock || {})[it.id] || 0) - t);
     b.style.setProperty('--cd', left ? (left / it.cd).toFixed(3) : 0);

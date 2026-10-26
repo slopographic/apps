@@ -6,7 +6,7 @@ import { TIMING, GLAD_FACE } from './timing.js';
 import { count } from './journal.js';
 import { restore } from './chaos.js';
 import { say } from './fx.js';
-import { line } from './lines.js';
+import { line, tr } from './lines.js';
 import { MAD } from './rage.js';
 import { makeCandy, candyOut } from './candy.js';
 import { list as treatList } from './treats.js';
@@ -43,5 +43,5 @@ function tickAsk(t) {
 }
 /** He asks in his bubble; the button makes the candy beside him. */
 export function askForCandy() {
-  say(line('askcandy'), 7000, { force: true, actions: [{ label: 'Make candy', run: makeCandy }] });
+  say(line('askcandy'), 7000, { force: true, actions: [{ label: tr('ui.buddy.make_candy'), run: makeCandy }] });
 }

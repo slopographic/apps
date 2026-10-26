@@ -5,13 +5,14 @@
 (function (g) {
   'use strict';
   const C = g.SlopAgentClients;
+  const tr = (k, v) => { const I = g.SlopI18n; return I ? I.t(k, v) : k; };
   const el = (tag, attrs, ...kids) => { const n = document.createElement(tag); for (const k in attrs || {}) n.setAttribute(k, attrs[k]); n.append(...kids.filter((x) => x != null)); return n; };
 
   function snippet(s) {
-    const code = el('code', {}, s.code), btn = el('button', { type: 'button', class: 'sac-copy' }, 'Copy');
+    const code = el('code', {}, s.code), btn = el('button', { type: 'button', class: 'sac-copy' }, tr('ui.copy'));
     btn.addEventListener('click', async () => {
-      try { await navigator.clipboard.writeText(s.code); btn.textContent = 'Copied'; } catch (e) { btn.textContent = 'Select and copy'; }
-      setTimeout(() => { btn.textContent = 'Copy'; }, 1600);
+      try { await navigator.clipboard.writeText(s.code); btn.textContent = tr('ui.agent.copied'); } catch (e) { btn.textContent = tr('ui.agent.select_copy'); }
+      setTimeout(() => { btn.textContent = tr('ui.copy'); }, 1600);
     });
     return el('figure', { class: 'sac-snip' }, el('figcaption', {}, s.label, s.file ? el('small', {}, ' · ' + s.file) : null), el('pre', {}, code), btn);
   }
@@ -27,7 +28,8 @@
       const box = el('details', { class: 'sac-client', id: 'ai-app-' + c.id }, el('summary', {}, c.name));
       for (const t of c.steps) box.append(el('p', {}, t));
       for (const s of c.snippets) box.append(snippet(s));
-      box.append(el('p', { class: 'note' }, 'Format from ', el('a', { href: c.doc, rel: 'noopener' }, 'the documentation'), ', checked October 2026.'));
+      const [pre, post] = tr('ui.agent.format_from').split('{doc}');
+      box.append(el('p', { class: 'note' }, pre, el('a', { href: c.doc, rel: 'noopener' }, tr('ui.agent.the_docs')), post || ''));
       host.append(box);
     }
   }
@@ -35,6 +37,7 @@
     for (const n of document.querySelectorAll('[data-slop-ai-soon]')) n.hidden = !!C.PUBLISHED;
     for (const host of document.querySelectorAll('[data-slop-ai-clients]')) render(host);
   }
+  if (C && g.SlopI18n && g.SlopI18n.on) g.SlopI18n.on(apply);   // the buttons and notes follow a language switch
   g.SlopAgentClientsHelp = { render, apply };
   if (C) { if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply, { once: true }); else apply(); }
 })(window);

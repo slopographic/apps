@@ -3,7 +3,8 @@
  * already checked against their SHA-256: libraw.js as a blob URL (imported here, and handed to LibRaw's own threads as
  * mainScriptUrlOrBlob) and libraw.wasm as bytes, so nothing is fetched by this worker.
  * Messages in:  { id, op: 'init', jsUrl, wasm }   { id, op: 'decode', bytes, settings }
- * Messages out: { id, ok: true, out } or { id, ok: false, error }, plus { id, progress } while decoding.
+ * Messages out: { id, ok: true, out } or { id, ok: false, error }, plus { id, progress } while decoding (error: LibRaw's
+ *   text, or a ui.raw.* key the page translates; progress: a step, ui.raw.step_<step>).
  * decode's out: { width, height, bits, data, meta }. 8-bit data is RGBA (Uint8ClampedArray, ready for ImageData);
  * 16-bit data is RGB (Uint16Array, three values per pixel). The orientation is already applied by LibRaw. */
 let lib = null;
@@ -41,7 +42,7 @@ async function init(jsUrl, wasm) {
 }
 
 function decode(id, bytes, settings) {
-  if (!lib) throw new Error('The RAW engine is not loaded');
+  if (!lib) throw new Error('ui.raw.missing');
   const p = new lib.LibRaw();
   try {
     self.postMessage({ id, progress: 'open' });
@@ -49,7 +50,7 @@ function decode(id, bytes, settings) {
     const meta = metaOf(p.metadata(false));
     self.postMessage({ id, progress: 'develop' });
     const img = p.imageData();
-    if (!img || !img.data) throw new Error('This RAW file could not be decoded');
+    if (!img || !img.data) throw new Error('ui.raw.undecodable');
     const w = img.width, h = img.height;
     let data = img.colors === 1 ? grey(img.data, w * h) : img.data;
     if (img.bits === 8) data = rgba(data, w, h);
@@ -73,6 +74,6 @@ self.onmessage = async ({ data: msg }) => {
     throw new Error('Unknown request ' + op);
   } catch (e) {
     // LibRaw's C++ errors arrive as plain objects with no message
-    self.postMessage({ id, ok: false, error: e instanceof Error && e.message ? e.message : 'This file could not be read as a camera RAW photo' });
+    self.postMessage({ id, ok: false, error: e instanceof Error && e.message ? e.message : 'ui.raw.unreadable' });
   }
 };

@@ -16,14 +16,17 @@
   const NEAR_END = 240; // px from the bottom of the list at which the next part is drawn
 
   const el = (tag, attrs, ...kids) => g.SlopUI.el(tag, attrs, ...kids);
+  /** Words: ours are keys (ui.review.*, ui.*, menu.*); an app's title, intro and confirm label may be keys too (SlopI18n.label). */
+  const tr = (k, v) => { const I = g.SlopI18n; return I ? I.t(k, v) : k; };
+  const lab = (v, vars) => { const I = g.SlopI18n; return I && I.label ? I.label(v, vars) : typeof v === 'function' ? v(vars) : v; };
 
   /** Builds the list pieces and the dialog. Returns the promise. */
   function open(o) {
     const items = M.normalise(o.items);
-    const title = o.title || 'Review';
+    const title = lab(o.title || 'ui.review.title');
     if (!items.length) {
-      return new Promise((resolve) => g.SlopUI.dialog({ title, cls: 'sr-dlg', body: el('div', { class: 'sr-body' }, o.intro ? el('p', { class: 'sui-p' }, o.intro) : null, el('p', { class: 'sui-p' }, 'Nothing to change.')),
-        buttons: [{ label: 'Close', primary: true }], onClose: () => resolve(null) }));
+      return new Promise((resolve) => g.SlopUI.dialog({ title, cls: 'sr-dlg', body: el('div', { class: 'sr-body' }, o.intro ? el('p', { class: 'sui-p' }, lab(o.intro)) : null, el('p', { class: 'sui-p' }, tr('ui.review.nothing'))),
+        buttons: [{ label: tr('menu.close'), primary: true }], onClose: () => resolve(null) }));
     }
     return new Promise((resolve) => {
       let checked = M.initial(items);
@@ -40,7 +43,7 @@
         const frag = document.createDocumentFragment();
         for (let k = 0; k < n && at < pending.length; k++, at++) {
           const r = pending[at];
-          if (r.type === 'group') { frag.append(el('div', { class: 'sr-group', role: 'presentation' }, r.name + ' · ' + M.plural(r.count, 'item'))); continue; }
+          if (r.type === 'group') { frag.append(el('div', { class: 'sr-group', role: 'presentation' }, tr('ui.review.group', { name: r.name, n: r.count }))); continue; }
           const cb = el('input', { type: 'checkbox', 'aria-label': r.item.label });
           cb.checked = checked.has(r.item.id);
           cb.addEventListener('change', () => { checked = M.toggle(checked, r.item.id); refresh(); });
@@ -63,10 +66,11 @@
       function setChecked(next) { checked = next; for (const d of drawn) d.cb.checked = checked.has(d.id); refresh(); }
       function refresh() {
         const s = M.summary(items, checked);
-        sumEl.textContent = `${s.count} of ${items.length} checked` + (s.hasSizes ? ` · ${M.bytes(s.total)}` : '');
+        const of = tr('ui.review.checked', { n: s.count, total: items.length });
+        sumEl.textContent = s.hasSizes ? tr('ui.review.checked_size', { checked: of, size: M.bytes(s.total) }) : of;
         if (confirmBtn) {
           confirmBtn.disabled = s.count === 0;
-          confirmBtn.textContent = typeof o.confirmLabel === 'function' ? o.confirmLabel(s.count) : (o.confirmLabel || 'OK');
+          confirmBtn.textContent = typeof o.confirmLabel === 'function' ? o.confirmLabel(s.count) : lab(o.confirmLabel || 'menu.ok');
         }
       }
 
@@ -89,16 +93,16 @@
 
       const tool = (label, run) => el('button', { type: 'button', class: 'sui-btn', onclick: () => setChecked(run()) }, label);
       const body = el('div', { class: 'sr-body' },
-        o.intro ? el('p', { class: 'sui-p' }, o.intro) : null,
+        o.intro ? el('p', { class: 'sui-p' }, lab(o.intro)) : null,
         el('div', { class: 'sr-tools' },
-          tool('Select all', () => M.selectAll(items)),
-          tool('Select none', () => M.selectNone()),
-          tool('Invert', () => M.invert(items, checked))),
+          tool(tr('ui.select_all'), () => M.selectAll(items)),
+          tool(tr('ui.select_none'), () => M.selectNone()),
+          tool(tr('ui.review.invert'), () => M.invert(items, checked))),
         list);
 
       const dlg = g.SlopUI.dialog({ title, cls: 'sr-dlg', body, buttons: [
-        { label: 'Cancel' },
-        { label: 'OK', primary: true, danger: !!o.danger, act: () => { result = M.ids(items, checked); } },
+        { label: tr('menu.cancel') },
+        { label: tr('menu.ok'), primary: true, danger: !!o.danger, act: () => { result = M.ids(items, checked); } },
       ], onClose: (ok) => resolve(ok ? result : null) });
       confirmBtn = dlg.box.querySelector('.sui-foot .sui-primary');
       dlg.box.querySelector('.sui-foot').prepend(sumEl);

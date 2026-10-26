@@ -26,6 +26,9 @@
     licenceUrl: 'https://github.com/slopographic/cdn/blob/main/' + BASE + 'SOURCE.md', size: FILES.reduce((n, f) => n + f.size, 0), files: FILES.map((f) => ({ ...f, cdn: BASE + f.name })),
   };
   // the words are keys (shared/i18n/ui/<code>/firstrun.js), read by SlopFirstRun when the notice shows
+  /** A word shown to the person (ui.raw.*): status lines and errors, in the chosen language when they are made. A worker's
+   * error is a key it gives (its own failures) or the decoder's own text, shown as it is (SlopI18n.label). */
+  const tr = (k, v) => { const I = root.SlopI18n; return I ? I.label(k, v) : k; };
   const NOTICE = {
     title: 'ui.firstrun.raw_title',
     lines: ['ui.firstrun.raw_text'],
@@ -68,13 +71,13 @@
   }
   async function installed() { await deps(); return !!(await record()); }
 
-  function declined() { const e = new Error('The camera RAW engine was not downloaded'); e.code = 'declined'; return e; }
+  function declined() { const e = new Error(tr('ui.raw.declined')); e.code = 'declined'; return e; }
 
   /** Starts the worker with the stored files (the script as a blob URL, the WebAssembly as bytes). */
   async function start() {
     const S = root.SlopLibraryStore;
     const [js, wasm] = await Promise.all(FILES.map((f) => S.getBlob(`${PACK.id}/${f.name}`)));
-    if (!js || !wasm) throw new Error('The RAW engine is missing from this browser');
+    if (!js || !wasm) throw new Error(tr('ui.raw.missing'));
     const jsUrl = URL.createObjectURL(new Blob([js], { type: 'text/javascript' }));
     worker = new Worker(new URL('worker.js', SELF).href, { type: 'module' });
     worker.onmessage = ({ data }) => {
@@ -82,9 +85,9 @@
       if (!p) return;
       if (data.progress) { if (p.onProgress) p.onProgress(data.progress); return; }
       pending.delete(data.id);
-      if (data.ok) p.resolve(data.out); else p.reject(new Error(data.error));
+      if (data.ok) p.resolve(data.out); else p.reject(new Error(tr(data.error)));
     };
-    worker.onerror = (e) => { const err = new Error('The RAW engine stopped' + (e && e.message ? ': ' + e.message : '')); reset(err); };
+    worker.onerror = (e) => { reset(new Error(e && e.message ? tr('ui.raw.crashed_why', { error: e.message }) : tr('ui.raw.crashed'))); };
     const buf = await wasm.arrayBuffer();
     await call({ op: 'init', jsUrl, wasm: buf }, [buf]);
   }
@@ -99,20 +102,20 @@
   function reset(err) {
     try { if (worker) worker.terminate(); } catch (e) { /* gone */ }
     worker = null; readyP = null;
-    for (const p of pending.values()) p.reject(err || new Error('The RAW engine was stopped'));
+    for (const p of pending.values()) p.reject(err || new Error(tr('ui.raw.stopped')));
     pending.clear();
   }
 
   async function prepare(o) {
-    const say = (t) => { if (o.onStatus) o.onStatus(t); };
+    const say = (s) => { if (o.onStatus) o.onStatus(s); };
     await deps();
     if (!(await record())) {
       if (o.ask === false) throw declined();
       if (!(await root.SlopFirstRun.once('raw-engine', NOTICE))) throw declined();
-      say('Downloading the camera RAW engine…');
-      try { await root.SlopLibraryInstall.install(PACK, (t) => say('RAW engine: ' + t)); } catch (e) { throw new Error('The camera RAW engine could not be downloaded (' + e.message + ')'); }
+      say(tr('ui.raw.downloading'));
+      try { await root.SlopLibraryInstall.install(PACK, (s) => say(tr('ui.raw.progress', { status: s }))); } catch (e) { throw new Error(tr('ui.raw.download_failed', { error: e.message })); }
     }
-    say('Starting the camera RAW engine…');
+    say(tr('ui.raw.starting'));
     await start();
   }
   function ready(o = {}) {
@@ -122,11 +125,11 @@
 
   /** Develops one RAW file. bytes: Uint8Array or ArrayBuffer (copied, so the caller keeps it). */
   async function decode(bytes, opts = {}, onProgress) {
-    const say = (t) => { if (onProgress) onProgress(t); };
+    const say = (s) => { if (onProgress) onProgress(s); };
     await ready({ ask: opts.ask, onStatus: say });
     const copy = new Uint8Array(bytes instanceof ArrayBuffer ? bytes.slice(0) : bytes);   // a typed array is copied by the constructor
-    const words = { open: 'Reading the RAW file…', develop: 'Developing…' };
-    return call({ op: 'decode', bytes: copy, settings: settingsFor(opts) }, [copy.buffer], (p) => say(words[p] || p));
+    // the worker's steps (open, develop) are keys ui.raw.step_open, ui.raw.step_develop
+    return call({ op: 'decode', bytes: copy, settings: settingsFor(opts) }, [copy.buffer], (p) => say(tr('ui.raw.step_' + p)));
   }
 
   async function forget() {

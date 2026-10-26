@@ -31,8 +31,6 @@ window.SlopI18n && window.SlopI18n.add('sv', {
   'ui.shell.alerts_why': 'Få aviseringar när sidan ligger i bakgrunden.',
   'ui.shell.alerts_on': 'Slå på skrivbordsaviseringar',
   'ui.shell.find_app': 'Hitta en app',
-  'ui.shell.open_an_app': 'Öppna en app',
-  'ui.shell.spot_none': 'Ingen app matchar. Prova ett annat ord.',
   'ui.appbar.unsaved': 'Osparade ändringar',
   'ui.appbar.actions': 'Åtgärder',
   'ui.appbar.more': 'Fler åtgärder',

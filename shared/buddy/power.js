@@ -4,7 +4,7 @@
 // AI he searches the app's commands (SlopCmd) or falls back to canned lines. Never loads a model.
 import { M, now, changed } from './state.js';
 import { say, stream, sparkle } from './fx.js';
-import { line } from './lines.js';
+import { line, tr } from './lines.js';
 import { CFG } from './config.js';
 import { context } from './tips.js';
 
@@ -39,11 +39,14 @@ export function watch() {
 export function ask() {
   const form = document.createElement('form');
   form.className = 'say-ask';
-  form.innerHTML = '<input type="text" aria-label="Ask Sloppo" placeholder="Ask me anything…" maxlength="200"><button type="submit">Ask</button>';
+  form.innerHTML = '<input type="text" maxlength="200"><button type="submit"></button>';
   const input = form.querySelector('input');
+  input.setAttribute('aria-label', tr('ui.buddy.ask_sloppo'));
+  input.placeholder = tr('ui.buddy.ask_ph');
+  form.querySelector('button').textContent = tr('ui.buddy.ask');
   form.addEventListener('submit', (e) => { e.preventDefault(); const q = input.value.trim(); if (q) answer(q); });
   form.addEventListener('keydown', (e) => e.stopPropagation());
-  say(powered ? 'SLURP. I am the slop. Ask me anything.' : 'Ask me something (or a command).', 30000, { force: true, node: form });
+  say(tr(powered ? 'ui.buddy.ask_powered' : 'ui.buddy.ask_plain'), 30000, { force: true, node: form });
   setTimeout(() => input.focus(), 30);
 }
 
@@ -55,8 +58,8 @@ export async function answer(q) {
   }
   const C = window.SlopCmd;
   const hits = C && C.search ? (C.search(q) || []).slice(0, 3) : [];
-  if (hits.length) { say('Try one of these:', 12000, { force: true, actions: hits.map((c) => ({ label: c.title || c.id, run: () => C.run(c.id, { source: 'buddy' }) })) }); return 'commands'; }
-  say(line('idle') + ' (load Slop AI to give me a brain)', 3500, { force: true });
+  if (hits.length) { say(tr('ui.buddy.try_these'), 12000, { force: true, actions: hits.map((c) => ({ label: c.title || c.id, run: () => C.run(c.id, { source: 'buddy' }) })) }); return 'commands'; }
+  say(tr('ui.buddy.no_brain', { line: line('idle') }), 3500, { force: true });
   return 'canned';
 }
 

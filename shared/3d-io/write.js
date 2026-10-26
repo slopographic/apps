@@ -10,6 +10,8 @@ import { STLExporter } from '../../vendor/three/addons/exporters/STLExporter.js'
 import { PLYExporter } from '../../vendor/three/addons/exporters/PLYExporter.js';
 import { MIME } from './formats.js';
 import { bake, standardMaterials } from './scene.js';
+/** A word shown to the person (ui.d3.*, shared/i18n/ui/en/misc.js), in the chosen language when it is made. */
+const tr = (k, v) => { const I = globalThis.SlopI18n; return I ? I.t(k, v) : k; };
 import { writeMtl } from './mtl.js';
 import { plainTexture, textureCanvas } from './textures.js';
 
@@ -71,7 +73,7 @@ async function writeObj(root, opts, notes) {
     text = `# Written by Slopographic\nmtllib ${mtlName}\n` + text;
     files.push({ name: mtlName, blob: new Blob([mtl.text], { type: MIME.mtl }) });
     for (const t of mtl.textures) files.push(t);
-    if (mtl.skipped) notes.push(`${mtl.skipped} texture${mtl.skipped > 1 ? 's' : ''} could not be saved as a picture here and ${mtl.skipped > 1 ? 'were' : 'was'} left out.`);
+    if (mtl.skipped) notes.push(tr('ui.d3.tex_skipped', { n: mtl.skipped }));
   }
   files.unshift({ name: `${opts.name}.obj`, blob: blobOf(text, 'obj') });
   return files;
@@ -79,7 +81,7 @@ async function writeObj(root, opts, notes) {
 
 function writeStl(root, opts) {
   const flat = bake(root);
-  if (!flat.children.some((o) => o.isMesh)) throw new Error('This model has no triangles, so it cannot be an STL file (STL holds surfaces only).');
+  if (!flat.children.some((o) => o.isMesh)) throw new Error(tr('ui.d3.no_stl'));
   const out = new STLExporter().parse(flat, { binary: opts.binary !== false });
   return [{ name: `${opts.name}.stl`, blob: blobOf(opts.binary !== false ? out.buffer : out, 'stl') }];
 }
@@ -89,13 +91,13 @@ function writePly(root, opts) {
   const meshes = flat.children.filter((o) => o.isMesh);
   const keep = new T.Group();
   for (const o of meshes.length ? meshes : flat.children.filter((p) => p.isPoints)) keep.add(o);
-  if (!keep.children.length) throw new Error('This model has no triangles or points to write.');
+  if (!keep.children.length) throw new Error(tr('ui.d3.nothing_to_write'));
   // PLY holds one set of attributes for every vertex: uv and colour only when every part has them
   const drop = ['uv', 'color'].filter((k) => !keep.children.every((o) => o.geometry.attributes[k]));
   if (!keep.children.every((o) => o.geometry.index) && meshes.length) for (const o of keep.children) if (!o.geometry.index) o.geometry.setIndex([...Array(o.geometry.attributes.position.count).keys()]);
   // no callback: the exporter returns the file at once (its callback waits for an animation frame)
   const data = new PLYExporter().parse(keep, null, { binary: opts.binary !== false, littleEndian: true, excludeAttributes: drop });
-  if (!data) throw new Error('The PLY file could not be written.');
+  if (!data) throw new Error(tr('ui.d3.ply_failed'));
   return [{ name: `${opts.name}.ply`, blob: blobOf(data, 'ply') }];
 }
 
@@ -115,7 +117,7 @@ function exportCopy(root, notes) {
       }
     }
   });
-  if (lost) notes.push(`${lost} compressed texture${lost > 1 ? 's' : ''} could not be re-encoded and ${lost > 1 ? 'were' : 'was'} left out.`);
+  if (lost) notes.push(tr('ui.d3.tex_lost', { n: lost }));
   return copy;
 }
 
@@ -134,7 +136,7 @@ async function writeUsdz(root, opts, notes) {
   const keep = [];
   copy.traverse((o) => { if (o.isPoints || o.isLine) keep.push(o); });
   for (const o of keep) o.removeFromParent();
-  if (!bake(copy).children.length) throw new Error('This model has no triangles, so it cannot be a USDZ file.');
+  if (!bake(copy).children.length) throw new Error(tr('ui.d3.no_usdz'));
   copy.traverse((o) => {
     if (!o.isMesh) return;
     if (!o.geometry.attributes.normal) o.geometry = o.geometry.clone(), o.geometry.computeVertexNormals();
@@ -160,6 +162,6 @@ export async function writeModel(root, format, opts = {}) {
   else if (format === 'ply') files = writePly(root, o);
   else if (format === 'glb' || format === 'gltf') files = await writeGltf(root, format, o, notes);
   else if (format === 'usdz') files = await writeUsdz(root, o, notes);
-  else throw new Error(`Cannot write ${format} files.`);
+  else throw new Error(tr('ui.d3.cannot_write', { format }));
   return { files, notes };
 }

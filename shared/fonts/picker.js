@@ -25,7 +25,8 @@
     [() => root.SlopFonts && root.SlopFonts.openPanel, 'panel.js'],
   ];
   const GENERIC = { serif: 'serif', mono: 'monospace', sans: 'sans-serif' };
-  const GROUP = { site: 'This site\'s type', bundled: 'Bundled (offline)', installed: 'Downloaded', own: 'Your own' };
+  /** A word of the picker and the Fonts panel (ui.fonts.*, shared/i18n/ui/en/fonts.js), read when it is drawn. */
+  const tr = (k, v) => { const I = root.SlopI18n; return I ? I.t(k, v) : k; };
 
   let indexP = null, depsP = null, known = [], cssDone = false;
   const meta = new Map();          // family -> { category }
@@ -117,14 +118,14 @@
    * even when that font is not installed, so a saved document still shows it. */
   function render(sel, legacy, fams, current) {
     const want = sel.value || current || '';
-    const groups = [['Standard', []], [GROUP.site, []], [GROUP.bundled, []], [GROUP.installed, []], [GROUP.own, []]];
+    const groups = ['standard', 'site', 'bundled', 'installed', 'own'].map((g) => [tr('ui.fonts.group_' + g), []]);
     const slot = { bundled: 2, installed: 3, own: 4 };   // the site's own family (brand/faces.json) has a group of its own
     const seen = new Set();
     for (const l of legacy) { const [v, text] = Array.isArray(l) ? l : [l, l]; if (!seen.has(v)) { seen.add(v); groups[0][1].push([v, text]); } }
     // a family with the same widths as an Office font says so: "Carlito (Calibri)"
     for (const f of fams) if (!seen.has(f.name)) { seen.add(f.name); groups[f.site ? 1 : slot[f.source] || 3][1].push([f.name, f.metricFor && f.metricFor.length ? `${f.name} (${f.metricFor.join(', ')})` : f.name]); }
     const via = want && !seen.has(want) && fams.find((f) => (f.metricFor || []).some((m) => m.toLowerCase() === want.toLowerCase()));
-    if (want && !seen.has(want)) groups[0][1].unshift([want, want + (via ? ` (set in ${via.name})` : ' (not installed)')]);
+    if (want && !seen.has(want)) groups[0][1].unshift([want, via ? tr('ui.fonts.opt_set_in', { name: want, via: via.name }) : tr('ui.fonts.opt_not_installed', { name: want })]);
     sel.replaceChildren(...groups.filter((g) => g[1].length).map(([label, items]) => {
       const og = doc.createElement('optgroup'); og.label = label;
       for (const [v, text] of items) { const o = doc.createElement('option'); o.value = v; o.textContent = text; og.append(o); }
@@ -148,9 +149,10 @@
       cssDone = true;
       doc.head.append(Object.assign(doc.createElement('style'), { textContent: '.slop-getmore{font:inherit;font-size:11px;padding:1px 6px;margin-left:4px;border:1px solid currentColor;border-radius:4px;background:transparent;color:inherit;cursor:pointer;opacity:.85;white-space:nowrap}.slop-font-sample{margin:4px 0 0;font-size:16px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}' }));
     }
+    let noPacks = false, lastFams = [];
     const refresh = async () => {
       const fams = await families();
-      known = fams.map((f) => f.name);
+      known = fams.map((f) => f.name); lastFams = fams;
       render(sel, legacy, fams, sel.value || current);
       showSample(sel.value || current);
     };
@@ -158,7 +160,7 @@
     const sample = doc.createElement('p');
     sample.className = 'slop-font-sample';
     sample.setAttribute('aria-hidden', 'true');
-    sample.textContent = opts.sampleText || 'The quick brown fox jumps over 13 lazy dogs';
+    sample.textContent = opts.sampleText || tr('ui.fonts.sample');
     const showSample = (f) => { if (f) sample.style.fontFamily = sampleStack(f); };
     render(sel, legacy, [], current);
     showSample(sel.value || current);
@@ -170,21 +172,21 @@
       showSample(f);
       if (opts.onPick) opts.onPick(f);
     });
-    const button = (text, title, onClick) => {
+    const button = (onClick) => {
       const b = doc.createElement('button');
-      b.type = 'button'; b.className = 'slop-getmore'; b.textContent = text; b.title = title;
+      b.type = 'button'; b.className = 'slop-getmore';
       b.addEventListener('click', onClick);
       return b;
     };
-    const btn = button('Get more…', 'Optional font packs. Downloads start only when you click them.', async () => {
+    const btn = button(async () => {
       await deps();
       if (root.SlopLibrary) root.SlopLibrary.open({ onInstalled: () => refresh() });
     });
-    const fbtn = button('Fonts…', 'The Fonts panel: the fonts this document uses, what is installed, and how to add one.', async () => {
+    const fbtn = button(async () => {
       await deps();
       const docFonts = opts.docFonts ? opts.docFonts() : [sel.value];
       root.SlopFonts.openPanel({
-        fonts: docFonts, standard, title: 'Fonts',
+        fonts: docFonts, standard, title: 'ui.fonts.title',
         onUse: ({ use }) => { sel.value = use; sel.dispatchEvent(new Event('change')); },
         onAdd: () => refresh(),
       });
@@ -195,11 +197,22 @@
       deps().then(async () => {
         if (!root.SlopLibrary) return;
         const m = await root.SlopLibrary.loadManifest();
-        if (!m.packs.length) btn.textContent = 'Get more (no packs listed)';
+        if (!m.packs.length) { noPacks = true; words(); }
         // A select that was rebuilt (the PDF text panel rebuilds on each selection) no longer needs the listener.
         root.SlopLibrary.onChange(async () => { if (!sel.isConnected) return; dropDownloaded(); await refresh(); load(sel.value); });
       });
     }
+    /** The buttons' words and the groups' names, again on a language switch while the select is in the page. */
+    function words() {
+      btn.textContent = tr(noPacks ? 'ui.fonts.get_more_none' : 'ui.fonts.get_more'); btn.title = tr('ui.fonts.get_more_tip');
+      fbtn.textContent = tr('ui.fonts.fonts_btn'); fbtn.title = tr('ui.fonts.fonts_tip');
+    }
+    words();
+    const I = root.SlopI18n, off = I && I.on ? I.on(() => {
+      if (!sel.isConnected && !btn.isConnected) { off(); return; }
+      words(); render(sel, legacy, lastFams, sel.value || current);
+      if (!opts.sampleText) sample.textContent = tr('ui.fonts.sample');
+    }) : null;
     if (opts.preview && sel.parentNode) (opts.getMore !== false ? fbtn : sel).insertAdjacentElement('afterend', sample);
     return {
       refresh, button: btn, fontsButton: fbtn, preview: sample,

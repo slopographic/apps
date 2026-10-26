@@ -2,6 +2,7 @@
 import { M, changed } from './state.js';
 import { CW, CH, BASE } from './look.js';
 import { say } from './fx.js';
+import { tr } from './lines.js';
 
 let r3d = null, loading = false;
 export const renderer3d = () => r3d;
@@ -25,7 +26,7 @@ export async function set3d(on) {
   } catch (e) {
     r3d = null;                       // no WebGL: stay 2D, quietly
     M.is3d = false;
-    say('2D is my best side.', 1500);
+    say(tr('ui.buddy.best_side'), 1500);
   }
   loading = false;
   changed();

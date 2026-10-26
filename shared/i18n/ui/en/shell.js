@@ -31,8 +31,6 @@ window.SlopI18n && window.SlopI18n.add('en', {
   'ui.shell.alerts_why': 'Get alerts when this page is in the background.',
   'ui.shell.alerts_on': 'Turn on desktop alerts',
   'ui.shell.find_app': 'Find an app',
-  'ui.shell.open_an_app': 'Open an app',
-  'ui.shell.spot_none': 'No app matches. Try another word.',
   'ui.appbar.unsaved': 'Unsaved changes',
   'ui.appbar.actions': 'Actions',
   'ui.appbar.more': 'More actions',

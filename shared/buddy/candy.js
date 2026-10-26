@@ -3,7 +3,7 @@
 // down and makes him happy. One candy at a time; it fades away after a minute if nobody uses it.
 import { M, now, reduced, rand, setMood, changed, cheer } from './state.js';
 import { say, hearts, sparkle } from './fx.js';
-import { line } from './lines.js';
+import { line, tr } from './lines.js';
 import { size } from './look.js';
 import { calmRage, persistRage } from './rage.js';
 
@@ -45,7 +45,7 @@ export function makeCandy() {
   const n = document.createElement('span');
   n.className = 'sloppo-candy';
   n.setAttribute('role', 'button');
-  n.setAttribute('aria-label', 'Candy. Drag it onto Sloppo.');
+  n.setAttribute('aria-label', tr('ui.buddy.candy_aria'));
   const url = sprite();
   if (url) n.style.backgroundImage = `url("${url}")`;
   else n.textContent = '🍭';
