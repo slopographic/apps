@@ -1,4 +1,4 @@
-// Attribution guard: commits are by Slopographic, and new commits carry no Claude attribution.
+// Attribution guard: commits are by Slopographic alone, with no co-author or tool trailers.
 // The hooks in .githooks enforce it on each commit; this test checks they are switched on and that the commits since the
 // attribution change are by Slopographic. Run with: node --test tests/node/attribution.test.mjs
 import { test } from 'node:test';
@@ -28,11 +28,11 @@ test('the pre-commit and commit-msg hooks are switched on and executable', () =>
   }
 });
 
-test('every commit since the attribution change is by Slopographic and names no Claude attribution', () => {
+test('every commit since the attribution change is by Slopographic and has no co-author or tool trailer', () => {
   const log = git('log', `${ATTRIBUTION_COMMIT}..HEAD`, '--format=%H%x09%an <%ae>%x09%B%x1e');
   const bad = log.split('\x1e').map((r) => r.trim()).filter(Boolean).filter((r) => {
     const [, author, body] = r.split('\t');
-    return author !== `${IDENTITY.name} <${IDENTITY.email}>` || /co-authored-by:.*claude|claude-session:/i.test(body || '');
+    return author !== `${IDENTITY.name} <${IDENTITY.email}>` || /^co-authored-by:|^[\w-]+-session:|generated with \[/im.test(body || '');
   });
   assert.deepEqual(bad.map((r) => r.split('\t')[0].slice(0, 9)), []);
 });
