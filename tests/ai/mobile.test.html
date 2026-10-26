@@ -17,7 +17,10 @@
       W = await AT.app('', { width: 390, height: 844 }); AI = W.AI; D = W.document;
       AI.sysMock = AT.SYS.laptop; await AI.runCheck();
       for (const t of ['chat', 'build', 'models', 'sys']) { AI.setTab(t); await sleep(60); expect(noSideways()).toBe(true); }
-      for (const id of ['tab-chat', 'tab-models', 'modelChip', 'sloppo', 'btnMore']) expect(inView(D.getElementById(id))).toBe(true);
+      for (const id of ['tab-chat', 'tab-models', 'modelChip', 'btnMore']) expect(inView(D.getElementById(id))).toBe(true);
+      // the built-in mascot in the top bar; a build without it shows none there (ai/js/ui/sloppo.js)
+      if (BRAND_FACTS.mascot === 'builtin') expect(inView(D.getElementById('sloppo'))).toBe(true);
+      else expect(!D.getElementById('sloppo') || !inView(D.getElementById('sloppo'))).toBe(true);
     });
     it('the chat list is a drawer from the left (SlopSheet): Chats opens it, again closes it, × and Escape close it', async () => {
       AI.setTab('chat');

@@ -14,7 +14,6 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const SITE = 'https://slopographic.com';
-const DESC_MIN = 120, DESC_MAX = 160;
 const read = (rel) => readFile(path.join(ROOT, rel), 'utf8');
 
 /** The registry, read as the browser reads it (a classic script that sets window.SLOP_APPS). */
@@ -60,12 +59,12 @@ test('each page has one title, unique across the site', () => {
   }
 });
 
-test('each page has a description of 120 to 160 characters, unique across the site', () => {
+// the lengths (120 to 160) are this site's copy: tests/seo/site-copy.test.mjs (repo-only; a build's renamed copy differs)
+test('each page has a description, unique across the site', () => {
   const seen = new Map();
   for (const p of pages) {
     const d = descOf(html[p.label]);
     assert.ok(d, `${p.label}: no meta description`);
-    assert.ok(d.length >= DESC_MIN && d.length <= DESC_MAX, `${p.label}: description is ${d.length} characters`);
     assert.ok(!seen.has(d), `${p.label}: description repeats ${seen.get(d)}`);
     seen.set(d, p.label);
   }

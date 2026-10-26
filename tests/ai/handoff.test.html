@@ -34,8 +34,10 @@
       F.replies.push(CU.anthropic.text('Hello.'));
       await P.SlopAIPanel.send('hi');
       const b = F.requests.find((r) => /\/v1\/messages$/.test(r.url)).body, sys = b.system[0].text;
-      expect(sys).toContain('- slides: Slop Slides, Keynote and PowerPoint. Makes: Presentation (.sslide).');   // brief: find_tools gives the tools there
-      expect(sys).toContain('- docs: Slop Docs'); expect(sys).toContain('open_in_app moves the task to that app');
+      // brief: find_tools gives the tools there. The registry's names and taglines (here: Slop Slides, Keynote and PowerPoint.)
+      const reg = (id) => P.SLOP_APPS.find((a) => a.id === id), slides = reg('slides');
+      expect(sys).toContain(`- slides: ${slides.name}, ${slides.tagline.replace(', rebuilt for the browser', '')} Makes: Presentation (.sslide).`);
+      expect(sys).toContain(`- docs: ${reg('docs').name}`); expect(sys).toContain('open_in_app moves the task to that app');
       expect(sys).toContain('run_operation does it on this page'); expect(sys).toContain('Be resourceful');
       expect(b.tools.map((t) => t.name)).toContain('look_at_canvas');
       expect(b.tools.find((t) => t.name === 'open_app').input_schema.properties.task.type).toBe('string');

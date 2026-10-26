@@ -167,11 +167,15 @@
       const apps = win.SLOP_APPS.filter((a) => a.kind === 'app');
       expect(one.length).toBeLessThanOrEqual(apps.length);
       expect(one.length).toBeGreaterThan(apps.length - 4);
-      expect(one.some((t) => /^\d+ conversions$/.test(t))).toBe(true);
+      // brand names: what each app does, File convert as its conversions; plain names: each app's name (home/marquee.js)
+      if (BRAND_FACTS.naming === 'plain') expect([...lists[0].querySelectorAll('a[data-id]')].every((a) => a.textContent === win.slopAppName(a.dataset.id))).toBe(true);
+      else expect(one.some((t) => /^\d+ conversions$/.test(t))).toBe(true);
       const hero = doc.getElementById('hero'), strip = doc.querySelector('.hx-marquee'), finder = doc.querySelector('.finder-top');
       expect(hero.nextElementSibling).toBe(strip);
       expect(strip.nextElementSibling).toBe(finder);
-      expect(doc.querySelector('.mq-track').getAnimations().some((a) => a.playState === 'running')).toBe(true);
+      // it runs; a plain-tone build leaves the strip out of the page (style/tone.css)
+      if (BRAND_FACTS.tone === 'plain') expect(win.getComputedStyle(strip).display).toBe('none');
+      else expect(doc.querySelector('.mq-track').getAnimations().some((a) => a.playState === 'running')).toBe(true);
     }, { timeout: 60000 });
   });
 

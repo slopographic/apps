@@ -65,6 +65,7 @@
     it('the Experiments shelf comes after the six sections and holds the apps no section names', async () => {
       await ready;
       const exp = doc.getElementById('experiments');
+      if (BRAND_FACTS.tone === 'plain') return expect(exp).toBe(null);   // a plain build has no Experiments shelf
       expect(exp.hidden).toBe(false);
       expect(!!exp.querySelector('[data-id="paint-classic"]')).toBe(true);
       expect(!!doc.querySelector('#experiments [data-id="authenticator"]')).toBe(false);
@@ -73,7 +74,7 @@
     it('the jump links point at each section, and their targets exist', async () => {
       await ready;
       const links = [...doc.querySelectorAll('#jump-links a')];
-      expect(links.map((a) => a.getAttribute('href'))).toEqual(['#documents', '#converters', '#labels', '#business', '#creative', '#tools', '#experiments']);
+      expect(links.map((a) => a.getAttribute('href'))).toEqual(['#documents', '#converters', '#labels', '#business', '#creative', '#tools'].concat(BRAND_FACTS.tone === 'plain' ? [] : ['#experiments']));
       for (const a of links) {
         const target = doc.querySelector(a.getAttribute('href'));
         if (!target) throw new Error('no target for ' + a.getAttribute('href'));

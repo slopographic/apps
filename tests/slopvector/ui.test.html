@@ -192,7 +192,7 @@
       try { await HUB.sendItems().find((i) => i.label === 'Send PNG to PhotoSlop').act(); } finally { W.open = realOpen; }
       expect(opened).toMatch(/\/photoslop\/\?drive=/);
       const rec = await W.SlopHub.get(new URL(opened).searchParams.get('drive'));
-      expect([rec.type, rec.from, rec.name]).toEqual(['image/png', 'vector', 'Sloppo.png']);
+      expect([rec.type, rec.from, rec.name]).toEqual(['image/png', 'vector', 'Sloppo' + '.png']);
     });
     // Drive records come in through the one intake (slopvector/js/io/intake.js): mode 'new' opens, no mode places.
     const openRec = async (rec) => W.SlopIntake.take([rec], { to: 'vector', mode: 'new', source: 'drive' });

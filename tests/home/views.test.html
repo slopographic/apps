@@ -89,14 +89,16 @@
       const d = w.document;
       await waitFor(() => !d.getElementById('view-detector').hidden, { timeout: 8000 });
       expect(d.getElementById('view-home').hidden).toBe(true);
-      expect(d.querySelector('#view-detector h1.page-title').textContent).toBe('The Authenticator');
+      expect(d.querySelector('#view-detector h1.page-title').textContent).toBe('The ' + 'Authenticator');   // its markup, which a build keeps
       win = await HomeTest.openHome({ fresh: false });
       doc = win.document;
     });
   });
 
   describe('the footer wordmark (home/footer-mark.js)', () => {
-    it('is scaled to fill its row without spilling', async () => {
+    // a plain-tone build shows no wordmark there (style/tone.css)
+    if (BRAND_FACTS.tone === 'plain') it('a plain build leaves it out', async () => { await ready; expect(win.getComputedStyle(doc.querySelector('.footer-mark')).display).toBe('none'); });
+    else it('is scaled to fill its row without spilling', async () => {
       await ready;
       const m = doc.querySelector('.footer-mark');
       await win.SlopFooterMark.fontsReady;
@@ -106,7 +108,7 @@
       range.selectNodeContents(m);
       expect(range.getBoundingClientRect().width <= m.clientWidth + 1).toBe(true);
     });
-    it('fills when scrolled into view, unless reduced motion is asked for', async () => {
+    if (BRAND_FACTS.tone !== 'plain') it('fills when scrolled into view, unless reduced motion is asked for', async () => {
       await ready;
       const m = doc.querySelector('.footer-mark');
       doc.documentElement.style.scrollBehavior = 'auto';

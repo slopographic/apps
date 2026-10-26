@@ -15,7 +15,7 @@
   window.__net = { engine: 0 };
   window.fetch = async (input, init) => {
     const url = String(input && input.url ? input.url : input);
-    if (/slopographic\/cdn[@/].*\/engines\/libraw\//.test(url)) {   // jsDelivr (cdn@tag) or GitHub (cdn/tag)
+    if (window.SlopCdn && new RegExp(`${window.SlopCdn.REPO}[@/].*/engines/libraw/`).test(url)) {   // jsDelivr (cdn@tag) or GitHub (cdn/tag); the build's repository (here slopographic/cdn)
       window.__net.engine++;
       if (window.__mode === '404') return new Response('not found', { status: 404 });
       if (window.__mode === 'bad' && url.endsWith('.wasm')) return new Response(new Uint8Array(1417725), { status: 200 });
