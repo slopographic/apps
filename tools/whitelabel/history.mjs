@@ -7,7 +7,8 @@
 //     [--forbid=<word>,...] [--root=<checkout>] [--report=<file>]
 // --root: the checkout whose copy layer and app registry name things (default this one; a release passes its source).
 // Incremental: a commit transforms only the paths changed since the last mapped one (git diff-tree) and keeps the rest;
-// the cheap rewrites of the build follow their inputs (brand.json, the manifest, the trial tokens, the raw links pinned to
+// the cheap rewrites of the build follow their inputs (brand.json, the manifest, the trial tokens, the font block, the
+// video ids stripped, the raw links pinned to
 // the cdn TAG, the mirror workflow from .github/workflows/rules.yml). The slow steps (SEO writer, precache list, icons)
 // are not run per commit: --generated names a finished build whose own files (the ones that are no source file's image:
 // licence, README, icons, logo, mascot) enter with the first commit, and the release commit on top is the full build.
@@ -29,6 +30,8 @@ import { skipPattern, smokeFor } from './mirror-skip.mjs';
 import { pinCdn, TEXT } from './cdnpin.mjs';
 import { isText, scan, report, listFiles } from './scan.mjs';
 import { artAllow } from './mascot.mjs';
+import { mediaIds, stripText } from './media.mjs';
+import { withBlock, START, EMPTY } from '../fonts/css.mjs';
 import { excluded, patchBinary, isUtf8, SCAN_ALLOW } from './build.mjs';
 import { chain, commits, diffTree, lsTree, readBlobs, blobSha, git, FastImport } from './history-git.mjs';
 import { mapMessage, combine, areas, areaNames, checker } from './history-message.mjs';
@@ -41,9 +44,10 @@ export function setup(root, dir, id, opts = {}) {
   const p = loadProfile(dir, id), map = loadMap(dir, id);
   if (!map) throw new Error(`profile ${id} has no rename map: its copy is this site itself`);
   const ctx = context(root, p, map), account = p.github.toLowerCase();
-  const terms = [...new Set(forbiddenTerms(dir, p).concat((opts.forbid || []).map((t) => t.toLowerCase())))];
+  const videos = p.media ? [] : mediaIds(root);   // as the build: this site's video ids are stripped and forbidden
+  const terms = [...new Set(forbiddenTerms(dir, p).concat(videos, opts.forbid || []).map((t) => t.toLowerCase()))];
   const ok = checker(terms, account), names = areaNames(root);
-  return { p, ctx, terms, account, ok, names, allow: SCAN_ALLOW.concat(HISTORY_ALLOW, p.scanAllow || [], artAllow(p)), fix: (s) => tokens(s, ctx.tokenRules) };
+  return { p, ctx, terms, videos, account, ok, names, allow: SCAN_ALLOW.concat(HISTORY_ALLOW, p.scanAllow || [], artAllow(p)), fix: (s) => tokens(s, ctx.tokenRules) };
 }
 
 export const fresh = () => ({ version: 1, base: null, tag: null, src: {}, out: {}, pinned: [], pending: [], map: {} });
@@ -69,6 +73,8 @@ export function outFile(T, f, buf, tag) {
   if (tag && TEXT.test(path.basename(dest)) && Buffer.byteLength(s) <= 4e6) s = pinCdn(s, T.p.github, tag);
   if (dest === 'manifest.webmanifest') s = manifest(s, T.p);
   if (dest === 'shared/agent/trial-tokens.json') { const t = JSON.parse(s); t.tokens = []; s = JSON.stringify(t, null, 2) + '\n'; }
+  if (dest === 'shared/fonts/fonts.css' && s.includes(START)) s = withBlock(s, T.p.fontManifest || EMPTY);   // font.mjs emitFont
+  if (T.videos.length && /\.(js|mjs|cjs|html|json|md|txt|css|xml)$/.test(dest) && Buffer.byteLength(s) <= 4e6) s = stripText(s, T.videos);   // media.mjs
   return { dest, data: Buffer.from(s), link };
 }
 /** The mirror workflow from the source's rules.yml (null when the old file does not fit the generator). */
