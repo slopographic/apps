@@ -155,7 +155,7 @@
   function finish(cur, zone, warnings) {
     const P = cur.props;
     const uid = P.UID ? unesc(P.UID.value) : '';
-    const title = P.SUMMARY ? unesc(P.SUMMARY.value) : '(untitled)';
+    const title = P.SUMMARY ? unesc(P.SUMMARY.value) : tr('ui.untitled');   // in the language of the import
     const warn = (message) => warnings.push({ uid, title, message });
     const s = P.DTSTART && when(P.DTSTART, zone);
     if (!s) { warn(tr('ui.ics.no_start')); return null; }

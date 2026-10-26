@@ -190,4 +190,6 @@ test('SlopRecur.describe in English and Swedish: the repeat, and the end day in 
   // an import note in Swedish: an RRULE part the app does not keep
   const ics = 'BEGIN:VCALENDAR\r\nBEGIN:VEVENT\r\nUID:x\r\nSUMMARY:A\r\nDTSTART:20260105T090000Z\r\nDTEND:20260105T100000Z\r\nRRULE:FREQ=WEEKLY;BYDAY=MO\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n';
   same(sv.SlopIcs.parse(ics, { fallbackZone: 'UTC' }).warnings.map((w) => w.message), ['BYDAY stöds inte, så den upprepas varje vecka utan det']);
+  // an event with no SUMMARY was titled "(untitled)" in every language
+  same(sv.SlopIcs.parse(ics.replace('SUMMARY:A\r\n', ''), { fallbackZone: 'UTC' }).events.map((e) => e.title), ['Namnlös']);
 });
