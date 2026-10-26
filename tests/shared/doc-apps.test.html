@@ -47,6 +47,17 @@
   const lum = (css) => { const m = css.match(/\d+(\.\d+)?/g).map(Number); return (m[0] + m[1] + m[2]) / 3; };
   /** Every editable field outside the header band is dark on the white page. */
   const readable = () => [...D.querySelectorAll('#ePage .paper .pp-main .pe')].every((b) => lum(W.getComputedStyle(b).color) < 128);
+  /** waitFor that, when it times out, says what the page shows instead (the dialog, the toast, the buttons, the record). */
+  async function waitOr(pred, what, timeout = 8000) {
+    try { return await waitFor(pred, { timeout }); } catch (e) {
+      const dlg = D.querySelector('.sui-dlg, [role="dialog"], [role="alertdialog"]');
+      const toast = D.querySelector('.sui-toast, [role="status"].toast');
+      const recs = await Promise.all(['invoices', 'orders', 'quotes', 'purchaseOrders'].map(async (c) => { const r = await W.SlopData.store.list(c).catch(() => null); return r && r.ok && r.value.length ? `${c}: ${r.value.map((x) => x.status).join(',')}` : ''; }));
+      throw new Error(`${typeof what === 'function' ? what() : what}: waitFor timed out. Dialog: ${dlg ? dlg.textContent.trim().slice(0, 200) : 'none'}; toast: ${toast ? toast.textContent.trim().slice(0, 120) : 'none'}; `
+        + `buttons: ${[...D.querySelectorAll('#eActions button, .ws-panel .sf-p-foot button')].map((b) => b.textContent).join(' | ')}; records: ${recs.filter(Boolean).join('; ')}; `
+        + `hash: ${W.location.hash}; bold: ${!!D.querySelector('#ePage .paper.l-bold')}`);
+    }
+  }
 
   for (const a of APPS) {
     describe(`Slop ${a.app}`, () => {
@@ -80,19 +91,19 @@
       it('the Bold header layout keeps the fields below the band readable, before and after the next step', async () => {
         const sel = D.querySelector('select[aria-label="PDF and print layout"]');
         set(sel, 'bold');
-        await waitFor(() => D.querySelector('#ePage .paper.l-bold'));
+        await waitOr(() => D.querySelector('#ePage .paper.l-bold'), 'the bold layout');
         expect(readable()).toBe(true);
         expect(D.querySelector('#ePage .paper .pp-desc').textContent).toBe('Design');
         if (!a.next) return;
         W.SlopUI.confirm = async () => true;
         button(a.next).click();
-        await waitFor(() => !button(a.next) && D.querySelector('#ePage .paper.l-bold'), { timeout: 8000 });
+        await waitOr(() => !button(a.next) && D.querySelector('#ePage .paper.l-bold'), `after ${a.next}`);
         expect(readable()).toBe(true);
         expect(D.querySelector('#ePage .paper .pp-name').textContent).toBe('Ada Ltd');
         expect(D.querySelector('#ePage .paper .pp-desc').textContent).toBe('Design');
         if (a.app === 'invoices') {
           // issued: the outstanding balances beside it now list the customer
-          await waitFor(() => D.querySelector('#iOutstanding .sl-row') && D.querySelector('#iOutstanding .sl-row').textContent.includes('Ada Ltd'), { timeout: 8000 });
+          await waitOr(() => D.querySelector('#iOutstanding .sl-row') && D.querySelector('#iOutstanding .sl-row').textContent.includes('Ada Ltd'), () => `the outstanding list (${D.querySelector('#iOutstanding') ? D.querySelector('#iOutstanding').textContent.trim().slice(0, 160) : 'no #iOutstanding'})`);
         }
       });
     });
