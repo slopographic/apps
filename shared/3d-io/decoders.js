@@ -69,8 +69,7 @@ function askOnce(ids) {
   if (!asked) {
     const downloads = ids.map((id) => ({ name: ENGINES[id].label, bytes: Object.values(ENGINES[id].files).reduce((n, f) => n + f[1], 0) }));
     asked = typeof window !== 'undefined' && window.SlopFirstRun
-      ? window.SlopFirstRun.once('3d-decoders', { title: 'Download the 3D decoder?', downloads,
-        lines: ['This model is compressed. Reading it needs a decoder, which is downloaded once from the Slopographic cdn and kept by this browser. The model itself is still read on this device and never uploaded.'] })
+      ? window.SlopFirstRun.once('3d-decoders', { title: 'ui.firstrun.d3_title', downloads, lines: ['ui.firstrun.d3_text'] })   // keys: shared/i18n/ui/<code>/firstrun.js
       : Promise.resolve(true);
   }
   return asked.then((ok) => { if (!ok) asked = null; return ok; });

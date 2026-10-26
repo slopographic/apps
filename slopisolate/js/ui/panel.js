@@ -11,7 +11,7 @@
   const bind = (fn) => binds.push(fn);
   const pct = (v) => Math.round(v * 100) + '%';
   let cache = {};
-  const FALLBACK = [{ id: 'fast', get name() { return t('cutout.panel.model_fast'); } }, { id: 'quality', get name() { return t('cutout.panel.model_quality'); } }, { id: 'portrait', get name() { return t('cutout.panel.model_portrait'); } }];
+  const FALLBACK = ['fast', 'quality', 'portrait'].map((id) => ({ id, get name() { return t('ui.models.cutout.' + id); } }));   // the names are shared/cutout/models.js's (ui.models.cutout.*)
   const MODELS = window.SlopCutoutModels ? SlopCutoutModels.ids.map((id) => SlopCutoutModels.get(id)) : FALLBACK;
 
   /** Run a promise-returning action; errors become toasts. */

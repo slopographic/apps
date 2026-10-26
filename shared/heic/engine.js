@@ -25,10 +25,11 @@
     id: 'engine-libheif', kind: 'model', name: 'HEIC photo decoder (libheif 1.23.5, WebAssembly)', licence: 'LGPL-3.0',
     licenceUrl: 'https://github.com/slopographic/cdn/blob/main/' + BASE + 'SOURCE.md', size: FILES.reduce((n, f) => n + f.size, 0), files: FILES.map((f) => ({ ...f, cdn: BASE + f.name })),
   };
+  // the words are keys (shared/i18n/ui/<code>/firstrun.js), read by SlopFirstRun when the notice shows
   const NOTICE = {
-    title: 'Download the HEIC photo decoder?',
-    lines: ['This browser cannot open HEIC photos (the iPhone format) by itself, so converting one needs the HEIC decoder (libheif, compiled to run in your browser; LGPL-3.0 licence). It is downloaded once from Slopographic\'s file store, checked, and kept in this browser. Your photos are never uploaded.'],
-    downloads: [{ name: 'HEIC photo decoder (libheif 1.23.5)', bytes: PACK.size }],
+    title: 'ui.firstrun.heic_title',
+    lines: ['ui.firstrun.heic_text'],
+    downloads: [{ name: () => root.SlopI18n.t('ui.firstrun.heic_name', { version: '1.23.5' }), bytes: PACK.size }],
   };
   // SlopUI too: SlopFirstRun lets everything through when a page has no dialog kit, and the engine must not download unasked
   const DEPS = [['SlopUI', '../slopui.js'], ['SlopLibraryManifest', '../library/manifest.js'], ['SlopLibraryStore', '../library/store.js'], ['SlopLibraryInstall', '../library/install.js'], ['SlopFirstRun', '../firstrun/notice.js']];

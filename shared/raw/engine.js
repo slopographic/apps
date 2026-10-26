@@ -25,10 +25,11 @@
     id: 'engine-libraw', kind: 'model', name: 'Camera RAW engine (LibRaw 0.22.1, WebAssembly)', licence: 'LGPL-2.1 or CDDL-1.0',
     licenceUrl: 'https://github.com/slopographic/cdn/blob/main/' + BASE + 'SOURCE.md', size: FILES.reduce((n, f) => n + f.size, 0), files: FILES.map((f) => ({ ...f, cdn: BASE + f.name })),
   };
+  // the words are keys (shared/i18n/ui/<code>/firstrun.js), read by SlopFirstRun when the notice shows
   const NOTICE = {
-    title: 'Download the camera RAW engine?',
-    lines: ['Developing a camera RAW photo needs the RAW engine (LibRaw, compiled to run in your browser; LGPL-2.1 or CDDL-1.0 licence). It is downloaded once from Slopographic\'s file store, checked, and kept in this browser.'],
-    downloads: [{ name: 'Camera RAW engine (LibRaw 0.22.1)', bytes: PACK.size }],
+    title: 'ui.firstrun.raw_title',
+    lines: ['ui.firstrun.raw_text'],
+    downloads: [{ name: () => root.SlopI18n.t('ui.firstrun.raw_name', { version: '0.22.1' }), bytes: PACK.size }],
   };
   // SlopUI too: SlopFirstRun lets everything through when a page has no dialog kit (File convert's pages), and the
   // engine must not download without the notice
