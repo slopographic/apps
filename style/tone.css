@@ -12,7 +12,7 @@
 
 /* ---------- header ---------- */
 :root[data-tone="plain"] .brand-name { font-family: var(--sans); font-stretch: normal; font-weight: 700; font-size: 18px; text-transform: none; letter-spacing: -.01em; }
-:root[data-tone="plain"] .tab { font-family: var(--sans); font-size: 14.5px; font-weight: 500; text-transform: none; letter-spacing: 0; text-decoration: none; }
+:root[data-tone="plain"] .tab { font-family: var(--sans); font-size: 14px; line-height: 17px; font-weight: 500;   /* the header keeps its height */ text-transform: none; letter-spacing: 0; text-decoration: none; }
 :root[data-tone="plain"] .tab[aria-current="page"] { border-bottom-color: currentColor; }
 
 /* ---------- buttons and kickers, everywhere ---------- */
