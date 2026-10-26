@@ -12,7 +12,7 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'signature.note.html': 'Kod HTML został skopiowany: wklej go tam, gdzie narzędzie prosi o podpis HTML.',
   'signature.msg.copied': 'Skopiowano dla {client}. {notes}',
   'signature.msg.paste_steps': 'Wklej go do pola podpisu (kroki poniżej).',
-  'signature.msg.ready': 'Twój podpis dla {client} jest gotowy. Przeglądarka pozwala stronie kopiować dopiero po kliknięciu:',
+  'signature.msg.ready': 'Twój podpis dla {client} jest gotowy. Przeglądarka pozwala stronie kopiuj dopiero po kliknięciu:',
   'signature.msg.copy_code_now': 'Skopiować kod HTML teraz',
   'signature.msg.copy_for_now': 'Skopiować dla {client} teraz',
 });

@@ -11,6 +11,6 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'upscale.tour.model_text': 'Model AI wykonuje powiększanie. Jego opis mówi, w czym jest najlepszy.',
   'upscale.tour.format_title': 'Format',
   'upscale.tour.format_text': 'Wybierz format wyniku. Jakość pojawia się przy formatach, które kompresują.',
-  'upscale.tour.run_title': 'Powiększyć',
+  'upscale.tour.run_title': 'Powiększ',
   'upscale.tour.run_text': 'Uruchom powiększanie. Esc je zatrzymuje.',
 });
