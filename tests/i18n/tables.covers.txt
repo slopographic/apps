@@ -452,6 +452,13 @@ Covers: resize/i18n/sv/tour.js
 Covers: serials/i18n/en/app.js
 Covers: serials/i18n/index.js
 Covers: serials/i18n/sv/app.js
+Covers: settings/i18n/en/notes.js
+Covers: settings/i18n/en/page.js
+Covers: settings/i18n/en/storage.js
+Covers: settings/i18n/index.js
+Covers: settings/i18n/sv/notes.js
+Covers: settings/i18n/sv/page.js
+Covers: settings/i18n/sv/storage.js
 Covers: shared/biz/i18n/en/biz.js
 Covers: shared/biz/i18n/en/docs.js
 Covers: shared/biz/i18n/en/print.js

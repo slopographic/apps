@@ -1,6 +1,6 @@
 /* Settings page: the exchange rates section. The 'rates' consent switch, the opt-in ECB update, the add-a-rate form
  * and the table of recent rows. Classic script. Needs config.js, state.js and consent-mode.js first (the switch
- * writes the same record as the other switches) and the shared/data scripts. Nothing is fetched except by the
+ * writes the same record as the other switches), the shared/data scripts, shared/i18n/i18n.js and settings/say.js. Nothing is fetched except by the
  * Update button, or by "Update on open" when both it and the switch are on. */
 (function () {
   'use strict';
@@ -20,6 +20,7 @@
   var msg = document.getElementById('rate-msg');
   var list = document.getElementById('rate-list');
   var settings = null;
+  var I = window.SlopI18n, Say = window.SlopSettingsSay;
 
   function locale() { return (settings && settings.locale) || 'en-US'; }
   function rateText(scaled) {
@@ -45,9 +46,9 @@
     openSw.disabled = !on || !settings;
     openSw.checked = !!(settings && settings.ratesUpdateOnOpen);
     btn.disabled = !on;
-    if (!avail) status.textContent = 'This browser will not store your choices, so exchange rates stay off.';
-    else if (!on) status.textContent = 'Exchange rates are off. Nothing is downloaded.';
-    else status.textContent = '';
+    if (!avail) Say.key(status, 'settings.rates.no_storage');
+    else if (!on) Say.key(status, 'settings.rates.off');
+    else Say.text(status, '');
   }
 
   function renderTable() {
@@ -62,16 +63,16 @@
         var empty = document.createElement('tr');
         var td = document.createElement('td');
         td.colSpan = 5;
-        td.textContent = 'No rates yet.';
+        td.textContent = I.t('settings.rates.none');
         empty.appendChild(td);
         list.appendChild(empty);
         return;
       }
       rows.forEach(function (x) {
         var tr = document.createElement('tr');
-        [x.base + '/' + x.quote, D.locale.formatDate(x.date, locale()), rateText(x.rate), x.source, x.note || ''].forEach(function (t) {
+        [x.base + '/' + x.quote, D.locale.formatDate(x.date, locale()), rateText(x.rate), x.source, x.note || ''].forEach(function (cell) {
           var td = document.createElement('td');
-          td.textContent = t;
+          td.textContent = cell;
           tr.appendChild(td);
         });
         list.appendChild(tr);
@@ -83,19 +84,20 @@
     var parts = [];
     if (out.added.length) {
       parts.push(out.added.map(function (a) {
-        var was = a.previous ? ' (was ' + rateText(a.previous) + ')' : ' (new)';
-        return 'EUR/' + a.quote + ' ' + rateText(a.rate) + was;
+        var v = { pair: 'EUR/' + a.quote, rate: rateText(a.rate) };
+        if (a.previous) v.old = rateText(a.previous);
+        return I.t(a.previous ? 'settings.rates.row_was' : 'settings.rates.row_new', v);
       }).join('; '));
     }
-    if (out.unchanged.length) parts.push(out.unchanged.length + ' unchanged');
-    return 'Rates for ' + D.locale.formatDate(out.date, locale()) + ' stored from the ECB reference of ' + D.locale.formatDate(out.referenceDate, locale()) + '. ' + parts.join('. ') + '.';
+    if (out.unchanged.length) parts.push(I.t('settings.rates.unchanged', { n: out.unchanged.length }));
+    return I.t('settings.rates.stored', { date: D.locale.formatDate(out.date, locale()), ref: D.locale.formatDate(out.referenceDate, locale()) }) + (parts.length ? ' ' + parts.join('. ') + '.' : '');
   }
 
   function update() {
     btn.disabled = true;
-    status.textContent = 'Downloading the ECB rates...';
+    Say.key(status, 'settings.rates.downloading');
     return D.rates.updateRates().then(function (r) {
-      status.textContent = r.ok ? describe(r.value) : r.message;
+      Say.text(status, r.ok ? describe(r.value) : r.message);
       return renderTable();
     }).then(function () { btn.disabled = !(C && C.state().rates); });
   }
@@ -103,7 +105,7 @@
   function saveSetting(patch) {
     if (!settings) return;
     D.store.put('settings', Object.assign({}, settings, patch)).then(function (r) {
-      if (r.ok) settings = r.value; else status.textContent = r.message;
+      if (r.ok) settings = r.value; else Say.text(status, r.message);
       syncSwitch();
     });
   }
@@ -119,11 +121,11 @@
   form.addEventListener('submit', function (e) {
     e.preventDefault();
     var rate = D.locale.parseRate(value.value);
-    if (rate === null) { msg.textContent = 'Enter the rate as a plain positive number, such as 1.0842 (up to six decimals).'; return; }
-    if (base.value === quote.value) { msg.textContent = 'Choose two different currencies.'; return; }
+    if (rate === null) { Say.key(msg, 'settings.rates.bad_rate'); return; }
+    if (base.value === quote.value) { Say.key(msg, 'settings.rates.same_pair'); return; }
     D.fx.addRate({ base: base.value, quote: quote.value, date: date.value, rate: rate, source: 'manual', note: noteIn.value }).then(function (r) {
-      if (!r.ok) { msg.textContent = r.message; return; }
-      msg.textContent = 'Saved ' + r.value.base + '/' + r.value.quote + ' ' + rateText(r.value.rate) + ' for ' + D.locale.formatDate(r.value.date, locale()) + '.';
+      if (!r.ok) { Say.text(msg, r.message); return; }
+      Say.key(msg, 'settings.rates.saved', { pair: r.value.base + '/' + r.value.quote, rate: rateText(r.value.rate), date: D.locale.formatDate(r.value.date, locale()) });
       value.value = '';
       noteIn.value = '';
       renderTable();
@@ -141,15 +143,16 @@
       return renderTable();
     }).then(function () {
       if (!settings || !settings.ratesUpdateOnOpen) return null;
-      status.textContent = 'Checking the ECB rates...';
+      Say.key(status, 'settings.rates.checking');
       return D.rates.updateOnOpen().then(function (r) {
-        if (r.ok && r.value && r.value.date) { status.textContent = describe(r.value); return renderTable(); }
-        status.textContent = r.ok ? '' : r.message;
+        if (r.ok && r.value && r.value.date) { Say.text(status, describe(r.value)); return renderTable(); }
+        Say.text(status, r.ok ? '' : r.message);
         return null;
       });
     });
   }
 
-  start().catch(function () { status.textContent = 'Exchange rates could not be read in this browser.'; });
+  start().catch(function () { Say.key(status, 'settings.rates.unreadable'); });
+  I.on(function () { renderTable(); });   // the empty row's words (the status lines follow by their data-i18n mark)
   window.SlopRates = { sync: syncSwitch, refresh: renderTable };
 })();

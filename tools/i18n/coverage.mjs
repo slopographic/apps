@@ -5,7 +5,7 @@
 // string in tables and every table translated is at 100%.
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
-import { apps, appTables, sharedApp, sharedAreas, sharedTables, langs, ROOT } from './tables.mjs';
+import { apps, appTables, sharedApp, sharedAreas, pageAreas, sharedTables, langs, ROOT } from './tables.mjs';
 import { scanJs, scanHtml } from './scan.mjs';
 
 export const OUT = 'shared/i18n/COVERAGE.md';
@@ -41,7 +41,7 @@ export function scan() {
   }
   const sh = sharedApp();
   rows.push({ id: 'shared', name: sh.name + ' (hard-coded, not yet in tables)', keys: 0, hard: hardcoded(sh.files).length, langs: {} });
-  for (const app of apps()) {
+  for (const app of [...apps(), ...pageAreas()]) {   // a page kept like an app (settings/) is ranked with them
     const t = appTables(app);
     const keys = t.tables.en ? [...t.tables.en.keys()].filter((k) => !k.includes('#')) : [];
     const row = { id: app.id, name: app.name, keys: keys.length, hard: hardcoded(app.files).length, langs: {} };

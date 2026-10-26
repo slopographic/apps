@@ -1,5 +1,6 @@
 /* Settings page: the consent toggles, read from and written to the same record as the banner. Classic script.
- * Needs config.js, state.js and consent-mode.js loaded first. Toggles save at once. */
+ * Needs config.js, state.js and consent-mode.js loaded first, and shared/i18n/i18n.js. Toggles save at once; the note
+ * is drawn again on a language switch. */
 (function () {
   'use strict';
   var S = window.SlopConsentState;
@@ -7,6 +8,7 @@
   var analytics = document.getElementById('set-analytics');
   var ads = document.getElementById('set-ads');
   var note = document.getElementById('settings-note');
+  var I = window.SlopI18n;
 
   function sync() {
     var cur = C.state();
@@ -16,13 +18,10 @@
     ads.checked = cur.ads;
     analytics.disabled = ads.disabled = !avail;
     var msg;
-    if (!avail) msg = 'This browser will not store your choices, so analytics and ads stay off.';
-    else if (S.needsChoice()) {
-      msg = rec
-        ? 'Our privacy policy changed, so your earlier choices no longer apply. Analytics and ads are off until you choose again.'
-        : 'You have not chosen yet. Analytics and ads are off.';
-    } else if (rec) msg = 'Saved on ' + new Date(rec.timestamp).toLocaleString() + '.';
-    else msg = 'Analytics and ads are off.';
+    if (!avail) msg = I.t('settings.consent.no_storage');
+    else if (S.needsChoice()) msg = rec ? I.t('settings.consent.policy_changed') : I.t('settings.consent.not_chosen');
+    else if (rec) msg = I.t('settings.consent.saved_on', { date: I.date(rec.timestamp, { dateStyle: 'medium', timeStyle: 'short' }) });
+    else msg = I.t('settings.consent.off');
     note.textContent = msg;
   }
   function wire(el, cat) {
@@ -34,5 +33,6 @@
   wire(analytics, 'analytics');
   wire(ads, 'ads');
   sync();
+  I.on(sync);   // the note in the new language
   window.SlopSettings = { sync: sync };
 })();
