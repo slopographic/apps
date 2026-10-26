@@ -139,36 +139,54 @@
         money: function (n, cur, opt) { return money(n, cur, opt, loc); }, list: function (items, opt) { return listOf(items, opt, loc); } });
     }
 
-    /** Sets lang and dir on <html>, and replaces the text and attributes of the marked elements. A key missing in the
-     * chosen language and in English leaves the element as it is (the HTML holds the English text). */
+    function varsOf(el) { var v = { brand: brand() }, raw = el.getAttribute('data-i18n-vars'); // {brand}, data-i18n-vars (JSON)
+      try { if (raw) Object.assign(v, JSON.parse(raw)); } catch (e) { /* not JSON: no vars */ } return v; }
+    function pick(code, key, el) { var s = key ? find(code, key) : null; if (s === null && key) s = find(DEFAULT, key); return s === null ? null : fill(s, varsOf(el)); }
+    /** One element's data-i18n text and data-i18n-attr attributes in a language (English for a key it lacks; a key missing
+     * in both leaves it as it is: the HTML holds the English text). Text that already reads right is not rewritten. */
+    function fillEl(el, code) {
+      var s = pick(code, el.getAttribute('data-i18n'), el), a = el.getAttribute('data-i18n-attr');
+      if (s !== null && el.textContent !== s) el.textContent = s;
+      if (a) a.split(';').forEach(function (pair) {
+        var c = pair.indexOf(':'), v = c < 1 ? null : pick(code, pair.slice(c + 1).trim(), el);
+        if (v !== null) el.setAttribute(pair.slice(0, c).trim(), v);
+      });
+    }
+    function mark(code) { var r = doc.documentElement; r.setAttribute('lang', code); r.setAttribute('dir', byCode[code].dir === 'rtl' ? 'rtl' : 'ltr'); }
+    /** Sets lang and dir on <html>, and fills the marked elements (fillEl). */
     function apply(scope) {
       if (!doc || !doc.documentElement) return get();
-      var code = get(), root = doc.documentElement;
+      var code = get(), at = scope && scope.querySelectorAll ? scope : doc, i, nodes = at.querySelectorAll('[data-i18n]');
       applied = brand();
-      root.setAttribute('lang', code);
-      root.setAttribute('dir', byCode[code].dir === 'rtl' ? 'rtl' : 'ltr');
-      var at = scope && scope.querySelectorAll ? scope : doc;
-      var varsOf = function (el) {
-        var v = { brand: brand() }, raw = el.getAttribute('data-i18n-vars');
-        if (raw) { try { Object.assign(v, JSON.parse(raw)); } catch (e) { /* not JSON: no vars */ } }
-        return v;
-      };
-      var pick = function (key, el) { var s = find(code, key); if (s === null) s = find(DEFAULT, key); return s === null ? null : fill(s, varsOf(el)); };
-      var nodes = at.querySelectorAll('[data-i18n]');
-      for (var i = 0; i < nodes.length; i++) {
-        var s = pick(nodes[i].getAttribute('data-i18n'), nodes[i]);
-        if (s !== null) nodes[i].textContent = s;
-      }
-      nodes = at.querySelectorAll('[data-i18n-attr]');
-      for (var j = 0; j < nodes.length; j++) {
-        nodes[j].getAttribute('data-i18n-attr').split(';').forEach(function (pair) {
-          var c = pair.indexOf(':');
-          if (c < 1) return;
-          var v = pick(pair.slice(c + 1).trim(), nodes[j]);
-          if (v !== null) nodes[j].setAttribute(pair.slice(0, c).trim(), v);
-        });
-      }
+      mark(code);
+      for (i = 0; i < nodes.length; i++) fillEl(nodes[i], code);
+      nodes = at.querySelectorAll('[data-i18n-attr]');   // the ones without text
+      for (i = 0; i < nodes.length; i++) if (!nodes[i].hasAttribute || !nodes[i].hasAttribute('data-i18n')) fillEl(nodes[i], code);
       return code;
+    }
+    /** While the page is parsed in a language other than English (tables written in the <head>), fills each marked element
+     * as the parser adds it, before the next frame (a MutationObserver), so the first paint is in that language. */
+    function early() {
+      var code = get(), last = [];
+      if (code === DEFAULT || !g.MutationObserver || doc.readyState !== 'loading' || !me || me.hasAttribute('data-late')) return;
+      mark(code);
+      var mo = new g.MutationObserver(function (recs) {
+        var els = last;   // the parser may still be adding text to the ones filled last time
+        recs.forEach(function (r) {
+          var t = r.target.nodeType === 1 ? r.target : r.target.parentElement;
+          if (t && (t = t.closest('[data-i18n]'))) els.push(t);
+          for (var i = 0, n; i < r.addedNodes.length; i++) {
+            if ((n = r.addedNodes[i]).nodeType !== 1) continue;
+            if (n.matches('[data-i18n],[data-i18n-attr]')) els.push(n);
+            if (n.firstElementChild) els.push.apply(els, n.querySelectorAll('[data-i18n],[data-i18n-attr]'));
+          }
+        });
+        els.forEach(function (el) { fillEl(el, code); });
+        last = els.filter(function (el) { return el.hasAttribute('data-i18n'); });
+        mo.takeRecords();   // its own changes
+      });
+      mo.observe(doc.documentElement, { childList: true, subtree: true, characterData: true });
+      doc.addEventListener('DOMContentLoaded', function () { mo.disconnect(); last = []; });
     }
     /* ---- Loading: a source is { ns, files(code) → [url, ...] }. English and the chosen language are fetched, once. */
     var offline = function () { return !!(doc && doc.querySelector && doc.querySelector('meta[content="offline"]')); };
@@ -247,6 +265,7 @@
     /** Runs at first paint from the page's <head>: sets the language on <html> now, and the text once the DOM is ready. */
     function load() {
       if (!doc || !doc.documentElement) return;
+      early();
       if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', function () { apply(); }); else apply();
       try { g.addEventListener && g.addEventListener('storage', function (ev) { if (!ev.key || ev.key === 'slop-profile') { apply(); need().then(changed); } }); } catch (e) { /* no storage events */ }
       // {brand} follows the profile's name once it is in (only when it differs: a rewrite of every label moves the page)
@@ -263,30 +282,13 @@
       } });
     }
     return {
-      LANGS: list,
-      UI_PARTS: UI_PARTS,
-      DEFAULT: DEFAULT,
-      DEFAULT_CHOICE: choice,
+      LANGS: list, UI_PARTS: UI_PARTS, DEFAULT: DEFAULT, DEFAULT_CHOICE: choice,
       langs: function () { return list.slice(); },
       lang: function (code) { return byCode[code || get()] || null; },
-      get: get,
-      set: set,
-      t: t,
-      has: has,
-      label: label,
-      add: add,
-      apply: apply,
-      load: load,
-      source: source,
-      need: need,
-      ready: ready,
-      on: on,
+      get: get, set: set, t: t, has: has, label: label, add: add, apply: apply, load: load,
+      source: source, need: need, ready: ready, on: on,
       plural: function (n) { return pluralOf(get(), n); },
-      num: num,
-      date: date,
-      money: money,
-      list: listOf,
-      at: at,
+      num: num, date: date, money: money, list: listOf, at: at,
       shipped: function (ns) { var s = sources.filter(function (x) { return x.ns === ns; })[0]; return s && s.langs ? s.langs.slice() : []; },
       create: create,
     };
