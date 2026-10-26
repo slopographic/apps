@@ -16,7 +16,7 @@
 //    Keep it in Latin letters or leave it out;
 //  - no value holds a white-label rename target (brand/profiles/*.map.json compounds): a build
 //    renames an app id to it, and its reverse would turn the translated word back into that id.
-import { readFileSync, readdirSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import path from 'node:path';
 import { apps, appTables, sharedTables, sharedAreas, pageAreas, langs, ROOT } from './tables.mjs';
 
@@ -27,6 +27,7 @@ export const TRANSLIT = /(?<![\u0600-\u06FF])سل[وا]ب|סלופ|сл[оа]п|
 /** The rename targets of the sample white-label maps, lower case (one source: the maps themselves). */
 export function renameTargets(root = ROOT) {
   const dir = path.join(root, 'brand', 'profiles'), out = new Set();
+  if (!existsSync(dir)) return [];   // a white-label build ships no profiles (and holds its own targets by design)
   for (const f of readdirSync(dir).filter((x) => x.endsWith('.map.json'))) {
     const m = JSON.parse(readFileSync(path.join(dir, f), 'utf8'));
     for (const c of m.compounds || []) if (c.to) out.add(c.to.toLowerCase());

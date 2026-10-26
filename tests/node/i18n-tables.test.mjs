@@ -41,6 +41,7 @@ test('"slop" written in another script is refused, so a white-label rename still
 
 test('a translation never holds a white-label rename target (its reverse would rewrite the word)', () => {
   const targets = renameTargets();
+  if (!targets.length) return;   // a white-label build: no profiles shipped
   assert.ok(targets.length > 0, 'the targets come from brand/profiles/*.map.json');
   const t = targets[0];   // never written out here: the source must not hold a target
   const en = new Map([['a.blurb', 'A real editor']]);
