@@ -79,9 +79,11 @@
   /** Opens the selected frame for typing (after its fonts are set up). opts.at: a client point for the caret (a double
    * click), opts.type: a letter typed on the selected frame (it goes in at the end). */
   P.edit = async function (opts) {
-    var o = opts || {}, sel = P.sel;
+    var o = Object.assign({}, opts || {}), sel = P.sel;
+    if (P.opening && P.opening.sel === sel) { if (o.type) P.opening.o.type = (P.opening.o.type || '') + o.type; return; } // keys typed while it opens
     if (!sel || P.editor) return;
-    await sel.ready;
+    P.opening = { sel: sel, o: o };
+    try { await sel.ready; } finally { P.opening = null; }
     if (P.sel !== sel || P.editor) return;
     var p = E.pageById(sel.pid), s = S.slots.get(sel.pid), live = sel.kind === 'annot' ? S.findAnnot(sel.id) : sel.model;
     if (!p || !s || !live || live.locked) return;

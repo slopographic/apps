@@ -36,17 +36,19 @@
     it('typing a letter edits in the same frame (handles stay); Escape keeps the text and the frame', async () => {
       const fr = doc().querySelector('.para-frame');
       fr.focus();
-      SE.key(fr, 'Z');
+      // regression: a letter is the text's, not a tool shortcut (T is the Text tool), and keys typed while it opens all go in
+      SE.key(fr, 'Z'); SE.key(fr, 'T');
       const box = await waitFor(() => doc().querySelector('.para-edit'), { timeout: 8000 });
-      await waitFor(() => /Z$/.test(box.textContent.trim()), { timeout: 3000 });
+      await waitFor(() => /ZT$/.test(box.textContent.trim()), { timeout: 3000 });
+      expect(SE.Ed().tool).toBe('select');
       expect(PT.win.getComputedStyle(doc().querySelector('.para-frame .para-c')).display).not.toBe('none');
       SE.key(box, 'Escape');
       await waitFor(() => PT.E.undoLabel() === 'Edit paragraph', { timeout: 8000 });
       expect(!!SE.P().sel).toBe(true, 'still selected');
       expect(SE.P().sel.kind).toBe('annot');
-      expect(PP.textOf(PP.para()).endsWith('it.Z')).toBe(true, PP.textOf(PP.para()));
+      expect(PP.textOf(PP.para()).endsWith('it.ZT')).toBe(true, PP.textOf(PP.para()));
       const items = await SE.saved();
-      expect(items.some((i) => /it\.Z/.test(i.str))).toBe(true);
+      expect(items.some((i) => /it\.ZT/.test(i.str))).toBe(true);
       expect(items.every((i) => /Helvetica/.test(i.font))).toBe(true, 'its own font');
     }, { timeout: 60000 });
 

@@ -32,7 +32,7 @@
     if (!a) { box.appendChild(section(t('pdf.se.text_block'), [note(t('pdf.se.setting_up'))])); return; }
     var st = a.styles[0] || {}, ch = function (fn, key) { P.change(fn, t(key)); };
     box.appendChild(section(t('pdf.se.text_block'), [
-      row(t('pdf.tool.edit.font'), h('span', { class: 'pp-val xf-font' }, fontName(st)), t(st.ps ? 'pdf.se.font_document' : 'pdf.se.font_substitute')),
+      row(t('pdf.tool.edit.font'), h('span', { class: 'pp-val xf-font' }, fontName(st), h('small', { class: 'xf-note' }, t(st.ps ? 'pdf.se.font_document' : 'pdf.se.font_substitute')))),
       field(t('pdf.tool.edit.size'), a.fs, 2, 400, function (v) { ch(function (m) { P.scale(m, v / m.fs); P.relayout(m); }, 'pdf.se.undo_text_size'); }),
       row(t('pdf.tool.edit.colour'), colorPicker(a.color, function (v) { ch(function (m) { m.color = v; }, 'pdf.se.undo_text_colour'); })),
       row(t('pdf.se.align'), seg([['left', t('pdf.ed.pm_align_left')], ['center', t('pdf.ed.pm_align_center')], ['right', t('pdf.ed.pm_align_right')], ['justify', t('pdf.ed.pm_align_justify')]], a.align,

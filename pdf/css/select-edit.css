@@ -35,5 +35,6 @@
 /* the panel: position, size and rotation side by side */
 .xf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 10px; }
 .xf-grid .pp-row .inp.num { width: 100%; min-width: 0; }
-.xf-font { font-weight: 600; overflow-wrap: anywhere; }
+.xf-font { display: block; min-width: 0; font-weight: 600; overflow-wrap: anywhere; }
+.xf-font .xf-note { display: block; font-weight: 400; color: var(--dim); }
 @media (max-width: 420px) { .xf-grid { grid-template-columns: 1fr; } }

@@ -9,7 +9,10 @@
   function inField() { var a = document.activeElement; return !!(a && a.closest && a.closest('input, select, textarea, [contenteditable="true"], .ctx-edittext [role="radio"]')); }
   /** A paragraph frame has the focus (editor/para-mode.js): Escape lets it go, Enter opens it. */
   function paraFocus() { var a = document.activeElement; return !!(a && a.classList && a.classList.contains('para-frame')); }
-  function idle() { return noMenu() && !inField(); }
+  /** No menu, no field: the clipboard keys work (also on a focused paragraph frame). */
+  function quiet() { return noMenu() && !inField(); }
+  /** ...and no focused paragraph frame: its letters, arrows and Delete are its own (editor/para-xform.js). */
+  function idle() { return quiet() && !paraFocus(); }
   /** The page's text is selected (the browser copies it). */
   function textSel() { var s = window.getSelection && window.getSelection(); return !!(s && !s.isCollapsed); }
   /** The text selection bar is up: Escape belongs to it (sel-bar.js), not to the page. */
@@ -62,10 +65,10 @@
       cmd('edit.redo', t('ui.redo'), G.edit, ['Shift+Mod+Z', 'Mod+Y'], function () { A.redo(); }, function () { return E.canRedo() && !inField() && noMenu(); }),
       cmd('edit.selectAll', t('pdf.cmd.edit_select_all'), G.edit, ['Mod+A'], function () { O.selectAll(); }, function () { return grid() && idle(); }),
       cmd('edit.selectNone', t('ui.select_none'), G.edit, [], function () { O.setSelection([]); }, function () { return O.sel.size > 0; }),
-      cmd('edit.duplicate', t('ui.duplicate'), G.edit, ['Mod+D'], function () { if (pg()) Ed.duplicateSelected(); else A.duplicate(A.targetIds()); }, function () { return idle() && (pg() ? Ed.canCopy() : has()); }, { keywords: ['copy', 'pages', 'annotation'] }),
-      cmd('edit.copy', t('pdf.se.cmd_copy'), G.edit, ['Mod+C'], function () { Ed.copy(); }, function () { return pg() && idle() && Ed.canCopy() && !textSel(); }),
-      cmd('edit.cut', t('pdf.se.cmd_cut'), G.edit, ['Mod+X'], function () { Ed.cut(); }, function () { return pg() && idle() && Ed.canCopy() && !textSel(); }),
-      cmd('edit.paste', t('pdf.se.cmd_paste'), G.edit, ['Mod+V'], function () { Ed.paste(); }, function () { return pg() && idle() && Ed.canPaste(); }, { keywords: ['paste in place'] }),
+      cmd('edit.duplicate', t('ui.duplicate'), G.edit, ['Mod+D'], function () { if (pg()) Ed.duplicateSelected(); else A.duplicate(A.targetIds()); }, function () { return quiet() && (pg() ? Ed.canCopy() : has()); }, { keywords: ['copy', 'pages', 'annotation'] }),
+      cmd('edit.copy', t('pdf.se.cmd_copy'), G.edit, ['Mod+C'], function () { Ed.copy(); }, function () { return pg() && quiet() && Ed.canCopy() && !textSel(); }),
+      cmd('edit.cut', t('pdf.se.cmd_cut'), G.edit, ['Mod+X'], function () { Ed.cut(); }, function () { return pg() && quiet() && Ed.canCopy() && !textSel(); }),
+      cmd('edit.paste', t('pdf.se.cmd_paste'), G.edit, ['Mod+V'], function () { Ed.paste(); }, function () { return pg() && quiet() && Ed.canPaste(); }, { keywords: ['paste in place'] }),
       cmd('edit.pasteAll', t('pdf.se.cmd_paste_all'), G.edit, [], function () { Ed.pasteOnPages(); }, function () { return pg() && Ed.canPaste(); }, { keywords: ['logo', 'stamp', 'every page'] }),
       cmd('edit.pasteOnPages', t('pdf.se.cmd_paste_pages'), G.edit, [], function () { Ed.askPasteOnPages(); }, function () { return pg() && Ed.canPaste(); }, { keywords: ['logo', 'stamp', 'range'] }),
       cmd('edit.delete', t('ui.delete'), G.edit, ['Delete', 'Backspace'], function () { if (pg()) Ed.deleteSelected(); else A.remove(gridIds()); }, function () { return idle() && (pg() ? !!Ed.getSelected() : gridIds().length > 0); }, { keywords: ['remove', 'pages', 'annotation'] }),

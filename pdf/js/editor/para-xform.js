@@ -53,18 +53,21 @@
     });
     el.addEventListener('dblclick', function (e) { e.stopPropagation(); e.preventDefault(); if (!P.editor) P.edit({ at: [e.clientX, e.clientY] }); });
     el.addEventListener('contextmenu', function (e) { e.preventDefault(); if (window.SlopSelBar && SlopSelBar.update) SlopSelBar.update(); }); // a long press: the bar
-    el.addEventListener('keydown', function (e) {
-      if (P.editor) return;
-      var k = e.key, step = e.shiftKey ? 10 : 1, arrows = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] };
-      if (k === 'Enter' || k === 'F2') P.edit();
-      else if (k === 'Escape') P.clear();
-      else if (arrows[k]) P.nudge(arrows[k][0], arrows[k][1]);
-      else if (k === 'Delete' || k === 'Backspace') P.remove();
-      else if (k.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey && k !== ' ') P.edit({ type: k }); // typing starts editing
-      else return;
-      e.preventDefault(); e.stopPropagation();
-    });
   }
+  // keys on the focused frame, before the app's shortcuts (window, capture: SlopCmd listens further down), so a letter types
+  // into the text instead of switching tools and the arrows move the frame instead of turning pages
+  window.addEventListener('keydown', function (e) {
+    var el = e.target && e.target.classList && e.target.classList.contains('para-frame') ? e.target : document.activeElement;
+    if (P.editor || !P.sel || !el || !el.classList || !el.classList.contains('para-frame') || e.isComposing) return;
+    var k = e.key, step = e.shiftKey ? 10 : 1, arrows = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] };
+    if (k === 'Enter' || k === 'F2') P.edit();
+    else if (k === 'Escape') P.clear();
+    else if (arrows[k]) P.nudge(arrows[k][0], arrows[k][1]);
+    else if (k === 'Delete' || k === 'Backspace') P.remove();
+    else if (k.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) P.edit({ type: k }); // typing starts editing
+    else return;
+    e.preventDefault(); e.stopPropagation();
+  }, true);
   /** A copy of a frame model with its styles' fonts (not saved, so not copied by JSON). */
   P.clone = function (base) {
     var m = JSON.parse(JSON.stringify(base));
