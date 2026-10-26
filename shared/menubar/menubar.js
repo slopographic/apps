@@ -11,7 +11,8 @@
  * A menu given as a function is built each time it opens (for items that depend on the state of the app). An item with
  * sub opens a submenu. A '#id' item takes the button's own label. The bar is inserted at the top of <body>. Menus open on
  * click or Arrow Down; Arrow keys move, Right opens a submenu, Escape closes, a click elsewhere closes. A disabled item is
- * greyed out; enabled state is read each time a menu opens. Classic script. Exposes window.SlopMenuBar. */
+ * greyed out; enabled state is read each time a menu opens. The shell's header buttons are kept, whichever mounts first
+ * (SlopHeader.place). Classic script. Exposes window.SlopMenuBar. */
 (function () {
   'use strict';
   if (window.SlopMenuBar) return;
@@ -160,6 +161,9 @@
     }
     bar.append(brand, name, ...(local ? [local] : []), menubar, tools);
     if (!host) document.body.prepend(bar);
+    // The shell's buttons (shell/header.js) may have mounted first, into the host just emptied or elsewhere: they go back
+    // where they belong now that the bar is in. When the shell comes later it puts them there itself.
+    if (window.SlopHeader && window.SlopHeader.place) window.SlopHeader.place();
     if (window.SlopBrand && window.SlopBrand.appMark) window.SlopBrand.appMark();
     document.addEventListener('click', (e) => { if (!e.target.closest('.smb-menu')) closers.forEach((c) => c()); });
     return bar;
