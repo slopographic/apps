@@ -8,10 +8,10 @@
 // --root: the checkout whose copy layer and app registry name things (default this one; a release passes its source).
 // Incremental: a commit transforms only the paths changed since the last mapped one (git diff-tree) and keeps the rest;
 // the cheap rewrites of the build follow their inputs (brand.json, the manifest, the trial tokens, the font block, the
-// video ids stripped, the raw links pinned to
-// the cdn TAG, the mirror workflow from .github/workflows/rules.yml). The slow steps (SEO writer, precache list, icons)
-// are not run per commit: --generated names a finished build whose own files (the ones that are no source file's image:
-// licence, README, icons, logo, mascot) enter with the first commit, and the release commit on top is the full build.
+// video ids stripped, the raw links pinned to the cdn TAG, the mirror workflow from .github/workflows/rules.yml). The
+// slow steps (SEO writer, precache list, icons) are not run per commit: --generated names a finished build whose own
+// files (the ones that are no source file's image: licence, README, icons, logo, mascot, font) enter with the first
+// commit, and the release commit on top is the full build.
 // Each commit's new and changed files are scanned (scan.mjs, the build's terms and allow list). A commit that cannot be
 // built (an old tree the tools do not fit) or whose files leak is folded into the next good one (its message listed
 // there); a commit that changes nothing in the copy (only this tool, profiles, left-out files) is dropped.
