@@ -1,9 +1,11 @@
 /* Slop Transcribe: drawing the file list and the transcript pane from the queue. No state of its own: the selection and
  * the "show times" choice are app.js's. Sizes and lengths read as people write them. */
 import { languageName } from './languages.js';
+import { tr } from './words.js';
 const $ = (id) => document.getElementById(id);
 const X = () => globalThis.SlopTranscript;
-const STATUS = { waiting: 'Waiting', reading: 'Transcribing…', done: 'Done', error: 'Could not read' };
+const STATUS_EN = { waiting: 'Waiting', reading: 'Transcribing…', done: 'Done', error: 'Could not read' };
+const status = (s) => tr('transcribe.list.' + s, STATUS_EN[s]);
 
 /** Pure: "4.2 MB · 03:12" for a file, its length once known. */
 export function metaOf(item) {
@@ -26,10 +28,10 @@ function row(item, selected, actions) {
   li.setAttribute('aria-selected', String(item.id === selected));
   const main = el('div', 'tr-file-main');
   main.append(el('span', 'tr-file-name', item.name), el('span', 'tr-file-meta', metaOf(item)));
-  const chip = el('span', `tr-chip is-${item.status}`, item.status === 'reading' ? `${Math.round(item.progress * 100)}%` : STATUS[item.status]);
+  const chip = el('span', `tr-chip is-${item.status}`, item.status === 'reading' ? `${Math.round(item.progress * 100)}%` : status(item.status));
   const x = el('button', 'tr-x', '×');
   x.type = 'button';
-  x.setAttribute('aria-label', `Remove ${item.name}`);
+  x.setAttribute('aria-label', tr('transcribe.list.remove', 'Remove {name}', { name: item.name }));
   x.addEventListener('click', (e) => { e.stopPropagation(); actions.remove(item.id); });
   li.append(main, chip, x);
   if (item.status === 'reading') { const bar = el('progress', 'tr-prog'); bar.max = 1; bar.value = item.progress; li.append(bar); }
@@ -46,19 +48,22 @@ export function drawList(q, selected, actions) {
   $('trEmpty').hidden = list.length > 0;
   const waiting = list.filter((x) => x.status === 'waiting' || x.status === 'error').length;
   $('trRun').disabled = q.busy || !waiting;
-  $('trRun').textContent = q.busy ? 'Transcribing…' : waiting > 1 ? `Transcribe ${waiting} files` : 'Transcribe';
+  $('trRun').textContent = q.busy ? status('reading') : waiting > 1 ? tr('transcribe.list.run_n', 'Transcribe {n} files', { n: waiting }) : tr('transcribe.app.run', 'Transcribe');
   $('trStop').hidden = !q.busy;
   $('trClear').disabled = q.busy || !list.length;
-  $('trCount').textContent = list.length ? `${list.filter((x) => x.status === 'done').length} of ${list.length} done` : '';
+  $('trCount').textContent = list.length ? tr('transcribe.list.count', '{done} of {n} done', { done: list.filter((x) => x.status === 'done').length, n: list.length }) : '';
 }
+
+/** "412 words" (the count formatted for the language). */
+function words(text) { const n = X().words(text); return tr('transcribe.list.words', n === 1 ? '{n} word' : '{n} words', { n }); }
 
 /** The transcript pane for the selected item: its text (editable once done), its meta, and the export buttons. */
 export function drawTranscript(item, { times }) {
   const done = !!item && item.status === 'done';
-  $('trPaneTitle').textContent = item ? item.name : 'Transcript';
-  $('trPaneMeta').textContent = !item ? 'Add a file or record your voice, then press Transcribe.'
-    : done ? [metaOf(item), item.language ? `language ${languageName(item.language)}` : '', `${X().words($('trText').value)} words`].filter(Boolean).join(' · ')
-      : item.status === 'error' ? item.error : STATUS[item.status];
+  $('trPaneTitle').textContent = item ? item.name : tr('transcribe.app.transcript', 'Transcript');
+  $('trPaneMeta').textContent = !item ? tr('transcribe.list.hint', 'Add a file or record your voice, then press Transcribe.')
+    : done ? [metaOf(item), item.language ? tr('transcribe.list.language', 'language {name}', { name: languageName(item.language) }) : '', words($('trText').value)].filter(Boolean).join(' · ')
+      : item.status === 'error' ? item.error : status(item.status);
   for (const id of ['trCopy', 'trDownload', 'trFormat', 'trDrive', 'trDocs', 'trTimes']) $(id).disabled = !done;
   $('trText').readOnly = !done;
   $('trEdited').hidden = !(done && item.text != null);

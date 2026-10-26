@@ -4,6 +4,8 @@
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="music" data-src="shared/theme/theme.js"></script>
   <link rel="expect" href="#slop-built" blocking="render">
+  <script src="../shared/i18n/i18n.js" data-src="shared/i18n/i18n.js"></script>
+  <script src="i18n/index.js" data-src="music/i18n/index.js"></script>
 <script src="../shared/consent/config.js"></script>
 <script src="../shared/consent/state.js"></script>
 <script src="../shared/consent/consent-mode.js"></script>
@@ -53,59 +55,59 @@
     <symbol id="i-queue" viewBox="0 0 24 24"><path d="M4 6h11M4 12h11M4 18h7M18 15v6M18 15l3 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   </svg>
   <header class="mu-top">
-    <div class="mu-brand"><a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home"><svg viewBox="0 0 32 32" class="brand-mark" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/></svg></a><h1>Slop Music</h1></div>
-    <nav class="mu-tabs" role="tablist" aria-label="Views">
-      <button type="button" role="tab" data-view="library" aria-selected="true" tabindex="0">Library</button>
-      <button type="button" role="tab" data-view="playlists" aria-selected="false" tabindex="-1">Playlists</button>
-      <button type="button" role="tab" data-view="now" aria-selected="false" tabindex="-1">Now playing</button>
+    <div class="mu-brand"><a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home" data-i18n-attr="title:music.app.home;aria-label:music.app.home"><svg viewBox="0 0 32 32" class="brand-mark" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/></svg></a><h1>Slop Music</h1></div>
+    <nav class="mu-tabs" role="tablist" aria-label="Views" data-i18n-attr="aria-label:music.app.views">
+      <button type="button" role="tab" data-view="library" aria-selected="true" tabindex="0" data-i18n="music.tab.library">Library</button>
+      <button type="button" role="tab" data-view="playlists" aria-selected="false" tabindex="-1" data-i18n="music.tab.playlists">Playlists</button>
+      <button type="button" role="tab" data-view="now" aria-selected="false" tabindex="-1" data-i18n="music.tab.now">Now playing</button>
     </nav>
-    <div class="mu-tools"><button type="button" class="sui-btn" id="mu-add">Add files…</button></div>
+    <div class="mu-tools"><button type="button" class="sui-btn" id="mu-add" data-i18n="music.app.add_files">Add files…</button></div>
   </header>
 
   <main class="mu-main">
-    <section class="mu-view" id="v-library" aria-label="Library">
+    <section class="mu-view" id="v-library" aria-label="Library" data-i18n-attr="aria-label:music.tab.library">
       <div class="mu-lib">
-        <aside class="mu-side" id="lib-side" aria-label="Tags"></aside>
+        <aside class="mu-side" id="lib-side" aria-label="Tags" data-i18n-attr="aria-label:music.lib.tags"></aside>
         <div class="mu-lib-main">
           <div id="lib-drop" class="mu-dropzone"></div>
           <div class="mu-bar">
-            <input type="search" id="lib-search" class="sui-input" placeholder="Search title, artist, album" aria-label="Search the library">
-            <select id="lib-sort" class="sui-input" aria-label="Sort by">
-              <option value="artist">Sort: artist</option>
-              <option value="album">Sort: album</option>
-              <option value="title">Sort: title</option>
+            <input type="search" id="lib-search" class="sui-input" placeholder="Search title, artist, album" aria-label="Search the library" data-i18n-attr="placeholder:music.lib.search_ph;aria-label:music.lib.search_label">
+            <select id="lib-sort" class="sui-input" aria-label="Sort by" data-i18n-attr="aria-label:music.lib.sort_label">
+              <option value="artist" data-i18n="music.lib.sort_artist">Sort: artist</option>
+              <option value="album" data-i18n="music.lib.sort_album">Sort: album</option>
+              <option value="title" data-i18n="music.lib.sort_title">Sort: title</option>
             </select>
           </div>
           <p class="mu-stat" id="lib-stat" aria-live="polite"></p>
-          <ul class="mu-list" id="lib-list" aria-label="Tracks"></ul>
+          <ul class="mu-list" id="lib-list" aria-label="Tracks" data-i18n-attr="aria-label:music.lib.tracks"></ul>
           <div class="mu-empty" id="lib-empty">
-            <h2>No audio in Slop Drive yet</h2>
+            <h2 data-i18n="music.lib.empty_title">No audio in Slop Drive yet</h2>
             <div id="lib-preview"></div>
-            <p>Add MP3, WAV, Ogg, FLAC, AAC or Opus files, or drop them here. They are saved to Slop Drive on this device.</p>
+            <p data-i18n="music.lib.empty_text">Add MP3, WAV, Ogg, FLAC, AAC or Opus files, or drop them here. They are saved to Slop Drive on this device.</p>
             <div class="mu-empty-acts">
-              <button type="button" class="sui-btn sui-primary" id="lib-add-empty">Add files…</button>
-              <button type="button" class="sd-sample" id="lib-sample">Try it with 3 sample tracks</button>
+              <button type="button" class="sui-btn sui-primary" id="lib-add-empty" data-i18n="music.app.add_files">Add files…</button>
+              <button type="button" class="sd-sample" id="lib-sample" data-i18n="music.lib.sample">Try it with 3 sample tracks</button>
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="mu-view" id="v-playlists" aria-label="Playlists" hidden>
+    <section class="mu-view" id="v-playlists" aria-label="Playlists" data-i18n-attr="aria-label:music.tab.playlists" hidden>
       <div class="mu-pl">
         <aside class="mu-pl-side">
           <div class="mu-bar">
-            <button type="button" class="sui-btn sui-primary" id="pl-new">New playlist</button>
-            <button type="button" class="sui-btn" id="pl-open">Open from Drive…</button>
+            <button type="button" class="sui-btn sui-primary" id="pl-new" data-i18n="music.pl.new">New playlist</button>
+            <button type="button" class="sui-btn" id="pl-open" data-i18n="music.pl.open">Open from Drive…</button>
           </div>
-          <ul class="mu-list" id="pl-list" aria-label="Playlists"></ul>
-          <p class="mu-fine" id="pl-empty">No playlists yet.</p>
+          <ul class="mu-list" id="pl-list" aria-label="Playlists" data-i18n-attr="aria-label:music.tab.playlists"></ul>
+          <p class="mu-fine" id="pl-empty" data-i18n="music.pl.none">No playlists yet.</p>
         </aside>
         <div class="mu-pl-detail" id="pl-detail"></div>
       </div>
     </section>
 
-    <section class="mu-view mu-now-view" id="v-now" aria-label="Now playing" hidden>
+    <section class="mu-view mu-now-view" id="v-now" aria-label="Now playing" data-i18n-attr="aria-label:music.tab.now" hidden>
       <div class="mu-now">
         <div class="mu-cover" id="now-cover"></div>
         <div class="mu-now-info">
@@ -113,46 +115,46 @@
           <p class="mu-artist" id="now-artist"></p>
           <p class="mu-fine" id="now-album"></p>
           <div class="mu-wave-wrap">
-            <canvas id="now-wave" class="mu-wave" role="slider" tabindex="0" aria-label="Seek" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></canvas>
+            <canvas id="now-wave" class="mu-wave" role="slider" tabindex="0" aria-label="Seek" data-i18n-attr="aria-label:music.now.seek" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></canvas>
             <div class="mu-times"><span id="now-cur">0:00</span><span id="now-dur">—</span></div>
           </div>
           <div class="mu-controls">
-            <button type="button" class="mu-btn" id="now-shuffle" aria-label="Shuffle" aria-pressed="false"><svg class="mu-ic"><use href="#i-shuffle"/></svg></button>
-            <button type="button" class="mu-btn" id="now-prev" aria-label="Previous"><svg class="mu-ic"><use href="#i-prev"/></svg></button>
+            <button type="button" class="mu-btn" id="now-shuffle" aria-label="Shuffle" data-i18n-attr="aria-label:music.now.shuffle" aria-pressed="false"><svg class="mu-ic"><use href="#i-shuffle"/></svg></button>
+            <button type="button" class="mu-btn" id="now-prev" aria-label="Previous" data-i18n-attr="aria-label:music.now.prev"><svg class="mu-ic"><use href="#i-prev"/></svg></button>
             <button type="button" class="mu-btn mu-big" id="now-play" aria-label="Play"><svg class="mu-ic"><use href="#i-play"/></svg></button>
-            <button type="button" class="mu-btn" id="now-next" aria-label="Next"><svg class="mu-ic"><use href="#i-next"/></svg></button>
+            <button type="button" class="mu-btn" id="now-next" aria-label="Next" data-i18n-attr="aria-label:music.now.next"><svg class="mu-ic"><use href="#i-next"/></svg></button>
             <button type="button" class="mu-btn" id="now-repeat" aria-label="Repeat: off" data-mode="off"><svg class="mu-ic"><use href="#i-repeat"/></svg></button>
           </div>
           <div class="mu-sub-controls">
-            <button type="button" class="mu-btn" id="now-mute" aria-label="Mute"><svg class="mu-ic"><use href="#i-vol"/></svg></button>
-            <input type="range" id="now-vol" min="0" max="1" step="0.01" value="0.8" aria-label="Volume">
-            <label class="mu-rate">Speed <select id="now-rate" class="sui-input" aria-label="Playback speed">
+            <button type="button" class="mu-btn" id="now-mute" aria-label="Mute" data-i18n-attr="aria-label:music.now.mute"><svg class="mu-ic"><use href="#i-vol"/></svg></button>
+            <input type="range" id="now-vol" min="0" max="1" step="0.01" value="0.8" aria-label="Volume" data-i18n-attr="aria-label:music.now.volume">
+            <label class="mu-rate"><span data-i18n="music.now.speed">Speed</span> <select id="now-rate" class="sui-input" aria-label="Playback speed" data-i18n-attr="aria-label:music.now.speed_label">
               <option value="0.5">0.5×</option><option value="0.75">0.75×</option><option value="1" selected>1×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option><option value="2">2×</option>
             </select></label>
-            <button type="button" class="sui-btn" id="now-queue" aria-expanded="false"><svg class="mu-ic"><use href="#i-queue"/></svg> Queue</button>
+            <button type="button" class="sui-btn" id="now-queue" aria-expanded="false"><svg class="mu-ic"><use href="#i-queue"/></svg> <span data-i18n="music.now.queue">Queue</span></button>
           </div>
           <p class="mu-err" id="now-err" role="status"></p>
           <div class="mu-tag-edit">
-            <h3>Tags</h3>
+            <h3 data-i18n="music.now.tags">Tags</h3>
             <div class="mu-tags" id="now-tags"></div>
-            <div class="mu-tag-add"><input type="text" id="now-tag-input" class="sui-input" placeholder="Add a tag" aria-label="Add a tag" maxlength="40"><button type="button" class="sui-btn" id="now-tag-add">Add</button></div>
+            <div class="mu-tag-add"><input type="text" id="now-tag-input" class="sui-input" placeholder="Add a tag" aria-label="Add a tag" data-i18n-attr="placeholder:music.now.tag_ph;aria-label:music.now.tag_ph" maxlength="40"><button type="button" class="sui-btn" id="now-tag-add" data-i18n="music.now.tag_add">Add</button></div>
           </div>
         </div>
       </div>
     </section>
   </main>
 
-  <aside class="mu-sheet" id="queue-sheet" aria-label="Queue" hidden>
-    <div class="mu-sheet-head"><h2>Queue</h2><button type="button" class="sui-x" id="queue-close" aria-label="Close queue">×</button></div>
+  <aside class="mu-sheet" id="queue-sheet" aria-label="Queue" data-i18n-attr="aria-label:music.now.queue" hidden>
+    <div class="mu-sheet-head"><h2 data-i18n="music.now.queue">Queue</h2><button type="button" class="sui-x" id="queue-close" aria-label="Close queue" data-i18n-attr="aria-label:music.now.close_queue">×</button></div>
     <ol class="mu-list" id="queue-list"></ol>
   </aside>
 
   <div class="mu-mini" id="mini" hidden>
-    <a href="#now" class="mu-mini-link" id="mini-return" aria-label="Back to Now playing">
+    <a href="#now" class="mu-mini-link" id="mini-return" aria-label="Back to Now playing" data-i18n-attr="aria-label:music.now.back">
       <span class="mu-mini-txt"><b id="mini-title"></b><small id="mini-sub"></small></span>
     </a>
     <button type="button" class="mu-btn" id="mini-play" aria-label="Play"><svg class="mu-ic"><use href="#i-play"/></svg></button>
-    <div class="mu-mini-progress" id="mini-progress" role="progressbar" aria-label="Progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="mini-bar"></span></div>
+    <div class="mu-mini-progress" id="mini-progress" role="progressbar" aria-label="Progress" data-i18n-attr="aria-label:music.now.progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="mini-bar"></span></div>
   </div>
 
   <script src="../shared/slopui.js"></script>

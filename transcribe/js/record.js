@@ -3,6 +3,8 @@
  *   const r = createRecorder({ onTick(seconds), media })   media: navigator.mediaDevices (the tests pass a fake)
  *   await r.start()  -> resolves once recording, rejects with a plain reason (no microphone, permission refused)
  *   await r.stop()   -> a File "Recording 2026-10-24 10.32.webm"; r.cancel() drops it; r.recording */
+import { tr } from './words.js';
+
 const pad = (v) => String(v).padStart(2, '0');
 
 /** Pure: the file name of a recording made at a date. */
@@ -12,10 +14,10 @@ export function recordingName(d, ext = 'webm') {
 /** Pure: the reason to show for a getUserMedia failure. */
 export function micReason(e) {
   const n = e && e.name;
-  if (n === 'NotAllowedError' || n === 'SecurityError') return 'The microphone is blocked for this page. Allow it in the browser’s site settings, then try again.';
-  if (n === 'NotFoundError' || n === 'OverconstrainedError') return 'No microphone was found.';
-  if (n === 'NotReadableError') return 'The microphone is in use by another app.';
-  return 'The microphone could not be started' + (e && e.message ? `: ${e.message}` : '.');
+  if (n === 'NotAllowedError' || n === 'SecurityError') return tr('transcribe.mic.blocked', 'The microphone is blocked for this page. Allow it in the browser’s site settings, then try again.');
+  if (n === 'NotFoundError' || n === 'OverconstrainedError') return tr('transcribe.mic.none', 'No microphone was found.');
+  if (n === 'NotReadableError') return tr('transcribe.mic.busy', 'The microphone is in use by another app.');
+  return e && e.message ? tr('transcribe.mic.failed_why', 'The microphone could not be started: {error}', { error: e.message }) : tr('transcribe.mic.failed', 'The microphone could not be started.');
 }
 
 export function createRecorder({ onTick = () => {}, media = globalThis.navigator && globalThis.navigator.mediaDevices, Recorder = globalThis.MediaRecorder } = {}) {

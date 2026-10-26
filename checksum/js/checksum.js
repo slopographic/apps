@@ -3,6 +3,7 @@
 (function () {
   'use strict';
   const $ = (id) => document.getElementById(id);
+  const t = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
   const hex = (buf) => [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
   let file = null;
   let last = { alg: null, hash: null };
@@ -25,11 +26,11 @@
     const alg = $('ck-alg').value;
     $('ck-copy').disabled = true;
     if (!file) { $('ck-hash').textContent = ''; $('ck-verdict').textContent = ''; $('ck-status').textContent = ''; return; }
-    $('ck-status').textContent = `Reading ${file.name} (${(file.size / 1048576).toFixed(1)} MB)…`;
+    $('ck-status').textContent = t('checksum.app.reading', { name: file.name, mb: (file.size / 1048576).toFixed(1) });
     const hash = await hashOf(alg);
     $('ck-hash').textContent = hash;
     $('ck-copy').disabled = false;
-    $('ck-status').textContent = `${alg} of ${file.name}`;
+    $('ck-status').textContent = t('checksum.app.hash_of', { alg, name: file.name });
     check();
   }
 
@@ -39,15 +40,15 @@
     const v = $('ck-verdict');
     v.className = 'ck-verdict';
     if (!want) { v.textContent = ''; return; }
-    if (!file || !have) { v.textContent = 'Choose a file first.'; return; }
-    if (!/^[0-9a-f]+$/.test(want)) { v.textContent = 'That does not look like a hash (letters a to f and digits only).'; return; }
+    if (!file || !have) { v.textContent = t('checksum.app.choose_first'); return; }
+    if (!/^[0-9a-f]+$/.test(want)) { v.textContent = t('checksum.app.not_hash'); return; }
     if (want.length !== have.length) {
-      v.textContent = `Length differs: the ${$('ck-alg').value} hash is ${have.length} characters. Check the algorithm.`;
+      v.textContent = t('checksum.app.length_differs', { alg: $('ck-alg').value, n: have.length });
       v.classList.add('bad');
       return;
     }
     const same = want === have;
-    v.textContent = same ? 'Match: the file is the one that was published.' : 'No match: the file differs from the published hash.';
+    v.textContent = same ? t('checksum.app.match') : t('checksum.app.no_match');
     v.classList.add(same ? 'ok' : 'bad');
   }
 
@@ -69,18 +70,21 @@
 
   const drop = $('ck-drop');
   // The one way in (shared/intake, spec 'checksum'): the box (click to choose, or a drop on it) and a paste; one file.
-  SlopIntake.register({ id: 'checksum', accept: { any: true, allowEmpty: true, noun: 'a file' }, limit: 1, toast: false, process: async (f) => { drop.classList.remove('over'); await choose(f); return f.name; } });
+  SlopIntake.register({ id: 'checksum', accept: { any: true, allowEmpty: true, noun: t('checksum.app.a_file') }, limit: 1, toast: false, process: async (f) => { drop.classList.remove('over'); await choose(f); return f.name; } });
   $('ck-alg').addEventListener('change', show);
   $('ck-expect').addEventListener('input', check);
   $('ck-copy').addEventListener('click', async () => {
-    try { await navigator.clipboard.writeText(last.hash); $('ck-copy').textContent = 'Copied'; }
-    catch (e) { $('ck-copy').textContent = 'Copy failed'; }
-    setTimeout(() => { $('ck-copy').textContent = 'Copy hash'; }, 1500);
+    try { await navigator.clipboard.writeText(last.hash); $('ck-copy').textContent = t('checksum.app.copied'); }
+    catch (e) { $('ck-copy').textContent = t('checksum.app.copy_failed'); }
+    setTimeout(() => { $('ck-copy').textContent = t('checksum.app.copy'); }, 1500);
   });
   drop.addEventListener('click', () => SlopIntake.pick({ to: 'checksum', multiple: false }));
   SlopIntake.dropTarget(drop, { to: 'checksum' });
   drop.addEventListener('dragenter', () => drop.classList.add('over'));
   drop.addEventListener('dragleave', () => drop.classList.remove('over'));
+
+  // a language change: the status and the verdict again, in the new language (the hash is kept)
+  if (window.SlopI18n && window.SlopI18n.on) window.SlopI18n.on(() => { if (file) show(); });
 
   // Exposed for the browser test and the assistant's commands (ai-commands.js).
   window.SlopChecksum = { presetOf, hashOf: (alg, f) => { file = f; last = { alg: null, hash: null }; return hashOf(alg); }, clean,

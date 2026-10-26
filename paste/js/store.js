@@ -9,8 +9,10 @@ const DELAY = 600;
 const ALPHABET = 'abcdefghijkmnpqrstuvwxyz23456789';
 
 const SH = () => window.SlopHub;
-const EXPIRY = { never: 'Never', '1h': '1 hour', '1d': '1 day', '7d': '1 week', '30d': '1 month' };
-export const expiryLabel = (k) => EXPIRY[k] || EXPIRY.never;
+/* The expiry labels: [id, words key] (paste/i18n); the words are read when shown, in the current language. */
+const EXPIRY = Object.fromEntries(['never', '1h', '1d', '7d', '30d'].map((k) => [k, 'paste.expiry.' + k]));
+const tr = (k) => (window.SlopI18n ? window.SlopI18n.t(k) : k);
+export const expiryLabel = (k) => tr(EXPIRY[k] || EXPIRY.never);
 export const EXPIRY_OPTIONS = Object.entries(EXPIRY);
 
 /** A random link ID: 16 characters from ALPHABET, from the browser's secure random source. */
@@ -43,7 +45,7 @@ export async function load() {
 /** A new paste, written to Drive now. kind 'text' takes body; kind 'image' takes blob. */
 export async function create(p) {
   const it = { title: '', language: 'plain', expiry: 'never', kind: 'text', body: '', blob: null, ...p, pasteId: randomId() };
-  const name = it.title || (it.kind === 'image' ? 'Image paste' : 'Paste');
+  const name = it.title || (it.kind === 'image' ? 'Image paste' : 'Paste');   // i18n-ignore: the Drive file's name
   it.id = await SH().put(blobOf(it), { name, from: APP, meta: metaFor(it) });
   it.time = it.modified = Date.now();
   it.dirty = false;
@@ -54,7 +56,7 @@ export async function create(p) {
 /** Writes one paste's current state back to its Drive record. */
 export async function saveNow(p) {
   const b = blobOf(p);
-  const out = await SH().update(p.id, { name: p.title || (p.kind === 'image' ? 'Image paste' : 'Paste'), blob: b, type: b.type, meta: metaFor(p) });
+  const out = await SH().update(p.id, { name: p.title || (p.kind === 'image' ? 'Image paste' : 'Paste'), blob: b, type: b.type, meta: metaFor(p) });   // i18n-ignore: the Drive file's name
   if (!out) throw new Error('This paste is no longer in Slop Drive');
 }
 

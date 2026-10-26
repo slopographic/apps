@@ -14,4 +14,4 @@ export function visible() {
 }
 
 /** The first line of a text paste, for the list. */
-export const firstLine = (p) => (p.kind === 'image' ? 'Image' : (String(p.body || '').split('\n').find((l) => l.trim()) || '').trim().slice(0, 90));
+export const firstLine = (p) => (p.kind === 'image' ? (window.SlopI18n ? window.SlopI18n.t('paste.app.image') : 'Image') : (String(p.body || '').split('\n').find((l) => l.trim()) || '').trim().slice(0, 90));

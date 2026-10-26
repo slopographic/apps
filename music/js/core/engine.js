@@ -11,6 +11,7 @@
   const pref = (k, d) => { try { const v = localStorage.getItem('slop-music.' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } };
   const keep = (k, v) => { try { localStorage.setItem('slop-music.' + k, JSON.stringify(v)); } catch (e) { /* blocked: not saved */ } };
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const T = (k) => (window.SlopI18n ? window.SlopI18n.t(k) : k);   // the error shown under the player
   const st = { q: { ids: [], order: [], index: -1, shuffle: !!pref('shuffle', false), repeat: pref('repeat', 'off') },
     trackId: null, error: '', muted: !!pref('muted', false) };
   let url = null, seq = 0;
@@ -30,7 +31,7 @@
     st.trackId = id; st.error = '';
     const rec = await H().get(id);
     if (mine !== seq) return;
-    if (!rec) { st.error = 'This track is no longer in Slop Drive.'; audio.pause(); emit(); return; }
+    if (!rec) { st.error = T('music.err.gone'); audio.pause(); emit(); return; }
     if (url) URL.revokeObjectURL(url);
     url = URL.createObjectURL(rec.blob);
     audio.src = url;
@@ -40,7 +41,7 @@
   async function play() {
     if (!audio.src) return;
     H().emit('music:playing', { tab: H().self.id });
-    try { await audio.play(); st.error = ''; } catch (e) { st.error = 'Playback was blocked or failed. Press play again.'; }
+    try { await audio.play(); st.error = ''; } catch (e) { st.error = T('music.err.blocked'); }
     emit();
   }
   function pause() { audio.pause(); }
@@ -100,7 +101,7 @@
   ['play', 'pause', 'durationchange', 'volumechange', 'ratechange', 'seeked'].forEach((ev) => audio.addEventListener(ev, emit));
   audio.addEventListener('loadedmetadata', () => { if (st.trackId && M.lib) M.lib.setDuration(st.trackId, audio.duration); emit(); });
   audio.addEventListener('ended', ended);
-  audio.addEventListener('error', () => { if (audio.src) { st.error = 'This browser cannot play this file.'; audio.pause(); emit(); } });
+  audio.addEventListener('error', () => { if (audio.src) { st.error = T('music.err.cannot_play'); audio.pause(); emit(); } });
   if (H()) H().on('music:playing', () => { if (!audio.paused) audio.pause(); });
 
   M.engine = { audio, state, current, subscribe: (f) => { subs.add(f); return () => subs.delete(f); },

@@ -11,10 +11,11 @@ import { $, env, setHandlers, renderChrome, setStatus, setTreeOpen, treeOpen, se
 import { openRecord, saveDoc, saveAs, newFile, closeDoc, onEdit, showDoc, restoreTabs, togglePreview } from './ops.js';
 import { runDoc, attachPreview, canRun } from './run.js';
 import { registerCommands } from './commands.js';
+import { t, onLang } from './dom.js';
 
 function registerIntake() {
   window.SlopIntake.register({
-    id: 'code', accept: { any: true, allowEmpty: true, noun: 'a file' },
+    id: 'code', accept: { any: true, allowEmpty: true, noun: t('code.app.a_file') },
     process: async (file, ctx) => {
       let rec = ctx.drive && ctx.drive.record;
       if (!rec) rec = await SlopHub.get(await SlopHub.put(file, { name: file.name, from: 'code', folderId: selectedFolder() || null }));
@@ -25,18 +26,18 @@ function registerIntake() {
   });
   window.SlopIntake.dropTarget(document.querySelector('.cd-main'), { to: 'code' });
 }
-const openPicker = () => window.SlopIntake.fromDrive({ to: 'code', title: 'Open from Slop Drive' });
+const openPicker = () => window.SlopIntake.fromDrive({ to: 'code', title: t('code.app.drive_title') });
 async function runCurrent() {
   const d = docs.current();
-  if (!d) { toast('Open a file first'); return; }
-  if (d.kind !== 'text' || !canRun(d.name)) { toast('Run works on HTML and JavaScript files'); return; }
+  if (!d) { toast(t('code.toast.open_first')); return; }
+  if (d.kind !== 'text' || !canRun(d.name)) { toast(t('code.toast.run_only')); return; }
   setPreview(true);
   await runDoc(d, docs.textOf(d), (id) => { const o = docs.find(id); return o ? docs.textOf(o) : undefined; });
 }
 function toggleWrap() {
   setWrap(env.view, !isWrap());
   setStatus();
-  toast(`Line wrap ${isWrap() ? 'on' : 'off'}`);
+  toast(t(isWrap() ? 'code.toast.wrap_on' : 'code.toast.wrap_off'));
 }
 const toggleFiles = () => setTreeOpen(!treeOpen());
 /** Show the sidebar with the Extensions section open, and put focus on the first helper. */
@@ -73,7 +74,7 @@ function wireButtons() {
   on('cd-save', () => saveDoc()); on('cd-saveas', () => saveAs());
   on('cd-run', runCurrent);
   on('cd-md', () => togglePreview());
-  on('cd-cmd', () => (window.SlopCmd && SlopCmd.open ? SlopCmd.open() : toast('Commands are not loaded')));
+  on('cd-cmd', () => (window.SlopCmd && SlopCmd.open ? SlopCmd.open() : toast(t('code.toast.no_cmds'))));
   on('cd-files', () => { if (!isPhone()) toggleFiles(); });   // on a phone it is the drawer's own toggle
   on('cd-tree-folder', () => newFolder(selectedFolder()));
   on('cd-pv-close', () => setPreview(false));
@@ -102,6 +103,8 @@ async function boot() {
   renderExtensions($('cd-ext-list'));
   wireButtons();
   registerCommands(ACTIONS);
+  // a language change: the tabs, the status bar, the helpers and the tree again, in the new language
+  onLang(() => { renderChrome(); renderExtensions($('cd-ext-list')); refreshTree(); });
   await refreshTree();
   await restoreTabs();
   await window.SlopIntake.launch({ to: 'code' });
@@ -118,4 +121,4 @@ addEventListener('slop:convert-files', (e) => e.detail.provide(async () => {
   const rec = d.id && window.SlopHub ? await SlopHub.get(d.id).catch(() => null) : null;
   return rec && rec.blob ? [{ name: rec.name || d.name, blob: rec.blob }] : null;
 }));
-boot().catch((e) => { console.error(e); toast('Slop Code could not start: ' + e.message); document.body.classList.add('ready'); });
+boot().catch((e) => { console.error(e); toast(t('code.toast.start_failed', { error: e.message })); document.body.classList.add('ready'); });

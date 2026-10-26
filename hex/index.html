@@ -4,6 +4,8 @@
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="hex" data-src="shared/theme/theme.js"></script>
   <link rel="expect" href="#slop-built" blocking="render">
+  <script src="../shared/i18n/i18n.js" data-src="shared/i18n/i18n.js"></script>
+  <script src="i18n/index.js" data-src="hex/i18n/index.js"></script>
 <script src="../shared/consent/config.js"></script>
 <script src="../shared/consent/state.js"></script>
 <script src="../shared/consent/consent-mode.js"></script>
@@ -79,59 +81,59 @@
 <body>
   <div class="hx-app" id="hx-app">
     <div class="smb-hold" hidden>
-      <button type="button" class="sui-btn sui-primary" id="hx-open" title="Open a file from this computer (Ctrl+O)">Open</button>
-      <button type="button" class="sui-btn" id="hx-drive" title="Open a file from Slop Drive">Open from Drive</button>
-      <button type="button" class="sui-btn" id="hx-save" title="Save a new version to Slop Drive (Ctrl+S)">Save version</button>
-      <button type="button" class="sui-btn" id="hx-saveas" title="Save to Slop Drive as a new file">Save as new</button>
-      <button type="button" class="sui-btn" id="hx-dl" title="Download to this computer">Download</button>
-      <button type="button" class="sui-btn" id="hx-cmd" aria-label="Commands (search every command)">Commands</button>
-      <button type="button" class="sui-btn" id="hx-menu" aria-haspopup="menu">Menu</button>
+      <button type="button" class="sui-btn sui-primary" id="hx-open" title="Open a file from this computer (Ctrl+O)" data-i18n-attr="title:hex.app.open_tip" data-i18n="hex.app.open">Open</button>
+      <button type="button" class="sui-btn" id="hx-drive" title="Open a file from Slop Drive" data-i18n-attr="title:hex.app.drive_tip" data-i18n="hex.app.drive">Open from Drive</button>
+      <button type="button" class="sui-btn" id="hx-save" title="Save a new version to Slop Drive (Ctrl+S)" data-i18n-attr="title:hex.app.save_tip" data-i18n="hex.app.save">Save version</button>
+      <button type="button" class="sui-btn" id="hx-saveas" title="Save to Slop Drive as a new file" data-i18n-attr="title:hex.app.saveas_tip" data-i18n="hex.app.saveas">Save as new</button>
+      <button type="button" class="sui-btn" id="hx-dl" title="Download to this computer" data-i18n-attr="title:hex.app.dl_tip" data-i18n="ui.download">Download</button>
+      <button type="button" class="sui-btn" id="hx-cmd" aria-label="Commands (search every command)" data-i18n-attr="aria-label:hex.app.cmd_aria" data-i18n="hex.app.cmd">Commands</button>
+      <button type="button" class="sui-btn" id="hx-menu" aria-haspopup="menu" data-i18n="hex.app.menu">Menu</button>
     </div>
 
     <div id="hx-tabs" class="doctabs-host"></div>
     <div id="hx-drop" class="hx-dropstrip"></div>
 
-    <div class="hx-bar" role="toolbar" aria-label="Go to and find">
+    <div class="hx-bar" role="toolbar" aria-label="Go to and find" data-i18n-attr="aria-label:hex.app.bar_aria">
       <form class="hx-go" id="hx-goform">
-        <input type="text" id="hx-goto" placeholder="Offset, e.g. 0x4D2" aria-label="Go to offset" autocomplete="off" spellcheck="false">
-        <button type="submit" class="sui-btn">Go</button>
+        <input type="text" id="hx-goto" placeholder="Offset, e.g. 0x4D2" aria-label="Go to offset" data-i18n-attr="placeholder:hex.app.goto_ph;aria-label:hex.app.goto_aria" autocomplete="off" spellcheck="false">
+        <button type="submit" class="sui-btn" data-i18n="hex.app.go">Go</button>
       </form>
       <form class="hx-find" id="hx-findform">
-        <select id="hx-mode" aria-label="Find as">
-          <option value="hex">Hex bytes</option>
-          <option value="text">Text</option>
+        <select id="hx-mode" aria-label="Find as" data-i18n-attr="aria-label:hex.app.find_as">
+          <option value="hex" data-i18n="hex.app.mode_hex">Hex bytes</option>
+          <option value="text" data-i18n="hex.app.mode_text">Text</option>
         </select>
-        <input type="text" id="hx-q" placeholder="4D 5A  or  text" aria-label="Find" autocomplete="off" spellcheck="false">
-        <button type="button" class="sui-btn" id="hx-prev" title="Find previous (Shift+F3)">Prev</button>
-        <button type="submit" class="sui-btn" id="hx-next" title="Find next (F3)">Next</button>
+        <input type="text" id="hx-q" placeholder="4D 5A  or  text" aria-label="Find" data-i18n-attr="placeholder:hex.app.find_ph;aria-label:hex.app.find_aria" autocomplete="off" spellcheck="false">
+        <button type="button" class="sui-btn" id="hx-prev" title="Find previous (Shift+F3)" data-i18n-attr="title:hex.app.prev_tip" data-i18n="hex.app.prev">Prev</button>
+        <button type="submit" class="sui-btn" id="hx-next" title="Find next (F3)" data-i18n-attr="title:hex.app.next_tip" data-i18n="hex.app.next">Next</button>
       </form>
       <span class="hx-status" id="hx-status" role="status" aria-live="polite"></span>
     </div>
 
     <dl class="hx-info" id="hx-info" hidden>
-      <div class="hx-file"><dt>File</dt><dd class="hx-name" id="hx-name" aria-live="polite"></dd></div>
-      <div><dt>Size</dt><dd id="hx-size"></dd></div>
-      <div><dt>Type</dt><dd id="hx-type"></dd></div>
-      <div class="hx-wide"><dt>SHA-256</dt><dd><span id="hx-sha" class="hx-mono"></span> <button type="button" class="sui-btn hx-mini" id="hx-sha-btn" hidden>Recalculate</button></dd></div>
-      <div><dt>Selection</dt><dd id="hx-sel"></dd></div>
+      <div class="hx-file"><dt data-i18n="hex.app.i_file">File</dt><dd class="hx-name" id="hx-name" aria-live="polite"></dd></div>
+      <div><dt data-i18n="hex.app.i_size">Size</dt><dd id="hx-size"></dd></div>
+      <div><dt data-i18n="hex.app.i_type">Type</dt><dd id="hx-type"></dd></div>
+      <div class="hx-wide"><dt>SHA-256</dt><dd><span id="hx-sha" class="hx-mono"></span> <button type="button" class="sui-btn hx-mini" id="hx-sha-btn" hidden data-i18n="hex.app.recalc">Recalculate</button></dd></div>
+      <div><dt data-i18n="hex.app.i_sel">Selection</dt><dd id="hx-sel"></dd></div>
     </dl>
 
     <div class="hx-body" id="hx-body">
     <main class="hx-main" id="hx-main">
       <div class="hx-empty" id="hx-empty">
-        <p class="hx-empty-t">Open any file to see its bytes.</p>
-        <p class="hx-empty-s">Drop a file here, open one from this computer, or pick one from Slop Drive. Nothing is uploaded.</p>
+        <p class="hx-empty-t" data-i18n="hex.app.empty_t">Open any file to see its bytes.</p>
+        <p class="hx-empty-s" data-i18n="hex.app.empty_s">Drop a file here, open one from this computer, or pick one from Slop Drive. Nothing is uploaded.</p>
         <div class="hx-empty-b">
-          <button type="button" class="sui-btn sui-primary" id="hx-open2">Open a file</button>
-          <button type="button" class="sui-btn" id="hx-drive2">Open from Slop Drive</button>
+          <button type="button" class="sui-btn sui-primary" id="hx-open2" data-i18n="hex.app.open2">Open a file</button>
+          <button type="button" class="sui-btn" id="hx-drive2" data-i18n="hex.app.drive2">Open from Slop Drive</button>
         </div>
       </div>
-      <div class="hx-scroll" id="hx-scroll" tabindex="0" role="region" aria-label="File bytes" hidden>
+      <div class="hx-scroll" id="hx-scroll" tabindex="0" role="region" aria-label="File bytes" data-i18n-attr="aria-label:hex.app.bytes_aria" hidden>
         <div class="hx-spacer" id="hx-spacer"></div>
         <div class="hx-rows" id="hx-rows"></div>
       </div>
     </main>
-    <aside class="hx-side" id="hx-side" aria-label="Inspector"></aside>
+    <aside class="hx-side" id="hx-side" aria-label="Inspector" data-i18n-attr="aria-label:hex.app.inspector"></aside>
     </div>
   </div>
   <script src="../shared/tour/mount.js" data-app="hex"></script>
@@ -142,7 +144,7 @@
   <script src="../shared/spotlight/spotlight.js"></script>
 <link rel="stylesheet" href="../shared/menubar/menubar.css">
 <script src="../shared/menubar/menubar.js"></script>
-<script>SlopMenuBar.mount({"app": "Slop Hex", "tools": ["#hx-open"], "menus": {"File": ["#hx-open", "#hx-drive", "#hx-save", "#hx-saveas", "#hx-dl"], "Edit": ["#hx-prev", "#hx-next", "#hx-sha-btn"], "Help": ["#hx-cmd"]}});</script>
+<script>SlopMenuBar.mount({"app": "Slop Hex", "tools": ["#hx-open"], "menus": {"File": () => ["#hx-open", "#hx-drive", "#hx-save", "#hx-saveas", "#hx-dl"], "Edit": () => ["#hx-prev", "#hx-next", "#hx-sha-btn"], "Help": () => ["#hx-cmd"]}});</script>
   <script src="../shell/shell.js"></script>
 <i id="slop-built" hidden></i>
 </body>

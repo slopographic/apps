@@ -4,6 +4,8 @@
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="eml" data-src="shared/theme/theme.js"></script>
   <link rel="expect" href="#slop-built" blocking="render">
+  <script src="../shared/i18n/i18n.js" data-src="shared/i18n/i18n.js"></script>
+  <script src="i18n/index.js" data-src="eml/i18n/index.js"></script>
 <script src="../shared/consent/config.js"></script>
 <script src="../shared/consent/state.js"></script>
 <script src="../shared/consent/consent-mode.js"></script>
@@ -85,46 +87,46 @@
   <noscript><p class="em-noscript">Slop EML needs JavaScript. It runs entirely in your browser, and nothing is uploaded.</p></noscript>
   <div class="em-app" id="em-app">
     <div class="smb-hold" hidden>
-      <button type="button" class="sui-btn sui-primary" id="em-open" title="Open .eml files or a mailbox (.mbox) from this computer (Ctrl+O)">Open</button>
-      <button type="button" class="sui-btn" id="em-cmd" aria-label="Commands (search every command)">Commands</button>
+      <button type="button" class="sui-btn sui-primary" id="em-open" title="Open .eml files or a mailbox (.mbox) from this computer (Ctrl+O)" data-i18n="eml.app.open" data-i18n-attr="title:eml.app.open_tip">Open</button>
+      <button type="button" class="sui-btn" id="em-cmd" aria-label="Commands (search every command)" data-i18n="eml.app.commands" data-i18n-attr="aria-label:eml.app.commands_tip">Commands</button>
     </div>
     <div id="em-drop" class="em-dropstrip"></div>
-    <nav class="em-tabs" id="em-tabs" aria-label="Pinned messages" hidden></nav>
+    <nav class="em-tabs" id="em-tabs" aria-label="Pinned messages" data-i18n-attr="aria-label:eml.app.pinned" hidden></nav>
 
     <div class="em-frame-root" id="em-frame">
-      <aside class="em-list" id="em-list" aria-label="Messages">
+      <aside class="em-list" id="em-list" aria-label="Messages" data-i18n-attr="aria-label:eml.app.messages">
         <div class="em-list-bar">
           <div class="em-list-row">
-            <label class="em-all"><input type="checkbox" id="em-check-all" aria-label="Select every message shown"> <span id="em-count">0 messages</span></label>
-            <select class="sui-input em-sort" id="em-sort" aria-label="Sort messages"></select>
-            <button type="button" class="sui-btn em-list-actions" id="em-list-actions" aria-haspopup="dialog">Actions</button>
+            <label class="em-all"><input type="checkbox" id="em-check-all" aria-label="Select every message shown" data-i18n-attr="aria-label:eml.list.check_all"> <span id="em-count">0 messages</span></label>
+            <select class="sui-input em-sort" id="em-sort" aria-label="Sort messages" data-i18n-attr="aria-label:eml.list.sort"></select>
+            <button type="button" class="sui-btn em-list-actions" id="em-list-actions" aria-haspopup="dialog" data-i18n="eml.app.actions">Actions</button>
           </div>
-          <input type="search" class="sui-input em-search" id="em-search" placeholder="Search sender, subject, attachments" aria-label="Search messages">
+          <input type="search" class="sui-input em-search" id="em-search" placeholder="Search sender, subject, attachments" aria-label="Search messages" data-i18n-attr="placeholder:eml.list.search_ph;aria-label:eml.list.search">
         </div>
-        <ul class="em-rows" id="em-rows" aria-label="Messages"></ul>
-        <p class="em-noresults" id="em-noresults" hidden>No message matches the search.</p>
+        <ul class="em-rows" id="em-rows" aria-label="Messages" data-i18n-attr="aria-label:eml.app.messages"></ul>
+        <p class="em-noresults" id="em-noresults" data-i18n="eml.list.no_results" hidden>No message matches the search.</p>
       </aside>
 
       <main class="em-main" id="em-main">
         <section class="em-empty" id="em-empty">
-          <h2 class="em-empty-t">Open an email file to read it.</h2>
-          <p class="em-empty-s">Drop .eml files or a mailbox (.mbox) here, or open them from this computer. Nothing is uploaded: the files are read in this page and never leave it.</p>
+          <h2 class="em-empty-t" data-i18n="eml.app.empty_title">Open an email file to read it.</h2>
+          <p class="em-empty-s" data-i18n="eml.app.empty_text">Drop .eml files or a mailbox (.mbox) here, or open them from this computer. Nothing is uploaded: the files are read in this page and never leave it.</p>
           <div class="em-empty-b">
-            <button type="button" class="sui-btn sui-primary" id="em-open2">Open email files</button>
+            <button type="button" class="sui-btn sui-primary" id="em-open2" data-i18n="eml.app.open_files">Open email files</button>
           </div>
         </section>
 
         <article class="em-msg" id="em-msg" hidden>
           <div class="em-bar em-phonebar">
-            <button type="button" class="sui-btn em-back" id="em-back">‹ Messages (<span id="em-list-n">0</span>)</button>
-            <button type="button" class="sui-btn" id="em-actions" aria-haspopup="dialog">Actions</button>
+            <button type="button" class="sui-btn em-back" id="em-back">‹ <span data-i18n="eml.app.messages">Messages</span> (<span id="em-list-n">0</span>)</button>
+            <button type="button" class="sui-btn" id="em-actions" aria-haspopup="dialog" data-i18n="eml.app.actions">Actions</button>
           </div>
           <h2 class="em-subject" id="em-subject"></h2>
           <dl class="em-head" id="em-head"></dl>
           <div class="em-bar">
-            <div class="em-seg" id="em-views" role="group" aria-label="Body view" hidden>
+            <div class="em-seg" id="em-views" role="group" aria-label="Body view" data-i18n-attr="aria-label:eml.view.body_view" hidden>
               <button type="button" class="sui-btn" id="em-v-html" aria-pressed="true">HTML</button>
-              <button type="button" class="sui-btn" id="em-v-text" aria-pressed="false">Plain text</button>
+              <button type="button" class="sui-btn" id="em-v-text" aria-pressed="false" data-i18n="eml.view.plain">Plain text</button>
             </div>
             <button type="button" class="sui-btn em-chip" id="em-atts-chip" hidden>0 attachments</button>
           </div>
@@ -134,13 +136,13 @@
           </div>
           <div class="em-body" id="em-body"></div>
           <details class="em-warn" id="em-warn" hidden>
-            <summary>Some parts could not be read as written</summary>
+            <summary data-i18n="eml.view.warn">Some parts could not be read as written</summary>
             <ul id="em-warn-list"></ul>
           </details>
         </article>
       </main>
 
-      <aside class="em-side" id="em-side" aria-label="Actions"></aside>
+      <aside class="em-side" id="em-side" aria-label="Actions" data-i18n-attr="aria-label:eml.app.actions"></aside>
     </div>
   </div>
   <script src="../vendor/pdf-lib/pdf-lib.min.js" data-src="vendor/pdf-lib/pdf-lib.min.js"></script>
@@ -152,7 +154,7 @@
   <script src="../shared/spotlight/spotlight.js"></script>
 <link rel="stylesheet" href="../shared/menubar/menubar.css">
 <script src="../shared/menubar/menubar.js"></script>
-<script>SlopMenuBar.mount({"app": "Slop EML", "tools": ["#em-open"], "menus": {"File": ["cmd:eml.open", "-", "cmd:eml.export", "cmd:eml.pdf", "cmd:eml.combine", "cmd:eml.pdfzip", "cmd:eml.attzip", "cmd:eml.csv", "-", "cmd:eml.topdf", "cmd:eml.print", "-", "cmd:eml.close"], "View": ["cmd:eml.html", "cmd:eml.plain", "cmd:eml.images", "-", "cmd:eml.panel", "cmd:view.resetPanels", "cmd:eml.pin", "cmd:eml.next", "cmd:eml.prev", "-", "cmd:eml.selectall", "cmd:eml.selectnone"], "Help": ["#em-cmd"]}});</script>
+<script>SlopMenuBar.mount({"app": "Slop EML", "tools": ["#em-open"], "menus": {"File": ["cmd:eml.open", "-", "cmd:eml.export", "cmd:eml.pdf", "cmd:eml.combine", "cmd:eml.pdfzip", "cmd:eml.attzip", "cmd:eml.csv", "-", "cmd:eml.topdf", "cmd:eml.print", "-", "cmd:eml.close"], "View": ["cmd:eml.html", "cmd:eml.plain", "cmd:eml.images", "-", "cmd:eml.panel", "cmd:view.resetPanels", "cmd:eml.pin", "cmd:eml.next", "cmd:eml.prev", "-", "cmd:eml.selectall", "cmd:eml.selectnone"], "Help": () => ["#em-cmd"]}});</script>
   <script src="../shell/shell.js"></script>
 <i id="slop-built" hidden></i>
 </body>

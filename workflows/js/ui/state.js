@@ -6,12 +6,13 @@
  *   createState({ ns, draft }) → ctx: { ns, S, on, emit, edit, setDoc, markSaved, dirty, readDraft, R, F } */
 import * as R from '../../../shared/ops/all.js';
 import '../../../shared/ops/flowdoc.js';
+import { tr } from '../core/text.js';
 
 export { R };
 export const F = globalThis.SlopFlowDoc;
 const DRAFT = 'slop-workflows:draft';
-const emptyDoc = () => F.normalize({ kind: 'slopflow', v: 1, name: 'Untitled workflow', steps: [] }).doc;
-const noUndo = () => ({ push() {}, undo: async () => ({ ok: false, message: 'Nothing to undo.' }), size: 0, next: '', clear() {} });
+const emptyDoc = () => F.normalize({ kind: 'slopflow', v: 1, name: tr('workflows.tool.untitled', 'Untitled workflow'), steps: [] }).doc;
+const noUndo = () => ({ push() {}, undo: async () => ({ ok: false, message: tr('ui.undo.nothing', 'Nothing to undo.') }), size: 0, next: '', clear() {} });
 
 export function createState({ ns = 'wf', draft = false } = {}) {
   const S = {

@@ -11,7 +11,8 @@
   'use strict';
   const NS = 'http://www.w3.org/2000/svg';
   const W = 230, HEAD = 34, MIN_Z = 0.5, MAX_Z = 1.6;
-  const KIND = { value: 'Value', formula: 'Formula', output: 'Output', note: 'Note' };
+  const t = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
+  const KIND = (type) => t(`nodes.kind.${type in { value: 1, output: 1, note: 1 } ? type : 'formula'}`);
   let stage = null, world = null, wires = null, temp = null, H = {}, boxes = new Map(), z = 1, sel = { kind: null, id: null };
   const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
   const svg = (tag, attrs) => { const n = document.createElementNS(NS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); return n; };
@@ -63,27 +64,25 @@
     const box = el('div', 'sn-node');
     box.dataset.id = n.id; box.dataset.type = n.type;
     const head = el('div', 'sn-head');
-    head.append(el('span', 'sn-kind', KIND[n.type] || 'Formula'));
+    head.append(el('span', 'sn-kind', KIND(n.type)));
     const name = el('input', 'sn-name'); name.spellcheck = false; name.autocomplete = 'off';
-    name.setAttribute('aria-label', 'Name of this node');
-    name.addEventListener('input', () => H.rename && H.rename(n.id, name.value));
-    const more = el('button', 'sn-more', '⋯'); more.type = 'button'; more.setAttribute('aria-label', 'Node menu');
+        name.addEventListener('input', () => H.rename && H.rename(n.id, name.value));
+    const more = el('button', 'sn-more', '⋯'); more.type = 'button'; more.dataset.i18nAttr = 'aria-label:nodes.view.menu'; more.setAttribute('aria-label', t('nodes.view.menu'));
     more.addEventListener('click', (e) => { const r = more.getBoundingClientRect(); select('node', n.id); H.context && H.context(r.left, r.bottom, 'node', n.id); e.stopPropagation(); });
     head.append(name, more);
     let body;
     if (n.type === 'note') {
       body = el('textarea', 'sn-note'); body.spellcheck = true;
-      body.setAttribute('aria-label', 'Note text');
+      body.dataset.i18nAttr = 'aria-label:nodes.view.note_aria'; body.setAttribute('aria-label', t('nodes.view.note_aria'));
     } else {
       body = el('input', 'sn-expr'); body.spellcheck = false; body.autocomplete = 'off';
-      body.setAttribute('aria-label', 'Formula for ' + (n.name || 'this node'));
     }
     body.addEventListener('input', () => H.formula && H.formula(n.id, body.value));
     const res = el('p', 'sn-res'); res.setAttribute('aria-live', 'polite');
     box.append(head, body, res);
     if (n.type !== 'note') {
-      const pin = el('span', 'sn-port sn-in'); pin.dataset.id = n.id; pin.title = 'Drag a wire here, or drag a wire off to disconnect';
-      const pout = el('span', 'sn-port sn-out'); pout.dataset.id = n.id; pout.title = 'Drag from here to another node';
+      const pin = el('span', 'sn-port sn-in'); pin.dataset.id = n.id; pin.dataset.i18nAttr = 'title:nodes.view.pin_in'; pin.title = t('nodes.view.pin_in');
+      const pout = el('span', 'sn-port sn-out'); pout.dataset.id = n.id; pout.dataset.i18nAttr = 'title:nodes.view.pin_out'; pout.title = t('nodes.view.pin_out');
       box.append(pin, pout);
       pin.addEventListener('pointerdown', (e) => portDown(e, n.id, 'in'));
       pout.addEventListener('pointerdown', (e) => portDown(e, n.id, 'out'));
@@ -97,10 +96,11 @@
   function place(box, n) {
     box.style.left = n.x + 'px'; box.style.top = n.y + 'px';
     box.dataset.type = n.type;
-    box.querySelector('.sn-kind').textContent = KIND[n.type] || 'Formula';
+    box.querySelector('.sn-kind').textContent = KIND(n.type);
     const p = box._parts;
     if (document.activeElement !== p.name) p.name.value = n.name;
-    p.name.setAttribute('aria-label', 'Name of this ' + (KIND[n.type] || 'node').toLowerCase());
+    p.name.setAttribute('aria-label', t(`nodes.view.name_${n.type in { value: 1, output: 1, note: 1 } ? n.type : 'formula'}`));
+    if (n.type !== 'note') p.body.setAttribute('aria-label', n.name ? t('nodes.view.expr_aria', { name: n.name }) : t('nodes.view.expr_aria_any'));
     if (document.activeElement !== p.body && p.body.value !== n.expr) p.body.value = n.expr;
   }
 

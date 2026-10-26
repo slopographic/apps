@@ -3,7 +3,7 @@
 (() => {
 'use strict';
 const P = window.SlopPaint;
-const { $, clamp, finishPending, h, hexToRgb, hslToRgb, main, openDialog, rgbHex, rgbToHsl } = P;
+const { $, t, clamp, finishPending, h, hexToRgb, hslToRgb, main, openDialog, rgbHex, rgbToHsl } = P;
 
 const BASIC_COLORS = [
   '#ff8080', '#ffff80', '#80ff80', '#00ff80', '#80ffff', '#0080ff', '#ff80c0', '#ff80ff',
@@ -21,27 +21,27 @@ function editColorsDialog(initial) {
   const SW = 176, SH = 150;
   const content = h('div', { class: 'ec', html: `
     <div class="ec-left">
-      <div>Basic colors:</div><div class="ec-grid" id="ecBasic"></div>
-      <div>Custom colors:</div><div class="ec-grid" id="ecCustom"></div>
-      <button class="btn" type="button" disabled style="width:100%">Define Custom Colors &gt;&gt;</button>
+      <div>${t('paint-classic.ec.basic')}</div><div class="ec-grid" id="ecBasic"></div>
+      <div>${t('paint-classic.ec.custom')}</div><div class="ec-grid" id="ecCustom"></div>
+      <button class="btn" type="button" disabled style="width:100%">${t('paint-classic.ec.define')}</button>
     </div>
     <div class="ec-right">
       <div class="ec-spec-row">
-        <div class="ec-spec" id="ecSpec"><canvas width="${SW}" height="${SH}" aria-label="Hue and saturation"></canvas><div class="ec-cross" id="ecCross"></div></div>
-        <div class="ec-lumwrap"><div class="ec-lum" id="ecLum"><canvas width="12" height="${SH}" aria-label="Luminosity"></canvas></div><div class="ec-arrow" id="ecArrow"></div></div>
+        <div class="ec-spec" id="ecSpec"><canvas width="${SW}" height="${SH}" aria-label="${t('paint-classic.ec.spectrum')}"></canvas><div class="ec-cross" id="ecCross"></div></div>
+        <div class="ec-lumwrap"><div class="ec-lum" id="ecLum"><canvas width="12" height="${SH}" aria-label="${t('paint-classic.ec.lum_aria')}"></canvas></div><div class="ec-arrow" id="ecArrow"></div></div>
       </div>
       <div class="ec-bottom">
-        <div><div class="ec-prev"><span id="ecPrev"></span></div><div style="text-align:center;margin-top:2px">Color|Solid</div></div>
+        <div><div class="ec-prev"><span id="ecPrev"></span></div><div style="text-align:center;margin-top:2px">${t('paint-classic.ec.solid')}</div></div>
         <div class="ec-fields">
-          <label for="ecH">Hue:</label><input id="ecH" type="number" min="0" max="239">
-          <label for="ecR">Red:</label><input id="ecR" type="number" min="0" max="255">
-          <label for="ecS">Sat:</label><input id="ecS" type="number" min="0" max="240">
-          <label for="ecG">Green:</label><input id="ecG" type="number" min="0" max="255">
-          <label for="ecL">Lum:</label><input id="ecL" type="number" min="0" max="240">
-          <label for="ecB">Blue:</label><input id="ecB" type="number" min="0" max="255">
+          <label for="ecH">${t('paint-classic.ec.hue')}</label><input id="ecH" type="number" min="0" max="239">
+          <label for="ecR">${t('paint-classic.ec.red')}</label><input id="ecR" type="number" min="0" max="255">
+          <label for="ecS">${t('paint-classic.ec.sat')}</label><input id="ecS" type="number" min="0" max="240">
+          <label for="ecG">${t('paint-classic.ec.green')}</label><input id="ecG" type="number" min="0" max="255">
+          <label for="ecL">${t('paint-classic.ec.lum')}</label><input id="ecL" type="number" min="0" max="240">
+          <label for="ecB">${t('paint-classic.ec.blue')}</label><input id="ecB" type="number" min="0" max="255">
         </div>
       </div>
-      <div class="ec-hex"><label for="ecHex">Hex:</label><input id="ecHex" type="text" maxlength="7"><button class="btn" type="button" id="ecAdd">Add to Custom Colors</button></div>
+      <div class="ec-hex"><label for="ecHex">${t('paint-classic.ec.hex')}</label><input id="ecHex" type="text" maxlength="7"><button class="btn" type="button" id="ecAdd">${t('paint-classic.ec.add')}</button></div>
     </div>` });
   const q = s => $(s, content);
   const specC = q('#ecSpec canvas'), lumC = q('#ecLum canvas');
@@ -102,13 +102,13 @@ function editColorsDialog(initial) {
   q('#ecHex').addEventListener('input', e => { const v = e.target.value.trim(); if (/^#?[0-9a-f]{6}$/i.test(v)) { pickHex(v[0] === '#' ? v : '#' + v); } });
   q('#ecAdd').addEventListener('click', () => { customColors[customSlot] = rgbHex(r, g, b); customSlot = (customSlot + 1) % 16; drawCustom(); });
   sync('rgb');
-  return openDialog({ title: 'Edit Colors', content, width: 470, buttons: [{ label: 'OK', value: 'ok', default: true }, { label: 'Cancel', value: null }] })
+  return openDialog({ title: t('paint-classic.ec.title'), content, width: 470, buttons: [{ label: t('menu.ok'), value: 'ok', default: true }, { label: t('menu.cancel'), value: null }] })
     .then(v => v ? rgbHex(r, g, b) : null);
 }
 function viewBitmap() {
   finishPending();
-  const img = h('img', { src: main.toDataURL(), alt: 'Your picture, at full size' });
-  const v = h('div', { class: 'viewbmp', tabindex: '-1', role: 'dialog', 'aria-label': 'View bitmap. Click or press any key to return.' }, img);
+  const img = h('img', { src: main.toDataURL(), alt: t('paint-classic.bmp.alt') });
+  const v = h('div', { class: 'viewbmp', tabindex: '-1', role: 'dialog', 'aria-label': t('paint-classic.bmp.aria') }, img);
   const close = () => { v.remove(); document.removeEventListener('keydown', key, true); };
   const key = e => { e.preventDefault(); e.stopPropagation(); close(); };
   v.addEventListener('pointerdown', close);

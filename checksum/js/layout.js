@@ -5,12 +5,19 @@
 (function (g) {
   'use strict';
   const $ = (id) => document.getElementById(id);
+  const t = (k) => (g.SlopI18n ? g.SlopI18n.t(k) : k);
   const fr = g.SlopFrame.mount($('ck-frame'), {
-    list: null, view: $('ck-view'), panel: $('ck-side'), phone: '(max-width: 760px)', panelLabel: 'Settings',
+    list: null, view: $('ck-view'), panel: $('ck-side'), phone: '(max-width: 760px)', panelLabel: t('checksum.app.settings'),
     storageKey: 'checksum', phoneButton: false, width: 300, min: 260,
   });
   const panel = g.SlopFrame.panel($('ck-side'), { title: 'Checksum' });
-  panel.render([...$('ck-side').querySelectorAll('.ck-group')].map((gr) => ({ title: gr.dataset.title, key: gr.dataset.title, settings: gr })));
-  panel.footer([{ el: $('ck-copy') }], { more: 'Settings' });
+  const groups = [...$('ck-side').querySelectorAll('.ck-group')];
+  // built again on a language change: the section titles and the phone's Settings button read the current language
+  function draw() {
+    panel.render(groups.map((gr) => ({ title: t(gr.dataset.key), key: gr.dataset.key, settings: gr })));
+    panel.footer([{ el: $('ck-copy') }], { more: t('checksum.app.settings') });
+  }
+  draw();
+  if (g.SlopI18n && g.SlopI18n.on) g.SlopI18n.on(draw);
   g.SlopChecksumFrame = { frame: fr, panel };
 })(typeof window !== 'undefined' ? window : globalThis);

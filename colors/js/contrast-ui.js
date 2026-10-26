@@ -6,8 +6,11 @@
   'use strict';
   const $ = (id) => document.getElementById(id);
   const S = () => g.CO.state, M = () => g.SlopContrastMath;
-  const ROWS = [['aaNormal', 'AA normal text', '4.5:1'], ['aaLarge', 'AA large text', '3:1'], ['aaaNormal', 'AAA normal text', '7:1'],
-    ['aaaLarge', 'AAA large text', '4.5:1'], ['ui', 'UI parts and graphics', '3:1']];
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
+  // [level, the label's key, its English, the ratio it needs]
+  const ROWS = [['aaNormal', 'AA normal text', '4.5:1'], ['aaLarge', 'AA large text', '3:1'], ['aaaNormal', 'AAA normal text', '7:1'],   // i18n-ignore: the English names (colors.con.*)
+    ['aaaLarge', 'AAA large text', '4.5:1'], ['ui', 'UI parts and graphics', '3:1']];   // i18n-ignore
+  const KEYS = { aaNormal: 'aa_normal', aaLarge: 'aa_large', aaaNormal: 'aaa_normal', aaaLarge: 'aaa_large', ui: 'ui' };
 
   /** { ratio (2 decimals, rounded down as checkers do, so 4.499 is not shown as 4.5), levels } for two colours. */
   function check(fg, bg) {
@@ -25,7 +28,8 @@
       const li = document.createElement('li'), ok = c.levels[k];
       li.className = 'co-verdict ' + (ok ? 'ok' : 'bad');
       li.dataset.level = k;
-      li.textContent = `${ok ? 'Pass' : 'Fail'}: ${label} (${need})`;
+      const name = g.SlopI18n ? t('colors.con.' + KEYS[k]) : label;
+      li.textContent = t(ok ? 'colors.con.pass' : 'colors.con.fail', { level: name, need });
       return li;
     }));
     $('co-con-fix').disabled = c.levels.aaNormal;
@@ -34,7 +38,7 @@
   /** The text colour moved to the nearest one that reaches target (AA normal text: 4.5) on the background. */
   function fix(target = 4.5) {
     const s = S().get(), hex = g.SlopColors.harmony.suggest(s.fg, s.bg, target);
-    if (!hex) throw new Error('No text colour of this hue reaches that contrast on this background');
+    if (!hex) throw new Error(t('colors.con.no_fix'));
     S().set({ fg: hex });
     return hex;
   }

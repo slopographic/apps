@@ -4,11 +4,12 @@
   'use strict';
   const ns = (root.SlopImg3D = root.SlopImg3D || {});
   const MAX_SIDE = 1024;
+  const tr = (k, v, en) => { const I = root.SlopI18n; return I && I.has(k) ? I.t(k, v) : en; };   // English when the tables are missing (tests load this alone)
 
   /** Blob or File → { rgba: Uint8ClampedArray, W, H, canvas, name }. Throws a readable error for unknown files. */
   async function decode(blob, name = 'Picture') {
     let bmp;
-    try { bmp = await createImageBitmap(blob); } catch (e) { throw new Error('This file is not a picture this browser can read.'); }
+    try { bmp = await createImageBitmap(blob); } catch (e) { throw new Error(tr('img3d.image.not_picture', null, 'This file is not a picture this browser can read.')); }
     const k = Math.min(1, MAX_SIDE / Math.max(bmp.width, bmp.height));
     const W = Math.max(1, Math.round(bmp.width * k)), H = Math.max(1, Math.round(bmp.height * k));
     const canvas = document.createElement('canvas');

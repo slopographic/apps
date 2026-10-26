@@ -11,9 +11,12 @@ import { kindOf, modeOf } from '../core/kind.js';
 import { compareTexts, options } from '../core/compare.js';
 import { diffLines } from '../core/text.js';
 import { pixelDiff, paint, fit } from '../core/image.js';
+import { tr } from '../ui/i18n.js';
 
 export const MAX_VISUAL_PAGES = 40;
 const NOUN = { pdf: 'a PDF', image: 'a picture', text: 'a text', json: 'a JSON file', csv: 'a CSV file' };
+const noun = (k) => tr(`diff.noun.${k}`, NOUN[k]);
+const cap = (s) => s[0].toUpperCase() + s.slice(1);
 
 export function sideKind(s) {
   if (s.file) return kindOf(s.name || s.file.name, s.type || s.file.type);
@@ -27,8 +30,8 @@ export async function compareSides(a, b, raw = {}) {
   const opts = options(raw), kA = sideKind(a), kB = sideKind(b);
   const mode = modeOf(kA, kB, opts.mode);
   const names = { nameA: a.name || 'A', nameB: b.name || 'B' };
-  if (!mode) throw new Error(!kA || !kB ? `${!kA ? names.nameA : names.nameB} is not a text, PDF or picture Slop Compare can read.`
-    : `${NOUN[kA][0].toUpperCase() + NOUN[kA].slice(1)} and ${NOUN[kB]} cannot be compared. Compare two texts, two PDFs or two pictures.`);
+  if (!mode) throw new Error(!kA || !kB ? tr('diff.err.unreadable', `${!kA ? names.nameA : names.nameB} is not a text, PDF or picture Slop Compare can read.`, { name: !kA ? names.nameA : names.nameB })
+    : cap(tr('diff.err.mismatch', `${cap(NOUN[kA])} and ${NOUN[kB]} cannot be compared. Compare two texts, two PDFs or two pictures.`, { a: noun(kA), b: noun(kB) })));
   if (mode === 'image') return { kind: 'image', opts, ...names, image: await images(a.file, b.file, opts) };
   if (mode === 'pdf') { const pdf = await pdfs(a.file, b.file, opts); return { kind: 'pdf', opts, ...names, view: opts.pdfView, pdf, text: pdf.text }; }
   return { ...compareTexts(await textOf(a), await textOf(b), mode, opts), ...names };
@@ -36,7 +39,7 @@ export async function compareSides(a, b, raw = {}) {
 
 function canvas(w, h) { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; }
 async function bitmap(file) {
-  try { return await createImageBitmap(file); } catch (e) { throw new Error(`${file.name} could not be read as a picture.`); }
+  try { return await createImageBitmap(file); } catch (e) { throw new Error(tr('diff.err.picture', `${file.name} could not be read as a picture.`, { name: file.name })); }
 }
 
 /** Two drawings of the same size → the mask, the boxes and the difference picture. */
@@ -56,8 +59,9 @@ async function images(fa, fb, opts) {
   const ca = canvas(f.w, f.h), cb = canvas(f.w, f.h);
   ca.getContext('2d').drawImage(ba, 0, 0, f.w, f.h);
   cb.getContext('2d').drawImage(bb, 0, 0, f.w, f.h);
+  const size = [ba.width, ba.height, bb.width, bb.height];
   ba.close(); bb.close();
-  return { w: f.w, h: f.h, note: f.note, ...pair(ca, cb, f.w, f.h, opts) };
+  return { w: f.w, h: f.h, note: f.note, size, ...pair(ca, cb, f.w, f.h, opts) };
 }
 
 async function pdfs(fa, fb, opts) {

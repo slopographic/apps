@@ -3,7 +3,7 @@
 (() => {
 'use strict';
 const P = window.SlopPaint;
-const { $, $$, S, applyImage, blackAndWhite, cancelOp, clamp, finishPending, flipH, flipV, h, main, mctx, pushUndo, rotate, savePNG, setCanvasSize, setZoom, stretchSkew, win } = P;
+const { $, $$, S, t, applyImage, blackAndWhite, cancelOp, clamp, finishPending, flipH, flipV, h, main, mctx, pushUndo, rotate, savePNG, setCanvasSize, setZoom, stretchSkew, win } = P;
 
 /* =====================================================================
  * Dialogs
@@ -14,7 +14,7 @@ function openDialog({ title, content, buttons, width = 320, init }) {
     P.closeMenus(); P.closeStart();
     const prevFocus = document.activeElement;
     const back = h('div', { class: 'modal-back' });
-    const close = h('button', { class: 'tbtn close', type: 'button', 'aria-label': 'Close', html: xSvg });
+    const close = h('button', { class: 'tbtn close', type: 'button', 'aria-label': t('menu.close'), html: xSvg });
     const tb = h('div', { class: 'titlebar' }, h('span', { class: 'ttl', text: title }), close);
     const body = h('div', { class: 'dlg-body' }, content);
     const row = h('div', { class: 'btnrow' });
@@ -78,35 +78,39 @@ const ICON_SVG = {
   info: '<svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="14" fill="#fff" stroke="#000" stroke-width="1.5"/><rect x="14" y="13" width="4" height="11" fill="#0000c0"/><rect x="14" y="7" width="4" height="4" fill="#0000c0"/></svg>',
   slop: '<svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2S5 14 5 21a11 11 0 0 0 22 0C27 14 16 2 16 2z" fill="#d4ff3a" stroke="#000" stroke-width="1.5"/><path d="M10.5 21.5a5.5 5.5 0 0 0 4.5 5" fill="none" stroke="#fff" stroke-width="2"/></svg>',
 };
+/** The words on a message box button; the value stays the English name ('Yes', 'No', 'Cancel'), which callers compare. */
+const BTN = { OK: 'menu.ok', Cancel: 'menu.cancel', Yes: 'ui.yes', No: 'ui.no' };
 function msgBox(message, buttons = ['OK'], icon = 'info', title = 'Slop Paint') {
   const content = h('div', { class: 'msg-wrap', html: ICON_SVG[icon] || '' }, h('p', { text: message }));
-  return openDialog({ title, content, width: 360, buttons: buttons.map((b, i) => ({ label: b, value: b, default: i === 0 })) });
+  return openDialog({ title, content, width: 360, buttons: buttons.map((b, i) => ({ label: BTN[b] ? t(BTN[b]) : b, value: b, default: i === 0 })) });
 }
+/** OK and Cancel, the buttons most dialogs end with ('ok' or null). */
+const okCancel = () => [{ label: t('menu.ok'), value: 'ok', default: true }, { label: t('menu.cancel'), value: null }];
 async function attributesDialog() {
   const content = h('div', { html: `
-    <div class="row"><span>File last saved:</span><span>Not Available (it's slop)</span></div>
-    <div class="row" style="margin-bottom:12px"><span>Size on disk:</span><span>Not Available</span></div>
+    <div class="row"><span>${t('paint-classic.dlg.last_saved')}</span><span>${t('paint-classic.dlg.not_available_slop')}</span></div>
+    <div class="row" style="margin-bottom:12px"><span>${t('paint-classic.dlg.size_on_disk')}</span><span>${t('paint-classic.dlg.not_available')}</span></div>
     <div class="field-row" style="margin-bottom:12px">
-      <label for="atW"><u>W</u>idth:</label><input id="atW" type="number" min="1" max="6000" value="${S.w}">
-      <label for="atH"><u>H</u>eight:</label><input id="atH" type="number" min="1" max="6000" value="${S.h}">
+      <label for="atW">${t('paint-classic.dlg.width')}</label><input id="atW" type="number" min="1" max="6000" value="${S.w}">
+      <label for="atH">${t('paint-classic.dlg.height')}</label><input id="atH" type="number" min="1" max="6000" value="${S.h}">
     </div>
-    <fieldset><legend>Units</legend><div class="row">
-      <label class="disabled"><input type="radio" name="atU" disabled>Inches</label>
-      <label class="disabled"><input type="radio" name="atU" disabled>Cm</label>
-      <label><input type="radio" name="atU" checked>Pels</label></div></fieldset>
-    <fieldset><legend>Colors</legend><div class="row">
-      <label><input type="radio" name="atC" id="atBW">Black and white</label>
-      <label><input type="radio" name="atC" checked>Colors</label></div></fieldset>` });
-  const r = await openDialog({ title: 'Attributes', content, width: 300, buttons: [
-    { label: 'OK', value: 'ok', default: true }, { label: 'Cancel', value: null },
-    { label: 'Default', value: 'default' },
+    <fieldset><legend>${t('paint-classic.dlg.units')}</legend><div class="row">
+      <label class="disabled"><input type="radio" name="atU" disabled>${t('paint-classic.dlg.inches')}</label>
+      <label class="disabled"><input type="radio" name="atU" disabled>${t('paint-classic.dlg.cm')}</label>
+      <label><input type="radio" name="atU" checked>${t('paint-classic.dlg.pels')}</label></div></fieldset>
+    <fieldset><legend>${t('paint-classic.dlg.colors')}</legend><div class="row">
+      <label><input type="radio" name="atC" id="atBW">${t('paint-classic.dlg.bw')}</label>
+      <label><input type="radio" name="atC" checked>${t('paint-classic.dlg.colors')}</label></div></fieldset>` });
+  const r = await openDialog({ title: t('paint-classic.dlg.attributes'), content, width: 300, buttons: [
+    { label: t('menu.ok'), value: 'ok', default: true }, { label: t('menu.cancel'), value: null },
+    { label: t('paint-classic.dlg.default'), value: 'default' },
   ] });
   if (!r) return;
   if (P.st.op) cancelOp();
   finishPending();
   let w = +$('#atW', content).value, hh = +$('#atH', content).value;
   if (r === 'default') { w = 800; hh = 500; }
-  if (!(w >= 1 && hh >= 1)) { msgBox('Please enter a whole number between 1 and 6000.\nEven slop has limits.', ['OK'], 'warn'); return; }
+  if (!(w >= 1 && hh >= 1)) { msgBox(t('paint-classic.msg.whole_number'), ['OK'], 'warn'); return; }
   w = clamp(Math.round(w), 1, 6000); hh = clamp(Math.round(hh), 1, 6000);
   const bw = $('#atBW', content).checked;
   if (w !== S.w || hh !== S.h || bw) {
@@ -117,10 +121,10 @@ async function attributesDialog() {
 }
 async function flipRotateDialog() {
   const content = h('div', { html: `
-    <fieldset><legend>Flip or rotate</legend>
-      <div class="row"><label><input type="radio" name="fr" value="h" checked>Flip <u>h</u>orizontal</label></div>
-      <div class="row"><label><input type="radio" name="fr" value="v">Flip <u>v</u>ertical</label></div>
-      <div class="row"><label><input type="radio" name="fr" value="r">Rotate by angle</label></div>
+    <fieldset><legend>${t('paint-classic.dlg.flip_or_rotate')}</legend>
+      <div class="row"><label><input type="radio" name="fr" value="h" checked>${t('paint-classic.dlg.flip_h')}</label></div>
+      <div class="row"><label><input type="radio" name="fr" value="v">${t('paint-classic.dlg.flip_v')}</label></div>
+      <div class="row"><label><input type="radio" name="fr" value="r">${t('paint-classic.dlg.rotate')}</label></div>
       <div class="indent">
         <div class="row"><label><input type="radio" name="deg" value="90" checked>90°</label></div>
         <div class="row"><label><input type="radio" name="deg" value="180">180°</label></div>
@@ -128,40 +132,40 @@ async function flipRotateDialog() {
       </div>
     </fieldset>` });
   $$('input[name=deg]', content).forEach(i => i.addEventListener('change', () => { $('input[value=r]', content).checked = true; }));
-  const r = await openDialog({ title: 'Flip and Rotate', content, width: 260, buttons: [{ label: 'OK', value: 'ok', default: true }, { label: 'Cancel', value: null }] });
+  const r = await openDialog({ title: t('paint-classic.dlg.flip_rotate'), content, width: 260, buttons: okCancel() });
   if (!r) return;
   const m = $('input[name=fr]:checked', content).value, deg = +$('input[name=deg]:checked', content).value;
   applyImage(c => m === 'h' ? flipH(c) : m === 'v' ? flipV(c) : rotate(c, deg));
 }
 async function stretchSkewDialog() {
   const content = h('div', { html: `
-    <fieldset><legend>Stretch</legend><div class="field-row">
-      <label for="ssH">Horizontal:</label><span><input id="ssH" type="number" value="100" min="1" max="500"> %</span>
-      <label for="ssV">Vertical:</label><span><input id="ssV" type="number" value="100" min="1" max="500"> %</span></div></fieldset>
-    <fieldset><legend>Skew</legend><div class="field-row">
-      <label for="skH">Horizontal:</label><span><input id="skH" type="number" value="0" min="-89" max="89"> Degrees</span>
-      <label for="skV">Vertical:</label><span><input id="skV" type="number" value="0" min="-89" max="89"> Degrees</span></div></fieldset>` });
-  const r = await openDialog({ title: 'Stretch and Skew', content, width: 290, buttons: [{ label: 'OK', value: 'ok', default: true }, { label: 'Cancel', value: null }] });
+    <fieldset><legend>${t('paint-classic.dlg.stretch')}</legend><div class="field-row">
+      <label for="ssH">${t('paint-classic.dlg.horizontal')}</label><span><input id="ssH" type="number" value="100" min="1" max="500"> %</span>
+      <label for="ssV">${t('paint-classic.dlg.vertical')}</label><span><input id="ssV" type="number" value="100" min="1" max="500"> %</span></div></fieldset>
+    <fieldset><legend>${t('paint-classic.dlg.skew')}</legend><div class="field-row">
+      <label for="skH">${t('paint-classic.dlg.horizontal')}</label><span><input id="skH" type="number" value="0" min="-89" max="89"> ${t('paint-classic.dlg.degrees')}</span>
+      <label for="skV">${t('paint-classic.dlg.vertical')}</label><span><input id="skV" type="number" value="0" min="-89" max="89"> ${t('paint-classic.dlg.degrees')}</span></div></fieldset>` });
+  const r = await openDialog({ title: t('paint-classic.dlg.stretch_skew'), content, width: 290, buttons: okCancel() });
   if (!r) return;
   const v = id => +$(id, content).value || 0;
   const sx = clamp(v('#ssH') || 100, 1, 500), sy = clamp(v('#ssV') || 100, 1, 500), kx = clamp(v('#skH'), -89, 89), ky = clamp(v('#skV'), -89, 89);
   const big = (S.w * sx / 100) * (S.h * sy / 100);
-  if (big > 36e6) { msgBox('That is too much slop, even for us.', ['OK'], 'warn'); return; }
+  if (big > 36e6) { msgBox(t('paint-classic.msg.too_big'), ['OK'], 'warn'); return; }
   applyImage(c => stretchSkew(c, sx, sy, kx, ky));
 }
 async function customZoomDialog() {
-  const content = h('div', { html: `<div class="row" style="margin-bottom:10px">Current zoom: ${S.zoom * 100}%</div>
-    <fieldset><legend>Zoom to</legend><div class="field-row" style="grid-template-columns:auto auto">
+  const content = h('div', { html: `<div class="row" style="margin-bottom:10px">${t('paint-classic.dlg.current_zoom', { pct: String(S.zoom * 100) })}</div>
+    <fieldset><legend>${t('paint-classic.dlg.zoom_to')}</legend><div class="field-row" style="grid-template-columns:auto auto">
       ${[1, 2, 4, 6, 8].map(z => `<label><input type="radio" name="cz" value="${z}" ${z === S.zoom ? 'checked' : ''}>${z * 100}%</label>`).join('')}
     </div></fieldset>` });
-  const r = await openDialog({ title: 'Custom Zoom', content, width: 240, buttons: [{ label: 'OK', value: 'ok', default: true }, { label: 'Cancel', value: null }] });
+  const r = await openDialog({ title: t('paint-classic.dlg.custom_zoom'), content, width: 240, buttons: okCancel() });
   if (r) setZoom(+$('input[name=cz]:checked', content).value);
 }
 async function saveAsDialog() {
   const content = h('div', { html: `<div class="field-row" style="grid-template-columns:auto 1fr">
-      <label for="saN">File <u>n</u>ame:</label><input id="saN" type="text" value="${S.fileName.replace(/"/g, '')}" maxlength="80" style="width:100%">
-      <label for="saT">Save as <u>t</u>ype:</label><select id="saT"><option>PNG (*.png) — premium slop</option></select></div>` });
-  const r = await openDialog({ title: 'Save As', content, width: 360, buttons: [{ label: 'Save', value: 'ok', default: true }, { label: 'Cancel', value: null }] });
+      <label for="saN">${t('paint-classic.dlg.file_name')}</label><input id="saN" type="text" value="${(S.fileName === 'untitled' ? t('paint-classic.app.untitled') : S.fileName).replace(/"/g, '')}" maxlength="80" style="width:100%">
+      <label for="saT">${t('paint-classic.dlg.save_type')}</label><select id="saT"><option>${t('paint-classic.dlg.png_type')}</option></select></div>` });
+  const r = await openDialog({ title: t('paint-classic.dlg.save_as'), content, width: 360, buttons: [{ label: t('menu.save'), value: 'ok', default: true }, { label: t('menu.cancel'), value: null }] });
   if (!r) return;
   const n = ($('#saN', content).value || 'untitled').replace(/[\\/:*?"<>|]+/g, '').trim() || 'untitled';
   savePNG(n);
@@ -171,33 +175,33 @@ function aboutDialog() {
     <div class="logo">${ICON_SVG.slop.replace(/width="32" height="32"/, 'width="56" height="56"')}</div>
     <div>
       <p class="big">Slop Paint</p>
-      <p>Version 98.0.5L0P (Build 1998)<br>Copyright © 1998–2026 slopographic.com</p>
+      <p>${t('paint-classic.dlg.about_version')}<br>Copyright © 1998–2026 slopographic.com</p>
       <hr>
-      <p>This product is licensed to:<br>&nbsp;&nbsp;Whoever is holding the mouse<br>&nbsp;&nbsp;Department of Pixels</p>
+      <p>${t('paint-classic.dlg.about_licensed')}</p>
       <hr>
-      <p>Hand-made pixels. Machine-made drips.<br>No AI was harmed in the making of this program.</p>
-      <p>Physical memory available to Slop Paint: 640 KB (plenty)<br>System resources: 98% Free</p>
-      <p><a href="../../">slopographic.com</a> · more slop where this came from</p>
+      <p>${t('paint-classic.dlg.about_pixels')}</p>
+      <p>${t('paint-classic.dlg.about_memory')}</p>
+      <p><a href="../../">slopographic.com</a> · ${t('paint-classic.dlg.about_more')}</p>
     </div>` });
-  return openDialog({ title: 'About Slop Paint', content, width: 400, buttons: [{ label: 'OK', value: 'ok', default: true }] });
+  return openDialog({ title: t('paint-classic.dlg.about'), content, width: 400, buttons: [{ label: t('menu.ok'), value: 'ok', default: true }] });
 }
 function helpDialog() {
   const content = h('div', { html: `
     <ul class="helplist">
-      <li><b>Left button</b> draws with the primary color, <b>right button</b> with the secondary color. On touch, long-press a palette color to set the secondary.</li>
-      <li><b>Shift</b> makes perfect squares and circles, and snaps lines to 45°.</li>
-      <li><b>Curve:</b> drag a straight line, then click (or drag) twice to bend it.</li>
-      <li><b>Polygon:</b> drag the first side, click to add corners, double-click (or click the start) to finish.</li>
-      <li><b>Select:</b> drag to select, drag inside to move, Ctrl+drag to leave a copy, drag the blue handles to stretch. Delete clears it.</li>
-      <li><b>Ctrl+C / Ctrl+X / Ctrl+V</b> copy, cut and paste. You can also paste images from other apps.</li>
-      <li><b>Text:</b> click or drag a box, type, pick the font in the Fonts toolbar, click outside to stamp it down.</li>
-      <li>Drag the little blue handles at the canvas edges to resize it.</li>
-      <li>Drop an image file onto the window to open it.</li>
-      <li><b>Ctrl+Z / Ctrl+Y</b> undo and redo. <b>Ctrl+mouse wheel</b> zooms. Two fingers scroll on touch screens.</li>
-      <li>Double-click a palette color to edit it. Click the color well to swap colors.</li>
-      <li><b>Slop Brush</b> drips, <b>Slop Stamp</b> stamps emoji, <b>Image → SLOPIFY</b> deep-fries the picture (Ctrl+Z undoes it).</li>
+      <li>${t('paint-classic.help.buttons')}</li>
+      <li>${t('paint-classic.help.shift')}</li>
+      <li>${t('paint-classic.help.curve')}</li>
+      <li>${t('paint-classic.help.polygon')}</li>
+      <li>${t('paint-classic.help.select')}</li>
+      <li>${t('paint-classic.help.clipboard')}</li>
+      <li>${t('paint-classic.help.text')}</li>
+      <li>${t('paint-classic.help.resize')}</li>
+      <li>${t('paint-classic.help.drop')}</li>
+      <li>${t('paint-classic.help.undo')}</li>
+      <li>${t('paint-classic.help.palette')}</li>
+      <li>${t('paint-classic.help.slop')}</li>
     </ul>` });
-  return openDialog({ title: 'Slop Paint Help Topics', content, width: 440, buttons: [{ label: 'OK', value: 'ok', default: true }] });
+  return openDialog({ title: t('paint-classic.dlg.help'), content, width: 440, buttons: [{ label: t('menu.ok'), value: 'ok', default: true }] });
 }
 
 Object.assign(P, { aboutDialog, attributesDialog, customZoomDialog, flipRotateDialog, helpDialog, msgBox, openDialog, saveAsDialog, stretchSkewDialog });

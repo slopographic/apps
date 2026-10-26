@@ -5,6 +5,7 @@ import { distinctValues, emptyFilter, isActiveFilter } from '../../shared/sheets
 import { colName } from '../../shared/sheets/table.js';
 
 const SHOW_MAX = 500;
+const t = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
 let panel = null, cleanup = () => {};
 
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; };
@@ -27,20 +28,20 @@ export function openFilter(anchor, { sheet, col, spec, onApply, head = 0 }) {
     const cb = el('input');
     cb.type = 'checkbox';
     cb.checked = !spec.values || spec.values.has(text);
-    row.append(cb, el('span', 'sv-ftext', text === '' ? '(Blanks)' : text), el('span', 'sv-fcount', String(count)));
+    row.append(cb, el('span', 'sv-ftext', text === '' ? t('sheetview.filter.blanks') : text), el('span', 'sv-fcount', String(count)));
     return { text, key: text.toLowerCase(), row, cb };
   });
   const shown = () => items.filter((b) => !b.row.hidden);
 
   panel = el('div', 'sv-filter');
   panel.setAttribute('role', 'dialog');
-  panel.setAttribute('aria-label', `Filter column ${colName(col)}`);
-  panel.append(el('div', 'sv-fh', `Filter column ${colName(col)}`));
+  panel.setAttribute('aria-label', t('sheetview.filter.title', { col: colName(col) }));
+  panel.append(el('div', 'sv-fh', t('sheetview.filter.title', { col: colName(col) })));
 
   const search = el('input', 'sv-fsearch');
   search.type = 'search';
-  search.placeholder = 'Search values';
-  search.setAttribute('aria-label', 'Search values');
+  search.placeholder = t('sheetview.filter.search');
+  search.setAttribute('aria-label', t('sheetview.filter.search'));
   const note = el('div', 'sv-fnote');
   const applySearch = () => {
     const q = search.value.trim().toLowerCase();
@@ -50,7 +51,7 @@ export function openFilter(anchor, { sheet, col, spec, onApply, head = 0 }) {
       if (hit) hits++;
       b.row.hidden = !hit || hits > SHOW_MAX;
     }
-    note.textContent = hits > SHOW_MAX ? `Showing the first ${SHOW_MAX} of ${hits} values. Search to find more.` : '';
+    note.textContent = hits > SHOW_MAX ? t('sheetview.filter.showing', { max: SHOW_MAX, n: hits }) : '';
   };
   search.addEventListener('input', applySearch);
 
@@ -58,34 +59,34 @@ export function openFilter(anchor, { sheet, col, spec, onApply, head = 0 }) {
   list.setAttribute('role', 'group');
   list.append(...items.map((b) => b.row));
 
-  const all = button('Select all');
+  const all = button(t('sheetview.filter.select_all'));
   all.addEventListener('click', () => { for (const b of shown()) b.cb.checked = true; });
-  const none = button('Clear');
+  const none = button(t('sheetview.filter.clear'));
   none.addEventListener('click', () => { for (const b of shown()) b.cb.checked = false; });
   const bulk = el('div', 'sv-fbulk', null);
   bulk.append(all, none);
 
   const contains = el('input', 'sv-fcontains');
   contains.type = 'text';
-  contains.placeholder = 'Text contains';
+  contains.placeholder = t('sheetview.filter.contains');
   contains.value = spec.contains || '';
-  contains.setAttribute('aria-label', 'Text contains');
+  contains.setAttribute('aria-label', t('sheetview.filter.contains'));
   const op = el('select', 'sv-fop');
-  op.setAttribute('aria-label', 'Number test');
-  for (const [v, t] of [['', 'Number: no test'], ['>', 'Greater than'], ['<', 'Less than']]) { const o = el('option', null, t); o.value = v; op.append(o); }
+  op.setAttribute('aria-label', t('sheetview.filter.number_test'));
+  for (const [v, k] of [['', 'no_test'], ['>', 'greater'], ['<', 'less']]) { const o = el('option', null, t('sheetview.filter.' + k)); o.value = v; op.append(o); }
   op.value = spec.op || '';
   const num = el('input', 'sv-fnum');
   num.type = 'number';
   num.step = 'any';
-  num.placeholder = 'Number';
-  num.setAttribute('aria-label', 'Number to compare');
+  num.placeholder = t('sheetview.filter.number');
+  num.setAttribute('aria-label', t('sheetview.filter.number_label'));
   if (Number.isFinite(spec.num)) num.value = String(spec.num);
   const numRow = el('div', 'sv-fnumrow');
   numRow.append(op, num);
 
-  const remove = button('Remove filter');
-  const cancel = button('Cancel');
-  const ok = button('Apply', 'sv-btn sv-primary');
+  const remove = button(t('sheetview.filter.remove'));
+  const cancel = button(t('menu.cancel'));
+  const ok = button(t('sheetview.filter.apply'), 'sv-btn sv-primary');
   const foot = el('div', 'sv-ffoot');
   foot.append(remove, cancel, ok);
 

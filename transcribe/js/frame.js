@@ -5,18 +5,25 @@
  * them) and the panel adopts them; js/app.js wires them and shows Stop while it runs. Classic script, before the app module. */
 (function (g) {
   'use strict';
+  const t = (k) => (g.SlopI18n ? g.SlopI18n.t(k) : k);
   const $ = (id) => document.getElementById(id);
   const fr = g.SlopFrame.mount($('trUi'), {
-    list: null, view: $('trView'), panel: $('trSide'), phone: '(max-width: 760px)', panelLabel: 'Options',
+    list: null, view: $('trView'), panel: $('trSide'), phone: '(max-width: 760px)', panelLabel: t('transcribe.app.options'),
     storageKey: 'transcribe', button: '.smb-tools', phoneButton: false, width: 300, min: 260,
   });
-  const panel = g.SlopFrame.panel($('trSide'), { title: 'Transcribe' });
+  const panel = g.SlopFrame.panel($('trSide'), { title: t('transcribe.app.run') });
   const el = (id) => ({ el: $(id) });
-  panel.render([
-    { title: 'Record', key: 'rec', settings: $('trRecGroup') },
-    { title: 'Language', key: 'lang', settings: $('trLangGroup') },
-    { title: 'Save', key: 'save', settings: $('trFormatField'), actions: ['trDownload', 'trCopy', 'trDrive', 'trDocs'].map(el) },
-  ]);
-  panel.footer([el('trRun'), el('trStop')], { more: 'Options' });
+  // built again on a language change, so the panel's words follow it
+  function draw() {
+    panel.setTitle(t('transcribe.app.run'));
+    panel.render([
+      { title: t('transcribe.app.record'), key: 'rec', settings: $('trRecGroup') },
+      { title: t('transcribe.app.language'), key: 'lang', settings: $('trLangGroup') },
+      { title: t('transcribe.app.save'), key: 'save', settings: $('trFormatField'), actions: ['trDownload', 'trCopy', 'trDrive', 'trDocs'].map(el) },
+    ]);
+    panel.footer([el('trRun'), el('trStop')], { more: t('transcribe.app.options') });
+  }
+  draw();
+  if (g.SlopI18n && g.SlopI18n.on) g.SlopI18n.on(draw);
   g.SlopTranscribeFrame = { frame: fr, panel };
 })(typeof window !== 'undefined' ? window : globalThis);

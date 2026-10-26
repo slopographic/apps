@@ -14,13 +14,16 @@
     const C = window.SlopCmd, A = window.WMApp;
     if (!C || !A) return;
     C.init({ app: 'watermark' });
-    const has = () => window.WMItems.count() > 0 && !A.busy();
-    C.register([
-      { id: 'wm.open', title: 'Open files…', group: 'File', keys: [], keywords: ['add', 'import', 'pictures', 'videos', 'pdf'], run: () => window.SlopIntake.pick({ to: 'watermark' }) },
-      { id: 'wm.apply', title: 'Apply to all', group: 'Watermark', keys: [], keywords: ['run', 'start', 'stamp'], when: has, run: () => A.applyAll() },
-      { id: 'wm.zip', title: 'Download all (ZIP)', group: 'File', keys: [], when: () => window.WMItems.outCount() > 0, run: () => A.downloadZip() },
-      { id: 'wm.clear', title: 'Clear the list', group: 'Edit', keys: [], when: has, run: () => A.clearAll() },
+    const has = () => window.WMItems.count() > 0 && !A.busy(), t = window.WMUtil.t;
+    // registered again on a language change, so the palette reads the new language
+    const register = () => C.register([
+      { id: 'wm.open', title: t('watermark.cmd.open'), group: t('menu.file'), keys: [], keywords: ['add', 'import', 'pictures', 'videos', 'pdf'], run: () => window.SlopIntake.pick({ to: 'watermark' }) },
+      { id: 'wm.apply', title: t('watermark.cmd.apply'), group: t('watermark.app.watermark'), keys: [], keywords: ['run', 'start', 'stamp'], when: has, run: () => A.applyAll() },
+      { id: 'wm.zip', title: t('watermark.cmd.zip'), group: t('menu.file'), keys: [], when: () => window.WMItems.outCount() > 0, run: () => A.downloadZip() },
+      { id: 'wm.clear', title: t('watermark.cmd.clear'), group: t('menu.edit'), keys: [], when: has, run: () => A.clearAll() },
     ]);
+    register();
+    window.WMUtil.onLang(register);
     if (C.provide) C.provide({ prepare: loadAI });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();

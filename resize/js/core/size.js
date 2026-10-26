@@ -23,6 +23,12 @@
   'use strict';
   const NS = (g.SlopResize = g.SlopResize || {});
   const S = (NS.size = {});
+  /** A word in the page's language (shared/i18n), or the English given when there is no table (a test page, node). */
+  NS.tr = NS.tr || function (k, en, v) {
+    const I = g.SlopI18n;
+    if (I && I.has(k)) return I.t(k, v);
+    return String(en).replace(/\{(\w+)\}/g, (m, n) => (v && n in v ? String(v[n]) : m));
+  };
   const MAX_SIDE = 16384, MAX_AREA = 100e6; // images; video passes opts.max (8192)
   const MODES = ['size', 'bytes', 'scale', 'long'];
   const FILLS = ['fit', 'cover', 'stretch', 'within'];
@@ -79,7 +85,7 @@
   /** Output size and picture placement for a source of src = { w, h }. Throws on a size that cannot be made. */
   S.dims = function (src, spec, opts = {}) {
     const sw = num(src && src.w), sh = num(src && src.h);
-    if (!(sw > 0 && sh > 0)) throw new Error('The picture has no size to resize');
+    if (!(sw > 0 && sh > 0)) throw new Error(NS.tr('resize.err.no_size', 'The picture has no size to resize'));
     const s = S.normalize(spec);
     const even = !!(opts.even || s.even), max = opts.max || MAX_SIDE;
     let w, h, boxed = false, contained = false;
@@ -104,7 +110,7 @@
       const ev = (n) => (contained ? Math.max(2, Math.floor(n / 2) * 2) : S.even(n));
       w = ev(w); h = ev(h);
     } else { w = S.px(w); h = S.px(h); }
-    if (w > max || h > max || w * h > MAX_AREA) throw new Error(`Output ${w} × ${h} is too large (the limit is ${max} px a side)`);
+    if (w > max || h > max || w * h > MAX_AREA) throw new Error(NS.tr('resize.err.too_large', 'Output {w} × {h} is too large (the limit is {max} px a side)', { w: String(w), h: String(h), max: String(max) }));
     let x = 0, y = 0, dw = w, dh = h;
     if (boxed) {
       const f = s.fill === 'cover' ? Math.max(w / sw, h / sh) : Math.min(w / sw, h / sh);
@@ -133,6 +139,9 @@
     { id: 'email-banner', group: 'Email', label: 'Email banner 600 × 200', w: 600, h: 200 },
     { id: 'email-width', group: 'Email', label: 'Email width 600 px (height follows)', w: 600, h: 0 },
   ];
+  /** A preset's label and group in the page's language (the PRESETS keep the English). */
+  S.presetLabel = (p) => NS.tr('resize.preset.' + p.id.replace(/-/g, '_'), p.label);
+  S.groupLabel = (group) => NS.tr('resize.preset.g_' + group.toLowerCase(), group);
   S.presetById = (id) => S.PRESETS.find((p) => p.id === id) || null;
   /** The settings change a size preset makes: a box that keeps the picture's proportions, fitted. */
   S.applyPreset = (p) => ({ mode: 'size', w: p.w, h: p.h, keepRatio: true, fill: 'fit' });

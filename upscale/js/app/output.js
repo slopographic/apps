@@ -5,7 +5,7 @@
 (function (g) {
   'use strict';
   const U = g.SlopUpscale, IO = U.io, D = U.drive;
-  const S = () => U.app.S, toast = (m) => U.app.toast(m), setStatus = (m, f) => U.app.setStatus(m, f);
+  const t = U.t, S = () => U.app.S, toast = (m) => U.app.toast(m), setStatus = (m, f) => U.app.setStatus(m, f);
 
 async function resultBlob(it = S().item) {
   if (!it || !it.out) return null;
@@ -43,14 +43,14 @@ function openInItems() {
   return g.SlopOuttake.items({ from: 'upscale', get: () => resultBlob(it), name: () => resultName(it), type });
 }
 async function saveDrive() {
-  if (!D.available()) { toast('Slop Drive is not available on this page'); return; }
+  if (!D.available()) { toast(t('upscale.out.no_drive')); return; }
   try {
     const blob = await resultBlob();
     if (!blob) return;
     const id = await D.save(blob, resultName(), { source: S().item.name, scale: S().scale });
     S().item.drive = id;
-    toast('Saved to the Slop Upscale folder in Slop Drive');
-  } catch (e) { setStatus('Could not save to Slop Drive: ' + e.message); }
+    toast(t('upscale.out.saved'));
+  } catch (e) { setStatus(t('upscale.out.save_failed', { msg: e.message })); }
 }
   U.output = { resultBlob, resultName, download, downloadAll, openInItems, saveDrive };
 })(typeof window !== 'undefined' ? window : globalThis);

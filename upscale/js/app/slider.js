@@ -7,7 +7,7 @@
 (function (g) {
   'use strict';
   const U = (g.SlopUpscale = g.SlopUpscale || {}), SL = (U.slider = {});
-  const clamp = (v) => Math.min(100, Math.max(0, v));
+  const clamp = (v) => Math.min(100, Math.max(0, v)), t = (k, v) => (U.t ? U.t(k, v) : k);
   const KEYS = { ArrowLeft: -1, ArrowDown: -1, ArrowRight: 1, ArrowUp: 1, PageDown: -10, PageUp: 10 };
 
   SL.show = function (box, before, after) {
@@ -22,7 +22,7 @@
       afterLayer.style.clipPath = `inset(0 0 0 ${pos}%)`;
       divider.style.left = handle.style.left = pos + '%';
       handle.setAttribute('aria-valuenow', String(Math.round(pos)));
-      handle.setAttribute('aria-valuetext', `Original ${Math.round(pos)}%, upscaled ${Math.round(100 - pos)}%`);
+      handle.setAttribute('aria-valuetext', t('upscale.stage.slider_value', { a: Math.round(pos), b: Math.round(100 - pos) }));
     };
     const fromPointer = (e) => {
       const r = cmp.getBoundingClientRect();
@@ -31,7 +31,7 @@
 
     handle.tabIndex = 0;
     handle.setAttribute('role', 'slider');
-    handle.setAttribute('aria-label', 'Before and after: drag, or use the arrow keys, to compare');
+    handle.setAttribute('aria-label', t('upscale.stage.slider'));
     handle.setAttribute('aria-valuemin', '0');
     handle.setAttribute('aria-valuemax', '100');
 
@@ -64,7 +64,7 @@
     });
 
     cmp.append(layer('up-before', before, 'true'), afterLayer, divider, handle,
-      labelFor('Before', 'up-tag-before'), labelFor('After', 'up-tag-after'));
+      labelFor(t('upscale.stage.before'), 'up-tag-before'), labelFor(t('upscale.stage.after'), 'up-tag-after'));
     box.replaceChildren(cmp);
     setPos(50);
   };

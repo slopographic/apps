@@ -156,7 +156,7 @@ function moveCanvasResize(e) {
 }
 function endCanvasResize() {
   ghost.hidden = true;
-  if (P.st.op.w !== S.w || P.st.op.h !== S.h) { pushUndo(); setCanvasSize(P.st.op.w, P.st.op.h); status(`Canvas resized to ${S.w}x${S.h}. More room for slop.`); }
+  if (P.st.op.w !== S.w || P.st.op.h !== S.h) { pushUndo(); setCanvasSize(P.st.op.w, P.st.op.h); status(P.t('paint-classic.status.resized', { w: String(S.w), h: String(S.h) })); }
 }
 // selection stretch handles
 $$('.sh', selBox).forEach(hd => {

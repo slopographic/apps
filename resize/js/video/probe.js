@@ -8,19 +8,19 @@
   'use strict';
   const NS = (g.SlopResize = g.SlopResize || {});
   const V = (NS.video = NS.video || {});
-  const NO_WEBCODECS = 'This browser has no WebCodecs, so video cannot be encoded here. Images still work. Try a recent Chrome, Edge or Safari.';
+  const tr = (k, en, v) => NS.tr(k, en, v);
 
   let supportP = null;
   V.support = function () {
     if (!supportP) supportP = (async () => {
-      if (typeof VideoEncoder !== 'function' || typeof VideoFrame !== 'function') return { ok: false, reason: NO_WEBCODECS, formats: { mp4: false, webm: false } };
-      if (!g.Mp4Muxer || !g.WebMMuxer) return { ok: false, reason: 'The MP4 and WebM muxers did not load, so video cannot be written.', formats: { mp4: false, webm: false } };
+      if (typeof VideoEncoder !== 'function' || typeof VideoFrame !== 'function') return { ok: false, reason: tr('resize.err.no_webcodecs', 'This browser has no WebCodecs, so video cannot be encoded here. Images still work. Try a recent Chrome, Edge or Safari.'), formats: { mp4: false, webm: false } };
+      if (!g.Mp4Muxer || !g.WebMMuxer) return { ok: false, reason: tr('resize.err.no_muxers', 'The MP4 and WebM muxers did not load, so video cannot be written.'), formats: { mp4: false, webm: false } };
       const can = async (cfg) => { try { return !!(await VideoEncoder.isConfigSupported(cfg)).supported; } catch (e) { return false; } };
       const mp4 = await can({ codec: 'avc1.42001f', width: 640, height: 480, bitrate: 1e6, framerate: 30, avc: { format: 'avc' } });
       const webm = await can({ codec: 'vp09.00.10.08', width: 640, height: 480, bitrate: 1e6, framerate: 30 })
         || await can({ codec: 'vp8', width: 640, height: 480, bitrate: 1e6, framerate: 30 });
       const ok = mp4 || webm;
-      return { ok, reason: ok ? '' : 'This browser cannot encode H.264 or VP8/VP9 video, so video cannot be written.', formats: { mp4, webm } };
+      return { ok, reason: ok ? '' : tr('resize.err.no_codec', 'This browser cannot encode H.264 or VP8/VP9 video, so video cannot be written.'), formats: { mp4, webm } };
     })();
     return supportP;
   };
@@ -32,7 +32,7 @@
     v.muted = true; v.playsInline = true; v.preload = 'auto'; v.src = url;
     const ready = new Promise((res, rej) => {
       v.addEventListener('loadeddata', () => res(), { once: true });
-      v.addEventListener('error', () => rej(new Error('The browser cannot decode this video')), { once: true });
+      v.addEventListener('error', () => rej(new Error(tr('resize.err.no_decode', 'The browser cannot decode this video'))), { once: true });
     }).then(() => ensureDuration(v));
     return {
       v, ready,
@@ -71,7 +71,7 @@
     try {
       await el.ready;
       const w = el.v.videoWidth, h = el.v.videoHeight;
-      if (!w || !h) throw new Error('This file has no picture track');
+      if (!w || !h) throw new Error(tr('resize.err.no_track', 'This file has no picture track'));
       return { w, h, duration: el.v.duration };
     } finally { el.dispose(); }
   };

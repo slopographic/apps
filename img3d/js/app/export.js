@@ -6,6 +6,7 @@
   'use strict';
   const ns = (root.SlopImg3D = root.SlopImg3D || {});
   const S3D = 'application/x-slop-3d';
+  const tr = (k, v, en) => { const I = root.SlopI18n; return I && I.has(k) ? I.t(k, v) : en; };   // English when the tables are missing (tests load this alone)
   // the site root, from this script's own address (so tests that load it from another page find the same files)
   const ROOT = new URL('../../../', (document.currentScript && document.currentScript.src) || location.href);
   let io = null;
@@ -14,7 +15,7 @@
 
   /** Saves a file: SlopUI.download (shared/slopui.js), the one copy. */
   function download(blob, name) { window.SlopUI.download(blob, name); }
-  const fail = (e) => { if (window.SlopUI) window.SlopUI.toast('Could not export: ' + ((e && e.message) || e)); };
+  const fail = (e) => { if (window.SlopUI) window.SlopUI.toast(tr('img3d.export.failed', { error: (e && e.message) || String(e) }, 'Could not export: ' + ((e && e.message) || e))); };
 
   /** A three.js object for a height-field mesh ({ positions, normals, uv, indices }) or a point cloud ({ positions, colors }).
    *  canvas: the picture, used as the mesh's colour texture (saved as JPEG inside a GLB). */

@@ -3,6 +3,7 @@
 import * as A from './actions.js';
 import { S, byId, curNote } from './state.js';
 import { blockItems } from './blocks.js';
+import { t } from './dom.js';
 
 const key = (id) => (window.SlopCtx ? SlopCtx.keyFor(id) : '');
 
@@ -10,14 +11,14 @@ const key = (id) => (window.SlopCtx ? SlopCtx.keyFor(id) : '');
  * right-click menu both use this list. */
 export function exportItems(n) {
   return [
-    { label: 'Export as Markdown (.md)', act: () => A.exportNote(n, 'md') },
-    { label: 'Export as HTML (.html)', act: () => A.exportNote(n, 'html') },
-    { label: 'Export as plain text (.txt)', act: () => A.exportNote(n, 'txt') },
-    { label: 'Export as PDF (print view)', act: () => A.exportNote(n, 'pdf') },
-    { label: 'Export as Word (.doc)', act: () => A.exportNote(n, 'doc') },
+    { label: t('notes.menu.md'), act: () => A.exportNote(n, 'md') },
+    { label: t('notes.menu.html'), act: () => A.exportNote(n, 'html') },
+    { label: t('notes.menu.txt'), act: () => A.exportNote(n, 'txt') },
+    { label: t('notes.menu.pdf'), act: () => A.exportNote(n, 'pdf') },
+    { label: t('notes.menu.doc'), act: () => A.exportNote(n, 'doc') },
     '-',
-    { label: 'Whole notebook as Markdown (.zip)', act: () => A.exportNotebook(n.notebook, 'md') },
-    { label: 'Whole notebook as HTML (.zip)', act: () => A.exportNotebook(n.notebook, 'html') },
+    { label: t('notes.menu.book_md'), act: () => A.exportNotebook(n.notebook, 'md') },
+    { label: t('notes.menu.book_html'), act: () => A.exportNotebook(n.notebook, 'html') },
   ];
 }
 
@@ -27,46 +28,46 @@ export function menuFor(kind, id) {
     const nb = byId(S.notebooks, id);
     if (!nb) return null;
     return [
-      { label: 'Open notebook', act: () => A.selectNotebook(id) },
-      { label: 'New note here', act: () => { A.selectNotebook(id); A.newNote(); } },
-      { label: 'New folder…', act: () => { A.selectNotebook(id); A.newFolder(null); } },
-      { label: 'Rename…', act: () => A.rename(nb) },
-      { label: 'Export notebook', sub: [
-        { label: 'As Markdown files (.zip)', act: () => A.exportNotebook(id, 'md') },
-        { label: 'As HTML files (.zip)', act: () => A.exportNotebook(id, 'html') },
+      { label: t('notes.menu.open_book'), act: () => A.selectNotebook(id) },
+      { label: t('notes.menu.new_here'), act: () => { A.selectNotebook(id); A.newNote(); } },
+      { label: t('notes.menu.new_folder'), act: () => { A.selectNotebook(id); A.newFolder(null); } },
+      { label: t('ui.rename_dots'), act: () => A.rename(nb) },
+      { label: t('notes.menu.export_book'), sub: [
+        { label: t('notes.menu.as_md'), act: () => A.exportNotebook(id, 'md') },
+        { label: t('notes.menu.as_html'), act: () => A.exportNotebook(id, 'html') },
       ] },
       '-',
-      { label: 'Move to Trash…', act: () => A.remove(nb) },
+      { label: t('notes.menu.trash'), act: () => A.remove(nb) },
     ];
   }
   if (kind === 'folder') {
     const f = byId(S.folders, id);
     if (!f) return null;
     return [
-      { label: 'Open folder', act: () => A.selectFolder(id) },
-      { label: 'New subfolder…', act: () => A.newFolder(id) },
-      { label: 'Rename…', act: () => A.rename(f) },
+      { label: t('notes.menu.open_folder'), act: () => A.selectFolder(id) },
+      { label: t('notes.menu.new_sub'), act: () => A.newFolder(id) },
+      { label: t('ui.rename_dots'), act: () => A.rename(f) },
       '-',
-      { label: 'Move to Trash…', act: () => A.remove(f) },
+      { label: t('notes.menu.trash'), act: () => A.remove(f) },
     ];
   }
   if (kind === 'note') {
     const n = byId(S.notes, id);
     if (!n) return null;
     const here = S.folders.filter((f) => f.notebook === n.notebook);
-    const toFolders = [{ label: 'Top of the notebook', disabled: !n.folder, act: () => A.moveToFolder(n, null) }]
-      .concat(here.map((f) => ({ label: f.title || 'Untitled folder', disabled: n.folder === f.id, act: () => A.moveToFolder(n, f.id) })));
-    const toBooks = S.notebooks.filter((b) => b.id !== n.notebook).map((b) => ({ label: b.title || 'Untitled notebook', act: () => A.moveToNotebook(n, b.id) }));
+    const toFolders = [{ label: t('notes.menu.top'), disabled: !n.folder, act: () => A.moveToFolder(n, null) }]
+      .concat(here.map((f) => ({ label: f.title || t('notes.app.untitled_folder'), disabled: n.folder === f.id, act: () => A.moveToFolder(n, f.id) })));
+    const toBooks = S.notebooks.filter((b) => b.id !== n.notebook).map((b) => ({ label: b.title || t('notes.app.untitled_book'), act: () => A.moveToNotebook(n, b.id) }));
     return [
-      { label: 'Open note', act: () => A.selectNote(id) },
-      { label: n.pinned ? 'Unpin' : 'Pin to top', key: key('notes.pin'), act: () => A.togglePin(n) },
-      { label: 'Rename…', act: () => A.rename(n) },
-      { label: 'Move to folder', sub: toFolders },
-      ...(toBooks.length ? [{ label: 'Move to notebook', sub: toBooks }] : []),
+      { label: t('notes.menu.open_note'), act: () => A.selectNote(id) },
+      { label: n.pinned ? t('notes.menu.unpin') : t('notes.menu.pin_top'), key: key('notes.pin'), act: () => A.togglePin(n) },
+      { label: t('ui.rename_dots'), act: () => A.rename(n) },
+      { label: t('notes.menu.to_folder'), sub: toFolders },
+      ...(toBooks.length ? [{ label: t('notes.menu.to_book'), sub: toBooks }] : []),
       '-',
-      { label: 'Export', sub: exportItems(n) },
+      { label: t('menu.export'), sub: exportItems(n) },
       '-',
-      { label: 'Move to Trash…', key: key('notes.delete'), act: () => A.remove(n) },
+      { label: t('notes.menu.trash'), key: key('notes.delete'), act: () => A.remove(n) },
     ];
   }
   return null;

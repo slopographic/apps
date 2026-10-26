@@ -11,7 +11,7 @@
  *   status  loading | waiting | working | done | error | cancelled */
 (function (g) {
   'use strict';
-  const NS = g.SlopResize, Q = (NS.queue = {});
+  const NS = g.SlopResize, Q = (NS.queue = {}), tr = (k, en, v) => NS.tr(k, en, v);
   const subs = new Set();
   let seq = 0, list = [], busy = false, sig = null, lastEmit = 0;
 
@@ -31,13 +31,13 @@
     list.push(it);
     emit();
     try {
-      if (!kind) throw new Error('Not a picture or a video');
+      if (!kind) throw new Error(tr('resize.err.not_media', 'Not a picture or a video'));
       it.src = kind === 'video' ? await NS.video.probe(file) : await NS.image.probe(file);
       if (it.src.thumb) { URL.revokeObjectURL(it.thumb); it.thumb = it.src.thumb; }   // a camera RAW file: its preview
       it.status = 'waiting';
     } catch (e) {
       it.status = 'error';
-      it.err = (e && e.message) || 'Could not read this file';
+      it.err = (e && e.message) || tr('resize.err.unreadable', 'Could not read this file');
     }
     emit();
     return it;
@@ -101,7 +101,7 @@
       it.status = 'done';
     } catch (e) {
       if (e && e.name === 'AbortError') { it.status = 'cancelled'; }
-      else { it.status = 'error'; it.err = (e && e.message) || 'Could not resize this file'; }
+      else { it.status = 'error'; it.err = (e && e.message) || tr('resize.err.failed', 'Could not resize this file'); }
     }
     emit();
   }

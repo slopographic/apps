@@ -13,7 +13,7 @@ const { $, S, cancelOp, finishPending, h, isTyping, loadBlobImage, main, mctx, p
    Drive and ?drive=<id> (hub.js). Mode 'paste' pastes it in; otherwise it opens (a Drive file stays linked: P.linkDrive). */
 const SI = window.SlopIntake;
 SI.register({
-  id: 'paint-classic', limit: 1, toast: false, accept: { types: ['image/*'], noun: 'a picture' },
+  id: 'paint-classic', limit: 1, toast: false, accept: { types: ['image/*'], noun: P.t('paint-classic.app.noun_picture') },
   except: () => !!(P.st.clipInternalNewer && P.st.clip), // the app's own copy is newer: its paste uses that
   process: async (f, ctx) => {
     if (ctx.mode === 'paste' || ctx.source === 'paste') { await pasteBlob(f); return f.name; }
@@ -26,7 +26,7 @@ const fileInput = { click: () => SI.pick({ to: 'paint-classic', multiple: false,
 async function openBlob(blob, name = 'untitled') {
   let img;
   try { img = await loadBlobImage(blob); }
-  catch (_) { P.msgBox(`Slop Paint cannot read this file.\nThis is not a valid bitmap file, or its format is not currently supported.\n(Not enough slop.)`, ['OK'], 'warn'); return; }
+  catch (_) { P.msgBox(P.t('paint-classic.msg.cannot_read'), ['OK'], 'warn'); return; }
   if (P.st.op) cancelOp();
   finishPending();
   let w = img.naturalWidth, hh = img.naturalHeight;
@@ -39,7 +39,7 @@ async function openBlob(blob, name = 'untitled') {
   mctx.imageSmoothingEnabled = false;
   S.fileName = (name.replace(/\.[^.]+$/, '') || 'untitled').slice(0, 60);
   updateTitle(); S.dirty = false;
-  status(`Opened ${name} (${w}x${hh}). Ready to be slopped.`);
+  status(P.t('paint-classic.status.opened', { name, w: String(w), h: String(hh) }));
 }
 function savePNG(name = S.fileName) {
   if (P.st.op) cancelOp();
@@ -51,14 +51,14 @@ function savePNG(name = S.fileName) {
       document.body.append(a); a.click(); a.remove();
       setTimeout(() => URL.revokeObjectURL(a.href), 8000);
       S.dirty = false; S.fileName = name.replace(/\.png$/i, ''); updateTitle();
-      status(`Saved ${S.fileName}.png. Your masterpiece is safe.`);
+      status(P.t('paint-classic.status.saved', { name: S.fileName }));
       res(true);
     }, 'image/png');
   });
 }
 async function confirmSave() {
   if (!S.dirty) return true;
-  const r = await P.msgBox(`Save changes to ${S.fileName}?`, ['Yes', 'No', 'Cancel'], 'warn');
+  const r = await P.msgBox(P.t('paint-classic.msg.save_changes', { name: S.fileName === 'untitled' ? P.t('paint-classic.app.untitled') : S.fileName }), ['Yes', 'No', 'Cancel'], 'warn');
   if (r === 'Yes') { await savePNG(); return true; }
   return r === 'No';
 }
@@ -69,7 +69,7 @@ document.addEventListener('paste', e => { // intake-ok: the app's own clipboard 
   if (e.defaultPrevented || document.querySelector('.modal-back') || isTyping(e.target)) return;
   e.preventDefault();
   if (P.st.clip) pasteCanvas(P.st.clip);
-  else status('The clipboard has no picture in it.');
+  else status(P.t('paint-classic.status.clip_no_picture'));
 });
 window.addEventListener('blur', () => { P.st.clipInternalNewer = false; });
 

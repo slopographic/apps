@@ -6,6 +6,7 @@
   'use strict';
   const $ = (id) => document.getElementById(id);
   const S = () => g.CO.state, X = () => g.SlopColors;
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
   const LABELS = { hex: 'HEX', rgb: 'RGB', hsl: 'HSL', oklch: 'OKLCH', cmyk: 'CMYK' };
   const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
   let inputs = null;
@@ -14,11 +15,12 @@
   function gamutNote(text) {
     const m = /oklch\(\s*([\d.]+)(%?)\s+([\d.]+)(%?)\s+([\d.]+)/i.exec(text || ''), C = X().convert;
     const out = m && C.outOfGamut(m[2] ? +m[1] / 100 : +m[1], m[4] ? (+m[3] / 100) * 0.4 : +m[3], +m[5]);
-    $('co-gamut').textContent = out ? 'Outside the sRGB screen colours: shown with less chroma, the same lightness and hue.' : '';
+    $('co-gamut').textContent = out ? t('colors.app.gamut') : '';
   }
 
   function row(k) {
-    const li = el('li', 'co-value'), lab = el('label', 'co-vk', LABELS[k]), inp = el('input', 'co-vv'), b = el('button', 'sui-btn co-copy', 'Copy');
+    const li = el('li', 'co-value'), lab = el('label', 'co-vk', LABELS[k]), inp = el('input', 'co-vv'), b = el('button', 'sui-btn co-copy', t('ui.copy'));
+    b.dataset.i18n = 'ui.copy';
     inp.type = 'text'; inp.id = 'co-in-' + k; inp.spellcheck = false; inp.autocomplete = 'off';
     lab.htmlFor = inp.id;
     b.type = 'button';
@@ -52,7 +54,7 @@
     for (const [k, inp] of Object.entries(inputs)) {
       const v = C.format(s.current, k);
       if (active !== inp) inp.value = v;
-      inp.nextElementSibling.setAttribute('aria-label', `Copy ${LABELS[k]} ${v}`);
+      inp.nextElementSibling.setAttribute('aria-label', t('colors.app.copy_value', { fmt: LABELS[k], value: v }));
     }
     if (active !== inputs.oklch) $('co-gamut').textContent = '';
   }

@@ -7,6 +7,7 @@
   'use strict';
   const WM = window.SlopWatermark;
   const THUMB = 160;
+  const t = (k) => window.WMUtil.t(k);
 
   const blobOf = (c) => new Promise((res) => c.toBlob(res, 'image/jpeg', 0.8));
   async function thumbOf(src, w, h) {
@@ -23,25 +24,25 @@
     if (type === 'image/svg+xml') {
       const size = WM.svgSize(await file.text()), url = URL.createObjectURL(file);
       try { const im = new Image(); im.src = url; await im.decode(); return { w: Math.round(size.w), h: Math.round(size.h), thumb: await thumbOf(im, size.w, size.h) }; }
-      catch (e) { throw new Error('could not be read'); } finally { URL.revokeObjectURL(url); }
+      catch (e) { throw new Error(t('watermark.probe.unreadable')); } finally { URL.revokeObjectURL(url); }
     }
     let b;
-    try { b = await createImageBitmap(file, { imageOrientation: 'from-image' }); } catch (e) { throw new Error('could not be read'); }
+    try { b = await createImageBitmap(file, { imageOrientation: 'from-image' }); } catch (e) { throw new Error(t('watermark.probe.unreadable')); }
     try { return { w: b.width, h: b.height, thumb: await thumbOf(b, b.width, b.height) }; } finally { b.close(); }
   }
   function video(file) {
     return new Promise((resolve, reject) => {
       const v = document.createElement('video'), url = URL.createObjectURL(file);
-      let t = 0;
-      const end = (fn, x) => { clearTimeout(t); v.removeAttribute('src'); v.load(); URL.revokeObjectURL(url); fn(x); };
-      t = setTimeout(() => end(reject, new Error('this video could not be read in this browser')), 20000);
+      let timer = 0;
+      const end = (fn, x) => { clearTimeout(timer); v.removeAttribute('src'); v.load(); URL.revokeObjectURL(url); fn(x); };
+      timer = setTimeout(() => end(reject, new Error(t('watermark.probe.video'))), 20000);
       v.muted = true; v.preload = 'auto'; v.playsInline = true;
       v.onloadedmetadata = () => { v.currentTime = Math.min(0.1, (v.duration || 1) / 2); };
       v.onseeked = async () => {
         try { end(resolve, { w: v.videoWidth, h: v.videoHeight, duration: v.duration, thumb: await thumbOf(v, v.videoWidth, v.videoHeight) }); }
         catch (e) { end(resolve, { w: v.videoWidth, h: v.videoHeight, duration: v.duration, thumb: '' }); }
       };
-      v.onerror = () => end(reject, new Error('this video could not be read in this browser (try MP4 or WebM)'));
+      v.onerror = () => end(reject, new Error(t('watermark.probe.video_try')));
       v.src = url;
     });
   }
@@ -62,7 +63,7 @@
 
   async function of(file) {
     const media = WM.mediaOf(file), type = WM.typeOf(file);
-    if (!media) throw new Error('is not a picture, a video or a PDF');
+    if (!media) throw new Error(t('watermark.probe.not_media'));
     const info = media === 'picture' ? await picture(file, type) : media === 'video' ? await video(file) : await pdf(file);
     return Object.assign({ media, type, pages: 0, duration: 0 }, info);
   }

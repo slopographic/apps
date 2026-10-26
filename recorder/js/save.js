@@ -9,6 +9,7 @@
   'use strict';
   const R = (g.SlopRec = g.SlopRec || {});
   let rec = null, made = null, key = '', name = '', busy = null;
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
   const toast = (m) => { if (g.SlopUI && g.SlopUI.toast) g.SlopUI.toast(m); };
 
   function want() {
@@ -18,7 +19,7 @@
   function use(r) { rec = r; made = null; key = ''; name = r ? (r.name || R.plan.fileName(new Date(), 'x')) : ''; }
   function stale() { made = null; key = ''; }
   async function file(o = {}) {
-    if (!rec) throw new Error('Record something first.');
+    if (!rec) throw new Error(t('recorder.err.nothing'));
     const w = want();
     if (made && key === w.key) return made;
     if (busy && busy.key === w.key) return busy.p;
@@ -35,9 +36,9 @@
   }
   async function toDrive(o) {
     const out = await file(o);
-    if (!g.SlopHub) throw new Error('Slop Drive is not available on this page.');
+    if (!g.SlopHub) throw new Error(t('recorder.err.no_drive'));
     const id = await g.SlopHub.put(out.blob, { name: out.name, from: 'recorder' });
-    toast(`Saved ${out.name} to Slop Drive.`);
+    toast(t('recorder.app.saved_drive', { name: out.name }));
     return { id, name: out.name };
   }
   /** Open in…: SlopCut first (it takes every video), then every other app that takes the file, then Save to Slop Drive…. */

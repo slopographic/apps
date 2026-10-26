@@ -5,6 +5,7 @@
  * and creates no Drive record. Exposes nothing global: main.js and actions.js import from here. */
 import * as store from './store.js';
 import { S, byId } from './state.js';
+import { t } from './dom.js';
 
 const MD = 'text/markdown';
 let api = null, session = null, redraw = () => {}, restoring = false, quiet = 0, wantNew = 0;
@@ -16,7 +17,7 @@ const isBlank = (T) => !!T && !T.id && !T.creating;
 /** The notebook new notes go into: the chosen one, else the first, else a new 'My notes'. */
 export async function ensureNotebook() {
   if (S.notebookId) return S.notebookId;
-  if (!S.notebooks.length) S.notebooks.push(await store.createNotebook('My notes'));
+  if (!S.notebooks.length) S.notebooks.push(await store.createNotebook(t('notes.app.my_notes')));
   S.notebookId = S.notebooks[0].id;
   return S.notebookId;
 }
@@ -51,7 +52,7 @@ const adapter = {
       return n;
     }, (e) => {
       T.creating = false;
-      toast('Could not create a note: ' + (e && e.message ? e.message : e));
+      toast(t('notes.toast.create_failed', { error: e && e.message ? e.message : e }));
     });
     return T;
   },
@@ -60,7 +61,7 @@ const adapter = {
     if (!s || typeof s.noteId !== 'string' || !byId(S.notes, s.noteId)) throw new Error('that note is no longer in Slop Drive');
     return { id: s.noteId, creating: false, ready: null };
   },
-  title: (T) => { const n = noteOf(T); return n ? (n.title || 'Untitled') : 'Untitled'; },
+  title: (T) => { const n = noteOf(T); return n ? (n.title || t('ui.untitled')) : t('ui.untitled'); },
   dirty: (T) => { const n = noteOf(T); return !!(n && n.dirty); },
   activate(T) {
     S.noteId = T.id || null;

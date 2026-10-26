@@ -4,6 +4,8 @@
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="recorder" data-src="shared/theme/theme.js"></script>
   <link rel="expect" href="#slop-built" blocking="render">
+  <script src="../shared/i18n/i18n.js" data-src="shared/i18n/i18n.js"></script>
+  <script src="i18n/index.js" data-src="recorder/i18n/index.js"></script>
   <script src="../shared/consent/config.js"></script>
   <script src="../shared/consent/state.js"></script>
   <script src="../shared/consent/consent-mode.js"></script>
@@ -43,83 +45,83 @@
 <body>
   <div class="rc-bar" id="rc-bar"></div>
   <main class="rc-main" id="rc-main">
-    <section class="rc-view" id="rc-view" aria-label="Recording">
+    <section class="rc-view" id="rc-view" aria-label="Recording" data-i18n-attr="aria-label:recorder.app.view_aria">
       <div class="rc-stage" id="rc-stage">
-        <video class="rc-live" id="rc-live" muted playsinline aria-label="What is being recorded" hidden></video>
-        <video class="rc-play" id="rc-play" controls playsinline aria-label="The recording" hidden></video>
+        <video class="rc-live" id="rc-live" muted playsinline aria-label="What is being recorded" data-i18n-attr="aria-label:recorder.app.live_aria" hidden></video>
+        <video class="rc-play" id="rc-play" controls playsinline aria-label="The recording" data-i18n-attr="aria-label:recorder.app.play_aria" hidden></video>
         <div class="rc-empty" id="rc-empty">
           <svg class="rc-empty-icon" viewBox="0 0 48 48" aria-hidden="true"><rect x="5" y="9" width="38" height="26" rx="3"/><path d="M17 41h14M24 35v6"/><circle cx="24" cy="22" r="6"/></svg>
-          <p class="rc-empty-title">Record your screen, webcam or microphone</p>
-          <p class="rc-empty-text">Pick what to record on the right and press Record. The recording stays on this device until you save it.</p>
+          <p class="rc-empty-title" data-i18n="recorder.app.empty_title">Record your screen, webcam or microphone</p>
+          <p class="rc-empty-text" data-i18n="recorder.app.empty_text">Pick what to record on the right and press Record. The recording stays on this device until you save it.</p>
         </div>
         <div class="rc-count" id="rc-count" role="status" aria-live="assertive" hidden></div>
         <div class="rc-badge" id="rc-badge" role="timer" aria-live="off" hidden><span class="rc-dot" aria-hidden="true"></span><span id="rc-time">00:00:00</span></div>
       </div>
       <section class="rc-trim" id="rc-trim" aria-labelledby="rc-trim-h" hidden>
-        <h2 id="rc-trim-h">Trim</h2>
+        <h2 id="rc-trim-h" data-i18n="recorder.app.trim">Trim</h2>
         <div class="rc-bar-wrap"><div class="rc-range" id="rc-trimbar" aria-hidden="true"></div></div>
         <div class="rc-trim-row">
-          <label class="rc-trim-field"><span>Start <output id="rc-start-out">0:00.0</output></span>
+          <label class="rc-trim-field"><span><span data-i18n="recorder.app.start">Start</span> <output id="rc-start-out">0:00.0</output></span>
             <input type="range" id="rc-start" min="0" max="1" step="0.1" value="0"></label>
-          <label class="rc-trim-field"><span>End <output id="rc-end-out">0:00.0</output></span>
+          <label class="rc-trim-field"><span><span data-i18n="recorder.app.end">End</span> <output id="rc-end-out">0:00.0</output></span>
             <input type="range" id="rc-end" min="0" max="1" step="0.1" value="1"></label>
         </div>
         <div class="rc-trim-acts">
-          <button type="button" class="sui-btn" id="rc-start-here">Start at the playhead</button>
-          <button type="button" class="sui-btn" id="rc-end-here">End at the playhead</button>
-          <button type="button" class="sui-btn" id="rc-trim-reset">Keep all</button>
+          <button type="button" class="sui-btn" id="rc-start-here" data-i18n="recorder.app.start_here">Start at the playhead</button>
+          <button type="button" class="sui-btn" id="rc-end-here" data-i18n="recorder.app.end_here">End at the playhead</button>
+          <button type="button" class="sui-btn" id="rc-trim-reset" data-i18n="recorder.app.keep_all">Keep all</button>
           <span class="rc-kept" id="rc-kept" aria-live="polite"></span>
         </div>
       </section>
       <p class="rc-note" id="rc-note" role="status" aria-live="polite"></p>
-      <button type="button" class="sui-btn sui-primary rc-panel-open" id="rc-panel-open" aria-controls="rc-panel">Recorder settings</button>
+      <button type="button" class="sui-btn sui-primary rc-panel-open" id="rc-panel-open" aria-controls="rc-panel" data-i18n="recorder.app.settings">Recorder settings</button>
       <section class="rc-support" id="rc-support" aria-labelledby="rc-support-who">
         <h2 id="rc-support-who">What this browser can record</h2>
         <table class="rc-table"><tbody id="rc-support-rows"></tbody></table>
         <details class="rc-other">
-          <summary>Other browsers</summary>
+          <summary data-i18n="recorder.support.other">Other browsers</summary>
           <table class="rc-table rc-grid">
-            <thead><tr><th scope="col">Browser</th><th scope="col">Screen</th><th scope="col">Sound from the screen</th><th scope="col">Webcam and microphone</th></tr></thead>
+            <thead><tr><th scope="col" data-i18n="recorder.support.col_browser">Browser</th><th scope="col" data-i18n="recorder.support.col_screen">Screen</th><th scope="col" data-i18n="recorder.support.col_system">Sound from the screen</th><th scope="col" data-i18n="recorder.support.col_camera">Webcam and microphone</th></tr></thead>
             <tbody id="rc-other-rows"></tbody>
           </table>
-          <p class="rc-fine">The browser always asks before it shares a screen, a camera or a microphone, and shows that it is recording. Nothing is uploaded: the recording is made and saved on this device.</p>
+          <p class="rc-fine" data-i18n="recorder.support.fine">The browser always asks before it shares a screen, a camera or a microphone, and shows that it is recording. Nothing is uploaded: the recording is made and saved on this device.</p>
         </details>
       </section>
     </section>
-    <aside class="rc-panel" id="rc-panel" aria-label="Recorder settings"></aside>
+    <aside class="rc-panel" id="rc-panel" aria-label="Recorder settings" data-i18n-attr="aria-label:recorder.app.settings"></aside>
   </main>
   <div hidden>
     <div id="rc-settings">
-      <div class="rc-group" data-title="Record">
-        <div class="sf-seg rc-source" id="rc-source" role="group" aria-label="What to record">
-          <button type="button" class="sui-btn" data-v="screen" aria-pressed="true">Screen</button>
-          <button type="button" class="sui-btn" data-v="camera" aria-pressed="false">Webcam</button>
-          <button type="button" class="sui-btn" data-v="pip" aria-pressed="false">Screen + webcam</button>
-          <button type="button" class="sui-btn" data-v="mic" aria-pressed="false">Microphone</button>
+      <div class="rc-group" data-title="Record" data-key="recorder.set.g_record">
+        <div class="sf-seg rc-source" id="rc-source" role="group" aria-label="What to record" data-i18n-attr="aria-label:recorder.set.source_aria">
+          <button type="button" class="sui-btn" data-v="screen" aria-pressed="true" data-i18n="recorder.set.src_screen">Screen</button>
+          <button type="button" class="sui-btn" data-v="camera" aria-pressed="false" data-i18n="recorder.set.src_camera">Webcam</button>
+          <button type="button" class="sui-btn" data-v="pip" aria-pressed="false" data-i18n="recorder.set.src_pip">Screen + webcam</button>
+          <button type="button" class="sui-btn" data-v="mic" aria-pressed="false" data-i18n="recorder.set.src_mic">Microphone</button>
         </div>
         <p class="sf-note" id="rc-source-note"></p>
       </div>
-      <div class="rc-group" data-title="Sound" id="rc-sound-group">
-        <label class="rc-check" id="rc-sys-row"><input type="checkbox" id="rc-sys" checked> Sound from the screen or tab</label>
-        <label class="rc-check" id="rc-mic-row"><input type="checkbox" id="rc-mic" checked> Microphone</label>
+      <div class="rc-group" data-title="Sound" data-key="recorder.set.g_sound" id="rc-sound-group">
+        <label class="rc-check" id="rc-sys-row"><input type="checkbox" id="rc-sys" checked> <span data-i18n="recorder.set.sys">Sound from the screen or tab</span></label>
+        <label class="rc-check" id="rc-mic-row"><input type="checkbox" id="rc-mic" checked> <span data-i18n="recorder.set.mic">Microphone</span></label>
       </div>
-      <div class="rc-group" data-title="Webcam" id="rc-pip">
-        <label class="sf-field"><span class="sf-lab">Corner</span><select id="rc-corner">
-          <option value="br">Bottom right</option><option value="bl">Bottom left</option><option value="tr">Top right</option><option value="tl">Top left</option></select></label>
-        <label class="sf-field"><span class="sf-lab">Size <output id="rc-size-out">25%</output></span><input type="range" id="rc-size" min="10" max="50" step="1" value="25"></label>
+      <div class="rc-group" data-title="Webcam" data-key="recorder.set.g_webcam" id="rc-pip">
+        <label class="sf-field"><span class="sf-lab" data-i18n="recorder.set.corner">Corner</span><select id="rc-corner">
+          <option value="br" data-i18n="recorder.set.br">Bottom right</option><option value="bl" data-i18n="recorder.set.bl">Bottom left</option><option value="tr" data-i18n="recorder.set.tr">Top right</option><option value="tl" data-i18n="recorder.set.tl">Top left</option></select></label>
+        <label class="sf-field"><span class="sf-lab"><span data-i18n="recorder.set.size">Size</span> <output id="rc-size-out">25%</output></span><input type="range" id="rc-size" min="10" max="50" step="1" value="25"></label>
       </div>
-      <div class="rc-group" data-title="Countdown">
-        <label class="sf-field"><span class="sf-lab">Before recording</span><select id="rc-countdown">
-          <option value="0">No countdown</option><option value="3">3 seconds</option><option value="5">5 seconds</option><option value="10">10 seconds</option></select></label>
+      <div class="rc-group" data-title="Countdown" data-key="recorder.set.g_countdown">
+        <label class="sf-field"><span class="sf-lab" data-i18n="recorder.set.before">Before recording</span><select id="rc-countdown">
+          <option value="0" data-i18n="recorder.set.cd_none">No countdown</option><option value="3" data-i18n="recorder.set.cd_3">3 seconds</option><option value="5" data-i18n="recorder.set.cd_5">5 seconds</option><option value="10" data-i18n="recorder.set.cd_10">10 seconds</option></select></label>
       </div>
-      <div class="rc-group" data-title="Save as" id="rc-save-group">
-        <label class="sf-field"><span class="sf-lab">File format</span><select id="rc-format">
-          <option value="webm">WebM (as recorded)</option><option value="mp4">MP4 (H.264)</option><option value="gif">GIF (no sound)</option><option value="wav">WAV (sound)</option></select></label>
+      <div class="rc-group" data-title="Save as" data-key="recorder.set.g_save" id="rc-save-group">
+        <label class="sf-field"><span class="sf-lab" data-i18n="recorder.set.format">File format</span><select id="rc-format">
+          <option value="webm" data-i18n="recorder.set.fmt_webm">WebM (as recorded)</option><option value="mp4" data-i18n="recorder.set.fmt_mp4">MP4 (H.264)</option><option value="gif" data-i18n="recorder.set.fmt_gif">GIF (no sound)</option><option value="wav" data-i18n="recorder.set.fmt_wav">WAV (sound)</option></select></label>
         <div id="rc-gif" class="rc-gif">
-          <label class="sf-field"><span class="sf-lab">GIF width (px)</span><input type="number" id="rc-gif-w" min="160" max="1920" step="10" value="640"></label>
-          <label class="sf-field"><span class="sf-lab">Frames per second</span><input type="number" id="rc-gif-fps" min="2" max="30" step="1" value="10"></label>
+          <label class="sf-field"><span class="sf-lab" data-i18n="recorder.set.gif_w">GIF width (px)</span><input type="number" id="rc-gif-w" min="160" max="1920" step="10" value="640"></label>
+          <label class="sf-field"><span class="sf-lab" data-i18n="recorder.set.fps">Frames per second</span><input type="number" id="rc-gif-fps" min="2" max="30" step="1" value="10"></label>
         </div>
-        <p class="sf-note">MP4 and GIF are made on this device by the video engine, downloaded once (about 32 MB) the first time.</p>
+        <p class="sf-note" data-i18n="recorder.set.engine_note">MP4 and GIF are made on this device by the video engine, downloaded once (about 32 MB) the first time.</p>
       </div>
     </div>
   </div>

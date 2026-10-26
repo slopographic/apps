@@ -6,6 +6,7 @@
  *   readFile(file)     a side's value for a file: { name, type, file } for a PDF or picture, { name, type, text } for text */
 import { S, setSide, clearSide, swap } from './state.js';
 import { kindOf } from '../core/kind.js';
+import { t } from './i18n.js';
 
 const $ = (id) => document.getElementById(id);
 const SIDES = ['a', 'b'];
@@ -14,9 +15,9 @@ const urls = { a: '', b: '' };
 
 export async function readFile(file) {
   const kind = kindOf(file.name, file.type);
-  if (!kind) throw new Error('is not a text, a PDF or a picture');
+  if (!kind) throw new Error(t('diff.err.not_kind'));
   if (kind === 'pdf' || kind === 'image') return { name: file.name, type: file.type, file };
-  if (file.size > 30 * 1048576) throw new Error('is over 30 MB, too long to compare as text here');
+  if (file.size > 30 * 1048576) throw new Error(t('diff.err.too_long'));
   return { name: file.name, type: file.type, text: await file.text() };
 }
 
@@ -37,7 +38,7 @@ function card(k) {
   }
   const meta = document.createElement('p');
   meta.className = 'df-meta';
-  meta.textContent = `${kind === 'pdf' ? 'PDF' : 'Picture'} · ${kb(s.file.size)}`;
+  meta.textContent = `${kind === 'pdf' ? 'PDF' : t('diff.side.picture')} · ${kb(s.file.size)}`;
   box.append(meta);
   box.hidden = false;
 }
@@ -47,7 +48,7 @@ export function refresh() {
     const s = S.sides[k], ta = $(`df-${k}-text`);
     ta.hidden = !!s.file;
     if (!s.file && ta.value !== s.text) ta.value = s.text;
-    $(`df-${k}-name`).textContent = s.name || (s.text ? 'Typed text' : '');
+    $(`df-${k}-name`).textContent = s.name || (s.text ? t('diff.side.typed') : '');
     $(`df-${k}-name`).title = s.name || '';
     card(k);
     for (const b of document.querySelectorAll(`.df-side[data-side="${k}"] [data-act="clear"]`)) b.disabled = !s.file && !s.text;
@@ -61,7 +62,7 @@ export function wire({ onEdit }) {
     const ta = $(`df-${k}-text`);
     ta.addEventListener('input', () => {
       S.sides[k].text = ta.value;
-      if (!S.sides[k].name) $(`df-${k}-name`).textContent = ta.value ? 'Typed text' : '';
+      if (!S.sides[k].name) $(`df-${k}-name`).textContent = ta.value ? t('diff.side.typed') : '';
       clearTimeout(timer); timer = setTimeout(onEdit, 350);
     });
     const side = document.querySelector(`.df-side[data-side="${k}"]`);
@@ -74,7 +75,7 @@ export function wire({ onEdit }) {
     if (!b) return;
     const k = b.dataset.side;
     if (b.dataset.act === 'open') window.SlopIntake.pick({ to: 'diff', data: { side: k }, multiple: false });
-    else if (b.dataset.act === 'drive') window.SlopIntake.fromDrive({ to: 'diff', data: { side: k }, title: `Open ${k.toUpperCase()} from Slop Drive` });
+    else if (b.dataset.act === 'drive') window.SlopIntake.fromDrive({ to: 'diff', data: { side: k }, title: t('diff.side.drive_title', { side: k.toUpperCase() }) });
     else if (b.dataset.act === 'clear') { clearSide(k); $(`df-${k}-text`).focus(); }
   });
   $('df-swap').addEventListener('click', swap);

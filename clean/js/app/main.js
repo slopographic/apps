@@ -7,6 +7,7 @@
   const CL = (window.CL = window.CL || {});
   const UI = () => window.SlopUI, H = () => window.SlopHub;
   const $ = (id) => document.getElementById(id);
+  const t = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
   const S = (CL.state = { items: [], remove: window.SlopClean.resolve({}) });
   let timer = 0;
 
@@ -38,32 +39,31 @@
   function download(item) { UI().download(blobOf(item), CL.io.copyName(item.name)); }
   async function downloadAll() {
     const ready = S.items.filter((x) => x.out);
-    if (!ready.length) return UI().toast('Nothing cleaned yet');
+    if (!ready.length) return UI().toast(t('clean.toast.nothing'));
     if (ready.length === 1) return download(ready[0]);
-    UI().toast('Zipping…');
+    UI().toast(t('clean.toast.zipping'));
     const zip = await window.SlopZip.zip(ready.map((x) => ({ name: CL.io.copyName(x.name), data: blobOf(x), time: Date.now() })));
     UI().download(zip, 'slop-clean.zip');
   }
   /** Copies only: each cleaned picture is written as a new Drive file in the folder the person picks. */
   async function saveAll(only) {
     const ready = (only ? [only] : S.items).filter((x) => x.out);
-    if (!ready.length) return UI().toast('Nothing cleaned yet');
-    const folderId = await H().pickFolder({ title: 'Save cleaned copies to Slop Drive', start: await H().appFolderId('clean') });
+    if (!ready.length) return UI().toast(t('clean.toast.nothing'));
+    const folderId = await H().pickFolder({ title: t('clean.dlg.save_title'), start: await H().appFolderId('clean') });
     if (folderId === undefined) return;
     for (const it of ready) await H().put(blobOf(it), { name: CL.io.copyName(it.name), from: 'clean', folderId });
-    UI().toast(ready.length === 1 ? 'Saved a copy to Slop Drive' : `Saved ${ready.length} copies to Slop Drive`);
+    UI().toast(t('clean.toast.saved_n', { n: ready.length }));
   }
   /** Overwrites the Drive file this picture was opened from. Asks first, and says it cannot be undone. */
   async function replace(item) {
     if (!item.driveId || !item.out) return;
-    const ok = await UI().confirm('Replace the original in Slop Drive?',
-      `“${item.name}” will be overwritten with the cleaned picture. The metadata is gone from that file for good. Cancel to keep the original.`,
-      'Replace original', { danger: true });
+    const ok = await UI().confirm(t('clean.dlg.replace_title'), t('clean.dlg.replace_body', { name: item.name }),
+      t('clean.dlg.replace_ok'), { danger: true });
     if (!ok) return;
     await H().update(item.driveId, { blob: blobOf(item), type: item.out.mime });
     item.blob = blobOf(item); item.bytes = item.out.bytes;
     item.findings = window.SlopClean.inspect(item.bytes).findings; item.size = item.bytes.length; item.out = null;
-    UI().toast('Replaced the original in Slop Drive');
+    UI().toast(t('clean.toast.replaced'));
     render();
   }
 
@@ -71,7 +71,7 @@
     const found = S.items.reduce((n, it) => n + it.findings.length, 0);
     const gone = S.items.reduce((n, it) => n + (it.out ? it.findings.length - it.out.after.length : 0), 0);
     $('cl-stat').textContent = S.items.length
-      ? `${S.items.length} picture${S.items.length === 1 ? '' : 's'} · ${found} item${found === 1 ? '' : 's'} found · ${gone} removed`
+      ? [t('clean.stat.pictures', { n: S.items.length }), t('clean.stat.found', { n: found }), t('clean.stat.removed', { n: gone })].join(' · ')
       : '';
     $('cl-all').disabled = !S.items.some((x) => x.out);
     $('cl-save-all').disabled = $('cl-all').disabled;
@@ -83,7 +83,7 @@
   /** The one way in: every source reaches addFiles (a picture from Slop Drive keeps its record: Replace original). */
   function registerIntake() {
     window.SlopIntake.register({
-      id: 'clean', accept: { types: ['image/*'], exts: ['.jpg', '.jpeg', '.png', '.webp', '.tif', '.tiff'], noun: 'a picture' },
+      id: 'clean', accept: { types: ['image/*'], exts: ['.jpg', '.jpeg', '.png', '.webp', '.tif', '.tiff'], noun: t('clean.app.a_picture') },
       processAll: async (files, ctx) => {
         for (const f of files) S.items.push(await CL.io.load(f, f.name, f.slopDrive ? { driveId: f.slopDrive.id } : {}));
         await runClean();
@@ -103,11 +103,15 @@
     if (window.SlopCmd && SlopCmd.init) SlopCmd.init({ app: 'clean' });
     // the assistant's commands with arguments (ai-commands.js; shared/commands/sources.js finds Drive files), loaded when first asked
     if (window.SlopCmd && SlopCmd.provide) SlopCmd.provide({ prepare: () => SlopCmd.sources().then(() => script('js/app/ai-commands.js')) });
-    if (window.SlopCmd && SlopCmd.register) SlopCmd.register([
-      { id: 'cl.open', title: 'Open pictures…', group: 'File', keys: ['Mod+O'], run: openPicker, keywords: ['add', 'import', 'photo'] },
-      { id: 'cl.download', title: 'Download cleaned pictures', group: 'File', keys: ['Mod+S'], run: downloadAll, keywords: ['zip', 'save'] },
-      { id: 'cl.remove-all', title: 'Remove all metadata (default choices)', group: 'Edit', keys: ['Shift+Mod+R'], run: removeAll, keywords: ['strip', 'clean'] },
-    ]);
+    // titles and groups in the current language; a language change registers them again (the palette follows)
+    const commands = () => [
+      { id: 'cl.open', title: t('clean.app.open'), group: t('menu.file'), keys: ['Mod+O'], run: openPicker, keywords: ['add', 'import', 'photo'] },
+      { id: 'cl.download', title: t('clean.cmd.download'), group: t('menu.file'), keys: ['Mod+S'], run: downloadAll, keywords: ['zip', 'save'] },
+      { id: 'cl.remove-all', title: t('clean.cmd.remove_all'), group: t('menu.edit'), keys: ['Shift+Mod+R'], run: removeAll, keywords: ['strip', 'clean'] },
+    ];
+    if (window.SlopCmd && SlopCmd.register) SlopCmd.register(commands());
+    // a language change: the commands, the counts, the cards and the choices again, in the new language
+    if (window.SlopI18n && window.SlopI18n.on) window.SlopI18n.on(() => { if (window.SlopCmd && SlopCmd.register) SlopCmd.register(commands()); render(); });
   }
 
   const script = (src) => new Promise((res, rej) => document.head.append(Object.assign(document.createElement('script'),

@@ -6,6 +6,8 @@
  * Classic script with a CommonJS export for the tests. Needs window.SlopCalc.graph (or the same in node). */
 (function (root) {
   'use strict';
+  // a problem in the page's language when it has the words (shared/i18n), else English (Node, the tests)
+  const tr = (k, en) => (root.SlopI18n && root.SlopI18n.has(k) ? root.SlopI18n.t(k) : en);
   const G = () => (root.SlopCalc && root.SlopCalc.graph) || null;
   const uid = (p) => p + Math.random().toString(36).slice(2, 9);
   const byId = (g, id) => g.nodes.find((n) => n.id === id) || null;
@@ -33,7 +35,7 @@
   }
   function rename(g, id, name) {
     const n = byId(g, id);
-    if (!n) return 'No such node';
+    if (!n) return tr('nodes.err.no_node', 'No such node');
     if (n.type === 'note') { n.name = String(name || ''); return null; }
     const problem = G().nameProblem(name, others(g, id));
     if (!problem) n.name = G().cleanName(name);
@@ -60,11 +62,11 @@
   /** A link from a node's output to another node's input. Returns a problem, or null when it was made. */
   function connect(g, from, to) {
     const a = byId(g, from), b = byId(g, to);
-    if (!a || !b) return 'Those nodes are not on the canvas';
-    if (a.type === 'note' || b.type === 'note') return 'A note takes no wires';
-    if (from === to) return 'A node cannot feed itself';
-    if (g.links.some((l) => l.from === from && l.to === to)) return 'Already connected';
-    if (reaches(g, to, from)) return 'That wire would make a loop';
+    if (!a || !b) return tr('nodes.err.not_here', 'Those nodes are not on the canvas');
+    if (a.type === 'note' || b.type === 'note') return tr('nodes.err.note_wires', 'A note takes no wires');
+    if (from === to) return tr('nodes.err.self', 'A node cannot feed itself');
+    if (g.links.some((l) => l.from === from && l.to === to)) return tr('nodes.err.already', 'Already connected');
+    if (reaches(g, to, from)) return tr('nodes.err.loop', 'That wire would make a loop');
     g.links.push({ id: uid('l'), from, to });
     return null;
   }
@@ -72,7 +74,7 @@
   /** Moves the input end of a link to another node. */
   function reconnect(g, linkId, to) {
     const l = g.links.find((m) => m.id === linkId);
-    if (!l) return 'No such wire';
+    if (!l) return tr('nodes.err.no_wire', 'No such wire');
     const from = l.from;
     disconnect(g, linkId);
     const problem = connect(g, from, to);

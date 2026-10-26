@@ -5,11 +5,11 @@
  * alone. When the chosen model is not installed the run uses Lanczos and the page says so. Classic script. */
 (function (g) {
   'use strict';
-  const U = g.SlopUpscale, IO = U.io, SL = U.slider, D = U.drive, V = U.video;
+  const U = g.SlopUpscale, IO = U.io, SL = U.slider, D = U.drive, V = U.video, t = U.t, WD = U.words;
   const E = () => g.SlopUpscaleEngine, PL = () => g.SlopUpscalePipeline, MD = g.SlopUpscaleModels;
   const $ = (id) => document.getElementById(id);
   const QUALITY_ID = 'realesrgan-x4plus', QUALITY_FILE = 'model.onnx';
-  const S = { items: [], item: null, busy: false, cancel: { cancelled: false }, scale: 2, model: 'fast', format: 'png', quality: 0.92, fps: 24, installed: false };
+  const S = { items: [], item: null, busy: false, cancel: { cancelled: false }, scale: 2, model: 'fast', format: 'png', quality: 0.92, fps: 24, installed: false, unsupported: {} };
 
   // The controller's state and helpers, for the output module (app/output.js), which runs later, on a click.
   U.app = { S, open: (...a) => open(...a), toast: (m) => toast(m), setStatus: (m, f) => setStatus(m, f),
@@ -41,28 +41,28 @@
       const rows = g.SlopLibraryStore ? await g.SlopLibraryStore.listPacks() : [];
       S.installed = rows.some((r) => r.id === QUALITY_ID);
     } catch (e) { S.installed = false; }
-    $('up-model').querySelector('option[value="quality"]').textContent = S.installed ? 'Quality (Real-ESRGAN, installed)' : 'Quality (Real-ESRGAN, not installed)';
+    WD.options(S);
     updateNote();
   }
 
   /** The model a run will use, with the reason when it is not the one picked. */
   function choice() {
-    if (S.model === 'lanczos') return { id: null, label: 'Lanczos (no AI)', note: 'Lanczos resampling only: no AI model is used.' };
+    if (S.model === 'lanczos') return { id: null, label: t('upscale.run.lanczos'), note: t('upscale.run.lanczos_note') };
     if (S.model === 'quality' && S.scale === 4) {
-      if (S.installed) return { id: QUALITY_ID, label: 'Quality (Real-ESRGAN)', note: '' };
-      return { id: null, label: 'Lanczos (no AI)', note: 'The Quality model is not installed, so this uses Lanczos. Get more adds it.' };
+      if (S.installed) return { id: QUALITY_ID, label: t('upscale.run.quality'), note: '' };
+      return { id: null, label: t('upscale.run.lanczos'), note: t('upscale.run.no_quality') };
     }
     const id = `fsrcnn-x${S.scale}`;
-    return { id, label: `Fast (FSRCNN x${S.scale})`, note: '' };
+    return { id, label: t('upscale.run.fast', { scale: String(S.scale) }), note: '' };
   }
   function updateNote() {
     const c = choice();
-    $('up-model-note').textContent = c.note || (S.model === 'quality' && S.scale !== 4 ? 'Quality is 4× only.' : '');
+    $('up-model-note').textContent = c.note || (S.model === 'quality' && S.scale !== 4 ? t('upscale.run.quality_4x') : '');
   }
 
   async function libBytes() {
     const b = await g.SlopLibraryStore.getBlob(`${QUALITY_ID}/${QUALITY_FILE}`);
-    if (!b) throw new Error('The Quality model is not in this browser any more. Get more adds it again.');
+    if (!b) throw new Error(t('upscale.run.quality_gone'));
     return b.arrayBuffer();
   }
 
@@ -93,23 +93,18 @@
     } else {
       $('up-empty').hidden = true; $('up-stage').hidden = false;
       if (!it.out) showBefore(); else if (it.kind === 'image') showAfterImage(); else showAfterVideo();
-      setStatus(it.status || 'Choose 2× or 4×, then Upscale.');
+      setStatus(it.status || t('upscale.run.ready'));
       updateInfo();
     }
     updateButtons();
   }
 
   /** The first-use notice: the fast models come with the app; the quality model is downloaded once, when it is first chosen. */
-  const FIRST_USE = {
-    title: 'Sharpen pictures on this device',
-    lines: ['Slop Upscale enlarges pictures with models that run in your browser.'],
-    downloads: [{ name: 'Quality model (Real-ESRGAN x4plus), only if you choose it', bytes: MD.get(QUALITY_ID).bytes }],
-  };
   /** The one reader (the intake's process, after its first-use notice): the file becomes the open item. */
   async function open(file, o = {}) {
     const kind = IO.kind(file);
-    if (!kind) { toast('That is not a picture or a video'); return false; }
-    if (S.busy) { toast('Wait for the run to finish, or cancel it'); return false; }
+    if (!kind) { toast(t('upscale.run.not_media')); return false; }
+    if (S.busy) { toast(t('upscale.run.wait')); return false; }
     const item = { id: nextId++, name: file.name || 'Untitled', file, kind, url: URL.createObjectURL(file), canvas: null, out: null, outBlob: null, outName: '', drive: o.drive || null, w: 0, h: 0, dur: 0 };
     try {
       if (kind === 'image') {
@@ -118,10 +113,10 @@
       } else {
         const probe = document.createElement('video');
         probe.muted = true; probe.src = item.url;
-        await new Promise((res, rej) => { probe.onloadedmetadata = () => res(); probe.onerror = () => rej(new Error('This video cannot be read in this browser')); });
+        await new Promise((res, rej) => { probe.onloadedmetadata = () => res(); probe.onerror = () => rej(new Error(t('upscale.video.unreadable'))); });
         item.w = probe.videoWidth; item.h = probe.videoHeight; item.dur = probe.duration;
         probe.removeAttribute('src'); probe.load();
-        if (item.dur > V.MAX_SECONDS) throw new Error(`Videos up to ${V.MAX_SECONDS} seconds (this one is ${Math.round(item.dur)} s). Trim it first.`);
+        if (item.dur > V.MAX_SECONDS) throw new Error(t('upscale.video.too_long', { max: V.MAX_SECONDS, s: Math.round(item.dur) }));
       }
     } catch (e) { URL.revokeObjectURL(item.url); toast(e.message); setStatus(e.message); return false; }
     S.items.push(item);
@@ -133,11 +128,11 @@
     const it = S.item;
     if (it.kind === 'image') {
       const img = document.createElement('img');
-      img.src = it.url; img.alt = 'Original';
+      img.src = it.url; img.alt = t('upscale.stage.original');
       $('up-stage').replaceChildren(img);
     } else {
       const v = document.createElement('video');
-      v.src = it.url; v.controls = true; v.muted = true; v.playsInline = true; v.setAttribute('aria-label', 'Original video');
+      v.src = it.url; v.controls = true; v.muted = true; v.playsInline = true; v.setAttribute('aria-label', t('upscale.stage.original_video'));
       $('up-stage').replaceChildren(v);
     }
   }
@@ -146,8 +141,8 @@
     const it = S.item;
     if (!it) { $('up-info').textContent = ''; return; }
     const ow = it.w * S.scale, oh = it.h * S.scale;
-    const extra = it.kind === 'video' ? `, ${Math.round(it.dur)} s at ${S.fps} fps` : '';
-    $('up-info').textContent = `${it.name}: ${it.w} × ${it.h} px → ${ow} × ${oh} px (${S.scale}×)${extra}`;
+    const v = { name: it.name, w: String(it.w), h: String(it.h), ow: String(ow), oh: String(oh), scale: String(S.scale), s: Math.round(it.dur), fps: String(S.fps) };
+    $('up-info').textContent = t(it.kind === 'video' ? 'upscale.app.info_video' : 'upscale.app.info', v);
   }
 
   /* ---------- Running ---------- */
@@ -172,23 +167,23 @@
     try {
       const bytes = c.id === QUALITY_ID && !E().isLoaded(QUALITY_ID) ? await libBytes() : null;
       if (it.kind === 'image') {
-        setStatus(`Starting ${c.label}…`, 0);
+        setStatus(t('upscale.run.starting', { model: c.label }), 0);
         it.out = { scale: S.scale, canvas: await PL().run(it.canvas, { scale: S.scale, model: c.id, bytes, signal: S.cancel,
-          onProgress: (d, t) => setStatus(`Upscaling with ${c.label}: tile ${d} of ${t}`, d / t) }) };
+          onProgress: (d, n) => setStatus(t('upscale.run.tile', { model: c.label, d, n }), d / n) }) };
         showAfterImage();
-        setStatus(`Done: ${c.label}, ${it.out.canvas.width} × ${it.out.canvas.height} px. ${c.note}`.trim());
+        setStatus(t('upscale.run.done', { model: c.label, w: String(it.out.canvas.width), h: String(it.out.canvas.height), note: c.note }).trim());
       } else {
-        setStatus(`Starting ${c.label} for video…`, 0);
+        setStatus(t('upscale.run.starting_video', { model: c.label }), 0);
         const r = await V.run(it.file, { scale: S.scale, model: c.id, bytes, fps: S.fps, signal: S.cancel,
-          progress: (d, t) => setStatus(`Frame ${d} of ${t} with ${c.label}`, d / t) });
+          progress: (d, n) => setStatus(t('upscale.run.frame', { model: c.label, d, n }), d / n) });
         it.outBlob = r.blob; it.outName = IO.outName(it.name, S.scale, r.ext);
         it.out = { scale: S.scale, w: r.w, h: r.h };
         showAfterVideo();
-        setStatus(`Done: ${r.frames} frames at ${r.w} × ${r.h}, ${c.label}. ${c.note}`.trim());
+        setStatus(t('upscale.run.done_video', { n: r.frames, w: String(r.w), h: String(r.h), model: c.label, note: c.note }).trim());
       }
     } catch (e) {
-      if (S.cancel.cancelled || e.message === 'Cancelled') setStatus('Cancelled.');
-      else setStatus('Could not upscale: ' + e.message);
+      if (S.cancel.cancelled || e.message === 'Cancelled') setStatus(t('upscale.run.cancelled'));
+      else setStatus(t('upscale.run.failed', { msg: e.message }));
     } finally {
       it.running = false;
       it.status = $('up-status').textContent;
@@ -197,16 +192,16 @@
 
   function showAfterImage() {
     const it = S.item, before = document.createElement('img');
-    before.src = it.url; before.alt = 'Original';
+    before.src = it.url; before.alt = t('upscale.stage.original');
     const after = it.out.canvas;
-    after.className = 'up-result'; after.setAttribute('role', 'img'); after.setAttribute('aria-label', 'Upscaled');
+    after.className = 'up-result'; after.setAttribute('role', 'img'); after.setAttribute('aria-label', t('upscale.stage.upscaled'));
     SL.show($('up-stage'), before, after);
   }
   function showAfterVideo() {
     const it = S.item, box = $('up-stage'), before = document.createElement('video'), after = document.createElement('video');
     before.src = it.url; after.src = URL.createObjectURL(it.outBlob);
     for (const v of [before, after]) { v.controls = true; v.muted = true; v.playsInline = true; }
-    before.setAttribute('aria-label', 'Original video'); after.setAttribute('aria-label', 'Upscaled video');
+    before.setAttribute('aria-label', t('upscale.stage.original_video')); after.setAttribute('aria-label', t('upscale.stage.upscaled_video'));
     const row = document.createElement('div'); row.className = 'up-videos';
     row.append(before, after);
     box.replaceChildren(row);
@@ -216,7 +211,7 @@
     if (!S.busy) return;
     S.cancel.cancelled = true;
     E().cancel();
-    setStatus('Cancelling…');
+    setStatus(t('upscale.run.cancelling'));
   }
 
   /* ---------- Controls (the buttons themselves are drawn by app/layout.js) ---------- */
@@ -237,14 +232,14 @@
     const sel = $('up-format');
     for (const o of sel.options) {
       if (o.value === 'png') continue;
-      o.disabled = !(await IO.formatSupported(o.value));
-      if (o.disabled) o.textContent += ' (not in this browser)';
+      o.disabled = S.unsupported[o.value] = !(await IO.formatSupported(o.value));
     }
+    WD.options(S);
   }
 
   function wire() {
     $('up-open').addEventListener('click', () => g.SlopIntake.pick({ to: 'upscale' }));
-    $('up-drive').addEventListener('click', () => g.SlopIntake.fromDrive({ to: 'upscale', title: 'Open from Slop Drive' }));
+    $('up-drive').addEventListener('click', () => g.SlopIntake.fromDrive({ to: 'upscale', title: t('upscale.app.drive_title') }));
     $('up-scale-2').addEventListener('click', () => setScale(2));
     $('up-scale-4').addEventListener('click', () => setScale(4));
     $('up-model').addEventListener('change', (e) => { S.model = e.target.value; updateButtons(); });
@@ -255,13 +250,13 @@
     // The zone (shared/drop) is the intake's: the empty state's only drop area; the stage and the list take drops too.
     SlopDrop.attach($('up-drop'), {
       intake: 'upscale',
-      label: 'Drop a picture or a short video here',
-      hint: 'JPEG, PNG, WebP and AVIF pictures, and MP4, WebM or MOV video up to 15 seconds. Everything runs in this browser. Nothing is uploaded.',
+      label: t('upscale.drop.label'),
+      hint: t('upscale.drop.hint'),
       targets: [$('up-stage-wrap'), $('up-list')],
-      preview: { picture: { src: '../assets/shots/upscale.jpg', alt: 'A photo of a city at night, before and after a 2× upscale' },
-        steps: ['Drop a picture or a short video', 'Pick 2× or 4× and press Upscale', 'Download the bigger copy'] },
+      preview: { picture: { src: '../assets/shots/upscale.jpg', alt: t('upscale.drop.alt') },
+        steps: [t('upscale.drop.step1'), t('upscale.drop.step2'), t('upscale.drop.step3')] },
       // The city at night (the fourth scene), small: its lit windows show the sharper edges best.
-      sample: { label: 'Try it with a sample photo', files: async () => (await window.SlopSamples.photos(4, { width: 400, height: 260 })).slice(3) },
+      sample: { label: t('upscale.drop.sample'), files: async () => (await window.SlopSamples.photos(4, { width: 400, height: 260 })).slice(3) },
     });
     document.addEventListener('keydown', (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); run(); }
@@ -273,8 +268,8 @@
    *  source of this one spec: its first-use notice, then open(); each file joins the list (up to 50). */
   function registerIntake() {
     g.SlopIntake.register({
-      id: 'upscale', limit: 50, notice: FIRST_USE, driveAccept: ['image/*', 'video/*'],
-      accept: { types: ['image/*', 'video/*'], exts: ['.jpg', '.jpeg', '.png', '.webp', '.avif', '.gif', '.mp4', '.m4v', '.mov', '.webm'], noun: 'a picture or a short video' },
+      id: 'upscale', limit: 50, notice: WD.firstUse(MD.get(QUALITY_ID).bytes), driveAccept: ['image/*', 'video/*'],
+      accept: { types: ['image/*', 'video/*'], exts: ['.jpg', '.jpeg', '.png', '.webp', '.avif', '.gif', '.mp4', '.m4v', '.mov', '.webm'], noun: t('upscale.drop.noun') },
       process: async (file, ctx) => { if (!(await open(file, { drive: ctx.drive ? ctx.drive.id : null }))) throw new Error('could not be opened'); return file.name; },
     });
   }
@@ -285,6 +280,9 @@
     const qs = document.getElementById('up-quality-size');
     if (qs && g.SlopFirstRun) qs.textContent = g.SlopFirstRun.size(MD.get(QUALITY_ID).bytes);
     wire();
+    U.markDrop($('up-drop'));
+    WD.fine();
+    WD.on(() => { WD.options(S); WD.fine(); updateInfo(); if (S.item && !S.item.status) setStatus(t('upscale.run.ready')); updateButtons(); });
     updateButtons();
     await formats();
     await refreshModels();

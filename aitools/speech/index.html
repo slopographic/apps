@@ -1,8 +1,11 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <script src="../../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../../shared/theme/theme.js" data-app="aitools" data-src="shared/theme/theme.js"></script>
   <link rel="expect" href="#slop-built" blocking="render">
+  <script src="../../shared/i18n/i18n.js" data-src="shared/i18n/i18n.js"></script>
+  <script src="../i18n/index.js" data-src="aitools/i18n/index.js"></script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Speech to text · Slop AI Tools</title>
@@ -16,26 +19,26 @@
 </head>
 <body>
   <header class="ai-top">
-    <a class="brand" href="../../" title="Slopographic home" aria-label="Slopographic home"><svg viewBox="0 0 32 32" class="brand-mark" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/></svg></a>
-    <a class="ai-crumb" href="../">AI Tools</a><span class="ai-sep" aria-hidden="true">/</span><h1>Speech to text</h1>
+    <a class="brand" href="../../" title="Slopographic home" aria-label="Slopographic home" data-i18n-attr="title:aitools.hub.home;aria-label:aitools.hub.home"><svg viewBox="0 0 32 32" class="brand-mark" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/></svg></a>
+    <a class="ai-crumb" href="../" data-i18n="aitools.page.crumb">AI Tools</a><span class="ai-sep" aria-hidden="true">/</span><h1 data-i18n="aitools.tool.speech_name">Speech to text</h1>
   </header>
   <div class="ai-tool">
-    <p class="ai-intro">One file at a time here. To record your voice, transcribe many files at once, correct the text or save it as Word or WebVTT, use <a href="../../transcribe/">Slop Transcribe</a> (the same models, already on this device once downloaded).</p>
+    <p class="ai-intro"><span data-i18n="aitools.speech.intro">One file at a time here. To record your voice, transcribe many files at once, correct the text or save it as Word or WebVTT, use </span><a href="../../transcribe/">Slop Transcribe</a><span data-i18n="aitools.speech.intro_end"> (the same models, already on this device once downloaded).</span></p>
     <div id="gate" class="ai-stack" aria-live="polite"></div>
     <section id="ui" class="ai-stack" hidden>
-      <div id="drop" class="ai-drop">Drop an audio or video file here, or <button type="button" id="chooseFile" class="ai-choose">choose a file</button><br><span class="ai-meta">Up to 2 hours. Long files are read in 30-second windows.</span></div>
+      <div id="drop" class="ai-drop"><span data-i18n="aitools.speech.drop">Drop an audio or video file here, or </span><button type="button" id="chooseFile" class="ai-choose" data-i18n="aitools.page.choose_file">choose a file</button><br><span class="ai-meta" data-i18n="aitools.speech.limit">Up to 2 hours. Long files are read in 30-second windows.</span></div>
       <div class="ai-grid2">
-        <div class="ai-field" data-side="settings"><span id="modelHead">Language and model</span>
+        <div class="ai-field" data-side="settings"><span id="modelHead" data-i18n="aitools.ocr.lang">Language and model</span>
           <button id="model" type="button" aria-haspopup="dialog" aria-describedby="modelHead">Detect automatically · Whisper tiny</button></div>
         <div class="ai-field"><span class="ai-meta" id="fileName"></span></div>
       </div>
-      <div><button id="run" class="ai-pri" type="button" disabled data-side="main">Transcribe</button></div>
+      <div><button id="run" class="ai-pri" type="button" disabled data-side="main" data-i18n="aitools.speech.run">Transcribe</button></div>
       <progress id="prog" class="ai-progress" value="0" max="1" hidden></progress>
       <p id="msg" class="ai-meta" role="status"></p>
-      <textarea id="out" class="ai-out" aria-label="Transcript" placeholder="The transcript appears here, with timestamps in the .srt file."></textarea>
+      <textarea id="out" class="ai-out" aria-label="Transcript" placeholder="The transcript appears here, with timestamps in the .srt file." data-i18n-attr="aria-label:aitools.speech.out;placeholder:aitools.speech.out_ph"></textarea>
       <div class="ai-act">
-        <button id="srt" type="button" disabled data-side="save">Download .srt</button>
-        <button id="txt" type="button" disabled data-side="save">Download .txt</button>
+        <button id="srt" type="button" disabled data-side="save" data-i18n="aitools.speech.srt">Download .srt</button>
+        <button id="txt" type="button" disabled data-side="save" data-i18n="aitools.page.download_txt">Download .txt</button>
       </div>
     </section>
   </div>

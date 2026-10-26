@@ -7,6 +7,7 @@
   if (!H || !window.slopPaint || !window.slopPaint.drive) return;
   const P = window.slopPaint.drive, { ACTIONS, main, S, openBlob, confirmSave, finishPending, cancelOp, status, updateTitle } = P;
   let driveId = null; // the Slop Drive record this picture was opened from or saved to
+  const t = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
   const baseOf = (n) => (String(n || 'untitled').replace(/\.[^.]+$/, '') || 'untitled').slice(0, 60);
 
   /** The intake's reader opened a Slop Drive file: Save writes back to it when the picture is still that file. */
@@ -15,7 +16,7 @@
     if (P.opActive()) cancelOp();
     finishPending();
     if (!(await confirmSave())) return;
-    await window.SlopIntake.fromDrive({ to: 'paint-classic', mode: 'open', title: 'Open from Slop Drive' }); // the one way in (paint/17-files.js)
+    await window.SlopIntake.fromDrive({ to: 'paint-classic', mode: 'open', title: t('paint-classic.drive.open_title') }); // the one way in (paint/17-files.js)
   };
   ACTIONS.save = async function () {
     if (P.opActive()) cancelOp();
@@ -25,7 +26,7 @@
     const name = S.fileName.replace(/\.png$/i, '') + '.png';
     if (!driveId) { const id = await H.saveToDrive(blob, name, { from: 'paint-classic' }); if (!id) return; driveId = id; }
     else if (!(await H.update(driveId, { blob, name, type: blob.type }))) await H.put(blob, { id: driveId, name, from: 'paint-classic' });
-    S.dirty = false; updateTitle(); status(`Saved ${name} to Slop Drive.`);
+    S.dirty = false; updateTitle(); status(t('paint-classic.status.saved_drive', { name }));
   };
 
   try { H.register('paint-classic'); } catch (e) { /* bus unavailable */ }

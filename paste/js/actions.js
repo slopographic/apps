@@ -6,6 +6,7 @@ import { EXT } from './highlight.js';
 import { renderAll, showLink, onOpen } from './view.js';
 
 const toast = (m) => { if (window.SlopUI) SlopUI.toast(m); };
+const t = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
 const remember = () => { try { SlopSession.save('paste', 'last', { id: S.id }).catch(() => {}); } catch (e) { /* no session store */ } };
 const refresh = () => renderAll();
 
@@ -22,7 +23,7 @@ export function open(id) {
 /** Opens the paste with this link ID (?paste=<id>). Resolves with false when this browser has no such paste. */
 export function openLink(pasteId) {
   const p = byLink(pasteId);
-  if (!p) { toast('No paste with that link is in this browser'); return false; }
+  if (!p) { toast(t('paste.toast.no_link')); return false; }
   open(p.id);
   return true;
 }
@@ -30,7 +31,7 @@ export function openLink(pasteId) {
 export async function newPaste(o = {}) {
   let p;
   try { p = await store.create(o); }
-  catch (e) { toast('Could not start a paste: ' + ((e && e.message) || 'Slop Drive is unavailable')); return null; }
+  catch (e) { toast(t('paste.toast.start_failed', { msg: (e && e.message) || t('paste.save.unavailable') })); return null; }
   S.pastes.unshift(p);
   S.id = p.id;
   S.pane = 'editor';
@@ -46,8 +47,8 @@ export async function newPaste(o = {}) {
  *  pasted text. */
 export async function onPaste(e) {
   if (e.defaultPrevented) return;
-  const t = e.target;
-  const typing = t && t.matches && t.matches('input, textarea, [contenteditable]');
+  const el = e.target;
+  const typing = el && el.matches && el.matches('input, textarea, [contenteditable]');
   const text = e.clipboardData && e.clipboardData.getData('text/plain');
   if (!typing && text) {
     e.preventDefault();
@@ -57,19 +58,19 @@ export async function onPaste(e) {
       cur.body = text;
       store.touch(cur);
       refresh();
-      toast('Pasted into the open paste');
+      toast(t('paste.toast.pasted_open'));
       return;
     }
     await newPaste({ kind: 'text', body: text });
-    toast('Pasted as a new paste');
+    toast(t('paste.toast.pasted_new'));
   }
 }
 
 /** The one way pictures come in (shared/intake, spec 'paste'): Add image… and a pasted picture each become a paste. */
 export function registerIntake() {
   window.SlopIntake.register({
-    id: 'paste', accept: { types: ['image/*'], noun: 'a picture' }, toast: false,
-    process: async (f, ctx) => { await newPaste({ kind: 'image', blob: f, title: ctx.source === 'paste' ? 'Image' : f.name.replace(/\.[^.]+$/, '') || 'Image' }); return f.name; },
+    id: 'paste', accept: { types: ['image/*'], noun: t('paste.app.a_picture') }, toast: false,
+    process: async (f, ctx) => { await newPaste({ kind: 'image', blob: f, title: ctx.source === 'paste' ? 'Image' : f.name.replace(/\.[^.]+$/, '') || 'Image' }); return f.name; },   // i18n-ignore: the paste's own title, saved
   });
 }
 export const addImage = () => window.SlopIntake.pick({ to: 'paste', multiple: false, accept: 'image/*' });
@@ -79,8 +80,8 @@ export async function copy(p) {
   try {
     if (p.kind === 'image') await navigator.clipboard.write([new ClipboardItem({ [p.blob.type]: p.blob })]);
     else await navigator.clipboard.writeText(p.body);
-    toast('Copied');
-  } catch (e) { toast('Could not copy here. Use Download instead.'); }
+    toast(t('paste.toast.copied'));
+  } catch (e) { toast(t('paste.toast.copy_failed')); }
 }
 
 const baseName = (p) => (p.title || '').replace(/[\\/:*?"<>|\u0000-\u001f]+/g, ' ').trim().slice(0, 80) || 'paste-' + p.pasteId.slice(0, 6);
@@ -95,7 +96,7 @@ export function download(p) {
     name = baseName(p) + '.' + (EXT[p.language] || 'txt');
     SlopUI.download(new Blob([p.body], { type: 'text/plain;charset=utf-8' }), name);
   }
-  toast('Downloaded ' + name);
+  toast(t('paste.toast.downloaded', { name }));
 }
 
 /** The link to this paste inside the app: this page with ?paste=<link ID>. Nothing is sent anywhere. */
@@ -111,21 +112,21 @@ export function share(p) {
   if (!p) return;
   const url = shareUrl(p);
   showLink(url);
-  navigator.clipboard.writeText(url).then(() => toast('Link copied. It opens this paste in this browser.'), () => toast('Link ready. It opens this paste in this browser.'));
+  navigator.clipboard.writeText(url).then(() => toast(t('paste.toast.link_ready_copied')), () => toast(t('paste.toast.link_ready')));
 }
 
 export async function remove(p) {
   if (!p) return;
-  const ok = await SlopUI.confirm('Move to Trash?', `“${p.title || 'This paste'}” goes to the Slop Drive Trash, where you can restore it.`, 'Move to Trash', { danger: true });
+  const ok = await SlopUI.confirm(t('paste.trash.title'), t('paste.trash.text', { title: p.title || t('paste.trash.this_paste') }), t('paste.trash.ok'), { danger: true });
   if (!ok) return;
   store.forget(p.id);
-  try { await store.trash(p.id); } catch (e) { toast('Could not move to Trash: ' + e.message); return; }
+  try { await store.trash(p.id); } catch (e) { toast(t('paste.toast.trash_failed', { msg: e.message })); return; }
   if (p.url) URL.revokeObjectURL(p.url);
   S.pastes = S.pastes.filter((x) => x.id !== p.id);
   if (S.id === p.id) { S.id = null; S.pane = 'list'; }
   remember();
   refresh();
-  toast('Moved to Trash');
+  toast(t('paste.toast.trashed'));
 }
 
 /** The next (+1) or previous (-1) paste in the list. */

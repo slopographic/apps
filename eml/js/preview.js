@@ -15,7 +15,8 @@
   const IMG = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', gif: 'image/gif', webp: 'image/webp', svg: 'image/svg+xml' };
   const SHEET = ['xlsx', 'xls', 'csv', 'tsv', 'ods'];
   const TEXT = ['txt', 'md', 'log', 'json', 'xml', 'ics', 'vcf', 'yaml', 'yml'];
-  const NOTE_SHEET = 'Spreadsheet preview is not available yet';
+  const t = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
+  const NOTE_SHEET = () => t('eml.prev.no_sheet');
 
   function el(tag, cls, text) {
     const n = document.createElement(tag);
@@ -70,33 +71,33 @@
         const img = el('img', 'em-prev-img');
         img.alt = a.name;
         img.src = u;
-        slot.replaceChildren(frame(F.preview(img.outerHTML), 'Preview of ' + a.name, ''));
-      }, () => slot.replaceChildren(note('This image could not be shown.')));
+        slot.replaceChildren(frame(F.preview(img.outerHTML), t('eml.prev.of', { name: a.name }), ''));
+      }, () => slot.replaceChildren(note(t('eml.prev.no_image'))));
     } else if (kind === 'pdf') {
       const u = URL.createObjectURL(blobOf(a, 'application/pdf'));
       urls.push(u);
       const f = el('iframe', 'em-prev-frame');
-      f.title = 'Preview of ' + a.name;
+      f.title = t('eml.prev.of', { name: a.name });
       f.setAttribute('sandbox', 'allow-scripts');
       f.src = u;
       slot.append(f);
     } else if (kind === 'html') {
       const { text } = textOf(a, 0);
-      slot.append(frame(F.preview(F.bodyHtml({ html: text }, false)), 'Preview of ' + a.name, 'allow-popups allow-popups-to-escape-sandbox'));
+      slot.append(frame(F.preview(F.bodyHtml({ html: text }, false)), t('eml.prev.of', { name: a.name }), 'allow-popups allow-popups-to-escape-sandbox'));
     } else if (kind === 'text' || (kind === 'sheet' && !window.SlopSheets && (ext === 'csv' || ext === 'tsv'))) {
       const { text, cut } = textOf(a, TEXT_MAX);
-      if (kind === 'sheet') slot.append(note(NOTE_SHEET));
+      if (kind === 'sheet') slot.append(note(NOTE_SHEET()));
       slot.append(el('pre', 'em-plain em-prev-pre', text));
-      if (cut) slot.append(note('Showing the first ' + size(TEXT_MAX) + ' of ' + size(a.bytes.length) + '. Save the file to see all of it.'));
+      if (cut) slot.append(note(t('eml.prev.cut', { first: size(TEXT_MAX), total: size(a.bytes.length) })));
     } else if (kind === 'sheet') {
-      if (!window.SlopSheets || typeof window.SlopSheets.preview !== 'function') { slot.append(note(NOTE_SHEET)); return; }
+      if (!window.SlopSheets || typeof window.SlopSheets.preview !== 'function') { slot.append(note(NOTE_SHEET())); return; }
       const box = el('div', 'em-prev-sheet');
       slot.append(box);
       Promise.resolve()
         .then(() => window.SlopSheets.preview(box, new File([a.bytes], a.name, { type: a.type || '' })))
-        .catch(() => box.replaceChildren(note('This spreadsheet could not be shown.')));
+        .catch(() => box.replaceChildren(note(t('eml.prev.no_sheet_shown'))));
     } else {
-      slot.append(note('No preview for this type of file. Save it to open it.'));
+      slot.append(note(t('eml.prev.none')));
     }
   }
 
@@ -108,7 +109,7 @@
     const kind = P.kindOf(a);
     const urls = [];
     const slot = el('div', 'em-prev-body');
-    const meta = el('p', 'em-prev-meta', [a.name, a.type || 'no type', size(a.size)].join(' · '));
+    const meta = el('p', 'em-prev-meta', [a.name, a.type || t('eml.prev.no_type'), size(a.size)].join(' · '));
     const body = el('div', 'em-prev');
     body.append(meta, slot);
     fill(slot, a, kind, urls);
@@ -145,7 +146,7 @@
       title: a.name,
       cls: 'em-prev-dlg',
       body: body,
-      buttons: [{ label: 'Save', act: save }, { label: 'Close', primary: true }],
+      buttons: [{ label: t('eml.side.save'), act: save }, { label: t('eml.side.close'), primary: true }],
       onClose: () => {
         unlisten();
         urls.forEach((u) => URL.revokeObjectURL(u));

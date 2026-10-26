@@ -36,7 +36,7 @@
         if (r.supported) return { mux: o.mux, codec: o.codec, cfg: r.config || cfg };
       } catch (e) { /* try the next one */ }
     }
-    throw new Error(`No video encoder for ${format.toUpperCase()} at ${w} × ${h} in this browser`);
+    throw new Error(g.SlopResize.tr('resize.err.no_encoder', 'No video encoder for {format} at {w} × {h} in this browser', { format: format.toUpperCase(), w: String(w), h: String(h) }));
   };
 
   /** AAC for MP4 (Opus when AAC is missing), Opus for WebM. Null when WebCodecs has no audio encoder. */

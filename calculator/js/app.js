@@ -5,6 +5,7 @@
   'use strict';
   const C = window.SlopCalc, K = window.SlopCalcKeep, R = window.SlopCalcRates, P = window.SlopCalcPanels;
   const $ = (id) => document.getElementById(id);
+  const t = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
   const HIST_KEY = 'slopcalc.history', HIST_MAX = 200, TAPE_MAX = 300;
   const VARS_KEY = 'slopcalc.vars';
   const S = { ans: null, tape: [], history: K.read(HIST_KEY, []), vars: K.read(VARS_KEY, {}), recall: -1, seq: 0, last: null, timer: 0 };
@@ -33,7 +34,7 @@
       if (!(await R.fetch(bad.error.from, bad.error.to, today()))) break;
     }
     const r = resultOf(p);
-    if (!r.ok && r.error.code === 'rate') r.error.message += '. Add a manual rate under Exchange rates.';
+    if (!r.ok && r.error.code === 'rate') r.error.message = t('calculator.status.no_rate', { msg: r.error.message });
     return r;
   }
 
@@ -60,7 +61,7 @@
     const r = await evaluate(src, true);
     if (my !== S.seq) return;
     showPreview(r);
-    if (!r.ok) { setStatus('Not calculated: ' + r.error.message); return; }
+    if (!r.ok) { setStatus(t('calculator.status.not_calculated', { msg: r.error.message })); return; }
     S.last = { expr: src, value: r.value, text: r.text };
     el.cal.hidden = !SlopCalcCalendar.formFor(S.last);
     S.ans = r.value;
@@ -73,7 +74,7 @@
     P.renderHistory(S.history);
     renderTape();
     el.expr.select();
-    setStatus(`Saved to the tape: ${src} = ${r.text}`);
+    setStatus(t('calculator.status.saved_tape', { expr: src, result: r.text }));
   }
 
   function renderTape() {
@@ -81,7 +82,7 @@
       const li = document.createElement('li');
       li.className = 'sc-line';
       li.tabIndex = 0;
-      li.title = 'Use this line again';
+      li.title = t('calculator.line.use');
       const a = document.createElement('span'); a.className = 'sc-line-expr'; a.textContent = row.expr;
       const b = document.createElement('span'); b.className = 'sc-line-val'; b.textContent = '= ' + row.text;
       li.append(a, b);
@@ -118,12 +119,12 @@
   }
 
   function clearInput() { el.expr.value = ''; S.recall = -1; S.last = null; S.seq++; showPreview(null); el.expr.focus(); }
-  function clearTape() { S.tape = []; renderTape(); setStatus('Tape cleared. History is kept.'); }
+  function clearTape() { S.tape = []; renderTape(); setStatus(t('calculator.status.tape_cleared')); }
   /** A new sheet: an empty tape and line, no last answer; the variables go too unless kept. The history is kept. */
   function newSheet(keepVars) {
     S.tape = []; S.ans = null; renderTape(); clearInput();
     if (!keepVars) { S.vars = {}; K.write(VARS_KEY, S.vars); renderVars(); }
-    setStatus('New sheet.');
+    setStatus(t('calculator.status.new_sheet'));
   }
 
   /** The variables: each name with its value. A click puts the name into the line. */
@@ -132,7 +133,7 @@
     el.vars.replaceChildren(...names.map((name) => {
       const li = document.createElement('li');
       const b = document.createElement('button');
-      b.type = 'button'; b.className = 'sc-var'; b.title = 'Put ' + name + ' into the line';
+      b.type = 'button'; b.className = 'sc-var'; b.title = t('calculator.line.put', { name });
       b.textContent = name + ' = ' + C.format(S.vars[name]);
       b.addEventListener('click', () => { const at = el.expr.selectionStart == null ? el.expr.value.length : el.expr.selectionStart; el.expr.setRangeText(name, at, at, 'end'); el.expr.focus(); schedulePreview(); });
       li.append(b);
@@ -143,9 +144,9 @@
   }
   async function clearVars() {
     if (!Object.keys(S.vars).length) return;
-    const ok = await SlopUI.confirm('Clear variables', 'Forget every name you set (' + Object.keys(S.vars).length + ')? The history and the tape are kept.', 'Clear', { danger: true });
+    const ok = await SlopUI.confirm(t('calculator.vars.confirm_title'), t('calculator.vars.confirm_text', { n: Object.keys(S.vars).length }), t('calculator.app.clear'), { danger: true });
     if (!ok) return;
-    S.vars = {}; K.write(VARS_KEY, S.vars); renderVars(); setStatus('Variables cleared.'); schedulePreview();
+    S.vars = {}; K.write(VARS_KEY, S.vars); renderVars(); setStatus(t('calculator.status.vars_cleared')); schedulePreview();
   }
 
   /** The result as text to paste: a plain number without separators, else the displayed text. */
@@ -156,30 +157,30 @@
   }
   async function copyResult() {
     const text = copyText();
-    if (text === null) { setStatus('Calculate something first'); return; }
-    try { await navigator.clipboard.writeText(text); toast(`Copied ${text}`); }
-    catch (e) { setStatus('The browser blocked the clipboard. Select the result and copy it.'); }
+    if (text === null) { setStatus(t('calculator.status.first')); return; }
+    try { await navigator.clipboard.writeText(text); toast(t('calculator.status.copied', { text })); }
+    catch (e) { setStatus(t('calculator.status.clipboard_blocked')); }
   }
 
   /** One Slop Drive file per calculation: Markdown, meta { type:'notes', kind:'calc' }. Notes ignores kind 'calc'. */
   async function saveDrive() {
-    if (!S.last) { setStatus('Calculate something first'); return; }
-    if (!window.SlopHub) { setStatus('Slop Drive is not available in this browser'); return; }
+    if (!S.last) { setStatus(t('calculator.status.first')); return; }
+    if (!window.SlopHub) { setStatus(t('calculator.status.no_drive')); return; }
     const { expr, text } = S.last;
     const title = `${expr} = ${text}`.replace(/[\\/:*?"<>|\r\n]+/g, ' ').slice(0, 60).trim();
-    const body = `# ${title}\n\n${expr}\n\n= ${text}\n\nSaved from Slopculator on ${today()}.\n`;
+    const body = `# ${title}\n\n${expr}\n\n= ${text}\n\nSaved from Slopculator on ${today()}.\n`;   // i18n-ignore: the saved note's text
     try {
       await SlopHub.put(new Blob([body], { type: 'text/markdown' }), {
         name: `${title}.md`, from: 'calculator',
         meta: { type: 'notes', kind: 'calc', title, expression: expr, result: text, saved: Date.now() },
       });
-      toast('Saved to Slop Drive');
-    } catch (e) { setStatus('Not saved: ' + (e && e.message ? e.message : 'Slop Drive refused the file')); }
+      toast(t('calculator.status.saved_drive'));
+    } catch (e) { setStatus(t('calculator.status.not_saved', { msg: e && e.message ? e.message : t('calculator.status.drive_refused') })); }
   }
 
   /** Adds the last calculation to the Calendar, when its result is a date. */
   async function addToCalendar() {
-    if (!S.last) { setStatus('Calculate something first'); return; }
+    if (!S.last) { setStatus(t('calculator.status.first')); return; }
     const r = await SlopCalcCalendar.add(S.last);
     setStatus(r.message);
     if (r.ok) toast(r.message);
@@ -217,6 +218,8 @@
     });
     renderTape();
     P.renderHistory(S.history);
+    // a language change: the tooltips on the tape and the variables, the history and the rates in the new language
+    if (window.SlopI18n && window.SlopI18n.on) window.SlopI18n.on(() => { renderTape(); renderVars(); P.renderHistory(S.history); P.renderRates(); });
     const start = new URLSearchParams(location.search).get('expr');
     if (start) { el.expr.value = start; preview(); }
     el.expr.focus();

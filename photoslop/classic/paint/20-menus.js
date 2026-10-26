@@ -3,7 +3,7 @@
 (() => {
 'use strict';
 const P = window.SlopPaint;
-const { $, $$, S, aboutDialog, applyImage, attributesDialog, cancelOp, clamp, clearImage, clearSelection, confirmSave, copySel, customZoomDialog, cutSel, editColorsDialog, fileInput, finishPending, flipRotateDialog, fontbar, h, helpDialog, invert, layout, mctx, pasteMenu, redo, redoStack, renderFloating, renderOptions, saveAsDialog, savePNG, selCanvas, selectAll, setColor, setTool, setZoom, slopify, status, stretchSkewDialog, toast, undo, undoStack, updateTitle, viewBitmap } = P;
+const { $, $$, S, t, aboutDialog, applyImage, attributesDialog, cancelOp, clamp, clearImage, clearSelection, confirmSave, copySel, customZoomDialog, cutSel, editColorsDialog, fileInput, finishPending, flipRotateDialog, fontbar, h, helpDialog, invert, layout, mctx, pasteMenu, redo, redoStack, renderFloating, renderOptions, saveAsDialog, savePNG, selCanvas, selectAll, setColor, setTool, setZoom, slopify, status, stretchSkewDialog, toast, undo, undoStack, updateTitle, viewBitmap } = P;
 
 /* =====================================================================
  * Menus
@@ -29,78 +29,80 @@ const ACTIONS = {
   zoomNormal: () => setZoom(1), zoomLarge: () => setZoom(4), zoomCustom: customZoomDialog,
   zoomIn: () => setZoom([1, 2, 4, 6, 8].find(z => z > S.zoom) || 8),
   zoomOut: () => setZoom([8, 6, 4, 2, 1].find(z => z < S.zoom) || 1),
-  grid: () => { S.grid = !S.grid; layout(); if (S.grid && S.zoom < 4) status('The grid appears at 400% zoom and up.'); },
+  grid: () => { S.grid = !S.grid; layout(); if (S.grid && S.zoom < 4) status(t('paint-classic.status.grid_zoom')); },
   viewBitmap,
   flipRotate: flipRotateDialog, stretchSkew: stretchSkewDialog,
   invert: () => applyImage(invert),
   attributes: attributesDialog,
   clearImage,
   opaque: () => { S.transparent = !S.transparent; renderFloating(); renderOptions(); },
-  slopify: async () => { await applyImage(slopify); toast('SLOPIFIED'); status('Slopified. Ctrl+Z if you regret it.'); },
+  slopify: async () => { await applyImage(slopify); toast(t('paint-classic.toast.slopified')); status(t('paint-classic.status.slopified')); },
   editColors: async () => { const res = await editColorsDialog(S.primary); if (res) setColor(0, res); },
   help: helpDialog, about: aboutDialog,
   palette: () => { if (window.SlopCmd) SlopCmd.open(); }, keymap: () => { if (window.SlopCmd) SlopCmd.openKeymap(); },
 };
 const hasSel = () => !!P.st.sel;
+/** A menu or menu item whose label (with & before the Alt key letter) is read in the chosen language each time. */
+const M = (key, o) => Object.defineProperty(o, 'label', { get: () => t(key), enumerable: true });
 const MENUS = [
-  { label: '&File', items: [
-    { label: '&New', act: 'new' },
-    { label: '&Open...', key: 'Ctrl+O', act: 'open' },
-    { label: 'Open from Slop &Drive...', act: 'openDrive', enabled: () => !!window.SlopHub },
-    { label: '&Save', key: 'Ctrl+S', act: 'save' },
-    { label: 'Save &As...', act: 'saveAs' },
+  M('paint-classic.menu.file', { items: [
+    M('paint-classic.menu.new', { act: 'new' }),
+    M('paint-classic.menu.open', { key: 'Ctrl+O', act: 'open' }),
+    M('paint-classic.menu.open_drive', { act: 'openDrive', enabled: () => !!window.SlopHub }),
+    M('paint-classic.menu.save', { key: 'Ctrl+S', act: 'save' }),
+    M('paint-classic.menu.save_as', { act: 'saveAs' }),
     '-',
-    { label: 'Back to &slopographic.com', act: 'home' },
+    M('paint-classic.menu.home', { act: 'home' }),
     '-',
-    { label: 'E&xit', act: 'exit' },
-  ] },
-  { label: '&Edit', items: [
-    { label: '&Undo', key: 'Ctrl+Z', act: 'undo', enabled: () => undoStack.length > 0 || !!P.st.text || !!P.st.sel || !!P.st.curve || !!P.st.poly },
-    { label: '&Repeat', key: 'Ctrl+Y', act: 'redo', enabled: () => redoStack.length > 0 },
+    M('paint-classic.menu.exit', { act: 'exit' }),
+  ] }),
+  M('paint-classic.menu.edit', { items: [
+    M('paint-classic.menu.undo', { key: 'Ctrl+Z', act: 'undo', enabled: () => undoStack.length > 0 || !!P.st.text || !!P.st.sel || !!P.st.curve || !!P.st.poly }),
+    M('paint-classic.menu.repeat', { key: 'Ctrl+Y', act: 'redo', enabled: () => redoStack.length > 0 }),
     '-',
-    { label: 'Cu&t', key: 'Ctrl+X', act: 'cut', enabled: hasSel },
-    { label: '&Copy', key: 'Ctrl+C', act: 'copy', enabled: hasSel },
-    { label: '&Paste', key: 'Ctrl+V', act: 'paste' },
-    { label: 'C&lear Selection', key: 'Del', act: 'clearSel', enabled: hasSel },
-    { label: 'Select &All', key: 'Ctrl+A', act: 'selectAll' },
+    M('paint-classic.menu.cut', { key: 'Ctrl+X', act: 'cut', enabled: hasSel }),
+    M('paint-classic.menu.copy', { key: 'Ctrl+C', act: 'copy', enabled: hasSel }),
+    M('paint-classic.menu.paste', { key: 'Ctrl+V', act: 'paste' }),
+    M('paint-classic.menu.clear_sel', { key: 'Del', act: 'clearSel', enabled: hasSel }),
+    M('paint-classic.menu.select_all', { key: 'Ctrl+A', act: 'selectAll' }),
     '-',
-    { label: 'C&opy To...', act: 'copyTo', enabled: hasSel },
-    { label: 'Paste &From...', act: 'pasteFrom' },
-  ] },
-  { label: '&View', items: [
-    { label: '&Tool Box', act: 'toolbox', checked: () => ui.toolbox },
-    { label: '&Color Box', act: 'colorbox', checked: () => ui.colorbox },
-    { label: '&Status Bar', act: 'statusbar', checked: () => ui.statusbar },
-    { label: 'T&ext Toolbar', act: 'textbar', checked: () => !S.fontbarClosed && S.tool === 'text' },
+    M('paint-classic.menu.copy_to', { act: 'copyTo', enabled: hasSel }),
+    M('paint-classic.menu.paste_from', { act: 'pasteFrom' }),
+  ] }),
+  M('paint-classic.menu.view', { items: [
+    M('paint-classic.menu.toolbox', { act: 'toolbox', checked: () => ui.toolbox }),
+    M('paint-classic.menu.colorbox', { act: 'colorbox', checked: () => ui.colorbox }),
+    M('paint-classic.menu.statusbar', { act: 'statusbar', checked: () => ui.statusbar }),
+    M('paint-classic.menu.textbar', { act: 'textbar', checked: () => !S.fontbarClosed && S.tool === 'text' }),
     '-',
-    { label: '&Normal Size', key: 'Ctrl+PgUp', act: 'zoomNormal', checked: () => S.zoom === 1 },
-    { label: '&Large Size', key: 'Ctrl+PgDn', act: 'zoomLarge', checked: () => S.zoom === 4 },
-    { label: 'C&ustom...', act: 'zoomCustom' },
-    { label: 'Show &Grid', key: 'Ctrl+G', act: 'grid', checked: () => S.grid },
+    M('paint-classic.menu.normal_size', { key: 'Ctrl+PgUp', act: 'zoomNormal', checked: () => S.zoom === 1 }),
+    M('paint-classic.menu.large_size', { key: 'Ctrl+PgDn', act: 'zoomLarge', checked: () => S.zoom === 4 }),
+    M('paint-classic.menu.custom', { act: 'zoomCustom' }),
+    M('paint-classic.menu.grid', { key: 'Ctrl+G', act: 'grid', checked: () => S.grid }),
     '-',
-    { label: '&View Bitmap', key: 'Ctrl+F', act: 'viewBitmap' },
-  ] },
-  { label: '&Image', items: [
-    { label: '&Flip/Rotate...', key: 'Ctrl+R', act: 'flipRotate' },
-    { label: '&Stretch/Skew...', key: 'Ctrl+Shift+W', act: 'stretchSkew' },
-    { label: '&Invert Colors', key: 'Ctrl+I', act: 'invert' },
-    { label: '&Attributes...', key: 'Ctrl+E', act: 'attributes' },
-    { label: '&Clear Image', key: 'Ctrl+Shift+X', act: 'clearImage' },
-    { label: '&Draw Opaque', act: 'opaque', checked: () => !S.transparent },
+    M('paint-classic.menu.view_bitmap', { key: 'Ctrl+F', act: 'viewBitmap' }),
+  ] }),
+  M('paint-classic.menu.image', { items: [
+    M('paint-classic.menu.flip_rotate', { key: 'Ctrl+R', act: 'flipRotate' }),
+    M('paint-classic.menu.stretch_skew', { key: 'Ctrl+Shift+W', act: 'stretchSkew' }),
+    M('paint-classic.menu.invert', { key: 'Ctrl+I', act: 'invert' }),
+    M('paint-classic.menu.attributes', { key: 'Ctrl+E', act: 'attributes' }),
+    M('paint-classic.menu.clear_image', { key: 'Ctrl+Shift+X', act: 'clearImage' }),
+    M('paint-classic.menu.opaque', { act: 'opaque', checked: () => !S.transparent }),
     '-',
-    { label: 'S&LOPIFY', act: 'slopify', cls: 'slopify' },
-  ] },
-  { label: '&Colors', items: [
-    { label: '&Edit Colors...', act: 'editColors' },
-  ] },
-  { label: '&Help', items: [
-    { label: '&Help Topics', key: 'F1', act: 'help' },
-    { label: 'Search &Commands...', key: 'Ctrl+K', act: 'palette' },
-    { label: '&Keyboard Shortcuts...', act: 'keymap' },
+    M('paint-classic.menu.slopify', { act: 'slopify', cls: 'slopify' }),
+  ] }),
+  M('paint-classic.menu.colors', { items: [
+    M('paint-classic.menu.edit_colors', { act: 'editColors' }),
+  ] }),
+  M('paint-classic.menu.help', { items: [
+    M('paint-classic.menu.help_topics', { key: 'F1', act: 'help' }),
+    M('paint-classic.menu.search_commands', { key: 'Ctrl+K', act: 'palette' }),
+    M('paint-classic.menu.shortcuts', { act: 'keymap' }),
     '-',
-    { label: '&About Slop Paint', act: 'about' },
-    { label: 'Back to &slopographic.com', act: 'home' },
-  ] },
+    M('paint-classic.menu.about', { act: 'about' }),
+    M('paint-classic.menu.home', { act: 'home' }),
+  ] }),
 ];
 const accel = label => { const i = label.indexOf('&'); if (i < 0) return document.createTextNode(label); const s = h('span'); s.append(label.slice(0, i), h('u', { text: label[i + 1] }), label.slice(i + 2)); return s; };
 const accKey = label => { const i = label.indexOf('&'); return i < 0 ? '' : label[i + 1].toLowerCase(); };
@@ -171,10 +173,15 @@ MENUS.forEach((m, i) => {
   });
   menubar.append(b);
 });
+/** The menu bar's titles again, in the chosen language (a language change); an open menu closes. */
+function labelMenus() {
+  closeMenus();
+  MENUS.forEach((m, i) => { const b = menubar.children[i]; if (b) b.replaceChildren(accel(m.label)); });
+}
 document.addEventListener('pointerdown', e => {
   if (P.st.openMenu >= 0 && !(P.st.menuEl && P.st.menuEl.contains(e.target)) && !menubar.contains(e.target)) closeMenus();
   if (!$('#startmenu').hidden && !e.target.closest('#startmenu, #startBtn')) P.closeStart();
 }, true);
 
-Object.assign(P, { ACTIONS, MENUS, accKey, closeMenus, menubar, run, showMenu });
+Object.assign(P, { ACTIONS, MENUS, accKey, closeMenus, labelMenus, menubar, run, showMenu });
 })();

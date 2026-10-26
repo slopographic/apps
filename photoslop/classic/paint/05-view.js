@@ -3,19 +3,20 @@
 (() => {
 'use strict';
 const P = window.SlopPaint;
-const { $, DEFAULT_MSG, S, clamp, copyCanvas, gridEl, main, mctx, octx, over, stage, toastEl, wrap, ws } = P;
+const { $, DEFAULT_MSG, S, t, clamp, copyCanvas, gridEl, main, mctx, octx, over, stage, toastEl, wrap, ws } = P;
 
 /* =====================================================================
  * Status bar, title, toast
  * ===================================================================== */
 const sbMsg = $('#sbMsg'), sbPos = $('#sbPos'), sbSize = $('#sbSize'), sbCanvas = $('#sbCanvas');
-function status(msg) { sbMsg.textContent = msg || DEFAULT_MSG; }
+function status(msg) { sbMsg.textContent = msg || t(DEFAULT_MSG); }
 function setPos(p) { sbPos.textContent = p ? `${p.x},${p.y}` : ''; }
 function setSizeStatus(w, hh) { sbSize.textContent = w == null ? '' : `${w}x${hh}`; }
 function updateSize() { if (P.st.sel) setSizeStatus(P.st.sel.w, P.st.sel.h); else setSizeStatus(null); }
 function updateTitle() {
-  const t = `${S.fileName} - Slop Paint`;
-  $('#title').textContent = t; $('#taskTitle').textContent = t;
+  const name = S.fileName === 'untitled' ? t('paint-classic.app.untitled') : S.fileName;
+  const title = `${name} - Slop Paint`;
+  $('#title').textContent = title; $('#taskTitle').textContent = title;
 }
 function markDirty() { S.dirty = true; }
 let toastTimer = 0;
@@ -60,7 +61,7 @@ function setZoom(z, anchor) {
     ws.scrollTop = anchor.iy * z + 3 - anchor.cy;
   }
   if (S.tool === 'zoom') P.renderOptions();
-  status(`Zoom ${z * 100}%`);
+  status(t('paint-classic.status.zoom', { pct: String(z * 100) }));
 }
 function clearOverlay() { octx.clearRect(0, 0, over.width, over.height); }
 function toImg(e) {

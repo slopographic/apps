@@ -65,11 +65,11 @@
     .concat(ocr ? ocr.MODELS.filter((m) => m.id !== 'ppocr-v4') : []);
 
   const TOOLS = [
-    { id: 'ocr', name: 'OCR', page: 'ocr/', models: ['ppocr-v4'], blurb: 'Read text from an image or a scanned PDF page.' },
-    { id: 'speech', name: 'Speech to text', page: 'speech/', models: ['whisper-tiny'], blurb: 'Transcribe audio or a video, with timestamps. Exports .srt and .txt.' },
-    { id: 'denoise', name: 'Denoise', page: 'denoise/', models: [], blurb: 'Median and bilateral filters with a before and after slider. No model needed.' },
-    { id: 'tags', name: 'Auto tags', page: 'tags/', models: ['mobilenetv3-l100'], blurb: 'Suggest tags for a photo. You accept or edit them, then they are saved to Slop Drive.' },
-    { id: 'portrait', name: 'Portrait blur', page: 'portrait/', models: ['modnet-portrait'], blurb: 'Blur the background of a portrait, with a strength slider.' },
+    { id: 'ocr', name: 'OCR', page: 'ocr/', models: ['ppocr-v4'], blurb: 'Read text from an image or a scanned PDF page.' },   // i18n-ignore: shown through aitools.tool.<id>_name/_blurb (hub.js)
+    { id: 'speech', name: 'Speech to text', page: 'speech/', models: ['whisper-tiny'], blurb: 'Transcribe audio or a video, with timestamps. Exports .srt and .txt.' },   // i18n-ignore: shown through aitools.tool.<id>_name/_blurb (hub.js)
+    { id: 'denoise', name: 'Denoise', page: 'denoise/', models: [], blurb: 'Median and bilateral filters with a before and after slider. No model needed.' },   // i18n-ignore: shown through aitools.tool.<id>_name/_blurb (hub.js)
+    { id: 'tags', name: 'Auto tags', page: 'tags/', models: ['mobilenetv3-l100'], blurb: 'Suggest tags for a photo. You accept or edit them, then they are saved to Slop Drive.' },   // i18n-ignore: shown through aitools.tool.<id>_name/_blurb (hub.js)
+    { id: 'portrait', name: 'Portrait blur', page: 'portrait/', models: ['modnet-portrait'], blurb: 'Blur the background of a portrait, with a strength slider.' },   // i18n-ignore: shown through aitools.tool.<id>_name/_blurb (hub.js)
   ];
 
   const byId = (id) => MODELS.find((m) => m.id === id) || null;

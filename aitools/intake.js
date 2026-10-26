@@ -19,7 +19,7 @@
     const choose = $('chooseFile');
     if (choose) choose.addEventListener('click', () => SI.pick({ to: id, multiple: false }));
     const drive = o.drive && root.document.querySelector(o.drive);
-    if (drive) drive.addEventListener('click', () => SI.fromDrive({ to: id, title: 'Pick from Slop Drive' }));
+    if (drive) drive.addEventListener('click', () => SI.fromDrive({ to: id, title: root.SlopI18n && root.SlopI18n.has('aitools.frame.pick_drive') ? root.SlopI18n.t('aitools.frame.pick_drive') : 'Pick from Slop Drive' }));
     return {
       /** Call once the page can take a file (after the gate): what the page was opened with comes in. */
       launch: () => { if (root.SlopHub) { try { root.SlopHub.register('aitools'); } catch (e) { /* bus unavailable */ } } return SI.launch({ to: id }); },
