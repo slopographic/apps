@@ -8,12 +8,9 @@
   const S = SV.seed, R = SV.random, P = SV.presets, T = SV.templates, KF = SV.keys, FX = SV.effects;
   RM.GRIDS = ['grid-1x2', 'grid-2x2', 'grid-1x3', 'grid-2x3', 'grid-3x3'];
   /** Text a person reads (remix/i18n, shared/i18n/APPS-HOWTO.md): the key itself when SlopI18n is absent. onLang(fn) runs
-     fn after a language change, once the new tables are in. tn(ns, value, en): a shared/video label in the chosen language
-     (remix.<ns>.<value> when the table has it, else the English given); tl(ns, list) maps a [value, label] list. */
+     fn after a language change, once the new tables are in. The shared/video lists carry their own labels (ui.video.*). */
   RM.t = (k, v) => { const I = window.SlopI18n; return I ? I.t(k, v) : k; };
   RM.onLang = (fn) => { const I = window.SlopI18n; if (I && I.on) I.on(fn); };
-  RM.tn = (ns, v, en) => { const I = window.SlopI18n, k = 'remix.' + ns + '.' + String(v).replace(/[^a-z0-9]+/gi, '_').toLowerCase(); return I && I.has(k) ? I.t(k) : en; };
-  RM.tl = (ns, list) => list.map((x) => [x[0], RM.tn(ns, x[0], x[1])]);
   RM.state = {
     items: [], target: 30, pace: 'medium', preset: 'phone', custom: { w: 1080, h: 1920 },
     base: 'none', random: true, grids: RM.GRIDS.slice(), lane: [], seed: S.make(), plan: null, playhead: 0, fill: 'auto',

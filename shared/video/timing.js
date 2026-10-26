@@ -11,8 +11,9 @@
   const TM = (SV.timing = {});
   const round = (v, k = 2) => { const f = Math.pow(10, k); return Math.round(v * f) / f; };
 
-  TM.MODES = [['same', 'Same time (all slots switch together)'], ['stagger', 'Stagger (each slot at its own time)'], ['random', 'Random length (own length per slot)']];
-  TM.VIDEO = [['through', 'Play through (from the start, up to the cut)'], ['random', 'Random length (random point, own length)']];
+  /** [[id, label]] in the chosen language (getters: read them when the list is shown; labels: ui.video.timing / vplay). */
+  Object.defineProperty(TM, 'MODES', { enumerable: true, get: () => SV.words('timing', ['same', 'stagger', 'random']) });
+  Object.defineProperty(TM, 'VIDEO', { enumerable: true, get: () => SV.words('vplay', ['through', 'random']) });
   TM.LEN = { min: 1, max: 3, stagger: 1 };
 
   /**

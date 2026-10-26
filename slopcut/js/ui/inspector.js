@@ -24,7 +24,7 @@
   };
   function sequence() {
     const p = SE.doc, set = (k) => (v) => SE.settings.apply({ [k]: v });
-    const presets = U.wl('size', M.PRESETS).concat([['custom', U.t('slopedit.fx.custom')]]);
+    const presets = M.PRESETS.concat([['custom', U.t('slopedit.fx.custom')]]);
     const cur = () => (M.PRESETS.find(([v]) => v === SE.doc.w + 'x' + SE.doc.h) || ['custom'])[0];
     body.append(
       h('div', { class: 'ins-title' }, SE.icon('film'), h('b', null, U.t('slopedit.cmd.sequence'))),

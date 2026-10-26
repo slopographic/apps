@@ -4,7 +4,7 @@
    0 to 1. ease belongs to the segment that starts at the key: 'linear', 'easeIn', 'easeOut' or 'easeInOut' (mapped to
    SlopMotion's quad easings). pose() samples each property with SlopMotion.track, so interpolation and easing are the
    shared engine's, not new code. A store is a list of { cut, slot, keys } for the plan's cuts (see get, put, prune).
-   Pure: nothing here mutates its input. Needs window.SlopMotion (easing.js and track.js) loaded first. */
+   Pure: nothing here mutates its input. Needs window.SlopMotion (easing.js and track.js) loaded first, and seed.js for the list labels. */
 (function () {
   'use strict';
   const root = typeof window !== 'undefined' ? window : globalThis;
@@ -12,20 +12,16 @@
   const KF = (SV.keys = {});
   const M = () => root.SlopMotion.track;
 
-  KF.EASES = [['linear', 'Linear'], ['easeIn', 'Ease in'], ['easeOut', 'Ease out'], ['easeInOut', 'Ease in-out']];
   /** Our ease names to SlopMotion easing names. */
   KF.EASE_MAP = { linear: 'linear', easeIn: 'easeInQuad', easeOut: 'easeOutQuad', easeInOut: 'easeInOutQuad' };
   KF.POSE = { x: 0, y: 0, scale: 1, rot: 0, opacity: 1 };
   KF.LIMITS = { x: [-2, 2], y: [-2, 2], scale: [0.1, 4], rot: [-720, 720], opacity: [0, 1] };
   /** Keys of the Animate in presets: the pose the slot starts from (the end is KF.POSE). */
-  KF.ANIMATE = [
-    ['fade', 'Fade in', { opacity: 0 }],
-    ['left', 'Slide in from left', { x: -1 }],
-    ['right', 'Slide in from right', { x: 1 }],
-    ['top', 'Slide in from top', { y: -1 }],
-    ['bottom', 'Slide in from bottom', { y: 1 }],
-    ['zoom', 'Zoom in', { scale: 0.5 }],
-  ];
+  const POSES = [['fade', { opacity: 0 }], ['left', { x: -1 }], ['right', { x: 1 }], ['top', { y: -1 }], ['bottom', { y: 1 }], ['zoom', { scale: 0.5 }]];
+  /** EASES [[id, label]] and ANIMATE [[id, label, pose]] in the chosen language (getters; labels ui.video.ease / anim,
+   *  through SlopVideo.word in seed.js). */
+  Object.defineProperty(KF, 'EASES', { enumerable: true, get: () => SV.words('ease', Object.keys(KF.EASE_MAP)) });
+  Object.defineProperty(KF, 'ANIMATE', { enumerable: true, get: () => POSES.map(([id, pose]) => [id, SV.word('anim', id), pose]) });
   KF.ANIM_SECONDS = 0.5;
   const clamp = (v, [lo, hi]) => Math.min(hi, Math.max(lo, v));
 
@@ -83,10 +79,10 @@
    * pose and end at the default pose. Keys in that window are replaced; later keys are kept. name is an id in KF.ANIMATE.
    */
   KF.animateIn = function (keys, name, dur) {
-    const preset = KF.ANIMATE.find((a) => a[0] === name);
+    const preset = POSES.find((a) => a[0] === name);
     if (!preset || !(dur > 0)) return KF.sort(keys);
     const end = Math.min(KF.ANIM_SECONDS, dur);
     const later = KF.sort(keys).filter((k) => k.t > end + 0.001);
-    return [KF.make(0, Object.assign({}, KF.POSE, preset[2]), 'easeOut'), KF.make(end, KF.POSE, 'linear')].concat(later);
+    return [KF.make(0, Object.assign({}, KF.POSE, preset[1]), 'easeOut'), KF.make(end, KF.POSE, 'linear')].concat(later);
   };
 })();

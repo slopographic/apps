@@ -79,7 +79,9 @@ async function appSources() {
   for (const u of refs) files[u] = await get(u);
   // the string tables: the offline copy runs in English with them inline (its marker tells i18n.js to fetch nothing)
   const parts = (((await get('i18n/index.js')).match(/parts: \[([^\]]*)\]/) || [])[1] || '').match(/[\w-]+/g) || [];
-  const tables = ['../shared/i18n/i18n.js', '../shared/i18n/strings.js', '../shared/i18n/ui/en.js'].concat(parts.map((p) => 'i18n/en/' + p + '.js'));
+  // and the shared components' English parts (UI_PARTS in i18n.js: the presets words among them)
+  const ui = ((((await get('../shared/i18n/i18n.js')).match(/\/\*ui-parts\*\/\{\s*parts: \[([^\]]*)\]/) || [])[1] || '').match(/[\w-]+/g) || []).map((p) => '../shared/i18n/ui/en/' + p + '.js');
+  const tables = ['../shared/i18n/i18n.js', '../shared/i18n/strings.js', '../shared/i18n/ui/en.js'].concat(ui, parts.map((p) => 'i18n/en/' + p + '.js'));
   files.i18n = (await Promise.all(tables.map(get))).join('\n;\n');
   try { files['favicon'] = await get('../favicon.svg'); } catch (e) { /* optional */ }
   return files;

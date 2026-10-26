@@ -15,6 +15,7 @@ vm.createContext(ctx);
 const load = (file) => vm.runInContext(readFileSync(file, 'utf8'), ctx, { filename: path.basename(file) });
 load(path.join(ROOT, 'shared', 'motion', 'easing.js'));
 load(path.join(ROOT, 'shared', 'motion', 'track.js'));
+load(path.join(ROOT, 'shared', 'video', 'seed.js'));
 load(path.join(ROOT, 'shared', 'video', 'keys.js'));
 const KF = ctx.SlopVideo.keys;
 const M = ctx.SlopMotion.track;
@@ -132,4 +133,14 @@ test('the functions do not change their input', () => {
   const before = JSON.stringify(keys);
   KF.move(keys, 0, 0.5, 1); KF.remove(keys, 0); KF.setEase(keys, 0, 'easeIn'); KF.addAt(keys, 0.5, {}, 'linear'); KF.animateIn(keys, 'fade', 2);
   assert.equal(JSON.stringify(keys), before);
+});
+
+test('the ease and Animate in lists: ids stay, labels come from the ui tables (Swedish too)', async () => {
+  const { context, plain: copy } = await import('./ui-tables-env.mjs');
+  same(KF.EASES.map((e) => e[0]), ['linear', 'easeIn', 'easeOut', 'easeInOut']);
+  same(KF.ANIMATE.map((a) => a[0]), ['fade', 'left', 'right', 'top', 'bottom', 'zoom']);
+  const sv = context(['shared/motion/easing.js', 'shared/motion/track.js', 'shared/video/seed.js', 'shared/video/keys.js'], 'sv').SlopVideo.keys;
+  assert.equal(copy(sv.EASES).find((e) => e[0] === 'easeIn')[1], 'Mjuk in');
+  assert.equal(copy(sv.ANIMATE).find((a) => a[0] === 'left')[1], 'Glid in från vänster');
+  same(copy(sv.ANIMATE).find((a) => a[0] === 'zoom')[2], { scale: 0.5 });
 });

@@ -118,3 +118,13 @@ test('shared graphics: every shape has stroke paths and an SVG string with the c
   assert.ok(svg.startsWith('<svg') && svg.includes('stroke="#d4ff3a"') && svg.includes('viewBox="0 0 100 100"'));
   same(ctx.SlopGraphics.ANIMS.map((a) => a[0]), ['draw', 'pulse', 'bounce', 'pop', 'none']);
 });
+
+test('shared graphics in Swedish: names, groups and motions from shared/i18n/ui/sv/graphics.js', async () => {
+  const { context, plain } = await import('./ui-tables-env.mjs');
+  const G = context(['shared/graphics/icons.js'], 'sv').SlopGraphics;
+  assert.equal(G.get('speech').name, 'Pratbubbla');
+  assert.equal(G.get('arrow').group, 'Pekare');
+  assert.equal(G.get('arrow').groupId, 'pointers');
+  assert.equal(plain(G.ANIMS).find((a) => a[0] === 'bounce')[1], 'Studs');
+  assert.equal(T.get('grid-1x3').slots.length, 3);
+});

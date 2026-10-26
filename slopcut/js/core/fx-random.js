@@ -9,7 +9,9 @@
   const S = root.SlopVideo.seed;
   const FX = (SE.fx = {});
 
-  FX.TYPES = [['grain', 'Film grain'], ['colour', 'Colour shift'], ['glitch', 'Glitch'], ['zoom', 'Zoom pulse'], ['vignette', 'Vignette']];
+  const TYPE_IDS = ['grain', 'colour', 'glitch', 'zoom', 'vignette'];
+  /** [[id, label]]: the shared effect names (ui.video.fx.<id>, SlopVideo.word), read each time. */
+  Object.defineProperty(FX, 'TYPES', { enumerable: true, get: () => root.SlopVideo.words('fx', TYPE_IDS) });
   FX.EVERY = [[0, 'Whole clip'], [0.5, 'Every 0.5 s'], [1, 'Every 1 s'], [2, 'Every 2 s'], [4, 'Every 4 s']];
 
   /** Cut number at layer-relative time u. */
@@ -18,7 +20,7 @@
   /** The pick for one cut: { type, amount, k, cut, seed } or null when nothing is enabled or intensity is 0.
       amount (0–1) scales the effect; k (0–1) varies its parameters (hue, glitch slices, pulse rate). */
   FX.pick = function (seed, cut, types, intensity) {
-    const on = FX.TYPES.map(([k]) => k).filter((k) => (types || []).includes(k));
+    const on = TYPE_IDS.filter((k) => (types || []).includes(k));
     const level = Math.min(1, Math.max(0, intensity == null ? 0 : intensity));
     if (!on.length || level <= 0) return null;
     const rng = S.rng(S.hash((seed >>> 0) + ':' + cut));

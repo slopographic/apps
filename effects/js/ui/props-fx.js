@@ -6,7 +6,9 @@
   const ns = (g.SlopEffects = g.SlopEffects || {});
   const { h, numberOf } = ns.dom;
   const D = () => ns.defs, t = (k, v) => ns.defs.t(k, v);
-  const PRESET_LIST = [['fade-in', 'Fade in'], ['slide-up', 'Slide up'], ['pop', 'Pop'], ['spin-in', 'Spin in']]; // i18n-ignore: English fallback of the effects.def.* words
+  /** The Animate in/out presets as [id, name]: the ids of model/motion.js, named by the shared built-in presets' words
+   *  (ui.presets.b.<id>, shared/i18n/ui/<code>/presets.js), read each time. */
+  const presetList = () => ns.motion.PRESET_IDS.map((id) => [id, t('ui.presets.b.' + id.replace(/-/g, '_'))]);
   const MOTION_PROPS = ['position', 'scale', 'rotation', 'opacity'];
   const fmt = (v) => (Number.isFinite(v) ? String(Math.round(v * 1000) / 1000) : '');
 
@@ -87,7 +89,7 @@
 
     /** A preset picker and its button. */
     function presetRow(label, dir) {
-      const sel = h('select', { class: 'sui-input', 'aria-label': t('effects.motion.preset_aria', { name: label }) }, PRESET_LIST.map(([v, l]) => h('option', { value: v }, D().word('preset', v, l))));
+      const sel = h('select', { class: 'sui-input', 'aria-label': t('effects.motion.preset_aria', { name: label }) }, presetList().map(([v, l]) => h('option', { value: v }, l)));
       return row(label, sel, h('button', { type: 'button', class: 'sui-btn', onclick: () => ka.animate(dir, sel.value) }, t(dir === 'in' ? 'effects.tr.in' : 'effects.tr.out')));
     }
 
@@ -135,5 +137,5 @@
     return { render };
   }
 
-  ns.propsFx = { mountFx, mountMotion, PRESET_LIST };
+  ns.propsFx = { mountFx, mountMotion, presetList };
 })(typeof window !== 'undefined' ? window : globalThis);

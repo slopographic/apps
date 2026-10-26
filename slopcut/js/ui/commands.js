@@ -108,7 +108,7 @@
     { id: 'tpl.random', title: U.t('slopedit.cmd.random_edit'), group: U.t('slopedit.cmd.sequence'), keys: ['Shift+R'], keywords: ['shuffle', 'auto edit', 'montage', 'seed', 'build'], run: run('randomDialog') }, // i18n-ignore: search keywords and key names
     { id: 'tpl.reshuffle', title: U.t('slopedit.cmd.reshuffle_random_edit_new_seed'), group: U.t('slopedit.cmd.sequence'), keywords: ['shuffle', 'seed'], when: () => !!SE.doc.random, run: run('reshuffleRandom') },
     { id: 'tpl.clear', title: U.t('slopedit.cmd.clear_template_layout'), group: U.t('slopedit.cmd.sequence'), when: () => !!SE.doc.layout, run: run('clearLayout') },
-    ...SE.templates.list.map((t) => ({ id: 'tpl.apply.' + t.id, title: U.t('slopedit.cmd.apply_tpl', { name: U.w('tpl', t.id, t.name) }), group: U.t('slopedit.cmd.templates'), keywords: ['layout', 'slots', t.desc], run: run('applyTemplate', t.id) })),
+    ...SE.templates.list.map((t) => ({ id: 'tpl.apply.' + t.id, title: U.t('slopedit.cmd.apply_tpl', { name: t.name }), group: U.t('slopedit.cmd.templates'), keywords: ['layout', 'slots', t.desc], run: run('applyTemplate', t.id) })),
     // View
     { id: 'view.safe', title: U.t('slopedit.cmd.safe_area_overlay'), group: U.t('slopedit.cmd.view'), keys: ["'"], checked: () => !!(SE.preview && SE.preview.safe), run: run('toggleSafe') },
     { id: 'view.quality', title: U.t('slopedit.cmd.preview_quality_full_half'), group: U.t('slopedit.cmd.view'), checked: () => !!(SE.preview && SE.preview.half), run: run('toggleQuality') },

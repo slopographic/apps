@@ -2,7 +2,8 @@
    SlopCut and Reel Remix. Each band is one layout (its name and slot count); each marker is a switch. Add a
    switch at the playhead (with a chosen layout), drag a marker to move it, select one and press Delete (or
    the Delete button) to remove it. Every change is reported through onCommit(switches) as a new list; the host
-   stores it and calls update() again. Pointer and keyboard only; no dependencies. */
+   stores it and calls update() again. Pointer and keyboard only; no dependencies. Words: ui.video.lane.* (SV.word);
+   they follow a language change (SlopI18n.on), opts.label too when it is a function. */
 (function () {
   'use strict';
   const root = typeof window !== 'undefined' ? window : globalThis;
@@ -10,6 +11,8 @@
   const V = (SV.laneView = {});
   const SEG = SV.segments, T = SV.templates;
   const SNAP = 0.1;
+  const word = (id, vars) => SV.word('lane', id, vars);
+  const sec = (v) => { const I = root.SlopI18n; return I ? I.num(+v.toFixed(1), { minimumFractionDigits: 1 }) : v.toFixed(1); };
   const el = (tag, attrs = {}, ...kids) => {
     const n = document.createElement(tag);
     for (const k in attrs) { if (k === 'class') n.className = attrs[k]; else if (k === 'text') n.textContent = attrs[k]; else n.setAttribute(k, attrs[k]); }
@@ -26,19 +29,36 @@
 
   /**
    * Mount a lane into host. opts.onCommit(list) receives the new switch list; opts.onSeek(t) (optional) is called
-   * when the track is clicked. Returns { update({ duration, switches, layouts, playhead }) }.
-   * layouts is a list of [id, label] for the add select.
+   * when the track is clicked. opts.label: the title (a string, or a function read on each language change).
+   * Returns { update({ duration, switches, layouts, playhead }) }. layouts is a list of [id, label] for the add select
+   * (or a function giving it, read again on a language change).
    */
   V.mount = function (host, opts) {
-    const select = el('select', { class: 'lv-sel', 'aria-label': 'Layout for the new switch' });
-    const add = el('button', { type: 'button', class: 'lv-btn', title: 'Add a layout switch at the playhead' }, 'Switch at playhead');
-    const del = el('button', { type: 'button', class: 'lv-btn', title: 'Delete the selected switch (Delete key)', disabled: '' }, 'Delete switch');
-    const track = el('div', { class: 'lv-track', role: 'group', 'aria-label': 'Layout switches over time' });
-    const head = el('div', { class: 'lv-head' }, el('b', { class: 'lv-title' }, opts.label || 'Layouts'), select, add, del);
+    const select = el('select', { class: 'lv-sel' });
+    const add = el('button', { type: 'button', class: 'lv-btn' });
+    const del = el('button', { type: 'button', class: 'lv-btn', disabled: '' });
+    const track = el('div', { class: 'lv-track', role: 'group' });
+    const title = el('b', { class: 'lv-title' });
+    const head = el('div', { class: 'lv-head' }, title, select, add, del);
     const hint = el('p', { class: 'lv-hint' });
     const root2 = el('div', { class: 'lv' }, head, track, hint);
     host.replaceChildren(root2);
     const st = { duration: 10, switches: [], layouts: [], playhead: 0, sel: -1, drag: null };
+    /** The fixed words, again after a language change. */
+    function words() {
+      const lbl = typeof opts.label === 'function' ? opts.label() : opts.label;
+      title.textContent = lbl || word('title');
+      select.setAttribute('aria-label', word('pick'));
+      add.title = word('add_tip'); add.textContent = word('add');
+      del.title = word('delete_tip'); del.textContent = word('delete');
+      track.setAttribute('aria-label', word('track'));
+    }
+    words();
+    const I = root.SlopI18n;
+    const off = I && I.on ? I.on(() => {
+      if (!root2.isConnected) { if (off) off(); return; } // a lane taken off the page (replaced) stops listening
+      words(); fillLayouts(); render();
+    }) : null;
 
     const commit = (list) => { if (opts.onCommit) opts.onCommit(SEG.clean(list)); };
     add.addEventListener('click', () => commit(SEG.add(st.switches, st.playhead, select.value)));
@@ -89,8 +109,9 @@
       const segs = SEG.norm(st.switches, dur);
       const kids = [];
       segs.forEach((s) => {
-        kids.push(el('div', { class: 'lv-band', style: `left:${pct(s.start, dur)};width:${pct(s.end - s.start, dur)}`, title: T.label(s.layout) + ' · ' + s.start.toFixed(1) + '–' + s.end.toFixed(1) + ' s' },
-          el('span', { class: 'lv-bl', text: T.label(s.layout) + ' · ' + s.slots + ' slot' + (s.slots > 1 ? 's' : '') })));
+        const name = T.label(s.layout);
+        kids.push(el('div', { class: 'lv-band', style: `left:${pct(s.start, dur)};width:${pct(s.end - s.start, dur)}`, title: word('band_tip', { name, start: sec(s.start), end: sec(s.end) }) },
+          el('span', { class: 'lv-bl', text: word('band', { name, n: s.slots }) })));
       });
       st.switches.forEach((s, i) => {
         if (st.drag && st.drag.i === i) return; // the dragged marker is drawn by the drag
@@ -101,30 +122,30 @@
       track.replaceChildren(...kids);
       del.disabled = st.sel < 0;
       const hasSw = st.switches.length > 0;
-      hint.textContent = hasSw
-        ? 'Each band is one layout, from its switch to the next. Drag a marker to move it; select it and press Delete to remove it.'
-        : 'No switches: one layout for the whole video. Pick a layout and press "Switch at playhead" to change it over time.';
+      hint.textContent = word(hasSw ? 'hint' : 'hint_none');
     }
     function mark(s, i, node) {
       const sel = i === st.sel;
-      const b = node || el('button', { type: 'button', class: 'lv-mark' + (sel ? ' on' : ''), tabindex: '-1', 'data-i': String(i), 'aria-label': 'Switch to ' + T.label(s.layout) + ' at ' + s.start.toFixed(1) + ' seconds' });
+      const b = node || el('button', { type: 'button', class: 'lv-mark' + (sel ? ' on' : ''), tabindex: '-1', 'data-i': String(i) });
+      b.setAttribute('aria-label', word('mark', { name: T.label(s.layout), t: sec(s.start) }));
       b.className = 'lv-mark' + (sel ? ' on' : '') + (st.drag && st.drag.i === i ? ' drag' : '');
       b.dataset.i = String(i);
       b.style.left = pct(s.start, Math.max(st.duration, 0.1));
-      b.title = T.label(s.layout) + ' at ' + s.start.toFixed(1) + ' s';
+      b.title = word('mark_tip', { name: T.label(s.layout), t: sec(s.start) });
       if (!node) b.textContent = String(i + 1);
       return b;
+    }
+    function fillLayouts() {
+      const list = typeof st.layouts === 'function' ? st.layouts() : st.layouts, keep = select.value;
+      select.replaceChildren(...list.map(([v, l]) => el('option', { value: v, text: l })));
+      if (list.some(([v]) => v === keep)) select.value = keep;
     }
     return {
       update(o = {}) {
         if (o.duration != null) st.duration = +o.duration || 10;
         if (o.switches) st.switches = SEG.clean(o.switches);
         if (o.playhead != null) st.playhead = +o.playhead || 0;
-        if (o.layouts) {
-          const keep = select.value;
-          select.replaceChildren(...o.layouts.map(([v, l]) => el('option', { value: v, text: l })));
-          if (o.layouts.some(([v]) => v === keep)) select.value = keep;
-        }
+        if (o.layouts) { st.layouts = o.layouts; fillLayouts(); }
         if (st.sel >= st.switches.length) st.sel = -1;
         render();
       }

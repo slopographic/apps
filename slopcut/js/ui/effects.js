@@ -70,7 +70,7 @@
   };
   SE.act.sequenceSettings = function () {
     const p = SE.doc;
-    const size = SlopUI.select(U.wl('size', M.PRESETS).concat([['custom', U.t('slopedit.fx.custom')]]), (M.PRESETS.find(([v]) => v === p.w + 'x' + p.h) || ['custom'])[0]);
+    const size = SlopUI.select(M.PRESETS.concat([['custom', U.t('slopedit.fx.custom')]]), (M.PRESETS.find(([v]) => v === p.w + 'x' + p.h) || ['custom'])[0]);
     const w = SlopUI.number(p.w, 16, 7680, 2), hh = SlopUI.number(p.h, 16, 4320, 2);
     const fps = SlopUI.select([[24, '24'], [25, '25'], [30, '30'], [50, '50'], [60, '60']], p.fps);
     size.addEventListener('change', () => { if (size.value !== 'custom') { const [a, b] = size.value.split('x'); w.value = a; hh.value = b; } });
