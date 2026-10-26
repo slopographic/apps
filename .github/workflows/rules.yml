@@ -201,13 +201,13 @@ jobs:
         run: |
           node tools/whitelabel/build.mjs ${{ matrix.profile }} "$OUT"
           tar -cf wl-build.tar -C "$OUT" .
-          echo "$(node -p "require('./brand/profiles/${{ matrix.profile }}.json').github")/cdn=slopographic/cdn" > wl-net-alias.txt
+          node -p "require('./brand/profiles/${{ matrix.profile }}.json').github" > wl-account.txt
       - uses: actions/upload-artifact@v5
         with:
           name: wl-build-${{ matrix.profile }}
           path: |
             wl-build.tar
-            wl-net-alias.txt
+            wl-account.txt
           retention-days: 1
       - name: The build as a mirror checkout is (one commit), and all its Node tests
         run: |
@@ -216,8 +216,8 @@ jobs:
 
   # The whole browser suite of each sample build, served from the build, in 8 slices per profile (balanced by the build's
   # tests/timings.json); they run when a build's Node tests failed too (the build itself is uploaded before them). A sample
-  # has no file host of its own, so its links to one fetch this site's files at the same tag (--net-alias), through the
-  # download cache of the browser jobs above.
+  # has no file host of its own: its copy here links this site's (the same files at the same tag), through the download
+  # cache of the browser jobs above.
   whitelabel-browser:
     name: White-label ${{ matrix.profile }} browser ${{ matrix.shard }}/8
     needs: [plan, whitelabel]
@@ -235,8 +235,10 @@ jobs:
       - uses: actions/download-artifact@v5
         with:
           name: wl-build-${{ matrix.profile }}
-      - name: Unpack the build
-        run: tar -xf wl-build.tar && rm wl-build.tar && npm ci --no-audit --no-fund
+      - name: Unpack the build; its file host is this site's (a sample has none of its own)
+        run: |
+          tar -xf wl-build.tar && rm wl-build.tar && npm ci --no-audit --no-fund
+          grep -rlIZ --exclude-dir=node_modules --exclude-dir=.git "$(cat wl-account.txt)/cdn" . | xargs -0 -r sed -i "s#$(cat wl-account.txt)/cdn#slopographic/cdn#g"
       - name: Restore the download cache
         uses: actions/cache/restore@v6
         with:
@@ -244,7 +246,7 @@ jobs:
           key: testnet-${{ hashFiles('tests/net-urls.txt') }}
           restore-keys: testnet-
       - name: Browser tests of the build, slice ${{ matrix.shard }} of 8
-        run: node tests/run.mjs --shard=${{ matrix.shard }}/8 --jobs=3 --skip-node --net-alias=$(cat wl-net-alias.txt) --results=wl-results-${{ matrix.profile }}-${{ matrix.shard }}.json
+        run: node tests/run.mjs --shard=${{ matrix.shard }}/8 --jobs=3 --skip-node --results=wl-results-${{ matrix.profile }}-${{ matrix.shard }}.json
       - uses: actions/upload-artifact@v5
         if: always()
         with:
@@ -271,7 +273,9 @@ jobs:
       - uses: actions/download-artifact@v5
         with:
           name: wl-build-${{ matrix.profile }}
-      - name: Unpack the build
-        run: tar -xf wl-build.tar && rm wl-build.tar && npm ci --no-audit --no-fund
+      - name: Unpack the build; its file host is this site's (a sample has none of its own)
+        run: |
+          tar -xf wl-build.tar && rm wl-build.tar && npm ci --no-audit --no-fund
+          grep -rlIZ --exclude-dir=node_modules --exclude-dir=.git "$(cat wl-account.txt)/cdn" . | xargs -0 -r sed -i "s#$(cat wl-account.txt)/cdn#slopographic/cdn#g"
       - name: Touch tests of the build in ${{ matrix.engine }}
-        run: node tests/run.mjs --touch --browser=${{ matrix.engine }} --jobs=2 --skip-node --net-alias=$(cat wl-net-alias.txt)
+        run: node tests/run.mjs --touch --browser=${{ matrix.engine }} --jobs=2 --skip-node

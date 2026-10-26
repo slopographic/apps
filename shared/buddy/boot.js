@@ -49,7 +49,8 @@ export async function setOn(v, save = true) {
   if (on) {
     if (!engine) engine = await (OVERLAY ? import('../mascot/slot.js') : import('./engine.js'));
     if (!on) return;                         // switched off again while loading
-    engine.start(cfg);
+    await engine.start(cfg);                 // the slot loads its overlay first, so the greeting has an animation
+    if (!on) return;
     engine.show(true);
   } else if (engine) engine.show(false);
   document.dispatchEvent(new CustomEvent('buddy:toggle', { detail: on }));

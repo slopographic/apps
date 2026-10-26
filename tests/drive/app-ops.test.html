@@ -21,7 +21,7 @@
       expect(W.document.querySelector('[data-empty="drive"]')).toBeTruthy();
       // the empty drive shows the built-in mascot; a build without it shows none (drive/js/ui/empty.js)
       if (BRAND_FACTS.mascot === 'builtin') expect(W.document.querySelector('[data-empty] canvas.sloppo')).toBeTruthy();
-      else expect(W.document.querySelector('[data-empty] canvas.sloppo')).toBe(null);
+      else expect(W.document.querySelector('[data-empty] canvas.sloppo').hidden).toBe(true);
       expect(W.document.title).toContain('Slop Drive');
     });
   });

@@ -22,7 +22,7 @@ import { urls, phrases, tokens, collisions } from './rename.mjs';
 import { pinBuild } from './cdnpin.mjs';
 import { mediaIds, stripMedia } from './media.mjs';
 import { context, profileText, forward, forwardPath } from './transform.mjs';
-import { markerValues, applyMarkers, brandJson, markSvg, logoSvg, manifest, mit, notice, trademarks, security, readme } from './emit.mjs';
+import { markerValues, applyMarkers, brandJson, markSvg, logoSvg, manifest, homeThemeColor, mit, notice, trademarks, security, readme } from './emit.mjs';
 import { mirrorWorkflow } from './workflow.mjs';
 import { themeProblems, sourceThemes } from './palette.mjs';
 import { isText, scan, report } from './scan.mjs';
@@ -177,6 +177,7 @@ function emit(out, p, opts, ctx) {
   { const tag = /const TAG = '([^']*)';/.exec(readFileSync(path.join(out, forwardPath('shared/cdn/assets.js', ctx)), 'utf8'));   // raw links: this build's own file host
     if (tag) pinBuild(out, p.github, tag[1]); }
   write(out, 'manifest.webmanifest', manifest(readFileSync(path.join(out, 'manifest.webmanifest'), 'utf8'), p));
+  write(out, 'index.html', homeThemeColor(readFileSync(path.join(out, 'index.html'), 'utf8'), p));
   const trial = path.join(out, 'shared/agent/trial-tokens.json');
   if (existsSync(trial)) { const t = JSON.parse(readFileSync(trial, 'utf8')); t.tokens = []; writeFileSync(trial, JSON.stringify(t, null, 2) + '\n'); }
   const wf = readFileSync(path.join(ROOT, '.github/workflows/rules.yml'), 'utf8');

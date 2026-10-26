@@ -1,6 +1,6 @@
 // The test pages' network: what each page fetched from outside the local server, and a disk cache for the big immutable
 // files some pages download (real AI models, wasm, fonts from the model hosts and CDNs). tests/run.mjs uses it:
-//   attachNet(context, { dir, route, alias })   routes GET requests to CACHE_HOSTS through tests/.cache/net/ (filled on a miss,
+//   attachNet(context, { dir, route })   routes GET requests to CACHE_HOSTS through tests/.cache/net/ (filled on a miss,
 //                                 from the real host) and counts every outside request of the page. route: false only
 //                                 counts (run.mjs routes the pages listed in tests/net-urls.txt): once a context has a route,
 //                                 Playwright aborts every request whose URL ends in /favicon.ico (its favicon rule), which
@@ -48,35 +48,29 @@ export async function store(dir, url, { final = url, headers, body }) {
   await writeFile(tmp + '.json', JSON.stringify({ url, final, status: 200, size: body.length, headers: keptHeaders(headers) })); await rename(tmp + '.json', file + '.json');
 }
 
-/** A URL with the first alias [from, to] whose from it holds replaced (a white-label sample's file host is this site's:
- *  run.mjs --net-alias=<from>=<to>, e.g. <account>/cdn=<other account>/cdn; the files are the same). */
-export const aliased = (url, alias = []) => { const a = alias.find(([f]) => url.includes(f)); return a ? url.replace(a[0], a[1]) : url; };
-
 /** Routes a browser context's outside requests through the cache. Returns the page's network tally: { hits, misses, bytes,
  *  ms, outside: { host: count } } (bytes and ms: what the misses cost). */
-export async function attachNet(ctx, { dir, enabled = process.env.SLOPTEST_NET_CACHE !== '0', route = true, alias = [] } = {}) {
+export async function attachNet(ctx, { dir, enabled = process.env.SLOPTEST_NET_CACHE !== '0', route = true } = {}) {
   const tally = { hits: 0, misses: 0, bytes: 0, ms: 0, outside: {}, urls: new Set() };
   ctx.on('request', (r) => {
     let h; try { h = new URL(r.url()).hostname; } catch (e) { return; }
     if (/^https?:$/.test(new URL(r.url()).protocol) && !LOCAL.test(h)) tally.outside[h] = (tally.outside[h] || 0) + 1;
     if (cacheable(r.method(), r.url(), r.headers())) tally.urls.add(r.url());   // listed in net-urls.txt even when not routed
   });
-  // every page routes the URLs an alias names (a sample's file host); the cache's own pages route every cached host
-  const all = enabled && route, named = (u) => alias.some(([f]) => u.href.includes(f));
-  if (!all && !alias.length) return tally;
+  if (!enabled || !route) return tally;
   await mkdir(dir, { recursive: true });
-  await ctx.route((u) => CACHE_HOSTS.test(u.hostname) && u.protocol === 'https:' && (all || named(u)), async (route) => {
-    const req = route.request(), asked = req.url(), url = aliased(asked, alias);
-    if (!cacheable(req.method(), url, req.headers())) return url === asked ? route.continue() : route.continue({ url });
-    const hit = enabled ? await load(dir, url) : null;
+  await ctx.route((u) => CACHE_HOSTS.test(u.hostname) && u.protocol === 'https:', async (route) => {
+    const req = route.request(), url = req.url();
+    if (!cacheable(req.method(), url, req.headers())) return route.continue();
+    const hit = await load(dir, url);
     if (hit) { tally.hits++; return route.fulfill({ status: hit.meta.status, headers: hit.meta.headers, body: hit.body }); }
     const t0 = Date.now();
     let res;
-    try { res = await route.fetch({ url, timeout: 600000 }); } catch (e) { return route.abort('failed').catch(() => {}); }
+    try { res = await route.fetch({ timeout: 600000 }); } catch (e) { return route.abort('failed').catch(() => {}); }
     const got = await res.body();
     tally.misses++; tally.bytes += got.length; tally.ms += Date.now() - t0;
     const headers = keptHeaders(res.headers());
-    if (res.status() === 200 && enabled) await store(dir, url, { final: res.url(), headers, body: got });
+    if (res.status() === 200) await store(dir, url, { final: res.url(), headers, body: got });
     return route.fulfill({ status: res.status(), headers, body: got });
   });
   return tally;
