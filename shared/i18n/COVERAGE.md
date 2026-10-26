@@ -12,7 +12,7 @@ finds in its code (`node tools/i18n/i18n.mjs extract <app>` lists them). The rat
 | Shared chrome (header, switcher, footer, Settings) | 114 | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% |
 | Shared components (shared/i18n/ui) | 220 | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% |
 
-Shared code (shell/, shared/) still has 6267 hard-coded strings; most belong to one app family (office, biz, watermark, ...).
+Shared code (shell/, shared/) still has 6241 hard-coded strings; most belong to one app family (office, biz, watermark, ...).
 
 ## Apps, by strings to translate
 
@@ -29,17 +29,17 @@ Shared code (shell/, shared/) still has 6267 hard-coded strings; most belong to 
 | 9 | Slop Tables | tables | 694 | 0 | 694 | 0 of 29 |
 | 10 | Slop Drive | drive | 684 | 0 | 684 | 0 of 29 |
 | 11 | Slop Docs | docs | 659 | 0 | 659 | 0 of 29 |
-| 12 | Slop Effects | effects | 604 | 0 | 604 | 0 of 29 |
-| 13 | Slop Contacts | contacts | 540 | 0 | 540 | 0 of 29 |
+| 12 | Slop Contacts | contacts | 540 | 0 | 540 | 0 of 29 |
+| 13 | Slop Effects | effects | 514 | 313 | 201 | 0 of 29 |
 | 14 | Slop AI | ai | 508 | 0 | 508 | 0 of 29 |
 | 15 | Slop Font | fontcreator | 474 | 0 | 474 | 0 of 29 |
 | 16 | Slop 3D | 3d | 458 | 0 | 458 | 0 of 29 |
 | 17 | SlopIsolate | cutout | 433 | 0 | 433 | 0 of 29 |
-| 18 | Slop Gallery | gallery | 380 | 0 | 380 | 0 of 29 |
-| 19 | Slop Projects | projects | 372 | 0 | 372 | 0 of 29 |
-| 20 | Slop Inventory | inventory | 359 | 0 | 359 | 0 of 29 |
-| 21 | Slop CRM | crm | 350 | 0 | 350 | 0 of 29 |
-| 22 | Reel Remix | remix | 338 | 0 | 338 | 0 of 29 |
+| 18 | Reel Remix | remix | 395 | 280 | 115 | 0 of 29 |
+| 19 | Slop Gallery | gallery | 380 | 0 | 380 | 0 of 29 |
+| 20 | Slop Projects | projects | 372 | 0 | 372 | 0 of 29 |
+| 21 | Slop Inventory | inventory | 359 | 0 | 359 | 0 of 29 |
+| 22 | Slop CRM | crm | 350 | 0 | 350 | 0 of 29 |
 | 23 | Slop Ledger | ledger | 335 | 0 | 335 | 0 of 29 |
 | 24 | Slop Invoices | invoices | 318 | 0 | 318 | 0 of 29 |
 | 25 | Slop Paint Classic | paint-classic | 266 | 0 | 266 | 0 of 29 |
@@ -82,10 +82,12 @@ Shared code (shell/, shared/) still has 6267 hard-coded strings; most belong to 
 | 62 | Slop Reminders | reminders | 44 | 0 | 44 | 0 of 29 |
 | 63 | Checksum | checksum | 42 | 0 | 42 | 0 of 29 |
 
-Total: 25167 strings in 63 apps.
+Total: 25134 strings in 63 apps.
 
 ## Apps with tables, per language
 
 | App | en | es | fr | de | pt-BR | it | ar | sv | zh-CN | zh-TW | ja | ko | hi | ru | uk | pl | nl | tr | id | vi | he | sw | am | ha | yo | ig | zu | xh | af |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | pdf | 87% | 0% | 0% | 87% | 0% | 0% | 87% | 87% | 0% | 0% | 87% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
+| effects | 60% | 0% | 0% | 0% | 0% | 0% | 0% | 60% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
+| remix | 70% | 0% | 0% | 0% | 0% | 0% | 0% | 70% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
