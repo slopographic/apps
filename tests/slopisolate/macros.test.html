@@ -17,7 +17,8 @@
 
   describe('SlopIsolate macros', () => {
     it('records the model picked in the panel and a look command, a slider drag being one step', async () => {
-      await new Promise((res) => { const r = indexedDB.deleteDatabase('slop-macros'); r.onsuccess = r.onerror = r.onblocked = () => res(); });
+      // start with no macros, through the store: deleting the database would leave this page's open store on the deleted one
+      for (const x of await window.SlopMacroStore.list()) await window.SlopMacroStore.remove(x.id);
       const f = document.createElement('iframe'); f.id = 'app'; f.src = '../../slopisolate/index.html'; document.body.append(f);
       await waitFor(() => f.contentWindow.SlopMacros && f.contentWindow.SlopMacros.app === 'slopisolate' && f.contentDocument.querySelector('input[name="cutout-model"]'), { timeout: 30000 });
       W = f.contentWindow; SM = W.SlopMacros;
