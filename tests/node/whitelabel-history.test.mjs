@@ -5,13 +5,13 @@
 // incremental second run, and the gate over the range.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync, mkdirSync, rmSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, mkdirSync, rmSync, realpathSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { run, setup, scrub } from '../../tools/whitelabel/history.mjs';
-import { chain } from '../../tools/whitelabel/history-git.mjs';
+import { chain, ENV } from '../../tools/whitelabel/history-git.mjs';
 import { gate } from '../../tools/whitelabel/history-gate.mjs';
 import { cleanMessage, mapMessage, neutral, combine, areas, areaNames } from '../../tools/whitelabel/history-message.mjs';
 import { profilesDir } from '../../tools/whitelabel/profile.mjs';
@@ -21,7 +21,7 @@ const DIR = profilesDir(ROOT);
 const T = setup(ROOT, DIR, 'sample');
 const WHO = { name: 'Acme Example', email: 'tools@acme.example' };
 
-const sh = (cwd, args, env = {}) => execFileSync('git', args, { cwd, encoding: 'utf8', env: Object.assign({}, process.env, env) }).trim();
+const sh = (cwd, args, env = {}) => execFileSync('git', args, { cwd, encoding: 'utf8', env: Object.assign({}, ENV, env) }).trim();
 /** A source repository: commit(files, message, time) with files { path: text | Buffer | null (delete) }. */
 function source() {
   const dir = mkdtempSync(path.join(os.tmpdir(), 'wl-src-'));
@@ -63,6 +63,18 @@ test('messages: trailers go, names are mapped, talk about the copy is left out',
   assert.equal(neutral(['A', 'B', 'C', 'D', 'E']), 'A, B and 3 more areas: updates');
   const msg = combine([{ message: 'Old thing', areas: [] }, { message: '', areas: ['Tests'] }], ok);
   assert.equal(msg, 'Tests: updates\n\nAlso in this commit:\n- Old thing\n');
+});
+
+test('git runs in the repository it is given, even inside a git hook that exports GIT_DIR', () => {
+  // A pre-push hook exports GIT_DIR; once the builder (and this test's own git) followed it into the pushing clone.
+  const a = source(), b = source();
+  b.commit({ 'x.txt': 'x' }, 'x', '2026-01-01 08:00:00');
+  const probe = `import { git } from ${JSON.stringify(path.join(ROOT, 'tools/whitelabel/history-git.mjs'))};
+    process.stdout.write(git(process.argv[1], ['rev-parse', '--show-toplevel']).trim());`;
+  const out = execFileSync(process.execPath, ['--input-type=module', '-e', probe, a.dir], { encoding: 'utf8',
+    env: Object.assign({}, process.env, { GIT_DIR: path.join(b.dir, '.git'), GIT_WORK_TREE: b.dir }) });
+  assert.equal(realpathSync(out), realpathSync(a.dir));
+  assert.equal(sh(b.dir, ['rev-list', '--count', 'HEAD']), '1');
 });
 
 test('the chain follows a merge that takes a branch as it is', () => {
