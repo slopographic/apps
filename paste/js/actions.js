@@ -47,8 +47,8 @@ export async function newPaste(o = {}) {
  *  pasted text. */
 export async function onPaste(e) {
   if (e.defaultPrevented) return;
-  const t = e.target;
-  const typing = t && t.matches && t.matches('input, textarea, [contenteditable]');
+  const el = e.target;
+  const typing = el && el.matches && el.matches('input, textarea, [contenteditable]');
   const text = e.clipboardData && e.clipboardData.getData('text/plain');
   if (!typing && text) {
     e.preventDefault();

@@ -33,9 +33,9 @@
   function video(file) {
     return new Promise((resolve, reject) => {
       const v = document.createElement('video'), url = URL.createObjectURL(file);
-      let t = 0;
-      const end = (fn, x) => { clearTimeout(t); v.removeAttribute('src'); v.load(); URL.revokeObjectURL(url); fn(x); };
-      t = setTimeout(() => end(reject, new Error(t('watermark.probe.video'))), 20000);
+      let timer = 0;
+      const end = (fn, x) => { clearTimeout(timer); v.removeAttribute('src'); v.load(); URL.revokeObjectURL(url); fn(x); };
+      timer = setTimeout(() => end(reject, new Error(t('watermark.probe.video'))), 20000);
       v.muted = true; v.preload = 'auto'; v.playsInline = true;
       v.onloadedmetadata = () => { v.currentTime = Math.min(0.1, (v.duration || 1) / 2); };
       v.onseeked = async () => {
