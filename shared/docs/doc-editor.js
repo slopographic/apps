@@ -42,16 +42,17 @@
     const dirtyKey = `${cfg.noun}s-editor`, party = cfg.party || 'customer';
 
     function setMsg(text, bad) { const m = $('eMsg'); m.textContent = text || ''; m.className = `msg ${bad ? 'bad' : 'ok'}`; }
-    function setDirty(v) { st.dirty = v; if (g.SlopGuard) g.SlopGuard.setUnsaved(dirtyKey, v); }
+    let edits = 0;   // counts changes, so a save can tell that the person changed something while it was being written
+    function setDirty(v) { if (v) edits++; st.dirty = v; if (g.SlopGuard) g.SlopGuard.setUnsaved(dirtyKey, v); }
 
-    /** Copies a stored document into the form state. */
-    async function applyRecord(rec) {
-      Object.assign(st, {
+    /** Copies a stored document into the form state (or into `to`, a copy of it). */
+    async function applyRecord(rec, to = st) {
+      Object.assign(to, {
         id: rec.id, number: rec.number || '', status: rec.status, currency: rec.currency, customerId: rec.customerId,
         date: rec.date, notes: rec.notes || '', pdfSeed: rec.pdfSeed ?? L.seedOf(rec), pdfLayout: rec.pdfLayout || '', docLang: rec.docLang || '',
       });
-      st.lines = rec.lines.map((l) => ({ ...l }));
-      if (X.apply) await X.apply(st, rec);
+      to.lines = rec.lines.map((l) => ({ ...l }));
+      if (X.apply) await X.apply(to, rec);
     }
 
     function blank(s) {
@@ -188,11 +189,16 @@
       const c = collect();
       if (c.error) { setMsg(c.error, true); return false; }
       setMsg(tr('biz.doc.saving'));
+      const gen = edits;
       const r = await cfg.data.save(c.form);
       if (!r.ok) { setMsg(U().refusal(r), true); return false; }
       const created = !st.id;
-      await applyRecord(r.value);
-      setDirty(false);
+      // The record is read into a copy (an app's apply can wait on the store). A change made meanwhile, while this save was
+      // written or read back (a layout picked, a field typed), stays on screen and unsaved, so the next save or step writes
+      // it: only the stored identity is taken from the record then.
+      const next = { ...st };
+      await applyRecord(r.value, next);
+      if (edits === gen) { Object.assign(st, next); setDirty(false); } else Object.assign(st, { id: r.value.id, number: r.value.number || '', status: r.value.status });
       if (created) history.replaceState(null, '', `#${cfg.route}/${r.value.id}`);
       paint();
       setMsg(cfg.savedText ? cfg.savedText(created, st) : tr(created ? 'biz.doc.created' : 'biz.doc.saved', { number: r.value.number }));
