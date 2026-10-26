@@ -18,6 +18,7 @@ import { fileURLToPath } from 'node:url';
 import { loadProfile, loadMap, forbiddenTerms, profilesDir } from './profile.mjs';
 import { urls, phrases, tokens, collisions } from './rename.mjs';
 import { pinBuild } from './cdnpin.mjs';
+import { mediaIds, stripMedia } from './media.mjs';
 import { context, profileText, forward, forwardPath } from './transform.mjs';
 import { markerValues, applyMarkers, brandJson, markSvg, logoSvg, manifest, mit, notice, trademarks, security, readme } from './emit.mjs';
 import { mirrorWorkflow } from './workflow.mjs';
@@ -109,11 +110,13 @@ export function build(id, out, opts = {}) {
   for (const [t] of collisions(files.join('\n'), map)) clashes.push(`(file names): '${t}'`);
   if (clashes.length) throw new Error(`the rename map's targets already occur in the source, so the reverse would be ambiguous:\n  ${clashes.slice(0, 40).join('\n  ')}`);
   emit(out, p, Object.assign({ overlay }, opts), ctx);
+  const videos = p.media ? [] : mediaIds(ROOT);   // without media: none of this site's videos, not even their ids
+  if (videos.length) stripMedia(out, videos);
   log(`${p.id}: wrote ${n} files to ${out}`);
   const node = process.execPath;
   if (!opts.noImages) sh(node, [path.join(ROOT, 'tools/whitelabel/images.mjs'), out]);   // before the precache list, which hashes them
   if (!opts.noSeo) { sh(node, ['tools/seo/write.mjs'], out); sh(node, ['tools/pwa-precache.mjs'], out); }
-  const res = scan(out, forbiddenTerms(dir, p), SCAN_ALLOW.concat(p.scanAllow || [], artAllow(p)), { account: p.github.toLowerCase() });
+  const res = scan(out, forbiddenTerms(dir, p).concat(videos.map((v) => v.toLowerCase())), SCAN_ALLOW.concat(p.scanAllow || [], artAllow(p)), { account: p.github.toLowerCase() });
   log(report(res));
   return { profile: p, out, files: n, found: res.found, allowed: res.allowed };
 }
