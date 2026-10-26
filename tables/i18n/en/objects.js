@@ -1,6 +1,6 @@
 /* Slop Tables, English: charts and pivot tables (the dialogs, the boxes on the grid, the pictures' messages) and the
- * range errors they show. The labels a pivot table writes into cells (Sum of, Total, Grand total) stay English: they are
- * the person's data. Rules: shared/i18n/APPS-HOWTO.md. */
+ * range errors they show. The labels a pivot table writes into cells (Sum of, Total, Grand total) are in the language of the moment
+ * it is built or refreshed, as a spreadsheet's are. Rules: shared/i18n/APPS-HOWTO.md. */
 window.SlopI18n && window.SlopI18n.add('en', {
   'tables.chart.type_column': 'Column',
   'tables.chart.type_bar': 'Bar',
@@ -49,6 +49,10 @@ window.SlopI18n && window.SlopI18n.add('en', {
   'tables.pivot.fn_average': 'Average',
   'tables.pivot.fn_min': 'Min',
   'tables.pivot.fn_max': 'Max',
+  'tables.pivot.value_of': '{fn} of {field}',
+  'tables.pivot.total': 'Total',
+  'tables.pivot.grand_total': 'Grand total',
+  'tables.pivot.blank': '(blank)',
   'tables.pivot.put_in': 'Put it in',
   'tables.pivot.new_sheet': 'A new sheet',
   'tables.pivot.this_sheet': 'This sheet, at a cell',

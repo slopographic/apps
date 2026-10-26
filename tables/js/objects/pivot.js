@@ -9,8 +9,9 @@
 import { compare } from '../engine/values.js';
 import { t } from '../i18n.js';
 
-export const FNS = [['sum', 'Sum'], ['count', 'Count'], ['average', 'Average'], ['min', 'Min'], ['max', 'Max']];
-const FN_LABEL = Object.fromEntries(FNS);
+/** The summaries, by id; their names are tables.pivot.fn_<id>. */
+export const FNS = [['sum'], ['count'], ['average'], ['min'], ['max']];
+const FN_IDS = FNS.map(([f]) => f);
 export const MAX_KEYS = 2000;
 
 export function fieldNames(row) {
@@ -23,10 +24,11 @@ export function fieldNames(row) {
   });
 }
 
-export const valueLabel = (v) => `${FN_LABEL[v.fn] || 'Sum'} of ${v.field}`;
+/** The labels written into cells read the language at the time the pivot is (re)built, as a spreadsheet's do. */
+export const valueLabel = (v) => t('tables.pivot.value_of', { fn: t(`tables.pivot.fn_${FN_IDS.includes(v.fn) ? v.fn : 'sum'}`), field: v.field });
 const blank = (v) => v === null || v === undefined || v === '';
 const keyOf = (v) => (blank(v) ? '\u0000' : typeof v === 'number' ? 'n' + v : typeof v === 'boolean' ? 'b' + v : 's' + String(v).toLowerCase());
-const shown = (v) => (blank(v) ? '(blank)' : v);
+const shown = (v) => (blank(v) ? t('tables.pivot.blank') : v);
 
 function acc() { return { sum: 0, nums: 0, count: 0, min: Infinity, max: -Infinity }; }
 function add(a, v) {
@@ -80,7 +82,7 @@ export function pivotGrid(headers, records, spec) {
   for (let k = 0; k < keyCols; k++) head.push({ v: ri.length ? spec.rows[k] : '', b: true });
   if (hasCols) {
     for (const tup of C.list) for (const v of vals) head.push({ v: tup.map(shown).join(' / ') + (nv > 1 ? ' · ' + valueLabel(v) : ''), b: true });
-    for (const v of vals) head.push({ v: nv > 1 ? 'Total · ' + valueLabel(v) : 'Total', b: true });
+    for (const v of vals) head.push({ v: nv > 1 ? t('tables.pivot.total') + ' · ' + valueLabel(v) : t('tables.pivot.total'), b: true });
   } else for (const v of vals) head.push({ v: valueLabel(v), b: true });
   const out = [head];
   const numbers = (accs, i) => ({ v: result(accs && accs[i], vals[i].fn), nf: vals[i].fn === 'count' ? null : vals[i].j, fn: vals[i].fn });
@@ -92,9 +94,9 @@ export function pivotGrid(headers, records, spec) {
     } else for (let i = 0; i < nv; i++) row.push(numbers(rowT.get(r), i));
     return row;
   };
-  if (!ri.length) { out.push([{ v: 'Total', b: true }, ...rowCells(0)]); return { cells: out, keyCols, fields: ri }; }
+  if (!ri.length) { out.push([{ v: t('tables.pivot.total'), b: true }, ...rowCells(0)]); return { cells: out, keyCols, fields: ri }; }
   R.list.forEach((tup, r) => out.push([...tup.map((v, k) => ({ v: shown(v), key: ri[k] })), ...rowCells(r)]));
-  const total = [{ v: 'Grand total', b: true }];
+  const total = [{ v: t('tables.pivot.grand_total'), b: true }];
   for (let k = 1; k < keyCols; k++) total.push({ v: null, b: true });
   if (hasCols) {
     for (let c = 0; c < nc; c++) for (let i = 0; i < nv; i++) total.push({ ...numbers(colT.get(c), i), b: true });
