@@ -56,7 +56,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'docs.save.not_in_drive': '아직 Slop Drive에 저장되지 않았습니다',
   'docs.save.saved': 'Slop Drive에 저장되었습니다',
   'docs.save.draft': '초안이 이 브라우저에 자동 저장되었습니다',
-  'docs.fonts.note': 'Slop Docs에서는 라이브러리에서 글꼴을 내려받는 기능이 꺼져 있습니다. 엔진은 함께 제공하는 TrueType 글꼴 계열만 포함합니다. 가장 비슷한 글꼴 계열을 쓰거나 내 TTF 또는 OTF 파일을 추가하세요(WOFF는 아직 지원되지 않습니다).',
+  'docs.fonts.note': 'Slop Docs에서는 라이브러리에서 글꼴을 다운로드하는 기능이 꺼져 있습니다. 엔진은 함께 제공하는 TrueType 글꼴 계열만 포함합니다. 가장 비슷한 글꼴 계열을 쓰거나 내 TTF 또는 OTF 파일을 추가하세요(WOFF는 아직 지원되지 않습니다).',
   'docs.fonts.ttf_only': 'Slop Docs는 TrueType 윤곽선만 읽습니다. 이 글꼴의 TTF 파일을 사용하세요.',
   'docs.panel.page': '페이지',
   'docs.panel.download_send': '다운로드 및 보내기',

@@ -56,7 +56,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'photoslop.doc.h_menus': '메뉴',
   'photoslop.doc.about_title': 'PhotoSlop 정보',
   'photoslop.doc.about_p1': '브라우저에서 완전히 실행되는 레이어 이미지 편집기입니다. 열고, 그리고, 저장하는 모든 것은 이 기기를 떠나지 않습니다. 서버도, 계정도, 업로드도 없습니다.',
-  'photoslop.doc.about_p2': '실제 Photoshop .psd 파일(레이어, 마스크, 불투명도, 혼합 모드)을 열고 저장하며, PNG, JPEG, WebP로 내보내고, 오프라인 .html 파일 하나로 내려받을 수 있습니다.',
+  'photoslop.doc.about_p2': '실제 Photoshop .psd 파일(레이어, 마스크, 불투명도, 혼합 모드)을 열고 저장하며, PNG, JPEG, WebP로 내보내고, 오프라인 .html 파일 하나로 다운로드할 수 있습니다.',
   'photoslop.doc.about_part_of': '소속: ',
   'photoslop.doc.about_prefer': '. 1998년 경험이 더 좋으신가요? ',
   'photoslop.doc.opacity_toast': '불투명도 {pct}%',

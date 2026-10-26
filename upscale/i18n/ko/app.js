@@ -9,7 +9,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'upscale.app.files_label': '파일',
   'upscale.app.picture_label': '사진',
   'upscale.app.empty_label': '사진이나 동영상을 여세요',
-  'upscale.app.fine': '2× 또는 4×를 고르세요. 빠름은 기본 제공됩니다. 품질(Real-ESRGAN)은 더 받기에서 내려받는 선택 항목({size})입니다. 모델이 없으면 Lanczos 방식으로 확대하며 페이지에 그렇게 표시됩니다.',
+  'upscale.app.fine': '2× 또는 4×를 고르세요. 빠름은 기본 제공됩니다. 품질(Real-ESRGAN)은 더 받기에서 다운로드하는 선택 항목({size})입니다. 모델이 없으면 Lanczos 방식으로 확대하며 페이지에 그렇게 표시됩니다.',
   'upscale.app.info': '{name}: {w} × {h}px → {ow} × {oh}px ({scale}×)',
   'upscale.app.info_video': '{name}: {w} × {h}px → {ow} × {oh}px ({scale}×), {fps}fps로 {s}초',
   'upscale.notice.title': '이 기기에서 사진 선명하게 하기',

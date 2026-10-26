@@ -37,7 +37,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'cutout.app.not_images': '이 파일들은 이미지가 아닙니다',
   'cutout.app.notice_title': '이 기기에서 배경 제거하기',
   'cutout.app.notice_line1': 'Slop Isolate는 브라우저에서 실행되는 AI 모델로 사진의 배경을 제거합니다.',
-  'cutout.app.notice_line2': '다른 모델은 모델 패널에서 직접 고를 때만 내려받습니다.',
+  'cutout.app.notice_line2': '다른 모델은 모델 패널에서 직접 고를 때만 다운로드합니다.',
   'cutout.app.notice_model': '{name} 모델({arch})',
   'cutout.app.accept_noun': '사진이나 동영상',
   'cutout.app.preview_alt': '전과 후의 사진: 복잡한 배경은 사라지고 피사체는 남아 있습니다',

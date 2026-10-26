@@ -12,7 +12,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'cutout.panel.model_mixed': '혼합: 선택한 사진이 서로 다른 모델을 사용합니다. 하나를 골라 모두에 적용하세요.',
   'cutout.panel.on_device': '기기 내 · {size}',
   'cutout.panel.stored': '이 기기에 저장됨',
-  'cutout.panel.downloads_once': '한 번 내려받은 뒤 오프라인에서 실행됩니다',
+  'cutout.panel.downloads_once': '한 번 다운로드한 뒤 오프라인에서 실행됩니다',
   'cutout.panel.rerun_sel': '사진 {n}장을 {name} 모델로 다시 실행하는 중',
   'cutout.panel.rerun_all': '사진 {n}장을 {name} 모델로 다시 실행하는 중',
   'cutout.panel.edges': '가장자리',

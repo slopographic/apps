@@ -67,5 +67,5 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'eml.toast.saved': '{name}을(를) 저장했습니다.',
   'eml.toast.opened_in': '{name}을(를) {app}에서 열었습니다.',
   'eml.toast.open_failed': '열 수 없습니다: {error}',
-  'eml.toast.font_missing': '일부 문자는 내려받지 않은 언어 글꼴이 필요해서 상자 모양으로 보일 수 있습니다.',
+  'eml.toast.font_missing': '일부 문자는 다운로드하지 않은 언어 글꼴이 필요해서 상자 모양으로 보일 수 있습니다.',
 });
