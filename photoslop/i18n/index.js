@@ -4,5 +4,5 @@ window.SlopI18n && window.SlopI18n.source({
   ns: 'photoslop',
   base: ((document.currentScript || {}).src || '').replace(/[^/]*$/, ''),
   parts: ['ai', 'app', 'brushes', 'chrome', 'commands', 'core', 'dialogs', 'filters', 'filters2', 'fx', 'guides', 'io', 'io2', 'menus', 'panels', 'retouch', 'tools', 'tour', 'type', 'watermark'],
-  langs: ['de', 'en', 'es', 'fr', 'ja', 'pt-BR', 'sv', 'zh-CN'],
+  langs: ['ar', 'de', 'en', 'es', 'fr', 'ja', 'pt-BR', 'sv', 'zh-CN'],
 });

@@ -4,5 +4,5 @@ window.SlopI18n && window.SlopI18n.source({
   ns: 'serials',
   base: ((document.currentScript || {}).src || '').replace(/[^/]*$/, ''),
   parts: ['app'],
-  langs: ['de', 'en', 'es', 'fr', 'ja', 'pt-BR', 'sv', 'zh-CN'],
+  langs: ['ar', 'de', 'en', 'es', 'fr', 'ja', 'pt-BR', 'sv', 'zh-CN'],
 });
