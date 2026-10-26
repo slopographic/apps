@@ -78,6 +78,7 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'notes.menu.new_sub': '新しいサブフォルダー…',
   'notes.menu.top': 'ノートブックの先頭',
   'notes.menu.open_note': 'メモを開く',
+  'notes.menu.unpin': 'ピン留めを解除',
   'notes.menu.pin_top': '先頭にピン留め',
   'notes.menu.to_folder': 'フォルダーへ移動',
   'notes.menu.to_book': 'ノートブックへ移動',
