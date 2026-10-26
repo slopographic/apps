@@ -17,7 +17,7 @@ const CREATED = '2026-10-11T09:00:00Z';
 function cutEnv() {
   let n = 0;
   const SE = {
-    util: { uid: (p) => (p || 'x') + (++n), lerp: (a, b, t) => a + (b - a) * t, clamp: (v, a, b) => Math.min(b, Math.max(a, v)) },
+    util: { uid: (p) => (p || 'x') + (++n), lerp: (a, b, t) => a + (b - a) * t, clamp: (v, a, b) => Math.min(b, Math.max(a, v)), t: (k) => k },
     media: {
       items: new Map(),
       get(id) { return this.items.get(id); },
