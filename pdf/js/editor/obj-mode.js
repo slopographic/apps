@@ -58,6 +58,8 @@
     for (var i = l.length - 1; i >= 0; i--) if (inside(O.quad(p, l[i]), pt[0], pt[1])) { hit = l[i]; break; }
     return hit;
   };
+  /** Objects show: Objects mode, or one the select tool picked (select-edit.js). */
+  O.live = function () { return Ed.objMode || !!(O.sel && Ed.uniOn && Ed.uniOn()); };
   O.selected = function () { var s = O.sel, p = s && Ed.page(); return s && p && p.id === s.pid ? (O.list(p) || []).filter(function (o) { return o.id === s.id; })[0] || null : null; };
 
   /* ------------------------------------------------------------ the mode */
@@ -101,7 +103,7 @@
     var el = layer(); if (!el) return;
     el.innerHTML = '';
     var p = Ed.page();
-    el.hidden = !Ed.objMode || !p;
+    el.hidden = !O.live() || !p;
     if (el.hidden) return;
     if (!O.list(p)) { O.load(p).then(function () { if (Ed.page() === p) O.paint(); }); return; }
     var hv = O.hover && O.hover !== (O.sel && O.sel.id) ? (O.list(p) || []).filter(function (o) { return o.id === O.hover; })[0] : null;
@@ -229,7 +231,7 @@
       var d = Math.abs(x.box[0] - want[0]) + Math.abs(x.box[1] - want[1]) + Math.abs(x.box[2] - want[2]) + Math.abs(x.box[3] - want[3]);
       if (d < bd) { bd = d; best = x; }
     });
-    if (Ed.pid === pid && Ed.objMode) O.select(best);
+    if (Ed.pid === pid && (Ed.objMode || (Ed.uniOn && Ed.uniOn()))) O.select(best);
     return best;
   };
   function waitRaster(pid, done) {
@@ -244,7 +246,7 @@
   /* ------------------------------------------------------------ pointer and paint hooks */
   /** A press on the page in Objects mode (pointer.js): an object under it is selected and dragged. */
   S.objDown = function (e, p) {
-    if (!Ed.objMode) return false;
+    if (!Ed.objMode && !(Ed.uniOn && Ed.uniOn())) return false;
     var l = O.list(p);
     if (!l) { O.load(p).then(O.paint); return false; }
     var o = O.at(p, S.pagePt(e));
@@ -260,7 +262,7 @@
     if (id !== O.hover) { O.hover = id; O.paint(); }
   });
   var paint = Ed.paint;
-  Ed.paint = function () { var r = paint.apply(this, arguments); if (Ed.objMode && !act) O.paint(); return r; };
+  Ed.paint = function () { var r = paint.apply(this, arguments); if (O.live() && !act) O.paint(); else if (layerEl && !layerEl.hidden && !act) O.paint(); return r; };
   E.on('change', function () {
     var s = O.sel, p = s && E.pageById(s.pid);
     if (s && (!p || !O.list(p) || !O.selected())) { if (!p) O.sel = null; else O.load(p).then(function () { if (!O.selected()) O.sel = null; O.paint(); if (window.SlopSelBar) SlopSelBar.update(); }); }

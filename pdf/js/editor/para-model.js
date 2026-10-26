@@ -46,7 +46,7 @@
       var st = { ps: null, sub: { font: sub.font, bold: !!sub.bold, italic: !!sub.italic, weight: sub.weight }, key: '', cm: {} };
       st.key = E.fontKey(st.sub);
       var info = run.ps ? await P.info(f, p.i, run.ps) : null;
-      if (info) { st.ps = run.ps; noteFace(run); }
+      if (info) { st.ps = run.ps; st.src = { f: f.id, i: p.i }; noteFace(run); } // where the font is read from, wherever the frame goes
       Object.defineProperty(st, 'info', { value: info, enumerable: false, writable: true }); // not saved with the annotation
       styles.push(st);
     }
@@ -67,7 +67,8 @@
     var f = E.fileOfPage(p);
     for (var i = 0; i < a.styles.length; i++) {
       var st = a.styles[i];
-      if (!st.info && st.ps && f) Object.defineProperty(st, 'info', { value: await P.info(f, p.i, st.ps), enumerable: false, writable: true });
+      var sf = st.src && E.files.get(st.src.f), from = sf || f, at = sf ? st.src.i : p.i; // a pasted frame reads its font where it came from
+      if (!st.info && st.ps && from) Object.defineProperty(st, 'info', { value: await P.info(from, at, st.ps), enumerable: false, writable: true });
     }
   };
 
@@ -119,7 +120,7 @@
 
   /** Commits a frame as one undo step: a new frame with its old lines taken off the page (the derived file, or covers),
    * or a changed frame in its place. */
-  P.commit = function (p, sel, a, label) {
+  P.commit = function (p, sel, a, label, coalesce) {
     var covers = sel.kind === 'block' ? sel.covers : null, to = sel.kind === 'block' ? sel.to : null, fin = JSON.parse(JSON.stringify(a));
     E.commit(label, function (st) {
       var q = st.pages.filter(function (x) { return x.id === p.id; })[0];
@@ -127,8 +128,8 @@
       S.strip.use(q, to);
       if (covers) { covers.forEach(function (c) { q.annots.push(JSON.parse(JSON.stringify(c))); }); q.annots.push(fin); }
       else q.annots = q.annots.map(function (y) { return y.id === fin.id ? fin : y; });
-    });
-    sel.kind = 'annot'; sel.id = a.id; sel.covers = sel.preview = sel.to = null; sel.model = null;
+    }, coalesce);
+    sel.kind = 'annot'; sel.id = a.id; sel.covers = sel.preview = sel.to = null; sel.model = null; sel.pending = false;
     if (F.refresh) F.refresh();
     Ed.paint();
   };

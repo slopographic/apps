@@ -7,7 +7,7 @@
   K.appSkills = {
     "photoslop": {"create":["new_document"],"add":["add_svg_layer","add_text","brush_stroke","click_tool","draw_shape","new_layer","use_tool"],"ops":["photoslop.auto-enhance","photoslop.portrait"]},
     "vector": {"create":["new_document"],"add":["add_shape","add_svg","add_text"],"ops":[]},
-    "pdf": {"create":["new_document"],"add":["add_image","add_pages","add_shape","add_text","insert_pdf"],"ops":["pdf.compress","pdf.extract"]},
+    "pdf": {"create":["new_document"],"add":["add_image","add_pages","add_shape","add_text","insert_pdf","paste_in_place","paste_on_pages"],"ops":["pdf.compress","pdf.extract"]},
     "label": {"create":["new_label"],"add":["add_barcode","add_image","add_qr","add_shape","add_text"],"ops":[]},
     "cutout": {"create":["new_batch"],"add":["add_images"],"ops":[]},
     "aitools": {"create":["new_job"],"add":["add_file"],"ops":[]},

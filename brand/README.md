@@ -88,6 +88,7 @@ sites live outside this repository, with the publish script; pass their folder w
 | `legal` | `{ holder, year, trademarks? }`: the MIT licence's copyright holder, `NOTICE.md` and `TRADEMARKS.md` (`trademarks`: the names the holder claims; default the product name). |
 | `publish` | `{ repo, branch, secret, author, email }`: where the publish script pushes, the token's secret name, and the release commit's author. |
 | `font` | `{ spec, dir }`: the profile's own type family, a font spec for `tools/fonts/build.py` and its built folder (both relative to the profiles folder; build the folder ahead, the site build needs no Python). The build ships it as `shared/fonts/brand/` with its CSS and token names, and the typeface page. Without it, a build ships no family: the upstream fonts (Inter Tight and the others) and no typeface page. This site's family never goes into another build, and the leak scan reads the name tables inside every WOFF2 file and zip. The sample's family: `brand/profiles/fonts/acme/`. Only a plain brand mark may go into a family's Private Use Area, never the mascot (it is all-rights-reserved art; a font is OFL): the build refuses such a spec. |
+| `history` | For a copy with its whole history (`tools/whitelabel/history.mjs`): `since` (a source commit: everything up to it becomes one "Initial version" commit at its time), `forbidPaths` (regular expressions of source paths no mapped commit carries) and `forbidWords` (regular expressions: a source line holding one is left out of the mapped file, a message part holding one is left out), and `forbidMessages` (the same for messages only). |
 | `brandTerms`, `forbid`, `scanAllow` | Words only this site uses (no other build may contain them), extra words to forbid, and allowed scan hits (`{ file, term, why }`, reported every time). |
 
 `tools/whitelabel/profile.mjs` `validate()` is the schema in code; `tests/node/whitelabel-profile.test.mjs` checks every
@@ -198,6 +199,31 @@ not on the machine that publishes. The publish script refuses to run when the
 mirror has a commit it did not make, and names it, instead of overwriting it. The script and the real profiles are kept
 outside this repository; CI here builds the samples on every push, so a change that would break a white-label build
 fails here first.
+
+### A copy with its whole history
+
+A mirror can also show this site's history commit by commit instead of one commit per release
+(`tools/whitelabel/history.mjs`). It walks the source's commits oldest first (the first-parent chain, stepping into a
+branch where a merge takes it as it is) and makes one commit per source commit: the build's tree for that commit, in the
+profile's `publish` author's name, at the source commit's author time (UTC). It is incremental: a commit transforms only
+the paths that changed since the last mapped one and keeps the rest, the build's cheap rewrites follow their inputs
+(`brand.json`, the manifest, the pinned cdn links, the mirror workflow), and the slow steps (SEO writer, precache list,
+icons) are not run per commit: the build's own files enter with the first commit and the release build goes on top.
+Every commit's new files are scanned like a build; a commit that cannot be built from an old tree, or whose files leak,
+is folded into the next good one, and a commit that changes nothing in the copy is dropped. The profile's `history`
+block can fold an early stretch into one "Initial version" commit and keep paths and words out of every mapped commit.
+Messages are mapped like the site, with app names matched in any case and spelling (trailers removed); a part that still
+holds a forbidden word or the rename map's target stem, or talks about how the copy or the work was made (agents,
+unfinished work, checkpoints, hand-offs), is left out, and a message with too little left becomes a neutral one made
+from the areas the commit changed ("Image Editor: updates"). Neutral commits in a row on the same day become one. A
+state file (source commit -> copy commit, kept with the publish script) lets the next run continue.
+`tools/whitelabel/history-gate.mjs` checks a range before a push: every commit's author, committer, headers and message,
+and every file each commit adds or changes.
+
+```sh
+node tools/whitelabel/history.mjs sample /tmp/acme-history --source=. --ref=main --rebuild --state-out=/tmp/acme.json
+node tools/whitelabel/history-gate.mjs sample /tmp/acme-history main
+```
 
 **DNS for a mirror on GitHub Pages:** in the domain's DNS add `CNAME <subdomain> -> <account>.github.io` (for example
 `tools -> <account>.github.io`); the build writes the `CNAME` file and the publish script turns Pages on for the

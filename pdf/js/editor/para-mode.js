@@ -69,10 +69,16 @@
   /* ----------------------------------------------------------- the frame */
   P.clear = function () {
     if (P.editor) P.editor.cancel();
-    if (P.sel && P.sel.to) S.strip.release(P.sel.to); // set up but never changed: its derived file goes
+    if (P.sel && P.sel.to && !P.sel.pending) S.strip.release(P.sel.to); // set up but never changed: its derived file goes
+    var had = !!P.sel;
     P.sel = null;
     U.$$('.para-frame').forEach(function (el) { el.remove(); });
+    if (had) P.changed();
   };
+  /** The panel and the selection bar follow the frame. */
+  P.changed = function () { if (SP.app && SP.app.editorSelectionChanged) SP.app.editorSelectionChanged(); if (window.SlopSelBar && SlopSelBar.update) SlopSelBar.update(); };
+  /** The frame may stay: Edit text ▸ Paragraphs, or a frame the select tool picked (select-edit.js) while it is on. */
+  P.keeps = function (sel) { return sel.uni ? !!(Ed.uniOn && Ed.uniOn()) : !!(Ed.editText && Ed.paraMode); };
   /** The frame's rectangle in page space: the model's (or the annotation's) box, or the blocks' while it is set up. */
   P.rectOf = function (sel) {
     var a = sel.kind === 'annot' ? S.findAnnot(sel.id) : sel.model;
@@ -80,45 +86,27 @@
     var bs = sel.blocks, x0 = Math.min.apply(null, bs.map(function (b) { return b.x0; })), y0 = Math.min.apply(null, bs.map(function (b) { return b.top; }));
     return { x: x0, y: y0, w: Math.max.apply(null, bs.map(function (b) { return b.x1; })) - x0, h: Math.max.apply(null, bs.map(function (b) { return b.bottom; })) - y0 };
   };
-  var ALIGN = { left: 'pdf.ed.pm_align_left', right: 'pdf.ed.pm_align_right', center: 'pdf.ed.pm_align_center', justify: 'pdf.ed.pm_align_justify' }; // the alignments para-blocks.js finds
-  P.draw = function (rect) {
-    var sel = P.sel, s = sel && S.slots.get(sel.pid);
-    if (!sel || !s || (sel.kind === 'annot' && !S.findAnnot(sel.id))) { if (sel && !P.editor) P.clear(); return; }
-    var el = U.$('.para-frame', s.layer), z = Ed.zoom, r = rect || P.rectOf(sel);
-    if (!el) {
-      el = U.h('div', { class: 'para-frame', tabindex: '0', role: 'group', 'aria-label': U.t('pdf.ed.pm_frame'), 'data-i18n-attr': 'aria-label:pdf.ed.pm_frame' },
-        U.h('div', { class: 'para-h', 'data-h': 'w', title: U.t('pdf.ed.pm_drag_width'), 'data-i18n-attr': 'title:pdf.ed.pm_drag_width' }), U.h('div', { class: 'para-h', 'data-h': 'e', title: U.t('pdf.ed.pm_drag_width'), 'data-i18n-attr': 'title:pdf.ed.pm_drag_width' }),
-        U.h('span', { class: 'para-tag' }));
-      wire(el);
-      s.layer.appendChild(el);
-    }
-    var a = r.a || sel.model;
-    el.classList.toggle('is-busy', !a);
-    el.classList.toggle('is-editing', !!P.editor);
-    U.$('.para-tag', el).textContent = a ? U.t(a.rtl ? 'pdf.ed.pm_tag_rtl' : 'pdf.ed.pm_tag', { align: ALIGN[a.align] ? U.t(ALIGN[a.align]) : String(a.align) }) : U.t('pdf.ed.pm_tag_busy');
-    el.style.left = (r.x * z) + 'px'; el.style.top = (r.y * z) + 'px'; el.style.width = (r.w * z) + 'px'; el.style.height = (r.h * z) + 'px';
-  };
   /** Selects blocks of a page: the frame shows at once and its fonts are set up behind it. */
-  P.selectBlocks = function (p, bs) {
+  P.selectBlocks = function (p, bs, uni) {
     P.clear();
-    var sel = P.sel = { pid: p.id, kind: 'block', blocks: bs };
+    var sel = P.sel = { pid: p.id, kind: 'block', blocks: bs, uni: !!uni };
     sel.ready = P.fromBlocks(p, bs).then(function (m) {
       if (P.sel !== sel) return null;
-      sel.model = m.annot; sel.covers = m.covers; sel.preview = m.preview; sel.to = m.to; P.draw(); return sel;
+      sel.model = m.annot; sel.covers = m.covers; sel.preview = m.preview; sel.to = m.to; P.draw(); P.changed(); return sel;
     }, function (e) {
       if (P.sel === sel) P.clear();
       if (!(e && e.message === 'cancelled')) SlopUI.toast(U.t('pdf.ed.pm_setup_failed', { err: String(e && e.message || e) }));
       return null;
     });
-    P.draw();
+    P.draw(); P.changed();
     var el = U.$('.para-frame'); if (el) el.focus({ preventScroll: true });
     return sel;
   };
-  P.selectAnnot = function (p, a) {
+  P.selectAnnot = function (p, a, uni) {
     P.clear();
-    var sel = P.sel = { pid: p.id, kind: 'annot', id: a.id };
+    var sel = P.sel = { pid: p.id, kind: 'annot', id: a.id, uni: !!uni };
     sel.ready = P.reloadInfos(p, a).then(function () { return sel; });
-    P.draw();
+    P.draw(); P.changed();
     var el = U.$('.para-frame'); if (el) el.focus({ preventScroll: true });
     return sel;
   };
@@ -149,63 +137,11 @@
     return true;
   };
 
-  /* ------------------------------------------------- moving and resizing */
-  function wire(el) {
-    var lastTap = 0;
-    el.addEventListener('pointerdown', function (e) {
-      if (e.button > 0 || P.editor) return;
-      e.stopPropagation(); e.preventDefault();
-      var h = e.target.closest('.para-h'), now = Date.now();
-      if (!h && now - lastTap < 450) { lastTap = 0; P.edit(); return; }
-      lastTap = now;
-      el.focus({ preventScroll: true });
-      drag(e, h ? h.dataset.h : 'move');
-    });
-    el.addEventListener('dblclick', function (e) { e.stopPropagation(); e.preventDefault(); if (!P.editor) P.edit(); });
-    el.addEventListener('keydown', function (e) {
-      if (P.editor) return;
-      if (e.key === 'Enter' || e.key === 'F2') { e.preventDefault(); e.stopPropagation(); P.edit(); }
-      else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); P.clear(); }
-    });
-  }
-  function drag(e, h) {
-    var sel = P.sel, p = sel && E.pageById(sel.pid);
-    if (!p) return;
-    var base = sel.kind === 'annot' ? S.findAnnot(sel.id) : sel.model;
-    if (!base) return; // still being set up
-    if (base.locked) return;
-    var orig = JSON.parse(JSON.stringify(base)), start = S.pagePt(e), saved = p.annots.slice(), moved = false, cur = null;
-    function mv(ev) {
-      var q = S.pagePt(ev), dx = q[0] - start[0], dy = q[1] - start[1];
-      if (!moved && Math.hypot(dx, dy) * Ed.zoom < 2) return;
-      moved = true;
-      var m = JSON.parse(JSON.stringify(orig));
-      m.styles.forEach(function (st, i) { Object.defineProperty(st, 'info', { value: base.styles[i] && base.styles[i].info, enumerable: false, writable: true }); });
-      var left = orig.cx - orig.w / 2, right = orig.cx + orig.w / 2;
-      if (h === 'move') { m.cx += dx; m.cy += dy; }
-      else {
-        m.w = Math.max(2 * m.fs, h === 'e' ? orig.w + dx : orig.w - dx);
-        P.relayout(m);
-        m.cx = h === 'e' ? left + m.w / 2 : right - m.w / 2;
-      }
-      cur = m;
-      p.annots = sel.kind === 'block' ? saved.concat(sel.preview || sel.covers, [m]) : saved.map(function (y) { return y.id === m.id ? m : y; });
-      Ed.paint();
-    }
-    function up() {
-      window.removeEventListener('pointermove', mv); window.removeEventListener('pointerup', up); window.removeEventListener('pointercancel', up);
-      p.annots = saved;
-      if (!moved || !cur) { Ed.paint(); return; }
-      P.commit(p, sel, cur, U.t(h === 'move' ? 'pdf.ed.undo_move_para' : 'pdf.ed.undo_resize_para'));
-    }
-    window.addEventListener('pointermove', mv); window.addEventListener('pointerup', up); window.addEventListener('pointercancel', up);
-  }
-
   // the frame follows every repaint and zoom; it goes when its page is left or its frame is undone
   var paint = Ed.paint, layout = Ed.layout;
   Ed.paint = function () {
     var r = paint.apply(this, arguments);
-    if (P.sel && !P.editor && (P.sel.pid !== Ed.pid || !Ed.editText || !Ed.paraMode)) P.clear(); else if (P.sel) P.draw();
+    if (P.sel && !P.editor && (P.sel.pid !== Ed.pid || !P.keeps(P.sel))) P.clear(); else if (P.sel) P.draw();
     return r;
   };
   Ed.layout = function () { var r = layout.apply(this, arguments); if (P.sel) P.draw(); if (P.editor) P.editor.place(); return r; };

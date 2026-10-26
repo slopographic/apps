@@ -54,6 +54,7 @@
     if (E.isBox(a)) {
       var c = E.toView(R, W, H, a.cx, a.cy), va = ((((R - (a.rot || 0)) % 360) + 360) % 360);
       var sw = va % 180 ? a.h : a.w, sh = va % 180 ? a.w : a.h;
+      if (va % 90) { var cs = Math.abs(Math.cos(va * Math.PI / 180)), sn = Math.abs(Math.sin(va * Math.PI / 180)); sw = a.w * cs + a.h * sn; sh = a.w * sn + a.h * cs; } // turned freely: its bounds
       return { x: c[0] - sw / 2, y: c[1] - sh / 2, w: sw, h: sh };
     }
     var minx = Infinity, miny = Infinity, maxx = -Infinity, maxy = -Infinity;
@@ -64,6 +65,7 @@
   E.setAnnotViewRect = function (a, r, R, W, H) {
     if (E.isBox(a)) {
       var c = E.toPage(R, W, H, r.x + r.w / 2, r.y + r.h / 2), va = ((((R - (a.rot || 0)) % 360) + 360) % 360);
+      if (va % 90) { var o0 = E.annotViewRect(a, R, W, H); a.cx = c[0]; a.cy = c[1]; if (o0.w > 0.01 && o0.h > 0.01) { a.w *= r.w / o0.w; a.h *= r.h / o0.h; } return a; } // turned freely: scaled with its bounds
       a.cx = c[0]; a.cy = c[1];
       if (va % 180) { a.w = r.h; a.h = r.w; } else { a.w = r.w; a.h = r.h; }
       return a;

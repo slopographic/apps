@@ -6,7 +6,7 @@
 import { readdirSync, readFileSync, writeFileSync, statSync } from 'node:fs';
 import path from 'node:path';
 
-const TEXT = /\.(txt|js|mjs|cjs|md|html|json|css|yml)$/;
+export const TEXT = /\.(txt|js|mjs|cjs|md|html|json|css|yml)$/;
 
 /** The text with raw.githubusercontent.com/<account>/cdn/<commit>/ links pointed at <tag>. */
 export function pinCdn(text, account, tag) {
