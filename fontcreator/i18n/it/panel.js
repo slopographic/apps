@@ -73,7 +73,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'fontcreator.more.keep': 'Mantieni',
   'fontcreator.more.keep_type': 'Scrivi i caratteri da mantenere',
   'fontcreator.more.keep_none': 'Indica i caratteri da mantenere',
-  'fontcreator.more.keep_title': 'Creare un sottoinsieme?',
+  'fontcreator.more.keep_title': 'Crea un sottoinsieme?',
   'fontcreator.more.keep_msg': 'Mantieni solo i caratteri «{chars}» e rimuovi il resto?',
   'fontcreator.more.keep_ok': 'Mantieni solo questi',
   'fontcreator.more.undo_keep': 'Mantieni solo alcuni caratteri',

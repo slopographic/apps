@@ -55,7 +55,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'paint-classic.msg.enlarge': 'L\'immagine negli appunti è più grande della bitmap.\nVuoi ingrandire la bitmap?',
   'paint-classic.msg.cannot_paste': 'Slop Paint non può incollare questo.\nGli appunti non contengono un\'immagine.',
   'paint-classic.msg.cannot_read': 'Slop Paint non può leggere questo file.\nNon è un file bitmap valido, oppure il suo formato non è supportato.\n(Non c\'è abbastanza slop.)',
-  'paint-classic.msg.save_changes': 'Salvare le modifiche a {name}?',
+  'paint-classic.msg.save_changes': 'Salva le modifiche a {name}?',
   'paint-classic.msg.whole_number': 'Inserisci un numero intero tra 1 e 6000.\nAnche lo slop ha dei limiti.',
   'paint-classic.msg.too_big': 'È troppo slop, anche per noi.',
   'paint-classic.drive.open_title': 'Apri da Slop Drive',
