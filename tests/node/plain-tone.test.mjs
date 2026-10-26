@@ -10,13 +10,15 @@ import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { markerValues, applyMarkers } from '../../tools/whitelabel/emit.mjs';
-import { loadProfile, profilesDir } from '../../tools/whitelabel/profile.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const read = (f) => readFileSync(path.join(ROOT, f), 'utf8');
-const SAMPLE = markerValues(loadProfile(profilesDir(ROOT), 'sample'));
-const SITE = markerValues(loadProfile(profilesDir(ROOT), 'slopographic'));
+// The profile values as the build writes them after each marker (tools/whitelabel/emit.mjs). Done here with a regular
+// expression, not with the build's tools: a white-label build runs this test without them, on files already rewritten.
+const SAMPLE = { tone: 'plain', naming: 'plain', media: false };
+const SITE = { tone: 'playful', naming: 'brand', media: true };
+const LIT = String.raw`'(?:[^'\\\n]|\\.)*'|"(?:[^"\\\n]|\\.)*"|true|false|null|-?\d+`;
+const applyMarkers = (text, values) => text.replace(new RegExp(String.raw`(\/\*profile:(\w+)\*\/)(${LIT})`, 'g'), (m, head, key) => (key in values ? head + JSON.stringify(values[key]) : m));
 const as = (values, f) => applyMarkers(read(f), values);
 
 /** theme.js run against a small fake document while the head is still loading. */
@@ -62,7 +64,7 @@ test('style/tone.css: every rule but the trust row is scoped to the plain tone, 
 function sections(tone, lang = 'en') {
   const win = { SlopTheme: { tone } };
   const ctx = vm.createContext({ window: win });
-  vm.runInContext(read('shared/i18n/i18n.js').replace("/*profile:defaultLang*/'en'", `/*profile:defaultLang*/'${lang}'`), ctx);
+  vm.runInContext(read('shared/i18n/i18n.js').replace(/(\/\*profile:defaultLang\*\/)(['"])[\w-]+\2/, `$1'${lang}'`), ctx);
   for (const f of ['shared/i18n/strings.js', 'shared/i18n/sv.js', 'home/sections.js']) vm.runInContext(read(f), ctx);
   return win.SlopHomeSections;
 }
