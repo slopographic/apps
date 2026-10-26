@@ -115,13 +115,15 @@ function buildLayersPanel() {
       const L = D.layers[i];
       const eye = h('button', { type: 'button', class: 'lp-eye' + (L.visible ? ' on' : ''), title: L.visible ? 'Hide layer' : 'Show layer', 'aria-label': (L.visible ? 'Hide ' : 'Show ') + L.name, html: '<svg viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12zM12 9a3 3 0 1 1 0 6 3 3 0 0 1 0-6z"/></svg>' });
       eye.addEventListener('click', (e) => { e.stopPropagation(); if (e.altKey) { const solo = D.layers.every((l) => l === L || !l.visible); D.layers = D.layers.map((l) => Object.assign({}, l, { visible: solo ? true : l.id === L.id })); commit('Show/Hide'); } else setLayerProps(L.id, { visible: !L.visible }, L.visible ? 'Hide Layer' : 'Show Layer'); });
-      const th = h('span', { class: 'lp-thumb' + (L.id === D.activeId && !UI.editMask ? ' target' : ''), title: 'Edit layer pixels' }, cachedThumb(L, false));
+      // the target of painting (pixels or mask) has the accent frame; aria-current says it to a screen reader
+      const tgt = (m) => L.id === D.activeId && UI.editMask === m, cur = (m) => (tgt(m) ? { 'aria-current': 'true' } : {});
+      const th = h('span', Object.assign({ class: 'lp-thumb' + (tgt(false) ? ' target' : ''), title: tgt(false) ? 'Editing the layer pixels' : 'Edit layer pixels' }, cur(false)), cachedThumb(L, false));
       th.addEventListener('click', () => { D.activeId = L.id; UI.editMask = false; emit('doc'); emit('tool'); });
       th.addEventListener('dblclick', (e) => { e.stopPropagation(); if (L.text) editTypeLayer(L); else openLayerStyle(L.id); });
       const row = h('li', { class: 'layer' + (L.id === D.activeId ? ' active' : ''), role: 'option', 'aria-selected': String(L.id === D.activeId), draggable: 'true', 'data-id': L.id }, eye, th);
       if (L.mask) {
-        const mt = h('span', { class: 'lp-thumb mask' + (L.id === D.activeId && UI.editMask ? ' target' : '') + (L.mask.enabled === false ? ' off' : ''), title: 'Edit layer mask (Shift-click to disable)' }, cachedThumb(L, true));
-        mt.addEventListener('click', (e) => { e.stopPropagation(); if (e.shiftKey) { setLayerProps(L.id, { mask: Object.assign({}, L.mask, { enabled: L.mask.enabled === false }) }, 'Toggle Mask'); return; } D.activeId = L.id; UI.editMask = true; emit('doc'); emit('tool'); toast('Painting now edits the mask: black hides, white reveals'); });
+        const mt = h('span', Object.assign({ class: 'lp-thumb mask' + (tgt(true) ? ' target' : '') + (L.mask.enabled === false ? ' off' : ''), title: (tgt(true) ? 'Editing the layer mask' : 'Edit layer mask') + ' (Alt-click: red overlay, Shift-click: disable)' }, cur(true)), cachedThumb(L, true));
+        mt.addEventListener('click', (e) => { e.stopPropagation(); if (e.shiftKey) { setLayerProps(L.id, { mask: Object.assign({}, L.mask, { enabled: L.mask.enabled === false }) }, 'Toggle Mask'); return; } if (e.altKey) { toggleMaskOverlay(L.id); return; } const was = tgt(true); D.activeId = L.id; UI.editMask = true; UI.maskOverlay = false; emit('doc'); emit('tool'); dirty(); if (!was) toast('Painting now edits the mask: black hides, white reveals'); });
         row.append(mt);
       }
       const name = h('span', { class: 'lp-name' }, L.text ? h('b', { class: 'lp-t' }, 'T') : null, L.name);

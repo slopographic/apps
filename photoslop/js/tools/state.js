@@ -28,7 +28,8 @@ const T = Object.assign({
 (function loadToolOptions() { const saved = store.get('tools', null); if (saved) for (const k in saved) if (T[k]) Object.assign(T[k], saved[k]); })();
 let saveOptsTimer = 0;
 function saveToolOptions() { clearTimeout(saveOptsTimer); saveOptsTimer = setTimeout(() => store.set('tools', T), 300); }
-const UI = { tool: 'brush', prevTool: null, editMask: false };
+// editMask: painting edits the active layer's mask (the canvas shows the result); maskOverlay: tint where the mask hides, on request
+const UI = { tool: 'brush', prevTool: null, editMask: false, maskOverlay: false };
 
 function setColor(which, hex) { C[which] = hex; store.set(which, hex); emit('color'); }
 
