@@ -30,7 +30,7 @@ function rowOptions(tool, it, target) {
       onKeep: (on) => { it.keepMid = on; tool.emit(); } });
   }
   const conv = target && target !== WITH ? conversionById(target) : null;
-  return optionsBox({ conv, values: tool.valuesOf(it, conv), prefix: `${it.id}-`, label: tr('convert.opts.options', 'Options'), open: it.optsOpen,
+  return optionsBox({ conv, values: tool.valuesOf(it, conv), prefix: `${it.id}-`, label: tr('convert.opts.options'), open: it.optsOpen,
     onToggle: (o) => { it.optsOpen = o; }, onChange: (v, final) => tool.rowOptions(it, conv, v, final) });
 }
 
@@ -42,19 +42,19 @@ export function drawFiles(tool, { bulk = true } = {}) {
       const chain = reason ? {} : routeParts(tool, it.kind, target, it.name, (k, fmt) => tool.rowRoute(it, k, fmt), (c) => tool.valuesOf(it, c));
       return fileRow(it, { reason, choices: reason ? [] : choicesFor(it, act, only), target, selected: !reason && it.selected, ...chain,
         onPick: (x, id) => tool.rowPick(x, id), onSelect: (x, on, range) => tool.select(x, on, range), options: reason ? null : rowOptions(tool, it, target) });
-    }) : [h('li', { class: 'cv-empty' }, tr('convert.tool.no_files', 'No files yet.'))]));
+    }) : [h('li', { class: 'cv-empty' }, tr('convert.tool.no_files'))]));
     if (!bulk) return;
     const sel = tool.selected(), common = commonTarget(sel, act, only), conv = common ? (isRoute(common) ? lastOf(common) : conversionById(common)) : null;
     const mates = () => sel.filter((i) => tool.targetOf(i) === common);
     const prefix = `${tool.ns === 'cv' ? '' : tool.ns}bulk-`;
     const every = (on) => { for (const i of act) i.selected = on; tool.render(); };
-    const label = tr('convert.bulk.options_sel', 'Options for the {n} selected', { n: sel.length }), onToggle = (o) => { tool.bulkOptsOpen = o; };
+    const label = tr('convert.bulk.options_sel', { n: sel.length }), onToggle = (o) => { tool.bulkOptsOpen = o; };
     const options = !(sel.length > 1 && conv) ? null : isRoute(common)
       ? routeOptionsBox({ kind: sel[0].kind, key: common, valuesOf: (c) => tool.valuesOf(sel[0], c), prefix, cls: 'cv-bulk-opts', label, open: tool.bulkOptsOpen, onToggle,
         onChange: (c, v, final) => tool.bulkOptions(mates(), c, v, final), keep: sel.every((i) => i.keepMid), onKeep: (on) => { for (const i of sel) i.keepMid = on; tool.emit(); } })
       : optionsBox({ conv, values: tool.valuesOf(sel[0], conv), prefix, cls: 'cv-bulk-opts', label, open: tool.bulkOptsOpen, onToggle,
         onChange: (v, final) => tool.bulkOptions(mates(), conv, v, final) });
-    const chain = sel.length && common ? routeParts(tool, sel[0].kind, common, tr('convert.bulk.the_n_selected', 'the {n} selected', { n: sel.length }), (k, fmt) => tool.bulkRoute(k, fmt), (c) => tool.valuesOf(sel[0], c)) : {};
+    const chain = sel.length && common ? routeParts(tool, sel[0].kind, common, tr('convert.bulk.the_n_selected', { n: sel.length }), (k, fmt) => tool.bulkRoute(k, fmt), (c) => tool.valuesOf(sel[0], c)) : {};
     drawBulk(ui.bulk, { items: act, selected: sel, target: common, choices: sharedTargets(sel, only).map(choice), options, ...chain,
       onAll: every, onNone: () => every(false), onPick: (id) => tool.bulkPick(id),
       onRemove: () => { tool.items = tool.items.filter((i) => !sel.includes(i)); tool.render(); } });
@@ -75,6 +75,6 @@ export function drawResults(ui, outputs) {
   ui.zip.hidden = outputs.length < 2;
   ui.outList.replaceChildren(...outputs.map((o) => h('li', { class: 'cv-out-item' },
     h('span', { class: 'cv-file-name', text: o.name }),
-    h('span', { class: 'cv-file-meta', text: fmtSize(o.blob.size) + (o.mid ? ' · ' + tr('convert.tool.in_between', 'in between') : '') }),
-    h('a', { class: 'cv-btn cv-small cv-primary', href: o.url, download: o.name }, tr('ui.download', 'Download')))));
+    h('span', { class: 'cv-file-meta', text: fmtSize(o.blob.size) + (o.mid ? ' · ' + tr('convert.tool.in_between') : '') }),
+    h('a', { class: 'cv-btn cv-small cv-primary', href: o.url, download: o.name }, tr('ui.download')))));
 }

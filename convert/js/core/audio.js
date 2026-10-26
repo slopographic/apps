@@ -13,8 +13,8 @@ export function loadLame() {
     lamePending = new Promise((resolve, reject) => {
       const s = document.createElement('script');
       s.src = LAME_URL;
-      s.onload = () => (globalThis.lamejs ? resolve(globalThis.lamejs) : reject(new Error(tr('convert.media.mp3_not_loaded', 'The MP3 encoder did not load'))));
-      s.onerror = () => { lamePending = null; reject(new Error(tr('convert.media.mp3_load_failed', 'Could not load the MP3 encoder'))); };
+      s.onload = () => (globalThis.lamejs ? resolve(globalThis.lamejs) : reject(new Error(tr('convert.media.mp3_not_loaded'))));
+      s.onerror = () => { lamePending = null; reject(new Error(tr('convert.media.mp3_load_failed'))); };
       document.head.append(s);
     });
   }
@@ -31,9 +31,9 @@ export async function decodeAudio(bytes) {
     const ab = bytes instanceof ArrayBuffer ? bytes.slice(0) : bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
     buf = await ctx.decodeAudioData(ab);
   } catch (e) {
-    throw new Error(tr('convert.media.no_track', 'This file has no sound track the browser can read.'));
+    throw new Error(tr('convert.media.no_track'));
   }
-  if (!buf || buf.numberOfChannels === 0 || buf.length === 0) throw new Error(tr('convert.media.no_sound', 'This file has no sound.'));
+  if (!buf || buf.numberOfChannels === 0 || buf.length === 0) throw new Error(tr('convert.media.no_sound'));
   return buf;
 }
 

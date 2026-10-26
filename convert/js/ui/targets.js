@@ -72,7 +72,7 @@ export function routeOk(kind, key, only = null) {
 /** A route as a menu choice, shaped like a catalog entry: id is the key, ext the kind it ends with. */
 export function routeEntry(kind, key) {
   const kinds = kindsOf(kind, key) || [], steps = stepsOf(key), last = steps[steps.length - 1]?.conv;
-  return { id: key, route: true, label: routeLabel(kind, key), ext: kinds[kinds.length - 1] || 'file', group: tr('convert.row.more_formats', 'More formats'), from: [kind],
+  return { id: key, route: true, label: routeLabel(kind, key), ext: kinds[kinds.length - 1] || 'file', group: tr('convert.row.more_formats'), from: [kind],
     keywords: ['via', ...kinds.slice(1), ...((last && last.keywords) || []), (last && last.group) || ''].filter(Boolean) };
 }
 
@@ -108,8 +108,8 @@ export function choicesFor(item, items, only = null) {
     .map((c) => ({ id: c.id, label: c.label, ext: c.ext || 'file', group: c.route ? c.group : groupLabel(c.group), keywords: c.route ? c.keywords : keywordsOf(c) }));
   const models = modelsFor(item, items);
   if (!models.length) return own;
-  const name = models.length === 1 ? models[0].name : tr('convert.row.n_models', '{n} models', { n: models.length });
-  return [{ id: WITH, label: tr('convert.row.with', 'With {name}', { name }), ext: models[0].kind, group: tr('convert.row.goes_with', 'Goes with') }, ...own];
+  const name = models.length === 1 ? models[0].name : tr('convert.row.n_models', { n: models.length });
+  return [{ id: WITH, label: tr('convert.row.with', { name }), ext: models[0].kind, group: tr('convert.row.goes_with') }, ...own];
 }
 
 /** The formats every one of these files can become (companions count as going with their model). */

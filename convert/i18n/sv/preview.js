@@ -2,6 +2,8 @@
 window.SlopI18n && window.SlopI18n.add('sv', {
   'convert.pv.add_file': 'Lägg till en fil eller skriv text för att se förhandsgranskningen.',
   'convert.pv.alt': '{panel}: {label}',
+  'convert.pv.after': 'Efter',
+  'convert.pv.before': 'Före',
   'convert.pv.binary': 'Binär fil, {size}. Ladda ned den för att öppna den.',
   'convert.pv.binary_label': 'Binär',
   'convert.pv.cannot_show': 'Den här webbläsaren kan inte visa bilden. Ladda ned den för att öppna den.',

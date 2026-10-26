@@ -31,7 +31,7 @@ export function parseSubs(text) {
     const start = ms(m[1], m[2], m[3], m[4]), end = ms(m[5], m[6], m[7], m[8]);
     cues.push({ start, end, text: lines.slice(at + 1).join('\n').trim(), settings: (m[9] || '').trim() });
   }
-  if (!cues.length) throw new Error(tr('convert.subs.none_srt', 'No subtitles found: an SRT or VTT file has lines like 00:00:01,000 --> 00:00:03,500.'));
+  if (!cues.length) throw new Error(tr('convert.subs.none_srt'));
   return cues;
 }
 

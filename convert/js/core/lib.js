@@ -16,7 +16,7 @@ export function loadPdfLib() {
       const s = document.createElement('script');
       s.src = PDF_LIB_URL;
       s.onload = () => (globalThis.PDFLib ? resolve(globalThis.PDFLib) : reject(new Error('pdf-lib did not load')));
-      s.onerror = () => { pdfLibPending = null; reject(new Error(tr('convert.chain.pdf_lib', 'Could not load the PDF library'))); };
+      s.onerror = () => { pdfLibPending = null; reject(new Error(tr('convert.chain.pdf_lib'))); };
       document.head.append(s);
     });
   }

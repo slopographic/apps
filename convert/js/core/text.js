@@ -13,12 +13,12 @@ export function bytesToBase64(bytes, { wrap = 0 } = {}) {
 /** Base64 text (standard or URL-safe, whitespace allowed, optional data: URL prefix) → bytes. Throws on bad input. */
 export function base64ToBytes(text) {
   let s = String(text).trim();
-  if (s.startsWith('data:')) { const i = s.indexOf(','); if (i < 0) throw new Error(tr('convert.text.data_url_empty', 'This data: URL has no data.')); s = s.slice(i + 1); }
+  if (s.startsWith('data:')) { const i = s.indexOf(','); if (i < 0) throw new Error(tr('convert.text.data_url_empty')); s = s.slice(i + 1); }
   s = s.replace(/\s+/g, '').replace(/-/g, '+').replace(/_/g, '/');
   const rem = s.length % 4;
-  if (rem === 1) throw new Error(tr('convert.text.b64_length', 'This is not Base64: the length is wrong.'));
+  if (rem === 1) throw new Error(tr('convert.text.b64_length'));
   if (rem) s += '='.repeat(4 - rem);
-  if (!/^[A-Za-z0-9+/]*={0,2}$/.test(s)) throw new Error(tr('convert.text.b64_chars', 'This is not Base64: it has characters outside A-Z, a-z, 0-9, + and /.'));
+  if (!/^[A-Za-z0-9+/]*={0,2}$/.test(s)) throw new Error(tr('convert.text.b64_chars'));
   const bin = atob(s);
   const out = new Uint8Array(bin.length);
   for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
@@ -31,7 +31,7 @@ export function urlEncode(text, { full = false } = {}) {
 }
 
 export function urlDecode(text) {
-  try { return decodeURIComponent(text); } catch (e) { throw new Error(tr('convert.text.bad_percent', 'This has a bad percent sequence (%) that cannot be decoded.')); }
+  try { return decodeURIComponent(text); } catch (e) { throw new Error(tr('convert.text.bad_percent')); }
 }
 
 export const EOLS = { lf: '\n', crlf: '\r\n', cr: '\r' };

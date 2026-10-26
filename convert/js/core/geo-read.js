@@ -13,11 +13,11 @@ const txt = (el) => (el ? el.textContent.trim() : '');
 
 function parse(text, what) {
   const doc = new DOMParser().parseFromString(String(text).replace(/^\uFEFF/, ''), 'application/xml');
-  if (doc.getElementsByTagName('parsererror').length) throw new Error(tr('convert.geo.bad_xml', 'This {what} file could not be read: check that it is well formed XML.', { what }));
+  if (doc.getElementsByTagName('parsererror').length) throw new Error(tr('convert.geo.bad_xml', { what }));
   return doc;
 }
 const collection = (features, what) => {
-  if (!features.length) throw new Error(tr('convert.geo.empty', 'No points, routes or tracks found in this {what} file.', { what }));
+  if (!features.length) throw new Error(tr('convert.geo.empty', { what }));
   return { type: 'FeatureCollection', features }; // i18n-ignore: GeoJSON and KML names
 };
 
@@ -38,7 +38,7 @@ function gpxProps(el) {
 export function gpxToGeojson(text) {
   const doc = parse(text, 'GPX');
   const root = doc.documentElement;
-  if (root.localName !== 'gpx') throw new Error(tr('convert.geo.not_gpx', 'This is not a GPX file: it should start with a <gpx> element.'));
+  if (root.localName !== 'gpx') throw new Error(tr('convert.geo.not_gpx'));
   const features = [];
   for (const w of kids(root, 'wpt').filter(okPoint)) {
     const pr = gpxProps(w), t = txt(kid(w, 'time'));

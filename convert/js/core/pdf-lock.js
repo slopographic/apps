@@ -16,7 +16,7 @@ let ready = null;
 function script(src) {
   return new Promise((res, rej) => {
     const s = Object.assign(document.createElement('script'), { src, async: false });
-    s.onload = res; s.onerror = () => { s.remove(); rej(new Error(tr('convert.pdf.load_failed', 'Could not load the PDF password code'))); };
+    s.onload = res; s.onerror = () => { s.remove(); rej(new Error(tr('convert.pdf.load_failed'))); };
     document.head.append(s);
   });
 }
@@ -35,23 +35,23 @@ export function crypto() {
 
 const notPdf = (e) => /parse|PDF|header|trailer/i.test(String(e && e.message)) && !e.code;
 function readable(e) {
-  if (e && e.code === 'password') return new Error(tr('convert.pdf.wrong_password', 'Wrong password. Type the password that opens this PDF.'));
+  if (e && e.code === 'password') return new Error(tr('convert.pdf.wrong_password'));
   if (e && e.code === 'unsupported') return new Error(e.message);
-  if (notPdf(e)) return new Error(tr('convert.pdf.not_valid', 'This is not a valid PDF, or it is damaged.'));
+  if (notPdf(e)) return new Error(tr('convert.pdf.not_valid'));
   return e instanceof Error ? e : new Error(String(e));
 }
 
 export async function protectPdf(bytes, o = {}) {
   const pw = String(o.password ?? '');
-  if (!pw) throw new Error(tr('convert.pdf.type_password', 'Type a password in Options.'));
-  if (pw !== String(o.confirm ?? '')) throw new Error(tr('convert.pdf.mismatch_options', 'The two passwords are not the same. Type them again in Options.'));
+  if (!pw) throw new Error(tr('convert.pdf.type_password'));
+  if (pw !== String(o.confirm ?? '')) throw new Error(tr('convert.pdf.mismatch_options'));
   const C = await crypto();
   try {
     return await C.encryptPdf(bytes, { userPassword: pw, permissions: {
       print: o.allowPrint !== false, copy: o.allowCopy !== false,
       modify: o.allowEdit !== false, annotate: o.allowEdit !== false, assemble: o.allowEdit !== false } });
   } catch (e) {
-    if (e && e.code === 'password') throw new Error(tr('convert.pdf.already_protected', 'This PDF already has a password. Remove it first (Remove PDF password), then protect it again.'));
+    if (e && e.code === 'password') throw new Error(tr('convert.pdf.already_protected'));
     throw readable(e);
   }
 }
@@ -61,10 +61,10 @@ export async function unlockPdf(bytes, o = {}) {
   let out;
   try { out = await C.decryptPdf(bytes, String(o.password ?? ''), { useObjectStreams: false }); }
   catch (e) {
-    if (e && e.code === 'password' && !o.password) throw new Error(tr('convert.pdf.needs_password', 'This PDF needs its password to open. Type it in Options.'));
+    if (e && e.code === 'password' && !o.password) throw new Error(tr('convert.pdf.needs_password'));
     throw readable(e);
   }
-  if (!out) throw new Error(tr('convert.pdf.no_password', 'This PDF has no password to remove.'));
+  if (!out) throw new Error(tr('convert.pdf.no_password'));
   return out;
 }
 
@@ -75,22 +75,22 @@ const pdfOut = (name, bytes) => ({ name, blob: new Blob([bytes], { type: 'applic
 const read = async (f) => new Uint8Array(await f.file.arrayBuffer());
 
 export const PDF_LOCK = [
-  { id: 'pdf-protect', get label() { return tr('convert.pdf.protect_pdf_with_a_password', 'Protect PDF with a password'); }, group: 'PDF', from: ['pdf'], ext: 'pdf', mode: 'each', secret: true, chain: false,
+  { id: 'pdf-protect', get label() { return tr('convert.pdf.protect_pdf_with_a_password'); }, group: 'PDF', from: ['pdf'], ext: 'pdf', mode: 'each', secret: true, chain: false,
     keywords: ['password', 'encrypt', 'lock', 'secure', 'aes', 'protect'],
-    get note() { return tr('convert.pdf.aes_256_the_strongest_pdf_encryption', 'AES-256, the strongest PDF encryption. Keep the password safe: nobody, not even this site, can open the file without it.'); },
-    check: (o = {}) => (!o.password ? tr('convert.pdf.type_a_password', 'Type a password.') : o.password !== o.confirm ? tr('convert.pdf.mismatch', 'The two passwords are not the same.') : ''),   // before a workflow runs
+    get note() { return tr('convert.pdf.aes_256_the_strongest_pdf_encryption'); },
+    check: (o = {}) => (!o.password ? tr('convert.pdf.type_a_password') : o.password !== o.confirm ? tr('convert.pdf.mismatch') : ''),   // before a workflow runs
     options: [
-      { key: 'password', type: 'password', get label() { return tr('convert.pdf.password', 'Password'); }, get hint() { return tr('convert.pdf.needed_to_open_the_pdf_the', 'Needed to open the PDF. The password is used on this device only and forgotten after Convert.'); } },
-      { key: 'confirm', type: 'password', get label() { return tr('convert.pdf.type_the_password_again', 'Type the password again'); } },
-      PERM('allowPrint', () => tr('convert.pdf.allow_printing', 'Allow printing')), PERM('allowCopy', () => tr('convert.pdf.allow_copying', 'Allow copying text and pictures')),
-      like(PERM('allowEdit', () => tr('convert.pdf.allow_editing', 'Allow editing (pages, text and comments)')), { get hint() { return tr('convert.pdf.pdf_readers_that_follow_the_permissions', 'PDF readers that follow the permissions (Acrobat, Preview, browsers) apply them once the file is open.'); } }),
+      { key: 'password', type: 'password', get label() { return tr('convert.pdf.password'); }, get hint() { return tr('convert.pdf.needed_to_open_the_pdf_the'); } },
+      { key: 'confirm', type: 'password', get label() { return tr('convert.pdf.type_the_password_again'); } },
+      PERM('allowPrint', () => tr('convert.pdf.allow_printing')), PERM('allowCopy', () => tr('convert.pdf.allow_copying')),
+      like(PERM('allowEdit', () => tr('convert.pdf.allow_editing')), { get hint() { return tr('convert.pdf.pdf_readers_that_follow_the_permissions'); } }),
     ],
     run: async (files, o) => [pdfOut(`${base(files[0].name)}-protected.pdf`, await protectPdf(await read(files[0]), o))] },
-  { id: 'pdf-unlock', get label() { return tr('convert.pdf.remove_pdf_password', 'Remove PDF password'); }, group: 'PDF', from: ['pdf'], ext: 'pdf', mode: 'each', secret: true, chain: false,
+  { id: 'pdf-unlock', get label() { return tr('convert.pdf.remove_pdf_password'); }, group: 'PDF', from: ['pdf'], ext: 'pdf', mode: 'each', secret: true, chain: false,
     keywords: ['password', 'decrypt', 'unlock', 'unprotect', 'remove'],
-    get note() { return tr('convert.pdf.makes_a_copy_with_no_password', 'Makes a copy with no password and no limits on printing or copying. You need the password that opens the file.'); },
+    get note() { return tr('convert.pdf.makes_a_copy_with_no_password'); },
     options: [
-      { key: 'password', type: 'password', get label() { return tr('convert.pdf.password', 'Password'); }, get hint() { return tr('convert.pdf.the_password_that_opens_the_pdf', 'The password that opens the PDF. Leave it blank for a PDF that opens without one but limits printing, copying or editing.'); } },
+      { key: 'password', type: 'password', get label() { return tr('convert.pdf.password'); }, get hint() { return tr('convert.pdf.the_password_that_opens_the_pdf'); } },
     ],
     run: async (files, o) => [pdfOut(`${base(files[0].name)}-unlocked.pdf`, await unlockPdf(await read(files[0]), o))] },
 ];

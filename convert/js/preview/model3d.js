@@ -15,15 +15,15 @@ export function modelBefore(inputs) {
   const model = inputs.find((i) => MODEL_KINDS.includes(i.kind)) || inputs[0];
   const others = inputs.length - 1;
   return { kind: 'model', files: inputs.map((i) => ({ name: i.name, blob: i.file })), size: model.size,
-    label: (KIND_LABEL[model.kind] || tr('convert.pv.model', '3D model')) + (others ? tr('convert.pv.with_more', [', with {n} more files', ', with {n} more file'], { n: others }) : '') };
+    label: (KIND_LABEL[model.kind] || tr('convert.pv.model')) + (others ? tr('convert.pv.with_more', { n: others }) : '') };
 }
 
 /** The after panel: the written files (an OBJ with its .mtl and textures counts as one model). */
 export function modelAfter(outs) {
   const main = outs[0], ext = extOf(main.name);
-  const label = ext.toUpperCase() + (outs.length > 1 ? tr('convert.pv.with_more', [', with {n} more files', ', with {n} more file'], { n: outs.length - 1 }) : '');
+  const label = ext.toUpperCase() + (outs.length > 1 ? tr('convert.pv.with_more', { n: outs.length - 1 }) : '');
   const note = outs.info || '';   // the drop report from the run (what the format could not hold)
-  if (ext === 'usdz') return { kind: 'info', text: tr('convert.pv.usdz', 'USDZ file, ready. Open it on an iPhone or iPad (AR Quick Look) to see it.'), size: main.blob.size, label, note };
+  if (ext === 'usdz') return { kind: 'info', text: tr('convert.pv.usdz'), size: main.blob.size, label, note };
   return { kind: 'model', files: outs.map((o) => ({ name: o.name, blob: o.blob })), size: main.blob.size, label, note };
 }
 
@@ -33,7 +33,7 @@ const load = () => (io ??= Promise.all([import('../../../shared/3d-io/read.js'),
 /** Fills a preview panel with the 3D view. Returns a cleanup function (the panel calls it before its next fill). */
 export function fillModel(pn, p) {
   const stage = h('div', { class: 'cv-pv-3d' });
-  const cap = h('p', { class: 'cv-hint', text: tr('convert.pv.reading_model', 'Reading the model…') });
+  const cap = h('p', { class: 'cv-hint', text: tr('convert.pv.reading_model') });
   pn.body.replaceChildren(stage, cap);
   let viewer = null, gone = false;
   (async () => {
@@ -43,7 +43,7 @@ export function fillModel(pn, p) {
       if (gone) return;
       cap.textContent = describe(r.root, r.animations);
       try { viewer = view(stage, r.root); } catch (e) {
-        stage.replaceChildren(h('p', { class: 'cv-hint', text: tr('convert.pv.no_webgl', 'This browser cannot draw 3D (no WebGL), so the model is not shown. The conversion still works.') }));
+        stage.replaceChildren(h('p', { class: 'cv-hint', text: tr('convert.pv.no_webgl') }));
       }
       if (gone && viewer) viewer.dispose();
     } catch (e) {

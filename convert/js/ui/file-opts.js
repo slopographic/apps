@@ -39,14 +39,14 @@ export function changed(conv, values) {
   for (const o of conv.options) {
     const v = values[o.key];
     if (v === undefined || v === '' || String(v) === String(o.value ?? '')) continue;
-    if (o.type === 'password') { const pw = tr('convert.opts.password_set', 'password set'); if (!parts.includes(pw)) parts.push(pw); continue; }   // never the password itself
-    const shown = o.type === 'checkbox' ? (v ? tr('convert.opts.on', 'on') : tr('convert.opts.off', 'off')) : o.type === 'select' ? ((o.options.find(([x]) => String(x) === String(v)) || [])[1] || v) : v;
+    if (o.type === 'password') { const pw = tr('convert.opts.password_set'); if (!parts.includes(pw)) parts.push(pw); continue; }   // never the password itself
+    const shown = o.type === 'checkbox' ? (v ? tr('convert.opts.on') : tr('convert.opts.off')) : o.type === 'select' ? ((o.options.find(([x]) => String(x) === String(v)) || [])[1] || v) : v;
     parts.push(`${o.label.replace(/\s*\(.*?\)$/, '')} ${shown}`);
   }
   return parts.join(', ');
 }
 
-export function optionsBox({ conv, values, prefix, label = tr('convert.opts.options', 'Options'), open = false, onToggle, onChange, cls = '' }) {
+export function optionsBox({ conv, values, prefix, label = tr('convert.opts.options'), open = false, onToggle, onChange, cls = '' }) {
   if (!conv || !conv.options.length) return null;
   const body = h('div', { class: 'cv-opts-body' });
   renderOptions(body, conv.options, values, prefix);

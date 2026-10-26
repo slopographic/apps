@@ -177,6 +177,6 @@ export function dropLast(key) {
 export function routeLabel(source, key, convs = CONVERSIONS) {
   const kinds = kindsOf(source, key, convs) || [];
   if (kinds.length < 3) return '';
-  return tr('convert.chain.via', '{to} · via {steps}', { to: TAG(kinds[kinds.length - 1]), steps: kinds.slice(1, -1).map(TAG).join(', ') });
+  return tr('convert.chain.via', { to: TAG(kinds[kinds.length - 1]), steps: kinds.slice(1, -1).map(TAG).join(', ') });
 }
-export const stepLabel = (kinds, i) => tr('convert.chain.step', 'Step {i} · {from} → {to}', { i: String(i + 1), from: TAG(kinds[i]), to: TAG(kinds[i + 1]) });
+export const stepLabel = (kinds, i) => tr('convert.chain.step', { i: String(i + 1), from: TAG(kinds[i]), to: TAG(kinds[i + 1]) });

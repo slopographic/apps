@@ -38,19 +38,19 @@ export function targetButton({ label, choices, target, onPick, empty, cls = '' }
 }
 
 export function fileRow(it, { reason, choices, target, selected, onPick, onSelect, options = null, route = null, then = null }) {
-  const meta = `${KIND_LABEL[it.kind] || tr('convert.row.file', 'File')} · ${fmtSize(it.size)}`;
-  const box = h('input', { type: 'checkbox', class: 'cv-file-check', 'data-select': it.id, 'aria-label': tr('convert.row.select', 'Select {name}', { name: it.name }), checked: !!selected });
+  const meta = `${KIND_LABEL[it.kind] || tr('convert.row.file')} · ${fmtSize(it.size)}`;
+  const box = h('input', { type: 'checkbox', class: 'cv-file-check', 'data-select': it.id, 'aria-label': tr('convert.row.select', { name: it.name }), checked: !!selected });
   box.addEventListener('click', (e) => onSelect(it, box.checked, e.shiftKey));
   const control = reason ? null : h('div', { class: 'cv-file-to' },
-    h('span', { class: 'cv-file-to-h', 'aria-hidden': 'true' }, tr('convert.row.convert_to', 'Convert to')),
-    targetButton({ label: tr('convert.row.convert_name', 'Convert {name} to', { name: it.name }), choices, target, onPick: (id) => onPick(it, id), empty: tr('convert.row.no_format', 'No format') }), then);
+    h('span', { class: 'cv-file-to-h', 'aria-hidden': 'true' }, tr('convert.row.convert_to')),
+    targetButton({ label: tr('convert.row.convert_name', { name: it.name }), choices, target, onPick: (id) => onPick(it, id), empty: tr('convert.row.no_format') }), then);
   return h('li', { class: 'cv-file' + (reason ? ' cv-skip' : '') + (selected ? ' cv-selected' : ''), 'data-id': it.id },
     reason ? h('span', { class: 'cv-file-check-gap' }) : box,
     h('div', { class: 'cv-file-main' },
       h('span', { class: 'cv-file-name', text: it.name }),
       h('span', { class: 'cv-file-meta', text: meta })),
     control,
-    h('button', { type: 'button', class: 'cv-btn cv-small cv-file-rm', 'data-remove': it.id, 'aria-label': tr('convert.row.remove', 'Remove {name}', { name: it.name }) }, tr('ui.remove', 'Remove')),
+    h('button', { type: 'button', class: 'cv-btn cv-small cv-file-rm', 'data-remove': it.id, 'aria-label': tr('convert.row.remove', { name: it.name }) }, tr('ui.remove')),
     reason ? null : route,
     options,
     reason ? h('p', { class: 'cv-file-msg' }, reason) : null,

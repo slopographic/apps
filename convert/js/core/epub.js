@@ -29,7 +29,7 @@ export function resolveHref(from, href) {
 
 const xml = (text, what) => {
   const doc = new DOMParser().parseFromString(text || '', 'application/xml');
-  if (!text || doc.getElementsByTagName('parsererror').length) throw new Error(tr('convert.epub.broken', 'This EPUB could not be read: its {what} is missing or broken.', { what: what() }));
+  if (!text || doc.getElementsByTagName('parsererror').length) throw new Error(tr('convert.epub.broken', { what: what() }));
   return doc;
 };
 const byName = (doc, name) => [...doc.getElementsByTagNameNS('*', name)];
@@ -42,18 +42,18 @@ function chapterDoc(text) {
 
 export async function readEpub(file) {
   let files;
-  try { files = await readZip(file); } catch (e) { throw new Error(tr('convert.epub.not_zip', 'This is not an EPUB book: it could not be opened as a ZIP archive.')); }
-  const container = xml(readText(files, 'META-INF/container.xml'), () => tr('convert.epub.part_container', 'list of contents (META-INF/container.xml)'));
+  try { files = await readZip(file); } catch (e) { throw new Error(tr('convert.epub.not_zip')); }
+  const container = xml(readText(files, 'META-INF/container.xml'), () => tr('convert.epub.part_container'));
   const opfPath = (byName(container, 'rootfile')[0] || { getAttribute: () => '' }).getAttribute('full-path');
-  const opf = xml(opfPath && readText(files, opfPath), () => tr('convert.epub.part_opf', 'package file (.opf)'));
+  const opf = xml(opfPath && readText(files, opfPath), () => tr('convert.epub.part_opf'));
   const items = new Map(byName(opf, 'item').map((i) => [i.getAttribute('id'), resolveHref(opfPath, i.getAttribute('href'))]));
   const spine = byName(opf, 'itemref').map((r) => items.get(r.getAttribute('idref'))).filter((p) => p && files.has(p));
   const enc = readText(files, 'META-INF/encryption.xml');
   if (enc) {
-    const locked = new Set(byName(xml(enc, () => tr('convert.epub.part_encryption', 'encryption list')), 'CipherReference').map((c) => resolveHref('', c.getAttribute('URI')))); // i18n-ignore: an XML element name
-    if (spine.some((p) => locked.has(p))) throw new Error(tr('convert.epub.drm', 'This book is protected with DRM, so its text cannot be read. Only DRM-free EPUB files can be converted.'));
+    const locked = new Set(byName(xml(enc, () => tr('convert.epub.part_encryption')), 'CipherReference').map((c) => resolveHref('', c.getAttribute('URI')))); // i18n-ignore: an XML element name
+    if (spine.some((p) => locked.has(p))) throw new Error(tr('convert.epub.drm'));
   }
-  if (!spine.length) throw new Error(tr('convert.epub.no_spine', 'This EPUB has no chapters in its reading order (spine).'));
+  if (!spine.length) throw new Error(tr('convert.epub.no_spine'));
   const chapters = spine.map((path) => { const html = readText(files, path); return { path, html, doc: chapterDoc(html) }; });
   return { title: first(opf, 'title'), author: first(opf, 'creator'), chapters, files };
 }

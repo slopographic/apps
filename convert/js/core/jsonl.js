@@ -13,10 +13,10 @@ export function jsonlToJson(text, { indent = 2 } = {}) {
     try { items.push(JSON.parse(line)); } catch (e) {
       let why = '';
       try { parseJson(line); } catch (err) { why = err.message.replace(/^This is not valid JSON:?\s*/, '').replace(/line 1, /, '').replace(/^\.\s*/, ''); }
-      throw new Error(why ? tr('convert.md.jsonl_bad_why', 'Line {line} is not valid JSON: {why}', { line: String(i + 1), why }) : tr('convert.md.jsonl_bad', 'Line {line} is not valid JSON.', { line: String(i + 1) }));
+      throw new Error(why ? tr('convert.md.jsonl_bad_why', { line: String(i + 1), why }) : tr('convert.md.jsonl_bad', { line: String(i + 1) }));
     }
   });
-  if (!items.length) throw new Error(tr('convert.md.jsonl_empty', 'The file is empty: there are no JSON lines to read.'));
+  if (!items.length) throw new Error(tr('convert.md.jsonl_empty'));
   return formatJson(JSON.stringify(items), { indent });
 }
 

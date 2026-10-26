@@ -14,7 +14,7 @@ import { CONVERSIONS } from '../core/catalog.js';
 /** The options a step shows: a middle step's Format is the route's. */
 export const stepSpecs = (step, last) => step.conv.options.filter((o) => last || o.key !== 'format');
 
-export function routeOptionsBox({ kind, key, valuesOf, prefix, open = false, onToggle, onChange, keep = false, onKeep, cls = '', label = tr('convert.opts.options', 'Options') }) {
+export function routeOptionsBox({ kind, key, valuesOf, prefix, open = false, onToggle, onChange, keep = false, onKeep, cls = '', label = tr('convert.opts.options') }) {
   const steps = stepsOf(key), lastVals = valuesOf(steps[steps.length - 1].conv);
   const kinds = kindsOf(kind, key, CONVERSIONS, lastVals) || [];
   const sum = h('span', { class: 'cv-file-opts-sum' });
@@ -24,7 +24,7 @@ export function routeOptionsBox({ kind, key, valuesOf, prefix, open = false, onT
     const specs = stepSpecs(s, i === steps.length - 1), id = `cv-o-${prefix}s${i + 1}-h`;
     const body = h('div', { class: 'cv-opts-body' });
     if (specs.length) renderOptions(body, specs, vals[i], `${prefix}s${i + 1}-`);
-    else body.append(h('p', { class: 'cv-hint' }, tr('convert.opts.no_step_opts', 'No options for this step.')));
+    else body.append(h('p', { class: 'cv-hint' }, tr('convert.opts.no_step_opts')));
     const read = (e) => {
       const v = readOptions(body, specs, `${prefix}s${i + 1}-`);
       vals[i] = { ...vals[i], ...v };
@@ -33,11 +33,11 @@ export function routeOptionsBox({ kind, key, valuesOf, prefix, open = false, onT
     };
     body.addEventListener('input', read);
     body.addEventListener('change', read);
-    return h('section', { class: 'cv-step-opts', 'aria-labelledby': id, 'data-step': i + 1 }, h('h4', { class: 'cv-step-h', id }, kinds.length > i + 1 ? stepLabel(kinds, i) : tr('convert.opts.step', 'Step {n}', { n: i + 1 })), body);
+    return h('section', { class: 'cv-step-opts', 'aria-labelledby': id, 'data-step': i + 1 }, h('h4', { class: 'cv-step-h', id }, kinds.length > i + 1 ? stepLabel(kinds, i) : tr('convert.opts.step', { n: i + 1 })), body);
   });
   const box = h('input', { type: 'checkbox', id: `cv-o-${prefix}keep`, checked: !!keep });
   box.addEventListener('change', () => { if (onKeep) onKeep(box.checked); });
-  const keepRow = h('div', { class: 'cv-opt cv-check cv-keep' }, h('label', { for: box.id }, box, ' ', tr('convert.opts.keep_mid', 'Also keep the in-between files')));
+  const keepRow = h('div', { class: 'cv-opt cv-check cv-keep' }, h('label', { for: box.id }, box, ' ', tr('convert.opts.keep_mid')));
   paint();
   const d = h('details', { class: 'cv-file-opts cv-route-opts ' + cls, open: !!open },
     h('summary', { class: 'cv-file-opts-h' }, h('span', null, label), sum), ...groups, keepRow);

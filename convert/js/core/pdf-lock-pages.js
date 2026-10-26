@@ -1,11 +1,12 @@
 /* Converter pages (convert/<slug>/) for the PDF password conversions (core/pdf-lock.js), added to PAGES in pages.js.
  * Same fields as the other pages; shared/seo/convert-copy.mjs writes their head from the same title and description.
  * Every claim is what the code does (shared/pdf-crypto/: AES-256, R 6; the permissions; decryption of RC4 and AES files). */
+import { withWords } from './page-words.js';
 const PRIVATE = ['Is my PDF or my password uploaded?', 'No. The PDF is encrypted or decrypted in your browser, on this device. Neither the file nor the password is sent to Slopographic or to any other server, and the password is forgotten after Convert.'];
 
-export const PDF_LOCK_PAGES = [
-  { slug: 'password-protect-pdf', conv: 'pdf-protect', from: ['pdf'], accept: '.pdf,application/pdf', label: 'Password protect PDF', pair: ['PDF', 'PDF'], cat: 'Documents',
-    summary: 'Add a password to a PDF with AES-256 encryption, and choose whether it can be printed, copied or edited.', h1: 'Password protect a PDF',
+export const PDF_LOCK_PAGES = withWords([
+  { slug: 'password-protect-pdf', conv: 'pdf-protect', from: ['pdf'], accept: '.pdf,application/pdf', pair: ['PDF', 'PDF'], cat: 'Documents',
+    h1: 'Password protect a PDF',
     title: 'Password protect PDF with AES-256, free, on your device | File convert',
     description: 'Add a password to a PDF in your browser with AES-256 encryption. Choose whether it can be printed, copied or edited. The file is never uploaded.',
     lead: 'Lock a PDF with a password before you email or share it. The encryption runs on this device, so the file and the password never leave it.',
@@ -16,8 +17,8 @@ export const PDF_LOCK_PAGES = [
       ['Which apps open the protected PDF?', 'Any current PDF reader: Adobe Acrobat and Reader, Apple Preview, Chrome, Edge, Firefox and the Slop PDF editor ask for the password and open it.'],
       ['Do the print and copy limits always hold?', 'Readers that follow the PDF rules, such as Acrobat, Preview and browsers, apply them. They are a request to the reader app, not a lock like the password itself.'],
       ['What if I forget the password?', 'The file cannot be opened. There is no recovery: keep a copy of the original PDF or of the password somewhere safe.'], PRIVATE] },
-  { slug: 'remove-password-from-pdf', conv: 'pdf-unlock', from: ['pdf'], accept: '.pdf,application/pdf', label: 'Remove password from PDF', pair: ['PDF', 'PDF'], cat: 'Documents',
-    summary: 'Save a copy of a password-protected PDF that opens without the password, with no limits on printing or copying.', h1: 'Remove the password from a PDF',
+  { slug: 'remove-password-from-pdf', conv: 'pdf-unlock', from: ['pdf'], accept: '.pdf,application/pdf', pair: ['PDF', 'PDF'], cat: 'Documents',
+    h1: 'Remove the password from a PDF',
     title: 'Remove password from PDF: unlock a PDF you can open, free | File convert',
     description: 'Remove the password from a PDF you can open, in your browser: type it once and save a copy with no password and no print or copy limits. No upload.',
     lead: 'Tired of typing the password every time? Make a copy of the PDF that opens straight away, on this device.',
@@ -26,4 +27,4 @@ export const PDF_LOCK_PAGES = [
     faq: [['Can it remove a password I do not know?', 'No. You need the password that opens the PDF; this is not a password cracker.'],
       ['Which encryption does it read?', 'The standard PDF password handler in every version: RC4 40 and 128-bit, AES-128 and AES-256. PDFs locked to a certificate or a rights-management server cannot be opened.'],
       ['Are the print and copy limits removed too?', 'Yes. The copy has no encryption, so readers no longer limit printing, copying or editing.'], PRIVATE] },
-];
+]);

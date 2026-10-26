@@ -118,6 +118,6 @@ export function nodeToMarkdown(node) {
 export function htmlToMarkdown(html) {
   const doc = new DOMParser().parseFromString(String(html), 'text/html');
   const md = nodeToMarkdown(doc.body);
-  if (!md.trim()) throw new Error(tr('convert.html.no_text', 'This HTML has no text to turn into Markdown.'));
+  if (!md.trim()) throw new Error(tr('convert.html.no_text'));
   return md;
 }

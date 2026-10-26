@@ -49,7 +49,7 @@ export function loadFFmpeg() {
         await ff.load({ coreURL, wasmURL });
       } catch (e) {
         loading = null;
-        throw new Error(tr('convert.ff.load_failed', 'Could not load the video engine. Check the connection and try again.'));
+        throw new Error(tr('convert.ff.load_failed'));
       }
       instance = ff;
       return ff;
@@ -111,14 +111,14 @@ function job(inputName, data, args, outputName, o = {}) {
 
 /** Converts one file. opts: { args(inName, outName) -> string[], output: 'mp4', fallback?: same shape (tried when the first fails) }. */
 export async function convertVideo(file, { name, args, output, fallback, inputs, progress, signal }) {
-  if (file.size > MAX_INPUT_BYTES) throw new Error(tr('convert.ff.too_big', 'This file is larger than 400 MB, so it is too big for the browser to convert.'));
+  if (file.size > MAX_INPUT_BYTES) throw new Error(tr('convert.ff.too_big'));
   const inName = 'input' + extOf(file.name);
   const outName = 'output.' + output;
   const data = new Uint8Array(await file.arrayBuffer());
   const o = { inputs, progress, signal };
   let r = await job(inName, data, args(inName, outName), outName, o);
   if (!r.ok && fallback) r = await job(inName, data, fallback(inName, outName), outName, o);
-  if (!r.ok) throw new Error(tr('convert.ff.failed', 'The conversion failed. {why}', { why: lastLine(r.log) }));
+  if (!r.ok) throw new Error(tr('convert.ff.failed', { why: lastLine(r.log) }));
   return { name: name + '.' + output, blob: new Blob([r.bytes], { type: MIME[output] || 'application/octet-stream' }) };
 }
 
@@ -127,14 +127,14 @@ const extOf = (n) => { const m = /\.[A-Za-z0-9]{1,5}$/.exec(String(n || '')); re
 /** The last ffmpeg line that names an error, for the message. */
 function lastLine(log) {
   const lines = String(log || '').split('\n').filter((l) => /error|invalid|no such|unable|not |failed|unknown/i.test(l));
-  return lines.length ? lines[lines.length - 1].trim() : tr('convert.ff.unreadable', 'The video may use a format this browser engine cannot read.');
+  return lines.length ? lines[lines.length - 1].trim() : tr('convert.ff.unreadable');
 }
 
 /** The notice before the video engine's first download: shown once, and only when a video job runs. */
 export const FIRST_USE = {
-  get title() { return tr('convert.ff.notice_title', 'Download the video engine?'); },
-  get lines() { return [tr('convert.ff.notice_text', 'Working on a video needs the video engine. It is downloaded once and kept by this browser for next time. Your files are still read on this device and never uploaded.')]; },
-  get downloads() { return [{ name: tr('convert.ff.engine_name', 'Video engine (ffmpeg.wasm)'), bytes: 32344223 }]; },
+  get title() { return tr('convert.ff.notice_title'); },
+  get lines() { return [tr('convert.ff.notice_text')]; },
+  get downloads() { return [{ name: tr('convert.ff.engine_name'), bytes: 32344223 }]; },
 };
 let firstUse = null;
 /** Resolves true when the work may go on. Cancelling clears the gate, so the next try asks again. */

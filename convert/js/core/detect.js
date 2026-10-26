@@ -178,10 +178,14 @@ export function detectKind(name = '', type = '', head = null) {
   return 'bin';
 }
 
-/** Human label for a kind: KIND_LABEL[kind], read in the chosen language (convert.detect.kind_<kind>). */
-const KIND_EN = { mp4: 'MP4 video', webm: 'WebM video', mov: 'QuickTime video', m4a: 'M4A audio', mp3: 'MP3 audio', wav: 'WAV audio', ogg: 'Ogg audio', flac: 'FLAC audio', png: 'PNG image', jpg: 'JPEG image', webp: 'WebP image', bmp: 'BMP image', gif: 'GIF image', svg: 'SVG image', pdf: 'PDF', csv: 'CSV', json: 'JSON', md: 'Markdown', txt: 'Plain text', html: 'HTML', vcf: 'vCard', xlsx: 'Excel (XLSX)', bin: 'Binary file', eml: 'Email message (EML)', ics: 'Calendar (ICS)', xml: 'XML', yaml: 'YAML', toml: 'TOML', srt: 'SubRip subtitles (SRT)', vtt: 'WebVTT subtitles (VTT)', xls: 'Excel 97-2003 (XLS)', ico: 'Icon (ICO)', tif: 'TIFF image', avif: 'AVIF image', heic: 'HEIC photo', zip: 'ZIP archive', docx: 'Word (DOCX)', pptx: 'PowerPoint (PPTX)', odt: 'OpenDocument text', ods: 'OpenDocument sheet', odp: 'OpenDocument slides', epub: 'EPUB book', jsonl: 'JSON Lines', ass: 'ASS/SSA subtitles', sbv: 'YouTube subtitles (SBV)', gpx: 'GPX track', kml: 'KML map file', geojson: 'GeoJSON', obj: 'OBJ 3D model', stl: 'STL 3D model', ply: 'PLY 3D model', gltf: 'glTF 3D model', glb: 'GLB 3D model', '3mf': '3MF 3D model', dae: 'Collada 3D model (DAE)', fbx: 'FBX 3D model', usdz: 'USDZ 3D model', mtl: 'OBJ materials (MTL)', tga: 'TGA image', ktx2: 'KTX2 texture', // i18n-ignore: the English of convert.detect.kind_* (tr fallback)
-  sie: 'SIE accounting file', ofx: 'OFX bank statement', qif: 'QIF (Quicken) file', camt053: 'ISO 20022 statement (camt.053)', mt940: 'MT940 bank statement', // i18n-ignore: the same
-};
+/** Human label for a kind: KIND_LABEL[kind], read in the chosen language (convert.detect.kind_<kind>, or kind_raw). */
+const KINDS = [
+  'mp4', 'webm', 'mov', 'm4a', 'mp3', 'wav', 'ogg', 'flac', 'png', 'jpg', 'webp', 'bmp', 'gif', 'svg', 'pdf', 'csv',
+  'json', 'md', 'txt', 'html', 'vcf', 'xlsx', 'bin', 'eml', 'ics', 'xml', 'yaml', 'toml', 'srt', 'vtt', 'xls', 'ico',
+  'tif', 'avif', 'heic', 'zip', 'docx', 'pptx', 'odt', 'ods', 'odp', 'epub', 'jsonl', 'ass', 'sbv', 'gpx', 'kml',
+  'geojson', 'obj', 'stl', 'ply', 'gltf', 'glb', '3mf', 'dae', 'fbx', 'usdz', 'mtl', 'tga', 'ktx2', 'sie', 'ofx',
+  'qif', 'camt053', 'mt940',
+];
 export const KIND_LABEL = {};
-for (const [k, en] of Object.entries(KIND_EN)) Object.defineProperty(KIND_LABEL, k, { enumerable: true, get: () => tr('convert.detect.kind_' + k, en) });
-for (const e of RAW.EXTS) Object.defineProperty(KIND_LABEL, e, { enumerable: true, get: () => tr('convert.detect.kind_raw', '{camera} RAW photo', { camera: RAW.FORMATS[e].label }) });
+for (const k of KINDS) Object.defineProperty(KIND_LABEL, k, { enumerable: true, get: () => tr('convert.detect.kind_' + k) });
+for (const e of RAW.EXTS) Object.defineProperty(KIND_LABEL, e, { enumerable: true, get: () => tr('convert.detect.kind_raw', { camera: RAW.FORMATS[e].label }) });

@@ -22,9 +22,9 @@ export async function openPdf(bytes) {
   try {
     return await lib.getDocument({ data: bytes.slice(), cMapUrl: PDFJS_CMAP_URL, cMapPacked: true, isEvalSupported: false, useSystemFonts: true, verbosity: 0 }).promise;
   } catch (e) {
-    if (e && e.name === 'PasswordException') throw new Error(tr('convert.pdf.password_protected', 'This PDF is password protected. Unlock it first.')); // i18n-ignore: the exception name
-    if (e && e.name === 'InvalidPDFException') throw new Error(tr('convert.pdf.not_valid', 'This is not a valid PDF, or it is damaged.')); // i18n-ignore: the exception name
-    throw new Error(tr('convert.pdf.could_not_open', 'This PDF could not be opened: {error}', { error: (e && e.message) || String(e) }));
+    if (e && e.name === 'PasswordException') throw new Error(tr('convert.pdf.password_protected')); // i18n-ignore: the exception name
+    if (e && e.name === 'InvalidPDFException') throw new Error(tr('convert.pdf.not_valid')); // i18n-ignore: the exception name
+    throw new Error(tr('convert.pdf.could_not_open', { error: (e && e.message) || String(e) }));
   }
 }
 

@@ -12,7 +12,7 @@ const PX_TO_PT = 0.75; // 96 px per inch, 72 pt per inch
  * Returns Uint8Array of the PDF.
  */
 export async function imagesToPdf(items, { page = 'a4', margin = 36 } = {}) {
-  if (!items.length) throw new Error(tr('convert.pdf.add_image', 'Add at least one image.'));
+  if (!items.length) throw new Error(tr('convert.pdf.add_image'));
   const { PDFDocument } = await loadPdfLib();
   const doc = await PDFDocument.create();
   doc.setProducer('File convert'); // i18n-ignore: PDF metadata

@@ -27,7 +27,7 @@ export function makeCanvas(w, h) {
 
 export function canvasToBlob(canvas, mime, quality) {
   return new Promise((resolve, reject) => {
-    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error(tr('convert.img.cannot_write_mime', 'This browser cannot write {type}', { type: mime })))), mime, quality);
+    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error(tr('convert.img.cannot_write_mime', { type: mime })))), mime, quality);
   });
 }
 
@@ -35,7 +35,7 @@ export function canvasToBlob(canvas, mime, quality) {
 export async function decodeSource(blob, kind) {
   if (kind === 'svg') return decodeSvg(blob);
   let bmp;
-  try { bmp = await createImageBitmap(blob); } catch (e) { throw new Error(tr('convert.img.unreadable', 'This file could not be read as an image.')); }
+  try { bmp = await createImageBitmap(blob); } catch (e) { throw new Error(tr('convert.img.unreadable')); }
   return { w: bmp.width, h: bmp.height, source: bmp, close: () => bmp.close() };
 }
 
@@ -47,7 +47,7 @@ async function decodeSvg(blob) {
     await img.decode();
   } catch (e) {
     URL.revokeObjectURL(url);
-    throw new Error(tr('convert.img.bad_svg', 'This SVG could not be drawn. Check that it is well formed.'));
+    throw new Error(tr('convert.img.bad_svg'));
   }
   let w = img.naturalWidth, h = img.naturalHeight;
   if (!w || !h) {
@@ -68,7 +68,7 @@ export function sizeFor(src, { width, height } = {}) {
   else if (!H) H = Math.round((src.h * W) / src.w);
   W = Math.min(MAX_SIDE, Math.max(1, Math.round(W)));
   H = Math.min(MAX_SIDE, Math.max(1, Math.round(H)));
-  if (W * H > MAX_PIXELS) throw new Error(tr('convert.img.too_large', 'That size is too large for this browser. Try a smaller width or height.'));
+  if (W * H > MAX_PIXELS) throw new Error(tr('convert.img.too_large'));
   return { W, H };
 }
 
@@ -104,7 +104,7 @@ export async function convertImage(blob, { kind, to, width, height, quality = 0.
     const mime = MIME[to];
     if (!mime) throw new Error(`Unknown image type: ${to}`);
     const out = await canvasToBlob(canvas, mime, quality);
-    if (out.type !== mime) throw new Error(tr('convert.img.cannot_write', 'This browser cannot write {format} images.', { format: to.toUpperCase() }));
+    if (out.type !== mime) throw new Error(tr('convert.img.cannot_write', { format: to.toUpperCase() }));
     canvas.width = canvas.height = 0;
     return { blob: out, ext: to, width: W, height: H };
   } finally {

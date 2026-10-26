@@ -20,7 +20,7 @@ Shared code (shell/, shared/) still has 5873 hard-coded strings; most belong to 
 
 | # | App | Id | Strings | In tables | Hard-coded | Languages at 100% |
 |---:|---|---|---:|---:|---:|---:|
-| 1 | File convert | convert | 2138 | 961 | 1177 | 0 of 29 |
+| 1 | File convert | convert | 1936 | 977 | 959 | 0 of 29 |
 | 2 | Slop PDF | pdf | 1692 | 1477 | 215 | 0 of 29 |
 | 3 | PhotoSlop | photoslop | 1315 | 1315 | 0 | 2 of 29 |
 | 4 | SlopLabel | label | 1146 | 691 | 455 | 0 of 29 |
@@ -84,13 +84,13 @@ Shared code (shell/, shared/) still has 5873 hard-coded strings; most belong to 
 | 62 | Slop Reminders | reminders | 44 | 44 | 0 | 2 of 29 |
 | 63 | Checksum | checksum | 42 | 24 | 18 | 0 of 29 |
 
-Total: 22080 strings in 63 apps.
+Total: 21878 strings in 63 apps.
 
 ## Apps with tables, per language
 
 | App | en | es | fr | de | pt-BR | it | ar | sv | zh-CN | zh-TW | ja | ko | hi | ru | uk | pl | nl | tr | id | vi | he | sw | am | ha | yo | ig | zu | xh | af |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| convert | 44% | 0% | 0% | 0% | 0% | 0% | 0% | 44% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
+| convert | 50% | 0% | 0% | 0% | 0% | 0% | 0% | 50% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
 | pdf | 87% | 0% | 0% | 87% | 0% | 0% | 87% | 87% | 0% | 0% | 87% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
 | photoslop | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
 | label | 60% | 0% | 0% | 0% | 0% | 0% | 0% | 60% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |

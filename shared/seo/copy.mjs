@@ -4,7 +4,7 @@
 // Keys are app ids from shared/apps.js. Titles are full titles. Descriptions must be 120 to 160 characters.
 // category: a schema.org applicationCategory (SoftwareApplication).
 
-import { CONVERT_PAGES } from './convert-copy.mjs';
+import { CONVERT_PAGES, VCF_COPY, FINANCE_COPY, THREED_COPY } from './convert-copy.mjs';
 
 export const HOME = {
   // A brand profile can set its own (seo.homeTitle, seo.homeDescription; tools/whitelabel/build.mjs writes them here).
@@ -184,54 +184,11 @@ export const PAGES = {
     description: 'The Slopographic type family: Sans, Serif, Mono and Condensed, with drop dots, a drip ligature and stylistic sets. Free under the SIL Open Font License.' } } : {},
   'how-it-works': { title: 'How Slopographic works: local files, storage and network | Slopographic', crumb: 'How it works',
     description: 'How the Slopographic apps work: files stay on your device, which browser APIs they use, every network request, and how to check it yourself.' },
-  'convert/csv-to-vcf': { title: 'CSV to vCard (VCF) converter, free, in your browser | File convert', crumb: 'CSV to vCard',
-    category: 'UtilitiesApplication', description: 'Convert a CSV contact list to vCard (.vcf) in your browser. Name, e-mail, phone and address columns are recognised. Nothing is uploaded.' },
-  'convert/xlsx-to-vcf': { title: 'XLSX to vCard: Excel contacts to .vcf in your browser | File convert', crumb: 'XLSX to vCard',
-    category: 'UtilitiesApplication', description: 'Turn an Excel (XLSX) contact list into a vCard (.vcf) file for phones and mail apps. Reads the first sheet. Nothing is uploaded from your device.' },
-  'convert/vcf-to-csv': { title: 'vCard to CSV converter for contacts, in your browser | File convert', crumb: 'vCard to CSV',
-    category: 'UtilitiesApplication', description: 'Turn a vCard (.vcf) address book into a CSV table with name, e-mail, phone and address columns. Runs in your browser. Nothing is uploaded.' },
-  'convert/vcf-to-xlsx': { title: 'vCard to XLSX converter: contacts to an Excel workbook | File convert', crumb: 'vCard to XLSX',
-    category: 'UtilitiesApplication', description: 'Turn a vCard (.vcf) address book into an Excel (XLSX) workbook you can sort and print. It runs on your device in your browser. Nothing is uploaded.' },
-  'convert/vcf-to-json': { title: 'vCard to JSON converter for contacts, runs in your browser | File convert', crumb: 'vCard to JSON',
-    category: 'UtilitiesApplication', description: 'Turn a vCard (.vcf) address book into JSON records with names, e-mails, phones and addresses. Photos are left out. Nothing is uploaded.' },
-  // Finance files (convert/js/core/finance-pages.js): SIE and bank statements.
-  'convert/sie-to-xlsx': { title: 'SIE to Excel: open an SIE file as a workbook, free | File convert', crumb: 'SIE to Excel',
-    category: 'FinanceApplication', description: 'Convert an SIE file (type 1, 2, 3, 4 or 4I) to an Excel workbook with vouchers, accounts and balances. Runs in your browser; nothing is uploaded.' },
-  'convert/sie-to-csv': { title: 'SIE to CSV: SIE vouchers as a table, free, in your browser | File convert', crumb: 'SIE to CSV',
-    category: 'FinanceApplication', description: 'Turn an SIE 4 file into a CSV with one row per transaction line: voucher, date, account, debit and credit. SIE 1 to 3 give the balances. Nothing is uploaded.' },
-  'convert/ofx-to-csv': { title: 'OFX to CSV: bank and card statements as a table, free | File convert', crumb: 'OFX to CSV',
-    category: 'FinanceApplication', description: 'Convert OFX and QFX bank or credit card downloads to CSV in your browser. OFX 1.x (SGML) and 2.x (XML) are both read. Nothing is uploaded.' },
-  'convert/qif-to-csv': { title: 'QIF to CSV: Quicken files as a table, free, in your browser | File convert', crumb: 'QIF to CSV',
-    category: 'FinanceApplication', description: 'Convert QIF files from Quicken, Microsoft Money and bank exports to CSV in your browser. Bank, cash and card sections are read. Nothing is uploaded.' },
-  'convert/camt053-to-xlsx': { title: 'camt.053 viewer: ISO 20022 bank statements to Excel, free | File convert', crumb: 'camt.053 to Excel',
-    category: 'FinanceApplication', description: 'Open camt.053 bank statements (ISO 20022 XML, version .001.02 and later) as an Excel workbook, with the balances checked. Nothing is uploaded.' },
-  'convert/mt940-to-csv': { title: 'MT940 to CSV: SWIFT bank statements as a table, free | File convert', crumb: 'MT940 to CSV',
-    category: 'FinanceApplication', description: 'Convert SWIFT MT940 bank statements (.sta, .940, .txt) to CSV in your browser. German and Dutch statement texts are read. Nothing is uploaded.' },
-  // 3D converter pages (convert/js/core/threed-pages.js holds the same copy for the pages and the hub cards)
-  'convert/obj-to-stl': { title: 'OBJ to STL converter for 3D printing, free, in your browser | File convert', crumb: 'OBJ to STL',
-    category: 'UtilitiesApplication', description: 'Convert an OBJ model to STL for your slicer, in your browser. Binary or ASCII STL, with units and up axis options. Nothing is uploaded from your device.' },
-  'convert/stl-to-obj': { title: 'STL to OBJ converter, binary or ASCII STL, free | File convert', crumb: 'STL to OBJ',
-    category: 'UtilitiesApplication', description: 'Convert binary or ASCII STL files to Wavefront OBJ in your browser, with normals. Change the units or the up axis on the way. Nothing is uploaded.' },
-  'convert/glb-to-obj': { title: 'GLB to OBJ converter with MTL and textures, free | File convert', crumb: 'GLB to OBJ',
-    category: 'UtilitiesApplication', description: 'Convert GLB or glTF models to OBJ in your browser: an OBJ, its MTL file and the textures as PNG pictures. The hierarchy is flattened. Nothing is uploaded.' },
-  'convert/obj-to-glb': { title: 'OBJ to GLB converter: one file with materials, free | File convert', crumb: 'OBJ to GLB',
-    category: 'UtilitiesApplication', description: 'Convert OBJ to GLB in your browser. Drop the OBJ with its MTL file and textures, and get one binary glTF with the materials inside. Nothing is uploaded.' },
-  'convert/fbx-to-glb': { title: 'FBX to GLB converter with animations, free and private | File convert', crumb: 'FBX to GLB',
-    category: 'UtilitiesApplication', description: 'Convert FBX models to GLB in your browser, with materials, textures, skeletons and animations. Binary and ASCII FBX 7 files are read. Nothing is uploaded.' },
-  'convert/fbx-to-obj': { title: 'FBX to OBJ converter, free, runs in your browser | File convert', crumb: 'FBX to OBJ',
-    category: 'UtilitiesApplication', description: 'Convert FBX models to OBJ in your browser, with an MTL file and textures as PNG. Animated models are written in the pose they stand in. Nothing is uploaded.' },
-  'convert/stl-to-glb': { title: 'STL to GLB converter for web 3D and AR, free | File convert', crumb: 'STL to GLB',
-    category: 'UtilitiesApplication', description: 'Convert an STL file to GLB in your browser, for web 3D viewers and AR. Turn Z up into Y up and millimetres into metres on the way. Nothing is uploaded.' },
-  'convert/ply-to-stl': { title: 'PLY to STL converter for scans and 3D printing, free | File convert', crumb: 'PLY to STL',
-    category: 'UtilitiesApplication', description: 'Convert PLY meshes from 3D scanners and photogrammetry to STL in your browser. ASCII and binary PLY are read. Vertex colours are left out. Nothing is uploaded.' },
-  'convert/dae-to-glb': { title: 'DAE to GLB: Collada to glTF converter, free, private | File convert', crumb: 'DAE to GLB',
-    category: 'UtilitiesApplication', description: 'Convert Collada DAE models to GLB in your browser, with materials, textures and animations. SketchUp and older tools export DAE. Nothing is uploaded.' },
-  'convert/3mf-to-stl': { title: '3MF to STL converter for slicers and printers, free | File convert', crumb: '3MF to STL',
-    category: 'UtilitiesApplication', description: 'Convert 3MF print files from slicers and 3D Builder to STL in your browser. Every part on the build plate goes into one binary or ASCII STL. No upload.' },
-  'convert/gltf-to-glb': { title: 'glTF to GLB converter: pack .gltf, .bin and textures | File convert', crumb: 'glTF to GLB',
-    category: 'UtilitiesApplication', description: 'Pack a .gltf file with its .bin buffers and texture pictures into one GLB in your browser. Embedded .gltf files work too. Nothing is uploaded from your device.' },
-  'convert/glb-to-usdz': { title: 'GLB to USDZ converter for iPhone AR Quick Look, free | File convert', crumb: 'GLB to USDZ',
-    category: 'UtilitiesApplication', description: 'Convert GLB or glTF models to USDZ in your browser, for AR Quick Look on iPhone and iPad. Meshes, materials and textures. Nothing is uploaded.' },
+  // Converter pages: their copy is in the page lists of convert/js/core (convert-copy.mjs), their crumb the hub card's
+  // label from the convert tables. Contacts, then finance files (SIE and bank statements), then 3D models.
+  ...VCF_COPY,
+  ...FINANCE_COPY,
+  ...THREED_COPY,
   // Camera RAW, HEIC, audio, document, data and subtitle converter pages: their copy is in convert/js/core (convert-copy.mjs)
   ...CONVERT_PAGES,
 };

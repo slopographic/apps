@@ -32,8 +32,8 @@ export async function decodeHeic(file, { ask = true } = {}) {
   const E = await engine();
   let r;
   try { r = await E.decode(new Uint8Array(await file.arrayBuffer()), { ask }); } catch (e) {
-    if (e.code === 'declined' && !ask) throw new Error(tr('convert.heic.preview_needs', 'The preview needs the HEIC decoder. Convert asks before it downloads it (about 1.5 MB, once).'));
-    if (e.code === 'declined') throw new Error(tr('convert.heic.declined', 'The HEIC photo decoder was not downloaded, so this photo could not be converted.'));
+    if (e.code === 'declined' && !ask) throw new Error(tr('convert.heic.preview_needs'));
+    if (e.code === 'declined') throw new Error(tr('convert.heic.declined'));
     throw e;
   }
   const c = makeCanvas(r.width, r.height);
@@ -47,20 +47,20 @@ function heicTo(to) {
     const d = await decodeHeic(f.file, { ask: !o.heicPreview });
     const r = await convertImage(d.png, { kind: 'png', to, width: o.width, height: o.height, quality: (o.quality ?? 90) / 100, background: o.background });
     const out = [{ name: `${base(f.name)}.${r.ext}`, blob: r.blob }];
-    if (d.count > 1) out.info = tr('convert.heic.many', '{name} holds {n} pictures; the main one was converted.', { name: f.name, n: d.count });
+    if (d.count > 1) out.info = tr('convert.heic.many', { name: f.name, n: d.count });
     return out;
   };
 }
 
 const SIZE = [
-  { key: 'width', type: 'number', get label() { return tr('convert.img.width', 'Width (px)'); }, min: 1, max: 10000, get hint() { return tr('convert.heic.width_hint', 'Leave blank to keep the full size. Height follows the proportions.'); } },
-  { key: 'height', type: 'number', get label() { return tr('convert.img.height', 'Height (px)'); }, min: 1, max: 10000 },
+  { key: 'width', type: 'number', get label() { return tr('convert.img.width'); }, min: 1, max: 10000, get hint() { return tr('convert.heic.width_hint'); } },
+  { key: 'height', type: 'number', get label() { return tr('convert.img.height'); }, min: 1, max: 10000 },
 ];
-const QUALITY = { key: 'quality', type: 'range', get label() { return tr('convert.img.quality', 'Quality'); }, min: 10, max: 100, value: 90 };
+const QUALITY = { key: 'quality', type: 'range', get label() { return tr('convert.img.quality'); }, min: 10, max: 100, value: 90 };
 const KW = ['heic', 'heif', 'iphone', 'apple', 'photo'];
 
 export const HEIC = [
-  { id: 'heic-to-jpg', get label() { return tr('convert.heic.to_jpg', 'HEIC to JPG'); }, group: 'Images', from: ['heic'], ext: 'jpg', mode: 'each', options: [...SIZE, QUALITY], keywords: [...KW, 'jpeg'], run: heicTo('jpg') }, // i18n-ignore: group id (shown through groupLabel)
-  { id: 'heic-to-png', get label() { return tr('convert.heic.to_png', 'HEIC to PNG'); }, group: 'Images', from: ['heic'], ext: 'png', mode: 'each', options: [...SIZE], keywords: KW, run: heicTo('png') }, // i18n-ignore: group id (shown through groupLabel)
-  { id: 'heic-to-webp', get label() { return tr('convert.heic.to_webp', 'HEIC to WebP'); }, group: 'Images', from: ['heic'], ext: 'webp', mode: 'each', options: [...SIZE, QUALITY], keywords: KW, run: heicTo('webp') }, // i18n-ignore: group id (shown through groupLabel)
+  { id: 'heic-to-jpg', get label() { return tr('convert.heic.to_jpg'); }, group: 'Images', from: ['heic'], ext: 'jpg', mode: 'each', options: [...SIZE, QUALITY], keywords: [...KW, 'jpeg'], run: heicTo('jpg') }, // i18n-ignore: group id (shown through groupLabel)
+  { id: 'heic-to-png', get label() { return tr('convert.heic.to_png'); }, group: 'Images', from: ['heic'], ext: 'png', mode: 'each', options: [...SIZE], keywords: KW, run: heicTo('png') }, // i18n-ignore: group id (shown through groupLabel)
+  { id: 'heic-to-webp', get label() { return tr('convert.heic.to_webp'); }, group: 'Images', from: ['heic'], ext: 'webp', mode: 'each', options: [...SIZE, QUALITY], keywords: KW, run: heicTo('webp') }, // i18n-ignore: group id (shown through groupLabel)
 ];

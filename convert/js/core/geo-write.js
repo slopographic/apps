@@ -14,7 +14,7 @@ export function featuresOf(v) {
   if (v && v.type === 'FeatureCollection' && Array.isArray(v.features)) return v.features.filter((f) => f && f.geometry); // i18n-ignore: GeoJSON names
   if (v && v.type === 'Feature') return v.geometry ? [v] : []; // i18n-ignore: GeoJSON names
   if (v && TYPES.includes(v.type)) return [{ type: 'Feature', properties: {}, geometry: v }]; // i18n-ignore: GeoJSON names
-  throw new Error(tr('convert.geo.not_geojson', 'This is not GeoJSON: it needs a "type" of FeatureCollection, Feature or a geometry such as LineString.'));
+  throw new Error(tr('convert.geo.not_geojson'));
 }
 
 /** Each part of a geometry as a list of positions with the kind of GPX element it becomes. */
@@ -59,7 +59,7 @@ export function geojsonToGpx(value, { name = '' } = {}) {
     }
     if (segs.length) { trks += `  <trk>${meta(pr)}\n${segs.join('')}  </trk>\n`; tracks++; }
   }
-  if (!waypoints && !tracks) throw new Error(tr('convert.geo.no_coords', 'This GeoJSON has no points or lines with coordinates to write.'));
+  if (!waypoints && !tracks) throw new Error(tr('convert.geo.no_coords'));
   const head = '<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="Slopographic File convert" xmlns="http://www.topografix.com/GPX/1/1">\n';
   const md = name ? `  <metadata><name>${esc(name)}</name></metadata>\n` : '';
   return { text: `${head}${md}${wpts}${trks}</gpx>\n`, waypoints, tracks, outlines };
@@ -81,6 +81,6 @@ export function geojsonToRows(value) {
         p.length > 2 ? Number(p[2]) : '', (part.as === 'wpt' ? pr.time : t[i]) ?? '', ...extra.map((k) => (plain(pr[k]) && pr[k] !== null ? pr[k] : ''))]));
     });
   });
-  if (rows.length === 1) throw new Error(tr('convert.geo.no_points', 'This GeoJSON has no points with coordinates.'));
+  if (rows.length === 1) throw new Error(tr('convert.geo.no_points'));
   return rows;
 }
