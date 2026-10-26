@@ -116,7 +116,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'slopedit.menu.slopographic_home': 'Slopographic-Startseite',
   'slopedit.menu.add_some_clips_to_the': 'Zuerst einige Clips zur Zeitleiste hinzufügen',
   'slopedit.menu.about_slopcut': 'Über SlopCut',
-  'slopedit.menu.slopcut_is_a_free_video': 'SlopCut ist ein kostenloser Videoeditor, der vollständig im Browser läuft. Das Material wird nie hochgeladen: Es wird auf diesem Gerät dekodiert, bearbeitet und kodiert.',
+  'slopedit.menu.slopcut_is_a_free_video': 'SlopCut ist ein kostenloses Videoschnittprogramm, das vollständig im Browser läuft. Das Material wird nie hochgeladen: Es wird auf diesem Gerät dekodiert, bearbeitet und kodiert.',
   'slopedit.menu.export_uses_webcodecs_hardware_video': 'Der Export nutzt WebCodecs (Hardware-Videokodierung) mit den MIT-lizenzierten Muxern mp4-muxer und webm-muxer von Vanilagy. Browser ohne WebCodecs weichen auf eine Aufnahme als WebM in Echtzeit aus.',
   'slopedit.menu.autosave_keeps_your_project_and': 'Das automatische Speichern hält das Projekt und die Medien in der IndexedDB dieses Browsers. Es lässt sich unter Datei ▸ Automatisch speichern ausschalten.',
   'slopedit.menu.nice': 'Schön',
