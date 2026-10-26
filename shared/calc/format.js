@@ -4,11 +4,13 @@
 (function (g) {
   'use strict';
   const ns = (g.SlopCalc = g.SlopCalc || {});
+  /** A word from the shared tables (shared/i18n/ui/<code>/calc.js), the key without SlopI18n. */
+  const say = (key, vars) => (g.SlopI18n ? g.SlopI18n.t(key, vars) : key);
   const { units, dates } = ns;
   const LOCALE = 'en-US';
 
   function fmtNumber(x) {
-    if (!Number.isFinite(x)) return 'Not a number';
+    if (!Number.isFinite(x)) return say('ui.calc.nan');
     let r = Number(x.toPrecision(12));
     if (r === 0) r = 0; // no −0
     return r.toLocaleString(LOCALE, { maximumFractionDigits: 10 });

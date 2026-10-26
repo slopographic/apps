@@ -117,7 +117,8 @@
       urlPrefix: 'hp',
       placeholder: tr('finder.placeholder', 'Search apps by name, job, file type or feature'),
       searchLabel: tr('switcher.search', 'Search apps'),
-      noun: [tr('finder.app_one', 'app'), tr('finder.apps', 'apps')],
+      count: (n) => (window.SlopI18n ? window.SlopI18n.t('finder.count', { n }) : String(n)),   // plural forms: shared/i18n/strings.js
+      countOf: (shown, n) => (window.SlopI18n ? window.SlopI18n.t('finder.count_of', { shown, n }) : shown + ' / ' + n),
       emptyText: tr('finder.no_apps', 'No apps match these filters.'),
       view: 'list',
       big: true, // the large search box; the results filter live below it, so there is no dropdown

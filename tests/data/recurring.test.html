@@ -3,11 +3,13 @@
 <head>
   <meta charset="utf-8">
   <title>Data · repeating invoices: dates, schedules from an invoice, making due drafts</title>
-  <!-- Covers: shared/data/recurring.js, shared/data/ledger.js, shared/data/schema-defs.js, shared/data/store.js, shared/data/bundle-check.js, shared/docs/model.js -->
+  <!-- Covers: shared/data/recurring.js, shared/i18n/ui/en/calendar.js, shared/i18n/ui/sv/calendar.js, shared/data/ledger.js, shared/data/schema-defs.js, shared/data/store.js, shared/data/bundle-check.js, shared/docs/model.js -->
   <style>body { margin: 0; background: #111; color: #eee; font: 13px system-ui; }</style>
 </head>
 <body>
   <script src="../harness.js"></script>
+  <script src="../../shared/profile/profile.js"></script>
+  <script src="../../shared/i18n/i18n.js"></script>
   <script src="../../shared/data/money.js"></script>
   <script src="../../shared/data/barcode.js"></script>
   <script src="../../shared/data/schema-checks.js"></script><script src="../../shared/data/schema-defs.js"></script>
@@ -23,7 +25,7 @@
   <script src="../../shared/data/recurring.js"></script>
   <script src="../../shared/docs/model.js"></script>
   <script>
-  const { describe, it, expect, beforeEach, run } = SlopTest;
+  const { describe, it, expect, beforeEach, waitFor, run } = SlopTest;
   const S = window.SlopData, st = S.store, R = S.recurring;
   let inv;
   async function fresh() {
@@ -43,6 +45,16 @@
       expect(R.describe({ every: 2, unit: 'week' })).toBe('every 2 weeks');
       expect(S.ledger.addDays('2026-12-31', 1)).toBe('2027-01-01');
       expect(window.SlopDocs.model.addDays('2026-03-01', -1)).toBe('2026-02-28');
+    });
+    it('the repeat in words follows the language, with plural forms (shared/i18n/ui/<code>/calendar.js)', async () => {
+      const I = window.SlopI18n;
+      I.set('sv');
+      await I.ready();
+      await waitFor(() => document.documentElement.lang === 'sv', { timeout: 10000 });
+      try {
+        expect([R.describe({ every: 1, unit: 'month' }), R.describe({ every: 2, unit: 'week' }), R.describe({ every: 1, unit: 'week' })]).toEqual(['varje månad', 'var 2:e vecka', 'varje vecka']);
+      } finally { I.set('en'); localStorage.removeItem('slop-profile'); }
+      expect(R.describe({ every: 3, unit: 'month' })).toBe('every 3 months');
     });
     it('due dates: every missed period up to today, not past the end, none when paused', () => {
       const s = { nextDate: '2026-01-31', every: 1, unit: 'month', anchorDay: 31, active: true };

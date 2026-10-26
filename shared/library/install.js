@@ -15,6 +15,8 @@
   const PACKS_URL = new URL('packs.json', SELF).href;
   const M = () => root.SlopLibraryManifest, S = () => root.SlopLibraryStore;
   const listeners = new Set();
+  /** A word from the shared tables (shared/i18n/ui/<code>/shell.js), the key without SlopI18n. */
+  const tx = (key, vars) => (root.SlopI18n ? root.SlopI18n.t(key, vars) : key);
   let manifestP = null, cdnP = null;
 
   /** shared/cdn/assets.js, which knows where the cdn files are served from: on the page already, or loaded once. */
@@ -37,7 +39,7 @@
       manifestP = cdn().then(() => fetch(PACKS_URL, { cache: 'no-cache' }))
         .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
         .then((j) => M().validate(j))
-        .catch((e) => ({ packs: [], errors: ['The pack list could not be read (' + e.message + ').'], hosts: [] }));
+        .catch((e) => ({ packs: [], errors: [tx('ui.library.list_failed', { why: e.message })], hosts: [] }));
     }
     return manifestP;
   }
@@ -47,11 +49,11 @@
   function changed(pack) { for (const fn of listeners) { try { fn(pack); } catch (e) { /* a listener must not break an install */ } } }
 
   async function install(p, onStatus) {
-    const say = (t) => { if (onStatus) onStatus(t); };
+    const say = (text) => { if (onStatus) onStatus(text); };
     const blobs = {}, m = await loadManifest();
     let n = 0;
     for (const f of p.files) {
-      say(`Downloading ${f.name} (${++n} of ${p.files.length})…`);
+      say(tx('ui.library.downloading', { name: f.name, i: ++n, n: p.files.length }));
       const C = await cdn();
       const bytes = await C.fetchVerified(f.cdn ? C.urls(f.cdn) : C.candidates(f.url), { label: f.name }, {
         allowedUrl: (u) => M().allowedUrl(u, m.hosts) || C.isCdnUrl(u),
@@ -61,7 +63,7 @@
       const type = p.kind === 'model' ? 'application/octet-stream' : f.name.endsWith('.woff2') ? 'font/woff2' : 'font/' + f.name.split('.').pop().toLowerCase();
       blobs[f.name] = new Blob([buf], { type });
     }
-    say('Storing…');
+    say(tx('ui.library.storing'));
     await S().savePack(p, blobs);
     changed(p);
   }

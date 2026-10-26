@@ -10,6 +10,8 @@
 (function (g) {
   'use strict';
   const ns = (g.SlopCalc = g.SlopCalc || {});
+  /** A word from the shared tables (shared/i18n/ui/<code>/calc.js), the key without SlopI18n. */
+  const say = (key, vars) => (g.SlopI18n ? g.SlopI18n.t(key, vars) : key);
   const NAME = /^[a-z_][a-z0-9_]*$/;
   const cleanName = (s) => String(s == null ? '' : s).trim().toLowerCase();
   const RESERVED = ns.RESERVED_NAMES || [];
@@ -22,10 +24,10 @@
   /** Why a name cannot be used for a node, or null when it can. */
   function nameProblem(name, others) {
     const n = cleanName(name);
-    if (!n) return 'Give the node a name';
-    if (!NAME.test(n)) return 'A name uses letters, digits and _, and starts with a letter';
-    if (RESERVED.includes(n)) return '“' + n + '” is built in; pick another name';
-    if (others && others.includes(n)) return 'Another node already has the name “' + n + '”';
+    if (!n) return say('ui.calc.node_name');
+    if (!NAME.test(n)) return say('ui.calc.node_name_rule');
+    if (RESERVED.includes(n)) return say('ui.calc.node_builtin', { name: n });
+    if (others && others.includes(n)) return say('ui.calc.node_taken', { name: n });
     return null;
   }
   /** Links implied by the names: a formula that uses another node's name is linked to it (for graphs saved without links). */
@@ -71,20 +73,20 @@
     const results = new Map();
     for (const id of order) {
       const node = byId.get(id), srcs = sources.get(id), needs = srcs.map((s) => cleanName(s.name));
-      if (dupes.has(id)) { results.set(id, { ok: false, error: { code: 'name', message: 'Another node already has this name' }, needs }); continue; }
-      if (cycles.has(id)) { results.set(id, { ok: false, error: { code: 'cycle', message: 'This formula depends on itself' }, needs }); continue; }
+      if (dupes.has(id)) { results.set(id, { ok: false, error: { code: 'name', message: say('ui.calc.node_dupe') }, needs }); continue; }
+      if (cycles.has(id)) { results.set(id, { ok: false, error: { code: 'cycle', message: say('ui.calc.cycle') }, needs }); continue; }
       const bad = srcs.find((s) => !results.get(s.id).ok);
-      if (bad) { results.set(id, { ok: false, error: { code: 'needs', message: 'Waiting on ' + cleanName(bad.name) }, needs }); continue; }
+      if (bad) { results.set(id, { ok: false, error: { code: 'needs', message: say('ui.calc.waiting', { name: cleanName(bad.name) }) }, needs }); continue; }
       const scope = {};
       for (const s of srcs) scope[cleanName(s.name)] = results.get(s.id).value;
       const expr = String(node.expr || '').trim() || '0';
-      if (ns.parseStatement(expr).name) { results.set(id, { ok: false, error: { code: 'syntax', message: 'Give the name in the name box, not in the formula' }, needs }); continue; }
+      if (ns.parseStatement(expr).name) { results.set(id, { ok: false, error: { code: 'syntax', message: say('ui.calc.name_in_box') }, needs }); continue; }
       const r = ns.calc(expr, { today: o.today, rate: o.rate, vars: scope });
       if (r.ok) { results.set(id, { ok: true, value: r.value, text: r.text, needs }); continue; }
       let error = r.error;
       if (error.code === 'name') {
         const loose = namesIn(expr).find((w) => byName.has(w) && !(w in scope));
-        if (loose) error = { code: 'link', message: 'Connect “' + loose + '” to this node with a wire' };
+        if (loose) error = { code: 'link', message: say('ui.calc.connect', { name: loose }) };
       }
       results.set(id, { ok: false, error, needs });
     }

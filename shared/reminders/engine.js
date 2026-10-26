@@ -21,10 +21,12 @@
     return { ok: true, value: { items: list, zone, now } };
   }
 
-  /** Title and body for the popup. */
+  /** A word from the shared tables (shared/i18n/ui/<code>/calendar.js), the key without SlopI18n. */
+  const tr = (key, vars) => (g.SlopI18n ? g.SlopI18n.t(key, vars) : key);
+  /** Title and body for the popup, in the chosen language. */
   function wording(it) {
-    const kind = { event: 'Event', task: 'To-do', custom: 'Reminder' }[it.source] || 'Reminder';
-    return { title: it.title || kind, body: `${kind} · ${T.dateTimeText(it.at, T.deviceZone())}` };
+    const kind = tr({ event: 'ui.reminders.event', task: 'ui.reminders.task' }[it.source] || 'ui.reminders.reminder');
+    return { title: it.title || kind, body: `${kind} · ${T.dateTimeText(it.at, T.deviceZone(), g.SlopI18n ? g.SlopI18n.get() : undefined)}` };
   }
 
   /** Shows one due reminder: the page's notifier if set, else SlopNotify, else a toast and a browser notification. */
@@ -71,7 +73,7 @@
   /** Snoozes a reminder by a choice from NS.SNOOZES. It comes back when the snooze time passes. */
   async function snooze(it, choice) {
     const until = NS.snoozeUntil(choice, NS.now(), T.deviceZone());
-    if (!until) return { ok: false, code: 'invalid', message: 'Pick a snooze time.' };
+    if (!until) return { ok: false, code: 'invalid', message: tr('ui.reminders.pick_snooze') };
     const r = await patch(it, { snoozedUntil: until });
     if (r.ok) scan();
     return r;

@@ -9,7 +9,11 @@
   const NS = (g.SlopReminders = g.SlopReminders || {});
   const MIN = 60000;
   const LATE = 5 * MIN;          // a reminder older than this when first seen is shown in the list, not as a popup
-  const SNOOZES = [{ id: '5m', label: '5 minutes', ms: 5 * MIN }, { id: '1h', label: '1 hour', ms: 60 * MIN }, { id: 'tomorrow', label: 'Tomorrow, 09:00' }];
+  /** A word from the shared tables (shared/i18n/ui/<code>/calendar.js), the key without SlopI18n. */
+  const tr = (key, vars) => (g.SlopI18n ? g.SlopI18n.t(key, vars) : key);
+  // the snooze choices; label reads the chosen language each time it is asked for
+  const snoozeOf = (id, ms, key, vars) => ({ id, ms, get label() { return tr(key, vars); } });
+  const SNOOZES = [snoozeOf('5m', 5 * MIN, 'ui.reminders.minutes', { n: 5 }), snoozeOf('1h', 60 * MIN, 'ui.reminders.hours', { n: 1 }), snoozeOf('tomorrow', undefined, 'ui.reminders.tomorrow', { time: '09:00' })];
   let clock = () => Date.now();
 
   /** The clock the reminders use. Tests replace it with a fake clock. */

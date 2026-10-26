@@ -18,6 +18,8 @@ export function colName(c) {
 
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; };
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+/** A word from the shared tables (shared/i18n/ui/<code>/sheets.js), the key without SlopI18n. */
+const say = (key, vars) => (globalThis.SlopI18n ? globalThis.SlopI18n.t(key, vars) : key);
 
 /** Column widths in pixels from the first rows and the letters; capped so one long cell does not swallow the grid. */
 function widthsFor(sheet) {
@@ -68,7 +70,7 @@ export function mountGrid(host, options = {}) {
     if (st.sortable && st.onSort) {
       const b = el('button', 'ss-sort');
       b.type = 'button';
-      b.title = `Sort column ${colName(c)}`;
+      b.title = say('ui.sheets.sort_col', { col: colName(c) });
       b.append(el('span', 'ss-letter', colName(c)), el('span', 'ss-arrow', sort ? (sort.dir < 0 ? '▼' : '▲') : ''));
       b.addEventListener('click', () => st.onSort(c));
       th.append(b);
@@ -76,7 +78,7 @@ export function mountGrid(host, options = {}) {
     if (st.sortable && st.onFilter) {
       const f = el('button', 'ss-filter' + (st.filtered.has(c) ? ' on' : ''), '▾');
       f.type = 'button';
-      f.title = st.filtered.has(c) ? `Column ${colName(c)} is filtered` : `Filter column ${colName(c)}`;
+      f.title = say(st.filtered.has(c) ? 'ui.sheets.col_filtered' : 'ui.sheets.filter_col', { col: colName(c) });
       f.setAttribute('aria-label', f.title);
       f.setAttribute('aria-haspopup', 'dialog');
       f.addEventListener('click', (e) => { e.stopPropagation(); st.onFilter(c, f); });

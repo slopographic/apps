@@ -15,6 +15,8 @@
   const apps = () => S.apps().filter((a) => a.kind === 'app');
   const appById = (id) => apps().find((a) => a.id === id);
   const ui = () => window.SlopUI;
+  /** A word from the shared tables (shared/i18n: ui/<code>/shell.js and the chrome), the key without SlopI18n. */
+  const tx = (key, vars) => (window.SlopI18n ? window.SlopI18n.t(key, vars) : key);
 
   function load() { items = L.normalize(L.read() || [], apps().map((a) => a.id), S.brandOrder()); }
   function save() { L.write(items); }
@@ -29,7 +31,7 @@
     }
     const names = it.apps.map(appById).filter(Boolean);
     const minis = names.slice(0, 4).map((a) => badge(a, 'sh-badge sh-mini-b')).join('');
-    return `<button type="button" class="sh-tile sh-folder" data-key="folder:${esc(it.id)}" data-folder="${esc(it.id)}" aria-label="${esc(it.name)}, folder with ${names.length} apps"><span class="sh-mini">${minis}</span><span class="sh-name">${esc(it.name)}</span></button>`;
+    return `<button type="button" class="sh-tile sh-folder" data-key="folder:${esc(it.id)}" data-folder="${esc(it.id)}" aria-label="${esc(tx('ui.shell.folder_aria', { name: it.name, n: names.length }))}"><span class="sh-mini">${minis}</span><span class="sh-name">${esc(it.name)}</span></button>`;
   }
 
   function render() {
@@ -102,7 +104,7 @@
     if (dropped.mode === 'combine') {
       const next = L.combine(items, d.key, dropped.key);
       const made = next.some((it) => it.k === 'folder' && !items.some((o) => o.k === 'folder' && o.id === it.id));
-      commit(next, made ? 'Folder made. Right-click it to rename.' : '');
+      commit(next, made ? tx('ui.shell.folder_made') : '');
     } else commit(L.reorder(items, d.key, dropped.key, dropped.after));
   }
   function onCancel(e) { if (drag && e.pointerId === drag.id) { drag = null; finish(); } }
@@ -111,7 +113,7 @@
   async function renameFolder(id) {
     const f = folderOf(id);
     if (!f || !ui()) return;
-    const name = await ui().prompt('Rename folder', 'Name', f.name, { ok: 'Rename', placeholder: 'Folder name' });
+    const name = await ui().prompt(tx('ui.shell.rename_folder'), tx('ui.shell.folder_name_label'), f.name, { ok: tx('ui.rename'), placeholder: tx('ui.shell.folder_name') });
     if (name != null && name.trim()) commit(L.rename(items, id, name));
   }
   function menuFor(tile, x, y) {
@@ -120,11 +122,11 @@
     const folderId = inFolder ? openId : null;
     const list = [];
     if (tile.dataset.folder) {
-      list.push({ label: 'Open folder', act: () => openFolder(tile.dataset.folder) }, { label: 'Rename folder', act: () => renameFolder(tile.dataset.folder) }, { label: 'Ungroup', act: () => commit(L.ungroup(items, tile.dataset.folder), 'Folder ungrouped.') });
+      list.push({ label: tx('ui.shell.open_folder'), act: () => openFolder(tile.dataset.folder) }, { label: tx('ui.shell.rename_folder'), act: () => renameFolder(tile.dataset.folder) }, { label: tx('ui.shell.ungroup'), act: () => commit(L.ungroup(items, tile.dataset.folder), tx('ui.shell.ungrouped')) });
     } else {
       const app = appById(tile.dataset.app);
-      if (app) list.push({ label: 'Open ' + app.name, act: () => S.navigate(S.appUrl(app)) });
-      if (inFolder) list.push('-', { label: 'Move out of folder', act: () => { commit(L.moveOut(items, folderId, app.id)); if (!folderOf(folderId)) closeFolder(); } });
+      if (app) list.push({ label: tx('ui.shell.open_app', { app: nameOf(app) }), act: () => S.navigate(S.appUrl(app)) });
+      if (inFolder) list.push('-', { label: tx('ui.shell.move_out'), act: () => { commit(L.moveOut(items, folderId, app.id)); if (!folderOf(folderId)) closeFolder(); } });
     }
     ui().menu(list, x, y);
   }
@@ -148,21 +150,23 @@
     root = document.createElement('div');
     root.className = 'sh-dr';
     root.hidden = true;
-    root.innerHTML = `<div class="sh-dr-head"><div><h2 class="sh-dr-h">All apps</h2><p class="sh-dr-hint">Drag an app onto another to make a folder. Right-click for more.</p></div><button type="button" class="sh-dr-close" aria-label="Close app drawer">×</button></div>
-      <div class="sh-grid" id="sh-grid" role="list" aria-label="All apps"></div>
-      <div class="sh-dr-folder" id="sh-folder" hidden role="dialog" aria-modal="true" aria-label="Folder">
-        <div class="sh-dr-head"><button type="button" class="sh-dr-back">‹ Back</button><h2 class="sh-dr-title"></h2><button type="button" class="sh-dr-rename">Rename</button></div>
+    // the words are marked for SlopI18n (filled below, and again on a language change); the English is the fallback
+    root.innerHTML = `<div class="sh-dr-head"><div><h2 class="sh-dr-h" data-i18n="switcher.all_apps">All apps</h2><p class="sh-dr-hint" data-i18n="ui.shell.drawer_hint">Drag an app onto another to make a folder. Right-click for more.</p></div><button type="button" class="sh-dr-close" aria-label="Close app drawer" data-i18n-attr="aria-label:ui.shell.drawer_close">×</button></div>
+      <div class="sh-grid" id="sh-grid" role="list" aria-label="All apps" data-i18n-attr="aria-label:switcher.all_apps"></div>
+      <div class="sh-dr-folder" id="sh-folder" hidden role="dialog" aria-modal="true" aria-label="Folder" data-i18n-attr="aria-label:ui.shell.folder">
+        <div class="sh-dr-head"><button type="button" class="sh-dr-back"><span aria-hidden="true">‹ </span><span data-i18n="ui.back">Back</span></button><h2 class="sh-dr-title"></h2><button type="button" class="sh-dr-rename" data-i18n="ui.rename">Rename</button></div>
         <div class="sh-grid" id="sh-folder-grid" role="list"></div>
-        <div class="sh-dr-foot"><button type="button" class="sh-dr-ungroup">Ungroup</button></div>
+        <div class="sh-dr-foot"><button type="button" class="sh-dr-ungroup" data-i18n="ui.shell.ungroup">Ungroup</button></div>
       </div>`;
     document.body.append(root);
+    if (window.SlopI18n) { window.SlopI18n.apply(root); window.SlopI18n.on(() => { if (isOpen) render(); }); }   // the tiles' labels follow a switch
     grid = root.querySelector('#sh-grid');
     folderBox = root.querySelector('#sh-folder');
     folderGrid = root.querySelector('#sh-folder-grid');
     root.querySelector('.sh-dr-close').addEventListener('click', () => close());
     folderBox.querySelector('.sh-dr-back').addEventListener('click', () => closeFolder());
     folderBox.querySelector('.sh-dr-rename').addEventListener('click', () => renameFolder(openId));
-    folderBox.querySelector('.sh-dr-ungroup').addEventListener('click', () => { const id = openId; closeFolder(); commit(L.ungroup(items, id), 'Folder ungrouped.'); });
+    folderBox.querySelector('.sh-dr-ungroup').addEventListener('click', () => { const id = openId; closeFolder(); commit(L.ungroup(items, id), tx('ui.shell.ungrouped')); });
     grid.addEventListener('pointerdown', onDown);
     grid.addEventListener('click', (e) => {
       if (suppressClick) return;

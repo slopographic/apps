@@ -1,11 +1,14 @@
 /* Slopculator tokens. Pure, classic script. Exposes window.SlopCalc.lexer:
- *   CalcError(message, pos, code, extra)  the one error type every stage throws (code: syntax | unit | type | math | rate)
+ *   CalcError(message, pos, code, extra)  the one error type every stage throws (code: syntax | unit | type | math | rate);
+ *                                         the message is in the chosen language (shared/i18n/ui/<code>/calc.js)
  *   tokenize(text)  → [{ type, value, pos }], types: num, word, date, time, op, lp, rp, comma, pct, end
  * Numbers are plain (1000, 2.5; no thousands separator, because a comma separates function arguments).
  * × ÷ − √ are the same as * / - sqrt. ** is the same as ^. */
 (function (g) {
   'use strict';
   const ns = (g.SlopCalc = g.SlopCalc || {});
+  /** A word from the shared tables (shared/i18n/ui/<code>/calc.js), the key without SlopI18n. */
+  const say = (key, vars) => (g.SlopI18n ? g.SlopI18n.t(key, vars) : key);
 
   class CalcError extends Error {
     constructor(message, pos = 0, code = 'syntax', extra = {}) {
@@ -53,7 +56,7 @@
         if (m) { hit = { type, text: m[0] }; break; }
       }
       if (!hit && PUNCT[c]) hit = { type: PUNCT[c], text: c };
-      if (!hit) throw new CalcError(`Unexpected character “${c}”`, i);
+      if (!hit) throw new CalcError(say('ui.calc.bad_char', { c }), i);
       const tok = { type: hit.type, value: hit.value !== undefined ? hit.value : hit.text, pos: i };
       if (hit.type === 'num') tok.value = parseFloat(hit.text);
       if (hit.type === 'op') { tok.value = OPS[hit.text]; }

@@ -879,3 +879,26 @@ history step and palette word, so never strip a suffix to get it. Layer names th
 | prompt | prompt | kept as «prompt» in AI contexts |
 | content rules | innehållsregler | |
 | charges your account | debiterar ditt konto | |
+
+## Shell and shared components (shell, finder, calendar, sheets, calc)
+
+| English | Svenska | Note |
+|---|---|---|
+| app drawer | applådan | «Stäng applådan» |
+| ungroup (a folder) | Dela upp | «Mappen delades upp.» |
+| notification / desktop alerts | avisering / skrivbordsaviseringar | as the chrome's «Aviseringar» |
+| dismiss (a notification) | Stäng |  |
+| video tutorial | videoguide | «Se videoguiden för {app}» |
+| unsaved changes (dot) | Osparade ändringar |  |
+| item / items (generic count) | objekt | «2 objekt», same in singular |
+| ascending / descending (sort) | stigande / fallande |  |
+| until (a repeat's last day, inclusive) | till och med | «Varje vecka till och med 31 jan. 2027» |
+| every 2 weeks | var 2:e vecka | «varje vecka» for one |
+| N minutes before | {n} minuter före | «1 timme före», «1 dag före» |
+| snooze time | snoozetid | as the Reminders app's «Snooza» |
+| file size units | byte / kB / MB / GB | «3,4 kB» (decimal comma) |
+| pictures / chart sheets (not imported) | bilder / diagramblad |  |
+| conditional formatting / data validation | villkorsstyrd formatering / dataverifiering | as Excel sv |
+| quantity (calc) | storhet | «två storheter» |
+| division by zero | Division med noll |  |
+| dimension names (calc) | längd / massa / volym / tid / kalenderdagar / datamängd / temperatur / valuta |  |

@@ -29,6 +29,9 @@
   @media (prefers-color-scheme: light){ .sps-box{background:#fff;color:#111;border-color:#ddd} .sps-in{border-color:#ddd} .sps-pill{background:rgba(255,255,255,.9);color:#111} }`;
 
   let back = null, input = null, list = null, shown = [], sel = 0, apps = null;
+  /** A word from the shared tables (shared/i18n: the chrome and ui/<code>/shell.js), the key without SlopI18n. */
+  const tx = (key) => (window.SlopI18n ? window.SlopI18n.t(key) : key);
+  const nameOf = (a) => (window.slopAppName ? window.slopAppName(a) : a.name);   // the app's name in the chosen language
 
   function addStyle() {
     const st = document.createElement('style');
@@ -59,13 +62,13 @@
   }
   function paint() {
     list.replaceChildren();
-    if (!shown.length) { const p = document.createElement('p'); p.className = 'sps-none'; p.textContent = 'No app matches. Try another word.'; list.append(p); return; }
+    if (!shown.length) { const p = document.createElement('p'); p.className = 'sps-none'; p.textContent = tx('ui.shell.spot_none'); list.append(p); return; }
     shown.forEach((a, i) => {
       const li = document.createElement('li');
       li.className = 'sps-item';
       li.setAttribute('role', 'option');
       li.setAttribute('aria-selected', String(i === sel));
-      const n = document.createElement('div'); n.className = 'sps-name'; n.textContent = a.name;
+      const n = document.createElement('div'); n.className = 'sps-name'; n.textContent = nameOf(a);
       const d = document.createElement('div'); d.className = 'sps-desc'; d.textContent = (window.SLOP_APP_SEARCH || {})[a.id]?.desc || a.tagline || '';
       li.append(n, d);
       li.addEventListener('mousedown', (e) => { e.preventDefault(); go(a); }); // touch-ok: before the field's blur; a tap sends it too
@@ -77,8 +80,8 @@
   function registerWithCommands() {
     const C = window.SlopCmd;
     if (!C || !C.addProvider) return false;
-    C.addProvider({ id: 'slop-apps', title: 'Open an app', search: (q) => matches(q).slice(0, 12).map((a) => ({
-      id: 'app.open.' + a.id, title: a.name, group: 'Apps', keywords: [], run: () => go(a),
+    C.addProvider({ id: 'slop-apps', title: tx('ui.shell.open_an_app'), search: (q) => matches(q).slice(0, 12).map((a) => ({
+      id: 'app.open.' + a.id, title: nameOf(a), group: 'Apps', keywords: [], run: () => go(a),
     })) });
     return true;
   }
@@ -98,18 +101,20 @@
     pill.type = 'button';
     pill.className = 'sps-pill';
     pill.setAttribute('aria-label', 'All apps');
-    pill.innerHTML = '<span>All apps</span><kbd>Ctrl K</kbd>';
+    pill.setAttribute('data-i18n-attr', 'aria-label:switcher.all_apps');
+    pill.innerHTML = '<span data-i18n="switcher.all_apps">All apps</span><kbd>Ctrl K</kbd>';
     pill.addEventListener('click', () => open());
     const home = document.createElement('a');
     home.className = 'sps-pill';
     home.href = root;
     home.textContent = 'Home';
+    home.setAttribute('data-i18n', 'nav.home');
     const dock = document.createElement('div');
     dock.className = 'sps-dock';
     dock.append(home, pill);
     back = document.createElement('div');
     back.className = 'sps-back';
-    back.innerHTML = '<div class="sps-box" role="dialog" aria-label="All apps"><input class="sps-in" type="search" placeholder="Find an app" aria-label="Find an app" autocomplete="off"><ul class="sps-list" role="listbox"></ul></div>';
+    back.innerHTML = '<div class="sps-box" role="dialog" aria-label="All apps" data-i18n-attr="aria-label:switcher.all_apps"><input class="sps-in" type="search" placeholder="Find an app" aria-label="Find an app" data-i18n-attr="placeholder:ui.shell.find_app;aria-label:ui.shell.find_app" autocomplete="off"><ul class="sps-list" role="listbox"></ul></div>';
     input = back.querySelector('input');
     list = back.querySelector('.sps-list');
     input.addEventListener('input', () => { shown = matches(input.value).slice(0, 12); sel = 0; paint(); });
@@ -124,6 +129,7 @@
     const shell = !!(window.SlopShell || document.querySelector('script[src*="shell/shell.js"]'));
     const header = shell && !!document.querySelector('header a.brand, .smb-brand');
     document.body.append(...(header ? [] : [dock]), back);
+    if (window.SlopI18n) { window.SlopI18n.apply(dock); window.SlopI18n.apply(back); }   // the marked words; a switch re-applies them
     document.addEventListener('keydown', (e) => {
       if (!window.SlopCmd && (e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) { e.preventDefault(); open(); }
       else if (e.key === 'Escape' && back.classList.contains('on')) close();

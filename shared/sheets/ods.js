@@ -9,6 +9,8 @@ import { parseXml, kids, kid, all, attr, textOf, NS } from '../office/xml.js';
 import { formatNumber } from './numfmt.js';
 import { buildSheet } from './xlsx.js';
 import { KEY } from './csv.js';
+/** A word from the shared tables (shared/i18n/ui/<code>/sheets.js), the key without SlopI18n (node tests). */
+const tr = (key, vars) => (globalThis.SlopI18n ? globalThis.SlopI18n.t(key, vars) : key);
 
 const T = NS.table, O = NS.office, ST = NS.style, N = NS.number, FO = NS.fo, TX = NS.text;
 const MAX_COLS = 16384, MAX_REPEAT = 1000;
@@ -196,24 +198,24 @@ function readTable(tbl, style) {
 /** The readZip Map of an .ods package → { sheets, skipped }. Throws when it is not a spreadsheet. */
 export function readOds(files) {
   const content = readText(files, 'content.xml');
-  if (!content) throw new Error('Not an OpenDocument spreadsheet (no content.xml)');
+  if (!content) throw new Error(tr('ui.sheets.ods_no_content'));
   const doc = parseXml(content).documentElement;
   const stylesXml = readText(files, 'styles.xml');
   const sdoc = stylesXml ? parseXml(stylesXml).documentElement : null;
   const roots = [kid(sdoc, O, 'styles'), kid(sdoc, O, 'automatic-styles'), kid(doc, O, 'automatic-styles')].filter(Boolean);
   const style = styleTable(roots, dataStyles(roots));
   const ss = kid(kid(doc, O, 'body'), O, 'spreadsheet');
-  if (!ss) throw new Error('This OpenDocument file is not a spreadsheet');
+  if (!ss) throw new Error(tr('ui.sheets.ods_not_sheet'));
   const sheets = kids(ss, T, 'table').map((tbl) => readTable(tbl, style));
-  if (!sheets.length) throw new Error('This spreadsheet has no sheets');
+  if (!sheets.length) throw new Error(tr('ui.sheets.no_sheets'));
   sheets.forEach((s) => { s.charts = []; });
   const names = [...files.keys()], skipped = [];
-  if (names.some((n) => /^Object [^/]+\/content\.xml$/.test(n)) || all(doc, NS.draw, 'object').length) skipped.push('charts');
-  if (names.some((n) => /^Pictures\//.test(n))) skipped.push('pictures');
-  if (content.includes('table:data-pilot-table')) skipped.push('pivot tables (their values are kept)');
-  if (content.includes('office:annotation')) skipped.push('comments');
-  if (content.includes('conditional-format')) skipped.push('conditional formatting');
-  if (content.includes('table:content-validation')) skipped.push('data validation');
-  if (names.some((n) => /^(Basic|Scripts)\//.test(n))) skipped.push('macros');
+  if (names.some((n) => /^Object [^/]+\/content\.xml$/.test(n)) || all(doc, NS.draw, 'object').length) skipped.push(tr('ui.sheets.part_charts'));
+  if (names.some((n) => /^Pictures\//.test(n))) skipped.push(tr('ui.sheets.part_pictures'));
+  if (content.includes('table:data-pilot-table')) skipped.push(tr('ui.sheets.part_pivots'));
+  if (content.includes('office:annotation')) skipped.push(tr('ui.sheets.part_comments'));
+  if (content.includes('conditional-format')) skipped.push(tr('ui.sheets.part_cond'));
+  if (content.includes('table:content-validation')) skipped.push(tr('ui.sheets.part_validation'));
+  if (names.some((n) => /^(Basic|Scripts)\//.test(n))) skipped.push(tr('ui.sheets.part_macros'));
   return { sheets, skipped };
 }

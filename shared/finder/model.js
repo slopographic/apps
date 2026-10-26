@@ -4,6 +4,8 @@
 (function () {
   'use strict';
   const VIEWS = ['cards', 'list', 'table'];
+  /** A word from the shared tables (shared/i18n/ui/<code>/finder.js), the key without SlopI18n. */
+  const T = (key, vars) => (globalThis.SlopI18n ? globalThis.SlopI18n.t(key, vars) : key);
   /** Lower case, accents removed: "Résumé" becomes "resume". */
   const fold = (s) => String(s == null ? '' : s).normalize('NFD').replace(/\p{M}+/gu, '').toLowerCase().trim();
   const words = (q) => fold(q).split(/\s+/).filter(Boolean);
@@ -114,10 +116,10 @@
   /** The removable chips: the search, then each selected facet value. */
   function chips(st, spec) {
     const out = [];
-    if (words(st.q).length) out.push({ kind: 'q', key: 'q', value: st.q.trim(), label: `Search: "${st.q.trim()}"` });
+    if (words(st.q).length) out.push({ kind: 'q', key: 'q', value: st.q.trim(), label: T('ui.finder.chip_search', { q: st.q.trim() }) });
     for (const f of spec.facets || []) {
       for (const v of (st.facets && st.facets[f.key]) || []) {
-        out.push({ kind: 'facet', key: f.key, value: v, label: `${f.label}: ${f.format ? f.format(v) : v}` });
+        out.push({ kind: 'facet', key: f.key, value: v, label: T('ui.finder.chip', { label: f.label, value: f.format ? f.format(v) : v }) });
       }
     }
     return out;

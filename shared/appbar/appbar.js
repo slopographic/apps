@@ -26,6 +26,15 @@
     more: '<circle cx="6" cy="12" r="1.8" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.8" fill="currentColor" stroke="none"/><circle cx="18" cy="12" r="1.8" fill="currentColor" stroke="none"/>',
   };
 
+  /** A word from the shared tables (shared/i18n/ui), the key without SlopI18n. */
+  const tx = (key) => (g.SlopI18n ? g.SlopI18n.t(key) : key);
+  /** Attributes that read a word, marked for SlopI18n so a language change re-applies them: { attr: key } → attrs. */
+  function words(map) {
+    const out = { 'data-i18n-attr': Object.keys(map).map((a) => a + ':' + map[a]).join(';') };
+    for (const a in map) out[a] = tx(map[a]);
+    return out;
+  }
+
   function el(tag, attrs, ...kids) {
     const n = document.createElement(tag);
     for (const k in attrs || {}) {
@@ -64,14 +73,14 @@
     const brandBadge = el('span', { class: 'sab-badge' }, badge(opts.icon));
     if (!brandBadge.firstChild) brandBadge.hidden = true;
     const name = el('span', { class: 'sab-name' }, opts.title || '');
-    const dot = el('span', { class: 'sab-dirty', role: 'img', 'aria-label': 'Unsaved changes', title: 'Unsaved changes', hidden: true });
+    const dot = el('span', { class: 'sab-dirty', role: 'img', ...words({ 'aria-label': 'ui.appbar.unsaved', title: 'ui.appbar.unsaved' }), hidden: true });
     const sub = el('p', { class: 'sab-sub' }, opts.subtitle || '');
     sub.hidden = !opts.subtitle;
-    const acts = el('div', { class: 'sab-actions', role: 'group', 'aria-label': 'Actions' });
-    const moreBtn = el('button', { type: 'button', class: 'sab-btn sab-more-btn', 'aria-haspopup': 'menu', 'aria-expanded': 'false', 'aria-label': 'More actions', title: 'More actions' }, icon('more'));
-    const menuEl = el('div', { class: 'sab-menu', role: 'menu', 'aria-label': 'More actions', hidden: true });
+    const acts = el('div', { class: 'sab-actions', role: 'group', ...words({ 'aria-label': 'ui.appbar.actions' }) });
+    const moreBtn = el('button', { type: 'button', class: 'sab-btn sab-more-btn', 'aria-haspopup': 'menu', 'aria-expanded': 'false', ...words({ 'aria-label': 'ui.appbar.more', title: 'ui.appbar.more' }) }, icon('more'));
+    const menuEl = el('div', { class: 'sab-menu', role: 'menu', ...words({ 'aria-label': 'ui.appbar.more' }), hidden: true });
     const more = el('div', { class: 'sab-more' }, moreBtn, menuEl);
-    const home = opts.home ? el('a', { class: 'brand', href: opts.home, title: 'Slopographic home', 'aria-label': 'Slopographic home' }) : null;
+    const home = opts.home ? el('a', { class: 'brand', href: opts.home, ...words({ title: 'ui.mb.home', 'aria-label': 'ui.mb.home' }) }) : null;
     const root = el('header', { class: 'sab', 'data-narrow': 'false' },
       el('div', { class: 'sab-brand' }, home, brandBadge, el('div', { class: 'sab-titles' }, el('h1', { class: 'sab-title' }, name, dot), sub)),
       acts, more);

@@ -9,10 +9,14 @@
 <body>
   <div id="host"></div>
   <script src="../harness.js"></script>
+  <script src="../../shared/profile/profile.js"></script>
+  <script src="../../shared/i18n/i18n.js"></script>
   <script src="../../shared/urlstate/urlstate.js"></script>
   <script src="../../shared/finder/model.js"></script>
   <script src="../../shared/finder/finder.js"></script>
+  <script src="../../shared/ui/list.js"></script>
   <script>
+  // Covers: shared/finder/finder.js, shared/finder/model.js, shared/ui/list.js, shared/i18n/ui/en/finder.js, shared/i18n/ui/sv/finder.js
   const { describe, it, expect, waitFor, run } = SlopTest;
   const ITEMS = [
     { id: 'pdf', name: 'PDF', tag: 'Organise PDFs.', feats: ['Merge and split'], kind: 'Documents', types: ['PDF'], live: true, size: 10 },
@@ -213,6 +217,45 @@
       enter();
       expect(opened).toEqual(['#open-inv']);
       f.destroy();
+    });
+  });
+
+  describe('finder: the count line in the chosen language, with plural forms', () => {
+    const I = window.SlopI18n;
+    /** The homepage's count: plural keys of the chrome (finder.count, finder.count_of), not "{n} {noun}". */
+    const HOME = { count: (n) => I.t('finder.count', { n }), countOf: (shown, n) => I.t('finder.count_of', { shown, n }) };
+    async function lang(code) { I.set(code); await I.ready(); await waitFor(() => document.documentElement.lang === code, { timeout: 10000 }); }
+    it('n = 1 and n = 2 read their own forms in English and in Swedish, and a live switch redraws the count', async () => {
+      mountIt({ ...HOME, items: ITEMS.slice(0, 1) });
+      expect($('.fd-count').textContent).toBe('1 app');
+      const f = mountIt({ ...HOME, items: ITEMS.slice(0, 2) });
+      expect($('.fd-count').textContent).toBe('2 apps');
+      try {
+        await lang('sv');
+        await waitFor(() => $('.fd-count').textContent === '2 appar', { timeout: 5000 });
+        expect($('.fd-view[data-fd-view="list"]').textContent).toBe('Lista');   // the marked labels follow too
+        typeIn('pdf');
+        expect($('.fd-count').textContent).toBe('1 av 2 appar matchar');
+        expect($('.fd-chip').textContent).toContain('Sök: ”pdf”');
+        mountIt({ ...HOME, items: ITEMS.slice(0, 1) });
+        expect($('.fd-count').textContent).toBe('1 app');
+        mountIt({ items: ITEMS.slice(0, 2), noun: undefined });
+        expect($('.fd-count').textContent).toBe('2 objekt');   // no count of the caller's: the shared default
+      } finally { f.destroy(); await lang('en'); localStorage.removeItem('slop-profile'); }
+    });
+    it('SlopList counts with the app\'s plural key, and the older noun pair still reads', async () => {
+      const box = document.createElement('div'), sum = document.createElement('p');
+      document.body.append(box, sum);
+      const L = SlopList.mount(box, { summary: sum, count: (n) => I.t('ui.shell.folder_aria', { name: 'X', n }) });
+      L.set([{ id: 1 }]);
+      expect(sum.textContent).toBe('X, folder with 1 app');
+      L.set([{ id: 1 }, { id: 2 }]);
+      expect(sum.textContent).toBe('X, folder with 2 apps');
+      SlopList.mount(box, { summary: sum, noun: ['expense', 'expenses'] }).set([{ id: 1 }]);
+      expect(sum.textContent).toBe('1 expense');
+      SlopList.mount(box, { summary: sum }).set([{ id: 1 }, { id: 2 }]);
+      expect(sum.textContent).toBe('2 items');
+      box.remove(); sum.remove();
     });
   });
 

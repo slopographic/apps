@@ -41,6 +41,9 @@
     return { name, sub: sub || '', letter: name[0], key: 'app:' + it.app.id, status: it.app.status };
   }
 
+  /** The registry status as the tag shows it: "beta", "In development" (strings.js). */
+  const statusWord = (st) => (st === 'beta' ? tr('shell.beta', st) : tr('status.' + st, st));
+
   function render() {
     const q = input.value;
     const secs = sections(q);
@@ -56,7 +59,7 @@
         b.id = 'sh-opt-' + i;
         b.setAttribute('role', 'option');
         b.dataset.i = String(i);
-        b.innerHTML = `<span class="sh-badge" style="--h:${hue(L.name)}">${esc(L.letter.toUpperCase())}</span><span class="sh-opt-text"><span class="sh-opt-name">${esc(L.name)}</span>${L.sub ? `<span class="sh-opt-sub">${esc(L.sub)}</span>` : ''}</span>${L.status && L.status !== 'live' ? `<span class="sh-tag">${esc(L.status)}</span>` : ''}`;
+        b.innerHTML = `<span class="sh-badge" style="--h:${hue(L.name)}">${esc(L.letter.toUpperCase())}</span><span class="sh-opt-text"><span class="sh-opt-name">${esc(L.name)}</span>${L.sub ? `<span class="sh-opt-sub">${esc(L.sub)}</span>` : ''}</span>${L.status && L.status !== 'live' ? `<span class="sh-tag">${esc(statusWord(L.status))}</span>` : ''}`;
         b.addEventListener('click', () => activate(i));
         b.addEventListener('pointermove', () => setActive(i, false));
         listEl.append(b);
@@ -89,7 +92,7 @@
     back.innerHTML = `<div class="sh-sw" role="dialog" aria-modal="true" aria-label="Switch app" data-i18n-attr="aria-label:shell.switch_app">
       <div class="sh-sw-head"><label class="sh-sr" for="sh-q" data-i18n="switcher.search">Search apps</label>
         <input id="sh-q" class="sh-q" type="search" placeholder="Search apps" autocomplete="off" spellcheck="false" role="combobox" aria-expanded="true" aria-controls="sh-list" aria-autocomplete="list" data-i18n-attr="placeholder:switcher.search">
-        <button type="button" class="sh-close" aria-label="Close"><kbd class="sh-kbd slop-esc-hint" aria-hidden="true" data-i18n="switcher.esc">Esc</kbd><span class="sh-x" aria-hidden="true">×</span></button></div>
+        <button type="button" class="sh-close" aria-label="Close" data-i18n-attr="aria-label:menu.close"><kbd class="sh-kbd slop-esc-hint" aria-hidden="true" data-i18n="switcher.esc">Esc</kbd><span class="sh-x" aria-hidden="true">×</span></button></div>
       <div class="sh-list" id="sh-list" role="listbox" aria-label="Apps" data-i18n-attr="aria-label:nav.apps"></div>
       <div class="sh-sw-foot"><span class="sh-hint" data-i18n="switcher.hint">Enter to open · ↑ ↓ to move</span><button type="button" class="sh-all" data-i18n="switcher.all_apps">All apps</button></div>
     </div>`;
