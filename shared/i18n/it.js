@@ -245,5 +245,7 @@
     'mascot.tip_search': 'Premi Ctrl+Spazio (Cmd+Spazio su Mac) per passare a qualsiasi app.',
     'tour.tours': 'Tour',
     'tour.tours_title': 'Tour guidati per ogni app',
+    'footer.group_business': 'Business',
+    'footer.group_creative': 'Creatività',
   });
 })(typeof window !== 'undefined' ? window : globalThis);

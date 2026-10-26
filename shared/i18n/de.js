@@ -245,5 +245,7 @@
     'mascot.tip_search': 'Drücken Sie Strg+Leertaste (Cmd+Leertaste auf dem Mac), um zu einer beliebigen App zu wechseln.',
     'tour.tours': 'Touren',
     'tour.tours_title': 'Geführte Touren für jede App',
+    'footer.group_business': 'Business',
+    'footer.group_creative': 'Kreativ',
   });
 })(typeof window !== 'undefined' ? window : globalThis);

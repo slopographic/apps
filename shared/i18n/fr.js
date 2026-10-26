@@ -245,5 +245,7 @@
     'mascot.tip_search': 'Appuyez sur Ctrl+Espace (Cmd+Espace sur Mac) pour passer à n’importe quelle appli.',
     'tour.tours': 'Visites',
     'tour.tours_title': 'Visites guidées de chaque appli',
+    'footer.group_business': 'Entreprise',
+    'footer.group_creative': 'Création',
   });
 })(typeof window !== 'undefined' ? window : globalThis);

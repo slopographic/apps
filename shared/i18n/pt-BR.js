@@ -245,5 +245,7 @@
     'mascot.tip_search': 'Pressione Ctrl+Espaço (Cmd+Espaço no Mac) para trocar para qualquer app.',
     'tour.tours': 'Tours',
     'tour.tours_title': 'Tours guiados de cada app',
+    'footer.group_business': 'Negócios',
+    'footer.group_creative': 'Criação',
   });
 })(typeof window !== 'undefined' ? window : globalThis);

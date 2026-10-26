@@ -1,4 +1,4 @@
-// Covers: shared/theme/theme.js, home/sections.js, home/catalog.js, home/browse.js, home/globe/globe.js, tools/seo/landing.mjs, shared/finder/finder.js
+// Covers: tools/seo/footnav.mjs, shell/header.js, shared/tour/mount.js, shared/theme/theme.js, home/sections.js, home/catalog.js, home/browse.js, home/globe/globe.js, tools/seo/landing.mjs, shared/finder/finder.js
 // The plain tone (a brand profile's "tone": "plain", brand/README.md): the choices it drives, each read from the profile
 // markers the build rewrites. theme.js marks <html> before the first paint and loads style/tone.css; the homepage has no
 // Experiments shelf, neutral status words (none for a ready app, "Preview" for one in development) and its own wording
@@ -112,4 +112,12 @@ test('the cards, list, table and finder take their words from sections.js and th
   assert.match(browse, /H\.SHELVES/);
   assert.match(browse, /H\.statusLabel\('building'\)/);
   for (const k of ['finder.cards', 'finder.filter_by', 'finder.count_of']) assert.match(finder, new RegExp(k.replace('.', '\\.')));
+});
+
+test('the footer: with plain names the group headings are translated; brand names stay as they are', async () => {
+  const { buildFootNav } = await import('../../tools/seo/footnav.mjs');
+  const apps = [{ id: 'invoices', name: 'Invoices', path: 'invoices/', group: 'business' }];
+  assert.match(buildFootNav({ apps, groups: { business: 'Business' }, plainNames: true }), /<span data-i18n="footer.group_business">Business<\/span>/);
+  assert.match(buildFootNav({ apps, groups: { business: 'Slop 365' } }), /<summary><span>Slop 365<\/span>/);
+  for (const f of ['shell/header.js', 'shared/tour/mount.js']) assert.match(read(f), /settings\.theme|tour\.tours/);
 });

@@ -252,5 +252,7 @@
     'mascot.tip_search': 'Press Ctrl+Space (Cmd+Space on a Mac) to switch to any app.',
     'tour.tours': 'Tours',
     'tour.tours_title': 'Guided tours for each app',
+    'footer.group_business': 'Business',
+    'footer.group_creative': 'Creative',
   });
 })(typeof window !== 'undefined' ? window : globalThis);

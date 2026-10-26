@@ -246,5 +246,7 @@
     'mascot.tip_search': 'اضغط Ctrl+Space (أو Cmd+Space على Mac) للانتقال إلى أي تطبيق.',
     'tour.tours': 'الجولات',
     'tour.tours_title': 'جولات إرشادية لكل تطبيق',
+    'footer.group_business': 'الأعمال',
+    'footer.group_creative': 'الإبداع',
   });
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -245,5 +245,7 @@
     'mascot.tip_search': 'Tryck Ctrl+Mellanslag (Cmd+Mellanslag på Mac) för att byta till valfri app.',
     'tour.tours': 'Rundturer',
     'tour.tours_title': 'Guidade rundturer för varje app',
+    'footer.group_business': 'Affärer',
+    'footer.group_creative': 'Kreativt',
   });
 })(typeof window !== 'undefined' ? window : globalThis);
