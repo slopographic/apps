@@ -33,6 +33,6 @@ function drawResizePreview(g) {
   g.fillStyle = gr; g.beginPath(); g.arc(cxp, cyp, rad, 0, Math.PI * 2); g.fill();
   g.strokeStyle = '#fff'; g.lineWidth = 1; g.stroke();
   const label = `${R.o.size}px · ${R.alt ? 'opacity ' + Math.round((R.o.opacity || 1) * 100) : 'hardness ' + Math.round(hd * 100)}%`;
-  g.font = '600 12px "JetBrains Mono", monospace'; const tw = g.measureText(label).width;
+  g.font = '600 12px "JetBrains Mono", monospace'; const tw = g.measureText(label).width; // i18n-ignore: a CSS font
   g.fillStyle = 'rgba(0,0,0,.75)'; g.fillRect(cxp - tw / 2 - 8, cyp + rad + 10, tw + 16, 22); g.fillStyle = '#fff'; g.fillText(label, cxp - tw / 2, cyp + rad + 25);
 }

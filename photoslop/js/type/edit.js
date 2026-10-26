@@ -58,7 +58,7 @@ function teRead() {
 function startTypeEdit(p, L, selectAll) {
   endTypeEdit();
   const t = L ? normText(L.text) : normText(Object.assign({}, T.type, { str: '', x: Math.round(p.x), y: Math.round(p.y), color: C.fg }));
-  const el = h('div', { class: 'type-edit', contenteditable: 'plaintext-only', spellcheck: 'false', role: 'textbox', 'aria-multiline': 'true', 'aria-label': 'Type layer text' });
+  const el = h('div', { class: 'type-edit', contenteditable: 'plaintext-only', spellcheck: 'false', role: 'textbox', 'aria-multiline': 'true', 'aria-label': tr('photoslop.type.layer_text') });
   if (el.contentEditable !== 'plaintext-only') el.contentEditable = 'true';
   Object.assign(TE, { el, layerId: L ? L.id : null, t, orig: L ? JSON.stringify(normText(L.text)) : null, sel: { s: 0, e: selectAll ? t.str.length : t.str.length } });
   if (L) live = { layerId: L.id, surface: () => ({ canvas: scratchCanvas('b', 1, 1), x: 0, y: 0, w: 1, h: 1 }) };
@@ -104,11 +104,11 @@ async function endTypeEdit(cancel) {
   t.str = t.str.replace(/\s+$/, '');
   t.runs = t.runs.filter((r) => r.s < t.str.length).map((r) => ({ s: r.s, e: Math.min(r.e, t.str.length), o: r.o }));
   await loadTextFonts(t);
-  if (!t.str) { if (id) { const i = layerIndex(id); if (i >= 0 && D.layers.length > 1) { D.layers.splice(i, 1); D.activeId = D.layers[Math.max(0, i - 1)].id; commit('Delete Type'); } } dirty(true); return; }
+  if (!t.str) { if (id) { const i = layerIndex(id); if (i >= 0 && D.layers.length > 1) { D.layers.splice(i, 1); D.activeId = D.layers[Math.max(0, i - 1)].id; commit(tr('photoslop.type.step_delete')); } } dirty(true); return; }
   if (id && JSON.stringify(t) === TE.orig) { dirty(true); return; }
   const r = renderTextCanvas(t), name = t.str.split('\n')[0].slice(0, 32);
-  if (id && layerIndex(id) >= 0) { patchLayer(id, { canvas: r.canvas, x: r.x, y: r.y, text: t, name }); commit('Edit Type'); }
-  else addLayer({ name, canvas: r.canvas, x: r.x, y: r.y, text: t }, 'Type Layer');
+  if (id && layerIndex(id) >= 0) { patchLayer(id, { canvas: r.canvas, x: r.x, y: r.y, text: t, name }); commit(tr('photoslop.type.step_edit')); }
+  else addLayer({ name, canvas: r.canvas, x: r.x, y: r.y, text: t }, tr('photoslop.type.step_new'));
 }
 /** Edit a type layer with all its text selected (double-click on its thumbnail, Layer ▸ Type ▸ Edit Text). */
 function editTypeLayer(L = activeLayer()) {
@@ -121,7 +121,7 @@ function editTypeLayer(L = activeLayer()) {
 listeners.add((w) => { if (w === 'zoom' && TE.el) teRender(true); });
 // Double-click on a text layer, with any tool: edit its text (the Type tool already does this on a single press).
 listeners.add((w) => { if (w === 'dblclick' && !TE.el && V.lastDbl) { const L = textLayerAt(V.lastDbl); if (L) editTypeLayer(L); } });
-defTool({ id: 'type', name: 'Horizontal Type Tool', key: 'T', icon: ICON('M5 5V3h14v2M12 3v18M9 21h6'),
+defTool({ id: 'type', nk: 'type', key: 'T', icon: ICON('M5 5V3h14v2M12 3v18M9 21h6'),
   down(p, e) { if (e && e.target && e.target.closest && e.target.closest('.type-edit')) return; if (TE.el) { endTypeEdit(); return; } startTypeEdit(p, textLayerAt(p)); },
   deactivate() { endTypeEdit(); },
   hover(p) { V.el.style.cursor = 'text'; },

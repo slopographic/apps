@@ -16,52 +16,52 @@ function psCropRatio(ratio) {
   if (hh > D.h) { hh = D.h; w = Math.round(D.h * r); }
   cropTo({ x: Math.round((D.w - w) / 2), y: Math.round((D.h - hh) / 2), w, h: hh }, true);
   fitView();
-  return `Cropped to ${w} × ${hh} px (${ratio}).`;
+  return `Cropped to ${w} × ${hh} px (${ratio}).`;   // i18n-ignore: the result told to the assistant (API)
 }
 
 (function () {
   const SM = window.SlopMacros;
   if (!SM) return;
 
-  /* ---------- menu items that are commands ---------- */
-  const rot = (target) => ({ 'Rotate 180°': ['ps.ai.rotate', { angle: '180', target }], 'Rotate 90° Clockwise': ['ps.ai.rotate', { angle: '90', target }],
-    'Rotate 90° Counter Clockwise': ['ps.ai.rotate', { angle: '-90', target }], 'Flip Horizontal': ['ps.ai.flip', { direction: 'horizontal', target }],
-    'Flip Vertical': ['ps.ai.flip', { direction: 'vertical', target }] });
+  /* ---------- menu items that are commands (found by group and the items' k, menus.js) ---------- */
+  const rot = (target) => ({ rotate_180: ['ps.ai.rotate', { angle: '180', target }], rotate_90_clockwise: ['ps.ai.rotate', { angle: '90', target }],
+    rotate_90_counter_clockwise: ['ps.ai.rotate', { angle: '-90', target }], flip_horizontal: ['ps.ai.flip', { direction: 'horizontal', target }],
+    flip_vertical: ['ps.ai.flip', { direction: 'vertical', target }] });
   const under = (path, map) => Object.fromEntries(Object.entries(map).map(([k, v]) => [path + '/' + k, v]));
   const SAME = Object.assign({
-    'Edit/Undo': ['ps.ai.undo', { steps: 1 }],
-    'Edit/Fill with Foreground': () => ['ps.ai.fill', { color: C.fg, opacity: 100 }],
-    'Edit/Fill with Background': () => ['ps.ai.fill', { color: C.bg, opacity: 100 }],
-    'Image/Crop to Selection': ['ps.ai.crop-to-selection', {}],
-    'Layer/New Layer': ['ps.ai.new-layer', {}], 'Layer/Duplicate Layer': ['ps.ai.duplicate-layer', {}], 'Layer/Delete/Delete Layer': ['ps.ai.delete-layer', {}],
-    'Select/All': ['ps.ai.select-all', {}], 'Select/Deselect': ['ps.ai.deselect', {}], 'Select/Inverse': ['ps.ai.invert-selection', {}], 'Select/Subject': ['ps.ai.select-subject', {}],
-  }, under('Image', rot('image')), under('Edit/Transform', rot('layer')), under('Layer/Rotate and Flip', rot('layer')));
-  for (const r of PS_RATIOS) SAME['Image/Crop to Ratio/' + r] = ['ps.ai.crop', { ratio: r }];
+    'Edit/undo': ['ps.ai.undo', { steps: 1 }],
+    'Edit/fill_with_foreground': () => ['ps.ai.fill', { color: C.fg, opacity: 100 }],
+    'Edit/fill_with_background': () => ['ps.ai.fill', { color: C.bg, opacity: 100 }],
+    'Image/crop_to_selection': ['ps.ai.crop-to-selection', {}],
+    'Layer/new_layer': ['ps.ai.new-layer', {}], 'Layer/duplicate_layer': ['ps.ai.duplicate-layer', {}], 'Layer/delete/delete_layer': ['ps.ai.delete-layer', {}],
+    'Select/all': ['ps.ai.select-all', {}], 'Select/deselect': ['ps.ai.deselect', {}], 'Select/inverse': ['ps.ai.invert-selection', {}], 'Select/subject': ['ps.ai.select-subject', {}],
+  }, under('Image', rot('image')), under('Edit/transform', rot('layer')), under('Layer/rotate_and_flip', rot('layer')));   // i18n-ignore: ids, class names, key names or text for agents
+  for (const r of PS_RATIOS) SAME['Image/crop_to_ratio/' + r.replace(':', '_')] = ['ps.ai.crop', { ratio: r }];
 
   /* ---------- the menu entries ---------- */
-  const image = MENUS.find(([n]) => n === 'Image')[1], edit = MENUS.find(([n]) => n === 'Edit')[1];
-  const at = image.findIndex((it) => it && it.label === 'Crop to Selection');
-  image.splice(at + 1, 0, { label: 'Crop to Ratio', sub: PS_RATIOS.map((r) => ({ label: r, act: () => psCropRatio(r), need: 'layer' })) });
-  edit.push('-', { label: 'Macros', sub: [
-    { label: 'Record a Macro', cmdId: 'macro.record', act: () => SM.record(), en: () => !SM.recording },
-    { label: 'Stop Recording and Save…', cmdId: 'macro.stop', act: () => SM.stop(), en: () => SM.recording },
-    { label: 'Cancel Recording', cmdId: 'macro.cancel', act: () => SM.cancel(), en: () => SM.recording },
-    { label: 'Macros…', cmdId: 'macro.panel', act: () => SM.openPanel() },
-  ] });
+  const image = MENUS.find(([n]) => n === 'Image')[1], edit = MENUS.find(([n]) => n === 'Edit')[1];   // i18n-ignore: ids, class names, key names or text for agents
+  const at = image.findIndex((it) => it && it.k === 'crop_to_selection');
+  image.splice(at + 1, 0, ...labelMenu([{ k: 'crop_to_ratio', sub: PS_RATIOS.map((r) => ({ k: r.replace(':', '_'), label: r, act: () => psCropRatio(r), need: 'layer' })) }]));
+  edit.push('-', ...labelMenu([{ k: 'macros', sub: [
+    { k: 'record_a_macro', cmdId: 'macro.record', act: () => SM.record(), en: () => !SM.recording },
+    { k: 'stop_recording_and_save', cmdId: 'macro.stop', act: () => SM.stop(), en: () => SM.recording },
+    { k: 'cancel_recording', cmdId: 'macro.cancel', act: () => SM.cancel(), en: () => SM.recording },
+    { k: 'macros', t: 'macros_dots', cmdId: 'macro.panel', act: () => SM.openPanel() },
+  ] }]));
 
   // each menu item that is a command reports it after it runs (keys, menus, the context menu and the palette all call act)
-  const walk = (items, path) => {
+  const walk = (items, path, names) => {
     for (const it of items) {
       if (!it || it === '-') continue;
-      const p = path.concat(it.label);
-      if (it.sub) { walk(it.sub, p); continue; }
+      const p = path.concat(it.k || it.label), n = names.concat(it);
+      if (it.sub) { walk(it.sub, p, n); continue; }
       const same = SAME[p.join('/')];
       if (!same || !it.act) continue;
       const act = it.act;
-      it.act = (...a) => { const [cmd, args] = typeof same === 'function' ? same() : same; const r = act(...a); SM.note(cmd, args, p.slice(1).join(' › ')); return r; };
+      it.act = (...a) => { const [cmd, args] = typeof same === 'function' ? same() : same; const r = act(...a); SM.note(cmd, args, n.map((x) => x.label).join(' › ')); return r; };
     }
   };
-  for (const [name, items] of MENUS) if (Array.isArray(items)) walk(items, [name]);
+  for (const [name, items] of MENUS) if (Array.isArray(items)) walk(items, [name], []);
 
   /* ---------- the hidden copy for Slop Workflows ---------- */
   const MIME = { png: 'image/png', jpg: 'image/jpeg', webp: 'image/webp' };
@@ -69,7 +69,7 @@ function psCropRatio(ratio) {
     ready: () => new Promise((res) => { const t = () => (document.body && document.body.classList.contains('ready') ? res() : setTimeout(t, 30)); t(); }),
     async open(file) {
       const doc = await readAnyFile(file);
-      openDocument(doc.w, doc.h, doc.layers, (file.name || 'Untitled').replace(/\.[^.]+$/, '') || 'Untitled');
+      openDocument(doc.w, doc.h, doc.layers, (file.name || 'Untitled').replace(/\.[^.]+$/, '') || 'Untitled');   // i18n-ignore: the file name Slop Workflows writes
       if (doc.guides) adoptGuides(doc.guides);
       if (doc.wm) adoptWatermark(doc.wm);
     },
@@ -89,7 +89,7 @@ function psCropRatio(ratio) {
     docIsDirty = () => false;   // nothing to lose here: no "leave the page?" when the run is over
     document.documentElement.dataset.macroHost = '1';
   }
-  SM.init({ app: 'photoslop', label: 'PhotoSlop', host });
+  SM.init({ app: 'photoslop', label: 'PhotoSlop', host });   // i18n-ignore: ids, class names, key names or text for agents
   if (!SM.isHost) {
     const mount = () => { const b = document.getElementById('macrosBtn'); if (b && window.SlopMacrosPanel) { b.hidden = false; SlopMacrosPanel.button(SM, b); } };
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount, { once: true }); else mount();

@@ -27,28 +27,29 @@ async function rtEnhanceCanvas(src, p, denoise) {
   return out;
 }
 function rtDescribe(p) {
-  const parts = [`levels ${p.inB}–${p.inW}`, `white balance R×${p.wr} G×${p.wg} B×${p.wb}`, `exposure ${p.ev > 0 ? '+' : ''}${p.ev} EV`];
-  if (p.shadows || p.highlights) parts.push(`shadows +${p.shadows}, highlights −${p.highlights}`);
-  if (p.sat) parts.push(`vibrance +${p.sat}%`);
-  if (p.sharpen) parts.push(`sharpen ${p.sharpen}%`);
+  const parts = [rtT('d_levels', { lo: String(p.inB), hi: String(p.inW) }), rtT('d_white_balance', { r: String(p.wr), g: String(p.wg), b: String(p.wb) }),
+    rtT('d_exposure', { ev: (p.ev > 0 ? '+' : '') + p.ev })];
+  if (p.shadows || p.highlights) parts.push(rtT('d_shadows_highlights', { s: String(p.shadows), h: String(p.highlights) }));
+  if (p.sat) parts.push(rtT('d_vibrance', { pct: String(p.sat) }));
+  if (p.sharpen) parts.push(rtT('d_sharpen', { pct: String(p.sharpen) }));
   return parts.join(', ');
 }
 
 async function rtAutoEnhance(a = {}) {
   await rtSettle();
-  if (!activeLayer()) throw new Error('There is no picture to enhance');
+  if (!activeLayer()) throw new Error(rtT('no_picture_enhance'));
   await rtPrepareAI();
   const src = rtComposite(), p = rtEnhanceParams(rtEnhanceValues(src), a);
   const tilt = a.straighten ? rtTilt(src) : null, fix = tilt && Math.abs(tilt.angle) >= 0.2 && tilt.confidence >= 0.3;
   const out = await rtEnhanceCanvas(src, p, a.denoise);
-  await aiOneStep('Auto Enhance', () => {
-    rtAddLayers([{ name: nextName('Auto Enhance'), canvas: out }], 'Auto Enhance');
+  await aiOneStep(rtT('step_auto_enhance'), () => {
+    rtAddLayers([{ name: nextName('Auto Enhance'), canvas: out }], rtT('step_auto_enhance')); // i18n-ignore: the layer's name is the document's
     if (fix) rtStraighten(tilt.angle, true);
   });
-  if (window.SlopMacros && a.fromDialog) SlopMacros.note('ps.retouch.auto-enhance', rtArgsOnly(a), 'Auto enhance');
+  if (window.SlopMacros && a.fromDialog) SlopMacros.note('ps.retouch.auto-enhance', rtArgsOnly(a), 'Auto enhance'); // i18n-ignore: saved in the macro
   dirty(true);
-  return `Added the “Auto Enhance” layer: ${rtDescribe(p)}${a.denoise && a.denoise !== 'none' ? `, denoise ${a.denoise}` : ''}.` +
-    (a.straighten ? (fix ? ` Straightened by ${-tilt.angle}°.` : ' The picture looks level, so it was not rotated.') : '');
+  const what = rtDescribe(p) + (a.denoise && a.denoise !== 'none' ? rtT('d_denoise', { level: rtT('denoise_' + (a.denoise === 'none' ? 'off' : a.denoise)) }) : '');
+  return rtT('added_enhance', { what }) + (a.straighten ? ' ' + (fix ? rtT('straightened_by', { deg: String(-tilt.angle) }) : rtT('looks_level')) : '');
 }
 /** The command's own arguments (what a macro records), without the dialog's extras. */
 function rtArgsOnly(a) { const o = Object.assign({}, a); delete o.fromDialog; return o; }
@@ -76,34 +77,34 @@ function rtStraighten(angle, crop = true) {
   });
   D.w = W; D.h = H; D.sel = null;
   remapGuides(() => null);
-  commit('Straighten');
+  commit(rtT('step_straighten'));
   fitView();
 }
 async function rtStraightenCmd(a = {}) {
   await rtSettle();
-  let angle = a.angle, how = 'given';
+  let angle = a.angle, how = rtT('how_given');
   if (angle == null) {
     const t = rtTilt(rtComposite());
-    if (!t || t.confidence < 0.2) return 'No clear horizon or verticals were found, so nothing was changed. Give an angle to rotate anyway.';
-    angle = t.angle; how = `detected (${t.kind}, confidence ${t.confidence})`;
+    if (!t || t.confidence < 0.2) return rtT('no_lines_cmd');
+    angle = t.angle; how = rtT(t.kind === 'horizon' ? 'how_horizon' : 'how_verticals', { c: String(t.confidence) });
   }
-  if (Math.abs(angle) < 0.1) return `The picture is level (${angle}°), so nothing was changed.`;
+  if (Math.abs(angle) < 0.1) return rtT('is_level', { deg: String(angle) });
   rtStraighten(angle, a.crop !== false);
-  return `Rotated by ${-angle}° (tilt ${how}). The image is now ${D.w} × ${D.h} px.`;
+  return rtT('rotated_by', { deg: String(-angle), how, w: D.w, h: D.h });
 }
 function rtDetectTilt() {
   const t = rtTilt(rtComposite());
-  if (!t) return 'No strong straight lines were found.';
-  return `Tilt ${t.angle}° from the ${t.kind} (confidence ${t.confidence}; positive falls to the right). Straighten rotates by ${-t.angle}°.`;
+  if (!t) return rtT('no_strong_lines');
+  return rtT(t.kind === 'horizon' ? 'tilt_info_horizon' : 'tilt_info_verticals', { deg: String(t.angle), c: String(t.confidence), rot: String(-t.angle) });
 }
 /** Image ▸ Straighten…: detect, then ask. */
 async function rtStraightenAsk() {
   await rtSettle();
   const t = rtTilt(rtComposite());
-  if (!t || t.confidence < 0.2) { alertDlg('Straighten', 'No clear horizon or vertical lines were found in this picture.'); return; }
-  if (Math.abs(t.angle) < 0.1) { alertDlg('Straighten', 'The picture is already level.'); return; }
-  const ok = await confirmDlg('Straighten', `The ${t.kind === 'horizon' ? 'horizon leans' : 'verticals lean'} by ${Math.abs(t.angle)}°. Rotate the image by ${-t.angle}° and crop the empty corners?`, 'Straighten');
+  if (!t || t.confidence < 0.2) { alertDlg(rtT('straighten'), rtT('no_lines')); return; }
+  if (Math.abs(t.angle) < 0.1) { alertDlg(rtT('straighten'), rtT('already_level')); return; }
+  const ok = await confirmDlg(rtT('straighten'), rtT(t.kind === 'horizon' ? 'ask_horizon' : 'ask_verticals', { deg: String(Math.abs(t.angle)), rot: String(-t.angle) }), rtT('straighten'));
   if (!ok) return;
   rtStraighten(t.angle, true);
-  if (window.SlopMacros) SlopMacros.note('ps.retouch.straighten', { angle: t.angle, crop: true }, 'Straighten');
+  if (window.SlopMacros) SlopMacros.note('ps.retouch.straighten', { angle: t.angle, crop: true }, 'Straighten'); // i18n-ignore: saved in the macro
 }

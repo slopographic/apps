@@ -4,31 +4,36 @@
 /* ---------- packs ---------- */
 const B = (name, tip, size, hardness, extra = {}) => Object.assign({ name, tip, size, hardness, spacing: 0.12, flow: 1, opacity: 1 }, extra);
 const BUILTIN_PACKS = [
-  { name: 'Basics', builtin: true, brushes: [
-    B('Soft Round', 'round', 45, 0), B('Hard Round', 'round', 20, 1), B('Soft Round Big', 'round', 220, 0),
-    B('Hard Round Fine', 'round', 4, 1), B('Airbrush', 'round', 90, 0, { flow: 0.12, spacing: 0.06 }), B('Square', 'square', 30, 1),
+  { name: 'Basics', builtin: true, brushes: [ // i18n-ignore: ids (shown through brushLabel / packLabel)
+    B('Soft Round', 'round', 45, 0), B('Hard Round', 'round', 20, 1), B('Soft Round Big', 'round', 220, 0), // i18n-ignore: ids (shown through brushLabel / packLabel)
+    B('Hard Round Fine', 'round', 4, 1), B('Airbrush', 'round', 90, 0, { flow: 0.12, spacing: 0.06 }), B('Square', 'square', 30, 1), // i18n-ignore: ids (shown through brushLabel / packLabel)
   ] },
-  { name: 'Ink & Paint', builtin: true, brushes: [
-    B('Ink Pen', 'round', 8, 1, { spacing: 0.05 }), B('Calligraphy', 'flat', 34, 1, { angle: 45, spacing: 0.05 }),
-    B('Marker', 'round', 40, 0.85, { roundness: 0.55, angle: 30, opacity: 0.85 }),
-    B('Watercolor', 'round', 80, 0, { flow: 0.18, sizeJitter: 0.35, opacityJitter: 0.5, hueJitter: 0.04, scatter: 0.15 }),
-    B('Oil Bristle', 'bristle', 48, 1, { follow: true, spacing: 0.06, flow: 0.8 }), B('Dry Brush', 'bristle', 60, 1, { follow: true, spacing: 0.08, opacityJitter: 0.6, flow: 0.6 }),
+  { name: 'Ink & Paint', builtin: true, brushes: [ // i18n-ignore: ids (shown through brushLabel / packLabel)
+    B('Ink Pen', 'round', 8, 1, { spacing: 0.05 }), B('Calligraphy', 'flat', 34, 1, { angle: 45, spacing: 0.05 }), // i18n-ignore: ids (shown through brushLabel / packLabel)
+    B('Marker', 'round', 40, 0.85, { roundness: 0.55, angle: 30, opacity: 0.85 }), // i18n-ignore: ids (shown through brushLabel / packLabel)
+    B('Watercolor', 'round', 80, 0, { flow: 0.18, sizeJitter: 0.35, opacityJitter: 0.5, hueJitter: 0.04, scatter: 0.15 }), // i18n-ignore: ids (shown through brushLabel / packLabel)
+    B('Oil Bristle', 'bristle', 48, 1, { follow: true, spacing: 0.06, flow: 0.8 }), B('Dry Brush', 'bristle', 60, 1, { follow: true, spacing: 0.08, opacityJitter: 0.6, flow: 0.6 }), // i18n-ignore: ids (shown through brushLabel / packLabel)
   ] },
-  { name: 'Texture', builtin: true, brushes: [
-    B('Chalk', 'chalk', 40, 0.8), B('Charcoal', 'charcoal', 36, 1, { angleJitter: 1, spacing: 0.1 }), B('Spray', 'spray', 70, 1),
-    B('Sponge', 'sponge', 60, 1, { angleJitter: 1, spacing: 0.35, opacityJitter: 0.4 }),
-    B('Grass', 'grass', 70, 1, { spacing: 0.25, sizeJitter: 0.5, angleJitter: 0.08, scatter: 0.4, count: 2, hueJitter: 0.08 }),
-    B('Leaves', 'leaf', 40, 1, { spacing: 0.7, sizeJitter: 0.4, angleJitter: 1, scatter: 0.8, hueJitter: 0.12 }),
-    B('Stars', 'star', 30, 1, { spacing: 1.1, sizeJitter: 0.6, angleJitter: 1, scatter: 1.2 }),
-    B('Confetti', 'square', 14, 1, { spacing: 0.9, sizeJitter: 0.5, angleJitter: 1, scatter: 2, count: 2, hueJitter: 1, roundness: 0.5 }),
+  { name: 'Texture', builtin: true, brushes: [ // i18n-ignore: ids (shown through brushLabel / packLabel)
+    B('Chalk', 'chalk', 40, 0.8), B('Charcoal', 'charcoal', 36, 1, { angleJitter: 1, spacing: 0.1 }), B('Spray', 'spray', 70, 1), // i18n-ignore: ids (shown through brushLabel / packLabel)
+    B('Sponge', 'sponge', 60, 1, { angleJitter: 1, spacing: 0.35, opacityJitter: 0.4 }), // i18n-ignore: ids (shown through brushLabel / packLabel)
+    B('Grass', 'grass', 70, 1, { spacing: 0.25, sizeJitter: 0.5, angleJitter: 0.08, scatter: 0.4, count: 2, hueJitter: 0.08 }), // i18n-ignore: ids (shown through brushLabel / packLabel)
+    B('Leaves', 'leaf', 40, 1, { spacing: 0.7, sizeJitter: 0.4, angleJitter: 1, scatter: 0.8, hueJitter: 0.12 }), // i18n-ignore: ids (shown through brushLabel / packLabel)
+    B('Stars', 'star', 30, 1, { spacing: 1.1, sizeJitter: 0.6, angleJitter: 1, scatter: 1.2 }), // i18n-ignore: ids (shown through brushLabel / packLabel)
+    B('Confetti', 'square', 14, 1, { spacing: 0.9, sizeJitter: 0.5, angleJitter: 1, scatter: 2, count: 2, hueJitter: 1, roundness: 0.5 }), // i18n-ignore: ids (shown through brushLabel / packLabel)
   ] },
-  { name: 'Slop FX', builtin: true, brushes: [
-    B('Slime Drip', 'slime', 46, 0.85), B('Goo Splat', 'splat', 60, 1, { spacing: 0.8, sizeJitter: 0.4, angleJitter: 1, scatter: 0.6 }),
-    B('Bubbles', 'ring', 36, 1, { spacing: 1, sizeJitter: 0.7, scatter: 1.5 }), B('Sloppo Stamp', 'sloppo', 60, 1, { spacing: 1.3, sizeJitter: 0.35, angleJitter: 0.06 }),
-    B('Hearts', 'heart', 34, 1, { spacing: 1.1, sizeJitter: 0.5, angleJitter: 0.15, scatter: 1, hueJitter: 0.05 }),
-    B('Glitter', 'star', 10, 1, { spacing: 0.6, sizeJitter: 0.8, angleJitter: 1, scatter: 2.5, count: 3, hueJitter: 0.6 }),
+  { name: 'Slop FX', builtin: true, brushes: [ // i18n-ignore: ids (shown through brushLabel / packLabel)
+    B('Slime Drip', 'slime', 46, 0.85), B('Goo Splat', 'splat', 60, 1, { spacing: 0.8, sizeJitter: 0.4, angleJitter: 1, scatter: 0.6 }), // i18n-ignore: ids (shown through brushLabel / packLabel)
+    B('Bubbles', 'ring', 36, 1, { spacing: 1, sizeJitter: 0.7, scatter: 1.5 }), B('Sloppo Stamp', 'sloppo', 60, 1, { spacing: 1.3, sizeJitter: 0.35, angleJitter: 0.06 }), // i18n-ignore: ids (shown through brushLabel / packLabel)
+    B('Hearts', 'heart', 34, 1, { spacing: 1.1, sizeJitter: 0.5, angleJitter: 0.15, scatter: 1, hueJitter: 0.05 }), // i18n-ignore: ids (shown through brushLabel / packLabel)
+    B('Glitter', 'star', 10, 1, { spacing: 0.6, sizeJitter: 0.8, angleJitter: 1, scatter: 2.5, count: 3, hueJitter: 0.6 }), // i18n-ignore: ids (shown through brushLabel / packLabel)
   ] },
 ];
+/* The built-ins' names are ids (a preset is remembered by name); people see brushLabel(b) and packLabel(pack). */
+const brushKey = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+for (const p of BUILTIN_PACKS) for (const b of p.brushes) b.k = brushKey(b.name);
+function brushLabel(b) { return b.k ? tr('photoslop.brush.b_' + b.k) : b.name; }
+function packLabel(p) { return p.builtin ? tr('photoslop.brush.pack_' + brushKey(p.name)) : p.mine ? tr('photoslop.brush.pack_mine') : p.name; }
 let customPacks = [];
 const allPacks = () => BUILTIN_PACKS.concat(customPacks);
 async function loadBrushPacks() {
@@ -40,7 +45,7 @@ async function loadBrushPacks() {
     emit('brushes');
   } catch (e) { /* storage unavailable */ }
 }
-async function saveBrushPacks() { try { await idbDo('readwrite', (st) => st.put(customPacks, 'brushpacks')); } catch (e) { toast('Could not store brushes on this device'); } }
+async function saveBrushPacks() { try { await idbDo('readwrite', (st) => st.put(customPacks, 'brushpacks')); } catch (e) { toast(tr('photoslop.brush.cant_store')); } }
 async function registerTipImage(b) {
   const id = b.tipImage || 'img:' + hash32(b.image);
   if (!TIP_IMAGES.has(id)) TIP_IMAGES.set(id, await imageToMask(await loadImage(b.image)));
@@ -96,7 +101,8 @@ function parseABR(buf) {
         R.u8();
         const top = R.i16(), left = R.i16(), bottom = R.i16(), right = R.i16(), depth = R.u16(), comp = R.u8();
         const w = right - left, hh = bottom - top;
-        if (w > 0 && hh > 0 && w < 6000 && hh < 6000) tips.push({ name: name || `Brush ${tips.length + 1}`, canvas: grayToTip(abrGray(R, w, hh, depth, comp), w, hh), spacing: spacing / 100 });
+        if (w > 0 && hh > 0 && w < 6000 && hh < 6000) tips.push({ name: name || `Brush ${tips.length + 1}`, // i18n-ignore: the imported brush's name (data)
+           canvas: grayToTip(abrGray(R, w, hh, depth, comp), w, hh), spacing: spacing / 100 });
       }
       R.p = next;
     }
@@ -113,15 +119,16 @@ function parseABR(buf) {
           const top = R.i32(), left = R.i32(), bottom = R.i32(), right = R.i32(), depth = R.u16(), comp = R.u8();
           const w = right - left, hh = bottom - top;
           if (w > 0 && hh > 0 && w < 6000 && hh < 6000 && (depth === 8 || depth === 16)) {
-            try { tips.push({ name: `Brush ${tips.length + 1}`, canvas: grayToTip(abrGray(R, w, hh, depth, comp), w, hh), spacing: 0.25 }); } catch (e) { /* skip a broken sample */ }
+            try { tips.push({ name: `Brush ${tips.length + 1}`, // i18n-ignore: the imported brush's name (data)
+               canvas: grayToTip(abrGray(R, w, hh, depth, comp), w, hh), spacing: 0.25 }); } catch (e) { /* skip a broken sample */ }
           }
           R.p = next;
         }
       }
       R.p = end + (len % 2);
     }
-  } else throw new Error(`Unsupported .abr version ${version}`);
-  if (!tips.length) throw new Error('No sampled brushes found in that .abr (computed brushes are not supported)');
+  } else throw new Error(tr('photoslop.brush.abr_version', { v: String(version) }));
+  if (!tips.length) throw new Error(tr('photoslop.brush.abr_none'));
   return tips;
 }
 
@@ -137,7 +144,7 @@ async function importBrushFiles(files) {
         customPacks.push(pack); added += pack.brushes.length;
       } else if (/\.(slopbrush|json)$/i.test(f.name)) {
         const data = JSON.parse(await f.text());
-        if (data.format !== 'slopbrush' || !Array.isArray(data.brushes)) throw new Error('Not a .slopbrush pack');
+        if (data.format !== 'slopbrush' || !Array.isArray(data.brushes)) throw new Error(tr('photoslop.brush.not_pack'));
         for (const b of data.brushes) { if (b.image) await registerTipImage(b); }
         customPacks.push({ name: data.name || n, brushes: data.brushes }); added += data.brushes.length;
       } else if (f.type.startsWith('image/') || /\.(png|jpe?g|webp|gif|svg)$/i.test(f.name)) {
@@ -145,12 +152,12 @@ async function importBrushFiles(files) {
         const mask = imageToMask(img);
         const b = B(n, 'image', Math.min(200, Math.max(mask.width, mask.height)), 1, { spacing: 0.25, image: maskToDataURL(mask) });
         await registerTipImage(b); myBrushes().brushes.push(b); added++;
-      } else toast(`Can't import ${f.name}`);
-    } catch (e) { console.warn(e); toast(`Couldn't import ${f.name}: ${e.message}`, 4000); }
+      } else toast(tr('photoslop.brush.cant_import', { name: f.name }));
+    } catch (e) { console.warn(e); toast(tr('photoslop.brush.import_failed', { name: f.name, error: e.message }), 4000); }
   }
-  if (added) { await saveBrushPacks(); emit('brushes'); toast(`Imported ${added} brush${added === 1 ? '' : 'es'}`); }
+  if (added) { await saveBrushPacks(); emit('brushes'); toast(tr('photoslop.brush.imported', { n: added })); }
 }
-function myBrushes() { let p = customPacks.find((x) => x.mine); if (!p) { p = { name: 'My Brushes', mine: true, brushes: [] }; customPacks.unshift(p); } return p; }
+function myBrushes() { let p = customPacks.find((x) => x.mine); if (!p) { p = { name: 'My Brushes', mine: true, brushes: [] }; customPacks.unshift(p); } return p; } // i18n-ignore: stored id; shown as packLabel
 function exportPack(pack) {
   const data = { format: 'slopbrush', version: 1, name: pack.name, brushes: pack.brushes.map((b) => { const o = Object.assign({}, b); delete o.tipImage; if (b.tip === 'image' && !o.image) o.image = maskToDataURL(TIP_IMAGES.get(b.tipImage)); return o; }) };
   download(new Blob([JSON.stringify(data)], { type: 'application/json' }), pack.name.replace(/[\\/:*?"<>|]+/g, '-') + '.slopbrush');
@@ -158,18 +165,18 @@ function exportPack(pack) {
 function defineBrushFromSelection() {
   const L = activeLayer(); if (!L) return;
   const r = copySelectionPixels(true), mask = imageToMask(r.canvas);
-  SlopUI.prompt('Define Brush Preset', 'Name', 'Brush ' + (myBrushes().brushes.length + 1)).then(async (name) => {
+  SlopUI.prompt(tr('photoslop.brush.define_title'), tr('photoslop.brush.name'), tr('photoslop.brush.default_name', { n: String(myBrushes().brushes.length + 1) })).then(async (name) => {
     if (name == null) return;
-    const b = B(name || 'Brush', 'image', Math.min(300, Math.max(mask.width, mask.height)), 1, { spacing: 0.25, image: maskToDataURL(mask) });
+    const b = B(name || tr('photoslop.brush.brush'), 'image', Math.min(300, Math.max(mask.width, mask.height)), 1, { spacing: 0.25, image: maskToDataURL(mask) });
     await registerTipImage(b); myBrushes().brushes.push(b); await saveBrushPacks();
-    applyPreset(b); emit('brushes'); toast(`Brush “${b.name}” added to My Brushes`);
+    applyPreset(b); emit('brushes'); toast(tr('photoslop.brush.added', { name: b.name }));
   });
 }
 function brushTarget() { return UI.tool === 'eraser' ? T.eraser : T.brush; }
 function applyPreset(p) {
   const o = brushTarget();
   Object.assign(o, DYN, { tip: 'round', spacing: 0.12, flow: 1 }, p);
-  delete o.image; delete o.name; delete o.builtin;
+  delete o.image; delete o.name; delete o.builtin; delete o.k;
   o.preset = p.name;
   if (UI.tool !== 'brush' && UI.tool !== 'eraser') selectTool('brush');
   saveToolOptions(); buildOptions(); emit('brushes'); dirty();

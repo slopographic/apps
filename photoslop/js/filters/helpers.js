@@ -137,5 +137,24 @@ async function jpegCrunch(src, q, times = 1) {
   return out;
 }
 
-const R = (k, label, min, max, v, extra = {}) => Object.assign({ k, label, type: 'range', min, max, v, step: 1 }, extra);
+/* Words (photoslop/i18n/<code>/filters*.js): a filter's name is photoslop.filter.<id>, a parameter's label
+ * photoslop.filter.p_<lk>, a choice photoslop.filter.o_<value>, a blend mode photoslop.core.blend_<id> (core/model.js BLENDS). They are getters,
+ * so the menus and dialogs show the language of the moment. */
+const fKey = (s) => String(s).replace(/-/g, '_');
+const lazy = (o, prop, get) => Object.defineProperty(o, prop, { get, enumerable: true, configurable: true });
+/** A parameter whose label is photoslop.filter.p_<lk>. */
+function P(o, extra) { const p = Object.assign(o, extra); if (p.lk) lazy(p, 'label', () => tr('photoslop.filter.p_' + p.lk)); return p; }
+const R = (k, lk, min, max, v, extra = {}) => P({ k, lk, type: 'range', min, max, v, step: 1 }, extra);
+/** Select choices [[value, label]], the label photoslop.filter.o_<value>. */
+const FO = (...vals) => vals.map((v) => lazy([v], 1, () => tr('photoslop.filter.o_' + fKey(v))));
+function blendName(id) { return tr('photoslop.core.blend_' + fKey(id)); }
+/** The blend modes as select choices, labels in the current language. */
+const blendOptions = () => BLENDS.map((b) => lazy([b[0]], 1, () => blendName(b[0])));
 const FILTERS = []; // filled by the filters/*.js files that follow
+FILTERS.push = function (...fs) {
+  for (const f of fs) {
+    if (f.id && !('name' in f)) lazy(f, 'name', () => tr('photoslop.filter.' + fKey(f.id)));
+    for (const p of f.params || []) if (p.lk && !Object.getOwnPropertyDescriptor(p, 'label')) P(p);
+  }
+  return Array.prototype.push.apply(this, fs);
+};

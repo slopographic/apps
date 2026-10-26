@@ -5,12 +5,13 @@
 /** interp: the resampling for the layer's pixels (nearest | bilinear | bicubic); it persists between transforms.
     lock: the proportion lock, on by default and kept for this page session only. Shift inverts it for one drag. */
 const TRANSFORM = { active: false, interp: 'bicubic', lock: true };
-const QUICK_LABEL = { cw: 'Rotate 90° Clockwise', ccw: 'Rotate 90° Counter Clockwise', 180: 'Rotate 180°', flipH: 'Flip Horizontal', flipV: 'Flip Vertical' };
+/** The history label of a quick transform (photoslop.tool.quick_<op>). */
+const quickLabel = (op) => tr('photoslop.tool.quick_' + String(op).toLowerCase());
 function startTransform() {
   if (TRANSFORM.active) return;
   let L = activeLayer(); if (!L) return;
-  if (L.locked) { toast('That layer is locked'); return; }
-  if (!L.visible) { toast('Show the layer first'); return; }
+  if (L.locked) { toast(tr('photoslop.tool.locked')); return; }
+  if (!L.visible) { toast(tr('photoslop.tool.show_layer_first')); return; }
   if (TE.el) endTypeEdit();
   if (L.text || L.shape) L = rasterizeText(L, true);
   let float, rest = null, b;
@@ -20,7 +21,7 @@ function startTransform() {
     rest = copyCanvas(L.canvas); const rg = cx(rest); rg.globalCompositeOperation = 'destination-out'; rg.drawImage(sel, 0, 0);
     b = alphaBounds(float);
   } else { float = L.canvas; b = alphaBounds(float); }
-  if (!b) { toast('Nothing to transform: the layer is empty there'); return; }
+  if (!b) { toast(tr('photoslop.tool.nothing_to_transform')); return; }
   const crop = mkCanvas(b.w, b.h); cx(crop).drawImage(float, -b.x, -b.y);
   const x = L.x + b.x, y = L.y + b.y;
   Object.assign(TRANSFORM, { active: true, L, float: crop, rest, x, y, w: b.w, h: b.h, cx: x + b.w / 2, cy: y + b.h / 2, tx: 0, ty: 0, sx: 1, sy: 1, rot: 0, sel: D.sel, drag: null });
@@ -66,7 +67,7 @@ function commitTransform(label) {
   }
   patchLayer(L.id, { canvas: c, x: s.x, y: s.y, mask });
   if (t.sel) { const sm = mkCanvas(D.w, D.h), sg = cx(sm); sg.setTransform(m); sg.drawImage(t.sel.mask, 0, 0); D.sel = makeSel(sm); }
-  commit(typeof label === 'string' ? label : 'Free Transform');
+  commit(typeof label === 'string' ? label : TRANSFORM_TOOL.name);
   emit('tool');
 }
 function cancelTransform() { if (!TRANSFORM.active) return; TRANSFORM.active = false; live = null; emit('tool'); dirty(true); }
@@ -90,8 +91,8 @@ function restoreAspect(handle) {
 }
 /** The proportion lock as a chain-link toggle for the options bars (Move and Free Transform). Shows the session setting. */
 function lockButton() {
-  const b = h('button', { class: 'btn', type: 'button', 'aria-label': 'Proportion lock', html: LINK_ICON });
-  const show = () => { b.classList.toggle('primary', TRANSFORM.lock); b.setAttribute('aria-pressed', String(TRANSFORM.lock)); b.title = 'Proportion lock ' + (TRANSFORM.lock ? 'on' : 'off') + ' (Shift inverts it for one drag)'; };
+  const b = h('button', { class: 'btn', type: 'button', 'aria-label': tr('photoslop.tool.proportion_lock'), html: LINK_ICON });
+  const show = () => { b.classList.toggle('primary', TRANSFORM.lock); b.setAttribute('aria-pressed', String(TRANSFORM.lock)); b.title = tr(TRANSFORM.lock ? 'photoslop.tool.proportion_lock_on' : 'photoslop.tool.proportion_lock_off'); };
   b.addEventListener('click', () => { TRANSFORM.lock = !TRANSFORM.lock; show(); });
   show();
   return b;
@@ -110,7 +111,7 @@ function transformLayerQuick(kind) {
   else if (kind === 'cw') TRANSFORM.rot = Math.PI / 2; else if (kind === 'ccw') TRANSFORM.rot = -Math.PI / 2; else if (kind === '180') TRANSFORM.rot = Math.PI;
   // Quick turns and flips keep every pixel exact, so they use nearest neighbour whatever the interpolation choice is.
   const keep = TRANSFORM.interp; TRANSFORM.interp = 'nearest';
-  commitTransform(QUICK_LABEL[kind]);
+  commitTransform(quickLabel(kind));
   TRANSFORM.interp = keep;
 }
 /* Box geometry in screen space, shared with the idle box (tools/transform-idle.js). cs = corners tl, tr, br, bl. */
@@ -142,7 +143,7 @@ function drawKnob(g, cs) {
 function handleCursor(h) { return h.move ? 'move' : h.rotate ? 'alias' : h.hx * h.hy > 0 ? 'nwse-resize' : h.hx * h.hy < 0 ? 'nesw-resize' : h.hx ? 'ew-resize' : 'ns-resize'; }
 
 const TRANSFORM_TOOL = {
-  id: 'transform', name: 'Free Transform',
+  id: 'transform', get name() { return tr('photoslop.tool.free_transform'); }, get short() { return this.name; },
   handleAt(p) {
     const cs = tfCorners().map((q) => toScreen(q.x, q.y)), s = toScreen(p.x, p.y);
     const h = boxHandle(cs, s); if (h) return h;

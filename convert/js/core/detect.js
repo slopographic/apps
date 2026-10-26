@@ -5,6 +5,7 @@
 import { sniffFinance, FINANCE_EXT } from '../../../shared/finance/index.js';
 import '../../../shared/raw/tiff.js';
 import '../../../shared/raw/detect.js';
+import { tr } from './i18n.js';
 const RAW = globalThis.SlopRawDetect;
 const MAGIC = [
   ['pdf', [0x25, 0x50, 0x44, 0x46]],        // %PDF
@@ -76,13 +77,13 @@ export function kindFromMagic(head) {
   }
   if (head.length >= 12 && ascii(head, 0, 4) === 'RIFF' && ascii(head, 8, 4) === 'WAVE') return 'wav';
   if (head.length >= 4 && head[0] === 0x1a && head[1] === 0x45 && head[2] === 0xdf && head[3] === 0xa3) return 'webm';
-  if (head.length >= 4 && ascii(head, 0, 4) === 'OggS') return 'ogg';
+  if (head.length >= 4 && ascii(head, 0, 4) === 'OggS') return 'ogg'; // i18n-ignore: file signatures
   if (head.length >= 4 && ascii(head, 0, 4) === 'fLaC') return 'flac';
   if (head.length >= 3 && ascii(head, 0, 3) === 'ID3') return 'mp3';
   if (head.length >= 2 && head[0] === 0xff && (head[1] & 0xe0) === 0xe0) return 'mp3';
   // 3D models with a signature: GLB (binary glTF), binary FBX and PLY (ASCII or binary, the header is text)
   if (head.length >= 12 && ascii(head, 0, 4) === 'glTF') return 'glb';
-  if (head.length >= 20 && ascii(head, 0, 18) === 'Kaydara FBX Binary') return 'fbx';
+  if (head.length >= 20 && ascii(head, 0, 18) === 'Kaydara FBX Binary') return 'fbx'; // i18n-ignore: file signatures
   if (head.length >= 10 && /^ply\r?\nformat /.test(ascii(head, 0, 12))) return 'ply';
   return null;
 }
@@ -177,7 +178,10 @@ export function detectKind(name = '', type = '', head = null) {
   return 'bin';
 }
 
-/** Human label for a kind. */
-export const KIND_LABEL = { mp4: 'MP4 video', webm: 'WebM video', mov: 'QuickTime video', m4a: 'M4A audio', mp3: 'MP3 audio', wav: 'WAV audio', ogg: 'Ogg audio', flac: 'FLAC audio', png: 'PNG image', jpg: 'JPEG image', webp: 'WebP image', bmp: 'BMP image', gif: 'GIF image', svg: 'SVG image', pdf: 'PDF', csv: 'CSV', json: 'JSON', md: 'Markdown', txt: 'Plain text', html: 'HTML', vcf: 'vCard', xlsx: 'Excel (XLSX)', bin: 'Binary file', eml: 'Email message (EML)', ics: 'Calendar (ICS)', xml: 'XML', yaml: 'YAML', toml: 'TOML', srt: 'SubRip subtitles (SRT)', vtt: 'WebVTT subtitles (VTT)', xls: 'Excel 97-2003 (XLS)', ico: 'Icon (ICO)', tif: 'TIFF image', avif: 'AVIF image', heic: 'HEIC photo', zip: 'ZIP archive', docx: 'Word (DOCX)', pptx: 'PowerPoint (PPTX)', odt: 'OpenDocument text', ods: 'OpenDocument sheet', odp: 'OpenDocument slides', epub: 'EPUB book', jsonl: 'JSON Lines', ass: 'ASS/SSA subtitles', sbv: 'YouTube subtitles (SBV)', gpx: 'GPX track', kml: 'KML map file', geojson: 'GeoJSON', obj: 'OBJ 3D model', stl: 'STL 3D model', ply: 'PLY 3D model', gltf: 'glTF 3D model', glb: 'GLB 3D model', '3mf': '3MF 3D model', dae: 'Collada 3D model (DAE)', fbx: 'FBX 3D model', usdz: 'USDZ 3D model', mtl: 'OBJ materials (MTL)', tga: 'TGA image', ktx2: 'KTX2 texture',
-  sie: 'SIE accounting file', ofx: 'OFX bank statement', qif: 'QIF (Quicken) file', camt053: 'ISO 20022 statement (camt.053)', mt940: 'MT940 bank statement',
-  ...Object.fromEntries(RAW.EXTS.map((e) => [e, RAW.FORMATS[e].label + ' RAW photo'])) };
+/** Human label for a kind: KIND_LABEL[kind], read in the chosen language (convert.detect.kind_<kind>). */
+const KIND_EN = { mp4: 'MP4 video', webm: 'WebM video', mov: 'QuickTime video', m4a: 'M4A audio', mp3: 'MP3 audio', wav: 'WAV audio', ogg: 'Ogg audio', flac: 'FLAC audio', png: 'PNG image', jpg: 'JPEG image', webp: 'WebP image', bmp: 'BMP image', gif: 'GIF image', svg: 'SVG image', pdf: 'PDF', csv: 'CSV', json: 'JSON', md: 'Markdown', txt: 'Plain text', html: 'HTML', vcf: 'vCard', xlsx: 'Excel (XLSX)', bin: 'Binary file', eml: 'Email message (EML)', ics: 'Calendar (ICS)', xml: 'XML', yaml: 'YAML', toml: 'TOML', srt: 'SubRip subtitles (SRT)', vtt: 'WebVTT subtitles (VTT)', xls: 'Excel 97-2003 (XLS)', ico: 'Icon (ICO)', tif: 'TIFF image', avif: 'AVIF image', heic: 'HEIC photo', zip: 'ZIP archive', docx: 'Word (DOCX)', pptx: 'PowerPoint (PPTX)', odt: 'OpenDocument text', ods: 'OpenDocument sheet', odp: 'OpenDocument slides', epub: 'EPUB book', jsonl: 'JSON Lines', ass: 'ASS/SSA subtitles', sbv: 'YouTube subtitles (SBV)', gpx: 'GPX track', kml: 'KML map file', geojson: 'GeoJSON', obj: 'OBJ 3D model', stl: 'STL 3D model', ply: 'PLY 3D model', gltf: 'glTF 3D model', glb: 'GLB 3D model', '3mf': '3MF 3D model', dae: 'Collada 3D model (DAE)', fbx: 'FBX 3D model', usdz: 'USDZ 3D model', mtl: 'OBJ materials (MTL)', tga: 'TGA image', ktx2: 'KTX2 texture', // i18n-ignore: the English of convert.detect.kind_* (tr fallback)
+  sie: 'SIE accounting file', ofx: 'OFX bank statement', qif: 'QIF (Quicken) file', camt053: 'ISO 20022 statement (camt.053)', mt940: 'MT940 bank statement', // i18n-ignore: the same
+};
+export const KIND_LABEL = {};
+for (const [k, en] of Object.entries(KIND_EN)) Object.defineProperty(KIND_LABEL, k, { enumerable: true, get: () => tr('convert.detect.kind_' + k, en) });
+for (const e of RAW.EXTS) Object.defineProperty(KIND_LABEL, e, { enumerable: true, get: () => tr('convert.detect.kind_raw', '{camera} RAW photo', { camera: RAW.FORMATS[e].label }) });

@@ -15,18 +15,18 @@ function innerEdge(s, color, opacity, dx, dy, size) {
 }
 
 FILTERS.push(
-  { id: 'inner-shadow', menu: 'style', name: 'Inner Shadow…', cover: true, params: [{ k: 'color', label: 'Colour', type: 'color', v: '#000000' }, R('op', 'Opacity', 0, 100, 75, { unit: '%' }), R('a', 'Angle', -180, 180, 120, { unit: '°' }), R('dist', 'Distance', 0, 300, 8, { unit: 'px' }), R('size', 'Size', 0, 250, 10, { unit: 'px' })],
+  { id: 'inner-shadow', menu: 'style', cover: true, params: [{ k: 'color', lk: 'colour', type: 'color', v: '#000000' }, R('op', 'opacity', 0, 100, 75, { unit: '%' }), R('a', 'angle', -180, 180, 120, { unit: '°' }), R('dist', 'distance', 0, 300, 8, { unit: 'px' }), R('size', 'size', 0, 250, 10, { unit: 'px' })],
     fn: (s, p) => {
       const a = (p.a * Math.PI) / 180;
       const shade = innerEdge(s, p.color, p.op / 100, -Math.cos(a) * p.dist, Math.sin(a) * p.dist, p.size);
       const c = copyCanvas(s); cx(c).drawImage(shade, 0, 0); return c;
     } },
-  { id: 'inner-glow', menu: 'style', name: 'Inner Glow…', cover: true, params: [{ k: 'color', label: 'Colour', type: 'color', v: '#fff5b0' }, R('op', 'Opacity', 0, 100, 75, { unit: '%' }), R('size', 'Size', 1, 250, 12, { unit: 'px' })],
+  { id: 'inner-glow', menu: 'style', cover: true, params: [{ k: 'color', lk: 'colour', type: 'color', v: '#fff5b0' }, R('op', 'opacity', 0, 100, 75, { unit: '%' }), R('size', 'size', 1, 250, 12, { unit: 'px' })],
     fn: (s, p) => {
       const glow = innerEdge(s, p.color, p.op / 100, 0, 0, p.size);
       const c = copyCanvas(s); cx(c).drawImage(glow, 0, 0); return c;
     } },
-  { id: 'gradient', menu: 'style', name: 'Gradient Overlay…', params: [{ k: 'c1', label: 'Start colour', type: 'color', v: '@fg' }, { k: 'c2', label: 'End colour', type: 'color', v: '@bg' }, R('op', 'Opacity', 0, 100, 100, { unit: '%' }), R('a', 'Angle', -180, 180, 90, { unit: '°' }), R('scale', 'Scale', 10, 300, 100, { unit: '%' }), { k: 'blend', label: 'Blend mode', type: 'select', options: BLENDS.map((b) => [b[0], b[1]]), v: 'normal' }],
+  { id: 'gradient', menu: 'style', params: [{ k: 'c1', lk: 'start_colour', type: 'color', v: '@fg' }, { k: 'c2', lk: 'end_colour', type: 'color', v: '@bg' }, R('op', 'opacity', 0, 100, 100, { unit: '%' }), R('a', 'angle', -180, 180, 90, { unit: '°' }), R('scale', 'scale', 10, 300, 100, { unit: '%' }), { k: 'blend', lk: 'blend_mode', type: 'select', options: blendOptions(), v: 'normal' }],
     fn: (s, p) => {
       const w = s.width, hh = s.height, a = (p.a * Math.PI) / 180, ux = Math.cos(a), uy = Math.sin(a);
       const len = (Math.abs(w * ux) + Math.abs(hh * uy)) / 2 / (p.scale / 100);

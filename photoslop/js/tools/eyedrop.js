@@ -30,7 +30,7 @@ function noteRecent(hex) { if (hex) RECENTS.add(hex); }
 /** Options-bar select: Sample Composite / Sample Layer (stored as T.eyedrop.all). */
 function sampleSourceOpt() {
   const st = { v: T.eyedrop.all ? 'composite' : 'layer' };
-  return optSelect('', st, 'v', [['composite', 'Sample Composite'], ['layer', 'Sample Layer']], () => { T.eyedrop.all = st.v === 'composite'; });
+  return optSelect('', st, 'v', [['composite', tr('photoslop.tool.sample_composite')], ['layer', tr('photoslop.tool.sample_layer')]], () => { T.eyedrop.all = st.v === 'composite'; });
 }
 
 /** Alt on a painting tool: sample instead of painting. Returns true when the pointer press was consumed. */
@@ -38,11 +38,11 @@ function eyeAltSample(t, p, e) {
   if (!e.altKey || !EYE_ALT_TOOLS.has(t.id)) return false;
   const hex = pickColor(p, T.eyedrop.all, T.eyedrop.size);
   if (hex) { setColor(e.shiftKey ? 'bg' : 'fg', hex); noteRecent(hex); }
-  else toast('Transparent here: colour unchanged');
+  else toast(tr('photoslop.tool.transparent_here'));
   return true;
 }
 
-defTool({ id: 'eyedropper', name: 'Eyedropper Tool', key: 'I', icon: ICON('M19 5a2.8 2.8 0 0 0-4 0l-2 2-1-1-2 2 1 1-7 7v4h4l7-7 1 1 2-2-1-1 2-2a2.8 2.8 0 0 0 0-4z'),
+defTool({ id: 'eyedropper', nk: 'eyedropper', key: 'I', icon: ICON('M19 5a2.8 2.8 0 0 0-4 0l-2 2-1-1-2 2 1 1-7 7v4h4l7-7 1 1 2-2-1-1 2-2a2.8 2.8 0 0 0 0-4z'),
   down(p, e) { this.pick(p, e); }, move(p, e) { this.pick(p, e); },
   pick(p, e) {
     const hex = pickColor(p, T.eyedrop.all, T.eyedrop.size);
@@ -72,5 +72,5 @@ function drawLoupe(g) {
   g.strokeStyle = '#000'; g.lineWidth = 1; g.strokeRect(c - 0.5, d - 0.5, LOUPE_PX + 1, LOUPE_PX + 1);
   g.strokeStyle = '#fff'; g.strokeRect(c + 0.5, d + 0.5, LOUPE_PX - 1, LOUPE_PX - 1);
   g.fillStyle = hex || 'transparent'; g.fillRect(x, y + box + 6, 14, 14); g.strokeStyle = '#fff'; g.strokeRect(x + 0.5, y + box + 6.5, 13, 13);
-  g.font = '11px "JetBrains Mono", monospace'; g.fillStyle = '#fff'; g.fillText(hex ? hex.toUpperCase() : 'NONE', x + 20, y + box + 17);
+  g.font = '11px "JetBrains Mono", monospace'; g.fillStyle = '#fff'; g.fillText(hex ? hex.toUpperCase() : 'NONE', x + 20, y + box + 17); // i18n-ignore: a CSS font
 }

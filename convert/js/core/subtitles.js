@@ -7,6 +7,7 @@
  *   shiftCues(cues, ms) -> cues                        later (+) or earlier (−); a cue pushed before 0:00 is cut at 0, and
  *                                                       one that would end before 0:00 is dropped
  *   fmtTime(ms, sep) -> '00:01:02,345' (sep ',') or '00:01:02.345' (sep '.') */
+import { tr } from './i18n.js';
 const TIME = /(?:(\d{1,3}):)?(\d{1,2}):(\d{2})[,.](\d{1,3})/;
 const ARROW = new RegExp(`^\\s*${TIME.source}\\s*-->\\s*${TIME.source}(.*)$`);
 
@@ -30,7 +31,7 @@ export function parseSubs(text) {
     const start = ms(m[1], m[2], m[3], m[4]), end = ms(m[5], m[6], m[7], m[8]);
     cues.push({ start, end, text: lines.slice(at + 1).join('\n').trim(), settings: (m[9] || '').trim() });
   }
-  if (!cues.length) throw new Error('No subtitles found: an SRT or VTT file has lines like 00:00:01,000 --> 00:00:03,500.');
+  if (!cues.length) throw new Error(tr('convert.subs.none_srt', 'No subtitles found: an SRT or VTT file has lines like 00:00:01,000 --> 00:00:03,500.'));
   return cues;
 }
 

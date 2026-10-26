@@ -7,8 +7,8 @@ async function runFilter(id, presetParams) {
   const f = FILTER_BY_ID[id];
   let L = activeLayer();
   if (!L) return;
-  if (L.locked) { toast('That layer is locked'); return; }
-  if (!L.visible) { toast('Show the layer first'); return; }
+  if (L.locked) { toast(tr('photoslop.layer.locked')); return; }
+  if (!L.visible) { toast(tr('photoslop.filter.show_layer_first')); return; }
   if (TE.el) await endTypeEdit();
   if (TRANSFORM.active) commitTransform();
   L = activeLayer();
@@ -27,10 +27,10 @@ async function runFilter(id, presetParams) {
       live = null;
       patchLayer(L.id, { canvas: D.sel ? mixBySel(LL.canvas, out, selInLayer(LL)) : out, text: null });
       commit(f.name.replace('…', ''));
-      if (wasText) toast('Type layer rasterized');
+      if (wasText) toast(tr('photoslop.filter.type_rasterized'));
       LAST_FILTER.id = id; LAST_FILTER.params = params;
       if (window.SlopMacros) SlopMacros.note('ps.ai.filter', { filter: id, params: JSON.stringify(params) }, f.name.replace('…', ''));   // a macro step (app/macros.js)
-    } catch (e) { console.warn(e); toast('That filter failed: ' + e.message); live = null; dirty(true); }
+    } catch (e) { console.warn(e); toast(tr('photoslop.filter.failed', { error: e.message })); live = null; dirty(true); }
     document.body.classList.remove('busy');
   };
   if (!plist || presetParams) { await finish(presetParams || {}); return; }
@@ -46,7 +46,7 @@ async function runFilter(id, presetParams) {
     pending = false;
     const my = ++token;
     if (!preview) { live = null; dirty(true); return; }
-    status.textContent = 'Rendering…';
+    status.textContent = tr('photoslop.filter.rendering');
     await new Promise((r) => setTimeout(r, 0));
     let out;
     try { out = await f.fn(base, params, env); } catch (e) { status.textContent = e.message; return; }
@@ -61,7 +61,7 @@ async function runFilter(id, presetParams) {
   for (const p of plist) body.append(paramControl(p, params, base, runPreview));
   const pv = h('input', { type: 'checkbox', checked: true });
   pv.addEventListener('change', () => { preview = pv.checked; runPreview(); });
-  body.append(h('div', { class: 'dlg-row' }, h('label', { class: 'opt-check' }, pv, h('span', null, 'Preview')), status));
+  body.append(h('div', { class: 'dlg-row' }, h('label', { class: 'opt-check' }, pv, h('span', null, tr('photoslop.filter.preview'))), status));
   // Reset to auto: restores the analysed values and refreshes the sliders (the dialog stays open).
   const reset = () => {
     for (const p of plist) {
@@ -72,8 +72,8 @@ async function runFilter(id, presetParams) {
     runPreview();
     return false;
   };
-  const buttons = [{ label: 'Cancel' }, { label: 'OK', primary: true }];
-  if (f.auto) buttons.splice(1, 0, { label: 'Reset to auto', act: reset });
+  const buttons = [{ label: tr('menu.cancel') }, { label: tr('menu.ok'), primary: true }];
+  if (f.auto) buttons.splice(1, 0, { label: tr('photoslop.filter.reset_auto'), act: reset });
   dialog({ title: f.name.replace('…', ''), body, cls: 'dlg-filter' + (plist.some((p) => p.type === 'curve') ? ' dlg-curve' : ''),
     buttons,
     onClose: async (ok) => {
@@ -83,7 +83,7 @@ async function runFilter(id, presetParams) {
         live = null;
         const LL = D.layers.find((l) => l.id === L.id);
         patchLayer(L.id, { canvas: D.sel ? mixBySel(LL.canvas, lastOut.out, selInLayer(LL)) : lastOut.out, text: null });
-        if (wasText) toast('Type layer rasterized');
+        if (wasText) toast(tr('photoslop.filter.type_rasterized'));
         commit(f.name.replace('…', '')); LAST_FILTER.id = id; LAST_FILTER.params = JSON.parse(JSON.stringify(params));
       } else { await finish(params); LAST_FILTER.params = JSON.parse(JSON.stringify(params)); }
     } });
@@ -116,9 +116,9 @@ function paramControl(p, params, base, changed) {
   return h('div');
 }
 function curveEditor(curves, base, changed) {
-  const S = 256, c = h('canvas', { class: 'fp-curve', 'data-touch-surface': '', width: S, height: S, 'aria-label': 'Curve: click to add points, drag them, drag off the graph to remove' });
+  const S = 256, c = h('canvas', { class: 'fp-curve', 'data-touch-surface': '', width: S, height: S, 'aria-label': tr('photoslop.filter.curve_label') });
   let ch = 'rgb', drag = -1;
-  const sel = h('select', { 'aria-label': 'Channel' }, [['rgb', 'RGB'], ['r', 'Red'], ['g', 'Green'], ['b', 'Blue']].map(([v, l]) => h('option', { value: v }, l)));
+  const sel = h('select', { 'aria-label': tr('photoslop.filter.channel') }, [['rgb', 'RGB'], ['r', tr('photoslop.filter.red')], ['g', tr('photoslop.filter.green')], ['b', tr('photoslop.filter.blue')]].map(([v, l]) => h('option', { value: v }, l)));
   sel.addEventListener('change', () => { ch = sel.value; draw(); });
   const H = histogram(base);
   function draw() {
@@ -148,14 +148,14 @@ function curveEditor(curves, base, changed) {
     pts[drag] = [clamp(x, lo, hi), y]; draw(); changed();
   });
   c.addEventListener('pointerup', () => { drag = -1; });
-  const reset = h('button', { type: 'button', class: 'btn' }, 'Reset channel');
+  const reset = h('button', { type: 'button', class: 'btn' }, tr('photoslop.filter.reset_channel'));
   reset.addEventListener('click', () => { curves[ch] = [[0, 0], [255, 255]]; draw(); changed(); });
-  const presets = h('select', { 'aria-label': 'Preset' }, [['', 'Preset…'], ['contrast', 'Increase Contrast'], ['film', 'Faded Film'], ['negative', 'Negative'], ['lighter', 'Lighter'], ['darker', 'Darker']].map(([v, l]) => h('option', { value: v }, l)));
+  const presets = h('select', { 'aria-label': tr('photoslop.filter.preset') }, [['', 'preset_pick'], ['contrast', 'curve_contrast'], ['film', 'curve_film'], ['negative', 'curve_negative'], ['lighter', 'curve_lighter'], ['darker', 'curve_darker']].map(([v, k]) => h('option', { value: v }, tr('photoslop.filter.' + k))));
   presets.addEventListener('change', () => {
     const P = { contrast: [[0, 0], [64, 48], [192, 208], [255, 255]], film: [[0, 38], [128, 130], [255, 232]], negative: [[0, 255], [255, 0]], lighter: [[0, 0], [128, 160], [255, 255]], darker: [[0, 0], [128, 96], [255, 255]] }[presets.value];
     if (P) { curves.rgb = P.map((p) => p.slice()); ch = 'rgb'; sel.value = 'rgb'; draw(); changed(); }
     presets.value = '';
   });
   draw();
-  return h('div', { class: 'fp fp-curvebox' }, h('div', { class: 'dlg-row' }, sel, presets, reset), c, h('p', { class: 'fp-help' }, 'Click to add a point · drag to shape · drag a point off the graph to delete it'));
+  return h('div', { class: 'fp fp-curvebox' }, h('div', { class: 'dlg-row' }, sel, presets, reset), c, h('p', { class: 'fp-help' }, tr('photoslop.filter.curve_help')));
 }

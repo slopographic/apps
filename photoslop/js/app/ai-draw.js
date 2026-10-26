@@ -21,11 +21,11 @@ function psCheckSvg(src, w, h) {
     for (const at of [...el.attributes]) {
       const an = at.name.toLowerCase(), v = at.value;
       if (an.startsWith('on')) bad(`the event handler ${at.name} is not allowed`);
-      if ((an === 'href' || an === 'xlink:href' || an === 'src') && !okUrl(v)) bad('links to other files or sites are not allowed (only #ids and data: pictures)');
+      if ((an === 'href' || an === 'xlink:href' || an === 'src') && !okUrl(v)) bad('links to other files or sites are not allowed (only #ids and data: pictures)'); // i18n-ignore: the assistant's commands, their docs and replies are API
       if (/url\(/i.test(v)) for (const m of v.matchAll(/url\(([^)]*)\)/gi)) if (!okUrl(m[1])) bad('url(…) may only point inside the SVG');
-      if (/javascript:/i.test(v)) bad('javascript: is not allowed');
+      if (/javascript:/i.test(v)) bad('javascript: is not allowed'); // i18n-ignore: the assistant's commands, their docs and replies are API
     }
-    if (n === 'style' && (/@import/i.test(el.textContent) || [...el.textContent.matchAll(/url\(([^)]*)\)/gi)].some((m) => !okUrl(m[1])))) bad('styles may not load other files');
+    if (n === 'style' && (/@import/i.test(el.textContent) || [...el.textContent.matchAll(/url\(([^)]*)\)/gi)].some((m) => !okUrl(m[1])))) bad('styles may not load other files'); // i18n-ignore: the assistant's commands, their docs and replies are API
   }
   for (const at of [...root.attributes]) if (at.name.toLowerCase().startsWith('on')) bad(`the event handler ${at.name} is not allowed`);
   if (!root.getAttribute('viewBox')) {
@@ -53,18 +53,19 @@ function psFitBox(b, fit) {
   return { x: Math.max(0, Math.min(D.w - w, b.x)), y: Math.max(0, Math.min(D.h - h, b.y)), w, h };
 }
 const psBlend = (b) => (b && BLENDS.some((x) => x[0] === b) ? b : 'normal');
-/** A new layer above the active one with this document-space canvas (limited to the selection when there is one). */
-function psNewLayer(c, a, fallback) {
+/** A new layer above the active one with this document-space canvas (limited to the selection when there is one).
+ *  fallback: the layer's name when none is given (document content, English); step: the history label. */
+function psNewLayer(c, a, fallback, step) {
   const L = addLayer({ name: String(a.name || '').slice(0, 80) || nextName(fallback), canvas: D.sel ? copyCanvas(maskedBuffer(c)) : c,
-    opacity: a.opacity == null ? 1 : a.opacity / 100, blend: psBlend(a.blend) }, fallback);
+    opacity: a.opacity == null ? 1 : a.opacity / 100, blend: psBlend(a.blend) }, step || fallback);
   return L;
 }
 
 async function aiNewDocument(a) {
   await aiSettle();
   const bg = a.background === 'transparent' ? 'transparent' : a.background || '#ffffff';
-  newDocTab(a.width, a.height, bg, String(a.name || 'Untitled').slice(0, 80));
-  return `Opened a new ${a.width} × ${a.height} px document “${D.name}” (${bg} background) in a new tab.`;
+  newDocTab(a.width, a.height, bg, String(a.name || 'Untitled').slice(0, 80)); // i18n-ignore: the assistant's commands, their docs and replies are API
+  return `Opened a new ${a.width} × ${a.height} px document “${D.name}” (${bg} background) in a new tab.`; // i18n-ignore: the assistant's commands, their docs and replies are API
 }
 
 async function aiSvgLayer(a) {
@@ -73,8 +74,8 @@ async function aiSvgLayer(a) {
   const w = Math.round(b.w), h = Math.round(b.h);
   const art = await psSvgCanvas(a.svg, w, h), c = mkCanvas(D.w, D.h);
   cx(c).drawImage(art, Math.round(b.x), Math.round(b.y));
-  const L = psNewLayer(c, a, 'SVG');
-  return `Drew the SVG into the new layer “${L.name}” (${w} × ${h} px at ${Math.round(b.x)}, ${Math.round(b.y)}).` + psBoundsNote('The SVG', b);
+  const L = psNewLayer(c, a, 'SVG', tr('photoslop.ai.step_svg'));
+  return `Drew the SVG into the new layer “${L.name}” (${w} × ${h} px at ${Math.round(b.x)}, ${Math.round(b.y)}).` + psBoundsNote('The SVG', b); // i18n-ignore: the assistant's commands, their docs and replies are API
 }
 
 /** The gradient's colour stops: [[offset 0–1, colour]] from colours (evenly spaced) or stops [{ offset, color }]. */
@@ -105,12 +106,12 @@ function psGradientCanvas(a) {
 async function aiGradientFill(a) {
   await aiSettle();
   const grad = psGradientCanvas(a);
-  if (a.target === 'new_layer') { const L = psNewLayer(grad, a, 'Gradient'); return `Filled the new layer “${L.name}” with a ${a.type} gradient${D.sel ? ' inside the selection' : ''}.`; }
+  if (a.target === 'new_layer') { const L = psNewLayer(grad, a, 'Gradient', tr('photoslop.ai.step_gradient')); return `Filled the new layer “${L.name}” with a ${a.type} gradient${D.sel ? ' inside the selection' : ''}.`; } // i18n-ignore: the assistant's commands, their docs and replies are API
   const L0 = aiLayer(); if (L0.text || L0.shape) rasterizeText(L0, true);
   const L = coverDoc(activeLayer());
   patchLayer(L.id, { canvas: bakeStroke(L, grad, { opacity: a.opacity == null ? 1 : a.opacity / 100, blend: psBlend(a.blend) }) });
-  commit('Gradient');
-  return `Filled ${D.sel ? 'the selection on' : ''} “${L.name}” with a ${a.type} gradient.`;
+  commit(tr('photoslop.ai.step_gradient'));
+  return `Filled ${D.sel ? 'the selection on' : ''} “${L.name}” with a ${a.type} gradient.`; // i18n-ignore: the assistant's commands, their docs and replies are API
 }
 
 /** A path from points: [[x, y], …], [{ x, y }], or "x,y x,y". */
@@ -145,6 +146,6 @@ async function aiDrawShape(a) {
   const plain = !a.blur && fill && !stroke && SHAPE_RADIUS_KINDS.includes(kind) && !D.sel;
   const rec = plain ? { kind, r, radius: a.radius || (kind === 'rounded' ? 32 : 0), fill: true, stroke: false, strokeW: 0, fg: fill, bg: C.bg } : null;
   const L = addLayer({ name: String(a.name || '').slice(0, 80) || nextName(kind[0].toUpperCase() + kind.slice(1)), canvas: rec ? renderShapeLayer(rec) : D.sel ? copyCanvas(maskedBuffer(c)) : c, shape: rec,
-    opacity: a.opacity == null ? 1 : a.opacity / 100, blend: psBlend(a.blend) }, 'Shape');
-  return `Drew a ${kind} in the new layer “${L.name}”.` + psBoundsNote('The shape', path ? psLayerBounds(L) : r);
+    opacity: a.opacity == null ? 1 : a.opacity / 100, blend: psBlend(a.blend) }, tr('photoslop.ai.step_shape'));
+  return `Drew a ${kind} in the new layer “${L.name}”.` + psBoundsNote('The shape', path ? psLayerBounds(L) : r); // i18n-ignore: the assistant's commands, their docs and replies are API
 }

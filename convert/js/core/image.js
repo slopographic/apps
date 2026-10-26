@@ -2,6 +2,7 @@
  * Every public function takes a Blob plus its detected kind ('png', 'jpg', 'svg', ...). */
 import { encodeBmp } from './bmp.js';
 import { encodeIco } from './ico.js';
+import { tr } from './i18n.js';
 
 const MAX_SIDE = 10000;
 const MAX_PIXELS = 40e6;
@@ -26,7 +27,7 @@ export function makeCanvas(w, h) {
 
 export function canvasToBlob(canvas, mime, quality) {
   return new Promise((resolve, reject) => {
-    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error(`This browser cannot write ${mime}`))), mime, quality);
+    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error(tr('convert.img.cannot_write_mime', 'This browser cannot write {type}', { type: mime })))), mime, quality);
   });
 }
 
@@ -34,7 +35,7 @@ export function canvasToBlob(canvas, mime, quality) {
 export async function decodeSource(blob, kind) {
   if (kind === 'svg') return decodeSvg(blob);
   let bmp;
-  try { bmp = await createImageBitmap(blob); } catch (e) { throw new Error('This file could not be read as an image.'); }
+  try { bmp = await createImageBitmap(blob); } catch (e) { throw new Error(tr('convert.img.unreadable', 'This file could not be read as an image.')); }
   return { w: bmp.width, h: bmp.height, source: bmp, close: () => bmp.close() };
 }
 
@@ -46,7 +47,7 @@ async function decodeSvg(blob) {
     await img.decode();
   } catch (e) {
     URL.revokeObjectURL(url);
-    throw new Error('This SVG could not be drawn. Check that it is well formed.');
+    throw new Error(tr('convert.img.bad_svg', 'This SVG could not be drawn. Check that it is well formed.'));
   }
   let w = img.naturalWidth, h = img.naturalHeight;
   if (!w || !h) {
@@ -67,7 +68,7 @@ export function sizeFor(src, { width, height } = {}) {
   else if (!H) H = Math.round((src.h * W) / src.w);
   W = Math.min(MAX_SIDE, Math.max(1, Math.round(W)));
   H = Math.min(MAX_SIDE, Math.max(1, Math.round(H)));
-  if (W * H > MAX_PIXELS) throw new Error('That size is too large for this browser. Try a smaller width or height.');
+  if (W * H > MAX_PIXELS) throw new Error(tr('convert.img.too_large', 'That size is too large for this browser. Try a smaller width or height.'));
   return { W, H };
 }
 
@@ -103,7 +104,7 @@ export async function convertImage(blob, { kind, to, width, height, quality = 0.
     const mime = MIME[to];
     if (!mime) throw new Error(`Unknown image type: ${to}`);
     const out = await canvasToBlob(canvas, mime, quality);
-    if (out.type !== mime) throw new Error(`This browser cannot write ${to.toUpperCase()} images.`);
+    if (out.type !== mime) throw new Error(tr('convert.img.cannot_write', 'This browser cannot write {format} images.', { format: to.toUpperCase() }));
     canvas.width = canvas.height = 0;
     return { blob: out, ext: to, width: W, height: H };
   } finally {
@@ -119,7 +120,7 @@ export function jpegOrientation(bytes) {
   while (p + 4 <= bytes.length) {
     if (bytes[p] !== 0xff) return 1;
     const marker = bytes[p + 1], len = dv.getUint16(p + 2);
-    if (marker === 0xe1 && bytes.length > p + 10 && String.fromCharCode(...bytes.subarray(p + 4, p + 8)) === 'Exif') {
+    if (marker === 0xe1 && bytes.length > p + 10 && String.fromCharCode(...bytes.subarray(p + 4, p + 8)) === 'Exif') { // i18n-ignore: an EXIF tag
       const t = p + 10;                       // TIFF header
       const le = dv.getUint16(t) === 0x4949;
       const ifd = t + dv.getUint32(t + 4, le);

@@ -2,15 +2,15 @@
 'use strict';
 
 /* ---------- document ops ---------- */
-function newDocument(w, hh, bg = '#ffffff', name = 'Untitled') {
+function newDocument(w, hh, bg = '#ffffff', name = 'Untitled') { // i18n-ignore: the document's own name
   D.w = w; D.h = hh; D.name = name; D.sel = null; D.guides = []; D.wm = null; live = null;
-  const L = newLayerRecord({ name: 'Background' });
+  const L = newLayerRecord({ name: 'Background' }); // i18n-ignore: layer name
   if (bg && bg !== 'transparent') { const g = cx(L.canvas); g.fillStyle = bg; g.fillRect(0, 0, w, hh); }
   D.layers = [L]; D.activeId = L.id;
-  histReset('New');
+  histReset(tr('photoslop.core.step_new'));
 }
-function addLayer(props = {}, label = 'New Layer', above = true) {
-  const L = newLayerRecord(Object.assign({ name: nextName('Layer') }, props));
+function addLayer(props = {}, label = tr('photoslop.core.step_new_layer'), above = true) {
+  const L = newLayerRecord(Object.assign({ name: nextName('Layer') }, props)); // i18n-ignore: layer name
   const i = layerIndex(D.activeId);
   D.layers.splice(above && i >= 0 ? i + 1 : D.layers.length, 0, L);
   D.activeId = L.id;
@@ -18,29 +18,29 @@ function addLayer(props = {}, label = 'New Layer', above = true) {
   return L;
 }
 function deleteLayer(id = D.activeId) {
-  if (D.layers.length <= 1) { toast('A document needs at least one layer'); return; }
+  if (D.layers.length <= 1) { toast(tr('photoslop.core.need_one_layer')); return; }
   const i = layerIndex(id); if (i < 0) return;
   D.layers.splice(i, 1);
   D.activeId = D.layers[Math.max(0, i - 1)].id;
-  commit('Delete Layer');
+  commit(tr('photoslop.core.step_delete_layer'));
 }
 /** Removes every layer and leaves one empty layer (a document always has one). Asks twice; one undo step. */
 async function removeAllLayers() {
   const n = D.layers.length;
   if (!n) return;
-  const count = `${n} layer${n === 1 ? '' : 's'}`;
-  if (!(await confirmDlg('Remove all layers?', `This removes ${count} from “${D.name}”. The document keeps one empty layer.`, 'Continue'))) return;
-  if (!(await confirmDlg('Remove all layers?', `This removes ${count}. You can undo it with Ctrl+Z. Remove all?`, 'Remove all', { danger: true }))) return;
-  D.layers = [newLayerRecord({ name: nextName('Layer') })];
+  const count = tr('photoslop.core.n_layers', { n });
+  if (!(await confirmDlg(tr('photoslop.core.remove_all_q'), tr('photoslop.core.remove_all_body', { count, name: D.name }), tr('photoslop.core.continue')))) return;
+  if (!(await confirmDlg(tr('photoslop.core.remove_all_q'), tr('photoslop.core.remove_all_body2', { count }), tr('photoslop.core.remove_all'), { danger: true }))) return;
+  D.layers = [newLayerRecord({ name: nextName('Layer') })]; // i18n-ignore: layer name
   D.activeId = D.layers[0].id;
-  commit('Remove All Layers');
+  commit(tr('photoslop.core.step_remove_all_layers'));
 }
 function duplicateLayer(id = D.activeId) {
   const i = layerIndex(id); if (i < 0) return;
   const S = D.layers[i];
   const L = Object.assign({}, S, { id: uid(), name: S.name + ' copy', canvas: copyCanvas(S.canvas), mask: S.mask && Object.assign({}, S.mask, { canvas: copyCanvas(S.mask.canvas) }), text: S.text && normText(S.text) });
   D.layers.splice(i + 1, 0, L); D.activeId = L.id;
-  commit('Duplicate Layer');
+  commit(tr('photoslop.core.step_duplicate_layer'));
 }
 function moveLayer(id, toIndex) {
   const i = layerIndex(id); if (i < 0) return;
@@ -48,7 +48,7 @@ function moveLayer(id, toIndex) {
   if (toIndex === i) return;
   const [L] = D.layers.splice(i, 1);
   D.layers.splice(toIndex, 0, L);
-  commit('Move Layer');
+  commit(tr('photoslop.core.step_move_layer'));
 }
 function mergeLayers(list, name, label) {
   if (list.length < 1) return;
@@ -70,17 +70,17 @@ function mergeLayers(list, name, label) {
 }
 function mergeDown() {
   const i = layerIndex(D.activeId);
-  if (i <= 0) { toast('There is no layer below to merge into'); return; }
+  if (i <= 0) { toast(tr('photoslop.core.no_layer_below')); return; }
   const below = D.layers[i - 1], top = D.layers[i];
-  if (!top.visible) { toast('Show the layer before merging it'); return; }
-  mergeLayers([below, top], below.name, 'Merge Down');
+  if (!top.visible) { toast(tr('photoslop.core.show_before_merge')); return; }
+  mergeLayers([below, top], below.name, tr('photoslop.core.step_merge_down'));
 }
-function mergeVisible() { const v = D.layers.filter((l) => l.visible); if (v.length) mergeLayers(v, v[0].name, 'Merge Visible'); }
+function mergeVisible() { const v = D.layers.filter((l) => l.visible); if (v.length) mergeLayers(v, v[0].name, tr('photoslop.core.step_merge_visible')); }
 function flattenImage() {
   const c = flattenCanvas('#ffffff');
-  const L = newLayerRecord({ name: 'Background', canvas: c });
+  const L = newLayerRecord({ name: 'Background', canvas: c }); // i18n-ignore: layer name
   D.layers = [L]; D.activeId = L.id;
-  commit('Flatten Image');
+  commit(tr('photoslop.core.step_flatten'));
 }
 function setLayerProps(id, patch, label) {
   const L = patchLayer(id, patch);
@@ -91,7 +91,7 @@ function setLayerProps(id, patch, label) {
 /** Apply a pixel function to the active layer (respecting selection). fn(canvas) → new canvas in same layer space. */
 function applyToLayer(label, fn, L = activeLayer()) {
   if (!L) return;
-  if (L.locked) { toast('That layer is locked'); return; }
+  if (L.locked) { toast(tr('photoslop.core.layer_locked')); return; }
   if (L.text || L.shape) L = rasterizeText(L, true);
   const proc = fn(L.canvas, L);
   if (!proc) return;
@@ -99,7 +99,7 @@ function applyToLayer(label, fn, L = activeLayer()) {
   patchLayer(L.id, { canvas: out });
   commit(label);
 }
-function rasterizeText(L, quiet) { const R = patchLayer(L.id, { text: null, shape: null }); if (!quiet) commit('Rasterize Type'); return R; }
+function rasterizeText(L, quiet) { const R = patchLayer(L.id, { text: null, shape: null }); if (!quiet) commit(tr('photoslop.core.step_rasterize_type')); return R; }
 
 /** Transform every layer: kind = cw | ccw | 180 | flipH | flipV. */
 function transformCanvas(kind) {
@@ -125,7 +125,7 @@ function transformCanvas(kind) {
   remapGuides((g) => (kind === 'flipH' ? (g.o === 'v' ? { o: 'v', pos: ow - g.pos } : g) : kind === 'flipV' ? (g.o === 'h' ? { o: 'h', pos: oh - g.pos } : g) : kind === '180' ? { o: g.o, pos: (g.o === 'v' ? ow : oh) - g.pos } : kind === 'cw' ? (g.o === 'v' ? { o: 'h', pos: g.pos } : { o: 'v', pos: oh - g.pos }) : g.o === 'v' ? { o: 'h', pos: ow - g.pos } : { o: 'v', pos: g.pos }));
   if (swap) { D.w = oh; D.h = ow; }
   D.sel = null;
-  commit({ cw: 'Rotate 90° Clockwise', ccw: 'Rotate 90° Counter Clockwise', 180: 'Rotate 180°', flipH: 'Flip Horizontal', flipV: 'Flip Vertical' }[kind]);
+  commit(tr({ cw: 'photoslop.core.step_rotate_cw', ccw: 'photoslop.core.step_rotate_ccw', 180: 'photoslop.core.step_rotate_180', flipH: 'photoslop.core.step_flip_h', flipV: 'photoslop.core.step_flip_v' }[kind]));
 }
 /** Trim the document to the selection bounds (or a given rect). */
 function cropTo(r, deletePixels = true) {
@@ -138,8 +138,8 @@ function cropTo(r, deletePixels = true) {
       return Object.assign({}, L, { canvas: c, x: 0, y: 0, mask, text: L.text && Object.assign({}, L.text, { x: L.text.x - r.x, y: L.text.y - r.y }), shape: null });
     });
     D.w = r.w; D.h = r.h; D.sel = null; remapGuides((g) => ({ o: g.o, pos: g.pos - (g.o === 'v' ? r.x : r.y) }));
-    commit('Crop');
-  } else resizeCanvas(r.w, r.h, -r.x, -r.y, 'Crop');
+    commit(tr('photoslop.core.step_crop'));
+  } else resizeCanvas(r.w, r.h, -r.x, -r.y, tr('photoslop.core.step_crop'));
 }
 
 /* ---------- selection → layer ops ---------- */
@@ -151,17 +151,17 @@ function copySelectionPixels(merged) {
   if (D.sel) { g.globalCompositeOperation = 'destination-in'; g.drawImage(D.sel.mask, -r.x, -r.y); }
   return { canvas: c, x: r.x, y: r.y };
 }
-function clearSelectionPixels(label = 'Clear') {
+function clearSelectionPixels(label = tr('photoslop.core.step_clear')) {
   const L = activeLayer(); if (!L || !D.sel) return;
-  if (L.locked) { toast('That layer is locked'); return; }
+  if (L.locked) { toast(tr('photoslop.core.layer_locked')); return; }
   const c = copyCanvas(L.canvas), g = cx(c);
   g.globalCompositeOperation = 'destination-out'; g.drawImage(D.sel.mask, -L.x, -L.y);
   patchLayer(L.id, { canvas: c, text: null });
   commit(label);
 }
-function fillSelection(color, label = 'Fill', opacity = 1, blend = 'normal', ignoreSel = false) {
+function fillSelection(color, label = tr('photoslop.core.step_fill'), opacity = 1, blend = 'normal', ignoreSel = false) {
   const L0 = activeLayer(); if (!L0) return;
-  if (L0.locked) { toast('That layer is locked'); return; }
+  if (L0.locked) { toast(tr('photoslop.core.layer_locked')); return; }
   const L = coverDoc(L0.text || L0.shape ? rasterizeText(L0, true) : L0);
   const c = copyCanvas(L.canvas), g = cx(c);
   const f = mkCanvas(D.w, D.h), fg = cx(f);

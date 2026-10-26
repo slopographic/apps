@@ -25,12 +25,12 @@ function pickColorDialog(title, initial, live) {
       value: initial, recents: RECENTS,
       onChange: (v) => { cur = v; nw.style.background = v; if (live) live(v); },
     });
-    const nw = h('div', { class: 'cp-preview scp-checker' }), old = h('div', { class: 'cp-preview old scp-checker', title: 'Original: click to restore', onclick: () => { cur = initial; cp.set(initial); nw.style.background = initial; if (live) live(initial); } });
+    const nw = h('div', { class: 'cp-preview scp-checker' }), old = h('div', { class: 'cp-preview old scp-checker', title: tr('photoslop.color.restore'), onclick: () => { cur = initial; cp.set(initial); nw.style.background = initial; if (live) live(initial); } });
     nw.style.background = initial; old.style.background = initial;
     dialog({
       title, cls: 'dlg-color cp-sheet',
-      body: h('div', { class: 'cp-dlg' }, cp.el, h('div', { class: 'cp-compare' }, h('span', null, 'new'), nw, old, h('span', null, 'current'))),
-      buttons: [{ label: 'Cancel' }, { label: 'OK', primary: true }],
+      body: h('div', { class: 'cp-dlg' }, cp.el, h('div', { class: 'cp-compare' }, h('span', null, tr('photoslop.color.new')), nw, old, h('span', null, tr('photoslop.color.current')))),
+      buttons: [{ label: tr('menu.cancel') }, { label: tr('menu.ok'), primary: true }],
       onClose: (ok) => {
         if (ok) { cp.commit(); res(cur); return; }
         if (live && cur !== initial) live(initial);
@@ -42,6 +42,6 @@ function pickColorDialog(title, initial, live) {
 
 /** Edits the foreground or background colour in the dialog. Changes apply live; Cancel restores the old colour. */
 function editSwatch(which) {
-  const title = which === 'fg' ? 'Color Picker (Foreground Color)' : 'Color Picker (Background Color)';
+  const title = tr(which === 'fg' ? 'photoslop.color.title_fg' : 'photoslop.color.title_bg');
   return pickColorDialog(title, C[which], (v) => setColor(which, v)).then((c) => { if (c) setColor(which, c); });
 }

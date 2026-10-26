@@ -24,11 +24,11 @@ function rtRemoveFrom(mask) {
   return psRetouch().then(() => rtRemoveObject(mask, { ask: true })).then((r) => { if (r) toast(r.split('. ')[0] + '.'); }).catch((e) => toast(e.message));
 }
 
-defTool({ id: 'remove', name: 'Remove Object Tool', key: 'J', opt: () => T.remove,
+defTool({ id: 'remove', nk: 'remove', key: 'J', opt: () => T.remove,
   icon: ICON('M4 20h16M7 16l9-9 3 3-9 9H7zM5 5l4 4M9 5 5 9'),
   brushCursor() { return T.remove.mode === 'lasso' ? 0 : T.remove.size; },
   down(p) {
-    if (!activeLayer()) { toast('There is no picture to work on'); this.s = null; return; }
+    if (!activeLayer()) { toast(rtT('no_picture_work')); this.s = null; return; }
     this.s = { pts: [p] }; dirty(true);
   },
   move(p) { if (this.s) { this.s.pts.push(p); dirty(true); } },
@@ -52,9 +52,9 @@ defTool({ id: 'remove', name: 'Remove Object Tool', key: 'J', opt: () => T.remov
     g.restore();
   },
   options(add) {
-    add(optSelect('Mode', T.remove, 'mode', [['brush', 'Brush over it'], ['lasso', 'Draw round it']], () => buildOptions()));
-    if (T.remove.mode !== 'lasso') add(optRange('Size', T.remove, 'size', 2, 500));
-    if (D.sel) add(h('button', { class: 'btn', type: 'button', onclick: () => rtRemoveFrom(D.sel.mask) }, 'Remove selection'));
-    add(h('span', { class: 'opt-hint' }, 'Mark the object: it is filled from its surroundings on this device'));
+    add(optSelect(rtT('opt_mode'), T.remove, 'mode', [['brush', rtT('opt_brush')], ['lasso', rtT('opt_lasso')]], () => buildOptions()));
+    if (T.remove.mode !== 'lasso') add(optRange(rtT('opt_size'), T.remove, 'size', 2, 500));
+    if (D.sel) add(h('button', { class: 'btn', type: 'button', onclick: () => rtRemoveFrom(D.sel.mask) }, rtT('opt_remove_sel')));
+    add(h('span', { class: 'opt-hint' }, rtT('opt_hint')));
   },
 });

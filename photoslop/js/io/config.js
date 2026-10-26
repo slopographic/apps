@@ -18,7 +18,7 @@
     for (const L of D.layers) {
       const blob = await canvasToBlob(L.canvas);
       layers.push({
-        name: String(L.name || 'Layer').slice(0, 120), visible: !!L.visible, locked: !!L.locked,
+        name: String(L.name || 'Layer').slice(0, 120), // i18n-ignore: written into the config file visible: !!L.visible, locked: !!L.locked,
         opacity: r3(L.opacity), blend: L.blend || 'normal', x: Math.round(L.x || 0), y: Math.round(L.y || 0),
         image: { name: safeFile(L.name) + '.png', size: blob ? blob.size : 0 },
       });
@@ -35,7 +35,7 @@
     const c = mkCanvas(D.w, D.h);
     cx(c).drawImage(img, w.x, w.y);
     patchLayer(w.id, { canvas: c });
-    commit('Place picture');
+    commit(tr('photoslop.io.step_place_picture'));
     return true;
   }
 
@@ -43,14 +43,14 @@
     if (!PS.waiting.length || !window.SlopUI) return;
     const names = PS.waiting.map((w) => SlopUI.el('li', null, w.file));
     SlopUI.dialog({
-      title: 'Add the layer pictures',
+      title: tr('photoslop.io.pictures_title'),
       body: SlopUI.el('div', null,
-        SlopUI.el('p', { class: 'sui-p' }, 'The layers are set up. Add each picture; it goes on the layer with the same file name:'),
+        SlopUI.el('p', { class: 'sui-p' }, tr('photoslop.io.pictures_body')),
         SlopUI.el('ul', { class: 'sui-errors' }, names)),
-      buttons: [{ label: 'Later' }, { label: 'Add pictures…', primary: true, act: async () => {
+      buttons: [{ label: tr('photoslop.io.later') }, { label: tr('photoslop.io.add_pictures'), primary: true, act: async () => {
         // the pictures come in the one way (shared/intake): a spec of their own, each placed on its layer
         SlopIntake.register({ id: 'photoslop.layer-pictures', main: false, paste: false, toast: false,
-          accept: { types: ['image/*'], noun: 'a picture' }, process: (f) => place(f) });
+          accept: { types: ['image/*'], noun: tr('photoslop.io.noun_picture') }, process: (f) => place(f) });
         await SlopIntake.pick({ to: 'photoslop.layer-pictures' });
         if (PS.waiting.length) askForPictures();
       } }],
@@ -73,24 +73,24 @@
       strict: true,
       fields: {
         document: F.obj({
-          width: F.int({ min: 1, max: 12000, required: true, desc: 'canvas width in pixels' }),
-          height: F.int({ min: 1, max: 12000, required: true, desc: 'canvas height in pixels' }),
-        }, { required: true, desc: 'the canvas size' }),
+          width: F.int({ min: 1, max: 12000, required: true, desc: 'canvas width in pixels' }), // i18n-ignore: the config schema (files and the assistant)
+          height: F.int({ min: 1, max: 12000, required: true, desc: 'canvas height in pixels' }), // i18n-ignore: the config schema (files and the assistant)
+        }, { required: true, desc: 'the canvas size' }), // i18n-ignore: the config schema (files and the assistant)
         layers: F.list(F.obj({
-          name: F.str({ max: 120, required: true, desc: 'layer name' }),
+          name: F.str({ max: 120, required: true, desc: 'layer name' }), // i18n-ignore: the config schema (files and the assistant)
           visible: F.bool(), locked: F.bool(),
-          opacity: F.num({ min: 0, max: 1, desc: '0 to 1' }),
-          blend: F.enum(BLEND, { desc: 'blend mode, e.g. normal, multiply, screen' }),
-          x: F.int({ min: -12000, max: 12000, desc: 'left edge in pixels' }),
-          y: F.int({ min: -12000, max: 12000, desc: 'top edge in pixels' }),
+          opacity: F.num({ min: 0, max: 1, desc: '0 to 1' }), // i18n-ignore: the config schema (files and the assistant)
+          blend: F.enum(BLEND, { desc: 'blend mode, e.g. normal, multiply, screen' }), // i18n-ignore: the config schema (files and the assistant)
+          x: F.int({ min: -12000, max: 12000, desc: 'left edge in pixels' }), // i18n-ignore: the config schema (files and the assistant)
+          y: F.int({ min: -12000, max: 12000, desc: 'top edge in pixels' }), // i18n-ignore: the config schema (files and the assistant)
           image: F.obj({
-            name: F.str({ max: 200, required: true, desc: 'the picture file name; the file you add is matched by this name' }),
-            size: F.int({ min: 0, max: 1e12, required: true, desc: 'file size in bytes' }),
-          }, { desc: 'the picture on this layer (not in the file)' }),
-        }), { min: 1, max: 200, required: true, desc: 'the layers, bottom first' }),
+            name: F.str({ max: 200, required: true, desc: 'the picture file name; the file you add is matched by this name' }), // i18n-ignore: the config schema (files and the assistant)
+            size: F.int({ min: 0, max: 1e12, required: true, desc: 'file size in bytes' }), // i18n-ignore: the config schema (files and the assistant)
+          }, { desc: 'the picture on this layer (not in the file)' }), // i18n-ignore: the config schema (files and the assistant)
+        }), { min: 1, max: 200, required: true, desc: 'the layers, bottom first' }), // i18n-ignore: the config schema (files and the assistant)
       },
     }, apply, {
-      label: 'Document', description: 'Canvas size and the layer stack; pictures are added by name after import',
+      get label() { return tr('photoslop.io.cfg_document'); }, get description() { return tr('photoslop.io.cfg_document_desc'); },
       read,
     });
     D0.install({ app: APP });

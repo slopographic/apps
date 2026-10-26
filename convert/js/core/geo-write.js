@@ -6,27 +6,28 @@
  *        come from the properties, elevation from the third coordinate, point times from properties.coordTimes.
  *   geojsonToRows(value) -> rows            one row per point: feature, name, geometry, part, point, latitude, longitude,
  *                                            elevation, time, then each other property that is a plain value */
+import { tr } from './i18n.js';
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-const TYPES = ['Point', 'MultiPoint', 'LineString', 'MultiLineString', 'Polygon', 'MultiPolygon', 'GeometryCollection'];
+const TYPES = ['Point', 'MultiPoint', 'LineString', 'MultiLineString', 'Polygon', 'MultiPolygon', 'GeometryCollection']; // i18n-ignore: GeoJSON names
 
 export function featuresOf(v) {
-  if (v && v.type === 'FeatureCollection' && Array.isArray(v.features)) return v.features.filter((f) => f && f.geometry);
-  if (v && v.type === 'Feature') return v.geometry ? [v] : [];
-  if (v && TYPES.includes(v.type)) return [{ type: 'Feature', properties: {}, geometry: v }];
-  throw new Error('This is not GeoJSON: it needs a "type" of FeatureCollection, Feature or a geometry such as LineString.');
+  if (v && v.type === 'FeatureCollection' && Array.isArray(v.features)) return v.features.filter((f) => f && f.geometry); // i18n-ignore: GeoJSON names
+  if (v && v.type === 'Feature') return v.geometry ? [v] : []; // i18n-ignore: GeoJSON names
+  if (v && TYPES.includes(v.type)) return [{ type: 'Feature', properties: {}, geometry: v }]; // i18n-ignore: GeoJSON names
+  throw new Error(tr('convert.geo.not_geojson', 'This is not GeoJSON: it needs a "type" of FeatureCollection, Feature or a geometry such as LineString.'));
 }
 
 /** Each part of a geometry as a list of positions with the kind of GPX element it becomes. */
 function parts(g, out = []) {
   if (!g) return out;
   const c = g.coordinates;
-  if (g.type === 'Point') out.push({ as: 'wpt', points: [c] });
-  else if (g.type === 'MultiPoint') for (const p of c) out.push({ as: 'wpt', points: [p] });
-  else if (g.type === 'LineString') out.push({ as: 'seg', points: c, line: 0 });
-  else if (g.type === 'MultiLineString') c.forEach((l, i) => out.push({ as: 'seg', points: l, line: i }));
-  else if (g.type === 'Polygon') c.forEach((r, i) => out.push({ as: 'seg', points: r, line: i, ring: true }));
-  else if (g.type === 'MultiPolygon') { let i = 0; for (const poly of c) for (const r of poly) out.push({ as: 'seg', points: r, line: i++, ring: true }); }
-  else if (g.type === 'GeometryCollection') for (const x of g.geometries || []) parts(x, out);
+  if (g.type === 'Point') out.push({ as: 'wpt', points: [c] }); // i18n-ignore: GeoJSON names
+  else if (g.type === 'MultiPoint') for (const p of c) out.push({ as: 'wpt', points: [p] }); // i18n-ignore: GeoJSON names
+  else if (g.type === 'LineString') out.push({ as: 'seg', points: c, line: 0 }); // i18n-ignore: GeoJSON names
+  else if (g.type === 'MultiLineString') c.forEach((l, i) => out.push({ as: 'seg', points: l, line: i })); // i18n-ignore: GeoJSON names
+  else if (g.type === 'Polygon') c.forEach((r, i) => out.push({ as: 'seg', points: r, line: i, ring: true })); // i18n-ignore: GeoJSON names
+  else if (g.type === 'MultiPolygon') { let i = 0; for (const poly of c) for (const r of poly) out.push({ as: 'seg', points: r, line: i++, ring: true }); } // i18n-ignore: GeoJSON names
+  else if (g.type === 'GeometryCollection') for (const x of g.geometries || []) parts(x, out); // i18n-ignore: GeoJSON names
   return out;
 }
 
@@ -58,7 +59,7 @@ export function geojsonToGpx(value, { name = '' } = {}) {
     }
     if (segs.length) { trks += `  <trk>${meta(pr)}\n${segs.join('')}  </trk>\n`; tracks++; }
   }
-  if (!waypoints && !tracks) throw new Error('This GeoJSON has no points or lines with coordinates to write.');
+  if (!waypoints && !tracks) throw new Error(tr('convert.geo.no_coords', 'This GeoJSON has no points or lines with coordinates to write.'));
   const head = '<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="Slopographic File convert" xmlns="http://www.topografix.com/GPX/1/1">\n';
   const md = name ? `  <metadata><name>${esc(name)}</name></metadata>\n` : '';
   return { text: `${head}${md}${wpts}${trks}</gpx>\n`, waypoints, tracks, outlines };
@@ -80,6 +81,6 @@ export function geojsonToRows(value) {
         p.length > 2 ? Number(p[2]) : '', (part.as === 'wpt' ? pr.time : t[i]) ?? '', ...extra.map((k) => (plain(pr[k]) && pr[k] !== null ? pr[k] : ''))]));
     });
   });
-  if (rows.length === 1) throw new Error('This GeoJSON has no points with coordinates.');
+  if (rows.length === 1) throw new Error(tr('convert.geo.no_points', 'This GeoJSON has no points with coordinates.'));
   return rows;
 }

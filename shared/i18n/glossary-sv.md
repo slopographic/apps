@@ -164,3 +164,99 @@ Register: informal «du», as the Swedish versions of Microsoft Office, Adobe Ac
 | replay (saved edits) | Spela upp | «Ignorera» for discard |
 | object kinds in sentences | indefinite, lower case | «Ta bort bild», «Markerad: bild» (colon avoids adjective agreement) |
 | page positions | överst/nederst till vänster, i mitten, till höger | lower case in sentences |
+
+## PhotoSlop
+
+Tool names are compounds, as in Swedish Photoshop («Penselverktyg», «Trollstavsverktyg»); the short form («Pensel») is the
+history step and palette word, so never strip a suffix to get it. Layer names the app gives new layers stay English
+(they are the person's document content).
+
+| English | Svenska | Note |
+| --- | --- | --- |
+| layer mask | lagermask |  |
+| clipping mask | urklippsmask | «Skapa urklippsmask» |
+| brush | pensel | tool «Penselverktyg»; preset «förinställd pensel» |
+| brush tip | spets |  |
+| pencil | penna |  |
+| eraser | suddgummi |  |
+| blend mode | blandningsläge | Normal, Mörkna, Multiplicera, Färgbränning, Ljusna, Raster, Färgskugga, Linjär skugga (addera), Täcka över, Mjukt ljus, Hårt ljus, Differens, Uteslutning, Nyans, Mättnad, Färg, Luminiscens |
+| opacity / fill | opacitet / fyllning |  |
+| marquee | markeringsram | «Rektangulär markeringsram» |
+| magic wand | trollstav |  |
+| eyedropper | pipett |  |
+| clone stamp | klonstämpel |  |
+| healing brush / spot healing brush | läkningspensel / punktläkningspensel |  |
+| gradient | övertoning | «Övertoningsverktyg» |
+| paint bucket | färgpyts |  |
+| dodge / burn | Ljusa / Bränn |  |
+| smudge | Smeta ut |  |
+| sponge | svamp |  |
+| canvas | arbetsyta | «Arbetsytans storlek» |
+| image size | Bildstorlek |  |
+| resample | omsampling | Närmaste granne, Bilinjär, Bikubisk |
+| flatten image | Gör till ett lager |  |
+| merge down | Sammanfoga nedåt |  |
+| feather | mjuk kant |  |
+| tolerance / fuzziness | tolerans |  |
+| contiguous | Angränsande |  |
+| sample all layers | Sampla alla lager |  |
+| expand / contract (selection) | Utöka / Dra ihop |  |
+| select inverse | Omvänd markering |  |
+| select subject | Markera motiv | «Isolera motiv» for SlopIsolate |
+| colour range | Färgområde |  |
+| free transform | Fri omformning | «Omforma»; «Verkställ» to commit |
+| flip horizontal / vertical | Vänd horisontellt / vertikalt |  |
+| clockwise / counter clockwise | medurs / moturs |  |
+| guides / grid / rulers / snap | stödlinjer / stödraster / linjaler / Fäst mot |  |
+| swatches | färgrutor |  |
+| character (panel) | Tecken |  |
+| tracking / leading | spärrning / radavstånd |  |
+| anti-aliasing | kantutjämning |  |
+| warp text | Förvräng text | Båge, Valv, Utbuktning, Flagga, Våg, Stigande |
+| rasterize type | Rastrera text |  |
+| layer style | lagerstil | «Blandningsalternativ» |
+| drop / inner shadow | Skugga / Inre skugga |  |
+| outer / inner glow | Yttre / Inre glöd |  |
+| stroke (style) | Linje |  |
+| colour / gradient overlay | Färgöverlägg / Övertoningsöverlägg |  |
+| bevel & emboss | Avfasning och relief |  |
+| adjustments | Justeringar | Nivåer, Kurvor, Nyans/mättnad, Ljusstyrka/kontrast, Färgbalans, Svartvitt, Fotofilter, Tröskel, Posterisera, Övertoningsmappning |
+| vibrance | Lyster |  |
+| highlights / midtones | högdagrar / mellantoner |  |
+| blur / sharpen / noise | oskärpa / Skärpa / brus | «Gaussisk oskärpa», «Oskarp mask» |
+| preset | förinställning |  |
+| auto retouch | Autoretusch | «Autoförbättra», «Porträttretusch», «Räta upp» (straighten) |
+| red eye | röda ögon |  |
+| develop (RAW) | framkalla | «Som tagen» for As shot |
+| recovery (autosave) | återställning |  |
+| options bar | alternativfält |  |
+| Window (menu) | Fönster |  |
+
+## File convert
+
+| English | Svenska | Note |
+| --- | --- | --- |
+| X to Y (conversion) | X till Y | «Till PNG» |
+| conversion | konvertering |  |
+| route (chain of conversions) | kedja | «mellansteg» for in-between steps |
+| options | Alternativ |  |
+| clear | Rensa |  |
+| selected | markerade |  |
+| quality / bitrate | Kvalitet / bithastighet | «kbit/s» in prose |
+| frame (video) / frame rate | bildruta / bildfrekvens | «nyckelbildruta» |
+| fade in / out | Tona in / Tona ut |  |
+| cut (trim) | Klipp |  |
+| subtitles | undertexter | «Förskjut tiderna» |
+| line endings / encoding | radslut / teckenkodning | «Identifiera» for Detect |
+| separator | avgränsare | «lodstreck» for pipe |
+| sheet / workbook | blad / arbetsbok |  |
+| plain text | oformaterad text |  |
+| speaker notes | talaranteckningar |  |
+| picture PDF | bild-PDF |  |
+| unzip | Packa upp |  |
+| voucher (SIE) | verifikation |  |
+| statement / transaction / value date / counterparty | kontoutdrag / transaktion / valutadag / motpart |  |
+| track / waypoint | spår / vägpunkt |  |
+| mesh / up axis | nät / uppåtaxel | 3D |
+| video engine | videomotor |  |
+| Finance / Maps and GPS / Other (groups) | Ekonomi / Kartor och GPS / Övrigt |  |

@@ -18,12 +18,12 @@ Shared code (shell/, shared/) still has 6267 hard-coded strings; most belong to 
 
 | # | App | Id | Strings | In tables | Hard-coded | Languages at 100% |
 |---:|---|---|---:|---:|---:|---:|
-| 1 | File convert | convert | 2030 | 0 | 2030 | 0 of 29 |
-| 2 | PhotoSlop | photoslop | 1855 | 0 | 1855 | 0 of 29 |
-| 3 | Slop PDF | pdf | 1682 | 1467 | 215 | 0 of 29 |
-| 4 | SlopCut | slopedit | 1426 | 0 | 1426 | 0 of 29 |
-| 5 | SlopLabel | label | 1406 | 0 | 1406 | 0 of 29 |
-| 6 | Slop Press | press | 1373 | 0 | 1373 | 0 of 29 |
+| 1 | File convert | convert | 2144 | 967 | 1177 | 0 of 29 |
+| 2 | Slop PDF | pdf | 1682 | 1467 | 215 | 0 of 29 |
+| 3 | SlopCut | slopedit | 1426 | 0 | 1426 | 0 of 29 |
+| 4 | SlopLabel | label | 1406 | 0 | 1406 | 0 of 29 |
+| 5 | Slop Press | press | 1373 | 0 | 1373 | 0 of 29 |
+| 6 | PhotoSlop | photoslop | 1310 | 1310 | 0 | 2 of 29 |
 | 7 | SlopVector | vector | 1020 | 0 | 1020 | 0 of 29 |
 | 8 | Slop Slides | slides | 785 | 0 | 785 | 0 of 29 |
 | 9 | Slop Tables | tables | 694 | 0 | 694 | 0 of 29 |
@@ -82,10 +82,12 @@ Shared code (shell/, shared/) still has 6267 hard-coded strings; most belong to 
 | 62 | Slop Reminders | reminders | 44 | 0 | 44 | 0 of 29 |
 | 63 | Checksum | checksum | 42 | 0 | 42 | 0 of 29 |
 
-Total: 25167 strings in 63 apps.
+Total: 24736 strings in 63 apps.
 
 ## Apps with tables, per language
 
 | App | en | es | fr | de | pt-BR | it | ar | sv | zh-CN | zh-TW | ja | ko | hi | ru | uk | pl | nl | tr | id | vi | he | sw | am | ha | yo | ig | zu | xh | af |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| convert | 45% | 0% | 0% | 0% | 0% | 0% | 0% | 45% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
 | pdf | 87% | 0% | 0% | 87% | 0% | 0% | 87% | 87% | 0% | 0% | 87% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
+| photoslop | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |

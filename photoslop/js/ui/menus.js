@@ -2,208 +2,226 @@
 'use strict';
 
 /* ---------- menus ---------- */
-const filterMenu = (group) => FILTERS.filter((f) => f.menu === group || (f.sep === group)).map((f) => (f.sep ? '-' : { label: f.name, key: f.key, act: () => (f.menu === 'style' ? addStyleEffect(f.id) : runFilter(f.id)), need: 'layer' }));
-function filterSub(name) { return { label: name, sub: filterMenu(name) }; }
+/* Menu items have k, the slug of their English label with _ (it names the command id, so it never changes), and an
+ * optional t when their text key differs from k. labelMenu(items) gives each item with k a label getter that reads
+ * photoslop.menu.<t or k> in the chosen language (photoslop/i18n/<code>/menus.js). Code that finds an item looks for its k. */
+function labelMenu(items) {
+  for (const it of items) {
+    if (!it || it === '-') continue;
+    if (it.k && !Object.getOwnPropertyDescriptor(it, 'label')) Object.defineProperty(it, 'label', { get() { return tr('photoslop.menu.' + (this.t || this.k)); }, enumerable: true, configurable: true });
+    if (Array.isArray(it.sub)) labelMenu(it.sub);
+  }
+  return items;
+}
+/* A filter item's k is the slug of the filter's English name, kept here where it differs from its id (command ids). */
+const FILTER_K = Object.fromEntries(('brightness:brightness_contrast huesat:hue_saturation balance:color_balance bw:black_white photofilter:photo_filter ' + // i18n-ignore: command-id slugs
+  'gradmap:gradient_map autotone:auto_tone autocontrast:auto_contrast gauss:gaussian_blur boxblur:box_blur motion:motion_blur radial:radial_blur_zoom ' + // i18n-ignore: command-id slugs
+  'unsharp:unsharp_mask highpass:high_pass noise:add_noise median:median_despeckle crystal:crystallize halftone:color_halftone edges:find_edges ' + // i18n-ignore: command-id slugs
+  'oil:oil_paint pinch:pinch_bulge polar:polar_coordinates_tiny_planet maximum:maximum_dilate minimum:minimum_erode deepfry:deep_fry jpeg:jpeg_crunch ' + // i18n-ignore: command-id slugs
+  'chroma:chromatic_aberration redeye:red_eye_removal autoenhance:auto_enhance vhs:vhs_tape slopify:slopify_melt shadow:drop_shadow glow:outer_glow ' + // i18n-ignore: command-id slugs
+  'overlay:color_overlay bevel:bevel_emboss inner-shadow:inner_shadow inner-glow:inner_glow gradient:gradient_overlay').split(' ').map((p) => p.split(':'))); // i18n-ignore: command-id slugs
+const filterMenu = (group) => FILTERS.filter((f) => f.menu === group || (f.sep === group)).map((f) => (f.sep ? '-' : { k: FILTER_K[f.id] || f.id, get label() { return f.name; }, key: f.key, act: () => (f.menu === 'style' ? addStyleEffect(f.id) : runFilter(f.id)), need: 'layer' }));
+function filterSub(name) { return { k: name.toLowerCase(), sub: filterMenu(name) }; }
 /* Add layer mask: the same options in the Layer ▸ Mask menu, the layer right-click menu and the Layers panel button. */
 const hasMask = () => !!activeLayer() && !!activeLayer().mask;
-const maskAddItems = () => [
-  { label: 'Reveal All', act: () => addMask('reveal'), en: () => !!activeLayer() && !hasMask() },
-  { label: 'Hide All', act: () => addMask('hide'), en: () => !!activeLayer() && !hasMask() },
-  { label: 'From Selection', act: () => addMask('sel'), en: () => !!activeLayer() && !hasMask() && !!D.sel },
-];
+const maskAddItems = () => labelMenu([
+  { k: 'reveal_all', act: () => addMask('reveal'), en: () => !!activeLayer() && !hasMask() },
+  { k: 'hide_all', act: () => addMask('hide'), en: () => !!activeLayer() && !hasMask() },
+  { k: 'from_selection', act: () => addMask('sel'), en: () => !!activeLayer() && !hasMask() && !!D.sel },
+]);
 const MENUS = [
   ['File', [
-    { label: 'New…', key: 'Ctrl+N', alt: ['Alt+Ctrl+N'], act: () => dlgNew() },
-    { label: 'Open…', key: 'Ctrl+O', act: () => openFilePicker(false) },
-    { label: 'Config', sub: window.SlopConfigDialog ? SlopConfigDialog.menuItems({ app: 'photoslop' }) : [] },
-    { label: 'Close', key: 'Alt+Ctrl+W', act: () => closeDoc() },
-    { label: 'Close Others', act: async () => { for (const r of DOCS.filter((d) => d !== CUR)) await closeDoc(r); }, en: () => DOCS.length > 1 },
-    { label: 'Open from Slop Drive…', act: () => openFromDrive(false) },
-    { label: 'Place Image as Layer…', key: 'Shift+Ctrl+P', act: () => openFilePicker(true) },
-    { label: 'New from Clipboard', key: 'Alt+Shift+Ctrl+N', act: () => newFromClipboard() },
+    { k: 'new', key: 'Ctrl+N', alt: ['Alt+Ctrl+N'], act: () => dlgNew() },
+    { k: 'open', key: 'Ctrl+O', act: () => openFilePicker(false) },
+    { k: 'config', sub: window.SlopConfigDialog ? SlopConfigDialog.menuItems({ app: 'photoslop' }) : [] },
+    { k: 'close', key: 'Alt+Ctrl+W', act: () => closeDoc() },
+    { k: 'close_others', act: async () => { for (const r of DOCS.filter((d) => d !== CUR)) await closeDoc(r); }, en: () => DOCS.length > 1 },
+    { k: 'open_from_slop_drive', act: () => openFromDrive(false) },
+    { k: 'place_image_as_layer', key: 'Shift+Ctrl+P', act: () => openFilePicker(true) },
+    { k: 'new_from_clipboard', key: 'Alt+Shift+Ctrl+N', act: () => newFromClipboard() },
     '-',
-    { label: 'Save', key: 'Ctrl+S', act: () => saveDrive() },
-    { label: 'Download as Photoshop (.psd)', act: () => savePSD() },
-    { label: 'Save as OpenRaster (.ora)', act: () => saveORA() },
-    { label: 'Export As…', key: 'Alt+Shift+Ctrl+W', act: () => dlgExport() },
-    { label: 'Quick Export as PNG', key: 'Alt+Shift+Ctrl+S', act: () => quickExport() },
-    { label: 'Export Layers as PNGs', act: () => exportLayers() },
-    { label: 'Send to', sub: sendToMenu() },
+    { k: 'save', key: 'Ctrl+S', act: () => saveDrive() },
+    { k: 'download_as_photoshop_psd', act: () => savePSD() },
+    { k: 'save_as_openraster_ora', act: () => saveORA() },
+    { k: 'export_as', key: 'Alt+Shift+Ctrl+W', act: () => dlgExport() },
+    { k: 'quick_export_as_png', key: 'Alt+Shift+Ctrl+S', act: () => quickExport() },
+    { k: 'export_layers_as_pngs', act: () => exportLayers() },
+    { k: 'send_to', sub: sendToMenu() },
     '-',
-    { label: 'Download PhotoSlop for offline use (.html)', act: () => downloadOfflineApp() },
-    { label: 'Clear Recovery Data', act: () => clearAutosave() },
+    { k: 'download_photoslop_for_offline_use_html', act: () => downloadOfflineApp() },
+    { k: 'clear_recovery_data', act: () => clearAutosave() },
   ]],
   ['Edit', [
-    { label: 'Undo', key: 'Ctrl+Z', act: () => undo(), en: () => Hist.idx > 0, dyn: () => (Hist.idx > 0 ? 'Undo ' + Hist.states[Hist.idx].label : 'Undo') },
-    { label: 'Redo', key: 'Shift+Ctrl+Z', act: () => redo(), en: () => Hist.idx < Hist.states.length - 1, dyn: () => (Hist.idx < Hist.states.length - 1 ? 'Redo ' + Hist.states[Hist.idx + 1].label : 'Redo') },
+    { k: 'undo', key: 'Ctrl+Z', act: () => undo(), en: () => Hist.idx > 0, dyn: () => (Hist.idx > 0 ? tr('ui.undo_what', { what: Hist.states[Hist.idx].label }) : tr('ui.undo')) },
+    { k: 'redo', key: 'Shift+Ctrl+Z', act: () => redo(), en: () => Hist.idx < Hist.states.length - 1, dyn: () => (Hist.idx < Hist.states.length - 1 ? tr('ui.redo_what', { what: Hist.states[Hist.idx + 1].label }) : tr('ui.redo')) },
     '-',
-    { label: 'Cut', key: 'Ctrl+X', act: () => cutSel(), need: 'layer' },
-    { label: 'Copy', key: 'Ctrl+C', act: () => copySel(false), need: 'layer' },
-    { label: 'Copy Merged', key: 'Shift+Ctrl+C', act: () => copySel(true) },
-    { label: 'Copy to Buffer', act: () => copyToBuffer(false), need: 'layer' },
-    { label: 'Copy Merged to Buffer', act: () => copyToBuffer(true) },
-    { label: 'Paste', key: 'Ctrl+V', act: () => pasteFromSystem(false) },
-    { label: 'Paste in Place', key: 'Shift+Ctrl+V', act: () => pasteFromSystem(true) },
-    { label: 'Clear', key: 'Delete', act: () => clearSelectionPixels(), en: () => !!D.sel },
+    { k: 'cut', key: 'Ctrl+X', act: () => cutSel(), need: 'layer' },
+    { k: 'copy', key: 'Ctrl+C', act: () => copySel(false), need: 'layer' },
+    { k: 'copy_merged', key: 'Shift+Ctrl+C', act: () => copySel(true) },
+    { k: 'copy_to_buffer', act: () => copyToBuffer(false), need: 'layer' },
+    { k: 'copy_merged_to_buffer', act: () => copyToBuffer(true) },
+    { k: 'paste', key: 'Ctrl+V', act: () => pasteFromSystem(false) },
+    { k: 'paste_in_place', key: 'Shift+Ctrl+V', act: () => pasteFromSystem(true) },
+    { k: 'clear', key: 'Delete', act: () => clearSelectionPixels(), en: () => !!D.sel },
     '-',
-    { label: 'Fill with Foreground', key: 'Alt+Backspace', act: () => fillSelection(C.fg, 'Fill'), need: 'layer' },
-    { label: 'Fill with Background', key: 'Ctrl+Backspace', act: () => fillSelection(C.bg, 'Fill'), need: 'layer' },
-    { label: 'Stroke Selection…', act: () => dlgStroke(), en: () => !!D.sel },
+    { k: 'fill_with_foreground', key: 'Alt+Backspace', act: () => fillSelection(C.fg, tr('photoslop.menu.undo_fill')), need: 'layer' },
+    { k: 'fill_with_background', key: 'Ctrl+Backspace', act: () => fillSelection(C.bg, tr('photoslop.menu.undo_fill')), need: 'layer' },
+    { k: 'stroke_selection', act: () => dlgStroke(), en: () => !!D.sel },
     '-',
-    { label: 'Free Transform', key: 'Ctrl+T', alt: ['Alt+Ctrl+T'], act: () => startTransform(), need: 'layer' },
-    { label: 'Transform', sub: [
-      { label: 'Rotate 180°', act: () => transformLayerQuick('180') },
-      { label: 'Rotate 90° Clockwise', act: () => transformLayerQuick('cw') },
-      { label: 'Rotate 90° Counter Clockwise', act: () => transformLayerQuick('ccw') },
+    { k: 'free_transform', key: 'Ctrl+T', alt: ['Alt+Ctrl+T'], act: () => startTransform(), need: 'layer' },
+    { k: 'transform', sub: [
+      { k: 'rotate_180', act: () => transformLayerQuick('180') },
+      { k: 'rotate_90_clockwise', act: () => transformLayerQuick('cw') },
+      { k: 'rotate_90_counter_clockwise', act: () => transformLayerQuick('ccw') },
       '-',
-      { label: 'Flip Horizontal', act: () => transformLayerQuick('flipH') },
-      { label: 'Flip Vertical', act: () => transformLayerQuick('flipV') },
+      { k: 'flip_horizontal', act: () => transformLayerQuick('flipH') },
+      { k: 'flip_vertical', act: () => transformLayerQuick('flipV') },
     ] },
     '-',
-    { label: 'Brush Settings…', key: 'F5', act: () => dlgBrushSettings() },
-    { label: 'Define Brush Preset…', act: () => defineBrushFromSelection(), need: 'layer' },
-    { label: 'Import Brushes (.abr, .slopbrush, PNG)…', act: () => SlopIntake.pick({ to: 'photoslop.brushes' }) },
+    { k: 'brush_settings', key: 'F5', act: () => dlgBrushSettings() },
+    { k: 'define_brush_preset', act: () => defineBrushFromSelection(), need: 'layer' },
+    { k: 'import_brushes_abr_slopbrush_png', act: () => SlopIntake.pick({ to: 'photoslop.brushes' }) },
     '-',
-    { label: 'Preferences', sub: [
-      { label: 'Navigation…', act: () => SlopNav.openModal('photoslop') },
+    { k: 'preferences', sub: [
+      { k: 'navigation', act: () => SlopNav.openModal('photoslop') },
     ] },
-    { label: 'Keyboard Shortcuts…', key: 'Alt+Shift+Ctrl+K', act: () => dlgShortcuts() },
+    { k: 'keyboard_shortcuts', key: 'Alt+Shift+Ctrl+K', act: () => dlgShortcuts() },
   ]],
   ['Image', [
-    { label: 'Adjustments', sub: filterMenu('adjust') },
+    { k: 'adjustments', sub: filterMenu('adjust') },
     '-',
-    { label: 'Image Size…', key: 'Alt+Ctrl+I', act: () => dlgImageSize() },
-    { label: 'Canvas Size…', key: 'Alt+Ctrl+C', act: () => dlgCanvasSize() },
-    { label: 'Watermark', dyn: () => (wmOn() ? 'Turn Watermark Off' : 'Turn Watermark On'), act: () => wmToggle() },
+    { k: 'image_size', key: 'Alt+Ctrl+I', act: () => dlgImageSize() },
+    { k: 'canvas_size', key: 'Alt+Ctrl+C', act: () => dlgCanvasSize() },
+    { k: 'watermark', dyn: () => tr(wmOn() ? 'photoslop.menu.watermark_off' : 'photoslop.menu.watermark_on'), act: () => wmToggle() },
     '-',
-    { label: 'Rotate 90° Clockwise', act: () => transformCanvas('cw') },
-    { label: 'Rotate 90° Counter Clockwise', act: () => transformCanvas('ccw') },
-    { label: 'Rotate 180°', act: () => transformCanvas('180') },
+    { k: 'rotate_90_clockwise', act: () => transformCanvas('cw') },
+    { k: 'rotate_90_counter_clockwise', act: () => transformCanvas('ccw') },
+    { k: 'rotate_180', act: () => transformCanvas('180') },
     '-',
-    { label: 'Flip Horizontal', act: () => transformCanvas('flipH') },
-    { label: 'Flip Vertical', act: () => transformCanvas('flipV') },
+    { k: 'flip_horizontal', act: () => transformCanvas('flipH') },
+    { k: 'flip_vertical', act: () => transformCanvas('flipV') },
     '-',
-    { label: 'Crop to Selection', act: () => { const b = D.sel.bounds; cropTo(b, true); fitView(); }, en: () => !!D.sel },
-    { label: 'Trim Transparent Pixels', act: () => { const b = alphaBounds(flattenCanvas()); if (b) { cropTo(b, true); fitView(); } } },
+    { k: 'crop_to_selection', act: () => { const b = D.sel.bounds; cropTo(b, true); fitView(); }, en: () => !!D.sel },
+    { k: 'trim_transparent_pixels', act: () => { const b = alphaBounds(flattenCanvas()); if (b) { cropTo(b, true); fitView(); } } },
   ]],
   ['Layer', [
-    { label: 'New Layer', key: 'Shift+Ctrl+N', act: () => addLayer() },
-    { label: 'Duplicate Layer', act: () => duplicateLayer() },
-    { label: 'Delete', sub: [
-      { label: 'Delete Layer', act: () => deleteLayer() },
-      { label: 'Remove All Layers', act: () => removeAllLayers(), en: () => D.layers.length > 0 },
+    { k: 'new_layer', key: 'Shift+Ctrl+N', act: () => addLayer() },
+    { k: 'duplicate_layer', act: () => duplicateLayer() },
+    { k: 'delete', sub: [
+      { k: 'delete_layer', act: () => deleteLayer() },
+      { k: 'remove_all_layers', act: () => removeAllLayers(), en: () => D.layers.length > 0 },
     ] },
-    { label: 'Layer Properties…', act: () => dlgLayerProps() },
+    { k: 'layer_properties', act: () => dlgLayerProps() },
     '-',
-    { label: 'Layer via Copy', key: 'Ctrl+J', act: () => layerViaCopy(false) },
-    { label: 'Layer via Cut', key: 'Shift+Ctrl+J', act: () => layerViaCopy(true), need: 'layer' },
-    { label: 'Isolate Subject…', act: () => isolateSubject(), en: () => !!activeLayer() },
-    { label: 'Generate Image…', cmdId: 'ps.generate', act: () => psImageGen('generate') },
-    { label: 'Edit with AI…', cmdId: 'ps.edit-ai', act: () => psImageGen('edit'), en: () => !!activeLayer() },
-    { label: 'New Fill Layer', sub: [
-      { label: 'Solid Color (foreground)', act: () => { const c = mkCanvas(D.w, D.h), g = cx(c); g.fillStyle = C.fg; g.fillRect(0, 0, D.w, D.h); addLayer({ name: nextName('Color Fill'), canvas: c }, 'Fill Layer'); } },
-      { label: 'Gradient (foreground → background)', act: () => { const keep = T.gradient.type; T.gradient.type = 'linear'; const c = gradientCanvas({ x: 0, y: 0 }, { x: 0, y: D.h }); T.gradient.type = keep; addLayer({ name: nextName('Gradient Fill'), canvas: c }, 'Fill Layer'); } },
+    { k: 'layer_via_copy', key: 'Ctrl+J', act: () => layerViaCopy(false) },
+    { k: 'layer_via_cut', key: 'Shift+Ctrl+J', act: () => layerViaCopy(true), need: 'layer' },
+    { k: 'isolate_subject', act: () => isolateSubject(), en: () => !!activeLayer() },
+    { k: 'generate_image', cmdId: 'ps.generate', act: () => psImageGen('generate') },
+    { k: 'edit_with_ai', cmdId: 'ps.edit-ai', act: () => psImageGen('edit'), en: () => !!activeLayer() },
+    { k: 'new_fill_layer', sub: [
+      { k: 'solid_color_foreground', act: () => { const c = mkCanvas(D.w, D.h), g = cx(c); g.fillStyle = C.fg; g.fillRect(0, 0, D.w, D.h); addLayer({ name: nextName('Color Fill'), canvas: c }, tr('photoslop.menu.undo_fill_layer')); } }, // i18n-ignore: the layer name is document content
+      { k: 'gradient_foreground_background', act: () => { const keep = T.gradient.type; T.gradient.type = 'linear'; const c = gradientCanvas({ x: 0, y: 0 }, { x: 0, y: D.h }); T.gradient.type = keep; addLayer({ name: nextName('Gradient Fill'), canvas: c }, tr('photoslop.menu.undo_fill_layer')); } }, // i18n-ignore: the layer name is document content
     ] },
-    { label: 'Layer Style', sub: [{ label: 'Layer Style…', need: 'layer', act: () => { const L = activeLayer(); if (L) openLayerStyle(L.id); } }, '-'].concat(filterMenu('style')) },
+    { k: 'layer_style', sub: [{ k: 'layer_style', t: 'layer_style_dots', need: 'layer', act: () => { const L = activeLayer(); if (L) openLayerStyle(L.id); } }, '-'].concat(filterMenu('style')) },
     '-',
-    { label: 'Mask', sub: [
-      { label: 'Add', sub: maskAddItems() },
-      { label: 'Delete', act: () => { const L = activeLayer(); UI.editMask = false; setLayerProps(L.id, { mask: null }, 'Delete Mask'); }, en: () => hasMask() },
-      { label: 'Invert', act: () => invertMask(activeLayer().id), en: () => hasMask() },
-      { label: 'Apply', act: () => applyMask(), en: () => hasMask() },
-      { label: 'Disable', dyn: () => (hasMask() && activeLayer().mask.enabled === false ? 'Enable' : 'Disable'), act: () => { const L = activeLayer(); setLayerProps(L.id, { mask: Object.assign({}, L.mask, { enabled: L.mask.enabled === false }) }, 'Toggle Mask'); }, en: () => hasMask() },
+    { k: 'mask', sub: [
+      { k: 'add', sub: maskAddItems() },
+      { k: 'delete', act: () => { const L = activeLayer(); UI.editMask = false; setLayerProps(L.id, { mask: null }, tr('photoslop.menu.undo_delete_mask')); }, en: () => hasMask() },
+      { k: 'invert', act: () => invertMask(activeLayer().id), en: () => hasMask() },
+      { k: 'apply', act: () => applyMask(), en: () => hasMask() },
+      { k: 'disable', dyn: () => tr(hasMask() && activeLayer().mask.enabled === false ? 'photoslop.menu.enable' : 'photoslop.menu.disable'), act: () => { const L = activeLayer(); setLayerProps(L.id, { mask: Object.assign({}, L.mask, { enabled: L.mask.enabled === false }) }, tr('photoslop.menu.undo_toggle_mask')); }, en: () => hasMask() },
     ] },
-    { label: 'Create Clipping Mask', key: 'Alt+Ctrl+G', dyn: () => (activeLayer() && activeLayer().clip ? 'Release Clipping Mask' : 'Create Clipping Mask'), act: () => { const L = activeLayer(); setClipping(L.id, !L.clip); }, need: 'layer' },
-    { label: 'Edit Text', act: () => editTypeLayer(), en: () => activeLayer() && !!activeLayer().text },
-    { label: 'Warp Text…', act: () => dlgWarpText(), en: () => activeLayer() && !!activeLayer().text },
-    { label: 'Rasterize Type', act: () => rasterizeText(activeLayer()), en: () => activeLayer() && !!activeLayer().text },
-    { label: 'Rotate and Flip', sub: [
-      { label: 'Rotate 180°', act: () => transformLayerQuick('180') },
-      { label: 'Rotate 90° Clockwise', act: () => transformLayerQuick('cw') },
-      { label: 'Rotate 90° Counter Clockwise', act: () => transformLayerQuick('ccw') },
+    { k: 'create_clipping_mask', key: 'Alt+Ctrl+G', dyn: () => tr(activeLayer() && activeLayer().clip ? 'photoslop.menu.release_clipping_mask' : 'photoslop.menu.create_clipping_mask'), act: () => { const L = activeLayer(); setClipping(L.id, !L.clip); }, need: 'layer' },
+    { k: 'edit_text', act: () => editTypeLayer(), en: () => activeLayer() && !!activeLayer().text },
+    { k: 'warp_text', act: () => dlgWarpText(), en: () => activeLayer() && !!activeLayer().text },
+    { k: 'rasterize_type', act: () => rasterizeText(activeLayer()), en: () => activeLayer() && !!activeLayer().text },
+    { k: 'rotate_and_flip', sub: [
+      { k: 'rotate_180', act: () => transformLayerQuick('180') },
+      { k: 'rotate_90_clockwise', act: () => transformLayerQuick('cw') },
+      { k: 'rotate_90_counter_clockwise', act: () => transformLayerQuick('ccw') },
       '-',
-      { label: 'Flip Horizontal', act: () => transformLayerQuick('flipH') },
-      { label: 'Flip Vertical', act: () => transformLayerQuick('flipV') },
+      { k: 'flip_horizontal', act: () => transformLayerQuick('flipH') },
+      { k: 'flip_vertical', act: () => transformLayerQuick('flipV') },
     ] },
     '-',
-    { label: 'Arrange', sub: [
-      { label: 'Bring to Front', key: 'Shift+Ctrl+]', act: () => moveLayer(D.activeId, D.layers.length - 1) },
-      { label: 'Bring Forward', key: 'Ctrl+]', act: () => moveLayer(D.activeId, layerIndex(D.activeId) + 1) },
-      { label: 'Send Backward', key: 'Ctrl+[', act: () => moveLayer(D.activeId, layerIndex(D.activeId) - 1) },
-      { label: 'Send to Back', key: 'Shift+Ctrl+[', act: () => moveLayer(D.activeId, 0) },
+    { k: 'arrange', sub: [
+      { k: 'bring_to_front', key: 'Shift+Ctrl+]', act: () => moveLayer(D.activeId, D.layers.length - 1) },
+      { k: 'bring_forward', key: 'Ctrl+]', act: () => moveLayer(D.activeId, layerIndex(D.activeId) + 1) },
+      { k: 'send_backward', key: 'Ctrl+[', act: () => moveLayer(D.activeId, layerIndex(D.activeId) - 1) },
+      { k: 'send_to_back', key: 'Shift+Ctrl+[', act: () => moveLayer(D.activeId, 0) },
     ] },
-    { label: 'Lock / Unlock Layer', key: 'Ctrl+/', act: () => { const L = activeLayer(); setLayerProps(L.id, { locked: !L.locked }, L.locked ? 'Unlock Layer' : 'Lock Layer'); } },
+    { k: 'lock_unlock_layer', key: 'Ctrl+/', act: () => { const L = activeLayer(); setLayerProps(L.id, { locked: !L.locked }, tr(L.locked ? 'photoslop.menu.undo_unlock_layer' : 'photoslop.menu.undo_lock_layer')); } },
     '-',
-    { label: 'Merge Down', key: 'Ctrl+E', act: () => mergeDown() },
-    { label: 'Merge Visible', key: 'Shift+Ctrl+E', act: () => mergeVisible() },
-    { label: 'Flatten Image', act: () => flattenImage() },
+    { k: 'merge_down', key: 'Ctrl+E', act: () => mergeDown() },
+    { k: 'merge_visible', key: 'Shift+Ctrl+E', act: () => mergeVisible() },
+    { k: 'flatten_image', act: () => flattenImage() },
   ]],
   ['Select', [
-    { label: 'All', key: 'Ctrl+A', act: () => selectAll() },
-    { label: 'Deselect', key: 'Ctrl+D', act: () => deselect(), en: () => !!D.sel },
-    { label: 'Inverse', key: 'Shift+Ctrl+I', act: () => selectInverse() },
+    { k: 'all', key: 'Ctrl+A', act: () => selectAll() },
+    { k: 'deselect', key: 'Ctrl+D', act: () => deselect(), en: () => !!D.sel },
+    { k: 'inverse', key: 'Shift+Ctrl+I', act: () => selectInverse() },
     '-',
-    { label: 'Layer Transparency', act: () => { const L = activeLayer(); const c = mkCanvas(D.w, D.h); cx(c).drawImage(bakedLayer(L).canvas, L.x, L.y); D.sel = makeSel(c); commit('Load Selection'); } },
-    { label: 'Subject', act: () => selectSubject(), need: 'layer' },
-    { label: 'Color Range (foreground)…', act: () => dlgColorRange() },
+    { k: 'layer_transparency', act: () => { const L = activeLayer(); const c = mkCanvas(D.w, D.h); cx(c).drawImage(bakedLayer(L).canvas, L.x, L.y); D.sel = makeSel(c); commit(tr('photoslop.menu.undo_load_selection')); } },
+    { k: 'subject', act: () => selectSubject(), need: 'layer' },
+    { k: 'color_range_foreground', act: () => dlgColorRange() },
     '-',
-    { label: 'Feather…', key: 'Shift+F6', act: () => dlgNumber('Feather Selection', 'Feather radius', 8, 0.5, 250, 'px', (v) => featherSel(v)), en: () => !!D.sel },
-    { label: 'Expand…', act: () => dlgNumber('Expand Selection', 'Expand by', 8, 1, 100, 'px', (v) => growSel(v)), en: () => !!D.sel },
-    { label: 'Contract…', act: () => dlgNumber('Contract Selection', 'Contract by', 8, 1, 100, 'px', (v) => growSel(-v)), en: () => !!D.sel },
+    { k: 'feather', key: 'Shift+F6', act: () => dlgNumber(tr('photoslop.menu.feather_title'), tr('photoslop.menu.feather_radius'), 8, 0.5, 250, 'px', (v) => featherSel(v)), en: () => !!D.sel },
+    { k: 'expand', act: () => dlgNumber(tr('photoslop.menu.expand_title'), tr('photoslop.menu.expand_by'), 8, 1, 100, 'px', (v) => growSel(v)), en: () => !!D.sel },
+    { k: 'contract', act: () => dlgNumber(tr('photoslop.menu.contract_title'), tr('photoslop.menu.contract_by'), 8, 1, 100, 'px', (v) => growSel(-v)), en: () => !!D.sel },
   ]],
   ['Filter', [
-    { label: 'Last Filter', key: 'Alt+Ctrl+F', act: () => LAST_FILTER.id && runFilter(LAST_FILTER.id, LAST_FILTER.params), en: () => !!LAST_FILTER.id, dyn: () => (LAST_FILTER.id ? 'Last Filter: ' + FILTER_BY_ID[LAST_FILTER.id].name.replace('…', '') : 'Last Filter') },
+    { k: 'last_filter', key: 'Alt+Ctrl+F', act: () => LAST_FILTER.id && runFilter(LAST_FILTER.id, LAST_FILTER.params), en: () => !!LAST_FILTER.id, dyn: () => (LAST_FILTER.id ? tr('photoslop.menu.last_filter_named', { name: FILTER_BY_ID[LAST_FILTER.id].name.replace('…', '') }) : tr('photoslop.menu.last_filter')) },
     '-',
-    filterSub('Blur'), filterSub('Sharpen'), filterSub('Noise'), filterSub('Pixelate'), filterSub('Stylize'), filterSub('Distort'), filterSub('Render'), filterSub('Other'),
+    filterSub('Blur'), filterSub('Sharpen'), filterSub('Noise'), filterSub('Pixelate'), filterSub('Stylize'), filterSub('Distort'), filterSub('Render'), filterSub('Other'),   // i18n-ignore: filter group ids (the menu shows photoslop.menu.<k>)
     '-',
-    ...filterMenu('Auto'),
-    { label: 'Repair', sub: [
-      { label: 'Spot Healing Brush', act: () => selectTool('spot') },
-      { label: 'Healing Brush', act: () => selectTool('heal') },
-      { label: 'Red Eye Tool', act: () => selectTool('redeye') },
+    ...filterMenu('Auto'),   // i18n-ignore: filter group ids (the menu shows photoslop.menu.<k>)
+    { k: 'repair', sub: [
+      { k: 'spot_healing_brush', act: () => selectTool('spot') },
+      { k: 'healing_brush', act: () => selectTool('heal') },
+      { k: 'red_eye_tool', act: () => selectTool('redeye') },
       '-',
-      ...filterMenu('Repair'),
+      ...filterMenu('Repair'),   // i18n-ignore: filter group ids (the menu shows photoslop.menu.<k>)
     ] },
     '-',
-    filterSub('Slop'),
+    filterSub('Slop'),   // i18n-ignore: filter group ids (the menu shows photoslop.menu.<k>)
   ]],
   ['View', [
-    { label: 'Zoom In', key: 'Ctrl+=', act: () => zoomStep(1) },
-    { label: 'Zoom Out', key: 'Ctrl+-', act: () => zoomStep(-1) },
-    { label: 'Fit on Screen', key: 'Ctrl+0', act: () => fitView() },
-    { label: '100%', key: 'Ctrl+1', act: () => actualPixels() },
+    { k: 'zoom_in', key: 'Ctrl+=', act: () => zoomStep(1) },
+    { k: 'zoom_out', key: 'Ctrl+-', act: () => zoomStep(-1) },
+    { k: 'fit_on_screen', key: 'Ctrl+0', act: () => fitView() },
+    { k: '100', key: 'Ctrl+1', act: () => actualPixels() },
     '-',
-    { label: 'Rotate View Left', key: 'Alt+[', act: () => rotateView(-90) },
-    { label: 'Rotate View Right', key: 'Alt+]', act: () => rotateView(90) },
-    { label: 'Reset View', key: 'Alt+0', act: () => resetView() },
+    { k: 'rotate_view_left', key: 'Alt+[', act: () => rotateView(-90) },
+    { k: 'rotate_view_right', key: 'Alt+]', act: () => rotateView(90) },
+    { k: 'reset_view', key: 'Alt+0', act: () => resetView() },
     '-',
-    { label: 'Pixel Grid', check: () => store.get('pixelGrid', true), act: () => { store.set('pixelGrid', !store.get('pixelGrid', true)); dirty(); } },
-    { label: 'Layer Bounds', check: () => store.get('showBounds', true), act: () => { store.set('showBounds', !store.get('showBounds', true)); dirty(); } },
+    { k: 'pixel_grid', check: () => store.get('pixelGrid', true), act: () => { store.set('pixelGrid', !store.get('pixelGrid', true)); dirty(); } },
+    { k: 'layer_bounds', check: () => store.get('showBounds', true), act: () => { store.set('showBounds', !store.get('showBounds', true)); dirty(); } },
     '-',
     ...guidesMenuItems(),
     '-',
-    { label: 'Theme', sub: [
-      { label: 'Pro (dark)', check: () => theme() === 'pro', act: () => setTheme('pro') },
-      { label: 'Light', check: () => theme() === 'light', act: () => setTheme('light') },
-      { label: 'Paint ’98', check: () => theme() === 'paint', act: () => setTheme('paint') },
+    { k: 'theme', sub: [
+      { k: 'pro_dark', check: () => theme() === 'pro', act: () => setTheme('pro') },
+      { k: 'light', check: () => theme() === 'light', act: () => setTheme('light') },
+      { k: 'paint_98', check: () => theme() === 'paint', act: () => setTheme('paint') },
     ] },
-    { label: 'Show / Hide Panels', key: 'Tab', act: () => document.body.classList.toggle('no-panels') },
-    { label: 'Reset panel sizes', cmdId: 'view.resetPanels', act: () => window.SlopResizePanel && SlopResizePanel.resetAll() },   // shared/ui/resize-panel.js
+    { k: 'show_hide_panels', key: 'Tab', act: () => document.body.classList.toggle('no-panels') },
+    { k: 'reset_panel_sizes', cmdId: 'view.resetPanels', act: () => window.SlopResizePanel && SlopResizePanel.resetAll() },   // shared/ui/resize-panel.js
   ]],
   ['Layout', () => (window.SlopLayouts ? SlopLayouts.menu('photoslop') : [])],
   ['Window', () => windowMenuItems()],
   ['Help', [
-    { label: 'Search Commands…', cmdId: 'cmd.palette', act: () => openCommandPalette() },
-    { label: 'Keyboard Shortcuts…', cmdId: 'cmd.keymap', act: () => openKeymap() },
-    { label: 'About PhotoSlop', act: () => dlgAbout() },
-    { label: 'AI agents…', act: () => window.SlopAgents && window.SlopAgents.about() },
+    { k: 'search_commands', cmdId: 'cmd.palette', act: () => openCommandPalette() },
+    { k: 'keyboard_shortcuts', cmdId: 'cmd.keymap', act: () => openKeymap() },
+    { k: 'about_photoslop', act: () => dlgAbout() },
+    { k: 'ai_agents', act: () => window.SlopAgents && window.SlopAgents.about() },
     '-',
-    { label: 'Open Slop Paint Classic (MS Paint)', act: () => { location.href = 'classic/'; } },
-    { label: 'Back to slopographic.com', act: () => { location.href = '../'; } },
+    { k: 'open_slop_paint_classic_ms_paint', act: () => { location.href = 'classic/'; } },
+    { k: 'back_to_slopographic_com', act: () => { location.href = '../'; } },
   ]],
 ];
 const SHORTCUTS = new Map();
 function collectShortcuts(items) { for (const it of items) { if (it === '-' || !it) continue; if (it.sub) collectShortcuts(it.sub); if (it.key) SHORTCUTS.set(normCombo(it.key), it); for (const k of it.alt || []) SHORTCUTS.set(normCombo(k), it); } }
-MENUS.forEach(([, items]) => { if (Array.isArray(items)) collectShortcuts(items); });
+MENUS.forEach(([, items]) => { if (Array.isArray(items)) { labelMenu(items); collectShortcuts(items); } });
 SHORTCUTS.set(normCombo('Ctrl+Tab'), { act: () => cycleDoc(1) });
 SHORTCUTS.set(normCombo('Shift+Ctrl+Tab'), { act: () => cycleDoc(-1) });

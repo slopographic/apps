@@ -48,14 +48,14 @@ function curvesParam(rgb) { const id = [[0, 0], [255, 255]]; return { rgb, r: id
 function psBoundsNote(what, b) {
   if (!b) return '';
   const cut = { left: Math.max(0, -b.x), right: Math.max(0, b.x + b.w - D.w), top: Math.max(0, -b.y), bottom: Math.max(0, b.y + b.h - D.h) };
-  let s = ` It covers ${Math.round(b.w)} × ${Math.round(b.h)} px at ${Math.round(b.x)}, ${Math.round(b.y)}.`;
+  let s = ` It covers ${Math.round(b.w)} × ${Math.round(b.h)} px at ${Math.round(b.x)}, ${Math.round(b.y)}.`; // i18n-ignore: the assistant's commands, their docs and replies are API
   const side = (a, z, size, dim, word) => {
     if (!a && !z) return '';
     const big = size > dim ? `${what} is ${Math.round(size)} px ${word}, ${word === 'wide' ? 'wider' : 'taller'} than the ${dim} px canvas; ` : `${what} runs past the canvas: `;
     return a && z && Math.abs(a - z) < 2 ? `${big}${Math.round(a)} px is cut off on each side.` : `${big}${[a ? `${Math.round(a)} px is cut off on the ${word === 'wide' ? 'left' : 'top'}` : '', z ? `${Math.round(z)} px on the ${word === 'wide' ? 'right' : 'bottom'}` : ''].filter(Boolean).join(' and ')}.`;
   };
   const warn = [side(cut.left, cut.right, b.w, D.w, 'wide'), side(cut.top, cut.bottom, b.h, D.h, 'tall')].filter(Boolean);
-  if (warn.length) s += ' Warning: ' + warn.join(' ') + ' Use fit: true, a smaller size or another position to keep it all on the canvas.';
+  if (warn.length) s += ' Warning: ' + warn.join(' ') + ' Use fit: true, a smaller size or another position to keep it all on the canvas.'; // i18n-ignore: the assistant's commands, their docs and replies are API
   return s;
 }
 /** The document-space bounds of a layer's visible pixels. */
@@ -80,8 +80,8 @@ async function aiAddText(a) {
   if (a.x != null) bx = a.x; if (a.y != null) by = a.y;
   t.x = Math.round(bx - r0.x); t.y = Math.round(by - r0.y);
   const r = renderTextCanvas(t);
-  const L = await aiOneStep('Type Layer', () => addLayer({ name: t.str.split('\n')[0].slice(0, 32), canvas: r.canvas, x: r.x, y: r.y, text: t }, 'Type Layer'));
-  return `Added the text layer “${t.str.slice(0, 40)}” at ${Math.round(bx)}, ${Math.round(by)}, size ${t.size} px.` + psBoundsNote('The text', psLayerBounds(L) || { x: bx, y: by, w, h: hh });
+  const L = await aiOneStep(tr('photoslop.ai.step_type_layer'), () => addLayer({ name: t.str.split('\n')[0].slice(0, 32), canvas: r.canvas, x: r.x, y: r.y, text: t }, tr('photoslop.ai.step_type_layer')));
+  return `Added the text layer “${t.str.slice(0, 40)}” at ${Math.round(bx)}, ${Math.round(by)}, size ${t.size} px.` + psBoundsNote('The text', psLayerBounds(L) || { x: bx, y: by, w, h: hh }); // i18n-ignore: the assistant's commands, their docs and replies are API
 }
 
 async function aiExport(a) {
@@ -93,7 +93,7 @@ async function aiExport(a) {
   const name = safeName() + { png: '.png', jpeg: '.jpg', webp: '.webp' }[a.format];
   download(b, name);
   if (window.SlopSupport) SlopSupport.afterExport('photoslop');
-  return `Exported ${name}, ${c.width} × ${c.height} px, ${Math.max(1, Math.round(b.size / 1024))} KB.`;
+  return `Exported ${name}, ${c.width} × ${c.height} px, ${Math.max(1, Math.round(b.size / 1024))} KB.`; // i18n-ignore: the assistant's commands, their docs and replies are API
 }
 
 /** Finds a layer by name (exact, then a part of the name, case-insensitive), or the active one when name is empty. */
@@ -109,21 +109,21 @@ const ANCHORS = { 'top-left': [0, 0], top: [0.5, 0], 'top-right': [1, 0], left: 
 function aiCanvasSize(a) {
   const w = a.width || D.w, hh = a.height || D.h, [ax, ay] = ANCHORS[a.anchor] || ANCHORS.center;
   const fill = { transparent: null, background: C.bg, foreground: C.fg, white: '#ffffff', black: '#000000' }[a.fill];
-  resizeCanvas(w, hh, Math.round((w - D.w) * ax), Math.round((hh - D.h) * ay), 'Canvas Size', fill);
+  resizeCanvas(w, hh, Math.round((w - D.w) * ax), Math.round((hh - D.h) * ay), tr('photoslop.ai.step_canvas_size'), fill);
 }
 function aiImageSize(a) {
   let w = a.width, hh = a.height;
   if (!w && !hh) throw new Error('Give a width or a height in px');
   if (a.keep_aspect !== false) { if (w && !hh) hh = Math.round((D.h * w) / D.w); else if (hh && !w) w = Math.round((D.w * hh) / D.h); }
   imageSize(w || D.w, hh || D.h, a.resample);
-  return `The image is now ${D.w} × ${D.h} px.`;
+  return `The image is now ${D.w} × ${D.h} px.`; // i18n-ignore: the assistant's commands, their docs and replies are API
 }
 
 /** What the assistant reads with app_state: small and plain. Layers are listed top first. */
 function aiState() {
   const L = activeLayer(), b = D.sel && D.sel.bounds;
   return {
-    app: 'PhotoSlop', document: { name: D.name, width: D.w, height: D.h, openDocuments: DOCS.length },
+    app: 'PhotoSlop', document: { name: D.name, width: D.w, height: D.h, openDocuments: DOCS.length }, // i18n-ignore: the assistant's commands, their docs and replies are API
     layers: D.layers.slice().reverse().map((l) => ({ name: l.name, visible: l.visible, opacity: Math.round(l.opacity * 100), blend: l.blend,
       kind: l.text ? 'text' : l.shape ? 'shape' : 'pixels', mask: !!l.mask, locked: !!l.locked, active: l === L })),
     activeLayer: L ? L.name : null,

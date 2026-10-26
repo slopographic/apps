@@ -36,20 +36,20 @@ async function selectSubject() {
   if (!activeLayer() || SUBJECT.busy) return;
   const tab = CUR && CUR.id, src = flattenCanvas('#ffffff');
   SUBJECT.busy = true;
-  toast('Finding the subject…');
-  let matte, how = 'Subject model';
+  toast(tr('photoslop.tool.finding_subject'));
+  let matte, how = 'model';
   try {
     if (!window.SlopCutout) throw new Error('no cutout');
     const r = await SlopCutout.removeBackground(src, { model: 'fast' });
     matte = r.mask;
   } catch (e) {
     matte = borderMatte(src);
-    how = 'Colour difference';
+    how = 'colour';
   } finally { SUBJECT.busy = false; }
   if (CUR && CUR.id !== tab) return; // the person switched documents meanwhile
   const sel = matteSelection(matte);
-  if (!sel) { toast('No subject found. Try Select ▸ Color Range, or draw a selection.'); return; }
+  if (!sel) { toast(tr('photoslop.tool.no_subject')); return; }
   D.sel = sel;
-  commit('Select Subject');
-  toast(how + ': subject selected');
+  commit(tr('photoslop.tool.step_select_subject'));
+  toast(tr('photoslop.tool.subject_by_' + how));
 }

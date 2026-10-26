@@ -9,7 +9,7 @@
 function invertMask(id) {
   const L = D.layers.find((l) => l.id === id);
   if (!L || !L.mask) return;
-  setLayerProps(id, { mask: SlopMask.invert(L.mask) }, 'Invert Mask');
+  setLayerProps(id, { mask: SlopMask.invert(L.mask) }, tr('photoslop.layer.step_invert_mask'));
 }
 /** While a mask is edited, tints where it hides (the live stroke's mask while painting). */
 function drawMaskOverlay(g) {
@@ -24,9 +24,9 @@ function setClipping(id, on) {
   if (i < 0) return;
   const L = D.layers[i];
   if (!!L.clip === !!on) return;
-  if (on && i === 0) { toast('The bottom layer has no layer below to clip to'); return; }
-  if (L.locked && on) { toast('That layer is locked'); return; }
-  setLayerProps(id, { clip: on ? true : false }, on ? 'Create Clipping Mask' : 'Release Clipping Mask');
+  if (on && i === 0) { toast(tr('photoslop.layer.no_layer_below')); return; }
+  if (L.locked && on) { toast(tr('photoslop.layer.locked')); return; }
+  setLayerProps(id, { clip: on ? true : false }, tr(on ? 'photoslop.layer.step_create_clip' : 'photoslop.layer.step_release_clip'));
 }
 /** Alt-click on a layer row: toggles the clipping mask of that layer. */
 function toggleClippingAt(id) { const L = D.layers.find((l) => l.id === id); if (L) setClipping(id, !L.clip); }

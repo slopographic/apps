@@ -7,6 +7,7 @@
  * docPdf for Word to PDF (office.js) and Slop Slides' engine (slides-engine.js). */
 import { stemOf as base } from '../io/files.js';
 import { decodeText } from './text.js';
+import { tr } from './i18n.js';
 
 const SHARED = new URL('../../../shared/', import.meta.url).href;
 // classic scripts the engine reads as globals: scripts and bidi (layout), the run drawer (PDF), JIT language fonts and SlopUI
@@ -40,16 +41,16 @@ export function engine() {
   return readyP;
 }
 
-const FONTS = { sans: 'Carlito', serif: 'Tinos', mono: 'Cousine' };
+const FONTS = { sans: 'Carlito', serif: 'Tinos', mono: 'Cousine' }; // i18n-ignore: font and style names
 
 /** A Slop Docs document from the file: Markdown (headings, lists, quotes, code, bold, italic) or plain text, one paragraph a line. */
 async function docOf(E, f, { markdown, page = 'A4', font = 'sans' }) {
   const text = decodeText(new Uint8Array(await f.file.arrayBuffer()));
   const doc = markdown ? E.SD.fromMarkdown(text) : E.SD.fromText(text);
-  doc.section = { ...doc.section, size: page === 'letter' ? 'Letter' : 'A4' };
+  doc.section = { ...doc.section, size: page === 'letter' ? 'Letter' : 'A4' }; // i18n-ignore: font and style names
   doc.meta.title = base(f.name);
   const face = FONTS[font] || FONTS.sans;
-  if (face !== 'Carlito') for (const b of doc.blocks) if (b.type === 'p' && b.style !== 'Code') b.runs = (b.runs || []).map((r) => (r.font ? r : { ...r, font: face }));
+  if (face !== 'Carlito') for (const b of doc.blocks) if (b.type === 'p' && b.style !== 'Code') b.runs = (b.runs || []).map((r) => (r.font ? r : { ...r, font: face })); // i18n-ignore: font and style names
   return doc;
 }
 
@@ -57,8 +58,8 @@ async function docOf(E, f, { markdown, page = 'A4', font = 'sans' }) {
 export async function ensureFaces(E, doc) {
   await E.ensureDocFonts(doc);
   const want = new Map();
-  for (const b of doc.blocks) for (const r of (b.runs || [])) { const k = `${r.font || ''}|${!!r.b}|${!!r.i}`; if (!want.has(k)) want.set(k, { font: r.font || 'Carlito', b: !!r.b, i: !!r.i }); }
-  for (const h of ['Carlito', 'Caladea', 'Cousine']) { want.set(h + '|b', { font: h, b: true, i: false }); want.set(h + '|', { font: h, b: false, i: false }); }
+  for (const b of doc.blocks) for (const r of (b.runs || [])) { const k = `${r.font || ''}|${!!r.b}|${!!r.i}`; if (!want.has(k)) want.set(k, { font: r.font || 'Carlito', b: !!r.b, i: !!r.i }); } // i18n-ignore: font and style names
+  for (const h of ['Carlito', 'Caladea', 'Cousine']) { want.set(h + '|b', { font: h, b: true, i: false }); want.set(h + '|', { font: h, b: false, i: false }); } // i18n-ignore: font and style names
   await E.reg.ensureFaces([...want.values()]);
 }
 
@@ -72,7 +73,7 @@ export async function textToPdf(files, o = {}, markdown = false) {
 /** A Slop Docs document as a PDF, with the language fonts its text needs (SlopFontJIT asks before the first download). */
 export async function docPdf(E, doc, name) {
   let info = '';
-  if (E.lang.mayNeedLang(doc) && !(await E.lang.ensureDocLang(doc, { force: true }))) info = 'Some characters need a language font that was not downloaded, so they may show as boxes.';
+  if (E.lang.mayNeedLang(doc) && !(await E.lang.ensureDocLang(doc, { force: true }))) info = tr('convert.doc.font_missing', 'Some characters need a language font that was not downloaded, so they may show as boxes.');
   const bytes = await E.exportPdf(doc, E.layoutDoc(doc), { title: (doc.meta && doc.meta.title) || base(name), author: (doc.meta && doc.meta.author) || '' });
   const out = [{ name: `${base(name)}.pdf`, blob: new Blob([bytes], { type: 'application/pdf' }) }];
   if (info) out.info = info;
@@ -87,13 +88,17 @@ export async function textToDocx(files, o = {}, markdown = true) {
   return [{ name: `${base(f.name)}.docx`, blob: new Blob([made], { type }) }];   // a Blob or bytes from the writer, typed either way
 }
 
-const PAGE = { key: 'page', type: 'select', label: 'Page size', value: 'a4', options: [['a4', 'A4'], ['letter', 'US Letter']] };
-const FONT = { key: 'font', type: 'select', label: 'Font', value: 'sans', options: [['sans', 'Sans serif (Calibri-like)'], ['serif', 'Serif (Times-like)'], ['mono', 'Monospaced']] };
-const MD_NOTE = 'Headings, lists, quotes, code blocks, bold, italic and code spans are kept. Tables, links and images stay as the Markdown text that was typed.';
+const PAGE = { key: 'page', type: 'select', get label() { return tr('convert.doc.page_size', 'Page size'); }, value: 'a4',
+  get options() { return [['a4', 'A4'], ['letter', tr('convert.doc.us_letter', 'US Letter')]]; } };
+/** The font option, with its default face (a fresh object: a spread copy would keep the labels of one language). */
+const font = (value = 'sans') => ({ key: 'font', type: 'select', get label() { return tr('convert.doc.font', 'Font'); }, value,
+  get options() { return [['sans', tr('convert.doc.font_sans', 'Sans serif (Calibri-like)')], ['serif', tr('convert.doc.font_serif', 'Serif (Times-like)')], ['mono', tr('convert.doc.font_mono', 'Monospaced')]]; } });
+const FONT = font();
+const mdNote = () => tr('convert.doc.md_note', 'Headings, lists, quotes, code blocks, bold, italic and code spans are kept. Tables, links and images stay as the Markdown text that was typed.');
 
 export const DOC_OUT = [
-  { id: 'md-to-pdf', label: 'Markdown to PDF', group: 'Documents', from: ['md'], ext: 'pdf', mode: 'each', note: MD_NOTE, options: [PAGE, FONT], keywords: ['md', 'print'], run: (f, o) => textToPdf(f, o, true) },
-  { id: 'txt-to-pdf', label: 'Text to PDF', group: 'Documents', from: ['txt'], ext: 'pdf', mode: 'each', options: [PAGE, { ...FONT, value: 'mono' }], keywords: ['txt', 'print', 'notepad'], run: (f, o) => textToPdf(f, o, false) },
-  { id: 'md-to-docx', label: 'Markdown to Word (DOCX)', group: 'Documents', from: ['md'], ext: 'docx', mode: 'each', note: MD_NOTE, options: [PAGE, FONT], keywords: ['word', 'md', 'doc'], run: (f, o) => textToDocx(f, o, true) },
-  { id: 'txt-to-docx', label: 'Text to Word (DOCX)', group: 'Documents', from: ['txt'], ext: 'docx', mode: 'each', options: [PAGE, FONT], keywords: ['word', 'txt', 'doc'], run: (f, o) => textToDocx(f, o, false) },
+  { id: 'md-to-pdf', get label() { return tr('convert.doc.md_to_pdf', 'Markdown to PDF'); }, group: 'Documents', from: ['md'], ext: 'pdf', mode: 'each', get note() { return mdNote(); }, options: [PAGE, FONT], keywords: ['md', 'print'], run: (f, o) => textToPdf(f, o, true) }, // i18n-ignore: group id (shown through groupLabel)
+  { id: 'txt-to-pdf', get label() { return tr('convert.doc.txt_to_pdf', 'Text to PDF'); }, group: 'Documents', from: ['txt'], ext: 'pdf', mode: 'each', options: [PAGE, font('mono')], keywords: ['txt', 'print', 'notepad'], run: (f, o) => textToPdf(f, o, false) }, // i18n-ignore: group id (shown through groupLabel)
+  { id: 'md-to-docx', get label() { return tr('convert.doc.md_to_docx', 'Markdown to Word (DOCX)'); }, group: 'Documents', from: ['md'], ext: 'docx', mode: 'each', get note() { return mdNote(); }, options: [PAGE, FONT], keywords: ['word', 'md', 'doc'], run: (f, o) => textToDocx(f, o, true) }, // i18n-ignore: group id (shown through groupLabel)
+  { id: 'txt-to-docx', get label() { return tr('convert.doc.txt_to_docx', 'Text to Word (DOCX)'); }, group: 'Documents', from: ['txt'], ext: 'docx', mode: 'each', options: [PAGE, FONT], keywords: ['word', 'txt', 'doc'], run: (f, o) => textToDocx(f, o, false) }, // i18n-ignore: group id (shown through groupLabel)
 ];

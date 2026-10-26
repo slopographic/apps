@@ -100,8 +100,8 @@ function healTool(def) {
     brushCursor() { return this.opt().size; },
     down(p, e) {
       const spot = !!this.spot, o = this.opt();
-      if (!spot && takeSource(this, p, e, 'Heal')) return;
-      if (!spot && !this.src) { toast('Alt-click (Option-click), or tap Set source, to set a heal source first'); return; }
+      if (!spot && takeSource(this, p, e, 'heal')) return;
+      if (!spot && !this.src) { toast(tr('photoslop.tool.need_heal_source')); return; }
       const L = editableLayer(); if (!L) { this.s = null; return; }
       const Lc = coverDoc(L);
       if (!spot && (!o.aligned || !this.off)) this.off = { x: this.src.x - p.x, y: this.src.y - p.y };
@@ -118,12 +118,12 @@ function healTool(def) {
       S.stroker.begin(p); dirty(true);
     },
     move(p) { if (this.s) { this.s.stroker.to(p); dirty(true); } },
-    up() { const S = this.s; this.s = null; if (S) finishBufferedStroke(S, this.name.replace(' Tool', '')); },
+    up() { const S = this.s; this.s = null; if (S) finishBufferedStroke(S, this.short); },
     cancel() { this.s = null; live = null; dirty(true); },
   }, def));
 }
 
-healTool({ id: 'heal', name: 'Healing Brush Tool', key: 'J', icon: HEAL_ICON, opt: () => T.heal,
+healTool({ id: 'heal', nk: 'heal', key: 'J', icon: HEAL_ICON, opt: () => T.heal,
   overlay(g) {
     if (!this.src) return;
     const c = this.s && this.off ? { x: this.s.cur.x + this.off.x, y: this.s.cur.y + this.off.y } : this.off && V.cursor ? { x: V.cursor.x + this.off.x, y: V.cursor.y + this.off.y } : this.src;
@@ -131,4 +131,4 @@ healTool({ id: 'heal', name: 'Healing Brush Tool', key: 'J', icon: HEAL_ICON, op
     g.strokeStyle = 'rgba(255,255,255,.8)'; g.setLineDash([3, 3]); g.beginPath(); g.arc(s.x, s.y, Math.max(3, r), 0, Math.PI * 2); g.stroke();
     g.setLineDash([]); g.beginPath(); g.moveTo(s.x - 6, s.y); g.lineTo(s.x + 6, s.y); g.moveTo(s.x, s.y - 6); g.lineTo(s.x, s.y + 6); g.stroke();
   } });
-healTool({ id: 'spot', name: 'Spot Healing Brush Tool', key: 'J', icon: SPOT_ICON, opt: () => T.spot, spot: true });
+healTool({ id: 'spot', nk: 'spot', key: 'J', icon: SPOT_ICON, opt: () => T.spot, spot: true });

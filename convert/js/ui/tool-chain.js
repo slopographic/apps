@@ -4,6 +4,7 @@
  *   tool.routes()                   the route keys every file in scope could take (tool.targets() lists the single conversions)
  *   runTool(tool)                   Convert: every file with its own target and values, a route step by step; the status line
  *                                   names the step ("Step 2 of 3: CSV → JSON"); in-between files join the results when kept */
+import { tr } from '../core/i18n.js';
 import { stepsOf, TAG } from '../core/chain.js';
 import { applyTarget } from './targets.js';
 import { runGroups, firstUseGate } from './run.js';
@@ -11,7 +12,6 @@ import { uniqueName } from '../io/files.js';
 import { forgetSecrets } from './file-opts.js';
 import { CONVERSIONS } from '../core/catalog.js';
 
-const plural = (n, one, many = one + 's') => `${n} ${n === 1 ? one : many}`;
 
 /** A step that had its Format fixed by the route ('pdf-to-images@jpg') and is now the last keeps it as its option. */
 function keepFormat(it, key, fmt) {
@@ -35,8 +35,11 @@ export function installRoutes(Tool) {
 }
 
 function statusOf(i, total, p) {
-  if (p && p.steps > 1) return `Step ${p.step} of ${p.steps}: ${TAG(p.from)} → ${TAG(p.to)}${p.total > 1 ? ` (${p.done + 1} of ${p.total})` : ''}…`;
-  return total > 1 ? `Converting ${Math.floor(i) + 1} of ${total}…` : 'Converting…';
+  if (p && p.steps > 1) {
+    const v = { step: p.step, steps: p.steps, from: TAG(p.from), to: TAG(p.to), i: p.done + 1, n: p.total };
+    return p.total > 1 ? tr('convert.run.step_of_n', 'Step {step} of {steps}: {from} → {to} ({i} of {n})…', v) : tr('convert.run.step', 'Step {step} of {steps}: {from} → {to}…', v);
+  }
+  return total > 1 ? tr('convert.run.i_of_n', 'Converting {i} of {n}…', { i: Math.floor(i) + 1, n: total }) : tr('convert.run.converting', 'Converting…');
 }
 
 export async function runTool(tool) {
@@ -49,7 +52,7 @@ export async function runTool(tool) {
   for (const it of tool.items) it.error = '';
   ui.run.disabled = true;
   const n = groups.reduce((s, g) => s + g.items.length, 0);
-  tool.setStatus(`Converting ${plural(n, 'file')}…`);
+  tool.setStatus(tr('convert.run.converting_n', ['Converting {n} files…', 'Converting {n} file…'], { n }));
   ui.flow.state('run').progress(0);
   const res = await runGroups(groups, (conv, it) => tool.valuesOf(it, conv), (i, total, p) => { ui.flow.progress(i / total); tool.setStatus(statusOf(i, total, p)); });
   for (const e of res.errors) for (const it of tool.items) if (e.ids.includes(it.id)) it.error = e.message;

@@ -22,14 +22,15 @@ function setGuides(list, label) {
   D.guides = SlopGuides.normalize(list).map((g) => ({ o: g.o, pos: clamp(g.pos, -100000, 100000) }));
   if (label) commit(label); else dirty();
 }
-function addGuide(o, pos, label = 'New Guide') { setGuides((D.guides || []).concat([{ o, pos }]), label); }
-function clearGuides() { if (D.guides && D.guides.length) setGuides([], 'Clear Guides'); }
+function addGuide(o, pos, label = tr('photoslop.guide.step_new')) { setGuides((D.guides || []).concat([{ o, pos }]), label); }
+function clearGuides() { if (D.guides && D.guides.length) setGuides([], tr('photoslop.guide.step_clear')); }
 function applyGuides(list, mode) {
   const next = mode === 'replace' ? list : SlopGuides.merge(D.guides, list);
   if (!GUIDE_PREFS.show) store.set('guides', true);
-  setGuides(next, mode === 'replace' ? 'Replace Guides' : 'New Guide Layout');
+  setGuides(next, tr(mode === 'replace' ? 'photoslop.guide.step_replace' : 'photoslop.guide.step_layout'));
 }
-function togglePref(key, def, msg) { const v = !store.get(key, def); store.set(key, v); dirty(); if (msg) toast(`${msg} ${v ? 'on' : 'off'}`, 1200); return v; }
+/** msg: the key (photoslop.guide.<msg>) of the setting's name for the on/off toast. */
+function togglePref(key, def, msg) { const v = !store.get(key, def); store.set(key, v); dirty(); if (msg) toast(tr(v ? 'photoslop.guide.pref_on' : 'photoslop.guide.pref_off', { what: tr('photoslop.guide.' + msg) }), 1200); return v; }
 /** Move guides with the canvas when it is resized, cropped, scaled or rotated. */
 function remapGuides(fn) { if (D.guides && D.guides.length) D.guides = SlopGuides.normalize(D.guides.map(fn).filter(Boolean)); }
 
