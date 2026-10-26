@@ -60,7 +60,7 @@ add('new_conversion', 'Start a new conversion', [{ name: 'to', type: 'string', m
   return `Cleared the list (${plural(n, 'file')} and the results removed)${a.to ? `; new files start on ${a.to} where they can` : ''}. Use add_files next.`;   // i18n-ignore: for the assistant (API)
 }, { destructive: true, description: 'Clear the file list and the results to start a new conversion. Results not exported are dropped.' });   // i18n-ignore: for the assistant (API)
 
-add('add_files', 'Add files', [
+add('add_files', 'Add files', [   // i18n-ignore: hidden assistant command (API)
   { name: 'files', type: 'array', maxItems: 200, items: { type: 'string' }, description: 'Slop Drive file names or ids' },   // i18n-ignore: for the assistant (API)
   { name: 'urls', type: 'array', maxItems: 50, items: { type: 'string' }, description: 'or addresses of files on this site' },   // i18n-ignore: for the assistant (API)
   { name: 'text', type: 'string', maxLength: 500000, description: 'or a text to convert (CSV, JSON, Markdown, YAML…)' },   // i18n-ignore: for the assistant (API)
@@ -78,7 +78,7 @@ add('add_files', 'Add files', [
   return `Added ${added.map((i) => `${i.name} (${KIND_LABEL[i.kind] || i.kind} → ${labelOf(t.targetOf(i))})`).join(', ')}. Use set_target to change the format, then export_results.`;   // i18n-ignore: for the assistant (API)
 }, { description: 'Add files from Slop Drive (or this site, or a text) to the list. Each starts on its usual format; set_target changes it.' });   // i18n-ignore: for the assistant (API)
 
-add('list_targets', 'List the formats', [{ name: 'files', type: 'array', maxItems: 200, items: { type: 'string' }, description: 'only these files (names); default all' }], (a) => {
+add('list_targets', 'List the formats', [{ name: 'files', type: 'array', maxItems: 200, items: { type: 'string' }, description: 'only these files (names); default all' }], (a) => {   // i18n-ignore: hidden assistant command (API)
   const t = tool(), items = pick(t, a.files);
   if (!items.length) throw new Error('The list is empty: add_files first');
   const kinds = [...new Set(items.map((i) => i.kind))];
@@ -93,7 +93,7 @@ function candidatesOf(t, it) {
   finally { t.items.forEach((i, n) => { i.selected = sel[n]; }); }
 }
 
-add('set_target', 'Choose the format', [
+add('set_target', 'Choose the format', [   // i18n-ignore: hidden assistant command (API)
   { name: 'to', type: 'string', required: true, maxLength: 200, description: 'a kind (png, jpg, pdf, csv, json, mp3…), a conversion id (to-png) or a route from list_targets' },   // i18n-ignore: for the assistant (API)
   { name: 'files', type: 'array', maxItems: 200, items: { type: 'string' }, description: 'only these files (names); default all, and the files added later' },
   { name: 'options', type: 'json', maxLength: 4000, description: 'option values for that conversion, like {"quality": 80, "width": 800} (list_targets shows them)' },
@@ -115,7 +115,7 @@ add('set_target', 'Choose the format', [
   return `${set.map((i) => i.name).join(', ')} → ${labelOf(set[0].target)}` + (a.options ? ` with ${JSON.stringify(a.options)}` : '') + (skipped.length ? `. ${skipped.join(', ')} cannot become ${a.to} and kept their format` : '') + '.';
 }, { description: 'Choose what the files become, and that conversion\'s options. A format no single conversion makes goes by a route of several.' });   // i18n-ignore: for the assistant (API)
 
-add('run_conversion', 'Convert', [], async () => {
+add('run_conversion', 'Convert', [], async () => {   // i18n-ignore: hidden assistant command (API)
   const t = notBusy(tool());
   if (!t.groups().length) throw new Error('Nothing to convert: add_files first');
   await convert(t);
@@ -124,7 +124,7 @@ add('run_conversion', 'Convert', [], async () => {
   return `${plural(t.outputs.length, 'file')} ready: ${t.outputs.slice(0, 10).map((o) => `${o.name} (${o.blob.size} bytes)`).join(', ')}` + (bad.length ? `. ${bad.length} could not be converted (${bad[0].name}: ${bad[0].error})` : '') + '. Use export_results to keep them.';
 }, { description: 'Convert every file with its own format and options. The results stay on the page until exported.' });   // i18n-ignore: for the assistant (API)
 
-add('export_results', 'Export the results', [
+add('export_results', 'Export the results', [   // i18n-ignore: hidden assistant command (API)
   { name: 'to', type: 'enum', options: [['drive', 'Slop Drive'], ['download', 'a download'], ['both', 'both']], default: 'drive' },   // i18n-ignore: for the assistant (API)
   { name: 'zip', type: 'boolean', default: false, description: 'one zip of all the results instead of separate files' },   // i18n-ignore: for the assistant (API)
 ], async (a) => {
