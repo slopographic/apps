@@ -4,13 +4,14 @@
   'use strict';
   const NS = (g.SlopAdmin = g.SlopAdmin || {});
   const $ = (id) => document.getElementById(id);
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
 
   async function render() {
     const s = await NS.storage.status();
-    $('sUsage').textContent = s.usage === null ? 'The browser does not report space use here.'
-      : `${NS.util.bytes(s.usage)} used of ${NS.util.bytes(s.quota)} available to this site.`;
+    $('sUsage').textContent = s.usage === null ? t('admin.sg.no_report')
+      : t('admin.sg.used', { used: NS.util.bytes(s.usage), quota: NS.util.bytes(s.quota) });
     $('sPersist').textContent = s.message;
-    $('sState').textContent = s.persisted === null ? '' : s.persisted ? 'Kept: the browser has agreed to keep this site’s data.' : 'Not guaranteed: the browser may clear it when space runs low.';
+    $('sState').textContent = s.persisted === null ? '' : t(s.persisted ? 'admin.sg.kept' : 'admin.sg.not_kept');
     $('sAsk').hidden = s.persisted === true;
   }
 

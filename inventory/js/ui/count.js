@@ -8,6 +8,7 @@
   const UI = g.SlopUI;
   const { h } = U;
   const $ = (id) => document.getElementById(id);
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
 
   function say(text, bad) {
     const m = $('cMsg');
@@ -28,20 +29,20 @@
     $('cOpen').hidden = !snap;
     if (!snap) { $('cReviewBox').hidden = true; return; }
     const { list, byId } = await productMap();
-    $('cTitle').textContent = `Count open at ${snap.location} since ${U.stamp(snap.startedAt)}`;
+    $('cTitle').textContent = t('inventory.ct.title', { loc: snap.location, time: U.stamp(snap.startedAt) });
     $('cPick').replaceChildren(...list.map((p) => h('option', { value: p.id, text: `${p.sku} · ${p.name}` })));
     $('cLines').replaceChildren(...(snap.lines.length ? snap.lines : [])
       .map((l) => {
         const p = byId.get(l.productId);
-        const input = h('input', { type: 'number', min: 0, step: 1, value: l.counted, 'aria-label': `Counted ${p ? p.sku : ''}`, class: 'sui-input qty' });
+        const input = h('input', { type: 'number', min: 0, step: 1, value: l.counted, 'aria-label': t('inventory.ct.counted', { sku: p ? p.sku : '' }), class: 'sui-input qty' });
         input.addEventListener('change', () => {
           const r = NS.count.set(l.productId, U.wholeOf(input.value));
           if (!r.ok) say(U.refusal(r), true); else refresh();
         });
-        const rm = h('button', { type: 'button', class: 'btn small', text: 'Remove', onclick: () => { NS.count.remove(l.productId); refresh(); } });
-        return h('li', null, h('span', { text: p ? `${p.sku} ${p.name}` : '(deleted product)' }), input, rm);
+        const rm = h('button', { type: 'button', class: 'btn small', text: t('inventory.ct.remove'), onclick: () => { NS.count.remove(l.productId); refresh(); } });   // i18n-ignore: CSS class names
+        return h('li', null, h('span', { text: p ? `${p.sku} ${p.name}` : t('inventory.ct.deleted') }), input, rm);
       }));
-    if (!snap.lines.length) $('cLines').replaceChildren(h('li', { class: 'empty', text: 'Nothing counted yet. Scan with the Count action, or set a quantity above.' }));
+    if (!snap.lines.length) $('cLines').replaceChildren(h('li', { class: 'empty', text: t('inventory.ct.empty') }));
   }
 
   /** The review: each counted product, the book quantity, the counted quantity and the change that will be written. */
@@ -52,11 +53,11 @@
     const box = $('cDiffs');
     const same = v.rows.length - v.changes;
     box.replaceChildren(
-      h('p', { class: 'note', text: `${v.changes} of ${v.rows.length} counted products differ from the book. Posting writes one count movement for each difference. ${same} match and are not written.` }),
+      h('p', { class: 'note', text: t('inventory.ct.differ', { changes: v.changes, total: v.rows.length, same }) }),
       h('ul', { class: 'levels' }, v.rows.map((x) => h('li', { class: x.diff < 0 ? 'out' : x.diff > 0 ? 'in' : '' },
         h('span', { text: `${x.sku} ${x.name}` }),
-        h('span', { class: 'sub', text: `book ${x.expected} · counted ${x.counted}` }),
-        h('b', { class: 'num', text: x.diff === 0 ? 'no change' : x.diff > 0 ? `+${x.diff}` : String(x.diff) })))));
+        h('span', { class: 'sub', text: t('inventory.ct.book', { expected: x.expected, counted: x.counted }) }),
+        h('b', { class: 'num', text: x.diff === 0 ? t('inventory.ct.no_change') : x.diff > 0 ? `+${x.diff}` : String(x.diff) })))));
     $('cPost').disabled = v.rows.length === 0;
     $('cReviewBox').hidden = false;
     $('cReviewBox').scrollIntoView({ block: 'nearest' });
@@ -67,7 +68,7 @@
     const r = await NS.count.post(notes);
     if (!r.ok) { say(U.refusal(r), true); return; }
     const written = r.value.lines.filter((l) => l.diff !== 0).length;
-    say(`Posted. ${U.plural(written, 'count adjustment')} written at ${r.value.location}. The count is closed.`);
+    say(t('inventory.ct.posted', { what: t('inventory.ct.adjustments', { n: written }), loc: r.value.location }));
     $('cReviewBox').hidden = true;
     $('cNotes').value = '';
     refresh();
@@ -76,15 +77,15 @@
   function mount() {
     $('cBegin').addEventListener('click', async () => {
       const r = NS.count.start($('cLoc').value);
-      if (!r.ok) say(U.refusal(r), true); else { say('Count started. Nothing changes until you post it.'); refresh(); }
+      if (!r.ok) say(U.refusal(r), true); else { say(t('inventory.ct.started')); refresh(); }
     });
     $('cSet').addEventListener('click', () => {
       const id = $('cPick').value;
-      if (!id) return say('Choose a product first.', true);
+      if (!id) return say(t('inventory.ct.choose'), true);
       const r = NS.count.set(id, U.wholeOf($('cQty').value));
       if (!r.ok) return say(U.refusal(r), true);
       $('cQty').value = '';
-      say('Counted quantity set.');
+      say(t('inventory.ct.set'));
       refresh();
       return undefined;
     });
@@ -92,10 +93,10 @@
     $('cBack').addEventListener('click', () => { $('cReviewBox').hidden = true; });
     $('cPost').addEventListener('click', post);
     $('cCancel').addEventListener('click', async () => {
-      const yes = await UI.confirm('Cancel this count?', 'Nothing has been written, so cancelling only discards the counted quantities.', 'Cancel count', { danger: true });
+      const yes = await UI.confirm(t('inventory.ct.cancel_q'), t('inventory.ct.cancel_body'), t('inventory.ct.cancel'), { danger: true });
       if (!yes) return;
       NS.count.cancel();
-      say('Count cancelled. No stock changed.');
+      say(t('inventory.ct.cancelled'));
       refresh();
     });
   }

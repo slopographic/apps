@@ -8,7 +8,7 @@
   const U = NS.util;
 
   const P = g.SlopDocs.docPdf.create({
-    ns: NS, collection: 'invoices', kind: 'invoice', title: 'Invoice', statusLabel: U.STATUS,
+    ns: NS, collection: 'invoices', kind: 'invoice', title: 'Invoice', statusLabel: U.STATUS,   // i18n-ignore: the printed document's words stay as written
     /** The payments and balance; a draft's balance is its total. */
     async more(inv, ctx) {
       const r = await S.store.list('payments', { index: 'invoiceId', value: inv.id });

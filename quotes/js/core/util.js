@@ -6,9 +6,12 @@
   const NS = (g.SlopQuotes = g.SlopQuotes || {});
 
   // The quote's own words where they differ from SlopBiz.PLAIN; the data layer's message follows after a colon.
-  const PLAIN = { invalid_transition: 'That change is not allowed for this quote', conflict: 'Already converted' };
-  const FIELD = { customerId: 'Customer', date: 'Date', validUntil: 'Valid until', lines: 'Lines', notes: 'Notes', currency: 'Currency', status: 'Status' };
-  const STATUS = { draft: 'Draft', sent: 'Sent', accepted: 'Accepted', declined: 'Declined' };
+  // words in the chosen language, read each time a refusal is shown (getters); STATUS stays the document's (the PDF and the paper)
+  const t = (k) => (g.SlopI18n ? g.SlopI18n.t(k) : k);
+  const PLAIN = { get invalid_transition() { return t('quotes.core.not_allowed'); }, get conflict() { return t('quotes.core.converted'); } };
+  const FIELD = { get customerId() { return t('quotes.core.customer'); }, get date() { return t('quotes.core.date'); }, get validUntil() { return t('quotes.core.valid_until'); },
+    get lines() { return t('quotes.core.lines'); }, get notes() { return t('quotes.core.notes'); }, get currency() { return t('quotes.core.currency'); }, get status() { return t('quotes.core.status'); } };
+  const STATUS = { draft: 'Draft', sent: 'Sent', accepted: 'Accepted', declined: 'Declined' };   // i18n-ignore: printed on the document
 
   const B = g.SlopBiz;
   /** One readable line for a failed Result, in the words of a quote (SlopBiz.refusal). */

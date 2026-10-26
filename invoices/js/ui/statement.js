@@ -8,7 +8,9 @@
   const U = NS.util;
   const h = U.h;
   const $ = (id) => document.getElementById(id);
-  const AGE = [['current', 'Not yet due'], ['d30', '1–30 days late'], ['d60', '31–60 days late'], ['d90', '61–90 days late'], ['over90', 'Over 90 days late']];
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
+  // The statement itself is a document the person prints or sends: its own words stay the document's (i18n-ignore below)
+  const AGE = [['current', 'Not yet due'], ['d30', '1–30 days late'], ['d60', '31–60 days late'], ['d90', '61–90 days late'], ['over90', 'Over 90 days late']];   // i18n-ignore: the printed document's words stay as written
   let cur = null;   // { customer, invoices, payments, settings }
 
   /** Reads the customer, their invoices and the payments, and fills the currency pick. */
@@ -29,24 +31,24 @@
 
   /** Draws the sheet. */
   function draw() {
-    if (!cur) { $('stSheet').replaceChildren(h('p', { class: 'msg bad', text: 'That customer no longer exists.' })); return; }
+    if (!cur) { $('stSheet').replaceChildren(h('p', { class: 'msg bad', text: t('invoices.st.gone') })); return; }   // i18n-ignore: the printed document's words stay as written
     const st = build(), s = cur.settings, c = cur.customer;
     const m = (v) => U.money(v, st.currency, s.locale);
     const lines = g.SlopBiz.sheet.lines;
     const row = (cells, cls) => h('tr', { class: cls }, cells.map((x, i) => h('td', { class: i >= 4 ? 'num' : '' }, x)));
     $('stSheet').replaceChildren(h('article', { class: 'doc-sheet statement' },
-      g.SlopBiz.sheet.head(s, 'Statement', [`Date ${st.today}`, st.from ? `From ${st.from}` : null]),
-      h('div', { class: 'sheet-to st-to' }, h('span', { class: 'sub', text: 'To' }), h('b', { text: c.name }), ...[c.email, c.phone, ...lines(c.address)].filter(Boolean).map((x) => h('div', { text: x }))),
-      h('p', { class: 'sheet-total st-total' }, h('span', { text: 'Balance owed' }), h('b', { text: m(st.closing) })),
+      g.SlopBiz.sheet.head(s, 'Statement', [`Date ${st.today}`, st.from ? `From ${st.from}` : null]),   // i18n-ignore: the printed document's words stay as written
+      h('div', { class: 'sheet-to st-to' }, h('span', { class: 'sub', text: 'To' }), h('b', { text: c.name }), ...[c.email, c.phone, ...lines(c.address)].filter(Boolean).map((x) => h('div', { text: x }))),   // i18n-ignore: the printed document's words stay as written
+      h('p', { class: 'sheet-total st-total' }, h('span', { text: 'Balance owed' }), h('b', { text: m(st.closing) })),   // i18n-ignore: the printed document's words stay as written
       h('div', { class: 'sheet-scroll' }, h('table', { class: 'grid-t st-table' },
-        h('thead', null, h('tr', null, ['Date', 'What', 'Invoice', 'Due', 'Charged', 'Paid', 'Balance'].map((x, i) => h('th', { class: i >= 4 ? 'num' : '', text: x })))),
-        h('tbody', null, st.from ? row(['', 'Opening balance', '', '', '', '', m(st.opening)], 'st-open') : null,
-          st.lines.map((l) => row([l.date, l.kind === 'payment' ? 'Payment, thank you' : S.statement.KIND[l.kind], l.ref, l.due, l.debit ? m(l.debit) : '', l.credit ? m(l.credit) : '', m(l.balance)])),
-          st.lines.length ? null : h('tr', null, h('td', { colspan: 7, class: 'sub', text: 'Nothing in this period.' }))),
-        h('tfoot', null, h('tr', null, h('th', { colspan: 6, text: 'Balance owed' }), h('th', { class: 'num', text: m(st.closing) }))))),
+        h('thead', null, h('tr', null, ['Date', 'What', 'Invoice', 'Due', 'Charged', 'Paid', 'Balance'].map((x, i) => h('th', { class: i >= 4 ? 'num' : '', text: x })))),   // i18n-ignore: the printed document's words stay as written
+        h('tbody', null, st.from ? row(['', 'Opening balance', '', '', '', '', m(st.opening)], 'st-open') : null,   // i18n-ignore: the printed document's words stay as written
+          st.lines.map((l) => row([l.date, l.kind === 'payment' ? 'Payment, thank you' : S.statement.KIND[l.kind], l.ref, l.due, l.debit ? m(l.debit) : '', l.credit ? m(l.credit) : '', m(l.balance)])),   // i18n-ignore: the printed document's words stay as written
+          st.lines.length ? null : h('tr', null, h('td', { colspan: 7, class: 'sub', text: 'Nothing in this period.' }))),   // i18n-ignore: the printed document's words stay as written
+        h('tfoot', null, h('tr', null, h('th', { colspan: 6, text: 'Balance owed' }), h('th', { class: 'num', text: m(st.closing) }))))),   // i18n-ignore: the printed document's words stay as written
       h('div', { class: 'stats st-age' }, AGE.map(([k, label]) => h('div', { class: `stat${st.ageing[k] && k !== 'current' ? ' is-late' : ''}` }, h('b', { text: m(st.ageing[k]) }), h('span', { text: label })))),
-      st.owed.length ? h('p', { class: 'note', text: `Still open: ${st.owed.map((o) => `${o.ref} ${m(o.left)}${o.late ? ` (${o.late} days late)` : ''}`).join(' · ')}.` }) : h('p', { class: 'note', text: 'Nothing is owed. Thank you.' })));
-    g.SlopBiz.docbar.title(`${c.name}: statement`);   // the record bar (shared/biz/docbar.js) names the statement
+      st.owed.length ? h('p', { class: 'note', text: `Still open: ${st.owed.map((o) => `${o.ref} ${m(o.left)}${o.late ? ` (${o.late} days late)` : ''}`).join(' · ')}.` }) : h('p', { class: 'note', text: 'Nothing is owed. Thank you.' })));   // i18n-ignore: the printed document's words stay as written
+    g.SlopBiz.docbar.title(t('invoices.st.title', { name: c.name }));   // the record bar (shared/biz/docbar.js) names the statement
     $('stRemind').disabled = st.closing <= 0;
   }
 

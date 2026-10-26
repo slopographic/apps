@@ -12,7 +12,7 @@
   function rowHtml() {
     if (!S.draft) return '';
     return `<ul class="rows rows-new" role="list"><li class="row-new" role="listitem">`
-      + `<input type="text" class="row-new-input" maxlength="200" autocomplete="off" placeholder="Name" aria-label="Name of the new contact"></li></ul>`;
+      + `<input type="text" class="row-new-input" maxlength="200" autocomplete="off" placeholder="${SC.text.html(SC.tr('contacts.new.ph'))}" aria-label="${SC.text.html(SC.tr('contacts.new.aria'))}"></li></ul>`;
   }
 
   /** Whether the draft's name field has the focus (read before the list is redrawn). */

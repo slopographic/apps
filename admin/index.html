@@ -4,6 +4,9 @@
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="admin" data-src="shared/theme/theme.js"></script>
   <link rel="expect" href="#slop-built" blocking="render">
+  <script src="../shared/i18n/i18n.js" data-src="shared/i18n/i18n.js"></script>
+  <script src="../shared/biz/i18n/index.js" data-src="shared/biz/i18n/index.js"></script>
+  <script src="i18n/index.js" data-src="admin/i18n/index.js"></script>
 <script src="../shared/consent/config.js"></script>
 <script src="../shared/consent/state.js"></script>
 <script src="../shared/consent/consent-mode.js"></script>
@@ -47,24 +50,24 @@
 <body>
   <div class="app">
     <header id="menubar"></header>
-    <div class="smb-hold" hidden><span class="local-badge" title="Settings and records stay in this browser. Nothing is uploaded."><span>100% local</span></span></div>
+    <div class="smb-hold" hidden><span class="local-badge" title="Settings and records stay in this browser. Nothing is uploaded." data-i18n-attr="title:admin.page.local_tip"><span data-i18n="biz.app.local">100% local</span></span></div>
 
-    <nav class="tabs" role="tablist" aria-label="Admin sections">
-      <button type="button" role="tab" class="tab" id="tab-start" data-view="start" aria-controls="view-start" aria-selected="false">Get started</button>
-      <button type="button" role="tab" class="tab" id="tab-company" data-view="company" aria-controls="view-company" aria-selected="true">Company</button>
-      <button type="button" role="tab" class="tab" id="tab-numbering" data-view="numbering" aria-controls="view-numbering" aria-selected="false">Numbering</button>
-      <button type="button" role="tab" class="tab" id="tab-taxes" data-view="taxes" aria-controls="view-taxes" aria-selected="false">Tax rates</button>
-      <button type="button" role="tab" class="tab" id="tab-data" data-view="data" aria-controls="view-data" aria-selected="false">Data</button>
-      <button type="button" role="tab" class="tab" id="tab-storage" data-view="storage" aria-controls="view-storage" aria-selected="false">Storage</button>
+    <nav class="tabs" role="tablist" aria-label="Admin sections" data-i18n-attr="aria-label:admin.page.sections">
+      <button type="button" role="tab" class="tab" id="tab-start" data-view="start" aria-controls="view-start" aria-selected="false" data-i18n="admin.page.start">Get started</button>
+      <button type="button" role="tab" class="tab" id="tab-company" data-view="company" aria-controls="view-company" aria-selected="true" data-i18n="admin.page.company">Company</button>
+      <button type="button" role="tab" class="tab" id="tab-numbering" data-view="numbering" aria-controls="view-numbering" aria-selected="false" data-i18n="admin.page.numbering">Numbering</button>
+      <button type="button" role="tab" class="tab" id="tab-taxes" data-view="taxes" aria-controls="view-taxes" aria-selected="false" data-i18n="admin.page.taxes">Tax rates</button>
+      <button type="button" role="tab" class="tab" id="tab-data" data-view="data" aria-controls="view-data" aria-selected="false" data-i18n="admin.page.data">Data</button>
+      <button type="button" role="tab" class="tab" id="tab-storage" data-view="storage" aria-controls="view-storage" aria-selected="false" data-i18n="admin.page.storage">Storage</button>
     </nav>
 
     <main class="main" id="main">
-      <div id="boot" class="boot" role="status">Opening Slop Admin…</div>
+      <div id="boot" class="boot" role="status" data-i18n="admin.page.opening">Opening Slop Admin…</div>
 
       <section class="view" id="view-start" role="tabpanel" aria-labelledby="tab-start" hidden>
         <div class="card">
-          <h2 class="h2">Get started with the business apps</h2>
-          <p class="note">Five first steps. Each is ticked as soon as it is done, in whichever app you do it. Everything stays in this browser.</p>
+          <h2 class="h2" data-i18n="admin.page.start_h">Get started with the business apps</h2>
+          <p class="note" data-i18n="admin.page.start_note">Five first steps. Each is ticked as soon as it is done, in whichever app you do it. Everything stays in this browser.</p>
           <div class="start-head"><progress id="sProgress" value="0" max="5"></progress> <span id="sCount" role="status"></span></div>
           <ol class="start-steps" id="sSteps"></ol>
           <p class="msg" id="sMsg" role="status"></p>
@@ -73,27 +76,27 @@
 
       <section class="view" id="view-company" role="tabpanel" aria-labelledby="tab-company" hidden>
         <form class="card" id="cForm" novalidate onsubmit="return false">
-          <h2 class="h2">Company profile</h2>
-          <p class="note">These details appear on your invoices and orders. The default currency is the ledger’s base currency and cannot change once entries are posted.</p>
+          <h2 class="h2" data-i18n="admin.page.profile">Company profile</h2>
+          <p class="note" data-i18n="admin.page.profile_note">These details appear on your invoices and orders. The default currency is the ledger’s base currency and cannot change once entries are posted.</p>
           <div class="grid2">
-            <label>Company name <input id="cName" type="text" maxlength="200" autocomplete="organization"></label>
-            <label>Tax number <input id="cTax" type="text" maxlength="60" autocomplete="off"></label>
+            <label><span data-i18n="admin.page.company_name">Company name</span> <input id="cName" type="text" maxlength="200" autocomplete="organization"></label>
+            <label><span data-i18n="admin.page.tax_number">Tax number</span> <input id="cTax" type="text" maxlength="60" autocomplete="off"></label>
           </div>
-          <label>Address <textarea id="cAddress" rows="3" maxlength="1000" autocomplete="street-address"></textarea></label>
+          <label><span data-i18n="admin.page.address">Address</span> <textarea id="cAddress" rows="3" maxlength="1000" autocomplete="street-address"></textarea></label>
           <div class="grid3">
-            <label>Default currency <input id="cCur" type="text" list="cCurList" maxlength="3" autocomplete="off" placeholder="USD"></label>
-            <label>Locale <input id="cLocale" type="text" maxlength="20" autocomplete="off" placeholder="en-US"></label>
-            <label>Default tax rate (%) <input id="cRate" type="text" inputmode="decimal" maxlength="7" autocomplete="off" placeholder="20"></label>
+            <label><span data-i18n="admin.page.currency">Default currency</span> <input id="cCur" type="text" list="cCurList" maxlength="3" autocomplete="off" placeholder="USD" data-i18n-attr="placeholder:admin.page.usd"></label>
+            <label><span data-i18n="admin.page.locale">Locale</span> <input id="cLocale" type="text" maxlength="20" autocomplete="off" placeholder="en-US" data-i18n-attr="placeholder:admin.page.en_us"></label>
+            <label><span data-i18n="admin.page.tax_rate">Default tax rate (%)</span> <input id="cRate" type="text" inputmode="decimal" maxlength="7" autocomplete="off" placeholder="20"></label>
           </div>
           <datalist id="cCurList"></datalist>
-          <div class="toolbar"><button type="button" class="btn primary" id="cSave">Save profile</button></div>
+          <div class="toolbar"><button type="button" class="btn primary" id="cSave" data-i18n="admin.page.save_profile">Save profile</button></div>
           <p class="msg" id="cMsg" role="alert"></p>
         </form>
-        <p class="note">Products are kept in <a href="../inventory/">Slop Inventory</a>, the product catalogue. They are not copied here.</p>
+        <p class="note"><span data-i18n="admin.page.products_in">Products are kept in</span> <a href="../inventory/" data-i18n="admin.page.inventory">Slop Inventory</a><span data-i18n="admin.page.products_after">, the product catalogue. They are not copied here.</span></p>
       </section>
 
       <section class="view" id="view-numbering" role="tabpanel" aria-labelledby="tab-numbering" hidden>
-        <p class="note">Numbers are gapless. Changing the prefix or digits affects new numbers only. The next number can only move forward.</p>
+        <p class="note" data-i18n="admin.page.numbering_note">Numbers are gapless. Changing the prefix or digits affects new numbers only. The next number can only move forward.</p>
         <div id="nCards"></div>
       </section>
 
@@ -101,57 +104,57 @@
         <p class="note" id="xDefault" role="status"></p>
         <div class="tablewrap">
           <table class="grid-t">
-            <thead><tr><th class="num">Tax rate</th><th class="num">Products</th></tr></thead>
+            <thead><tr><th class="num" data-i18n="admin.page.rate">Tax rate</th><th class="num" data-i18n="admin.page.products">Products</th></tr></thead>
             <tbody id="xRows"></tbody>
           </table>
         </div>
-        <p class="empty" id="xEmpty" hidden>No products yet. Tax rates appear here once products carry one.</p>
-        <p class="note">Each product keeps its own tax rate. Change it in <a href="../inventory/">Slop Inventory</a>, where products are kept.</p>
+        <p class="empty" id="xEmpty" hidden data-i18n="admin.page.no_products">No products yet. Tax rates appear here once products carry one.</p>
+        <p class="note"><span data-i18n="admin.page.each_product">Each product keeps its own tax rate. Change it in</span> <a href="../inventory/" data-i18n="admin.page.inventory">Slop Inventory</a><span data-i18n="admin.page.where_kept">, where products are kept.</span></p>
       </section>
 
       <section class="view" id="view-data" role="tabpanel" aria-labelledby="tab-data" hidden>
         <div class="card">
-          <h2 class="h3">Records</h2>
+          <h2 class="h3" data-i18n="admin.page.records">Records</h2>
           <div class="tablewrap">
             <table class="grid-t">
-              <thead><tr><th>Collection</th><th class="num">Records</th><th class="num">Deleted</th></tr></thead>
+              <thead><tr><th data-i18n="admin.page.collection">Collection</th><th class="num" data-i18n="admin.page.records">Records</th><th class="num" data-i18n="admin.page.deleted">Deleted</th></tr></thead>
               <tbody id="dCounts"></tbody>
             </table>
           </div>
         </div>
         <div class="card">
-          <h2 class="h3">Full backup</h2>
-          <p class="note">A backup holds every record, deleted ones included, in one file.</p>
-          <div class="toolbar"><button type="button" class="btn primary" id="dBackup">Download full backup</button></div>
+          <h2 class="h3" data-i18n="admin.page.backup">Full backup</h2>
+          <p class="note" data-i18n="admin.page.backup_note">A backup holds every record, deleted ones included, in one file.</p>
+          <div class="toolbar"><button type="button" class="btn primary" id="dBackup" data-i18n="admin.page.dl_backup">Download full backup</button></div>
         </div>
         <div class="card">
-          <h2 class="h3">Everything in one file</h2>
-          <p class="note">Every app in the suite in one .slop-backup.json file: Slop Data, Slop Drive, Gallery, Music playlists, templates and profile settings. Secrets and caches are never in it.</p>
-          <div class="toolbar"><button type="button" class="btn" id="dEverything">Export or import everything…</button></div>
+          <h2 class="h3" data-i18n="admin.page.everything">Everything in one file</h2>
+          <p class="note" data-i18n="admin.page.everything_note">Every app in the suite in one .slop-backup.json file: Slop Data, Slop Drive, Gallery, Music playlists, templates and profile settings. Secrets and caches are never in it.</p>
+          <div class="toolbar"><button type="button" class="btn" id="dEverything" data-i18n="admin.page.export_all">Export or import everything…</button></div>
         </div>
         <div class="card">
-          <h2 class="h3">Restore</h2>
-          <p class="note">The whole file is checked first. A bad file changes nothing. A good one replaces every record here.</p>
-          <button type="button" class="btn" id="dRestore">Restore from a backup file…</button>
+          <h2 class="h3" data-i18n="admin.page.restore">Restore</h2>
+          <p class="note" data-i18n="admin.page.restore_note">The whole file is checked first. A bad file changes nothing. A good one replaces every record here.</p>
+          <button type="button" class="btn" id="dRestore" data-i18n="admin.page.restore_from">Restore from a backup file…</button>
           <p class="msg" id="dRestoreMsg" role="status"></p>
         </div>
         <div class="card danger-card">
-          <h2 class="h3">Reset</h2>
-          <p class="note">Erases every record in this browser. A full backup downloads first, and you type RESET to confirm.</p>
-          <div class="toolbar"><button type="button" class="btn danger" id="dReset">Reset all data…</button></div>
+          <h2 class="h3" data-i18n="admin.page.reset">Reset</h2>
+          <p class="note" data-i18n="admin.page.reset_note">Erases every record in this browser. A full backup downloads first, and you type RESET to confirm.</p>
+          <div class="toolbar"><button type="button" class="btn danger" id="dReset" data-i18n="admin.page.reset_all">Reset all data…</button></div>
         </div>
       </section>
 
       <section class="view" id="view-storage" role="tabpanel" aria-labelledby="tab-storage" hidden>
         <div class="card">
-          <h2 class="h3">Space</h2>
+          <h2 class="h3" data-i18n="admin.page.space">Space</h2>
           <p class="note" id="sUsage" role="status"></p>
         </div>
         <div class="card">
-          <h2 class="h3">Keeping your data</h2>
+          <h2 class="h3" data-i18n="admin.page.keeping">Keeping your data</h2>
           <p class="note" id="sState"></p>
           <p class="note" id="sPersist"></p>
-          <div class="toolbar"><button type="button" class="btn" id="sAsk">Ask the browser to keep this data</button></div>
+          <div class="toolbar"><button type="button" class="btn" id="sAsk" data-i18n="admin.page.ask_keep">Ask the browser to keep this data</button></div>
           <p class="msg" id="sMsg" role="alert"></p>
         </div>
       </section>
@@ -212,7 +215,7 @@
   <script src="../shell/shell.js"></script>
   <script src="../shared/spotlight/spotlight.js"></script>
 <link rel="stylesheet" href="../shared/menubar/menubar.css"><script src="../shared/menubar/menubar.js"></script>
-<script>SlopMenuBar.mount({"app": "Admin", "menus": {"File": ["cmd:data.backup", "cmd:data.everything", "cmd:data.restore", "-", "cmd:data.reset"], "View": ["cmd:view.company", "cmd:view.numbering", "cmd:view.taxes", "cmd:view.data", "cmd:view.storage"], "Help": ["cmd:cmd.palette", "cmd:cmd.keymap"]}, "host": "#menubar"});</script>
+<script>SlopMenuBar.mount({"app": "Admin", "menus": {"File": ["cmd:data.backup", "cmd:data.everything", "cmd:data.restore", "-", "cmd:data.reset"], "View": ["cmd:view.company", "cmd:view.numbering", "cmd:view.taxes", "cmd:view.data", "cmd:view.storage"], "Help": ["cmd:cmd.palette", "cmd:cmd.keymap"]}, "host": "#menubar"}); (function (n) { if (n) { n.dataset.i18n = 'admin.app.name'; if (window.SlopI18n) SlopI18n.apply(n.parentNode); } })(document.querySelector('.smb-app'));</script>
 <i id="slop-built" hidden></i>
 </body>
 </html>

@@ -23,34 +23,35 @@
   function open(onSaved, opts) {
     // Read at open time: this script can load before shared/slopui.js.
     const UI = g.SlopUI;
+    const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
     const currency = (opts && opts.currency) || 'USD';
     const sku = h('input', { type: 'text', maxlength: 80, autocomplete: 'off' });
     const name = h('input', { type: 'text', maxlength: 200, autocomplete: 'off' });
     const price = h('input', { type: 'text', inputmode: 'decimal', maxlength: 20, autocomplete: 'off', placeholder: '0.00' });
     const tax = h('input', { type: 'text', inputmode: 'decimal', maxlength: 6, autocomplete: 'off', value: '0' });
     const unit = h('input', { type: 'text', maxlength: 20, autocomplete: 'off', value: 'each' });
-    const msg = h('p', { class: 'msg bad', role: 'status' });
+    const msg = h('p', { class: 'msg bad', role: 'status' });   // i18n-ignore: class names
     const body = h('div', null,
-      UI.field('SKU', sku), UI.field('Name', name), UI.field(`Price (${currency})`, price),
-      UI.field('Tax %', tax), UI.field('Unit', unit), msg);
+      UI.field(t('biz.pd.sku'), sku), UI.field(t('biz.pd.name'), name), UI.field(t('biz.pd.price', { currency }), price),
+      UI.field(t('biz.pd.tax'), tax), UI.field(t('biz.pd.unit'), unit), msg);
     UI.dialog({
-      title: 'New product',
+      title: t('biz.pd.title'),
       body,
       buttons: [
-        { label: 'Cancel' },
+        { label: t('menu.cancel') },
         {
-          label: 'Add product', primary: true,
+          label: t('biz.pd.add'), primary: true,
           act: async () => {
             const code = sku.value.trim(), n = name.value.trim();
-            if (!code || !/^\S+$/.test(code)) { msg.textContent = 'SKU is required, with no spaces.'; return false; }
-            if (!n) { msg.textContent = 'Name is required.'; return false; }
+            if (!code || !/^\S+$/.test(code)) { msg.textContent = t('biz.pd.sku_needed'); return false; }
+            if (!n) { msg.textContent = t('biz.pd.name_needed'); return false; }
             const amount = g.SlopData.money.parseMinor(price.value.trim(), currency);
-            if (amount === null || amount < 0) { msg.textContent = 'Enter a price such as 12.50.'; return false; }
+            if (amount === null || amount < 0) { msg.textContent = t('biz.pd.bad_price'); return false; }
             const rate = NS.model.bpFromPercent(tax.value.trim() || '0');
-            if (rate === null || rate === undefined) { msg.textContent = 'Enter a tax % such as 20.'; return false; }
+            if (rate === null || rate === undefined) { msg.textContent = t('biz.pd.bad_tax'); return false; }
             const r = await S.store.put('products', { sku: code, name: n, price: amount, taxRate: rate, unit: unit.value.trim() || 'each' });
-            if (!r.ok) { msg.textContent = r.message || 'Not saved. The SKU may already be used.'; return false; }
-            UI.toast(`Added ${n}`);
+            if (!r.ok) { msg.textContent = r.message || t('biz.pd.not_saved'); return false; }
+            UI.toast(t('biz.pd.added', { name: n }));
             onSaved(r.value);
             return undefined;
           },

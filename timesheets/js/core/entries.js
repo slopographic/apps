@@ -53,7 +53,7 @@
     if (!form.id) return S.store.put('timeEntries', rec);
     let cur = await S.store.get('timeEntries', form.id);
     if (!cur.ok) return cur;
-    if (!cur.value) return fail('not_found', 'this time entry no longer exists');
+    if (!cur.value) return fail('not_found', g.SlopI18n ? g.SlopI18n.t('timesheets.core.gone') : 'timesheets.core.gone');
     if (cur.value.invoiceId) {
       const rel = await T().release(form.id);
       if (rel.ok) cur = rel;

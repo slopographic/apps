@@ -13,7 +13,8 @@
     const ed = NS.editor;
     if (!(await ed.open(null))) return false;
     const [p, moves, pos] = await Promise.all([S.store.get('products', productId), S.store.list('stockMovements', { index: 'productId', value: productId }), S.store.list('purchases')]);
-    if (!p.ok || !p.value) { ed.note('That product no longer exists.'); return false; }
+    const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
+    if (!p.ok || !p.value) { ed.note(t('purchases.ro.gone')); return false; }
     const prod = p.value, all = pos.ok ? pos.value : [];
     const onHand = moves.ok ? S.stock.onHandOf(moves.value, productId) : 0;
     const qty = S.purchases.suggestQty(prod.reorderLevel, onHand, S.purchases.onOrder(all).get(productId) || 0);
@@ -22,8 +23,10 @@
     const line = M.newLine(prod, st.defaultTaxRate);
     st.lines = [{ ...line, qty, unitPrice: last ? last.unitPrice : line.unitPrice, taxRate: last ? last.taxRate : line.taxRate }];
     if (last && st.customers.some((c) => c.id === last.supplierId)) st.customerId = last.supplierId;
-    ed.edited(last ? '' : 'Choose the supplier, and check the buying price: it starts at the selling price.');
-    ed.setMsg(`${qty} × ${prod.name}: ${onHand} on hand${prod.reorderLevel ? `, reorder at ${prod.reorderLevel}` : ''}.${last ? ' Supplier and price as last time.' : ' Choose the supplier and check the price.'}`);
+    ed.edited(last ? '' : t('purchases.ro.check'));
+    const lead = prod.reorderLevel ? t('purchases.ro.on_hand_reorder', { qty: String(qty), name: prod.name, on_hand: String(onHand), level: String(prod.reorderLevel) })
+      : t('purchases.ro.on_hand', { qty: String(qty), name: prod.name, on_hand: String(onHand) });
+    ed.setMsg(`${lead} ${t(last ? 'purchases.ro.last' : 'purchases.ro.choose')}`);
     return true;
   }
 

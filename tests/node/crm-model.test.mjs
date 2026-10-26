@@ -7,15 +7,19 @@ import vm from 'node:vm';
 import path from 'node:path';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
+const PIN = "window.SlopI18n = window.SlopI18n.create({ defaultLang: 'en', profile: null });";   // English in any build (a white-label build may choose another language first)
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const DATA = ['money.js', 'barcode.js', 'schema-checks.js', 'schema-defs.js', 'schema.js'].map((f) => path.join(ROOT, 'shared', 'data', f));
 const BIZ = [path.join(ROOT, 'shared', 'biz', 'biz.js')];
 const CRM = ['util.js', 'notes.js', 'labels.js', 'customer-fields.js', 'query.js'].map((f) => path.join(ROOT, 'crm', 'js', 'core', f));
+// SlopI18n with the English tables (crm/i18n/en, shared/biz/i18n/en), so messages read as on the page
+const I18N = [path.join(ROOT, 'shared', 'i18n', 'i18n.js'), path.join(ROOT, 'shared', 'biz', 'i18n', 'en', 'biz.js'),
+  ...['page', 'views', 'forms'].map((p) => path.join(ROOT, 'crm', 'i18n', 'en', p + '.js'))];
 const ctx = {};
 ctx.window = ctx;
 vm.createContext(ctx);
-for (const f of [...DATA, ...BIZ, ...CRM]) vm.runInContext(await readFile(f, 'utf8'), ctx, { filename: path.basename(f) });
+for (const f of [...I18N, ...DATA, ...BIZ, ...CRM]) { vm.runInContext(await readFile(f, 'utf8'), ctx, { filename: path.basename(f) }); if (f === I18N[0]) vm.runInContext(PIN, ctx); }
 const D = ctx.SlopData, NS = ctx.SlopCrm;
 const plain = (v) => JSON.parse(JSON.stringify(v));
 const deq = (a, b) => assert.deepEqual(plain(a), plain(b));

@@ -1,13 +1,17 @@
 /* SlopTour: Slop Invoices. Targets are ids in invoices/index.html. */
-SlopTour.define({
-  app: 'invoices',
-  title: 'Slop Invoices tour',
-  steps: [
-    { id: 'search', title: 'Search', text: 'Find an invoice by number, customer or notes.', target: '#iSearch' },
-    { id: 'new', title: 'New invoice', text: 'Start an invoice from scratch, or use From an order.', target: '#iNew' },
-    { id: 'from-order', title: 'From an order', text: 'Turn an order into an invoice in one step.', target: '#iFromOrder' },
-    { id: 'outstanding', title: 'Outstanding', text: 'Unpaid balances, at a glance.', target: '#iOutstanding' },
-    { id: 'list', title: 'Invoice list', text: 'Open an invoice to edit it, print it or record payments.', target: '#view-list' },
-    { id: 'data', title: 'Data', text: 'Back up or restore your invoices from the Data tab.', target: '#tab-data' },
-  ],
-});
+(function () {
+  /* The words are in the app's string tables (invoices/i18n/<code>/tour.js), read when the tour loads. */
+  const T = (k) => (globalThis.SlopI18n ? globalThis.SlopI18n.t(k) : k);
+  SlopTour.define({
+    app: 'invoices',
+    title: T('invoices.tour.title'),
+    steps: [
+      { id: 'search', title: T('invoices.tour.s_search'), text: T('invoices.tour.s_search_text'), target: '#iSearch' },
+      { id: 'new', title: T('invoices.tour.s_new'), text: T('invoices.tour.s_new_text'), target: '#iNew' },
+      { id: 'from-order', title: T('invoices.tour.s_from_order'), text: T('invoices.tour.s_from_order_text'), target: '#iFromOrder' },
+      { id: 'outstanding', title: T('invoices.tour.s_outstanding'), text: T('invoices.tour.s_outstanding_text'), target: '#iOutstanding' },
+      { id: 'list', title: T('invoices.tour.s_list'), text: T('invoices.tour.s_list_text'), target: '#view-list' },
+      { id: 'data', title: T('invoices.tour.s_data'), text: T('invoices.tour.s_data_text'), target: '#tab-data' },
+    ],
+  });
+})();

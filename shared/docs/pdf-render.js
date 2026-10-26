@@ -11,7 +11,7 @@
   const L = 42, R = 553;                    // left and right edges of the body
   const TOP = 790, BOTTOM = 84;             // first baseline and the lowest body line (the footer sits below)
   const SIDE_X = 190;                       // the side bar layout: where the body (table) starts; the column is 130 wide
-  const FAMILY = { sans: ['Helvetica', 'HelveticaBold'], serif: ['TimesRoman', 'TimesRomanBold'] };
+  const FAMILY = { sans: ['Helvetica', 'HelveticaBold'], serif: ['TimesRoman', 'TimesRomanBold'] };   // i18n-ignore: the document's own printed words (the paper and the PDF stay in the document's words)
   const COLS = { wide: { qty: 36, unit: 70, disc: 44, tax: 66, total: 76 }, side: { qty: 30, unit: 58, disc: 38, tax: 54, total: 64 } };
 
   /** WinAnsi text for pdf-lib: line breaks kept for wrapping by the caller; characters it cannot draw become "?". */
@@ -45,13 +45,13 @@
   /** Renders a view to PDF bytes: { ok: true, value: Uint8Array } or a refusal { ok: false, code, message }. */
   async function renderPdf(view) {
     const PDFLib = g.PDFLib;
-    if (!PDFLib) return { ok: false, code: 'unavailable', message: 'the PDF library did not load' };
+    if (!PDFLib) return { ok: false, code: 'unavailable', message: 'the PDF library did not load' };   // i18n-ignore: the document's own printed words (the paper and the PDF stay in the document's words)
     const st = view.style;
     const { rgb, StandardFonts } = PDFLib;
     const doc = await PDFLib.PDFDocument.create({ updateMetadata: false });
     doc.setTitle(oneLine(`${view.title} ${view.number}`));
-    doc.setProducer('Slopographic');
-    doc.setCreator('Slopographic');
+    doc.setProducer('Slopographic');   // i18n-ignore: the document's own printed words (the paper and the PDF stay in the document's words)
+    doc.setCreator('Slopographic');   // i18n-ignore: the document's own printed words (the paper and the PDF stay in the document's words)
     const fam = FAMILY[st.family] || FAMILY.sans;
     const f = { reg: await doc.embedFont(StandardFonts[fam[0]]), bold: await doc.embedFont(StandardFonts[fam[1]]) };
     const acc = st.accent.rgb;
@@ -166,7 +166,7 @@
     text(ctx, view.company.name, L, y, 12, { bold: true, color: c.accent });
     y -= 14;
     for (const l of view.company.lines.slice(0, 4)) { text(ctx, l, L, y, 8.5, { color: c.grey }); y -= 11; }
-    if (view.company.taxNumber) { text(ctx, `Tax number ${view.company.taxNumber}`, L, y, 8, { color: c.grey }); y -= 11; }
+    if (view.company.taxNumber) { text(ctx, `Tax number ${view.company.taxNumber}`, L, y, 8, { color: c.grey }); y -= 11; }   // i18n-ignore: the document's own printed words (the paper and the PDF stay in the document's words)
     y -= 14;
     text(ctx, view.bill.title.toUpperCase(), L, y, 7.5, { bold: true, color: c.grey }); y -= 13;
     text(ctx, view.bill.name || '(no customer)', L, y, 10, { bold: true }); y -= 12;
@@ -186,7 +186,7 @@
     const { cols, c, st, view } = ctx;
     const hc = st.accent.id === 'ink' ? c.ink : c.accent;
     ctx.y -= 4;
-    const heads = [['desc', 'Description', 'left'], ['qty', 'Qty', 'right'], ['unit', 'Unit price', 'right'], ['disc', 'Disc.', 'right'], ['tax', 'Tax', 'right'], ['total', 'Total', 'right']];
+    const heads = [['desc', 'Description', 'left'], ['qty', 'Qty', 'right'], ['unit', 'Unit price', 'right'], ['disc', 'Disc.', 'right'], ['tax', 'Tax', 'right'], ['total', 'Total', 'right']];   // i18n-ignore: the document's own printed words (the paper and the PDF stay in the document's words)
     for (const [k, label, align] of heads) {
       if (k === 'disc' && !view.hasDiscount) continue;
       text(ctx, label.toUpperCase(), k === 'desc' ? cols.desc.x : cols[k].right, ctx.y - 10, 7.5, { bold: true, color: hc, align });
@@ -217,7 +217,7 @@
       if (st.table === 'rules' || st.table === 'zebra') ctx.page.drawLine({ start: { x: ctx.x0, y: ctx.y - h + 3 }, end: { x: R, y: ctx.y - h + 3 }, thickness: 0.4, color: c.rule });
       ctx.y -= h;
     });
-    if (!view.rows.length) { ensure(20); text(ctx, 'No lines.', ctx.x0, ctx.y - 12, 9, { color: c.grey }); ctx.y -= 20; }
+    if (!view.rows.length) { ensure(20); text(ctx, 'No lines.', ctx.x0, ctx.y - 12, 9, { color: c.grey }); ctx.y -= 20; }   // i18n-ignore: the document's own printed words (the paper and the PDF stay in the document's words)
     ctx.inTable = false;
     ctx.y -= 12;
   }
@@ -255,12 +255,12 @@
   /** The footer on every page: company and tax number on the left, "Page n of N" on the right. */
   function footers(ctx) {
     const n = ctx.pages.length;
-    const left = [ctx.view.company.name, ctx.view.company.taxNumber ? `Tax number ${ctx.view.company.taxNumber}` : ''].filter(Boolean).join('  ·  ');
+    const left = [ctx.view.company.name, ctx.view.company.taxNumber ? `Tax number ${ctx.view.company.taxNumber}` : ''].filter(Boolean).join('  ·  ');   // i18n-ignore: the document's own printed words (the paper and the PDF stay in the document's words)
     ctx.pages.forEach((p, i) => {
       ctx.page = p;
       p.drawLine({ start: { x: L, y: 52 }, end: { x: R, y: 52 }, thickness: 0.4, color: ctx.c.rule });
       text(ctx, left, L, 40, 7.5, { color: ctx.c.grey });
-      text(ctx, `Page ${i + 1} of ${n}`, R, 40, 7.5, { color: ctx.c.grey, align: 'right' });
+      text(ctx, `Page ${i + 1} of ${n}`, R, 40, 7.5, { color: ctx.c.grey, align: 'right' });   // i18n-ignore: the document's own printed words (the paper and the PDF stay in the document's words)
     });
   }
 

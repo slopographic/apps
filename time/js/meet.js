@@ -6,6 +6,7 @@
   const ns = (g.SlopTime = g.SlopTime || {});
   const T = g.SlopTime, Z = ns.zones, S = ns.state, W = ns.work, UI = ns.ui, $ = UI.$;
   let zones = [];
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
 
   function renderChips() {
     const list = $('st-meet-zones');
@@ -18,7 +19,7 @@
       x.type = 'button';
       x.className = 'st-btn st-small';
       x.textContent = '×';
-      x.setAttribute('aria-label', `Remove ${Z.cityOf(z)} from the meeting`);
+      x.setAttribute('aria-label', t('time.meet.remove', { city: Z.cityOf(z) }));
       x.addEventListener('click', () => { zones = zones.filter((k) => k !== z); render(); });
       li.append(name, x);
       return li;
@@ -34,23 +35,23 @@
     renderChips();
     const out = $('st-meet-out');
     out.replaceChildren();
-    if (!zones.length) { $('st-meet-none').textContent = 'Add a zone to plan a meeting.'; $('st-meet-none').hidden = false; return; }
+    if (!zones.length) { $('st-meet-none').textContent = t('time.meet.add_one'); $('st-meet-none').hidden = false; return; }
     const wins = W.dayWindows([{ zone: home, days: p.days, start: p.start, end: p.end }, ...people], home, day, step);
     $('st-meet-none').hidden = wins.length > 0;
-    $('st-meet-none').textContent = `No hour on ${day} (in ${Z.cityOf(home)}) when everyone is inside working hours. Try another day, or remove a zone.`;
+    $('st-meet-none').textContent = t('time.meet.none', { day, city: Z.cityOf(home) });
     for (const w of wins) {
       const li = document.createElement('li');
       const head = document.createElement('p');
       head.className = 'st-win-head';
-      head.textContent = `${UI.windowLabel(home, w.start, w.end)} (your time)`;
+      head.textContent = t('time.meet.your_time', { window: UI.windowLabel(home, w.start, w.end) });
       const each = document.createElement('p');
       each.className = 'st-win-each';
       each.textContent = zones.map((z) => `${Z.cityOf(z)} ${UI.hm(z, w.start)}–${UI.hm(z, w.end)}`).join(' · ');
       const add = document.createElement('button');
       add.type = 'button';
       add.className = 'st-btn st-small';
-      add.textContent = 'Add to Calendar';
-      add.setAttribute('aria-label', `Add the meeting ${UI.windowLabel(home, w.start, w.end)} to Calendar`);
+      add.textContent = t('time.meet.add_cal');
+      add.setAttribute('aria-label', t('time.meet.add_cal_aria', { window: UI.windowLabel(home, w.start, w.end) }));
       add.addEventListener('click', () => addToCalendar(w, home));
       li.append(head, each, add);
       out.append(li);
@@ -61,21 +62,21 @@
   async function addToCalendar(w, home) {
     const msg = $('st-meet-msg');
     msg.textContent = '';
-    if (!g.SlopEvents || !g.SlopData) { msg.textContent = 'Calendar is not available in this browser.'; return; }
+    if (!g.SlopEvents || !g.SlopData) { msg.textContent = t('time.meet.no_cal'); return; }
     const a = T.parts(w.start, home), b = T.parts(w.end, home);
     const hm = (q) => `${UI.pad(q.h)}:${UI.pad(q.mi)}`;
     const people = zones.map((z) => Z.cityOf(z));
-    const made = g.SlopEvents.fromForm({ title: people.length ? `Meeting with ${people.join(', ')}` : 'Meeting', kind: 'meeting',
+    const made = g.SlopEvents.fromForm({ title: people.length ? `Meeting with ${people.join(', ')}` : 'Meeting', kind: 'meeting',   // i18n-ignore: the event's own text, saved in the user's calendar
       allDay: false, date: a.day, endDate: b.day, startTime: hm(a), endTime: hm(b), tz: home,
-      notes: `Planned in Slop Time, ${zones.map((z) => `${Z.cityOf(z)} ${UI.hm(z, w.start)}–${UI.hm(z, w.end)}`).join(', ')}.` });
+      notes: `Planned in Slop Time, ${zones.map((z) => `${Z.cityOf(z)} ${UI.hm(z, w.start)}–${UI.hm(z, w.end)}`).join(', ')}.` });   // i18n-ignore: the event's own text, saved in the user's calendar
     if (!made.ok) { msg.textContent = made.error; return; }
     const r = await g.SlopEvents.save(made.value);
-    msg.textContent = r.ok ? `Added to Calendar: ${UI.windowLabel(home, w.start, w.end)}.` : (r.message || 'The meeting was not added.');
+    msg.textContent = r.ok ? t('time.meet.added', { window: UI.windowLabel(home, w.start, w.end) }) : (r.message || t('time.meet.not_added'));
   }
 
   function addZone() {
     const z = $('st-meet-add').value.trim();
-    if (!Z.isZone(z)) { $('st-meet-err').textContent = 'Choose a zone from the list, such as Asia/Tokyo.'; return; }
+    if (!Z.isZone(z)) { $('st-meet-err').textContent = t('time.meet.bad_zone'); return; }
     $('st-meet-err').textContent = '';
     if (!zones.includes(z)) zones = [...zones, z];
     $('st-meet-add').value = '';

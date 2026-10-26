@@ -6,7 +6,9 @@
   'use strict';
   const NS = (g.SlopProjects = g.SlopProjects || {});
   const UI = g.SlopUI, el = UI.el, T = g.SlopTime;
-  const PRIORITY = { none: '', low: 'Low', medium: 'Medium', high: 'High' };
+  const tr = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
+  // the words of each priority (a getter: read in the chosen language each time)
+  const PRIORITY = { none: '', get low() { return tr('projects.card.low'); }, get medium() { return tr('projects.card.medium'); }, get high() { return tr('projects.card.high'); } };
 
   const initials = (name) => String(name || '').trim().split(/\s+/).slice(0, 2).map((w) => w[0] || '').join('').toUpperCase();
   const day = (d, locale) => T.dayText(d, locale, { day: 'numeric', month: 'short' });
@@ -16,10 +18,10 @@
   /** The words a screen reader says for a card: title, column, person, dates. */
   function label(t, ctx) {
     const bits = [t.title, ctx.columnName];
-    if (t.assignee) bits.push(`assigned to ${t.assignee}`);
+    if (t.assignee) bits.push(tr('projects.card.assigned', { name: t.assignee }));
     if (t.start) bits.push(range(t, ctx.locale));
-    if (t.due) bits.push(`due ${day(t.due, ctx.locale)}`);
-    if (ctx.blockers.length) bits.push(`waits for ${ctx.blockers.map((b) => b.title).join(', ')}`);
+    if (t.due) bits.push(tr('projects.card.due_lc', { day: day(t.due, ctx.locale) }));
+    if (ctx.blockers.length) bits.push(tr('projects.card.waits_lc', { names: ctx.blockers.map((b) => b.title).join(', ') }));
     return bits.join(', ');
   }
 
@@ -32,22 +34,22 @@
     const overdue = !ctx.done && ((t.due && t.due < ctx.today) || (t.end && t.end < ctx.today));
     const facts = [];
     if (t.priority && t.priority !== 'none') facts.push(el('span', { class: `chip pri-${t.priority}` }, PRIORITY[t.priority]));
-    for (const tag of (t.tags || []).slice(0, 4)) facts.push(el('span', { class: 'chip tag' }, tag));
-    if (ctx.customer) facts.push(el('span', { class: 'chip cust', title: 'Customer' }, ctx.customer));
+    for (const tag of (t.tags || []).slice(0, 4)) facts.push(el('span', { class: 'chip tag' }, tag));   // i18n-ignore: class names
+    if (ctx.customer) facts.push(el('span', { class: 'chip cust', title: tr('projects.card.customer') }, ctx.customer));   // i18n-ignore: class names
     const meta = [];
     if (t.start) meta.push(el('span', { class: overdue && t.end < ctx.today ? 'late' : '' }, range(t, ctx.locale)));
-    if (t.due) meta.push(el('span', { class: overdue && t.due < ctx.today ? 'late' : '' }, `Due ${day(t.due, ctx.locale)}`));
-    if (P.total) meta.push(el('span', { class: P.done === P.total ? 'ok' : '', title: 'Checklist' }, `☑ ${P.done}/${P.total}`));
-    if (ctx.blockers.length) meta.push(el('span', { class: 'wait', title: `Waits for ${ctx.blockers.map((b) => b.title).join(', ')}` }, `Waits for ${ctx.blockers.length}`));
+    if (t.due) meta.push(el('span', { class: overdue && t.due < ctx.today ? 'late' : '' }, tr('projects.card.due', { day: day(t.due, ctx.locale) })));
+    if (P.total) meta.push(el('span', { class: P.done === P.total ? 'ok' : '', title: tr('projects.card.checklist') }, `☑ ${P.done}/${P.total}`));
+    if (ctx.blockers.length) meta.push(el('span', { class: 'wait', title: tr('projects.card.waits_tip', { names: ctx.blockers.map((b) => b.title).join(', ') }) }, tr('projects.card.waits_n', { n: String(ctx.blockers.length) })));
     return el('article', { class: `pcard${ctx.done ? ' is-done' : ''}${overdue ? ' is-late' : ''}`, tabindex: '0', role: 'listitem', 'data-id': t.id,
-      'aria-label': label(t, ctx), 'aria-roledescription': 'card' },
-      el('span', { class: 'pgrip', 'aria-hidden': 'true', title: 'Drag to move' }, '⠿'),
+      'aria-label': label(t, ctx), 'aria-roledescription': tr('projects.card.role') },
+      el('span', { class: 'pgrip', 'aria-hidden': 'true', title: tr('projects.card.drag') }, '⠿'),
       el('div', { class: 'pc-main' },
         el('button', { type: 'button', class: 'pc-title', tabindex: '-1', onclick: () => ctx.open(t) }, t.title),
         facts.length ? el('div', { class: 'pc-chips' }, facts) : null,
         meta.length || t.assignee ? el('div', { class: 'pc-meta' }, meta,
           t.assignee ? el('span', { class: 'avatar', title: t.assignee, 'aria-hidden': 'true' }, initials(t.assignee)) : null) : null),
-      el('button', { type: 'button', class: 'pc-more', tabindex: '-1', 'aria-label': `Actions for ${t.title}`, title: 'Move, edit or delete', 'data-menu': t.id }, '⋯'));
+      el('button', { type: 'button', class: 'pc-more', tabindex: '-1', 'aria-label': tr('projects.card.actions', { title: t.title }), title: tr('projects.card.more_tip'), 'data-menu': t.id }, '⋯'));
   }
 
   NS.card = { build, initials, day, range, PRIORITY };

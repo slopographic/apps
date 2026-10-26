@@ -6,24 +6,26 @@
   const E = () => NS.editor.state();
   const editing = () => E().open;
 
+  const t = (k) => () => (g.SlopI18n ? g.SlopI18n.t(k) : k);   // read when the commands are registered
+  const GO = t('orders.cmd.g_goto'), OS = t('orders.cmd.g_orders'), O = t('orders.cmd.g_order');
   const COMMANDS = [
-    { id: 'view.list', title: 'Go to Orders', group: 'Go to', run: () => NS.app.go('list') },
-    { id: 'view.data', title: 'Go to Data (backup and restore)', group: 'Go to', run: () => NS.app.go('data') },
-    { id: 'orders.new', title: 'Orders: new order', group: 'Orders', keywords: ['add', 'create'], run: () => NS.app.go('new') },
-    { id: 'orders.sample', title: 'Orders: random sample', group: 'Orders', keywords: ['test', 'demo', 'fake'], run: () => NS.sampleActions.quick() },
-    { id: 'orders.samples', title: 'Orders: random samples… (options)', group: 'Orders', keywords: ['test', 'demo', 'batch'], run: () => NS.sampleActions.options() },
-    { id: 'orders.deleteSamples', title: 'Orders: delete all samples…', group: 'Orders', keywords: ['test', 'demo', 'clear'], run: () => NS.sampleActions.deleteAll() },
-    { id: 'orders.save', title: 'Order: save', group: 'Order', when: () => editing() && E().status !== 'fulfilled' && E().status !== 'cancelled',
+    { id: 'view.list', title: t('orders.cmd.list'), group: GO, run: () => NS.app.go('list') },
+    { id: 'view.data', title: t('orders.cmd.data'), group: GO, run: () => NS.app.go('data') },
+    { id: 'orders.new', title: t('orders.cmd.new'), group: OS, keywords: ['add', 'create'], run: () => NS.app.go('new') },
+    { id: 'orders.sample', title: t('orders.cmd.sample'), group: OS, keywords: ['test', 'demo', 'fake'], run: () => NS.sampleActions.quick() },
+    { id: 'orders.samples', title: t('orders.cmd.samples'), group: OS, keywords: ['test', 'demo', 'batch'], run: () => NS.sampleActions.options() },
+    { id: 'orders.deleteSamples', title: t('orders.cmd.del_samples'), group: OS, keywords: ['test', 'demo', 'clear'], run: () => NS.sampleActions.deleteAll() },
+    { id: 'orders.save', title: t('orders.cmd.save'), group: O, when: () => editing() && E().status !== 'fulfilled' && E().status !== 'cancelled',
       run: () => NS.editor.save() },
-    { id: 'orders.confirm', title: 'Order: confirm (draft to confirmed)', group: 'Order', when: () => editing() && E().status === 'draft',
+    { id: 'orders.confirm', title: t('orders.cmd.confirm'), group: O, when: () => editing() && E().status === 'draft',
       run: () => NS.editor.confirm() },
-    { id: 'orders.fulfil', title: 'Order: fulfil and take stock out…', group: 'Order', when: () => editing() && E().status === 'open',
+    { id: 'orders.fulfil', title: t('orders.cmd.fulfil'), group: O, when: () => editing() && E().status === 'open',
       run: () => NS.editor.fulfil() },
-    { id: 'orders.cancel', title: 'Order: cancel…', group: 'Order', when: () => editing() && (E().status === 'draft' || E().status === 'open'),
+    { id: 'orders.cancel', title: t('orders.cmd.cancel'), group: O, when: () => editing() && (E().status === 'draft' || E().status === 'open'),
       run: () => NS.editor.cancel() },
-    { id: 'orders.convert', title: 'Order: convert to invoice', group: 'Order',
+    { id: 'orders.convert', title: t('orders.cmd.convert'), group: O,
       when: () => editing() && ['open', 'fulfilled'].includes(E().status) && !E().invoiceId, run: () => NS.editor.convert() },
-    { id: 'data.backup', title: 'Data: download a full backup', group: 'Data', run: () => NS.dataActions.backup() },
+    { id: 'data.backup', title: t('orders.cmd.backup'), group: t('orders.cmd.g_data'), run: () => NS.dataActions.backup() },
   ];
   let runner = null;
   /** Registers the commands with SlopCmd and wires [data-cmd] (SlopBiz.commands, shared/biz/biz.js). */

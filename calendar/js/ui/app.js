@@ -6,6 +6,8 @@
   'use strict';
   const S = g.SlopData, T = g.SlopTime, NS = (g.SlopCal = g.SlopCal || {}), UI = g.SlopUI;
   const $ = (id) => document.getElementById(id);
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
+  let ownLocale;   // the company's locale (Admin)
   const KEY = { zone: 'slop-calendar.zone', tasks: 'slop-calendar.tasks', view: 'slop-calendar.view', split: 'slop-calendar.split' };
   const VIEWS = ['year', 'month', 'week', 'day', 'split', 'agenda'];
   const PHONE_AGENDA = ['week', 'day', 'split'];
@@ -30,7 +32,7 @@
 
   async function complete(it) {
     const r = await g.SlopTaskStore.complete(it.id);
-    if (!r.ok) UI.toast(r.message || 'Could not update the task.');
+    if (!r.ok) UI.toast(r.message || t('calendar.app.task_failed'));
   }
 
   /**
@@ -39,19 +41,19 @@
    */
   async function commit(it, change, what) {
     const cur = await S.store.get('events', it.id);
-    if (!cur.ok || !cur.value) { UI.toast('That event no longer exists.'); return; }
+    if (!cur.ok || !cur.value) { UI.toast(t('calendar.app.gone')); return; }
     const before = {};
     for (const k of Object.keys(change)) before[k] = cur.value[k];
     const r = await g.SlopEvents.patch(it.id, change);
-    if (!r.ok) { UI.toast(r.message || 'Could not move the event.'); return; }
+    if (!r.ok) { UI.toast(r.message || t('calendar.app.move_failed')); return; }
     NS.history.push(what, () => g.SlopEvents.patch(it.id, before));
-    UI.toast(`${what}.`, 6000, { label: 'Undo', run: undo });
+    UI.toast(`${what}.`, 6000, { label: t('calendar.app.undo'), run: undo });
   }
 
   /** Undoes the newest move and says what was undone. */
   async function undo() {
     const r = await NS.history.undo();
-    UI.toast(r.ok ? `Undone: ${r.label}.` : r.message);
+    UI.toast(r.ok ? t('calendar.app.undone', { what: r.label }) : r.message);
   }
 
   function newAt(day, minutes) { NS.editor.open({ day, minutes, zone: state.zone }); }
@@ -60,12 +62,15 @@
   async function render() {
     const seq = ++state.seq;
     state.today = T.todayIn(state.zone);
+    // dates in the language the page is read in; in English, the company's locale (Admin) decides the format
+    const lang = g.SlopI18n ? g.SlopI18n.get() : 'en';
+    state.locale = lang !== 'en' ? lang : ownLocale;
     const view = effective();
     const [a, b] = NS.periods.rangeOf(view, state.anchor, state.pair);
     const r = await NS.model.load(a, b, state.zone, { showTasks: state.showTasks });
     if (seq !== state.seq) return;
     const root = $('cView');
-    if (!r.ok) { root.replaceChildren(UI.el('p', { class: 'msg', role: 'alert' }, r.message || 'Could not read the calendar.')); return; }
+    if (!r.ok) { root.replaceChildren(UI.el('p', { class: 'msg', role: 'alert' }, r.message || t('calendar.app.read_failed'))); return; }
     const ctx = { zone: state.zone, locale: state.locale, items: r.value, today: state.today, open, complete, commit, newAt,
       pair: state.pair, select, openMonth: (d) => setView('month', d),
       dayView: (d) => (state.view === 'split' ? select(d) : setView('day', d)) };
@@ -83,7 +88,7 @@
     $('cSplit').value = state.pair.key;
     $('cTasks').checked = state.showTasks;
     if (NS.panel) NS.panel.paint(ctx, state.anchor);   // the day, the choices and New event on the right (ui/panel.js)
-    $('cNote').textContent = `Times are in ${state.zone}${T.zoneLabel(Date.now(), state.zone) ? ` (${T.zoneLabel(Date.now(), state.zone)})` : ''}. Events show their own zone too.`;
+    $('cNote').textContent = t('calendar.app.note', { zone: state.zone, label: T.zoneLabel(Date.now(), state.zone) ? ` (${T.zoneLabel(Date.now(), state.zone)})` : '' });
   }
   const refreshSoon = () => { clearTimeout(timer); timer = setTimeout(render, 40); };
 
@@ -161,9 +166,9 @@
 
   async function boot() {
     const ready = await S.store.ready();
-    if (!ready.ok) { $('cBoot').textContent = `Storage is not available here: ${ready.message}.`; return; }
+    if (!ready.ok) { $('cBoot').textContent = t('calendar.app.storage', { why: ready.message }); return; }
     const st = await S.store.get('settings', 'main');
-    state.locale = (st.ok && st.value && st.value.locale) || undefined;
+    ownLocale = (st.ok && st.value && st.value.locale) || undefined;
     const zone = get(KEY.zone, '');
     if (T.isZone(zone)) state.zone = zone;
     state.showTasks = get(KEY.tasks, '1') !== '0';
@@ -179,6 +184,7 @@
     if (g.SlopReminderEngine) g.SlopReminderEngine.start();
     try { if (g.SlopHub) g.SlopHub.register('calendar'); } catch (e) { /* no hub: the app still works */ }
     await render();
+    if (g.SlopI18n) g.SlopI18n.on(() => render());   // the views and the panel in the new language
     $('cBoot').hidden = true;
   }
 

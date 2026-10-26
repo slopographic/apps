@@ -1,12 +1,16 @@
 /* SlopTour: Slop Projects. Targets are ids in projects/index.html. */
-SlopTour.define({
-  app: 'projects',
-  title: 'Slop Projects tour',
-  steps: [
-    { id: 'pick', title: 'Your projects', text: 'Pick a project here. The Project menu has its settings, columns, backups and CSV.', target: '#pPick' },
-    { id: 'views', title: 'Board, Timeline, List', text: 'Three views of the same tasks: columns, bars on dates, and a sortable table.', target: '#tab-board' },
-    { id: 'find', title: 'Filters', text: 'Find a task by its text, or show one person or one tag.', target: '#fText' },
-    { id: 'new', title: 'New task', text: 'Add a task with its dates, checklist and what it waits for.', target: '#pNew' },
-    { id: 'board', title: 'The board', text: 'Drag cards between columns, or focus one and press Shift with an arrow. Ctrl+Z undoes.', target: '#board' },
-  ],
-});
+(function () {
+  /* The words are in the app's string tables (projects/i18n/<code>/tour.js), read when the tour loads. */
+  const T = (k) => (globalThis.SlopI18n ? globalThis.SlopI18n.t(k) : k);
+  SlopTour.define({
+    app: 'projects',
+    title: T('projects.tour.title'),
+    steps: [
+      { id: 'pick', title: T('projects.tour.s_pick'), text: T('projects.tour.s_pick_text'), target: '#pPick' },
+      { id: 'views', title: T('projects.tour.s_views'), text: T('projects.tour.s_views_text'), target: '#tab-board' },
+      { id: 'find', title: T('projects.tour.s_find'), text: T('projects.tour.s_find_text'), target: '#fText' },
+      { id: 'new', title: T('projects.tour.s_new'), text: T('projects.tour.s_new_text'), target: '#pNew' },
+      { id: 'board', title: T('projects.tour.s_board'), text: T('projects.tour.s_board_text'), target: '#board' },
+    ],
+  });
+})();

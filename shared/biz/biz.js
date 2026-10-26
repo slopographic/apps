@@ -6,28 +6,32 @@
   'use strict';
   // Plain words for each refusal code; the data layer's own message follows after a colon. Apps add or override words.
   const PLAIN = {
-    invalid: 'Not saved', invalid_transition: 'That change is not allowed', not_found: 'That record no longer exists',
-    conflict: 'Already done', immutable: 'This record cannot be changed', posting_required: 'This goes through its own rules only',
-    deleted: 'That record was deleted', in_use: 'Still in use', insufficient_stock: 'Not enough stock', overpayment: 'More than is due',
-    has_payments: 'It has payments', unbalanced: 'The entry does not balance', quota: 'The browser storage is full',
-    blocked: 'Blocked by another tab', unavailable: 'Storage is not available in this browser',
+    // (each reads biz.err.<code> from the string tables, shared/biz/i18n, in the chosen language)
+    invalid: 0, invalid_transition: 0, not_found: 0, conflict: 0, immutable: 0, posting_required: 0, deleted: 0, in_use: 0,
+    insufficient_stock: 0, overpayment: 0, has_payments: 0, unbalanced: 0, quota: 0, blocked: 0, unavailable: 0,
   };
 
   /** One readable line for a failed Result: the field errors when there are any, else the plain words for its code and the
    *  data layer's message. opts.plain and opts.fields (field id -> label) let an app use its own words; opts.brackets puts the
    *  message in brackets after the words instead of after a colon. */
   function refusal(r, opts = {}) {
-    if (!r) return 'Something went wrong';
+    if (!r) return t('biz.err.something');
     const fields = opts.fields || {};
     if (Array.isArray(r.errors) && r.errors.length) {
       return r.errors.map((e) => (e.field ? `${fields[e.field] || e.field} ${e.message}` : e.message)).join('. ');
     }
-    const head = (opts.plain || {})[r.code] || PLAIN[r.code];
+    const head = (opts.plain || {})[r.code] || (r.code in PLAIN ? t('biz.err.' + r.code) : '');
     if (head) return !r.message ? head : opts.brackets ? `${head} (${r.message})` : `${head}: ${r.message}`;
-    return r.message || 'Something went wrong';
+    return r.message || t('biz.err.something');
   }
 
   const data = () => g.SlopData;
+  const STATUS = ['draft', 'issued', 'paid', 'void', 'credited', 'open', 'fulfilled', 'cancelled', 'sent', 'accepted', 'declined', 'ordered', 'received', 'posted', 'owed'];
+  /** A record's status in words, in the chosen language ("open" is a confirmed order); an unknown one as it is. */
+  const statusText = (s) => (STATUS.includes(s) ? t('biz.st.' + s) : String(s || ''));
+  /** A word from the business tables (shared/biz/i18n), or the key when SlopI18n is absent; a function value is called. */
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
+  const val = (x) => (typeof x === 'function' ? x() : x);
 
   /** The settings an app shows: currency, locale, default tax rate, payment terms and the company block. Defaults when nothing
    *  is stored. */
@@ -51,13 +55,16 @@
    *  elements run them on click. list: [{ id, title, group, keywords, when, run }]. Returns run(id) (true when it ran). */
   function commands(app, own) {
     // every app that keeps records has "Fill with a sample…" (shared/biz/sample.js, loaded when it is first used)
-    const list = own.concat([{ id: 'biz.sample', title: 'Data: fill with a sample…', group: 'Data', keywords: ['random', 'example', 'demo', 'seed', 'test data'],
+    const list = own.concat([{ id: 'biz.sample', title: () => t('biz.cmd.sample'), group: () => t('biz.cmd.g_data'), keywords: ['random', 'example', 'demo', 'seed', 'test data'],   // i18n-ignore: a palette keyword (API)
       when: () => !(g.SlopBiz.sample && g.SlopDataAI && g.SlopDataAI.APPS && !g.SlopBiz.sample.kinds(app).length), run: () => sample(app) }]);
     const byId = Object.fromEntries(list.map((c) => [c.id, c]));
     const C = g.SlopCmd;
+    // title, group and description may be functions (the words in the chosen language): read again on a language change
+    const reg = () => C.register(list.map((c) => ({ id: c.id, title: val(c.title), group: val(c.group), description: val(c.description), keywords: c.keywords || [], keys: [], when: c.when, run: () => c.run() })));
     if (C) {
       C.init({ app });
-      C.register(list.map((c) => ({ id: c.id, title: c.title, group: c.group, keywords: c.keywords || [], keys: [], when: c.when, run: () => c.run() })));
+      reg();
+      if (g.SlopI18n && g.SlopI18n.on) g.SlopI18n.on(reg);
       if (C.provide) C.provide({ prepare: () => assistant(app) });
     }
     function run(id) {
@@ -65,7 +72,7 @@
       if (!c) return false;
       if (C && C.get(id)) return C.run(id);
       if (c.when && !c.when()) return false;
-      try { c.run(); } catch (err) { console.error(err); if (g.SlopUI) g.SlopUI.toast(`${c.title} failed: ${err.message}`); }
+      try { c.run(); } catch (err) { console.error(err); if (g.SlopUI) g.SlopUI.toast(t('biz.toast.cmd_failed', { what: val(c.title), why: err.message })); }
       return true;
     }
     if (g.document) g.document.addEventListener('click', (e) => {
@@ -111,7 +118,7 @@
     return e;
   }
 
-  const api = { PLAIN, refusal, settings, money, expenseAccounts, commands, assistant, sampleDialog: sample, h };
+  const api = { PLAIN, refusal, statusText, settings, money, expenseAccounts, commands, assistant, sampleDialog: sample, h };
   g.SlopBiz = Object.assign(g.SlopBiz || {}, api);   // merge: router.js, backup.js and setup.js may have loaded first
   if (typeof module === 'object' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);

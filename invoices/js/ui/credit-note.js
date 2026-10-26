@@ -8,12 +8,14 @@
   const U = NS.util;
   const h = U.h;
   const $ = (id) => document.getElementById(id);
-  const METHOD = { bank: 'bank transfer', cash: 'cash', card: 'card', other: 'other means' };
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
+  // The credit note itself is a document the person prints: its own words stay the document's (i18n-ignore below)
+  const METHOD = { bank: 'bank transfer', cash: 'cash', card: 'card', other: 'other means' };   // i18n-ignore: the printed document's words stay as written
 
   /** Draws the credit note, or says that it is gone. */
   async function show(id) {
     const cn = await S.store.get('creditNotes', id);
-    if (!cn.ok || !cn.value) { $('cnSheet').replaceChildren(h('p', { class: 'msg bad', text: 'That credit note does not exist.' })); return; }
+    if (!cn.ok || !cn.value) { $('cnSheet').replaceChildren(h('p', { class: 'msg bad', text: t('invoices.cr.gone') })); return; }   // i18n-ignore: the printed document's words stay as written
     const c = cn.value;
     const [inv, cust, s] = await Promise.all([S.store.get('invoices', c.invoiceId), S.store.get('customers', c.customerId), U.settings()]);
     const invoice = inv.ok && inv.value ? inv.value : null, customer = cust.ok && cust.value ? cust.value : { name: '' };
@@ -21,16 +23,16 @@
     const lines = g.SlopBiz.sheet.lines;
     const row = (label, value, cls) => h('tr', { class: cls }, h('td', { text: label }), h('td', { class: 'num', text: value }));
     $('cnSheet').replaceChildren(h('article', { class: 'doc-sheet credit-note' },
-      g.SlopBiz.sheet.head(s, 'Credit note', [`No. ${c.number}`, `Date ${c.date}`, invoice ? `For invoice ${invoice.number}` : null]),
-      h('div', { class: 'sheet-to' }, h('span', { class: 'sub', text: 'To' }), h('b', { text: customer.name }), ...[customer.email, ...lines(customer.address)].filter(Boolean).map((x) => h('div', { text: x }))),
-      h('p', { class: 'note', text: c.reason ? `Reason: ${c.reason}` : `Credit against invoice ${invoice ? invoice.number : ''}.` }),
+      g.SlopBiz.sheet.head(s, 'Credit note', [`No. ${c.number}`, `Date ${c.date}`, invoice ? `For invoice ${invoice.number}` : null]),   // i18n-ignore: the printed document's words stay as written
+      h('div', { class: 'sheet-to' }, h('span', { class: 'sub', text: 'To' }), h('b', { text: customer.name }), ...[customer.email, ...lines(customer.address)].filter(Boolean).map((x) => h('div', { text: x }))),   // i18n-ignore: the printed document's words stay as written
+      h('p', { class: 'note', text: c.reason ? `Reason: ${c.reason}` : `Credit against invoice ${invoice ? invoice.number : ''}.` }),   // i18n-ignore: the printed document's words stay as written
       h('div', { class: 'sheet-scroll' }, h('table', { class: 'grid-t' },
-        h('tbody', null, row('Subtotal', m(c.subtotal || 0)), row('Tax', m(c.tax || 0))),
-        h('tfoot', null, h('tr', null, h('th', { text: 'Amount credited' }), h('th', { class: 'num', text: m(c.amount) }))))),
-      c.refund ? h('p', { class: 'sheet-total' }, h('span', { text: `Paid back to you by ${METHOD[c.method] || 'bank transfer'}` }), h('b', { text: m(c.refund) }))
+        h('tbody', null, row('Subtotal', m(c.subtotal || 0)), row('Tax', m(c.tax || 0))),   // i18n-ignore: the printed document's words stay as written
+        h('tfoot', null, h('tr', null, h('th', { text: 'Amount credited' }), h('th', { class: 'num', text: m(c.amount) }))))),   // i18n-ignore: the printed document's words stay as written
+      c.refund ? h('p', { class: 'sheet-total' }, h('span', { text: `Paid back to you by ${METHOD[c.method] || 'bank transfer'}` }), h('b', { text: m(c.refund) }))   // i18n-ignore: the printed document's words stay as written
         : h('p', { class: 'note', text: `${m(c.amount)} is taken off what is owed on invoice ${invoice ? invoice.number : ''}.` })));
     $('cnInvoice').href = `#i/${c.invoiceId}`;
-    g.SlopBiz.docbar.title(`Credit note ${c.number}`);
+    g.SlopBiz.docbar.title(t('invoices.cr.title', { number: c.number }));
   }
 
   function mount() { $('cnPrint').addEventListener('click', () => g.print()); }

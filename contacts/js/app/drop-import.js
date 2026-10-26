@@ -9,18 +9,18 @@
   const RULES = {
     types: ['text/vcard', 'text/x-vcard', 'text/csv', 'application/csv', 'text/comma-separated-values', 'text/plain', 'text/tab-separated-values', 'application/json'],
     exts: ['.vcf', '.vcard', '.csv', '.tsv', '.txt', '.scontacts'],
-    noun: 'a vCard (.vcf, .vcard), a CSV or a .scontacts file',
+    get noun() { return SC.tr('contacts.imp.noun'); },
   };
   const ACCEPT = '.vcf,.vcard,.csv,.tsv,.txt,.scontacts,text/vcard,text/csv,application/json';
   SI.register({
     id: 'contacts', accept: RULES,
     processAll: (files) => {
-      SC.importFlow.run(files).catch((e) => window.SlopUI.toast(`Could not import: ${e.message}`));
+      SC.importFlow.run(files).catch((e) => window.SlopUI.toast(SC.tr('contacts.imp.failed', { why: e.message })));
       return files.map((f) => f.name);
     },
   });
   SI.register({
-    id: 'contacts.photo', main: false, paste: false, toast: false, limit: 1, accept: { types: ['image/*'], noun: 'a picture' },
+    id: 'contacts.photo', main: false, paste: false, toast: false, limit: 1, accept: { types: ['image/*'], get noun() { return SC.tr('contacts.ph.noun'); } },
     process: (file) => SC.photoUi.toJpegDataUri(file),
   });
 
@@ -28,7 +28,7 @@
     const column = document.querySelector('.col-list');
     const zone = document.getElementById('ctDrop');
     if (!column || !zone || !window.SlopDrop) return;
-    SlopDrop.attach(zone, { intake: 'contacts', compact: true, label: 'Drop vCards or CSV files here', targets: [column] });
+    SlopDrop.attach(zone, { intake: 'contacts', compact: true, label: SC.tr('contacts.imp.drop'), targets: [column] });
   }
   /** Import ▸ Choose files…. */
   const pick = () => SI.pick({ to: 'contacts', accept: ACCEPT });

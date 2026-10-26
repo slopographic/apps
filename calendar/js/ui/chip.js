@@ -19,7 +19,7 @@
       title: `${it.title}${it.allDay ? '' : ` · ${NS.model.timeLabel(it, ctx.zone, ctx.locale)}`}${it.zone && it.zone !== ctx.zone ? ` · ${NS.model.zoneNote(it)}` : ''}`,
       'aria-label': `${it.title}${it.allDay ? ', all day' : `, ${NS.model.timeLabel(it, ctx.zone, ctx.locale)}`}`,
     },
-      isTask ? el('input', { type: 'checkbox', class: 'chk', 'aria-label': `Mark ${it.title} done`, onclick: (e) => e.stopPropagation(),
+      isTask ? el('input', { type: 'checkbox', class: 'chk', 'aria-label': g.SlopI18n ? g.SlopI18n.t('calendar.views.mark_done', { title: it.title }) : it.title, onclick: (e) => e.stopPropagation(),
         onchange: (e) => { e.stopPropagation(); ctx.complete(it); } }) : null,
       el('span', { class: 'chip-t' }, `${time}${it.title}`));
     node.addEventListener('click', (e) => { if (e.target.classList.contains('chk')) return; ctx.open(it); });

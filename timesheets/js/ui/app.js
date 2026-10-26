@@ -15,5 +15,5 @@
   NS.state = { prefill: null };
   // An open entry is the panel on the right of the list, Save at its foot (shared/biz/panel.js)
   g.SlopBiz.panel.records({ app: 'timesheets', ns: NS, list: '#view-list', record: '#view-edit', view: 'edit', foot: ['#eSave', '#eCopy', '#eDelete'] });
-  g.SlopBiz.router.start({ ns: NS, app: 'timesheets', parse, editLabel: (t) => (t.arg ? 'Entry' : 'Log time') });
+  g.SlopBiz.router.start({ ns: NS, app: 'timesheets', parse, editLabel: (x) => (g.SlopI18n ? g.SlopI18n.t(x.arg ? 'timesheets.ed.entry' : 'timesheets.ed.log') : '') });
 })(typeof window !== 'undefined' ? window : globalThis);

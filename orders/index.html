@@ -4,6 +4,9 @@
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="orders" data-src="shared/theme/theme.js"></script>
   <link rel="expect" href="#slop-built" blocking="render">
+  <script src="../shared/i18n/i18n.js" data-src="shared/i18n/i18n.js"></script>
+  <script src="../shared/biz/i18n/index.js" data-src="shared/biz/i18n/index.js"></script>
+  <script src="i18n/index.js" data-src="orders/i18n/index.js"></script>
 <script src="../shared/consent/config.js"></script>
 <script src="../shared/consent/state.js"></script>
 <script src="../shared/consent/consent-mode.js"></script>
@@ -56,34 +59,34 @@
   <div class="app">
     <div class="smb-hold" hidden>
       <!-- File › Samples (the menu bar runs these; they are not in the toolbar) -->
-      <button type="button" class="btn" id="oSample">Random sample</button>
-      <button type="button" class="btn" id="oSamples">Random samples…</button>
-      <button type="button" class="btn danger" id="oDelSamples">Delete all samples</button>
-      <a id="ordAbout" href="about/">About</a>
-      <button type="button" class="tb-btn" id="ordCmd" data-cmd="cmd.palette" aria-label="Search commands" title="Search commands (Ctrl+K)">⌘K</button>
+      <button type="button" class="btn" id="oSample" data-i18n="biz.sample.one">Random sample</button>
+      <button type="button" class="btn" id="oSamples" data-i18n="biz.sample.many">Random samples…</button>
+      <button type="button" class="btn danger" id="oDelSamples" data-i18n="biz.sample.del_all">Delete all samples</button>
+      <a id="ordAbout" href="about/" data-i18n="biz.app.about">About</a>
+      <button type="button" class="tb-btn" id="ordCmd" data-cmd="cmd.palette" aria-label="Search commands" title="Search commands (Ctrl+K)" data-i18n-attr="aria-label:ui.cmd.search;title:biz.app.cmd_tip">⌘K</button>
     </div>
 
 
-    <nav class="tabs" role="tablist" aria-label="Orders sections">
-      <button type="button" role="tab" class="tab" id="tab-list" data-view="list" aria-controls="view-list" aria-selected="true">Orders</button>
-      <button type="button" role="tab" class="tab" id="tab-edit" data-view="edit" aria-controls="view-edit" aria-selected="false" hidden>Order</button>
-      <button type="button" role="tab" class="tab" id="tab-delivery" data-view="delivery" aria-controls="view-delivery" aria-selected="false" hidden>Delivery note</button>
-      <button type="button" role="tab" class="tab" id="tab-data" data-view="data" aria-controls="view-data" aria-selected="false">Data</button>
+    <nav class="tabs" role="tablist" aria-label="Orders sections" data-i18n-attr="aria-label:orders.page.sections">
+      <button type="button" role="tab" class="tab" id="tab-list" data-view="list" aria-controls="view-list" aria-selected="true" data-i18n="orders.app.name">Orders</button>
+      <button type="button" role="tab" class="tab" id="tab-edit" data-view="edit" aria-controls="view-edit" aria-selected="false" hidden data-i18n="orders.page.order">Order</button>
+      <button type="button" role="tab" class="tab" id="tab-delivery" data-view="delivery" aria-controls="view-delivery" aria-selected="false" hidden data-i18n="orders.page.delivery">Delivery note</button>
+      <button type="button" role="tab" class="tab" id="tab-data" data-view="data" aria-controls="view-data" aria-selected="false" data-i18n="biz.tab.data">Data</button>
     </nav>
 
     <main class="main" id="main">
-      <span class="local-badge" title="Customers, orders and stock stay in this browser. Nothing is uploaded."><span>100% local</span></span>
-      <div id="boot" class="boot" role="status">Opening your orders…</div>
+      <span class="local-badge" title="Customers, orders and stock stay in this browser. Nothing is uploaded." data-i18n-attr="title:orders.page.local_tip"><span data-i18n="biz.app.local">100% local</span></span>
+      <div id="boot" class="boot" role="status" data-i18n="orders.page.opening">Opening your orders…</div>
 
       <section class="view" id="view-list" role="tabpanel" aria-labelledby="tab-list" hidden>
         <div class="toolbar">
-          <label class="search"><span class="sr">Search orders</span>
-            <input id="oSearch" type="search" placeholder="Search number, customer or notes" autocomplete="off" spellcheck="false"></label>
-          <label>Status <select id="oStatus">
-            <option value="all">All</option><option value="draft">Draft</option><option value="open">Confirmed</option>
-            <option value="fulfilled">Fulfilled</option><option value="cancelled">Cancelled</option>
+          <label class="search"><span class="sr" data-i18n="orders.page.search">Search orders</span>
+            <input id="oSearch" type="search" placeholder="Search number, customer or notes" autocomplete="off" spellcheck="false" data-i18n-attr="placeholder:orders.page.search_ph"></label>
+          <label><span data-i18n="orders.page.status">Status</span> <select id="oStatus">
+            <option value="all" data-i18n="orders.page.all">All</option><option value="draft" data-i18n="orders.page.draft">Draft</option><option value="open" data-i18n="orders.page.confirmed">Confirmed</option>
+            <option value="fulfilled" data-i18n="orders.page.fulfilled">Fulfilled</option><option value="cancelled" data-i18n="orders.page.cancelled">Cancelled</option>
           </select></label>
-          <button type="button" class="btn primary" id="oNew">New order</button>
+          <button type="button" class="btn primary" id="oNew" data-i18n="orders.page.new">New order</button>
         </div>
         <p class="note" id="oSummary" role="status"></p>
         <div class="table" id="oRows"></div>
@@ -92,8 +95,8 @@
       <section class="view" id="view-edit" role="tabpanel" aria-labelledby="tab-edit" hidden>
         <div class="ws-stage">
         <div class="head-row">
-          <button type="button" class="btn small" id="eBack">← Orders</button>
-          <h2 class="h2" id="eTitle">New order</h2>
+          <button type="button" class="btn small" id="eBack" data-i18n="orders.page.back">← Orders</button>
+          <h2 class="h2" id="eTitle" data-i18n="orders.page.new">New order</h2>
           <span class="chip" id="eStatus"></span>
         </div>
         <p class="msg" id="eMsg" role="status"></p>
@@ -101,20 +104,20 @@
         <div class="toolbar" id="eLayout"></div>
         <div id="ePage" class="page-wrap"></div>
         </div>
-        <aside class="ws-panel" aria-label="Order details">
+        <aside class="ws-panel" aria-label="Order details" data-i18n-attr="aria-label:orders.page.details">
         <form class="card" id="eForm" novalidate data-form-only>
           <div class="form-grid">
-            <label class="wide">Customer
-              <span class="inline"><select id="eCustomer"></select><button type="button" class="btn" id="eNewCustomer">New customer</button></span>
+            <label class="wide"><span data-i18n="orders.page.customer">Customer</span>
+              <span class="inline"><select id="eCustomer"></select><button type="button" class="btn" id="eNewCustomer" data-i18n="orders.page.new_customer">New customer</button></span>
             </label>
-            <label>Date <input id="eDate" type="date" required></label>
-            <label>Currency <input id="eCurrency" type="text" readonly tabindex="-1"></label>
-            <label class="wide">Notes <textarea id="eNotes" rows="2" maxlength="5000"></textarea></label>
+            <label><span data-i18n="orders.page.date">Date</span> <input id="eDate" type="date" required></label>
+            <label><span data-i18n="orders.page.currency">Currency</span> <input id="eCurrency" type="text" readonly tabindex="-1"></label>
+            <label class="wide"><span data-i18n="orders.page.notes">Notes</span> <textarea id="eNotes" rows="2" maxlength="5000"></textarea></label>
           </div>
         </form>
-        <h2 class="h2" data-form-only>Lines</h2>
+        <h2 class="h2" data-form-only data-i18n="orders.page.lines">Lines</h2>
         <div id="eLines" class="lines" data-form-only></div>
-        <div class="toolbar" data-form-only><button type="button" class="btn" id="eAddLine">Add line</button></div>
+        <div class="toolbar" data-form-only><button type="button" class="btn" id="eAddLine" data-i18n="orders.page.add_line">Add line</button></div>
         <div class="card totals" id="eTotals" aria-live="polite" data-form-only></div>
         <p class="note" id="eInvoice"></p>
         <div class="toolbar actions" id="eActions"></div>
@@ -126,10 +129,10 @@
 
       <section class="view" id="view-data" role="tabpanel" aria-labelledby="tab-data" hidden>
         <div class="card">
-          <h2 class="h2">Full backup</h2>
-          <p class="note">A backup holds every record in the shared business data for this browser: customers, products, orders, invoices, payments, stock and the ledger.</p>
-          <div class="toolbar"><button type="button" class="btn primary" id="dBackup">Download full backup</button></div>
-          <div class="file"><button type="button" class="btn" id="dRestore">Restore from a backup file…</button></div>
+          <h2 class="h2" data-i18n="orders.page.backup">Full backup</h2>
+          <p class="note" data-i18n="orders.page.backup_note">A backup holds every record in the shared business data for this browser: customers, products, orders, invoices, payments, stock and the ledger.</p>
+          <div class="toolbar"><button type="button" class="btn primary" id="dBackup" data-i18n="orders.page.dl_backup">Download full backup</button></div>
+          <div class="file"><button type="button" class="btn" id="dRestore" data-i18n="orders.page.restore">Restore from a backup file…</button></div>
           <ul class="report" id="dRestoreMsg" aria-live="polite"></ul>
         </div>
       </section>
@@ -224,7 +227,7 @@
   <script>SlopPWA.mount();</script>
 <link rel="stylesheet" href="../shared/menubar/menubar.css">
 <script src="../shared/menubar/menubar.js"></script>
-<script>SlopMenuBar.mount({"app": "Orders", "menus": {"File": ["#oNew", "-", {"label": "Samples", "sub": ["#oSample", "#oSamples", "-", "#oDelSamples"]}], "Help": ["#ordAbout", "#ordCmd"]}});</script>
+<script>SlopMenuBar.mount({ app: 'Orders', menus: { File: () => ['#oNew', '-', { label: window.SlopI18n ? SlopI18n.t('biz.menu.samples') : 'Samples', sub: ['#oSample', '#oSamples', '-', '#oDelSamples'] }], Help: () => ['#ordAbout', '#ordCmd'] } }); (function (n) { if (n) { n.dataset.i18n = 'orders.app.name'; if (window.SlopI18n) SlopI18n.apply(n.parentNode); } })(document.querySelector('.smb-app'));</script>
   <script src="../shell/shell.js"></script>
   <script src="../shared/tour/mount.js" data-app="orders"></script>
   <script src="../shared/spotlight/spotlight.js"></script>

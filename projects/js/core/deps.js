@@ -39,8 +39,9 @@
     const clean = [...new Set((deps || []).filter((d) => d && d !== id && m.has(d)))];
     const loop = wouldLoop(tasks, id, clean);
     if (loop) {
-      const name = (m.get(loop) || {}).title || 'that task';
-      return { ok: false, message: `"${name}" already waits for this task, so this task cannot wait for it.` };
+      const tr = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
+      const name = (m.get(loop) || {}).title || tr('projects.core.that_task');
+      return { ok: false, message: tr('projects.core.loop', { name }) };
     }
     return { ok: true, value: clean };
   }

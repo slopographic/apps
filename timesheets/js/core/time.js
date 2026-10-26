@@ -66,7 +66,7 @@
   /** CSV of rows, oldest first: date, customer, project, description, hours (decimal), h:mm, rate, amount, currency, state.
    *  plain(minor, currency) is the plain money text (SlopData.money.plainMinor). */
   function csv(rows, amountOf, plain) {
-    const head = ['Date', 'Customer', 'Project', 'Description', 'Hours', 'Time', 'Rate', 'Amount', 'Currency', 'Billable', 'State'];
+    const head = ['Date', 'Customer', 'Project', 'Description', 'Hours', 'Time', 'Rate', 'Amount', 'Currency', 'Billable', 'State'];   // i18n-ignore: CSV columns, a file format for other programs
     const lines = rows.slice().sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0)).map((r) => [
       r.date, r.customerName || '', r.project || '', r.description, (r.minutes / 60).toFixed(2), hm(r.minutes),
       plain(r.rate || 0, r.currency), plain(r.billable ? amountOf(r) : 0, r.currency), r.currency || '', r.billable ? 'yes' : 'no', r.state,

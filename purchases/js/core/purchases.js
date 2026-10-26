@@ -49,7 +49,7 @@
     if (!form.id) return S.store.put('purchases', { ...base, pdfSeed: base.pdfSeed ?? g.SlopDocs.layouts.newSeed(), status: 'draft' });
     const cur = await S.store.get('purchases', form.id);
     if (!cur.ok) return cur;
-    if (!cur.value) return fail('not_found', 'this purchase order no longer exists');
+    if (!cur.value) return fail('not_found', g.SlopI18n ? g.SlopI18n.t('purchases.core.gone') : 'purchases.core.gone');
     return S.store.put('purchases', { ...cur.value, ...base });
   }
 
@@ -57,7 +57,7 @@
   async function setStatus(id, status) {
     const cur = await S.store.get('purchases', id);
     if (!cur.ok) return cur;
-    if (!cur.value) return fail('not_found', 'this purchase order no longer exists');
+    if (!cur.value) return fail('not_found', g.SlopI18n ? g.SlopI18n.t('purchases.core.gone') : 'purchases.core.gone');
     return S.store.put('purchases', { ...cur.value, status });
   }
 

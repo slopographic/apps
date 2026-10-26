@@ -8,11 +8,17 @@
   if (!g.SlopFrame) return;
   const $ = (id) => g.document.getElementById(id);
   const R = g.SlopReports;
-  const fr = g.SlopFrame.mount($('rpMain'), { view: $('rpView'), panel: $('rpPanel'), panelLabel: 'Report', storageKey: 'reports',
+  const t = (k) => (g.SlopI18n ? g.SlopI18n.t(k) : k);
+  const fr = g.SlopFrame.mount($('rpMain'), { view: $('rpView'), panel: $('rpPanel'), panelLabel: t('reports.page.report'), storageKey: 'reports',
     button: '.smb-tools', phoneButton: false, width: 340, min: 280, max: 640 });
-  const p = g.SlopFrame.panel($('rpPanel'), { title: 'Report' });
-  p.render([{ key: 'pick', settings: [$('rpPick')] }, { title: 'Definition', cls: 'rp-def', settings: [$('editor')] }]);
-  p.footer([{ el: $('csv'), primary: true, title: 'Download the rows shown as a CSV file' }], { more: 'Report' });
+  const p = g.SlopFrame.panel($('rpPanel'), { title: t('reports.page.report') });
+  const words = () => {
+    p.setTitle(t('reports.page.report'));
+    p.render([{ key: 'pick', settings: [$('rpPick')] }, { title: t('reports.lay.definition'), cls: 'rp-def', settings: [$('editor')] }]);
+    p.footer([{ el: $('csv'), primary: true, title: t('reports.lay.csv_tip') }], { more: t('reports.page.report') });
+  };
+  words();
+  if (g.SlopI18n) g.SlopI18n.on(words);
   // New report and Edit open the definition: on a phone the sheet opens with it
   for (const id of ['new', 'edit']) $(id).addEventListener('click', () => { if (fr.isPhone()) fr.openSheet(); });
   if (R) R.frame = fr;

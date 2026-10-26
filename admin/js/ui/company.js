@@ -6,6 +6,7 @@
   const UI = g.SlopUI;
   const el = UI.el;
   const $ = (id) => document.getElementById(id);
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
 
   async function render() {
     if (document.activeElement && document.activeElement.closest && document.activeElement.closest('#cForm')) return;
@@ -23,8 +24,8 @@
     $('cMsg').textContent = '';
     const r = await NS.profile.save({ companyName: $('cName').value, address: $('cAddress').value, taxNumber: $('cTax').value,
       defaultCurrency: $('cCur').value, locale: $('cLocale').value, defaultTaxRate: $('cRate').value });
-    if (!r.ok) { $('cMsg').textContent = `Not saved. ${NS.util.refusal(r)}`; return; }
-    UI.toast('Company profile saved');
+    if (!r.ok) { $('cMsg').textContent = t('admin.co.not_saved', { why: NS.util.refusal(r) }); return; }
+    UI.toast(t('admin.co.saved'));
   }
 
   function mount() {

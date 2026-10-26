@@ -6,18 +6,19 @@
   const T = g.SlopTime, UI = g.SlopUI, el = UI.el;
   const NS = (g.SlopCal = g.SlopCal || {});
   const SPAN = 60;   // days listed from the anchor
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
 
   /** One row of the agenda for an item. */
   function row(it, ctx) {
-    const when = it.allDay ? 'All day' : T.timeText(it.start, ctx.zone, ctx.locale);
+    const when = it.allDay ? t('calendar.views.all_day') : T.timeText(it.start, ctx.zone, ctx.locale);
     const repeat = it.kind === 'event' && it.rec && it.rec.freq && it.rec.freq !== 'none' ? g.SlopRecur.describe(it.rec) : '';
-    const zoneLine = it.allDay ? '' : `${NS.model.zoneNote(it)}${it.zone !== ctx.zone ? ` · ${T.timeText(it.start, it.zone, ctx.locale)} there` : ''}`;
-    const sub = [it.kind === 'task' ? 'To-do' : it.eventKind, it.location, repeat, zoneLine].filter(Boolean).join(' · ');
+    const zoneLine = it.allDay ? '' : `${NS.model.zoneNote(it)}${it.zone !== ctx.zone ? ` · ${t('calendar.views.there', { time: T.timeText(it.start, it.zone, ctx.locale) })}` : ''}`;
+    const sub = [NS.model.kindText(it), it.location, repeat, zoneLine].filter(Boolean).join(' · ');
     return el('div', { class: `ag-row c-${it.color}`, role: 'button', tabindex: '0', 'data-kind': it.kind, 'data-id': it.id, 'data-key': it.key,
       'aria-label': `${it.title}, ${when}` },
       el('div', { class: 'ag-time' }, when),
       el('div', { class: 'ag-main' }, el('b', null, it.title), el('span', { class: 'ag-sub' }, sub)),
-      it.kind === 'task' ? el('input', { type: 'checkbox', class: 'chk', 'aria-label': `Mark ${it.title} done`,
+      it.kind === 'task' ? el('input', { type: 'checkbox', class: 'chk', 'aria-label': t('calendar.views.mark_done', { title: it.title }),
         onchange: (e) => { e.stopPropagation(); ctx.complete(it); } }) : null);
   }
 
@@ -36,11 +37,11 @@
         return r;
       });
       sections.push(el('section', { class: `ag-day${day === today ? ' is-today' : ''}`, 'data-day': day, 'aria-label': T.dayText(day, locale) },
-        el('h3', { class: 'ag-h' }, T.dayText(day, locale, { weekday: 'long', day: 'numeric', month: 'long' }), day === today ? el('span', { class: 'ag-today' }, 'Today') : null),
+        el('h3', { class: 'ag-h' }, T.dayText(day, locale, { weekday: 'long', day: 'numeric', month: 'long' }), day === today ? el('span', { class: 'ag-today' }, t('calendar.panel.today')) : null),
         rows));
     }
     root.replaceChildren(sections.length ? el('div', { class: 'ag' }, sections)
-      : el('p', { class: 'empty' }, `Nothing scheduled in the next ${SPAN} days. Press N to add an event.`));
+      : el('p', { class: 'empty' }, t('calendar.views.agenda.empty', { n: SPAN })));
   }
 
   NS.agenda = { render, SPAN };

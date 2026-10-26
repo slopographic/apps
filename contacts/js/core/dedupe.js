@@ -107,7 +107,8 @@
     const seen = new Map();
     for (const c of group) for (const k of new Set(keysOf(c, cc))) seen.set(k, (seen.get(k) || 0) + 1);
     const shared = [...seen.entries()].filter(([, n]) => n > 1).map(([k]) => k);
-    return [...new Set(shared.map((k) => (k.startsWith('p:') ? 'phone +' + k.slice(2) : k.startsWith('e:') ? 'e-mail ' + k.slice(2) : 'name and organisation')))];
+    const tr = (key, v) => (window.SlopI18n ? window.SlopI18n.t(key, v) : key);
+    return [...new Set(shared.map((k) => (k.startsWith('p:') ? tr('contacts.dd.phone', { n: k.slice(2) }) : k.startsWith('e:') ? tr('contacts.dd.email', { value: k.slice(2) }) : tr('contacts.dd.name_org'))))];
   }
 
   SC.dedupe = { keysOf, findGroups, isExact, mergeGroup, applyMerges, autoMergeExact, reasonsOf };

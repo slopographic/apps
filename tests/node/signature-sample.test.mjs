@@ -8,11 +8,13 @@ import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+const PIN = "window.SlopI18n = window.SlopI18n.create({ defaultLang: 'en', profile: null });";   // English in any build (a white-label build may choose another language first)
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const ctx = vm.createContext({});
-for (const f of ['shared/sample/rng.js', 'shared/sample/en.js', 'shared/sample/sv.js', 'shared/sample/people.js', 'signature/js/model.js',
-  'signature/js/templates.js', 'signature/js/logo.js', 'signature/js/sample.js', 'signature/js/copy.js']) vm.runInContext(readFileSync(path.join(ROOT, f), 'utf8'), ctx, { filename: f });
+ctx.window = ctx;   // the English string tables (signature/i18n/en), so the messages read as on the page
+for (const f of ['shared/i18n/i18n.js', ...['app', 'copy', 'form'].map((p) => `signature/i18n/en/${p}.js`), 'shared/sample/rng.js', 'shared/sample/en.js', 'shared/sample/sv.js', 'shared/sample/people.js', 'signature/js/model.js',
+  'signature/js/templates.js', 'signature/js/logo.js', 'signature/js/sample.js', 'signature/js/copy.js']) { vm.runInContext(readFileSync(path.join(ROOT, f), 'utf8'), ctx, { filename: f }); if (f === 'shared/i18n/i18n.js') vm.runInContext(PIN, ctx); }
 const NS = ctx.SlopSignature, X = ctx.SlopSample;
 const plain = (v) => JSON.parse(JSON.stringify(v));
 

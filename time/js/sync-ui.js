@@ -5,6 +5,7 @@
   'use strict';
   const ns = (g.SlopTime = g.SlopTime || {});
   const Z = ns.zones, S = ns.state, SY = ns.sync, UI = ns.ui, $ = UI.$;
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
 
   function hms(ms) { const d = new Date(ms); return `${UI.pad(d.getHours())}:${UI.pad(d.getMinutes())}:${UI.pad(d.getSeconds())}`; }
 
@@ -12,14 +13,14 @@
     const off = S.offset();
     const status = $('st-sync-status');
     if (!off) {
-      status.textContent = 'No offset set. Times come from this device\'s clock.';
+      status.textContent = t('time.sync.none');
       $('st-sync-now').textContent = '';
       $('st-sync-clear').disabled = true;
       return;
     }
     $('st-sync-clear').disabled = false;
-    status.textContent = `Manual offset set at ${hms(off.setAt)} from ${off.reference}. ${SY.describe(off.offsetMs)} The offset does not track the clock after that moment.`;
-    $('st-sync-now').textContent = `Adjusted time now (this device, moved by the offset): ${hms(S.nowMs())}.`;
+    status.textContent = t('time.sync.set_at', { time: hms(off.setAt), ref: off.reference, what: SY.describe(off.offsetMs) });
+    $('st-sync-now').textContent = t('time.sync.now', { time: hms(S.nowMs()) });
   }
 
   function setOffset() {
@@ -28,7 +29,7 @@
     const clock = $('st-sync-time').value.trim();
     const ref = SY.referenceMs(zone, date, clock);
     const err = $('st-sync-err');
-    if (ref === null) { err.textContent = 'Enter the zone from the list, a date, and a time such as 14:05:30.'; return; }
+    if (ref === null) { err.textContent = t('time.sync.bad'); return; }
     err.textContent = '';
     const offsetMs = SY.offsetFor(ref, Date.now());
     S.setOffset({ offsetMs, setAt: Date.now(), reference: `${clock} ${date} ${Z.cityOf(zone)}` });

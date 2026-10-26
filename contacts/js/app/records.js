@@ -14,7 +14,7 @@
   /** Reads every live customer into the list. Nothing is written back. */
   async function load() {
     const r = await D.store.list('customers');
-    if (!r.ok) { UI.toast(r.message || 'Could not read your customers.'); return false; }
+    if (!r.ok) { UI.toast(r.message || SC.tr('contacts.rec.read_failed')); return false; }
     S.touched = new Map(r.value.map((x) => [x.id, x.updatedAt || 0]));
     S.created = new Map(r.value.map((x) => [x.id, x.createdAt || 0]));
     const t = await D.store.list('customerTags'); // the CRM's tags, for the tag filter (read only here)
@@ -47,7 +47,7 @@
         return D.result.ok(true);
       });
       pending--;
-      if (!r.ok) { UI.alert('Could not save', `${r.message || 'Nothing was changed.'} The list has been reloaded.`); await load(); }
+      if (!r.ok) { UI.alert(SC.tr('contacts.rec.save_failed'), SC.tr('contacts.rec.save_body', { why: r.message || SC.tr('contacts.rec.nothing_changed') })); await load(); }
       else if (!pending) await load(); // picks up the stored times (Recent) once the queue is empty
     };
     queue = queue.then(run, run);

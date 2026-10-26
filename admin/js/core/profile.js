@@ -8,12 +8,13 @@
 
   /** Checks the typed profile and returns the record to store, or a failed Result that names the field. */
   function checked(cur, input) {
+    const t = (k) => (g.SlopI18n ? g.SlopI18n.t(k) : k);
     const cc = String(input.defaultCurrency || '').trim().toUpperCase();
-    if (!S.locale.isCurrency(cc) || !S.locale.currencies().includes(cc)) return fail('invalid', 'Pick a currency code from the list, such as USD.');
+    if (!S.locale.isCurrency(cc) || !S.locale.currencies().includes(cc)) return fail('invalid', t('admin.core.currency'));
     const loc = S.locale.canonicalLocale(String(input.locale || '').trim());
-    if (!loc) return fail('invalid', 'Use a language tag such as en-US or fr-FR for the number and date formats.');
+    if (!loc) return fail('invalid', t('admin.core.locale'));
     const rate = S.money.parseMinor(String(input.defaultTaxRate ?? '').trim() || '0', 'USD');
-    if (rate === null || rate < 0 || rate > 10000) return fail('invalid', 'The default tax rate is a percentage from 0 to 100 with up to two decimals, such as 20 or 7.5.');
+    if (rate === null || rate < 0 || rate > 10000) return fail('invalid', t('admin.core.rate'));
     return ok({ ...cur, companyName: input.companyName, address: input.address, taxNumber: input.taxNumber,
       defaultCurrency: cc, locale: loc, defaultTaxRate: rate });
   }

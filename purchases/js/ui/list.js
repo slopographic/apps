@@ -8,6 +8,7 @@
   const $ = (id) => document.getElementById(id);
   const CHIP = { ordered: '', received: 'good', cancelled: 'void' }; // SlopList chip classes per status
   let list = null, settings = null;
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
 
   async function draw() {
     if (!$('view-list') || $('view-list').hidden) return;
@@ -21,25 +22,25 @@
   function row(x) {
     const s = settings;
     return { title: `${x.number} · ${x.supplierName}`, amount: U.money(x.total, x.currency || s.currency, s.locale), cls: x.late ? 'is-overdue' : '',
-      meta: [x.late ? { chip: 'Late', cls: 'bad' } : { chip: U.STATUS[x.status] || x.status, cls: CHIP[x.status] || '' }, x.date,
-        x.expectedDate && x.status === 'ordered' ? `Expected ${x.expectedDate}` : null, x.receivedAt ? `Received ${x.receivedAt}` : null,
-        x.expenseId ? 'billed' : x.unbilled ? { chip: 'To bill', cls: 'warn' } : null] };
+      meta: [x.late ? { chip: t('purchases.li.late'), cls: 'bad' } : { chip: g.SlopBiz.statusText(x.status), cls: CHIP[x.status] || '' }, x.date,
+        x.expectedDate && x.status === 'ordered' ? t('purchases.li.expected', { date: x.expectedDate }) : null, x.receivedAt ? t('purchases.li.received', { date: x.receivedAt }) : null,
+        x.expenseId ? t('purchases.li.billed') : x.unbilled ? { chip: t('purchases.li.to_bill'), cls: 'warn' } : null] };
   }
 
   async function run(promise, okText) {
     const r = await promise;
-    if (!r.ok) { UI.alert('Not done', U.refusal(r)); return; }
+    if (!r.ok) { UI.alert(t('purchases.ed.not_done'), U.refusal(r)); return; }
     UI.toast(okText);
     draw();
   }
 
   function menuFor(x) {
-    const items = [{ label: 'Open purchase order', act: () => NS.app.go(`po/${x.id}`) }];
-    if (x.status === 'draft') items.push({ label: 'Place order', act: () => run(NS.purchases.setStatus(x.id, 'ordered'), `${x.number} ordered`) });
-    if (x.status === 'ordered') items.push({ label: 'Receive…', act: async () => { if (await UI.confirm('Receive order', `Receive ${x.number}? Its product lines go into stock.`, 'Receive')) run(NS.purchases.receive(x.id), `${x.number} received`); } });
-    if (x.unbilled) items.push({ label: 'Record bill…', act: () => NS.app.go(`po/${x.id}`) });
-    if (x.expenseId) items.push({ label: 'Open the bill', act: () => { location.href = `../expenses/#e/${x.expenseId}`; } });
-    if (x.status === 'draft' || x.status === 'ordered') items.push({ label: 'Cancel order', act: () => run(NS.purchases.setStatus(x.id, 'cancelled'), `${x.number} cancelled`) });
+    const items = [{ label: t('purchases.li.open'), act: () => NS.app.go(`po/${x.id}`) }];
+    if (x.status === 'draft') items.push({ label: t('purchases.ed.place'), act: () => run(NS.purchases.setStatus(x.id, 'ordered'), t('purchases.li.ordered', { number: x.number })) });
+    if (x.status === 'ordered') items.push({ label: t('purchases.ed.receive'), act: async () => { if (await UI.confirm(t('purchases.ed.receive_q'), t('purchases.li.receive_body', { number: x.number }), t('purchases.ed.receive_ok'))) run(NS.purchases.receive(x.id), t('purchases.li.received_t', { number: x.number })); } });
+    if (x.unbilled) items.push({ label: t('purchases.ed.record_bill'), act: () => NS.app.go(`po/${x.id}`) });
+    if (x.expenseId) items.push({ label: t('purchases.li.open_bill'), act: () => { location.href = `../expenses/#e/${x.expenseId}`; } });
+    if (x.status === 'draft' || x.status === 'ordered') items.push({ label: t('purchases.li.cancel'), act: () => run(NS.purchases.setStatus(x.id, 'cancelled'), t('purchases.li.cancelled', { number: x.number })) });
     return items;
   }
 
@@ -47,8 +48,8 @@
     $('pSearch').addEventListener('input', draw);
     $('pStatus').addEventListener('change', draw);
     $('pNew').addEventListener('click', () => NS.app.go('new'));
-    list = g.SlopList.mount($('pRows'), { label: 'Purchase orders', noun: ['purchase order', 'purchase orders'], summary: $('pSummary'),
-      empty: 'No purchase orders match. Start one with New purchase order.', row, open: (x) => NS.app.go(`po/${x.id}`), menu: menuFor });
+    list = g.SlopList.mount($('pRows'), { label: t('purchases.li.label'), noun: [t('purchases.li.po'), t('purchases.li.pos')], summary: $('pSummary'),
+      empty: t('purchases.li.empty'), row, open: (x) => NS.app.go(`po/${x.id}`), menu: menuFor });
   }
 
   NS.listView = { mount, draw, menuFor };

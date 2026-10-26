@@ -13,8 +13,9 @@
 
   /** The reason in plain words from a failed Result. */
   function why(r) {
-    if (r && Array.isArray(r.errors) && r.errors.length) return r.errors[0].message ? `${r.errors[0].field || ''} ${r.errors[0].message}`.trim() : 'not valid';
-    return (r && (r.message || r.code)) || 'something went wrong';
+    const t = (k) => (g.SlopI18n ? g.SlopI18n.t(k) : k);
+    if (r && Array.isArray(r.errors) && r.errors.length) return r.errors[0].message ? `${r.errors[0].field || ''} ${r.errors[0].message}`.trim() : t('biz.sm.not_valid');
+    return (r && (r.message || r.code)) || t('biz.sm.went_wrong');
   }
 
   /** Looks up the stored customer and product ids for one plan, saving any new records first. Returns a Result. */
@@ -58,12 +59,12 @@
     const bad = lines.map((l) => M.lineErrors(l)).find((e) => e.length);
     if (bad) return S.result.fail('invalid', `generated line is not valid: ${bad[0]}`);
     const totals = M.totals(lines);
-    if (!totals || totals.total > S.money.MAX_MINOR) return S.result.fail('invalid', 'generated total is out of range');
+    if (!totals || totals.total > S.money.MAX_MINOR) return S.result.fail('invalid', 'generated total is out of range');   // i18n-ignore: checks for developers: a generated sample that the model refuses
     const draft = { customerId: saved.value.customerId, date: p.date, notes: p.notes, currency: p.currency, lines, sample: true };
     if (p.dueDate) draft.dueDate = p.dueDate;
     const doc = await io.saveDocument(draft);
     if (!doc.ok) return doc;
-    if (doc.value.total !== totals.total) return S.result.fail('invalid', 'the saved total differs from the model total');
+    if (doc.value.total !== totals.total) return S.result.fail('invalid', 'the saved total differs from the model total');   // i18n-ignore: checks for developers: a generated sample that the model refuses
     const customer = (cs.value.find((c) => c.id === saved.value.customerId) || {}).name || (p.newCustomer && p.newCustomer.name) || '';
     out.created.push({ id: doc.value.id, number: doc.value.number || '', total: doc.value.total, currency: p.currency, customer, lines: lines.length, seed: p.seed });
     return S.result.ok(doc.value);

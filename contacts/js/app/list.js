@@ -7,6 +7,7 @@
   const S = SC.state;
   const $ = (id) => document.getElementById(id);
   const esc = (s) => SC.text.html(s);   // the one HTML escape (core/text.js)
+  const tr = (k, v) => SC.tr(k, v);
 
   /** The heading letter of a name: its first letter without accents, or # for anything else. */
   function letterOf(name) {
@@ -32,8 +33,8 @@
 
   /** The title of the open group. */
   function titleOf(g) {
-    if (!g) return 'All Contacts';
-    if (g === 'recent') return 'Recent';
+    if (!g) return tr('contacts.page.all');
+    if (g === 'recent') return tr('contacts.list.recent');
     if (g.startsWith('cat:')) return g.slice(4);
     return SC.stageLabel(g.slice(6));
   }
@@ -42,14 +43,14 @@
     const list = S.visible();
     const n = list.length, total = S.list.length;
     $('listTitle').textContent = titleOf(S.group);
-    $('listCount').textContent = S.query.trim() || S.group ? `${n} of ${total}` : `${total} contact${total === 1 ? '' : 's'}`;
+    $('listCount').textContent = S.query.trim() || S.group ? tr('contacts.list.of', { n, total }) : tr('contacts.list.count', { n: total });
     $('btnSelect').setAttribute('aria-pressed', String(S.selectMode));
     $('btnSelect').classList.toggle('on', S.selectMode);
     const flat = S.group === 'recent';
     const draft = !!S.draft;
     const refocus = SC.newContact.hasFocus();
     const html = SC.newContact.rowHtml() + (flat
-      ? `<ul class="rows" role="list" aria-label="Recent">${list.map(rowHtml).join('')}</ul>`
+      ? `<ul class="rows" role="list" aria-label="${esc(tr('contacts.list.recent'))}">${list.map(rowHtml).join('')}</ul>`
       : sectionsOf(list).map(([k, items]) => `<section class="letter-sec" aria-labelledby="letter-${k === '#' ? 'hash' : k}">`
         + `<h2 class="letter" id="letter-${k === '#' ? 'hash' : k}">${k}</h2><ul class="rows" role="list">${items.map(rowHtml).join('')}</ul></section>`).join(''));
     $('rows').innerHTML = html;
@@ -57,7 +58,7 @@
     $('rows').hidden = !draft && (!total || !n);
     $('empty').hidden = !!total || draft;
     $('noMatch').hidden = !total || !!n;
-    $('noMatch').textContent = S.group && !S.query.trim() ? `No contacts in ${titleOf(S.group)} yet.` : 'No contact matches that search.';
+    $('noMatch').textContent = S.group && !S.query.trim() ? tr('contacts.list.none_in', { name: titleOf(S.group) }) : tr('contacts.list.no_match');
   }
 
   function mount() {

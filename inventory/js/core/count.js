@@ -7,6 +7,7 @@
   const NS = (g.SlopInv = g.SlopInv || {});
   const { ok, fail } = S.result;
   let session = null; // { location, startedAt, tallies: Map<productId, counted> }
+  const t = (k) => (g.SlopI18n ? g.SlopI18n.t(k) : k);
 
   const isOpen = () => !!session;
 
@@ -26,9 +27,9 @@
   /** Adds qty to a product's counted total (a scan in Count mode). Never below zero. A total that reaches zero
    *  leaves the count, so an undone scan can never post a zero count for a product nobody counted. */
   function add(productId, qty = 1) {
-    if (!session) return fail('invalid', 'no count is open');
+    if (!session) return fail('invalid', t('inventory.ct.e_none'));
     const next = (session.tallies.get(productId) || 0) + qty;
-    if (!Number.isSafeInteger(next) || next < 0) return fail('invalid', 'the counted quantity cannot go below zero');
+    if (!Number.isSafeInteger(next) || next < 0) return fail('invalid', t('inventory.ct.e_below'));
     if (next === 0) session.tallies.delete(productId);
     else session.tallies.set(productId, next);
     return ok(next);
@@ -36,15 +37,15 @@
 
   /** Sets a product's counted total exactly (a typed count). Zero is a real count. */
   function set(productId, counted) {
-    if (!session) return fail('invalid', 'no count is open');
-    if (!Number.isSafeInteger(counted) || counted < 0) return fail('invalid', 'the counted quantity must be a whole number, zero or more');
+    if (!session) return fail('invalid', t('inventory.ct.e_none'));
+    if (!Number.isSafeInteger(counted) || counted < 0) return fail('invalid', t('inventory.ct.e_whole'));
     session.tallies.set(productId, counted);
     return ok(counted);
   }
 
   /** Takes a product out of the count without changing stock. */
   function remove(productId) {
-    if (!session) return fail('invalid', 'no count is open');
+    if (!session) return fail('invalid', t('inventory.ct.e_none'));
     session.tallies.delete(productId);
     return ok(true);
   }
@@ -57,7 +58,7 @@
 
   /** Lines for the review: expected (book, from the movements now), counted, and the difference. */
   async function review() {
-    if (!session) return fail('invalid', 'no count is open');
+    if (!session) return fail('invalid', t('inventory.ct.e_none'));
     const rows = [];
     for (const [productId, counted] of session.tallies) {
       const p = await S.store.get('products', productId);
@@ -73,7 +74,7 @@
 
   /** Posts every counted product in one transaction. The session closes only when posting succeeds. */
   async function post(notes) {
-    if (!session) return fail('invalid', 'no count is open');
+    if (!session) return fail('invalid', t('inventory.ct.e_none'));
     const counts = [...session.tallies].map(([productId, counted]) => ({ productId, counted }));
     const r = await S.stock.postCount({ location: session.location, counts, notes: notes || undefined });
     if (r.ok) session = null;

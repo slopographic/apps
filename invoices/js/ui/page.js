@@ -4,7 +4,7 @@
   'use strict';
   const NS = (g.SlopInvoices = g.SlopInvoices || {});
   NS.page = g.SlopDocs.docPage.create({
-    ns: NS, kind: 'invoice', title: 'Invoice', statusLabel: NS.util.STATUS,
+    ns: NS, kind: 'invoice', title: 'Invoice', statusLabel: NS.util.STATUS,   // i18n-ignore: the printed document's words stay as written
     editable: (st) => st.status === 'draft',
     pdf: async (id) => { const c = await NS.context.load(id); return c.ok ? NS.pdf.invoicePdf(c.value) : c; },
     view: (st) => ({

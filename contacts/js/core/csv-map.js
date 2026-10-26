@@ -10,9 +10,9 @@
 
   /** The fields a column can go to, in the order the dialog lists them. */
   const TARGETS = [
-    ['ignore', 'Do not import'], ['name', 'Full name'], ['given', 'First name'], ['family', 'Last name'],
-    ['org', 'Company'], ['title', 'Job title'], ['email', 'E-mail'], ['phone', 'Phone'], ['address', 'Address'],
-    ['note', 'Notes'], ['groups', 'Groups'], ['bday', 'Birthday'], ['url', 'Website'],
+    ['ignore', 'Do not import'], ['name', 'Full name'], ['given', 'First name'], ['family', 'Last name'],   // i18n-ignore: CSV and vCard column names (file formats)
+    ['org', 'Company'], ['title', 'Job title'], ['email', 'E-mail'], ['phone', 'Phone'], ['address', 'Address'],   // i18n-ignore: CSV and vCard column names (file formats)
+    ['note', 'Notes'], ['groups', 'Groups'], ['bday', 'Birthday'], ['url', 'Website'],   // i18n-ignore: CSV and vCard column names (file formats)
   ];
   const norm = (h) => String(h || '').replace(/^﻿/, '').trim().toLowerCase().replace(/\s+/g, ' ');
 

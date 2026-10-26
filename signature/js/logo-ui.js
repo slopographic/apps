@@ -7,6 +7,7 @@
   'use strict';
   const NS = (g.SlopSignature = g.SlopSignature || {});
   const UI = g.SlopUI, el = UI.el, L = NS.logo;
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
   const ui = {};
   let seed = '1', touched = false;
 
@@ -18,7 +19,7 @@
   function draw() {
     if (!ui.preview) return;
     ui.preview.innerHTML = L.svg(options());   // logo.js escapes the text
-    ui.seed.textContent = `Look ${seed}`;
+    ui.seed.textContent = t('signature.logo.seed', { seed: String(seed) });
   }
   /** The company's initials (or its name for a wordmark), until the person types their own. */
   function suggest() {
@@ -42,7 +43,7 @@
     const s = Object.assign({}, NS.app.state, { image: png });
     if (o.kind === 'wordmark') s.imageSize = Math.max(Number(s.imageSize) || 0, 140);
     NS.form.fill(s); NS.app.render();
-    NS.app.say('The logo is kept inside the signature. For Gmail, put the PNG on your website (Download logo) and paste its web address in the picture field.');
+    NS.app.say(t('signature.logo.kept'));
     return { seed, text: o.text, kind: o.kind, shape: o.shape };
   }
   async function download() {
@@ -54,25 +55,25 @@
   }
 
   function mount(host) {
-    if (!host || ui.box) return;
+    if (!host || (ui.box && host.contains(ui.box))) return;   // again after a language change: the form was drawn anew
     ui.text = el('input', { id: 'sgLogoText', class: 'sui-input', maxlength: 24, autocomplete: 'off', placeholder: 'NW', oninput: () => { touched = true; draw(); } });
-    ui.kind = UI.select([['monogram', 'Initials'], ['wordmark', 'Name']], 'monogram');
+    ui.kind = UI.select([['monogram', t('signature.logo.initials')], ['wordmark', t('signature.logo.name')]], 'monogram');
     ui.kind.id = 'sgLogoKind'; ui.kind.addEventListener('change', () => { touched = false; suggest(); draw(); });
-    ui.shape = UI.select(L.SHAPES, 'circle');
+    ui.shape = UI.select(L.SHAPES.map(([id]) => [id, t('signature.shape.' + id)]), 'circle');
     ui.shape.id = 'sgLogoShape'; ui.shape.addEventListener('change', draw);
-    ui.preview = el('div', { class: 'sg-logo-preview', id: 'sgLogoPreview', role: 'img', 'aria-label': 'Logo preview' });
+    ui.preview = el('div', { class: 'sg-logo-preview', id: 'sgLogoPreview', role: 'img', 'aria-label': t('signature.logo.preview') });
     ui.seed = el('span', { class: 'sg-note', id: 'sgLogoSeed' });
-    const another = el('button', { type: 'button', class: 'sui-btn', id: 'sgLogoAgain', onclick: () => { seed = g.SlopSample.newSeed(); draw(); } }, 'Another look');
-    const useBtn = el('button', { type: 'button', class: 'sui-btn sui-primary', id: 'sgLogoUse', onclick: () => use().catch((e) => NS.app.say(e.message)) }, 'Use this logo');
-    const dl = el('button', { type: 'button', class: 'sui-btn', id: 'sgLogoDownload', onclick: () => download().catch((e) => NS.app.say(e.message)) }, 'Download logo');
-    ui.box = el('details', { class: 'sg-logo', id: 'sgLogo' }, el('summary', null, 'Make a logo'),
-      el('div', { class: 'sg-row' }, UI.field('Letters or name', ui.text), UI.field('Kind', ui.kind), UI.field('Shape', ui.shape)),
+    const another = el('button', { type: 'button', class: 'sui-btn', id: 'sgLogoAgain', onclick: () => { seed = g.SlopSample.newSeed(); draw(); } }, t('signature.logo.again'));
+    const useBtn = el('button', { type: 'button', class: 'sui-btn sui-primary', id: 'sgLogoUse', onclick: () => use().catch((e) => NS.app.say(e.message)) }, t('signature.logo.use'));
+    const dl = el('button', { type: 'button', class: 'sui-btn', id: 'sgLogoDownload', onclick: () => download().catch((e) => NS.app.say(e.message)) }, t('signature.logo.download'));
+    ui.box = el('details', { class: 'sg-logo', id: 'sgLogo' }, el('summary', null, t('signature.logo.make')),
+    el('div', { class: 'sg-row' }, UI.field(t('signature.logo.letters'), ui.text), UI.field(t('signature.logo.kind'), ui.kind), UI.field(t('signature.logo.shape'), ui.shape)),
       el('div', { class: 'sg-logo-row' }, ui.preview, el('div', { class: 'sg-logo-acts' }, another, ui.seed)),
       el('div', { class: 'sg-row' }, useBtn, dl));
     ui.box.addEventListener('toggle', () => { if (ui.box.open) { suggest(); draw(); } });
     host.append(ui.box);
-    seed = g.SlopSample.newSeed();
-  }
+    if (!seed || seed === '1') seed = g.SlopSample.newSeed();
+    }
 
   NS.logoUI = { mount, use, options, draw };
 })(typeof window !== 'undefined' ? window : globalThis);

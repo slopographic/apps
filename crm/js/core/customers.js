@@ -21,7 +21,7 @@
     if (!id) return S.store.put('customers', { stage: 'lead', ...changes });
     const cur = await S.store.get('customers', id);
     if (!cur.ok) return cur;
-    if (!cur.value) return fail('not_found', 'That customer no longer exists.');
+    if (!cur.value) return fail('not_found', g.SlopI18n ? g.SlopI18n.t('crm.core.gone') : 'crm.core.gone');
     return S.store.put('customers', { ...cur.value, ...changes });
   }
 
@@ -37,9 +37,9 @@
   /** Adds a dated note to the end of the customer's notes. */
   async function addNote(id, text, date) {
     const cur = await get(id);
-    if (!cur.ok || !cur.value) return cur.ok ? fail('not_found', 'That customer no longer exists.') : cur;
+    if (!cur.ok || !cur.value) return cur.ok ? fail('not_found', g.SlopI18n ? g.SlopI18n.t('crm.core.gone') : 'crm.core.gone') : cur;
     const next = NS.notes.append(cur.value.notes, date, text);
-    if (next === (cur.value.notes || '')) return fail('invalid', 'Write the note first.');
+    if (next === (cur.value.notes || '')) return fail('invalid', g.SlopI18n ? g.SlopI18n.t('crm.core.write_note') : 'crm.core.write_note');
     return save(id, { notes: next });
   }
 

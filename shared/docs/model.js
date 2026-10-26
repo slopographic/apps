@@ -49,11 +49,12 @@
   /** Plain-words problems with one line (empty when it is fine). Mirrors the schema's rules for a line. */
   function lineErrors(l) {
     const e = [];
-    if (!l.description) e.push('needs a description');
-    if (!Number.isSafeInteger(l.qty) || l.qty < 1) e.push('quantity must be a whole number, 1 or more');
-    if (!Number.isSafeInteger(l.unitPrice) || l.unitPrice < 0) e.push('unit price must be an amount, zero or more');
-    if (!Number.isSafeInteger(l.taxRate) || l.taxRate < 0 || l.taxRate > 10000) e.push('tax rate must be 0 to 100%');
-    if (!Number.isSafeInteger(l.discount ?? 0) || (l.discount ?? 0) < 0 || (l.discount ?? 0) > 10000) e.push('discount must be 0 to 100%');
+    const t = (k) => (g.SlopI18n ? g.SlopI18n.t(k) : k);
+    if (!l.description) e.push(t('biz.ln.e_desc'));
+    if (!Number.isSafeInteger(l.qty) || l.qty < 1) e.push(t('biz.ln.e_qty'));
+    if (!Number.isSafeInteger(l.unitPrice) || l.unitPrice < 0) e.push(t('biz.ln.e_price'));
+    if (!Number.isSafeInteger(l.taxRate) || l.taxRate < 0 || l.taxRate > 10000) e.push(t('biz.ln.e_tax'));
+    if (!Number.isSafeInteger(l.discount ?? 0) || (l.discount ?? 0) < 0 || (l.discount ?? 0) > 10000) e.push(t('biz.ln.e_disc'));
     return e;
   }
 
@@ -72,7 +73,7 @@
   /** ISO date plus n days (UTC arithmetic, so the day never shifts). */
   const addDays = (iso, n) => S.ledger.addDays(iso, n);
 
-  const STATUS_LABEL = { draft: 'Draft', open: 'Confirmed', fulfilled: 'Fulfilled', cancelled: 'Cancelled' };
+  const STATUS_LABEL = { draft: 'Draft', open: 'Confirmed', fulfilled: 'Fulfilled', cancelled: 'Cancelled' };   // i18n-ignore: status words printed on the document (the PDF and the paper)
 
   NS.model = { bpFromPercent, percentText, amountFromText, amountText, newLine, cleanLine, lineErrors, totals, lineTotal, addDays, STATUS_LABEL };
 })(typeof window !== 'undefined' ? window : globalThis);

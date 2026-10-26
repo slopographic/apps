@@ -6,6 +6,7 @@
   const S = g.SlopData;
   const NS = (g.SlopLedger = g.SlopLedger || {});
   const U = NS.util;
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
 
   /** Pure: turns typed rows into journal lines. rows: [{ account, debit, credit }] as text. Returns a Result. */
   function buildEntry(input, knownCodes) {
@@ -13,27 +14,27 @@
     const date = String(input.date || '').trim();
     const memo = String(input.memo || '').trim();
     const cur = String(input.currency || '').trim().toUpperCase();
-    if (!U.isDate(date)) errors.push('Pick a real date (the day of the entry).');
-    if (!S.locale.isCurrency(cur)) errors.push('Currency must be a three-letter code, such as USD.');
+    if (!U.isDate(date)) errors.push(t('ledger.j.e_date'));
+    if (!S.locale.isCurrency(cur)) errors.push(t('ledger.j.e_cur'));
     const rows = (input.rows || []).filter((r) => (r.account || '').trim() || (r.debit || '').trim() || (r.credit || '').trim());
-    if (rows.length < 2) errors.push('An entry needs at least two lines.');
+    if (rows.length < 2) errors.push(t('ledger.j.e_two'));
     const lines = [];
     rows.forEach((r, i) => {
       const n = i + 1, acct = String(r.account || '').trim();
       const d = String(r.debit || '').trim(), c = String(r.credit || '').trim();
-      if (!acct) { errors.push(`Line ${n}: choose an account.`); return; }
-      if (knownCodes && !knownCodes.includes(acct)) { errors.push(`Line ${n}: account ${acct} does not exist.`); return; }
-      if ((d && c) || (!d && !c)) { errors.push(`Line ${n}: enter an amount on the debit or the credit side, not both.`); return; }
+      if (!acct) { errors.push(t('ledger.j.e_acct', { n })); return; }
+      if (knownCodes && !knownCodes.includes(acct)) { errors.push(t('ledger.j.e_no_acct', { n, code: acct })); return; }
+      if ((d && c) || (!d && !c)) { errors.push(t('ledger.j.e_side', { n })); return; }
       const side = d ? 'debit' : 'credit';
       const minor = S.money.parseMinor(d || c, cur || 'USD');
-      if (minor === null || minor <= 0) { errors.push(`Line ${n}: the amount must be a positive number with at most ${S.money.digits(cur || 'USD')} decimals.`); return; }
+      if (minor === null || minor <= 0) { errors.push(t('ledger.j.e_amount', { n, d: S.money.digits(cur || 'USD') })); return; }
       lines.push({ account: acct, debit: side === 'debit' ? minor : 0, credit: side === 'credit' ? minor : 0 });
     });
     if (errors.length) return { ok: false, message: errors[0], errors };
     const dr = lines.reduce((s, l) => s + l.debit, 0), cr = lines.reduce((s, l) => s + l.credit, 0);
     if (dr !== cr) {
       const f = (m) => U.money(m, cur, 'en-US');
-      return { ok: false, message: `Debits (${f(dr)}) and credits (${f(cr)}) do not balance. The difference is ${f(Math.abs(dr - cr))}. Nothing was posted.`, errors: [] };
+      return { ok: false, message: t('ledger.j.e_balance', { dr: f(dr), cr: f(cr), diff: f(Math.abs(dr - cr)) }), errors: [] };
     }
     return { ok: true, value: { date, memo: memo || undefined, currency: cur, lines } };
   }

@@ -8,6 +8,7 @@
   const UI = g.SlopUI;
   const $ = (id) => document.getElementById(id);
   let rows = [];
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
 
   const COMPARE = {
     name: (a, b) => a.name.localeCompare(b.name),
@@ -19,7 +20,7 @@
   function rowEl(r) {
     return U.h('div', { class: 'row' + (r.low ? ' is-low' : ''), role: 'row', tabindex: 0, dataset: { id: r.id } },
       U.h('span', { role: 'cell', class: 'c-name' }, U.h('b', { class: 'mono', text: r.sku }), U.h('span', { class: 'sub', text: r.name }),
-        r.onOrder ? U.h('span', { class: 'chip ordered', text: `${r.onOrder} on order` }) : null));
+        r.onOrder ? U.h('span', { class: 'chip ordered', text: t('inventory.pr.on_order', { n: r.onOrder }) }) : null));   // i18n-ignore: CSS class names
   }
 
   /** Redraws the rows from the last read, applying the search, filter and sort. */
@@ -33,8 +34,8 @@
       .sort(COMPARE[$('pSort').value] || COMPARE.name);
     $('pRows').replaceChildren(...list.map((r) => rowEl(r)));
     $('pEmpty').hidden = list.length > 0;
-    const t = NS.rows.totalsOf(rows);
-    $('pSummary').textContent = `${U.plural(t.products, 'product')} · ${t.low} at or below reorder level · stock value ${U.money(t.value, st.currency, st.locale)} · showing ${list.length}`;
+    const tot = NS.rows.totalsOf(rows);
+    $('pSummary').textContent = t('inventory.pr.summary', { products: t('inventory.pr.products', { n: tot.products }), low: tot.low, value: U.money(tot.value, st.currency, st.locale), shown: list.length });
   }
 
   async function refresh() {
@@ -46,7 +47,7 @@
 
   async function openEdit(id) {
     const r = await S.store.get('products', id);
-    if (!r.ok || !r.value) { if (UI) UI.toast(r.ok ? 'That product no longer exists' : U.refusal(r)); return; }
+    if (!r.ok || !r.value) { if (UI) UI.toast(r.ok ? t('inventory.pr.gone') : U.refusal(r)); return; }
     NS.productForm.open({ product: r.value, onSaved: () => NS.app.refresh() });
   }
 
@@ -54,11 +55,11 @@
     const r = await S.store.get('products', id);
     if (!r.ok || !r.value) return;
     const name = r.value.name;
-    const yes = await UI.confirm('Delete product', `Delete ${name}? This cannot be undone.`, 'Delete', { danger: true });
+    const yes = await UI.confirm(t('inventory.pr.del_q'), t('inventory.pr.del_body', { name }), t('inventory.pr.delete'), { danger: true });
     if (!yes) return;
     const d = await NS.products.remove(id);
-    if (!d.ok) { UI.alert('Not deleted', `${name} cannot be deleted: ${d.message}.`); return; }
-    UI.toast(`Deleted ${name}`);
+    if (!d.ok) { UI.alert(t('inventory.pr.not_deleted'), t('inventory.pr.cannot', { name, why: d.message })); return; }
+    UI.toast(t('inventory.pr.deleted', { name }));
     NS.app.refresh();
   }
 
@@ -81,11 +82,11 @@
         if (!row) return null;
         const id = row.dataset.id;
         return [
-          { label: 'Edit product', act: () => openEdit(id) },
-          { label: 'Show movements', act: () => NS.app.show('stock', id) },
-          { label: 'Reorder… (a purchase order)', act: () => { location.href = `../purchases/#reorder/${id}`; } },
+          { label: t('inventory.pr.edit'), act: () => openEdit(id) },
+          { label: t('inventory.pr.moves'), act: () => NS.app.show('stock', id) },
+          { label: t('inventory.pr.reorder'), act: () => { location.href = `../purchases/#reorder/${id}`; } },
           '-',
-          { label: 'Delete product', act: () => remove(id) },
+          { label: t('inventory.pr.del_q'), act: () => remove(id) },
         ];
       });
     }

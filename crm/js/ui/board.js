@@ -5,11 +5,12 @@
   const NS = (g.SlopCrm = g.SlopCrm || {});
   const UI = g.SlopUI;
   const el = UI.el;
+  const tr = (k, v) => NS.tr(k, v);   // the string tables (crm/i18n)
   let root = null;
 
   function card(c, cur) {
     const meta = [c.email, c.phone].filter(Boolean).join(' · ');
-    const follow = c.followUp ? el('span', { class: 'c-follow' }, `Follow up ${NS.util.date(c.followUp, cur.locale)}`) : null;
+    const follow = c.followUp ? el('span', { class: 'c-follow' }, tr('crm.bd.follow', { date: NS.util.date(c.followUp, cur.locale) })) : null;
     return el('div', { class: 'card-c', role: 'listitem', draggable: 'true', tabindex: '0', 'data-id': c.id, 'data-stage': c.stage,
       'aria-label': `${c.name}, ${NS.stageLabel(c.stage)}` ,
       ondragstart: (e) => { e.dataTransfer.setData('text/plain', c.id); e.dataTransfer.effectAllowed = 'move'; },
@@ -18,18 +19,18 @@
       meta ? el('span', { class: 'c-meta' }, meta) : null,
       c.categories && c.categories.length ? el('span', { class: 'chips' }, c.categories.map((t) => el('span', { class: 'chip' }, t))) : null,
       follow,
-      el('button', { type: 'button', class: 'c-move', 'aria-label': `Move ${c.name}`, title: 'Move to another stage',
-        onclick: (e) => { const r = e.currentTarget.getBoundingClientRect(); UI.menu(NS.menu.items(c), r.left, r.bottom + 4); } }, 'Move ▾'));
+      el('button', { type: 'button', class: 'c-move', 'aria-label': tr('crm.bd.move_aria', { name: c.name }), title: tr('crm.bd.move_tip'),
+      onclick: (e) => { const r = e.currentTarget.getBoundingClientRect(); UI.menu(NS.menu.items(c), r.left, r.bottom + 4); } }, tr('crm.bd.move')));
   }
 
   function column(stage, list, cur) {
     const drop = (e) => { e.preventDefault(); e.currentTarget.classList.remove('over'); const id = e.dataTransfer.getData('text/plain'); if (id) NS.menu.moveTo(id, stage); };
-    return el('section', { class: 'col', 'data-stage': stage, 'aria-label': `${NS.stageLabel(stage)} column`,
+    return el('section', { class: 'col', 'data-stage': stage, 'aria-label': tr('crm.bd.column', { stage: NS.stageLabel(stage) }),
       ondragover: (e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; e.currentTarget.classList.add('over'); },
       ondragleave: (e) => { if (!e.currentTarget.contains(e.relatedTarget)) e.currentTarget.classList.remove('over'); },
       ondrop: drop },
       el('h3', { class: 'col-h' }, NS.stageLabel(stage), el('span', { class: 'count' }, String(list.length))),
-      el('div', { class: 'col-body', role: 'list' }, list.length ? list.map((c) => card(c, cur)) : el('p', { class: 'empty-col' }, 'No customers here.')));
+      el('div', { class: 'col-body', role: 'list' }, list.length ? list.map((c) => card(c, cur)) : el('p', { class: 'empty-col' }, tr('crm.bd.empty'))));
   }
 
   async function render() {

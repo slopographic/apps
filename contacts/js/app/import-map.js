@@ -19,21 +19,22 @@
     return new Promise((resolve) => {
       const { headers, rows } = parsed;
       if (!headers.length || !rows.length) { resolve([]); return; }
-      const selects = headers.map((h) => el('select', { class: 'sui-input', 'aria-label': `Import column “${h || 'untitled'}” as` },
-        SC.csvMap.TARGETS.map(([v, label]) => el('option', { value: v, selected: v === SC.csvMap.guessOne(h) }, label))));
+      const tr = (k, v) => SC.tr(k, v);
+      const selects = headers.map((h) => el('select', { class: 'sui-input', 'aria-label': tr('contacts.map.import_as', { name: h || tr('contacts.map.untitled') }) },
+        SC.csvMap.TARGETS.map(([v]) => el('option', { value: v, selected: v === SC.csvMap.guessOne(h) }, tr('contacts.tgt.' + v)))));
       const table = el('table', { class: 'imp-map' },
-        el('thead', null, el('tr', null, el('th', { scope: 'col' }, 'Column'), el('th', { scope: 'col' }, 'Example'), el('th', { scope: 'col' }, 'Import as'))),
+        el('thead', null, el('tr', null, el('th', { scope: 'col' }, tr('contacts.map.column')), el('th', { scope: 'col' }, tr('contacts.map.example')), el('th', { scope: 'col' }, tr('contacts.map.as')))),
         el('tbody', null, headers.map((h, i) => el('tr', null,
-          el('td', null, h || `Column ${i + 1}`), el('td', { class: 'imp-ex' }, example(rows, i)), el('td', null, selects[i])))));
+          el('td', null, h || tr('contacts.map.col_n', { n: String(i + 1) })), el('td', { class: 'imp-ex' }, example(rows, i)), el('td', null, selects[i])))));
       const body = el('div', null,
-        el('p', { class: 'sui-p' }, `${rows.length} row${rows.length === 1 ? '' : 's'} in ${name}. Check where each column goes. Columns set to “Do not import” are skipped.`),
+        el('p', { class: 'sui-p' }, tr('contacts.map.rows', { n: rows.length, name })),
         el('div', { class: 'imp-wrap' }, table));
       let out = null;
-      UI.dialog({ title: 'Map the columns', body, cls: 'imp-dlg', buttons: [{ label: 'Cancel' }, { label: 'Next', primary: true, act: () => {
+      UI.dialog({ title: tr('contacts.map.title'), body, cls: 'imp-dlg', buttons: [{ label: tr('menu.cancel') }, { label: tr('contacts.map.next'), primary: true, act: () => {
         const targets = selects.map((s) => s.value);
-        if (!targets.some((t) => t !== 'ignore')) { UI.toast('Choose a field for at least one column.'); return false; }
+        if (!targets.some((x) => x !== 'ignore')) { UI.toast(tr('contacts.map.need_one')); return false; }
         const contacts = SC.csvMap.contactsFrom(rows, targets);
-        if (!contacts.length) { UI.toast('No row has a name, e-mail, phone or company in those columns.'); return false; }
+        if (!contacts.length) { UI.toast(tr('contacts.map.no_rows')); return false; }
         out = contacts;
         return undefined;
       } }], onClose: (ok) => resolve(ok ? out : null) });

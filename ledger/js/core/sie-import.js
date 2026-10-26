@@ -33,7 +33,7 @@
     const out = [];
     const typeAt = (code) => (here.get(code) || {}).type || (inFile.get(code) || {}).type;
     for (const a of model.accounts) {
-      const row = { sie: a.number, name: a.name || `Account ${a.number}`, type: TYPE_WORD[a.type] || 'expense' };
+      const row = { sie: a.number, name: a.name || `Account ${a.number}`, type: TYPE_WORD[a.type] || 'expense' };   // i18n-ignore: the SIE plan's words: compared as names and stored in memos; shown through say() in ui/sie.js
       const forced = mapping[a.number];
       if (forced && /^\d{4}$/.test(forced)) {
         const h = here.get(forced);
@@ -93,20 +93,20 @@
       const lines = [...merged].filter(([, v]) => v).map(([account, v]) => ({ account, debit: v > 0 ? v : 0, credit: v < 0 ? -v : 0 }));
       const source = `sie:${key}:ib`;
       const off = balanced(lines);
-      if (sources.has(source)) skipped.push({ what: 'Opening balances', why: 'already imported' });
-      else if (!date) skipped.push({ what: 'Opening balances', why: 'the file gives no date for the start of the year' });
-      else if (off) skipped.push({ what: 'Opening balances', why: `they do not balance (off by ${(off / 10 ** digits).toFixed(digits)})` });
-      else if (lines.length < 2) skipped.push({ what: 'Opening balances', why: 'they come to nothing on the accounts here (sub-accounts joined to their parent cancel out)' });
-      else entries.push({ what: 'Opening balances', input: { date, memo: `Opening balances (SIE, ${model.company || 'imported file'})`.slice(0, 300), currency: model.currency, source, lines } });
+      if (sources.has(source)) skipped.push({ what: 'Opening balances', why: 'already imported' });   // i18n-ignore: the SIE plan's words: compared as names and stored in memos; shown through say() in ui/sie.js
+      else if (!date) skipped.push({ what: 'Opening balances', why: 'the file gives no date for the start of the year' });   // i18n-ignore: the SIE plan's words: compared as names and stored in memos; shown through say() in ui/sie.js
+      else if (off) skipped.push({ what: 'Opening balances', why: `they do not balance (off by ${(off / 10 ** digits).toFixed(digits)})` });   // i18n-ignore: the SIE plan's words: compared as names and stored in memos; shown through say() in ui/sie.js
+      else if (lines.length < 2) skipped.push({ what: 'Opening balances', why: 'they come to nothing on the accounts here (sub-accounts joined to their parent cancel out)' });   // i18n-ignore: the SIE plan's words: compared as names and stored in memos; shown through say() in ui/sie.js
+      else entries.push({ what: 'Opening balances', input: { date, memo: `Opening balances (SIE, ${model.company || 'imported file'})`.slice(0, 300), currency: model.currency, source, lines } });   // i18n-ignore: the SIE plan's words: compared as names and stored in memos; shown through say() in ui/sie.js
     }
     model.vouchers.forEach((v, i) => {
-      const what = `Voucher ${`${v.series}${v.number}`.trim() || `#${i + 1}`}${v.date ? ` (${v.date})` : ''}`;
+      const what = `Voucher ${`${v.series}${v.number}`.trim() || `#${i + 1}`}${v.date ? ` (${v.date})` : ''}`;   // i18n-ignore: the SIE plan's words: compared as names and stored in memos; shown through say() in ui/sie.js
       const source = `sie:${key}:${v.series || '-'}:${v.number || `#${i + 1}`}`.slice(0, 200);
       const lines = v.lines.filter((l) => minor(l.amount, digits) > 0).map((l) => lineOf(l.account, l.amount));
-      if (sources.has(source)) { skipped.push({ what, why: 'already imported' }); return; }
-      if (!v.date) { skipped.push({ what, why: 'it has no date' }); return; }
-      if (lines.length < 2) { skipped.push({ what, why: 'it has fewer than two lines with an amount' }); return; }
-      if (lines.some((l) => bad.some((a) => a.code === l.account))) { skipped.push({ what, why: 'one of its accounts has no free code here' }); return; }
+      if (sources.has(source)) { skipped.push({ what, why: 'already imported' }); return; }   // i18n-ignore: the SIE plan's words: compared as names and stored in memos; shown through say() in ui/sie.js
+      if (!v.date) { skipped.push({ what, why: 'it has no date' }); return; }   // i18n-ignore: the SIE plan's words: compared as names and stored in memos; shown through say() in ui/sie.js
+      if (lines.length < 2) { skipped.push({ what, why: 'it has fewer than two lines with an amount' }); return; }   // i18n-ignore: the SIE plan's words: compared as names and stored in memos; shown through say() in ui/sie.js
+      if (lines.some((l) => bad.some((a) => a.code === l.account))) { skipped.push({ what, why: 'one of its accounts has no free code here' }); return; }   // i18n-ignore: the SIE plan's words: compared as names and stored in memos; shown through say() in ui/sie.js
       const off = balanced(lines);
       if (off) { skipped.push({ what, why: `it does not balance (off by ${(off / 10 ** digits).toFixed(digits)})` }); return; }
       const memo = [`${v.series}${v.number}`.trim(), v.text].filter(Boolean).join(' ').slice(0, 300);

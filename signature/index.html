@@ -25,6 +25,9 @@
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="signature" data-src="shared/theme/theme.js"></script>
   <link rel="expect" href="#slop-built" blocking="render">
+  <script src="../shared/i18n/i18n.js" data-src="shared/i18n/i18n.js"></script>
+  <script src="../shared/biz/i18n/index.js" data-src="shared/biz/i18n/index.js"></script>
+  <script src="i18n/index.js" data-src="signature/i18n/index.js"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" href="../favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../shared/slopui.css">
@@ -34,60 +37,60 @@
 </head>
 <body>
   <div class="smb-hold" hidden>
-    <span class="local-badge" title="Your details stay in this browser. Nothing is uploaded."><span>100% local</span></span>
+    <span class="local-badge" title="Your details stay in this browser. Nothing is uploaded." data-i18n-attr="title:signature.app.local_tip"><span data-i18n="biz.app.local">100% local</span></span>
   </div>
   <!-- View · Panel (shared/frame): the signature in an email, and the form with Copy signature at the panel's foot on the right -->
   <div class="sg-app" id="sgApp">
-    <main class="sg-right" id="sgView" aria-label="Preview and copy">
+    <main class="sg-right" id="sgView" aria-label="Preview and copy" data-i18n-attr="aria-label:signature.app.view">
       <section class="sg-intro">
-        <h1>Email signature generator</h1>
-        <p class="sg-lede">Type your details, pick a template and see the signature in an email as you go. Then copy it into Gmail, Outlook or Apple Mail.</p>
+        <h1 data-i18n="signature.app.h1">Email signature generator</h1>
+        <p class="sg-lede" data-i18n="signature.app.lede">Type your details, pick a template and see the signature in an email as you go. Then copy it into Gmail, Outlook or Apple Mail.</p>
       </section>
-        <div class="sg-copynow" id="sgCopyNow" role="alert" hidden><span id="sgCopyNowText"></span> <button type="button" class="sui-btn sui-primary" id="sgCopyNowBtn">Copy now</button></div>
-        <div class="sg-mail" aria-label="The signature in an email">
-          <div class="sg-mail-head"><span><b>To</b> sam@client.example</span><span><b>Subject</b> Thanks for today</span></div>
+        <div class="sg-copynow" id="sgCopyNow" role="alert" hidden><span id="sgCopyNowText"></span> <button type="button" class="sui-btn sui-primary" id="sgCopyNowBtn" data-i18n="signature.app.copy_now">Copy now</button></div>
+        <div class="sg-mail" aria-label="The signature in an email" data-i18n-attr="aria-label:signature.app.mail_aria">
+        <div class="sg-mail-head"><span><b data-i18n="signature.app.mail_to">To</b> sam@client.example</span><!-- i18n-ignore --><span><b data-i18n="signature.app.mail_subject">Subject</b> <span data-i18n="signature.app.mail_subject_v">Thanks for today</span></span></div>
           <div class="sg-mail-body">
-            <p>Hi Sam,</p>
-            <p>Thanks for your time today. The quote is attached; let me know if anything needs changing.</p>
-            <p>Best regards,</p>
+            <p data-i18n="signature.app.mail_hi">Hi Sam,</p>
+            <p data-i18n="signature.app.mail_body">Thanks for your time today. The quote is attached; let me know if anything needs changing.</p>
+            <p data-i18n="signature.app.mail_regards">Best regards,</p>
             <div id="sgSig" class="sg-sig"></div>
-            <p id="sgEmpty" class="sg-empty" hidden>Your signature appears here: type a name, a company, an email or a phone number.</p>
+            <p id="sgEmpty" class="sg-empty" hidden data-i18n="signature.app.empty">Your signature appears here: type a name, a company, an email or a phone number.</p>
           </div>
         </div>
-        <ul id="sgProblems" class="sg-problems" hidden aria-label="To check"></ul>
+        <ul id="sgProblems" class="sg-problems" hidden aria-label="To check" data-i18n-attr="aria-label:signature.app.problems"></ul>
         <p id="sgMsg" class="sg-note" role="status" aria-live="polite"></p>
-        <section class="sg-how" aria-label="How to add it">
-          <h2>Add it to your mail</h2>
-          <details data-mail="gmail" open><summary>Gmail</summary><ol><li>Copy signature here.</li><li>In Gmail: Settings (the gear) › See all settings › General › Signature › Create new.</li><li>Paste into the box, then Save changes at the bottom.</li></ol></details>
-          <details data-mail="outlook"><summary>Outlook (Windows and Mac)</summary><ol><li>Copy signature here.</li><li>In Outlook: File › Options › Mail › Signatures (Mac: Outlook › Settings › Signatures), then New.</li><li>Paste into the box and Save. Choose it for new messages and replies.</li></ol></details>
-          <details data-mail="outlook-web"><summary>Outlook on the web</summary><ol><li>Copy signature here.</li><li>Settings (the gear) › Account › Signatures › New signature.</li><li>Paste, name it and Save.</li></ol></details>
-          <details data-mail="apple"><summary>Apple Mail</summary><ol><li>Copy signature here.</li><li>Mail › Settings › Signatures, choose the account, then +.</li><li>Untick "Always match my default message font", then paste.</li></ol></details>
-          <p class="sg-note">Pictures show only from a web address that anyone can open (your website, say). Social links are words, not icons, so every mail program shows them.</p>
+        <section class="sg-how" aria-label="How to add it" data-i18n-attr="aria-label:signature.app.how_aria">
+        <h2 data-i18n="signature.app.how_h">Add it to your mail</h2>
+        <details data-mail="gmail" open><summary>Gmail</summary><ol><li data-i18n="signature.app.step_copy">Copy signature here.</li><li data-i18n="signature.app.gmail_2">In Gmail: Settings (the gear) › See all settings › General › Signature › Create new.</li><li data-i18n="signature.app.gmail_3">Paste into the box, then Save changes at the bottom.</li></ol></details> <!-- i18n-ignore -->
+        <details data-mail="outlook"><summary data-i18n="signature.app.outlook">Outlook (Windows and Mac)</summary><ol><li data-i18n="signature.app.step_copy">Copy signature here.</li><li data-i18n="signature.app.outlook_2">In Outlook: File › Options › Mail › Signatures (Mac: Outlook › Settings › Signatures), then New.</li><li data-i18n="signature.app.outlook_3">Paste into the box and Save. Choose it for new messages and replies.</li></ol></details>
+        <details data-mail="outlook-web"><summary data-i18n="signature.app.outlook_web">Outlook on the web</summary><ol><li data-i18n="signature.app.step_copy">Copy signature here.</li><li data-i18n="signature.app.web_2">Settings (the gear) › Account › Signatures › New signature.</li><li data-i18n="signature.app.web_3">Paste, name it and Save.</li></ol></details>
+        <details data-mail="apple"><summary>Apple Mail</summary><ol><li data-i18n="signature.app.step_copy">Copy signature here.</li><li data-i18n="signature.app.apple_2">Mail › Settings › Signatures, choose the account, then +.</li><li data-i18n="signature.app.apple_3">Untick "Always match my default message font", then paste.</li></ol></details> <!-- i18n-ignore -->
+        <p class="sg-note" data-i18n="signature.app.pics_note">Pictures show only from a web address that anyone can open (your website, say). Social links are words, not icons, so every mail program shows them.</p>
         </section>
     </main>
-    <aside class="sg-left" id="sgPanel" aria-label="Your details">
+    <aside class="sg-left" id="sgPanel" aria-label="Your details" data-i18n-attr="aria-label:signature.app.panel_aria">
       <div class="sg-row sg-top" id="sgStart">
-        <button type="button" class="sui-btn" id="sgExample">Fill in an example</button>
-        <button type="button" class="sui-btn" id="sgRandom">Random</button>
-        <button type="button" class="sui-btn" id="sgReset">Clear</button>
+        <button type="button" class="sui-btn" id="sgExample" data-i18n="signature.app.example">Fill in an example</button>
+        <button type="button" class="sui-btn" id="sgRandom" data-i18n="signature.app.random">Random</button>
+        <button type="button" class="sui-btn" id="sgReset" data-i18n="signature.app.clear">Clear</button>
       </div>
       <div class="sg-seed" id="sgSeedRow">
-        <label class="sg-seed-field"><span>Sample seed</span><input type="text" class="sui-input" id="sgSeed" maxlength="40" autocomplete="off" spellcheck="false" placeholder="4821"></label>
-        <label class="sg-seed-field"><span>Language</span><select class="sui-input" id="sgSeedLang"><option value="en">English</option><option value="sv">Svenska</option></select></label>
-        <button type="button" class="sui-btn" id="sgSeedGo">Make from seed</button>
+        <label class="sg-seed-field"><span data-i18n="signature.app.seed">Sample seed</span><input type="text" class="sui-input" id="sgSeed" maxlength="40" autocomplete="off" spellcheck="false" placeholder="4821"></label>
+        <label class="sg-seed-field"><span data-i18n="signature.app.language">Language</span><select class="sui-input" id="sgSeedLang"><option value="en">English</option><option value="sv">Svenska</option></select></label> <!-- i18n-ignore -->
+        <button type="button" class="sui-btn" id="sgSeedGo" data-i18n="signature.app.make_seed">Make from seed</button>
       </div>
       <div id="sgForm"></div>
       <div class="sg-out" id="sgOut">
         <p class="sg-note" id="sgPicNote" hidden></p>
-        <div class="sg-clients" role="group" aria-label="Copy for a mail program">
-          <button type="button" class="sui-btn" id="sgCopyGmail">Copy for Gmail</button>
-          <button type="button" class="sui-btn" id="sgCopyOutlook">Copy for Outlook</button>
-          <button type="button" class="sui-btn" id="sgCopyApple">Copy for Apple Mail</button>
+        <div class="sg-clients" role="group" aria-label="Copy for a mail program" data-i18n-attr="aria-label:signature.app.copy_for">
+        <button type="button" class="sui-btn" id="sgCopyGmail" data-i18n="signature.app.copy_gmail">Copy for Gmail</button>
+        <button type="button" class="sui-btn" id="sgCopyOutlook" data-i18n="signature.app.copy_outlook">Copy for Outlook</button>
+        <button type="button" class="sui-btn" id="sgCopyApple" data-i18n="signature.app.copy_apple">Copy for Apple Mail</button>
         </div>
       </div>
-      <button type="button" class="sui-btn sui-primary" id="sgCopy">Copy signature</button>
-      <button type="button" class="sui-btn" id="sgCode">Copy HTML code</button>
-      <button type="button" class="sui-btn" id="sgDownload">Download HTML</button>
+      <button type="button" class="sui-btn sui-primary" id="sgCopy" data-i18n="signature.app.copy">Copy signature</button>
+      <button type="button" class="sui-btn" id="sgCode" data-i18n="signature.app.copy_code">Copy HTML code</button>
+      <button type="button" class="sui-btn" id="sgDownload" data-i18n="signature.app.download">Download HTML</button>
     </aside>
   </div>
   <script src="../shared/slopui.js"></script>
@@ -120,7 +123,7 @@
   <script src="js/app.js"></script>
   <link rel="stylesheet" href="../shared/menubar/menubar.css">
   <script src="../shared/menubar/menubar.js"></script>
-  <script>SlopMenuBar.mount({ "app": "Signature", "menus": { "File": ["#sgCopy", "#sgCopyGmail", "#sgCopyOutlook", "#sgCopyApple", "#sgCode", "#sgDownload", "-", "#sgExample", "#sgRandom", "#sgReset"] } });</script>
+  <script>SlopMenuBar.mount({ app: 'Signature', menus: { File: () => ['#sgCopy', '#sgCopyGmail', '#sgCopyOutlook', '#sgCopyApple', '#sgCode', '#sgDownload', '-', '#sgExample', '#sgRandom', '#sgReset'] } }); (function (n) { if (n) { n.dataset.i18n = 'signature.app.name'; if (window.SlopI18n) SlopI18n.apply(n.parentNode); } })(document.querySelector('.smb-app'));</script>
   <script src="../shell/shell.js"></script>
 <i id="slop-built" hidden></i>
 </body>

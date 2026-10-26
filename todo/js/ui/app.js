@@ -11,7 +11,10 @@
 
   /** The view name for the sidebar and the page title: 'today', 'upcoming', 'all' or 'list:<name>'. */
   const viewArg = () => (state.view.startsWith('list:') ? { list: state.view.slice(5) } : state.view);
-  const titleOf = () => (state.view.startsWith('list:') ? state.view.slice(5) : { today: 'Today', upcoming: 'Upcoming', all: 'All tasks' }[state.view]);
+  const tr = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
+  /** Dates in the language the page is read in; in English, the company's locale (Admin) decides the format. */
+  const loc = () => { const l = g.SlopI18n ? g.SlopI18n.get() : 'en'; return l !== 'en' ? l : state.locale; };
+  const titleOf = () => (state.view.startsWith('list:') ? state.view.slice(5) : tr({ today: 'todo.view.today', upcoming: 'todo.view.upcoming', all: 'todo.view.all_tasks' }[state.view]));
 
   /** Re-draws the sidebar counts, the list and the title. */
   async function render() {
@@ -25,19 +28,19 @@
     const customers = new Map((cu.ok ? cu.value : []).map((c) => [c.id, c.name]));
     const lists = TK.listsOf(all);
     const count = (v) => TK.forView(all, v, today).length;
-    const side = [['today', 'Today', count('today')], ['upcoming', 'Upcoming', count('upcoming')], ['all', 'All', count('all')]];
+    const side = [['today', tr('todo.view.today'), count('today')], ['upcoming', tr('todo.view.upcoming'), count('upcoming')], ['all', tr('todo.view.all'), count('all')]];
     $('tSide').replaceChildren(
       el('ul', { class: 'side-list', role: 'list' }, side.map(([v, label, n]) => viewButton(v, label, n))),
-      el('h3', { class: 'side-h' }, 'Lists'),
+      el('h3', { class: 'side-h' }, tr('todo.side.lists')),
       el('ul', { class: 'side-list', role: 'list' }, lists.map((name) => viewButton(`list:${name}`, name, count({ list: name })))),
-      el('button', { type: 'button', class: 'btn small', onclick: newList }, 'New list'));
+      el('button', { type: 'button', class: 'btn small', onclick: newList }, tr('todo.side.new_list')));   // i18n-ignore: a class name
     $('tTitle').textContent = titleOf();
     const visible = TK.forView(all, viewArg(), today, { showDone: state.showDone, text: state.text });
-    NS.list.render($('tList'), visible, all, { view: viewArg(), today, locale: state.locale, customers, showDone: state.showDone,
+    NS.list.render($('tList'), visible, all, { view: viewArg(), today, locale: loc(), customers, showDone: state.showDone,
       toggle, edit });
     $('tDone').checked = state.showDone;
     $('tSearch').value = state.text;
-    $('tNote').textContent = `${visible.length} shown. Tasks with a due time also show in Slop Calendar.`;
+    $('tNote').textContent = tr('todo.app.note', { n: visible.length });
   }
 
   function viewButton(v, label, n) {
@@ -54,7 +57,7 @@
 
   async function toggle(t) {
     const r = t.done ? await TS.reopen(t.id) : await TS.complete(t.id);
-    if (!r.ok) UI.toast(r.message || 'Could not update the task.');
+    if (!r.ok) UI.toast(r.message || tr('todo.toast.update_failed'));
   }
 
   function edit(t) { NS.editor.open({ task: t, onDone: () => render() }); }
@@ -64,15 +67,15 @@
     const input = $('tAdd');
     const title = input.value.trim();
     if (!title) return;
-    const list = state.view.startsWith('list:') ? state.view.slice(5) : 'Inbox';
+    const list = state.view.startsWith('list:') ? state.view.slice(5) : 'Inbox';   // i18n-ignore: the stored name of the default list
     const due = state.view === 'today' ? T.todayIn(state.zone) : undefined;
     const r = await TS.save({ title, list, due, done: false, priority: 'none', tags: [] });
-    if (!r.ok) { UI.toast(r.message || 'Could not add the task.'); return; }
+    if (!r.ok) { UI.toast(r.message || tr('todo.toast.add_failed')); return; }
     input.value = '';
   }
 
   async function newList() {
-    const name = await UI.prompt('New list', 'List name', '');
+    const name = await UI.prompt(tr('todo.dlg.new_list'), tr('todo.dlg.list_name'), '');
     if (name === null || !String(name).trim()) return;
     NS.editor.open({ list: String(name).trim().slice(0, 40), onDone: () => render() });
     state.view = `list:${String(name).trim().slice(0, 40)}`;
@@ -85,7 +88,7 @@
   function wire() {
     $('tAdd').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); quickAdd(); } });
     $('tAddBtn').addEventListener('click', quickAdd);
-    $('tNew').addEventListener('click', () => NS.editor.open({ list: state.view.startsWith('list:') ? state.view.slice(5) : 'Inbox', due: state.view === 'today' ? T.todayIn(state.zone) : undefined, onDone: () => render() }));
+    $('tNew').addEventListener('click', () => NS.editor.open({ list: state.view.startsWith('list:') ? state.view.slice(5) : 'Inbox', due: state.view === 'today' ? T.todayIn(state.zone) : undefined, onDone: () => render() }));   // i18n-ignore: the stored name of the default list
     $('tDone').addEventListener('change', (e) => { state.showDone = e.target.checked; render(); });
     $('tSearch').addEventListener('input', (e) => { state.text = e.target.value; render(); });
     $('tConfig').addEventListener('click', (e) => {
@@ -105,7 +108,7 @@
 
   async function boot() {
     const ready = await S.store.ready();
-    if (!ready.ok) { $('tBoot').textContent = `Storage is not available here: ${ready.message}.`; return; }
+    if (!ready.ok) { $('tBoot').textContent = tr('todo.err.storage', { why: ready.message }); return; }
     const st = await S.store.get('settings', 'main');
     state.locale = (st.ok && st.value && st.value.locale) || undefined;
     wire();
@@ -114,6 +117,7 @@
     try { if (g.SlopHub) g.SlopHub.register('todo'); } catch (e) { /* no hub */ }
     if (g.SlopReminderEngine) g.SlopReminderEngine.start();
     await render();
+    if (g.SlopI18n) g.SlopI18n.on(render);   // the views and the list in the new language
     $('tBoot').hidden = true;
     openFromLink();
   }

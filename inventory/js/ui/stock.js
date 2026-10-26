@@ -10,6 +10,8 @@
   const $ = (id) => document.getElementById(id);
   let productId = null;
   let products = [];
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
+  const REASON = () => ({ receipt: t('inventory.st.r_receipt'), sale: t('inventory.st.r_sale'), adjustment: t('inventory.st.r_adjustment'), transfer: t('inventory.st.r_transfer'), count: t('inventory.st.r_count'), return: t('inventory.st.r_return') });
 
   const onHandAt = async (id, loc) => { const r = await S.stock.onHand(id, loc); return r.ok ? r.value : '?'; };
 
@@ -46,22 +48,22 @@
   async function draw() {
     const st = NS.state.settings || { currency: 'USD', locale: 'en-US' };
     const p = products.find((x) => x.id === productId);
-    $('sTitle').textContent = p ? `${p.name} (${p.sku})` : 'No products yet';
-    if (!p) { $('sLevels').replaceChildren(h('li', { class: 'empty', text: 'Add a product in the Products tab first.' })); $('sHistory').replaceChildren(); $('sTotal').textContent = ''; return; }
+    $('sTitle').textContent = p ? `${p.name} (${p.sku})` : t('inventory.st.no_products');
+    if (!p) { $('sLevels').replaceChildren(h('li', { class: 'empty', text: t('inventory.st.add_first') })); $('sHistory').replaceChildren(); $('sTotal').textContent = ''; return; }
     const lv = await S.stock.levels(p.id);
     const levels = lv.ok ? Object.entries(lv.value).sort(([a], [b]) => a.localeCompare(b)) : [];
     const total = levels.reduce((s, [, q]) => s + q, 0);
     $('sLevels').replaceChildren(...(levels.length ? levels : [['main', 0]]).map(([loc, q]) =>
-      h('li', null, h('span', { text: loc }), h('b', { class: 'num', text: `${q} ${p.unit || 'each'}` }))));
-    $('sTotal').textContent = `Total on hand ${total} ${p.unit || 'each'} · value ${U.money(S.money.mulDiv(total, p.price, 1), st.currency, st.locale)} at price`;
+      h('li', null, h('span', { text: loc }), h('b', { class: 'num', text: `${q} ${p.unit || t('inventory.st.each')}` }))));
+      $('sTotal').textContent = t('inventory.st.total', { n: total, unit: p.unit || t('inventory.st.each'), value: U.money(S.money.mulDiv(total, p.price, 1), st.currency, st.locale) });
     const hist = await S.store.list('stockMovements', { index: 'productId', value: p.id });
     const moves = hist.ok ? hist.value.slice().sort((a, b) => b.createdAt - a.createdAt) : [];
     $('sHistory').replaceChildren(...(moves.length ? moves : []).map((m) => h('li', { class: m.qty < 0 ? 'out' : 'in' },
       h('span', { class: 'mono', text: m.date }),
-      h('span', { text: `${m.reason} · ${m.location}` }),
+      h('span', { text: `${REASON()[m.reason] || m.reason} · ${m.location}` }),
       h('b', { class: 'num', text: m.qty > 0 ? `+${m.qty}` : String(m.qty) }),
-      m.ref ? h('span', { class: 'sub mono', text: m.ref.length > 28 ? `${m.ref.slice(0, 26)}…` : m.ref } ) : null)));
-    if (!moves.length) $('sHistory').replaceChildren(h('li', { class: 'empty', text: 'No movements yet.' }));
+      m.ref ? h('span', { class: 'sub mono', text: m.ref.length > 28 ? `${m.ref.slice(0, 26)}…` : m.ref } ) : null)));   // i18n-ignore: CSS class names
+    if (!moves.length) $('sHistory').replaceChildren(h('li', { class: 'empty', text: t('inventory.st.no_moves') }));
   }
 
   async function refresh() {
@@ -75,35 +77,35 @@
     $('sKinds').addEventListener('click', (e) => { const b = e.target.closest('[data-form]'); if (b) { choose(b.dataset.form); say(''); } });
     $('fReceive').addEventListener('submit', async (e) => {
       e.preventDefault();
-      if (!productId) return say('Choose a product first.', true);
+      if (!productId) return say(t('inventory.st.choose'), true);
       const loc = U.cleanLocation($('rLoc').value);
       const qty = U.wholeOf($('rQty').value);
       const note = $('rNote').value.trim() || undefined;
-      if (await act(NS.stockOps.receive({ productId, location: loc, qty, note }), async () => `Received ${qty} at ${loc}. On hand there: ${await onHandAt(productId, loc)}.`)) $('rQty').value = '';
+      if (await act(NS.stockOps.receive({ productId, location: loc, qty, note }), async () => t('inventory.st.received', { qty, loc, n: await onHandAt(productId, loc) }))) $('rQty').value = '';
     });
     $('fSell').addEventListener('submit', async (e) => {
       e.preventDefault();
-      if (!productId) return say('Choose a product first.', true);
+      if (!productId) return say(t('inventory.st.choose'), true);
       const loc = U.cleanLocation($('sellLoc').value);
       const qty = U.wholeOf($('sellQty').value);
       const allowNegative = $('sellNeg').checked;
-      if (await act(NS.stockOps.sell({ productId, location: loc, qty, allowNegative }), async () => `Sold ${qty} from ${loc}. On hand there: ${await onHandAt(productId, loc)}.`)) $('sellQty').value = '';
+      if (await act(NS.stockOps.sell({ productId, location: loc, qty, allowNegative }), async () => t('inventory.st.sold', { qty, loc, n: await onHandAt(productId, loc) }))) $('sellQty').value = '';
     });
     $('fAdjust').addEventListener('submit', async (e) => {
       e.preventDefault();
-      if (!productId) return say('Choose a product first.', true);
+      if (!productId) return say(t('inventory.st.choose'), true);
       const loc = U.cleanLocation($('adjLoc').value);
       const qty = U.wholeOf($('adjQty').value);
       const allowNegative = $('adjNeg').checked;
-      if (await act(NS.stockOps.adjust({ productId, location: loc, qty, allowNegative }), async () => `Adjusted by ${qty > 0 ? '+' : ''}${qty} at ${loc}. On hand there: ${await onHandAt(productId, loc)}.`)) $('adjQty').value = '';
+      if (await act(NS.stockOps.adjust({ productId, location: loc, qty, allowNegative }), async () => t('inventory.st.adjusted', { qty: `${qty > 0 ? '+' : ''}${qty}`, loc, n: await onHandAt(productId, loc) }))) $('adjQty').value = '';
     });
     $('fTransfer').addEventListener('submit', async (e) => {
       e.preventDefault();
-      if (!productId) return say('Choose a product first.', true);
+      if (!productId) return say(t('inventory.st.choose'), true);
       const from = U.cleanLocation($('trFrom').value);
       const to = U.cleanLocation($('trTo').value);
       const qty = U.wholeOf($('trQty').value);
-      await act(NS.stockOps.transfer({ productId, from, to, qty }), async () => `Moved ${qty} from ${from} to ${to}.`);
+      await act(NS.stockOps.transfer({ productId, from, to, qty }), async () => t('inventory.st.moved', { qty, from, to }));
     });
   }
 

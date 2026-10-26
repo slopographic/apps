@@ -10,26 +10,27 @@
   function open(onSaved, { word = 'customer' } = {}) {
     // Read at open time: this script can load before shared/slopui.js and shared/biz/biz.js.
     const UI = g.SlopUI, h = g.SlopBiz.h;
+    const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k), who = word === 'supplier' ? 'supplier' : 'customer';
     const name = h('input', { type: 'text', maxlength: 200, autocomplete: 'off' });
     const email = h('input', { type: 'email', maxlength: 200, autocomplete: 'off' });
     const phone = h('input', { type: 'tel', maxlength: 60, autocomplete: 'off' });
-    const msg = h('p', { class: 'msg bad', role: 'status' });
-    const body = h('div', null, UI.field('Name', name), UI.field('Email', email), UI.field('Phone', phone), msg);
+    const msg = h('p', { class: 'msg bad', role: 'status' });   // i18n-ignore: class names
+    const body = h('div', null, UI.field(t('biz.cd.name'), name), UI.field(t('biz.cd.email'), email), UI.field(t('biz.cd.phone'), phone), msg);
     UI.dialog({
-      title: `New ${word}`,
+      title: t('biz.doc.new_' + who),
       body,
       buttons: [
-        { label: 'Cancel' },
+        { label: t('menu.cancel') },
         {
-          label: `Add ${word}`, primary: true,
+          label: t('biz.doc.add_' + who), primary: true,
           act: async () => {
             const n = name.value.trim();
-            if (!n) { msg.textContent = 'Name is required.'; return false; }
+            if (!n) { msg.textContent = t('biz.cd.name_needed'); return false; }
             const rec = { name: n, email: email.value.trim(), phone: phone.value.trim(), stage: 'customer' };
             if (word === 'supplier') rec.supplier = true;
             const r = await S.store.put('customers', rec);
-            if (!r.ok) { msg.textContent = r.message || 'Not saved'; return false; }
-            UI.toast(`Added ${n}`);
+            if (!r.ok) { msg.textContent = r.message || t('biz.cd.not_saved'); return false; }
+            UI.toast(t('biz.cd.added', { name: n }));
             onSaved(r.value);
             return undefined;
           },

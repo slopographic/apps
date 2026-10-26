@@ -20,5 +20,6 @@
   }
 
   const app = g.SlopBiz.router.start({ ns: NS, app: 'admin', parse: (h) => ({ view: VIEWS.includes(h) ? h : 'company' }), start, refresh: render });
+  if (g.SlopI18n) g.SlopI18n.on(() => { if (NS.app && NS.app.booted) render(); });   // the open tab in the new language
   NS.app = Object.assign(app, { render, refreshSoon: () => render() });
 })(typeof window !== 'undefined' ? window : globalThis);

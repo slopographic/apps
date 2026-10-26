@@ -10,6 +10,7 @@
   const $ = (id) => document.getElementById(id);
   const CHIP = { open: '', fulfilled: 'good', cancelled: 'void' }; // SlopList chip classes per status
   let list = null, settings = null;
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
 
   async function draw() {
     if (!$('view-list') || $('view-list').hidden) return;
@@ -23,38 +24,38 @@
   function row(x) {
     const lines = x.lines.length, s = settings;
     return { title: `${x.number} · ${x.customerName}`, amount: U.money(x.total, x.currency || s.currency, s.locale),
-      meta: [{ chip: M.STATUS_LABEL[x.status] || x.status, cls: CHIP[x.status] || '' }, x.date, `${lines} line${lines === 1 ? '' : 's'}`,
-        x.invoiceId ? 'invoiced' : null, x.sample ? { chip: 'Sample', cls: 'warn' } : null] };
+      meta: [{ chip: g.SlopBiz.statusText(x.status), cls: CHIP[x.status] || '' }, x.date, t('orders.li.lines', { n: lines }),
+        x.invoiceId ? t('orders.li.invoiced') : null, x.sample ? { chip: t('orders.li.sample'), cls: 'warn' } : null] };
   }
 
   /** Runs a Result-returning action from the menu: a plain message on refusal, then redraws. */
   async function run(promise, okText) {
     const r = await promise;
-    if (!r.ok) { UI.alert('Not done', U.refusal(r)); return; }
+    if (!r.ok) { UI.alert(t('orders.li.not_done'), U.refusal(r)); return; }
     if (okText) UI.toast(okText);
     draw();
   }
 
   async function fulfil(x) {
-    const yes = await UI.confirm('Fulfil order', `Fulfil ${x.number}? Stock on its product lines is taken out of the main location.`, 'Fulfil');
-    if (yes) run(NS.actions.fulfilId(x.id), `${x.number} fulfilled`);
+    const yes = await UI.confirm(t('orders.ed.fulfil_q'), t('orders.ed.fulfil_body', { number: x.number }), t('orders.ed.fulfil_ok'));
+    if (yes) run(NS.actions.fulfilId(x.id), t('orders.li.fulfilled', { number: x.number }));
   }
 
   async function cancel(x) {
-    const yes = await UI.confirm('Cancel order', `Cancel ${x.number}? A cancelled order cannot be changed.`, 'Cancel order', { danger: true });
-    if (yes) run(NS.actions.cancelId(x.id), `${x.number} cancelled`);
+    const yes = await UI.confirm(t('orders.ed.cancel'), t('orders.ed.cancel_body', { number: x.number }), t('orders.ed.cancel'), { danger: true });
+    if (yes) run(NS.actions.cancelId(x.id), t('orders.li.cancelled', { number: x.number }));
   }
 
   function menuFor(x) {
-    const items = [{ label: 'Open order', act: () => NS.app.go(`o/${x.id}`) }];
-    if (x.status === 'draft') items.push({ label: 'Confirm order', act: () => run(NS.actions.confirmId(x.id), `${x.number} confirmed`) });
-    if (x.status === 'open') items.push({ label: 'Fulfil…', act: () => fulfil(x) });
-    if (x.status === 'draft' || x.status === 'open') items.push({ label: 'Cancel order…', act: () => cancel(x) });
+    const items = [{ label: t('orders.li.open'), act: () => NS.app.go(`o/${x.id}`) }];
+    if (x.status === 'draft') items.push({ label: t('orders.ed.confirm'), act: () => run(NS.actions.confirmId(x.id), t('orders.li.confirmed', { number: x.number })) });
+    if (x.status === 'open') items.push({ label: t('orders.ed.fulfil'), act: () => fulfil(x) });
+    if (x.status === 'draft' || x.status === 'open') items.push({ label: t('orders.li.cancel'), act: () => cancel(x) });
     if ((x.status === 'open' || x.status === 'fulfilled') && !x.invoiceId) {
-      items.push({ label: 'Convert to invoice', act: () => run(NS.actions.convertId(x.id), 'Invoice draft created') });
+      items.push({ label: t('orders.ed.convert'), act: () => run(NS.actions.convertId(x.id), t('orders.li.inv_created')) });
     }
-    if (x.status === 'open' || x.status === 'fulfilled') items.push({ label: 'Delivery note', act: () => NS.app.go(`d/${x.id}`) });
-    if (x.invoiceId) items.push({ label: 'Open invoice', act: () => { location.href = `../invoices/#i/${x.invoiceId}`; } });
+    if (x.status === 'open' || x.status === 'fulfilled') items.push({ label: t('orders.ed.delivery'), act: () => NS.app.go(`d/${x.id}`) });
+    if (x.invoiceId) items.push({ label: t('orders.li.open_invoice'), act: () => { location.href = `../invoices/#i/${x.invoiceId}`; } });
     return items;
   }
 
@@ -63,8 +64,8 @@
     $('oStatus').addEventListener('change', draw);
     $('oNew').addEventListener('click', () => NS.app.go('new'));
     NS.sampleActions.mount();
-    list = g.SlopList.mount($('oRows'), { label: 'Orders', noun: ['order', 'orders'], summary: $('oSummary'),
-      empty: 'No orders match. Start one with New order.', row, open: (x) => NS.app.go(`o/${x.id}`), menu: menuFor });
+    list = g.SlopList.mount($('oRows'), { label: t('orders.li.label'), noun: [t('orders.li.order'), t('orders.li.orders')], summary: $('oSummary'),
+      empty: t('orders.li.empty'), row, open: (x) => NS.app.go(`o/${x.id}`), menu: menuFor });
   }
 
   NS.listView = { mount, draw, menuFor };

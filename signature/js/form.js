@@ -6,6 +6,7 @@
   const NS = (g.SlopSignature = g.SlopSignature || {});
   const M = NS.model, UI = g.SlopUI, el = UI.el;
   const FONTS = M.FONTS;
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
   const inputs = {};
   let changed = () => {};
 
@@ -20,51 +21,51 @@
         URL.revokeObjectURL(url);
         res(c.toDataURL('image/png'));
       };
-      im.onerror = () => { URL.revokeObjectURL(url); rej(new Error('That file is not a picture this browser can read')); };
+      im.onerror = () => { URL.revokeObjectURL(url); rej(new Error(t('signature.pic.bad'))); };
       im.src = url;
     });
   }
 
   function fieldFor(f) {
-    const attrs = { id: 'sg-' + f.key, class: 'sui-input', maxlength: f.max, placeholder: f.placeholder, autocomplete: 'off', oninput: () => changed() };
+    const attrs = { id: 'sg-' + f.key, class: 'sui-input', maxlength: f.max, placeholder: f.placeholder ? t('signature.ph.' + f.key) : '', autocomplete: 'off', oninput: () => changed() };
     const input = f.type === 'textarea' ? el('textarea', Object.assign({ rows: 3 }, attrs)) : el('input', Object.assign({ type: f.type === 'url' ? 'text' : f.type, inputmode: f.type === 'url' ? 'url' : undefined }, attrs));
     inputs[f.key] = input;
-    return UI.field(f.label, input);
+    return UI.field(t('signature.f.' + f.key), input);
   }
   function pictureExtras() {
     const msg = el('p', { class: 'sg-note', role: 'status' });
     // The picture is the page's one way in for files (shared/intake, spec 'signature'): the button, a pasted picture, a
     // picture dropped on the email or this box (app.js) and one another app sent (Open in, ?drive=). Each is drawn to PNG.
     if (!window.SlopIntake.spec('signature')) {
-      window.SlopIntake.register({ id: 'signature', limit: 1, toast: false, accept: { types: ['image/png', 'image/jpeg', 'image/gif', 'image/webp', 'image/svg+xml'], noun: 'a PNG, JPEG, GIF, WebP or SVG picture' },
+      window.SlopIntake.register({ id: 'signature', limit: 1, toast: false, accept: { types: ['image/png', 'image/jpeg', 'image/gif', 'image/webp', 'image/svg+xml'], get noun() { return t('signature.pic.noun'); } },
         process: async (f) => {
-          try { inputs.image.value = await shrink(f); msg.textContent = `${f.name} is kept inside the signature. Gmail does not show pictures kept this way: for Gmail, use a web address.`; changed(); } catch (e) { msg.textContent = e.message; throw e; }
+          try { inputs.image.value = await shrink(f); msg.textContent = t('signature.pic.kept', { name: f.name }); changed(); } catch (e) { msg.textContent = e.message; throw e; }
           return f.name;
         } });
     }
     const pick = () => window.SlopIntake.pick({ to: 'signature', multiple: false, accept: 'image/png,image/jpeg,image/gif,image/webp,image/svg+xml' });
     inputs.imageSize = el('input', { id: 'sg-imageSize', type: 'range', min: 32, max: 160, step: 4, oninput: () => changed() });
     inputs.round = el('input', { id: 'sg-round', type: 'checkbox', onchange: () => changed() });
-    return [el('div', { class: 'sg-row' }, el('button', { type: 'button', class: 'sui-btn', id: 'sgUpload', onclick: pick }, 'Use a picture from this device…')),
-      msg, UI.field('Picture size', inputs.imageSize), el('label', { class: 'sg-check' }, inputs.round, ' Round (for a photo of you)')];
+    return [el('div', { class: 'sg-row' }, el('button', { type: 'button', class: 'sui-btn', id: 'sgUpload', onclick: pick }, t('signature.pic.use'))),
+    msg, UI.field(t('signature.pic.size'), inputs.imageSize), el('label', { class: 'sg-check' }, inputs.round, ' ' + t('signature.pic.round'))];
   }
   function styleBox() {
-    const group = el('div', { class: 'sg-tpls', role: 'radiogroup', 'aria-label': 'Template', id: 'sgTemplates' });
-    for (const [id, label] of NS.templates.LIST) {
+    const group = el('div', { class: 'sg-tpls', role: 'radiogroup', 'aria-label': t('signature.style.template'), id: 'sgTemplates' });
+    for (const [id] of NS.templates.LIST) {
       group.append(el('button', { type: 'button', role: 'radio', class: 'sg-tpl', 'data-tpl': id, 'aria-checked': 'false',
-        onclick: () => { inputs.template.value = id; changed(); } }, label));
+        onclick: () => { inputs.template.value = id; changed(); } }, t('signature.tpl.' + id)));
     }
     inputs.template = { value: 'classic' };
     inputs.accent = el('input', { id: 'sg-accent', type: 'color', oninput: () => changed() });
     inputs.font = UI.select(FONTS, FONTS[0][0]);
     inputs.font.id = 'sg-font'; inputs.font.addEventListener('change', () => changed());
-    return el('fieldset', { class: 'sg-group' }, el('legend', null, 'Style'), group,
-      el('div', { class: 'sg-row' }, UI.field('Colour', inputs.accent), UI.field('Font', inputs.font)));
+    return el('fieldset', { class: 'sg-group' }, el('legend', null, t('signature.style.style')), group,
+    el('div', { class: 'sg-row' }, UI.field(t('signature.style.colour'), inputs.accent), UI.field(t('signature.style.font'), inputs.font)));
   }
 
   function mount(host, state, onChange) {
     changed = onChange || changed;
-    const sets = M.GROUPS.map(([id, title]) => el('fieldset', { class: 'sg-group', 'data-group': id }, el('legend', null, title),
+    const sets = M.GROUPS.map(([id]) => el('fieldset', { class: 'sg-group', 'data-group': id }, el('legend', null, t('signature.g.' + id)),
       ...M.FIELDS.filter((f) => f.group === id).map(fieldFor), ...(id === 'picture' ? pictureExtras() : [])));
     host.replaceChildren(styleBox(), ...sets);
     fill(state);

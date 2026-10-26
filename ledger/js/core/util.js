@@ -39,7 +39,7 @@
   const decimal = (minor, cur) => S.money.plainMinor(minor, cur);
 
   /** Text for a failed Result: the first message, which already names the problem. */
-  const refusal = (r) => (r && r.message) || 'Nothing was saved.';
+  const refusal = (r) => (r && r.message) || (g.SlopI18n ? g.SlopI18n.t('ledger.gen.nothing_saved') : 'ledger.gen.nothing_saved');
 
   NS.util = { today, isDate, settings, accounts, money, decimal, refusal, TYPE_SIDE: S.ledger.TYPE_SIDE };
 })(typeof window !== 'undefined' ? window : globalThis);

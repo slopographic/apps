@@ -21,14 +21,15 @@
 
   function describe(offsetMs) {
     const abs = Math.abs(offsetMs) / 1000;
-    if (abs < 0.05) return 'The device clock matched the reference you entered, to within a tenth of a second.';
+    const tr = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
+    if (abs < 0.05) return tr('time.sync.matched');
     let amount;
-    if (abs < 60) amount = `${abs.toFixed(1)} s`;
+    if (abs < 60) amount = tr('time.sync.s', { s: g.SlopI18n && g.SlopI18n.num ? g.SlopI18n.num(Number(abs.toFixed(1)), { minimumFractionDigits: 1, maximumFractionDigits: 1 }) : abs.toFixed(1) });
     else {
       const total = Math.round(abs), h = Math.floor(total / 3600), m = Math.floor((total % 3600) / 60), s = total % 60;
-      amount = h ? `${h} h ${m} min` : `${m} min ${s} s`;
+      amount = h ? tr('time.sync.h_min', { h: String(h), m: String(m) }) : tr('time.sync.min_s', { m: String(m), s: String(s) });
     }
-    return `The device clock was ${amount} ${offsetMs > 0 ? 'behind' : 'ahead of'} the reference you entered.`;
+    return tr(offsetMs > 0 ? 'time.sync.behind' : 'time.sync.ahead', { amount });
   }
 
   ns.sync = Object.freeze({ referenceMs, offsetFor, correctedNow, describe });

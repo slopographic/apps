@@ -41,9 +41,10 @@
   /** "3 to 9 March 2026" within a month, "28 Dec 2026 to 3 Jan 2027" across months. */
   function weekTitle(a, b, loc) {
     const f = (day, opts) => T.dayText(day, loc, opts);
-    if (a.slice(0, 7) === b.slice(0, 7)) return `${f(a, { day: 'numeric' })} to ${f(b, { day: 'numeric', month: 'long', year: 'numeric' })}`;
+    const tr = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
+    if (a.slice(0, 7) === b.slice(0, 7)) return tr('calendar.views.week_range', { from: f(a, { day: 'numeric' }), to: f(b, { day: 'numeric', month: 'long', year: 'numeric' }) });
     const sameYear = a.slice(0, 4) === b.slice(0, 4);
-    return `${f(a, { day: 'numeric', month: 'short', year: sameYear ? undefined : 'numeric' })} to ${f(b, { day: 'numeric', month: 'short', year: 'numeric' })}`;
+    return tr('calendar.views.week_range', { from: f(a, { day: 'numeric', month: 'short', year: sameYear ? undefined : 'numeric' }), to: f(b, { day: 'numeric', month: 'short', year: 'numeric' }) });
   }
 
   /** The title of one view. Split shows the left and right periods together. */
@@ -53,7 +54,7 @@
     if (view === 'week') { const d = weekDays(anchor); return weekTitle(d[0], d[6], loc); }
     if (view === 'day') return T.dayText(anchor, loc, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
     if (view === 'split') return `${titleOf(pair.left, anchor, loc)} · ${titleOf(pair.right, anchor, loc)}`;
-    return `Next ${NS.agenda.SPAN} days from ${T.dayText(anchor, loc, { day: 'numeric', month: 'short' })}`;
+    return g.SlopI18n ? g.SlopI18n.t('calendar.views.agenda.title', { n: NS.agenda.SPAN, day: T.dayText(anchor, loc, { day: 'numeric', month: 'short' }) }) : `${NS.agenda.SPAN}`;
   }
 
   /** The anchor after one Previous (dir -1) or Next (dir 1) step in a view. */
