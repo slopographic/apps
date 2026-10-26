@@ -28,11 +28,13 @@
     const b = document.createElement('button');
     b.type = 'button';
     b.className = 'sh-hbtn slop-hbtn sh-theme';
-    b.title = 'Theme';
-    b.setAttribute('aria-label', 'Theme');
+    const I = window.SlopI18n, w = I && typeof I.t === 'function' && I.t('settings.theme') !== 'settings.theme' ? I.t('settings.theme') : 'Theme';
+    b.title = w;
+    b.setAttribute('aria-label', w);
     b.setAttribute('aria-haspopup', 'menu');
     b.setAttribute('aria-expanded', 'false');
-    b.innerHTML = ICON_THEME + '<span class="slop-hbtn-txt">Theme</span>';
+    b.innerHTML = ICON_THEME + '<span class="slop-hbtn-txt"></span>';
+    b.lastChild.textContent = w;
     b.addEventListener('click', () => {
       if (!window.SlopUI) return;
       const now = T.get();

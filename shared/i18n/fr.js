@@ -243,5 +243,7 @@
     'mascot.tip_offline': 'Les applis continuent de fonctionner hors ligne après votre première visite.',
     'mascot.tip_local': 'Vos fichiers restent dans ce navigateur. Faites une sauvegarde de temps en temps.',
     'mascot.tip_search': 'Appuyez sur Ctrl+Espace (Cmd+Espace sur Mac) pour passer à n’importe quelle appli.',
+    'tour.tours': 'Visites',
+    'tour.tours_title': 'Visites guidées de chaque appli',
   });
 })(typeof window !== 'undefined' ? window : globalThis);

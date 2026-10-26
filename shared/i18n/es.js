@@ -243,5 +243,7 @@
     'mascot.tip_offline': 'Las apps siguen funcionando sin conexión después de tu primera visita.',
     'mascot.tip_local': 'Tus archivos se quedan en este navegador. Haz una copia de seguridad de vez en cuando.',
     'mascot.tip_search': 'Pulsa Ctrl+Espacio (Cmd+Espacio en Mac) para cambiar a cualquier app.',
+    'tour.tours': 'Recorridos',
+    'tour.tours_title': 'Recorridos guiados por cada app',
   });
 })(typeof window !== 'undefined' ? window : globalThis);

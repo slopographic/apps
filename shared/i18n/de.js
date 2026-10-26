@@ -243,5 +243,7 @@
     'mascot.tip_offline': 'Die Apps funktionieren nach dem ersten Besuch auch offline.',
     'mascot.tip_local': 'Ihre Dateien bleiben in diesem Browser. Legen Sie ab und zu eine Sicherung an.',
     'mascot.tip_search': 'Drücken Sie Strg+Leertaste (Cmd+Leertaste auf dem Mac), um zu einer beliebigen App zu wechseln.',
+    'tour.tours': 'Touren',
+    'tour.tours_title': 'Geführte Touren für jede App',
   });
 })(typeof window !== 'undefined' ? window : globalThis);

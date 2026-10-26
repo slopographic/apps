@@ -243,5 +243,7 @@
     'mascot.tip_offline': 'Apparna fungerar offline efter ditt första besök.',
     'mascot.tip_local': 'Dina filer stannar i den här webbläsaren. Spara en säkerhetskopia då och då.',
     'mascot.tip_search': 'Tryck Ctrl+Mellanslag (Cmd+Mellanslag på Mac) för att byta till valfri app.',
+    'tour.tours': 'Rundturer',
+    'tour.tours_title': 'Guidade rundturer för varje app',
   });
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -244,5 +244,7 @@
     'mascot.tip_offline': 'تظل التطبيقات تعمل دون اتصال بعد زيارتك الأولى.',
     'mascot.tip_local': 'تبقى ملفاتك في هذا المتصفح. احتفظ بنسخة احتياطية بين حين وآخر.',
     'mascot.tip_search': 'اضغط Ctrl+Space (أو Cmd+Space على Mac) للانتقال إلى أي تطبيق.',
+    'tour.tours': 'الجولات',
+    'tour.tours_title': 'جولات إرشادية لكل تطبيق',
   });
 })(typeof window !== 'undefined' ? window : globalThis);
