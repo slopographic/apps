@@ -4,5 +4,5 @@ window.SlopI18n && window.SlopI18n.source({
   ns: 'gallery',
   base: ((document.currentScript || {}).src || '').replace(/[^/]*$/, ''),
   parts: ['app', 'dialogs', 'menus', 'tour', 'viewer'],
-  langs: ['ar', 'de', 'en', 'es', 'fr', 'ja', 'pt-BR', 'sv', 'zh-CN'],
+  langs: ['ar', 'de', 'en', 'es', 'fr', 'ja', 'pt-BR', 'sv', 'zh-CN', 'zh-TW'],
 });
