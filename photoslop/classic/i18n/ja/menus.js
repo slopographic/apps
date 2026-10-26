@@ -78,7 +78,7 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'paint-classic.tool.slop': 'Slop ブラシ',
   'paint-classic.tool.slop_tip': '太くてしずくの垂れる緑の塗料を塗ります。右クリックで暗い色のバッチ。',
   'paint-classic.tool.stamp': 'Slop スタンプ',
-  'paint-classic.tool.stamp_tip': 'プレミアムな絵文字のスロップを押印します。右クリックで驚きのスロップ。',
+  'paint-classic.tool.stamp_tip': 'プレミアムな絵文字の slop を押印します。右クリックで驚きの slop。',
   'paint-classic.opt.line_width': '線の幅 {n}px',
   'paint-classic.opt.opaque': '不透明：背景色を描画します',
   'paint-classic.opt.transparent': '透明：背景色は透けて見えます',
