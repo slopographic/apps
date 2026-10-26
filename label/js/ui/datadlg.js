@@ -5,12 +5,12 @@
 async function importDataDialog(file) {
   if (!file) return pickData();
   let src;
-  try { src = await loadDataFile(file); } catch (e) { SlopUI.alert('Could not read the data', e.message || String(e)); return false; }
+  try { src = await loadDataFile(file); } catch (e) { SlopUI.alert(LT('label.data.could_not_read_the_data'), e.message || String(e)); return false; }
   return useDataSource(src);
 }
 /** Show the mapping dialog for a freshly loaded source and attach it to the document. */
 async function useDataSource(src) {
-  if (!src.rows.length) { SlopUI.alert('No records', 'The file has a header row but no data rows.'); return false; }
+  if (!src.rows.length) { SlopUI.alert(LT('label.data.no_records'), LT('label.data.the_file_has_a_header')); return false; }
   // auto-map columns whose names match a variable (case-insensitive)
   for (const c of src.columns) { const v = App.doc.vars.find((x) => x.name.toLowerCase() === c.toLowerCase().trim()); if (v) src.map[c] = v.name; }
   const guessQty = src.columns.find((c) => /^(qty|quantity|copies|count|anzahl|menge)$/i.test(c.trim()));
@@ -18,20 +18,20 @@ async function useDataSource(src) {
   const ok = await mapColumnsDialog(src, true);
   if (!ok) return false;
   App.rec = 0;
-  editDoc((d) => { d.data = src; }, 'Import data');
+  editDoc((d) => { d.data = src; }, LT('label.data.import_data'));
   App.tab = 'data';
   refresh();
-  SlopUI.toast(`${src.rows.length} records from ${src.name}`);
+  SlopUI.toast(LT('label.data.records_from', { n: src.rows.length, name: src.name }));
   return true;
 }
 function pasteDataDialog() {
-  const ta = mk('textarea', { class: 'inp', rows: 10, placeholder: 'Name,SKU,Price\nLime goo,SLP-1,4.99\n…  (or a JSON array)', style: 'width:100%;min-height:200px' });
+  const ta = mk('textarea', { class: 'inp', rows: 10, placeholder: 'Name,SKU,Price\nLime goo,SLP-1,4.99\n…  (' + LT('label.data.or_json') + ')', style: 'width:100%;min-height:200px' });
   SlopFormReset.snapshot(ta.parentNode);
-  SlopUI.dialog({ title: 'Paste data', cls: 'sui-wide', body: mk('div', null, mk('p', { class: 'sui-p' }, 'Paste rows from a spreadsheet (tab separated), CSV or JSON. The first row holds the column names.'), ta),
-    buttons: [{ label: 'Cancel' }, { label: 'Next', primary: true, act: async () => {
+  SlopUI.dialog({ title: LT('label.data.paste_data'), cls: 'sui-wide', body: mk('div', null, mk('p', { class: 'sui-p' }, LT('label.data.paste_rows_from_a_spreadsheet')), ta),
+    buttons: [{ label: LT('label.dlg.cancel') }, { label: LT('label.data.next'), primary: true, act: async () => {
       const t = ta.value.trim(); if (!t) return false;
       let src;
-      try { src = /^[[{]/.test(t) ? parseJSONSource(t, 'Pasted data') : tableToSource(parseCSV(t), 'Pasted data'); } catch (e) { SlopUI.toast(e.message); return false; }
+      try { src = /^[[{]/.test(t) ? parseJSONSource(t, LT('label.data.pasted_data')) : tableToSource(parseCSV(t), LT('label.data.pasted_data')); } catch (e) { SlopUI.toast(e.message); return false; }
       setTimeout(() => useDataSource(src), 0);
     } }] });
 }
@@ -42,7 +42,7 @@ function mapColumnsDialog(D, isNew = false) {
   const grid = mk('div', { class: 'map-grid' });
   for (const c of D.columns) {
     const cur = (D.map && D.map[c]) || c;
-    const opts = [[c, '{' + c + '} (column name)'], ...vars.filter((v) => v !== c).map((v) => [v, 'Fill {' + v + '}']), ['-', '(ignore)']];
+    const opts = [[c, LT('label.data.col_name', { c: '{' + c + '}' })], ...vars.filter((v) => v !== c).map((v) => [v, LT('label.data.fill_var', { v: '{' + v + '}' })]), ['-', LT('label.data.ignore')]];
     const s = mk('select', { class: 'inp' }, opts.map(([v, l]) => mk('option', { value: v }, l)));
     s.value = opts.some(([v]) => v === cur) ? cur : c;
     sels[c] = s;
@@ -50,11 +50,11 @@ function mapColumnsDialog(D, isNew = false) {
   }
   const qty = mk('select', { class: 'inp' }, [['', '(one label per record)'], ...D.columns.map((c) => [c, c])].map(([v, l]) => mk('option', { value: v }, l)));
   qty.value = D.qtyCol || '';
-  const body = mk('div', { class: 'dlg-form' }, mk('p', { class: 'sui-p' }, `${D.name}: ${D.rows.length} records. Each column becomes a {Field}; or let it fill an existing variable (for example a prompt).`), grid, dRow('Labels per record', qty));
+  const body = mk('div', { class: 'dlg-form' }, mk('p', { class: 'sui-p' }, `${D.name}: ${D.rows.length} records. Each column becomes a {Field}; or let it fill an existing variable (for example a prompt).`), grid, dRow(LT('label.print.labels_per_record'), qty));
   SlopFormReset.snapshot(body);
-  return new Promise((res) => SlopUI.dialog({ title: 'Map data columns', cls: 'sui-wide', body, onClose: (ok) => res(ok),
-    buttons: [{ label: 'Cancel' }, SlopFormReset.dialogButton(body), { label: isNew ? 'Use data' : 'Apply', primary: true, act: () => {
+  return new Promise((res) => SlopUI.dialog({ title: LT('label.data.map_data_columns'), cls: 'sui-wide', body, onClose: (ok) => res(ok),
+    buttons: [{ label: LT('label.dlg.cancel') }, SlopFormReset.dialogButton(body), { label: isNew ? LT('label.data.use_data') : LT('label.dlg.apply'), primary: true, act: () => {
       const map = {}; for (const c of D.columns) if (sels[c].value !== c) map[c] = sels[c].value;
-      if (isNew) { D.map = map; D.qtyCol = qty.value; } else editDoc((d) => { d.data.map = map; d.data.qtyCol = qty.value; }, 'Map columns');
+      if (isNew) { D.map = map; D.qtyCol = qty.value; } else editDoc((d) => { d.data.map = map; d.data.qtyCol = qty.value; }, LT('label.data.map_columns'));
     } }] }));
 }

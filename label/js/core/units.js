@@ -1,6 +1,13 @@
 /* SlopLabel — core/units: unit conversion (everything is stored in mm) and small helpers. */
 'use strict';
 
+/** Words a person reads (label/i18n, shared/i18n/APPS-HOWTO.md): LT(key, vars), the key itself without SlopI18n (Node tests).
+ *  LW(kind, id, en): a built-in name (a stock, a preset, an object type) in the chosen language, label.def.<kind>.<id>, else en.
+ *  onLabelLang(fn): fn after a language change, once the new tables are in. */
+const LT = (key, vars) => (typeof window !== 'undefined' && window.SlopI18n ? window.SlopI18n.t(key, vars) : key);
+const LW = (kind, id, en) => { const I = typeof window !== 'undefined' && window.SlopI18n, k = 'label.def.' + kind + '.' + String(id).replace(/[^a-z0-9]+/gi, '_').toLowerCase(); return I && I.has(k) ? I.t(k) : en; };
+const onLabelLang = (fn) => { if (typeof window !== 'undefined' && window.SlopI18n && window.SlopI18n.on) window.SlopI18n.on(fn); };
+
 const MM_PER_IN = 25.4;
 const PT_PER_MM = 72 / 25.4;
 const UNITS = { mm: 'mm', in: 'inch', dots: 'dots' };

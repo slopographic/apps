@@ -4,7 +4,7 @@
 (function (g) {
   'use strict';
   const ns = (g.SlopEffects = g.SlopEffects || {});
-  const { h } = ns.dom;
+  const { h } = ns.dom, T = (k, v) => ns.defs.t(k, v);
   const W = 320, PAD = 22, YMIN = -0.5, YMAX = 1.5;
   const toX = (x) => PAD + x * (W - 2 * PAD);
   const toY = (y) => W - PAD - ((y - YMIN) / (YMAX - YMIN)) * (W - 2 * PAD);
@@ -61,33 +61,34 @@
       const tg = target();
       host.replaceChildren();
       if (!tg) {
-        host.append(h('p', { class: 'fx-empty' }, 'Select one key in the timeline to see and edit its easing. The curve shows how the value moves from this key to the next.'));
+        host.append(h('p', { class: 'fx-empty' }, T('effects.graph.empty')));
         return;
       }
       const ease = tg.key.ease;
       const isBez = Array.isArray(ease);
       const bez = isBez ? ease : [0.42, 0, 0.58, 1];
-      const label = ns.defs.label(ns.defs.PROPS.map((p) => [p.name, p.label]), tg.prop) || tg.prop;
-      const canvas = h('canvas', { class: 'fx-curve', width: W, height: W, 'aria-label': 'Easing curve' });
-      const select = h('select', { class: 'sui-input', 'aria-label': 'Ease', onchange: (e) => {
+      const pd = ns.defs.PROPS.find((p) => p.name === tg.prop);
+      const label = pd ? ns.defs.word('prop', pd.name, pd.label) : tg.prop;
+      const canvas = h('canvas', { class: 'fx-curve', width: W, height: W, 'aria-label': T('effects.graph.curve') });
+      const select = h('select', { class: 'sui-input', 'aria-label': T('effects.graph.ease'), onchange: (e) => {
         const v = e.target.value;
         const next = v === 'bezier' ? (isBez ? ease : bez.slice()) : v;
-        S.edit('Set ease', (d) => ns.keys.setEase(d, tg.layer, tg.prop, tg.t, next));
-      } }, ns.defs.EASES.map(([v, l]) => h('option', { value: v, selected: (isBez ? 'bezier' : ease) === v ? true : null }, l)));
-      const inputs = [0, 1, 2, 3].map((i) => h('input', { class: 'sui-input', type: 'number', step: '0.01', value: isBez ? ease[i] : bez[i], 'aria-label': ['Handle 1 x', 'Handle 1 y', 'Handle 2 x', 'Handle 2 y'][i], disabled: isBez ? null : true,
+        S.edit(T('effects.undo.set_ease'), (d) => ns.keys.setEase(d, tg.layer, tg.prop, tg.t, next));
+      } }, ns.defs.EASES.map(([v, l]) => h('option', { value: v, selected: (isBez ? 'bezier' : ease) === v ? true : null }, ns.defs.word('ease', v, l))));
+      const inputs = [0, 1, 2, 3].map((i) => h('input', { class: 'sui-input', type: 'number', step: '0.01', value: isBez ? ease[i] : bez[i], 'aria-label': T('effects.graph.handle', { n: i < 2 ? '1' : '2', axis: i % 2 ? 'y' : 'x' }), disabled: isBez ? null : true,
         onchange: (e) => {
           const cp = (isBez ? ease : bez).slice();
           cp[i] = Number(e.target.value);
           if (i === 0 || i === 2) cp[i] = Math.min(1, Math.max(0, cp[i]));
-          S.edit('Set ease', (d) => ns.keys.setEase(d, tg.layer, tg.prop, tg.t, cp));
+          S.edit(T('effects.undo.set_ease'), (d) => ns.keys.setEase(d, tg.layer, tg.prop, tg.t, cp));
         } }));
       host.append(h('div', { class: 'fx-graph-wrap' },
-        h('div', null, canvas, h('p', { class: 'fx-empty', style: 'padding:6px 0' }, `${label} at ${tg.t.toFixed(2)} s`)),
+        h('div', null, canvas, h('p', { class: 'fx-empty', style: 'padding:6px 0' }, T('effects.graph.at', { what: label, t: tg.t.toFixed(2) }))),
         h('div', { class: 'fx-graph-side' },
-          h('label', { class: 'fx-row' }, h('span', { class: 'fx-lbl' }, 'Ease'), select, h('span')),
-          h('div', { class: 'fx-pair', role: 'group', 'aria-label': 'Bezier handles' }, inputs),
-          h('p', { class: 'fx-empty', style: 'padding:0;text-align:left' }, isBez ? 'Drag the two handles on the curve, or type values. X runs 0 to 1; Y may overshoot.' : 'Choose Custom bezier to shape the curve with two handles.'),
-          h('div', { class: 'fx-chips' }, h('button', { type: 'button', class: 'sui-btn', onclick: () => ka.setEaseAll(select.value === 'bezier' ? bez : select.value) }, 'Apply to all selected keys')),
+          h('label', { class: 'fx-row' }, h('span', { class: 'fx-lbl' }, T('effects.graph.ease')), select, h('span')),
+          h('div', { class: 'fx-pair', role: 'group', 'aria-label': T('effects.graph.handles') }, inputs),
+          h('p', { class: 'fx-empty', style: 'padding:0;text-align:left' }, T(isBez ? 'effects.graph.bez_note' : 'effects.graph.pick_bez')),
+          h('div', { class: 'fx-chips' }, h('button', { type: 'button', class: 'sui-btn', onclick: () => ka.setEaseAll(select.value === 'bezier' ? bez : select.value) }, T('effects.graph.apply_all'))),
         ),
       ));
       const cp = ctrl || (isBez ? ease : null);
@@ -119,7 +120,7 @@
         const up = () => {
           canvas.removeEventListener('pointermove', move);
           canvas.removeEventListener('pointerup', up);
-          S.commitLive('Set ease');
+          S.commitLive(ns.defs.t('effects.undo.set_ease'));
           ctrl = null; drag = null;
           render();
         };

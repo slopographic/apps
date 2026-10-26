@@ -93,15 +93,15 @@
     if (SE.watermark) await SE.watermark.ready(p);
     try {
       for (let i = 0; i < n; i++) {
-        if (signal.cancelled) throw new DOMException('Export cancelled', 'AbortError');
+        if (signal.cancelled) throw new DOMException('Export cancelled', 'AbortError'); // i18n-ignore: an error for the code
         const t = a + i / fps;
         await src.prepare(t);
         SE.compositor.render(g, p, t, { W: w, H: h, source: src.get });
         frames.push(g.getImageData(0, 0, w, h));
-        if (progress) progress((i + 1) / n * 0.8, 'Frame ' + (i + 1) + ' of ' + n);
+        if (progress) progress((i + 1) / n * 0.8, SE.util.t('slopedit.io.frame_of', { n: i + 1, of: n }));
       }
     } finally { src.close(); }
-    if (progress) progress(0.85, 'Building palette and compressing…');
+    if (progress) progress(0.85, SE.util.t('slopedit.io.building_palette_and_compressing'));
     await new Promise((r) => setTimeout(r, 0));
     return GIF.encode(frames, w, h, Math.round(100 / fps));
   };

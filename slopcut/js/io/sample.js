@@ -97,20 +97,20 @@
     E.setTransition(p, p.clips[0].id, 'black', 0.6);
   };
   S.load = async function () {
-    if (SE.doc.clips.length && !(await SlopUI.confirm('Sample project', 'Replace the current project with the sample?', 'Load sample'))) return;
-    const dlg = SE.progress ? SE.progress.open('Building the sample project', { cancel: false }) : null;
+    if (SE.doc.clips.length && !(await SlopUI.confirm(U.t('slopedit.bin.sample_project'), U.t('slopedit.io.sample_replace'), U.t('slopedit.io.load_sample')))) return;
+    const dlg = SE.progress ? SE.progress.open(U.t('slopedit.io.building_the_sample_project'), { cancel: false }) : null;
     try {
       const files = await S.makeMedia({ progress: (m) => dlg && dlg.set(null, m) });
       await SE.session.newProject(false);
-      SE.doc.name = 'Sample project';
+      SE.doc.name = U.t('slopedit.bin.sample_project');
       const metas = await SE.intake.sample(files); // through the intake, like every other way in
       SE.doc.w = 1280; SE.doc.h = 720; SE.doc.fps = 30;
-      SE.change('Sample project', (p) => S.assemble(p, metas));
+      SE.change(U.t('slopedit.bin.sample_project'), (p) => S.assemble(p, metas));
       SE.history.reset();
       SE.emit('doc', {}); SE.emit('settings', {});
       if (SE.timeline) SE.timeline.fit();
       if (SE.player) SE.player.seek(0);
-    } catch (e) { console.error(e); SlopUI.alert('Sample project', 'Could not build the sample: ' + e.message); }
+    } catch (e) { console.error(e); SlopUI.alert(U.t('slopedit.bin.sample_project'), 'Could not build the sample: ' + e.message); }
     finally { if (dlg) dlg.close(); }
   };
 })();

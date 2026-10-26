@@ -4,6 +4,8 @@
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="label" data-src="shared/theme/theme.js"></script>
   <link rel="expect" href="#slop-built" blocking="render">
+  <script src="../shared/i18n/i18n.js" data-src="shared/i18n/i18n.js"></script>
+  <script src="i18n/index.js" data-src="label/i18n/index.js"></script>
 <script src="../shared/consent/config.js"></script>
 <script src="../shared/consent/state.js"></script>
 <script src="../shared/consent/consent-mode.js"></script>
@@ -51,38 +53,38 @@
 <body>
   <div class="app" id="app">
     <div class="smb-hold" hidden>
-      <button type="button" class="btn ghost cmd-btn" id="btnCmd" title="Search commands" aria-label="Search commands"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.5 15.5 21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span class="only-wide">Search</span></button>
-      <button type="button" class="btn ghost only-wide" id="btnUndo" title="Undo (Ctrl+Z)" aria-label="Undo">↶</button>
-      <button type="button" class="btn ghost only-wide" id="btnRedo" title="Redo (Ctrl+Y)" aria-label="Redo">↷</button>
-      <button type="button" class="btn primary" id="btnPrint" title="Print (Ctrl+P)">Print…</button>
-      <button type="button" class="btn ghost only-narrow" id="btnDock" aria-label="Show panels" title="Panels">☰</button>
+      <button type="button" class="btn ghost cmd-btn" id="btnCmd" title="Search commands" aria-label="Search commands" data-i18n-attr="aria-label:label.page.search_commands"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.5 15.5 21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span class="only-wide" data-i18n="ui.search">Search</span></button>
+      <button type="button" class="btn ghost only-wide" id="btnUndo" title="Undo (Ctrl+Z)" aria-label="Undo" data-i18n-attr="aria-label:ui.undo">↶</button>
+      <button type="button" class="btn ghost only-wide" id="btnRedo" title="Redo (Ctrl+Y)" aria-label="Redo" data-i18n-attr="aria-label:ui.redo">↷</button>
+      <button type="button" class="btn primary" id="btnPrint" title="Print (Ctrl+P)" data-i18n="label.page.print">Print…</button>
+      <button type="button" class="btn ghost only-narrow" id="btnDock" aria-label="Show panels" title="Panels" data-i18n-attr="aria-label:label.page.show_panels;title:label.boot.panels">☰</button>
     </div>
     <header class="menubar" id="menubar"></header>
-    <div class="lb-tabs" id="tabs" aria-label="Open labels"></div>
+    <div class="lb-tabs" id="tabs" aria-label="Open labels" data-i18n-attr="aria-label:label.page.open_labels"></div>
     <div class="ctrlbar" id="ctrlbar">
-      <button type="button" class="chip" id="cbLabel" title="Label setup"></button>
+      <button type="button" class="chip" id="cbLabel" title="Label setup" data-i18n-attr="title:label.dlg.label_setup"></button>
       <span class="sep"></span>
       <span class="recnav" id="recNav" hidden>
-        <button type="button" class="btn ghost" id="recPrev" aria-label="Previous record">‹</button>
+        <button type="button" class="btn ghost" id="recPrev" aria-label="Previous record" data-i18n-attr="aria-label:label.cmd.previous_record">‹</button>
         <span id="recInfo" class="mono"></span>
-        <button type="button" class="btn ghost" id="recNext" aria-label="Next record">›</button>
+        <button type="button" class="btn ghost" id="recNext" aria-label="Next record" data-i18n-attr="aria-label:label.cmd.next_record">›</button>
       </span>
       <span class="grow"></span>
-      <button type="button" class="btn ghost" id="zoomOut" aria-label="Zoom out">−</button>
-      <button type="button" class="chip mono" id="zoomVal" title="Fit label (Ctrl+0)">100%</button>
-      <button type="button" class="btn ghost" id="zoomIn" aria-label="Zoom in">+</button>
+      <button type="button" class="btn ghost" id="zoomOut" aria-label="Zoom out" data-i18n-attr="aria-label:ui.zoom_out">−</button>
+      <button type="button" class="chip mono" id="zoomVal" title="Fit label (Ctrl+0)">100%</button><!-- i18n-ignore: the title is set by commands.js --><!-- i18n-ignore: the title is set by commands.js -->
+      <button type="button" class="btn ghost" id="zoomIn" aria-label="Zoom in" data-i18n-attr="aria-label:ui.zoom_in">+</button>
     </div>
-    <aside class="toolbox" id="toolbox" aria-label="Tools"></aside>
+    <aside class="toolbox" id="toolbox" aria-label="Tools" data-i18n-attr="aria-label:label.cmd.tools"></aside>
     <main class="workspace" id="workspace">
       <div class="ruler-corner" id="rulerCorner"></div>
       <canvas class="ruler ruler-h" id="rulerH" aria-hidden="true"></canvas>
       <canvas class="ruler ruler-v" id="rulerV" aria-hidden="true"></canvas>
-      <div class="stage" id="stage" tabindex="0" aria-label="Label canvas">
+      <div class="stage" id="stage" tabindex="0" aria-label="Label canvas" data-i18n-attr="aria-label:label.page.canvas">
         <div class="stage-view" id="stageView"><canvas id="cv"></canvas></div>
         <div id="lbDrop" class="lb-dropstrip"></div>
       </div>
     </main>
-    <aside class="dock" id="dock" aria-label="Panels">
+    <aside class="dock" id="dock" aria-label="Panels" data-i18n-attr="aria-label:label.boot.panels">
       <div class="tabs" id="dockTabs" role="tablist"></div>
       <div class="dock-body" id="dockBody"></div>
     </aside>
@@ -186,7 +188,8 @@
   <script>SlopPWA.mount();</script>
 <link rel="stylesheet" href="../shared/menubar/menubar.css">
 <script src="../shared/menubar/menubar.js"></script>
-<script>SlopMenuBar.mount({app: 'SlopLabel', host: '#menubar', tools: ['#btnDock'], menus: {File: menuFile, Edit: menuEdit, Insert: menuInsert, Object: menuObject, Data: menuData, View: menuView, Help: menuHelp}});</script>
+<script>SlopMenuBar.mount({app: 'SlopLabel', host: '#menubar', tools: ['#btnDock'], menus: {File: menuFile, Edit: menuEdit, Insert: menuInsert, Object: menuObject, Data: menuData, View: menuView, Help: menuHelp}});
+  document.querySelectorAll('#menubar .smb-menu-b').forEach((b) => { const k = { Object: 'label.cmd.object', Data: 'label.cmd.data' }[b.textContent]; if (k) { b.dataset.i18n = k; b.textContent = LT(k); } }); // the menus the shared bar has no word for</script>
   <script src="../shell/shell.js"></script>
   <script src="../shared/tour/mount.js" data-app="label"></script>
   <script src="../shared/urlstate/urlstate.js" data-src="shared/urlstate/urlstate.js"></script>

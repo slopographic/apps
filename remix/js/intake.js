@@ -9,7 +9,7 @@
     register(o) {
       let missingBefore = 0;
       SlopIntake.register({
-        id: 'remix', accept: { types: ['image/*', 'video/*'], exts: [], noun: 'a picture or video' },
+        id: 'remix', accept: { types: ['image/*', 'video/*'], exts: [], get noun() { return RM.t('remix.intake.noun'); } },
         before: () => { missingBefore = RM.state.items.filter((x) => x.missing).length; },
         process: async (file) => {
           if (!(await RM.addFiles([file]))) throw new Error('could not be decoded as a picture or video');
@@ -18,7 +18,7 @@
         after: (values, batch, sum) => o.done(sum, missingBefore),
       });
       SlopIntake.register({
-        id: 'remix.music', main: false, paste: false, toast: false, limit: 1, accept: { types: ['audio/*', 'video/*'], noun: 'an audio or video file' },
+        id: 'remix.music', main: false, paste: false, toast: false, limit: 1, accept: { types: ['audio/*', 'video/*'], get noun() { return RM.t('remix.intake.music_noun'); } },
         process: async (f) => { o.music(f); return f.name; },
       });
     },

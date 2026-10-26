@@ -11,10 +11,10 @@
 
   /** The formats this browser can render, in menu order. */
   function formats() {
-    const out = [{ id: 'png', label: 'PNG sequence (zip, with transparency)', video: false }];
+    const out = [{ id: 'png', label: 'PNG sequence (zip, with transparency)', video: false }]; // i18n-ignore: English fallback (render-dialog.js shows effects.render.*)
     if (typeof MediaRecorder !== 'undefined') {
-      if (videoType('webm')) out.push({ id: 'webm', label: 'WebM video (real time)', video: true });
-      if (videoType('mp4')) out.push({ id: 'mp4', label: 'MP4 video (real time)', video: true });
+      if (videoType('webm')) out.push({ id: 'webm', label: 'WebM video (real time)', video: true }); // i18n-ignore: English fallback (render-dialog.js shows effects.render.*)
+      if (videoType('mp4')) out.push({ id: 'mp4', label: 'MP4 video (real time)', video: true }); // i18n-ignore: English fallback (render-dialog.js shows effects.render.*)
     }
     return out;
   }

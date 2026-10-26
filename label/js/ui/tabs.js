@@ -9,7 +9,7 @@ const LabelTabs = { api: null, session: null };
 
 /** The strip's adapter: a tab record T is the strip's doc. */
 const TAB_ADAPTER = {
-  newDoc: () => tabRecord(normalizeDoc(newDoc({ name: 'Untitled label' })), { label: 'New label' }),
+  newDoc: () => tabRecord(normalizeDoc(newDoc({ name: 'Untitled label' })), { label: LT('label.dlg.new_label') }),
   serialize: (T) => { if (T === App.T) syncOut(); return tabToState(T); },
   restore: (s) => stateToTab(s),
   title: (T) => T.doc.name,
@@ -21,7 +21,7 @@ const TAB_ADAPTER = {
     ext: '.sloplabel',
     mime: 'application/json',
     toBlob: (T) => projectBlob(T.doc),
-    fromBlob: async (blob) => tabRecord(parseProject(await blob.text()), { label: 'Open' }),
+    fromBlob: async (blob) => tabRecord(parseProject(await blob.text()), { label: LT('label.form.open') }),
   },
 };
 
@@ -75,12 +75,12 @@ async function startTabs() {
   const n = await LabelTabs.session.restore();
   if (n) return;
   const old = await loadAutosave();
-  if (old) { setDoc(old.doc, 'Restore'); App.dirty = true; tabChanged(); }
-  else setDoc(starterDoc(), 'Start');
+  if (old) { setDoc(old.doc, LT('label.tabs.restore')); App.dirty = true; tabChanged(); }
+  else setDoc(starterDoc(), LT('label.dlg.start'));
 }
 /** Opens a label in a new tab after the current one. o: { label (undo label), dirty, origName, driveId }. Returns the tab record. */
 function openDocTab(doc, o = {}) {
-  const T = tabRecord(normalizeDoc(doc), { dirty: !!o.dirty, driveId: o.driveId || null, label: o.label || 'Open' });
+  const T = tabRecord(normalizeDoc(doc), { dirty: !!o.dirty, driveId: o.driveId || null, label: o.label || LT('label.form.open') });
   LabelTabs.api.openDoc(T, { driveId: T.driveId, origName: o.origName || null });
   return T;
 }

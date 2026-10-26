@@ -4,6 +4,8 @@
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="remix" data-src="shared/theme/theme.js"></script>
   <link rel="expect" href="#slop-built" blocking="render">
+  <script src="../shared/i18n/i18n.js" data-src="shared/i18n/i18n.js"></script>
+  <script src="i18n/index.js" data-src="remix/i18n/index.js"></script>
 <script src="../shared/consent/config.js"></script>
 <script src="../shared/consent/state.js"></script>
 <script src="../shared/consent/consent-mode.js"></script>
@@ -44,118 +46,118 @@
 </head>
 <body>
   <header class="rm-top">
-    <b>Reel Remix</b>
+    <b>Reel Remix</b><!-- i18n-ignore -->
     <a class="rm-home" href="../">slopographic</a>
-    <span class="rm-note">Nothing is uploaded. The edit is planned on this device.</span>
-    <button id="rm-config" type="button" class="rm-btn" title="Export or import the reel as a .slop.json config, or ask an AI to write one">Config</button>
-    <button id="rm-settings-btn" type="button" class="rm-btn" title="Remix settings: auto remix when uploads finish">Settings</button>
+    <span class="rm-note" data-i18n="remix.page.note">Nothing is uploaded. The edit is planned on this device.</span>
+    <button id="rm-config" type="button" class="rm-btn" title="Export or import the reel as a .slop.json config, or ask an AI to write one" data-i18n="remix.page.config" data-i18n-attr="title:remix.page.config_tip">Config</button>
+    <button id="rm-settings-btn" type="button" class="rm-btn" title="Remix settings: auto remix when uploads finish" data-i18n="remix.page.settings" data-i18n-attr="title:remix.page.settings_tip">Settings</button>
   </header>
   <main class="rm-main">
-    <aside class="rm-bin" aria-label="Media">
-      <h2>Clips and photos <small id="rm-count"></small></h2>
+    <aside class="rm-bin" aria-label="Media" data-i18n-attr="aria-label:remix.page.media">
+      <h2><span data-i18n="remix.page.clips">Clips and photos</span> <small id="rm-count"></small></h2>
       <div id="rm-drop" class="rm-drop"></div>
       <ul id="rm-bin" class="rm-list"></ul>
     </aside>
-    <section id="rm-stage" class="rm-stage" aria-label="Preview">
-      <canvas id="rm-canvas" class="rm-canvas" width="540" height="960" aria-label="Preview of the remix"></canvas>
-      <div id="rm-auto" class="rm-auto" role="status" hidden><span id="rm-auto-text"></span> <button id="rm-auto-cancel" type="button" class="rm-btn">Cancel</button></div>
+    <section id="rm-stage" class="rm-stage" aria-label="Preview" data-i18n-attr="aria-label:remix.page.preview">
+      <canvas id="rm-canvas" class="rm-canvas" width="540" height="960" aria-label="Preview of the remix" data-i18n-attr="aria-label:remix.page.preview_canvas"></canvas>
+      <div id="rm-auto" class="rm-auto" role="status" hidden><span id="rm-auto-text"></span> <button id="rm-auto-cancel" type="button" class="rm-btn" data-i18n="menu.cancel">Cancel</button></div>
       <div class="rm-transport">
-        <button id="rm-play" type="button" class="rm-btn">Play</button>
-        <button id="rm-export" type="button" class="rm-btn" title="Render the plan at the export preset and save it">Export</button>
-        <button id="rm-send-stage" type="button" class="rm-btn">Send to SlopCut</button>
-        <input id="rm-scrub" type="range" min="0" max="0" step="0.01" value="0" aria-label="Playhead">
+        <button id="rm-play" type="button" class="rm-btn">Play</button><!-- i18n-ignore: set by ui.js -->
+        <button id="rm-export" type="button" class="rm-btn" title="Render the plan at the export preset and save it" data-i18n="remix.export.export" data-i18n-attr="title:remix.page.export_tip">Export</button>
+        <button id="rm-send-stage" type="button" class="rm-btn" data-i18n="remix.page.send">Send to SlopCut</button>
+        <input id="rm-scrub" type="range" min="0" max="0" step="0.01" value="0" aria-label="Playhead" data-i18n-attr="aria-label:remix.page.playhead">
         <span id="rm-time">0:00.0 / 0:00.0</span>
       </div>
-      <div id="rm-slots" class="rm-slots" aria-label="Slots at the playhead"></div>
-      <div id="rm-keys" class="rm-keys" role="group" aria-label="Keyframes of the selected slot">
-        <label class="rm-inline">Keys for <select id="rm-kslot" aria-label="Slot"></select></label>
-        <div id="rm-ktrack" class="rm-ktrack" aria-label="Keys across the slot"></div>
-        <label class="rm-inline">Ease <select id="rm-kease" aria-label="Easing of the selected key"></select></label>
-        <button id="rm-kadd" type="button" class="rm-btn" title="Add a key at the playhead, holding the slot's current pose">Add key at playhead</button>
-        <button id="rm-kdel" type="button" class="rm-btn">Delete key</button>
-        <select id="rm-kpreset" aria-label="Animate in preset"></select>
-        <button id="rm-kanim" type="button" class="rm-btn">Animate in</button>
-        <button id="rm-kreset" type="button" class="rm-btn">Reset slot keys</button>
+      <div id="rm-slots" class="rm-slots" aria-label="Slots at the playhead" data-i18n-attr="aria-label:remix.page.slots"></div>
+      <div id="rm-keys" class="rm-keys" role="group" aria-label="Keyframes of the selected slot" data-i18n-attr="aria-label:remix.page.keys">
+        <label class="rm-inline"><span data-i18n="remix.page.keys_for">Keys for</span> <select id="rm-kslot" aria-label="Slot" data-i18n-attr="aria-label:remix.page.slot"></select></label>
+        <div id="rm-ktrack" class="rm-ktrack" aria-label="Keys across the slot" data-i18n-attr="aria-label:remix.page.ktrack"></div>
+        <label class="rm-inline"><span data-i18n="remix.page.ease">Ease</span> <select id="rm-kease" aria-label="Easing of the selected key" data-i18n-attr="aria-label:remix.page.ease_tip"></select></label>
+        <button id="rm-kadd" type="button" class="rm-btn" title="Add a key at the playhead, holding the slot's current pose" data-i18n="remix.page.kadd" data-i18n-attr="title:remix.page.kadd_tip">Add key at playhead</button>
+        <button id="rm-kdel" type="button" class="rm-btn" data-i18n="remix.page.kdel">Delete key</button>
+        <select id="rm-kpreset" aria-label="Animate in preset" data-i18n-attr="aria-label:remix.page.kpreset"></select>
+        <button id="rm-kanim" type="button" class="rm-btn" data-i18n="remix.page.kanim">Animate in</button>
+        <button id="rm-kreset" type="button" class="rm-btn" data-i18n="remix.page.kreset">Reset slot keys</button>
         <span id="rm-kinfo" class="rm-size"></span>
       </div>
       <div id="rm-lanehost" class="rm-lane"></div>
       <p id="rm-total" class="rm-total"></p>
-      <ol id="rm-cuts" class="rm-cuts" aria-label="Cuts in order"></ol>
+      <ol id="rm-cuts" class="rm-cuts" aria-label="Cuts in order" data-i18n-attr="aria-label:remix.page.cuts"></ol>
     </section>
-    <aside class="rm-side" aria-label="Options">
-      <h2>Options</h2>
-      <label class="rm-f">Target length (s)<input id="rm-target" type="number" min="1" max="600" step="1" value="30"></label>
-      <label class="rm-f">Pace<select id="rm-pace"></select></label>
-      <label class="rm-f">Export preset<select id="rm-preset"></select></label>
-      <label class="rm-f">Fill<select id="rm-fill" title="How a clip fills its cell"></select></label>
-      <label class="rm-f">Timing<select id="rm-timing" title="When each slot switches"></select></label>
-      <label class="rm-f">Video in cells<select id="rm-vtiming"></select></label>
+    <aside class="rm-side" aria-label="Options" data-i18n-attr="aria-label:remix.page.options">
+      <h2 data-i18n="remix.page.options">Options</h2>
+      <label class="rm-f"><span data-i18n="remix.opt.target">Target length (s)</span><input id="rm-target" type="number" min="1" max="600" step="1" value="30"></label>
+      <label class="rm-f"><span data-i18n="remix.opt.pace">Pace</span><select id="rm-pace"></select></label>
+      <label class="rm-f"><span data-i18n="remix.opt.preset">Export preset</span><select id="rm-preset"></select></label>
+      <label class="rm-f"><span data-i18n="remix.opt.fill">Fill</span><select id="rm-fill" title="How a clip fills its cell" data-i18n-attr="title:remix.opt.fill_tip"></select></label>
+      <label class="rm-f"><span data-i18n="remix.opt.timing">Timing</span><select id="rm-timing" title="When each slot switches" data-i18n-attr="title:remix.opt.timing_tip"></select></label>
+      <label class="rm-f"><span data-i18n="remix.opt.vtiming">Video in cells</span><select id="rm-vtiming"></select></label>
       <div class="rm-row">
-        <label class="rm-f">Min length (s)<input id="rm-lmin" type="number" min="0.2" max="60" step="0.1" value="1"></label>
-        <label class="rm-f">Max length (s)<input id="rm-lmax" type="number" min="0.2" max="60" step="0.1" value="3"></label>
+        <label class="rm-f"><span data-i18n="remix.opt.lmin">Min length (s)</span><input id="rm-lmin" type="number" min="0.2" max="60" step="0.1" value="1"></label>
+        <label class="rm-f"><span data-i18n="remix.opt.lmax">Max length (s)</span><input id="rm-lmax" type="number" min="0.2" max="60" step="0.1" value="3"></label>
       </div>
-      <label class="rm-f">Stagger up to (s)<input id="rm-stagger" type="number" min="0" max="30" step="0.1" value="1"></label>
-      <label class="rm-f">Audio<select id="rm-audio"></select></label>
-      <label class="rm-f">Music track<select id="rm-track"></select></label>
-      <fieldset class="rm-grids"><legend>Photos</legend>
-        <label class="rm-f">How long each shows<select id="rm-pshow"></select></label>
+      <label class="rm-f"><span data-i18n="remix.opt.stagger">Stagger up to (s)</span><input id="rm-stagger" type="number" min="0" max="30" step="0.1" value="1"></label>
+      <label class="rm-f"><span data-i18n="remix.opt.audio">Audio</span><select id="rm-audio"></select></label>
+      <label class="rm-f"><span data-i18n="remix.opt.track">Music track</span><select id="rm-track"></select></label>
+      <fieldset class="rm-grids"><legend data-i18n="remix.opt.photos">Photos</legend>
+        <label class="rm-f"><span data-i18n="remix.opt.pshow">How long each shows</span><select id="rm-pshow"></select></label>
         <div class="rm-row">
-          <label class="rm-f">Seconds<input id="rm-psec" type="number" min="0.2" max="120" step="0.1" value="3"></label>
-          <label class="rm-f">Min<input id="rm-pmin" type="number" min="0.2" max="120" step="0.1" value="2"></label>
-          <label class="rm-f">Max<input id="rm-pmax" type="number" min="0.2" max="120" step="0.1" value="4"></label>
+          <label class="rm-f"><span data-i18n="remix.opt.psec">Seconds</span><input id="rm-psec" type="number" min="0.2" max="120" step="0.1" value="3"></label>
+          <label class="rm-f"><span data-i18n="remix.opt.pmin">Min</span><input id="rm-pmin" type="number" min="0.2" max="120" step="0.1" value="2"></label>
+          <label class="rm-f"><span data-i18n="remix.opt.pmax">Max</span><input id="rm-pmax" type="number" min="0.2" max="120" step="0.1" value="4"></label>
         </div>
         <div class="rm-row">
-          <label class="rm-f">From (s)<input id="rm-pfrom" type="number" min="0" step="0.1" value="0"></label>
-          <label class="rm-f">To (s, 0 = end)<input id="rm-pto" type="number" min="0" step="0.1" value="0"></label>
+          <label class="rm-f"><span data-i18n="remix.opt.pfrom">From (s)</span><input id="rm-pfrom" type="number" min="0" step="0.1" value="0"></label>
+          <label class="rm-f"><span data-i18n="remix.opt.pto">To (s, 0 = end)</span><input id="rm-pto" type="number" min="0" step="0.1" value="0"></label>
         </div>
         <div class="rm-row">
-          <label class="rm-f">Enter<select id="rm-penter"></select></label>
-          <label class="rm-f">Exit<select id="rm-pexit"></select></label>
-        </div>
-      </fieldset>
-      <fieldset class="rm-grids"><legend>Video</legend>
-        <label class="rm-f">Play<select id="rm-vmode"></select></label>
-        <div class="rm-row">
-          <label class="rm-f">Start (s)<input id="rm-vstart" type="number" min="0" step="0.1" value="0"></label>
-          <label class="rm-f">Stop (s)<input id="rm-vstop" type="number" min="0" step="0.1" value="0"></label>
-          <label class="rm-f">Speed<input id="rm-vspeed" type="number" min="0.1" max="8" step="0.1" value="1"></label>
+          <label class="rm-f"><span data-i18n="remix.opt.penter">Enter</span><select id="rm-penter"></select></label>
+          <label class="rm-f"><span data-i18n="remix.opt.pexit">Exit</span><select id="rm-pexit"></select></label>
         </div>
       </fieldset>
-      <div class="rm-row"><button type="button" class="rm-btn" id="rm-music">Pick music file</button><span id="rm-music-name" class="rm-size"></span></div>
+      <fieldset class="rm-grids"><legend data-i18n="remix.opt.video">Video</legend>
+        <label class="rm-f"><span data-i18n="remix.opt.vmode">Play</span><select id="rm-vmode"></select></label>
+        <div class="rm-row">
+          <label class="rm-f"><span data-i18n="remix.opt.vstart">Start (s)</span><input id="rm-vstart" type="number" min="0" step="0.1" value="0"></label>
+          <label class="rm-f"><span data-i18n="remix.opt.vstop">Stop (s)</span><input id="rm-vstop" type="number" min="0" step="0.1" value="0"></label>
+          <label class="rm-f"><span data-i18n="remix.opt.vspeed">Speed</span><input id="rm-vspeed" type="number" min="0.1" max="8" step="0.1" value="1"></label>
+        </div>
+      </fieldset>
+      <div class="rm-row"><button type="button" class="rm-btn" id="rm-music" data-i18n="remix.opt.music">Pick music file</button><span id="rm-music-name" class="rm-size"></span></div>
       <div id="rm-custom" class="rm-custom" hidden>
-        <label class="rm-f">Width<input id="rm-cw" type="number" min="16" max="7680" step="2" value="1080"></label>
-        <label class="rm-f">Height<input id="rm-ch" type="number" min="16" max="4320" step="2" value="1920"></label>
+        <label class="rm-f"><span data-i18n="remix.opt.cw">Width</span><input id="rm-cw" type="number" min="16" max="7680" step="2" value="1080"></label>
+        <label class="rm-f"><span data-i18n="remix.opt.ch">Height</span><input id="rm-ch" type="number" min="16" max="4320" step="2" value="1920"></label>
       </div>
       <p id="rm-size" class="rm-size"></p>
-      <label class="rm-f">Layout<select id="rm-base"></select></label>
-      <label class="rm-chk"><input id="rm-random" type="checkbox"> Random: switch layouts at random points</label>
-      <fieldset class="rm-grids"><legend>Grids to choose from</legend><div id="rm-grids"></div></fieldset>
-      <fieldset class="rm-grids"><legend>Effect layer</legend>
-        <label class="rm-f">Effect<select id="rm-fx"></select></label>
-        <label class="rm-f">Intensity <span id="rm-fxval" class="rm-size"></span><input id="rm-fxint" type="range" min="0" max="100" step="5" value="50"></label>
-        <label class="rm-f">Random changes<select id="rm-fxchange"></select></label>
-        <button id="rm-fxreset" type="button" class="rm-btn wide">Reset effect layer</button>
+      <label class="rm-f"><span data-i18n="remix.opt.layout">Layout</span><select id="rm-base"></select></label>
+      <label class="rm-chk"><input id="rm-random" type="checkbox"> <span data-i18n="remix.opt.random">Random: switch layouts at random points</span></label>
+      <fieldset class="rm-grids"><legend data-i18n="remix.opt.grids">Grids to choose from</legend><div id="rm-grids"></div></fieldset>
+      <fieldset class="rm-grids"><legend data-i18n="remix.opt.fxlayer">Effect layer</legend>
+        <label class="rm-f"><span data-i18n="remix.opt.fx">Effect</span><select id="rm-fx"></select></label>
+        <label class="rm-f"><span><span data-i18n="remix.opt.fxint">Intensity</span> <span id="rm-fxval" class="rm-size"></span></span><input id="rm-fxint" type="range" min="0" max="100" step="5" value="50"></label>
+        <label class="rm-f"><span data-i18n="remix.opt.fxchange">Random changes</span><select id="rm-fxchange"></select></label>
+        <button id="rm-fxreset" type="button" class="rm-btn wide" data-i18n="remix.opt.fxreset">Reset effect layer</button>
       </fieldset>
-      <label class="rm-f">Seed<input id="rm-seed" type="text" spellcheck="false" autocomplete="off" maxlength="32"></label>
+      <label class="rm-f"><span data-i18n="remix.opt.seed">Seed</span><input id="rm-seed" type="text" spellcheck="false" autocomplete="off" maxlength="32"></label>
       <div class="rm-row">
-        <button id="rm-reshuffle" type="button" class="rm-btn">Reshuffle</button>
-        <button id="rm-remix" type="button" class="rm-btn primary">Remix</button>
+        <button id="rm-reshuffle" type="button" class="rm-btn" data-i18n="remix.page.reshuffle">Reshuffle</button>
+        <button id="rm-remix" type="button" class="rm-btn primary" data-i18n="remix.page.remix">Remix</button>
       </div>
       <div class="rm-row">
-        <button id="rm-randomise" type="button" class="rm-btn" title="A new random order, lengths, transitions and effects, from the seed (the seed typed here, if you typed one)">Randomise</button>
-        <button id="rm-undo" type="button" class="rm-btn" title="Put back the result from before the last Randomise" disabled>Undo randomise</button>
+        <button id="rm-randomise" type="button" class="rm-btn" title="A new random order, lengths, transitions and effects, from the seed (the seed typed here, if you typed one)" data-i18n="remix.page.randomise" data-i18n-attr="title:remix.page.randomise_tip">Randomise</button>
+        <button id="rm-undo" type="button" class="rm-btn" title="Put back the result from before the last Randomise" data-i18n="remix.page.undo" data-i18n-attr="title:remix.page.undo_tip" disabled>Undo randomise</button>
       </div>
-      <button id="rm-send" type="button" class="rm-btn wide">Send to SlopCut</button>
-      <button id="rm-resetall" type="button" class="rm-btn wide" title="Plan options back to their defaults. The clips are kept.">Reset all</button>
+      <button id="rm-send" type="button" class="rm-btn wide" data-i18n="remix.page.send">Send to SlopCut</button>
+      <button id="rm-resetall" type="button" class="rm-btn wide" title="Plan options back to their defaults. The clips are kept." data-i18n="remix.page.resetall" data-i18n-attr="title:remix.page.resetall_tip">Reset all</button>
       <p id="rm-status" class="rm-status" role="status"></p>
     </aside>
   </main>
-  <button id="rm-fab" type="button" class="rm-fab" aria-label="Remix">Remix</button>
+  <button id="rm-fab" type="button" class="rm-fab" aria-label="Remix" data-i18n="remix.page.remix" data-i18n-attr="aria-label:remix.page.remix">Remix</button>
   <dialog id="rm-settings" class="rm-dialog" aria-labelledby="rm-set-title">
-    <h2 id="rm-set-title">Remix settings</h2>
-    <label class="rm-chk"><input id="rm-set-auto" type="checkbox"> Remix by itself when uploads finish</label>
-    <p class="rm-size">After a batch of uploads has loaded, the clips are remixed with the current settings after a moment. Cancel stops that run; the Remix button then pulses until you remix.</p>
-    <button id="rm-set-close" type="button" class="rm-btn primary">Done</button>
+    <h2 id="rm-set-title" data-i18n="remix.page.settings_title">Remix settings</h2>
+    <label class="rm-chk"><input id="rm-set-auto" type="checkbox"> <span data-i18n="remix.page.auto">Remix by itself when uploads finish</span></label>
+    <p class="rm-size" data-i18n="remix.page.auto_note">After a batch of uploads has loaded, the clips are remixed with the current settings after a moment. Cancel stops that run; the Remix button then pulses until you remix.</p>
+    <button id="rm-set-close" type="button" class="rm-btn primary" data-i18n="ui.done">Done</button>
   </dialog>
   <script src="../shared/apps.js"></script>
   <script src="../shared/motion/easing.js"></script>

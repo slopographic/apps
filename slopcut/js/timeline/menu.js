@@ -8,29 +8,29 @@
   TL.contextMenu = function (h, x, y) {
     if (h.area === 'markers' && h.marker) {
       const id = h.marker.id;
-      SlopUI.menu([{ label: 'Rename marker…', act: () => SE.act.editMarker(id) }, { label: 'Go to marker', act: () => SE.player.seek(h.marker.t) }, '-', { label: 'Delete marker', act: () => SE.act.removeMarker(id) }], x, y);
+      SlopUI.menu([{ label: U.t('slopedit.tl.rename_marker_2'), act: () => SE.act.editMarker(id) }, { label: U.t('slopedit.tl.go_to_marker'), act: () => SE.player.seek(h.marker.t) }, '-', { label: U.t('slopedit.tl.delete_marker'), act: () => SE.act.removeMarker(id) }], x, y);
       return;
     }
     if (h.area === 'clip') {
       const c = h.clip;
       if (!A.sel.has(c.id)) A.select([...E.group(SE.doc, [c.id])]);
       SlopUI.menu([
-        c.kind === 'title' ? { label: 'Edit title text…', act: () => { A.select([c.id]); if (SE.inspector) SE.inspector.focusText(); } } : null,
+        c.kind === 'title' ? { label: U.t('slopedit.tl.edit_title_text'), act: () => { A.select([c.id]); if (SE.inspector) SE.inspector.focusText(); } } : null,
         c.kind === 'title' ? '-' : null,
         it('edit.cut'), it('edit.copy'), it('edit.paste'), it('edit.duplicate'), '-',
-        { label: 'Split here', act: () => SE.act.splitAt(TL.snapT(h.t), [c.id]) },
-        it('edit.split', 'Split at playhead'),
-        { label: 'Bring to front', act: () => SE.order.front(A.selectedIds()) }, { label: 'Send to back', act: () => SE.order.back(A.selectedIds()) }, '-',
+        { label: U.t('slopedit.tl.split_here'), act: () => SE.act.splitAt(TL.snapT(h.t), [c.id]) },
+        it('edit.split', U.t('slopedit.cmd.split_at_playhead')),
+        { label: U.t('slopedit.tl.bring_to_front'), act: () => SE.order.front(A.selectedIds()) }, { label: U.t('slopedit.tl.send_to_back'), act: () => SE.order.back(A.selectedIds()) }, '-',
         it('edit.delete'), it('edit.rippleDelete'), '-',
-        c.kind !== 'audio' ? { label: 'Transition in', sub: M.TRANSITIONS.map(([t, l]) => ({ label: l, check: c.trIn && c.trIn.type === t, act: () => { SE.change('Add transition', (p) => E.setTransition(p, c.id, t, (c.trIn && c.trIn.dur) || 1)); } })).concat(['-', { label: 'None', disabled: !c.trIn, act: () => SE.change('Remove transition', (p) => E.setTransition(p, c.id, null)) }]) } : null,
-        c.kind !== 'audio' && c.kind !== 'effect' ? { label: 'Mask', sub: SE.maskMenu() } : null,
+        c.kind !== 'audio' ? { label: U.t('slopedit.insp.transition_in'), sub: M.TRANSITIONS.map(([t, l]) => ({ label: U.w('tr', t, l), check: c.trIn && c.trIn.type === t, act: () => { SE.change(U.t('slopedit.menu.add_transition'), (p) => E.setTransition(p, c.id, t, (c.trIn && c.trIn.dur) || 1)); } })).concat(['-', { label: U.t('slopedit.insp.none'), disabled: !c.trIn, act: () => SE.change(U.t('slopedit.cmd.remove_transition'), (p) => E.setTransition(p, c.id, null)) }]) } : null,
+        c.kind !== 'audio' && c.kind !== 'effect' ? { label: U.t('slopedit.menu.mask'), sub: SE.maskMenu() } : null,
         it('clip.fadeIn'), it('clip.fadeOut'), it('clip.speed'), it('clip.restoreAspect'),
-        c.kind === 'audio' ? { label: 'Add volume keyframe here', act: () => SE.change('Add keyframe', (p) => { const cc = M.clip(p, c.id), u = U.round(h.t - cc.start, 3); cc.keys = (cc.keys || []).concat({ t: u, v: 1 }).sort((a, b) => a.t - b.t); }) } : null,
-        c.kind === 'audio' && c.keys ? { label: 'Clear volume keyframes', act: () => SE.change('Clear keyframes', (p) => { M.clip(p, c.id).keys = null; }) } : null,
+        c.kind === 'audio' ? { label: U.t('slopedit.tl.add_volume_keyframe_here'), act: () => SE.change(U.t('slopedit.tl.add_keyframe'), (p) => { const cc = M.clip(p, c.id), u = U.round(h.t - cc.start, 3); cc.keys = (cc.keys || []).concat({ t: u, v: 1 }).sort((a, b) => a.t - b.t); }) } : null,
+        c.kind === 'audio' && c.keys ? { label: U.t('slopedit.tl.clear_volume_keyframes'), act: () => SE.change(U.t('slopedit.insp.clear_keyframes'), (p) => { M.clip(p, c.id).keys = null; }) } : null,
         '-',
-        c.link ? { label: 'Unlink audio/video', act: () => SE.change('Unlink', (p) => E.unlink(p, [c.id])) } : A.sel.size > 1 ? { label: 'Link selected', act: () => SE.change('Link', (p) => E.link(p, A.selectedIds())) } : null,
-        c.kind === 'video' && c.media ? { label: 'Remove background (send to Isolate)', act: () => SE.cutout.send(c) } : null,
-        c.media ? { label: 'Reveal in bin', act: () => { SE.bin.show('media'); setTimeout(() => { const el = document.querySelector('.bi[data-id="' + c.media + '"]'); if (el) { el.scrollIntoView({ block: 'nearest' }); el.focus(); } }, 50); } } : null,
+        c.link ? { label: U.t('slopedit.tl.unlink_audio_video'), act: () => SE.change(U.t('slopedit.tl.unlink'), (p) => E.unlink(p, [c.id])) } : A.sel.size > 1 ? { label: U.t('slopedit.tl.link_selected'), act: () => SE.change(U.t('slopedit.tl.link'), (p) => E.link(p, A.selectedIds())) } : null,
+        c.kind === 'video' && c.media ? { label: U.t('slopedit.tl.remove_background_send_to_isolate'), act: () => SE.cutout.send(c) } : null,
+        c.media ? { label: U.t('slopedit.tl.reveal_in_bin'), act: () => { SE.bin.show('media'); setTimeout(() => { const el = document.querySelector('.bi[data-id="' + c.media + '"]'); if (el) { el.scrollIntoView({ block: 'nearest' }); el.focus(); } }, 50); } } : null,
         it('clip.reset')
       ], x, y);
       return;
@@ -39,9 +39,9 @@
     const gap = h.row && gapAt(h.row.track.id, h.t);
     SlopUI.menu([
       it('edit.paste'),
-      gap ? { label: 'Close gap', act: () => SE.change('Close gap', (p) => E.rippleShift(p, gap.b, -(gap.b - gap.a))) } : null,
-      { label: 'Add marker here', act: () => { SE.player.seek(t); SE.act.addMarker(); } },
-      { label: 'Add title here', act: () => { SE.player.seek(t); SE.act.addTitle(); } },
+      gap ? { label: U.t('slopedit.tl.close_gap'), act: () => SE.change(U.t('slopedit.tl.close_gap'), (p) => E.rippleShift(p, gap.b, -(gap.b - gap.a))) } : null,
+      { label: U.t('slopedit.tl.add_marker_here'), act: () => { SE.player.seek(t); SE.act.addMarker(); } },
+      { label: U.t('slopedit.tl.add_title_here'), act: () => { SE.player.seek(t); SE.act.addTitle(); } },
       '-', it('tl.vtrack'), it('tl.atrack'), it('tl.fit')
     ], x, y);
   };
@@ -100,27 +100,27 @@
   }
   function dropMedia(id, tg) {
     const meta = M.media(SE.doc, id); if (!meta || !SE.media.ready(id)) return;
-    if (tg.row.track.lock) { SlopUI.toast('That track is locked'); return; }
-    if (tg.row.track.kind === 'audio' && meta.kind !== 'audio' && !meta.hasAudio) { SlopUI.toast(meta.name + ' has no sound to put on an audio track'); return; }
+    if (tg.row.track.lock) { SlopUI.toast(U.t('slopedit.tl.that_track_is_locked')); return; }
+    if (tg.row.track.kind === 'audio' && meta.kind !== 'audio' && !meta.hasAudio) { SlopUI.toast(U.t('slopedit.tl.no_sound', { name: meta.name })); return; }
     const start = TL.snapT(tg.t);
-    SE.change('Add clip', (p) => { const ids = E.addMedia(p, meta, tg.row.track.id, start); A.select(ids); return ids.length ? ids : false; });
+    SE.change(U.t('slopedit.tl.add_clip'), (p) => { const ids = E.addMedia(p, meta, tg.row.track.id, start); A.select(ids); return ids.length ? ids : false; });
   }
   /** Effects dropped on the timeline: { kind: 'transition', type, dur } | { kind: 'title', preset } | { kind: 'color', color } | { kind: 'graphic', gfx } */
   TL.dropFx = function (fx, tg) {
     const h = TL.hit(tg.x, tg.y);
     if (fx.kind === 'transition') {
       const c = h.clip && h.clip.kind !== 'audio' ? h.clip : null;
-      if (!c) { SlopUI.toast('Drop a transition onto a clip'); return; }
+      if (!c) { SlopUI.toast(U.t('slopedit.tl.drop_a_transition_onto_a')); return; }
       const near = h.clip && tg.t - c.start > c.dur / 2 ? M.nextAdjacent(SE.doc, c) : null;
       const id = (near || c).id;
-      SE.change('Add transition', (p) => E.setTransition(p, id, fx.type, fx.dur || SE.transitions.dur));
+      SE.change(U.t('slopedit.menu.add_transition'), (p) => E.setTransition(p, id, fx.type, fx.dur || SE.transitions.dur));
       A.select([id]);
       return;
     }
     let tk = tg.row.track;
     if (tk.kind !== 'video') tk = M.videoTracks(SE.doc).slice(-1)[0];
     const start = TL.snapT(tg.t);
-    const made = { title: 'Add title', graphic: 'Add graphic' }[fx.kind] || 'Add colour matte';
+    const made = { title: U.t('slopedit.tl.add_title'), graphic: U.t('slopedit.tl.add_graphic') }[fx.kind] || U.t('slopedit.tl.add_colour_matte');
     const dur = fx.kind === 'title' ? 4 : fx.kind === 'graphic' ? 3 : 5;
     const extra = fx.kind === 'title' ? JSON.parse(JSON.stringify(fx.preset || {})) : fx.kind === 'graphic' ? { gfx: Object.assign({}, fx.gfx) } : { color: fx.color };
     SE.change(made, (p) => {
@@ -134,7 +134,7 @@
     const metas = await SE.media.importFiles(files);
     if (!metas.length || !tg.row) return metas;
     let t = TL.snapT(tg.t);
-    SE.change('Add clip', (p) => {
+    SE.change(U.t('slopedit.tl.add_clip'), (p) => {
       let ids = [];
       for (const m of metas) { const got = E.addMedia(p, m, tg.row.track.id, t); ids = ids.concat(got); if (got.length) t = M.end(M.clip(p, got[0])); }
       A.select(ids);

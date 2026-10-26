@@ -15,12 +15,12 @@ function alignSel(how) {
     o.x = round(o.x + tmp.x - b.x, 3); o.y = round(o.y + tmp.y - b.y, 3);
     syncAutoSize(App.doc, o, get);
   }
-  commit('Align ' + how);
+  commit(LT('label.undo.align'));
 }
-function distributeSel(axis) { if (distributeObjects(selObjs(), axis)) commit('Distribute'); else SlopUI.toast('Select three or more objects to distribute'); }
-function orderSel(how) { if (!App.sel.length) return; reorder(App.doc, App.sel, how); commit({ front: 'Bring to front', back: 'Send to back', forward: 'Bring forward', backward: 'Send backward' }[how]); }
-function groupSel() { if (groupObjects(App.doc, App.sel)) commit('Group'); }
-function ungroupSel() { if (ungroupObjects(App.doc, App.sel)) commit('Ungroup'); }
+function distributeSel(axis) { if (distributeObjects(selObjs(), axis)) commit(LT('label.keys.distribute')); else SlopUI.toast(LT('label.keys.select_three_or_more_objects')); }
+function orderSel(how) { if (!App.sel.length) return; reorder(App.doc, App.sel, how); commit({ front: LT('label.cmd.bring_to_front'), back: LT('label.cmd.send_to_back'), forward: LT('label.cmd.bring_forward'), backward: LT('label.cmd.send_backward') }[how]); }
+function groupSel() { if (groupObjects(App.doc, App.sel)) commit(LT('label.cmd.group')); }
+function ungroupSel() { if (ungroupObjects(App.doc, App.sel)) commit(LT('label.cmd.ungroup')); }
 /** Rotate 90° steps about the object's centre. */
 function rotateSel(deg) {
   editSel((o) => {
@@ -28,14 +28,14 @@ function rotateSel(deg) {
     const cx = o.x + o.w / 2, cy = o.y + o.h / 2;
     o.rot = (((o.rot || 0) + deg) % 360 + 360) % 360;
     if (deg % 180) { const w = o.w; o.w = o.h; o.h = w; o.x = round(cx - o.w / 2, 3); o.y = round(cy - o.h / 2, 3); }
-  }, 'Rotate');
+  }, LT('label.keys.rotate'));
 }
 function setRotation(o, r) { const d = ((r - (o.rot || 0)) % 360 + 360) % 360; if (d) { App.sel = [o.id]; rotateSel(d); } }
-function toggleLock() { const objs = selObjs(), lock = !objs.every((o) => o.locked); editSel((o) => { o.locked = lock; }, lock ? 'Lock' : 'Unlock'); }
-function toggleHide() { const objs = selObjs(), hide = !objs.every((o) => o.hidden); editSel((o) => { o.hidden = hide; }, hide ? 'Hide' : 'Show'); }
+function toggleLock() { const objs = selObjs(), lock = !objs.every((o) => o.locked); editSel((o) => { o.locked = lock; }, lock ? LT('label.menu.lock') : LT('label.menu.unlock')); }
+function toggleHide() { const objs = selObjs(), hide = !objs.every((o) => o.hidden); editSel((o) => { o.hidden = hide; }, hide ? LT('label.menu.hide') : LT('label.menu.show')); }
 function nudge(dx, dy) {
   if (!App.sel.length) return;
-  editSel((o) => { if (!o.locked) { o.x = round(o.x + dx, 3); o.y = round(o.y + dy, 3); } }, 'Nudge', 'nudge', { keepProps: false });
+  editSel((o) => { if (!o.locked) { o.x = round(o.x + dx, 3); o.y = round(o.y + dy, 3); } }, LT('label.keys.nudge'), 'nudge', { keepProps: false });
 }
 
 /* ---------------- clipboard ---------------- */
@@ -44,7 +44,7 @@ function copySel() {
   const assets = {}; for (const o of objs) if (o.asset && App.doc.assets[o.asset]) assets[o.asset] = App.doc.assets[o.asset];
   App.clip = { objects: deepClone(objs), assets };
   lsSet('sloplabel-clip', JSON.stringify(App.clip).length < 2e6 ? JSON.stringify(App.clip) : '');
-  status(`Copied ${objs.length} object${objs.length > 1 ? 's' : ''}`, '', 1500);
+  status(LT('label.keys.copied', { n: objs.length }), '', 1500);
   return true;
 }
 function cutSel() { if (copySel()) deleteSel(); }
@@ -58,7 +58,7 @@ function pasteClip() {
   App.doc.objects.push(...out);
   App.sel = out.map((o) => o.id);
   if (c === App.clip) c.objects = out.map((o) => deepClone(o));
-  commit('Paste');
+  commit(LT('label.cmd.paste'));
   return true;
 }
 /** System paste: images become image objects, plain text becomes a text object. */
@@ -85,30 +85,30 @@ function onKeyUp(e) { if (e.key === ' ') { spaceDown = false; $('stage').classLi
 function contextItems() {
   const n = App.sel.length, one = selOne();
   if (!n) return [
-    { label: 'Paste', key: 'Ctrl+V', act: () => pasteClip() || SlopUI.toast('Nothing to paste') },
-    { label: 'Select all', key: K('selectAll'), act: selectAll }, '-',
-    { label: 'Label setup…', act: () => labelSetupDialog() }, { label: 'Fit label', key: K('fit'), act: fitView },
+    { label: LT('label.cmd.paste'), key: 'Ctrl+V', act: () => pasteClip() || SlopUI.toast(LT('label.cmd.nothing_to_paste')) },
+    { label: LT('label.cmd.select_all'), key: K('selectAll'), act: selectAll }, '-',
+    { label: LT('label.cmd.label_setup'), act: () => labelSetupDialog() }, { label: LT('label.cmd.fit_label'), key: K('fit'), act: fitView },
   ];
   const grouped = selObjs().some((o) => o.group);
   return [
-    { label: 'Cut', key: K('cut'), act: cutSel }, { label: 'Copy', key: K('copy'), act: copySel }, { label: 'Paste', key: 'Ctrl+V', act: pasteClip },
-    { label: 'Duplicate', key: K('duplicate'), act: () => duplicateSel() }, { label: 'Delete', key: K('delete'), act: deleteSel }, '-',
-    one ? { label: 'Edit content…', key: K('editContent'), act: focusContent } : null,
-    { label: 'Rotate 90° clockwise', act: () => rotateSel(90) }, { label: 'Rotate 90° counter-clockwise', act: () => rotateSel(270) },
-    { label: 'Align', sub: alignItems() },
-    { label: 'Arrange', sub: [{ label: 'Bring to front', key: K('front'), act: () => orderSel('front') }, { label: 'Bring forward', key: K('forward'), act: () => orderSel('forward') }, { label: 'Send backward', key: K('backward'), act: () => orderSel('backward') }, { label: 'Send to back', key: K('back'), act: () => orderSel('back') }] },
-    n > 1 ? { label: 'Group', key: K('group'), act: groupSel } : null,
-    grouped ? { label: 'Ungroup', key: K('ungroup'), act: ungroupSel } : null, '-',
-    { label: selObjs().every((o) => o.locked) ? 'Unlock' : 'Lock', key: K('lock'), act: toggleLock },
-    { label: selObjs().every((o) => o.hidden) ? 'Show' : 'Hide', act: toggleHide },
+    { label: LT('label.cmd.cut'), key: K('cut'), act: cutSel }, { label: LT('label.cmd.copy'), key: K('copy'), act: copySel }, { label: LT('label.cmd.paste'), key: 'Ctrl+V', act: pasteClip },
+    { label: LT('label.cmd.duplicate'), key: K('duplicate'), act: () => duplicateSel() }, { label: 'Delete', key: K('delete'), act: deleteSel }, '-',
+    one ? { label: LT('label.keys.edit_content'), key: K('editContent'), act: focusContent } : null,
+    { label: LT('label.cmd.rotate_90_clockwise'), act: () => rotateSel(90) }, { label: LT('label.cmd.rotate_90_counter_clockwise'), act: () => rotateSel(270) },
+    { label: LT('label.menu.align'), sub: alignItems() },
+    { label: LT('label.menu.arrange'), sub: [{ label: LT('label.cmd.bring_to_front'), key: K('front'), act: () => orderSel('front') }, { label: LT('label.cmd.bring_forward'), key: K('forward'), act: () => orderSel('forward') }, { label: LT('label.cmd.send_backward'), key: K('backward'), act: () => orderSel('backward') }, { label: LT('label.cmd.send_to_back'), key: K('back'), act: () => orderSel('back') }] },
+    n > 1 ? { label: LT('label.cmd.group'), key: K('group'), act: groupSel } : null,
+    grouped ? { label: LT('label.cmd.ungroup'), key: K('ungroup'), act: ungroupSel } : null, '-',
+    { label: selObjs().every((o) => o.locked) ? LT('label.menu.unlock') : LT('label.menu.lock'), key: K('lock'), act: toggleLock },
+    { label: selObjs().every((o) => o.hidden) ? LT('label.menu.show') : LT('label.menu.hide'), act: toggleHide },
   ];
 }
 function alignItems() {
   const one = App.sel.length === 1, to = one ? ' (to label)' : '';
   return [
-    { label: 'Left' + to, act: () => alignSel('left') }, { label: 'Centre horizontally' + to, act: () => alignSel('hcenter') }, { label: 'Right' + to, act: () => alignSel('right') }, '-',
-    { label: 'Top' + to, act: () => alignSel('top') }, { label: 'Centre vertically' + to, act: () => alignSel('vcenter') }, { label: 'Bottom' + to, act: () => alignSel('bottom') }, '-',
-    { label: 'Distribute horizontally', disabled: App.sel.length < 3, act: () => distributeSel('h') }, { label: 'Distribute vertically', disabled: App.sel.length < 3, act: () => distributeSel('v') },
+    { label: LT('label.keys.left') + to, act: () => alignSel('left') }, { label: LT('label.keys.centre_horizontally') + to, act: () => alignSel('hcenter') }, { label: LT('label.keys.right') + to, act: () => alignSel('right') }, '-',
+    { label: LT('label.keys.top') + to, act: () => alignSel('top') }, { label: LT('label.keys.centre_vertically') + to, act: () => alignSel('vcenter') }, { label: LT('label.keys.bottom') + to, act: () => alignSel('bottom') }, '-',
+    { label: LT('label.cmd.distribute_horizontally'), disabled: App.sel.length < 3, act: () => distributeSel('h') }, { label: LT('label.cmd.distribute_vertically'), disabled: App.sel.length < 3, act: () => distributeSel('v') },
   ];
 }
 function initKeys() {

@@ -36,7 +36,7 @@ function buildItem(o, get, doc) {
       if (o.fit === 'grow') { box = anchoredBox(o, L.width, L.height); lw = L.width; lh = L.height; }
       const color = o.color === 'white' ? '#fff' : '#000';
       for (const ln of L.lines) for (const s of ln.segs) prims.push({ t: 'text', x: ln.x + s.x, y: ln.y, w: s.w, text: s.text, size: L.sizeMM, font: o.font || 'sans', bold: s.bold, italic: s.italic, color });
-      return finishItem(o, box, lw, lh, prims, { text, layout: L, warn: L.overflow ? 'Text does not fit its box' : '' });
+      return finishItem(o, box, lw, lh, prims, { text, layout: L, warn: L.overflow ? LT('label.scene.text_does_not_fit_its') : '' });
     }
     case 'barcode': {
       const value = interpolate(o.content, get);

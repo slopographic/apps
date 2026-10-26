@@ -118,5 +118,11 @@
     EFFECTS, EFFECT_KINDS, paramUnion, clampParam, defaultParams, MOTION_RANGES,
     /** Label for a layer type or effect kind, or the id itself. */
     label: (list, id) => ((list.find((x) => x[0] === id) || [id, id])[1]),
+    /** Words a person reads (effects/i18n, shared/i18n/APPS-HOWTO.md): t(key, vars), the key itself without SlopI18n (Node).
+       word(kind, id, en): the label of a definition above in the chosen language (effects.def.<kind>.<id>), else en.
+       onLang(fn): fn after a language change, once the new tables are in. The definitions themselves stay English (API). */
+    t: (key, vars) => (g.SlopI18n ? g.SlopI18n.t(key, vars) : key),
+    word: (kind, id, en) => { const k = 'effects.def.' + kind + '.' + String(id).replace(/[^a-z0-9]+/gi, '_').toLowerCase(); return g.SlopI18n && g.SlopI18n.has(k) ? g.SlopI18n.t(k) : en; },
+    onLang: (fn) => { if (g.SlopI18n && g.SlopI18n.on) g.SlopI18n.on(fn); },
   };
 })(typeof window !== 'undefined' ? window : globalThis);

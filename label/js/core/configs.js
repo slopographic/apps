@@ -156,7 +156,7 @@ function applyConfigToDoc(doc, body) {
     const missing = body.data.columns.filter((c) => !have.has(c));
     doc.data.map = Object.fromEntries(Object.entries(body.data.map).filter(([c]) => have.has(c)));
     doc.data.qtyCol = have.has(body.data.qtyCol) ? body.data.qtyCol : '';
-    if (missing.length) notes.push(`${missing.length} column${missing.length === 1 ? '' : 's'} from the config not in this data: ${missing.join(', ')}`);
+    if (missing.length) notes.push(LT('label.cfg.missing_cols', { n: missing.length, list: missing.join(', ') }));
   } else if (body.data) notes.push('The config expects data columns. Import data to use them.');
   return notes;
 }

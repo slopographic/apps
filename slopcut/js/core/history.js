@@ -31,14 +31,14 @@
     const e = H.undoStack.pop(); if (!e) return false;
     H.redoStack.push({ label: e.label, s: state(SE.doc) });
     apply(e.s); lastKey = null;
-    SE.emit('change', { label: 'Undo ' + e.label, history: true });
+    SE.emit('change', { label: SE.util.t('ui.undo_what', { what: e.label }), history: true });
     return true;
   };
   H.redo = function () {
     const e = H.redoStack.pop(); if (!e) return false;
     H.undoStack.push({ label: e.label, s: state(SE.doc) });
     apply(e.s); lastKey = null;
-    SE.emit('change', { label: 'Redo ' + e.label, history: true });
+    SE.emit('change', { label: SE.util.t('ui.redo_what', { what: e.label }), history: true });
     return true;
   };
   H.reset = function () { H.undoStack.length = 0; H.redoStack.length = 0; lastKey = null; };
@@ -57,6 +57,6 @@
   /** Replace the whole document (open/new/restore): clears history. */
   SE.setDoc = function (p) {
     SE.doc = M.normalize(p); H.reset();
-    SE.emit('doc', {}); SE.emit('change', { label: 'Open', history: true });
+    SE.emit('doc', {}); SE.emit('change', { label: SE.util.t('slopedit.io.open'), history: true });
   };
 })();

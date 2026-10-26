@@ -25,13 +25,13 @@
   /** The watermark of a project: { on, spec }. Off unless the person turned it on. */
   WM.settings = (p = SE.doc) => ({ on: !!(p.watermark && p.watermark.on), spec: specOf(p.watermark) || WM.deviceDefaults() });
   /** Change the watermark of the open project as one undoable step (a drag or typing coalesces by key). */
-  WM.set = function (patch, label = 'Watermark', key = 'wm') {
+  WM.set = function (patch, label = U.t('slopedit.bin.watermark'), key = 'wm') {
     SE.change(label, (p) => { const s = WM.settings(p); p.watermark = { on: 'on' in patch ? !!patch.on : s.on, spec: patch.spec ? S.normalize(patch.spec) : s.spec }; }, { key: 'wm:' + key });
   };
   /** Keep the current watermark as this device's default (the on switch stays per project). */
   WM.saveDefaults = function () { U.store.set(KEY, WM.settings().spec); };
   /** Copy this device's default into the open project. */
-  WM.useDefaults = function () { WM.set({ spec: WM.deviceDefaults() }, 'Watermark style', 'style'); };
+  WM.useDefaults = function () { WM.set({ spec: WM.deviceDefaults() }, U.t('slopedit.wm.watermark_style'), 'style'); };
 
   /** Resolves when the logos of a project's watermark (if it is on) are decoded. Export waits for it, like text fonts. */
   WM.ready = async function (p = SE.doc) {

@@ -14,16 +14,16 @@
     const target = SlopUI.number(last.target || 30, R.TARGET[0], R.TARGET[1], 1);
     const pace = SlopUI.select(R.PACES, last.pace || 'medium');
     const size = SlopUI.select(SV.presets.LIST.map((x) => [x.id, x.name]), (SV.presets.LIST.find((x) => x.w === (last.size || {}).w && x.h === (last.size || {}).h) || SV.presets.LIST[2]).id);
-    const tpl = SlopUI.select([['', 'None: one clip after another'], ['random', 'Random grid from the list below']]
-      .concat(T.list.map((t) => [t.id, t.name + ' (' + t.slots.length + ' per cut)'])), last.tpl || '');
-    const switches = SlopUI.check('Switch layouts at random points (uses the list below)', !!last.switches);
-    const pick = new Map(GRIDS.map((id) => [id, SlopUI.check(T.get(id).name + ' (' + T.get(id).slots.length + ' cells)', true)]));
-    const seed = h('input', { class: 'inp', type: 'text', value: S.hex(seedNow), 'aria-label': 'Seed', spellcheck: 'false', autocomplete: 'off', maxlength: '32' });
+    const tpl = SlopUI.select([['', U.t('slopedit.rnd.none_one_clip_after_another')], ['random', U.t('slopedit.rnd.random_grid_from_the_list')]]
+      .concat(T.list.map((t) => [t.id, U.t('slopedit.rnd.per_cut', { name: U.w('tpl', t.id, t.name), n: t.slots.length })])), last.tpl || '');
+    const switches = SlopUI.check(U.t('slopedit.rnd.switch_layouts_at_random_points'), !!last.switches);
+    const pick = new Map(GRIDS.map((id) => [id, SlopUI.check(U.t('slopedit.rnd.cells', { name: U.w('tpl', id, T.get(id).name), n: T.get(id).slots.length }), true)]));
+    const seed = h('input', { class: 'inp', type: 'text', value: S.hex(seedNow), 'aria-label': U.t('slopedit.insp.seed'), spellcheck: 'false', autocomplete: 'off', maxlength: '32' });
     const summary = h('p', { class: 'sui-p rd-sum', role: 'status' });
-    const list = h('ol', { class: 'rd-list', 'aria-label': 'Cuts in order' });
+    const list = h('ol', { class: 'rd-list', 'aria-label': U.t('slopedit.rnd.cuts_in_order') });
     const src = pool.length
-      ? pool.length + ' clip' + (pool.length > 1 ? 's' : '') + (SE.bin.picked.size ? ' picked in the bin' : ' in the bin (Ctrl-click to pick some)')
-      : 'No ready clips yet. Import video or still images first.';
+      ? U.t(SE.bin.picked.size ? 'slopedit.rnd.picked' : 'slopedit.rnd.in_bin', { n: pool.length })
+      : U.t('slopedit.rnd.no_ready_clips_yet_import');
     const layouts = () => GRIDS.filter((id) => pick.get(id).input.checked);
     const opts = () => {
       const sz = SV.presets.get(size.value);
@@ -36,7 +36,7 @@
       const plan = R.plan(o, pool);
       list.replaceChildren();
       if (!plan) { summary.textContent = src; return null; }
-      summary.textContent = plan.cuts.length + ' cuts · ' + plan.total.toFixed(1) + ' s · ' + plan.used + ' of ' + plan.clips + ' clips used · ' + plan.segments.length + ' layout' + (plan.segments.length > 1 ? 's' : '') + ' · seed ' + plan.seedHex;
+      summary.textContent = U.t('slopedit.rnd.summary', { cuts: plan.cuts.length, s: plan.total.toFixed(1), used: plan.used, clips: plan.clips, layouts: U.t('slopedit.rnd.layouts', { n: plan.segments.length }), seed: plan.seedHex });
       plan.cuts.forEach((beat, i) => list.append(h('li', null, (i + 1) + '. ' + beat.map((x) => {
         const m = SE.doc.media.find((mm) => mm.id === x.media);
         return (m ? m.name : '?') + ' (in ' + x.in.toFixed(2) + ' s)';
@@ -49,21 +49,21 @@
     seed.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); preview(); } });
     const body = h('div', { class: 'rd' },
       h('div', { class: 'rd-fields' },
-        SlopUI.field('Target length', target, 's'), SlopUI.field('Pace', pace), SlopUI.field('Frame size', size), SlopUI.field('Layout', tpl),
-        SlopUI.field('Seed', seed)),
+        SlopUI.field(U.t('slopedit.rnd.target_length'), target, 's'), SlopUI.field(U.t('slopedit.rnd.pace'), pace), SlopUI.field(U.t('slopedit.insp.frame_size'), size), SlopUI.field(U.t('slopedit.rnd.layout'), tpl),
+        SlopUI.field(U.t('slopedit.insp.seed'), seed)),
       h('div', { class: 'rd-grids' }, switches.el, h('div', { class: 'rd-pick' }, [...pick.values()].map((c) => c.el))),
       h('p', { class: 'sui-p rd-src' }, src),
       summary, list,
-      h('p', { class: 'sui-p rd-note' }, 'The same seed, options and clips always give the same edit. Build puts the cuts on the timeline as ordinary clips; Undo restores the timeline.'));
+      h('p', { class: 'sui-p rd-note' }, U.t('slopedit.rnd.the_same_seed_options_and')));
     SlopUI.dialog({
-      title: 'Random edit', cls: 'rd-dlg',
+      title: U.t('slopedit.rnd.random_edit'), cls: 'rd-dlg',
       body,
       buttons: [
-        { label: 'Cancel' },
-        { label: 'Reshuffle', act: () => { seed.value = S.hex(S.make()); preview(); return false; } },
+        { label: U.t('slopedit.fx.cancel') },
+        { label: U.t('slopedit.rnd.reshuffle'), act: () => { seed.value = S.hex(S.make()); preview(); return false; } },
         {
-          label: SE.doc.clips.length ? 'Build (replaces timeline)' : 'Build edit', primary: true,
-          act: () => { if (!pool.length) { SlopUI.toast('Import video or still images first'); return false; } return act.randomEdit(opts()) ? undefined : false; }
+          label: SE.doc.clips.length ? U.t('slopedit.rnd.build_replaces_timeline') : U.t('slopedit.rnd.build_edit'), primary: true,
+          act: () => { if (!pool.length) { SlopUI.toast(U.t('slopedit.rnd.import_video_or_still_images')); return false; } return act.randomEdit(opts()) ? undefined : false; }
         }
       ]
     });

@@ -29,14 +29,14 @@
       SE.setDoc(rec.doc);
       await SE.media.restore(SE.doc.media);
       if (SE.player && rec.playhead) SE.player.seek(rec.playhead);
-      SE.emit('change', { label: 'Restore', history: true });
+      SE.emit('change', { label: 'Restore', history: true }); // i18n-ignore: an event label for the code
     } catch (e) { console.warn('SlopCut: could not restore', e); return false; }
     finally { restoring = false; }
     return true;
   };
   /** Start over. Media blobs of the old project are deleted. */
   S.newProject = async function (ask = true) {
-    if (ask && SE.doc.clips.length && !(await SlopUI.confirm('New project', 'Start a new project? The current one is replaced (save it first with File ▸ Save project if you want to keep it).', 'New project', { danger: true }))) return;
+    if (ask && SE.doc.clips.length && !(await SlopUI.confirm(U.t('slopedit.cmd.new_project'), U.t('slopedit.io.new_body'), U.t('slopedit.cmd.new_project'), { danger: true }))) return;
     if (SE.player) SE.player.pause();
     SE.media.clear();
     SE.setDoc(M.newProject());

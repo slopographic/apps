@@ -6,7 +6,7 @@
   'use strict';
   const ns = (g.SlopEffects = g.SlopEffects || {});
   const P = () => ns.project;
-  const M = () => ns.media;
+  const M = () => ns.media, T = (k, v) => ns.defs.t(k, v);
   const DEFAULT_COMP = { width: 1920, height: 1080, fps: 30, duration: 5, background: '#000000' };
   const MEDIA_ACCEPT = 'image/*,video/*';
   const fileName = (doc) => `${String(doc.name || 'Untitled').replace(/[\\/:*?"<>|]+/g, '-').trim() || 'Untitled'}.effects.json`;
@@ -19,7 +19,7 @@
     /** Kind for a picked file or Drive record, or null with a message. */
     function kindFor(type, name) {
       const k = M().kindOf(type);
-      if (!k) toast(`${name || 'That file'} is not an image or video`);
+      if (!k) toast(T('effects.io.not_media', { name: name || T('effects.io.that_file') }));
       return k;
     }
 
@@ -32,23 +32,23 @@
       if (!kind) throw new Error('is not an image or video');
       if (ctx.mode === 'relink') {
         const entry = await M().add({ id: ctx.data.mediaId, name: f.name, size: f.size, kind }, f);
-        S.edit('Relink media', (d) => ns.layers.addMedia(d, M().info(entry)));
-        toast('Relinked ' + f.name);
+        S.edit(T('effects.undo.relink'), (d) => ns.layers.addMedia(d, M().info(entry)));
+        toast(T('effects.io.relinked', { name: f.name }));
         return f.name;
       }
       const entry = await M().add({ id: act.nextMediaId(), name: f.name, size: f.size, kind, driveId: ctx.drive ? ctx.drive.id : undefined }, f);
       act.addMediaLayer(entry);
       return f.name;
     }
-    g.SlopIntake.register({ id: 'effects', accept: { types: ['image/*', 'video/*', 'application/json'], exts: ['.json'], noun: 'an image, a video or a Slop Effects project' }, process: read });
+    g.SlopIntake.register({ id: 'effects', accept: { types: ['image/*', 'video/*', 'application/json'], exts: ['.json'], get noun() { return T('effects.io.noun'); } }, process: read });
     const importFromComputer = () => g.SlopIntake.pick({ to: 'effects', accept: MEDIA_ACCEPT });
-    const importFromDrive = () => g.SlopIntake.fromDrive({ to: 'effects', accept: ['image/*', 'video/*'], title: 'Add an image or video from Slop Drive' });
+    const importFromDrive = () => g.SlopIntake.fromDrive({ to: 'effects', accept: ['image/*', 'video/*'], title: T('effects.io.from_drive') });
     /** Relinks a missing media id to a file from this computer (the layers keep their id). */
     const relink = (mediaId) => g.SlopIntake.pick({ to: 'effects', mode: 'relink', data: { mediaId }, multiple: false, accept: MEDIA_ACCEPT });
     const launch = () => g.SlopIntake.launch({ to: 'effects' });
 
     function newProject() {
-      S.replace(ns.core.newDoc({ name: 'Untitled', comp: DEFAULT_COMP }), 'New project');
+      S.replace(ns.core.newDoc({ name: 'Untitled', comp: DEFAULT_COMP }), T('effects.menu.new')); // i18n-ignore: the project's own name
       S.setFile({ name: '', driveId: '' });
     }
 
@@ -79,19 +79,19 @@
       list.append(...items);
       const body = document.createElement('div');
       const p = document.createElement('p');
-      p.textContent = 'These files are not in this session. Their layers stay in the project. Select a layer and choose Relink media to point it at the file:';
+      p.textContent = T('effects.io.missing_body');
       body.append(p, list);
-      UI().dialog({ title: 'Missing media', body, buttons: [{ label: 'OK', primary: true }] });
+      UI().dialog({ title: T('effects.io.missing_title'), body, buttons: [{ label: T('menu.ok'), primary: true }] });
     }
 
     /** Opens rows from a file or a config. Replaces the document (one undo step). */
     function openRows(data, label, file) {
       const problems = P().problems(data);
-      if (problems.length) { toast(`Cannot open: ${problems[0]}`); return false; }
+      if (problems.length) { toast(T('effects.io.cannot_open', { why: problems[0] })); return false; }
       const { doc, missing } = build(data);
       S.replace(doc, label);
       S.setFile(file || { name: '', driveId: '' });
-      toast(`Opened ${doc.name}`);
+      toast(T('effects.io.opened', { name: doc.name }));
       reportMissing(missing);
       return true;
     }
@@ -104,15 +104,15 @@
       if (S.file.driveId && (await g.SlopHub.get(S.file.driveId))) {
         await g.SlopHub.put(blob, { id: S.file.driveId, name, from: 'effects', app: 'effects', meta });
         S.setFile({ name: doc.name });
-        toast('Saved to Slop Drive');
+        toast(T('effects.io.saved'));
         return;
       }
       const start = await g.SlopHub.appFolderId('effects');
-      const folderId = await g.SlopHub.pickFolder({ title: `Save “${name}” to Slop Drive`, start });
+      const folderId = await g.SlopHub.pickFolder({ title: T('effects.io.save_to', { name }), start });
       if (folderId === undefined) return;
       const id = await g.SlopHub.put(blob, { name, from: 'effects', app: 'effects', meta, folderId });
       S.setFile({ name: doc.name, driveId: id });
-      toast('Saved to Slop Drive');
+      toast(T('effects.io.saved'));
     }
 
     /** A project file (from Slop Drive: driveId, so Save writes back to it). Throws the reason when it cannot be opened. */
@@ -120,10 +120,10 @@
       const parsed = P().fromFile(await f.text());
       const check = g.SlopConfig ? P().checkConfig(g.SlopConfig, parsed.data) : { ok: true, errors: [] };
       if (!check.ok) throw new Error(`cannot be opened: ${check.errors[0] ? check.errors[0].path + ' ' + check.errors[0].message : 'the file is not valid'}`);
-      if (!openRows(parsed.data, 'Open ' + parsed.name, { name: parsed.name, driveId })) throw new Error('cannot be opened');
+      if (!openRows(parsed.data, T('effects.undo.open', { name: parsed.name }), { name: parsed.name, driveId })) throw new Error('cannot be opened');
       return f.name;
     }
-    const openDrive = () => g.SlopIntake.fromDrive({ to: 'effects', accept: ['application/json'], title: 'Open a Slop Effects project' });
+    const openDrive = () => g.SlopIntake.fromDrive({ to: 'effects', accept: ['application/json'], title: T('effects.io.open_title') });
 
     /** Registers the effects-project config kind (import and export through shared/config). */
     function registerConfig() {
@@ -133,12 +133,12 @@
         const problems = P().problems(data);
         if (problems.length) return { ok: false, message: problems[0] };
         const { doc, missing } = build(data);
-        S.replace(doc, 'Import config');
+        S.replace(doc, T('effects.undo.import'));
         reportMissing(missing);
         return { ok: true };
       }, {
-        label: 'Slop Effects project',
-        description: 'Layers, keyframes, effects and composition. Media is listed by name, not included.',
+        label: 'Slop Effects project', // i18n-ignore: the config kind (shared/config, API)
+        description: 'Layers, keyframes, effects and composition. Media is listed by name, not included.', // i18n-ignore
         read: async () => P().toData(S.doc),
       });
     }

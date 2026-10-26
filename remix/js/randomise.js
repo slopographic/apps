@@ -58,7 +58,7 @@
   /** Randomise: a seed, its choices, and a new plan with them. Returns the plan, or null with no clips. */
   RM.randomise = function () {
     const st = RM.state;
-    if (!RM.media().length) { if (RM.say) RM.say('Add some clips or photos first'); return null; }
+    if (!RM.media().length) { if (RM.say) RM.say(RM.t('remix.ui.add_first')); return null; }
     const prev = snapshot(), seed = nextSeed(), c = choices(seed);
     Object.assign(st, { seed, timing: 'random', effect: c.effect });
     st.photo = Object.assign({}, st.photo, { enter: c.enter, exit: c.exit });
@@ -69,7 +69,7 @@
     if (!plan) return null;
     before = prev;
     refreshUndo();
-    RM.say('Randomised: seed ' + S.hex(plan.seed) + ' (order, lengths, transitions and effects). Undo puts the last result back.');
+    RM.say(RM.t('remix.rand.done', { seed: S.hex(plan.seed) }));
     return plan;
   };
   /** Undo the last Randomise: its previous plan, seed and options come back. One step. */
@@ -81,7 +81,7 @@
     st.plan = s.plan;
     showControls();
     RM.fab.refresh(); refreshUndo(); writeUrl(st.seed);
-    RM.say('Undid the randomise: back to seed ' + S.hex(st.seed) + '.');
+    RM.say(RM.t('remix.rand.undone', { seed: S.hex(st.seed) }));
     return true;
   };
 

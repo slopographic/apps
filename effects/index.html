@@ -4,6 +4,8 @@
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="effects" data-src="shared/theme/theme.js"></script>
   <link rel="expect" href="#slop-built" blocking="render">
+  <script src="../shared/i18n/i18n.js" data-src="shared/i18n/i18n.js"></script>
+  <script src="i18n/index.js" data-src="effects/i18n/index.js"></script>
   <script src="../shared/consent/config.js"></script>
   <script src="../shared/consent/state.js"></script>
   <script src="../shared/consent/consent-mode.js"></script>
@@ -42,36 +44,36 @@
 <body>
   <div class="fx-app" id="fx-app">
     <header class="fx-top">
-      <a class="fx-brand" href="../" aria-label="Slopographic home">Slop Effects</a>
-      <input class="fx-name sui-input" id="fx-name" type="text" value="Untitled" aria-label="Project name" maxlength="120">
-      <div class="fx-tools" role="toolbar" aria-label="Project">
-        <button type="button" class="sui-btn" id="fx-undo" title="Undo">Undo</button>
-        <button type="button" class="sui-btn" id="fx-redo" title="Redo">Redo</button>
-        <button type="button" class="sui-btn" id="fx-file">File</button>
-        <button type="button" class="sui-btn" id="fx-comp">Composition</button>
-        <button type="button" class="sui-btn" id="fx-layer">Layer</button>
-        <button type="button" class="sui-btn fx-phone" id="fx-props" aria-expanded="false">Properties</button>
-        <button type="button" class="sui-btn" id="fx-search" title="Search commands (Ctrl+K)">Search</button>
+      <a class="fx-brand" href="../" aria-label="Slopographic home" data-i18n-attr="aria-label:ui.mb.home">Slop Effects</a><!-- i18n-ignore -->
+      <input class="fx-name sui-input" id="fx-name" type="text" value="Untitled" aria-label="Project name" data-i18n-attr="aria-label:effects.app.project_name" maxlength="120">
+      <div class="fx-tools" role="toolbar" aria-label="Project" data-i18n-attr="aria-label:effects.app.project">
+        <button type="button" class="sui-btn" id="fx-undo" title="Undo" data-i18n="ui.undo">Undo</button>
+        <button type="button" class="sui-btn" id="fx-redo" title="Redo" data-i18n="ui.redo" data-i18n-attr="title:ui.redo">Redo</button>
+        <button type="button" class="sui-btn" id="fx-file" data-i18n="menu.file">File</button>
+        <button type="button" class="sui-btn" id="fx-comp" data-i18n="effects.app.comp">Composition</button>
+        <button type="button" class="sui-btn" id="fx-layer" data-i18n="effects.app.layer">Layer</button>
+        <button type="button" class="sui-btn fx-phone" id="fx-props" aria-expanded="false" data-i18n="effects.app.props">Properties</button>
+        <button type="button" class="sui-btn" id="fx-search" title="Search commands (Ctrl+K)" data-i18n="ui.search" data-i18n-attr="title:effects.app.search_tip">Search</button>
       </div>
     </header>
     <main class="fx-main">
-      <section class="fx-stage" aria-label="Preview">
-        <div class="fx-view" id="fx-view"><canvas id="fx-canvas" aria-label="Preview of the composition"></canvas></div>
+      <section class="fx-stage" aria-label="Preview" data-i18n-attr="aria-label:effects.app.preview">
+        <div class="fx-view" id="fx-view"><canvas id="fx-canvas" aria-label="Preview of the composition" data-i18n-attr="aria-label:effects.app.preview_canvas"></canvas></div>
         <div class="fx-transport" id="fx-transport"></div>
       </section>
-      <aside class="fx-side" aria-label="Properties">
+      <aside class="fx-side" aria-label="Properties" data-i18n-attr="aria-label:effects.app.props">
         <nav class="fx-tabs" role="tablist" id="fx-tabs">
-          <button type="button" role="tab" data-view="layer" aria-selected="true">Layer</button>
-          <button type="button" role="tab" data-view="fx" aria-selected="false">Effects</button>
-          <button type="button" role="tab" data-view="motion" aria-selected="false">Motion</button>
+          <button type="button" role="tab" data-view="layer" aria-selected="true" data-i18n="effects.app.layer">Layer</button>
+          <button type="button" role="tab" data-view="fx" aria-selected="false" data-i18n="effects.app.effects">Effects</button>
+          <button type="button" role="tab" data-view="motion" aria-selected="false" data-i18n="effects.app.motion">Motion</button>
         </nav>
         <div class="fx-panel" id="fx-panel" role="tabpanel"></div>
-        <button type="button" class="sui-btn sui-primary" id="fx-render" title="Render the composition to a video or pictures">Render…</button>
+        <button type="button" class="sui-btn sui-primary" id="fx-render" title="Render the composition to a video or pictures" data-i18n="effects.app.render" data-i18n-attr="title:effects.app.render_tip">Render…</button>
       </aside>
-      <section class="fx-tl" aria-label="Timeline">
+      <section class="fx-tl" aria-label="Timeline" data-i18n-attr="aria-label:effects.app.timeline">
         <nav class="fx-tabs" role="tablist" id="fx-tl-tabs">
-          <button type="button" role="tab" data-view="timeline" aria-selected="true">Timeline</button>
-          <button type="button" role="tab" data-view="graph" aria-selected="false">Graph editor</button>
+          <button type="button" role="tab" data-view="timeline" aria-selected="true" data-i18n="effects.app.timeline">Timeline</button>
+          <button type="button" role="tab" data-view="graph" aria-selected="false" data-i18n="effects.app.graph">Graph editor</button>
         </nav>
         <div id="fx-timeline" class="fx-timeline"></div>
         <div id="fx-graph" class="fx-graph" hidden></div>

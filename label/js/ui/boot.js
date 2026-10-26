@@ -10,7 +10,7 @@ function buildToolbox() {
     b.addEventListener('click', () => {
       if (t.id === 'image') { setTool('select'); insertImageFile(); return; }
       setTool(t.id);
-      if (narrow() && t.create) status('Tap the label to place it');
+      if (narrow() && t.create) status(LT('label.boot.tap_the_label_to_place'));
     });
     box.append(b);
   }
@@ -22,7 +22,7 @@ function wireChrome() {
   wireDock();   // ui/app.js: the phone sheet
   // The suite rule (shared/frame/HANDOFF.md): Print…, the main button, sits at the foot of the right-hand dock (the shared
   // footer, shared/frame/panel.js); on a phone the closed dock sheet still shows it. File ▸ Print and Ctrl+P too.
-  if (window.SlopFramePanel) SlopFramePanel.create($('dock'), { bare: true }).footer([{ el: $('btnPrint') }], { more: 'Panels', onMore: () => App.sheet && App.sheet.toggle() });
+  if (window.SlopFramePanel) SlopFramePanel.create($('dock'), { bare: true }).footer([{ el: $('btnPrint') }], { more: LT('label.boot.panels'), onMore: () => App.sheet && App.sheet.toggle() });
   $('cbLabel').addEventListener('click', () => labelSetupDialog());
   $('recPrev').addEventListener('click', () => setRecord(App.rec - 1));
   $('recNext').addEventListener('click', () => setRecord(App.rec + 1));
@@ -43,12 +43,13 @@ async function boot() {
   App.doc = starterDoc(); // until the tabs are up (startTabs)
   App.hist.reset(App.doc);
   buildToolbox(); initView(); initInteract(); initKeys(); initCommands(); wireChrome();
+  onLabelLang(() => { if (App.doc) refreshNow(); });   // a language change: the panels, the bars and the status draw again
   onImageReady = () => refresh({ keepProps: true });
   if (await maybeFormMode()) return;
   rebuildScene(); fitView(); refreshNow();
   await startTabs(); // ui/tabs.js: the open labels come back, each with its tool, view and undo history
-  status('Ready', '', 3000);
+  status(LT('label.boot.ready'), '', 3000);
   await hubBoot().catch((e) => console.warn(e));
   document.body.classList.add('ready');
 }
-boot().catch((e) => { console.error(e); SlopUI.alert('SlopLabel could not start', String(e && e.message || e)); });
+boot().catch((e) => { console.error(e); SlopUI.alert(LT('label.boot.sloplabel_could_not_start'), String(e && e.message || e)); });

@@ -13,7 +13,7 @@
     return document.importNode(doc.documentElement, true);
   }
   function tile(s) {
-    const b = h('button', { type: 'button', class: 'fx gfx', draggable: 'true', title: s.name + ' (click to add at the playhead, or drag onto the timeline)', onclick: () => SE.act.addGraphic(Object.assign({ id: s.id }, GP.opts)) }, icon(s.id), h('span', null, s.name));
+    const b = h('button', { type: 'button', class: 'fx gfx', draggable: 'true', title: U.t('slopedit.gfx.tile_tip', { name: U.w('gfx', s.id, s.name) }), onclick: () => SE.act.addGraphic(Object.assign({ id: s.id }, GP.opts)) }, icon(s.id), h('span', null, U.w('gfx', s.id, s.name))); // i18n-ignore: class names
     b.addEventListener('dragstart', (e) => { e.dataTransfer.setData('application/x-slopedit-fx', JSON.stringify({ kind: 'graphic', gfx: Object.assign({ id: s.id }, GP.opts) })); e.dataTransfer.effectAllowed = 'copy'; });
     b.addEventListener('dragend', () => { SE.timeline.ghost = null; SE.timeline.dirty(); });
     tiles.push({ id: s.id, b });
@@ -24,24 +24,24 @@
     for (const t of tiles) { const old = t.b.querySelector('svg'); if (old) old.replaceWith(icon(t.id)); }
   }
   function controls() {
-    const col = h('input', { type: 'color', value: GP.opts.color, 'aria-label': 'Graphic colour' });
+    const col = h('input', { type: 'color', value: GP.opts.color, 'aria-label': U.t('slopedit.gfx.graphic_colour') });
     col.addEventListener('input', () => { GP.opts.color = col.value; refreshIcons(); });
-    const size = SE.fields.slider('Size', () => GP.opts.size, (v) => { GP.opts.size = U.clamp(v, 0.05, 1); }, { min: 5, max: 100, step: 1, scale: 100, unit: '%', reset: 0.3, hardMin: 5, hardMax: 100 });
-    const anim = h('select', { class: 'inp', 'aria-label': 'Graphic motion' }, G.ANIMS.map(([v, l]) => h('option', { value: v, selected: v === GP.opts.anim }, l)));
+    const size = SE.fields.slider(U.t('slopedit.exp.size'), () => GP.opts.size, (v) => { GP.opts.size = U.clamp(v, 0.05, 1); }, { min: 5, max: 100, step: 1, scale: 100, unit: '%', reset: 0.3, hardMin: 5, hardMax: 100 });
+    const anim = h('select', { class: 'inp', 'aria-label': U.t('slopedit.gfx.graphic_motion') }, U.wl('ganim', G.ANIMS).map(([v, l]) => h('option', { value: v, selected: v === GP.opts.anim }, l)));
     anim.addEventListener('change', () => { GP.opts.anim = anim.value; });
     return h('div', { class: 'gfx-ctl' },
-      h('label', { class: 'ins-row' }, h('span', null, 'Colour'), col, h('span')),
+      h('label', { class: 'ins-row' }, h('span', null, U.t('slopedit.gfx.colour')), col, h('span')),
       size.el,
-      h('label', { class: 'ins-row' }, h('span', null, 'Motion'), anim, h('span')));
+      h('label', { class: 'ins-row' }, h('span', null, U.t('slopedit.gfx.motion')), anim, h('span')));
   }
   /** The panel's nodes. Call once per render of the Effects tab. */
   GP.nodes = function () {
     tiles.length = 0;
     return [
-      h('h4', { class: 'fx-h' }, 'Graphics library'),
+      h('h4', { class: 'fx-h' }, U.t('slopedit.gfx.graphics_library')),
       controls(),
       h('div', { class: 'fx-grid gfx-grid' }, G.list().map(tile)),
-      h('p', { class: 'fx-note' }, 'Shapes are clips: move, scale and keyframe them in the monitor or the Inspector. Draw on strokes the shape in; Pulse, Bounce and Pop move it.')
+      h('p', { class: 'fx-note' }, U.t('slopedit.gfx.shapes_are_clips_move_scale'))
     ];
   };
 })();

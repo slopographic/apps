@@ -260,3 +260,113 @@ history step and palette word, so never strip a suffix to get it. Layer names th
 | mesh / up axis | nät / uppåtaxel | 3D |
 | video engine | videomotor |  |
 | Finance / Maps and GPS / Other (groups) | Ekonomi / Kartor och GPS / Övrigt |  |
+
+## Video and motion (SlopCut, Slop Effects, Reel Remix)
+
+| English | Svenska | Note |
+| --- | --- | --- |
+| clip | klipp | plural «klipp»; «Dela klipp» |
+| timeline | tidslinje |  |
+| track | spår | «Videospår», «Ljudspår» |
+| sequence | sekvens |  |
+| media bin | mediebibliotek | the tab: «Media» |
+| playhead | uppspelningshuvud |  |
+| play / pause | Spela upp / Pausa |  |
+| frame | bildruta | «Nästa bildruta» |
+| frame rate (fps) | bildfrekvens | keep «fps» in compact labels |
+| keyframe | nyckelbildruta |  |
+| transition | övergång |  |
+| title (text on video) | titel |  |
+| captions / subtitles | undertexter |  |
+| trim | Trimma |  |
+| razor / split at playhead | Klipp / Dela vid uppspelningshuvudet |  |
+| ripple delete | Ta bort och stäng luckan |  |
+| snap / snapping | Fäst / fästning | «Fäst mot klipp» |
+| marker | markör |  |
+| in / out point | startpunkt / slutpunkt | «I/O» keys stay |
+| fade in / fade out | Tona in / Tona ut | noun «intoning», «uttoning» |
+| volume | volym |  |
+| mute / solo | Stäng av ljud / Solo |  |
+| speed | hastighet |  |
+| aspect ratio | bildförhållande |  |
+| resolution | upplösning |  |
+| render / encode | rendera / koda | «Renderar…», «Exporterar video…» |
+| opacity | opacitet |  |
+| blend mode | blandningsläge |  |
+| mask | mask |  |
+| crop | Beskär |  |
+| colour grade | färgkorrigering |  |
+| look (colour preset) | look | «Looks» as in DaVinci sv; or «stil» in running text |
+| preset | förinställning |  |
+| template | mall |  |
+| composition | komposition | Slop Effects |
+| easing | easing | «Mjuk in», «Mjuk ut», «Mjuk in/ut» for ease in/out |
+| graph editor | kurvredigerare |  |
+| seed (random) | slumpfrö |  |
+| blur / glow / shadow | Oskärpa / Glöd / Skugga |  |
+| grain / vignette / glitch | Filmkorn / Vinjett / Glitch |  |
+| waveform | vågform |  |
+| shuffle | Blanda |  |
+| beat (music) | takt | «Klipp i takt» |
+| slideshow | bildspel |  |
+| project | projekt |  |
+| loop | Upprepa | the toggle; «loop» for a looping clip |
+
+## Labels (SlopLabel)
+
+| English | Svenska | Note |
+| --- | --- | --- |
+| label | etikett |  |
+| barcode | streckkod |  |
+| QR code | QR-kod |  |
+| label stock (sheet / roll) | etikettmaterial (ark / rulle) |  |
+| printer | skrivare |  |
+| print job | utskriftsjobb |  |
+| data merge / print from data | dataimport / Skriv ut från data | «Dokumentkoppling» only for mail merge proper |
+| variable (field) | variabel |  |
+| serial number / counter | löpnummer / räknare |  |
+| column / row | kolumn / rad |  |
+| margin / gap | marginal / mellanrum |  |
+| align / distribute | Justera / Fördela | «Justera vänster», «Centrera» |
+| group / ungroup | Gruppera / Dela upp grupp |  |
+| lock / unlock | Lås / Lås upp |  |
+| grid / ruler / guide | rutnät / linjal / stödlinje |  |
+| element (object on a label) | objekt |  |
+| copies | kopior | «Antal kopior» |
+
+## Wave 1 terms (SlopCut, SlopLabel, Slop Effects, Reel Remix)
+
+| English | Svenska | Note |
+| --- | --- | --- |
+| inspector (panel) | Granskare | SlopCut's right panel |
+| program monitor | programmonitor |  |
+| colour matte | färgplatta |  |
+| cross dissolve | övertoning | «Tona via svart/vitt» for dip to black/white |
+| wipe | svep |  |
+| lower third | namnskylt |  |
+| random edit | slumpklippning | «Blanda om» for reshuffle |
+| cut (a span of a random edit or reel) | klipp | same word as clip; «klippning» for the whole edit |
+| slot (a cell of a layout) | plats |  |
+| reel | reel | «Stående 9:16-reel» |
+| effect layer | effektlager | «slumpeffektlager» for the random one |
+| safe areas | säkra områden |  |
+| shuttle (J/K/L) | spola | «Spola bakåt (J)» |
+| ripple edit tool | Ripple-verktyg |  |
+| null layer | nollager |  |
+| solid layer | färglager |  |
+| anchor point | fästpunkt | as the PDF part |
+| feather (mask) | mjuk kant |  |
+| quiet zone (barcode) | frizon |  |
+| bearer bars | bärlister |  |
+| human readable (barcode text) | läsbar text |  |
+| check digit | kontrollsiffra |  |
+| symbology | symbologi |  |
+| record (a data row) | post | «Föregående post», «Skriv ut post 3» |
+| prompt (variable asked at print) | fråga | «Fråga vid utskrift» |
+| thermal transfer / direct thermal | termotransfer / direkt termo |  |
+| darkness (printer) | svärta |  |
+| config (saved setup) | konfiguration |  |
+| print form link | länk till utskriftsformulär |  |
+| inverse box | inverterad ruta |  |
+| look (colour) | look | «Färglook», «Looks» |
+| pace | tempo |  |
