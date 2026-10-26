@@ -157,18 +157,6 @@ test('options override the defaults', () => {
   assert.deepEqual(types(g.tick(300)), ['longpress']);
 });
 
-test('restartLong: after a busy page the hold counts again, and a lift in that time is no long press', () => {
-  const g = create();
-  g.down({ id: 1, x: 0, y: 0, t: 0 });
-  g.restartLong(2000); // the page was busy from 0 to 2000
-  assert.deepEqual(g.tick(2100), []);
-  assert.equal(g.deadline(), 2500);
-  assert.deepEqual(g.up({ id: 1, x: 0, y: 0, t: 2150 }), []); // held 2 s by the clock: not a tap either
-  g.down({ id: 2, x: 0, y: 0, t: 3000 });
-  g.restartLong(3200);
-  assert.deepEqual(types(g.tick(3700)), ['longpress']);
-});
-
 test('stroke pressure: a finger or a mouse paints at full pressure whatever it reports, a pen at its own', () => {
   const { pressure } = createRequire(import.meta.url)('../../shared/input/gesture.js');
   assert.equal(pressure({ pointerType: 'touch', pressure: 0 }), 1);   // iOS: a finger reports 0

@@ -35,9 +35,10 @@ Every synthetic event has `e.slopTouch === true` (and `isTrusted === false`).
 
 **A busy page:** it handles a finger's events late, so taps and double taps are timed by when they happened
 (`SlopTouch.gesture.stamp(e)`, the event's timeStamp), never by when a handler ran; an app with its own tap counting does
-the same (Slop Docs). The long-press clock starts when the page got the touch; when its timer comes late (the page was
-busy, and the lift or a drag's moves may still be queued: Chromium hands moves to a busy page late and in bursts) the
-hold starts again (twice at most), else the long press is decided at the next frame, after what is already queued. A
+the same (Slop Docs). The long-press clock starts when the page got the touch, and the long press waits until the page
+has been free for QUIET_MS (a heartbeat while a press is pending tells when it was last busy; a second past its time at
+most): what the finger did while the page was busy (the lift, a drag's moves) can come late, Chromium hands them over in
+bursts then. It is decided at the next frame, after what is already queued. A
 real click forgets only the fingers that touched before it (a busy page can hand a tap's click over after the next touch).
 Tests: `TouchKit.busyTaps` makes taps at their times and hands them over late; the kit's real (CDP) gestures are paced by
 the runner (`tests/touch.mjs` `paced()`), as a finger does not wait for the page.

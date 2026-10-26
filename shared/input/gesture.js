@@ -7,7 +7,6 @@
  *   g.down({ id, x, y, t, kind })  g.move(...)  g.up(...)  g.cancel({ id })  → an array of actions
  *   g.tick(t)                      → actions due by time t (the long press); call it at g.deadline()
  *   g.deadline()                   → when tick next has something to do, or Infinity
- *   g.restartLong(t)               → the hold of every finger still down counts from t (the page was busy)
  *   g.reset()                      → forget everything (a pen came down, the page lost focus)
  * kind is 'touch' or 'pen' (mouse is not fed in). x, y in CSS pixels, t in milliseconds: when the finger did it (taps
  * and double taps are timed by it). down's optional at: when the page got the touch, where the long-press clock starts
@@ -116,14 +115,10 @@
     function skipLong(id) { const s = pts.get(id); if (s) s.long = true; }
 
 
-    /** The page was busy (the long press is due but came late): the hold counts again from t, so a finger that lifted
-     *  or moved during the busy time (its events still queued) is not taken for a long press. */
-    function restartLong(t) { for (const s of pts.values()) if (!s.long && !s.moved) s.tl = t; }
-
     function reset() { pts.clear(); lastTap = null; pinch = null; multi = false; }
 
     return {
-      down, move, tick, deadline, reset, skipLong, restartLong,
+      down, move, tick, deadline, reset, skipLong,
       up: (p) => end(p, false),
       cancel: (p) => end(p, true),
       get size() { return pts.size; },

@@ -116,6 +116,15 @@
       await sleep(100);
       expect(got('contextmenu', 'pad')).toHaveLength(0);
     });
+    it('a long press waits until the page has been free a moment: a lift held back while it was busy comes first', async () => {
+      log.length = 0;
+      const r = $('pad').getBoundingClientRect(), x = r.left + 150, y = r.top + 110, f = TouchKit.finger(x, y), t0 = performance.now();
+      setTimeout(() => { while (performance.now() - t0 < 480) { /* the page is busy until just before the long-press time */ } }, 100);
+      await new Promise((ok) => setTimeout(ok, 560 - (performance.now() - t0))); // the lift, handed over 60 ms after the long-press time
+      f.up(x, y);
+      await sleep(400);
+      expect(got('contextmenu', 'pad')).toHaveLength(0);
+    });
     it('a pinch on a wheel surface sends Ctrl+wheel (zoom in: deltaY < 0), cancels the first finger, and leaves the page at scale 1', async () => {
       log.length = 0;
       await TouchKit.pinch($('pad'), 2.5);
