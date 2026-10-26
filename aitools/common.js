@@ -6,6 +6,8 @@
 (function (root) {
   'use strict';
   const doc = root.document, R = root.SlopAIModels, M = root.SlopAIManager, S = root.SlopAISupport;
+  /** The text of an aitools.* key (aitools/i18n), or the English given: other apps' pages may not load these tables. */
+  const tr = (k, en, v) => { const I = root.SlopI18n; return I && I.has(k) ? I.t(k, v) : (v ? String(en).replace(/\{(\w+)\}/g, (m, x) => (x in v ? String(v[x]) : m)) : en); };
   const WORKER_URL = new URL('workers/infer.worker.js', doc.currentScript.src).href;
   let worker = null, seq = 0;
   const pending = new Map(), loading = new Map();
@@ -39,10 +41,10 @@
     if (!loading.has(modelId)) loading.set(modelId, (async () => {
       // a model stored before the index gained its small settings files (Whisper's config.json): the person agreed to this
       // model already, so the few kilobytes are fetched and checked like the rest, without asking again
-      if ((await M.status(modelId)) === 'update') { if (onStatus) onStatus('Updating the model settings…'); await M.install(modelId); }
-      if (onStatus) onStatus('Reading the model from this device…');
+      if ((await M.status(modelId)) === 'update') { if (onStatus) onStatus(tr('aitools.gate.updating', 'Updating the model settings…')); await M.install(modelId); }
+      if (onStatus) onStatus(tr('aitools.gate.reading', 'Reading the model from this device…'));
       const files = await M.readAll(modelId);
-      if (onStatus) onStatus('Starting the model…');
+      if (onStatus) onStatus(tr('aitools.gate.starting', 'Starting the model…'));
       await call('load', { model: modelId, files }, { transfer: Object.values(files) });
     })().catch((e) => { loading.delete(modelId); throw e; }));
     return loading.get(modelId);
@@ -59,19 +61,22 @@
    * Checks a tool before its page is used. Shows the reason in the #gate element when it cannot run.
    * When a model is missing, the page shows a Get more button; onReady() runs once everything is in place.
    */
+  let gateLang = null;
   async function gate(toolId, onReady) {
     const box = doc.getElementById('gate');
+    // a language change while the gate shows: draw it again in the new language (once ready, the box is empty)
+    if (!gateLang && root.SlopI18n && root.SlopI18n.on) gateLang = root.SlopI18n.on(() => { if (box.firstChild) gate(toolId, onReady); });
     const tool = R.TOOLS.find((t) => t.id === toolId);
     const sup = S.check(toolId);
     box.replaceChildren();
-    if (!sup.ok) { box.append(panel('Not supported on this device', sup.reason)); return false; }
+    if (!sup.ok) { box.append(panel(tr('aitools.gate.unsupported', 'Not supported on this device'), sup.reason)); return false; }
     for (const id of tool.models) {
       if ((await M.status(id)) !== 'needs-download') continue;
       const m = R.byId(id);
       const btn = doc.createElement('button');
-      btn.type = 'button'; btn.className = 'ai-pri'; btn.textContent = 'Get more…';
+      btn.type = 'button'; btn.className = 'ai-pri'; btn.textContent = tr('aitools.hub.get_more_dots', 'Get more…');
       btn.addEventListener('click', () => root.SlopAIGetMore.open(id, { onInstalled: () => gate(toolId, onReady) }));
-      const p = panel('This tool needs a model', `${m.name} (${R.LICENCES[m.licence]}, ${R.formatSize(R.downloadBytes(m))}). Nothing downloads until you press Get more and confirm.`);
+      const p = panel(tr('aitools.gate.needs_model', 'This tool needs a model'), tr('aitools.gate.model_line', '{name} ({licence}, {size}). Nothing downloads until you press Get more and confirm.', { name: m.name, licence: R.LICENCES[m.licence], size: R.formatSize(R.downloadBytes(m)) }));
       p.append(btn);
       box.append(p);
       return false;

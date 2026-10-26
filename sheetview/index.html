@@ -4,6 +4,8 @@
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="sheetview" data-src="shared/theme/theme.js"></script>
   <link rel="expect" href="#slop-built" blocking="render">
+  <script src="../shared/i18n/i18n.js" data-src="shared/i18n/i18n.js"></script>
+  <script src="i18n/index.js" data-src="sheetview/i18n/index.js"></script>
 <script src="../shared/consent/config.js"></script>
 <script src="../shared/consent/state.js"></script>
 <script src="../shared/consent/consent-mode.js"></script>
@@ -70,45 +72,45 @@
 <body>
   <div class="sv-app">
     <header class="sv-top">
-      <div class="sv-brand"><a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home"><svg viewBox="0 0 32 32" class="brand-mark" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/></svg></a><h1>Slop Sheets</h1></div>
+      <div class="sv-brand"><a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home" data-i18n-attr="title:sheetview.app.home;aria-label:sheetview.app.home"><svg viewBox="0 0 32 32" class="brand-mark" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/></svg></a><h1>Slop Sheets</h1></div>
       <div class="sv-name" id="sv-name" aria-live="polite"></div>
-      <div class="sv-tools" role="toolbar" aria-label="File">
-        <button type="button" class="sv-btn sv-primary" id="sv-open" title="Open spreadsheets from this computer (Ctrl+O)">Open</button>
-        <button type="button" class="sv-btn" id="sv-export" aria-haspopup="menu" title="Export the rows you see, or all rows">Export</button>
-        <button type="button" class="sv-btn" id="sv-hub" title="Send the current sheet to Slop Tables">Open in Slop Table</button>
-        <label class="sv-pick">Table style
+      <div class="sv-tools" role="toolbar" aria-label="File" data-i18n-attr="aria-label:menu.file">
+        <button type="button" class="sv-btn sv-primary" id="sv-open" title="Open spreadsheets from this computer (Ctrl+O)" data-i18n="sheetview.app.open" data-i18n-attr="title:sheetview.app.open_title">Open</button>
+        <button type="button" class="sv-btn" id="sv-export" aria-haspopup="menu" title="Export the rows you see, or all rows" data-i18n="sheetview.app.export" data-i18n-attr="title:sheetview.app.export_title">Export</button>
+        <button type="button" class="sv-btn" id="sv-hub" title="Send the current sheet to Slop Tables" data-i18n="sheetview.app.hub" data-i18n-attr="title:sheetview.app.hub_title">Open in Slop Table</button>
+        <label class="sv-pick"><span data-i18n="sheetview.app.table_style">Table style</span>
           <select id="sv-style"></select>
         </label>
-        <label class="sv-pick">Colours
+        <label class="sv-pick"><span data-i18n="sheetview.app.colours">Colours</span>
           <select id="sv-palette"></select>
         </label>
-        <button type="button" class="sv-btn" id="sv-cmd" aria-label="Commands (search every command)">Commands</button>
-        <button type="button" class="sv-btn" id="sv-menu" aria-haspopup="menu">Menu</button>
+        <button type="button" class="sv-btn" id="sv-cmd" aria-label="Commands (search every command)" data-i18n="sheetview.app.commands" data-i18n-attr="aria-label:sheetview.app.commands_label">Commands</button>
+        <button type="button" class="sv-btn" id="sv-menu" aria-haspopup="menu" data-i18n="sheetview.app.menu">Menu</button>
       </div>
     </header>
 
-    <div class="sv-tabs sv-docs" id="sv-docs" role="tablist" aria-label="Open files" hidden></div>
-    <div class="sv-tabs sv-sheets" id="sv-sheets" role="tablist" aria-label="Sheets" hidden></div>
+    <div class="sv-tabs sv-docs" id="sv-docs" role="tablist" aria-label="Open files" data-i18n-attr="aria-label:sheetview.app.open_files" hidden></div>
+    <div class="sv-tabs sv-sheets" id="sv-sheets" role="tablist" aria-label="Sheets" data-i18n-attr="aria-label:sheetview.app.sheets" hidden></div>
     <div id="sv-drop" class="sv-dropstrip"></div>
 
     <div class="sv-body" id="sv-body">
     <main class="sv-main" id="sv-main">
       <div class="sv-empty" id="sv-empty">
-        <p class="sv-empty-t">Open a spreadsheet to browse it.</p>
-        <p class="sv-empty-s">Drop an .xlsx, .csv or .tsv file here, or choose one from this computer. Nothing is uploaded. Old .xls files are not supported: save them as .xlsx first.</p>
+        <p class="sv-empty-t" data-i18n="sheetview.app.empty_title">Open a spreadsheet to browse it.</p>
+        <p class="sv-empty-s" data-i18n="sheetview.app.empty_text">Drop an .xlsx, .csv or .tsv file here, or choose one from this computer. Nothing is uploaded. Old .xls files are not supported: save them as .xlsx first.</p>
         <div class="sv-empty-b">
-          <button type="button" class="sv-btn sv-primary" id="sv-open2">Open a spreadsheet</button>
+          <button type="button" class="sv-btn sv-primary" id="sv-open2" data-i18n="sheetview.app.open_one">Open a spreadsheet</button>
         </div>
       </div>
-      <section class="sv-view" id="sv-view" aria-label="Sheet" hidden>
-        <div class="sv-bar" role="toolbar" aria-label="Sort and filter">
+      <section class="sv-view" id="sv-view" aria-label="Sheet" data-i18n-attr="aria-label:sheetview.app.sheet" hidden>
+        <div class="sv-bar" role="toolbar" aria-label="Sort and filter" data-i18n-attr="aria-label:sheetview.app.sort_filter">
           <span class="sv-status" id="sv-status" role="status" aria-live="polite"></span>
-          <button type="button" class="sv-btn sv-mini" id="sv-clear" disabled>Clear sort and filters</button>
+          <button type="button" class="sv-btn sv-mini" id="sv-clear" disabled data-i18n="sheetview.app.clear">Clear sort and filters</button>
         </div>
         <div class="sv-host" id="sv-grid"></div>
       </section>
     </main>
-    <aside class="sv-side" id="sv-side" aria-label="Sheet"></aside>
+    <aside class="sv-side" id="sv-side" aria-label="Sheet" data-i18n-attr="aria-label:sheetview.app.sheet"></aside>
     </div>
   </div>
   <script src="../shared/tour/mount.js" data-app="sheetview"></script>

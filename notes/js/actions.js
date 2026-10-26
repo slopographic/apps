@@ -4,6 +4,7 @@ import * as store from './store.js';
 import { S, byId, curNote, visibleNotes } from './state.js';
 import { download, notebookZip, fileBase } from './export.js';
 import { openNote, newNoteTab, dropNotes } from './tabs.js';
+import { t } from './dom.js';
 
 let redraw = () => {};
 export const setRedraw = (fn) => { redraw = fn; };
@@ -44,29 +45,29 @@ export function newNote() {
 }
 
 export async function newNotebook() {
-  const title = await ask('New notebook', 'Name', '', 'Create');
+  const title = await ask(t('notes.dlg.new_book'), t('notes.dlg.name'), '', t('notes.dlg.create'));
   if (title == null) return;
-  const nb = await store.createNotebook(clean(title) || 'Untitled notebook');
+  const nb = await store.createNotebook(clean(title) || t('notes.app.untitled_book'));
   S.notebooks.push(nb);
   S.notebooks.sort(byTitle);
   selectNotebook(nb.id);
-  toast('Notebook made');
+  toast(t('notes.toast.book_made'));
 }
 
 /** A folder inside a notebook, under parent (a folder id, or null for the top of the notebook). */
 export async function newFolder(parent = S.folderId) {
-  if (!S.notebookId) { toast('Choose a notebook first'); return; }
-  const title = await ask('New folder', 'Name', '', 'Create');
+  if (!S.notebookId) { toast(t('notes.toast.choose_book')); return; }
+  const title = await ask(t('notes.dlg.new_folder'), t('notes.dlg.name'), '', t('notes.dlg.create'));
   if (title == null) return;
-  const f = await store.createFolder(S.notebookId, parent || null, clean(title) || 'Untitled folder');
+  const f = await store.createFolder(S.notebookId, parent || null, clean(title) || t('notes.app.untitled_folder'));
   S.folders.push(f);
   redraw();
-  toast('Folder made');
+  toast(t('notes.toast.folder_made'));
 }
 
 /** Renames a notebook, folder or note (the title shows in the list and, for a note, in its file name). */
 export async function rename(item) {
-  const title = await ask('Rename', 'Name', item.title, 'Rename');
+  const title = await ask(t('ui.rename'), t('notes.dlg.name'), item.title, t('ui.rename'));
   if (title == null) return;
   item.title = clean(title) || (item.kind === 'note' ? '' : item.title);
   store.touch(item);
@@ -99,11 +100,11 @@ export function moveToNotebook(n, notebook) {
 export async function remove(item, { ask = true } = {}) {
   const all = { notebooks: S.notebooks, folders: S.folders, notes: S.notes };
   const ids = store.trashIds(all, item);
-  const what = item.kind === 'note' ? `“${item.title || 'Untitled'}”` : `“${item.title}” and the ${ids.length - 1} item${ids.length === 2 ? '' : 's'} in it`;
-  const ok = !ask || await SlopUI.confirm('Move to Trash?', `${what} goes to the Slop Drive Trash, where you can restore it.`, 'Move to Trash', { danger: true });
+  const body = item.kind === 'note' ? t('notes.dlg.trash_note', { title: item.title || t('ui.untitled') }) : t('notes.dlg.trash_items', { title: item.title, n: ids.length - 1 });
+  const ok = !ask || await SlopUI.confirm(t('notes.dlg.trash_q'), body, t('notes.dlg.trash_ok'), { danger: true });
   if (!ok) return false;
   store.forget(ids);
-  try { await store.trash(ids); } catch (e) { toast('Could not move to Trash: ' + e.message); if (!ask) throw e; return false; }
+  try { await store.trash(ids); } catch (e) { toast(t('notes.toast.trash_failed', { error: e.message })); if (!ask) throw e; return false; }
   const gone = new Set(ids);
   S.notes = S.notes.filter((n) => !gone.has(n.id));
   S.folders = S.folders.filter((f) => !gone.has(f.id));
@@ -112,7 +113,7 @@ export async function remove(item, { ask = true } = {}) {
   if (gone.has(S.notebookId)) { S.notebookId = null; S.folderId = null; }
   if (gone.has(S.folderId)) S.folderId = null;
   redraw();
-  toast('Moved to Trash');
+  toast(t('notes.toast.trashed'));
   return true;
 }
 /** Redraws every view (after a change made outside the screen, such as the assistant's). */
@@ -122,7 +123,7 @@ export const refresh = () => redraw();
 export function exportNote(n, format) {
   if (!n) return;
   const name = download(n, format);
-  toast(name ? 'Exported ' + name : 'Print view opened: choose Save as PDF');
+  toast(name ? t('notes.toast.exported', { name }) : t('notes.toast.print_view'));
 }
 
 /** Exports a whole notebook as a zip of its notes (md or html), in their folders. */
@@ -133,7 +134,7 @@ export async function exportNotebook(id, format) {
   const blob = await notebookZip(notes, S.folders.filter((f) => f.notebook === id), format);
   const name = fileBase(nb.title) + ' (' + (format === 'html' ? 'HTML' : 'Markdown') + ').zip';
   SlopUI.download(blob, name);
-  toast('Exported ' + notes.length + ' note' + (notes.length === 1 ? '' : 's') + ' to ' + name);
+  toast(t('notes.toast.exported_n', { n: notes.length, name }));
 }
 
 /** The next (+1) or previous (-1) note in the list. */

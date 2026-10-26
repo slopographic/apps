@@ -13,6 +13,7 @@
   const app = () => window.EmlApp, ui = () => window.SlopUI;
   const toast = (m, ms) => ui().toast(m, ms);
   const mod = () => import('./export.js');
+  const t = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
 
   X.scope = function (which) {
     const A = app();
@@ -24,14 +25,14 @@
 
   /** Makes one export, with a toast while it runs and what it says after. Resolves the file or null on failure. */
   X.make = async function (format, docs, o = {}) {
-    if (!docs.length) { toast('Open a message first.'); return null; }
-    const busy = format.startsWith('pdf') && docs.length > 1 ? 'Making the PDF of ' + docs.length + ' messages…' : format.startsWith('pdf') ? 'Making the PDF…' : '';
+    if (!docs.length) { toast(t('eml.toast.open_first')); return null; }
+    const busy = format.startsWith('pdf') && docs.length > 1 ? t('eml.toast.making_n', { n: docs.length }) : format.startsWith('pdf') ? t('eml.toast.making') : '';
     if (busy) toast(busy, 60000);
     try {
       const f = await (await mod()).make(format, docs, o);
       return f;
     } catch (e) {
-      toast('Could not export: ' + ((e && e.message) || 'unknown error'), 6000);
+      toast(t('eml.toast.export_failed', { error: (e && e.message) || t('eml.err.unknown') }), 6000);
       return null;
     }
   };
@@ -39,7 +40,7 @@
     const f = await X.make(format, docs, o);
     if (!f) return null;
     ui().download(f.blob, f.name);
-    toast(f.info || ('Saved ' + f.name + '.'), f.info ? 9000 : 3000);
+    toast(f.info || t('eml.toast.saved', { name: f.name }), f.info ? 9000 : 3000);
     return f;
   };
   X.toApp = async function (appId, format, docs, o) {
@@ -49,29 +50,29 @@
       // the one way out (shared/intake/outtake.js): the file goes through Slop Drive and the app takes it with its intake
       const id = await window.SlopOuttake.send(appId, { from: 'eml', get: () => f.blob, name: f.name, type: f.blob.type });
       const a = H.appById(appId);
-      toast((f.info ? f.info + ' ' : '') + 'Opened ' + f.name + ' in ' + (a ? a.name : appId) + '.', f.info ? 9000 : 4000);
+      toast((f.info ? f.info + ' ' : '') + t('eml.toast.opened_in', { name: f.name, app: a ? a.name : appId }), f.info ? 9000 : 4000);
       return { id, file: f };
-    } catch (e) { toast('Could not open it: ' + e.message, 6000); return null; }
+    } catch (e) { toast(t('eml.toast.open_failed', { error: e.message }), 6000); return null; }
   };
   X.toDrive = async function (format, docs, o) {
     const H = window.SlopHub, f = await X.make(format, docs, o);
     if (f && H) await H.saveToDrive(f.blob, f.name);
   };
 
-  const LABELS = [['pdf', 'PDF'], ['pdfzip', 'PDF, one per message (ZIP)'], ['txt', 'Plain text'], ['html', 'HTML'], ['md', 'Markdown'],
-    ['csv', 'List of messages (CSV)'], ['eml', 'Original .eml'], ['atts', 'Attachments (ZIP)']];
+  const LABELS = () => [['pdf', 'PDF'], ['pdfzip', t('eml.ex.pdfzip')], ['txt', t('eml.view.plain')], ['html', 'HTML'], ['md', 'Markdown'],
+    ['csv', t('eml.ex.csv')], ['eml', t('eml.ex.eml')], ['atts', t('eml.ex.atts')]];
   /** The Export ▾ menu for these messages (a function, so it reads the state when it opens). */
   X.menu = function (get) {
     return () => {
       const docs = get(), many = docs.length > 1, none = !docs.length, noAtts = !docs.some((d) => d.msg.attachments.length);
-      return [{ heading: 'Download' }]
-        .concat(LABELS.filter(([id]) => many || id !== 'pdfzip').map(([id, label]) => ({
-          label: id === 'pdf' && many ? 'PDF, one file (combined)' : label, disabled: none || (id === 'atts' && noAtts),
+      return [{ heading: t('eml.ex.download') }]
+        .concat(LABELS().filter(([id]) => many || id !== 'pdfzip').map(([id, label]) => ({
+          label: id === 'pdf' && many ? t('eml.ex.pdf_combined') : label, disabled: none || (id === 'atts' && noAtts),
           keywords: [id, 'save', 'download'], act: () => X.run(id, get(), { attachments: true }),
         })))
-        .concat([{ heading: 'Open in' }, { label: 'Open in Slop PDF', disabled: none, keywords: ['sign', 'annotate', 'merge'], act: () => X.toApp('pdf', 'pdf', get()) },
-          { label: 'Save PDF to Slop Drive…', disabled: none, keywords: ['drive', 'store'], act: () => X.toDrive('pdf', get()) },
-          { label: 'More options…', disabled: none, act: () => X.dialog({ docs: get() }) }]);
+        .concat([{ heading: t('eml.side.open_in') }, { label: t('eml.side.to_pdf'), disabled: none, keywords: ['sign', 'annotate', 'merge'], act: () => X.toApp('pdf', 'pdf', get()) },
+          { label: t('eml.ex.to_drive'), disabled: none, keywords: ['drive', 'store'], act: () => X.toDrive('pdf', get()) },
+          { label: t('eml.ex.more'), disabled: none, act: () => X.dialog({ docs: get() }) }]);
     };
   };
 
@@ -80,36 +81,36 @@
     const A = app(), U = ui(), body = document.createElement('div');
     body.className = 'em-exdlg';
     const total = A.docs().length, k = A.checkedDocs().length;
-    const scopes = [['current', 'This message'], ['checked', 'Selected (' + k + ')'], ['all', 'All (' + A.visible().length + ')']]
+    const scopes = [['current', t('eml.ex.this')], ['checked', t('eml.ex.selected', { n: k })], ['all', t('eml.ex.all', { n: A.visible().length })]]
       .filter(([id]) => (id === 'current' ? !!A.current() : id === 'checked' ? k > 0 : total > 1));
     const want = o.scope || (k > 1 ? 'checked' : A.current() ? 'current' : 'all');
     const scope = U.select(scopes, scopes.some((s) => s[0] === want) ? want : scopes[0] && scopes[0][0]);
     scope.id = 'em-ex-scope';
-    const format = U.select(LABELS, o.format || 'pdf');
+    const format = U.select(LABELS(), o.format || 'pdf');
     format.id = 'em-ex-format';
-    const list = U.check('List the attachment names under each message', true);
-    const append = U.check('Add PDF and image attachments as pages', !!o.append);
+    const list = U.check(t('eml.ex.list_atts'), true);
+    const append = U.check(t('eml.ex.append'), !!o.append);
     append.input.id = 'em-ex-append';
     const help = document.createElement('p');
     help.className = 'sui-p em-help';
     const paint = () => {
       const pdf = format.value.startsWith('pdf');
       list.el.hidden = append.el.hidden = !pdf;
-      help.textContent = pdf ? 'Several messages go in date order, each from a new page, after a contents page. Text in every language is kept; the HTML layout and pictures of the body are not (Print keeps them).'
-        : format.value === 'atts' ? 'One folder per message, with each file under its own name.' : '';
+      help.textContent = pdf ? t('eml.ex.pdf_help')
+        : format.value === 'atts' ? t('eml.ex.atts_help') : '';
     };
     format.addEventListener('change', paint);
     paint();
-    if (scopes.length > 1) body.append(U.field('Messages', scope));
-    body.append(U.field('Format', format), list.el, append.el, help);
+    if (scopes.length > 1) body.append(U.field(t('eml.app.messages'), scope));
+    body.append(U.field(t('eml.ex.format'), format), list.el, append.el, help);
     const docs = () => (o.docs && !scopes.length ? o.docs : X.scope(scopes.length ? scope.value : 'current'));
     const opts = () => ({ attachments: list.input.checked, append: append.input.checked });
     U.dialog({
-      title: 'Export', body, cls: 'em-exdlg-box',
+      title: t('eml.side.export'), body, cls: 'em-exdlg-box',
       buttons: [
-        { label: 'Cancel' },
-        { label: 'Open in Slop PDF', act: async () => { if (!format.value.startsWith('pdf')) format.value = 'pdf'; await X.toApp('pdf', 'pdf', docs(), opts()); } },
-        { label: 'Download', primary: true, act: () => X.run(format.value, docs(), opts()) },
+        { label: t('menu.cancel') },
+        { label: t('eml.side.to_pdf'), act: async () => { if (!format.value.startsWith('pdf')) format.value = 'pdf'; await X.toApp('pdf', 'pdf', docs(), opts()); } },
+        { label: t('eml.ex.download'), primary: true, act: () => X.run(format.value, docs(), opts()) },
       ],
     });
   };
@@ -120,8 +121,8 @@
     const a = doc.msg.attachments[i], H = window.SlopHub;
     if (!a) return [];
     const type = window.EmlBatch.typeOf(a.name, a.type), blob = () => new Blob([a.bytes], { type });
-    const items = [{ label: 'Save', act: () => ui().download(blob(), window.EmlBatch.safeName(a.name, 'attachment')) }];
-    if (H && window.SlopOuttake) for (const it of window.SlopOuttake.items({ get: blob, name: a.name, type, from: 'eml', verb: 'Send to' })) items.push({ label: it.label, act: it.act });
+    const items = [{ label: t('eml.side.save'), act: () => ui().download(blob(), window.EmlBatch.safeName(a.name, 'attachment')) }];
+    if (H && window.SlopOuttake) for (const it of window.SlopOuttake.items({ get: blob, name: a.name, type, from: 'eml', verb: t('eml.ex.send_to') })) items.push({ label: it.label, act: it.act });
     return items;
   };
 })();

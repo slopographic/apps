@@ -2,7 +2,7 @@
  * open or close it (it becomes the selected folder for New), click a file to open it. Drag a row onto a folder to
  * move it (drop on empty space for the root). Right-click (or the Menu key) for New, Open, Rename, Move to, Copy path
  * and Delete. Arrow keys move between rows. On a phone the tree is a drawer. */
-import { el } from './dom.js';
+import { el, t } from './dom.js';
 import { tree as loadTree, pathOf, uniqueName } from './drive.js';
 import { askTrash } from './dialogs.js';
 
@@ -97,7 +97,7 @@ function draw() {
       el('span', { class: 'cd-ic', 'aria-hidden': 'true' }, isFolder ? (open ? '▾' : '▸') : extLabel(r.rec.name)),
       el('span', { class: 'cd-nm' }, r.rec.name));
   });
-  host.replaceChildren(...(nodes.length ? nodes : [el('p', { class: 'cd-hint' }, 'Slop Drive is empty. Use File or Folder, or save a file here.')]));
+  host.replaceChildren(...(nodes.length ? nodes : [el('p', { class: 'cd-hint' }, t('code.tree.empty'))]));
 }
 const extLabel = (name) => { const m = /\.([^.]+)$/.exec(name); return m ? m[1].slice(0, 4).toUpperCase() : '·'; };
 
@@ -151,7 +151,7 @@ const canMove = (r, target) => r.kind !== 'folder' || (target !== r.rec.id && !w
 /** Move a row into `target` (null: the root). A file that clashes gets a free name, as New does. */
 async function moveTo(r, target) {
   const parent = target ?? null;
-  if (!canMove(r, parent)) { SlopUI.toast('A folder cannot go inside itself'); return; }
+  if (!canMove(r, parent)) { SlopUI.toast(t('code.tree.no_self')); return; }
   if (r.kind === 'folder') {
     if ((r.rec.parentId ?? null) === parent) return;
     await H().updateFolder(r.rec.id, { parentId: parent });
@@ -168,7 +168,7 @@ async function moveTo(r, target) {
 
 /** Move through a folder picker (the touch-friendly way; drag is for a mouse). */
 async function moveDialog(r) {
-  const folderId = await H().pickFolder({ title: `Move “${r.rec.name}” to…`, ok: 'Move here',
+  const folderId = await H().pickFolder({ title: t('code.tree.move_to', { name: r.rec.name }), ok: t('code.tree.move_here'),
     start: (r.kind === 'folder' ? r.rec.parentId : r.rec.folderId) ?? null, exclude: r.kind === 'folder' ? [r.rec.id] : [] });
   if (folderId === undefined) return;
   await moveTo(r, folderId);
@@ -180,24 +180,24 @@ function resolveMenu(target) {
   const r = btn ? byKey.get(btn.dataset.key) : null;
   const folderId = r ? (r.kind === 'folder' ? r.rec.id : (r.rec.folderId ?? null)) : selected;
   const newSub = [
-    { label: 'File…', act: () => cb.onNew(folderId) },
-    { label: 'Folder…', act: () => newFolder(folderId) },
+    { label: t('code.tree.file'), act: () => cb.onNew(folderId) },
+    { label: t('code.tree.folder'), act: () => newFolder(folderId) },
   ];
-  if (!r) return [{ label: 'New', sub: newSub }];
+  if (!r) return [{ label: t('code.app.new'), sub: newSub }];
   if (r.kind === 'folder') {
     const open = expanded.has(r.rec.id);
-    return [{ label: open ? 'Close' : 'Open', act: () => activate(r) }, { label: 'New', sub: newSub }, '-',
-      { label: 'Rename…', act: () => rename(r) }, { label: 'Move to…', act: () => moveDialog(r) }, { label: 'Copy path', act: () => copyPath(r) },
-      '-', { label: 'Delete…', act: () => remove(r) }];
+    return [{ label: open ? t('menu.close') : t('menu.open'), act: () => activate(r) }, { label: t('code.app.new'), sub: newSub }, '-',
+      { label: t('ui.rename_dots'), act: () => rename(r) }, { label: t('code.tree.move'), act: () => moveDialog(r) }, { label: t('code.tree.copy_path'), act: () => copyPath(r) },
+      '-', { label: t('code.tree.delete'), act: () => remove(r) }];
   }
-  return [{ label: 'Open', act: () => cb.onOpen(r.rec) }, { label: 'New', sub: newSub }, '-',
-    { label: 'Rename…', act: () => rename(r) }, { label: 'Move to…', act: () => moveDialog(r) }, { label: 'Copy path', act: () => copyPath(r) },
-    '-', { label: 'Delete…', act: () => remove(r) }];
+  return [{ label: t('menu.open'), act: () => cb.onOpen(r.rec) }, { label: t('code.app.new'), sub: newSub }, '-',
+    { label: t('ui.rename_dots'), act: () => rename(r) }, { label: t('code.tree.move'), act: () => moveDialog(r) }, { label: t('code.tree.copy_path'), act: () => copyPath(r) },
+    '-', { label: t('code.tree.delete'), act: () => remove(r) }];
 }
 
 /** New folder in `parentId` (null: the root). It becomes the selected folder. */
 export async function newFolder(parentId) {
-  const name = await SlopUI.prompt('New folder', 'Folder name', 'New folder', { ok: 'Create' });
+  const name = await SlopUI.prompt(t('code.tree.new_folder'), t('code.tree.folder_name'), t('code.tree.new_folder'), { ok: t('code.dlg.create') });
   if (!name || !name.trim()) return;
   const id = await H().createFolder(name.trim(), parentId ?? null);
   if (parentId) expanded.add(parentId);
@@ -207,7 +207,7 @@ export async function newFolder(parentId) {
 }
 
 async function rename(r) {
-  const name = await SlopUI.prompt('Rename', 'Name', r.rec.name, { ok: 'Rename' });
+  const name = await SlopUI.prompt(t('ui.rename'), t('code.dlg.name'), r.rec.name, { ok: t('ui.rename') });
   if (!name || !name.trim() || name.trim() === r.rec.name) return;
   const next = name.trim();
   if (r.kind === 'folder') await H().updateFolder(r.rec.id, { name: next });
@@ -217,7 +217,7 @@ async function rename(r) {
 
 async function copyPath(r) {
   const p = r.kind === 'folder' ? await pathOf(r.rec.parentId ?? null, r.rec.name) : await pathOf(r.rec.folderId ?? null, r.rec.name);
-  try { await navigator.clipboard.writeText(p); SlopUI.toast('Copied ' + p); } catch (e) { SlopUI.toast(p); }
+  try { await navigator.clipboard.writeText(p); SlopUI.toast(t('code.tree.copied', { path: p })); } catch (e) { SlopUI.toast(p); }
 }
 
 async function remove(r) {

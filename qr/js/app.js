@@ -8,7 +8,9 @@
   const Q = () => window.QRState;
   const S = () => window.QRState.S;
   const TABS = ['templates', 'content', 'design', 'logo', 'raw', 'batch'];
-  const NAMES = { templates: 'Templates', content: 'Content', design: 'Design', logo: 'Logo', raw: 'Raw text', batch: 'Batch' };
+  const t = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
+  const TAB_KEYS = { templates: 'qr.app.tab_templates', content: 'qr.app.tab_content', design: 'qr.app.tab_design', logo: 'qr.app.tab_logo', raw: 'qr.app.tab_raw', batch: 'qr.app.tab_batch' };
+  const tabName = (k) => t(TAB_KEYS[k]);
 
   let last = null;      // { text, svg } for the code on screen, or null
   let touched = false;  // after the first edit, errors show; before it the form only says what to do
@@ -25,19 +27,19 @@
   function actions() {
     const has = !!last;
     return [
-      { id: 'save', label: 'Save to Drive', icon: 'save', primary: true, disabled: !has, onClick: saveDrive },
-      { id: 'open', label: 'Open from Drive', icon: 'open', onClick: openDrive },
-      { id: 'buffer', label: 'Copy to buffer', icon: 'copy', disabled: !has, onClick: toBuffer },
+      { id: 'save', label: t('qr.app.save_drive'), icon: 'save', primary: true, disabled: !has, onClick: saveDrive },
+      { id: 'open', label: t('qr.app.open_drive'), icon: 'open', onClick: openDrive },
+      { id: 'buffer', label: t('qr.app.buffer'), icon: 'copy', disabled: !has, onClick: toBuffer },
     ];
   }
   function menu() {
     const has = !!last;
     return [
-      { id: 'dl-svg', label: 'Download SVG', icon: 'download', disabled: !has, onClick: downloadSvg },
-      { id: 'dl-png', label: 'Download PNG', icon: 'download', disabled: !has, onClick: downloadPng },
-      { id: 'dl-pdf', label: 'Download print page (PDF)', icon: 'print', disabled: !has, onClick: downloadPdf },
+      { id: 'dl-svg', label: t('qr.app.dl_svg'), icon: 'download', disabled: !has, onClick: downloadSvg },
+      { id: 'dl-png', label: t('qr.app.dl_png'), icon: 'download', disabled: !has, onClick: downloadPng },
+      { id: 'dl-pdf', label: t('qr.app.dl_pdf'), icon: 'print', disabled: !has, onClick: downloadPdf },
       { separator: true },
-      { id: 'cmd', label: 'Commands', onClick: () => { if (window.SlopCmd && SlopCmd.open) SlopCmd.open(); } },
+      { id: 'cmd', label: t('qr.app.commands'), onClick: () => { if (window.SlopCmd && SlopCmd.open) SlopCmd.open(); } },
     ];
   }
   function syncBar() {
@@ -51,8 +53,9 @@
   }
 
   function meta(text) {
-    const logo = S().logo.href ? ' · logo ' + Math.round(opts().logo.frac * 100) + '%' : '';
-    return px() + ' px · error correction ' + opts().ec + ' · ' + window.QRPayload.byteLength(text) + ' bytes' + logo;
+    // numbers as strings: a pixel size and a byte count read best without grouping (1024 px)
+    const v = { px: String(px()), ec: opts().ec, bytes: String(window.QRPayload.byteLength(text)), pct: String(Math.round(opts().logo.frac * 100)) };
+    return t(S().logo.href ? 'qr.app.meta_logo' : 'qr.app.meta', v);
   }
 
   /** Redraws the preview, the message, the buttons and the header from the state. Cheap enough to run on every key. */
@@ -78,18 +81,18 @@
   function edit() { touched = true; dirty = true; refresh(); }
 
   /* ---------- tabs and panels ---------- */
-  function setTab(t) {
-    if (!TABS.includes(t)) return;
-    tab = t;
-    tabs.show(t);   // SlopTabs (shared/ui/tabs.js): the panel, the selected tab and the arrow keys
-    drawTab(t);
+  function setTab(k) {
+    if (!TABS.includes(k)) return;
+    tab = k;
+    tabs.show(k);   // SlopTabs (shared/ui/tabs.js): the panel, the selected tab and the arrow keys
+    drawTab(k);
   }
-  function drawTab(t = tab) {
-    if (t === 'content') drawContent();
-    else if (t === 'design') window.QRPanelDesign.drawDesign($('qr-design'), S().style, designChange);
-    else if (t === 'logo') window.QRPanelDesign.drawLogo($('qr-logo'), S().logo, logoActs);
-    else if (t === 'raw') drawRaw();
-    else if (t === 'batch' && window.QRBatch) window.QRBatch.refresh();
+  function drawTab(k = tab) {
+    if (k === 'content') drawContent();
+    else if (k === 'design') window.QRPanelDesign.drawDesign($('qr-design'), S().style, designChange);
+    else if (k === 'logo') window.QRPanelDesign.drawLogo($('qr-logo'), S().logo, logoActs);
+    else if (k === 'raw') drawRaw();
+    else if (k === 'batch' && window.QRBatch) window.QRBatch.refresh();
   }
   function drawContent() {
     $('qr-name').value = S().label;
@@ -101,8 +104,8 @@
     const typed = S().raw !== null;
     if (!typed) $('qr-raw').value = r.ok ? r.text : '';
     $('qr-raw-note').textContent = typed
-      ? 'Encoding this text exactly as typed. Edits here fill the form when the kind allows it.'
-      : 'Showing the text built from the form. Edit it here to encode exactly this text.';
+      ? t('qr.app.raw_typed')
+      : t('qr.app.raw_built');
     $('qr-raw-reset').disabled = !typed;
   }
   function designChange(k, v) { S().style[k] = v; edit(); }
@@ -120,17 +123,18 @@
   };
   // The logo is the page's one way in for files (shared/intake, spec 'qr'): the logo tab's box (a click or a drop) and a
   // pasted picture.
-  window.SlopIntake.register({ id: 'qr', limit: 1, accept: { types: ['image/*'], exts: ['.svg'], noun: 'a picture' }, process: async (f) => { await logoActs.file(f); return f.name; } });
+  window.SlopIntake.register({ id: 'qr', limit: 1, accept: { types: ['image/*'], exts: ['.svg'], noun: t('qr.app.noun_picture') }, process: async (f) => { await logoActs.file(f); return f.name; } });
   function logoDone() { edit(); drawTab('logo'); }
 
   function applyTemplate(id) {
-    const t = window.QRTemplates.get(id);
-    if (!t || !Q().applyTemplate(id)) return;
-    Q().setLabel(t.name);
+    const tpl = window.QRTemplates.get(id);
+    if (!tpl || !Q().applyTemplate(id)) return;
+    const name = window.QRPanelContent.templateName(id);
+    Q().setLabel(name);
     touched = true; dirty = true;
     setTab('content');
     refresh();
-    toast('Filled in “' + t.name + '”. Change the details, then download.');
+    toast(t('qr.app.filled', { name }));
   }
 
   /* ---------- exports ---------- */
@@ -144,14 +148,14 @@
     if (!last) return;
     try {
       const png = await window.QRPreview.pngFor(last.svg, px());
-      const pdf = await window.QRExport.toPdf(png, { title: S().label || 'QR code', line: last.text });
+      const pdf = await window.QRExport.toPdf(png, { title: S().label || 'QR code', line: last.text }); // i18n-ignore: the title stamped into the user's PDF
       window.SlopUI.download(pdf, base() + '-print.pdf');
-    } catch (e) { toast('Could not make the PDF: ' + e.message); }
+    } catch (e) { toast(t('qr.app.pdf_failed', { error: e.message })); }
   }
   async function copyText() {
     if (!last) return;
-    try { await navigator.clipboard.writeText(last.text); toast('Copied the encoded text.'); }
-    catch (e) { toast('Could not copy. Select the text in the Raw tab and copy it.'); }
+    try { await navigator.clipboard.writeText(last.text); toast(t('qr.app.copied_text')); }
+    catch (e) { toast(t('qr.app.copy_failed')); }
   }
 
   /* ---------- Slop Drive and the buffer ---------- */
@@ -164,18 +168,18 @@
       const name = base();
       await window.QRSave.saveTo(folder, png, Q().snapshot(), name);
       dirty = false; syncBar();
-      toast('Saved to Slop Drive as ' + name + '.png');
-    } catch (e) { toast('Could not save to Slop Drive: ' + e.message); }
+      toast(t('qr.app.saved_drive', { name }));
+    } catch (e) { toast(t('qr.app.save_failed', { error: e.message })); }
   }
   async function openDrive() {
     try {
       const r = await window.QRSave.openPicked();
       if (!r) return;
-      if (!r.snapshot || !Q().restore(r.snapshot)) { toast('That file has no QR settings. Pick a PNG saved by QR SLOP, or its .qr.json record.'); return; }
+      if (!r.snapshot || !Q().restore(r.snapshot)) { toast(t('qr.app.no_settings')); return; }
       touched = true; dirty = false;
       redrawAll();
-      toast('Opened ' + r.name + ' with its settings.');
-    } catch (e) { toast('Could not open from Slop Drive: ' + e.message); }
+      toast(t('qr.app.opened', { name: r.name }));
+    } catch (e) { toast(t('qr.app.open_failed', { error: e.message })); }
   }
   function redrawAll() {
     $('qr-name').value = S().label;
@@ -186,8 +190,8 @@
     if (!last) return;
     try {
       await window.QRSave.toBuffer(await window.QRPreview.pngFor(last.svg, px()));
-      toast('Copied to the buffer. Paste or drop it into another app.');
-    } catch (e) { toast('Could not copy to the buffer: ' + e.message); }
+      toast(t('qr.app.buffered'));
+    } catch (e) { toast(t('qr.app.buffer_failed', { error: e.message })); }
   }
 
   /** Batch cards: the same options, one code per text. */
@@ -200,11 +204,10 @@
 
   function init() {
     bar = window.SlopAppBar.mount($('qr-bar'), {
-      home: '../', title: 'QR SLOP', subtitle: 'Codes with logos, templates and a live preview. Nothing is uploaded.', actions: [], menu: [],
+      home: '../', title: 'QR SLOP', subtitle: t('qr.app.subtitle'), actions: [], menu: [],
     });
     window.QRPreview.init();
-    window.QRPanelContent.drawTemplates($('qr-templates'), applyTemplate);
-    for (const k of TABS) $('qr-tab-' + k).textContent = NAMES[k];
+    drawWords();
     tabs = window.SlopTabs.mount($('qr-tabs'), { select: setTab, panel: (k) => $('qr-panel-' + k) });
     $('qr-name').addEventListener('input', () => { Q().setLabel($('qr-name').value); dirty = true; syncBar(); });
     $('qr-raw').addEventListener('input', () => { Q().setRaw($('qr-raw').value); edit(); drawRaw(); });
@@ -217,10 +220,17 @@
     if (preset.kind) Q().setKind(preset.kind);
     setTab(preset.tab || tab);
     refresh();
+    // a language change: the words drawn by script again (the marked HTML follows by itself); the code is kept
+    if (window.SlopI18n && window.SlopI18n.on) window.SlopI18n.on(() => { bar.setSubtitle(t('qr.app.subtitle')); barKey = ''; drawWords(); drawTab(tab); refresh(); });
+  }
+  /** The tab names and the template gallery, in the current language. */
+  function drawWords() {
+    window.QRPanelContent.drawTemplates($('qr-templates'), applyTemplate);
+    for (const k of TABS) $('qr-tab-' + k).textContent = tabName(k);
   }
 
   window.QRApp = {
-    init, refresh, edit, setTab, tab: () => tab, last: () => last, state: S, svgFor, saveSvg, savePng,
+    init, refresh, edit, setTab, tabName, tab: () => tab, last: () => last, state: S, svgFor, saveSvg, savePng,
     downloadSvg, downloadPng, downloadPdf, copyText, toBuffer, saveDrive, openDrive, applyTemplate, redrawAll,
   };
 })();

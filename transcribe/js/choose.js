@@ -7,6 +7,7 @@ import { createChoice, drawSuggestion } from './models.js';
 import { openModelChooser } from '../../shared/models/chooser.js';
 import { speechFamily } from '../../shared/speech/family.js';
 import { languageName } from './languages.js';
+import { tr } from './words.js';
 
 export function wireChoice({ queue: q, run, draw, say, catalog: C, manager: M, ui: UI, prefs }) {
   const $ = (id) => document.getElementById(id);
@@ -39,7 +40,7 @@ export function wireChoice({ queue: q, run, draw, say, catalog: C, manager: M, u
   /** Asks before corrections are replaced. */
   async function keepEdits(item) {
     if (item.text == null) return true;
-    return UI.confirm('Transcribe again?', 'The new transcript replaces the text, and the corrections you made to it are lost.', 'Transcribe again');
+    return UI.confirm(tr('transcribe.model.again_q', 'Transcribe again?'), tr('transcribe.model.again_body', 'The new transcript replaces the text, and the corrections you made to it are lost.'), tr('transcribe.model.again', 'Transcribe again'));
   }
   async function again(item, want) {
     if (!(await keepEdits(item))) return;
@@ -47,16 +48,16 @@ export function wireChoice({ queue: q, run, draw, say, catalog: C, manager: M, u
   }
   async function act(kind, item, model) {
     if (kind === 'choose') { dialog(item); return; }
-    if (kind === 'prefer') { prefs.prefer(item.language, model.id); say(`${model.name} will read ${languageName(item.language)} from now on.`); draw(); return; }
+    if (kind === 'prefer') { prefs.prefer(item.language, model.id); say(tr('transcribe.model.prefer_said', '{model} will read {name} from now on.', { model: model.name, name: languageName(item.language) })); draw(); return; }
     if (kind === 'cancel') { if (upgrading) upgrading.ctrl.abort(); return; }
     if (kind === 'redo') { again(item, { model: model.id, language: item.language }); return; }
     if (kind === 'upgrade') {
       if (upgrading || !(await keepEdits(item))) return;
-      upgrading = { id: item.id, model, ctrl: new AbortController(), text: `Downloading ${model.name}…` };
+      upgrading = { id: item.id, model, ctrl: new AbortController(), text: tr('transcribe.model.downloading', 'Downloading {model}…', { model: model.name }) };
       draw();
       try {
         await M.install(model.id, (p) => {
-          upgrading.text = `Downloading ${model.name}: ${p.total ? Math.floor((p.loaded / p.total) * 100) : 0}%`;
+          upgrading.text = tr('transcribe.model.downloading_pct', 'Downloading {model}: {pct}%', { model: model.name, pct: p.total ? Math.floor((p.loaded / p.total) * 100) : 0 });
           const t = $('trSuggest').querySelector('.tr-upgrade-busy');
           if (t) t.textContent = upgrading.text;
         }, { signal: upgrading.ctrl.signal });
@@ -66,7 +67,7 @@ export function wireChoice({ queue: q, run, draw, say, catalog: C, manager: M, u
         if (q.redo(item.id, { model: model.id, language: item.language })) run();
       } catch (e) {
         upgrading = null;
-        say(e && e.name === 'AbortError' ? 'Download cancelled. Nothing was stored.' : `${model.name} was not installed: ${(e && e.message) || e}. Nothing was stored.`);
+        say(e && e.name === 'AbortError' ? tr('transcribe.model.cancelled', 'Download cancelled. Nothing was stored.') : tr('transcribe.model.not_installed', '{model} was not installed: {error}. Nothing was stored.', { model: model.name, error: (e && e.message) || String(e) }));
         draw();
       }
     }

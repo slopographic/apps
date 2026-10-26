@@ -6,27 +6,39 @@
   'use strict';
   const S = () => g.CO.state, X = () => g.SlopColors;
   const el = (tag, attrs = {}, ...kids) => { const n = document.createElement(tag); for (const k in attrs) n.setAttribute(k, attrs[k]); n.append(...kids); return n; };
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
   let side = null, parts = null;
+  /** A harmony's, a scale's or a format's name in the current language (core/ keeps the English one). */
+  const label = (kind, id, en) => (g.SlopI18n && g.SlopI18n.has('colors.' + kind + '.' + id) ? t('colors.' + kind + '.' + id) : en);
 
   function field(label, control, note) {
     const l = el('label', { class: 'sf-field' }, el('span', { class: 'sf-lab' }, label), control);
     if (note) l.append(el('span', { class: 'sf-note' }, note));
     return l;
   }
-  function select(id, options) { const s = el('select', { id }); for (const [v, t] of options) s.append(el('option', { value: v }, t)); return s; }
+  function select(id) { return el('select', { id }); }
+  /** The options of the three lists, in the current language (the chosen value is kept). */
+  function options() {
+    const H = X().harmony, P = parts;
+    const fill = (s, list) => { const v = s.value; s.replaceChildren(...list.map(([id, txt]) => el('option', { value: id }, txt))); if (v) s.value = v; };
+    fill(P.harmony, H.HARMONIES.map(([id, en]) => [id, label('harmony', id, en)]));
+    fill(P.scale, H.SCALES.map(([id, en]) => [id, label('scale', id, en)]));
+    fill(P.format, X().formats.FORMATS.map((f) => [f.id, label('format', f.id, f.label)]));
+  }
   function build() {
-    const H = X().harmony;
-    const harmony = select('co-harmony-kind', H.HARMONIES), scale = select('co-scale-kind', H.SCALES);
-    const steps = el('input', { type: 'number', id: 'co-steps', min: '2', max: '12', step: '1' });
-    const k = el('input', { type: 'number', id: 'co-k', min: '2', max: '12', step: '1' });
-    const name = el('input', { type: 'text', id: 'co-pal-name', maxlength: '80', autocomplete: 'off' });
-    const format = select('co-format', X().formats.FORMATS.map((f) => [f.id, f.label]));
-    parts = { harmony, scale, steps, k, name, format };
-    wire();
+    if (!parts) {
+      parts = { harmony: select('co-harmony-kind'), scale: select('co-scale-kind'), format: select('co-format'),
+        steps: el('input', { type: 'number', id: 'co-steps', min: '2', max: '12', step: '1' }),
+        k: el('input', { type: 'number', id: 'co-k', min: '2', max: '12', step: '1' }),
+        name: el('input', { type: 'text', id: 'co-pal-name', maxlength: '80', autocomplete: 'off' }) };
+      wire();
+    }
+    options();
+    const P = parts;
     return [
-      { title: 'Made from it', key: 'gen', settings: [field('Harmony', harmony), field('Scale', scale), field('Steps in the scale', steps)] },
-      { title: 'Picture', key: 'pic', settings: [field('Colours to find', k, 'The main colours, by k-means, the same every time for the same picture.')] },
-      { title: 'Export', key: 'export', settings: [field('Palette name', name), field('Format', format)] },
+      { title: t('colors.panel.gen'), key: 'gen', settings: [field(t('colors.panel.harmony'), P.harmony), field(t('colors.panel.scale'), P.scale), field(t('colors.panel.steps'), P.steps)] },
+      { title: t('colors.panel.pic'), key: 'pic', settings: [field(t('colors.panel.k'), P.k, t('colors.panel.k_note'))] },
+      { title: t('colors.panel.export'), key: 'export', settings: [field(t('colors.panel.name'), P.name), field(t('colors.panel.format'), P.format)] },
     ];
   }
   function wire() {
@@ -49,16 +61,22 @@
   function footer(s) {
     const IO = g.CO.io, n = s.palette.colors.length, f = X().formats.FORMATS.find((x) => x.id === s.format) || X().formats.FORMATS[0];
     side.footer([
-      { id: 'co-download', label: `Download palette (.${f.ext})`, primary: true, disabled: !n, run: () => IO.download() },
-      { id: 'co-drive', label: 'Save to Slop Drive…', disabled: !n, run: () => IO.saveToDrive().catch((e) => g.SlopUI.toast('Could not save: ' + e.message)) },
-      { id: 'co-copy-code', label: 'Copy code', disabled: !n || f.id === 'ase', run: () => IO.copyCode() },
-      { id: 'co-openin', label: 'Open in…', disabled: !n, menu: () => IO.openInItems() },
-    ], { stack: true, more: 'Settings', note: n ? `${n} colour${n === 1 ? '' : 's'} in “${s.palette.name}”` : 'Add colours to the palette to export it' });
+      { id: 'co-download', label: t('colors.panel.download', { ext: f.ext }), primary: true, disabled: !n, run: () => IO.download() },
+      { id: 'co-drive', label: t('colors.panel.drive'), disabled: !n, run: () => IO.saveToDrive().catch((e) => g.SlopUI.toast(t('colors.panel.save_failed', { msg: e.message }))) },
+      { id: 'co-copy-code', label: t('colors.panel.copy_code'), disabled: !n || f.id === 'ase', run: () => IO.copyCode() },
+      { id: 'co-openin', label: t('colors.panel.open_in'), disabled: !n, menu: () => IO.openInItems() },
+    ], { stack: true, more: t('ui.settings'), note: n ? t('colors.panel.count', { n, name: s.palette.name }) : t('colors.panel.empty') });
   }
   function mount(panelEl) {
-    side = g.SlopFrame.panel(panelEl, { title: 'Settings' });
+    side = g.SlopFrame.panel(panelEl, { title: t('ui.settings') });
     side.render(build());
     return side;
   }
-  g.CO.panel = { mount, paint, footer, parts: () => parts };
+  /** Again in the current language (a language change): the title, the sections and the lists' options. */
+  function redraw() {
+    if (!side) return;
+    side.setTitle(t('ui.settings'));
+    side.render(build());
+  }
+  g.CO.panel = { mount, paint, footer, redraw, parts: () => parts };
 })(window);

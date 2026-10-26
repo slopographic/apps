@@ -6,6 +6,8 @@
  * 44 px handle; it is a role=slider for the keyboard and screen readers.
  *   mountPicture(host, { canvas: { a, b, diff }, boxes, w, h, view, label }) → { current(i), view }
  *     current(i) marks box i (Next and Previous change) and scrolls it into view */
+import { t } from './i18n.js';
+
 const el = (tag, cls, attrs = {}) => Object.assign(document.createElement(tag), cls ? { className: cls } : {}, attrs);
 
 function copy(src) {
@@ -47,7 +49,7 @@ function slider(o) {
   boxesOver(frame, o.boxes, o.w, o.h);
   const handle = el('div', 'df-handle', { tabIndex: 0 });
   handle.setAttribute('role', 'slider');
-  handle.setAttribute('aria-label', 'Where B starts over A');
+  handle.setAttribute('aria-label', t('diff.pic.handle'));
   handle.setAttribute('aria-valuemin', '0'); handle.setAttribute('aria-valuemax', '100');
   frame.append(handle);
   let pos = 50;
@@ -56,7 +58,7 @@ function slider(o) {
     top.style.clipPath = `inset(0 0 0 ${pos}%)`;
     handle.style.left = `${pos}%`;
     handle.setAttribute('aria-valuenow', String(Math.round(pos)));
-    handle.setAttribute('aria-valuetext', `${Math.round(pos)}%: A on the left, B on the right`);
+    handle.setAttribute('aria-valuetext', t('diff.pic.handle_value', { pct: Math.round(pos) }));
   };
   set(50);
   const at = (e) => { const r = frame.getBoundingClientRect(); set(((e.clientX - r.left) / r.width) * 100); };
@@ -68,7 +70,7 @@ function slider(o) {
     if (k === undefined) return;
     e.preventDefault(); set(k);
   });
-  const cap = el('p', 'df-cap'); cap.textContent = 'Drag across the picture, or use the arrow keys on the handle: A on the left, B on the right.';
+  const cap = el('p', 'df-cap'); cap.textContent = t('diff.pic.slider_cap');
   wrap.append(frame, cap);
   wrap.setPos = set;
   return wrap;
@@ -78,9 +80,9 @@ export function mountPicture(host, o) {
   host.textContent = '';
   const view = o.view || 'side';
   const box = el('div', `df-pics df-pics-${view}`);
-  box.setAttribute('aria-label', o.label || 'Pictures compared');
+  box.setAttribute('aria-label', o.label || t('diff.pic.label'));
   if (view === 'slider') box.append(slider(o));
-  else if (view === 'diff') box.append(figure(o.canvas.diff, 'Changed pixels in red', o.boxes, o.w, o.h));
+  else if (view === 'diff') box.append(figure(o.canvas.diff, t('diff.pic.diff_cap'), o.boxes, o.w, o.h));
   else box.append(figure(o.canvas.a, 'A', o.boxes, o.w, o.h), figure(o.canvas.b, 'B', o.boxes, o.w, o.h));
   host.append(box);
   return {

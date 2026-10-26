@@ -7,22 +7,22 @@
 (function () {
   'use strict';
   const KEY = 'slopwatermark.setup', VERSION = 2, LIMIT = 2.5 * 1048576;
-  const $ = window.WMUtil.$, G = window.WMGroups, S = window.SlopWatermarkSpec;
+  const $ = window.WMUtil.$, t = window.WMUtil.t, G = window.WMGroups, S = window.SlopWatermarkSpec;
   const state = { spec: S.defaults(), groups: {} };
   let onChange = () => {}, saveTimer = 0, panel = null;
 
   function status(text) { $('wm-saved').textContent = text; }
   function saveNow() {
     try {
-      let rec = JSON.stringify({ v: VERSION, data: { spec: state.spec, groups: state.groups } }), note = 'Saved on this device.';
+      let rec = JSON.stringify({ v: VERSION, data: { spec: state.spec, groups: state.groups } }), note = t('watermark.saved.plain');
       if (rec.length > LIMIT) {
         const bare = Object.assign({}, state.spec, { layers: state.spec.layers.map((L) => Object.assign({}, L, { logo: '' })) });
         rec = JSON.stringify({ v: VERSION, data: { spec: bare, groups: state.groups } });
-        note = 'Saved on this device without the logo (it is too big). Use My watermarks to keep it.';
-      } else if (state.spec.layers.some((L) => L.logo)) note = 'Saved on this device, with the logo.';
+        note = t('watermark.saved.no_logo');
+      } else if (state.spec.layers.some((L) => L.logo)) note = t('watermark.saved.logo');
       localStorage.setItem(KEY, rec);
       status(note);
-    } catch (e) { status('This browser would not save the setup. It still works for this visit.'); }
+    } catch (e) { status(t('watermark.saved.blocked')); }
   }
   function persist() { clearTimeout(saveTimer); saveTimer = setTimeout(saveNow, 250); }
   function changed() { persist(); onChange(); }
@@ -43,9 +43,14 @@
       media: { pages: false, time: false },
       onChange: (spec) => { state.spec = spec; changed(); },
       actions: [
-        { label: 'Reset to defaults', title: 'Back to the plain text watermark; the groups follow it again', act: () => { state.groups = {}; set(S.defaults()); } },
-        { label: 'Add to a workflow…', title: 'Open Slop Workflows with this watermark as a step', act: () => opts.toWorkflow && opts.toWorkflow() },
+        { label: t('watermark.set.reset'), title: t('watermark.set.reset_title'), act: () => { state.groups = {}; set(S.defaults()); } },
+        { label: t('watermark.set.workflow'), title: t('watermark.set.workflow_title'), act: () => opts.toWorkflow && opts.toWorkflow() },
       ],
+    });
+    // the shared panel draws the two buttons once: marked, they follow a language change (shared/i18n apply())
+    const keys = [['watermark.set.reset', 'watermark.set.reset_title'], ['watermark.set.workflow', 'watermark.set.workflow_title']];
+    $('wm-settings').querySelectorAll('.swp-actions > button').forEach((b, i) => {
+      if (keys[i]) { b.dataset.i18n = keys[i][0]; b.dataset.i18nAttr = 'title:' + keys[i][1]; }
     });
   }
 
@@ -61,7 +66,7 @@
     state.groups = {};
     for (const k of G.KINDS) { const ov = G.clean(data.groups && data.groups[k], state.spec); if (ov) state.groups[k] = ov; }
     if (panel) panel.set(state.spec);
-    status(state.spec.layers.some((L) => L.logo) ? 'Saved on this device, with the logo.' : 'Saved on this device.');
+    status(t(state.spec.layers.some((L) => L.logo) ? 'watermark.saved.logo' : 'watermark.saved.plain'));
   }
 
   window.WMSettings = {

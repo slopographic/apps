@@ -1,6 +1,6 @@
 /* Slop Code: the SlopUI dialogs (never a browser alert or confirm). */
-import { el } from './dom.js';
-import { LANGS, languageById, withExt } from './lang.js';
+import { el, t } from './dom.js';
+import { LANGS, languageById, withExt, langLabel } from './lang.js';
 
 const UI = () => window.SlopUI;
 
@@ -8,13 +8,13 @@ const UI = () => window.SlopUI;
 export function askNewFile(folderLabel, startId = 'javascript') {
   return new Promise((res) => {
     let picked = null;
-    const sel = UI().select(LANGS.map((l) => [l.id, l.label]), startId);
+    const sel = UI().select(LANGS.map((l) => [l.id, langLabel(l)]), startId);
     const name = el('input', { class: 'sui-input', type: 'text', value: withExt('untitled', languageById(startId)),
-      'aria-label': 'File name', spellcheck: 'false', autocomplete: 'off' });
+      'aria-label': t('code.dlg.file_name'), spellcheck: 'false', autocomplete: 'off' });
     sel.addEventListener('change', () => { name.value = withExt(name.value, languageById(sel.value)); });
-    const body = el('div', null, UI().field('Type', sel), UI().field('Name', name),
-      el('p', { class: 'sui-p cd-note' }, 'Saved in ' + folderLabel + ' on Slop Drive.'));
-    UI().dialog({ title: 'New file', body, buttons: [{ label: 'Cancel' }, { label: 'Create', primary: true, act: () => {
+    const body = el('div', null, UI().field(t('code.dlg.type'), sel), UI().field(t('code.dlg.name'), name),
+      el('p', { class: 'sui-p cd-note' }, t('code.dlg.saved_in', { folder: folderLabel })));
+    UI().dialog({ title: t('code.dlg.new_file'), body, buttons: [{ label: t('menu.cancel') }, { label: t('code.dlg.create'), primary: true, act: () => {
       const v = name.value.trim();
       if (!v) { name.focus(); return false; }
       const lang = languageById(sel.value);
@@ -27,27 +27,27 @@ export function askNewFile(folderLabel, startId = 'javascript') {
 export function askUnsaved(name) {
   return new Promise((res) => {
     let choice = 'cancel';
-    UI().dialog({ title: 'Unsaved changes', body: `“${name}” has changes that are not saved to Slop Drive yet.`, buttons: [
-      { label: 'Cancel' },
-      { label: 'Discard', danger: true, act: () => { choice = 'discard'; } },
-      { label: 'Save', primary: true, act: () => { choice = 'save'; } },
+    UI().dialog({ title: t('code.dlg.unsaved'), body: t('code.dlg.unsaved_body', { name }), buttons: [
+      { label: t('menu.cancel') },
+      { label: t('code.dlg.discard'), danger: true, act: () => { choice = 'discard'; } },
+      { label: t('menu.save'), primary: true, act: () => { choice = 'save'; } },
     ], onClose: () => res(choice) });
   });
 }
 
 /** Resolves true when the user confirms the move to the Trash. */
-export const askTrash = (name, isFolder) => UI().confirm(`Delete “${name}”?`,
-  `${isFolder ? 'This folder and its contents' : 'This file'} moves to the Slop Drive Trash, where you can restore it.`,
-  'Delete', { danger: true });
+export const askTrash = (name, isFolder) => UI().confirm(t('code.dlg.delete_q', { name }),
+  t(isFolder ? 'code.dlg.delete_folder' : 'code.dlg.delete_file'),
+  t('ui.delete'), { danger: true });
 
 /** Language mode: the language for the open file. Resolves the language id, or null on Cancel. */
 export function askLanguage(curId) {
   return new Promise((res) => {
     let picked = null;
-    const sel = UI().select(LANGS.map((l) => [l.id, l.label]), curId);
-    const body = el('div', null, UI().field('Language', sel),
-      el('p', { class: 'sui-p cd-note' }, 'Highlighting and completion change for this file. Its name and its Slop Drive record stay as they are.'));
-    UI().dialog({ title: 'Language mode', body, buttons: [{ label: 'Cancel' }, { label: 'Set', primary: true, act: () => { picked = sel.value; } }],
+    const sel = UI().select(LANGS.map((l) => [l.id, langLabel(l)]), curId);
+    const body = el('div', null, UI().field(t('code.dlg.language'), sel),
+      el('p', { class: 'sui-p cd-note' }, t('code.dlg.language_note')));
+    UI().dialog({ title: t('code.dlg.language_mode'), body, buttons: [{ label: t('menu.cancel') }, { label: t('code.dlg.set'), primary: true, act: () => { picked = sel.value; } }],
       onClose: () => res(picked) });
   });
 }

@@ -3,7 +3,8 @@
 import * as docs from './docs.js';
 import { renderTabs } from './tabs.js';
 import { isWrap } from './editor.js';
-import { langOf } from './lang.js';
+import { langOf, langLabel } from './lang.js';
+import { t } from './dom.js';
 import { renderOpenEditors } from './explorer.js';
 import { syncViewer } from './viewers.js';
 
@@ -33,22 +34,25 @@ export function renderChrome() {
   $('cd-run').disabled = !text;
   const md = $('cd-md');
   md.hidden = !isMd;
-  md.textContent = cur && cur.preview ? 'Edit' : 'Preview';
+  md.textContent = cur && cur.preview ? t('menu.edit') : t('code.app.preview');
   md.setAttribute('aria-pressed', cur && cur.preview ? 'true' : 'false');
   setStatus();
   if (window.SlopGuard && SlopGuard.setUnsaved) SlopGuard.setUnsaved('code', list.some((d) => d.dirty));
 }
 
+/** The kind of a file view, as the status bar names it. */
+const KIND = { binary: 'code.status.binary', image: 'code.status.image', audio: 'code.status.audio', video: 'code.status.video', pdf: 'code.status.pdf' };
+
 /** The status bar: language, cursor position, cursors, wrap and saved state. */
 export function setStatus() {
   const cur = docs.current(), view = env.view, bar = $('cd-status');
   if (!cur) { bar.textContent = ''; return; }
-  if (cur.kind !== 'text') { bar.textContent = [cur.kind === 'binary' ? 'Not text' : cur.kind[0].toUpperCase() + cur.kind.slice(1), 'Read only here'].join('  ·  '); return; }
+  if (cur.kind !== 'text') { bar.textContent = [t(KIND[cur.kind] || 'code.status.binary'), t('code.status.read_only')].join('  ·  '); return; }
   if (!view) { bar.textContent = ''; return; }
   const sel = view.state.selection, head = sel.main.head, line = view.state.doc.lineAt(head);
-  const parts = [langOf(cur).label, `Ln ${line.number}, Col ${head - line.from + 1}`];
-  if (sel.ranges.length > 1) parts.push(`${sel.ranges.length} cursors`);
-  parts.push(isWrap() ? 'Wrap on' : 'Wrap off', cur.dirty ? 'Unsaved changes' : 'Saved to Slop Drive');
+  const parts = [langLabel(langOf(cur)), t('code.status.pos', { ln: String(line.number), col: String(head - line.from + 1) })];
+  if (sel.ranges.length > 1) parts.push(t('code.status.cursors', { n: sel.ranges.length }));
+  parts.push(isWrap() ? t('code.status.wrap_on') : t('code.status.wrap_off'), cur.dirty ? t('code.status.unsaved') : t('code.status.saved'));
   bar.textContent = parts.join('  ·  ');
 }
 
@@ -58,7 +62,7 @@ let drawer = null;
 /** On a phone the Explorer is a drawer from the start edge: SlopSheet (shared/ui/sheet.js) gives it the Files button as
  * its toggle, the ×, Escape, a tap outside and a swipe left. */
 export function initDrawer() {
-  drawer = window.SlopSheet.attach({ root: $('cd-app'), panel: $('cd-tree'), side: 'start', phone: '(max-width: 719px)', toggles: [$('cd-files')], label: 'Explorer' });
+  drawer = window.SlopSheet.attach({ root: $('cd-app'), panel: $('cd-tree'), side: 'start', phone: '(max-width: 719px)', toggles: [$('cd-files')], label: t('code.app.explorer') });
 }
 /** Show or hide the file tree: a drawer on a phone, a column on a desktop. */
 export function setTreeOpen(on) {

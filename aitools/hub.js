@@ -6,7 +6,11 @@
   'use strict';
   const doc = document, R = window.SlopAIModels, M = window.SlopAIManager, S = window.SlopAISupport;
   const $ = (id) => doc.getElementById(id);
-  const LABEL = { ready: 'Ready', 'needs-download': 'Needs download', unsupported: 'Not supported on this device' };
+  /** The text of an aitools.* key (aitools/i18n), or the English given: other apps' pages may not load these tables. */
+  const tr = (k, en, v) => { const I = window.SlopI18n; return I && I.has(k) ? I.t(k, v) : (v ? String(en).replace(/\{(\w+)\}/g, (m, x) => (x in v ? String(v[x]) : m)) : en); };
+  const LABEL = () => ({ ready: tr('aitools.hub.ready', 'Ready'), 'needs-download': tr('aitools.hub.needs_download', 'Needs download'), unsupported: tr('aitools.hub.unsupported', 'Not supported on this device') });
+  /** A tool's name or blurb in the current language (model-registry.js keeps the English). */
+  const toolText = (t, f) => tr('aitools.tool.' + t.id + '_' + f, t[f]);
 
   /** Creates an element; children are nodes or text (never HTML). */
   function el(tag, attrs, ...kids) {
@@ -26,7 +30,7 @@
   }
   const go = toolPage(location.search);
   if (go) { location.replace(go); return; }   // straight to the tool; the hub is not drawn
-  const pill = (state) => el('span', { class: 'ai-pill ai-' + state }, LABEL[state]);
+  const pill = (state) => el('span', { class: 'ai-pill ai-' + state }, LABEL()[state]);
 
   /** Status of one tool: { state, reason, missing } from the device check and its models. */
   async function toolState(tool) {
@@ -43,12 +47,12 @@
     for (const t of R.TOOLS) {
       const st = await toolState(t);
       const extra = st.state === 'unsupported' ? el('p', { class: 'ai-meta' }, st.reason)
-        : st.state === 'needs-download' ? el('p', { class: 'ai-meta' }, 'Needs ' + st.missing.map((m) => m.name).join(', ') + '. Downloads start only when you press Get more.')
+        : st.state === 'needs-download' ? el('p', { class: 'ai-meta' }, tr('aitools.hub.needs', 'Needs {models}. Downloads start only when you press Get more.', { models: st.missing.map((m) => m.name).join(', ') }))
         : null;
-      const open = st.state === 'unsupported' ? null : el('a', { class: 'ai-btn ai-pri', href: t.page }, st.state === 'ready' ? 'Open' : 'Open and get the model');
+      const open = st.state === 'unsupported' ? null : el('a', { class: 'ai-btn ai-pri', href: t.page }, st.state === 'ready' ? tr('aitools.hub.open', 'Open') : tr('aitools.hub.open_get', 'Open and get the model'));
       box.append(el('article', { class: 'ai-card' },
-        el('div', { class: 'ai-row' }, el('h3', null, t.name), pill(st.state)),
-        el('p', null, t.blurb), extra, open));
+        el('div', { class: 'ai-row' }, el('h3', null, toolText(t, 'name')), pill(st.state)),
+        el('p', null, toolText(t, 'blurb')), extra, open));
     }
   }
 
@@ -58,21 +62,21 @@
     const rows = await M.list();
     for (const { model: m, status, installedAt } of rows) {
       const remote = R.remoteFiles(m);
-      const action = status === 'bundled' ? el('span', { class: 'ai-meta' }, 'Ships with the site')
-        : status === 'installed' || status === 'update' ? el('span', null, el('span', { class: 'ai-meta' }, 'Installed ' + installedAt.slice(0, 10) + '. '), el('button', { type: 'button', on: { click: () => removeModel(m) } }, 'Remove'))
-        : el('button', { type: 'button', class: 'ai-pri', on: { click: () => window.SlopAIGetMore.open(m.id, { onInstalled: refresh }) } }, 'Get more…');
+      const action = status === 'bundled' ? el('span', { class: 'ai-meta' }, tr('aitools.hub.ships', 'Ships with the site'))
+        : status === 'installed' || status === 'update' ? el('span', null, el('span', { class: 'ai-meta' }, tr('aitools.hub.installed', 'Installed {date}. ', { date: installedAt.slice(0, 10) })), el('button', { type: 'button', on: { click: () => removeModel(m) } }, tr('aitools.hub.remove', 'Remove')))
+        : el('button', { type: 'button', class: 'ai-pri', on: { click: () => window.SlopAIGetMore.open(m.id, { onInstalled: refresh }) } }, tr('aitools.hub.get_more_dots', 'Get more…'));
       box.append(el('div', { class: 'ai-model' },
-        el('div', null, el('strong', null, m.name), el('div', { class: 'ai-meta' }, R.LICENCES[m.licence] + ' (' + m.licence + ') · ' + (remote.length ? R.formatSize(R.downloadBytes(m)) : 'bundled')),
-          el('div', { class: 'ai-meta' }, 'From ' + m.source.replace(/^https:\/\//, '') + ' · used by ' + R.TOOLS.filter((t) => t.models.includes(m.id)).map((t) => t.name).join(', '))),
+        el('div', null, el('strong', null, m.name), el('div', { class: 'ai-meta' }, R.LICENCES[m.licence] + ' (' + m.licence + ') · ' + (remote.length ? R.formatSize(R.downloadBytes(m)) : tr('aitools.hub.bundled', 'bundled'))),
+          el('div', { class: 'ai-meta' }, tr('aitools.hub.from', 'From {source} · used by {tools}', { source: m.source.replace(/^https:\/\//, ''), tools: R.TOOLS.filter((t) => t.models.includes(m.id)).map((t) => toolText(t, 'name')).join(', ') }))),
         el('div', { class: 'ai-act' }, pill(status === 'needs-download' ? 'needs-download' : 'ready'), action)));
     }
     const sup = $('storeNote');
-    sup.textContent = (await M.available()) ? 'Models are stored on this device in IndexedDB. Clear site data to remove them all.' : 'Storage is unavailable here, so downloaded models cannot be kept.';
+    sup.textContent = (await M.available()) ? tr('aitools.hub.stored', 'Models are stored on this device in IndexedDB. Clear site data to remove them all.') : tr('aitools.hub.no_storage', 'Storage is unavailable here, so downloaded models cannot be kept.');
   }
 
   async function removeModel(m) {
-    if (!window.confirm(`Remove ${m.name} from this device? You can download it again later.`)) return;
-    try { await M.remove(m.id); } catch (e) { $('status').textContent = 'Could not remove ' + m.name + ': ' + e.message; return; }
+    if (!window.confirm(tr('aitools.hub.remove_q', 'Remove {name} from this device? You can download it again later.', { name: m.name }))) return;
+    try { await M.remove(m.id); } catch (e) { $('status').textContent = tr('aitools.hub.remove_failed', 'Could not remove {name}: {error}', { name: m.name, error: e.message }); return; }
     refresh();
   }
 
@@ -94,5 +98,6 @@
 
   assistant();
   refresh();
+  if (window.SlopI18n && window.SlopI18n.on) window.SlopI18n.on(() => refresh());   // the lists again, in the new language
   window.SlopAIHub = { refresh, toolState, toolPage };
 })();

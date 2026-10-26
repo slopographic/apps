@@ -5,12 +5,20 @@
 (function (g) {
   'use strict';
   const $ = (id) => document.getElementById(id);
+  const t = (k) => (g.SlopI18n ? g.SlopI18n.t(k) : k);
   const fr = g.SlopFrame.mount($('h2p-main'), {
-    list: null, view: $('h2p-stage'), panel: $('h2p-side'), phone: '(max-width: 800px)', panelLabel: 'Options',
+    list: null, view: $('h2p-stage'), panel: $('h2p-side'), phone: '(max-width: 800px)',
+    get panelLabel() { return t('html2pdf.app.options'); },   // read again by the frame on a language change
     storageKey: 'html2pdf', button: '.smb-tools', phoneButton: false, width: 300, min: 260,
   });
   const panel = g.SlopFrame.panel($('h2p-side'), { title: 'HTML to PDF' });
-  panel.render([...$('h2p-side').querySelectorAll('.h2p-group')].map((gr) => ({ title: gr.dataset.title, key: gr.dataset.title, settings: gr })));
-  panel.footer([{ el: $('h2p-print') }], { more: 'Options' });
+  const groups = [...$('h2p-side').querySelectorAll('.h2p-group')];
+  // built again on a language change: the section titles and the phone's Options button read the current language
+  function draw() {
+    panel.render(groups.map((gr) => ({ title: t(gr.dataset.key), key: gr.dataset.title, settings: gr })));
+    panel.footer([{ el: $('h2p-print') }], { more: t('html2pdf.app.options') });
+  }
+  draw();
+  if (g.SlopI18n && g.SlopI18n.on) g.SlopI18n.on(draw);
   (g.H2P = g.H2P || {}).layout = { frame: fr, panel };
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -15,6 +15,7 @@
   'use strict';
   const NS = g.SlopResize, S = (NS.settings = {});
   const $ = (id) => document.getElementById(id);
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
 
   S.DEFAULTS = {
     mode: 'size', w: 1080, h: 1080, keepRatio: true, scale: 50, long: 1920, maxKB: 500,
@@ -131,7 +132,7 @@
     }
     if (note) {
       note.hidden = !flat;
-      note.textContent = flat ? `${f.label} has no transparency. Transparent parts of a picture are filled with the colour above (white by default).` : '';
+      note.textContent = flat ? t('resize.panel.no_alpha', { format: f.label }) : '';
     }
   };
 
@@ -164,11 +165,11 @@
     const note = $('rs-ratio-note');
     if (!note) return;
     if (chk('rs-keep') && !NS.size.locksBox(val('rs-fill'))) {
-      note.textContent = `${val('rs-fill') === 'cover' ? 'Cover crops' : 'Fit letterboxes'} the picture to exactly this box and keeps its shape. Leave a side at 0 to follow the picture instead.`;
+      note.textContent = t(val('rs-fill') === 'cover' ? 'resize.panel.note_cover' : 'resize.panel.note_fit');
     } else {
       note.textContent = source
-        ? `Keep aspect ratio follows ${source.name ? source.name + ', ' : ''}${source.w} × ${source.h}.`
-        : 'Keep aspect ratio follows the first picture in the list. Add a picture to lock to its shape.';
+        ? (source.name ? t('resize.panel.note_follows_name', { name: source.name, w: String(source.w), h: String(source.h) }) : t('resize.panel.note_follows', { w: String(source.w), h: String(source.h) }))
+        : t('resize.panel.note_first');
     }
   };
 

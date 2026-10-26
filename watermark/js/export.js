@@ -3,7 +3,8 @@
  * Classic script. Exposes window.WMExport. Outputs are kept in memory until the setup changes or the list is cleared. */
 (function () {
   'use strict';
-  const ZIP_NAME = 'watermarked-files.zip';
+  const ZIP_NAME = 'watermarked-files.zip';   // i18n-ignore: a file name
+  const t = (k, v) => window.WMUtil.t(k, v);
 
   /** "photo.jpg" → "photo-watermarked.jpg"; a name already used in this batch gets "-2", "-3"... */
   function outName(name, blob, used) {
@@ -31,7 +32,7 @@
         done++;
       } catch (err) {
         if (err && err.name === 'AbortError') break;
-        window.WMItems.setError(item.id, (err && err.message) || 'could not be written');
+        window.WMItems.setError(item.id, (err && err.message) || t('watermark.probe.not_written'));
         failed++;
       }
     }
@@ -47,7 +48,7 @@
   /** Open in… and Save to Slop Drive for one result, as a menu at (x, y): the site's one outbound menu (SlopOuttake). */
   function moreMenu(item, x, y) {
     if (!item.out) return;
-    if (!window.SlopOuttake) { window.SlopUI.toast('Slop Drive is not available here'); return; }
+    if (!window.SlopOuttake) { window.SlopUI.toast(t('watermark.toast.no_drive')); return; }
     const o = item.out;
     window.SlopOuttake.menu({ x, y }, { get: () => o.blob, name: o.name, type: o.blob.type, from: 'watermark' });
   }
@@ -55,10 +56,10 @@
   async function saveAllToDrive(items) {
     const H = window.SlopHub, outs = items.filter((x) => x.out);
     if (!H || !outs.length) return 0;
-    const folderId = await H.pickFolder({ title: 'Save ' + outs.length + (outs.length === 1 ? ' file' : ' files') + ' to Slop Drive', start: await H.appFolderId('watermark') });
+    const folderId = await H.pickFolder({ title: t('watermark.drive.title', { n: outs.length }), start: await H.appFolderId('watermark') });
     if (folderId === undefined) return 0;
     for (const x of outs) await H.put(x.out.blob, { name: x.out.name, from: 'watermark', folderId });
-    window.SlopUI.toast('Saved ' + outs.length + ' to Slop Drive');
+    window.SlopUI.toast(t('watermark.toast.saved_n', { n: outs.length }));
     return outs.length;
   }
 

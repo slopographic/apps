@@ -1,5 +1,9 @@
 /* DOM helpers for Slop Notes. SlopUI.el builds the nodes (text is escaped; on* props become listeners). */
 export const $ = (id) => document.getElementById(id);
+/** A word in the page's language (shared/i18n): read when the UI is drawn, never kept in a constant. */
+export const t = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
+/** Runs fn after a language change, once the new tables are in. */
+export const onLang = (fn) => (window.SlopI18n && window.SlopI18n.on ? window.SlopI18n.on(fn) : null);
 export const el = (tag, attrs, ...kids) => window.SlopUI.el(tag, attrs, ...kids);
 /** Empties a node and returns it. */
 export const clear = (node) => { node.replaceChildren(); return node; };

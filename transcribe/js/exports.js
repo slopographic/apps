@@ -7,10 +7,10 @@
 import { docxBlob } from '../../shared/office/docx.js';
 
 export const FORMATS = [
-  { id: 'txt', label: 'Text (.txt)', ext: 'txt', type: 'text/plain' },
-  { id: 'docx', label: 'Word (.docx)', ext: 'docx', type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' },
-  { id: 'srt', label: 'Subtitles (.srt)', ext: 'srt', type: 'application/x-subrip' },
-  { id: 'vtt', label: 'Web subtitles (.vtt)', ext: 'vtt', type: 'text/vtt' },
+  { id: 'txt', label: 'Text (.txt)', ext: 'txt', type: 'text/plain' },   // i18n-ignore: the page shows transcribe.fmt.<id>
+  { id: 'docx', label: 'Word (.docx)', ext: 'docx', type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' },   // i18n-ignore: the page shows transcribe.fmt.<id>
+  { id: 'srt', label: 'Subtitles (.srt)', ext: 'srt', type: 'application/x-subrip' },   // i18n-ignore: the page shows transcribe.fmt.<id>
+  { id: 'vtt', label: 'Web subtitles (.vtt)', ext: 'vtt', type: 'text/vtt' },   // i18n-ignore: the page shows transcribe.fmt.<id>
 ];
 const X = () => globalThis.SlopTranscript;
 

@@ -4,6 +4,8 @@
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="clean" data-src="shared/theme/theme.js"></script>
   <link rel="expect" href="#slop-built" blocking="render">
+  <script src="../shared/i18n/i18n.js" data-src="shared/i18n/i18n.js"></script>
+  <script src="i18n/index.js" data-src="clean/i18n/index.js"></script>
 <script src="../shared/consent/config.js"></script>
 <script src="../shared/consent/state.js"></script>
 <script src="../shared/consent/consent-mode.js"></script>
@@ -43,32 +45,32 @@
 <body>
   <header class="cl-top">
     <div class="cl-brand">
-      <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home"></a>
-      <h1>SlopClean</h1><span class="cl-tag">Metadata remover. Nothing uploaded.</span>
+      <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home" data-i18n-attr="title:clean.app.home;aria-label:clean.app.home"></a>
+      <h1>SlopClean</h1><span class="cl-tag" data-i18n="clean.app.tag">Metadata remover. Nothing uploaded.</span>
     </div>
     <div class="cl-tools">
-      <button type="button" class="sui-btn" id="cl-open">Open pictures…</button>
+      <button type="button" class="sui-btn" id="cl-open" data-i18n="clean.app.open">Open pictures…</button>
     </div>
   </header>
   <div class="cl-stat" id="cl-stat" aria-live="polite"></div>
   <!-- View · Panel (shared/frame): the pictures and what they hold, and the choices with Copy and clean on the right -->
   <div class="cl-main-wrap" id="cl-frame">
     <main class="cl-view" id="cl-view">
-    <section class="cl-empty" id="cl-empty" aria-label="Open pictures">
+    <section class="cl-empty" id="cl-empty" aria-label="Open pictures" data-i18n-attr="aria-label:clean.app.open_label">
       <div class="cl-drop">
-        <h2>Drop pictures here</h2>
-        <p>JPEG, PNG, WebP or TIFF. Several at once. Each one is read in this browser and never uploaded.</p>
-        <p class="cl-fine">Copy and clean: originals are never changed. Downloads and Drive saves are copies named “(clean)”. HEIC, HEIF and RAW are not supported.</p>
-        <button type="button" class="sui-btn sui-primary" id="cl-open-empty">Open pictures…</button>
+        <h2 data-i18n="clean.app.drop_title">Drop pictures here</h2>
+        <p data-i18n="clean.app.drop_formats">JPEG, PNG, WebP or TIFF. Several at once. Each one is read in this browser and never uploaded.</p>
+        <p class="cl-fine" data-i18n="clean.app.drop_fine">Copy and clean: originals are never changed. Downloads and Drive saves are copies named “(clean)”. HEIC, HEIF and RAW are not supported.</p>
+        <button type="button" class="sui-btn sui-primary" id="cl-open-empty" data-i18n="clean.app.open">Open pictures…</button>
       </div>
     </section>
-    <section class="cl-list" id="cl-list" aria-label="Pictures and what they hold"></section>
+    <section class="cl-list" id="cl-list" aria-label="Pictures and what they hold" data-i18n-attr="aria-label:clean.app.list_label"></section>
     </main>
-    <aside class="cl-side" id="cl-side" aria-label="Choices">
+    <aside class="cl-side" id="cl-side" aria-label="Choices" data-i18n-attr="aria-label:clean.app.choices">
       <div class="cl-choices" id="cl-choices"></div>
-      <button type="button" class="sui-btn" id="cl-remove-all" title="Tick the default categories again (the colour profile and DPI stay)">Remove all</button>
-      <button type="button" class="sui-btn" id="cl-save-all" disabled title="Copy and clean: the originals stay as they are">Copy and clean: save to Slop Drive…</button>
-      <button type="button" class="sui-btn sui-primary" id="cl-all" disabled title="Copy and clean: the originals stay as they are">Copy and clean: download</button>
+      <button type="button" class="sui-btn" id="cl-remove-all" title="Tick the default categories again (the colour profile and DPI stay)" data-i18n-attr="title:clean.app.remove_all_tip" data-i18n="clean.app.remove_all">Remove all</button>
+      <button type="button" class="sui-btn" id="cl-save-all" disabled title="Copy and clean: the originals stay as they are" data-i18n-attr="title:clean.app.copy_tip" data-i18n="clean.app.save_all">Copy and clean: save to Slop Drive…</button>
+      <button type="button" class="sui-btn sui-primary" id="cl-all" disabled title="Copy and clean: the originals stay as they are" data-i18n-attr="title:clean.app.copy_tip" data-i18n="clean.app.download_all">Copy and clean: download</button>
     </aside>
   </div>
   <script src="../shared/slopui.js"></script>

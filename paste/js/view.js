@@ -3,9 +3,11 @@ import * as store from './store.js';
 import { S, current, visible, firstLine } from './state.js';
 import { highlight, LANGS } from './highlight.js';
 import { expiryLabel, EXPIRY_OPTIONS } from './store.js';
-import { $, el, clear, dateText } from './dom.js';
+import { $, el, clear, dateText, t } from './dom.js';
 
-const langName = (k) => (LANGS.find(([v]) => v === k) || LANGS[0])[1];
+/** A language's name: the format names stay as they are; Plain text is in the current language. */
+const langName = (k) => { const v = (LANGS.find(([id]) => id === k) || LANGS[0])[0]; return v === 'plain' ? t('paste.lang.plain') : LANGS.find(([id]) => id === v)[1]; };
+const metaText = (p) => t(p.kind === 'image' ? 'paste.list.meta_image' : 'paste.list.meta_text', { expiry: expiryLabel(p.expiry) });
 
 let openFn = () => {};
 /** The action a list item calls with its paste's Drive id (set by actions.js). */
@@ -15,25 +17,27 @@ export function renderList() {
   const box = clear($('pb-items'));
   const items = visible();
   for (const p of items) {
-    const meta = [p.kind === 'image' ? 'Image' : langName(p.language), expiryLabel(p.expiry), dateText(p.modified)].join(' · ');
+    const meta = [p.kind === 'image' ? t('paste.app.image') : langName(p.language), expiryLabel(p.expiry), dateText(p.modified)].join(' · ');
     box.append(el('button', { class: 'pb-item' + (p.id === S.id ? ' on' : ''), type: 'button', 'data-kind': 'paste', 'data-id': p.id,
       'aria-current': p.id === S.id ? 'true' : null, onclick: () => openFn(p.id) },
-    el('span', { class: 'pb-item-title' }, p.title || (p.kind === 'image' ? 'Image paste' : 'Untitled paste')),
-    el('span', { class: 'pb-item-snip' }, firstLine(p) || 'Empty paste'),
+    el('span', { class: 'pb-item-title' }, p.title || t(p.kind === 'image' ? 'paste.list.image_paste' : 'paste.list.untitled')),
+    el('span', { class: 'pb-item-snip' }, firstLine(p) || t('paste.list.empty_paste')),
     el('span', { class: 'pb-item-meta' }, meta)));
   }
   const none = $('pb-none');
   none.hidden = items.length > 0;
-  none.textContent = S.pastes.length ? 'No pastes match.' : 'No pastes yet. Paste text or an image anywhere on this page, or use New paste.';
+  none.textContent = t(S.pastes.length ? 'paste.list.no_match' : 'paste.list.none');
 }
 
-/** Fills the language and expiry selects once. */
+/** Fills the language and expiry selects once; again after a language change (renderAll empties them first). */
 function fillSelects() {
   const lang = $('pb-lang');
-  if (!lang.options.length) for (const [v, l] of LANGS) lang.append(el('option', { value: v }, l));
+  if (!lang.options.length) for (const [v] of LANGS) lang.append(el('option', { value: v }, langName(v)));
   const exp = $('pb-expiry');
-  if (!exp.options.length) for (const [v, l] of EXPIRY_OPTIONS) exp.append(el('option', { value: v }, l));
+  if (!exp.options.length) for (const [v] of EXPIRY_OPTIONS) exp.append(el('option', { value: v }, expiryLabel(v)));
 }
+/** A language change: the selects' words, the list and the open paste's line again. */
+export function relabel() { $('pb-lang').replaceChildren(); $('pb-expiry').replaceChildren(); renderList(); fillSelects(); const p = current(); if (p) { $('pb-lang').value = p.language; $('pb-expiry').value = p.expiry; $('pb-meta').textContent = metaText(p); } }
 
 export function renderPaste() {
   fillSelects();
@@ -48,7 +52,7 @@ export function renderPaste() {
   $('pb-lang').value = p.language;
   $('pb-expiry').value = p.expiry;
   $('pb-lang').disabled = isImg;
-  $('pb-meta').textContent = (isImg ? 'Image paste' : 'Text paste') + ' · ' + expiryLabel(p.expiry) + ' (label only, nothing is deleted)';
+  $('pb-meta').textContent = metaText(p);
   if (isImg) {
     if (p.url) URL.revokeObjectURL(p.url);
     p.url = p.blob ? URL.createObjectURL(p.blob) : '';
@@ -112,7 +116,7 @@ export function wireView(actions) {
     const p = cur(); if (!p) return;
     p.expiry = e.target.value;
     store.touch(p);
-    $('pb-meta').textContent = (p.kind === 'image' ? 'Image paste' : 'Text paste') + ' · ' + expiryLabel(p.expiry) + ' (label only, nothing is deleted)';
+    $('pb-meta').textContent = metaText(p);
     renderList();
   });
   $('pb-copy').addEventListener('click', () => actions.copy(cur()));

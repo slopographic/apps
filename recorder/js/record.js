@@ -15,6 +15,7 @@
   'use strict';
   const R = (g.SlopRec = g.SlopRec || {});
   const now = () => g.performance.now();
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
 
   function create(hooks = {}) {
     const m = R.state.create();
@@ -46,7 +47,7 @@
       rec = new M(cap.stream, mime ? { mimeType: mime, videoBitsPerSecond: 6e6, audioBitsPerSecond: 128000 } : undefined);
       chunks = [];
       rec.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };
-      rec.onerror = (e) => fail(e.error || new Error('The recording stopped with an error.'));
+      rec.onerror = (e) => fail(e.error || new Error(t('recorder.err.stopped')));
       done = new Promise((res) => { rec.onstop = res; });
       const began = new Promise((res) => { rec.onstart = res; setTimeout(res, 4000); });
       const at = now();
@@ -83,8 +84,8 @@
       get notes() { return cap ? cap.notes : []; },
       elapsed: () => m.elapsed(now()),
       async start(o) {
-        if (!m.can('arm')) throw new Error('A recording is already going on.');
-        if (typeof g.MediaRecorder !== 'function') throw new Error('This browser cannot record media (no MediaRecorder).');
+        if (!m.can('arm')) throw new Error(t('recorder.err.already'));
+        if (typeof g.MediaRecorder !== 'function') throw new Error(t('recorder.err.no_recorder'));
         opts = R.plan.clean(o);
         cap = await R.capture.open(opts, { onEnded: () => { if (m.can('stop')) s.stop(); else if (m.state === 'countdown') s.cancel(); } });
         starting = null;

@@ -5,6 +5,7 @@
   const M = (window.SlopMusic = window.SlopMusic || {});
   const UI = () => window.SlopUI, el = (...a) => UI().el(...a);
   const $ = (id) => document.getElementById(id);
+  const T = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
   let peaks = null, peaksFor = null, lastKey = '', queueKey = '';
   const icon = (id) => el('svg', { class: 'mu-ic', 'aria-hidden': 'true' }, el('use', { href: '#i-' + id }));
   function cur() { return M.engine.current(); }
@@ -25,7 +26,7 @@
     const box = $('now-tags');
     if (!t) { box.replaceChildren(); return; }
     box.replaceChildren(...t.tags.map((g) => el('span', { class: 'mu-chip mu-chip-x' }, g,
-      el('button', { type: 'button', class: 'mu-chip-del', 'aria-label': 'Remove tag ' + g, onclick: () => M.lib.setTags(t.id, t.tags.filter((x) => x !== g)) }, '×'))));
+      el('button', { type: 'button', class: 'mu-chip-del', 'aria-label': T('music.now.remove_tag', { tag: g }), onclick: () => M.lib.setTags(t.id, t.tags.filter((x) => x !== g)) }, '×'))));
   }
   function paintQueue(s) {
     const ids = s.queue.order.join('|');
@@ -37,7 +38,7 @@
       const t = M.lib.track(id);
       return el('li', { class: 'mu-row' + (id === s.trackId ? ' on' : '') },
         el('button', { type: 'button', class: 'mu-row-main', onclick: () => M.engine.playIndex(i) },
-          el('span', { class: 'mu-idx' }, String(i + 1)), el('span', { class: 'mu-txt' }, el('b', null, t ? M.lib.display(t) : 'Missing track'), el('small', null, t ? t.artist || '' : ''))));
+          el('span', { class: 'mu-idx' }, String(i + 1)), el('span', { class: 'mu-txt' }, el('b', null, t ? M.lib.display(t) : T('music.now.missing')), el('small', null, t ? t.artist || '' : ''))));
     }));
   }
   function paint() {
@@ -48,15 +49,15 @@
       if (t !== null && t.id !== peaksFor) loadPeaks(t.id);
       paintCover(t);
       paintTags(t);
-      $('now-title').textContent = t ? M.lib.display(t) : 'Nothing playing';
-      $('now-artist').textContent = t ? t.artist || '' : 'Choose a track in the Library';
+      $('now-title').textContent = t ? M.lib.display(t) : T('music.now.nothing');
+      $('now-artist').textContent = t ? t.artist || '' : T('music.now.choose');
       $('now-album').textContent = t ? [t.album, t.year, t.genre].filter(Boolean).join(' · ') : '';
       const pb = $('now-play');
-      pb.setAttribute('aria-label', s.playing ? 'Pause' : 'Play');
+      pb.setAttribute('aria-label', s.playing ? T('music.now.pause') : T('music.now.play'));
       pb.querySelector('use').setAttribute('href', s.playing ? '#i-pause' : '#i-play');
       $('now-shuffle').setAttribute('aria-pressed', String(s.shuffle));
       const rp = $('now-repeat');
-      rp.setAttribute('aria-label', 'Repeat: ' + ({ off: 'off', all: 'all', one: 'one' })[s.repeat]);
+      rp.setAttribute('aria-label', T('music.now.repeat_' + s.repeat));
       rp.dataset.mode = s.repeat;
       rp.querySelector('use').setAttribute('href', s.repeat === 'one' ? '#i-repeat1' : '#i-repeat');
       rp.classList.toggle('on', s.repeat !== 'off');
@@ -105,6 +106,8 @@
     $('now-wave').addEventListener('keydown', (ev) => { if (ev.key === 'ArrowLeft' || ev.key === 'ArrowRight') { ev.preventDefault(); e.seek(e.state().time + (ev.key === 'ArrowLeft' ? -5 : 5)); } });
     e.subscribe(paint);
     M.lib.subscribe(() => { lastKey = ''; paint(); });
+    // a language change: the labels the code sets (title, play, repeat) and the queue again
+    if (window.SlopI18n && window.SlopI18n.on) window.SlopI18n.on(() => { lastKey = ''; queueKey = ''; paint(); });
     paint();
   }
   M.now = { bind, paint, openQueue, addTag };

@@ -25,7 +25,7 @@ function undo() {
   if (P.st.op) P.cancelOp();
   if (P.st.curve || P.st.poly) { P.cancelCurve(); P.cancelPoly(); return; }
   P.commitText(); P.commitSel(); P.stopDrips();
-  if (!undoStack.length) { status('Nothing to undo.'); return; }
+  if (!undoStack.length) { status(P.t('paint-classic.status.nothing_undo')); return; }
   redoStack.push(snapshot());
   restore(undoStack.pop());
   markDirty();

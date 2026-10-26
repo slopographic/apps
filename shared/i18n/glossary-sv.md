@@ -164,3 +164,137 @@ Register: informal «du», as the Swedish versions of Microsoft Office, Adobe Ac
 | replay (saved edits) | Spela upp | «Ignorera» for discard |
 | object kinds in sentences | indefinite, lower case | «Ta bort bild», «Markerad: bild» (colon avoids adjective agreement) |
 | page positions | överst/nederst till vänster, i mitten, till höger | lower case in sentences |
+
+## Wave 1, group F (tools and utilities)
+
+| English | Svenska | Note |
+| --- | --- | --- |
+| Slopographic home (brand link) | Slopographic start | as the PDF app; not «startsida» |
+| 100% local (badge) | 100 % lokalt |  |
+| Get more (download a model) | Hämta mer | «Hämta mer…»; every AI and model page |
+| model (AI) | modell | «Det här verktyget behöver en modell», «Språk och modell» |
+| detect automatically (language) | Identifiera automatiskt |  |
+| hash / checksum | hash / kontrollsumma | «Kopiera hash», «Förväntad hash»; the app name is «Kontrollsumma» |
+| serial number | serienummer | «Serienummerräknare» |
+| recognised text | igenkänd text | OCR |
+| searchable PDF | sökbar PDF |  |
+| transcribe / transcript | Transkribera / transkription | «Transkribera igen» |
+| subtitles | undertexter | «Webbundertexter (.vtt)» |
+| record / recording | Spela in / inspelning | «Stoppa inspelningen» |
+| discard (a recording) | Släng |  |
+| resume | Fortsätt | after Pause |
+| countdown | nedräkning |  |
+| webcam | webbkamera |  |
+| trim | Trimma |  |
+| playhead | uppspelningshuvud |  |
+| frame (video) / frame rate | bildruta / bildfrekvens |  |
+| microphone | mikrofon |  |
+| denoise | Brusreducering | tool name; «Filtrerar…» |
+| portrait blur | Porträttoskärpa | «Oskärpa:» for the strength |
+| auto tags / suggest tags | Automatiska taggar / Föreslå taggar |  |
+| tag (noun / verb) | tagg / tagga |  |
+| before / after | Före / Efter |  |
+| like / dislike (photos) | Gilla / Ogilla | «Gillade», «Osorterade» |
+| upscale | Skala upp | «uppskalad», noun «uppskalning» |
+| resize | Ändra storlek | «Ändra storlek på {n} filer» |
+| keep aspect ratio | Behåll proportioner |  |
+| fit / cover / stretch | Anpassa / Täck (beskär) / Sträck ut |  |
+| long edge | långsida |  |
+| resampling | omsampling |  |
+| preset (saved settings) | förval |  |
+| custom size / target size | Anpassad storlek / Målstorlek |  |
+| transparent | genomskinlig |  |
+| output (settings group) | Utdata |  |
+| queue | kö |  |
+| lossless | förlustfri |  |
+| tile (processing) | ruta |  |
+| metadata remover | Ta bort metadata | SlopClean; «Kopiera och rensa» |
+| removed / kept | Borttagen / Kvar |  |
+| location (GPS) | Plats (GPS) |  |
+| colour profile (ICC) | Färgprofil (ICC) |  |
+| maker notes | Tillverkarens anteckningar |  |
+| date taken | Fotograferingsdatum |  |
+| chunk (PNG/WebP) | segment |  |
+| mailbox (.mbox) | brevlåda |  |
+| email (sample) | mejl / e-post | «exempelmejl», «e-postfil» |
+| attachment | bilaga | «Bilagor ({n})» |
+| Cc / Bcc | Kopia / Hemlig kopia | as Outlook sv |
+| remote images / embedded images | Fjärrbilder / inbäddade bilder |  |
+| sort A to Z | A till Ö |  |
+| Start (empty panel section) | Kom igång |  |
+| page header / margins | Sidhuvud / Marginaler | html2pdf |
+| portrait / landscape (paper) | Stående / Liggande |  |
+| background graphics | Bakgrundsgrafik |  |
+| depth / depth map | djup / djupkarta | Image to 3D |
+| mesh / point cloud | Nät / Punktmoln | «Höjdfältsnät»; «Splats» stays |
+| smoothing | Utjämning |  |
+| subject (vs background) | Motiv |  |
+| orbit (3D view) | rotera | «Dra för att rotera» |
+| compare | Jämför | Slop Compare |
+| side by side / unified | Sida vid sida / Samlad |  |
+| ignore whitespace / case | Ignorera blanksteg / skiftläge |  |
+| threshold | tröskel |  |
+| swap A and B | Byt plats på A och B |  |
+| key column | nyckelkolumn |  |
+| path (JSON) | Sökväg |  |
+| node / wire / graph | nod / tråd / graf | Slopnodes |
+| value / formula / output (node types) | Värde / Formel / Utdata |  |
+| canvas (graph or drawing) | arbetsyta / rityta | graph / paint |
+| loop (cycle) | slinga |  |
+| actual size | Verklig storlek |  |
+| offset (byte position) | position | «Gå till position» |
+| inspector | Granskare |  |
+| executable | körbar fil |  |
+| binary data | binära data |  |
+| notebook | anteckningsbok | plural «anteckningsböcker» |
+| pin / unpin | Fäst / Lossa |  |
+| trash (Slop Drive) | papperskorg | «Flytta till papperskorgen»; the button verb is «Släng» |
+| callout (Markdown note block) | faktaruta | the PDF annotation stays «pratbubbla» |
+| divider | avdelare |  |
+| explorer / open editors | Utforskaren / Öppna redigerare | as VS Code sv |
+| extensions / snippets | Tillägg / Kodsnuttar |  |
+| formatter | Formaterare | «Formatera dokument» |
+| language mode | språkläge |  |
+| line wrap | radbrytning |  |
+| Ln, Col | Rad, kol |  |
+| read only | Skrivskyddad |  |
+| copy path | Kopiera sökväg |  |
+| plain text | Oformaterad text |  |
+| console | Konsol |  |
+| library (music) | bibliotek |  |
+| playlist / track | spellista / spår | «3 spår» |
+| now playing | Spelas nu |  |
+| shuffle / repeat / mute | Blanda / Upprepa / Ljud av |  |
+| seek | Spola |  |
+| playback speed | Uppspelningshastighet | short «Hastighet» |
+| workflow / step | arbetsflöde / steg |  |
+| template | mall |  |
+| run (noun / button) | körning / Kör |  |
+| share link | Delningslänk | button «Dela länk» |
+| pick a colour | Hämta | «Hämta från skärmen» |
+| eyedropper | pipett |  |
+| palette (colours) | palett |  |
+| harmony (colours) | harmoni | Komplementär / Analog / Triad / Tetrad / Kvadrat / Monokrom |
+| contrast check | Kontrastkontroll | Godkänd / Underkänd |
+| QR: error correction / quiet zone / module | felkorrigering / tyst zon / modul |  |
+| raw text | råtext |  |
+| logo | logotyp |  |
+| buffer (SlopBuffer) | bufferten | «Kopiera till bufferten» |
+| primary / secondary colour (Paint) | förgrundsfärg / bakgrundsfärg | as MS Paint sv |
+| Tool Box / Color Box | Verktygslåda / Färgruta |  |
+| Flip/Rotate / Stretch/Skew | Vänd/rotera / Töj/lutning |  |
+| magnifier / airbrush / eraser | Förstoringsglas / Sprayburk / Suddgummi |  |
+| free-form select | Fri markering |  |
+| clipboard | Urklipp | as Windows sv |
+| hue / saturation / luminosity | nyans / mättnad / ljushet |  |
+| spreadsheet / sheet | kalkylblad / blad |  |
+| table style | Tabellformat | Randig / Enkel / Rutnät / Kompakt |
+| (Blanks) | (Tomma) | filter list |
+| watermark (verb) | vattenstämpla | «Vattenstämpla 3 bilder» |
+| nine positions | Uppe till vänster … Nere till höger, Mitten |  |
+| opacity | Opacitet |  |
+| paste (a Paste item) | klipp | «Nytt klipp», «Bildklipp» |
+| expires | Upphör |  |
+| paper tape | pappersremsa | Slopculator |
+| expression / variable | uttryck / variabel |  |
+| exchange rate | växelkurs |  |

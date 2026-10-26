@@ -8,6 +8,7 @@ import { writeZip } from '../../shared/office/zip.js';
 const M = window.SlopSorter.model, UI = window.SlopUI, $ = (id) => document.getElementById(id);
 const set = M.create(), urls = new Map();
 let which = 'all', dropZone = null;
+const t = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
 const say = (t) => { $('soMsg').textContent = t || ''; };
 const urlOf = (id) => { if (!urls.has(id)) { const it = set.get(id); if (it) urls.set(id, URL.createObjectURL(it.file)); } return urls.get(id) || null; };
 const shown = () => M.filter(set.items, which);
@@ -21,15 +22,15 @@ const deck = window.SlopDeck.create({
 function add(files) {
   const added = set.add(files);
   const skipped = [...(files || [])].length - added.length;
-  say(added.length ? `${added.length} photo${added.length === 1 ? '' : 's'} added${skipped ? `; ${skipped} other file${skipped === 1 ? '' : 's'} left out` : ''}. Press Start sorting.`
-    : 'No photos there: JPEG, PNG, WebP, GIF, AVIF and SVG pictures can be sorted.');
+  say(added.length ? (skipped ? t('sorter.app.added_skipped', { n: added.length, others: t('sorter.app.others', { n: skipped }) }) : t('sorter.app.added', { n: added.length }))
+    : t('sorter.app.no_photos'));
   draw();
   return added;
 }
 
 /** The filter buttons with their counts; a tag gets its own button once a photo has it. */
 function drawFilters(c) {
-  const opts = [['all', `All ${c.all}`], ['unsorted', `Not sorted yet ${c.unsorted}`], ['liked', `Liked ${c.liked}`], ['disliked', `Disliked ${c.disliked}`],
+  const opts = [['all', t('sorter.app.f_all', { n: c.all })], ['unsorted', t('sorter.app.f_unsorted', { n: c.unsorted })], ['liked', t('sorter.app.f_liked', { n: c.liked })], ['disliked', t('sorter.app.f_disliked', { n: c.disliked })],
     ...c.tags.map(([t, n]) => [`tag:${t}`, `#${t} ${n}`])];
   if (!opts.some(([k]) => k === which)) which = 'all';
   $('soFilters').replaceChildren(...opts.map(([k, label]) => {
@@ -44,8 +45,8 @@ function card(it, i, list) {
   const li = document.createElement('li');
   li.className = `so-card${it.liked ? ' is-' + it.liked : ''}`;
   const b = document.createElement('button');
-  b.type = 'button'; b.className = 'so-thumb'; b.title = `${it.name}: sort from here`;
-  b.setAttribute('aria-label', `${it.name}${it.liked ? `, ${it.liked}` : ''}. Sort from here`);
+  b.type = 'button'; b.className = 'so-thumb'; b.title = t('sorter.app.sort_here_tip', { name: it.name });
+  b.setAttribute('aria-label', it.liked ? t('sorter.app.sort_here_state', { name: it.name, state: t('sorter.app.' + it.liked) }) : t('sorter.app.sort_here', { name: it.name }));
   const img = document.createElement('img');
   img.loading = 'lazy'; img.alt = ''; img.src = urlOf(it.id);
   b.append(img);
@@ -65,7 +66,7 @@ function draw() {
   drawFilters(c);
   $('soGrid').replaceChildren(...list.map((it, i) => card(it, i, list)));
   $('soNone').hidden = list.length > 0;
-  $('soStart').textContent = c.unsorted ? `Start sorting (${c.unsorted})` : 'Sort again';
+  $('soStart').textContent = c.unsorted ? t('sorter.app.start_n', { n: c.unsorted }) : t('sorter.app.again');
   $('soStart').disabled = !items.length;
   for (const id of ['soZip', 'soDrive']) $(id).disabled = !c.liked;
   $('soCsv').disabled = $('soClear').disabled = !items.length;
@@ -90,18 +91,18 @@ function names(list) {
 }
 async function zipLiked() {
   const list = liked(), n = names(list);
-  say(`Packing ${list.length} photos…`);
+  say(t('sorter.app.packing', { n: list.length }));
   const bytes = await writeZip(list.map((x, i) => ({ path: n[i], data: x.file })), { compress: false });   // photos are compressed already
   UI.download(bytes, 'liked-photos.zip');   // writeZip gives a Blob already
-  say(`${list.length} liked photo${list.length === 1 ? '' : 's'} in liked-photos.zip.`);
+  say(t('sorter.app.zipped', { n: list.length }));
 }
 async function driveLiked() {
   const H = window.SlopHub;
-  if (!H) { say('Slop Drive is not available here.'); return; }
+  if (!H) { say(t('sorter.app.no_drive')); return; }
   const list = liked(), n = names(list), stamp = new Date().toISOString().slice(0, 16).replace('T', ' ');
   const folderId = await H.appSubfolderId('sorter', `Liked ${stamp}`);
   for (let i = 0; i < list.length; i++) await H.put(list[i].file, { name: n[i], from: 'sorter', folderId, meta: { tags: list[i].tags } });
-  say(`${list.length} liked photo${list.length === 1 ? '' : 's'} saved to Slop Drive, in Photo Sorter › Liked ${stamp}.`);
+  say(t('sorter.app.saved_drive', { n: list.length, folder: `Photo Sorter › Liked ${stamp}` }));   // the folder's name is the user's data: English
 }
 function clear() {
   for (const u of urls.values()) URL.revokeObjectURL(u);
@@ -112,16 +113,17 @@ function wire() {
   // The one way in (shared/intake, spec 'sorter'): a drop of photos or folders, the zone's Choose files and sample, Choose
   // a folder…, a paste, ?drive=<id> (another app's Open in Photo Sorter) and a PWA launch reach add().
   window.SlopIntake.register({
-    id: 'sorter', accept: { types: ['image/*'], exts: ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.avif', '.svg', '.bmp'], noun: 'a photo' },
+    id: 'sorter', accept: { types: ['image/*'], exts: ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.avif', '.svg', '.bmp'], noun: t('sorter.app.a_photo') },
     processAll: async (files) => { add(files); return files.map((f) => f.name); },
   });
   dropZone = window.SlopDrop.attach($('soDrop'), {
-    intake: 'sorter', label: 'Drop photos or a folder here, or choose photos', hint: 'As many as you like. They stay on this device.',
-    preview: { picture: { src: '../assets/shots/sorter.jpg', alt: 'Photos sorted into liked and disliked, with tags' },
-      steps: ['Drop photos or a whole folder', 'Swipe: ↑ like, ↓ dislike, type to tag', 'Download the keepers as a ZIP'] },
-    sample: { label: 'Try it with 8 sample photos', files: () => window.SlopSamples.photos(8) },
+    intake: 'sorter', label: t('sorter.drop.label'), hint: t('sorter.drop.hint'),
+    preview: { picture: { src: '../assets/shots/sorter.jpg', alt: t('sorter.drop.alt') },
+      steps: [t('sorter.drop.step1'), t('sorter.drop.step2'), t('sorter.drop.step3')] },
+    sample: { label: t('sorter.drop.sample'), files: () => window.SlopSamples.photos(8) },
     files: (dt) => window.SlopDrop.folders.read(dt),   // a dropped folder is read whole, keeping each photo's folder path
   });
+  window.SlopSorter.markDrop($('soDrop'), 'sorter.drop');
   $('soFolder').addEventListener('click', () => window.SlopIntake.pick({ to: 'sorter', folder: true }));
   if (window.SlopHub) { try { window.SlopHub.register('sorter'); } catch (e) { /* bus unavailable */ } }
   window.SlopIntake.launch({ to: 'sorter' });
@@ -132,6 +134,8 @@ function wire() {
   $('soClear').addEventListener('click', clear);
   set.on(() => draw());
   addEventListener('beforeunload', (e) => { if (set.items.some((x) => x.liked || x.tags.length)) { e.preventDefault(); e.returnValue = ''; } });
+  // a language change: the filters, the cards, the start button (and the status line, kept as it was said)
+  if (window.SlopI18n && window.SlopI18n.on) window.SlopI18n.on(() => draw());
   draw();
 }
 

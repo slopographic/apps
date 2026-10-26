@@ -1,7 +1,7 @@
 /* Slop Code: the Explorer sidebar's layout. The width (drag the handle, or the arrow keys; a column on a desktop,
  * the drawer on a phone), the collapsible sections (Explorer, Open editors, Extensions) and the Open editors list.
  * The width and the collapsed sections are kept per viewer in slop-code.layout (a versioned envelope). */
-import { el } from './dom.js';
+import { el, t } from './dom.js';
 import { readPref, writePref } from './prefs.js';
 
 const MIN = 160, MAX = 480, DEFAULT = 232, KEY_STEP = 16;
@@ -81,13 +81,13 @@ function wireResize() {
 /** Redraw the Open editors list: one row per open file, the active one marked, unsaved files with a dot. */
 export function renderOpenEditors(host, docs, active, { onSelect, onClose }) {
   if (!host) return;
-  if (!docs.length) { host.replaceChildren(el('li', { class: 'cd-hint' }, 'No open files')); return; }
+  if (!docs.length) { host.replaceChildren(el('li', { class: 'cd-hint' }, t('code.app.no_open'))); return; }
   host.replaceChildren(...docs.map((d) => {
     const on = d === active;
     return el('li', { class: 'cd-open-item' + (on ? ' on' : '') },
-      el('button', { type: 'button', class: 'cd-open-name', title: d.name + (d.dirty ? ' (unsaved)' : ''),
+      el('button', { type: 'button', class: 'cd-open-name', title: d.dirty ? t('code.app.name_unsaved', { name: d.name }) : d.name,
         'aria-current': on ? 'true' : null, onclick: () => onSelect(d) }, d.name,
-        d.dirty ? el('span', { class: 'cd-dirty', 'aria-label': 'unsaved' }, '•') : null),
-      el('button', { type: 'button', class: 'cd-open-x', 'aria-label': 'Close ' + d.name, title: 'Close', onclick: () => onClose(d) }, '×'));
+        d.dirty ? el('span', { class: 'cd-dirty', 'aria-label': t('code.app.unsaved') }, '•') : null),
+      el('button', { type: 'button', class: 'cd-open-x', 'aria-label': t('ui.close_name', { name: d.name }), title: t('menu.close'), onclick: () => onClose(d) }, '×'));
   }));
 }

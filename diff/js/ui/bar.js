@@ -3,7 +3,9 @@
  * (main.js) runs later and fills the bar's actions through window.SlopCompareBar. */
 (function () {
   'use strict';
+  const t = (k) => (window.SlopI18n ? window.SlopI18n.t(k) : k);
   window.SlopCompareBar = window.SlopAppBar.mount(document.getElementById('df-bar'), {
-    home: '../', title: 'Slop Compare', subtitle: 'Compare two texts, files, PDFs or pictures and see every change. Nothing is uploaded.', actions: [], menu: [],
+    home: '../', title: 'Slop Compare', subtitle: t('diff.app.subtitle'), actions: [], menu: [],
   });
+  if (window.SlopI18n && window.SlopI18n.on) window.SlopI18n.on(() => window.SlopCompareBar.setSubtitle(t('diff.app.subtitle')));
 })();

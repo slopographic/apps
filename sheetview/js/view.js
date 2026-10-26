@@ -5,11 +5,10 @@ import { describeSort, isActiveFilter } from '../../shared/sheets/query.js';
 import { openFilter } from './filter-ui.js';
 
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; };
-const n = (v) => v.toLocaleString(undefined);
-const plural = (c, one, many) => `${c} ${c === 1 ? one : many}`;
+const t = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
 
 export function createView(store, els, appearance) {
-  const grid = mountGrid(els.grid, { sortable: true, onSort: (col) => store.cycleSort(col), style: appearance.style, palette: appearance.palette, emptyText: 'This sheet is empty.' });
+  const grid = mountGrid(els.grid, { sortable: true, onSort: (col) => store.cycleSort(col), style: appearance.style, palette: appearance.palette, emptyText: t('sheetview.view.empty_sheet') });
   let shownKey = null;
 
   function docTabs(d) {
@@ -23,7 +22,7 @@ export function createView(store, els, appearance) {
       pick.addEventListener('click', () => store.selectDoc(i));
       const x = el('button', 'sv-doctab-x', '×');
       x.type = 'button';
-      x.setAttribute('aria-label', `Close ${doc.fileName}`);
+      x.setAttribute('aria-label', t('sheetview.view.close', { name: doc.fileName }));
       x.addEventListener('click', () => store.closeDoc(i));
       tab.append(pick, x);
       return tab;
@@ -37,7 +36,7 @@ export function createView(store, els, appearance) {
       b.type = 'button';
       b.setAttribute('role', 'tab');
       b.setAttribute('aria-selected', String(i === d.sheet));
-      b.title = `${s.name}: ${plural(s.height, 'row', 'rows')}, ${plural(s.width, 'column', 'columns')}`;
+      b.title = t('sheetview.view.sheet_title', { name: s.name, rows: t('sheetview.view.rows', { n: s.height }), cols: t('sheetview.view.columns', { n: s.width }) });
       b.addEventListener('click', () => store.selectSheet(i));
       return b;
     }));
@@ -48,10 +47,8 @@ export function createView(store, els, appearance) {
   function status(sheet, order, v) {
     const filters = [...v.filters.values()].filter(isActiveFilter).length;
     const parts = [], total = sheet.height - v.head, shown = order.length - v.head;
-    parts.push(shown === total
-      ? `${plural(total, 'row', 'rows')}`
-      : `${n(shown)} of ${n(total)} rows`);
-    if (filters) parts.push(`${plural(filters, 'filter', 'filters')} on`);
+    parts.push(shown === total ? t('sheetview.view.rows', { n: total }) : t('sheetview.view.rows_of', { shown, total }));
+    if (filters) parts.push(t('sheetview.view.filters_on', { n: filters }));
     const sort = describeSort(v.sort, colName);
     if (sort) parts.push(sort);
     return parts.join(' · ');

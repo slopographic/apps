@@ -18,14 +18,18 @@
     C.init({ app: 'upscale' });
     const click = (id) => () => { const b = $(id); if (b && !b.disabled) b.click(); };
     const on = (id) => () => { const b = $(id); return !!b && !b.disabled; };
-    C.register([
-      { id: 'up.open', title: 'Open a picture or video…', group: 'File', keys: [], keywords: ['add', 'import'], run: click('up-open') },
-      { id: 'up.drive', title: 'Open from Slop Drive…', group: 'File', keys: [], keywords: ['drive'], run: click('up-drive') },
-      { id: 'up.run', title: 'Upscale', group: 'Upscale', keys: [], keywords: ['start', 'enlarge', 'bigger'], when: on('up-run'), run: click('up-run') },
-      { id: 'up.download', title: 'Download the result', group: 'File', keys: [], when: on('up-download'), run: click('up-download') },
-      { id: 'up.save', title: 'Save the result to Slop Drive', group: 'File', keys: [], when: on('up-save'), run: click('up-save') },
-      { id: 'up.clear', title: 'Clear', group: 'Edit', keys: [], when: on('up-clear'), run: click('up-clear') },
-    ]);
+    const t = (k) => (U.t ? U.t(k) : k);
+    // titles and groups in the current language: built again on a language change
+    const list = () => [
+      { id: 'up.open', title: t('upscale.cmd.open'), group: t('menu.file'), keys: [], keywords: ['add', 'import'], run: click('up-open') },
+      { id: 'up.drive', title: t('upscale.cmd.drive'), group: t('menu.file'), keys: [], keywords: ['drive'], run: click('up-drive') },
+      { id: 'up.run', title: t('upscale.panel.run'), group: t('upscale.panel.run'), keys: [], keywords: ['start', 'enlarge', 'bigger'], when: on('up-run'), run: click('up-run') },
+      { id: 'up.download', title: t('upscale.cmd.download'), group: t('menu.file'), keys: [], when: on('up-download'), run: click('up-download') },
+      { id: 'up.save', title: t('upscale.cmd.save'), group: t('menu.file'), keys: [], when: on('up-save'), run: click('up-save') },
+      { id: 'up.clear', title: t('upscale.panel.clear'), group: t('menu.edit'), keys: [], when: on('up-clear'), run: click('up-clear') },
+    ];
+    C.register(list());
+    if (U.words) U.words.on(() => C.register(list()));
     if (C.provide) C.provide({ prepare: loadAI });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();

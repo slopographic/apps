@@ -13,7 +13,7 @@
     img().addEventListener('dragstart', (e) => {
       if (!current || cache.svg !== current || !cache.png) {
         e.preventDefault(); e.stopImmediatePropagation();
-        if (g.SlopUI) g.SlopUI.toast('The picture is still being made. Try the drag again in a moment.');
+        if (g.SlopUI) g.SlopUI.toast(g.SlopI18n ? g.SlopI18n.t('qr.app.drag_wait') : 'qr.app.drag_wait');
         return;
       }
       g.QRSave.forDrag(cache.png);

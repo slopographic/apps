@@ -10,6 +10,7 @@
   'use strict';
   const R = (g.SlopRec = g.SlopRec || {});
   const $ = (id) => document.getElementById(id);
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
   let dur = 0, range = { start: 0, end: 0 }, url = null, onTrim = () => {};
 
   function live(stream) {
@@ -28,7 +29,7 @@
     const b = $('rc-badge');
     b.hidden = !state;
     b.dataset.state = state || '';
-    $('rc-time').textContent = R.plan.clock(ms) + (state === 'paused' ? ' · paused' : '');
+    $('rc-time').textContent = state === 'paused' ? t('recorder.app.time_paused', { time: R.plan.clock(ms) }) : R.plan.clock(ms);
   }
   function drawTrim() {
     const P = R.plan;
@@ -37,7 +38,7 @@
     $('rc-end').value = String(range.end);
     $('rc-start-out').textContent = P.seconds(range.start);
     $('rc-end-out').textContent = P.seconds(range.end);
-    $('rc-kept').textContent = `Keeping ${P.seconds(range.end - range.start)} of ${P.seconds(dur)}`;
+    $('rc-kept').textContent = t('recorder.app.keeping', { kept: P.seconds(range.end - range.start), total: P.seconds(dur) });
     const bar = $('rc-trimbar');
     bar.style.setProperty('--a', dur ? (range.start / dur) * 100 + '%' : '0%');
     bar.style.setProperty('--b', dur ? (range.end / dur) * 100 + '%' : '100%');
@@ -64,20 +65,23 @@
   }
   function support() {
     const S = R.support, caps = R.capture.caps(), rows = S.rows(caps, g.navigator.userAgent), b = S.browserOf(g.navigator.userAgent);
-    $('rc-support-who').textContent = `What ${b.label} can record`;
-    const WORD = { yes: 'Yes', no: 'No', partial: 'Partly' };
+    // the browser's name in the page's language ('Chrome on macOS', 'This browser')
+    const name = b.name === 'other' ? t('recorder.support.this_browser') : S.NAMES[b.name];
+    const os = b.os === 'ios' ? t('recorder.support.ios') : S.OSES[b.os];
+    $('rc-support-who').textContent = t('recorder.support.who', { browser: os ? t('recorder.support.on_os', { browser: name, os }) : name });
+    const WORD = { yes: t('ui.yes'), no: t('ui.no'), partial: t('recorder.support.partly') };
     $('rc-support-rows').replaceChildren(...rows.map((r) => {
       const tr = document.createElement('tr');
       const th = document.createElement('th'), st = document.createElement('td'), note = document.createElement('td');
-      th.scope = 'row'; th.textContent = r.what;
+      th.scope = 'row'; th.textContent = t(`recorder.support.${r.id}`);
       st.className = 'rc-st rc-' + r.status; st.textContent = WORD[r.status];
-      note.textContent = r.note;
+      note.textContent = t(`recorder.support.n_${r.nk}`);
       tr.append(th, st, note);
       return tr;
     }));
     $('rc-other-rows').replaceChildren(...S.TABLE.map((r) => {
       const tr = document.createElement('tr');
-      for (const v of [r.browser, r.screen === 'yes' ? 'Yes' : 'No', r.system, r.camera === 'yes' ? 'Yes' : 'No']) { const td = document.createElement('td'); td.textContent = v; tr.append(td); }
+      for (const v of [t(`recorder.support.b_${r.k}`), WORD[r.screen], t(`recorder.support.s_${r.sk}`), WORD[r.camera]]) { const td = document.createElement('td'); td.textContent = v; tr.append(td); }
       return tr;
     }));
   }
@@ -93,5 +97,7 @@
     v.addEventListener('timeupdate', () => { if (!v.paused && v.currentTime >= range.end) { v.pause(); v.currentTime = range.start; } });
     v.addEventListener('play', () => { if (v.currentTime < range.start || v.currentTime >= range.end - 0.05) v.currentTime = range.start; });
   }
+  // a language change: the support section and the trim line again
+  if (g.SlopI18n && g.SlopI18n.on) g.SlopI18n.on(() => { if (R.capture) support(); if (dur) drawTrim(); });
   R.view = { live, count, timer, review, trim: () => Object.assign({}, range), setTrim, support, wire, duration: () => dur };
 })(typeof window !== 'undefined' ? window : globalThis);

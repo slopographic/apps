@@ -90,7 +90,7 @@ export async function build(docs, o = {}) {
   await E.reg.ensureFaces([{ font: 'Carlito', b: false, i: false }, { font: 'Carlito', b: true, i: false }, { font: 'Carlito', b: false, i: true },
     { font: 'Caladea', b: false, i: false }, { font: 'Caladea', b: true, i: false }]);
   let info = '';
-  if (E.lang.mayNeedLang(doc) && !(await E.lang.ensureDocLang(doc, { force: true }))) info = 'Some characters need a language font that was not downloaded, so they may show as boxes.';
+  if (E.lang.mayNeedLang(doc) && !(await E.lang.ensureDocLang(doc, { force: true }))) info = window.SlopI18n ? window.SlopI18n.t('eml.toast.font_missing') : 'eml.toast.font_missing';
 
   let layout = E.layoutDoc(doc), starts = startsOf(layout, entries);
   /* The final page numbers count the PDF pages copied in before each message. The cover shows them, so it is laid out
@@ -122,7 +122,7 @@ export async function build(docs, o = {}) {
   const font = await out.embedFont(PL.StandardFonts.Helvetica), all = out.getPages(), n = all.length;
   all.forEach((pg, i) => {
     if (copied.has(pg)) return;
-    const label = 'Page ' + (i + 1) + ' of ' + n, w = font.widthOfTextAtSize(label, 8.5);
+    const label = 'Page ' + (i + 1) + ' of ' + n, w = font.widthOfTextAtSize(label, 8.5);   // i18n-ignore: text in the PDF
     pg.drawText(label, { x: (pg.getWidth() - w) / 2, y: 26, size: 8.5, font, color: PL.rgb(0.4, 0.4, 0.4) });
   });
   out.setCreator('Slop EML');

@@ -3,7 +3,7 @@
 (() => {
 'use strict';
 const P = window.SlopPaint;
-const { $, ACTIONS, MENUS, PALETTE, S, TOOLS, buildTools, cancelOp, confirmSave, editSwatch, finishPending, initFontbar, main, openBlob, redoStack, renderPalette, run, setCanvasSize, setColor, setTool, status, undoStack, updateTitle, ws } = P;
+const { $, ACTIONS, MENUS, PALETTE, S, TOOLS, buildTools, labelMenus, labelTools, onLang, renderOptions, cancelOp, confirmSave, editSwatch, finishPending, initFontbar, main, openBlob, redoStack, renderPalette, run, setCanvasSize, setColor, setTool, status, undoStack, updateTitle, ws } = P;
 
 /* =====================================================================
  * Boot
@@ -21,6 +21,8 @@ setColor(0, S.primary); setColor(2, S.secondary);
 setTool('pencil');
 updateTitle();
 status();
+// a language change: the words drawn by script again (the marked HTML follows by itself); the picture is kept
+onLang(() => { labelMenus(); labelTools(); renderOptions(); renderPalette(); updateTitle(); status(); });
 // expose a tiny hook for automated tests / curious slop scientists
 window.slopPaint = { state: S, get selection() { return P.st.sel; }, undoDepth: () => undoStack.length, redoDepth: () => redoStack.length, canvas: main,
   // for the Slop Drive integration (hub.js), which runs outside this closure

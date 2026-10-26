@@ -5,6 +5,8 @@
  * read from vendor/models/ and checked against the same index. Classic script; exposes window.SlopAIManager. */
 (function (root) {
   'use strict';
+  /** The text of an aitools.* key (aitools/i18n), or the English given: other apps' pages may not load these tables. */
+  const tr = (k, en) => { const I = root.SlopI18n; return I && I.has(k) ? I.t(k) : en; };
   const R = root.SlopAIModels;
   const DB = 'slop-aitools', VER = 1, SMALL = 64 * 1024;
   const SITE = typeof document !== 'undefined' && document.currentScript ? new URL('../', document.currentScript.src).href : new URL('/', root.location.href).href;
@@ -164,8 +166,8 @@
     if (!m) throw new Error('Unknown model ' + id);
     const remote = R.remoteFiles(m);
     if (remote.length && window.SlopFirstRun && !(await SlopFirstRun.once('aitools', {
-      title: 'Run this AI tool on this device',
-      lines: ['This tool runs its model in your browser. The model is downloaded once and kept by this browser for next time.'],
+      title: tr('aitools.first.title', 'Run this AI tool on this device'),
+      lines: [tr('aitools.first.line', 'This tool runs its model in your browser. The model is downloaded once and kept by this browser for next time.')],
       downloads: remote.map((f) => ({ name: f.name, bytes: f.size || 0 })),
     }))) throw new Error('cancelled');
     const out = {};

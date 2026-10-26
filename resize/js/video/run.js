@@ -6,14 +6,14 @@
  * Sides are rounded to even numbers. Cancelling rejects with an AbortError and frees the encoders. */
 (function (g) {
   'use strict';
-  const NS = g.SlopResize, V = NS.video;
+  const NS = g.SlopResize, V = NS.video, tr = (k, en, v) => NS.tr(k, en, v);
   const SR = 48000;
   const tick = () => new Promise((r) => setTimeout(r, 0));
 
   V.run = async function (blob, spec, o) {
     const sup = await V.support();
     if (!sup.ok) throw new Error(sup.reason);
-    if (!sup.formats[o.format]) throw new Error(`This browser cannot encode ${o.format.toUpperCase()}. Choose the other format.`);
+    if (!sup.formats[o.format]) throw new Error(tr('resize.err.no_format', 'This browser cannot encode {format}. Choose the other format.', { format: o.format.toUpperCase() }));
     const el = V.element(blob), v = el.v;
     const progress = o.progress || (() => {}), signal = o.signal || {};
     const t0 = performance.now();
@@ -21,8 +21,8 @@
     try {
       await el.ready;
       const sw = v.videoWidth, sh = v.videoHeight, dur = v.duration;
-      if (!sw || !sh) throw new Error('This file has no picture track');
-      if (!(dur > 0)) throw new Error('This video has no length');
+      if (!sw || !sh) throw new Error(tr('resize.err.no_track', 'This file has no picture track'));
+      if (!(dur > 0)) throw new Error(tr('resize.err.no_length', 'This video has no length'));
       const fps = o.fps || 30;
       const d = NS.size.dims({ w: sw, h: sh }, spec, { even: true, max: 8192 });
       const W = d.w, H = d.h;
@@ -31,11 +31,11 @@
       const sel = { video: await V.pick(o.format, W, H, fps, V.bitrate(W, H, fps, o.quality)) };
       let pcm = null, note = '';
       if (o.audio !== false) {
-        progress(0, 'Reading the audio…');
+        progress(0, tr('resize.status.audio', 'Reading the audio…'));
         pcm = await V.audio(blob, dur, SR);
         if (pcm) sel.audio = await V.pickAudio(o.format);
-        if (!pcm) note = 'The output has no sound: the audio could not be read, or there is none.';
-        else if (!sel.audio) { pcm = null; note = 'The output has no sound: this browser cannot encode the audio.'; }
+        if (!pcm) note = tr('resize.note.no_audio', 'The output has no sound: the audio could not be read, or there is none.');
+        else if (!sel.audio) { pcm = null; note = tr('resize.note.no_audio_enc', 'The output has no sound: this browser cannot encode the audio.'); }
       }
       const m = V.makeMuxer(o.format, sel.video, sel.audio || null, W, H, fps);
       const onErr = (e) => { err = err || e; };
@@ -68,12 +68,12 @@
         while (venc.encodeQueueSize > 4 || (aenc && aenc.encodeQueueSize > 16)) { await tick(); if (err) throw err; }
         if (i % 3 === 0 || i === frames - 1) {
           const rate = (i + 1) / Math.max(0.001, (performance.now() - t0) / 1000);
-          progress((i + 1) / frames, `Frame ${i + 1} of ${frames} · ${rate.toFixed(1)} fps · ${Math.max(0, Math.round((frames - i - 1) / rate))} s left`);
+          progress((i + 1) / frames, tr('resize.status.frame', 'Frame {i} of {n} · {fps} fps · {s} s left', { i: String(i + 1), n: String(frames), fps: rate.toFixed(1), s: String(Math.max(0, Math.round((frames - i - 1) / rate))) }));
           await tick();
         }
       }
       feed(frames / fps);
-      progress(1, 'Finishing…');
+      progress(1, tr('resize.status.finishing', 'Finishing…'));
       await venc.flush();
       if (aenc) await aenc.flush();
       if (err) throw err;

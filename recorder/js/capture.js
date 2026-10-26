@@ -11,6 +11,7 @@
 (function (g) {
   'use strict';
   const R = (g.SlopRec = g.SlopRec || {});
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
   const md = () => (g.navigator && g.navigator.mediaDevices) || null;
 
   function caps() {
@@ -66,36 +67,37 @@
     for (const t of tracks) ac.createMediaStreamSource(new MediaStream([t])).connect(dest);
     return { track: dest.stream.getAudioTracks()[0], stop: () => { ac.close().catch(() => {}); } };
   }
-  function said(e, what) {
-    const n = e && e.name;
-    if (n === 'NotAllowedError' || n === 'SecurityError') return new Error(`${what} was not allowed. Allow it in the browser's address bar, then press Record again.`);
-    if (n === 'NotFoundError' || n === 'OverconstrainedError') return new Error(`No ${what.toLowerCase()} was found on this device.`);
-    if (n === 'NotReadableError') return new Error(`The ${what.toLowerCase()} is in use by another program.`);
-    return new Error(`${what} could not be started${e && e.message ? ': ' + e.message : ''}.`);
+  /** A refusal in plain words; w: 'screen' | 'camera' | 'mic' (the device asked for). */
+  function said(e, w) {
+    const n = e && e.name, what = t(`recorder.err.what_${w}`), thing = t(`recorder.err.thing_${w}`);
+    if (n === 'NotAllowedError' || n === 'SecurityError') return new Error(t('recorder.err.denied', { what }));
+    if (n === 'NotFoundError' || n === 'OverconstrainedError') return new Error(t('recorder.err.not_found', { thing }));
+    if (n === 'NotReadableError') return new Error(t('recorder.err.busy', { thing }));
+    return new Error(e && e.message ? t('recorder.err.failed_why', { what, why: e.message }) : t('recorder.err.failed', { what }));
   }
 
   async function open(opts, { onEnded } = {}) {
     const P = R.plan, o = P.clean(opts), need = P.needs(o), d = md(), parts = [], notes = [];
     const stopAll = () => { for (const s of parts) for (const t of s.getTracks()) t.stop(); };
-    if (!d) throw new Error('This browser gives pages no camera, microphone or screen (a secure https page is needed).');
+    if (!d) throw new Error(t('recorder.err.no_devices'));
     try {
       let screen = null, camera = null, mic = null;
       if (need.display) {
-        if (!d.getDisplayMedia) throw new Error('This browser cannot record the screen. Phones and tablets do not allow it; use a desktop browser.');
+        if (!d.getDisplayMedia) throw new Error(t('recorder.err.no_screen'));
         try { screen = await d.getDisplayMedia({ video: { frameRate: 30 }, audio: need.systemAudio, systemAudio: need.systemAudio ? 'include' : 'exclude', selfBrowserSurface: 'exclude' }); }
-        catch (e) { throw said(e, 'Sharing the screen'); }
+        catch (e) { throw said(e, 'screen'); }
         parts.push(screen);
-        if (need.systemAudio && !screen.getAudioTracks().length) notes.push('The screen was shared without its sound (this browser or this choice shares none).');
+        if (need.systemAudio && !screen.getAudioTracks().length) notes.push(t('recorder.err.no_screen_sound'));
         const v = screen.getVideoTracks()[0];
         if (v && onEnded) v.addEventListener('ended', () => onEnded());
       }
       if (need.camera) {
-        try { camera = await d.getUserMedia({ video: { width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false }); } catch (e) { throw said(e, 'The webcam'); }
+        try { camera = await d.getUserMedia({ video: { width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false }); } catch (e) { throw said(e, 'camera'); }
         parts.push(camera);
       }
       if (need.mic) {
         try { mic = await d.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true }, video: false }); parts.push(mic); }
-        catch (e) { if (o.source === 'mic') throw said(e, 'The microphone'); notes.push('Recording without the microphone: ' + said(e, 'The microphone').message); }
+        catch (e) { if (o.source === 'mic') throw said(e, 'mic'); notes.push(t('recorder.err.without_mic', { why: said(e, 'mic').message })); }
       }
       let video = null, composer = null;
       if (screen && camera) { composer = compose(screen, camera, o); video = composer.stream.getVideoTracks()[0]; }

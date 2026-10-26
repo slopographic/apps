@@ -4,6 +4,7 @@
 (function () {
   'use strict';
   const T = window.SlopAITools, $ = (id) => document.getElementById(id), TAGS = window.SlopTags;
+  const t = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
   let photo = null;          // { blob, name, driveId } for the picture on the page
   let suggestions = [];
 
@@ -32,22 +33,22 @@
   }
   async function suggest() {
     if (!photo) return;
-    $('run').disabled = true; $('msg').textContent = 'Reading the picture…';
+    $('run').disabled = true; $('msg').textContent = t('aitools.tags.reading');
     try {
       await T.ensure('mobilenetv3-l100', (s) => ($('msg').textContent = s));
       const img = await T.image(photo.blob);
       const r = await T.call('classify', { bitmap: img.bitmap, w: img.w, h: img.h }, { transfer: [img.bitmap] });
       suggestions = r.tags.filter((t) => t.p >= 0.02);
       renderSuggestions();
-      $('msg').textContent = suggestions.length ? 'Tap a suggestion to accept it, or edit the text. Then save.' : 'Nothing confident enough. Type your own tags.';
-    } catch (e) { $('msg').textContent = 'Could not suggest tags: ' + e.message; }
+      $('msg').textContent = suggestions.length ? t('aitools.tags.tap') : t('aitools.tags.none');
+    } catch (e) { $('msg').textContent = t('aitools.tags.failed', { error: e.message }); }
     finally { $('run').disabled = false; }
   }
   /** Saves the tags: onto the Drive record of a picked photo, or a new Drive record for an upload. */
   async function save() {
     if (!photo) return;
     const H = window.SlopHub;
-    if (!H) { $('msg').textContent = 'Slop Drive is not available here, so tags cannot be saved.'; return; }
+    if (!H) { $('msg').textContent = t('aitools.tags.no_drive'); return; }
     const tags = TAGS.parse($('tagText').value);
     try {
       if (photo.driveId) {
@@ -56,22 +57,22 @@
       } else {
         photo.driveId = await T.toDrive(photo.name, photo.blob, 'ai-tags', { tags });
       }
-      $('msg').textContent = `Saved ${tags.length} tag${tags.length === 1 ? '' : 's'} to ${photo.name} in Slop Drive.`;
-    } catch (e) { $('msg').textContent = 'Could not save the tags: ' + e.message; }
+      $('msg').textContent = t('aitools.tags.saved', { n: tags.length, name: photo.name });
+    } catch (e) { $('msg').textContent = t('aitools.tags.save_failed', { error: e.message }); }
   }
   function pick(f) {
-    if (!f || !/^image\//.test(f.type)) { $('msg').textContent = 'Choose an image file.'; return; }
+    if (!f || !/^image\//.test(f.type)) { $('msg').textContent = t('aitools.page.choose_image'); return; }
     $('tagText').value = '';
-    showPhoto(f, f.name, null, 'Press Suggest tags. Saving puts the photo in Slop Drive with its tags.');
+    showPhoto(f, f.name, null, t('aitools.tags.press'));
   }
   /** A photo from Slop Drive (the picker, ?drive=<id>): its tags so far are in the box, and Save updates that record. */
   function fromDrive(f, rec) {
     $('tagText').value = TAGS.of(rec).join(', ');
-    showPhoto(f, f.name, rec.id, `${f.name} from Slop Drive. Press Suggest tags.`);
+    showPhoto(f, f.name, rec.id, t('aitools.tags.from_drive', { name: f.name }));
   }
   // the one way in (aitools/intake.js): a drop on the box, choose a file, pick a photo from Slop Drive, a paste, ?drive=<id>
   const intake = T.intake('ai-tags', {
-    accept: { types: ['image/*'], exts: ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.bmp', '.avif'], noun: 'an image' }, drive: '#pickDrive',
+    accept: { types: ['image/*'], exts: ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.bmp', '.avif'], noun: t('aitools.page.an_image') }, drive: '#pickDrive',
     read: (f, ctx) => (ctx.drive ? fromDrive(f, ctx.drive.record) : pick(f)),
   });
   $('run').addEventListener('click', suggest);

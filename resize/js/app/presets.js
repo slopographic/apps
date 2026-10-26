@@ -9,6 +9,7 @@
   'use strict';
   const NS = g.SlopResize, P = (NS.presets = {});
   const KEY = 'slop.resize.presets';
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
   let cache = null;
 
   function localRead() {
@@ -48,30 +49,31 @@
     const say = (t) => { if (status) status(t); };
     const refresh = async (keep) => {
       const list = await P.load();
-      select.replaceChildren(new Option('Saved settings', ''), ...list.map((p) => new Option(p.name, p.id)));
+      select.replaceChildren(new Option(t('resize.panel.g_saved'), ''), ...list.map((p) => new Option(p.name, p.id)));
       if (keep && list.some((p) => p.id === keep)) select.value = keep;
     };
+    P.refresh = () => refresh(select.value);   // a language change: the first option in the new language
     apply.addEventListener('click', async () => {
       const p = (await P.load()).find((x) => x.id === select.value);
-      if (!p) { say('Choose a saved setting first'); return; }
+      if (!p) { say(t('resize.presets.choose')); return; }
       NS.settings.write(NS.settings.fromSaved(p.settings));
-      say(`Applied “${p.name}”`);
+      say(t('resize.presets.applied', { name: p.name }));
     });
     saveAs.addEventListener('click', async () => {
-      const name = await g.SlopUI.prompt('Save settings as', 'Name for these settings', '', { ok: 'Save' });
+      const name = await g.SlopUI.prompt(t('resize.presets.save_title'), t('resize.presets.save_label'), '', { ok: t('resize.presets.save') });
       if (!name || !String(name).trim()) return;
       const where = await P.add(String(name).trim(), NS.settings.read());
       await refresh();
-      say(where === 'drive' ? `Saved “${String(name).trim()}” to Slop Drive` : `Saved “${String(name).trim()}” in this browser (Slop Drive is not on this page)`);
+      say(where === 'drive' ? t('resize.presets.saved_drive', { name: String(name).trim() }) : t('resize.presets.saved_local', { name: String(name).trim() }));
     });
     del.addEventListener('click', async () => {
       const p = (await P.load()).find((x) => x.id === select.value);
-      if (!p) { say('Choose a saved setting to delete'); return; }
-      const ok = await g.SlopUI.confirm('Delete saved settings', `Delete “${p.name}”? The pictures are not affected.`, 'Delete', { danger: true });
+      if (!p) { say(t('resize.presets.choose_delete')); return; }
+      const ok = await g.SlopUI.confirm(t('resize.presets.delete_title'), t('resize.presets.delete_q', { name: p.name }), t('resize.panel.delete'), { danger: true });
       if (!ok) return;
       await P.remove(p.id);
       await refresh();
-      say(`Deleted “${p.name}”`);
+      say(t('resize.presets.deleted', { name: p.name }));
     });
     refresh();
   };

@@ -5,6 +5,8 @@
 (function (root) {
   'use strict';
   const doc = root.document, R = root.SlopAIModels, M = root.SlopAIManager;
+  /** The text of an aitools.* key (aitools/i18n), or the English given: other apps' pages may not load these tables. */
+  const tr = (k, en, v) => { const I = root.SlopI18n; return I && I.has(k) ? I.t(k, v) : (v ? String(en).replace(/\{(\w+)\}/g, (m, x) => (x in v ? String(v[x]) : m)) : en); };
   let host = null, onDone = null, onGone = null;
 
   /** Creates an element; children are nodes or text (never HTML). */
@@ -35,17 +37,17 @@
     const status = el('p', { class: 'ai-err', role: 'status' });
     const body = el('div', null,
       el('p', { class: 'ai-meta' }, m.arch),
-      el('p', null, el('strong', null, 'Licence: '), R.LICENCES[m.licence] + ' (' + m.licence + '). ',
-        el('a', { href: m.upstream, target: '_blank', rel: 'noopener' }, 'Upstream project')),
+      el('p', null, el('strong', null, tr('aitools.get.licence', 'Licence: ')), R.LICENCES[m.licence] + ' (' + m.licence + '). ',
+        el('a', { href: m.upstream, target: '_blank', rel: 'noopener' }, tr('aitools.get.upstream', 'Upstream project'))),
       el('p', { class: 'ai-meta' }, m.sourceNote),
-      el('p', { class: 'ai-meta' }, 'Source: ' + (remote.length ? hosts : 'bundled with this site') + '.'),
-      el('p', { class: 'ai-meta' }, remote.length ? `Download: ${R.formatSize(bytes)} in ${remote.length} ${remote.length === 1 ? 'file' : 'files'}. Each file is checked against its SHA-256 before it is stored on this device.` : 'Nothing to download. The model ships with the site.'),
+      el('p', { class: 'ai-meta' }, tr('aitools.get.source', 'Source: {hosts}.', { hosts: remote.length ? hosts : tr('aitools.get.bundled', 'bundled with this site') })),
+      el('p', { class: 'ai-meta' }, remote.length ? tr('aitools.get.download_n', `Download: {size} in {n} ${remote.length === 1 ? 'file' : 'files'}. Each file is checked against its SHA-256 before it is stored on this device.`, { size: R.formatSize(bytes), n: remote.length }) : tr('aitools.get.nothing', 'Nothing to download. The model ships with the site.')),
       status);
-    const cancel = el('button', { type: 'button', on: { click: close } }, 'Cancel');
-    const go = el('button', { type: 'button', class: 'ai-pri', on: { click: remote.length ? () => run(m, go, cancel, status) : close } }, remote.length ? `Download ${R.formatSize(bytes)}` : 'Close');
+    const cancel = el('button', { type: 'button', on: { click: close } }, tr('menu.cancel', 'Cancel'));
+    const go = el('button', { type: 'button', class: 'ai-pri', on: { click: remote.length ? () => run(m, go, cancel, status) : close } }, remote.length ? tr('aitools.get.download', 'Download {size}', { size: R.formatSize(bytes) }) : tr('menu.close', 'Close'));
     host = el('div', { class: 'ai-ov', on: { click: (e) => { if (e.target === host) close(); } } },
       el('div', { class: 'ai-dlg', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'aiGetTitle' },
-        el('header', null, el('h2', { id: 'aiGetTitle' }, 'Get ' + m.name), el('button', { type: 'button', on: { click: close } }, 'Close')),
+        el('header', null, el('h2', { id: 'aiGetTitle' }, tr('aitools.get.title', 'Get {name}', { name: m.name })), el('button', { type: 'button', on: { click: close } }, tr('menu.close', 'Close'))),
         el('div', { class: 'ai-body' }, body),
         el('footer', null, cancel, go)));
     doc.body.append(host);
@@ -66,9 +68,9 @@
   async function run(m, go, cancel, status) {
     go.disabled = true; cancel.disabled = true;
     try {
-      await M.install(m.id, (p) => { status.textContent = `Downloading ${p.file} (${p.index} of ${p.count})…`; });
+      await M.install(m.id, (p) => { status.textContent = tr('aitools.get.downloading', 'Downloading {file} ({i} of {n})…', { file: p.file, i: p.index, n: p.count }); });
     } catch (e) {
-      status.textContent = 'Not installed: ' + e.message + '. Nothing was stored.';
+      status.textContent = tr('aitools.get.failed', 'Not installed: {error}. Nothing was stored.', { error: e.message });
       go.disabled = false; cancel.disabled = false;
       return;
     }

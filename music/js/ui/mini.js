@@ -5,6 +5,7 @@
   'use strict';
   const M = (window.SlopMusic = window.SlopMusic || {});
   const $ = (id) => document.getElementById(id);
+  const T = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
   let showNow = () => {};
   function paint(view) {
     const s = M.engine.state(), t = s.trackId ? M.lib.track(s.trackId) : null;
@@ -13,7 +14,7 @@
     if (!t) return;
     $('mini-title').textContent = M.lib.display(t);
     $('mini-sub').textContent = [t.artist, s.error].filter(Boolean).join(' · ');
-    $('mini-play').setAttribute('aria-label', s.playing ? 'Pause' : 'Play');
+    $('mini-play').setAttribute('aria-label', s.playing ? T('music.now.pause') : T('music.now.play'));
     $('mini-play').querySelector('use').setAttribute('href', s.playing ? '#i-pause' : '#i-play');
     const d = s.duration || 0;
     $('mini-bar').style.width = (d ? Math.min(100, (s.time / d) * 100) : 0) + '%';

@@ -6,6 +6,7 @@
 (function (root) {
   'use strict';
   const ns = (root.SlopImg3D = root.SlopImg3D || {});
+  const tr = (k, en) => { const I = root.SlopI18n; return I && I.has(k) ? I.t(k) : en; };   // English when the tables are missing
   const SELF = (document.currentScript && document.currentScript.src) || location.href;
   const VENDOR = new URL('../../../vendor/onnxruntime-web/', SELF).href;
   const MODEL = {
@@ -30,10 +31,10 @@
       ort.env.wasm.wasmPaths = { mjs: VENDOR + 'ort-wasm-simd-threaded.mjs', wasm: VENDOR + 'ort-wasm-simd-threaded.wasm' };
       ort.env.logLevel = 'error';
       const blob = await root.SlopLibraryStore.getBlob(MODEL.id + '/' + MODEL.file);
-      if (!blob) throw new Error('The depth model is not in this browser. Get more adds it.');
+      if (!blob) throw new Error(tr('img3d.model.missing', 'The depth model is not in this browser. Get more adds it.'));
       const buf = await blob.arrayBuffer();
       const hash = await root.SlopLibraryManifest.sha256Hex(buf);
-      if (buf.byteLength !== MODEL.bytes || hash !== MODEL.sha256) throw new Error('The stored depth model failed its SHA-256 check. Remove it and get it again.');
+      if (buf.byteLength !== MODEL.bytes || hash !== MODEL.sha256) throw new Error(tr('img3d.model.bad_hash', 'The stored depth model failed its SHA-256 check. Remove it and get it again.'));
       const s = await ort.InferenceSession.create(buf, { executionProviders: ['wasm'], graphOptimizationLevel: 'all' });
       return { ort, s };
     })().catch((e) => { sessionP = null; throw e; });
@@ -48,7 +49,7 @@
 
   /** Runs the model on RGBA bytes. Resolves with the relative depth at the model's input size. */
   async function estimate(rgba, W, H, onStatus) {
-    if (onStatus) onStatus('Loading the depth model…');
+    if (onStatus) onStatus(tr('img3d.model.loading', 'Loading the depth model…'));
     const { ort, s } = await session();
     const [w, h] = inputSize(W, H);
     const cv = typeof OffscreenCanvas !== 'undefined' ? new OffscreenCanvas(W, H) : Object.assign(document.createElement('canvas'), { width: W, height: H });
@@ -61,7 +62,7 @@
     const px = sx.getImageData(0, 0, w, h).data, plane = w * h;
     const input = new Float32Array(3 * plane);
     for (let i = 0; i < plane; i++) for (let c = 0; c < 3; c++) input[c * plane + i] = (px[i * 4 + c] / 255 - MODEL.mean[c]) / MODEL.std[c];
-    if (onStatus) onStatus('Estimating depth on this device…');
+    if (onStatus) onStatus(tr('img3d.model.estimating', 'Estimating depth on this device…'));
     const out = await s.run({ [MODEL.input]: new ort.Tensor('float32', input, [1, 3, h, w]) });
     const res = out[MODEL.output], dims = res.dims;
     const data = Float32Array.from(res.data);

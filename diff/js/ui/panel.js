@@ -3,12 +3,15 @@
  *   build(host) → { sections(kind) }   the form controls (ids df-opt-<key>) in their sections; every change goes to setOpts
  *   sync()      the controls show S.opts again (after a command changed them)
  * Sections: Compare (as, view, whitespace, case, context lines), CSV (the key column, with the columns as suggestions),
- * Pictures and PDFs (the view, the threshold, PDF text or pages). */
+ * Pictures and PDFs (the view, the threshold, PDF text or pages). The words are the page's (diff/i18n: diff.opt.<key>,
+ * diff.opt.<key>_<value>, diff.opt.<key>_hint), marked so a language change rewrites them; OPTIONS keeps the English. */
 import { S, setOpts } from './state.js';
 import { OPTIONS } from '../core/compare.js';
+import { t, mark } from './i18n.js';
 
 const BY = Object.fromEntries(OPTIONS.map((o) => [o.key, o]));
 const el = (tag, attrs = {}, text) => { const n = Object.assign(document.createElement(tag), attrs); if (text != null) n.textContent = text; return n; };
+const word = (tag, attrs, key) => mark(el(tag, attrs), key);
 
 function field(key) {
   const o = BY[key], id = `df-opt-${key}`;
@@ -16,16 +19,16 @@ function field(key) {
     const lab = el('label', { className: 'sf-field df-check' });
     const box = el('input', { type: 'checkbox', id });
     box.addEventListener('change', () => setOpts({ [key]: box.checked }));
-    lab.append(box, el('span', {}, o.label));
+    lab.append(box, word('span', {}, `diff.opt.${key}`));
     return lab;
   }
   if (o.options && o.options.length <= 3) {
     const wrap = el('div', { className: 'sf-field' });
-    wrap.append(el('span', { className: 'sf-lab', id: `${id}-lab` }, o.label));
+    wrap.append(word('span', { className: 'sf-lab', id: `${id}-lab` }, `diff.opt.${key}`));
     const seg = el('div', { className: 'sf-seg', id, role: 'group' });
     seg.setAttribute('aria-labelledby', `${id}-lab`);
-    for (const [v, label] of o.options) {
-      const b = el('button', { type: 'button', className: 'sui-btn' }, label);
+    for (const [v] of o.options) {
+      const b = word('button', { type: 'button', className: 'sui-btn' }, `diff.opt.${key}_${v}`);
       b.dataset.value = v;
       b.addEventListener('click', () => setOpts({ [key]: v }));
       seg.append(b);
@@ -34,11 +37,11 @@ function field(key) {
     return wrap;
   }
   const lab = el('label', { className: 'sf-field' });
-  lab.append(el('span', { className: 'sf-lab' }, o.label));
+  lab.append(word('span', { className: 'sf-lab' }, `diff.opt.${key}`));
   let input;
   if (o.options) {
     input = el('select', { id });
-    for (const [v, label] of o.options) input.append(new Option(label, v));
+    for (const [v] of o.options) input.append(mark(new Option('', v), `diff.opt.${key}_${v}`));
     input.addEventListener('change', () => setOpts({ [key]: input.value }));
   } else if (typeof o.value === 'number') {
     input = el('input', { id, type: key === 'threshold' ? 'range' : 'number', min: o.min, max: o.max, step: 1 });
@@ -49,7 +52,7 @@ function field(key) {
     input.addEventListener('change', () => setOpts({ [key]: input.value || 'auto' }));
   }
   lab.append(input);
-  if (o.hint) lab.append(el('span', { className: 'sf-note' }, o.hint));
+  if (o.hint) lab.append(word('span', { className: 'sf-note' }, `diff.opt.${key}_hint`));
   return lab;
 }
 
@@ -86,9 +89,9 @@ export function build(host) {
     /** The sections to show for what is compared (kind: the result's, or null before a comparison). */
     sections(kind) {
       const all = !kind;
-      return [{ title: 'Compare', key: 'compare', settings: compare }]
+      return [{ title: t('diff.panel.compare'), key: 'compare', settings: compare }]
         .concat(all || kind === 'csv' ? [{ title: 'CSV', key: 'csv', settings: csv }] : [])
-        .concat(all || kind === 'image' || kind === 'pdf' ? [{ title: 'Pictures and PDFs', key: 'pics', settings: pics }] : []);
+        .concat(all || kind === 'image' || kind === 'pdf' ? [{ title: t('diff.panel.pics'), key: 'pics', settings: pics }] : []);
     },
   };
 }

@@ -6,6 +6,8 @@
   'use strict';
   const NS = g.SlopResize, C = (NS.commands = {});
   const $ = (id) => document.getElementById(id);
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
+  let provided = false;
 
   function setField(id, value) {
     const e = $(id);
@@ -20,24 +22,26 @@
 
   C.install = function (api) {
     if (!g.SlopCmd) return;
-    const MODES = [['size', 'Resize by width and height'], ['scale', 'Resize by percentage'], ['long', 'Resize by long edge'], ['bytes', 'Limit file size (images)']];
-    const FILLS = [['fit', 'Fit (letterbox)'], ['cover', 'Cover (crop)'], ['stretch', 'Stretch'], ['within', 'Fit inside (no padding)']];
+    // titles and groups in the page's language; app/main.js installs them again on a language change
+    const MODES = [['size', t('resize.cmd.mode_size')], ['scale', t('resize.cmd.mode_scale')], ['long', t('resize.cmd.mode_long')], ['bytes', t('resize.cmd.mode_bytes')]];
+    const FILLS = [['fit', t('resize.panel.fill_fit')], ['cover', t('resize.panel.fill_cover')], ['stretch', t('resize.panel.fill_stretch')], ['within', t('resize.panel.fill_within')]];
+    const FILE = t('menu.file'), RUN = t('resize.cmd.g_resize'), PRESETS = t('resize.cmd.g_presets'), SIZE = t('resize.panel.g_size');
     const list = [
-      { id: 'rs.open', title: 'Open pictures and videos…', group: 'File', keys: ['Mod+O'], keywords: ['add', 'import', 'photo', 'video'], run: () => api.open() },
-      { id: 'rs.drive', title: 'Open from Slop Drive…', group: 'File', keys: ['Shift+Mod+O'], keywords: ['drive', 'saved', 'file'], run: () => api.drive() },
-      { id: 'rs.zip', title: 'Download all (zip)', group: 'File', keys: ['Mod+S'], keywords: ['save', 'zip', 'download'], when: hasDone, run: () => api.downloadAll() },
-      { id: 'rs.save-drive', title: 'Save results to Slop Drive', group: 'File', keys: ['Shift+Mod+S'], keywords: ['drive', 'keep', 'store'], when: () => hasUnsaved() && !busy(), run: () => api.saveAll() },
-      { id: 'rs.run', title: 'Resize all', group: 'Resize', keys: ['Mod+Enter'], keywords: ['start', 'go', 'convert', 'run'], when: () => hasItems() && !busy(), run: () => api.run() },
-      { id: 'rs.cancel', title: 'Cancel the run', group: 'Resize', keys: ['Escape'], keywords: ['stop', 'abort'], when: busy, run: () => api.cancel() },
-      { id: 'rs.clear', title: 'Clear the list', group: 'Edit', keywords: ['remove', 'empty', 'reset'], when: () => !busy() && NS.queue.items().length > 0, run: () => api.clear() },
-      { id: 'rs.preset-save', title: 'Save settings as preset…', group: 'Presets', keys: ['Shift+Mod+P'], keywords: ['saved', 'remember'], run: () => $('rs-save-as').click() },
-      { id: 'rs.preset-apply', title: 'Apply saved settings', group: 'Presets', keywords: ['saved', 'load'], run: () => $('rs-apply').click() },
-      ...MODES.map(([mode, title]) => ({ id: 'rs.mode.' + mode, title, group: 'Size', keywords: ['mode', 'scale', 'dimensions'], run: () => setField('rs-mode', mode) })),
-      ...FILLS.map(([fill, title]) => ({ id: 'rs.fill.' + fill, title: 'Fill: ' + title, group: 'Size', keywords: ['fill', 'letterbox', 'crop', 'stretch'], run: () => { setField('rs-mode', 'size'); setField('rs-fill', fill); } })),
-      ...NS.size.PRESETS.map((p) => ({ id: 'rs.target.' + p.id, title: 'Target size: ' + p.label, group: 'Target size', keywords: ['resize', 'dimensions', `${p.w}x${p.h}`, `${p.w}×${p.h}`], run: () => setField('rs-preset', p.id) })),
+      { id: 'rs.open', title: t('resize.cmd.open'), group: FILE, keys: ['Mod+O'], keywords: ['add', 'import', 'photo', 'video'], run: () => api.open() },
+      { id: 'rs.drive', title: t('resize.cmd.drive'), group: FILE, keys: ['Shift+Mod+O'], keywords: ['drive', 'saved', 'file'], run: () => api.drive() },
+      { id: 'rs.zip', title: t('resize.cmd.zip'), group: FILE, keys: ['Mod+S'], keywords: ['save', 'zip', 'download'], when: hasDone, run: () => api.downloadAll() },
+      { id: 'rs.save-drive', title: t('resize.cmd.save_drive'), group: FILE, keys: ['Shift+Mod+S'], keywords: ['drive', 'keep', 'store'], when: () => hasUnsaved() && !busy(), run: () => api.saveAll() },
+      { id: 'rs.run', title: t('resize.cmd.run'), group: RUN, keys: ['Mod+Enter'], keywords: ['start', 'go', 'convert', 'run'], when: () => hasItems() && !busy(), run: () => api.run() },
+      { id: 'rs.cancel', title: t('resize.cmd.cancel'), group: RUN, keys: ['Escape'], keywords: ['stop', 'abort'], when: busy, run: () => api.cancel() },
+      { id: 'rs.clear', title: t('resize.cmd.clear'), group: t('menu.edit'), keywords: ['remove', 'empty', 'reset'], when: () => !busy() && NS.queue.items().length > 0, run: () => api.clear() },
+      { id: 'rs.preset-save', title: t('resize.cmd.preset_save'), group: PRESETS, keys: ['Shift+Mod+P'], keywords: ['saved', 'remember'], run: () => $('rs-save-as').click() },
+      { id: 'rs.preset-apply', title: t('resize.cmd.preset_apply'), group: PRESETS, keywords: ['saved', 'load'], run: () => $('rs-apply').click() },
+      ...MODES.map(([mode, title]) => ({ id: 'rs.mode.' + mode, title, group: SIZE, keywords: ['mode', 'scale', 'dimensions'], run: () => setField('rs-mode', mode) })),
+      ...FILLS.map(([fill, title]) => ({ id: 'rs.fill.' + fill, title: t('resize.cmd.fill', { fill: title }), group: SIZE, keywords: ['fill', 'letterbox', 'crop', 'stretch'], run: () => { setField('rs-mode', 'size'); setField('rs-fill', fill); } })),
+      ...NS.size.PRESETS.map((p) => ({ id: 'rs.target.' + p.id, title: t('resize.cmd.target', { size: NS.size.presetLabel(p) }), group: t('resize.cmd.g_target'), keywords: ['resize', 'dimensions', `${p.w}x${p.h}`, `${p.w}×${p.h}`], run: () => setField('rs-preset', p.id) })),
     ];
     g.SlopCmd.register(list);
-    if (g.SlopCmd.provide) g.SlopCmd.provide({ prepare: loadAICommands });   // the assistant's commands load when first needed
+    if (g.SlopCmd.provide && !provided) { provided = true; g.SlopCmd.provide({ prepare: loadAICommands }); }   // the assistant's commands load when first needed
   };
 
   /** ai-commands.js (commands with arguments, the state summary, the checkpoint), loaded on demand, never on first paint. */

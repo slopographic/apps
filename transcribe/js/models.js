@@ -7,6 +7,7 @@
  *   suggestionOf(item, catalog) -> null | { language, p, used, better } (pure; the line under the transcript)
  *   drawSuggestion(box, item, { catalog, installed, preferred, act }) draws it; act(kind, item, model) does the work */
 import { languageName } from './languages.js';
+import { tr } from './words.js';
 
 const pct = (p) => `${Math.round(p * 100)}%`;
 const mb = (n) => `${Math.round(n / 1e6)} MB`;
@@ -20,7 +21,7 @@ export function createChoice({ prefs, catalog, status }) {
     get pinned() { return !!prefs.pinned(); },
     /** The button's words: "Swedish · KB-Whisper small", "Detect automatically · Whisper tiny". */
     label() {
-      const lang = language === 'auto' ? 'Detect automatically' : languageName(language);
+      const lang = language === 'auto' ? tr('transcribe.model.auto', 'Detect automatically') : languageName(language);
       const id = model || (language !== 'auto' && prefs.preferred(language)) || C.QUICK;
       return `${lang} · ${(C.byId(id) || C.byId(C.QUICK)).name}`;
     },
@@ -69,27 +70,27 @@ export function drawSuggestion(box, item, { catalog, installed, preferred, act, 
   const name = languageName(s.language);
   const head = document.createElement('p');
   head.className = 'tr-detect';
-  head.textContent = (s.p != null ? `Detected ${name} (${pct(s.p)})` : name) + ` · read with ${s.used.name}.`;
-  head.append(' ', btn(s.p != null ? 'Not right? Change language' : 'Change language', 'tr-link', () => act('choose', item)));
+  head.textContent = tr('transcribe.model.read_with', '{lang} · read with {model}.', { lang: s.p != null ? tr('transcribe.model.detected', 'Detected {name} ({pct})', { name, pct: pct(s.p) }) : name, model: s.used.name });
+  head.append(' ', btn(s.p != null ? tr('transcribe.model.not_right', 'Not right? Change language') : tr('transcribe.model.change', 'Change language'), 'tr-link', () => act('choose', item)));
   box.append(head);
   const row = document.createElement('div');
   row.className = 'tr-upgrade';
   if (busy) {
     const t = document.createElement('span'); t.className = 'tr-upgrade-busy'; t.textContent = busy.text;
-    row.append(t, btn('Cancel', '', () => act('cancel', item)));
+    row.append(t, btn(tr('menu.cancel', 'Cancel'), '', () => act('cancel', item)));
   } else if (s.better) {
     const t = document.createElement('span');
     if (installed(s.better.id)) {
-      t.textContent = `${s.better.name} is on this device and reads ${name} better. `;
-      row.append(t, btn(`Transcribe again with ${s.better.name}`, 'ai-pri', () => act('redo', item, s.better)));
-      if (preferred(s.language) !== s.better.id) row.append(btn(`Use it from now on for ${name}`, '', () => act('prefer', item, s.better)));
+      t.textContent = tr('transcribe.model.on_device', '{model} is on this device and reads {name} better. ', { model: s.better.name, name });
+      row.append(t, btn(tr('transcribe.model.again_with', 'Transcribe again with {model}', { model: s.better.name }), 'ai-pri', () => act('redo', item, s.better)));
+      if (preferred(s.language) !== s.better.id) row.append(btn(tr('transcribe.model.use_for', 'Use it from now on for {name}', { name }), '', () => act('prefer', item, s.better)));
     } else {
-      t.textContent = `For better accuracy: ${s.better.name} (${s.better.maker}), ${mb(catalog.bytesOf(s.better))}. `;
-      row.append(t, btn('Transcribe again in higher quality', 'ai-pri', () => act('upgrade', item, s.better)));
+      t.textContent = tr('transcribe.model.better', 'For better accuracy: {model} ({maker}), {size}. ', { model: s.better.name, maker: s.better.maker, size: mb(catalog.bytesOf(s.better)) });
+      row.append(t, btn(tr('transcribe.model.higher', 'Transcribe again in higher quality'), 'ai-pri', () => act('upgrade', item, s.better)));
     }
   } else if (s.used.id !== catalog.QUICK && preferred(s.language) !== s.used.id && catalog.fits(s.used, s.language)) {
-    row.append(btn(`Use it from now on for ${name}`, '', () => act('prefer', item, s.used)));   // after an upgrade
+    row.append(btn(tr('transcribe.model.use_for', 'Use it from now on for {name}', { name }), '', () => act('prefer', item, s.used)));   // after an upgrade
   }
-  row.append(btn('Choose another model…', '', () => act('choose', item)));
+  row.append(btn(tr('transcribe.model.another', 'Choose another model…'), '', () => act('choose', item)));
   box.append(row);
 }

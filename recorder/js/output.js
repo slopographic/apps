@@ -11,9 +11,10 @@
   const R = (g.SlopRec = g.SlopRec || {});
   const ROOT = new URL('../../', document.currentScript ? document.currentScript.src : g.location.href).href;
   const engine = () => import(new URL('convert/js/core/ffmpeg-engine.js', ROOT).href);
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
   const aborted = () => new DOMException('Cancelled', 'AbortError');
 
-  function once(el, ev) { return new Promise((res, rej) => { el.addEventListener(ev, res, { once: true }); el.addEventListener('error', () => rej(new Error('The recording could not be played back.')), { once: true }); }); }
+  function once(el, ev) { return new Promise((res, rej) => { el.addEventListener(ev, res, { once: true }); el.addEventListener('error', () => rej(new Error(t('recorder.err.no_playback'))), { once: true }); }); }
 
   async function playTrim(blob, start, end, { progress, signal } = {}) {
     const v = document.createElement('video'), url = URL.createObjectURL(blob);
@@ -59,7 +60,7 @@
     const job = () => E.convertVideo(file, { name: 'recording', output: format, args: R.plan.ffmpegArgs(format, trim, opts), progress: o.progress, signal: o.signal });
     let r = await job();
     if (!r.blob.size) { console.warn('recorder: empty ' + format + ', once more'); r = await job(); }   // a run can come back empty: try once more
-    if (!r.blob.size) throw new Error('The video engine made an empty file.');
+    if (!r.blob.size) throw new Error(t('recorder.err.empty_file'));
     return r.blob;
   }
   async function toWav(blob, trim) {

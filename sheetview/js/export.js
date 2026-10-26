@@ -6,23 +6,21 @@ import { exportSheet, toXlsxBlob } from '../../shared/sheets/write.js';
 
 /** The menu items for an open document. ctx: { doc, sheet, order }. */
 export function exportItems(ctx, run) {
-  const scopes = [['visible', 'Visible rows'], ['all', 'All rows']];
+  const t = (k) => (window.SlopI18n ? window.SlopI18n.t(k) : k);
   const items = [];
-  scopes.forEach(([scope, label], i) => {
+  ['visible', 'all'].forEach((scope, i) => {
     if (i) items.push('-');
-    items.push({ label: `${label}: CSV`, act: () => run('csv', scope, ctx) });
-    items.push({ label: `${label}: TSV`, act: () => run('tsv', scope, ctx) });
-    items.push({ label: scope === 'visible' ? 'Visible rows: XLSX (this sheet)' : 'All rows: XLSX (every sheet)', act: () => run('xlsx', scope, ctx) });
+    for (const kind of ['csv', 'tsv', 'xlsx']) items.push({ label: t(`sheetview.menu.${scope}_${kind}`), act: () => run(kind, scope, ctx) });
   });
   return items;
 }
 
-const safeBase = (name) => String(name || 'Sheet').replace(/[\\/:*?"<>|]+/g, ' ').trim() || 'Sheet';
+const safeBase = (name) => String(name || 'Sheet').replace(/[\\/:*?"<>|]+/g, ' ').trim() || 'Sheet';   // i18n-ignore: a file name
 
 /** Builds the file: { blob, name }. */
 export async function exportBlob(kind, scope, { doc, sheet, order }) {
   const visible = scope === 'visible';
-  const suffix = visible ? ' (visible rows)' : '';
+  const suffix = visible ? ' (visible rows)' : '';   // i18n-ignore: the downloaded file's name stays English
   const base = safeBase(doc.name);
   let blob, name;
   if (kind === 'xlsx') {

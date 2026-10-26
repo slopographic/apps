@@ -4,6 +4,8 @@
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="diff" data-src="shared/theme/theme.js"></script>
   <link rel="expect" href="#slop-built" blocking="render">
+  <script src="../shared/i18n/i18n.js" data-src="shared/i18n/i18n.js"></script>
+  <script src="i18n/index.js" data-src="diff/i18n/index.js"></script>
   <script src="../shared/consent/config.js"></script>
   <script src="../shared/consent/state.js"></script>
   <script src="../shared/consent/consent-mode.js"></script>
@@ -44,33 +46,33 @@
 <body>
   <div class="df-bar" id="df-bar"></div>
   <main class="df-main" id="df-main">
-    <section class="df-work" id="df-work" aria-label="Comparison">
+    <section class="df-work" id="df-work" aria-label="Comparison" data-i18n-attr="aria-label:diff.side.work_aria">
       <div class="df-sides" id="df-sides">
         <section class="df-side" data-side="a" aria-labelledby="df-a-h">
           <div class="df-side-head">
-            <h2 id="df-a-h"><span class="df-tag">A</span> Original</h2>
+            <h2 id="df-a-h"><span class="df-tag">A</span> <span data-i18n="diff.side.original">Original</span></h2>
             <span class="df-name" id="df-a-name"></span>
             <span class="df-side-acts">
-              <button type="button" class="sui-btn df-mini" data-act="open" data-side="a" aria-label="Open a file as A">Open…</button>
-              <button type="button" class="sui-btn df-mini" data-act="drive" data-side="a" aria-label="Open A from Slop Drive">Slop Drive…</button>
-              <button type="button" class="sui-btn df-mini" data-act="clear" data-side="a" aria-label="Clear A">Clear</button>
+              <button type="button" class="sui-btn df-mini" data-act="open" data-side="a" aria-label="Open a file as A" data-i18n="diff.side.open" data-i18n-attr="aria-label:diff.side.open_a">Open…</button>
+              <button type="button" class="sui-btn df-mini" data-act="drive" data-side="a" aria-label="Open A from Slop Drive" data-i18n-attr="aria-label:diff.side.drive_a">Slop Drive…</button>
+              <button type="button" class="sui-btn df-mini" data-act="clear" data-side="a" aria-label="Clear A" data-i18n="diff.side.clear" data-i18n-attr="aria-label:diff.side.clear_a">Clear</button>
             </span>
           </div>
-          <textarea class="df-text" id="df-a-text" spellcheck="false" aria-label="Text A" placeholder="Paste or type the original text, or drop a file here"></textarea>
+          <textarea class="df-text" id="df-a-text" spellcheck="false" aria-label="Text A" data-i18n-attr="aria-label:diff.side.text_a;placeholder:diff.side.ph_a" placeholder="Paste or type the original text, or drop a file here"></textarea>
           <div class="df-file" id="df-a-file" hidden></div>
         </section>
-        <button type="button" class="sui-btn df-swap" id="df-swap" aria-label="Swap A and B" title="Swap A and B">⇄</button>
+        <button type="button" class="sui-btn df-swap" id="df-swap" aria-label="Swap A and B" title="Swap A and B" data-i18n-attr="aria-label:diff.side.swap;title:diff.side.swap">⇄</button>
         <section class="df-side" data-side="b" aria-labelledby="df-b-h">
           <div class="df-side-head">
-            <h2 id="df-b-h"><span class="df-tag">B</span> Changed</h2>
+            <h2 id="df-b-h"><span class="df-tag">B</span> <span data-i18n="diff.side.changed">Changed</span></h2>
             <span class="df-name" id="df-b-name"></span>
             <span class="df-side-acts">
-              <button type="button" class="sui-btn df-mini" data-act="open" data-side="b" aria-label="Open a file as B">Open…</button>
-              <button type="button" class="sui-btn df-mini" data-act="drive" data-side="b" aria-label="Open B from Slop Drive">Slop Drive…</button>
-              <button type="button" class="sui-btn df-mini" data-act="clear" data-side="b" aria-label="Clear B">Clear</button>
+              <button type="button" class="sui-btn df-mini" data-act="open" data-side="b" aria-label="Open a file as B" data-i18n="diff.side.open" data-i18n-attr="aria-label:diff.side.open_b">Open…</button>
+              <button type="button" class="sui-btn df-mini" data-act="drive" data-side="b" aria-label="Open B from Slop Drive" data-i18n-attr="aria-label:diff.side.drive_b">Slop Drive…</button>
+              <button type="button" class="sui-btn df-mini" data-act="clear" data-side="b" aria-label="Clear B" data-i18n="diff.side.clear" data-i18n-attr="aria-label:diff.side.clear_b">Clear</button>
             </span>
           </div>
-          <textarea class="df-text" id="df-b-text" spellcheck="false" aria-label="Text B" placeholder="Paste or type the changed text, or drop a file here"></textarea>
+          <textarea class="df-text" id="df-b-text" spellcheck="false" aria-label="Text B" data-i18n-attr="aria-label:diff.side.text_b;placeholder:diff.side.ph_b" placeholder="Paste or type the changed text, or drop a file here"></textarea>
           <div class="df-file" id="df-b-file" hidden></div>
         </section>
       </div>
@@ -78,9 +80,9 @@
         <div class="df-res-bar">
           <p class="df-sum" id="df-sum" role="status" aria-live="polite"></p>
           <span class="df-nav">
-            <button type="button" class="sui-btn df-mini" id="df-prev" aria-label="Previous change">↑ Previous</button>
+            <button type="button" class="sui-btn df-mini" id="df-prev" aria-label="Previous change" data-i18n="diff.view.prev" data-i18n-attr="aria-label:diff.cmd.prev">↑ Previous</button>
             <span class="df-pos" id="df-pos"></span>
-            <button type="button" class="sui-btn df-mini" id="df-next" aria-label="Next change">Next ↓</button>
+            <button type="button" class="sui-btn df-mini" id="df-next" aria-label="Next change" data-i18n="diff.view.next" data-i18n-attr="aria-label:diff.cmd.next">Next ↓</button>
           </span>
         </div>
         <div class="df-out" id="df-out"></div>
@@ -88,7 +90,7 @@
       <p class="df-err" id="df-err" role="alert" hidden></p>
       <div class="df-drop" id="df-drop"></div>
     </section>
-    <aside class="df-panel" id="df-panel" aria-label="Compare settings"></aside>
+    <aside class="df-panel" id="df-panel" aria-label="Compare settings" data-i18n-attr="aria-label:diff.panel.aria"></aside>
   </main>
   <div hidden><div class="df-settings" id="df-settings"></div></div>
 

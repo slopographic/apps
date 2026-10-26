@@ -28,7 +28,7 @@ H.fill = {
   down(p) { if (inCanvas(p)) floodFill(p.x, p.y, fg()); },
 };
 H.picker = {
-  move(p) { if (inCanvas(p)) { const d = mctx.getImageData(p.x, p.y, 1, 1).data; status(`Color under cursor: ${rgbHex(d[0], d[1], d[2])}`); } },
+  move(p) { if (inCanvas(p)) { const d = mctx.getImageData(p.x, p.y, 1, 1).data; status(P.t('paint-classic.status.color_under', { color: rgbHex(d[0], d[1], d[2]) })); } },
   up(p) {
     if (!inCanvas(p)) return;
     const d = mctx.getImageData(p.x, p.y, 1, 1).data;
@@ -100,7 +100,7 @@ H.curve = {
   },
   up() {
     if (!P.st.curve) return;
-    if (P.st.curve.stage < 2) { P.st.curve.stage++; status(P.st.curve.stage === 1 ? 'Click or drag to bend the curve (1 of 2).' : 'Click or drag to bend it once more (2 of 2).'); }
+    if (P.st.curve.stage < 2) { P.st.curve.stage++; status(P.t(P.st.curve.stage === 1 ? 'paint-classic.status.curve_1' : 'paint-classic.status.curve_2')); }
     else { commitCurve(); status(); }
   },
 };

@@ -5,6 +5,8 @@
 (function (g) {
   'use strict';
   if (g.QRState) return;
+  /** The words for a key (qr/i18n), or the English given when SlopI18n or the key is absent (node tests, other pages). */
+  const tr = (k, en, v) => { const I = g.SlopI18n; return I && I.has && I.has(k) ? I.t(k, v) : (v ? String(en).replace(/\{(\w+)\}/g, (m, x) => (x in v ? String(v[x]) : m)) : en); };
   const P = g.QRPayload, R = g.QRRender;
   const SHAPES = ['square', 'round'];
   const DATA_IMG = /^data:image\/(png|jpeg|webp);base64,[a-z0-9+/=]+$/i;
@@ -24,7 +26,7 @@
 
   /** The text to encode and whether there is one. Raw text is encoded exactly as typed. */
   function encodedText() {
-    if (S.raw !== null) return S.raw.length ? { ok: true, text: S.raw } : { ok: false, error: 'Type or paste the text to encode.' };
+    if (S.raw !== null) return S.raw.length ? { ok: true, text: S.raw } : { ok: false, error: tr('qr.err.raw_empty', 'Type or paste the text to encode.') };
     return P.build(S.kind, vals());
   }
   /** Options for the renderer. The logo forces error correction H, the highest level, so the code still scans. */

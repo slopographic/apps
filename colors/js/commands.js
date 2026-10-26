@@ -14,19 +14,23 @@
     C.init({ app: 'colors' });
     const has = () => CO.state.get().palette.colors.length > 0;
     const safe = (fn) => () => Promise.resolve().then(fn).catch((e) => g.SlopUI.toast(e.message));
-    C.register([
-      { id: 'colors.open', title: 'Open a picture or palette…', group: 'File', keywords: ['image', 'photo', 'gpl', 'ase', 'import'], run: () => g.SlopIntake.pick({ to: 'colors' }) },
-      { id: 'colors.download', title: 'Download the palette', group: 'File', keywords: ['export', 'css', 'tailwind', 'json', 'ase', 'gpl'], when: has, run: safe(() => CO.io.download()) },
-      { id: 'colors.drive', title: 'Save the palette to Slop Drive', group: 'File', when: has, run: safe(() => CO.io.saveToDrive()) },
-      { id: 'colors.copy', title: 'Copy the palette as code', group: 'Edit', when: has, run: safe(() => CO.io.copyCode()) },
-      { id: 'colors.add', title: 'Add the colour to the palette', group: 'Palette', keywords: ['swatch', 'save colour'], run: safe(() => CO.state.addColor(CO.state.get().current)) },
-      { id: 'colors.clear', title: 'Clear the palette', group: 'Palette', when: has, run: () => CO.state.set({ palette: { name: CO.state.get().palette.name, colors: [] } }) },
-      { id: 'colors.harmony', title: 'Use the harmony as the palette', group: 'Palette', keywords: ['complementary', 'triadic', 'analogous'], run: () => CO.swatches.usePalette('harmony') },
-      { id: 'colors.ramp', title: 'Use the 50–950 ramp as the palette', group: 'Palette', keywords: ['tailwind', 'shades', 'scale'], run: () => CO.swatches.usePalette('ramp') },
-      { id: 'colors.swap', title: 'Swap text and background', group: 'Contrast', keywords: ['contrast', 'wcag'], run: () => CO.contrast.swap() },
-      { id: 'colors.fix', title: 'Fix the text colour (reach AA)', group: 'Contrast', keywords: ['contrast', 'wcag', 'accessible'], run: safe(() => CO.contrast.fix()) },
-      { id: 'colors.screen', title: 'Pick a colour from the screen', group: 'Colour', keywords: ['eyedropper', 'picker'], when: () => typeof g.EyeDropper === 'function', run: safe(() => CO.picture.pickScreen()) },
-    ]);
+    const t = (k) => (g.SlopI18n ? g.SlopI18n.t(k) : k);
+    // titles and groups in the current language: built again on a language change
+    const list = () => [
+      { id: 'colors.open', title: t('colors.cmd.open'), group: t('menu.file'), keywords: ['image', 'photo', 'gpl', 'ase', 'import'], run: () => g.SlopIntake.pick({ to: 'colors' }) },
+      { id: 'colors.download', title: t('colors.cmd.download'), group: t('menu.file'), keywords: ['export', 'css', 'tailwind', 'json', 'ase', 'gpl'], when: has, run: safe(() => CO.io.download()) },
+      { id: 'colors.drive', title: t('colors.cmd.drive'), group: t('menu.file'), when: has, run: safe(() => CO.io.saveToDrive()) },
+      { id: 'colors.copy', title: t('colors.cmd.copy'), group: t('menu.edit'), when: has, run: safe(() => CO.io.copyCode()) },
+      { id: 'colors.add', title: t('colors.cmd.add'), group: t('colors.cmd.g_palette'), keywords: ['swatch', 'save colour'], run: safe(() => CO.state.addColor(CO.state.get().current)) },
+      { id: 'colors.clear', title: t('colors.cmd.clear'), group: t('colors.cmd.g_palette'), when: has, run: () => CO.state.set({ palette: { name: CO.state.get().palette.name, colors: [] } }) },
+      { id: 'colors.harmony', title: t('colors.cmd.harmony'), group: t('colors.cmd.g_palette'), keywords: ['complementary', 'triadic', 'analogous'], run: () => CO.swatches.usePalette('harmony') },
+      { id: 'colors.ramp', title: t('colors.cmd.ramp'), group: t('colors.cmd.g_palette'), keywords: ['tailwind', 'shades', 'scale'], run: () => CO.swatches.usePalette('ramp') },
+      { id: 'colors.swap', title: t('colors.cmd.swap'), group: t('colors.cmd.g_contrast'), keywords: ['contrast', 'wcag'], run: () => CO.contrast.swap() },
+      { id: 'colors.fix', title: t('colors.cmd.fix'), group: t('colors.cmd.g_contrast'), keywords: ['contrast', 'wcag', 'accessible'], run: safe(() => CO.contrast.fix()) },
+      { id: 'colors.screen', title: t('colors.cmd.screen'), group: t('colors.cmd.g_colour'), keywords: ['eyedropper', 'picker'], when: () => typeof g.EyeDropper === 'function', run: safe(() => CO.picture.pickScreen()) },
+    ];
+    C.register(list());
+    if (g.SlopI18n && g.SlopI18n.on) g.SlopI18n.on(() => C.register(list()));
     C.provide({
       prepare: () => (g.SlopCmdSources ? Promise.resolve() : load('../../shared/commands/sources.js')).then(() => (C.get('colors.ai.new-palette') ? null : load('ai-commands.js'))),
       state: () => {

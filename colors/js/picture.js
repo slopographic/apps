@@ -7,18 +7,19 @@
   'use strict';
   const $ = (id) => document.getElementById(id);
   const S = () => g.CO.state, MAXSIDE = 1600, SMALL = 400, ZOOM = 12, CELLS = 11;
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
   let pic = null, at = { x: 0, y: 0 }, picking = false, dominant = [];
 
   async function bitmapOf(file) {
     try { return await createImageBitmap(file, { imageOrientation: 'from-image' }); } catch (e) {
       const url = URL.createObjectURL(file), img = new Image();
-      try { img.src = url; await img.decode(); return img; } catch (x) { throw new Error(`${file.name} could not be read as a picture in this browser`); } finally { URL.revokeObjectURL(url); }
+      try { img.src = url; await img.decode(); return img; } catch (x) { throw new Error(t('colors.pic.unreadable', { name: file.name })); } finally { URL.revokeObjectURL(url); }
     }
   }
   /** Shows a picture file: on the canvas, its main colours found. Resolves { width, height, colors }. */
   async function load(file) {
     const bmp = await bitmapOf(file), w0 = bmp.width || bmp.naturalWidth, h0 = bmp.height || bmp.naturalHeight;
-    if (!w0 || !h0) throw new Error(`${file.name} has no pixels`);
+    if (!w0 || !h0) throw new Error(t('colors.pic.no_pixels', { name: file.name }));
     const f = Math.min(1, MAXSIDE / Math.max(w0, h0)), cv = $('co-canvas');
     cv.width = Math.max(1, Math.round(w0 * f)); cv.height = Math.max(1, Math.round(h0 * f));
     const ctx = cv.getContext('2d', { willReadFrequently: true });
@@ -38,7 +39,7 @@
     paintNote();
   }
   function paintNote() {
-    $('co-pic-note').textContent = pic ? `${pic.name}: move over the picture and click to pick a colour, or use the arrow keys and Enter.` : '';
+    $('co-pic-note').textContent = pic ? t('colors.pic.note', { name: pic.name }) : '';
     if (g.CO.main) g.CO.main.dropEmpty(!pic);
   }
   /** The colour of one pixel of the picture (canvas pixels), or null. */
@@ -51,7 +52,7 @@
   /** Picks the pixel at (x, y): it becomes the current colour. add: also into the palette. */
   function pickAt(x, y, add) {
     const hex = pixel(x, y);
-    if (!hex) throw new Error('Open a picture first');
+    if (!hex) throw new Error(t('colors.pic.open_first'));
     at = { x: Math.round(x), y: Math.round(y) };
     S().set({ current: hex });
     if (add) S().addColor(hex);
@@ -132,7 +133,7 @@
   }
   /** The browser's own eyedropper: any pixel on the screen (it asks the person; nothing is read without their click). */
   async function pickScreen() {
-    if (typeof g.EyeDropper !== 'function') throw new Error('This browser has no screen eyedropper (Chrome and Edge do)');
+    if (typeof g.EyeDropper !== 'function') throw new Error(t('colors.pic.no_eyedropper'));
     try { const r = await new g.EyeDropper().open(); S().set({ current: r.sRGBHex }); return S().get().current; } catch (e) { return null; }
   }
   g.CO.picture = { load, clear, pixel, pickAt, find, addAll, pickScreen, paintDominant, wire, has: () => !!pic, info: () => (pic ? { name: pic.name, width: pic.w, height: pic.h } : null), colors: () => dominant };

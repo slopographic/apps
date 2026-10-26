@@ -24,6 +24,9 @@ function h(tag, attrs, ...kids) {
   for (const kid of kids.flat()) if (kid != null && kid !== false) e.append(kid);
   return e;
 }
+/** Words in the chosen language (photoslop/classic/i18n, shared/i18n); onLang(fn) runs fn after a language change. */
+const t = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
+const onLang = fn => { if (window.SlopI18n && window.SlopI18n.on) window.SlopI18n.on(fn); };
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const mkCanvas = (w, hh) => { const c = document.createElement('canvas'); c.width = Math.max(1, w | 0); c.height = Math.max(1, hh | 0); return c; };
 const ctx2d = (c, o) => { const x = c.getContext('2d', o); x.imageSmoothingEnabled = false; return x; };
@@ -58,5 +61,5 @@ function hslToRgb(hh, s, l) {
   return [f(hh + 1 / 3), f(hh), f(hh - 1 / 3)].map(v => Math.round(v * 255));
 }
 
-Object.assign(P, { $, $$, EMOJI_FONT, clamp, copyCanvas, ctx2d, h, hexToRgb, hslToRgb, isTyping, loadBlobImage, loadImage, mkCanvas, pack, rgbHex, rgbToHsl });
+Object.assign(P, { $, $$, EMOJI_FONT, onLang, t, clamp, copyCanvas, ctx2d, h, hexToRgb, hslToRgb, isTyping, loadBlobImage, loadImage, mkCanvas, pack, rgbHex, rgbToHsl });
 })();

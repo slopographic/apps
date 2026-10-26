@@ -6,26 +6,27 @@
   const M = (window.SlopMusic = window.SlopMusic || {});
   const UI = () => window.SlopUI, el = (...a) => UI().el(...a), H = () => window.SlopHub;
   const $ = (id) => document.getElementById(id);
+  const T = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
   const S = { sel: null };
   const byId = (id) => M.lib.track(id);
   function renderList() {
     const all = M.playlists.all();
     if (S.sel && !M.playlists.get(S.sel)) S.sel = null;
     $('pl-list').replaceChildren(...all.map((p) => el('li', null, el('button', { type: 'button', class: 'mu-pl-btn', 'aria-current': p.id === S.sel ? 'true' : 'false',
-      onclick: () => { S.sel = p.id; render(); } }, el('b', null, p.name), el('small', null, `${p.trackIds.length} ${p.trackIds.length === 1 ? 'track' : 'tracks'}`)))));
+      onclick: () => { S.sel = p.id; render(); } }, el('b', null, p.name), el('small', null, T('music.pl.tracks_n', { n: p.trackIds.length }))))));
     $('pl-empty').hidden = all.length > 0;
   }
   function playlistIds(p) { return p.trackIds.filter((id) => byId(id)); }
   function item(p, id, i) {
     const t = byId(id);
-    const handle = el('button', { type: 'button', class: 'mu-handle', 'aria-label': 'Drag to reorder, or use the arrow keys', title: 'Drag to reorder',
+    const handle = el('button', { type: 'button', class: 'mu-handle', 'aria-label': T('music.pl.drag_label'), title: T('music.pl.drag'),
       onkeydown: (e) => keyMove(e, p, i) });
     handle.addEventListener('pointerdown', (e) => startDrag(e, p, i));
     return el('li', { class: 'mu-pl-item', 'data-i': i }, handle,
       el('button', { type: 'button', class: 'mu-row-main', onclick: () => M.engine.setQueue(playlistIds(p), id) },
         t ? M.fmt.tile(t, 'mu-cover-sm') : el('span', { class: 'mu-cover-sm mu-tile' }, '?'),
-        el('span', { class: 'mu-txt' }, el('b', null, t ? M.lib.display(t) : 'Not in Slop Drive'), el('small', null, t ? [t.artist, t.album].filter(Boolean).join(' · ') : id))),
-      el('button', { type: 'button', class: 'mu-more', 'aria-label': 'Remove from playlist', title: 'Remove',
+        el('span', { class: 'mu-txt' }, el('b', null, t ? M.lib.display(t) : T('music.pl.not_in_drive')), el('small', null, t ? [t.artist, t.album].filter(Boolean).join(' · ') : id))),
+      el('button', { type: 'button', class: 'mu-more', 'aria-label': T('music.pl.remove_from'), title: T('ui.remove'),
         onclick: () => M.playlists.setTracks(p.id, p.trackIds.filter((x) => x !== id)) }, '×'));
   }
   function keyMove(e, p, i) {
@@ -63,32 +64,32 @@
   }
   function renderDetail() {
     const box = $('pl-detail'), p = S.sel && M.playlists.get(S.sel);
-    if (!p) { box.replaceChildren(el('p', { class: 'mu-fine' }, 'Choose a playlist, or make a new one.')); return; }
+    if (!p) { box.replaceChildren(el('p', { class: 'mu-fine' }, T('music.pl.choose'))); return; }
     const ids = p.trackIds;
     box.replaceChildren(
-      el('div', { class: 'mu-pl-head' }, el('h2', null, p.name), el('p', { class: 'mu-fine' }, `${ids.length} ${ids.length === 1 ? 'track' : 'tracks'}`)),
+      el('div', { class: 'mu-pl-head' }, el('h2', null, p.name), el('p', { class: 'mu-fine' }, T('music.pl.tracks_n', { n: ids.length }))),
       el('div', { class: 'mu-pl-tools' },
-        el('button', { type: 'button', class: 'sui-btn sui-primary', disabled: !ids.length, onclick: () => M.engine.setQueue(playlistIds(p), playlistIds(p)[0]) }, 'Play'),
-        el('button', { type: 'button', class: 'sui-btn', onclick: () => addTracks(p) }, 'Add tracks…'),
-        el('button', { type: 'button', class: 'sui-btn', onclick: () => rename(p) }, 'Rename'),
-        el('button', { type: 'button', class: 'sui-btn', onclick: () => saveToDrive(p) }, 'Save to Slop Drive…'),
-        el('button', { type: 'button', class: 'sui-btn sui-danger', onclick: () => remove(p) }, 'Delete')),
-      ids.length ? el('ol', { class: 'mu-list mu-pl-items', id: 'pl-items', 'aria-label': 'Tracks in order' }, ids.map((id, i) => item(p, id, i)))
-        : el('p', { class: 'mu-fine' }, 'This playlist is empty. Use “Add tracks…”.'));
+        el('button', { type: 'button', class: 'sui-btn sui-primary', disabled: !ids.length, onclick: () => M.engine.setQueue(playlistIds(p), playlistIds(p)[0]) }, T('music.pl.play')),
+        el('button', { type: 'button', class: 'sui-btn', onclick: () => addTracks(p) }, T('music.pl.add_tracks')),
+        el('button', { type: 'button', class: 'sui-btn', onclick: () => rename(p) }, T('ui.rename')),
+        el('button', { type: 'button', class: 'sui-btn', onclick: () => saveToDrive(p) }, T('music.pl.save_drive')),
+        el('button', { type: 'button', class: 'sui-btn sui-danger', onclick: () => remove(p) }, T('ui.delete'))),
+      ids.length ? el('ol', { class: 'mu-list mu-pl-items', id: 'pl-items', 'aria-label': T('music.pl.in_order') }, ids.map((id, i) => item(p, id, i)))
+        : el('p', { class: 'mu-fine' }, T('music.pl.empty')));
   }
   function render() { renderList(); renderDetail(); }
   async function create() {
-    const name = await UI().prompt('New playlist', 'Name', 'New playlist', { ok: 'Create' });
+    const name = await UI().prompt(T('music.dlg.new_playlist'), T('music.dlg.name'), T('music.dlg.new_playlist'), { ok: T('music.dlg.create') });
     if (name == null) return;
     const p = await M.playlists.create(name);
     S.sel = p.id;
   }
   async function rename(p) {
-    const name = await UI().prompt('Rename playlist', 'Name', p.name, { ok: 'Rename' });
+    const name = await UI().prompt(T('music.pl.rename_title'), T('music.dlg.name'), p.name, { ok: T('ui.rename') });
     if (name != null) await M.playlists.rename(p.id, name);
   }
   async function remove(p) {
-    if (!(await UI().confirm('Delete playlist', `Delete “${p.name}”? The tracks stay in the library.`, 'Delete', { danger: true }))) return;
+    if (!(await UI().confirm(T('music.pl.delete_title'), T('music.pl.delete_msg', { name: p.name }), T('ui.delete'), { danger: true }))) return;
     if (S.sel === p.id) S.sel = null;
     await M.playlists.remove(p.id);
   }
@@ -99,10 +100,10 @@
       const c = el('input', { type: 'checkbox', value: t.id, checked: p.trackIds.includes(t.id) });
       return el('label', { class: 'sui-check mu-pick' }, c, el('span', null, M.lib.display(t) + (t.artist ? ' · ' + t.artist : '')));
     });
-    const body = el('div', { class: 'mu-pick-list' }, boxes.length ? boxes : el('p', { class: 'sui-p' }, 'The library is empty. Add files first.'));
+    const body = el('div', { class: 'mu-pick-list' }, boxes.length ? boxes : el('p', { class: 'sui-p' }, T('music.pl.lib_empty')));
     let chosen = null;
-    UI().dialog({ title: 'Add tracks to ' + p.name, cls: 'sui-wide', body,
-      buttons: [{ label: 'Cancel' }, { label: 'Done', primary: true, act: () => { chosen = boxes.map((l) => l.querySelector('input')).filter((c) => c.checked).map((c) => c.value); } }],
+    UI().dialog({ title: T('music.pl.add_to_title', { name: p.name }), cls: 'sui-wide', body,
+      buttons: [{ label: T('menu.cancel') }, { label: T('ui.done'), primary: true, act: () => { chosen = boxes.map((l) => l.querySelector('input')).filter((c) => c.checked).map((c) => c.value); } }],
       onClose: async (ok) => {
         if (!ok || !chosen) return;
         await M.playlists.setTracks(p.id, [...p.trackIds.filter((id) => chosen.includes(id)), ...chosen.filter((id) => !p.trackIds.includes(id))]);
@@ -110,29 +111,30 @@
   }
   async function saveToDrive(p) {
     const blob = M.plfile.build(p.name, M.plfile.rows(p));
-    const id = await H().saveToDrive(blob, M.plfile.fileName(p.name), { from: 'music', title: 'Save “' + p.name + '” to Slop Drive' });
-    if (id) UI().toast('Playlist saved to Slop Drive');
+    const id = await H().saveToDrive(blob, M.plfile.fileName(p.name), { from: 'music', title: T('music.pl.save_title', { name: p.name }) });
+    if (id) UI().toast(T('music.pl.saved'));
   }
   /** Open a playlist from Slop Drive: a part of the intake of its own ('music.playlist'). */
-  const openFromDrive = () => window.SlopIntake.fromDrive({ to: 'music.playlist', title: 'Open a playlist from Slop Drive' });
+  const openFromDrive = () => window.SlopIntake.fromDrive({ to: 'music.playlist', title: T('music.pl.open_title') });
   function bind() {
     window.SlopIntake.register({
       id: 'music.playlist', main: false, paste: false, toast: false, driveAccept: [M.plfile.MIME],
-      accept: { types: [M.plfile.MIME, 'application/json'], exts: [M.plfile.EXT], noun: 'a playlist' },
+      accept: { types: [M.plfile.MIME, 'application/json'], exts: [M.plfile.EXT], noun: T('music.pl.noun') },
       process: async (file) => {
         try {
           const parsed = M.plfile.parse(await file.text());
           const p = await M.playlists.create(parsed.name, parsed.trackIds);
           S.sel = p.id;
-          UI().toast('Playlist opened');
+          UI().toast(T('music.pl.opened'));
           return p.id;
-        } catch (e) { UI().alert('Could not open', e.message || 'This file is not a playlist.'); throw e; }
+        } catch (e) { UI().alert(T('music.pl.open_failed'), T('music.pl.not_playlist')); throw e; }
       },
     });
     $('pl-new').addEventListener('click', create);
     $('pl-open').addEventListener('click', openFromDrive);
     M.playlists.subscribe(render);
     M.lib.subscribe(() => renderDetail());
+    if (window.SlopI18n && window.SlopI18n.on) window.SlopI18n.on(render);   // the list and the open playlist, in the new language
   }
   /** The playlist open in the Playlists view, or null. */
   const selected = () => (S.sel ? M.playlists.get(S.sel) : null);

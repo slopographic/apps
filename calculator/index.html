@@ -4,6 +4,8 @@
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="calculator" data-src="shared/theme/theme.js"></script>
   <link rel="expect" href="#slop-built" blocking="render">
+  <script src="../shared/i18n/i18n.js" data-src="shared/i18n/i18n.js"></script>
+  <script src="i18n/index.js" data-src="calculator/i18n/index.js"></script>
 <script src="../shared/consent/config.js"></script>
 <script src="../shared/consent/state.js"></script>
 <script src="../shared/consent/consent-mode.js"></script>
@@ -80,24 +82,23 @@
 <body>
   <div class="sc-app">
     <div class="smb-hold" hidden>
-      <a id="sc-about" href="about/">About Slopculator</a>
+      <a id="sc-about" href="about/" data-i18n="calculator.app.about">About Slopculator</a>
     </div>
-    <span class="local-badge" title="Your calculations, tape and history stay in this browser. Nothing is uploaded.">100% local</span>
+    <span class="local-badge" title="Your calculations, tape and history stay in this browser. Nothing is uploaded." data-i18n="calculator.app.local" data-i18n-attr="title:calculator.app.local_title">100% local</span>
     <p class="sc-status" id="sc-status" role="status" aria-live="polite"></p>
 
 
     <main class="sc-main">
       <section class="sc-entry" aria-labelledby="sc-entry-h">
-        <h2 id="sc-entry-h" class="sc-visually-hidden">Expression</h2>
-        <label for="sc-expr" class="sc-label">Type a calculation</label>
+        <h2 id="sc-entry-h" class="sc-visually-hidden" data-i18n="calculator.app.expression">Expression</h2>
+        <label for="sc-expr" class="sc-label" data-i18n="calculator.app.type">Type a calculation</label>
         <div class="sc-row">
-          <input id="sc-expr" class="sc-expr" type="text" autocomplete="off" autocapitalize="off" spellcheck="false"
-                 placeholder="200 + 20%   or   2026-01-31 + 1 month" aria-describedby="sc-preview sc-help">
-          <button type="button" class="sc-btn sc-primary sc-eq" id="sc-enter" aria-label="Calculate">=</button>
+          <input id="sc-expr" class="sc-expr" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="200 + 20%   or   2026-01-31 + 1 month" aria-describedby="sc-preview sc-help" data-i18n-attr="placeholder:calculator.app.expr_ph">
+          <button type="button" class="sc-btn sc-primary sc-eq" id="sc-enter" aria-label="Calculate" data-i18n-attr="aria-label:calculator.app.calculate">=</button>
         </div>
-        <p class="sc-preview" id="sc-preview" aria-live="polite"></p>
+        <p class="sc-preview" id="sc-preview" aria-live="polite" data-empty="The result shows here as you type." data-i18n-attr="data-empty:calculator.app.preview_empty"></p>
 
-        <div class="sc-keys" role="toolbar" aria-label="Insert">
+        <div class="sc-keys" role="toolbar" aria-label="Insert" data-i18n-attr="aria-label:calculator.app.insert">
           <button type="button" class="sc-btn sc-key" data-ins="(">(</button>
           <button type="button" class="sc-btn sc-key" data-ins=")">)</button>
           <button type="button" class="sc-btn sc-key" data-ins="^">^</button>
@@ -113,66 +114,66 @@
         </div>
 
         <div class="sc-actions">
-          <button type="button" class="sc-btn" id="sc-copy">Copy result</button>
-          <button type="button" class="sc-btn" id="sc-save">Save to Slop Drive</button>
-          <button type="button" class="sc-btn" id="sc-cal" hidden>Add to Calendar</button>
-          <button type="button" class="sc-btn" id="sc-clear">Clear</button>
+          <button type="button" class="sc-btn" id="sc-copy" data-i18n="calculator.app.copy">Copy result</button>
+          <button type="button" class="sc-btn" id="sc-save" data-i18n="calculator.app.save">Save to Slop Drive</button>
+          <button type="button" class="sc-btn" id="sc-cal" hidden data-i18n="calculator.app.add_cal">Add to Calendar</button>
+          <button type="button" class="sc-btn" id="sc-clear" data-i18n="calculator.app.clear">Clear</button>
         </div>
-        <p class="sc-help" id="sc-help">Enter calculates. Up and Down bring back earlier lines. Esc clears.
-          Try <code>2 h 45 min + 40 min</code>, <code>17:00 - 08:15</code>, <code>5 km in mi</code>,
+        <p class="sc-help" id="sc-help"><span data-i18n="calculator.app.help">Enter calculates. Up and Down bring back earlier lines. Esc clears. Try</span>
+          <code>2 h 45 min + 40 min</code>, <code>17:00 - 08:15</code>, <code>5 km in mi</code>,
           <code>100 C in F</code>, <code>2026-12-25 - today in weeks</code>, <code>markup(100, 25)</code>.</p>
       </section>
 
-      <aside class="sc-side" aria-label="Tape and history">
+      <aside class="sc-side" aria-label="Tape and history" data-i18n-attr="aria-label:calculator.app.side">
         <section class="sc-panel" aria-labelledby="sc-vars-h">
-          <div class="sc-panel-head"><h2 id="sc-vars-h">Variables</h2>
-            <button type="button" class="sc-btn sc-small" id="sc-vars-clear">Clear variables</button></div>
-          <p class="sc-none" id="sc-vars-none">Name a result to keep it: <code>price = 19.99 USD; price * 3</code>. Separate statements with ;</p>
+          <div class="sc-panel-head"><h2 id="sc-vars-h" data-i18n="calculator.app.variables">Variables</h2>
+            <button type="button" class="sc-btn sc-small" id="sc-vars-clear" data-i18n="calculator.app.clear_vars">Clear variables</button></div>
+          <p class="sc-none" id="sc-vars-none"><span data-i18n="calculator.app.vars_none">Name a result to keep it:</span> <code>price = 19.99 USD; price * 3</code><span data-i18n="calculator.app.vars_sep">. Separate statements with ;</span></p>
           <ul class="sc-vars" id="sc-vars"></ul>
         </section>
 
         <section class="sc-panel" aria-labelledby="sc-tape-h">
-          <div class="sc-panel-head"><h2 id="sc-tape-h">Paper tape</h2>
-            <button type="button" class="sc-btn sc-small" id="sc-tape-clear">Clear tape</button></div>
-          <ol class="sc-tape" id="sc-tape" aria-live="off"></ol>
+          <div class="sc-panel-head"><h2 id="sc-tape-h" data-i18n="calculator.app.tape">Paper tape</h2>
+            <button type="button" class="sc-btn sc-small" id="sc-tape-clear" data-i18n="calculator.app.clear_tape">Clear tape</button></div>
+          <ol class="sc-tape" id="sc-tape" aria-live="off" data-empty="Results you calculate are listed here, oldest first." data-i18n-attr="data-empty:calculator.app.tape_empty"></ol>
         </section>
 
         <section class="sc-panel" aria-labelledby="sc-hist-h">
-          <div class="sc-panel-head"><h2 id="sc-hist-h">History</h2>
-            <button type="button" class="sc-btn sc-small" id="sc-history-clear">Clear history</button></div>
-          <label for="sc-hq" class="sc-visually-hidden">Search history</label>
-          <input id="sc-hq" class="sc-search" type="search" placeholder="Search history">
+          <div class="sc-panel-head"><h2 id="sc-hist-h" data-i18n="calculator.app.history">History</h2>
+            <button type="button" class="sc-btn sc-small" id="sc-history-clear" data-i18n="calculator.app.clear_history">Clear history</button></div>
+          <label for="sc-hq" class="sc-visually-hidden" data-i18n="calculator.app.search_history">Search history</label>
+          <input id="sc-hq" class="sc-search" type="search" placeholder="Search history" data-i18n-attr="placeholder:calculator.app.search_history">
           <ul class="sc-hist" id="sc-history"></ul>
           <p class="sc-none" id="sc-history-none" hidden></p>
         </section>
 
         <section class="sc-panel" aria-labelledby="sc-conv-h">
-          <h2 id="sc-conv-h">Convert</h2>
-          <form class="sc-conv" id="sc-conv-form" aria-label="Convert units">
-            <label class="sc-label" for="sc-conv-value">Value</label>
+          <h2 id="sc-conv-h" data-i18n="calculator.app.convert">Convert</h2>
+          <form class="sc-conv" id="sc-conv-form" aria-label="Convert units" data-i18n-attr="aria-label:calculator.app.convert_units">
+            <label class="sc-label" for="sc-conv-value" data-i18n="calculator.app.value">Value</label>
             <input id="sc-conv-value" class="sc-expr sc-conv-value" type="text" inputmode="decimal" value="1" autocomplete="off">
-            <label class="sc-label" for="sc-conv-cat">Category</label>
+            <label class="sc-label" for="sc-conv-cat" data-i18n="calculator.app.category">Category</label>
             <select id="sc-conv-cat" class="sc-select"></select>
             <div class="sc-conv-pair">
-              <div><label class="sc-label" for="sc-conv-from">From</label><select id="sc-conv-from" class="sc-select"></select></div>
-              <button type="button" class="sc-btn sc-small" id="sc-conv-swap">Swap</button>
-              <div><label class="sc-label" for="sc-conv-to">To</label><select id="sc-conv-to" class="sc-select"></select></div>
+              <div><label class="sc-label" for="sc-conv-from" data-i18n="calculator.app.from">From</label><select id="sc-conv-from" class="sc-select"></select></div>
+              <button type="button" class="sc-btn sc-small" id="sc-conv-swap" data-i18n="calculator.app.swap">Swap</button>
+              <div><label class="sc-label" for="sc-conv-to" data-i18n="calculator.app.to">To</label><select id="sc-conv-to" class="sc-select"></select></div>
             </div>
           </form>
           <p class="sc-preview sc-conv-out" id="sc-conv-out" role="status" aria-live="polite"></p>
-          <p class="sc-note">Exact when the answer terminates. Otherwise rounded to 12 places and marked ≈.</p>
+          <p class="sc-note" data-i18n="calculator.app.exact_note">Exact when the answer terminates. Otherwise rounded to 12 places and marked ≈.</p>
         </section>
 
         <details class="sc-panel sc-rates" id="sc-rates">
-          <summary>Exchange rates</summary>
+          <summary data-i18n="calculator.app.rates">Exchange rates</summary>
           <p class="sc-note" id="sc-ledger-note"></p>
           <ul class="sc-rate-list" id="sc-rate-list"></ul>
           <form class="sc-rate-form" id="sc-rate-form">
-            <p class="sc-note">Enter a rate: 1 of the first currency equals the number of the second.</p>
+            <p class="sc-note" data-i18n="calculator.app.rate_note">Enter a rate: 1 of the first currency equals the number of the second.</p>
             <label>1 <input id="sc-rate-from" maxlength="3" placeholder="USD" autocomplete="off" required></label>
             <label>= <input id="sc-rate-factor" type="number" step="any" min="0" placeholder="0.92" required></label>
             <label><input id="sc-rate-to" maxlength="3" placeholder="EUR" autocomplete="off" required></label>
-            <button type="submit" class="sc-btn">Save rate</button>
+            <button type="submit" class="sc-btn" data-i18n="calculator.app.save_rate">Save rate</button>
           </form>
         </details>
       </aside>
@@ -185,7 +186,7 @@
   <script src="../shared/spotlight/spotlight.js"></script>
 <link rel="stylesheet" href="../shared/menubar/menubar.css">
 <script src="../shared/menubar/menubar.js"></script>
-<script>SlopMenuBar.mount({"app": "Slopculator", "menus": {"File": ["#sc-copy", "#sc-save", "#sc-cal"], "Edit": ["#sc-clear", "#sc-tape-clear", "#sc-vars-clear", "#sc-history-clear"], "Help": ["#sc-about"]}});</script>
+<script>SlopMenuBar.mount({ app: 'Slopculator', menus: { File: () => ['#sc-copy', '#sc-save', '#sc-cal'], Edit: () => ['#sc-clear', '#sc-tape-clear', '#sc-vars-clear', '#sc-history-clear'], Help: () => ['#sc-about'] } });</script>
   <script src="../shell/shell.js"></script>
 <i id="slop-built" hidden></i>
 </body>

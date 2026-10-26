@@ -12,7 +12,7 @@ const fontCss = (z = 1) => { const f = S.font; return `${f.italic ? 'italic ' : 
 const lineH = () => Math.round(S.font.size * 1.25);
 function createTextBox(x, y, w, hh) {
   const box = h('div', { class: 'textbox' });
-  const ta = h('textarea', { spellcheck: 'false', autocomplete: 'off', autocapitalize: 'off', 'aria-label': 'Text to insert into the picture' });
+  const ta = h('textarea', { spellcheck: 'false', autocomplete: 'off', autocapitalize: 'off', 'aria-label': P.t('paint-classic.app.text_aria') });
   box.append(ta);
   box.addEventListener('pointerdown', e => e.stopPropagation());
   ta.addEventListener('input', growText);

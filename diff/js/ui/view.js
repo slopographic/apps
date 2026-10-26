@@ -7,6 +7,7 @@ import { S } from './state.js';
 import { textTable, jsonTable, csvTable } from '../core/render.js';
 import { changes, summary } from '../core/kind.js';
 import { mountPicture } from './picture.js';
+import { t, tr } from './i18n.js';
 
 const $ = (id) => document.getElementById(id);
 let pic = null, pageIx = 0;
@@ -18,20 +19,20 @@ function changedPages() { return S.result.pdf.visual.map((p, i) => (p.count ? i 
 function drawPage(host) {
   const r = S.result, vis = r.pdf.visual;
   host.textContent = '';
-  if (!vis.length) { host.textContent = 'Neither PDF has a page to draw.'; return; }
+  if (!vis.length) { host.textContent = t('diff.view.no_pages'); return; }
   const bar = document.createElement('div');
   bar.className = 'df-pages';
   const sel = document.createElement('select');
-  sel.className = 'df-page-pick'; sel.setAttribute('aria-label', 'Page');
-  vis.forEach((p, i) => sel.append(new Option(`Page ${p.page}${p.missing ? ` (only in ${p.missing})` : p.count ? `: ${p.boxes.length} change${p.boxes.length === 1 ? '' : 's'}` : ': same'}`, String(i))));
+  sel.className = 'df-page-pick'; sel.setAttribute('aria-label', t('diff.view.page_aria'));
+  vis.forEach((p, i) => sel.append(new Option(p.missing ? t('diff.view.opt_only', { page: String(p.page), side: p.missing }) : p.count ? t('diff.view.opt_changes', { page: String(p.page), n: p.boxes.length }) : t('diff.view.opt_same', { page: String(p.page) }), String(i))));
   sel.value = String(pageIx);
   sel.addEventListener('change', () => { pageIx = Number(sel.value); drawPage(host); });
   bar.append(sel);
-  if (r.pdf.more) { const n = document.createElement('span'); n.className = 'df-note'; n.textContent = `The first ${vis.length} pages are compared as pictures.`; bar.append(n); }
+  if (r.pdf.more) { const n = document.createElement('span'); n.className = 'df-note'; n.textContent = t('diff.view.first_pages', { n: vis.length }); bar.append(n); }
   const box = document.createElement('div');
   host.append(bar, box);
   const p = vis[pageIx];
-  pic = mountPicture(box, { canvas: { a: p.canvas.a || p.canvas.diff, b: p.canvas.b || p.canvas.diff, diff: p.canvas.diff }, boxes: p.boxes, w: p.canvas.diff.width, h: p.canvas.diff.height, view: S.opts.imageView, label: `Page ${p.page} of A and B` });
+  pic = mountPicture(box, { canvas: { a: p.canvas.a || p.canvas.diff, b: p.canvas.b || p.canvas.diff, diff: p.canvas.diff }, boxes: p.boxes, w: p.canvas.diff.width, h: p.canvas.diff.height, view: S.opts.imageView, label: t('diff.view.page_label', { page: String(p.page) }) });
 }
 
 export function render() {
@@ -42,26 +43,26 @@ export function render() {
   const r = S.result, o = S.opts, words = { ignoreWs: o.ignoreWs, ignoreCase: o.ignoreCase };
   res.hidden = false;
   res.dataset.kind = r.kind;
-  if (r.kind === 'json') out.innerHTML = jsonTable(r.json);
-  else if (r.kind === 'csv') out.innerHTML = csvTable(r.csv);
+  if (r.kind === 'json') out.innerHTML = jsonTable(r.json, { tr });
+  else if (r.kind === 'csv') out.innerHTML = csvTable(r.csv, { tr });
   else if (r.kind === 'image') {
     const i = r.image;
     out.textContent = '';
-    if (i.note) { const n = document.createElement('p'); n.className = 'df-note'; n.textContent = i.note; out.append(n); }
+    if (i.note) { const n = document.createElement('p'); n.className = 'df-note'; n.textContent = i.size ? t('diff.view.size_note', { wa: i.size[0], ha: i.size[1], wb: i.size[2], hb: i.size[3] }) : i.note; out.append(n); }
     const box = document.createElement('div'); out.append(box);
     pic = mountPicture(box, { canvas: i.canvas, boxes: i.boxes, w: i.w, h: i.h, view: o.imageView });
   } else if (r.kind === 'pdf' && r.view === 'visual') {
     if (pageIx >= r.pdf.visual.length) pageIx = 0;
     drawPage(out);
-  } else out.innerHTML = textTable(r.text, { view: o.view, context: o.context, open: S.open, words, pages: r.kind === 'pdf' ? r.pdf.pages : null });
-  $('df-sum').textContent = summary(r);
+  } else out.innerHTML = textTable(r.text, { view: o.view, context: o.context, open: S.open, words, pages: r.kind === 'pdf' ? r.pdf.pages : null, tr });
+  $('df-sum').textContent = summary(r, tr);
   nav();
 }
 
 function nav() {
   const n = count();
   $('df-prev').disabled = $('df-next').disabled = !n;
-  $('df-pos').textContent = n ? (S.cur >= 0 ? `${S.cur + 1} of ${n}` : `${n} to go through`) : '';
+  $('df-pos').textContent = n ? (S.cur >= 0 ? t('diff.view.pos', { i: S.cur + 1, n }) : t('diff.view.to_go', { n })) : '';
 }
 
 export function at(i) {

@@ -45,27 +45,33 @@ export function changes(r) {
   return r.text.blocks.length + (r.text.stats.newlineOnly ? 1 : 0);
 }
 
-export function summary(r) {
+/** One sentence for a result. tr(key, english, vars): the page's translator (ui/i18n.js); the report passes none (English). */
+export function summary(r, tr = (k, en) => en) {
   if (!r) return '';
   const n = changes(r);
   if (r.kind === 'json') {
     const s = r.json.stats;
-    return n ? `${plural(n, 'difference')}: ${s.added} added, ${s.removed} removed, ${s.changed} changed.` : 'The two JSON documents hold the same data.';
+    return n ? tr('diff.sum.json', `${plural(n, 'difference')}: ${s.added} added, ${s.removed} removed, ${s.changed} changed.`, { n, added: s.added, removed: s.removed, changed: s.changed })
+      : tr('diff.sum.json_same', 'The two JSON documents hold the same data.');
   }
   if (r.kind === 'csv') {
     const s = r.csv.stats, cols = r.csv.added.length + r.csv.removed.length;
-    const rows = n ? `${plural(n, 'row')} differ: ${s.added} added, ${s.removed} removed, ${s.changed} changed (${plural(s.cells, 'cell')}).` : 'Every row is the same.';
-    return rows + (cols ? ` Columns: ${r.csv.added.length} added, ${r.csv.removed.length} removed.` : '') + (r.csv.key ? ` Rows matched by ${r.csv.key}.` : '');
+    const rows = n ? tr('diff.sum.csv', `${plural(n, 'row')} differ: ${s.added} added, ${s.removed} removed, ${s.changed} changed (${plural(s.cells, 'cell')}).`,
+      { n, added: s.added, removed: s.removed, changed: s.changed, cells: tr('diff.sum.cells', plural(s.cells, 'cell'), { n: s.cells }) }) : tr('diff.sum.csv_same', 'Every row is the same.');
+    return rows + (cols ? ' ' + tr('diff.sum.csv_cols', `Columns: ${r.csv.added.length} added, ${r.csv.removed.length} removed.`, { added: r.csv.added.length, removed: r.csv.removed.length }) : '')
+      + (r.csv.key ? ' ' + tr('diff.sum.csv_key', `Rows matched by ${r.csv.key}.`, { key: r.csv.key }) : '');
   }
   if (r.kind === 'image') {
-    const p = r.image.ratio * 100;
-    return n ? `${plural(n, 'changed area')}, ${p < 0.1 ? 'under 0.1' : p.toFixed(1)}% of the pixels.` : 'The pictures look the same at this threshold.';
+    const p = r.image.ratio * 100, pct = p < 0.1 ? tr('diff.sum.under', 'under 0.1') : p.toFixed(1);
+    return n ? tr('diff.sum.image', `${plural(n, 'changed area')}, ${pct}% of the pixels.`, { n, pct }) : tr('diff.sum.image_same', 'The pictures look the same at this threshold.');
   }
   if (r.kind === 'pdf' && r.view === 'visual') {
-    return n ? `${plural(n, 'page')} of ${Math.max(r.pdf.pagesA, r.pdf.pagesB)} ${n === 1 ? 'looks' : 'look'} different.` : 'Every page looks the same at this threshold.';
+    const of = Math.max(r.pdf.pagesA, r.pdf.pagesB);
+    return n ? tr('diff.sum.pages', `${plural(n, 'page')} of ${of} ${n === 1 ? 'looks' : 'look'} different.`, { n, of }) : tr('diff.sum.pages_same', 'Every page looks the same at this threshold.');
   }
   const s = r.text.stats;
-  if (!n) return r.kind === 'pdf' ? 'The text of the two PDFs is the same.' : 'The two texts are the same.';
-  if (s.newlineOnly) return 'The texts differ only in the line break at the end.';
-  return `${plural(n, 'change')}: +${s.added} −${s.removed} lines${s.changed ? ` (${plural(s.changed, 'line')} changed in place)` : ''}.`;
+  if (!n) return r.kind === 'pdf' ? tr('diff.sum.pdf_same', 'The text of the two PDFs is the same.') : tr('diff.sum.text_same', 'The two texts are the same.');
+  if (s.newlineOnly) return tr('diff.sum.newline', 'The texts differ only in the line break at the end.');
+  const inPlace = s.changed ? tr('diff.sum.in_place', ` (${plural(s.changed, 'line')} changed in place)`, { n: s.changed }) : '';
+  return tr('diff.sum.text', `${plural(n, 'change')}: +${s.added} −${s.removed} lines${inPlace}.`, { n, added: s.added, removed: s.removed, in_place: inPlace });
 }

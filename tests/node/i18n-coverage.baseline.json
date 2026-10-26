@@ -67,5 +67,113 @@
   "ar": 87,
   "sv": 87,
   "ja": 87
+ },
+ "aitools": {
+  "en": 50,
+  "sv": 50
+ },
+ "ocr": {
+  "en": 70,
+  "sv": 70
+ },
+ "html2pdf": {
+  "en": 58,
+  "sv": 58
+ },
+ "clean": {
+  "en": 50,
+  "sv": 50
+ },
+ "resize": {
+  "en": 73,
+  "sv": 73
+ },
+ "upscale": {
+  "en": 67,
+  "sv": 67
+ },
+ "watermark": {
+  "en": 75,
+  "sv": 75
+ },
+ "notes": {
+  "en": 78,
+  "sv": 78
+ },
+ "paste": {
+  "en": 75,
+  "sv": 75
+ },
+ "img3d": {
+  "en": 63,
+  "sv": 63
+ },
+ "sheetview": {
+  "en": 63,
+  "sv": 63
+ },
+ "hex": {
+  "en": 79,
+  "sv": 79
+ },
+ "eml": {
+  "en": 67,
+  "sv": 67
+ },
+ "checksum": {
+  "en": 57,
+  "sv": 57
+ },
+ "diff": {
+  "en": 68,
+  "sv": 68
+ },
+ "nodes": {
+  "en": 68,
+  "sv": 68
+ },
+ "serials": {
+  "en": 67,
+  "sv": 67
+ },
+ "transcribe": {
+  "en": 64,
+  "sv": 64
+ },
+ "recorder": {
+  "en": 59,
+  "sv": 59
+ },
+ "qr": {
+  "en": 83,
+  "sv": 83
+ },
+ "colors": {
+  "en": 66,
+  "sv": 66
+ },
+ "workflows": {
+  "en": 63,
+  "sv": 63
+ },
+ "calculator": {
+  "en": 84,
+  "sv": 84
+ },
+ "code": {
+  "en": 71,
+  "sv": 71
+ },
+ "sorter": {
+  "en": 62,
+  "sv": 62
+ },
+ "music": {
+  "en": 54,
+  "sv": 54
+ },
+ "paint-classic": {
+  "en": 86,
+  "sv": 86
  }
 }

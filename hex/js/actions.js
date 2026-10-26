@@ -11,10 +11,11 @@
   /** The Drive file the open tab is linked to (kept by the strip). */
   Object.defineProperty(app, 'driveId', { get: () => (app.cur && tabs().api() ? tabs().api().driveIdOf(app.cur) : null) });
   const MB = 1 << 20;
+  const t = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
 
   function status(msg) { const el = $('hx-status'); if (el) el.textContent = msg || ''; }
-  const plural = (n, w) => `${n.toLocaleString('en')} ${w}${n === 1 ? '' : 's'}`;
-  function sizeText(n) { return `${plural(n, 'byte')}${n >= 1024 ? ` (${SlopHub.fmtSize(n)})` : ''}`; }
+  const bytesN = (n) => t('hex.app.bytes', { n });
+  function sizeText(n) { return n >= 1024 ? t('hex.app.size', { bytes: bytesN(n), size: SlopHub.fmtSize(n) }) : bytesN(n); }
 
   /** The selected range as [lo, hi], or null. */
   function selRange() {
@@ -25,9 +26,9 @@
 
   function selText() {
     const r = selRange(), d = app.doc;
-    if (!r || !d) return 'None';
+    if (!r || !d) return t('ui.none');
     const [lo, hi] = r, n = hi - lo + 1;
-    return n === 1 ? `${HB().formatOffset(lo, d.size)} (1 byte)` : `${HB().formatOffset(lo, d.size)} to ${HB().formatOffset(hi, d.size)} (${plural(n, 'byte')})`;
+    return n === 1 ? t('hex.app.sel_one', { at: HB().formatOffset(lo, d.size) }) : t('hex.app.sel_range', { from: HB().formatOffset(lo, d.size), to: HB().formatOffset(hi, d.size), bytes: bytesN(n) });
   }
 
   /** Redraw everything that depends on the open file: name, info strip, buttons, the unsaved-changes guard. */
@@ -40,13 +41,13 @@
     $('hx-info').hidden = !has || blank;
     for (const id of ['hx-save', 'hx-saveas', 'hx-dl', 'hx-goto', 'hx-q', 'hx-next', 'hx-prev']) $(id).disabled = !has;
     if (!has) { $('hx-name').textContent = ''; document.title = 'Slop Hex'; if (window.SlopGuard) SlopGuard.setUnsaved('hex', false); return; }
-    const changed = d.changed ? ` · ${plural(d.changed, 'byte')} changed` : '';
-    $('hx-name').textContent = `${d.name}${d.dirty() ? ' · unsaved' : ''}${changed}`;
+    const changed = d.changed ? ' · ' + t('hex.app.changed', { n: d.changed }) : '';
+    $('hx-name').textContent = `${d.name}${d.dirty() ? ' · ' + t('hex.app.unsaved') : ''}${changed}`;
     document.title = `${d.name} · Slop Hex`;
     $('hx-size').textContent = sizeText(d.size);
     $('hx-sel').textContent = selText();
     const sha = $('hx-sha');
-    sha.textContent = T.shaBusy ? 'Computing…' : T.sha ? T.sha + (T.shaStale ? ' (before your edits)' : '') : '';
+    sha.textContent = T.shaBusy ? t('hex.app.computing') : T.sha ? T.sha + (T.shaStale ? ' ' + t('hex.app.before_edits') : '') : '';
     $('hx-sha-btn').hidden = !T.shaStale;
     if (window.SlopGuard) SlopGuard.setUnsaved('hex', tabs().anyDirty());
     updateType();
@@ -56,7 +57,7 @@
     const d = app.doc; if (!d) return;
     const tok = ++app.typeTok;
     const head = await d.readRange(0, Math.min(d.size, 1024));
-    if (tok === app.typeTok && app.doc === d) $('hx-type').textContent = HB().guessType(head);
+    if (tok === app.typeTok && app.doc === d) $('hx-type').textContent = HB().guessType(head);   // in the page's language (bytes.js)
   }
 
   /** The hash of the open file. Each tab keeps its own, so switching back shows the last one. */
@@ -67,7 +68,7 @@
     try {
       const h = await T.doc.sha256();
       T.sha = h; T.shaStale = false;
-    } catch (e) { if (tok === app.shaTok) $('hx-sha').textContent = 'Could not compute: ' + e.message; }
+    } catch (e) { if (tok === app.shaTok) $('hx-sha').textContent = t('hex.app.sha_failed', { error: e.message }); }
     T.shaBusy = false;
     refresh();
   }
@@ -106,13 +107,13 @@
     const pristine = tabs().current() && tabs().current().doc.size === 0 && !tabs().current().doc.dirty() && !(tabs().api().driveIdOf(tabs().current())) ? tabs().current() : null;
     tabs().open(blob, name, driveId, version);
     if (pristine && tabs().current() !== pristine) tabs().api().close(pristine);
-    status(blob.size ? `Opened ${name}` : `${name} is empty`);
+    status(blob.size ? t('hex.app.opened', { name }) : t('hex.app.empty_file', { name }));
     return true;
   }
 
   /* Open file… and Open from Slop Drive: sources of the one intake (main.js); a Drive file opens linked to its record. */
   const pickComputer = () => window.SlopIntake.pick({ to: 'hex', multiple: false });
-  const pickDrive = () => window.SlopIntake.fromDrive({ to: 'hex', title: 'Open in Slop Hex' });
+  const pickDrive = () => window.SlopIntake.fromDrive({ to: 'hex', title: t('hex.app.drive_title') });
 
   /** "photo.bin" -> "photo (v2).bin": the version goes before the extension, and an old version tag is replaced. */
   function versionName(name, n) {
@@ -136,7 +137,7 @@
     T.version = n; d.name = name; d.markSaved();
     tabs().changed(T);
     refresh();
-    SlopUI.toast(`Saved ${name} to Slop Drive`);
+    SlopUI.toast(t('hex.app.saved', { name }));
   }
 
   /** Save as new file: the strip's Save as a new Drive file (drive.js picks the folder). A cancel keeps the link. */
@@ -153,19 +154,19 @@
   function download() {
     const d = app.doc; if (!d) return;
     SlopUI.download(d.toBlob(), d.name);
-    status(`Downloaded ${d.name}`);
+    status(t('hex.app.downloaded', { name: d.name }));
   }
 
   async function copySel() {
     const d = app.doc, r = selRange();
     if (!d) return;
-    if (!r) { status('Select some bytes first'); return; }
+    if (!r) { status(t('hex.app.select_first')); return; }
     const [lo, hi] = r, n = hi - lo + 1;
-    if (n > MB) { status('Select up to 1 MB to copy'); return; }
+    if (n > MB) { status(t('hex.app.copy_max')); return; }
     const bytes = await d.readRange(lo, n);
     const text = Array.from(bytes, (b) => HB().hexOf(b)).join(' ');
-    try { await navigator.clipboard.writeText(text); SlopUI.toast(`Copied ${plural(n, 'byte')} as hex`); }
-    catch (e) { SlopUI.toast('Could not copy: ' + e.message); }
+    try { await navigator.clipboard.writeText(text); SlopUI.toast(t('hex.app.copied', { n })); }
+    catch (e) { SlopUI.toast(t('hex.app.copy_failed', { error: e.message })); }
   }
 
   function gotoOffset(text) {
@@ -173,7 +174,7 @@
     const r = HB().parseOffset(text, d.size);
     if (r.error) { status(r.error); return false; }
     app.grid.select(r.value, r.value);
-    status(`At ${HB().formatOffset(r.value, d.size)}`);
+    status(t('hex.app.at', { at: HB().formatOffset(r.value, d.size) }));
     return true;
   }
 
@@ -182,31 +183,34 @@
     const d = app.doc; if (!d) return;
     const q = $('hx-q').value, hex = $('hx-mode').value === 'hex';
     const pat = hex ? HB().parseHex(q) : (q.length ? HB().textBytes(q) : null);
-    if (!pat) { status(hex ? 'Enter whole hex bytes, like 4D 5A' : 'Enter some text to find'); return; }
-    if (pat.length > d.size) { status('Not found'); return; }
+    if (!pat) { status(hex ? t('hex.app.need_hex') : t('hex.app.need_text')); return; }
+    if (pat.length > d.size) { status(t('hex.app.not_found')); return; }
     const tok = ++app.findTok, stop = () => tok !== app.findTok;
-    status('Searching…');
+    status(t('hex.app.searching'));
     const r0 = selRange();
     let from = dir > 0 ? (r0 ? r0[1] + 1 : 0) : (r0 ? r0[0] - 1 : d.size - 1);
     let r = await d.find(pat, from, dir, stop);
     if (r === null) return;
     let wrapped = false;
     if (r < 0) { wrapped = true; r = await d.find(pat, dir > 0 ? 0 : d.size - 1, dir, stop); if (r === null) return; }
-    if (r < 0) { status('Not found'); return; }
+    if (r < 0) { status(t('hex.app.not_found')); return; }
     app.grid.select(r, r + pat.length - 1);
-    status(`${wrapped ? 'Wrapped. ' : ''}Found at ${HB().formatOffset(r, d.size)} (${plural(pat.length, 'byte')})`);
+    status(t(wrapped ? 'hex.app.found_wrapped' : 'hex.app.found', { at: HB().formatOffset(r, d.size), bytes: bytesN(pat.length) }));
   }
 
   function undo() {
     const r = app.doc && app.doc.undo();
-    if (!r) { status('Nothing to undo'); return; }
-    app.grid.select(r.at, r.at); app.grid.refresh(); changed(); status('Undone');
+    if (!r) { status(t('hex.app.no_undo')); return; }
+    app.grid.select(r.at, r.at); app.grid.refresh(); changed(); status(t('hex.app.undone'));
   }
   function redo() {
     const r = app.doc && app.doc.redo();
-    if (!r) { status('Nothing to redo'); return; }
-    app.grid.select(r.at, r.at); app.grid.refresh(); changed(); status('Redone');
+    if (!r) { status(t('hex.app.no_redo')); return; }
+    app.grid.select(r.at, r.at); app.grid.refresh(); changed(); status(t('hex.app.redone'));
   }
+
+  // a language change: the facts on the right (size, selection, type) again in the new language
+  if (window.SlopI18n && window.SlopI18n.on) window.SlopI18n.on(() => { if (app.grid && app.cur) refresh(); });
 
   window.HexApp = {
     app, status, refresh, changed, isOpen, openBlob, pickComputer, pickDrive, saveVersion, saveAs, download, copySel,

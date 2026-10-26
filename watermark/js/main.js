@@ -6,36 +6,36 @@
  * can be mixed in one batch. Classic script. */
 (function () {
   'use strict';
-  const $ = window.WMUtil.$;
+  const $ = window.WMUtil.$, t = window.WMUtil.t;
   const toast = (msg) => window.SlopUI.toast(msg);
   let bar = null, busy = false, run = null, dropZone = null, frame = null, side = null;
 
-  const nounOf = (items, n) => (items.every((x) => x.media === 'picture') ? (n === 1 ? 'picture' : 'pictures') : (n === 1 ? 'file' : 'files'));
+  const pics = (items) => items.every((x) => x.media === 'picture');
   /** The header (Open, Clear) and the panel's footer: the main action and what to do with the results. */
   function syncBar() {
     const items = window.WMItems.all(), n = items.length, outs = window.WMItems.outCount(), one = n === 1 && items[0].out;
     if (dropZone) dropZone.empty(!n); // the preview in the zone is for an empty page only
     $('wm-preview-box').hidden = !n; // the empty stage would only repeat the zone
     bar.setActions([
-      { id: 'open', label: 'Open files…', icon: 'open', disabled: busy, onClick: () => window.SlopIntake.pick({ to: 'watermark' }) },
-      { id: 'clear', label: 'Clear', disabled: busy || !n, onClick: clearAll },
+      { id: 'open', label: t('watermark.bar.open'), icon: 'open', disabled: busy, onClick: () => window.SlopIntake.pick({ to: 'watermark' }) },
+      { id: 'clear', label: t('watermark.bar.clear'), disabled: busy || !n, onClick: clearAll },
     ]);
-    bar.setMenu([{ id: 'drive', label: 'Save all to Slop Drive…', disabled: busy || !outs, onClick: saveAll }]);
+    bar.setMenu([{ id: 'drive', label: t('watermark.bar.save_all'), disabled: busy || !outs, onClick: saveAll }]);
     const O = window.SlopOuttake, openIn = one && O ? O.items({ get: () => items[0].out.blob, name: items[0].out.name, type: items[0].out.blob.type, from: 'watermark', folder: false }) : null;
     side.footer([
-      { id: 'wm-apply', label: n ? 'Watermark ' + n + ' ' + nounOf(items, n) : 'Watermark files', primary: true, disabled: busy || !n, run: applyAll },
-      { id: 'wm-zip', label: n > 1 ? 'Download all (ZIP)' : 'Download', disabled: busy || !outs, run: n > 1 ? downloadZip : () => window.WMExport.downloadOne(items[0]) },
-      { id: 'wm-drive', label: 'Save to Slop Drive…', disabled: busy || !outs, run: saveAll },
-      openIn && openIn.length ? { id: 'wm-openin', label: 'Open in…', menu: openIn } : null,
-    ], { stack: true, more: 'Settings' });
+      { id: 'wm-apply', label: n ? t(pics(items) ? 'watermark.foot.apply_n' : 'watermark.foot.apply_files_n', { n }) : t('watermark.foot.apply'), primary: true, disabled: busy || !n, run: applyAll },
+      { id: 'wm-zip', label: n > 1 ? t('watermark.foot.zip') : t('watermark.foot.download'), disabled: busy || !outs, run: n > 1 ? downloadZip : () => window.WMExport.downloadOne(items[0]) },
+      { id: 'wm-drive', label: t('watermark.foot.drive'), disabled: busy || !outs, run: saveAll },
+      openIn && openIn.length ? { id: 'wm-openin', label: t('watermark.foot.open_in'), menu: openIn } : null,
+    ], { stack: true, more: t('watermark.app.settings') });
     frame.setList(n > 1);
     const panel = window.WMSettings.panel();
     if (panel) panel.setMedia(window.WMItems.kinds());
   }
-  const saveAll = () => window.WMExport.saveAllToDrive(window.WMItems.all()).catch((e) => toast('Could not save: ' + e.message));
+  const saveAll = () => window.WMExport.saveAllToDrive(window.WMItems.all()).catch((e) => toast(t('watermark.toast.save_failed', { msg: e.message })));
   /** Changing the setup makes earlier results out of date: they are dropped, and the page says so. */
   function changed() {
-    if (window.WMItems.outCount()) { window.WMItems.clearOuts(); $('wm-run-note').textContent = 'The setup changed. Apply to all again to update the results.'; }
+    if (window.WMItems.outCount()) { window.WMItems.clearOuts(); $('wm-run-note').textContent = t('watermark.run.changed'); }
     window.WMList.render();
     window.WMPreview.schedule();
     syncBar();
@@ -49,14 +49,14 @@
     const pbar = $('wm-prog-bar');
     try {
       const res = await window.WMExport.applyAll(window.WMItems.all(), (item) => window.WMSettings.specFor(item.group),
-        (done, total, name, part) => { pbar.max = total; pbar.value = done + (part || 0); $('wm-prog-text').textContent = 'Writing ' + (done + 1) + ' of ' + total + ': ' + name + (part ? ' (' + Math.round(part * 100) + '%)' : ''); },
+        (done, total, name, part) => { pbar.max = total; pbar.value = done + (part || 0); $('wm-prog-text').textContent = t(part ? 'watermark.run.writing_part' : 'watermark.run.writing', { i: done + 1, total, name, pct: Math.round(part * 100) }); },
         run.signal);
-      const n = res.done, word = nounOf(window.WMItems.all(), n);
-      $('wm-run-note').textContent = res.stopped ? 'Stopped. ' + n + ' written.'
-        : res.failed ? n + ' written, ' + res.failed + ' could not be written (see the list).'
-        : 'Done: ' + n + ' ' + word + ' watermarked. Download each one, or all as a ZIP.';
+      const n = res.done;
+      $('wm-run-note').textContent = res.stopped ? t('watermark.run.stopped', { n })
+        : res.failed ? t('watermark.run.failed', { n, failed: res.failed })
+        : t(pics(window.WMItems.all()) ? 'watermark.run.done_pictures' : 'watermark.run.done_files', { n });
     } catch (err) {
-      toast('Could not apply the watermark: ' + ((err && err.message) || 'unknown error'));
+      toast(t('watermark.toast.apply_failed', { msg: (err && err.message) || t('watermark.toast.unknown') }));
     } finally {
       busy = false; run = null; showRun(false); window.WMList.render(); syncBar();
     }
@@ -79,9 +79,9 @@
     const W = window.SlopWatermark, exts = ['.png', '.jpg', '.jpeg', '.webp', '.avif', '.bmp', '.gif', '.svg', '.heic', '.heif', '.mp4', '.m4v', '.mov', '.webm', '.pdf'];
     window.SlopIntake.register({
       id: 'watermark',
-      accept: { types: W.ACCEPT.split(',').filter((t) => t.includes('/')), exts, noun: 'a picture, a video or a PDF' },
+      accept: { types: W.ACCEPT.split(',').filter((t) => t.includes('/')), exts, noun: t('watermark.drop.noun') },
       process: async (file) => {
-        if (window.WMItems.count() >= window.WMItems.MAX) throw new Error('the list is full (' + window.WMItems.MAX + ' files)');
+        if (window.WMItems.count() >= window.WMItems.MAX) throw new Error(t('watermark.drop.full', { n: window.WMItems.MAX }));
         return (await window.WMItems.add(file)).id;
       },
       after: added,
@@ -89,19 +89,31 @@
     dropZone = window.SlopDrop.attach($('wm-drop'), {
       intake: 'watermark',
       targets: [$('wm-drop'), $('wm-preview-box')],
-      label: 'Drop photos, videos or PDFs here',
-      hint: 'Pictures (PNG, JPEG, WebP, GIF, SVG, HEIC), videos (MP4, MOV, WebM) and PDFs, many at once. Read in this browser, never uploaded.',
-      preview: { picture: { src: '../assets/shots/watermark.jpg', alt: 'A sunset photo with a © text watermark in the bottom right corner' },
-        steps: ['Drop photos, videos and PDFs, many at once', 'Type your text or add a logo, pick a corner', 'Download them all as a ZIP'] },
-      sample: { label: 'Try it with 4 sample photos', files: () => window.SlopSamples.photos(4) },
+      label: t('watermark.drop.label'),
+      hint: t('watermark.drop.hint'),
+      preview: { picture: { src: '../assets/shots/watermark.jpg', alt: t('watermark.drop.alt') }, steps: STEPS.map((k) => t(k)) },
+      sample: { label: t('watermark.drop.sample'), files: () => window.SlopSamples.photos(4) },
       reveal: () => $('wm-list').lastElementChild,
     });
+    markDrop($('wm-drop'));
+  }
+
+  const STEPS = ['watermark.drop.step1', 'watermark.drop.step2', 'watermark.drop.step3'];
+  /** The zone's own words are drawn once (shared/drop/panel.js): marked, they follow a language change. */
+  function markDrop(zone) {
+    const mark = (node, key) => { if (node) node.dataset.i18n = key; };
+    mark(zone.querySelector('.sd-msg'), 'watermark.drop.label');
+    mark(zone.querySelector('.sd-msg + p'), 'watermark.drop.hint');
+    zone.querySelectorAll('.sd-steps li').forEach((li, i) => mark(li, STEPS[i]));
+    mark(zone.querySelector('.sd-sample'), 'watermark.drop.sample');
+    const img = zone.querySelector('.sd-pic img');
+    if (img) img.dataset.i18nAttr = 'alt:watermark.drop.alt';
   }
 
   /** Slop Workflows: this watermark as a Watermark step (shared/ops/flowdoc.js; the mapping is the operation's). */
   function addToWorkflow() {
     window.SlopFlowDoc.addToWorkflow({ id: 'watermark.apply' }, { settings: { spec: window.WMSettings.spec() } })
-      .catch((e) => toast('Could not open Slop Workflows: ' + e.message));
+      .catch((e) => toast(t('watermark.toast.workflows_failed', { msg: e.message })));
   }
 
   /** For the commands (commands.js, ai-commands.js): the page's own actions. */
@@ -110,11 +122,11 @@
   /** A file sent from another app or opened from Slop Drive (?drive=). */
   function boot() {
     bar = window.SlopAppBar.mount($('wm-bar'), {
-      home: '../', title: 'Slop Watermark', subtitle: 'Watermark photos, videos and PDFs at once with your logo or text. Nothing is uploaded.', actions: [], menu: [],
+      home: '../', title: 'Slop Watermark', subtitle: t('watermark.app.subtitle'), actions: [], menu: [],
     });
-    frame = window.SlopFrame.mount($('wm-main'), { list: $('wm-files'), view: $('wm-work'), panel: $('wm-panel'), panelLabel: 'Watermark',
+    frame = window.SlopFrame.mount($('wm-main'), { list: $('wm-files'), view: $('wm-work'), panel: $('wm-panel'), panelLabel: t('watermark.app.watermark'),
       storageKey: 'watermark', phone: '(max-width: 860px)', phoneButton: false, width: 340, min: 300, max: 520 });
-    side = window.SlopFrame.panel($('wm-panel'), { title: 'Watermark' });
+    side = window.SlopFrame.panel($('wm-panel'), { title: t('watermark.app.watermark') });
     side.render([{ key: 'settings', body: $('wm-settings-box') }]);
     $('wm-panel-open').addEventListener('click', () => frame.openSheet());
     $('wm-back').addEventListener('click', () => frame.showList());
@@ -128,12 +140,18 @@
     window.WMPreview.schedule();
     if (window.SlopHub) window.SlopHub.register('watermark');
     window.SlopIntake.launch({ to: 'watermark' });
+    // a language change: the header, the panel's title and footer, the list and the preview's note in the new language
+    window.WMUtil.onLang(() => {
+      bar.setSubtitle(t('watermark.app.subtitle'));
+      side.setTitle(t('watermark.app.watermark'));
+      window.WMList.render(); window.WMPreview.schedule(); syncBar();
+    });
   }
 
   document.addEventListener('DOMContentLoaded', () => {
     try { boot(); } catch (e) {
       console.error(e);
-      if (window.SlopUI) toast('Slop Watermark could not start: ' + e.message);
+      if (window.SlopUI) toast(t('watermark.toast.start_failed', { msg: e.message }));
     }
     document.body.classList.add('ready');
   });
