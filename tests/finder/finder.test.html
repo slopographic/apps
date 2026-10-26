@@ -201,6 +201,19 @@
       expect($('.fd-suggest a').getAttribute('href')).toBe('#pdf');
       f.destroy();
     });
+    it('the big search box: Enter opens the first result shown (its link is clicked); empty search does nothing', () => {
+      const card = (a) => { const d = document.createElement('div'); d.dataset.id = a.id; const x = document.createElement('a'); x.href = '#open-' + a.id; x.textContent = a.name; d.append(x); return d; };
+      const f = mountIt({ big: true, card });
+      const opened = [];
+      host().addEventListener('click', (e) => { const a = e.target.closest('a'); if (a) { e.preventDefault(); opened.push(a.getAttribute('href')); } });
+      const enter = () => $('.fd-input').dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));
+      enter();
+      expect(opened.length).toBe(0);
+      typeIn('invoic');
+      enter();
+      expect(opened).toEqual(['#open-inv']);
+      f.destroy();
+    });
   });
 
   run();

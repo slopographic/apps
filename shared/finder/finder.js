@@ -6,7 +6,7 @@
  *   placeholder, searchLabel, noun ('items' or ['item', 'items']), emptyText, resultsWhen ('filtered': cards view is hidden until a filter or search),
  *   facetsCollapsed (facets sit in a <details>), suggest {max, href(item), label(item), hint(item)} (a listbox under the
  *   search box; Enter opens the first one), autofocus (focuses the search box on mount), onChange(shown, filter),
- *   big (the large search box, without suggestions),
+ *   big (the large search box, without suggestions; Enter opens the first result shown),
  *   layout ('faucet': facets in a column on the left, the results on the right; stacked on narrow screens),
  *   rank(item, q) (a number; higher lists first when no column sort is chosen), view ('cards', 'list' or 'table': the view
  *   shown first, before the reader picks another).
@@ -97,6 +97,13 @@
       });
       search.addEventListener('blur', () => setTimeout(() => { suggest.hidden = true; search.setAttribute('aria-expanded', 'false'); }, 150));
       search.addEventListener('focus', () => { paintSuggest(); });
+    } else {
+      // without suggestions (the big search box): Enter opens the first result shown, as it would be clicked
+      search.addEventListener('keydown', (e) => {
+        if (e.key !== 'Enter' || e.isComposing || !st.q.trim()) return;
+        const link = results.querySelector('a[href]:not([tabindex="-1"])');
+        if (link) { e.preventDefault(); link.click(); }
+      });
     }
     search.addEventListener('input', () => { st = { ...st, q: search.value }; active = -1; update(); });
 
