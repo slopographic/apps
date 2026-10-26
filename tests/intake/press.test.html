@@ -18,7 +18,7 @@
   let W, D, seen = [], notices = 0, events = [];
   async function boot() {
     const fr = document.getElementById('app');
-    fr.src = '../../press/index.html?fresh';
+    fr.src = '../../press/index.html?new';
     await waitFor(() => fr.contentWindow && fr.contentWindow.document.querySelector('#app.ready') && fr.contentWindow.SlopIntake.spec('press'), { timeout: 30000 });
     W = fr.contentWindow; D = W.document;
     W.PR.store.enabled = false;

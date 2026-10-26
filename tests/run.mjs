@@ -35,7 +35,7 @@ import { parseShard, shardPages, pool, mergeTimings, longestFirst } from './shar
 import { attachNet, NET_DIR } from './netcache.mjs';
 import { parseNetUrls, NET_URLS } from './results.mjs';
 import { touchDevice, touchPage, isTouchPage, TOUCH_ARGS } from './touch.mjs';
-import { needsOf, unmet, loadFacts } from './needs.mjs';
+import { needsOf, unmet, loadFacts, englishFirst } from './needs.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const argv = process.argv.slice(2), flag = (name) => argv.find((a) => a === `--${name}` || a.startsWith(`--${name}=`));
@@ -96,8 +96,9 @@ if (nodeTests.length && !flag('skip-node')) {
 let pages = (await findTests(path.join(ROOT, 'tests'))).filter((p) => p.includes(filter)).sort();
 if (value('pages-file')) { const only = new Set((await readFile(value('pages-file'), 'utf8')).split(/\s+/).filter(Boolean)); pages = pages.filter((p) => only.has(p)); }
 // A page about a feature this build leaves out (<meta name="slop-test-needs">, tests/needs.mjs) is not run; it is named.
-{ const facts = loadFacts(), out = [];
-  pages = (await Promise.all(pages.map(async (p) => { const u = unmet(needsOf(await readFile(p, 'utf8')), facts); if (u.length) out.push(`${p} (${u.map((c) => `${c.key}=${c.values.join('|')}`).join('; ')})`); return u.length ? null : p; }))).filter(Boolean);
+const FACTS = loadFacts();
+{ const out = [];
+  pages = (await Promise.all(pages.map(async (p) => { const u = unmet(needsOf(await readFile(p, 'utf8')), FACTS); if (u.length) out.push(`${p} (${u.map((c) => `${c.key}=${c.values.join('|')}`).join('; ')})`); return u.length ? null : p; }))).filter(Boolean);
   if (out.length && !flag('needs-net')) console.log(c.d(`\nNot for this build (its brand facts, tests/brand-facts.js): ${out.sort().join(', ')}`)); }
 if (TOUCH) { pages = (await Promise.all(pages.map(async (p) => (isTouchPage(await readFile(p, 'utf8')) ? p : null)))).filter(Boolean); console.log(c.b(`\nTouch: ${pages.length} pages in ${ENGINE} as ${touchDevice(ENGINE, value('device')).name}`)); }
 const timings = JSON.parse(await readFile(TIMINGS, 'utf8').catch(() => '{}'));
@@ -127,6 +128,9 @@ async function runPage(browser, base, p, scale) {
   // A script error before the harness starts (a syntax error in the test page) would leave the page waiting for the full
   // timeout; the page notes the first error so the wait below can end early.
   await page.addInitScript(() => { addEventListener('error', () => { window.__SLOPTEST_ERR__ = window.__SLOPTEST_ERR__ || performance.now(); }); });
+  // A build that starts in another language: English is the choice before anything loads, so an app frame placed above
+  // harness.js does not boot in the start language and switch halfway (tests/english.js, tests/needs.mjs englishFirst).
+  if (englishFirst(await readFile(p, 'utf8'), FACTS)) { await page.addInitScript(() => { window.__SLOPTEST_ENGLISH__ = true; }); await page.addInitScript({ path: path.join(ROOT, 'tests', 'english.js') }); }
   const consoleErrors = [];
   page.on('pageerror', (e) => consoleErrors.push(e.message));
   page.on('console', (m) => { if (m.type() === 'error') consoleErrors.push(m.text()); });
