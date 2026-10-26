@@ -130,3 +130,19 @@ Register: address the user as «ви» (lowercase), as Microsoft Office, Google 
 | view mode Full / Focus / Content | Повний / Фокус / Вміст |  |
 | count forms | #one 1, 21… «файл»; #few 2–4 «файли»; #many 5–20 «файлів»; plain key = #many form |  |
 | app noun in a sentence | «{items}: поки нічого немає», «Панель «{label}»» | keeps any noun in the nominative |
+| ledger (the book) | головна книга | «журнал» is only the journal of entries; never call the ledger «журнал» |
+| journal | журнал |  |
+| credit note | кредитова нота | plural «кредитові ноти»; not «нотатка» (that is a note) |
+| quote (sales) | пропозиція | short for phones; no «комерційна» |
+| follow-up | наступний контакт |  |
+| reel (video) | ролик | not «стрічка» (stripe/tape is the calculator tape) |
+| timeline (video, effects) | часова шкала | projects Gantt also «часова шкала»; not «таймлайн» |
+| preset | пресет | a template is «шаблон», a preset is «пресет» |
+| layout (grid, label sheet) | макет | not «розкладка» |
+| cell (spreadsheet, grid) | клітинка | not «комірка» |
+| tag | тег | not «мітка»; «мітка» stays for print marks, black marks |
+| e-mail | е-пошта | in running text too; not «електронна пошта» |
+| choose / select | вибрати | «Виберіть»; not «оберіть» |
+| keyboard shortcuts | Сполучення клавіш | not «клавіатурні скорочення» |
+| typed amounts | 12,50 | examples in hints use the decimal comma; CSV messages keep the dot |
+| minute (duration hint) | хв | «90 хв» |
