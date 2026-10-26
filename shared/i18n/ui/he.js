@@ -63,7 +63,6 @@ window.SlopI18n && window.SlopI18n.add('he', {
   'ui.frame.resize_aria': 'שינוי גודל החלונית {label} (מקשי החצים; לחיצה כפולה מאפסת)',
   'ui.frame.resize_tip': 'גוררים כדי לשנות גודל. לחיצה כפולה: רוחב ברירת המחדל.',
   'ui.frame.reset_sizes': 'איפוס גודל החלוניות',
-  'ui.list.empty': 'אין עדיין {items}.',
   'ui.flow.from_to': '{from} ל-{to}',
   'ui.flow.file': 'קובץ',
   'ui.flow.file_lc': 'קובץ',

@@ -79,7 +79,7 @@
   function mount() {
     $('rMake').addEventListener('click', () => make());
     $('iDueMake').addEventListener('click', () => make());
-    list = g.SlopList.mount($('rRows'), { label: 'invoices.rp.label', noun: ['invoices.rp.schedule', 'invoices.rp.schedules'], summary: $('rSummary'),
+    list = g.SlopList.mount($('rRows'), { label: 'invoices.rp.label', count: 'invoices.rp.count', summary: $('rSummary'),
       empty: 'invoices.rp.empty', row, menu: menuFor,
       open: (x) => NS.app.go(`i/${x.lastInvoiceId || x.sourceInvoiceId}`) });
   }

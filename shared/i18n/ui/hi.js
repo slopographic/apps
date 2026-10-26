@@ -61,7 +61,6 @@ window.SlopI18n && window.SlopI18n.add('hi', {
   'ui.frame.resize_aria': '{label} पैनल का आकार बदलें (तीर कुंजियां; डबल-क्लिक से रीसेट)',
   'ui.frame.resize_tip': 'आकार बदलने के लिए खींचें। डबल-क्लिक: डिफ़ॉल्ट चौड़ाई।',
   'ui.frame.reset_sizes': 'पैनल का आकार रीसेट करें',
-  'ui.list.empty': 'अभी कोई {items} नहीं है।',
   'ui.flow.from_to': '{from} से {to}',
   'ui.flow.file': 'फ़ाइल',
   'ui.flow.file_lc': 'फ़ाइल',

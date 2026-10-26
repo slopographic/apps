@@ -10,8 +10,8 @@ finds in its code (`node tools/i18n/i18n.mjs extract <app>` lists them). The rat
 | Table | Keys | en | es | fr | de | pt-BR | it | ar | sv | zh-CN | zh-TW | ja | ko | hi | ru | uk | pl | nl | tr | id | vi | he | sw | am | ha | yo | ig | zu | xh | af |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | Shared chrome (header, switcher, footer, Settings) | 249 | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% |
-| Shared components (shared/i18n/ui) | 220 | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% |
-| Shared components, more (shared/i18n/ui/<code>/) | 3156 | 100% | 100% | 100% | 100% | 100% | 0% | 100% | 100% | 100% | 0% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
+| Shared components (shared/i18n/ui) | 219 | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% |
+| Shared components, more (shared/i18n/ui/<code>/) | 3155 | 100% | 100% | 100% | 100% | 100% | 0% | 100% | 100% | 100% | 0% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
 | Shared biz (shared/biz/i18n/) | 349 | 100% | 100% | 100% | 100% | 100% | 0% | 100% | 100% | 100% | 0% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
 
 Shared code (shell/, shared/) still has 2974 hard-coded strings; most belong to one app family (office, biz, watermark, ...).
@@ -44,7 +44,7 @@ Shared code (shell/, shared/) still has 2974 hard-coded strings; most belong to 
 | 22 | Slop Inventory | inventory | 299 | 294 | 5 | 0 of 29 |
 | 23 | Slop Ledger | ledger | 275 | 272 | 3 | 0 of 29 |
 | 24 | Slop Resize | resize | 275 | 202 | 73 | 0 of 29 |
-| 25 | Slop Invoices | invoices | 262 | 262 | 0 | 9 of 29 |
+| 25 | Slop Invoices | invoices | 259 | 259 | 0 | 9 of 29 |
 | 26 | Slop Paint Classic | paint-classic | 257 | 228 | 29 | 0 of 29 |
 | 27 | Slop Projects | projects | 253 | 252 | 1 | 0 of 29 |
 | 28 | Slop AI Tools | aitools | 240 | 156 | 84 | 0 of 29 |
@@ -59,8 +59,8 @@ Shared code (shell/, shared/) still has 2974 hard-coded strings; most belong to 
 | 37 | Slop Colors | colors | 174 | 116 | 58 | 0 of 29 |
 | 38 | Slop Upscale | upscale | 173 | 120 | 53 | 0 of 29 |
 | 39 | Slop Hex | hex | 162 | 132 | 30 | 0 of 29 |
-| 40 | Slop Expenses | expenses | 159 | 159 | 0 | 9 of 29 |
-| 41 | Slop Calendar | calendar | 158 | 158 | 0 | 9 of 29 |
+| 40 | Slop Calendar | calendar | 158 | 158 | 0 | 9 of 29 |
+| 41 | Slop Expenses | expenses | 158 | 158 | 0 | 9 of 29 |
 | 42 | Slop Time | time | 152 | 152 | 0 | 9 of 29 |
 | 43 | Slop Transcribe | transcribe | 150 | 96 | 54 | 0 of 29 |
 | 44 | Slopnodes | nodes | 146 | 99 | 47 | 0 of 29 |
@@ -68,16 +68,16 @@ Shared code (shell/, shared/) still has 2974 hard-coded strings; most belong to 
 | 46 | Slop Watermark | watermark | 138 | 104 | 34 | 0 of 29 |
 | 47 | Slop Signature | signature | 136 | 135 | 1 | 0 of 29 |
 | 48 | Slop Sheets | sheetview | 122 | 78 | 44 | 0 of 29 |
-| 49 | Slop Orders | orders | 119 | 118 | 1 | 0 of 29 |
-| 50 | Slop Purchases | purchases | 116 | 116 | 0 | 9 of 29 |
+| 49 | Slop Orders | orders | 118 | 117 | 1 | 0 of 29 |
+| 50 | Slop Purchases | purchases | 115 | 115 | 0 | 9 of 29 |
 | 51 | Slop Reports | reports | 115 | 111 | 4 | 0 of 29 |
-| 52 | Slop Timesheets | timesheets | 112 | 112 | 0 | 9 of 29 |
+| 52 | Slop Timesheets | timesheets | 111 | 111 | 0 | 9 of 29 |
 | 53 | Slop Admin | admin | 110 | 110 | 0 | 9 of 29 |
 | 54 | Slop Image to 3D | img3d | 109 | 74 | 35 | 0 of 29 |
 | 55 | Slop OCR | ocr | 109 | 75 | 34 | 0 of 29 |
 | 56 | Paste | paste | 107 | 84 | 23 | 0 of 29 |
 | 57 | Slop To-do | todo | 107 | 107 | 0 | 9 of 29 |
-| 58 | Slop Quotes | quotes | 105 | 105 | 0 | 9 of 29 |
+| 58 | Slop Quotes | quotes | 104 | 104 | 0 | 9 of 29 |
 | 59 | Slopculator | calculator | 94 | 79 | 15 | 0 of 29 |
 | 60 | Slop HTML to PDF | html2pdf | 85 | 49 | 36 | 0 of 29 |
 | 61 | Slop Photo Sorter | sorter | 72 | 45 | 27 | 0 of 29 |
@@ -85,7 +85,7 @@ Shared code (shell/, shared/) still has 2974 hard-coded strings; most belong to 
 | 63 | Slop Reminders | reminders | 44 | 44 | 0 | 9 of 29 |
 | 64 | Checksum | checksum | 42 | 24 | 18 | 0 of 29 |
 
-Total: 22067 strings in 64 apps.
+Total: 22059 strings in 64 apps.
 
 ## Apps with tables, per language
 
@@ -130,8 +130,8 @@ Total: 22067 strings in 64 apps.
 | colors | 66% | 66% | 66% | 66% | 66% | 0% | 66% | 66% | 66% | 0% | 66% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
 | upscale | 69% | 69% | 69% | 69% | 69% | 0% | 69% | 69% | 69% | 0% | 69% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
 | hex | 81% | 81% | 81% | 81% | 81% | 0% | 81% | 81% | 81% | 0% | 81% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
-| expenses | 100% | 100% | 100% | 100% | 100% | 0% | 100% | 100% | 100% | 0% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
 | calendar | 100% | 100% | 100% | 100% | 100% | 0% | 100% | 100% | 100% | 0% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
+| expenses | 100% | 100% | 100% | 100% | 100% | 0% | 100% | 100% | 100% | 0% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
 | time | 100% | 100% | 100% | 100% | 100% | 0% | 100% | 100% | 100% | 0% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
 | transcribe | 64% | 64% | 64% | 64% | 64% | 0% | 64% | 64% | 64% | 0% | 64% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
 | nodes | 67% | 67% | 67% | 67% | 67% | 0% | 67% | 67% | 67% | 0% | 67% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |

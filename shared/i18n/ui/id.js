@@ -61,7 +61,6 @@ window.SlopI18n && window.SlopI18n.add('id', {
   'ui.frame.resize_aria': 'Ubah ukuran panel {label} (tombol panah; klik dua kali untuk menyetel ulang)',
   'ui.frame.resize_tip': 'Seret untuk mengubah ukuran. Klik dua kali: lebar default.',
   'ui.frame.reset_sizes': 'Setel ulang ukuran panel',
-  'ui.list.empty': 'Belum ada {items}.',
   'ui.flow.from_to': '{from} ke {to}',
   'ui.flow.file': 'File',
   'ui.flow.file_lc': 'file',

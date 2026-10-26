@@ -61,7 +61,6 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'ui.frame.resize_aria': '{label} 패널 크기 조정(화살표 키, 두 번 클릭하면 초기화)',
   'ui.frame.resize_tip': '끌어서 크기를 조정합니다. 두 번 클릭: 기본 너비.',
   'ui.frame.reset_sizes': '패널 크기 초기화',
-  'ui.list.empty': '아직 {items} 항목이 없습니다.',
   'ui.flow.from_to': '{from} → {to}',
   'ui.flow.file': '파일',
   'ui.flow.file_lc': '파일',

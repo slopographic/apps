@@ -62,7 +62,6 @@ window.SlopI18n && window.SlopI18n.add('sw', {
   'ui.frame.resize_aria': 'Badilisha ukubwa wa kidirisha cha {label} (vitufe vya mishale; bofya mara mbili kurejesha)',
   'ui.frame.resize_tip': 'Buruta kubadilisha ukubwa. Bofya mara mbili: upana chaguo-msingi.',
   'ui.frame.reset_sizes': 'Weka upya ukubwa wa vidirisha',
-  'ui.list.empty': 'Bado hakuna {items}.',
   'ui.flow.from_to': '{from} hadi {to}',
   'ui.flow.file': 'Faili',
   'ui.flow.file_lc': 'faili',

@@ -63,7 +63,6 @@ window.SlopI18n && window.SlopI18n.add('xh', {
   'ui.frame.resize_aria': 'Tshintsha ubungakanani bephaneli: {label} (izitshixo zeentolo; ukucofa kabini kuyaseta kwakhona)',
   'ui.frame.resize_tip': 'Rhuqa ukutshintsha ubungakanani. Cofa kabini: ububanzi obumiselweyo.',
   'ui.frame.reset_sizes': 'Seta kwakhona ubungakanani beephaneli',
-  'ui.list.empty': 'Akukho {items} okwangoku.',
   'ui.flow.from_to': 'Ukusuka: {from}, ukuya: {to}',
   'ui.flow.file': 'Ifayile',
   'ui.flow.file_lc': 'ifayile',

@@ -61,7 +61,6 @@ window.SlopI18n && window.SlopI18n.add('es', {
   'ui.frame.resize_aria': 'Cambiar el tamaño del panel {label} (teclas de flecha; doble clic para restablecer)',
   'ui.frame.resize_tip': 'Arrastra para cambiar el tamaño. Doble clic: ancho predeterminado.',
   'ui.frame.reset_sizes': 'Restablecer el tamaño de los paneles',
-  'ui.list.empty': 'Aún no hay {items}.',
   'ui.flow.from_to': '{from} a {to}',
   'ui.flow.file': 'Archivo',
   'ui.flow.file_lc': 'archivo',

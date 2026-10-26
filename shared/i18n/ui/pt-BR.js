@@ -63,7 +63,6 @@ window.SlopI18n && window.SlopI18n.add('pt-BR', {
   'ui.frame.resize_aria': 'Redimensionar o painel {label} (teclas de seta; clique duplo redefine)',
   'ui.frame.resize_tip': 'Arraste para redimensionar. Clique duplo: a largura padrão.',
   'ui.frame.reset_sizes': 'Redefinir tamanhos dos painéis',
-  'ui.list.empty': 'Ainda não há {items}.',
   'ui.flow.from_to': '{from} para {to}',
   'ui.flow.file': 'Arquivo',
   'ui.flow.file_lc': 'arquivo',
