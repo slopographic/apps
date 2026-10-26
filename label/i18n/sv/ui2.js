@@ -28,6 +28,8 @@ window.SlopI18n && window.SlopI18n.add('sv', {
   'label.props.corners': 'Hörn',
   'label.props.corner_radius': 'Hörnradie',
   'label.props.choose_an_avery_herma_sheet': 'Välj ett Avery/Herma-ark eller en termorulle',
+  'label.props.stock_sheet': 'Ark',
+  'label.props.stock_roll': 'Rulle',
   'label.props.margin': 'Marginal',
   'label.props.show_grid': 'Visa rutnät',
   'label.props.pick_a_tool_on_the': 'Välj ett verktyg till vänster och klicka på etiketten för att lägga till text, streckkoder, QR-koder, bilder och former. Dra för att flytta, Alt-dra för att ignorera fästning.',

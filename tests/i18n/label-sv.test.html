@@ -68,6 +68,12 @@
       expect(t.title).toBe('Rundtur i SlopLabel');
       expect(t.steps[0].title).toBe('Etikettinställningar');
       expect(KEY.test(visible(doc))).toBe(false);
+      // a stock with no name of its own read "Sheet" or "Roll" in every language
+      const App = w.eval('App'), body = doc.createElement('div'), name = App.doc.stock.name;
+      App.doc.stock.name = '';
+      w.eval('renderLabelProps')(body);
+      App.doc.stock.name = name;
+      expect([...body.querySelectorAll('button')].some((b) => /^(Ark|Rulle)$/.test(b.textContent.trim()))).toBe(true);
     });
 
     it('switching to English live switches back, then Swedish again', async () => {

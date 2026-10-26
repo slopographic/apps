@@ -28,6 +28,8 @@ window.SlopI18n && window.SlopI18n.add('en', {
   'label.props.corners': 'Corners',
   'label.props.corner_radius': 'Corner radius',
   'label.props.choose_an_avery_herma_sheet': 'Choose an Avery/Herma sheet or a thermal roll',
+  'label.props.stock_sheet': 'Sheet',
+  'label.props.stock_roll': 'Roll',
   'label.props.margin': 'Margin',
   'label.props.show_grid': 'Show grid',
   'label.props.pick_a_tool_on_the': 'Pick a tool on the left and click the label to add text, barcodes, QR codes, images and shapes. Drag to move, Alt-drag to ignore snapping.',
