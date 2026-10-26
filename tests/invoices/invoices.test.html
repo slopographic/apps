@@ -7,6 +7,9 @@
 </head>
 <body>
   <script src="../harness.js"></script>
+  <script src="../../shared/i18n/i18n.js"></script>
+  <script src="../../shared/biz/i18n/en/biz.js"></script>
+  <script src="../../shared/biz/i18n/en/print.js"></script>
   <script src="../../shared/data/money.js"></script>
   <script src="../../shared/data/barcode.js"></script>
   <script src="../../shared/data/schema-checks.js"></script><script src="../../shared/data/schema-defs.js"></script>
@@ -168,7 +171,7 @@
       expect(text).toContain(money(2900));
       expect(text).toContain('Acme Ltd');
       expect(text).toContain('Widget');
-      expect(text).toContain('Due 2026-11-10');
+      expect(text).toContain('Due 11/10/2026');   // the document's language (English here) formats the date
       expect(sheet.querySelectorAll('tbody tr')).toHaveLength(2);
     });
     it('the invoice PDF has one page when the PDF option is used', async () => {

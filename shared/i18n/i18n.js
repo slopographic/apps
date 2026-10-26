@@ -6,14 +6,8 @@
  * from English, so a page never shows an empty label. quality: 'beta' marks a table that has not had a native review.
  * Storage: the choice is kept in SlopProfile under appId 'lang', key 'mode' (default DEFAULT_CHOICE: 'en', or the brand
  * profile's defaultLang in a white-label build; opts.defaultLang in create() overrides it).
- * Use: t(key, vars) gives the text (English when the language lacks the key, the key itself when English lacks it too).
- * A number vars.n picks a plural form: 'key#one', 'key#few', ... (Intl.PluralRules of the language), else 'key'.
- * apply() sets lang and dir on <html> and replaces the text of [data-i18n="key"] elements and the attributes listed in
- * [data-i18n-attr="attr:key"] (several separated by ';'), filling {placeholders} from the element's data-i18n-vars (JSON)
- * and {brand} from the brand profile (brand/brand.js). num(), date(), money(), list() format with Intl in the language.
- * label(v, vars): t(v) when v is a known key, v() when a function, else v (how shared components take labels).
- * on(fn) calls fn whenever the language changes and its tables are in (the 'slopi18n' event on window).
- * create(opts) makes an independent instance (used by the node tests). See shared/i18n/HANDOFF.md and APPS-HOWTO.md. */
+ * The API (t and plurals, apply and data-i18n marks, num/date/money/list, label, on, at, shipped, create) is described in
+ * shared/i18n/HANDOFF.md, section "The SlopI18n API"; APPS-HOWTO.md is the recipe. */
 (function (g) {
   'use strict';
   var L = function (code, name, en, dir, extra) { return Object.freeze(Object.assign({ code: code, name: name, en: en, dir: dir, complete: true }, extra || {})); };
@@ -86,12 +80,12 @@
       var t = tables[code];
       return t && Object.prototype.hasOwnProperty.call(t, key) && typeof t[key] === 'string' ? t[key] : null;
     }
-    function fill(s, vars) {
+    function fill(s, vars, loc) {
       if (!vars) return s;
       return s.replace(KEY_RE, function (m, name) {
         if (!Object.prototype.hasOwnProperty.call(vars, name)) return m;
         var v = vars[name];
-        return typeof v === 'number' ? num(v) : String(v);
+        return typeof v === 'number' ? num(v, undefined, loc) : String(v);
       });
     }
     /** The CLDR plural category of n in a language: 'one', 'few', 'many', 'other', ... ('other' without Intl). */
@@ -108,13 +102,14 @@
       var b = g.SlopBrand && g.SlopBrand.config;
       return b && typeof b.name === 'string' && b.name ? b.name : 'Slopographic';
     }
-    /** Text for a key in the chosen language, falling back to English, then to the key itself. */
-    function t(key, vars) {
-      var s = lookup(get(), key, vars);
+    /** Text for a key in a language (numbers in vars formatted for loc), falling back to English, then to the key itself. */
+    function tr(code, key, vars, loc) {
+      var s = lookup(code, key, vars);
       if (s === null) s = lookup(DEFAULT, key, vars);
       if (s === null) return key;
-      return fill(s, Object.assign({ brand: brand() }, vars || {}));
+      return fill(s, Object.assign({ brand: brand() }, vars || {}), loc);
     }
+    function t(key, vars) { return tr(get(), key, vars); }   // in the chosen language
     /** True when the key has a string in the chosen language or in English. */
     function has(key) { return find(get(), key) !== null || find(DEFAULT, key) !== null; }
     /** A label a shared component was given: a function is called, a string that is a key is translated, any other
@@ -125,16 +120,24 @@
       if (!dict || typeof dict !== 'object') return;
       tables[code] = Object.assign(tables[code] || {}, dict);
     }
-    /* ---- Intl, in the chosen language */
-    function intl(kind, opt) {
-      var code = get(), id = kind + code + JSON.stringify(opt || {});
+    /* ---- Intl, in the chosen language (or in loc, a locale such as sv or en-GB) */
+    function intl(kind, opt, loc) {
+      var code = loc || get(), id = kind + code + JSON.stringify(opt || {});
       if (!fmts[id]) { try { fmts[id] = new Intl[kind](code, opt); } catch (e) { fmts[id] = new Intl[kind]('en', opt); } }
       return fmts[id];
     }
-    function num(n, opt) { return typeof n === 'number' && isFinite(n) ? intl('NumberFormat', opt).format(n) : String(n); }
-    function date(d, opt) { var v = d instanceof Date ? d : new Date(d); return isNaN(v) ? '' : intl('DateTimeFormat', opt || { dateStyle: 'medium' }).format(v); }
-    function money(n, currency, opt) { return num(n, Object.assign({ style: 'currency', currency: currency || 'EUR' }, opt || {})); }
-    function listOf(items, opt) { try { return intl('ListFormat', opt || { type: 'conjunction' }).format(items.map(String)); } catch (e) { return items.join(', '); } }
+    function num(n, opt, loc) { return typeof n === 'number' && isFinite(n) ? intl('NumberFormat', opt, loc).format(n) : String(n); }
+    function date(d, opt, loc) { var v = d instanceof Date ? d : new Date(d); return isNaN(v) ? '' : intl('DateTimeFormat', opt || { dateStyle: 'medium' }, loc).format(v); }
+    function money(n, currency, opt, loc) { return num(n, Object.assign({ style: 'currency', currency: currency || 'EUR' }, opt || {}), loc); }
+    function listOf(items, opt, loc) { try { return intl('ListFormat', opt || { type: 'conjunction' }, loc).format(items.map(String)); } catch (e) { return items.join(', '); } }
+    /** One language's words and formats, the page unswitched: { code, locale (Intl's, default code), t, has, num, date, money, list }. */
+    function at(code, locale) {
+      var c = byCode[code] ? code : DEFAULT, loc = locale || c;
+      return Object.freeze({ code: c, locale: loc, t: function (key, vars) { return tr(c, key, vars, loc); },
+        has: function (key) { return find(c, key) !== null || find(DEFAULT, key) !== null; },
+        num: function (n, opt) { return num(n, opt, loc); }, date: function (d, opt) { return date(d, opt, loc); },
+        money: function (n, cur, opt) { return money(n, cur, opt, loc); }, list: function (items, opt) { return listOf(items, opt, loc); } });
+    }
 
     /** Sets lang and dir on <html>, and replaces the text and attributes of the marked elements. A key missing in the
      * chosen language and in English leaves the element as it is (the HTML holds the English text). */
@@ -191,14 +194,14 @@
         (doc.head || doc.documentElement).appendChild(s);
       }));
     }
-    /** Fetches the tables of every source for English and a language (default: the chosen one). Resolves once they ran. */
-    function need(code, parsing) {
+    /** Fetches the tables of every source (or of source ns) for English and a language (default: the chosen one). Resolves once they ran. */
+    function need(code, parsing, ns) {
       code = code || get();
       if (!doc || !doc.createElement || offline()) return Promise.resolve(true);
-      style(code, parsing);
+      if (!ns) style(code, parsing);
       var codes = code === DEFAULT ? [DEFAULT] : [DEFAULT, code];
       var p = [];
-      sources.forEach(function (src) { codes.forEach(function (c) { src.files(c).forEach(function (u) { p.push(fetchOne(u, parsing)); }); }); });
+      sources.forEach(function (src) { if (!ns || src.ns === ns) codes.forEach(function (c) { src.files(c).forEach(function (u) { p.push(fetchOne(u, parsing)); }); }); });
       var all = Promise.all(p);
       pending.push(all);
       return all;
@@ -212,7 +215,7 @@
       var files = spec.files || function (code) {
         return (spec.langs || [DEFAULT]).indexOf(code) < 0 ? [] : (spec.parts || ['main']).map(function (p) { return spec.base + code + '/' + p + '.js'; });
       };
-      sources.push({ ns: spec.ns, files: files });
+      sources.push({ ns: spec.ns, files: files, langs: spec.files ? null : (spec.langs || [DEFAULT]) });
       var parsing = !!(doc && doc.readyState === 'loading' && doc.currentScript && !doc.currentScript.hasAttribute('data-late'));
       need(get(), parsing).then(function () { if (!parsing) changed(); });
     }
@@ -283,6 +286,8 @@
       date: date,
       money: money,
       list: listOf,
+      at: at,
+      shipped: function (ns) { var s = sources.filter(function (x) { return x.ns === ns; })[0]; return s && s.langs ? s.langs.slice() : []; },
       create: create,
     };
   }

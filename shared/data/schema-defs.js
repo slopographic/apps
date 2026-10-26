@@ -86,7 +86,8 @@
     settings: { key: 'id', singleton: 'main', fields: {
       id: F.id({ req: true, def: 'main' }), companyName: F.str({}), address: F.text({ max: 1000 }), taxNumber: F.str({ max: 60 }),
       defaultCurrency: F.cur({ def: 'USD' }), locale: { t: 'locale', def: 'en-US' }, defaultTaxRate: F.rate({ def: 0 }),
-      paymentTermsDays: F.int({ min: 0, max: 365, def: 30 }), ratesUpdateOnOpen: F.bool({ def: false }) } },
+      paymentTermsDays: F.int({ min: 0, max: 365, def: 30 }), ratesUpdateOnOpen: F.bool({ def: false }),
+      docLang: { t: 'locale', max: 20 } } },   // the documents' language (SlopBiz.docLang, shared/biz/biz.js); absent: see the rule there
     // The first phone, e-mail and address are kept in phone, email and address (other apps read them). Each has a
     // label (mobile, work, home, other ...). Further values are in phones, emails and addresses ({ label, value }).
     customers: { key: 'id', softDelete: true, indexes: [{ name: 'name', key: 'name' }, { name: 'stage', key: 'stage' }, { name: 'categories', key: 'categories', multi: true }], fields: {
@@ -115,7 +116,7 @@
       id: F.id({ req: true }), number: F.str({ max: 40 }), customerId: F.id({ req: true }), date: F.date({ req: true }), currency: F.cur({}),
       status: F.en(ENUM.orderStatus, { def: 'draft' }), lines: { t: 'lines', min: 1, req: true }, subtotal: F.mny(), tax: F.mny(), total: F.mny(),
       notes: F.text({}), invoiceId: F.id({}), quoteId: F.id({}), sample: F.bool({}),
-      pdfSeed: F.int({ min: 0, max: 2147483647 }), pdfLayout: F.en(ENUM.pdfLayout, {}) } },
+      pdfSeed: F.int({ min: 0, max: 2147483647 }), pdfLayout: F.en(ENUM.pdfLayout, {}), docLang: { t: 'locale', max: 20 } } },
     invoices: { key: 'id', softDelete: true, derive: true, unique: ['number'], check: invoiceCheck, docCurrency: true,
       autoNumber: { seq: 'invoice', when: (r) => r.status !== 'draft' },
       removeRule: (r) => (r.status !== 'draft' ? 'issued invoices cannot be deleted; void them instead' : null),
@@ -125,7 +126,7 @@
       rateId: F.id({}), rate: F.fxRate({}), amountBase: F.mny({}),
       notes: F.text({}), orderId: F.id({}), quoteId: F.id({}), scheduleId: F.id({}), issuedAt: F.ts({}), sample: F.bool({}),
       credited: F.mny({}), refunded: F.mny({}),   // the credit notes on it, and the part of them paid back (shared/data/credits.js)
-      pdfSeed: F.int({ min: 0, max: 2147483647 }), pdfLayout: F.en(ENUM.pdfLayout, {}) } },
+      pdfSeed: F.int({ min: 0, max: 2147483647 }), pdfLayout: F.en(ENUM.pdfLayout, {}), docLang: { t: 'locale', max: 20 } } },
     // Quotes (estimates): a priced offer. Nothing is posted; an accepted quote becomes an order or a draft invoice (quotes.js).
     quotes: { key: 'id', derive: true, unique: ['number'], autoNumber: { seq: 'quote', when: () => true }, check: quoteCheck, docCurrency: true,
       noRemove: 'quotes cannot be deleted; decline them instead',
@@ -133,7 +134,7 @@
       id: F.id({ req: true }), number: F.str({ max: 40 }), customerId: F.id({ req: true }), date: F.date({ req: true }), validUntil: F.date({}),
       currency: F.cur({}), status: F.en(ENUM.quoteStatus, { def: 'draft' }), lines: { t: 'lines', min: 1, req: true }, subtotal: F.mny(), tax: F.mny(), total: F.mny(),
       notes: F.text({}), orderId: F.id({}), invoiceId: F.id({}), sample: F.bool({}),
-      pdfSeed: F.int({ min: 0, max: 2147483647 }), pdfLayout: F.en(ENUM.pdfLayout, {}) } },
+      pdfSeed: F.int({ min: 0, max: 2147483647 }), pdfLayout: F.en(ENUM.pdfLayout, {}), docLang: { t: 'locale', max: 20 } } },
     // Purchase orders: goods or services ordered from a supplier (customerId: a contact flagged supplier). Receiving puts the
     // product lines into stock, and the supplier's bill is recorded as an expense (shared/data/purchases.js, expenseId).
     purchases: { key: 'id', derive: true, unique: ['number'], autoNumber: { seq: 'purchase', when: () => true }, check: purchaseCheck, docCurrency: true,
@@ -142,7 +143,7 @@
       id: F.id({ req: true }), number: F.str({ max: 40 }), customerId: F.id({ req: true }), date: F.date({ req: true }), expectedDate: F.date({}),
       currency: F.cur({}), status: F.en(ENUM.purchaseStatus, { def: 'draft' }), lines: { t: 'lines', min: 1, req: true }, subtotal: F.mny(), tax: F.mny(), total: F.mny(),
       notes: F.text({}), receivedAt: F.date({}), location: F.str({ max: 40 }), expenseId: F.id({}), sample: F.bool({}),
-      pdfSeed: F.int({ min: 0, max: 2147483647 }), pdfLayout: F.en(ENUM.pdfLayout, {}) } },
+      pdfSeed: F.int({ min: 0, max: 2147483647 }), pdfLayout: F.en(ENUM.pdfLayout, {}), docLang: { t: 'locale', max: 20 } } },
     payments: { key: 'id', immutable: true, postingOnly: true, indexes: [{ name: 'invoiceId', key: 'invoiceId' }, { name: 'date', key: 'date' }], fields: {
       id: F.id({ req: true }), invoiceId: F.id({ req: true }), amount: F.mny({ req: true, min: 1 }), date: F.date({ req: true }),
       currency: F.cur({}), rateId: F.id({}), rate: F.fxRate({}), amountBase: F.mny({}),

@@ -38,13 +38,14 @@
     return r.ok ? ok(r.value.sort((a, b) => a.sku.localeCompare(b.sku))) : r;
   }
 
-  /** Saves the editor's form ({ id?, customerId, date, expectedDate?, currency?, notes, lines, pdfSeed?, pdfLayout? }). A new
+  /** Saves the editor's form ({ id?, customerId, date, expectedDate?, currency?, notes, lines, pdfSeed?, pdfLayout?, docLang? }). A new
    *  purchase order is a draft and takes a number; an existing one keeps its status. */
   async function save(form) {
     const base = { customerId: form.customerId, date: form.date, notes: form.notes, lines: form.lines };
     if (form.expectedDate !== undefined) base.expectedDate = form.expectedDate || undefined;
     if (form.currency) base.currency = form.currency;
     if (form.pdfLayout !== undefined) base.pdfLayout = form.pdfLayout || '';
+    if (form.docLang !== undefined) base.docLang = form.docLang || '';   // '' = the company's document language
     if (form.pdfSeed !== undefined && form.pdfSeed !== null) base.pdfSeed = form.pdfSeed;
     if (!form.id) return S.store.put('purchases', { ...base, pdfSeed: base.pdfSeed ?? g.SlopDocs.layouts.newSeed(), status: 'draft' });
     const cur = await S.store.get('purchases', form.id);

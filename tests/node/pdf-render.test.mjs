@@ -1,6 +1,8 @@
 // The shared PDF export (shared/docs/pdf-render.js) with the template set (pdf-layouts.js) and the view (doc-view.js), run in
 // a vm context with the vendored pdf-lib and the real money and schema code. The bytes start with %PDF and contain the
-// totals text; the same document gives the same bytes; a long table runs onto more pages; the seed picks the template.
+// totals text; the same document gives the same bytes; a long table runs onto more pages; the seed picks the template; the
+// printed words, money and dates follow the document's language (SlopBiz.docLang.words), whatever the page's language.
+// Covers: shared/biz/i18n/en/print.js, shared/biz/i18n/sv/print.js, shared/biz/biz.js
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
@@ -10,8 +12,12 @@ import { inflateSync } from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
-const FILES = ['shared/data/money.js', 'shared/data/barcode.js', 'shared/data/schema-checks.js', 'shared/data/schema-defs.js', 'shared/data/schema.js',
+const FILES = ['shared/i18n/i18n.js', 'shared/biz/biz.js', 'shared/biz/i18n/en/biz.js', 'shared/biz/i18n/en/print.js', 'shared/biz/i18n/sv/biz.js', 'shared/biz/i18n/sv/print.js',
+  'shared/data/money.js', 'shared/data/barcode.js', 'shared/data/schema-checks.js', 'shared/data/schema-defs.js', 'shared/data/schema.js',
   'shared/docs/model.js', 'shared/docs/pdf-layouts.js', 'shared/docs/doc-view.js', 'shared/docs/pdf-render.js'];
+
+// the page in English in any build (a white-label build may start in another language)
+const PIN = "window.SlopI18n = window.SlopI18n.create({ defaultLang: 'en', profile: null });";
 
 async function load() {
   const ctx = {};
@@ -21,9 +27,14 @@ async function load() {
   // pdf-lib runs in the same context as the code that calls it (arrays must share a realm for its instanceof checks)
   const lib = 'vendor/pdf-lib/pdf-lib.min.js';
   vm.runInContext(await readFile(path.join(ROOT, lib), 'utf8'), ctx, { filename: lib });
-  for (const f of FILES) vm.runInContext(await readFile(path.join(ROOT, f), 'utf8'), ctx, { filename: f });
+  for (const f of FILES) {
+    vm.runInContext(await readFile(path.join(ROOT, f), 'utf8'), ctx, { filename: f });
+    if (f === 'shared/i18n/i18n.js') vm.runInContext(PIN, ctx);
+  }
   return ctx;
 }
+
+const plain = (x) => JSON.parse(JSON.stringify(x));   // values from the vm's realm, for deepEqual
 
 const LINES = [
   { description: 'Widget', qty: 2, unitPrice: 1000, taxRate: 2000 },   // net 2000, tax 400
@@ -35,7 +46,7 @@ function docOf(ctx, extra = {}) {
   const S = ctx.SlopData;
   const lines = extra.lines || LINES;
   return {
-    kind: 'invoice', title: 'Invoice', id: 'inv-test', number: 'INV-0001', statusText: 'Issued',
+    kind: 'invoice', id: 'inv-test', number: 'INV-0001', status: 'issued', words: ctx.SlopBiz.docLang.words('en', 'en-US'),
     date: '2026-10-11', dueDate: '2026-11-10', notes: 'Thank you.\nPay by bank transfer within 30 days.',
     currency: 'USD', locale: 'en-US', lines, totals: ctx.SlopDocs.model.totals(lines),
     customer: { name: 'Acme Ltd', email: 'ap@acme.test', address: '2 High St\nLondon' },
@@ -99,6 +110,30 @@ test('a long table runs onto more pages and the document still loads with every 
   const pdf = await ctx.PDFLib.PDFDocument.load(r.value);
   assert.ok(pdf.getPageCount() >= 3, `expected several pages, got ${pdf.getPageCount()}`);
   assert.ok(pdfText(r.value).includes('Page 1 of '), 'the footer numbers the pages');
+});
+
+test('a Swedish document prints Swedish words, money and dates while the page stays English; stored text stays as written', async () => {
+  const ctx = await load();
+  assert.equal(ctx.SlopI18n.get(), 'en');
+  const w = ctx.SlopBiz.docLang.words('sv', 'en-US');   // a company locale of another language: the document's own (sv)
+  assert.equal(w.locale, 'sv');
+  const S = ctx.SlopData;
+  const view = ctx.SlopDocs.view.build(docOf(ctx, { words: w, currency: 'SEK', money: (m) => S.money.formatMinor(m, 'SEK', w.locale), pdfLayout: 'modern' }));
+  assert.equal(view.title, 'Faktura');
+  assert.equal(view.statusText, 'Utfärdad');
+  assert.deepEqual(plain(view.meta.map((m) => [m.label, m.value])), [['Datum', '2026-10-11'], ['Förfallodatum', '2026-11-10'], ['Betalningsvillkor', '30 dagar netto']]);
+  assert.deepEqual(plain(view.totals.map((x) => x.label.replace(/\s/g, ' '))), ['Summa exkl. moms', 'Moms 0 % på 5,00 kr', 'Moms 20 % på 20,00 kr', 'Totalt', 'Att betala']);
+  assert.equal(view.words.number, 'Fakturanummer');
+  assert.equal(view.rows[0].description, 'Widget', 'line text is stored data, not translated');
+  const text = pdfText((await ctx.SlopDocs.pdf.renderPdf(view)).value);
+  for (const s of ['FAKTURA', 'Att betala', 'F\u00f6rfallodatum', 'Moms 20 % p\u00e5', '29,00 kr', 'Sida 1 av 1', 'Momsreg.nr GB123456', 'BESKRIVNING', 'Acme Ltd', 'Thank you.']) {
+    assert.ok(text.includes(s), `the Swedish PDF has ${s}`);
+  }
+  assert.ok(!text.includes('Balance due') && !text.includes('Page 1 of'), 'no English words');
+  const en = ctx.SlopDocs.view.build(docOf(ctx));
+  assert.equal(en.title, 'Invoice');
+  assert.deepEqual(plain(en.meta.map((m) => m.value)), ['10/11/2026', '11/10/2026', '30 days net']);
+  assert.equal(en.meta[0].raw, '2026-10-11', 'the raw date is what the page edits');
 });
 
 test('the layout set has the five templates, and the schema accepts exactly their ids', async () => {

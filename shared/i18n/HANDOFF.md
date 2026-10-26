@@ -154,3 +154,17 @@ A change in another tab re-applies on `storage`.
   notifications (`shell/notify.js`) and the drawer (`shell/drawer.js`); their CSS is not mirrored yet (Right-to-left).
 - **Homepage and Settings** paragraphs that are not marked (privacy explanations, the exchange-rate and defaults bodies).
 - **SEO landing pages and guides** (`tools/seo`): English by design for now.
+
+## The SlopI18n API
+
+From the head comment of `shared/i18n/i18n.js` (kept here so the script stays under 300 lines):
+
+Use: t(key, vars) gives the text (English when the language lacks the key, the key itself when English lacks it too).
+A number vars.n picks a plural form: 'key#one', 'key#few', ... (Intl.PluralRules of the language), else 'key'.
+apply() sets lang and dir on <html> and replaces the text of [data-i18n="key"] elements and the attributes listed in
+[data-i18n-attr="attr:key"] (several separated by ';'), filling {placeholders} from the element's data-i18n-vars (JSON)
+and {brand} from the brand profile (brand/brand.js). num(), date(), money(), list() format with Intl in the language.
+label(v, vars): t(v) when v is a known key, v() when a function, else v (how shared components take labels).
+on(fn) calls fn whenever the language changes and its tables are in ('slopi18n' on window). at(code, locale): t/num/date/
+money/list in another language, the page unswitched (a printed document; need(code, false, ns) first); shipped(ns): its langs.
+create(opts) makes an independent instance (used by the node tests). See shared/i18n/HANDOFF.md and APPS-HOWTO.md.

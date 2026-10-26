@@ -73,7 +73,6 @@
   /** ISO date plus n days (UTC arithmetic, so the day never shifts). */
   const addDays = (iso, n) => S.ledger.addDays(iso, n);
 
-  const STATUS_LABEL = { draft: 'Draft', open: 'Confirmed', fulfilled: 'Fulfilled', cancelled: 'Cancelled' };   // i18n-ignore: status words printed on the document (the PDF and the paper)
 
-  NS.model = { bpFromPercent, percentText, amountFromText, amountText, newLine, cleanLine, lineErrors, totals, lineTotal, addDays, STATUS_LABEL };
+  NS.model = { bpFromPercent, percentText, amountFromText, amountText, newLine, cleanLine, lineErrors, totals, lineTotal, addDays };
 })(typeof window !== 'undefined' ? window : globalThis);

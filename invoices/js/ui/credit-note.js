@@ -9,28 +9,29 @@
   const h = U.h;
   const $ = (id) => document.getElementById(id);
   const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
-  // The credit note itself is a document the person prints: its own words stay the document's (i18n-ignore below)
-  const METHOD = { bank: 'bank transfer', cash: 'cash', card: 'card', other: 'other means' };   // i18n-ignore: the printed document's words stay as written
+  // The credit note itself is a document the person prints: its words are in its invoice's document language (SlopBiz.docLang)
 
   /** Draws the credit note, or says that it is gone. */
   async function show(id) {
     const cn = await S.store.get('creditNotes', id);
-    if (!cn.ok || !cn.value) { $('cnSheet').replaceChildren(h('p', { class: 'msg bad', text: t('invoices.cr.gone') })); return; }   // i18n-ignore: the printed document's words stay as written
+    if (!cn.ok || !cn.value) { $('cnSheet').replaceChildren(h('p', { class: 'msg bad', text: t('invoices.cr.gone') })); return; }   // i18n-ignore: CSS class names
     const c = cn.value;
     const [inv, cust, s] = await Promise.all([S.store.get('invoices', c.invoiceId), S.store.get('customers', c.customerId), U.settings()]);
     const invoice = inv.ok && inv.value ? inv.value : null, customer = cust.ok && cust.value ? cust.value : { name: '' };
-    const m = (v) => U.money(v, c.currency, s.locale);
+    const DL = g.SlopBiz.docLang, w = await DL.load(DL.pick(invoice && invoice.docLang, s.docLang), s.locale), tx = w.t;
+    const m = (v) => U.money(v, c.currency, w.locale);
     const lines = g.SlopBiz.sheet.lines;
     const row = (label, value, cls) => h('tr', { class: cls }, h('td', { text: label }), h('td', { class: 'num', text: value }));
-    $('cnSheet').replaceChildren(h('article', { class: 'doc-sheet credit-note' },
-      g.SlopBiz.sheet.head(s, 'Credit note', [`No. ${c.number}`, `Date ${c.date}`, invoice ? `For invoice ${invoice.number}` : null]),   // i18n-ignore: the printed document's words stay as written
-      h('div', { class: 'sheet-to' }, h('span', { class: 'sub', text: 'To' }), h('b', { text: customer.name }), ...[customer.email, ...lines(customer.address)].filter(Boolean).map((x) => h('div', { text: x }))),   // i18n-ignore: the printed document's words stay as written
-      h('p', { class: 'note', text: c.reason ? `Reason: ${c.reason}` : `Credit against invoice ${invoice ? invoice.number : ''}.` }),   // i18n-ignore: the printed document's words stay as written
+    const invNo = invoice ? invoice.number : '';
+    $('cnSheet').replaceChildren(h('article', { class: 'doc-sheet credit-note', lang: w.code },
+      g.SlopBiz.sheet.head(s, tx('biz.pr.t_credit'), [tx('biz.pr.m_no', { number: c.number }), tx('biz.pr.m_date', { date: w.day(c.date) }), invoice ? tx('biz.pr.m_for_invoice', { number: invNo }) : null], w),
+      h('div', { class: 'sheet-to' }, h('span', { class: 'sub', text: tx('biz.pr.to') }), h('b', { text: customer.name }), ...[customer.email, ...lines(customer.address)].filter(Boolean).map((x) => h('div', { text: x }))),
+      h('p', { class: 'note', text: c.reason ? tx('biz.pr.reason', { reason: c.reason }) : tx('biz.pr.credit_against', { number: invNo }) }),
       h('div', { class: 'sheet-scroll' }, h('table', { class: 'grid-t' },
-        h('tbody', null, row('Subtotal', m(c.subtotal || 0)), row('Tax', m(c.tax || 0))),   // i18n-ignore: the printed document's words stay as written
-        h('tfoot', null, h('tr', null, h('th', { text: 'Amount credited' }), h('th', { class: 'num', text: m(c.amount) }))))),   // i18n-ignore: the printed document's words stay as written
-      c.refund ? h('p', { class: 'sheet-total' }, h('span', { text: `Paid back to you by ${METHOD[c.method] || 'bank transfer'}` }), h('b', { text: m(c.refund) }))   // i18n-ignore: the printed document's words stay as written
-        : h('p', { class: 'note', text: `${m(c.amount)} is taken off what is owed on invoice ${invoice ? invoice.number : ''}.` })));
+        h('tbody', null, row(tx('biz.pr.cn_subtotal'), m(c.subtotal || 0)), row(tx('biz.pr.c_tax'), m(c.tax || 0))),
+        h('tfoot', null, h('tr', null, h('th', { text: tx('biz.pr.amount_credited') }), h('th', { class: 'num', text: m(c.amount) }))))),
+      c.refund ? h('p', { class: 'sheet-total' }, h('span', { text: tx('biz.pr.paid_back', { method: tx(`biz.pr.pm_${['bank', 'cash', 'card', 'other'].includes(c.method) ? c.method : 'bank'}`) }) }), h('b', { text: m(c.refund) }))
+        : h('p', { class: 'note', text: tx('biz.pr.taken_off', { amount: m(c.amount), number: invNo }) })));
     $('cnInvoice').href = `#i/${c.invoiceId}`;
     g.SlopBiz.docbar.title(t('invoices.cr.title', { number: c.number }));
   }

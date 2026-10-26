@@ -39,8 +39,36 @@
     const S = data(), r = await S.store.get('settings', 'main');
     const s = r.ok && r.value ? r.value : S.schema.DEFAULT_SETTINGS;
     return { currency: s.defaultCurrency || 'USD', locale: s.locale || 'en-US', defaultTaxRate: s.defaultTaxRate || 0,
-      paymentTermsDays: s.paymentTermsDays ?? 30, companyName: s.companyName || '', address: s.address || '', taxNumber: s.taxNumber || '' };
+      paymentTermsDays: s.paymentTermsDays ?? 30, companyName: s.companyName || '', address: s.address || '', taxNumber: s.taxNumber || '',
+      docLang: s.docLang || '' };
   }
+
+  /* ---- The document language: the words of printed, downloaded and emailed documents (biz.pr.* in shared/biz/i18n) are read
+   * in it, not in the page's language. The choices are the languages the business tables ship (SlopI18n.shipped('biz')).
+   * The rule: the document's own docLang, else the company's (settings.docLang, set in Slop Admin), else the page's language
+   * when it is a choice, else English. Settings saved without one store the page's language of that moment (Admin's first
+   * save, or a company name typed on a document), so a company keeps the language it was set up in. */
+  const docLangs = () => { const l = g.SlopI18n && g.SlopI18n.shipped ? g.SlopI18n.shipped('biz') : []; return l.length ? l : ['en']; };
+  const pageLang = () => (g.SlopI18n ? g.SlopI18n.get() : 'en');
+  /** The document language for a document's own choice and the company's (either may be empty). */
+  const pickLang = (own, company) => [own, company, pageLang()].find((c) => c && docLangs().includes(c)) || 'en';
+  /** The Intl locale of a document: the company locale when it is of the document's language (en-GB for en), else the language. */
+  const docLocale = (lang, locale) => (locale && String(locale).split('-')[0].toLowerCase() === String(lang).split('-')[0].toLowerCase() ? locale : lang);
+  const DAY = { year: 'numeric', month: '2-digit', day: '2-digit' };
+  /** The words of a document language: SlopI18n.at (t, num, date, money) plus day(iso) for a YYYY-MM-DD date in its numeric
+   *  form (2026-10-26 in Swedish, 10/26/2026 in US English). A key whose tables are not in yet reads English. */
+  function docWords(lang, locale) {
+    const w = g.SlopI18n && g.SlopI18n.at ? g.SlopI18n.at(lang, docLocale(lang, locale)) : { code: 'en', t: (k) => k, date: () => '' };
+    return Object.assign({}, w, { day: (iso) => (/^\d{4}-\d{2}-\d{2}$/.test(iso || '') ? w.date(`${iso}T12:00:00`, DAY) || iso : iso || '') });
+  }
+  const docLoaded = new Set();
+  /** Fetches the business tables of a document language (once) and resolves to its words. */
+  async function docLoad(lang, locale) {
+    if (g.SlopI18n && g.SlopI18n.need && !docLoaded.has(lang)) { await g.SlopI18n.need(lang, false, 'biz'); docLoaded.add(lang); }
+    return docWords(lang, locale);
+  }
+  const docLang = { langs: docLangs, pick: pickLang, locale: docLocale, words: docWords, load: docLoad,
+    ready: (lang) => lang === 'en' || lang === pageLang() || docLoaded.has(lang) };
 
   /** Minor units as money text in a currency and locale ("€24.00"). */
   const money = (minor, currency, locale) => data().money.formatMinor(minor, currency, locale);
@@ -118,7 +146,7 @@
     return e;
   }
 
-  const api = { PLAIN, refusal, statusText, settings, money, expenseAccounts, commands, assistant, sampleDialog: sample, h };
+  const api = { PLAIN, refusal, statusText, settings, money, docLang, expenseAccounts, commands, assistant, sampleDialog: sample, h };
   g.SlopBiz = Object.assign(g.SlopBiz || {}, api);   // merge: router.js, backup.js and setup.js may have loaded first
   if (typeof module === 'object' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);

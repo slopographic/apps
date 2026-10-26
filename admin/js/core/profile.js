@@ -1,4 +1,5 @@
-// Company profile: name, address, tax number, default currency, locale and default tax rate. The record is the shared
+// Company profile: name, address, tax number, default currency, locale, default tax rate and the documents' language
+// (docLang: one of SlopBiz.docLang.langs(); none given keeps the stored one, else the page's language). The record is the shared
 // settings (SlopData). The default currency is the ledger's base, so it is refused once any journal entry exists.
 (function (g) {
   'use strict';
@@ -15,8 +16,11 @@
     if (!loc) return fail('invalid', t('admin.core.locale'));
     const rate = S.money.parseMinor(String(input.defaultTaxRate ?? '').trim() || '0', 'USD');
     if (rate === null || rate < 0 || rate > 10000) return fail('invalid', t('admin.core.rate'));
+    const DL = g.SlopBiz && g.SlopBiz.docLang;
+    const docLang = input.docLang || cur.docLang || (DL ? DL.pick('', '') : '');
+    if (DL && docLang && !DL.langs().includes(docLang)) return fail('invalid', t('biz.dl.bad'));
     return ok({ ...cur, companyName: input.companyName, address: input.address, taxNumber: input.taxNumber,
-      defaultCurrency: cc, locale: loc, defaultTaxRate: rate });
+      defaultCurrency: cc, locale: loc, defaultTaxRate: rate, docLang: docLang || undefined });
   }
 
   /** Saves the profile. A refused currency change keeps the old one and says why. */

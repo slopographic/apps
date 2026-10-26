@@ -3,8 +3,8 @@
   'use strict';
   const NS = (g.SlopQuotes = g.SlopQuotes || {});
   const P = g.SlopDocs.docPdf.create({
-    ns: NS, collection: 'quotes', kind: 'quote', title: 'Quote', statusLabel: NS.util.STATUS,   // i18n-ignore: the document's own printed words
-    view: (q) => ({ moreMeta: [{ label: 'Valid until', value: q.validUntil, field: 'validUntil' }] }),   // i18n-ignore: the document's own printed words
+    ns: NS, collection: 'quotes', kind: 'quote',
+    view: (q) => ({ moreMeta: [{ key: 'biz.pr.valid_until', value: q.validUntil, field: 'validUntil' }] }),
   });
   NS.pdf = { load: P.load, viewOf: P.viewOf, quotePdf: P.pdf };
 })(typeof window !== 'undefined' ? window : globalThis);

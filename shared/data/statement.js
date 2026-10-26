@@ -69,20 +69,18 @@
 
   /** Pure: a payment reminder for a statement's open invoices: { tone: 'none' | 'friendly' | 'firm' | 'final', subject, body }.
    *  The tone follows the most overdue invoice: due or up to 30 days late is friendly, up to 60 firm, beyond that final.
-   *  who: { customer, company }; money(minor) formats an amount. Nothing owed: tone none and no text. */
-  function reminder(st, { customer, company }, money) {
+   *  who: { customer, company }; money(minor) formats an amount; words: the document language's words (SlopBiz.docLang.words:
+   *  t(key, vars) for the biz.pr.rm_* texts and day(iso) for the dates; default SlopI18n's, dates as stored).
+   *  Nothing owed: tone none and no text. */
+  function reminder(st, { customer, company }, money, words) {
     if (!st.owed.length || st.closing <= 0) return { tone: 'none', subject: '', body: '' };
+    const tx = words ? words.t : (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k), day = words && words.day ? words.day : (d) => d;
     const late = Math.max(...st.owed.map((o) => o.late));
     const tone = late <= 30 ? 'friendly' : late <= 60 ? 'firm' : 'final';
-    const list = st.owed.map((o) => `- ${o.ref}, due ${o.due}: ${money(o.left)}${o.late ? ` (${o.late} day${o.late === 1 ? '' : 's'} late)` : ''}`).join('\n');
-    const subject = { friendly: `A reminder: ${money(st.closing)} to pay`, firm: `Overdue: ${money(st.closing)} to pay`, final: `Final reminder: ${money(st.closing)} overdue` }[tone];
-    const open = {
-      friendly: 'A friendly reminder that the invoices below are open. If you have already paid, thank you, and please ignore this message.',
-      firm: 'The invoices below are now overdue. Please arrange payment as soon as you can, or let us know if there is a problem with them.',
-      final: 'Despite our earlier reminders, the invoices below are still unpaid and well past their due dates. Please pay the balance within 7 days, or contact us today to agree how it will be paid.',
-    }[tone];
-    const sign = company && company.trim() ? `Thank you,\n${company.trim()}` : 'Thank you.';   // no company name: no name line
-    const body = `Hello ${customer},\n\n${open}\n\n${list}\n\nBalance owed: ${money(st.closing)}\n\n${sign}`;
+    const list = st.owed.map((o) => tx(o.late ? 'biz.pr.rm_line_late' : 'biz.pr.rm_line', { ref: o.ref, due: day(o.due), amount: money(o.left), n: o.late })).join('\n');
+    const subject = tx(`biz.pr.rm_subject_${tone}`, { amount: money(st.closing) });
+    const sign = company && company.trim() ? tx('biz.pr.rm_sign', { company: company.trim() }) : tx('biz.pr.rm_thanks');   // no company name: no name line
+    const body = [tx('biz.pr.rm_hello', { name: customer }), tx(`biz.pr.rm_open_${tone}`), list, tx('biz.pr.rm_balance', { amount: money(st.closing) }), sign].join('\n\n');
     return { tone, subject, body };
   }
 

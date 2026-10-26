@@ -9,15 +9,18 @@
   const UI = g.SlopUI;
   const h = U.h;
   const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
-  // The subject and message are written by SlopData.statement.reminder and sent to the customer: they stay as written
+  // The subject and message (SlopData.statement.reminder) go to the customer: in the document's language (words, the
+  // statement's: SlopBiz.docLang); the dialog around them speaks the page's language.
   const TONE = () => ({ friendly: t('invoices.rm.friendly'), firm: t('invoices.rm.firm'), final: t('invoices.rm.final') });
 
   /** The mailto: link for an address, subject and body. */
   const mailto = (to, subject, body) => `mailto:${encodeURIComponent(to || '')}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
-  /** Opens the dialog for a statement (st) of a customer, with the settings for the company name and money format. */
-  function open(st, customer, settings) {
-    const r = S.statement.reminder(st, { customer: customer.name, company: settings.companyName }, (m) => U.money(m, st.currency, settings.locale));
+  /** Opens the dialog for a statement (st) of a customer, with the settings for the company name and the words of the
+   *  document's language (default: the company's, SlopBiz.docLang; its tables must be in, as the statement loads them). */
+  function open(st, customer, settings, words) {
+    const w = words || g.SlopBiz.docLang.words(g.SlopBiz.docLang.pick('', settings.docLang), settings.locale);
+    const r = S.statement.reminder(st, { customer: customer.name, company: settings.companyName }, (m) => U.money(m, st.currency, w.locale), w);
     if (r.tone === 'none') { UI.toast(t('invoices.rm.nothing')); return null; }
     const subject = h('input', { type: 'text', value: r.subject, class: 'sui-input' });
     const body = h('textarea', { rows: 12, class: 'sui-input rem-body' });

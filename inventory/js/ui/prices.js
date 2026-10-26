@@ -9,21 +9,23 @@
   const $ = (id) => document.getElementById(id);
   let shown = [], settings = null;
   const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
-  // The price list itself is a document the person prints or sends: its own words stay the document's (i18n-ignore below)
+  // The price list itself is a document the person prints or sends: its words are the company's document language (SlopBiz.docLang)
 
   async function refresh() {
     settings = await U.settings();
+    const DL = g.SlopBiz.docLang, w = await DL.load(DL.pick('', settings.docLang), settings.locale), tx = w.t;
     const r = await S.store.list('products');
     shown = NS.pricelist.rows(r.ok ? r.value : [], { search: $('plSearch').value });
-    const m = (v) => U.money(v, settings.currency, settings.locale);
-    $('plSheet').replaceChildren(h('article', { class: 'doc-sheet' },
-      g.SlopBiz.sheet.head(settings, 'Price list', [`Date ${S.ledger.today()}`, `Prices in ${settings.currency}`]),   // i18n-ignore: the printed price list stays the document's words
+    const m = (v) => U.money(v, settings.currency, w.locale);
+    const heads = ['d_sku', 'p_product', 'd_unit', 'p_price', 'c_tax', 'p_with_tax'];
+    $('plSheet').replaceChildren(h('article', { class: 'doc-sheet', lang: w.code },
+      g.SlopBiz.sheet.head(settings, tx('biz.pr.t_prices'), [tx('biz.pr.m_date', { date: w.day(S.ledger.today()) }), tx('biz.pr.m_prices_in', { currency: settings.currency })], w),
       shown.length ? h('div', { class: 'sheet-scroll' }, h('table', { class: 'grid-t' },
-        h('thead', null, h('tr', null, ['SKU', 'Product', 'Unit', 'Price', 'Tax', 'With tax'].map((x, i) => h('th', { class: i >= 3 ? 'num' : '', text: x })))),   // i18n-ignore: the printed price list stays the document's words
+        h('thead', null, h('tr', null, heads.map((x, i) => h('th', { class: i >= 3 ? 'num' : '', text: tx(`biz.pr.${x}`) })))),
         h('tbody', null, shown.map((p) => h('tr', null, h('td', { class: 'mono', text: p.sku }), h('td', { text: p.name }), h('td', { text: p.unit }),
-          h('td', { class: 'num', text: m(p.price) }), h('td', { class: 'num', text: `${(p.taxRate / 100).toFixed(p.taxRate % 100 ? 2 : 0)}%` }), h('td', { class: 'num', text: m(p.gross) }))))))
-        : h('p', { class: 'note', text: $('plSearch').value ? 'No product matches the search.' : 'No products yet. Add them on the Products tab.' }),   // i18n-ignore: the printed price list stays the document's words
-      h('p', { class: 'note', text: 'Prices with tax use each product’s own tax rate.' })));   // i18n-ignore: the printed price list stays the document's words
+          h('td', { class: 'num', text: m(p.price) }), h('td', { class: 'num', text: w.num(p.taxRate / 10000, { style: 'percent', maximumFractionDigits: 2 }) }), h('td', { class: 'num', text: m(p.gross) }))))))
+        : h('p', { class: 'note', text: tx($('plSearch').value ? 'biz.pr.p_no_match' : 'biz.pr.p_none') }),
+      h('p', { class: 'note', text: tx('biz.pr.p_note') })));
     $('plCount').textContent = t('inventory.pl.count', { n: shown.length });
   }
 

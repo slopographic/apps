@@ -22,11 +22,8 @@
   const refusal = (r) => B.refusal(r, { plain: PLAIN, fields: FIELD });
 
   // settings, money and the DOM builder are SlopBiz's (one copy for the business apps)
-  // STATUS and statusText are the printed invoice's words (the document stays English); the screen uses statusWord
-  const STATUS = { draft: 'Draft', issued: 'Issued', paid: 'Paid', void: 'Void', credited: 'Credited' };   // i18n-ignore: printed on the document
-  const statusText = (status, balance) => (status === 'issued' && balance <= 0 ? 'Paid' : STATUS[status] || '');   // i18n-ignore: printed on the document
   /** The status in the page's language (SlopBiz.statusText): an issued invoice with nothing left to pay reads Paid. */
   const statusWord = (status, balance) => B.statusText(status === 'issued' && balance <= 0 ? 'paid' : status);
 
-  NS.util = { PLAIN, FIELD, STATUS, statusText, statusWord, refusal, settings: B.settings, money: B.money, h: B.h, ok: S.result.ok, fail: S.result.fail };
+  NS.util = { PLAIN, FIELD, statusWord, refusal, settings: B.settings, money: B.money, h: B.h, ok: S.result.ok, fail: S.result.fail };
 })(typeof window !== 'undefined' ? window : globalThis);
