@@ -5,7 +5,7 @@ window.SlopI18n && window.SlopI18n.add('es', {
   'biz.pr.t_invoice': 'Factura',
   'biz.pr.t_quote': 'Presupuesto',
   'biz.pr.t_order': 'Pedido',
-  'biz.pr.t_purchase': 'Orden de compra',
+  'biz.pr.t_purchase': 'Pedido de compra',
   'biz.pr.t_credit': 'Nota de abono',
   'biz.pr.t_delivery': 'Albarán',
   'biz.pr.t_statement': 'Extracto de cuenta',

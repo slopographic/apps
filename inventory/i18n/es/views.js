@@ -46,7 +46,7 @@ window.SlopI18n && window.SlopI18n.add('es', {
   'inventory.pr.deleted': '{name} eliminado',
   'inventory.pr.edit': 'Editar producto',
   'inventory.pr.moves': 'Mostrar movimientos',
-  'inventory.pr.reorder': 'Reponer… (una orden de compra)',
+  'inventory.pr.reorder': 'Reponer… (un pedido de compra)',
   'inventory.sc.receive': 'Recibir',
   'inventory.sc.sell': 'Vender',
   'inventory.sc.count': 'Recuento',
