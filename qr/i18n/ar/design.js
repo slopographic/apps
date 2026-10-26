@@ -9,7 +9,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'qr.design.transparent': 'خلفية شفافة',
   'qr.design.quiet': 'المنطقة الهادئة',
   'qr.design.quiet_n': '{n} وحدة',
-  'qr.design.quiet_n#zero': '{n} وحدة',
+  'qr.design.quiet_n#zero': 'لا وحدات',
   'qr.design.quiet_n#one': 'وحدة واحدة',
   'qr.design.quiet_n#two': 'وحدتان',
   'qr.design.quiet_n#few': '{n} وحدات',

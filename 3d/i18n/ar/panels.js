@@ -36,7 +36,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   '3d.insp.roughness': 'الخشونة',
   '3d.insp.metallic': 'المعدنية',
   '3d.insp.opacity': 'العتامة',
-  '3d.insp.remove_texture': 'إزالة ملمس الصورة',
+  '3d.insp.remove_texture': 'إزالة نسيج الصورة',
   '3d.insp.light': 'الضوء',
   '3d.insp.intensity': 'الشدة',
   '3d.insp.ambient_note': 'ضوء محيطي: ينير كل شيء بالتساوي.',

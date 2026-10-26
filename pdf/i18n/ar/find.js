@@ -32,7 +32,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'pdf.find.rep_unplaced': 'تعذّر تحديد الموضع بدقة: لم يُستبدل',
   'pdf.find.rep_status': '{matches} · {n} محدد',
   'pdf.find.rep_matches': '{n} تطابق',
-  'pdf.find.rep_matches#zero': '{n} تطابق',
+  'pdf.find.rep_matches#zero': 'لا تطابقات',
   'pdf.find.rep_matches#one': 'تطابق واحد',
   'pdf.find.rep_matches#two': 'تطابقان',
   'pdf.find.rep_matches#few': '{n} تطابقات',
@@ -82,7 +82,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
 
   // organize/zoom.js
   'pdf.org.thumb_size': 'حجم الصور المصغرة',
-  'pdf.org.thumb_presets': 'أحجام الصور المصغرة الجاهزة',
+  'pdf.org.thumb_presets': 'أحجام الصور المصغرة المسبقة',
   'pdf.org.thumb_size_n': 'حجم الصور المصغرة {size}',
   'pdf.org.thumb_size_tip': 'حجم الصور المصغرة (Ctrl مع عجلة الماوس أو القرص بإصبعين على الصفحات)',
   'pdf.org.one_per_row': 'صفحة واحدة في كل صف',

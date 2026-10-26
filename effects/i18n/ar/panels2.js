@@ -18,7 +18,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'effects.tl.missing': 'الوسائط مفقودة: أعد ربطها من لوحة الطبقة',
   'effects.tl.keys_at': '{name}: {keys} عند {t} ث',
   'effects.tl.keys_n': '{n} إطار مفتاحي',
-  'effects.tl.keys_n#zero': '{n} إطار مفتاحي',
+  'effects.tl.keys_n#zero': 'لا إطارات مفتاحية',
   'effects.tl.keys_n#one': 'إطار مفتاحي واحد',
   'effects.tl.keys_n#two': 'إطاران مفتاحيان',
   'effects.tl.keys_n#few': '{n} إطارات مفتاحية',

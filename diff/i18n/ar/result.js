@@ -59,7 +59,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'diff.sum.cells#one': 'خلية واحدة',
   'diff.sum.cells#two': 'خليتان',
   'diff.sum.cells#few': '{n} خلايا',
-  'diff.sum.cells#many': '{n} خلية',
+  'diff.sum.cells#many': '{n} خليةً',
   'diff.sum.cells': '{n} خلية',
   'diff.sum.csv#zero': 'لم يختلف أي صف: {added} مضاف، {removed} محذوف، {changed} معدَّل ({cells}).',
   'diff.sum.csv#one': 'اختلف صف واحد: {added} مضاف، {removed} محذوف، {changed} معدَّل ({cells}).',

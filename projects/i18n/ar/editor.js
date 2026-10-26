@@ -82,7 +82,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'projects.files.opened#one': 'فُتح «{name}» مع مهمة واحدة',
   'projects.files.opened#two': 'فُتح «{name}» مع مهمتين',
   'projects.files.opened#few': 'فُتح «{name}» مع {n} مهام',
-  'projects.files.opened#many': 'فُتح «{name}» مع {n} مهمة',
+  'projects.files.opened#many': 'فُتح «{name}» مع {n} مهمةً',
   'projects.files.opened': 'فُتح «{name}» مع {n} مهمة',
   'projects.files.not_saved': 'تعذّر حفظه.',
   'projects.files.noun': 'نسخة احتياطية من Slop Projects (.json)',

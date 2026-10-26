@@ -1,7 +1,7 @@
 /* SlopIsolate, Arabic (ar): what is done to one picture or the selected ones (copy and paste settings, export, Slop Drive, workflows). Same keys as slopisolate/i18n/en/actions.js. Rules: shared/i18n/APPS-HOWTO.md, words: shared/i18n/glossary-ar.md. */
 window.SlopI18n && window.SlopI18n.add('ar', {
   'cutout.act.pictures_n': "{n} صورة",
-  'cutout.act.pictures_n#zero': "{n} صورة",
+  'cutout.act.pictures_n#zero': "لا صور",
   'cutout.act.pictures_n#one': "صورة واحدة",
   'cutout.act.pictures_n#two': "صورتان",
   'cutout.act.pictures_n#few': "{n} صور",

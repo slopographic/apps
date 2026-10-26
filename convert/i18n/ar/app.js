@@ -22,7 +22,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'convert.frame.panel': 'تحويل',
   'convert.frame.results': 'النتائج',
   'convert.run.converting': 'جارٍ التحويل…',
-  'convert.run.converting_n': 'جارٍ تحويل {n} ملفات…',
+  'convert.run.converting_n': 'جارٍ تحويل {n} ملف…',
   'convert.run.converting_n#zero': 'جارٍ تحويل {n} ملف…',
   'convert.run.converting_n#one': 'جارٍ تحويل ملف واحد…',
   'convert.run.converting_n#two': 'جارٍ تحويل ملفين…',

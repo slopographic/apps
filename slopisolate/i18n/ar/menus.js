@@ -65,7 +65,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'cutout.undo.grad_b': "نهاية التدرج",
   'cutout.undo.grad_angle': "زاوية التدرج",
   'cutout.undo.shadow': "الظل",
-  'cutout.undo.shadow_opacity': "شفافية الظل",
+  'cutout.undo.shadow_opacity': "عتامة الظل",
   'cutout.undo.shadow_blur': "تمويه الظل",
   'cutout.undo.shadow_x': "موضع الظل س",
   'cutout.undo.shadow_y': "موضع الظل ص",

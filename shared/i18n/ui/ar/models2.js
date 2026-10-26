@@ -17,7 +17,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'ui.models.script.han': 'الصينية',
   // the OCR models, by model
   'ui.models.ocr.ppocr_v4_name': 'PP-OCRv4 (اكتشاف النص والتعرف عليه)',
-  'ui.models.ocr.ppocr_v4_note': 'صينية وإنجليزية، قراءة أولى سريعة. يقرأ نصوص الأحرف اللاتينية الأخرى دون علاماتها (a بدلاً من å).',
+  'ui.models.ocr.ppocr_v4_note': 'صينية وإنجليزية، قراءة أولى سريعة. يقرأ نصوص الأحرف اللاتينية الأخرى دون علاماتها (a بدلًا من å).',
   'ui.models.ocr.ppocr_v4_arch': 'كاشف DB ومُتعرِّف CRNN (للأجهزة المحمولة، صينية ولاتينية)',
   'ui.models.ocr.ppocr_v4_source': 'تصدير ONNX لنماذج PaddleOCR PP-OCRv4 المحمولة، كما نشرها RapidOCR.',
   'ui.models.ocr.ppocr_v6_small_name': 'الأحرف اللاتينية والصينية واليابانية (PP-OCRv6 small)',
@@ -41,8 +41,8 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'ui.models.ocr.arch': 'كاشف PP-OCRv4 DB ومُتعرِّف {rec} ({scripts})',
   'ui.models.ocr.source': 'ملفات ONNX من مركز نماذج RapidOCR (modelscope.cn/models/RapidAI/RapidOCR، الوسم v3.10.0)، محفوظة على خادم ملفات Slopographic (github.com/slopographic/cdn) مع ترخيصها وقيم SHA-256 للتحقق.',
   // the speech models, by model
-  'ui.models.speech.whisper_tiny_note': 'النموذج السريع: يكتشف اللغة ويعطي نصاً أولياً بسرعة. يخطئ في الأسماء والصوت المشوش.',
-  'ui.models.speech.whisper_base_note': 'كل اللغات، أفضل قليلاً من tiny ولا يزال سريعاً.',
+  'ui.models.speech.whisper_tiny_note': 'النموذج السريع: يكتشف اللغة ويعطي نصًا أوليًا بسرعة. يخطئ في الأسماء والصوت المشوش.',
+  'ui.models.speech.whisper_base_note': 'كل اللغات، أفضل قليلًا من tiny ولا يزال سريعًا.',
   'ui.models.speech.whisper_small_note': 'كل اللغات، أفضل بكثير من tiny؛ وأبطأ نحو ثلاث مرات من base.',
   'ui.models.speech.whisper_base_en_note': 'الإنجليزية فقط، مدرَّب على الإنجليزية وحدها: إنجليزية أفضل من base.',
   'ui.models.speech.whisper_small_en_note': 'الإنجليزية فقط: أفضل إنجليزية هنا.',

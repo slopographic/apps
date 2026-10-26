@@ -92,7 +92,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'paint-classic.opt.outline': 'حدود فقط',
   'paint-classic.opt.outline_fill': 'حدود مع تعبئة (اللون الثانوي)',
   'paint-classic.opt.fill': 'مملوء بلا حدود',
-  'paint-classic.opt.slop': 'حجم الفوضى {n} بكسل',
+  'paint-classic.opt.slop': 'حجم Slop {n} بكسل',
   'paint-classic.opt.stamp': 'ختم {emoji}',
   'paint-classic.opt.stamp_size': 'حجم الختم {n} بكسل',
   'paint-classic.ctx.set_primary': 'تعيين كلون أساسي',

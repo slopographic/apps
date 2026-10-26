@@ -43,7 +43,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'timesheets.li.entries': "إدخالات",
   'timesheets.li.empty': "لا يوجد وقت هنا بعد. ابدأ المؤقت، أو سجّل وقتًا بـ «تسجيل وقت».",
   'timesheets.bi.total': "{n} إدخال · {time} h · {amount}",
-  'timesheets.bi.total#zero': "{n} إدخال · {time} h · {amount}",
+  'timesheets.bi.total#zero': "لا إدخالات · {time} h · {amount}",
   'timesheets.bi.total#one': "إدخال واحد · {time} h · {amount}",
   'timesheets.bi.total#two': "إدخالان · {time} h · {amount}",
   'timesheets.bi.total#few': "{n} إدخالات · {time} h · {amount}",

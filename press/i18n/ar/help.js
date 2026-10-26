@@ -6,5 +6,5 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'press.help.fonts_title': 'الخطوط',
   'press.help.fonts_note': 'التنزيلات من المكتبة متوقفة في Slop Press: إذ يُضمّن خط Liberation Sans وملفات الخطوط التي تحمّلها في المستند. استخدم العائلة الأقرب، أو أضف ملف TTF أو OTF خاصًا بك (WOFF غير مدعوم بعد).',
   'press.help.type_command': 'اكتب أمرًا…',
-  'press.help.search_title': 'البحث في الأوامر',
+  'press.help.search_title': 'بحث في الأوامر',
 });

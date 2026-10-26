@@ -63,7 +63,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'effects.fx.add': 'إضافة',
   'effects.fx.order_note': 'يُطبَّق من الأعلى إلى الأسفل. يستخدم التمويه وتصحيح اللون مرشّح لوحة الرسم في المتصفح، والمتصفح الذي لا يدعمه يتجاوزهما.',
   'effects.fx.none': 'لا توجد مؤثرات على هذه الطبقة بعد.',
-  'effects.motion.preset_aria': 'إعداد {name} المسبق',
+  'effects.motion.preset_aria': 'الإعداد المسبق {name}',
   'effects.motion.empty': 'حدد طبقة لتحريكها.',
   'effects.motion.from': '{what} من',
   'effects.motion.to': '{what} إلى',

@@ -28,7 +28,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'photoslop.core.need_one_layer': "المستند يحتاج إلى طبقة واحدة على الأقل",
   'photoslop.core.step_delete_layer': "حذف الطبقة",
   'photoslop.core.n_layers': "{n} طبقة",
-  'photoslop.core.n_layers#zero': "{n} طبقة",
+  'photoslop.core.n_layers#zero': "لا طبقات",
   'photoslop.core.n_layers#one': "طبقة واحدة",
   'photoslop.core.n_layers#two': "طبقتان",
   'photoslop.core.n_layers#few': "{n} طبقات",

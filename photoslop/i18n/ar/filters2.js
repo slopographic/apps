@@ -74,7 +74,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'photoslop.filter.p_wear': "التآكل",
   'photoslop.filter.p_melt': "الذوبان",
   'photoslop.filter.p_slime_tint': "صبغة الوحل",
-  'photoslop.filter.p_opacity': "الشفافية",
+  'photoslop.filter.p_opacity': "العتامة",
   'photoslop.filter.p_spread': "الانتشار",
   'photoslop.filter.p_depth': "العمق",
   'photoslop.filter.p_light_angle': "زاوية الضوء",

@@ -60,7 +60,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
 
   'fontcreator.tb.bar': 'محرر الحروف',
   'fontcreator.tb.back': 'العودة إلى الحروف',
-  'fontcreator.tb.back_short': '› الحروف',
+  'fontcreator.tb.back_short': '‹ الحروف',
   'fontcreator.tb.undo_tip': 'تراجع (Ctrl+Z)',
   'fontcreator.tb.redo_tip': 'إعادة (Ctrl+Shift+Z)',
   'fontcreator.tb.undo_what': 'تراجع: {what} (Ctrl+Z)',

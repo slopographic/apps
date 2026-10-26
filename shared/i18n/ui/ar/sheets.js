@@ -2,8 +2,8 @@
  * table's column headers. Rules: shared/i18n/APPS-HOWTO.md. */
 window.SlopI18n && window.SlopI18n.add('ar', {
   'ui.sheets.xls_old': 'ملفات .xls القديمة غير مدعومة. افتح الملف في Excel أو LibreOffice واحفظه بصيغة .xlsx أو .ods أو .csv.',
-  'ui.sheets.ods_not_zip': 'ملف .ods هذا ليس جدول بيانات صالحاً (ليس حزمة zip).',
-  'ui.sheets.xlsx_not_zip': 'ملف .xlsx هذا ليس مصنف بيانات صالحاً (ليس حزمة zip).',
+  'ui.sheets.ods_not_zip': 'ملف .ods هذا ليس جدول بيانات صالحًا (ليس حزمة zip).',
+  'ui.sheets.xlsx_not_zip': 'ملف .xlsx هذا ليس مصنف بيانات صالحًا (ليس حزمة zip).',
   'ui.sheets.ods_no_content': 'ليس جدول بيانات OpenDocument (لا يوجد content.xml)',
   'ui.sheets.ods_not_sheet': 'ملف OpenDocument هذا ليس جدول بيانات',
   'ui.sheets.no_sheets': 'هذا المصنف لا يحتوي على أوراق عمل',

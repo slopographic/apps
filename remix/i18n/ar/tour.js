@@ -11,7 +11,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'remix.tour.layout_title': 'التخطيط',
   'remix.tour.layout_text': 'اختر تخطيط الشبكة. «عشوائي» يبدّل التخطيطات عند النقاط التي تختارها.',
   'remix.tour.export_title': 'تصدير',
-  'remix.tour.export_text': 'اعرض البكرة بإعداد التصدير واحفظها.',
+  'remix.tour.export_text': 'اعرض البكرة بإعداد التصدير المسبق واحفظها.',
   'remix.tour.config_title': 'الإعدادات',
   'remix.tour.config_text': 'صدِّر البكرة أو استوردها كملف إعدادات .slop.json.',
 });

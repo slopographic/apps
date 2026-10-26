@@ -3,7 +3,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'tables.file.open_failed': "تعذّر فتح هذا الملف",
   'tables.file.save_failed': "تعذّر الحفظ",
   'tables.file.left_out': "فُتح مع إغفال بعض الأشياء",
-  'tables.file.left_out_body': "يحفظه الحفظ كملف Slop Tables في Slop Drive؛ أما ملف ▸ تنزيل ▸ XLSX فيكتب ملف Excel جديدًا.",
+  'tables.file.left_out_body': "يحفظه الحفظ كملف Slop Tables في Slop Drive؛ أما ملف ◂ تنزيل ◂ XLSX فيكتب ملف Excel جديدًا.",
   'tables.file.opened': "فُتح {name}",
   'tables.file.opened_it': "فُتح الملف",
   'tables.file.not_ours': "هذا ليس ملف Slop Tables.",

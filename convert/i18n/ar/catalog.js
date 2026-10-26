@@ -91,7 +91,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'convert.opt.margin_normal': 'عادي (½ بوصة)',
   'convert.opt.sep_comma': 'فاصلة',
   'convert.opt.sep_semicolon': 'فاصلة منقوطة',
-  'convert.opt.sep_tab': 'جدولة',
+  'convert.opt.sep_tab': 'علامة جدولة',
   'convert.opt.wrap_none': 'سطر واحد',
   'convert.opt.wrap_mime': '76 حرفًا (MIME)',
   'convert.cat.3d_models': 'نماذج ثلاثية الأبعاد',

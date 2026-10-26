@@ -17,7 +17,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'docs.hf.footer_first': "تذييل الصفحة الأولى",
   'docs.hf.header_gap': "الرأس من الأعلى",
   'docs.hf.footer_gap': "التذييل من الأسفل",
-  'docs.hf.note': "{page} هو رقم الصفحة و{pages} عدد الصفحات. يُملآن في كل صفحة، عند الطباعة وفي ملف PDF.",
+  'docs.hf.note': "{page} هو رقم الصفحة و{pages} عدد الصفحات. يُدرج كلاهما تلقائيًا في كل صفحة، عند الطباعة وفي ملف PDF.",
   'docs.tpl.title': "قالب عشوائي",
   'docs.tpl.preview_title': "معاينة: {name}",
   'docs.tpl.new_from': "مستند جديد من قالب",

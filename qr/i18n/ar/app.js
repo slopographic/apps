@@ -24,7 +24,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'qr.app.batch_empty': 'اكتب نصًا واحدًا في كل سطر أو الصقه.',
   'qr.app.batch_capped': 'يُرسم أول {max} سطرًا فقط من أصل {n}.',
   'qr.app.batch_n': '{n} رمز.',
-  'qr.app.batch_n#zero': '{n} رمز.',
+  'qr.app.batch_n#zero': 'لا رموز.',
   'qr.app.batch_n#one': 'رمز واحد.',
   'qr.app.batch_n#two': 'رمزان.',
   'qr.app.batch_n#few': '{n} رموز.',

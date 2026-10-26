@@ -4,7 +4,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   /* tools/doc-panels.js: Fill forms */
   'pdf.tool.forms.title': 'تعبئة النماذج',
   'pdf.tool.forms.looking': 'جارٍ البحث عن حقول النماذج…',
-  'pdf.tool.forms.flatten': 'تسطيح النماذج عند التنزيل (تصبح الحقول محتوى عادياً في الصفحة)',
+  'pdf.tool.forms.flatten': 'تسطيح النماذج عند التنزيل (تصبح الحقول محتوى عاديًا في الصفحة)',
   'pdf.tool.forms.undo_flatten': 'تسطيح النماذج',
   'pdf.tool.forms.undo_keep': 'إبقاء النماذج قابلة للتحرير',
   'pdf.tool.forms.output': 'الإخراج',
@@ -19,7 +19,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'pdf.tool.compress.title': 'ضغط',
   'pdf.tool.compress.resolution': 'الدقة',
   'pdf.tool.compress.jpeg_quality': 'جودة JPEG',
-  'pdf.tool.compress.lossy_warn': 'مع فقدان الجودة: تصبح كل صفحة صورة JPEG. ولا يعود النص قابلاً للتحديد أو البحث، وتُفقد النماذج والروابط. الأفضل للمستندات الممسوحة والملفات المليئة بالصور.',
+  'pdf.tool.compress.lossy_warn': 'مع فقدان الجودة: تصبح كل صفحة صورة JPEG. ولا يعود النص قابلًا للتحديد أو البحث، وتُفقد النماذج والروابط. الأفضل للمستندات الممسوحة والملفات المليئة بالصور.',
   'pdf.tool.compress.mode': 'الوضع',
   'pdf.tool.compress.lossless': 'بلا فقدان',
   'pdf.tool.compress.lossy': 'قوي (مع فقدان الجودة)',
@@ -29,8 +29,8 @@ window.SlopI18n && window.SlopI18n.add('ar', {
 
   /* tools/doc-panels.js: OCR */
   'pdf.tool.ocr.title': 'التعرف الضوئي (OCR)',
-  'pdf.tool.ocr.offline': 'يحتاج التعرف على النص إلى نموذج OCR، المتاح عندما يكون التطبيق متصلاً بالإنترنت.',
-  'pdf.tool.ocr.intro': 'يقرأ نص الصفحات الممسوحة ضوئياً لتتمكن من تحديده والبحث فيه وتحريره. يعمل على هذا الجهاز.',
+  'pdf.tool.ocr.offline': 'يحتاج التعرف على النص إلى نموذج OCR، المتاح عندما يكون التطبيق متصلًا بالإنترنت.',
+  'pdf.tool.ocr.intro': 'يقرأ نص الصفحات الممسوحة ضوئيًا لتتمكن من تحديده والبحث فيه وتحريره. يعمل على هذا الجهاز.',
   'pdf.tool.ocr.recognise': 'التعرف على النص',
   'pdf.tool.ocr.run_page': 'تشغيل OCR على هذه الصفحة',
   'pdf.tool.ocr.run_doc': 'تشغيل OCR على المستند',
@@ -67,7 +67,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'pdf.tool.convert.margin_large': 'كبير',
   'pdf.tool.convert.choose_images': 'اختيار صور…',
   'pdf.tool.convert.add_to_doc': 'إضافة الصفحات إلى المستند المفتوح (وإلا فتنزيل ملف PDF جديد)',
-  'pdf.tool.convert.images_note': 'PNG أو JPEG أو WebP أو GIF. تُعدَّل صور الهاتف لتصبح مستقيمة تلقائياً.',
+  'pdf.tool.convert.images_note': 'PNG أو JPEG أو WebP أو GIF. تُعدَّل صور الهاتف لتصبح مستقيمة تلقائيًا.',
   'pdf.tool.convert.to_text': 'PDF ← نص',
   'pdf.tool.convert.text_note': 'يستخرج طبقة النص من المستند النهائي (لا توجد طبقة نص في المستندات الممسوحة دون OCR).',
   'pdf.tool.convert.extract_text': 'استخراج النص',
@@ -76,7 +76,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'pdf.tool.split.title': 'تقسيم',
   'pdf.tool.split.ranges': 'النطاقات',
   'pdf.tool.split.ranges_ph': 'مثل 1-3، 5، 8-',
-  'pdf.tool.split.ranges_note': 'يصبح كل نطاق مفصول بفاصلة ملف PDF مستقلاً. و“8-” تعني من الصفحة 8 حتى النهاية.',
+  'pdf.tool.split.ranges_note': 'يصبح كل نطاق مفصول بفاصلة ملف PDF مستقلًا. و“8-” تعني من الصفحة 8 حتى النهاية.',
   'pdf.tool.split.per_file': 'عدد الصفحات في كل ملف',
   'pdf.tool.split.by': 'التقسيم حسب',
   'pdf.tool.split.mode_ranges': 'نطاقات الصفحات',
@@ -90,7 +90,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'pdf.tool.split.out_aria': 'الإخراج',
   'pdf.tool.split.go': 'تقسيم وتنزيل',
   'pdf.tool.split.files_n': '{n} ملف:',
-  'pdf.tool.split.files_n#zero': '{n} ملف:',
+  'pdf.tool.split.files_n#zero': 'لا ملفات:',
   'pdf.tool.split.files_n#one': 'ملف واحد:',
   'pdf.tool.split.files_n#two': 'ملفان:',
   'pdf.tool.split.files_n#few': '{n} ملفات:',
@@ -111,7 +111,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'pdf.tool.meta.undo_subject': 'تحرير الموضوع',
   'pdf.tool.meta.undo_keywords': 'تحرير الكلمات الأساسية',
   'pdf.tool.meta.title_ph': 'يظهر في شريط عنوان العارض',
-  'pdf.tool.meta.keywords_ph': 'مفصولة، بفواصل',
+  'pdf.tool.meta.keywords_ph': 'مفصولة بفواصل',
   'pdf.tool.meta.note': 'تُحفظ في معلومات مستند PDF عند التنزيل. ويُعيَّن المنتِج إلى “Slop PDF”.',
 
 
@@ -145,7 +145,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   /* tools/watermark-panel.js */
   'pdf.tool.watermark.title': 'علامة مائية',
   'pdf.tool.watermark.undo_change': 'تغيير العلامة المائية',
-  'pdf.tool.watermark.note': 'تتراكب الطبقات كالأوراق: تُرسم العليا أخيراً. تتبع الأحجام الضلع الأقصر لكل صفحة، فتبدو العلامة المائية متماثلة في كل أحجام الصفحات. أفلت صورة هنا لإضافتها كشعار.',
+  'pdf.tool.watermark.note': 'تتراكب الطبقات كالأوراق: تُرسم العليا أخيرًا. تتبع الأحجام الضلع الأقصر لكل صفحة، فتبدو العلامة المائية متماثلة في كل أحجام الصفحات. أفلت صورة هنا لإضافتها كشعار.',
 
   /* tools/comments-panel.js (replies and resolved: pdf.tool.edit.*) */
   'pdf.tool.comments.title': 'التعليقات',
@@ -171,10 +171,10 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'pdf.tool.layers.scope_page': 'هذه الصفحة',
   'pdf.tool.layers.scope_all': 'كل الصفحات',
   'pdf.tool.layers.page_empty': 'لا توجد طبقات في هذه الصفحة بعد.',
-  'pdf.tool.layers.list_aria': 'الطبقات في الصفحة {page}، العليا أولاً',
-  'pdf.tool.layers.doc_empty': 'لا توجد طبقات في هذا المستند بعد. تصبح النصوص والأشكال والتمييزات والصور التي تضيفها طبقات، العليا أولاً.',
+  'pdf.tool.layers.list_aria': 'الطبقات في الصفحة {page}، العليا أولًا',
+  'pdf.tool.layers.doc_empty': 'لا توجد طبقات في هذا المستند بعد. تصبح النصوص والأشكال والتمييزات والصور التي تضيفها طبقات، العليا أولًا.',
   'pdf.tool.layers.pages_with': '{n} صفحة فيها طبقات',
-  'pdf.tool.layers.pages_with#zero': '{n} صفحة فيها طبقات',
+  'pdf.tool.layers.pages_with#zero': 'لا صفحات فيها طبقات',
   'pdf.tool.layers.pages_with#many': '{n} صفحةً فيها طبقات',
   'pdf.tool.layers.pages_with#one': 'صفحة واحدة فيها طبقات',
   'pdf.tool.layers.pages_with#two': 'صفحتان فيهما طبقات',
@@ -194,7 +194,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'pdf.tool.history.original': 'الأصل',
   'pdf.tool.history.empty': 'افتح ملف PDF. يظهر كل تغيير هنا كخطوة؛ انقر خطوة للرجوع إليها.',
   'pdf.tool.history.hint': 'انقر خطوة للرجوع إلى المستند كما كان بعدها.',
-  'pdf.tool.history.list_aria': 'السجل، الأقدم أولاً',
+  'pdf.tool.history.list_aria': 'السجل، الأقدم أولًا',
 
   /* tools/ocg-panel.js */
   'pdf.tool.ocg.heading': 'طبقات PDF',

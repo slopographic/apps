@@ -19,7 +19,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'reports.app.none': '(لا شيء)',
   'reports.app.search': 'البحث في هذا التقرير',
   'reports.app.rows_n': '{n} صف',
-  'reports.app.rows_n#zero': '{n} صف',
+  'reports.app.rows_n#zero': 'لا صفوف',
   'reports.app.rows_n#one': 'صف واحد',
   'reports.app.rows_n#two': 'صفان',
   'reports.app.rows_n#few': '{n} صفوف',

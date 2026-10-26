@@ -122,7 +122,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'label.menu.variables': 'المتغيرات',
   'label.menu.data_table': 'جدول البيانات',
   'label.menu.theme': 'السمة',
-  'label.menu.search_commands': 'البحث في الأوامر…',
+  'label.menu.search_commands': 'بحث في الأوامر…',
   'label.menu.keyboard_shortcuts': 'اختصارات لوحة المفاتيح…',
   'label.menu.start_from_a_template': 'البدء من قالب…',
   'label.keys.distribute': 'توزيع',

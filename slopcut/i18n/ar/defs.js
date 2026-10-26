@@ -46,7 +46,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'slopedit.def.prop.scale': 'الحجم',
   'slopedit.def.prop.rot': 'الدوران',
   'slopedit.def.prop.opacity': 'العتامة',
-  'slopedit.def.every.0': 'المقطع كاملاً',
+  'slopedit.def.every.0': 'المقطع كاملًا',
   'slopedit.def.every.0_5': 'كل 0.5 ث',
   'slopedit.def.every.1': 'كل 1 ث',
   'slopedit.def.every.2': 'كل 2 ث',

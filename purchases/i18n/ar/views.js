@@ -1,7 +1,7 @@
 /* Slop Purchases, Arabic: the list, the editor and the reorder. Same keys as purchases/i18n/en/views.js.
  * Terms: shared/i18n/glossary-ar.md. */
 window.SlopI18n && window.SlopI18n.add('ar', {
-  'purchases.ed.bank': 'تحويل مصرفي',
+  'purchases.ed.bank': 'تحويل بنكي',
   'purchases.ed.card': 'بطاقة',
   'purchases.ed.cash': 'نقدًا',
   'purchases.ed.other': 'أخرى',

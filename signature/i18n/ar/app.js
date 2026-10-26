@@ -41,7 +41,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'signature.app.copy_outlook': "نسخ لـ Outlook",
   'signature.app.copy_apple': "نسخ لـ Apple Mail",
   'signature.app.copy': "نسخ التوقيع",
-  'signature.app.copy_code': "نسخ كود HTML",
+  'signature.app.copy_code': "نسخ شيفرة HTML",
   'signature.app.download': "تنزيل HTML",
   'signature.lay.details': "التفاصيل",
   'signature.lay.title': "توقيعك",

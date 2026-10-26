@@ -8,7 +8,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'photoslop.tour.tools_title': "الأدوات",
   'photoslop.tour.tools_text': "الفرش والتحديد والنص والقص في صندوق الأدوات. اختر واحدة، ثم اضبطها في شريط الخيارات.",
   'photoslop.tour.options_title': "خيارات الأداة",
-  'photoslop.tour.options_text': "يتغير شريط الخيارات مع الأداة النشطة: الحجم والشفافية ووضع المزج وغيرها.",
+  'photoslop.tour.options_text': "يتغير شريط الخيارات مع الأداة النشطة: الحجم والعتامة ووضع المزج وغيرها.",
   'photoslop.tour.canvas_title': "اللوحة",
   'photoslop.tour.canvas_text': "ارسم وحدّد وحوّل على اللوحة. يعرض شريط الحالة التكبير والحجم.",
   'photoslop.tour.panels_title': "الطبقات واللوحات",

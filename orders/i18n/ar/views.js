@@ -28,7 +28,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'orders.ed.new': 'طلب جديد',
   'orders.ed.date_error': 'أدخل تاريخ الطلب.',
   'orders.li.lines': '{n} بند',
-  'orders.li.lines#zero': '{n} بند',
+  'orders.li.lines#zero': 'لا بنود',
   'orders.li.lines#one': 'بند واحد',
   'orders.li.lines#two': 'بندان',
   'orders.li.lines#few': '{n} بنود',

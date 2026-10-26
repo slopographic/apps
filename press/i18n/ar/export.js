@@ -25,7 +25,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'press.export.embed_tip': 'تُضمَّن الخطوط المرفقة Liberation Sans وملفات .ttf/.otf المحمّلة؛ أما خطوط النظام فتستخدم خطوط PDF القياسية',
   'press.export.marks_bleed': 'العلامات والانتشار',
   'press.export.boxes_note': 'TrimBox = حجم الصفحة، وBleedBox = الصفحة + الانتشار، ويكبر MediaBox ليتسع للعلامات. تُكتب عينات العملية (CMYK) بصيغة CMYK، وتستخدم العلامات لون التسجيل.',
-  'press.export.no_font_file': 'لا يوجد ملف خط يُضمَّن لـ: {fonts}. تبقى مواضع النص دقيقة؛ حمّل ملف .ttf/.otf (ملف ▸ تحميل ملف خط) لتضمين التصميم الحقيقي.',
+  'press.export.no_font_file': 'لا يوجد ملف خط يُضمَّن لـ: {fonts}. تبقى مواضع النص دقيقة؛ حمّل ملف .ttf/.otf (ملف ◂ تحميل ملف خط) لتضمين التصميم الحقيقي.',
   'press.export.overset#zero': '{n} مقالات بها نص زائد لن يُصدَّر.',
   'press.export.overset#one': 'مقال واحد به نص زائد لن يُصدَّر.',
   'press.export.overset#two': 'مقالان بهما نص زائد لن يُصدَّرا.',
@@ -45,5 +45,5 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'press.export.q_high': 'عالية ({n} ppi)',
   'press.export.quality': 'الجودة',
   'press.export.print_note': 'تُرسم الصفحات وتُرسل إلى نافذة الطباعة في متصفحك بحجمها الحقيقي. للطباعة الاحترافية، استخدم تصدير PDF.',
-  'press.export.pdf_instead': 'PDF بدلاً من ذلك…',
+  'press.export.pdf_instead': 'PDF بدلًا من ذلك…',
 });

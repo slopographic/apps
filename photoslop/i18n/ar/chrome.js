@@ -26,7 +26,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'photoslop.chrome.size': "الحجم",
   'photoslop.chrome.hardness': "الصلابة",
   'photoslop.chrome.mode': "الوضع",
-  'photoslop.chrome.opacity': "الشفافية",
+  'photoslop.chrome.opacity': "العتامة",
   'photoslop.chrome.flow': "التدفق",
   'photoslop.chrome.pressure': "ضغط القلم",
   'photoslop.chrome.aligned': "محاذاة",

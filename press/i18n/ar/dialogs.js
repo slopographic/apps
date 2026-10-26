@@ -46,7 +46,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'press.dlg.insert_pages_title': 'إدراج صفحات',
   'press.dlg.insert': 'إدراج',
   'press.dlg.master': 'الصفحة الرئيسية',
-  'press.dlg.editing_master': 'تحرير الصفحة الرئيسية — التخطيط ▸ تحرير الصفحة الرئيسية مرة أخرى (أو اختر صفحة) للعودة',
+  'press.dlg.editing_master': 'تحرير الصفحة الرئيسية — التخطيط ◂ تحرير الصفحة الرئيسية مرة أخرى (أو اختر صفحة) للعودة',
   'press.dlg.master_options_title': 'خيارات الصفحة الرئيسية',
   'press.dlg.new_master_title': 'صفحة رئيسية جديدة',
   'press.dlg.prefix': 'البادئة',

@@ -46,7 +46,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'slides.app.theme': 'السمة',
   'slides.app.present': 'عرض',
   'slides.app.properties': 'الخصائص',
-  'slides.app.search_cmds': 'البحث في الأوامر',
+  'slides.app.search_cmds': 'بحث في الأوامر',
   'slides.app.slides': 'الشرائح',
   'slides.app.slide_actions': 'إجراءات الشريحة',
   'slides.app.new_slide': 'شريحة جديدة',

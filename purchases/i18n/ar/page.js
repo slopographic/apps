@@ -19,7 +19,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'purchases.page.to_bill': 'بانتظار الفاتورة',
   'purchases.page.cancelled': 'ملغى',
   'purchases.page.new': 'أمر شراء جديد',
-  'purchases.page.back': '← أوامر الشراء',
+  'purchases.page.back': '→ أوامر الشراء',
   'purchases.page.supplier': 'المورد',
   'purchases.page.new_supplier': 'مورد جديد',
   'purchases.page.date': 'التاريخ',

@@ -7,7 +7,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'pdf.se.cmd_paste_all': "لصق في كل الصفحات",
   'pdf.se.cmd_paste_pages': "لصق في صفحات…",
   'pdf.se.copied': "تم نسخ {n} عنصر.",
-  'pdf.se.copied#zero': 'تم نسخ {n} عنصر.',
+  'pdf.se.copied#zero': 'لم يتم نسخ أي عنصر.',
   'pdf.se.copied#one': 'تم نسخ عنصر واحد.',
   'pdf.se.copied#two': 'تم نسخ عنصرين.',
   'pdf.se.copied#few': 'تم نسخ {n} عناصر.',

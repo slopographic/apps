@@ -1,8 +1,8 @@
 /* Slop Effects, Arabic: toasts and undo steps of the keyframe and layer actions. Same keys as effects/i18n/en/keys.js. Terms: shared/i18n/glossary-ar.md. */
 window.SlopI18n && window.SlopI18n.add('ar', {
   'effects.keys.select_copy': 'حدد الإطارات المفتاحية لنسخها',
-  'effects.keys.copied': 'تم نسخ {n} إطارًا مفتاحيًا',
-  'effects.keys.copied#zero': 'تم نسخ {n} إطار مفتاحي',
+  'effects.keys.copied': 'تم نسخ {n} إطار مفتاحي',
+  'effects.keys.copied#zero': 'لم يتم نسخ أي إطار مفتاحي',
   'effects.keys.copied#one': 'تم نسخ إطار مفتاحي واحد',
   'effects.keys.copied#two': 'تم نسخ إطارين مفتاحيين',
   'effects.keys.copied#few': 'تم نسخ {n} إطارات مفتاحية',
@@ -10,8 +10,8 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'effects.keys.select_layer_paste': 'حدد طبقة للصق عليها',
   'effects.keys.nothing': 'لا شيء للصق',
   'effects.keys.pasted_skipped': 'تم لصق {n}، وتخطي {skipped}',
-  'effects.keys.pasted': 'تم لصق {n} إطارًا مفتاحيًا',
-  'effects.keys.pasted#zero': 'تم لصق {n} إطار مفتاحي',
+  'effects.keys.pasted': 'تم لصق {n} إطار مفتاحي',
+  'effects.keys.pasted#zero': 'لم يتم لصق أي إطار مفتاحي',
   'effects.keys.pasted#one': 'تم لصق إطار مفتاحي واحد',
   'effects.keys.pasted#two': 'تم لصق إطارين مفتاحيين',
   'effects.keys.pasted#few': 'تم لصق {n} إطارات مفتاحية',

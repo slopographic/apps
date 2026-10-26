@@ -1,7 +1,7 @@
 /* The Projects page, Arabic: the toolbar, the menus, the view switcher and the empty state. Same keys as projects/i18n/en/page.js. Terms: shared/i18n/glossary-ar.md. */
 window.SlopI18n && window.SlopI18n.add('ar', {
   'projects.app.name': 'المشاريع',
-  'projects.page.search_cmds': 'ابحث في الأوامر',
+  'projects.page.search_cmds': 'بحث في الأوامر',
   'projects.page.views': 'عروض المشروع',
   'projects.page.find_task': 'البحث عن مهمة',
   'projects.page.local_tip': 'تبقى مشاريعك في هذا المتصفح. لا يُرفع شيء.',

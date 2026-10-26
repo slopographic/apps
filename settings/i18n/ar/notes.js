@@ -52,7 +52,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'settings.folder.saved': 'حُفظ {file} في المجلد.',
   'settings.folder.changes': 'تطبيق هذا الملف سيغيّر:',
   'settings.folder.same': 'لن يتغير شيء. الملف يطابق الإعدادات هنا.',
-  'settings.folder.applied': 'طُبّق {n} تغييرًا من المجلد.',
+  'settings.folder.applied': 'طُبّق {n} تغيير من المجلد.',
   'settings.folder.applied#zero': 'طُبّق {n} تغيير من المجلد.',
   'settings.folder.applied#one': 'طُبّق تغيير واحد من المجلد.',
   'settings.folder.applied#two': 'طُبّق تغييران من المجلد.',

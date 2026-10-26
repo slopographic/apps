@@ -13,7 +13,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'press.io.placed_text#many': 'تم وضع النص: تمت إضافة {n} صفحةً',
   'press.io.placed_text': 'تم وضع النص: تمت إضافة {n} صفحة',
   'press.io.rendering_pdf': 'جارٍ عرض صفحات PDF…',
-  'press.io.placed_pdf#zero': 'تم وضع {n} صفحة PDF',
+  'press.io.placed_pdf#zero': 'لم يتم وضع أي صفحة من PDF',
   'press.io.placed_pdf#one': 'تم وضع صفحة PDF واحدة',
   'press.io.placed_pdf#two': 'تم وضع صفحتي PDF',
   'press.io.placed_pdf#few': 'تم وضع {n} صفحات PDF',

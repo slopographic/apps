@@ -19,7 +19,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'press.app.snap_on': 'المحاذاة التلقائية مفعّلة',
   'press.app.snap_off': 'المحاذاة التلقائية متوقفة',
   'press.app.no_masters': 'لا توجد صفحات رئيسية بعد',
-  'press.app.pages_added#zero': 'تمت إضافة {n} صفحة',
+  'press.app.pages_added#zero': 'لم تتم إضافة أي صفحة',
   'press.app.pages_added#one': 'تمت إضافة صفحة واحدة',
   'press.app.pages_added#two': 'تمت إضافة صفحتين',
   'press.app.pages_added#few': 'تمت إضافة {n} صفحات',

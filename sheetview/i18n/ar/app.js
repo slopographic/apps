@@ -76,7 +76,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'sheetview.view.filters_on#one': 'تصفية واحدة مفعّلة',
   'sheetview.view.filters_on#two': 'تصفيتان مفعّلتان',
   'sheetview.view.filters_on#few': '{n} تصفيات مفعّلة',
-  'sheetview.view.filters_on#many': '{n} تصفية مفعّلة',
+  'sheetview.view.filters_on#many': '{n} تصفيةً مفعّلةً',
   'sheetview.view.filters_on': '{n} تصفية مفعّلة',
   'sheetview.filter.title': 'تصفية العمود {col}',
   'sheetview.filter.blanks': '(الخانات الفارغة)',

@@ -31,6 +31,6 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'ai.cmd.spec_card': 'مشاركة بطاقة مواصفاتي…',
   'ai.cmd.sloppo': 'اسأل Sloppo',
   'ai.cmd.theme': 'السمة: {name}',
-  'ai.cmd.palette': 'ابحث في الأوامر…',
+  'ai.cmd.palette': 'بحث في الأوامر…',
   'ai.cmd.shortcuts': 'اختصارات لوحة المفاتيح…',
 });

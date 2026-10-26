@@ -3,7 +3,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'contacts.list.recent': 'الأخيرة',
   'contacts.list.of': '{n} من {total}',
   'contacts.list.count': '{n} جهة اتصال',
-  'contacts.list.count#zero': '{n} جهة اتصال',
+  'contacts.list.count#zero': 'لا جهات اتصال',
   'contacts.list.count#one': 'جهة اتصال واحدة',
   'contacts.list.count#two': 'جهتا اتصال',
   'contacts.list.count#few': '{n} جهات اتصال',

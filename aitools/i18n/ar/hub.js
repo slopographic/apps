@@ -42,7 +42,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'aitools.get.upstream': "المشروع الأصلي",
   'aitools.get.source': "المصدر: {hosts}.",
   'aitools.get.bundled': "مرفق مع هذا الموقع",
-  'aitools.get.download_n': "التنزيل: {size} في {n} ملفات. يُتحقق من كل ملف بـ SHA-256 قبل حفظه على هذا الجهاز.",
+  'aitools.get.download_n': "التنزيل: {size} في {n} ملف. يُتحقق من كل ملف بـ SHA-256 قبل حفظه على هذا الجهاز.",
   'aitools.get.download_n#zero': "التنزيل: {size} في {n} ملف. يُتحقق من كل ملف بـ SHA-256 قبل حفظه على هذا الجهاز.",
   'aitools.get.download_n#one': "التنزيل: {size} في ملف واحد. يُتحقق من كل ملف بـ SHA-256 قبل حفظه على هذا الجهاز.",
   'aitools.get.download_n#two': "التنزيل: {size} في ملفين. يُتحقق من كل ملف بـ SHA-256 قبل حفظه على هذا الجهاز.",

@@ -70,7 +70,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'press.cmd.window_props': 'لوحة الخصائص',
   'press.cmd.window_swatches': 'لوحة عينات الألوان',
   'press.cmd.window_toggle_panels': 'إظهار اللوحات / إخفاؤها',
-  'press.cmd.help_search': 'البحث في الأوامر…',
+  'press.cmd.help_search': 'بحث في الأوامر…',
   'press.cmd.help_shortcuts': 'اختصارات لوحة المفاتيح…',
   'press.cmd.help_about': 'حول Slop Press',
   'press.cmd.style_para': 'تطبيق نمط الفقرة: {name}',

@@ -23,7 +23,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'photoslop.guide.pref_off': "{what} متوقف",
   'photoslop.guide.lock_guides': "قفل الأدلة",
   'photoslop.guide.snap': "المحاذاة",
-  'photoslop.guide.locked': "الأدلة مقفلة (عرض ▸ قفل الأدلة)",
+  'photoslop.guide.locked': "الأدلة مقفلة (عرض ◂ قفل الأدلة)",
   'photoslop.guide.edit_pos': "تحرير موضع الدليل…",
   'photoslop.guide.clear_all': "مسح كل الأدلة",
   'photoslop.guide.pill_delete': "حذف",

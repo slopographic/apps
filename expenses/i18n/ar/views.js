@@ -7,7 +7,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'expenses.f.tax': 'الضريبة',
   'expenses.f.category': 'الفئة',
   'expenses.f.currency': 'العملة',
-  'expenses.m.bank': 'تحويل مصرفي',
+  'expenses.m.bank': 'تحويل بنكي',
   'expenses.m.card': 'بطاقة',
   'expenses.m.cash': 'نقدًا',
   'expenses.m.other': 'أخرى',

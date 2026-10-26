@@ -46,7 +46,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'photoslop.app.theme_tip': "تبديل السمة: احترافي، فاتح، Paint ’98",
   'photoslop.app.theme': "تبديل السمة",
   'photoslop.app.search': "بحث في الأوامر",
-  'photoslop.app.macros': "الماكرو",
+  'photoslop.app.macros': "وحدات الماكرو",
   'photoslop.app.macros_tip': "تسجيل الماكرو وتشغيلها",
   'photoslop.app.layers': "الطبقات",
   'photoslop.app.tool_options': "خيارات الأداة",

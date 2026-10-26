@@ -42,7 +42,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'cutout.panel.angle': "الزاوية",
   'cutout.panel.shadow': "الظل",
   'cutout.panel.drop_shadow': "ظل منسدل",
-  'cutout.panel.opacity': "الشفافية",
+  'cutout.panel.opacity': "العتامة",
   'cutout.panel.offset_x': "الإزاحة س",
   'cutout.panel.offset_y': "الإزاحة ص",
   'cutout.panel.crop': "القص",

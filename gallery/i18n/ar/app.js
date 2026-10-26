@@ -64,7 +64,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'gallery.grid.empty': 'مكتبتك فارغة. استورد صورًا للبدء.',
   'gallery.grid.sample': 'جرِّبه مع 8 صور نموذجية',
   'gallery.grid.photos_n': '{n} صورة',
-  'gallery.grid.photos_n#zero': '{n} صورة',
+  'gallery.grid.photos_n#zero': 'لا صور',
   'gallery.grid.photos_n#one': 'صورة واحدة',
   'gallery.grid.photos_n#two': 'صورتان',
   'gallery.grid.photos_n#few': '{n} صور',

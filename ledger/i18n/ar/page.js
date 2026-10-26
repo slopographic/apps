@@ -1,11 +1,11 @@
 /* Slop Ledger, Arabic: the page and the commands. Same keys as ledger/i18n/en/page.js. Terms: shared/i18n/glossary-ar.md. */
 window.SlopI18n && window.SlopI18n.add('ar', {
-  'ledger.app.name': 'دفتر الحسابات',
+  'ledger.app.name': 'دفتر الأستاذ',
   'ledger.page.local_tip': 'يبقى الدفتر في هذا المتصفح. لا يُرفع أي شيء.',
   'ledger.page.base': 'العملة الأساسية',
-  'ledger.page.sections': 'أقسام دفتر الحسابات',
+  'ledger.page.sections': 'أقسام دفتر الأستاذ',
   'ledger.page.journal': 'دفتر اليومية',
-  'ledger.page.gl': 'الدفتر العام',
+  'ledger.page.gl': 'دفتر الأستاذ العام',
   'ledger.page.trial': 'ميزان المراجعة',
   'ledger.page.accounts': 'الحسابات',
   'ledger.page.rates': 'الأسعار',
@@ -78,7 +78,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'ledger.cmd.g_rates': 'الأسعار',
   'ledger.cmd.g_bank': 'البنك',
   'ledger.cmd.journal': 'الانتقال إلى دفتر اليومية',
-  'ledger.cmd.gl': 'الانتقال إلى الدفتر العام',
+  'ledger.cmd.gl': 'الانتقال إلى دفتر الأستاذ العام',
   'ledger.cmd.trial': 'الانتقال إلى ميزان المراجعة',
   'ledger.cmd.accounts': 'الانتقال إلى الحسابات',
   'ledger.cmd.rates': 'الانتقال إلى أسعار الصرف',

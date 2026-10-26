@@ -47,7 +47,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'convert.detect.kind_usdz': 'نموذج USDZ ثلاثي الأبعاد',
   'convert.detect.kind_mtl': 'مواد OBJ (MTL)',
   'convert.detect.kind_tga': 'صورة TGA',
-  'convert.detect.kind_ktx2': 'ملمس KTX2',
+  'convert.detect.kind_ktx2': 'نسيج KTX2',
   'convert.detect.kind_sie': 'ملف محاسبة SIE',
   'convert.detect.kind_ofx': 'كشف حساب OFX',
   'convert.detect.kind_qif': 'ملف QIF (Quicken)',

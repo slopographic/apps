@@ -90,7 +90,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'drive.prov.reading': 'جارٍ قراءة المجلد…',
   'drive.prov.none': 'لا توجد أقراص محلية بعد. القرص المحلي هو مجلد على هذا الحاسوب.',
   'drive.prov.add': '+ إضافة قرص محلي…',
-  'drive.prov.about': 'عن الأقراص المحلية',
+  'drive.prov.about': 'حول الأقراص المحلية',
   'drive.prov.not_done': 'لم يكتمل',
   'drive.prov.refresh': 'تحديث',
   'drive.prov.remove': 'إزالة من Slop Drive…',
