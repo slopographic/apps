@@ -26,9 +26,9 @@
   function pdfFontFor(f) {
     var fam = (f.family || '').toLowerCase(), bold = (+f.weight || 400) >= 600, it = f.style === 'italic';
     var mono = /mono|courier|consol|menlo/.test(fam), serif = /georgia|times|serif/.test(fam) && !/sans/.test(fam);
-    if (mono) return { name: 'Courier' + (bold ? (it ? '-BoldOblique' : '-Bold') : (it ? '-Oblique' : '')), kind: 'mono' };
+    if (mono) return { name: 'Courier' + (bold ? (it ? '-BoldOblique' : '-Bold') : (it ? '-Oblique' : '')), kind: 'mono' }; // i18n-ignore: PDF names / font names, not UI
     if (serif) return { name: bold ? (it ? 'Times-BoldItalic' : 'Times-Bold') : (it ? 'Times-Italic' : 'Times-Roman'), kind: 'serif', bold: bold };
-    return { name: 'Helvetica' + (bold ? (it ? '-BoldOblique' : '-Bold') : (it ? '-Oblique' : '')), kind: 'sans', bold: bold };
+    return { name: 'Helvetica' + (bold ? (it ? '-BoldOblique' : '-Bold') : (it ? '-Oblique' : '')), kind: 'sans', bold: bold }; // i18n-ignore: PDF names / font names, not UI
   }
   var measCtx = null;
   function pdfTextWidth(enc, size, font) {
@@ -124,7 +124,7 @@
       if (o.type === 'image') {
         var href = S.doc.assets[o.asset] || o.href;
         if (href) {
-          images.push({ name: 'Im' + (images.length + 1), href: href });
+          images.push({ name: 'Im' + (images.length + 1), href: href }); // i18n-ignore: PDF names / font names, not UI
           content.push(fmt(o.w) + ' 0 0 ' + fmt(-o.h) + ' ' + fmt(o.x) + ' ' + fmt(o.y + o.h) + ' cm /' + images[images.length - 1].name + ' Do');
         }
         content.push('Q'); return;
@@ -152,7 +152,7 @@
       if (fill && typeof fill === 'object') {
         var bb = G.subsBBox(subs);
         if (bb && bb.w > 0 && bb.h > 0) {
-          shadings.push({ name: 'Sh' + (shadings.length + 1), dict: shadingDict(fill) });
+          shadings.push({ name: 'Sh' + (shadings.length + 1), dict: shadingDict(fill) }); // i18n-ignore: PDF names / font names, not UI
           var needMask = fill.stops.some(function (s) { return s.a != null && s.a < 0.999; });
           content.push('q', ops, eo ? 'W* n' : 'W n', fmt(bb.w) + ' 0 0 ' + fmt(bb.h) + ' ' + fmt(bb.x) + ' ' + fmt(bb.y) + ' cm');
           if (needMask) {
@@ -244,9 +244,9 @@
     return IO.buildPDF().then(function (blob) {
       var name = IO.baseName() + (asAI ? '.ai' : '.pdf');
       IO.download(asAI ? new Blob([blob], { type: 'application/postscript' }) : blob, name);
-      SV.toast('Exported ' + name); SlopSupport.afterExport('slopvector');
+      SV.toast(SV.t('vector.msg.exported_file', { file: name })); SlopSupport.afterExport('slopvector');
       return blob;
-    }).catch(function (e) { SV.toast('PDF export failed: ' + e.message, 'warn'); });
+    }).catch(function (e) { SV.toast(SV.t('vector.msg.pdf_failed', { error: e.message }), 'warn'); });
   };
 
   $.loadImg = loadImg;

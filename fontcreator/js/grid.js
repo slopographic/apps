@@ -5,7 +5,7 @@
 (function (g) {
   'use strict';
   const F = g.SlopFont, CS = F.charset, P = F.paths;
-  const S = () => g.FC.state;
+  const S = () => g.FC.state, t = (k, v) => g.FC.t(k, v);
   const el = (tag, attrs = {}, ...kids) => { const n = document.createElement(tag); for (const k in attrs) n.setAttribute(k, attrs[k]); n.append(...kids); return n; };
   let root = null, cells = null, setSel = null, count = null, painted = null;
   const cache = new Map();
@@ -34,7 +34,7 @@
     let pic = cache.get(id);
     if (!pic || pic.key !== key) { pic = { key, svg: gl ? svgOf(gl, p.metrics) : '' }; cache.set(id, pic); }
     const b = el('button', { type: 'button', class: 'fc-cell' + (drawn ? '' : ' fc-empty') + (id === S().cur() ? ' fc-on' : ''), 'data-id': id,
-      'aria-label': `${cp != null ? CS.hex(cp) + ' ' : ''}${lab}${drawn ? '' : ', not drawn'}`, 'aria-current': String(id === S().cur()) });
+      'aria-label': t(drawn ? 'fontcreator.grid.cell' : 'fontcreator.grid.cell_empty', { code: cp != null ? CS.hex(cp) + ' ' : '', char: lab }), 'aria-current': String(id === S().cur()) });
     const art = el('span', { class: 'fc-cell-art' });
     art.innerHTML = drawn ? pic.svg : `<span class="fc-cell-ghost" aria-hidden="true">${cp != null && cp > 0x20 && cp !== 0xa0 && cp !== 0xad ? lab.replace(/[&<]/g, (c) => (c === '&' ? '&amp;' : '&lt;')) : ''}</span>`;
     b.append(art, el('span', { class: 'fc-cell-lab' }, lab));
@@ -47,7 +47,7 @@
     cells.replaceChildren(...ids.map(cell));
     if (keep) { const c = cells.querySelector(`[data-id="${CSS.escape(keep)}"]`); if (c) c.focus(); }
     const st = F.model.stats(S().project());
-    count.textContent = `${st.drawn} drawn · ${st.glyphs} glyphs in the font`;
+    count.textContent = t('fontcreator.grid.count', { drawn: st.drawn, n: st.glyphs });
     setSel.value = painted = S().settings().set;
   }
   function paintOne(id) {
@@ -55,7 +55,7 @@
     const old = cells.querySelector(`[data-id="${CSS.escape(id)}"]`);
     if (old) old.replaceWith(cell(id)); else paint();
     const st = F.model.stats(S().project());
-    count.textContent = `${st.drawn} drawn · ${st.glyphs} glyphs in the font`;
+    count.textContent = t('fontcreator.grid.count', { drawn: st.drawn, n: st.glyphs });
   }
   function open(id, keyboard) {
     S().select(id);
@@ -77,20 +77,20 @@
   function addChars(text) {
     const cps = CS.parseChars(text);
     if (!cps.length) return 0;
-    S().edit(`Add ${cps.length} character${cps.length === 1 ? '' : 's'}`, 'project', (p) => { for (const cp of cps) F.model.ensure(p, cp); });
+    S().edit(t('fontcreator.grid.undo_add', { n: cps.length }), 'project', (p) => { for (const cp of cps) F.model.ensure(p, cp); });
     if (S().settings().set !== 'font' && !CS.codes(S().settings().set).includes(cps[0])) S().set({ set: 'font' });
     S().select(cps[0]);
     return cps.length;
   }
   function mount(listEl) {
     root = listEl;
-    setSel = el('select', { id: 'fc-set', 'aria-label': 'Characters to show' });
-    for (const s of [...CS.SETS, { id: 'all', label: 'All Latin (Basic, Latin-1, Extended-A)' }, { id: 'font', label: 'Every glyph in the font' }]) setSel.append(el('option', { value: s.id }, s.label));
+    setSel = g.FC.mark(el('select', { id: 'fc-set' }), { 'aria-label': 'fontcreator.grid.show' });
+    for (const id of [...CS.SETS.map((s) => s.id), 'all', 'font']) setSel.append(g.FC.mark(el('option', { value: id }), { text: 'fontcreator.set.' + id }));
     setSel.addEventListener('change', () => S().set({ set: setSel.value }));
-    const add = el('input', { type: 'text', id: 'fc-add-chars', placeholder: 'Add characters: type, then Enter', 'aria-label': 'Add characters to the font', autocomplete: 'off', spellcheck: 'false' });
-    add.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); const n = addChars(add.value); if (n) { add.value = ''; g.SlopUI.toast(`Added ${n} character${n === 1 ? '' : 's'}`); } } });
+    const add = g.FC.mark(el('input', { type: 'text', id: 'fc-add-chars', autocomplete: 'off', spellcheck: 'false' }), { placeholder: 'fontcreator.grid.add_ph', 'aria-label': 'fontcreator.grid.add_label' });
+    add.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); const n = addChars(add.value); if (n) { add.value = ''; g.SlopUI.toast(t('fontcreator.grid.added', { n })); } } });
     count = el('p', { class: 'fc-count', id: 'fc-count', 'aria-live': 'polite' });
-    cells = el('div', { class: 'fc-cells', id: 'fc-cells', role: 'group', 'aria-label': 'Glyphs' });
+    cells = g.FC.mark(el('div', { class: 'fc-cells', id: 'fc-cells', role: 'group' }), { 'aria-label': 'fontcreator.app.glyphs' });
     cells.addEventListener('click', (e) => { const c = e.target.closest('.fc-cell'); if (c) open(c.dataset.id, e.detail === 0); });
     cells.addEventListener('keydown', keys);
     root.append(el('div', { class: 'fc-list-head' }, setSel, add, count), cells);
@@ -100,6 +100,7 @@
       else if (e.what === 'settings') { if (painted !== S().settings().set) paint(); }
       else paint();
     });
+    g.FC.onLang(() => { cache.clear(); paint(); });   // the count and the cells' labels
     paint();
   }
   g.FC.grid = { mount, paint, paintOne, svgOf, addChars };

@@ -103,13 +103,13 @@
       });
       band = null; E().paint(); return;
     }
-    if (drag && drag.moved) E().commit(drag.kind === 'handle' ? 'Move a handle' : 'Move points');
+    if (drag && drag.moved) E().commit(g.FC.t(drag.kind === 'handle' ? 'fontcreator.ops.undo_handle' : 'fontcreator.ops.undo_points'));
     drag = null;
   }
   function removeSelected() {
     const sel = S().sel;
     if (!sel.points.size) return false;
-    S().edit('Delete points', 'glyph', (p, gl) => {
+    S().edit(g.FC.t('fontcreator.ops.undo_delete_points'), 'glyph', (p, gl) => {
       gl.contours = gl.contours.map((c, ci) => ({ closed: c.closed, pts: c.pts.filter((_, i) => !sel.points.has(ci + ':' + i)) })).filter((c) => c.pts.length >= 2);
     });
     S().clearSel(); E().paint();
@@ -119,10 +119,10 @@
     if (!S().sel.points.size) return;
     const cs = clone(E().contours());
     shift(cs, dx, dy);
-    S().edit('Nudge', 'glyph', (p, gl) => { gl.contours = cs; });
+    S().edit(g.FC.t('fontcreator.ops.undo_nudge'), 'glyph', (p, gl) => { gl.contours = cs; });
   }
   function toggleSmooth(ci, i) {
-    S().edit('Smooth or sharp point', 'glyph', (p, gl) => {
+    S().edit(g.FC.t('fontcreator.ops.undo_smooth'), 'glyph', (p, gl) => {
       const c = gl.contours[ci], n = c.pts.length, a = c.pts[i];
       if (G().hasIn(a) || G().hasOut(a)) { a.ix = a.x; a.iy = a.y; a.ox = a.x; a.oy = a.y; return; }
       const prev = c.pts[(i - 1 + n) % n], next = c.pts[(i + 1) % n];

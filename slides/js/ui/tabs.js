@@ -9,7 +9,7 @@
   var tabs = null;        // the SlopDocTabs api, once mounted
   var switching = false;  // true while a tab is put on screen: the copy-out must not run then
 
-  var stem = function (n) { return String(n || N.DEFAULT_NAME).replace(/\.sslide$/i, '') || 'Untitled presentation'; };
+  var stem = function (n) { return String(n || N.DEFAULT_NAME).replace(/\.sslide$/i, '') || 'Untitled presentation'; }; // i18n-ignore
   var cur = function () { return tabs ? tabs.current() : null; };
 
   /** Puts the Drive id in the address bar (so a reload reopens the same file) or takes it out. */

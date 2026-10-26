@@ -14,7 +14,7 @@
   else { const F = root.SlopFont; F.sheet = factory(F.charset); }
 })(typeof window !== 'undefined' ? window : globalThis, function (CS) {
   'use strict';
-  const PAGES = Object.freeze({ a4: { w: 1240, h: 1754, label: 'A4' }, letter: { w: 1275, h: 1650, label: 'US Letter' } });
+  const PAGES = Object.freeze({ a4: { w: 1240, h: 1754, label: 'A4' }, letter: { w: 1275, h: 1650, label: 'US Letter' } }); // i18n-ignore
   const COLS = 6, ROWS = 7, MARGIN = 54, MARK = 44, LABEL = 30;
 
   function layout(cps, metrics, opts = {}) {

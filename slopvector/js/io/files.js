@@ -23,11 +23,11 @@
       var sc = min(1, maxW / w, maxH / h); w *= sc; h *= sc;
       var c = at; if (!c) { var rr = SV.dom.stage.getBoundingClientRect(); c = SV.toDoc(rr.width / 2, rr.height / 2); }
       var aid = 'a' + SV.uid(); S.doc.assets[aid] = url;
-      var o = SV.mk.image(aid, c.x - w / 2, c.y - h / 2, w, h, name || 'Image');
+      var o = SV.mk.image(aid, c.x - w / 2, c.y - h / 2, w, h, name || 'Image'); // i18n-ignore: a name stored in the document
       o.src = { w: img.naturalWidth || w, h: img.naturalHeight || h }; // the source ratio, for Restore original aspect ratio
       SV.insertObj(o); SV.select([o.id]); SV.commit('place image');
       return o;
-    }).catch(function () { SV.toast('Could not read that image', 'warn'); });
+    }).catch(function () { SV.toast(SV.t('vector.msg.bad_image'), 'warn'); });
   };
   /** Places one file into the document (the intake's reader, io/intake.js): an SVG as grouped artwork (a SlopVector
    *  document dropped alone at a point may open), a picture as an image object. Resolves the placed object. */

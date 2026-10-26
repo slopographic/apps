@@ -11,7 +11,7 @@
   M.newDeck = function (opts) {
     opts = opts || {};
     var sz = M.SIZES[opts.size || '16:9'] || M.SIZES['16:9'];
-    var deck = { version: 2, title: opts.title || 'Untitled presentation', size: { w: sz.w, h: sz.h, preset: opts.size || '16:9' },
+    var deck = { version: 2, title: opts.title || 'Untitled presentation', size: { w: sz.w, h: sz.h, preset: opts.size || '16:9' }, // i18n-ignore
       theme: U.clone(SS.themes.byId(opts.theme || 'slop')), master: { footer: '', showNumber: false }, slides: [], media: {} };
     if (opts.empty !== true) M.addSlide(deck, 'title');
     return deck;

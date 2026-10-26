@@ -33,8 +33,8 @@
     var name = IO.baseName() + '.svg';
     return HUB.saveBlob(HUB.svgBlob(), name).then(function (id) {
       if (!id) return;
-      SV.markSaved(); SV.scheduleAutosave(); SV.toast('Saved “' + name + '” to Slop Drive');
-    }).catch(function (e) { SV.toast('Could not save: ' + (e && e.message || e), 'warn'); });
+      SV.markSaved(); SV.scheduleAutosave(); SV.toast(SV.t('vector.msg.saved_drive', { file: name }));
+    }).catch(function (e) { SV.toast(SV.t('vector.msg.save_failed', { error: String(e && e.message || e) }), 'warn'); });
   };
 
   /* ---------- sending ---------- */
@@ -45,14 +45,14 @@
   // Items for File ▸ Send to (the one builder, SlopOuttake): the document as SVG to every app that takes it (and Slop
   // Workflows), then as PNG to the apps that take pictures.
   HUB.sendItems = function () {
-    if (!HUB.available() || !window.SlopOuttake) return [{ label: 'Slop Hub unavailable', disabled: true }];
-    var name = function () { return IO.baseName(); }, O = window.SlopOuttake;
-    var svg = O.items({ get: function () { return HUB.svgBlob(); }, name: function () { return name() + '.svg'; }, type: 'image/svg+xml', from: 'vector', verb: 'Send to', folder: false });
-    var png = O.items({ get: function () { return HUB.pngBlob(); }, name: function () { return name() + '.png'; }, type: 'image/png', from: 'vector', verb: 'Send PNG to', folder: false })
-      .filter(function (it) { return it.label.indexOf('Send PNG to ') === 0; }); // the workflow items are there once, with the SVG
+    if (!HUB.available() || !window.SlopOuttake) return [{ label: SV.t('vector.hub.unavailable'), disabled: true }];
+    var name = function () { return IO.baseName(); }, O = window.SlopOuttake, sendPng = SV.t('vector.hub.send_png_to');
+    var svg = O.items({ get: function () { return HUB.svgBlob(); }, name: function () { return name() + '.svg'; }, type: 'image/svg+xml', from: 'vector', verb: SV.t('vector.hub.send_to'), folder: false });
+    var png = O.items({ get: function () { return HUB.pngBlob(); }, name: function () { return name() + '.png'; }, type: 'image/png', from: 'vector', verb: sendPng, folder: false })
+      .filter(function (it) { return it.label.indexOf(sendPng + ' ') === 0; }); // the workflow items are there once, with the SVG
     var items = svg.concat(svg.length && png.length ? ['-'] : [], png);
-    if (!HUB.canSend()) items = items.map(function (it) { return it === '-' ? it : { label: it.label, disabled: true, title: 'Open SlopVector on slopographic.com to send files' }; });
-    return items.length ? items : [{ label: 'No other apps accept this', disabled: true }];
+    if (!HUB.canSend()) items = items.map(function (it) { return it === '-' ? it : { label: it.label, disabled: true, title: SV.t('vector.hub.send_site') }; });
+    return items.length ? items : [{ label: SV.t('vector.hub.no_apps'), disabled: true }];
   };
 
   /* ---------- boot ---------- */

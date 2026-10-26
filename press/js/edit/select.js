@@ -44,7 +44,7 @@
       up: function (w, e) {
         var sp = T.screen(e);
         if (sp.x < 0 || sp.y < 0) s.guides.splice(s.guides.indexOf(g), 1);
-        H.commit('Move guide');
+        H.commit(PR.util.t('press.edit.undo_move_guide'));
       }
     };
   };
@@ -76,7 +76,7 @@
           I.moveTo(S.doc, items.map(function (it) { return it.id; }), tgt.items);
           activate(tgt);
         }
-        H.commit(dup ? 'Duplicate' : 'Move');
+        H.commit(PR.util.t(dup ? 'press.edit.undo_duplicate' : 'press.edit.undo_move'));
       }
     };
   }
@@ -98,7 +98,7 @@
         it.x = o.x + x0; it.y = o.y + y0; it.w = x1 - x0; it.h = y1 - y0;
         PR.touch();
       },
-      up: function () { H.commit('Resize'); }
+      up: function () { H.commit(PR.util.t('press.edit.undo_resize')); }
     };
   }
   function U_(o, it) { return { x: o.x, y: o.y, w: o.w, h: o.h, rot: it.rot }; }
@@ -131,10 +131,10 @@
     var from = SEL.loaded; SEL.loaded = null; V.canvas.classList.remove('loaded');
     if (!from || !target || target.type !== 'text') return false;
     var ok = I.link(S.doc, from, target.id);
-    if (ok) { H.commit('Thread frames'); PR.select([target.id]); } else PR.util.toast('Those frames cannot be threaded');
+    if (ok) { H.commit(PR.util.t('press.edit.undo_thread_frames')); PR.select([target.id]); } else PR.util.toast(PR.util.t('press.app.cannot_thread'));
     return ok;
   };
-  function loadThread(it) { SEL.loaded = it.id; V.canvas.classList.add('loaded'); PR.util.toast('Click a text frame (or drag a new one) to continue the story'); }
+  function loadThread(it) { SEL.loaded = it.id; V.canvas.classList.add('loaded'); PR.util.toast(PR.util.t('press.app.thread_hint')); }
 
   T.define('select', {
     down: function (w, e) {
@@ -146,7 +146,7 @@
       var hd = handleAt(w, e);
       if (hd && hd.h) return resizeDrag(hd);
       if (hd && hd.port === 'out') { loadThread(hd.it); return null; }
-      if (hd && hd.port === 'inp' && hd.it.prev) { I.breakAfter(S.doc, hd.it.prev); H.commit('Break thread'); return null; }
+      if (hd && hd.port === 'inp' && hd.it.prev) { I.breakAfter(S.doc, hd.it.prev); H.commit(PR.util.t('press.edit.undo_break_thread')); return null; }
       var h = T.hit(w.x, w.y);
       if (h) {
         if (S.text && S.text.frame !== h.it.id) PR.textEdit.exit();

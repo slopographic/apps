@@ -6,7 +6,7 @@
   var panels = {}, groups = [];
   UI.panels = panels;
 
-  /** Registers a panel: { id, title, group, build(body), refresh(), grow, foot(el) } */
+  /** Registers a panel: { id, title (a string-table key), group, build(body), refresh(), grow, foot(el) } */
   UI.panel = function (def) { panels[def.id] = def; };
   UI.GROUPS = [{ ids: ['pages', 'layers'], grow: true }, { ids: ['props', 'swatches'] }, { ids: ['parastyles', 'charstyles'], grow: true }];
 
@@ -19,11 +19,11 @@
       var grp = { el: el, tabs: tabs, body: body, foot: foot, ids: g.ids, cur: saved['t' + gi] && g.ids.indexOf(saved['t' + gi]) >= 0 ? saved['t' + gi] : g.ids[0] };
       g.ids.forEach(function (id) {
         var p = panels[id]; if (!p) return;
-        var t = h('button', { type: 'button', class: 'dtab', role: 'tab', 'data-panel': id }, p.title);
+        var t = h('button', { type: 'button', class: 'dtab', role: 'tab', 'data-panel': id }, U.t(p.title));
         t.addEventListener('click', function () { if (el.classList.contains('collapsed')) toggle(grp, gi); select(grp, id); save(); });
         tabs.append(t);
       });
-      var col = h('button', { type: 'button', class: 'dcollapse', 'aria-label': 'Collapse panel', html: '<svg viewBox="0 0 24 24" class="ic"><path d="M6 9l6 6 6-6"/></svg>' });
+      var col = h('button', { type: 'button', class: 'dcollapse', 'aria-label': U.t('press.dock.collapse'), html: '<svg viewBox="0 0 24 24" class="ic"><path d="M6 9l6 6 6-6"/></svg>' });
       col.addEventListener('click', function () { toggle(grp, gi); save(); });
       tabs.append(col);
       el.append(tabs, body, foot);
@@ -67,14 +67,26 @@
   /** Phones: the dock is a drawer from the right. SlopSheet (shared/ui/sheet.js) does the Panels button, the ×, Escape, a
    * tap outside and the swipe. */
   UI.attachDockSheet = function () {
-    UI.dockSheet = SlopSheet.attach({ root: U.$('#app'), panel: U.$('#dock'), side: 'end', phone: '(max-width: 899px)', toggles: [U.$('#panelsToggle')], label: 'Panels' });
+    UI.dockSheet = SlopSheet.attach({ root: U.$('#app'), panel: U.$('#dock'), side: 'end', phone: '(max-width: 899px)', toggles: [U.$('#panelsToggle')], label: U.t('press.dock.panels') });
     // The suite rule (shared/frame/HANDOFF.md): the main button, Export PDF… (File ▸ Export PDF, Ctrl+E), sits at the foot
     // of the dock (the shared footer, shared/frame/panel.js).
     if (window.SlopFramePanel && window.SlopCmd) {
-      SlopFramePanel.create(U.$('#dock'), { bare: true }).footer([{ id: 'dockExport', label: 'Export PDF…', primary: true, title: 'Export PDF (Ctrl+E)', run: function () { SlopCmd.run('file.exportPDF'); } }],
-        { more: 'Panels', onMore: function () { UI.dockSheet.toggle(); } });
+      var fp = SlopFramePanel.create(U.$('#dock'), { bare: true });
+      var foot = function () {
+        fp.footer([{ id: 'dockExport', label: U.t('press.dock.export_pdf'), primary: true, title: U.t('press.dock.export_pdf_tip', { key: 'Ctrl+E' }), run: function () { SlopCmd.run('file.exportPDF'); } }],
+          { more: U.t('press.dock.panels'), onMore: function () { UI.dockSheet.toggle(); } });
+      };
+      foot(); U.onLang(foot);
     }
   };
+  /** A language change: the tab names and the open panels again. */
+  U.onLang(function () {
+    groups.forEach(function (g) {
+      U.$$('.dtab', g.tabs).forEach(function (t) { var p = panels[t.getAttribute('data-panel')]; if (p) t.textContent = U.t(p.title); });
+      var c = g.tabs.querySelector('.dcollapse'); if (c) c.setAttribute('aria-label', U.t('press.dock.collapse'));
+      if (!g.el.classList.contains('collapsed')) select(g, g.cur);
+    });
+  });
   /** Builds a small icon button for panel footers. */
   UI.footBtn = function (icon, title, fn) {
     var b = h('button', { type: 'button', class: 'ibtn', title: title, 'aria-label': title, html: PR.kit.icon(icon) });

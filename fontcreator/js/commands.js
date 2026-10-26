@@ -49,37 +49,43 @@
     const C = g.SlopCmd, FC = g.FC;
     if (!C || !FC || !FC.state) return;
     C.init({ app: 'fontcreator' });
-    const S = FC.state, drawn = () => g.SlopFont.model.stats(S.project()).drawn > 0;
+    const S = FC.state, drawn = () => g.SlopFont.model.stats(S.project()).drawn > 0, t = FC.t;
     const safe = (fn) => () => Promise.resolve().then(fn).catch((e) => g.SlopUI.toast(e.message));
-    const tool = (id, label, key) => ({ id: 'fontcreator.tool-' + id, title: `${label} tool`, group: 'Tools', keys: [key], run: () => FC.tools.set(id) });
-    C.register([
-      { id: 'fontcreator.new', title: 'New font…', group: 'File', keywords: ['create', 'blank', 'start'], run: safe(() => FC.main.newFont()) },
-      { id: 'fontcreator.open', title: 'Open a font, project, SVG or picture…', group: 'File', keys: ['Mod+O'], keywords: ['ttf', 'otf', 'woff', 'import', 'edit font'], run: () => g.SlopIntake.pick({ to: 'fontcreator' }) },
-      { id: 'fontcreator.download', title: 'Download the font', group: 'File', keywords: ['export', 'ttf', 'otf', 'woff2', 'save'], when: drawn, run: safe(() => FC.io.download()) },
-      { id: 'fontcreator.drive', title: 'Save the font to Slop Drive', group: 'File', when: drawn, run: safe(() => FC.io.saveToDrive()) },
-      { id: 'fontcreator.save-project', title: 'Save the project to Slop Drive', group: 'File', keys: ['Mod+S'], keywords: ['sfont', 'keep'], run: safe(() => FC.io.saveToDrive('sfont')) },
-      { id: 'fontcreator.download-project', title: 'Download the project (.sfont)', group: 'File', run: safe(() => FC.io.download('sfont')) },
-      { id: 'fontcreator.css', title: 'Copy the CSS @font-face rule', group: 'File', keywords: ['web font', 'css'], run: safe(() => FC.io.copyCss()) },
-      { id: 'fontcreator.undo', title: 'Undo', group: 'Edit', keys: ['Mod+Z'], when: () => S.canUndo(), run: () => S.undo() },
-      { id: 'fontcreator.redo', title: 'Redo', group: 'Edit', keys: ['Mod+Shift+Z', 'Mod+Y'], when: () => S.canRedo(), run: () => S.redo() },
-      { id: 'fontcreator.union', title: 'Union the selected contours', group: 'Path', keywords: ['boolean', 'join', 'merge'], run: safe(() => FC.ops.boolean('union')) },
-      { id: 'fontcreator.subtract', title: 'Subtract the selected contours', group: 'Path', keywords: ['boolean', 'cut', 'minus'], run: safe(() => FC.ops.boolean('minus')) },
-      { id: 'fontcreator.intersect', title: 'Intersect the selected contours', group: 'Path', keywords: ['boolean'], run: safe(() => FC.ops.boolean('intersect')) },
-      { id: 'fontcreator.merge', title: 'Remove overlap', group: 'Path', keywords: ['merge', 'union all', 'clean'], run: safe(() => FC.ops.merge()) },
-      { id: 'fontcreator.flip-h', title: 'Flip horizontally', group: 'Path', run: safe(() => FC.ops.flip('h')) },
-      { id: 'fontcreator.flip-v', title: 'Flip vertically', group: 'Path', run: safe(() => FC.ops.flip('v')) },
-      { id: 'fontcreator.svg', title: 'Draw the glyph from SVG…', group: 'Glyph', keywords: ['import svg', 'paste path'], run: () => FC.svgUi.open() },
-      { id: 'fontcreator.trace', title: 'Trace a picture into the glyph…', group: 'Glyph', keywords: ['handwriting', 'image', 'scan'], run: safe(() => FC.traceUi.pick()) },
-      { id: 'fontcreator.sheet', title: 'Print a handwriting sheet…', group: 'Glyph', keywords: ['template', 'pdf', 'handwriting'], run: () => FC.sheetUi.template() },
-      { id: 'fontcreator.sheet-read', title: 'Read a filled handwriting sheet…', group: 'Glyph', keywords: ['scan', 'photo', 'handwriting'], run: safe(() => FC.sheetUi.pick()) },
-      { id: 'fontcreator.prev', title: 'Previous glyph', group: 'Glyph', keys: ['Mod+['], run: () => FC.toolbar.step(-1) },
-      { id: 'fontcreator.next', title: 'Next glyph', group: 'Glyph', keys: ['Mod+]'], run: () => FC.toolbar.step(1) },
-      { id: 'fontcreator.view-draw', title: 'Show the glyph editor', group: 'View', run: () => FC.main.tab('draw') },
-      { id: 'fontcreator.view-kerning', title: 'Show kerning', group: 'View', keywords: ['pairs', 'spacing'], run: () => FC.main.tab('kerning') },
-      { id: 'fontcreator.view-test', title: 'Show the type test', group: 'View', keywords: ['preview', 'tester', 'specimen'], run: () => FC.main.tab('test') },
-      { id: 'fontcreator.fit', title: 'Fit the glyph in view', group: 'View', keys: ['Mod+0'], run: () => FC.editor.fit() },
-      tool('select', 'Select', 'V'), tool('pen', 'Pen', 'P'), tool('rect', 'Rectangle', 'R'), tool('ellipse', 'Ellipse', 'E'), tool('stroke', 'Stroke', 'S'),
-    ]);
+    // built on every call (registration and each language change), so the palette reads the current language
+    const all = () => {
+    const G = { file: t('menu.file'), edit: t('menu.edit'), view: t('menu.view'), tools: t('fontcreator.cmd.group_tools'), path: t('fontcreator.cmd.group_path'), glyph: t('fontcreator.cmd.group_glyph') };
+    const tool = (id, key) => ({ id: 'fontcreator.tool-' + id, title: t('fontcreator.cmd.tool', { tool: t(`fontcreator.tool.${id}`) }), group: G.tools, keys: [key], run: () => FC.tools.set(id) });
+    return [
+      { id: 'fontcreator.new', title: t('fontcreator.cmd.new'), group: G.file, keywords: ['create', 'blank', 'start'], run: safe(() => FC.main.newFont()) },
+      { id: 'fontcreator.open', title: t('fontcreator.cmd.open'), group: G.file, keys: ['Mod+O'], keywords: ['ttf', 'otf', 'woff', 'import', 'edit font'], run: () => g.SlopIntake.pick({ to: 'fontcreator' }) },
+      { id: 'fontcreator.download', title: t('fontcreator.cmd.download'), group: G.file, keywords: ['export', 'ttf', 'otf', 'woff2', 'save'], when: drawn, run: safe(() => FC.io.download()) },
+      { id: 'fontcreator.drive', title: t('fontcreator.cmd.drive'), group: G.file, when: drawn, run: safe(() => FC.io.saveToDrive()) },
+      { id: 'fontcreator.save-project', title: t('fontcreator.cmd.save_project'), group: G.file, keys: ['Mod+S'], keywords: ['sfont', 'keep'], run: safe(() => FC.io.saveToDrive('sfont')) },
+      { id: 'fontcreator.download-project', title: t('fontcreator.cmd.download_project'), group: G.file, run: safe(() => FC.io.download('sfont')) },
+      { id: 'fontcreator.css', title: t('fontcreator.cmd.css'), group: G.file, keywords: ['web font', 'css'], run: safe(() => FC.io.copyCss()) },
+      { id: 'fontcreator.undo', title: t('ui.undo'), group: G.edit, keys: ['Mod+Z'], when: () => S.canUndo(), run: () => S.undo() },
+      { id: 'fontcreator.redo', title: t('ui.redo'), group: G.edit, keys: ['Mod+Shift+Z', 'Mod+Y'], when: () => S.canRedo(), run: () => S.redo() },
+      { id: 'fontcreator.union', title: t('fontcreator.cmd.union'), group: G.path, keywords: ['boolean', 'join', 'merge'], run: safe(() => FC.ops.boolean('union')) },
+      { id: 'fontcreator.subtract', title: t('fontcreator.cmd.subtract'), group: G.path, keywords: ['boolean', 'cut', 'minus'], run: safe(() => FC.ops.boolean('minus')) },
+      { id: 'fontcreator.intersect', title: t('fontcreator.cmd.intersect'), group: G.path, keywords: ['boolean'], run: safe(() => FC.ops.boolean('intersect')) },
+      { id: 'fontcreator.merge', title: t('fontcreator.cmd.merge'), group: G.path, keywords: ['merge', 'union all', 'clean'], run: safe(() => FC.ops.merge()) },
+      { id: 'fontcreator.flip-h', title: t('fontcreator.cmd.flip_h'), group: G.path, run: safe(() => FC.ops.flip('h')) },
+      { id: 'fontcreator.flip-v', title: t('fontcreator.cmd.flip_v'), group: G.path, run: safe(() => FC.ops.flip('v')) },
+      { id: 'fontcreator.svg', title: t('fontcreator.cmd.svg'), group: G.glyph, keywords: ['import svg', 'paste path'], run: () => FC.svgUi.open() },
+      { id: 'fontcreator.trace', title: t('fontcreator.cmd.trace'), group: G.glyph, keywords: ['handwriting', 'image', 'scan'], run: safe(() => FC.traceUi.pick()) },
+      { id: 'fontcreator.sheet', title: t('fontcreator.cmd.sheet'), group: G.glyph, keywords: ['template', 'pdf', 'handwriting'], run: () => FC.sheetUi.template() },
+      { id: 'fontcreator.sheet-read', title: t('fontcreator.cmd.sheet_read'), group: G.glyph, keywords: ['scan', 'photo', 'handwriting'], run: safe(() => FC.sheetUi.pick()) },
+      { id: 'fontcreator.prev', title: t('fontcreator.cmd.prev'), group: G.glyph, keys: ['Mod+['], run: () => FC.toolbar.step(-1) },
+      { id: 'fontcreator.next', title: t('fontcreator.cmd.next'), group: G.glyph, keys: ['Mod+]'], run: () => FC.toolbar.step(1) },
+      { id: 'fontcreator.view-draw', title: t('fontcreator.cmd.view_draw'), group: G.view, run: () => FC.main.tab('draw') },
+      { id: 'fontcreator.view-kerning', title: t('fontcreator.cmd.view_kerning'), group: G.view, keywords: ['pairs', 'spacing'], run: () => FC.main.tab('kerning') },
+      { id: 'fontcreator.view-test', title: t('fontcreator.cmd.view_test'), group: G.view, keywords: ['preview', 'tester', 'specimen'], run: () => FC.main.tab('test') },
+      { id: 'fontcreator.fit', title: t('fontcreator.cmd.fit'), group: G.view, keys: ['Mod+0'], run: () => FC.editor.fit() },
+      tool('select', 'V'), tool('pen', 'P'), tool('rect', 'R'), tool('ellipse', 'E'), tool('stroke', 'S'),
+    ];
+    };
+    C.register(all());
+    FC.onLang(() => C.register(all()));
     C.provide({
       prepare: () => (g.SlopCmdSources ? Promise.resolve() : load('../../shared/commands/sources.js')).then(() => (C.get('fontcreator.ai.new-font') ? null : load('ai-commands.js')))
         .then(() => (C.get('fontcreator.ai.draw-strokes') ? null : load('ai-commands-2.js'))),

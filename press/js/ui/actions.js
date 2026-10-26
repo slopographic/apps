@@ -20,9 +20,19 @@
       .then(function () { return script('ai-build.js'); }).then(function () { return script('ai-commands.js'); }).then(function () { PR.aiPress.loaded = true; });
   };
 
+  /** title and group are keys ('press.cmd.file_new', 'menu.file') or functions: read in the current language on every use. */
+  var KEY = /^(press|menu|ui)\.[a-z0-9_.]+$/;
+  function words(c) {
+    ['title', 'group'].forEach(function (f) {
+      var v = c[f];
+      if (typeof v !== 'function' && !(typeof v === 'string' && KEY.test(v))) return;
+      Object.defineProperty(c, f, { enumerable: true, configurable: true, get: typeof v === 'function' ? v : function () { return U.t(v); } });
+    });
+  }
   A.register = function (list) {
     [].concat(list).forEach(function (c) {
       if (!c || !c.id) return;
+      words(c);
       if (!A.defs[c.id]) A.order.push(c.id);
       A.defs[c.id] = c;
     });
@@ -39,7 +49,7 @@
     var c = A.defs[id];
     if (!c) return false;
     if (!A.enabled(id)) return false;
-    try { var r = c.run(ctx || {}); PR.emit('action', id); return r === undefined ? true : r; } catch (e) { console.error(e); U.toast('Something went wrong: ' + e.message); return false; }
+    try { var r = c.run(ctx || {}); PR.emit('action', id); return r === undefined ? true : r; } catch (e) { console.error(e); U.toast(U.t('press.app.went_wrong', { error: e.message })); return false; }
   };
 
   /* ---------- key labels ---------- */
@@ -81,6 +91,8 @@
     return true;
   };
   /** Loads shared/commands/ on demand when the page did not include it. */
+  // a language change: the palette and the shortcut list read the titles again
+  U.onLang(function () { if (A.bound && window.SlopCmd) toSlopCmd(A.order.map(function (id) { return A.defs[id]; })); PR.emit('keys'); });
   A.loadSlopCmd = function () {
     if (window.SlopCmd) return Promise.resolve(A.bindSlopCmd());
     if (!window.SlopHub || !window.SlopHub.loadScript || location.protocol === 'file:') return Promise.resolve(false);

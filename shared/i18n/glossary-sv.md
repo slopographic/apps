@@ -370,3 +370,60 @@ history step and palette word, so never strip a suffix to get it. Layer names th
 | inverse box | inverterad ruta |  |
 | look (colour) | look | «Färglook», «Looks» |
 | pace | tempo |  |
+
+## Slop Press, SlopVector, Slop Slides, Slop Font (wave 1, group C)
+
+| English | Svenska | Note |
+| --- | --- | --- |
+| place (a file, art, image) | Montera | as Adobe sv (InDesign, Illustrator): «Montera…», «Montera från Slop Drive…», «Monterade text» |
+| master page | mallsida | «Ny mallsida», «Använd mallsida» |
+| paragraph style / character style | styckeformat / teckenformat | as InDesign sv |
+| swatch / Swatches panel | färgruta / Färgrutor |  |
+| spread / facing pages | uppslag |  |
+| text frame / image frame | textram / bildram |  |
+| fill / stroke | fyllning / linje | «Fyllningsfärg», «Linjefärg», «Linjetjocklek»; Slides' shape «outline» is «kontur» |
+| leading / tracking | radavstånd / spärrning | short labels «Radavst.», «Spärr.» |
+| text wrap | textombrytning |  |
+| overset text | överskjutande text |  |
+| autoflow | flöda automatiskt |  |
+| thread (text frames) | länka | «Visa textlänkar» |
+| gutter | spaltavstånd | short label «Avst.» |
+| inset (frame) | indrag / inre marginal |  |
+| drop cap | anfang |  |
+| baseline grid | baslinjeraster |  |
+| composer | disposition | «Styckedisposition», «Enradsdisposition» |
+| bleed / slug | utfall / informationsområde | marks: skärmärken, utfallsmärken, passmärken |
+| pasteboard | montagebord |  |
+| guide / smart guides | stödlinje / smarta stödlinjer |  |
+| grid (view) | stödraster | «Fäst mot stödraster» |
+| ruler | linjal |  |
+| snap | Fäst |  |
+| Type / Object / Window menus | Text / Objekt / Fönster |  |
+| Document Setup | Dokumentinställningar (Press), Dokumentformat (Vector) | as each Adobe app |
+| artboard | rityta |  |
+| gradient | övertoning | «Färgstopp» for a stop |
+| anchor point | ankarpunkt |  |
+| path | bana | «Sammansatt bana» |
+| clipping mask | urklippsmask | «Skapa/Frigör urklippsmask» |
+| Pathfinder | Banhanterare | Förena / Minus framför / Snitt / Uteslut |
+| expand / release | Utvidga / Frigör |  |
+| reflect / flip | Spegla / Vänd vågrätt, Vänd lodrätt |  |
+| blend mode | blandningsläge |  |
+| miter / cap / join | gering / ände / hörn |  |
+| eyedropper / scissors / pencil / paintbrush | Pipett / Sax / Blyertspenna / Pensel |  |
+| buffer (Slop buffer) | buffert | «Kopiera till bufferten» |
+| Slopify | Slopifiera | coined verb |
+| slide (Slides) | bild | as PowerPoint sv: «Ny bild», «Bild 3 av 10» |
+| presenter view / speaker notes | presentatörsvy / talaranteckningar |  |
+| present / slide show | Presentera / bildspel |  |
+| transition / animation | övergång / animering | «Med föregående», «Vid klick» |
+| layout (slide) | layout | «Rubrik och innehåll», «Endast rubrik», «Tom» |
+| template | mall | «Ny från mall…», «Mina mallar» |
+| glyph | glyf | plural «glyfer» |
+| kerning / kerning pair | kerning / kerningpar |  |
+| ascender / descender / cap height / x-height | uppstapel / nedstapel / versalhöjd / x-höjd |  |
+| type test (Font) | provtext |  |
+| handwriting sheet | handskriftsark |  |
+| trace (a picture) | Spåra |  |
+| contour (glyph) | kontur | «Förena markerade konturer» |
+| font weight names | Tunn … Svart in Slop Font's weight list; kept English where they are a typeface's style name (Vector) |  |

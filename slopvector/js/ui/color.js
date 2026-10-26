@@ -28,7 +28,7 @@
     el.style.background = !p ? '' : typeof p === 'string' ? p : gradCSS(p);
   }
   UI.paintBG = paintBG;
-  function paintLabel(p) { if (!p) return 'None'; if (typeof p === 'string') return p.toUpperCase(); return (p.type === 'radial' ? 'Radial' : 'Linear') + ' gradient'; }
+  function paintLabel(p) { if (!p) return SV.t('ui.none'); if (typeof p === 'string') return p.toUpperCase(); return p.type === 'radial' ? SV.t('vector.paint.radial_gradient') : SV.t('vector.paint.linear_gradient'); }
 
   /* ================= colour conversions & picker ================= */
   function hexToRgb(hex) {
@@ -62,18 +62,18 @@
     UI.closePicker();
     opts = opts || {};
     var hex = typeof initial === 'string' ? initial : (initial && initial.stops ? initial.stops[0].c : '#d4ff3a');
-    var el = h('div', { class: 'picker', role: 'dialog', 'aria-label': opts.title || 'Color picker' });
-    var head = h('div', { class: 'picker-head' }, [h('span', { text: opts.title || 'Color' }), h('button', { class: 'xbtn', type: 'button', 'aria-label': 'Close', html: '&times;', onclick: function () { UI.closePicker(); } })]);
+    var el = h('div', { class: 'picker', role: 'dialog', 'aria-label': opts.title || SV.t('vector.paint.picker') });
+    var head = h('div', { class: 'picker-head' }, [h('span', { text: opts.title || SV.t('vector.paint.color') }), h('button', { class: 'xbtn', type: 'button', 'aria-label': SV.t('menu.close'), html: '&times;', onclick: function () { UI.closePicker(); } })]);
     var st = { el: el, hex: hex, value: initial, changed: false, onDone: onDone };
     st.cp = SlopColorPicker.create({
       value: hex, recents: RECENTS, palette: PALETTE, alpha: opts.alpha !== false,
       onChange: function (c) { st.hex = c; st.value = c; st.changed = true; if (onInput) onInput(c); },
     });
     var foot = h('div', { class: 'pk-foot' });
-    if (opts.allowNone) foot.appendChild(h('button', { class: 'btn small', type: 'button', text: 'None', onclick: function () { st.value = null; st.changed = true; onInput && onInput(null); UI.closePicker(); } }));
-    if (opts.allowGradient) foot.appendChild(h('button', { class: 'btn small', type: 'button', text: 'Gradient…', onclick: function () { UI.closePicker(); opts.allowGradient(); } }));
+    if (opts.allowNone) foot.appendChild(h('button', { class: 'btn small', type: 'button', text: SV.t('ui.none'), onclick: function () { st.value = null; st.changed = true; onInput && onInput(null); UI.closePicker(); } }));
+    if (opts.allowGradient) foot.appendChild(h('button', { class: 'btn small', type: 'button', text: SV.t('vector.paint.gradient_dots'), onclick: function () { UI.closePicker(); opts.allowGradient(); } }));
     foot.appendChild(h('span', { class: 'grow' }));
-    foot.appendChild(h('button', { class: 'btn small primary', type: 'button', text: 'Done', onclick: function () { UI.closePicker(); } }));
+    foot.appendChild(h('button', { class: 'btn small primary', type: 'button', text: SV.t('ui.done'), onclick: function () { UI.closePicker(); } }));
     el.appendChild(head); el.appendChild(st.cp.el); el.appendChild(foot);
     el.addEventListener('keydown', function (e) { if (e.key === 'Enter' && e.target.tagName === 'INPUT') UI.closePicker(); });
     document.body.appendChild(el);
@@ -96,7 +96,7 @@
       SV.applyStyle(which, hex, { commit: false });
     }, function (val, changed) {
       if (changed) SV.commit('color ' + which); else SV.requestRender(true);
-    }, { allowNone: true, title: which === 'fill' ? 'Fill' : 'Stroke', allowGradient: function () { var p = SV.currentPaint(which); if (!p || typeof p !== 'object') SV.applyStyle(which, SV.defaultGradient(p)); showPanel('gradient'); } });
+    }, { allowNone: true, title: which === 'fill' ? SV.t('vector.paint.fill') : SV.t('vector.paint.stroke'), allowGradient: function () { var p = SV.currentPaint(which); if (!p || typeof p !== 'object') SV.applyStyle(which, SV.defaultGradient(p)); showPanel('gradient'); } });
     void before;
   }
   UI.editPaint = editPaint;

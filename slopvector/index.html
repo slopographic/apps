@@ -5,6 +5,18 @@
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="vector" data-src="shared/theme/theme.js"></script>
   <link rel="expect" href="#slop-built" blocking="render">
+  <script src="../shared/i18n/i18n.js" data-src="shared/i18n/i18n.js"></script>
+  <script src="i18n/index.js" data-src="slopvector/i18n/index.js"></script>
+  <!-- The English tables for the offline single-file copy: inert here (type text/plain is neither fetched nor run;
+       i18n.js above loads the tables), inlined and run in the copy (shared/offline/build.js drops the type). -->
+  <script type="text/plain" src="../shared/i18n/strings.js" data-src="shared/i18n/strings.js"></script>
+  <script type="text/plain" src="../shared/i18n/ui/en.js" data-src="shared/i18n/ui/en.js"></script>
+  <script type="text/plain" src="i18n/en/actions.js" data-src="slopvector/i18n/en/actions.js"></script>
+  <script type="text/plain" src="i18n/en/dialogs.js" data-src="slopvector/i18n/en/dialogs.js"></script>
+  <script type="text/plain" src="i18n/en/messages.js" data-src="slopvector/i18n/en/messages.js"></script>
+  <script type="text/plain" src="i18n/en/panels.js" data-src="slopvector/i18n/en/panels.js"></script>
+  <script type="text/plain" src="i18n/en/tools.js" data-src="slopvector/i18n/en/tools.js"></script>
+  <script type="text/plain" src="i18n/en/ui.js" data-src="slopvector/i18n/en/ui.js"></script>
 <script src="../shared/consent/config.js" data-offline="strip"></script>
 <script src="../shared/consent/state.js" data-offline="strip"></script>
 <script src="../shared/consent/consent-mode.js" data-offline="strip"></script>
@@ -76,41 +88,41 @@
 <body>
   <div id="app" class="app">
     <header class="menubar" id="menubar">
-      <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home">
+      <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home" data-i18n-attr="title:ui.mb.home;aria-label:ui.mb.home">
         <svg viewBox="0 0 32 32" class="brand-mark" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/><path class="shine" d="M11.5 20.5a4.5 4.5 0 0 0 3.5 4.4"/></svg>
         <span class="brand-name">SlopVector</span>
       </a>
-      <nav class="menus" id="menus" role="menubar" aria-label="Main menu"></nav>
+      <nav class="menus" id="menus" role="menubar" aria-label="Main menu" data-i18n-attr="aria-label:vector.app.main_menu"></nav>
       <div class="menubar-right">
         <span class="docname" id="docTitle"></span>
-        <button type="button" class="iconbtn" id="cmdBtn" title="Search commands" aria-label="Search commands" hidden><svg viewBox="0 0 24 24" class="ic" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg></button>
-        <button type="button" class="iconbtn" id="panelsToggle" title="Show/Hide Panels (Tab)" aria-label="Show or hide panels"><svg viewBox="0 0 24 24" class="ic" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="1.5"/><path d="M15 4v16M17.5 8h1.5M17.5 11h1.5"/></svg></button>
-        <a class="home-link" href="../" title="Back to slopographic.com"><span class="hl-text">slopographic.com</span> <span aria-hidden="true">↗</span></a>
+        <button type="button" class="iconbtn" id="cmdBtn" title="Search commands" aria-label="Search commands" data-i18n-attr="aria-label:ui.cmd.search" hidden><svg viewBox="0 0 24 24" class="ic" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg></button>
+        <button type="button" class="iconbtn" id="panelsToggle" title="Show/Hide Panels (Tab)" aria-label="Show or hide panels" data-i18n-attr="title:vector.app.panels_tip;aria-label:vector.app.panels_toggle"><svg viewBox="0 0 24 24" class="ic" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="1.5"/><path d="M15 4v16M17.5 8h1.5M17.5 11h1.5"/></svg></button>
+        <a class="home-link" href="../" title="Back to slopographic.com" data-i18n-attr="title:vector.app.back_home"><span class="hl-text">slopographic.com</span> <span aria-hidden="true">↗</span></a>
       </div>
     </header>
-    <div class="controlbar" id="controlbar" role="toolbar" aria-label="Control bar"></div>
+    <div class="controlbar" id="controlbar" role="toolbar" aria-label="Control bar" data-i18n-attr="aria-label:vector.app.control_bar"></div>
     <div class="main">
-      <aside class="toolbar" id="toolbar" aria-label="Tools panel"></aside>
-      <section class="center" aria-label="Canvas">
+      <aside class="toolbar" id="toolbar" aria-label="Tools panel" data-i18n-attr="aria-label:vector.app.tools_panel"></aside>
+      <section class="center" aria-label="Canvas" data-i18n-attr="aria-label:vector.app.canvas">
         <div class="doctabs"><div class="doctab active" id="docTab"></div></div>
         <div class="workspace" id="workspace">
-          <div class="ruler-corner" id="rulerCorner" title="Double-click to fit artboard"></div>
-          <canvas class="ruler ruler-h" id="rulerH" aria-label="Horizontal ruler — drag down to create a guide"></canvas>
-          <canvas class="ruler ruler-v" id="rulerV" aria-label="Vertical ruler — drag right to create a guide"></canvas>
+          <div class="ruler-corner" id="rulerCorner" title="Double-click to fit artboard" data-i18n-attr="title:vector.app.ruler_corner"></div>
+          <canvas class="ruler ruler-h" id="rulerH" aria-label="Horizontal ruler — drag down to create a guide" data-i18n-attr="aria-label:vector.app.ruler_h"></canvas>
+          <canvas class="ruler ruler-v" id="rulerV" aria-label="Vertical ruler — drag right to create a guide" data-i18n-attr="aria-label:vector.app.ruler_v"></canvas>
           <div class="stage" id="stage" data-tool="select" data-touch-surface="nav">
             <div class="sv-dropstrip" id="svDrop"></div>
-            <svg id="docsvg" class="docsvg" xmlns="http://www.w3.org/2000/svg" aria-label="Artwork">
+            <svg id="docsvg" class="docsvg" xmlns="http://www.w3.org/2000/svg" aria-label="Artwork" data-i18n-attr="aria-label:vector.app.artwork">
               <g id="vpBack"><rect id="artShadow" x="0" y="0" width="1" height="1"/><rect id="artboard" x="0" y="0" width="1" height="1"/></g>
               <g id="grid"></g>
               <g id="vpArt"></g>
             </svg>
             <svg id="overlay" class="overlay" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"></svg>
-            <textarea id="textEditor" class="text-editor" spellcheck="false" autocomplete="off" autocapitalize="off" aria-label="Edit text" wrap="off"></textarea>
-            <div class="drop-hint" aria-hidden="true"><span>Drop SVG or images to place them</span></div>
+            <textarea id="textEditor" class="text-editor" spellcheck="false" autocomplete="off" autocapitalize="off" aria-label="Edit text" data-i18n-attr="aria-label:vector.app.edit_text" wrap="off"></textarea>
+            <div class="drop-hint" aria-hidden="true"><span data-i18n="vector.app.drop_hint">Drop SVG or images to place them</span></div>
           </div>
         </div>
       </section>
-      <aside class="dock" id="dock" aria-label="Panels"></aside>
+      <aside class="dock" id="dock" aria-label="Panels" data-i18n-attr="aria-label:vector.dock.panels"></aside>
     </div>
     <footer class="statusbar" id="statusbar"></footer>
   </div>

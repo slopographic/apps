@@ -8,7 +8,9 @@
   /* ---------- units ---------- */
   // InDesign convention: 1 px = 1 pt.
   U.UNITS = { pt: 1, px: 1, mm: 72 / 25.4, cm: 72 / 2.54, in: 72, pc: 12 };
-  U.UNIT_NAMES = { pt: 'Points', px: 'Pixels', mm: 'Millimeters', cm: 'Centimeters', in: 'Inches', pc: 'Picas' };
+  /** Names read in the current language on every use (keys press.core.*, press/i18n/<code>/core.js). */
+  U.named = function (o, map) { Object.keys(map).forEach(function (k) { Object.defineProperty(o, k, { enumerable: true, configurable: true, get: function () { return U.t(map[k]); } }); }); return o; };
+  U.UNIT_NAMES = U.named({}, { pt: 'press.core.unit_pt', px: 'press.core.unit_px', mm: 'press.core.unit_mm', cm: 'press.core.unit_cm', in: 'press.core.unit_in', pc: 'press.core.unit_pc' });
   U.toPt = function (v, unit) { return (+v || 0) * (U.UNITS[unit] || 1); };
   U.fromPt = function (pt, unit) { return pt / (U.UNITS[unit] || 1); };
   U.round = function (v, d) { var m = Math.pow(10, d == null ? 3 : d); return Math.round(v * m) / m; };
@@ -34,13 +36,13 @@
     { id: 'a4', name: 'A4', w: 595.276, h: 841.89 },
     { id: 'a5', name: 'A5', w: 419.528, h: 595.276 },
     { id: 'a3', name: 'A3', w: 841.89, h: 1190.551 },
-    { id: 'letter', name: 'Letter', w: 612, h: 792 },
-    { id: 'legal', name: 'Legal', w: 612, h: 1008 },
-    { id: 'tabloid', name: 'Tabloid', w: 792, h: 1224 },
-    { id: 'halfletter', name: 'Half Letter', w: 396, h: 612 },
-    { id: 'card', name: 'Business Card (US)', w: 252, h: 144 },
-    { id: 'cardeu', name: 'Business Card (EU)', w: 240.945, h: 155.906 },
-    { id: 'a6', name: 'A6 Postcard', w: 297.638, h: 419.528 }
+    U.named({ id: 'letter', w: 612, h: 792 }, { name: 'press.core.size_letter' }),
+    U.named({ id: 'legal', w: 612, h: 1008 }, { name: 'press.core.size_legal' }),
+    U.named({ id: 'tabloid', w: 792, h: 1224 }, { name: 'press.core.size_tabloid' }),
+    U.named({ id: 'halfletter', w: 396, h: 612 }, { name: 'press.core.size_halfletter' }),
+    U.named({ id: 'card', w: 252, h: 144 }, { name: 'press.core.size_card' }),
+    U.named({ id: 'cardeu', w: 240.945, h: 155.906 }, { name: 'press.core.size_cardeu' }),
+    U.named({ id: 'a6', w: 297.638, h: 419.528 }, { name: 'press.core.size_a6' })
   ];
   U.presetFor = function (w, h) {
     for (var i = 0; i < U.PRESETS.length; i++) {
@@ -103,6 +105,11 @@
   };
   U.$ = function (sel, root) { return (root || document).querySelector(sel); };
   U.$$ = function (sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); };
+  /* ---------- language (shared/i18n/APPS-HOWTO.md; the words are in press/i18n/<code>/*.js) ---------- */
+  /** The chosen language's text for a key, English when that language lacks it. Call it when UI is built, never at load. */
+  U.t = function (key, vars) { var I = window.SlopI18n; return I ? I.t(key, vars) : key; };
+  /** Runs fn after a language change, once the new tables are in (for UI built once: toolbars, panels, the status bar). */
+  U.onLang = function (fn) { var I = window.SlopI18n; return I && I.on ? I.on(fn) : function () {}; };
   U.toast = function (msg, ms) { if (window.SlopUI) window.SlopUI.toast(msg, ms); };
   U.debounce = function (fn, ms) { var t = 0; return function () { var a = arguments, s = this; clearTimeout(t); t = setTimeout(function () { fn.apply(s, a); }, ms); }; };
 

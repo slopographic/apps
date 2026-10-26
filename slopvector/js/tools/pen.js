@@ -124,7 +124,7 @@
   TOOLS.addAnchor = {
     down: function (ev) {
       var seg = SV.hitSegment(allLeafCandidates(ev.p), ev.p);
-      if (!seg) return SV.toast('Click on a path segment to add an anchor point');
+      if (!seg) return SV.toast(SV.t('vector.msg.click_segment'));
       addAnchor(seg); SV.commit('add anchor');
     },
     hover: function (ev) { var h = SV.hitTest(ev.p); S.hover = h ? h.obj.id : null; setCursor(CURSORS.penAdd); }
@@ -132,7 +132,7 @@
   TOOLS.deleteAnchor = {
     down: function (ev) {
       var ah = SV.hitAnchor(allLeafCandidates(ev.p), ev.p, false);
-      if (!ah) return SV.toast('Click on an anchor point to delete it');
+      if (!ah) return SV.toast(SV.t('vector.msg.click_anchor'));
       deleteAnchor(ah.o, ah.si, ah.i); SV.commit('delete anchor');
     },
     hover: function (ev) { var h = SV.hitTest(ev.p); S.hover = h ? h.obj.id : null; setCursor(CURSORS.penDel); }

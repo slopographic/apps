@@ -50,78 +50,80 @@
   function buildProperties() {
     var body = panelEls.properties.body, g = 'props';
     var none = h('div', { class: 'psec doc-sec' });
-    none.appendChild(h('div', { class: 'psec-title', text: 'Document' }));
+    none.appendChild(h('div', { class: 'psec-title', i18n: { text: 'vector.props.document' } }));
     none.appendChild(h('div', { class: 'grid2' }, [
-      field('W', numIn(g, { label: 'Artboard width', min: 1, max: 20000, get: function () { return S.doc.width; }, set: function (v) { S.doc.width = v; SV.commit('artboard'); } }), 'px'),
-      field('H', numIn(g, { label: 'Artboard height', min: 1, max: 20000, get: function () { return S.doc.height; }, set: function (v) { S.doc.height = v; SV.commit('artboard'); } }), 'px')
+      field('vector.props.w', numIn(g, { label: 'vector.props.artboard_w', min: 1, max: 20000, get: function () { return S.doc.width; }, set: function (v) { S.doc.width = v; SV.commit('artboard'); } }), 'px'),
+      field('vector.props.h', numIn(g, { label: 'vector.props.artboard_h', min: 1, max: 20000, get: function () { return S.doc.height; }, set: function (v) { S.doc.height = v; SV.commit('artboard'); } }), 'px')
     ]));
-    none.appendChild(h('div', { class: 'btnrow' }, [btn('Document Setup…', function () { docSetupDialog(); }), btn('Fit Artboard', function () { SV.fitArtboard(); })]));
+    none.appendChild(h('div', { class: 'btnrow' }, [btn('vector.act.file_doc_setup', function () { docSetupDialog(); }), btn('vector.props.fit_artboard', function () { SV.fitArtboard(); })]));
     var toggles = h('div', { class: 'checks' });
-    [['rulers', 'Rulers', 'view.rulers'], ['grid', 'Grid', 'view.grid'], ['snapGrid', 'Snap to grid', 'view.snapGrid'], ['smart', 'Smart guides', 'view.smart'], ['outline', 'Outline mode', 'view.outline']].forEach(function (t) {
+    [['rulers', 'vector.act.view_rulers', 'view.rulers'], ['grid', 'vector.act.view_grid', 'view.grid'], ['snapGrid', 'vector.props.snap_grid', 'view.snapGrid'], ['smart', 'vector.props.smart', 'view.smart'], ['outline', 'vector.props.outline', 'view.outline']].forEach(function (t) {
       var cbx = h('input', { type: 'checkbox' });
       cbx.addEventListener('change', function () { if (!!S.prefs[t[0]] !== cbx.checked) SV.runAction(t[2]); });
       bind(g, function () { cbx.checked = !!S.prefs[t[0]]; });
-      toggles.appendChild(h('label', { class: 'chk' }, [cbx, h('span', { text: t[1] })]));
+      toggles.appendChild(h('label', { class: 'chk' }, [cbx, h('span', { i18n: { text: t[1] } })]));
     });
     none.appendChild(toggles);
-    none.appendChild(h('div', { class: 'psec-title', text: 'Tip' }));
-    none.appendChild(h('p', { class: 'tip', text: 'Select something to edit it. Double-click text to retype it. Press F1 for every shortcut.' }));
+    none.appendChild(h('div', { class: 'psec-title', i18n: { text: 'vector.props.tip' } }));
+    none.appendChild(h('p', { class: 'tip', i18n: { text: 'vector.props.tip_text' } }));
     // transform section
     var tr = h('div', { class: 'psec tr-sec' });
-    tr.appendChild(h('div', { class: 'psec-title', text: 'Transform' }));
-    var grid9 = h('div', { class: 'ref9', role: 'radiogroup', 'aria-label': 'Reference point' });
+    tr.appendChild(h('div', { class: 'psec-title', i18n: { text: 'vector.menu.transform' } }));
+    var grid9 = h('div', { class: 'ref9', role: 'radiogroup', i18n: { 'aria-label': 'vector.props.ref_point' } });
     ['nw', 'n', 'ne', 'w', 'c', 'e', 'sw', 's', 'se'].forEach(function (p) {
-      var b = h('button', { type: 'button', class: 'refpt', title: 'Reference point', 'aria-label': 'Reference point ' + p });
+      var b = h('button', { type: 'button', class: 'refpt', i18n: { title: 'vector.props.ref_point', 'aria-label': `vector.props.ref_${p}` } });
       b.addEventListener('click', function () { refPt = p; runBinds(g); });
       bind(g, function () { b.classList.toggle('on', refPt === p); });
       grid9.appendChild(b);
     });
     var gv = function (k) { return function () { var b = SV.selBBox(); if (!b) return null; var r = refOf(b); return k === 'x' ? r.x : k === 'y' ? r.y : k === 'w' ? b.w : b.h; }; };
-    var link = h('button', { type: 'button', class: 'ibtn link', title: 'Constrain width and height proportions', 'aria-label': 'Constrain proportions', html: I.link, onclick: function () { linkWH = !linkWH; runBinds(g); } });
+    var link = h('button', { type: 'button', class: 'ibtn link', i18n: { title: 'vector.props.constrain_tip', 'aria-label': 'vector.props.constrain' }, html: I.link, onclick: function () { linkWH = !linkWH; runBinds(g); } });
     bind(g, function () { link.classList.toggle('on', linkWH); });
     tr.appendChild(h('div', { class: 'tr-grid' }, [grid9, h('div', { class: 'grid2 tight' }, [
       field('X', numIn(g, { label: 'X', step: 1, get: gv('x'), set: function (v) { setTransformField('x', v); } }), 'px'),
-      field('W', numIn(g, { label: 'Width', step: 1, min: 0, get: gv('w'), set: function (v) { setTransformField('w', v); } }), 'px'),
+      field('vector.props.w', numIn(g, { label: 'vector.props.width', step: 1, min: 0, get: gv('w'), set: function (v) { setTransformField('w', v); } }), 'px'),
       field('Y', numIn(g, { label: 'Y', step: 1, get: gv('y'), set: function (v) { setTransformField('y', v); } }), 'px'),
-      field('H', numIn(g, { label: 'Height', step: 1, min: 0, get: gv('h'), set: function (v) { setTransformField('h', v); } }), 'px')
+      field('vector.props.h', numIn(g, { label: 'vector.props.height', step: 1, min: 0, get: gv('h'), set: function (v) { setTransformField('h', v); } }), 'px')
     ]), link]));
     tr.appendChild(h('div', { class: 'grid2 rotrow' }, [
-      field('∠', numIn(g, { label: 'Rotation angle', step: 1, get: function () { var o = SV.selObjs()[0]; return o && S.sel.length === 1 ? SV.normAng(-SV.objRot(o)) : 0; }, set: function (v) { setTransformField('rot', v); } }), '°', 'Rotate'),
-      h('div', { class: 'btnrow right' }, [ibtn(I.flipH, 'Flip Horizontal', function () { C.flip('h'); }), ibtn(I.flipV, 'Flip Vertical', function () { C.flip('v'); })])
+      field('∠', numIn(g, { label: 'vector.props.rotation', step: 1, get: function () { var o = SV.selObjs()[0]; return o && S.sel.length === 1 ? SV.normAng(-SV.objRot(o)) : 0; }, set: function (v) { setTransformField('rot', v); } }), '°', 'vector.tool.rotate'),
+      h('div', { class: 'btnrow right' }, [ibtn(I.flipH, 'vector.act.transform_flip_h', function () { C.flip('h'); }), ibtn(I.flipV, 'vector.act.transform_flip_v', function () { C.flip('v'); })])
     ]));
     // shape section
     var shp = h('div', { class: 'psec shape-sec' });
-    shp.appendChild(h('div', { class: 'psec-title', text: 'Shape' }));
+    shp.appendChild(h('div', { class: 'psec-title', i18n: { text: 'vector.props.shape' } }));
     var corners = $.cornerControls(g, '', function () { return !!firstOfType('rect'); });
-    var shPoly = field('Sides', numIn(g, { label: 'Sides', min: 3, max: 64, get: function () { var r = firstOfType('polygon'); return r ? r.sides : 6; }, set: function (v) { SV.applyShapeOpt('sides', round(v)); } }));
-    var shStar = field('Points', numIn(g, { label: 'Points', min: 2, max: 64, get: function () { var r = firstOfType('star'); return r ? r.points : 5; }, set: function (v) { SV.applyShapeOpt('points', round(v)); } }));
-    var shStar2 = field('Inner radius', numIn(g, { label: 'Inner radius', min: 5, max: 100, get: function () { var r = firstOfType('star'); return r ? round(r.r2 / (r.r1 || 1) * 100) : 45; }, set: function (v) { SV.applyShapeOpt('inner', v / 100); } }), '%');
+    var shPoly = field('vector.cb.sides', numIn(g, { label: 'vector.cb.sides', min: 3, max: 64, get: function () { var r = firstOfType('polygon'); return r ? r.sides : 6; }, set: function (v) { SV.applyShapeOpt('sides', round(v)); } }));
+    var shStar = field('vector.cb.points', numIn(g, { label: 'vector.cb.points', min: 2, max: 64, get: function () { var r = firstOfType('star'); return r ? r.points : 5; }, set: function (v) { SV.applyShapeOpt('points', round(v)); } }));
+    var shStar2 = field('vector.props.inner_radius', numIn(g, { label: 'vector.props.inner_radius', min: 5, max: 100, get: function () { var r = firstOfType('star'); return r ? round(r.r2 / (r.r1 || 1) * 100) : 45; }, set: function (v) { SV.applyShapeOpt('inner', v / 100); } }), '%');
     shp.appendChild(h('div', { class: 'grid2' }, [corners.one, shPoly, shStar, shStar2]));
     shp.appendChild(corners.four); shp.appendChild(h('div', { class: 'btnrow' }, [corners.link]));
     bind(g, function () { shPoly.hidden = !firstOfType('polygon'); shStar.hidden = shStar2.hidden = !firstOfType('star'); });
     // character section
     var ch = h('div', { class: 'psec char-sec' });
-    ch.appendChild(h('div', { class: 'psec-title', text: 'Character' }));
-    ch.appendChild($.fontSel(g, function () { return curFont().family; }, function (v) { SV.applyFont('family', v); }, 'Font family'));
+    ch.appendChild(h('div', { class: 'psec-title', i18n: { text: 'vector.props.character' } }));
+    ch.appendChild($.fontSel(g, function () { return curFont().family; }, function (v) { SV.applyFont('family', v); }, 'vector.type.font_family'));
     ch.appendChild(h('div', { class: 'grid2' }, [
-      selIn(g, [[300, 'Light'], [400, 'Regular'], [500, 'Medium'], [600, 'Semibold'], [700, 'Bold'], [800, 'ExtraBold'], [900, 'Black']], function () { return curFont().weight; }, function (v) { SV.applyFont('weight', +v); }, 'Font weight'),
-      field('Size', numIn(g, { label: 'Font size', min: 1, get: function () { return curFont().size; }, set: function (v) { SV.applyFont('size', v); } }), 'px'),
-      field('Leading', numIn(g, { label: 'Line height', min: 0.5, max: 5, step: 0.05, get: function () { return curFont().lh; }, set: function (v) { SV.applyFont('lh', v); } }), '×'),
-      field('Tracking', numIn(g, { label: 'Tracking (1/1000 em)', min: -500, max: 2000, step: 10, get: function () { return curFont().tracking; }, set: function (v) { SV.applyFont('tracking', v); } }))
+      selIn(g, SV.WEIGHTS, function () { return curFont().weight; }, function (v) { SV.applyFont('weight', +v); }, 'vector.type.font_weight'),
+      field('vector.props.size', numIn(g, { label: 'vector.type.font_size', min: 1, get: function () { return curFont().size; }, set: function (v) { SV.applyFont('size', v); } }), 'px'),
+      field('vector.props.leading', numIn(g, { label: 'vector.props.line_height', min: 0.5, max: 5, step: 0.05, get: function () { return curFont().lh; }, set: function (v) { SV.applyFont('lh', v); } }), '×'),
+      field('vector.props.tracking', numIn(g, { label: 'vector.props.tracking_tip', min: -500, max: 2000, step: 10, get: function () { return curFont().tracking; }, set: function (v) { SV.applyFont('tracking', v); } }))
     ]));
-    ch.appendChild(h('div', { class: 'btnrow' }, [seg(g, [['left', I.txtL, 'Align left'], ['center', I.txtC, 'Align center'], ['right', I.txtR, 'Align right']], function () { return curFont().align; }, function (v) { SV.applyFont('align', v); }, 'Alignment'),
-      seg(g, [['normal', '<b style="font-style:normal">I</b>', 'Roman'], ['italic', '<i>I</i>', 'Italic']], function () { return curFont().style; }, function (v) { SV.applyFont('style', v); }, 'Style')]));
+    ch.appendChild(h('div', { class: 'btnrow' }, [seg(g, [['left', I.txtL, 'vector.type.align_left'], ['center', I.txtC, 'vector.type.align_center'], ['right', I.txtR, 'vector.type.align_right']], function () { return curFont().align; }, function (v) { SV.applyFont('align', v); }, 'vector.props.alignment'),
+      seg(g, [['normal', '<b style="font-style:normal">I</b>', 'vector.props.roman'], ['italic', '<i>I</i>', 'vector.props.italic']], function () { return curFont().style; }, function (v) { SV.applyFont('style', v); }, 'vector.props.style')]));
     // quick actions
     var qa = h('div', { class: 'psec qa-sec' });
-    qa.appendChild(h('div', { class: 'psec-title', text: 'Quick Actions' }));
+    qa.appendChild(h('div', { class: 'psec-title', i18n: { text: 'vector.props.quick_actions' } }));
     var qbtns = h('div', { class: 'qbtns' });
-    [['Group', 'object.group'], ['Ungroup', 'object.ungroup'], ['Duplicate', 'edit.duplicate'], ['Bring to Front', 'arrange.front'], ['Send to Back', 'arrange.back'], ['Expand', 'object.expand'], ['Lock', 'object.lock'], ['Delete', 'edit.clear']].forEach(function (q) {
+    [['vector.act.object_group', 'object.group'], ['vector.act.object_ungroup', 'object.ungroup'], ['ui.duplicate', 'edit.duplicate'], ['vector.act.arrange_front', 'arrange.front'], ['vector.act.arrange_back', 'arrange.back'], ['vector.props.expand', 'object.expand'], ['vector.props.lock', 'object.lock'], ['ui.delete', 'edit.clear']].forEach(function (q) {
       var b = btn(q[0], function () { SV.runAction(q[1]); }, 'small');
       bind(g, function () { var a = A[q[1]]; b.disabled = a.enabled ? !a.enabled() : false; });
       qbtns.appendChild(b);
     });
     qa.appendChild(qbtns);
-    qa.appendChild(h('button', { type: 'button', class: 'btn slop wide', html: I.slop + '<span>Slopify selection</span>', onclick: function () { SV.runAction('object.slopify'); } }));
+    var slopB = h('button', { type: 'button', class: 'btn slop wide', html: I.slop, onclick: function () { SV.runAction('object.slopify'); } });
+    slopB.appendChild(h('span', { i18n: { text: 'vector.props.slopify_sel' } }));
+    qa.appendChild(slopB);
     [none, tr, shp, ch, qa].forEach(function (s) { body.appendChild(s); });
     bind(g, function () {
       var n = S.sel.length;
@@ -136,29 +138,29 @@
     var body = panelEls.appearance.body, g = 'app';
     var fillLabel = h('span', { class: 'plabel mono' }), strokeLabel = h('span', { class: 'plabel mono' });
     bind(g, function () { fillLabel.textContent = paintLabel(SV.currentPaint('fill')); strokeLabel.textContent = paintLabel(SV.currentPaint('stroke')); });
-    body.appendChild(h('div', { class: 'arow' }, [h('span', { class: 'alabel', text: 'Fill' }), chip(g, 'fill'), fillLabel]));
-    body.appendChild(h('div', { class: 'arow' }, [h('span', { class: 'alabel', text: 'Stroke' }), chip(g, 'stroke'), strokeLabel]));
+    body.appendChild(h('div', { class: 'arow' }, [h('span', { class: 'alabel', i18n: { text: 'vector.paint.fill' } }), chip(g, 'fill'), fillLabel]));
+    body.appendChild(h('div', { class: 'arow' }, [h('span', { class: 'alabel', i18n: { text: 'vector.paint.stroke' } }), chip(g, 'stroke'), strokeLabel]));
     body.appendChild(h('div', { class: 'grid2' }, [
-      field('Weight', numIn(g, { label: 'Stroke weight', min: 0, max: 1000, step: 0.5, get: function () { return curStyle().sw; }, set: function (v) { SV.applyStyle('sw', v); if (v > 0 && !SV.currentPaint('stroke')) SV.applyStyle('stroke', '#0a0a0a'); } }), 'px'),
-      field('Miter', numIn(g, { label: 'Miter limit', min: 1, max: 500, get: function () { return curStyle().miter; }, set: function (v) { SV.applyStyle('miter', v); } }), '×')
+      field('vector.paint.weight', numIn(g, { label: 'vector.paint.stroke_weight', min: 0, max: 1000, step: 0.5, get: function () { return curStyle().sw; }, set: function (v) { SV.applyStyle('sw', v); if (v > 0 && !SV.currentPaint('stroke')) SV.applyStyle('stroke', '#0a0a0a'); } }), 'px'),
+      field('vector.paint.miter', numIn(g, { label: 'vector.paint.miter_limit', min: 1, max: 500, get: function () { return curStyle().miter; }, set: function (v) { SV.applyStyle('miter', v); } }), '×')
     ]));
-    body.appendChild(h('div', { class: 'arow' }, [h('span', { class: 'alabel', text: 'Cap' }), seg(g, [['butt', I.capButt, 'Butt cap'], ['round', I.capRound, 'Round cap'], ['square', I.capSquare, 'Projecting cap']], function () { return curStyle().cap; }, function (v) { SV.applyStyle('cap', v); }, 'Cap'),
-      h('span', { class: 'alabel', text: 'Join' }), seg(g, [['miter', I.joinMiter, 'Miter join'], ['round', I.joinRound, 'Round join'], ['bevel', I.joinBevel, 'Bevel join']], function () { return curStyle().join; }, function (v) { SV.applyStyle('join', v); }, 'Join')]));
+    body.appendChild(h('div', { class: 'arow' }, [h('span', { class: 'alabel', i18n: { text: 'vector.paint.cap' } }), seg(g, [['butt', I.capButt, 'vector.paint.cap_butt'], ['round', I.capRound, 'vector.paint.cap_round'], ['square', I.capSquare, 'vector.paint.cap_square']], function () { return curStyle().cap; }, function (v) { SV.applyStyle('cap', v); }, 'vector.paint.cap'),
+      h('span', { class: 'alabel', i18n: { text: 'vector.paint.join' } }), seg(g, [['miter', I.joinMiter, 'vector.paint.join_miter'], ['round', I.joinRound, 'vector.paint.join_round'], ['bevel', I.joinBevel, 'vector.paint.join_bevel']], function () { return curStyle().join; }, function (v) { SV.applyStyle('join', v); }, 'vector.paint.join')]));
     var dashChk = h('input', { type: 'checkbox' });
-    var dashA = numIn(g, { label: 'Dash length', min: 0, max: 1000, get: function () { var d = curStyle().dash; return d ? d[0] : 12; }, set: function (v) { var d = curStyle().dash || [12, 6]; SV.applyStyle('dash', [v, d[1] == null ? v : d[1]]); }, enabled: function () { return !!curStyle().dash; } });
-    var dashB = numIn(g, { label: 'Gap length', min: 0, max: 1000, get: function () { var d = curStyle().dash; return d ? (d[1] == null ? d[0] : d[1]) : 6; }, set: function (v) { var d = curStyle().dash || [12, 6]; SV.applyStyle('dash', [d[0], v]); }, enabled: function () { return !!curStyle().dash; } });
+    var dashA = numIn(g, { label: 'vector.paint.dash_length', min: 0, max: 1000, get: function () { var d = curStyle().dash; return d ? d[0] : 12; }, set: function (v) { var d = curStyle().dash || [12, 6]; SV.applyStyle('dash', [v, d[1] == null ? v : d[1]]); }, enabled: function () { return !!curStyle().dash; } });
+    var dashB = numIn(g, { label: 'vector.paint.gap_length', min: 0, max: 1000, get: function () { var d = curStyle().dash; return d ? (d[1] == null ? d[0] : d[1]) : 6; }, set: function (v) { var d = curStyle().dash || [12, 6]; SV.applyStyle('dash', [d[0], v]); }, enabled: function () { return !!curStyle().dash; } });
     dashChk.addEventListener('change', function () { SV.applyStyle('dash', dashChk.checked ? [12, 6] : null); });
     bind(g, function () { dashChk.checked = !!curStyle().dash; });
-    body.appendChild(h('div', { class: 'arow dashrow' }, [h('label', { class: 'chk' }, [dashChk, h('span', { text: 'Dashed' })]), field('dash', dashA), field('gap', dashB)]));
-    var op = h('input', { type: 'range', min: 0, max: 100, class: 'range', 'aria-label': 'Opacity' });
+    body.appendChild(h('div', { class: 'arow dashrow' }, [h('label', { class: 'chk' }, [dashChk, h('span', { i18n: { text: 'vector.paint.dashed' } })]), field('vector.paint.dash', dashA), field('vector.paint.gap', dashB)]));
+    var op = h('input', { type: 'range', min: 0, max: 100, class: 'range', i18n: { 'aria-label': 'vector.paint.opacity' } });
     var opBefore = null;
     op.addEventListener('input', function () { if (opBefore === null) opBefore = 1; SV.applyStyle('opacity', +op.value / 100, { commit: false }); });
     op.addEventListener('change', function () { opBefore = null; SV.commit('opacity'); });
     bind(g, function () { if (document.activeElement !== op) op.value = round((curStyle().opacity == null ? 1 : curStyle().opacity) * 100); });
-    body.appendChild(h('div', { class: 'arow' }, [h('span', { class: 'alabel', text: 'Opacity' }), op, numIn(g, { label: 'Opacity %', min: 0, max: 100, get: function () { return round((curStyle().opacity == null ? 1 : curStyle().opacity) * 100); }, set: function (v) { SV.applyStyle('opacity', v / 100); }, cls: 'w44' }), h('span', { class: 'fu', text: '%' })]));
+    body.appendChild(h('div', { class: 'arow' }, [h('span', { class: 'alabel', i18n: { text: 'vector.paint.opacity' } }), op, numIn(g, { label: 'vector.paint.opacity_pct', min: 0, max: 100, get: function () { return round((curStyle().opacity == null ? 1 : curStyle().opacity) * 100); }, set: function (v) { SV.applyStyle('opacity', v / 100); }, cls: 'w44' }), h('span', { class: 'fu', text: '%' })]));
     body.appendChild(h('div', { class: 'grid2' }, [
-      h('label', { class: 'fld col' }, [h('span', { class: 'fl', text: 'Blending' }), selIn(g, SV.BLENDS.map(function (b) { return [b, b.replace(/-/g, ' ').replace(/^./, function (c) { return c.toUpperCase(); })]; }), function () { return curStyle().blend || 'normal'; }, function (v) { SV.applyStyle('blend', v); }, 'Blend mode')]),
-      h('label', { class: 'fld col' }, [h('span', { class: 'fl', text: 'Fill rule' }), selIn(g, [['nonzero', 'Non-zero'], ['evenodd', 'Even-odd']], function () { return curStyle().rule || 'nonzero'; }, function (v) { SV.applyStyle('rule', v); }, 'Fill rule')])
+      h('label', { class: 'fld col' }, [h('span', { class: 'fl', i18n: { text: 'vector.paint.blending' } }), selIn(g, SV.BLENDS.map(function (b) { return [b, 'vector.blend.' + b.replace(/-/g, '_')]; }), function () { return curStyle().blend || 'normal'; }, function (v) { SV.applyStyle('blend', v); }, 'vector.paint.blend_mode')]),
+      h('label', { class: 'fld col' }, [h('span', { class: 'fl', i18n: { text: 'vector.paint.fill_rule' } }), selIn(g, [['nonzero', 'vector.paint.nonzero'], ['evenodd', 'vector.paint.evenodd']], function () { return curStyle().rule || 'nonzero'; }, function (v) { SV.applyStyle('rule', v); }, 'vector.paint.fill_rule')])
     ]));
   }
 

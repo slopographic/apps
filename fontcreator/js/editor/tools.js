@@ -15,7 +15,7 @@
   let pen = null, hover = null;
   function penFinish() {
     const pts = pen ? pen.pts.filter((a, i, all) => i === 0 || a.x !== all[i - 1].x || a.y !== all[i - 1].y) : [];
-    if (pts.length >= 2) add('Draw a contour', [{ closed: true, pts }]);
+    if (pts.length >= 2) add(g.FC.t('fontcreator.undo.draw_contour'), [{ closed: true, pts }]);
     pen = null; E().paint();
   }
   T.all.pen = {
@@ -27,7 +27,7 @@
         for (let ci = 0; ci < cs.length; ci++) {
           const hit = G().nearestOnSub(cs[ci], ev.pt);
           if (hit && hit.d * E().cam().z <= E().hitR()) {
-            S().edit('Add a point', 'glyph', (p, gl) => { G().splitSegAt(gl.contours[ci], hit.i, hit.t); gl.contours = P().clean(gl.contours); });
+            S().edit(g.FC.t('fontcreator.undo.add_point'), 'glyph', (p, gl) => { G().splitSegAt(gl.contours[ci], hit.i, hit.t); gl.contours = P().clean(gl.contours); });
             return;
           }
         }
@@ -72,7 +72,7 @@
       id,
       down(ev) { box = { a: E().snap(ev.pt, { free: ev.e.altKey }), r: null }; },
       move(ev) { if (box) { box.r = corners(ev); E().paint(); } },
-      up(ev) { if (!box) return; const r = corners(ev); box = null; if (r.w >= 2 && r.h >= 2) add(label, make(r)); else E().paint(); },
+      up(ev) { if (!box) return; const r = corners(ev); box = null; if (r.w >= 2 && r.h >= 2) add(g.FC.t(label), make(r)); else E().paint(); },
       cancel() { box = null; },
       overlay(ctx, o, C) {
         if (!box || !box.r) return;
@@ -81,8 +81,8 @@
       },
     };
   }
-  shapeTool('rect', 'Draw a rectangle', (r) => P().rect(r.x, r.y, r.w, r.h, 0));
-  shapeTool('ellipse', 'Draw an ellipse', (r) => P().ellipse(r.x + r.w / 2, r.y + r.h / 2, r.w / 2, r.h / 2));
+  shapeTool('rect', 'fontcreator.undo.draw_rect', (r) => P().rect(r.x, r.y, r.w, r.h, 0));
+  shapeTool('ellipse', 'fontcreator.undo.draw_ellipse', (r) => P().ellipse(r.x + r.w / 2, r.y + r.h / 2, r.w / 2, r.h / 2));
 
   // ---- stroke
   let line = null;
@@ -90,7 +90,7 @@
     if (line && line.length) {
       const st = S().settings();
       const out = g.SlopFont.stroke.outline([{ points: line.map((q) => [q.x, q.y]) }], { width: st.strokeWidth, cap: st.cap });
-      add('Draw a stroke', out);
+      add(g.FC.t('fontcreator.undo.draw_stroke'), out);
     }
     line = null; E().paint();
   }
@@ -118,7 +118,7 @@
     },
   };
 
-  T.IDS = [['select', 'Select', 'V'], ['pen', 'Pen', 'P'], ['rect', 'Rectangle', 'R'], ['ellipse', 'Ellipse', 'E'], ['stroke', 'Stroke', 'S']];
+  T.IDS = [['select', 'V'], ['pen', 'P'], ['rect', 'R'], ['ellipse', 'E'], ['stroke', 'S']];   // names: fontcreator.tool.<id>
   T.current = () => T.all[S().settings().tool] || T.all.select;
   T.set = (id) => {
     if (!T.all[id]) throw new Error(`Unknown tool “${id}”`);

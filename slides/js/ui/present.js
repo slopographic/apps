@@ -8,6 +8,7 @@
    Every change of place emits A.emit('present'), which the presenter view (presenter.js) follows. Exposes window.SS.present. */
 (function () {
   'use strict';
+  var SU = window.SS.util;
   var SS = window.SS, A = SS.app, MO = window.SlopMotion, V = SS.presentView;
   var P = SS.present = { on: false, list: [], n: 0, black: false, animsOn: true, clock: null };
   var root = null, flash = null, timer = 0;
@@ -25,7 +26,7 @@
     if (P.on || A.mode !== 'edit' || !A.deck) return;
     if (SS.textEdit.editing) SS.textEdit.commit();
     P.list = visibleIdx();
-    if (!P.list.length) { SS.dom.toast('Every slide is hidden'); return; }
+    if (!P.list.length) { SS.dom.toast(SU.t('slides.show.every_slide_is_hidden')); return; }
     var at = P.list.indexOf(A.idx);
     P.n = at >= 0 ? at : 0;
     P.on = true; P.black = false;
@@ -158,7 +159,7 @@
     root = document.createElement('div');
     root.className = 'present';
     root.setAttribute('role', 'dialog');
-    root.setAttribute('aria-label', 'Presentation');
+    root.setAttribute('aria-label', SU.t('slides.app.presentation'));
     V.mount(root);
     flash = document.createElement('div');
     flash.className = 'present-count';

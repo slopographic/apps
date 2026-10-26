@@ -8,7 +8,8 @@
   'use strict';
   var SV = window.SV, IO = SV.io, SI = function () { return window.SlopIntake; };
   var IN = SV.intake = {};
-  IN.RULES = { types: ['image/*'], exts: ['.svg'], noun: 'an SVG or a picture' };
+  // noun: how a refusal reads ("notes.txt is not <noun>"), in the current language.
+  IN.RULES = { types: ['image/*'], exts: ['.svg'], get noun() { return SV.t('vector.io.noun'); } };
   function read(file, ctx) {
     if (ctx.mode === 'new') {
       return IO.openAsDocument(file).then(function (ok) {
@@ -27,8 +28,8 @@
   });
   IN.open = function () { return SI().pick({ to: 'vector', mode: 'new', multiple: false, accept: '.svg,image/svg+xml' }); };
   IN.place = function () { return SI().pick({ to: 'vector', accept: '.svg,image/svg+xml,image/png,image/jpeg,image/gif,image/webp' }); };
-  IN.openFromDrive = function () { return SI().fromDrive({ to: 'vector', mode: 'new', title: 'Open from Slop Drive' }); };
-  IN.placeFromDrive = function () { return SI().fromDrive({ to: 'vector', title: 'Place from Slop Drive' }); };
+  IN.openFromDrive = function () { return SI().fromDrive({ to: 'vector', mode: 'new', title: SV.t('vector.act.file_open_drive').replace(/…$/, '') }); };
+  IN.placeFromDrive = function () { return SI().fromDrive({ to: 'vector', title: SV.t('vector.act.file_place_drive').replace(/…$/, '') }); };
   IN.launch = function () { return SI().launch({ to: 'vector', mode: 'new' }); };
   IN.bindDrop = function () {
     window.SlopDrop.attach(document.getElementById('svDrop'), { intake: 'vector', compact: true, targets: [document.getElementById('app')] });

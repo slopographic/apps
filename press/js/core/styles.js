@@ -9,11 +9,16 @@
   ST.PARA_KEYS = ['font', 'fontStyle', 'size', 'leading', 'tracking', 'align', 'color', 'spaceBefore', 'spaceAfter', 'indentLeft', 'indentRight', 'indentFirst',
     'dropLines', 'dropChars', 'ruleAbove', 'ruleBelow', 'keepNext', 'keepLines', 'keepFirst', 'keepLast', 'hyphenate', 'composer', 'gridAlign', 'caps', 'baselineShift', 'underline', 'strike'];
   ST.CHAR_KEYS = ['font', 'fontStyle', 'size', 'tracking', 'color', 'caps', 'baselineShift', 'underline', 'strike'];
-  ST.LABELS = { font: 'Font', fontStyle: 'Style', size: 'Size', leading: 'Leading', tracking: 'Tracking', align: 'Alignment', color: 'Colour',
-    spaceBefore: 'Space before', spaceAfter: 'Space after', indentLeft: 'Left indent', indentRight: 'Right indent', indentFirst: 'First-line indent',
-    dropLines: 'Drop cap lines', dropChars: 'Drop cap characters', keepNext: 'Keep with next', keepLines: 'Keep lines together',
-    keepFirst: 'Keep first lines', keepLast: 'Keep last lines', hyphenate: 'Hyphenate', composer: 'Composer', gridAlign: 'Align to baseline grid',
-    caps: 'Case', baselineShift: 'Baseline shift', underline: 'Underline', strike: 'Strikethrough', ruleAbove: 'Rule above', ruleBelow: 'Rule below' };
+  /** Attribute names as shown (read in the current language on every use). */
+  ST.LABELS = PR.util.named({}, { font: 'press.core.attr_font', fontStyle: 'press.core.attr_font_style', size: 'press.core.attr_size',
+    leading: 'press.core.attr_leading', tracking: 'press.core.attr_tracking', align: 'press.core.attr_align', color: 'press.core.attr_color',
+    spaceBefore: 'press.core.attr_space_before', spaceAfter: 'press.core.attr_space_after', indentLeft: 'press.core.attr_indent_left',
+    indentRight: 'press.core.attr_indent_right', indentFirst: 'press.core.attr_indent_first', dropLines: 'press.core.attr_drop_lines',
+    dropChars: 'press.core.attr_drop_chars', keepNext: 'press.core.attr_keep_next', keepLines: 'press.core.attr_keep_lines',
+    keepFirst: 'press.core.attr_keep_first', keepLast: 'press.core.attr_keep_last', hyphenate: 'press.core.attr_hyphenate',
+    composer: 'press.core.attr_composer', gridAlign: 'press.core.attr_grid_align', caps: 'press.core.attr_caps',
+    baselineShift: 'press.core.attr_baseline_shift', underline: 'press.core.attr_underline', strike: 'press.core.attr_strike',
+    ruleAbove: 'press.core.attr_rule_above', ruleBelow: 'press.core.attr_rule_below' });
 
   var cache = { doc: null, rev: -1, para: {}, char: {}, glyph: {} };
   /** Call after any style edit (the app bumps doc revisions; tests may call it directly). */

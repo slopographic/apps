@@ -42,12 +42,12 @@
     if (a.fit) AI.fit(o);
     if (!SV.insertObj(o)) throw new Error('The active layer is locked or hidden');
     SV.select([o.id]); SV.commit(label);
-    return 'Added ' + (o.name ? '“' + o.name + '”' : 'a ' + o.type) + ' (id ' + o.id + ').' + AI.boxNote('It', SV.objBBox(o));
+    return 'Added ' + (o.name ? '“' + o.name + '”' : 'a ' + o.type) + ' (id ' + o.id + ').' + AI.boxNote('It', SV.objBBox(o)); // i18n-ignore: AI tool text written for agents (API)
   }
   /** Folds the last two history steps into one (a command that commits twice). */
   function fold() { if (S.hIdx > 1) { S.history.splice(S.hIdx - 1, 1); S.hIdx--; } }
   function withSel(ids, fn) { SV.select(ids); var r = fn(); return r; }
-  var boxOf = function () { return AI.boxNote('The selection', SV.selBBox(S.sel)); };
+  var boxOf = function () { return AI.boxNote('The selection', SV.selBBox(S.sel)); }; // i18n-ignore: AI tool text written for agents (API)
 
   add('new_document', 'New document', [N('width', 1, 20000, 1200, 'px', { integer: true }), N('height', 1, 20000, 800, 'px', { integer: true }),
     PAINT('background', 'a background rectangle colour; none for a clear artboard'), Str('name', 'document name', { default: 'Untitled' })],
@@ -58,7 +58,7 @@
     if (bg) d.layers[0].children.push(SV.mk.rect(0, 0, a.width, a.height, 0, { fill: bg }, 'Background'));
     SV.commit('new document');
     return 'New ' + a.width + ' × ' + a.height + ' document “' + d.name + '”' + (bg ? ' with a ' + bg + ' background' : '') + '. Undo brings the old one back.';
-  }, { destructive: true, description: 'Replace the open drawing with a new, empty one (Undo brings the old one back).' });
+  }, { destructive: true, description: 'Replace the open drawing with a new, empty one (Undo brings the old one back).' }); // i18n-ignore: AI tool text written for agents (API)
 
   add('add_svg', 'Add SVG', [Str('svg', 'SVG markup: paths, shapes, text, gradients. No scripts or outside links.', { required: true, maxLength: 400000 }),
     N('x', -20000, 20000, undefined, 'centre x; the artboard centre when empty'), N('y', -20000, 20000, undefined, 'centre y'), Str('name', 'name of the new object or group'), FIT],
@@ -68,8 +68,8 @@
     var o = IO.importSVGText(a.svg, { at: at, name: a.name || 'Placed SVG' });
     if (!o) throw new Error('Nothing in that SVG could be imported');
     if (a.fit) { AI.fit(o); if (SV.commit('fit')) fold(); }
-    return 'Imported the SVG as editable objects (' + (o.type === 'group' ? o.children.length + ' in a group, ' : '') + 'id ' + o.id + ').' + AI.boxNote('It', SV.objBBox(o));
-  }, { description: 'Import SVG you write as editable SlopVector objects (paths, shapes, text, gradients) in one step.' });
+    return 'Imported the SVG as editable objects (' + (o.type === 'group' ? o.children.length + ' in a group, ' : '') + 'id ' + o.id + ').' + AI.boxNote('It', SV.objBBox(o)); // i18n-ignore: AI tool text written for agents (API)
+  }, { description: 'Import SVG you write as editable SlopVector objects (paths, shapes, text, gradients) in one step.' }); // i18n-ignore: AI tool text written for agents (API)
 
   add('add_shape', 'Add shape', [E('kind', ['rect', 'ellipse', 'polygon', 'star', 'line', 'path'], 'rect'), N('x', -20000, 20000, 0, 'left px'), N('y', -20000, 20000, 0, 'top px'),
     N('width', 0.1, 40000, 200, 'px'), N('height', 0.1, 40000, 200, 'px'), N('radius', 0, 20000, 0, 'rect corner radius'), N('sides', 3, 64, 6, 'polygon sides / star points', { integer: true }),
@@ -84,7 +84,7 @@
     else if (a.kind === 'line') { if (!st.stroke) st.stroke = S.style.stroke || '#000000'; st.fill = null; o = SV.mk.d('M' + x + ' ' + y + ' L' + (x + w) + ' ' + (y + h), st); }
     else { if (!a.d) throw new Error('Give d: SVG path data'); o = SV.mk.d(a.d, st); if (!o.subpaths.length) throw new Error('That path data has no points'); }
     return place(o, a, a.kind);
-  }, { description: 'Add a rectangle, ellipse, polygon, star, line or path with fill, outline and opacity.' });
+  }, { description: 'Add a rectangle, ellipse, polygon, star, line or path with fill, outline and opacity.' }); // i18n-ignore: AI tool text written for agents (API)
 
   add('add_text', 'Add text', [Str('text', 'the words; \\n starts a new line', { required: true, maxLength: 5000 }), N('x', -20000, 20000, undefined, 'x of the first baseline; centred when empty'),
     N('y', -20000, 20000, undefined, 'baseline y'), E('font', Object.keys(SV.FONTS), 'Inter Tight'), N('size', 1, 2000, 48, 'px'), N('weight', 100, 900, 700, '', { step: 100 }),
@@ -96,7 +96,7 @@
     o.y = a.y != null ? a.y : S.doc.height / 2 + a.size / 3;
     SV.clearTextCache();
     return place(o, a, 'text');
-  }, { description: 'Add a text object with font, size, weight, alignment and colour.' });
+  }, { description: 'Add a text object with font, size, weight, alignment and colour.' }); // i18n-ignore: AI tool text written for agents (API)
 
   add('set_style', 'Set style', [OBJ, PAINT('fill', 'fill'), PAINT('stroke', 'outline'), N('stroke_width', 0, 1000, undefined, 'px'), N('opacity', 0, 100, undefined, '%'),
     E('blend', SV.BLENDS, undefined, 'blend mode'), Str('rename', 'new name')],
@@ -114,7 +114,7 @@
     });
     SV.select(ids); SV.commit('style');
     return 'Restyled ' + ids.length + ' object' + (ids.length === 1 ? '' : 's') + '.';
-  }, { description: 'Change the fill, outline, opacity, blend mode or name of an object (or the selection).' });
+  }, { description: 'Change the fill, outline, opacity, blend mode or name of an object (or the selection).' }); // i18n-ignore: AI tool text written for agents (API)
 
   add('transform', 'Transform', [OBJ, N('move_x', -40000, 40000, 0, 'px'), N('move_y', -40000, 40000, 0, 'px'), N('scale', 1, 100000, undefined, '% both ways'),
     N('scale_x', 1, 100000, undefined, '% width'), N('scale_y', 1, 100000, undefined, '% height'), N('rotate', -360, 360, 0, 'degrees clockwise, around the centre'), FIT],
@@ -126,7 +126,7 @@
     ids.forEach(function (id) { SV.transformObj(SV.getObj(id), M); if (a.fit) AI.fit(SV.getObj(id)); });
     SV.select(ids); SV.commit('transform');
     return 'Transformed ' + ids.length + ' object' + (ids.length === 1 ? '' : 's') + '.' + boxOf();
-  }, { description: 'Move, scale and rotate an object (or the selection) with numbers.' });
+  }, { description: 'Move, scale and rotate an object (or the selection) with numbers.' }); // i18n-ignore: AI tool text written for agents (API)
 
   add('select_objects', 'Select objects', [{ name: 'objects', type: 'array', items: { type: 'string' }, maxItems: 500, description: 'ids or names; empty selects nothing' }, B('all', false, 'select everything')],
   function (a) {
@@ -145,7 +145,7 @@
     var ids = many(a.objects); if (ids.length < 2) throw new Error('Combine needs two or more shapes');
     var np = withSel(ids, function () { return C.pathfinder(a.op); });
     if (!np) throw new Error('The shapes do not overlap, or text and images were chosen');
-    return 'Combined into one path (id ' + np.id + ').' + AI.boxNote('It', SV.objBBox(np));
+    return 'Combined into one path (id ' + np.id + ').' + AI.boxNote('It', SV.objBBox(np)); // i18n-ignore: AI tool text written for agents (API)
   });
   add('group', 'Group', [OBJS, Str('name', 'group name')], function (a) { withSel(many(a.objects), function () { C.group(); }); var g = SV.getObj(S.sel[0]); if (a.name) { g.name = String(a.name).slice(0, 80); if (SV.commit('rename')) fold(); } return 'Grouped (id ' + g.id + ').'; });
   add('ungroup', 'Ungroup', [OBJ], function (a) { withSel(AI.targets(a.object), function () { C.ungroup(); }); return S.sel.length + ' objects after ungrouping.'; });
@@ -153,7 +153,7 @@
   add('delete_object', 'Delete object', [OBJ], function (a) { var ids = AI.targets(a.object); withSel(ids, function () { C.deleteSel(); }); return 'Deleted ' + ids.length + ' object' + (ids.length === 1 ? '' : 's') + '.'; }, { destructive: true });
   add('export', 'Export', [E('format', ['svg', 'png', 'jpg', 'pdf'], 'svg'), E('to', ['drive', 'download', 'both'], 'drive'), N('scale', 0.1, 8, 1, 'raster scale'),
     Str('background', 'raster background colour; transparent when empty (PNG)', { maxLength: 40 }), Str('name', 'file name without extension', { maxLength: 120 })],
-  AI.export, { description: 'Export the artwork as editable SVG, PNG, JPG or PDF to Slop Drive (other apps can open it) and/or a download.' });
+  AI.export, { description: 'Export the artwork as editable SVG, PNG, JPG or PDF to Slop Drive (other apps can open it) and/or a download.' }); // i18n-ignore: AI tool text written for agents (API)
   add('undo', 'Undo', [N('steps', 1, 20, 1, '', { integer: true })], function (a) { var n = 0; while (n < a.steps && S.hIdx > 0) { SV.undo(); n++; } return 'Undid ' + n + ' step' + (n === 1 ? '' : 's') + '.'; });
 
   SC.register(list);

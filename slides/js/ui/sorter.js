@@ -30,7 +30,7 @@
     list.replaceChildren();
     items = A.deck.slides.map(function (s, i) {
       var cv = D.el('canvas', { class: 'thumb-cv', width: THUMB_W, height: Math.round(THUMB_W * A.deck.size.h / A.deck.size.w) });
-      var btn = D.el('button', { type: 'button', class: 'thumb', draggable: 'true', 'data-id': s.id, 'aria-label': 'Slide ' + (i + 1) + (s.hidden ? ', hidden' : ''),
+      var btn = D.el('button', { type: 'button', class: 'thumb', draggable: 'true', 'data-id': s.id, 'aria-label': SS.util.t(s.hidden ? 'slides.app.thumb_hidden' : 'slides.app.thumb', { i: i + 1 }),
         onclick: function () { A.go(i); } }, cv, D.el('span', { class: 'thumb-n', text: String(i + 1) }));
       var li = D.el('li', { class: 'thumb-li' }, btn);
       list.append(li);

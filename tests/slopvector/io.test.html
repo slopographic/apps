@@ -122,8 +122,10 @@
     let built;
     it('inlines the app, its CSS and the shared SlopUI / apps / hub scripts into one file', async () => {
       built = await IO.buildOfflineHTML();
-      expect(/<script[^>]*\ssrc=/.test(built)).toBe(false);
-      expect(/<link[^>]*stylesheet/.test(built)).toBe(false);
+      // parsed, not matched as text: an inlined script may hold the string '<script src=' (shared/i18n/i18n.js writes tags)
+      const parsed = new DOMParser().parseFromString(built, 'text/html');
+      expect(parsed.querySelectorAll('script[src]').length).toBe(0);
+      expect(parsed.querySelectorAll('link[rel~="stylesheet"]').length).toBe(0);
       ['window.SlopUI = {', 'window.SLOP_APPS = [', 'window.SlopHub = {', '.sui-dlg', 'name="slop-vector-build" content="offline"'].forEach((s) => expect(built).toContain(s));
       expect(built).not.toContain('shared/fonts/');
       expect(IO.normalizeHTML(built)).toBe(built);

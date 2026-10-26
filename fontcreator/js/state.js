@@ -16,10 +16,10 @@
   const F = g.SlopFont, M = F.model, CS = F.charset;
   const KEY = 'slop-fontcreator';
   const DEFAULTS = Object.freeze({ set: 'basic', tool: 'select', grid: 10, snap: true, strokeWidth: 80, cap: 'round', format: 'ttf', tab: 'draw',
-    tester: { text: 'The quick brown fox jumps over the lazy dog. Åsa åt ärtor och öl. 0123456789', sizes: [16, 24, 36, 64], dark: false },
-    kernSample: 'AVATAR WAVE Type To Tokyo', sheetSet: 'upper', sheetPage: 'a4' });
+    tester: { text: 'The quick brown fox jumps over the lazy dog. Åsa åt ärtor och öl. 0123456789', sizes: [16, 24, 36, 64], dark: false }, // i18n-ignore
+    kernSample: 'AVATAR WAVE Type To Tokyo', sheetSet: 'upper', sheetPage: 'a4' }); // i18n-ignore
   const clone = (x) => JSON.parse(JSON.stringify(x));
-  let project = M.create({ family: 'My Font' }), cur = CS.idOf(0x41), dirty = false;
+  let project = M.create({ family: 'My Font' }), cur = CS.idOf(0x41), dirty = false; // i18n-ignore
   let settings = clone(DEFAULTS);
   try { const s = JSON.parse(localStorage.getItem(KEY) || 'null'); if (s && typeof s === 'object') settings = Object.assign(settings, s, { tester: Object.assign({}, DEFAULTS.tester, s.tester || {}) }); } catch (e) { /* fresh */ }
   const fns = new Set(), done = [], undone = [], LIMIT = 80;
@@ -87,7 +87,7 @@
     project = M.clean(p);
     const first = project.glyphs.find((x) => x.unicode === 0x41) || project.glyphs.find((x) => x.contours.length && x.id !== '.notdef') || project.glyphs[0];
     cur = first ? first.id : CS.idOf(0x41);
-    done.push({ label: label || 'Open font', scope: 'project', before, after: JSON.stringify(project), cur: prevCur });
+    done.push({ label: label || t('fontcreator.undo.open_font'), scope: 'project', before, after: JSON.stringify(project), cur: prevCur });
     if (done.length > LIMIT) done.shift();
     undone.length = 0; clearSel();
     emit('project');
@@ -103,12 +103,27 @@
   /** At boot: the project kept in this browser (no undo step, not dirty). */
   function boot(p) { project = M.clean(p); const a = project.glyphs.find((x) => x.unicode === 0x41); cur = a ? a.id : cur; emit('project'); }
   g.FC = g.FC || {};
+  /* The words (shared/i18n/APPS-HOWTO.md; tables in fontcreator/i18n/<code>/*.js): t(key, vars) when UI is built,
+   * onLang(fn) after a language change (UI built once), mark(node, { text, title, 'aria-label', placeholder }) fills a
+   * node from keys and marks it so SlopI18n.apply() follows a change, setName(id) a character set's name. */
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
+  g.FC.t = t;
+  g.FC.onLang = (fn) => (g.SlopI18n && g.SlopI18n.on ? g.SlopI18n.on(fn) : () => {});
+  g.FC.mark = (n, keys) => {
+    const at = [];
+    for (const a in keys) {
+      if (a === 'text') { n.textContent = t(keys[a]); n.setAttribute('data-i18n', keys[a]); } else { n.setAttribute(a, t(keys[a])); at.push(a + ':' + keys[a]); }
+    }
+    if (at.length) n.setAttribute('data-i18n-attr', at.join(';'));
+    return n;
+  };
+  g.FC.setName = (id) => t(`fontcreator.set.${id}`);
   g.FC.state = {
     project: () => project, cur: () => cur, glyph, view, select, edit, load, boot, undo, redo, set, sel, clearSel, emit, DEFAULTS,
     canUndo: () => done.length > 0, canRedo: () => undone.length > 0, undoLabel: () => (done.length ? done[done.length - 1].label : ''),
     redoLabel: () => (undone.length ? undone[undone.length - 1].label : ''), settings: () => settings,
     on: (fn) => { fns.add(fn); return () => fns.delete(fn); },
-    snapshot: () => JSON.stringify(project), restore: (s) => load(JSON.parse(s), 'Undo all AI changes'),
+    snapshot: () => JSON.stringify(project), restore: (s) => load(JSON.parse(s), t('fontcreator.undo.ai_all')),
     dirty: () => dirty, saved: () => { dirty = false; emit('settings'); },
   };
 })(window);

@@ -4,6 +4,7 @@
  * text box. Exposes SS.ops.copyToBuffer, pasteBuffer and hasBuffer. Reads SlopBuffer only. */
 (function () {
   'use strict';
+  var SU = window.SS.util;
   var SS = window.SS, A = SS.app, M = SS.model, O = SS.objects, U = SS.util, OP = SS.ops;
   var SB = window.SlopBuffer;
   var R = SS.canvasRender;
@@ -43,19 +44,19 @@
   /** Copy to buffer: a text box as text, anything else as a picture. The ordinary clipboard copy happens too. */
   OP.copyToBuffer = function () {
     var objs = A.selObjs(), deck = A.deck;
-    if (!objs.length || !SB) { toast('Select a shape or a text box to copy to the buffer'); return; }
+    if (!objs.length || !SB) { toast(SU.t('slides.io.select_a_shape_or_a_text_box_to_copy_to')); return; }
     var stamp = Date.now(); // the buffer item and this app's clipboard share it, so the objects paste back as objects
     A.clip = U.clone(objs);
     A.clipT = stamp;
     if (objs.length === 1 && objs[0].type === 'text') {
       var t = objs[0].text;
       SB.put({ kind: 'text', formats: { 'text/html': textHtml(t), 'text/plain': O.plain(t) }, source: 'slides', t: stamp })
-        .then(function () { toast('Copied the text box to the buffer'); }, function () { toast('Could not copy to the buffer'); });
+        .then(function () { toast(SU.t('slides.io.copied_the_text_box_to_the_buffer')); }, function () { toast(SU.t('slides.io.could_not_copy_to_the_buffer')); });
       return;
     }
     picturePng(deck, objs).then(function (blob) {
       return SB.put({ kind: 'image', formats: { 'image/png': blob }, source: 'slides', t: stamp });
-    }).then(function () { toast('Copied to the buffer'); }, function () { toast('Could not copy to the buffer'); });
+    }).then(function () { toast(SU.t('slides.io.copied_to_the_buffer')); }, function () { toast(SU.t('slides.io.could_not_copy_to_the_buffer')); });
   };
 
   /** HTML from the buffer as paragraphs of runs (bold and italic kept, anything else dropped). */
@@ -93,11 +94,11 @@
     return imageSize(url).then(function (sz) {
       var d = A.deck, k = Math.min(1, d.size.w * 0.6 / sz.w, d.size.h * 0.6 / sz.h);
       var mid = M.addMedia(d, url, name);
-      OP.add('image', { w: sz.w * k, h: sz.h * k, media: mid, name: name || 'Picture' }, 'Paste picture');
+      OP.add('image', { w: sz.w * k, h: sz.h * k, media: mid, name: name || 'Picture' }, SU.t('slides.io.paste_picture')); // i18n-ignore
     });
   }
   function placeText(paras) {
-    OP.add('text', { w: 360, h: 80, text: { paras: paras, valign: 'top', autofit: 'none' } }, 'Paste text');
+    OP.add('text', { w: 360, h: 80, text: { paras: paras, valign: 'top', autofit: 'none' } }, SU.t('slides.io.paste_text'));
   }
 
   /** Places one buffer record on the current slide (centred). Returns true when it started. */
@@ -110,9 +111,9 @@
       return new Promise(function (res) { cv.toBlob(function (b) { res(U.blobToDataUrl(b)); }, 'image/png'); });
     });
     pngOf.then(function (url) {
-      placeImage(url, 'Buffer picture');
-      if (c.type === 'image/svg+xml') toast('Vector converted to a picture', 4200);
-    }, function () { toast('The buffer could not be read as a picture', 4200); });
+      placeImage(url, 'Buffer picture'); // i18n-ignore
+      if (c.type === 'image/svg+xml') toast(SU.t('slides.io.vector_converted_to_a_picture'), 4200);
+    }, function () { toast(SU.t('slides.io.the_buffer_could_not_be_read_as_a_pictur'), 4200); });
     return true;
   }
   function bufferNewer() { var rec = SB && SB.get(); return !!rec && (!A.clipT || A.clipT < rec.t); }

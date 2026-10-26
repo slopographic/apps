@@ -83,15 +83,15 @@
 
   /* ---------- colour ---------- */
   K.chip = function (color, title, onPick) {
-    var b = h('button', { type: 'button', class: 'chip' + (color ? '' : ' none'), title: title || 'Colour', 'aria-label': title || 'Colour' }, h('i', { style: { background: color ? U.css(color) : '' } }));
+    var b = h('button', { type: 'button', class: 'chip' + (color ? '' : ' none'), title: title || U.t('press.kit.colour'), 'aria-label': title || U.t('press.kit.colour') }, h('i', { style: { background: color ? U.css(color) : '' } }));
     b.addEventListener('click', function () { K.colorPopover(b, color, onPick); });
     return b;
   };
   K.colorPopover = function (anchor, color, onPick) {
     var r = anchor.getBoundingClientRect();
-    var items = [{ label: 'None', check: !color, act: function () { onPick(null); } }, '-'];
+    var items = [{ label: U.t('ui.none'), check: !color, act: function () { onPick(null); } }, '-'];
     S.doc.swatches.forEach(function (sw) { items.push({ label: sw.name + (U.parseCMYK(sw.color) ? '  (CMYK)' : ''), check: sw.color === color, act: function () { onPick(sw.color); } }); });
-    items.push('-', { label: 'Custom colour…', act: function () { K.customColor(color, onPick); } });
+    items.push('-', { label: U.t('press.kit.custom_colour'), act: function () { K.customColor(color, onPick); } });
     var m = window.SlopUI.menu(items, r.left, r.bottom + 2);
     // colour dots in front of swatch rows
     Array.prototype.slice.call(m.querySelectorAll('.sui-row')).forEach(function (row, i) {
@@ -103,11 +103,11 @@
   K.customColor = function (color, onPick, title) {
     var cm = U.parseCMYK(color) || [0, 0, 0, 0];
     var hex = h('input', { class: 'sui-input', type: 'color', value: U.hex(color || '#000000') });
-    var mode = window.SlopUI.select([['rgb', 'RGB'], ['cmyk', 'CMYK (process, print)']], U.parseCMYK(color) ? 'cmyk' : 'rgb');
+    var mode = window.SlopUI.select([['rgb', 'RGB'], ['cmyk', U.t('press.kit.mode_cmyk')]], U.parseCMYK(color) ? 'cmyk' : 'rgb');
     var ins = ['C', 'M', 'Y', 'K'].map(function (l, i) { return window.SlopUI.number(Math.round(cm[i] * 100), 0, 100, 1); });
-    var body = h('div', { class: 'pr-form' }, window.SlopUI.field('Mode', mode), window.SlopUI.field('RGB', hex),
-      h('div', { class: 'pr-cols' }, ins.map(function (inp, i) { return window.SlopUI.field(['Cyan', 'Magenta', 'Yellow', 'Black'][i], inp, '%'); })));
-    window.SlopUI.dialog({ title: title || 'Colour', body: body, cls: 'sui-narrow', buttons: [{ label: 'Cancel' }, { label: 'OK', primary: true, act: function () {
+    var body = h('div', { class: 'pr-form' }, window.SlopUI.field(U.t('press.kit.mode'), mode), window.SlopUI.field('RGB', hex), // i18n-ignore: a colour model name
+      h('div', { class: 'pr-cols' }, ins.map(function (inp, i) { return window.SlopUI.field(U.t('press.kit.ink.' + ['c', 'm', 'y', 'k'][i]), inp, '%'); })));
+    window.SlopUI.dialog({ title: title || U.t('press.kit.colour'), body: body, cls: 'sui-narrow', buttons: [{ label: U.t('menu.cancel') }, { label: U.t('menu.ok'), primary: true, act: function () {
       onPick(mode.value === 'cmyk' ? 'cmyk(' + ins.map(function (i) { return Math.max(0, Math.min(100, +i.value || 0)); }).join(',') + ')' : hex.value);
     } }] });
   };

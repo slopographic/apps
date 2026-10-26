@@ -64,7 +64,7 @@
     var M = G.translate(dx, dy);
     op.ids.forEach(function (id) { var o = getObj(id); if (o) SV.transformObj(o, M); });
     op.dx = dx; op.dy = dy;
-    readout(ev, 'dX: ' + n1(dx) + ' px\ndY: ' + n1(dy) + ' px');
+    readout(ev, SV.t('vector.readout.move', { x: n1(dx), y: n1(dy) }));
   }
   function moveUp() {
     var op = S.op;
@@ -95,7 +95,7 @@
     var M = G.scale(sx, sy, ax, ay);
     op.ids.forEach(function (id) { var o = getObj(id); if (o) SV.transformObj(o, M); });
     op.changed = true;
-    readout(ev, 'W: ' + n1(abs(b.w * sx)) + ' px\nH: ' + n1(abs(b.h * sy)) + ' px');
+    readout(ev, SV.t('vector.readout.size', { w: n1(abs(b.w * sx)), h: n1(abs(b.h * sy)) }));
   }
   function beginRotate(ev, b, origin, tool) {
     var ids = selectableTopIds(); if (!ids.length) return;
@@ -112,7 +112,7 @@
     op.ids.forEach(function (id) { var o = getObj(id); if (o) { SV.transformObj(o, M); if (o.type === 'path' || o.type === 'group') o.rot = normAng((o.rot || 0) + a * 180 / PI); } });
     op.changed = true; op.angle = a;
     var deg = -a * 180 / PI; deg = ((deg % 360) + 540) % 360 - 180;
-    readout(ev, 'Angle: ' + n1(deg) + '°');
+    readout(ev, SV.t('vector.readout.angle', { deg: n1(deg) }));
   }
   function normAng(d) { d = ((d % 360) + 540) % 360 - 180; return Math.round(d * 100) / 100; }
   SV.normAng = normAng;

@@ -4,6 +4,8 @@
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="fontcreator" data-src="shared/theme/theme.js"></script>
   <link rel="expect" href="#slop-built" blocking="render">
+  <script src="../shared/i18n/i18n.js" data-src="shared/i18n/i18n.js"></script>
+  <script src="i18n/index.js" data-src="fontcreator/i18n/index.js"></script>
   <script src="../shared/consent/config.js"></script>
   <script src="../shared/consent/state.js"></script>
   <script src="../shared/consent/consent-mode.js"></script>
@@ -43,24 +45,24 @@
 </head>
 <body>
   <div class="fc-bar" id="fc-bar"></div>
-  <!-- List · View · Panel (shared/frame): the glyph grid on the left; the glyph editor, Kerning and Type test in the middle;
+  <!-- i18n-ignore. List · View · Panel (shared/frame): the glyph grid on the left; the glyph editor, Kerning and Type test in the middle;
        the glyph, font and export settings on the right, Download font at its foot -->
   <main class="fc-main" id="fc-main">
-    <aside class="fc-list" id="fc-list" aria-label="Glyphs"></aside>
-    <section class="fc-view" id="fc-view" aria-label="Font editor">
-      <div class="fc-tabs" id="fc-tabs" role="tablist" aria-label="Views">
-        <button type="button" role="tab" class="fc-tab" id="fc-tab-draw" data-view="draw" aria-controls="view-draw" aria-selected="true">Draw</button>
-        <button type="button" role="tab" class="fc-tab" id="fc-tab-kerning" data-view="kerning" aria-controls="view-kerning" aria-selected="false" tabindex="-1">Kerning</button>
-        <button type="button" role="tab" class="fc-tab" id="fc-tab-test" data-view="test" aria-controls="view-test" aria-selected="false" tabindex="-1">Type test</button>
+    <aside class="fc-list" id="fc-list" aria-label="Glyphs" data-i18n-attr="aria-label:fontcreator.app.glyphs"></aside>
+    <section class="fc-view" id="fc-view" aria-label="Font editor" data-i18n-attr="aria-label:fontcreator.app.editor">
+      <div class="fc-tabs" id="fc-tabs" role="tablist" aria-label="Views" data-i18n-attr="aria-label:fontcreator.app.views">
+        <button type="button" role="tab" class="fc-tab" id="fc-tab-draw" data-view="draw" aria-controls="view-draw" aria-selected="true" data-i18n="fontcreator.app.tab_draw">Draw</button>
+        <button type="button" role="tab" class="fc-tab" id="fc-tab-kerning" data-view="kerning" aria-controls="view-kerning" aria-selected="false" tabindex="-1" data-i18n="fontcreator.app.tab_kerning">Kerning</button>
+        <button type="button" role="tab" class="fc-tab" id="fc-tab-test" data-view="test" aria-controls="view-test" aria-selected="false" tabindex="-1" data-i18n="fontcreator.app.tab_test">Type test</button>
       </div>
       <div class="fc-pane fc-draw" id="view-draw" role="tabpanel" aria-labelledby="fc-tab-draw">
         <div class="fc-start" id="fc-start">
-          <p><strong>Start your font.</strong> Pick a letter on the left and draw it with the pen, or begin from something you have:</p>
+          <p><strong data-i18n="fontcreator.app.start_title">Start your font.</strong> <span data-i18n="fontcreator.app.start_text">Pick a letter on the left and draw it with the pen, or begin from something you have:</span></p>
           <div class="fc-btns">
-            <button type="button" class="sui-btn" id="fc-start-pen">Draw with the pen</button>
-            <button type="button" class="sui-btn" id="fc-start-sheet">Print a handwriting sheet</button>
-            <button type="button" class="sui-btn" id="fc-start-svg">Draw from SVG</button>
-            <button type="button" class="sui-btn" id="fc-start-open">Open a font to edit</button>
+            <button type="button" class="sui-btn" id="fc-start-pen" data-i18n="fontcreator.app.start_pen">Draw with the pen</button>
+            <button type="button" class="sui-btn" id="fc-start-sheet" data-i18n="fontcreator.app.start_sheet">Print a handwriting sheet</button>
+            <button type="button" class="sui-btn" id="fc-start-svg" data-i18n="fontcreator.app.start_svg">Draw from SVG</button>
+            <button type="button" class="sui-btn" id="fc-start-open" data-i18n="fontcreator.app.start_open">Open a font to edit</button>
           </div>
         </div>
         <div id="fc-tools-host"></div>
@@ -69,7 +71,7 @@
       <div class="fc-pane fc-kerning" id="view-kerning" role="tabpanel" aria-labelledby="fc-tab-kerning" hidden></div>
       <div class="fc-pane fc-test" id="view-test" role="tabpanel" aria-labelledby="fc-tab-test" hidden></div>
     </section>
-    <aside class="fc-panel" id="fc-panel" aria-label="Font settings"></aside>
+    <aside class="fc-panel" id="fc-panel" aria-label="Font settings" data-i18n-attr="aria-label:fontcreator.app.settings"></aside>
   </main>
 
   <script src="../shared/slopui.js"></script>
