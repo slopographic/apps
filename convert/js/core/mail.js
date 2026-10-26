@@ -79,7 +79,7 @@ export async function emlToText(bytes) {
 /** The attachments of a message as one ZIP (names kept, duplicates numbered). Throws when there are none. */
 export async function emlAttachmentsZip(bytes) {
   const msg = await readEml(bytes);
-  if (!msg.attachments || !msg.attachments.length) throw new Error(tr('convert.mail.no_attachments', 'This message has no attachments.'));
+  if (!msg.attachments || !msg.attachments.length) throw new Error(tr('convert.mail.no_attachments'));
   const taken = new Set();
   const entries = msg.attachments.map((a, i) => {
     const name = uniqueName(a.name || `attachment-${i + 1}`, taken);
@@ -113,7 +113,7 @@ export async function icsToJson(text) {
 /** An XML document as JSON: each element is { name, attributes?, text?, children? }. Throws when the XML is not well formed. */
 export function xmlToJson(text) {
   const doc = new DOMParser().parseFromString(SAFE().xmlText(text), 'application/xml');
-  if (doc.getElementsByTagName('parsererror').length) throw new Error(tr('convert.mail.bad_xml', 'This XML could not be read: check that it is well formed.'));
+  if (doc.getElementsByTagName('parsererror').length) throw new Error(tr('convert.mail.bad_xml'));
   const node = (el) => {
     const o = { name: el.localName || el.tagName };
     if (el.attributes.length) o.attributes = Object.fromEntries([...el.attributes].map((a) => [a.name, a.value]));

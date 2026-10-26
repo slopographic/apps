@@ -15,7 +15,7 @@ import '../../../shared/frame/panel.js';       // window.SlopFramePanel
 export function frameTool(tool) {
   const ui = tool.ui, root = tool.root, id = (s) => `${tool.ns}-${s}`;
   const view = h('div', { class: 'cv-main', id: id('main') });
-  const side = h('aside', { class: 'cv-side', id: id('side'), 'aria-label': tr('convert.frame.panel', 'Convert'), 'data-i18n-attr': 'aria-label:convert.frame.panel' });
+  const side = h('aside', { class: 'cv-side', id: id('side'), 'aria-label': tr('convert.frame.panel'), 'data-i18n-attr': 'aria-label:convert.frame.panel' });
   const box = h('div', { class: 'cv-frame', id: id('frame') }, view, side);
   // everything above the form is the view; the form, the status and the results go to the panel
   const keep = [...root.children].filter((n) => n !== ui.form && n !== ui.status && n !== ui.results);
@@ -24,9 +24,9 @@ export function frameTool(tool) {
   ui.run.setAttribute('form', ui.form.id);   // still the form's submit button from the panel's foot
   ui.form.hidden = true;                     // its note shows in the panel; the form stays in the page for Convert
   view.append(ui.form);
-  const fr = window.SlopFrame.mount(box, { view, panel: side, panelLabel: tr('convert.frame.panel', 'Convert'), storageKey: 'convert', phoneButton: false,
+  const fr = window.SlopFrame.mount(box, { view, panel: side, panelLabel: tr('convert.frame.panel'), storageKey: 'convert', phoneButton: false,
     width: 320, min: 260, max: 480, command: false });
-  const panel = window.SlopFrame.panel(side, { title: tr('convert.frame.panel', 'Convert') });
+  const panel = window.SlopFrame.panel(side, { title: tr('convert.frame.panel') });
   let shape = '', lang = '';
 
   function paint() {
@@ -34,19 +34,19 @@ export function frameTool(tool) {
     const key = [n > 0, out].join('/'), now = window.SlopI18n ? window.SlopI18n.get() : '';
     if (out && !shape.endsWith('/' + out) && fr.isPhone()) fr.openSheet();   // a phone: the new results come up in the sheet
     const relang = now !== lang;   // a language change draws the title and the sections again
-    if (relang) { lang = now; panel.setTitle(tr('convert.frame.panel', 'Convert')); }
+    if (relang) { lang = now; panel.setTitle(tr('convert.frame.panel')); }
     if (key !== shape || relang) {   // the panel's sections change only when files or results come or go
       shape = key;
       panel.render([
-        { key: 'sum', title: tr('convert.frame.files', 'Files'), note: n ? '' : tr('convert.frame.files_note', 'Add files, pick what each one becomes, then Convert.'), settings: [ui.note, ui.status] },
-        out ? { key: 'res', title: tr('convert.frame.converted_n', 'Converted ({n})', { n: out }), body: ui.results } : null,
+        { key: 'sum', title: tr('convert.frame.files'), note: n ? '' : tr('convert.frame.files_note'), settings: [ui.note, ui.status] },
+        out ? { key: 'res', title: tr('convert.frame.converted_n', { n: out }), body: ui.results } : null,
       ]);
     }
     const groups = tool.groups(), files = groups.reduce((s, g) => s + g.items.length, 0);
     panel.footer([
-      { el: ui.run, primary: true, label: files > 1 ? tr('convert.frame.convert_n', 'Convert {n} files', { n: files }) : tr('convert.tool.convert', 'Convert'), title: tr('convert.frame.convert_tip', 'Convert the files (Enter)') },
+      { el: ui.run, primary: true, label: files > 1 ? tr('convert.frame.convert_n', { n: files }) : tr('convert.tool.convert'), title: tr('convert.frame.convert_tip') },
       { el: ui.clear, disabled: !n },
-    ], { more: out ? tr('convert.frame.results', 'Results') : tr('convert.frame.details', 'Details') });
+    ], { more: out ? tr('convert.frame.results') : tr('convert.frame.details') });
   }
   return { frame: fr, panel, paint, view, side };
 }

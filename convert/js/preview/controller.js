@@ -17,7 +17,7 @@ async function toPng(blob) {
   canvas.width = bmp.width; canvas.height = bmp.height;
   canvas.getContext('2d').drawImage(bmp, 0, 0);
   bmp.close();
-  return new Promise((resolve, reject) => canvas.toBlob((b) => (b ? resolve(b) : reject(new Error(tr('convert.pv.no_copy_pic', 'This picture cannot be copied')))), 'image/png'));
+  return new Promise((resolve, reject) => canvas.toBlob((b) => (b ? resolve(b) : reject(new Error(tr('convert.pv.no_copy_pic')))), 'image/png'));
 }
 
 export class PreviewPanel {
@@ -56,7 +56,7 @@ export class PreviewPanel {
     if (!items.some((i) => i.pasted) && ta.value !== '') ta.value = '';
     const fileInput = items.some((i) => !i.pasted);
     ta.disabled = fileInput;
-    this.view.taHint.textContent = fileInput ? tr('convert.pv.file_is_input', 'A file is the input. Remove it to type text instead.') : tr('convert.pv.type_hint', 'Type or paste text. The output below updates as you type. Nothing is uploaded.');
+    this.view.taHint.textContent = fileInput ? tr('convert.pv.file_is_input') : tr('convert.pv.type_hint');
   }
 
   async update() {
@@ -68,16 +68,16 @@ export class PreviewPanel {
     this.route = !!steps;
     if (!conv || !items.length) {
       this.model = null;
-      this.view.empty(this.tool.items.length ? tr('convert.pv.no_conv', 'No conversion on this page for these files.') : tr('convert.pv.add_file', 'Add a file or type text to see the preview.'));
+      this.view.empty(this.tool.items.length ? tr('convert.pv.no_conv') : tr('convert.pv.add_file'));
       this.setActions(null);
       return;
     }
-    this.view.setStatus(tr('convert.pv.updating', 'Updating…'));
+    this.view.setStatus(tr('convert.pv.updating'));
     const model = steps ? await buildRoutePreview(steps, items) : await buildPreview(conv, items, opts);
     if (id !== this.seq) return;
     this.model = model;
     this.view.render(model);
-    this.view.setStatus(tr('convert.pv.up_to_date', 'Up to date.'));
+    this.view.setStatus(tr('convert.pv.up_to_date'));
     this.setActions(model);
   }
 
@@ -113,9 +113,9 @@ export class PreviewPanel {
         const [out] = await this.full();
         await navigator.clipboard.write([new ClipboardItem({ 'image/png': await toPng(out.blob) })]);
       } else return;
-      this.view.setStatus(tr('convert.pv.copied', 'Copied.'));
+      this.view.setStatus(tr('convert.pv.copied'));
     } catch (e) {
-      this.view.setStatus(tr('convert.pv.copy_failed', 'Could not copy: {why}', { why: e.message || String(e) }));
+      this.view.setStatus(tr('convert.pv.copy_failed', { why: e.message || String(e) }));
     }
   }
 
@@ -128,22 +128,22 @@ export class PreviewPanel {
       const text = await this.fullText();
       this.tool.swapText(text, rev);
       if (this.view.ta) this.view.ta.value = text;
-      this.view.setStatus(tr('convert.pv.swapped', 'Swapped. Now: {name}.', { name: rev.label }));
+      this.view.setStatus(tr('convert.pv.swapped', { name: rev.label }));
     } catch (e) {
-      this.view.setStatus(tr('convert.pv.swap_failed', 'Could not swap: {why}', { why: e.message || String(e) }));
+      this.view.setStatus(tr('convert.pv.swap_failed', { why: e.message || String(e) }));
     }
   }
 
   async download() {
-    this.view.setStatus(tr('convert.pv.converting', 'Converting the whole file…'));
+    this.view.setStatus(tr('convert.pv.converting'));
     try {
       const outs = await this.full();
-      if (!outs.length) throw new Error(tr('convert.pv.nothing', 'Nothing to download.'));
+      if (!outs.length) throw new Error(tr('convert.pv.nothing'));
       if (outs.length === 1) saveBlob(outs[0].blob, outs[0].name);
       else saveBlob(await writeZip(outs.map((o) => ({ path: o.name, data: o.blob }))), 'slop-convert.zip');
-      this.view.setStatus(tr('convert.pv.started', 'Download started.'));
+      this.view.setStatus(tr('convert.pv.started'));
     } catch (e) {
-      this.view.setStatus(tr('convert.pv.convert_failed', 'Could not convert: {why}', { why: e.message || String(e) }));
+      this.view.setStatus(tr('convert.pv.convert_failed', { why: e.message || String(e) }));
     }
   }
 }

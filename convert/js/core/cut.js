@@ -10,8 +10,8 @@ export function parseClock(text) {
   const s = String(text ?? '').trim().replace(',', '.');
   if (!s) return null;
   const m = /^(?:(?:(\d+):)?(\d{1,2}):)?(\d+(?:\.\d*)?|\.\d+)$/.exec(s);
-  if (!m) throw new Error(tr('convert.media.not_time', '"{text}" is not a time. Type seconds (90) or minutes and seconds (1:30).', { text: String(text).trim() }));
-  if ((m[1] || m[2]) && Number(m[3]) >= 60) throw new Error(tr('convert.media.bad_seconds', '"{text}" is not a time: the seconds go up to 59.', { text: String(text).trim() }));
+  if (!m) throw new Error(tr('convert.media.not_time', { text: String(text).trim() }));
+  if ((m[1] || m[2]) && Number(m[3]) >= 60) throw new Error(tr('convert.media.bad_seconds', { text: String(text).trim() }));
   return (Number(m[1] || 0) * 60 + Number(m[2] || 0)) * 60 + Number(m[3]);
 }
 
@@ -21,8 +21,8 @@ export function cutRange({ start, end } = {}, duration = Infinity) {
   const from = Math.max(0, parseClock(start) ?? 0);
   const asked = parseClock(end);
   const to = Math.min(duration, asked ?? duration);
-  if (from >= duration) throw new Error(tr('convert.media.start_after_end', 'The start ({start}) is after the end of the file ({end}).', { start: clock(from), end: clock(duration) }));
-  if (!(to > from)) throw new Error(tr('convert.media.end_before_start', 'The end must be after the start.'));
+  if (from >= duration) throw new Error(tr('convert.media.start_after_end', { start: clock(from), end: clock(duration) }));
+  if (!(to > from)) throw new Error(tr('convert.media.end_before_start'));
   return { from, to };
 }
 

@@ -42,15 +42,15 @@ export class ConvertTool {
     this.offIntake = window.SlopIntake.register({
       id: this.intakeId, main: !opts.compact, paste: !(opts.compact && opts.drop && opts.drop.paste === false),
       accept: { any: true, noun: 'convert.tool.noun_file' },
-      before: (batch) => { this.items = this.items.filter((i) => !i.pasted); this.setStatus(tr('convert.tool.reading', ['Reading {n} files…', 'Reading {n} file…'], { n: batch.take.length })); },
+      before: (batch) => { this.items = this.items.filter((i) => !i.pasted); this.setStatus(tr('convert.tool.reading', { n: batch.take.length })); },
       process: (file) => this.readFile(file),
       after: () => { this.wantTarget = null; this.setStatus(''); this.render(); },
     });
     this.dropZone = window.SlopDrop.attach(ui.drop, {
       intake: this.intakeId,
       input: ui.input,
-      label: tr('convert.tool.drop', 'Drop files here, or choose files'),
-      hint: tr('convert.tool.drop_hint', 'Several at once is fine. Files are read on this device and never uploaded.'),
+      label: tr('convert.tool.drop'),
+      hint: tr('convert.tool.drop_hint'),
       ...(opts.compact ? { compact: true, quiet: false, ...opts.drop } : firstVisit(this)),   // drop: a dialog's own targets
     });
     ui.input.setAttribute('accept', accept);
@@ -144,7 +144,7 @@ export class ConvertTool {
   skipReason(item) {
     const p = this.preset;
     if (p && p.from && !p.from.includes(item.kind) && !(conversionById(p.conv)?.with || []).includes(item.kind)) {   // `with`: a model's .mtl, .bin, textures
-      return tr('convert.tool.wrong_kind', 'This page converts {kinds}, not {kind}.', { kinds: p.from.map((k) => KIND_LABEL[k]).join(tr('convert.tool.or', ' or ')), kind: KIND_LABEL[item.kind].toLowerCase() });
+      return tr('convert.tool.wrong_kind', { kinds: p.from.map((k) => KIND_LABEL[k]).join(tr('convert.tool.or')), kind: KIND_LABEL[item.kind].toLowerCase() });
     }
     return '';
   }
@@ -221,7 +221,7 @@ export class ConvertTool {
     drawFiles(this);
     ui.drop.classList.toggle('cv-drop-has', this.items.length > 0);   // the strip: same place, fixed height
     const msg = ui.drop.querySelector('.sd-msg');
-    if (msg) msg.textContent = this.items.length ? tr('convert.tool.drop_more', 'Add more files: drop them here, or choose files') : tr('convert.tool.drop', 'Drop files here, or choose files');
+    if (msg) msg.textContent = this.items.length ? tr('convert.tool.drop_more') : tr('convert.tool.drop');
     if (this.dropZone) this.dropZone.empty(!this.items.length);   // the preview in the drop zone is for an empty page
     ui.run.disabled = this.busy || !this.groups().length;
     this.noteFor(cands);
@@ -233,16 +233,16 @@ export class ConvertTool {
   noteFor(cands) {
     const act = this.active(), groups = this.groups();
     const notes = [];
-    if (this.items.length && !act.length) notes.push(tr('convert.tool.none_here', 'None of these files can be converted on this page.'));
+    if (this.items.length && !act.length) notes.push(tr('convert.tool.none_here'));
     else if (act.length && !this.selected().length && !cands.some((c) => !c.from.includes('*')) && new Set(act.map((i) => i.kind)).size > 1) {
-      notes.push(tr('convert.tool.mixed', 'These files are of different kinds, so each row has its own Convert to. Select rows to set several at once.'));
+      notes.push(tr('convert.tool.mixed'));
     }
     // A kind with no converter on this site says so by name, rather than leaving an empty target list.
     const bare = [...new Set(act.filter((i) => !ownTargets(i.kind).length && this.targetOf(i) !== WITH).map((i) => i.kind))];
-    for (const k of bare) notes.push(tr('convert.tool.no_conv', '{kind} files have no conversion here yet.', { kind: KIND_LABEL[k] || k }));
-    if (act.some((i) => i.kind === 'png' && this.targetOf(i) === 'images-to-pdf')) notes.push(tr('convert.tool.png_white', 'PNG transparency is flattened onto white in the PDF.'));
+    for (const k of bare) notes.push(tr('convert.tool.no_conv', { kind: KIND_LABEL[k] || k }));
+    if (act.some((i) => i.kind === 'png' && this.targetOf(i) === 'images-to-pdf')) notes.push(tr('convert.tool.png_white'));
     const n = groups.reduce((s, g) => s + g.items.length, 0);
-    if (n > 1) notes.push(groups.length > 1 ? tr('convert.tool.will_convert_to', '{n} files will be converted, to {formats} formats.', { n, formats: groups.length }) : tr('convert.tool.will_convert', '{n} files will be converted.', { n }));
+    if (n > 1) notes.push(groups.length > 1 ? tr('convert.tool.will_convert_to', { n, formats: groups.length }) : tr('convert.tool.will_convert', { n }));
     this.ui.note.textContent = notes.join(' ');
   }
 
@@ -276,8 +276,8 @@ export class ConvertTool {
   summary(res) {
     const ok = res.outputs.length, bad = res.errors.reduce((n, e) => n + e.ids.length, 0);
     const parts = [];
-    if (ok) parts.push(tr('convert.tool.ready', ['{n} files ready', '{n} file ready'], { n: ok }));
-    if (bad) parts.push(tr('convert.tool.failed', '{n} could not be converted', { n: bad }));
+    if (ok) parts.push(tr('convert.tool.ready', { n: ok }));
+    if (bad) parts.push(tr('convert.tool.failed', { n: bad }));
     return parts.join('. ') + (parts.length ? '.' : '');
   }
 
@@ -288,10 +288,10 @@ export class ConvertTool {
 
   async zipAll() {
     if (!this.outputs.length) return;
-    this.setStatus(tr('convert.tool.zipping', 'Packing the zip…'));
+    this.setStatus(tr('convert.tool.zipping'));
     const z = await writeZip(this.outputs.map((o) => ({ path: o.name, data: o.blob })));
     saveBlob(z, 'slop-convert.zip');
-    this.setStatus(tr('convert.tool.zip_ready', 'Zip ready.'));
+    this.setStatus(tr('convert.tool.zip_ready'));
   }
 }
 installRoutes(ConvertTool);   // rowRoute, bulkRoute, routes (tool-chain.js)

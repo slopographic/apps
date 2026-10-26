@@ -12,7 +12,7 @@ export const isNumberCell = (s) => NUM.test(String(s).trim());
 
 function split(rows, header) {
   const clean = rows.filter((r) => r.some((c) => String(c).trim() !== ''));
-  if (!clean.length) throw new Error(tr('convert.table.empty', 'This table is empty: there are no cells to write.'));
+  if (!clean.length) throw new Error(tr('convert.table.empty'));
   const n = width(clean);
   const head = header ? pad(clean[0], n).map((c, i) => String(c).trim() || `Column ${i + 1}`) : Array.from({ length: n }, (_, i) => `Column ${i + 1}`); // i18n-ignore: written into the table file
   return { head, body: (header ? clean.slice(1) : clean).map((r) => pad(r, n)) };

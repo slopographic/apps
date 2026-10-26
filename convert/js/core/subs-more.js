@@ -52,7 +52,7 @@ export function parseAss(text) {
     const t = assText(fields[fields.length - 1] === 'text' ? body : head[fields.indexOf('text')] || body);
     if (t) cues.push({ start, end, text: t, settings: '' });
   }
-  if (!cues.length) throw new Error(tr('convert.subs.none_ass', 'No subtitles found: an ASS or SSA file has an [Events] section with Dialogue lines.'));
+  if (!cues.length) throw new Error(tr('convert.subs.none_ass'));
   return cues.sort((a, b) => a.start - b.start);
 }
 
@@ -69,7 +69,7 @@ export function parseSbv(text) {
     const m = SBV.exec(lines[i]);
     cues.push({ start: sbvMs(m[1], m[2], m[3], m[4]), end: sbvMs(m[5], m[6], m[7], m[8]), text: lines.slice(i + 1).join('\n').trim(), settings: '' });
   }
-  if (!cues.length) throw new Error(tr('convert.subs.none_sbv', 'No subtitles found: an SBV file has lines like 0:00:01.000,0:00:03.500.'));
+  if (!cues.length) throw new Error(tr('convert.subs.none_sbv'));
   return cues;
 }
 

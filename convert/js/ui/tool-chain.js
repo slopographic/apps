@@ -37,9 +37,9 @@ export function installRoutes(Tool) {
 function statusOf(i, total, p) {
   if (p && p.steps > 1) {
     const v = { step: p.step, steps: p.steps, from: TAG(p.from), to: TAG(p.to), i: p.done + 1, n: p.total };
-    return p.total > 1 ? tr('convert.run.step_of_n', 'Step {step} of {steps}: {from} → {to} ({i} of {n})…', v) : tr('convert.run.step', 'Step {step} of {steps}: {from} → {to}…', v);
+    return p.total > 1 ? tr('convert.run.step_of_n', v) : tr('convert.run.step', v);
   }
-  return total > 1 ? tr('convert.run.i_of_n', 'Converting {i} of {n}…', { i: Math.floor(i) + 1, n: total }) : tr('convert.run.converting', 'Converting…');
+  return total > 1 ? tr('convert.run.i_of_n', { i: Math.floor(i) + 1, n: total }) : tr('convert.run.converting');
 }
 
 export async function runTool(tool) {
@@ -52,7 +52,7 @@ export async function runTool(tool) {
   for (const it of tool.items) it.error = '';
   ui.run.disabled = true;
   const n = groups.reduce((s, g) => s + g.items.length, 0);
-  tool.setStatus(tr('convert.run.converting_n', ['Converting {n} files…', 'Converting {n} file…'], { n }));
+  tool.setStatus(tr('convert.run.converting_n', { n }));
   ui.flow.state('run').progress(0);
   const res = await runGroups(groups, (conv, it) => tool.valuesOf(it, conv), (i, total, p) => { ui.flow.progress(i / total); tool.setStatus(statusOf(i, total, p)); });
   for (const e of res.errors) for (const it of tool.items) if (e.ids.includes(it.id)) it.error = e.message;

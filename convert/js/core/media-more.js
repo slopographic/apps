@@ -14,7 +14,7 @@ import { tr } from './i18n.js';
 
 const AUDIO_IN = ['mp4', 'webm', 'mov', 'm4a', 'mp3', 'wav', 'ogg', 'flac'];
 const without = (k) => AUDIO_IN.filter((x) => x !== k);
-const kbps = (value, list) => ({ key: 'bitrate', type: 'select', get label() { return tr('convert.media.bitrate', 'Bitrate'); }, value, options: list.map((v) => [v, `${v} kbps`]) });
+const kbps = (value, list) => ({ key: 'bitrate', type: 'select', get label() { return tr('convert.media.bitrate'); }, value, options: list.map((v) => [v, `${v} kbps`]) });
 
 /** The audio track of a file, re-encoded: codec args for ffmpeg after '-c:a'. */
 function audioTo(output, codec) {
@@ -47,17 +47,17 @@ async function toAvif(files, o = {}) {
 }
 
 const SIZE = [
-  { key: 'width', type: 'number', get label() { return tr('convert.img.width', 'Width (px)'); }, min: 1, max: 10000, get hint() { return tr('convert.img.width_hint', 'Leave blank to keep the original size. Height follows the proportions.'); } },
-  { key: 'height', type: 'number', get label() { return tr('convert.img.height', 'Height (px)'); }, min: 1, max: 10000 },
+  { key: 'width', type: 'number', get label() { return tr('convert.img.width'); }, min: 1, max: 10000, get hint() { return tr('convert.img.width_hint'); } },
+  { key: 'height', type: 'number', get label() { return tr('convert.img.height'); }, min: 1, max: 10000 },
 ];
 const AV = 'Audio and video'; // i18n-ignore: a catalog group (the group names are translated where they are shown)
 
 export const MEDIA_MORE = [
-  { id: 'to-ogg', engine: 'ffmpeg', get label() { return tr('convert.media.to_ogg', 'To OGG (Vorbis)'); }, group: AV, from: without('ogg'), ext: 'ogg', mode: 'each', options: [kbps('160', ['96', '128', '160', '192', '256'])], keywords: ['vorbis', 'audio'], run: audioTo('ogg', ['libvorbis']) },
-  { id: 'to-opus', engine: 'ffmpeg', get label() { return tr('convert.media.to_opus', 'To Opus'); }, group: AV, from: AUDIO_IN, ext: 'opus', mode: 'each', options: [kbps('96', ['48', '64', '96', '128', '160'])], keywords: ['ogg', 'voice', 'audio'], run: audioTo('opus', ['opus', '-strict', '-2', '-ar', '48000']) },
-  { id: 'to-flac', engine: 'ffmpeg', get label() { return tr('convert.media.to_flac', 'To FLAC (lossless)'); }, group: AV, from: without('flac'), ext: 'flac', mode: 'each', options: [], keywords: ['lossless', 'audio'], run: audioTo('flac', ['flac']) },
-  { id: 'to-m4a', engine: 'ffmpeg', get label() { return tr('convert.media.to_m4a', 'To M4A (AAC)'); }, group: AV, from: without('m4a'), ext: 'm4a', mode: 'each', options: [kbps('192', ['128', '192', '256'])], keywords: ['aac', 'itunes', 'apple', 'audio'], run: audioTo('m4a', ['aac']) },
-  { id: 'gif-to-mp4', engine: 'ffmpeg', get label() { return tr('convert.media.gif_to_mp4', 'GIF to MP4'); }, group: AV, from: ['gif'], ext: 'mp4', mode: 'each', options: [{ key: 'crf', type: 'range', get label() { return tr('convert.media.crf', 'Quality (lower is better)'); }, min: 18, max: 40, value: 23 }], keywords: ['video', 'animation'], run: gifToMp4() },
-  { id: 'to-avif', get label() { return tr('convert.media.to_avif', 'To AVIF'); }, group: 'Images', from: ['png', 'jpg', 'webp', 'bmp', 'gif', 'svg', 'ico'], ext: 'avif', mode: 'each', available: () => canEncode('image/avif'), // i18n-ignore: group id (shown through groupLabel)
-    options: [...SIZE, { key: 'quality', type: 'range', get label() { return tr('convert.img.quality', 'Quality'); }, min: 10, max: 100, value: 70 }], keywords: ['av1'], run: toAvif },
+  { id: 'to-ogg', engine: 'ffmpeg', get label() { return tr('convert.media.to_ogg'); }, group: AV, from: without('ogg'), ext: 'ogg', mode: 'each', options: [kbps('160', ['96', '128', '160', '192', '256'])], keywords: ['vorbis', 'audio'], run: audioTo('ogg', ['libvorbis']) },
+  { id: 'to-opus', engine: 'ffmpeg', get label() { return tr('convert.media.to_opus'); }, group: AV, from: AUDIO_IN, ext: 'opus', mode: 'each', options: [kbps('96', ['48', '64', '96', '128', '160'])], keywords: ['ogg', 'voice', 'audio'], run: audioTo('opus', ['opus', '-strict', '-2', '-ar', '48000']) },
+  { id: 'to-flac', engine: 'ffmpeg', get label() { return tr('convert.media.to_flac'); }, group: AV, from: without('flac'), ext: 'flac', mode: 'each', options: [], keywords: ['lossless', 'audio'], run: audioTo('flac', ['flac']) },
+  { id: 'to-m4a', engine: 'ffmpeg', get label() { return tr('convert.media.to_m4a'); }, group: AV, from: without('m4a'), ext: 'm4a', mode: 'each', options: [kbps('192', ['128', '192', '256'])], keywords: ['aac', 'itunes', 'apple', 'audio'], run: audioTo('m4a', ['aac']) },
+  { id: 'gif-to-mp4', engine: 'ffmpeg', get label() { return tr('convert.media.gif_to_mp4'); }, group: AV, from: ['gif'], ext: 'mp4', mode: 'each', options: [{ key: 'crf', type: 'range', get label() { return tr('convert.media.crf'); }, min: 18, max: 40, value: 23 }], keywords: ['video', 'animation'], run: gifToMp4() },
+  { id: 'to-avif', get label() { return tr('convert.media.to_avif'); }, group: 'Images', from: ['png', 'jpg', 'webp', 'bmp', 'gif', 'svg', 'ico'], ext: 'avif', mode: 'each', available: () => canEncode('image/avif'), // i18n-ignore: group id (shown through groupLabel)
+    options: [...SIZE, { key: 'quality', type: 'range', get label() { return tr('convert.img.quality'); }, min: 10, max: 100, value: 70 }], keywords: ['av1'], run: toAvif },
 ];

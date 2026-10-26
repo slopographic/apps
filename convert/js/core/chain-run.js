@@ -24,7 +24,7 @@ const asFile = (o) => (typeof File === 'function' && !(o.blob instanceof File) ?
 const uniq = (list) => [...new Set(list)];
 const aborted = (signal) => !!(signal && signal.aborted);
 const isAbort = (e) => e && (e.name === 'AbortError' || e.message === 'Cancelled');   // i18n-ignore: an id compared, not shown
-const CANCELLED = () => tr('convert.chain.cancelled', 'Cancelled');
+const CANCELLED = () => tr('convert.chain.cancelled');
 
 export async function runChain(steps, items, { optsFor = () => ({}), progress = null, keep = null, keepStep = null, onUnit = null, signal = null } = {}) {
   const errors = [], info = [], middles = [];
@@ -48,12 +48,12 @@ export async function runChain(steps, items, { optsFor = () => ({}), progress = 
         const res = await conv.run(group.map(({ name: n, file, kind }) => ({ name: n, file, kind })), opts, ctx);
         if (res.info) info.push(res.info);
         for (const o of res) next.push({ name: o.name, file: asFile(o), blob: o.blob, kind: o.kind || made, src });
-        if (!res.length) throw new Error(tr('convert.chain.no_file', 'It made no file.'));
+        if (!res.length) throw new Error(tr('convert.chain.no_file'));
         unit({ step: i + 1, ids, state: 'done', count: res.length });
       } catch (e) {
         if (isAbort(e) || aborted(signal)) { cancelled = true; errors.push({ ids, step: i + 1, message: CANCELLED() }); unit({ step: i + 1, ids, state: 'error', message: CANCELLED() }); continue; }
         const message = (e && e.message) || String(e);
-        errors.push({ ids, step: i + 1, message: steps.length > 1 ? tr('convert.chain.step_failed', 'Step {i} of {n} ({label}) failed: {message}', { i: String(i + 1), n: String(steps.length), label, message }) : message });
+        errors.push({ ids, step: i + 1, message: steps.length > 1 ? tr('convert.chain.step_failed', { i: String(i + 1), n: String(steps.length), label, message }) : message });
         unit({ step: i + 1, ids, state: 'error', message });
       }
     }

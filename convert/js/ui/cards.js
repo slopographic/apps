@@ -1,8 +1,8 @@
 /* The hub's conversion cards. One card per converter page in PAGES (core/pages.js, the single list), grouped by
  * category and filtered by the search box. Each card shows the file type on both sides of an arrow (SlopFlow), a one-line
- * description, the accepted types and a Convert link to the page. The card's label, summary and category are the page's
- * English (SEO data) shown through the tables (convert.card.<slug>, convert.cat.<category>), and redrawn on a language
- * change; the search reads both the shown words and the English. */
+ * description, the accepted types and a Convert link to the page. The card's label and summary are the page's own
+ * (p.label, p.summary: the tables' convert.card.<slug>, the same text the SEO pages use), the category is groupLabel's;
+ * the cards are redrawn on a language change, and the search reads the shown words, the slug and the category id. */
 import { PAGES } from '../core/pages.js';
 import { groupLabel } from '../core/catalog.js';
 import { tr, onLang } from '../core/i18n.js';
@@ -14,20 +14,17 @@ import '../../../shared/ui/flow.js';   // window.SlopFlow: the same PDF → DOCX
 const ORDER = ['Documents', 'Images', 'Camera RAW', 'Audio and video', 'Data', 'Text & code', '3D models', 'Finance'];   // i18n-ignore: category ids (groupLabel)
 export const CATEGORIES = [...new Set([...ORDER, ...PAGES.map((p) => p.cat)])];
 
-const key = (p) => 'convert.card.' + p.slug.replace(/[^a-z0-9]+/g, '_');
-const labelOf = (p) => tr(key(p), p.label);
-const summaryOf = (p) => tr(key(p) + '_sum', p.summary);
-const accepts = (p) => (p.from.length ? p.from.map((k) => k.toUpperCase()).join(', ') : tr('convert.card.any_file', 'Any file'));
+const accepts = (p) => (p.from.length ? p.from.map((k) => k.toUpperCase()).join(', ') : tr('convert.card.any_file'));
 
 function card(p) {
-  const [from, to] = p.pair, label = labelOf(p);
-  const search = [label, p.label, from, to, groupLabel(p.cat), p.cat, summaryOf(p), p.summary, accepts(p)].join(' ').toLowerCase();
+  const [from, to] = p.pair, label = p.label;
+  const search = [label, p.slug.replace(/-/g, ' '), from, to, groupLabel(p.cat), p.cat, p.summary, accepts(p)].join(' ').toLowerCase();
   return h('article', { class: 'cv-pair', 'data-pair': p.slug, 'data-search': search },
-    h('div', { class: 'cv-pair-path' }, window.SlopFlow.create({ from, to, label: tr('convert.card.flow', '{from} to {to}', { from, to }) }).el),
+    h('div', { class: 'cv-pair-path' }, window.SlopFlow.create({ from, to, label: tr('convert.card.flow', { from, to }) }).el),
     h('h3', { class: 'cv-pair-title' }, label),
-    h('p', { class: 'cv-pair-desc' }, summaryOf(p)),
-    h('p', { class: 'cv-pair-accepts' }, tr('convert.card.accepts', 'Accepts:') + ' ', h('span', null, accepts(p))),
-    h('a', { class: 'cv-btn cv-primary cv-pair-go', href: `${p.slug}/`, 'aria-label': tr('convert.card.go_label', 'Convert: {label}', { label }) }, tr('convert.card.go', 'Convert')));
+    h('p', { class: 'cv-pair-desc' }, p.summary),
+    h('p', { class: 'cv-pair-accepts' }, tr('convert.card.accepts') + ' ', h('span', null, accepts(p))),
+    h('a', { class: 'cv-btn cv-primary cv-pair-go', href: `${p.slug}/`, 'aria-label': tr('convert.card.go_label', { label }) }, tr('convert.card.go')));
 }
 
 /** Draws the grouped cards into `root` and wires the search box `search` (an input) and the empty message `empty`. */

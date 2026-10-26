@@ -16,7 +16,7 @@ export async function buildRoutePreview(steps, items) {
   const inputs = pickInputs(steps[0].conv, items).map(previewInput);
   const before = await beforePanel(inputs[0]).catch(err);
   if (steps.some((s) => s.conv.engine)) {
-    return { before, after: { kind: 'info', text: tr('convert.pv.route_engine', 'Press Convert to make this file. A step of this route runs with the video engine, which is not started for a preview.') }, note: '', outputs: null };
+    return { before, after: { kind: 'info', text: tr('convert.pv.route_engine') }, note: '', outputs: null };
   }
   let cut = inputs.some((i) => i.truncated);
   const tweak = (s, i) => {
@@ -31,10 +31,10 @@ export async function buildRoutePreview(steps, items) {
   if (res.outputs.length) {
     const outs = res.outputs.map((o) => ({ name: o.name, blob: o.blob }));
     after = await afterPanel(outs, before.text || '').catch(err);
-  } else after = res.errors.length ? err(new Error(res.errors[0].message)) : { kind: 'info', text: tr('convert.pv.route_none', 'The route made no file.') };
-  if (cut && after.kind === 'error') after.hint = tr('convert.pv.cut_hint', 'This preview uses the first part of the file. Download converts the whole file.');
-  const notes = [tr('convert.pv.route_last', 'Preview of the last of {n} steps.', { n: steps.length })];
-  if (cut) notes.push(tr('convert.pv.cut_note', 'Preview of the first part only. Download runs the full conversion.'));
+  } else after = res.errors.length ? err(new Error(res.errors[0].message)) : { kind: 'info', text: tr('convert.pv.route_none') };
+  if (cut && after.kind === 'error') after.hint = tr('convert.pv.cut_hint');
+  const notes = [tr('convert.pv.route_last', { n: steps.length })];
+  if (cut) notes.push(tr('convert.pv.cut_note'));
   if (before.note) notes.push(before.note);
   return { before, after, note: notes.join(' '), outputs: cut || res.errors.length ? null : res.outputs.map((o) => ({ name: o.name, blob: o.blob })) };
 }
