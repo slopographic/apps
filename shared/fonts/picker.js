@@ -1,6 +1,7 @@
 /* Slopographic shared font picker (window.SlopFonts). Classic script.
- * One font list: the bundled index, shared/fonts/library/index.json, is read here and nowhere else; the packs and the
- * person's own files are read from IndexedDB by catalog.js. No family name is written in code.
+ * One font list: the bundled index, shared/fonts/library/index.json, and the site's own type family (shared/fonts/brand/
+ * faces.json, tools/fonts/build.py; latin and latin-ext files, so a face has a unicodeRange) are read here and nowhere
+ * else; the packs and the person's own files are read from IndexedDB by catalog.js. No family name is written in code.
  * - bundledIndex(): the bundled faces (read once).
  * - load(family): registers a family's faces with FontFace when it is needed. Nothing is fetched at start-up.
  * - attach(select, opts): fills a <select> (standard names, then bundled, downloaded and own families) and adds a
@@ -13,6 +14,7 @@
   const doc = root.document;
   const SELF = (doc && doc.currentScript && doc.currentScript.src) || root.location.href;
   const LIB = new URL('library/', SELF).href;
+  const BRAND = new URL('brand/faces.json', SELF).href;
   /** Scripts this module needs, in order. Each is loaded only when its global is missing. */
   const DEPS = [
     [() => root.SlopLibraryManifest, '../library/manifest.js'],
@@ -23,7 +25,7 @@
     [() => root.SlopFonts && root.SlopFonts.openPanel, 'panel.js'],
   ];
   const GENERIC = { serif: 'serif', mono: 'monospace', sans: 'sans-serif' };
-  const GROUP = { bundled: 'Bundled (offline)', installed: 'Downloaded', own: 'Your own' };
+  const GROUP = { site: 'This site\'s type', bundled: 'Bundled (offline)', installed: 'Downloaded', own: 'Your own' };
 
   let indexP = null, depsP = null, known = [], cssDone = false;
   const meta = new Map();          // family -> { category }
@@ -44,10 +46,12 @@
   /** The bundled font index: the one list of bundled faces. Resolves [] when it cannot be read. */
   function bundledIndex() {
     if (!indexP) {
-      indexP = fetch(LIB + 'index.json', { cache: 'no-cache' })
-        .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-        .then((j) => { for (const f of j.fonts || []) if (!meta.has(f.family)) meta.set(f.family, { category: f.category || 'sans' }); return j.fonts || []; })
-        .catch(() => []);
+      const json = (url) => fetch(url, { cache: 'no-cache' }).then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
+      // the brand family's files sit next to library/: their paths are written relative to it
+      const brand = json(BRAND).then((m) => (m.faces || []).map((f) => ({ family: f.family, file: '../brand/' + f.file, weight: f.weight, style: f.style,
+        unicodeRange: f.unicodeRange, category: ((m.roles || {})[f.role] || {}).category || 'sans', licence: 'SIL Open Font License 1.1', brand: true }))).catch(() => []);
+      indexP = Promise.all([json(LIB + 'index.json').then((j) => j.fonts || []).catch(() => []), brand])
+        .then(([lib, own]) => { const all = own.concat(lib); for (const f of all) if (!meta.has(f.family)) meta.set(f.family, { category: f.category || 'sans' }); return all; });
     }
     return indexP;
   }
@@ -70,7 +74,7 @@
         const bundled = (await bundledIndex()).filter((f) => f.family === family);
         if (bundled.length) {
           rec.bundled = true;
-          for (const f of bundled) await add(`url("${LIB + f.file}") format("woff2")`, { weight: f.weight, style: f.style });
+          for (const f of bundled) await add(`url("${LIB + f.file}") format("woff2")`, Object.assign({ weight: f.weight, style: f.style }, f.unicodeRange ? { unicodeRange: f.unicodeRange } : {}));
           return true;
         }
         await deps();
@@ -113,12 +117,12 @@
    * even when that font is not installed, so a saved document still shows it. */
   function render(sel, legacy, fams, current) {
     const want = sel.value || current || '';
-    const groups = [['Standard', []], [GROUP.bundled, []], [GROUP.installed, []], [GROUP.own, []]];
-    const slot = { bundled: 1, installed: 2, own: 3 };
+    const groups = [['Standard', []], [GROUP.site, []], [GROUP.bundled, []], [GROUP.installed, []], [GROUP.own, []]];
+    const slot = { bundled: 2, installed: 3, own: 4 };   // the site's own family (brand/faces.json) has a group of its own
     const seen = new Set();
     for (const l of legacy) { const [v, text] = Array.isArray(l) ? l : [l, l]; if (!seen.has(v)) { seen.add(v); groups[0][1].push([v, text]); } }
     // a family with the same widths as an Office font says so: "Carlito (Calibri)"
-    for (const f of fams) if (!seen.has(f.name)) { seen.add(f.name); groups[slot[f.source] || 2][1].push([f.name, f.metricFor && f.metricFor.length ? `${f.name} (${f.metricFor.join(', ')})` : f.name]); }
+    for (const f of fams) if (!seen.has(f.name)) { seen.add(f.name); groups[f.site ? 1 : slot[f.source] || 3][1].push([f.name, f.metricFor && f.metricFor.length ? `${f.name} (${f.metricFor.join(', ')})` : f.name]); }
     const via = want && !seen.has(want) && fams.find((f) => (f.metricFor || []).some((m) => m.toLowerCase() === want.toLowerCase()));
     if (want && !seen.has(want)) groups[0][1].unshift([want, want + (via ? ` (set in ${via.name})` : ' (not installed)')]);
     sel.replaceChildren(...groups.filter((g) => g[1].length).map(([label, items]) => {

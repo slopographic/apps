@@ -24,7 +24,7 @@
   function ready() { return root.SlopFonts ? root.SlopFonts.ready() : Promise.resolve(); }
   /** The bundled faces, from the picker's index reader (the one place that reads index.json). */
   function bundled() {
-    return root.SlopFonts.bundledIndex().then((fs) => fs.map((f) => ({ family: f.family, weight: String(f.weight), style: f.style || 'normal', category: f.category || 'sans', source: 'bundled', url: LIB + f.file, embed: f.pdf ? LIB + f.pdf : null })));
+    return root.SlopFonts.bundledIndex().then((fs) => fs.map((f) => ({ family: f.family, weight: String(f.weight), style: f.style || 'normal', category: f.category || 'sans', source: 'bundled', site: !!f.brand, url: LIB + f.file, embed: f.pdf ? LIB + f.pdf : null })));
   }
   /** The open document's own fonts (kept in the document file by Slop Docs, Slop Slides and Slop Press): [{ family, weight,
    * italic, bytes }]. They are listed as "own" (source 'own'), the same as the person's own files. */
@@ -55,7 +55,7 @@
   async function families() {
     const seen = new Map();
     for (const f of await faces()) {
-      if (!seen.has(f.family)) seen.set(f.family, { name: f.family, category: f.category, source: f.user ? 'own' : f.source, metricFor: [] });
+      if (!seen.has(f.family)) seen.set(f.family, { name: f.family, category: f.category, source: f.user ? 'own' : f.source, metricFor: [], ...(f.site ? { site: true } : {}) });
       const r = seen.get(f.family);
       for (const m of f.metricFor || []) if (!r.metricFor.includes(m)) r.metricFor.push(m);
     }

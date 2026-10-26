@@ -34,6 +34,7 @@
     'footer.accounts_home': 'Aucun compte. Les statistiques et les publicités restent désactivées, sauf si vous les activez dans Paramètres.',
     'footer.accounts_settings': 'Aucun compte. Les statistiques et les publicités sont désactivées, sauf si vous les activez dans Paramètres.',
     'footer.settings_link': 'Paramètres et confidentialité',
+    'footer.typeface': 'Typographie',
     'footer.code_license': 'Code sous licence MIT',
     'footer.trademarks': 'Sloppo™ et Slopographic™ sont des marques commerciales',
     'footer.made': 'Fait avec ❤️ en Suède',

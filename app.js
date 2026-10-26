@@ -196,14 +196,16 @@
 
   setTopOffset();
   route();
+  // the families the font tokens name first (style/base.css), so only the faces the page draws with are fetched
+  const fam = (t) => getComputedStyle(document.documentElement).getPropertyValue(t).split(',')[0].trim() || 'serif';
   const fontsReady = document.fonts && document.fonts.load
     ? Promise.race([
         Promise.all([
-          document.fonts.load('900 40px Archivo'),
-          document.fonts.load('italic 400 40px "Instrument Serif"'),
-          document.fonts.load('400 40px "Instrument Serif"'),
-          document.fonts.load('400 16px "Inter Tight"'),
-          document.fonts.load('600 12px "JetBrains Mono"'),
+          document.fonts.load(`900 40px ${fam('--cond')}`),
+          document.fonts.load(`italic 400 40px ${fam('--serif')}`),
+          document.fonts.load(`400 40px ${fam('--serif')}`),
+          document.fonts.load(`400 16px ${fam('--sans')}`),
+          document.fonts.load(`600 12px ${fam('--mono')}`),
         ]),
         new Promise((r) => setTimeout(r, 1500)),
       ]).catch(() => {})

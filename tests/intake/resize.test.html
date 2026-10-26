@@ -18,7 +18,8 @@
   async function boot() {
     const fr = document.getElementById('app');
     fr.src = '../../resize/index.html';
-    await waitFor(() => fr.contentWindow && fr.contentWindow.SlopIntake && fr.contentWindow.SlopIntake.spec('resize'), { timeout: 20000 });
+    // SlopIntake can be on the page a moment before its spec() is (a script that only adds to it runs first)
+    await waitFor(() => fr.contentWindow && fr.contentWindow.SlopIntake && typeof fr.contentWindow.SlopIntake.spec === 'function' && fr.contentWindow.SlopIntake.spec('resize'), { timeout: 20000 });
     W = fr.contentWindow; D = W.document;
     const s = W.SlopIntake.spec('resize'), reader = s.process;
     s.process = (f, ctx) => { seen.push(ctx.source); return reader(f, ctx); };

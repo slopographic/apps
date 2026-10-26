@@ -3,6 +3,8 @@
 // profile markers (/*profile:key*/ literals) in the copied code. Pure functions; build.mjs writes their results.
 // Node only. Tests: tests/node/whitelabel-profile.test.mjs, tests/node/whitelabel-mascot-slot.test.mjs.
 import { hasOverlay, artNotice, artTrademarks } from './mascot.mjs';
+import { fontMarkers } from './font.mjs';
+import { EMPTY } from '../fonts/css.mjs';
 
 /** The value each marker key takes for a profile. A key whose value is undefined keeps the source literal. */
 export function markerValues(p) {
@@ -12,15 +14,29 @@ export function markerValues(p) {
     naming: p.naming, tone: p.tone, mascot: p.mascot === true, mascotOverlay: hasOverlay(p), media: p.media, analytics: p.analytics, defaultLang: p.defaultLang,
     hideApps: (p.apps && p.apps.hide) || [], themes: p.themes || {},
     seoHomeTitle: seo.homeTitle, seoHomeDescription: seo.homeDescription,
+    ...fontMarkers(p.fontManifest || EMPTY),     // the type family's token names, the typeface page, the preload
   };
 }
 const LITERAL = String.raw`'(?:[^'\\\n]|\\.)*'|"(?:[^"\\\n]|\\.)*"|true|false|null|-?\d+(?:\.\d+)?|\[\]|\{\}`;
 const MARKER = new RegExp(String.raw`/\*profile:(\w+)\*/(${LITERAL})`, 'g');
 /** The value of a marker's literal (single-quoted strings read as JSON strings). */
 const literal = (lit) => JSON.parse(lit[0] === "'" ? '"' + lit.slice(1, -1).replace(/\\'/g, "'").replace(/"/g, '\\"') + '"' : lit);
-/** Rewrites every /*profile:key*\/literal in a text with the profile's value (JSON). Unknown keys are an error. */
+const BLOCK = /<!--profile:(\w+)-->(.*?)<!--\/profile:\1-->/g;
+/** HTML blocks on one line, <!--profile:key-->...<!--/profile:key-->: kept when the value is true, emptied when it is
+ * false, and for an object {from: to} kept with each from replaced (the line count never changes). */
+export function applyBlocks(text, values) {
+  return text.replace(BLOCK, (m, key, body) => {
+    if (!Object.prototype.hasOwnProperty.call(values, key)) throw new Error(`unknown profile marker ${key}`);
+    const v = values[key];
+    if (v === true || v === undefined) return m;
+    const inner = v && typeof v === 'object' ? Object.entries(v).reduce((t, [a, b]) => t.split(a).join(b), body) : '';
+    return `<!--profile:${key}-->${inner}<!--/profile:${key}-->`;
+  });
+}
+/** Rewrites every /*profile:key*\/literal in a text with the profile's value (JSON), and the HTML blocks. Unknown keys are
+ * an error. */
 export function applyMarkers(text, values) {
-  return text.replace(MARKER, (m, key, lit) => {
+  return applyBlocks(text, values).replace(MARKER, (m, key, lit) => {
     if (!Object.prototype.hasOwnProperty.call(values, key)) throw new Error(`unknown profile marker ${key}`);
     const v = values[key];
     if (v === undefined || JSON.stringify(v) === JSON.stringify(literal(lit))) return m;   // the same value keeps its spelling

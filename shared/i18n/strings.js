@@ -38,6 +38,7 @@
     'footer.accounts_home': 'No accounts. Analytics and ads stay off unless you switch them on in Settings.',
     'footer.accounts_settings': 'No accounts. Analytics and ads are off unless you turn them on in Settings.',
     'footer.settings_link': 'Settings and privacy',
+    'footer.typeface': 'Typeface',
     'footer.code_license': 'Code MIT',
     'footer.trademarks': 'Sloppo™ and Slopographic™ are trademarks',
     'footer.made': 'Made with ❤️ in Sweden',

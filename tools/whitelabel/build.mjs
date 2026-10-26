@@ -10,7 +10,8 @@
 // A profile with its own mascot (mascot.mjs) gets the overlay in brand/mascot/, LICENSE-ART, and icons drawn by it.
 // --cdn-ref: the release tag of the profile's own cdn repository (cdn.mjs makes its content), when it differs from this
 // site's tag. The out dir's .git folder is kept, so a mirror checkout can be rebuilt in place.
-// Tests: tests/node/whitelabel-build.test.mjs, tests/node/whitelabel-mascot-slot.test.mjs.
+// A profile's type family (font.mjs) replaces this site's: shared/fonts/brand/, its CSS block and its token names.
+// Tests: tests/node/whitelabel-build.test.mjs, tests/node/whitelabel-mascot-slot.test.mjs, tests/node/whitelabel-font.test.mjs.
 import { readFileSync, writeFileSync, mkdirSync, rmSync, readdirSync, existsSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import path from 'node:path';
@@ -26,6 +27,7 @@ import { themeProblems, sourceThemes } from './palette.mjs';
 import { skipPattern, smokeFor } from './mirror-skip.mjs';
 import { isText, scan, report } from './scan.mjs';
 import { DEST, overlayDir, overlayProblems, overlayIcons, filesIn, licenseArt, hasOverlay, artAllow } from './mascot.mjs';
+import { emitFont, fontExcluded, fontFolderProblems, fontDir } from './font.mjs';
 
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 
@@ -43,13 +45,14 @@ export function patchBinary(file, buf) {
 
 /** Files of the source brand that a renamed build leaves out (it writes its own where one is needed). */
 export function excluded(file, p) {
-  if (/^(brand\/profiles|brand\/copy|tools\/whitelabel|\.claude)\//.test(file) || file === 'brand/README.md') return true;   // .claude: this repo's agent settings
+  if (/^(brand\/profiles|brand\/copy|tools\/whitelabel)\//.test(file) || file === 'brand/README.md') return true;
   // this repository's own automation: every workflow (deploys, pings, checks that only make sense here; the build writes the
   // mirror's one rules.yml) and the commit identity test
   if (/^\.github\/(workflows\/|dependabot\.yml$)/.test(file) || file === 'tests/node/attribution.test.mjs') return true;
   // and the tests of those workflows (speed, the nightly model check, IndexNow): with the workflows gone they test nothing
   if (/^tests\/node\/(speed-config|webgpu-check|indexnow)\.test\.mjs$/.test(file)) return true;
   if (/^tests\/node\/whitelabel-/.test(file)) return true;
+  if (fontExcluded(file, p)) return true;                                                    // this site's type family (font.mjs)
   if (/^(TRADEMARKS\.md|NOTICE\.md|LICENSE|LICENSE-ART|README\.md|SECURITY\.md|CNAME|favicon\.svg|favicon\.ico|og-share\.png)$/.test(file)) return true;
   if (/^[^/]+\.png$/.test(file)) return true;                                               // stray root screenshots
   if (/^brand\/logo(-128)?\.(webp|svg)$/.test(file) || /^assets\/icons\//.test(file)) return true;
@@ -77,7 +80,7 @@ export function build(id, out, opts = {}) {
   const map = loadMap(dir, id);
   const weak = themeProblems(p.themes, sourceThemes(readFileSync(path.join(ROOT, 'shared/theme/theme.js'), 'utf8')));
   if (weak.length) throw new Error(`profile ${id}: its theme colours read worse than this site's:\n  ${weak.join('\n  ')}`);
-  const overlay = overlayDir(dir, p), bad = overlayProblems(overlay, p);
+  const overlay = overlayDir(dir, p), bad = overlayProblems(overlay, p).concat(fontFolderProblems(dir, p));
   if (bad.length) throw new Error(`profile ${id}:\n  ${bad.join('\n  ')}`);
   out = path.resolve(out);
   prepareOut(out);
@@ -109,7 +112,7 @@ export function build(id, out, opts = {}) {
   }
   for (const [t] of collisions(files.join('\n'), map)) clashes.push(`(file names): '${t}'`);
   if (clashes.length) throw new Error(`the rename map's targets already occur in the source, so the reverse would be ambiguous:\n  ${clashes.slice(0, 40).join('\n  ')}`);
-  emit(out, p, Object.assign({ overlay }, opts), ctx);
+  emit(out, p, Object.assign({ overlay, font: fontDir(dir, p) }, opts), ctx);
   const videos = p.media ? [] : mediaIds(ROOT);   // without media: none of this site's videos, not even their ids
   if (videos.length) stripMedia(out, videos);
   log(`${p.id}: wrote ${n} files to ${out}`);
@@ -144,6 +147,7 @@ function emit(out, p, opts, ctx) {
     if (!/const TAG = '[^']*';/.test(src)) throw new Error('shared/cdn/assets.js: no TAG line');
     writeFileSync(f, src.replace(/const TAG = '[^']*';/, `const TAG = '${opts.cdnRef}';`));
   }
+  emitFont(out, p, opts.font);
   { const tag = /const TAG = '([^']*)';/.exec(readFileSync(path.join(out, forwardPath('shared/cdn/assets.js', ctx)), 'utf8'));   // raw links: this build's own file host
     if (tag) pinBuild(out, p.github, tag[1]); }
   write(out, 'manifest.webmanifest', manifest(readFileSync(path.join(out, 'manifest.webmanifest'), 'utf8'), p));

@@ -34,6 +34,7 @@
     'footer.accounts_home': 'Nessun account. Analisi e pubblicità restano disattivate finché non le attivi in Impostazioni.',
     'footer.accounts_settings': 'Nessun account. Analisi e pubblicità sono disattivate finché non le attivi in Impostazioni.',
     'footer.settings_link': 'Impostazioni e privacy',
+    'footer.typeface': 'Carattere',
     'footer.code_license': 'Codice MIT',
     'footer.trademarks': 'Sloppo™ e Slopographic™ sono marchi',
     'footer.made': 'Fatto con ❤️ in Svezia',
