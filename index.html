@@ -70,6 +70,9 @@
   <main>
     <section id="view-home" class="view home">
       <section id="hero" class="hx" aria-labelledby="hero-title">
+        <!-- the globe's box comes first: on phones it sits above the copy, so a frame painted while the HTML still
+             arrives has it in place and the copy never jumps down under it (home/hero.css) -->
+        <div class="gx-box" aria-hidden="true"></div>
         <div class="hx-copy">
           <p class="hx-kicker"><span data-brand-name>Slopographic</span><span data-i18n="hero.kicker">Office and creative software</span></p>
           <h1 id="hero-title" class="hx-title"><span class="tone-playful"><span data-i18n="hero.lead">Office and creative apps,</span> <em data-i18n="hero.accent">free in your browser.</em></span><span class="tone-plain" data-i18n="plain.hero.title">Business and office tools that run in your browser</span></h1>
@@ -82,7 +85,6 @@
           <p class="hx-meta"><a href="https://github.com/slopographic/apps" rel="noopener" data-i18n="hero.github">Open source on GitHub</a><span class="hx-terms"><span data-i18n="hero.offline">Works offline</span><span data-i18n="hero.no_account">No account needed</span></span></p>
           <nav class="gx-nav" aria-label="Every app" data-i18n-attr="aria-label:hero.apps" data-live></nav>
         </div>
-        <div class="gx-box" aria-hidden="true"></div>
         <div class="stage-ledge" data-perch="stage" aria-hidden="true"></div>
         <ul class="hx-trust tone-plain" aria-label="At a glance" data-i18n-attr="aria-label:plain.hero.trust"><li data-i18n="hero.offline">Works offline</li><li data-i18n="plain.hero.local">Files stay on your device</li><li data-i18n="hero.no_account">No account needed</li><li data-i18n="plain.hero.no_install">Nothing to install</li></ul>
       </section>
