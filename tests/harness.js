@@ -3,10 +3,13 @@
  * then calls SlopTest.run(). tests/run.mjs opens every page in headless Chromium,
  * reads window.__SLOPTEST__ and prints a report. Open a test page in any browser to
  * see the results on screen too. It also loads the brand facts beside it (tests/brand-facts.js: window.BRAND_FACTS, the
- * build's profile switches), before the page's own scripts, so every page can read them. */
+ * build's profile switches), before the page's own scripts, so every page can read them; and in a build that starts in
+ * another language it opens the apps in English, as a visitor who chose English (SlopTest.english), so the checks read the
+ * copy they were written against. A page about the start language says <meta name="slop-test-lang" content="default">. */
 (function () {
   const me = document.currentScript, facts = me && me.src.replace(/harness\.js(\?.*)?$/, 'brand-facts.js');
-  if (facts && !window.BRAND_FACTS && document.readyState === 'loading') document.write(`<script src="${facts}"><\/script>`);
+  const lang = '<script>if (!document.querySelector(\'meta[name="slop-test-lang"][content="default"]\')) SlopTest.english();<\/script>';
+  if (facts && !window.BRAND_FACTS && document.readyState === 'loading') document.write(`<script src="${facts}"><\/script>${lang}`);
 })();
 (function () {
   'use strict';

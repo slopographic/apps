@@ -20,5 +20,12 @@
   }
   /** Wait until the mascot is standing on something. */
   const settled = (win, timeout = 8000) => SlopTest.waitFor(() => win.SlopMascot.M.mode === 'perched', { timeout });
-  window.HomeTest = { openHome, settled };
+  /** The homepage's words for an i18n key: in a plain-tone build its plain wording (plain.<key>, home/sections.js), else
+   *  the key's; vars fill {placeholders}. */
+  const words = (win, key, vars) => {
+    const I = win.SlopI18n;
+    if (window.BRAND_FACTS.tone === 'plain') { const p = I.t('plain.' + key, vars); if (p !== 'plain.' + key) return p; }
+    return I.t(key, vars);
+  };
+  window.HomeTest = { openHome, settled, words };
 })();

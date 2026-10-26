@@ -37,8 +37,9 @@
         expect(lines.includes(card.querySelector('.app-tag').textContent)).toBe(true);
         expect(card.querySelector('.feats')).toBe(null);
         const badge = card.querySelector('.badge');
+        if (BRAND_FACTS.tone === 'plain' && a.status === 'live') { expect(badge).toBe(null); continue; }   // a plain build badges only what is not ready
         expect(badge.classList.contains(a.status)).toBe(true);
-        expect(badge.textContent).toBe(labels[a.status]);
+        expect(badge.textContent).toBe(BRAND_FACTS.tone === 'plain' ? HomeTest.words(win, 'status.' + a.status) : labels[a.status]);
       }
     });
     it('every app card draws its own Sloppo badge, a lime tile holding the glyph', async () => {
@@ -59,7 +60,10 @@
       const apps = win.SLOP_APPS;
       expect(doc.querySelectorAll('#status-board .status-row').length).toBe(apps.length);
       const live = apps.filter((a) => a.status === 'live').length;
-      expect(doc.getElementById('status-sum').textContent).toContain(`${apps.length} projects: ${live} live`);
+      if (BRAND_FACTS.tone === 'plain') {   // the plain wording (plain.home.status_sum)
+        const count = (s) => apps.filter((a) => a.status === s).length;
+        expect(doc.getElementById('status-sum').textContent).toContain(HomeTest.words(win, 'home.status_sum', { n: apps.length, live, beta: count('beta'), building: count('building') }));
+      } else expect(doc.getElementById('status-sum').textContent).toContain(`${apps.length} projects: ${live} live`);
       // In development first, live last.
       const states = [...doc.querySelectorAll('#status-board .dot')].map((d) => d.className.split(' ')[1]);
       const rank = { building: 0, beta: 1, live: 2 };

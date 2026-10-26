@@ -191,6 +191,9 @@ suite in its parallel slices and the touch jobs. Nothing is skipped by name. The
   conditions), and `tests/run.mjs` runs it only in a build whose facts fit, naming the pages it left out. The buddy
   engine's pages need `mascot=builtin`; a build with its own mascot runs `tests/buddy/overlay.test.html` and the slot
   test with its own overlay; a build without one runs `tests/buddy/off.test.html`.
+- **Language.** In a build that starts in another language the harness opens the apps in English, as a visitor who chose
+  English (`SlopTest.english()`), so a check reads the copy it was written against; a page about the start language says
+  `<meta name="slop-test-lang" content="default">` and reads the build's default and its strings (`SlopTest.said`).
 - **Repo-only tests.** The tests about this repository only (its other workflows, its commit identity, its SEO copy
   lengths, the white-label tools) are listed with their reasons in one place, `tests/repo-only.json`, and a build leaves
   those files out.
