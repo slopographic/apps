@@ -132,7 +132,8 @@
       row: line,
       placeholder: t('reports.app.search'),
       searchLabel: t('reports.app.search'),
-      noun: [t('reports.app.row'), t('reports.app.rows')],
+      count: (n) => t('reports.app.rows_n', { n }),
+      countOf: (shown, n) => t('reports.app.rows_of', { shown, n }),
       emptyText: t('reports.app.no_match'),
       onChange: (shown) => { S.shown = shown; },
     });

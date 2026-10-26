@@ -970,3 +970,20 @@ history step and palette word, so never strip a suffix to get it. Layer names th
 | language names | from Intl.DisplayNames («svenska», «förenklad kinesiska») | capital first letter in lists only |
 | strength tags (Slop AI cards) | pytteliten, snabb, chatt, balanserad, flerspråkig, verktyg, kod, miniappar, skrivande, sammanfattningar, resonemang, matte, smartast | lower case, as the English tags |
 | National Library of Sweden / Norway | Kungliga biblioteket / Norges nationalbibliotek |  |
+
+## wip/i18n-r2-shell (app descriptions, theme names, shell leftovers)
+
+| English | Svenska | Note |
+|---|---|---|
+| Light / Dark / Classic 98 (theme) | Ljust / Mörkt / Klassiskt 98 | neuter, agrees with «tema»; «Slopographic Lime» kept |
+| Language… (menu row) | Språk… |  |
+| N new (notifications) | {n} nya / {n} ny | «Aviseringar, 1 ny» |
+| Preview (status tag of an app in development) | Förhandsversion | the plain tone's word, also in the app switcher |
+| rows (report count) | rader / rad | «3 av 12 rader matchar» |
+| presenter view | presentatörsvy |  |
+| master pages / threaded text | mallsidor / länkade textramar | as InDesign sv |
+| fulfilment (orders) | leverans |  |
+| gapless numbers (invoices) | obrutna nummerserier |  |
+| keyframes / easing | nyckelrutor / easing |  |
+| sandboxed preview | isolerad förhandsvisning |  |
+| leads (CRM) | leads |  |

@@ -63,6 +63,12 @@
       expect(card.querySelector('.rp-card-title').textContent).toBe('2026-10');
       expect([...card.querySelectorAll('.rp-kv')].map((n) => n.textContent)).toEqual(['Income: $0.00', 'Expenses: $100.00', 'Profit: -$100.00']);
       expect(doc().documentElement.scrollWidth <= 391).toBe(true);
+      // the count is a plural key (reports.app.rows_n), so it follows a language switch: it was English words glued by hand
+      const I = frame.contentWindow.SlopI18n;
+      I.set('sv');
+      await waitFor(() => doc().querySelector('.fd-count').textContent === '1 rad', { timeout: 10000 });
+      I.set('en');
+      await waitFor(() => doc().querySelector('.fd-count').textContent === '1 row', { timeout: 10000 });
     });
     it('at 1280 px the report keeps one width and position whatever report is chosen (it jumped between reports)', async () => {
       frame.style.width = '1280px';

@@ -18,6 +18,11 @@ async function theme({ seed = {}, prefersLight = false } = {}) {
   const ctx = await loadInto(['profile/profile.js', 'theme/theme.js'], { localStorage: storage, matchMedia: media(prefersLight) });
   return { T: ctx.SlopTheme, storage };
 }
+/** SlopTheme with the i18n engine and the English and Swedish chrome tables, for the theme names. */
+async function themeI18n() {
+  const ctx = await loadInto(['profile/profile.js', 'i18n/i18n.js', 'i18n/strings.js', 'i18n/sv.js', 'theme/theme.js'], { localStorage: memStorage(), matchMedia: media(false) });
+  return { T: ctx.SlopTheme, I: ctx.SlopI18n };
+}
 const profileMode = (s) => {
   const o = JSON.parse(s.m.get('slop-profile') || 'null');
   return o && o.data && o.data.theme ? o.data.theme.mode : undefined;
@@ -27,12 +32,20 @@ test('every theme has an id, a name, a colour scheme and all five tokens as hex 
   const { T } = await theme();
   const list = plain(T.THEMES);
   assert.deepEqual(list.map((t) => t.id), ['light', 'dark', 'classic', 'lime']);
-  assert.deepEqual(list.map((t) => t.name), ['Light', 'Dark', 'Classic 98', 'Slopographic Lime']);
+  assert.deepEqual(list.map((t) => t.key), ['shell.theme_light', 'shell.theme_dark', 'shell.theme_classic', 'shell.theme_lime']);
   for (const t of list) {
     assert.ok(['light', 'dark'].includes(t.scheme), `${t.id} scheme`);
     assert.deepEqual(Object.keys(t.tokens).sort(), [...TOKENS].sort(), `${t.id} tokens`);
     for (const k of TOKENS) assert.match(t.tokens[k], HEX, `${t.id}.${k}`);
   }
+});
+
+test('theme names come from the chrome tables and follow a language change (shell.theme_<id>)', async () => {
+  const { T, I } = await themeI18n();
+  I.set('en');
+  assert.deepEqual(Array.from(T.THEMES, (t) => t.name), ['Light', 'Dark', 'Classic 98', 'Slopographic Lime']);
+  I.set('sv');
+  assert.deepEqual(Array.from(T.THEMES, (t) => t.name), ['Ljust', 'Mörkt', 'Klassiskt 98', 'Slopographic Lime']);
 });
 
 test('System resolves to a real theme, from prefers-color-scheme', async () => {

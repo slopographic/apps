@@ -50,7 +50,7 @@
   var KEY_RE = /\{(\w+)\}/g;
   // The shared components' tables beyond ui/<code>.js: shared/i18n/ui/<code>/<part>.js, for the languages that have them
   // (the others read English). Written by node tools/i18n/i18n.mjs index ui; keep it on one line.
-  var UI_PARTS = /*ui-parts*/{ parts: ['ai', 'ai2', 'ai5', 'ai6', 'ai7', 'ai8', 'calc', 'calendar', 'finder', 'firstrun', 'graphics', 'guides', 'models', 'models2', 'ops', 'ops2', 'ops3', 'presets', 'preview', 'sheets', 'shell', 'video', 'watermark', 'widgets'], langs: ['en', 'sv'] };
+  var UI_PARTS = /*ui-parts*/{ parts: ['ai', 'ai2', 'ai5', 'ai6', 'ai7', 'ai8', 'calc', 'calendar', 'finder', 'firstrun', 'graphics', 'guides', 'models', 'models2', 'ops', 'ops2', 'ops3', 'presets', 'preview', 'sheets', 'shell', 'shell2', 'video', 'watermark', 'widgets'], langs: ['en', 'sv'] };
   var me = typeof document !== 'undefined' ? document.currentScript : null;
 
   function create(opts) {

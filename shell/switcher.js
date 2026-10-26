@@ -41,8 +41,9 @@
     return { name, sub: sub || '', letter: name[0], key: 'app:' + it.app.id, status: it.app.status };
   }
 
-  /** The registry status as the tag shows it: "beta", "In development" (strings.js). */
-  const statusWord = (st) => (st === 'beta' ? tr('shell.beta', st) : tr('status.' + st, st));
+  /** The registry status as the tag shows it, short: "Beta", "Preview" (strings.js, the plain tone's word for building). */
+  const STATUS_KEYS = { beta: 'status.beta', building: 'plain.status.building' };
+  const statusWord = (st) => tr(STATUS_KEYS[st] || 'status.' + st, st);
 
   function render() {
     const q = input.value;
