@@ -4,5 +4,5 @@ window.SlopI18n && window.SlopI18n.source({
   ns: 'tables',
   base: ((document.currentScript || {}).src || '').replace(/[^/]*$/, ''),
   parts: ['app', 'commands', 'io', 'objects', 'templates', 'tour'],
-  langs: ['en', 'sv'],
+  langs: ['en', 'ja', 'sv'],
 });
