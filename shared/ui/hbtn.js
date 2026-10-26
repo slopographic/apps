@@ -29,6 +29,11 @@
     // rows: the header's own last row counts (a header that is two rows of the app's own controls on a phone, PhotoSlop,
     // may hold them on its second; only one below every own row is wrapped); else the first item's row
     const box = host.getBoundingClientRect();
+    // the header's end padding is not room: content that runs into it pushes the last button (View) sideways, by an
+    // amount that depends on the font, so it counts as full however little it is (layout is exact to 1/64 px)
+    const cs = win.getComputedStyle(host);
+    const end = box.right - (parseFloat(cs.paddingRight) || 0) - (parseFloat(cs.borderRightWidth) || 0);
+    if (cs.direction !== 'rtl' && [...host.children].some((c) => { const r = c.getBoundingClientRect(); return r.width && r.right > end + 0.05 && !placed(c, host); })) return true;
     const ours = (c) => c.matches('.slop-hbtn, .sh-hdr') || (!!c.querySelector('.slop-hbtn') && ![...c.querySelectorAll(CONTROLS)].some((n) => !n.closest('.slop-hbtn')));
     const own = [...host.children].filter((c) => !ours(c)).map((c) => c.getBoundingClientRect()).filter((r) => r.width && r.height);
     const first = [...host.children].map((c) => c.getBoundingClientRect()).find((r) => r.width && r.height);
