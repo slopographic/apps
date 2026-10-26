@@ -121,7 +121,6 @@ window.SlopI18n && window.SlopI18n.add('sv', {
   'ui.spot.none': 'Ingen app matchar. Prova ett annat ord.',
   'ui.spot.open_app': 'Öppna en app',
   // theme choice (shared/theme)
-  'ui.theme.not_listed': 'Det temat finns inte i listan.',
   // the clean-up review window (shared/review)
   'ui.review.title': 'Granska',
   'ui.review.nothing': 'Inget att ändra.',

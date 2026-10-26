@@ -121,7 +121,6 @@ window.SlopI18n && window.SlopI18n.add('en', {
   'ui.spot.none': 'No app matches. Try another word.',
   'ui.spot.open_app': 'Open an app',
   // theme choice (shared/theme)
-  'ui.theme.not_listed': 'That theme is not in the list.',
   // the clean-up review window (shared/review)
   'ui.review.title': 'Review',
   'ui.review.nothing': 'Nothing to change.',
