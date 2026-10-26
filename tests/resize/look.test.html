@@ -28,7 +28,7 @@
     it('the empty page shows what it makes and how, and Try it with 4 sample photos queues them', async () => {
       const D = await open(1280), W = D.defaultView;
       expect(D.querySelectorAll('#rs-drop .sd-steps li').length).toBe(3);
-      expect(D.querySelector('#rs-drop .sd-pic img').getAttribute('src')).toBe('../assets/shots/resize.jpg');
+      SlopTest.shot(D.querySelector('#rs-drop .sd-pic img'), '../assets/shots/resize.jpg');
       D.querySelector('#rs-drop .sd-sample').click();
       await waitFor(() => W.SlopResize.queue.items().length === 4, { timeout: 20000 });
       expect(W.SlopResize.queue.items()[0].name).toBe('Sample sunset.jpg');

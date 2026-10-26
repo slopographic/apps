@@ -18,7 +18,7 @@
       await ready();
       const m = doc().getElementById('monMsg');
       expect(m.hidden).toBe(false);
-      expect(m.querySelector('.sd-pic img').getAttribute('src')).toBe('../assets/shots/slopedit.jpg');
+      SlopTest.shot(m.querySelector('.sd-pic img'), '../assets/shots/slopedit.jpg');
       expect([...m.querySelectorAll('.sd-steps li')].map((li) => li.textContent))
         .toEqual(['Drop video, audio or pictures', 'Cut and arrange them on the timeline', 'Export a video file']);
       expect([...doc().querySelectorAll('.bin-empty button')].map((b) => b.textContent)).toEqual(['Import files', 'Sample project']);

@@ -88,7 +88,8 @@
       expect(back.name).toBe(out.name);
       expect(back.blob.size).toBe(out.blob.size);
       const items = R.save.openInItems();
-      expect(items[0].label).toMatch(/SlopCut/);
+      const cut = W.SLOP_APPS.find((a) => a.id === 'slopedit');   // the video editor, by the build's name for it (here SlopCut)
+      expect([cut.name, W.slopAppName(cut)].some((n) => items[0].label.includes(n))).toBe(true);
       expect(items.some((i) => /Save to Slop Drive/.test(i.label))).toBe(true);
     }, { timeout: 40000 });
 

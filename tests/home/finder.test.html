@@ -48,7 +48,7 @@
       await ready;
       type('calendar');
       const row = doc.querySelector('#app-finder .fd-list [data-id="calendar"]');
-      expect(row.textContent).toContain('Calendar');
+      expect(row.textContent).toContain(win.slopAppName('calendar'));   // in the page's language (here: Calendar)
       expect(row.textContent).toContain('Business');
       expect(doc.querySelectorAll('#app-finder .fd-list > .fd-row').length).toBeLessThan(5);
       clearAll();

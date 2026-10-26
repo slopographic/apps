@@ -6,6 +6,8 @@
   const SD = (root.SlopDrop = root.SlopDrop || {});
   const doc = root.document;
   const P = (SD.panel = {});
+  // The brand profile's media switch (set at build time): a build without this site's screenshots shows no picture of one.
+  const MEDIA = /*profile:media*/true;
   const CSS = [
     // Colours: the app's own --sui-* tokens when it has them, else mixed from the text colour round the zone (right in any
     // theme, light or dark) and the shared theme's accent (--sl-*, set on every page by shared/theme/theme.js).
@@ -77,7 +79,7 @@
       if (pic.nodeType) fig.append(pic);
       else if (pic.flow && root.SlopFlow) fig.append(root.SlopFlow.create(Object.assign({ size: 'lg' }, pic.flow)).el);
       // a single-file offline build (opened from file://) has no assets folder beside it: the steps say it there
-      else if (pic.src && !(root.location && root.location.protocol === 'file:')) { const img = doc.createElement('img'); img.src = pic.src; img.alt = pic.alt || ''; img.width = 1280; img.height = 800; img.fetchPriority = 'high'; img.decoding = 'async'; fig.append(img); }   // the first view's largest picture: fetched first, never lazy; its size keeps the room
+      else if (pic.src && !(root.location && root.location.protocol === 'file:') && (MEDIA || !/assets\/shots\//.test(pic.src))) { const img = doc.createElement('img'); img.src = pic.src; img.alt = pic.alt || ''; img.width = 1280; img.height = 800; img.fetchPriority = 'high'; img.decoding = 'async'; fig.append(img); }   // the first view's largest picture: fetched first, never lazy; its size keeps the room
       if (fig.firstChild) box.append(fig);
     }
     if (o.steps && o.steps.length) {

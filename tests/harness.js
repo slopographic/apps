@@ -109,5 +109,14 @@
   /** The text a page shows for an i18n key: the English text when the page is in English (the build's start language may
    *  be another: tests/brand-facts.js defaultLang), else that language's string. win: the page's window. */
   const said = (win, key, english) => (win.SlopI18n && win.SlopI18n.get() !== 'en' ? win.SlopI18n.t(key) : english);
-  window.SlopTest = { describe, it, beforeEach, afterEach, expect, run, pixel, sleep, waitFor, topDialog, contrast, said };
+  /** A preview picture of this site's screenshots (assets/shots): img shows src; a build without media
+   *  (tests/brand-facts.js) shows none. */
+  const shot = (img, src) => { if (window.BRAND_FACTS.media) expect(img && img.getAttribute('src')).toBe(src); else expect(img).toBe(null); };
+  /** For a page whose test reads its English copy: in a build that starts in another language, English is stored as the
+   *  visitor's choice (the profile in localStorage) before the page opens; a build that starts in English stores nothing. */
+  const english = () => {
+    if (window.BRAND_FACTS.defaultLang === 'en') return;
+    try { const p = JSON.parse(localStorage.getItem('slop-profile') || 'null') || { v: 1, data: {} }; p.data = Object.assign({}, p.data, { lang: { mode: 'en' } }); localStorage.setItem('slop-profile', JSON.stringify(p)); } catch (e) { /* storage blocked */ }
+  };
+  window.SlopTest = { describe, it, beforeEach, afterEach, expect, run, pixel, sleep, waitFor, topDialog, contrast, said, shot, english };
 })();

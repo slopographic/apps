@@ -29,7 +29,7 @@
       const D = await open(1280), W = D.defaultView;
       expect(D.getElementById('wm-preview-box').hidden).toBe(true);   // no empty stage repeating the zone
       expect(D.querySelectorAll('#wm-drop .sd-steps li').length).toBe(3);
-      expect(D.querySelector('#wm-drop .sd-pic img').getAttribute('src')).toBe('../assets/shots/watermark.jpg');
+      SlopTest.shot(D.querySelector('#wm-drop .sd-pic img'), '../assets/shots/watermark.jpg');
       D.querySelector('#wm-drop .sd-sample').click();
       await waitFor(() => W.WMItems.count() === 4, { timeout: 20000 });
       await waitFor(() => D.querySelector('#wm-drop .sd-preview').getBoundingClientRect().height === 0);

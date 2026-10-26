@@ -19,6 +19,7 @@ test('every fact is the marker of the code that acts on it', () => {
   assert.equal(FACTS.naming, marker('shared/apps.js', 'naming'));
   assert.deepEqual([...FACTS.hideApps], marker('shared/apps.js', 'hideApps'));
   assert.equal(FACTS.media, marker('shared/apps.js', 'media'));
+  assert.equal(marker('shared/drop/panel.js', 'media'), FACTS.media);
   assert.equal(FACTS.tone, marker('pdf/js/io/sample.js', 'tone'));
   assert.equal(FACTS.analytics, marker('shared/consent/config.js', 'analytics'));
   assert.equal(FACTS.defaultLang, marker('shared/i18n/i18n.js', 'defaultLang'));

@@ -52,12 +52,12 @@ describe('Slop Colors: the assistant', () => {
   });
   it('add_from_picture reads a picture on this site; export_palette saves to Slop Drive', async () => {
     await exec('new-palette', { name: 'Photo' });
-    const msg = await exec('add-from-picture', { url: '../assets/shots/watermark.jpg', count: 4 });
+    const msg = await exec('add-from-picture', { url: '../assets/tank-drops.jpg', count: 4 });
     expect(msg).toMatch(/Found 4 main colours/);
     expect(W.CO.state.get().palette.colors.length).toBe(4);
     const out = await exec('export-palette', { format: 'ase', to: 'drive' });
     const id = /id ([^)]+)\)/.exec(out)[1], rec = await W.SlopHub.get(id);
-    expect(rec.name).toBe('watermark.ase');
+    expect(rec.name).toBe('tank-drops.ase');
     expect(new Uint8Array(await rec.blob.arrayBuffer()).slice(0, 4)).toEqual(new Uint8Array([65, 83, 69, 70]));
   }, { timeout: 30000 });
 });

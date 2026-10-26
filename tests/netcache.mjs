@@ -61,12 +61,14 @@ export async function attachNet(ctx, { dir, enabled = process.env.SLOPTEST_NET_C
     if (/^https?:$/.test(new URL(r.url()).protocol) && !LOCAL.test(h)) tally.outside[h] = (tally.outside[h] || 0) + 1;
     if (cacheable(r.method(), r.url(), r.headers())) tally.urls.add(r.url());   // listed in net-urls.txt even when not routed
   });
-  if (!enabled || !route) return tally;
+  // every page routes the URLs an alias names (a sample's file host); the cache's own pages route every cached host
+  const all = enabled && route, named = (u) => alias.some(([f]) => u.href.includes(f));
+  if (!all && !alias.length) return tally;
   await mkdir(dir, { recursive: true });
-  await ctx.route((u) => CACHE_HOSTS.test(u.hostname) && u.protocol === 'https:', async (route) => {
+  await ctx.route((u) => CACHE_HOSTS.test(u.hostname) && u.protocol === 'https:' && (all || named(u)), async (route) => {
     const req = route.request(), asked = req.url(), url = aliased(asked, alias);
     if (!cacheable(req.method(), url, req.headers())) return url === asked ? route.continue() : route.continue({ url });
-    const hit = await load(dir, url);
+    const hit = enabled ? await load(dir, url) : null;
     if (hit) { tally.hits++; return route.fulfill({ status: hit.meta.status, headers: hit.meta.headers, body: hit.body }); }
     const t0 = Date.now();
     let res;
@@ -74,7 +76,7 @@ export async function attachNet(ctx, { dir, enabled = process.env.SLOPTEST_NET_C
     const got = await res.body();
     tally.misses++; tally.bytes += got.length; tally.ms += Date.now() - t0;
     const headers = keptHeaders(res.headers());
-    if (res.status() === 200) await store(dir, url, { final: res.url(), headers, body: got });
+    if (res.status() === 200 && enabled) await store(dir, url, { final: res.url(), headers, body: got });
     return route.fulfill({ status: res.status(), headers, body: got });
   });
   return tally;

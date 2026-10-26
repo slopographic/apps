@@ -12,7 +12,8 @@
 // site's tag. The out dir's .git folder is kept, so a mirror checkout can be rebuilt in place.
 // A profile's type family (font.mjs) replaces this site's: shared/fonts/brand/, its CSS block and its token names.
 // Tests: tests/node/whitelabel-build.test.mjs, tests/node/whitelabel-mascot-slot.test.mjs, tests/node/whitelabel-font.test.mjs.
-import { readFileSync, writeFileSync, mkdirSync, rmSync, readdirSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, rmSync, readdirSync, existsSync, statSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -45,6 +46,26 @@ export function patchBinary(file, buf) {
 /** The tests about this repository only (tests/repo-only.json: { files: [{ file, why }] }, a trailing * is a prefix). */
 export const REPO_ONLY = JSON.parse(readFileSync(path.join(ROOT, 'tests/repo-only.json'), 'utf8')).files;
 export const repoOnly = (file) => REPO_ONLY.some((r) => (r.file.endsWith('*') ? file.startsWith(r.file.slice(0, -1)) : file === r.file));
+
+/** The text files of a build with every SHA-256 (hex) of a patched binary changed to the patched file's: the code that
+ * checks a bundled model (vendor/models/upscale/index.json, upscale/js/core/models.js) then accepts the build's copy.
+ * hashes: Map old hex -> new hex. Returns how many files changed. */
+export function rehash(out, hashes, dir = out) {
+  let n = 0;
+  if (!hashes.size) return n;
+  for (const name of readdirSync(dir)) {
+    if (name === '.git' || name === 'node_modules') continue;
+    const f = path.join(dir, name), st = statSync(f);
+    if (st.isDirectory()) { n += rehash(out, hashes, f); continue; }
+    if (!/\.(js|mjs|json|html|txt|md)$/.test(name) || st.size > 4e6) continue;
+    const src = readFileSync(f, 'utf8');
+    let next = src;
+    for (const [a, b] of hashes) if (next.includes(a)) next = next.split(a).join(b);
+    if (next !== src) { writeFileSync(f, next); n++; }
+  }
+  return n;
+}
+const sha = (buf) => createHash('sha256').update(buf).digest('hex');
 
 /** Files of the source brand that a renamed build leaves out (it writes its own where one is needed). */
 export function excluded(file, p) {
@@ -96,7 +117,7 @@ export function build(id, out, opts = {}) {
     return { profile: p, out, files: files.length, found: [] };
   }
   const ctx = context(ROOT, p, map);
-  const seen = new Map(), clashes = [];
+  const seen = new Map(), clashes = [], hashes = new Map();
   let n = 0;
   for (const f of files) {
     if (excluded(f, p)) continue;
@@ -104,7 +125,11 @@ export function build(id, out, opts = {}) {
     if (seen.has(dest)) throw new Error(`two files map to ${dest}: ${seen.get(dest)} and ${f}`);
     seen.set(dest, f);
     const buf = readFileSync(path.join(ROOT, f));
-    if (!isText(buf) || !isUtf8(buf)) { write(out, dest, patchBinary(f, buf)); n++; continue; }   // other encodings stay byte for byte
+    if (!isText(buf) || !isUtf8(buf)) {   // other encodings stay byte for byte; a patched model gets its new checksum (rehash)
+      const bin = patchBinary(f, buf);
+      if (bin !== buf) hashes.set(sha(buf), sha(bin));
+      write(out, dest, bin); n++; continue;
+    }
     const src = buf.toString('utf8');
     for (const [t, c] of collisions(profileText(src, ctx), map)) clashes.push(`${f}: '${t}' x${c}`);
     write(out, dest, forward(src, ctx, dest));
@@ -112,6 +137,7 @@ export function build(id, out, opts = {}) {
   }
   for (const [t] of collisions(files.join('\n'), map)) clashes.push(`(file names): '${t}'`);
   if (clashes.length) throw new Error(`the rename map's targets already occur in the source, so the reverse would be ambiguous:\n  ${clashes.slice(0, 40).join('\n  ')}`);
+  rehash(out, hashes);
   emit(out, p, Object.assign({ overlay, font: fontDir(dir, p) }, opts), ctx);
   const videos = p.media ? [] : mediaIds(ROOT);   // without media: none of this site's videos, not even their ids
   if (videos.length) stripMedia(out, videos);

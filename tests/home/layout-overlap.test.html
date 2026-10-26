@@ -109,7 +109,9 @@
   /** 1. Overlaps between visible, non-nested controls at the top of the page. */
   function overlapFailures(win) {
     const list = [];
-    for (const el of pageControls(win)) { const b = seen(el, win); if (b) list.push({ el, b }); }
+    // the mascot's toggle floats in the corner over whatever scrolls under it (where it lands depends on the build's card
+    // sizes); that nothing it covers is out of reach is check 2's
+    for (const el of pageControls(win)) { const b = !el.closest('.buddy-toggle') && seen(el, win); if (b) list.push({ el, b }); }
     const out = [];
     for (let i = 0; i < list.length; i++) for (let j = i + 1; j < list.length; j++) {
       const A = list[i], B = list[j];

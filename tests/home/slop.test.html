@@ -22,16 +22,11 @@
       expect(S.GENRES.map((g) => g.key)).toEqual(['linkedin', 'facebook', 'seo', 'amazon', 'youtube', 'thread', 'email', 'chatbot', 'quote']);
       expect(S.MAX_LEVEL).toBe(5);
     });
-    it('generates exactly what the original engine generated (fingerprint)', () => {
-      // Fingerprint taken from the original 597-line slop.js before the split.
-      let s = '';
-      for (const g of S.GENRES) for (let i = 0; i < 20; i++) for (let lv = 1; lv <= 5; lv++) {
-        const p = S.generate(g.key, i * 101 + 7, lv);
-        s += JSON.stringify(p) + S.analyze(S.plainText(p)).score;
-      }
-      let h = 2166136261 >>> 0;
-      for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
-      expect([s.length, h.toString(16)]).toEqual([988507, 'd4c601b5']);
+    it('generates the same posts again from the same seed, and other posts from another', () => {
+      const one = JSON.stringify(S.GENRES.map((g) => S.generate(g.key, 707, 3)));
+      expect(JSON.stringify(S.GENRES.map((g) => S.generate(g.key, 707, 3)))).toBe(one);
+      expect(JSON.stringify(S.GENRES.map((g) => S.generate(g.key, 708, 3))) === one).toBe(false);
+      // this site's exact text against the engine before its split: tests/home/slop-fingerprint.test.html (repo-only)
     });
     it('round-trips post ids', () => {
       const p = S.generate('thread', 12345, 3);

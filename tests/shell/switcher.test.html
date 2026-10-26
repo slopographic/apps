@@ -13,6 +13,8 @@
   const key = (k, o = {}) => document.body.dispatchEvent(new KeyboardEvent('keydown', { key: k, code: o.code || '', ctrlKey: !!o.ctrl, metaKey: !!o.meta, bubbles: true, cancelable: true }));
   const typeQuery = (q) => { const i = document.getElementById('sh-q'); i.value = q; i.dispatchEvent(new Event('input', { bubbles: true })); };
   const names = () => [...document.querySelectorAll('.sh-opt .sh-opt-name')].map((n) => n.textContent);
+  // an app's name and a label as the page shows them: here Slop Music, Recent; a build's names in its start language
+  const nm = (id) => window.slopAppName(id), said = (key, english) => SlopTest.said(window, key, english);
   const selected = () => document.querySelector('.sh-opt.sh-on');
   const closeIfOpen = () => { if (window.SlopSwitcher.isOpen()) key('Escape', { code: 'Escape' }); };
   const escapeFromInput = () => document.getElementById('sh-q').dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
@@ -60,13 +62,14 @@
         closeIfOpen();
         key(' ', { code: 'Space', ctrl: true });
         typeQuery('music');
-        expect(names()).toEqual(['Slop Music']);
+        expect(names()).toEqual([nm('music')]);
         typeQuery('PDF');
-        expect(names()[0]).toBe('Slop PDF');
-        expect(names().includes('Slop Music')).toBe(false);
+        expect(names()[0]).toBe(nm('pdf'));
+        expect(names().includes(nm('music'))).toBe(false);
         typeQuery('zzqx');
         expect(document.querySelectorAll('.sh-opt').length).toBe(0);
-        expect(document.querySelector('.sh-empty').textContent).toMatch(/No app matches/);
+        if (window.SlopI18n.get() === 'en') expect(document.querySelector('.sh-empty').textContent).toMatch(/No app matches/);
+        else expect(document.querySelector('.sh-empty').textContent).toBe(window.SlopI18n.t('switcher.no_match', { query: 'zzqx' }));
         closeIfOpen();
       });
 
@@ -104,8 +107,8 @@
         localStorage.setItem('slop.shell.recent.v1', JSON.stringify({ v: 1, data: ['music', 'pdf'] }));
         key(' ', { code: 'Space', ctrl: true });
         const heads = [...document.querySelectorAll('.sh-sec')].map((h) => h.textContent);
-        expect(heads[0]).toBe('Recent');
-        expect(names().slice(0, 2)).toEqual(['Slop Music', 'Slop PDF']);
+        expect(heads[0]).toBe(said('switcher.recent', 'Recent'));
+        expect(names().slice(0, 2)).toEqual([nm('music'), nm('pdf')]);
         closeIfOpen();
         localStorage.removeItem('slop.shell.recent.v1');
       });

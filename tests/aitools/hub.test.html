@@ -89,8 +89,9 @@
       go.click();
       await waitFor(() => calls.length >= 2, { timeout: 5000 });
       // jsDelivr at the release tag first; its wrong bytes send the download to the GitHub copy, which is refused too
-      expect(calls[0]).toMatch(/^https:\/\/cdn\.jsdelivr\.net\/gh\/slopographic\/cdn@v\d+\.\d+\.\d+\/models\/whisper\/whisper-tiny\/encoder_model_quantized\.onnx$/);
-      expect(calls[1]).toMatch(/^https:\/\/raw\.githubusercontent\.com\/slopographic\/cdn\/v\d+\.\d+\.\d+\/models\/whisper\/whisper-tiny\/encoder_model_quantized\.onnx$/);
+      const repo = doc().defaultView.SlopCdn.REPO.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&');   // the build's file host (here slopographic/cdn)
+      expect(calls[0]).toMatch(new RegExp(`^https://cdn\\.jsdelivr\\.net/gh/${repo}@v\\d+\\.\\d+\\.\\d+/models/whisper/whisper-tiny/encoder_model_quantized\\.onnx$`));
+      expect(calls[1]).toMatch(new RegExp(`^https://raw\\.githubusercontent\\.com/${repo}/v\\d+\\.\\d+\\.\\d+/models/whisper/whisper-tiny/encoder_model_quantized\\.onnx$`));
       await waitFor(() => /Nothing was stored/.test(dialog().querySelector('[role="status"]').textContent), { timeout: 5000 });
       expect(dialog().querySelector('[role="status"]').textContent).toMatch(/bytes, expected/);
       expect(card('Speech to text').querySelector('.ai-pill').textContent).toBe('Needs download');

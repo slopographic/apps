@@ -57,8 +57,9 @@ export function remapColors(text, pal) {
   });
 }
 
-/** Tests whose colours are inputs to colour maths, not the site's look: left as they are. */
-export const PALETTE_KEEP = /^tests\/(node\/colors-|.*fixtures\/)/;
+/** Colours that are inputs, not the site's look: tests that do colour maths, test fixtures, and the apps' built-in sample
+ * pictures (<app>/js/io/sample.js: the background remover's model and its tests read that picture as drawn). Left as they are. */
+export const PALETTE_KEEP = /^tests\/(node\/colors-|.*fixtures\/)|^[\w-]+\/js\/io\/sample\.js$/;
 /** Which files the shift applies to: the site's own styles and code and the tests that check them; not third-party code. */
 export const paletteFile = (file) => /\.(css|m?js|html|svg)$/.test(file) && !/^vendor\//.test(file) && !PALETTE_KEEP.test(file);
 

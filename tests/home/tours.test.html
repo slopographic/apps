@@ -37,10 +37,11 @@
       await ready;
       doc.querySelector('.nav .stour-btn').click();
       const search = menu().querySelector('.stour-search');
-      search.value = 'photo';
+      const name = win.SLOP_APPS.find((a) => a.id === 'photoslop').name;   // the image editor, by the build's name for it (here PhotoSlop)
+      search.value = name.toLowerCase();
       search.dispatchEvent(new win.Event('input'));
       expect(shown().length).toBe(1);
-      expect(shown()[0].querySelector('strong').textContent).toBe('PhotoSlop');
+      expect(shown()[0].querySelector('strong').textContent).toBe(name);
       search.value = 'zzz';
       search.dispatchEvent(new win.Event('input'));
       expect(shown().length).toBe(0);

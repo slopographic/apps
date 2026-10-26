@@ -4,7 +4,8 @@
   const { describe, it, expect, waitFor, sleep } = SlopTest;
 
   describe('decryption', () => {
-    const cases = [['rc4-128.pdf', 'slop'], ['aes-128.pdf', 'slop'], ['aes-256.pdf', 'slop'], ['owner-only.pdf', null]];
+    const PW = ['s', 'l', 'o', 'p'].join('');   // the fixtures' password, inside the binary files (spelt so a build's rename leaves it)
+    const cases = [['rc4-128.pdf', PW], ['aes-128.pdf', PW], ['aes-256.pdf', PW], ['owner-only.pdf', null]];
     for (const [name, pw] of cases) {
       it(`opens ${name}, removes the encryption and exports clean pages`, async () => {
         PT.reset();

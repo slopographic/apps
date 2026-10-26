@@ -41,7 +41,7 @@
 
     it('choosing Spanish changes the homepage nav text, and it persists across a reload', async () => {
       const home = await open('../../index.html');
-      expect(navText(home)).toBe('Apps');
+      expect(navText(home)).toBe(SlopTest.said(home.contentWindow, 'nav.apps', 'Apps'));   // the build's start language (here English)
       await choose('es');
       const h = await open('../../index.html');
       expect(navText(h)).toBe('Aplicaciones');
@@ -69,7 +69,9 @@
       await choose('en');
       const h = await open('../../index.html');
       expect(navText(h)).toBe('Apps');
-      expect(stored().data.lang).toBeFalsy(); // English is the default, so the override is cleared
+      // English is the default here, so the override is cleared; a build that starts in another language keeps the choice
+      if (BRAND_FACTS.defaultLang === 'en') expect(stored().data.lang).toBeFalsy();
+      else expect(stored().data.lang.mode).toBe('en');
     });
   });
   run({ name: 'Language switch across pages' });

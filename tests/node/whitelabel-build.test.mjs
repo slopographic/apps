@@ -3,11 +3,12 @@
 // the share card, the repo-only tests. CI's white-label jobs run the whole build, the scan and its whole suite on the samples.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdtempSync, mkdirSync } from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
-import { excluded, patchBinary, SCAN_ALLOW, REPO_ONLY, repoOnly } from '../../tools/whitelabel/build.mjs';
+import { excluded, patchBinary, SCAN_ALLOW, REPO_ONLY, repoOnly, rehash } from '../../tools/whitelabel/build.mjs';
 import { exportProfile } from '../../tools/whitelabel/export.mjs';
 import { ico, cardHtml } from '../../tools/whitelabel/images.mjs';
 import { mirrorWorkflow, DROP_STEPS, DROP_JOBS } from '../../tools/whitelabel/workflow.mjs';
@@ -29,6 +30,17 @@ test('model files: the tool name is patched at the same length', () => {
   assert.ok(!out.includes('slopographic') && out.includes('modelbuilder'));
   assert.equal(patchBinary('a.png', buf), buf);
   assert.ok(SCAN_ALLOW.every((a) => a.file && a.why));
+  // the code that checks a patched model's SHA-256 gets the patched file's
+  const dir = mkdtempSync(path.join(os.tmpdir(), 'wl-rehash-')), A = 'a'.repeat(64), B = 'b'.repeat(64);
+  mkdirSync(path.join(dir, 'm'));
+  writeFileSync(path.join(dir, 'm/index.json'), `{"sha256":"${A}"}`);
+  writeFileSync(path.join(dir, 'm/models.js'), `sha256: '${A}', other: '${'c'.repeat(64)}'`);
+  writeFileSync(path.join(dir, 'm/x.onnx'), A);
+  assert.equal(rehash(dir, new Map([[A, B]])), 2);
+  assert.equal(readFileSync(path.join(dir, 'm/index.json'), 'utf8'), `{"sha256":"${B}"}`);
+  assert.match(readFileSync(path.join(dir, 'm/models.js'), 'utf8'), new RegExp(`${B}.*${'c'.repeat(64)}`));
+  assert.equal(readFileSync(path.join(dir, 'm/x.onnx'), 'utf8'), A);
+  assert.equal(rehash(dir, new Map()), 0);
 });
 
 test('the mirror workflow: this repository\'s jobs and the whole suite in its slices, without what only works here', () => {

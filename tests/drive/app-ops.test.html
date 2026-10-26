@@ -19,7 +19,9 @@
       DR = W.DR; H = W.SlopHub;
       await H.clear(); await DR.refresh(); DR.render();
       expect(W.document.querySelector('[data-empty="drive"]')).toBeTruthy();
-      expect(W.document.querySelector('[data-empty] canvas.sloppo')).toBeTruthy();
+      // the empty drive shows the built-in mascot; a build without it shows none (drive/js/ui/empty.js)
+      if (BRAND_FACTS.mascot === 'builtin') expect(W.document.querySelector('[data-empty] canvas.sloppo')).toBeTruthy();
+      else expect(W.document.querySelector('[data-empty] canvas.sloppo')).toBe(null);
       expect(W.document.title).toContain('Slop Drive');
     });
   });
@@ -29,14 +31,14 @@
       ask('Projects');
       const p = await DR.newFolder(null);
       DR.go(p);
-      const s = await DR.newFolder(p, 'Sloppo');
-      expect(DR.pathOf(s).map((f) => f.name)).toEqual(['Projects', 'Sloppo']);
+      const s = await DR.newFolder(p, 'Spuds');
+      expect(DR.pathOf(s).map((f) => f.name)).toEqual(['Projects', 'Spuds']);
       DR.go(s);
       const crumbs = [...W.document.querySelectorAll('#crumbs .crumb')].map((b) => b.textContent);
-      expect(crumbs).toEqual(['Slop Drive', 'Projects', 'Sloppo']);
+      expect(crumbs).toEqual(['Slop Drive', 'Projects', 'Spuds']);
       W.document.querySelectorAll('#crumbs .crumb')[1].click();
       expect(DR.S.cwd).toBe(p);
-      expect(names()).toEqual(['Sloppo']);
+      expect(names()).toEqual(['Spuds']);
       expect(W.document.querySelector(`#tree [data-key="d:${s}"]`)).toBeTruthy();
       W.document.querySelector(`#tree [data-key="d:${s}"]`).click();
       expect(DR.S.cwd).toBe(s);
@@ -65,7 +67,7 @@
       expect(pics.parent).toBe(byName('Projects', true).id);
       expect(byName('b.png').type).toBe('image/png');
       expect(DR.pathOf(byName('b.png').parent).map((f) => f.name)).toEqual(['Projects', 'Pics', 'Deep']);
-      expect(names()).toEqual(['Pics', 'Sloppo', 'notes.txt']);
+      expect(names()).toEqual(['Pics', 'Spuds', 'notes.txt']);
     });
     it('moves files and folders, refusing to put a folder inside itself', async () => {
       const notes = byName('notes.txt'), pics = byName('Pics', true), deep = byName('Deep', true);
@@ -102,9 +104,9 @@
       DR.go(null);
       DR.select(['f:' + byName('notes (2).txt').id]);
       DR.clipCopy(true);
-      DR.go(byName('Sloppo', true).id);
+      DR.go(byName('Spuds', true).id);
       await DR.paste();
-      expect(byName('notes (2).txt').parent).toBe(byName('Sloppo', true).id);
+      expect(byName('notes (2).txt').parent).toBe(byName('Spuds', true).id);
       expect(DR.S.clip).toBe(null);
     });
   });

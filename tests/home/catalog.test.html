@@ -33,7 +33,7 @@
       for (const a of win.SLOP_APPS.filter((x) => x.kind === 'app')) {
         const card = doc.querySelector(`.app-card[data-id="${a.id}"]`);
         // A converter card shows its one-line "in and out" from SECTIONS, so the tagline is one of the two.
-        const lines = [a.tagline].concat([].concat(win.SlopHomeSections.SECTIONS[a.id] || []).map((p) => p.line).filter(Boolean));
+        const lines = [a.tagline, win.slopAppTagline(a)].concat([].concat(win.SlopHomeSections.SECTIONS[a.id] || []).map((p) => p.line).filter(Boolean));
         expect(lines.includes(card.querySelector('.app-tag').textContent)).toBe(true);
         expect(card.querySelector('.feats')).toBe(null);
         const badge = card.querySelector('.badge');

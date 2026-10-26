@@ -6,7 +6,7 @@
    colour, also when the browser does not let the page read its canvas back (the colour then comes from the content). */
 // Covers: pdf/js/core/content-lex.js, pdf/js/core/content-strip.js, pdf/js/core/content-fills.js, pdf/js/editor/text-strip.js,
 //   pdf/js/editor/edit-colours.js, pdf/js/editor/edit-text.js, pdf/js/editor/para-model.js, pdf/js/editor/para-mode.js,
-//   pdf/js/editor/sel-actions.js, pdf/js/io/edit-log.js, pdf/js/io/doc-changes.js, pdf/js/ui/app.js, pdf/js/find/replace.js
+//   pdf/js/editor/sel-actions.js, pdf/js/io/edit-log.js, pdf/js/io/doc-changes.js, pdf/js/ui/app.js, pdf/js/find/replace.js, pdf/js/io/sample.js
 (function () {
   'use strict';
   const { describe, it, expect, waitFor, sleep } = SlopTest;
@@ -17,12 +17,13 @@
   const page = () => PT.E.state.pages[1];
   const spanFor = (t) => [...doc().querySelectorAll('.pv-textlayer span')].find((s) => s.textContent.includes(t));
 
-  /** Opens the sample (made the way File ▸ Sample makes it) on its beige page 2. */
+  /** Opens the sample (made the way File ▸ Sample makes it, in its playful wording, whose lines these checks read: a plain
+   *  build's own sample has other words and paper) on its beige page 2. */
   async function openSample() {
     if (!PT.SP) await PT.boot();
     PT.reset();
     PT.win.getSelection().removeAllRanges();
-    await PT.open(await PT.E.makeSample(), 'goo.pdf');
+    await PT.open(await PT.E.makeSample('playful'), 'goo.pdf');
     PT.A.openPage(page().id);
     await waitFor(() => Ed().pid === page().id && spanFor('What is goo'), { timeout: 15000 });
     Ed().setTool('select');
@@ -213,7 +214,7 @@
       if (!PT.SP) await PT.boot();
       PT.reset();
       // the sample's page 2 drawn into a new page as a form: its text is inside the form, not in the page's own stream
-      const L = PT.win.PDFLib, src = await L.PDFDocument.load(await PT.E.makeSample()), d = await L.PDFDocument.create();
+      const L = PT.win.PDFLib, src = await L.PDFDocument.load(await PT.E.makeSample('playful')), d = await L.PDFDocument.create();
       const [form] = await d.embedPdf(src, PT.win.Array.of(1)), pg = d.addPage(PT.win.Array.of(595.28, H));
       pg.drawRectangle({ x: 0, y: 0, width: 595.28, height: H, color: L.rgb(0.945, 0.929, 0.894) });
       pg.drawPage(form, { x: 0, y: 0 });
