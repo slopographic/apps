@@ -1,6 +1,6 @@
 /* The Sheet View string tables, Arabic: the whole app (open, export, filters, palettes, messages). Same keys as sheetview/i18n/en/app.js. Terms: shared/i18n/glossary-ar.md. */
 window.SlopI18n && window.SlopI18n.add('ar', {
-  'sheetview.app.home': 'الصفحة الرئيسية لسلوبوغرافيك',
+  'sheetview.app.home': 'الصفحة الرئيسية لSlopographic',
   'sheetview.app.open': 'فتح',
   'sheetview.app.open_title': 'فتح جداول بيانات من هذا الكمبيوتر (Ctrl+O)',
   'sheetview.app.export': 'تصدير',

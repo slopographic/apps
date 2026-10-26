@@ -1,6 +1,6 @@
 /* The Music app strings, Arabic: the library, the player, tags and messages. Same keys as music/i18n/en/app.js. Terms: shared/i18n/glossary-ar.md. */
 window.SlopI18n && window.SlopI18n.add('ar', {
-  'music.app.home': 'الصفحة الرئيسية لسلوبوغرافيك',
+  'music.app.home': 'الصفحة الرئيسية لSlopographic',
   'music.app.views': 'العروض',
   'music.app.add_files': 'إضافة ملفات…',
   'music.tab.library': 'المكتبة',

@@ -1,6 +1,6 @@
 /* The Slop AI app strings, Arabic: tabs, model chip, engine states, workspace, launch and intake messages. Same keys as ai/i18n/en/app.js. Terms: shared/i18n/glossary-ar.md. */
 window.SlopI18n && window.SlopI18n.add('ar', {
-  'ai.app.home': 'الصفحة الرئيسية لسلوبوغرافيك',
+  'ai.app.home': 'الصفحة الرئيسية لSlopographic',
   'ai.app.sections': 'الأقسام',
   'ai.app.search': 'ابحث في الأوامر',
   'ai.app.search_tip': 'ابحث في الأوامر (⌘K)',

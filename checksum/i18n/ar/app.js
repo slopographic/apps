@@ -1,6 +1,6 @@
 /* The Checksum string tables, Arabic: the whole app. Same keys as checksum/i18n/en/app.js. Terms: shared/i18n/glossary-ar.md. */
 window.SlopI18n && window.SlopI18n.add('ar', {
-  'checksum.app.home': 'الصفحة الرئيسية لسلوبوغرافيك',
+  'checksum.app.home': 'الصفحة الرئيسية لSlopographic',
   'checksum.app.lede': 'احسب قيمة التجزئة (hash) لملف، أو تحقق منها مقابل القيمة التي نشرها ناشر الملف. يُقرأ الملف على هذا الجهاز ولا يُرفع أبدًا.',
   'checksum.app.step_choose': '1. اختر ملفًا',
   'checksum.app.drop': 'اختر ملفًا، أو أفلته هنا',

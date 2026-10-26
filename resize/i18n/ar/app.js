@@ -1,6 +1,6 @@
 /* The Resize app strings, Arabic: the file queue, the run and download controls, presets and messages. Same keys as resize/i18n/en/app.js. Terms: shared/i18n/glossary-ar.md. */
 window.SlopI18n && window.SlopI18n.add('ar', {
-  'resize.app.home': 'الصفحة الرئيسية لسلوبوغرافيك',
+  'resize.app.home': 'الصفحة الرئيسية لSlopographic',
   'resize.app.tag': 'تغيير حجم الصور والفيديوهات. لا يُرفع شيء.',
   'resize.app.open_bar': 'فتح',
   'resize.app.open': 'فتح…',
