@@ -6,7 +6,10 @@
  *   TouchKit.tap(t) · doubleTap(t) · longPress(t, ms) · drag(t, dx, dy, steps) · pinch(t, scale, steps) · pan2(t, dx, dy)
  * t is an element (its centre), { el, x, y } (x, y from the element's top left) or { x, y } in the test page. Elements in
  * a same-origin iframe are found through their frame. Each resolves once the gesture is over.
- * TouchKit.real: true when the gestures beyond a tap are real touches (Chromium). Covers: shared/input/touch.js */
+ * TouchKit.real: true when the gestures beyond a tap are real touches (Chromium). Real gestures other than the long press
+ * are paced by the runner, not this page (tests/touch.mjs paced()): a finger does not wait for a busy page, so each step
+ * is stamped with its own time and none waits for the page to take the one before; the kit then waits until the page
+ * has had every lift. Covers: shared/input/touch.js */
 (function () {
   'use strict';
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -90,12 +93,27 @@
 
   /** Real fingers by CDP: down/move/up of a set of { id, x, y } points. */
   const cdp = (type, points, rest) => bridge({ op: 'touch', type, points, rest });
+  /** A real gesture at top-page point p, its steps ({ type, points, rest, at } with at in ms) paced by the runner; resolves
+   *  once the page under p has had `lifts` finger lifts (a pointerup or pointercancel; 3 s at most, for a finger whose
+   *  element left the page) and drawn a frame. */
+  async function gesture(p, steps, lifts) {
+    const W = local(p.x, p.y).win;
+    let n = 0;
+    const lift = (e) => { if (e.pointerType === 'touch' && e.isTrusted) n++; };
+    W.addEventListener('pointerup', lift, true); W.addEventListener('pointercancel', lift, true);
+    try {
+      await bridge({ op: 'touches', steps });
+      for (const t0 = performance.now(); n < lifts && performance.now() - t0 < 3000;) await sleep(10);
+      await new Promise((r) => W.requestAnimationFrame(() => r()));
+    } finally { W.removeEventListener('pointerup', lift, true); W.removeEventListener('pointercancel', lift, true); }
+  }
+  const one = (p) => [{ id: 1, x: p.x, y: p.y }];
 
   async function tap(t) {
     const p = where(t);
     // Chromium: the same CDP touches as every other gesture (Playwright's own tap there can leave a finger down for the
     // next CDP touch, which then reads as a second finger)
-    if (info().multi) { await cdp('start', [{ id: 1, x: p.x, y: p.y }]); await sleep(40); await cdp('end', []); return sleep(30); }
+    if (info().multi) { await gesture(p, [{ type: 'start', points: one(p) }, { type: 'end', at: 40 }], 1); return sleep(30); }
     if (await bridge({ op: 'tap', x: p.x, y: p.y })) return sleep(30);
     const f = finger(p.x, p.y);
     await sleep(40);
@@ -103,9 +121,17 @@
     return sleep(30);
   }
   /** Both taps at the same place, even when the first one makes the app draw the target anew. */
-  async function doubleTap(t) { const p = where(t), at = { x: p.x, y: p.y }; await tap(at); await sleep(90); await tap(at); return sleep(420); }
+  async function doubleTap(t) {
+    const p = where(t), at = { x: p.x, y: p.y };
+    if (info().multi) { // two 40 ms taps, 90 ms apart (the layer's double tap: at most 300 ms from the lift to the touch)
+      await gesture(p, [{ type: 'start', points: one(p) }, { type: 'end', at: 40 }, { type: 'start', points: one(p), at: 130 }, { type: 'end', at: 170 }], 2);
+      return sleep(420);
+    }
+    await tap(at); await sleep(90); await tap(at); return sleep(420);
+  }
 
-  // 1100 ms: the layer's 500 ms, plus once more when the page was busy as the finger landed (touch.js BUSY_MS)
+  // 1100 ms: the layer's 500 ms, plus once more when the page was busy as the finger landed (touch.js BUSY_MS). Paced by
+  // this page: the hold counts from when the page took the touch (the layer's long-press clock starts there too).
   async function longPress(t, ms = 1100) {
     const p = where(t);
     if (info().multi) { await cdp('start', [{ id: 1, x: p.x, y: p.y }]); await sleep(ms); await cdp('end', []); return sleep(60); }
@@ -118,9 +144,10 @@
   async function drag(t, dx, dy, steps = 8, opts = {}) {
     const p = where(t);
     if (info().multi && !opts.kind) {
-      await cdp('start', [{ id: 1, x: p.x, y: p.y }]);
-      for (let i = 1; i <= steps; i++) { await sleep(16); await cdp('move', [{ id: 1, x: p.x + (dx * i) / steps, y: p.y + (dy * i) / steps }]); }
-      await cdp('end', []);
+      const g = [{ type: 'start', points: one(p) }];
+      for (let i = 1; i <= steps; i++) g.push({ type: 'move', points: [{ id: 1, x: p.x + (dx * i) / steps, y: p.y + (dy * i) / steps }], at: 16 * i });
+      g.push({ type: 'end', at: 16 * steps + 8 });
+      await gesture(p, g, 1);
       return sleep(60);
     }
     const f = finger(p.x, p.y, opts.kind || 'touch', opts.pressure);
@@ -134,9 +161,10 @@
     const p = where(t), d0 = 40, d1 = 40 * scale;
     const at = (k) => { const d = d0 + (d1 - d0) * k; return [{ id: 1, x: p.x - d + dx * k, y: p.y + dy * k }, { id: 2, x: p.x + d + dx * k, y: p.y + dy * k }]; };
     if (info().multi) {
-      await cdp('start', [at(0)[0]]); await sleep(16); await cdp('start', at(0));
-      for (let i = 1; i <= steps; i++) { await sleep(16); await cdp('move', at(i / steps)); }
-      await cdp('end', [], [at(1)[0]]); await sleep(16); await cdp('end', []);
+      const g = [{ type: 'start', points: [at(0)[0]] }, { type: 'start', points: at(0), at: 16 }];
+      for (let i = 1; i <= steps; i++) g.push({ type: 'move', points: at(i / steps), at: 16 * (i + 1) });
+      g.push({ type: 'end', rest: [at(1)[0]], at: 16 * (steps + 2) }, { type: 'end', at: 16 * (steps + 3) });
+      await gesture(p, g, 2);
       return sleep(80);
     }
     const [a, b] = at(0), fa = finger(a.x, a.y);

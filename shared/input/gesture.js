@@ -12,7 +12,9 @@
  * kind is 'touch' or 'pen' (mouse is not fed in). x, y in CSS pixels, t in milliseconds.
  * Actions: { type: 'tap', x, y, id } · { type: 'doubletap', x, y, id } · { type: 'longpress', x, y, id }
  *          { type: 'pinchstart', ids, cx, cy } · { type: 'pinch', scale, cx, cy, dx, dy } · { type: 'pinchend' }
- * pinch: scale is since the previous pinch action (multiply them up), cx/cy the midpoint now, dx/dy its move. */
+ * pinch: scale is since the previous pinch action (multiply them up), cx/cy the midpoint now, dx/dy its move.
+ * stamp(e, now) → when a pointer event happened (its timeStamp), on the clock of performance.now(): an app that times a
+ * tap by when its handler runs reads a quick tap as a hold while the page is busy (the lift waits in the queue). */
 (function () {
   'use strict';
   const DEFAULTS = {
@@ -134,7 +136,13 @@
     return p > 0 ? Math.min(1, p) : 0.5;
   }
 
-  const api = { create, DEFAULTS, pressure };
+  /** e.timeStamp when it is a time on now's clock (not later than now, nor a minute before it), else now. */
+  function stamp(e, now) {
+    const t = e && Number(e.timeStamp);
+    return Number.isFinite(t) && t > 0 && t <= now + 1 && now - t < 60000 ? t : now;
+  }
+
+  const api = { create, DEFAULTS, pressure, stamp };
   if (typeof window !== 'undefined') { window.SlopTouch = window.SlopTouch || {}; window.SlopTouch.gesture = api; }
   if (typeof module === 'object' && module.exports) module.exports = api;
 })();

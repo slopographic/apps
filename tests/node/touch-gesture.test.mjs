@@ -179,3 +179,13 @@ test('stroke pressure: a finger or a mouse paints at full pressure whatever it r
   assert.equal(pressure({ pointerType: 'pen', pressure: 1.4 }), 1);
   assert.equal(pressure(null), 1);
 });
+
+test('stamp: when an event happened (its timeStamp on the performance.now clock), else now', () => {
+  const { stamp } = createRequire(import.meta.url)('../../shared/input/gesture.js');
+  assert.equal(stamp({ timeStamp: 900 }, 2900), 900);       // handled 2 s late on a busy page: still 900
+  assert.equal(stamp({ timeStamp: 0 }, 2900), 2900);        // no stamp
+  assert.equal(stamp({ timeStamp: 5000 }, 2900), 2900);     // not on this clock (later than now)
+  assert.equal(stamp({ timeStamp: 1.7e12 }, 2900), 2900);   // an epoch time (old WebKit)
+  assert.equal(stamp({ timeStamp: 10 }, 90000), 90000);     // a minute or more ago: not this event's
+  assert.equal(stamp(null, 42), 42);
+});
