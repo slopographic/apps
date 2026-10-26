@@ -5,6 +5,7 @@
 (function (g) {
   'use strict';
   const ns = (g.SlopData = g.SlopData || {});
+  const say = (k, v) => { const I = g.SlopI18n; return I && I.t ? I.t(k, v) : k; };   // words: shared/i18n/ui/<code>/data.js, data2.js
   const { ok, fail } = ns.result;
   const TYPE_SIDE = { asset: 'debit', expense: 'debit', liability: 'credit', equity: 'credit', revenue: 'credit' };
 
@@ -26,7 +27,7 @@
     const errors = ns.schema.prepare('journal', entry, { skipKey: true }).errors.slice();
     if (accounts && entry && Array.isArray(entry.lines)) {
       const known = new Set(accounts.map((a) => a.code));
-      for (const l of entry.lines) if (l && !known.has(l.account)) errors.push({ field: 'lines', message: `unknown account ${l.account}` });
+      for (const l of entry.lines) if (l && !known.has(l.account)) errors.push({ field: 'lines', message: say('ui.data.led.unknown', { code: String(l.account) }) });
     }
     return errors;
   }
@@ -55,20 +56,20 @@
         od += l.origDebit || 0;
         oc += l.origCredit || 0;
         const row = rows.get(l.account);
-        if (row) { row.debit += l.debit; row.credit += l.credit; } else errors.push(`entry ${e.id}: unknown account ${l.account}`);
+        if (row) { row.debit += l.debit; row.credit += l.credit; } else errors.push(say('ui.data.led.entry_unknown', { id: String(e.id), code: String(l.account) }));
       }
-      if (ed !== ec) errors.push(`entry ${e.id} does not balance (${ed} debit, ${ec} credit)`);
+      if (ed !== ec) errors.push(say('ui.data.led.entry_unbalanced', { id: String(e.id), debit: String(ed), credit: String(ec) }));
       debit += ed;
       credit += ec;
       if (e.rateId) {
-        if (od !== oc) errors.push(`entry ${e.id} does not balance in ${e.currency} (${od} debit, ${oc} credit)`);
+        if (od !== oc) errors.push(say('ui.data.led.entry_unbalanced_fx', { id: String(e.id), currency: e.currency, debit: String(od), credit: String(oc) }));
         const f = foreign.get(e.currency) || { currency: e.currency, debit: 0, credit: 0 };
         f.debit += od;
         f.credit += oc;
         foreign.set(e.currency, f);
       }
     }
-    if (debit !== credit) errors.push(`debits and credits differ by ${debit - credit}`);
+    if (debit !== credit) errors.push(say('ui.data.led.differ', { off: String(debit - credit) }));
     const list = [...rows.values()].map((r) => ({ ...r, balance: TYPE_SIDE[r.type] === 'debit' ? r.debit - r.credit : r.credit - r.debit }));
     const fx = [...foreign.values()].sort((a, b) => (a.currency < b.currency ? -1 : 1)).map((f) => ({ ...f, balanced: f.debit === f.credit }));
     return { rows: list, debit, credit, balanced: errors.length === 0, errors, foreign: fx };
@@ -86,7 +87,7 @@
     if (errors.length) return tx.fail(fail('invalid', ns.schema.errorText(errors), { errors }));
     const dup = await tx.list('journal', { index: 'source', value: e.source, includeDeleted: true });
     if (!dup.ok) return dup;
-    if (dup.value.length) return tx.fail(fail('duplicate_source', `${e.source} has already been posted`));
+    if (dup.value.length) return tx.fail(fail('duplicate_source', say('ui.data.led.posted', { source: e.source })));
     return tx.put('journal', {
       date: e.date, memo: e.memo, source: e.source, lines: e.lines, reverses: e.reverses,
       currency: e.currency, amount: e.amount, amountBase: e.amountBase, rateId: e.rateId, rate: e.rate,
@@ -97,7 +98,7 @@
   async function reverseIn(tx, id, opts = {}) {
     const j = await tx.get('journal', id);
     if (!j.ok) return j;
-    if (!j.value) return tx.fail(fail('not_found', `no journal entry ${id}`));
+    if (!j.value) return tx.fail(fail('not_found', say('ui.data.led.no_entry', { id: String(id) })));
     const o = j.value;
     const fx = o.rateId ? { rateId: o.rateId, rate: o.rate, amount: o.amount, amountBase: o.amountBase } : {};
     return postIn(tx, {

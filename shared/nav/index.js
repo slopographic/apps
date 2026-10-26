@@ -6,6 +6,7 @@
   'use strict';
   const N = window.SlopNav;
   const apps = {};
+  const say = (k) => { const I = window.SlopI18n; return I && I.t ? I.t(k) : k; };   // shared/i18n/ui/<code>/print.js
 
   /** Remembers an app's title, shortcut list and (optionally) its host and adapter, without attaching. */
   function register(app, meta) {
@@ -27,7 +28,7 @@
   /** Opens the navigation dialog for an app (from Preferences, the profile page or the command palette). */
   function openModal(app, extra) {
     const m = apps[app] || {};
-    return N.modal.open(Object.assign({ app, title: (m.title ? m.title + ' · ' : '') + 'Navigation', shortcuts: m.shortcuts }, extra || {}));
+    return N.modal.open(Object.assign({ app, title: (m.title ? m.title + ' · ' : '') + say('ui.nav.navigation'), shortcuts: m.shortcuts }, extra || {}));
   }
   /**
    * Builds the shortcut list for the clash check from the app's own commands (SlopCmd), by command title.

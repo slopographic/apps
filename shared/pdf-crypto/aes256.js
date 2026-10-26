@@ -21,9 +21,11 @@
   var concat = C.concat, eq = C.eq;
 
   function err(code, msg) { var e = new Error(msg); e.code = code; return e; }
+  // Messages a person reads, in the chosen language (shared/i18n/ui/<code>/print.js); the key where no table is loaded.
+  var say = function (k, v) { var I = globalThis.SlopI18n; return I && I.t ? I.t(k, v) : k; };
   function subtle() {
     var c = globalThis.crypto;
-    if (!c || !c.subtle) throw err('unsupported', 'This browser has no WebCrypto, so it cannot open or write encrypted PDFs.');
+    if (!c || !c.subtle) throw err('unsupported', say('ui.pdfc.no_webcrypto'));
     return c.subtle;
   }
   function random(n) { var b = new Uint8Array(n); globalThis.crypto.getRandomValues(b); return b; }

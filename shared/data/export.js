@@ -3,6 +3,7 @@
 (function (g) {
   'use strict';
   const ns = (g.SlopData = g.SlopData || {});
+  const say = (k, v) => { const I = g.SlopI18n; return I && I.t ? I.t(k, v) : k; };   // words: shared/i18n/ui/<code>/data.js, data2.js
   const { ok, fail } = ns.result;
 
   /** Every record of every collection, deleted ones included, as one plain object. */
@@ -32,7 +33,7 @@
   async function importBundle(input) {
     let bundle = input;
     if (typeof input === 'string') {
-      try { bundle = JSON.parse(input); } catch (e) { return fail('invalid', 'the file is not valid JSON'); }
+      try { bundle = JSON.parse(input); } catch (e) { return fail('invalid', say('ui.data.io.not_json')); }
     }
     const v = ns.bundleCheck.validateBundle(bundle);
     if (!v.ok) return fail('invalid', v.errors[0], { errors: v.errors });

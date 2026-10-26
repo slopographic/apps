@@ -13,16 +13,19 @@ export const FONT_PAIRS = [
   { heading: 'Inter Tight', body: 'Carlito' },
 ];
 
-/** Colour schemes. head: headings; accent: rules and fills; onAccent: text on accent; tint: pale fill; text and muted: body. */
+// A scheme's name in the chosen language (shared/i18n/ui/<code>/templates.js); the key where no table is loaded.
+const say = (k) => { const I = globalThis.SlopI18n; return I && I.t ? I.t(k) : k; };
+
+/** Colour schemes (name: read in the chosen language). head: headings; accent: rules and fills; onAccent: text on accent; tint: pale fill; text and muted: body. */
 export const SCHEMES = [
-  { id: 'lime', name: 'Slop lime', head: '#0a0a0a', accent: '#d4ff3a', onAccent: '#0a0a0a', tint: '#f3ffd0', text: '#111111', muted: '#55555c', rule: '#0a0a0a' },
-  { id: 'navy', name: 'Navy', head: '#000080', accent: '#000080', onAccent: '#ffffff', tint: '#e6e6f4', text: '#15151a', muted: '#55556a', rule: '#000080' },
-  { id: 'cobalt', name: 'Cobalt', head: '#1d3fbf', accent: '#2f5bff', onAccent: '#ffffff', tint: '#e8eeff', text: '#15151a', muted: '#50596e', rule: '#2f5bff' },
-  { id: 'olive', name: 'Olive', head: '#3b5a00', accent: '#6f9400', onAccent: '#ffffff', tint: '#f0f6dc', text: '#1a1d12', muted: '#5a6148', rule: '#5f7d00' },
-  { id: 'pink', name: 'Pink', head: '#9c1f58', accent: '#ff5fa2', onAccent: '#0a0a0a', tint: '#ffe9f3', text: '#1a1216', muted: '#6a5860', rule: '#ff5fa2' },
-  { id: 'graphite', name: 'Graphite', head: '#17161a', accent: '#17161a', onAccent: '#ffffff', tint: '#ececef', text: '#1c1c20', muted: '#5f5f68', rule: '#17161a' },
-  { id: 'slate', name: 'Slate', head: '#1a1a1c', accent: '#5c6370', onAccent: '#ffffff', tint: '#eef0f3', text: '#1a1a1c', muted: '#5c6370', rule: '#5c6370' },
-  { id: 'sand', name: 'Sand', head: '#3d3424', accent: '#c9b98f', onAccent: '#0a0a0a', tint: '#f6f1e4', text: '#221d14', muted: '#6b6250', rule: '#9c8b62' },
+  { id: 'lime', get name() { return say('ui.tpl.scheme.lime'); }, head: '#0a0a0a', accent: '#d4ff3a', onAccent: '#0a0a0a', tint: '#f3ffd0', text: '#111111', muted: '#55555c', rule: '#0a0a0a' },
+  { id: 'navy', get name() { return say('ui.tpl.scheme.navy'); }, head: '#000080', accent: '#000080', onAccent: '#ffffff', tint: '#e6e6f4', text: '#15151a', muted: '#55556a', rule: '#000080' },
+  { id: 'cobalt', get name() { return say('ui.tpl.scheme.cobalt'); }, head: '#1d3fbf', accent: '#2f5bff', onAccent: '#ffffff', tint: '#e8eeff', text: '#15151a', muted: '#50596e', rule: '#2f5bff' },
+  { id: 'olive', get name() { return say('ui.tpl.scheme.olive'); }, head: '#3b5a00', accent: '#6f9400', onAccent: '#ffffff', tint: '#f0f6dc', text: '#1a1d12', muted: '#5a6148', rule: '#5f7d00' },
+  { id: 'pink', get name() { return say('ui.tpl.scheme.pink'); }, head: '#9c1f58', accent: '#ff5fa2', onAccent: '#0a0a0a', tint: '#ffe9f3', text: '#1a1216', muted: '#6a5860', rule: '#ff5fa2' },
+  { id: 'graphite', get name() { return say('ui.tpl.scheme.graphite'); }, head: '#17161a', accent: '#17161a', onAccent: '#ffffff', tint: '#ececef', text: '#1c1c20', muted: '#5f5f68', rule: '#17161a' },
+  { id: 'slate', get name() { return say('ui.tpl.scheme.slate'); }, head: '#1a1a1c', accent: '#5c6370', onAccent: '#ffffff', tint: '#eef0f3', text: '#1a1a1c', muted: '#5c6370', rule: '#5c6370' },
+  { id: 'sand', get name() { return say('ui.tpl.scheme.sand'); }, head: '#3d3424', accent: '#c9b98f', onAccent: '#0a0a0a', tint: '#f6f1e4', text: '#221d14', muted: '#6b6250', rule: '#9c8b62' },
 ];
 
 /** Body size and line spacing for each scale. */

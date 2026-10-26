@@ -14,6 +14,7 @@
   const providers = new Map();
   let lastApp = null, dialogOpen = false, cmdDone = false;
 
+  const say = (k, v) => { const I = window.SlopI18n; return I && I.t ? I.t(k, v) : k; };   // words: shared/i18n/ui/<code>/print.js and the shared tables
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
   const toast = (msg, ms, act) => { if (window.SlopUI) SlopUI.toast(msg, ms, act); };
   const activeApp = () => { const sc = window.SlopCmd && SlopCmd.app; return sc && providers.has(sc) ? sc : lastApp; };
@@ -81,37 +82,37 @@
       const w = f.contentWindow;
       timer = setTimeout(done, 600000); // safety net if afterprint never fires
       w.addEventListener('afterprint', done, { once: true });
-      try { w.focus(); w.print(); } catch (e) { done(); toast('The browser would not print: ' + (e.message || e), 6000); }
+      try { w.focus(); w.print(); } catch (e) { done(); toast(say('ui.print.refused', { error: String(e.message || e) }), 6000); }
     }, { once: true });
   }
 
   /** Opens the dialog. o: { title, html? | blob? | pdfUrl?, pages?, paper?, orientation? }. Returns the SlopUI dialog or null. */
   function open(o = {}) {
     if (!window.SlopUI || dialogOpen) return null;
-    const job = { title: String(o.title || document.title || 'Print'), root: o.root || rootAttrs(), css: '' };
+    const job = { title: String(o.title || document.title || say('menu.print')), root: o.root || rootAttrs(), css: '' };
     let objectUrl = null;
-    if (o.html != null && !window.SlopSanitize) { toast('Printing is not ready yet. Try again in a moment.'); return null; }
+    if (o.html != null && !window.SlopSanitize) { toast(say('ui.print.not_ready')); return null; }
     if (o.html != null) { job.html = clean(o.html); job.css = pageCss(); }
     else if (o.blob) { objectUrl = URL.createObjectURL(o.blob); job.pdf = objectUrl; }
     else if (typeof o.pdfUrl === 'string' && /^(blob|data):/i.test(o.pdfUrl)) job.pdf = o.pdfUrl;
-    else { toast('Nothing to print here'); return null; }
+    else { toast(say('ui.print.nothing')); return null; }
     const isPdf = job.html === undefined;
     const U = window.SlopUI, el = U.el;
     const init = { paper: PAPERS[o.paper] ? o.paper : 'A4', orientation: o.orientation === 'landscape' ? 'landscape' : 'portrait', pages: String(o.pages || '').trim() };
 
     const paper = U.select(Object.keys(PAPERS).map((k) => [k, k]), init.paper);
-    const orient = U.select([['portrait', 'Portrait'], ['landscape', 'Landscape']], init.orientation);
-    const margin = U.select([['normal', 'Normal'], ['narrow', 'Narrow'], ['none', 'None']], 'normal');
-    const scale = U.select([['fit', 'Fit to width'], ['100', '100 percent']], 'fit');
-    const pagesIn = el('input', { class: 'sui-input', type: 'text', placeholder: 'All pages, or e.g. 1-3, 5', value: init.pages, 'aria-label': 'Page range', autocomplete: 'off', spellcheck: 'false' });
+    const orient = U.select([['portrait', say('ui.print.portrait')], ['landscape', say('ui.print.landscape')]], init.orientation);
+    const margin = U.select([['normal', say('ui.print.normal')], ['narrow', say('ui.print.narrow')], ['none', say('ui.none')]], 'normal');
+    const scale = U.select([['fit', say('ui.print.fit')], ['100', say('ui.print.actual')]], 'fit');
+    const pagesIn = el('input', { class: 'sui-input', type: 'text', placeholder: say('ui.print.pages_hint'), value: init.pages, 'aria-label': say('ui.print.range'), autocomplete: 'off', spellcheck: 'false' });
     const copiesIn = U.number(1, 1, 99);
     const help = el('p', { class: 'sui-p sp-help', role: 'status' });
-    const frame = el('iframe', { class: 'sp-frame', title: 'Print preview', scrolling: 'no', tabindex: '-1', sandbox: 'allow-same-origin' });
+    const frame = el('iframe', { class: 'sp-frame', title: say('ui.print.preview'), scrolling: 'no', tabindex: '-1', sandbox: 'allow-same-origin' });
     const wrap = el('div', { class: 'sp-wrap' }, frame);
     const body = el('div', { class: 'sp-body' }, wrap,
       el('div', { class: 'sp-grid' },
-        U.field('Paper', paper), U.field('Orientation', orient), U.field('Margins', margin),
-        U.field('Scale', scale), U.field('Pages', pagesIn), U.field('Copies', copiesIn)),
+        U.field(say('ui.print.paper'), paper), U.field(say('ui.print.orientation'), orient), U.field(say('ui.print.margins'), margin),
+        U.field(say('ui.print.scale'), scale), U.field(say('ui.print.pages'), pagesIn), U.field(say('ui.print.copies'), copiesIn)),
       help);
     if (isPdf) [paper, orient, margin, scale].forEach((s) => { s.disabled = true; });
 
@@ -121,11 +122,11 @@
       const r = parsePages(pagesIn.value), n = copies();
       pagesIn.setAttribute('aria-invalid', String(!r.ok));
       help.classList.toggle('sp-err', !r.ok);
-      if (!r.ok) { help.textContent = 'Page range: use page numbers and ranges, such as 1-3, 5.'; return; }
+      if (!r.ok) { help.textContent = say('ui.print.range_bad'); return; }
       const parts = [];
-      if (isPdf) parts.push('The PDF sets its own paper size and margins.');
-      if (r.text) parts.push(`Set Pages to ${r.text} in the browser's print dialog.`);
-      parts.push(n > 1 ? `The browser's print dialog chooses the copies: set ${n} there.` : "The browser's print dialog chooses the number of copies.");
+      if (isPdf) parts.push(say('ui.print.pdf_own'));
+      if (r.text) parts.push(say('ui.print.set_pages', { pages: r.text }));
+      parts.push(n > 1 ? say('ui.print.copies_n', { n }) : say('ui.print.copies_one'));
       help.textContent = parts.join(' ');
     }
     const fit = () => {
@@ -144,7 +145,7 @@
       updateHelp();
       const r = parsePages(pagesIn.value);
       if (!r.ok) { pagesIn.focus(); return false; }
-      if (mode === 'save') toast('In the print dialog, choose Save as PDF as the destination.', 6000);
+      if (mode === 'save') toast(say('ui.print.save_hint'), 6000);
       const e = Object.assign(readOpts(), { pages: r.text });
       const src = isPdf ? { url: job.pdf } : { srcdoc: buildDoc(job, e, 'print') };
       setTimeout(() => printFrame(src), 0);
@@ -160,9 +161,9 @@
     const dlg = U.dialog({
       title: job.title, cls: 'sp-dlg', body,
       buttons: [
-        { label: 'Cancel' },
-        { label: 'Save as PDF', act: () => go('save') },
-        { label: 'Print', primary: true, act: () => go('print') },
+        { label: say('menu.cancel') },
+        { label: say('ui.print.save_pdf'), act: () => go('save') },
+        { label: say('menu.print'), primary: true, act: () => go('print') },
       ],
       onClose: () => {
         dialogOpen = false;
@@ -194,9 +195,9 @@
   /** Prints the registered provider's document: print(appId), or the page's current app when omitted. */
   async function print(appId) {
     const provider = providers.get(appId ? String(appId) : activeApp());
-    if (!provider) { toast('Nothing to print on this page'); return null; }
+    if (!provider) { toast(say('ui.print.nothing_page')); return null; }
     let r;
-    try { r = await provider(); } catch (e) { toast('Could not prepare the page: ' + (e.message || e)); return null; }
+    try { r = await provider(); } catch (e) { toast(say('ui.print.prepare_failed', { error: String(e.message || e) })); return null; }
     return r ? open(r) : null;
   }
 
@@ -213,10 +214,12 @@
   }, true);
 
   /* The "Print" command in the palette. SlopCmd shows Mod+P; its own dispatcher skips the key when this listener took it. */
+  const command = () => SlopCmd.register([{ id: 'print.open', title: say('ui.print.cmd'), group: say('menu.file'), keys: ['Mod+P'], keywords: ['print', 'pdf', 'save as pdf', 'page setup', 'copies'], when: hasProvider, run: () => print() }]);
   function addCommand() {
     if (cmdDone || !window.SlopCmd || !SlopCmd.register) return;
     cmdDone = true;
-    SlopCmd.register([{ id: 'print.open', title: 'Print…', group: 'File', keys: ['Mod+P'], keywords: ['print', 'pdf', 'save as pdf', 'page setup', 'copies'], when: hasProvider, run: () => print() }]);
+    command();
+    if (window.SlopI18n && SlopI18n.on) SlopI18n.on(command);   // the palette follows a language change
   }
   addCommand();
   addEventListener('load', addCommand);

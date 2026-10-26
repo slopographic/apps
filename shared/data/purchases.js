@@ -5,13 +5,14 @@
 (function (g) {
   'use strict';
   const ns = (g.SlopData = g.SlopData || {});
+  const say = (k, v) => { const I = g.SlopI18n; return I && I.t ? I.t(k, v) : k; };   // words: shared/i18n/ui/<code>/data.js, data2.js
   const ok = (v) => ns.result.ok(v), fail = (code, msg) => ns.result.fail(code, msg);
 
   /** Reads a purchase order inside a transaction, or a refusal. */
   async function load(tx, id) {
     const r = await tx.get('purchases', id);
     if (!r.ok) return r;
-    return r.value ? ok(r.value) : fail('not_found', `no purchase order ${id}`);
+    return r.value ? ok(r.value) : fail('not_found', say('ui.data.po.none', { id: String(id) }));
   }
 
   /** Ordered -> received: one receipt movement per product line (ref: the order number), at location (default 'main'), dated
@@ -21,7 +22,7 @@
       const p = await load(tx, id);
       if (!p.ok) return p;
       const po = p.value, day = date || ns.ledger.today();
-      if (po.status !== 'ordered') return fail('invalid_transition', 'only an ordered purchase order can be received');
+      if (po.status !== 'ordered') return fail('invalid_transition', say('ui.data.po.receive'));
       for (const l of po.lines.filter((x) => x.productId)) {
         const m = await ns.stock.moveIn(tx, { productId: l.productId, location, qty: l.qty, reason: 'receipt', ref: po.number, date: day, note: l.description });
         if (!m.ok) return m;
@@ -37,12 +38,12 @@
       const p = await load(tx, id);
       if (!p.ok) return p;
       const po = p.value;
-      if (po.status !== 'ordered' && po.status !== 'received') return fail('invalid_transition', 'record the bill of an ordered or received purchase order');
-      if (po.expenseId) return fail('conflict', 'the bill of this purchase order is already recorded');
+      if (po.status !== 'ordered' && po.status !== 'received') return fail('invalid_transition', say('ui.data.po.bill_state'));
+      if (po.expenseId) return fail('conflict', say('ui.data.po.billed'));
       const who = await tx.get('customers', po.customerId);
       if (!who.ok) return who;
       const e = await ns.expenses.recordIn(tx, {
-        date: date || ns.ledger.today(), supplier: (who.value && who.value.name) || 'Supplier', description: `Purchase order ${po.number}`,
+        date: date || ns.ledger.today(), supplier: (who.value && who.value.name) || 'Supplier', description: `Purchase order ${po.number}`,   // i18n-ignore: stored in the bill
         account, amount: po.total, tax: po.tax || 0, currency: po.currency, method,
       });
       if (!e.ok) return e;

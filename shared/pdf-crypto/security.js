@@ -17,6 +17,8 @@
 })(typeof globalThis !== 'undefined' ? globalThis : this, function (C) {
   'use strict';
   var err = C.err;
+  // Messages a person reads, in the chosen language (shared/i18n/ui/<code>/print.js); the key where no table is loaded.
+  var say = function (k, v) { var I = globalThis.SlopI18n; return I && I.t ? I.t(k, v) : k; };
 
   /* pdf-lib parses object streams as it meets them; an encrypted one would give garbage, so its parser is swapped for one
      that keeps the raw stream and its reference. The swap is global, so parses run one at a time (queue). */
@@ -52,7 +54,7 @@
     var num = function (k, d) { var v = dict.lookup(N(k)); return v instanceof L.PDFNumber ? v.asNumber() : d; };
     var str = function (k) { var v = dict.lookup(N(k)); return v && v.asBytes ? v.asBytes() : null; };
     var filter = dict.lookup(N('Filter'));
-    if (!filter || filter.asString() !== '/Standard') throw err('unsupported', 'This PDF uses a security handler other than a password (' + (filter ? filter.asString() : 'none') + '), such as a certificate. It cannot be opened here.');
+    if (!filter || filter.asString() !== '/Standard') throw err('unsupported', filter ? say('ui.pdfc.handler', { name: filter.asString() }) : say('ui.pdfc.handler_none'));
     var enc = { ref: ref, dict: dict, V: num('V', 0), R: num('R', 2), P: num('P', 0), O: str('O'), U: str('U'), OE: str('OE'), UE: str('UE'), Perms: str('Perms'),
       keyLen: num('Length', 40) / 8, encryptMetadata: true, stm: 'V2', str: 'V2', id0: new Uint8Array(0) };
     var em = dict.lookup(N('EncryptMetadata'));
@@ -67,7 +69,7 @@
         var m = cfm ? cfm.asString().slice(1) : 'None';
         if (m === 'AESV2' || m === 'AESV3' || m === 'V2') return m;
         if (m === 'None') return 'Identity';
-        throw err('unsupported', 'Unsupported crypt filter ' + m + '.');
+        throw err('unsupported', say('ui.pdfc.filter', { name: String(m) }));
       };
       enc.stm = method(stmF); enc.str = method(strF);
       if (enc.V === 4) {
@@ -76,8 +78,8 @@
         if (!enc.keyLen || enc.keyLen < 5) enc.keyLen = 16;
       }
     }
-    if (!enc.O || !enc.U) throw err('unsupported', 'The encryption dictionary is damaged.');
-    if (enc.R >= 5 && (!enc.UE || !enc.OE)) throw err('unsupported', 'The AES-256 encryption dictionary is incomplete.');
+    if (!enc.O || !enc.U) throw err('unsupported', say('ui.pdfc.dict_damaged'));
+    if (enc.R >= 5 && (!enc.UE || !enc.OE)) throw err('unsupported', say('ui.pdfc.dict_incomplete'));
     var idArr = ctx.trailerInfo.ID ? ctx.lookup(ctx.trailerInfo.ID) : null;
     if (idArr && idArr.size && idArr.size() > 0) { var first = idArr.lookup(0); if (first && first.asBytes) enc.id0 = first.asBytes(); }
     return enc;

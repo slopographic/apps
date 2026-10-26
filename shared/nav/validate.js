@@ -3,6 +3,7 @@
 (function () {
   'use strict';
   const N = (window.SlopNav = window.SlopNav || {});
+  const say = (k, v) => { const I = window.SlopI18n; return I && I.t ? I.t(k, v) : k; };   // words: shared/i18n/ui/<code>/print.js (ui.nav.*)
 
   const WHEEL = ['plain', 'ctrl', 'alt', 'shift', 'off'];
   /** Every binding name, in the order the modal lists them, with its allowed values. */
@@ -54,36 +55,36 @@
 
   function checkValue(name, v) {
     const s = SPEC[name];
-    if (!s) return { ok: false, error: `unknown binding "${name}"` };
-    if (s.kind === 'bool') return typeof v === 'boolean' ? { ok: true, value: v } : { ok: false, error: `${name} must be true or false` };
-    if (s.kind === 'choice') return s.values.includes(v) ? { ok: true, value: v } : { ok: false, error: `${name} must be one of ${s.values.join(', ')}` };
+    if (!s) return { ok: false, error: say('ui.nav.err.unknown', { name }) };
+    if (s.kind === 'bool') return typeof v === 'boolean' ? { ok: true, value: v } : { ok: false, error: say('ui.nav.err.bool', { name }) };
+    if (s.kind === 'choice') return s.values.includes(v) ? { ok: true, value: v } : { ok: false, error: say('ui.nav.err.choice', { name, list: s.values.join(', ') }) };
     if (s.kind === 'combo') {
       if (v === '' || v == null) return { ok: true, value: '' };
       const c = typeof v === 'string' ? canonCombo(v) : null;
-      return c ? { ok: true, value: c } : { ok: false, error: `${name} is not a key combo: ${String(v)}` };
+      return c ? { ok: true, value: c } : { ok: false, error: say('ui.nav.err.combo', { name, value: String(v) }) };
     }
     if (s.kind === 'combos') {
-      if (!Array.isArray(v) || v.length > 4) return { ok: false, error: `${name} must be a list of up to 4 key combos` };
+      if (!Array.isArray(v) || v.length > 4) return { ok: false, error: say('ui.nav.err.combos', { name }) };
       const out = [];
       for (const x of v) {
         const c = typeof x === 'string' ? canonCombo(x) : null;
-        if (!c) return { ok: false, error: `${name} has a bad key combo: ${String(x)}` };
+        if (!c) return { ok: false, error: say('ui.nav.err.bad_combo', { name, value: String(x) }) };
         if (!out.includes(c)) out.push(c);
       }
       return { ok: true, value: out };
     }
-    return { ok: false, error: `${name} has no rule` };
+    return { ok: false, error: say('ui.nav.err.no_rule', { name }) };
   }
 
   /** Checks a full bindings object. Returns { ok, value, errors }; value is a clean copy when ok. */
   function validate(bindings) {
     try {
-      if (!bindings || typeof bindings !== 'object' || Array.isArray(bindings)) return { ok: false, value: null, errors: ['bindings must be an object'] };
+      if (!bindings || typeof bindings !== 'object' || Array.isArray(bindings)) return { ok: false, value: null, errors: [say('ui.nav.err.object')] };
       const errors = [];
-      for (const k of Object.keys(bindings)) if (!SPEC[k]) errors.push(`unknown binding "${k}"`);
+      for (const k of Object.keys(bindings)) if (!SPEC[k]) errors.push(say('ui.nav.err.unknown', { name: k }));
       const value = {};
       for (const k of KEYS) {
-        if (!(k in bindings)) { errors.push(`missing binding "${k}"`); continue; }
+        if (!(k in bindings)) { errors.push(say('ui.nav.err.missing', { name: k })); continue; }
         const r = checkValue(k, bindings[k]);
         if (r.ok) value[k] = r.value; else errors.push(r.error);
       }
@@ -91,17 +92,17 @@
       errors.push(...conflicts(value));
       return errors.length ? { ok: false, value: null, errors } : { ok: true, value, errors: [] };
     } catch (err) {
-      return { ok: false, value: null, errors: ['bindings could not be read: ' + (err && err.message)] };
+      return { ok: false, value: null, errors: [say('ui.nav.err.unreadable', { error: String(err && err.message) })] };
     }
   }
   /** Conflicts between clean bindings: two wheel modes on one modifier, or one combo bound to two actions. */
   function conflicts(v) {
     const out = [];
-    if (v.zoomWheel !== 'off' && v.zoomWheel === v.panWheel) out.push('zoomWheel and panWheel use the same modifier');
+    if (v.zoomWheel !== 'off' && v.zoomWheel === v.panWheel) out.push(say('ui.nav.err.same_modifier'));
     const used = {};
     const add = (name, combo) => {
       if (!combo) return;
-      if (used[combo]) out.push(`${combo} is used by both ${used[combo]} and ${name}`);
+      if (used[combo]) out.push(say('ui.nav.err.twice', { combo, a: used[combo], b: name }));
       else used[combo] = name;
     };
     add('fitKey', v.fitKey); add('actualKey', v.actualKey); add('handKey', v.handKey); add('clickZoomKey', v.clickZoomKey);

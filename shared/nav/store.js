@@ -44,7 +44,7 @@
     const base = N.presets.get(e.preset) || N.presets.get(N.presets.DEFAULT);
     if (e.preset === 'custom') {
       const b = e.custom ? e.custom.bindings : N.presets.get(N.presets.DEFAULT).bindings;
-      return { id: 'custom', name: 'Custom', blurb: base.blurb, custom: true, bindings: N.presets.clone(b) };
+      return { id: 'custom', name: N.presets.get('custom').name, blurb: base.blurb, custom: true, bindings: N.presets.clone(b) };
     }
     return base;
   }

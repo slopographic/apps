@@ -7,7 +7,6 @@
   const UI = g.SlopUI;
   const el = UI.el;
   const tr = (k, v) => NS.tr(k, v);   // the string tables (crm/i18n)
-  const SC_INFO = SlopExamples.info('crm');
 
   /** The plan for the list the person picked: reads the file and checks it against the customers. */
   async function planFor(rec) {
@@ -47,7 +46,7 @@
       title: tr('crm.im.title'),
       body: el('div', null, el('p', { class: 'note' }, tr('crm.im.saved_list') + ' ', name, ' ', el('button', { type: 'button', class: 'sui-btn', onclick: other }, tr('crm.im.another'))), info,
         el('p', { class: 'note' }, tr('crm.im.note')),
-        el('p', { class: 'note' }, SC_INFO.note),
+        el('p', { class: 'note' }, SlopExamples.info('crm').note),
         el('button', { type: 'button', class: 'sui-btn', onclick: () => SlopExamples.download('crm') }, tr('crm.im.example'))),
       buttons: [
         { label: tr('menu.cancel') },

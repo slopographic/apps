@@ -13,7 +13,7 @@
  * #RTRANS (an added line) is read as a line and the #TRANS copy that must follow it is skipped (#RTRANS, 6); #BTRANS (a
  * removed line) is kept in removed, not in lines. Quirks read on purpose: UTF-8 or Windows-1252 files that say PC8, a
  * decimal comma, ISO dates, labels in lower case, a #TRANS without its object list, a "{" at the end of the #VER line. */
-import { decodeBytes, parseAmount, ymd, cents } from './text.js';
+import { decodeBytes, parseAmount, ymd, cents, say } from './text.js';
 import { records, checksum } from './sie-lex.js';
 
 const KTYP = { T: 'asset', S: 'liability', K: 'expense', I: 'revenue' };
@@ -42,7 +42,7 @@ export function readSie(input) {
   const src = typeof input === 'string' ? input : decodeBytes(input, { legacy: 'auto' }).text;
   const recs = records(src);
   const warnings = [];
-  const warn = (line, msg) => { if (warnings.length < 200) warnings.push(line ? `Line ${line}: ${msg}` : msg); };
+  const warn = (line, msg) => { if (warnings.length < 200) warnings.push(line ? say('ui.fin.line', { line: String(line), message: msg }) : msg); };
   const m = {
     format: 'sie', type: '1', flag: null, program: '', generated: null, company: '', orgNo: '', companyId: '', address: null,
     chart: '', currency: 'SEK', taxYear: '', extent: null, years: [], accounts: [], dimensions: [], objects: [],
@@ -57,7 +57,7 @@ export function readSie(input) {
   };
   const amountOf = (f, r) => {
     const v = parseAmount(text(f));
-    if (v === null) warn(r.line, `${r.label} has no amount that can be read ("${text(f)}").`);
+    if (v === null) warn(r.line, say('ui.fin.sie_amount', { label: r.label, text: text(f) }));
     return v;
   };
   const yearOf = (f) => { const n = Number(text(f)); return Number.isInteger(n) ? n : 0; };
@@ -66,7 +66,7 @@ export function readSie(input) {
     const s = text(f);
     if (!s) return null;
     const d = ymd(s);
-    if (!d) warn(r.line, `${what} "${s}" is not a date (YYYYMMDD).`);
+    if (!d) warn(r.line, say(what, { text: s }));
     return d;
   };
   const balance = (r, list) => {
@@ -90,7 +90,7 @@ export function readSie(input) {
     if (!account || amount === null) return null;
     accountOf(account);
     const line = { account, amount };
-    const d = dateOf(rest[1], r, 'The transaction date');
+    const d = dateOf(rest[1], r, 'ui.fin.sie_date_trans');
     if (d && d !== ver.date) line.date = d;
     if (text(rest[2])) line.text = text(rest[2]);
     if (objects.length) line.objects = objects;
@@ -100,10 +100,10 @@ export function readSie(input) {
   };
   const voucher = (r) => {
     const [series, number, date, vtext, reg, sign] = r.fields;
-    const v = { series: text(series), number: text(number), date: dateOf(date, r, 'The voucher date'), text: text(vtext), lines: [], removed: [] };
-    if (text(reg)) v.regDate = dateOf(reg, r, 'The registration date');
+    const v = { series: text(series), number: text(number), date: dateOf(date, r, 'ui.fin.sie_date_ver'), text: text(vtext), lines: [], removed: [] };
+    if (text(reg)) v.regDate = dateOf(reg, r, 'ui.fin.sie_date_reg');
     if (text(sign)) v.sign = text(sign);
-    if (!v.date) warn(r.line, `voucher ${v.series}${v.number} has no date.`);
+    if (!v.date) warn(r.line, say('ui.fin.sie_ver_date', { ver: v.series + v.number }));
     const sub = r.sub || [];
     for (let i = 0; i < sub.length; i++) {
       const s = sub[i];
@@ -116,8 +116,8 @@ export function readSie(input) {
     }
     const total = v.lines.reduce((t, l) => t + cents(l.amount), 0);
     v.balanced = total === 0;
-    if (!v.balanced) warn(r.line, `voucher ${v.series}${v.number} does not balance (off by ${(total / 100).toFixed(2)}).`);
-    if (!r.sub) warn(r.line, `voucher ${v.series}${v.number} has no transaction lines.`);
+    if (!v.balanced) warn(r.line, say('ui.fin.sie_ver_off', { ver: v.series + v.number, off: (total / 100).toFixed(2) }));
+    if (!r.sub) warn(r.line, say('ui.fin.sie_ver_empty', { ver: v.series + v.number }));
     m.vouchers.push(v);
   };
   for (const r of recs) {
@@ -147,7 +147,7 @@ export function readSie(input) {
       case '#KONTO': if (text(f[0])) accountOf(text(f[0])).name = text(f[1]); break;
       case '#KTYP': {
         const a = accountOf(text(f[0])), k = text(f[1]).toUpperCase();
-        if (KTYP[k]) { a.sieType = k; a.type = k === 'S' && basType(a.number) === 'equity' ? 'equity' : KTYP[k]; } else warn(r.line, `account type "${text(f[1])}" is not T, S, K or I.`);
+        if (KTYP[k]) { a.sieType = k; a.type = k === 'S' && basType(a.number) === 'equity' ? 'equity' : KTYP[k]; } else warn(r.line, say('ui.fin.sie_ktyp', { text: text(f[1]) }));
         break;
       }
       case '#ENHET': accountOf(text(f[0])).unit = text(f[1]); break;
@@ -175,8 +175,8 @@ export function readSie(input) {
     }
   }
   m.years.sort((a, b) => b.index - a.index);
-  if (!recs.length) warn(0, 'No SIE records (lines starting with #) were found.');
-  if (m.checksum.present && !m.checksum.ok) warn(0, m.checksum.expected === null ? 'The file starts a checksum (#KSUMMA) but has no closing #KSUMMA: it may be cut short.' : 'The checksum (#KSUMMA) does not match the content: the file may have been changed or damaged.');
+  if (!recs.length) warn(0, say('ui.fin.sie_none'));
+  if (m.checksum.present && !m.checksum.ok) warn(0, say(m.checksum.expected === null ? 'ui.fin.sie_ksumma_open' : 'ui.fin.sie_ksumma_bad'));
   return m;
 }
 

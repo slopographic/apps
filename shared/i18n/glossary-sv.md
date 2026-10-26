@@ -1053,3 +1053,32 @@ history step and palette word, so never strip a suffix to get it. Layer names th
 | cache (noun) | cacheminne | plural «cacheminnen» |
 | hard reload | hård omladdning | «Läs in igen» for the button |
 | due date / due time | förfallodatum / förfallotid | tasks |
+
+## Records, bank files, print, navigation (wip/i18n-r2-data)
+
+| English | Swedish | Note |
+|---|---|---|
+| draft / issued / paid / void / credited (status in a sentence) | utkast / utfärdad / betald / makulerad / krediterad | ui.data.status.*: «kan inte gå från utkast till betald» |
+| open / fulfilled / cancelled (order) | öppen / levererad / avbruten | |
+| sent / accepted / declined (quote) | skickad / accepterad / avböjd | |
+| ordered / received (purchase order) | beställd / mottagen | |
+| bill (an owed expense) | leverantörsfaktura | «obetald leverantörsfaktura» |
+| numbering sequence | nummerserie | |
+| minor units | minsta enhet (öre) | amounts in messages |
+| record / collection (data) | post / samling | validation messages |
+| every month / every 2 weeks | varje månad / var 2:e vecka | repeating invoices |
+| Cash, Bank, Accounts Receivable, Accounts Payable | Kassa, Bank, Kundfordringar, Leverantörsskulder | starting chart, named at set-up |
+| Sales Tax Payable, Equity, Sales Revenue, Expenses | Utgående moms, Eget kapital, Försäljning, Kostnader | |
+| statement (bank) | kontoutdrag | bank file warnings |
+| Portrait / Landscape | Stående / Liggande | print dialog |
+| Margins: Normal / Narrow | Marginaler: Normala / Smala | |
+| Print preview | Förhandsgranskning | |
+| preset (navigation, layout) | förinställning | |
+| Photoshop-style | Photoshop-stil | |
+| pan / zoom / pinch | panorera / zooma / nyp | |
+| Space (key) / Shift (key) | blanksteg / Skift | |
+| Not bound (no key) | Ingen tangent | |
+| Customise (tab) | Anpassa | |
+| layout (workspace) | layout | «Layout: återställ standard» |
+| Fade in / Slide up / Pop / Shake / Pulse / Spin in | Tona in / Glid upp / Studsa fram / Skaka / Pulsera / Snurra in | motion presets |
+| Navy / Cobalt / Slate | Marinblå / Koboltblå / Skiffer | template colour schemes |

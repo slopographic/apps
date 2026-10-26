@@ -69,14 +69,14 @@ function infoRows(m) {
 export function sieSheets(m) {
   const balances = sieBalanceRows(m);
   const sheets = [
-    { name: 'Info', rows: infoRows(m), money: [], dates: [] },
-    { name: 'Vouchers', rows: sieVoucherRows(m), money: [6, 7, 8], dates: [2, 9] },
-    { name: 'Accounts', rows: [['Account', 'Name', 'Type', 'SIE type', 'SRU', 'Unit'], ...m.accounts.map((a) => [a.number, a.name, TYPE_WORD[a.type] || '', a.sieType, a.sru.join(' '), a.unit])], money: [], dates: [] },
-    { name: 'Balances', rows: balances, money: balances[0].map((_, i) => i).slice(3), dates: [] },
+    { name: 'Info', rows: infoRows(m), money: [], dates: [] },   // i18n-ignore: the sheet names written into the file
+    { name: 'Vouchers', rows: sieVoucherRows(m), money: [6, 7, 8], dates: [2, 9] },   // i18n-ignore: the sheet names written into the file
+    { name: 'Accounts', rows: [['Account', 'Name', 'Type', 'SIE type', 'SRU', 'Unit'], ...m.accounts.map((a) => [a.number, a.name, TYPE_WORD[a.type] || '', a.sieType, a.sru.join(' '), a.unit])], money: [], dates: [] },   // i18n-ignore: the sheet names written into the file
+    { name: 'Balances', rows: balances, money: balances[0].map((_, i) => i).slice(3), dates: [] },   // i18n-ignore: the sheet names written into the file
   ];
   if (m.periodBalances.length) {
     const names = new Map(m.accounts.map((a) => [a.number, a.name]));
-    sheets.push({ name: 'Periods', rows: [['Year', 'Period', 'Account', 'Name', 'Objects', 'Amount'], ...m.periodBalances.map((p) => [yearLabel(m, p.year), p.period, p.account, names.get(p.account) || '', objectsText(p.objects), r2(p.amount)])], money: [5], dates: [] });
+    sheets.push({ name: 'Periods', rows: [['Year', 'Period', 'Account', 'Name', 'Objects', 'Amount'], ...m.periodBalances.map((p) => [yearLabel(m, p.year), p.period, p.account, names.get(p.account) || '', objectsText(p.objects), r2(p.amount)])], money: [5], dates: [] });   // i18n-ignore: the sheet names written into the file
   }
   return sheets;
 }
@@ -97,5 +97,5 @@ export function statementSheets(m) {
     ['Opening balance', m.opening ?? ''], ['Closing balance', m.closing ?? ''], ['Money in', t.moneyIn], ['Money out', t.moneyOut], ['Transactions', t.count],
     ['Check', m.opening == null || m.closing == null ? 'Opening or closing balance not in the file' : diff ? `Off by ${(diff.closing - diff.expected).toFixed(2)}` : 'Opening + transactions = closing']];
   for (const w of m.warnings) info.push(['Note', w]);
-  return [{ name: 'Transactions', rows: statementRows(m), money: [2], dates: [0, 1] }, { name: 'Statement', rows: info, money: [], dates: [] }];
+  return [{ name: 'Transactions', rows: statementRows(m), money: [2], dates: [0, 1] }, { name: 'Statement', rows: info, money: [], dates: [] }];   // i18n-ignore: the sheet names written into the file
 }

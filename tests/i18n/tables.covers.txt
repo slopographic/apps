@@ -512,6 +512,8 @@ Covers: shared/i18n/ui/en/buddy2.js
 Covers: shared/i18n/ui/en/calc.js
 Covers: shared/i18n/ui/en/calendar.js
 Covers: shared/i18n/ui/en/config.js
+Covers: shared/i18n/ui/en/data.js
+Covers: shared/i18n/ui/en/data2.js
 Covers: shared/i18n/ui/en/finder.js
 Covers: shared/i18n/ui/en/firstrun.js
 Covers: shared/i18n/ui/en/fonts.js
@@ -526,9 +528,11 @@ Covers: shared/i18n/ui/en/ops2.js
 Covers: shared/i18n/ui/en/ops3.js
 Covers: shared/i18n/ui/en/presets.js
 Covers: shared/i18n/ui/en/preview.js
+Covers: shared/i18n/ui/en/print.js
 Covers: shared/i18n/ui/en/sheets.js
 Covers: shared/i18n/ui/en/shell.js
 Covers: shared/i18n/ui/en/shell2.js
+Covers: shared/i18n/ui/en/templates.js
 Covers: shared/i18n/ui/en/video.js
 Covers: shared/i18n/ui/en/watermark.js
 Covers: shared/i18n/ui/en/widgets.js
@@ -562,6 +566,8 @@ Covers: shared/i18n/ui/sv/buddy2.js
 Covers: shared/i18n/ui/sv/calc.js
 Covers: shared/i18n/ui/sv/calendar.js
 Covers: shared/i18n/ui/sv/config.js
+Covers: shared/i18n/ui/sv/data.js
+Covers: shared/i18n/ui/sv/data2.js
 Covers: shared/i18n/ui/sv/finder.js
 Covers: shared/i18n/ui/sv/firstrun.js
 Covers: shared/i18n/ui/sv/fonts.js
@@ -576,9 +582,11 @@ Covers: shared/i18n/ui/sv/ops2.js
 Covers: shared/i18n/ui/sv/ops3.js
 Covers: shared/i18n/ui/sv/presets.js
 Covers: shared/i18n/ui/sv/preview.js
+Covers: shared/i18n/ui/sv/print.js
 Covers: shared/i18n/ui/sv/sheets.js
 Covers: shared/i18n/ui/sv/shell.js
 Covers: shared/i18n/ui/sv/shell2.js
+Covers: shared/i18n/ui/sv/templates.js
 Covers: shared/i18n/ui/sv/video.js
 Covers: shared/i18n/ui/sv/watermark.js
 Covers: shared/i18n/ui/sv/widgets.js

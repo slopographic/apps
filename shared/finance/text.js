@@ -7,7 +7,10 @@
  *                                    allowed; "1,234.50" and "1.234,50" both work. thousands3: "1,234" is 1234 (QIF).
  *   isoDate(y, m, d)              -> 'YYYY-MM-DD' for a real calendar date, else null.
  *   ymd(s)                        -> 'YYYY-MM-DD' from YYYYMMDD (SIE, OFX: the first 8 digits) or YYYY-MM-DD, else null.
- *   cents(n) / sum(list)          -> exact two-decimal arithmetic for checks (öre, cents).                                  */
+ *   cents(n) / sum(list)          -> exact two-decimal arithmetic for checks (öre, cents).
+ *   say(key, vars)                -> a warning in the chosen language (SlopI18n, shared/i18n/ui/<code>/data2.js); the key without it. */
+
+export const say = (k, v) => { const I = globalThis.SlopI18n; return I && I.t ? I.t(k, v) : k; };
 
 // Code page 437, bytes 0x80 to 0xFF (the lower half is ASCII). 0xFF is a no-break space.
 const HIGH = 'ÇüéâäàåçêëèïîìÄÅÉæÆôöòûùÿÖÜ¢£¥₧ƒáíóúñÑªº¿⌐¬½¼¡«»░▒▓│┤╡╢╖╕╣║╗╝╜╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨╤╥╙╘╒╓╫╪┘┌█▄▌▐▀αßΓπΣσµτΦΘΩδ∞φε∩≡±≥≤⌠⌡÷≈°∙·√ⁿ²■ ';
