@@ -43,15 +43,16 @@
       var h = e.target.closest('.para-h, .para-c, .para-r');
       if (P.editor && !h) return; // typing: the press is the editor's (its box lies over the frame)
       e.stopPropagation(); e.preventDefault();
+      if (P.still) P.still(null); // a new press: a second click waiting to select a word (block-mark.js) is not one
       var now = Date.now();
       if (!h && now - lastTap < 450 && !e.shiftKey) { lastTap = 0; P.edit({ at: [e.clientX, e.clientY] }); return; }
       lastTap = now;
       if (e.shiftKey && P.toMulti && P.toMulti(e)) return; // Shift adds it to a group (multi-sel.js)
       if (!P.editor) el.focus({ preventScroll: true });
-      var go = function () { drag(e, h ? h.dataset.h : 'move'); };
+      var go = function () { drag(e, h ? h.dataset.h : 'move', h ? null : P.still); }; // a press that stays put: P.still
       if (P.editor) P.editor.commit().then(go); else go(); // typing: what was typed is applied first, then the drag
     });
-    el.addEventListener('dblclick', function (e) { e.stopPropagation(); e.preventDefault(); if (!P.editor) P.edit({ at: [e.clientX, e.clientY] }); });
+    el.addEventListener('dblclick', function (e) { e.stopPropagation(); e.preventDefault(); if (P.still) P.still(null); if (!P.editor) P.edit({ at: [e.clientX, e.clientY] }); });
     el.addEventListener('contextmenu', function (e) { e.preventDefault(); if (window.SlopSelBar && SlopSelBar.update) SlopSelBar.update(); }); // a long press: the bar
   }
   // keys on the focused frame, before the app's shortcuts (window, capture: SlopCmd listens further down), so a letter types
@@ -89,7 +90,8 @@
     var c = X.keepAnchor(b0, sx, sy, m.w, m.h); m.cx = c[0]; m.cy = c[1];
     return m;
   };
-  function drag(e, h) {
+  /** Drags handle h from the press e; still(release) is called when the press is let go without moving. */
+  function drag(e, h, still) {
     var sel = P.sel, p = sel && E.pageById(sel.pid), base = P.base(sel);
     if (!p || !base || base.locked) return; // still being set up, or a locked layer
     var start = S.pagePt(e), saved = p.annots.slice(), moved = false, cur = null, last = e;
@@ -106,7 +108,7 @@
       window.removeEventListener('pointermove', mv); window.removeEventListener('pointerup', up); window.removeEventListener('pointercancel', up);
       p.annots = saved;
       if (S.cross) S.cross.over(null);
-      if (!moved || !cur) { Ed.paint(); return; }
+      if (!moved || !cur) { Ed.paint(); if (!moved && still && ev && ev.type === 'pointerup') still(ev); return; }
       if (h === 'move' && S.cross && S.cross.dropPara(ev || last, sel, base, cur, start)) return; // onto another page, or Alt: a copy
       P.commit(p, sel, cur, U.t(h === 'move' ? 'pdf.ed.undo_move_para' : h === 'rot' ? 'pdf.se.undo_turn_para' : /^[we]$/.test(h) ? 'pdf.ed.undo_resize_para' : 'pdf.se.undo_scale_para'));
     }
