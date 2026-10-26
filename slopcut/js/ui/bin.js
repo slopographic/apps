@@ -97,17 +97,17 @@
   };
   B.init = function (el) {
     root = el;
-    search = h('input', { class: 'inp bin-search', type: 'search', placeholder: U.t('slopedit.bin.search_media'), 'aria-label': U.t('slopedit.bin.search_media'), oninput: () => { B.filter = search.value; B.render(); } });
+    search = h('input', { class: 'inp bin-search', type: 'search', placeholder: U.t('slopedit.bin.search_media'), 'aria-label': U.t('slopedit.bin.search_media'), 'data-i18n-attr': 'placeholder:slopedit.bin.search_media;aria-label:slopedit.bin.search_media', oninput: () => { B.filter = search.value; B.render(); } });
     info = h('span', { class: 'bin-info' });
     const tabs = h('div', { class: 'bin-tabs', role: 'tablist' },
-      h('button', { type: 'button', class: 'bin-tab', role: 'tab', dataset: { tab: 'media' }, onclick: () => { B.tab = 'media'; B.render(); } }, U.t('slopedit.app.media')),
-      h('button', { type: 'button', class: 'bin-tab', role: 'tab', dataset: { tab: 'effects' }, onclick: () => { B.tab = 'effects'; B.render(); } }, U.t('slopedit.app.effects')),
-      h('button', { type: 'button', class: 'bin-tab', role: 'tab', dataset: { tab: 'templates' }, onclick: () => { B.tab = 'templates'; B.render(); } }, U.t('slopedit.cmd.templates')),
-      SE.watermark ? h('button', { type: 'button', class: 'bin-tab', role: 'tab', dataset: { tab: 'watermark' }, onclick: () => { B.tab = 'watermark'; B.render(); } }, U.t('slopedit.bin.watermark')) : null,
+      h('button', { type: 'button', class: 'bin-tab', role: 'tab', dataset: { tab: 'media', i18n: 'slopedit.app.media' }, onclick: () => { B.tab = 'media'; B.render(); } }, U.t('slopedit.app.media')),
+      h('button', { type: 'button', class: 'bin-tab', role: 'tab', dataset: { tab: 'effects', i18n: 'slopedit.app.effects' }, onclick: () => { B.tab = 'effects'; B.render(); } }, U.t('slopedit.app.effects')),
+      h('button', { type: 'button', class: 'bin-tab', role: 'tab', dataset: { tab: 'templates', i18n: 'slopedit.cmd.templates' }, onclick: () => { B.tab = 'templates'; B.render(); } }, U.t('slopedit.cmd.templates')),
+      SE.watermark ? h('button', { type: 'button', class: 'bin-tab', role: 'tab', dataset: { tab: 'watermark', i18n: 'slopedit.bin.watermark' }, onclick: () => { B.tab = 'watermark'; B.render(); } }, U.t('slopedit.bin.watermark')) : null,
       h('span', { class: 'tb-flex' }), info);
     const tools = h('div', { class: 'bin-tools' },
-      h('button', { type: 'button', class: 'btn sm', title: U.t('slopedit.bin.import_files_ctrl_i'), onclick: A.openDialog }, SE.icon('plus'), U.t('slopedit.bin.import')), // i18n-ignore: key names and classes
-      window.SlopHub ? h('button', { type: 'button', class: 'btn sm', title: U.t('slopedit.bin.import_from_slop_drive'), onclick: A.openFromDrive, id: 'binDrive' }, SE.icon('drive'), U.t('slopedit.bin.drive')) : null, // i18n-ignore: key names and classes
+      h('button', { type: 'button', class: 'btn sm', title: U.t('slopedit.bin.import_files_ctrl_i'), 'data-i18n-attr': 'title:slopedit.bin.import_files_ctrl_i', onclick: A.openDialog }, SE.icon('plus'), h('span', { 'data-i18n': 'slopedit.bin.import' }, U.t('slopedit.bin.import'))), // i18n-ignore: key names and classes
+      window.SlopHub ? h('button', { type: 'button', class: 'btn sm', title: U.t('slopedit.bin.import_from_slop_drive'), 'data-i18n-attr': 'title:slopedit.bin.import_from_slop_drive', onclick: A.openFromDrive, id: 'binDrive' }, SE.icon('drive'), h('span', { 'data-i18n': 'slopedit.bin.drive' }, U.t('slopedit.bin.drive'))) : null, // i18n-ignore: key names and classes
       search);
     list = h('div', { class: 'bin-list' });
     root.append(h('div', { class: 'pane-head' }, tabs), tools, list);

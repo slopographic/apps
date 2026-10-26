@@ -23,7 +23,7 @@
     views[0].before(wrap);
     view.append(...views);
     wrap.append(view, panel);
-    fr = g.SlopFrame.mount(wrap, { view, panel, panelLabel: t('projects.ed.task'), storageKey: 'projects-task', app: 'projects', phoneButton: false, command: false,
+    fr = g.SlopFrame.mount(wrap, { view, panel, panelLabel: 'projects.ed.task', storageKey: 'projects-task', app: 'projects', phoneButton: false, command: false,
       width: 380, min: 300, max: 640 });
     p = g.SlopFrame.panel(panel, { title: t('projects.ed.task') });
     panel.addEventListener('keydown', (e) => { if (e.key === 'Escape' && open) { e.preventDefault(); close(); } });

@@ -79,7 +79,8 @@ them all (`APPS-HOWTO.md` § 6). An offline single-file copy lists the English p
 - Shared components take keys: a label, title, noun or verb given to SlopSheet, SlopResizePanel, SlopFrame
   (`panelLabel`, `listLabel`), SlopMenuBar (menu titles, item and tool labels), SlopDrop (`label`, `hint`, `chooseLabel`,
   `preview.steps`, `preview.picture.alt`, `sample.label`), SlopIntake (`noun`), SlopOuttake (`verb`, one key with `{app}`),
-  SlopFlow (`label`, `onTo` label) and SlopConfig (`registerKind` label and description) may be an i18n key or a function
+  SlopFlow (`label`, `onTo` label), SlopConfig (`registerKind` label and description), SlopList (`label`, `noun`, a text
+  `empty`), SlopBiz.panel (`label`) and SlopWatermarkPanel (`toggle.label`, `actions[].label` and `title`) may be an i18n key or a function
   (`SlopI18n.label(v, vars)`: a string that is a known key is translated, a function is called, other text is shown as
   given). Pass the key (`label: 'diff.drop.label'`), not `t('diff.drop.label')`: the component reads it again on every
   language change. Never mark a component's nodes from the app.

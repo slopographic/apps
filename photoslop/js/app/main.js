@@ -8,7 +8,7 @@ function buildStatus() {
   const zoom = h('input', { class: 'sb-zoom', type: 'text', 'aria-label': tr('photoslop.status.zoom'), 'data-i18n-attr': 'aria-label:photoslop.status.zoom', spellcheck: 'false' });
   const size = h('span', { class: 'sb-size' }), pos = h('span', { class: 'sb-pos' }), col = h('span', { class: 'sb-col' }), chip = h('i', { class: 'sb-chip' });
   const rot = h('span', { class: 'sb-rot', title: tr('photoslop.status.rotation'), 'data-i18n-attr': 'title:photoslop.status.rotation' });
-  const saved = h('span', { id: 'sbSaved', class: 'sb-saved' }, tr('photoslop.status.local_only'));
+  const saved = h('span', { id: 'sbSaved', class: 'sb-saved', 'data-i18n': 'photoslop.status.local_only' }, tr('photoslop.status.local_only'));
   sb.append(zoom, size, pos, h('span', { class: 'sb-colwrap' }, chip, col), rot, h('span', { class: 'sb-fill' }), saved);
   const fmtZ = () => (V.zoom * 100 < 10 ? (V.zoom * 100).toFixed(1) : Math.round(V.zoom * 100)) + '%';
   zoom.addEventListener('change', () => { const v = parseFloat(zoom.value); if (v > 0) setZoom(v / 100); zoom.blur(); });

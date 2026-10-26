@@ -27,7 +27,7 @@
   function init() {
     if (!window.SlopFrame || fr) return;
     const panel = $('gPanel'), main = document.querySelector('main.grid-area');   // the panel's place is in index.html
-    fr = G.panel.frame = window.SlopFrame.mount(document.querySelector('.app > .body'), { view: main, panel, panelLabel: t('gallery.side.library'), storageKey: 'gallery',
+    fr = G.panel.frame = window.SlopFrame.mount(document.querySelector('.app > .body'), { view: main, panel, panelLabel: 'gallery.side.library', storageKey: 'gallery',
       button: '.tb-group', phoneButton: false, phone: '(max-width: 700px)', width: 280, min: 240, max: 420 });
     p = window.SlopFrame.panel(panel, { title: t('gallery.side.library') });
     $('btnImport').closest('.side-sec').hidden = true;   // its buttons are in the panel now (Import photos… is the foot's)

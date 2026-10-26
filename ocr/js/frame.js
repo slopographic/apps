@@ -8,7 +8,7 @@
   const t = (k) => (g.SlopI18n ? g.SlopI18n.t(k) : k);
   const $ = (id) => document.getElementById(id);
   const fr = g.SlopFrame.mount($('ui'), {
-    list: null, view: $('ocrView'), panel: $('ocrSide'), phone: '(max-width: 820px)', panelLabel: t('ocr.app.options'),
+    list: null, view: $('ocrView'), panel: $('ocrSide'), phone: '(max-width: 820px)', panelLabel: 'ocr.app.options',
     storageKey: 'ocr', button: '.smb-tools', phoneButton: false, width: 280, min: 240,
   });
   const panel = g.SlopFrame.panel($('ocrSide'), { title: t('ocr.app.read') });

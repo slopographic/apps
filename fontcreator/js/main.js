@@ -52,7 +52,7 @@
     g.FC.onLang(() => { if (!bar) return; bar.setTitle(name()); bar.setSubtitle(t('fontcreator.app.subtitle')); bar.setActions(actions()); bar.setMenu(menu()); });
   }
   function boot() {
-    frame = g.SlopFrame.mount($('fc-main'), { list: $('fc-list'), view: $('fc-view'), panel: $('fc-panel'), panelLabel: t('ui.settings'), storageKey: 'fontcreator',
+    frame = g.SlopFrame.mount($('fc-main'), { list: $('fc-list'), view: $('fc-view'), panel: $('fc-panel'), panelLabel: 'ui.settings', storageKey: 'fontcreator',
       phone: '(max-width: 860px)', phoneButton: false, width: 320, min: 280, max: 480 });
     if (frame.setList) frame.setList(true);
     g.FC.io.register();

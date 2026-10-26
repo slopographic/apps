@@ -76,6 +76,8 @@
     if (c) clipPanel(c); else sequence();
     body.scrollTop = scroll;
   };
+  /** A language change: the panel draws again even when the selection is the same. */
+  I.relabel = function () { shownKey = null; I.render(); };
   I.focusText = function () {
     if (SE.app.isPhone()) SE.app.setPane('insp');
     setTimeout(() => { const t = body.querySelector('textarea'); if (t) { t.focus(); t.select(); } }, 30);

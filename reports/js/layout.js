@@ -9,7 +9,7 @@
   const $ = (id) => g.document.getElementById(id);
   const R = g.SlopReports;
   const t = (k) => (g.SlopI18n ? g.SlopI18n.t(k) : k);
-  const fr = g.SlopFrame.mount($('rpMain'), { view: $('rpView'), panel: $('rpPanel'), panelLabel: t('reports.page.report'), storageKey: 'reports',
+  const fr = g.SlopFrame.mount($('rpMain'), { view: $('rpView'), panel: $('rpPanel'), panelLabel: 'reports.page.report', storageKey: 'reports',
     button: '.smb-tools', phoneButton: false, width: 340, min: 280, max: 640 });
   const p = g.SlopFrame.panel($('rpPanel'), { title: t('reports.page.report') });
   const words = () => {

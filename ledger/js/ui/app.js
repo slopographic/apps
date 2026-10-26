@@ -28,10 +28,9 @@
   // The forms that add a record are the panel on the right of their view, their button at its foot (shared/biz/panel.js)
   const P = g.SlopBiz.panel;
   if (P) {
-    const t = (k) => (g.SlopI18n ? g.SlopI18n.t(k) : k);
-    P.form({ app: 'ledger', key: 'journal', view: '#view-journal', form: '#jForm', foot: ['#jPost'], label: t('ledger.gen.new_entry') });
-    P.form({ app: 'ledger', key: 'accounts', view: '#view-accounts', form: '#aForm', foot: ['#aAdd'], label: t('ledger.gen.new_account') });
-    P.form({ app: 'ledger', key: 'rates', view: '#view-rates', form: '#rForm', foot: ['#rAdd'], label: t('ledger.gen.new_rate') });
+    P.form({ app: 'ledger', key: 'journal', view: '#view-journal', form: '#jForm', foot: ['#jPost'], label: 'ledger.gen.new_entry' });
+    P.form({ app: 'ledger', key: 'accounts', view: '#view-accounts', form: '#aForm', foot: ['#aAdd'], label: 'ledger.gen.new_account' });
+    P.form({ app: 'ledger', key: 'rates', view: '#view-rates', form: '#rForm', foot: ['#rAdd'], label: 'ledger.gen.new_rate' });
   }
   const app = g.SlopBiz.router.start({
     ns: NS, app: 'ledger', parse: (h) => ({ view: VIEWS.includes(h) ? h : 'journal' }),

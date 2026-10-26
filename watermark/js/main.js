@@ -112,7 +112,7 @@
     bar = window.SlopAppBar.mount($('wm-bar'), {
       home: '../', title: 'Slop Watermark', subtitle: t('watermark.app.subtitle'), actions: [], menu: [],
     });
-    frame = window.SlopFrame.mount($('wm-main'), { list: $('wm-files'), view: $('wm-work'), panel: $('wm-panel'), panelLabel: t('watermark.app.watermark'),
+    frame = window.SlopFrame.mount($('wm-main'), { list: $('wm-files'), view: $('wm-work'), panel: $('wm-panel'), panelLabel: 'watermark.app.watermark',
       storageKey: 'watermark', phone: '(max-width: 860px)', phoneButton: false, width: 340, min: 300, max: 520 });
     side = window.SlopFrame.panel($('wm-panel'), { title: t('watermark.app.watermark') });
     side.render([{ key: 'settings', body: $('wm-settings-box') }]);

@@ -7,7 +7,7 @@
 //   const rp = SlopBiz.panel.mount({
 //     app: 'invoices',            // the key of the panel's size and shown/hidden state
 //     root, view, panel,          // the record view, its main part and the panel (elements or selectors)
-//     label: 'Details',           // the panel's name (header button, the footer's button that opens the sheet)
+//     label: 'app.key',           // the panel's name, an i18n key (header button, the footer's button that opens the sheet)
 //     button: '.biz-doc-actions', // where the header's show/hide button goes (optional)
 //     phone: '(max-width: 720px)' // when the panel is a sheet (the app's own phone width; default 900 px)
 //   });
@@ -32,7 +32,9 @@
   const isSave = (n) => { const s = n.textContent.trim().toLowerCase(); return /^save\b/.test(s) || s.startsWith(t('menu.save').toLowerCase()); };
 
   function mount(o) {
-    const root = pick(o.root), panel = pick(o.panel), label = o.label || t('biz.panel.details');
+    const root = pick(o.root), panel = pick(o.panel), label = o.label || 'biz.panel.details';
+    /** The name in the current language: a key, a function or text (SlopI18n.label; the frame reads it the same way). */
+    const name = () => (g.SlopI18n && g.SlopI18n.label ? g.SlopI18n.label(label) : typeof label === 'function' ? label() : label);
     if (!g.SlopFrame || !root || !panel) return { actions: (nodes, host) => { if (host) host.replaceChildren(...nodes); }, footer() {}, frame: null };
     // the header button's place: a bar the app draws later (the record bar) gets it once it is on the page
     const slot = o.button ? document.createElement('span') : null;
@@ -49,16 +51,19 @@
     const peek = document.createElement('button');
     peek.type = 'button';
     peek.className = 'btn biz-rp-peek';
-    peek.textContent = label;
+    peek.textContent = name();
     peek.setAttribute('aria-haspopup', 'dialog');
     peek.addEventListener('click', () => frame.openSheet());
 
     /** The footer: the given buttons (the page's own, moved in) and "Details" that opens the phone's sheet. */
+    let shown = null;   // the last footer, drawn again on a language change ("Details" is a word)
     function footer(list, opts) {
+      shown = [list, opts];
       const foot = (list || []).filter(Boolean);
       if (!foot.length) { p.footer([{ el: peek }]); return; }
-      p.footer(foot.map((b) => (b.nodeType ? { el: b } : b)), Object.assign({ more: label }, opts || {}));
+      p.footer(foot.map((b) => (b.nodeType ? { el: b } : b)), Object.assign({ more: name() }, opts || {}));
     }
+    if (g.SlopI18n && g.SlopI18n.on) g.SlopI18n.on(() => { peek.textContent = name(); if (shown) footer(shown[0], shown[1]); });
 
     /** Splits the record's actions: Save and the primary button(s) into the footer, the rest into host, in their order. */
     function actions(nodes, host) {

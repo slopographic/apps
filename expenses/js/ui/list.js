@@ -60,8 +60,8 @@
   function mount() {
     if (NS.mileageDialog) NS.mileageDialog.mount();   // Mileage… (ui/mileage.js)
     list = g.SlopList.mount($('xRows'), {
-      label: t('expenses.li.label'), noun: [t('expenses.li.expense'), t('expenses.li.expenses')], summary: $('xSummary'),
-      empty: t('expenses.li.empty'),
+      label: 'expenses.li.label', noun: ['expenses.li.expense', 'expenses.li.expenses'], summary: $('xSummary'),
+      empty: 'expenses.li.empty',
       row: (e) => ({
         title: e.supplier + (e.description ? ` · ${e.description}` : ''),
         amount: B.money(e.amount, e.currency || settings.currency, settings.locale), cls: e.status === 'void' ? 'is-void' : '',

@@ -100,10 +100,10 @@
     $('iEmptyNew').addEventListener('click', () => NS.app.go('new'));
     $('iFromOrder').addEventListener('click', fromOrder);
     NS.sampleActions.mount();
-    list = g.SlopList.mount($('iRows'), { label: t('invoices.li.label'), noun: [t('invoices.li.invoice'), t('invoices.li.invoices')], summary: $('iSummary'), empty: $('iEmpty'),
+    list = g.SlopList.mount($('iRows'), { label: 'invoices.li.label', noun: ['invoices.li.invoice', 'invoices.li.invoices'], summary: $('iSummary'), empty: $('iEmpty'),
       row, open: (x) => NS.app.go(`i/${x.id}`), menu: menuFor });
-    owed = g.SlopList.mount($('iOutstanding'), { key: 'key', label: t('invoices.li.owed_label'), noun: [t('invoices.li.customer'), t('invoices.li.customers')],
-      empty: t('invoices.li.owed_empty'), row: owedRow,
+    owed = g.SlopList.mount($('iOutstanding'), { key: 'key', label: 'invoices.li.owed_label', noun: ['invoices.li.customer', 'invoices.li.customers'],
+      empty: 'invoices.li.owed_empty', row: owedRow,
       open: (d) => NS.app.go(`s/${d.customerId}`), menu: (d) => [{ label: t('invoices.li.statement'), act: () => NS.app.go(`s/${d.customerId}`) }] });
   }
 

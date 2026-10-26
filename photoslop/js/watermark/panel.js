@@ -9,10 +9,10 @@ function buildWatermarkPanel() {
     value: wmState().spec,
     intake: 'photoslop.logo',   // the logo part: SlopIntake.pick({ to: 'photoslop.logo' })
     onChange: (spec) => wmSetSpec(spec),
-    toggle: { get: wmOn, set: wmSetOn, label: tr('photoslop.wm.on'), note: (on) => tr(on ? 'photoslop.wm.on_note' : 'photoslop.wm.off_note') },
+    toggle: { get: wmOn, set: wmSetOn, label: 'photoslop.wm.on', note: (on) => tr(on ? 'photoslop.wm.on_note' : 'photoslop.wm.off_note') },
     actions: [
-      { label: tr('photoslop.wm.save_default'), title: tr('photoslop.wm.save_default_tip'), act: () => wmSaveDefaults() },
-      { label: tr('photoslop.wm.reset_default'), title: tr('photoslop.wm.reset_default_tip'), act: () => wmResetStyle() },
+      { label: 'photoslop.wm.save_default', title: 'photoslop.wm.save_default_tip', act: () => wmSaveDefaults() },
+      { label: 'photoslop.wm.reset_default', title: 'photoslop.wm.reset_default_tip', act: () => wmResetStyle() },
     ],
   });
   // the document's watermark: after an undo, a tab switch or opening a file. Only when it is another spec: 'doc' comes

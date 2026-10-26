@@ -15,11 +15,11 @@
       value: WM.settings().spec,
       media: { pages: false, time: true },
       onChange: (spec, how) => WM.set({ spec }, how.label || U.t('slopedit.bin.watermark'), how.key || 'spec'),
-      toggle: { get: () => WM.settings().on, set: (on) => WM.set({ on }, on ? U.t('slopedit.wm.watermark_on') : U.t('slopedit.wm.watermark_off'), 'on'), label: U.t('slopedit.bin.watermark'),
+      toggle: { get: () => WM.settings().on, set: (on) => WM.set({ on }, on ? U.t('slopedit.wm.watermark_on') : U.t('slopedit.wm.watermark_off'), 'on'), label: 'slopedit.bin.watermark',
         note: (on) => (on ? U.t('slopedit.wm.on_shows_in_the_monitor') : U.t('slopedit.wm.off_no_watermark_in_the')) },
       actions: [
-        { label: U.t('slopedit.wm.save_as_device_default'), title: U.t('slopedit.wm.new_projects_on_this_device'), act: () => { WM.saveDefaults(); SlopUI.toast(U.t('slopedit.wm.saved_as_this_device_s')); } },
-        { label: U.t('slopedit.wm.use_device_default'), title: U.t('slopedit.wm.copy_this_device_s_default'), act: () => WM.useDefaults() },
+        { label: 'slopedit.wm.save_as_device_default', title: 'slopedit.wm.new_projects_on_this_device', act: () => { WM.saveDefaults(); SlopUI.toast(U.t('slopedit.wm.saved_as_this_device_s')); } },
+        { label: 'slopedit.wm.use_device_default', title: 'slopedit.wm.copy_this_device_s_default', act: () => WM.useDefaults() },
       ],
     });
     return root;

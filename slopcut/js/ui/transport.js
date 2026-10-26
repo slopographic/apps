@@ -47,11 +47,11 @@
   }
   T.init = function (el) {
     T.el = el;
-    tc = h('button', { type: 'button', class: 'tc', title: U.t('slopedit.tr.current_time_click_to_go'), onclick: T.gotoDialog }, '00:00:00:00');
-    dur = h('span', { class: 'tc-dur', title: U.t('slopedit.tr.sequence_duration') }, '00:00:00:00');
-    play = h('button', { type: 'button', class: 'tb tr-play', 'aria-label': U.t('slopedit.tr.play_or_pause'), onclick: () => C.run('play.toggle') }, SE.icon('play'));
+    tc = h('button', { type: 'button', class: 'tc', title: U.t('slopedit.tr.current_time_click_to_go'), 'data-i18n-attr': 'title:slopedit.tr.current_time_click_to_go', onclick: T.gotoDialog }, '00:00:00:00');
+    dur = h('span', { class: 'tc-dur', title: U.t('slopedit.tr.sequence_duration'), 'data-i18n-attr': 'title:slopedit.tr.sequence_duration' }, '00:00:00:00');
+    play = h('button', { type: 'button', class: 'tb tr-play', 'aria-label': U.t('slopedit.tr.play_or_pause'), 'data-i18n-attr': 'aria-label:slopedit.tr.play_or_pause', onclick: () => C.run('play.toggle') }, SE.icon('play'));
     rate = h('span', { class: 'tr-rate', 'aria-live': 'polite' });
-    meter = h('span', { class: 'meter', title: U.t('slopedit.tr.output_level'), 'aria-hidden': 'true' }, h('i'));
+    meter = h('span', { class: 'meter', title: U.t('slopedit.tr.output_level'), 'data-i18n-attr': 'title:slopedit.tr.output_level', 'aria-hidden': 'true' }, h('i'));
     el.append(tc, h('span', { class: 'tb-flex' }),
       btn('play.start', 'start', U.t('slopedit.cmd.go_to_start')), btn('play.prevFrame', 'stepb', U.t('slopedit.cmd.previous_frame')),
       play, btn('play.nextFrame', 'stepf', U.t('slopedit.cmd.next_frame')), btn('play.end', 'end', U.t('slopedit.cmd.go_to_end')), rate,

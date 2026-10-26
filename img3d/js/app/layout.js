@@ -9,7 +9,7 @@
   const t = (k) => (g.SlopI18n ? g.SlopI18n.t(k) : k);
   const fr = g.SlopFrame.mount($('work'), {
     list: null, view: $('stage'), panel: $('panel'), phone: '(max-width: 720px)',
-    get panelLabel() { return t('img3d.app.settings'); },   // read again by the frame on a language change
+    panelLabel: 'img3d.app.settings',   // a key: the frame reads it again on a language change
     storageKey: 'img3d', button: document.querySelector('.topbar .actions'), phoneButton: false, width: 280, min: 240,
   });
   const panel = g.SlopFrame.panel($('panel'), { title: 'Image to 3D' });

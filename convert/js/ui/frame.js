@@ -24,7 +24,7 @@ export function frameTool(tool) {
   ui.run.setAttribute('form', ui.form.id);   // still the form's submit button from the panel's foot
   ui.form.hidden = true;                     // its note shows in the panel; the form stays in the page for Convert
   view.append(ui.form);
-  const fr = window.SlopFrame.mount(box, { view, panel: side, panelLabel: tr('convert.frame.panel'), storageKey: 'convert', phoneButton: false,
+  const fr = window.SlopFrame.mount(box, { view, panel: side, panelLabel: 'convert.frame.panel', storageKey: 'convert', phoneButton: false,
     width: 320, min: 260, max: 480, command: false });
   const panel = window.SlopFrame.panel(side, { title: tr('convert.frame.panel') });
   let shape = '', lang = '';

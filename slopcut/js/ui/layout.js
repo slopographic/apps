@@ -11,12 +11,14 @@
   window.SE.app.dockInspector = function () {
     const A = window.SE.app, insp = $('insp'), tab = document.querySelector('.mtab[data-pane="insp"]');
     if (window.SlopSheet) {
-      A.inspSheet = SlopSheet.attach({ root: $('app'), panel: insp, side: 'bottom', phone: PHONE, label: SE.util.t('slopedit.app.inspector'), toggles: tab ? [tab] : [],
+      A.inspSheet = SlopSheet.attach({ root: $('app'), panel: insp, side: 'bottom', phone: PHONE, label: 'slopedit.app.inspector', toggles: tab ? [tab] : [],
         onChange: (open) => { if (tab) tab.classList.toggle('on', open); if (!open) document.querySelectorAll('.mtab').forEach((b) => b.classList.toggle('on', b.dataset.pane === $('app').dataset.pane)); } });
     }
     if (window.SlopFramePanel) {
-      SlopFramePanel.create(insp, { bare: true }).footer([{ el: $('btnExport'), primary: true, title: SE.util.t('slopedit.lay.export_the_video_ctrl_e') }],
+      const fp = SlopFramePanel.create(insp, { bare: true });
+      const foot = () => fp.footer([{ el: $('btnExport'), primary: true, title: SE.util.t('slopedit.lay.export_the_video_ctrl_e') }],
         { more: SE.util.t('slopedit.app.inspector'), onMore: () => A.inspSheet && A.inspSheet.toggle() });
+      foot(); SE.util.onLang(foot);   // its words follow a language change
     }
   };
   if (!window.SlopLayouts) return;

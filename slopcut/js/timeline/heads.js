@@ -66,7 +66,7 @@
   }
   function buildBar() {
     bar = SE.app.els.tlBar;
-    const zoom = h('input', { type: 'range', class: 'tl-zoom', min: String(Math.log(2)), max: String(Math.log(2400)), step: '0.01', 'aria-label': U.t('slopedit.tl.timeline_zoom'), oninput: (e) => TL.setZoom(Math.exp(+e.target.value)) });
+    const zoom = h('input', { type: 'range', class: 'tl-zoom', min: String(Math.log(2)), max: String(Math.log(2400)), step: '0.01', 'aria-label': U.t('slopedit.tl.timeline_zoom'), 'data-i18n-attr': 'aria-label:slopedit.tl.timeline_zoom', oninput: (e) => TL.setZoom(Math.exp(+e.target.value)) });
     bar.append(
       toolBtn('tool.select', 'select', U.t('slopedit.cmd.selection_tool')), toolBtn('tool.razor', 'cut', U.t('slopedit.cmd.razor_tool')), toolBtn('tool.ripple', 'ripple', U.t('slopedit.cmd.ripple_edit_tool')), toolBtn('tool.multi', 'multi', U.t('slopedit.cmd.select_several')),
       h('span', { class: 'tb-sep' }),
@@ -82,7 +82,7 @@
   }
   TL.initHeads = function () {
     heads = SE.app.els.tlHeads;
-    tcEl = h('button', { type: 'button', class: 'tl-tc', title: U.t('slopedit.tl.current_time_click_to_type'), onclick: () => SE.transport && SE.transport.gotoDialog() }, '00:00:00:00');
+    tcEl = h('button', { type: 'button', class: 'tl-tc', title: U.t('slopedit.tl.current_time_click_to_type'), 'data-i18n-attr': 'title:slopedit.tl.current_time_click_to_type', onclick: () => SE.transport && SE.transport.gotoDialog() }, '00:00:00:00');
     const corner = h('div', { class: 'th-corner', style: { height: TL.top() + 'px' } }, tcEl);
     inner = h('div', { class: 'th-inner' });
     heads.append(corner, h('div', { class: 'th-clip' }, inner));

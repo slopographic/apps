@@ -13,12 +13,12 @@
 
   /** One line of the form: account, debit, credit, remove. */
   function lineRow() {
-    const sel = el('select', { class: 'l-acct', 'aria-label': t('ledger.j.account') }, [el('option', { value: '' }, t('ledger.j.choose')),
+    const sel = el('select', { class: 'l-acct', 'aria-label': t('ledger.j.account'), 'data-i18n-attr': 'aria-label:ledger.j.account' }, [el('option', { value: '', 'data-i18n': 'ledger.j.choose' }, t('ledger.j.choose')),
       ...accountsCache.map((a) => el('option', { value: a.code }, `${a.code} ${a.name}`))]);
-    const dr = el('input', { class: 'l-dr', type: 'text', inputmode: 'decimal', placeholder: t('ledger.j.debit'), 'aria-label': t('ledger.j.debit'), oninput: updateTotals });
-    const cr = el('input', { class: 'l-cr', type: 'text', inputmode: 'decimal', placeholder: t('ledger.j.credit'), 'aria-label': t('ledger.j.credit'), oninput: updateTotals });
+    const dr = el('input', { class: 'l-dr', type: 'text', inputmode: 'decimal', placeholder: t('ledger.j.debit'), 'aria-label': t('ledger.j.debit'), 'data-i18n-attr': 'placeholder:ledger.j.debit;aria-label:ledger.j.debit', oninput: updateTotals });
+    const cr = el('input', { class: 'l-cr', type: 'text', inputmode: 'decimal', placeholder: t('ledger.j.credit'), 'aria-label': t('ledger.j.credit'), 'data-i18n-attr': 'placeholder:ledger.j.credit;aria-label:ledger.j.credit', oninput: updateTotals });
     return el('div', { class: 'line-row' }, sel, dr, cr,
-      el('button', { type: 'button', class: 'btn small', 'aria-label': t('ledger.j.remove'), onclick: (e) => { e.currentTarget.parentNode.remove(); updateTotals(); } }, '✕'));   // i18n-ignore: CSS class names and the stored supplier fallback
+      el('button', { type: 'button', class: 'btn small', 'aria-label': t('ledger.j.remove'), 'data-i18n-attr': 'aria-label:ledger.j.remove', onclick: (e) => { e.currentTarget.parentNode.remove(); updateTotals(); } }, '✕'));   // i18n-ignore: CSS class names and the stored supplier fallback
   }
 
   /** The typed rows as text, read from the form. */
