@@ -10,7 +10,7 @@ finds in its code (`node tools/i18n/i18n.mjs extract <app>` lists them). The rat
 | Table | Keys | en | es | fr | de | pt-BR | it | ar | sv | zh-CN | zh-TW | ja | ko | hi | ru | uk | pl | nl | tr | id | vi | he | sw | am | ha | yo | ig | zu | xh | af |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | Shared chrome (header, switcher, footer, Settings) | 114 | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% |
-| Shared components (shared/i18n/ui) | 220 | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 100% | 100% | 0% | 0% | 0% | 0% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
+| Shared components (shared/i18n/ui) | 220 | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% |
 
 Shared code (shell/, shared/) still has 6267 hard-coded strings; most belong to one app family (office, biz, watermark, ...).
 
@@ -20,7 +20,7 @@ Shared code (shell/, shared/) still has 6267 hard-coded strings; most belong to 
 |---:|---|---|---:|---:|---:|---:|
 | 1 | File convert | convert | 2030 | 0 | 2030 | 0 of 29 |
 | 2 | PhotoSlop | photoslop | 1855 | 0 | 1855 | 0 of 29 |
-| 3 | Slop PDF | pdf | 1680 | 1465 | 215 | 0 of 29 |
+| 3 | Slop PDF | pdf | 1682 | 1467 | 215 | 0 of 29 |
 | 4 | SlopCut | slopedit | 1426 | 0 | 1426 | 0 of 29 |
 | 5 | SlopLabel | label | 1406 | 0 | 1406 | 0 of 29 |
 | 6 | Slop Press | press | 1373 | 0 | 1373 | 0 of 29 |
@@ -82,10 +82,10 @@ Shared code (shell/, shared/) still has 6267 hard-coded strings; most belong to 
 | 62 | Slop Reminders | reminders | 44 | 0 | 44 | 0 of 29 |
 | 63 | Checksum | checksum | 42 | 0 | 42 | 0 of 29 |
 
-Total: 25165 strings in 63 apps.
+Total: 25167 strings in 63 apps.
 
 ## Apps with tables, per language
 
 | App | en | es | fr | de | pt-BR | it | ar | sv | zh-CN | zh-TW | ja | ko | hi | ru | uk | pl | nl | tr | id | vi | he | sw | am | ha | yo | ig | zu | xh | af |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| pdf | 87% | 0% | 0% | 0% | 0% | 0% | 0% | 11% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
+| pdf | 87% | 0% | 0% | 87% | 0% | 0% | 87% | 87% | 0% | 0% | 87% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |

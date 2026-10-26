@@ -118,3 +118,69 @@ The terms the shared chrome (shared/i18n/ja.js) and the app tables use. Add a te
 | analytics | アクセス解析 | Analytics, as in Google Analytics docs |
 | ads | 広告 |  |
 | connect | 接続 |  |
+| yes | はい |  |
+| no | いいえ |  |
+| clipboard | クリップボード |  |
+| command palette | コマンド パレット |  |
+| workflow | ワークフロー |  |
+| guided tour | ガイド ツアー |  |
+| pane | ウィンドウ枠 | Office usage |
+| unsaved changes | 未保存の変更 |  |
+| Full (view mode) | フル |  |
+| Focus (view mode) | フォーカス |  |
+| Content (view mode) | コンテンツ |  |
+
+## PDF editor
+
+Terms chosen for Slop PDF (pdf/i18n/ja/). Undo-step labels are noun phrases (ページの回転, 注釈の削除) so they read well after 元に戻す / やり直し. Counts take a half-width space and a counter: {n} ページ, {n} 個のファイル, 画像 {n} 枚, {n} 件, {n} か所 (areas). Japanese has one plural form, so no #one keys.
+
+| English | 日本語 | Note |
+| --- | --- | --- |
+| organize (pages) | 整理 / ページの整理 |  |
+| page view | ページ表示 |  |
+| split view | 分割表示 |  |
+| fit width | 幅に合わせる |  |
+| blank page | 空白ページ |  |
+| reverse order | 順序を逆にする |  |
+| collate | 丁合 | Front/back scans |
+| portrait / landscape | 縦 / 横 |  |
+| annotation tools | 注釈ツール |  |
+| object (page object) | オブジェクト / ページ オブジェクト |  |
+| artwork | アートワーク |  |
+| bring to front / send to back | 最前面へ移動 / 最背面へ移動 | Office wording |
+| bring forward / send backward | 前面へ移動 / 背面へ移動 |  |
+| callout | 吹き出し |  |
+| highlighter | 蛍光ペン |  |
+| whiteout | 白塗り |  |
+| rectangle / ellipse / line / arrow | 四角形 / 楕円 / 線 / 矢印 |  |
+| underline / strikethrough | 下線 / 取り消し線 |  |
+| opacity | 不透明度 |  |
+| stroke / fill / border | 線 / 塗りつぶし / 枠線 |  |
+| bold / italic | 太字 / 斜体 | Short labels stay B and I |
+| paragraph | 段落 |  |
+| resolve / reopen (comment) | 解決 / 再開 |  |
+| redaction mark | 墨消しマーク |  |
+| mark for redaction | 墨消し対象としてマーク |  |
+| apply redactions | 墨消しを適用 |  |
+| flatten | フラット化 | Acrobat usage |
+| recognise text (OCR) | テキスト認識 |  |
+| embedded / subset (font) | 埋め込み / サブセット |  |
+| lossless / lossy | 可逆 / 非可逆 |  |
+| rasterise | ラスタライズ |  |
+| render | レンダリング |  |
+| metadata | メタデータ |  |
+| title / author / subject / keywords | タイトル / 作成者 / サブタイトル / キーワード | Acrobat document properties |
+| producer | PDF 変換 | Acrobat document properties |
+| macro / step | マクロ / ステップ |  |
+| regular expression | 正規表現 |  |
+| match case | 大文字と小文字を区別 |  |
+| whole word | 単語単位 |  |
+| replay (saved edits) | 再適用 |  |
+| revert to the original | 元のファイルに戻す |  |
+| header / footer | ヘッダー / フッター |  |
+| position labels (top left …) | 左上, 上中央, 右上, 左中央, 中央, 右中央, 左下, 下中央, 右下 |  |
+| layer (PDF optional content) | PDF レイヤー |  |
+| history | 履歴 |  |
+| autosave | 自動保存 |  |
+| session | セッション |  |
+| pane | 画面 | Split view panes |

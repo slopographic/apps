@@ -117,3 +117,14 @@ Register: Address the user as singular masculine "ka" ("fayilolinka", "kana iya"
 | donate / tip jar | Ba da gudummawa |  |
 | disk | Faifai | review |
 | Off / On (state) | A kashe / A kunne |  |
+| yes / no | E / A’a |  |
+| clipboard | Allon kwafi | review |
+| command palette | Akwatin umarni | review |
+| workflow | Jerin aiki | review |
+| guided tour | Rangadi mai jagora | review |
+| step | Mataki |  |
+| recording (shortcut) | Naɗi | review |
+| list | Jeri |  |
+| view: Full / Focus / Content | Cikakke / Mayar da hankali / Abun ciki | review |
+| unsaved changes | Canje-canjen da ba a ajiye ba |  |
+| results | Sakamako | Same form for one and many. |

@@ -121,3 +121,12 @@ Register: formal «siz», as Microsoft Office, Google Workspace and Adobe Acroba
 | AI | YZ |  |
 | kept (storage) | korunuyor | files the browser promised not to clear |
 | connect a folder | klasör bağla |  |
+| pane | bölme |  |
+| guided tour | rehberli tur |  |
+| command palette | komut paleti |  |
+| clipboard | pano |  |
+| workflow | iş akışı |  |
+| recording | kayıt |  |
+| view mode Full / Focus / Content | Tam / Odak / İçerik |  |
+| count forms | no #one: a noun stays singular after a number («3 dosya») |  |
+| app noun in a sentence | «Henüz yok: {items}», «Panel: {label}» | avoids suffix harmony on unknown words |

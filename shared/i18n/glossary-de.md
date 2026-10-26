@@ -1,6 +1,6 @@
 # Glossary: German (de)
 
-Register: formal «Sie», as Microsoft Office, Google Workspace and Adobe Acrobat do in German. Buttons and commands are infinitives («Speichern», «Öffnen», «Abbrechen»), as in shared/i18n/de.js; menu titles are nouns («Datei», «Bearbeiten», «Ansicht», «Hilfe»). Running text addresses the user with «Sie/Ihre». Note: de.js currently uses «du/deine» in hero.sub and the storage.* keys; those should move to «Sie» when next edited. Quotes are „deutsch“. German runs long: keep buttons short and prefer compounds with a hyphen after brand names («Slopographic-Apps»).
+Register: formal, without direct address where possible. Buttons and commands are infinitives («Speichern», «Öffnen», «Abbrechen»); menu titles are nouns («Datei», «Bearbeiten», «Ansicht», «Hilfe»). Tooltips, hints and messages are impersonal («Ziehen ändert die Größe», «Die Änderungen gehen verloren»), as Office tooltips are; shared/i18n/ui/de.js follows this. When address cannot be avoided, use «Sie», as Microsoft and Google do. Note: shared/i18n/de.js mixes «Sie» (footer, support) with «du/deine» (hero.sub, storage.*); those should be made impersonal or «Sie» when next edited. Quotes are „deutsch“. German runs long: keep buttons short; hyphenate compounds after brand names («Slopographic-Apps»).
 
 | English | Deutsch | Note |
 | --- | --- | --- |
@@ -119,3 +119,12 @@ Register: formal «Sie», as Microsoft Office, Google Workspace and Adobe Acroba
 | on / off | ein / aus |  |
 | website | Website |  |
 | connect a folder | einen Ordner verbinden |  |
+| pane | Bereich |  |
+| guided tour | geführte Tour |  |
+| command palette | Befehlspalette |  |
+| clipboard | Zwischenablage |  |
+| workflow | Workflow |  |
+| chord (key sequence) | Tastenfolge |  |
+| recording | Aufnahme |  |
+| show / hide (panel) | einblenden / ausblenden |  |
+| view mode Full / Focus / Content | Vollständig / Fokus / Inhalt |  |

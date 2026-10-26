@@ -49,12 +49,13 @@ test('the PDF editor ships English and Swedish tables, loaded from its page head
 test('compare(): a missing key, a changed placeholder, an extra key and a bad plural form are problems', () => {
   const en = new Map([['a.x', 'Delete {n} pages'], ['a.y', 'Close'], ['a.x#one', 'Delete {n} page']]);
   assert.deepEqual(compare('t', en, new Map([['a.x', 'Ta bort {n} sidor'], ['a.y', 'Stäng'], ['a.x#one', 'Ta bort {n} sida'], ['a.x#few', 'x {n}']])), []);
-  const bad = compare('t', en, new Map([['a.x', 'Ta bort {count} sidor'], ['a.z', 'z'], ['a.x#lots', 'x'], ['a.x#many', 'x']]));
+  assert.deepEqual(compare('t', en, new Map([['a.x', 'Ta bort {n} sidor'], ['a.y', 'Stäng'], ['a.x#one', 'Ta bort sidan']])), [], 'a plural form may leave the count out');
+  const bad = compare('t', en, new Map([['a.x', 'Ta bort {count} sidor'], ['a.z', 'z'], ['a.x#lots', 'x'], ['a.x#many', 'x {m}']]));
   assert.ok(bad.some((m) => /missing a\.y/.test(m)));
   assert.ok(bad.some((m) => /a\.x has \{count\}/.test(m)));
   assert.ok(bad.some((m) => /a\.z is not an English key/.test(m)));
   assert.ok(bad.some((m) => /a\.x#lots: not a plural category/.test(m)));
-  assert.ok(bad.some((m) => /a\.x#many has \{\}/.test(m)));
+  assert.ok(bad.some((m) => /a\.x#many has \{m\}/.test(m)));
   assert.equal(placeholders('{b} and {a}'), 'a,b');
 });
 

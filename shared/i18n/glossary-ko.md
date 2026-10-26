@@ -118,3 +118,14 @@ The terms the shared chrome (shared/i18n/ko.js) and the app tables use. Add a te
 | analytics | 분석 |  |
 | ads | 광고 |  |
 | connect | 연결 |  |
+| yes | 예 |  |
+| no | 아니요 |  |
+| clipboard | 클립보드 |  |
+| command palette | 명령 팔레트 |  |
+| workflow | 워크플로 |  |
+| guided tour | 가이드 투어 |  |
+| pane | 창 |  |
+| unsaved changes | 저장되지 않은 변경 사항 |  |
+| Full (view mode) | 전체 |  |
+| Focus (view mode) | 집중 |  |
+| Content (view mode) | 콘텐츠 |  |

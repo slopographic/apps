@@ -118,3 +118,14 @@ The terms the shared chrome (shared/i18n/es.js) and the app tables use. Add a te
 | analytics | analíticas | As in es.js |
 | ads | anuncios |  |
 | connect | Conectar |  |
+| yes | Sí |  |
+| no | No |  |
+| clipboard | portapapeles |  |
+| command palette | paleta de comandos |  |
+| workflow | flujo de trabajo |  |
+| guided tour | recorrido guiado |  |
+| pane | panel | Same word as panel |
+| unsaved changes | cambios sin guardar |  |
+| Full (view mode) | Completa | Agrees with vista |
+| Focus (view mode) | Concentración |  |
+| Content (view mode) | Contenido |  |

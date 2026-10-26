@@ -106,35 +106,33 @@ A change in another tab re-applies on `storage`.
 5. Call `SlopI18n.apply()` again after you render text from JavaScript into a marked element.
 
 ## Tests
-- `node tests/run.mjs i18n` (or `node --test tests/node/i18n.test.mjs`): the language list (names, codes, directions,
-  English first), one file per language and each adding under its own code, every language loaded by the shell, the
-  homepage and Settings, `t()` fallback and vars, the stored choice, `apply()` on a fake DOM (including `dir="rtl"` for
-  Arabic), every language table having every English key with the same placeholders, the logical-property CSS, and
-  every shared-chrome key used by the shell, the consent strip, the support card, and the homepage and Settings
-  existing in English.
-- `tests/i18n/switch.test.html`: in a browser, the Settings picker lists all eight codes; choosing Spanish changes the
-  homepage nav text; a reload keeps it; a shell page (Ledger) shows it at boot; switching back restores English.
-- `tests/i18n/rtl.test.html`: the picker shows each language by its own name; choosing Arabic sets `lang="ar"` and
-  `dir="rtl"`, the header's Apps button shows and is on screen, and the header's start margin is on the right; a shell
-  page shows it at boot; choosing English puts `dir="ltr"` back.
+- `tests/node/i18n.test.mjs`: the language list (names, codes, directions, English names, the beta flag, English first),
+  one file per language adding under its own code, `t()` fallback and vars, the stored choice, `apply()` on a fake DOM
+  (`dir="rtl"`), every chrome table holding every English key with the same placeholders, the logical-property CSS, and
+  every chrome key the shell, the consent strip, the support card, the homepage and Settings use existing in English.
+- `tests/node/i18n-load.test.mjs`: the lazy loading (only English and the chosen language, written at parse time, appended
+  later with `slopi18n` after), an app's `index.js`, the offline copy fetching nothing, the script stylesheets, plural
+  forms through `Intl.PluralRules`, and `num/date/money/list`.
+- `tests/node/i18n-tables.test.mjs`: the checker (`tools/i18n`) finds nothing, `COVERAGE.md` and
+  `tests/i18n/tables.covers.txt` are current, the ratchet (`tests/node/i18n-coverage.baseline.json`), the shared tables
+  complete in every language, and the extractor's heuristics.
+- `tests/i18n/switch.test.html`, `tests/i18n/rtl.test.html`: the Settings picker (all languages, own names, beta), Spanish
+  across pages, Arabic and Hebrew right to left.
+- `tests/i18n/pdf-sv.test.html`: the PDF editor in Swedish (menus, rail, File menu, no key showing), a live switch to
+  English and back, the top bar at 390 px in Swedish and German, and a language the editor does not ship reading English.
 
 ## Storage and offline
-- `service-worker.js` precaches `shared/theme/theme.js` by an explicit list. Its i18n entries are `i18n.js`,
-  `strings.js` and `es.js` only, so `fr.js`, `de.js`, `pt-BR.js`, `it.js` and `ar.js` are not in the offline cache until
-  that list is updated. Offline, a page in one of those languages falls back to English, since its script never loads.
-  (The service worker is not edited here; add the five files to its list in a separate change.)
+- The service worker precaches `i18n.js`, `strings.js`, `ui/en.js` and each app's `i18n/index.js` with its English
+  parts (`tools/pwa-precache.mjs` follows them). The chosen language's tables are cached the first time they load
+  (network first, then the cache), so a page works offline in the language it was last used in.
+- An offline single-file copy (`shared/offline/manifest.js`) embeds the English tables and runs in English.
 
 ## Still English
-- **Every app** (each app page that loads `shell/shell.js`, the registry in `shared/apps.js`): the app's own top bar and home link, menus and
-  menu words used in the app's own markup, toolbars, tool and option labels, dialogs, body text, and status messages.
-  Translated today on every shell page: the Apps button and the app switcher (labels, search hint, sections, Esc).
-- **Apps that load the consent strip** (`shared/consent/banner.js`) and **the support card** (`shared/support/card.js`):
-  these texts are translated. Apps that do not load them have no strip or card.
-- **Homepage and Settings**: the marked text (header tabs, footer, Settings labels and the language picker) is
-  translated. Unmarked paragraphs and switches (privacy and analytics explanations, the exchange-rate and defaults
-  bodies, the donate text) stay English until they are marked.
-- **Menu words** (File, Edit, View, Help, Save, Open, Export, Print, Cancel, OK, Close) are in `strings.js` and in
-  every language file, but no app's own menus are marked yet. An app marks its menus with `menu.*` keys.
-- **Notifications** (`shell/notify.js`, the bell and its panel) and the navigation drawer (`shell/drawer.js`) are English,
-  and their CSS is not mirrored yet (see Right-to-left).
-- **Every app's own text** is English in all eight languages (see the first bullet above).
+- **Every app but the PDF editor**: its own text (menus, toolbars, panels, dialogs, toasts, palette titles, tours).
+  `COVERAGE.md` ranks them by strings to translate; `APPS-HOWTO.md` is the recipe.
+- **The PDF editor** in the languages it does not ship yet (`pdf/i18n/<code>/` missing): its own words read English,
+  the shared chrome and components are translated.
+- **Shared code** outside the components in `ui.*`: the app families' shared modules (office, biz, watermark, ai, ...),
+  notifications (`shell/notify.js`) and the drawer (`shell/drawer.js`); their CSS is not mirrored yet (Right-to-left).
+- **Homepage and Settings** paragraphs that are not marked (privacy explanations, the exchange-rate and defaults bodies).
+- **SEO landing pages and guides** (`tools/seo`): English by design for now.

@@ -181,7 +181,10 @@
     var changed = await writeResults(results);
     if (error) SlopUI.alert(t('pdf.ocr.failed'), String(error.message || error));
     else if (changed) {
-      SlopUI.toast(t('pdf.ocr.done', { n: changed }) + (stopped ? '. ' + t('pdf.ocr.stopped') : '') + (skipped ? '. ' + t('pdf.ocr.skipped', { n: skipped }) : '') + '.' + better(results));
+      var msg = t('pdf.ocr.done', { n: changed }), join = function (a, b) { return t('pdf.ocr.join', { a: a, b: b }); };
+      if (stopped) msg = join(msg, t('pdf.ocr.stopped'));
+      if (skipped) msg = join(msg, t('pdf.ocr.skipped', { n: skipped }));
+      SlopUI.toast(t('pdf.ocr.end', { text: msg }) + better(results));
     } else SlopUI.toast(stopped ? t('pdf.ocr.cancelled') : t('pdf.ocr.none_found') + better(results));
     if (changed) Ed.paint();
     return changed;

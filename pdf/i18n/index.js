@@ -4,5 +4,5 @@ window.SlopI18n && window.SlopI18n.source({
   ns: 'pdf',
   base: ((document.currentScript || {}).src || '').replace(/[^/]*$/, ''),
   parts: ['actions', 'app', 'commands', 'editor', 'find', 'io', 'macro', 'menus', 'redact', 'tools', 'tools2'],
-  langs: ['en'],
+  langs: ['ar', 'de', 'en', 'ja', 'sv'],
 });

@@ -118,3 +118,14 @@ The terms the shared chrome (shared/i18n/vi.js) and the app tables use. Add a te
 | analytics | phân tích |  |
 | ads | quảng cáo |  |
 | connect | Kết nối |  |
+| yes | Có |  |
+| no | Không |  |
+| clipboard | bảng nhớ tạm |  |
+| command palette | bảng lệnh |  |
+| workflow | quy trình |  |
+| guided tour | tham quan có hướng dẫn |  |
+| pane | ngăn |  |
+| unsaved changes | thay đổi chưa lưu |  |
+| Full (view mode) | Đầy đủ |  |
+| Focus (view mode) | Tập trung |  |
+| Content (view mode) | Nội dung |  |

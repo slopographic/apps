@@ -118,3 +118,14 @@ The terms the shared chrome (shared/i18n/id.js) and the app tables use. Add a te
 | analytics | analitik |  |
 | ads | iklan |  |
 | connect | Hubungkan |  |
+| yes | Ya |  |
+| no | Tidak |  |
+| clipboard | papan klip |  |
+| command palette | palet perintah |  |
+| workflow | alur kerja |  |
+| guided tour | tur terpandu |  |
+| pane | panel | Same word as panel |
+| unsaved changes | perubahan belum disimpan |  |
+| Full (view mode) | Penuh |  |
+| Focus (view mode) | Fokus |  |
+| Content (view mode) | Konten |  |

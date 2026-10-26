@@ -120,3 +120,13 @@ Register: address the user as «ви» (lowercase), as Microsoft Office, Google 
 | on / off | увімк. / вимк. |  |
 | AI | ШІ |  |
 | connect a folder | підключити папку |  |
+| pane | область |  |
+| guided tour | огляд |  |
+| command palette | палітра команд |  |
+| clipboard | буфер обміну |  |
+| workflow | сценарій |  |
+| chord (key sequence) | послідовність |  |
+| recording | запис |  |
+| view mode Full / Focus / Content | Повний / Фокус / Вміст |  |
+| count forms | #one 1, 21… «файл»; #few 2–4 «файли»; #many 5–20 «файлів»; plain key = #many form |  |
+| app noun in a sentence | «{items}: поки нічого немає», «Панель «{label}»» | keeps any noun in the nominative |

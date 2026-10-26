@@ -4,7 +4,7 @@
 //  - an app's tables: <dir>i18n/index.js names the parts of en/ and the languages that have a folder; every language it
 //    ships holds every English key; keys start with the app id ('pdf.'); the keys its code asks for (t('pdf.x')) exist;
 //  - in every table: no key English lacks (a plural form 'key#few' needs 'key' in English and a CLDR category), no empty
-//    text, and the same {placeholders} as English.
+//    text, and the same {placeholders} as English (a plural form may leave one out, e.g. the count for n = 1).
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { apps, appTables, sharedTables, langs, ROOT } from './tables.mjs';
@@ -27,7 +27,11 @@ export function compare(label, en, tr, { requireAll = true } = {}) {
     if (!en.has(b)) { out.push(`${label}: ${k} is not an English key`); continue; }
     if (k !== b) {
       if (!CATS.has(k.slice(b.length + 1))) out.push(`${label}: ${k}: not a plural category (zero one two few many other)`);
-      else if (placeholders(v) !== placeholders(en.get(b))) out.push(`${label}: ${k} has {${placeholders(v)}}, English has {${placeholders(en.get(b))}}`);
+      else {   // a plural form may leave out a placeholder ('Rotate page' for n = 1), never add one
+        const allowed = new Set(placeholders(en.get(b)).split(','));
+        const extra = placeholders(v).split(',').filter((x) => x && !allowed.has(x));
+        if (extra.length) out.push(`${label}: ${k} has {${extra}}, which English ${b} lacks`);
+      }
     }
   }
   return out;

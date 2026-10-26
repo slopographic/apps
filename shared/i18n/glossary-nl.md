@@ -119,3 +119,11 @@ Register: informal «je/jij», as current Microsoft Office, Google Workspace and
 | tip jar | fooienpot |  |
 | on / off | aan / uit |  |
 | connect a folder | een map koppelen |  |
+| pane | deelvenster |  |
+| guided tour | rondleiding |  |
+| command palette | opdrachtpalet |  |
+| clipboard | klembord |  |
+| workflow | werkstroom |  |
+| chord (key sequence) | reeks |  |
+| recording | opnemen |  |
+| view mode Full / Focus / Content | Volledig / Focus / Inhoud |  |

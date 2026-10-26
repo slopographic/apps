@@ -120,3 +120,13 @@ Register: informal singular, as Microsoft Office, Google Workspace and Adobe Acr
 | on / off | wł. / wył. |  |
 | kept (storage) | chronione | files the browser promised not to clear |
 | connect a folder | połącz folder |  |
+| pane | okienko |  |
+| guided tour | przewodnik |  |
+| command palette | paleta poleceń |  |
+| clipboard | schowek |  |
+| workflow | przepływ pracy |  |
+| chord (key sequence) | sekwencja |  |
+| recording | nagrywanie |  |
+| view mode Full / Focus / Content | Pełny / Skupienie / Treść |  |
+| count forms | #one 1 «plik»; #few 2–4, 22–24 «pliki»; #many 0, 5–21 «plików»; plain key = #many form |  |
+| app noun in a sentence | «{items}: na razie brak», «Panel „{label}”» | keeps any noun in the nominative |

@@ -117,3 +117,14 @@ Register: Sentences address the user with the polite second person (እርስዎ
 | donate / tip jar | ይለግሱ | review |
 | disk | ዲስክ |  |
 | Off / On (state) | ጠፍቷል / በርቷል |  |
+| yes / no | አዎ / አይ |  |
+| clipboard | ቅንጥብ ሰሌዳ |  |
+| command palette | የትዕዛዝ ቤተ-ስዕል | review |
+| workflow | የሥራ ፍሰት |  |
+| guided tour | የተመራ ጉብኝት | review |
+| step | ደረጃ |  |
+| recording (shortcut) | መቅዳት |  |
+| list | ዝርዝር |  |
+| view: Full / Focus / Content | ሙሉ / ትኩረት / ይዘት |  |
+| unsaved changes | ያልተቀመጡ ለውጦች |  |
+| results | ውጤቶች | #one: ውጤት (0 and 1). |

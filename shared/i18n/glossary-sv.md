@@ -141,3 +141,26 @@ Register: informal «du», as the Swedish versions of Microsoft Office, Adobe Ac
 | pane | ruta |  |
 | zip | zip | «en .zip-fil» |
 | Slop Drive | Slop Drive | brand: «till Slop Drive», «i Slop Drive», «från Slop Drive» |
+
+## PDF editor (part B)
+
+| English | Svenska | Note |
+| --- | --- | --- |
+| highlighter (tool) | Överstrykningspenna | the mark it leaves: «överstrykning» |
+| whiteout | vit överstrykning | covers content, does not remove it (unlike «Maskera») |
+| highlight box | markeringsruta |  |
+| text highlight | textmarkering |  |
+| redaction mark | maskeringsmarkering |  |
+| bold / italic short labels | F / K | as Swedish Office |
+| bring to front / send to back | Placera längst fram / Placera längst bak | «Flytta framåt» / «Flytta bakåt» one step |
+| turn (object) | Vrid | «Rotera» stays for pages |
+| resolve / reopen (comment) | Markera som löst / Öppna igen | state: «löst», «Lösta» |
+| paragraph | stycke | «Styckeram» for the frame |
+| lossless / lossy | förlustfri / med förlust |  |
+| header / footer | sidhuvud / sidfot |  |
+| anchor | fästpunkt |  |
+| match case | Matcha gemener/versaler |  |
+| regular expression | reguljärt uttryck | «Regex» as a short mode label |
+| replay (saved edits) | Spela upp | «Ignorera» for discard |
+| object kinds in sentences | indefinite, lower case | «Ta bort bild», «Markerad: bild» (colon avoids adjective agreement) |
+| page positions | överst/nederst till vänster, i mitten, till höger | lower case in sentences |

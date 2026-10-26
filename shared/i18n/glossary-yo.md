@@ -117,3 +117,14 @@ Register: Address the user with singular "o / rẹ" ("àwọn fáìlì rẹ", "o
 | donate / tip jar | Ṣe ìtọrẹ |  |
 | disk | Díìsìkì | review |
 | Off / On (state) | Pípa / Títàn | review |
+| yes / no | Bẹ́ẹ̀ ni / Rárá |  |
+| clipboard | Pátákó ìdàkọ | review |
+| command palette | Àpótí àṣẹ | review |
+| workflow | Ìlànà iṣẹ́ | review |
+| guided tour | Ìrìn-àjò ìtọ́sọ́nà | review |
+| step | Ìgbésẹ̀ |  |
+| recording (shortcut) | Gbígbàsílẹ̀ |  |
+| list | Àkójọ |  |
+| view: Full / Focus / Content | Kíkún / Àfojúsùn / Àkóónú | review |
+| unsaved changes | Àwọn àyípadà tí a kò tíì fi pamọ́ |  |
+| results | Èsì | No #one forms in Yorùbá. |

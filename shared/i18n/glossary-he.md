@@ -119,3 +119,11 @@ Register: gender-neutral, as Google Workspace and current Microsoft 365 Hebrew d
 | tip jar | צנצנת טיפים |  |
 | on / off | מופעל / כבוי |  |
 | connect a folder | חיבור תיקייה |  |
+| pane | חלונית |  |
+| guided tour | סיור מודרך |  |
+| command palette | לוח הפקודות |  |
+| clipboard | לוח |  |
+| workflow | תהליך עבודה |  |
+| recording | הקלטה |  |
+| view mode Full / Focus / Content | מלאה / מיקוד / תוכן |  |
+| count forms | written «קבצים: {n}», correct for every number, so no #one / #two |  |

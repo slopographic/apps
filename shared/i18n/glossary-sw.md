@@ -117,3 +117,14 @@ Register: Address the user as singular "wewe" (verbs and possessives: "faili zak
 | donate / tip jar | Changia | No idiom for "tip jar"; review |
 | disk | Diski |  |
 | Off / On (state) | Imezimwa / Imewashwa |  |
+| yes / no | Ndiyo / Hapana |  |
+| clipboard | Ubao wa kunakili |  |
+| command palette | Kisanduku cha amri | review |
+| workflow | Mtiririko wa kazi |  |
+| guided tour | Ziara ya mwongozo | review |
+| step | Hatua |  |
+| recording (shortcut) | Kurekodi |  |
+| list | Orodha |  |
+| view: Full / Focus / Content | Kamili / Umakini / Maudhui | review |
+| unsaved changes | Mabadiliko ambayo hayajahifadhiwa |  |
+| results | Matokeo | Same form for one and many; #one uses "Tokeo". |

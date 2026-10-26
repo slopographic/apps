@@ -27,7 +27,7 @@ window.SlopI18n && window.SlopI18n.add('sv', {
   'pdf.tool.organize.rotate_right': 'Rotera åt höger',
   'pdf.tool.organize.delete_pages_title': 'Ta bort sidor',
   'pdf.tool.organize.delete_pages_msg': 'Vill du ta bort {n} sidor? Med Ångra får du tillbaka dem.',
-  'pdf.tool.organize.delete_pages_msg#one': 'Vill du ta bort {n} sida? Med Ångra får du tillbaka den.',
+  'pdf.tool.organize.delete_pages_msg#one': 'Vill du ta bort sidan? Med Ångra får du tillbaka den.',
   'pdf.tool.organize.extract': 'Extrahera till PDF',
   'pdf.tool.organize.sel_info': '{n} av {total} sidor markerade ({pages})',
   'pdf.tool.organize.sel_none': 'Inga sidor markerade – åtgärderna gäller alla {n} sidor. Klicka, Skift-klicka, Ctrl/⌘-klicka eller dra en ruta för att markera.',

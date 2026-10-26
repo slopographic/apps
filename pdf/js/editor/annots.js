@@ -2,6 +2,8 @@
    tool switching and placing images / signatures. */
 (function () {
   'use strict';
+  /** The kind of an annotation in words ('rectangle'), or its id when the tables have no word for it. */
+  function kindWord(type) { var I = window.SlopI18n, k = 'pdf.ed.an_' + type; return I && I.has && I.has(k) ? I.t(k) : type; }
   var SP = window.SP, U = SP.util, E = SP.engine, Ed = SP.editor, S = Ed._;
   /* -------------------------------------------------------------- commits */
   S.commitPage = function (label, fn, coalesce) {
@@ -10,7 +12,7 @@
   }
   Ed.addAnnot = function (a, label) {
     a.id = a.id || U.uid('a');
-    S.commitPage(label || U.t('pdf.ed.undo_add_type', { type: a.type }), function (p) { p.annots.push(a); });
+    S.commitPage(label || U.t('pdf.ed.undo_add_type', { type: kindWord(a.type) }), function (p) { p.annots.push(a); });
     Ed.selId = a.id; Ed.paint();
     if (SP.app) SP.app.editorSelectionChanged();
     return a;

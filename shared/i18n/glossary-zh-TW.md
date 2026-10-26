@@ -118,3 +118,14 @@ The terms the shared chrome (shared/i18n/zh-TW.js) and the app tables use. Add a
 | analytics | 分析 |  |
 | ads | 廣告 |  |
 | connect | 連結 | Connect a folder |
+| yes | 是 |  |
+| no | 否 |  |
+| clipboard | 剪貼簿 |  |
+| command palette | 命令選擇區 |  |
+| workflow | 工作流程 |  |
+| guided tour | 導覽 |  |
+| pane | 窗格 |  |
+| unsaved changes | 未儲存的變更 |  |
+| Full (view mode) | 完整 |  |
+| Focus (view mode) | 專注 |  |
+| Content (view mode) | 僅內容 |  |

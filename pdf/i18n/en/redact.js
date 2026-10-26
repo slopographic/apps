@@ -25,6 +25,8 @@ window.SlopI18n && window.SlopI18n.add('en', {
   'pdf.ocr.done#one': 'Text recognised on {n} page',
   'pdf.ocr.stopped': 'Stopped early; the other pages are unchanged',
   'pdf.ocr.skipped': '{n} with text skipped',
+  'pdf.ocr.join': '{a}. {b}',
+  'pdf.ocr.end': '{text}.',
   'pdf.ocr.cancelled': 'Cancelled. Nothing was changed.',
   'pdf.ocr.none_found': 'No text was found on these pages.',
   'pdf.ocr.choose_hint': 'Choose it under OCR › Language and model.',

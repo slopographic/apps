@@ -120,3 +120,10 @@ Register: informal «tu», as Microsoft Office, Google Workspace and Adobe Acrob
 | on / off | attivo / disattivo |  |
 | keep (files) | conservare |  |
 | connect a folder | collegare una cartella |  |
+| pane | riquadro |  |
+| guided tour | tour guidato |  |
+| command palette | riquadro comandi |  |
+| clipboard | appunti |  |
+| workflow | flusso di lavoro |  |
+| recording | registrazione |  |
+| view mode Full / Focus / Content | Completa / Concentrazione / Contenuto |  |

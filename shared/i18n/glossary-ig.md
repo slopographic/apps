@@ -117,3 +117,14 @@ Register: Address the user with singular "gị / ị" ("faịlụ gị", "ị nw
 | donate / tip jar | Nye onyinye |  |
 | disk | Diski |  |
 | Off / On (state) | Agbanyụọ / Agbanyere | review |
+| yes / no | Ee / Mba |  |
+| clipboard | Klipbọọdụ |  |
+| command palette | Igbe iwu | review |
+| workflow | Usoro ọrụ | review |
+| guided tour | Njem nlegharị a na-eduzi | review |
+| step | Nzọụkwụ |  |
+| recording (shortcut) | Ndekọ |  |
+| list | Ndepụta |  |
+| view: Full / Focus / Content | Zuru ezu / Ntụgharị uche / Ọdịnaya | review |
+| unsaved changes | Mgbanwe a na-echekwabeghị |  |
+| results | Nsonaazụ | No #one forms in Igbo. |

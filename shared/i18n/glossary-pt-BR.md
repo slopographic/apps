@@ -119,3 +119,11 @@ Register: «você», as Microsoft Office, Google Workspace and Adobe Acrobat do 
 | tip jar | pote de gorjetas |  |
 | on / off | ligado / desligado |  |
 | connect a folder | conectar uma pasta |  |
+| pane | painel |  |
+| guided tour | tour guiado |  |
+| command palette | paleta de comandos |  |
+| clipboard | área de transferência |  |
+| workflow | fluxo de trabalho |  |
+| recording | gravação |  |
+| view mode Full / Focus / Content | Completo / Foco / Conteúdo |  |
+| count forms | #one covers 0 and 1 (CLDR); counts in mid-sentence use «ignorados: {n}» to avoid agreement |  |

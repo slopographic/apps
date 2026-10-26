@@ -117,3 +117,14 @@ Register: Address the user with singular "wena" (possessives "-kho": "amafayela 
 | donate / tip jar | Nikela |  |
 | disk | Idiski |  |
 | Off / On (state) | Kuvaliwe / Kuvuliwe |  |
+| yes / no | Yebo / Cha |  |
+| clipboard | Ibhodi lokunamathisela | review |
+| command palette | Ibhokisi lemiyalo | review |
+| workflow | Uchungechunge lomsebenzi | review |
+| guided tour | Uhambo oluqondisiwe | review |
+| step | Isinyathelo |  |
+| recording (shortcut) | Ukuqopha |  |
+| list | Uhlu |  |
+| view: Full / Focus / Content | Kugcwele / Ukugxila / Okuqukethwe | review |
+| unsaved changes | Izinguquko ezingalondoloziwe |  |
+| results | Imiphumela | #one: umphumela (0 and 1). Numbers take "-ngu-": "engu-{n}". |

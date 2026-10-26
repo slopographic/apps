@@ -117,3 +117,14 @@ Register: Address the user in the singular (possessives "-kho": "iifayile zakho"
 | donate / tip jar | Nikela |  |
 | disk | Idiski |  |
 | Off / On (state) | Zicinyiwe / Zivuliwe |  |
+| yes / no | Ewe / Hayi |  |
+| clipboard | Ibhodi yokukopa | review |
+| command palette | Ibhokisi yemiyalelo | review |
+| workflow | Ulandelelwano lomsebenzi | review |
+| guided tour | Ukhenketho olukhokelwayo | review |
+| step | Inyathelo |  |
+| recording (shortcut) | Ukurekhoda |  |
+| list | Uluhlu |  |
+| view: Full / Focus / Content | Epheleleyo / Ugxininiso / Umxholo | "Umxholo" is also theme; review |
+| unsaved changes | Utshintsho olungagcinwanga |  |
+| results | Iziphumo | #one: isiphumo; numeral concords "ezi-{n}" / "esi-{n}" need review. |

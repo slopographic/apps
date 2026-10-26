@@ -121,3 +121,10 @@ Register: informal «jy/jou», as Google Workspace and Microsoft 365 do in Afrik
 | AI | KI |  |
 | site | werf |  |
 | connect a folder | koppel ’n vouer |  |
+| pane | paneel |  |
+| guided tour | begeleide toer |  |
+| command palette | opdragpalet |  |
+| clipboard | knipbord |  |
+| workflow | werkvloei |  |
+| recording | opname |  |
+| view mode Full / Focus / Content | Volledig / Fokus / Inhoud |  |

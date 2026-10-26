@@ -118,3 +118,14 @@ The terms the shared chrome (shared/i18n/hi.js) and the app tables use. Add a te
 | analytics | एनालिटिक्स |  |
 | ads | विज्ञापन |  |
 | connect | कनेक्ट करें |  |
+| yes | हां |  |
+| no | नहीं |  |
+| clipboard | क्लिपबोर्ड |  |
+| command palette | कमांड पैलेट |  |
+| workflow | वर्कफ़्लो |  |
+| guided tour | गाइडेड टूर |  |
+| pane | पेन |  |
+| unsaved changes | बिना सहेजे बदलाव |  |
+| Full (view mode) | पूरा |  |
+| Focus (view mode) | फ़ोकस |  |
+| Content (view mode) | सामग्री |  |
