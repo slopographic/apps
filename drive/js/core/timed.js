@@ -12,8 +12,8 @@
     return Promise.race([run, late]).then((r) => {
       clearTimeout(timer);
       if (r !== STUCK) return r;
-      window.SlopUI.toast(`${label} is taking too long. The browser may be busy with storage.`, 6000, {
-        label: 'Retry',
+      window.SlopUI.toast(DR.t('drive.app.too_long', { what: label }), 6000, {
+        label: DR.t('drive.app.retry'),
         run: () => DR.timed(label, fn, { ms, onRetry }).then((again) => { if (again.ok && onRetry) onRetry(again.value); }),
       });
       return { ok: false };

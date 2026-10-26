@@ -4,6 +4,8 @@
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="cutout" data-src="shared/theme/theme.js"></script>
   <link rel="expect" href="#slop-built" blocking="render">
+  <script src="../shared/i18n/i18n.js" data-src="shared/i18n/i18n.js"></script>
+  <script src="i18n/index.js" data-src="slopisolate/i18n/index.js"></script>
 <script src="../shared/consent/config.js"></script>
 <script src="../shared/consent/state.js"></script>
 <script src="../shared/consent/consent-mode.js"></script>
@@ -51,57 +53,57 @@
 <body>
   <div class="app" id="app" data-mode="empty">
     <header class="topbar">
-      <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home">
+      <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home" data-i18n-attr="title:cutout.app.home;aria-label:cutout.app.home">
         <svg viewBox="0 0 32 32" class="brand-mark" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/><path class="shine" d="M11.5 20.5a4.5 4.5 0 0 0 3.5 4.4"/></svg>
       </a>
       <div class="appname"><b>SlopIsolate</b><a class="home-link" href="../">slopographic</a></div>
-      <nav class="menus" id="menus" aria-label="Main menu"></nav>
+      <nav class="menus" id="menus" aria-label="Main menu" data-i18n-attr="aria-label:cutout.app.main_menu"></nav>
       <div class="tb-group">
-        <button type="button" class="tb" id="btnUndo" aria-label="Undo" disabled></button>
-        <button type="button" class="tb" id="btnRedo" aria-label="Redo" disabled></button>
+        <button type="button" class="tb" id="btnUndo" aria-label="Undo" data-i18n-attr="aria-label:ui.undo" disabled></button>
+        <button type="button" class="tb" id="btnRedo" aria-label="Redo" data-i18n-attr="aria-label:ui.redo" disabled></button>
       </div>
       <span class="tb-flex"></span>
-      <span class="local-badge" title="The AI runs on this device. Nothing is uploaded, and exports never carry a watermark."><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span>On-device AI · no watermarks</span></span>
+      <span class="local-badge" title="The AI runs on this device. Nothing is uploaded, and exports never carry a watermark." data-i18n-attr="title:cutout.app.local_tip"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span data-i18n="cutout.app.local_badge">On-device AI · no watermarks</span></span>
       <button type="button" class="btn primary dl" id="btnSendBack" hidden disabled></button>
       <button type="button" class="btn primary dl" id="btnDownload" disabled></button>
-      <button type="button" class="tb" id="btnPanel" aria-label="Toggle settings panel" aria-expanded="true" title="Settings panel"></button>
-      <button type="button" class="tb" id="btnMore" aria-label="More menu" title="Menu"></button>
+      <button type="button" class="tb" id="btnPanel" aria-label="Toggle settings panel" aria-expanded="true" title="Settings panel" data-i18n-attr="aria-label:cutout.app.toggle_panel;title:cutout.app.settings_panel"></button>
+      <button type="button" class="tb" id="btnMore" aria-label="More menu" title="Menu" data-i18n-attr="aria-label:cutout.app.more_menu;title:cutout.app.menu"></button>
     </header>
 
-    <aside class="queue" id="queue" aria-label="Images"></aside>
+    <aside class="queue" id="queue" aria-label="Images" data-i18n-attr="aria-label:cutout.app.images"></aside>
 
-    <main class="workspace" id="workspace" aria-label="Workspace">
-      <div class="ctxbar" id="ctxbar" role="toolbar" aria-label="Tools"></div>
+    <main class="workspace" id="workspace" aria-label="Workspace" data-i18n-attr="aria-label:cutout.app.workspace">
+      <div class="ctxbar" id="ctxbar" role="toolbar" aria-label="Tools" data-i18n-attr="aria-label:cutout.app.tools"></div>
       <div class="iso-drop" id="isoDrop"></div>
-      <div class="stage" id="stage" tabindex="0" aria-label="Image canvas">
-        <canvas class="view" id="view" aria-label="Image preview"></canvas>
-        <div class="split" id="split" hidden><span class="split-knob" aria-hidden="true"></span><span class="split-l">Before</span><span class="split-r">After</span></div>
+      <div class="stage" id="stage" tabindex="0" aria-label="Image canvas" data-i18n-attr="aria-label:cutout.app.canvas">
+        <canvas class="view" id="view" aria-label="Image preview" data-i18n-attr="aria-label:cutout.app.preview"></canvas>
+        <div class="split" id="split" hidden><span class="split-knob" aria-hidden="true"></span><span class="split-l" data-i18n="cutout.app.before">Before</span><span class="split-r" data-i18n="cutout.app.after">After</span></div>
         <div class="brush-cursor" id="brushCursor" hidden></div>
         <div class="empty" id="empty">
           <div class="drop-card">
             <div class="iso-intro" id="emptyIntro"></div>
-            <h1>Drop images here</h1>
-            <p>The AI cuts out the subject right in your browser.<br>PNG, JPEG, WebP, AVIF… several at once for a batch.</p>
+            <h1 data-i18n="cutout.app.drop_title">Drop images here</h1>
+            <p><span data-i18n="cutout.app.empty_lead">The AI cuts out the subject right in your browser.</span><br><span data-i18n="cutout.app.empty_formats">PNG, JPEG, WebP, AVIF… several at once for a batch.</span></p>
             <div class="empty-actions">
               <button type="button" class="btn primary lg" id="emptyOpen"></button>
               <button type="button" class="btn lg" id="emptySample"></button>
             </div>
-            <p class="empty-hint">or paste an image with <kbd>Ctrl</kbd>+<kbd>V</kbd></p>
-            <p class="empty-privacy"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Your photos never leave this device. No uploads, no account, and no watermarks, ever.</p>
+            <p class="empty-hint"><span data-i18n="cutout.app.paste_hint">or paste an image with</span> <kbd>Ctrl</kbd>+<kbd>V</kbd></p>
+            <p class="empty-privacy"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span data-i18n="cutout.app.empty_privacy">Your photos never leave this device. No uploads, no account, and no watermarks, ever.</span></p>
           </div>
         </div>
         <div class="busy" id="busy" hidden role="status" aria-live="polite"><span class="spinner" aria-hidden="true"></span><span class="busy-msg">Working…</span><span class="busy-bar"><i></i></span></div>
       </div>
     </main>
 
-    <aside class="props" id="props" aria-label="Settings"></aside>
+    <aside class="props" id="props" aria-label="Settings" data-i18n-attr="aria-label:cutout.app.settings"></aside>
 
     <footer class="statusbar" id="status">
       <span id="statusLeft">No image</span>
       <span id="statusMsg" class="st-msg" aria-live="polite"></span>
       <span class="tb-flex"></span>
       <span id="statusZoom"></span>
-      <span class="st-local"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Local only</span>
+      <span class="st-local"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span data-i18n="cutout.app.local_only">Local only</span></span>
     </footer>
   </div>
     <noscript><p class="noscript">SlopIsolate needs JavaScript. The AI runs entirely in your browser; nothing is uploaded.</p></noscript>

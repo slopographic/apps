@@ -34,7 +34,7 @@
       'aria-expanded': entry.isFolder && !unavailable ? String(!!open) : null, 'aria-selected': 'false', style: `--d:${depth}`, title: entry.title || entry.name,
     }, twisty(open, entry.isFolder && !unavailable), DR.icon(entry.root ? 'folder' : entry.isFolder ? 'folder' : 'file'), el('span', { class: 'nm' }, entry.name));
     if (unavailable) {
-      const txt = { prompt: 'Allow access', denied: 'Access refused', gone: 'Not found' }[entry.desc.status] || 'Not available';
+      const st = entry.desc.status, txt = DR.t(['prompt', 'denied', 'gone'].includes(st) ? 'drive.prov.state_' + st : 'drive.prov.state_na');
       const b = el('button', { type: 'button', class: 'linkish pv-allow' }, txt);
       if (entry.desc.status === 'prompt') b.addEventListener('click', (e) => { e.stopPropagation(); DR.providerAllow(entry.desc); });
       else b.disabled = true;
@@ -48,14 +48,14 @@
     if (pending.has(k)) return;
     pending.add(k);
     d.provider.list(ref)
-      .then((r) => cache.set(k, r), (e) => cache.set(k, { error: e.message || 'This folder could not be read.' }))
+      .then((r) => cache.set(k, r), (e) => cache.set(k, { error: e.message || DR.t('drive.prov.unreadable') }))
       .then(() => { pending.delete(k); DR.renderProviders(); });
   }
 
   /** The rows under folder ref of provider d, depth-first. An open folder's rows come straight after it. */
   function childRows(d, ref, depth) {
     const k = pk(d.id, ref), c = cache.get(k);
-    if (!c) { load(d, ref); return [note(depth, 'Reading the folder…')]; }
+    if (!c) { load(d, ref); return [note(depth, DR.t('drive.prov.reading'))]; }
     if (c.error) return [note(depth, c.error)];
     const out = [];
     for (const f of c.folders) {
@@ -70,7 +70,7 @@
       rows.set(e.key, e);
       out.push(rowEl(e, depth, false));
     }
-    if (!out.length) out.push(note(depth, 'This folder is empty'));
+    if (!out.length) out.push(note(depth, DR.t('drive.empty.folder_h')));
     return out;
   }
 
@@ -87,10 +87,10 @@
     rows = new Map();
     const list = DR.providerRows();
     const out = list.flatMap(nodeRows);
-    if (!list.length) out.push(note(0, 'No local drives yet. A local drive is a folder on this computer.'));
+    if (!list.length) out.push(note(0, DR.t('drive.prov.none')));
     out.push(el('div', { class: 'pv-actions' },
-      el('button', { type: 'button', class: 'linkish pv-add', 'data-act': 'add-drive' }, '+ Add a local drive…'),
-      el('button', { type: 'button', class: 'linkish pv-help', 'data-act': 'drives-help' }, 'About local drives')));
+      el('button', { type: 'button', class: 'linkish pv-add', 'data-act': 'add-drive' }, DR.t('drive.prov.add')),
+      el('button', { type: 'button', class: 'linkish pv-help', 'data-act': 'drives-help' }, DR.t('drive.prov.about'))));
     box.replaceChildren(...out);
   };
 

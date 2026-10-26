@@ -9,29 +9,32 @@
   const G = (window.SlopGallery = window.SlopGallery || {});
   const $ = (id) => document.getElementById(id);
   let fr = null, p = null, lastN = -1;
+  const t = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
 
   function render() {
     const n = G.state.selected.length;
     if (n === lastN) return;
     lastN = n;
-    $('btnActions').textContent = 'More actions…';
+    $('btnActions').textContent = t('gallery.app.more_actions_dots');
     p.render([
-      { key: 'sel', title: n ? `Selection (${n})` : 'Selection', note: n ? '' : 'Pick photos with Select (or Ctrl+click) to sort them, make a reel or act on them.',
-        actions: [{ el: $('topSort'), label: n ? `Sort ${n} photos` : 'Sort photos' }, { el: $('topReel') }, { el: $('btnActions') }] },
-      { key: 'add', title: 'Add photos', settings: [$('btnFolder'), $('btnDrive'), $('keepDup').closest('label')] },
-      { key: 'lib', title: 'Library', settings: [$('btnSort'), $('btnDupes'), $('btnBackup'), $('btnRestore')] },
+      { key: 'sel', title: n ? t('gallery.panel.selection_n', { n }) : t('gallery.panel.selection'), note: n ? '' : t('gallery.panel.selection_note'),
+        actions: [{ el: $('topSort'), label: n ? t('gallery.panel.sort_n', { n }) : t('gallery.panel.sort_photos') }, { el: $('topReel') }, { el: $('btnActions') }] },
+      { key: 'add', title: t('gallery.panel.add_photos'), settings: [$('btnFolder'), $('btnDrive'), $('keepDup').closest('label')] },
+      { key: 'lib', title: t('gallery.side.library'), settings: [$('btnSort'), $('btnDupes'), $('btnBackup'), $('btnRestore')] },
     ]);
   }
 
   function init() {
     if (!window.SlopFrame || fr) return;
     const panel = $('gPanel'), main = document.querySelector('main.grid-area');   // the panel's place is in index.html
-    fr = G.panel.frame = window.SlopFrame.mount(document.querySelector('.app > .body'), { view: main, panel, panelLabel: 'Library', storageKey: 'gallery',
+    fr = G.panel.frame = window.SlopFrame.mount(document.querySelector('.app > .body'), { view: main, panel, panelLabel: t('gallery.side.library'), storageKey: 'gallery',
       button: '.tb-group', phoneButton: false, phone: '(max-width: 700px)', width: 280, min: 240, max: 420 });
-    p = window.SlopFrame.panel(panel, { title: 'Library' });
+    p = window.SlopFrame.panel(panel, { title: t('gallery.side.library') });
     $('btnImport').closest('.side-sec').hidden = true;   // its buttons are in the panel now (Import photos… is the foot's)
     render();
-    p.footer([{ el: $('topImport'), primary: true, label: 'Import photos', title: 'Import photos (Ctrl+O)' }], { more: 'Library' });
+    const foot = () => p.footer([{ el: $('topImport'), primary: true, label: t('gallery.panel.import_photos'), title: t('gallery.app.import_tip') }], { more: t('gallery.side.library') });
+    foot();
+    if (window.SlopI18n) window.SlopI18n.on(() => { if (p.setTitle) p.setTitle(t('gallery.side.library')); lastN = -1; render(); foot(); });
     G.state.subscribe((what) => { if (what === 'selection') render(); });
   }
 

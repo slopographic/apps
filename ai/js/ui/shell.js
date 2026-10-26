@@ -4,6 +4,9 @@
   const E = AI.E;
   AI.TABS = [['chat', 'Chat', 'chat'], ['build', 'Build', 'build'], ['models', 'Models', 'models'], ['sys', 'Can my PC run it?', 'sys']];
   AI.THEMES = [['pro', 'Pro'], ['light', 'Light'], ['classic', 'Classic 98']];
+  /** The shown names (the English in TABS and THEMES is the fallback; the ids are API). */
+  AI.tabLabel = (id) => AI.t('ai.tab.' + id);
+  AI.themeLabel = (id) => AI.t('ai.theme.' + id);
   const rendered = new Set();
 
   /** Pure: the tab a task page's link asks for (?tab=sys), or null for a missing or unknown one. */
@@ -36,9 +39,9 @@
     chip.append(AI.el('i', { class: 'dot' }));
     if (E.state === 'loading') {
       const m = E.modelFor(E.loadingId);
-      chip.append(AI.el('span', null, (m ? m.name : 'Model') + ' ' + Math.round(E.progress * 100) + '%'), AI.el('span', { class: 'bar' }, AI.el('i', { style: `width:${Math.round(E.progress * 100)}%` })));
-    } else chip.append(AI.el('span', null, E.label() || (E.state === 'paused' ? 'Download paused' : 'No model loaded')));
-    chip.title = E.state === 'loading' ? E.text : E.ready() ? 'Model loaded on this device' : 'Pick a model';
+      chip.append(AI.el('span', null, AI.t('ai.chip.loading', { name: m ? m.name : AI.t('ai.chip.model'), pct: Math.round(E.progress * 100) })), AI.el('span', { class: 'bar' }, AI.el('i', { style: `width:${Math.round(E.progress * 100)}%` })));
+    } else chip.append(AI.el('span', null, E.label() || AI.t(E.state === 'paused' ? 'ai.chip.paused' : 'ai.chip.none')));
+    chip.title = E.state === 'loading' ? E.text : AI.t(E.ready() ? 'ai.chip.loaded_tip' : 'ai.chip.pick_tip');
   }
 
   /** Models already on this device (downloaded or loaded from a folder), for the switcher. */
@@ -49,31 +52,31 @@
   }
   async function chipMenu() {
     const r = AI.$('modelChip').getBoundingClientRect(), items = [];
-    if (E.state === 'loading') items.push({ label: 'Pause download', act: () => E.pause() }, { label: 'Cancel download', act: () => E.cancel() });
-    if (E.state === 'paused' && E.loadingId) items.push({ label: 'Resume download', act: () => E.load(E.loadingId, { skipConsent: true }) }, { label: 'Cancel download', act: () => E.cancel() });
+    if (E.state === 'loading') items.push({ label: AI.t('ai.chip.pause'), act: () => E.pause() }, { label: AI.t('ai.chip.cancel'), act: () => E.cancel() });
+    if (E.state === 'paused' && E.loadingId) items.push({ label: AI.t('ai.chip.resume'), act: () => E.load(E.loadingId, { skipConsent: true }) }, { label: AI.t('ai.chip.cancel'), act: () => E.cancel() });
     const cur = E.model && E.engine && E.engine.loaded ? E.model.id : null;
     const others = (await readyModels()).filter((m) => m.id !== cur);
-    if (others.length) items.push({ label: cur ? 'Switch model' : 'Load a downloaded model', sub: others.map((m) => ({ label: m.name, act: () => E.load(m.id, { skipConsent: true }) })) });
-    if (E.engine && E.engine.loaded) items.push({ label: 'Unload model (free GPU memory)', act: () => E.unload() });
-    items.push({ label: 'Choose a model…', act: () => AI.setTab('models') }, { label: 'Can my PC run it?', act: () => AI.setTab('sys') });
+    if (others.length) items.push({ label: AI.t(cur ? 'ai.chip.switch' : 'ai.chip.load_downloaded'), sub: others.map((m) => ({ label: m.name, act: () => E.load(m.id, { skipConsent: true }) })) });
+    if (E.engine && E.engine.loaded) items.push({ label: AI.t('ai.chip.unload'), act: () => E.unload() });
+    items.push({ label: AI.t('ai.chip.choose'), act: () => AI.setTab('models') }, { label: AI.tabLabel('sys'), act: () => AI.setTab('sys') });
     window.SlopUI.menu(items, r.left, r.bottom + 4);
   }
 
   AI.moreMenu = function () {
     const r = AI.$('btnMore').getBoundingClientRect();
     window.SlopUI.menu([
-      { label: 'Search commands…', key: window.SlopCmd && SlopCmd.keyFor ? SlopCmd.keyFor('ai.palette') : 'Ctrl+K', act: () => AI.openPalette(), disabled: !window.SlopCmd },
-      { label: 'Keyboard shortcuts…', act: () => window.SlopCmd && SlopCmd.openKeymap ? SlopCmd.openKeymap() : AI.toast('Shortcuts are not available'), disabled: !window.SlopCmd },
+      { label: AI.t('ai.more.search'), key: window.SlopCmd && SlopCmd.keyFor ? SlopCmd.keyFor('ai.palette') : 'Ctrl+K', act: () => AI.openPalette(), disabled: !window.SlopCmd },
+      { label: AI.t('ai.more.shortcuts'), act: () => window.SlopCmd && SlopCmd.openKeymap ? SlopCmd.openKeymap() : AI.toast(AI.t('ai.more.no_shortcuts')), disabled: !window.SlopCmd },
       '-',
-      { label: 'New chat', act: () => AI.newChat() },
-      { label: 'Import a conversation (.json)…', act: () => AI.importConv() },
-      { label: 'Open a chat from Slop Drive…', act: () => AI.openChatFromDrive(), disabled: !window.SlopHub },
-      { label: 'Save this chat to Slop Drive', act: () => AI.saveChatToDrive(), disabled: !window.SlopHub || !(AI.chat && AI.chat.conv && AI.chat.conv.messages.length) },
-      { label: 'Export this conversation', sub: AI.exportItems ? AI.exportItems() : [], disabled: !AI.conv },
+      { label: AI.t('ai.chat.new'), act: () => AI.newChat() },
+      { label: AI.t('ai.more.import'), act: () => AI.importConv() },
+      { label: AI.t('ai.more.open_drive'), act: () => AI.openChatFromDrive(), disabled: !window.SlopHub },
+      { label: AI.t('ai.more.save_drive'), act: () => AI.saveChatToDrive(), disabled: !window.SlopHub || !(AI.chat && AI.chat.conv && AI.chat.conv.messages.length) },
+      { label: AI.t('ai.more.export'), sub: AI.exportItems ? AI.exportItems() : [], disabled: !AI.conv },
       '-',
-      { label: 'Theme', sub: AI.THEMES.map(([t, l]) => ({ label: l, check: document.documentElement.getAttribute('data-theme') === t, act: () => AI.setTheme(t) })) },
-      { label: E.isFake() ? 'Use the real engine (WebLLM)' : 'Use the demo engine (canned replies, no download)', act: () => AI.switchEngine(E.isFake() ? 'webllm' : 'fake') },
-      { label: 'About Slop AI', act: () => AI.about() },
+      { label: AI.t('ai.more.theme'), sub: AI.THEMES.map(([t]) => ({ label: AI.themeLabel(t), check: document.documentElement.getAttribute('data-theme') === t, act: () => AI.setTheme(t) })) },
+      { label: AI.t(E.isFake() ? 'ai.more.real_engine' : 'ai.more.demo_engine'), act: () => AI.switchEngine(E.isFake() ? 'webllm' : 'fake') },
+      { label: AI.t('ai.more.about'), act: () => AI.about() },
     ], r.right - 240, r.bottom + 4);
   };
 
@@ -81,19 +84,19 @@
     await E.unload();
     AI.prefs.engine = kind === 'fake' ? 'fake' : undefined; AI.savePrefs();
     const u = new URL(location.href); u.searchParams.delete('engine'); history.replaceState(null, '', u.pathname + u.search + u.hash);
-    AI.toast(kind === 'fake' ? 'Demo engine: canned replies, nothing is downloaded' : 'Real engine: models run on your GPU');
+    AI.toast(AI.t(kind === 'fake' ? 'ai.engine.demo_on' : 'ai.engine.real_on'));
     AI.emit('engine', E);
   };
 
-  AI.about = () => window.SlopUI.alert('About Slop AI', AI.el('div', { class: 'about' },
-    AI.el('p', null, 'Slop AI runs open language models entirely on your device with WebGPU, using WebLLM (Apache-2.0) by the MLC team.'),
-    AI.el('p', null, 'Models download once from huggingface.co after you click Download, then work offline. Your chats are stored in this browser (IndexedDB) and never leave your device.'),
-    AI.el('p', { class: 'dim' }, 'Each model has its own licence, shown on its card.')));
+  AI.about = () => window.SlopUI.alert(AI.t('ai.more.about'), AI.el('div', { class: 'about' },
+    AI.el('p', null, AI.t('ai.about.engine')),
+    AI.el('p', null, AI.t('ai.about.offline')),
+    AI.el('p', { class: 'dim' }, AI.t('ai.about.licence'))));
 
   AI.initShell = function () {
     const tabs = AI.$('tabs');
-    for (const [id, label, icon] of AI.TABS) {
-      const b = AI.el('button', { type: 'button', class: 'tab', role: 'tab', 'data-tab': id, id: 'tab-' + id, onclick: () => AI.setTab(id) }, AI.icon(icon), AI.el('span', null, label));
+    for (const [id, , icon] of AI.TABS) {
+      const b = AI.el('button', { type: 'button', class: 'tab', role: 'tab', 'data-tab': id, id: 'tab-' + id, onclick: () => AI.setTab(id) }, AI.icon(icon), AI.el('span', { 'data-i18n': 'ai.tab.' + id }, AI.tabLabel(id)));
       tabs.append(b);
     }
     AI.$('btnCmd').append(AI.icon('cmd')); AI.$('btnMore').append(AI.icon('more'));
@@ -102,6 +105,7 @@
     AI.$('modelChip').onclick = chipMenu;
     AI.on('engine', renderChip);
     renderChip();
+    AI.onLang(renderChip);   // the tabs follow through data-i18n; the views re-render from their own onLang
   };
   AI.openPalette = (q) => (window.SlopCmd && SlopCmd.open ? SlopCmd.open(q) : null);
 })(window.AI);

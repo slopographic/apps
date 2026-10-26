@@ -7,7 +7,7 @@
   const el = DR.el;
   const key = (id, ref) => id + '|' + (ref || '');
 
-  DR.providerPicker = async function ({ title = 'Choose a folder', ok = 'Move here', exclude = [], start = null } = {}) {
+  DR.providerPicker = async function ({ title = DR.t('drive.dlg.choose_folder'), ok = DR.t('drive.dlg.move_here'), exclude = [], start = null } = {}) {
     const places = await DR.providerList().catch(() => []);
     const open = new Set(), cache = new Map();
     const place = (id) => places.find((p) => p.id === id);
@@ -27,7 +27,7 @@
     const hint = el('p', { class: 'sui-p pick-hint', 'aria-live': 'polite' }, '');
     const listOf = async (d, ref) => {
       const k = key(d.id, ref);
-      if (!cache.has(k)) cache.set(k, await d.provider.list(ref).catch((e) => ({ error: e.message || 'This folder could not be read.' })));
+      if (!cache.has(k)) cache.set(k, await d.provider.list(ref).catch((e) => ({ error: e.message || DR.t('drive.prov.unreadable') })));
       return cache.get(k);
     };
     const row = (d, ref, name, depth, isOpen, off, isRoot, expandable) => {
@@ -52,10 +52,10 @@
       const out = [];
       for (const d of places) {
         const granted = d.status === 'granted', isOpen = granted && open.has(key(d.id, ''));
-        const name = d.provider.kind === 'internal' ? 'Slop Drive' : d.label;
+        const name = d.provider.kind === 'internal' ? 'Slop Drive' : d.label;   // i18n-ignore: the app name
         const off = !granted;
         out.push(row(d, '', name, 0, isOpen, off, true, granted));
-        if (off) out.push(el('div', { class: 'pv-note', style: '--d:1' }, 'Allow access to this folder in the sidebar first.'));
+        if (off) out.push(el('div', { class: 'pv-note', style: '--d:1' }, DR.t('drive.dlg.allow_sidebar')));
         if (isOpen) await rowsFor(d, '', 1, out);
       }
       tree.replaceChildren(...out);
@@ -65,10 +65,10 @@
       let result;
       window.SlopUI.dialog({
         title, cls: 'pick-dlg', body: el('div', { class: 'pick-body' }, tree, hint),
-        buttons: [{ label: 'Cancel' }, {
+        buttons: [{ label: DR.t('menu.cancel') }, {
           label: ok, primary: true,
           act: () => {
-            if (!chosen) { hint.textContent = 'Choose a folder first.'; return false; }
+            if (!chosen) { hint.textContent = DR.t('drive.dlg.choose_first'); return false; }
             result = DR.pv(chosen.id, chosen.ref);
           },
         }],

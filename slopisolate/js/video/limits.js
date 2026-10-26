@@ -28,8 +28,8 @@
     else s.decode = 'element';
     if (typeof VideoEncoder === 'function') s.encode = true;
     cached = s;
-    if (!s.encode) s.notes.push('This browser has no WebCodecs video encoder: exports fall back to PNG frames.');
-    if (s.decode === 'element') s.notes.push('No WebCodecs: frames are read with a video element (slower, seek by seek).');
+    if (!s.encode) s.notes.push(CO.util.t('cutout.video.no_encoder'));
+    if (s.decode === 'element') s.notes.push(CO.util.t('cutout.video.no_webcodecs'));
     return s;
   };
   /** Async probes (run once after the first check): WebM alpha and MP4 colour encode. */
@@ -41,7 +41,7 @@
     s.alphaWebm = await ok({ codec: 'vp09.00.10.08', width: 320, height: 240, alpha: 'keep' });
     s.mp4Codec = (await ok({ codec: 'avc1.42001f', width: 320, height: 240 })) ? 'avc1.42001f' : ((await ok({ codec: 'vp09.00.10.08', width: 320, height: 240 })) ? 'vp09.00.10.08' : null);
     s.mp4 = !!s.mp4Codec;
-    if (!s.alphaWebm) s.notes.push('This browser cannot write WebM with alpha: the result is a PNG frame sequence (zip).');
+    if (!s.alphaWebm) s.notes.push(CO.util.t('cutout.video.no_alpha'));
     return s;
   };
 
@@ -49,10 +49,10 @@
   L.check = function (meta) {
     const max = L.maxSec(), notes = [];
     let ok = true, limited = false;
-    if (!L.support().decode) { ok = false; notes.push('This browser cannot decode video. Use a recent Chrome, Edge, Safari or Firefox.'); }
-    if (meta.duration > max) { limited = true; notes.push(`Clips over ${max} s are too long for the first version: only the first ${max} s are processed.`); }
-    if (meta.w > meta.h ? meta.w > L.MAX_LONG : meta.h > L.MAX_LONG) notes.push('Frames above 720p are scaled down to 720p before the matte.');
-    if (L.isPhone()) notes.push('On phones the matte runs on the processor: keep clips short.');
+    if (!L.support().decode) { ok = false; notes.push(CO.util.t('cutout.video.no_decode')); }
+    if (meta.duration > max) { limited = true; notes.push(CO.util.t('cutout.video.too_long', { max })); }
+    if (meta.w > meta.h ? meta.w > L.MAX_LONG : meta.h > L.MAX_LONG) notes.push(CO.util.t('cutout.video.scaled'));
+    if (L.isPhone()) notes.push(CO.util.t('cutout.video.phone'));
     return { ok, limited, msg: notes.join(' ') };
   };
   /** Output size for a source size: scaled so the long side is at most MAX_LONG and the short side MAX_SHORT. */

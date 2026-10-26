@@ -87,7 +87,7 @@
       CO.emit('list', S.items);
       CO.emit('activeItem', null);
       ready = true;
-      if (window.SlopUI) SlopUI.toast('Saved work cleared');
+      if (window.SlopUI) SlopUI.toast(U.t('cutout.app.saved_cleared'));
     },
     /** Flush the pending save now (used before an in-page navigation). */
     flush: function () { return auto.flush(); },
@@ -97,9 +97,9 @@
   CO.viewState.init = function () {
     const top = U.$('.topbar'), dl = U.$('#btnPanel');   // before the panel button (Download is at the panel's foot)
     if (!top || !dl) return;
-    const b = U.h('button', { type: 'button', class: 'btn ghost', id: 'btnClearSaved', title: 'Remove the saved work in this browser' }, 'Clear saved work');
+    const b = U.h('button', { type: 'button', class: 'btn ghost', id: 'btnClearSaved', title: U.t('cutout.app.clear_saved_tip'), 'data-i18n': 'cutout.app.clear_saved', 'data-i18n-attr': 'title:cutout.app.clear_saved_tip' }, U.t('cutout.app.clear_saved'));
     b.addEventListener('click', () => {
-      if (!window.confirm || !window.confirm('Clear the saved work? The images and masks in this browser will be removed.')) return;
+      if (!window.confirm || !window.confirm(U.t('cutout.app.clear_saved_ask'))) return;
       CO.viewState.clear();
     });
     top.insertBefore(b, dl);

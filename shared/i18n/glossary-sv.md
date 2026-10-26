@@ -427,3 +427,184 @@ history step and palette word, so never strip a suffix to get it. Layer names th
 | trace (a picture) | Spåra |  |
 | contour (glyph) | kontur | «Förena markerade konturer» |
 | font weight names | Tunn … Svart in Slop Font's weight list; kept English where they are a typeface's style name (Vector) |  |
+
+## Shared across apps (wave 1)
+
+| English | Svenska | Note |
+| --- | --- | --- |
+| template | mall | «Mina mallar», «Från mall…», «Spara som mall» |
+| discard (unsaved changes) | Ignorera | «Ignorera ändringarna?» |
+| config (settings file) | konfiguration | «Importera konfiguration…» |
+| tag | tagg | «Taggar», «otaggade» |
+| duplicate (noun, exact copy) | dubblett | «Hitta dubbletter»; the verb stays «Duplicera» |
+| grid / list / compact (view) | Rutnät / Lista / Kompakt |  |
+| backup / back up | säkerhetskopia / Säkerhetskopiera | «Återställ från en säkerhetskopia» |
+| deselect | Avmarkera | «Avmarkera alla» |
+| invert selection | Invertera markering |  |
+| selection | markering |  |
+| properties (panel) | Egenskaper |  |
+| pan (view, tool) | Panorera |  |
+| transparent | Transparent | shorter than «Genomskinlig», fits button rows |
+
+## Slop Tables
+
+| English | Svenska | Note |
+| --- | --- | --- |
+| spreadsheet | kalkylark | «Namnlöst kalkylark» |
+| workbook | arbetsbok |  |
+| sheet | blad | menu «Blad»; «Lägg till blad» |
+| cell | cell |  |
+| formula / formula bar | formel / formelfält |  |
+| name box | namnruta |  |
+| number format | Talformat | General «Allmänt», Currency «Valuta», Custom «Anpassat» |
+| clear contents | Radera innehåll | as Excel; delete stays «Ta bort» |
+| freeze / unfreeze panes | Lås fönsterrutor / Lås upp fönsterrutor |  |
+| pivot table | pivottabell |  |
+| chart | diagram | column «Stapel», bar «Liggande stapel», line «Linje», pie «Cirkel» |
+| legend (chart) | förklaring |  |
+| series | serie |  |
+| range (cells) | område | «Källområde», «Dataområde» |
+| refresh | Uppdatera |  |
+| sum / count / average | Summa / Antal / Medel |  |
+
+## Slop Docs
+
+| English | Svenska | Note |
+| --- | --- | --- |
+| bold / italic (full label) | Fet / Kursiv | F / K only as short labels |
+| underlined (character format) | Understruken | the PDF command stays «Stryk under» |
+| clear formatting | Rensa formatering |  |
+| font size | teckenstorlek | «Öka/Minska teckenstorleken» |
+| align left / centre / right | Vänsterjustera / Centrera / Högerjustera | menu items: Vänster, Centrerat, Höger |
+| justify | Marginaljustera | menu item «Marginaljusterat» |
+| alignment | Justering |  |
+| bulleted / numbered list | Punktlista / Numrerad lista |  |
+| paragraph style | Styckeformat |  |
+| normal text | Normal text |  |
+| title / heading (style) | Rubrik / Rubrik 1–3 |  |
+| quote (style) | Citat |  |
+| outline (document) | Disposition | as Word sv |
+| section | avsnitt | «Lägg till avsnitt» |
+| promote / demote (heading) | Höj nivå / Sänk nivå |  |
+| collapse / expand | Komprimera / Expandera |  |
+| caret | markören |  |
+| seed (random) | frö | «Slumpa igen» for reshuffle |
+| page break | sidbrytning |  |
+| wrap text / inline (image) | Radbyte / I nivå med texten | as Word sv |
+| different first page | Annorlunda förstasida | as Word sv |
+| plain text | oformaterad text |  |
+| buffer (Slop buffer) | bufferten | «Kopiera till bufferten» |
+| untitled document | Namnlöst dokument |  |
+
+## Slop Drive
+
+| English | Svenska | Note |
+| --- | --- | --- |
+| Trash | Papperskorgen | «Flytta till papperskorgen», «Töm papperskorgen»; short button «Kasta» |
+| Starred | Stjärnmärkta | place name |
+| star / unstar | Stjärnmärk / Ta bort stjärna |  |
+| Quick look | Snabbtitt | as macOS sv |
+| delete forever | Ta bort permanent |  |
+| local drive | lokal enhet | sidebar heading «Enheter» |
+| local folder | lokal mapp |  |
+| connect / disconnect (folder) | Anslut / Koppla från |  |
+| allow access | Ge åtkomst | state «Åtkomst nekad» |
+| details panel / info panel | detaljpanel / Infopanel |  |
+| kind (file kind) | typ | «Alla» in the narrow kind filter |
+| MIME type | MIME-typ |  |
+| disk usage | Diskanvändning |  |
+| treemap / sunburst | trädkarta / solstråle |  |
+| cache | cache | «Rensa lokal cache…» |
+| uploaded (source) | Uppladdad |  |
+| faces and people | Ansikten och personer | «Hitta ansikten» |
+| playback | uppspelning | «Spela upp», «Pausa», «Spelas nu» |
+
+## Slop AI
+
+| English | Svenska | Note |
+| --- | --- | --- |
+| chat (noun) | chatt | «Ny chatt», «Chattar» |
+| model (AI) | modell |  |
+| load / unload (a model) | Läs in / Ta ur | «Läser in…» |
+| token(s) | token | same in the plural; «token/s» |
+| persona | persona |  |
+| system prompt | systemprompt |  |
+| temperature (AI) | temperatur |  |
+| Control apps (agent tools) | Styr appar |  |
+| mini-app | miniapp | «Ny miniapp», «Miniappsbyggare» |
+| sandboxed | sandlåda | «🔒 sandlåda» |
+| workspace | arbetsyta |  |
+| demo engine / real engine | demomotor / riktig motor |  |
+| benchmark | prestandatest |  |
+| spec card | systemkort |  |
+| regenerate | Generera igen |  |
+| verdict (can it run) | bedömning |  |
+| Can my PC run it? | Klarar min dator det? |  |
+
+## Slop 3D
+
+| English | Svenska | Note |
+| --- | --- | --- |
+| mesh | nät | «Redigera nät» |
+| vertex / edge / face | hörn / kant / yta | modes «Hörnläge», «Kantläge», «Ytläge» |
+| edge loop | kantslinga |  |
+| extrude | Extrudera |  |
+| subdivide | Dela in |  |
+| flip normals | Vänd normaler |  |
+| wireframe | Trådmodell |  |
+| snap (step) | Fäst / fäststeg |  |
+| orbit (camera) | kretsa |  |
+| frame (selection in view) | Rama in | «Rama in markering», «Rama in allt» |
+| viewport (3D) | 3D-vy |  |
+| outliner | Scenträd |  |
+| scene | scen |  |
+| transform | Transformering | the command group is «Transformera» |
+| ungroup | Dela upp grupp |  |
+| ambient / directional light | Omgivningsljus / Riktat ljus |  |
+| render | Rendera |  |
+| roughness / metallic / opacity | Grovhet / Metallisk / Opacitet |  |
+| texture | textur |  |
+| primitive | primitiv |  |
+
+## SlopIsolate
+
+| English | Svenska | Note |
+| --- | --- | --- |
+| cut out (background removal) | Frilägga | noun «friläggning»; «Frilägger…» |
+| subject (of a photo) | motiv |  |
+| mask | mask |  |
+| matte (video alpha mask) | alfamask |  |
+| keep / remove brush | Behåll-pensel / Ta bort-pensel | buttons «Behåll» / «Ta bort» |
+| threshold | Tröskel |  |
+| softness | Mjukhet |  |
+| feather | Ludd | as Photoshop sv |
+| decontaminate colours | Rensa färger | as Photoshop sv |
+| refine edges | Förfina kanter |  |
+| hardness (brush) | Hårdhet |  |
+| drop shadow | Slagskugga | the section is «Skugga» |
+| gradient | Övertoning |  |
+| offset X / Y | Förskjutning X / Y |  |
+| padding | Marginal |  |
+| mixed (values differ) | Blandat |  |
+| queue / queued | kö / I kö |  |
+| look (background, shadow, crop) | utseende |  |
+| frame (video) | bildruta |  |
+| scrub (video) | Spola |  |
+| batch (of images) | omgång |  |
+
+## Slop Gallery
+
+| English | Svenska | Note |
+| --- | --- | --- |
+| photo / photos | foto / foton |  |
+| library (photo library) | bibliotek |  |
+| album | album | plural «album» |
+| favourite / favourites | favorit / Favoriter |  |
+| people (view) | Personer |  |
+| like / dislike | Gilla / Ogilla | «gillad», «ogillad» |
+| slideshow | bildspel |  |
+| reel (short video) | reel | «Gör reel» |
+| face detection | ansiktsdetektering | detection only, no recognition |
+| pace | tempo |  |
+| aspect | bildformat | «16:9 liggande», «9:16 stående» |
+| swipe deck (sort mode) | svepläge |  |

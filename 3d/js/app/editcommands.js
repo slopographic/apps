@@ -7,7 +7,7 @@
   const S = (window.Slop3D = window.Slop3D || {});
   const E = S.edit, MM = S.editmodal, SEL = S.meshsel;
   const editing = () => E.active() && !MM.active();
-  const C = (...a) => S.commands.C(...a);
+  const C = (...a) => S.commands.C(...a), t = S.t;
 
   /** Selected edges (converted from faces or vertices when needed) grown into their loops. */
   function loopOfSelection() {
@@ -18,39 +18,39 @@
   function menuItems() {
     const c = (id, label) => S.menus.cmd(id, label);
     return [
-      c('3d.mesh.vertex', 'Vertex mode'), c('3d.mesh.edge', 'Edge mode'), c('3d.mesh.face', 'Face mode'), '-',
-      c('3d.mesh.all', 'Select all'), c('3d.mesh.invert', 'Invert selection'), c('3d.mesh.none', 'Deselect all'), '-',
-      c('3d.mesh.move', 'Move'), c('3d.mesh.rotate', 'Rotate'), c('3d.mesh.scale', 'Scale'), c('3d.mesh.extrude', 'Extrude faces'), '-',
-      c('3d.mesh.delete', 'Delete'), c('3d.mesh.subdivide', 'Subdivide faces'), c('3d.mesh.merge', 'Merge at centre'),
-      c('3d.mesh.mergeDist', 'Merge by distance'), c('3d.mesh.flip', 'Flip normals'), c('3d.mesh.fill', 'Fill'), c('3d.mesh.loop', 'Select loop'), '-',
-      c('3d.mesh.hide', 'Hide selection'), c('3d.mesh.reveal', 'Show all hidden'), '-',
-      c('3d.edit.toggle', 'Exit edit mode'),
+      c('3d.mesh.vertex', t('3d.cmd.vertex_mode')), c('3d.mesh.edge', t('3d.cmd.edge_mode')), c('3d.mesh.face', t('3d.cmd.face_mode')), '-',
+      c('3d.mesh.all', t('3d.menu.select_all')), c('3d.mesh.invert', t('3d.cmd.mesh_invert')), c('3d.mesh.none', t('3d.menu.deselect_all')), '-',
+      c('3d.mesh.move', t('3d.menu.move')), c('3d.mesh.rotate', t('3d.menu.rotate')), c('3d.mesh.scale', t('3d.menu.scale')), c('3d.mesh.extrude', t('3d.cmd.mesh_extrude')), '-',
+      c('3d.mesh.delete', t('3d.cmd.delete')), c('3d.mesh.subdivide', t('3d.cmd.mesh_subdivide')), c('3d.mesh.merge', t('3d.cmd.mesh_merge')),
+      c('3d.mesh.mergeDist', t('3d.cmd.mesh_merge_dist')), c('3d.mesh.flip', t('3d.cmd.mesh_flip')), c('3d.mesh.fill', t('3d.menu.fill')), c('3d.mesh.loop', t('3d.menu.select_loop')), '-',
+      c('3d.mesh.hide', t('3d.cmd.mesh_hide')), c('3d.mesh.reveal', t('3d.cmd.mesh_reveal')), '-',
+      c('3d.edit.toggle', t('3d.menu.exit_edit')),
     ];
   }
   function list() {
-    const mode = (id, m, title, key) => C(id, title, 'Edit', [key], () => E.setMode(m), { when: editing });
+    const mode = (id, m, title, key) => C(id, t(title), 'Edit', [key], () => E.setMode(m), { when: editing });
     return [
-      C('3d.edit.toggle', 'Edit mode on or off', 'Edit', ['Tab'], () => E.toggle()),
-      mode('3d.mesh.vertex', 'vertex', 'Vertex mode', '1'),
-      mode('3d.mesh.edge', 'edge', 'Edge mode', '2'),
-      mode('3d.mesh.face', 'face', 'Face mode', '3'),
-      C('3d.mesh.all', 'Select all elements', 'Edit', ['A'], () => E.selectAll(), { when: editing }),
-      C('3d.mesh.invert', 'Invert selection', 'Edit', ['I'], () => E.invert(), { when: editing }),
-      C('3d.mesh.none', 'Deselect all elements', 'Edit', ['Alt+A', 'Escape'], () => E.clear(), { when: editing }),
-      C('3d.mesh.move', 'Move elements', 'Transform', ['G'], () => MM.start('move'), { when: editing }),
-      C('3d.mesh.rotate', 'Rotate elements', 'Transform', ['R'], () => MM.start('rotate'), { when: editing }),
-      C('3d.mesh.scale', 'Scale elements', 'Transform', ['S'], () => MM.start('scale'), { when: editing }),
-      C('3d.mesh.extrude', 'Extrude faces', 'Mesh', ['E'], () => MM.start('extrude'), { when: editing }),
-      C('3d.mesh.delete', 'Delete elements', 'Mesh', ['X', 'Delete'], () => E.remove(), { when: editing }),
-      C('3d.mesh.subdivide', 'Subdivide faces', 'Mesh', ['W'], () => E.subdivide(), { when: editing }),
-      C('3d.mesh.merge', 'Merge at centre', 'Mesh', ['M'], () => E.mergeCentre(), { when: editing }),
-      C('3d.mesh.mergeDist', 'Merge by distance', 'Mesh', [], () => E.mergeByDistance(), { when: editing }),
-      C('3d.mesh.flip', 'Flip normals', 'Mesh', ['Shift+F'], () => E.flip(), { when: editing }),
-      C('3d.mesh.fill', 'Fill loop with a face', 'Mesh', ['F'], () => E.fill(), { when: editing }),
-      C('3d.mesh.loop', 'Select edge loop', 'Mesh', [], loopOfSelection, { when: () => editing() && E.hasSel() }),
-      C('3d.mesh.hide', 'Hide selection', 'Mesh', ['H'], () => E.hide(), { when: editing }),
-      C('3d.mesh.reveal', 'Show all hidden', 'Mesh', ['Alt+H'], () => E.reveal(), { when: editing }),
-      C('3d.menu.mesh', 'Mesh menu', 'Mesh', [], () => S.commands.openMenu(document.getElementById('btnMesh'), menuItems()), { hidden: true, when: editing }),
+      C('3d.edit.toggle', t('3d.cmd.edit_toggle'), 'Edit', ['Tab'], () => E.toggle()),
+      mode('3d.mesh.vertex', 'vertex', '3d.cmd.vertex_mode', '1'),
+      mode('3d.mesh.edge', 'edge', '3d.cmd.edge_mode', '2'),
+      mode('3d.mesh.face', 'face', '3d.cmd.face_mode', '3'),
+      C('3d.mesh.all', t('3d.cmd.mesh_all'), 'Edit', ['A'], () => E.selectAll(), { when: editing }),
+      C('3d.mesh.invert', t('3d.cmd.mesh_invert'), 'Edit', ['I'], () => E.invert(), { when: editing }),
+      C('3d.mesh.none', t('3d.cmd.mesh_none'), 'Edit', ['Alt+A', 'Escape'], () => E.clear(), { when: editing }),
+      C('3d.mesh.move', t('3d.cmd.mesh_move'), 'Transform', ['G'], () => MM.start('move'), { when: editing }),
+      C('3d.mesh.rotate', t('3d.cmd.mesh_rotate'), 'Transform', ['R'], () => MM.start('rotate'), { when: editing }),
+      C('3d.mesh.scale', t('3d.cmd.mesh_scale'), 'Transform', ['S'], () => MM.start('scale'), { when: editing }),
+      C('3d.mesh.extrude', t('3d.cmd.mesh_extrude'), 'Mesh', ['E'], () => MM.start('extrude'), { when: editing }),
+      C('3d.mesh.delete', t('3d.cmd.mesh_delete'), 'Mesh', ['X', 'Delete'], () => E.remove(), { when: editing }),
+      C('3d.mesh.subdivide', t('3d.cmd.mesh_subdivide'), 'Mesh', ['W'], () => E.subdivide(), { when: editing }),
+      C('3d.mesh.merge', t('3d.cmd.mesh_merge'), 'Mesh', ['M'], () => E.mergeCentre(), { when: editing }),
+      C('3d.mesh.mergeDist', t('3d.cmd.mesh_merge_dist'), 'Mesh', [], () => E.mergeByDistance(), { when: editing }),
+      C('3d.mesh.flip', t('3d.cmd.mesh_flip'), 'Mesh', ['Shift+F'], () => E.flip(), { when: editing }),
+      C('3d.mesh.fill', t('3d.cmd.mesh_fill'), 'Mesh', ['F'], () => E.fill(), { when: editing }),
+      C('3d.mesh.loop', t('3d.cmd.mesh_loop'), 'Mesh', [], loopOfSelection, { when: () => editing() && E.hasSel() }),
+      C('3d.mesh.hide', t('3d.cmd.mesh_hide'), 'Mesh', ['H'], () => E.hide(), { when: editing }),
+      C('3d.mesh.reveal', t('3d.cmd.mesh_reveal'), 'Mesh', ['Alt+H'], () => E.reveal(), { when: editing }),
+      C('3d.menu.mesh', t('3d.cmd.menu_mesh'), 'Mesh', [], () => S.commands.openMenu(document.getElementById('btnMesh'), menuItems()), { hidden: true, when: editing }),
     ];
   }
 

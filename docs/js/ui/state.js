@@ -9,6 +9,10 @@
   const E = () => window.SlopDocEngine;
   S.on = (n, fn) => { (ev[n] = ev[n] || []).push(fn); };
   S.emit = (n, d) => { for (const fn of ev[n] || []) try { fn(d); } catch (e) { console.error(e); } };
+  /** The app's words (docs/i18n, shared/i18n/APPS-HOWTO.md); onLang(fn) re-runs fn once a new language's tables are in. */
+  S.t = (key, vars) => (window.SlopI18n ? window.SlopI18n.t(key, vars) : key);
+  S.onLang = (fn) => (window.SlopI18n && window.SlopI18n.on ? window.SlopI18n.on(fn) : () => {});
+  S.untitled = () => S.t('docs.app.untitled');
 
   S.doc = null;
   S.sel = { a: { b: 0, o: 0 }, f: { b: 0, o: 0 } };
@@ -17,7 +21,7 @@
   S.zoom = 1;
   S.goalX = null;        // the x an up/down move aims for; cleared by any other move
   S.undoStack = []; S.redoStack = []; S.lastKind = ''; S.lastAt = 0;
-  S.file = { id: null, folderId: null, name: 'Untitled document', dirty: false, saved: 0 };
+  S.file = { id: null, folderId: null, name: S.untitled(), dirty: false, saved: 0 };
 
   S.blocks = () => S.doc.blocks;
   S.caret = () => S.sel.f;
@@ -29,7 +33,7 @@
     S.sel = sel || { a: { b: 0, o: 0 }, f: { b: 0, o: 0 } };
     S.pending = null; S.goalX = null;
     if (!keepHistory) { S.undoStack = []; S.redoStack = []; S.lastKind = ''; }
-    S.file = Object.assign({ id: null, folderId: null, name: 'Untitled document', dirty: false, saved: 0 }, file || {});
+    S.file = Object.assign({ id: null, folderId: null, name: S.untitled(), dirty: false, saved: 0 }, file || {});
     S.registerOwnFonts(doc);
     S.relayout();
     E().ensureDocFonts(doc).catch(() => {});
@@ -55,7 +59,7 @@
     await SlopFonts.ready();
     const C = window.SlopFontCatalog, f = await C.readFontFile(file, 'Slop Docs'), name = forName || f.family, doc = S.doc;
     try { E().F.addUserFamily(name, f.bytes); } catch (e) {
-      throw new Error(e.message === 'Not a TrueType font' ? 'Slop Docs reads TrueType outlines only. Use the TTF file of this font.' : e.message);
+      throw new Error(e.message === 'Not a TrueType font' ? S.t('docs.fonts.ttf_only') : e.message);
     }
     doc.fonts = (doc.fonts || []).filter((r) => r.family !== name).concat({ family: name, weight: f.weight, italic: f.italic, file: file.name, data: C.toDataURL(f.bytes) });
     S.file.dirty = true;
@@ -123,7 +127,7 @@
   S.canRedo = () => S.redoStack.length > 0;
 
   /** Display name without the .sdoc suffix. */
-  S.displayName = () => String(S.file.name || 'Untitled document').replace(/\.sdoc$/i, '') || 'Untitled document';
+  S.displayName = () => String(S.file.name || S.untitled()).replace(/\.sdoc$/i, '') || S.untitled();
 
   // Re-lay out when a font finishes loading (its metrics change every line that uses it).
   window.addEventListener('slopdocs:fonts', () => S.relayout());

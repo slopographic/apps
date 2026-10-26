@@ -5,14 +5,15 @@
 (function (DR) {
   const S = DR.S, el = DR.el;
   const ALL = [
-    { key: 'name', label: 'Name', sort: true, w: 320, min: 160 },
-    { key: 'type', label: 'Type', sort: true, w: 150, min: 70 },
-    { key: 'size', label: 'Size', sort: true, w: 90, min: 60 },
-    { key: 'modified', label: 'Modified', sort: true, w: 130, min: 70 },
-    { key: 'added', label: 'Added', sort: true, w: 130, min: 70 },
-    { key: 'opened', label: 'Opened', sort: true, w: 130, min: 70 },
-    { key: 'tags', label: 'Tags', w: 180, min: 70 },
-    { key: 'location', label: 'Location', w: 200, min: 70 },
+    // label: the English fallback; shown through DR.colLabel(key)
+    { key: 'name', label: 'Name', sort: true, w: 320, min: 160 },   // i18n-ignore
+    { key: 'type', label: 'Type', sort: true, w: 150, min: 70 },   // i18n-ignore
+    { key: 'size', label: 'Size', sort: true, w: 90, min: 60 },   // i18n-ignore
+    { key: 'modified', label: 'Modified', sort: true, w: 130, min: 70 },   // i18n-ignore
+    { key: 'added', label: 'Added', sort: true, w: 130, min: 70 },   // i18n-ignore
+    { key: 'opened', label: 'Opened', sort: true, w: 130, min: 70 },   // i18n-ignore
+    { key: 'tags', label: 'Tags', w: 180, min: 70 },   // i18n-ignore
+    { key: 'location', label: 'Location', w: 200, min: 70 },   // i18n-ignore
   ];
   const BY = Object.fromEntries(ALL.map((c) => [c.key, c]));
   const DEF_ON = ['name', 'type', 'size', 'modified', 'location'];
@@ -42,7 +43,7 @@
     const cols = DR.listCols();
     return cols.map((c, i) => (i === cols.length - 1 ? `minmax(${widthOf(c)}px, 1fr)` : `${widthOf(c)}px`)).join(' ');
   };
-  const where = (it) => (it.parent ? DR.pathOf(it.parent).map((f) => f.name).join(' / ') : 'Slop Drive');
+  const where = (it) => (it.parent ? DR.pathOf(it.parent).map((f) => f.name).join(' / ') : 'Slop Drive');   // i18n-ignore: the app name
   const CELL = {
     name: (it) => [DR.iconOf(it, 'badge sm'), el('span', { class: 'nm' }, it.name), it.starred ? DR.icon('star', 'ic st') : ''],
     type: (it) => DR.kindLabel(it),
@@ -66,16 +67,16 @@
     return h;
   };
   function headCell(c) {
-    const label = c.key === 'location' && S.section === 'trash' ? 'Trashed' : c.label;
+    const label = DR.colLabel(c.key === 'location' && S.section === 'trash' ? 'trashed' : c.key);
     const on = !!c.sort && S.section !== 'recent' && S.sort.key === c.key;
     const cell = el('div', { class: 'hcell c-' + c.key, role: 'columnheader', 'data-col': c.key, 'aria-sort': on ? (S.sort.dir > 0 ? 'ascending' : 'descending') : null });
     if (c.sort) {
-      const b = el('button', { type: 'button', class: 'hcol' + (on ? ' on' : ''), 'data-sort': c.key, title: `Sort by ${label} (click again to reverse)` }, label,
+      const b = el('button', { type: 'button', class: 'hcol' + (on ? ' on' : ''), 'data-sort': c.key, title: DR.t('drive.col.sort_tip', { label }) }, label,
         on ? el('span', { class: 'arrow', 'aria-hidden': 'true' }, S.sort.dir > 0 ? '▲' : '▼') : '');
       b.addEventListener('click', () => DR.sortClick(c.key));
       cell.append(b);
     } else cell.append(el('span', { class: 'hcol' }, label));
-    const grip = el('span', { class: 'col-grip', role: 'separator', 'aria-orientation': 'vertical', 'aria-label': `Resize ${label} column`, 'aria-valuenow': String(widthOf(c)), tabindex: '0', 'data-grip': c.key });
+    const grip = el('span', { class: 'col-grip', role: 'separator', 'aria-orientation': 'vertical', 'aria-label': DR.t('drive.col.resize', { label }), 'aria-valuenow': String(widthOf(c)), tabindex: '0', 'data-grip': c.key });
     grip.addEventListener('pointerdown', (e) => startResize(e, c));
     grip.addEventListener('keydown', (e) => {
       if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
@@ -141,9 +142,9 @@
   /** The header's right-click menu: which columns show, and reset. */
   DR.columnRows = function () {
     return [
-      ...ALL.map((x) => ({ label: x.label, check: shownOn(x.key), disabled: x.key === 'name', act: () => { cfg().on[x.key] = !shownOn(x.key); DR.savePrefs(); DR.render(); } })),
+      ...ALL.map((x) => ({ label: DR.colLabel(x.key), check: shownOn(x.key), disabled: x.key === 'name', act: () => { cfg().on[x.key] = !shownOn(x.key); DR.savePrefs(); DR.render(); } })),
       '-',
-      { label: 'Reset columns', act: () => { S.cols = {}; DR.savePrefs(); DR.render(); } },
+      { label: DR.t('drive.col.reset'), act: () => { S.cols = {}; DR.savePrefs(); DR.render(); } },
     ];
   };
 })(window.DR);

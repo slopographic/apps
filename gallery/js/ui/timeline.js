@@ -9,6 +9,17 @@
   let els = null, vl = null, cur = { ids: [], rows: [], heads: [], cols: 1, cell: 120, count: 0 };
   let lastCols = -1, lastCell = -1, lastKey = '';
 
+  const t = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
+  const I = () => window.SlopI18n || null;
+  const nPhotos = (n) => (I() ? t('gallery.grid.photos_n', { n }) : n + (n === 1 ? ' photo' : ' photos'));
+  /** A group's heading in the chosen language: the month (Intl) or the People group; English without SlopI18n. */
+  const GROUPS = { 'faces-1': 'gallery.people.group_faces_1', 'faces-2': 'gallery.people.group_faces_2', 'faces-0': 'gallery.people.group_faces_0' };
+  function labelOf(g, people) {
+    if (!I()) return g.label;
+    if (people) return GROUPS[g.key] ? t(GROUPS[g.key]) : g.label;
+    const [y, m] = g.key.split('-').map(Number);
+    return isFinite(y) && isFinite(m) ? I().date(new Date(y, m - 1, 1), { month: 'long', year: 'numeric' }) : g.label;
+  }
   const tileSize = () => (window.matchMedia && matchMedia('(max-width: 600px)').matches ? 104 : 150);
 
   /** The filtered, newest-first photo list for the current view and filters. */
@@ -36,7 +47,7 @@
     t.dataset.id = m.id;
     t.dataset.idx = String(item.idx);
     t.tabIndex = -1;
-    t.setAttribute('aria-label', m.name + ', ' + new Date(m.takenAt || 0).toLocaleDateString());
+    t.setAttribute('aria-label', m.name + ', ' + new Date(m.takenAt || 0).toLocaleDateString(I() && I().get() !== 'en' ? I().get() : undefined));
     t.style.width = cell + 'px'; t.style.height = cell + 'px';
     const img = document.createElement('img');
     img.alt = ''; img.decoding = 'async'; img.draggable = false;
@@ -54,7 +65,7 @@
       h.dataset.month = row.key;
       h.innerHTML = '<span class="vhead-l"></span><span class="vhead-n"></span>';
       h.firstChild.textContent = row.label;
-      h.lastChild.textContent = row.count + (row.count === 1 ? ' photo' : ' photos');
+      h.lastChild.textContent = nPhotos(row.count);
       return h;
     }
     const r = document.createElement('div');
@@ -73,7 +84,7 @@
     if (found) {
       const label = els.sticky.querySelector('.sticky-l'), n = els.sticky.querySelector('.sticky-n');
       if (label.textContent !== found.label) label.textContent = found.label;
-      const txt = found.count + (found.count === 1 ? ' photo' : ' photos');
+      const txt = nPhotos(found.count);
       if (n.textContent !== txt) n.textContent = txt;
     }
   }
@@ -85,9 +96,9 @@
     const people = G.state.state.view === 'people';
     const { cols, cell } = layout();
     // People groups by face count (core/people.js); every other view groups by month. The grid order is the groups' order.
-    const groups = people ? G.people.groups(list) : G.query.groupMonths(list);
+    const groups = (people ? G.people.groups(list) : G.query.groupMonths(list)).map((g) => Object.assign({}, g, { label: labelOf(g, people) }));
     const ids = groups.flatMap((g) => g.items.map((m) => m.id));
-    const key = ids.length + '|' + cols + '|' + cell + '|' + ids.join(',') + (people ? '|people|' + groups.map((g) => g.key + ':' + g.items.length).join(',') : '');
+    const key = ids.length + '|' + cols + '|' + cell + '|' + ids.join(',') + (people ? '|people|' + groups.map((g) => g.key + ':' + g.items.length).join(',') : '') + '|' + (I() ? I().get() : '');
     const sameLayout = key === lastKey;
     lastKey = key;
     if (!sameLayout || cols !== lastCols || cell !== lastCell) {
@@ -98,14 +109,15 @@
     }
     G.state.pruneSelection({ has: (id) => !!G.library.photo(id) }); // hidden by a filter is not gone: only removed photos leave the selection
     els.empty.hidden = people || list.length > 0 || !G.library.loaded; // People explains its own empty state in the bar
-    els.empty.querySelector('[data-empty-text]').textContent = G.library.size ? 'Nothing matches these filters.' : 'Your library is empty. Import photos to start.';
+    els.empty.querySelector('[data-empty-text]').textContent = t(G.library.size ? 'gallery.grid.empty_filtered' : 'gallery.grid.empty');
     for (const n of els.empty.querySelectorAll('[data-empty-intro]')) n.hidden = G.library.size > 0; // the preview is for an empty library
     markSelection();
   }
   function markSelection() {
     const sel = G.state.state.selected;
     for (const t of els.content.querySelectorAll('.tile')) t.classList.toggle('sel', sel.has(t.dataset.id));
-    els.status.textContent = G.library.size ? `${cur.ids.length} of ${G.library.size} photos` + (sel.size ? ` · ${sel.size} selected` : '') : '';
+    const vars = { shown: cur.ids.length, total: G.library.size, sel: sel.size };
+    els.status.textContent = G.library.size ? t(sel.size ? 'gallery.grid.status_sel' : 'gallery.grid.status', vars) : '';
   }
 
   function tileOf(target) { return target && target.closest ? target.closest('.tile') : null; }
@@ -161,6 +173,7 @@
     if (ro) ro.observe(els.scroller); else window.addEventListener('resize', render);
     G.state.subscribe((what) => { if (what === 'selection') markSelection(); else render(); });
     G.library.on(() => render());
+    if (I()) I().on(() => render()); // a language switch: the headings, counts and status
     G.people.subscribe(() => { if (G.state.state.view === 'people') render(); }); // a face result arrives: regroup
     render();
   }

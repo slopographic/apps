@@ -11,7 +11,7 @@
   function ad() {
     if (adapter) return adapter;
     adapter = {
-      scope: 'gallery', title: 'Faces and people',
+      scope: 'gallery', get title() { return window.SlopI18n ? window.SlopI18n.t('gallery.people.title') : 'Faces and people'; },
       stampOf: (id) => { const m = G.library && G.library.photo(id); return m ? m.sha : null; },
       blobOf: async (id) => { const row = await G.db.get('originals', id); return (row && row.blob) || null; },
       nameOf: (id) => ((G.library && G.library.photo(id)) || {}).name || '',

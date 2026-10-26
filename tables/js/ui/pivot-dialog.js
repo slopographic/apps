@@ -10,12 +10,13 @@ import { readSource, writePivot, pivotSize, overlaps } from '../objects/pivot-wr
 import { FNS } from '../objects/pivot.js';
 import { newId } from '../objects/store.js';
 import { parseCell, parseRange, addr } from '../engine/refs.js';
+import { t } from '../i18n.js';
 
 const MAX_VALUES = 4;
 
 function fieldsOf(host, text) {
   const p = parseRange(text || '');
-  if (!p) return { error: 'Type the source range, like A1:D50.' };
+  if (!p) return { error: t('tables.pivot.type_source') };
   try { const src = readSource(S.wb, host, { sheet: p.sheet, ref: text.slice(text.lastIndexOf('!') + 1) }); return { src }; }
   catch (e) { return { error: e.message }; }
 }
@@ -25,16 +26,16 @@ function pivotSheetName(wb) { let n = 1; while (wb.sheetByName('Pivot ' + n)) n+
 /** Opens the dialog. pv and pvSheet: an existing pivot table and its sheet to edit, or null to insert one. */
 export function openPivotDialog(pv = null, pvSheet = null) {
   const ui = window.SlopUI, el = ui.el, host = pvSheet || sheet();
-  const srcIn = el('input', { class: 'sui-input', type: 'text', spellcheck: 'false', autocomplete: 'off', placeholder: 'A1:D50', 'aria-label': 'Source range' });
+  const srcIn = el('input', { class: 'sui-input', type: 'text', spellcheck: 'false', autocomplete: 'off', placeholder: 'A1:D50', 'aria-label': t('tables.pivot.source_range') });
   srcIn.value = pv ? (pv.source.sheet ? `'${pv.source.sheet.replace(/'/g, "''")}'!` : '') + pv.source.ref : startRange();
   const msg = el('p', { class: 'chart-msg', role: 'status' });
-  const rows1 = el('select', { class: 'sui-input', 'aria-label': 'Rows' }), rows2 = el('select', { class: 'sui-input', 'aria-label': 'Then by' });
-  const cols = el('select', { class: 'sui-input', 'aria-label': 'Columns' });
-  const valuesBox = el('div', { class: 'pv-values' }), addBtn = el('button', { type: 'button', class: 'sui-btn pv-add' }, '+ Add value');
-  const place = ui.select([['new', 'A new sheet'], ['here', 'This sheet, at a cell']], 'new');
-  place.setAttribute('aria-label', 'Put it in');
-  const atIn = el('input', { class: 'sui-input', type: 'text', spellcheck: 'false', autocomplete: 'off', 'aria-label': 'Top-left cell', placeholder: 'F1' });
-  const placeRow = el('div', { class: 'pv-place' }, ui.field('Put it in', place), ui.field('At cell', atIn));
+  const rows1 = el('select', { class: 'sui-input', 'aria-label': t('tables.pivot.rows') }), rows2 = el('select', { class: 'sui-input', 'aria-label': t('tables.pivot.then_by') });
+  const cols = el('select', { class: 'sui-input', 'aria-label': t('tables.pivot.columns') });
+  const valuesBox = el('div', { class: 'pv-values' }), addBtn = el('button', { type: 'button', class: 'sui-btn pv-add' }, t('tables.pivot.add_value'));
+  const place = ui.select([['new', t('tables.pivot.new_sheet')], ['here', t('tables.pivot.this_sheet')]], 'new');
+  place.setAttribute('aria-label', t('tables.pivot.put_in'));
+  const atIn = el('input', { class: 'sui-input', type: 'text', spellcheck: 'false', autocomplete: 'off', 'aria-label': t('tables.pivot.top_left'), placeholder: 'F1' });
+  const placeRow = el('div', { class: 'pv-place' }, ui.field(t('tables.pivot.put_in'), place), ui.field(t('tables.pivot.at_cell'), atIn));
   let fields = [], numeric = [];
 
   const options = (sel, none, value) => {
@@ -42,10 +43,10 @@ export function openPivotDialog(pv = null, pvSheet = null) {
     sel.value = fields.includes(value) ? value : (none ? '' : fields[0] || '');
   };
   function valueRow(v = {}) {
-    const f = el('select', { class: 'sui-input', 'aria-label': 'Value field' }), fn = ui.select(FNS, v.fn || 'sum');
-    fn.setAttribute('aria-label', 'Summarize by');
+    const f = el('select', { class: 'sui-input', 'aria-label': t('tables.pivot.value_field') }), fn = ui.select(FNS.map(([id]) => [id, t(`tables.pivot.fn_${id}`)]), v.fn || 'sum');
+    fn.setAttribute('aria-label', t('tables.pivot.summarize_by'));
     options(f, null, v.field);
-    const rm = el('button', { type: 'button', class: 'sui-btn pv-rm', 'aria-label': 'Remove value', title: 'Remove value' }, '×');
+    const rm = el('button', { type: 'button', class: 'sui-btn pv-rm', 'aria-label': t('tables.pivot.remove_value'), title: t('tables.pivot.remove_value') }, '×');
     const row = el('div', { class: 'pv-value' }, f, fn, rm);
     rm.addEventListener('click', () => { row.remove(); addBtn.disabled = false; });
     valuesBox.append(row);
@@ -58,9 +59,10 @@ export function openPivotDialog(pv = null, pvSheet = null) {
     fields = r.src.headers;
     numeric = fields.filter((_, j) => r.src.records.some((rec) => typeof rec[j] === 'number'));
     const text = fields.find((f) => !numeric.includes(f));
-    options(rows1, '(none)', keep ? keep.rows[0] : text);
-    options(rows2, '(none)', keep ? keep.rows[1] : '');
-    options(cols, '(none)', keep ? keep.cols[0] : '');
+    const none = t('tables.pivot.none');
+    options(rows1, none, keep ? keep.rows[0] : text);
+    options(rows2, none, keep ? keep.rows[1] : '');
+    options(cols, none, keep ? keep.cols[0] : '');
     const old = keep ? keep.values : [...valuesBox.querySelectorAll('.pv-value')].map((row) => ({ field: row.children[0].value, fn: row.children[1].value }));
     valuesBox.replaceChildren();
     const list = old.filter((v) => fields.includes(v.field));
@@ -84,33 +86,33 @@ export function openPivotDialog(pv = null, pvSheet = null) {
     };
   };
   const body = el('div', { class: 'pv-dlg' },
-    ui.field('Source', srcIn), msg,
-    el('div', { class: 'pv-grid' }, ui.field('Rows', rows1), ui.field('Then by', rows2), ui.field('Columns', cols)),
-    el('div', { class: 'pv-h' }, 'Values'), valuesBox, addBtn, pv ? null : placeRow);
+    ui.field(t('tables.pivot.source'), srcIn), msg,
+    el('div', { class: 'pv-grid' }, ui.field(t('tables.pivot.rows'), rows1), ui.field(t('tables.pivot.then_by'), rows2), ui.field(t('tables.pivot.columns'), cols)),
+    el('div', { class: 'pv-h' }, t('tables.pivot.values')), valuesBox, addBtn, pv ? null : placeRow);
 
   return new Promise((res) => {
     let done = null;
     ui.dialog({
-      title: pv ? 'Edit pivot table' : 'Insert pivot table', body, cls: 'pv-dialog',
-      buttons: [{ label: 'Cancel' }, { label: pv ? 'Save' : 'Insert', primary: true, act: () => apply() }],
+      title: t(pv ? 'tables.pivot.edit' : 'tables.pivot.insert'), body, cls: 'pv-dialog',
+      buttons: [{ label: t('menu.cancel') }, { label: t(pv ? 'menu.save' : 'tables.chart.insert_btn'), primary: true, act: () => apply() }],
       onClose: (ok) => { redraw(); res(ok ? done : null); },
     });
     async function apply() {
       const s = spec();
-      if (!fieldsOf(host, srcIn.value.trim()).src) { toast(msg.textContent || 'Check the source range'); return false; }
-      if (!s.values.length) { toast('Add a value to summarize'); return false; }
+      if (!fieldsOf(host, srcIn.value.trim()).src) { toast(msg.textContent || t('tables.pivot.check_source')); return false; }
+      if (!s.values.length) { toast(t('tables.pivot.add_a_value')); return false; }
       const wb = S.wb;
       let target = pvSheet, at = pv ? pv.at : { r: 0, c: 0 };
       if (!pv && place.value === 'here') {
         const cell = parseCell(atIn.value || '');
-        if (!cell) { toast('Type the top-left cell, like F1'); return false; }
+        if (!cell) { toast(t('tables.pivot.type_cell')); return false; }
         target = host; at = { r: cell.r, c: cell.c };
       }
       const draft = { ...(pv || { id: newId(wb, 'p'), extent: null }), ...s, at };
       let size;
       try { size = pivotSize(wb, host, draft); } catch (e) { toast(e.message); return false; }
       if (target && overlaps(target, draft, at, size)) {
-        const ok = await ui.confirm('Replace cells?', 'The pivot table needs cells that already hold data. Replace them?', 'Replace', { danger: true });
+        const ok = await ui.confirm(t('tables.pivot.replace_title'), t('tables.pivot.replace_body'), t('ui.replace'), { danger: true });
         if (!ok) return false;
       }
       try {

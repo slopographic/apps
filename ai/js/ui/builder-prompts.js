@@ -100,9 +100,11 @@ document.getElementById('cta').addEventListener('click', () => { n++; document.g
 </body>
 </html>`;
 
+  /** A template's shown name (the English name, blurb and prompt below stay: the prompt is what the model is asked). */
+  AI.tplName = (t) => AI.t('ai.tpl.' + t.id);
   AI.TEMPLATES = [
-    { id: 'game', name: 'Game', blurb: 'Catch the falling slop', prompt: 'Make a simple arcade game: catch falling slime drops with a paddle. Keyboard and touch. Score, lives, restart.', html: GAME },
-    { id: 'calculator', name: 'Calculator', blurb: 'A neat calculator', prompt: 'Make a calculator with big buttons, a display, C and =, and keyboard support.', html: window.SlopAIKit.FAKE_APP_HTML },
-    { id: 'landing', name: 'Landing page', blurb: 'A one-page site', prompt: 'Make a landing page for a slime company: header, hero with a button, three feature cards and a footer.', html: LANDING },
+    { id: 'game', name: 'Game', blurb: 'Catch the falling slop', prompt: 'Make a simple arcade game: catch falling slime drops with a paddle. Keyboard and touch. Score, lives, restart.', html: GAME }, // i18n-ignore: shown through AI.tplName (ai.tpl.*)
+    { id: 'calculator', name: 'Calculator', blurb: 'A neat calculator', prompt: 'Make a calculator with big buttons, a display, C and =, and keyboard support.', html: window.SlopAIKit.FAKE_APP_HTML }, // i18n-ignore
+    { id: 'landing', name: 'Landing page', blurb: 'A one-page site', prompt: 'Make a landing page for a slime company: header, hero with a button, three feature cards and a footer.', html: LANDING }, // i18n-ignore
   ];
 })(window.AI);

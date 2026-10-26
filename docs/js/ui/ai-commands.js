@@ -10,7 +10,7 @@ import { insertParas, findAll, replaceMatches } from '../model/ai-edit.js';
 import { commands as createCommands, made, closeMade } from './ai-create.js';
 
 const S = window.SlopDocs, C = window.SlopCmd;
-const WHERE = { name: 'where', type: 'enum', values: ['caret', 'end', 'start'], default: 'caret', description: 'caret puts it after the paragraph with the caret' };
+const WHERE = { name: 'where', type: 'enum', values: ['caret', 'end', 'start'], default: 'caret', description: 'caret puts it after the paragraph with the caret' }; // i18n-ignore: assistant tool text (API)
 const STYLES = STYLE_ORDER.filter((s) => s !== 'List');
 const Str = (name, description, extra) => Object.assign({ name, type: 'string', maxLength: 500, description }, extra);
 const Bool = (name, description, def) => ({ name, type: 'boolean', default: def, description });
@@ -29,20 +29,20 @@ function put(paras, where) {
 const needText = (t, what) => { const s = String(t || '').trim(); if (!s) throw new Error(`Give the ${what} text`); return s; };
 
 add('insert_heading', 'Insert heading', [Str('text', 'the heading words', { required: true, maxLength: 300 }),
-  { name: 'level', type: 'number', min: 1, max: 6, default: 1, integer: true, description: '1 is the largest' }, WHERE],
+  { name: 'level', type: 'number', min: 1, max: 6, default: 1, integer: true, description: '1 is the largest' }, WHERE], // i18n-ignore: assistant tool text (API)
 (a) => {
   const text = needText(a.text, 'heading').replace(/\s*\n\s*/g, ' ');
   const b = put([para(text, 'H' + a.level)], a.where);
   return `Added Heading ${a.level} “${short(text)}” as ${nth(b)}.`;
-}, { description: 'Add a heading (level 1 to 6) as its own paragraph.' });
+}, { description: 'Add a heading (level 1 to 6) as its own paragraph.' }); // i18n-ignore: assistant tool text (API)
 
 add('insert_paragraph', 'Insert paragraph', [Str('text', 'the words; a line break starts a new paragraph', { required: true, maxLength: 5000 }), WHERE,
-  { name: 'style', type: 'enum', values: STYLES, default: 'Normal', description: 'paragraph style' }],
+  { name: 'style', type: 'enum', values: STYLES, default: 'Normal', description: 'paragraph style' }], // i18n-ignore: assistant tool text (API)
 (a) => {
   const parts = needText(a.text, 'paragraph').split(/\r?\n/);
   const b = put(parts.map((t) => para(t, a.style)), a.where);
   return parts.length === 1 ? `Added a ${STYLE_NAMES[a.style]} paragraph as ${nth(b)}.` : `Added ${parts.length} paragraphs from ${nth(b)}.`;
-}, { description: 'Add text as new paragraphs.' });
+}, { description: 'Add text as new paragraphs.' }); // i18n-ignore: assistant tool text (API)
 
 add('find_replace', 'Find and replace', [Str('find', 'the text to look for', { required: true }), Str('replace', 'the new text; empty removes the matches', { default: '' }),
   Bool('match_case', 'upper and lower case must match', false), Bool('whole_word', 'only whole words', false), Bool('all', 'every match; false replaces the next one after the caret', true)],
@@ -52,7 +52,7 @@ add('find_replace', 'Find and replace', [Str('find', 'the text to look for', { r
   if (!res.count) return `0 replacements: “${short(a.find)}” was not found.`;
   S.edit(res.blocks, res.sel, 'ai');
   return `${res.count} replacement${res.count === 1 ? '' : 's'}: “${short(a.find)}” → “${short(a.replace || '')}”.`;
-}, { description: 'Replace text in the document; returns how many were replaced.' });
+}, { description: 'Replace text in the document; returns how many were replaced.' }); // i18n-ignore: assistant tool text (API)
 
 /** The paragraphs a style or format command acts on: a numbered paragraph, or the selection (the caret's paragraph). */
 function targetSel(n) {
@@ -63,17 +63,17 @@ function targetSel(n) {
 }
 const PARA = { name: 'paragraph', type: 'number', min: 1, max: 100000, integer: true, description: 'paragraph number from the state; the selection when empty' };
 
-add('set_paragraph_style', 'Set paragraph style', [{ name: 'style', type: 'enum', values: STYLES, required: true, description: 'H1 to H6 are headings' }, PARA],
+add('set_paragraph_style', 'Set paragraph style', [{ name: 'style', type: 'enum', values: STYLES, required: true, description: 'H1 to H6 are headings' }, PARA], // i18n-ignore: assistant tool text (API)
 (a) => {
   const sel = targetSel(a.paragraph), blocks = setParas(S.doc.blocks, sel, (p) => ({ ...p, style: a.style }));
   if (blocks.every((p, i) => p === S.doc.blocks[i] || p.style === S.doc.blocks[i].style)) return `Already ${STYLE_NAMES[a.style]}.`;
   S.edit(blocks, S.sel, 'ai');
   const [x, y] = ordered(sel);
   return `${x.b === y.b ? 'Paragraph ' + (x.b + 1) + ' is' : 'Paragraphs ' + (x.b + 1) + '–' + (y.b + 1) + ' are'} now ${STYLE_NAMES[a.style]}.`;
-}, { description: 'Change the style (Normal, Title, Heading 1–6, Quote, Code) of the selected paragraphs or of one paragraph.' });
+}, { description: 'Change the style (Normal, Title, Heading 1–6, Quote, Code) of the selected paragraphs or of one paragraph.' }); // i18n-ignore: assistant tool text (API)
 
 add('format_text', 'Format text', [Bool('bold', 'true or false; unchanged when empty'), Bool('italic'), Bool('underline'), Bool('strike'),
-  { name: 'color', type: 'color', description: 'text colour such as #c00000 or red' }, Str('match', 'format every occurrence of this text instead of the selection', { maxLength: 200 }), PARA],
+  { name: 'color', type: 'color', description: 'text colour such as #c00000 or red' }, Str('match', 'format every occurrence of this text instead of the selection', { maxLength: 200 }), PARA], // i18n-ignore: assistant tool text (API)
 (a) => {
   const change = {};
   for (const k of ['bold', 'italic', 'underline', 'strike']) if (a[k] != null) change[{ bold: 'b', italic: 'i', underline: 'u', strike: 's' }[k]] = a[k] || null;
@@ -91,7 +91,7 @@ add('format_text', 'Format text', [Bool('bold', 'true or false; unchanged when e
   S.edit(blocks, S.sel, 'ai');
   const what = Object.entries(change).map(([k, v]) => (k === 'color' ? 'colour ' + v : (v ? '' : 'not ') + { b: 'bold', i: 'italic', u: 'underlined', s: 'struck through' }[k])).join(', ');
   return a.match ? `Made ${ranges.length} × “${short(a.match)}” ${what}.` : `Made the ${a.paragraph ? nth(a.paragraph - 1) : 'selection'} ${what}.`;
-}, { description: 'Bold, italic, underline, strike or colour the selection, one paragraph, or every occurrence of a text.' });
+}, { description: 'Bold, italic, underline, strike or colour the selection, one paragraph, or every occurrence of a text.' }); // i18n-ignore: assistant tool text (API)
 
 add('undo', 'Undo', [{ name: 'steps', type: 'number', min: 1, max: 20, default: 1, integer: true }],
 (a) => { let n = 0; while (n < a.steps && S.canUndo()) { S.undo(); n++; } return `Undid ${n} step${n === 1 ? '' : 's'}.`; });

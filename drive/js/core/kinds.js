@@ -1,18 +1,19 @@
 /* Slop Drive — core/kinds: what kind of file is this? Used for icons, filters, colours and previews. */
 'use strict';
 (function (DR) {
+  // label / one: the English fallback; shown through DR.kindName(id) and kindLabel() in the current language.
   const KINDS = [
-    { id: 'folder', label: 'Folders', one: 'Folder', color: '#8f8a7e' },
-    { id: 'image', label: 'Images', one: 'Image', color: '#d4ff3a' },
-    { id: 'design', label: 'Design files', one: 'Design file', color: '#a86bff' },
-    { id: 'model', label: '3D scenes', one: '3D scene', color: '#ff7ad9' },
-    { id: 'doc', label: 'Slop documents', one: 'Slop document', color: '#7fb0ff' },
-    { id: 'pdf', label: 'PDFs', one: 'PDF', color: '#ff5a6e' },
-    { id: 'text', label: 'Text & data', one: 'Text', color: '#5cc8ff' },
-    { id: 'audio', label: 'Audio', one: 'Audio', color: '#ffa23a' },
-    { id: 'video', label: 'Video', one: 'Video', color: '#5fe0b0' },
-    { id: 'archive', label: 'Archives', one: 'Archive', color: '#ffd23f' },
-    { id: 'other', label: 'Other', one: 'File', color: '#9fb0d0' },
+    { id: 'folder', label: 'Folders', one: 'Folder', color: '#8f8a7e' },   // i18n-ignore
+    { id: 'image', label: 'Images', one: 'Image', color: '#d4ff3a' },   // i18n-ignore
+    { id: 'design', label: 'Design files', one: 'Design file', color: '#a86bff' },   // i18n-ignore
+    { id: 'model', label: '3D scenes', one: '3D scene', color: '#ff7ad9' },   // i18n-ignore
+    { id: 'doc', label: 'Slop documents', one: 'Slop document', color: '#7fb0ff' },   // i18n-ignore
+    { id: 'pdf', label: 'PDFs', one: 'PDF', color: '#ff5a6e' },   // i18n-ignore
+    { id: 'text', label: 'Text & data', one: 'Text', color: '#5cc8ff' },   // i18n-ignore
+    { id: 'audio', label: 'Audio', one: 'Audio', color: '#ffa23a' },   // i18n-ignore
+    { id: 'video', label: 'Video', one: 'Video', color: '#5fe0b0' },   // i18n-ignore
+    { id: 'archive', label: 'Archives', one: 'Archive', color: '#ffd23f' },   // i18n-ignore
+    { id: 'other', label: 'Other', one: 'File', color: '#9fb0d0' },   // i18n-ignore
   ];
   const BY = Object.fromEntries(KINDS.map((k) => [k.id, k]));
   const ext = (name) => { const m = /\.([a-z0-9]{1,8})$/i.exec(name || ''); return m ? m[1].toLowerCase() : ''; };
@@ -46,12 +47,13 @@
   const isAi = (r) => !!r && !r.isFolder && ext(r.name) === 'ai';
   /** Short label like "PNG image" or "PDF". */
   function kindLabel(r) {
-    if (r.isFolder) return 'Folder';
+    const t = DR.t;
+    if (r.isFolder) return t('drive.kind.one_folder');
     const k = BY[kindOf(r)], e = ext(r.name).toUpperCase();
-    if (k.id === 'pdf') return 'PDF document';
-    if (isAi(r)) return 'Illustrator design file';
-    if (k.id === 'other') return e ? e + ' file' : 'File';
-    return (e ? e + ' ' : '') + k.one.toLowerCase();
+    if (k.id === 'pdf') return t('drive.kind.pdf_doc');
+    if (isAi(r)) return t('drive.kind.ai');
+    if (k.id === 'other') return e ? t('drive.kind.ext_file', { ext: e }) : t('drive.kind.one_other');
+    return e ? t(`drive.kind.ext_${k.id}`, { ext: e }) : t(`drive.kind.bare_${k.id}`);
   }
   /** Best MIME type for a file the browser gave us with no type. */
   function guessType(name, type) {
@@ -64,5 +66,7 @@
       psd: 'image/vnd.adobe.photoshop', ora: 'application/x-openraster', slop: 'application/x-slopographic-backup', s3d: 'application/x-slop-3d', sdoc: 'application/x-slop-doc', stab: 'application/x-slop-table', sslide: 'application/x-slop-slides', sinv: 'application/x-slop-invoice', zpl: 'text/plain', sloplabel: 'application/json' })[e] || 'application/octet-stream';
   }
   DR.KINDS = KINDS; DR.KIND = BY; DR.kindOf = kindOf; DR.kindLabel = kindLabel; DR.ext = ext; DR.isSvg = isSvg; DR.guessType = guessType; DR.isAi = isAi;
+  /** A kind's plural name for filters and the legend (Images, PDFs, ...). */
+  DR.kindName = (id) => DR.t(`drive.kind.label_${id}`);
   DR.kindColor = (r) => (kindOf(r) === 'doc' && DOC_COLOR[ext(r.name)]) || BY[kindOf(r)].color;
 })(window.DR);

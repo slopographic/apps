@@ -8,7 +8,7 @@
   const kindOk = (it) => S.kind === 'all' || (S.kind === 'folder' ? it.isFolder : !it.isFolder && DR.kindOf(it) === S.kind);
   function column(parent, openId) {
     const c = DR.children(parent), list = DR.sortItems([...c.folders, ...c.files].filter((it) => it.isFolder || kindOk(it)));
-    const col = el('div', { class: 'col', role: 'listbox', 'aria-label': parent ? S.folders.get(parent).name : 'Slop Drive', 'data-drop': parent == null ? 'root' : parent });
+    const col = el('div', { class: 'col', role: 'listbox', 'aria-label': parent ? S.folders.get(parent).name : 'Slop Drive', 'data-drop': parent == null ? 'root' : parent });   // i18n-ignore: the app name
     for (const it of list) {
       const key = DR.keyOf(it);
       const n = el('div', { class: 'crow' + (S.sel.has(key) ? ' sel' : '') + (it.isFolder && it.id === openId ? ' open' : '') + (S.focus === key ? ' focus' : ''), role: 'option', 'data-key': key, title: it.name, 'aria-selected': String(S.sel.has(key)) },
@@ -16,12 +16,12 @@
       if (it.isFolder) n.dataset.drop = it.id;
       col.append(n);
     }
-    if (!list.length) col.append(el('p', { class: 'col-empty' }, 'Empty folder'));
+    if (!list.length) col.append(el('p', { class: 'col-empty' }, DR.t('drive.view.empty_folder')));
     return col;
   }
   function previewCol(r) {
     const col = el('div', { class: 'col col-pv' });
-    col.append(DR.previewOf(r, false, colUrls), el('b', { class: 'pv-name' }, r.name), el('div', { class: 'muted' }, `${DR.kindLabel(r)} · ${DR.fmtSize(r.size)}`), el('div', { class: 'muted' }, `Modified ${DR.fmtFull(r.modified || r.time)}`), el('div', { class: 'muted' }, `Made by ${DR.appName(r.from)}`));
+    col.append(DR.previewOf(r, false, colUrls), el('b', { class: 'pv-name' }, r.name), el('div', { class: 'muted' }, `${DR.kindLabel(r)} · ${DR.fmtSize(r.size)}`), el('div', { class: 'muted' }, DR.t('drive.view.modified_at', { date: DR.fmtFull(r.modified || r.time) })), el('div', { class: 'muted' }, DR.t('drive.view.made_by', { app: DR.appName(r.from) })));
     return col;
   }
   /** The preview column: at most one, always the last column, showing the one selected file (if exactly one file is and the details panel is closed). */

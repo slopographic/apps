@@ -24,8 +24,8 @@
     const shipped = new Set(E().FAMILIES.filter((f) => !f.user).flatMap((f) => [f.name, ...f.aliases]).map((s) => s.toLowerCase()));
     const standard = [...used].filter((n) => shipped.has(String(n).trim().toLowerCase()));
     SlopFonts.openPanel({
-      fonts: [...used], standard, title: 'Fonts', library: false, download: false,
-      note: 'Downloads from the library are off in Slop Docs: its engine embeds only the TrueType families it ships. Use the closest family, or add your own TTF or OTF file (WOFF is not supported yet).',
+      fonts: [...used], standard, title: S.t('docs.tb.fonts'), library: false, download: false,
+      note: S.t('docs.fonts.note'),
       closest: { sans: 'Carlito', serif: 'Tinos', mono: 'Cousine' },
       addFile: (file, forName) => S.addOwnFont(file, forName),
       onUse: ({ use }) => { S_.A.setFont(use); S_.focusIme(); },
@@ -70,13 +70,13 @@
     $('tbUndo').disabled = !st.canUndo; $('tbRedo').disabled = !st.canRedo;
     const styleSel = $('selStyle'), want = st.style;
     if ([...styleSel.options].some((o) => o.value === want)) styleSel.value = want;
-    else if (document.activeElement !== styleSel) styleSel.value = 'Normal';
+    else if (document.activeElement !== styleSel) styleSel.value = 'Normal'; // i18n-ignore: style id
     const fam = [...$('selFont').options].find((o) => o.value === st.font) || [...$('selFont').options].find((o) => E().familyOf(st.font).name === o.value);
     if (fam) $('selFont').value = fam.value;
     if (document.activeElement !== $('selSize')) $('selSize').value = String(st.size);
     const pi = S.R.pageInfo(), wc = E().M.wordCount(S.doc);
-    $('pageInfo').textContent = `Page ${pi.page} of ${pi.of}`;
-    $('wordInfo').textContent = `${wc.words} ${wc.words === 1 ? 'word' : 'words'}`;
+    $('pageInfo').textContent = S.t('docs.status.page_of', { page: pi.page, pages: pi.of });
+    $('wordInfo').textContent = S.t('docs.status.words', { n: wc.words });
     if (S.saveLabel) $('saveState').textContent = S.saveLabel();
     if (document.activeElement !== $('docName')) $('docName').value = S.displayName();
   }
@@ -84,5 +84,6 @@
   S.on('change', () => refresh());
   S.on('doc', () => refresh());
   S.toolbarRefresh = refresh;
+  S.onLang(() => refresh());   // the status bar's words (the rest of the bar: data-i18n)
   wire();
 })();

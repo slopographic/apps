@@ -1,5 +1,6 @@
 /* Slop 3D mesh edit operations (pure). Each takes a working mesh (mesh.js) and a selection (meshsel.js) and returns
- * { mesh, sel } with the new selection, or null when there is nothing to do, or { error } when refused. The input is
+ * { mesh, sel } with the new selection, or null when there is nothing to do, or { error, code } when refused (the app
+ * shows the code's words, 3d/i18n). The input is
  * never changed. Vertices nobody uses any more are removed before returning, and the selection follows them.
  * Sets window.Slop3D.meshops. */
 (function () {
@@ -58,7 +59,7 @@
     else if (sel.mode === 'vertex') kill = (fi) => m.faces[fi].v.some((v) => sel.ids.has(v));
     else kill = (fi) => MH.keysOf(m.faces[fi].v).some((k) => sel.ids.has(k));
     const keep = m.faces.map((f, fi) => f.hide || !kill(fi));
-    if (!keep.some(Boolean)) return { error: 'That would delete every face. Delete the object instead.' };
+    if (!keep.some(Boolean)) return { error: 'That would delete every face. Delete the object instead.', code: 'delete_all' }; // i18n-ignore: the app shows the code's words (3d/i18n)
     if (keep.every(Boolean)) return null;
     const faces = m.faces.filter((f, fi) => keep[fi]).map((f) => ({ v: f.v.slice(), hide: f.hide }));
     return finish({ pos: m.pos, faces }, { mode: sel.mode, ids: new Set() });
@@ -116,7 +117,7 @@
       while (v.length > 1 && v[0] === v[v.length - 1]) v.pop();
       if (v.length >= 3) faces.push({ v, hide: f.hide });
     }
-    if (!faces.length) return { error: 'That merge would delete every face. Merge fewer vertices.' };
+    if (!faces.length) return { error: 'That merge would delete every face. Merge fewer vertices.', code: 'merge_all' }; // i18n-ignore: the app shows the code's words (3d/i18n)
     const ids = new Set([...sel.ids].map(map));
     return finish({ pos, faces }, { mode: 'vertex', ids });
   }
@@ -155,18 +156,18 @@
     } else return null;
     const adj = new Map(), link = (a, b) => { if (!adj.has(a)) adj.set(a, []); adj.get(a).push(b); };
     for (const k of edges) { const [a, b] = SEL.parseKey(k); link(a, b); link(b, a); }
-    if (adj.size < 3 || [...adj.values()].some((l) => l.length !== 2)) return { error: 'Fill needs one closed loop of edges or vertices.' };
+    if (adj.size < 3 || [...adj.values()].some((l) => l.length !== 2)) return { error: 'Fill needs one closed loop of edges or vertices.', code: 'fill_loop' }; // i18n-ignore: the app shows the code's words (3d/i18n)
     const start = adj.keys().next().value, cyc = [start];
     let prev = -1, cur = start;
     for (;;) {
       const nx = adj.get(cur)[0] === prev ? adj.get(cur)[1] : adj.get(cur)[0];
       if (nx === start) break;
-      if (cyc.length > adj.size) return { error: 'Fill needs one closed loop of edges or vertices.' };
+      if (cyc.length > adj.size) return { error: 'Fill needs one closed loop of edges or vertices.', code: 'fill_loop' }; // i18n-ignore: the app shows the code's words (3d/i18n)
       cyc.push(nx);
       prev = cur;
       cur = nx;
     }
-    if (cyc.length !== adj.size) return { error: 'Fill needs one closed loop of edges or vertices.' };
+    if (cyc.length !== adj.size) return { error: 'Fill needs one closed loop of edges or vertices.', code: 'fill_loop' }; // i18n-ignore: the app shows the code's words (3d/i18n)
     // Orientation: a neighbour already walks each shared edge one way, so the new face walks it the other way.
     const em = MH.edgeMap(m);
     let same = 0, opp = 0;

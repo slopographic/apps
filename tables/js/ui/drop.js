@@ -8,8 +8,9 @@
 import { $ } from './state.js';
 import { openFile, openRecord, whenTabs, OPEN_EXTS, SHEET_TYPES } from './storage.js';
 import { MIME } from '../io/native.js';
+import { t } from '../i18n.js';
 
-const ACCEPT = { types: [MIME, ...SHEET_TYPES, 'text/csv', 'text/tab-separated-values', 'application/vnd.ms-excel'], exts: OPEN_EXTS, noun: 'a spreadsheet', allowEmpty: true }; // a zero-byte .stab from Drive's New menu is a blank workbook
+const ACCEPT = { types: [MIME, ...SHEET_TYPES, 'text/csv', 'text/tab-separated-values', 'application/vnd.ms-excel'], exts: OPEN_EXTS, get noun() { return t('tables.drop.noun'); }, allowEmpty: true }; // a zero-byte .stab from Drive's New menu is a blank workbook
 async function read(file, ctx) {
   const rec = ctx.drive && ctx.drive.record;
   const ok = rec ? await openRecord(Object.assign({}, rec, { blob: file })) : await openFile(file);
@@ -26,9 +27,11 @@ export function wireDrop() {
   drop = D.attach(zone, {
     intake: 'tables',
     compact: true,
-    label: 'Drop a spreadsheet to open it',
+    label: t('tables.drop.label'),
     targets: [$('grid')],
   });
+  const msg = zone.querySelector('.sd-msg');
+  if (msg) msg.dataset.i18n = 'tables.drop.label'; // SlopI18n.apply() follows a language switch
   return drop;
 }
 export const dropper = () => drop;

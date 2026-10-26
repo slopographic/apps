@@ -14,16 +14,22 @@
   const changed = () => AI.emit('engine', E);
   const friendly = (e) => {
     const m = String((e && e.message) || e);
-    if (/failed to fetch|networkerror|load failed|err_/i.test(m)) return 'the download failed. Check your connection (huggingface.co and raw.githubusercontent.com must be reachable), then press Download again: finished parts are kept.';
-    if (/quota|storage|no space/i.test(m)) return 'storage for this site is full, so the model cannot be saved. To free space, delete a model in Models ▸ Storage, or use Slop Drive ▸ Storage ▸ Clear local cache. Then press Download again.';
-    if (/device|adapter|webgpu|gpu/i.test(m)) return 'WebGPU failed (' + m + '). See "Can my PC run it?".';
+    if (/failed to fetch|networkerror|load failed|err_/i.test(m)) return AI.t('ai.engine.err_network');
+    if (/quota|storage|no space/i.test(m)) return AI.t('ai.engine.err_full');
+    if (/device|adapter|webgpu|gpu/i.test(m)) return AI.t('ai.engine.err_gpu', { msg: m });
     return m;
   };
 
   /** The engine chats go to: the local one, else one borrowed from another tab. */
   E.active = () => (E.engine && E.engine.loaded ? E.engine : E.remote);
   E.ready = () => !!E.active();
-  E.label = () => { const a = E.active(); if (!a) return null; const i = a.info(); const m = E.modelFor(i.id); return (m ? m.name : i.name || i.id) + (a === E.remote ? ' (other tab)' : '') + (i.kind === 'fake' ? ' · demo' : ''); };
+  E.label = () => {
+    const a = E.active(); if (!a) return null;
+    const i = a.info(), m = E.modelFor(i.id);
+    let s = m ? m.name : i.name || i.id;
+    if (a === E.remote) s = AI.t('ai.engine.other_tab', { name: s });
+    return i.kind === 'fake' ? AI.t('ai.engine.demo', { name: s }) : s;
+  };
 
   async function consent(m) {
     if (E.isFake() || m.custom || E.consented.has(m.id)) return true;
@@ -44,7 +50,7 @@
     const loadId = AI.sys ? K.catalog.idFor(m, AI.sys) : m.id;
     if (E.engine) { await E.engine.unload().catch(() => {}); E.engine = null; window.SlopAI && SlopAI.use(null); }
     const eng = E.make(), ctl = new AbortController();
-    Object.assign(E, { state: 'loading', loadingId: id, progress: 0, text: 'Starting…', ctl, error: null });
+    Object.assign(E, { state: 'loading', loadingId: id, progress: 0, text: AI.t('ai.engine.starting'), ctl, error: null });
     changed();
     try {
       await eng.load(Object.assign({}, m, { loadId }), (p) => { if (E.ctl !== ctl) return; E.progress = p.progress || 0; E.text = p.text || ''; changed(); }, { signal: ctl.signal });
@@ -62,7 +68,7 @@
       if (why !== 'pause') E.loadingId = why === 'cancel' ? null : E.loadingId;
       if (why === 'cancel') await E.remove(id, { quiet: true });
       changed();
-      if (!why) AI.toast('Could not load the model: ' + E.error, 5000);
+      if (!why) AI.toast(AI.t('ai.engine.load_failed', { why: E.error }), 5000);
       return false;
     }
   };
@@ -78,7 +84,7 @@
   E.remove = async (id, { quiet } = {}) => {
     if (E.model && E.model.id === id) await E.unload();
     if (E.isFake()) { const c = fakeCache.get(); delete c[id]; fakeCache.set(c); } else await K.models.remove(id);
-    if (!quiet) AI.toast('Deleted the downloaded files');
+    if (!quiet) AI.toast(AI.t('ai.engine.deleted'));
     changed();
   };
 

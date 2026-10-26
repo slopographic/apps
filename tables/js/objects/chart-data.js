@@ -8,6 +8,7 @@
  *   chartData(wb, host, chart) → { cats, series, refs } or { error }             refs: the cells of each part (for XLSX) */
 import { resolveRange, cellText } from './region.js';
 import { FErr } from '../engine/values.js';
+import { t } from '../i18n.js';
 
 export const TYPES = [['column', 'Column'], ['bar', 'Bar'], ['line', 'Line'], ['pie', 'Pie']];
 export const MAX_SERIES = 8, MAX_POINTS = 500;
@@ -43,7 +44,7 @@ export function chartData(wb, host, chart) {
   if (rg.error) return { error: rg.error };
   const { sheet, r1, c1, r2, c2 } = rg, byRows = chart.by === 'rows';
   const nI = byRows ? c2 - c1 + 1 : r2 - r1 + 1, nJ = byRows ? r2 - r1 + 1 : c2 - c1 + 1;
-  if (nI > MAX_POINTS + 1) return { error: `A chart shows at most ${MAX_POINTS} points. Choose a smaller range.` };
+  if (nI > MAX_POINTS + 1) return { error: t('tables.err.too_many_points', { n: MAX_POINTS }) };
   const at = (i, j) => (byRows ? { r: r1 + j, c: c1 + i } : { r: r1 + i, c: c1 + j });
   const grid = [];
   for (let i = 0; i < nI; i++) {
@@ -55,7 +56,7 @@ export function chartData(wb, host, chart) {
     grid.push(row);
   }
   const d = seriesFrom(grid, chart);
-  if (!d.series.length || d.series.every((s) => s.values.every((v) => v === null))) return { error: 'There are no numbers in that range to chart.' };
+  if (!d.series.length || d.series.every((s) => s.values.every((v) => v === null))) return { error: t('tables.err.no_numbers') };
   const body = d.header ? 1 : 0, last = nI - 1;
   const span = (j) => { const a = at(body, j), b = at(last, j); return { r1: a.r, c1: a.c, r2: b.r, c2: b.c }; };
   const refs = {

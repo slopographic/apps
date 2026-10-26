@@ -7,6 +7,7 @@ import { els, placeEditor, focusGrid } from './grid.js';
 import { moveTo } from './nav.js';
 import { parseInput } from '../engine/index.js';
 import { isFormula, isPointKey, pointKey } from './point.js';
+import { t } from '../i18n.js';
 
 /** The text a cell shows when you edit it (formula with "=", text that would parse as a number keeps "'"). */
 export function rawText(sh, r, c) {
@@ -61,7 +62,7 @@ export function commitEdit(dr = 0, dc = 0) {
   if (!e) return true;
   if (e.text !== e.orig) {
     try { transact(() => S.wb.input(sheet(), e.r, e.c, e.text)); }
-    catch (err) { toast(err.message || 'That entry is not valid'); (e.from === 'bar' ? $('fx') : els().editor).focus(); return false; }
+    catch (err) { toast(err.message ? ('pos' in err ? t('tables.toast.bad_formula', { error: err.message }) : err.message) : t('tables.toast.invalid_entry')); (e.from === 'bar' ? $('fx') : els().editor).focus(); return false; }
   }
   S.edit = null;
   if (dr || dc) moveTo(e.r + dr, e.c + dc);

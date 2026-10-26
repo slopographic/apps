@@ -11,6 +11,8 @@
   let timeout = 5000, host = null, panel = null, tabBox = null, nameEl = null, linkEl = null, framesBox = null, active = null;
 
   const apps = () => window.SLOP_APPS || [];
+  /** The panel's words (ai/i18n): English when the page has no tables (the tests load this script alone). */
+  const tr = (key, en, vars) => { const I = window.SlopI18n; return I && I.has(key) ? I.t(key, vars) : en.replace(/\{(\w+)\}/g, (m, k) => (vars && k in vars ? vars[k] : m)); };
   const own = (S) => S.list().filter((c) => !/^cmd\./.test(c.id)); // the app's commands, not SlopCmd's palette and keymap
   function h(tag, attrs, ...kids) {
     const n = document.createElement(tag);
@@ -68,7 +70,7 @@
     }));
     e.tab = h('div', { class: 'ws-tab', role: 'tab' },
       h('button', { type: 'button', class: 'ws-tab-name', onclick: () => show(app.id) }, app.name),
-      h('button', { type: 'button', class: 'ws-tab-x', 'aria-label': 'Close ' + app.name, title: 'Close ' + app.name, onclick: () => close(app.id) }, '×'));
+      h('button', { type: 'button', class: 'ws-tab-x', 'aria-label': tr('ui.close_name', 'Close {name}', { name: app.name }), title: tr('ui.close_name', 'Close {name}', { name: app.name }), onclick: () => close(app.id) }, '×'));
     frames.set(app.id, e);
     tabBox.append(e.tab); framesBox.append(frame);
     return e;
@@ -101,14 +103,15 @@
     host = el;
     tabBox = h('div', { class: 'ws-tabs', role: 'tablist' });
     nameEl = h('span', { class: 'ws-name' });
-    linkEl = h('a', { class: 'ws-btn', target: '_blank', rel: 'noopener noreferrer', title: 'Open this app in a new tab' }, 'Open in new tab ↗');
+    linkEl = h('a', { class: 'ws-btn', target: '_blank', rel: 'noopener noreferrer', title: tr('ai.ws.open_tab_tip', 'Open this app in a new tab'), 'data-i18n': 'ai.ws.open_tab', 'data-i18n-attr': 'title:ai.ws.open_tab_tip' }, tr('ai.ws.open_tab', 'Open in new tab ↗'));
     framesBox = h('div', { class: 'ws-frames' });
-    panel = h('aside', { class: 'ws', 'aria-label': 'Workspace', hidden: true },
+    panel = h('aside', { class: 'ws', 'aria-label': tr('ai.ws.label', 'Workspace'), 'data-i18n-attr': 'aria-label:ai.ws.label', hidden: true },
       h('header', { class: 'ws-head' }, tabBox,
-        h('button', { type: 'button', class: 'ws-btn', title: 'Hide the workspace (the apps stay open)', 'aria-label': 'Hide the workspace', onclick: hide }, '×')),
+        h('button', { type: 'button', class: 'ws-btn', title: tr('ai.ws.hide_tip', 'Hide the workspace (the apps stay open)'), 'aria-label': tr('ai.ws.hide', 'Hide the workspace'), 'data-i18n-attr': 'title:ai.ws.hide_tip;aria-label:ai.ws.hide', onclick: hide }, '×')),
       h('div', { class: 'ws-bar' }, nameEl, linkEl),
       framesBox);
     el.append(panel);
+    if (window.SlopI18n && SlopI18n.on) SlopI18n.on(() => { for (const e of frames.values()) { const x = e.tab.querySelector('.ws-tab-x'), s = tr('ui.close_name', 'Close {name}', { name: e.app.name }); x.title = s; x.setAttribute('aria-label', s); } });
   }
 
   /** Opens an app in the workspace, or focuses it. Resolves once its page has loaded. */

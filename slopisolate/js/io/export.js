@@ -3,7 +3,7 @@
  * export always matches the item's settings and brush edits; the job and the decoded bitmap are freed after. */
 (function () {
   'use strict';
-  const CO = window.CO, U = CO.util, S = CO.state, C = CO.compose, P = CO.process;
+  const CO = window.CO, U = CO.util, S = CO.state, C = CO.compose, P = CO.process, t = U.t;
   const MIME = { png: 'image/png', webp: 'image/webp', jpg: 'image/jpeg' };
   const toast = (msg) => { if (window.SlopUI) SlopUI.toast(msg); };
   const busy = (on, msg, progress) => CO.emit('busy', { on, msg, progress: progress == null ? null : progress });
@@ -48,18 +48,18 @@
   /** Export one image and download it as <name>-cutout.<ext>. */
   CO.export.one = async function (it) {
     it = it || S.current();
-    if (!it) return toast('Open an image first');
-    if (it.status !== 'done') return toast('Wait until the cutout is ready');
-    busy(true, 'Exporting…');
+    if (!it) return toast(t('cutout.menu.open_first'));
+    if (it.status !== 'done') return toast(t('cutout.export.wait'));
+    busy(true, t('cutout.export.exporting'));
     try {
       const { blob, ext } = await encodeItem(it);
       const name = U.baseName(it.name) + '-cutout.' + ext;
       if (window.SlopUI) SlopUI.download(blob, name);
       SlopSupport.afterExport('slopisolate');
-      toast('Saved ' + name + ' · ' + U.fmtBytes(blob.size));
+      toast(t('cutout.export.saved', { name, size: U.fmtBytes(blob.size) }));
     } catch (e) {
       console.error(e);
-      toast('Export failed: ' + (e.message || e));
+      toast(t('cutout.export.failed', { error: String(e.message || e) }));
     } finally { busy(false); }
   };
 
@@ -67,13 +67,13 @@
    *  made unique. */
   CO.export.all = async function (list) {
     const items = (Array.isArray(list) ? list : S.items).filter((it) => it.status === 'done' && it.kind !== 'video');
-    if (!items.length) return toast('No finished cutouts to export yet');
+    if (!items.length) return toast(t('cutout.export.none'));
     const entries = [], used = new Set();
     let failed = 0;
     try {
       for (let i = 0; i < items.length; i++) {
         const it = items[i];
-        busy(true, `Exporting ${i + 1} of ${items.length}…`, i / items.length);
+        busy(true, t('cutout.export.exporting_i', { i: i + 1, n: items.length }), i / items.length);
         try {
           const { blob, ext } = await encodeItem(it);
           const base = U.baseName(it.name) + '-cutout';
@@ -83,15 +83,15 @@
           entries.push({ name, blob });
         } catch (e) { failed++; console.error(e); }
       }
-      if (!entries.length) return toast('Export failed for every image');
-      busy(true, 'Zipping…', 1);
+      if (!entries.length) return toast(t('cutout.export.failed_all'));
+      busy(true, t('cutout.export.zipping'), 1);
       const zip = await CO.zip(entries);
       if (window.SlopUI) SlopUI.download(zip, 'slop-cutouts.zip');
       SlopSupport.afterExport('slopisolate');
-      toast(`Saved ${entries.length} cutout${entries.length === 1 ? '' : 's'} to a zip` + (failed ? ` (${failed} failed)` : ''));
+      toast(t(failed ? 'cutout.export.saved_zip_failed' : 'cutout.export.saved_zip', { n: entries.length, failed }));
     } catch (e) {
       console.error(e);
-      toast('Export failed: ' + (e.message || e));
+      toast(t('cutout.export.failed', { error: String(e.message || e) }));
     } finally { busy(false); }
   };
 })();

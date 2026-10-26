@@ -7,6 +7,14 @@ window.AI = window.AI || {};
   AI.el = (...a) => window.SlopUI.el(...a);
   AI.$ = (id) => document.getElementById(id);
   AI.toast = (m, ms) => window.SlopUI.toast(m, ms);
+  /** The app's words (ai/i18n/<code>/*.js, shared/i18n/APPS-HOWTO.md): t(key, vars) when the UI is built, never into a
+   * constant. onLang(fn) re-runs fn after a language change, once the new tables are in (for UI built once). */
+  AI.t = (key, vars) => { const I = window.SlopI18n; return I ? I.t(key, vars) : key; };
+  AI.onLang = (fn) => { const I = window.SlopI18n; return I && I.on ? I.on(fn) : () => {}; };
+  /** A chat or mini-app still has its starting title (in English or in the language it was made in). */
+  /** A number with one decimal, in the page's language (12.5 tok/s). */
+  AI.num1 = (x) => { const I = window.SlopI18n; return I && I.num ? I.num(+x, { minimumFractionDigits: 1, maximumFractionDigits: 1 }) : (+x).toFixed(1); };
+  AI.isBlankTitle = (t) => /^New (chat|mini-app)$/.test(t) || t === AI.t('ai.chat.new') || t === AI.t('ai.build.new');
   const PREF = 'slop-ai.prefs';
   const load = () => { try { return JSON.parse(localStorage.getItem(PREF)) || {}; } catch (e) { return {}; } };
   /** Persistent preferences: defaultModel, temperature, maxTokens, persona, tools, tab, theme, engine. */
@@ -19,7 +27,8 @@ window.AI = window.AI || {};
   AI.fmtBytes = (n) => (n == null ? '—' : n < 1048576 ? Math.round(n / 1024) + ' KB' : n < 1073741824 ? (n / 1048576).toFixed(1) + ' MB' : (n / 1073741824).toFixed(2) + ' GB');
   AI.fmtTime = (t) => {
     const d = new Date(t), now = new Date();
-    return d.toDateString() === now.toDateString() ? d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+    const o = d.toDateString() === now.toDateString() ? { hour: '2-digit', minute: '2-digit' } : { month: 'short', day: 'numeric' }, I = window.SlopI18n;
+    return I && I.date ? I.date(d, o) : d.toLocaleString([], o);
   };
   AI.uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
   AI.isMobile = () => matchMedia('(max-width: 760px)').matches;

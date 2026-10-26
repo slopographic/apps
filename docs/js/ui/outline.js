@@ -8,6 +8,7 @@ import * as A from './outline-actions.js';
 import * as MENU from './outline-menu.js';
 
 const S = window.SlopDocs;
+const t = (k, v) => S.t(k, v);
 const KEY = 'slop-docs.outline';
 const PHONE = window.matchMedia('(max-width: 640px)');
 const ICON = '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></svg>';
@@ -37,9 +38,11 @@ function applyMode() {
   st.app.classList.toggle('ol-shut', !phone && !st.desk);
   const show = st.root.querySelector('.ol-show');
   show.setAttribute('aria-expanded', String(isOpen()));
-  show.setAttribute('aria-label', phone ? 'Open outline' : 'Show outline');
-  show.title = phone ? 'Open outline' : 'Show outline (Ctrl+Shift+O)';
-  st.root.querySelector('.ol-hide').title = phone ? 'Close outline' : 'Hide outline (Ctrl+Shift+O)';
+  show.setAttribute('aria-label', t(phone ? 'docs.ol.open' : 'docs.ol.show'));
+  show.title = t(phone ? 'docs.ol.open' : 'docs.ol.show_tip');
+  const hide = st.root.querySelector('.ol-hide');
+  hide.setAttribute('aria-label', t('docs.ol.hide'));
+  hide.title = t(phone ? 'docs.ol.close' : 'docs.ol.hide_tip');
 }
 function setOpen(open) {
   if (PHONE.matches) { if (st.sheet) { if (open) st.sheet.open(); else st.sheet.close(); } return; }
@@ -66,17 +69,17 @@ function render() {
       const tw = el('button', 'ol-twist', r.open ? '▾' : '▸');
       tw.type = 'button';
       tw.dataset.id = n.id;
-      tw.setAttribute('aria-label', (r.open ? 'Collapse ' : 'Expand ') + (n.text || 'heading'));
+      tw.setAttribute('aria-label', t(r.open ? 'docs.ol.collapse_x' : 'docs.ol.expand_x', { name: n.text || t('docs.ol.heading') }));
       row.append(tw);
     } else row.append(el('span', 'ol-gap'));
-    const label = el('button', 'ol-label', n.text || 'Untitled heading');
+    const label = el('button', 'ol-label', n.text || t('docs.ol.untitled_heading'));
     label.type = 'button';
     label.title = n.text;
     label.dataset.b = n.b;
     row.append(label);
     return row;
   });
-  if (!rows.length) rows.push(el('p', 'ol-empty', 'No headings yet. Set a paragraph to Heading 1, 2 or 3 in the style menu, or use Add section.'));
+  if (!rows.length) rows.push(el('p', 'ol-empty', t('docs.ol.empty')));
   st.tn.replaceChildren(...rows);
   markActive();
 }
@@ -148,7 +151,7 @@ function onContext(e) {
 }
 function moveAtCaret(dir) {
   const b = M.headingAt(S.doc.blocks, S.sel.f.b);
-  if (b < 0) { if (window.SlopUI) SlopUI.toast('The caret is not in a section'); return; }
+  if (b < 0) { if (window.SlopUI) SlopUI.toast(t('docs.ol.not_in_section')); return; }
   A.move(b, dir);
 }
 /** Alt+Up and Alt+Down are read here, not by SlopCmd: SlopCmd skips Alt-only shortcuts while the caret is typing. */
@@ -161,28 +164,36 @@ function onAltArrow(e) {
   moveAtCaret(e.key === 'ArrowUp' ? -1 : 1);
 }
 function registerKeys() {
-  window.addEventListener('keydown', onAltArrow, true);
   if (!window.SlopCmd) return;
+  const group = t('docs.cmd.group_outline');
   SlopCmd.register([
-    { id: 'outline.toggle', title: 'Show or hide the outline', group: 'Outline', keys: ['Shift+Mod+O'], run: () => setOpen(!isOpen()) },
-    { id: 'outline.up', title: 'Move section up (Alt+Up)', group: 'Outline', keys: [], run: () => moveAtCaret(-1) },
-    { id: 'outline.down', title: 'Move section down (Alt+Down)', group: 'Outline', keys: [], run: () => moveAtCaret(1) },
-    { id: 'outline.add', title: 'Add section', group: 'Outline', keys: [], run: () => A.add() },
+    { id: 'outline.toggle', title: t('docs.cmd.outline_toggle'), group, keys: ['Shift+Mod+O'], run: () => setOpen(!isOpen()) },
+    { id: 'outline.up', title: t('docs.cmd.outline_up'), group, keys: [], run: () => moveAtCaret(-1) },
+    { id: 'outline.down', title: t('docs.cmd.outline_down'), group, keys: [], run: () => moveAtCaret(1) },
+    { id: 'outline.add', title: t('docs.cmd.outline_add'), group, keys: [], run: () => A.add() },
   ]);
 }
 
 /* ---------- mount ---------- */
+/** The sidebar's own words, set when it is built and again after a language switch (the rail button: applyMode). */
+function words() {
+  st.root.setAttribute('aria-label', t('docs.ol.aria'));
+  st.root.querySelector('.ol-title').textContent = t('docs.ol.title');
+  const add = st.root.querySelector('.ol-add');
+  add.querySelector('span').textContent = t('docs.ol.add');
+  add.setAttribute('aria-label', t('docs.ol.add')); add.title = t('docs.ol.add');
+  st.tn.setAttribute('aria-label', t('docs.ol.sections'));
+}
 function build() {
   const rail = el('div', 'ol-rail');
-  rail.append(button('ol-show', ICON, 'Show outline', () => { if (!PHONE.matches) setOpen(true); }));   // on a phone: the drawer's toggle
+  rail.append(button('ol-show', ICON, t('docs.ol.show'), () => { if (!PHONE.matches) setOpen(true); }));   // on a phone: the drawer's toggle
   const panel = el('div', 'ol-panel');
   const head = el('div', 'ol-head');
-  head.append(el('span', 'ol-title', 'Outline'));
-  const add = button('ol-add', PLUS + '<span>Add section</span>', 'Add section', () => A.add());
-  head.append(add, button('ol-hide', ICON, 'Hide outline', () => setOpen(false)));
+  head.append(el('span', 'ol-title'));
+  const add = button('ol-add', PLUS + '<span></span>', t('docs.ol.add'), () => A.add());
+  head.append(add, button('ol-hide', ICON, t('docs.ol.hide'), () => setOpen(false)));
   st.tn = el('div', 'ol-tree');
   st.tn.setAttribute('role', 'tree');
-  st.tn.setAttribute('aria-label', 'Sections');
   st.tn.addEventListener('click', (e) => {
     const tw = e.target.closest('.ol-twist');
     if (tw) { e.stopPropagation(); toggleNode(tw.dataset.id); return; }
@@ -192,10 +203,10 @@ function build() {
     if (PHONE.matches) setOpen(false);
   });
   panel.append(head, st.tn);
-  st.root.setAttribute('aria-label', 'Document outline');
   st.root.append(rail, panel);
   st.root.addEventListener('contextmenu', onContext);
-  if (window.SlopSheet) st.sheet = SlopSheet.attach({ root: st.app, panel, side: 'start', phone: PHONE.media, toggles: [rail.querySelector('.ol-show')], label: 'Outline', onChange: applyMode });
+  if (window.SlopSheet) st.sheet = SlopSheet.attach({ root: st.app, panel, side: 'start', phone: PHONE.media, toggles: [rail.querySelector('.ol-show')], label: t('docs.ol.title'), onChange: applyMode });
+  words();
 }
 function injectCss() {
   if (document.querySelector('link[data-outline]')) return;
@@ -220,7 +231,9 @@ function init() {
   S.on('change', () => { if (S.doc) setActive(M.headingAt(S.doc.blocks, S.sel.f.b)); schedule(); });
   S.on('doc', schedule);
   S.on('layout', schedule);
+  window.addEventListener('keydown', onAltArrow, true);
   registerKeys();
+  S.onLang(() => { words(); applyMode(); registerKeys(); render(); });   // the sidebar's words and the palette follow a switch
   if (S.doc) rebuild();
 }
 init();

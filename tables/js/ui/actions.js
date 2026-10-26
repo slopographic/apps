@@ -7,6 +7,7 @@ import { parseCsv } from '../io/csv.js';
 import { pasteBuffer } from './buffer.js';
 import { format } from '../engine/index.js';
 import { MAX_ROWS, MAX_COLS } from '../engine/refs.js';
+import { t } from '../i18n.js';
 
 const WHOLE_ROWS = (r1, r2) => r1 === 0 && r2 === MAX_ROWS - 1;
 const WHOLE_COLS = (c1, c2) => c1 === 0 && c2 === MAX_COLS - 1;
@@ -38,7 +39,7 @@ export function clearRange(what = 'contents') {
 }
 
 const COPY_LIMIT = 200000;
-const sizeOk = () => { const { r1, c1, r2, c2 } = range(); if ((r2 - r1 + 1) * (c2 - c1 + 1) <= COPY_LIMIT) return true; toast('That selection is too large to copy. Select fewer cells.'); return false; };
+const sizeOk = () => { const { r1, c1, r2, c2 } = range(); if ((r2 - r1 + 1) * (c2 - c1 + 1) <= COPY_LIMIT) return true; toast(t('tables.toast.copy_too_large')); return false; };
 
 /** Copy the selection to the internal clipboard and to the system clipboard (or the given DataTransfer). */
 export function copySel(cut = false, dt = null) {

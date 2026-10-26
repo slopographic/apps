@@ -33,7 +33,7 @@
     const byHash = new Map();
     let i = 0;
     for (const r of cands) {
-      onProgress(`Hashing ${++i} of ${cands.length}…`);
+      onProgress(DR.t('drive.dupes.hashing', { i: ++i, n: cands.length }));
       const h = await sha256(r);
       if (!byHash.has(h)) byHash.set(h, []);
       byHash.get(h).push(r);
@@ -45,7 +45,7 @@
     if (near) {
       const exact = new Set(groups.flatMap((g) => g.files.slice(1).map((r) => r.id)));
       const imgs = files.filter((r) => DR.kindOf(r) === 'image' && !DR.isSvg(r) && !exact.has(r.id)), hs = [];
-      for (const r of imgs) { onProgress(`Comparing images ${hs.length + 1} of ${imgs.length}…`); try { hs.push({ r, h: await dHash(r.blob) }); } catch (e) { /* undecodable */ } }
+      for (const r of imgs) { onProgress(DR.t('drive.dupes.comparing', { i: hs.length + 1, n: imgs.length })); try { hs.push({ r, h: await dHash(r.blob) }); } catch (e) { /* undecodable */ } }
       const seen = new Set();
       for (let a = 0; a < hs.length; a++) {
         if (seen.has(a)) continue;

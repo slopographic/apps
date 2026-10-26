@@ -10,7 +10,7 @@
   const TEXT = {
     types: ['text/*', 'application/json', 'application/xml', 'application/javascript', 'application/x-sh', 'application/x-yaml', 'application/toml', 'application/sql', 'image/svg+xml'],
     exts: ['.txt', '.md', '.markdown', '.csv', '.tsv', '.json', '.js', '.mjs', '.ts', '.tsx', '.jsx', '.py', '.rb', '.go', '.rs', '.java', '.c', '.h', '.cpp', '.cs', '.php', '.html', '.htm', '.css', '.scss', '.xml', '.svg', '.yml', '.yaml', '.toml', '.ini', '.sql', '.sh', '.log', '.srt', '.vtt'],
-    noun: 'a text file (the local models read text only)',
+    get noun() { return AI.t('ai.intake.noun_text'); },   // read when a file is refused, in the language of that moment
   };
   SI.register({
     id: 'ai', accept: TEXT,
@@ -22,27 +22,27 @@
     },
   });
   SI.register({
-    id: 'ai.conv', main: false, paste: false, toast: false, limit: 1, accept: { types: ['application/json'], exts: ['.json'], noun: 'a conversation (.json)' },
+    id: 'ai.conv', main: false, paste: false, toast: false, limit: 1, accept: { types: ['application/json'], exts: ['.json'], get noun() { return AI.t('ai.intake.noun_conv'); } },
     process: async (f, ctx) => {
       let c;
-      try { c = AI.fromJSON(await f.text()); } catch (e) { window.SlopUI.alert(ctx.drive ? 'Could not open that chat' : 'Could not import', e.message || String(e)); throw e; }
+      try { c = AI.fromJSON(await f.text()); } catch (e) { window.SlopUI.alert(AI.t(ctx.drive ? 'ai.intake.open_failed' : 'ai.intake.import_failed'), e.message || String(e)); throw e; }
       if (ctx.drive) c.driveId = ctx.drive.id; // Save writes back to that Drive file
       await AI.db.put(c, { touch: false });
       AI.setTab(c.kind === 'build' ? 'build' : 'chat');
       if (c.kind === 'build') AI.openBuild(c.id); else AI.openConv(c.id);
-      if (!ctx.drive) AI.toast('Imported “' + c.title + '”');
+      if (!ctx.drive) AI.toast(AI.t('ai.intake.imported', { title: c.title }));
       return c.id;
     },
   });
-  SI.register({ id: 'ai.model', main: false, paste: false, toast: false, accept: { any: true, allowEmpty: true, noun: 'a file' }, processAll: (files) => files.map((f) => f.name) });
+  SI.register({ id: 'ai.model', main: false, paste: false, toast: false, accept: { any: true, allowEmpty: true, get noun() { return AI.t('ai.intake.noun_file'); } }, processAll: (files) => files.map((f) => f.name) });
   SI.register({
-    id: 'ai.launch', main: false, paste: false, toast: false, limit: 1, accept: { any: true, noun: 'a file' },
+    id: 'ai.launch', main: false, paste: false, toast: false, limit: 1, accept: { any: true, get noun() { return AI.t('ai.intake.noun_file'); } },
     process: async (f, ctx) => {
       const app = ctx.data.app;
       try {
         if (ctx.drive) await window.SlopOuttake.send(app.id, { id: ctx.drive.id, name: f.name, type: f.type, from: 'ai' });
         else await window.SlopOuttake.send(app.id, { get: () => f, name: f.name, type: f.type, from: 'ai' });
-      } catch (e) { window.SlopUI.alert('Could not open ' + app.name, e.message || String(e)); throw e; }
+      } catch (e) { window.SlopUI.alert(AI.t('ai.intake.open_in_failed', { name: app.name }), e.message || String(e)); throw e; }
       return f.name;
     },
   });
@@ -50,14 +50,14 @@
   AI.intake = {
     /** The attach menu of a chat panel. */
     attachFromComputer: (panel) => SI.pick({ to: 'ai', data: { panel }, accept: 'text/*,.md,.json,.csv,.js,.ts,.py,.html,.css,.xml,.svg,.yml,.yaml,.log' }),
-    attachFromDrive: (panel) => SI.fromDrive({ to: 'ai', data: { panel }, title: 'Attach from Slop Drive' }),
+    attachFromDrive: (panel) => SI.fromDrive({ to: 'ai', data: { panel }, title: AI.t('ai.intake.attach_drive') }),
     dropOn: (el, panel) => SI.dropTarget(el, { to: 'ai', data: () => ({ panel }) }),
     importConv: () => SI.pick({ to: 'ai.conv', multiple: false, accept: '.json,application/json' }),
-    openConvFromDrive: () => SI.fromDrive({ to: 'ai.conv', accept: ['application/json'], title: 'Open chat from Slop Drive' }),
+    openConvFromDrive: () => SI.fromDrive({ to: 'ai.conv', accept: ['application/json'], title: AI.t('ai.intake.open_drive') }),
     /** A model folder: resolves its files (with their paths in webkitRelativePath), or [] when none was chosen. */
     pickModelFolder: async () => { const r = await SI.pick({ to: 'ai.model', folder: true }); return r.added.map((a) => a.file); },
     openInApp: (app) => SI.pick({ to: 'ai.launch', multiple: false, data: { app }, accept: app.accepts.filter((p) => p !== '*').join(',') }),
-    openDriveFileInApp: (app) => SI.fromDrive({ to: 'ai.launch', data: { app }, accept: app.accepts, title: 'Open in ' + app.name }),
+    openDriveFileInApp: (app) => SI.fromDrive({ to: 'ai.launch', data: { app }, accept: app.accepts, title: AI.t('ai.intake.open_in', { name: app.name }) }),
     launch: () => SI.launch({ to: 'ai' }),
   };
 })(window.AI);

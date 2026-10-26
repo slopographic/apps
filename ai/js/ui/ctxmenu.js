@@ -10,8 +10,8 @@
     const conv = AI.chat && AI.chat.conv, idx = +msgNode.dataset.i, m = conv && conv.messages[idx];
     if (!m) return null;
     const text = m.display != null ? m.display : m.content;
-    const out = [{ label: m.role === 'user' ? 'Copy message' : 'Copy reply', act: () => AI.copyText(text) }];
-    if (m.role !== 'user' && idx === conv.messages.length - 1 && !AI.chat.busy) out.push({ label: 'Regenerate', act: () => AI.chat.regenerate() });
+    const out = [{ label: AI.t(m.role === 'user' ? 'ai.msg.copy_message' : 'ai.msg.copy_reply'), act: () => AI.copyText(text) }];
+    if (m.role !== 'user' && idx === conv.messages.length - 1 && !AI.chat.busy) out.push({ label: AI.t('ai.msg.regenerate'), act: () => AI.chat.regenerate() });
     return out;
   }
 
@@ -19,8 +19,8 @@
   function codeItems(box) {
     const code = box.querySelector('code') ? box.querySelector('code').textContent : '';
     return [
-      { label: 'Copy code', act: () => AI.copyText(code) },
-      { label: 'Open in builder', act: () => AI.openInBuilder(code) },
+      { label: AI.t('ai.msg.copy_code'), act: () => AI.copyText(code) },
+      { label: AI.t('ai.msg.open_builder'), act: () => AI.openInBuilder(code) },
     ];
   }
 

@@ -5,12 +5,14 @@
 'use strict';
 (function (DR) {
   const err = (message, code) => Object.assign(new Error(message), { code });
+  // The words come from drive/i18n (DR.t, core/util.js); Node tests load this file alone and read the English.
+  const tr = (key, en) => (DR.t ? DR.t(key) : en);
   const segs = (ref) => String(ref || '').split('/').filter(Boolean);
   const join = (ref, name) => (ref ? ref + '/' : '') + name;
   const cmp = (a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' });
   function safe(name) {
     const s = String(name == null ? '' : name).trim();
-    if (!s || s.length > 200 || s === '.' || s === '..' || /[\/\\\u0000-\u001f]/.test(s)) throw err('That name cannot be used in a folder on this computer.', 'name');
+    if (!s || s.length > 200 || s === '.' || s === '..' || /[\/\\\u0000-\u001f]/.test(s)) throw err(tr('drive.prov.bad_name', 'That name cannot be used in a folder on this computer.'), 'name');
     return s;
   }
   DR.joinRef = join;
@@ -38,9 +40,9 @@
   DR.makeDirProvider = function (id, label, rootOf) {
     const dirAt = async (ref, create = false) => {
       const h = await rootOf();
-      if (!h) throw err('This folder is no longer connected. Remove it and add it again.', 'gone');
+      if (!h) throw err(tr('drive.prov.gone', 'This folder is no longer connected. Remove it and add it again.'), 'gone');
       if (h.queryPermission && (await h.queryPermission({ mode: 'readwrite' })) !== 'granted') {
-        throw err('Access to this folder is not granted. Press “Allow access” on its name.', 'permission');
+        throw err(tr('drive.prov.no_access', 'Access to this folder is not granted. Press “Allow access” on its name.'), 'permission');
       }
       let d = h;
       for (const s of segs(ref)) d = await d.getDirectoryHandle(s, { create });
@@ -89,7 +91,7 @@
       /** Deletes a file or a folder with everything in it. Only used after a move has copied the item. */
       async remove(ref) {
         const s = segs(ref), name = s.pop();
-        if (!name) throw err('The folder itself cannot be removed here.', 'root');
+        if (!name) throw err(tr('drive.prov.root', 'The folder itself cannot be removed here.'), 'root');
         await (await dirAt(s.join('/'))).removeEntry(name, { recursive: true });
       },
     };

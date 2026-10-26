@@ -14,15 +14,15 @@
   DR.faceStamp = (r) => String(r.modified || r.time || 0);
   /** The stored result for a picture when it is current, else null. */
   DR.facesOf = (r) => (window.SlopFaces ? F().cache.get('drive', r.id, DR.faceStamp(r)) : Promise.resolve(null));
-  DR.faceText = (n) => (n === 0 ? 'No faces' : n === 1 ? '1 face' : `${n} faces`);
+  DR.faceText = (n) => (n === 0 ? DR.t('drive.faces.none') : DR.t('drive.faces.n', { n }));
 
   /** Runs the detector on the pictures among items and keeps the results. Asks first while the setting is off. */
   DR.findFaces = async function (items) {
     const pics = (items || []).filter(DR.isFaceable);
-    if (!pics.length) return DR.toast('Pick a picture to find its faces');
-    if (!F()) return DR.toast('Face detection is not available here');
+    if (!pics.length) return DR.toast(DR.t('drive.faces.pick'));
+    if (!F()) return DR.toast(DR.t('drive.faces.na'));
     if (!F().enabled() && !(await F().askOptIn('drive'))) return;
-    DR.toast(pics.length === 1 ? 'Finding faces…' : `Finding faces in ${pics.length} pictures…`);
+    DR.toast(DR.t('drive.faces.finding_n', { n: pics.length }));
     let found = 0, failed = 0, last = null;
     for (const r of pics) {
       const res = await F().analyse('drive', r.id, DR.faceStamp(r), r.blob);
@@ -31,9 +31,9 @@
     }
     DR.renderInfo(true);
     if (F().panel && F().panel.isOpen()) F().peopleFor('drive', DR.facesAdapter).refresh();
-    if (failed === pics.length) return DR.toast(F().lastError() ? `Faces could not be found: ${F().lastError()}` : 'Faces could not be found in these pictures');
-    if (pics.length === 1 && last) return DR.toast(`${DR.faceText(last.n)} in “${last.r.name}”`);
-    DR.toast(`${found} ${found === 1 ? 'face' : 'faces'} found in ${pics.length - failed} ${pics.length - failed === 1 ? 'picture' : 'pictures'}`);
+    if (failed === pics.length) return DR.toast(F().lastError() ? DR.t('drive.faces.failed_msg', { msg: F().lastError() }) : DR.t('drive.faces.failed'));
+    if (pics.length === 1 && last) return DR.toast(DR.t('drive.faces.in_name', { faces: DR.faceText(last.n), name: last.r.name }));
+    DR.toast(DR.t('drive.faces.found', { faces: DR.t('drive.faces.n', { n: found }), pictures: DR.t('drive.faces.pictures_n', { n: pics.length - failed }) }));
   };
 
   /** The face badge and boxes for a picture on screen (Quick look, the details panel): the handle, or null when the
@@ -47,7 +47,7 @@
 
   /** What the Faces and people dialog needs from Drive: the picture's stamp, its blob, its name, and how to open it. */
   DR.facesAdapter = {
-    scope: 'drive', title: 'Faces and people',
+    scope: 'drive', get title() { return DR.t('drive.faces.title'); },
     stampOf: (id) => { const r = DR.S.files.get(id); return r && DR.isFaceable(r) ? DR.faceStamp(r) : null; },
     blobOf: async (id) => { const r = DR.S.files.get(id); return (r && r.blob) || null; },
     nameOf: (id) => ((DR.S.files.get(id) || {}).name || ''),
@@ -55,7 +55,7 @@
   };
   /** Opens the Faces and people dialog, with the groups loaded from the store. */
   DR.openFaces = function () {
-    if (!F() || !F().panel) return DR.toast('Face detection is not available here');
+    if (!F() || !F().panel) return DR.toast(DR.t('drive.faces.na'));
     const d = F().panel.open(DR.facesAdapter);
     if (d) F().peopleFor('drive', DR.facesAdapter).load();
   };

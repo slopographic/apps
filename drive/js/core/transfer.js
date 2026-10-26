@@ -5,6 +5,8 @@
 'use strict';
 (function (DR) {
   const nr = (r) => (r == null || r === '' ? null : r);
+  // The words come from drive/i18n (DR.t, core/util.js); Node tests load this file alone and read the English.
+  const tr = (key, en) => (DR.t ? DR.t(key) : en);
 
   /** Copies one entry (a file, or a folder with everything in it) into folder dstRef. Returns the new ref. */
   async function copyInto(src, e, dst, dstRef, name) {
@@ -21,7 +23,7 @@
 
   /** Why entry e cannot go into dst ({provider, ref}), or null. 'same' means a move into the folder it is in. */
   DR.transferBlocker = function (e, dst) {
-    if (e.isFolder && e.provider.id === dst.provider.id && dst.provider.within(e.ref, dst.ref)) return 'A folder cannot go inside itself';
+    if (e.isFolder && e.provider.id === dst.provider.id && dst.provider.within(e.ref, dst.ref)) return tr('drive.toast.not_inside', 'A folder cannot go inside itself');
     if (e.provider.id === dst.provider.id && nr(e.parent) === nr(dst.ref)) return 'same';
     return null;
   };
@@ -40,7 +42,7 @@
         out.done++;
       } catch (x) {
         out.failed++;
-        out.errors.push(`${e.name}: ${(x && x.message) || 'could not be copied'}`);
+        out.errors.push(`${e.name}: ${(x && x.message) || tr('drive.prov.not_copied_lc', 'could not be copied')}`);
       }
     }
     return out;

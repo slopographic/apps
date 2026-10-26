@@ -51,17 +51,17 @@
     const native = ext === 'sdoc' || rec.type === SDOC_MIME;
     if (!blob || !blob.size) {
       if (native) return { doc: E().M.newDoc(), native: true };
-      throw new Error('That file is empty');
+      throw new Error(S.t('docs.file.empty'));
     }
     if (native) return { doc: SD().readSdoc(await blob.text()), native: true };
     if (rec.type === DOCX_MIME || ext === 'docx') return { doc: await DX().importDocx(blob), native: false };
     if (ext === 'md' || rec.type === 'text/markdown') return { doc: SD().fromMarkdown(await blob.text()), native: false };
     if (ext === 'html' || ext === 'htm' || rec.type === 'text/html') return { doc: SD().fromText(htmlText(await blob.text())), native: false };
     if ((rec.type || '').indexOf('text/') === 0 || ext === 'txt') return { doc: SD().fromText(await blob.text()), native: false };
-    throw new Error('Slop Docs cannot open ' + (name || 'this file'));
+    throw new Error(S.t('docs.file.cannot_open', { name: name || S.t('docs.file.this_file') }));
   }
   S.readRecord = readRecord;
-  const baseName = (n) => String(n || 'Untitled document').replace(/\.(sdoc|docx|md|txt|html?)$/i, '') || 'Untitled document';
+  const baseName = (n) => String(n || S.untitled()).replace(/\.(sdoc|docx|md|txt|html?)$/i, '') || S.untitled();
 
   /* ---------- the URL: ?drive=<id> names the open document (the strip's activate keeps it set) ---------- */
   function setUrl(id) {
@@ -83,14 +83,14 @@
       const file = { folderId: rec.folderId == null ? null : rec.folderId, name: r.native ? rec.name : baseName(rec.name) + '.sdoc', dirty: false, saved: 0 };
       S.tabsApi().openDoc(S.makeTab(r.doc, file), { driveId, origName: rec.name });
     }
-    if (!silent) toast(r.native ? `Opened ${baseName(rec.name)}` : `Opened ${rec.name} as a new Slop Docs file`);
+    if (!silent) toast(r.native ? S.t('docs.file.opened', { name: baseName(rec.name) }) : S.t('docs.file.opened_new', { name: rec.name }));
     return r;
   };
   // Open, Import and ?drive= are sources of the one intake (ui/intake.js), whose reader is openRecord.
 
   S.confirmDiscard = async function () {
     if (!S.file.dirty || !window.SlopUI) return true;
-    return SlopUI.confirm('Discard unsaved changes?', 'This document has changes that are not saved to Slop Drive yet. Save first, or discard them.', 'Discard', { danger: true });
+    return SlopUI.confirm(S.t('docs.file.discard_title'), S.t('docs.file.discard_body'), S.t('docs.file.discard'), { danger: true });
   };
 
   /* ---------- saving ---------- */
@@ -105,14 +105,14 @@
       S.syncTab();
       return !!(await S.tabsApi().saveToDrive(S.tabsApi().current()));
     } catch (e) {
-      toast('Could not save: ' + e.message);
+      toast(S.t('docs.file.save_failed', { error: e.message }));
       return false;
     } finally { saving = false; }
   };
   S.saveLabel = () => {
     const linked = !!S.driveId();
-    if (S.file.dirty) return linked ? 'Unsaved changes' : 'Not saved to Slop Drive yet';
-    return linked ? 'Saved to Slop Drive' : 'Draft autosaved in this browser';
+    if (S.file.dirty) return S.t(linked ? 'docs.save.unsaved' : 'docs.save.not_in_drive');
+    return S.t(linked ? 'docs.save.saved' : 'docs.save.draft');
   };
 
   /* ---------- export ---------- */
@@ -130,13 +130,13 @@
     a.href = url; a.download = name;
     document.body.append(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 4000);
-    toast(`Downloaded ${name}`);
+    toast(S.t('docs.file.downloaded', { name }));
     SlopSupport.afterExport('docs');
   };
   /** "Send to…" menu rows for the other Slopographic apps: the one builder, SlopOuttake, with the document as DOCX. */
   S.sendItems = function () {
     if (!H() || !window.SlopOuttake) return [];
-    return SlopOuttake.items({ get: () => S.exportBlob('docx'), name: () => S.displayName() + '.docx', type: DOCX_MIME, from: 'docs', verb: 'Send to', folder: false });
+    return SlopOuttake.items({ get: () => S.exportBlob('docx'), name: () => S.displayName() + '.docx', type: DOCX_MIME, from: 'docs', verb: S.t('docs.menu.send_verb'), folder: false });
   };
   /** Convert… in the header (shared/convert/provided.js): the open document, as DOCX. */
   addEventListener('slop:convert-files', (e) => e.detail.provide(async () => {

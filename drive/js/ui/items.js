@@ -12,7 +12,9 @@
     opened: (a, b) => (a.opened || 0) - (b.opened || 0) || SORTS.name(a, b),
   };
   /** The sort keys, in menu order. */
-  DR.SORT_KEYS = [['name', 'Name'], ['type', 'Type'], ['size', 'Size'], ['modified', 'Modified'], ['added', 'Added'], ['opened', 'Opened']];
+  DR.SORT_KEYS = [['name', 'Name'], ['type', 'Type'], ['size', 'Size'], ['modified', 'Modified'], ['added', 'Added'], ['opened', 'Opened']];   // i18n-ignore: English fallback
+  /** A sort key's or a List column's label (Name, Type, ...), in the current language. */
+  DR.colLabel = (key) => DR.t('drive.col.' + key);
   DR.SORTS = SORTS;
   DR.recency = recency;
   /** The first direction for a key: newest, biggest and last-used first; names and types A to Z. */
@@ -50,9 +52,9 @@
   DR.searching = () => !!(S.query.trim() || S.tag) && S.section === 'folder';
   /** Title of the current place. */
   DR.placeName = function () {
-    if (S.section === 'recent') return 'Recent';
-    if (S.section === 'starred') return 'Starred';
-    if (S.section === 'trash') return 'Trash';
+    if (S.section === 'recent') return DR.t('drive.place.recent');
+    if (S.section === 'starred') return DR.t('drive.place.starred');
+    if (S.section === 'trash') return DR.t('drive.place.trash');
     return S.cwd ? (S.folders.get(S.cwd) || {}).name || 'Slop Drive' : 'Slop Drive';
   };
   /** Can the user add files here? (Only in a real folder, not Recent/Starred/Trash/search.) */

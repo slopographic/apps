@@ -7,9 +7,10 @@
 import { S, on, emit, redraw, $ } from './state.js';
 import { Workbook } from '../engine/index.js';
 import { toBlob, fromBlob, fromNative, toNative, MIME } from '../io/native.js';
+import { t } from '../i18n.js';
 
 let api = null, session = null, switching = false;
-const safe = (s) => String(s || '').replace(/[\\/:*?"<>|]/g, '-').trim() || 'Untitled spreadsheet';
+const safe = (s) => String(s || '').replace(/[\\/:*?"<>|]/g, '-').trim() || t('tables.app.untitled');
 const toast = (m) => { if (window.SlopUI) window.SlopUI.toast(m); };
 
 function makeT(wb, file = {}, view = {}, untouched = false) {
@@ -18,7 +19,7 @@ function makeT(wb, file = {}, view = {}, untouched = false) {
     si: Math.min(Number.isInteger(view.si) ? view.si : (wb.active || 0), wb.sheets.length - 1),
     sel: view.sel || { r: 0, c: 0, er: 0, ec: 0 },
     scroll: view.scroll || { top: 0, left: 0 },
-    file: { name: file.name || 'Untitled spreadsheet', driveId: null, folderId: file.folderId ?? null, dirty: !!file.dirty },
+    file: { name: file.name || t('tables.app.untitled'), driveId: null, folderId: file.folderId ?? null, dirty: !!file.dirty },
     hist: { undo: [], redo: [] },
     untouched,
   };
@@ -43,7 +44,7 @@ function setUrl(id) {
 const current = () => (api ? api.current() : null);
 
 const adapter = {
-  newDoc: () => makeT(new Workbook(), { name: 'Untitled spreadsheet' }, {}, true),
+  newDoc: () => makeT(new Workbook(), { name: t('tables.app.untitled') }, {}, true),
   serialize: (T) => ({
     native: toNative(T.wb), name: T.file.name, folderId: T.file.folderId == null ? null : T.file.folderId,
     dirty: !!T.file.dirty, si: T.si, sel: T.sel, untouched: !!T.untouched,

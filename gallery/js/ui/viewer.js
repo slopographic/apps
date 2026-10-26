@@ -8,10 +8,14 @@
   'use strict';
   const G = (window.SlopGallery = window.SlopGallery || {});
   let root = null, ids = [], i = 0, url = null, pv = null, token = 0, info = false, timer = 0, opener = null;
-  const LABEL = { dateFrom: { exif: 'Taken (from EXIF)', file: 'Date (from file)' } };
+  const t = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
+  const LABEL = { dateFrom: { exif: 'gallery.viewer.taken_exif', file: 'gallery.viewer.date_file' } };
+  /** A marked text (data-i18n, so a language switch updates it) and a marked attribute. */
+  const tx = (k) => `data-i18n="${k}">${t(k)}`;
+  const at = (a, k) => `${a}="${t(k)}" data-i18n-attr="${a}:${k}"`;
 
   const fmtBytes = (n) => window.SlopHub.fmtSize(n);   // SlopHub.fmtSize (shared/hub.js)
-  const fmtDate = (t) => (t ? new Date(t).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }) : 'Unknown');
+  const fmtDate = (d) => (d ? (window.SlopI18n ? window.SlopI18n.date(d, { dateStyle: 'medium', timeStyle: 'short' }) : new Date(d).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })) : t('gallery.viewer.unknown'));
 
   function build() {
     root = document.createElement('div');
@@ -19,29 +23,35 @@
     root.hidden = true;
     root.tabIndex = -1;
     root.setAttribute('role', 'dialog');
-    root.setAttribute('aria-label', 'Photo viewer');
+    root.setAttribute('aria-label', t('gallery.viewer.aria'));
+    root.setAttribute('data-i18n-attr', 'aria-label:gallery.viewer.aria');
     root.innerHTML = `
       <div class="v-top">
-        <button type="button" class="v-btn" data-act="close" aria-label="Close viewer" title="Close (Esc)">×</button>
+        <button type="button" class="v-btn" data-act="close" aria-label="${t('gallery.viewer.close')}" title="${t('gallery.viewer.close_tip')}" data-i18n-attr="aria-label:gallery.viewer.close;title:gallery.viewer.close_tip">×</button>
         <span class="v-count" aria-live="polite"></span>
         <span class="v-spacer"></span>
-        <select class="v-sel" data-act="interval" aria-label="Slideshow interval"><option value="3000">3 s</option><option value="5000">5 s</option><option value="10000">10 s</option></select>
-        <button type="button" class="v-btn" data-act="play" title="Slideshow (Space)">Play</button>
+        <select class="v-sel" data-act="interval" ${at('aria-label', 'gallery.viewer.interval')}>${[3, 5, 10].map((n) => `<option value="${n * 1000}">${t('gallery.viewer.seconds', { n })}</option>`).join('')}</select>
+        <button type="button" class="v-btn" data-act="play" ${at('title', 'gallery.viewer.play_tip')}>${t('gallery.viewer.play')}</button>
       </div>
-      <div class="v-stage"><button type="button" class="v-nav prev" data-act="prev" aria-label="Previous photo">‹</button>
+      <div class="v-stage"><button type="button" class="v-nav prev" data-act="prev" ${at('aria-label', 'gallery.viewer.prev')}>‹</button>
         <div class="v-pic"></div>
-        <button type="button" class="v-nav next" data-act="next" aria-label="Next photo">›</button>
+        <button type="button" class="v-nav next" data-act="next" ${at('aria-label', 'gallery.viewer.next')}>›</button>
         <aside class="v-info" hidden></aside></div>
       <div class="v-foot">
-        <button type="button" class="v-btn" data-act="info" title="Info (I)" aria-pressed="false">Info</button>
-        <button type="button" class="v-btn" data-act="like" title="Like (L)" aria-pressed="false">Like</button>
-        <button type="button" class="v-btn" data-act="dislike" title="Dislike (D)" aria-pressed="false">Dislike</button>
-        <button type="button" class="v-btn" data-act="fav" title="Favourite (F)" aria-pressed="false">Favourite</button>
-        <button type="button" class="v-btn danger" data-act="delete" title="Remove from library (Delete)">Remove</button>
+        <button type="button" class="v-btn" data-act="info" title="${t('gallery.viewer.info_tip')}" aria-pressed="false" data-i18n-attr="title:gallery.viewer.info_tip" ${tx('gallery.viewer.info')}</button>
+        <button type="button" class="v-btn" data-act="like" title="${t('gallery.viewer.like_tip')}" aria-pressed="false" data-i18n-attr="title:gallery.viewer.like_tip" ${tx('gallery.viewer.like')}</button>
+        <button type="button" class="v-btn" data-act="dislike" title="${t('gallery.viewer.dislike_tip')}" aria-pressed="false" data-i18n-attr="title:gallery.viewer.dislike_tip" ${tx('gallery.viewer.dislike')}</button>
+        <button type="button" class="v-btn" data-act="fav" title="${t('gallery.viewer.fav_tip')}" aria-pressed="false" data-i18n-attr="title:gallery.viewer.fav_tip" ${tx('gallery.viewer.fav')}</button>
+        <button type="button" class="v-btn danger" data-act="delete" title="${t('gallery.viewer.remove_tip')}" data-i18n-attr="title:gallery.viewer.remove_tip" ${tx('gallery.viewer.remove')}</button>
       </div>`;
     document.body.append(root);
     root.addEventListener('click', onClick);
     root.addEventListener('keydown', onKey);
+    if (window.SlopI18n) window.SlopI18n.on(() => { // the marked words follow by themselves; the rest here
+      root.querySelectorAll('[data-act="interval"] option').forEach((o) => { o.textContent = t('gallery.viewer.seconds', { n: Number(o.value) / 1000 }); });
+      const b = root.querySelector('[data-act="play"]'); b.textContent = t(timer ? 'gallery.viewer.pause' : 'gallery.viewer.play');
+      if (!root.hidden) renderInfo();
+    });
     G.library.on((what) => {
       if (root.hidden) return;
       if (what === 'photos' && !G.library.photo(ids[i])) { ids = ids.filter((id) => G.library.photo(id)); if (!ids.length) close(); else show(Math.min(i, ids.length - 1)); }
@@ -52,10 +62,11 @@
   function renderInfo() {
     const m = G.library.photo(ids[i]); if (!m) return;
     const panel = root.querySelector('.v-info');
-    const camera = G.query.cameraOf(m) || 'Unknown camera';
+    const camera = G.query.cameraOf(m) || t('gallery.viewer.unknown_camera');
     panel.innerHTML = '';
-    const rows = [['Name', m.name], [LABEL.dateFrom[m.dateFrom || 'file'] || 'Date', fmtDate(m.takenAt)], ['Size', fmtBytes(m.size) + ' · ' + m.w + ' × ' + m.h + ' px'], ['Camera', camera],
-      ['Liked', m.liked || 'No'], ['Tags', m.tags.length ? m.tags.join(', ') : 'None'], ['Favourite', m.fav ? 'Yes' : 'No'], ['Drive file', m.driveId ? 'Imported from Slop Drive' : 'Imported from this device']];
+    const rows = [[t('gallery.viewer.name'), m.name], [t(LABEL.dateFrom[m.dateFrom || 'file'] || LABEL.dateFrom.file), fmtDate(m.takenAt)], [t('gallery.viewer.size'), fmtBytes(m.size) + ' · ' + m.w + ' × ' + m.h + ' px'], [t('gallery.viewer.camera'), camera],
+      [t('gallery.viewer.liked'), m.liked ? t(m.liked === 'disliked' ? 'gallery.viewer.liked_disliked' : 'gallery.viewer.liked_liked') : t('ui.no')], [t('gallery.viewer.tags'), m.tags.length ? m.tags.join(', ') : t('ui.none')], [t('gallery.viewer.fav'), t(m.fav ? 'ui.yes' : 'ui.no')],
+      [t('gallery.viewer.drive_file'), t(m.driveId ? 'gallery.viewer.from_drive' : 'gallery.viewer.from_device')]];
     for (const [k, v] of rows) { const d = document.createElement('div'); d.className = 'v-row'; d.innerHTML = '<b></b><span></span>'; d.firstChild.textContent = k; d.lastChild.textContent = v; panel.append(d); }
   }
   /** The footer's pressed states follow the photo's record. */
@@ -96,7 +107,7 @@
     if (my !== token) { G.urls.release(next); return; }
     mount(next, (G.library.photo(id) || {}).name || '');
     if (pv && G.facesUi) G.facesUi.attach(pv.el, root.querySelector('.v-top'), id); // the face badge and boxes (shared/faces/view.js)
-    root.querySelector('[data-act="play"]').textContent = timer ? 'Pause' : 'Play';
+    root.querySelector('[data-act="play"]').textContent = t(timer ? 'gallery.viewer.pause' : 'gallery.viewer.play');
     syncButtons();
     renderInfo();
     G.state.state.lastId = id;
@@ -125,18 +136,18 @@
     renderInfo();
     syncButtons();
   }
-  function stopSlides() { clearInterval(timer); timer = 0; const b = root && root.querySelector('[data-act="play"]'); if (b) b.textContent = 'Play'; }
+  function stopSlides() { clearInterval(timer); timer = 0; const b = root && root.querySelector('[data-act="play"]'); if (b) b.textContent = t('gallery.viewer.play'); }
   function toggleSlides() {
     if (timer) { stopSlides(); return; }
     const ms = Number(root.querySelector('[data-act="interval"]').value) || 3000;
     timer = setInterval(() => show(i + 1), ms);
-    root.querySelector('[data-act="play"]').textContent = 'Pause';
+    root.querySelector('[data-act="play"]').textContent = t('gallery.viewer.pause');
   }
   async function like(v) { const id = ids[i]; if (id) await G.library.setLiked([id], G.library.photo(id).liked === v ? null : v); }
   async function fav() { const id = ids[i]; if (id && G.library.photo(id)) await G.library.toggleFav([id]); }
   async function remove() {
     const id = ids[i], m = G.library.photo(id); if (!m) return;
-    const ok = await window.SlopUI.confirm('Remove photo', `Remove “${m.name}” from Slop Gallery? Its Slop Drive file, if it has one, is kept.`, 'Remove', { danger: true });
+    const ok = await window.SlopUI.confirm(t('gallery.viewer.remove_title'), t('gallery.viewer.remove_body', { name: m.name }), t('ui.remove'), { danger: true });
     if (!ok) return;
     stopSlides();
     await G.library.remove([id]);

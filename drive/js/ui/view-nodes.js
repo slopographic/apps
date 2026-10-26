@@ -26,7 +26,7 @@
       n.more = Math.max(0, files.length - Math.min(files.length, MAX_FILES));
       return n;
     };
-    const top = S.cwd ? S.folders.get(S.cwd) : { id: '__root', name: 'Slop Drive', isFolder: true, parent: null };
+    const top = S.cwd ? S.folders.get(S.cwd) : { id: '__root', name: 'Slop Drive', isFolder: true, parent: null };   // i18n-ignore: the app name
     return { root: build(top, 0), count };
   };
   function layout(root) {
@@ -48,7 +48,7 @@
       if (n.more) {
         const y = (n.kids.length ? n.kids[n.kids.length - 1].y : n.y) + DY;
         edges.append(sv('path', { d: `M${n.x + W},${n.y + H / 2} C${n.x + W + 30},${n.y + H / 2} ${n.x + DX - 30},${y + H / 2} ${n.x + DX},${y + H / 2}` }));
-        nodes.append(sv('text', { x: n.x + DX + 8, y: y + H / 2 + 4, class: 'more' }, `+${n.more} more files`));
+        nodes.append(sv('text', { x: n.x + DX + 8, y: y + H / 2 + 4, class: 'more' }, DR.t('drive.view.more_files', { n: n.more })));
       }
       const it = n.it, real = it.id !== '__root', key = real ? DR.keyOf(it) : null;
       const gN = sv('g', { class: 'nd' + (it.isFolder ? ' fold' : '') + (key && S.sel.has(key) ? ' sel' : '') + (key && S.focus === key ? ' focus' : ''), transform: `translate(${n.x},${n.y})`, 'data-key': key, 'data-drop': it.isFolder ? (real ? it.id : 'root') : null });
@@ -71,14 +71,14 @@
     if (txFor !== S.cwd) { tx = { x: 40, y: 40, k: 1 }; txFor = S.cwd; }
     const { root } = DR.nodeTree(S.cwd);
     const rows = layout(root);
-    const svg = sv('svg', { class: 'viz nodes-svg', role: 'tree', 'aria-label': 'Folder graph', 'data-touch-surface': '' }), g = sv('g');
+    const svg = sv('svg', { class: 'viz nodes-svg', role: 'tree', 'aria-label': DR.t('drive.view.folder_graph'), 'data-touch-surface': '' }), g = sv('g');
     svg.append(g); draw(svg, g, root); apply(g);
     const btn = (label, title, fn) => { const b = el('button', { type: 'button', class: 'tb', title, 'aria-label': title }, label); b.addEventListener('click', fn); return b; };
     const zoomBy = (f, cx, cy) => { const r = svg.getBoundingClientRect(); cx = cx == null ? r.width / 2 : cx; cy = cy == null ? r.height / 2 : cy; const k = Math.min(3, Math.max(0.15, tx.k * f)); tx.x = cx - ((cx - tx.x) * k) / tx.k; tx.y = cy - ((cy - tx.y) * k) / tx.k; tx.k = k; apply(g); };
     const fit = () => { const r = svg.getBoundingClientRect(), b = g.getBBox(); const k = Math.min(1.5, Math.max(0.15, Math.min((r.width - 60) / (b.width || 1), (r.height - 60) / (b.height || 1)))); tx = { k, x: 30 - b.x * k, y: 30 - b.y * k }; apply(g); };
-    const tools = el('div', { class: 'viz-tools' }, btn('+', 'Zoom in', () => zoomBy(1.25)), btn('−', 'Zoom out', () => zoomBy(0.8)), btn('Fit', 'Fit to view', fit),
-      btn('All', 'Expand everything', () => { S.collapsed.clear(); for (const f of S.folders.values()) S.collapsed.add('+' + f.id); DR.savePrefs(); DR.render(); }),
-      el('span', { class: 'muted' }, `${rows} rows · drag nodes onto folders to move them`));
+    const tools = el('div', { class: 'viz-tools' }, btn('+', DR.t('drive.view.zoom_in'), () => zoomBy(1.25)), btn('−', DR.t('drive.view.zoom_out'), () => zoomBy(0.8)), btn(DR.t('drive.view.fit'), DR.t('drive.view.fit_tip'), fit),
+      btn(DR.t('drive.view.all'), DR.t('drive.view.expand_all'), () => { S.collapsed.clear(); for (const f of S.folders.values()) S.collapsed.add('+' + f.id); DR.savePrefs(); DR.render(); }),
+      el('span', { class: 'muted' }, DR.t('drive.view.rows_hint', { n: rows })));
     const box = el('div', { class: 'nodes' }, svg, tools);
     pane.append(box);
     // collapse / expand knobs

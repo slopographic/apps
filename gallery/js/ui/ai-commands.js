@@ -12,7 +12,7 @@
   const list = [];
   const add = C.aiAdder('gallery', list);   // shared/commands/commands.js
   const PHOTOS = { name: 'photos', type: 'array', maxItems: 2000, items: { type: 'string' }, description: 'photo ids or file names (app_state); the selection when empty' };
-  const ALBUM = { name: 'album', type: 'string', maxLength: 80, description: 'album name or id' };
+  const ALBUM = { name: 'album', type: 'string', maxLength: 80, description: 'album name or id' };   // i18n-ignore: tool text for the assistant (API)
   const TAGS = (name, d) => ({ name, type: 'array', maxItems: 32, items: { type: 'string' }, description: d });
   const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
 
@@ -40,10 +40,10 @@
     log.push({ album: al.id });
     const n = a.photos && a.photos.length ? await L().addToAlbum(al.id, idsOf(a.photos)) : 0;
     return `Made the album “${al.name}”${n ? ` with ${plural(n, 'photo')}` : ''}.`;
-  }, { description: 'Make an album, optionally with photos from the library.' });
+  }, { description: 'Make an album, optionally with photos from the library.' });   // i18n-ignore: tool text for the assistant (API)
 
-  add('add_photos', 'Add photos from Slop Drive', [{ name: 'files', type: 'array', required: true, maxItems: 500, items: { type: 'string' }, description: 'Slop Drive file names or ids' },
-    Object.assign({}, ALBUM, { description: 'also put them in this album (made when new)' })],
+  add('add_photos', 'Add photos from Slop Drive', [{ name: 'files', type: 'array', required: true, maxItems: 500, items: { type: 'string' }, description: 'Slop Drive file names or ids' },   // i18n-ignore: tool text for the assistant (API)
+    Object.assign({}, ALBUM, { description: 'also put them in this album (made when new)' })],   // i18n-ignore: tool text for the assistant (API)
   async (a) => {
     await sources();
     const recs = [];
@@ -59,7 +59,7 @@
       note = ` ${plural(await L().addToAlbum(al.id, ids), 'photo')} went into “${al.name}”.`;
     }
     return { done: `${plural(ids.length, 'photo')} of ${recs.length} are in the library (duplicates are not added twice).${note}`, ids };
-  }, { description: 'Import pictures from Slop Drive into the library, optionally into an album.' });
+  }, { description: 'Import pictures from Slop Drive into the library, optionally into an album.' });   // i18n-ignore: tool text for the assistant (API)
 
   add('set_tags', 'Tag photos', [PHOTOS, TAGS('tags', 'replace the tags with these'), TAGS('add_tags', 'tags to add'), TAGS('remove_tags', 'tags to take off'),
     { name: 'liked', type: 'enum', values: ['liked', 'disliked', 'none'] }, { name: 'favourite', type: 'boolean' }],
@@ -76,12 +76,12 @@
       return p;
     });
     return `Updated ${plural(rows.length, 'photo')}.`;
-  }, { description: 'Set, add or remove tags, like or dislike, and favourite photos.' });
+  }, { description: 'Set, add or remove tags, like or dislike, and favourite photos.' });   // i18n-ignore: tool text for the assistant (API)
 
   add('add_to_album', 'Add photos to an album', [ALBUM, PHOTOS], async (a) => {
     const al = albumOf(a.album), n = await L().addToAlbum(al.id, idsOf(a.photos)); return `Added ${plural(n, 'photo')} to “${al.name}”.`;
   });
-  add('reorder_album', 'Reorder an album', [ALBUM, Object.assign({}, PHOTOS, { required: true, description: 'the photos in their new order (the rest follow)' })], async (a) => {
+  add('reorder_album', 'Reorder an album', [ALBUM, Object.assign({}, PHOTOS, { required: true, description: 'the photos in their new order (the rest follow)' })], async (a) => {   // i18n-ignore: tool text for the assistant (API)
     const al = albumOf(a.album); await L().reorderAlbum(al.id, idsOf(a.photos)); return `“${al.name}” is in the new order.`;
   });
   add('remove_from_album', 'Take photos out of an album', [ALBUM, PHOTOS], async (a) => {
@@ -92,7 +92,7 @@
   }, { destructive: true });
   add('delete_album', 'Delete an album', [ALBUM], async (a) => { const al = albumOf(a.album); await L().deleteAlbum(al.id); return `Deleted the album “${al.name}” (its photos stay).`; }, { destructive: true });
 
-  add('export_photos', 'Export photos', [Object.assign({}, ALBUM, { description: 'every photo of this album' }), PHOTOS,
+  add('export_photos', 'Export photos', [Object.assign({}, ALBUM, { description: 'every photo of this album' }), PHOTOS,   // i18n-ignore: tool text for the assistant (API)
     { name: 'to', type: 'enum', values: ['drive', 'download', 'both'], default: 'drive' }],
   async (a) => {
     const al = a.album ? albumOf(a.album) : null, ids = al ? al.photoIds : idsOf(a.photos);
@@ -102,7 +102,7 @@
     if (a.to !== 'download') { await sources(); out.push(`Saved ${p.name} (${plural(p.count, 'photo')}) to Slop Drive (id ${await window.SlopCmdSources.put(p.blob, p.name, 'gallery')})`); }
     if (a.to !== 'drive') { window.SlopUI.download(p.blob, p.name); out.push(`downloaded ${p.name}`); }
     return out.join(' and ') + '.';
-  }, { description: 'Save an album or some photos (one photo as itself, several as a zip) to Slop Drive and/or a download.' });
+  }, { description: 'Save an album or some photos (one photo as itself, several as a zip) to Slop Drive and/or a download.' });   // i18n-ignore: tool text for the assistant (API)
 
   function state() {
     return { app: 'Slop Gallery', photos: L().size, albums: L().albums().map((a) => ({ id: a.id, name: a.name, photos: a.photoIds.length })), selected: G.state.selected.length,

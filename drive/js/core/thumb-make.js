@@ -95,7 +95,7 @@
     return cardOf(r, { wave: card, sub, color: DR.kindColor(r) }, { kind: 'audio', duration: audio.duration, channels: ch, rate: audio.sampleRate, peaks: rounded });
   }
   async function threeThumb(r) {
-    if (!DR.webgl3d()) return cardOf(r, { big: '3D', sub: '3D scene (no WebGL)' }, { kind: '3d' });
+    if (!DR.webgl3d()) return cardOf(r, { big: '3D', sub: DR.t('drive.kind.no_webgl_card') }, { kind: '3d' });
     return { blob: await DR.snapshot3d(r.blob, SIZE, 240), info: { kind: '3d' } };
   }
   const colName = (c) => { let s = '', n = c + 1; while (n > 0) { const m = (n - 1) % 26; s = String.fromCharCode(65 + m) + s; n = Math.floor((n - 1) / 26); } return s; };
@@ -136,7 +136,7 @@
     const sep = DR.sepFor(r), rows = DR.parseRows(await r.blob.slice(0, 16384).text(), { max: 4, sep });
     const header = rows[0] || [], join = (row) => row.join(sep === '\t' ? '  |  ' : '  |  ');
     const lines = [join(header), ...rows.slice(1, 3).map(join)].filter((l) => l.trim());
-    return cardOf(r, { lines, mono: true, sub: `${header.length} columns · ${DR.kindLabel(r)}` }, { kind: 'csv', header, lines });
+    return cardOf(r, { lines, mono: true, sub: DR.t('drive.kind.csv_sub', { n: header.length, kind: DR.kindLabel(r) }) }, { kind: 'csv', header, lines });
   }
 
   /** The thumbnail of a file: { blob, info }. Never rejects. */

@@ -9,7 +9,6 @@
   const H = () => window.SlopHub;
   const L = () => (window.SlopSyncProviders && window.SlopSyncProviders.local) || null;
   const SUB = 'Slop Drive';
-  const UNSUPPORTED = "Folders need Chrome or Edge. Slop Drive keeps your files in this browser's storage, and nothing is written to your computer.";
   const CONFIG_SCRIPTS = [
     'shared/data/money.js', 'shared/data/barcode.js', 'shared/data/schema-checks.js', 'shared/data/schema-defs.js', 'shared/data/schema.js', 'shared/data/currency.js',
     'shared/data/store.js', 'shared/data/numbering.js', 'shared/data/ledger.js', 'shared/data/fx.js',
@@ -19,7 +18,8 @@
   let muted = false, timer = 0, configP = null;
   /** What the sidebar and menus show. name: the folder's name or null; perm: none | prompt | granted | denied. */
   DR.folderState = { supported: true, name: null, perm: 'none', missing: [] };
-  DR.folderUnsupportedText = UNSUPPORTED;
+  /** Why there is no Local folder here (no showDirectoryPicker), in the current language. */
+  DR.folderUnsupported = () => DR.t('drive.folder.unsupported');
   DR.folderSupported = () => { const l = L(); return !!l && l.supported(); };
 
   /** A name a file has in the folder: its Drive name, or with the id's last six characters when another file shares it. */
@@ -49,8 +49,8 @@
       if (!r || r.isFolder || r.trashedAt || !r.blob) continue;
       try { await l.upload(null, folderName(r, counts), r.blob, { folder: SUB }); wrote++; } catch (e) { failed++; }
     }
-    if (failed) DR.toast(`${failed} file${failed === 1 ? '' : 's'} could not be written to the folder. Check its access and the file names.`);
-    else if (wrote && DR.status) DR.status(`Saved ${wrote} file${wrote === 1 ? '' : 's'} to the folder`);
+    if (failed) DR.toast(DR.t('drive.folder.write_failed_n', { n: failed }));
+    else if (wrote && DR.status) DR.status(DR.t('drive.folder.saved_n', { n: wrote }));
   }
   function enqueue(id) {
     if (muted || !id || !DR.folderState.name) return;
@@ -104,12 +104,12 @@
     await DR.refresh();
     await DR.folderRefresh();
     DR.render();
-    DR.toast(`Imported ${n} file${n === 1 ? '' : 's'} from the folder`);
+    DR.toast(DR.t('drive.folder.imported_n', { n }));
   };
 
   DR.folderAllow = async function () {
     const p = await L().allow();
-    if (p !== 'granted') return window.SlopUI.alert('Access not granted', 'The browser did not allow access to this folder. Press the button again and allow access, or connect the folder again.');
+    if (p !== 'granted') return window.SlopUI.alert(DR.t('drive.folder.not_granted'), DR.t('drive.folder.not_granted_body'));
     await DR.folderRefresh();
     await DR.folderMirrorAll();
     await DR.folderRefresh();
@@ -122,7 +122,7 @@
     clearTimeout(timer);
     await DR.folderRefresh();
     DR.renderFolder();
-    DR.toast('Folder disconnected. Nothing in the folder was deleted.');
+    DR.toast(DR.t('drive.folder.disconnected'));
   };
 
   /** Loads the settings and config scripts once, on the first config action (boot stays as light as before). */

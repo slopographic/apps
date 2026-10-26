@@ -11,6 +11,7 @@ import { toCsv, parseCsv } from '../io/csv.js';
 import { toXlsx } from '../io/xlsx.js';
 import { tabs } from './tabs.js';
 import { readWorkbook } from '../io/import.js';
+import { t } from '../i18n.js';
 
 const hub = () => window.SlopHub || null;
 const CSV_TYPES = ['text/csv', 'text/tab-separated-values'];
@@ -18,7 +19,7 @@ const isCsv = (rec) => CSV_TYPES.includes(rec.type) || /\.(csv|tsv)$/i.test(rec.
 export const SHEET_TYPES = ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel.sheet.macroEnabled.12', 'application/vnd.oasis.opendocument.spreadsheet'];
 const isSheetFile = (rec) => !/\.(csv|tsv)$/i.test(rec.name || '') && (SHEET_TYPES.includes(rec.type) || /spreadsheetml|opendocument\.spreadsheet|ms-excel/.test(rec.type || '') || /\.(xlsx|xlsm|ods|xls)$/i.test(rec.name || ''));
 export const OPEN_EXTS = ['.stab', '.xlsx', '.xlsm', '.ods', '.csv', '.tsv'];
-const safe = (s) => String(s).replace(/[\\/:*?"<>|]/g, '-').trim() || 'Untitled spreadsheet';
+const safe = (s) => String(s).replace(/[\\/:*?"<>|]/g, '-').trim() || t('tables.app.untitled');
 export const fileName = (ext = EXT) => `${safe(S.file.name)}.${ext}`;
 
 async function importCsv(blob, name) {
@@ -31,19 +32,19 @@ async function importCsv(blob, name) {
 /** Open a Slop Drive record in a tab (the picker or ?drive=). A tab already showing it is brought forward. Resolves true when open. */
 export async function openRecord(rec) {
   if (!rec) return false;
-  const name = (rec.name || '').replace(/\.[^.]+$/, '') || 'Untitled spreadsheet';
+  const name = (rec.name || '').replace(/\.[^.]+$/, '') || t('tables.app.untitled');
   let wb;
   if (isSheetFile(rec)) {
     let got;
     try { got = await readWorkbook(rec.blob, rec.name || 'book.xlsx'); }
-    catch (err) { window.SlopUI.alert('Could not open that file', err.message || String(err)); return false; }
+    catch (err) { window.SlopUI.alert(t('tables.file.open_failed'), err.message || String(err)); return false; }
     tabs.open(got.wb, { name, dirty: true, origName: rec.name }, null);
     if (got.notes.length) {
       const el = window.SlopUI.el;
-      window.SlopUI.alert('Opened with a few things left out', el('div', { class: 'import-notes' }, el('ul', null, got.notes.map((n) => el('li', null, n))),
-        el('p', { class: 'sui-p' }, 'Save keeps it as a Slop Tables file in Slop Drive; File ▸ Download ▸ XLSX writes a new Excel file.')));
+      window.SlopUI.alert(t('tables.file.left_out'), el('div', { class: 'import-notes' }, el('ul', null, got.notes.map((n) => el('li', null, n))),
+        el('p', { class: 'sui-p' }, t('tables.file.left_out_body'))));
     }
-    else toast(`Opened ${rec.name || 'the file'}`);
+    else toast(rec.name ? t('tables.file.opened', { name: rec.name }) : t('tables.file.opened_it'));
     return true;
   }
   try {
@@ -51,7 +52,7 @@ export async function openRecord(rec) {
     else if (!rec.blob || rec.blob.size === 0) wb = new Workbook();
     else wb = await fromBlob(rec.blob);
   } catch (err) {
-    window.SlopUI.alert('Could not open that file', 'This is not a Slop Tables file. ' + (err.message && !/JSON/.test(err.message) ? err.message : ''));
+    window.SlopUI.alert(t('tables.file.open_failed'), t('tables.file.not_ours') + ' ' + (err.message && !/JSON/.test(err.message) ? err.message : ''));
     return false;
   }
   // A CSV is imported as a new, unsaved workbook: its Drive record must not be overwritten with .stab data.
@@ -69,9 +70,9 @@ export const openFromDrive = () => window.SlopIntake.fromDrive({ to: 'tables', a
 export async function openFile(file) {
   const rec = { name: file.name || 'Untitled', type: file.type || '', blob: file };
   if (!isSheetFile(rec) && !isCsv(rec)) {
-    if (!/\.stab$/i.test(rec.name) && rec.type !== MIME) throw new Error('Slop Tables opens .stab, .xlsx, .ods, .csv and .tsv files.');
+    if (!/\.stab$/i.test(rec.name) && rec.type !== MIME) throw new Error(t('tables.file.kinds'));
     let wb;
-    try { wb = await fromBlob(file); } catch (e) { throw new Error('This is not a Slop Tables file.'); }
+    try { wb = await fromBlob(file); } catch (e) { throw new Error(t('tables.file.not_ours')); }
     tabs.open(wb, { name: rec.name.replace(/\.[^.]+$/, ''), dirty: true }, null);
     return true;
   }
@@ -100,14 +101,14 @@ export async function save({ as = false } = {}) {
     tabs.setUrl(id);
     return true;
   } catch (err) {
-    window.SlopUI.alert('Could not save', err.message || String(err));
+    window.SlopUI.alert(t('tables.file.save_failed'), err.message || String(err));
     return false;
   }
 }
 
 /** Open wb as a new, unsaved workbook in a new tab (a template). */
 export async function useWorkbook(wb, name) {
-  tabs.open(wb, { name: name || 'Untitled spreadsheet' }, null);
+  tabs.open(wb, { name: name || t('tables.app.untitled') }, null);
   return true;
 }
 

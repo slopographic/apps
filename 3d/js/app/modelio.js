@@ -8,6 +8,7 @@
 (function () {
   'use strict';
   const S = (window.Slop3D = window.Slop3D || {});
+  const t = (key, vars) => (window.SlopI18n ? SlopI18n.t(key, vars) : key);
   const READ = ['obj', 'stl', 'ply', 'gltf', 'glb', '3mf', 'dae', 'fbx'];
   const WRITE = ['obj', 'stl', 'ply', 'glb', 'gltf', 'usdz'];
   const COMPANIONS = ['mtl', 'bin', 'png', 'jpg', 'jpeg', 'webp', 'gif', 'bmp', 'tga', 'ktx2'];
@@ -92,17 +93,18 @@
     const r = await mods.read.readModel(files);
     const warn = { points: 0, lines: 0, textures: 0, big: 0, posed: false };
     const tree = await nodeOf(r.root, warn);
-    if (!tree) throw new Error('This model has no meshes Slop 3D can show (point clouds and lines are not shown).');
+    if (!tree) throw new Error(t('3d.model.no_meshes'));
     let top = tree.type === 'group' ? tree : { type: 'group', name, children: [tree] };
     const still = (t) => !t || (t.p.every((v) => v === 0) && t.r.every((v) => v === 0) && t.s.every((v) => v === 1));
     // a file whose root holds one group (a glTF scene around its model) opens as that group, not two levels
     if (top.children.length === 1 && top.children[0].type === 'group' && still(top.transform)) top = top.children[0];
     if (!top.name || top.name === 'Node') top.name = name;
     const warnings = r.warnings.slice();
-    if (warn.points || warn.lines) warnings.push(`Left out: ${[warn.points && warn.points + ' point cloud(s)', warn.lines && warn.lines + ' line object(s)'].filter(Boolean).join(' and ')}. Slop 3D shows meshes only.`);
-    if (warn.textures) warnings.push(`${warn.textures} texture(s) could not be kept.`);
-    if (warn.big) warnings.push(`${warn.big} very large mesh part(s) were left out.`);
-    if (r.animations.length || warn.posed) warnings.push('Animations are not kept: the model opens in the pose it stands in.');
+    const what = [warn.points && t('3d.model.points', { n: warn.points }), warn.lines && t('3d.model.lines', { n: warn.lines })].filter(Boolean);
+    if (what.length) warnings.push(t('3d.model.left_out', { what: window.SlopI18n ? SlopI18n.list(what) : what.join(' and ') }));
+    if (warn.textures) warnings.push(t('3d.model.textures', { n: warn.textures }));
+    if (warn.big) warnings.push(t('3d.model.big', { n: warn.big }));
+    if (r.animations.length || warn.posed) warnings.push(t('3d.model.animations'));
     return { tree: top, warnings };
   }
 
@@ -144,7 +146,7 @@
     const root = await sceneObject(doc);
     let any = false;
     root.traverse((o) => { if (o.isMesh) any = true; });
-    if (!any) throw new Error('Nothing to export yet: the scene has no visible meshes.');
+    if (!any) throw new Error(t('3d.model.nothing_export'));
     return mods.write.writeModel(root, format, { name });
   }
 

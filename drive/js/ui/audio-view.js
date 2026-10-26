@@ -8,7 +8,7 @@
   const RATES = [0.5, 0.75, 1, 1.25, 1.5, 2];
   const clock = (t) => { if (!isFinite(t) || t < 0) t = 0; const s = Math.floor(t); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
   DR.audioView = function (r, big = false) {
-    const wave = el('canvas', { class: 'ap-wave', title: 'Click or drag to seek', 'aria-hidden': 'true', 'data-touch-surface': '' }); // a finger scrubs, never scrolls (shared/input)
+    const wave = el('canvas', { class: 'ap-wave', title: DR.t('drive.audio.seek_tip'), 'aria-hidden': 'true', 'data-touch-surface': '' }); // a finger scrubs, never scrolls (shared/input)
     const msg = el('p', { class: 'ap-msg', role: 'status' });
     const time = el('span', { class: 'ap-time' }, '0:00 / 0:00');
     const button = (label, title, act, cls = '') => {
@@ -16,16 +16,16 @@
       b.addEventListener('click', () => act());
       return b;
     };
-    const play = button('▶', 'Play', () => playThis(), 'ap-play');
-    const rate = el('select', { class: 'inp ap-rate', 'aria-label': 'Playback speed' }, RATES.map((x) => el('option', { value: String(x) }, x + '×')));
+    const play = button('▶', DR.t('drive.audio.play'), () => playThis(), 'ap-play');
+    const rate = el('select', { class: 'inp ap-rate', 'aria-label': DR.t('drive.audio.speed') }, RATES.map((x) => el('option', { value: String(x) }, x + '×')));
     rate.addEventListener('change', () => P.setRate(Number(rate.value)));
-    const vol = el('input', { type: 'range', min: '0', max: '1', step: '0.01', class: 'ap-vol', 'aria-label': 'Volume', value: String(P.audio.volume) });
+    const vol = el('input', { type: 'range', min: '0', max: '1', step: '0.01', class: 'ap-vol', 'aria-label': DR.t('drive.audio.volume'), value: String(P.audio.volume) });
     vol.addEventListener('input', () => P.setVolume(Number(vol.value)));
-    const box = el('div', { class: 'ap' + (big ? ' big' : ''), tabindex: '0', role: 'group', 'aria-label': `Audio player: ${r.name}` },
+    const box = el('div', { class: 'ap' + (big ? ' big' : ''), tabindex: '0', role: 'group', 'aria-label': DR.t('drive.audio.player_of', { name: r.name }) },
       wave,
       el('div', { class: 'ap-row' },
-        button('⏮', 'Previous file', () => P.step(-1), 'ap-step'), button('−10 s', 'Back 10 seconds', () => skip(-10)),
-        play, button('+10 s', 'Forward 10 seconds', () => skip(10)), button('⏭', 'Next file', () => P.step(1), 'ap-step'),
+        button('⏮', DR.t('drive.audio.prev'), () => P.step(-1), 'ap-step'), button('−10 s', DR.t('drive.audio.back10'), () => skip(-10)),
+        play, button('+10 s', DR.t('drive.audio.fwd10'), () => skip(10)), button('⏭', DR.t('drive.audio.next'), () => P.step(1), 'ap-step'),
         time, rate, vol),
       msg);
     let peaks = null, peaksDone = false, pending = null, unsub = () => {};
@@ -63,12 +63,12 @@
       if (pending != null && cur && isFinite(a.duration)) { P.seek(pending * a.duration); pending = null; }
       const playing = cur && !a.paused;
       play.textContent = playing ? '❚❚' : '▶';
-      play.title = playing ? 'Pause' : 'Play';
+      play.title = DR.t(playing ? 'drive.audio.pause' : 'drive.audio.play');
       play.setAttribute('aria-label', play.title);
       time.textContent = `${clock(cur ? a.currentTime : 0)} / ${clock(dur)}`;
       rate.value = String(P.rate);
       if (document.activeElement !== vol) vol.value = String(a.volume);
-      msg.textContent = cur && P.error ? P.error : peaksDone && !peaks ? 'The waveform could not be drawn for this file. Playback still works.' : '';
+      msg.textContent = cur && P.error ? P.error : peaksDone && !peaks ? DR.t('drive.audio.no_wave') : '';
       draw();
     }
     // Keys: Space plays or pauses; the arrows seek. They stop here, so Quick look and the Drive do not take them.

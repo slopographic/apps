@@ -52,7 +52,7 @@
   add('new_scene', 'New scene', [{ name: 'name', type: 'string', maxLength: 120, default: 'Untitled' }], (a) => {
     F.replaceScene(M.defaultScene(a.name), { name: a.name, dirty: true });
     return `Started the new scene “${a.name}” (a sun and an ambient light).`;
-  }, { destructive: true, description: 'Start a new, empty scene (replaces the open one).' });
+  }, { destructive: true, description: 'Start a new, empty scene (replaces the open one).' }); // i18n-ignore: the assistant's tool text (API)
 
   add('build_scene', 'Build a scene', [{ name: 'name', type: 'string', maxLength: 120, default: 'Untitled' },
     { name: 'objects', type: 'array', required: true, maxItems: 200, items: OBJECT_ITEM, description: '[{ kind, name, position [x,y,z], rotation [deg], scale, color, roughness, metallic, opacity, params }]' },
@@ -62,16 +62,16 @@
     const ids = A.addTrees(a.objects.map(treeOf));
     if (a.background) A.commit(Object.assign(M.clone(s.doc), { background: a.background }));
     return `Built “${a.name}” with ${ids.length} object${ids.length === 1 ? '' : 's'}: ${ids.map((id) => s.doc.nodes[id].name).join(', ')}.`;
-  }, { destructive: true, description: 'Make a whole scene in one step from a list of objects (replaces the open one).' });
+  }, { destructive: true, description: 'Make a whole scene in one step from a list of objects (replaces the open one).' }); // i18n-ignore: the assistant's tool text (API)
 
   add('add_object', 'Add an object', [{ name: 'kind', type: 'enum', values: SHAPES.concat(['directional', 'ambient', 'group']), default: 'cube' }, { name: 'name', type: 'string', maxLength: 80 },
     vec('position', '[x, y, z]; y is up'), vec('rotation', 'degrees [x, y, z]'), N('scale', 0.001, 1000, 'uniform scale'), COL('color', 'surface or light colour'),
     N('roughness', 0, 1), N('metallic', 0, 1), N('opacity', 0, 1), { name: 'params', type: 'object', description: 'shape sizes, e.g. { "radius": 1 } or { "size": 2 }' }],
   (a) => { const id = A.importTree(treeOf(a)); return `Added ${where(s.doc.nodes[id])}.`; },
-  { description: 'Add a cube, sphere, cylinder, cone, torus, plane, blob, light or group with its place and material.' });
+  { description: 'Add a cube, sphere, cylinder, cone, torus, plane, blob, light or group with its place and material.' }); // i18n-ignore: the assistant's tool text (API)
 
-  add('add_model', 'Add a model', [{ name: 'file', type: 'string', maxLength: 300, description: 'a Slop Drive file (OBJ, STL, PLY, glTF, GLB, 3MF, DAE, FBX, or a picture)' },
-    { name: 'url', type: 'string', maxLength: 500, description: 'or a file on this site' }],
+  add('add_model', 'Add a model', [{ name: 'file', type: 'string', maxLength: 300, description: 'a Slop Drive file (OBJ, STL, PLY, glTF, GLB, 3MF, DAE, FBX, or a picture)' }, // i18n-ignore: the assistant's tool text (API)
+    { name: 'url', type: 'string', maxLength: 500, description: 'or a file on this site' }], // i18n-ignore: the assistant's tool text (API)
   async (a) => {
     await S.ai.sources();
     if (!a.file && !a.url) throw new Error('Give file (Slop Drive) or url (this site)');
@@ -79,7 +79,7 @@
     const n0 = Object.keys(s.doc.nodes).length;
     if (!(await F.importBlob(f.blob, f.name))) throw new Error(`${f.name} could not be imported`);
     return `Imported ${f.name} (${Object.keys(s.doc.nodes).length - n0} objects): ${where(s.doc.nodes[st.primary()])}.`;
-  }, { description: 'Import a 3D model or a picture from Slop Drive into the scene.' });
+  }, { description: 'Import a 3D model or a picture from Slop Drive into the scene.' }); // i18n-ignore: the assistant's tool text (API)
 
   /** Several field changes on one node as one undo step. */
   function setFields(n, pairs, label) {
@@ -115,7 +115,7 @@
   });
   add('set_background', 'Set background', [COL('color', 'background colour')], (a) => { A.commit(Object.assign(M.clone(s.doc), { background: a.color })); return `The background is ${a.color}.`; });
   add('rename_object', 'Rename object', [OBJ, { name: 'name', type: 'string', required: true, maxLength: 80 }], (a) => setFields(find(a.object), [['name', a.name]], 'Renamed'));
-  add('set_view', 'Set camera view', [{ name: 'view', type: 'enum', values: ['perspective', 'front', 'top', 'side'], default: 'perspective' }, { name: 'frame', type: 'boolean', default: true, description: 'fit everything in view' }],
+  add('set_view', 'Set camera view', [{ name: 'view', type: 'enum', values: ['perspective', 'front', 'top', 'side'], default: 'perspective' }, { name: 'frame', type: 'boolean', default: true, description: 'fit everything in view' }], // i18n-ignore: the assistant's tool text (API)
     (a) => { S.app.ui.setView(a.view); if (a.frame) S.app.ui.frame([]); return `The camera shows the ${a.view} view.`; });
   add('delete_object', 'Delete object', [OBJ], (a) => { const n = find(a.object); A.remove([n.id]); return `Deleted ${n.name}.`; }, { destructive: true });
   add('undo', 'Undo', [N('steps', 1, 20, 'how many', { integer: true, default: 1 })], (a) => { let k = 0; while (k < a.steps && A.undo()) k++; return `Undid ${k} step${k === 1 ? '' : 's'}.`; });

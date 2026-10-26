@@ -3,6 +3,7 @@
 // Run: node --test tests/node/tables-objects.test.mjs
 // Covers: tables/js/objects/region.js, tables/js/objects/chart-data.js, tables/js/objects/chart-svg.js,
 // tables/js/objects/pivot.js, tables/js/objects/pivot-write.js, tables/js/objects/store.js, tables/js/io/native.js
+import './tables-i18n-en.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { Workbook } from '../../tables/js/engine/index.js';
