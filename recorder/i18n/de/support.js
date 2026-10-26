@@ -18,7 +18,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'recorder.support.pip': 'Bildschirm + Webcam in einer Ecke',
   'recorder.support.trim': 'Zuschneiden ohne Umwandlung',
   'recorder.support.format': 'Aufgenommen als',
-  'recorder.support.n_screen_yes': 'Beim Drücken von Aufnehmen wählen Sie den Bildschirm, ein Fenster oder einen Browser-Tab.',
+  'recorder.support.n_screen_yes': 'Beim Drücken von Aufnehmen wird der Bildschirm, ein Fenster oder ein Browser-Tab gewählt.',
   'recorder.support.n_screen_mobile': 'Telefone und Tablets erlauben Webseiten keine Bildschirmaufnahme. Den eigenen Bildschirmrecorder des Telefons verwenden.',
   'recorder.support.n_screen_no': 'Dieser Browser erlaubt Seiten keine Bildschirmaufnahme.',
   'recorder.support.n_system_yes': 'In das Freigabefenster des Browsers „Tab-Audio teilen“ oder „System-Audio teilen“ anhaken. Ein einzelnes Fenster teilt keinen Ton.',

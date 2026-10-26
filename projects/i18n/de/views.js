@@ -76,7 +76,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'projects.list.tags': 'Schlagwörter',
   'projects.list.aria': 'Aufgaben in {name}',
   'projects.list.no_match': 'Keine Aufgaben entsprechen den Filtern.',
-  'projects.list.none': 'Noch keine Aufgaben. Fügen Sie mit „Neue Aufgabe“ eine hinzu.',
+  'projects.list.none': 'Noch keine Aufgaben. Mit „Neue Aufgabe“ eine hinzufügen.',
   'projects.bar.settings': 'Projekteinstellungen und Spalten…',
   'projects.bar.new_project': 'Neues Projekt…',
   'projects.bar.dl_backup': 'Sicherung herunterladen (.json)',

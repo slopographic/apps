@@ -5,7 +5,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'tables.tpl.import_drive': 'Aus Drive importieren…',
   'tables.tpl.builtin': 'Eingebaute Vorlagen',
   'tables.tpl.mine': 'Meine Vorlagen',
-  'tables.tpl.mine_empty': 'Noch nichts gespeichert. Nutzen Sie Datei ▸ Als Vorlage speichern…, um hier eine Arbeitsmappe aufzubewahren.',
+  'tables.tpl.mine_empty': 'Noch nichts gespeichert. Datei ▸ Als Vorlage speichern… nutzen, um hier eine Arbeitsmappe aufzubewahren.',
   'tables.tpl.read_failed': 'Meine Vorlagen konnten nicht gelesen werden: {error}',
   'tables.tpl.preview': 'Vorschau',
   'tables.tpl.use': 'Verwenden',

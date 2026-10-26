@@ -131,7 +131,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'ledger.bk.lines': 'Zeilen des Kontoauszugs',
   'ledger.bk.to_explain': 'Noch zu klären',
   'ledger.bk.all_done': 'Jede Zeile ist zugeordnet oder zurückgestellt. Das Kästchen anhaken, um sie zu sehen.',
-  'ledger.bk.none': 'Noch kein Kontoauszug. Den Kontoauszug Ihrer Bank importieren (CSV, OFX, QIF, camt.053 oder MT940): Jede Zeile wird, wo möglich, den Büchern zugeordnet.',
+  'ledger.bk.none': 'Noch kein Kontoauszug. Den Kontoauszug der Bank importieren (CSV, OFX, QIF, camt.053 oder MT940): Jede Zeile wird, wo möglich, den Büchern zugeordnet.',
   'ledger.bk.matched_n': '{n} zugeordnet',
   'ledger.bk.nothing_new': 'Nichts Neues zuzuordnen',
   'ledger.bk.noun': 'ein Kontoauszug',

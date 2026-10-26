@@ -9,7 +9,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'cutout.panel.mixed': 'Gemischt',
   'cutout.panel.mixed_tip': 'Gemischt: Die ausgewählten Bilder unterscheiden sich',
   'cutout.panel.model': 'Modell',
-  'cutout.panel.model_mixed': 'Gemischt: Die ausgewählten Bilder nutzen verschiedene Modelle. Wählen Sie eines für alle.',
+  'cutout.panel.model_mixed': 'Gemischt: Die ausgewählten Bilder nutzen verschiedene Modelle. Eines für alle wählen.',
   'cutout.panel.on_device': 'auf dem Gerät · {size}',
   'cutout.panel.stored': 'Auf diesem Gerät gespeichert',
   'cutout.panel.downloads_once': 'Einmal laden, danach offline nutzbar',

@@ -80,7 +80,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'press.props.unit.cm': 'Zentimeter',
   'press.props.unit.in': 'Zoll',
   'press.props.unit.pc': 'Pica',
-  'press.props.doc_tip': 'Wählen Sie ein Objekt aus, um es zu bearbeiten, oder klicken Sie mit dem Textwerkzeug (T) in einen Text, um Absätze zu formatieren.',
+  'press.props.doc_tip': 'Objekt auswählen, um es zu bearbeiten, oder mit dem Textwerkzeug (T) in einen Text klicken, um Absätze zu formatieren.',
   'press.props.undo.transform': 'Transformieren',
   'press.props.undo.rotate': 'Drehen',
   'press.props.undo.stroke_weight': 'Konturstärke',

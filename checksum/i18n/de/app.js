@@ -2,7 +2,7 @@
  * Terms: shared/i18n/glossary-de.md. */
 window.SlopI18n && window.SlopI18n.add('de', {
   'checksum.app.home': 'Slopographic-Startseite',
-  'checksum.app.lede': 'Berechnen Sie den Hash einer Datei oder vergleichen Sie ihn mit dem Hash des Herausgebers. Die Datei wird auf diesem Gerät gelesen und nie hochgeladen.',
+  'checksum.app.lede': 'Den Hash einer Datei berechnen oder mit dem Hash des Herausgebers vergleichen. Die Datei wird auf diesem Gerät gelesen und nie hochgeladen.',
   'checksum.app.step_choose': '1. Datei auswählen',
   'checksum.app.drop': 'Datei auswählen oder hier ablegen',
   'checksum.app.step_hash': '2. Der Hash',

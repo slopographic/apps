@@ -12,7 +12,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'press.app.edit_text': 'Text bearbeiten',
   'press.app.panels': 'Bereiche',
   'press.app.went_wrong': 'Etwas ist schiefgelaufen: {error}',
-  'press.app.restored': 'Ihre letzte Sitzung wurde wiederhergestellt',
+  'press.app.restored': 'Die letzte Sitzung wurde wiederhergestellt',
   'press.app.guides_on': 'Hilfslinien ein',
   'press.app.guides_off': 'Hilfslinien aus',
   'press.app.baseline_on': 'Grundlinienraster ein',
@@ -23,7 +23,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'press.app.pages_added': '{n} Seiten hinzugefügt',
   'press.app.style_redefined': 'Format neu definiert',
   'press.app.cannot_thread': 'Diese Rahmen können nicht verkettet werden',
-  'press.app.thread_hint': 'Klicken Sie auf einen Textrahmen (oder ziehen Sie einen neuen auf), um den Text fortzusetzen',
+  'press.app.thread_hint': 'Auf einen Textrahmen klicken (oder einen neuen aufziehen), um den Text fortzusetzen',
   'press.app.paste_hint': 'Ctrl/Cmd+V zum Einfügen verwenden',
   'press.app.master_left': '{name} (links)',
   'press.app.master_right': '{name} (rechts)'

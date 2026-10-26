@@ -53,7 +53,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'ui.buddy.hat.crown': 'Krone',
   // the Geben … tray, candy and treats (care.js, candy.js, mood.js, treats.js); items carry their article
   'ui.buddy.give': 'Geben …',
-  'ui.buddy.give_him': 'Ihm {item} geben',
+  'ui.buddy.give_him': '{item} geben',
   'ui.buddy.give_sloppo': 'Sloppo {item} geben',
   'ui.buddy.item.cookie': 'einen Keks',
   'ui.buddy.item.candy': 'ein Schleim-Bonbon',

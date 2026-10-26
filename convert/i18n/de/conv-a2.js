@@ -91,7 +91,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'convert.media.mp3_bitrate': 'MP3-Bitrate',
   'convert.media.video_trim': 'Video schneiden',
   'convert.media.exact': 'Genau am Bild schneiden (langsamer, das Video wird neu kodiert)',
-  'convert.media.exact_hint': 'Aus: Die Datenströme werden kopiert. Das ist schnell und verliert nichts, aber der Schnitt beginnt am nächsten Schlüsselbild vor dem Start.',
+  'convert.media.exact_hint': 'Aus: Die Datenströme werden kopiert. Das ist schnell und verliert nichts, aber der Schnitt beginnt am nächsten Keyframe vor dem Start.',
   'convert.media.bitrate': 'Bitrate',
   'convert.media.to_ogg': 'In OGG (Vorbis)',
   'convert.media.to_opus': 'In Opus',

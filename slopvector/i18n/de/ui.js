@@ -12,7 +12,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'vector.app.ruler_v': 'Vertikales Lineal: nach rechts ziehen, um eine Hilfslinie zu erstellen',
   'vector.app.artwork': 'Grafik',
   'vector.app.edit_text': 'Text bearbeiten',
-  'vector.app.drop_hint': 'Legen Sie SVG-Dateien oder Bilder ab, um sie zu platzieren',
+  'vector.app.drop_hint': 'SVG-Dateien oder Bilder ablegen, um sie zu platzieren',
   'vector.menu.object': 'Objekt',
   'vector.menu.type': 'Text',
   'vector.menu.select': 'Auswahl',

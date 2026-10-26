@@ -28,7 +28,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'pdf.find.rep_with': 'Ersetzen durch',
   'pdf.find.rep_go': 'Markierte ersetzen',
   'pdf.find.rep_go_n': 'Markierte ersetzen ({n})',
-  'pdf.find.rep_type': 'Geben Sie den Suchtext ein.',
+  'pdf.find.rep_type': 'Den Suchtext eingeben.',
   'pdf.find.rep_match': 'Treffer {n} ersetzen',
   'pdf.find.rep_unplaced': 'Position nicht genau bestimmbar: nicht ersetzt',
   'pdf.find.rep_status': '{matches} · {n} markiert',
@@ -79,7 +79,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
 
   // organize/zoom.js
   'pdf.org.thumb_size': 'Miniaturgröße',
-  'pdf.org.thumb_presets': 'Voreinstellungen für Miniaturgröße',
+  'pdf.org.thumb_presets': 'Vorgaben für die Miniaturgröße',
   'pdf.org.thumb_size_n': 'Miniaturgröße {size}',
   'pdf.org.thumb_size_tip': 'Miniaturgröße (Strg + Mausrad oder Zwei-Finger-Zoom auf den Seiten)',
   'pdf.org.one_per_row': 'Eine Seite pro Zeile',

@@ -35,7 +35,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'photoslop.guide.edit_title': 'Hilfslinie bearbeiten',
   'photoslop.guide.new_title': 'Neue Hilfslinie',
   'photoslop.guide.orientation': 'Ausrichtung',
-  'photoslop.guide.bad_pos': 'Geben Sie eine Position ein, z. B. 120, 50 % oder 2in',
+  'photoslop.guide.bad_pos': 'Eine Position eingeben, z. B. 120, 50 % oder 2in',
   'photoslop.guide.grid_colour': 'Farbe des Rasters',
   'photoslop.guide.guide_colour': 'Farbe der Hilfslinien',
   'photoslop.guide.grid_title': 'Raster und Hilfslinien',

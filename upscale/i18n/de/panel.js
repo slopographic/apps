@@ -17,7 +17,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'upscale.panel.quality': 'Qualität',
   'upscale.panel.fps': 'Bildrate des Videos',
   'upscale.panel.video_note': 'Video enthält nur Bilder (kein Ton). Die Bilder werden einzeln vergrößert, daher dauert ein Clip eine Weile.',
-  'upscale.panel.copies_note': 'Die Ergebnisse sind Kopien. Speichern Sie sie in Slop Drive im Ordner Slop Upscale.',
+  'upscale.panel.copies_note': 'Die Ergebnisse sind Kopien. In Slop Drive im Ordner Slop Upscale speichern.',
   'upscale.panel.result': 'Ergebnis',
   'upscale.panel.save': 'In Slop Drive speichern',
   'upscale.panel.save_tip': 'In den Ordner Slop Upscale in Slop Drive speichern',

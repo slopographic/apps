@@ -12,7 +12,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'fontcreator.app.tab_draw': 'Zeichnen',
   'fontcreator.app.tab_kerning': 'Unterschneidung',
   'fontcreator.app.tab_test': 'Schrifttest',
-  'fontcreator.app.start_title': 'Beginnen Sie Ihre Schriftart.',
+  'fontcreator.app.start_title': 'Schriftart anlegen.',
   'fontcreator.app.start_text': 'Links einen Buchstaben wählen und mit dem Stift zeichnen, oder von etwas Vorhandenem ausgehen:',
   'fontcreator.app.start_pen': 'Mit dem Stift zeichnen',
   'fontcreator.app.start_sheet': 'Handschrift-Vorlage drucken',

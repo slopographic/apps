@@ -44,7 +44,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'photoslop.type.colour': 'Farbe',
   'photoslop.type.aa_short': 'AA',
   'photoslop.type.hint': 'Klicken zum Schreiben · {mod}Eingabe übernimmt · Esc bricht ab',
-  'photoslop.type.select_layer_first': 'Wählen Sie zuerst eine Textebene aus',
+  'photoslop.type.select_layer_first': 'Zuerst eine Textebene auswählen',
   'photoslop.type.bend': 'Biegen',
   'photoslop.type.warp_text': 'Text verformen',
   'photoslop.type.style': 'Stil',

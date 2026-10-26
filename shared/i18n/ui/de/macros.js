@@ -24,7 +24,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'ui.macro.import_failed': 'Import nicht möglich',
   'ui.macro.no_macro_file': 'Diese Datei enthält kein Makro.',
   'ui.macro.import_title': 'Makros importieren',
-  'ui.macro.import_foreign': 'Diese Datei enthält Makros, die in {app} erstellt wurden. Ihre Befehle funktionieren hier womöglich nicht. Trotzdem importieren?',
+  'ui.macro.import_foreign': 'Diese Datei enthält Makros, die in {app} erstellt wurden. Die Befehle funktionieren hier womöglich nicht. Trotzdem importieren?',
   'ui.macro.imported': '{n} Makros importiert.',
   'ui.macro.imported#one': '{n} Makro importiert.',
   'ui.macro.cmd_record': 'Ein Makro aufnehmen',

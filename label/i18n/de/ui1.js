@@ -14,7 +14,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'label.cmd.label_setup': 'Etikettenformat…',
   'label.cmd.new_tab': 'Neuer Tab',
   'label.cmd.close_tab': 'Tab schließen',
-  'label.cmd.presets': 'Vorlagen…',
+  'label.cmd.presets': 'Vorgaben…',
   'label.cmd.save_as_config': 'Als Konfiguration speichern…',
   'label.cmd.configs': 'Konfigurationen…',
   'label.cmd.insert_image_from_slop_drive': 'Bild aus Slop Drive einfügen…',

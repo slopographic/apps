@@ -2,7 +2,7 @@
 window.SlopI18n && window.SlopI18n.add('de', {
   'calculator.app.about': 'Info zu Slopculator',
   'calculator.app.local': '100 % lokal',
-  'calculator.app.local_title': 'Ihre Berechnungen, Rechenstreifen und Verlauf bleiben in diesem Browser. Es wird nichts hochgeladen.',
+  'calculator.app.local_title': 'Die Berechnungen, Rechenstreifen und Verlauf bleiben in diesem Browser. Es wird nichts hochgeladen.',
   'calculator.app.expression': 'Ausdruck',
   'calculator.app.type': 'Eine Berechnung eingeben',
   'calculator.app.expr_ph': '200 + 20%   oder   2026-01-31 + 1 month',
@@ -35,7 +35,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'calculator.app.rate_note': 'Einen Kurs eingeben: 1 der ersten Währung entspricht der Zahl der zweiten.',
   'calculator.app.save_rate': 'Kurs speichern',
   'calculator.app.preview_empty': 'Das Ergebnis erscheint hier beim Schreiben.',
-  'calculator.app.tape_empty': 'Hier stehen Ihre berechneten Ergebnisse, das älteste zuerst.',
+  'calculator.app.tape_empty': 'Hier stehen die berechneten Ergebnisse, das älteste zuerst.',
   'calculator.status.no_rate': '{msg}. Unter Wechselkurse einen Kurs von Hand hinzufügen.',
   'calculator.status.not_calculated': 'Nicht berechnet: {msg}',
   'calculator.status.saved_tape': 'Im Rechenstreifen gespeichert: {expr} = {result}',

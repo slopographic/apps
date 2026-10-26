@@ -60,7 +60,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'ui.models.idx.mobilenet_name': 'MobileNetV3 Large 100 (ImageNet-Tags)',
   'ui.models.idx.mobilenet_arch': 'MobileNetV3-Bildklassifikator, 1000 ImageNet-Klassen',
   'ui.models.idx.mobilenet_source': 'ONNX-Export (Opset 17) der Gewichte von timm mobilenetv3_large_100.',
-  'ui.models.idx.modnet_name': 'MODNet-Porträt-Freistellung (gemeinsam mit Slop Isolate)',
+  'ui.models.idx.modnet_name': 'MODNet-Porträt-Freisteller (gemeinsam mit Slop Isolate)',
   'ui.models.idx.modnet_arch': 'MODNet-Netz zum Freistellen von Porträts',
   'ui.models.idx.modnet_source': 'Mit der Website mitgeliefert. Dieselbe Datei, die Slop Isolate nutzt (shared/cutout).',
 });

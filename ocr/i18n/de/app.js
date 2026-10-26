@@ -1,6 +1,6 @@
 /* Slop OCR, German: the page, the pager, the panel, the status line, the drop zone and the palette commands. Same keys as ocr/i18n/en/app.js. Terms: shared/i18n/glossary-de.md. */
 window.SlopI18n && window.SlopI18n.add('de', {
-  'ocr.app.local_tip': 'Text aus Bildern und PDFs wird auf Ihrem Gerät gelesen. Es wird nichts hochgeladen.',
+  'ocr.app.local_tip': 'Text aus Bildern und PDFs wird auf dem Gerät gelesen. Es wird nichts hochgeladen.',
   'ocr.app.local': '100 % lokal',
   'ocr.app.files': 'Dateien',
   'ocr.app.pages_text': 'Seiten und Text',

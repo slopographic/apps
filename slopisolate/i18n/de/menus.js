@@ -29,7 +29,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'cutout.menu.keys_title': 'Tastenkombinationen',
   'cutout.menu.keys_body': 'Strg oder ⌘ + O öffnen · + S exportieren · + Z rückgängig · K behalten · R entfernen · H verschieben · 0 anpassen · + und − zoomen',
   'cutout.menu.no_theme': 'Das Designskript wurde nicht geladen.',
-  'cutout.menu.open_first': 'Öffnen Sie zuerst ein Bild',
+  'cutout.menu.open_first': 'Zuerst ein Bild öffnen',
   'cutout.menu.no_edits': 'Keine Pinselbearbeitungen zum Entfernen',
   'cutout.menu.view': 'Ansicht',
   'cutout.menu.retry': 'Erneut versuchen',

@@ -8,7 +8,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'img3d.tour.invert_title': 'Tiefe',
   'img3d.tour.invert_text': 'Die Tiefe umkehren, damit die fernen Teile nah werden.',
   'img3d.tour.subject_title': 'Nur das Motiv',
-  'img3d.tour.subject_text': 'Den Hintergrund entfernen, sodass nur das Motiv in 3D wird. Läuft auf Ihrem Gerät.',
+  'img3d.tour.subject_text': 'Den Hintergrund entfernen, sodass nur das Motiv in 3D wird. Läuft auf dem Gerät.',
   'img3d.tour.scale_title': 'Tiefenskala',
   'img3d.tour.scale_text': 'Wie hoch das Relief ist. Glättung und Punktgröße stehen darunter.',
   'img3d.tour.send_title': 'In Slop 3D öffnen',

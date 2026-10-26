@@ -22,7 +22,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'pdf.se.paste_pages_title': "Auf Seiten einfügen",
   'pdf.se.position': "Position und Größe",
   'pdf.se.rotation': "Drehung",
-  'pdf.se.select_help': "Klicken Sie auf Text der Seite, um seinen Block auszuwählen: ziehen zum Verschieben, die Griffe zum Ändern der Größe, Skalieren oder Drehen, tippen oder doppelklicken zum Bearbeiten. Über Text ziehen markiert Wörter zum Kopieren. Umschalt+Klick oder ein Rahmen auf leerer Fläche wählt mehrere Anmerkungen.",
+  'pdf.se.select_help': "Auf Text der Seite klicken, um seinen Block auszuwählen: ziehen zum Verschieben, die Griffe zum Ändern der Größe, Skalieren oder Drehen, tippen oder doppelklicken zum Bearbeiten. Über Text ziehen markiert Wörter zum Kopieren. Umschalt+Klick oder ein Rahmen auf leerer Fläche wählt mehrere Anmerkungen.",
   'pdf.se.setting_up': "Text wird zum Bearbeiten vorbereitet…",
   'pdf.se.text_block': "Textblock",
   'pdf.se.undo_copy_annot': "Anmerkung kopieren",

@@ -10,7 +10,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'label.cfg.per_sheet': '{grid} pro Bogen',
   'label.cfg.roll': 'Rolle',
   'label.cfg.data_cols': '{n} Datenspalten',
-  'label.cfg.delete_body': '„{name}“ wird aus diesem Browser entfernt. Daraus gespeicherte Vorlagen bleiben.',
+  'label.cfg.delete_body': '„{name}“ wird aus diesem Browser entfernt. Daraus gespeicherte Vorgaben bleiben.',
   'label.cfg.missing_cols': '{n} Spalten der Konfiguration fehlen in diesen Daten: {list}',
   'label.bulk.no_fit': '{grid} Etiketten zu {size} mm passen mit diesen Abständen und diesem Rand nicht auf {paper}.',
   'label.bulk.labels': '{n} Etiketten',

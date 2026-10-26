@@ -24,7 +24,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'label.cfg.applied': '„{name}“ angewendet. Rückgängig nimmt es zurück.',
   'label.cfg.saved': 'Konfiguration „{name}“ gespeichert',
   'label.cfg.imported': '{n} Konfigurationen importiert',
-  'label.cfg.saved_preset': 'Vorlage „{name}“ gespeichert',
+  'label.cfg.saved_preset': 'Vorgabe „{name}“ gespeichert',
   'label.data.or_json': 'oder ein JSON-Array',
   'label.data.col_name': '{c} (Spaltenname)',
   'label.data.fill_var': '{v} füllen',

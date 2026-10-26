@@ -64,7 +64,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'effects.io.relinked': '{name} neu verknüpft',
   'effects.io.noun': 'ein Bild, ein Video oder ein Slop-Effects-Projekt',
   'effects.io.from_drive': 'Bild oder Video aus Slop Drive hinzufügen',
-  'effects.io.missing_body': 'Diese Dateien sind in dieser Sitzung nicht vorhanden. Ihre Ebenen bleiben im Projekt. Eine Ebene auswählen und Medien neu verknüpfen wählen, um sie auf die Datei zu zeigen:',
+  'effects.io.missing_body': 'Diese Dateien sind in dieser Sitzung nicht vorhanden. Die Ebenen bleiben im Projekt. Eine Ebene auswählen und Medien neu verknüpfen wählen, um sie auf die Datei zu zeigen:',
   'effects.io.missing_title': 'Fehlende Medien',
   'effects.io.cannot_open': 'Öffnen nicht möglich: {why}',
   'effects.io.opened': '{name} geöffnet',

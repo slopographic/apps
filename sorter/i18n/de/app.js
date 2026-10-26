@@ -1,12 +1,12 @@
 /* Sorter, German: the photo sorting page and the drop area. Same keys as sorter/i18n/en/app.js.
  * Terms: shared/i18n/glossary-de.md. */
 window.SlopI18n && window.SlopI18n.add('de', {
-  'sorter.app.local_tip': 'Ihre Fotos werden in diesem Browser sortiert. Nach dem Schließen der Seite wird nichts hochgeladen oder gespeichert.',
+  'sorter.app.local_tip': 'Die Fotos werden in diesem Browser sortiert. Nach dem Schließen der Seite wird nichts hochgeladen oder gespeichert.',
   'sorter.app.local': '100 % lokal',
   'sorter.app.title': 'Fotos sortieren: die besten behalten',
-  'sorter.app.lede': 'Legen Sie einen Stapel Fotos oder einen ganzen Ordner hier ab und gehen Sie die Bilder dann einzeln durch: Mit den Pfeiltasten oder Schaltflächen jedes Foto als „Gefällt mir“, „Gefällt mir nicht“ oder mit einem Schlagwort markieren. Die behaltenen Fotos als ZIP herunterladen oder in Slop Drive speichern.',
+  'sorter.app.lede': 'Einen Stapel Fotos oder einen ganzen Ordner hier ablegen und die Bilder dann einzeln durchgehen: Mit den Pfeiltasten oder Schaltflächen jedes Foto als „Gefällt mir“, „Gefällt mir nicht“ oder mit einem Schlagwort markieren. Die behaltenen Fotos als ZIP herunterladen oder in Slop Drive speichern.',
   'sorter.app.folder': 'Ordner auswählen…',
-  'sorter.app.your_photos': 'Ihre Fotos',
+  'sorter.app.your_photos': 'Die Fotos',
   'sorter.app.show': 'Anzeigen',
   'sorter.app.photos': 'Fotos',
   'sorter.app.none': 'In dieser Ansicht gibt es keine Fotos.',
@@ -40,7 +40,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'sorter.app.no_drive': 'Slop Drive ist hier nicht verfügbar.',
   'sorter.app.saved_drive': '{n} gefällte Fotos in {folder} in Slop Drive gespeichert.',
   'sorter.drop.label': 'Fotos oder einen Ordner hier ablegen oder Fotos auswählen',
-  'sorter.drop.hint': 'So viele, wie Sie möchten. Sie bleiben auf diesem Gerät.',
+  'sorter.drop.hint': 'Beliebig viele. Sie bleiben auf diesem Gerät.',
   'sorter.drop.alt': 'Fotos, sortiert nach „gefällt mir“ und „gefällt mir nicht“, mit Schlagwörtern',
   'sorter.drop.step1': 'Fotos oder einen ganzen Ordner ablegen',
   'sorter.drop.step2': 'Durchblättern: ↑ gefällt mir, ↓ gefällt mir nicht, Schlagwort eintippen',

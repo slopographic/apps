@@ -27,7 +27,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'contacts.ed.notes_hint': 'Datierte Notizen bleiben erhalten. Neue Notizen unter Aktivität auf der Karte hinzufügen.',
   'contacts.ed.pipe_groups': 'Pipeline und Gruppen',
   'contacts.ed.groups': 'Gruppen (durch Kommas getrennt)',
-  'contacts.ed.pipe_hint': 'Phase der Pipeline und nächste Nachfassaktion werden auf der Karte festgelegt und bleiben erhalten.',
+  'contacts.ed.pipe_hint': 'Phase der Pipeline und nächste Wiedervorlage werden auf der Karte festgelegt und bleiben erhalten.',
   'contacts.kind.phone': 'Telefon',
   'contacts.kind.email': 'E-Mail',
   'contacts.kind.address': 'Adresse',

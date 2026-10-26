@@ -3,7 +3,7 @@
 window.SlopI18n && window.SlopI18n.add('de', {
   'calendar.app.name': 'Kalender',
   'calendar.page.calendar': 'Kalender',
-  'calendar.page.local_tip': 'Ihr Kalender bleibt in diesem Browser. Es wird nichts hochgeladen.',
+  'calendar.page.local_tip': 'Der Kalender bleibt in diesem Browser. Es wird nichts hochgeladen.',
   'calendar.page.prev': 'Vorheriger Zeitraum',
   'calendar.page.prev_tip': 'Zurück (Pfeiltaste links)',
   'calendar.page.today_tip': 'Heute (T)',
@@ -36,5 +36,5 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'calendar.page.import': '.ics importieren',
   'calendar.page.export': '.ics exportieren',
   'calendar.page.config': 'Einstellungen',
-  'calendar.page.opening': 'Ihr Kalender wird geöffnet…'
+  'calendar.page.opening': 'Der Kalender wird geöffnet…'
 });

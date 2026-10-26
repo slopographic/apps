@@ -1,7 +1,7 @@
 /* Slop Time, German: the page: the top bar, the tabs, the add-city row, the working hours, the meeting planner, the converter, the timers and the sync. Same keys as time/i18n/en/page.js. Terms: shared/i18n/glossary-de.md. Rules: shared/i18n/APPS-HOWTO.md. */
 window.SlopI18n && window.SlopI18n.add('de', {
   'time.app.name': 'Zeit',
-  'time.page.local_tip': 'Ihre Uhren, Zeitzonen und Timer bleiben in diesem Browser. Es wird nichts hochgeladen.',
+  'time.page.local_tip': 'Die Uhren, Zeitzonen und Timer bleiben in diesem Browser. Es wird nichts hochgeladen.',
   'time.page.sections': 'Bereiche',
   'time.page.add_ph': 'Lissabon, Sydney, America/Chicago',
   'time.page.working_days': 'Arbeitstage',

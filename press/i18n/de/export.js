@@ -26,7 +26,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'press.export.embed_tip': 'Die mitgelieferte Liberation Sans und geladene .ttf/.otf-Schriften werden eingebettet; Systemschriften verwenden die PDF-Standardschriften',
   'press.export.marks_bleed': 'Marken und Anschnitt',
   'press.export.boxes_note': 'TrimBox = Seitengröße, BleedBox = Seite + Anschnitt, MediaBox wächst, um die Marken aufzunehmen. Farbfelder der Prozessfarben (CMYK) werden als CMYK geschrieben; Marken verwenden die Passerfarbe.',
-  'press.export.no_font_file': 'Keine Schriftdatei zum Einbetten für: {fonts}. Die Textpositionen bleiben exakt; laden Sie eine .ttf/.otf-Datei (Datei ▸ Schriftdatei laden), um das echte Layout einzubetten.',
+  'press.export.no_font_file': 'Keine Schriftdatei zum Einbetten für: {fonts}. Die Textpositionen bleiben exakt; eine .ttf/.otf-Datei laden (Datei ▸ Schriftdatei laden), um das echte Layout einzubetten.',
   'press.export.overset': '{n} Texte haben überlaufenden Text, der nicht exportiert wird.',
   'press.export.pdf_title': 'PDF exportieren',
   'press.export.ppi_screen': '{n} ppi (Bildschirm)',
@@ -40,6 +40,6 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'press.export.q_normal': 'Normal ({n} ppi)',
   'press.export.q_high': 'Hoch ({n} ppi)',
   'press.export.quality': 'Qualität',
-  'press.export.print_note': 'Die Seiten werden in ihrer echten Größe gerendert und an den Druckdialog Ihres Browsers gesendet. Für eine Druckerei verwenden Sie PDF exportieren.',
+  'press.export.print_note': 'Die Seiten werden in ihrer echten Größe gerendert und an den Druckdialog des Browsers gesendet. Für eine Druckerei PDF exportieren verwenden.',
   'press.export.pdf_instead': 'Stattdessen PDF…'
 });

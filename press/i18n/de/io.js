@@ -20,6 +20,6 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'press.io.cannot_open': 'Slop Press kann {name} nicht öffnen',
   'press.io.page_alt': 'Seite {page}',
   'press.io.building_offline': 'Offline-Kopie wird erstellt…',
-  'press.io.offline_done': '{name} heruntergeladen — öffnen Sie es von der Festplatte, es funktioniert offline',
+  'press.io.offline_done': '{name} heruntergeladen — von der Festplatte öffnen, es funktioniert offline',
   'press.io.offline_failed': 'Offline-Kopie konnte nicht erstellt werden: {error}'
 });

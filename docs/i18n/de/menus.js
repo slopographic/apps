@@ -30,7 +30,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'docs.menu.search_cmds': 'Befehle suchen…',
   'docs.menu.keys': 'Tastenkombinationen…',
   'docs.menu.about': 'Info zu Slop Docs',
-  'docs.menu.about_body': 'Ihre Dokumente werden in Slop Drive in diesem Browser gespeichert. Es wird nichts hochgeladen, und es gibt kein Konto und kein Wasserzeichen.',
+  'docs.menu.about_body': 'Die Dokumente werden in Slop Drive in diesem Browser gespeichert. Es wird nichts hochgeladen, und es gibt kein Konto und kein Wasserzeichen.',
   'docs.ctx.copy_blocked': 'Kopieren ist hier nicht erlaubt',
   'docs.ctx.paste_keys': 'Mit Strg+V einfügen',
   'docs.ctx.row_above': 'Zeile oberhalb einfügen',

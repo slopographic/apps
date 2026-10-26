@@ -17,7 +17,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'colors.panel.copy_code': 'Code kopieren',
   'colors.panel.open_in': 'Öffnen in…',
   'colors.panel.count': '{n} Farben in „{name}“',
-  'colors.panel.empty': 'Fügen Sie Farben zur Palette hinzu, um sie zu exportieren',
+  'colors.panel.empty': 'Farben zur Palette hinzufügen, um sie zu exportieren',
   'colors.harmony.complementary': 'Komplementär',
   'colors.harmony.analogous': 'Analog',
   'colors.harmony.triadic': 'Triadisch',

@@ -3,7 +3,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'reports.app.name': 'Berichte',
   'reports.page.report': 'Bericht',
   'reports.page.definition': 'Berichtsdefinition',
-  'reports.page.lead': 'Berichte über Kontakte, Rechnungen, Ausgaben, das Hauptbuch und CRM. Nur lesend: Hier wird nichts an Ihren Datensätzen geändert.',
+  'reports.page.lead': 'Berichte über Kontakte, Rechnungen, Ausgaben, das Hauptbuch und CRM. Nur lesend: Hier wird nichts an den Datensätzen geändert.',
   'reports.page.new': 'Neuer Bericht',
   'reports.page.edit': 'Bearbeiten',
   'reports.page.delete': 'Löschen',

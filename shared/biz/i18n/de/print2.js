@@ -6,7 +6,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'biz.pr.credit_against': 'Gutschrift zu Rechnung {number}.',
   'biz.pr.cn_subtotal': 'Zwischensumme',
   'biz.pr.amount_credited': 'Gutgeschriebener Betrag',
-  'biz.pr.paid_back': 'Zurückgezahlt an Sie per {method}',
+  'biz.pr.paid_back': 'Zurückgezahlt per {method}',
   'biz.pr.taken_off': '{amount} wird vom offenen Betrag der Rechnung {number} abgezogen.',
   'biz.pr.pm_bank': 'Banküberweisung',
   'biz.pr.pm_cash': 'Bar',
@@ -42,6 +42,6 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'biz.pr.rm_thanks': 'Vielen Dank.',
   'biz.dl.label': 'Belegsprache',
   'biz.dl.default': 'Standard des Unternehmens ({lang})',
-  'biz.dl.note': 'Die Sprache der Belege für Druck, Download oder E-Mail: Rechnungen, Angebote, Bestellungen, Lieferantenbestellungen, Gutschriften, Lieferscheine, Kontoauszüge, Preislisten und Zahlungserinnerungen. Jeder Beleg kann eine andere wählen.',
+  'biz.dl.note': 'Die Sprache der Belege für Druck, Download oder E-Mail: Rechnungen, Angebote, Aufträge, Lieferantenbestellungen, Gutschriften, Lieferscheine, Kontoauszüge, Preislisten und Zahlungserinnerungen. Jeder Beleg kann eine andere wählen.',
   'biz.dl.bad': 'Eine Belegsprache aus der Liste wählen.',
 });

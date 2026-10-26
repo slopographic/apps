@@ -1,6 +1,6 @@
 /* PhotoSlop, German: the on-device AI tools and AI pictures (notices, toasts, history steps; the assistant's own words stay English). Same keys as photoslop/i18n/en/ai.js. Rules: shared/i18n/APPS-HOWTO.md, words: shared/i18n/glossary-de.md. */
 window.SlopI18n && window.SlopI18n.add('de', {
-  'photoslop.ai.notice_local': 'Das läuft auf Ihrem Gerät. Das Bild wird nirgendwohin hochgeladen.',
+  'photoslop.ai.notice_local': 'Das läuft auf dem Gerät. Das Bild wird nirgendwohin hochgeladen.',
   'photoslop.ai.notice_cancelled': 'Abgebrochen: Das Modell wurde nicht geladen',
   'photoslop.ai.notice_cutout': 'Hintergrund entfernen?',
   'photoslop.ai.model_subject': 'Motivmodell (U²-Netp)',

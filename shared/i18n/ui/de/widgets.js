@@ -11,5 +11,5 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'ui.config.kind_settings': 'Einstellungen',
   'ui.config.kind_settings_desc': 'Standardwährung, Gebietsschema und Steuersatz',
   'ui.config.kind_numbering': 'Nummernformate',
-  'ui.config.kind_numbering_desc': 'Präfixe und Auffüllung von Rechnungs- und Bestellnummern',
+  'ui.config.kind_numbering_desc': 'Präfixe und Auffüllung von Rechnungs- und Auftragsnummern',
 });

@@ -55,7 +55,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'photoslop.doc.h_canvas': 'Arbeitsfläche',
   'photoslop.doc.h_menus': 'Menüs',
   'photoslop.doc.about_title': 'Info zu PhotoSlop',
-  'photoslop.doc.about_p1': 'Ein Bildbearbeitungsprogramm mit Ebenen, das vollständig in Ihrem Browser läuft. Was Sie öffnen, malen oder speichern, verlässt Ihr Gerät nie: Es gibt keinen Server, kein Konto und keinen Upload.',
+  'photoslop.doc.about_p1': 'Ein Bildbearbeitungsprogramm mit Ebenen, das vollständig im Browser läuft. Was geöffnet, gemalt oder gespeichert wird, verlässt das Gerät nie: Es gibt keinen Server, kein Konto und keinen Upload.',
   'photoslop.doc.about_p2': 'Öffnet und speichert echte Photoshop-.psd-Dateien (Ebenen, Masken, Deckkraft und Mischmodi), exportiert PNG, JPEG und WebP und lässt sich als einzelne Offline-.html-Datei herunterladen.',
   'photoslop.doc.about_part_of': 'Teil von ',
   'photoslop.doc.about_prefer': '. Lieber das Erlebnis von 1998? ',

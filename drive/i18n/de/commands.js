@@ -55,15 +55,15 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'drive.cmd.shortcuts': 'Tastenkombinationen…',
   'drive.tour.title': 'Rundgang durch Slop Drive',
   'drive.tour.places_title': 'Orte und Ordner',
-  'drive.tour.places_text': 'Ihre Orte, Ordnerstruktur und Schlagwörter. Wählen Sie einen Ordner, um ihn zu öffnen.',
+  'drive.tour.places_text': 'Die Orte, Ordnerstruktur und Schlagwörter. Ordner wählen, um ihn zu öffnen.',
   'drive.tour.search_title': 'Suchen',
-  'drive.tour.search_text': 'Finden Sie Dateien nach Namen in ganz Slop Drive.',
+  'drive.tour.search_text': 'Dateien nach Namen in ganz Slop Drive finden.',
   'drive.tour.new_title': 'Neu',
-  'drive.tour.new_text': 'Mit der Schaltfläche Neu legen Sie einen Ordner oder eine Datei im aktuellen Ordner an.',
+  'drive.tour.new_text': 'Mit der Schaltfläche Neu wird ein Ordner oder eine Datei im aktuellen Ordner angelegt.',
   'drive.tour.files_title': 'Dateien',
-  'drive.tour.files_text': 'Wählen Sie eine Datei aus, um ihre Details zu sehen oder sie an eine andere App zu senden.',
+  'drive.tour.files_text': 'Datei auswählen, um ihre Details zu sehen oder sie an eine andere App zu senden.',
   'drive.tour.info_title': 'Infofenster',
   'drive.tour.info_text': 'Zeigt die Details der ausgewählten Datei. Mit I ein- oder ausblenden.',
   'drive.tour.backup_title': 'Sicherung',
-  'drive.tour.backup_text': 'Sichern oder wiederherstellen Sie alles in Slop Drive.'
+  'drive.tour.backup_text': 'Alles in Slop Drive sichern oder wiederherstellen.'
 });

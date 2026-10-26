@@ -84,7 +84,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'photoslop.filter.o_inside': 'Innen',
   'photoslop.filter.p_start_colour': 'Startfarbe',
   'photoslop.filter.p_end_colour': 'Endfarbe',
-  'photoslop.filter.show_layer_first': 'Zeigen Sie zuerst die Ebene an',
+  'photoslop.filter.show_layer_first': 'Zuerst die Ebene anzeigen',
   'photoslop.filter.type_rasterized': 'Textebene gerastert',
   'photoslop.filter.failed': 'Dieser Filter ist fehlgeschlagen: {error}',
   'photoslop.filter.rendering': 'Wird berechnet…',

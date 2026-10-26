@@ -8,7 +8,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'quotes.page.notes_ph': 'Umfang, Bedingungen, was nicht enthalten ist',
   'quotes.page.quotes': 'Angebote',
   'quotes.page.quote': 'Angebot',
-  'quotes.page.opening': 'Ihre Angebote werden geöffnet…',
+  'quotes.page.opening': 'Die Angebote werden geöffnet…',
   'quotes.page.search': 'Angebote suchen',
   'quotes.page.status': 'Status',
   'quotes.page.all': 'Alle',
