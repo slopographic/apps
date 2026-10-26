@@ -1,7 +1,7 @@
 // Sample mascot overlay for the made-up "Acme Tools" profile (brand/profiles/sample.json): a flat robot head that plays
 // the slot's moments with the Web Animations API, so the slot can be tested without WebGL. Sample art for tests, MIT like
 // the rest of this repository. The overlay contract: shared/mascot/slot.js; the optional look() and react() hooks:
-// shared/mascot/ui.js. Tests: tests/buddy/slot.test.html.
+// shared/mascot/ui.js; travel: shared/mascot/roam.js. Tests: tests/buddy/slot.test.html, tests/buddy/roam.test.html.
 import { svg, name } from './icon.js';
 
 export { name };
@@ -20,6 +20,7 @@ export const animations = Object.keys(ANIMS);
 export function create(el, { reduce } = {}) {
   const head = document.createElement('div');
   head.innerHTML = svg(80, false);
+  Object.assign(head.firstElementChild.style, { width: '72%', height: 'auto' });   // fills a stage of any size (mascot.size)
   Object.assign(head.style, { display: 'grid', placeItems: 'end center', height: '100%', paddingBottom: '8px', boxSizing: 'border-box' });
   el.append(head);
   let run = null;
@@ -36,8 +37,10 @@ export function create(el, { reduce } = {}) {
     },
     /** The eyes follow the pointer: here the whole flat head leans a little that way. */
     look(dx, dy) { head.dataset.look = `${dx},${dy}`; head.style.translate = `${dx * 3}px ${dy * 3}px`; },
-    /** hover: a lighter face; poke: a quick squash; drag: a tilt the way it moves; drop: a small bounce. */
+    /** hover: a lighter face; poke: a quick squash; drag: a tilt the way it moves; drop: a small bounce; travel (a
+     * roaming slot): the head turns the way it goes while it travels. */
     react(kind, d = {}) {
+      if (kind === 'travel') { head.dataset.travel = d.on ? String(d.dx || 0) : ''; head.style.scale = d.on && d.dx ? `${d.dx < 0 ? -1 : 1} 1` : ''; return; }
       head.dataset.react = kind === 'hover' ? (d.on ? 'hover' : '') : kind;
       if (kind === 'hover') { head.style.filter = d.on ? 'brightness(1.08)' : ''; return; }
       if (kind === 'drag') { head.style.rotate = `${Math.max(-12, Math.min(12, (d.dx || 0) * 2))}deg`; return; }

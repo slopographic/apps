@@ -70,6 +70,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'tables.sheet.tab_tip': '{name} (dubbelklik om te hernoemen)',
   'tables.sheet.rename_title': 'Blad hernoemen',
   'tables.sheet.name': 'Bladnaam',
+  'tables.sheet.default': 'Blad{n}',
   'tables.sheet.need_one': 'Een werkmap heeft minstens één blad nodig',
   'tables.sheet.delete_body': '‘{name}’ en alles erop verwijderen?',
 

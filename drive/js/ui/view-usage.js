@@ -35,7 +35,7 @@
     const ch = s / w; let cx = x; for (const r of row) { const rw = r.a / ch; out.push({ node: r.node, x: cx, y, w: rw, h: ch }); cx += rw; } return { x, y: y + ch, w, h: h - ch };
   }
   const keyAttr = (n) => (n.it ? DR.keyOf(n.it) : null);
-  const tip = (n, total) => `${n.it ? n.it.name : 'Slop Drive'}\n${DR.fmtSize(n.size)}${total ? ` · ${((n.size / total) * 100).toFixed(1)}%` : ''}`;
+  const tip = (n, total) => `${n.it ? n.it.name : DR.rootName()}\n${DR.fmtSize(n.size)}${total ? ` · ${((n.size / total) * 100).toFixed(1)}%` : ''}`;
 
   function treemap(svg, tree, W, H) {
     const total = tree.size;
@@ -77,7 +77,7 @@
     };
     walk(tree, 0, Math.PI * 2, 1);
     const center = sv('g', { class: 'sb-c', 'data-tip': tip(tree, 0), 'data-up': '1' }, sv('circle', { cx, cy, r: ring - 2 }),
-      sv('text', { x: cx, y: cy - 2, 'text-anchor': 'middle', class: 'c1' }, fit(tree.it ? tree.it.name : 'Slop Drive', ring * 2 - 10)),   // i18n-ignore: the app name
+      sv('text', { x: cx, y: cy - 2, 'text-anchor': 'middle', class: 'c1' }, fit(tree.it ? tree.it.name : DR.rootName(), ring * 2 - 10)),
       sv('text', { x: cx, y: cy + 14, 'text-anchor': 'middle', class: 'c2' }, DR.fmtSize(tree.size)));
     svg.append(center);
   }

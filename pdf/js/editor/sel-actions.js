@@ -25,8 +25,9 @@
   async function geometry(snap) {
     var out = [];
     for (var k = 0; k < snap.parts.length; k++) {
-      var part = snap.parts[k], lines = await E.pageTextLines(part.p);
-      var quads = G.selectionQuads(lines, part.rects);
+      var part = snap.parts[k];
+      if (part.quads) { out.push(part); continue; } // a text frame's lines (block-mark.js): its quads and boxes are given
+      var lines = await E.pageTextLines(part.p), quads = G.selectionQuads(lines, part.rects);
       if (quads.length) out.push({ pid: part.pid, p: part.p, quads: quads, rects: part.rects, boxes: G.selectionBoxes(lines, part.rects, 1) });
     }
     return out;
@@ -59,10 +60,11 @@
 
   /** The colour the next highlight, underline or strikethrough uses. */
   A.colour = function () { return colour || defaultColour(); };
-  /** Sets the colour; the markup under the selection takes it too (one undo step). */
-  A.setColour = async function (col) {
+  /** Sets the colour; the markup under the selection (or under snap: a text block's, block-mark.js) takes it too (one undo
+      step). */
+  A.setColour = async function (col, snap) {
     colour = col;
-    var snap = T.snap;
+    snap = snap || T.snap;
     if (snap) {
       E.commit(U.t('pdf.ed.undo_markup_colour'), function (st) {
         snap.parts.forEach(function (part) {
@@ -97,9 +99,10 @@
   }
 
   /** Adds highlight, underline or strikethrough over the selected text, one annotation per page, one undo step. Text
-      already marked in that style is unmarked instead (removeMarkup), so a second press toggles it off. */
-  A.markup = async function (style) {
-    var snap = T.snap; if (!snap) return;
+      already marked in that style is unmarked instead (removeMarkup), so a second press toggles it off. snap: another
+      selection's snapshot (a text block's, block-mark.js) instead of the text selection's. */
+  A.markup = async function (style, snap) {
+    snap = snap || T.snap; if (!snap) return;
     var geo = await geometry(snap);
     if (!geo.length) { SlopUI.toast(U.t('pdf.ed.sel_no_text')); return; }
     if (alreadyMarked(geo, style)) { removeMarkup(geo, style); return; }
@@ -139,8 +142,8 @@
   };
 
   /** Opens the comment composer on the selection's first line (the comment tool, at that spot). */
-  A.comment = function () {
-    var snap = T.snap; if (!snap) return;
+  A.comment = function (snap) {
+    snap = snap || T.snap; if (!snap) return;
     var part = snap.parts[0];
     if (Ed.pid !== part.pid) Ed.show(part.pid);
     Ed.setTool('note');
@@ -252,8 +255,8 @@
 
   /** Redact: the selected lines become redaction marks (R.mark, the Redact tool's marks). Nothing is applied: the marks are
       burned in by Apply redactions in the Redact tool. One undo step. */
-  A.redact = async function () {
-    var snap = T.snap; if (!snap) return;
+  A.redact = async function (snap) {
+    snap = snap || T.snap; if (!snap) return;
     var geo = await geometry(snap), made = [];
     geo.forEach(function (g) { g.boxes.forEach(function (b) { made.push({ pid: g.pid, a: R.mark(b, snap.text.slice(0, 40)) }); }); });
     if (!made.length) { SlopUI.toast(U.t('pdf.ed.sel_no_text')); return; }

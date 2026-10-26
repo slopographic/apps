@@ -208,7 +208,7 @@ test('the picker lists every language by its own name, English first; Arabic and
 
 test('each language has one file, named by its code, that adds its strings under that code', async () => {
   // <code>-apps.js is a language's app-name table (sv-apps.js), loaded next to its main file.
-  const files = (await readdir(path.join(ROOT, 'shared', 'i18n'))).filter((f) => f.endsWith('.js') && !['i18n.js', 'strings.js', 'switcher.js'].includes(f) && !/-apps\.js$/.test(f));
+  const files = (await readdir(path.join(ROOT, 'shared', 'i18n'))).filter((f) => f.endsWith('.js') && !['i18n.js', 'strings.js', 'switcher.js', 'early.js'].includes(f) && !/-apps\.js$/.test(f));
   const codes = LANG_ORDER.map(([c]) => c).filter((c) => c !== 'en');
   assert.deepEqual(files.map((f) => f.slice(0, -3)).sort(), [...codes].sort(), 'one file per language, and no stray file');
   for (const code of codes) {

@@ -71,6 +71,7 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'tables.sheet.tab_tip': '{name} (двічі клацніть, щоб перейменувати)',
   'tables.sheet.rename_title': 'Перейменувати аркуш',
   'tables.sheet.name': 'Назва аркуша',
+  'tables.sheet.default': 'Аркуш{n}',
   'tables.sheet.need_one': 'Книга має містити принаймні один аркуш',
   'tables.sheet.delete_body': 'Видалити «{name}» і все, що на ньому є?',
 

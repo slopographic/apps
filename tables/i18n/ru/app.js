@@ -70,6 +70,7 @@ window.SlopI18n && window.SlopI18n.add('ru', {
   'tables.sheet.tab_tip': '{name} (двойной щелчок — переименовать)',
   'tables.sheet.rename_title': 'Переименовать лист',
   'tables.sheet.name': 'Название листа',
+  'tables.sheet.default': 'Лист{n}',
   'tables.sheet.need_one': 'В книге должен быть хотя бы один лист',
   'tables.sheet.delete_body': 'Удалить «{name}» и всё, что на нём есть?',
 

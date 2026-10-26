@@ -16,6 +16,8 @@
  *   The words people read (name when it is not a brand, notes, where, corsNote, setup and after lines, pull, start, the
  *   free texts, field labels and help) are not here: they are keys in shared/i18n/ui/<code>/ai5-8.js by id, read through
  *   getters that cloud/providers.js (words) adds; see its comment for the key names.
+ *   signin: "Sign in with <short>" instead of pasting a key (cloud/signin.js, OAuth PKCE straight from the browser):
+ *     { auth (the consent page), keys (where the code becomes a key), manage (where the person caps or revokes it), docs, verified }
  *   testPath: a key check of its own (OpenRouter's list is public); toolsOnly, maxTokens, usageOption: request options
  *   free: what costs nothing, read from the provider's own pricing or limits page on `verified` (cloud/free.js reads it):
  *     { tier: 'free' | 'free-models' (some models are free) | 'free-trial' (credit that runs out) | 'none' (checked: no
@@ -54,6 +56,7 @@
       keyUrl: 'https://openrouter.ai/keys', keyHint: 'sk-or-…', where: 'openrouter.ai › Keys', testPath: '/key',
       headers: { 'HTTP-Referer': origin(), 'X-OpenRouter-Title': 'Slopographic' }, maxTokens: 16000, toolsOnly: true,
       modelsEndpoint: '/models', caps: { tools: true, vision: true, images: true, streaming: true }, cors: 'verified', priceSource: 'its model list',
+      signin: { auth: 'https://openrouter.ai/auth', keys: 'https://openrouter.ai/api/v1/auth/keys', manage: 'https://openrouter.ai/settings/keys', docs: 'https://openrouter.ai/docs/use-cases/oauth-pkce', verified: '2026-10-26' },
       docs: 'https://openrouter.ai/docs/api/reference/overview', aliases: ['openrouter', 'router', 'many models'],
       modelHints: ['llama', 'qwen', 'deepseek', 'mistral', 'kimi', 'glm', 'grok', 'claude', 'gpt', 'gemini'],
       models: [], prefer: [/^anthropic\/claude-sonnet/, /^openai\/gpt-/, /^google\/gemini-[\d.]+-flash$/, /^anthropic\/claude-haiku/],

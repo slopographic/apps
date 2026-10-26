@@ -110,4 +110,9 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'drive.toast.copied_to_n#one': '{n} öğe şuraya kopyalandı: {place}',
   'drive.toast.link_copied': 'Bağlantı kopyalandı',
   'drive.toast.link_failed': 'Bağlantı kopyalanamadı',
+  'drive.newdoc.sdoc': 'Belge',
+  'drive.newdoc.stab': 'Elektronik tablo',
+  'drive.newdoc.sslide': 'Sunu',
+  'drive.newdoc.sfont': 'Yazı tipi',
+  'drive.newdoc.s3d': '3B sahne',
 });

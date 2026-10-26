@@ -64,6 +64,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'tables.sheet.tab_tip': "{name} (انقر مرتين لإعادة التسمية)",
   'tables.sheet.rename_title': "إعادة تسمية الورقة",
   'tables.sheet.name': "اسم الورقة",
+  'tables.sheet.default': "ورقة{n}",
   'tables.sheet.need_one': "يحتاج المصنف إلى ورقة واحدة على الأقل",
   'tables.sheet.delete_body': "هل تريد حذف «{name}» وكل ما فيها؟",
   'tables.nf.general': "عام",

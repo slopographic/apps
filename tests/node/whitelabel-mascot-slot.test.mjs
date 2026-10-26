@@ -5,7 +5,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { mascotProblems, overlayDir, overlayProblems, overlayIcons, artFiles, licenseArt, artNotice, artTrademarks, artAllow, artHolder, DEST } from '../../tools/whitelabel/mascot.mjs';
+import { readFileSync } from 'node:fs';
+import { mascotProblems, slotMarkers, ROAM, overlayDir, overlayProblems, overlayIcons, artFiles, licenseArt, artNotice, artTrademarks, artAllow, artHolder, DEST } from '../../tools/whitelabel/mascot.mjs';
 import { loadProfile, profilesDir, validate } from '../../tools/whitelabel/profile.mjs';
 import { markerValues, applyMarkers, notice, trademarks, readme, logoSvg } from '../../tools/whitelabel/emit.mjs';
 
@@ -75,4 +76,28 @@ test('markers: an overlay turns the built-in buddy off and the slot on', () => {
   assert.equal(applyMarkers(src, v), 'const MASCOT = /*profile:mascot*/false;\nconst OVERLAY = /*profile:mascotOverlay*/true;');
   const own = markerValues(loadProfile(DIR, 'slopographic'));
   assert.equal(applyMarkers(src, own), src);
+});
+
+test('the slot\'s size and roaming: checked in the profile, written into slot.js by the markers', () => {
+  const base = { overlay: 'o', name: 'Bot', files: ['mascot.js', 'icon.js'] };
+  assert.deepEqual(mascotProblems(Object.assign({}, base, { size: { desktop: 200, phone: 64 }, roam: 'float' })), []);
+  assert.deepEqual(mascotProblems(Object.assign({}, base, { size: { desktop: 190 }, roam: true })), []);
+  assert.match(mascotProblems(Object.assign({}, base, { size: { desktop: 5 } })).join(), /mascot\.size/);
+  assert.match(mascotProblems(Object.assign({}, base, { size: { desktop: 200.5 } })).join(), /mascot\.size/);
+  assert.match(mascotProblems(Object.assign({}, base, { size: { tablet: 100 } })).join(), /mascot\.size/);
+  assert.match(mascotProblems(Object.assign({}, base, { roam: 'jump' })).join(), /mascot\.roam: true, false or "float" or "hop"/);
+  assert.deepEqual(ROAM, ['float', 'hop']);
+  const p = loadProfile(DIR, 'sample');                       // the sample sets both
+  assert.deepEqual(slotMarkers(p), { mascotDesktop: p.mascot.size.desktop, mascotPhone: p.mascot.size.phone, mascotRoam: 'float' });
+  assert.deepEqual(slotMarkers(Object.assign({}, p, { mascot: Object.assign({}, p.mascot, { roam: true, size: undefined }) })), { mascotDesktop: undefined, mascotPhone: undefined, mascotRoam: 'float' });
+  assert.deepEqual(slotMarkers(loadProfile(DIR, 'sample-sv')), { mascotDesktop: undefined, mascotPhone: undefined, mascotRoam: undefined });
+  const src = readFileSync(path.join(ROOT, 'shared/mascot/slot.js'), 'utf8');
+  const line = src.split('\n').find((l) => l.includes('/*profile:mascotRoam*/'));
+  assert.ok(line, 'slot.js carries the markers');
+  const built = applyMarkers(line, markerValues(p));
+  assert.match(built, /\/\*profile:mascotDesktop\*\/200/);
+  assert.match(built, /\/\*profile:mascotPhone\*\/64/);
+  assert.match(built, /\/\*profile:mascotRoam\*\/"float"/);
+  assert.equal(applyMarkers(line, markerValues(loadProfile(DIR, 'slopographic'))), line);   // this site: unchanged
+  assert.equal(applyMarkers(line, markerValues(loadProfile(DIR, 'sample-sv'))), line);
 });

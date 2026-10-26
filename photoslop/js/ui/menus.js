@@ -119,8 +119,8 @@ const MENUS = [
     { k: 'generate_image', cmdId: 'ps.generate', act: () => psImageGen('generate') },
     { k: 'edit_with_ai', cmdId: 'ps.edit-ai', act: () => psImageGen('edit'), en: () => !!activeLayer() },
     { k: 'new_fill_layer', sub: [
-      { k: 'solid_color_foreground', act: () => { const c = mkCanvas(D.w, D.h), g = cx(c); g.fillStyle = C.fg; g.fillRect(0, 0, D.w, D.h); addLayer({ name: nextName('Color Fill'), canvas: c }, tr('photoslop.menu.undo_fill_layer')); } }, // i18n-ignore: the layer name is document content
-      { k: 'gradient_foreground_background', act: () => { const keep = T.gradient.type; T.gradient.type = 'linear'; const c = gradientCanvas({ x: 0, y: 0 }, { x: 0, y: D.h }); T.gradient.type = keep; addLayer({ name: nextName('Gradient Fill'), canvas: c }, tr('photoslop.menu.undo_fill_layer')); } }, // i18n-ignore: the layer name is document content
+      { k: 'solid_color_foreground', act: () => { const c = mkCanvas(D.w, D.h), g = cx(c); g.fillStyle = C.fg; g.fillRect(0, 0, D.w, D.h); addLayer({ name: nextName('photoslop.layer.color_fill'), canvas: c }, tr('photoslop.menu.undo_fill_layer')); } },
+      { k: 'gradient_foreground_background', act: () => { const keep = T.gradient.type; T.gradient.type = 'linear'; const c = gradientCanvas({ x: 0, y: 0 }, { x: 0, y: D.h }); T.gradient.type = keep; addLayer({ name: nextName('photoslop.layer.gradient_fill'), canvas: c }, tr('photoslop.menu.undo_fill_layer')); } },
     ] },
     { k: 'layer_style', sub: [{ k: 'layer_style', t: 'layer_style_dots', need: 'layer', act: () => { const L = activeLayer(); if (L) openLayerStyle(L.id); } }, '-'].concat(filterMenu('style')) },
     '-',

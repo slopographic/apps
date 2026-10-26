@@ -50,7 +50,7 @@
   var KEY_RE = /\{(\w+)\}/g;
   // The shared components' tables beyond ui/<code>.js: shared/i18n/ui/<code>/<part>.js, for the languages that have them
   // (the others read English). Written by node tools/i18n/i18n.mjs index ui; keep it on one line.
-  var UI_PARTS = /*ui-parts*/{ parts: ['agent', 'ai', 'ai2', 'ai5', 'ai6', 'ai7', 'ai8', 'backup', 'backup2', 'backup3', 'buddy', 'buddy2', 'calc', 'calendar', 'config', 'data', 'data2', 'finder', 'firstrun', 'fonts', 'graphics', 'guides', 'macros', 'misc', 'models', 'models2', 'ops', 'ops2', 'ops3', 'presets', 'preview', 'print', 'sheets', 'shell', 'shell2', 'templates', 'video', 'watermark', 'widgets'], langs: ['ar', 'de', 'en', 'es', 'fr', 'it', 'ja', 'ko', 'nl', 'pl', 'pt-BR', 'ru', 'sv', 'tr', 'uk', 'zh-CN', 'zh-TW'] };
+  var UI_PARTS = /*ui-parts*/{ parts: ['agent', 'ai', 'ai2', 'ai5', 'ai6', 'ai7', 'ai8', 'ai9', 'backup', 'backup2', 'backup3', 'buddy', 'buddy2', 'calc', 'calendar', 'config', 'data', 'data2', 'finder', 'firstrun', 'fonts', 'graphics', 'guides', 'macros', 'misc', 'models', 'models2', 'ops', 'ops2', 'ops3', 'presets', 'preview', 'print', 'sheets', 'shell', 'shell2', 'templates', 'video', 'watermark', 'widgets'], langs: ['ar', 'de', 'en', 'es', 'fr', 'it', 'ja', 'ko', 'nl', 'pl', 'pt-BR', 'ru', 'sv', 'tr', 'uk', 'zh-CN', 'zh-TW'] };
   var me = typeof document !== 'undefined' ? document.currentScript : null;
 
   function create(opts) {
@@ -160,33 +160,11 @@
       applied = brand();
       mark(code);
       for (i = 0; i < nodes.length; i++) fillEl(nodes[i], code);
+      nodes = g.slopAppName ? at.querySelectorAll('[data-app-name]') : [];   // data-app-name="<id>": the app list's name (slopAppName), as text or aria-label
+      for (var k = 0; k < nodes.length; k++) { var nm = g.slopAppName(nodes[k].getAttribute('data-app-name')); if (nodes[k].hasAttribute('aria-label')) nodes[k].setAttribute('aria-label', nm); else nodes[k].textContent = nm; }
       nodes = at.querySelectorAll('[data-i18n-attr]');   // the ones without text
       for (i = 0; i < nodes.length; i++) if (!nodes[i].hasAttribute || !nodes[i].hasAttribute('data-i18n')) fillEl(nodes[i], code);
       return code;
-    }
-    /** While the page is parsed in a language other than English (tables written in the <head>), fills each marked element
-     * as the parser adds it, before the next frame (a MutationObserver), so the first paint is in that language. */
-    function early() {
-      var code = get(), last = [];
-      if (code === DEFAULT || !g.MutationObserver || doc.readyState !== 'loading' || !me || me.hasAttribute('data-late')) return;
-      mark(code);
-      var mo = new g.MutationObserver(function (recs) {
-        var els = last;   // the parser may still be adding text to the ones filled last time
-        recs.forEach(function (r) {
-          var t = r.target.nodeType === 1 ? r.target : r.target.parentElement;
-          if (t && (t = t.closest('[data-i18n]'))) els.push(t);
-          for (var i = 0, n; i < r.addedNodes.length; i++) {
-            if ((n = r.addedNodes[i]).nodeType !== 1) continue;
-            if (n.matches('[data-i18n],[data-i18n-attr]')) els.push(n);
-            if (n.firstElementChild) els.push.apply(els, n.querySelectorAll('[data-i18n],[data-i18n-attr]'));
-          }
-        });
-        els.forEach(function (el) { fillEl(el, code); });
-        last = els.filter(function (el) { return el.hasAttribute('data-i18n'); });
-        mo.takeRecords();   // its own changes
-      });
-      mo.observe(doc.documentElement, { childList: true, subtree: true, characterData: true });
-      doc.addEventListener('DOMContentLoaded', function () { mo.disconnect(); last = []; });
     }
     /* ---- Loading: a source is { ns, files(code) → [url, ...] }. English and the chosen language are fetched, once. */
     var offline = function () { return !!(doc && doc.querySelector && doc.querySelector('meta[content="offline"]')); };
@@ -265,7 +243,6 @@
     /** Runs at first paint from the page's <head>: sets the language on <html> now, and the text once the DOM is ready. */
     function load() {
       if (!doc || !doc.documentElement) return;
-      early();
       if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', function () { apply(); }); else apply();
       try { g.addEventListener && g.addEventListener('storage', function (ev) { if (!ev.key || ev.key === 'slop-profile') { apply(); need().then(changed); } }); } catch (e) { /* no storage events */ }
       // {brand} follows the profile's name once it is in (only when it differs: a rewrite of every label moves the page)
@@ -273,6 +250,8 @@
       var root = me && me.src ? me.src.replace(/[^/]*$/, '') : '';
       if (!root) return;
       cssRoot = root;
+      // parsed in another language: early.js fills each marked element as the parser adds it (the first frame in it)
+      if (get() !== DEFAULT && g.MutationObserver && doc.readyState === 'loading' && !me.hasAttribute('data-late')) { mark(get()); doc.write('<script src="' + root + 'early.js"><\/script>'); }
       source({ ns: 'chrome', files: function (c) {
         if (c === DEFAULT) return [root + 'strings.js'];
         return [root + c + '.js'].concat(byCode[c] && byCode[c].appNames ? [root + c + '-apps.js'] : []);
@@ -286,6 +265,7 @@
       langs: function () { return list.slice(); },
       lang: function (code) { return byCode[code || get()] || null; },
       get: get, set: set, t: t, has: has, label: label, add: add, apply: apply, load: load,
+      fill: function (el, code) { fillEl(el, byCode[code] ? code : get()); },   // one marked element (shared/i18n/early.js)
       source: source, need: need, ready: ready, on: on,
       plural: function (n) { return pluralOf(get(), n); },
       num: num, date: date, money: money, list: listOf, at: at,

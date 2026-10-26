@@ -7,7 +7,7 @@
 (function (DR) {
   const el = DR.el;
   const t = DR.t;
-  const where = (r) => (r.parent ? DR.pathOf(r.parent).map((f) => f.name).join(' / ') : 'Slop Drive');   // i18n-ignore: the app name
+  const where = (r) => (r.parent ? DR.pathOf(r.parent).map((f) => f.name).join(' / ') : DR.rootName());
 
   /** One review item per file in the groups. pick(group) gives the copies to remove; the others are kept. */
   function itemsFor(groups, pick) {

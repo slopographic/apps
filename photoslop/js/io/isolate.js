@@ -52,7 +52,7 @@ async function applyIsolatedLayer(p, d) {
   const c = mkCanvas(bmp.width, bmp.height);
   cx(c).drawImage(bmp, 0, 0);
   bmp.close();
-  pasteCanvas(c, p.x, p.y, 'Cut-out'); // i18n-ignore: layer name
+  pasteCanvas(c, p.x, p.y, 'photoslop.layer.cutout');
   return { ok: true };
 }
 

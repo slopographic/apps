@@ -43,7 +43,7 @@ async function rtAutoEnhance(a = {}) {
   const tilt = a.straighten ? rtTilt(src) : null, fix = tilt && Math.abs(tilt.angle) >= 0.2 && tilt.confidence >= 0.3;
   const out = await rtEnhanceCanvas(src, p, a.denoise);
   await aiOneStep(rtT('step_auto_enhance'), () => {
-    rtAddLayers([{ name: nextName('Auto Enhance'), canvas: out }], rtT('step_auto_enhance')); // i18n-ignore: the layer's name is the document's
+    rtAddLayers([{ name: nextName('photoslop.layer.auto_enhance'), canvas: out }], rtT('step_auto_enhance'));
     if (fix) rtStraighten(tilt.angle, true);
   });
   if (window.SlopMacros && a.fromDialog) SlopMacros.note('ps.retouch.auto-enhance', rtArgsOnly(a), 'Auto enhance'); // i18n-ignore: saved in the macro

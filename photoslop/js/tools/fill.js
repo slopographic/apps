@@ -104,8 +104,8 @@ defTool({ id: 'shape', nk: 'shape', key: 'U', icon: ICON('M3 3h10v10H3zM16 11a5 
     const kind = T.shape.kind, rec = SHAPE_RADIUS_KINDS.includes(kind) ? shapeRecord(T.shape, rectFrom(s.a, s.b, s.e.shiftKey, s.e.altKey)) : null;
     const c = rec ? renderShapeLayer(rec) : mkCanvas(D.w, D.h);
     if (!rec) this.paint(cx(c), s);
-    const names = { rect: 'Rectangle', rounded: 'Rounded Rectangle', ellipse: 'Ellipse', polygon: 'Polygon', star: 'Star', line: 'Line', heart: 'Heart' }; // i18n-ignore: layer names are the document's
-    addLayer({ name: nextName(names[kind] || 'Shape'), canvas: c, shape: rec }, tr('photoslop.tool.step_shape_' + (names[kind] ? kind : 'other'))); // i18n-ignore: layer name
+    const known = ['rect', 'rounded', 'ellipse', 'polygon', 'star', 'line', 'heart'].includes(kind);   // the default name, "Star {n}": photoslop.layer.shape_<kind>
+    addLayer({ name: nextName('photoslop.layer.shape_' + (known ? kind : 'other')), canvas: c, shape: rec }, tr('photoslop.tool.step_shape_' + (known ? kind : 'other')));
   },
   cancel() { this.s = null; live = null; },
 });

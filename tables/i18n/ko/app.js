@@ -64,6 +64,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'tables.sheet.tab_tip': '{name}(두 번 눌러 이름 바꾸기)',
   'tables.sheet.rename_title': '시트 이름 바꾸기',
   'tables.sheet.name': '시트 이름',
+  'tables.sheet.default': 'Sheet{n}',
   'tables.sheet.need_one': '통합 문서에는 시트가 하나 이상 있어야 합니다',
   'tables.sheet.delete_body': '“{name}”과(와) 그 안의 모든 내용을 삭제할까요?',
   'tables.nf.general': '일반',

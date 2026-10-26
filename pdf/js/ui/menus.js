@@ -75,6 +75,7 @@
       { label: t('pdf.se.cmd_paste'), key: A.key('edit.paste'), act: function () { Ed.paste(); }, disabled: !pg || !Ed.canPaste() },
       { label: t('pdf.se.cmd_paste_all'), act: function () { Ed.pasteOnPages(); }, disabled: !pg || !Ed.canPaste() },
       { label: t('pdf.se.cmd_paste_pages'), act: function () { Ed.askPasteOnPages(); }, disabled: !pg || !Ed.canPaste() },
+      { label: t('pdf.se.cmd_select_words'), key: A.key('edit.selectBlockText'), act: function () { Ed.selectBlockText(); }, disabled: !pg || !Ed.canSelectBlockText || !Ed.canSelectBlockText() },
       '-',
       { label: t('pdf.menu.select_all_pages'), key: A.key('edit.selectAll'), act: function () { O.selectAll(); }, disabled: !has },
       { label: t('ui.select_none'), act: function () { O.setSelection([]); }, disabled: !O.sel.size },

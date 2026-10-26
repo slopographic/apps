@@ -123,4 +123,9 @@ window.SlopI18n && window.SlopI18n.add('ru', {
   'drive.toast.copied_to_n#many': 'Скопировано объектов: {n} в {place}',
   'drive.toast.link_copied': 'Ссылка скопирована',
   'drive.toast.link_failed': 'Не удалось скопировать ссылку',
+  'drive.newdoc.sdoc': 'Документ',
+  'drive.newdoc.stab': 'Таблица',
+  'drive.newdoc.sslide': 'Презентация',
+  'drive.newdoc.sfont': 'Шрифт',
+  'drive.newdoc.s3d': '3D-сцена',
 });

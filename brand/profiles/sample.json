@@ -15,7 +15,12 @@
     "files": [
       "icon.js",
       "mascot.js"
-    ]
+    ],
+    "size": {
+      "desktop": 200,
+      "phone": 64
+    },
+    "roam": "float"
   },
   "font": {
     "spec": "fonts/acme/acme.json",

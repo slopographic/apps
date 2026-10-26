@@ -129,4 +129,9 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'drive.toast.copied_to_n#many': 'Скопійовано елементів: {n} до {place}',
   'drive.toast.link_copied': 'Посилання скопійовано',
   'drive.toast.link_failed': 'Не вдалося скопіювати посилання',
+  'drive.newdoc.sdoc': 'Документ',
+  'drive.newdoc.stab': 'Таблиця',
+  'drive.newdoc.sslide': 'Презентація',
+  'drive.newdoc.sfont': 'Шрифт',
+  'drive.newdoc.s3d': '3D-сцена',
 });
