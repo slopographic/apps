@@ -1,9 +1,9 @@
 /* Business suite, Turkish: the rest of the printed documents of shared/biz: credit notes, the delivery note, the price list, the payment reminder letters and the document language setting. Same keys as shared/biz/i18n/en/print2.js. Terms: shared/i18n/glossary-tr.md. */
 window.SlopI18n && window.SlopI18n.add('tr', {
   'biz.pr.reason': 'Neden: {reason}',
-  'biz.pr.credit_against': '{number} numaralı faturaya karşı alacak dekontu.',
+  'biz.pr.credit_against': '{number} numaralı faturaya karşı iade faturası.',
   'biz.pr.cn_subtotal': 'Ara toplam',
-  'biz.pr.amount_credited': 'Alacaklandırılan tutar',
+  'biz.pr.amount_credited': 'İade edilen tutar',
   'biz.pr.paid_back': '{method} ile size geri ödendi',
   'biz.pr.taken_off': '{amount}, {number} numaralı faturadaki borçtan düşülür.',
   'biz.pr.pm_bank': 'banka havalesi',

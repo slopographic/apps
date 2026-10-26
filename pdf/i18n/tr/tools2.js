@@ -19,7 +19,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'pdf.tool.compress.title': 'Sıkıştır',
   'pdf.tool.compress.resolution': 'Çözünürlük',
   'pdf.tool.compress.jpeg_quality': 'JPEG kalitesi',
-  'pdf.tool.compress.lossy_warn': 'Kayıplı: her sayfa bir JPEG resmine dönüşür. Metin artık seçilemez veya aranamaz; form ve bağlantılar kaybolur. Taranmış ve fotoğraf ağırlıklı dosyalar için en uygunu.',
+  'pdf.tool.compress.lossy_warn': 'Kayıplı: her sayfa bir JPEG resmine dönüşür. Metin artık seçilemez ya da aranamaz; form ve bağlantılar kaybolur. Taranmış ve fotoğraf ağırlıklı dosyalar için en uygunu.',
   'pdf.tool.compress.mode': 'Mod',
   'pdf.tool.compress.lossless': 'Kayıpsız',
   'pdf.tool.compress.lossy': 'Güçlü (kayıplı)',
@@ -38,7 +38,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
 
   /* tools/doc-panels.js: Convert */
   'pdf.tool.convert.title': 'Dönüştür',
-  'pdf.tool.convert.office': 'Word, Excel veya PowerPoint’e',
+  'pdf.tool.convert.office': 'Word, Excel ya da PowerPoint’e',
   'pdf.tool.convert.all': 'Tüm dönüştürmeler',
   'pdf.tool.convert.all_formats': 'Tüm biçimler…',
   'pdf.tool.convert.all_note': 'Dönüştürücünün bu belgeden üretebildiği her biçim, tek bir pencerede.',
@@ -67,7 +67,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'pdf.tool.convert.margin_large': 'Geniş',
   'pdf.tool.convert.choose_images': 'Resim seçin…',
   'pdf.tool.convert.add_to_doc': 'Sayfaları açık belgeye ekle (aksi halde yeni bir PDF indir)',
-  'pdf.tool.convert.images_note': 'PNG, JPEG, WebP veya GIF. Telefon fotoğrafları otomatik olarak dik çevrilir.',
+  'pdf.tool.convert.images_note': 'PNG, JPEG, WebP ya da GIF. Telefon fotoğrafları otomatik olarak dik çevrilir.',
   'pdf.tool.convert.to_text': 'PDF → metin',
   'pdf.tool.convert.text_note': 'Son belgenin metin katmanını ayıklar (OCR uygulanmamış taramalarda metin katmanı yoktur).',
   'pdf.tool.convert.extract_text': 'Metni ayıkla',
@@ -175,7 +175,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'pdf.tool.layers.page_n': 'Sayfa {page} · {n} katman',
   'pdf.tool.layers.page_n#one': 'Sayfa {page} · {n} katman',
   'pdf.tool.layers.no_doc': 'Katmanlarını görmek için bir PDF açın.',
-  'pdf.tool.layers.hint': 'Gizli katmanlar çizilmez ve dışa aktarılmaz. Kilitli katmanlar taşınamaz, düzenlenemez veya silinemez.',
+  'pdf.tool.layers.hint': 'Gizli katmanlar çizilmez ve dışa aktarılmaz. Kilitli katmanlar taşınamaz, düzenlenemez ya da silinemez.',
 
   /* tools/history-panel.js */
   'pdf.tool.history.title': 'Geçmiş',

@@ -16,7 +16,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'paint-classic.dlg.colors': 'Renkler',
   'paint-classic.dlg.bw': 'Siyah ve beyaz',
   'paint-classic.dlg.flip_rotate': 'Çevir ve Döndür',
-  'paint-classic.dlg.flip_or_rotate': 'Çevir veya döndür',
+  'paint-classic.dlg.flip_or_rotate': 'Çevir ya da döndür',
   'paint-classic.dlg.flip_h': '<u>Y</u>atay çevir',
   'paint-classic.dlg.flip_v': '<u>D</u>ikey çevir',
   'paint-classic.dlg.rotate': 'Açıya göre döndür',

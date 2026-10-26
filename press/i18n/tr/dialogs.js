@@ -20,7 +20,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'press.dlg.tab_margins': 'Kenar boşlukları ve sütunlar',
   'press.dlg.tab_bleed': 'Taşma payı ve künye',
   'press.dlg.tab_grid': 'Izgara',
-  'press.dlg.preset': 'Hazır ayar',
+  'press.dlg.preset': 'Ön ayar',
   'press.dlg.width': 'Genişlik',
   'press.dlg.height': 'Yükseklik',
   'press.dlg.orientation': 'Yön',

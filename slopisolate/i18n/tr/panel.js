@@ -27,7 +27,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'cutout.panel.background': "Arka plan",
   'cutout.panel.transparent': "Saydam",
   'cutout.panel.colour': "Renk",
-  'cutout.panel.gradient': "Gradyan",
+  'cutout.panel.gradient': "Degrade",
   'cutout.panel.blur': "Bulanıklık",
   'cutout.panel.start': "Başlangıç",
   'cutout.panel.end': "Son",

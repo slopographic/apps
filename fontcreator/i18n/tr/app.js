@@ -57,7 +57,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'fontcreator.tool.pen': 'Kalem',
   'fontcreator.tool.rect': 'Dikdörtgen',
   'fontcreator.tool.ellipse': 'Elips',
-  'fontcreator.tool.stroke': 'Çizgi',
+  'fontcreator.tool.stroke': 'Kontur',
 
   'fontcreator.tb.bar': 'Glif düzenleyicisi',
   'fontcreator.tb.back': 'Gliflere dön',
@@ -89,7 +89,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'fontcreator.undo.add_point': 'Nokta ekle',
   'fontcreator.undo.draw_rect': 'Dikdörtgen çiz',
   'fontcreator.undo.draw_ellipse': 'Elips çiz',
-  'fontcreator.undo.draw_stroke': 'Çizgi çiz',
+  'fontcreator.undo.draw_stroke': 'Kontur çiz',
 
   'fontcreator.set.none': 'Boş başlayın (gittikçe karakter ekleyin)',
   'fontcreator.set.basic': 'Temel Latin (A–Z, a–z, 0–9, noktalama)',

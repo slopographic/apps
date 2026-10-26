@@ -80,6 +80,6 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'pdf.org.thumb_size': 'Küçük resim boyutu',
   'pdf.org.thumb_presets': 'Küçük resim boyutu ön ayarları',
   'pdf.org.thumb_size_n': 'Küçük resim boyutu {size}',
-  'pdf.org.thumb_size_tip': 'Küçük resim boyutu (Ctrl + tekerlek veya sayfalarda kıstırma)',
+  'pdf.org.thumb_size_tip': 'Küçük resim boyutu (Ctrl + tekerlek ya da sayfalarda kıstırma)',
   'pdf.org.one_per_row': 'Satır başına bir sayfa',
 });

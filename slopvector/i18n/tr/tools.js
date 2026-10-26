@@ -47,7 +47,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'vector.readout.move': "dX: {x} px · dY: {y} px",
   'vector.readout.size': "G: {w} px · Y: {h} px",
   'vector.readout.angle': "Açı: {deg}°",
-  'vector.readout.scale': "Ölçek: {x}% × {y}%",
+  'vector.readout.scale': "Ölçek: %{x} × %{y}",
   'vector.readout.polygon': "Kenar: {n}  (↑/↓) · Yarıçap: {r} px",
   'vector.readout.star': "Nokta: {n}  (↑/↓) · Yarıçap: {r} px",
   'vector.readout.line': "U: {l} px · ∠: {deg}°",

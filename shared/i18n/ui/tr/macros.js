@@ -40,7 +40,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'ui.macro.step_failed': '{of} adımdan {i}. ({title}) çalışmadı: {err}',
   'ui.macro.no_answer': 'yanıt yok',
   'ui.macro.frame_title': '{app} (arka planda çalışıyor)',
-  'ui.macro.record': 'Kayıt başlat',
+  'ui.macro.record': 'Kaydı başlat',
   'ui.macro.stop_save': 'Durdur ve kaydet',
   'ui.macro.stop_rec_save': 'Kaydı durdur ve kaydet',
   'ui.macro.play': 'Oynat',

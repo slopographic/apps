@@ -6,7 +6,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'fontcreator.tour.draw_title': 'Çiz',
   'fontcreator.tour.draw_text': 'Glif, ölçü çizgilerinde. Eğriler için Kalem (P), şekiller için Dikdörtgen (R), Elips (E) ve Çizgi (S); Seç (V) noktaları taşır.',
   'fontcreator.tour.start_title': 'Bir şeyden başlayın',
-  'fontcreator.tour.start_text': 'El yazısı şablonu yazdırın, bir SVG yapıştırın ya da düzenlemek için bir TTF, OTF veya WOFF2 açın.',
+  'fontcreator.tour.start_text': 'El yazısı şablonu yazdırın, bir SVG yapıştırın ya da düzenlemek için bir TTF, OTF ya da WOFF2 açın.',
   'fontcreator.tour.kerning_title': 'Kerning',
   'fontcreator.tour.kerning_text': 'AV ve To gibi çiftleri yakından inceleyin ve örnek satırın değişimini izleyin.',
   'fontcreator.tour.test_title': 'Yazı testi',

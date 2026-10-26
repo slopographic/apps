@@ -45,7 +45,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'photoslop.io.saved_png_drive': "Slop Drive’a bir PNG kaydedildi",
   'photoslop.io.no_drive': "Slop Drive burada kullanılamıyor",
   'photoslop.io.save_png_drive': "PNG’yi Slop Drive’a kaydet",
-  'photoslop.io.rasterize_first': "Önce metin veya şekil katmanını piksel tabanlı hale getirin",
+  'photoslop.io.rasterize_first': "Önce metin ya da şekil katmanını piksel tabanlı hale getirin",
   'photoslop.io.replace_mask': "Maske değiştirilsin mi?",
   'photoslop.io.replace_mask_body': "“{name}” zaten bir maskeye sahip. SlopIsolate’tan konu maskesini geri gönderdiğinizde bu maskenin yerine geçer. Devam edilsin mi?",
   'photoslop.io.continue': "Devam",

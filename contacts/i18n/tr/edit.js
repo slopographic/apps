@@ -9,7 +9,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'contacts.ed.dept': 'Bölüm',
   'contacts.ed.job': 'Unvan',
   'contacts.ed.bday': 'Doğum günü',
-  'contacts.ed.bday_ph': 'YYYY-MM-DD veya --MM-DD',
+  'contacts.ed.bday_ph': 'YYYY-MM-DD ya da --MM-DD',
   'contacts.ed.website': 'Web sitesi',
   'contacts.ed.groups_aria': 'Gruplar, virgülle ayrılmış',
   'contacts.ed.notes': 'Notlar',

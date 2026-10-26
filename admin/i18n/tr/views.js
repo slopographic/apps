@@ -45,7 +45,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'admin.core.forward': 'Sonraki numara yalnızca ileri gidebilir (şu an {n}). Verilmiş numaralar asla yeniden kullanılmaz.',
   'admin.core.currency': 'Listeden bir para birimi kodu seçin, örneğin USD.',
   'admin.core.locale': 'Sayı ve tarih biçimleri için en-US ya da fr-FR gibi bir dil etiketi kullanın.',
-  'admin.core.rate': 'Varsayılan vergi oranı 0 ile 100 arasında, en fazla iki ondalıklı bir yüzdedir; örneğin 20 ya da 7.5.',
+  'admin.core.rate': 'Varsayılan vergi oranı 0 ile 100 arasında, en fazla iki ondalıklı bir yüzdedir; örneğin 20 ya da 7,5.',
   'admin.core.not_json': 'Bu dosya bir Slop yedeği değil (geçerli JSON değil).',
   'admin.core.not_restored': 'Yedek geri yüklenmedi. {why}',
   'admin.core.nothing_changed': 'Yedek geri yüklenmedi. Hiçbir şey değiştirilmedi. {why}',

@@ -3,7 +3,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'quotes.app.name': 'Teklifler',
   'quotes.page.sections': 'Teklifler bölümleri',
   'quotes.page.local_tip': 'Müşteriler ve teklifler bu tarayıcıda kalır. Hiçbir şey karşıya yüklenmez.',
-  'quotes.page.search_ph': 'Numara, müşteri veya notlarda ara',
+  'quotes.page.search_ph': 'Numara, müşteri ya da notlarda ara',
   'quotes.page.details': 'Teklif ayrıntıları',
   'quotes.page.notes_ph': 'Kapsam, koşullar, dahil olmayanlar',
   'quotes.page.quotes': 'Teklifler',

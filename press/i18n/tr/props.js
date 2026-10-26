@@ -87,7 +87,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'press.props.undo.rotate': 'Döndür',
   'press.props.undo.stroke_weight': 'Kontur kalınlığı',
   'press.props.undo.corner_radius': 'Köşe yarıçapı',
-  'press.props.undo.opacity': 'Saydamlık',
+  'press.props.undo.opacity': 'Opaklık',
   'press.props.undo.stroke_style': 'Kontur stili',
   'press.props.undo.sides': 'Kenarlar',
   'press.props.undo.star_inset': 'Yıldız iç oranı',

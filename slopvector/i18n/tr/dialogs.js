@@ -1,7 +1,7 @@
 /* SlopVector, Turkish: the dialogs, the shortcut sheet, the about box and the guide and config windows. Same keys as slopvector/i18n/en/dialogs.js. Terms: shared/i18n/glossary-tr.md. */
 window.SlopI18n && window.SlopI18n.add('tr', {
   'vector.dlg.name': "Ad",
-  'vector.dlg.preset': "Hazır ayar",
+  'vector.dlg.preset': "Ön ayar",
   'vector.dlg.preset_letter': "Letter (612 × 792)",
   'vector.dlg.preset_a4': "A4 (595 × 842)",
   'vector.dlg.preset_square': "Instagram (1080 × 1080)",

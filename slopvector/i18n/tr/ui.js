@@ -59,7 +59,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'vector.cb.points': "Nokta",
   'vector.cb.star_points': "Yıldız noktaları",
   'vector.cb.inner': "İç",
-  'vector.cb.inner_radius_pct': "İç yarıçap %",
+  'vector.cb.inner_radius_pct': "İç yarıçap (%)",
   'vector.cb.brush': "Fırça",
   'vector.cb.brush_size': "Fırça boyutu",
   'vector.cb.slopify_tip': "Seçimi Slopify’la ({key})",

@@ -69,7 +69,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'tables.err.range_too_large': "Bu aralık çok büyük (en fazla 200.000 hücre).",
   'tables.err.too_many_points': "Bir grafik en fazla {n} nokta gösterir. Daha küçük bir aralık seçin.",
   'tables.err.no_numbers': "Bu aralıkta grafiğe dökülecek sayı yok.",
-  'tables.err.pivot_keys': "Bir pivot tablo, satırlarında veya sütunlarında en fazla {n} farklı anahtar gösterebilir.",
+  'tables.err.pivot_keys': "Bir pivot tablo, satırlarında ya da sütunlarında en fazla {n} farklı anahtar gösterebilir.",
   'tables.err.no_column': "Kaynakta “{name}” adında bir sütun yok.",
   'tables.err.source_range': "Kaynak aralığı: {error}",
   'tables.err.source_rows': "Kaynakta bir başlık satırı ve en az bir veri satırı olmalı.",

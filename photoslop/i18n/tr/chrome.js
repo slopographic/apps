@@ -63,7 +63,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'photoslop.chrome.heart': "Kalp",
   'photoslop.chrome.line': "Çizgi",
   'photoslop.chrome.fill_fg': "Dolgu (ön plan)",
-  'photoslop.chrome.stroke': "Vuruş",
+  'photoslop.chrome.stroke': "Kontur",
   'photoslop.chrome.radius': "Köşe yarıçapı",
   'photoslop.chrome.sides': "Kenar sayısı",
   'photoslop.chrome.auto_select': "Katmanı otomatik seç",

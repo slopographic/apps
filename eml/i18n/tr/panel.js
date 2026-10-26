@@ -34,7 +34,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'eml.side.combined': "Birleştirilmiş PDF",
   'eml.side.combined_note': "Tarih sırasına göre tek bir PDF: bir içindekiler sayfası, ardından her ileti yeni bir sayfada, ek adlarıyla birlikte. PDF ve resim eklerini sayfa olarak eklemek için Dışa aktar ▸ Diğer seçenekler… bölümünü seçin.",
   'eml.side.start': "Başla",
-  'eml.side.start_note': "Okumak için .eml dosyalarını veya bir posta kutusunu (.mbox) açın. Hiçbir şey yüklenmez.",
+  'eml.side.start_note': "Okumak için .eml dosyalarını ya da bir posta kutusunu (.mbox) açın. Hiçbir şey yüklenmez.",
   'eml.side.open': "Aç…",
   'eml.prev.of': "{name} önizlemesi",
   'eml.prev.no_type': "tür yok",

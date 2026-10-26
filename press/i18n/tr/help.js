@@ -4,7 +4,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'press.help.about_privacy': 'Hiçbir şey yüklenmez. Çalışmanız bu tarayıcıda otomatik kaydedilir; .slpress dosyalarını korumak için kaydedin. Yazı tipleri: birlikte gelen Liberation Sans (PDF’lere gömülür), sistem yazı tipleriniz ve yüklediğiniz her .ttf/.otf.',
   'press.help.about_keys': 'Tüm komutları aramak için {key} tuşuna basın.',
   'press.help.fonts_title': 'Yazı tipleri',
-  'press.help.fonts_note': 'Slop Press’te kitaplıktan indirme kapalıdır: Liberation Sans ve belgeye yüklediğiniz yazı tipi dosyaları gömülür. En yakın aileyi kullanın ya da kendi TTF veya OTF dosyanızı ekleyin (WOFF henüz desteklenmiyor).',
+  'press.help.fonts_note': 'Slop Press’te kitaplıktan indirme kapalıdır: Liberation Sans ve belgeye yüklediğiniz yazı tipi dosyaları gömülür. En yakın aileyi kullanın ya da kendi TTF ya da OTF dosyanızı ekleyin (WOFF henüz desteklenmiyor).',
   'press.help.type_command': 'Bir komut yazın…',
   'press.help.search_title': 'Komut ara',
 });

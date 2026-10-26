@@ -37,7 +37,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   '3d.insp.colour': 'Renk',
   '3d.insp.roughness': 'Pürüzlülük',
   '3d.insp.metallic': 'Metalik',
-  '3d.insp.opacity': 'Saydamlık',
+  '3d.insp.opacity': 'Opaklık',
   '3d.insp.remove_texture': 'Resim dokusunu kaldır',
   '3d.insp.light': 'Işık',
   '3d.insp.intensity': 'Yoğunluk',

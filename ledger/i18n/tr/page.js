@@ -57,7 +57,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'ledger.page.import_stmt': 'Ekstre içe aktar…',
   'ledger.page.match': 'Yeniden eşleştir',
   'ledger.page.show_all': 'Eşleşenleri ve bir kenara ayrılanları göster',
-  'ledger.page.bank_note': 'Banka ekstreniz bu cihazda okunur: CSV, OFX veya QFX, QIF, camt.053 (ISO 20022 XML) ya da MT940. Her satır, aynı tutarı 5 gün içinde bu hesapta hareket ettiren defter kaydıyla eşleştirilir.',
+  'ledger.page.bank_note': 'Banka ekstreniz bu cihazda okunur: CSV, OFX ya da QFX, QIF, camt.053 (ISO 20022 XML) ya da MT940. Her satır, aynı tutarı 5 gün içinde bu hesapta hareket ettiren defter kaydıyla eşleştirilir.',
   'ledger.page.text': 'Metin',
   'ledger.page.amount': 'Tutar',
   'ledger.page.status': 'Durum',

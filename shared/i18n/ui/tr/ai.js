@@ -48,7 +48,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'ui.ai.run.undo_failed': 'Geri alınamadı: o zamandan beri belge başka bir şekilde değişti.',
   'ui.ai.pick.no_api': 'Bu tarayıcı YZ modellerini çalıştıramaz: WebGPU gerekir ve tarayıcıda yok.',
   'ui.ai.pick.no_gpu': 'Bu tarayıcıda WebGPU kapalı ya da kullanabileceği bir grafik birimi yok, bu yüzden YZ modelleri burada çalışamaz.',
-  'ui.ai.pick.no_gpu_help': 'Bir bilgisayarda güncel bir Chrome ya da Edge kullanın (sürüm 113 veya sonrası) ya da bir Mac ya da iPhone’da Safari 26. Linux’ta Chrome için chrome://flags/#enable-unsafe-webgpu gerekebilir.',
+  'ui.ai.pick.no_gpu_help': 'Bir bilgisayarda güncel bir Chrome ya da Edge kullanın (sürüm 113 ya da sonrası) ya da bir Mac ya da iPhone’da Safari 26. Linux’ta Chrome için chrome://flags/#enable-unsafe-webgpu gerekebilir.',
   'ui.ai.pick.still': '{app} uygulamasının tüm menü ve araçlarını yine kendiniz kullanabilir ya da yukarıdaki kendi YZ hesabınızı bağlayabilirsiniz. Bu tarayıcının başka bir sekmesinde {link} çalışıyorsa, o model burada da kullanılır.',
   'ui.ai.pick.consent_runs': '{model} bu cihazda WebGPU ile çalışır; yani ona sorduklarınız burada kalır.',
   'ui.ai.pick.consent_hosts': 'huggingface.co adresinden indirilir; GPU kodu raw.githubusercontent.com adresinden gelir.',

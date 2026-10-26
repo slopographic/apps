@@ -5,7 +5,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'press.io.send_png_to': 'Sayfa PNG’sini {app} uygulamasına gönder',
   'press.io.open_drive_title': 'Slop Drive’dan aç',
   'press.io.place_drive_title': 'Slop Drive’dan yerleştir',
-  'press.io.intake_noun': 'bir resim, metin, PDF, yazı tipi veya .slpress dosyası',
+  'press.io.intake_noun': 'bir resim, metin, PDF, yazı tipi ya da .slpress dosyası',
   'press.io.placed_text': 'Metin yerleştirildi: {n} sayfa eklendi',
   'press.io.placed_text#one': 'Metin yerleştirildi: {n} sayfa eklendi',
   'press.io.rendering_pdf': 'PDF sayfaları işleniyor…',

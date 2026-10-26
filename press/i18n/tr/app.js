@@ -1,7 +1,7 @@
 /* Slop Press, Turkish: the top bar, the canvas and rulers (index.html), and the app’s toasts. Same keys as press/i18n/en/app.js. Terms: shared/i18n/glossary-tr.md. */
 window.SlopI18n && window.SlopI18n.add('tr', {
   'press.app.main_menu': 'Ana menü',
-  'press.app.toggle_panels': 'Panelleri göster veya gizle',
+  'press.app.toggle_panels': 'Panelleri göster ya da gizle',
   'press.app.control_bar': 'Denetim çubuğu',
   'press.app.layout_area': 'Düzen',
   'press.app.ruler_corner': 'Sayfaya sığdırmak için çift tıklayın',

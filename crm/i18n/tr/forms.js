@@ -116,7 +116,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'crm.gp.del_body_n': "{what} üzerinden kaldırılır. Müşteriler kalır, diğer grupları da korunur.",
   'crm.gp.deleted': "Grup silindi",
   'crm.gp.rename': "Yeniden adlandır",
-  'crm.gp.note': "Bir müşteri birçok grupta olabilir. Listeyi filtrelemek için kenar çubuğunda bir grup seçin ya da müşterileri toplu olarak ekleyin veya çıkarın.",
+  'crm.gp.note': "Bir müşteri birçok grupta olabilir. Listeyi filtrelemek için kenar çubuğunda bir grup seçin ya da müşterileri toplu olarak ekleyin ya da çıkarın.",
   'crm.gp.groups': "Gruplar",
   'crm.gp.none': "Henüz grup yok. Yukarıdan bir tane ekleyin.",
   'crm.tm.ph': "Yeni etiket",

@@ -45,7 +45,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'slopedit.def.ease.easeinoutcubic': 'Yavaş başlayıp bitme',
   'slopedit.def.prop.scale': 'Ölçek',
   'slopedit.def.prop.rot': 'Döndürme',
-  'slopedit.def.prop.opacity': 'Saydamlık',
+  'slopedit.def.prop.opacity': 'Opaklık',
   'slopedit.def.every.0': 'Tüm klip',
   'slopedit.def.every.0_5': 'Her 0,5 sn',
   'slopedit.def.every.1': 'Her 1 sn',

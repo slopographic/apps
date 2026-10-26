@@ -69,7 +69,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'ai.sys.budget': 'Model bellek bütçesi',
   'ai.sys.estimate': '{size} (tahmini)',
   'ai.sys.machine': 'Makine',
-  'ai.sys.ram_8': '8 GB veya daha fazla',
+  'ai.sys.ram_8': '8 GB ya da daha fazla',
   'ai.sys.not_reported': 'bildirilmedi',
   'ai.sys.threads': 'CPU iş parçacığı',
   'ai.sys.browser': 'Tarayıcı',

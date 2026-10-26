@@ -39,7 +39,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'tables.tpl.invoice_name': "Fatura",
   'tables.tpl.invoice_desc': "Kalem satırlı bir fatura: miktar, birim fiyat, B5’teki orana göre vergi ve satır toplamı.",
   'tables.tpl.inventory_name': "Envanter listesi",
-  'tables.tpl.inventory_desc': "SKU’ya göre elde bulunan stok. Miktar yeniden sipariş düzeyinin altına veya eşitse Durum, Yeniden sipariş gösterir.",
+  'tables.tpl.inventory_desc': "SKU’ya göre elde bulunan stok. Miktar yeniden sipariş düzeyinin altına ya da eşitse Durum, Yeniden sipariş gösterir.",
   'tables.tpl.timesheet_name': "Zaman çizelgesi",
   'tables.tpl.timesheet_desc': "Bir haftada her çalışan için günlük çalışma saatleri, haftalık toplamlarla.",
   'tables.tpl.project_plan_name': "Proje planı",

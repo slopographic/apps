@@ -20,7 +20,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
 
   'fontcreator.svg.title': 'SVG’den çiz',
   'fontcreator.svg.intro': '{glyph} için. Bir SVG ya da yol verisini yapıştırın ya da bir dosya seçin.',
-  'fontcreator.svg.placeholder': '{svg} veya yalnızca {d}',
+  'fontcreator.svg.placeholder': '{svg} ya da yalnızca {d}',
   'fontcreator.svg.choose': 'Bir .svg dosyası seçin…',
   'fontcreator.svg.noun': 'bir SVG dosyası',
   'fontcreator.svg.place': 'Yerleştir',

@@ -20,7 +20,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'hex.app.find_as': 'Şu biçimde bul:',
   'hex.app.mode_hex': 'Onaltılık bayt',
   'hex.app.mode_text': 'Metin',
-  'hex.app.find_ph': '4D 5A  veya  metin',
+  'hex.app.find_ph': '4D 5A  ya da  metin',
   'hex.app.find_aria': 'Bul',
   'hex.app.prev': 'Önceki',
   'hex.app.prev_tip': 'Öncekini bul (Shift+F3)',

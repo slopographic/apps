@@ -116,7 +116,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'slopedit.menu.add_some_clips_to_the': 'Önce zaman çizelgesine birkaç klip ekleyin',
   'slopedit.menu.about_slopcut': 'SlopCut hakkında',
   'slopedit.menu.slopcut_is_a_free_video': 'SlopCut, tamamen tarayıcınızda çalışan ücretsiz bir video düzenleyicidir. Görüntüleriniz hiçbir zaman karşıya yüklenmez: bu cihazda çözülür, düzenlenir ve kodlanır.',
-  'slopedit.menu.export_uses_webcodecs_hardware_video': 'Dışa aktarma, WebCodecs (donanım video kodlaması) ile Vanilagy’nin MIT lisanslı mp4-muxer ve webm-muxer kütüphanelerini kullanır. WebCodecs olmayan tarayıcılarda gerçek zamanlı WebM kaydına geçilir.',
+  'slopedit.menu.export_uses_webcodecs_hardware_video': 'Dışa aktarma, WebCodecs (donanım video kodlaması) ile Vanilagy’nin MIT lisanslı mp4-muxer ve webm-muxer kitaplıklerini kullanır. WebCodecs olmayan tarayıcılarda gerçek zamanlı WebM kaydına geçilir.',
   'slopedit.menu.autosave_keeps_your_project_and': 'Otomatik kaydetme, projenizi ve medyanızı bu tarayıcının IndexedDB’sinde tutar. Dosya ▸ Otomatik kaydetme’den kapatabilirsiniz.',
   'slopedit.menu.nice': 'Güzel',
   'slopedit.app.add_to_timeline': 'Zaman çizelgesine ekle',

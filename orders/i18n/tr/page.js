@@ -3,7 +3,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'orders.app.name': 'Siparişler',
   'orders.page.sections': 'Siparişler bölümleri',
   'orders.page.local_tip': 'Müşteriler, siparişler ve stok bu tarayıcıda kalır. Hiçbir şey karşıya yüklenmez.',
-  'orders.page.search_ph': 'Numara, müşteri veya notlarda ara',
+  'orders.page.search_ph': 'Numara, müşteri ya da notlarda ara',
   'orders.page.details': 'Sipariş ayrıntıları',
   'orders.page.orders': 'Siparişler',
   'orders.page.order': 'Sipariş',

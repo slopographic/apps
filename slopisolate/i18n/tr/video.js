@@ -30,7 +30,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'cutout.video.no_encoder': "Bu tarayıcıda WebCodecs video kodlayıcısı yok: dışa aktarmalar PNG karelerine döner.",
   'cutout.video.no_webcodecs': "WebCodecs yok: kareler bir video öğesiyle okunur (daha yavaş, adım adım).",
   'cutout.video.no_alpha': "Bu tarayıcı alfalı WebM yazamaz: sonuç bir PNG kare dizisi (ZIP) olur.",
-  'cutout.video.no_decode': "Bu tarayıcı videoyu çözemiyor. Güncel bir Chrome, Edge, Safari veya Firefox kullanın.",
+  'cutout.video.no_decode': "Bu tarayıcı videoyu çözemiyor. Güncel bir Chrome, Edge, Safari ya da Firefox kullanın.",
   'cutout.video.too_long': "{max} sn’den uzun klipler ilk sürüm için çok uzun: yalnızca ilk {max} sn işlenir.",
   'cutout.video.scaled': "720p’den büyük kareler, maskeden önce 720p’ye küçültülür.",
   'cutout.video.phone': "Telefonlarda maske işlemci üzerinde çalışır: klipleri kısa tutun.",

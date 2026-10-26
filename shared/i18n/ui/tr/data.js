@@ -114,7 +114,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'ui.data.bill.overpay': 'bu faturada yalnızca {due} ödenecek',
   'ui.data.bill.void_issued': 'yalnızca kesilmiş bir fatura geçersiz kılınabilir',
   'ui.data.bill.void_paid': 'bu faturada ödemeler var, geçersiz kılınamaz',
-  'ui.data.bill.void_credited': 'bu faturanın iade notları var, geçersiz kılınamaz',
+  'ui.data.bill.void_credited': 'bu faturanın iade faturaları var, geçersiz kılınamaz',
   'ui.data.bill.order_open': 'yalnızca onaylanmış ya da tamamlanmış bir sipariş faturalandırılabilir',
   'ui.data.bill.order_has': 'bu siparişin zaten {number} numaralı faturası var',
   'ui.data.bill.order_has_draft': 'bu siparişin zaten bir taslak faturası var',

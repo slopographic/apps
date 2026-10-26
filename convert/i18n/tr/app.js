@@ -11,7 +11,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'convert.app.search_ph': 'PDF, WebP ya da CSV deneyin',
   'convert.app.skip': 'Dönüştürücüye atla',
   'convert.app.what_h': 'Neleri dönüştürür',
-  'convert.app.what_p1': 'Resimler PNG, JPG, WebP, BMP ve ICO’ya, ayrıca PDF’ye dönüşür. E-postalar HTML, metne ve bir ekler ZIP’ine dönüşür. Takvim dosyaları CSV ve JSON’a dönüşür. XML, JSON’a dönüşür. ZIP dosyaları açılır, her dosya zip’lenir. PDF sayfaları resme dönüşür; PDF birleştirme ve bölme yapılır. CSV’den JSON’a, JSON’dan CSV’ye, CSV’den Excel’e. Markdown’dan HTML’ye, HTML’den metne, Base64 ve URL kodlamasına ve satır sonlarına. Her dönüştürücünün kendi sayfası da vardır.',
+  'convert.app.what_p1': 'Resimler PNG, JPG, WebP, BMP ve ICO’ya, ayrıca PDF’e dönüşür. E-postalar HTML, metne ve bir ekler ZIP’ine dönüşür. Takvim dosyaları CSV ve JSON’a dönüşür. XML, JSON’a dönüşür. ZIP dosyaları açılır, her dosya zip’lenir. PDF sayfaları resme dönüşür; PDF birleştirme ve bölme yapılır. CSV’den JSON’a, JSON’dan CSV’ye, CSV’den Excel’e. Markdown’dan HTML’ye, HTML’den metne, Base64 ve URL kodlamasına ve satır sonlarına. Her dönüştürücünün kendi sayfası da vardır.',
   'convert.app.what_p2': 'Toplu çalışır: istediğiniz kadar dosya bırakın. Dönüştürülen dosyalar birer birer ya da tek bir zip olarak indirilir.',
   'convert.frame.convert_n': '{n} dosyayı dönüştür',
   'convert.frame.convert_tip': 'Dosyaları dönüştür (Enter)',

@@ -68,7 +68,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'remix.ui.lane_changed': 'Düzen geçişleri değişti: bunlarla yeniden planlamak için Remix düğmesine basın.',
   'remix.ui.play': 'Oynat',
   'remix.ui.pause': 'Duraklat',
-  'remix.ui.clip_settings': 'Klip ayarları: uygulamak için Remix düğmesine basın (ya da yuva veya klip başına belirleyin).',
+  'remix.ui.clip_settings': 'Klip ayarları: uygulamak için Remix düğmesine basın (ya da yuva ya da klip başına belirleyin).',
   'remix.ui.timing_changed': 'Zamanlama: yeni zamanlamayı planlamak için Remix düğmesine basın.',
   'remix.ui.audio': 'Ses: {mode}.',
   'remix.ui.fill': 'Doldurma: {fill}.',

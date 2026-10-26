@@ -10,7 +10,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'paste.tour.items_title': "Yapıştırmalarınız",
   'paste.tour.items_text': "Her yapıştırma siz çalıştıkça Slop Drive’a kaydedilir.",
   'paste.tour.editor_title': "Düzenleyici",
-  'paste.tour.editor_text': "Buraya metin, kod veya resim yapıştırın, sonra kopyalayın veya paylaşın.",
+  'paste.tour.editor_text': "Buraya metin, kod ya da resim yapıştırın, sonra kopyalayın ya da paylaşın.",
   'paste.tour.commands_title': "Komutlar",
   'paste.tour.commands_text': "Paste’teki tüm komutlarda arayın.",
 });

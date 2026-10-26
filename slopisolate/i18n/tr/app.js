@@ -40,7 +40,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'cutout.app.notice_line1': "Slop Isolate, tarayıcınızda çalışan bir YZ modeliyle resmin arka planını kaldırır.",
   'cutout.app.notice_line2': "Başka bir model yalnızca Model panelinden seçerseniz indirilir.",
   'cutout.app.notice_model': "{name} modeli ({arch})",
-  'cutout.app.accept_noun': "bir resim veya video",
+  'cutout.app.accept_noun': "bir resim ya da video",
   'cutout.app.preview_alt': "Önce ve sonra: karmaşık arka plan gitti, konu korundu",
   'cutout.app.step_drop': "Birkaç resmi birden bırakın",
   'cutout.app.step_cut': "YZ konuyu ayırır; Koru ve Kaldır ile düzeltin",

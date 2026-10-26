@@ -24,7 +24,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'ui.presets.type.inner_shadow': 'İç gölge',
   'ui.presets.type.glow': 'Dış parıltı',
   'ui.presets.type.inner_glow': 'İç parıltı',
-  'ui.presets.type.stroke': 'Çizgi',
+  'ui.presets.type.stroke': 'Kontur',
   'ui.presets.type.bevel': 'Kabartma ve oyma',
   'ui.presets.type.overlay': 'Renk kaplaması',
   'ui.presets.type.gradient': 'Degrade kaplaması',

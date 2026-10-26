@@ -17,7 +17,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'pdf.ed.prop_width': 'genişlik',
   'pdf.ed.prop_border_colour': 'kenarlık rengi',
   'pdf.ed.prop_border_width': 'kenarlık genişliği',
-  'pdf.ed.prop_opacity': 'saydamlık',
+  'pdf.ed.prop_opacity': 'opaklık',
   'pdf.ed.undo_add_signature': 'İmza ekle',
 
   // editor/block-copy.js
@@ -74,7 +74,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'pdf.ed.obj_kind_form': 'yerleştirilmiş görsel',
   'pdf.ed.obj_kind_vector': 'vektör çizimi',
   'pdf.ed.obj_kind_object': 'nesne',
-  'pdf.ed.obj_on': 'Nesneler: taşımak, boyutlandırmak veya döndürmek için sayfadaki bir resme ya da çizime tıklayın.',
+  'pdf.ed.obj_on': 'Nesneler: taşımak, boyutlandırmak ya da döndürmek için sayfadaki bir resme ya da çizime tıklayın.',
   'pdf.ed.obj_off': 'Nesne modu kapalı.',
   'pdf.ed.obj_selected': 'Seçildi: {what}',
   'pdf.ed.obj_turn_tip': 'Döndür (Shift: 15° adımlarla)',
@@ -97,7 +97,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'pdf.ed.obj_only_image': 'Yalnızca bir resim değiştirilebilir.',
   'pdf.ed.undo_replace_image': 'Resmi değiştir',
   'pdf.ed.obj_saved': '{name} kaydedildi',
-  'pdf.ed.noun_picture': 'bir PNG, JPEG, WebP veya GIF resmi',
+  'pdf.ed.noun_picture': 'bir PNG, JPEG, WebP ya da GIF resmi',
   'pdf.ed.open_name_image': 'seçili resim',
   'pdf.ed.obj_arrange': 'Sırala',
   'pdf.ed.obj_turn90': '90° döndür',
@@ -131,7 +131,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'pdf.ed.sb_find': 'Bul',
   'pdf.ed.sb_selected_text': 'Seçili metin',
   'pdf.ed.sb_colour_tip': 'Vurgulama, altını çizme ve üstünü çizme için renk',
-  'pdf.ed.sb_opacity': 'Saydamlık',
+  'pdf.ed.sb_opacity': 'Opaklık',
   'pdf.ed.sb_edit': 'Düzenle',
   'pdf.ed.sb_selected': 'Seçildi: {what}',
 
@@ -181,7 +181,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   // editor/edit-text.js
   'pdf.ed.edit_text': 'Metni düzenle',
   'pdf.ed.et_off': 'Metni düzenle kapalı.',
-  'pdf.ed.et_on_para': 'Metni düzenle, Paragraflar: bir paragrafa tıklayın, ardından yazmak için çift tıklayın veya Enter tuşuna basın.',
+  'pdf.ed.et_on_para': 'Metni düzenle, Paragraflar: bir paragrafa tıklayın, ardından yazmak için çift tıklayın ya da Enter tuşuna basın.',
   'pdf.ed.et_on_lines': 'Metni düzenle: bir metin satırına tıklayın, yazın, uygulamak için Enter tuşuna basın (Esc iptal eder).',
   'pdf.ed.et_no_text_there': 'Orada metin yok. Bir metin satırına tıklayın.',
   'pdf.ed.et_no_text_page': 'Bu sayfada düzenlenecek metin yok.',
@@ -205,7 +205,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'pdf.ed.pm_paragraphs': 'Paragraflar',
   'pdf.ed.pm_paragraphs_tip': 'Bir metin çerçevesi gibi yeniden sarılan tam paragraflar',
   'pdf.ed.pm_done_tip': 'Metni düzenle modunu kapat (Ctrl+E)',
-  'pdf.ed.pm_hint_para': 'Bir paragrafa tıklayın, ardından yazmak için çift tıklayın veya Enter tuşuna basın. Yeniden akıtmak için bir kenarı, taşımak için çerçeveyi sürükleyin.',
+  'pdf.ed.pm_hint_para': 'Bir paragrafa tıklayın, ardından yazmak için çift tıklayın ya da Enter tuşuna basın. Yeniden akıtmak için bir kenarı, taşımak için çerçeveyi sürükleyin.',
   'pdf.ed.pm_hint_lines': 'Bir metin satırına tıklayın, yazın; Enter uygular, Esc iptal eder.',
   'pdf.ed.pm_frame': 'Paragraf çerçevesi. Enter metni düzenler, Escape bırakır.',
   'pdf.ed.pm_drag_width': 'Genişliği değiştirmek için sürükleyin',

@@ -40,7 +40,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'upscale.list.done': "tamamlandı",
   'upscale.list.running': "büyütülüyor…",
   'upscale.list.waiting': "bekliyor",
-  'upscale.cmd.open': "Bir resim veya video aç…",
+  'upscale.cmd.open': "Bir resim ya da video aç…",
   'upscale.cmd.drive': "Slop Drive’dan aç…",
   'upscale.cmd.download': "Sonucu indir",
   'upscale.cmd.save': "Sonucu Slop Drive’a kaydet",

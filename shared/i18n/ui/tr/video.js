@@ -1,4 +1,4 @@
-/* Ortak bileşenler, Türkçe: video makarası ve düzen ayarları, kesme temposu, boyutlar, geçişler, efektler, yerleşim şablonları ve düzen geçişi şeridi. Terimler: shared/i18n/glossary-tr.md. */
+/* Ortak bileşenler, Türkçe: video kurgusu ve düzen ayarları, kesme temposu, boyutlar, geçişler, efektler, yerleşim şablonları ve düzen geçişi şeridi. Terimler: shared/i18n/glossary-tr.md. */
 window.SlopI18n && window.SlopI18n.add('tr', {
   'ui.video.pace.fast': 'Hızlı (0,6–1,4 sn kesmeler)',
   'ui.video.pace.medium': 'Orta (1,5–3 sn kesmeler)',
@@ -16,7 +16,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'ui.video.vplay.random': 'Rastgele uzunluk (rastgele nokta, kendi uzunluğu)',
   'ui.video.audio.off': 'Kapalı',
   'ui.video.audio.original': 'Özgün (her klip kendi sesini korur)',
-  'ui.video.audio.music': 'Müzik (makaranın altında tek parça)',
+  'ui.video.audio.music': 'Müzik (kurgunun altında tek parça)',
   'ui.video.show.cut': 'Kesme uzunluğu',
   'ui.video.show.fixed': 'Sabit saniye',
   'ui.video.show.range': 'Rastgele aralık',
@@ -35,7 +35,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'ui.video.fx.zoom': 'Yakınlaştırma darbesi',
   'ui.video.fx.vignette': 'Köşe karartma',
   'ui.video.change.cut': 'Her kesmede değişir',
-  'ui.video.change.reel': 'Tüm makara için bir kez',
+  'ui.video.change.reel': 'Tüm kurgu için bir kez',
   'ui.video.ease.linear': 'Doğrusal',
   'ui.video.ease.easein': 'Yavaş başlar',
   'ui.video.ease.easeout': 'Yavaş biter',
@@ -53,7 +53,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'ui.video.tpl.grid2': 'Izgara 2×2',
   'ui.video.tpl.grid3': 'Izgara 3×3',
   'ui.video.tpl.three_up': 'Üçlü',
-  'ui.video.tpl.reel': 'Dikey 9:16 makara',
+  'ui.video.tpl.reel': 'Dikey 9:16 kurgu',
   'ui.video.tpl.title_two': 'Başlık ve iki klip',
   'ui.video.tpl.grid': 'Izgara {rows}×{cols}',
   'ui.video.tpl.none': 'Düzen yok',

@@ -82,7 +82,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'pdf.redact.mark_note': 'Gitmesi gereken her şeyin üzerine kutuları sürükleyin. Uygulayana kadar işaretler kırmızı çizgili görünür.',
   'pdf.redact.draw_btn': 'Karartma kutuları çiz',
   'pdf.redact.ph_regex': 'Düzenli ifade, örn. INV-\\d+',
-  'pdf.redact.ph_words': 'Sözcük veya ifade',
+  'pdf.redact.ph_words': 'Sözcük ya da ifade',
   'pdf.redact.find_aria': 'Bulunacak metin',
   'pdf.redact.sec_find': 'Bul ve karart',
   'pdf.redact.mode_text': 'Metin',

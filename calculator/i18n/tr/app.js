@@ -6,7 +6,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'calculator.app.local_title': 'Hesaplamalarınız, kâğıt bandınız ve geçmişiniz bu tarayıcıda kalır. Hiçbir şey yüklenmez.',
   'calculator.app.expression': 'İfade',
   'calculator.app.type': 'Bir hesaplama yazın',
-  'calculator.app.expr_ph': '200 + 20%   veya   2026-01-31 + 1 month',
+  'calculator.app.expr_ph': '200 + 20%   ya da   2026-01-31 + 1 month',
   'calculator.app.calculate': 'Hesapla',
   'calculator.app.insert': 'Ekle',
   'calculator.app.copy': 'Sonucu kopyala',

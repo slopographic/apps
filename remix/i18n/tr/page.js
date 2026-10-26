@@ -24,7 +24,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'remix.page.kadd': 'Oynatma imlecine anahtar ekle',
   'remix.page.kadd_tip': 'Oynatma imlecine, yuvanın mevcut duruşunu tutan bir anahtar ekleyin',
   'remix.page.kdel': 'Anahtarı sil',
-  'remix.page.kpreset': 'Hazır ayarla canlandır',
+  'remix.page.kpreset': 'Ön ayarla canlandır',
   'remix.page.kanim': 'Canlandır',
   'remix.page.kreset': 'Yuva anahtarlarını sıfırla',
   'remix.page.cuts': 'Kesimler sırayla',

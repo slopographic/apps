@@ -1,6 +1,6 @@
 /* PhotoSlop, Turkish: tuval, araç ve pencere komutlarının komut paleti başlıkları. Aynı anahtarlar: en/commands.js. Terimler: shared/i18n/glossary-tr.md. */
 window.SlopI18n && window.SlopI18n.add('tr', {
-  'photoslop.cmd.opacity_toast': "Opaklık {pct}%",
+  'photoslop.cmd.opacity_toast': "Opaklık %{pct}",
   'photoslop.cmd.cycle_tools': "{tools} arasında geç",
   'photoslop.cmd.swap_colors': "Ön plan ve arka plan renklerini değiştir",
   'photoslop.cmd.default_colors': "Varsayılan renkler (siyah / beyaz)",
@@ -8,7 +8,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'photoslop.cmd.brush_smaller': "Fırça boyutunu küçült",
   'photoslop.cmd.brush_harder': "Fırça sertliğini artır",
   'photoslop.cmd.brush_softer': "Fırça sertliğini azalt",
-  'photoslop.cmd.tool_opacity': "Araç opaklığı {pct}%",
+  'photoslop.cmd.tool_opacity': "Araç opaklığı %{pct}",
   'photoslop.cmd.nudge_left': "Sola kaydır {n} px",
   'photoslop.cmd.nudge_right': "Sağa kaydır {n} px",
   'photoslop.cmd.nudge_up': "Yukarı kaydır {n} px",

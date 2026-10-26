@@ -52,7 +52,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'photoslop.filter.slopify': "Slopify (Eritme)…",
   'photoslop.filter.shadow': "Gölge düşür…",
   'photoslop.filter.glow': "Dış parıltı…",
-  'photoslop.filter.stroke': "Vuruş…",
+  'photoslop.filter.stroke': "Kontur…",
   'photoslop.filter.overlay': "Renk kaplaması…",
   'photoslop.filter.bevel': "Eğim ve kabartma…",
   'photoslop.filter.inner_shadow': "İç gölge…",

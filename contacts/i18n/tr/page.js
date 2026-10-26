@@ -22,7 +22,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'contacts.page.clean': 'Temizle',
   'contacts.page.cc': 'Ülke kodu',
   'contacts.page.vcard_tools': 'vCard araçları',
-  'contacts.page.vcard_note': 'İçe aktarma vCard 2.1, 3.0 ve 4.0 (ve CSV) okur. Dışa aktarma vCard 3.0 veya 4.0 yazar. Birebir kopyalar içe aktarırken birleştirilir, Yinelenenler geri kalanları birleştirir.',
+  'contacts.page.vcard_note': 'İçe aktarma vCard 2.1, 3.0 ve 4.0 (ve CSV) okur. Dışa aktarma vCard 3.0 ya da 4.0 yazar. Birebir kopyalar içe aktarırken birleştirilir, Yinelenenler geri kalanları birleştirir.',
   'contacts.page.csv_vcard': 'CSV’den vCard’a',
   'contacts.page.xlsx_vcard': 'XLSX’ten vCard’a',
   'contacts.page.vcard_csv': 'vCard’dan CSV’ye',
@@ -39,5 +39,5 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'contacts.page.done': 'Bitti',
   'contacts.page.remove_group': 'Gruptan kaldır',
   'contacts.page.none_yet': 'Henüz kişi yok',
-  'contacts.page.none_note': 'Müşterileriniz burada görünür. Bir tane ekleyin ya da Google, Outlook veya Apple’dan bir vCard (.vcf) ya da CSV içe aktarın.',
+  'contacts.page.none_note': 'Müşterileriniz burada görünür. Bir tane ekleyin ya da Google, Outlook ya da Apple’dan bir vCard (.vcf) ya da CSV içe aktarın.',
 });

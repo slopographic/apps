@@ -45,7 +45,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'docs.ol.expand_x': "{name} genişlet",
   'docs.ol.heading': "başlık",
   'docs.ol.untitled_heading': "Adsız başlık",
-  'docs.ol.empty': "Henüz başlık yok. Stil menüsünden bir paragrafı Başlık 1, 2 veya 3 yapın ya da Bölüm ekle’yi kullanın.",
+  'docs.ol.empty': "Henüz başlık yok. Stil menüsünden bir paragrafı Başlık 1, 2 ya da 3 yapın ya da Bölüm ekle’yi kullanın.",
   'docs.ol.not_in_section': "İmleç bir bölümde değil",
   'docs.ol.move_up': "Yukarı taşı",
   'docs.ol.move_down': "Aşağı taşı",

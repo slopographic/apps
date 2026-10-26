@@ -50,7 +50,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'tables.toast.copy_too_large': "Bu seçim kopyalanamayacak kadar büyük. Daha az hücre seçin.",
   'tables.menu.sheets': "Sayfalar",
   'tables.menu.config': "Yapılandırma",
-  'tables.menu.download_stab': ".stab indir (Slop Tables dosyası)",
+  'tables.menu.download_stab': ".stab olarak indir (Slop Tables dosyası)",
   'tables.ctx.edit_cell': "Hücreyi düzenle",
   'tables.ctx.select_row': "Satırı seç",
   'tables.ctx.select_col': "Sütunu seç",

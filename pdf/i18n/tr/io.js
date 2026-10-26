@@ -39,7 +39,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
 
   // core/pdfjs.js
   'pdf.core.needs_password': 'Bu PDF bir parola gerektiriyor.',
-  'pdf.core.err_invalid': '“{name}” geçerli bir PDF değil veya onarılamayacak kadar bozuk.',
+  'pdf.core.err_invalid': '“{name}” geçerli bir PDF değil ya da onarılamayacak kadar bozuk.',
   'pdf.core.err_empty': '“{name}” boş.',
   'pdf.core.err_password': '“{name}” için doğru parola gerekiyor.',
   'pdf.core.err_open': '“{name}” açılamadı: {msg}',
@@ -79,8 +79,8 @@ window.SlopI18n && window.SlopI18n.add('tr', {
 
   // io/edit-log.js
   'pdf.io.log_found_title': 'Kaydedilmiş düzenlemeler bulundu',
-  'pdf.io.log_found_body': 'Slop PDF, bu cihazda “{name}” dosyasına ait {n} düzenlemeyi tutuyor. Bunları bu dosyada yeniden uygulayabilir ya da atabilirsiniz. Kaydet veya Dışa aktar her durumda yeni bir PDF yazar.',
-  'pdf.io.log_found_body#one': 'Slop PDF, bu cihazda “{name}” dosyasına ait {n} düzenlemeyi tutuyor. Bunları bu dosyada yeniden uygulayabilir ya da atabilirsiniz. Kaydet veya Dışa aktar her durumda yeni bir PDF yazar.',
+  'pdf.io.log_found_body': 'Slop PDF, bu cihazda “{name}” dosyasına ait {n} düzenlemeyi tutuyor. Bunları bu dosyada yeniden uygulayabilir ya da atabilirsiniz. Kaydet ya da Dışa aktar her durumda yeni bir PDF yazar.',
+  'pdf.io.log_found_body#one': 'Slop PDF, bu cihazda “{name}” dosyasına ait {n} düzenlemeyi tutuyor. Bunları bu dosyada yeniden uygulayabilir ya da atabilirsiniz. Kaydet ya da Dışa aktar her durumda yeni bir PDF yazar.',
   'pdf.io.log_discard': 'At',
   'pdf.io.log_replay': 'Yeniden uygula',
   'pdf.io.log_replayed': 'Kaydedilmiş düzenlemeleri yeniden uygula',

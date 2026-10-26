@@ -116,7 +116,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'label.presets.your_presets': 'Ön ayarlarınız',
   'label.presets.saved_from_a_config': 'Bir yapılandırmadan kaydedildi',
   'label.presets.presets': 'Ön ayarlar',
-  'label.presets.pick_a_preset_to_start': 'Bu düzenle yeni bir sekme başlatmak ya da bu sekmeye uygulamak (tek geri alma adımı) için bir ön ayar seçin. Sayfa boyutları malzeme kütüphanesini izler; bir sayfanın etiketlerinin sayfasına sığdığı denetlenir.',
+  'label.presets.pick_a_preset_to_start': 'Bu düzenle yeni bir sekme başlatmak ya da bu sekmeye uygulamak (tek geri alma adımı) için bir ön ayar seçin. Sayfa boyutları malzeme kitaplıksini izler; bir sayfanın etiketlerinin sayfasına sığdığı denetlenir.',
   'label.reset.reset_these_properties': 'Bu özellikler sıfırlansın mı?',
   'label.reset.your_changes_to_this_selection': 'Bu seçimdeki değişiklikleriniz geri alınır. Seçildiği zamanki değerler geri gelir.',
   'label.reset.reset_properties': 'Özellikleri sıfırla',
