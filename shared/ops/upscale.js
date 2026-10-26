@@ -44,7 +44,7 @@ async function upscale(files, o, ctx = {}) {
   const stop = { cancelled: false };
   if (ctx.signal) ctx.signal.addEventListener('abort', () => { stop.cancelled = true; }, { once: true });
   const out = await g.SlopUpscalePipeline.run(src, { scale: c.scale, model: c.id, bytes: c.bytes || null, signal: stop,
-    onProgress: (d, t) => { if (ctx.progress) ctx.progress(d / t); } });
+    onProgress: (d, total) => { if (ctx.progress) ctx.progress(d / total); } });
   const blob = await encode(out, pictureKind(f.kind), 0.92), kind = kindOfBlob(blob);
   const res = [{ name: `${stem(f.name)}-${c.scale}x.${kind}`, blob, kind }];
   if (c.note) res.info = c.note;

@@ -43,7 +43,7 @@ async function compress(files, o, ctx = {}) {
   if (o.mode === 'strong') {
     const dpi = Number(o.dpi) || 110;
     const pages = await pdfToImages(src, { scale: dpi / 72, format: 'jpg', quality: (Number(o.quality) || 70) / 100,
-      onPage: (d, t) => { if (ctx.progress) ctx.progress(d / t); } });
+      onPage: (d, total) => { if (ctx.progress) ctx.progress(d / total); } });
     // imagesToPdf reads a picture's size at 96 px to the inch: give it the size that makes each page its own size again
     const items = await Promise.all(pages.map(async (p) => ({ bytes: new Uint8Array(await p.blob.arrayBuffer()), mime: 'image/jpeg', width: (p.width * 96) / dpi, height: (p.height * 96) / dpi })));
     bytes = await imagesToPdf(items, { page: 'fit', margin: 0 });

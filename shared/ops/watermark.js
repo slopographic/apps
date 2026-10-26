@@ -42,7 +42,7 @@ async function apply(files, o, ctx = {}) {
   await scripts(SCRIPTS, () => !!(g.SlopWatermark && g.SlopWatermark.apply));
   const f = files[0], logoAspect = o.mark === 'both' && !o.spec ? await aspectOf(o.logo) : 0;
   const notes = [];
-  const blob = await g.SlopWatermark.apply(f.file, specOf(o, { logoAspect }), { signal: ctx.signal, progress: ctx.progress, notice: (t) => notes.push(t) });
+  const blob = await g.SlopWatermark.apply(f.file, specOf(o, { logoAspect }), { signal: ctx.signal, progress: ctx.progress, notice: (text) => notes.push(text) });
   const kind = KIND_OF[blob.type] || 'png';
   const out = [{ name: `${stem(f.name)}.${kind}`, blob, kind }];
   if (notes.length) out.info = notes.join(' ');

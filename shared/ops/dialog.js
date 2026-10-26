@@ -49,7 +49,7 @@ export function open(o = {}) {
     wrap.append(note, host, el('p', 'sl-wf-foot', t('ui.ops.dialog.foot')));
     dlg = g.SlopUI.dialog({ title: o.title || t('ui.ops.dialog.title'), body: wrap, cls: 'sl-wf-dlg', onClose: () => { if (ctl.tool) ctl.tool.destroy(); resolveDone(); } });
     const back = dlg.box.parentElement;
-    for (const t of ['dragenter', 'dragover', 'dragleave', 'drop']) back.addEventListener(t, (e) => e.stopPropagation());
+    for (const type of ['dragenter', 'dragover', 'dragleave', 'drop']) back.addEventListener(type, (e) => e.stopPropagation());
     ctl.tool = mountWorkflow(host, { compact: true, files, workflow: o.workflow, drop: { window: false, targets: [back], paste: false } });
     await ctl.tool.ready;
     return ctl.tool;
