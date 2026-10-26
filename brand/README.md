@@ -199,6 +199,28 @@ mirror has a commit it did not make, and names it, instead of overwriting it. Th
 outside this repository; CI here builds the samples on every push, so a change that would break a white-label build
 fails here first.
 
+### A copy with its whole history
+
+A mirror can also show this site's history commit by commit instead of one commit per release
+(`tools/whitelabel/history.mjs`). It walks the source's commits oldest first (the first-parent chain, stepping into a
+branch where a merge takes it as it is) and makes one commit per source commit: the build's tree for that commit, in the
+profile's `publish` author's name, at the source commit's author time (UTC). It is incremental: a commit transforms only
+the paths that changed since the last mapped one and keeps the rest, the build's cheap rewrites follow their inputs
+(`brand.json`, the manifest, the pinned cdn links, the mirror workflow), and the slow steps (SEO writer, precache list,
+icons) are not run per commit: the build's own files enter with the first commit and the release build goes on top.
+Every commit's new files are scanned like a build; a commit that cannot be built from an old tree, or whose files leak,
+is folded into the next good one, and a commit that changes nothing in the copy is dropped. Messages are mapped like the
+site (trailers removed); a part that still holds a forbidden word or talks about how the copy is made is left out, and a
+message with too little left becomes a neutral one made from the areas the commit changed ("Image Editor: updates"). A
+state file (source commit -> copy commit, kept with the publish script) lets the next run continue.
+`tools/whitelabel/history-gate.mjs` checks a range before a push: every commit's author, committer, headers and message,
+and every file each commit adds or changes.
+
+```sh
+node tools/whitelabel/history.mjs sample /tmp/acme-history --source=. --ref=main --rebuild --state-out=/tmp/acme.json
+node tools/whitelabel/history-gate.mjs sample /tmp/acme-history main
+```
+
 **DNS for a mirror on GitHub Pages:** in the domain's DNS add `CNAME <subdomain> -> <account>.github.io` (for example
 `tools -> <account>.github.io`); the build writes the `CNAME` file and the publish script turns Pages on for the
 repository with that custom domain. Turn on "Enforce HTTPS" once the certificate is issued.
