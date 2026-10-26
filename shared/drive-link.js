@@ -33,9 +33,13 @@
     // the tooltip is a key (ui.misc.drive_tip), marked so a language switch redraws it (SlopI18n.apply)
     a.setAttribute('data-i18n-attr', 'title:ui.misc.drive_tip');
     a.title = window.SlopI18n ? window.SlopI18n.t('ui.misc.drive_tip') : 'ui.misc.drive_tip';
-    a.setAttribute('aria-label', 'Slop Drive');
+    // the name is Drive's as the app list shows it, in the chosen language (slopAppName); data-app-name keeps it so on a switch
+    const name = window.slopAppName ? window.slopAppName('drive') : 'Slop Drive';   // i18n-ignore: the app name
+    a.setAttribute('aria-label', name);
     a.dataset.sdl = '';
-    a.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true">${ICON}</svg><span class="slop-hbtn-txt">Slop Drive</span>`;
+    a.dataset.appName = 'drive';
+    a.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true">${ICON}</svg><span class="slop-hbtn-txt" data-app-name="drive"></span>`;
+    a.lastChild.textContent = name;
     // Plain click: the browser follows the link in this tab. Modified or middle clicks open a new tab.
     a.addEventListener('click', (e) => {
       if (e.button !== 0 || e.shiftKey || e.ctrlKey || e.metaKey) { e.preventDefault(); window.open(a.href, '_blank', 'noopener'); }

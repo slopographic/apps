@@ -13,6 +13,8 @@ import { tabs } from './tabs.js';
 import { readWorkbook } from '../io/import.js';
 import { t } from '../i18n.js';
 
+// A new sheet's default name in the chosen language ("Blad1" in Swedish); a sheet keeps the name it has.
+Workbook.defaultSheetName = (n) => { const s = t('tables.sheet.default', { n: String(n) }); return s === 'tables.sheet.default' ? 'Sheet' + n : s; };
 const hub = () => window.SlopHub || null;
 const CSV_TYPES = ['text/csv', 'text/tab-separated-values'];
 const isCsv = (rec) => CSV_TYPES.includes(rec.type) || /\.(csv|tsv)$/i.test(rec.name || '');

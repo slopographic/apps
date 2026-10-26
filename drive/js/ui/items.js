@@ -55,7 +55,7 @@
     if (S.section === 'recent') return DR.t('drive.place.recent');
     if (S.section === 'starred') return DR.t('drive.place.starred');
     if (S.section === 'trash') return DR.t('drive.place.trash');
-    return S.cwd ? (S.folders.get(S.cwd) || {}).name || 'Slop Drive' : 'Slop Drive';
+    return S.cwd ? (S.folders.get(S.cwd) || {}).name || DR.rootName() : DR.rootName();
   };
   /** Can the user add files here? (Only in a real folder, not Recent/Starred/Trash/search.) */
   DR.canAddHere = () => S.section === 'folder';

@@ -65,7 +65,7 @@ async function pasteFromSystem(inPlace) {
     if (blob) {
       const c = await fileToCanvas(blob);
       if (CLIP.canvas && c.width === CLIP.canvas.width && c.height === CLIP.canvas.height) { pasteInternal(inPlace); return; }
-      pasteCanvas(c, null, null, 'Pasted Image'); return; // i18n-ignore: the layer's name is the document's
+      pasteCanvas(c, null, null, 'photoslop.layer.pasted_image'); return;
     }
   } catch (e) { /* permission denied or unsupported: fall back to the internal clipboard */ }
   if (pasteBuffer()) return; // nothing on the system clipboard: the shared buffer, if it is newer
@@ -77,7 +77,7 @@ async function newFromClipboard() {
   try { const blob = await clipboardImage(); if (blob) c = await fileToCanvas(blob); } catch (e) { /* fall through */ }
   if (!c && CLIP.canvas) c = copyCanvas(CLIP.canvas);
   if (!c) { toast(tr('photoslop.popup.no_clip_image')); return; }
-  openDocTab(c.width, c.height, [{ name: 'Background', canvas: c }], 'Pasted image'); // i18n-ignore: layer and document names are the document's
+  openDocTab(c.width, c.height, [{ name: tr('photoslop.layer.background'), canvas: c }], tr('photoslop.layer.pasted_doc'));
 }
 
 function brushPickerButton() {

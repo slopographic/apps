@@ -102,4 +102,9 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'drive.toast.copied_to_n': '{n} 件を {place} にコピーしました',
   'drive.toast.link_copied': 'リンクをコピーしました',
   'drive.toast.link_failed': 'リンクをコピーできませんでした',
+  'drive.newdoc.sdoc': 'ドキュメント',
+  'drive.newdoc.stab': 'スプレッドシート',
+  'drive.newdoc.sslide': 'プレゼンテーション',
+  'drive.newdoc.sfont': 'フォント',
+  'drive.newdoc.s3d': '3D シーン',
 });

@@ -159,6 +159,8 @@
         var s = pick(nodes[i].getAttribute('data-i18n'), nodes[i]);
         if (s !== null) nodes[i].textContent = s;
       }
+      nodes = g.slopAppName ? at.querySelectorAll('[data-app-name]') : [];   // data-app-name="<id>": the app list's name (slopAppName), as text or aria-label
+      for (var k = 0; k < nodes.length; k++) { var nm = g.slopAppName(nodes[k].getAttribute('data-app-name')); if (nodes[k].hasAttribute('aria-label')) nodes[k].setAttribute('aria-label', nm); else nodes[k].textContent = nm; }
       nodes = at.querySelectorAll('[data-i18n-attr]');
       for (var j = 0; j < nodes.length; j++) {
         nodes[j].getAttribute('data-i18n-attr').split(';').forEach(function (pair) {

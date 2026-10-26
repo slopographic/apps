@@ -54,10 +54,14 @@ function patchLayer(id, patch) {
   D.layers[i] = L;
   return L;
 }
+/** The first free layer name, "<base> <n>". A base that is a key of photoslop.layer.* (its string holds {n}, "Layer {n}")
+ *  gives the name in the chosen language, as a new layer gets it; a name a layer already has never changes. */
 function nextName(base) {
+  const keyed = /^photoslop\.layer\./.test(base) && tr(base, { n: 1 }) !== base;   // a file named like a key keeps its name
+  const at = keyed ? (n) => tr(base, { n }) : (n) => `${base} ${n}`;
   let n = 1; const names = new Set(D.layers.map((l) => l.name));
-  while (names.has(`${base} ${n}`)) n++;
-  return `${base} ${n}`;
+  while (names.has(at(n))) n++;
+  return at(n);
 }
 /** A copy of the layer whose canvas covers at least the whole document (painting may go anywhere on the page). */
 function coverDoc(L) {

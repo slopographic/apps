@@ -194,5 +194,5 @@ function layerViaCopy(cut) {
   if (!r) { duplicateLayer(); return; }
   if (cut) clearSelectionPixels(tr('photoslop.panel.step_cut'));
   const c = mkCanvas(D.w, D.h); cx(c).drawImage(r.canvas, r.x, r.y);
-  addLayer({ name: nextName('Layer'), canvas: c }, tr(cut ? 'photoslop.panel.step_via_cut' : 'photoslop.panel.step_via_copy')); // i18n-ignore: the layer's name is the document's
+  addLayer({ name: nextName('photoslop.layer.default'), canvas: c }, tr(cut ? 'photoslop.panel.step_via_cut' : 'photoslop.panel.step_via_copy'));
 }

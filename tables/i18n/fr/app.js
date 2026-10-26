@@ -64,6 +64,7 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'tables.sheet.tab_tip': '{name} (double-cliquez pour renommer)',
   'tables.sheet.rename_title': 'Renommer la feuille',
   'tables.sheet.name': 'Nom de la feuille',
+  'tables.sheet.default': 'Feuil{n}',
   'tables.sheet.need_one': 'Un classeur doit contenir au moins une feuille',
   'tables.sheet.delete_body': 'Supprimer « {name} » et tout ce qu’elle contient ?',
   'tables.nf.general': 'Général',
