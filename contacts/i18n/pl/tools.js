@@ -72,6 +72,8 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'contacts.tl.select_first': 'Najpierw zaznacz kontakty',
   'contacts.tl.add_group': 'Dodaj do grupy',
   'contacts.tl.group_for': 'Nazwa grupy dla zaznaczonych kontaktów: {n}',
+  'contacts.tl.group_for#few': 'Nazwa grupy dla zaznaczonych kontaktów: {n}',
+  'contacts.tl.group_for#many': 'Nazwa grupy dla zaznaczonych kontaktów: {n}',
   'contacts.tl.group_for#one': 'Nazwa grupy dla zaznaczonego kontaktu: {n}',
   'contacts.tl.add': 'Dodaj',
   'contacts.tl.group_ph': 'Praca, Rodzina, Klienci',
