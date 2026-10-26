@@ -35,6 +35,18 @@
 .co-sw-tool:hover, .co-sw-tool:focus-visible { background: color-mix(in srgb, var(--co-fg) 14%, transparent); }
 @media (pointer: coarse) { .co-sw-tool { width: 44px; height: 44px; } .co-sw-btn { width: 96px; min-height: 72px; } .co-sw-tools { gap: 0; } }
 .co-palette:empty { display: none; }
+/* the colour wheel (js/wheel.js): the canvas under handles that are sliders; touch drags the wheel, never the page */
+.co-wheel-row { display: grid; grid-template-columns: minmax(200px, 300px) minmax(0, 1fr); gap: 18px; align-items: start; }
+.co-wheel { position: relative; width: 100%; aspect-ratio: 1; touch-action: none; user-select: none; -webkit-user-select: none; cursor: crosshair; }
+.co-wheel-cv { display: block; width: 100%; height: 100%; }
+.co-wh { position: absolute; width: 20px; height: 20px; border-radius: 50%; transform: translate(-50%, -50%); border: 2px solid #fff;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .55), 0 2px 6px rgba(0, 0, 0, .35); cursor: grab; touch-action: none; }
+.co-wh.is-base { width: 30px; height: 30px; border-width: 3px; z-index: 1; }
+.co-wh:focus-visible { outline: 3px solid var(--co-accent); outline-offset: 3px; z-index: 2; }
+.co-wheel-side { display: grid; gap: 12px; min-width: 0; }
+.co-wheel-ctl { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.co-wheel-side select { font: inherit; width: 100%; min-height: 36px; padding: 0 9px; border-radius: 8px; border: 1px solid var(--co-line); background: var(--co-bg); color: var(--co-fg); }
+@media (pointer: coarse) { .co-wh { width: 28px; height: 28px; } .co-wh.is-base { width: 38px; height: 38px; } .co-wheel-side select { min-height: 44px; } }
 /* contrast */
 .co-con-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .co-sample { border-radius: 8px; padding: 16px; border: 1px solid var(--co-line); display: grid; gap: 6px; font-size: 16px; }
@@ -49,5 +61,7 @@
   .co-hero { grid-template-columns: 1fr; }
   .co-big { min-height: 96px; }
   .co-con-pair { grid-template-columns: 1fr; }
+  .co-wheel-row { grid-template-columns: 1fr; }
+  .co-wheel { max-width: 300px; margin-inline: auto; }
   .co-sw-btn { width: 84px; }
 }

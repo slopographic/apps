@@ -5,7 +5,7 @@
 <body>
 <script src="../harness.js"></script>
 <script>
-// Covers: colors/index.html, colors/css/colors.css, colors/css/view.css, colors/js/main.js, colors/js/panel.js, colors/js/values.js
+// Covers: colors/index.html, colors/css/colors.css, colors/css/view.css, colors/js/main.js, colors/js/panel.js, colors/js/values.js, colors/js/wheel.js
 const { describe, it, expect, waitFor, run } = SlopTest;
 async function open(width) {
   document.querySelectorAll('iframe').forEach((f) => f.remove());
@@ -40,6 +40,11 @@ describe('Slop Colors: the look', () => {
     expect(D.querySelectorAll('.sd-zone').length).toBe(1);
     expect(D.getElementById('co-canvas').hasAttribute('data-touch-surface')).toBe(true);
     expect(D.documentElement.scrollWidth).toBeLessThanOrEqual(1280);
+    // the colour wheel sits in Made from this colour, beside its harmony row, in the view (not the panel)
+    const wheel = D.getElementById('co-wheel').getBoundingClientRect(), harm = D.getElementById('co-harmony').getBoundingClientRect();
+    expect(main.contains(D.getElementById('co-wheel'))).toBe(true);
+    expect(wheel.width).toBeGreaterThanOrEqual(200); expect(Math.abs(wheel.width - wheel.height) < 1).toBe(true);
+    expect(harm.left).toBeGreaterThanOrEqual(wheel.right);
   }, { timeout: 40000 });
   it('390: no sideways scrolling; the panel is a bottom sheet whose foot (Settings and Download palette) always shows', async () => {
     const D = await open(390), W = D.defaultView;
@@ -53,6 +58,9 @@ describe('Slop Colors: the look', () => {
     expect(hex.height > 0 && hex.top > 0 && hex.right <= 390).toBe(true);   // the values are on the page, not in the sheet
     const harm = D.getElementById('co-harmony-kind').getBoundingClientRect();
     expect(harm.height === 0 || harm.top >= 844).toBe(true);   // the settings wait in the closed sheet
+    const wheel = D.getElementById('co-wheel').getBoundingClientRect();   // one column: the wheel fits, its row under it
+    expect(wheel.left >= 0 && wheel.right <= 390 && wheel.width >= 200).toBe(true);
+    expect(D.getElementById('co-harmony').getBoundingClientRect().top).toBeGreaterThan(wheel.bottom);
     W.CO.main.frame().openSheet();
     await waitFor(() => { const r = D.getElementById('co-harmony-kind').getBoundingClientRect(); return r.height > 0 && r.top > 0 && r.bottom < 844; });
   }, { timeout: 40000 });

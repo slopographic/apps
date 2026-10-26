@@ -10,7 +10,11 @@
  *   remove_color       index (1 = first)               rename_palette  name
  *   check_contrast     fg, bg                          read-only: the WCAG ratio and the levels it passes
  *   fix_contrast       fg?, bg?, level AA | AAA | large   the nearest text colour that passes
- *   export_palette     format, to drive | download | both */
+ *   export_palette     format, to drive | download | both
+ *   set_wheel          harmony?, wheel?, colors?      the colour wheel's rule (custom: colors are its own handles) and
+ *                                                     wheel (rgb, ryb, oklch); returns the wheel's colours
+ *   move_wheel_handle  handle, hue?, saturation?, brightness?   one handle moved, as a drag does (1 = the base colour)
+ *   read_wheel         read-only: the handles with their colour and place */
 (function (g) {
   'use strict';
   const C = g.SlopCmd, CO = g.CO, X = g.SlopColors;
@@ -27,6 +31,12 @@
     if (a.url) { const r = await S.siteFile(a.url); return new File([r.blob], r.name, { type: r.blob.type }); }
     throw new Error('Give a file (a Slop Drive name or id) or a url (a picture on this site)');
   }
+  const H = X.harmony, WH = X.wheel;
+  /** The wheel as the assistant reads it: hue on that wheel, saturation (OKLCH: chroma, % of the rim) and brightness. */
+  const wheel = () => {
+    const s = CO.state.get(), r1 = (x) => Math.round(x * 10) / 10, at = CO.wheel.places();
+    return { harmony: s.harmony, wheel: s.wheel, handles: WH.colours(s).map((hex, i) => ({ handle: i + 1, hex, hue: r1(at[i].a), saturation: r1(at[i].r * 100), brightness: r1(at[i].v * 100) })) };
+  };
   C.register([
     add('new_palette', 'New palette', [{ name: 'name', type: 'string', maxLength: 80, default: 'My palette' }, COLORS], (a) => {
       CO.state.set({ palette: { name: a.name || 'My palette', colors: (a.colors || []).map((c) => ({ hex: parse(c) })) } });
@@ -93,5 +103,26 @@
       if (a.to !== 'drive') out.push(`downloaded ${CO.io.download(a.format)}`);
       return out.join(' and ') + '.';
     }, { description: 'The palette as CSS variables, a Tailwind config, JSON, an Adobe .ase or a GIMP .gpl file, to Slop Drive and/or a download.' }),
+    add('set_wheel', 'Set the colour wheel', [{ name: 'harmony', type: 'enum', values: H.HARMONIES.map((x) => x[0]), description: 'the rule linking the handles; brightness is Shades, custom lets each handle move on its own' },   // i18n-ignore: for the assistant (English: API)
+      { name: 'wheel', type: 'enum', values: H.WHEELS.map((x) => x[0]), description: 'rgb (HSB), ryb (the artist\'s wheel) or oklch (perceptual)' },   // i18n-ignore: for the assistant (English: API)
+      Object.assign({}, COLORS, { maxItems: 7, description: 'custom only: the other handles\' colours (the base is the current colour)' })], (a) => {   // i18n-ignore: for the assistant (English: API)
+      const patch = {};
+      if (a.harmony) patch.harmony = a.harmony;
+      if (a.wheel) patch.wheel = a.wheel;
+      if (a.colors && a.colors.length) { patch.harmony = 'custom'; patch.custom = a.colors.map(parse); }
+      CO.state.set(patch);
+      return wheel();
+    }, { description: 'The colour wheel: its harmony rule and wheel (RGB, RYB, OKLCH). Its colours are the harmony row in Made from this colour.' }),   // i18n-ignore: for the assistant (English: API)
+    add('move_wheel_handle', 'Move a handle on the colour wheel', [{ name: 'handle', type: 'number', integer: true, min: 1, max: 8, default: 1, description: '1 is the base colour' },   // i18n-ignore: for the assistant (English: API)
+      { name: 'hue', type: 'number', min: 0, max: 360, description: 'degrees on the wheel in use' }, { name: 'saturation', type: 'number', min: 0, max: 100, description: '% from the centre (OKLCH: chroma)' },   // i18n-ignore: for the assistant (English: API)
+      { name: 'brightness', type: 'number', min: 0, max: 100, description: 'HSB brightness (OKLCH: lightness)' }], (a) => {   // i18n-ignore: for the assistant (English: API)
+      const to = {};
+      if (a.hue != null) to.a = a.hue;
+      if (a.saturation != null) to.r = a.saturation / 100;
+      if (a.brightness != null) to.v = a.brightness / 100;
+      CO.wheel.moveHandle((a.handle || 1) - 1, to);
+      return wheel();
+    }, { description: 'Move one handle as a drag does: the base sets the current colour and the others follow the rule; in custom each handle moves on its own.' }),   // i18n-ignore: for the assistant (English: API)
+    add('read_wheel', 'Read the colour wheel', [], () => wheel(), { readOnly: true, description: 'The wheel\'s harmony, model and handles (colour, hue, saturation, brightness).' }),   // i18n-ignore: for the assistant (English: API)
   ]);
 })(window);
