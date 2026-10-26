@@ -28,7 +28,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'convert.conv.to_bmp': 'BMP’ye',
   'convert.conv.to_ico': 'ICO’ya (simge)',
   'convert.opt.icon_size': 'Simge boyutu',
-  'convert.conv.images_to_pdf': 'Resimlerden PDF’e',
+  'convert.conv.images_to_pdf': 'Resimlerden PDF’ye',
   'convert.opt.page_size': 'Sayfa boyutu',
   'convert.opt.margin': 'Kenar boşluğu',
   'convert.conv.pdf_to_images': 'PDF’den resimlere',

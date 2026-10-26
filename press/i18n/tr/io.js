@@ -1,7 +1,7 @@
 /* Slop Press, Turkish: opening, placing, saving, Slop Drive and the offline copy (io/). Same keys as press/i18n/en/io.js. Terms: shared/i18n/glossary-tr.md. */
 window.SlopI18n && window.SlopI18n.add('tr', {
   'press.io.saved_drive': '{name} Slop Drive’a kaydedildi',
-  'press.io.send_pdf_to': 'PDF’i {app} uygulamasına gönder',
+  'press.io.send_pdf_to': 'PDF’yi {app} uygulamasına gönder',
   'press.io.send_png_to': 'Sayfa PNG’sini {app} uygulamasına gönder',
   'press.io.open_drive_title': 'Slop Drive’dan aç',
   'press.io.place_drive_title': 'Slop Drive’dan yerleştir',

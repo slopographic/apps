@@ -13,7 +13,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'press.edit.undo_tab': 'Sekme',
   'press.edit.undo_place_image': 'Resmi yerleştir',
   'press.edit.undo_place_text': 'Metni yerleştir',
-  'press.edit.undo_place_pdf': 'PDF’i yerleştir',
+  'press.edit.undo_place_pdf': 'PDF’yi yerleştir',
   'press.edit.undo_load_font': 'Yazı tipini yükle',
   'press.edit.undo_new_guide': 'Yeni kılavuz',
   'press.edit.undo_add_pages': 'Sayfa ekle',

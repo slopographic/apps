@@ -102,7 +102,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'ui.ops.files.pattern_hint': '{name} eski ad, {n} bir numara, {date} bugün.',
   'ui.ops.files.start': 'İlk numara',
   'ui.ops.files.digits': 'Basamak (01, 001…)',
-  'ui.ops.step.pdf_compress': 'PDF’i sıkıştır',
+  'ui.ops.step.pdf_compress': 'PDF’yi sıkıştır',
   'ui.ops.step.pdf_compress_desc': 'Daha küçük PDF’ler: kayıpsız, metni ve çizimleri korur; güçlü, her sayfayı bir JPEG’e çevirir.',
   'ui.ops.pdf.has_password': 'Bu PDF’in bir parolası var. Önce onu kaldırın.',
   'ui.ops.pdf.not_pdf': 'Bu geçerli bir PDF değil ya da bozuk.',

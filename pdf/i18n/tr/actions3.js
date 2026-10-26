@@ -16,7 +16,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'pdf.act.pw_confirm': 'Onayla',
   'pdf.act.protect_note': 'AES-256. Parolayı bilen herkes dosyayı açabilir; izinlere uyan PDF okuyucuları bunları korur. Slop PDF parolayı saklamaz: unutulursa dosya açılamaz.',
   'pdf.act.protect_local': 'PDF bu cihazda oluşturulur; parola hiçbir zaman cihazdan ayrılmaz.',
-  'pdf.act.download_pdf': 'PDF’i indir',
+  'pdf.act.download_pdf': 'PDF’yi indir',
   'pdf.act.pw_type': 'Bir parola yazın.',
   'pdf.act.pw_mismatch': 'İki parola aynı değil. Yeniden yazın.',
   'pdf.act.ver_original': 'Orijinali aç',
@@ -121,6 +121,6 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'pdf.act.pv_open_to_see': 'Sayfalarını görmek için bu belgeyi açın.',
   'pdf.act.pv_page': 'Sayfa {p}',
   'pdf.act.pv_no_pages': 'Bu belgenin sayfası yok.',
-  'pdf.act.convert_offline': 'Dönüştür, çevrimdışı dosyada yok. Çevrimiçi Slop PDF’i kullanın.',
+  'pdf.act.convert_offline': 'Dönüştür, çevrimdışı dosyada yok. Çevrimiçi Slop PDF’yi kullanın.',
   'pdf.act.preparing_doc': 'Belge hazırlanıyor…',
 });

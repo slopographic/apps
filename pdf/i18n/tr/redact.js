@@ -71,7 +71,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'pdf.redact.redacting': 'Karartılıyor…',
   'pdf.redact.redacting_pct': 'Sayfalar karartılıyor… %{pct}',
   'pdf.redact.done': '{areas} karartıldı ({pages})',
-  'pdf.redact.applied': 'Karartmalar uygulandı. Karartılmış PDF’i kaydetmek için indirin.',
+  'pdf.redact.applied': 'Karartmalar uygulandı. Karartılmış PDF’yi kaydetmek için indirin.',
   'pdf.redact.unapplied_title': 'Karartmalar uygulanmadı',
   'pdf.redact.unapplied_body': '{n} alan karartma için işaretlendi ama henüz kaldırılmadı. Karartmaları kalıcı olarak uygulayıp indirelim mi?',
   'pdf.redact.unapplied_body#one': '{n} alan karartma için işaretlendi ama henüz kaldırılmadı. Karartmaları kalıcı olarak uygulayıp indirelim mi?',

@@ -100,8 +100,8 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'pdf.app.err_not_again': 'zaten bir sekmede açık, bu yüzden yeniden açılmadı',
   'pdf.app.err_not_opened': 'açılamadı',
   'pdf.app.file_error': '“{name}” {error}',
-  'pdf.app.converted_one': '{name} PDF’e dönüştürüldü',
-  'pdf.app.converted_n': '{n} dosya PDF’e dönüştürüldü',
+  'pdf.app.converted_one': '{name} PDF’ye dönüştürüldü',
+  'pdf.app.converted_n': '{n} dosya PDF’ye dönüştürüldü',
   'pdf.app.already_in_doc': 'Bu belgede zaten var',
   'pdf.app.already_in_doc_msg': '“{name}” bu belgede zaten var. Sayfaları yeniden eklensin mi?',
   'pdf.app.add_again': 'Yeniden ekle',
@@ -123,5 +123,5 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'pdf.app.preview_alt': 'Slop PDF’de açık, yeniden sıralanmaya, imzalanmaya ya da indirilmeye hazır dört sayfalık bir PDF',
   'pdf.app.preview_step1': 'PDF ya da resim bırakın',
   'pdf.app.preview_step2': 'Sayfaları yeniden sıralayın, birleştirin, imzalayın ya da damgalayın',
-  'pdf.app.preview_step3': 'Yeni PDF’i indirin',
+  'pdf.app.preview_step3': 'Yeni PDF’yi indirin',
 });

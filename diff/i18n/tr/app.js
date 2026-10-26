@@ -1,7 +1,7 @@
 /* Slop Compare, Turkish: the page, the two sides, the options, the drop area and the commands. Same keys as diff/i18n/en/app.js.
  * Terms: shared/i18n/glossary-tr.md. */
 window.SlopI18n && window.SlopI18n.add('tr', {
-  'diff.app.subtitle': 'İki metni, dosyayı, PDF’i ya da resmi karşılaştırın ve her değişikliği görün. Hiçbir şey yüklenmez.',
+  'diff.app.subtitle': 'İki metni, dosyayı, PDF’yi ya da resmi karşılaştırın ve her değişikliği görün. Hiçbir şey yüklenmez.',
   'diff.app.open': 'Dosya aç…',
   'diff.app.sample': 'Bir örnek deneyin',
   'diff.app.clear_both': 'İkisini de temizle',

@@ -74,7 +74,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'ui.buddy.tip.guides': 'Kılavuz mu lazım? Kılavuzlar panelini deneyin.',
   'ui.buddy.tip.photo_layer': 'Katmanlar her şeyi daha kolay geri alınır yapar. Yeni bir katman ister misiniz?',
   'ui.buddy.tip.vector_pen': 'Bir vektör çiziyor gibisiniz! Kalem aracı P tuşunda.',
-  'ui.buddy.tip.pdf_redact': 'Bir PDF’i karartıyor gibisiniz… şeyleri siyaha boyayayım mı?',
+  'ui.buddy.tip.pdf_redact': 'Bir PDF’yi karartıyor gibisiniz… şeyleri siyaha boyayayım mı?',
   'ui.buddy.tip.pdf_merge': 'PDF’leri birleştiriyor musunuz? Sayfaları dosyalar arasında sürükleyin.',
   'ui.buddy.tip.label_barcode': 'Bir etiket tasarlıyor gibisiniz! Barkod ister misiniz?',
   'ui.buddy.tip.label_print': 'Bir sayfa mı yazdırıyorsunuz? Önce etiket boyutunu kontrol edin.',

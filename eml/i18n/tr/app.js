@@ -53,7 +53,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'eml.view.warn': "Bazı bölümler olduğu gibi okunamadı",
   'eml.cmd.open': "İletileri aç…",
   'eml.cmd.export': "Dışa aktar…",
-  'eml.cmd.pdf': "PDF’e dönüştür…",
+  'eml.cmd.pdf': "PDF’ye dönüştür…",
   'eml.cmd.combine': "İletileri tek bir PDF’te birleştir",
   'eml.cmd.pdfzip': "Her iletiyi PDF olarak kaydet (ZIP)",
   'eml.cmd.attzip': "Tüm ekleri kaydet (ZIP)",

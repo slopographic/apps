@@ -89,7 +89,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'ui.convert.foot': 'Bu cihazda dönüştürüldü. Hiçbir şey yüklenmez.',
   'ui.convert.remove_from': 'Dosyaları {app} uygulamasından kaldır',
   'ui.convert.from': '{app} uygulamasından: {files}',
-  'ui.convert.no_pdf': '{files} burada PDF’e dönüştürülemez. Resimler, SVG, HTML, metin ve Markdown dosyaları PDF oluşturur.',
+  'ui.convert.no_pdf': '{files} burada PDF’ye dönüştürülemez. Resimler, SVG, HTML, metin ve Markdown dosyaları PDF oluşturur.',
   'ui.convert.save_drive': 'Slop Drive’a kaydet',
   'ui.convert.save_title': '“{name}” dosyasını Slop Drive’a kaydet',
   'ui.convert.saved': 'Slop Drive’a kaydedildi',
