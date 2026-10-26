@@ -138,3 +138,27 @@ test('centroid and zoom: the matches\' (weighted) centre, none when they cancel 
   const full = G.frontOf(p, 0.3, 1), q = G.rotate(p, full.yaw, full.pitch);
   assert.ok(q.z > 0.99, 'one match leans all the way: square in front');
 });
+
+test('the lead apps: listed first in their order, gathered side by side round the first, the same points kept', () => {
+  const rank = G.leadRank(['b', 'd']);
+  assert.deepEqual(['a', 'b', 'c', 'd'].map(rank), [2, 0, 2, 1]);
+  assert.deepEqual(G.leadFirst([{ id: 'a' }, { id: 'b' }, { id: 'c' }, { id: 'd' }], ['d', 'b', 'x']).map((x) => x.id), ['d', 'b', 'a', 'c']);
+  assert.deepEqual(G.leadFirst([{ id: 'a' }, { id: 'b' }], undefined).map((x) => x.id), ['a', 'b']);
+  const w = Array.from({ length: 63 }, (_, i) => ([0, 4, 7, 10, 20, 30, 40, 50, 60].includes(i) ? 2 : 1));
+  const lead = [0, 1, 2, 3, 4], base = G.weighted(w), p = G.gather(base, w, lead);
+  const key = (q) => [q.x, q.y, q.z].map((v) => v.toFixed(9)).join();
+  assert.deepEqual(p.map(key).sort(), base.map(key).sort(), 'the same points: the rest keeps its spread');
+  for (let i = 0; i < w.length; i++) assert.equal(w[i] > 1, w[base.indexOf(p[i])] > 1, 'each keeps a point of its own size');
+  const ang = (a, b) => Math.acos(Math.max(-1, Math.min(1, a.x * b.x + a.y * b.y + a.z * b.z)));
+  assert.equal(p[0], base[0], 'the first stays where it was');
+  // the light lead apps take the light points nearest the first, nearest first; the heavy one the nearest heavy point
+  const near = (heavy) => p.map((q, i) => ({ i, d: ang(q, p[0]) })).filter((x) => x.i && (w[x.i] > 1) === heavy).sort((a, b) => a.d - b.d).map((x) => x.i);
+  assert.deepEqual(near(false).slice(0, 3), [1, 2, 3]);
+  assert.equal(near(true)[0], 4);
+  for (const i of lead) assert.ok(ang(p[i], p[0]) < 0.8, `lead ${i} beside the first`);
+  // turned to face the viewer, the first is the front-most icon and the family faces you with it
+  const f = G.frontOf(p[0], 0.3, 1), z = p.map((q) => G.rotate(q, f.yaw, f.pitch).z);
+  assert.equal(z.indexOf(Math.max(...z)), 0);
+  for (const i of lead) assert.ok(z[i] > 0.7, String(z[i]));
+  assert.deepEqual(G.gather(base, w, []), base, 'no lead: as it was');
+});

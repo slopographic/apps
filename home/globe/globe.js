@@ -14,6 +14,7 @@
  *  - It runs only while the hero is on screen and the tab is visible. Reduced motion: a still globe. Phones, touch
  *    screens, Save-Data and small devices: 28 icons at 20 fps, no filters, lines repainted only when they would visibly
  *    lag, and no frames while the page scrolls (SlopGlobeMath.tier). Icons over the copy fade almost out (keepOut).
+ *  - It opens on the lead apps (shared/apps.js SLOP_LEAD: the PDF family), side by side, the first square in front.
  *  - The front-most icons carry their names without hovering, and a search names its matches (labels.js, decorative).
  *  window.SlopGlobe: { state(), frames(), startedAt(), tier(), view(), icons(), labels(), focusApp(id), reduce(on), pause(on) }. */
 (function () {
@@ -39,6 +40,7 @@
   const TILT = 0.3, IDLE = G.TAU / (CALM ? 150000 : 75000), RESUME_MS = 1400, BIG = 1.7;
   const LINES = { full: G.grid(30, 30, 6), lite: G.grid(30, 30, 12) };   // the lite globe draws coarser lines
   const big = (a) => ((a.weight || 1) > 1 ? BIG : 1);
+  const LEAD = window.SLOP_LEAD || [], lead = G.leadRank(LEAD);   // the family the globe opens on, the first square in front
 
   // data-live: a region that changes on its own; page snapshots (Sloppo's Restore checks) leave it out. The globe keeps all
   // of its changing state inside it and never touches the hero's own attributes.
@@ -71,9 +73,9 @@
     T = G.TIERS[tierName];
     layer.querySelectorAll('.gx-i').forEach((n) => n.remove());
     focus = null; target = null;
-    // the heaviest apps first, so a lite globe keeps them; the registry order otherwise
-    const apps = APPS.map((a, i) => ({ a, i })).sort((x, y) => (y.a.weight || 1) - (x.a.weight || 1) || x.i - y.i).slice(0, T.icons).map((x) => x.a);
-    const pts = G.weighted(apps.map((a) => a.weight || 1));
+    // the lead apps first (shared/apps.js SLOP_LEAD), then the heaviest, so a lite globe keeps them; the registry order otherwise
+    const apps = APPS.map((a, i) => ({ a, i })).sort((x, y) => lead(x.a.id) - lead(y.a.id) || (y.a.weight || 1) - (x.a.weight || 1) || x.i - y.i).slice(0, T.icons).map((x) => x.a);
+    const w = apps.map((a) => a.weight || 1), pts = G.gather(G.weighted(w), w, apps.map((a, i) => i).filter((i) => lead(apps[i].id) < LEAD.length));   // side by side
     icons = apps.map((a, i) => {
       const ic = { p: pts[i], el: el('a', { class: 'gx-i', tabindex: '-1', 'aria-hidden': 'true', 'data-gx-icon': '' }), x: 0, y: 0, z: 0, op: 0, blur: -1, em: 1, emT: 1 };
       setApp(ic, a);
@@ -240,6 +242,7 @@
     const early = match && match.raw;
     match = null;
     build();
+    if (icons.length && lead(icons[0].app.id) === 0) { const f = G.frontOf(icons[0].p, TILT, 1); s = { ...s, yaw: f.yaw, pitch: f.pitch }; }   // facing the viewer
     const r = early || (window.SlopHomeBrowse && window.SlopHomeBrowse.result && window.SlopHomeBrowse.result());
     if (r) apply(r);
     paint();
