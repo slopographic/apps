@@ -89,7 +89,8 @@ on every shell page; a page without the shell links `hbtn.css` itself.
 - **Match the app**: set `--slop-hbtn-h`, `--slop-hbtn-radius`, `--slop-hbtn-bg`, `--slop-hbtn-line`, `--slop-hbtn-hover`
   and `--slop-hbtn-fs` on `:root` or the header (Slides: `.top` in `slides/css/app.css`, like its `.tb-btn`).
 - **Fit**: `SlopHbtn.fit(header)` (the shell calls it on the header that holds Apps) watches the header; when a shared
-  button is cut off, past an edge, or wrapped onto a second row, the header gets `.slop-htight` and the shared buttons
+  button is cut off, past an edge, or wrapped onto a second row, or anything in it runs into the header's end padding
+  (even a fraction of a pixel: that would push the last control, View, sideways by an amount that depends on the font), the header gets `.slop-htight` and the shared buttons
   show only their icons (title and aria-label still name them). Under 560 px they are icons always.
 - Tests: `tests/shared/hbtn.test.html`, `tests/shell/header-buttons.test.html`.
 
