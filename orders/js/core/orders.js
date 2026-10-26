@@ -44,7 +44,7 @@
   /** A random PDF seed for a new order (the template is picked from it; see shared/docs/pdf-layouts.js). */
   const newSeed = () => (g.crypto && g.crypto.getRandomValues ? g.crypto.getRandomValues(new Uint32Array(1))[0] & 0x7fffffff : Math.floor(Math.random() * 2147483647));
 
-  /** Saves the editor's form. form: { id?, customerId, date, currency?, notes, lines (stored shape), pdfSeed?, pdfLayout? }.
+  /** Saves the editor's form. form: { id?, customerId, date, currency?, notes, lines (stored shape), pdfSeed?, pdfLayout?, docLang? }.
    *  New orders are always drafts and take a number. Existing orders keep their status unless one is given.
    *  The PDF seed and layout are kept on the order (confirm and fulfil keep them). */
   async function save(form, status) {
@@ -52,6 +52,7 @@
     if (form.currency) base.currency = form.currency;   // an absent currency keeps the stored one (or takes the base)
     if (form.sample) base.sample = true;   // random samples are marked so they can be cancelled together
     if (form.pdfLayout !== undefined) base.pdfLayout = form.pdfLayout || '';   // '' = the template the seed picks
+    if (form.docLang !== undefined) base.docLang = form.docLang || '';   // '' = the company's document language
     if (form.pdfSeed !== undefined && form.pdfSeed !== null) base.pdfSeed = form.pdfSeed;
     if (!form.id) return S.store.put('orders', { ...base, pdfSeed: base.pdfSeed ?? newSeed(), status: 'draft' });
     const cur = await S.store.get('orders', form.id);

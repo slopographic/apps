@@ -4,10 +4,10 @@
   'use strict';
   const NS = (g.SlopPurchases = g.SlopPurchases || {});
   NS.page = g.SlopDocs.docPage.create({
-    ns: NS, kind: 'purchase', title: 'Purchase order', statusLabel: NS.util.STATUS,   // i18n-ignore: the document's own printed words
+    ns: NS, kind: 'purchase',
     editable: (st) => st.status === 'draft' || st.status === 'ordered',
     pdf: (id) => NS.pdf.purchasePdf(id),
-    view: (st) => ({ partyTitle: 'Order from', moreMeta: [{ label: 'Expected', value: st.expectedDate, field: 'expectedDate' }] }),   // i18n-ignore: the document's own printed words
+    view: (st) => ({ partyKey: 'biz.pr.order_from', moreMeta: [{ key: 'biz.pr.expected', value: st.expectedDate, field: 'expectedDate' }] }),
     field: (st, name, value) => { if (name !== 'expectedDate') return false; st.expectedDate = value; return true; },
   });
 })(typeof window !== 'undefined' ? window : globalThis);

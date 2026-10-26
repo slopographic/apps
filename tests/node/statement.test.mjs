@@ -1,12 +1,19 @@
 // Customer statements (shared/data/statement.js): events in order with a running balance, the opening balance before a
-// period, ageing by days past due, the currencies of a customer, and the CSV.
+// period, ageing by days past due, the currencies of a customer, the CSV, and the payment reminder in the document's language
+// (SlopBiz.docLang.words: the English or Swedish biz.pr.rm_* texts and dates, whatever the page's language).
+// Covers: shared/biz/i18n/en/print2.js, shared/biz/i18n/sv/print2.js
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
+globalThis.window = globalThis;   // the string tables add themselves to window.SlopI18n
+require('../../shared/i18n/i18n.js');
+require('../../shared/biz/biz.js');
+for (const f of ['en/print2.js', 'sv/print2.js']) require(`../../shared/biz/i18n/${f}`);
 require('../../shared/data/money.js');
 require('../../shared/data/statement.js');
+const words = (code) => globalThis.SlopBiz.docLang.words(code, 'en-US');
 const ST = globalThis.SlopData.statement;
 const plain = (m) => globalThis.SlopData.money.plainMinor(m, 'USD');
 
@@ -69,18 +76,24 @@ test('reminder: the tone follows the most overdue invoice; the text lists each o
   const money = (m) => `$${(m / 100).toFixed(2)}`;
   const who = { customer: 'Ada Ltd', company: 'Slop Studio' };
   const st = ST.build(INV, PAY, 'c', { currency: 'USD', today: '2026-10-24' });
-  const r = ST.reminder(st, who, money);
+  const r = ST.reminder(st, who, money, words('en'));
   assert.equal(r.tone, 'final');
   assert.equal(r.subject, 'Final reminder: $59.00 overdue');
   assert.ok(r.body.startsWith('Hello Ada Ltd,'));
-  assert.ok(r.body.includes('- INV-4, due 2026-05-01: $9.00 (176 days late)'));
-  assert.ok(r.body.includes('- INV-3, due 2026-10-31: $20.00\n'));
+  assert.ok(r.body.includes('- INV-4, due 05/01/2026: $9.00 (176 days late)'));
+  assert.ok(r.body.includes('- INV-3, due 10/31/2026: $20.00\n'));
   assert.ok(r.body.endsWith('Balance owed: $59.00\n\nThank you,\nSlop Studio'));
+  const sv = ST.reminder(st, who, money, words('sv'));
+  assert.equal(globalThis.SlopI18n.get(), 'en', 'the page stays English');
+  assert.equal(sv.subject, 'Sista påminnelse: $59.00 förfallet');
+  assert.ok(sv.body.startsWith('Hej Ada Ltd,'));
+  assert.ok(sv.body.includes('- INV-4, förfallodatum 2026-05-01: $9.00 (176 dagar sent)'));
+  assert.ok(sv.body.endsWith('Att betala: $59.00\n\nMed vänliga hälsningar\nSlop Studio'));
   const recent = ST.build(INV.filter((i) => i.id !== 'e'), PAY, 'c', { currency: 'USD', today: '2026-09-10' });
   assert.equal(ST.reminder(recent, who, money).tone, 'friendly');
   const firm = ST.build(INV.filter((i) => i.id !== 'e'), PAY, 'c', { currency: 'USD', today: '2026-10-24' });
   assert.equal(ST.reminder(firm, who, money).tone, 'firm');
-  assert.ok(ST.reminder(st, { customer: 'Ada Ltd', company: '' }, money).body.endsWith('Balance owed: $59.00\n\nThank you.'));
+  assert.ok(ST.reminder(st, { customer: 'Ada Ltd', company: '' }, money, words('en')).body.endsWith('Balance owed: $59.00\n\nThank you.'));
   const none = ST.build(INV, PAY, 'nobody', { currency: 'USD', today: '2026-10-24' });
   assert.deepEqual(ST.reminder(none, who, money), { tone: 'none', subject: '', body: '' });
 });

@@ -4,8 +4,8 @@
   'use strict';
   const NS = (g.SlopPurchases = g.SlopPurchases || {});
   const P = g.SlopDocs.docPdf.create({
-    ns: NS, collection: 'purchases', kind: 'purchase', title: 'Purchase order', statusLabel: NS.util.STATUS,   // i18n-ignore: the document's own printed words
-    view: (po) => ({ partyTitle: 'Order from', moreMeta: [{ label: 'Expected', value: po.expectedDate, field: 'expectedDate' }] }),   // i18n-ignore: the document's own printed words
+    ns: NS, collection: 'purchases', kind: 'purchase',
+    view: (po) => ({ partyKey: 'biz.pr.order_from', moreMeta: [{ key: 'biz.pr.expected', value: po.expectedDate, field: 'expectedDate' }] }),
   });
   NS.pdf = { load: P.load, viewOf: P.viewOf, purchasePdf: P.pdf };
 })(typeof window !== 'undefined' ? window : globalThis);

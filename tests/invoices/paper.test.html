@@ -10,6 +10,9 @@
   <iframe id="app" src="../../invoices/index.html#new" title="Slop Invoices"></iframe>
   <script>
   // Covers: invoices/js/ui/page.js, invoices/js/ui/editor.js, shared/docs/doc-editor.js, shared/docs/doc-page.js, shared/docs/doc-app.js
+  // Covers (the document language: a Swedish company's invoice in Swedish on an English page, and a per-document override):
+  // shared/docs/doc-view.js, shared/docs/doc-pdf.js, shared/docs/paper.js, invoices/js/core/context.js, invoices/js/core/invoices.js,
+  // invoices/js/ui/preview.js, shared/biz/biz.js, shared/biz/i18n/sv/print.js, shared/i18n/i18n.js
   const { describe, it, expect, run } = SlopTest;
   const frame = document.getElementById('app');
   const W = () => frame.contentWindow;
@@ -157,6 +160,69 @@
       }
       const after = (await W().SlopData.store.list('invoices')).value.length;
       expect(after - before).toBe(1);
+    });
+  });
+
+  describe('Slop Invoices: the document language', () => {
+    /** Waits for an async condition (until() takes a sync one). */
+    async function settle(fn, label) {
+      const t0 = Date.now();
+      while (!(await fn())) { if (Date.now() - t0 > 12000) throw new Error(`timed out waiting for ${label}`); await sleep(60); }
+    }
+    /** A Swedish company (settings.docLang sv) and a new draft for the customer from above. */
+    async function swedishDraft(description) {
+      const S = W().SlopData;
+      const cur = (await S.store.get('settings', 'main')).value || S.schema.DEFAULT_SETTINGS;
+      await S.store.put('settings', { ...cur, docLang: 'sv', companyName: 'Acme AB', taxNumber: 'SE556677889901' });
+      const today = S.ledger.today();
+      return (await S.store.put('invoices', { customerId, date: today, dueDate: S.ledger.addDays(today, 30),
+        lines: [{ description, qty: 2, unitPrice: 50000, taxRate: 2500 }] })).value;
+    }
+
+    it('a Swedish company prints a Swedish invoice while the page stays English; stored text stays as written', async () => {
+      const S = W().SlopData, NSI = W().SlopInvoices;
+      const d = await swedishDraft('Konsulttimme');
+      await NSI.views.edit.onShow(d.id);
+      await until(() => $('#ePage .paper[lang="sv"]') && $('#ePage .paper').textContent.includes('FAKTURA'), 'the page in Swedish');
+      const page = $('#ePage .paper').textContent;
+      for (const word of ['FAKTURA', 'Fakturanummer', 'Förfallodatum', 'Betalningsvillkor', 'Moms 25 %', 'Momsreg.nr SE556677889901', 'Konsulttimme', 'Acme Ltd']) expect(page).toContain(word);
+      expect(page).not.toContain('Due ');
+      expect(W().SlopI18n.get()).toBe('en');
+      expect(button('Export PDF')).toBeTruthy();   // the page's own controls stay English
+      expect($('#eDocLang').value).toBe('');         // the company default
+      expect($('#eDocLang').options[0].textContent).toBe('Company default (Svenska)');
+      expect((await S.billing.issue(d.id)).ok).toBe(true);
+      const ctx = (await NSI.context.load(d.id)).value;
+      const view = NSI.pdf.viewOf(ctx);
+      expect(view.title).toBe('Faktura');
+      expect(view.totals.map((x) => x.label)).toContain('Att betala');
+      expect(view.totals.map((x) => x.label)).toContain('Summa exkl. moms');
+      expect((await NSI.pdf.invoicePdf(ctx)).ok).toBe(true);
+      await NSI.preview.show(d.id);   // the print sheet
+      const sheet = $('#pSheet').textContent;
+      for (const word of ['FAKTURA', 'Att betala', 'Förfallodatum', 'UTFÄRDAD']) expect(sheet).toContain(word);
+    });
+
+    it('a per-document Document language overrides the company default, on the page and in the stored invoice', async () => {
+      const S = W().SlopData, NSI = W().SlopInvoices;
+      const d = await swedishDraft('Design');
+      await NSI.views.edit.onShow(d.id);
+      await until(() => $('#ePage .paper[lang="sv"]') && $('#ePage .paper').textContent.includes('FAKTURA'), 'the page in Swedish');
+      const sel = $('#eDocLang');
+      expect([...sel.options].map((o) => o.value)).toEqual(['', ...W().SlopI18n.shipped('biz')]);
+      sel.value = 'en';
+      sel.dispatchEvent(new Event('change', { bubbles: true }));
+      await until(() => $('#ePage .paper[lang="en"]') && $('#ePage .paper').textContent.includes('INVOICE'), 'the page in English');
+      expect($('#ePage .paper').textContent).toContain('INVOICE');
+      expect($('#ePage .paper').textContent).toContain('Due ');
+      button('Save draft').click();
+      await settle(async () => (await S.store.get('invoices', d.id)).value.docLang === 'en', 'the stored override');
+      expect(NSI.pdf.viewOf((await NSI.context.load(d.id)).value).title).toBe('Invoice');
+      sel.value = '';   // back to the company's: the override is removed
+      sel.dispatchEvent(new Event('change', { bubbles: true }));
+      button('Save draft').click();
+      await settle(async () => !(await S.store.get('invoices', d.id)).value.docLang, 'the override removed');
+      expect(NSI.pdf.viewOf((await NSI.context.load(d.id)).value).title).toBe('Faktura');
     });
   });
 

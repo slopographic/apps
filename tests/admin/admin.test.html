@@ -52,6 +52,22 @@
       const s = (await S().store.get('settings', 'main')).value;
       expect(s.defaultTaxRate).toBe(750);
       expect(s.defaultCurrency).toBe('USD');
+      expect(s.docLang).toBe('en');   // none stored: the first save keeps the page's language as the documents' (SlopBiz.docLang)
+    });
+
+    it('the Document language lists the languages with business tables and persists the choice', async () => {
+      const opts = [...$('cDocLang').options].map((o) => o.value);
+      expect(opts).toEqual(win().SlopI18n.shipped('biz'));
+      expect(opts.includes('sv')).toBe(true);
+      $('cDocLang').value = 'sv';
+      $('cSave').click();
+      await waitFor(async () => (await S().store.get('settings', 'main')).value.docLang === 'sv', { timeout: 8000 });
+      $('cDocLang').value = 'en';
+      await win().SlopAdmin.views.company.render();
+      expect($('cDocLang').value).toBe('sv');
+      const bad = await win().SlopAdmin.profile.save({ companyName: 'Acme Test Ltd', defaultCurrency: 'USD', locale: 'en-US', defaultTaxRate: '7.5', docLang: 'xx' });
+      expect(bad.ok).toBe(false);
+      expect((await S().store.get('settings', 'main')).value.docLang).toBe('sv');
     });
 
     it('follows the site theme (shared/biz/app.css): text reads on its background in every theme', async () => {

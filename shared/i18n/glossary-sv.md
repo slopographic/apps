@@ -770,3 +770,31 @@ history step and palette word, so never strip a suffix to get it. Layer names th
 | paper tape | pappersremsa | Slopculator |
 | expression / variable | uttryck / variabel |  |
 | exchange rate | växelkurs |  |
+
+## Printed business documents (document language)
+
+| English | Swedish | Note |
+| --- | --- | --- |
+| invoice | Faktura | document title |
+| quote | Offert |  |
+| order | Order |  |
+| purchase order | Inköpsorder |  |
+| credit note | Kreditfaktura |  |
+| delivery note | Följesedel |  |
+| statement (customer account) | Kontoutdrag |  |
+| price list | Prislista |  |
+| payment reminder | Betalningspåminnelse | subject «Betalningspåminnelse: {belopp} att betala» |
+| tax / VAT (on a document) | Moms | «Moms 25 % på …», column «Moms» |
+| subtotal (before tax) | Summa exkl. moms |  |
+| with tax | Inkl. moms |  |
+| balance due / balance owed | Att betala |  |
+| due date | Förfallodatum |  |
+| invoice number | Fakturanummer | Offertnummer, Ordernummer for the others |
+| payment terms | Betalningsvillkor | «30 dagar netto» |
+| reference / OCR | OCR/Referens | not printed yet (no field) |
+| late payment interest | Dröjsmålsränta | not printed yet (no field) |
+| tax number | Momsreg.nr |  |
+| bill to | Kund | «Leverantör» on a purchase order |
+| unit price | À-pris |  |
+| page n of N | Sida n av N |  |
+| document language | Dokumentspråk | Admin and the document editor; «Företagets standard (Svenska)» |

@@ -21,7 +21,8 @@
   }
 
   /** Copies what the new document takes from the quote: customer, currency, notes and lines (discounts too). */
-  const carry = (q) => ({ customerId: q.customerId, currency: q.currency, notes: q.notes, lines: q.lines.map((l) => ({ ...l })), quoteId: q.id });
+  const carry = (q) => ({ customerId: q.customerId, currency: q.currency, notes: q.notes, lines: q.lines.map((l) => ({ ...l })), quoteId: q.id,
+    ...(q.docLang ? { docLang: q.docLang } : {}) });   // the order or invoice keeps the quote's document language
 
   /** Writes the new document and marks the quote accepted with a link to it. */
   async function finish(tx, q, collection, doc, link) {

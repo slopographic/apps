@@ -88,6 +88,8 @@
             <label><span data-i18n="admin.page.locale">Locale</span> <input id="cLocale" type="text" maxlength="20" autocomplete="off" placeholder="en-US" data-i18n-attr="placeholder:admin.page.en_us"></label>
             <label><span data-i18n="admin.page.tax_rate">Default tax rate (%)</span> <input id="cRate" type="text" inputmode="decimal" maxlength="7" autocomplete="off" placeholder="20"></label>
           </div>
+          <label><span data-i18n="biz.dl.label">Document language</span> <select id="cDocLang"></select></label>
+          <p class="note" data-i18n="biz.dl.note">The language of the documents you print, download or email: invoices, quotes, orders, purchase orders, credit notes, delivery notes, statements, price lists and payment reminders. Each document can pick another one.</p>
           <datalist id="cCurList"></datalist>
           <div class="toolbar"><button type="button" class="btn primary" id="cSave" data-i18n="admin.page.save_profile">Save profile</button></div>
           <p class="msg" id="cMsg" role="alert"></p>

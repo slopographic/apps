@@ -31,5 +31,5 @@
     UI.toast(t('invoices.pv.downloaded'));
   }
 
-  NS.preview = { build, show, pdf, STATUS: U.STATUS };
+  NS.preview = { build, show, pdf };
 })(typeof window !== 'undefined' ? window : globalThis);

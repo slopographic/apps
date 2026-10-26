@@ -88,6 +88,15 @@
       expect((await st.list('journal')).value.length).toBe(0);
       expect((await st.get('quotes', q.id)).value.invoiceId).toBe(r.value.id);
     });
+    it('the order or invoice keeps the quote\'s document language; a language tag is checked', async () => {
+      const q = await quote({ docLang: 'sv' });
+      expect(q.docLang).toBe('sv');
+      expect((await S.quotes.toOrder(q.id)).value.docLang).toBe('sv');
+      const plain = await quote();
+      expect(plain.docLang).toBe(undefined);
+      expect((await S.quotes.toInvoice(plain.id, { dueDate: '2026-12-01' })).value.docLang).toBe(undefined);
+      expect((await st.put('quotes', { ...(await quote()), docLang: 'not a tag' })).ok).toBe(false);
+    });
     it('a declined quote is refused, and a quote that no longer exists is not found', async () => {
       const q = await quote();
       await setStatus(q, 'declined');

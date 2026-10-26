@@ -2,7 +2,8 @@
 // date, notes, lines, the PDF template), loads the customers and products, checks the form, saves one save at a time,
 // guards unsaved changes, and leaves. What is the app's own comes in cfg: its words, its statuses, the extra fields, the
 // links it shows and the action buttons. The markup ids are the same in both apps (eTitle, eStatus, eMsg, eCustomer,
-// eNewCustomer, eDate, eCurrency, eNotes, eLines, eAddLine, eTotals, eActions, eBack, eForm). Classic script, loaded after
+// eNewCustomer, eDate, eCurrency, eNotes, eLines, eAddLine, eTotals, eActions, eBack, eForm); the Document language pick
+// (eDocLang: empty = the company's, SlopBiz.docLang) is added after the currency here. Classic script, loaded after
 // shared/docs/model.js, lines.js, pdf-layouts.js, customer-dialog.js and product-dialog.js.
 // SlopDocs.docEditor.create(cfg) returns the editor: { mount, open, reload, save, saveIfNeeded, back, setMsg, live, repaint,
 // note, edited, isDirty, id, route, clean, state }. cfg:
@@ -34,7 +35,7 @@
     const st = {
       id: null, number: '', status: 'draft', currency: 'USD', locale: 'en-US', defaultTaxRate: 0,
       customerId: '', date: '', notes: '', lines: [], customers: [], products: [], dirty: false,
-      pdfSeed: 0, pdfLayout: '', company: { name: '', address: '', taxNumber: '' },
+      pdfSeed: 0, pdfLayout: '', docLang: '', company: { name: '', address: '', taxNumber: '', docLang: '' },
     };
     const isNew = () => !st.id;
     const locked = () => cfg.locked(st);
@@ -47,14 +48,14 @@
     async function applyRecord(rec) {
       Object.assign(st, {
         id: rec.id, number: rec.number || '', status: rec.status, currency: rec.currency, customerId: rec.customerId,
-        date: rec.date, notes: rec.notes || '', pdfSeed: rec.pdfSeed ?? L.seedOf(rec), pdfLayout: rec.pdfLayout || '',
+        date: rec.date, notes: rec.notes || '', pdfSeed: rec.pdfSeed ?? L.seedOf(rec), pdfLayout: rec.pdfLayout || '', docLang: rec.docLang || '',
       });
       st.lines = rec.lines.map((l) => ({ ...l }));
       if (X.apply) await X.apply(st, rec);
     }
 
     function blank(s) {
-      Object.assign(st, { id: null, number: '', status: 'draft', currency: s.currency, customerId: '', date: S.ledger.today(), notes: '', pdfSeed: L.newSeed(), pdfLayout: '' });
+      Object.assign(st, { id: null, number: '', status: 'draft', currency: s.currency, customerId: '', date: S.ledger.today(), notes: '', pdfSeed: L.newSeed(), pdfLayout: '', docLang: '' });
       st.lines = [M.newLine(null, s.defaultTaxRate)];
       if (X.blank) X.blank(st, s);
     }
@@ -62,7 +63,7 @@
     /** Opens a document by id, or a new one for id null. Loads the customer and product lists first. */
     async function open(id) {
       const s = await U().settings();
-      Object.assign(st, { locale: s.locale, defaultTaxRate: s.defaultTaxRate, company: { name: s.companyName, address: s.address, taxNumber: s.taxNumber } });
+      Object.assign(st, { locale: s.locale, defaultTaxRate: s.defaultTaxRate, company: { name: s.companyName, address: s.address, taxNumber: s.taxNumber, docLang: s.docLang } });
       const cs = await cfg.data.customers();
       const ps = await cfg.data.products();
       if (!cs.ok || !ps.ok) { setMsg(U().refusal(cs.ok ? ps : cs), true); return false; }
@@ -115,6 +116,25 @@
       sel.value = st.customerId || '';
     }
 
+    /** The Document language pick after the currency: empty is the company's language (named in it), then each choice. */
+    function mountLang() {
+      const at = $('eCurrency') && $('eCurrency').closest('label');
+      if (!at || $('eDocLang')) return;
+      const sel = U().h('select', { id: 'eDocLang' });
+      at.after(U().h('label', null, U().h('span', { 'data-i18n': 'biz.dl.label', text: tr('biz.dl.label') }), ' ', sel));
+      sel.addEventListener('change', () => { st.docLang = sel.value; setDirty(true); NS.page.paint(); });
+      if (g.SlopI18n && g.SlopI18n.on) g.SlopI18n.on(paintLang);
+    }
+    function paintLang() {
+      const sel = $('eDocLang'), DL = g.SlopBiz.docLang, h = U().h;
+      if (!sel) return;
+      const name = (c) => (g.SlopI18n && g.SlopI18n.lang(c) ? g.SlopI18n.lang(c).name : c);
+      sel.replaceChildren(h('option', { value: '', text: tr('biz.dl.default', { lang: name(DL.pick('', st.company.docLang)) }) }),
+        ...DL.langs().map((c) => h('option', { value: c, text: name(c) })));
+      sel.value = st.docLang || '';
+      sel.disabled = locked();
+    }
+
     /** Fills every control from the state. Called after any change that redraws the form. */
     function paint() {
       $('eTitle').textContent = cfg.heading ? cfg.heading(st) : st.id ? st.number : val(cfg.title);
@@ -125,6 +145,7 @@
       $('eDate').value = st.date;
       $('eCurrency').value = st.currency;
       $('eNotes').value = st.notes;
+      paintLang();
       const ro = locked();
       for (const el of [$('eCustomer'), $('eNewCustomer'), $('eDate'), $('eNotes'), $('eAddLine')]) el.disabled = ro;
       D.lines.draw($('eLines'), st.lines, lineOpts());
@@ -153,7 +174,7 @@
       if (first) return { error: first };
       const more = X.collect ? X.collect(st) : {};
       if (more.error) return { error: more.error };
-      return { form: { id: st.id, customerId: st.customerId, date: st.date, notes: st.notes, currency: st.currency, lines: st.lines.map(M.cleanLine), pdfSeed: st.pdfSeed, pdfLayout: st.pdfLayout, ...more } };
+      return { form: { id: st.id, customerId: st.customerId, date: st.date, notes: st.notes, currency: st.currency, lines: st.lines.map(M.cleanLine), pdfSeed: st.pdfSeed, pdfLayout: st.pdfLayout, docLang: st.docLang, ...more } };
     }
 
     /** The save in flight, if any. A second save waits for it, so two saves never race (a new document would get two numbers). */
@@ -220,6 +241,7 @@
       }, { word: party }));
       $('eAddLine').addEventListener('click', () => { st.lines.push(M.newLine(null, st.defaultTaxRate)); setDirty(true); paint(); });
       if (X.mount) X.mount(st, () => setDirty(true));
+      mountLang();
       NS.page.mount();
     }
 
