@@ -14,7 +14,7 @@ finds in its code (`node tools/i18n/i18n.mjs extract <app>` lists them). The rat
 | Shared components, more (shared/i18n/ui/<code>/) | 11 | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
 | Shared biz (shared/biz/i18n/) | 240 | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
 
-Shared code (shell/, shared/) still has 5860 hard-coded strings; most belong to one app family (office, biz, watermark, ...).
+Shared code (shell/, shared/) still has 5862 hard-coded strings; most belong to one app family (office, biz, watermark, ...).
 
 ## Apps, by strings to translate
 

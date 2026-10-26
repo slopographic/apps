@@ -32,6 +32,9 @@
   function tr(key, en, vars) { const I = globalThis.SlopI18n; if (I && I.has && I.has(key)) return I.t(key, vars); return vars ? String(en).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en; }
   /** An item's words from a key ({app} filled in) or a function (SlopI18n.label); plain text is shown as it is. */
   const lab = (v, vars) => { const I = globalThis.SlopI18n; return String(I && I.label ? I.label(v, vars) : typeof v === 'function' ? v(vars) : v); };
+  /** The shared verbs read as tr() does: English when the page has no SlopI18n (as every word of this file). */
+  const VERB = { 'ui.outtake.send_to': 'Send to {app}', 'ui.outtake.open_in': 'Open in {app}' };
+  const verbOf = (v, vars) => (VERB[v] ? tr(v, VERB[v], vars) : lab(v, vars));
   const O = (window.SlopOuttake = {});
   const H = () => (document.documentElement.dataset.offline ? null : window.SlopHub || null);
   const toast = (m) => { if (window.SlopUI && window.SlopUI.toast) window.SlopUI.toast(m); };
@@ -87,7 +90,7 @@
     if (hub) {
       for (const a of hub.appsAccepting(ctx.type)) {
         if (exclude.has(a.id) || replaced.has(a.id) || a.id === ctx.from) continue;
-        out.push({ label: verb ? lab(verb, { app: a.name }) : tr('ui.outtake.open_in', 'Open in {app}', { app: a.name }), to: a.id, plain: true, act: guard(() => O.send(a.id, ctx)) });
+        out.push({ label: verbOf(verb || 'ui.outtake.open_in', { app: a.name }), to: a.id, plain: true, act: guard(() => O.send(a.id, ctx)) });
       }
     }
     const extra = [];

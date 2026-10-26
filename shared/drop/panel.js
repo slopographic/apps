@@ -11,6 +11,10 @@
   /** The zone's own words (label, hint, steps, picture alt, sample and choose labels): an i18n key, translated and again
    *  on a language change, a function, or plain text (SlopI18n.label). */
   const lab = (v) => { const I = root.SlopI18n; return String(I && I.label ? I.label(v) : typeof v === 'function' ? v() : v); };
+  /** Only a key or a function is drawn again on a change: plain text an app gave (and may rewrite itself) is left alone. */
+  const live = (v) => typeof v === 'function' || !!(root.SlopI18n && root.SlopI18n.has && root.SlopI18n.has(v));
+  /** Draws a word now and, when it is a key or a function, again on a language change (ups). */
+  const word = (ups, set, v) => { set(lab(v)); if (live(v)) ups.push(() => set(lab(v))); };
   const CSS = [
     // Colours: the app's own --sui-* tokens when it has them, else mixed from the text colour round the zone (right in any
     // theme, light or dark) and the shared theme's accent (--sl-*, set on every page by shared/theme/theme.js).
@@ -84,13 +88,13 @@
       if (pic.nodeType) fig.append(pic);
       else if (pic.flow && root.SlopFlow) fig.append(root.SlopFlow.create(Object.assign({ size: 'lg' }, pic.flow)).el);
       // a single-file offline build (opened from file://) has no assets folder beside it: the steps say it there
-      else if (pic.src && !(root.location && root.location.protocol === 'file:')) { const img = doc.createElement('img'); img.src = pic.src; const alt = () => { img.alt = pic.alt ? lab(pic.alt) : ''; }; alt(); ups.push(alt); img.width = 1280; img.height = 800; img.fetchPriority = 'high'; img.decoding = 'async'; fig.append(img); }   // the first view's largest picture: fetched first, never lazy; its size keeps the room
+      else if (pic.src && !(root.location && root.location.protocol === 'file:')) { const img = doc.createElement('img'); img.src = pic.src; word(ups, (s) => { img.alt = s; }, pic.alt || ''); img.width = 1280; img.height = 800; img.fetchPriority = 'high'; img.decoding = 'async'; fig.append(img); }   // the first view's largest picture: fetched first, never lazy; its size keeps the room
       if (fig.firstChild) box.append(fig);
     }
     if (o.steps && o.steps.length) {
       const ol = doc.createElement('ol');
       ol.className = 'sd-steps'; ol.setAttribute('aria-label', tr('ui.drop.how', 'How it works')); ol.dataset.i18nAttr = 'aria-label:ui.drop.how';
-      for (const step of o.steps) { const li = doc.createElement('li'); const w = () => { li.textContent = lab(step); }; w(); ups.push(w); ol.append(li); }
+      for (const step of o.steps) { const li = doc.createElement('li'); word(ups, (s) => { li.textContent = s; }, step); ol.append(li); }
       box.append(ol);
     }
     // Every app runs on the device: the preview says so, and links the page that shows how (not from a file:// build).
@@ -117,7 +121,8 @@
   P.build = function (zone, o) {
     style();
     const ups = [];   // the words, drawn again on a language change
-    const text = (node, v, key, en) => { const w = () => { node.textContent = v ? lab(v) : tr(key, en); }; w(); ups.push(w); };
+    // a word the app gave (key, function or text), else the shared default, marked so apply() follows a change
+    const text = (node, v, key, en) => { if (v) word(ups, (s) => { node.textContent = s; }, v); else { node.textContent = tr(key, en); node.dataset.i18n = key; } };
     const wrap = doc.createElement('div');
     wrap.className = 'sd-zone' + (o.compact ? ' sd-compact' : '');
     const pv = o.compact ? null : P.preview(o.preview, ups);
