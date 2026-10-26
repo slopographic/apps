@@ -26,7 +26,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'tables.side.objects': '차트와 피벗 테이블',
   'tables.side.add_chart': '+ 차트…',
   'tables.side.add_pivot': '+ 피벗 테이블…',
-  'tables.side.templates': '서식 파일',
+  'tables.side.templates': '템플릿',
   'tables.side.functions': '함수',
   'tables.side.filter_fns': '필터 함수',
   'tables.side.fn_tip': '{name}(으)로 수식 시작',

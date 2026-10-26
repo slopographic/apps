@@ -43,7 +43,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'gallery.reel.cutting': '{n}장 중 {i}장의 피사체를 오리는 중: {name}',
   'gallery.reel.cutting_stage': '{n}장 중 {i}장의 피사체를 오리는 중: {name} · {stage}',
   'gallery.reel.stage_runtime': '런타임 불러오는 중',
-  'gallery.reel.stage_model': '모델 내려받는 중',
+  'gallery.reel.stage_model': '모델 다운로드하는 중',
   'gallery.reel.stage_init': '시작하는 중',
   'gallery.reel.stage_infer': '피사체 찾는 중',
   'gallery.reel.stage_refine': '가장자리 다듬는 중',

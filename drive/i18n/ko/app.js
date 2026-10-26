@@ -52,7 +52,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'drive.side.unknown': '알 수 없음',
   'drive.side.meter_note': 'Slop Drive: {size}. 모든 내용은 이 브라우저에 남습니다.',
   'drive.side.clear_q': '로컬 캐시를 지울까요?',
-  'drive.side.clear_body': '필요할 때 다시 만들어지는 항목만 지웁니다: 미리 보기 이미지, 파형, 얼굴 인식 결과, 내려받은 AI 및 누끼 모델. 파일, 문서, 백업은 그대로 남습니다. 모델은 사용할 때 다시 내려받습니다.',
+  'drive.side.clear_body': '필요할 때 다시 만들어지는 항목만 지웁니다: 미리 보기 이미지, 파형, 얼굴 인식 결과, 다운로드한 AI 및 누끼 모델. 파일, 문서, 백업은 그대로 남습니다. 모델은 사용할 때 다시 다운로드합니다.',
   'drive.side.clear_ok': '캐시 지우기',
   'drive.side.cleared_n': '캐시 항목 {n}개를 지웠습니다. 파일은 그대로입니다.',
   'drive.view.grid': '바둑판식',

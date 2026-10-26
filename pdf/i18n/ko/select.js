@@ -16,7 +16,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'pdf.se.obj_help': '드래그하여 이동하고, 핸들로 크기를 조절하거나 회전하세요. Delete를 누르면 페이지에서 제거됩니다.',
   'pdf.se.paste': '붙여넣기',
   'pdf.se.pasted_pages': '{n}개 페이지에 붙여넣었습니다.',
-  'pdf.se.paste_pages_label': '페이지 (예: 1-3, 5, 8-; 문서는 {n}쪽까지 있음)',
+  'pdf.se.paste_pages_label': '페이지 (예: 1-3, 5, 8-; 문서는 {n}페이지까지 있음)',
   'pdf.se.paste_pages_title': '페이지에 붙여넣기',
   'pdf.se.position': '위치와 크기',
   'pdf.se.rotation': '회전',

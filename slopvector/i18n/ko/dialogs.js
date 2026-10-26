@@ -1,7 +1,7 @@
 /* Slop Vector, Korean: the dialogs (new document, setup, save as, export, preferences, transform, guides, the open-document check) and the shortcut sheet. Same keys as slopvector/i18n/en/dialogs.js. Rules: shared/i18n/APPS-HOWTO.md, words: shared/i18n/glossary-ko.md. */
 window.SlopI18n && window.SlopI18n.add('ko', {
   'vector.dlg.name': '이름',
-  'vector.dlg.preset': '사전 설정',
+  'vector.dlg.preset': '프리셋',
   'vector.dlg.preset_letter': 'Letter(612 × 792)',
   'vector.dlg.preset_a4': 'A4(595 × 842)',
   'vector.dlg.preset_square': 'Instagram(1080 × 1080)',

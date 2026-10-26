@@ -69,7 +69,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'resize.preset.story': '세로형 1080 × 1920',
   'resize.preset.fhd': 'Full HD 1920 × 1080',
   'resize.preset.icon': '아이콘 512 × 512',
-  'resize.preset.og': '링크 미리보기(Open Graph) 1200 × 630',
+  'resize.preset.og': '링크 미리 보기(Open Graph) 1200 × 630',
   'resize.preset.ig_portrait': 'Instagram 세로 1080 × 1350',
   'resize.preset.x_post': 'X / Twitter 게시물 1600 × 900',
   'resize.preset.yt_thumb': 'YouTube 썸네일 1280 × 720',

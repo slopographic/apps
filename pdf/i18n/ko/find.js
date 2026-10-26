@@ -15,7 +15,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'pdf.find.close_tip': '닫기 (Esc)',
   'pdf.find.close': '찾기 닫기',
   'pdf.find.matches': '일치 항목',
-  'pdf.find.page_short': '{page}쪽',
+  'pdf.find.page_short': '{page}페이지',
 
   // find/search.js
   'pdf.find.searching': '찾는 중…',

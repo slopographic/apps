@@ -16,7 +16,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'drive.cmd.upload_folder': '폴더 업로드…',
   'drive.cmd.open': '열기',
   'drive.cmd.quick_look': '빠르게 보기',
-  'drive.cmd.download': '내려받기',
+  'drive.cmd.download': '다운로드',
   'drive.cmd.rename': '이름 바꾸기…',
   'drive.cmd.copy': '복사',
   'drive.cmd.cut': '잘라내기',

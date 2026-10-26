@@ -18,7 +18,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'upscale.panel.quality': '품질',
   'upscale.panel.fps': '동영상 프레임 속도',
   'upscale.panel.video_note': '동영상은 사진만 유지합니다(소리 없음). 프레임을 하나씩 확대하므로 클립은 시간이 걸립니다.',
-  'upscale.panel.copies_note': '결과는 복사본입니다. Slop Drive의 Slop Upscale 폴더에 저장하세요.',
+  'upscale.panel.copies_note': '결과는 사본입니다. Slop Drive의 Slop Upscale 폴더에 저장하세요.',
   'upscale.panel.result': '결과',
   'upscale.panel.save': 'Slop Drive에 저장',
   'upscale.panel.save_tip': 'Slop Drive의 Slop Upscale 폴더에 저장',

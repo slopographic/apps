@@ -29,7 +29,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'purchases.page.lines': '항목',
   'purchases.page.add_line': '항목 추가',
   'purchases.page.backup': '전체 백업',
-  'purchases.page.backup_note': '백업에는 이 브라우저의 공유 업무 데이터에 있는 모든 기록이 담깁니다: 고객과 공급업체, 상품, 견적, 주문, 구매 주문서, 송장, 결제, 지출, 재고, 원장.',
+  'purchases.page.backup_note': '백업에는 이 브라우저의 공유 업무 데이터에 있는 모든 기록이 담깁니다: 고객과 공급업체, 상품, 견적, 주문, 구매 주문서, 청구서, 결제, 지출, 재고, 원장.',
   'purchases.page.dl_backup': '전체 백업 다운로드',
   'purchases.page.restore': '백업 파일에서 복원…',
   'purchases.cmd.g_goto': '이동',

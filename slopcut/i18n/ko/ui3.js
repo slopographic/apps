@@ -195,7 +195,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'slopedit.wm.watermark_style': '워터마크 스타일',
   'slopedit.io.this_is_already_the_offline': '이미 오프라인 앱입니다',
   'slopedit.io.building_the_offline_app': '오프라인 앱을 만드는 중…',
-  'slopedit.io.download_app': '앱 내려받기',
+  'slopedit.io.download_app': '앱 다운로드',
   'slopedit.io.add_the_media_for_this': '이 설정의 미디어를 추가하세요',
   'slopedit.io.the_timeline_is_in_place': '타임라인은 준비되었습니다. 다음 파일은 아직 빈에 없습니다. 추가하세요. 각 파일은 이름으로 맞춰집니다:',
   'slopedit.io.later': '나중에',

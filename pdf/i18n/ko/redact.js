@@ -92,7 +92,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'pdf.redact.strip_meta': '문서 메타데이터(제목, 작성자, 주제, 키워드)도 제거',
   'pdf.redact.apply_note': '교정된 페이지는 이미지로 바뀌므로 지운 텍스트는 복사, 검색, 추출할 수 없습니다. 건드리지 않은 페이지는 텍스트를 유지합니다. 다운로드 파일은 항상 편집 기록 없이 새로 만듭니다.',
   'pdf.redact.include_aria': '{n}페이지의 일치 항목 포함',
-  'pdf.redact.page_short': '{n}쪽',
+  'pdf.redact.page_short': '{n}페이지',
   'pdf.redact.matches_found': '일치 항목 {n}개를 찾았습니다.',
   'pdf.redact.mark_n': '{n}개 교정 표시',
   'pdf.redact.clear': '지우기',

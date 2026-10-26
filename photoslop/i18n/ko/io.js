@@ -22,7 +22,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'photoslop.io.wm_off_export': '워터마크 없음: 워터마크가 꺼져 있습니다.',
   'photoslop.io.cannot_encode': '이 브라우저는 그 형식으로 저장할 수 없습니다',
   'photoslop.io.exported_layers': '레이어 {n}개를 내보냈습니다',
-  'photoslop.io.buffer_merged': '병합된 복사본이 버퍼에 있습니다',
+  'photoslop.io.buffer_merged': '병합된 사본이 버퍼에 있습니다',
   'photoslop.io.buffer_copied': '버퍼에 복사했습니다',
   'photoslop.io.buffer_copy_failed': '버퍼에 복사할 수 없습니다',
   'photoslop.io.buffer_rasterized': '벡터를 래스터 이미지로 변환했습니다(SVG 단위당 픽셀 하나)',

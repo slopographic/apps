@@ -73,7 +73,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'contacts.pv.n_skipped': '{n}개 건너뜀',
   'contacts.pv.nothing_new': '새 항목 없음',
   'contacts.pv.imported': '가져옴: {what}.',
-  'contacts.pv.undo': '되돌리기',
+  'contacts.pv.undo': '실행 취소',
   'contacts.pv.title': '연락처 {n}개 가져오기',
   'contacts.pv.import': '가져오기',
   'contacts.dr.merge_q': 'Slop Drive의 연락처를 병합할까요?',

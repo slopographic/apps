@@ -68,7 +68,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'recorder.set.fmt_wav': 'WAV (소리)',
   'recorder.set.gif_w': 'GIF 너비 (px)',
   'recorder.set.fps': '초당 프레임 수',
-  'recorder.set.engine_note': 'MP4와 GIF는 영상 엔진으로 이 기기에서 만들며, 처음 한 번 약 32MB를 내려받습니다.',
+  'recorder.set.engine_note': 'MP4와 GIF는 영상 엔진으로 이 기기에서 만들며, 처음 한 번 약 32MB를 다운로드합니다.',
 
   'recorder.cmd.g_record': '녹화',
   'recorder.cmd.record': '녹화 또는 중지',

@@ -31,7 +31,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'recorder.support.n_mic_no': '이 브라우저는 페이지에 마이크를 제공하지 않습니다.',
   'recorder.support.n_pip': '녹화하는 동안 두 화면이 이 기기에서 함께 그려집니다.',
   'recorder.support.n_trim_yes': '남길 부분을 실시간으로 한 번 재생하고 다시 녹화합니다.',
-  'recorder.support.n_trim_engine': '이 브라우저에서 자르기는 영상 엔진을 사용합니다(한 번만 내려받음).',
+  'recorder.support.n_trim_engine': '이 브라우저에서 자르기는 영상 엔진을 사용합니다(한 번만 다운로드함).',
   'recorder.support.n_format_none': '이 브라우저는 미디어를 녹화할 수 없습니다.',
   'recorder.support.n_format_webm_mp4': 'WebM 또는 MP4. MP4와 GIF는 영상 엔진으로 이 기기에서 만듭니다.',
   'recorder.support.n_format_webm': 'WebM. MP4와 GIF는 영상 엔진으로 이 기기에서 만듭니다.',

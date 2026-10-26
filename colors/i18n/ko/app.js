@@ -69,6 +69,6 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'colors.io.noun': '사진 또는 팔레트 파일(.gpl, .ase, .json, .css)',
   'colors.io.empty': '팔레트가 비어 있습니다. 먼저 색을 추가하세요',
   'colors.io.saved': '{name}을(를) Slop Drive에 저장했습니다',
-  'colors.io.ase_binary': '.ase 파일은 이진 파일입니다. 내려받거나 Slop Drive에 저장하세요',
+  'colors.io.ase_binary': '.ase 파일은 이진 파일입니다. 다운로드하거나 Slop Drive에 저장하세요',
   'colors.io.copied': '팔레트를 {name} 형식으로 복사했습니다',
 });

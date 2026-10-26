@@ -8,7 +8,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'convert.text.first_row_has_column_names': '첫 행에 열 이름이 있음',
   'convert.text.read_as_detected': '{enc}(으)로 읽고(자동 감지), UTF-8로 저장합니다.',
   'convert.text.read_as': '{enc}(으)로 읽고, UTF-8로 저장합니다.',
-  'convert.text.epub_note': 'DRM이 없는 책만 가능합니다. 그림은 대체 텍스트가 됩니다(HTML에서는 유지됩니다). 쪽 배치와 글꼴은 유지되지 않습니다.',
+  'convert.text.epub_note': 'DRM이 없는 책만 가능합니다. 그림은 대체 텍스트가 됩니다(HTML에서는 유지됩니다). 페이지 배치와 글꼴은 유지되지 않습니다.',
   'convert.text.html_to_markdown': 'HTML을 Markdown으로',
   'convert.text.csv_to_markdown_table': 'CSV를 Markdown 표로',
   'convert.text.right_align_columns_of_numbers': '숫자 열은 오른쪽 정렬',

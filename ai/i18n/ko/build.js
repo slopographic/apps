@@ -20,7 +20,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'ai.build.sandboxed': '🔒 샌드박스',
   'ai.build.sandbox_tip': 'sandbox="allow-scripts", same-origin 없음, 네트워크 없음',
   'ai.build.restart': '앱 다시 시작',
-  'ai.build.download_tip': '.html 내려받기',
+  'ai.build.download_tip': '.html 다운로드',
   'ai.build.nothing': '아직 미리 볼 항목이 없습니다',
   'ai.build.nothing_lead': '모델이 완전한 HTML 파일을 보내면 앱이 여기에 나타납니다.',
 

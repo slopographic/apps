@@ -2,7 +2,7 @@
 window.SlopI18n && window.SlopI18n.add('ko', {
   'photoslop.tour.title': 'PhotoSlop 둘러보기',
   'photoslop.tour.new_title': '파일 시작하기',
-  'photoslop.tour.new_text': '새로 만들기는 문서의 크기, 사전 설정, 배경을 정합니다(좁은 창에서는 더보기 ▾에 있습니다). 열기는 PSD, ORA 또는 이미지를 불러옵니다. 파일마다 탭이 생깁니다.',
+  'photoslop.tour.new_text': '새로 만들기는 문서의 크기, 프리셋, 배경을 정합니다(좁은 창에서는 더보기 ▾에 있습니다). 열기는 PSD, ORA 또는 이미지를 불러옵니다. 파일마다 탭이 생깁니다.',
   'photoslop.tour.menus_title': '메뉴 막대',
   'photoslop.tour.menus_text': '파일, 편집, 이미지, 레이어, 선택, 필터가 여기에 있습니다. 각 메뉴에 명령이 나열되어 있습니다.',
   'photoslop.tour.tools_title': '도구',

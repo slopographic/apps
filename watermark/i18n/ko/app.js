@@ -97,7 +97,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'watermark.saved.logo': '로고와 함께 이 기기에 저장되었습니다.',
   'watermark.saved.no_logo': '로고가 너무 커서 로고 없이 이 기기에 저장되었습니다. 보관하려면 내 워터마크를 사용하세요.',
   'watermark.saved.blocked': '이 브라우저에서는 설정을 저장할 수 없습니다. 이번 방문 동안에는 계속 작동합니다.',
-  'watermark.set.reset': '기본값으로 재설정',
+  'watermark.set.reset': '기본값으로 초기화',
   'watermark.set.reset_title': '기본 텍스트 워터마크로 되돌립니다. 그룹도 다시 이를 따릅니다.',
   'watermark.set.workflow': '워크플로에 추가…',
   'watermark.set.workflow_title': '이 워터마크를 단계로 넣어 Slop Workflows를 엽니다',

@@ -63,7 +63,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'pdf.io.font_subset': '일부만 포함: 불완전할 수 있음',
   'pdf.io.att_on_page': '{n}페이지에 첨부됨',
   'pdf.io.att_document': '문서에 첨부됨',
-  'pdf.io.att_einvoice': '전자 송장 (ZUGFeRD / Factur-X)',
+  'pdf.io.att_einvoice': '전자 청구서 (ZUGFeRD / Factur-X)',
   'pdf.io.att_rel': '관계: {rel}',
 
   // io/assets-save.js

@@ -68,7 +68,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'diff.drop.hint': '텍스트, 코드, Markdown, JSON, CSV, PDF 또는 사진. 이 브라우저에서만 읽으며 업로드되지 않습니다.',
   'diff.drop.step1': '원본을 A로, 변경본을 B로 놓거나 붙여넣으세요',
   'diff.drop.step2': '모든 변경 사항을 단어 단위로 나란히 확인하세요',
-  'diff.drop.step3': '보고서 또는 .patch를 내려받으세요',
+  'diff.drop.step3': '보고서 또는 .patch를 다운로드하세요',
   'diff.drop.sample': '샘플로 체험하기',
 
   'diff.cmd.g_compare': '비교',
@@ -78,9 +78,9 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'diff.cmd.open_b': '파일을 B로 열기…',
   'diff.cmd.clear': '양쪽 지우기',
   'diff.cmd.view': '나란히 보기와 통합 보기 전환',
-  'diff.cmd.report_html': '보고서 내려받기(HTML)',
-  'diff.cmd.report_pdf': '보고서 내려받기(PDF)',
-  'diff.cmd.patch': '.patch 내려받기',
+  'diff.cmd.report_html': '보고서 다운로드(HTML)',
+  'diff.cmd.report_pdf': '보고서 다운로드(PDF)',
+  'diff.cmd.patch': '.patch 다운로드',
   'diff.cmd.drive': '보고서를 Slop Drive에 저장',
 
   'diff.noun.pdf': 'PDF',

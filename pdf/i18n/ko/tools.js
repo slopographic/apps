@@ -54,7 +54,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'pdf.tool.organize.sort_even_odd': '짝수 페이지 먼저, 그다음 홀수',
   'pdf.tool.organize.sort_source': '원본 파일과 페이지별로 묶기',
   'pdf.tool.organize.apply_sort': '정렬 적용',
-  'pdf.tool.organize.collate_note': '한쪽만 스캔하는 스캐너로 양면 문서를 스캔했나요? 앞면을 모두 스캔하고, 뭉치를 뒤집어 뒷면을 스캔한 뒤, 두 파일을 열고 “맞추기”를 누르세요.',
+  'pdf.tool.organize.collate_note': '한쪽 면만 스캔하는 스캐너로 양면 문서를 스캔했나요? 앞면을 모두 스캔하고, 뭉치를 뒤집어 뒷면을 스캔한 뒤, 두 파일을 열고 “맞추기”를 누르세요.',
   'pdf.tool.organize.merge': '병합',
   'pdf.tool.organize.merge_note': '연 파일은 모두 원본별 색으로 구분되어 하나의 문서에 추가됩니다. 페이지를 배치한 뒤 다운로드를 눌러 병합된 PDF를 저장하세요.',
   'pdf.tool.organize.keyboard': '키보드',

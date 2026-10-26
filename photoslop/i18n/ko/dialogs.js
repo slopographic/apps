@@ -18,7 +18,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'photoslop.doc.bg_transparent': '투명',
   'photoslop.doc.new_title': '새 문서',
   'photoslop.doc.name': '이름',
-  'photoslop.doc.preset': '사전 설정',
+  'photoslop.doc.preset': '프리셋',
   'photoslop.doc.width': '너비',
   'photoslop.doc.height': '높이',
   'photoslop.doc.background': '배경',

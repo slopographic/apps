@@ -122,7 +122,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'ledger.bk.as_expense': '지출로 기록…',
   'ledger.bk.set_aside': '보류',
   'ledger.bk.unmatch': '대조 해제',
-  'ledger.bk.bring_back': '되돌리기',
+  'ledger.bk.bring_back': '복원',
   'ledger.bk.matched_to': '대조됨: {what} ({date})',
   'ledger.bk.journal_entry': '분개',
   'ledger.bk.lines': '거래 내역 줄',

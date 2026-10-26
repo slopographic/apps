@@ -116,7 +116,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'ui.ops.pdf.dpi_150': '150dpi(인쇄)',
   'ui.ops.pdf.quality': 'JPEG 품질(강력)',
   'ui.ops.step.pdf_extract': 'PDF → 이미지, 첨부 파일, 글꼴 추출',
-  'ui.ops.step.pdf_extract_desc': 'PDF에 저장된 그림(JPEG는 원본 그대로, 그 밖에는 PNG), 첨부 파일(예: ZUGFeRD 또는 Factur-X 송장), 포함된 글꼴을 파일이나 ZIP 하나로 추출합니다.',
+  'ui.ops.step.pdf_extract_desc': 'PDF에 저장된 그림(JPEG는 원본 그대로, 그 밖에는 PNG), 첨부 파일(예: ZUGFeRD 또는 Factur-X 청구서), 포함된 글꼴을 파일이나 ZIP 하나로 추출합니다.',
   'ui.ops.extract.skipped': '{name}: {n}개 건너뜀({list})',
   'ui.ops.extract.nothing': '{name}: 추출할 항목이 없습니다.',
   'ui.ops.extract.done': '파일 {n}개를 추출했습니다.',
@@ -153,5 +153,5 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'ui.ops.speech.downloading': '음성 모델을 다운로드하는 중…',
   'ui.ops.speech.reading': '소리를 읽는 중…',
   'ui.ops.speech.too_little': '텍스트로 바꾸기에는 소리가 너무 적습니다.',
-  'ui.ops.speech.transcribing': '텍스트로 변환하는 중…',
+  'ui.ops.speech.transcribing': '받아쓰는 중…',
 });

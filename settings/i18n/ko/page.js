@@ -29,14 +29,14 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'settings.storage.lede': '이 사이트가 브라우저에서 차지하는 공간과 그 내용입니다. 파일, 문서와 저장된 프로젝트도 여기에 저장됩니다. 캐시를 지우면 필요할 때 다시 만들어지는 항목만 제거됩니다.',
 
   'settings.updates.title': '업데이트',
-  'settings.updates.lede': '페이지를 열 때마다 Slopographic은 새 버전이 있는지 확인합니다. 페이지가 아직 예전 모습이면 최신 버전을 불러오세요. 오프라인 사본을 다시 받아 페이지를 새로 고칩니다. 파일, 문서, 설정과 내려받은 팩은 유지됩니다.',
+  'settings.updates.lede': '페이지를 열 때마다 Slopographic은 새 버전이 있는지 확인합니다. 페이지가 아직 예전 모습이면 최신 버전을 불러오세요. 오프라인 사본을 다시 받아 페이지를 새로 고칩니다. 파일, 문서, 설정과 다운로드한 팩은 유지됩니다.',
   'settings.updates.fresh': '아무 페이지에서나 주소에 {fresh}를 추가해도 같은 동작을 합니다.',
   'settings.updates.refresh': '최신 버전 불러오기',
 
-  'settings.rates.lede': '환율은 직접 입력하거나, 유럽중앙은행(ECB)에서 의도적으로 내려받을 수 있습니다. 이 기능을 켜고 버튼을 누르거나 “열 때 업데이트”를 체크하기 전에는 아무것도 내려받지 않습니다.',
-  'settings.rates.switch_help': '아래 업데이트 버튼이 ECB의 일일 기준 환율을 내려받을 수 있게 합니다. 기본값은 꺼짐입니다.',
+  'settings.rates.lede': '환율은 직접 입력하거나, 유럽중앙은행(ECB)에서 의도적으로 다운로드할 수 있습니다. 이 기능을 켜고 버튼을 누르거나 “열 때 업데이트”를 체크하기 전에는 아무것도 다운로드하지 않습니다.',
+  'settings.rates.switch_help': '아래 업데이트 버튼이 ECB의 일일 기준 환율을 다운로드할 수 있게 합니다. 기본값은 꺼짐입니다.',
   'settings.rates.on_open': '열 때 업데이트',
-  'settings.rates.on_open_help': '이 페이지를 열 때마다 ECB 환율을 내려받습니다. 환율 기능이 켜져 있어야 합니다.',
+  'settings.rates.on_open_help': '이 페이지를 열 때마다 ECB 환율을 다운로드합니다. 환율 기능이 켜져 있어야 합니다.',
   'settings.rates.update': '유럽중앙은행에서 환율 업데이트',
   'settings.rates.add_title': '환율 추가',
   'settings.rates.base': '기준',

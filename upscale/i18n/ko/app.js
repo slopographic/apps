@@ -20,7 +20,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'upscale.drop.alt': '밤의 도시 사진, 2× 확대 전과 후',
   'upscale.drop.step1': '사진이나 짧은 동영상을 놓으세요',
   'upscale.drop.step2': '2× 또는 4×를 고르고 확대를 누르세요',
-  'upscale.drop.step3': '더 큰 복사본을 다운로드하세요',
+  'upscale.drop.step3': '더 큰 사본을 다운로드하세요',
   'upscale.drop.sample': '샘플 사진으로 체험하기',
   'upscale.drop.noun': '사진이나 짧은 동영상',
   'upscale.stage.original': '원본',

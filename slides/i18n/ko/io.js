@@ -29,7 +29,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'slides.io.left_out': '개체 {n}개를 제외했습니다 (표, 차트, 미디어는 아직 PowerPoint 내보내기에 포함되지 않습니다).',
   'slides.io.no_anims_pptx': '슬라이드 전환과 개체 애니메이션은 PowerPoint 파일에 들어가지 않습니다. .sslide 파일에는 보관됩니다.',
   'slides.io.export_failed': '내보내기 실패: {error}',
-  'slides.io.pdf_ready': 'PDF 준비됨: 페이지 {n}쪽.',
+  'slides.io.pdf_ready': 'PDF 준비됨: {n}페이지.',
   'slides.io.hidden_left_out': '숨겨진 슬라이드 {n}장은 제외했습니다.',
   'slides.io.missing_font': '일부 텍스트에 다운로드되지 않은 글꼴({fonts})이 필요해 상자로 표시됩니다.',
   'slides.io.pdf_export_failed': 'PDF 내보내기 실패: {error}',

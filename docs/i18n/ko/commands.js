@@ -8,7 +8,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'docs.cmd.group_outline': '개요',
   'docs.cmd.file_new': '새 문서',
   'docs.cmd.file_open': 'Slop Drive에서 열기…',
-  'docs.cmd.file_random': '임의 서식 파일…',
+  'docs.cmd.file_random': '임의 템플릿…',
   'docs.cmd.file_save': 'Slop Drive에 저장',
   'docs.cmd.file_rename': '이름 바꾸기…',
   'docs.cmd.file_pdf': 'PDF 다운로드(.pdf)',

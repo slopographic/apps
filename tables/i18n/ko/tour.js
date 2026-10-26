@@ -9,8 +9,8 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'tables.tour.grid_text': '셀을 클릭하거나 끌어서 여러 셀을 선택하세요.',
   'tables.tour.format_title': '표시 형식',
   'tables.tour.format_text': '통화, 백분율, 날짜 등 숫자를 표시하는 방식을 고르세요.',
-  'tables.tour.side_title': '시트와 서식 파일',
-  'tables.tour.side_text': '시트, 서식 파일과 함수 목록입니다. 화살표 버튼으로 이 사이드바를 숨깁니다.',
+  'tables.tour.side_title': '시트와 템플릿',
+  'tables.tour.side_text': '시트, 템플릿과 함수 목록입니다. 화살표 버튼으로 이 사이드바를 숨깁니다.',
   'tables.tour.save_title': '저장',
   'tables.tour.save_text': 'Slop Drive에 저장합니다(Ctrl+S).',
 });

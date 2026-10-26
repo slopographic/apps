@@ -1,7 +1,7 @@
 /* Slop AI, Korean: the Models tab (cards, storage) and "Can my PC run it?" (the system check). The spec card picture
  * stays English (it is what the person shares). Same keys as ai/i18n/en/models.js. Terms: shared/i18n/glossary-ko.md. */
 window.SlopI18n && window.SlopI18n.add('ko', {
-  'ai.models.lead': '각 모델은 다운로드를 누르면 huggingface.co에서 한 번 내려받은 뒤 GPU에서 오프라인으로 실행됩니다. 채팅은 기기를 벗어나지 않습니다.',
+  'ai.models.lead': '각 모델은 다운로드를 누르면 huggingface.co에서 한 번 다운로드한 뒤 GPU에서 오프라인으로 실행됩니다. 채팅은 기기를 벗어나지 않습니다.',
   'ai.models.lead_demo': '데모 엔진: 다운로드는 시뮬레이션되고 답변은 미리 정해져 있습니다. ⋯ 메뉴에서 실제 엔진으로 전환하세요.',
   'ai.models.from_disk': '디스크에서 불러오기…',
   'ai.models.check_pc': '내 PC 점검',
@@ -23,8 +23,8 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'ai.models.try_anyway': '그래도 시도',
   'ai.models.ready': '{name} 준비 완료',
   'ai.models.delete_q': '{name}을(를) 삭제할까요?',
-  'ai.models.delete_body': '이 브라우저에서 {size}이(가) 삭제됩니다. 나중에 다시 내려받을 수 있습니다.',
-  'ai.models.delete_body_files': '이 브라우저에서 이 모델의 파일이 삭제됩니다. 나중에 다시 내려받을 수 있습니다.',
+  'ai.models.delete_body': '이 브라우저에서 {size}이(가) 삭제됩니다. 나중에 다시 다운로드할 수 있습니다.',
+  'ai.models.delete_body_files': '이 브라우저에서 이 모델의 파일이 삭제됩니다. 나중에 다시 다운로드할 수 있습니다.',
   'ai.models.failed': '실패: {why}',
   'ai.models.loaded': '불러왔고 준비되었습니다',
   'ai.models.downloaded': '다운로드됨',
@@ -45,7 +45,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'ai.models.usage': '모델이 이 기기에서 {size}을(를) 사용합니다',
   'ai.models.usage_free': '모델이 이 기기에서 {size}을(를) 사용합니다 · 이 사이트에서 {free} 사용 가능',
   'ai.models.full': '이 사이트의 저장공간이 가득 찼습니다(남은 공간 {left}). 공간을 확보하려면 아래에서 모델을 삭제하거나 Slop Drive ▸ 저장공간 ▸ 로컬 캐시 지우기를 사용하세요. 그런 다음 다시 시도하세요.',
-  'ai.models.stored': '내려받은 모델이 이 브라우저에서 {size}을(를) 사용합니다. 하나를 삭제하면 그 파일만 지워지며, 나중에 다시 내려받을 수 있습니다.',
+  'ai.models.stored': '다운로드한 모델이 이 브라우저에서 {size}을(를) 사용합니다. 하나를 삭제하면 그 파일만 지워지며, 나중에 다시 다운로드할 수 있습니다.',
   'ai.models.none_stored': '이 브라우저에 저장된 모델이 아직 없습니다.',
   'ai.models.importing': '모델 폴더를 가져오는 중…',
   'ai.models.imported': '{name}을(를) 가져왔습니다',

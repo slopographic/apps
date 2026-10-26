@@ -1,6 +1,6 @@
 /* Slop Transcribe, Korean: the page, the file list, the transcript pane, the record and save panel and the commands. Same keys as transcribe/i18n/en/app.js. Terms: shared/i18n/glossary-ko.md. Rules: shared/i18n/APPS-HOWTO.md. */
 window.SlopI18n && window.SlopI18n.add('ko', {
-  'transcribe.app.local_tip': '녹음과 파일은 이 기기에서 텍스트로 변환됩니다. 아무것도 업로드되지 않습니다.',
+  'transcribe.app.local_tip': '녹음과 파일은 이 기기에서 받아쓰기됩니다. 아무것도 업로드되지 않습니다.',
   'transcribe.app.local': '100% 로컬',
   'transcribe.app.title': '음성과 오디오를 텍스트로',
   'transcribe.app.lede': '목소리를 녹음하거나 MP3, WAV, M4A 또는 동영상 파일을 추가하세요. Whisper가 음성을 이 기기에서 텍스트로 바꿉니다. 고친 다음 텍스트, Word 또는 자막으로 저장하세요.',

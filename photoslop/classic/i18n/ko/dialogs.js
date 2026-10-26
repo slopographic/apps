@@ -43,7 +43,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'paint-classic.help.shift': '<b>Shift</b>를 누르면 정사각형과 원을 정확히 그리고, 선을 45° 단위로 맞춥니다.',
   'paint-classic.help.curve': '<b>곡선:</b> 직선을 드래그한 뒤 두 번 클릭(또는 드래그)해 구부리세요.',
   'paint-classic.help.polygon': '<b>다각형:</b> 첫 변을 드래그하고, 클릭하여 꼭짓점을 추가한 뒤, 더블클릭(또는 시작점 클릭)으로 마칩니다.',
-  'paint-classic.help.select': '<b>선택:</b> 드래그하여 선택하고, 안을 드래그하면 이동, Ctrl+드래그하면 복사본을 남기며, 파란 핸들을 드래그하면 늘어납니다. Delete로 지웁니다.',
+  'paint-classic.help.select': '<b>선택:</b> 드래그하여 선택하고, 안을 드래그하면 이동, Ctrl+드래그하면 사본을 남기며, 파란 핸들을 드래그하면 늘어납니다. Delete로 지웁니다.',
   'paint-classic.help.clipboard': '<b>Ctrl+C / Ctrl+X / Ctrl+V</b>는 복사, 잘라내기, 붙여넣기입니다. 다른 앱의 이미지도 붙여넣을 수 있습니다.',
   'paint-classic.help.text': '<b>텍스트:</b> 클릭하거나 상자를 드래그하고 입력한 뒤, 글꼴 도구 모음에서 글꼴을 고르고, 바깥을 클릭하여 찍으세요.',
   'paint-classic.help.resize': '캔버스 가장자리의 작은 파란 핸들을 드래그하여 크기를 바꿉니다.',

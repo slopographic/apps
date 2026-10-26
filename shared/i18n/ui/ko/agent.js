@@ -41,7 +41,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'ui.agent.wrong_code_hint': 'AI 앱 세션이 여러 개 열려 있으면, AI 앱이 코드와 함께 표시하는 링크를 여세요. 그 링크가 올바른 세션을 지정합니다.',
   'ui.agent.pair_failed': '페어링에 실패했습니다.',
   'ui.agent.not_waiting': '대기 중인 코드가 없습니다.',
-  'ui.agent.allow_q': '이 AI 에이전트 작업을 허용하시겠습니까?',
+  'ui.agent.allow_q': '이 AI 에이전트 작업을 허용할까요?',
   'ui.agent.allow': '허용',
   'ui.agent.wants_run': 'AI 에이전트가 “{what}”을(를) 실행하려고 합니다. 이 작업으로 작업 내용이 변경되거나 삭제될 수 있습니다.',
   'ui.agent.the_agent': 'AI 에이전트',

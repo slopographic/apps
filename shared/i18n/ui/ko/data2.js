@@ -13,7 +13,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'ui.data.ecb.bad_rate': 'ECB 파일의 {quote} 환율이 올바르지 않습니다.',
   'ui.data.ecb.no_rates': 'ECB 파일에 환율이 없습니다.',
   'ui.data.ecb.consent': '환율 업데이트가 꺼져 있습니다. 먼저 설정에서 환율을 켜세요.',
-  'ui.data.ecb.no_fetch': '이 브라우저에서는 환율을 내려받을 수 없습니다. 환율을 저장하지 않았습니다.',
+  'ui.data.ecb.no_fetch': '이 브라우저에서는 환율을 다운로드할 수 없습니다. 환율을 저장하지 않았습니다.',
   'ui.data.ecb.http': '유럽중앙은행이 응답하지 않았습니다({status}). 환율을 저장하지 않았습니다.',
   'ui.data.ecb.no_answer': '유럽중앙은행이 응답하지 않았습니다. 환율을 저장하지 않았습니다.',
   'ui.data.ecb.network': '유럽중앙은행에 연결할 수 없습니다. 환율을 저장하지 않았습니다.',

@@ -11,6 +11,6 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'resize.tour.mode_text': '너비와 높이, 비율, 긴 변 기준, 또는 최대 파일 크기로 크기를 조정할 수 있습니다.',
   'resize.tour.run_title': '모두 크기 조정',
   'resize.tour.run_text': '대기열의 모든 파일 크기를 조정합니다. Ctrl+Enter도 같습니다.',
-  'resize.tour.download_title': '내려받기',
-  'resize.tour.download_text': '모든 결과를 zip 하나로 내려받거나 Slop Drive에 저장하세요.',
+  'resize.tour.download_title': '다운로드',
+  'resize.tour.download_text': '모든 결과를 zip 하나로 다운로드하거나 Slop Drive에 저장하세요.',
 });

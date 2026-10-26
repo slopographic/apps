@@ -46,7 +46,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'slopedit.exp.exported_gif': 'GIF를 내보냈습니다',
   'slopedit.exp.export_finished': '내보내기를 마쳤습니다',
   'slopedit.exp.save_to_slop_drive': 'Slop Drive에 저장',
-  'slopedit.exp.download': '내려받기',
+  'slopedit.exp.download': '다운로드',
   'slopedit.gfx.graphic_colour': '그래픽 색',
   'slopedit.gfx.graphic_motion': '그래픽 움직임',
   'slopedit.gfx.colour': '색',

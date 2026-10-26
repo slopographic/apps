@@ -14,7 +14,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'ui.macro.played': '“{name}”을(를) 실행했습니다({n}단계).',
   'ui.macro.rename_title': '매크로 이름 바꾸기',
   'ui.macro.name': '이름',
-  'ui.macro.delete_q': '매크로를 삭제하시겠습니까?',
+  'ui.macro.delete_q': '매크로를 삭제할까요?',
   'ui.macro.delete_body': '“{name}”이(가) 이 브라우저에서 삭제됩니다. 이 매크로를 사용하는 워크플로는 해당 단계를 더 이상 실행할 수 없습니다.',
   'ui.macro.deleted': '“{name}”을(를) 삭제했습니다.',
   'ui.macro.none_export': '내보낼 매크로가 없습니다.',

@@ -38,6 +38,6 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'ui.size.mb': '{size} MB',
   'ui.size.gb': '{size} GB',
   'ui.library.list_failed': '팩 목록을 읽을 수 없습니다({why}).',
-  'ui.library.downloading': '{name} 내려받는 중({i}/{n})…',
+  'ui.library.downloading': '{name} 다운로드하는 중({i}/{n})…',
   'ui.library.storing': '저장하는 중…',
 });

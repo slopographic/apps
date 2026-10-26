@@ -43,7 +43,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'slopedit.insp.key_at': '{t}초의 {what} 키프레임',
   'slopedit.insp.key_value_of': '{what} 키프레임 값',
   'slopedit.insp.vol_keys': '볼륨 키프레임 {n}개. 클립의 노란 선을 Ctrl/⌥ 클릭하면 추가하고, 끌어서 옮기거나 재생 헤드에서 Shift+K를 사용하세요.',
-  'slopedit.io.downloaded': 'slopedit.html을 내려받았습니다({kb} KB). 연결 없이도 작동합니다.',
+  'slopedit.io.downloaded': 'slopedit.html을 다운로드했습니다({kb} KB). 연결 없이도 작동합니다.',
   'slopedit.io.build_failed': '오프라인 파일을 만들 수 없습니다: {error}',
   'slopedit.io.send_failed': '보낼 수 없습니다: {error}',
   'slopedit.io.cutout_failed': '누끼를 추가할 수 없습니다: {error}',

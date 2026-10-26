@@ -140,7 +140,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'ui.wm.preview_aria': '워터마크를 적용한 미리 보기',
   'ui.wm.prev_page': '이전 페이지',
   'ui.wm.next_page': '다음 페이지',
-  'ui.wm.page_of': '{pages}쪽 중 {page}쪽',
+  'ui.wm.page_of': '{pages}페이지 중 {page}페이지',
   'ui.wm.pdf_chars': '{name}: 일부 문자는 표준 PDF 글꼴로 쓸 수 없어 “?”로 표시됩니다.',
   'ui.wm.video_unread': '이 브라우저에서 이 동영상을 읽을 수 없습니다.',
   'ui.wm.video_no_track': '이 파일에는 영상 트랙이 없습니다.',

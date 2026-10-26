@@ -12,7 +12,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'ai.chat.delete_q': '이 채팅을 삭제할까요?',
   'ai.chat.delete_body': '“{title}”이(가) 영구적으로 삭제됩니다.',
   'ai.chat.hello': '나만의 비공개 AI',
-  'ai.chat.hello_lead': '모델을 고르면 시작합니다. 한 번 내려받으면 GPU에서 오프라인으로 실행됩니다.',
+  'ai.chat.hello_lead': '모델을 고르면 시작합니다. 한 번 다운로드하면 GPU에서 오프라인으로 실행됩니다.',
   'ai.chat.hello_ready': '무엇이든 물어보세요',
   'ai.chat.hello_ready_lead': '모든 것이 이 기기에서 실행됩니다. 다음 중 하나를 시도해 보세요:',
   'ai.chat.starter_explain': '다섯 살 아이에게 설명하듯 WebGPU를 설명해 줘',
@@ -43,8 +43,8 @@ window.SlopI18n && window.SlopI18n.add('ko', {
 
   'ai.export.md_drive': 'Markdown을 Slop Drive에…',
   'ai.export.json_drive': 'JSON을 Slop Drive에…',
-  'ai.export.md_dl': 'Markdown 내려받기',
-  'ai.export.json_dl': 'JSON 내려받기',
+  'ai.export.md_dl': 'Markdown 다운로드',
+  'ai.export.json_dl': 'JSON 다운로드',
 
   'ai.msg.stats': '토큰 {n}개 · {tps} 토큰/초 · 첫 토큰까지 {ttft}초',
   'ai.msg.live_stats': '토큰 {n}개 · {tps} 토큰/초',

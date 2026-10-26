@@ -15,7 +15,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'contacts.tl.review_intro': '각 줄은 제안된 병합 하나입니다. 병합을 체크 해제하면 그 연락처는 그대로 둡니다.',
   'contacts.tl.merge_n': '그룹 {n}개 병합',
   'contacts.tl.merged': '그룹 {n}개를 병합했습니다',
-  'contacts.tl.undo': '되돌리기',
+  'contacts.tl.undo': '실행 취소',
   'contacts.tl.merge_all': '모두 병합',
   'contacts.tl.merge_all_q': '모든 중복을 병합할까요?',
   'contacts.tl.find_dupes': '중복 찾기',

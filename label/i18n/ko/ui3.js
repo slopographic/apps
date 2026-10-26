@@ -17,7 +17,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'label.print.records': '레코드',
   'label.print.labels_per_record': '레코드당 라벨 수',
   'label.print.quantity': '수량',
-  'label.print.identical_copies': '동일한 복사본',
+  'label.print.identical_copies': '동일한 사본',
   'label.print.browser_print': '브라우저 인쇄',
   'label.print.print_through_the_browser_at': '정확한 라벨/시트 크기로 브라우저를 통해 인쇄',
   'label.print.zpl_preview': 'ZPL 미리 보기',
