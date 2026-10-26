@@ -34,7 +34,9 @@
   /** A finger or a pen, with a place (a mouse, or an event some code made without coordinates, is not ours). */
   const finger = (e) => (e.pointerType === 'touch' || e.pointerType === 'pen') && Number.isFinite(e.clientX) && Number.isFinite(e.clientY);
   const swallow = (e) => { e.stopImmediatePropagation(); if (e.cancelable) e.preventDefault(); };
-  const sample = (e) => ({ id: e.pointerId, x: e.clientX, y: e.clientY, t: now(), kind: e.pointerType });
+  // t: when the finger did it (a busy page handles a quick tap's lift late: it must not read as a hold); at: when the page
+  // got it, where the long-press clock starts (gesture.js)
+  const sample = (e) => ({ id: e.pointerId, x: e.clientX, y: e.clientY, t: T.gesture.stamp(e, now()), at: now(), kind: e.pointerType });
 
   function schedule() {
     clearTimeout(timer);
@@ -44,7 +46,10 @@
       // Late by more than BUSY_MS: the page was busy, and the finger's pointerup may still be waiting behind it. The
       // hold starts again (once a gesture), so only a finger still down after another long-press time opens a menu.
       if (now() - d > BUSY_MS && !restarted) { restarted = true; g.restartLong(now()); schedule(); return; }
-      run(g.tick(now()));
+      // Not before the page has had the moves already made: a busy page gets them at its next frame (Chromium aligns
+      // them to frames), after this timer, and a drag that started while the page was busy is no long press.
+      const mine = timer;
+      requestAnimationFrame(() => { if (timer === mine) run(g.tick(now())); });
     }, Math.max(0, d - now()) + 1);
   }
   function takeFromApp(id) {

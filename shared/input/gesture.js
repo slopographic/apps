@@ -9,7 +9,9 @@
  *   g.deadline()                   → when tick next has something to do, or Infinity
  *   g.restartLong(t)               → the hold of every finger still down counts from t (the page was busy)
  *   g.reset()                      → forget everything (a pen came down, the page lost focus)
- * kind is 'touch' or 'pen' (mouse is not fed in). x, y in CSS pixels, t in milliseconds.
+ * kind is 'touch' or 'pen' (mouse is not fed in). x, y in CSS pixels, t in milliseconds: when the finger did it (taps
+ * and double taps are timed by it). down's optional at: when the page got the touch, where the long-press clock starts
+ * (a touch handled late must not long-press before the page has had its queued moves and lift); default t.
  * Actions: { type: 'tap', x, y, id } · { type: 'doubletap', x, y, id } · { type: 'longpress', x, y, id }
  *          { type: 'pinchstart', ids, cx, cy } · { type: 'pinch', scale, cx, cy, dx, dy } · { type: 'pinchend' }
  * pinch: scale is since the previous pinch action (multiply them up), cx/cy the midpoint now, dx/dy its move.
@@ -40,7 +42,7 @@
 
     function down(p) {
       const out = [];
-      pts.set(p.id, { x0: p.x, y0: p.y, x: p.x, y: p.y, t0: p.t, tl: p.t, kind: p.kind || 'touch', moved: false, long: false });
+      pts.set(p.id, { x0: p.x, y0: p.y, x: p.x, y: p.y, t0: p.t, tl: p.at != null ? p.at : p.t, kind: p.kind || 'touch', moved: false, long: false });
       const touches = [...pts.entries()].filter(([, s]) => s.kind === 'touch');
       if (pts.size >= 2) {
         multi = true;

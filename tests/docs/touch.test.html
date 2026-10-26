@@ -23,21 +23,8 @@
     return { el: doc.documentElement, x: b.left + (L.x + x) * k, y: b.top + (L.y + L.line.h / 2) * k };
   }
   const collapsed = () => E.O.collapsed(S.sel);
-  /** Quick taps at t (40 ms each, 90 ms apart); the page is busy for `busy` ms before it takes the last lift. Each event
-   *  is made (stamped) when the finger did it and handled when the page is free, as a busy page gets a person's taps. */
-  async function busyTaps(t, n, busy = 700) {
-    const p = TouchKit.where(t), send = (e) => doc.elementFromPoint(p.lx, p.ly).dispatchEvent(e); // the app draws the page anew
-    const ev = (type, id) => new win.PointerEvent(type, { bubbles: true, cancelable: true, composed: true, view: win, pointerId: id, pointerType: 'touch', isPrimary: true, clientX: p.lx, clientY: p.ly, button: 0, buttons: type === 'pointerdown' ? 1 : 0 });
-    for (let i = 0; i < n; i++) {
-      if (i) await sleep(90);
-      send(ev('pointerdown', 9000 + i));
-      await sleep(40);
-      const up = ev('pointerup', 9000 + i);
-      if (i === n - 1) for (const t0 = performance.now(); performance.now() - t0 < busy;) { /* the page is busy */ }
-      send(up);
-    }
-    await sleep(400); // past the double-tap time: the next tap is a first one
-  }
+  /** TouchKit.busyTaps, then past the double-tap time (the next tap is a first one). */
+  const busyTaps = async (t, n) => { await TouchKit.busyTaps(t, n); await sleep(400); };
 
   describe('Slop Docs on touch', () => {
     it('opens the editor with a document, and the touch layer is on', async () => {

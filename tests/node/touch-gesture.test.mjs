@@ -189,3 +189,13 @@ test('stamp: when an event happened (its timeStamp on the performance.now clock)
   assert.equal(stamp({ timeStamp: 10 }, 90000), 90000);     // a minute or more ago: not this event's
   assert.equal(stamp(null, 42), 42);
 });
+
+test('a touch the page got late: taps timed by when they happened, the long press from when the page got the touch', () => {
+  const g = create();
+  g.down({ id: 1, x: 0, y: 0, t: 1000, at: 1700 });                       // handled 700 ms late
+  assert.equal(g.deadline(), 1700 + DEFAULTS.longMs);
+  assert.deepEqual(g.tick(1710), []);                                       // no long press before its queued lift
+  assert.deepEqual(types(g.up({ id: 1, x: 0, y: 0, t: 1040 })), ['tap']);  // a 40 ms tap, though handled late
+  g.down({ id: 2, x: 0, y: 0, t: 1130, at: 1720 });
+  assert.deepEqual(types(g.up({ id: 2, x: 0, y: 0, t: 1170 })), ['doubletap']);
+});

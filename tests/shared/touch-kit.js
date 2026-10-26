@@ -3,7 +3,7 @@
  * (a tap in every engine; any gesture in Chromium, by CDP), else as touch pointer events sent in the page, the way the
  * browser would send them (implicitly captured to the element first touched while it is on the page, a click after a
  * tap).
- *   TouchKit.tap(t) · doubleTap(t) · longPress(t, ms) · drag(t, dx, dy, steps) · pinch(t, scale, steps) · pan2(t, dx, dy)
+ *   TouchKit.tap(t) · doubleTap(t) · busyTaps(t, n, busy) · longPress(t, ms) · drag(t, dx, dy, steps) · pinch(t, scale, steps) · pan2(t, dx, dy)
  * t is an element (its centre), { el, x, y } (x, y from the element's top left) or { x, y } in the test page. Elements in
  * a same-origin iframe are found through their frame. Each resolves once the gesture is over.
  * TouchKit.real: true when the gestures beyond a tap are real touches (Chromium). Real gestures other than the long press
@@ -132,6 +132,24 @@
 
   // 1100 ms: the layer's 500 ms, plus once more when the page was busy as the finger landed (touch.js BUSY_MS). Paced by
   // this page: the hold counts from when the page took the touch (the layer's long-press clock starts there too).
+  /** n quick taps at t (40 ms each, 90 ms apart) as a busy page gets them: each event made (stamped) when the finger did
+   *  it, and the page busy for `busy` ms before it takes the last lift (a regression test that taps are timed by when
+   *  they happened, not by when the page got to them). Sent in the page, to what is under t when each goes. */
+  async function busyTaps(t, n = 1, busy = 700) {
+    const p = where(t), W = p.win, send = (e) => (W.document.elementFromPoint(p.lx, p.ly) || W.document.body).dispatchEvent(e);
+    const ev = (type, id) => new W.PointerEvent(type, { bubbles: true, cancelable: true, composed: true, view: W, pointerId: id, pointerType: 'touch', isPrimary: true,
+      clientX: p.lx, clientY: p.ly, screenX: p.x, screenY: p.y, button: 0, buttons: type === 'pointerdown' ? 1 : 0, width: 8, height: 8 });
+    for (let i = 0; i < n; i++) {
+      const id = nextId++;
+      if (i) await sleep(90);
+      send(ev('pointerdown', id));
+      await sleep(40);
+      const up = ev('pointerup', id);
+      if (i === n - 1) for (const t0 = performance.now(); performance.now() - t0 < busy;) { /* the page is busy */ }
+      send(up);
+    }
+  }
+
   async function longPress(t, ms = 1100) {
     const p = where(t);
     if (info().multi) { await cdp('start', [{ id: 1, x: p.x, y: p.y }]); await sleep(ms); await cdp('end', []); return sleep(60); }
@@ -177,5 +195,5 @@
   }
   const pan2 = (t, dx, dy, steps = 8) => pinch(t, 1, steps, dx, dy);
 
-  window.TouchKit = { tap, doubleTap, longPress, drag, pinch, pan2, finger, where, get real() { return !!info().multi; }, get engine() { return info().engine; } };
+  window.TouchKit = { tap, doubleTap, busyTaps, longPress, drag, pinch, pan2, finger, where, get real() { return !!info().multi; }, get engine() { return info().engine; } };
 })();
