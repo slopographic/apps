@@ -172,14 +172,13 @@ jobs:
 
   # The white-label build (tools/whitelabel; brand/README.md, "White-label builds"), on every push: the made-up sample
   # profiles (brand/profiles/sample*.json) built the way a mirror is, so a change here cannot break a white-label site
-  # unnoticed. The rename map's round trip over the whole repository, the build with its leak scan, the build's own Node
-  # tests, and browser pages served from the build: a smoke set, and (sample) the contrast sweep in its colours.
-  # It runs a fixed set of pages of the build, not this repository's suite; it waits for the plan like every browser job.
+  # unnoticed. The rename map's round trip over the whole repository, the build with its leak scan and the build's own Node
+  # tests; the build then goes to the jobs below, which run its whole browser suite and its touch pages.
   whitelabel:
     name: White-label build ${{ matrix.profile }}
     needs: plan
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 20
     container:
       image: mcr.microsoft.com/playwright:v1.64.1-noble
     strategy:
@@ -199,16 +198,68 @@ jobs:
       - name: The rename map comes back over the whole repository (tools/whitelabel/roundtrip.mjs)
         run: node tools/whitelabel/roundtrip.mjs ${{ matrix.profile }}
       - name: Build the profile, with the leak scan (tools/whitelabel/build.mjs)
-        run: node tools/whitelabel/build.mjs ${{ matrix.profile }} "$OUT"
-      - name: The build as a mirror checkout is (one commit), and its Node tests (less the ones that pin this site's profile)
         run: |
-          SKIP=$(node tools/whitelabel/mirror-skip.mjs ${{ matrix.profile }})
+          node tools/whitelabel/build.mjs ${{ matrix.profile }} "$OUT"
+          tar -cf wl-build.tar -C "$OUT" .
+      - uses: actions/upload-artifact@v5
+        with:
+          name: wl-build-${{ matrix.profile }}
+          path: wl-build.tar
+          retention-days: 1
+      - name: The build as a mirror checkout is (one commit), and all its Node tests
+        run: |
           cd "$OUT" && git init -q && git add -A && git -c user.name=mirror -c user.email=mirror@example.invalid commit -qm build
-          npm ci --no-audit --no-fund && node --test ${SKIP:+"--test-skip-pattern=$SKIP"} tests/node/*.test.mjs tests/seo/*.test.mjs
-      - name: Browser smoke pages, served from the build (the set a mirror runs, tools/whitelabel/mirror-skip.mjs)
-        run: |
-          node tools/whitelabel/mirror-skip.mjs ${{ matrix.profile }} --smoke > "$OUT/smoke-pages.txt"
-          cd "$OUT" && node tests/run.mjs --skip-node --jobs=3 --pages-file=smoke-pages.txt
-      - name: The contrast sweep in the profile's colours
-        if: matrix.profile == 'sample'
-        run: cd "$OUT" && node tests/run.mjs a11y/sweep- --skip-node --jobs=3
+          npm ci --no-audit --no-fund && node --test tests/node/*.test.mjs tests/seo/*.test.mjs
+
+  # The whole browser suite of each sample build, served from the build, in WL_SLICES slices per profile (balanced by the
+  # build's tests/timings.json). The build's links to its own file host point at this site's (--net-alias): a sample has
+  # no cdn repository of its own, and the files are the same.
+  whitelabel-browser:
+    name: White-label ${{ matrix.profile }} browser ${{ matrix.shard }}/8
+    needs: [plan, whitelabel]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble
+    strategy:
+      fail-fast: false
+      matrix:
+        profile: [sample, sample-sv]
+        shard: [1, 2, 3, 4, 5, 6, 7, 8]
+    steps:
+      - uses: actions/download-artifact@v5
+        with:
+          name: wl-build-${{ matrix.profile }}
+      - name: Unpack the build
+        run: tar -xf wl-build.tar && rm wl-build.tar && npm ci --no-audit --no-fund
+      - name: Browser tests of the build, slice ${{ matrix.shard }} of 8
+        run: node tests/run.mjs --shard=${{ matrix.shard }}/8 --jobs=3 --skip-node --results=wl-results-${{ matrix.profile }}-${{ matrix.shard }}.json
+      - uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: wl-results-${{ matrix.profile }}-${{ matrix.shard }}
+          path: wl-results-${{ matrix.profile }}-${{ matrix.shard }}.json
+          retention-days: 7
+          if-no-files-found: ignore
+
+  # The touch pages of each sample build, in WebKit (iPad) and Chromium (Android), as in the touch job above.
+  whitelabel-touch:
+    name: White-label ${{ matrix.profile }} touch ${{ matrix.engine }}
+    needs: [plan, whitelabel]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble
+    strategy:
+      fail-fast: false
+      matrix:
+        profile: [sample, sample-sv]
+        engine: [webkit, chromium]
+    steps:
+      - uses: actions/download-artifact@v5
+        with:
+          name: wl-build-${{ matrix.profile }}
+      - name: Unpack the build
+        run: tar -xf wl-build.tar && rm wl-build.tar && npm ci --no-audit --no-fund
+      - name: Touch tests of the build in ${{ matrix.engine }}
+        run: node tests/run.mjs --touch --browser=${{ matrix.engine }} --jobs=2 --skip-node
