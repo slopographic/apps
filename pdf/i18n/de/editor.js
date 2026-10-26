@@ -10,6 +10,16 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'pdf.ed.undo_paste_annot': 'Anmerkung einfügen',
   'pdf.ed.undo_move_annot': 'Anmerkung verschieben',
   'pdf.ed.undo_change_prop': '{prop} ändern',
+  'pdf.ed.prop_font': 'Schriftart',
+  'pdf.ed.prop_size': 'Größe',
+  'pdf.ed.prop_bold': 'Fettdruck',
+  'pdf.ed.prop_italic': 'Kursivschrift',
+  'pdf.ed.prop_colour': 'Farbe',
+  'pdf.ed.prop_fill': 'Füllung',
+  'pdf.ed.prop_width': 'Breite',
+  'pdf.ed.prop_border_colour': 'Rahmenfarbe',
+  'pdf.ed.prop_border_width': 'Rahmenbreite',
+  'pdf.ed.prop_opacity': 'Deckkraft',
   'pdf.ed.undo_add_signature': 'Unterschrift hinzufügen',
 
   // editor/block-copy.js

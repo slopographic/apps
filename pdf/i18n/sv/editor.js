@@ -7,6 +7,16 @@ window.SlopI18n && window.SlopI18n.add('sv', {
   'pdf.ed.undo_paste_annot': 'Klistra in anteckning',
   'pdf.ed.undo_move_annot': 'Flytta anteckning',
   'pdf.ed.undo_change_prop': 'Ändra {prop}',
+  'pdf.ed.prop_font': 'teckensnitt',
+  'pdf.ed.prop_size': 'storlek',
+  'pdf.ed.prop_bold': 'fetstil',
+  'pdf.ed.prop_italic': 'kursiv stil',
+  'pdf.ed.prop_colour': 'färg',
+  'pdf.ed.prop_fill': 'fyllning',
+  'pdf.ed.prop_width': 'bredd',
+  'pdf.ed.prop_border_colour': 'kantlinjefärg',
+  'pdf.ed.prop_border_width': 'kantlinjebredd',
+  'pdf.ed.prop_opacity': 'opacitet',
   'pdf.ed.undo_add_signature': 'Lägg till underskrift',
 
   // editor/block-copy.js

@@ -178,7 +178,7 @@
     // Convert… and AI never cost the header a row or the app's controls their room: they give up their labels, Convert… its
     // place, then the other buttons fold into More, AI last (shared/ui/hbtn.js). Measured again now the bell is in.
     if (host && window.SlopHbtn) window.SlopHbtn.check(host);
-    window.addEventListener('slop-lang', () => { sw.title = title(); });
+    for (const ev of ['slop-lang', 'slopi18n']) window.addEventListener(ev, () => { sw.title = title(); });   // slopi18n: its tables are in
   }
 
   window.SlopHeader = { mount, openConvert, openAI };

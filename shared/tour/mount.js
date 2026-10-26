@@ -53,8 +53,6 @@
       console.warn('SlopTour: the tour did not start. ' + e.message);
     }
   }
-  /** A shared-chrome string in the chosen language (shared/i18n), else the English given. */
-  function tr(key, en, vars) { const I = window.SlopI18n, s = I ? I.t(key, vars) : key; return s && s !== key ? s : en; }
   /** keys: [label key, title key, vars]: marked for SlopI18n, so a later language change retranslates them. */
   function button(label, title, fn, keys) {
     const b = document.createElement('button');

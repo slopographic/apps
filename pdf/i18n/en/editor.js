@@ -7,6 +7,17 @@ window.SlopI18n && window.SlopI18n.add('en', {
   'pdf.ed.undo_paste_annot': 'Paste annotation',
   'pdf.ed.undo_move_annot': 'Move annotation',
   'pdf.ed.undo_change_prop': 'Change {prop}',
+  // the property a change was made to, in the undo history (pdf/js/editor/annots.js)
+  'pdf.ed.prop_font': 'font',
+  'pdf.ed.prop_size': 'size',
+  'pdf.ed.prop_bold': 'bold',
+  'pdf.ed.prop_italic': 'italic',
+  'pdf.ed.prop_colour': 'colour',
+  'pdf.ed.prop_fill': 'fill',
+  'pdf.ed.prop_width': 'width',
+  'pdf.ed.prop_border_colour': 'border colour',
+  'pdf.ed.prop_border_width': 'border width',
+  'pdf.ed.prop_opacity': 'opacity',
   'pdf.ed.undo_add_signature': 'Add signature',
 
   // editor/block-copy.js

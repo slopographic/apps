@@ -20,6 +20,7 @@
   }
   names();
   addEventListener('slop-lang', names);
+  addEventListener('slopi18n', names);   // the language's tables are in (they load lazily)
 
   let on = null;
   const point = (a) => { const id = a ? a.dataset.id : null; if (id === on) return; on = id; globe(id); };

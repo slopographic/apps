@@ -62,8 +62,8 @@
       expect(KEY.test(visible(doc))).toBe(false);
       // the undo history names a property in Swedish, never by its id (pdf/js/editor/annots.js)
       const Ed = f.contentWindow.SP.editor;
-      expect(Ed.propLabel('borderC')).toBe('Kantlinjefärg');
-      expect(f.contentWindow.SlopI18n.t('pdf.ed.undo_change_prop', { prop: Ed.propLabel('color') })).toBe('Ändra Färg');
+      expect(Ed.propLabel('borderC')).toBe('kantlinjefärg');
+      expect(f.contentWindow.SlopI18n.t('pdf.ed.undo_change_prop', { prop: Ed.propLabel('color') })).toBe('Ändra färg');
       expect(Ed.propLabel('someNewProp')).toBe('someNewProp');
     });
 

@@ -40,11 +40,11 @@
     var id = Ed.selId, a = Ed.getSelected(); if (!id || (a && SP.layers.isLocked(a))) return;
     S.commitPage(U.t('pdf.ed.undo_move_annot'), function (p) { p.annots.forEach(function (a) { if (a.id === id) S.nudge(a, dx, dy); }); }, 'nudge:' + id);
   };
-  // A property's label in the undo history: the Edit panel's own words for it (never the raw id, such as borderC)
+  // A property's name in the undo history ("Change opacity"), in words (never the raw id, such as borderC)
   var PROP_LABEL = { font: 'font', size: 'size', bold: 'bold', italic: 'italic', color: 'colour', fill: 'fill', width: 'width',
-    borderC: 'border_colour', borderW: 'border', opacity: 'opacity' };
+    borderC: 'border_colour', borderW: 'border_width', opacity: 'opacity' };
   Ed.propLabel = function (key) {
-    var k = PROP_LABEL[key] && 'pdf.tool.edit.' + PROP_LABEL[key], s = k ? U.t(k) : key;
+    var k = PROP_LABEL[key] && 'pdf.ed.prop_' + PROP_LABEL[key], s = k ? U.t(k) : key;
     return s === k ? key : s;
   };
   /** Updates a property on the selection (and on the tool default). */

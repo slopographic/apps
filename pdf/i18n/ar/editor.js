@@ -8,6 +8,16 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'pdf.ed.undo_paste_annot': 'لصق التعليق التوضيحي',
   'pdf.ed.undo_move_annot': 'نقل التعليق التوضيحي',
   'pdf.ed.undo_change_prop': 'تغيير {prop}',
+  'pdf.ed.prop_font': 'الخط',
+  'pdf.ed.prop_size': 'الحجم',
+  'pdf.ed.prop_bold': 'الغامق',
+  'pdf.ed.prop_italic': 'المائل',
+  'pdf.ed.prop_colour': 'اللون',
+  'pdf.ed.prop_fill': 'التعبئة',
+  'pdf.ed.prop_width': 'العرض',
+  'pdf.ed.prop_border_colour': 'لون الحد',
+  'pdf.ed.prop_border_width': 'عرض الحد',
+  'pdf.ed.prop_opacity': 'العتامة',
   'pdf.ed.undo_add_signature': 'إضافة توقيع',
 
   // editor/block-copy.js

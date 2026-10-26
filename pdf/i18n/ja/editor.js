@@ -7,6 +7,16 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'pdf.ed.undo_paste_annot': '注釈の貼り付け',
   'pdf.ed.undo_move_annot': '注釈の移動',
   'pdf.ed.undo_change_prop': '{prop} の変更',
+  'pdf.ed.prop_font': 'フォント',
+  'pdf.ed.prop_size': 'サイズ',
+  'pdf.ed.prop_bold': '太字',
+  'pdf.ed.prop_italic': '斜体',
+  'pdf.ed.prop_colour': '色',
+  'pdf.ed.prop_fill': '塗りつぶし',
+  'pdf.ed.prop_width': '幅',
+  'pdf.ed.prop_border_colour': '枠線の色',
+  'pdf.ed.prop_border_width': '枠線の幅',
+  'pdf.ed.prop_opacity': '不透明度',
   'pdf.ed.undo_add_signature': '署名の追加',
 
   // editor/block-copy.js
