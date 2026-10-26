@@ -4,5 +4,5 @@ window.SlopI18n && window.SlopI18n.source({
   ns: 'signature',
   base: ((document.currentScript || {}).src || '').replace(/[^/]*$/, ''),
   parts: ['app', 'copy', 'form'],
-  langs: ['en', 'sv'],
+  langs: ['en', 'sv', 'zh-CN'],
 });
