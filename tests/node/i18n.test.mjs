@@ -135,6 +135,10 @@ test('apply() on an English page sets lang="en" and dir="ltr"', async () => {
 
 test('every data-i18n key on the homepage and Settings has an English string', async () => {
   const { I } = await global();
+  // Settings keeps its own words like an app (settings/i18n/en/*.js, keys settings.<area>.<name>) beside the chrome's
+  const { pageAreas, appTables } = await import('../../tools/i18n/tables.mjs');
+  const own = appTables(pageAreas().find((a) => a.id === 'settings')).tables.en;
+  I.add('en', Object.fromEntries(own));
   const missing = [];
   for (const f of ['index.html', 'settings/index.html']) {
     const html = await readFile(path.join(ROOT, f), 'utf8');

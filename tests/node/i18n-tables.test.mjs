@@ -10,7 +10,7 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { check, compare, placeholders } from '../../tools/i18n/check.mjs';
 import { scan, render, levels, losses, raise, OUT, BASELINE } from '../../tools/i18n/coverage.mjs';
-import { ROOT, COVERS, coversText, langs, apps, appTables, sharedAreas, sharedTables } from '../../tools/i18n/tables.mjs';
+import { ROOT, COVERS, coversText, langs, apps, appTables, sharedAreas, sharedTables, pageAreas, tableFiles } from '../../tools/i18n/tables.mjs';
 import { scanJs, scanHtml, wordy, fragment, staticText } from '../../tools/i18n/scan.mjs';
 
 const rows = scan();
@@ -125,7 +125,20 @@ test('the shared areas include shared/biz/i18n, so the checker and the coverage 
   const row = rows.find((r) => r.id === 'biz');
   assert.ok(row && row.shared && row.keys === [...t.tables.en.keys()].filter((k) => !k.includes('#')).length, 'a coverage row for biz');
   assert.match(read(OUT), /Shared biz \(shared\/biz\/i18n\/\)/, 'COVERAGE.md lists it');
-  assert.match(read('tools/i18n/check.mjs'), /\[\.\.\.apps\(\), \.\.\.sharedAreas\(\)\]/, 'check() walks the shared areas');
+  assert.match(read('tools/i18n/check.mjs'), /\[\.\.\.apps\(\), \.\.\.pageAreas\(\), \.\.\.sharedAreas\(\)\]/, 'check() walks the pages and the shared areas');
+});
+
+test('Settings keeps its words like an app (settings/i18n, keys settings.*), read by the checker and the coverage report', () => {
+  const page = pageAreas().find((a) => a.id === 'settings');
+  assert.ok(page && page.dir === 'settings/' && page.files.includes('settings/index.html'), 'pageAreas() has settings');
+  assert.ok(!apps().some((a) => a.id === 'settings'), 'not a registry app');
+  const t = appTables(page);
+  assert.ok(t.index && t.index.ns === 'settings' && t.tables.en && t.tables.sv, 'settings/i18n/index.js, en and sv');
+  assert.ok([...t.tables.en.keys()].every((k) => /^settings\.[a-z_]+\.[a-z_]+(#one)?$/.test(k)), 'keys settings.<area>.<name>');
+  const chrome = sharedTables('chrome').tables.en;
+  assert.ok([...t.tables.en.keys()].every((k) => !chrome.has(k)), 'no key is also a chrome key (settings.appearance, ...)');
+  assert.ok(rows.some((r) => r.id === 'settings' && r.keys === [...t.tables.en.keys()].filter((k) => !k.includes('#')).length), 'a coverage row');
+  assert.ok(tableFiles().includes('settings/i18n/index.js') && tableFiles().includes('settings/i18n/sv/notes.js'), 'its table files are listed');
 });
 
 test('the home page describes the AI assistant, the file manager, the business apps and HTML to PDF in plain words, as sv and de do', () => {

@@ -5,19 +5,20 @@
 //   node tools/i18n/i18n.mjs --check                  the tables: every key in every shipped language, same {placeholders}
 //   node tools/i18n/i18n.mjs coverage [--baseline]    writes shared/i18n/COVERAGE.md; --baseline raises the ratchet
 //   node tools/i18n/i18n.mjs index <app id>           writes <app>/i18n/index.js from its folders, and tests/i18n/tables.covers.txt
+//                                                    (a page kept like an app, tables.mjs pageAreas(): index settings)
 //                                                    (index ui: UI_PARTS in shared/i18n/i18n.js; index biz: shared/biz/i18n/index.js)
 //   node tools/i18n/i18n.mjs todo <app id> <code>     the English keys a language still lacks, as table lines to fill in
 // extract lists UI-API strings (kind 'ui') by default; --prose adds the literals that only read like words.
 import { writeFileSync, readFileSync, existsSync } from 'node:fs';
 import path from 'node:path';
-import { apps, appTables, sharedApp, sharedAreas, uiPartsIndex, UI_PARTS_RE, ROOT, COVERS, coversText } from './tables.mjs';
+import { apps, appTables, sharedApp, sharedAreas, pageAreas, uiPartsIndex, UI_PARTS_RE, ROOT, COVERS, coversText } from './tables.mjs';
 import { check } from './check.mjs';
 import { hardcoded, scan, render, raise, OUT, BASELINE } from './coverage.mjs';
 
 const [cmd, ...rest] = process.argv.slice(2);
 const flag = (f) => rest.includes(f);
 const arg = rest.filter((a) => !a.startsWith('--'));
-const findApp = (id) => (id === 'shared' ? sharedApp() : [...apps(), ...sharedAreas()].find((a) => a.id === id || a.ns === id || a.dir === id || a.dir === id + '/'));
+const findApp = (id) => (id === 'shared' ? sharedApp() : [...apps(), ...pageAreas(), ...sharedAreas()].find((a) => a.id === id || a.ns === id || a.dir === id || a.dir === id + '/'));
 
 /** The index.js an app's tables need: the parts of en/ and every language folder. */
 export function indexSource(app) {

@@ -3,13 +3,15 @@
 //    in LANGS and hold every English key;
 //  - an app's tables: <dir>i18n/index.js names the parts of en/ and the languages that have a folder; every language it
 //    ships holds every English key; keys start with the app id ('pdf.'); the keys its code asks for (t('pdf.x')) exist;
+//  - the site pages kept like an app (tables.mjs pageAreas(): settings/, keys settings.*), whose code may also ask for the
+//    chrome's own keys (settings.language in shared/i18n/strings.js);
 //  - the shared areas (tables.mjs sharedAreas(): the ui parts and shared/<area>/i18n) as an app's, with their ns as the
 //    key prefix; the ui parts' index is UI_PARTS in shared/i18n/i18n.js; keys asked for anywhere must exist;
 //  - in every table: no key English lacks (a plural form 'key#few' needs 'key' in English and a CLDR category), no empty
 //    text, and the same {placeholders} as English (a plural form may leave one out, e.g. the count for n = 1).
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
-import { apps, appTables, sharedTables, sharedAreas, langs, ROOT } from './tables.mjs';
+import { apps, appTables, sharedTables, sharedAreas, pageAreas, langs, ROOT } from './tables.mjs';
 
 const CATS = new Set(['zero', 'one', 'two', 'few', 'many', 'other']);
 export const placeholders = (s) => [...String(s).matchAll(/\{(\w+)\}/g)].map((m) => m[1]).sort().join(',');
@@ -68,7 +70,8 @@ export function check() {
     if (ns === 'ui') for (const k of en.keys()) if (!k.startsWith('ui.')) out.push(`ui/en: ${k} does not start with ui.`);
   }
   const uiBase = sharedTables('ui').tables.en || new Map();
-  for (const app of [...apps(), ...sharedAreas()]) {
+  const chrome = sharedTables('chrome').tables.en || new Map();
+  for (const app of [...apps(), ...pageAreas(), ...sharedAreas()]) {
     const t = appTables(app);
     if (!t.dirs.length && !t.index) continue;
     const label = app.id, ns = app.ns || app.id;
@@ -88,7 +91,7 @@ export function check() {
       if (parts.join() !== enParts.join()) out.push(`${label}/${c}: parts [${parts}] differ from en/ [${enParts}]`);
       out.push(...compare(`${label}/${c}`, en, t.tables[c]));
     }
-    for (const [k, f] of usedKeys(app.files, ns)) if (!en.has(k) && !(ns === 'ui' && uiBase.has(k))) out.push(`${label}: ${f} asks for ${k}, which en/ does not have`);
+    for (const [k, f] of usedKeys(app.files, ns)) if (!en.has(k) && !chrome.has(k) && !(ns === 'ui' && uiBase.has(k))) out.push(`${label}: ${f} asks for ${k}, which en/ does not have`);
   }
   return out;
 }

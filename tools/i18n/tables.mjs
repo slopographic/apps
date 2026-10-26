@@ -4,6 +4,7 @@
 //   sharedTables(ns)  'chrome' (shared/i18n/strings.js + <code>.js) or 'ui' (shared/i18n/ui/<code>.js), same shape
 //   sharedAreas()     the shared tables kept like an app's: the ui parts (shared/i18n/ui/<code>/<part>.js, keys ui.*,
 //                     listed in UI_PARTS of shared/i18n/i18n.js) and every shared/<area>/i18n/index.js (shared/biz: biz.*)
+//   pageAreas()       site pages that are not registry apps but keep tables like an app's (settings/: keys settings.*)
 //   langs()           the LANGS list of shared/i18n/i18n.js
 // A table file is run in a small sandbox whose SlopI18n.add(code, dict) records what it adds, so a file is read exactly
 // as a page reads it.
@@ -143,12 +144,27 @@ export function sharedAreas() {
   return (AREAS_CACHE = out);
 }
 
+let PAGES_CACHE = null;
+/** The site's pages that are not registry apps but keep tables like an app's: a top-level folder with an index.html and
+ * an i18n/en/ folder (settings/: keys settings.*). { id, ns, name, dir, files }; the id and ns are the folder name. */
+export function pageAreas() {
+  if (PAGES_CACHE) return PAGES_CACHE;
+  const taken = new Set(apps().map((a) => a.dir));
+  const out = [];
+  for (const d of readdirSync(ROOT).sort()) {
+    const dir = d + '/';
+    if (taken.has(dir) || ['shared', 'shell', 'tests', 'tools', 'node_modules'].includes(d) || !exists(dir + 'index.html') || !exists(dir + 'i18n/en')) continue;
+    out.push({ id: d, ns: d, name: `${d[0].toUpperCase() + d.slice(1)} page`, dir, files: [dir + 'index.html', ...walk(dir, dir)] });
+  }
+  return (PAGES_CACHE = out);
+}
+
 /** Every string-table file in the repo (shared and apps, with each app's index.js), sorted: the list a test names. */
 export function tableFiles() {
   const out = [];
   for (const f of readdirSync(path.join(ROOT, 'shared/i18n'))) if (f.endsWith('.js') && f !== 'i18n.js') out.push('shared/i18n/' + f);
   if (exists('shared/i18n/ui')) for (const f of readdirSync(path.join(ROOT, 'shared/i18n/ui'))) if (f.endsWith('.js')) out.push('shared/i18n/ui/' + f);
-  for (const app of [...apps(), ...sharedAreas()]) {
+  for (const app of [...apps(), ...pageAreas(), ...sharedAreas()]) {
     const t = appTables(app);
     if (t.index && app.id !== 'ui-parts') out.push(t.base + 'index.js');
     for (const code of t.dirs) for (const part of Object.keys(t.byPart[code])) out.push(`${t.base}${code}/${part}.js`);

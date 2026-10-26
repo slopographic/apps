@@ -940,3 +940,19 @@ history step and palette word, so never strip a suffix to get it. Layer names th
 | colour look (effect type) | färglook | the looks themselves: «Varm look», «Kall look» |
 | emboss / bevel and emboss | Relief / Avfasning och relief | as PhotoSlop |
 | built-in (preset) | Inbyggd | «Mina» for the person's own |
+## wip/i18n-r2-settings (the Settings page)
+
+| English | Swedish | Note |
+|---|---|---|
+| Your choices (page title) | Dina val | |
+| Analytics / Ads (consent switches) | Statistik / Annonser | as the chrome's «Statistik och annonser» |
+| Defaults / Default currency | Standardval / Standardvaluta | |
+| Locale | Nationella inställningar | as Windows and Office name it |
+| Update on open | Uppdatera vid start | |
+| Base / Quote (currency pair) | Bas / Mot | «motvalutan» in prose |
+| Load the latest version | Läs in senaste versionen | |
+| release (site version) | version | «Den här webbläsaren har version {version}.» |
+| config (settings file) | konfiguration | «Spara konfiguration i mappen» |
+| downloaded extras | nedladdade tillägg | Storage: «Rensa alla nedladdade tillägg» |
+| offline caches | offlinecacher | |
+| Light / Dark (theme) | Ljust / Mörkt | neuter, agrees with «tema» |
