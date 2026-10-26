@@ -66,7 +66,7 @@ body { background: var(--bg); color: var(--fg); font: 13px/1.4 var(--font-ui); o
   .menu-b { padding: 4px 3px; }
   .topbar .tb { min-width: 30px; padding: 4px 6px; }
   .nf { max-width: 96px; }
-  .fname input { width: 96px; }
+  .fname input { width: 84px; }   /* room for the longer Swedish menu names at 1024 (tests/tables/look.test.html) */
 }
 
 /* formula bar */
