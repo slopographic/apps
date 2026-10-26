@@ -18,7 +18,7 @@
   /** The CSV: SKU, Name, Unit, Price, Tax %, Price with tax; plain(minor) gives a plain amount. */
   function csv(list, plain) {
     const cell = (v) => { const s = String(v ?? ''); return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
-    const out = [['SKU', 'Name', 'Unit', 'Price', 'Tax %', 'Price with tax'].join(',')];
+    const out = [['SKU', 'Name', 'Unit', 'Price', 'Tax %', 'Price with tax'].join(',')];   // i18n-ignore: CSV columns, a file format for other programs
     for (const r of list) out.push([r.sku, r.name, r.unit, plain(r.price), (r.taxRate / 100).toFixed(2), plain(r.gross)].map(cell).join(','));
     return out.join('\r\n') + '\r\n';
   }

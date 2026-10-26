@@ -4,10 +4,10 @@
   'use strict';
   const NS = (g.SlopQuotes = g.SlopQuotes || {});
   NS.page = g.SlopDocs.docPage.create({
-    ns: NS, kind: 'quote', title: 'Quote', statusLabel: NS.util.STATUS,
+    ns: NS, kind: 'quote', title: 'Quote', statusLabel: NS.util.STATUS,   // i18n-ignore: the document's own printed words
     editable: (st) => st.status === 'draft' || st.status === 'sent',
     pdf: (id) => NS.pdf.quotePdf(id),
-    view: (st) => ({ moreMeta: [{ label: 'Valid until', value: st.validUntil, field: 'validUntil' }] }),
+    view: (st) => ({ moreMeta: [{ label: 'Valid until', value: st.validUntil, field: 'validUntil' }] }),   // i18n-ignore: the document's own printed words
     field: (st, name, value) => { if (name !== 'validUntil') return false; st.validUntil = value; return true; },
   });
 })(typeof window !== 'undefined' ? window : globalThis);

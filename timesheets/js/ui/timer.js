@@ -7,6 +7,7 @@
   const $ = (id) => document.getElementById(id);
   const KEY = 'slop-timesheets.timer';
   let tick = 0;
+  const t = (k) => (g.SlopI18n ? g.SlopI18n.t(k) : k);
 
   function read() { try { const v = JSON.parse(localStorage.getItem(KEY)); return v && Number.isFinite(v.start) ? v : null; } catch (e) { return null; } }
   function write(v) { try { if (v) localStorage.setItem(KEY, JSON.stringify(v)); else localStorage.removeItem(KEY); } catch (e) { /* storage blocked: the timer lasts this page */ } }
@@ -20,12 +21,12 @@
   }
 
   function paint() {
-    const t = current(), on = !!t;
-    $('tmGo').textContent = on ? 'Stop' : 'Start timer';
-    $('tmGo').className = on ? 'btn danger' : 'btn primary';
-    $('tmClock').textContent = on ? clock(Date.now() - t.start) : '0:00:00';
+    const run = current(), on = !!run;
+    $('tmGo').textContent = t(on ? 'timesheets.tm.stop' : 'timesheets.tm.start');
+    $('tmGo').className = on ? 'btn danger' : 'btn primary';   // i18n-ignore: CSS class names
+    $('tmClock').textContent = on ? clock(Date.now() - run.start) : '0:00:00';
     $('tmCard').classList.toggle('is-running', on);
-    if (on && document.activeElement !== $('tmDesc')) $('tmDesc').value = t.description || '';
+    if (on && document.activeElement !== $('tmDesc')) $('tmDesc').value = run.description || '';
     clearInterval(tick);
     if (on) tick = setInterval(() => { const c = current(); if (c) $('tmClock').textContent = clock(Date.now() - c.start); }, 1000);
   }
@@ -52,6 +53,7 @@
     $('tmGo').addEventListener('click', () => (current() ? stop() : start()));
     $('tmDesc').addEventListener('input', () => { const t = current(); if (t) { t.description = $('tmDesc').value; mem = t; write(t); } });
     addEventListener('storage', (e) => { if (e.key === KEY) paint(); });
+    if (g.SlopI18n) g.SlopI18n.on(paint);   // Start timer / Stop in the new language
     paint();
   }
 

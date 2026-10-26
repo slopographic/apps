@@ -95,5 +95,49 @@
  "projects": {
   "en": 100,
   "sv": 100
+ },
+ "reports": {
+  "en": 100,
+  "sv": 100
+ },
+ "inventory": {
+  "en": 100,
+  "sv": 100
+ },
+ "orders": {
+  "en": 100,
+  "sv": 100
+ },
+ "quotes": {
+  "en": 100,
+  "sv": 100
+ },
+ "purchases": {
+  "en": 100,
+  "sv": 100
+ },
+ "timesheets": {
+  "en": 100,
+  "sv": 100
+ },
+ "expenses": {
+  "en": 100,
+  "sv": 100
+ },
+ "invoices": {
+  "en": 100,
+  "sv": 100
+ },
+ "crm": {
+  "en": 100,
+  "sv": 100
+ },
+ "ledger": {
+  "en": 100,
+  "sv": 100
+ },
+ "admin": {
+  "en": 100,
+  "sv": 100
  }
 }

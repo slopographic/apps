@@ -6,6 +6,7 @@
   <link rel="expect" href="#slop-built" blocking="render">
   <script src="../shared/i18n/i18n.js" data-src="shared/i18n/i18n.js"></script>
   <script src="../shared/biz/i18n/index.js" data-src="shared/biz/i18n/index.js"></script>
+  <script src="i18n/index.js" data-src="expenses/i18n/index.js"></script>
 <script src="../shared/consent/config.js"></script>
 <script src="../shared/consent/state.js"></script>
 <script src="../shared/consent/consent-mode.js"></script>
@@ -50,32 +51,32 @@
 <body>
   <div class="app">
     <div class="smb-hold" hidden>
-      <button type="button" class="tb-btn" id="xMenuNew" data-cmd="expenses.new">New expense</button>
-      <button type="button" class="tb-btn" id="xMenuCsv" data-cmd="expenses.csv">Download CSV</button>
-      <a id="xAbout" href="about/">About</a>
-      <button type="button" class="tb-btn" id="xCmd" data-cmd="cmd.palette" aria-label="Search commands" title="Search commands (Ctrl+K)">⌘K</button>
+      <button type="button" class="tb-btn" id="xMenuNew" data-cmd="expenses.new" data-i18n="expenses.page.new">New expense</button>
+      <button type="button" class="tb-btn" id="xMenuCsv" data-cmd="expenses.csv" data-i18n="expenses.page.csv">Download CSV</button>
+      <a id="xAbout" href="about/" data-i18n="biz.app.about">About</a>
+      <button type="button" class="tb-btn" id="xCmd" data-cmd="cmd.palette" aria-label="Search commands" title="Search commands (Ctrl+K)" data-i18n-attr="aria-label:ui.cmd.search;title:biz.app.cmd_tip">⌘K</button>
     </div>
 
-    <nav class="tabs" role="tablist" aria-label="Expenses sections">
-      <button type="button" role="tab" class="tab" id="tab-list" data-view="list" aria-controls="view-list" aria-selected="true">Expenses</button>
-      <button type="button" role="tab" class="tab" id="tab-edit" data-view="edit" aria-controls="view-edit" aria-selected="false" hidden>Expense</button>
-      <button type="button" role="tab" class="tab" id="tab-summary" data-view="summary" aria-controls="view-summary" aria-selected="false">Summary</button>
+    <nav class="tabs" role="tablist" aria-label="Expenses sections" data-i18n-attr="aria-label:expenses.page.sections">
+      <button type="button" role="tab" class="tab" id="tab-list" data-view="list" aria-controls="view-list" aria-selected="true" data-i18n="expenses.app.name">Expenses</button>
+      <button type="button" role="tab" class="tab" id="tab-edit" data-view="edit" aria-controls="view-edit" aria-selected="false" hidden data-i18n="expenses.page.expense">Expense</button>
+      <button type="button" role="tab" class="tab" id="tab-summary" data-view="summary" aria-controls="view-summary" aria-selected="false" data-i18n="expenses.page.summary">Summary</button>
     </nav>
 
     <main class="main" id="main">
-      <span class="local-badge" title="Expenses and the books stay in this browser. Nothing is uploaded."><span>100% local</span></span>
-      <div id="boot" class="boot" role="status">Opening your expenses…</div>
+      <span class="local-badge" title="Expenses and the books stay in this browser. Nothing is uploaded." data-i18n-attr="title:expenses.page.local_tip"><span data-i18n="biz.app.local">100% local</span></span>
+      <div id="boot" class="boot" role="status" data-i18n="expenses.page.opening">Opening your expenses…</div>
 
       <section class="view" id="view-list" role="tabpanel" aria-labelledby="tab-list" hidden>
         <div class="toolbar">
-          <label class="search"><span class="sr">Search expenses</span>
-            <input id="xSearch" type="search" placeholder="Search supplier, description or notes" autocomplete="off" spellcheck="false"></label>
-          <label>Period <select id="xPeriod">
-            <option value="all">All dates</option><option value="month">This month</option><option value="last">Last month</option><option value="year">This year</option>
+          <label class="search"><span class="sr" data-i18n="expenses.page.search">Search expenses</span>
+            <input id="xSearch" type="search" placeholder="Search supplier, description or notes" autocomplete="off" spellcheck="false" data-i18n-attr="placeholder:expenses.page.search_ph"></label>
+          <label><span data-i18n="expenses.page.period">Period</span> <select id="xPeriod">
+            <option value="all" data-i18n="expenses.page.all_dates">All dates</option><option value="month" data-i18n="expenses.page.this_month">This month</option><option value="last" data-i18n="expenses.page.last_month">Last month</option><option value="year" data-i18n="expenses.page.this_year">This year</option>
           </select></label>
-          <label>Status <select id="xStatus"><option value="all">All</option><option value="posted">Recorded</option><option value="owed">To pay</option><option value="void">Void</option></select></label>
-          <button type="button" class="btn primary" id="xNew">New expense</button>
-          <button type="button" class="btn" id="xMileage">Mileage…</button>
+          <label><span data-i18n="expenses.page.status">Status</span> <select id="xStatus"><option value="all" data-i18n="expenses.page.all">All</option><option value="posted" data-i18n="expenses.page.recorded">Recorded</option><option value="owed" data-i18n="expenses.page.to_pay">To pay</option><option value="void" data-i18n="expenses.page.void">Void</option></select></label>
+          <button type="button" class="btn primary" id="xNew" data-i18n="expenses.page.new">New expense</button>
+          <button type="button" class="btn" id="xMileage" data-i18n="expenses.page.mileage">Mileage…</button>
         </div>
         <div class="toolbar"><p class="note" id="xSummary" role="status"></p><span class="total" id="xTotal"></span></div>
         <div class="table" id="xRows"></div>
@@ -83,47 +84,47 @@
 
       <section class="view" id="view-edit" role="tabpanel" aria-labelledby="tab-edit" hidden>
         <div class="head-row">
-          <button type="button" class="btn small" id="eBack">← Expenses</button>
-          <h2 class="h2" id="eTitle">New expense</h2>
+          <button type="button" class="btn small" id="eBack" data-i18n="expenses.page.back">← Expenses</button>
+          <h2 class="h2" id="eTitle">New expense</h2> <!-- i18n-ignore -->
         </div>
         <p class="msg" id="eMsg" role="status"></p>
         <form class="card" id="eForm" novalidate>
-          <div class="toolbar receipt-row"><button type="button" class="btn" id="eReceipt">From a receipt…</button><span class="note">Take or choose a photo of the receipt: it is read on this device and kept in Slop Drive.</span></div>
+          <div class="toolbar receipt-row"><button type="button" class="btn" id="eReceipt" data-i18n="expenses.page.receipt">From a receipt…</button><span class="note" data-i18n="expenses.page.receipt_note">Take or choose a photo of the receipt: it is read on this device and kept in Slop Drive.</span></div>
           <div class="form-grid">
-            <label>Date <input id="eDate" type="date" required></label>
-            <label>Supplier <input id="eSupplier" list="eSuppliers" maxlength="200" required autocomplete="off"></label>
+            <label><span data-i18n="expenses.page.date">Date</span> <input id="eDate" type="date" required></label>
+            <label><span data-i18n="expenses.page.supplier">Supplier</span> <input id="eSupplier" list="eSuppliers" maxlength="200" required autocomplete="off"></label>
             <datalist id="eSuppliers"></datalist>
-            <label class="wide">Description <input id="eDescription" maxlength="300" placeholder="What it was for"></label>
-            <label>Category <select id="eAccount"></select></label>
-            <label>Paid by <select id="eMethod"><option value="bank">Bank transfer</option><option value="card">Card</option><option value="cash">Cash</option><option value="other">Other</option><option value="later">Not paid yet: a bill to pay</option></select></label>
-            <label id="eDueRow" hidden>Due date <input id="eDue" type="date"></label>
-            <label>Amount paid (tax included) <input id="eAmount" inputmode="decimal" placeholder="24.00" required></label>
-            <label>Currency <input id="eCurrency" maxlength="3" autocomplete="off" spellcheck="false"></label>
-            <label>Tax rate % <input id="eRate" type="number" min="0" max="100" step="0.01" inputmode="decimal"></label>
-            <label>Tax to reclaim <input id="eTax" inputmode="decimal" placeholder="0.00"></label>
-            <label class="wide">Notes <textarea id="eNotes" rows="2" maxlength="5000"></textarea></label>
+            <label class="wide"><span data-i18n="expenses.page.description">Description</span> <input id="eDescription" maxlength="300" placeholder="What it was for" data-i18n-attr="placeholder:expenses.page.what_for"></label>
+            <label><span data-i18n="expenses.page.category">Category</span> <select id="eAccount"></select></label>
+            <label><span data-i18n="expenses.page.paid_by">Paid by</span> <select id="eMethod"><option value="bank" data-i18n="expenses.page.bank">Bank transfer</option><option value="card" data-i18n="expenses.page.card">Card</option><option value="cash" data-i18n="expenses.page.cash">Cash</option><option value="other" data-i18n="expenses.page.other">Other</option><option value="later" data-i18n="expenses.page.later">Not paid yet: a bill to pay</option></select></label>
+            <label id="eDueRow" hidden><span data-i18n="expenses.page.due">Due date</span> <input id="eDue" type="date"></label>
+            <label><span data-i18n="expenses.page.amount">Amount paid (tax included)</span> <input id="eAmount" inputmode="decimal" placeholder="24.00" required></label>
+            <label><span data-i18n="expenses.page.currency">Currency</span> <input id="eCurrency" maxlength="3" autocomplete="off" spellcheck="false"></label>
+            <label><span data-i18n="expenses.page.rate">Tax rate %</span> <input id="eRate" type="number" min="0" max="100" step="0.01" inputmode="decimal"></label>
+            <label><span data-i18n="expenses.page.tax">Tax to reclaim</span> <input id="eTax" inputmode="decimal" placeholder="0.00"></label>
+            <label class="wide"><span data-i18n="expenses.page.notes">Notes</span> <textarea id="eNotes" rows="2" maxlength="5000"></textarea></label>
           </div>
         </form>
         <div class="card" id="eView" hidden></div>
         <div class="toolbar actions">
-          <button type="button" class="btn primary" id="eRecord">Record expense</button>
-          <button type="button" class="btn" id="eCopy" hidden>Record a copy</button>
-          <button type="button" class="btn primary" id="ePay" hidden>Mark as paid…</button>
-          <button type="button" class="btn danger" id="eVoid" hidden>Void…</button>
+          <button type="button" class="btn primary" id="eRecord" data-i18n="expenses.page.record">Record expense</button>
+          <button type="button" class="btn" id="eCopy" hidden data-i18n="expenses.page.copy">Record a copy</button>
+          <button type="button" class="btn primary" id="ePay" hidden data-i18n="expenses.page.pay">Mark as paid…</button>
+          <button type="button" class="btn danger" id="eVoid" hidden data-i18n="expenses.page.void_dots">Void…</button>
         </div>
       </section>
 
       <section class="view" id="view-summary" role="tabpanel" aria-labelledby="tab-summary" hidden>
         <div class="stats" id="sStats"></div>
         <div class="card table-wrap">
-          <table class="months"><caption class="sr">Expenses by month</caption>
-            <thead><tr><th scope="col">Month</th><th scope="col" class="num">Expenses</th><th scope="col" class="num">Total</th><th scope="col" class="num">Tax</th><th scope="col">Biggest categories</th></tr></thead>
+          <table class="months"><caption class="sr" data-i18n="expenses.page.by_month">Expenses by month</caption>
+            <thead><tr><th scope="col" data-i18n="expenses.page.month">Month</th><th scope="col" class="num" data-i18n="expenses.app.name">Expenses</th><th scope="col" class="num" data-i18n="expenses.page.total">Total</th><th scope="col" class="num" data-i18n="expenses.page.tax_col">Tax</th><th scope="col" data-i18n="expenses.page.biggest">Biggest categories</th></tr></thead>
             <tbody id="sMonths"></tbody>
           </table>
-          <p class="note" id="sEmpty" hidden>Nothing recorded yet.</p>
+          <p class="note" id="sEmpty" hidden data-i18n="expenses.page.nothing">Nothing recorded yet.</p>
           <p class="note" id="sOther"></p>
         </div>
-        <div class="toolbar"><button type="button" class="btn" id="sCsv">Download CSV of every expense</button></div>
+        <div class="toolbar"><button type="button" class="btn" id="sCsv" data-i18n="expenses.page.csv_all">Download CSV of every expense</button></div>
       </section>
     </main>
   </div>
@@ -171,7 +172,7 @@
   <script>SlopPWA.mount();</script>
 <link rel="stylesheet" href="../shared/menubar/menubar.css">
 <script src="../shared/menubar/menubar.js"></script>
-<script>SlopMenuBar.mount({"app": "Expenses", "menus": {"File": ["#xMenuNew", "#xMileage", "#xMenuCsv", "-", "cmd:biz.sample"], "Help": ["#xAbout", "#xCmd"]}});</script>
+<script>SlopMenuBar.mount({"app": "Expenses", "menus": {"File": ["#xMenuNew", "#xMileage", "#xMenuCsv", "-", "cmd:biz.sample"], "Help": ["#xAbout", "#xCmd"]}}); (function (n) { if (n) { n.dataset.i18n = 'expenses.app.name'; if (window.SlopI18n) SlopI18n.apply(n.parentNode); } })(document.querySelector('.smb-app'));</script>
   <script src="../shell/shell.js"></script>
   <script src="../shared/spotlight/spotlight.js"></script>
 <i id="slop-built" hidden></i>

@@ -12,7 +12,7 @@ finds in its code (`node tools/i18n/i18n.mjs extract <app>` lists them). The rat
 | Shared chrome (header, switcher, footer, Settings) | 114 | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% |
 | Shared components (shared/i18n/ui) | 220 | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% |
 
-Shared code (shell/, shared/) still has 6178 hard-coded strings; most belong to one app family (office, biz, watermark, ...).
+Shared code (shell/, shared/) still has 5929 hard-coded strings; most belong to one app family (office, biz, watermark, ...).
 
 ## Apps, by strings to translate
 
@@ -36,13 +36,13 @@ Shared code (shell/, shared/) still has 6178 hard-coded strings; most belong to 
 | 16 | SlopIsolate | cutout | 433 | 0 | 433 | 0 of 29 |
 | 17 | Slop Contacts | contacts | 389 | 389 | 0 | 2 of 29 |
 | 18 | Slop Gallery | gallery | 380 | 0 | 380 | 0 of 29 |
-| 19 | Slop Inventory | inventory | 359 | 0 | 359 | 0 of 29 |
-| 20 | Slop CRM | crm | 350 | 0 | 350 | 0 of 29 |
-| 21 | Reel Remix | remix | 338 | 0 | 338 | 0 of 29 |
-| 22 | Slop Ledger | ledger | 335 | 0 | 335 | 0 of 29 |
-| 23 | Slop Invoices | invoices | 318 | 0 | 318 | 0 of 29 |
-| 24 | Slop Paint Classic | paint-classic | 266 | 0 | 266 | 0 of 29 |
-| 25 | QR SLOP | qr | 265 | 0 | 265 | 0 of 29 |
+| 19 | Reel Remix | remix | 338 | 0 | 338 | 0 of 29 |
+| 20 | Slop CRM | crm | 335 | 335 | 0 | 2 of 29 |
+| 21 | Slop Inventory | inventory | 294 | 294 | 0 | 2 of 29 |
+| 22 | Slop Ledger | ledger | 272 | 272 | 0 | 2 of 29 |
+| 23 | Slop Paint Classic | paint-classic | 266 | 0 | 266 | 0 of 29 |
+| 24 | QR SLOP | qr | 265 | 0 | 265 | 0 of 29 |
+| 25 | Slop Invoices | invoices | 262 | 262 | 0 | 2 of 29 |
 | 26 | Slop Projects | projects | 252 | 252 | 0 | 2 of 29 |
 | 27 | Slop EML | eml | 246 | 0 | 246 | 0 of 29 |
 | 28 | Slop Resize | resize | 233 | 0 | 233 | 0 of 29 |
@@ -53,27 +53,27 @@ Shared code (shell/, shared/) still has 6178 hard-coded strings; most belong to 
 | 33 | Slop AI Tools | aitools | 203 | 0 | 203 | 0 of 29 |
 | 34 | Slop Workflows | workflows | 198 | 0 | 198 | 0 of 29 |
 | 35 | Slop Recorder | recorder | 195 | 0 | 195 | 0 of 29 |
-| 36 | Slop Expenses | expenses | 181 | 0 | 181 | 0 of 29 |
-| 37 | Slop Compare | diff | 170 | 0 | 170 | 0 of 29 |
-| 38 | Slop Hex | hex | 170 | 0 | 170 | 0 of 29 |
-| 39 | Slopnodes | nodes | 164 | 0 | 164 | 0 of 29 |
-| 40 | Slop Reports | reports | 161 | 0 | 161 | 0 of 29 |
-| 41 | Slop Colors | colors | 160 | 0 | 160 | 0 of 29 |
-| 42 | Slop Calendar | calendar | 158 | 158 | 0 | 2 of 29 |
-| 43 | Slop Transcribe | transcribe | 158 | 0 | 158 | 0 of 29 |
-| 44 | Slop Time | time | 152 | 152 | 0 | 2 of 29 |
-| 45 | Slop Upscale | upscale | 149 | 0 | 149 | 0 of 29 |
-| 46 | Slop Orders | orders | 144 | 0 | 144 | 0 of 29 |
-| 47 | Slop Purchases | purchases | 138 | 0 | 138 | 0 of 29 |
-| 48 | Slop Signature | signature | 135 | 135 | 0 | 2 of 29 |
-| 49 | Slop Sheets | sheetview | 131 | 0 | 131 | 0 of 29 |
-| 50 | Slop Timesheets | timesheets | 129 | 0 | 129 | 0 of 29 |
-| 51 | Slop Watermark | watermark | 118 | 0 | 118 | 0 of 29 |
-| 52 | Slop Admin | admin | 116 | 0 | 116 | 0 of 29 |
-| 53 | Slop Quotes | quotes | 115 | 0 | 115 | 0 of 29 |
-| 54 | Paste | paste | 112 | 0 | 112 | 0 of 29 |
-| 55 | Slopculator | calculator | 109 | 0 | 109 | 0 of 29 |
-| 56 | Slop To-do | todo | 107 | 107 | 0 | 2 of 29 |
+| 36 | Slop Compare | diff | 170 | 0 | 170 | 0 of 29 |
+| 37 | Slop Hex | hex | 170 | 0 | 170 | 0 of 29 |
+| 38 | Slopnodes | nodes | 164 | 0 | 164 | 0 of 29 |
+| 39 | Slop Colors | colors | 160 | 0 | 160 | 0 of 29 |
+| 40 | Slop Expenses | expenses | 159 | 159 | 0 | 2 of 29 |
+| 41 | Slop Calendar | calendar | 158 | 158 | 0 | 2 of 29 |
+| 42 | Slop Transcribe | transcribe | 158 | 0 | 158 | 0 of 29 |
+| 43 | Slop Time | time | 152 | 152 | 0 | 2 of 29 |
+| 44 | Slop Upscale | upscale | 149 | 0 | 149 | 0 of 29 |
+| 45 | Slop Signature | signature | 135 | 135 | 0 | 2 of 29 |
+| 46 | Slop Sheets | sheetview | 131 | 0 | 131 | 0 of 29 |
+| 47 | Slop Orders | orders | 118 | 118 | 0 | 2 of 29 |
+| 48 | Slop Watermark | watermark | 118 | 0 | 118 | 0 of 29 |
+| 49 | Slop Purchases | purchases | 116 | 116 | 0 | 2 of 29 |
+| 50 | Paste | paste | 112 | 0 | 112 | 0 of 29 |
+| 51 | Slop Timesheets | timesheets | 112 | 112 | 0 | 2 of 29 |
+| 52 | Slop Reports | reports | 111 | 111 | 0 | 2 of 29 |
+| 53 | Slop Admin | admin | 110 | 110 | 0 | 2 of 29 |
+| 54 | Slopculator | calculator | 109 | 0 | 109 | 0 of 29 |
+| 55 | Slop To-do | todo | 107 | 107 | 0 | 2 of 29 |
+| 56 | Slop Quotes | quotes | 105 | 105 | 0 | 2 of 29 |
 | 57 | Slop OCR | ocr | 101 | 0 | 101 | 0 of 29 |
 | 58 | Slop HTML to PDF | html2pdf | 83 | 0 | 83 | 0 of 29 |
 | 59 | Slop Image to 3D | img3d | 81 | 0 | 81 | 0 of 29 |
@@ -82,7 +82,7 @@ Shared code (shell/, shared/) still has 6178 hard-coded strings; most belong to 
 | 62 | Slop Reminders | reminders | 44 | 44 | 0 | 2 of 29 |
 | 63 | Checksum | checksum | 42 | 0 | 42 | 0 of 29 |
 
-Total: 24759 strings in 63 apps.
+Total: 24407 strings in 63 apps.
 
 ## Apps with tables, per language
 
@@ -90,9 +90,20 @@ Total: 24759 strings in 63 apps.
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | pdf | 87% | 0% | 0% | 87% | 0% | 0% | 87% | 87% | 0% | 0% | 87% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
 | contacts | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
+| crm | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
+| inventory | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
+| ledger | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
+| invoices | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
 | projects | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
+| expenses | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
 | calendar | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
 | time | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
 | signature | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
+| orders | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
+| purchases | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
+| timesheets | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
+| reports | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
+| admin | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
 | todo | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
+| quotes | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
 | reminders | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |

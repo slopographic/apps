@@ -3,21 +3,23 @@
   'use strict';
   const NS = (g.SlopLedger = g.SlopLedger || {});
   const $ = (id) => document.getElementById(id);
+  const t = (k) => () => (g.SlopI18n ? g.SlopI18n.t(k) : k);   // read when the commands are registered (again when the language changes)
+  const GO = t('ledger.cmd.g_goto'), J = t('ledger.cmd.g_journal');
   const COMMANDS = [
-    { id: 'view.journal', title: 'Go to Journal', group: 'Go to', run: () => NS.app.show('journal') },
-    { id: 'view.gl', title: 'Go to General ledger', group: 'Go to', run: () => NS.app.show('gl') },
-    { id: 'view.trial', title: 'Go to Trial balance', group: 'Go to', run: () => NS.app.show('trial') },
-    { id: 'view.accounts', title: 'Go to Accounts', group: 'Go to', run: () => NS.app.show('accounts') },
-    { id: 'view.rates', title: 'Go to Exchange rates', group: 'Go to', run: () => NS.app.show('rates') },
-    { id: 'journal.new', title: 'Journal: new manual entry', group: 'Journal', run: () => { NS.app.show('journal'); setTimeout(() => $('jMemo').focus(), 40); } },
-    { id: 'journal.export', title: 'Journal: export as CSV', group: 'Journal', run: () => $('jExport').click() },
-    { id: 'journal.importSie', title: 'Journal: import an SIE file…', group: 'Journal', run: () => { NS.app.show('journal'); NS.sieView.pick(); } },
-    { id: 'trial.export', title: 'Trial balance: export as CSV', group: 'Trial balance', run: () => { NS.app.show('trial'); $('tExport').click(); } },
-    { id: 'accounts.new', title: 'Accounts: add an account', group: 'Accounts', run: () => { NS.app.show('accounts'); setTimeout(() => $('aCode').focus(), 40); } },
-    { id: 'rates.new', title: 'Rates: add a manual rate', group: 'Rates', run: () => { NS.app.show('rates'); setTimeout(() => $('rForeign').focus(), 40); } },
-    { id: 'view.bank', title: 'Go to Bank', group: 'Go to', run: () => NS.app.show('bank') },
-    { id: 'view.fin', title: 'Go to Statements (profit and loss, balance sheet)', group: 'Go to', run: () => NS.app.show('fin') },
-    { id: 'bank.import', title: 'Bank: import a statement…', group: 'Bank', run: () => { NS.app.show('bank'); NS.bankPick(); } },
+    { id: 'view.journal', title: t('ledger.cmd.journal'), group: GO, run: () => NS.app.show('journal') },
+    { id: 'view.gl', title: t('ledger.cmd.gl'), group: GO, run: () => NS.app.show('gl') },
+    { id: 'view.trial', title: t('ledger.cmd.trial'), group: GO, run: () => NS.app.show('trial') },
+    { id: 'view.accounts', title: t('ledger.cmd.accounts'), group: GO, run: () => NS.app.show('accounts') },
+    { id: 'view.rates', title: t('ledger.cmd.rates'), group: GO, run: () => NS.app.show('rates') },
+    { id: 'journal.new', title: t('ledger.cmd.new_entry'), group: J, run: () => { NS.app.show('journal'); setTimeout(() => $('jMemo').focus(), 40); } },
+    { id: 'journal.export', title: t('ledger.cmd.export'), group: J, run: () => $('jExport').click() },
+    { id: 'journal.importSie', title: t('ledger.cmd.sie'), group: J, run: () => { NS.app.show('journal'); NS.sieView.pick(); } },
+    { id: 'trial.export', title: t('ledger.cmd.trial_export'), group: t('ledger.cmd.g_trial'), run: () => { NS.app.show('trial'); $('tExport').click(); } },
+    { id: 'accounts.new', title: t('ledger.cmd.new_account'), group: t('ledger.cmd.g_accounts'), run: () => { NS.app.show('accounts'); setTimeout(() => $('aCode').focus(), 40); } },
+    { id: 'rates.new', title: t('ledger.cmd.new_rate'), group: t('ledger.cmd.g_rates'), run: () => { NS.app.show('rates'); setTimeout(() => $('rForeign').focus(), 40); } },
+    { id: 'view.bank', title: t('ledger.cmd.bank'), group: GO, run: () => NS.app.show('bank') },
+    { id: 'view.fin', title: t('ledger.cmd.fin'), group: GO, run: () => NS.app.show('fin') },
+    { id: 'bank.import', title: t('ledger.cmd.bank_import'), group: t('ledger.cmd.g_bank'), run: () => { NS.app.show('bank'); NS.bankPick(); } },
   ];
   const byId = Object.fromEntries(COMMANDS.map((c) => [c.id, c]));
 
@@ -33,7 +35,9 @@
   function init() {
     if (g.SlopCmd) {
       g.SlopCmd.init({ app: 'ledger' });
-      g.SlopCmd.register(COMMANDS.map((c) => ({ id: c.id, title: c.title, group: c.group, keywords: [], keys: [], run: () => c.run() })));
+      const reg = () => g.SlopCmd.register(COMMANDS.map((c) => ({ id: c.id, title: c.title(), group: c.group(), keywords: [], keys: [], run: () => c.run() })));
+      reg();
+      if (g.SlopI18n) g.SlopI18n.on(reg);
       // the assistant's commands (shared/data/ai-records.js through shared/biz/biz.js), loaded when the AI panel first asks
       if (g.SlopCmd.provide) g.SlopCmd.provide({ prepare: () => g.SlopBiz.assistant('ledger') });
     }

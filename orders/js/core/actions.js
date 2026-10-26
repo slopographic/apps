@@ -17,7 +17,7 @@
   async function convertId(id) {
     const o = await S.store.get('orders', id);
     if (!o.ok) return o;
-    if (!o.value) return fail('not_found', 'this order no longer exists');
+    if (!o.value) return fail('not_found', g.SlopI18n ? g.SlopI18n.t('orders.core.gone') : 'orders.core.gone');
     const st = await S.store.get('settings', 'main');
     const days = st.ok && st.value ? st.value.paymentTermsDays : S.schema.DEFAULT_SETTINGS.paymentTermsDays;
     return S.billing.invoiceFromOrder(id, { dueDate: M.addDays(o.value.date, days) });

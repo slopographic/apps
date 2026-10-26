@@ -31,10 +31,10 @@
   const forms = document.querySelector('#view-stock .forms');
   if (g.SlopBiz.panel && forms) {
     forms.append(document.getElementById('sMsg'));
-    NS.stockPanel = g.SlopBiz.panel.form({ app: 'inventory', key: 'stock', view: '#view-stock', form: forms, foot: ['#sApply'], label: 'Stock actions' });
+    NS.stockPanel = g.SlopBiz.panel.form({ app: 'inventory', key: 'stock', view: '#view-stock', form: forms, foot: ['#sApply'], label: g.SlopI18n ? g.SlopI18n.t('inventory.ap.stock') : '' });
   }
   if (g.SlopBiz.panel && document.getElementById('pForm')) {
-    NS.productPanel = g.SlopBiz.panel.form({ app: 'inventory', key: 'product', view: '#view-products', form: '#pForm', foot: ['#pCancel', '#pSave'], label: 'Product' });
+    NS.productPanel = g.SlopBiz.panel.form({ app: 'inventory', key: 'product', view: '#view-products', form: '#pForm', foot: ['#pCancel', '#pSave'], label: g.SlopI18n ? g.SlopI18n.t('inventory.ap.product') : '' });
   }
   const app = g.SlopBiz.router.start({
     ns: NS, app: 'inventory', parse: (h) => ({ view: VIEWS.includes(h) ? h : 'products' }),

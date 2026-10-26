@@ -78,6 +78,7 @@
       if (cfg.mount) cfg.mount();
       if (g.SlopHub) { try { g.SlopHub.register(cfg.app); } catch (e) { /* the hub is optional */ } }
       S.store.subscribe(redraw);
+      if (g.SlopI18n) g.SlopI18n.on(redraw);   // the open view's words in the new language
       addEventListener('hashchange', route);
       if (cfg.start && !location.hash.slice(1)) { const h = await cfg.start(); if (h) history.replaceState(null, '', `#${h}`); }
       await route();

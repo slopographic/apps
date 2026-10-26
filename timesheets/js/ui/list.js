@@ -6,7 +6,8 @@
   const NS = (g.SlopTimesheets = g.SlopTimesheets || {});
   const C = () => NS.core;
   const $ = (id) => document.getElementById(id);
-  const STATE = { open: { chip: 'To bill', cls: '' }, billed: { chip: 'Billed', cls: 'good' }, internal: { chip: 'Internal', cls: 'void' } };
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
+  const STATE = () => ({ open: { chip: t('timesheets.li.to_bill'), cls: '' }, billed: { chip: t('timesheets.li.billed'), cls: 'good' }, internal: { chip: t('timesheets.li.internal'), cls: 'void' } });
   let list = null, settings = null, shown = [];
 
   const filters = () => ({ period: $('tPeriod').value, customerId: $('tCustomer').value, state: $('tState').value, search: $('tSearch').value });
@@ -14,7 +15,7 @@
 
   async function fillCustomers() {
     const r = await NS.entries.customers(), sel = $('tCustomer'), was = sel.value;
-    sel.replaceChildren(B.h('option', { value: '', text: 'Every customer' }), ...(r.ok ? r.value : []).map((c) => B.h('option', { value: c.id, text: c.name })));
+    sel.replaceChildren(B.h('option', { value: '', text: t('timesheets.li.every') }), ...(r.ok ? r.value : []).map((c) => B.h('option', { value: c.id, text: c.name })));
     sel.value = was;
   }
 
@@ -25,47 +26,47 @@
     if (!r.ok) { $('tSummary').textContent = B.refusal(r); return; }
     shown = C().filter(r.value, filters(), S.ledger.today());
     list.set(shown);
-    const t = C().summary(shown, S.timesheets.amountOf);
-    $('tTotal').textContent = shown.length ? `${C().hm(t.minutes)} h · billable ${C().hm(t.billableMinutes)} h${Object.keys(t.amounts).length ? ` · ${moneyLine(t.amounts)}` : ''}` : '';
+    const sum = C().summary(shown, S.timesheets.amountOf);
+    $('tTotal').textContent = shown.length ? t('timesheets.li.total', { time: C().hm(sum.minutes), billable: C().hm(sum.billableMinutes) }) + (Object.keys(sum.amounts).length ? ` · ${moneyLine(sum.amounts)}` : '') : '';
   }
 
   /** One entry as a SlopList row: what was done, the time and its value, and the date, customer, project and state. */
   function row(x) {
-    const st = STATE[x.state];
+    const st = STATE()[x.state];
     return { title: x.description, amount: `${C().hm(x.minutes)} h`,
       meta: [{ chip: st.chip, cls: st.cls }, x.date, x.customerName || null, x.project || null,
-        x.billable ? B.money(x.amount, x.currency, settings.locale) : null, x.invoiceNumber ? (x.invoiceNumber === 'draft' ? 'on a draft invoice' : `on ${x.invoiceNumber}`) : null] };
+        x.billable ? B.money(x.amount, x.currency, settings.locale) : null, x.invoiceNumber ? (x.invoiceNumber === 'draft' ? t('timesheets.li.on_draft') : t('timesheets.li.on', { number: x.invoiceNumber })) : null] };
   }
 
   async function remove(x) {
-    const yes = await UI.confirm('Delete time', `Delete "${x.description}" (${C().hm(x.minutes)} h on ${x.date})?`, 'Delete', { danger: true });
+    const yes = await UI.confirm(t('timesheets.ed.del_q'), t('timesheets.li.del_body', { what: x.description, time: C().hm(x.minutes), date: x.date }), t('timesheets.ed.del_ok'), { danger: true });
     if (!yes) return;
     const r = await NS.entries.remove(x.id);
-    if (!r.ok) UI.alert('Not deleted', B.refusal(r)); else { UI.toast('Time deleted'); draw(); }
+    if (!r.ok) UI.alert(t('timesheets.li.not_deleted'), B.refusal(r)); else { UI.toast(t('timesheets.ed.deleted')); draw(); }
   }
 
   function menuFor(x) {
-    const items = [{ label: 'Open', act: () => NS.app.go(`t/${x.id}`) }, { label: 'Log again today', act: () => NS.app.go(`new/${x.id}`) }];
-    if (x.state === 'open') items.push({ label: `Bill ${x.customerName || 'this customer'}…`, act: () => NS.app.go(`bill/${x.customerId}`) });
-    if (x.state === 'billed') items.push({ label: `Open invoice ${x.invoiceNumber}`, act: () => { location.href = `../invoices/#i/${x.invoiceId}`; } });
-    if (x.state !== 'billed') items.push({ label: 'Delete…', act: () => remove(x) });
+    const items = [{ label: t('timesheets.li.open'), act: () => NS.app.go(`t/${x.id}`) }, { label: t('timesheets.li.again'), act: () => NS.app.go(`new/${x.id}`) }];
+    if (x.state === 'open') items.push({ label: t('timesheets.li.bill', { name: x.customerName || t('timesheets.li.this_customer') }), act: () => NS.app.go(`bill/${x.customerId}`) });
+    if (x.state === 'billed') items.push({ label: t('timesheets.li.open_invoice', { number: x.invoiceNumber }), act: () => { location.href = `../invoices/#i/${x.invoiceId}`; } });
+    if (x.state !== 'billed') items.push({ label: t('timesheets.li.delete'), act: () => remove(x) });
     return items;
   }
 
   /** Downloads the shown rows as CSV. */
   function downloadCsv() {
-    if (!shown.length) { UI.toast('Nothing to export'); return; }
+    if (!shown.length) { UI.toast(t('timesheets.li.nothing')); return; }
     const text = C().csv(shown, S.timesheets.amountOf, (m, c) => S.money.plainMinor(m, c || settings.currency));
     UI.download(new Blob([text], { type: 'text/csv' }), `timesheet-${S.ledger.today()}.csv`);
-    UI.toast('CSV downloaded');
+    UI.toast(t('timesheets.li.csv_done'));
   }
 
   function mount() {
     for (const id of ['tSearch', 'tPeriod', 'tCustomer', 'tState']) $(id).addEventListener(id === 'tSearch' ? 'input' : 'change', draw);
     $('tNew').addEventListener('click', () => NS.app.go('new'));
     $('tCsv').addEventListener('click', downloadCsv);
-    list = g.SlopList.mount($('tRows'), { label: 'Time', noun: ['entry', 'entries'], summary: $('tSummary'),
-      empty: 'No time here yet. Start the timer, or log time with Log time.', row, open: (x) => NS.app.go(`t/${x.id}`), menu: menuFor });
+    list = g.SlopList.mount($('tRows'), { label: t('timesheets.li.label'), noun: [t('timesheets.li.entry'), t('timesheets.li.entries')], summary: $('tSummary'),
+      empty: t('timesheets.li.empty'), row, open: (x) => NS.app.go(`t/${x.id}`), menu: menuFor });
   }
 
   NS.views = NS.views || {};

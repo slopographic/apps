@@ -8,14 +8,15 @@
   const FRAME_MS = 200;
   const LEAVE_FRAMES = 3;
   const WANTED = ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'code_39', 'qr_code'];
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
 
   /** { ok: true } or { ok: false, message } naming the missing piece. */
   function support() {
     if (typeof g.BarcodeDetector !== 'function') {
-      return { ok: false, message: 'This browser has no BarcodeDetector, so the camera cannot read codes here. It is available in Chromium-based browsers today. Use the keyboard or scanner mode instead; it works in every browser.' };
+      return { ok: false, message: t('inventory.cam.no_detector') };
     }
     if (!g.navigator || !g.navigator.mediaDevices || !g.navigator.mediaDevices.getUserMedia) {
-      return { ok: false, message: 'This browser cannot open a camera on this page (getUserMedia is missing, or the page is not secure). Use the keyboard or scanner mode instead.' };
+      return { ok: false, message: t('inventory.cam.no_camera') };
     }
     return { ok: true };
   }
@@ -23,10 +24,10 @@
   /** Plain words for a camera that would not start. */
   function cameraError(e) {
     const name = e && e.name;
-    if (name === 'NotAllowedError' || name === 'SecurityError') return 'Camera permission was refused. Allow the camera for this site, or use the keyboard or scanner mode.';
-    if (name === 'NotFoundError' || name === 'OverconstrainedError') return 'No camera was found on this device.';
-    if (name === 'NotReadableError') return 'The camera is in use by another app. Close it and try again.';
-    return `The camera could not start: ${e && e.message ? e.message : 'unknown error'}.`;
+    if (name === 'NotAllowedError' || name === 'SecurityError') return t('inventory.cam.refused');   // i18n-ignore: browser error names and search keywords, not shown
+    if (name === 'NotFoundError' || name === 'OverconstrainedError') return t('inventory.cam.none');   // i18n-ignore: browser error names and search keywords, not shown
+    if (name === 'NotReadableError') return t('inventory.cam.busy');   // i18n-ignore: browser error names and search keywords, not shown
+    return t('inventory.cam.failed', { why: e && e.message ? e.message : t('inventory.cam.unknown') });
   }
 
   async function formats() {
@@ -74,7 +75,7 @@
       try {
         detector = new g.BarcodeDetector({ formats: await formats() });
       } catch (e) {
-        say(`The barcode reader could not start: ${e.message}`);
+        say(t('inventory.cam.reader', { why: e.message }));
         return false;
       }
       try {
@@ -88,7 +89,7 @@
       video.srcObject = stream;
       await video.play().catch(() => {});
       timer = setInterval(tick, FRAME_MS);
-      say('Point the camera at a barcode. Each code is read once as it comes into view.');
+      say(t('inventory.cam.point'));
       return true;
     }
 

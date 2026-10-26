@@ -7,12 +7,13 @@
   const NS = (g.SlopExpenses = g.SlopExpenses || {});
   const $ = (id) => document.getElementById(id);
   const MODEL = 'ppocr-v4', MAX_SIDE = 2000;
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
   let pending = null;   // the Drive id of the photo read for the form now shown, until it is recorded or the form changes
 
   /** True once the reader's model is on this device; the first time, the Get more dialog asks (and may be cancelled). */
   async function ensureModel() {
     const M = g.SlopAIManager;
-    if (!M || !g.SlopAITools) throw new Error('The text reader is not available on this page.');
+    if (!M || !g.SlopAITools) throw new Error(t('expenses.rc.no_tool'));
     if ((await M.status(MODEL)) !== 'needs-download') return true;
     return new Promise((resolve) => g.SlopAIGetMore.open(MODEL, { onInstalled: () => resolve(true), onClose: () => resolve(false) }));
   }
@@ -21,7 +22,7 @@
   async function readLines(file, onStatus) {
     const T = g.SlopAITools;
     await T.ensure(MODEL, onStatus);
-    onStatus('Reading the receipt…');
+    onStatus(t('expenses.rc.reading'));
     const { bitmap, w, h } = await T.image(file, { maxSide: MAX_SIDE });
     const r = await T.call('ocr', { bitmap, w, h }, { transfer: [bitmap] });
     return r.lines.map((l) => l.text);
@@ -43,18 +44,19 @@
     if (!file) return null;
     pending = null;
     try {
-      if (!(await ensureModel())) { say('The receipt was not read: the text reader is needed first.', true); return null; }
+      if (!(await ensureModel())) { say(t('expenses.rc.no_reader'), true); return null; }
       const settings = await g.SlopBiz.settings();
       const lines = await readLines(file, (s) => say(s));
       const got = NS.receipt.parse(lines, { currency: settings.currency, dayFirst: !/^en-US$/i.test(settings.locale || '') });
       fill(got, settings);
       const T = g.SlopAITools;
       pending = await T.toDrive(file.name || 'Receipt.jpg', file, 'expenses', { kind: 'receipt' }).catch(() => null);
-      const missing = ['supplier', 'date', 'total'].filter((k) => !got.found.includes(k)).map((k) => (k === 'total' ? 'amount' : k));
-      say(got.found.length ? `Read from the receipt${missing.length ? `; not found: ${missing.join(', ')}` : ''}. Check it, then Record.` : 'No supplier, date or amount could be read. Type them in.', !got.found.length);
+      const WORD = { supplier: t('expenses.rc.supplier'), date: t('expenses.rc.date'), total: t('expenses.rc.amount') };
+      const missing = ['supplier', 'date', 'total'].filter((k) => !got.found.includes(k)).map((k) => WORD[k]);
+      say(got.found.length ? (missing.length ? t('expenses.rc.read_missing', { list: missing.join(', ') }) : t('expenses.rc.read')) : t('expenses.rc.none'), !got.found.length);
       return got;
     } catch (e) {
-      say('The receipt could not be read: ' + ((e && e.message) || e), true);
+      say(t('expenses.rc.failed', { why: (e && e.message) || e }), true);
       return null;
     }
   }
@@ -63,7 +65,7 @@
    *  pasted photo while the editor is open. */
   function mount(say) {
     g.SlopIntake.register({
-      id: 'expenses', limit: 1, toast: false, accept: { types: ['image/*'], noun: 'a photo of the receipt' },
+      id: 'expenses', limit: 1, toast: false, accept: { types: ['image/*'], noun: t('expenses.rc.noun') },
       gate: () => !$('view-edit').hidden,
       process: async (f) => { await scan(f, say); return f.name; },
     });

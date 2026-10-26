@@ -88,8 +88,8 @@
     if (!form.id) return S.store.put('invoices', { ...base, pdfSeed: base.pdfSeed ?? newSeed(), status: 'draft' });
     const cur = await S.store.get('invoices', form.id);
     if (!cur.ok) return cur;
-    if (!cur.value) return fail('not_found', 'this invoice no longer exists');
-    if (cur.value.status !== 'draft') return fail('invalid_transition', 'an issued invoice cannot be changed; void it and issue a new one');
+    if (!cur.value) return fail('not_found', g.SlopI18n ? g.SlopI18n.t('invoices.core.gone') : 'invoices.core.gone');
+    if (cur.value.status !== 'draft') return fail('invalid_transition', g.SlopI18n ? g.SlopI18n.t('invoices.core.issued_locked') : 'invoices.core.issued_locked');
     return S.store.put('invoices', { ...cur.value, ...base });
   }
 

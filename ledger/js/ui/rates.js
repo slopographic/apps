@@ -7,6 +7,7 @@
   const UI = g.SlopUI;
   const el = UI.el;
   const $ = (id) => document.getElementById(id);
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
 
   async function render() {
     const s = await NS.util.settings();
@@ -23,14 +24,14 @@
     const s = await NS.util.settings();
     const r = await NS.rates.addManual({ foreign: $('rForeign').value, base: s.base, rateText: $('rRate').value, date: $('rDate').value, note: $('rNote').value });
     $('rMsg').textContent = r.ok ? '' : NS.util.refusal(r);
-    if (r.ok) { UI.toast('Rate added'); $('rRate').value = ''; $('rNote').value = ''; }
+    if (r.ok) { UI.toast(t('ledger.rt.added')); $('rRate').value = ''; $('rNote').value = ''; }
   }
 
   async function fetchOnline() {
     $('rMsg').textContent = '';
     const r = await NS.rates.updateOnline();
     if (!r.ok) { $('rMsg').textContent = NS.util.refusal(r); return; }
-    UI.toast(`${r.value.added.length} rate${r.value.added.length === 1 ? '' : 's'} stored for ECB reference ${r.value.referenceDate}`);
+    UI.toast(t('ledger.rt.stored', { n: r.value.added.length, date: r.value.referenceDate }));
   }
 
   function mount() {

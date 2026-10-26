@@ -56,7 +56,7 @@
     if (!form.id) return S.store.put('orders', { ...base, pdfSeed: base.pdfSeed ?? newSeed(), status: 'draft' });
     const cur = await S.store.get('orders', form.id);
     if (!cur.ok) return cur;
-    if (!cur.value) return fail('not_found', 'this order no longer exists');
+    if (!cur.value) return fail('not_found', g.SlopI18n ? g.SlopI18n.t('orders.core.gone') : 'orders.core.gone');
     return S.store.put('orders', { ...cur.value, ...base, status: status || cur.value.status });
   }
 
@@ -64,7 +64,7 @@
   async function setStatus(id, status) {
     const cur = await S.store.get('orders', id);
     if (!cur.ok) return cur;
-    if (!cur.value) return fail('not_found', 'this order no longer exists');
+    if (!cur.value) return fail('not_found', g.SlopI18n ? g.SlopI18n.t('orders.core.gone') : 'orders.core.gone');
     return S.store.put('orders', { ...cur.value, status });
   }
 

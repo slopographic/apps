@@ -164,3 +164,30 @@ Register: informal «du», as the Swedish versions of Microsoft Office, Adobe Ac
 | replay (saved edits) | Spela upp | «Ignorera» for discard |
 | object kinds in sentences | indefinite, lower case | «Ta bort bild», «Markerad: bild» (colon avoids adjective agreement) |
 | page positions | överst/nederst till vänster, i mitten, till höger | lower case in sentences |
+| invoice / credit note | faktura / kreditfaktura | «Fakturautkast» for a draft invoice |
+| quote | offert |  |
+| order (sales) / purchase order | order / inköpsorder | «Order» is the same in singular and plural |
+| delivery note | följesedel |  |
+| fulfil (an order) / fulfilled | leverera / levererad |  |
+| confirmed (order status) | Bekräftad |  |
+| issue (a document) / issued | utfärda / utfärdad |  |
+| void (a document) | makulera / makulerad |  |
+| post (to the books) / posted | bokföra / bokförd | «Bokför» on buttons |
+| journal / journal entry | grundbok / verifikation | «Vänd» to reverse an entry |
+| general ledger | huvudbok |  |
+| trial balance | råbalans |  |
+| profit and loss / balance sheet | resultaträkning / balansräkning |  |
+| debit / credit | debet / kredit |  |
+| opening balances | ingående balanser |  |
+| tax (VAT) | moms | «Ingående moms» for tax to reclaim on expenses |
+| due date / overdue | förfallodatum / förfallen |  |
+| statement (customer account) | kontoutdrag |  |
+| payment reminder | påminnelse |  |
+| expense / mileage claim | utgift / milersättning |  |
+| timesheet / billable | tidrapport / debiterbar |  |
+| inventory (app) / stock (tab) | Lager / Lagersaldo |  |
+| stock count | inventering |  |
+| SKU / reorder level | artikelnr / beställningspunkt |  |
+| lead / pipeline (CRM) | lead / säljtratt |  |
+| numbering series | nummerserie |  |
+| sample seed | frö | for the random samples of the business apps |

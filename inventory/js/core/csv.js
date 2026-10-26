@@ -25,7 +25,7 @@
         row.push(cell); rows.push(row); row = []; cell = '';
       } else cell += c;
     }
-    if (quoted) return { rows: [], error: 'a quoted cell is not closed' };
+    if (quoted) return { rows: [], error: g.SlopI18n ? g.SlopI18n.t('inventory.im.e_quote') : 'inventory.im.e_quote' };
     if (cell !== '' || row.length) { row.push(cell); rows.push(row); }
     return { rows: rows.filter((r) => r.some((x) => String(x).trim() !== '')) };
   }

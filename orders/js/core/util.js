@@ -7,11 +7,14 @@
   const NS = (g.SlopOrders = g.SlopOrders || {});
 
   // The order's own words where they differ from SlopBiz.PLAIN; the data layer's message follows after a colon.
+  // words in the chosen language, read each time a refusal is shown (getters)
+  const t = (k) => (g.SlopI18n ? g.SlopI18n.t(k) : k);
   const PLAIN = {
-    invalid_transition: 'That change is not allowed for this order',
-    posting_required: 'Stock changes go through the stock rules only',
+    get invalid_transition() { return t('orders.core.not_allowed'); },
+    get posting_required() { return t('orders.core.stock_rules'); },
   };
-  const FIELD = { customerId: 'Customer', date: 'Date', lines: 'Lines', notes: 'Notes', currency: 'Currency', status: 'Status' };
+  const FIELD = { get customerId() { return t('orders.core.customer'); }, get date() { return t('orders.core.date'); }, get lines() { return t('orders.core.lines'); },
+    get notes() { return t('orders.core.notes'); }, get currency() { return t('orders.core.currency'); }, get status() { return t('orders.core.status'); } };
 
   const B = g.SlopBiz;
   /** One readable line for a failed Result, in the words of an order (SlopBiz.refusal, shared/biz/biz.js). */

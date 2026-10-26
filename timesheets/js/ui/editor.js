@@ -6,7 +6,10 @@
   const S = g.SlopData, B = g.SlopBiz, UI = g.SlopUI;
   const NS = (g.SlopTimesheets = g.SlopTimesheets || {});
   const $ = (id) => document.getElementById(id);
-  const FIELDS = { date: 'Date', customerId: 'Customer', description: 'Description', minutes: 'Time', rate: 'Rate', currency: 'Currency' };
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
+  // field names for refusals, in the chosen language (getters, read when shown)
+  const FIELDS = { get date() { return t('timesheets.f.date'); }, get customerId() { return t('timesheets.f.customer'); }, get description() { return t('timesheets.f.description'); },
+    get minutes() { return t('timesheets.f.time'); }, get rate() { return t('timesheets.f.rate'); }, get currency() { return t('timesheets.f.currency'); } };
   const LOCKED = ['eDate', 'eCustomer', 'eDuration', 'eRate', 'eCurrency', 'eBillable'];
   let cur = null;
 
@@ -14,7 +17,7 @@
 
   async function fillCustomers(selected) {
     const r = await NS.entries.customers();
-    $('eCustomer').replaceChildren(B.h('option', { value: '', text: 'No customer (internal time)' }),
+    $('eCustomer').replaceChildren(B.h('option', { value: '', text: t('timesheets.ed.no_customer') }),
       ...(r.ok ? r.value : []).map((c) => B.h('option', { value: c.id, text: c.name })));
     $('eCustomer').value = selected || '';
     $('eProjects').replaceChildren(...(await NS.entries.projects()).map((p) => B.h('option', { value: p })));
@@ -45,13 +48,13 @@
     if (id || t.copyOf) {
       const r = await NS.entries.rows();
       src = r.ok ? r.value.find((x) => x.id === (id || t.copyOf)) : null;
-      if (!src) { say('That time entry no longer exists.', true); return; }
+      if (!src) { say(t('timesheets.ed.gone'), true); return; }
       if (id) cur = src;
     }
     const pre = !src && NS.state.prefill ? NS.state.prefill : null;
     NS.state.prefill = null;
     await fillCustomers(src ? src.customerId : pre ? pre.customerId : $('tCustomer').value);
-    $('eTitle').textContent = cur ? `${cur.date} · ${NS.core.hm(cur.minutes)} h` : 'Log time';
+    $('eTitle').textContent = cur ? t('timesheets.ed.title', { date: cur.date, time: NS.core.hm(cur.minutes) }) : t('timesheets.ed.log');
     $('eDate').value = cur ? cur.date : S.ledger.today();
     $('eProject').value = src ? src.project || '' : '';
     $('eDescription').value = src ? src.description : pre ? pre.description : '';
@@ -63,18 +66,18 @@
     } else await useLast();
     const billed = !!cur && cur.state === 'billed';
     lock(billed);
-    if (billed) $('eBilled').replaceChildren(`Billed on invoice `, B.h('a', { href: `../invoices/#i/${cur.invoiceId}`, text: cur.invoiceNumber }), '. Void that invoice to change the time or the rate.');
+    if (billed) { const [a, b] = t('timesheets.ed.billed').split('{number}'); $('eBilled').replaceChildren(a, B.h('a', { href: `../invoices/#i/${cur.invoiceId}`, text: cur.invoiceNumber }), b || ''); }
     $('eDescription').focus();
   }
 
   /** The form as a record, or the first problem in plain words. */
   function collect() {
     const minutes = NS.core.parseDuration($('eDuration').value);
-    if (minutes === null) return { error: 'Enter the time worked, such as 1:30, 1.5 or 90m (up to 24 hours).' };
+    if (minutes === null) return { error: t('timesheets.ed.bad_time') };
     const currency = $('eCurrency').value.trim().toUpperCase() || 'USD';
     const rate = S.money.parseMinor($('eRate').value || '0', currency);
-    if (rate === null || rate < 0) return { error: 'Enter the hourly rate as a plain amount, such as 80.00.' };
-    if (!$('eDescription').value.trim()) return { error: 'Say what you worked on.' };
+    if (rate === null || rate < 0) return { error: t('timesheets.ed.bad_rate') };
+    if (!$('eDescription').value.trim()) return { error: t('timesheets.ed.no_desc') };
     return { form: { id: cur && cur.id, date: $('eDate').value, customerId: $('eCustomer').value, project: $('eProject').value.trim(),
       description: $('eDescription').value.trim(), minutes, rate, currency, billable: $('eBillable').checked } };
   }
@@ -84,16 +87,16 @@
     if (c.error) { say(c.error, true); return false; }
     const r = await NS.entries.save(c.form);
     if (!r.ok) { say(B.refusal(r, { fields: FIELDS }), true); return false; }
-    UI.toast(cur ? 'Time saved' : `Logged ${NS.core.hm(r.value.minutes)} h`);
+    UI.toast(cur ? t('timesheets.ed.saved') : t('timesheets.ed.logged', { time: NS.core.hm(r.value.minutes) }));
     NS.app.go('list');
     return true;
   }
 
   async function remove() {
-    if (!cur || !(await UI.confirm('Delete time', `Delete this entry (${NS.core.hm(cur.minutes)} h on ${cur.date})?`, 'Delete', { danger: true }))) return;
+    if (!cur || !(await UI.confirm(t('timesheets.ed.del_q'), t('timesheets.ed.del_body', { time: NS.core.hm(cur.minutes), date: cur.date }), t('timesheets.ed.del_ok'), { danger: true }))) return;
     const r = await NS.entries.remove(cur.id);
     if (!r.ok) { say(B.refusal(r), true); return; }
-    UI.toast('Time deleted');
+    UI.toast(t('timesheets.ed.deleted'));
     NS.app.go('list');
   }
 

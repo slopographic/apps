@@ -10,6 +10,7 @@
   const R = () => S.recurring;
   const $ = (id) => document.getElementById(id);
   let list = null, names = new Map(), settings = null;
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
 
   /** The schedules, with the customers' names for the rows. */
   async function load() {
@@ -20,17 +21,17 @@
 
   function row(x) {
     const due = R().dueDates(x, S.ledger.today()).dates.length;
-    return { title: names.get(x.customerId) || '(no customer)', amount: U.money(x.total, x.currency, settings.locale), cls: x.active ? '' : 'is-void',
-      meta: [x.active ? (due ? { chip: `${due} due`, cls: 'warn' } : { chip: 'Active', cls: 'good' }) : { chip: 'Stopped', cls: 'void' },
-        R().describe(x), x.active ? `next ${x.nextDate}` : null, x.endDate ? `until ${x.endDate}` : null, `${x.made || 0} made`] };
+    return { title: names.get(x.customerId) || t('invoices.rp.no_customer'), amount: U.money(x.total, x.currency, settings.locale), cls: x.active ? '' : 'is-void',
+      meta: [x.active ? (due ? { chip: t('invoices.rp.due_n', { n: due }), cls: 'warn' } : { chip: t('invoices.rp.active'), cls: 'good' }) : { chip: t('invoices.rp.stopped'), cls: 'void' },
+        R().describe(x), x.active ? t('invoices.rp.next', { date: x.nextDate }) : null, x.endDate ? t('invoices.rp.until', { date: x.endDate }) : null, t('invoices.rp.made', { n: x.made || 0 })] };
   }
 
   /** Makes the due drafts (all, or one schedule's), says how many, and redraws. */
   async function make(scheduleId) {
     const r = await R().makeDue(S.ledger.today(), { scheduleId });
-    if (!r.ok) { UI.alert('Drafts not made', U.refusal(r)); return; }
+    if (!r.ok) { UI.alert(t('invoices.rp.not_made'), U.refusal(r)); return; }
     const n = r.value.made.length;
-    UI.toast(n ? `${n} draft invoice${n === 1 ? '' : 's'} made` : 'Nothing is due yet');
+    UI.toast(n ? t('invoices.rp.made_n', { n }) : t('invoices.rp.none_due'));
     await draw();
     await dueNotice();
     if (NS.views.list) NS.views.list.refresh();
@@ -38,22 +39,22 @@
 
   async function setActive(x, on) {
     const r = await S.store.put('schedules', { ...x, active: on });
-    if (!r.ok) UI.alert('Not changed', U.refusal(r)); else draw();
+    if (!r.ok) UI.alert(t('invoices.rp.not_changed'), U.refusal(r)); else draw();
   }
 
   async function remove(x) {
-    if (!(await UI.confirm('Stop repeating', `Delete this schedule for ${names.get(x.customerId) || 'the customer'}? Invoices already made stay.`, 'Delete', { danger: true }))) return;
+    if (!(await UI.confirm(t('invoices.rp.stop_q'), t('invoices.rp.stop_body', { name: names.get(x.customerId) || t('invoices.rp.the_customer') }), t('invoices.rp.delete'), { danger: true }))) return;
     const r = await S.store.remove('schedules', x.id);
-    if (!r.ok) UI.alert('Not deleted', U.refusal(r)); else draw();
+    if (!r.ok) UI.alert(t('invoices.rp.not_deleted'), U.refusal(r)); else draw();
   }
 
   function menuFor(x) {
     const items = [];
-    if (x.active && R().dueDates(x, S.ledger.today()).dates.length) items.push({ label: 'Make its due drafts', act: () => make(x.id) });
-    items.push(x.active ? { label: 'Pause', act: () => setActive(x, false) } : { label: 'Resume', act: () => setActive(x, true) });
-    if (x.lastInvoiceId) items.push({ label: 'Open the last invoice', act: () => NS.app.go(`i/${x.lastInvoiceId}`) });
-    if (x.sourceInvoiceId) items.push({ label: 'Open the original invoice', act: () => NS.app.go(`i/${x.sourceInvoiceId}`) });
-    items.push({ label: 'Delete…', act: () => remove(x) });
+    if (x.active && R().dueDates(x, S.ledger.today()).dates.length) items.push({ label: t('invoices.rp.make'), act: () => make(x.id) });
+    items.push(x.active ? { label: t('invoices.rp.pause'), act: () => setActive(x, false) } : { label: t('invoices.rp.resume'), act: () => setActive(x, true) });
+    if (x.lastInvoiceId) items.push({ label: t('invoices.rp.open_last'), act: () => NS.app.go(`i/${x.lastInvoiceId}`) });
+    if (x.sourceInvoiceId) items.push({ label: t('invoices.rp.open_source'), act: () => NS.app.go(`i/${x.sourceInvoiceId}`) });
+    items.push({ label: t('invoices.rp.delete_dots'), act: () => remove(x) });
     return items;
   }
 
@@ -64,7 +65,7 @@
     list.set(all);
     const due = R().due(all, S.ledger.today()).length;
     $('rMake').disabled = !due;
-    $('rMake').textContent = due ? `Make due drafts (${due})` : 'Nothing due';
+    $('rMake').textContent = due ? t('invoices.rp.make_n', { n: due }) : t('invoices.rp.nothing');
   }
 
   /** The Invoices list's notice when repeating invoices are due, with a button that makes them. */
@@ -72,14 +73,14 @@
     const box = $('iDue');
     const due = R().due(await load(), S.ledger.today());
     box.hidden = !due.length;
-    if (due.length) box.querySelector('span').textContent = `${due.length} repeating invoice${due.length === 1 ? ' is' : 's are'} due.`;
+    if (due.length) box.querySelector('span').textContent = t('invoices.rp.notice', { n: due.length });
   }
 
   function mount() {
     $('rMake').addEventListener('click', () => make());
     $('iDueMake').addEventListener('click', () => make());
-    list = g.SlopList.mount($('rRows'), { label: 'Repeating invoices', noun: ['schedule', 'schedules'], summary: $('rSummary'),
-      empty: 'Nothing repeats yet. Open an invoice and choose Repeat… to bill it every week or month.', row, menu: menuFor,
+    list = g.SlopList.mount($('rRows'), { label: t('invoices.rp.label'), noun: [t('invoices.rp.schedule'), t('invoices.rp.schedules')], summary: $('rSummary'),
+      empty: t('invoices.rp.empty'), row, menu: menuFor,
       open: (x) => NS.app.go(`i/${x.lastInvoiceId || x.sourceInvoiceId}`) });
   }
 

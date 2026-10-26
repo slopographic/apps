@@ -44,7 +44,7 @@
   /** CSV of expenses (a header line, then one line per expense, oldest first). names: account code -> name; plain(minor, currency)
    *  is the plain decimal text (SlopData.money.plainMinor). Amounts are plain decimals, so spreadsheets read them as numbers. */
   function csv(list, names, plain) {
-    const head = ['Date', 'Supplier', 'Description', 'Category', 'Amount', 'Tax', 'Currency', 'Paid by', 'Status', 'Notes'];
+    const head = ['Date', 'Supplier', 'Description', 'Category', 'Amount', 'Tax', 'Currency', 'Paid by', 'Status', 'Notes'];   // i18n-ignore: CSV columns and the claim text stored on the expense (records stay as written)
     const rows = [...(list || [])].filter((e) => !e.deletedAt).sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0)).map((e) => {
       return [e.date, e.supplier, e.description, (names || {})[e.account] ? `${e.account} ${names[e.account]}` : e.account,
         plain(e.amount, e.currency), plain(e.tax || 0, e.currency), e.currency || '', e.method || '', e.status, e.notes].map(cell).join(',');

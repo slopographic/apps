@@ -6,15 +6,16 @@
   const S = g.SlopData;
   const NS = (g.SlopLedger = g.SlopLedger || {});
   const { fail } = S.result;
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
 
   /** Adds a manual row from typed text: foreign currency, rate text such as "1.0842" (base per 1 foreign), date, note. */
   async function addManual({ foreign, base, rateText, date, note }) {
     const f = String(foreign || '').trim().toUpperCase();
-    if (!S.locale.isCurrency(f)) return fail('invalid', 'The foreign currency must be a three-letter code, such as EUR.');
-    if (f === base) return fail('invalid', `Pick a currency other than the base (${base}).`);
-    if (!NS.util.isDate(date)) return fail('invalid', 'Pick a real date for the rate.');
+    if (!S.locale.isCurrency(f)) return fail('invalid', t('ledger.rt.e_foreign'));
+    if (f === base) return fail('invalid', t('ledger.rt.e_base', { cur: base }));
+    if (!NS.util.isDate(date)) return fail('invalid', t('ledger.rt.e_date'));
     const rate = S.locale.parseRate(rateText);
-    if (rate === null) return fail('invalid', 'The rate must be a positive number with up to six decimals, such as 1.0842.');
+    if (rate === null) return fail('invalid', t('ledger.rt.e_rate'));
     return S.fx.addRate({ base: f, quote: base, date, rate, source: 'manual', note: String(note || '').trim() || undefined });
   }
 
@@ -37,7 +38,7 @@
 
   /** Asks the ECB for today's reference rates (only when allowed). Stores nothing when the download fails. */
   async function updateOnline() {
-    if (!onlineAllowed()) return fail('consent_off', 'Tick “Allow online rate updates” first.');
+    if (!onlineAllowed()) return fail('consent_off', t('ledger.rt.e_online'));
     return S.rates.updateRates({});
   }
 

@@ -48,7 +48,7 @@
     if (!form.id) return S.store.put('quotes', { ...base, pdfSeed: base.pdfSeed ?? g.SlopDocs.layouts.newSeed(), status: 'draft' });
     const cur = await S.store.get('quotes', form.id);
     if (!cur.ok) return cur;
-    if (!cur.value) return fail('not_found', 'this quote no longer exists');
+    if (!cur.value) return fail('not_found', g.SlopI18n ? g.SlopI18n.t('quotes.core.gone') : 'quotes.core.gone');
     return S.store.put('quotes', { ...cur.value, ...base });
   }
 
@@ -56,7 +56,7 @@
   async function setStatus(id, status) {
     const cur = await S.store.get('quotes', id);
     if (!cur.ok) return cur;
-    if (!cur.value) return fail('not_found', 'this quote no longer exists');
+    if (!cur.value) return fail('not_found', g.SlopI18n ? g.SlopI18n.t('quotes.core.gone') : 'quotes.core.gone');
     return S.store.put('quotes', { ...cur.value, status });
   }
 

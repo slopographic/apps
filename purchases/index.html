@@ -6,6 +6,7 @@
   <link rel="expect" href="#slop-built" blocking="render">
   <script src="../shared/i18n/i18n.js" data-src="shared/i18n/i18n.js"></script>
   <script src="../shared/biz/i18n/index.js" data-src="shared/biz/i18n/index.js"></script>
+  <script src="i18n/index.js" data-src="purchases/i18n/index.js"></script>
 <script src="../shared/consent/config.js"></script>
 <script src="../shared/consent/state.js"></script>
 <script src="../shared/consent/consent-mode.js"></script>
@@ -56,29 +57,29 @@
 <body>
   <div class="app">
     <div class="smb-hold" hidden>
-      <a id="purAbout" href="about/">About</a>
-      <button type="button" class="tb-btn" id="purCmd" data-cmd="cmd.palette" aria-label="Search commands" title="Search commands (Ctrl+K)">⌘K</button>
+      <a id="purAbout" href="about/" data-i18n="biz.app.about">About</a>
+      <button type="button" class="tb-btn" id="purCmd" data-cmd="cmd.palette" aria-label="Search commands" title="Search commands (Ctrl+K)" data-i18n-attr="aria-label:ui.cmd.search;title:biz.app.cmd_tip">⌘K</button>
     </div>
 
-    <nav class="tabs" role="tablist" aria-label="Purchases sections">
-      <button type="button" role="tab" class="tab" id="tab-list" data-view="list" aria-controls="view-list" aria-selected="true">Purchase orders</button>
-      <button type="button" role="tab" class="tab" id="tab-edit" data-view="edit" aria-controls="view-edit" aria-selected="false" hidden>Purchase order</button>
-      <button type="button" role="tab" class="tab" id="tab-data" data-view="data" aria-controls="view-data" aria-selected="false">Data</button>
+    <nav class="tabs" role="tablist" aria-label="Purchases sections" data-i18n-attr="aria-label:purchases.page.sections">
+      <button type="button" role="tab" class="tab" id="tab-list" data-view="list" aria-controls="view-list" aria-selected="true" data-i18n="purchases.page.list">Purchase orders</button>
+      <button type="button" role="tab" class="tab" id="tab-edit" data-view="edit" aria-controls="view-edit" aria-selected="false" hidden data-i18n="purchases.page.one">Purchase order</button>
+      <button type="button" role="tab" class="tab" id="tab-data" data-view="data" aria-controls="view-data" aria-selected="false" data-i18n="biz.tab.data">Data</button>
     </nav>
 
     <main class="main" id="main">
-      <span class="local-badge" title="Suppliers, purchase orders and stock stay in this browser. Nothing is uploaded."><span>100% local</span></span>
-      <div id="boot" class="boot" role="status">Opening your purchase orders…</div>
+      <span class="local-badge" title="Suppliers, purchase orders and stock stay in this browser. Nothing is uploaded." data-i18n-attr="title:purchases.page.local_tip"><span data-i18n="biz.app.local">100% local</span></span>
+      <div id="boot" class="boot" role="status" data-i18n="purchases.page.opening">Opening your purchase orders…</div>
 
       <section class="view" id="view-list" role="tabpanel" aria-labelledby="tab-list" hidden>
         <div class="toolbar">
-          <label class="search"><span class="sr">Search purchase orders</span>
-            <input id="pSearch" type="search" placeholder="Search number, supplier or notes" autocomplete="off" spellcheck="false"></label>
-          <label>Status <select id="pStatus">
-            <option value="all">All</option><option value="draft">Draft</option><option value="ordered">Ordered</option><option value="late">Late</option>
-            <option value="received">Received</option><option value="unbilled">To bill</option><option value="cancelled">Cancelled</option>
+          <label class="search"><span class="sr" data-i18n="purchases.page.search">Search purchase orders</span>
+            <input id="pSearch" type="search" placeholder="Search number, supplier or notes" autocomplete="off" spellcheck="false" data-i18n-attr="placeholder:purchases.page.search_ph"></label>
+          <label><span data-i18n="purchases.page.status">Status</span> <select id="pStatus">
+            <option value="all" data-i18n="purchases.page.all">All</option><option value="draft" data-i18n="purchases.page.draft">Draft</option><option value="ordered" data-i18n="purchases.page.ordered">Ordered</option><option value="late" data-i18n="purchases.page.late">Late</option>
+            <option value="received" data-i18n="purchases.page.received">Received</option><option value="unbilled" data-i18n="purchases.page.to_bill">To bill</option><option value="cancelled" data-i18n="purchases.page.cancelled">Cancelled</option>
           </select></label>
-          <button type="button" class="btn primary" id="pNew">New purchase order</button>
+          <button type="button" class="btn primary" id="pNew" data-i18n="purchases.page.new">New purchase order</button>
         </div>
         <p class="note" id="pSummary" role="status"></p>
         <div class="table" id="pRows"></div>
@@ -87,8 +88,8 @@
       <section class="view" id="view-edit" role="tabpanel" aria-labelledby="tab-edit" hidden>
         <div class="ws-stage">
         <div class="head-row">
-          <button type="button" class="btn small" id="eBack">← Purchase orders</button>
-          <h2 class="h2" id="eTitle">New purchase order</h2>
+          <button type="button" class="btn small" id="eBack" data-i18n="purchases.page.back">← Purchase orders</button>
+          <h2 class="h2" id="eTitle" data-i18n="purchases.page.new">New purchase order</h2>
           <span class="chip" id="eStatus"></span>
         </div>
         <p class="msg" id="eMsg" role="status"></p>
@@ -96,21 +97,21 @@
         <div class="toolbar" id="eLayout"></div>
         <div id="ePage" class="page-wrap"></div>
         </div>
-        <aside class="ws-panel" aria-label="Purchase order details">
+        <aside class="ws-panel" aria-label="Purchase order details" data-i18n-attr="aria-label:purchases.page.details">
         <form class="card" id="eForm" novalidate data-form-only>
           <div class="form-grid">
-            <label class="wide">Supplier
-              <span class="inline"><select id="eCustomer"></select><button type="button" class="btn" id="eNewCustomer">New supplier</button></span>
+            <label class="wide"><span data-i18n="purchases.page.supplier">Supplier</span>
+              <span class="inline"><select id="eCustomer"></select><button type="button" class="btn" id="eNewCustomer" data-i18n="purchases.page.new_supplier">New supplier</button></span>
             </label>
-            <label>Date <input id="eDate" type="date" required></label>
-            <label>Expected <input id="eExpected" type="date"></label>
-            <label>Currency <input id="eCurrency" type="text" readonly tabindex="-1"></label>
-            <label class="wide">Notes <textarea id="eNotes" rows="2" maxlength="5000" placeholder="Delivery address, terms, contact"></textarea></label>
+            <label><span data-i18n="purchases.page.date">Date</span> <input id="eDate" type="date" required></label>
+            <label><span data-i18n="purchases.page.expected">Expected</span> <input id="eExpected" type="date"></label>
+            <label><span data-i18n="purchases.page.currency">Currency</span> <input id="eCurrency" type="text" readonly tabindex="-1"></label>
+            <label class="wide"><span data-i18n="purchases.page.notes">Notes</span> <textarea id="eNotes" rows="2" maxlength="5000" placeholder="Delivery address, terms, contact" data-i18n-attr="placeholder:purchases.page.notes_ph"></textarea></label>
           </div>
         </form>
-        <h2 class="h2" data-form-only>Lines</h2>
+        <h2 class="h2" data-form-only data-i18n="purchases.page.lines">Lines</h2>
         <div id="eLines" class="lines" data-form-only></div>
-        <div class="toolbar" data-form-only><button type="button" class="btn" id="eAddLine">Add line</button></div>
+        <div class="toolbar" data-form-only><button type="button" class="btn" id="eAddLine" data-i18n="purchases.page.add_line">Add line</button></div>
         <div class="card totals" id="eTotals" aria-live="polite" data-form-only></div>
         <p class="note" id="eLinks"></p>
         <div class="toolbar actions" id="eActions"></div>
@@ -119,10 +120,10 @@
 
       <section class="view" id="view-data" role="tabpanel" aria-labelledby="tab-data" hidden>
         <div class="card">
-          <h2 class="h2">Full backup</h2>
-          <p class="note">A backup holds every record in the shared business data for this browser: customers and suppliers, products, quotes, orders, purchase orders, invoices, payments, expenses, stock and the ledger.</p>
-          <div class="toolbar"><button type="button" class="btn primary" id="dBackup">Download full backup</button></div>
-          <div class="file"><button type="button" class="btn" id="dRestore">Restore from a backup file…</button></div>
+          <h2 class="h2" data-i18n="purchases.page.backup">Full backup</h2>
+          <p class="note" data-i18n="purchases.page.backup_note">A backup holds every record in the shared business data for this browser: customers and suppliers, products, quotes, orders, purchase orders, invoices, payments, expenses, stock and the ledger.</p>
+          <div class="toolbar"><button type="button" class="btn primary" id="dBackup" data-i18n="purchases.page.dl_backup">Download full backup</button></div>
+          <div class="file"><button type="button" class="btn" id="dRestore" data-i18n="purchases.page.restore">Restore from a backup file…</button></div>
           <ul class="report" id="dRestoreMsg" aria-live="polite"></ul>
         </div>
       </section>
@@ -203,7 +204,7 @@
   <script>SlopPWA.mount();</script>
 <link rel="stylesheet" href="../shared/menubar/menubar.css">
 <script src="../shared/menubar/menubar.js"></script>
-<script>SlopMenuBar.mount({"app": "Purchases", "menus": {"File": ["#pNew", "-", "cmd:biz.sample"], "Help": ["#purAbout", "#purCmd"]}});</script>
+<script>SlopMenuBar.mount({ app: 'Purchases', menus: { File: () => ['#pNew', '-', 'cmd:biz.sample'], Help: () => ['#purAbout', '#purCmd'] } }); (function (n) { if (n) { n.dataset.i18n = 'purchases.app.name'; if (window.SlopI18n) SlopI18n.apply(n.parentNode); } })(document.querySelector('.smb-app'));</script>
   <script src="../shell/shell.js"></script>
   <script src="../shared/tour/mount.js" data-app="purchases"></script>
   <script src="../shared/spotlight/spotlight.js"></script>

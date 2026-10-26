@@ -6,6 +6,7 @@
   <link rel="expect" href="#slop-built" blocking="render">
   <script src="../shared/i18n/i18n.js" data-src="shared/i18n/i18n.js"></script>
   <script src="../shared/biz/i18n/index.js" data-src="shared/biz/i18n/index.js"></script>
+  <script src="i18n/index.js" data-src="timesheets/i18n/index.js"></script>
 <script src="../shared/consent/config.js"></script>
 <script src="../shared/consent/state.js"></script>
 <script src="../shared/consent/consent-mode.js"></script>
@@ -49,89 +50,89 @@
 <body>
   <div class="app">
     <div class="smb-hold" hidden>
-      <button type="button" class="tb-btn" id="tMenuNew" data-cmd="time.new">Log time</button>
-      <button type="button" class="tb-btn" id="tMenuTimer" data-cmd="time.timer">Start or stop the timer</button>
-      <button type="button" class="tb-btn" id="tMenuBill" data-cmd="view.bill">Bill a customer</button>
-      <button type="button" class="tb-btn" id="tMenuCsv" data-cmd="time.csv">Download CSV</button>
-      <a id="tAbout" href="about/">About</a>
-      <button type="button" class="tb-btn" id="tCmd" data-cmd="cmd.palette" aria-label="Search commands" title="Search commands (Ctrl+K)">⌘K</button>
+      <button type="button" class="tb-btn" id="tMenuNew" data-cmd="time.new" data-i18n="timesheets.page.log">Log time</button>
+      <button type="button" class="tb-btn" id="tMenuTimer" data-cmd="time.timer" data-i18n="timesheets.page.timer">Start or stop the timer</button>
+      <button type="button" class="tb-btn" id="tMenuBill" data-cmd="view.bill" data-i18n="timesheets.page.bill_customer">Bill a customer</button>
+      <button type="button" class="tb-btn" id="tMenuCsv" data-cmd="time.csv" data-i18n="timesheets.page.csv">Download CSV</button>
+      <a id="tAbout" href="about/" data-i18n="biz.app.about">About</a>
+      <button type="button" class="tb-btn" id="tCmd" data-cmd="cmd.palette" aria-label="Search commands" title="Search commands (Ctrl+K)" data-i18n-attr="aria-label:ui.cmd.search;title:biz.app.cmd_tip">⌘K</button>
     </div>
 
-    <nav class="tabs" role="tablist" aria-label="Timesheets sections">
-      <button type="button" role="tab" class="tab" id="tab-list" data-view="list" aria-controls="view-list" aria-selected="true">Time</button>
-      <button type="button" role="tab" class="tab" id="tab-edit" data-view="edit" aria-controls="view-edit" aria-selected="false" hidden>Entry</button>
-      <button type="button" role="tab" class="tab" id="tab-bill" data-view="bill" aria-controls="view-bill" aria-selected="false">Bill</button>
+    <nav class="tabs" role="tablist" aria-label="Timesheets sections" data-i18n-attr="aria-label:timesheets.page.sections">
+      <button type="button" role="tab" class="tab" id="tab-list" data-view="list" aria-controls="view-list" aria-selected="true" data-i18n="timesheets.page.time">Time</button>
+      <button type="button" role="tab" class="tab" id="tab-edit" data-view="edit" aria-controls="view-edit" aria-selected="false" hidden data-i18n="timesheets.page.entry">Entry</button>
+      <button type="button" role="tab" class="tab" id="tab-bill" data-view="bill" aria-controls="view-bill" aria-selected="false" data-i18n="timesheets.page.bill">Bill</button>
     </nav>
 
     <main class="main" id="main">
-      <span class="local-badge" title="Your time and the books stay in this browser. Nothing is uploaded."><span>100% local</span></span>
-      <div id="boot" class="boot" role="status">Opening your timesheet…</div>
+      <span class="local-badge" title="Your time and the books stay in this browser. Nothing is uploaded." data-i18n-attr="title:timesheets.page.local_tip"><span data-i18n="biz.app.local">100% local</span></span>
+      <div id="boot" class="boot" role="status" data-i18n="timesheets.page.opening">Opening your timesheet…</div>
 
       <section class="view" id="view-list" role="tabpanel" aria-labelledby="tab-list" hidden>
         <div class="card timer" id="tmCard">
-          <label class="tm-desc"><span class="sr">What are you working on?</span>
-            <input id="tmDesc" maxlength="300" placeholder="What are you working on?" autocomplete="off"></label>
+          <label class="tm-desc"><span class="sr" data-i18n="timesheets.page.working_on">What are you working on?</span>
+            <input id="tmDesc" maxlength="300" placeholder="What are you working on?" autocomplete="off" data-i18n-attr="placeholder:timesheets.page.working_on"></label>
           <span class="tm-clock" id="tmClock" aria-live="off">0:00:00</span>
-          <button type="button" class="btn primary" id="tmGo">Start timer</button>
+          <button type="button" class="btn primary" id="tmGo">Start timer</button> <!-- i18n-ignore -->
         </div>
         <div class="toolbar">
-          <label class="search"><span class="sr">Search time</span>
-            <input id="tSearch" type="search" placeholder="Search description, project or customer" autocomplete="off" spellcheck="false"></label>
-          <label>Period <select id="tPeriod">
-            <option value="week">This week</option><option value="lastweek">Last week</option><option value="month">This month</option>
-            <option value="lastmonth">Last month</option><option value="all">All dates</option>
+          <label class="search"><span class="sr" data-i18n="timesheets.page.search">Search time</span>
+            <input id="tSearch" type="search" placeholder="Search description, project or customer" autocomplete="off" spellcheck="false" data-i18n-attr="placeholder:timesheets.page.search_ph"></label>
+          <label><span data-i18n="timesheets.page.period">Period</span> <select id="tPeriod">
+            <option value="week" data-i18n="timesheets.page.this_week">This week</option><option value="lastweek" data-i18n="timesheets.page.last_week">Last week</option><option value="month" data-i18n="timesheets.page.this_month">This month</option>
+            <option value="lastmonth" data-i18n="timesheets.page.last_month">Last month</option><option value="all" data-i18n="timesheets.page.all_dates">All dates</option>
           </select></label>
-          <label>Customer <select id="tCustomer"></select></label>
-          <label>Show <select id="tState"><option value="all">All</option><option value="open">To bill</option><option value="billed">Billed</option><option value="internal">Internal</option></select></label>
-          <button type="button" class="btn primary" id="tNew">Log time</button>
+          <label><span data-i18n="timesheets.page.customer">Customer</span> <select id="tCustomer"></select></label>
+          <label><span data-i18n="timesheets.page.show">Show</span> <select id="tState"><option value="all" data-i18n="timesheets.page.all">All</option><option value="open" data-i18n="timesheets.page.to_bill">To bill</option><option value="billed" data-i18n="timesheets.page.billed">Billed</option><option value="internal" data-i18n="timesheets.page.internal">Internal</option></select></label>
+          <button type="button" class="btn primary" id="tNew" data-i18n="timesheets.page.log">Log time</button>
         </div>
         <div class="toolbar"><p class="note" id="tSummary" role="status"></p><span class="total" id="tTotal"></span></div>
         <div class="table" id="tRows"></div>
-        <div class="toolbar"><button type="button" class="btn" id="tCsv">Download CSV of what is shown</button></div>
+        <div class="toolbar"><button type="button" class="btn" id="tCsv" data-i18n="timesheets.page.csv_shown">Download CSV of what is shown</button></div>
       </section>
 
       <section class="view" id="view-edit" role="tabpanel" aria-labelledby="tab-edit" hidden>
         <div class="head-row">
-          <button type="button" class="btn small" id="eBack">← Time</button>
-          <h2 class="h2" id="eTitle">Log time</h2>
+          <button type="button" class="btn small" id="eBack" data-i18n="timesheets.page.back">← Time</button>
+          <h2 class="h2" id="eTitle">Log time</h2> <!-- i18n-ignore -->
         </div>
         <p class="msg" id="eMsg" role="status"></p>
         <p class="note" id="eBilled" hidden></p>
         <form class="card" id="eForm" novalidate>
           <div class="form-grid">
-            <label class="wide">What you worked on <input id="eDescription" maxlength="300" required autocomplete="off" placeholder="Homepage design review"></label>
-            <label>Date <input id="eDate" type="date" required></label>
-            <label>Time worked <input id="eDuration" inputmode="decimal" placeholder="1:30, 1.5 or 90m" required autocomplete="off"></label>
-            <label>Customer <select id="eCustomer"></select></label>
-            <label>Project <input id="eProject" list="eProjects" maxlength="80" autocomplete="off" placeholder="Optional"></label>
+            <label class="wide"><span data-i18n="timesheets.page.worked_on">What you worked on</span> <input id="eDescription" maxlength="300" required autocomplete="off" placeholder="Homepage design review" data-i18n-attr="placeholder:timesheets.page.desc_ph"></label>
+            <label><span data-i18n="timesheets.page.date">Date</span> <input id="eDate" type="date" required></label>
+            <label><span data-i18n="timesheets.page.time_worked">Time worked</span> <input id="eDuration" inputmode="decimal" placeholder="1:30, 1.5 or 90m" required autocomplete="off" data-i18n-attr="placeholder:timesheets.page.duration_ph"></label>
+            <label><span data-i18n="timesheets.page.customer">Customer</span> <select id="eCustomer"></select></label>
+            <label><span data-i18n="timesheets.page.project">Project</span> <input id="eProject" list="eProjects" maxlength="80" autocomplete="off" placeholder="Optional" data-i18n-attr="placeholder:timesheets.page.optional"></label>
             <datalist id="eProjects"></datalist>
-            <label>Hourly rate <input id="eRate" inputmode="decimal" placeholder="80.00"></label>
-            <label>Currency <input id="eCurrency" maxlength="3" autocomplete="off" spellcheck="false"></label>
-            <label class="wide check"><input id="eBillable" type="checkbox"> Billable: bill this time to the customer</label>
+            <label><span data-i18n="timesheets.page.rate">Hourly rate</span> <input id="eRate" inputmode="decimal" placeholder="80.00"></label>
+            <label><span data-i18n="timesheets.page.currency">Currency</span> <input id="eCurrency" maxlength="3" autocomplete="off" spellcheck="false"></label>
+            <label class="wide check"><input id="eBillable" type="checkbox"> <span data-i18n="timesheets.page.billable">Billable: bill this time to the customer</span></label>
           </div>
-          <button type="submit" hidden>Save</button>
+          <button type="submit" hidden data-i18n="timesheets.page.save">Save</button>
         </form>
         <div class="toolbar actions">
-          <button type="button" class="btn primary" id="eSave">Save</button>
-          <button type="button" class="btn" id="eCopy" hidden>Log again today</button>
-          <button type="button" class="btn danger" id="eDelete" hidden>Delete…</button>
+          <button type="button" class="btn primary" id="eSave" data-i18n="timesheets.page.save">Save</button>
+          <button type="button" class="btn" id="eCopy" hidden data-i18n="timesheets.page.again">Log again today</button>
+          <button type="button" class="btn danger" id="eDelete" hidden data-i18n="timesheets.page.delete">Delete…</button>
         </div>
       </section>
 
       <section class="view" id="view-bill" role="tabpanel" aria-labelledby="tab-bill" hidden>
-        <p class="note" id="bNone" hidden>No billable time is waiting to be billed. Log time for a customer and tick Billable.</p>
+        <p class="note" id="bNone" hidden data-i18n="timesheets.page.none">No billable time is waiting to be billed. Log time for a customer and tick Billable.</p>
         <p class="msg ok" id="bDone" hidden></p>
         <div id="bForm" class="card">
           <div class="toolbar">
-            <label>Customer <select id="bCustomer"></select></label>
-            <label>Tax rate % <input id="bTax" type="number" min="0" max="100" step="0.01" inputmode="decimal"></label>
-            <button type="button" class="btn small" id="bAll">Tick all or none</button>
+            <label><span data-i18n="timesheets.page.customer">Customer</span> <select id="bCustomer"></select></label>
+            <label><span data-i18n="timesheets.page.tax">Tax rate %</span> <input id="bTax" type="number" min="0" max="100" step="0.01" inputmode="decimal"></label>
+            <button type="button" class="btn small" id="bAll" data-i18n="timesheets.page.tick_all">Tick all or none</button>
           </div>
           <div class="bill-rows" id="bRows"></div>
-          <p class="note" id="bEmpty" hidden>This customer has no time waiting to be billed.</p>
+          <p class="note" id="bEmpty" hidden data-i18n="timesheets.page.no_time">This customer has no time waiting to be billed.</p>
           <div class="toolbar"><p class="note" id="bTotal" role="status"></p>
-            <button type="button" class="btn primary" id="bMake">Make draft invoice</button></div>
-          <p class="note">Each entry becomes one line on a draft invoice, due after your payment terms. Check and issue it in Slop Invoices.</p>
+            <button type="button" class="btn primary" id="bMake" data-i18n="timesheets.page.make">Make draft invoice</button></div>
+          <p class="note" data-i18n="timesheets.page.bill_note">Each entry becomes one line on a draft invoice, due after your payment terms. Check and issue it in Slop Invoices.</p>
         </div>
       </section>
     </main>
@@ -175,7 +176,7 @@
   <script>SlopPWA.mount();</script>
 <link rel="stylesheet" href="../shared/menubar/menubar.css">
 <script src="../shared/menubar/menubar.js"></script>
-<script>SlopMenuBar.mount({"app": "Timesheets", "menus": {"File": ["#tMenuNew", "#tMenuTimer", "#tMenuBill", "#tMenuCsv", "-", "cmd:biz.sample"], "Help": ["#tAbout", "#tCmd"]}});</script>
+<script>SlopMenuBar.mount({"app": "Timesheets", "menus": {"File": ["#tMenuNew", "#tMenuTimer", "#tMenuBill", "#tMenuCsv", "-", "cmd:biz.sample"], "Help": ["#tAbout", "#tCmd"]}}); (function (n) { if (n) { n.dataset.i18n = 'timesheets.app.name'; if (window.SlopI18n) SlopI18n.apply(n.parentNode); } })(document.querySelector('.smb-app'));</script>
   <script src="../shell/shell.js"></script>
   <script src="../shared/spotlight/spotlight.js"></script>
 <i id="slop-built" hidden></i>

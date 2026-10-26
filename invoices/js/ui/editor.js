@@ -12,9 +12,11 @@
   const $ = (id) => document.getElementById(id);
   const DATE = /^\d{4}-\d{2}-\d{2}$/;
   let ed = null;
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
+  const METHOD = () => ({ bank: t('invoices.pay.bank'), cash: t('invoices.pay.cash'), card: t('invoices.pay.card'), other: t('invoices.pay.other') });
 
   /** The status words: an issued invoice with nothing left to pay reads Paid. */
-  const statusText = (st) => U.statusText(st.status, st.balance);
+  const statusText = (st) => U.statusWord(st.status, st.balance);
 
   const extra = {
     blank: (st, s) => Object.assign(st, { dueDate: M.addDays(st.date, s.paymentTermsDays), orderId: null, payments: [], credits: [], paid: 0, balance: 0 }),
@@ -24,20 +26,20 @@
       const c = await NS.context.load(rec.id);
       if (c.ok) Object.assign(st, { payments: c.value.payments, credits: c.value.credits, paid: c.value.paid, balance: c.value.balance });
     },
-    fieldError: (name, st) => (name !== 'dueDate' ? undefined : !st.dueDate || DATE.test(st.dueDate) ? null : 'Enter the due date as a date, or leave it blank.'),
-    collect: (st) => (st.dueDate && !DATE.test(st.dueDate) ? { error: 'Enter the due date as a date, or leave it blank.' } : { dueDate: st.dueDate || undefined }),
+    fieldError: (name, st) => (name !== 'dueDate' ? undefined : !st.dueDate || DATE.test(st.dueDate) ? null : t('invoices.ed.due_error')),
+    collect: (st) => (st.dueDate && !DATE.test(st.dueDate) ? { error: t('invoices.ed.due_error') } : { dueDate: st.dueDate || undefined }),
     paint(st, ro) {
       document.querySelector('.app').dataset.docStatus = st.status;
       $('eDue').value = st.dueDate;
       $('eDue').disabled = ro;
-      $('eBalance').textContent = st.status === 'issued' ? `Balance due ${U.money(st.balance, st.currency, st.locale)}` : '';
-      $('eOrder').replaceChildren(...(st.orderId ? ['From order: ', h('a', { href: `../orders/#o/${st.orderId}`, text: 'open the order' })] : []));
+      $('eBalance').textContent = st.status === 'issued' ? t('invoices.ed.balance', { amount: U.money(st.balance, st.currency, st.locale) }) : '';
+      $('eOrder').replaceChildren(...(st.orderId ? [t('invoices.ed.from_order') + ' ', h('a', { href: `../orders/#o/${st.orderId}`, text: t('invoices.ed.open_order') })] : []));
       const box = $('ePayments');
-      if (!st.payments.length) box.replaceChildren(h('p', { class: 'note', text: st.status === 'issued' ? 'No payments yet.' : '' }));
-      else box.replaceChildren(h('ul', { class: 'report' }, st.payments.map((p) => h('li', { text: `${p.date} · ${p.method} · ${U.money(p.amount, st.currency, st.locale)}${p.note ? ` · ${p.note}` : ''}` }))));
+      if (!st.payments.length) box.replaceChildren(h('p', { class: 'note', text: st.status === 'issued' ? t('invoices.ed.no_payments') : '' }));
+      else box.replaceChildren(h('ul', { class: 'report' }, st.payments.map((p) => h('li', { text: `${p.date} · ${METHOD()[p.method] || p.method} · ${U.money(p.amount, st.currency, st.locale)}${p.note ? ` · ${p.note}` : ''}` }))));
       const m = (v) => U.money(v, st.currency, st.locale);
       $('eCredits').replaceChildren(...(st.credits || []).map((c) => h('li', null, h('a', { href: `#c/${c.id}`, text: c.number }),
-        ` · ${c.date} · ${m(c.amount)}${c.refund ? ` (${m(c.refund)} paid back)` : ''}${c.reason ? ` · ${c.reason}` : ''}`)));
+        ` · ${c.date} · ${m(c.amount)}${c.refund ? ' ' + t('invoices.ed.paid_back', { amount: m(c.refund) }) : ''}${c.reason ? ` · ${c.reason}` : ''}`)));
       $('eCreditsHead').hidden = !(st.credits || []).length;
     },
     mount(st, edited) { $('eDue').addEventListener('input', (e) => { st.dueDate = e.target.value; edited(); }); },
@@ -46,19 +48,19 @@
   function actions(st) {
     const b = (label, fn, cls = 'btn', disabled = false, title) => h('button', { type: 'button', class: cls, text: label, onclick: fn, disabled, title });
     const out = [];
-    if (ed.isNew()) out.push(b('Random sample', () => NS.sampleActions.quick()));
+    if (ed.isNew()) out.push(b(t('invoices.ed.sample'), () => NS.sampleActions.quick()));
     if (st.status === 'draft') {
-      out.push(b(ed.isNew() ? 'Save draft' : 'Save', () => ed.save()), b('Issue…', issue, 'btn primary'));
-      if (!ed.isNew()) out.push(b('Delete draft…', removeDraft, 'btn danger'));
+      out.push(b(t(ed.isNew() ? 'invoices.ed.save_draft' : 'invoices.ed.save'), () => ed.save()), b(t('invoices.ed.issue'), issue, 'btn primary'));   // i18n-ignore: CSS class names
+      if (!ed.isNew()) out.push(b(t('invoices.ed.delete'), removeDraft, 'btn danger'));   // i18n-ignore: CSS class names
     }
     if (st.status === 'issued') {
-      out.push(b('Record payment…', () => NS.paymentDialog.open(st.id, ed.reload), 'btn primary'));
-      out.push(b('Void…', voidInvoice, 'btn danger', st.payments.length > 0 || st.credits.length > 0, st.payments.length || st.credits.length ? 'Not allowed once paid or credited: use a credit note' : 'Reverse the issue entry and void'));
+      out.push(b(t('invoices.ed.payment'), () => NS.paymentDialog.open(st.id, ed.reload), 'btn primary'));   // i18n-ignore: CSS class names
+      out.push(b(t('invoices.ed.void'), voidInvoice, 'btn danger', st.payments.length > 0 || st.credits.length > 0, t(st.payments.length || st.credits.length ? 'invoices.ed.void_no' : 'invoices.ed.void_tip')));   // i18n-ignore: CSS class names
     }
-    if (st.status === 'issued' || st.status === 'paid') out.push(b('Credit note…', () => NS.creditDialog.open(st.id, ed.reload), 'btn', false, 'Take back part or all of this invoice; a part already paid is refunded'));
-    if (!ed.isNew() && st.status !== 'void') out.push(b('Repeat…', () => NS.repeatDialog.open(st.id, () => NS.app.go('repeat'))));
-    if (!ed.isNew()) out.push(b('Preview / print', preview), b('Export PDF', () => saveThen(() => NS.preview.pdf(st.id))));
-    const closed = { paid: 'Paid in full. The invoice is closed.', void: 'Void. The number stays used.', credited: 'Credited in full: credit notes cover the whole invoice.' };
+    if (st.status === 'issued' || st.status === 'paid') out.push(b(t('invoices.ed.credit'), () => NS.creditDialog.open(st.id, ed.reload), 'btn', false, t('invoices.ed.credit_tip')));
+    if (!ed.isNew() && st.status !== 'void') out.push(b(t('invoices.ed.repeat'), () => NS.repeatDialog.open(st.id, () => NS.app.go('repeat'))));
+    if (!ed.isNew()) out.push(b(t('invoices.ed.preview'), preview), b(t('invoices.ed.pdf'), () => saveThen(() => NS.preview.pdf(st.id))));
+    const closed = { paid: t('invoices.ed.closed_paid'), void: t('invoices.ed.closed_void'), credited: t('invoices.ed.closed_credited') };
     if (closed[st.status]) out.push(h('p', { class: 'note', text: closed[st.status] }));
     return out;
   }
@@ -77,15 +79,15 @@
     });
   }
 
-  const issue = () => step(['Issue invoice', 'Issue this invoice? It gets the next invoice number and is posted to the ledger. Issued invoices cannot be edited.', 'Issue'],
-    NS.invoices.issue, 'Not issued', (n) => `${n} issued`);
-  const voidInvoice = () => step(['Void invoice', `Void ${ed.live().number}? The journal entry is reversed. The number stays used.`, 'Void', { danger: true }],
-    NS.invoices.voidInvoice, 'Not voided', (n) => `${n} voided`);
+  const issue = () => step([t('invoices.ed.issue_q'), t('invoices.ed.issue_body'), t('invoices.ed.issue_ok')],
+    NS.invoices.issue, t('invoices.ed.not_issued'), (n) => t('invoices.ed.issued', { number: n }));
+  const voidInvoice = () => step([t('invoices.ed.void_q'), t('invoices.ed.void_body', { number: ed.live().number }), t('invoices.ed.void_ok'), { danger: true }],
+    NS.invoices.voidInvoice, t('invoices.ed.not_voided'), (n) => t('invoices.li.voided', { number: n }));
 
   async function removeDraft() {
-    if (!(await UI.confirm('Delete draft', 'Delete this draft? It has no number yet, so nothing else changes.', 'Delete', { danger: true }))) return;
+    if (!(await UI.confirm(t('invoices.ed.del_q'), t('invoices.ed.del_body'), t('invoices.ed.del_ok'), { danger: true }))) return;
     const r = await NS.invoices.removeDraft(ed.id());
-    if (!r.ok) { UI.alert('Not deleted', U.refusal(r)); return; }
+    if (!r.ok) { UI.alert(t('invoices.ed.not_deleted'), U.refusal(r)); return; }
     ed.clean();
     NS.app.go('list');
   }
@@ -99,11 +101,11 @@
   }
 
   ed = g.SlopDocs.docEditor.create({
-    ns: NS, noun: 'invoice', title: 'New invoice', route: 'i',
+    ns: NS, noun: 'invoice', title: () => t('invoices.ed.new'), route: 'i',
     data: { get: invoiceOnly, save: (f) => NS.invoices.saveDraft(f), customers: () => NS.invoices.customers(), products: () => NS.invoices.products() },
-    statusLabel: U.STATUS, statusText, locked: (st) => st.status !== 'draft',
-    heading: (st) => (st.id ? st.number || 'Draft invoice' : 'New invoice'), savedText: () => 'Draft saved.',
-    dateError: 'Enter the invoice date.', extra, actions,
+    statusLabel: () => new Proxy({}, { get: (o, s) => g.SlopBiz.statusText(s) }), statusText, locked: (st) => st.status !== 'draft',
+    heading: (st) => (st.id ? st.number || t('invoices.ed.draft_invoice') : t('invoices.ed.new')), savedText: () => t('invoices.ed.saved'),
+    dateError: () => t('invoices.ed.date_error'), extra, actions,
   });
 
   NS.editor = Object.assign(ed, {
