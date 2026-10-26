@@ -94,6 +94,23 @@ Codes: `invalid`, `invalid_transition`, `immutable`, `posting_required`, `delete
 - Document: `subtotal = sum(net)`, `tax = sum(line tax)` (rounded per line, then summed), `total = subtotal + tax`.
   `documentTotals(lines).byRate` gives the tax breakdown.
 - `parseMinor('12.5')` -> `1250`, or `null` (never rounds typed text; too many decimals is `null`).
+- **Typed amounts follow the UI language** (SlopI18n's current language; separators from `Intl.NumberFormat(lang).formatToParts`).
+  `parseTyped(text, currency, lang?)` (= `parseMinor(text, currency, { typed: lang || true })`), `parsePercent(text, { typed })`
+  (basis points, 0 to 100 %, two decimals at most) and `plainFromTyped(text, lang?)` (-> plain `"1234.5"` for other parsers, such
+  as `locale.parseRate`). Rules, the same everywhere (the full list is the comment in money.js):
+  - the language's decimal mark, and a plain `.` too (sv/de/fr `"12,50"` and `"12.50"`, en/ja only `"12.50"`); one at most;
+  - group marks are optional, only the language's own and only in its pattern of three (hi 2-2-3): en `"1,234.50"`,
+    de `"1.234,50"`, sv/fr `"1 234,50"` with a space, no-break space (U+00A0) or narrow no-break space (U+202F);
+  - where `.` groups (de, es, it, pt-BR, nl, tr, id, vi), dots that fit the pattern are grouping (`"1.234"` is 1234), else one
+    dot is the decimal point (`"12.50"`); where `,` groups (en, ja, zh, ko, hi), a comma is never decimal: `"1,234"` is 1234 and
+    `"1,5"` is `null` (not 15, not 1.5);
+  - a leading `-` or U+2212 is a minus; no `+`, currency signs, exponents or bare `".5"`; too many decimals is `null`.
+  - Inputs are filled with `typedMinor(minor, currency)` / `typedPlain("12.50")` (the language's decimal mark, no grouping), so
+    what is shown reads back the same. Examples and placeholders of typed fields use them too.
+- **Strict callers keep `parseMinor(text, currency)`** (a dot, no grouping, never the page's language): AI tool arguments
+  (ai-records.js), CSV imports without a format setting (Inventory products), stored data and files. Typed by a person:
+  Ledger journal lines and manual rates, the company profile's tax rate, Expenses (amount, tax, rate, mileage), Inventory's
+  product form, Timesheets (hourly rate, the bill's tax rate), and every document line and dialog through `SlopDocs.model`.
 - `formatMinor(minor, currency, locale)` -> `"$12.34"` via `Intl.NumberFormat` only (digits from the currency, half-expand rounding).
   Settings hold `defaultCurrency` and `locale`; pass them in.
 - Largest stored amount: `money.MAX_MINOR` (9e12).

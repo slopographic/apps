@@ -23,14 +23,14 @@
     const f = {
       date: el('input', { type: 'date', value: S.ledger.today() }), from: el('input', { maxlength: 100, placeholder: t('expenses.mi.office') }),
       to: el('input', { maxlength: 100, placeholder: t('expenses.mi.client') }), back: el('input', { type: 'checkbox', checked: !!last.roundTrip }),
-      distance: el('input', { inputmode: 'decimal', placeholder: '42' }), rate: el('input', { inputmode: 'decimal', value: last.rate || '0.45' }),
+      distance: el('input', { inputmode: 'decimal', placeholder: '42' }), rate: el('input', { inputmode: 'decimal', value: S.money.typedPlain(last.rate || '0.45') }),
       purpose: el('input', { maxlength: 120, placeholder: t('expenses.mi.visit') }), cat: UI.select(accts.map((a) => [a.code, `${a.code} ${a.name}`]), pick),
     };
     const total = el('p', { class: 'sheet-total' }, el('span', null, t('expenses.mi.to_claim')), el('b', null, '—'));
     const msg = el('p', { class: 'msg bad', role: 'status' });   // i18n-ignore: CSS class names
     /** The distance as entered (doubled for there and back), the rate per unit and the amount; null parts while not valid. */
     const figures = () => {
-      const one = NS.mileage.parseDistance(f.distance.value), rate = Number(String(f.rate.value).trim().replace(',', '.'));
+      const one = NS.mileage.parseDistance(f.distance.value), rate = NS.mileage.typedNumber(f.rate.value);   // the page's language
       const distance = one === null ? null : f.back.checked ? one * 2 : one;
       const rateMinor = Number.isFinite(rate) && rate > 0 && rate < 100 ? rate * 100 : null;
       return { distance, rateMinor, amount: distance !== null && rateMinor !== null ? NS.mileage.amount(distance, rateMinor) : null };
@@ -54,7 +54,7 @@
         const r = await S.expenses.record({ date: f.date.value, supplier: 'Mileage', account: f.cat.value, amount: x.amount, tax: 0, currency: s.currency, method: 'other',   // i18n-ignore: CSV columns and the claim text stored on the expense (records stay as written)
           description: NS.mileage.describe({ from: f.from.value.trim(), to: f.to.value.trim(), roundTrip: f.back.checked, distance: x.distance, unit: u, rateText: f.rate.value.trim(), purpose: f.purpose.value.trim() }) });
         if (!r.ok) { msg.textContent = B.refusal(r); return false; }
-        remember({ rate: f.rate.value.trim(), unit: u, roundTrip: f.back.checked });
+        remember({ rate: S.money.plainFromTyped(f.rate.value) || f.rate.value.trim(), unit: u, roundTrip: f.back.checked });   // kept as plain "0.45"
         UI.toast(t('expenses.mi.done', { amount: B.money(x.amount, s.currency, s.locale) }));
         NS.app.go(`e/${r.value.id}`);
         return undefined;

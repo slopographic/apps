@@ -42,7 +42,7 @@
       const name = get('name') ?? '';
       const existing = bySku.get(sku) || null;
       const priceText = get('price') ?? '';
-      const price = S.money.parseMinor(priceText, cur);
+      const price = S.money.parseMinor(priceText, cur);   // strict "12.50": a CSV file has no language setting, so never the page's
       if (priceText === '') errors.push({ field: 'price', message: t('inventory.pf.required') });
       else if (price === null) errors.push({ field: 'price', message: t('inventory.im.e_price') });
       let reorderLevel = existing ? existing.reorderLevel : undefined;

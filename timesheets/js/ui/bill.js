@@ -10,7 +10,8 @@
   const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
 
   const ticked = () => [...document.querySelectorAll('#bRows input[type=checkbox]:checked')].map((b) => open.find((x) => x.id === b.value));
-  const bp = () => Math.round(Number($('bTax').value || 0) * 100);
+  /** The typed tax rate in basis points ("12,5" in sv), null when it is not a percentage from 0 to 100. */
+  const bp = () => S.money.parsePercent($('bTax').value.trim() || '0', { typed: true });
 
   /** The customers with open billable time, with how much. */
   function customersWithTime(rows) {
@@ -22,7 +23,7 @@
   function paintTotal() {
     const list = ticked();
     const cur = list[0] ? list[0].currency : settings.currency;
-    const net = list.reduce((s, x) => s + x.amount, 0), tax = S.money.taxOn(net, bp());
+    const net = list.reduce((s, x) => s + x.amount, 0), tax = S.money.taxOn(net, bp() ?? 0);
     $('bTotal').textContent = list.length ? t('timesheets.bi.total', { n: list.length, time: NS.core.hm(list.reduce((s, x) => s + x.minutes, 0)), amount: B.money(net + tax, cur, settings.locale) }) + (tax ? ' ' + t('timesheets.bi.with_tax', { tax: B.money(tax, cur, settings.locale) }) : '') : t('timesheets.bi.none');
     $('bMake').disabled = !list.length;
   }
@@ -45,7 +46,7 @@
     const cs = customersWithTime(open);
     $('bCustomer').replaceChildren(...cs.map(([id, c]) => h('option', { value: id, text: t('timesheets.bi.to_bill', { name: c.name, time: NS.core.hm(c.minutes) }) })));
     if (customerId && cs.some(([id]) => id === customerId)) $('bCustomer').value = customerId;
-    $('bTax').value = String((settings.defaultTaxRate || 0) / 100);
+    $('bTax').value = S.money.typedPlain(String((settings.defaultTaxRate || 0) / 100));
     $('bNone').hidden = cs.length > 0;
     $('bForm').hidden = !cs.length;
     paintRows();
@@ -54,6 +55,7 @@
   async function make() {
     const list = ticked();
     if (!list.length) return;
+    if (bp() === null) { UI.alert(t('timesheets.bi.not_made'), t('biz.pd.bad_tax')); return; }
     const due = g.SlopDocs ? g.SlopDocs.model.addDays(S.ledger.today(), settings.paymentTermsDays) : undefined;
     const r = await S.timesheets.toInvoice(list.map((x) => x.id), { dueDate: due, taxRate: bp() });
     if (!r.ok) { UI.alert(t('timesheets.bi.not_made'), B.refusal(r)); return; }

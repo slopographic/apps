@@ -35,8 +35,8 @@
     if (got.date) $('eDate').value = got.date;
     if (got.currency && got.currency !== cur) $('eCurrency').value = got.currency;
     const c = $('eCurrency').value || cur;
-    if (got.total !== null) $('eAmount').value = S.money.plainMinor(got.total, c);
-    if (got.tax !== null) { $('eTax').value = S.money.plainMinor(got.tax, c); $('eTax').dispatchEvent(new Event('input')); }
+    if (got.total !== null) $('eAmount').value = S.money.typedMinor(got.total, c);   // the form reads the page's language
+    if (got.tax !== null) { $('eTax').value = S.money.typedMinor(got.tax, c); $('eTax').dispatchEvent(new Event('input')); }
   }
 
   /** The whole flow for one photo. say(text, bad) writes the editor's message line. */

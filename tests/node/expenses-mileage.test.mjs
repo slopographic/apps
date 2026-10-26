@@ -8,14 +8,18 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const ctx = vm.createContext({});
-vm.runInContext(readFileSync(path.join(ROOT, 'expenses/js/core/mileage.js'), 'utf8'), ctx);
+for (const f of ['shared/data/money.js', 'expenses/js/core/mileage.js']) vm.runInContext(readFileSync(path.join(ROOT, f), 'utf8'), ctx);
 const M = ctx.SlopExpenses.mileage;
 
-test('distance: dot or comma decimals, one decimal kept; nothing, zero or absurd is refused', () => {
+test('distance: typed in the page language, one decimal kept; nothing, zero or absurd is refused', () => {
   assert.equal(M.parseDistance('42'), 42);
-  assert.equal(M.parseDistance('42,55'), 42.6);
+  assert.equal(M.parseDistance('42,55', 'sv'), 42.6);
   assert.equal(M.parseDistance(' 7.25 '), 7.3);
+  assert.equal(M.parseDistance('1,250'), 1250);           // en: a comma groups thousands
+  assert.equal(M.parseDistance('42,5'), null);            // en: not 425 or 42.5, refused
   for (const bad of ['', '0', '-3', 'far', '200000']) assert.equal(M.parseDistance(bad), null);
+  assert.equal(M.typedNumber('0,45', 'de'), 0.45);
+  assert.ok(Number.isNaN(M.typedNumber('0,45', 'en')));
 });
 
 test('amount: distance times the rate per unit, rounded to the cent', () => {

@@ -14,8 +14,8 @@
     if (!S.locale.isCurrency(cc) || !S.locale.currencies().includes(cc)) return fail('invalid', t('admin.core.currency'));
     const loc = S.locale.canonicalLocale(String(input.locale || '').trim());
     if (!loc) return fail('invalid', t('admin.core.locale'));
-    const rate = S.money.parseMinor(String(input.defaultTaxRate ?? '').trim() || '0', 'USD');
-    if (rate === null || rate < 0 || rate > 10000) return fail('invalid', t('admin.core.rate'));
+    const rate = S.money.parsePercent(String(input.defaultTaxRate ?? '').trim() || '0', { typed: true });   // typed in the page's language
+    if (rate === null) return fail('invalid', t('admin.core.rate'));
     const DL = g.SlopBiz && g.SlopBiz.docLang;
     const docLang = input.docLang || cur.docLang || (DL ? DL.pick('', '') : '');
     if (DL && docLang && !DL.langs().includes(docLang)) return fail('invalid', t('biz.dl.bad'));
@@ -33,11 +33,11 @@
     return S.store.put('settings', rec.value);
   }
 
-  /** The profile as text for the form (tax rate as a percentage). */
+  /** The profile as text for the form (tax rate as a percentage, with the page language's decimal mark). */
   function asForm(s) {
     return { companyName: s.companyName || '', address: s.address || '', taxNumber: s.taxNumber || '',
       defaultCurrency: s.defaultCurrency || 'USD', locale: s.locale || 'en-US',
-      defaultTaxRate: String((s.defaultTaxRate || 0) / 100) };
+      defaultTaxRate: S.money.typedPlain(String((s.defaultTaxRate || 0) / 100)) };
   }
 
   NS.profile = { save, checked, asForm };
