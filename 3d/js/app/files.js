@@ -12,6 +12,7 @@
   const ACCEPT_DRIVE = ['application/x-slop-3d', 'model/*', 'image/*', 'text/plain', 'application/octet-stream', 'application/json', 'application/xml', 'application/x-ply'];
   const MAX_IMAGE = 8 * 1024 * 1024;
   const toast = (msg) => { if (window.SlopUI) SlopUI.toast(msg); };
+  const t = S.t;
   const hub = () => window.SlopHub || null;
   const guard = () => { if (window.SlopGuard) SlopGuard.setUnsaved('3d', s.file.dirty); };
   const baseName = (n) => (String(n || 'Untitled').replace(/\.[^.]+$/, '') || 'Untitled');
@@ -19,7 +20,7 @@
 
   function confirmDiscard() {
     return s.file.dirty && s.doc.roots.length
-      ? SlopUI.confirm('Discard changes?', 'This scene has changes that are not saved to Slop Drive. Continue anyway?', 'Continue', { danger: true })
+      ? SlopUI.confirm(t('3d.file.discard_title'), t('3d.file.discard_body'), t('3d.file.continue'), { danger: true })
       : Promise.resolve(true);
   }
   /** Replaces the whole document (new scene or opened file). */
@@ -27,7 +28,7 @@
     s.doc = doc;
     s.sel = [];
     s.history.reset(doc);
-    s.file = Object.assign({ name: 'Untitled', driveId: null, folderId: null, dirty: false }, file);
+    s.file = Object.assign({ name: 'Untitled', driveId: null, folderId: null, dirty: false }, file); // i18n-ignore: the scene's own name (file name)
     st.emit('doc', null);
     st.emit('sel');
     st.emit('file');
@@ -40,13 +41,13 @@
 
   /** Reads a File or a Drive record's blob: text for .s3d, a data URL for images (models are read by modelio.js). */
   const readText = (blob) => blob.text();
-  const readDataUrl = (blob) => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => rej(new Error('could not read the image')); r.readAsDataURL(blob); });
+  const readDataUrl = (blob) => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => rej(new Error(t('3d.file.err_read_image'))); r.readAsDataURL(blob); });
 
   /** Imports an image as a standing plane textured with the picture (the picture is stored inside the file). */
   async function imageTree(blob, name) {
-    if (blob.size > MAX_IMAGE) throw new Error('This image is larger than 8 MB');
+    if (blob.size > MAX_IMAGE) throw new Error(t('3d.file.err_image_big'));
     const url = await readDataUrl(blob);
-    const dims = await new Promise((res, rej) => { const im = new Image(); im.onload = () => res([im.naturalWidth || 1, im.naturalHeight || 1]); im.onerror = () => rej(new Error('This image cannot be read')); im.src = url; });
+    const dims = await new Promise((res, rej) => { const im = new Image(); im.onload = () => res([im.naturalWidth || 1, im.naturalHeight || 1]); im.onerror = () => rej(new Error(t('3d.file.err_image_bad'))); im.src = url; });
     const aspect = dims[0] / dims[1], w = Math.min(4, Math.max(0.2, aspect));
     return { type: 'mesh', name, transform: { r: [90, 0, 0] }, geom: { kind: 'plane', width: w, depth: 1 },
       material: { color: '#ffffff', roughness: 0.9, metallic: 0, opacity: 1, map: url } };
@@ -57,7 +58,7 @@
     const ext = extOf(name), base = baseName(name);
     if (MODELS.includes(ext)) return S.modelio.treeFor([{ name, blob }, ...others.map((f) => ({ name: f.name, blob: f }))], base);
     if (blob.type.startsWith('image/') || /^(png|jpe?g|gif|webp|bmp)$/.test(ext)) return { tree: await imageTree(blob, base), warnings: [] };
-    throw new Error('Slop 3D cannot open this kind of file');
+    throw new Error(t('3d.file.err_kind'));
   }
 
   /** Opens a file: a .s3d replaces the scene, a model or image goes into a new scene. */
@@ -66,7 +67,7 @@
     try {
       if (ext === 's3d' || ext === 'json' || blob.type === S.format.MIME) {
         const r = S.format.parse(await readText(blob));
-        if (!r.ok) { SlopUI.alert('Could not open that file', 'It is not a valid Slop 3D scene:\n' + r.errors.join('\n')); return false; }
+        if (!r.ok) { SlopUI.alert(t('3d.file.open_failed'), t('3d.file.not_scene', { errors: r.errors.join('\n') })); return false; }
         replaceScene(r.scene, { name: baseName(name), driveId: extra.driveId || null, folderId: extra.folderId ?? null, dirty: false });
         return true;
       }
@@ -75,16 +76,16 @@
       A.importTree(tree);
       if (warnings.length) toast(warnings[0]);
       return true;
-    } catch (e) { SlopUI.alert('Could not open that file', e.message || String(e)); return false; }
+    } catch (e) { SlopUI.alert(t('3d.file.open_failed'), e.message || String(e)); return false; }
   }
   /** Adds a model or image to the current scene (File > Import). */
   async function importBlob(blob, name, others = []) {
     try {
       const { tree, warnings } = await treeFor(blob, name, others);
       A.importTree(tree);
-      toast(warnings.length ? warnings[0] : 'Imported ' + baseName(name));
+      toast(warnings.length ? warnings[0] : t('3d.file.imported', { name: baseName(name) }));
       return true;
-    } catch (e) { SlopUI.alert('Could not import that file', e.message || String(e)); return false; }
+    } catch (e) { SlopUI.alert(t('3d.file.import_failed'), e.message || String(e)); return false; }
   }
   /** The file to open among several picked: a scene or a model first; the others are its companions. */
   const mainOf = (list) => list.find((f) => ['s3d', 'json', ...MODELS].includes(extOf(f.name))) || list[0];
@@ -100,7 +101,7 @@
     return files.map((x) => x.name);
   }
   window.SlopIntake.register({
-    id: '3d', accept: { any: true, noun: 'a scene, a model or a picture' }, driveAccept: ACCEPT_DRIVE, processAll: read,
+    id: '3d', accept: { any: true, noun: t('3d.file.noun') }, driveAccept: ACCEPT_DRIVE, processAll: read,
     gate: async (batch) => batch.mode !== 'open' || confirmDiscard(),
   });
   const pick = (mode) => window.SlopIntake.pick({ to: '3d', mode, accept: ACCEPT_UI });
@@ -126,14 +127,14 @@
       s.file.dirty = false;
       st.emit('file');
       guard();
-      toast('Saved to Slop Drive');
-    } catch (e) { toast('Could not save: ' + (e.message || e)); }
+      toast(t('3d.file.saved'));
+    } catch (e) { toast(t('3d.file.save_failed', { error: String(e.message || e) })); }
   }
   function downloadScene() { download(sceneBlob(), sceneName() + '.s3d'); s.file.dirty = false; st.emit('file'); guard(); }
   /** Exports the visible meshes as obj, stl, ply, glb, gltf or usdz. Several files (an OBJ with its .mtl and textures)
    *  download as one zip. Resolves with the files (tests read them). */
   async function exportModel(format) {
-    if (!s.doc.roots.length) { toast('Nothing to export yet'); return null; }
+    if (!s.doc.roots.length) { toast(t('3d.file.nothing_export')); return null; }
     try {
       const { files, notes } = await S.modelio.exportFiles(s.doc, format, sceneName());
       if (files.length === 1) download(files[0].blob, files[0].name);
@@ -141,7 +142,7 @@
         const { writeZip } = await import(new URL('../shared/office/zip.js', location.href).href);
         download(await writeZip(files.map((f) => ({ path: f.name, data: f.blob }))), `${sceneName()}-${format}.zip`);
       }
-      toast(notes[0] || (files.length > 1 ? `${format.toUpperCase()} saved with its ${files.length - 1} companion file${files.length > 2 ? 's' : ''}, in one zip` : `Exported ${format.toUpperCase()}`));
+      toast(notes[0] || (files.length > 1 ? t('3d.file.zip_note', { format: format.toUpperCase(), n: files.length - 1 }) : t('3d.file.exported', { format: format.toUpperCase() })));
       return files;
     } catch (e) { toast(e.message || String(e)); return null; }
   }
@@ -150,8 +151,8 @@
   /** Renders the viewport to PNG at 1× or 2× the on-screen size. */
   async function exportPng(scale) {
     if (!stageRef) return;
-    try { download(await stageRef.capture(scale), `${sceneName()}-${scale}x.png`); toast('Picture saved'); }
-    catch (e) { toast(e.message || 'Could not render'); }
+    try { download(await stageRef.capture(scale), `${sceneName()}-${scale}x.png`); toast(t('3d.file.picture_saved')); }
+    catch (e) { toast(e.message || t('3d.file.render_failed')); }
   }
 
   S.files = { newScene, openDialog, importDialog, openFromDrive, launch, save, downloadScene, exportObj, exportModel, exportPng, MODELS,

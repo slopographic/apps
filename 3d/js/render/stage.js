@@ -19,7 +19,7 @@
     let renderer;
     try {
       renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
-    } catch (e) { throw new Error('WebGL is not available in this browser'); }
+    } catch (e) { throw new Error(window.SlopI18n ? SlopI18n.t('3d.app.err_webgl') : 'WebGL is not available in this browser'); }
     renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.autoClear = false;           // we clear once per frame, so the overlay pass keeps the picture
@@ -90,7 +90,7 @@
           renderer.setPixelRatio(prev);
           renderer.setSize(w, h, false);
           dirty = true;
-          b ? resolve(b) : reject(new Error('The picture could not be made'));
+          b ? resolve(b) : reject(new Error(window.SlopI18n ? SlopI18n.t('3d.app.err_picture') : 'The picture could not be made'));
         }, 'image/png');
       });
     }

@@ -50,7 +50,7 @@
       jobs.push(D.imageBlob(r.cutout).then((b) => D.put(b, base + '-result.png', 'result')));
       it.driveSaved = await Promise.all(jobs).then((ids) => ids.filter(Boolean).length);
       CO.emit('item', it);
-    } catch (e) { console.warn('SlopIsolate: Drive save failed', e); CO.emit('toast', 'Could not save to Slop Drive: ' + (e.message || e)); }
+    } catch (e) { console.warn('SlopIsolate: Drive save failed', e); CO.emit('toast', U.t('cutout.drive.save_failed', { error: String(e.message || e) })); }
   };
   /** Video: the original and the matte (grey MP4, the same size as the frames). */
   D.saveVideo = async function (it, src, res) {
@@ -61,15 +61,15 @@
       ids.push(await D.put(m.blob, base + '-matte.mp4', 'matte'));
       it.driveSaved = ids.filter(Boolean).length;
       CO.emit('item', it);
-    } catch (e) { console.warn('SlopIsolate: Drive save failed', e); CO.emit('toast', 'Could not save the matte to Slop Drive: ' + (e.message || e)); }
+    } catch (e) { console.warn('SlopIsolate: Drive save failed', e); CO.emit('toast', U.t('cutout.drive.matte_failed', { error: String(e.message || e) })); }
   };
   /** Save an exported result (image or video) next to the rest. */
   D.saveResult = async function (it, blob, name) {
-    try { return await D.put(blob, name, 'result'); } catch (e) { CO.emit('toast', 'Could not save to Slop Drive'); return null; }
+    try { return await D.put(blob, name, 'result'); } catch (e) { CO.emit('toast', U.t('cutout.drive.save_failed_plain')); return null; }
   };
   /** File ▸ Open from Slop Drive: images and videos become queue items. */
   D.open = async function () {
     if (!D.ready()) return;
-    await SlopIntake.fromDrive({ to: 'cutout', title: 'Open from Slop Drive' }); // the intake (io/files.js)
+    await SlopIntake.fromDrive({ to: 'cutout', title: U.t('cutout.menu.drive_title') }); // the intake (io/files.js)
   };
 })();

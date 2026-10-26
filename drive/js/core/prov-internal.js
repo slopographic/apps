@@ -8,7 +8,7 @@
   const byName = (a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' });
 
   DR.internalProvider = {
-    id: 'drive', label: 'Slop Drive', kind: 'internal',
+    id: 'drive', label: 'Slop Drive', kind: 'internal',   // i18n-ignore: the app name
     rootRef: () => null,
     within: (ancestor, ref) => nr(ref) != null && DR.contains(ancestor, ref),
     async list(ref) {
@@ -20,7 +20,7 @@
     },
     async readBlob(ref) {
       const r = S.files.get(ref) || (await H().get(ref));
-      if (!r || !r.blob) throw new Error('That file is no longer in Slop Drive.');
+      if (!r || !r.blob) throw new Error(DR.t('drive.prov.file_gone'));
       return r.blob;
     },
     async uniqueName(folderRef, name, isFolder) { return DR.uniqueName(nr(folderRef), name, isFolder); },

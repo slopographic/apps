@@ -5,6 +5,7 @@
 import { S } from '../ui/state.js';
 import { toNative, fromNative } from './native.js';
 import { useWorkbook } from '../ui/storage.js';
+import { t } from '../i18n.js';
 
 const C = window.SlopConfig, D = window.SlopConfigDialog;
 const APP = 'tables';
@@ -43,16 +44,16 @@ async function apply(data, ctx) {
     return { ok: false, message: e.message };
   }
   const opened = await useWorkbook(wb, ctx.name);
-  return opened ? undefined : { ok: false, message: 'the open workbook was kept' };
+  return opened ? undefined : { ok: false, message: t('tables.config.kept') };
 }
 
 /** Palette commands and the Config menu items (ids tables.config.*). */
-const EXAMPLE = { kind: 'template', value: { pages: [{ name: 'Sheet 1', blocks: [{ type: 'table', rows: [['Item', 'Cost'], ['Rent', 900], ['Total', '=SUM(B2:B2)']] }] }] } };
+const EXAMPLE = { kind: 'template', value: { pages: [{ name: 'Sheet 1', blocks: [{ type: 'table', rows: [['Item', 'Cost'], ['Rent', 900], ['Total', '=SUM(B2:B2)']] }] }] } }; // i18n-ignore: sample content
 export function configCommands() { return D ? D.commands({ app: APP, prefix: 'tables', example: EXAMPLE }) : []; }
 
 if (C && D) {
   C.registerKind('template', APP, C.templateSchema, apply, {
-    label: 'Workbook', description: 'Sheets and their cell contents; a formula is written as text starting with =',
+    label: t('tables.config.label'), description: t('tables.config.desc'),
     read: () => pagesOf(S.wb),
   });
   D.install({ app: APP, dragover: true });

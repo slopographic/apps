@@ -21,7 +21,7 @@
     const name = DR.uniqueName(folder, `Untitled ${c.label.toLowerCase()}.${c.ext}`, false);
     const id = await H().put(new Blob([], { type: c.mime }), { name, from: 'drive', folderId: folder });
     S.files.set(id, { id, name, parent: folder, isFolder: false });
-    await DR.done(`Created ${name}`);
+    await DR.done(DR.t('drive.toast.created', { name }));
     if (DR.select && folder === DR.dest()) DR.select(['f:' + id]);
     if (open) {
       const r = await H().get(id);
@@ -33,8 +33,8 @@
   /** Menu rows for SlopUI.menu: one per creatable type. */
   DR.newItems = (folder = DR.dest()) => {
     const list = DR.creatables();
-    if (!list.length) return [{ label: 'No document types yet', disabled: true }];
-    return list.map((c) => ({ label: `${c.label} (${c.app.name})`, act: () => DR.createNew(c, folder) }));
+    if (!list.length) return [{ label: DR.t('drive.menu.no_doc_types'), disabled: true }];
+    return list.map((c) => ({ label: DR.t('drive.menu.new_doc_of', { label: c.label, app: c.app.name }), act: () => DR.createNew(c, folder) }));
   };
-  DR.newSub = (folder = DR.dest()) => ({ label: 'New', sub: DR.newItems(folder) });
+  DR.newSub = (folder = DR.dest()) => ({ label: DR.t('drive.menu.new'), sub: DR.newItems(folder) });
 })(window.DR);

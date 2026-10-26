@@ -6,18 +6,18 @@
  * click opens the image; on a selected one it keeps the selection, so the pictures being edited can be looked through. */
 (function () {
   'use strict';
-  const CO = window.CO, U = CO.util, S = CO.state, h = U.h;
+  const CO = window.CO, U = CO.util, S = CO.state, h = U.h, t = U.t;
   const Q = CO.queue = {};
   const tiles = new Map();
   const LONG = 500;
   let root = null, addBtn = null, head = null, quiet = 0; // quiet: a long press just selected, ignore its click and menu
 
   /** What a working image is doing (the engine's progress phases). */
-  const PHASE = { runtime: 'Loading', model: 'Loading', init: 'Starting', infer: 'Cutting out', refine: 'Edges' };
+  const PHASE = { runtime: 'cutout.queue.loading', model: 'cutout.queue.loading', init: 'cutout.queue.starting', infer: 'cutout.queue.cutting', refine: 'cutout.queue.edges' };
   const badgeText = (it) => {
-    if (it.status === 'working') return it.progress != null ? Math.round(it.progress * 100) + '%' : PHASE[it.phase] || 'Working…';
-    if (it.status === 'queued') return 'Queued';
-    if (it.status === 'error') return 'Error';
+    if (it.status === 'working') return it.progress != null ? Math.round(it.progress * 100) + '%' : t(PHASE[it.phase] || 'cutout.queue.working');
+    if (it.status === 'queued') return t('cutout.queue.queued');
+    if (it.status === 'error') return t('cutout.queue.error');
     return '';
   };
 
@@ -32,7 +32,7 @@
     t.btn.classList.toggle('sel', sel);
     t.btn.setAttribute('aria-current', on ? 'true' : 'false');
     t.chk.setAttribute('aria-checked', String(sel));
-    t.chk.title = sel ? 'Unselect' : 'Select';
+    t.chk.title = U.t(sel ? 'cutout.queue.unselect' : 'cutout.queue.select');
     t.btn.title = it.error ? it.name + ' — ' + it.error : it.name;
     t.badge.textContent = badgeText(it);
   }
@@ -41,14 +41,14 @@
     const img = h('img', { alt: '', draggable: 'false' });
     const badge = h('span', { class: 'q-badge' });
     // The remove and select controls are spans: they sit inside the tile button, so they cannot be nested controls.
-    const x = h('span', { class: 'q-x', role: 'button', 'aria-label': 'Remove image', title: 'Remove' });
+    const x = h('span', { class: 'q-x', role: 'button', 'aria-label': t('cutout.queue.remove_image'), title: t('ui.remove') });
     x.innerHTML = U.icon('x');
     x.addEventListener('click', (e) => {
       e.preventDefault(); e.stopPropagation();
       const it = S.get(id);
       if (it) CO.process.remove(it);
     });
-    const chk = h('span', { class: 'q-chk', role: 'checkbox', 'aria-checked': 'false', 'aria-label': 'Select picture' });
+    const chk = h('span', { class: 'q-chk', role: 'checkbox', 'aria-checked': 'false', 'aria-label': t('cutout.queue.select_picture') });
     chk.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); CO.bulk.toggle(id); });
     const btn = h('button', { type: 'button', class: 'q-item' }, img, badge, chk, x);
     btn.dataset.id = String(id);
@@ -80,14 +80,14 @@
 
   /** The header: Select all / Select none and how many are selected. */
   function makeHead() {
-    const all = h('button', { type: 'button', class: 'q-all', id: 'qSelAll' }, 'Select all');
+    const all = h('button', { type: 'button', class: 'q-all', id: 'qSelAll' }, t('ui.select_all'));
     all.addEventListener('click', () => CO.bulk.toggleAll());
     const n = h('span', { class: 'q-n', 'aria-live': 'polite' });
     head = h('div', { class: 'q-head' }, all, n);
     head.sync = () => {
       const count = S.sel.size, every = S.items.length > 0 && S.items.every((it) => S.sel.has(it.id));
-      all.textContent = every ? 'Select none' : 'Select all';
-      n.textContent = count ? count + ' selected' : '';
+      all.textContent = t(every ? 'ui.select_none' : 'ui.select_all');
+      n.textContent = count ? t('cutout.queue.n_selected', { n: count }) : '';
       head.hidden = S.items.length < 2 && !count;
       root.classList.toggle('selecting', count > 0);
     };
@@ -119,7 +119,7 @@
     root = U.$('#queue');
     if (!root) return;
     makeHead();
-    addBtn = h('button', { type: 'button', class: 'q-add', 'aria-label': 'Add images', title: 'Add images' });
+    addBtn = h('button', { type: 'button', class: 'q-add', 'aria-label': t('cutout.queue.add'), title: t('cutout.queue.add'), 'data-i18n-attr': 'aria-label:cutout.queue.add;title:cutout.queue.add' });
     addBtn.innerHTML = U.icon('plus');
     addBtn.addEventListener('click', () => CO.files.open());
     // A long press on a touch screen selects; the menu the browser opens for it is not wanted then.
@@ -132,6 +132,8 @@
     CO.on('thumb', one);
     CO.on('sel', render);
     CO.on('progress', ({ it }) => { const t = tiles.get(it.id); if (t) update(t, it); });
+    // A language change: new tiles (their labels are set once) and a new header, in the new language.
+    U.onLang(() => { tiles.forEach((tl) => tl.btn.remove()); tiles.clear(); makeHead(); render(); });
     render();
   };
 })();

@@ -4,7 +4,7 @@
  * (register, and open a file another app sent here with ?drive=). */
 (function () {
   'use strict';
-  const CO = window.CO, U = CO.util, S = CO.state, $ = U.$;
+  const CO = window.CO, U = CO.util, S = CO.state, $ = U.$, t = U.t;
   const MODULES = ['view', 'pointer', 'ctxbar', 'panel', 'queue', 'menus', 'commands', 'ctxmenu', 'files', 'send', 'videoPlayer', 'bulk', 'thumbs', 'openIn', 'viewState'];
   let busyBy = null;
 
@@ -23,12 +23,12 @@
     const it = S.current(), P = CO.process;
     $('#statusLeft').textContent = it
       ? it.name + (it.w ? ' · ' + it.w + ' × ' + it.h : '') + (it.file ? ' · ' + U.fmtBytes(it.file.size) : '')
-      : 'No image';
+      : t('cutout.app.no_image');
     let msg = '';
     if (it) {
-      if (it.status === 'error') msg = it.error || 'Could not cut out this image';
-      else if (it.status === 'working') msg = 'Cutting out…';
-      else if (it.status === 'queued') msg = P && P.pending() > 1 ? 'Queued · ' + (P.pending() - 1) + ' more' : 'Queued';
+      if (it.status === 'error') msg = it.error || t('cutout.app.st_error');
+      else if (it.status === 'working') msg = t('cutout.app.st_cutting');
+      else if (it.status === 'queued') msg = P && P.pending() > 1 ? t('cutout.app.st_queued_more', { n: P.pending() - 1 }) : t('cutout.app.st_queued');
     }
     $('#statusMsg').textContent = msg;
   }
@@ -39,7 +39,7 @@
     const b = $('#btnDownload'), it = S.current(), fmt = S.exportOpts.format.toUpperCase();
     const many = S.bulk(), ready = many ? S.targets().filter((t) => t.status === 'done').length : 0;
     b.disabled = many ? !ready : !(it && it.status === 'done' && it.kind !== 'video');
-    const label = many ? `Export ${ready} picture${ready === 1 ? '' : 's'} (ZIP)` : 'Download ' + fmt;
+    const label = many ? t('cutout.app.export_n_zip', { n: ready }) : t('cutout.app.download_fmt', { fmt });
     U.btnIcon(b, 'download', label);
     b.title = label;
   }
@@ -48,7 +48,7 @@
     const el = $('#busy');
     el.hidden = !on;
     if (!on) return;
-    el.querySelector('.busy-msg').textContent = msg || 'Working…';
+    el.querySelector('.busy-msg').textContent = msg || t('cutout.app.working');
     const none = progress == null;
     el.classList.toggle('indeterminate', none);
     el.querySelector('.busy-bar i').style.width = none ? '' : Math.round(U.clamp(progress, 0, 1) * 100) + '%';
@@ -77,7 +77,7 @@
     CO.on('progress', ({ p }) => {
       if (!p || !['runtime', 'model', 'init'].includes(p.phase)) { if (busyBy === 'progress') { busyBy = null; showBusy(false); } return; }
       busyBy = 'progress';
-      showBusy(true, 'Loading the AI model…', p && p.total ? p.loaded / p.total : null);
+      showBusy(true, t('cutout.app.loading_model'), p && p.total ? p.loaded / p.total : null);
     });
     CO.on('busy', (d) => { busyBy = d.on ? 'busy' : null; showBusy(!!d.on, d.msg, d.progress); });
     CO.on('toast', (msg) => { if (window.SlopUI) SlopUI.toast(msg); });
@@ -96,10 +96,12 @@
 
   /** The suite rule (shared/frame/HANDOFF.md): the main buttons (Send back, Open in…, Download) sit at the foot of the
    *  settings panel (the shared footer, shared/frame/panel.js); on a phone the closed settings sheet still shows them. */
+  let frame = null;   // made once; footer() again (a language change) redraws only its footer
   function footer() {
     if (!window.SlopFramePanel) return;
     const acts = ['#btnSendBack', '#btnOpenIn', '#btnDownload'].map((id) => $(id)).filter(Boolean).map((el) => ({ el }));
-    SlopFramePanel.create($('#props'), { bare: true }).footer(acts, { more: 'Settings', onMore: () => CO.sheet && CO.sheet.toggle() });
+    if (!frame) frame = SlopFramePanel.create($('#props'), { bare: true });
+    frame.footer(acts, { more: t('cutout.app.settings'), onMore: () => CO.sheet && CO.sheet.toggle() });
   }
 
   function boot() {
@@ -108,6 +110,7 @@
     wire();
     CO.viewState.restore().catch(function (e) { console.warn('SlopIsolate: the last session was not restored', e); }); // ui/view-state.js
     mode(); status(); download(); guardSync();
+    U.onLang(() => { status(); download(); footer(); });   // the status bar and the main buttons follow a language switch
     hubBoot().catch((e) => console.warn('SlopIsolate: Slop Hub is not available', e));
   }
 

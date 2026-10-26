@@ -22,7 +22,7 @@
       }
       return parent;
     }
-    DR.status && DR.status(`Uploading ${list.length} file${list.length === 1 ? '' : 's'}…`);
+    DR.status && DR.status(DR.t('drive.toast.uploading_n', { n: list.length }));
     for (const { file, path } of list) {
       const parts = (path || file.name).split('/').filter(Boolean);
       const name = parts.pop() || file.name, folder = await folderFor(parts);
@@ -32,7 +32,7 @@
       S.files.set(id, { id, name, parent: folder, isFolder: false });
       ids.push('f:' + id);
     }
-    await DR.done(`Uploaded ${list.length} file${list.length === 1 ? '' : 's'}`);
+    await DR.done(DR.t('drive.toast.uploaded_n', { n: list.length }));
     if (DR.select) DR.select(ids.filter((k) => DR.item(k) && DR.item(k).parent === (S.section === 'folder' ? S.cwd : null)));
     return ids;
   };
@@ -69,9 +69,9 @@
   DR.download = async function (items) {
     if (!items.length) return;
     if (items.length === 1 && !items[0].isFolder) return DR.downloadFile(items[0]);
-    DR.status && DR.status('Zipping…');
+    DR.status && DR.status(DR.t('drive.toast.zipping'));
     const blob = await window.SlopZip.zip(zipEntries(items));
-    window.SlopUI.download(blob, (items.length === 1 ? items[0].name : 'Slop Drive') + '.zip');
+    window.SlopUI.download(blob, (items.length === 1 ? items[0].name : 'Slop Drive') + '.zip');   // i18n-ignore: a file name
     DR.status && DR.status('');
   };
 
@@ -112,7 +112,7 @@
   /** Double-click / Enter: folders open, files open in their default app, or in Quick Look if no app takes them. */
   DR.open = function (it) {
     if (!it) return;
-    if (it.isFolder) { if (it.trashedAt || DR.hidden(it)) return DR.toast('Restore the folder to open it'); return DR.go(it.id); }
+    if (it.isFolder) { if (it.trashedAt || DR.hidden(it)) return DR.toast(DR.t('drive.toast.restore_to_open')); return DR.go(it.id); }
     const app = it.trashedAt ? null : DR.defaultAppFor(it);
     if (app) return DR.openWith(it, app.id);
     DR.quickLook && DR.quickLook(it);

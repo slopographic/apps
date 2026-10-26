@@ -39,7 +39,7 @@
       const q = String(a.search || '').toLowerCase(), f = a.search ? undefined : folderOf(a.folder);
       const items = q ? all().filter((it) => it.name.toLowerCase().includes(q)) : [...DR.children(f).folders, ...DR.children(f).files];
       return items.slice(0, a.limit).map((it) => ({ path: path(it), id: it.id, folder: !!it.isFolder, size: it.isFolder ? undefined : it.size, type: it.isFolder ? undefined : it.type, starred: !!it.starred }));
-    }, { macro: false, description: 'List the files and folders in a folder, or search them by name.' });
+    }, { macro: false, description: 'List the files and folders in a folder, or search them by name.' });   // i18n-ignore: the assistant's tool text (API)
 
   add('new_folder', 'New folder', [Str('name', 'the folder name', { required: true, maxLength: 200 }), FOLDER], async (a) => {
     const id = await DR.newFolder(folderOf(a.folder), a.name);
@@ -56,11 +56,11 @@
     await DR.done();
     log.push({ kind: 'made', key: 'f:' + id });
     return `Created “${name}” in ${where(folder)} (id ${id}).`;
-  }, { description: 'Make a text file (any text format: .txt, .md, .csv, .json, .html, .svg…) with its content.' });
+  }, { description: 'Make a text file (any text format: .txt, .md, .csv, .json, .html, .svg…) with its content.' });   // i18n-ignore: the assistant's tool text (API)
 
   const KINDS = DR.creatables ? DR.creatables().map((c) => [c.app.id, `${c.label} (${c.app.name})`]) : [];
-  add('new_document', 'New document of an app', [{ name: 'kind', type: 'enum', options: KINDS, required: true, description: 'the app whose blank file to make (the New menu)' },
-    FOLDER, Str('name', 'a name instead of “Untitled …”', { maxLength: 200 }), { name: 'open', type: 'boolean', default: false, description: 'open it in its app' }],
+  add('new_document', 'New document of an app', [{ name: 'kind', type: 'enum', options: KINDS, required: true, description: 'the app whose blank file to make (the New menu)' },   // i18n-ignore: the assistant's tool text (API)
+    FOLDER, Str('name', 'a name instead of “Untitled …”', { maxLength: 200 }), { name: 'open', type: 'boolean', default: false, description: 'open it in its app' }],   // i18n-ignore: the assistant's tool text (API)
   async (a) => {
     const folder = folderOf(a.folder), id = await DR.createNew(a.kind, folder, { open: false });
     if (!id) throw new Error(`No app makes “${a.kind}” files`);
@@ -69,7 +69,7 @@
     const it = DR.item('f:' + id);
     if (a.open) await H().sendTo(a.kind, null, it.name, { id });
     return `Created the blank “${it.name}” in ${where(folder)} (id ${id})${a.open ? ' and opened it' : ''}.`;
-  }, { description: 'A blank document of an app (presentation, document, spreadsheet, drawing…), as File ▸ New does.' });
+  }, { description: 'A blank document of an app (presentation, document, spreadsheet, drawing…), as File ▸ New does.' });   // i18n-ignore: the assistant's tool text (API)
 
   add('move_item', 'Move', [ITEM, Object.assign({}, FOLDER, { name: 'to', required: true, description: 'the folder to move it to; "/" for the top' })], async (a) => {
     const it = find(a.item), before = { parent: it.parent, name: it.name }, to = folderOf(a.to);
@@ -97,7 +97,7 @@
   }, { destructive: true });
   add('download_items', 'Download', [{ name: 'items', type: 'array', required: true, maxItems: 200, items: { type: 'string' }, description: 'paths or ids; folders and several items come as one ZIP' }],
     async (a) => { const items = a.items.map((q) => find(q)); await DR.download(items); return `Downloaded ${items.length === 1 && !items[0].isFolder ? '“' + items[0].name + '”' : 'a ZIP of ' + items.length + ' item' + (items.length === 1 ? '' : 's')}.`; },
-    { description: 'Download files (one file as it is; folders or several items as a ZIP).', macro: false });
+    { description: 'Download files (one file as it is; folders or several items as a ZIP).', macro: false });   // i18n-ignore: the assistant's tool text (API)
 
   /** Undo what the assistant did since the mark, newest first: made items go to the Trash, the rest is put back. */
   async function undoTo(mark) {

@@ -23,7 +23,7 @@ function setLook(a) {
   const before = H.snapLook(it);
   into(it);
   S.rememberLook(it);
-  H.pushLook(it, before, 'Macro');
+  H.pushLook(it, before, 'cutout.undo.macro');
   // the model is the app's (an image of its own model follows it again): the images it changes run again
   if (a.model && it.model && it.model !== a.model) it.model = null;
   if (newModel || (a.model && it.modelUsed && it.modelUsed !== a.model)) CO.process.followModel(); else CO.emit('look', it);
@@ -32,10 +32,13 @@ function setLook(a) {
 }
 
 if (CO && SM && g.SlopCmd && OP) {
-  g.SlopCmd.register([{ id: 'co.look', title: 'Set the model and look', group: 'Edit', hidden: true, args: argsOf(OP), run: (a) => setLook(a || {}),
+  // the title is the person's (the macro's step), in the chosen language; the description is the assistant's (API, English)
+  const look = () => g.SlopCmd.register([{ id: 'co.look', title: CO.util.t('cutout.cmd.look'), group: CO.util.t('menu.edit'), hidden: true, args: argsOf(OP), run: (a) => setLook(a || {}),
     description: 'Set the background (see-through, a colour or the photo blurred), shadow, crop and model, as Remove background does.' }]);
+  look();
+  CO.util.onLang(look);
   // what the panel changes (kit.js look edits, the model) is noted as that one command
   CO.lookArgs = lookArgs;   // the assistant's state (ui/ai-commands.js) reads the look as co.look's arguments
-  CO.macroLook = (it) => SM.note('co.look', lookArgs(it), 'Model and look', { merge: true });
+  CO.macroLook = (it) => SM.note('co.look', lookArgs(it), CO.util.t('cutout.macro.look_note'), { merge: true });
   SM.init({ app: 'slopisolate', label: 'SlopIsolate' });
 }

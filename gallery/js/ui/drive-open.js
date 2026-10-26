@@ -13,6 +13,7 @@
   const H = () => window.SlopHub;
   const toast = (m) => window.SlopUI && SlopUI.toast(m);
   let audio = null, audioUrl = null;
+  const t = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
 
   /** The app for a MIME type, by the registry rule. Returns null when no app takes it. */
   function appFor(type) {
@@ -33,12 +34,12 @@
     const app = appFor(item.type);
     if (!app) {
       const ext = window.SlopKinds.extOf(item.name);
-      toast(`No Slop app opens ${ext ? '.' + ext : 'this kind of'} files. Open it in Slop Drive.`);
+      toast(ext ? t('gallery.drive.no_app', { ext }) : t('gallery.drive.no_app_kind'));
       return;
     }
-    sendToApp(app.id, item, `Opened in ${app.name}`);
+    sendToApp(app.id, item, t('gallery.drive.opened_in', { app: app.name }));
   }
-  function inThreeD(item) { if (H()) sendToApp('3d', item, 'Opened in Slop 3D'); }
+  function inThreeD(item) { if (H()) sendToApp('3d', item, t('gallery.drive.opened_3d')); }
 
   function strip() {
     if (!audio) {
@@ -58,7 +59,7 @@
   }
   async function playAudio(item) {
     const rec = await H().get(item.id);
-    if (!rec || !rec.blob) { toast('That file is no longer in Slop Drive.'); return; }
+    if (!rec || !rec.blob) { toast(t('gallery.drive.gone')); return; }
     stop();
     const s = strip();
     audioUrl = URL.createObjectURL(rec.blob);

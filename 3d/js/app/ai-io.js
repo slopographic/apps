@@ -25,13 +25,13 @@
   };
   AI.exportCommand = function (add) {
     add('export_scene', 'Export the scene', [{ name: 'format', type: 'enum', values: ['glb', 'gltf', 'obj', 'stl', 'ply', 'usdz', 's3d', 'png'], default: 'glb' },
-      { name: 'to', type: 'enum', values: ['drive', 'download', 'both'], default: 'drive' }, { name: 'scale', type: 'number', min: 1, max: 4, default: 1, integer: true, description: 'PNG: times the viewport size' }],
+      { name: 'to', type: 'enum', values: ['drive', 'download', 'both'], default: 'drive' }, { name: 'scale', type: 'number', min: 1, max: 4, default: 1, integer: true, description: 'PNG: times the viewport size' }], // i18n-ignore: the assistant's tool text (API)
     async (a) => {
       const f = await AI.fileOf(a.format, a.scale), out = [];
       if (a.to !== 'download') { await AI.sources(); out.push(`Saved ${f.name} to Slop Drive (id ${await SlopCmdSources.put(f.blob, f.name, '3d')})`); }
       if (a.to !== 'drive' && window.SlopUI) { SlopUI.download(f.blob, f.name); out.push(`downloaded ${f.name}`); }
       return out.join(' and ') + '.';
-    }, { description: 'Save the scene as GLB, glTF, OBJ, STL, PLY, USDZ, .s3d or a PNG picture, to Slop Drive and/or a download.' });
+    }, { description: 'Save the scene as GLB, glTF, OBJ, STL, PLY, USDZ, .s3d or a PNG picture, to Slop Drive and/or a download.' }); // i18n-ignore: the assistant's tool text (API)
   };
 
   AI.state = function () {

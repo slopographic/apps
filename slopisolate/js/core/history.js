@@ -1,6 +1,7 @@
 /* SlopIsolate — per-image undo/redo. Every image keeps its own two stacks (item.hist).
  * Entries: { kind: 'stroke', label, tiles, rect } (brush strokes, see brush.js) and
- * { kind: 'look', label, before, after } (edge, background, shadow and crop changes).
+ * { kind: 'look', label, before, after } (edge, background, shadow and crop changes). A label is a string key of the
+ * app's tables (cutout.undo.*, cutout.panel.*) or plain text; H.label() gives it in the chosen language.
  * A stroke entry is its own inverse: CO.brush.swap exchanges the bytes, so the same entry
  * goes to the other stack after it is applied.
  * A bulk change (the settings panel editing several images) pushes one entry per image with the same `group`: undoing or
@@ -47,7 +48,7 @@
   H.pushLook = function (it, before, label, group) {
     const after = snap(it);
     if (JSON.stringify(before) === JSON.stringify(after)) return false;
-    const e = { kind: 'look', label: label || 'Look', before, after };
+    const e = { kind: 'look', label: label || 'cutout.undo.look', before, after };
     if (group) e.group = group;
     H.push(it, e);
     return true;
@@ -73,7 +74,10 @@
   H.redo = (it) => step(it, 'redo', 'undo', 'after', 'redo');
 
   H.can = (it, dir) => !!(it && it.hist && it.hist[dir].length);
-  H.label = (it, dir) => { const e = it && it.hist && it.hist[dir][it.hist[dir].length - 1]; return e ? e.label : ''; };
+  /* ui/edit.js names its two steps in English (tests/node/slopisolate-settings.test.mjs reads them); these are their keys. */
+  const NAMED = { 'Paste settings': 'cutout.undo.paste', 'Apply settings to all': 'cutout.undo.apply_all' };
+  const tr = (l) => (U.t ? U.t(NAMED[l] || l) : l);
+  H.label = (it, dir) => { const e = it && it.hist && it.hist[dir][it.hist[dir].length - 1]; return e ? tr(e.label) : ''; };
   H.clear = (it) => { if (it) it.hist = { undo: [], redo: [] }; };
   U.LOOK_KEYS = LOOK_KEYS;
 })();

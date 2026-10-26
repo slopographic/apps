@@ -4,7 +4,7 @@
  * If no tab answers, the mask is saved to Slop Drive as a grey PNG and the cut-out opens in a new PhotoSlop tab. */
 (function () {
   'use strict';
-  const CO = window.CO, U = CO.util, S = CO.state, P = CO.process, C = CO.compose;
+  const CO = window.CO, U = CO.util, S = CO.state, P = CO.process, C = CO.compose, t = U.t;
   const SEND = CO.send = {};
   const ACK_MS = 3000;
   const hub = () => (document.documentElement.dataset.offline ? null : window.SlopHub || null);
@@ -30,36 +30,36 @@
 
   /** Send back the mask of a PhotoSlop-launched image (it becomes that layer's mask in PhotoSlop). */
   SEND.mask = async function (it = S.current()) {
-    if (!hub()) return toast('Slop Drive is not available here');
-    if (!ready(it)) return toast('Wait for the cutout first');
-    if (!it.request) return toast('This image did not come from PhotoSlop. Use Send to PhotoSlop as a new layer.');
+    if (!hub()) return toast(t('cutout.act.no_drive'));
+    if (!ready(it)) return toast(t('cutout.send.wait'));
+    if (!it.request) return toast(t('cutout.send.not_photoslop'));
     await withRecord(it, async (rec) => {
       const { requestId } = it.request;
       const ack = await ask('slopisolate:mask', 'photoslop:mask-ack', { requestId, w: rec.w, h: rec.h, mask: rec.mask.slice() });
-      if (ack && ack.ok) return toast('Mask sent to PhotoSlop');
-      if (ack) return toast(ack.error || 'PhotoSlop could not take the mask');
+      if (ack && ack.ok) return toast(t('cutout.send.mask_sent'));
+      if (ack) return toast(ack.error || t('cutout.send.mask_refused'));
       // Nobody is waiting for it (PhotoSlop was closed): keep the mask as a grey PNG in Slop Drive.
       const px = new ImageData(window.SlopMaskTransfer.toGrey(rec.mask), rec.w, rec.h);
       const blob = await SlopCutout.toBlob(px, 'image/png');
       await hub().put(blob, { name: U.baseName(it.name) + '-mask.png', from: 'cutout' });
-      toast('PhotoSlop is not open. The mask is saved in Slop Drive.');
+      toast(t('cutout.send.mask_drive'));
     });
   };
 
   /** Send the cut-out (PNG with alpha) to PhotoSlop as a new layer, or open it in a new PhotoSlop tab. */
   SEND.layer = async function (it = S.current()) {
-    if (!hub()) return toast('Slop Drive is not available here');
-    if (!ready(it)) return toast('Wait for the cutout first');
+    if (!hub()) return toast(t('cutout.act.no_drive'));
+    if (!ready(it)) return toast(t('cutout.send.wait'));
     await withRecord(it, async (rec) => {
       const blob = await U.blobOf(C.cutCanvas(rec), 'image/png');
       const name = U.baseName(it.name) + '-cutout.png';
       if (it.request) {
         const ack = await ask('slopisolate:layer', 'photoslop:layer-ack', { requestId: it.request.requestId, blob, name });
-        if (ack && ack.ok) return toast('Added to PhotoSlop as a new layer');
-        if (ack) return toast(ack.error || 'PhotoSlop could not add the layer');
+        if (ack && ack.ok) return toast(t('cutout.send.layer_added'));
+        if (ack) return toast(ack.error || t('cutout.send.layer_refused'));
       }
       await hub().sendTo('photoslop', blob, name);
-      toast('Opened in PhotoSlop');
+      toast(t('cutout.send.opened'));
     });
   };
 
@@ -67,7 +67,9 @@
   SEND.init = function () {
     const btn = U.$('#btnSendBack');
     if (!btn) return;
-    U.btnIcon(btn, 'send', 'Send back to PhotoSlop');
+    const label = () => U.btnIcon(btn, 'send', t('cutout.app.send_back'));
+    label();
+    U.onLang(label);
     btn.addEventListener('click', () => SEND.mask());
     const sync = () => {
       const it = S.current();

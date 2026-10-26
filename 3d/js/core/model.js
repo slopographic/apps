@@ -24,8 +24,8 @@
   }
   /** A new scene starts with a sun and an ambient light, so a first object is lit. */
   function defaultScene(name) {
-    let r = addNode(emptyScene(name), { type: 'light', name: 'Sun', light: { kind: 'directional', color: '#fff4e0', intensity: 2.2 }, transform: transform([3, 5, 4]) });
-    r = addNode(r.scene, { type: 'light', name: 'Ambient', light: { kind: 'ambient', color: '#ffffff', intensity: 0.6 } });
+    let r = addNode(emptyScene(name), { type: 'light', name: 'Sun', light: { kind: 'directional', color: '#fff4e0', intensity: 2.2 }, transform: transform([3, 5, 4]) }); // i18n-ignore: object names: scene content
+    r = addNode(r.scene, { type: 'light', name: 'Ambient', light: { kind: 'ambient', color: '#ffffff', intensity: 0.6 } }); // i18n-ignore: object names: scene content
     return r.scene;
   }
   const nextId = (scene) => { scene.seq += 1; return 'n' + scene.seq; };
@@ -129,18 +129,18 @@
 
   /** Presets used by Add menu and toolbar. */
   const PRESETS = {
-    cube: { name: 'Cube', geom: { kind: 'cube' } }, sphere: { name: 'Sphere', geom: { kind: 'sphere' } },
-    cylinder: { name: 'Cylinder', geom: { kind: 'cylinder' } }, cone: { name: 'Cone', geom: { kind: 'cone' } },
-    torus: { name: 'Torus', geom: { kind: 'torus' } }, plane: { name: 'Plane', geom: { kind: 'plane' } },
-    blob: { name: 'Blob', geom: { kind: 'blob' } },
+    cube: { name: 'Cube', geom: { kind: 'cube' } }, sphere: { name: 'Sphere', geom: { kind: 'sphere' } }, // i18n-ignore: object names: scene content
+    cylinder: { name: 'Cylinder', geom: { kind: 'cylinder' } }, cone: { name: 'Cone', geom: { kind: 'cone' } }, // i18n-ignore: object names: scene content
+    torus: { name: 'Torus', geom: { kind: 'torus' } }, plane: { name: 'Plane', geom: { kind: 'plane' } }, // i18n-ignore: object names: scene content
+    blob: { name: 'Blob', geom: { kind: 'blob' } }, // i18n-ignore: object names: scene content
   };
   function presetSpec(kind) {
     if (kind === 'directional' || kind === 'ambient') {
       return kind === 'ambient'
-        ? { type: 'light', name: 'Ambient', light: { kind, color: '#ffffff', intensity: 0.6 } }
-        : { type: 'light', name: 'Sun', light: { kind, color: '#fff4e0', intensity: 2.2 }, transform: { p: [3, 5, 4] } };
+        ? { type: 'light', name: 'Ambient', light: { kind, color: '#ffffff', intensity: 0.6 } } // i18n-ignore: object names: scene content
+        : { type: 'light', name: 'Sun', light: { kind, color: '#fff4e0', intensity: 2.2 }, transform: { p: [3, 5, 4] } }; // i18n-ignore: object names: scene content
     }
-    if (kind === 'group') return { type: 'group', name: 'Group' };
+    if (kind === 'group') return { type: 'group', name: 'Group' }; // i18n-ignore: object names: scene content
     const p = PRESETS[kind];
     return p ? { type: 'mesh', name: p.name, geom: S.geometry.normalize(p.geom) } : null;
   }

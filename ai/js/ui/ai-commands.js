@@ -31,21 +31,21 @@
   const save = async (c) => { if (c.messages.length) await AI.db.put(c); AI.emit('convs', c); };
   const refreshBar = () => { P().render(); if (P().opts.onDone) P().opts.onDone(P().conv); };   // onDone redraws the chat bar (chatlist.js)
   const SETTINGS = [
-    { name: 'persona', type: 'enum', values: PERSONAS, description: 'helper (default), sloppo, coder, writer, or custom (with system)' },
-    { name: 'system', type: 'string', maxLength: 8000, description: 'a system prompt of your own (makes the persona custom)' },
-    { name: 'temperature', type: 'number', min: 0, max: 2, description: 'lower is focused, higher is creative' },
-    { name: 'max_tokens', type: 'number', integer: true, min: 16, max: 8192, description: 'the longest reply' },
-    { name: 'tools', type: 'boolean', description: 'Control apps: let the model open apps and save files (asks before anything destructive)' },
+    { name: 'persona', type: 'enum', values: PERSONAS, description: 'helper (default), sloppo, coder, writer, or custom (with system)' }, // i18n-ignore: for the assistant (API)
+    { name: 'system', type: 'string', maxLength: 8000, description: 'a system prompt of your own (makes the persona custom)' }, // i18n-ignore
+    { name: 'temperature', type: 'number', min: 0, max: 2, description: 'lower is focused, higher is creative' }, // i18n-ignore
+    { name: 'max_tokens', type: 'number', integer: true, min: 16, max: 8192, description: 'the longest reply' }, // i18n-ignore
+    { name: 'tools', type: 'boolean', description: 'Control apps: let the model open apps and save files (asks before anything destructive)' }, // i18n-ignore
   ];
 
-  add('new_chat', 'New chat', [{ name: 'title', type: 'string', maxLength: 80, description: 'optional title' }].concat(SETTINGS), (a) => {
+  add('new_chat', 'New chat', [{ name: 'title', type: 'string', maxLength: 80, description: 'optional title' }].concat(SETTINGS), (a) => { // i18n-ignore
     notBusy();
     const c = AI.newChat(), done = apply(c, a);
     refreshBar();
     return `Opened a new chat${done.length ? ' with ' + done.join(', ') : ''}. It is saved once it has a message (add_message or send_message).`;
-  }, { description: 'Start a new chat in Slop AI, optionally with a persona or system prompt and settings.' });
+  }, { description: 'Start a new chat in Slop AI, optionally with a persona or system prompt and settings.' }); // i18n-ignore
 
-  add('open_chat', 'Open a chat', [{ name: 'chat', type: 'string', required: true, maxLength: 200, description: 'the chat\'s title (or a part of it) or id' }], async (a) => {
+  add('open_chat', 'Open a chat', [{ name: 'chat', type: 'string', required: true, maxLength: 200, description: 'the chat\'s title (or a part of it) or id' }], async (a) => { // i18n-ignore
     notBusy();
     const s = String(a.chat).toLowerCase(), all = await AI.db.list('chat');
     const c = all.find((x) => String(x.id) === a.chat) || all.find((x) => x.title.toLowerCase() === s) || all.find((x) => x.title.toLowerCase().includes(s));
@@ -53,7 +53,7 @@
     if (AI.tab !== 'chat') AI.setTab('chat');
     await AI.openConv(c.id);
     return `Opened “${c.title}” (${c.messages.length} messages).`;
-  }, { description: 'Open one of the saved chats.' });
+  }, { description: 'Open one of the saved chats.' }); // i18n-ignore
 
   add('add_message', 'Add a message', [
     { name: 'text', type: 'string', required: true, maxLength: 50000 },
@@ -62,11 +62,11 @@
     notBusy();
     const c = await P().ensureConv(), text = String(a.text);
     c.messages.push({ role: a.role, content: text, time: Date.now() });
-    if (/^New chat$/.test(c.title) && a.role === 'user') c.title = text.replace(/\s+/g, ' ').slice(0, 48);
+    if (AI.isBlankTitle(c.title) && a.role === 'user') c.title = text.replace(/\s+/g, ' ').slice(0, 48);
     await AI.db.put(c);
     refreshBar();
     return `Added a ${a.role} message to “${c.title}” (${c.messages.length} messages). The model did not run; send_message asks it for a reply.`;
-  }, { description: 'Put a message in the open chat as written, without running the model (a note, or a reply you wrote).' });
+  }, { description: 'Put a message in the open chat as written, without running the model (a note, or a reply you wrote).' }); // i18n-ignore
 
   add('send_message', 'Send a message', [{ name: 'text', type: 'string', required: true, maxLength: 20000 }], async (a) => {
     notBusy();
@@ -77,16 +77,16 @@
     if (!bot) throw new Error('No reply came back');
     if (bot.error) throw new Error('The model failed: ' + String(bot.display || '').replace(/^⚠️ /, ''));
     return `Reply from ${E.label()}${bot.stopped ? ' (stopped)' : ''}:\n${String(bot.content).slice(0, 6000)}`;
-  }, { description: 'Send a user message in the open chat and wait for the loaded model\'s reply (runs on this device). Fails, sending nothing, when no model is loaded.' });
+  }, { description: 'Send a user message in the open chat and wait for the loaded model\'s reply (runs on this device). Fails, sending nothing, when no model is loaded.' }); // i18n-ignore
 
-  add('set_settings', 'Chat settings', [{ name: 'title', type: 'string', maxLength: 80, description: 'rename the chat' }].concat(SETTINGS), async (a) => {
+  add('set_settings', 'Chat settings', [{ name: 'title', type: 'string', maxLength: 80, description: 'rename the chat' }].concat(SETTINGS), async (a) => { // i18n-ignore
     notBusy();
     const c = await P().ensureConv(), done = apply(c, a);
     if (!done.length) throw new Error('Give a setting to change');
     await save(c);
     refreshBar();
     return `“${c.title}”: ${done.join(', ')}.`;
-  }, { description: 'Change the open chat\'s persona, system prompt, temperature, max tokens, Control apps or title.' });
+  }, { description: 'Change the open chat\'s persona, system prompt, temperature, max tokens, Control apps or title.' }); // i18n-ignore
 
   add('export_chat', 'Export the chat', [
     { name: 'format', type: 'enum', options: [['md', 'Markdown'], ['json', 'JSON (Import reads it back)']], default: 'md' },
@@ -102,7 +102,7 @@
     }
     if (a.to !== 'drive') { window.SlopUI.download(blob, name); out.push(`downloaded ${name}`); }
     return out.join(' and ').replace(/^./, (x) => x.toUpperCase()) + '.';
-  }, { description: 'Export the open chat as Markdown or JSON to Slop Drive and/or a download.' });
+  }, { description: 'Export the open chat as Markdown or JSON to Slop Drive and/or a download.' }); // i18n-ignore
 
   function state() {
     const c = P().conv, cut = (s, n) => (s.length > n ? s.slice(0, n) + '…' : s);

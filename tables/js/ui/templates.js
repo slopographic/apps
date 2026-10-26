@@ -7,17 +7,20 @@ import { toTemplateBlob, parseTemplate, TEMPLATE_MIME, TEMPLATE_EXT } from '../i
 import { BUILTIN, builtinById, buildWorkbook } from '../templates/index.js';
 import * as store from './template-store.js';
 import { useWorkbook } from './storage.js';
+import { t as tr } from '../i18n.js';
 
 const hub = () => window.SlopHub || null;
 const UI = () => window.SlopUI;
 const el = (...a) => UI().el(...a);
-const safe = (s) => String(s).replace(/[\\/:*?"<>|]/g, '-').trim() || 'Template';
+const safe = (s) => String(s).replace(/[\\/:*?"<>|]/g, '-').trim() || tr('tables.tpl.file_fallback');
 const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 const fileName = (name) => `${safe(name)}.${TEMPLATE_EXT}`;
 const errText = (err) => (err && err.message) || String(err);
 
 /* An entry is { name, description, native, mine }: mine is the stored record, or null for a built-in. */
-const builtinEntries = () => BUILTIN.map((t) => ({ name: t.name, description: t.description, native: toNative(buildWorkbook(t)), mine: null }));
+/** A built-in template's name and description in the chosen language (tables.tpl.<id>_name, _desc). */
+const builtinName = (t) => tr('tables.tpl.' + t.id.replace(/-/g, '_') + '_name');
+const builtinEntries = () => BUILTIN.map((t) => ({ name: builtinName(t), description: tr('tables.tpl.' + t.id.replace(/-/g, '_') + '_desc'), native: toNative(buildWorkbook(t)), mine: null }));
 const mineEntries = async () => (await store.listMine()).map((rec) => ({ name: rec.name, description: rec.description, native: rec.native, mine: rec }));
 
 /** The entry's workbook as built by the engine (formulas computed). */
@@ -46,11 +49,11 @@ export function openTemplates() {
   if (current) return;
   const list = el('div', { class: 'tpl-list' });
   const dlg = UI().dialog({
-    title: 'New from template', cls: 'sui-wide tpl-dlg', body: el('div', { class: 'tpl-body' }, list),
+    title: tr('tables.tpl.dlg_title'), cls: 'sui-wide tpl-dlg', body: el('div', { class: 'tpl-body' }, list),
     buttons: [
-      { label: 'Import file…', act: () => { importFile(); return false; } },
-      { label: 'Import from Drive…', act: () => { importFromDrive(); return false; } },
-      { label: 'Close', primary: true },
+      { label: tr('tables.tpl.import_file'), act: () => { importFile(); return false; } },
+      { label: tr('tables.tpl.import_drive'), act: () => { importFromDrive(); return false; } },
+      { label: tr('menu.close'), primary: true },
     ],
     onClose: () => { current = null; },
   });
@@ -62,14 +65,14 @@ export function openTemplates() {
 async function renderList() {
   if (!current) return;
   let mine = [];
-  try { mine = await mineEntries(); } catch (e) { toast('Could not read My templates: ' + errText(e)); }
+  try { mine = await mineEntries(); } catch (e) { toast(tr('tables.tpl.read_failed', { error: errText(e) })); }
   if (!current) return;
   current.list.replaceChildren(
-    el('h3', null, 'Built-in templates'),
+    el('h3', null, tr('tables.tpl.builtin')),
     el('div', { class: 'tpl-grid' }, builtinEntries().map(card)),
-    el('h3', null, 'My templates'),
+    el('h3', null, tr('tables.tpl.mine')),
     mine.length ? el('div', { class: 'tpl-grid' }, mine.map(card))
-      : el('p', { class: 'tpl-empty' }, 'Nothing saved yet. Use File ▸ Save as template… to keep a workbook here.'),
+      : el('p', { class: 'tpl-empty' }, tr('tables.tpl.mine_empty')),
   );
 }
 
@@ -80,39 +83,39 @@ function card(e) {
     el('p', { class: 'tpl-desc' }, e.description),
     miniTable(wb),
     el('div', { class: 'tpl-actions' },
-      el('button', { type: 'button', class: 'sui-btn', onclick: () => preview(e) }, 'Preview'),
-      el('button', { type: 'button', class: 'sui-btn sui-primary', onclick: () => use(e) }, 'Use'),
-      el('button', { type: 'button', class: 'sui-btn tpl-more', title: 'More', 'aria-label': 'More actions for ' + e.name, onclick: (ev) => more(e, ev.currentTarget) }, '⋯')));
+      el('button', { type: 'button', class: 'sui-btn', onclick: () => preview(e) }, tr('tables.tpl.preview')),
+      el('button', { type: 'button', class: 'sui-btn sui-primary', onclick: () => use(e) }, tr('tables.tpl.use')),
+      el('button', { type: 'button', class: 'sui-btn tpl-more', title: tr('ui.more'), 'aria-label': tr('tables.tpl.more_for', { name: e.name }), onclick: (ev) => more(e, ev.currentTarget) }, '⋯')));
 }
 
 function preview(e) {
   const wb = workbookOf(e);
   UI().dialog({
     title: e.name, cls: 'sui-wide', body: el('div', { class: 'tpl-preview' }, el('p', { class: 'sui-p' }, e.description), miniTable(wb, 14, 8)),
-    buttons: [{ label: 'Close' }, { label: 'Use template', primary: true, act: () => { use(e); } }],
+    buttons: [{ label: tr('menu.close') }, { label: tr('tables.tpl.use_template'), primary: true, act: () => { use(e); } }],
   });
 }
 
 /** Open the template as a new, unsaved workbook (asks first if the current one has unsaved changes). */
 async function use(e) {
   let wb;
-  try { wb = workbookOf(e); } catch (err) { UI().alert('Could not open this template', errText(err)); return; }
+  try { wb = workbookOf(e); } catch (err) { UI().alert(tr('tables.tpl.open_failed'), errText(err)); return; }
   if (await useWorkbook(wb, e.name)) current && current.dlg.close(true);
 }
 
 /** Open a built-in template by id (used by tests and the console). */
 export async function openBuiltin(id) {
   const t = builtinById(id);
-  return t ? useWorkbook(buildWorkbook(t), t.name) : false;
+  return t ? useWorkbook(buildWorkbook(t), builtinName(t)) : false;
 }
 
 function more(e, anchor) {
   const r = anchor.getBoundingClientRect();
   UI().menu([
-    { label: 'Download .stab-template', act: () => downloadTemplate(e) },
-    { label: 'Save to Slop Drive', act: () => saveToDrive(e), disabled: !hub() },
+    { label: tr('tables.tpl.download'), act: () => downloadTemplate(e) },
+    { label: tr('tables.tpl.save_drive'), act: () => saveToDrive(e), disabled: !hub() },
     e.mine ? '-' : null,
-    e.mine ? { label: 'Delete', act: () => remove(e) } : null,
+    e.mine ? { label: tr('ui.delete'), act: () => remove(e) } : null,
   ], r.left, r.bottom + 2);
 }
 
@@ -126,12 +129,12 @@ async function saveToDrive(e) {
   try {
     const folderId = await store.templatesFolder();
     await h.put(exportBlob(e), { name: fileName(e.name), from: 'tables', folderId });
-    toast('Saved to Slop Drive ▸ Templates');
-  } catch (err) { UI().alert('Could not save to Slop Drive', errText(err)); }
+    toast(tr('tables.tpl.saved_drive'));
+  } catch (err) { UI().alert(tr('tables.tpl.save_drive_failed'), errText(err)); }
 }
 
 async function remove(e) {
-  const ok = await UI().confirm('Delete template?', `“${e.name}” is removed from this device. A copy in Slop Drive ▸ Templates stays.`, 'Delete', { danger: true });
+  const ok = await UI().confirm(tr('tables.tpl.delete_title'), tr('tables.tpl.delete_body', { name: e.name }), tr('ui.delete'), { danger: true });
   if (!ok) return;
   await store.removeMine(e.mine.id);
   refresh();
@@ -139,19 +142,19 @@ async function remove(e) {
 
 /** File ▸ Save as template…: keeps the current workbook in My templates, and in Slop Drive when it is there. */
 export async function saveAsTemplate() {
-  const typed = await UI().prompt('Save as template', 'Template name', S.file.name || 'My template', { ok: 'Save' });
+  const typed = await UI().prompt(tr('tables.tpl.save_title'), tr('tables.tpl.name'), S.file.name || tr('tables.tpl.default_name'), { ok: tr('menu.save') });
   const name = (typed || '').trim().slice(0, 80);
   if (!name) return false;
-  const rec = { id: newId(), name, description: `Saved from “${S.file.name}”.`, created: Date.now(), native: toNative(S.wb) };
-  try { await store.putMine(rec); } catch (err) { UI().alert('Could not save the template', errText(err)); return false; }
+  const rec = { id: newId(), name, description: tr('tables.tpl.saved_from', { name: S.file.name }), created: Date.now(), native: toNative(S.wb) };
+  try { await store.putMine(rec); } catch (err) { UI().alert(tr('tables.tpl.save_failed'), errText(err)); return false; }
   if (hub()) {
     try {
       const folderId = await store.templatesFolder();
       rec.driveId = await hub().put(exportBlob(rec), { name: fileName(name), from: 'tables', folderId });
       await store.putMine(rec);
-    } catch (err) { toast('Saved on this device. The Slop Drive copy failed: ' + errText(err)); return true; }
+    } catch (err) { toast(tr('tables.tpl.drive_copy_failed', { error: errText(err) })); return true; }
   }
-  toast(`Saved template “${name}”`);
+  toast(tr('tables.tpl.saved', { name }));
   refresh();
   return true;
 }
@@ -167,15 +170,15 @@ export async function importBlob(blob) {
 async function runImport(get) {
   try {
     const rec = await get();
-    if (rec) { toast(`Added “${rec.name}” to My templates`); refresh(); }
-  } catch (err) { UI().alert('Could not import this template', errText(err)); }
+    if (rec) { toast(tr('tables.tpl.added', { name: rec.name })); refresh(); }
+  } catch (err) { UI().alert(tr('tables.tpl.import_failed'), errText(err)); }
 }
 /* Import file… and Import from Drive…: a part of the one intake of its own ('tables.template'). */
 function templateIntake() {
   const SI = window.SlopIntake;
   if (SI && !SI.spec('tables.template')) {
     SI.register({ id: 'tables.template', main: false, paste: false, toast: false, limit: 1, driveAccept: [TEMPLATE_MIME],
-      accept: { types: [TEMPLATE_MIME, 'application/json'], exts: ['.' + TEMPLATE_EXT, '.json'], noun: 'a Slop Tables template' },
+      accept: { types: [TEMPLATE_MIME, 'application/json'], exts: ['.' + TEMPLATE_EXT, '.json'], get noun() { return tr('tables.tpl.noun'); } },
       process: async (file) => { await runImport(() => importBlob(file)); return file.name; } });
   }
   return SI;

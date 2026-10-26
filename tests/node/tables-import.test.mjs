@@ -5,6 +5,7 @@
 // Covers: tables/js/io/import.js, tables/js/io/import-charts.js, tables/js/io/xlsx-charts.js, tables/js/io/xlsx.js,
 // shared/sheets/read.js, shared/sheets/xlsx.js, shared/sheets/xlsx-charts.js, shared/sheets/ods.js
 import './tables-dom-shim.mjs';
+import './tables-i18n-en.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { Workbook } from '../../tables/js/engine/index.js';

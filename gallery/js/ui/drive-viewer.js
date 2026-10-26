@@ -7,6 +7,7 @@
   const G = (window.SlopGallery = window.SlopGallery || {});
   const H = () => window.SlopHub;
   let root = null, items = [], i = 0, url = null, pv = null, token = 0, opener = null;
+  const t = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
   const viewable = (it) => it.kind === 'image' || it.kind === 'video';
 
   function build() {
@@ -15,16 +16,17 @@
     root.hidden = true;
     root.tabIndex = -1;
     root.setAttribute('role', 'dialog');
-    root.setAttribute('aria-label', 'Slop Drive file viewer');
+    root.setAttribute('aria-label', t('gallery.drive.viewer'));
+    root.setAttribute('data-i18n-attr', 'aria-label:gallery.drive.viewer');
     root.innerHTML = `
       <div class="v-top">
-        <button type="button" class="v-btn" data-act="close" aria-label="Close viewer" title="Close (Esc)">×</button>
+        <button type="button" class="v-btn" data-act="close" aria-label="${t('gallery.viewer.close')}" title="${t('gallery.viewer.close_tip')}" data-i18n-attr="aria-label:gallery.viewer.close;title:gallery.viewer.close_tip">×</button>
         <span class="v-count" aria-live="polite"></span>
       </div>
-      <div class="v-stage"><button type="button" class="v-nav prev" data-act="prev" aria-label="Previous file">‹</button>
+      <div class="v-stage"><button type="button" class="v-nav prev" data-act="prev" aria-label="${t('gallery.drive.prev')}" data-i18n-attr="aria-label:gallery.drive.prev">‹</button>
         <div class="v-pic"></div>
-        <button type="button" class="v-nav next" data-act="next" aria-label="Next file">›</button></div>
-      <div class="v-foot"><button type="button" class="v-btn" data-act="app" title="Open in the app that takes this file">Open in app</button></div>`;
+        <button type="button" class="v-nav next" data-act="next" aria-label="${t('gallery.drive.next')}" data-i18n-attr="aria-label:gallery.drive.next">›</button></div>
+      <div class="v-foot"><button type="button" class="v-btn" data-act="app" title="${t('gallery.drive.open_app_tip')}" data-i18n-attr="title:gallery.drive.open_app_tip" data-i18n="gallery.drive.open_app">${t('gallery.drive.open_app')}</button></div>`;
     document.body.append(root);
     root.addEventListener('click', onClick);
     root.addEventListener('keydown', onKey);
@@ -48,7 +50,7 @@
     const rec = await H().get(item.id);
     if (my !== token) return;
     const pic = root.querySelector('.v-pic');
-    if (!rec || !rec.blob) { pic.textContent = 'This file is no longer in Slop Drive.'; return; }
+    if (!rec || !rec.blob) { pic.textContent = t('gallery.drive.gone_view'); return; }
     url = URL.createObjectURL(rec.blob);
     if (item.kind === 'video') {
       const v = document.createElement('video');

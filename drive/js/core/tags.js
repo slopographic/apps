@@ -29,7 +29,7 @@
   };
   /** Prompt for tags and add them to the files in items. */
   DR.tagPrompt = async function (items) {
-    const v = await window.SlopUI.prompt('Add tags', 'Tags, separated by commas', '', { ok: 'Add' });
+    const v = await window.SlopUI.prompt(DR.t('drive.info.add_tags'), DR.t('drive.info.tags_prompt'), '', { ok: DR.t('drive.info.add') });
     if (v) await DR.addTags(items, v);
   };
   /** [tag, count] pairs over live files, most used first. */

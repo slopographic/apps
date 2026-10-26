@@ -11,23 +11,26 @@
   // the one way out (SlopOuttake).
   function menuFor(app, x, y) {
     window.SlopUI.menu([
-      { label: 'Open in a new tab', act: () => window.open(urlOf(app), '_blank') },
-      { label: 'Open a Slop Drive file in it…', disabled: !hub(), act: () => AI.intake.openDriveFileInApp(app) },
-      { label: 'Open a file from this computer…', act: () => AI.intake.openInApp(app) },
+      { label: AI.t('ai.launch.new_tab'), act: () => window.open(urlOf(app), '_blank') },
+      { label: AI.t('ai.launch.drive_file'), disabled: !hub(), act: () => AI.intake.openDriveFileInApp(app) },
+      { label: AI.t('ai.launch.computer_file'), act: () => AI.intake.openInApp(app) },
     ], x, y);
   }
+  /** The one-line description: the language's own (apptag.<id>, shared/i18n) when it has one, else the registry's. */
+  const tagline = (app) => { const I = window.SlopI18n; return I && I.has('apptag.' + app.id) ? I.t('apptag.' + app.id) : app.tagline; };
   function row(app) {
     return el('div', { class: 'app-row', 'data-app': app.id },
-      el('a', { class: 'app-link', href: urlOf(app), target: '_blank', rel: 'noopener', title: `Open ${app.name} in a new tab` },
-        el('b', null, app.name), el('small', null, app.tagline)),
-      el('button', { type: 'button', class: 'app-more', 'aria-label': 'Open ' + app.name + ' with…', title: 'Open with a file…',
+      el('a', { class: 'app-link', href: urlOf(app), target: '_blank', rel: 'noopener', title: AI.t('ai.launch.open_tip', { name: app.name }) },
+        el('b', null, app.name), el('small', null, tagline(app))),
+      el('button', { type: 'button', class: 'app-more', 'aria-label': AI.t('ai.launch.with', { name: app.name }), title: AI.t('ai.launch.with_tip'),
         onclick: (e) => { const r = e.currentTarget.getBoundingClientRect(); menuFor(app, r.right - 220, r.bottom + 4); } }, AI.icon('more')));
   }
 
   /** The Apps section of the chat sidebar. */
   AI.renderLauncher = function () {
-    return el('section', { class: 'apps-launch', id: 'appsLaunch', 'aria-label': 'Open an app' },
-      el('h2', { class: 'apps-h' }, 'Apps'),
+    return el('section', { class: 'apps-launch', id: 'appsLaunch', 'aria-label': AI.t('ai.launch.section') },
+      el('h2', { class: 'apps-h' }, AI.t('ai.launch.apps')),
       el('div', { class: 'apps-list' }, apps().map(row)));
   };
+  AI.onLang(() => { const old = document.getElementById('appsLaunch'); if (old) old.replaceWith(AI.renderLauncher()); });
 })(window.AI);

@@ -8,9 +8,9 @@
   const G = (window.SlopGallery = window.SlopGallery || {});
   const F = () => window.SlopFaces || null;
   const GROUPS = [
-    { key: 'faces-1', label: 'One face', test: (n) => n === 1 },
-    { key: 'faces-2', label: 'Two or more faces', test: (n) => n >= 2 },
-    { key: 'faces-0', label: 'No faces', test: (n) => n === 0 },
+    { key: 'faces-1', label: 'One face', test: (n) => n === 1 },   // i18n-ignore: shown as gallery.people.group_* (ui/timeline.js)
+    { key: 'faces-2', label: 'Two or more faces', test: (n) => n >= 2 },   // i18n-ignore: shown as gallery.people.group_* (ui/timeline.js)
+    { key: 'faces-0', label: 'No faces', test: (n) => n === 0 },   // i18n-ignore: shown as gallery.people.group_* (ui/timeline.js)
   ];
   const results = new Map();   // photo id -> { w, h, faces }
   const failed = new Set();    // photo ids the detector could not read in this session

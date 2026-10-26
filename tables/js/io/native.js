@@ -5,6 +5,7 @@ import { Workbook } from '../engine/index.js';
 import { ERR, FErr, errFrom } from '../engine/values.js';
 import { MAX_ROWS, MAX_COLS } from '../engine/refs.js';
 import { encodeObjects, checkObjects, decodeObjects } from '../objects/store.js';
+import { t } from '../i18n.js';
 
 export const FORMAT = 'slop-tables', VERSION = 1;
 export const MIME = 'application/x-slop-table', EXT = 'stab';
@@ -37,14 +38,14 @@ function encodeCell(cell) {
 
 const isObj = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 const isInt = (v, lo, hi) => Number.isInteger(v) && v >= lo && v < hi;
-const damaged = (what) => new Error('This Slop Tables file is damaged (' + what + ').');
+const damaged = (what) => new Error(t('tables.file.damaged', { what }));
 const CELL_VALUE = (v) => v === null || v === undefined || typeof v === 'string' || typeof v === 'boolean' || (typeof v === 'number' && isFinite(v));
 
 /** Structural check of a workbook object: the one validator for .stab files and for templates. Throws
    an Error saying what is wrong, and never changes anything. Use it before fromNative. */
 export function checkNative(obj) {
-  if (!isObj(obj) || obj.format !== FORMAT) throw new Error('This is not a Slop Tables file.');
-  if (obj.version !== undefined && !(isInt(obj.version, 1, VERSION + 1))) throw new Error('This Slop Tables file is from a newer version of Slop Tables.');
+  if (!isObj(obj) || obj.format !== FORMAT) throw new Error(t('tables.file.not_ours'));
+  if (obj.version !== undefined && !(isInt(obj.version, 1, VERSION + 1))) throw new Error(t('tables.file.newer'));
   if (obj.title !== undefined && typeof obj.title !== 'string') throw damaged('title');
   if (obj.active !== undefined && !isInt(obj.active, 0, 256)) throw damaged('active sheet');
   if (obj.styles !== undefined && (!Array.isArray(obj.styles) || !obj.styles.every(isObj))) throw damaged('styles');

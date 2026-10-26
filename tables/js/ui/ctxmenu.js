@@ -9,8 +9,9 @@ import * as cmd from './commands.js';
 import { startEdit } from './editor.js';
 import { cellAt } from './pointer.js';
 import * as OBJ from './objects.js';
+import { t } from '../i18n.js';
 
-const pick = (menu, labels) => labels.map((l) => menu.find((i) => i && i.label === l)).filter((i) => i !== undefined);
+const pick = (menu, ids) => ids.map((id) => menu.find((i) => i && i.id === id)).filter((i) => i !== undefined);
 const isMulti = () => { const g = range(); return g.r1 !== g.r2 || g.c1 !== g.c2; };
 const rowIn = (r) => { const g = range(); return r >= g.r1 && r <= g.r2; };
 const colIn = (c) => { const g = range(); return c >= g.c1 && c <= g.c2; };
@@ -19,36 +20,36 @@ const cellIn = (r, c) => rowIn(r) && colIn(c);
 /** The cell menu (one cell) or the selection menu (a range): clipboard, clear, and the common formats. */
 function cellItems(multi) {
   const M = cmd.menus(), out = [];
-  if (!multi) out.push({ label: 'Edit cell', act: () => startEdit() }, '-');
-  out.push(...pick(M.Edit, ['Cut', 'Copy', 'Paste']), '-', ...pick(M.Edit, ['Clear contents', 'Clear contents and formats']), '-', ...pick(M.Format, ['Bold', 'Italic', 'Number format']));
+  if (!multi) out.push({ label: t('tables.ctx.edit_cell'), act: () => startEdit() }, '-');
+  out.push(...pick(M.Edit, ['edit.cut', 'edit.copy', 'edit.paste']), '-', ...pick(M.Edit, ['edit.clear', 'edit.clearAll']), '-', ...pick(M.Format, ['format.bold', 'format.italic', 'format.nf']));
   return out;
 }
 function rowItems(r) {
   return [
-    { label: 'Select row', act: () => A.selectLine('row', r) },
-    { label: 'Clear contents', act: () => { A.selectLine('row', r); A.clearRange('contents'); } },
+    { label: t('tables.ctx.select_row'), act: () => A.selectLine('row', r) },
+    { label: t('tables.cmd.edit_clear'), act: () => { A.selectLine('row', r); A.clearRange('contents'); } },
     '-',
-    { label: 'Hide row', act: () => A.setHidden('row', r, r, true) },
+    { label: t('tables.ctx.hide_row'), act: () => A.setHidden('row', r, r, true) },
     ...showAllItem(),
   ];
 }
 function colItems(c) {
   return [
-    { label: 'Select column', act: () => A.selectLine('col', c) },
-    { label: 'Clear contents', act: () => { A.selectLine('col', c); A.clearRange('contents'); } },
+    { label: t('tables.ctx.select_col'), act: () => A.selectLine('col', c) },
+    { label: t('tables.cmd.edit_clear'), act: () => { A.selectLine('col', c); A.clearRange('contents'); } },
     '-',
-    { label: 'Hide column', act: () => A.setHidden('col', c, c, true) },
+    { label: t('tables.ctx.hide_col'), act: () => A.setHidden('col', c, c, true) },
     ...showAllItem(),
   ];
 }
 /** Only when something is hidden. */
-const showAllItem = () => (A.hasHidden() ? ['-', { label: 'Show all rows and columns', act: () => A.showAll() }] : []);
+const showAllItem = () => (A.hasHidden() ? ['-', { label: t('tables.ctx.show_all'), act: () => A.showAll() }] : []);
 function tabItems(i) {
   return [
-    { label: 'Rename…', act: () => Sh.rename(i) },
-    { label: 'Delete sheet', act: () => Sh.remove(i) },
+    { label: t('ui.rename_dots'), act: () => Sh.rename(i) },
+    { label: t('tables.cmd.sheet_delete'), act: () => Sh.remove(i) },
     '-',
-    { label: 'Add sheet', act: () => Sh.add() },
+    { label: t('tables.cmd.sheet_add'), act: () => Sh.add() },
   ];
 }
 

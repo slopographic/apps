@@ -5,6 +5,7 @@
   'use strict';
   const G = (window.SlopGallery = window.SlopGallery || {});
   const A = () => G.actions;
+  const t = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
 
   const monthIds = (key) => G.timeline.visibleIds().filter((id) => {
     const m = G.library.photo(id), d = new Date((m && m.takenAt) || 0);
@@ -13,7 +14,7 @@
 
   function albumSub(ids) {
     const sub = G.library.albums().map((a) => ({ label: a.name, act: () => G.library.addToAlbum(a.id, ids) }));
-    sub.push('-', { label: 'New album…', act: () => G.albums.addIds(ids) });
+    sub.push('-', { label: t('gallery.menu.new_album'), act: () => G.albums.addIds(ids) });
     return sub;
   }
   function sendItems(id, meta) {
@@ -29,47 +30,47 @@
     const idx = G.timeline.visibleIds().indexOf(id);
     const inSel = sel.includes(id);
     const items = [];
-    if (single) items.push({ label: 'Open', key: 'Enter', act: () => G.viewer.open(G.timeline.visibleIds(), idx) });
-    items.push({ label: inSel ? 'Deselect' : 'Select', act: () => G.state.select(id, !inSel) }, '-');
-    items.push({ label: meta.fav ? 'Remove from favourites' : 'Add to favourites', act: () => G.library.toggleFav(ids) });
-    items.push({ label: 'Liked', check: single && meta.liked === 'liked', act: () => G.library.setLiked(ids, 'liked') });
-    items.push({ label: 'Disliked', check: single && meta.liked === 'disliked', act: () => G.library.setLiked(ids, 'disliked') });
-    items.push({ label: 'Clear like or dislike', act: () => G.library.setLiked(ids, null) });
-    items.push({ label: 'Add tag…', act: () => A().tagPrompt(ids) }, '-');
-    items.push({ label: 'Add to album', sub: albumSub(ids) });
-    if (st.view === 'album') items.push({ label: 'Remove from this album', act: () => G.library.removeFromAlbum(st.query.album, ids) });
-    items.push('-', { label: 'Download' + (ids.length > 1 ? ` (${ids.length})` : ''), act: () => A().exportIds(ids) });
-    if (inSel) items.push({ label: 'Make reel…', disabled: sel.length < 2, act: () => A().makeReel(sel) });
+    if (single) items.push({ label: t('gallery.menu.open'), key: 'Enter', act: () => G.viewer.open(G.timeline.visibleIds(), idx) });
+    items.push({ label: t(inSel ? 'gallery.menu.deselect' : 'gallery.menu.select'), act: () => G.state.select(id, !inSel) }, '-');
+    items.push({ label: t(meta.fav ? 'gallery.menu.fav_remove' : 'gallery.menu.fav_add'), act: () => G.library.toggleFav(ids) });
+    items.push({ label: t('gallery.menu.liked'), check: single && meta.liked === 'liked', act: () => G.library.setLiked(ids, 'liked') });
+    items.push({ label: t('gallery.menu.disliked'), check: single && meta.liked === 'disliked', act: () => G.library.setLiked(ids, 'disliked') });
+    items.push({ label: t('gallery.menu.clear_like'), act: () => G.library.setLiked(ids, null) });
+    items.push({ label: t('gallery.menu.add_tag'), act: () => A().tagPrompt(ids) }, '-');
+    items.push({ label: t('gallery.menu.add_to_album'), sub: albumSub(ids) });
+    if (st.view === 'album') items.push({ label: t('gallery.menu.remove_from_album'), act: () => G.library.removeFromAlbum(st.query.album, ids) });
+    items.push('-', { label: ids.length > 1 ? t('gallery.menu.download_n', { n: ids.length }) : t('gallery.menu.download'), act: () => A().exportIds(ids) });
+    if (inSel) items.push({ label: t('gallery.menu.make_reel'), disabled: sel.length < 2, act: () => A().makeReel(sel) });
     if (single) items.push(...sendItems(id, meta));
-    items.push('-', { label: 'Remove from library…', act: () => A().removeIds(ids) });
+    items.push('-', { label: t('gallery.menu.remove'), act: () => A().removeIds(ids) });
     return items;
   }
   function albumItems(id) {
     const a = G.library.album(id);
     if (!a) return null;
     return [
-      { label: 'Open album', act: () => G.state.setView('album', id) },
-      { label: 'Sort this album', act: () => A().sortIds(a.photoIds.filter((x) => G.library.photo(x))) },
+      { label: t('gallery.menu.open_album'), act: () => G.state.setView('album', id) },
+      { label: t('gallery.menu.sort_album'), act: () => A().sortIds(a.photoIds.filter((x) => G.library.photo(x))) },
       '-',
-      { label: 'Rename…', act: () => G.albums.rename(id) },
-      { label: 'Delete album…', act: () => G.albums.remove(id) },
+      { label: t('gallery.menu.rename'), act: () => G.albums.rename(id) },
+      { label: t('gallery.menu.delete_album'), act: () => G.albums.remove(id) },
     ];
   }
   function monthItems(key) {
     const ids = monthIds(key);
     return [
-      { label: `Select ${ids.length} in this month`, act: () => G.state.select(ids, true) },
-      { label: 'Sort this month', act: () => A().sortIds(ids) },
+      { label: t('gallery.menu.select_month', { n: ids.length }), act: () => G.state.select(ids, true) },
+      { label: t('gallery.menu.sort_month'), act: () => A().sortIds(ids) },
     ];
   }
   function gridItems() {
     return [
-      { label: 'Import photos…', key: 'Mod+O', act: () => A().importFiles() },
-      { label: 'Select all', key: 'Mod+A', act: () => A().selectAll() },
-      { label: 'Clear selection', act: () => A().clearSelection() },
+      { label: t('gallery.menu.import'), key: 'Mod+O', act: () => A().importFiles() },
+      { label: t('gallery.menu.select_all'), key: 'Mod+A', act: () => A().selectAll() },
+      { label: t('gallery.menu.clear_selection'), act: () => A().clearSelection() },
       '-',
-      { label: 'Sort photos', act: () => A().sortIds([]) },
-      { label: 'Find duplicates…', act: () => A().dupes() },
+      { label: t('gallery.menu.sort'), act: () => A().sortIds([]) },
+      { label: t('gallery.menu.dupes'), act: () => A().dupes() },
     ];
   }
 
@@ -90,11 +91,11 @@
   function openActions(btn) {
     const sel = G.state.selected, r = btn.getBoundingClientRect();
     SlopUI.menu([
-      { label: 'Make reel from selection…', disabled: sel.length < 2, act: () => A().makeReel(sel) },
+      { label: t('gallery.menu.reel_selection'), disabled: sel.length < 2, act: () => A().makeReel(sel) },
       '-',
-      { label: 'Import photos…', act: () => A().importFiles() },
-      { label: 'Find duplicates…', act: () => A().dupes() },
-      { label: 'Back up the whole library', act: () => A().backup() },
+      { label: t('gallery.menu.import'), act: () => A().importFiles() },
+      { label: t('gallery.menu.dupes'), act: () => A().dupes() },
+      { label: t('gallery.menu.backup'), act: () => A().backup() },
     ], r.left, r.bottom + 4);
   }
 

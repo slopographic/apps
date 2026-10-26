@@ -13,8 +13,8 @@
     .forEach((t) => audio.addEventListener(t, emit));
   audio.addEventListener('ended', () => { if (P.list().length > 1) P.step(1); else emit(); });
   audio.addEventListener('error', () => {
-    const code = audio.error ? audio.error.code : 0, ext = (P.cur && DR.ext(P.cur.name) || '').toUpperCase() || 'this';
-    P.error = `This browser cannot play ${ext} audio${code === 4 ? ' (the format is not supported here)' : ''}.`;
+    const code = audio.error ? audio.error.code : 0, ext = (P.cur && DR.ext(P.cur.name) || '').toUpperCase();
+    P.error = DR.t('drive.audio.cannot_play' + (ext ? '' : '_this') + (code === 4 ? '_format' : ''), { ext });
     emit();
   });
   /** Loads a file (an autoplay starts it). Loading the file that is already loaded keeps its position. */
@@ -32,7 +32,7 @@
   P.play = function () {
     if (!P.cur) return;
     const p = audio.play();
-    if (p && p.catch) p.catch((e) => { P.error = e.name === 'NotAllowedError' ? 'Press play to start the sound.' : P.error || 'This file could not be played.'; emit(); });
+    if (p && p.catch) p.catch((e) => { P.error = e.name === 'NotAllowedError' ? DR.t('drive.audio.press_play') : P.error || DR.t('drive.audio.not_played'); emit(); });
   };
   P.toggle = () => (audio.paused ? P.play() : audio.pause());
   /** Moves to a time in seconds (clamped to the file). */

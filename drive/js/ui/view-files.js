@@ -28,7 +28,7 @@
   function card(it) {
     const n = base(it, 'card'), th = el('div', { class: 'th' }, DR.badge(it, 'badge big'));
     if (!it.isFolder) DR.fillThumb(th, it);
-    const sub = it.isFolder ? (DR.countOf(it.id) === 1 ? '1 item' : `${DR.countOf(it.id)} items`) : DR.searching() || S.section !== 'folder' ? DR.pathOf(it.parent).map((f) => f.name).join(' / ') || 'Slop Drive' : `${DR.fmtSize(it.size)} · ${DR.fmtDate(it.modified || it.time)}`;
+    const sub = it.isFolder ? DR.t('drive.app.items_n', { n: DR.countOf(it.id) }) : DR.searching() || S.section !== 'folder' ? DR.pathOf(it.parent).map((f) => f.name).join(' / ') || 'Slop Drive' : `${DR.fmtSize(it.size)} · ${DR.fmtDate(it.modified || it.time)}`;
     n.append(th, el('div', { class: 'cap' }, el('div', { class: 'nm' }, star(it), el('span', null, it.name)), el('div', { class: 'sub' }, sub)));
     return n;
   }

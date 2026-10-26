@@ -8,16 +8,17 @@
 import { resolveRange, cellFormat } from './region.js';
 import { fieldNames, pivotGrid } from './pivot.js';
 import { FErr } from '../engine/values.js';
+import { t } from '../i18n.js';
 
 export const MAX_SOURCE_ROWS = 100000;
 
 export function readSource(wb, host, source) {
   const ref = (source.sheet ? `'${source.sheet.replace(/'/g, "''")}'!` : '') + source.ref;
   const rg = resolveRange(wb, host, ref);
-  if (rg.error) throw new Error('The source range: ' + rg.error);
+  if (rg.error) throw new Error(t('tables.err.source_range', { error: rg.error }));
   const { sheet, r1, c1, r2, c2 } = rg;
-  if (r2 <= r1) throw new Error('The source needs a header row and at least one row of data.');
-  if (r2 - r1 > MAX_SOURCE_ROWS) throw new Error(`The source has more than ${MAX_SOURCE_ROWS} rows.`);
+  if (r2 <= r1) throw new Error(t('tables.err.source_rows'));
+  if (r2 - r1 > MAX_SOURCE_ROWS) throw new Error(t('tables.err.source_too_big', { n: MAX_SOURCE_ROWS }));
   const val = (r, c) => { const v = sheet.value(r, c); return v instanceof FErr ? null : v; };
   const headers = fieldNames(Array.from({ length: c2 - c1 + 1 }, (_, j) => val(r1, c1 + j)));
   const records = [];

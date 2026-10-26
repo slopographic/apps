@@ -8,6 +8,16 @@ import { transact, beginStep, commitStep } from './history.js';
 import { commitEdit } from './editor.js';
 import { chartData } from '../objects/chart-data.js';
 import { chartSvg, LIGHT, DARK } from '../objects/chart-svg.js';
+import { t, onLang } from '../i18n.js';
+
+/** The box's buttons in the chosen language. */
+function words(el) {
+  const [edit, del] = el.querySelectorAll('.chart-b');
+  edit.textContent = t('tables.chart.edit_short'); edit.title = t('tables.chart.edit'); edit.setAttribute('aria-label', edit.title);
+  del.title = t('tables.chart.delete'); del.setAttribute('aria-label', del.title);
+}
+// A language switch: new words on the buttons, and every picture is drawn again (its messages, the box's label).
+onLang(() => { for (const box of boxes.values()) { words(box.el); box.key = ''; } redraw(); });
 
 const MIN_W = 160, MIN_H = 110;
 const boxes = new Map(); // chart id → { el, svg, key }
@@ -30,8 +40,8 @@ function makeBox(id) {
   el.className = 'chart-box'; el.dataset.id = id;
   el.setAttribute('data-touch-surface', ''); // a finger drags the chart, never scrolls under it (shared/input); handles grow to 44 px
   el.innerHTML = '<div class="chart-svg"></div>' + ['nw', 'ne', 'sw', 'se'].map((h) => `<span class="chart-h" data-h="${h}" data-touch-hit></span>`).join('') +
-    '<div class="chart-bar"><button type="button" class="chart-b" data-act="edit" title="Edit chart" aria-label="Edit chart">Edit</button>' +
-    '<button type="button" class="chart-b" data-act="delete" title="Delete chart" aria-label="Delete chart">×</button></div>';
+    '<div class="chart-bar"><button type="button" class="chart-b" data-act="edit"></button><button type="button" class="chart-b" data-act="delete">×</button></div>';
+  words(el);
   layer.append(el);
   return { el, svg: el.firstChild, key: '' };
 }
@@ -50,7 +60,7 @@ export function render() {
     if (key !== box.key) {
       box.svg.innerHTML = chartSvg(d, { type: ch.type, title: ch.title, legend: ch.legend, w: ch.w, h: ch.h, theme: th });
       box.key = key;
-      box.el.setAttribute('aria-label', (ch.title || 'Chart') + ' (' + ch.type + ' chart of ' + ch.range + ')');
+      box.el.setAttribute('aria-label', t('tables.chart.box_aria', { title: ch.title || t('tables.chart.chart'), type: t(`tables.chart.type_${ch.type}`), range: ch.range }));
     }
     const left = ch.x < m.fzW ? ch.x : m.fzW + ch.x - m.sxE, top = ch.y < m.fzH ? ch.y : m.fzH + ch.y - m.syE;
     box.el.style.cssText = `left:${left}px;top:${top}px;width:${ch.w}px;height:${ch.h}px`;

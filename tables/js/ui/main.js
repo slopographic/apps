@@ -22,6 +22,7 @@ import { toCsv } from '../io/csv.js';
 import { toXlsx } from '../io/xlsx.js';
 import { toBlob } from '../io/native.js';
 import { parseCell } from '../engine/refs.js';
+import { onLang } from '../i18n.js';
 
 const paint = () => { grid.render(); objects.render(); chrome.render(); sidebar.render(); };
 
@@ -35,7 +36,7 @@ function bindToolbar() {
   const bar = $('menus');
   for (const name of Object.keys(cmd.menus())) {
     const b = document.createElement('button');
-    b.type = 'button'; b.className = 'menu-b'; b.textContent = name;
+    b.type = 'button'; b.className = 'menu-b'; b.dataset.menu = name; b.textContent = cmd.menuLabel(name);
     b.addEventListener('click', (e) => {
       e.stopPropagation();
       const r = b.getBoundingClientRect();
@@ -43,6 +44,7 @@ function bindToolbar() {
     });
     bar.append(b);
   }
+  onLang(() => { for (const b of bar.querySelectorAll('.menu-b')) b.textContent = cmd.menuLabel(b.dataset.menu); redraw(); });
 }
 
 function boot() {

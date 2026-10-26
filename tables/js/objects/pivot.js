@@ -7,6 +7,7 @@
  * and a Grand total row. With no row fields there is one Total row; with no column fields the values are the columns.
  * fn: sum, count (non-blank cells), average, min, max. A cell with no records is blank. */
 import { compare } from '../engine/values.js';
+import { t } from '../i18n.js';
 
 export const FNS = [['sum', 'Sum'], ['count', 'Count'], ['average', 'Average'], ['min', 'Min'], ['max', 'Max']];
 const FN_LABEL = Object.fromEntries(FNS);
@@ -54,14 +55,14 @@ function keys(records, idx) {
   const map = new Map();
   for (const rec of records) {
     const t = idx.map((j) => rec[j]), k = t.map(keyOf).join('\u0001');
-    if (!map.has(k)) { if (map.size >= MAX_KEYS) throw new Error(`A pivot table can show at most ${MAX_KEYS} different keys in its rows or columns.`); map.set(k, t); }
+    if (!map.has(k)) { if (map.size >= MAX_KEYS) throw new Error(t('tables.err.pivot_keys', { n: MAX_KEYS })); map.set(k, t); }
   }
   const list = [...map.values()].sort(cmpTuple);
   return { list, index: new Map(list.map((t, i) => [t.map(keyOf).join('\u0001'), i])) };
 }
 
 export function pivotGrid(headers, records, spec) {
-  const pos = (f) => { const j = headers.indexOf(f); if (j < 0) throw new Error(`The source has no column named “${f}”.`); return j; };
+  const pos = (f) => { const j = headers.indexOf(f); if (j < 0) throw new Error(t('tables.err.no_column', { name: f })); return j; };
   const ri = (spec.rows || []).map(pos), ci = (spec.cols || []).map(pos);
   const vals = (spec.values && spec.values.length ? spec.values : [{ field: headers[0], fn: 'count' }]).map((v) => ({ ...v, j: pos(v.field) }));
   const R = keys(records, ri), C = keys(records, ci);

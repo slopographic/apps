@@ -16,20 +16,20 @@
   DR.footActs = function (items) {
     if (!items.length) return [];
     if (items.length > 1) {
-      if (items.every((r) => r.trashedAt)) return [btn(`Restore ${items.length} items`, () => DR.restore(items), 'primary', 'infoMain')];
-      return [btn(`Download ${items.length} items`, () => DR.download(items), 'primary', 'infoMain')];
+      if (items.every((r) => r.trashedAt)) return [btn(DR.t('drive.info.restore_n', { n: items.length }), () => DR.restore(items), 'primary', 'infoMain')];
+      return [btn(DR.t('drive.info.download_n', { n: items.length }), () => DR.download(items), 'primary', 'infoMain')];
     }
     const r = items[0];
-    if (r.trashedAt) return [btn('Restore', () => DR.restore([r]), 'primary', 'infoMain'), btn('Delete forever', () => DR.purge([r]), 'danger')];
-    if (r.isFolder) return [btn('Open', () => DR.open(r), 'primary', 'infoMain'), btn('Download .zip', () => DR.download([r]))];
+    if (r.trashedAt) return [btn(DR.t('drive.menu.restore'), () => DR.restore([r]), 'primary', 'infoMain'), btn(DR.t('drive.menu.delete_forever'), () => DR.purge([r]), 'danger')];
+    if (r.isFolder) return [btn(DR.t('menu.open'), () => DR.open(r), 'primary', 'infoMain'), btn(DR.t('drive.info.download_zip'), () => DR.download([r]))];
     const d = DR.orderedAppsFor(r)[0];
-    return [d ? btn(`Open in ${d.name}`, () => DR.openWith(r, d.id, { remember: false }), 'primary', 'infoMain') : btn('Quick look', () => DR.quickLook(r), 'primary', 'infoMain'),
-      btn('Download', () => DR.download([r]))];
+    return [d ? btn(DR.t('drive.menu.open_in', { app: d.name }), () => DR.openWith(r, d.id, { remember: false }), 'primary', 'infoMain') : btn(DR.t('drive.menu.quick_look'), () => DR.quickLook(r), 'primary', 'infoMain'),
+      btn(DR.t('ui.download'), () => DR.download([r]))];
   };
   DR.renderFoot = function () {
     const box = DR.$('info');
     if (!window.SlopFramePanel || !box) return;
     if (!fp) fp = window.SlopFramePanel.create(box, { bare: true });
-    fp.footer(DR.footActs(DR.selected()).map((b) => ({ el: b })), { more: 'Details', onMore: () => DR.sheetUI && DR.sheetUI.toggle() });
+    fp.footer(DR.footActs(DR.selected()).map((b) => ({ el: b })), { more: DR.t('drive.info.details'), onMore: () => DR.sheetUI && DR.sheetUI.toggle() });
   };
 })(window.DR);

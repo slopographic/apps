@@ -27,18 +27,18 @@
   AI.askSloppo = function (question) {
     if (bubble) { bubble.remove(); bubble = null; }
     const out = el('div', { class: 'say' }, AI.E.ready() ? '…' : '');
-    const inp = el('input', { class: 'inp', placeholder: 'Ask Sloppo anything', 'aria-label': 'Ask Sloppo' });
+    const inp = el('input', { class: 'inp', placeholder: AI.t('ai.sloppo.placeholder'), 'aria-label': AI.t('ai.sloppo.ask') });
     const go = async (q) => {
       out.textContent = '';
       const s = window.SlopAI.ask(q || 'Say hi to me in your style.', { persona: 'sloppo' });
       AI.lastSloppo = s;
       try { for await (const piece of s) out.textContent += piece; } catch (e) { out.textContent = 'blorp. ' + e.message; }
     };
-    bubble = el('div', { class: 'sloppo-bubble', role: 'dialog', 'aria-label': 'Ask Sloppo' }, out,
+    bubble = el('div', { class: 'sloppo-bubble', role: 'dialog', 'aria-label': AI.t('ai.sloppo.ask') }, out,
       el('form', { onsubmit: (e) => { e.preventDefault(); const q = inp.value.trim(); if (q) { inp.value = ''; go(q); } } }, inp),
-      el('button', { type: 'button', class: 'x', 'aria-label': 'Close', onclick: () => { bubble.remove(); bubble = null; } }, '×'));
+      el('button', { type: 'button', class: 'x', 'aria-label': AI.t('menu.close'), onclick: () => { bubble.remove(); bubble = null; } }, '×'));
     document.body.append(bubble);
-    if (!AI.E.ready()) out.textContent = 'SLURP. I am the slop. ask me anything. (load a model first and my brain hat turns on)';
+    if (!AI.E.ready()) out.textContent = AI.t('ai.sloppo.no_model');
     else go(question);
     setTimeout(() => inp.focus(), 0);
     return bubble;

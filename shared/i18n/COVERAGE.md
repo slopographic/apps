@@ -26,19 +26,19 @@ Shared code (shell/, shared/) still has 6267 hard-coded strings; most belong to 
 | 6 | Slop Press | press | 1373 | 0 | 1373 | 0 of 29 |
 | 7 | SlopVector | vector | 1020 | 0 | 1020 | 0 of 29 |
 | 8 | Slop Slides | slides | 785 | 0 | 785 | 0 of 29 |
-| 9 | Slop Tables | tables | 694 | 0 | 694 | 0 of 29 |
-| 10 | Slop Drive | drive | 684 | 0 | 684 | 0 of 29 |
-| 11 | Slop Docs | docs | 659 | 0 | 659 | 0 of 29 |
-| 12 | Slop Effects | effects | 604 | 0 | 604 | 0 of 29 |
-| 13 | Slop Contacts | contacts | 540 | 0 | 540 | 0 of 29 |
-| 14 | Slop AI | ai | 508 | 0 | 508 | 0 of 29 |
-| 15 | Slop Font | fontcreator | 474 | 0 | 474 | 0 of 29 |
-| 16 | Slop 3D | 3d | 458 | 0 | 458 | 0 of 29 |
-| 17 | SlopIsolate | cutout | 433 | 0 | 433 | 0 of 29 |
-| 18 | Slop Gallery | gallery | 380 | 0 | 380 | 0 of 29 |
-| 19 | Slop Projects | projects | 372 | 0 | 372 | 0 of 29 |
-| 20 | Slop Inventory | inventory | 359 | 0 | 359 | 0 of 29 |
-| 21 | Slop CRM | crm | 350 | 0 | 350 | 0 of 29 |
+| 9 | Slop Tables | tables | 674 | 262 | 412 | 0 of 29 |
+| 10 | Slop Drive | drive | 635 | 569 | 66 | 0 of 29 |
+| 11 | Slop Effects | effects | 604 | 0 | 604 | 0 of 29 |
+| 12 | Slop Contacts | contacts | 540 | 0 | 540 | 0 of 29 |
+| 13 | Slop Font | fontcreator | 474 | 0 | 474 | 0 of 29 |
+| 14 | Slop Docs | docs | 465 | 249 | 216 | 0 of 29 |
+| 15 | Slop 3D | 3d | 449 | 285 | 164 | 0 of 29 |
+| 16 | Slop AI | ai | 419 | 308 | 111 | 0 of 29 |
+| 17 | Slop Projects | projects | 372 | 0 | 372 | 0 of 29 |
+| 18 | SlopIsolate | cutout | 359 | 294 | 65 | 0 of 29 |
+| 19 | Slop Inventory | inventory | 359 | 0 | 359 | 0 of 29 |
+| 20 | Slop CRM | crm | 350 | 0 | 350 | 0 of 29 |
+| 21 | Slop Gallery | gallery | 348 | 308 | 40 | 0 of 29 |
 | 22 | Reel Remix | remix | 338 | 0 | 338 | 0 of 29 |
 | 23 | Slop Ledger | ledger | 335 | 0 | 335 | 0 of 29 |
 | 24 | Slop Invoices | invoices | 318 | 0 | 318 | 0 of 29 |
@@ -82,10 +82,17 @@ Shared code (shell/, shared/) still has 6267 hard-coded strings; most belong to 
 | 62 | Slop Reminders | reminders | 44 | 0 | 44 | 0 of 29 |
 | 63 | Checksum | checksum | 42 | 0 | 42 | 0 of 29 |
 
-Total: 25167 strings in 63 apps.
+Total: 24700 strings in 63 apps.
 
 ## Apps with tables, per language
 
 | App | en | es | fr | de | pt-BR | it | ar | sv | zh-CN | zh-TW | ja | ko | hi | ru | uk | pl | nl | tr | id | vi | he | sw | am | ha | yo | ig | zu | xh | af |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | pdf | 87% | 0% | 0% | 87% | 0% | 0% | 87% | 87% | 0% | 0% | 87% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
+| tables | 38% | 0% | 0% | 0% | 0% | 0% | 0% | 38% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
+| drive | 89% | 0% | 0% | 0% | 0% | 0% | 0% | 89% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
+| docs | 53% | 0% | 0% | 0% | 0% | 0% | 0% | 53% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
+| 3d | 63% | 0% | 0% | 0% | 0% | 0% | 0% | 63% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
+| ai | 73% | 0% | 0% | 0% | 0% | 0% | 0% | 73% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
+| cutout | 81% | 0% | 0% | 0% | 0% | 0% | 0% | 81% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
+| gallery | 88% | 0% | 0% | 0% | 0% | 0% | 0% | 88% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |

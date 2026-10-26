@@ -6,36 +6,36 @@
 'use strict';
 (function (DR) {
   const el = DR.el;
-  const plural = (n) => window.SlopReview.model.plural(n, 'file');
-  const where = (r) => (r.parent ? DR.pathOf(r.parent).map((f) => f.name).join(' / ') : 'Slop Drive');
+  const t = DR.t;
+  const where = (r) => (r.parent ? DR.pathOf(r.parent).map((f) => f.name).join(' / ') : 'Slop Drive');   // i18n-ignore: the app name
 
   /** One review item per file in the groups. pick(group) gives the copies to remove; the others are kept. */
   function itemsFor(groups, pick) {
     return groups.flatMap((g, i) => {
       const victims = new Set(pick(g).map((r) => r.id));
-      const label = `${i + 1}. ${g.files.length} copies of ${g.files[0].name}`;
-      return g.files.map((r) => ({ id: r.id, label: r.name, detail: where(r) + (victims.has(r.id) ? '' : ' · the copy kept'),
+      const label = t('drive.dupes.group_label', { i: String(i + 1), n: g.files.length, name: g.files[0].name });
+      return g.files.map((r) => ({ id: r.id, label: r.name, detail: victims.has(r.id) ? where(r) : t('drive.dupes.kept_detail', { where: where(r) }),
         size: r.size, group: label, checked: victims.has(r.id) }));
     });
   }
 
   DR.dupesDialog = async function ({ near = true } = {}) {
     const UI = window.SlopUI;
-    const status = el('p', { class: 'sui-p', role: 'status' }, 'Looking for duplicates…');
+    const status = el('p', { class: 'sui-p', role: 'status' }, t('drive.dupes.looking'));
     const body = el('div', { class: 'dupes' }, status);
     const keep = new Map();
     let res = null;
-    const d = UI.dialog({ title: 'Find duplicates', cls: 'sui-wide dupes-dlg', body, buttons: [
-      { label: 'Keep newest everywhere', act: () => applyAll('newest') },
-      { label: 'Keep oldest everywhere', act: () => applyAll('oldest') },
-      { label: 'Close', primary: true },
+    const d = UI.dialog({ title: t('drive.dupes.title'), cls: 'sui-wide dupes-dlg', body, buttons: [
+      { label: t('drive.dupes.keep_newest'), act: () => applyAll('newest') },
+      { label: t('drive.dupes.keep_oldest'), act: () => applyAll('oldest') },
+      { label: t('menu.close'), primary: true },
     ] });
     d.box.dataset.dupes = '1';
     /** Opens the review list for these groups, and moves the files left checked to the Trash. Keeps the dialog open. */
     async function reviewAndTrash(groups, pick, title) {
       const ids = await window.SlopReview.open({ title, items: itemsFor(groups, pick),
-        intro: 'Only the checked files move to the Trash. Untick a file to keep it. You can restore them from the Trash.',
-        confirmLabel: (n) => 'Trash ' + plural(n), danger: false });
+        intro: t('drive.dupes.intro'),
+        confirmLabel: (n) => t('drive.dupes.trash_n', { n }), danger: false });
       if (!ids) return false;
       const want = new Set(ids);
       await DR.trash(groups.flatMap((g) => g.files).filter((r) => want.has(r.id)));
@@ -44,34 +44,34 @@
     }
     function applyAll(mode) {
       if (!res || !res.groups.length) return false;
-      return reviewAndTrash(res.groups, (g) => DR.dupesToTrash(g, mode), 'Trash duplicates?');
+      return reviewAndTrash(res.groups, (g) => DR.dupesToTrash(g, mode), t('drive.dupes.trash_q'));
     }
     function thumb(r) { const t = el('span', { class: 'dthumb' }, DR.badge(r, 'badge xs')); DR.fillThumb(t, r); return t; }
     function group(g, i) {
       const name = 'keep-' + i;
       if (!keep.has(g.hash)) keep.set(g.hash, g.files[0].id);
       const rows = g.files.map((r) => {
-        const radio = el('input', { type: 'radio', name, value: r.id, checked: keep.get(g.hash) === r.id, 'aria-label': 'Keep ' + r.name });
+        const radio = el('input', { type: 'radio', name, value: r.id, checked: keep.get(g.hash) === r.id, 'aria-label': t('drive.dupes.keep_name', { name: r.name }) });
         radio.addEventListener('change', () => keep.set(g.hash, r.id));
-        const show = el('button', { type: 'button', class: 'linkish' }, 'Show');
+        const show = el('button', { type: 'button', class: 'linkish' }, t('drive.dupes.show'));
         show.addEventListener('click', () => { d.close(); DR.reveal(r); });
         return el('label', { class: 'drow' }, radio, thumb(r), el('span', { class: 'dn' }, el('b', null, r.name), el('small', null, `${where(r)} · ${DR.fmtFull(r.modified || r.time)} · ${DR.appName(r.from)}`)), show);
       });
-      const go = el('button', { type: 'button', class: 'sui-btn' }, 'Trash the others');
-      go.addEventListener('click', () => reviewAndTrash([g], (x) => DR.dupesToTrash(x, keep.get(x.hash)), 'Trash the others?'));
-      return el('section', { class: 'dgroup', 'data-hash': g.hash }, el('div', { class: 'dhead' }, el('b', null, `${g.files.length} copies · ${DR.fmtSize(g.size)} each`), el('span', null, `${DR.fmtSize(g.wasted)} wasted`), go), ...rows);
+      const go = el('button', { type: 'button', class: 'sui-btn' }, t('drive.dupes.trash_others'));
+      go.addEventListener('click', () => reviewAndTrash([g], (x) => DR.dupesToTrash(x, keep.get(x.hash)), t('drive.dupes.trash_others_q')));
+      return el('section', { class: 'dgroup', 'data-hash': g.hash }, el('div', { class: 'dhead' }, el('b', null, t('drive.dupes.copies_each', { n: g.files.length, size: DR.fmtSize(g.size) })), el('span', null, t('drive.dupes.wasted', { size: DR.fmtSize(g.wasted) })), go), ...rows);
     }
     async function scan() {
       body.replaceChildren(status);
       res = await DR.findDupes({ near, onProgress: (t) => { status.textContent = t; } });
       const kids = [];
-      kids.push(el('div', { class: 'dsum' }, el('b', null, res.groups.length ? `${res.groups.length} group${res.groups.length === 1 ? '' : 's'} of identical files` : 'No identical files.'),
-        el('span', null, `${DR.fmtSize(res.wasted)} could be freed · ${res.scanned} files checked`)));
+      kids.push(el('div', { class: 'dsum' }, el('b', null, res.groups.length ? t('drive.dupes.groups_n', { n: res.groups.length }) : t('drive.dupes.none')),
+        el('span', null, t('drive.dupes.summary', { size: DR.fmtSize(res.wasted), n: res.scanned }))));
       res.groups.forEach((g, i) => kids.push(group(g, i)));
       if (res.near.length) {
-        kids.push(el('h3', { class: 'dh3' }, 'Similar images'), el('p', { class: 'sui-p' }, 'These look alike but are not byte-for-byte the same (for example resized or re-saved). Review them yourself.'));
-        for (const n of res.near) kids.push(el('section', { class: 'dgroup near' }, el('div', { class: 'dhead' }, el('b', null, `${n.files.length} similar images`), el('span', null, n.distance ? `difference ${n.distance}/64` : 'almost identical')),
-          ...n.files.map((r) => { const show = el('button', { type: 'button', class: 'linkish' }, 'Show'); show.addEventListener('click', () => { d.close(); DR.reveal(r); }); return el('div', { class: 'drow' }, thumb(r), el('span', { class: 'dn' }, el('b', null, r.name), el('small', null, DR.fmtSize(r.size))), show); })));
+        kids.push(el('h3', { class: 'dh3' }, t('drive.dupes.similar')), el('p', { class: 'sui-p' }, t('drive.dupes.similar_p')));
+        for (const n of res.near) kids.push(el('section', { class: 'dgroup near' }, el('div', { class: 'dhead' }, el('b', null, t('drive.dupes.similar_n', { n: n.files.length })), el('span', null, n.distance ? t('drive.dupes.difference', { d: String(n.distance) }) : t('drive.dupes.almost'))),
+          ...n.files.map((r) => { const show = el('button', { type: 'button', class: 'linkish' }, t('drive.dupes.show')); show.addEventListener('click', () => { d.close(); DR.reveal(r); }); return el('div', { class: 'drow' }, thumb(r), el('span', { class: 'dn' }, el('b', null, r.name), el('small', null, DR.fmtSize(r.size))), show); })));
       }
       body.replaceChildren(...kids);
       return res;

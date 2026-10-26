@@ -5,6 +5,7 @@
  *   importCharts(wb, doc) → notes   (puts the charts on wb.sheets[i].charts) */
 import { parseRange, quoteSheet, rangeText } from '../engine/refs.js';
 import { newId } from '../objects/store.js';
+import { t } from '../i18n.js';
 
 const offset = (sh, r, c) => {
   let x = 0, y = 0;
@@ -62,7 +63,7 @@ export function importCharts(wb, doc) {
         title: ch.title || '', legend: ch.legend !== false, x, y, w: Math.max(120, z.x + to.dx - x), h: Math.max(90, z.y + to.dy - y) });
     }
   });
-  for (const [kind, n] of other) notes.push(`${n} ${kind} chart${n === 1 ? ' was' : 's were'} not imported: Slop Tables draws column, bar, line and pie charts.`);
-  if (shapeless) notes.push(`${shapeless} chart${shapeless === 1 ? ' was' : 's were'} not imported: ${shapeless === 1 ? 'its' : 'their'} series are not one block of cells.`);
+  for (const [kind, n] of other) notes.push(t('tables.import.chart_kind', { n, kind }));
+  if (shapeless) notes.push(t('tables.import.chart_shape', { n: shapeless }));
   return notes;
 }

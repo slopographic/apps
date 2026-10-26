@@ -7,12 +7,13 @@
   const M = S.model, A = S.actions, st = S.state, s = st.s;
   const MIME = 'application/x-slop-3d-node';
   const ICON = { mesh: '◆', group: '▣', light: '☀' };
+  const t = S.t;
 
   function create(root, { rename }) {
     const list = document.createElement('ul');
     list.className = 'outl-list';
     list.setAttribute('role', 'tree');
-    list.setAttribute('aria-label', 'Scene objects');
+    list.setAttribute('aria-label', t('3d.outl.label'));
     root.append(list);
     let dragId = null;
 
@@ -35,12 +36,12 @@
       const name = document.createElement('span');
       name.className = 'outl-name';
       name.textContent = n.name;
-      name.title = M.typeLabel(n);
+      name.title = S.typeLabel(n);
       const eye = document.createElement('button');
       eye.type = 'button';
       eye.className = 'outl-eye';
       eye.setAttribute('aria-pressed', String(n.visible));
-      eye.setAttribute('aria-label', (n.visible ? 'Hide ' : 'Show ') + n.name);
+      eye.setAttribute('aria-label', t(n.visible ? '3d.outl.hide' : '3d.outl.show', { name: n.name }));
       eye.textContent = n.visible ? '●' : '○';
       eye.addEventListener('click', (e) => { e.stopPropagation(); A.setVisible(n.id, !n.visible); });
       li.append(icon, name, eye);
@@ -120,11 +121,12 @@
       if (!s.doc.roots.length) {
         const empty = document.createElement('li');
         empty.className = 'outl-empty';
-        empty.textContent = 'Empty scene. Add an object from the Add menu.';
+        empty.textContent = t('3d.outl.empty');
         list.append(empty);
       }
     }
     st.on('doc', render);
+    st.on('lang', () => { list.setAttribute('aria-label', t('3d.outl.label')); render(); });
     st.on('sel', () => {
       list.querySelectorAll('.outl-row').forEach((li) => {
         const on = s.sel.includes(li.dataset.id);

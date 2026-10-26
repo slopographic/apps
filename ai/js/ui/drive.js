@@ -12,9 +12,9 @@
     try {
       if (!c.driveId) { const id = await hub.saveToDrive(blob, name, { from: 'ai' }); if (!id) return; c.driveId = id; }
       else if (!(await hub.update(c.driveId, { blob, name, type: blob.type }))) await hub.put(blob, { id: c.driveId, name, from: 'ai' });
-      else window.SlopUI.toast('Saved “' + name + '” to Slop Drive');
+      else window.SlopUI.toast(AI.t('ai.drive.saved', { name }));
       await AI.db.put(c, { touch: false });
-    } catch (e) { window.SlopUI.alert('Could not save to Slop Drive', e.message || String(e)); }
+    } catch (e) { window.SlopUI.alert(AI.t('ai.drive.save_failed'), e.message || String(e)); }
   };
   /** Open a chat from Slop Drive, linked to that file: the intake's part 'ai.conv' (ui/intake.js). */
   AI.openChatFromDrive = () => (H() ? AI.intake.openConvFromDrive() : null);

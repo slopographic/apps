@@ -7,72 +7,73 @@
   /** Run fn, then give focus back to the typing surface. */
   const act = (fn) => () => { try { fn(); } catch (e) { console.error(e); } if (S.focusIme) S.focusIme(); };
   const A = () => S.A;
+  const t = S.t;
   /** The saved templates, for File ▸ New ▸ My templates (the list is loaded by templates.js). */
   const mine = () => (S.tplList.length
     ? S.tplList.map((t) => ({ label: t.name, act: act(() => S.random.useDoc(t.doc)) }))
-    : [{ label: 'No saved templates yet', disabled: true }]);
+    : [{ label: t('docs.menu.no_templates'), disabled: true }]);
 
   S.menus = {
     file: () => [
       window.SlopDocsConfig ? window.SlopDocsConfig.menu() : null, '-',
-      { label: 'New', sub: [
-        { label: 'Blank document', key: key('file.new'), act: act(() => S.newDoc()) },
-        { label: 'Random template…', key: key('file.random'), act: () => S.random.open() },
+      { label: t('docs.menu.new'), sub: [
+        { label: t('docs.menu.blank'), key: key('file.new'), act: act(() => S.newDoc()) },
+        { label: t('docs.menu.random'), key: key('file.random'), act: () => S.random.open() },
         '-',
-        { label: 'My templates', sub: mine() },
+        { label: t('docs.menu.my_templates'), sub: mine() },
       ] },
-      { label: 'Open from Slop Drive…', key: key('file.open'), act: act(() => S.openFromDrive()), disabled: !window.SlopHub },
-      { label: 'Import Word, Markdown or text from Slop Drive…', act: act(() => S.importFromDrive()), disabled: !window.SlopHub },
+      { label: t('docs.menu.open_drive'), key: key('file.open'), act: act(() => S.openFromDrive()), disabled: !window.SlopHub },
+      { label: t('docs.menu.import_drive'), act: act(() => S.importFromDrive()), disabled: !window.SlopHub },
       '-',
-      { label: 'Save to Slop Drive', key: key('file.save'), act: act(() => S.save()) },
+      { label: t('docs.menu.save_drive'), key: key('file.save'), act: act(() => S.save()) },
       '-',
-      { label: 'Download PDF (.pdf)', key: key('file.pdf'), act: act(() => S.download('pdf')) },
-      { label: 'Download Word (.docx)', key: key('file.docx'), act: act(() => S.download('docx')) },
-      { label: 'Download Markdown (.md)', key: key('file.md'), act: act(() => S.download('md')) },
-      { label: 'Download plain text (.txt)', key: key('file.txt'), act: act(() => S.download('txt')) },
-      { label: 'Download Slop Doc (.sdoc)', act: act(() => S.download('sdoc')) },
+      { label: t('docs.menu.dl_pdf'), key: key('file.pdf'), act: act(() => S.download('pdf')) },
+      { label: t('docs.menu.dl_docx'), key: key('file.docx'), act: act(() => S.download('docx')) },
+      { label: t('docs.menu.dl_md'), key: key('file.md'), act: act(() => S.download('md')) },
+      { label: t('docs.menu.dl_txt'), key: key('file.txt'), act: act(() => S.download('txt')) },
+      { label: t('docs.menu.dl_sdoc'), act: act(() => S.download('sdoc')) },
       '-',
-      { label: 'Send to…', sub: S.sendItems ? S.sendItems() : [], disabled: !window.SlopHub },
+      { label: t('docs.menu.send_to'), sub: S.sendItems ? S.sendItems() : [], disabled: !window.SlopHub },
       '-',
-      { label: 'Print…', key: key('file.print'), act: act(() => S.print()) },
+      { label: t('docs.menu.print'), key: key('file.print'), act: act(() => S.print()) },
     ],
     edit: () => [
-      { label: 'Undo', key: key('edit.undo'), act: act(() => A().undo()), disabled: !S.canUndo() },
-      { label: 'Redo', key: key('edit.redo'), act: act(() => A().redo()), disabled: !S.canRedo() },
+      { label: t('ui.undo'), key: key('edit.undo'), act: act(() => A().undo()), disabled: !S.canUndo() },
+      { label: t('ui.redo'), key: key('edit.redo'), act: act(() => A().redo()), disabled: !S.canRedo() },
       '-',
-      { label: 'Select all', key: key('edit.selectAll'), act: act(() => A().selectAll()) },
+      { label: t('docs.menu.select_all'), key: key('edit.selectAll'), act: act(() => A().selectAll()) },
     ],
     format: () => {
       const st = A().state();
       return [
-        { label: 'Bold', key: key('format.bold'), check: st.b, act: act(() => A().toggle('b')) },
-        { label: 'Italic', key: key('format.italic'), check: st.i, act: act(() => A().toggle('i')) },
-        { label: 'Underline', key: key('format.underline'), check: st.u, act: act(() => A().toggle('u')) },
+        { fid: 'bold', label: t('docs.tb.bold'), key: key('format.bold'), check: st.b, act: act(() => A().toggle('b')) },
+        { fid: 'italic', label: t('docs.tb.italic'), key: key('format.italic'), check: st.i, act: act(() => A().toggle('i')) },
+        { fid: 'underline', label: t('docs.tb.underline'), key: key('format.underline'), check: st.u, act: act(() => A().toggle('u')) },
         '-',
-        { label: 'Align', sub: [
-          { label: 'Left', check: st.align === 'left', act: act(() => A().setAlign('left')) },
-          { label: 'Centre', check: st.align === 'center', act: act(() => A().setAlign('center')) },
-          { label: 'Right', check: st.align === 'right', act: act(() => A().setAlign('right')) },
-          { label: 'Justify', check: st.align === 'justify', act: act(() => A().setAlign('justify')) },
+        { fid: 'align', label: t('docs.menu.align'), sub: [
+          { label: t('docs.menu.left'), check: st.align === 'left', act: act(() => A().setAlign('left')) },
+          { label: t('docs.menu.centre'), check: st.align === 'center', act: act(() => A().setAlign('center')) },
+          { label: t('docs.menu.right'), check: st.align === 'right', act: act(() => A().setAlign('right')) },
+          { label: t('docs.menu.justify'), check: st.align === 'justify', act: act(() => A().setAlign('justify')) },
         ] },
-        { label: 'List', sub: [
-          { label: 'Bulleted', key: key('format.bullets'), check: st.list === 'bul', act: act(() => A().toggleList('bul')) },
-          { label: 'Numbered', key: key('format.numbers'), check: st.list === 'num', act: act(() => A().toggleList('num')) },
+        { fid: 'list', label: t('docs.menu.list'), sub: [
+          { label: t('docs.menu.bulleted'), key: key('format.bullets'), check: st.list === 'bul', act: act(() => A().toggleList('bul')) },
+          { label: t('docs.menu.numbered'), key: key('format.numbers'), check: st.list === 'num', act: act(() => A().toggleList('num')) },
         ] },
-        { label: 'Paragraph style', sub: [
-          ['Normal', 'Normal text'], ['Title', 'Title'], ['H1', 'Heading 1'], ['H2', 'Heading 2'], ['H3', 'Heading 3'], ['Quote', 'Quote'], ['Code', 'Code'],
-        ].map(([v, l]) => ({ label: l, check: st.style === v, act: act(() => A().setStyle(v)) })) },
+        { fid: 'style', label: t('docs.tb.style'), sub: [
+          ['Normal', 'normal'], ['Title', 'title'], ['H1', 'h1'], ['H2', 'h2'], ['H3', 'h3'], ['Quote', 'quote'], ['Code', 'code'],
+        ].map(([v, l]) => ({ label: t('docs.style.' + l), check: st.style === v, act: act(() => A().setStyle(v)) })) },
         '-',
-        { label: 'Header and footer…', key: key('format.headerFooter'), act: () => S.openHF() },
+        { label: t('docs.menu.header_footer'), key: key('format.headerFooter'), act: () => S.openHF() },
         '-',
-        { label: 'Clear formatting', key: key('format.clear'), act: act(() => A().clearFormat()) },
+        { fid: 'clear', label: t('docs.tb.clear'), key: key('format.clear'), act: act(() => A().clearFormat()) },
       ];
     },
     help: () => [
-      { label: 'Search commands…', key: key('cmd.palette'), act: () => { if (window.SlopCmd) window.SlopCmd.open(); } },
-      { label: 'Keyboard shortcuts…', act: () => { if (window.SlopCmd) window.SlopCmd.openKeymap(); } },
+      { label: t('docs.menu.search_cmds'), key: key('cmd.palette'), act: () => { if (window.SlopCmd) window.SlopCmd.open(); } },
+      { label: t('docs.menu.keys'), act: () => { if (window.SlopCmd) window.SlopCmd.openKeymap(); } },
       '-',
-      { label: 'About Slop Docs', act: () => { if (window.SlopUI) SlopUI.alert('Slop Docs', 'Your documents are stored in Slop Drive, in this browser. Nothing is uploaded, and there is no account or watermark.'); } },
+      { label: t('docs.menu.about'), act: () => { if (window.SlopUI) SlopUI.alert('Slop Docs', t('docs.menu.about_body')); } }, // i18n-ignore: brand name
     ],
   };
 

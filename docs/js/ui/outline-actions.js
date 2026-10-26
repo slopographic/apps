@@ -5,6 +5,7 @@ import * as M from '../model/outline.js';
 import { paraText } from '../model/doc.js';
 
 const S = window.SlopDocs;
+const t = (k, v) => S.t(k, v);
 const at = (b, o = 0) => ({ b, o });
 const toast = (m) => window.SlopUI && SlopUI.toast(m);
 const focus = () => { if (S.focusIme) S.focusIme(); };
@@ -22,7 +23,7 @@ export function goTo(b) {
 /** Move the section at block b one place up (dir -1) or down (1). The caret moves with it when it was inside. */
 export function move(b, dir) {
   const blocks = S.doc.blocks, res = M.moveSection(blocks, b, dir);
-  if (!res) { toast(dir < 0 ? 'This section is already first at its level' : 'This section is already last at its level'); return false; }
+  if (!res) { toast(t(dir < 0 ? 'docs.ol.first' : 'docs.ol.last')); return false; }
   const end = M.sectionEnd(blocks, b), sel = S.sel;
   const inside = sel.f.b >= b && sel.f.b < end;
   const f = inside ? at(res.start + sel.f.b - b, sel.f.o) : at(res.start);
@@ -42,14 +43,14 @@ export function add() {
 /** Demote (delta 1) or promote (-1) the heading at b. */
 export function level(b, delta) {
   const blocks = M.changeLevel(S.doc.blocks, b, delta);
-  if (!blocks) { toast(delta > 0 ? 'Heading 3 is the lowest level in the outline' : 'Heading 1 is already the top level'); return; }
+  if (!blocks) { toast(t(delta > 0 ? 'docs.ol.lowest' : 'docs.ol.top')); return; }
   commit(blocks, S.sel);
 }
 
 /** Rename the heading at b in a SlopUI prompt. */
 export async function rename(b) {
   const cur = M.headingText(S.doc.blocks[b]);
-  const v = await SlopUI.prompt('Rename section', 'Heading', cur, { ok: 'Rename' });
+  const v = await SlopUI.prompt(t('docs.ol.rename_title'), t('docs.ol.rename_label'), cur, { ok: t('ui.rename') });
   const t = v == null ? '' : String(v).replace(/\s+/g, ' ').trim();
   if (!t || t === cur) return;
   const clamp = (p) => (p.b === b ? at(b, Math.min(p.o, t.length)) : p);
@@ -64,12 +65,12 @@ export async function remove(b) {
   if (n > 0) {
     let choice = null;
     await new Promise((done) => SlopUI.dialog({
-      title: 'Delete section',
-      body: `Delete the heading "${M.headingText(blocks[b]) || 'Untitled heading'}" only, or the heading and the ${n} block${n === 1 ? '' : 's'} under it?`,
+      title: t('docs.ol.delete'),
+      body: t('docs.ol.delete_body', { name: M.headingText(blocks[b]) || t('docs.ol.untitled_heading'), n }),
       buttons: [
-        { label: 'Cancel' },
-        { label: 'Heading only', primary: true, act: () => { choice = 'line'; } },
-        { label: 'Heading and content', danger: true, act: () => { choice = 'all'; } },
+        { label: t('menu.cancel') },
+        { label: t('docs.ol.heading_only'), primary: true, act: () => { choice = 'line'; } },
+        { label: t('docs.ol.heading_content'), danger: true, act: () => { choice = 'all'; } },
       ],
       onClose: () => done(),
     }));

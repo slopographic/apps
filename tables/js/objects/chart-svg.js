@@ -6,6 +6,7 @@
  * pie slices split by a 2 px surface line; value and category text in the text colours, never the series colour. Every
  * mark has a <title>, so hovering it names the category, the series and the value. */
 import { MAX_SERIES } from './chart-data.js';
+import { t } from '../i18n.js';
 
 export const LIGHT = { palette: ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#008300', '#6250d6', '#e34948'],
   text: '#0b0b0b', muted: '#52514e', grid: '#e4e2dc', base: '#9a978e', surface: '#fcfcfb' };
@@ -73,10 +74,10 @@ function pie(d, x0, y0, x1, y1, th) {
   let items = d.cats.map((c, i) => ({ label: c, v: d.series[0].values[i] })).filter((it) => it.v > 0);
   if (items.length > MAX_SERIES) {
     const sorted = [...items].sort((a, b) => b.v - a.v), keep = sorted.slice(0, MAX_SERIES - 1);
-    items = items.filter((it) => keep.includes(it)).concat([{ label: 'Other', v: sorted.slice(MAX_SERIES - 1).reduce((a, it) => a + it.v, 0) }]);
+    items = items.filter((it) => keep.includes(it)).concat([{ label: t('tables.chart.other'), v: sorted.slice(MAX_SERIES - 1).reduce((a, it) => a + it.v, 0) }]);
   }
   const sum = items.reduce((a, it) => a + it.v, 0);
-  if (!sum) return { svg: text((x0 + x1) / 2, (y0 + y1) / 2, 'No positive values to show', 12, th.muted, 'middle'), items: [] };
+  if (!sum) return { svg: text((x0 + x1) / 2, (y0 + y1) / 2, t('tables.chart.no_positive'), 12, th.muted, 'middle'), items: [] };
   const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, r = Math.max(4, Math.min(x1 - x0, y1 - y0) / 2);
   let a0 = -Math.PI / 2, svg = '';
   items.forEach((it, i) => {
@@ -147,7 +148,7 @@ export function chartSvg(data, { type = 'column', title = '', legend = true, w =
   let body = '', top = pad;
   if (title) { body += text(w / 2, pad + 13, fit(title, w - 2 * pad, 14), 14, th.text, 'middle', 600); top += 26; }
   if (!data || data.error) {
-    body += text(w / 2, Math.max(top + 14, h / 2), fit(data ? data.error : 'No data', w - 2 * pad, 12), 12, th.muted, 'middle');
+    body += text(w / 2, Math.max(top + 14, h / 2), fit(data ? data.error : t('tables.chart.no_data'), w - 2 * pad, 12), 12, th.muted, 'middle');
   } else {
     let bottom = h - pad, items;
     if (type === 'pie') {
@@ -157,7 +158,7 @@ export function chartSvg(data, { type = 'column', title = '', legend = true, w =
     } else {
       items = data.series.slice(0, MAX_SERIES).map((s, i) => ({ label: s.name, color: th.palette[i] }));
       if (legend && items.length > 1) { const lg = legendOf(items, w, bottom, th); body += lg.svg; bottom -= lg.h; }
-      if (data.more) { body += text(w - pad, bottom - 2, `Showing ${MAX_SERIES} of ${data.series.length} series`, 11, th.muted, 'end'); bottom -= 16; }
+      if (data.more) { body += text(w - pad, bottom - 2, t('tables.chart.showing_series', { shown: MAX_SERIES, n: data.series.length }), 11, th.muted, 'end'); bottom -= 16; }
       body += cartesian(data, type, pad, top + 4, w - pad, bottom, th);
     }
   }

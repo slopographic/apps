@@ -4,6 +4,8 @@
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="3d" data-src="shared/theme/theme.js"></script>
   <link rel="expect" href="#slop-built" blocking="render">
+  <script src="../shared/i18n/i18n.js" data-src="shared/i18n/i18n.js"></script>
+  <script src="i18n/index.js" data-src="3d/i18n/index.js"></script>
 <script src="../shared/consent/config.js"></script>
 <script src="../shared/consent/state.js"></script>
 <script src="../shared/consent/consent-mode.js"></script>
@@ -49,57 +51,57 @@
 <body>
   <div class="app">
     <header class="topbar">
-      <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home">
+      <a class="brand" href="../" title="Slopographic home" aria-label="Slopographic home" data-i18n-attr="title:3d.app.home;aria-label:3d.app.home">
         <svg viewBox="0 0 32 32" class="brand-mark" aria-hidden="true"><path d="M16 2C16 2 6 13.5 6 20a10 10 0 0 0 20 0C26 13.5 16 2 16 2z"/><path class="shine" d="M11.5 20.5a4.5 4.5 0 0 0 3.5 4.4"/></svg>
       </a>
       <div class="appname"><b>Slop 3D</b><a class="home-link" href="../">slopographic</a><span id="docName" class="docname"></span></div>
-      <div class="actions" role="toolbar" aria-label="Scene">
-        <button type="button" class="tb-btn" data-cmd="3d.file.new">New</button>
-        <button type="button" class="tb-btn" data-cmd="3d.menu.open" id="btnOpen" aria-haspopup="menu">Open</button>
-        <button type="button" class="tb-btn" data-cmd="3d.file.import">Import</button>
-        <button type="button" class="tb-btn" data-cmd="3d.menu.add" id="btnAdd" aria-haspopup="menu">Add</button>
-        <button type="button" class="tb-btn" data-cmd="3d.edit.toggle" aria-pressed="false" id="btnEdit" title="Edit mesh (Tab)">Edit</button>
-        <span id="editModes" class="tb-group" role="group" aria-label="Edit mode" hidden>
-          <button type="button" class="tb-btn" data-cmd="3d.mesh.vertex" title="Vertex mode (1)">Vertex</button>
-          <button type="button" class="tb-btn" data-cmd="3d.mesh.edge" title="Edge mode (2)">Edge</button>
-          <button type="button" class="tb-btn" data-cmd="3d.mesh.face" title="Face mode (3)">Face</button>
+      <div class="actions" role="toolbar" aria-label="Scene" data-i18n-attr="aria-label:3d.app.toolbar">
+        <button type="button" class="tb-btn" data-cmd="3d.file.new" data-i18n="3d.app.new">New</button>
+        <button type="button" class="tb-btn" data-cmd="3d.menu.open" id="btnOpen" aria-haspopup="menu" data-i18n="3d.app.open">Open</button>
+        <button type="button" class="tb-btn" data-cmd="3d.file.import" data-i18n="3d.app.import">Import</button>
+        <button type="button" class="tb-btn" data-cmd="3d.menu.add" id="btnAdd" aria-haspopup="menu" data-i18n="3d.app.add">Add</button>
+        <button type="button" class="tb-btn" data-cmd="3d.edit.toggle" aria-pressed="false" id="btnEdit" title="Edit mesh (Tab)" data-i18n="3d.app.edit" data-i18n-attr="title:3d.app.edit_tip">Edit</button>
+        <span id="editModes" class="tb-group" role="group" aria-label="Edit mode" data-i18n-attr="aria-label:3d.app.edit_modes" hidden>
+          <button type="button" class="tb-btn" data-cmd="3d.mesh.vertex" title="Vertex mode (1)" data-i18n="3d.app.vertex" data-i18n-attr="title:3d.app.vertex_tip">Vertex</button>
+          <button type="button" class="tb-btn" data-cmd="3d.mesh.edge" title="Edge mode (2)" data-i18n="3d.app.edge" data-i18n-attr="title:3d.app.edge_tip">Edge</button>
+          <button type="button" class="tb-btn" data-cmd="3d.mesh.face" title="Face mode (3)" data-i18n="3d.app.face" data-i18n-attr="title:3d.app.face_tip">Face</button>
         </span>
-        <button type="button" class="tb-btn" data-cmd="3d.menu.mesh" id="btnMesh" aria-haspopup="menu" hidden>Mesh</button>
-        <button type="button" class="tb-btn" data-cmd="3d.edit.undo" title="Undo (Ctrl+Z)">Undo</button>
-        <button type="button" class="tb-btn" data-cmd="3d.edit.redo" title="Redo (Ctrl+Shift+Z)">Redo</button>
-        <label class="tb-field">Snap <select id="snap" class="tb-sel" aria-label="Snap step"></select></label>
-        <button type="button" class="tb-btn" data-cmd="3d.view.wire" aria-pressed="false" id="btnWire">Wireframe</button>
-        <button type="button" class="tb-btn" data-cmd="3d.view.grid" aria-pressed="true" id="btnGrid">Grid</button>
-        <button type="button" class="tb-btn" data-cmd="3d.menu.export" id="btnExport" aria-haspopup="menu">Export</button>
-        <a class="tb-btn" id="btnImg3d" href="../img3d/" target="_blank" rel="noopener" title="Make a 3D model from a picture (opens Slop Image to 3D in a new tab)">Image to 3D…</a>
-        <button type="button" class="tb-btn" data-cmd="cmd.palette" title="Search commands (Ctrl+K)" aria-label="Search commands">⌘K</button>
-        <button type="button" class="btn primary" id="btnSave" data-cmd="3d.file.save" title="Save to Slop Drive (Ctrl+S)">Save</button>
+        <button type="button" class="tb-btn" data-cmd="3d.menu.mesh" id="btnMesh" aria-haspopup="menu" data-i18n="3d.app.mesh" hidden>Mesh</button>
+        <button type="button" class="tb-btn" data-cmd="3d.edit.undo" title="Undo (Ctrl+Z)" data-i18n="ui.undo" data-i18n-attr="title:3d.app.undo_tip">Undo</button>
+        <button type="button" class="tb-btn" data-cmd="3d.edit.redo" title="Redo (Ctrl+Shift+Z)" data-i18n="ui.redo" data-i18n-attr="title:3d.app.redo_tip">Redo</button>
+        <label class="tb-field"><span data-i18n="3d.app.snap">Snap</span> <select id="snap" class="tb-sel" aria-label="Snap step" data-i18n-attr="aria-label:3d.app.snap_step"></select></label>
+        <button type="button" class="tb-btn" data-cmd="3d.view.wire" aria-pressed="false" id="btnWire" data-i18n="3d.app.wire">Wireframe</button>
+        <button type="button" class="tb-btn" data-cmd="3d.view.grid" aria-pressed="true" id="btnGrid" data-i18n="3d.app.grid">Grid</button>
+        <button type="button" class="tb-btn" data-cmd="3d.menu.export" id="btnExport" aria-haspopup="menu" data-i18n="3d.app.export">Export</button>
+        <a class="tb-btn" id="btnImg3d" href="../img3d/" target="_blank" rel="noopener" title="Make a 3D model from a picture (opens Slop Image to 3D in a new tab)" data-i18n="3d.app.img3d" data-i18n-attr="title:3d.app.img3d_tip">Image to 3D…</a>
+        <button type="button" class="tb-btn" data-cmd="cmd.palette" title="Search commands (Ctrl+K)" aria-label="Search commands" data-i18n-attr="title:3d.app.palette_tip;aria-label:3d.app.palette">⌘K</button>
+        <button type="button" class="btn primary" id="btnSave" data-cmd="3d.file.save" title="Save to Slop Drive (Ctrl+S)" data-i18n="3d.app.save" data-i18n-attr="title:3d.app.save_tip">Save</button>
       </div>
     </header>
     <main class="workspace">
-      <aside class="panel panel-left" aria-label="Outliner">
-        <h2 class="panel-h">Scene</h2>
+      <aside class="panel panel-left" aria-label="Outliner" data-i18n-attr="aria-label:3d.app.outliner">
+        <h2 class="panel-h" data-i18n="3d.app.scene">Scene</h2>
         <div id="outliner" class="panel-body"></div>
       </aside>
-      <section class="viewport" aria-label="3D viewport">
-        <canvas id="view" tabindex="0" aria-label="3D viewport. Drag to orbit, Shift-drag or middle-drag to pan, wheel to zoom, F to frame the selection."></canvas>
-        <div class="vp-views" role="toolbar" aria-label="Views">
-          <button type="button" class="vp-btn" data-cmd="3d.view.front">1 Front</button>
-          <button type="button" class="vp-btn" data-cmd="3d.view.top">2 Top</button>
-          <button type="button" class="vp-btn" data-cmd="3d.view.side">3 Side</button>
-          <button type="button" class="vp-btn" data-cmd="3d.view.perspective">4 Persp</button>
-          <button type="button" class="vp-btn" data-cmd="3d.view.frame">F Frame</button>
+      <section class="viewport" aria-label="3D viewport" data-i18n-attr="aria-label:3d.app.viewport">
+        <canvas id="view" tabindex="0" aria-label="3D viewport. Drag to orbit, Shift-drag or middle-drag to pan, wheel to zoom, F to frame the selection." data-i18n-attr="aria-label:3d.app.canvas"></canvas>
+        <div class="vp-views" role="toolbar" aria-label="Views" data-i18n-attr="aria-label:3d.app.views">
+          <button type="button" class="vp-btn" data-cmd="3d.view.front" data-i18n="3d.app.view_front">1 Front</button>
+          <button type="button" class="vp-btn" data-cmd="3d.view.top" data-i18n="3d.app.view_top">2 Top</button>
+          <button type="button" class="vp-btn" data-cmd="3d.view.side" data-i18n="3d.app.view_side">3 Side</button>
+          <button type="button" class="vp-btn" data-cmd="3d.view.perspective" data-i18n="3d.app.view_persp">4 Persp</button>
+          <button type="button" class="vp-btn" data-cmd="3d.view.frame" data-i18n="3d.app.view_frame">F Frame</button>
         </div>
-        <div class="vp-panels" role="toolbar" aria-label="Panels">
-          <button type="button" class="vp-btn" id="btnScene" aria-expanded="false">Scene</button>
-          <button type="button" class="vp-btn" id="btnProps" aria-expanded="false">Properties</button>
+        <div class="vp-panels" role="toolbar" aria-label="Panels" data-i18n-attr="aria-label:3d.app.panels">
+          <button type="button" class="vp-btn" id="btnScene" aria-expanded="false" data-i18n="3d.app.scene">Scene</button>
+          <button type="button" class="vp-btn" id="btnProps" aria-expanded="false" data-i18n="3d.app.properties">Properties</button>
         </div>
-        <p id="hint" class="vp-hint">Drag to orbit · Shift-drag to pan · wheel to zoom · right-click for the menu · Tab to edit the mesh</p>
+        <p id="hint" class="vp-hint" data-i18n="3d.app.hint">Drag to orbit · Shift-drag to pan · wheel to zoom · right-click for the menu · Tab to edit the mesh</p>
         <div id="nogl" class="nogl" hidden role="alert"></div>
         <div id="status" class="status" role="status" aria-live="polite"></div>
       </section>
-      <aside class="panel panel-right" aria-label="Properties">
-        <h2 class="panel-h">Properties</h2>
+      <aside class="panel panel-right" aria-label="Properties" data-i18n-attr="aria-label:3d.app.properties">
+        <h2 class="panel-h" data-i18n="3d.app.properties">Properties</h2>
         <div id="inspector" class="panel-body"></div>
       </aside>
     </main>

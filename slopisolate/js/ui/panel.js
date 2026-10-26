@@ -5,21 +5,21 @@
  * M.value(path), M.mixed(path)), so a setting whose values differ shows as mixed. */
 (function () {
   'use strict';
-  const CO = window.CO, U = CO.util, S = CO.state, K = CO.kit, h = U.h;
+  const CO = window.CO, U = CO.util, S = CO.state, K = CO.kit, h = U.h, t = U.t;
   const P = CO.panel = {};
   const binds = [];
   const bind = (fn) => binds.push(fn);
   const pct = (v) => Math.round(v * 100) + '%';
   let cache = {};
-  const FALLBACK = [{ id: 'fast', name: 'Fast' }, { id: 'quality', name: 'Quality' }, { id: 'portrait', name: 'Portrait' }];
+  const FALLBACK = [{ id: 'fast', get name() { return t('cutout.panel.model_fast'); } }, { id: 'quality', get name() { return t('cutout.panel.model_quality'); } }, { id: 'portrait', get name() { return t('cutout.panel.model_portrait'); } }];
   const MODELS = window.SlopCutoutModels ? SlopCutoutModels.ids.map((id) => SlopCutoutModels.get(id)) : FALLBACK;
 
   /** Run a promise-returning action; errors become toasts. */
   const run = (fn) => { Promise.resolve().then(fn).catch((e) => CO.emit('toast', (e && e.message) || String(e))); };
 
-  /** Slider bound to one look field (path, as in core/settings.js). */
+  /** Slider bound to one look field (path, as in core/settings.js). label: a key of the app's tables. */
   function lookSlider(label, min, max, step, fmt, path, look) {
-    const c = K.slider({ label, min, max, step, value: CO.settings.get(S.defaults, path), fmt, onInput: look.input, onCommit: look.commit });
+    const c = K.slider({ label: t(label), min, max, step, value: CO.settings.get(S.defaults, path), fmt, onInput: look.input, onCommit: look.commit });
     bind((it, M) => c.sync(M.value(path), M.mixed(path)));
     return c;
   }
@@ -33,8 +33,8 @@
     const name = MODELS.find((m) => m.id === id).name;
     if (S.bulk()) {
       const n = S.targets().filter((t) => S.modelOf(t) !== id).length;
-      CO.edit.apply(S.targets(), { model: id }, 'Model');
-      if (n) CO.emit('toast', `Running ${n} picture${n === 1 ? '' : 's'} again with the ${name} model`);
+      CO.edit.apply(S.targets(), { model: id }, 'cutout.undo.model');
+      if (n) CO.emit('toast', t('cutout.panel.rerun_sel', { n, name }));
       return P.refresh();
     }
     const it = S.current();
@@ -42,7 +42,7 @@
     U.store.set('model', id);
     if (it && it.model && it.model !== id) it.model = null;
     const redo = CO.process.followModel();
-    if (redo.length > 1) CO.emit('toast', `Running ${redo.length} images again with the ${name} model`);
+    if (redo.length > 1) CO.emit('toast', t('cutout.panel.rerun_all', { n: redo.length, name }));
     if (CO.macroLook) CO.macroLook(it);   // a macro being recorded keeps the model (ui/macros.js)
     P.refresh();
   }
@@ -54,7 +54,7 @@
       input.addEventListener('change', () => { if (input.checked) pickModel(m.id); });
       return { m, input, size, lab };
     });
-    const mixed = h('p', { class: 'pp-note pp-mixed-note' }, 'Mixed: the selected pictures use different models. Pick one for all.');
+    const mixed = h('p', { class: 'pp-note pp-mixed-note' }, t('cutout.panel.model_mixed'));
     bind((it, M) => {
       const id = M.n ? (M.mixed('model') ? null : M.value('model')) : S.modelOf(it);
       mixed.hidden = !(M.n && M.mixed('model'));
@@ -65,11 +65,11 @@
         r.input.checked = on;
         r.lab.classList.toggle('on', on);
         r.size.classList.toggle('cached', ready);
-        r.size.textContent = ready ? 'on device · ' + bytes : bytes;
-        r.size.title = ready ? 'Stored on this device' : 'Downloads once, then runs offline';
+        r.size.textContent = ready ? t('cutout.panel.on_device', { size: bytes }) : bytes;
+        r.size.title = t(ready ? 'cutout.panel.stored' : 'cutout.panel.downloads_once');
       }
     });
-    return K.section('Model', h('div', { class: 'models', role: 'radiogroup', 'aria-label': 'Model' }, ...rows.map((r) => r.lab)), mixed);
+    return K.section(t('cutout.panel.model'), h('div', { class: 'models', role: 'radiogroup', 'aria-label': t('cutout.panel.model') }, ...rows.map((r) => r.lab)), mixed);
   }
   /** Which models are stored on this device (engine call; a failure just leaves the sizes plain). */
   function loadCache() {
@@ -80,22 +80,21 @@
   /* ---------- edges ---------- */
   function edgeSec() {
     const L = {
-      threshold: K.look('Threshold', 's.threshold'),
-      softness: K.look('Softness', 's.softness'),
-      feather: K.look('Feather', 's.feather'),
-      decontaminate: K.look('Decontaminate', 's.decontaminate'),
-      refine: K.look('Refine edges', 's.refine'),
+      threshold: K.look('cutout.panel.threshold', 's.threshold'),
+      softness: K.look('cutout.panel.softness', 's.softness'),
+      feather: K.look('cutout.panel.feather', 's.feather'),
+      decontaminate: K.look('cutout.panel.decontaminate', 's.decontaminate'),
+      refine: K.look('cutout.panel.refine', 's.refine'),
     };
     const rows = [
-      lookSlider('Threshold', 0, 1, 0.01, pct, 's.threshold', L.threshold),
-      lookSlider('Softness', 0, 1, 0.01, pct, 's.softness', L.softness),
-      lookSlider('Feather', 0, 16, 0.5, (v) => v + ' px', 's.feather', L.feather),
+      lookSlider('cutout.panel.threshold', 0, 1, 0.01, pct, 's.threshold', L.threshold),
+      lookSlider('cutout.panel.softness', 0, 1, 0.01, pct, 's.softness', L.softness),
+      lookSlider('cutout.panel.feather', 0, 16, 0.5, (v) => v + ' px', 's.feather', L.feather),
     ];
-    const dec = K.check({ label: 'Decontaminate', checked: true, onChange: (v) => L.decontaminate.once(v) });
-    const ref = K.check({ label: 'Refine edges', checked: true, onChange: (v) => L.refine.once(v) });
+    const dec = K.check({ label: t('cutout.panel.decontaminate'), checked: true, onChange: (v) => L.decontaminate.once(v) });
+    const ref = K.check({ label: t('cutout.panel.refine'), checked: true, onChange: (v) => L.refine.once(v) });
     bind((it, M) => { dec.sync(M.value('s.decontaminate'), M.mixed('s.decontaminate')); ref.sync(M.value('s.refine'), M.mixed('s.refine')); });
-    return K.section('Edges', ...rows, dec, ref,
-      K.note('Threshold cuts the matte, softness smooths its ramp, feather blurs the edge in pixels. Refine re-runs the model.'));
+    return K.section(t('cutout.panel.edges'), ...rows, dec, ref, K.note(t('cutout.panel.edges_note')));
   }
 
   /* ---------- export ---------- */
@@ -104,11 +103,11 @@
       options: [['png', 'PNG'], ['webp', 'WebP'], ['jpg', 'JPG']], value: S.exportOpts.format,
       onChange: (v) => S.setExport({ format: v }),
     });
-    const q = K.slider({ label: 'Quality', min: 0.5, max: 1, step: 0.01, value: S.exportOpts.quality, fmt: pct, onInput: (v) => S.setExport({ quality: v }) });
-    const jpg = K.color({ label: 'Background', value: S.exportOpts.jpgBg, onInput: (v) => S.setExport({ jpgBg: v }) });
+    const q = K.slider({ label: t('cutout.panel.quality'), min: 0.5, max: 1, step: 0.01, value: S.exportOpts.quality, fmt: pct, onInput: (v) => S.setExport({ quality: v }) });
+    const jpg = K.color({ label: t('cutout.panel.background'), value: S.exportOpts.jpgBg, onInput: (v) => S.setExport({ jpgBg: v }) });
     // the one main button, Download (or Export N pictures), is at the panel's foot (ui/main.js); here the batch export
     const all = h('button', { type: 'button', class: 'btn', id: 'btnExportAll' });
-    U.btnIcon(all, 'zip', 'Export all (ZIP)');
+    U.btnIcon(all, 'zip', t('cutout.panel.export_all'));
     all.addEventListener('click', () => run(() => CO.export.all()));
     bind((it) => {
       const f = S.exportOpts.format;
@@ -119,8 +118,8 @@
       jpg.sync(S.exportOpts.jpgBg);
       all.disabled = !S.items.some((i) => i.status === 'done');
     });
-    return K.section('Export', fmt, q, jpg,
-      h('div', { class: 'no-wm' }, U.icon('lock'), h('span', null, 'No watermarks, ever')),
+    return K.section(t('cutout.panel.export'), fmt, q, jpg,
+      h('div', { class: 'no-wm' }, U.icon('lock'), h('span', null, t('cutout.panel.no_wm'))),
       h('div', { class: 'pp-btns' }, all));
   }
 
@@ -137,12 +136,24 @@
   };
   P.refreshSoon = U.debounce(() => P.refresh(), 60);
 
+  /** Builds the panel's controls (again after a language change: the same settings, the words of the new language).
+   *  A rebuild swaps only these sections: the footer and the sheet's parts that shared code adds to #props stay. */
+  let mine = [];
+  function build(root) {
+    binds.length = 0;
+    const head = CO.panelHead.build(bind);
+    const look = CO.panelLook ? CO.panelLook.build(bind) : [];
+    const nodes = [...head, modelSec(), edgeSec(), ...look, exportSec()];
+    if (mine.length && mine[0].parentNode === root) { mine[0].before(...nodes); mine.forEach((n) => n.remove()); }
+    else root.replaceChildren(...nodes);
+    mine = nodes;
+  }
+
   P.init = function () {
     const root = U.$('#props');
     if (!root) return;
-    const head = CO.panelHead.build(bind);
-    const look = CO.panelLook ? CO.panelLook.build(bind) : [];
-    root.replaceChildren(...head, modelSec(), edgeSec(), ...look, exportSec());
+    build(root);
+    U.onLang(() => { build(root); P.refresh(); });
     CO.on('activeItem', () => P.refresh());
     CO.on('active', () => P.refresh());
     CO.on('item', (it) => { P.refresh(); if (it.status === 'done' && cache[S.modelOf(it)] !== true) loadCache(); });

@@ -32,7 +32,7 @@ function seriesXml(ch, d, s, i) {
     : `<c:spPr>${fill}</c:spPr><c:invertIfNegative val="0"/>`;
   const cat = d.refs.cats ? `<c:cat><c:strRef><c:f>${esc(ref(sheet, d.refs.cats))}</c:f>${strCache(d.cats)}</c:strRef></c:cat>` : '';
   const pts = s.values.map((v, k) => (v === null ? '' : `<c:pt idx="${k}"><c:v>${v}</c:v></c:pt>`)).join('');
-  const val = `<c:val><c:numRef><c:f>${esc(ref(sheet, sref.vals))}</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val="${s.values.length}"/>${pts}</c:numCache></c:numRef></c:val>`;
+  const val = `<c:val><c:numRef><c:f>${esc(ref(sheet, sref.vals))}</c:f><c:numCache><c:formatCode>General</c:formatCode><c:ptCount val="${s.values.length}"/>${pts}</c:numCache></c:numRef></c:val>`; // i18n-ignore: an XLSX format code
   return `<c:ser><c:idx val="${i}"/><c:order val="${i}"/>${tx}${sp}${cat}${val}${ch.type === 'line' ? '<c:smooth val="0"/>' : ''}</c:ser>`;
 }
 

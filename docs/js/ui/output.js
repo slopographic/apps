@@ -28,7 +28,7 @@
   /* ---------- PDF ---------- */
   /** The open document as a PDF Blob, laid out exactly as the pages show it. */
   S.pdfBlob = async function () {
-    toast('Preparing the PDF…', 6000);
+    toast(S.t('docs.file.pdf_preparing'), 6000);
     await E().ensureDocFonts(S.doc);
     if (E().mayNeedLang(S.doc)) await E().ensureLangFonts(S.doc, { force: true });
     S.relayout();

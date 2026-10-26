@@ -27,9 +27,9 @@
 
   /** Every provider in sidebar order, each with its permission state. The state is only queried, never asked. */
   DR.providerList = async function () {
-    const out = [{ id: 'drive', label: 'Slop Drive', group: 'drive', handle: null, provider: DR.internalProvider, status: 'granted' }];
+    const out = [{ id: 'drive', label: 'Slop Drive', group: 'drive', handle: null, provider: DR.internalProvider, status: 'granted' }];   // i18n-ignore: the app name
     const mh = await DR.mirrorHandle().catch(() => null);
-    if (mh) out.push(dirDesc('mirror', 'Local folder: ' + mh.name, 'mirror', mh));
+    if (mh) out.push(dirDesc('mirror', DR.t('drive.folder.local_of', { name: mh.name }), 'mirror', mh));
     for (const d of await DR.drivesAll()) out.push(dirDesc('dir:' + d.id, d.name, 'drive', d.handle || null));
     for (const d of out) if (d.handle) d.status = await DR.dirPermission(d.handle);
     return out;
@@ -42,8 +42,8 @@
   DR.resolveDest = async function (v) {
     const s = String(v).slice(3), i = s.indexOf('|'), id = s.slice(0, i), ref = s.slice(i + 1);
     const d = await DR.providerById(id);
-    if (!d || d.status === 'gone') throw new Error('That place is no longer connected.');
-    if (d.status !== 'granted') throw new Error(`Allow access to “${d.label}” first.`);
+    if (!d || d.status === 'gone') throw new Error(DR.t('drive.prov.place_gone'));
+    if (d.status !== 'granted') throw new Error(DR.t('drive.prov.allow_first', { name: d.label }));
     return { provider: d.provider, ref: d.provider.kind === 'internal' ? nr(ref) : ref, label: d.label };
   };
   /** Can these Slop Drive items be dropped on target value v? (The folder rules are checked by the move itself.) */
@@ -65,22 +65,22 @@
       return move ? DR.move(items, dst.ref) : DR.copy(items, dst.ref);
     }
     const res = await DR.copyTree(entries, dst, { move });
-    const n = res.done, msg = n ? `${move ? 'Moved' : 'Copied'} ${n} item${n === 1 ? '' : 's'} to ${dst.label}` : null;
+    const n = res.done, msg = n ? DR.t(move ? 'drive.toast.moved_to_n' : 'drive.toast.copied_to_n', { n, place: dst.label }) : null;
     if (internal) await DR.done(msg); else if (msg) DR.toast(msg);
     if (DR.provChanged) DR.provChanged();
-    if (res.errors.length) window.SlopUI.alert(res.failed ? 'Some items could not be copied' : 'Some items were not copied', res.errors.slice(0, 6).join('\n'));
+    if (res.errors.length) window.SlopUI.alert(DR.t(res.failed ? 'drive.prov.some_failed' : 'drive.prov.some_skipped'), res.errors.slice(0, 6).join('\n'));
     return res;
   };
   /** A drop of entries on a target value (a 'pv:' place, or a Slop Drive folder id / 'root'). */
   DR.dropToProvider = async function (entries, v, copy = false) {
     const target = DR.isPvTarget(v) ? v : DR.pv('drive', v == null || v === 'root' ? '' : v);
-    try { return await DR.transferEntries(entries, await DR.resolveDest(target), { move: !copy }); } catch (e) { return window.SlopUI.alert('Not copied', e.message); }
+    try { return await DR.transferEntries(entries, await DR.resolveDest(target), { move: !copy }); } catch (e) { return window.SlopUI.alert(DR.t('drive.prov.not_copied'), e.message); }
   };
 
   /** Files dropped from the computer onto a provider folder. Folders in the drop are made as they are met. */
   DR.uploadToProvider = async function (list, v) {
     let dst;
-    try { dst = await DR.resolveDest(v); } catch (e) { return window.SlopUI.alert('Not uploaded', e.message); }
+    try { dst = await DR.resolveDest(v); } catch (e) { return window.SlopUI.alert(DR.t('drive.prov.not_uploaded'), e.message); }
     const p = dst.provider, made = new Map();
     const folderFor = async (parts) => {
       let ref = dst.ref, key = '';
@@ -101,9 +101,9 @@
         n++;
       } catch (e) { errors.push(`${file.name}: ${e.message}`); }
     }
-    if (dst.provider.kind === 'internal') await DR.done(n ? `Uploaded ${n} file${n === 1 ? '' : 's'}` : null);
+    if (dst.provider.kind === 'internal') await DR.done(n ? DR.t('drive.toast.uploaded_n', { n }) : null);
     else if (DR.provChanged) DR.provChanged();
-    if (errors.length) window.SlopUI.alert('Some files could not be copied', errors.slice(0, 6).join('\n'));
+    if (errors.length) window.SlopUI.alert(DR.t('drive.prov.files_failed'), errors.slice(0, 6).join('\n'));
     return n;
   };
 })(window.DR);

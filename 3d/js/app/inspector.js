@@ -6,6 +6,7 @@
   'use strict';
   const S = (window.Slop3D = window.Slop3D || {});
   const M = S.model, A = S.actions, st = S.state, s = st.s;
+  const t = S.t;
   const fmt = (v) => (typeof v === 'number' ? String(+v.toFixed(4)) : String(v ?? ''));
 
   function el(tag, attrs = {}, ...kids) {
@@ -46,7 +47,7 @@
     }
     const section = (title, ...kids) => el('section', { class: 'insp-sec' }, el('h3', { text: title }), ...kids);
     const row3 = (id, title, key, step, extra = {}) => el('div', { class: 'insp-row3' }, el('span', { class: 'insp-l', text: title }),
-      el('div', { class: 'insp-trio' }, ...['X', 'Y', 'Z'].map((ax, i) => field(id, `${title} ${ax}`, `${key}.${i}`, 'number', Object.assign({ attrs: { step } }, extra)))));
+      el('div', { class: 'insp-trio' }, ...['X', 'Y', 'Z'].map((ax, i) => field(id, t('3d.insp.axis', { title, axis: ax }), `${key}.${i}`, 'number', Object.assign({ attrs: { step } }, extra)))));
 
     function build() {
       body.replaceChildren();
@@ -54,16 +55,16 @@
       const id = st.primary();
       const n = id && s.doc.nodes[id];
       shown = n ? n.id : null; shownType = n ? n.type + (n.geom ? ':' + n.geom.kind : '') : null;
-      if (!n) { body.append(el('p', { class: 'insp-empty', text: 'Select an object to see its properties. Right-click the viewport to add one.' })); return; }
-      if (s.sel.length > 1) body.append(el('p', { class: 'insp-note', text: `${s.sel.length} selected. Editing the last one.` }));
-      body.append(section('Object',
-        field(n.id, 'Name', 'name', 'text'),
-        field(n.id, 'Visible', 'visible', 'check'),
-        el('p', { class: 'insp-kind', text: M.typeLabel(n) + (n.type === 'group' ? ` · ${n.children.length} inside` : '') })));
-      body.append(section('Transform',
-        row3(n.id, 'Position', 'transform.p', 0.05),
-        row3(n.id, 'Rotation°', 'transform.r', 1),
-        row3(n.id, 'Scale', 'transform.s', 0.05)));
+      if (!n) { body.append(el('p', { class: 'insp-empty', text: t('3d.insp.empty') })); return; }
+      if (s.sel.length > 1) body.append(el('p', { class: 'insp-note', text: t('3d.insp.multi', { n: s.sel.length }) }));
+      body.append(section(t('3d.insp.object'),
+        field(n.id, t('3d.insp.name'), 'name', 'text'),
+        field(n.id, t('3d.insp.visible'), 'visible', 'check'),
+        el('p', { class: 'insp-kind', text: n.type === 'group' ? t('3d.insp.inside', { type: S.typeLabel(n), n: n.children.length }) : S.typeLabel(n) })));
+      body.append(section(t('3d.insp.transform'),
+        row3(n.id, t('3d.insp.position'), 'transform.p', 0.05),
+        row3(n.id, t('3d.insp.rotation'), 'transform.r', 1),
+        row3(n.id, t('3d.insp.scale'), 'transform.s', 0.05)));
       if (n.type === 'mesh') body.append(shapeSection(n), materialSection(n));
       if (n.type === 'light') body.append(lightSection(n));
       root.dataset.kind = n.type;
@@ -71,29 +72,31 @@
     }
     function shapeSection(n) {
       const g = n.geom;
-      if (g.kind === 'mesh') return section('Shape', el('p', { class: 'insp-kind', text: `${g.faces ? 'Edited mesh' : 'Imported mesh'} · ${g.indices.length / 3} triangles${g.faces ? ` · ${g.faces.length} faces` : ''}` }));
+      if (g.kind === 'mesh') return section(t('3d.insp.shape'), el('p', { class: 'insp-kind', text: g.faces ? t('3d.insp.edited_mesh', { tris: g.indices.length / 3, faces: g.faces.length }) : t('3d.insp.imported_mesh', { tris: g.indices.length / 3 }) }));
       const spec = S.geometry.SPEC[g.kind] || {};
-      return section('Shape', ...Object.keys(spec).map((k) => {
+      const P = { size: '3d.insp.p_size', width: '3d.insp.p_width', depth: '3d.insp.p_depth', radius: '3d.insp.p_radius', segments: '3d.insp.p_segments', rings: '3d.insp.p_rings',
+        height: '3d.insp.p_height', tube: '3d.insp.p_tube', sides: '3d.insp.p_sides', detail: '3d.insp.p_detail', noise: '3d.insp.p_noise', seed: '3d.insp.p_seed' };
+      return section(t('3d.insp.shape'), ...Object.keys(spec).map((k) => {
         const [lo, hi, int] = spec[k];
-        return field(n.id, k, `geom.${k}`, 'number', { attrs: { min: lo, max: hi, step: int ? 1 : 0.05 }, min: lo, max: hi, round: int ? Math.round : null });
+        return field(n.id, P[k] ? t(P[k]) : k, `geom.${k}`, 'number', { attrs: { min: lo, max: hi, step: int ? 1 : 0.05 }, min: lo, max: hi, round: int ? Math.round : null });
       }));
     }
     function materialSection(n) {
       const m = n.material;
       const kids = [
-        field(n.id, 'Colour', 'material.color', 'color', { attrs: { value: m.color } }),
-        field(n.id, 'Roughness', 'material.roughness', 'number', { attrs: { min: 0, max: 1, step: 0.05 }, min: 0, max: 1 }),
-        field(n.id, 'Metallic', 'material.metallic', 'number', { attrs: { min: 0, max: 1, step: 0.05 }, min: 0, max: 1 }),
-        field(n.id, 'Opacity', 'material.opacity', 'range', { attrs: { min: 0, max: 1, step: 0.01 }, min: 0, max: 1 }),
+        field(n.id, t('3d.insp.colour'), 'material.color', 'color', { attrs: { value: m.color } }),
+        field(n.id, t('3d.insp.roughness'), 'material.roughness', 'number', { attrs: { min: 0, max: 1, step: 0.05 }, min: 0, max: 1 }),
+        field(n.id, t('3d.insp.metallic'), 'material.metallic', 'number', { attrs: { min: 0, max: 1, step: 0.05 }, min: 0, max: 1 }),
+        field(n.id, t('3d.insp.opacity'), 'material.opacity', 'range', { attrs: { min: 0, max: 1, step: 0.01 }, min: 0, max: 1 }),
       ];
-      if (m.map) kids.push(el('button', { type: 'button', class: 'insp-btn', text: 'Remove image texture', onclick: () => A.setField(n.id, 'material.map', undefined) }));
-      return section('Material', ...kids);
+      if (m.map) kids.push(el('button', { type: 'button', class: 'insp-btn', text: t('3d.insp.remove_texture'), onclick: () => A.setField(n.id, 'material.map', undefined) }));
+      return section(t('3d.insp.material'), ...kids);
     }
     function lightSection(n) {
-      return section('Light',
-        field(n.id, 'Colour', 'light.color', 'color', { attrs: { value: n.light.color } }),
-        field(n.id, 'Intensity', 'light.intensity', 'number', { attrs: { min: 0, max: 100, step: 0.1 }, min: 0, max: 100 }),
-        el('p', { class: 'insp-kind', text: n.light.kind === 'ambient' ? 'Ambient light: lights everything evenly.' : 'Directional light: a sun. Its position sets the direction.' }));
+      return section(t('3d.insp.light'),
+        field(n.id, t('3d.insp.colour'), 'light.color', 'color', { attrs: { value: n.light.color } }),
+        field(n.id, t('3d.insp.intensity'), 'light.intensity', 'number', { attrs: { min: 0, max: 100, step: 0.1 }, min: 0, max: 100 }),
+        el('p', { class: 'insp-kind', text: n.light.kind === 'ambient' ? t('3d.insp.ambient_note') : t('3d.insp.sun_note') }));
     }
     /** Writes the current values into the fields (skips the one being typed in). */
     function refresh() {
@@ -115,6 +118,7 @@
     }
     st.on('doc', sync);
     st.on('sel', sync);
+    st.on('lang', build);
     build();
     return { sync };
   }

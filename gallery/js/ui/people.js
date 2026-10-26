@@ -9,16 +9,16 @@
   const F = () => window.SlopFaces || null;
   let mounted = false;
 
-  const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+  const t = (k, v) => (window.SlopI18n ? window.SlopI18n.t(k, v) : k);
 
   function text(s) {
-    if (!s.enabled) return 'Face detection is off. Turn it on to group photos by how many faces they show. It runs on this device, and nothing is uploaded.';
-    if (!s.total) return 'Your library is empty.';
-    if (!s.checked) return `No photos checked yet. ${plural(s.total, 'photo', 'photos')} to check on this device.`;
-    const parts = [`${s.checked} of ${s.total} checked`];
-    if (s.one) parts.push(`${plural(s.one, 'photo', 'photos')} with one face`);
-    if (s.many) parts.push(`${plural(s.many, 'photo', 'photos')} with two or more`);
-    if (s.none) parts.push(`${plural(s.none, 'photo', 'photos')} with no faces`);
+    if (!s.enabled) return t('gallery.people.off');
+    if (!s.total) return t('gallery.people.empty');
+    if (!s.checked) return t('gallery.people.none_checked', { n: s.total });
+    const parts = [t('gallery.people.checked', { checked: s.checked, total: s.total })];
+    if (s.one) parts.push(t('gallery.people.one', { n: s.one }));
+    if (s.many) parts.push(t('gallery.people.many', { n: s.many }));
+    if (s.none) parts.push(t('gallery.people.zero', { n: s.none }));
     return parts.join(' · ') + '.';
   }
 
@@ -33,13 +33,13 @@
     $('peopleText').textContent = text(s);
     $('peopleOn').hidden = on;
     $('peopleGo').hidden = !on || s.running || !s.pending;
-    $('peopleGo').textContent = s.paused ? 'Resume' : 'Find faces';
+    $('peopleGo').textContent = t(s.paused ? 'gallery.people.resume' : 'gallery.people.find');
     $('peopleStop').hidden = !(on && s.running);
     const prog = $('peopleProg');
     prog.hidden = !(on && (s.running || s.paused) && s.pending + s.done > 0);
     if (!prog.hidden) { prog.max = Math.max(1, s.done + s.pending); prog.value = s.done; }
     if (F() && F().view) $('peopleMode').value = F().view.mode();
-    $('peopleStatus').textContent = s.running ? `Checking photos on this device: ${s.done} done, ${s.pending} to go.` : (s.paused ? 'Paused.' : '');
+    $('peopleStatus').textContent = s.running ? t('gallery.people.running', { done: s.done, pending: s.pending }) : (s.paused ? t('gallery.people.paused') : '');
   }
 
   function init() {
@@ -61,6 +61,7 @@
       render();
     });
     G.people.subscribe(render);
+    if (window.SlopI18n) window.SlopI18n.on(render);
     if (F()) F().onChange(render);
     render();
   }

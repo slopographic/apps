@@ -93,7 +93,7 @@
     const url = R ? R.link() : location.href;
     let ok = false;
     try { await navigator.clipboard.writeText(url); ok = true; } catch (e) { ok = copyFallback(url); }
-    DR.toast(ok ? 'Link copied' : 'Could not copy the link');
+    DR.toast(DR.t(ok ? 'drive.toast.link_copied' : 'drive.toast.link_failed'));
   };
   function copyFallback(text) {
     const ta = document.createElement('textarea');
