@@ -3,13 +3,15 @@
 // Home and End move between rows; right-click or the Menu key opens the row's menu (SlopCtx when the page has it, else
 // SlopUI.menu). The app gives the rows; the list draws them, the count and the empty message. Styles: shared/ui/list.css.
 // Classic script. Exposes window.SlopList.mount(host, opts) -> { set(rows), rows(), focusRow(i), destroy() }.
-//   opts: { key = 'id', label, noun: ['expense', 'expenses'], empty (text, or an element such as a message with a button),
+//   opts: { key = 'id', label, count(n) (the count line from the app's plural key: "3 expenses", "1 expense"),
+//           noun: ['expense', 'expenses'] (older: the count and the empty message; English plurals only),
+//           empty (text, or an element such as a message with a button),
 //           summary (an element for the count), open(rec), menu(rec) -> SlopUI menu items,
 //           row(rec) -> { title, amount, meta: [string | { chip, cls }], cls, selected (the record shown beside the list) } }
 (function (g) {
   'use strict';
-  /** A word from the shared tables (shared/i18n/ui/en.js), or the English given when SlopI18n or the key is absent. */
-  function tr(key, en, vars) { const I = globalThis.SlopI18n; if (I && I.has && I.has(key)) return I.t(key, vars); return vars ? String(en).replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : en; }
+  /** A word from the shared tables (shared/i18n/ui), the key without SlopI18n. */
+  const tr = (key, vars) => (globalThis.SlopI18n ? globalThis.SlopI18n.t(key, vars) : key);
   const doc = g.document;
 
   function el(tag, cls, text) { const n = doc.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; }
@@ -31,9 +33,12 @@
   }
 
   function mount(host, opts = {}) {
-    const key = opts.key || 'id', noun = opts.noun || ['item', 'items'];
+    const key = opts.key || 'id', noun = opts.noun;
     const box = el('div', 'sl-list' + (opts.open ? '' : ' is-static'));
-    const empty = opts.empty && opts.empty.nodeType ? opts.empty : el('p', 'sl-empty', opts.empty || tr('ui.list.empty', 'No {items} yet.', { items: noun[1] }));
+    const empty = opts.empty && opts.empty.nodeType ? opts.empty
+      : el('p', 'sl-empty', opts.empty || (noun ? tr('ui.list.empty', { items: noun[1] }) : tr('ui.list.empty_any')));
+    /** "3 expenses": the app's plural key (count), else the older noun pair, else "3 items". */
+    const countText = (n) => (opts.count ? opts.count(n) : noun ? tr('ui.list.count_noun', { n, noun: n === 1 ? noun[0] : noun[1] }) : tr('ui.list.count', { n }));
     box.setAttribute('role', 'list'); if (opts.label) box.setAttribute('aria-label', opts.label);
     empty.hidden = true;
     host.replaceChildren(box, empty);
@@ -74,7 +79,7 @@
       recs = list || []; byKey = new Map(recs.map((r) => [String(r[key]), r]));
       box.replaceChildren(...recs.map((r) => rowEl(r, opts.row ? opts.row(r) : { title: String(r[key]) }, key)));
       empty.hidden = recs.length > 0;
-      if (opts.summary) opts.summary.textContent = `${recs.length} ${recs.length === 1 ? noun[0] : noun[1]}`;
+      if (opts.summary) opts.summary.textContent = countText(recs.length);
       focusRow(Math.min(active, recs.length - 1), had);
     }
 

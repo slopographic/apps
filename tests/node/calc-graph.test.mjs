@@ -1,4 +1,5 @@
 // Variables, programs and the node graph engine (shared/calc). Uses the same loader as the calculator tests.
+// Covers: shared/calc/graph.js
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { loadCalc } from './calc-env.mjs';

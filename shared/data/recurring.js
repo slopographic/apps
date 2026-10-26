@@ -21,8 +21,8 @@
     return iso(new Date(Date.UTC(y, m, Math.min(want, last))));
   }
 
-  /** Pure: "every month", "every 2 weeks". */
-  const describe = (s) => (s.every === 1 ? `every ${s.unit}` : `every ${s.every} ${s.unit}s`);
+  /** "every month", "every 2 weeks", in the chosen language (shared/i18n/ui/<code>/calendar.js: plural forms by every). */
+  const describe = (s) => (g.SlopI18n ? g.SlopI18n.t(s.unit === 'week' ? 'ui.recur.every_weeks' : 'ui.recur.every_months', { n: s.every }) : `${s.every} ${s.unit}`);
 
   /** Pure: the dates of the periods due on or before today, oldest first (at most CATCH_UP), and the next date after them. */
   function dueDates(s, today) {

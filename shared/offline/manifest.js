@@ -102,7 +102,7 @@
     drop: ['shared/guard.js', 'shared/spotlight/spotlight.js'],
     files: [
     'shared/profile/profile.js', 'shared/theme/theme.js',
-    'shared/i18n/i18n.js', 'slopvector/i18n/index.js', 'shared/i18n/strings.js', 'shared/i18n/ui/en.js',
+    'shared/i18n/i18n.js', 'slopvector/i18n/index.js', 'shared/i18n/strings.js', 'shared/i18n/ui/en.js', 'shared/i18n/ui/en/shell.js',
     'slopvector/i18n/en/actions.js', 'slopvector/i18n/en/dialogs.js', 'slopvector/i18n/en/messages.js',
     'slopvector/i18n/en/panels.js', 'slopvector/i18n/en/tools.js', 'slopvector/i18n/en/ui.js', 'shared/support/state.js', 'shared/support/card.js',
     'shared/support/support.js', 'shared/slopui.css', 'shared/color/picker.css', 'shared/nav/nav.css',

@@ -62,7 +62,7 @@
 
   describe('a repeating event in Later', () => {
     it('a weekly event shows its next occurrence once, with "Every week", not a row per week for a year', async () => {
-      // Covers: reminders/js/app.js, shared/reminders/core.js
+      // Covers: reminders/js/app.js, shared/reminders/core.js, shared/reminders/engine.js
       const start = T0 + 2 * 86400000;
       const r = await w().SlopData.store.put('events', { title: 'Weekly sync', allDay: false, start, end: start + 3600000, tz: 'UTC', color: 'blue', kind: 'event', freq: 'weekly', remind: 15 });
       expect(r.ok).toBe(true);

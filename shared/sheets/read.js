@@ -10,14 +10,18 @@ import { readOds } from './ods.js';
 import { readZip } from '../office/zip.js';
 import { decodeText, parseDelimited, sheetFromGrid } from './csv.js';
 
+/** A word from the shared tables (shared/i18n/ui/<code>/sheets.js), the key without SlopI18n (node tests). */
+const tr = (key, vars) => (globalThis.SlopI18n ? globalThis.SlopI18n.t(key, vars) : key);
+
 const ZIP = [0x50, 0x4b, 0x03, 0x04];
 const OLE = [0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1];
 const startsWith = (u8, sig) => sig.every((b, i) => u8[i] === b);
 
-export const UNSUPPORTED = 'Old .xls files are not supported. Open the file in Excel or LibreOffice and save it as .xlsx, .ods or .csv.';
+/** The key of the message for an old .xls file (the error's message is its text in the chosen language). */
+export const UNSUPPORTED = 'ui.sheets.xls_old';
 
 /** The name without its extension, for a sheet or a document title. */
-export const baseName = (name = '') => String(name).replace(/\.[^.]*$/, '') || 'Untitled';
+export const baseName = (name = '') => String(name).replace(/\.[^.]*$/, '') || tr('ui.untitled');
 
 async function toBytes(input) {
   if (input instanceof Uint8Array) return input;
@@ -30,15 +34,15 @@ async function toBytes(input) {
 export async function read(input, { name = input && input.name ? input.name : '' } = {}) {
   const u8 = await toBytes(input);
   const ext = (/\.([a-z0-9]+)$/i.exec(name) || [, ''])[1].toLowerCase();
-  if (startsWith(u8, OLE) || ext === 'xls' && !startsWith(u8, ZIP)) throw new Error(UNSUPPORTED);
-  if (ext === 'ods' && !startsWith(u8, ZIP)) throw new Error('This .ods file is not a valid spreadsheet (it is not a zip package).');
+  if (startsWith(u8, OLE) || ext === 'xls' && !startsWith(u8, ZIP)) throw new Error(tr(UNSUPPORTED));
+  if (ext === 'ods' && !startsWith(u8, ZIP)) throw new Error(tr('ui.sheets.ods_not_zip'));
   if (startsWith(u8, ZIP)) {
     const files = await readZip(u8);
     const ods = files.has('content.xml') && !files.has('xl/workbook.xml');
     const { sheets, skipped } = ods ? readOds(files) : await readXlsx(files);
     return { name: baseName(name), format: ods ? 'ods' : 'xlsx', sheets, skipped };
   }
-  if (['xlsx', 'xlsm'].includes(ext)) throw new Error('This .xlsx file is not a valid workbook (it is not a zip package).');
+  if (['xlsx', 'xlsm'].includes(ext)) throw new Error(tr('ui.sheets.xlsx_not_zip'));
   const text = decodeText(u8);
   const delim = ext === 'tsv' || (ext !== 'csv' && sniffTab(text)) ? '\t' : ',';
   const grid = parseDelimited(text, delim);

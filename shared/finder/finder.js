@@ -3,7 +3,8 @@
  * Classic script: SlopFinder.mount(host, options) returns { setItems, getFilter, clear, destroy }. Options:
  *   items, fields [{key,label,get}], searchKeys, facets [{key,label,values(item),format?}], columns [{key,label,get,render?,sortable?}],
  *   card(item), row(item), sort {key,dir}, urlPrefix (keys in SlopUrlState as "<prefix>.q", ".view", ...),
- *   placeholder, searchLabel, noun ('items' or ['item', 'items']), emptyText, resultsWhen ('filtered': cards view is hidden until a filter or search),
+ *   placeholder, searchLabel, count(n) and countOf(shown, n) (the count line, from a plural key of the caller: "12 apps",
+ *   "3 of 12 apps match"; default "12 items"), noun (older: 'items' or ['item', 'items'], English plurals only), emptyText, resultsWhen ('filtered': cards view is hidden until a filter or search),
  *   facetsCollapsed (facets sit in a <details>), suggest {max, href(item), label(item), hint(item)} (a listbox under the
  *   search box; Enter opens the first one), autofocus (focuses the search box on mount), onChange(shown, filter),
  *   big (the large search box, without suggestions; Enter opens the first result shown),
@@ -14,9 +15,12 @@
 (function (win) {
   'use strict';
   const M = win.SlopFinderModel;
-  /** The chrome's words in the chosen language (shared/i18n, keys finder.*), English without it. */
-  const T = (key, en, vars) => { const I = win.SlopI18n, s = I && typeof I.t === 'function' ? I.t(key, vars) : key; return s === key ? (vars ? en.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? vars[k] : m)) : en) : s; };
-  const VIEW_LABELS = { cards: T('finder.cards', 'Cards'), list: T('finder.list', 'List'), table: T('finder.table', 'Table') };
+  /** The words in the chosen language (shared/i18n: finder.* in the chrome, ui.finder.* in ui/<code>/finder.js); the key
+   *  without SlopI18n. Read when drawn, never kept: a language change re-applies the marked ones and redraws the rest. */
+  const T = (key, vars) => (win.SlopI18n ? win.SlopI18n.t(key, vars) : key);
+  const VIEW_KEYS = { cards: 'finder.cards', list: 'finder.list', table: 'finder.table' };
+  /** A label element for a default word, marked so SlopI18n.apply() follows a language change. */
+  const word = (tag, attrs, key) => { const n = el(tag, attrs, T(key)); n.setAttribute('data-i18n', key); return n; };
   let seq = 0;
 
   function el(tag, attrs, ...kids) {
@@ -43,8 +47,11 @@
   }
 
   function mount(host, opts) {
-    // noun: 'items', or ['item', 'items'] for the right word when there is one.
-    const noun = (n) => (Array.isArray(opts.noun) ? opts.noun[n === 1 ? 0 : 1] : opts.noun || 'items');
+    // The count line: the caller's plural keys (count, countOf), else the older noun ('items' or ['item', 'items']), else "N items".
+    const noun = (n) => (Array.isArray(opts.noun) ? opts.noun[n === 1 ? 0 : 1] : opts.noun);
+    const countText = (n) => (opts.count ? opts.count(n) : opts.noun ? T('ui.finder.count_noun', { n, noun: noun(n) }) : T('ui.finder.count', { n }));
+    const countOfText = (shown, n) => (opts.countOf ? opts.countOf(shown, n)
+      : opts.noun ? T('ui.finder.count_of_noun', { shown, n, noun: noun(n) }) : T('ui.finder.count_of', { shown, n }));
     const spec = { fields: opts.fields || [], searchKeys: opts.searchKeys, facets: opts.facets || [], columns: opts.columns || [], sort: opts.sort, rank: opts.rank, view: opts.view };
     const scope = scopeFor(opts.urlPrefix);
     const id = 'fd' + (++seq);
@@ -52,23 +59,23 @@
     let st = M.normalizeState(scope ? readUrl(scope) : {}, spec);
     let destroyed = false, active = -1, shown = [];
 
-    const search = el('input', { type: 'search', class: 'fd-input', id: id + '-q', placeholder: opts.placeholder || T('finder.search', 'Search'),
-      'aria-label': opts.searchLabel || T('finder.search', 'Search'), autocomplete: 'off', spellcheck: 'false', role: opts.suggest ? 'combobox' : null,
+    const search = el('input', { type: 'search', class: 'fd-input', id: id + '-q', placeholder: opts.placeholder || T('finder.search'),
+      'aria-label': opts.searchLabel || T('finder.search'), autocomplete: 'off', spellcheck: 'false', role: opts.suggest ? 'combobox' : null,
       'aria-autocomplete': opts.suggest ? 'list' : null, 'aria-expanded': opts.suggest ? 'false' : null, 'aria-controls': opts.suggest ? id + '-list' : null });
     search.value = st.q;
-    const suggest = opts.suggest ? el('ul', { class: 'fd-suggest', id: id + '-list', role: 'listbox', hidden: true, 'aria-label': 'Matching apps' }) : null;
+    const suggest = opts.suggest ? el('ul', { class: 'fd-suggest', id: id + '-list', role: 'listbox', hidden: true, 'aria-label': T('ui.finder.matches') }) : null;
     // The attribute is data-fd-view, not data-view: home/view.js routes every click on [data-view] to a page view, which hid the homepage.
   const views = M.VIEWS.map((v) => el('button', { type: 'button', class: 'fd-view', 'data-fd-view': v, 'aria-pressed': 'false',
-      onclick: () => { st = { ...st, view: v }; update(); } }, VIEW_LABELS[v]));
+      onclick: () => { st = { ...st, view: v }; update(); }, 'data-i18n': VIEW_KEYS[v] }, T(VIEW_KEYS[v])));
     const facetBox = el('div', { class: 'fd-facets' });
-    const facetWrap = opts.facetsCollapsed ? el('details', { class: 'fd-more' }, el('summary', { class: 'fd-more-sum' }, T('finder.filter_by', 'Filter by')), facetBox) : facetBox;
+    const facetWrap = opts.facetsCollapsed ? el('details', { class: 'fd-more' }, word('summary', { class: 'fd-more-sum' }, 'finder.filter_by'), facetBox) : facetBox;
     const chipBox = el('div', { class: 'fd-chips', hidden: true });
     const count = el('p', { class: 'fd-count', 'aria-live': 'polite' });
     const results = el('div', { class: 'fd-results' });
-    const empty = el('div', { class: 'fd-empty', hidden: true }, el('p', null, opts.emptyText || T('finder.no_matches', 'No matches.')),
-      el('button', { type: 'button', class: 'fd-btn', onclick: () => clear() }, T('finder.clear_filters', 'Clear filters')));
-    const bar = el('div', { class: 'fd-bar' }, el('div', { class: 'fd-search' }, el('label', { class: 'fd-sr', for: id + '-q' }, opts.searchLabel || T('finder.search', 'Search')), search, suggest),
-      el('div', { class: 'fd-views', role: 'group', 'aria-label': T('finder.view', 'View') }, views));
+    const empty = el('div', { class: 'fd-empty', hidden: true }, opts.emptyText ? el('p', null, opts.emptyText) : word('p', null, 'finder.no_matches'),
+      word('button', { type: 'button', class: 'fd-btn', onclick: () => clear() }, 'finder.clear_filters'));
+    const bar = el('div', { class: 'fd-bar' }, el('div', { class: 'fd-search' }, el('label', { class: 'fd-sr', for: id + '-q' }, opts.searchLabel || T('finder.search')), search, suggest),
+      el('div', { class: 'fd-views', role: 'group', 'aria-label': T('finder.view'), 'data-i18n-attr': 'aria-label:finder.view' }, views));
     host.replaceChildren(el('div', { class: 'sf' + (opts.suggest || opts.big ? ' fd-big' : '') + (opts.layout === 'faucet' ? ' fd-faucet' : '') }, bar, facetWrap, chipBox, count, results, empty));
 
     /* ---------- suggestions: as you type, Enter opens the first match, arrows move through them ---------- */
@@ -122,7 +129,7 @@
       const group = (f) => {
         const list = counts[f.key] || [], all = list.map((o) => o.value), filtered = !!(st.facets && st.facets[f.key]);
         const reset = filtered ? el('button', { type: 'button', class: 'fd-link', onclick: () => {
-          const facets = { ...st.facets }; delete facets[f.key]; st = { ...st, facets }; update(); } }, 'All') : null;
+          const facets = { ...st.facets }; delete facets[f.key]; st = { ...st, facets }; update(); } }, T('ui.all')) : null;
         return el('fieldset', { class: 'fd-facet' }, el('legend', null, f.label, reset ? ' ' : null, reset),
           el('div', { class: 'fd-checks' }, list.map((o) => check(f, all, o))));
       };
@@ -132,9 +139,9 @@
     function paintChips() {
       const list = M.chips(st, spec);
       chipBox.hidden = !list.length;
-      chipBox.replaceChildren(...list.map((c) => el('button', { type: 'button', class: 'fd-chip', 'aria-label': T('finder.remove', 'Remove {name}', { name: c.label }),
+      chipBox.replaceChildren(...list.map((c) => el('button', { type: 'button', class: 'fd-chip', 'aria-label': T('finder.remove', { name: c.label }),
         onclick: () => { st = c.kind === 'q' ? { ...st, q: '' } : M.removeFacet(st, c.key, c.value); if (c.kind === 'q') search.value = ''; update(); } },
-      c.label, el('span', { 'aria-hidden': 'true' }, ' ×'))), list.length ? el('button', { type: 'button', class: 'fd-link', onclick: () => clear() }, T('finder.clear_all', 'Clear all')) : null);
+      c.label, el('span', { 'aria-hidden': 'true' }, ' ×'))), list.length ? el('button', { type: 'button', class: 'fd-link', onclick: () => clear() }, T('finder.clear_all')) : null);
     }
     function paintResults() {
       if (opts.resultsWhen === 'filtered' && !M.isFiltered(st) && st.view === 'cards') { results.hidden = true; return; }
@@ -142,10 +149,10 @@
       if (st.view === 'table') {
         const head = spec.columns.map((c) => {
           const on = st.sort && st.sort.key === c.key;
-          const label = on ? (st.sort.dir === 'desc' ? 'descending' : 'ascending') : 'not sorted';
+          const label = T(on ? (st.sort.dir === 'desc' ? 'ui.finder.sorted_desc' : 'ui.finder.sorted_asc') : 'ui.finder.not_sorted');
           if (c.sortable === false) return el('th', { scope: 'col' }, c.label);
           return el('th', { scope: 'col', 'aria-sort': on ? (st.sort.dir === 'desc' ? 'descending' : 'ascending') : 'none' },
-            el('button', { type: 'button', class: 'fd-sort', 'aria-label': `${c.label}, ${label}`,
+            el('button', { type: 'button', class: 'fd-sort', 'aria-label': T('ui.finder.sort_aria', { label: c.label, sorted: label }),
               onclick: () => { st = { ...st, sort: M.nextSort(st.sort, c.key) }; update(); } }, c.label, el('span', { 'aria-hidden': 'true' }, on ? (st.sort.dir === 'desc' ? ' ↓' : ' ↑') : '')));
         });
         const rows = shown.map((it) => el('tr', null, spec.columns.map((c) => el('td', { 'data-col': c.key }, c.render ? c.render(it) : String(c.get(it) ?? '')))));
@@ -165,8 +172,7 @@
       paintChips();
       paintSuggest();
       for (const b of views) b.setAttribute('aria-pressed', String(b.dataset.fdView === st.view)), b.classList.toggle('is-on', b.dataset.fdView === st.view);
-      count.textContent = M.isFiltered(st) ? T('finder.count_of', '{shown} of {n} {noun} match', { shown: matched.length, n: items.length, noun: noun(items.length) })
-        : T('finder.count', '{n} {noun}', { n: items.length, noun: noun(items.length) });
+      count.textContent = M.isFiltered(st) ? countOfText(matched.length, items.length) : countText(items.length);
       empty.hidden = matched.length > 0;
       paintResults();
       if (scope) writeUrl(scope, st);
@@ -179,6 +185,7 @@
     }
     function getFilter() { return JSON.parse(JSON.stringify(st)); }
 
+    const offLang = win.SlopI18n && win.SlopI18n.on ? win.SlopI18n.on(() => update()) : () => {};   // the count, chips and facets in the new language
     if (scope) scope.onChange(() => { if (!destroyed) { st = M.normalizeState(readUrl(scope), spec); search.value = st.q; update(); } });
     update();
     if (opts.autofocus) search.focus({ preventScroll: true });
@@ -187,7 +194,7 @@
       getFilter,
       clear,
       focus() { search.focus(); },
-      destroy() { destroyed = true; host.replaceChildren(); },
+      destroy() { destroyed = true; offLang(); host.replaceChildren(); },
     };
   }
 

@@ -1,5 +1,6 @@
 // Slopculator parser and evaluator: precedence, percentages, roots, units, currency, dates and time arithmetic.
 // Run with: node tests/run.mjs calc   (or: node --test tests/node/calc-parser.test.mjs)
+// Covers: shared/calc/lexer.js, shared/calc/parser.js, shared/calc/evaluate.js, shared/calc/exact.js, shared/calc/units.js, shared/calc/format.js, shared/calc/calc.js, shared/i18n/ui/en/calc.js, shared/i18n/ui/sv/calc.js
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { loadCalc } from './calc-env.mjs';
@@ -180,4 +181,17 @@ test('an unexpected failure comes back as an error, never a thrown exception', (
   assert.equal(C.calc('tax()').ok, false);
   assert.equal(C.calc('--3').text, '3');
   assert.equal(C.calc('100 USD + 8%', { rate }).text, '108.00 USD', 'a percentage of a currency needs no rate');
+});
+
+test('messages follow the language (shared/i18n/ui/<code>/calc.js); the codes stay as they are', async () => {
+  const S = await loadCalc('sv');
+  const sv = (src) => S.calc(src, { today: TODAY, rate }).error;
+  assert.deepEqual([sv('5 / 0').code, sv('5 / 0').message], ['math', 'Division med noll']);
+  assert.equal(sv('2 +').message, 'Uttrycket slutar för tidigt');
+  assert.equal(sv('5 km + 2 kg').message, 'Kan inte addera massa och längd');
+  assert.equal(sv('100 USD in SEK').code, 'rate');
+  assert.equal(sv('sqrt(1, 2)').message, 'sqrt tar 1 argument');
+  assert.equal(S.units.categories().find((c) => c.key === 'mass').label, 'Vikt');
+  assert.equal(C.units.categories().find((c) => c.key === 'mass').label, 'Weight');
+  assert.equal(run('sqrt(1, 2)').error.message, 'sqrt takes 1 argument');   // the #one form
 });

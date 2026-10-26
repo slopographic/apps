@@ -14,6 +14,8 @@
 (function (g) {
   'use strict';
   const ns = (g.SlopCalc = g.SlopCalc || {});
+  /** A word from the shared tables (shared/i18n/ui/<code>/calc.js), the key without SlopI18n. */
+  const say = (key, vars) => (g.SlopI18n ? g.SlopI18n.t(key, vars) : key);
   const CALENDAR_DAYS = Object.freeze({ days: 1, weeks: 7, months: 30.436875, years: 365.2425 });
 
   // [dim, unit, exact factor to the base (null for temperature), label, aliases…]
@@ -67,8 +69,7 @@
     ['temp', 'f', null, '°F', 'fahrenheit'],
     ['temp', 'k', null, 'K', 'kelvin'],
   ];
-  const CATEGORIES = [['length', 'Length'], ['mass', 'Weight'], ['volume', 'Volume'], ['time', 'Time'],
-    ['calendar', 'Calendar'], ['data', 'Data size'], ['temp', 'Temperature']];
+  const CATEGORIES = ['length', 'mass', 'volume', 'time', 'calendar', 'data', 'temp'];   // labels: ui.calc.cat_<key>
 
   /** '0.0254' or '1/60' → exact fraction { n, d } (not reduced; exact.js reduces every result). */
   function parseFactor(text) {
@@ -118,10 +119,10 @@
   /** Temperature, through the exact converter, as a number for the evaluator. */
   const convertTemp = (v, from, to) => Number(ns.exact.convert('temp', from, to, String(v)).text);
 
-  /** Categories for the Convert panel: every unit of a dimension, in table order. */
+  /** Categories for the Convert panel: every unit of a dimension, in table order. The label is in the chosen language. */
   function categories() {
-    return CATEGORIES.map(([key, label]) => ({
-      key, label, units: ROWS.filter((r) => r[0] === key).map((r) => ({ key: r[1], label: r[3] })),
+    return CATEGORIES.map((key) => ({
+      key, label: say('ui.calc.cat_' + key), units: ROWS.filter((r) => r[0] === key).map((r) => ({ key: r[1], label: r[3] })),
     }));
   }
 

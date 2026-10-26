@@ -12,6 +12,8 @@ import { parseXml, kids, kid, all, attr, textOf, NS } from '../office/xml.js';
 import { BUILTIN_FORMATS, excelDate, isDateCode, formatNumber } from './numfmt.js';
 import { KEY } from './csv.js';
 import { readCharts, skippedParts } from './xlsx-charts.js';
+/** A word from the shared tables (shared/i18n/ui/<code>/sheets.js), the key without SlopI18n (node tests). */
+const tr = (key, vars) => (globalThis.SlopI18n ? globalThis.SlopI18n.t(key, vars) : key);
 
 /** "AB12" → { r: 11, c: 27 } (zero-based). Missing references return null. */
 export function parseRef(ref) {
@@ -136,7 +138,7 @@ export function buildSheet(name, cells, extra = {}) {
 export async function readXlsx(bytes) {
   const files = bytes instanceof Map ? bytes : await readZip(bytes);
   const wbXml = readText(files, 'xl/workbook.xml');
-  if (!wbXml) throw new Error('Not an Excel workbook (no xl/workbook.xml)');
+  if (!wbXml) throw new Error(tr('ui.sheets.xlsx_no_workbook'));
   const rels = new Map();
   const relRoot = readText(files, 'xl/_rels/workbook.xml.rels');
   if (relRoot) for (const rel of all(parseXml(relRoot).documentElement, '*', 'Relationship')) {
@@ -155,11 +157,11 @@ export async function readXlsx(bytes) {
     const target = rels.get(attr(el, NS.r, 'id')) || `xl/worksheets/sheet${i + 1}.xml`;
     if (!/worksheets\//.test(target)) return; // chart sheets have no cells
     const xml = readText(files, target);
-    if (xml === null) throw new Error(`Missing ${target} in the workbook`);
+    if (xml === null) throw new Error(tr('ui.sheets.xlsx_missing', { part: target }));
     const sheet = readSheet(attr(el, null, 'name') || `Sheet${i + 1}`, xml, shared, styles);
     sheet.charts = readCharts(files, target);
     sheets.push(sheet);
   });
-  if (!sheets.length) throw new Error('This workbook has no worksheets');
+  if (!sheets.length) throw new Error(tr('ui.sheets.no_sheets'));
   return { sheets, skipped: skippedParts(files, sheetEls.length > sheets.length) };
 }
