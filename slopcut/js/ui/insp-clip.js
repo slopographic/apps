@@ -30,7 +30,7 @@
       t(F.slider(U.t('slopedit.insp.contrast'), get('contrast'), set('contrast', U.t('slopedit.insp.contrast')), { min: -100, max: 100, reset: 0 })),
       t(F.slider(U.t('slopedit.insp.saturation'), get('sat'), set('sat', U.t('slopedit.insp.saturation')), { min: -100, max: 100, reset: 0 })),
       t(F.slider(U.t('slopedit.insp.temperature'), get('temp'), set('temp', U.t('slopedit.insp.temperature')), { min: -100, max: 100, reset: 0 })),
-      h('div', { class: 'ins-actions' }, ...[['Warm', { temp: 35, sat: 10 }], ['Cool', { temp: -35 }], ['Punchy', { contrast: 25, sat: 30 }], ['B&W', { sat: -100, contrast: 15 }], ['Faded', { contrast: -25, bright: 8, sat: -20 }]].map(([l, v]) =>
+      h('div', { class: 'ins-actions' }, ...[['Warm', { temp: 35, sat: 10 }], ['Cool', { temp: -35 }], ['Punchy', { contrast: 25, sat: 30 }], ['B&W', { sat: -100, contrast: 15 }], ['Faded', { contrast: -25, bright: 8, sat: -20 }]].map(([en, v], i, all, l = U.w('look', en, en)) =>
         h('button', { type: 'button', class: 'btn sm', onclick: () => SE.change(U.t('slopedit.insp.colour_look'), (p) => Object.assign(M.clip(p, id), { bright: 0, contrast: 0, sat: 0, temp: 0 }, v)) }, l))))); // i18n-ignore: class names
     body().append(F.section(U.t('slopedit.insp.fades_transition'), 'transition',
       t(F.slider(U.t('slopedit.insp.fade_in'), get('fadeIn'), set('fadeIn', U.t('slopedit.insp.fade_in')), { min: 0, max: Math.min(10, c.dur), step: 0.05, unit: 's', reset: 0, hardMin: 0 })),

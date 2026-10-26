@@ -74,5 +74,5 @@ async function generateManyLabels() {
   }, LT('label.bgen.generate_labels'));
   App.tab = 'data';
   refresh();
-  SlopUI.toast(`${vals.length} labels, one random value each`);
+  SlopUI.toast(LT('label.bgen.made', { n: vals.length }));
 }

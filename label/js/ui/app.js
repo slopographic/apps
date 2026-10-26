@@ -134,9 +134,9 @@ function updateChrome() {
   $('btnUndo').title = App.hist.canUndo ? LT('ui.undo_what', { what: App.hist.undoLabel }) + ' (Ctrl+Z)' : LT('label.cmd.undo');
   $('zoomVal').textContent = Math.round((App.zoom / (96 / 25.4)) * 100) + '%';
   const errs = sceneErrors(App.scene), warns = App.scene.filter((i) => i.warn).length;
-  if (errs.length) status(errs[0] + (errs.length > 1 ? ` (+${errs.length - 1} more)` : ''), 'err');
-  else if (warns) status(`${warns} text object${warns > 1 ? 's do' : ' does'} not fit ${warns > 1 ? 'their boxes' : 'its box'}`, 'warn');
-  else if (statusSticky < Date.now()) status(`${d.objects.length} object${d.objects.length === 1 ? '' : 's'}${App.sel.length ? ` · ${App.sel.length} selected` : ''}${n ? ` · ${n} records` : ''}`);
+  if (errs.length) status(errs[0] + (errs.length > 1 ? ' ' + LT('label.st.more', { n: errs.length - 1 }) : ''), 'err');
+  else if (warns) status(LT('label.st.no_fit', { n: warns }), 'warn');
+  else if (statusSticky < Date.now()) status(LT('label.st.objects', { n: d.objects.length }) + (App.sel.length ? ' · ' + LT('label.st.selected', { n: App.sel.length }) : '') + (n ? ' · ' + LT('label.st.records', { n }) : ''));
 }
 let statusSticky = 0;
 function status(msg, cls = '', sticky = 0) {

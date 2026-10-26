@@ -3,6 +3,6 @@
 window.SlopI18n && window.SlopI18n.source({
   ns: 'effects',
   base: ((document.currentScript || {}).src || '').replace(/[^/]*$/, ''),
-  parts: ['app', 'keys', 'panels', 'panels2', 'tour'],
+  parts: ['app', 'keys', 'panels', 'panels2', 'tail2', 'tour'],
   langs: ['en', 'sv'],
 });

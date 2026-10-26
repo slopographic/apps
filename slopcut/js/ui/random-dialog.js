@@ -17,7 +17,7 @@
     const tpl = SlopUI.select([['', U.t('slopedit.rnd.none_one_clip_after_another')], ['random', U.t('slopedit.rnd.random_grid_from_the_list')]]
       .concat(T.list.map((t) => [t.id, U.t('slopedit.rnd.per_cut', { name: U.w('tpl', t.id, t.name), n: t.slots.length })])), last.tpl || '');
     const switches = SlopUI.check(U.t('slopedit.rnd.switch_layouts_at_random_points'), !!last.switches);
-    const pick = new Map(GRIDS.map((id) => [id, SlopUI.check(T.get(id).name + ' (' + T.get(id).slots.length + ' cells)', true)]));
+    const pick = new Map(GRIDS.map((id) => [id, SlopUI.check(U.t('slopedit.rnd.cells', { name: U.w('tpl', id, T.get(id).name), n: T.get(id).slots.length }), true)]));
     const seed = h('input', { class: 'inp', type: 'text', value: S.hex(seedNow), 'aria-label': U.t('slopedit.insp.seed'), spellcheck: 'false', autocomplete: 'off', maxlength: '32' });
     const summary = h('p', { class: 'sui-p rd-sum', role: 'status' });
     const list = h('ol', { class: 'rd-list', 'aria-label': U.t('slopedit.rnd.cuts_in_order') });

@@ -51,7 +51,7 @@
       const r = XD.range(range.value), dur = r.b - r.a;
       if (gif) { note.className = 'exp-note' + (dur > 15 ? ' warn' : ''); note.textContent = dur > 15 ? U.t('slopedit.exp.gifs_are_limited_to_15') : U.t('slopedit.exp.gif_note', { d: U.dur(dur) }); return; }
       const s = XD.size(res.value, +cw.value, +ch.value), est = SE.encode.bitrate(s.w, s.h, +fps.value, q.value) * dur / 8 + (audio.input.checked ? 16000 * dur : 0);
-      let msg = s.w + '×' + s.h + ' · ' + U.dur(dur) + ' · about ' + U.fmtBytes(est) + '. ';
+      let msg = s.w + '×' + s.h + ' · ' + U.dur(dur) + ' · ' + U.t('slopedit.exp.about', { size: U.fmtBytes(est) }) + '. ';
       note.className = 'exp-note';
       if (f === 'rec') { msg += U.t('slopedit.exp.rec_note', { d: U.dur(dur) }); note.className = 'exp-note warn'; }
       else {

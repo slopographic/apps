@@ -23,7 +23,7 @@ async function maybeFormMode() {
   try { doc = await decodeDocHash(m[1]); } catch (e) { SlopUI.alert(LT('label.form.broken_form_link'), LT('label.form.this_print_form_link_is')); return false; }
   App.doc = doc;
   document.body.classList.add('form-mode');
-  document.title = doc.name + ' — print form';
+  document.title = doc.name + ' — ' + LT('label.form.title_suffix');
   await preloadImages(doc);
   const ps = doc.vars.filter((v) => v.type === 'prompt'), vals = {};
   const prev = mk('div', { class: 'pf-prev' }), err = mk('div');

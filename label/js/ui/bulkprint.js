@@ -18,7 +18,7 @@ function bulkProblem(d, g) {
   if (g.layout !== 'grid') return '';
   const L = d.label, [, pageW, pageH] = BULK_PAPER[g.paper];
   const needW = g.margin + g.cols * L.w + (g.cols - 1) * g.gapX, needH = g.margin + g.rows * L.h + (g.rows - 1) * g.gapY;
-  if (needW > pageW || needH > pageH) return `${g.cols} × ${g.rows} labels of ${num(L.w, 1)} × ${num(L.h, 1)} mm do not fit on ${BULK_PAPER[g.paper][0]} with these gaps and margin.`;
+  if (needW > pageW || needH > pageH) return LT('label.bulk.no_fit', { grid: g.cols + ' × ' + g.rows, size: num(L.w, 1) + ' × ' + num(L.h, 1), paper: BULK_PAPER[g.paper][0] });
   return '';
 }
 
@@ -56,7 +56,7 @@ function openBulkDialog(ctx) {
     if (J.scenes.length) prev.replaceChildren(pagePreviewCanvas(pd, J.scenes, 0, S.page).canvas); else prev.replaceChildren(mk('p', { class: 'hint' }, LT('label.bulk.nothing_to_print')));
     pageInfo.textContent = LT('label.print.page_of', { n: S.page + 1, of: pages });
     prevBtn.disabled = S.page <= 0; nextBtn.disabled = S.page >= pages - 1;
-    info.textContent = `${J.scenes.length} label${J.scenes.length === 1 ? '' : 's'} · ${per} per page · ${pages} page${pages === 1 ? '' : 's'}`;
+    info.textContent = [LT('label.bulk.labels', { n: J.scenes.length }), LT('label.bulk.per_page', { n: per }), LT('label.bulk.pages', { n: pages })].join(' · ');
     msgs.append(...J.errors.slice(0, 3).map((e) => mk('div', { class: 'msg err' }, e)));
   }
   const print = async () => {

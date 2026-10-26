@@ -22,7 +22,7 @@ function labelSetupDialog(target) {
   const rot = dChk(LT('label.dlg.print_upside_down_rotate_180'), P.rotate180);
   const info = mk('p', { class: 'hint' });
   const list = mk('div', { class: 'stock-list', role: 'listbox', 'aria-label': LT('label.dlg.label_stock') });
-  const showInfo = () => { info.textContent = stock ? (stock.kind === 'sheet' ? `${stock.cols} × ${stock.rows} labels on a ${num(stock.pageW, 1)} × ${num(stock.pageH, 1)} mm sheet. Size is fixed by the sheet.` : LT('label.dlg.thermal_roll_one_label_per')) : LT('label.dlg.custom_size_on_a_roll'); W.disabled = H.disabled = !!(stock && stock.kind === 'sheet'); };
+  const showInfo = () => { info.textContent = stock ? (stock.kind === 'sheet' ? LT('label.dlg.sheet_info', { grid: stock.cols + ' × ' + stock.rows, size: num(stock.pageW, 1) + ' × ' + num(stock.pageH, 1) }) : LT('label.dlg.thermal_roll_one_label_per')) : LT('label.dlg.custom_size_on_a_roll'); W.disabled = H.disabled = !!(stock && stock.kind === 'sheet'); };
   const pick = (s, btn) => {
     stock = s; list.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b === btn));
     if (s) { const uu = unit.value; W.value = num(fromMM(s.w, uu, +dpi.value), 4); H.value = num(fromMM(s.h, uu, +dpi.value), 4); rad.value = num(s.radius || 0, 2); if (s.gap != null) gap.value = s.gap; }

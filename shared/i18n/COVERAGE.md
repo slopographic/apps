@@ -22,15 +22,15 @@ Shared code (shell/, shared/) still has 6215 hard-coded strings; most belong to 
 | 2 | PhotoSlop | photoslop | 1855 | 0 | 1855 | 0 of 29 |
 | 3 | Slop PDF | pdf | 1682 | 1467 | 215 | 0 of 29 |
 | 4 | Slop Press | press | 1373 | 0 | 1373 | 0 of 29 |
-| 5 | SlopCut | slopedit | 1128 | 769 | 359 | 0 of 29 |
-| 6 | SlopLabel | label | 1123 | 668 | 455 | 0 of 29 |
+| 5 | SlopLabel | label | 1146 | 691 | 455 | 0 of 29 |
+| 6 | SlopCut | slopedit | 1136 | 777 | 359 | 0 of 29 |
 | 7 | SlopVector | vector | 1020 | 0 | 1020 | 0 of 29 |
 | 8 | Slop Slides | slides | 785 | 0 | 785 | 0 of 29 |
 | 9 | Slop Tables | tables | 694 | 0 | 694 | 0 of 29 |
 | 10 | Slop Drive | drive | 684 | 0 | 684 | 0 of 29 |
 | 11 | Slop Docs | docs | 659 | 0 | 659 | 0 of 29 |
 | 12 | Slop Contacts | contacts | 540 | 0 | 540 | 0 of 29 |
-| 13 | Slop Effects | effects | 514 | 313 | 201 | 0 of 29 |
+| 13 | Slop Effects | effects | 516 | 315 | 201 | 0 of 29 |
 | 14 | Slop AI | ai | 508 | 0 | 508 | 0 of 29 |
 | 15 | Slop Font | fontcreator | 474 | 0 | 474 | 0 of 29 |
 | 16 | Slop 3D | 3d | 458 | 0 | 458 | 0 of 29 |
@@ -82,14 +82,14 @@ Shared code (shell/, shared/) still has 6215 hard-coded strings; most belong to 
 | 62 | Slop Reminders | reminders | 44 | 0 | 44 | 0 of 29 |
 | 63 | Checksum | checksum | 42 | 0 | 42 | 0 of 29 |
 
-Total: 24553 strings in 63 apps.
+Total: 24586 strings in 63 apps.
 
 ## Apps with tables, per language
 
 | App | en | es | fr | de | pt-BR | it | ar | sv | zh-CN | zh-TW | ja | ko | hi | ru | uk | pl | nl | tr | id | vi | he | sw | am | ha | yo | ig | zu | xh | af |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | pdf | 87% | 0% | 0% | 87% | 0% | 0% | 87% | 87% | 0% | 0% | 87% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
+| label | 60% | 0% | 0% | 0% | 0% | 0% | 0% | 60% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
 | slopedit | 68% | 0% | 0% | 0% | 0% | 0% | 0% | 68% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
-| label | 59% | 0% | 0% | 0% | 0% | 0% | 0% | 59% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
-| effects | 60% | 0% | 0% | 0% | 0% | 0% | 0% | 60% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
+| effects | 61% | 0% | 0% | 0% | 0% | 0% | 0% | 61% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
 | remix | 70% | 0% | 0% | 0% | 0% | 0% | 0% | 70% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |

@@ -60,7 +60,7 @@ async function openPrintDialog() {
     prevBox.replaceChildren(canvas);
     pageInfo.textContent = LT('label.print.page_of', { n: S.page + 1, of: pages });
     prevBtn.disabled = S.page <= 0; nextBtn.disabled = S.page >= pages - 1;
-    summary.textContent = `${J.scenes.length} label${J.scenes.length === 1 ? '' : 's'} on ${pages} ${st.kind === 'sheet' ? 'sheet' : 'page'}${pages === 1 ? '' : 's'} · page ${num(st.pageW, 1)} × ${num(st.pageH, 1)} mm`;
+    summary.textContent = LT(st.kind === 'sheet' ? 'label.print.on_sheets' : 'label.print.on_pages', { labels: LT('label.bulk.labels', { n: J.scenes.length }), n: pages }) + ' · ' + LT('label.print.page_size', { size: num(st.pageW, 1) + ' × ' + num(st.pageH, 1) });
     msgs.replaceChildren(...J.errors.slice(0, 3).map((e) => mk('div', { class: 'msg err' }, e)), ...J.job.warnings.slice(0, 3).map((w) => mk('div', { class: 'msg warn' }, w)));
   }
   const done = (what) => { if (J && d.vars.some((v) => v.type === 'counter' && v.remember)) { advanceCounters(d, J.job.serials); commit(LT('label.print.advance_counters')); } status(what, '', 4000); };

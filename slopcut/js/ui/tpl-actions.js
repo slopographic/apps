@@ -20,14 +20,14 @@
     if (!tpl) return;
     if (SE.doc.layout) {
       SE.change(U.t('slopedit.tpl.change_template'), (p) => L.setTemplate(p, id));
-      A.status(tpl.name + ': clips kept and re-flowed');
+      A.status(U.w('tpl', tpl.id, tpl.name) + ': ' + U.t('slopedit.tpl.reflowed'));
       return;
     }
     const ids = A.selectedIds().filter((x) => { const c = SE.model.clip(SE.doc, x); return c && c.kind !== 'audio'; });
     if (ids.length) {
       let n = 0;
       SE.change(U.t('slopedit.menu.apply_template'), (p) => { n = L.apply(p, id, ids); return n ? undefined : false; });
-      if (n) A.status(tpl.name + ': ' + n + ' of ' + tpl.slots.length + ' slot' + (tpl.slots.length > 1 ? 's' : '') + ' filled');
+      if (n) A.status(U.w('tpl', tpl.id, tpl.name) + ': ' + U.t('slopedit.tpl.filled', { k: n, n: tpl.slots.length }));
       return;
     }
     const metas = R.picked();

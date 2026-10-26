@@ -34,7 +34,7 @@
         track(F.select(U.t('slopedit.fx.frame_rate'), [[24, '24 fps'], [25, '25 fps'], [30, '30 fps'], [50, '50 fps'], [60, '60 fps']], () => SE.doc.fps, (v) => set('fps')(+v))),
         track(F.color(U.t('slopedit.insp.background'), () => SE.doc.bg, set('bg')))),
       F.section(U.t('slopedit.insp.project'), 'info',
-        h('p', { class: 'ins-note' }, p.clips.length + ' clips · ' + p.tracks.length + ' tracks · ' + p.markers.length + ' markers · ' + U.timecode(M.duration(p), p.fps)),
+        h('p', { class: 'ins-note' }, [U.t('slopedit.insp.n_clips', { n: p.clips.length }), U.t('slopedit.insp.n_tracks', { n: p.tracks.length }), U.t('slopedit.insp.n_markers', { n: p.markers.length }), U.timecode(M.duration(p), p.fps)].join(' · ')),
         h('p', { class: 'ins-note' }, U.t('slopedit.insp.select_a_clip_on_the'))));
   }
 

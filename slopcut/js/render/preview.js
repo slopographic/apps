@@ -72,7 +72,7 @@
   let intro = null;
   const introOf = () => intro || (intro = window.SlopDrop.panel.preview({
     picture: { src: '../assets/shots/slopedit.jpg', alt: U.t('slopedit.render.a_short_film_on_the') },
-    steps: ['Drop video, audio or pictures', U.t('slopedit.render.cut_and_arrange_them_on'), U.t('slopedit.render.export_a_video_file')] }));
+    steps: [U.t('slopedit.render.step_drop'), U.t('slopedit.render.cut_and_arrange_them_on'), U.t('slopedit.render.export_a_video_file')] }));
   function updateMsg() {
     const p = SE.doc;
     if (!p.clips.length) {

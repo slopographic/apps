@@ -19,7 +19,7 @@
     /** Kind for a picked file or Drive record, or null with a message. */
     function kindFor(type, name) {
       const k = M().kindOf(type);
-      if (!k) toast(`${name || 'That file'} is not an image or video`);
+      if (!k) toast(T('effects.io.not_media', { name: name || T('effects.io.that_file') }));
       return k;
     }
 

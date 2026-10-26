@@ -21,7 +21,7 @@ async function useDataSource(src) {
   editDoc((d) => { d.data = src; }, LT('label.data.import_data'));
   App.tab = 'data';
   refresh();
-  SlopUI.toast(`${src.rows.length} records from ${src.name}`);
+  SlopUI.toast(LT('label.data.records_from', { n: src.rows.length, name: src.name }));
   return true;
 }
 function pasteDataDialog() {

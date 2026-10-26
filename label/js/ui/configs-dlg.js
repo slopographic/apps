@@ -3,7 +3,7 @@
  * A configs file dropped on the app is imported too (ui/export.js). Storage is io/configs-store.js. Classic script. */
 'use strict';
 
-const persistNote = (msg) => (LabelConfigs.persisted ? msg : msg + ' (storage is blocked here, so it lasts only for this visit)');
+const persistNote = (msg) => (LabelConfigs.persisted ? msg : msg + ' ' + LT('label.cfg.blocked_note'));
 /** Applies a config to the open label as one undo step (undo takes it back). Returns the notes about data columns. */
 function applyConfigToLabel(name, body) {
   let notes = [];
@@ -26,12 +26,12 @@ function importConfigsText(text) {
   const r = LabelConfigs.importText(text);
   if (!r.ok) { SlopUI.alert(LT('label.cfg.could_not_import_the_configs'), r.error); return r; }
   SlopUI.toast(LT('label.cfg.imported', { n: r.added }));
-  if (r.rejected.length) SlopUI.alert(`${r.rejected.length} config${r.rejected.length === 1 ? ' was' : 's were'} not imported`, r.rejected.map((x) => `${x.name}: ${x.error}`).join('; '));
+  if (r.rejected.length) SlopUI.alert(LT('label.cfg.rejected', { n: r.rejected.length }), r.rejected.map((x) => `${x.name}: ${x.error}`).join('; '));
   return r;
 }
 /** The one-line summary of a config, for the list. */
-const configSummary = (b) => `${num(b.label.w, 2)} × ${num(b.label.h, 2)} mm · ${b.stock.kind === 'sheet' ? `${b.stock.cols} × ${b.stock.rows} per sheet` : 'roll'} · ${b.dpi} dpi`
-  + (b.data ? ` · ${b.data.columns.length} data column${b.data.columns.length === 1 ? '' : 's'}` : '');
+const configSummary = (b) => `${num(b.label.w, 2)} × ${num(b.label.h, 2)} mm · ${b.stock.kind === 'sheet' ? LT('label.cfg.per_sheet', { grid: b.stock.cols + ' × ' + b.stock.rows }) : LT('label.cfg.roll')} · ${b.dpi} dpi`
+  + (b.data ? ' · ' + LT('label.cfg.data_cols', { n: b.data.columns.length }) : '');
 
 /** File ▸ Configs…: the saved configs, with their actions. */
 function configsDialog() {
@@ -54,7 +54,7 @@ function configsDialog() {
       fBtn(LT('label.cmd.duplicate'), () => { const res = LabelConfigs.duplicate(r.id); if (!res.ok) SlopUI.toast(res.error); draw(); }),
       fBtn(LT('label.cfg.save_as_preset'), () => { const res = LabelConfigs.saveAsPreset(r.id); SlopUI.toast(res.ok ? persistNote(LT('label.cfg.saved_preset', { name: res.record.name })) : res.error); }),
       fBtn('Delete', async () => {
-        if (!(await SlopUI.confirm(LT('label.cfg.delete_this_config'), `“${r.name}” is removed from this browser. Presets saved from it stay.`, 'Delete', { danger: true }))) return;
+        if (!(await SlopUI.confirm(LT('label.cfg.delete_this_config'), LT('label.cfg.delete_body', { name: r.name }), LT('ui.delete'), { danger: true }))) return;
         LabelConfigs.remove(r.id); draw();
       }));
     return mk('div', { class: 'cfg-row' }, mk('div', { class: 'cfg-main' }, mk('b', null, r.name), mk('small', { class: 'mono' }, configSummary(r.body))), acts);
