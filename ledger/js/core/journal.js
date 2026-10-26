@@ -8,7 +8,8 @@
   const U = NS.util;
   const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
 
-  /** Pure: turns typed rows into journal lines. rows: [{ account, debit, credit }] as text. Returns a Result. */
+  /** Pure: turns typed rows into journal lines. rows: [{ account, debit, credit }] as text, in input.lang (default: the
+   *  page's language; SlopData.money.parseTyped). Returns a Result. */
   function buildEntry(input, knownCodes) {
     const errors = [];
     const date = String(input.date || '').trim();
@@ -26,7 +27,7 @@
       if (knownCodes && !knownCodes.includes(acct)) { errors.push(t('ledger.j.e_no_acct', { n, code: acct })); return; }
       if ((d && c) || (!d && !c)) { errors.push(t('ledger.j.e_side', { n })); return; }
       const side = d ? 'debit' : 'credit';
-      const minor = S.money.parseMinor(d || c, cur || 'USD');
+      const minor = S.money.parseTyped(d || c, cur || 'USD', input.lang || true);   // typed by a person: the page's language
       if (minor === null || minor <= 0) { errors.push(t('ledger.j.e_amount', { n, d: S.money.digits(cur || 'USD') })); return; }
       lines.push({ account: acct, debit: side === 'debit' ? minor : 0, credit: side === 'credit' ? minor : 0 });
     });

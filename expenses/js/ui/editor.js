@@ -14,7 +14,9 @@
   let taxTouched = false, cur = null;
 
   const today = () => S.ledger.today();
-  const decimal = (minor, currency) => S.money.plainMinor(minor, currency);
+  // amounts and the tax rate are typed in the page's language ("24,00" in sv): SlopData.money.parseTyped and typedMinor
+  const decimal = (minor, currency) => S.money.typedMinor(minor, currency);
+  const typed = (text, currency) => S.money.parseTyped(text, currency);
   const say = (text, bad) => { $('eMsg').textContent = text || ''; $('eMsg').className = 'msg' + (bad ? ' bad' : text ? ' ok' : ''); };
 
   async function fillAccounts(selected) {
@@ -41,9 +43,9 @@
   /** The tax from the amount and rate, until the person types a tax of their own. */
   function autoTax() {
     if (taxTouched) return;
-    const amount = S.money.parseMinor($('eAmount').value, $('eCurrency').value || 'USD');
-    const rate = Math.round(Number($('eRate').value || 0) * 100);
-    $('eTax').value = amount == null ? '' : decimal(NS.core.taxIn(amount, rate), $('eCurrency').value || 'USD');
+    const amount = typed($('eAmount').value, $('eCurrency').value || 'USD');
+    const rate = S.money.parsePercent($('eRate').value.trim() || '0', { typed: true });
+    $('eTax').value = amount == null || rate == null ? '' : decimal(NS.core.taxIn(amount, rate), $('eCurrency').value || 'USD');
   }
 
   function setForm(on) { $('eForm').hidden = !on; $('eView').hidden = on; $('eRecord').hidden = !on; $('eVoid').hidden = true; $('ePay').hidden = true; $('eCopy').hidden = on; }
@@ -67,7 +69,7 @@
     $('eDescription').value = src ? src.description || '' : '';
     $('eCurrency').value = src ? src.currency || s.currency : s.currency;
     $('eAmount').value = src ? decimal(src.amount, $('eCurrency').value) : '';
-    $('eRate').value = String((s.defaultTaxRate || 0) / 100);
+    $('eRate').value = S.money.typedPlain(String((s.defaultTaxRate || 0) / 100));
     $('eTax').value = src ? decimal(src.tax || 0, $('eCurrency').value) : '';
     $('eMethod').value = src ? src.method : 'bank';
     $('eDue').value = ''; await dueRow();
@@ -103,7 +105,7 @@
 
   async function record() {
     const currency = ($('eCurrency').value || '').trim().toUpperCase();
-    const amount = S.money.parseMinor($('eAmount').value, currency), tax = $('eTax').value.trim() ? S.money.parseMinor($('eTax').value, currency) : 0;
+    const amount = typed($('eAmount').value, currency), tax = $('eTax').value.trim() ? typed($('eTax').value, currency) : 0;
     if (amount == null || amount < 1) { say(t('expenses.ed.bad_amount'), true); $('eAmount').focus(); return; }
     if (tax == null) { say(t('expenses.ed.bad_tax'), true); $('eTax').focus(); return; }
     const later = $('eMethod').value === 'later';
@@ -117,7 +119,12 @@
     NS.app.go(`e/${r.value.id}`);
   }
 
+  /** The examples in the page language's decimal mark ("24,00" in sv). */
+  const examples = () => { $('eAmount').placeholder = S.money.typedPlain('24.00'); $('eTax').placeholder = S.money.typedPlain('0.00'); };
+
   function mount() {
+    examples();
+    if (g.SlopI18n && g.SlopI18n.on) g.SlopI18n.on(examples);
     $('eRecord').addEventListener('click', record);
     $('eForm').addEventListener('submit', (ev) => { ev.preventDefault(); record(); });
     $('eVoid').addEventListener('click', async () => { if (cur) { await NS.listView.voidOne(cur); showOne(cur.id); } });

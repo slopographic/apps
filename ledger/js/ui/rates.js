@@ -12,6 +12,7 @@
   async function render() {
     const s = await NS.util.settings();
     $('rBase').textContent = s.base;
+    $('rRate').placeholder = S.money.typedPlain('1.0842');   // the example in the page language's decimal mark
     const r = await NS.rates.list();
     $('rRows').replaceChildren(...(r.ok ? r.value : []).map((x) => el('tr', null,
       el('td', null, S.locale.formatDate(x.date, s.locale)), el('td', null, `1 ${x.base} = ${(x.rate / 1e6).toFixed(6)} ${x.quote}`),

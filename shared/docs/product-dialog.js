@@ -27,7 +27,7 @@
     const currency = (opts && opts.currency) || 'USD';
     const sku = h('input', { type: 'text', maxlength: 80, autocomplete: 'off' });
     const name = h('input', { type: 'text', maxlength: 200, autocomplete: 'off' });
-    const price = h('input', { type: 'text', inputmode: 'decimal', maxlength: 20, autocomplete: 'off', placeholder: '0.00' });
+    const price = h('input', { type: 'text', inputmode: 'decimal', maxlength: 20, autocomplete: 'off', placeholder: g.SlopData.money.typedPlain('0.00') });
     const tax = h('input', { type: 'text', inputmode: 'decimal', maxlength: 6, autocomplete: 'off', value: '0' });
     const unit = h('input', { type: 'text', maxlength: 20, autocomplete: 'off', value: 'each' });
     const msg = h('p', { class: 'msg bad', role: 'status' });   // i18n-ignore: class names
@@ -45,7 +45,7 @@
             const code = sku.value.trim(), n = name.value.trim();
             if (!code || !/^\S+$/.test(code)) { msg.textContent = t('biz.pd.sku_needed'); return false; }
             if (!n) { msg.textContent = t('biz.pd.name_needed'); return false; }
-            const amount = g.SlopData.money.parseMinor(price.value.trim(), currency);
+            const amount = S.money.parseTyped(price.value, currency);   // typed in the page's language ("12,50" in sv)
             if (amount === null || amount < 0) { msg.textContent = t('biz.pd.bad_price'); return false; }
             const rate = NS.model.bpFromPercent(tax.value.trim() || '0');
             if (rate === null || rate === undefined) { msg.textContent = t('biz.pd.bad_tax'); return false; }

@@ -177,7 +177,7 @@ window.SlopI18n && window.SlopI18n.add('sv', {
   'inventory.im.exported': 'Exporterade {what}',
   'inventory.im.e_empty': 'filen är tom',
   'inventory.im.e_no_rows': 'filen har en rubrikrad men inga produktrader',
-  'inventory.im.e_price': 'använd ett belopp som 12,50, utan valutatecken och med högst så många decimaler som valutan har',
+  'inventory.im.e_price': 'använd ett belopp som 12.50 (med punkt, som i en CSV-fil), utan valutatecken och med högst så många decimaler som valutan har',
   'inventory.im.e_reorder': 'måste vara ett heltal, noll eller mer, eller tomt',
   'inventory.im.e_errors': 'filen har fel, så inget importerades',
   'inventory.im.e_quote': 'en cell inom citattecken är inte stängd',

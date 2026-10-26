@@ -28,7 +28,7 @@
     if (cur) return;
     const s = await B.settings(), last = await NS.entries.lastUsed($('eCustomer').value);
     $('eCurrency').value = (last && last.currency) || s.currency;
-    $('eRate').value = S.money.plainMinor(last ? last.rate : 0, $('eCurrency').value);
+    $('eRate').value = S.money.typedMinor(last ? last.rate : 0, $('eCurrency').value);
     $('eProject').value = last ? last.project : '';
     $('eBillable').checked = !!$('eCustomer').value;
   }
@@ -61,7 +61,7 @@
     $('eDuration').value = src ? NS.core.hm(src.minutes) : pre ? NS.core.hm(pre.minutes) : '';
     if (src) {
       $('eCurrency').value = src.currency;
-      $('eRate').value = S.money.plainMinor(src.rate || 0, src.currency);
+      $('eRate').value = S.money.typedMinor(src.rate || 0, src.currency);
       $('eBillable').checked = !!src.billable;
     } else await useLast();
     const billed = !!cur && cur.state === 'billed';
@@ -75,7 +75,7 @@
     const minutes = NS.core.parseDuration($('eDuration').value);
     if (minutes === null) return { error: t('timesheets.ed.bad_time') };
     const currency = $('eCurrency').value.trim().toUpperCase() || 'USD';
-    const rate = S.money.parseMinor($('eRate').value || '0', currency);
+    const rate = S.money.parseTyped($('eRate').value || '0', currency);   // typed in the page's language
     if (rate === null || rate < 0) return { error: t('timesheets.ed.bad_rate') };
     if (!$('eDescription').value.trim()) return { error: t('timesheets.ed.no_desc') };
     return { form: { id: cur && cur.id, date: $('eDate').value, customerId: $('eCustomer').value, project: $('eProject').value.trim(),
@@ -100,7 +100,12 @@
     NS.app.go('list');
   }
 
+  /** The rate's example in the page language's decimal mark ("80,00" in sv). */
+  const example = () => { $('eRate').placeholder = S.money.typedPlain('80.00'); };
+
   function mount() {
+    example();
+    if (g.SlopI18n && g.SlopI18n.on) g.SlopI18n.on(example);
     $('eForm').addEventListener('submit', (e) => { e.preventDefault(); save(); });
     $('eSave').addEventListener('click', save);
     $('eBack').addEventListener('click', () => NS.app.go('list'));
