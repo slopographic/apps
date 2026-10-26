@@ -4,5 +4,5 @@ window.SlopI18n && window.SlopI18n.source({
   ns: 'checksum',
   base: ((document.currentScript || {}).src || '').replace(/[^/]*$/, ''),
   parts: ['app'],
-  langs: ['en', 'sv'],
+  langs: ['ar', 'en', 'sv'],
 });

@@ -4,5 +4,5 @@ window.SlopI18n && window.SlopI18n.source({
   ns: 'resize',
   base: ((document.currentScript || {}).src || '').replace(/[^/]*$/, ''),
   parts: ['app', 'panel', 'tour'],
-  langs: ['en', 'sv'],
+  langs: ['ar', 'en', 'sv'],
 });
