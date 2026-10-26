@@ -16,6 +16,9 @@ const FILES = ['shared/i18n/i18n.js', 'shared/biz/biz.js', 'shared/biz/i18n/en/b
   'shared/data/money.js', 'shared/data/barcode.js', 'shared/data/schema-checks.js', 'shared/data/schema-defs.js', 'shared/data/schema.js',
   'shared/docs/model.js', 'shared/docs/pdf-layouts.js', 'shared/docs/doc-view.js', 'shared/docs/pdf-render.js'];
 
+// the page in English in any build (a white-label build may start in another language)
+const PIN = "window.SlopI18n = window.SlopI18n.create({ defaultLang: 'en', profile: null });";
+
 async function load() {
   const ctx = {};
   ctx.window = ctx;
@@ -24,7 +27,10 @@ async function load() {
   // pdf-lib runs in the same context as the code that calls it (arrays must share a realm for its instanceof checks)
   const lib = 'vendor/pdf-lib/pdf-lib.min.js';
   vm.runInContext(await readFile(path.join(ROOT, lib), 'utf8'), ctx, { filename: lib });
-  for (const f of FILES) vm.runInContext(await readFile(path.join(ROOT, f), 'utf8'), ctx, { filename: f });
+  for (const f of FILES) {
+    vm.runInContext(await readFile(path.join(ROOT, f), 'utf8'), ctx, { filename: f });
+    if (f === 'shared/i18n/i18n.js') vm.runInContext(PIN, ctx);
+  }
   return ctx;
 }
 

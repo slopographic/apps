@@ -9,6 +9,7 @@ import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 globalThis.window = globalThis;   // the string tables add themselves to window.SlopI18n
 require('../../shared/i18n/i18n.js');
+globalThis.SlopI18n = globalThis.SlopI18n.create({ defaultLang: 'en', profile: null });   // the page in English in any build
 require('../../shared/biz/biz.js');
 for (const f of ['en/print2.js', 'sv/print2.js']) require(`../../shared/biz/i18n/${f}`);
 require('../../shared/data/money.js');
