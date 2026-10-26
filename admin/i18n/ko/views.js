@@ -43,7 +43,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'admin.core.next': '다음 번호는 1 이상의 정수여야 합니다.',
   'admin.core.forward': '다음 번호는 앞으로만 증가할 수 있습니다(현재 {n}). 발급된 번호는 다시 쓰지 않습니다.',
   'admin.core.currency': '목록에서 USD 같은 통화 코드를 고르세요.',
-  'admin.core.locale': '숫자와 날짜 형식에 en-US 또는 ko-KR 같은 언어 태그를 사용하세요.',
+  'admin.core.locale': '숫자와 날짜 형식에 en-US 또는 fr-FR 같은 언어 태그를 사용하세요.',
   'admin.core.rate': '기본 세율은 0에서 100 사이의 백분율이며 소수점 둘째 자리까지 쓸 수 있습니다. 예: 20 또는 7.5.',
   'admin.core.not_json': '올바른 Slop 백업 파일이 아닙니다(유효한 JSON이 아닙니다).',
   'admin.core.not_restored': '백업을 복원하지 않았습니다. {why}',
