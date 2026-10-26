@@ -70,8 +70,10 @@
         expect(tagOf('SlopLabel')).toBe('Beta');
         const I = window.SlopI18n, swapped = () => new Promise((ok) => window.addEventListener('slopi18n', ok, { once: true }));
         let w = swapped(); I.set('sv'); await w;
-        typeQuery('Slop Docs');
-        expect(tagOf('Slop Docs')).toBe('Förhandsversion');
+        // the app's name in Swedish where the tables give one (sv-apps.js), as the switcher shows it
+        const docs = window.SLOP_APPS.find((a) => a.id === 'docs'), svName = window.slopAppName ? window.slopAppName(docs) : docs.name;
+        typeQuery(svName);
+        expect(tagOf(svName)).toBe('Förhandsversion');
         w = swapped(); I.set('en'); await w;
         closeIfOpen();
       });

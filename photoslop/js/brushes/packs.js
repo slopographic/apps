@@ -24,14 +24,14 @@ const BUILTIN_PACKS = [
   ] },
   { name: 'Slop FX', builtin: true, brushes: [ // i18n-ignore: ids (shown through brushLabel / packLabel)
     B('Slime Drip', 'slime', 46, 0.85), B('Goo Splat', 'splat', 60, 1, { spacing: 0.8, sizeJitter: 0.4, angleJitter: 1, scatter: 0.6 }), // i18n-ignore: ids (shown through brushLabel / packLabel)
-    B('Bubbles', 'ring', 36, 1, { spacing: 1, sizeJitter: 0.7, scatter: 1.5 }), B('Sloppo Stamp', 'sloppo', 60, 1, { spacing: 1.3, sizeJitter: 0.35, angleJitter: 0.06 }), // i18n-ignore: ids (shown through brushLabel / packLabel)
+    B('Bubbles', 'ring', 36, 1, { spacing: 1, sizeJitter: 0.7, scatter: 1.5 }), B('Sloppo Stamp', 'sloppo', 60, 1, { k: 'sloppo_stamp', spacing: 1.3, sizeJitter: 0.35, angleJitter: 0.06 }), // i18n-ignore: ids (shown through brushLabel / packLabel)
     B('Hearts', 'heart', 34, 1, { spacing: 1.1, sizeJitter: 0.5, angleJitter: 0.15, scatter: 1, hueJitter: 0.05 }), // i18n-ignore: ids (shown through brushLabel / packLabel)
     B('Glitter', 'star', 10, 1, { spacing: 0.6, sizeJitter: 0.8, angleJitter: 1, scatter: 2.5, count: 3, hueJitter: 0.6 }), // i18n-ignore: ids (shown through brushLabel / packLabel)
   ] },
 ];
 /* The built-ins' names are ids (a preset is remembered by name); people see brushLabel(b) and packLabel(pack). */
 const brushKey = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
-for (const p of BUILTIN_PACKS) for (const b of p.brushes) b.k = brushKey(b.name);
+for (const p of BUILTIN_PACKS) for (const b of p.brushes) b.k = b.k || brushKey(b.name);   // a name a white-label build renames keeps its own key (k)
 function brushLabel(b) { return b.k ? tr('photoslop.brush.b_' + b.k) : b.name; }
 function packLabel(p) { return p.builtin ? tr('photoslop.brush.pack_' + brushKey(p.name)) : p.mine ? tr('photoslop.brush.pack_mine') : p.name; }
 let customPacks = [];

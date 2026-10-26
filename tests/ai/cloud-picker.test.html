@@ -227,7 +227,7 @@
         await waitFor(() => q('.sap-cloud summary b') && q('.sap-cloud summary b').textContent === 'Använd ditt eget AI-konto', { timeout: 15000 });
         expect(q('.sap-cloud-provider').value).toBe('groq');
         expect(q('.sap-cloud-test').textContent).toBe('Testa anslutningen');
-        expect(q('.sap-cloud-help').textContent).toContain('Gratis');
+        await waitFor(() => q('.sap-cloud-help').textContent.includes('Gratis'), { timeout: 5000 });   // the help line is filled after the stored key is read
         q('.sap-pp-btn').click();
         expect(row('ollama').textContent).toContain('Ollama på den här datorn');
         expect(q('.sap-pp-g[data-group="main"] summary').textContent).toContain('Huvudval');

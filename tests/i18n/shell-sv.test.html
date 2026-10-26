@@ -20,12 +20,13 @@
   };
   AppSv.spec({
     name: 'The shell (Slop PDF)', path: '../../pdf/index.html', ns: 'pdf',
-    ready: (doc, win) => doc.querySelector('.sh-hdr .sh-theme') && doc.querySelector('.sh-hdr .sh-tutorial') && win.SlopSwitcher && win.SlopDrawer,
+    // the Tutorial button links the app's video: a build without this site's media has none (tests/brand-facts.js)
+    ready: (doc, win) => doc.querySelector('.sh-hdr .sh-theme') && (!window.BRAND_FACTS.media || doc.querySelector('.sh-hdr .sh-tutorial')) && win.SlopSwitcher && win.SlopDrawer,
     before: openPanels,
     checks: [
       ['.sh-hdr .sh-theme', 'Tema', 'Theme', 'aria-label'],
       ['.sh-hdr .sh-switch', 'Byt app', 'Switch app', 'aria-label'],
-      ['.sh-hdr .sh-tutorial', 'Se videoguiden för', 'Watch the', 'aria-label'],
+      ...(window.BRAND_FACTS.media ? [['.sh-hdr .sh-tutorial', 'Se videoguiden för', 'Watch the', 'aria-label']] : []),
       ['.sh-hdr .sh-convert', 'Konvertera filer', 'Convert files', 'aria-label'],
       ['.sh-hdr .sh-ai', 'Slop AI: fråga', 'Slop AI: ask', 'title'],
       ['.sn-panel', 'Aviseringar', 'Notifications', 'aria-label'],
