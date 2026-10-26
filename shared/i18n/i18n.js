@@ -53,6 +53,9 @@
   // the marker from the brand profile's defaultLang; keep it on one line.
   var DEFAULT_CHOICE = /*profile:defaultLang*/'en';
   var KEY_RE = /\{(\w+)\}/g;
+  // The shared components' tables beyond ui/<code>.js: shared/i18n/ui/<code>/<part>.js, for the languages that have them
+  // (the others read English). Written by node tools/i18n/i18n.mjs index ui; keep it on one line.
+  var UI_PARTS = /*ui-parts*/{ parts: [], langs: [] };
   var me = typeof document !== 'undefined' ? document.currentScript : null;
 
   function create(opts) {
@@ -248,10 +251,13 @@
         if (c === DEFAULT) return [root + 'strings.js'];
         return [root + c + '.js'].concat(byCode[c] && byCode[c].appNames ? [root + c + '-apps.js'] : []);
       } });
-      source({ ns: 'ui', files: function (c) { return [root + 'ui/' + c + '.js']; } });
+      source({ ns: 'ui', files: function (c) {
+        return [root + 'ui/' + c + '.js'].concat(UI_PARTS.langs.indexOf(c) < 0 ? [] : UI_PARTS.parts.map(function (p) { return root + 'ui/' + c + '/' + p + '.js'; }));
+      } });
     }
     return {
       LANGS: list,
+      UI_PARTS: UI_PARTS,
       DEFAULT: DEFAULT,
       DEFAULT_CHOICE: choice,
       langs: function () { return list.slice(); },

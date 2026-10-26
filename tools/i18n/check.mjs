@@ -3,11 +3,13 @@
 //    in LANGS and hold every English key;
 //  - an app's tables: <dir>i18n/index.js names the parts of en/ and the languages that have a folder; every language it
 //    ships holds every English key; keys start with the app id ('pdf.'); the keys its code asks for (t('pdf.x')) exist;
+//  - the shared areas (tables.mjs sharedAreas(): the ui parts and shared/<area>/i18n) as an app's, with their ns as the
+//    key prefix; the ui parts' index is UI_PARTS in shared/i18n/i18n.js; keys asked for anywhere must exist;
 //  - in every table: no key English lacks (a plural form 'key#few' needs 'key' in English and a CLDR category), no empty
 //    text, and the same {placeholders} as English (a plural form may leave one out, e.g. the count for n = 1).
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
-import { apps, appTables, sharedTables, langs, ROOT } from './tables.mjs';
+import { apps, appTables, sharedTables, sharedAreas, langs, ROOT } from './tables.mjs';
 
 const CATS = new Set(['zero', 'one', 'two', 'few', 'many', 'other']);
 export const placeholders = (s) => [...String(s).matchAll(/\{(\w+)\}/g)].map((m) => m[1]).sort().join(',');
@@ -40,7 +42,7 @@ export function compare(label, en, tr, { requireAll = true } = {}) {
 /** The keys of one namespace a set of source files asks for: t('pdf.menu.file'), data-i18n="pdf.x",
  * data-i18n-attr="title:pdf.x". Returns Map(key → first file). */
 export function usedKeys(files, ns) {
-  const k = `(${ns.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\.[A-Za-z0-9_.]*[A-Za-z0-9_])`;
+  const k = `(${ns.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\.[A-Za-z0-9_.]*[A-Za-z0-9])`;   // a prefix ('biz.doc.new_' + kind) is not a key
   const res = [new RegExp(`\\bt\\(\\s*['"\`]${k}['"\`]`, 'g'), new RegExp(`data-i18n=["']${k}["']`, 'g'), new RegExp(`data-i18n-attr=["'][^"']*?:${k}`, 'g')];
   const out = new Map();
   for (const f of files) {
@@ -65,18 +67,20 @@ export function check() {
     }
     if (ns === 'ui') for (const k of en.keys()) if (!k.startsWith('ui.')) out.push(`ui/en: ${k} does not start with ui.`);
   }
-  for (const app of apps()) {
+  const uiBase = sharedTables('ui').tables.en || new Map();
+  for (const app of [...apps(), ...sharedAreas()]) {
     const t = appTables(app);
     if (!t.dirs.length && !t.index) continue;
-    const label = app.id;
-    if (!t.index) { out.push(`${label}: ${t.base}index.js is missing (node tools/i18n/i18n.mjs index ${app.id})`); continue; }
-    if (t.index.ns !== app.id) out.push(`${label}: index.js registers ns '${t.index.ns}', the app id is '${app.id}'`);
-    const en = t.tables.en;
+    const label = app.id, ns = app.ns || app.id;
+    if (!t.index) { out.push(`${label}: ${t.base}index.js is missing (node tools/i18n/i18n.mjs index ${ns})`); continue; }
+    if (t.index.ns !== ns) out.push(`${label}: index.js registers ns '${t.index.ns}', the app id is '${ns}'`);
+    const en = t.tables.en || (ns === 'ui' && !t.dirs.length ? new Map() : null);
     if (!en) { out.push(`${label}: no English tables in ${t.base}en/`); continue; }
-    const enParts = Object.keys(t.byPart.en).sort();
+    const enParts = Object.keys(t.byPart.en || {}).sort();
     if ([...t.parts].sort().join() !== enParts.join()) out.push(`${label}: index.js parts [${t.parts}] differ from en/ [${enParts}]`);
     if ([...t.langs].sort().join() !== t.dirs.join()) out.push(`${label}: index.js langs [${t.langs}] differ from the folders [${t.dirs}]`);
-    for (const k of en.keys()) if (!k.startsWith(app.id + '.')) out.push(`${label}/en: ${k} does not start with ${app.id}.`);
+    for (const k of en.keys()) if (!k.startsWith(ns + '.')) out.push(`${label}/en: ${k} does not start with ${ns}.`);
+    if (ns === 'ui') for (const k of en.keys()) if (uiBase.has(k)) out.push(`${label}/en: ${k} is also in shared/i18n/ui/en.js`);
     for (const c of t.dirs) {
       if (!codes.includes(c)) { out.push(`${label}: ${c} is not a language in LANGS`); continue; }
       if (c === 'en') continue;
@@ -84,7 +88,7 @@ export function check() {
       if (parts.join() !== enParts.join()) out.push(`${label}/${c}: parts [${parts}] differ from en/ [${enParts}]`);
       out.push(...compare(`${label}/${c}`, en, t.tables[c]));
     }
-    for (const [k, f] of usedKeys(app.files, app.id)) if (!en.has(k)) out.push(`${label}: ${f} asks for ${k}, which en/ does not have`);
+    for (const [k, f] of usedKeys(app.files, ns)) if (!en.has(k) && !(ns === 'ui' && uiBase.has(k))) out.push(`${label}: ${f} asks for ${k}, which en/ does not have`);
   }
   return out;
 }

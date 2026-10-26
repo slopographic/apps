@@ -5,7 +5,7 @@
 // string in tables and every table translated is at 100%.
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
-import { apps, appTables, sharedApp, sharedTables, langs, ROOT } from './tables.mjs';
+import { apps, appTables, sharedApp, sharedAreas, sharedTables, langs, ROOT } from './tables.mjs';
 import { scanJs, scanHtml } from './scan.mjs';
 
 export const OUT = 'shared/i18n/COVERAGE.md';
@@ -32,6 +32,13 @@ export function scan() {
     for (const c of codes) row.langs[c] = s.tables[c] ? keys.filter((k) => s.tables[c].has(k)).length : 0;
     rows.push(row);
   }
+  for (const area of sharedAreas()) {   // the ui parts and shared/<area>/i18n: a language without a folder reads English
+    const t = appTables(area);
+    const keys = t.tables.en ? [...t.tables.en.keys()].filter((k) => !k.includes('#')) : [];
+    const row = { id: area.id, name: area.name, keys: keys.length, hard: null, shared: true, langs: {} };
+    for (const c of codes) row.langs[c] = t.tables[c] ? keys.filter((k) => t.tables[c].has(k)).length : 0;
+    rows.push(row);
+  }
   const sh = sharedApp();
   rows.push({ id: 'shared', name: sh.name + ' (hard-coded, not yet in tables)', keys: 0, hard: hardcoded(sh.files).length, langs: {} });
   for (const app of apps()) {
@@ -51,7 +58,7 @@ export const coverage = (r, code) => pct(r.langs[code] || 0, r.keys + (r.hard ||
 /** The markdown report. */
 export function render(rows) {
   const codes = langs().map((l) => l.code);
-  const apps = rows.filter((r) => !['chrome', 'ui', 'shared'].includes(r.id));
+  const apps = rows.filter((r) => !['chrome', 'ui', 'shared'].includes(r.id) && !r.shared);
   const ranked = apps.slice().sort((a, b) => b.keys + b.hard - (a.keys + a.hard) || a.id.localeCompare(b.id));
   const lines = [
     '# Translation coverage',
@@ -65,7 +72,7 @@ export function render(rows) {
     '',
     '| Table | Keys | ' + codes.join(' | ') + ' |',
     '|---|---:|' + codes.map(() => '---:').join('|') + '|',
-    ...rows.filter((r) => r.id === 'chrome' || r.id === 'ui').map((r) => `| ${r.name} | ${r.keys} | ` + codes.map((c) => coverage(r, c) + '%').join(' | ') + ' |'),
+    ...rows.filter((r) => r.id === 'chrome' || r.id === 'ui' || r.shared).map((r) => `| ${r.name} | ${r.keys} | ` + codes.map((c) => coverage(r, c) + '%').join(' | ') + ' |'),
     '',
     `Shared code (shell/, shared/) still has ${rows.find((r) => r.id === 'shared').hard} hard-coded strings; most belong to one app family (office, biz, watermark, ...).`,
     '',

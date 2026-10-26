@@ -427,6 +427,11 @@ Covers: resize/i18n/sv/panel.js
 Covers: serials/i18n/en/app.js
 Covers: serials/i18n/index.js
 Covers: serials/i18n/sv/app.js
+Covers: shared/biz/i18n/en/biz.js
+Covers: shared/biz/i18n/en/docs.js
+Covers: shared/biz/i18n/index.js
+Covers: shared/biz/i18n/sv/biz.js
+Covers: shared/biz/i18n/sv/docs.js
 Covers: shared/i18n/af.js
 Covers: shared/i18n/am.js
 Covers: shared/i18n/ar.js
