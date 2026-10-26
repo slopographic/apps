@@ -130,3 +130,14 @@ Register: address the user as «вы» (lowercase), as Microsoft Office, Google 
 | view mode Full / Focus / Content | Полный / Фокус / Содержимое |  |
 | count forms | #one 1, 21… «файл»; #few 2–4 «файла»; #many 5–20 «файлов»; plain key = #many form |  |
 | app noun in a sentence | «{items}: пока ничего нет», «Панель «{label}»» | keeps any noun in the nominative |
+| preset | Пресет | everywhere (PhotoSlop, Resize, Remix, guides); «набор» only for a literal set («Набор фавиконов») |
+| clipping mask | обтравочная маска | as in Photoshop; PhotoSlop and Slop Vector alike |
+| quote (sales) | коммерческое предложение | app and document name; the short form «предложение» in lists, buttons and commands |
+| statement (bank) | выписка | bank statement in Slop Ledger and Slop Convert |
+| statement (customer) | акт сверки | customer account statement in Slop Invoices and printed documents |
+| follow-up | напоминание | contacts, reports, invoices |
+| ledger (app) | бухгалтерская книга | the Slop Ledger app |
+| general ledger | главная книга | the general-ledger view inside the app |
+| typed amounts | 12,50 | placeholders and hints use the decimal comma; file-format messages (CSV) keep the dot |
+| quotes (text) | «ёлочки» | also for dynamic text such as «{text}» |
+| OK button | ОК | not «Хорошо» |
