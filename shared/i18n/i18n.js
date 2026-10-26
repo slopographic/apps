@@ -6,7 +6,8 @@
  * profile's defaultLang in a white-label build; opts.defaultLang in create() overrides it).
  * Use: t(key, vars) gives the text (English when the language lacks the key, the key itself when English lacks it too).
  * apply() sets lang and dir on <html> and replaces the text of [data-i18n="key"] elements and the attributes listed in
- * [data-i18n-attr="attr:key"] (several separated by ';'). It runs at first paint of the body and after every set().
+ * [data-i18n-attr="attr:key"] (several separated by ';'), filling {placeholders} from the element's data-i18n-vars (JSON)
+ * and {brand} from the brand profile (brand/brand.js). It runs at first paint of the body and after every set().
  * create(opts) makes an independent instance (used by the node tests). See shared/i18n/HANDOFF.md. */
 (function (g) {
   'use strict';
@@ -35,6 +36,7 @@
     var choice = typeof opts.defaultLang === 'string' ? opts.defaultLang : DEFAULT_CHOICE;
     if (!byCode[choice]) choice = DEFAULT;
     var tables = {};
+    var applied = null;   // the brand name the last apply() filled in
     var prof = opts.profile !== undefined ? opts.profile : (g.SlopProfile && typeof g.SlopProfile.create === 'function'
       ? g.SlopProfile.create({
         storage: opts.storage,
@@ -56,12 +58,17 @@
       if (!vars) return s;
       return s.replace(KEY_RE, function (m, name) { return Object.prototype.hasOwnProperty.call(vars, name) ? String(vars[name]) : m; });
     }
+    /** The brand's name for {brand}: the white-label profile's (brand/brand.js), else this site's. */
+    function brand() {
+      var b = g.SlopBrand && g.SlopBrand.config;
+      return b && typeof b.name === 'string' && b.name ? b.name : 'Slopographic';
+    }
     /** Text for a key in the chosen language, falling back to English, then to the key itself. */
     function t(key, vars) {
       var s = find(get(), key);
       if (s === null) s = find(DEFAULT, key);
       if (s === null) return key;
-      return fill(s, vars);
+      return fill(s, Object.assign({ brand: brand() }, vars || {}));
     }
     /** Adds strings for one language code. Later calls add or replace keys; nothing is removed. */
     function add(code, dict) {
@@ -73,12 +80,18 @@
     function apply() {
       if (!doc || !doc.documentElement) return get();
       var code = get(), root = doc.documentElement;
+      applied = brand();
       root.setAttribute('lang', code);
       root.setAttribute('dir', byCode[code].dir === 'rtl' ? 'rtl' : 'ltr');
-      var pick = function (key) { var s = find(code, key); return s === null ? find(DEFAULT, key) : s; };
+      var varsOf = function (el) {
+        var v = { brand: brand() }, raw = el.getAttribute('data-i18n-vars');
+        if (raw) { try { Object.assign(v, JSON.parse(raw)); } catch (e) { /* not JSON: no vars */ } }
+        return v;
+      };
+      var pick = function (key, el) { var s = find(code, key); if (s === null) s = find(DEFAULT, key); return s === null ? null : fill(s, varsOf(el)); };
       var nodes = doc.querySelectorAll('[data-i18n]');
       for (var i = 0; i < nodes.length; i++) {
-        var s = pick(nodes[i].getAttribute('data-i18n'));
+        var s = pick(nodes[i].getAttribute('data-i18n'), nodes[i]);
         if (s !== null) nodes[i].textContent = s;
       }
       nodes = doc.querySelectorAll('[data-i18n-attr]');
@@ -86,7 +99,7 @@
         nodes[j].getAttribute('data-i18n-attr').split(';').forEach(function (pair) {
           var at = pair.indexOf(':');
           if (at < 1) return;
-          var v = pick(pair.slice(at + 1).trim());
+          var v = pick(pair.slice(at + 1).trim(), nodes[j]);
           if (v !== null) nodes[j].setAttribute(pair.slice(0, at).trim(), v);
         });
       }
@@ -107,6 +120,8 @@
       if (!doc || !doc.documentElement) return;
       if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', apply); else apply();
       try { g.addEventListener && g.addEventListener('storage', function (ev) { if (!ev.key || ev.key === 'slop-profile') apply(); }); } catch (e) { /* no storage events */ }
+      // {brand} follows the profile's name once it is in (only when it differs: a rewrite of every label moves the page)
+      if (doc.addEventListener) doc.addEventListener('slopbrand', function () { if (brand() !== applied) apply(); });
     }
     return {
       LANGS: list,

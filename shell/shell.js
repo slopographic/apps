@@ -87,6 +87,7 @@
   if (!window.SlopI18n) queue.push(['shared/i18n/i18n.js'], ['shared/i18n/strings.js'], ['shared/i18n/es.js'], ['shared/i18n/fr.js'],
     ['shared/i18n/de.js'], ['shared/i18n/pt-BR.js'], ['shared/i18n/it.js'], ['shared/i18n/ar.js'],
     ['shared/i18n/sv.js'], ['shared/i18n/sv-apps.js']); // one file per language (LANGS)
+  if (!window.SlopLangSwitch) queue.push(['shared/i18n/switcher.js']);   // the header's language menu
   addCss('shell/shell.css');
   addCss('brand/brand.css');   // the brand link's app icon and badge
   addCss('shared/ui/hbtn.css');   // the look of every shared header button (Apps, the bell, Drive, Tour, View)
