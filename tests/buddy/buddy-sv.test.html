@@ -26,13 +26,18 @@
       win = await openApp('?cmd=1', { clear: true });
       await win.SlopI18n.ready();
       expect(win.SlopI18n.get()).toBe('sv');
-      expect(win.document.querySelector('.buddy-toggle .bt-main').title).toBe('Sloppo-kompis (Alt+Shift+S)');
+      // the toggle's tip: the table's words, or the name of a build's own mascot (boot.js names it once the art is in)
+      const tip = () => win.document.querySelector('.buddy-toggle .bt-main').title;
+      const tipOk = (key) => tip() === win.SlopI18n.t(key) || /^[^()]+ \(Alt\+Shift\+S\)$/.test(tip()) && !/^(Sloppo|Helpbot) /.test(tip());
+      expect(tip() + ' ' + tipOk('ui.buddy.toggle_tip')).toBe(tip() + ' true');
+      expect(win.SlopI18n.t('ui.buddy.toggle_tip')).toMatch(/-kompis \(Alt\+Shift\+S\)$/);
       S = await turnOn(win);
       S.M.xp = 40; S.M.level = 3; S.M.hat = 'party';
       S.toggleHud(true);
       await frames(win, 3);
       const hud = win.document.querySelector('.sloppo-hud');
-      expect(hud.getAttribute('aria-label')).toBe('Sloppo, maskoten');
+      expect(hud.getAttribute('aria-label')).toBe(win.SlopI18n.t('ui.buddy.hud_aria'));
+      expect(win.SlopI18n.t('ui.buddy.hud_aria')).toMatch(/, maskoten$/);
       expect(hud.querySelector('.sh-unleash').textContent).toBe('Släpp lös');
       expect(hud.querySelector('.sh-ask').textContent).toBe('Fråga');
       expect(hud.querySelector('.sh-lv').textContent.trim()).toBe('Nv 3');
@@ -54,7 +59,9 @@
       win.SlopI18n.set('en');
       await waitFor(() => win.document.querySelector('.sloppo-hud .sh-unleash').textContent === 'Unleash', { timeout: 5000 });
       expect(win.document.querySelector('.sloppo-hud .sh-lv').textContent.trim()).toBe('Lv 3');
-      expect(win.document.querySelector('.buddy-toggle .bt-main').title).toBe('Sloppo buddy (Alt+Shift+S)');
+      const tip = win.document.querySelector('.buddy-toggle .bt-main').title;
+      expect(tip === win.SlopI18n.t('ui.buddy.toggle_tip') || /^[^()]+ \(Alt\+Shift\+S\)$/.test(tip)).toBe(true);
+      expect(win.SlopI18n.t('ui.buddy.toggle_tip')).toMatch(/ buddy \(Alt\+Shift\+S\)$/);
       try { localStorage.removeItem('slop-profile'); } catch (e) { /* none */ }
     });
   });
