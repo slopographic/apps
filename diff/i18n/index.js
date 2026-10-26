@@ -4,5 +4,5 @@ window.SlopI18n && window.SlopI18n.source({
   ns: 'diff',
   base: ((document.currentScript || {}).src || '').replace(/[^/]*$/, ''),
   parts: ['app', 'result'],
-  langs: ['en', 'sv'],
+  langs: ['en', 'fr', 'sv'],
 });
