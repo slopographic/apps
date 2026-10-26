@@ -611,7 +611,20 @@ Test: `tests/pdf/ai-commands.test.html`.
   removes the text (`P.remove`). A click on a page picture / placed artwork / vector group selects it with its handles
   (`obj-mode.js O.live()`); a paragraph frame annotation opens its frame; other annotations select as before.
 - **Plain text selection** stays in the same tool: a mouse drag across text selects characters (the selection bar: copy,
-  highlight…); on touch a long press selects the word and a drag scrolls. No separate tool was added: one tool, no mode.
+  highlight…); on touch a long press selects the word and a drag scrolls; a second click on a selected block selects a word
+  (below). No separate tool was added: one tool, no mode.
+- **Markup on a block and on words** (`block-mark.js`, `sel-handles.js`; since M53 the bar of a selected block had lost them):
+  the block bar (`para-bar.js`) has a Mark up group — Highlight, Underline, Strikethrough, Colour, Comment, Redact — that
+  acts on the whole block through the text selection's own actions (`sel-actions.js` takes a snapshot argument: a block of
+  page text gives its line rectangles, an edited or moved frame its laid-out line quads, turned with it). Pressed buttons
+  show markup the block already has; a second press takes it off. At ≤ 860 px the group folds into a "Mark up" button that
+  opens it below the bar (`css/selbar.css`). Words instead of the block: a mouse drag across unselected text (as before);
+  a second click or tap that stays put on a selected block's text selects the word there after the double-click time
+  (`P.still`, called by `para-xform.js` for a press on the frame that does not move; a double click still edits, a drag
+  still moves); Edit ▸ Select text in block (`edit.selectBlockText`) selects all of its words. Those, and a long press on
+  touch, give a text selection with the full markup row (`sel-bar.js`). A touch selection gets two drag handles
+  (`.sel-knob`) that move its ends (`S.caretAt`), because the page view takes a finger's drag for scrolling. Limit: markup
+  stays where it was put when the block is moved afterwards. Tests: `tests/pdf/markup-bar.test.html`.
 - **Turning** annotations: a round `.sel-rot` handle on text boxes, pictures/signatures, rectangles, ellipses, covers and
   highlight boxes; `a.rot` at any angle (view angle = page rotation − rot). `E.annotViewRect` gives a turned box's bounds;
   a turned box shows turned handles that resize along its own edges (`SlopPdfXform`, `xform.js`, Node-tested). A turned

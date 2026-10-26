@@ -4,8 +4,9 @@
    the document's own font, size and colour; Escape stops typing and keeps the frame; a click elsewhere lets it go. A click on
    a picture or placed artwork of the page selects it with its handles (obj-mode.js); a paragraph frame annotation opens its
    frame; other annotations select as before (pointer.js). Plain text selection stays: a mouse drag across the text selects
-   its characters (copy, highlight: the selection bar), and so does a long press on a touch screen; a finger's drag on the
-   text scrolls. Edit text (Ctrl+E: Lines / Paragraphs) and Objects mode (O) still work as before; while one of them is on
+   its characters (copy, highlight: the selection bar), and so does a long press on a touch screen (with drag handles,
+   sel-handles.js); a second click (or tap) that stays put on a selected block's text selects the word there instead of the
+   block (block-mark.js), and a finger's drag on the text scrolls. Edit text (Ctrl+E: Lines / Paragraphs) and Objects mode (O) still work as before; while one of them is on
    this is off (Ed.uniOn). Classic script, loaded after obj-mode.js. */
 (function () {
   'use strict';
@@ -27,6 +28,26 @@
     }, function () { return null; });
     return run;
   };
+  /** The text position under a client point: { node, offset } (Chromium and WebKit: caretRangeFromPoint, Firefox:
+   * caretPositionFromPoint), or null. */
+  S.caretAt = function (x, y) {
+    if (document.caretRangeFromPoint) { var r = document.caretRangeFromPoint(x, y); return r ? { node: r.startContainer, offset: r.startOffset } : null; }
+    var c = document.caretPositionFromPoint ? document.caretPositionFromPoint(x, y) : null;
+    return c ? { node: c.offsetNode, offset: c.offset } : null;
+  };
+  /** Selects the word of the page's text under a client point as a text selection (the selection bar's markup row shows);
+   * touch: the selection gets drag handles (sel-handles.js). False when no text is there. */
+  S.selectWordAt = function (x, y, touch) {
+    var c = S.caretAt(x, y), n = c && c.node;
+    if (!n || n.nodeType !== 3 || !n.parentNode.closest || !n.parentNode.closest('.pv-textlayer')) return false;
+    var t = n.textContent, a = c.offset, b = a;
+    while (a > 0 && /\S/.test(t[a - 1])) a--;
+    while (b < t.length && /\S/.test(t[b])) b++;
+    if (b <= a) return false;
+    S.touchSel = !!touch;
+    window.getSelection().setBaseAndExtent(n, a, n, b);
+    return true;
+  };
   /** A press on the page's text: a press that stays put selects the block (on release); a mouse drag selects characters (the
    * browser's own selection, left alone); a finger's drag scrolls; a long press selects the word under it. */
   function textPress(e, p) {
@@ -35,12 +56,7 @@
     var hold = touch ? setTimeout(function () {
       if (moved) return;
       held = true; if (S.cancelPan) S.cancelPan();
-      var r = document.caretRangeFromPoint ? document.caretRangeFromPoint(x0, y0) : null, n = r && r.startContainer;
-      if (!n || n.nodeType !== 3) return;
-      var t = n.textContent, a = r.startOffset, b = a;
-      while (a > 0 && /\S/.test(t[a - 1])) a--;
-      while (b < t.length && /\S/.test(t[b])) b++;
-      if (b > a) window.getSelection().setBaseAndExtent(n, a, n, b);
+      S.selectWordAt(x0, y0, true);
     }, HOLD) : 0;
     function mv(ev) { if (!moved && Math.hypot(ev.clientX - x0, ev.clientY - y0) > SLOP) { moved = true; clearTimeout(hold); } }
     function end(ev) {
@@ -48,7 +64,7 @@
       window.removeEventListener('pointermove', mv, true); window.removeEventListener('pointerup', end, true); window.removeEventListener('pointercancel', end, true);
       if (ev.type === 'pointercancel' || moved || held) return;
       var ws = window.getSelection();
-      if (ws && !ws.isCollapsed && !touch) return; // a drag that selected text keeps it (a plain click collapses it)
+      if (ws && !ws.isCollapsed && !touch) { S.touchSel = false; return; } // a drag that selected text keeps it (a plain click collapses it)
       if (ws) ws.removeAllRanges();
       S.selectTextAt(p, pt);
     }

@@ -71,6 +71,7 @@
       cmd('edit.paste', t('pdf.se.cmd_paste'), G.edit, ['Mod+V'], function () { Ed.paste(); }, function () { return pg() && quiet() && Ed.canPaste(); }, { keywords: ['paste in place'] }),
       cmd('edit.pasteAll', t('pdf.se.cmd_paste_all'), G.edit, [], function () { Ed.pasteOnPages(); }, function () { return pg() && Ed.canPaste(); }, { keywords: ['logo', 'stamp', 'every page'] }),
       cmd('edit.pasteOnPages', t('pdf.se.cmd_paste_pages'), G.edit, [], function () { Ed.askPasteOnPages(); }, function () { return pg() && Ed.canPaste(); }, { keywords: ['logo', 'stamp', 'range'] }),
+      cmd('edit.selectBlockText', t('pdf.se.cmd_select_words'), G.edit, [], function () { Ed.selectBlockText(); }, function () { return pg() && !!Ed.canSelectBlockText && Ed.canSelectBlockText(); }, { keywords: ['highlight', 'underline', 'strikethrough', 'words', 'range'] }),
       cmd('edit.delete', t('ui.delete'), G.edit, ['Delete', 'Backspace'], function () { if (pg()) Ed.deleteSelected(); else A.remove(gridIds()); }, function () { return idle() && (pg() ? !!Ed.getSelected() : gridIds().length > 0); }, { keywords: ['remove', 'pages', 'annotation'] }),
       cmd('edit.escape', t('pdf.cmd.edit_escape'), G.view, ['Escape'], function () {
         if (!pg()) { O.setSelection([]); return; }
