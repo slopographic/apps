@@ -47,12 +47,13 @@
 
   /** Why the options are not usable, or null. Checked before anything is saved. */
   function checkOptions(o) {
-    if (!Number.isInteger(o.count) || o.count < 1 || o.count > MAX_DOCS) return `Documents must be a whole number from 1 to ${MAX_DOCS}`;
-    if (String(o.seed ?? '').length > MAX_SEED) return `The seed can be ${MAX_SEED} characters at most`;
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(o.from || '') || !/^\d{4}-\d{2}-\d{2}$/.test(o.to || '')) return 'Enter both dates of the range';
-    if (o.from > o.to) return 'The range starts after it ends';
-    if (dayCount(o.from, o.to) > 3650) return 'The date range can be ten years at most';
-    if (!/^[A-Z]{3}$/.test(o.currency || '')) return 'Choose a currency';
+    const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
+    if (!Number.isInteger(o.count) || o.count < 1 || o.count > MAX_DOCS) return t('biz.sm.bad_count', { max: String(MAX_DOCS) });
+    if (String(o.seed ?? '').length > MAX_SEED) return t('biz.sm.bad_seed', { max: String(MAX_SEED) });
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(o.from || '') || !/^\d{4}-\d{2}-\d{2}$/.test(o.to || '')) return t('biz.sm.both_dates');
+    if (o.from > o.to) return t('biz.sm.range_order');
+    if (dayCount(o.from, o.to) > 3650) return t('biz.sm.range_long');
+    if (!/^[A-Z]{3}$/.test(o.currency || '')) return t('biz.sm.currency_need');
     return null;
   }
 
@@ -69,7 +70,7 @@
     const out = { seed: String(seed), customerId: null, newCustomer: null, newProducts: [], lines: [], date: '', dueDate: undefined, notes: '', currency: env.currency };
     if (customers.length) out.customerId = customers[Math.floor(u * customers.length)].id;
     else if (env.missing && env.missing.customers) out.newCustomer = customerRecord(r, env.locale);
-    else return { error: 'There are no customers yet. Add one, or turn on "Create missing customers".' };
+    else return { error: g.SlopI18n ? g.SlopI18n.t('biz.sm.no_customers') : 'biz.sm.no_customers' };
 
     out.date = M.addDays(env.from, r.int(0, dayCount(env.from, env.to)));
     if (env.kind === 'invoice') out.dueDate = M.addDays(out.date, env.paymentTermsDays);

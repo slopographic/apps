@@ -3,6 +3,6 @@
 window.SlopI18n && window.SlopI18n.source({
   ns: 'biz',
   base: ((document.currentScript || {}).src || '').replace(/[^/]*$/, ''),
-  parts: ['biz'],
+  parts: ['biz', 'docs'],
   langs: ['en', 'sv'],
 });

@@ -12,7 +12,7 @@
   function head(settings, title, meta = []) {
     const h = B.h, s = settings || {};
     return h('header', { class: 'sheet-head' },
-      h('div', null, h('b', { text: s.companyName || 'Your company' }), ...lines(s.address).map((x) => h('div', { text: x })), s.taxNumber ? h('div', { text: `Tax number ${s.taxNumber}` }) : null),
+      h('div', null, h('b', { text: s.companyName || 'Your company' }), ...lines(s.address).map((x) => h('div', { text: x })), s.taxNumber ? h('div', { text: `Tax number ${s.taxNumber}` }) : null),   // i18n-ignore: the label and the sheet are documents the user prints
       h('div', { class: 'sheet-title' }, h('h2', { text: title }), ...meta.filter(Boolean).map((x) => h('div', { text: x }))));
   }
 

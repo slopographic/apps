@@ -10,7 +10,8 @@ import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
-const FILES = ['shared/data/money.js', 'shared/data/barcode.js', 'shared/data/schema-checks.js', 'shared/data/schema-defs.js', 'shared/data/schema.js',
+// shared/i18n with the English business tables first, so messages read as on the page
+const FILES = ['shared/i18n/i18n.js', 'shared/biz/i18n/en/biz.js', 'shared/biz/i18n/en/docs.js', 'shared/data/money.js', 'shared/data/barcode.js', 'shared/data/schema-checks.js', 'shared/data/schema-defs.js', 'shared/data/schema.js',
   'shared/data/currency.js', 'shared/data/ledger.js', 'shared/docs/model.js',
   'shared/sample/rng.js', 'shared/sample/en.js', 'shared/sample/sv.js', 'shared/sample/people.js', 'shared/sample/goods.js', 'shared/sample/records.js', 'shared/docs/samples.js', 'shared/docs/samples-run.js'];
 

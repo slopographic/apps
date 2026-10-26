@@ -20,8 +20,9 @@
   /** Parses a .scontacts blob into its contact array. Fails with a plain message for any other file. */
   async function readList(blob) {
     let d;
-    try { d = JSON.parse(await blob.text()); } catch (e) { return fail('invalid', 'That file is not a Slop Contacts list.'); }
-    if (!d || d.format !== 'slop-contacts' || !Array.isArray(d.contacts)) return fail('invalid', 'That file is not a Slop Contacts list.');
+    const msg = g.SlopI18n ? g.SlopI18n.t('crm.core.not_list') : 'crm.core.not_list';
+    try { d = JSON.parse(await blob.text()); } catch (e) { return fail('invalid', msg); }
+    if (!d || d.format !== 'slop-contacts' || !Array.isArray(d.contacts)) return fail('invalid', msg);
     return ok(d.contacts.filter((c) => c && typeof c === 'object'));
   }
 
@@ -34,7 +35,7 @@
       .filter(Boolean).join(', ')).filter(Boolean).join('; ');
     return {
       contactId: cut(c.id, 80),
-      name: cut(c.fn || full || c.org || first(c.emails) || 'Unnamed contact', 200),
+      name: cut(c.fn || full || c.org || first(c.emails) || 'Unnamed contact', 200),   // i18n-ignore: the stored name of a contact without one (data)
       email: cut(first(c.emails), 200), phone: cut(first(c.phones), 60),
       address: cut(adr, 1000), categories: (Array.isArray(c.groups) ? c.groups : []).map((x) => cut(x, 40)).slice(0, 20),
       notes: cut(c.note, 5000), stage: 'lead',

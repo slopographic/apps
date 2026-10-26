@@ -5,10 +5,11 @@
   const NS = (g.SlopAdmin = g.SlopAdmin || {});
   const el = g.SlopUI.el;
   const $ = (id) => document.getElementById(id);
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
 
   async function render() {
     const s = await NS.util.settings();
-    $('xDefault').textContent = `Default for new lines: ${NS.tax.pct(s.defaultTaxRate || 0)}`;
+    $('xDefault').textContent = t('admin.tx.default', { pct: NS.tax.pct(s.defaultTaxRate || 0) });
     const r = await NS.tax.inUse();
     if (!r.ok) { $('xRows').replaceChildren(el('tr', null, el('td', { colspan: 2, class: 'msg' }, NS.util.refusal(r)))); return; }
     $('xRows').replaceChildren(...r.value.map((x) => el('tr', null,

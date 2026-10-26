@@ -18,7 +18,7 @@
     function doc() {
       const s = st();
       return {
-        kind: cfg.kind, title: cfg.title, id: s.id, number: s.number, statusText: cfg.statusLabel[s.status] || '',
+        kind: cfg.kind, title: cfg.title, id: s.id, number: s.number, statusText: (typeof cfg.statusLabel === 'function' ? cfg.statusLabel() : cfg.statusLabel)[s.status] || '',
         date: s.date, notes: s.notes, currency: s.currency, locale: s.locale, lines: s.lines,
         customer: s.customers.find((c) => c.id === s.customerId) || {}, customerId: s.customerId, company: s.company,
         totals: M.totals(s.lines), paid: 0, balance: null, money: (m) => U().money(m, s.currency, s.locale),
@@ -56,9 +56,9 @@
     /** Downloads the document's PDF as <number>.pdf. Resolves true when it was made; a refusal says why. */
     async function exportPdf(id) {
       const r = await cfg.pdf(id);
-      if (!r.ok) { g.SlopUI.alert('PDF not made', `The PDF was not made: ${r.message || U().refusal(r)}.`); return false; }
+      if (!r.ok) { g.SlopUI.alert(D.tr('biz.doc.pdf_not_made'), D.tr('biz.doc.pdf_not_made_why', { why: r.message || U().refusal(r) })); return false; }
       g.SlopUI.download(new Blob([r.value], { type: 'application/pdf' }), `${(st().id === id && st().number) || cfg.kind}.pdf`);
-      g.SlopUI.toast('PDF downloaded');
+      g.SlopUI.toast(D.tr('biz.doc.pdf_downloaded'));
       return true;
     }
 

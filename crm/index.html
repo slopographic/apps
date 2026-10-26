@@ -6,6 +6,7 @@
   <link rel="expect" href="#slop-built" blocking="render">
   <script src="../shared/i18n/i18n.js" data-src="shared/i18n/i18n.js"></script>
   <script src="../shared/biz/i18n/index.js" data-src="shared/biz/i18n/index.js"></script>
+  <script src="i18n/index.js" data-src="crm/i18n/index.js"></script>
 <script src="../shared/consent/config.js"></script>
 <script src="../shared/consent/state.js"></script>
 <script src="../shared/consent/consent-mode.js"></script>
@@ -53,49 +54,49 @@
 <body>
   <div class="app">
     <header id="menubar"></header>
-    <div class="smb-hold" hidden><span class="local-badge" title="Your customers stay in this browser. Nothing is uploaded."><span>100% local</span></span></div>
+    <div class="smb-hold" hidden><span class="local-badge" title="Your customers stay in this browser. Nothing is uploaded." data-i18n-attr="title:crm.page.local_tip"><span data-i18n="biz.app.local">100% local</span></span></div>
 
-    <nav class="tabs" role="tablist" aria-label="CRM sections">
-      <button type="button" role="tab" class="tab" id="tab-customers" data-view="customers" aria-controls="view-customers" aria-selected="true">Customers</button>
-      <button type="button" role="tab" class="tab" id="tab-pipeline" data-view="pipeline" aria-controls="view-pipeline" aria-selected="false">Pipeline</button>
-      <button type="button" role="tab" class="tab" id="tab-followups" data-view="followups" aria-controls="view-followups" aria-selected="false">Follow-ups</button>
+    <nav class="tabs" role="tablist" aria-label="CRM sections" data-i18n-attr="aria-label:crm.page.sections">
+      <button type="button" role="tab" class="tab" id="tab-customers" data-view="customers" aria-controls="view-customers" aria-selected="true" data-i18n="crm.page.customers">Customers</button>
+      <button type="button" role="tab" class="tab" id="tab-pipeline" data-view="pipeline" aria-controls="view-pipeline" aria-selected="false" data-i18n="crm.page.pipeline">Pipeline</button>
+      <button type="button" role="tab" class="tab" id="tab-followups" data-view="followups" aria-controls="view-followups" aria-selected="false" data-i18n="crm.page.followups">Follow-ups</button>
     </nav>
 
     <main class="main" id="main">
-      <div id="boot" class="boot" role="status">Opening your customers…</div>
+      <div id="boot" class="boot" role="status" data-i18n="crm.page.opening">Opening your customers…</div>
 
       <section class="view" id="view-pipeline" role="tabpanel" aria-labelledby="tab-pipeline" hidden>
         <div class="toolbar">
-          <p class="note">Drag a card to another column, use its Move button, or right-click it.</p>
-          <button type="button" class="btn primary" id="pAdd">Add customer</button>
+          <p class="note" data-i18n="crm.page.drag_note">Drag a card to another column, use its Move button, or right-click it.</p>
+          <button type="button" class="btn primary" id="pAdd" data-i18n="crm.page.add">Add customer</button>
         </div>
-        <div class="board" id="board" role="list" aria-label="Pipeline"></div>
+        <div class="board" id="board" role="list" aria-label="Pipeline" data-i18n-attr="aria-label:crm.page.pipeline"></div>
       </section>
 
       <section class="view" id="view-customers" role="tabpanel" aria-labelledby="tab-customers" hidden>
         <div class="toolbar">
-          <label class="search"><span class="sr">Search customers</span>
-            <input id="cSearch" type="search" placeholder="Search name, email, phone or address" autocomplete="off" spellcheck="false"></label>
-          <label>Stage <select id="cStage"></select></label>
-          <label>Category <select id="cCat"></select></label>
-          <button type="button" class="btn primary" id="cAdd">Add customer</button>
-          <button type="button" class="btn" id="cImport">Import from Slop Contacts</button>
+          <label class="search"><span class="sr" data-i18n="crm.page.search">Search customers</span>
+            <input id="cSearch" type="search" placeholder="Search name, email, phone or address" autocomplete="off" spellcheck="false" data-i18n-attr="placeholder:crm.page.search_ph"></label>
+          <label><span data-i18n="crm.page.stage">Stage</span> <select id="cStage"></select></label>
+          <label><span data-i18n="crm.page.category">Category</span> <select id="cCat"></select></label>
+          <button type="button" class="btn primary" id="cAdd" data-i18n="crm.page.add">Add customer</button>
+          <button type="button" class="btn" id="cImport" data-i18n="crm.page.import">Import from Slop Contacts</button>
         </div>
         <div class="cshell">
           <div class="cgrid">
-          <aside class="side" id="cSide" aria-label="Filter by group and tag"></aside>
+          <aside class="side" id="cSide" aria-label="Filter by group and tag" data-i18n-attr="aria-label:crm.page.side"></aside>
           <div class="clist">
             <div class="list-tools">
               <p class="note" id="cSummary" role="status"></p>
-              <label class="sort-only">Sort <select id="cSort"></select></label>
-              <div class="density" id="cDensity" role="radiogroup" aria-label="Row density"></div>
+              <label class="sort-only"><span data-i18n="crm.page.sort">Sort</span> <select id="cSort"></select></label>
+              <div class="density" id="cDensity" role="radiogroup" aria-label="Row density" data-i18n-attr="aria-label:crm.page.density"></div>
             </div>
-            <div class="bulk" id="cBulk" role="region" aria-label="Bulk actions" hidden></div>
+            <div class="bulk" id="cBulk" role="region" aria-label="Bulk actions" hidden data-i18n-attr="aria-label:crm.page.bulk"></div>
             <div class="colhead" id="cHead" role="row">
-              <label class="sel-head"><input type="checkbox" id="cSelAll"><span class="sr">Select all shown</span></label>
+              <label class="sel-head"><input type="checkbox" id="cSelAll"><span class="sr" data-i18n="crm.page.select_all">Select all shown</span></label>
               <div class="sort-head" id="cSortHead"></div>
             </div>
-            <ul class="list crows" id="cRows" role="list" aria-label="Customers"></ul>
+            <ul class="list crows" id="cRows" role="list" aria-label="Customers" data-i18n-attr="aria-label:crm.page.customers"></ul>
             <p class="empty" id="cEmpty" hidden></p>
           </div>
           </div>
@@ -104,15 +105,15 @@
 
       <section class="view" id="view-followups" role="tabpanel" aria-labelledby="tab-followups" hidden>
         <p class="note" id="fSummary" role="status"></p>
-        <ul class="list" id="fRows" role="list" aria-label="Follow-ups"></ul>
-        <p class="empty" id="fEmpty" hidden>No follow-ups set. Open a customer and set a follow-up date.</p>
-        <h3 class="h3">Calendar and to-dos for customers</h3>
-        <p class="note">Calendar events for the next 60 days, and open to-do tasks, linked to a customer.</p>
-        <ul class="list" id="fLinkedRows" role="list" aria-label="Scheduled for customers"></ul>
-        <p class="empty" id="fLinkedEmpty" hidden>No calendar events or open tasks linked to customers. Use Schedule on a customer.</p>
+        <ul class="list" id="fRows" role="list" aria-label="Follow-ups" data-i18n-attr="aria-label:crm.page.followups"></ul>
+        <p class="empty" id="fEmpty" hidden data-i18n="crm.page.no_followups">No follow-ups set. Open a customer and set a follow-up date.</p>
+        <h3 class="h3" data-i18n="crm.page.cal_h">Calendar and to-dos for customers</h3>
+        <p class="note" data-i18n="crm.page.cal_note">Calendar events for the next 60 days, and open to-do tasks, linked to a customer.</p>
+        <ul class="list" id="fLinkedRows" role="list" aria-label="Scheduled for customers" data-i18n-attr="aria-label:crm.page.scheduled"></ul>
+        <p class="empty" id="fLinkedEmpty" hidden data-i18n="crm.page.cal_empty">No calendar events or open tasks linked to customers. Use Schedule on a customer.</p>
       </section>
 
-      <section class="view" id="view-customer" role="region" aria-label="Customer details" hidden>
+      <section class="view" id="view-customer" role="region" aria-label="Customer details" hidden data-i18n-attr="aria-label:crm.page.details">
         <div id="dBody"></div>
       </section>
     </main>
@@ -187,7 +188,7 @@
   <script src="../shared/tour/mount.js" data-app="crm"></script>
   <script src="../shared/spotlight/spotlight.js"></script>
 <link rel="stylesheet" href="../shared/menubar/menubar.css"><script src="../shared/menubar/menubar.js"></script>
-<script>SlopMenuBar.mount({"app": "CRM", "menus": {"File": ["cmd:customers.new", "cmd:customers.import", "cmd:biz.sample", "-", "cmd:labels.tags", "cmd:labels.groups"], "View": ["cmd:view.customers", "cmd:view.pipeline", "cmd:view.followups"], "Help": ["cmd:cmd.palette", "cmd:cmd.keymap"]}, "host": "#menubar"});</script>
+<script>SlopMenuBar.mount({"app": "CRM", "menus": {"File": ["cmd:customers.new", "cmd:customers.import", "cmd:biz.sample", "-", "cmd:labels.tags", "cmd:labels.groups"], "View": ["cmd:view.customers", "cmd:view.pipeline", "cmd:view.followups"], "Help": ["cmd:cmd.palette", "cmd:cmd.keymap"]}, "host": "#menubar"}); (function (n) { if (n) { n.dataset.i18n = 'crm.app.name'; if (window.SlopI18n) SlopI18n.apply(n.parentNode); } })(document.querySelector('.smb-app'));</script>
 <i id="slop-built" hidden></i>
 </body>
 </html>

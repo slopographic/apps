@@ -22,7 +22,7 @@
     async function leave(t, at) {
       const staying = t.view === 'edit' && t.arg === NS.editor.id();
       if (at.view !== 'edit' || !NS.editor.isDirty() || staying) return true;
-      const yes = await g.SlopUI.confirm('Leave without saving', `This ${cfg.noun} has unsaved changes. Leave anyway?`, 'Leave', { danger: true });
+      const yes = await g.SlopUI.confirm(D.tr('biz.doc.unsaved_title'), D.tr('biz.doc.unsaved_' + D.nounKey(cfg.noun)), D.tr('biz.doc.leave'), { danger: true });
       if (yes) NS.editor.clean();
       return yes;
     }
@@ -40,6 +40,8 @@
     }
     NS.state = { view: 'list' };
     if (!NS.views || !NS.views.data) g.SlopBiz.backup.attach(NS);   // the Data view: full backup and restore
+    // a language change: the open view again in the new words (the editor repaints its form and its paper)
+    if (g.SlopI18n) g.SlopI18n.on(() => { if (NS.app && NS.app.booted) { refresh(NS.state.view); if (NS.state.view === 'edit' && NS.editor && NS.editor.repaint) NS.editor.repaint(); } });
     return g.SlopBiz.router.start({ ns: NS, app: cfg.app, parse, leave, after, refresh, mount: cfg.mount, tabRoute: cfg.tabRoute,
       editRoute: () => NS.editor.route(), current: () => NS.editor.route() });
   }

@@ -13,8 +13,8 @@
   if (B.sample) return;
   const D = () => g.SlopData;
   const HERE = g.document && g.document.currentScript ? g.document.currentScript.src : '';
-  const LABEL = { quotes: 'Quote', invoices: 'Invoice (draft)', orders: 'Order', purchases: 'Purchase order', customers: 'Customer', products: 'Product',
-    expenses: 'Expense', timeEntries: 'Time entry', tasks: 'Task', events: 'Event' };
+  const LABEL = { quotes: 'Quote', invoices: 'Invoice (draft)', orders: 'Order', purchases: 'Purchase order', customers: 'Customer', products: 'Product',   // i18n-ignore: the assistant's words and the record errors (English: API); the page reads biz.kind.<collection>
+    expenses: 'Expense', timeEntries: 'Time entry', tasks: 'Task', events: 'Event' };   // i18n-ignore: the assistant's words and the record errors (English: API); the page reads biz.kind.<collection>
   const FILES = ['rng', 'en', 'sv', 'people', 'goods', 'records'];
   // LABEL names the records in the assistant's words (English: API); the page reads biz.kind.<collection>.
   const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
@@ -48,10 +48,10 @@
   }
   /** The customer a document is for: the one with that name, else saved now (a sample, so Delete all samples finds it). */
   async function customerFor(rec, remember) {
-    const S = D().store, list = unwrap(await S.list('customers'), 'Customers');
+    const S = D().store, list = unwrap(await S.list('customers'), 'Customers');   // i18n-ignore: the assistant's words and the record errors (English: API); the page reads biz.kind.<collection>
     const hit = list.find((c) => c.name === rec.name);
     if (hit) return hit;
-    const made = unwrap(await S.put('customers', rec), 'New customer');
+    const made = unwrap(await S.put('customers', rec), 'New customer');   // i18n-ignore: the assistant's words and the record errors (English: API); the page reads biz.kind.<collection>
     if (remember) remember({ kind: 'created', collection: 'customers', id: made.id });
     return made;
   }
@@ -68,7 +68,7 @@
       let who = null;
       if (out.customer) { who = await customerFor(out.customer, o.remember); rec.customerId = who.id; }
       const post = cfg.post && cfg.post[collection];
-      const saved = unwrap(post ? await post(rec) : await D().store.put(collection, rec), `New ${LABEL[collection] || collection}`);
+      const saved = unwrap(post ? await post(rec) : await D().store.put(collection, rec), `New ${LABEL[collection] || collection}`);   // i18n-ignore: the assistant's words and the record errors (English: API); the page reads biz.kind.<collection>
       if (o.remember) o.remember({ kind: 'created', collection, id: saved.id });
       made.push({ id: saved.id, number: saved.number || '', name: saved.name || saved.title || saved.description || saved.supplier || '', customer: who ? who.name : '' });
     }
@@ -86,7 +86,7 @@
     const noun = (LABEL[r.collection] || r.collection).toLowerCase().replace(/ \(draft\)$/, ''), one = r.made[0] || {};
     const what = r.made.length === 1 ? `a sample ${noun}${one.number ? ' ' + one.number : one.name ? ` (${one.name})` : ''}${one.customer ? ` for ${one.customer}` : ''}`
       : `${r.made.length} sample ${noun === 'time entry' ? 'time entries' : noun + 's'}`;
-    return `Made ${what} (seed ${r.seed}). The same seed makes the same sample again.`;
+    return `Made ${what} (seed ${r.seed}). The same seed makes the same sample again.`;   // i18n-ignore: the assistant's words and the record errors (English: API); the page reads biz.kind.<collection>
   }
 
   async function dialog(app) {
@@ -111,11 +111,11 @@
   function command(add, cfg, app) {
     const list = kinds(app);
     if (!list.length) return;
-    add('make_sample', 'Make a sample record', [{ name: 'collection', type: 'enum', values: list.map((k) => k[0]), default: list[0][0], description: 'which records' },
+    add('make_sample', 'Make a sample record', [{ name: 'collection', type: 'enum', values: list.map((k) => k[0]), default: list[0][0], description: 'which records' },   // i18n-ignore: the assistant's words and the record errors (English: API); the page reads biz.kind.<collection>
       { name: 'seed', type: 'string', maxLength: 40, description: 'the same seed makes the same sample; empty for a new one' },
-      { name: 'count', type: 'number', min: 1, max: 20, integer: true, default: 1 }, { name: 'locale', type: 'enum', values: ['en', 'sv'], description: 'the language of names and goods' }],
+      { name: 'count', type: 'number', min: 1, max: 20, integer: true, default: 1 }, { name: 'locale', type: 'enum', values: ['en', 'sv'], description: 'the language of names and goods' }],   // i18n-ignore: the assistant's words and the record errors (English: API); the page reads biz.kind.<collection>
     async (a) => { const r = await make({ app, collection: a.collection, seed: a.seed, count: a.count, locale: a.locale, remember: g.SlopDataAI.remember }); return Object.assign({ done: said(r) }, r); },
-    { description: `Fill ${cfg.label} with realistic sample records (a ${list[0][1].toLowerCase()} with a customer and lines, say), from a seed you can give again.` });
+    { description: `Fill ${cfg.label} with realistic sample records (a ${list[0][1].toLowerCase()} with a customer and lines, say), from a seed you can give again.` });   // i18n-ignore: the assistant's words and the record errors (English: API); the page reads biz.kind.<collection>
   }
 
   B.sample = { make, dialog, command, kinds, load, said, LABEL };

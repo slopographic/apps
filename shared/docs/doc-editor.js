@@ -21,6 +21,12 @@
   const D = (g.SlopDocs = g.SlopDocs || {});
   const $ = (id) => document.getElementById(id);
   const DATE = /^\d{4}-\d{2}-\d{2}$/;
+  /** A word from the business tables (shared/biz/i18n), in the chosen language. */
+  const tr = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
+  /** The key part for a document noun ('purchase order' is po), for the sentences that name it. */
+  const nounKey = (n) => ({ 'purchase order': 'po' })[n] || n;   // i18n-ignore: a noun id, not words
+  const val = (x, ...a) => (typeof x === 'function' ? x(...a) : x);
+  Object.assign(D, { tr, nounKey });
 
   function create(cfg) {
     const NS = cfg.ns, M = D.model, L = D.layouts, S = g.SlopData, UI = g.SlopUI, X = cfg.extra || {};
@@ -65,7 +71,7 @@
       if (!id) blank(s);
       else {
         const r = await cfg.data.get(id);
-        if (!r.ok || !r.value) { setMsg(r.ok ? `That ${cfg.noun} no longer exists.` : U().refusal(r), true); return false; }
+        if (!r.ok || !r.value) { setMsg(r.ok ? tr('biz.doc.gone_' + nounKey(cfg.noun)) : U().refusal(r), true); return false; }
         await applyRecord(r.value);
       }
       setDirty(false);
@@ -105,15 +111,15 @@
 
     function paintCustomers() {
       const sel = $('eCustomer'), h = U().h;
-      sel.replaceChildren(h('option', { value: '', text: `Choose a ${party}…` }), ...st.customers.map((c) => h('option', { value: c.id, text: c.name })));
+      sel.replaceChildren(h('option', { value: '', text: tr('biz.doc.choose_' + party) }), ...st.customers.map((c) => h('option', { value: c.id, text: c.name })));
       sel.value = st.customerId || '';
     }
 
     /** Fills every control from the state. Called after any change that redraws the form. */
     function paint() {
-      $('eTitle').textContent = cfg.heading ? cfg.heading(st) : st.id ? st.number : cfg.title;
+      $('eTitle').textContent = cfg.heading ? cfg.heading(st) : st.id ? st.number : val(cfg.title);
       const chip = $('eStatus');
-      chip.textContent = cfg.statusText ? cfg.statusText(st) : cfg.statusLabel[st.status] || st.status;
+      chip.textContent = cfg.statusText ? cfg.statusText(st) : val(cfg.statusLabel)[st.status] || st.status;
       chip.className = `chip ${st.status}`;
       paintCustomers();
       $('eDate').value = st.date;
@@ -133,16 +139,16 @@
     function fieldError(name, idx) {
       const own = X.fieldError ? X.fieldError(name, st) : undefined;
       if (own !== undefined) return own;
-      if (name === 'customer') return st.customerId ? null : `Choose a ${party} first, or add a new one.`;
-      if (name === 'date') return DATE.test(st.date) ? null : cfg.dateError;
+      if (name === 'customer') return st.customerId ? null : tr('biz.doc.need_' + party);
+      if (name === 'date') return DATE.test(st.date) ? null : val(cfg.dateError);
       if (!st.lines[idx]) return null;
       const e = M.lineErrors(st.lines[idx]);
-      return e.length ? `Line ${idx + 1}: ${e.join('; ')}.` : null;
+      return e.length ? tr('biz.doc.line_err', { n: String(idx + 1), errors: e.join('; ') }) : null;
     }
 
     /** Checks the form and returns the record to save, or the first problem in plain words. */
     function collect() {
-      const first = fieldError('customer') || fieldError('date') || (st.lines.length ? null : 'Add at least one line.')
+      const first = fieldError('customer') || fieldError('date') || (st.lines.length ? null : tr('biz.doc.need_line'))
         || st.lines.map((l, i) => fieldError('line', i)).find(Boolean);
       if (first) return { error: first };
       const more = X.collect ? X.collect(st) : {};
@@ -160,7 +166,7 @@
     async function doSave() {
       const c = collect();
       if (c.error) { setMsg(c.error, true); return false; }
-      setMsg('Saving…');
+      setMsg(tr('biz.doc.saving'));
       const r = await cfg.data.save(c.form);
       if (!r.ok) { setMsg(U().refusal(r), true); return false; }
       const created = !st.id;
@@ -168,28 +174,28 @@
       setDirty(false);
       if (created) history.replaceState(null, '', `#${cfg.route}/${r.value.id}`);
       paint();
-      setMsg(cfg.savedText ? cfg.savedText(created, st) : `${created ? 'Created' : 'Saved'} ${r.value.number}.`);
+      setMsg(cfg.savedText ? cfg.savedText(created, st) : tr(created ? 'biz.doc.created' : 'biz.doc.saved', { number: r.value.number }));
       return true;
     }
 
     /** Saves first when there are changes (or it is new), so an action always acts on what is on screen. Waits for a save in flight. */
     async function saveIfNeeded() {
-      if (inflight) { setMsg('Waiting for the save to finish…'); if (!(await inflight)) return false; }
+      if (inflight) { setMsg(tr('biz.doc.waiting')); if (!(await inflight)) return false; }
       return !st.dirty && st.id ? true : save();
     }
 
     /** Saves first when needed, then downloads the PDF (the page's template and fields are what it shows). */
     async function exportPdf() {
       if (!(await saveIfNeeded())) return;
-      setMsg('Making the PDF…');
+      setMsg(tr('biz.doc.making_pdf'));
       const done = await NS.page.exportPdf(st.id);
-      setMsg(done ? 'PDF downloaded.' : 'The PDF was not made.', !done);
+      setMsg(tr(done ? 'biz.doc.pdf_done' : 'biz.doc.pdf_failed'), !done);
     }
 
     /** Leaves the editor. Asks first when there are unsaved changes (unless force). */
     async function back(force) {
       if (!force && st.dirty) {
-        const yes = await UI.confirm('Leave without saving', `This ${cfg.noun} has unsaved changes. Leave anyway?`, 'Leave', { danger: true });
+        const yes = await UI.confirm(tr('biz.doc.unsaved_title'), tr('biz.doc.unsaved_' + nounKey(cfg.noun)), tr('biz.doc.leave'), { danger: true });
         if (!yes) return;
       }
       setDirty(false);

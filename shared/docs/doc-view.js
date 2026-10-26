@@ -39,27 +39,27 @@
     const totals = [];
     if (doc.totals) {
       const t = doc.totals;
-      totals.push({ label: 'Subtotal (before tax)', value: money(t.subtotal) });
-      for (const r of t.byRate) totals.push({ label: `Tax ${M.percentText(r.rate) || '0'}% on ${money(r.net)}`, value: money(r.tax) });
-      totals.push({ label: 'Total', value: money(t.total), strong: true });
+      totals.push({ label: 'Subtotal (before tax)', value: money(t.subtotal) });   // i18n-ignore: the document's own printed words (the paper and the PDF stay in the document's words)
+      for (const r of t.byRate) totals.push({ label: `Tax ${M.percentText(r.rate) || '0'}% on ${money(r.net)}`, value: money(r.tax) });   // i18n-ignore: the document's own printed words (the paper and the PDF stay in the document's words)
+      totals.push({ label: 'Total', value: money(t.total), strong: true });   // i18n-ignore: the document's own printed words (the paper and the PDF stay in the document's words)
     }
-    if (doc.paid) totals.push({ label: 'Paid', value: money(doc.paid) });
-    if (doc.balance !== null && doc.balance !== undefined) totals.push({ label: 'Balance due', value: money(doc.balance), strong: true });
-    const meta = [{ label: 'Date', value: doc.date || '', field: 'date' }];
-    if (doc.kind === 'invoice') meta.push({ label: 'Due', value: doc.dueDate || '', field: 'dueDate' });
+    if (doc.paid) totals.push({ label: 'Paid', value: money(doc.paid) });   // i18n-ignore: the document's own printed words (the paper and the PDF stay in the document's words)
+    if (doc.balance !== null && doc.balance !== undefined) totals.push({ label: 'Balance due', value: money(doc.balance), strong: true });   // i18n-ignore: the document's own printed words (the paper and the PDF stay in the document's words)
+    const meta = [{ label: 'Date', value: doc.date || '', field: 'date' }];   // i18n-ignore: the document's own printed words (the paper and the PDF stay in the document's words)
+    if (doc.kind === 'invoice') meta.push({ label: 'Due', value: doc.dueDate || '', field: 'dueDate' });   // i18n-ignore: the document's own printed words (the paper and the PDF stay in the document's words)
     for (const m of doc.moreMeta || []) meta.push({ label: m.label, value: m.value || '', field: m.field });
     const ls = doc.lines || [];
     return {
-      kind: doc.kind, title: doc.title || ({ order: 'Order', quote: 'Quote', purchase: 'Purchase order' }[doc.kind] || 'Invoice'),
+      kind: doc.kind, title: doc.title || ({ order: 'Order', quote: 'Quote', purchase: 'Purchase order' }[doc.kind] || 'Invoice'),   // i18n-ignore: the document's own printed words (the paper and the PDF stay in the document's words)
       number: doc.number || 'draft', statusText: doc.statusText || '',
       style: NS.layouts.resolve({ id: doc.id, pdfSeed: doc.pdfSeed, pdfLayout: doc.pdfLayout }),
-      company: { name: co.name || 'Your company', lines: lines(co.address), taxNumber: co.taxNumber || '', field: 'company' },
+      company: { name: co.name || 'Your company', lines: lines(co.address), taxNumber: co.taxNumber || '', field: 'company' },   // i18n-ignore: the document's own printed words (the paper and the PDF stay in the document's words)
       meta,
-      bill: { title: doc.partyTitle || 'Bill to', name: c.name || '', lines: [c.email, c.phone, ...lines(c.address)].filter(Boolean), field: 'customer', customerId: doc.customerId ?? c.id ?? '' },
+      bill: { title: doc.partyTitle || 'Bill to', name: c.name || '', lines: [c.email, c.phone, ...lines(c.address)].filter(Boolean), field: 'customer', customerId: doc.customerId ?? c.id ?? '' },   // i18n-ignore: the document's own printed words (the paper and the PDF stay in the document's words)
       hasDiscount: ls.some((l) => l.discount),
       rows: ls.map(rowOf),
       totals,
-      totalsNote: doc.totals ? '' : 'Totals appear when every line is complete.',
+      totalsNote: doc.totals ? '' : 'Totals appear when every line is complete.',   // i18n-ignore: the document's own printed words (the paper and the PDF stay in the document's words)
       notes: { text: doc.notes || '', field: 'notes' },
       editable: doc.editable !== false,
     };

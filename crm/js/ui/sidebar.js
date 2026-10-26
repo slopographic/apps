@@ -5,6 +5,7 @@
   const NS = (g.SlopCrm = g.SlopCrm || {});
   const UI = g.SlopUI;
   const el = UI.el;
+  const tr = (k, v) => NS.tr(k, v);   // the string tables (crm/i18n)
   const $ = (id) => document.getElementById(id);
   NS.listFilter = { group: '', tag: '' };
 
@@ -19,19 +20,19 @@
     const again = () => NS.views.customers.render();
     const pick = (kind, id) => { f[kind] = f[kind] === id ? '' : id; again(); };
     $('cSide').replaceChildren(
-      el('div', { class: 'side-sec' }, item('All customers', all.length, !f.group && !f.tag, () => { f.group = ''; f.tag = ''; again(); })),
-      el('section', { class: 'side-sec', 'aria-label': 'Groups' },
-        el('div', { class: 'side-h' }, el('span', null, 'Groups'),
-          el('button', { type: 'button', class: 'side-manage', onclick: () => NS.groupsPanel.open() }, 'Manage')),
+      el('div', { class: 'side-sec' }, item(tr('crm.sd.all'), all.length, !f.group && !f.tag, () => { f.group = ''; f.tag = ''; again(); })),
+      el('section', { class: 'side-sec', 'aria-label': tr('crm.sd.groups') },
+        el('div', { class: 'side-h' }, el('span', null, tr('crm.sd.groups')),
+          el('button', { type: 'button', class: 'side-manage', onclick: () => NS.groupsPanel.open() }, tr('crm.sd.manage'))),
         labels.groups.length
           ? labels.groups.map((x) => item(x.name, groups.get(x.id) || 0, f.group === x.id, () => pick('group', x.id)))
-          : el('p', { class: 'side-empty' }, 'No groups yet.')),
-      el('section', { class: 'side-sec', 'aria-label': 'Tags' },
-        el('div', { class: 'side-h' }, el('span', null, 'Tags'),
-          el('button', { type: 'button', class: 'side-manage', onclick: () => NS.tagManager.open() }, 'Manage')),
+          : el('p', { class: 'side-empty' }, tr('crm.sd.no_groups'))),
+          el('section', { class: 'side-sec', 'aria-label': tr('crm.sd.tags') },
+            el('div', { class: 'side-h' }, el('span', null, tr('crm.sd.tags')),
+              el('button', { type: 'button', class: 'side-manage', onclick: () => NS.tagManager.open() }, tr('crm.sd.manage'))),
         labels.tags.length
           ? labels.tags.map((x) => item(x.name, tags.get(x.id) || 0, f.tag === x.id, () => pick('tag', x.id), x.color))
-          : el('p', { class: 'side-empty' }, 'No tags yet.')));
+          : el('p', { class: 'side-empty' }, tr('crm.sd.no_tags'))));
   }
 
   NS.sidebar = { render };

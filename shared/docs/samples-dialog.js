@@ -10,8 +10,8 @@
   const UI = g.SlopUI;
   const samples = (NS.samples = NS.samples || {});
   const PROGRESS_AT = 5;
-  const WORDS = { invoice: ['invoice', 'invoices'], order: ['order', 'orders'] };
-  const plural = (kind, n) => (n === 1 ? WORDS[kind][0] : WORDS[kind][1]);
+  const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
+  const inv = (kind) => kind === 'invoice';
   const para = (text) => UI.el('p', { class: 'sui-p' }, text);
   const block = (lines) => UI.el('div', null, lines.map(para));
 
@@ -26,11 +26,11 @@
   function summaryLines(kind, res, io) {
     const d = res.value;
     const n = d.created.length;
-    const out = [`Created ${n} sample ${plural(kind, n)}. ${kind === 'invoice' ? 'They are drafts, so the number comes when each is issued.' : 'They are drafts, and each took its order number.'}`];
-    if (n) out.push(`Total: ${totalsText(d.created, io)}.`);
-    out.push(`Customers added: ${d.newCustomers}. Products added: ${d.newProducts}.`);
-    out.push(`Seed ${d.seed}: the same seed, count and dates give the same documents.`);
-    if (d.failed.length) out.push(`Not created: ${d.failed.length}. First: ${d.failed[0].message}`);
+    const out = [t(inv(kind) ? 'biz.sm.created_inv' : 'biz.sm.created_ord', { n })];
+    if (n) out.push(t('biz.sm.total', { amount: totalsText(d.created, io) }));
+    out.push(t('biz.sm.added', { customers: String(d.newCustomers), products: String(d.newProducts) }));
+    out.push(t('biz.sm.seed', { seed: String(d.seed) }));
+    if (d.failed.length) out.push(t('biz.sm.failed', { n: String(d.failed.length), why: d.failed[0].message }));
     return out;
   }
 
@@ -38,10 +38,10 @@
   async function quick({ kind, getIO, onDone }) {
     const io = await getIO();
     const res = await samples.run({ kind, count: 1, seed: samples.newSeed(), from: M.addDays(io.today, -90), to: io.today, currency: io.base, missing: { customers: true, products: true }, io });
-    if (!res.ok) { UI.alert('Not created', res.message); return null; }
-    if (!res.value.created.length) { UI.alert('Not created', res.value.failed[0].message); return null; }
+    if (!res.ok) { UI.alert(t('biz.sm.not_created'), res.message); return null; }
+    if (!res.value.created.length) { UI.alert(t('biz.sm.not_created'), res.value.failed[0].message); return null; }
     const made = res.value.created[0];
-    UI.toast(`Sample ${kind} created${made.number ? ` ${made.number}` : ''}`);
+    UI.toast(t(inv(kind) ? 'biz.sm.one_inv' : 'biz.sm.one_ord', { number: made.number || '' }).trim());
     if (onDone) onDone(made);
     return made;
   }
@@ -51,24 +51,24 @@
     const io = await getIO();
     const currencies = [...new Set([io.base, ...(S.locale.currencies() || [])])];
     const count = UI.number(5, 1, samples.MAX_DOCS, 1);
-    const seed = UI.el('input', { class: 'sui-input', type: 'text', maxlength: '40', placeholder: 'Blank for a new seed', autocomplete: 'off', spellcheck: 'false' });
+    const seed = UI.el('input', { class: 'sui-input', type: 'text', maxlength: '40', placeholder: t('biz.sm.seed_ph'), autocomplete: 'off', spellcheck: 'false' });
     const cur = UI.select(currencies.map((c) => [c, c]), io.base);
     const from = UI.el('input', { class: 'sui-input', type: 'date', value: M.addDays(io.today, -90) });
     const to = UI.el('input', { class: 'sui-input', type: 'date', value: io.today });
-    const mc = UI.check('Create missing customers (saved, marked as samples)', true);
-    const mp = UI.check('Create missing products (saved, marked as samples)', true);
+    const mc = UI.check(t('biz.sm.missing_cust'), true);
+    const mp = UI.check(t('biz.sm.missing_prod'), true);
     const note = UI.el('p', { class: 'sui-p', role: 'status' });
-    const bar = UI.el('progress', { class: 'sample-progress', max: String(count.value), value: '0', hidden: true, 'aria-label': 'Creating samples' });
+    const bar = UI.el('progress', { class: 'sample-progress', max: String(count.value), value: '0', hidden: true, 'aria-label': t('biz.sm.progress') });
     const body = UI.el('div', { class: 'sample-options' },
-      UI.field(`Documents (${samples.MAX_DOCS} at most)`, count),
-      UI.field('Seed', seed, 'Same seed, same output'),
-      UI.field('Currency', cur),
-      UI.field('From', from), UI.field('To', to),
+      UI.field(t('biz.sm.docs', { n: String(samples.MAX_DOCS) }), count),
+      UI.field(t('biz.sm.seed_l'), seed, t('biz.sm.seed_hint')),
+      UI.field(t('biz.sm.currency'), cur),
+      UI.field(t('biz.sm.from'), from), UI.field(t('biz.sm.to'), to),
       mc.el, mp.el, note, bar);
     const dlg = UI.dialog({
-      title: `Random ${plural(kind, 2)}`, body,
-      buttons: [{ label: 'Cancel' }, {
-        label: 'Create', primary: true,
+      title: t(inv(kind) ? 'biz.sm.random_inv' : 'biz.sm.random_ord'), body,
+      buttons: [{ label: t('menu.cancel') }, {
+        label: t('biz.sm.create'), primary: true,
         act: async () => {
           const n = Number(count.value);
           const o = { kind, count: n, seed: samples.normalizeSeed(seed.value), from: from.value, to: to.value, currency: cur.value };
@@ -76,12 +76,12 @@
           if (bad) { note.textContent = bad; return false; }
           if (n >= PROGRESS_AT) { bar.max = n; bar.value = 0; bar.hidden = false; }
           body.querySelectorAll('input, select').forEach((x) => { x.disabled = true; });
-          note.textContent = `Creating ${plural(kind, n)}…`;
+          note.textContent = t('biz.sm.creating', { n });
           const res = await samples.run({ ...o, missing: { customers: mc.input.checked, products: mp.input.checked }, io,
-            onProgress: (done) => { bar.value = done; note.textContent = done < n ? `Creating ${done + 1} of ${n}…` : 'Done.'; } });
+            onProgress: (done) => { bar.value = done; note.textContent = done < n ? t('biz.sm.creating_i', { i: String(done + 1), n: String(n) }) : t('biz.sm.done'); } });
           dlg.close(true);
-          if (!res.ok) { UI.alert('Not created', res.message); return false; }
-          UI.alert('Samples created', block(summaryLines(kind, res, io)));
+          if (!res.ok) { UI.alert(t('biz.sm.not_created'), res.message); return false; }
+          UI.alert(t('biz.sm.created'), block(summaryLines(kind, res, io)));
           if (onDone) onDone(res.value);
           return false;
         },
@@ -91,17 +91,15 @@
 
   /** Confirms, then removes every live sample of the kind (see samples-run.js removeSamples). */
   async function deleteAll({ kind, getIO, onDone }) {
-    const text = kind === 'invoice'
-      ? 'Delete every sample invoice that is still a draft. Issued sample invoices stay (void them to remove them). Sample customers and products that nothing else uses are deleted too. Real records are not touched.'
-      : 'Cancel every sample order that is not yet fulfilled. Orders cannot be deleted (their numbers stay used), so they stay in the list as cancelled. Sample customers and products that nothing else uses are deleted too. Real records are not touched.';
-    if (!(await UI.confirm('Delete all samples', text, 'Delete all samples', { danger: true }))) return;
+    const text = t(inv(kind) ? 'biz.sm.del_inv' : 'biz.sm.del_ord');
+    if (!(await UI.confirm(t('biz.sm.del_all'), text, t('biz.sm.del_all'), { danger: true }))) return;
     const io = await getIO();
     const res = await samples.removeSamples(io);
-    if (!res.ok) { UI.alert('Not deleted', res.message); return; }
+    if (!res.ok) { UI.alert(t('biz.sm.not_deleted'), res.message); return; }
     const v = res.value;
-    const lines = [`${kind === 'invoice' ? 'Deleted' : 'Cancelled'} ${v.documents} sample ${plural(kind, v.documents)}. Customers removed: ${v.customers}. Products removed: ${v.products}.`];
-    if (v.kept.length) lines.push(`Kept ${v.kept.length}: ${v.kept.slice(0, 5).join('; ')}`);
-    UI.alert('Samples deleted', block(lines));
+    const lines = [t(inv(kind) ? 'biz.sm.deleted_inv' : 'biz.sm.cancelled_ord', { n: v.documents, customers: String(v.customers), products: String(v.products) })];
+    if (v.kept.length) lines.push(t('biz.sm.kept', { n: String(v.kept.length), list: v.kept.slice(0, 5).join('; ') }));
+    UI.alert(t('biz.sm.deleted'), block(lines));
     if (onDone) onDone(v);
   }
 

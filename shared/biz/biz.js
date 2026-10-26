@@ -55,7 +55,7 @@
    *  elements run them on click. list: [{ id, title, group, keywords, when, run }]. Returns run(id) (true when it ran). */
   function commands(app, own) {
     // every app that keeps records has "Fill with a sample…" (shared/biz/sample.js, loaded when it is first used)
-    const list = own.concat([{ id: 'biz.sample', title: () => t('biz.cmd.sample'), group: () => t('biz.cmd.g_data'), keywords: ['random', 'example', 'demo', 'seed', 'test data'],
+    const list = own.concat([{ id: 'biz.sample', title: () => t('biz.cmd.sample'), group: () => t('biz.cmd.g_data'), keywords: ['random', 'example', 'demo', 'seed', 'test data'],   // i18n-ignore: a palette keyword (API)
       when: () => !(g.SlopBiz.sample && g.SlopDataAI && g.SlopDataAI.APPS && !g.SlopBiz.sample.kinds(app).length), run: () => sample(app) }]);
     const byId = Object.fromEntries(list.map((c) => [c.id, c]));
     const C = g.SlopCmd;

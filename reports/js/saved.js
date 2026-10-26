@@ -23,9 +23,10 @@
   /** Adds or replaces a definition by id. Resolves to { ok, error? }. A built-in id cannot be taken. */
   function save(def) {
     const builtin = (ns.BUILTIN || []).some((b) => b.id === def.id);
-    if (builtin) return { ok: false, error: 'That id belongs to a built-in report. Choose another id.' };
+    const t = (k) => (g.SlopI18n ? g.SlopI18n.t(k) : k);
+    if (builtin) return { ok: false, error: t('reports.sv.builtin_id') };
     const rest = list().filter((r) => r.id !== def.id);
-    return write([...rest, def]) ? { ok: true } : { ok: false, error: 'This browser does not allow saving reports.' };
+    return write([...rest, def]) ? { ok: true } : { ok: false, error: t('reports.sv.no_save') };
   }
 
   function remove(id) {
