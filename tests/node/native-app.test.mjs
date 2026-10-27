@@ -55,8 +55,9 @@ test('no install button in an app; install help and agent offers marked website-
   assert.match(how, /<tr data-web-only><td>\{\{network\.55\}\}/);
   assert.match(read('tools/seo/landing.mjs'), /<p class="note" data-web-only>\$\{esc\(installIn\(L\.code\)\.how\)\}<\/p>/);
   assert.match(read('apps/pdf/index.html'), /<p class="note" data-web-only>[^<]*Add to Home Screen/);
-  // Settings: the AI agents section (browser extensions, desktop AI apps) and Updates (the store updates the app)
+  // Settings: AI agents (browser extensions, desktop AI apps), Updates (the store updates the app), Local folder
   const set = read('settings/index.html');
   assert.match(set, /<section id="agents" data-web-only /);
   assert.match(set, /<section id="updates" data-web-only /);
+  assert.match(set, /<section id="folder" data-web-only /);   // local folders need the File System Access API
 });
