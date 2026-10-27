@@ -2,7 +2,7 @@
 window.SlopI18n && window.SlopI18n.add('nl', {
   'seo.best.free-word-processors.crumb': 'Beste gratis tekstverwerkers',
   'seo.best.free-word-processors.title': 'Beste gratis tekstverwerkers (2026): Google Docs, Word, LibreOffice, Zoho',
-  'seo.best.free-word-processors.description': 'Gratis tekstverwerkers vergeleken: Google Docs, Word voor het web, LibreOffice Writer, Zoho Writer en Slop Docs. Accounts, Word-bestanden, offline gebruik en opslag.',
+  'seo.best.free-word-processors.description': 'Gratis tekstverwerkers vergeleken: Google Docs, Word voor het web, LibreOffice Writer, Zoho Writer en Slop Docs. Accounts, Word-bestanden, offline en opslag.',
   'seo.best.free-word-processors.h1': 'De beste gratis tekstverwerkers, vergeleken',
   'seo.best.free-word-processors.lead': 'Je kunt gratis documenten schrijven en opmaken in verschillende goede tools. Ze verschillen in of je een account nodig hebt, waar je documenten worden bewaard, hoe goed ze met Word-bestanden omgaan en of je samen of offline kunt werken.',
   'seo.best.free-word-processors.criteria.0': 'Gratis te gebruiken om te schrijven en op te maken, zonder betaald abonnement',
@@ -133,7 +133,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'seo.best.free-word-processors.faq.3.1': 'Google Docs bewaart ze in Google Drive en Word voor het web in OneDrive. Slop Docs bewaart ze in Slop Drive, opslag in je eigen browser, dus ze worden niet geüpload.',
   'seo.best.free-online-spreadsheets.crumb': 'Beste gratis online spreadsheets',
   'seo.best.free-online-spreadsheets.title': 'Beste gratis spreadsheetsoftware (2026): Google Sheets, Excel, LibreOffice',
-  'seo.best.free-online-spreadsheets.description': 'Gratis spreadsheets vergeleken: Google Sheets, Excel voor het web, LibreOffice Calc, Zoho Sheet en Slop Tables. Excel-bestanden, draaitabellen, grafieken, accounts en offline.',
+  'seo.best.free-online-spreadsheets.description': 'Gratis spreadsheets vergeleken: Google Sheets, Excel voor het web, LibreOffice Calc, Zoho Sheet en Slop Tables. Excel-bestanden, draaitabellen en accounts.',
   'seo.best.free-online-spreadsheets.h1': 'De beste gratis spreadsheet-apps, vergeleken',
   'seo.best.free-online-spreadsheets.lead': 'Formules, grafieken en draaitabellen zijn gratis in verschillende spreadsheet-apps. De verschillen zitten in accounts en opslag, hoe ze met Excel-bestanden omgaan, hoeveel analyse ze bieden en of je samen of offline kunt werken.',
   'seo.best.free-online-spreadsheets.criteria.0': 'Gratis te gebruiken voor formules, grafieken en draaitabellen',

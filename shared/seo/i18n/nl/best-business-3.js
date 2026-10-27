@@ -86,7 +86,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'seo.best.free-email-signature-generators.faq.3.1': 'Alle vier tools hier maken handtekeningen voor Gmail, Outlook en Apple Mail. Slop Signature toont de stappen voor elk op de pagina.',
   'seo.best.free-to-do-list-apps.crumb': 'Beste gratis takenlijst-apps',
   'seo.best.free-to-do-list-apps.title': 'Beste gratis takenlijst-apps (2026): Microsoft To Do, Todoist, TickTick',
-  'seo.best.free-to-do-list-apps.description': 'Gratis to-do-apps vergeleken: limieten voor lijsten, herinneringen, herhalingen, delen en synchronisatie bij Microsoft To Do, Todoist, TickTick en Slop To-do, en waar taken worden bewaard.',
+  'seo.best.free-to-do-list-apps.description': 'Gratis to-do-apps vergeleken: limieten, herinneringen, herhalingen, delen en sync bij Microsoft To Do, Todoist, TickTick en Slop To-do, en waar taken staan.',
   'seo.best.free-to-do-list-apps.h1': 'De beste gratis takenlijst-apps',
   'seo.best.free-to-do-list-apps.lead': 'De grote to-do-apps zijn allemaal gratis om mee te beginnen, met limieten voor lijsten, herinneringen of weergaven die wegvallen als je betaalt. Dit is wat elke gratis versie doet, volgens de eigen pagina’s, en voor wie welke past.',
   'seo.best.free-to-do-list-apps.criteria.0': 'Wat de gratis versie toestaat: lijsten, taken, herinneringen',

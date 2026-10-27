@@ -233,7 +233,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'seo.task.tables.budget-spreadsheet-template.lead': 'Begin met een klaar budget: inkomsten- en uitgavenregels voor drie maanden, met de totalen en het maandsaldo die al door formules zijn berekend.',
   'seo.task.tables.budget-spreadsheet-template.cta': 'Het budgetsjabloon openen',
   'seo.task.tables.budget-spreadsheet-template.steps.0': 'Open Slop Tables en kies Bestand, Uit sjabloon.',
-  'seo.task.tables.budget-spreadsheet-template.steps.1': 'Kies Budget en kies Gebruiken.',
+  'seo.task.tables.budget-spreadsheet-template.steps.1': 'Kies Begroting en kies Gebruiken.',
   'seo.task.tables.budget-spreadsheet-template.steps.2': 'Vervang de voorbeeldregels door je eigen inkomsten en uitgaven. De totalen en het saldo worden bijgewerkt terwijl je typt.',
   'seo.task.tables.budget-spreadsheet-template.steps.3': 'Voeg rijen toe voor meer categorieën; verlaat de SUM-bereiken als je ze onder de totalen toevoegt.',
   'seo.task.tables.budget-spreadsheet-template.steps.4': 'Sla op in Slop Drive, of download XLSX om het in Excel of Google Sheets te openen.',

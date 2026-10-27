@@ -103,7 +103,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'seo.task.clean.remove-exif-data.h1': 'EXIF-gegevens uit een foto verwijderen',
   'seo.task.clean.remove-exif-data.lead': 'Foto\'s bevatten verborgen gegevens: de camera en zijn serienummer, de datum, de software, vaak de GPS-positie. SlopClean toont alles en verwijdert het zonder de afbeelding aan te raken.',
   'seo.task.clean.remove-exif-data.cta': 'Metadata van foto verwijderen',
-  'seo.task.clean.remove-exif-data.steps.0': 'Zet de foto\'s op de pagina, of kies Foto\'s openen. Elke foto krijgt een kaartje met wat erin zit.',
+  'seo.task.clean.remove-exif-data.steps.0': 'Zet de foto\'s op de pagina, of kies Foto’s openen. Elke foto krijgt een kaartje met wat erin zit.',
   'seo.task.clean.remove-exif-data.steps.1': 'Laat bij Wat verwijderen de categorieën aangevinkt die weg moeten. Het kleurprofiel en het afdrukformaat blijven behouden, tenzij je ze aanvinkt.',
   'seo.task.clean.remove-exif-data.steps.2': 'Controleer de kaartjes: elke regel is gemarkeerd als Verwijderd of Behouden.',
   'seo.task.clean.remove-exif-data.steps.3': 'Kies Kopiëren en opschonen: downloaden. Meerdere foto\'s komen als ZIP, en de kopieën krijgen de naam (schoon).',

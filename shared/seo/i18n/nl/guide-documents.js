@@ -60,7 +60,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'seo.guide.pdf.organize-pages.sections.2.steps.3': 'Klik op Downloaden om alles als één pdf op te slaan.',
   'seo.guide.pdf.organize-pages.sections.3.h2': 'Splits een pdf in delen',
   'seo.guide.pdf.organize-pages.sections.3.steps.0': 'Klik in de balk op Splitsen.',
-  'seo.guide.pdf.organize-pages.sections.3.steps.1': 'Kies Paginabereiken, Elke N pagina’s of Elke pagina.',
+  'seo.guide.pdf.organize-pages.sections.3.steps.1': 'Kies Paginareeksen, Elke N pagina’s of Elke pagina.',
   'seo.guide.pdf.organize-pages.sections.3.steps.2': 'Typ bij paginabereiken ze gescheiden door komma’s, zoals 1-2, 3-. „8-” betekent pagina 8 tot het einde.',
   'seo.guide.pdf.organize-pages.sections.3.steps.3': 'Controleer onder Resultaat de lijst met bestanden. Het raster toont naar welk deel elke pagina gaat.',
   'seo.guide.pdf.organize-pages.sections.3.steps.4': 'Kies Eén .zip of Afzonderlijke pdf’s, en klik daarna op Splitsen en downloaden.',

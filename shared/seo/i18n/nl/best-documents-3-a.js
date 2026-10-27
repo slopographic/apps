@@ -2,7 +2,7 @@
 window.SlopI18n && window.SlopI18n.add('nl', {
   'seo.best.free-eml-viewers.crumb': 'Gratis EML-viewers',
   'seo.best.free-eml-viewers.title': 'Beste gratis EML-viewers: .eml-e-mailbestanden openen zonder Outlook',
-  'seo.best.free-eml-viewers.description': 'Gratis manieren om een .eml-e-mailbestand te openen vergeleken: Slop EML, Hypermatic, Loops en nieuwe Outlook. Uploads, externe afbeeldingen, bijlagen, afdrukken en pdf naast elkaar.',
+  'seo.best.free-eml-viewers.description': 'Gratis .eml-viewers vergeleken: Slop EML, Hypermatic, Loops en nieuwe Outlook. Uploads, externe afbeeldingen, bijlagen, afdrukken en pdf naast elkaar.',
   'seo.best.free-eml-viewers.h1': 'De beste gratis EML-viewers',
   'seo.best.free-eml-viewers.lead': 'Een .eml-bestand is één opgeslagen e-mail: koppen, de tekst en de bijlagen in één bestand. Je hebt geen mailaccount nodig om er een te lezen. Hier zijn drie gratis viewers die in de browser draaien, en Outlook, dat .eml ook opent.',
   'seo.best.free-eml-viewers.criteria.0': 'Gratis te gebruiken, zonder account',
@@ -93,7 +93,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'seo.best.free-eml-viewers.faq.3.1': '.eml is het standaardformaat dat de meeste mailprogramma’s opslaan. .msg is het eigen formaat van Outlook. Slop EML opent alleen .eml; Microsoft zegt dat nieuw Outlook beide opent, met een geschikt Microsoft 365-abonnement voor .msg.',
   'seo.best.free-markdown-editors.crumb': 'Gratis Markdown-editors',
   'seo.best.free-markdown-editors.title': 'Beste gratis Markdown-editors vergeleken: online, desktop en privé',
-  'seo.best.free-markdown-editors.description': 'Obsidian, Dillinger, Slop Notes, StackEdit, Joplin en Typora vergeleken: prijs, live voorbeeld, waar notities worden bewaard, synchronisatie, export en de Markdown die elk ondersteunt.',
+  'seo.best.free-markdown-editors.description': 'Obsidian, Dillinger, Slop Notes, StackEdit, Joplin en Typora vergeleken: prijs, live voorbeeld, opslag, synchronisatie, export en Markdown-ondersteuning.',
   'seo.best.free-markdown-editors.h1': 'De beste gratis Markdown-editors',
   'seo.best.free-markdown-editors.lead': 'Markdown is platte tekst met een paar tekens voor koppen, lijsten en links. Elke editor kan het schrijven, maar een goede toont een voorbeeld, houdt je notities georganiseerd en exporteert ze. Hier zijn zes bekende, gratis en betaalde, in de browser en op de desktop.',
   'seo.best.free-markdown-editors.criteria.0': 'Gratis te gebruiken voor alles, of wat het kost',

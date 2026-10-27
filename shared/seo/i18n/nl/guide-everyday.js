@@ -31,7 +31,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'seo.guide.time.getting-started.sections.1.steps.3': 'De planner toont elk tijdvak waarin iedereen binnen werktijd valt, met elke lokale tijd. Agenda toevoegen zet er een in Slop Calendar.',
   'seo.guide.time.getting-started.sections.1.image.alt': 'De vergaderplanner met een venster van drie uur dat bij Londen en New York past',
   'seo.guide.time.getting-started.sections.2.h2': 'Reken een tijd om',
-  'seo.guide.time.getting-started.sections.2.text.0': 'Typ op het tabblad Omrekenen een tijd en kies de zone waarin hij is, of kies Huidige tijd gebruiken. Elke stad in je lijst wordt getoond met tijd en dag. Hieronder zegt Tijdsverschil tussen twee zones hoe ver twee zones nu uit elkaar liggen.',
+  'seo.guide.time.getting-started.sections.2.text.0': 'Typ op het tabblad Omrekenen een tijd en kies de zone waarin hij is, of kies De huidige tijd gebruiken. Elke stad in je lijst wordt getoond met tijd en dag. Hieronder zegt Tijdsverschil tussen twee zones hoe ver twee zones nu uit elkaar liggen.',
   'seo.guide.time.getting-started.sections.2.image.alt': 'De tijdzoneomrekenaar met vier steden en het verschil tussen Chicago en Londen',
   'seo.guide.time.getting-started.sections.3.h2': 'Timers en klokverschil',
   'seo.guide.time.getting-started.sections.3.text.0': 'Timers heeft een stopwatch met rondetijden en een aftelling die 5, 4:30 of 1:05:00 aanneemt. Synchroniseren laat je een tijd typen uit een bron die je vertrouwt; Slop Time laat de klokken dan met het verschil verschuiven. Het haalt de tijd nooit zelf op.',

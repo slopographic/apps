@@ -35,7 +35,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'seo.task.gallery.raw-photo-viewer.faq.2.0': 'Waarom lijkt een foto op de JPEG van de camera?',
   'seo.task.gallery.raw-photo-viewer.faq.2.1': 'De viewer toont het voorbeeld dat de camera maakte, met de beeldstijl ervan. Om de RAW-data zelf te ontwikkelen, open je hem in PhotoSlop of File convert.',
   'seo.task.gallery.raw-photo-viewer.faq.3.0': 'Kan ik dubbele exemplaren vinden onder mijn RAW-bestanden?',
-  'seo.task.gallery.raw-photo-viewer.faq.3.1': 'Ja. Importeren slaat bestanden over waarvan de bytes al in de bibliotheek zitten, en Dubbele foto\'s zoeken groepeert exacte kopieën.',
+  'seo.task.gallery.raw-photo-viewer.faq.3.1': 'Ja. Importeren slaat bestanden over waarvan de bytes al in de bibliotheek zitten, en Dubbele foto’s zoeken groepeert exacte kopieën.',
   'seo.task.convert.dng-converter.crumb': 'DNG-converter',
   'seo.task.convert.dng-converter.title': 'DNG-converter: RAW-foto\'s naar JPG, PNG of WebP',
   'seo.task.convert.dng-converter.description': 'Zet DNG- en andere camera-RAW-bestanden in je browser om naar JPG, PNG of WebP, één of veel. Met witbalans, belichting en formaat. Geen upload.',

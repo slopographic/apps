@@ -19,7 +19,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'seo.guide.colors.getting-started.sections.2.steps.1': 'Kies een Harmonie en een Schaal in het deelvenster, en daarna Als palet gebruiken onder een rij.',
   'seo.guide.colors.getting-started.sections.2.steps.2': 'Onder elke kleur van het palet verplaatsen ‹ en › hem, geeft ✎ hem een naam en verwijdert × hem.',
   'seo.guide.colors.getting-started.sections.3.h2': 'Controleer het contrast',
-  'seo.guide.colors.getting-started.sections.3.text.0': 'Typ een tekstkleur en een achtergrond, of gebruik Als tekstkleur gebruiken en Als achtergrond gebruiken in het deelvenster. De verhouding en de WCAG-niveaus verschijnen meteen, en Tekstkleur aanpassen zoekt de dichtstbijzijnde kleur die AA haalt.',
+  'seo.guide.colors.getting-started.sections.3.text.0': 'Typ een tekstkleur en een achtergrond, of gebruik Gebruiken als tekstkleur en Als achtergrond gebruiken in het deelvenster. De verhouding en de WCAG-niveaus verschijnen meteen, en Tekstkleur aanpassen zoekt de dichtstbijzijnde kleur die AA haalt.',
   'seo.guide.colors.getting-started.sections.4.h2': 'Exporteer en bewaar',
   'seo.guide.colors.getting-started.sections.4.steps.0': 'Geef het palet een naam en kies een Formaat onder Exporteren.',
   'seo.guide.colors.getting-started.sections.4.steps.1': 'Klik op Palet downloaden, Code kopiëren of Opslaan in Slop Drive…; Openen in… stuurt het bestand naar een andere app.',

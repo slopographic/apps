@@ -125,7 +125,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'seo.task.paste.code-snippet-manager.h1': 'Bewaar je codefragmenten op één plek',
   'seo.task.paste.code-snippet-manager.lead': 'Plak een fragment waar je maar wilt op de pagina en het wordt bewaard, gekleurd en doorzoekbaar. Paste bewaart tekst, code en afbeeldingen in deze browser, zonder dat er iets ergens naartoe wordt gestuurd.',
   'seo.task.paste.code-snippet-manager.cta': 'Een fragment opslaan',
-  'seo.task.paste.code-snippet-manager.steps.0': 'Open Paste en plak waar je maar wilt buiten een veld, of kies Nieuwe snippet.',
+  'seo.task.paste.code-snippet-manager.steps.0': 'Open Plakken en plak waar je maar wilt buiten een veld, of kies Nieuwe snippet.',
   'seo.task.paste.code-snippet-manager.steps.1': 'Geef het een titel en kies de taal voor de kleuring.',
   'seo.task.paste.code-snippet-manager.steps.2': 'Plak een screenshot, of kies Afbeelding, om een foto naast je fragmenten te bewaren.',
   'seo.task.paste.code-snippet-manager.steps.3': 'Vind fragmenten later met het zoekvak, dat kijkt in titels, tekst en taal.',

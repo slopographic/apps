@@ -7,7 +7,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'seo.reg.photoslop.features.2': 'Camera-RAW: CR2, CR3, NEF, ARW, DNG, RAF',
   'seo.reg.photoslop.features.3': 'Meer dan 50 filters, kwastensets, .abr-import',
   'seo.reg.photoslop.features.4': 'Tabbladen, automatisch opslaan, offline .html',
-  'seo.reg.vector.title': 'SlopVector: vectoreditor',
+  'seo.reg.vector.title': 'SlopVector: vectortekenprogramma',
   'seo.reg.vector.tagline': 'Illustrator, opnieuw gebouwd voor de browser.',
   'seo.reg.vector.features.0': 'Pen, vormen, tekst en lagen',
   'seo.reg.vector.features.1': 'Echte pathfinder-bewerkingen',

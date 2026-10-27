@@ -58,7 +58,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'seo.task.transcribe.subtitles-from-video.faq.3.0': 'Wordt mijn video geüpload?',
   'seo.task.transcribe.otter-ai-alternative.crumb': 'Alternatief voor Otter.ai',
   'seo.task.transcribe.otter-ai-alternative.title': 'Gratis Otter.ai-alternatief dat in je browser draait',
-  'seo.task.transcribe.otter-ai-alternative.description': 'Zoek je een Otter.ai-alternatief? Slop Transcribe maakt van opnames en video\'s tekst op je eigen apparaat. Gratis, zonder account. Opslaan als TXT, Word of SRT.',
+  'seo.task.transcribe.otter-ai-alternative.description': 'Zoek je een Otter.ai-alternatief? Slop Transcribe maakt van opnames en video’s tekst op je eigen apparaat. Gratis, zonder account. TXT, Word of SRT.',
   'seo.task.transcribe.otter-ai-alternative.h1': 'Een gratis Otter.ai-alternatief dat je audio op je apparaat houdt',
   'seo.task.transcribe.otter-ai-alternative.lead': 'Slop Transcribe is een gratis transcriptietool die in je browser draait. Neem je stem op of zet audio- en videobestanden neer, en Whisper zet de spraak op je eigen computer om in tekst.',
   'seo.task.transcribe.otter-ai-alternative.steps.0': 'Open Slop Transcribe. Er is geen account om aan te maken.',

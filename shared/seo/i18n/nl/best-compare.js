@@ -1,8 +1,8 @@
 /* SEO copy, Dutch: best-compare. Translated from shared/seo/i18n/en/best-compare.js. Rules: shared/seo/i18n/README.md. */
 window.SlopI18n && window.SlopI18n.add('nl', {
   'seo.best.free-diff-tools.crumb': 'Gratis vergelijkingstools',
-  'seo.best.free-diff-tools.title': 'Beste gratis vergelijkingstools: tekst, bestanden, pdf’s en afbeeldingen vergelijken',
-  'seo.best.free-diff-tools.description': 'Vier gratis manieren om te zien wat er tussen twee bestanden is veranderd: Slop Compare in de browser, Diffchecker, WinMerge en Meld. Teksten, mappen, pdf’s, afbeeldingen en tabellen.',
+  'seo.best.free-diff-tools.title': 'Beste gratis vergelijkingstools: tekst, bestanden, pdf’s en afbeeldingen',
+  'seo.best.free-diff-tools.description': 'Vier gratis manieren om wijzigingen tussen twee bestanden te zien: Slop Compare, Diffchecker, WinMerge en Meld. Tekst, mappen, pdf’s, afbeeldingen en tabellen.',
   'seo.best.free-diff-tools.h1': 'De beste gratis vergelijkingstools om bestanden te vergelijken',
   'seo.best.free-diff-tools.lead': 'Een vergelijkingstool toont wat er tussen twee versies van een bestand is veranderd. Deze vier zijn gratis om mee te beginnen. Dit is wat elk vergelijkt en waar het draait, volgens de eigen pagina’s.',
   'seo.best.free-diff-tools.criteria.0': 'Gratis, zonder account',

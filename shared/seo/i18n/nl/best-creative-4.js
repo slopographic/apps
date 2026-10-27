@@ -123,7 +123,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'seo.best.free-desktop-publishing-software.faq.3.1': 'Affinity en Canva hebben een Canva-account nodig; Affinity heeft het nodig om te downloaden en te activeren. Slop Press heeft geen account nodig.',
   'seo.best.free-motion-graphics-software.crumb': 'Gratis motion-graphicssoftware',
   'seo.best.free-motion-graphics-software.title': 'Beste gratis motion-graphicssoftware: Cavalry, Blender en browsertools',
-  'seo.best.free-motion-graphics-software.description': 'Gratis motion-graphicssoftware vergeleken: Cavalry, Blender, Slop Effects en Jitter. Keyframes, grafiekeditor, exportlimieten, watermerken en transparante video.',
+  'seo.best.free-motion-graphics-software.description': 'Gratis motion-graphicssoftware vergeleken: Cavalry, Blender, Slop Effects en Jitter. Keyframes, grafiekeditor, exportlimiet, watermerken en transparantie.',
   'seo.best.free-motion-graphics-software.h1': 'De beste gratis motion-graphicssoftware',
   'seo.best.free-motion-graphics-software.lead': 'Geanimeerde titels, logo-introducties en social clips vereisten vroeger een abonnement op After Effects. Deze vier tools animeren gratis, van editors die in een browsertabblad draaien tot professionele desktopprogramma’s.',
   'seo.best.free-motion-graphics-software.criteria.0': 'Gratis exports: resolutie en watermerk',

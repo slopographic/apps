@@ -17,7 +17,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'seo.guide.resize.getting-started.sections.1.text.0': 'Een zijde die op 0 staat, volgt de foto. Beeldverhouding behouden voorkomt dat de foto wordt platgedrukt.',
   'seo.guide.resize.getting-started.sections.1.image.alt': 'Vier voorbeeldfoto’s in Slop Resize die wachten, met het doel ingesteld op Vierkant 1080 × 1080 en de vulling op Vullen (bijsnijden)',
   'seo.guide.resize.getting-started.sections.2.h2': 'Verklein en download',
-  'seo.guide.resize.getting-started.sections.2.steps.0': 'Klik op Alles verkleinen. Elk bestand toont zijn nieuwe formaat en Klaar.',
+  'seo.guide.resize.getting-started.sections.2.steps.0': 'Klik op Alles formaat wijzigen. Elk bestand toont zijn nieuwe formaat en Klaar.',
   'seo.guide.resize.getting-started.sections.2.steps.1': 'Klik op Alles downloaden (zip) voor elk bestand, of op Downloaden naast één bestand.',
   'seo.guide.resize.getting-started.sections.2.steps.2': 'Opslaan in Slop Drive bewaart de resultaten in Slop Drive.',
   'seo.guide.resize.getting-started.sections.2.image.alt': 'De vier foto’s verkleind naar 1080 × 1080, elk met zijn nieuwe bestandsgrootte en de knoppen Downloaden, Opslaan in Drive en Opschalen',

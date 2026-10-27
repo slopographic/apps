@@ -140,7 +140,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'seo.task.vector.svg-to-png.faq.2.1': 'Ja. Bestand > Exporteren heeft ook Exporteren als JPG… met een kwaliteitsinstelling, en Exporteren als pdf… met vectorpaden.',
   'seo.task.vector.illustrator-alternative.crumb': 'Alternatief voor Illustrator',
   'seo.task.vector.illustrator-alternative.title': 'Gratis Illustrator-alternatief dat in je browser draait',
-  'seo.task.vector.illustrator-alternative.description': 'SlopVector is een gratis vectoreditor in je browser: pen, vormen, tekst, lagen, verlopen en padbewerkingen, met export naar SVG, PNG, pdf en .ai.',
+  'seo.task.vector.illustrator-alternative.description': 'SlopVector is een gratis vectortekenprogramma in je browser: pen, vormen, tekst, lagen, verlopen en padbewerkingen, met export naar SVG, PNG, pdf en .ai.',
   'seo.task.vector.illustrator-alternative.h1': 'Een gratis Illustrator-alternatief in je browser',
   'seo.task.vector.illustrator-alternative.lead': 'Voor logo\'s, iconen en eenvoudige illustraties zonder installatie of abonnement: SlopVector heeft het pengereedschap, vorm- en tekstgereedschappen, lagen en padbewerkingen, met bekende sneltoetsen. Je tekeningen blijven op je computer.',
   'seo.task.vector.illustrator-alternative.cta': 'SlopVector openen',

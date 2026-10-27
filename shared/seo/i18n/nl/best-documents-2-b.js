@@ -74,7 +74,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'seo.best.free-online-spreadsheets.faq.3.1': 'Google Sheets bewaart ze in Google Drive en Excel voor het web in OneDrive. Slop Tables bewaart ze in Slop Drive in je browser, dus er wordt niets geüpload.',
   'seo.best.free-presentation-software.crumb': 'Beste gratis presentatiesoftware',
   'seo.best.free-presentation-software.title': 'Beste gratis presentatiesoftware (2026): Google Slides, PowerPoint, Zoho',
-  'seo.best.free-presentation-software.description': 'Gratis presentatie-apps vergeleken: Google Slides, PowerPoint voor het web, LibreOffice Impress, Zoho Show en Slop Slides. PPTX, presentatieweergave en offline gebruik.',
+  'seo.best.free-presentation-software.description': 'Gratis presentatieapps: Google Slides, PowerPoint voor het web, LibreOffice Impress, Zoho Show en Slop Slides. PPTX, presentatiemodus en offline gebruik.',
   'seo.best.free-presentation-software.h1': 'De beste gratis presentatiesoftware, vergeleken',
   'seo.best.free-presentation-software.lead': 'Dia’s maken en presenteren kost niets in verschillende apps. Ze verschillen in accounts en opslag, hoe goed ze PowerPoint-bestanden openen en opslaan, of je een presentatieweergave met je notities krijgt, en of je samen kunt werken.',
   'seo.best.free-presentation-software.criteria.0': 'Gratis te gebruiken om dia’s te maken en te presenteren',

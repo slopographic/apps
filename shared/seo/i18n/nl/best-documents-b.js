@@ -62,7 +62,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'seo.best.free-file-converters.faq.3.0': 'Kan het video converteren?',
   'seo.best.free-file-converters.faq.3.1': 'Ja: MOV naar MP4, video naar WebM of GIF, een beeld uit een video als afbeelding, en video of audio naar MP3 of WAV. Het draait op je apparaat, dus lange video’s duren op tragere computers even.',
   'seo.best.free-ocr-tools.crumb': 'Beste gratis OCR-tools',
-  'seo.best.free-ocr-tools.title': 'Beste gratis OCR-tools: afbeelding naar tekst met Google Drive, i2OCR, Tesseract',
+  'seo.best.free-ocr-tools.title': 'Beste gratis OCR-tools: tekst uit beeld met Google Drive, i2OCR, Tesseract',
   'seo.best.free-ocr-tools.description': 'Gratis OCR vergeleken: Google Drive, OnlineOCR.net, i2OCR, Tesseract en Slop OCR. Talen, gratis limieten, uitvoer, en of je scan wordt geüpload.',
   'seo.best.free-ocr-tools.h1': 'De beste gratis OCR-tools voor afbeeldingen en scans, vergeleken',
   'seo.best.free-ocr-tools.lead': 'OCR zet een foto, schermafbeelding of gescande pdf om in tekst die je kunt kopiëren en bewerken. De gratis opties verschillen sterk in talen, limieten en waar je scan naartoe gaat. Dit is wat elk over zichzelf zegt.',

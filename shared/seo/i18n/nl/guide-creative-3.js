@@ -34,7 +34,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'seo.guide.effects.getting-started.shortcuts.7.1': 'Laag dupliceren',
   'seo.guide.effects.getting-started.shortcuts.9.1': 'Opslaan in Slop Drive',
   'seo.guide.img3d.getting-started.title': 'Aan de slag met Slop Image to 3D: een 3D-model van een foto',
-  'seo.guide.img3d.getting-started.description': 'Leer Slop Image to 3D: open een afbeelding, bereken de diepte op je apparaat, kies een mesh, puntenwolk of splats, en exporteer OBJ of GLB. Of open het in Slop 3D.',
+  'seo.guide.img3d.getting-started.description': 'Leer Slop Image to 3D: open een afbeelding, bereken de diepte op je apparaat, kies mesh, puntenwolk of splats en exporteer OBJ of GLB. Of open het in Slop 3D.',
   'seo.guide.img3d.getting-started.h1': 'Aan de slag met Slop Image to 3D',
   'seo.guide.img3d.getting-started.lead': 'Slop Image to 3D schat hoe ver elk deel van een afbeelding weg is en maakt er een 3D-oppervlak van. Het draait in je browser.',
   'seo.guide.img3d.getting-started.sections.0.h2': 'Open een afbeelding',

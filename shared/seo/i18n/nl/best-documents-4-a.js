@@ -2,7 +2,7 @@
 window.SlopI18n && window.SlopI18n.add('nl', {
   'seo.best.free-exif-remover.crumb': 'Gratis EXIF-verwijderaars',
   'seo.best.free-exif-remover.title': 'Beste gratis EXIF-verwijderaar: GPS- en cameragegevens uit foto’s halen',
-  'seo.best.free-exif-remover.description': 'Vijf gratis manieren om EXIF-, GPS- en cameragegevens uit foto’s te verwijderen vergeleken: SlopClean, ExifTool, ExifCleaner, ImageOptim en Verexif. Formaten, batch, privacy.',
+  'seo.best.free-exif-remover.description': 'Vijf gratis manieren om EXIF- en GPS-gegevens uit foto’s te halen: SlopClean, ExifTool, ExifCleaner, ImageOptim en Verexif. Formaten, batch, privacy.',
   'seo.best.free-exif-remover.h1': 'De beste gratis EXIF-verwijderaars',
   'seo.best.free-exif-remover.lead': 'Een foto kan bevatten waar hij is gemaakt, het serienummer van de camera en de datum. Deze gratis tools laten die gegevens zien en halen ze eruit voordat je de foto deelt. Dit is wat elk doet, volgens de eigen pagina’s.',
   'seo.best.free-exif-remover.criteria.0': 'Gratis te gebruiken, zonder account',

@@ -210,7 +210,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'seo.task.purchases.receive-stock.steps.1': 'Kies Ontvangen… De aantallen gaan de voorraad in, één mutatie per product.',
   'seo.task.purchases.receive-stock.steps.2': 'Als de rekening binnenkomt, kies je Rekening registreren…. Die wordt als kost geboekt in Slop Expenses, met de terug te vragen belasting.',
   'seo.task.purchases.receive-stock.steps.3': 'Filter op Te factureren om orders te zien waarvan de rekening nog niet is geregistreerd.',
-  'seo.task.purchases.receive-stock.body.0': 'Om een product dat bijna op is opnieuw te bestellen, gebruik je Opnieuw bestellen in Slop Inventory: er opent een nieuwe inkooporder met de leverancier en de prijs waarvoor het het laatst is gekocht, en een aantal dat het weer boven het bestelniveau brengt.',
+  'seo.task.purchases.receive-stock.body.0': 'Om een product dat bijna op is opnieuw te bestellen, gebruik je Bijbestellen in Slop Inventory: er opent een nieuwe inkooporder met de leverancier en de prijs waarvoor het het laatst is gekocht, en een aantal dat het weer boven het bestelniveau brengt.',
   'seo.task.purchases.receive-stock.faq.0.0': 'Kan ik de rekening registreren voordat de goederen binnenkomen?',
   'seo.task.purchases.receive-stock.faq.0.1': 'Ja. De rekening kan één keer worden geregistreerd, vanuit een besteld of ontvangen inkooporder.',
   'seo.task.purchases.receive-stock.faq.1.0': 'Kan ik een ontvangen order wijzigen?',

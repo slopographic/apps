@@ -2,7 +2,7 @@
 window.SlopI18n && window.SlopI18n.add('nl', {
   'seo.best.free-screen-recorders.crumb': 'Gratis schermopnemers',
   'seo.best.free-screen-recorders.title': 'Beste gratis schermopnemers: browser, desktop en cloud vergeleken',
-  'seo.best.free-screen-recorders.description': 'Slop Recorder in de browser, OBS Studio, ShareX en het gratis abonnement van Loom vergeleken: webcamoverlay, systeemgeluid, bijsnijden, formaten, installatie en uploads.',
+  'seo.best.free-screen-recorders.description': 'Slop Recorder, OBS Studio, ShareX en het gratis Loom-abonnement vergeleken: webcamoverlay, systeemgeluid, bijsnijden, formaten, installatie en uploads.',
   'seo.best.free-screen-recorders.h1': 'De beste gratis schermopnemers',
   'seo.best.free-screen-recorders.lead': 'Een schermopnemer voor een snelle uitleg, een bugrapport of een les. Deze gratis tools nemen je scherm op; ze verschillen in wat je moet installeren, waar de video naartoe gaat en hoeveel ze kunnen.',
   'seo.best.free-screen-recorders.criteria.0': 'Gratis te gebruiken voor schermopnamen',
