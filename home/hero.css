@@ -73,6 +73,11 @@
 .hx-terms { display: inline-flex; flex-wrap: wrap; }
 .hx-meta a { color: inherit; text-decoration: underline; text-decoration-color: color-mix(in srgb, currentColor 45%, transparent); text-underline-offset: 3px; }
 .hx-meta a:hover { color: var(--bone); }
+/* The yearly savings line (shared/savings/data.mjs): one line of text in the HTML from the first frame, so nothing moves; the
+ * asterisk goes to its list (#savings, home/savings.js). */
+.hx-save { margin: 24px 0 0; font: 600 clamp(15px, 1.2vw, 17px)/1.45 var(--sans); color: var(--bone); text-wrap: balance; }
+.hx-save-star { margin-inline-start: .15em; padding: 0 .2em; color: var(--slop); text-decoration: none; font-weight: 700; }
+.hx-save-star:hover, .hx-save-star:focus-visible { text-decoration: underline; text-underline-offset: 3px; }
 
 /* Sloppo's ledge: along the bottom of the hero under the globe, away from the copy and the consent strip (bottom left).
  * Absolutely placed, so nothing moves if it goes. */

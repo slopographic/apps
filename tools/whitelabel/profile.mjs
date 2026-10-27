@@ -1,6 +1,6 @@
 // Brand profiles (brand/profiles/<id>.json): loading, checking and the facts the build derives from one.
 // The schema is documented in brand/README.md ("Profiles"); validate() is its executable form.
-// Node only. Tests: tests/node/whitelabel-profile.test.mjs.
+// Node only. Tests: tests/node/whitelabel-profile.test.mjs, tests/node/whitelabel-readme-fork.test.mjs.
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';
@@ -36,6 +36,7 @@ export function validate(p) {
   need('colors', (v) => v && ['ink', 'paper', 'accent'].every((k) => HEX.test(v[k])), 'ink, paper and accent as #hex');
   need('media', (v) => typeof v === 'boolean', 'true (ship shots, clips and videos) or false');
   need('analytics', (v) => typeof v === 'boolean', 'true or false');
+  if (p.savings !== undefined && typeof p.savings !== 'boolean') errs.push('savings: true (show the yearly savings line and its list on the homepage, the default) or false');
   need('footer', (v) => typeof v === 'string', 'the footer line');
   need('legal', (v) => v && isStr(v.holder) && /^\d{4}$/.test(v.year || ''), '{ holder, year }');
   if (p.legal && p.legal.trademarks !== undefined && !(Array.isArray(p.legal.trademarks) && p.legal.trademarks.every(isStr))) errs.push('legal.trademarks: the names the holder claims');

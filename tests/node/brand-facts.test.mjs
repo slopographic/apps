@@ -25,6 +25,7 @@ test('every fact is the marker of the code that acts on it', () => {
   assert.equal(FACTS.defaultLang, marker('shared/i18n/i18n.js', 'defaultLang'));
   assert.equal(FACTS.seoIndex, marker('tools/seo/site.mjs', 'seoIndex'));
   assert.deepEqual({ ...FACTS.aiModels }, marker('shared/ai/makers.js', 'aiModels'));
+  assert.equal(FACTS.savings, marker('home/savings.js', 'savings'));
   const builtin = marker('shared/buddy/boot.js', 'mascot'), overlay = marker('shared/buddy/boot.js', 'mascotOverlay');
   assert.equal(FACTS.mascot, builtin ? 'builtin' : overlay ? 'overlay' : 'none');
   for (const f of ['drive/js/ui/empty.js', 'ai/js/ui/sloppo.js']) assert.equal(marker(f, 'mascot'), builtin, f);
