@@ -2,7 +2,7 @@
 window.SlopI18n && window.SlopI18n.add('it', {
   'seo.guide.recorder.getting-started.crumb': 'Per iniziare',
   'seo.guide.recorder.getting-started.title': 'Per iniziare con Slop Recorder: registra, ritaglia e salva',
-  'seo.guide.recorder.getting-started.description': 'Impara Slop Recorder in pochi minuti: registra schermo, webcam o microfono, metti in pausa, ritaglia le estremità e salva in WebM, MP4 o GIF. Nulla viene caricato.',
+  'seo.guide.recorder.getting-started.description': 'Impara Slop Recorder in pochi minuti: registra schermo, webcam o microfono, metti in pausa, ritaglia e salva in WebM, MP4 o GIF. Nulla viene caricato.',
   'seo.guide.recorder.getting-started.h1': 'Per iniziare con Slop Recorder',
   'seo.guide.recorder.getting-started.lead': 'Slop Recorder registra lo schermo, una finestra o una scheda, la webcam, il microfono, oppure lo schermo con la webcam in un angolo. Gira nel browser e la registrazione resta sul dispositivo.',
   'seo.guide.recorder.getting-started.sections.0.h2': 'Scegli cosa registrare',
