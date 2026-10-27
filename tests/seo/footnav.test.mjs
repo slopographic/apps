@@ -59,9 +59,9 @@ test('the lists come from the shared data: every app page, one converter per cat
 
 test('adding a round-up, a converter category or an app adds a footer link', () => {
   const r = { ...ROUNDUPS[0], slug: 'free-test-tools', crumb: 'Free test tools' };
-  assert.ok(buildFootNav({ ...data, roundups: [...ROUNDUPS, r] }).includes('<a href="/best/free-test-tools/">Free test tools</a>'));
+  assert.ok(buildFootNav({ ...data, roundups: [...ROUNDUPS, r] }).includes('<a href="/best/free-test-tools/" data-i18n="seo.foot.best.free-test-tools">Free test tools</a>'));
   const c = { ...CONVERTERS[0], slug: 'abc-to-xyz', label: 'ABC to XYZ', cat: 'Test files' };
-  assert.ok(buildFootNav({ ...data, converters: [...CONVERTERS, c] }).includes('<a href="/convert/abc-to-xyz/">ABC to XYZ</a>'));
+  assert.ok(buildFootNav({ ...data, converters: [...CONVERTERS, c] }).includes('<a href="/convert/abc-to-xyz/" data-i18n="seo.foot.cv.abc-to-xyz">ABC to XYZ</a>'));
   const a = { ...apps.find(isPage), id: 'newapp', name: 'New App', path: 'newapp/' };
   assert.ok(buildFootNav({ ...data, apps: [...apps, a] }).includes('<a href="/apps/newapp/">New App</a>'));
   assert.ok(!buildFootNav({ ...data, roundups: [] }).includes('/best/free-'), 'no round-ups, no round-up links');
@@ -91,6 +91,8 @@ test('the columns fold on phones and every link shows without JavaScript', () =>
   assert.ok(!/<details(?![^>]*\sopen)[^>]*>/.test(nav), 'every column is open in the HTML');
   assert.match(nav, /matchMedia\('\(max-width: 640px\)'\)/);
   assert.match(read('shared/footnav/footnav.css'), /@media \(max-width: 640px\)/);
-  // the parent site's link (a single-app site) has its words in shared/parent/i18n
-  for (const k of [...nav.matchAll(/data-i18n="([^"]+)"/g)].map((m) => m[1])) assert.ok(read(k.startsWith('parent.') ? 'shared/parent/i18n/en/parent.js' : 'shared/i18n/strings.js').includes(`'${k}'`), `${k}: no English string`);
+  // the parent site's link (a single-app site) has its words in shared/parent/i18n, the round-ups', guides' and converters'
+  // the app words (shared/i18n/apps/en.js, tools/seo/apptables.mjs)
+  const home = (k) => (k.startsWith('parent.') ? 'shared/parent/i18n/en/parent.js' : k.startsWith('seo.foot.') ? 'shared/i18n/apps/en.js' : 'shared/i18n/strings.js');
+  for (const k of [...nav.matchAll(/data-i18n="([^"]+)"/g)].map((m) => m[1])) assert.ok(read(home(k)).includes(`'${k}'`), `${k}: no English string`);
 });

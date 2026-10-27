@@ -31,6 +31,10 @@ the date its facts were checked, the marks of a feature table (yes, no, partial,
 | `seo.cv.<slug>.*` | written from `convert/js/core/*pages*.js` | `cv-*` |
 | `seo.cvx.<slug>.<n>` | the converter pages' own extra lines (what each accepts) | `cv-page` |
 
+The `reg-*` titles and taglines, the round-ups' and guides' names and the strip's labels also reach the pages at run time:
+`tools/seo/apptables.mjs` writes them into `shared/i18n/apps/<code>.js` (small, one per language), so a translation here
+is the one translation of an app's title on the homepage cards, the finder, the switcher, the globe and the footer.
+
 `reg-*` and `cv-*` in English are written by `tools/seo/tables.mjs` (run by `node tools/seo/write.mjs`, checked by
 `--check`) from the registry and the converter page lists, which stay the one source of those words; edit them there.
 A part has at most 300 lines (split as `-a`, `-b`). The about pages and How it works are templates (`tools/seo/template.mjs`):

@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // Writes the static SEO pages in every published language: the head block of every app page, about page and the
 // homepage, the generated pages (landing, task, guide, round-up and hub pages), the copies of the hand-made pages in each
-// other language's folder, the sitemaps, and the English table parts written from other sources (tables.mjs).
+// other language's folder, the sitemaps, the English table parts written from other sources (tables.mjs) and the app
+// words pages read at run time in every language (apptables.mjs: shared/i18n/apps/<code>.js).
 //   node tools/seo/write.mjs            the root language's files only: what is committed (and the .gitignore block)
 //   node tools/seo/write.mjs --langs    the other languages' folders and sitemaps only: what a publish adds (never committed)
 //   node tools/seo/write.mjs --all      both, the root pass first (the copies are made from the root pages it wrote)
@@ -31,6 +32,7 @@ import { buildLang, pagePaths, generated } from './build-lang.mjs';
 import { converterFiles } from './footnav.mjs';
 import { sitemaps } from './sitemap.mjs';
 import { generatedParts } from './tables.mjs';
+import { runtimeParts } from './apptables.mjs';
 import { context } from './lang.mjs';
 
 export { ROOT, SITE, loadRegistry, isPage, pageUrl };
@@ -79,7 +81,7 @@ export async function build({ date, only = 'root', langs = SEO_LANGS }) {
   const root = only !== 'langs', other = only !== 'root';
   const bad = other ? clashes(codes, apps) : [];
   if (bad.length) throw new Error(`SEO: the folder of ${bad.join(', ')} is an app's or not a language folder; it is never written or cleaned`);
-  const out = root ? generatedParts().map((p) => ({ file: path.join(ROOT, p.file), html: p.text })) : [];
+  const out = root ? [...generatedParts(), ...runtimeParts()].map((p) => ({ file: path.join(ROOT, p.file), html: p.text })) : [];
   const ignore = path.join(ROOT, '.gitignore');
   if (root && existsSync(ignore)) out.push({ file: ignore, html: withBlock(await readFile(ignore, 'utf8')) });
   for (const f of out) f.before = existsSync(f.file) ? await readFile(f.file, 'utf8') : '';

@@ -29,13 +29,16 @@
   /* The name shown for an app (see shared/apps.js). The switch relabels the names already on the page. */
   const label = (a) => window.slopAppLabel(a, window.slopBrandNamesOn());
   const tag = (a) => (window.slopAppTagline ? window.slopAppTagline(a) : a.tagline);   // in the chosen language (plain names)
+  /** The names and one-liners already on the page, again: after the switch, and in a new language (its tables are in). */
   function relabel() {
-    const withSlop = window.slopBrandNamesOn();
-    document.querySelectorAll('.app-title[data-id]').forEach((n) => {
+    const withSlop = window.slopBrandNamesOn(), set = (n, s) => { if (n.textContent !== s) n.textContent = s; };
+    document.querySelectorAll('.app-title[data-id], .shot-ph b[data-id]').forEach((n) => {
       const a = APPS.find((x) => x.id === n.dataset.id);
-      if (a) n.textContent = window.slopAppLabel(a, withSlop);
+      if (a) set(n, window.slopAppLabel(a, withSlop));
     });
+    document.querySelectorAll('[data-tag]').forEach((n) => { const a = APPS.find((x) => x.id === n.dataset.tag); if (a) set(n, tag(a)); });
   }
+  window.addEventListener('slopi18n', relabel);
   /** An SVG-namespace <svg> holding the badge. Created with createElementNS so the markup parses as SVG (not HTML). */
   const SVG_NS = 'http://www.w3.org/2000/svg';
   const svgEl = (inner, cls, attrs) => {
@@ -53,7 +56,7 @@
   /** A screenshot, or (until one exists) a generated tile in the app's colours. */
   function shot(a) {
     const box = el('div', { class: 'shot', 'data-id': a.id, 'aria-hidden': 'true' });
-    const ph = el('div', { class: 'shot-ph' }, el('b', null, label(a)));
+    const ph = el('div', { class: 'shot-ph' }, el('b', { 'data-id': a.id }, label(a)));
     const glyph = (window.SLOP_ICONS && window.SLOP_ICONS[a.id]) || ICONS[a.icon];
     if (glyph) ph.prepend(svgEl(window.SLOP_ICON_BADGE ? window.SLOP_ICON_BADGE(glyph) : glyph, 'shot-icon', { 'data-icon': a.id }));
     box.append(ph);
@@ -143,13 +146,13 @@
       shot(a),
       el('div', { class: 'app-body' },
         el('div', { class: 'app-name' }, el('h3', { class: 'app-title', 'data-id': a.id }, label(a)), badge(a, true)),
-        el('p', { class: 'app-tag' }, line || tag(a)),
+        el('p', { class: 'app-tag', 'data-tag': line ? null : a.id }, line || tag(a)),
         el('span', { class: 'go' }, (a.status === 'building' && !H.PLAIN ? tr('home.preview', 'Preview') : tr('home.open', 'Open')) + ' →')));
   }
   function tile(a) {
     return el('a', { class: 'tile', href: a.path, 'data-perch': 'card', 'data-id': a.id, ...(a.path.startsWith('#') ? { 'data-view': a.path.slice(1) } : {}) },
       shot(a),
-      el('div', { class: 'tile-body' }, el('div', { class: 'app-name' }, el('h3', { class: 'app-title', 'data-id': a.id }, label(a)), badge(a)), el('p', null, tag(a))));
+      el('div', { class: 'tile-body' }, el('div', { class: 'app-name' }, el('h3', { class: 'app-title', 'data-id': a.id }, label(a)), badge(a)), el('p', { 'data-tag': a.id }, tag(a))));
   }
   /* ---------- status board ---------- */
   const board = document.getElementById('status-board');
@@ -166,7 +169,7 @@
         el('b', { role: 'cell', class: 'app-title', 'data-id': a.id }, label(a)),
         el('span', { class: 'kind', role: 'cell' }, kinds[a.kind]),
         el('span', { class: 'state', role: 'cell' }, STATUS[a.status]),
-        el('span', { class: 'tagline', role: 'cell' }, tag(a))));
+        el('span', { class: 'tagline', role: 'cell', 'data-tag': a.id }, tag(a))));
     });
   }
 
