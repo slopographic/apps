@@ -102,4 +102,9 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'drive.toast.copied_to_n': '항목 {n}개를 {place}(으)로 복사했습니다',
   'drive.toast.link_copied': '링크를 복사했습니다',
   'drive.toast.link_failed': '링크를 복사할 수 없습니다',
+  'drive.newdoc.sdoc': '문서',
+  'drive.newdoc.stab': '스프레드시트',
+  'drive.newdoc.sslide': '프레젠테이션',
+  'drive.newdoc.sfont': '글꼴',
+  'drive.newdoc.s3d': '3D 장면',
 });

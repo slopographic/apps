@@ -10,6 +10,7 @@ import { isPage } from './site.mjs';
 import { context, ROOT_LANG } from './lang.mjs';
 import { footNav } from './footnav.mjs';
 import { existsSync } from 'node:fs';
+import { jpegSize } from './jpeg-size.mjs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -17,6 +18,8 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '.
 export const ROOT_L = context(ROOT_LANG);
 /** Pictures and clips are found by name: assets/shots/<id>.jpg, assets/clips/<id>.webm and .mp4. */
 const hasFile = (rel) => existsSync(path.join(ROOT, rel));
+/** width and height attributes from a picture's own size (assets/shots come in many sizes), so its box is right before it loads. */
+const sizeAttrs = (rel, w, h) => { const s = jpegSize(path.join(ROOT, rel)) || (w ? { width: w, height: h } : null); return s ? ` width="${s.width}" height="${s.height}"` : ''; };
 export const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 // The brand profile's tone (set at build time, like shared/theme/theme.js): a plain build says Available / Beta / Preview,
@@ -108,14 +111,15 @@ export function videoLink(app, L = ROOT_L) {
   return v ? `<a class="demo" href="https://www.youtube.com/watch?v=${esc(v.id)}" rel="noopener" data-slop-video="${esc(v.id)}" data-slop-video-title="${esc(v.title)}"><img src="/assets/video/yt-${esc(v.id)}.jpg" alt="" width="480" height="360" loading="lazy"><span><b>${esc(L.t('seo.ui.video.watch', { title: v.title }))}</b><br>${esc(L.t('seo.ui.video.on_youtube', { length: lengthWords(v.duration, L) }))}</span></a>` : '';
 }
 /** The app's screenshot as a figure (assets/shots/<id>.jpg), or '' when there is none. */
-export const shotFigure = (app, L = ROOT_L) => (hasFile(`assets/shots/${app.id}.jpg`) ? `<figure class="shot"><img src="/assets/shots/${esc(app.id)}.jpg" alt="${esc(L.t('seo.ui.media.shot_alt', { app: app.name }))}" width="1280" height="800" loading="lazy"></figure>` : '');
+export const shotFigure = (app, L = ROOT_L) => (hasFile(`assets/shots/${app.id}.jpg`) ? `<figure class="shot"><img src="/assets/shots/${esc(app.id)}.jpg" alt="${esc(L.t('seo.ui.media.shot_alt', { app: app.name }))}"${sizeAttrs(`assets/shots/${app.id}.jpg`, 1280, 800)} loading="lazy"></figure>` : '');
 /** The picture, the clip and the YouTube demo of one app, when the files exist. */
 export function mediaBlock(app, L = ROOT_L) {
   const id = app.id, out = [];
   const clip = hasFile(`assets/clips/${id}.mp4`);
   if (!clip && shotFigure(app, L)) out.push(shotFigure(app, L));
   if (clip) {
-    const poster = hasFile(`assets/shots/${id}.jpg`) ? ` poster="/assets/shots/${esc(id)}.jpg"` : '';
+    // the poster's size: without it the video is 300 x 150 until the poster loads, and what follows moves
+    const poster = hasFile(`assets/shots/${id}.jpg`) ? ` poster="/assets/shots/${esc(id)}.jpg"${sizeAttrs(`assets/shots/${id}.jpg`)}` : '';
     out.push(`<video class="clip" controls preload="none" playsinline${poster}><source src="/assets/clips/${esc(id)}.webm" type="video/webm"><source src="/assets/clips/${esc(id)}.mp4" type="video/mp4">${esc(L.t('seo.ui.media.no_video'))}</video>`);
   }
   if (app.video) out.push(videoLink(app, L));

@@ -21,6 +21,7 @@ text with tables of their own: the recipe is `APPS-HOWTO.md`, the progress `COVE
   buttons, the SlopCmd palette and shortcut editor, tours, SlopIntake/SlopOuttake, drop panels, document tabs, view modes).
 - `sv-apps.js`: Swedish app names, `app.<id>` and `apptag.<id>`, for every id in `shared/apps.js`
   (`tests/node/i18n-sv.test.mjs`). It loads after `sv.js` because the `sv` entry has `appNames: true`.
+- `early.js`: the first frame in another language (Loading, below); precached with `i18n.js`.
 - `script/<script>.css`: per-script font fallbacks and line breaking (World-ready, below).
 - `settings/language.js`: the Language picker in Settings > Appearance (lists `LANGS` in order, `(beta)` after a beta one).
 - `tools/i18n/`: the extractor, the checker and the coverage report (`APPS-HOWTO.md` § 6).
@@ -42,6 +43,10 @@ text with tables of their own: the recipe is `APPS-HOWTO.md`, the progress `COVE
   `i18n/index.js`). Nothing is fetched for the other languages.
 - In the `<head>` it writes the tables into the page while it is parsed (`document.write` of same-origin scripts), so
   they run before the page's own scripts and the first paint is in the right language, with no layout shift.
+- While the page is parsed in a language other than English, `i18n.js` also writes `early.js` (before the tables), whose
+  MutationObserver fills each marked element as the parser adds it (`SlopI18n.fill`, before the next frame), so the first frame already reads in that language; `apply()` at DOMContentLoaded then
+  fills the rest (an app's later tables). `tests/node/first-paint-lang.test.mjs` holds the homepage's HTML back after the
+  hero and checks the header and hero there.
 - Later (a language change, another tab's change, or `i18n.js` added by the shell) it appends them, applies the marked
   elements once they are in, and fires `slopi18n` on `window` (`SlopI18n.on(fn)`); `slop-lang` fires at once on `set()`.
   The shell marks its own tag `data-late` and waits for `SlopI18n.ready()` before it mounts the header.

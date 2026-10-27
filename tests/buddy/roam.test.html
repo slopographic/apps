@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Mascot slot · the profile's size, and roaming the page</title>
+  <style>body { margin: 0; background: #111; color: #eee; font: 13px system-ui; } iframe { border: 0; display: block; }</style>
+</head>
+<body>
+  <!-- Covers: shared/mascot/roam.js, shared/mascot/slot.js, shared/mascot/ui.js, shared/mascot/interact.js, shared/roam/path.js, shared/roam/spots.js, brand/profiles/overlays/acme/mascot.js -->
+  <!-- The slot with the sample overlay in roam-fixture.html, in frames of a desktop's and a phone's width: the profile's
+       size (mascot.size) at each, roaming (mascot.roam) that moves it over time inside the window and off controls,
+       content and [data-mascot-avoid], holds still for keys and parks on a press, and stays docked with reduced motion,
+       on a phone and without the option. It moves by transform only: no layout shift. -->
+  <script src="../harness.js"></script>
+  <script type="module">
+  const { describe, it, expect, waitFor, sleep } = SlopTest;
+  /** Opens the fixture in a frame w x h with a query; resolves to its window once the mascot shows. */
+  async function open(w, h, query) {
+    const f = document.createElement('iframe');
+    f.style.width = w + 'px'; f.style.height = h + 'px';
+    f.src = 'roam-fixture.html?' + query;
+    document.body.prepend(f);
+    await new Promise((r) => f.addEventListener('load', r, { once: true }));
+    const win = f.contentWindow;
+    await waitFor(() => win.slotReady && win.MascotSlot, { timeout: 10000 });
+    return win;
+  }
+  const close = (win) => win.frameElement.remove();
+  const dockOf = (win) => win.document.querySelector('.mascot-slot');
+  const box = (el) => { const r = el.getBoundingClientRect(); return { l: r.left, t: r.top, r: r.right, b: r.bottom }; };
+  const overlap = (a, b) => a.l < b.r && a.r > b.l && a.t < b.b && a.b > b.t;
+  const roamOf = (win) => win.MascotSlot.parts().roam;
+  /** Starts a trip now and waits for it to end; returns whether one started. */
+  async function trip(win) {
+    const R = roamOf(win);
+    if (!R.next()) return false;
+    let travel = '';
+    await waitFor(() => { const s = R.state(); travel = travel || win.document.querySelector('.mascot-slot [data-anim]').dataset.travel; return !s.travelling; }, { timeout: 9000, step: 30 });
+    return { travel };
+  }
+  /** The dock is inside the window below the header, and off every control, the text and the no-go area. */
+  function placed(win) {
+    const d = box(dockOf(win)), doc = win.document;
+    expect(d.l >= 0 && d.t >= doc.querySelector('header').getBoundingClientRect().bottom && d.r <= win.innerWidth && d.b <= win.innerHeight).toBe(true);
+    expect(overlap(d, box(doc.getElementById('nogo')))).toBe(false);
+    for (const el of doc.querySelectorAll('button:not(.mascot-slot), input, h1, h2, p')) expect(overlap(d, box(el))).toBe(false);
+  }
+
+  describe('the size the profile asks for', () => {
+    it('on a desktop: its height in px, the overlay drawn at that size', async () => {
+      const win = await open(1440, 800, 'size=200,64');
+      expect(dockOf(win).offsetHeight).toBe(200);
+      expect(dockOf(win).offsetWidth).toBe(Math.round(200 * 112 / 136));
+      expect(win.getComputedStyle(win.document.querySelector('.ms-stage')).height).toBe('200px');
+      close(win);
+    });
+    it('on a phone: the phone size', async () => {
+      const win = await open(390, 760, 'size=200,64');
+      expect(dockOf(win).offsetHeight).toBe(64);
+      close(win);
+    });
+    it('without one: today\'s size, and it stays where it is put', async () => {
+      const win = await open(1440, 800, '');
+      expect(dockOf(win).offsetHeight).toBe(136);
+      expect(roamOf(win).state().enabled).toBe(false);
+      expect(roamOf(win).next()).toBe(false);
+      close(win);
+    });
+  });
+
+  describe('roaming (float)', () => {
+    let win;
+    it('travels to clear spots over time, inside the window, off controls, content and the no-go area', async () => {
+      win = await open(1440, 800, 'size=200,64&roam=float');
+      expect(roamOf(win).state().enabled).toBe(true);
+      await waitFor(() => roamOf(win).state().off.x !== 0 || roamOf(win).state().off.y !== 0, { timeout: 12000 });   // on its own: out of the no-go area
+      await waitFor(() => !roamOf(win).state().travelling, { timeout: 9000 });
+      placed(win);
+      const seen = new Set();
+      for (let i = 0; i < 4; i++) {
+        const r = await trip(win);
+        expect(!!r).toBe(true);
+        expect(r.travel !== '').toBe(true);                       // the overlay hears the travel
+        placed(win);
+        const s = roamOf(win).state().off; seen.add(s.x + ',' + s.y);
+      }
+      expect(seen.size >= 2).toBe(true);
+      const R = roamOf(win), d = box(dockOf(win)), dir = d.l < win.innerWidth / 2 ? 1 : -1;
+      expect(R.to(d.l + dir * 320, d.t)).toBe(true);              // a trip sideways: it leans into the way it goes
+      let lean = 0;
+      await waitFor(() => { const s = R.state(); if (Math.abs(s.lean) > Math.abs(lean)) lean = s.lean; return !s.travelling; }, { timeout: 9000, step: 20 });
+      expect(Math.sign(lean)).toBe(dir);
+      expect(Math.abs(lean) > 1).toBe(true);
+      expect(dockOf(win).style.transform).toMatch(/translate/);
+    });
+    it('bobs gently at rest and moves by transform only: no layout shift', async () => {
+      const stage = win.document.querySelector('.ms-stage'), seen = new Set();
+      for (let i = 0; i < 10; i++) { seen.add(stage.style.translate); await sleep(120); }
+      expect(seen.size > 1).toBe(true);
+      expect(win.__cls).toBe(0);
+    });
+    it('a key holds it still where it is', async () => {
+      const R = roamOf(win);
+      expect(R.next()).toBe(true);
+      await sleep(200);
+      win.document.querySelector('input').dispatchEvent(new win.KeyboardEvent('keydown', { key: 'a', bubbles: true }));
+      await sleep(100);
+      expect(R.state().travelling).toBe(false);
+      expect(R.state().paused).toBe(true);
+      const a = box(dockOf(win));
+      await sleep(400);
+      expect(Math.abs(box(dockOf(win)).l - a.l) < 8).toBe(true);
+    });
+    it('the pointer going for a control beside it sends it out of the way', async () => {
+      expect(await trip(win)).toBeTruthy();                      // a trip clears the key's pause; it then rests a while
+      const d = box(dockOf(win)), b = win.document.createElement('button');
+      b.textContent = 'x';
+      Object.assign(b.style, { position: 'fixed', left: (d.l - 25) + 'px', top: (d.t + 20) + 'px', width: '30px', height: '30px', zIndex: 1 });
+      win.document.body.append(b);
+      const x = d.l - 10, y = d.t + 35;
+      win.dispatchEvent(new win.PointerEvent('pointermove', { pointerType: 'mouse', clientX: x, clientY: y, bubbles: true }));
+      expect(roamOf(win).state().travelling).toBe(true);
+      await waitFor(() => !roamOf(win).state().travelling, { timeout: 9000 });
+      const n = box(dockOf(win));
+      expect(n.l <= x && x <= n.r && n.t <= y && y <= n.b).toBe(false);
+      b.remove();
+    });
+    it('a press parks it where it floats, without a jump', async () => {
+      const before = box(dockOf(win)), d = dockOf(win);
+      d.dispatchEvent(new win.PointerEvent('pointerdown', { pointerType: 'mouse', clientX: before.l + 20, clientY: before.t + 20, pointerId: 3, button: 0, bubbles: true }));
+      d.dispatchEvent(new win.PointerEvent('pointerup', { pointerType: 'mouse', clientX: before.l + 20, clientY: before.t + 20, pointerId: 3, button: 0, bubbles: true }));
+      const s = roamOf(win).state();
+      expect(s.parked).toBe(true);
+      expect(s.off).toEqual({ x: 0, y: 0 });
+      await sleep(300);
+      const after = box(dockOf(win));
+      expect(Math.abs(after.l - before.l) < 8 && Math.abs(after.t - before.t) < 8).toBe(true);
+      close(win);
+    });
+  });
+
+  describe('it stays docked', () => {
+    it('with reduced motion', async () => {
+      const win = await open(1440, 800, 'size=200,64&roam=float&reduce=1');
+      expect(roamOf(win).next()).toBe(false);
+      const a = box(dockOf(win));
+      await sleep(1500);
+      expect(box(dockOf(win))).toEqual(a);
+      expect(dockOf(win).style.transform).toBe('');
+      close(win);
+    });
+    it('on a phone', async () => {
+      const win = await open(390, 760, 'size=200,64&roam=float');
+      expect(roamOf(win).state().enabled).toBe(false);
+      expect(roamOf(win).next()).toBe(false);
+      expect(dockOf(win).style.transform).toBe('');
+      close(win);
+    });
+    it('the hop style travels too (the buddy\'s arc)', async () => {
+      const win = await open(1440, 800, 'roam=hop');
+      expect(roamOf(win).state().style).toBe('hop');
+      await waitFor(() => !roamOf(win).state().travelling, { timeout: 9000 });
+      const r = await trip(win);
+      expect(!!r).toBe(true);
+      placed(win);
+      close(win);
+    });
+  });
+
+  SlopTest.run();
+  </script>
+</body>
+</html>

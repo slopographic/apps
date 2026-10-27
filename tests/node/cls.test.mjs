@@ -17,10 +17,9 @@
 // Covers: shared/landing/landing.css, style/base.css, home/hero.css, index.html
 // Run with: node --test tests/node/cls.test.mjs
 import { test } from 'node:test';
-import http from 'node:http';
-import { readFile } from 'node:fs/promises';
 import assert from 'node:assert/strict';
 import { serve } from '../../tools/speed/serve.mjs';
+import { trickle } from './trickle.mjs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -68,28 +67,6 @@ test('the homepage and a landing page move less than CLS 0.05 on a slow phone', 
     await ctx.close();
   }
 });
-
-/** Serves root like serve(), but sends the homepage's HTML a line at a time from <body> to the end of the hero, with a
- * pause after each line: every half-parsed state of the hero gets painted. */
-async function trickle(root, pause) {
-  const inner = await serve(root, 0);
-  const html = await readFile(path.join(root, 'index.html'), 'utf8');
-  const a = html.indexOf('<body'), b = html.indexOf('</section>', html.indexOf('id="hero"')) + 10;
-  assert.ok(a > 0 && b > a, 'the homepage has a body and a hero');
-  const parts = [html.slice(0, a), ...html.slice(a, b).split(/(?<=\n)/), html.slice(b)];
-  const server = http.createServer(async (req, res) => {
-    if (new URL(req.url, 'http://x').pathname !== '/') {
-      const r = await fetch(inner.url + req.url.slice(1), { headers: { 'accept-encoding': 'identity' } });
-      res.writeHead(r.status, { 'content-type': r.headers.get('content-type') || 'application/octet-stream' });
-      return res.end(Buffer.from(await r.arrayBuffer()));
-    }
-    res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
-    for (const p of parts) { res.write(p); await new Promise((r) => setTimeout(r, pause)); }
-    res.end();
-  });
-  await new Promise((r) => server.listen(0, '127.0.0.1', r));
-  return { url: `http://127.0.0.1:${server.address().port}/`, close: () => { server.closeAllConnections?.(); server.close(); return inner.close(); } };
-}
 
 test('the homepage moves less than CLS 0.05 while its HTML is still arriving (a frame of a half-parsed hero)', { timeout: 120000 }, async (t) => {
   const { chromium } = await import('playwright');

@@ -109,4 +109,9 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'drive.toast.copied_to_n#one': '{n} item gekopieerd naar {place}',
   'drive.toast.link_copied': 'Link gekopieerd',
   'drive.toast.link_failed': 'Kon de link niet kopiëren',
+  'drive.newdoc.sdoc': 'Document',
+  'drive.newdoc.stab': 'Spreadsheet',
+  'drive.newdoc.sslide': 'Presentatie',
+  'drive.newdoc.sfont': 'Lettertype',
+  'drive.newdoc.s3d': '3D-scène',
 });

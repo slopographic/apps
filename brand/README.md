@@ -30,6 +30,7 @@ Bad values (for example a `javascript:` link or a malformed colour) fall back to
 | Page title | The word "Slopographic" is replaced by `name`. |
 | `[data-brand-name]`, header `.brand-name` | Text: `name` |
 | `[data-brand-tagline]` | Text: `tagline` |
+| `[data-app-name="<app id>"]` | Text (or `aria-label`): the app's name as the app list shows it, in the chosen language (`slopAppName`, filled by `shared/i18n/i18n.js`) |
 | `[data-brand-logo]`, or the first svg in a header `.brand` link | The logo image from `logo` |
 | `[data-brand-home]`, and the logo link `header a.brand` on app pages | `href`: `home`, when it is set |
 | `[data-brand-footer]` | Text: `footer` |
@@ -78,7 +79,7 @@ sites live outside this repository, with the publish script; pass their folder w
 | `naming` | `brand` (PhotoSlop, Slop PDF) or `plain` (Image Editor, PDF Editor; the `PLAIN` table in `shared/apps.js`). |
 | `tone` | `playful` or `plain`: plain applies the copy layer, `brand/copy/plain.json`. |
 | `backupExt` | The backup file's extension (`.backup`, `.acme`): the backup ZIP is `<name>-backup-<date><ext>` and "Export everything" writes `<ext>.json`. Default `.backup` for the plain tone; a playful profile without it keeps this site's `.slop`, renamed by its map. The code reads it from `SlopBackup.EXT` / `JSON_EXT` (`shared/backup/index.js`); text that names it (guides, the homepage) is turned the same way. |
-| `mascot` | `false` turns the mascot off everywhere (the buddy, the Drive empty states, the AI top bar). An object puts the profile's own mascot in its place: `{ overlay, name, files, icon?, holder?, trademarks? }` (see "A mascot of your own"). |
+| `mascot` | `false` turns the mascot off everywhere (the buddy, the Drive empty states, the AI top bar). An object puts the profile's own mascot in its place: `{ overlay, name, files, icon?, holder?, trademarks?, size?, roam? }` (see "A mascot of your own"). |
 | `colors`, `themes`, `palette` | `brand.json` colours; the Light and Dark theme tokens (`hide` drops themes such as `lime`); the hue every accent-coloured colour in the CSS and code moves to (`tools/whitelabel/palette.mjs`). |
 | `logo` | `{ text, mark, color }`: the build draws a wordmark (`brand/logo.svg`), a square mark (`brand/mark.svg`, the favicon) and the PNG icons and share card from it. Replace the files in a later commit of the profile's folder if you have a real logo. |
 | `links`, `footer`, `support`, `analytics` | Footer and support links (empty hides them), the footer line, the export card parts, and third parties: `false` leaves out analytics, ads and the consent strip. |
@@ -151,6 +152,18 @@ nothing):
 | --- | --- |
 | `look(dx, dy)` | while the pointer moves within about 320 px: its direction, each axis -1..1; `(0, 0)` to look ahead |
 | `react(kind, detail)` | `'hover'` `{ on }` (pointer or focus on it), `'poke'` (a tap or long press), `'drag'` `{ dx, dy, shake }` (shake 0..1: how hard it is shaken), `'drop'` |
+
+**Size and roaming.** Two optional fields of `mascot` change how the slot shows it:
+
+| Field | What it does |
+| --- | --- |
+| `size` | `{ "desktop": <px>, "phone": <px> }`: how tall the mascot is drawn (whole px, 32 to 360; phone: windows up to 700 px wide). The stage is then laid out at that size, so the overlay draws to fill its element. Without it the slot keeps its default (136 px, 84 px in a plain-tone build and 63 px on a phone there); a size of about 170 to 210 px makes a desktop mascot clearly larger. |
+| `roam` | `true` or `"float"`: the mascot floats around the page: it rests beside the edges of the content, travels to another clear spot now and then along gentle curves (ease in and out, a soft hover bob, a lean into the direction of travel, no jumps), moves aside when the pointer goes for something it covers, and holds still while the person types or scrolls. `"hop"`: the same with the buddy's hop arc instead. It never rests on a control, on text or media, or on an area a page marks `data-mascot-avoid`, and stays inside the window below the header. With reduced motion, on a phone or a touch screen it stays docked; a plain-tone build roams calmly. A press or Move to the other side parks it for a while, Hide stops it. It moves by transform only, so the page's layout never shifts. |
+
+The overlay hears the travel through `react('travel', { on, dx, dy, style })` (`on`: a trip starts or ends; `dx`, `dy`: its
+direction, -1, 0 or 1) and `look()` turns its eyes the way it goes. The paths are the buddy's own (`shared/roam/path.js`,
+shared by both mascots); the roaming is `shared/mascot/roam.js`, the spots `shared/roam/spots.js`. The made-up sample sets
+both (`brand/profiles/sample.json`), and `tests/buddy/roam.test.html` checks them.
 
 `files` lists every file of the folder (the build refuses a folder with an unlisted file or a listed file that is missing).
 The build writes `LICENSE-ART` (the character's files and the icons drawn from it, all rights reserved, outside the MIT
@@ -281,7 +294,8 @@ profile's own words (they must not reach this public repository), regenerated fi
 
 ### Checklist: a feature that works in every build
 
-- Show an app's name with `slopAppName(app)` (or `app.name`), never a hard-coded brand name in a new string.
+- Show an app's name with `slopAppName(app)` (or `app.name`), never a hard-coded brand name in a new string; in HTML,
+  `data-app-name="<app id>"` (the header's app name; `shared/i18n/i18n.js` fills it in the chosen language).
 - Playful text goes through the copy layer: add the plain wording to `brand/copy/plain.json`, not a second copy of the
   feature.
 - Behaviour that differs per site reads a profile flag through a marker (`/*profile:mascot*/true`,

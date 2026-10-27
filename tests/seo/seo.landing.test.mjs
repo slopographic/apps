@@ -7,11 +7,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
-import { existsSync } from 'node:fs';
+import { existsSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { readFile } from 'node:fs/promises';
 import { loadRegistry, isPage, SITE, ROOT } from '../../tools/seo/site.mjs';
 import { esc, fileTypeList, related, SLOP365, STATUS, regWords } from '../../tools/seo/landing.mjs';
 import { context, ROOT_LANG } from '../../tools/seo/lang.mjs';
+import { jpegSize } from '../../tools/seo/jpeg-size.mjs';
 
 /** The root language's words (the profile's defaultLang: a build can have another than English at the root). */
 const R = context(ROOT_LANG), say = (k, v) => esc(R.t(k, v));
@@ -127,4 +129,34 @@ test('the Creative Slop Pro page names the three apps and says it is not affilia
     assert.match(h, /not affiliated with, endorsed by or sponsored by Adobe/);
     assert.match(h, /do not run the full feature sets/);
   }
+});
+
+// A video's box is 300 x 150 until its poster loads, and the card below it moved (CLS 0.03 on /apps/pdf/ on a phone); the
+// posters (assets/shots) come in many sizes, so each video and screenshot carries its own picture's width and height.
+test('every landing video and screenshot has the width and height of its picture', () => {
+  let videos = 0;
+  const attr = (tag, n) => (new RegExp(`\\s${n}="([^"]*)"`).exec(tag) || [])[1];
+  for (const [id, h] of Object.entries(html)) {
+    const tags = [...h.matchAll(/<video\b[^>]*>/g)].map((m) => ({ tag: m[0], pic: attr(m[0], 'poster') }))
+      .concat([...h.matchAll(/<figure class="shot"><img\b[^>]*>/g)].map((m) => ({ tag: m[0], pic: attr(m[0], 'src') })));
+    for (const { tag, pic } of tags) {
+      if (tag.startsWith('<video')) videos++;
+      assert.ok(pic, `${id}: a video without a poster: ${tag}`);
+      const size = jpegSize(path.join(ROOT, pic));
+      assert.ok(size, `${id}: ${pic} is not a JPEG on disk`);
+      assert.deepEqual([attr(tag, 'width'), attr(tag, 'height')], [String(size.width), String(size.height)], `${id}: ${tag} is not the size of ${pic}`);
+    }
+  }
+  const clips = pageApps.filter((a) => existsSync(path.join(ROOT, `assets/clips/${a.id}.mp4`))).length;
+  assert.equal(videos, clips, 'one video per app with a clip');
+});
+
+test('jpegSize reads a JPEG frame header (baseline and progressive) and refuses other files', () => {
+  const jpeg = (sof) => Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0, 4, 1, 2, 0xff, sof, 0, 11, 8, 0x01, 0x90, 0x03, 0x84, 3, 0, 0, 0, 0xff, 0xd9]);
+  const dir = mkdtempSync(path.join(tmpdir(), 'jpeg-'));
+  writeFileSync(path.join(dir, 'a.jpg'), jpeg(0xc0)); writeFileSync(path.join(dir, 'b.jpg'), jpeg(0xc2)); writeFileSync(path.join(dir, 'c.jpg'), 'GIF89a');
+  assert.deepEqual(jpegSize(path.join(dir, 'a.jpg')), { width: 900, height: 400 });
+  assert.deepEqual(jpegSize(path.join(dir, 'b.jpg')), { width: 900, height: 400 });
+  assert.equal(jpegSize(path.join(dir, 'c.jpg')), null);
+  assert.equal(jpegSize(path.join(dir, 'none.jpg')), null);
 });

@@ -10,6 +10,7 @@ import { say } from './fx.js';
 import { line } from './lines.js';
 import { TIMING } from './timing.js';
 import { stepGlide, rememberSpot } from './glide.js';
+import { hopTime, hopLift, arcY } from '../roam/path.js';   // the hop's arc, shared with the mascot slot's roaming
 
 const GRAVITY = 2600, OFFSCREEN_MS = 1500;
 let dazeTok = 0;
@@ -34,7 +35,7 @@ export function hopTo(p, { high = 0, from = null } = {}) {
     if (from) { M.x = from.x; M.y = from.y; }
     const dist = Math.hypot(pt.x - M.x, pt.y - M.y);
     const crouch = from || M.mode !== 'perched' ? 0 : 0.11;
-    M.hop = { p, x0: M.x, y0: M.y, t: -crouch, T: clamp(0.36 + dist / 1700, 0.38, 0.95), lift: clamp(46 + dist * 0.16, 46, 220) + high, resolve };
+    M.hop = { p, x0: M.x, y0: M.y, t: -crouch, T: hopTime(dist), lift: hopLift(dist, high), resolve };
     M.mode = 'hop';
     M.perch = null;
     M.rot = 0;
@@ -54,9 +55,8 @@ function stepHop(dt) {
   const pt = P.point(h.p);
   if (!pt) { M.hop = null; fall(); h.resolve(false); return; }  // the target vanished mid-air
   const u = Math.min(1, h.t / h.T);
-  const apex = Math.min(h.y0, pt.y) - h.lift, c = 2 * apex - (h.y0 + pt.y) / 2;
   M.x = h.x0 + (pt.x - h.x0) * u;
-  M.y = (1 - u) * (1 - u) * h.y0 + 2 * u * (1 - u) * c + u * u * pt.y;
+  M.y = arcY(h.y0, pt.y, h.lift, u);
   M.squash = u < 0.4 ? -0.28 * (1 - u / 0.4) : 0;                // stretch on take-off
   M.sqv = 0;
   if (u >= 1) { M.hop = null; land(h.p, 900); h.resolve(true); }

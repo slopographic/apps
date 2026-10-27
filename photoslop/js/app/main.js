@@ -37,7 +37,7 @@ function buildStatus() {
     }
     if (w === 'docname' || w === 'history') {
       const t = $('#docTitle'); if (t) t.textContent = (D.name || tr('ui.untitled')) + (D.dirty ? ' •' : '');
-      document.title = `${D.name || tr('ui.untitled')}${D.dirty ? ' •' : ''} — PhotoSlop`;
+      document.title = `${D.name || tr('ui.untitled')}${D.dirty ? ' •' : ''} — ${window.slopAppName ? slopAppName('photoslop') : 'PhotoSlop'}`;   // the app list's name
     }
   });
   sync();

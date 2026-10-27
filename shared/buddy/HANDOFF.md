@@ -24,7 +24,7 @@ permission policy because those files belong to other agents). Each app owner ad
 | Loader, settings | `boot.js`, `prefs.js`, `config.js` (HOME vs APP options: perch/card/heading selectors, floor, z-index, autoChaos, tips) |
 | Engine | `engine.js` (build, frame loop, spawn, show/hide, ghost mode in apps, game pause), `state.js` (shared state `M`) |
 | Look (art) | `look.js` (the SVG goo look: lumps + goo filter, moods by swapping face parts, blush only in love), `hats.js` (18 hats + the AI brain), `three3d.js` + `view3d.js` (3D metaball version) |
-| Moving | `perches.js` (live perch geometry, solid-at-x with eaten letters and holes), `motion.js` (hops, falls, drag and throw, dizzy after a throw that ends on the page floor, leap back into view), `bodies.js` (knocked cards as rigid bodies) |
+| Moving | `perches.js` (live perch geometry, solid-at-x with eaten letters and holes), `motion.js` (hops, falls, drag and throw, dizzy after a throw that ends on the page floor, leap back into view), `glide.js`, `avoid.js` (gliding aside), `bodies.js` (knocked cards as rigid bodies). The hop's arc and timing, the glide's easing, the spots around him and the controls he never covers are shared with the mascot slot's roaming: `shared/roam/path.js`, `shared/roam/spots.js` |
 | Input, HUD | `input.js`, `hud.js`, `fx.js` (particles, speech bubble with buttons/streaming) |
 | Levels, lines | `store.js`, `levels.js`, `lines.js` (pools per mood, no back-to-back repeats) |
 | Chaos | `chaos.js` (brain, Unleash, Restore page), `acts.js` (bite, eat, knock, goo), `blast.js`, `blackhole.js`, `dom.js` (masks, letter wrapping), `journal.js` (undo log) |

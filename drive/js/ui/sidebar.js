@@ -14,7 +14,7 @@
       b.addEventListener('click', () => { if (sec === 'folder') DR.go(null); else DR.goSection(sec); closeDrawer(); });
       return b;
     };
-    box.replaceChildren(row('folder', 'home', 'Slop Drive', 0, 'root'), row('recent', 'clock', DR.t('drive.place.recent')), row('starred', 'star', DR.t('drive.place.starred'), starN, 'star'), row('trash', 'trash', DR.t('drive.place.trash'), trashN, 'trash'));   // i18n-ignore: the app name
+    box.replaceChildren(row('folder', 'home', DR.rootName(), 0, 'root'), row('recent', 'clock', DR.t('drive.place.recent')), row('starred', 'star', DR.t('drive.place.starred'), starN, 'star'), row('trash', 'trash', DR.t('drive.place.trash'), trashN, 'trash'));
   };
 
   DR.renderTree = function () {

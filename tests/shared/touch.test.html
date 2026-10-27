@@ -91,6 +91,40 @@
       await sleep(500);
       expect(got('dblclick', 'plain')).toHaveLength(0);
     });
+    it('on a busy page taps are timed by when they happened: a double tap whose last lift came late is still one dblclick', async () => {
+      log.length = 0;
+      await sleep(400); // past the last test's taps
+      await TouchKit.busyTaps($('plain'), 2);
+      await waitFor(() => got('dblclick', 'plain').length, { timeout: 2000 });
+      await sleep(400);
+      expect(got('dblclick', 'plain')).toHaveLength(1);
+      expect(got('contextmenu', 'plain')).toHaveLength(0);
+    });
+    it('a long press waits for the moves the page has not had yet (a busy page gets them at its next frame): a drag that starts late is no long press', async () => {
+      log.length = 0;
+      const r = $('pad').getBoundingClientRect(), x = r.left + 150, y = r.top + 110, raf = window.requestAnimationFrame;
+      // the drag's moves are queued for the next frame, as Chromium delivers them to a busy page: before its frame callbacks
+      let queued = null;
+      window.requestAnimationFrame = (cb) => raf((t) => { if (queued) { queued(); queued = null; } cb(t); });
+      try {
+        const f = TouchKit.finger(x, y);
+        queued = () => f.move(x + 40, y);
+        await sleep(700);
+        if (queued) { queued(); queued = null; }
+        f.up(x + 40, y);
+      } finally { window.requestAnimationFrame = raf; }
+      await sleep(100);
+      expect(got('contextmenu', 'pad')).toHaveLength(0);
+    });
+    it('a long press waits until the page has been free a moment: a lift held back while it was busy comes first', async () => {
+      log.length = 0;
+      const r = $('pad').getBoundingClientRect(), x = r.left + 150, y = r.top + 110, f = TouchKit.finger(x, y), t0 = performance.now();
+      setTimeout(() => { while (performance.now() - t0 < 480) { /* the page is busy until just before the long-press time */ } }, 100);
+      await new Promise((ok) => setTimeout(ok, 560 - (performance.now() - t0))); // the lift, handed over 60 ms after the long-press time
+      f.up(x, y);
+      await sleep(400);
+      expect(got('contextmenu', 'pad')).toHaveLength(0);
+    });
     it('a pinch on a wheel surface sends Ctrl+wheel (zoom in: deltaY < 0), cancels the first finger, and leaves the page at scale 1', async () => {
       log.length = 0;
       await TouchKit.pinch($('pad'), 2.5);

@@ -27,7 +27,7 @@
 
   /** Every provider in sidebar order, each with its permission state. The state is only queried, never asked. */
   DR.providerList = async function () {
-    const out = [{ id: 'drive', label: 'Slop Drive', group: 'drive', handle: null, provider: DR.internalProvider, status: 'granted' }];   // i18n-ignore: the app name
+    const out = [{ id: 'drive', label: DR.rootName(), group: 'drive', handle: null, provider: DR.internalProvider, status: 'granted' }];
     const mh = await DR.mirrorHandle().catch(() => null);
     if (mh) out.push(dirDesc('mirror', DR.t('drive.folder.local_of', { name: mh.name }), 'mirror', mh));
     for (const d of await DR.drivesAll()) out.push(dirDesc('dir:' + d.id, d.name, 'drive', d.handle || null));

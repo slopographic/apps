@@ -9,7 +9,9 @@
  * a provider's own fields (endpoint id, account id…) come from its address template; a server on this computer gets
  * "Find servers" and a diagnosis on Test connection (cloud/local.js, local-ui.js). A picture-only provider just keeps
  * its key here, for AI pictures. Free tiers: "Get a free key in 2 minutes" (free-guide.js), "· Free" on free models and
- * "Show only free models" (cloud/free.js, pick.js). */
+ * "Show only free models" (cloud/free.js, pick.js). A provider with a `signin` entry (OpenRouter) gets "Sign in with <name>"
+ * beside the key field (cloud/signin.js): back from its consent page, this form finishes the sign-in, stores the key like a
+ * pasted one, and runs Test connection, so the models are there to choose. */
 (function () {
   'use strict';
   const K = (window.SlopAIKit = window.SlopAIKit || {});
@@ -17,6 +19,8 @@
   const h = (tag, attrs, ...kids) => { const n = document.createElement(tag); for (const k in attrs || {}) { const v = attrs[k]; if (v == null || v === false) continue; if (k === 'class') n.className = v; else if (k.startsWith('on')) n.addEventListener(k.slice(2), v); else n.setAttribute(k, v === true ? '' : v); } for (const c of kids.flat()) if (c != null && c !== false) n.append(c.nodeType ? c : document.createTextNode(c)); return n; };
   const T = (k, v) => (window.SlopI18n ? SlopI18n.t(k, v) : k);
   const fetched = new Map();   // provider id → the models its list returned this visit
+  /** A sentence with one link in it ({link} in the words): [text, <a>, text]. */
+  const linked = (k, href, v) => { const [a, b] = T(k, Object.assign({}, v, { link: '\u0000' })).split('\u0000'); return [a, h('a', { href, target: '_blank', rel: 'noopener' }, href.replace(/^https:\/\//, '')), b || '']; };
 
   function engineFor(id, s = C.keys.settings()) {
     const p = C.byId(id), ps = (s.providers || {})[id] || {};
@@ -65,6 +69,8 @@
     const steps = h('input', { class: 'sap-cloud-steps', type: 'number', min: '1', max: '30', step: '1', inputmode: 'numeric', 'aria-label': T('ui.ai.cloud.steps') });
     const msg = h('p', { class: 'sap-dim sap-cloud-msg', role: 'status' }), est = h('span', { class: 'sap-dim sap-cloud-est' });
     const help = h('p', { class: 'sap-dim sap-cloud-help' }), local = h('details', { class: 'sap-cloud-local' });
+    const signBtn = h('button', { type: 'button', class: 'sap-btn primary sap-cloud-signin-btn' }), signNote = h('p', { class: 'sap-dim sap-cloud-signin-note' });
+    const signRow = h('div', { class: 'sap-cloud-signin' }, signBtn, signNote);
     const keyRow = h('label', { class: 'sap-cloud-f' }, T('ui.ai.cloud.api_key'), key), baseRow = h('label', { class: 'sap-cloud-f' }, T('ui.ai.cloud.address'), base);
     const remRow = h('label', { class: 'sap-cloud-check' }, remember, ' ' + T('ui.ai.cloud.remember'));
     const test = h('button', { type: 'button', class: 'sap-btn sap-cloud-test' }, T('ui.ai.cloud.test'));
@@ -99,6 +105,8 @@
       const ps = (C.keys.settings().providers || {})[p.id] || {};
       sel.value = p.id; pp.sync(); base.value = ps.base || p.base || ''; base.placeholder = p.base || T('ui.ai.cloud.base_ph');
       fl = C.pick.fields(p, ps.fields); fieldBox.replaceChildren(fl.node); C.localUI.show(diag, null);
+      signRow.hidden = !p.signin; signBtn.disabled = false;
+      if (p.signin) { signBtn.textContent = T('ui.ai.cloud.or_signin', { name: p.short }); signNote.replaceChildren(...linked('ui.ai.cloud.or_note', p.signin.manage, { name: p.short }), ' ' + T('ui.ai.cloud.or_privacy', { name: p.short })); }
       baseRow.hidden = !p.editBase; finder.hidden = !p.editBase; keyRow.hidden = remRow.hidden = hint.hidden = forget.hidden = !(p.needsKey || p.keyOptional);
       for (const n of chatOnly) n.hidden = !p.chat;
       key.value = ''; key.placeholder = p.keyHint || T('ui.ai.cloud.key_ph');
@@ -115,6 +123,7 @@
       } else if (p.local) help.append(T('ui.ai.cloud.uses_local', { name: p.short }));
       else help.append(p.notes || T('ui.ai.cloud.any_server'));
       if (!p.chat) help.append(' ' + T('ui.ai.cloud.makes_pictures'));
+      if (p.signin) help.append(' ', ...linked('ui.ai.cloud.or_manage', p.signin.manage, { name: p.short }));
       if (p.docs) help.append(' ', h('a', { href: p.docs, target: '_blank', rel: 'noopener' }, T('ui.ai.cloud.docs')));
       local.textContent = ''; local.hidden = !p.editBase;
       if (p.editBase) local.append(h('summary', null, p.local ? T('ui.ai.cloud.how_name', { name: p.short }) : T('ui.ai.cloud.how_local')), ...C.localHelp(p).map((t) => h('p', { class: 'sap-dim' }, t)));
@@ -132,9 +141,11 @@
 
     sel.addEventListener('change', () => { p = C.byId(sel.value); reshow(); });
     cap.addEventListener('input', estimate); model.addEventListener('change', estimate);
-    test.addEventListener('click', async () => {
+    /** Test connection; before: words put in front of its result (the sign-in's). */
+    async function testNow(before = '') {
       await shown;
       test.disabled = true; say(T('ui.ai.cloud.testing'));
+      const pre = (t) => (before ? before + ' ' + t : t);
       try {
         if (p.editBase && !addressProblem()) {   // a server: say which part failed, and its fix
           const r = await C.local.diagnose(p, cfgBase(), { key: key.value.trim() || (await C.keys.get(kid())) });
@@ -145,9 +156,24 @@
         const list = await (await engineNow()).test();
         if (list.length) fetched.set(p.id, list);
         fillModels();
-        say(p.modelsEndpoint === false && !p.test ? T('ui.ai.cloud.no_list', { name: p.short }) : list.length ? T('ui.ai.cloud.connected_n', { name: p.short, n: list.length }) : T('ui.ai.cloud.connected', { name: p.short }));
-      } catch (e) { say(C.redact(e.message, key.value.trim()), true); } finally { test.disabled = false; }
+        say(pre(p.modelsEndpoint === false && !p.test ? T('ui.ai.cloud.no_list', { name: p.short }) : list.length ? T('ui.ai.cloud.connected_n', { name: p.short, n: list.length }) : T('ui.ai.cloud.connected', { name: p.short })));
+      } catch (e) { say(pre(C.redact(e.message, key.value.trim())), true); } finally { test.disabled = false; }
+    }
+    test.addEventListener('click', () => testNow());
+    signBtn.addEventListener('click', async () => {
+      await shown;
+      signBtn.disabled = true; say(T('ui.ai.cloud.or_going', { name: p.short }));
+      try { await C.signin.start(p, { remember: remember.checked }); } catch (e) { signBtn.disabled = false; say(e.message, true); }
     });
+    /** Back from the provider's consent page (cloud/signin.js captured the code): the key, then Test connection. */
+    async function signedIn() {
+      p = C.byId(C.signin.returned()) || p; await reshow();
+      say(T('ui.ai.cloud.or_finishing', { name: p.short }));
+      try { if (!(await C.signin.finish())) { say(''); return; } } catch (e) { say(e.message, true); return; }
+      await reshow();
+      await testNow(T('ui.ai.cloud.or_done', { name: p.short }));
+      if (model.options.length) model.focus();
+    }
     forget.addEventListener('click', async () => {
       await C.keys.forget(kid());
       const st = C.keys.settings(); if (st.active === p.id) { st.active = ''; C.keys.save(st); }
@@ -181,15 +207,16 @@
     const modelRow = h('label', { class: 'sap-cloud-f' }, T('ui.ai.cloud.model'), model), capRow = h('label', { class: 'sap-cloud-f' }, T('ui.ai.cloud.cap'), cap), stepRow = h('label', { class: 'sap-cloud-f' }, T('ui.ai.cloud.steps'), steps);
     const chatOnly = [modelRow, capRow, est, stepRow], hint = h('p', { class: 'sap-dim sap-cloud-hint' }, T('ui.ai.cloud.remember_off'));
     cap.value = s.cap || ''; steps.value = s.steps || 12;
-    const guide = C.freeGuide.render({ onChoose: (id) => { sel.value = id; sel.dispatchEvent(new Event('change')); shown.then(() => key.focus()); } });
-    const wrap = h('details', { class: 'sap-cloud', open: o.open || !!s.active || null },
+    const choose = (id) => { sel.value = id; sel.dispatchEvent(new Event('change')); return shown; };
+    const guide = C.freeGuide.render({ onChoose: (id) => choose(id).then(() => key.focus()), onSignin: (id) => choose(id).then(() => signBtn.click()) });
+    const wrap = h('details', { class: 'sap-cloud', open: o.open || !!s.active || !!C.signin.returned() || null },
       h('summary', null, h('b', null, T('ui.ai.cloud.own_title')), h('span', { class: 'sap-dim' }, ' ' + T('ui.ai.cloud.own_sub', { n: C.providers.length - 4 }))),
       h('p', { class: 'sap-dim' }, T('ui.ai.cloud.own_intro')),
-      guide, h('div', { class: 'sap-cloud-f' }, h('span', null, T('ui.ai.cloud.provider')), sel, pp.node), finder, baseRow, fieldBox, keyRow, help, remRow,
+      guide, h('div', { class: 'sap-cloud-f' }, h('span', null, T('ui.ai.cloud.provider')), sel, pp.node), finder, baseRow, fieldBox, signRow, keyRow, help, remRow,
       hint,
       h('div', { class: 'sap-acts' }, test, forget), msg, diag, modelRow, capRow, est, stepRow,
       h('div', { class: 'sap-acts' }, use), local);
-    reshow();
+    if (C.signin.returned()) signedIn(); else reshow();
     return { wrap, sel, key };
   }
 

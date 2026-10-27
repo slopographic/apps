@@ -102,4 +102,9 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'drive.toast.copied_to_n': '已將 {n} 個項目複製到 {place}',
   'drive.toast.link_copied': '已複製連結',
   'drive.toast.link_failed': '無法複製連結',
+  'drive.newdoc.sdoc': '文件',
+  'drive.newdoc.stab': '試算表',
+  'drive.newdoc.sslide': '簡報',
+  'drive.newdoc.sfont': '字型',
+  'drive.newdoc.s3d': '3D 場景',
 });

@@ -64,6 +64,7 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'tables.sheet.tab_tip': '{name}（双击可重命名）',
   'tables.sheet.rename_title': '重命名工作表',
   'tables.sheet.name': '工作表名称',
+  'tables.sheet.default': 'Sheet{n}',
   'tables.sheet.need_one': '工作簿至少需要一个工作表',
   'tables.sheet.delete_body': '删除“{name}”及其上的所有内容？',
   'tables.nf.general': '常规',

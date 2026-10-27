@@ -31,7 +31,7 @@ function placeBuffer(rec) {
   if (!c) return false;
   const made = c.type === 'image/png' ? fileToCanvas(c.data) : SlopBuffer.rasterize(c.data);
   made.then((canvas) => {
-    pasteCanvas(canvas, null, null, 'Pasted Image'); // i18n-ignore: layer name
+    pasteCanvas(canvas, null, null, 'photoslop.layer.pasted_image');
     if (c.type !== 'image/png') toast(tr('photoslop.io.buffer_rasterized'), 4200);
     else if (c.simplified) toast(c.note, 4200);
   }, () => toast(tr('photoslop.io.buffer_unreadable'), 4200));

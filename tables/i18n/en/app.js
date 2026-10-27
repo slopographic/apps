@@ -71,6 +71,7 @@ window.SlopI18n && window.SlopI18n.add('en', {
   'tables.sheet.tab_tip': '{name} (double-click to rename)',
   'tables.sheet.rename_title': 'Rename sheet',
   'tables.sheet.name': 'Sheet name',
+  'tables.sheet.default': 'Sheet{n}',
   'tables.sheet.need_one': 'A workbook needs at least one sheet',
   'tables.sheet.delete_body': 'Delete “{name}” and everything on it?',
 

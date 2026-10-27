@@ -2,7 +2,7 @@
 // notices, the README (a generated mirror is never edited by hand), the manifest, the logo and favicon, and the
 // profile markers (/*profile:key*/ literals) in the copied code. Pure functions; build.mjs writes their results.
 // Node only. Tests: tests/node/whitelabel-profile.test.mjs, tests/node/whitelabel-mascot-slot.test.mjs.
-import { hasOverlay, artNotice, artTrademarks } from './mascot.mjs';
+import { hasOverlay, artNotice, artTrademarks, slotMarkers } from './mascot.mjs';
 import { fontMarkers } from './font.mjs';
 import { EMPTY } from '../fonts/css.mjs';
 
@@ -15,6 +15,7 @@ export function markerValues(p) {
     hideApps: (p.apps && p.apps.hide) || [], themes: p.themes || {},
     seoHomeTitle: seo.homeTitle, seoHomeDescription: seo.homeDescription, seoLangs: seo.langs,   // the static SEO pages' languages (tools/seo/lang.mjs)
     ...fontMarkers(p.fontManifest || EMPTY),     // the type family's token names, the typeface page, the preload
+    ...slotMarkers(p),                            // the mascot slot's size and roaming (shared/mascot/slot.js)
     backupExt: backupExt(p), backupJson: backupExt(p) && backupExt(p) + '.json',
   };
 }
