@@ -141,6 +141,8 @@
     'shell.theme_dark': 'Okumnyama',
     'shell.theme_classic': 'Okwakudala 98',
     'shell.theme_lime': 'Slopographic Lime',
+    'shell.theme_brand_light': '{brand} Okukhanyayo',
+    'shell.theme_brand_dark': '{brand} Okumnyama',
     'shell.more': 'Okwengeziwe',
     'shell.install': 'Faka',
     'shell.install_title': 'Faka i-{brand}',

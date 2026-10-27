@@ -12,12 +12,19 @@ export function markerValues(p) {
   return {
     // mascot: the built-in buddy (only when the profile says true); mascotOverlay: the profile's own mascot instead
     naming: p.naming, tone: p.tone, mascot: p.mascot === true, mascotOverlay: hasOverlay(p), media: p.media, analytics: p.analytics, defaultLang: p.defaultLang,
-    hideApps: (p.apps && p.apps.hide) || [], themes: p.themes || {},
+    hideApps: (p.apps && p.apps.hide) || [], themes: themesMarker(p), defaultTheme: p.defaultTheme,   // shared/theme/theme.js
     seoHomeTitle: seo.homeTitle, seoHomeDescription: seo.homeDescription, seoLangs: seo.langs,   // the static SEO pages' languages (tools/seo/lang.mjs)
     ...fontMarkers(p.fontManifest || EMPTY),     // the type family's token names, the typeface page, the preload
     ...slotMarkers(p),                            // the mascot slot's size and roaming (shared/mascot/slot.js)
     backupExt: backupExt(p), backupJson: backupExt(p) && backupExt(p) + '.json',
   };
+}
+/** The themes marker: the profile's tokens and hide list, and with themes.names ('name' or 'brandWord') the brand text
+ * that names Light and Dark ("<brand> Light", the chrome keys shell.theme_brand_light / _dark). */
+export function themesMarker(p) {
+  const { names, ...t } = p.themes || {};
+  if (names) t.brand = names === 'brandWord' ? p.brandWord : p.name;
+  return t;
 }
 /** The backup ZIP's extension for a profile: its backupExt, '.backup' for the plain tone, or undefined (the source's own,
  * renamed like any other token). The "Export everything" file is that extension plus .json. */

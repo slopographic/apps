@@ -140,6 +140,8 @@
     'shell.theme_dark': 'Koyu',
     'shell.theme_classic': 'Klasik 98',
     'shell.theme_lime': 'Slopographic Lime',
+    'shell.theme_brand_light': '{brand} Açık',
+    'shell.theme_brand_dark': '{brand} Koyu',
     'shell.more': 'Diğer',
     'shell.install': 'Yükle',
     'shell.install_title': '{brand} uygulamasını yükle',

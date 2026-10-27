@@ -26,6 +26,8 @@
     'shell.theme_dark': 'Scuro',
     'shell.theme_classic': 'Classico 98',
     'shell.theme_lime': 'Slopographic Lime',
+    'shell.theme_brand_light': '{brand} Chiaro',
+    'shell.theme_brand_dark': '{brand} Scuro',
     'shell.more': 'Altro',
     'shell.install': 'Installa',
     'shell.install_title': 'Installa {brand}',

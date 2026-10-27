@@ -10,6 +10,7 @@ import { backupExt } from './emit.mjs';
 
 const HEX = /^#[0-9a-f]{3,8}$/i;
 const TOKENS = ['background', 'surface', 'text', 'accent', 'border'];
+const THEME_IDS = ['light', 'dark', 'classic', 'lime'];   // shared/theme/theme.js
 const LANGS = ['en', 'es', 'fr', 'de', 'pt-BR', 'it', 'ar', 'sv'];
 
 /** Every problem with a profile, as readable lines (empty when it is valid). */
@@ -36,9 +37,16 @@ export function validate(p) {
   need('legal', (v) => v && isStr(v.holder) && /^\d{4}$/.test(v.year || ''), '{ holder, year }');
   if (p.legal && p.legal.trademarks !== undefined && !(Array.isArray(p.legal.trademarks) && p.legal.trademarks.every(isStr))) errs.push('legal.trademarks: the names the holder claims');
   for (const [id, t] of Object.entries(p.themes || {})) {
-    if (id === 'hide') { if (!Array.isArray(t)) errs.push('themes.hide: a list of theme ids'); continue; }
+    if (id === 'hide') { if (!Array.isArray(t) || !t.every((x) => THEME_IDS.includes(x))) errs.push(`themes.hide: a list of theme ids (${THEME_IDS.join(', ')})`); continue; }
+    if (id === 'names') { if (!(t === 'name' || (t === 'brandWord' && isStr(p.brandWord)))) errs.push("themes.names: 'name' or 'brandWord' (with a brandWord)"); continue; }
+    if (!THEME_IDS.includes(id)) { errs.push(`themes.${id}: not a theme (${THEME_IDS.join(', ')}, hide, names)`); continue; }
     for (const k of TOKENS) if (!HEX.test((t || {})[k] || '')) errs.push(`themes.${id}.${k}: #hex`);
   }
+  const nt = p.palette && p.palette.neutral;
+  if (nt !== undefined && !(nt && typeof nt.hue === 'number' && (nt.from === undefined || (Array.isArray(nt.from) && nt.from.every((r) => Array.isArray(r) && r.length === 2))))) errs.push('palette.neutral: { hue, saturation?, from?: [[lo, hi], ...], maxSaturation? }');
+  // defaultTheme: the theme of a visitor who never chose one; System or a theme the profile keeps
+  const kept = THEME_IDS.filter((id) => !((p.themes || {}).hide || []).includes(id));
+  if (p.defaultTheme !== undefined && !['system', ...kept].includes(p.defaultTheme)) errs.push(`defaultTheme: 'system' or a kept theme (${kept.join(', ')})`);
   if (p.logo && typeof p.logo === 'object' && !isStr(p.logo.text)) errs.push('logo.text: the wordmark text');
   if (p.publish) for (const k of ['repo', 'branch', 'secret', 'author', 'email']) if (!isStr(p.publish[k])) errs.push(`publish.${k}: required`);
   if (p.publish && !/^[\w.-]+\/[\w.-]+$/.test(p.publish.repo || '')) errs.push('publish.repo: owner/name');

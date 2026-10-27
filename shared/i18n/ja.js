@@ -141,6 +141,8 @@
     'shell.theme_dark': 'ダーク',
     'shell.theme_classic': 'クラシック 98',
     'shell.theme_lime': 'Slopographic Lime',
+    'shell.theme_brand_light': '{brand} ライト',
+    'shell.theme_brand_dark': '{brand} ダーク',
     'shell.more': 'その他',
     'shell.install': 'インストール',
     'shell.install_title': '{brand} をインストール',

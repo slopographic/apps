@@ -27,6 +27,8 @@
     'shell.theme_dark': 'داكن',
     'shell.theme_classic': 'كلاسيكي 98',
     'shell.theme_lime': 'Slopographic Lime',
+    'shell.theme_brand_light': '{brand} فاتح',
+    'shell.theme_brand_dark': '{brand} داكن',
     'shell.more': 'المزيد',
     'shell.install': 'تثبيت',
     'shell.install_title': 'تثبيت {brand}',

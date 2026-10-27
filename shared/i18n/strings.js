@@ -30,6 +30,8 @@
     'shell.theme_dark': 'Dark',
     'shell.theme_classic': 'Classic 98',
     'shell.theme_lime': 'Slopographic Lime',
+    'shell.theme_brand_light': '{brand} Light',
+    'shell.theme_brand_dark': '{brand} Dark',
     'shell.more': 'More',
     'shell.install': 'Install',
     'shell.install_title': 'Install {brand}',

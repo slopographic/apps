@@ -141,6 +141,8 @@
     'shell.theme_dark': '深色',
     'shell.theme_classic': '經典 98',
     'shell.theme_lime': 'Slopographic Lime',
+    'shell.theme_brand_light': '{brand} 淺色',
+    'shell.theme_brand_dark': '{brand} 深色',
     'shell.more': '更多',
     'shell.install': '安裝',
     'shell.install_title': '安裝 {brand}',
