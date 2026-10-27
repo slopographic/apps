@@ -76,7 +76,7 @@ window.SlopI18n && window.SlopI18n.add('ru', {
   'seo.task.html2pdf.saved-web-page-to-pdf.lead': 'Страница, сохранённая через «Сохранить как» в браузере, — это файл .html и папка с картинками. Откройте оба здесь, чтобы напечатать страницу как PDF без загрузок из сети.',
   'seo.task.html2pdf.saved-web-page-to-pdf.cta': 'Напечатать сохранённую страницу',
   'seo.task.html2pdf.saved-web-page-to-pdf.steps.0': 'Перетащите сохранённый файл .html на страницу.',
-  'seo.task.html2pdf.saved-web-page-to-pdf.steps.1': 'В блоке «Локальные изображения» выберите картинки из папки _files страницы. Они сопоставляются по имени файла.',
+  'seo.task.html2pdf.saved-web-page-to-pdf.steps.1': 'Нажмите «Прикрепить локальные изображения…» и выберите картинки из папки _files страницы. Они сопоставляются по имени файла.',
   'seo.task.html2pdf.saved-web-page-to-pdf.steps.2': 'Задайте размер бумаги, поля и масштаб и отметьте «Фоновая графика», если на странице есть цветные блоки.',
   'seo.task.html2pdf.saved-web-page-to-pdf.steps.3': 'Выберите «Печать или сохранение в PDF», затем «Сохранить как PDF» в диалоге печати.',
   'seo.task.html2pdf.saved-web-page-to-pdf.faq.0.0': 'Зачем прикреплять изображения самому?',

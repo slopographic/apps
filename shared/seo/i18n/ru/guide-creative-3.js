@@ -39,7 +39,7 @@ window.SlopI18n && window.SlopI18n.add('ru', {
   'seo.guide.img3d.getting-started.lead': 'Slop Image to 3D определяет, насколько далеко каждая часть изображения, и превращает её в трёхмерную поверхность. Работает в вашем браузере.',
   'seo.guide.img3d.getting-started.sections.0.h2': 'Откройте изображение',
   'seo.guide.img3d.getting-started.sections.0.steps.0': 'Нажмите «Открыть изображение…», перетащите картинку на окно просмотра или нажмите «Из Slop Drive…».',
-  'seo.guide.img3d.getting-started.sections.0.steps.1': 'Для настоящей глубины один раз нажмите «Получить больше…» и скачайте модель глубины (Depth Anything V2 Small). Без неё приложение использует яркость изображения и сообщает об этом.',
+  'seo.guide.img3d.getting-started.sections.0.steps.1': 'Для настоящей глубины один раз нажмите «Получить ещё…» и скачайте модель глубины (Depth Anything V2 Small). Без неё приложение использует яркость изображения и сообщает об этом.',
   'seo.guide.img3d.getting-started.sections.0.steps.2': 'Результат 3D показывается в окне просмотра. Тяните, чтобы вращать, правой кнопкой или с Shift — чтобы сдвигать, колесо — для масштаба, двойной щелчок — чтобы вписать модель в кадр.',
   'seo.guide.img3d.getting-started.sections.0.image.alt': 'Фото собаки под одеялом превращено в 3D-сетку высот в Slop Image to 3D; вид сбоку',
   'seo.guide.img3d.getting-started.sections.1.h2': 'Настройте результат',

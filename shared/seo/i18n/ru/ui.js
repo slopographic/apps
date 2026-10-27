@@ -42,6 +42,8 @@ window.SlopI18n && window.SlopI18n.add('ru', {
   'seo.ui.video.minutes_3': 'около трёх минут',
   'seo.ui.video.minutes_4': 'около четырёх минут',
   'seo.ui.video.minutes_5': 'около пяти минут',
+  'seo.ui.video.minutes#few': 'около {n} минуты',
+  'seo.ui.video.minutes#many': 'около {n} минут',
   'seo.ui.video.tutorial': 'Видеоурок',
   'seo.ui.media.shot_alt': '{app} открыто в браузере',
   'seo.ui.media.no_video': 'Ваш браузер не может воспроизвести этот ролик.',

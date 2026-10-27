@@ -25,7 +25,7 @@ window.SlopI18n && window.SlopI18n.add('ru', {
   'seo.task.inventory.barcode-inventory-scanner.lead': 'Выберите действие, затем сканируйте: каждый штрихкод принимает, продаёт или пересчитывает одну единицу (или заданное количество). Работает с любым сканером, который печатает как клавиатура, и с камерой там, где браузер умеет читать штрихкоды.',
   'seo.task.inventory.barcode-inventory-scanner.cta': 'Начать сканирование',
   'seo.task.inventory.barcode-inventory-scanner.steps.0': 'Откройте вкладку «Сканирование» и выберите «Клавиатура или сканер» или «Камера».',
-  'seo.task.inventory.barcode-inventory-scanner.steps.1': 'Выберите действие: «Принять +», «Продать −», «Пересчёт» или «Только поиск». Задайте количество и место.',
+  'seo.task.inventory.barcode-inventory-scanner.steps.1': 'Выберите действие: «Приход +», «Продажа −», «Пересчёт» или «Только поиск». Задайте количество и место.',
   'seo.task.inventory.barcode-inventory-scanner.steps.2': 'Сканируйте. Результат остаётся на экране две секунды и попадает в «Журнал сканирований».',
   'seo.task.inventory.barcode-inventory-scanner.steps.3': 'Для неизвестного EAN выберите «Создать товар с этим EAN» или «Привязать EAN к этому товару»; после этого сканирование применяется.',
   'seo.task.inventory.barcode-inventory-scanner.steps.4': 'Ошиблись? «Отменить последнее сканирование» отменяет самое новое движение.',

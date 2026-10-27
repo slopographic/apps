@@ -171,7 +171,7 @@ window.SlopI18n && window.SlopI18n.add('ru', {
   'seo.best.free-image-resizers.faq.0.0': 'Как бесплатно изменить размер многих изображений сразу?',
   'seo.best.free-image-resizers.faq.0.1': 'Все три умеют работать пакетами. Slop Resize и BIRME не указывают лимита и работают в браузере; iLoveIMG принимает до 30 файлов за бесплатную задачу.',
   'seo.best.free-image-resizers.faq.1.0': 'Можно ли уменьшить фото до размера менее 100 КБ?',
-  'seo.best.free-image-resizers.faq.1.1': 'В Slop Resize есть настройка «Максимальный размер файла», которая подбирает лучшее качество в пределах вашего лимита. BIRME и iLoveIMG на своих страницах цель по размеру файла не упоминают.',
+  'seo.best.free-image-resizers.faq.1.1': 'В Slop Resize есть настройка «Максимальный размер файла (КБ)», которая подбирает лучшее качество в пределах вашего лимита. BIRME и iLoveIMG на своих страницах цель по размеру файла не упоминают.',
   'seo.best.free-image-resizers.faq.2.1': 'Slop Resize и BIRME изменяют размер в вашем браузере. iLoveIMG обрабатывает файлы на своих серверах и удаляет их в течение двух часов.',
   'seo.best.free-image-resizers.faq.3.0': 'Можно ли изменить размер и у видео?',
   'seo.best.free-image-resizers.faq.3.1': 'Slop Resize меняет размер видео в MP4 или WebM и сохраняет звук. BIRME работает только с картинками.',

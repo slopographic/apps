@@ -13,7 +13,7 @@ window.SlopI18n && window.SlopI18n.add('ru', {
   'seo.guide.html2pdf.getting-started.sections.0.image.alt': 'Slop HTML to PDF: вставленный отчёт о поездке в предпросмотре A4, слева параметры «Источник» и «Бумага»',
   'seo.guide.html2pdf.getting-started.sections.1.h2': 'Изображения и шрифты',
   'seo.guide.html2pdf.getting-started.sections.1.text.0': 'Внешние изображения и шрифты не загружаются, потому что приложение ничего не загружает из сети. Изображения, встроенные в файл (data: и blob:), показываются как есть.',
-  'seo.guide.html2pdf.getting-started.sections.1.text.1': 'Если страница использует картинки, сохранённые рядом с ней, выберите их в разделе «Локальные изображения». Каждая соотносится со страницей по имени файла.',
+  'seo.guide.html2pdf.getting-started.sections.1.text.1': 'Если страница использует картинки, сохранённые рядом с ней, прикрепите их кнопкой «Прикрепить локальные изображения…». Каждая соотносится со страницей по имени файла.',
   'seo.guide.html2pdf.getting-started.sections.2.h2': 'Настройте бумагу',
   'seo.guide.html2pdf.getting-started.sections.2.steps.0': 'В разделе «Бумага» выберите «Размер бумаги»: A4, Letter, A5 или Legal.',
   'seo.guide.html2pdf.getting-started.sections.2.steps.1': 'Выберите «Ориентацию»: «Книжная» или «Альбомная».',

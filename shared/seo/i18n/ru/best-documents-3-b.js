@@ -159,7 +159,7 @@ window.SlopI18n && window.SlopI18n.add('ru', {
   'seo.best.free-html-to-pdf-converters.faq.1.0': 'Как превратить веб-страницу в PDF по адресу?',
   'seo.best.free-html-to-pdf-converters.faq.1.1': 'Вставьте URL в «Веб-страница в PDF» на PDF24, в iLovePDF или Sejda. Slop HTML to PDF требует страницу, сохранённую как файл HTML, или её код, вставленный в поле.',
   'seo.best.free-html-to-pdf-converters.faq.2.0': 'Почему в моём PDF нет картинок?',
-  'seo.best.free-html-to-pdf-converters.faq.2.1': 'Сохранённый файл HTML часто ссылается на картинки в папке рядом с ним. В Slop HTML to PDF добавьте эти картинки через «Локальные изображения» — они сопоставляются по имени файла. Внешние картинки из сети не загружаются.',
+  'seo.best.free-html-to-pdf-converters.faq.2.1': 'Сохранённый файл HTML часто ссылается на картинки в папке рядом с ним. В Slop HTML to PDF добавьте эти картинки кнопкой «Прикрепить локальные изображения…» — они сопоставляются по имени файла. Внешние картинки из сети не загружаются.',
   'seo.best.free-html-to-pdf-converters.faq.3.0': 'Есть ли бесплатный конвертер HTML в PDF без ограничений?',
   'seo.best.free-html-to-pdf-converters.faq.3.1': 'У Slop HTML to PDF ограничений нет, а PDF24 говорит, что у его инструментов их тоже нет. Бесплатный сервис Sejda разрешает 3 задачи в час, а бесплатный тариф CloudConvert — 10 конвертаций в день.',
 });

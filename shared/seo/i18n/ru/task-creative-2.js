@@ -50,7 +50,7 @@ window.SlopI18n && window.SlopI18n.add('ru', {
   'seo.task.effects.text-animation-maker.faq.0.0': 'Можно ли экспортировать с прозрачным фоном?',
   'seo.task.effects.text-animation-maker.faq.0.1': 'Да, как последовательность PNG в ZIP-архиве. MP4 и WebM выводятся с цветом фона.',
   'seo.task.effects.text-animation-maker.faq.1.0': 'Можно ли использовать собственные шрифты?',
-  'seo.task.effects.text-animation-maker.faq.1.1': 'В выборе шрифтов есть набор шрифтов и кнопка «Получить больше…» для других. Параметры текста: шрифт, начертание, размер, выравнивание и цвет.',
+  'seo.task.effects.text-animation-maker.faq.1.1': 'В выборе шрифтов есть набор шрифтов и кнопка «Получить ещё…» для других. Параметры текста: шрифт, начертание, размер, выравнивание и цвет.',
   'seo.task.effects.text-animation-maker.faq.2.0': 'Какой может быть длина анимации?',
   'seo.task.effects.text-animation-maker.faq.2.1': 'Композиция может длиться от 0,1 до 600 секунд при 24, 25, 30, 50 или 60 кадрах в секунду.',
   'seo.task.effects.text-animation-maker.faq.3.0': 'Что-нибудь загружается?',
