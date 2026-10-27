@@ -64,7 +64,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'seo.best.free-color-palette-tools.verdict.0': 'Slop Colors è la nostra scelta quando i colori vengono dalle tue immagini e la palette deve finire nel codice o in uno strumento di design: contagocce, colori principali, controllo del contrasto ed esportazione sono in un’unica pagina, e non si carica nulla.',
   'seo.best.free-color-palette-tools.verdict.1': 'Scegli Coolors per il generatore, la libreria e i plugin, Adobe Color per la ruota dei colori e la libreria Adobe, e il controllo WebAIM per verificare e condividere una sola coppia.',
   'seo.best.free-color-palette-tools.faq.0.0': 'Quale rapporto di contrasto mi serve?',
-  'seo.best.free-color-palette-tools.faq.0.1': 'WCAG AA richiede 4,5:1 per il testo normale e 3:1 per il testo grande e gli elementi UI; AAA richiede 7:1 e 4,5:1. Tutti e quattro gli strumenti mostrano il rapporto.',
+  'seo.best.free-color-palette-tools.faq.0.1': 'WCAG AA richiede 4.5:1 per il testo normale e 3:1 per il testo grande e gli elementi UI; AAA richiede 7:1 e 4.5:1. Tutti e quattro gli strumenti mostrano il rapporto.',
   'seo.best.free-color-palette-tools.faq.1.0': 'Quale file si apre in Photoshop o Illustrator?',
   'seo.best.free-color-palette-tools.faq.1.1': 'Un file Adobe Swatch Exchange (.ase). Sia Slop Colors sia Coolors ne esportano uno.',
   'seo.best.free-color-palette-tools.faq.2.0': 'La mia immagine viene caricata?',
