@@ -32,7 +32,7 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'seo.guide.invoices.getting-started.shortcuts.1.1': 'Zachowaj zmianę wpisaną na stronie',
   'seo.guide.invoices.getting-started.shortcuts.2.1': 'Cofnij zmianę wpisaną na stronie',
   'seo.guide.quotes.getting-started.title': 'Pierwsze kroki w Slop Quotes: wyślij ofertę, potem zrób fakturę',
-  'seo.guide.quotes.getting-started.description': 'Napisz ofertę z pozycjami, podatkiem i terminem ważności, oznacz ją jako wysłaną i zamień przyjętą w zamówienie lub fakturę jednym kliknięciem. Krótki przewodnik.',
+  'seo.guide.quotes.getting-started.description': 'Napisz ofertę z pozycjami, podatkiem i terminem ważności, oznacz ją jako wysłaną i zamień przyjętą w zamówienie lub fakturę jednym kliknięciem. Przewodnik.',
   'seo.guide.quotes.getting-started.h1': 'Pierwsze kroki w Slop Quotes',
   'seo.guide.quotes.getting-started.lead': 'Slop Quotes pisze oferty i wyceny dla klientów. Gdy klient się zgodzi, oferta staje się zamówieniem lub fakturą bez ponownego wpisywania.',
   'seo.guide.quotes.getting-started.sections.0.h2': 'Napisz ofertę',
