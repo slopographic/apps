@@ -1,8 +1,8 @@
 /* SEO copy, Russian: best-documents-2-a. Translated from shared/seo/i18n/en/best-documents-2-a.js. Rules: shared/seo/i18n/README.md. */
 window.SlopI18n && window.SlopI18n.add('ru', {
   'seo.best.free-word-processors.crumb': 'Лучшие бесплатные текстовые редакторы',
-  'seo.best.free-word-processors.title': 'Лучшие бесплатные текстовые редакторы (2026): Google Docs, Word, LibreOffice, Zoho',
-  'seo.best.free-word-processors.description': 'Сравнение бесплатных текстовых редакторов: Google Docs, Word для веба, LibreOffice Writer, Zoho Writer и Slop Docs. Аккаунты, файлы Word, работа без сети и хранение.',
+  'seo.best.free-word-processors.title': 'Бесплатные текстовые редакторы (2026): Google Docs, Word, LibreOffice',
+  'seo.best.free-word-processors.description': 'Бесплатные текстовые редакторы: Google Docs, Word для веба, LibreOffice Writer, Zoho Writer и Slop Docs. Аккаунты, файлы Word, работа без сети и хранение.',
   'seo.best.free-word-processors.h1': 'Лучшие бесплатные текстовые редакторы — сравнение',
   'seo.best.free-word-processors.lead': 'Писать и оформлять документы бесплатно можно в нескольких хороших программах. Они различаются тем, нужен ли аккаунт, где хранятся документы, насколько хорошо работают с файлами Word и можно ли работать вместе или без сети.',
   'seo.best.free-word-processors.criteria.0': 'Бесплатно для написания и оформления, без платного тарифа',
@@ -132,8 +132,8 @@ window.SlopI18n && window.SlopI18n.add('ru', {
   'seo.best.free-word-processors.faq.3.0': 'Где хранятся мои документы?',
   'seo.best.free-word-processors.faq.3.1': 'Google Docs хранит их в Google Drive, Word для веба — в OneDrive. Slop Docs хранит их в Slop Drive — хранилище внутри вашего браузера, поэтому они не загружаются.',
   'seo.best.free-online-spreadsheets.crumb': 'Лучшие бесплатные онлайн-таблицы',
-  'seo.best.free-online-spreadsheets.title': 'Лучшие бесплатные программы для таблиц (2026): Google Sheets, Excel, LibreOffice',
-  'seo.best.free-online-spreadsheets.description': 'Сравнение бесплатных таблиц: Google Sheets, Excel для веба, LibreOffice Calc, Zoho Sheet и Slop Tables. Файлы Excel, сводные таблицы, диаграммы, аккаунты и работа без сети.',
+  'seo.best.free-online-spreadsheets.title': 'Бесплатные программы для таблиц (2026): Google Sheets, Excel, LibreOffice',
+  'seo.best.free-online-spreadsheets.description': 'Бесплатные таблицы: Google Sheets, Excel для веба, LibreOffice Calc, Zoho Sheet и Slop Tables. Файлы Excel, сводные таблицы, аккаунты, работа без сети.',
   'seo.best.free-online-spreadsheets.h1': 'Лучшие бесплатные программы для таблиц — сравнение',
   'seo.best.free-online-spreadsheets.lead': 'Формулы, диаграммы и сводные таблицы в нескольких программах для таблиц бесплатны. Различия — в аккаунтах и хранении, в том, как они работают с файлами Excel, сколько аналитики предлагают и можно ли работать вместе или без сети.',
   'seo.best.free-online-spreadsheets.criteria.0': 'Бесплатно для формул, диаграмм и сводных таблиц',

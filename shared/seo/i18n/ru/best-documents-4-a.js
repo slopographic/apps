@@ -1,8 +1,8 @@
 /* SEO copy, Russian: best-documents-4-a. Translated from shared/seo/i18n/en/best-documents-4-a.js. Rules: shared/seo/i18n/README.md. */
 window.SlopI18n && window.SlopI18n.add('ru', {
   'seo.best.free-exif-remover.crumb': 'Бесплатные программы удаления EXIF',
-  'seo.best.free-exif-remover.title': 'Лучшая бесплатная программа удаления EXIF: убрать GPS и данные камеры из фото',
-  'seo.best.free-exif-remover.description': 'Сравнение пяти бесплатных способов удалить EXIF, GPS и данные камеры из фото: SlopClean, ExifTool, ExifCleaner, ImageOptim и Verexif. Форматы, пакетная обработка, приватность.',
+  'seo.best.free-exif-remover.title': 'Бесплатная программа удаления EXIF: убрать GPS и данные камеры',
+  'seo.best.free-exif-remover.description': 'Пять бесплатных способов удалить EXIF, GPS и данные камеры из фото: SlopClean, ExifTool, ExifCleaner, ImageOptim и Verexif. Форматы, пакеты, приватность.',
   'seo.best.free-exif-remover.h1': 'Лучшие бесплатные программы для удаления EXIF',
   'seo.best.free-exif-remover.lead': 'Фото может хранить, где его сняли, серийный номер камеры и дату. Эти бесплатные инструменты показывают такие данные и удаляют их до того, как вы поделитесь снимком. Ниже — что делает каждый, по собственным страницам.',
   'seo.best.free-exif-remover.criteria.0': 'Бесплатно, без аккаунта',
@@ -104,8 +104,8 @@ window.SlopI18n && window.SlopI18n.add('ru', {
   'seo.best.free-exif-remover.faq.3.0': 'Что с фото HEIC с iPhone?',
   'seo.best.free-exif-remover.faq.3.1': 'SlopClean пока не очищает HEIC. ExifTool записывает метаданные HEIC. Или сначала экспортируйте фото в JPEG и очистите его.',
   'seo.best.free-local-ai-chat.crumb': 'Бесплатные приложения локального ИИ-чата',
-  'seo.best.free-local-ai-chat.title': 'Лучшие бесплатные приложения локального ИИ-чата: запустите LLM на своём компьютере',
-  'seo.best.free-local-ai-chat.description': 'Сравнение LM Studio, Ollama, GPT4All, Jan, WebLLM Chat и Slop AI: бесплатный локальный ИИ-чат, который хранит ваши запросы на вашем ПК. Установка, GPU, работа без сети, модели.',
+  'seo.best.free-local-ai-chat.title': 'Бесплатные приложения локального ИИ-чата: LLM на своём компьютере',
+  'seo.best.free-local-ai-chat.description': 'Бесплатный локальный ИИ-чат: LM Studio, Ollama, GPT4All, Jan, WebLLM Chat и Slop AI. Запросы остаются на вашем ПК. Установка, GPU, модели, сеть.',
   'seo.best.free-local-ai-chat.h1': 'Лучшие бесплатные приложения для ИИ-чата на собственном компьютере',
   'seo.best.free-local-ai-chat.lead': 'Локальная ИИ-модель отвечает на вашем собственном железе, поэтому ваши чаты не уходят в облачный сервис. Некоторые из этих приложений устанавливаются как обычные программы, два работают в браузере. Ниже — что предлагает каждое, по собственным страницам.',
   'seo.best.free-local-ai-chat.criteria.0': 'Бесплатно запускать модели локально',

@@ -1,7 +1,7 @@
 /* SEO copy, Russian: best-creative-2-a. Translated from shared/seo/i18n/en/best-creative-2-a.js. Rules: shared/seo/i18n/README.md. */
 window.SlopI18n && window.SlopI18n.add('ru', {
   'seo.best.free-ai-image-upscalers.crumb': 'Бесплатные ИИ-увеличители изображений',
-  'seo.best.free-ai-image-upscalers.title': 'Лучшие бесплатные ИИ-увеличители изображений: настольные, браузерные и онлайн',
+  'seo.best.free-ai-image-upscalers.title': 'Бесплатные ИИ-увеличители изображений: настольные, браузерные, онлайн',
   'seo.best.free-ai-image-upscalers.description': 'Бесплатные ИИ-увеличители рядом: Upscayl, Slop Upscale, Upscale.media и Bigjpg. Масштаб, лимиты, пакеты, видео и куда уходит ваша картинка.',
   'seo.best.free-ai-image-upscalers.h1': 'Лучшие бесплатные ИИ-увеличители изображений',
   'seo.best.free-ai-image-upscalers.lead': 'ИИ-увеличитель делает маленькое изображение больше и добавляет деталей вместо простого растягивания. Ниже — четыре бесплатных: наше браузерное приложение, которое работает на вашем устройстве, настольное приложение и два онлайн-сервиса.',
@@ -102,8 +102,8 @@ window.SlopI18n && window.SlopI18n.add('ru', {
   'seo.best.free-ai-image-upscalers.faq.3.0': 'Могут ли эти инструменты увеличивать видео?',
   'seo.best.free-ai-image-upscalers.faq.3.1': 'Upscale.media принимает видео до 1 минуты. Slop Upscale обрабатывает ролики до 15 секунд без звука. Bigjpg отсылает к отдельному сайту для видео.',
   'seo.best.free-batch-watermark-tools.crumb': 'Бесплатные инструменты пакетных водяных знаков',
-  'seo.best.free-batch-watermark-tools.title': 'Лучшие бесплатные инструменты для массового водяного знака на фото',
-  'seo.best.free-batch-watermark-tools.description': 'Наложите водяной знак на много фото сразу бесплатно: сравнение Slop Watermark, Watermarkly, Visual Watermark и iLoveIMG по лимитам, собственной метке и приватности.',
+  'seo.best.free-batch-watermark-tools.title': 'Бесплатные инструменты массового водяного знака на фото',
+  'seo.best.free-batch-watermark-tools.description': 'Водяные знаки на много фото сразу бесплатно: Slop Watermark, Watermarkly, Visual Watermark и iLoveIMG по лимитам, собственной метке и приватности.',
   'seo.best.free-batch-watermark-tools.h1': 'Лучшие бесплатные инструменты для массового водяного знака на фото',
   'seo.best.free-batch-watermark-tools.lead': 'Фотографам, магазинам и агентствам нужен один и тот же логотип или строка © на целом наборе снимков. Все четыре инструмента умеют работать пакетами; различаются они тем, что бесплатная версия оставляет на ваших фото, и тем, куда уходят файлы.',
   'seo.best.free-batch-watermark-tools.criteria.0': 'Бесплатная версия оставляет только ваш водяной знак, а не свой',
@@ -194,6 +194,6 @@ window.SlopI18n && window.SlopI18n.add('ru', {
   'seo.best.free-batch-watermark-tools.faq.3.0': 'Можно ли нанести водяной знак на видео или PDF?',
   'seo.best.free-batch-watermark-tools.faq.3.1': 'Да, в Slop Watermark: перетащите видео и PDF вместе с фото, и тот же водяной знак появится на каждом кадре и каждой странице, на вашем устройстве. Watermarkly и Visual Watermark работают с PDF и видео в некоторых своих приложениях.',
   'seo.best.free-qr-code-generators.crumb': 'Бесплатные генераторы QR-кодов',
-  'seo.best.free-qr-code-generators.title': 'Лучшие бесплатные генераторы QR-кодов: логотипы, SVG и коды без срока действия',
+  'seo.best.free-qr-code-generators.title': 'Бесплатные генераторы QR-кодов: логотипы, SVG и без срока',
   'seo.best.free-qr-code-generators.description': 'Сравнение бесплатных генераторов QR-кодов: QR Code Monkey, QR SLOP, goQR.me и QR Code Generator. Логотипы, SVG, регистрация, срок действия и что стоит дороже.',
 });

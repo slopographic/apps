@@ -1,8 +1,8 @@
 /* SEO copy, Russian: best-creative-3. Translated from shared/seo/i18n/en/best-creative-3.js. Rules: shared/seo/i18n/README.md. */
 window.SlopI18n && window.SlopI18n.add('ru', {
   'seo.best.free-transcription-software.crumb': 'Бесплатные программы расшифровки аудио',
-  'seo.best.free-transcription-software.title': 'Лучшие бесплатные программы расшифровки аудио в текст: сравнение',
-  'seo.best.free-transcription-software.description': 'Сравнение бесплатных инструментов перевода аудио в текст: Buzz, Slop Transcribe, TurboScribe и Otter. Бесплатные минуты, длина файла, языки, метки говорящих, экспорт и приватность.',
+  'seo.best.free-transcription-software.title': 'Бесплатные программы расшифровки аудио в текст: сравнение',
+  'seo.best.free-transcription-software.description': 'Бесплатная расшифровка аудио: Buzz, Slop Transcribe, TurboScribe и Otter. Минуты, длина файла, языки, метки говорящих, экспорт и приватность.',
   'seo.best.free-transcription-software.h1': 'Лучшие бесплатные программы для расшифровки',
   'seo.best.free-transcription-software.lead': 'Превратить интервью, лекцию или голосовую заметку в текст можно бесплатно. Два из этих инструментов, наш и Buzz, запускают Whisper на вашем компьютере; два — онлайн-сервисы с бесплатными тарифами. Ниже — насколько далеко заходит каждая бесплатная версия.',
   'seo.best.free-transcription-software.criteria.0': 'Что входит бесплатно: минуты, длина файла, число файлов',
@@ -116,7 +116,7 @@ window.SlopI18n && window.SlopI18n.add('ru', {
   'seo.best.free-transcription-software.faq.3.1': 'Buzz и Slop Transcribe экспортируют SRT и VTT бесплатно. TurboScribe экспортирует SRT и VTT, а у Otter SRT — на платных тарифах.',
   'seo.best.free-label-design-software.crumb': 'Бесплатные программы для дизайна этикеток',
   'seo.best.free-label-design-software.title': 'Лучшие бесплатные программы для этикеток: штрихкоды, слияние, Zebra и Avery',
-  'seo.best.free-label-design-software.description': 'Сравнение бесплатных программ для этикеток: SlopLabel, Avery Design & Print, ZebraDesigner Essentials и gLabels. Штрихкоды, слияние данных, листы и термопринтеры.',
+  'seo.best.free-label-design-software.description': 'Бесплатные программы для этикеток: SlopLabel, Avery Design & Print, ZebraDesigner Essentials и gLabels. Штрихкоды, слияние данных, листы и термопринтеры.',
   'seo.best.free-label-design-software.h1': 'Лучшие бесплатные программы для создания этикеток',
   'seo.best.free-label-design-software.lead': 'Адресные этикетки на листах, ценники со штрихкодами и наклейки для доставки на термопринтере требуют разных инструментов — или одного, который умеет всё. Ниже четыре бесплатных редактора этикеток и то, что каждый может напечатать.',
   'seo.best.free-label-design-software.criteria.0': 'Бесплатно, без платной лицензии на нужные функции',

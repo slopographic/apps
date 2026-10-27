@@ -1,7 +1,7 @@
 /* SEO copy, Russian: best-business. Translated from shared/seo/i18n/en/best-business.js. Rules: shared/seo/i18n/README.md. */
 window.SlopI18n && window.SlopI18n.add('ru', {
   'seo.best.free-invoice-generators.crumb': 'Лучшие бесплатные программы для счетов',
-  'seo.best.free-invoice-generators.title': 'Лучшие бесплатные программы для выставления счетов (2026): Zoho Invoice, Wave, Invoice Ninja',
+  'seo.best.free-invoice-generators.title': 'Бесплатные программы для счетов (2026): Zoho Invoice, Wave, Invoice Ninja',
   'seo.best.free-invoice-generators.description': 'Сравнение бесплатных сервисов счетов: что дают Zoho Invoice, Wave, Invoice Ninja и Slop Invoices бесплатно, их лимиты, оплата и где хранятся счета.',
   'seo.best.free-invoice-generators.h1': 'Лучшие бесплатные программы для выставления счетов — сравнение',
   'seo.best.free-invoice-generators.lead': 'Бесплатные инструменты для счетов различаются тем, что именно «бесплатно»: лимит на счета или клиентов, логотип сервиса на счетах или платные дополнения для напоминаний и повторяющихся счетов. Ниже — что даёт каждый без оплаты, по их собственным страницам.',
@@ -103,7 +103,7 @@ window.SlopI18n && window.SlopI18n.add('ru', {
   'seo.best.free-invoice-generators.faq.3.0': 'Безопасны ли данные в бесплатной программе для счетов?',
   'seo.best.free-invoice-generators.faq.3.1': 'Онлайн-сервисы хранят ваши счета на своих серверах и описывают безопасность на собственных страницах. Slop Invoices ничего не загружает, поэтому время от времени скачивайте резервную копию: очистка данных сайта в браузере удаляет их.',
   'seo.best.free-accounting-software.crumb': 'Лучшие бесплатные программы бухгалтерии',
-  'seo.best.free-accounting-software.title': 'Лучшие бесплатные бухгалтерские программы (2026): GnuCash, Manager, Wave, Zoho Books',
+  'seo.best.free-accounting-software.title': 'Бесплатный бухучёт (2026): GnuCash, Manager, Wave, Zoho Books',
   'seo.best.free-accounting-software.description': 'Сравнение бесплатных бухгалтерских программ: GnuCash, Manager, Wave, Zoho Books и Slop Ledger. Импорт из банка, счета, лимиты и где хранятся книги.',
   'seo.best.free-accounting-software.h1': 'Лучшие бесплатные бухгалтерские программы для малого бизнеса',
   'seo.best.free-accounting-software.lead': 'Вести нормальный учёт можно и без оплаты: либо в настольной программе, которая хранит книги на вашем компьютере, либо в онлайн-сервисе с бесплатным тарифом. Ниже — что делает каждый вариант, по собственным страницам.',

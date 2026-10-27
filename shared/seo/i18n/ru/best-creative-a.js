@@ -114,7 +114,7 @@ window.SlopI18n && window.SlopI18n.add('ru', {
   'seo.best.free-online-photo-editors.faq.3.1': 'Photopea открывает RAW-файлы, такие как DNG, CR2, NEF и ARW. GIMP работает с RAW через darktable, RawTherapee или ART. PhotoSlop открывает CR2, CR3, NEF, ARW, DNG, RAF и другие RAW-файлы, а для баланса белого и экспозиции есть диалог «Проявка».',
   'seo.best.free-vector-graphics-editors.crumb': 'Бесплатные векторные редакторы',
   'seo.best.free-vector-graphics-editors.title': 'Лучшие бесплатные векторные редакторы: Inkscape, SlopVector, Graphite',
-  'seo.best.free-vector-graphics-editors.description': 'Сравнение бесплатных векторных редакторов: Inkscape, SlopVector и Graphite. Перо и булевы операции, SVG, PDF и файлы .ai, браузер или настольная программа, зрелость каждого.',
+  'seo.best.free-vector-graphics-editors.description': 'Бесплатные векторные редакторы: Inkscape, SlopVector и Graphite. Перо и булевы операции, SVG, PDF и файлы .ai, браузер или настольная программа.',
   'seo.best.free-vector-graphics-editors.h1': 'Лучшие бесплатные векторные графические редакторы',
   'seo.best.free-vector-graphics-editors.lead': 'Для логотипов, иконок и иллюстраций нужен векторный редактор, и три хороших бесплатны, без подписки: наше браузерное приложение в стиле Illustrator, зрелая настольная программа и новый редактор с открытым кодом.',
   'seo.best.free-vector-graphics-editors.criteria.0': 'Бесплатно, без подписки и пробного периода',

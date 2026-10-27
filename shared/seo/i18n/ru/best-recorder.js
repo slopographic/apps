@@ -1,8 +1,8 @@
 /* SEO copy, Russian: best-recorder. Translated from shared/seo/i18n/en/best-recorder.js. Rules: shared/seo/i18n/README.md. */
 window.SlopI18n && window.SlopI18n.add('ru', {
   'seo.best.free-screen-recorders.crumb': 'Бесплатные программы записи экрана',
-  'seo.best.free-screen-recorders.title': 'Лучшие бесплатные программы записи экрана: браузер, компьютер и облако — сравнение',
-  'seo.best.free-screen-recorders.description': 'Сравнение Slop Recorder в браузере, OBS Studio, ShareX и бесплатного тарифа Loom: наложение веб-камеры, системный звук, обрезка, форматы, установка и загрузки.',
+  'seo.best.free-screen-recorders.title': 'Бесплатные программы записи экрана: браузер, компьютер и облако',
+  'seo.best.free-screen-recorders.description': 'Slop Recorder в браузере, OBS Studio, ShareX и бесплатный тариф Loom: наложение веб-камеры, системный звук, обрезка, форматы, установка и загрузки.',
   'seo.best.free-screen-recorders.h1': 'Лучшие бесплатные программы записи экрана',
   'seo.best.free-screen-recorders.lead': 'Программа записи экрана нужна для быстрого показа, отчёта об ошибке или урока. Эти бесплатные инструменты записывают экран; различаются они тем, что нужно установить, куда попадает видео и что они умеют.',
   'seo.best.free-screen-recorders.criteria.0': 'Бесплатно для записи экрана',

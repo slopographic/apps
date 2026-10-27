@@ -1,7 +1,7 @@
 /* SEO copy, Russian: best-documents-a. Translated from shared/seo/i18n/en/best-documents-a.js. Rules: shared/seo/i18n/README.md. */
 window.SlopI18n && window.SlopI18n.add('ru', {
   'seo.best.free-pdf-editors.crumb': 'Лучшие бесплатные редакторы PDF',
-  'seo.best.free-pdf-editors.title': 'Лучшие бесплатные редакторы PDF (2026): Acrobat, Smallpdf, iLovePDF, PDF24, Sejda',
+  'seo.best.free-pdf-editors.title': 'Бесплатные редакторы PDF (2026): Acrobat, Smallpdf, iLovePDF, Sejda',
   'seo.best.free-pdf-editors.description': 'Сравнение бесплатных редакторов PDF: что бесплатно делают Adobe Acrobat онлайн, Smallpdf, iLovePDF, PDF24, Sejda и Slop PDF, их лимиты и куда попадает ваш файл.',
   'seo.best.free-pdf-editors.h1': 'Лучшие бесплатные редакторы PDF — сравнение',
   'seo.best.free-pdf-editors.lead': 'Большинство бесплатных редакторов PDF — это сайты, которые обрабатывают ваш файл на своих серверах и ограничивают бесплатное использование. Ниже — что предлагает каждый без оплаты, по собственным страницам, и какой подходит для какой задачи.',
@@ -132,8 +132,8 @@ window.SlopI18n && window.SlopI18n.add('ru', {
   'seo.best.free-pdf-editors.faq.3.0': 'Можно ли бесплатно скрыть данные в PDF?',
   'seo.best.free-pdf-editors.faq.3.1': 'Да. Slop PDF, PDF24, iLovePDF и Smallpdf имеют инструменты скрытия данных. Slop PDF превращает каждую скрытую страницу в картинку с впечатанными чёрными прямоугольниками, поэтому скрытый текст исчезает из файла.',
   'seo.best.free-file-converters.crumb': 'Лучшие бесплатные конвертеры файлов',
-  'seo.best.free-file-converters.title': 'Лучшие бесплатные онлайн-конвертеры файлов: CloudConvert, Convertio, FreeConvert',
-  'seo.best.free-file-converters.description': 'Сравнение бесплатных конвертеров файлов: форматы, дневные лимиты, размер файла и где выполняется конвертация — для CloudConvert, Convertio, FreeConvert и File convert.',
+  'seo.best.free-file-converters.title': 'Бесплатные онлайн-конвертеры файлов: CloudConvert, Convertio, FreeConvert',
+  'seo.best.free-file-converters.description': 'Бесплатные конвертеры файлов: форматы, дневные лимиты, размер файла и где идёт конвертация — CloudConvert, Convertio, FreeConvert и File convert.',
   'seo.best.free-file-converters.h1': 'Лучшие бесплатные онлайн-конвертеры файлов — сравнение',
   'seo.best.free-file-converters.lead': 'Онлайн-конвертеры работают с сотнями форматов, но выполняют конвертацию на своих серверах и ограничивают бесплатное использование. Ниже — что даёт каждый бесплатно, по собственным страницам, и когда лучше выбрать конвертер, который работает в вашем браузере.',
   'seo.best.free-file-converters.criteria.0': 'Какие файлы он конвертирует: картинки, PDF, офисные, видео, аудио, данные, архивы',

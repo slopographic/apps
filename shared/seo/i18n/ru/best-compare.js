@@ -1,7 +1,7 @@
 /* SEO copy, Russian: best-compare. Translated from shared/seo/i18n/en/best-compare.js. Rules: shared/seo/i18n/README.md. */
 window.SlopI18n && window.SlopI18n.add('ru', {
   'seo.best.free-diff-tools.crumb': 'Бесплатные инструменты сравнения',
-  'seo.best.free-diff-tools.title': 'Лучшие бесплатные инструменты сравнения: тексты, файлы, PDF и картинки',
+  'seo.best.free-diff-tools.title': 'Лучшие бесплатные инструменты для сравнения файлов',
   'seo.best.free-diff-tools.description': 'Четыре бесплатных способа увидеть изменения между двумя файлами: Slop Compare в браузере, Diffchecker, WinMerge и Meld. Тексты, папки, PDF, картинки и таблицы.',
   'seo.best.free-diff-tools.h1': 'Лучшие бесплатные инструменты для сравнения файлов',
   'seo.best.free-diff-tools.lead': 'Инструмент сравнения показывает, что изменилось между двумя версиями файла. Все четыре можно начать использовать бесплатно. Ниже — что сравнивает каждый из них и где он работает, по их собственным страницам.',

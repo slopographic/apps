@@ -1,8 +1,8 @@
 /* SEO copy, Russian: best-documents-3-a. Translated from shared/seo/i18n/en/best-documents-3-a.js. Rules: shared/seo/i18n/README.md. */
 window.SlopI18n && window.SlopI18n.add('ru', {
   'seo.best.free-eml-viewers.crumb': 'Бесплатные просмотрщики EML',
-  'seo.best.free-eml-viewers.title': 'Лучшие бесплатные просмотрщики EML: открыть файл .eml без Outlook',
-  'seo.best.free-eml-viewers.description': 'Сравнение бесплатных способов открыть файл электронной почты .eml: Slop EML, Hypermatic, Loops и новый Outlook. Загрузки, внешние картинки, вложения, печать и PDF.',
+  'seo.best.free-eml-viewers.title': 'Бесплатные просмотрщики EML: открыть .eml без Outlook',
+  'seo.best.free-eml-viewers.description': 'Бесплатные способы открыть письмо .eml: Slop EML, Hypermatic, Loops и новый Outlook. Загрузки, внешние картинки, вложения, печать и PDF.',
   'seo.best.free-eml-viewers.h1': 'Лучшие бесплатные просмотрщики EML',
   'seo.best.free-eml-viewers.lead': 'Файл .eml — это одно сохранённое письмо: заголовки, текст и вложения в одном файле. Чтобы его прочитать, почтовый аккаунт не нужен. Ниже — три бесплатных просмотрщика, которые работают в браузере, и Outlook, который тоже открывает .eml.',
   'seo.best.free-eml-viewers.criteria.0': 'Бесплатно, без аккаунта',
@@ -93,7 +93,7 @@ window.SlopI18n && window.SlopI18n.add('ru', {
   'seo.best.free-eml-viewers.faq.3.1': '.eml — стандартный формат, который сохраняет большинство почтовых программ. .msg — собственный формат Outlook. Slop EML открывает только .eml; Microsoft сообщает, что новый Outlook открывает оба, а для .msg нужна подходящая подписка Microsoft 365.',
   'seo.best.free-markdown-editors.crumb': 'Бесплатные редакторы Markdown',
   'seo.best.free-markdown-editors.title': 'Лучшие бесплатные редакторы Markdown: онлайн, настольные и приватные',
-  'seo.best.free-markdown-editors.description': 'Сравнение Obsidian, Dillinger, Slop Notes, StackEdit, Joplin и Typora: цена, предпросмотр, где хранятся заметки, синхронизация, экспорт и поддерживаемый Markdown.',
+  'seo.best.free-markdown-editors.description': 'Obsidian, Dillinger, Slop Notes, StackEdit, Joplin и Typora: цена, предпросмотр, где хранятся заметки, синхронизация, экспорт и поддерживаемый Markdown.',
   'seo.best.free-markdown-editors.h1': 'Лучшие бесплатные редакторы Markdown',
   'seo.best.free-markdown-editors.lead': 'Markdown — это простой текст с несколькими отметками для заголовков, списков и ссылок. Писать на нём может любой редактор, но хороший показывает предпросмотр, держит заметки в порядке и экспортирует их. Ниже — шесть известных, бесплатных и платных, в браузере и на компьютере.',
   'seo.best.free-markdown-editors.criteria.0': 'Бесплатно ли всё или сколько это стоит',
