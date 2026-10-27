@@ -241,7 +241,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'seo.cv.pdf-to-jpg.faq.1.0': '這會從 PDF 中擷取圖片嗎？',
   'seo.cv.pdf-to-jpg.faq.1.1': '不會。它會將每一整頁繪製為一張圖片。',
   'seo.cv.merge-pdf.title': '免費合併 PDF 檔，在瀏覽器中 | File convert',
-  'seo.cv.merge-pdf.description': '在瀏覽器中依加入的順序將多個 PDF 合併為一個。不會上傳，機密文件留在您的裝置上。',
+  'seo.cv.merge-pdf.description': '在瀏覽器中依加入的順序將多個 PDF 合併為一個檔案。不會上傳，機密文件仍留在您的裝置上，安全又方便。',
   'seo.cv.merge-pdf.h1': '線上合併 PDF，在您的裝置上完成',
   'seo.cv.merge-pdf.lead': '將多個 PDF 合併為一份文件。檔案會依清單中的順序合併。',
   'seo.cv.merge-pdf.how.0': '每個 PDF 都在此瀏覽器中讀取，其頁面會依順序複製到一個新的 PDF 中。',
