@@ -140,6 +140,8 @@
     'shell.theme_dark': 'Темна',
     'shell.theme_classic': 'Класична 98',
     'shell.theme_lime': 'Slopographic Lime',
+    'shell.theme_brand_light': '{brand} Світла',
+    'shell.theme_brand_dark': '{brand} Темна',
     'shell.more': 'Більше',
     'shell.install': 'Установити',
     'shell.install_title': 'Установити {brand}',

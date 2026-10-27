@@ -25,10 +25,10 @@ export const profileText = (text, ctx) => phrases(urls(text, ctx.urls), ctx.phra
 
 /** The whole forward step for one file (dest: its path in the copy, for the palette rule). */
 export function forward(text, ctx, dest) {
-  let t = applyMarkers(tokens(profileText(text, ctx), ctx.tokenRules), ctx.values);
-  t = t.replace(/brand\/logo(?:-128)?\.webp/g, 'brand/mark.svg');
+  let t = tokens(profileText(text, ctx), ctx.tokenRules);
   if (ctx.profile.palette && paletteFile(dest)) t = remapColors(t, ctx.profile.palette);
-  return t;
+  // markers after the palette: the profile's own colours (its theme tokens) are written as the profile gives them
+  return applyMarkers(t, ctx.values).replace(/brand\/logo(?:-128)?\.webp/g, 'brand/mark.svg');
 }
 
 /** A source path in the copy, and a copy path back in the source. */

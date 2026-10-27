@@ -140,6 +140,8 @@
     'shell.theme_dark': 'כהה',
     'shell.theme_classic': 'קלאסי 98',
     'shell.theme_lime': 'Slopographic Lime',
+    'shell.theme_brand_light': '{brand} בהיר',
+    'shell.theme_brand_dark': '{brand} כהה',
     'shell.more': 'עוד',
     'shell.install': 'התקנה',
     'shell.install_title': 'התקנת {brand}',

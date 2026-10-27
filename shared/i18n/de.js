@@ -26,6 +26,8 @@
     'shell.theme_dark': 'Dunkel',
     'shell.theme_classic': 'Klassisch 98',
     'shell.theme_lime': 'Slopographic Lime',
+    'shell.theme_brand_light': '{brand} Hell',
+    'shell.theme_brand_dark': '{brand} Dunkel',
     'shell.more': 'Mehr',
     'shell.install': 'Installieren',
     'shell.install_title': '{brand} installieren',

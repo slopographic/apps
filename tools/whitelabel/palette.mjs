@@ -1,7 +1,10 @@
 // The palette shift of a white-label build: every colour of the source brand's accent family (its hues, from.hues) is
 // turned to the profile's hue, keeping saturation and luminance, in the site's CSS, JavaScript, HTML and SVG. Greys, reds,
 // blues and the rest are untouched; a moved colour keeps its luminance, so contrast stays as the source tested it.
-// profile.palette: { hue: 221, from: [55, 110], minSaturation: 0.3 }. Node only. Tests: tests/node/whitelabel-palette.test.mjs.
+// profile.palette: { hue: 221, from: [55, 110], minSaturation: 0.3, neutral? }. neutral: { hue, saturation, from, maxSaturation }
+// also turns the source's tinted greys (its warm paper and its near-blacks; pure greys stay) to the profile's own neutral
+// tint, with the same luminance: the apps' own backgrounds, fields and lines then match the profile's theme tokens.
+// Node only. Tests: tests/node/whitelabel-palette.test.mjs.
 
 const hex2 = (n) => Math.round(Math.max(0, Math.min(255, n))).toString(16).padStart(2, '0');
 
@@ -31,10 +34,22 @@ export function shift([r, g, b], pal) {
   const [h, s] = rgbToHsl(r, g, b);
   const [lo, hi] = pal.from || [65, 100];
   if (h < lo || h > hi || s < (pal.minSaturation ?? 0.3)) return null;
-  const want = luminance([r, g, b]);
+  return atLuminance(pal.hue, s, luminance([r, g, b]));
+}
+/** The colour of a hue and saturation whose luminance is `want` (the lightness found by bisection). */
+function atLuminance(hue, s, want) {
   let a = 0, z = 1;
-  for (let i = 0; i < 30; i++) { const m = (a + z) / 2; if (luminance(hslToRgb(pal.hue, s, m)) < want) a = m; else z = m; }
-  return hslToRgb(pal.hue, s, (a + z) / 2);
+  for (let i = 0; i < 30; i++) { const m = (a + z) / 2; if (luminance(hslToRgb(hue, s, m)) < want) a = m; else z = m; }
+  return hslToRgb(hue, s, (a + z) / 2);
+}
+/** The source's tinted greys (default: the warm ones, hue 20-60) whose saturation is between 2% and maxSaturation (0.45). */
+export const NEUTRAL_FROM = [[20, 60]];
+/** The new [r, g, b] for a tinted grey, or null: neutral.hue at neutral.saturation (0.15), the same luminance. */
+export function shiftNeutral([r, g, b], n) {
+  if (!n || typeof n.hue !== 'number') return null;
+  const [h, s] = rgbToHsl(r, g, b);
+  if (s < 0.02 || s > (n.maxSaturation ?? 0.45) || !(n.from || NEUTRAL_FROM).some(([lo, hi]) => h >= lo && h <= hi)) return null;
+  return atLuminance(n.hue, n.saturation ?? 0.15, luminance([r, g, b]));
 }
 
 const HEX = /#([0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})\b/g;
@@ -46,13 +61,13 @@ export function remapColors(text, pal) {
   return text.replace(HEX, (m, h) => {
     const full = h.length <= 4 ? h.split('').map((c) => c + c).join('') : h;
     const rgb = [0, 2, 4].map((i) => parseInt(full.slice(i, i + 2), 16));
-    const n = shift(rgb, pal);
+    const n = shift(rgb, pal) || shiftNeutral(rgb, pal.neutral);
     if (!n) return m;
     let out = n.map(hex2).join('') + (full.length === 8 ? full.slice(6) : '');
     if (h === h.toUpperCase() && /[A-F]/.test(h)) out = out.toUpperCase();
     return '#' + out;
   }).replace(RGB, (m, r, g, b, tail) => {
-    const n = shift([+r, +g, +b], pal);
+    const n = shift([+r, +g, +b], pal) || shiftNeutral([+r, +g, +b], pal.neutral);
     return n ? m.slice(0, m.indexOf('(') + 1) + n.map(Math.round).join(', ') + tail : m;
   });
 }

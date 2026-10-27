@@ -141,6 +141,8 @@
     'shell.theme_dark': 'Ọchịchịrị',
     'shell.theme_classic': 'Ochie 98',
     'shell.theme_lime': 'Slopographic Lime',
+    'shell.theme_brand_light': '{brand} Ìhè',
+    'shell.theme_brand_dark': '{brand} Ọchịchịrị',
     'shell.more': 'Ọzọ',
     'shell.install': 'Wụnye',
     'shell.install_title': 'Wụnye {brand}',

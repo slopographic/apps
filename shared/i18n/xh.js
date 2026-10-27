@@ -141,6 +141,8 @@
     'shell.theme_dark': 'Emnyama',
     'shell.theme_classic': 'Yakudala 98',
     'shell.theme_lime': 'Slopographic Lime',
+    'shell.theme_brand_light': '{brand} Ekhanyayo',
+    'shell.theme_brand_dark': '{brand} Emnyama',
     'shell.more': 'Ezingakumbi',
     'shell.install': 'Faka',
     'shell.install_title': 'Faka i-{brand}',
