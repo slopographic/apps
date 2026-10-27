@@ -114,7 +114,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'seo.best.free-online-photo-editors.faq.3.1': 'Photopea öffnet RAW-Dateien wie DNG, CR2, NEF und ARW. GIMP arbeitet mit RAW über darktable, RawTherapee oder ART. PhotoSlop öffnet CR2, CR3, NEF, ARW, DNG, RAF und weitere RAW-Dateien mit einem Entwickeln-Dialog für Weißabgleich und Belichtung.',
   'seo.best.free-vector-graphics-editors.crumb': 'Kostenlose Vektoreditoren',
   'seo.best.free-vector-graphics-editors.title': 'Beste kostenlose Vektoreditoren: Inkscape, SlopVector, Graphite',
-  'seo.best.free-vector-graphics-editors.description': 'Kostenlose Vektoreditoren im Vergleich: Inkscape, SlopVector und Graphite. Zeichenstift und Pfadfinder, SVG, PDF und .ai-Dateien, Browser oder Desktop, Reifegrad.',
+  'seo.best.free-vector-graphics-editors.description': 'Kostenlose Vektoreditoren im Vergleich: Inkscape, SlopVector, Graphite. Zeichenstift, Pfadfinder, SVG, PDF, .ai-Dateien, Browser oder Desktop, Reifegrad.',
   'seo.best.free-vector-graphics-editors.h1': 'Die besten kostenlosen Vektorgrafik-Editoren',
   'seo.best.free-vector-graphics-editors.lead': 'Für Logos, Symbole und Illustrationen brauchen Sie einen Vektoreditor, und drei gute sind kostenlos und ohne Abo: unsere Browser-App im Stil von Illustrator, eine ausgereifte Desktop-App und ein neuer Open-Source-Editor.',
   'seo.best.free-vector-graphics-editors.criteria.0': 'Kostenlos, ohne Abo oder Testphase',
