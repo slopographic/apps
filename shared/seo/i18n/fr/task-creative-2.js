@@ -186,7 +186,7 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'seo.task.sorter.cull-photos.steps.1': 'Appuyez sur Commencer le tri. Appuyez sur ↑ pour aimer et sur ↓ pour ne pas aimer ; chaque choix passe à la photo suivante.',
   'seo.task.sorter.cull-photos.steps.2': 'Appuyez sur → pour passer et sur ← pour revenir. Tapez une lettre pour ajouter des étiquettes, comme « impression » ou « client ».',
   'seo.task.sorter.cull-photos.steps.3': 'Utilisez les filtres (Aimées, Non aimées, Pas encore triées ou une étiquette) pour relire vos choix.',
-  'seo.task.sorter.cull-photos.steps.4': 'Choisissez Télécharger les aimées (ZIP), Enregistrer les aimées dans Slop Drive, ou Télécharger la liste (CSV).',
+  'seo.task.sorter.cull-photos.steps.4': 'Choisissez Télécharger les photos aimées (ZIP), Enregistrer les photos aimées dans Slop Drive, ou Télécharger la liste (CSV).',
   'seo.task.sorter.cull-photos.body.0': 'Le CSV liste chaque photo avec son dossier, la décision et ses étiquettes, ce qui sert quand vous remettez une sélection à un client ou à un monteur. Les photos restent telles quelles : le ZIP contient les fichiers d’origine.',
   'seo.task.sorter.cull-photos.faq.0.0': 'Ma progression est-elle conservée si je ferme la page ?',
   'seo.task.sorter.cull-photos.faq.0.1': 'Non. Photos et décisions ne sont gardées que pendant que la page est ouverte, et la page vous prévient avant de partir. Téléchargez d’abord la liste ou les photos retenues.',

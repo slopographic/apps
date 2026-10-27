@@ -168,7 +168,7 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'seo.task.qr.wifi-qr-code.steps.0': 'Le formulaire Wi-Fi est ouvert. Saisissez le Nom du réseau (SSID).',
   'seo.task.qr.wifi-qr-code.steps.1': 'Choisissez la Sécurité (WPA / WPA2, WEP ou Aucune) et saisissez le Mot de passe. Cochez Réseau masqué s’il ne diffuse pas son nom.',
   'seo.task.qr.wifi-qr-code.steps.2': 'Changez les couleurs ou ajoutez un logo dans les onglets Style et Logo si vous le souhaitez.',
-  'seo.task.qr.wifi-qr-code.steps.3': 'Téléchargez un PNG ou un SVG, ou Imprimer la page (PDF) pour une feuille avec le code et son nom.',
+  'seo.task.qr.wifi-qr-code.steps.3': 'Téléchargez un PNG ou un SVG, ou Page d’impression (PDF) pour une feuille avec le code et son nom.',
   'seo.task.qr.wifi-qr-code.faq.0.0': 'Quels téléphones peuvent le scanner ?',
   'seo.task.qr.wifi-qr-code.faq.0.1': 'Les iPhone et les téléphones Android récents lisent les codes Wi-Fi avec l’appareil photo intégré et proposent de rejoindre le réseau.',
   'seo.task.qr.wifi-qr-code.faq.1.0': 'Mon mot de passe Wi-Fi est-il envoyé quelque part ?',
