@@ -87,7 +87,7 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'seo.best.free-qr-code-generators.faq.3.0': 'Puis-je suivre le nombre de scans de mon code ?',
   'seo.best.free-qr-code-generators.faq.3.1': 'Seulement avec un code dynamique, fonction payante chez QR Code Monkey PRO, le QR-Server de goQR.me et QR Code Generator. QR SLOP ne crée que des codes statiques.',
   'seo.best.free-online-video-editors.crumb': 'Montage vidéo en ligne gratuit',
-  'seo.best.free-online-video-editors.title': 'Meilleurs logiciels de montage vidéo en ligne gratuits : sans filigrane, limites',
+  'seo.best.free-online-video-editors.title': 'Meilleurs montages vidéo en ligne gratuits : sans filigrane, limites',
   'seo.best.free-online-video-editors.description': 'Montage vidéo gratuit dans le navigateur comparé : SlopCut, Clipchamp, CapCut et Kapwing. Résolution d’export, filigranes, inscription, IA et lieu des rushs.',
   'seo.best.free-online-video-editors.h1': 'Les meilleurs logiciels de montage vidéo gratuits dans le navigateur',
   'seo.best.free-online-video-editors.lead': 'Vous pouvez monter une vidéo dans un onglet de navigateur dès aujourd’hui. Ces quatre logiciels fonctionnent tous en ligne gratuitement ; ils diffèrent par la portée de l’export gratuit, par la nécessité d’un compte et par le nombre d’outils d’IA et de médias libres proposés.',
