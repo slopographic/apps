@@ -97,7 +97,7 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'seo.guide.code.getting-started.shortcuts.10.1': 'Afficher ou masquer l’Explorateur',
   'seo.guide.code.getting-started.shortcuts.11.1': 'Exécuter l’aperçu',
   'seo.guide.clean.getting-started.title': 'Premiers pas avec SlopClean : voir et supprimer les métadonnées des photos',
-  'seo.guide.clean.getting-started.description': 'Un court tutoriel SlopClean : ouvrez des photos, voyez leurs données GPS, d’appareil et de date, choisissez ce qu’il faut retirer et téléchargez des copies propres.',
+  'seo.guide.clean.getting-started.description': 'Un court tutoriel SlopClean : ouvrez des photos, voyez leurs données GPS, d’appareil et de date, choisissez quoi retirer, et téléchargez des copies propres.',
   'seo.guide.clean.getting-started.h1': 'Premiers pas avec SlopClean',
   'seo.guide.clean.getting-started.lead': 'SlopClean montre ce que révèle une image, comme l’endroit et la date de la prise de vue et l’appareil utilisé, puis le retire. L’image n’est pas réencodée, donc la qualité reste identique. Rien n’est envoyé.',
   'seo.guide.clean.getting-started.sections.0.h2': 'Ouvrir des photos',
