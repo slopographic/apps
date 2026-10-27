@@ -141,6 +141,8 @@ test('every data-i18n key on the homepage and Settings has an English string', a
   // Settings keeps its own words like an app (settings/i18n/en/*.js, keys settings.<area>.<name>) beside the chrome's
   const { pageAreas, sharedAreas, appTables } = await import('../../tools/i18n/tables.mjs');
   const own = appTables(pageAreas().find((a) => a.id === 'settings')).tables.en;
+  // the app words (shared/i18n/apps/en.js: the homepage strip and footer links, seo.mq.* and seo.foot.*; tools/seo/apptables.mjs)
+  new Function('window', await readFile(path.join(ROOT, 'shared/i18n/apps/en.js'), 'utf8'))({ SlopI18n: I });
   I.add('en', Object.fromEntries(own));
   const missing = [];
   for (const f of ['index.html', 'settings/index.html']) {

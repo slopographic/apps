@@ -69,6 +69,8 @@
     n.style.setProperty('--gx-k', String(ic.k));
     n.replaceChildren(C.icon(a, 'gx-svg') || '', el('span', { class: 'gx-name' }, name(a)));
   }
+  // a new language (its tables are in): the names again; the labels (labels.js) read them from aria-label
+  window.addEventListener('slopi18n', () => { for (const ic of icons) { const s = name(ic.app), x = ic.el.querySelector('.gx-name'); ic.el.setAttribute('aria-label', s); if (x) x.textContent = s; } });
   function build() {
     T = G.TIERS[tierName];
     layer.querySelectorAll('.gx-i').forEach((n) => n.remove());

@@ -9,7 +9,8 @@
 //   Guides      How it works, All tools, the first getting-started guides (registry order), Settings, the sitemap
 // Each column is a <details open> with its links in a grid (a long list the whole width, a short one half); a small inline script folds them on phones (max-width: 640px) and opens them again on wider
 // screens, so without JavaScript every link shows. Styles: shared/footnav/footnav.css. Labels with a data-i18n key are
-// translated where the page loads shared/i18n (the homepage).
+// translated where the page loads shared/i18n (the homepage): the chrome's footer.* words, and the round-ups', guides'
+// and converters' words as seo.foot.* (the runtime words written from this block in each language: apptables.mjs).
 // In another language than English the labels are the chrome tables' (footer.*, shared/i18n/<code>.js), the round-ups'
 // and guides' own words in that language and the convert tables' card labels; the links stay root-relative (write.mjs
 // gives them the language's folder).
@@ -56,16 +57,16 @@ export function buildFootNav({ apps, groups = {}, plainNames = false, roundups =
   }
   const cols = [...byGroup].filter(([, l]) => l.length).map(([g, l]) => (g ? col(groups[g], l, plainNames ? `footer.group_${g}` : '', word) : col('More apps', l, 'footer.more_apps', word)));
   if (index) cols.push(col('Compare', [['/compare/', 'All apps compared', 'footer.all_compared'], ['/best/', 'All comparisons', 'footer.all_comparisons'],
-    ...roundups.map((r) => [`/best/${r.slug}/`, r.crumb || r.h1])], 'footer.compare', word));
+    ...roundups.map((r) => [`/best/${r.slug}/`, r.crumb || r.h1, `seo.foot.best.${r.slug}`])], 'footer.compare', word));
   const firsts = new Map();
-  for (const p of converters) if (!firsts.has(p.cat)) firsts.set(p.cat, [`/convert/${p.slug}/`, p.label]);
+  for (const p of converters) if (!firsts.has(p.cat)) firsts.set(p.cat, [`/convert/${p.slug}/`, p.label, `seo.foot.cv.${p.slug}`]);
   // not indexed: the apps' columns link File convert itself already
   cols.push(col('Converters', [...firsts.values(), ...(index ? [['/convert/', 'All conversions', 'footer.all_conversions']] : [])].map(([h, t, k]) => [route(h), t, k]), 'footer.converters', word));
   const order = new Map(pages.map((a, i) => [a.id, i]));
   const starts = guides.filter((g) => g.slug === 'getting-started' && order.has(g.app)).sort((x, y) => order.get(x.app) - order.get(y.app)).slice(0, GUIDE_PICKS);
   const path = (g) => pages.find((a) => a.id === g.app).path;
   cols.push(col('Guides & help', index ? [['/how-it-works/', 'How it works', 'footer.how'], ['/all-tools/', 'All tools', 'footer.all_tools'],
-    ...starts.map((g) => [`/${path(g)}${g.slug}/`, g.h1]), ['/settings/', 'Settings and privacy', 'footer.settings_link'], ['/sitemap.xml', 'Sitemap', 'footer.sitemap']]
+    ...starts.map((g) => [`/${path(g)}${g.slug}/`, g.h1, `seo.foot.guide.${g.app}.${g.slug}`]), ['/settings/', 'Settings and privacy', 'footer.settings_link'], ['/sitemap.xml', 'Sitemap', 'footer.sitemap']]
     : [['/how-it-works/', 'How it works', 'footer.how'], ['/settings/', 'Settings and privacy', 'footer.settings_link']], 'footer.guides', word));
   if (parent) cols.push(col(parent.name, [[parent.url, 'More free tools →', 'parent.more_tools']], '', word));
   const fold = `<script>(function(){var m=matchMedia('${PHONE}'),s=function(){document.querySelectorAll('.fnav details').forEach(function(d){d.open=!m.matches})};s();m.addEventListener('change',s)})()</script>`;
@@ -79,12 +80,14 @@ export function footNav(L = context(ROOT_LANG)) {
   const converters = en ? CONVERTERS : CONVERTERS.map((p) => ({ slug: p.slug, cat: p.cat, label: labels.get(cardKey(p)) || p.label }));
   // the parent link's words are in shared/parent/i18n (en and sv; another language reads English)
   const own = (key, text) => (key.startsWith('parent.') ? appTable('shared/parent', L.code).get(key) || appTable('shared/parent', 'en').get(key) || text : null);
-  const word = (key, text) => (key ? own(key, text) ?? (en ? text : L.chrome(key, text)) : text);
+  const word = (key, text) => (!key || key.startsWith('seo.foot.') ? text : own(key, text) ?? (en ? text : L.chrome(key, text)));
   const parent = win.SLOP_PARENT || null, route = (h) => (parent && hiddenApp(h.slice(1)) ? parent.url + h : h);
   const html = buildFootNav({ apps: win.SLOP_APPS, groups: win.SLOP_GROUP_LABELS || {}, plainNames: win.SLOP_NAMING === 'plain', roundups: roundupsIn(L.code).filter((r) => win.SLOP_APPS.some((a) => a.id === r.app)), guides: guidesIn(L.code), converters, word, index: INDEX, parent, route });
   cached.set(L.code, html);
   return html;
 }
+/** [key, text] of the links with a runtime key (seo.foot.*) in a footer block. */
+export const footWords = (html) => [...html.matchAll(/data-i18n="(seo\.foot\.[^"]+)">([^<]*)</g)].map((m) => [m[1], m[2].replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&amp;/g, '&')]);
 export const footNavLinks = (html) => [...(/<nav class="fnav"[\s\S]*?<\/nav>/.exec(html) || [''])[0].matchAll(/<a href="([^"]+)"/g)].map((m) => m[1]);
 
 /** The converter pages (convert/js/core/pages.js), as repo paths. */

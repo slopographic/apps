@@ -21,6 +21,7 @@
     nav.append(list);
     APPS.forEach((a, i) => list.append(el('li', null, el('a', { href: a.path, tabindex: i ? '-1' : '0', 'data-id': a.id }, C.icon(a, 'gx-svg') || '', el('span', null, name(a))))));
   }
+  window.addEventListener('slopi18n', () => { for (const a of list.querySelectorAll('a[data-id]')) { const s = name(APPS.find((x) => x.id === a.dataset.id)); a.lastChild.textContent = s; } });   // a new language
   list.addEventListener('keydown', (e) => {
     const all = [...list.querySelectorAll('a')], i = all.indexOf(document.activeElement);
     if (i < 0) return;

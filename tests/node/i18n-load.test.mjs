@@ -71,7 +71,8 @@ test('at parse time an English page writes only the English chrome and ui tables
 test('a Swedish page writes English and Swedish (and the Swedish app names), and t() reads Swedish at once', () => {
   const p = page({ lang: 'sv' });
   p.script('shared/i18n/i18n.js');
-  assert.deepEqual(urls(p.writes), ['shared/i18n/strings.js', 'shared/i18n/sv.js', 'shared/i18n/sv-apps.js', 'shared/i18n/ui/en.js', ...uiParts('en'), 'shared/i18n/ui/sv.js', ...uiParts('sv')]);
+  assert.deepEqual(urls(p.writes), ['shared/i18n/strings.js', 'shared/i18n/sv.js', 'shared/i18n/sv-apps.js', 'shared/i18n/ui/en.js', ...uiParts('en'), 'shared/i18n/ui/sv.js', ...uiParts('sv'),
+    'shared/i18n/apps/en.js', 'shared/i18n/apps/sv.js']);   // the app words (titles, taglines, strip, footer): English too, only once another language is in use
   assert.equal(p.I().t('nav.apps'), 'Appar');
 });
 
