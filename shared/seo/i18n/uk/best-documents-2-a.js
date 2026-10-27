@@ -1,7 +1,7 @@
 /* SEO copy, Ukrainian: best-documents-2-a. Translated from shared/seo/i18n/en/best-documents-2-a.js. Rules: shared/seo/i18n/README.md. */
 window.SlopI18n && window.SlopI18n.add('uk', {
   'seo.best.free-word-processors.crumb': 'Найкращі безкоштовні текстові редактори',
-  'seo.best.free-word-processors.title': 'Найкращі текстові редактори (2026): Google Документи, Word, LibreOffice, Zoho',
+  'seo.best.free-word-processors.title': 'Найкращі текстові редактори (2026): Word, LibreOffice, Zoho, Google',
   'seo.best.free-word-processors.description': 'Безкоштовні текстові редактори: Google Документи, Word у вебі, LibreOffice Writer, Zoho Writer і Slop Docs. Облікові записи, файли Word, офлайн і сховище.',
   'seo.best.free-word-processors.h1': 'Найкращі безкоштовні текстові редактори, порівняно',
   'seo.best.free-word-processors.lead': 'Документи можна писати й оформлювати безкоштовно в кількох добрих інструментах. Вони відрізняються тим, чи потрібен обліковий запис, де зберігаються документи, наскільки добре працюють із файлами Word і чи можна працювати разом або офлайн.',

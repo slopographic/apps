@@ -15,7 +15,7 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'seo.best.free-vector-graphics-editors.faq.3.1': 'Так. Усі три безкоштовні, без підписки, і всі три мають відкритий код.',
   'seo.best.free-background-removers.crumb': 'Безкоштовні інструменти вилучення фону',
   'seo.best.free-background-removers.title': 'Найкращі безкоштовні засоби вилучення фону: повний розмір і пакетна обробка',
-  'seo.best.free-background-removers.description': 'Безкоштовні ШІ-засоби вилучення фону порівняно: SlopIsolate, Photoroom і Adobe Express. Розмір результату, ліміти експорту, пакети, відео, реєстрація та приватність.',
+  'seo.best.free-background-removers.description': 'Безкоштовні ШІ-засоби вилучення фону: SlopIsolate, Photoroom і Adobe Express. Розмір результату, ліміти експорту, пакети, відео, реєстрація та приватність.',
   'seo.best.free-background-removers.h1': 'Найкращі безкоштовні засоби вилучення фону',
   'seo.best.free-background-removers.lead': 'Кожен засіб вилучення фону здається безкоштовним, доки ви не завантажите результат: одні обмежують розмір, інші рахують експорти, треті вимагають обліковий запис. Ось що ви справді отримуєте безкоштовно від трьох популярних ШІ-інструментів вирізання.',
   'seo.best.free-background-removers.criteria.0': 'Безкоштовний результат: повний розмір, без водяного знака, без ліміту експорту',

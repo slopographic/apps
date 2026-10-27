@@ -73,7 +73,7 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'seo.best.free-online-spreadsheets.faq.3.0': 'Чи завантажуються мої таблиці?',
   'seo.best.free-online-spreadsheets.faq.3.1': 'Google Таблиці зберігають їх на Google Диску, а Excel у вебі — в OneDrive. Slop Tables зберігає їх у Slop Drive всередині вашого браузера, тож нічого не завантажується.',
   'seo.best.free-presentation-software.crumb': 'Найкращі безкоштовні програми для презентацій',
-  'seo.best.free-presentation-software.title': 'Найкращі безкоштовні презентації (2026): Google Презентації, PowerPoint, Zoho',
+  'seo.best.free-presentation-software.title': 'Найкращі безкоштовні презентації (2026): PowerPoint, Google, Zoho',
   'seo.best.free-presentation-software.description': 'Безкоштовні застосунки для презентацій: Google Презентації, PowerPoint у вебі, LibreOffice Impress, Zoho Show і Slop Slides. PPTX, режим доповідача й офлайн.',
   'seo.best.free-presentation-software.h1': 'Найкращі безкоштовні програми для презентацій, порівняно',
   'seo.best.free-presentation-software.lead': 'Створювати й показувати слайди в кількох застосунках безкоштовно. Вони відрізняються обліковими записами й сховищем, тим, наскільки добре відкривають і зберігають файли PowerPoint, чи є режим доповідача з нотатками та чи можна працювати разом.',
