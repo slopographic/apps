@@ -18,20 +18,23 @@ import { marquee } from '../../tools/seo/marquee.mjs';
 import { footNav } from '../../tools/seo/footnav.mjs';
 import { context } from '../../tools/seo/lang.mjs';
 import { table } from '../../shared/seo/i18n.mjs';
+import { registryWindow } from '../../tools/seo/site.mjs';
+import { FACTS } from '../brand-facts.mjs';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const read = (f) => readFileSync(path.join(ROOT, f), 'utf8');
 const de = table('de');
 
-/** A page's scripts in a vm: profile, i18n (starting in lang), the chrome, the app words a page in lang loads, the registry. */
-function boot(lang, { naming } = {}) {
+/** A profile marker's literal set to a value (the marker written in parts: a build rewrites every whole one, this file's too). */
+const set = (src, key, v) => { const m = '/*' + 'profile:' + key + '*/', i = src.indexOf(m); assert.ok(i >= 0, key); return src.slice(0, i + m.length) + src.slice(i + m.length).replace(/^('[^']*'|"[^"]*")/, JSON.stringify(v)); };
+/** A page's scripts in a vm: profile, i18n (starting in lang), the app words a page in lang loads, the registry with the
+ * naming given ('brand' or 'plain', whatever the build's profile says), the homepage's label helper. */
+function boot(lang, naming = 'brand') {
   const store = new Map();
   const ctx = { localStorage: { getItem: (k) => (store.has(k) ? store.get(k) : null), setItem: (k, v) => store.set(k, String(v)), removeItem: (k) => store.delete(k) } };
   ctx.window = ctx;
   vm.createContext(ctx);
-  const i18n = read('shared/i18n/i18n.js').replace(/\/\*profile:defaultLang\*\/'en'/, `/*profile:defaultLang*/'${lang}'`);
-  let apps = read('shared/apps.js');
-  if (naming) apps = apps.replace(/\/\*profile:naming\*\/'brand'/, `/*profile:naming*/'${naming}'`);
+  const i18n = set(read('shared/i18n/i18n.js'), 'defaultLang', lang), apps = set(read('shared/apps.js'), 'naming', naming);
   vm.runInContext(read('shared/profile/profile.js'), ctx);
   vm.runInContext(i18n, ctx);
   for (const c of ['en', lang]) if (existsSync(path.join(ROOT, DIR, c + '.js'))) vm.runInContext(read(DIR + c + '.js'), ctx);
@@ -39,56 +42,57 @@ function boot(lang, { naming } = {}) {
   vm.runInContext(read('shared/app-labels.js'), ctx);
   return ctx;
 }
-const app = (w, id) => w.SLOP_APPS.find((a) => a.id === id);
+// the owner's app (HTML to PDF), or in a build that hides it the first app with a German title
+const ID = (() => { const w = boot('en'); return [w.SLOP_APPS.find((a) => a.id === 'html2pdf'), ...w.SLOP_APPS].find((a) => a && de.get(`seo.reg.${a.id}.title`)).id; })();
+const app = (w, id = ID) => w.SLOP_APPS.find((a) => a.id === id);
 
-test('German: the title and tagline of the HTML to PDF converter come from the SEO tables (the owner\'s case)', () => {
-  const w = boot('de');
+test('German: an app\'s title and tagline come from the SEO tables (the owner\'s case: "HTML to PDF converter")', () => {
+  const w = boot('de'), a = app(w), en = app(boot('en'));
   assert.equal(w.SlopI18n.get(), 'de');
-  const a = app(w, 'html2pdf');
-  assert.equal(a.title, 'HTML to PDF converter', 'the registry stays English');
-  assert.equal(w.slopAppTitle(a), de.get('seo.reg.html2pdf.title'));
-  assert.notEqual(w.slopAppTitle('html2pdf'), 'HTML to PDF converter');
-  assert.equal(w.slopAppTagline(a), de.get('seo.reg.html2pdf.tagline'));
-  assert.equal(w.slopAppLabel(a, false), de.get('seo.reg.html2pdf.title'), 'the homepage card');
-  assert.equal(w.slopAppLabel(app(w, 'docs'), false), de.get('seo.reg.docs.title'));
+  assert.equal(a.title, en.title, 'the registry stays English');
+  assert.equal(w.slopAppTitle(a), de.get(`seo.reg.${ID}.title`));
+  assert.notEqual(w.slopAppTitle(ID), en.title);
+  assert.equal(w.slopAppTagline(a), de.get(`seo.reg.${ID}.tagline`));
+  assert.equal(w.slopAppLabel(a, false), de.get(`seo.reg.${ID}.title`), 'the homepage card');
 });
 
 test('brand names stay as they are in every language; only the descriptive words translate', () => {
   const w = boot('de');
-  assert.equal(w.slopAppName('pdf'), 'Slop PDF');
-  assert.equal(w.slopAppLabel(app(w, 'pdf'), true), 'Slop PDF');
-  assert.match(w.slopAppTitle('photoslop'), /^PhotoSlop: /);
-  assert.equal(w.slopAppLabel(app(w, 'photoslop'), true), 'PhotoSlop');
+  for (const a of w.SLOP_APPS) {
+    assert.equal(w.slopAppName(a.id), a.name, a.id);
+    assert.equal(w.slopAppLabel(a, true), a.name, a.id);
+  }
 });
 
 test('a language without app words (Swahili) reads the registry\'s English; so does English itself', () => {
   for (const code of ['sw', 'en']) {
-    const w = boot(code);
+    const w = boot(code), a = app(w);
     assert.equal(w.SlopI18n.get(), code);
     assert.ok(!w.SlopI18n.APP_LANGS.includes('sw'));
-    assert.equal(w.slopAppTitle('html2pdf'), 'HTML to PDF converter', code);
-    assert.equal(w.slopAppTagline(app(w, 'html2pdf')), 'Print an HTML file to PDF with a header and QR code. Nothing uploaded.', code);
-    assert.equal(w.slopAppLabel(app(w, 'docs'), false), 'Document editor', code);
+    assert.equal(w.slopAppTitle(a), a.title, code);
+    assert.equal(w.slopAppTagline(a), a.tagline, code);
+    assert.equal(w.slopAppLabel(a, false), a.title, code);
   }
 });
 
 test('plain names: the title is the plain name; a plain description of its own stays, the brand one translates', () => {
-  const w = boot('de', { naming: 'plain' });
-  assert.equal(w.slopAppTitle('photoslop'), 'Image Editor');
-  assert.equal(w.slopAppLabel(app(w, 'photoslop'), false), 'Image Editor');
-  assert.equal(w.slopAppTagline(app(w, 'photoslop')), 'Edit photos with layers, masks and filters.', 'its own plain description (PLAIN)');
-  assert.equal(w.slopAppTagline(app(w, 'pdf')), de.get('seo.reg.pdf.tagline'), 'the brand tagline, translated');
+  const w = boot('de', 'plain');
+  assert.equal(w.slopAppTitle(ID), app(w).plain);
+  assert.equal(w.slopAppLabel(app(w), false), app(w).plain);
+  const own = w.SLOP_APPS.find((a) => a.ownTagline), borrowed = w.SLOP_APPS.find((a) => !a.ownTagline && de.get(`seo.reg.${a.id}.tagline`));
+  if (own) assert.equal(w.slopAppTagline(own), own.plainTagline, 'its own plain description (PLAIN)');
+  assert.equal(w.slopAppTagline(borrowed), de.get(`seo.reg.${borrowed.id}.tagline`), 'the brand tagline, translated');
 });
 
 test('the runtime words: titles, taglines and the strip in German, English only the strip and the footer', () => {
   const dw = new Map(runtimeWords('de')), ew = new Map(runtimeWords('en'));
-  assert.equal(dw.get('seo.reg.html2pdf.title'), de.get('seo.reg.html2pdf.title'));
-  assert.equal(dw.get('seo.mq.photoslop'), de.get('seo.reg.photoslop.title').split(': ')[1]);
-  assert.ok([...dw.keys()].some((k) => k.startsWith('seo.foot.best.')), 'the round-ups in the footer');
+  assert.equal(dw.get(`seo.reg.${ID}.title`), de.get(`seo.reg.${ID}.title`));
+  assert.ok(dw.has(`seo.mq.${ID}`));
   assert.ok(![...ew.keys()].some((k) => k.startsWith('seo.reg.')), 'English titles come from the registry');
-  assert.match(ew.get('seo.mq.convert'), /^\d+ conversions$/);
-  assert.equal(ew.get('seo.foot.best.free-ai-image-upscalers'), 'Free AI image upscalers');
-  assert.notEqual(dw.get('seo.foot.best.free-ai-image-upscalers'), 'Free AI image upscalers');
+  if (ew.has('seo.mq.convert')) assert.match(ew.get('seo.mq.convert'), /^\d+ conversions$/);
+  const best = [...ew.keys()].filter((k) => k.startsWith('seo.foot.best.'));
+  assert.equal(best.length > 0, FACTS.seoIndex, 'the round-ups in the footer (an indexed site)');
+  for (const k of best) assert.ok(dw.has(k) && dw.get(k) !== ew.get(k), `${k} in German`);
 });
 
 test('the generated files are up to date, one per SEO language, and this test names each (rule 2)', () => {
@@ -103,11 +107,10 @@ test('the generated files are up to date, one per SEO language, and this test na
 });
 
 test('the strip in a language copy is in that language, each label keyed so the root page follows a switch', () => {
-  const root = marquee(), dm = marquee(context('de'));
-  assert.match(root, /data-id="html2pdf" tabindex="-1" data-i18n="seo\.mq\.html2pdf">HTML to PDF converter</);
-  assert.ok(dm.includes(`data-i18n="seo.mq.html2pdf">${de.get('seo.reg.html2pdf.title')}<`));
+  const keyed = registryWindow().SLOP_NAMING !== 'plain', root = marquee(), dm = marquee(context('de'));
+  assert.equal(root.includes('data-i18n="seo.mq.'), keyed, 'keys with brand names only (a plain build shows slopAppName)');
+  assert.ok(dm.includes(`>${new Map(runtimeWords('de')).get(`seo.mq.${ID}`)}<`), 'the German label');
   assert.ok(!/>\d+ conversions</.test(dm), 'the English count stays out of German');
-  const foot = footNav(context('de'));
-  assert.match(foot, /<a href="\/best\/free-ai-image-upscalers\/" data-i18n="seo\.foot\.best\.free-ai-image-upscalers">/);
-  assert.ok(!foot.includes('>Free AI image upscalers<'));
+  const foot = footNav(context('de')), en = new Map(runtimeWords('en'));
+  for (const [k, v] of en) if (k.startsWith('seo.foot.best.')) { assert.ok(foot.includes(`data-i18n="${k}">`), k); assert.ok(!foot.includes(`>${v}<`), `${k} in English`); }
 });

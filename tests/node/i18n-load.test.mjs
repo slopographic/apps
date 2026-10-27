@@ -54,6 +54,9 @@ function page({ lang, parsing = true, offline = false, late = false } = {}) {
   vm.runInContext(read('shared/profile/profile.js'), ctx);
   return { ctx, doc, writes, added, events, attrs, script, I: () => ctx.SlopI18n };
 }
+/** English's app words (shared/i18n/apps/en.js): an English page needs none, unless the build starts in another language
+ * (its pages are written in that one, so English words come from the table). */
+const enWords = (p) => (p.I().DEFAULT_CHOICE !== 'en' ? ['shared/i18n/apps/en.js'] : []);
 /** The shared components' parts of a language after ui/<code>.js (UI_PARTS in i18n.js; none for a language without them). */
 function uiParts(code) {
   const P = JSON.parse(/var UI_PARTS = \/\*ui-parts\*\/(\{.*\});/.exec(read('shared/i18n/i18n.js'))[1].replace(/(\w+):/g, '"$1":').replace(/'/g, '"'));
@@ -64,7 +67,7 @@ const urls = (writes) => writes.map((h) => (/(?:src|href)="([^"]+)"/.exec(h) || 
 test('at parse time an English page writes only the English chrome and ui tables', () => {
   const p = page({ lang: 'en' });   // stored, so a build that starts in another language reads the same
   p.script('shared/i18n/i18n.js');
-  assert.deepEqual(urls(p.writes), ['shared/i18n/strings.js', 'shared/i18n/ui/en.js', ...uiParts('en')]);
+  assert.deepEqual(urls(p.writes), ['shared/i18n/strings.js', 'shared/i18n/ui/en.js', ...uiParts('en'), ...enWords(p)]);
   assert.equal(p.I().t('nav.apps'), 'Apps');
 });
 
@@ -118,7 +121,7 @@ test('later (not parsing), set() applies at once, fetches the new tables and the
   const p = page({ lang: 'en', parsing: false, late: true });
   p.script('shared/i18n/i18n.js');
   await p.I().ready();
-  assert.deepEqual(p.added.map((e) => e.src.slice(SITE.length)), ['shared/i18n/strings.js', 'shared/i18n/ui/en.js', ...uiParts('en')]);
+  assert.deepEqual(p.added.map((e) => e.src.slice(SITE.length)), ['shared/i18n/strings.js', 'shared/i18n/ui/en.js', ...uiParts('en'), ...enWords(p)]);
   let heard = 0;
   const stop = p.I().on((code) => { heard++; assert.equal(code, 'de'); });
   assert.equal(p.I().set('de').ok, true);
