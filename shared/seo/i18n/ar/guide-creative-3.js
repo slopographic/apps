@@ -80,7 +80,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'seo.guide.3d.getting-started.shortcuts.8.1': 'إخفاء أو إظهار',
   'seo.guide.3d.getting-started.shortcuts.9.1': 'تراجع / إعادة',
   'seo.guide.gallery.getting-started.title': 'البدء مع Slop Gallery: مكتبة صور على جهازك',
-  'seo.guide.gallery.getting-started.description': 'تعرّف على Slop Gallery: استورد الصور أو مجلداً، وتصفّحها حسب الشهر، وصفّها حسب السنة أو الكاميرا أو الوسم، ورتّبها بالتمرير، وابحث عن النسخ المكررة، وأنشئ ألبومات.',
+  'seo.guide.gallery.getting-started.description': 'تعرّف على Slop Gallery: استورد الصور أو مجلداً، وتصفّحها حسب الشهر، وصفّها حسب السنة أو الكاميرا أو الوسم، وابحث عن النسخ المكررة، وأنشئ ألبومات.',
   'seo.guide.gallery.getting-started.h1': 'البدء مع Slop Gallery',
   'seo.guide.gallery.getting-started.lead': 'Slop Gallery مكتبة صور تعيش في متصفحك. تُعالج صورك على هذا الجهاز ولا تُرفع أبداً.',
   'seo.guide.gallery.getting-started.sections.0.h2': 'استورد الصور',
