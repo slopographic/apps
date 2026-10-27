@@ -16,7 +16,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'seo.task.recorder.screen-recorder-with-webcam.faq.1.0': 'Wird die Aufnahme hochgeladen?',
   'seo.task.recorder.screen-recorder-with-webcam.faq.1.1': 'Nein. Bildschirm und Webcam werden gemeinsam gezeichnet und auf Ihrem Computer aufgenommen, und die Datei bleibt dort, bis Sie sie speichern.',
   'seo.task.recorder.screen-recorder-with-webcam.faq.2.0': 'Kann ich das Webcam-Bild verschieben?',
-  'seo.task.recorder.screen-recorder-with-webcam.faq.2.1': 'Wählen Sie vor der Aufnahme eine der vier Ecken und eine Größe von 10 % bis 50 % der Breite.',
+  'seo.task.recorder.screen-recorder-with-webcam.faq.2.1': 'Wählen Sie vor der Aufnahme eine der vier Ecken und eine Größe von 10% bis 50% der Breite.',
   'seo.task.recorder.record-screen-with-audio.crumb': 'Bildschirm mit Ton',
   'seo.task.recorder.record-screen-with-audio.title': 'Bildschirm mit Ton aufnehmen: System-Audio und Mikrofon',
   'seo.task.recorder.record-screen-with-audio.description': 'Nehmen Sie Ihren Bildschirm mit dem Ton eines Tabs oder des ganzen Systems und Ihrem Mikrofon auf, soweit der Browser es erlaubt. Kostenlos, im Browser, ohne Installation, ohne Upload.',
