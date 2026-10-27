@@ -2,7 +2,7 @@
 window.SlopI18n && window.SlopI18n.add('tr', {
   'seo.guide.recorder.getting-started.crumb': 'Başlarken',
   'seo.guide.recorder.getting-started.title': 'Slop Recorder’a başlarken: kaydedin, kırpın ve kaydedin',
-  'seo.guide.recorder.getting-started.description': 'Slop Recorder’ı birkaç dakikada öğrenin: ekranı, web kamerasını ya da mikrofonu kaydedin, duraklatın, uçları kırpın ve WebM, MP4 ya da GIF kaydedin. Yükleme yok.',
+  'seo.guide.recorder.getting-started.description': 'Slop Recorder’ı birkaç dakikada öğrenin: ekranı, web kamerasını ya da mikrofonu kaydedin, duraklatın, uçları kırpın ve WebM, MP4 ya da GIF olarak kaydedin.',
   'seo.guide.recorder.getting-started.h1': 'Slop Recorder’a başlarken',
   'seo.guide.recorder.getting-started.lead': 'Slop Recorder ekranınızı, bir pencereyi ya da sekmeyi, web kameranızı, mikrofonunuzu ya da köşesinde web kameranızla ekranı kaydeder. Tarayıcınızda çalışır ve kayıt bu cihazda kalır.',
   'seo.guide.recorder.getting-started.sections.0.h2': 'Neyi kaydedeceğinizi seçin',

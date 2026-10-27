@@ -2,7 +2,7 @@
 window.SlopI18n && window.SlopI18n.add('tr', {
   'seo.guide.diff.getting-started.crumb': 'Başlarken',
   'seo.guide.diff.getting-started.title': 'Slop Compare’a başlarken: iki dosya arasında neyin değiştiğini görün',
-  'seo.guide.diff.getting-started.description': 'Slop Compare’ı birkaç dakikada öğrenin: iki metni, dosyayı, PDF’yi ya da resmi karşılaştırın, değişiklikleri gezin, rapor ya da .patch dışa aktarın. Yükleme yok.',
+  'seo.guide.diff.getting-started.description': 'Slop Compare’ı birkaç dakikada öğrenin: iki metni, dosyayı, PDF’yi ya da resmi karşılaştırın, değişiklikleri gezin, rapor ya da .patch dışa aktarın.',
   'seo.guide.diff.getting-started.h1': 'Slop Compare’a başlarken',
   'seo.guide.diff.getting-started.lead': 'Slop Compare iki sürüm arasında neyin değiştiğini gösterir: metinler ve kod, JSON ve CSV, PDF’ler ve resimler. Her şey tarayıcınızda okunur, hiçbir zaman yüklenmez.',
   'seo.guide.diff.getting-started.sections.0.h2': 'İki sürümü koyun',
