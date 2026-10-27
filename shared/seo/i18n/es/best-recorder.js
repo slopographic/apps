@@ -1,8 +1,8 @@
 /* SEO copy, Spanish: best-recorder. Translated from shared/seo/i18n/en/best-recorder.js. Rules: shared/seo/i18n/README.md. */
 window.SlopI18n && window.SlopI18n.add('es', {
   'seo.best.free-screen-recorders.crumb': 'Grabadores de pantalla gratis',
-  'seo.best.free-screen-recorders.title': 'Mejores grabadores de pantalla gratis: navegador, escritorio y nube comparados',
-  'seo.best.free-screen-recorders.description': 'Slop Recorder en el navegador, OBS Studio, ShareX y el plan gratis de Loom comparados: webcam en una esquina, sonido del equipo, recorte, formatos, instalación y subidas.',
+  'seo.best.free-screen-recorders.title': 'Mejores grabadores de pantalla gratis: navegador, escritorio y nube',
+  'seo.best.free-screen-recorders.description': 'Slop Recorder en el navegador, OBS Studio, ShareX y el plan gratis de Loom: webcam en una esquina, sonido del equipo, recorte, formatos e instalación.',
   'seo.best.free-screen-recorders.h1': 'Los mejores grabadores de pantalla gratis',
   'seo.best.free-screen-recorders.lead': 'Un grabador de pantalla para una explicación rápida, un informe de error o una clase. Estas herramientas gratis graban la pantalla; se diferencian en lo que hay que instalar, en dónde acaba el vídeo y en lo que pueden hacer.',
   'seo.best.free-screen-recorders.criteria.0': 'Gratis para grabar la pantalla',
