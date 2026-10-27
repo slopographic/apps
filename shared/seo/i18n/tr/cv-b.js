@@ -1,14 +1,14 @@
 /* SEO copy, Turkish: cv-b. Translated from shared/seo/i18n/en/cv-b.js (written by tools/seo/tables.mjs; edit that, not this file).
  * Read by tools/seo (shared/seo/i18n.mjs), never by a page. Rules: shared/seo/i18n/README.md. */
 window.SlopI18n && window.SlopI18n.add('tr', {
-  'seo.cv.split-pdf.description': 'PDF’yi tarayıcınızda bölün. Bir sayfa aralığını tek bir PDF’ye çıkarın ya da her sayfayı kendi dosyasına ayırıp ZIP olarak indirin. Yükleme yok.',
-  'seo.cv.split-pdf.h1': 'PDF’yi böl: sayfaları ayıklayın ya da sayfa başına bir dosya',
-  'seo.cv.split-pdf.lead': 'Bir PDF’den sayfaları çekin ya da onu sayfa başına bir dosyaya bölün. Her şey bu cihazda olur.',
+  'seo.cv.split-pdf.description': 'PDF\'yi tarayıcınızda bölün. Bir sayfa aralığını tek bir PDF\'ye çıkarın ya da her sayfayı kendi dosyasına ayırıp ZIP olarak indirin. Yükleme yok.',
+  'seo.cv.split-pdf.h1': 'PDF\'yi böl: sayfaları ayıklayın ya da sayfa başına bir dosya',
+  'seo.cv.split-pdf.lead': 'Bir PDF\'den sayfaları çekin ya da onu sayfa başına bir dosyaya bölün. Her şey bu cihazda olur.',
   'seo.cv.split-pdf.how.0': 'Bu sayfalarla tek bir PDF yapmak için 2-4, 9 gibi bir aralık girin. Boş bırakırsanız her sayfa için ayrı bir PDF alırsınız; ZIP olarak indirilebilir.',
   'seo.cv.split-pdf.faq.0.0': 'Sayfa aralığını nasıl yazarım?',
   'seo.cv.split-pdf.faq.0.1': 'Virgül ve tire kullanın: 1-3, 5, 8- demek 1’den 3’e kadar sayfalar, 5. sayfa ve 8. sayfadan sona kadar demektir.',
   'seo.cv.split-pdf.faq.1.0': 'Özgün dosya değişir mi?',
-  'seo.cv.split-pdf.faq.1.1': 'Hayır. Özgün dosya okunur ve sayfalarından yeni PDF’ler yapılır.',
+  'seo.cv.split-pdf.faq.1.1': 'Hayır. Özgün dosya okunur ve sayfalarından yeni PDF\'ler yapılır.',
   'seo.cv.csv-to-json.title': 'CSV’den JSON’a dönüştürücü, ücretsiz, tarayıcınızda | File convert',
   'seo.cv.csv-to-json.description': 'CSV dosyalarını tarayıcınızda JSON’a çevirin. İlk satır anahtar olur; tırnaklı alanlar ve satır sonları doğru işlenir. Verileriniz cihazdan hiç çıkmaz.',
   'seo.cv.csv-to-json.h1': 'CSV’den JSON’a dönüştürücü',

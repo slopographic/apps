@@ -82,7 +82,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'seo.guide.code.getting-started.sections.2.image.alt': 'Düzenleyicide açık hello.html ve Önizleme’de çalışan sayfası olan Slop Code; konsolda Sayfa hazır',
   'seo.guide.code.getting-started.sections.3.h2': 'Uzantılar ve diğer dosyalar',
   'seo.guide.code.getting-started.sections.3.text.0': 'Uzantılar panelinde açıp kapatabileceğiniz yerleşik yardımcılar vardır: Biçimlendirici (Belgeyi biçimlendir), Dil kipi değiştirici ve Kod parçaları. Hiçbir şey indirilmez.',
-  'seo.guide.code.getting-started.sections.3.text.1': 'Bir Markdown dosyasının, onu işlenmiş olarak gösteren bir Önizle düğmesi vardır. Resimler, ses, video ve PDF’ler yalnızca okunabilir bir görünüm sekmesinde açılır.',
+  'seo.guide.code.getting-started.sections.3.text.1': 'Bir Markdown dosyasının, onu işlenmiş olarak gösteren bir Önizle düğmesi vardır. Resimler, ses, video ve PDF\'ler yalnızca okunabilir bir görünüm sekmesinde açılır.',
   'seo.guide.code.getting-started.sections.3.tip': 'Ctrl+B kenar çubuğunu gösterir ya da gizler. Her komutu aramak için Komutlar’a tıklayın.',
   'seo.guide.code.getting-started.shortcuts.0.1': 'Slop Drive’dan aç',
   'seo.guide.code.getting-started.shortcuts.1.1': 'Yeni dosya',
