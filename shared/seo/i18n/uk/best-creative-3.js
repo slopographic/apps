@@ -2,7 +2,7 @@
 window.SlopI18n && window.SlopI18n.add('uk', {
   'seo.best.free-transcription-software.crumb': 'Безкоштовні програми для транскрибування',
   'seo.best.free-transcription-software.title': 'Найкращі безкоштовні програми для транскрибування: аудіо в текст',
-  'seo.best.free-transcription-software.description': 'Безкоштовні інструменти з аудіо в текст порівняно: Buzz, Slop Transcribe, TurboScribe і Otter. Безкоштовні хвилини, довжина файлу, мови, мовці, експорт і приватність.',
+  'seo.best.free-transcription-software.description': 'Безкоштовні інструменти з аудіо в текст: Buzz, Slop Transcribe, TurboScribe і Otter. Безкоштовні хвилини, довжина файлу, мови, мовці, експорт і приватність.',
   'seo.best.free-transcription-software.h1': 'Найкращі безкоштовні програми для транскрибування',
   'seo.best.free-transcription-software.lead': 'Перетворити інтерв’ю, лекцію чи голосову нотатку на текст можна безкоштовно. Два з цих інструментів, наш і Buzz, запускають Whisper на вашому комп’ютері; два — онлайн-сервіси з безкоштовними планами. Ось наскільки далеко сягає кожна безкоштовна версія.',
   'seo.best.free-transcription-software.criteria.0': 'Що безкоштовно: хвилини, довжина файлу, кількість файлів',
@@ -116,7 +116,7 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'seo.best.free-transcription-software.faq.3.1': 'Buzz і Slop Transcribe експортують SRT і VTT безкоштовно. TurboScribe експортує SRT і VTT, а Otter має SRT у платних планах.',
   'seo.best.free-label-design-software.crumb': 'Безкоштовні програми для дизайну етикеток',
   'seo.best.free-label-design-software.title': 'Найкращі безкоштовні програми для етикеток: штрихкоди, злиття, Zebra, Avery',
-  'seo.best.free-label-design-software.description': 'Безкоштовні програми для дизайну етикеток порівняно: SlopLabel, Avery Design & Print, ZebraDesigner Essentials і gLabels. Штрихкоди, злиття даних, аркуші й термодрукарки.',
+  'seo.best.free-label-design-software.description': 'Безкоштовні програми для етикеток: SlopLabel, Avery Design & Print, ZebraDesigner Essentials і gLabels. Штрихкоди, злиття даних, аркуші й термодрукарки.',
   'seo.best.free-label-design-software.h1': 'Найкращі безкоштовні програми для створення етикеток',
   'seo.best.free-label-design-software.lead': 'Адресні наклейки на аркушах, цінники зі штрихкодами та етикетки для доставки на термопринтері потребують різних інструментів або одного, що вміє все це. Ось чотири безкоштовні редактори етикеток і те, що кожен з них може надрукувати.',
   'seo.best.free-label-design-software.criteria.0': 'Безкоштовно, без платної ліцензії на потрібні функції',

@@ -88,7 +88,7 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'seo.best.free-qr-code-generators.faq.3.1': 'Лише з динамічним кодом, що є платною функцією в QR Code Monkey PRO, QR-Server від goQR.me і QR Code Generator. QR SLOP створює лише статичні коди.',
   'seo.best.free-online-video-editors.crumb': 'Безкоштовні онлайн-редактори відео',
   'seo.best.free-online-video-editors.title': 'Найкращі безкоштовні онлайн-редактори відео: без водяного знака',
-  'seo.best.free-online-video-editors.description': 'Безкоштовні відеоредактори в браузері: SlopCut, Clipchamp, CapCut і Kapwing. Роздільна здатність експорту, водяні знаки, реєстрація, функції ШІ та куди йде відео.',
+  'seo.best.free-online-video-editors.description': 'Безкоштовні відеоредактори в браузері: SlopCut, Clipchamp, CapCut і Kapwing. Роздільна здатність експорту, водяні знаки, реєстрація, ШІ та куди йде відео.',
   'seo.best.free-online-video-editors.h1': 'Найкращі безкоштовні відеоредактори у браузері',
   'seo.best.free-online-video-editors.lead': 'Відео можна змонтувати просто зараз, у вкладці браузера. Ці чотири редактори працюють онлайн безкоштовно; вони відрізняються тим, наскільки далеко сягає безкоштовний експорт, чи потрібен обліковий запис і скільки додатків ШІ та стокового вмісту ви отримуєте.',
   'seo.best.free-online-video-editors.criteria.0': 'Безкоштовний експорт без водяного знака і в якій роздільній здатності',
