@@ -296,3 +296,20 @@ end, `endpoint(base, path)`), `authHeaders` (Bearer, or `{ header: 'api-key' }` 
 - Tests: `tests/node/ai-free.test.mjs` (shape, OpenRouter fixture `tests/node/ai-openrouter-models.json` from its public
   /models, which models are free, the 429 words), `tests/ai/cloud-free.test.html` (badges, chip, guide links, only free
   models, the model menu, a 429 from Groq).
+
+## Ready-made prompts (shared/ai/quick/, 2026-10)
+One tap sends a common request from the AI panel. Three ways in: chips on an empty chat (recent first, then the app's
+own), the ⚡ button beside the message box (the whole list, grouped: Recent, the app, Understand, Write, Translate,
+Ideas, Help), and "/" at the start of the box (filters as you type; ↑ ↓, Enter runs, Esc closes). A prompt with
+something to choose shows a small form above the box (a select or a text field), starting on the last value used.
+- `quick/engine.js` (`K.quick.create`): the format, `when` conditions, variables (`context`, `choice`, `text`,
+  `number`; named sets language/tone/length/audience/period), filling, the "/" filter, recent and remembered values
+  (localStorage `slop-ai.quick`). `quick/context.js`: the selection (kept while the focus is in the panel), the app's
+  name and language, and whatever the app reports with `SlopCmd.provide({ context })` (Slop Tables: document, sheet,
+  range, the selected cells; Slop Docs: document, selection). `quick/ui.js`: the panel's part.
+- The lists: `quick/shared.js` (19 prompts every app gets) and `quick/apps/<app id>.js` (one per page with the AI
+  button; `skip` leaves shared prompts or groups out). The words: the `prompts.*` tables in `shared/ai/i18n/<code>/`,
+  shipped in English and Swedish only (`index.js` langs), so other languages read English until translated; the text
+  sent to the model is translated too, so it answers in the person's language.
+- Tests: `tests/node/ai-quick.test.mjs` (engine; every list: keys, variables, labels, 5–12 prompts per app),
+  `tests/ai/quick-prompts.test.html` (Slop Tables at 1280 and 390 px).

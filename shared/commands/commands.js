@@ -148,7 +148,7 @@
     } catch (err) { return { ok: false, error: String((err && err.message) || err), args: v.args }; }
   }
   const ensureArgs = () => (window.SlopCmdArgs || !BASE ? Promise.resolve() : loadPart('args'));
-  /** What an app shares with the assistant: provide({ state, checkpoint: () => rollbackFn, prepare, snapshot: () => Blob|canvas (look_at_canvas) }); only a provided
+  /** What an app shares with the assistant: provide({ state, checkpoint: () => rollbackFn, prepare, snapshot: () => Blob|canvas (look_at_canvas), context }); only a provided
    * prepare is remembered (one provided after an early prepare() call still runs). No state or snapshot: view.js gives the page's. */
   const prov = {}, provide = (o) => { if (o && o.prepare && o.prepare !== prov.prepare) prepP = null; Object.assign(prov, o || {}); };
   let prepP = null, srcP = null; const pageView = () => (parts.view ? Promise.resolve(parts.view) : BASE ? loadPart('view').then(() => parts.view) : Promise.reject(new Error('This page has no view summary')));
@@ -277,7 +277,7 @@
     state: () => { try { const v = prov.state ? prov.state() : pageView().then((p) => p.state(), () => null); return v && typeof v.then === 'function' ? v.then(null, (e) => ({ error: String((e && e.message) || e) })) : v; } catch (e) { return { error: e.message }; } },
     checkpoint: () => (prov.checkpoint ? prov.checkpoint() : null),
     snapshot: () => (prov.snapshot ? prov.snapshot() : pageView().then((v) => v.snapshot(), () => null)),
-    ownState: () => !!prov.state,
+    ownState: () => !!prov.state, context: () => (prov.context ? prov.context() : null),   // what the AI panel's ready-made prompts fill in (shared/ai/quick/context.js)
     prepare: () => (!prov.prepare ? Promise.resolve(null) : (prepP = prepP || Promise.resolve(prov.prepare()).catch((e) => { prepP = null; throw e; }))),
     keyFor: (id) => { const b = bindings(id); return b.length ? format(b[0]) : ''; },
     keysFor: (id) => bindings(id).map((b) => format(b)),
