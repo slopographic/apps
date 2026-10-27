@@ -48,11 +48,16 @@
     for (const m of p.models) if (m.hint) live(m, 'note', 'ui.ai.cloud.hint_' + m.hint, { who: m.by || '' });
   }
   const extra = [];
-  const all = () => list.concat(extra);
+  // The models the site offers (shared/ai/makers.js, the brand profile's "ai"): a provider is left out when it is listed,
+  // its maker is hidden, or every model of its own is (OpenRouter fetches its list, so it stays and the list is filtered).
+  const M = () => K.makers;
+  const offered = (id, l) => (M() ? M().filter(l, id) : l || []);
+  const shown = (p) => !M() || (M().provider({ id: p.id }) && (!p.models.length || p.format === 'openrouter' || offered(p.id, p.models).length > 0));
+  const all = () => list.concat(extra).filter(shown);
   const byId = (id) => all().find((p) => p.id === id) || null;
   /** The models offered: the fetched list (OpenRouter's image models) when there is one, else the defaults. */
-  const models = (id, fetched) => { const p = byId(id); return p ? (fetched && fetched.length ? fetched : p.models) : []; };
-  const model = (id, mid, fetched) => (models(id, fetched).find((m) => m.id === mid) || (byId(id) || { models: [] }).models.find((m) => m.id === mid) || null);
+  const models = (id, fetched) => { const p = byId(id); return p ? offered(id, fetched && fetched.length ? fetched : p.models) : []; };
+  const model = (id, mid, fetched) => (models(id, fetched).find((m) => m.id === mid) || models(id).find((m) => m.id === mid) || null);
   /** More providers (an on-device model, another service). p: { id, name, who, short, local, generate(req) → { images, usage } }. */
   function register(p) { if (!p || !p.id || byId(p.id)) return false; extra.push(Object.assign({ format: 'custom', models: [], maxN: 1, mask: false, transparent: false }, p)); return true; }
 
@@ -112,7 +117,14 @@
   }
 
   const BLANK = () => ({ provider: '', models: {}, aspect: '1:1', resolution: '1K', quality: 'medium', style: 'none' });
-  function settings() { try { return Object.assign(BLANK(), JSON.parse(localStorage.getItem(SETTINGS)) || {}); } catch (e) { return BLANK(); } }
+  /** The last choices; one the site no longer offers (a hidden provider or model) is forgotten, so the next one is used. */
+  function settings() {
+    let s; try { s = Object.assign(BLANK(), JSON.parse(localStorage.getItem(SETTINGS)) || {}); } catch (e) { s = BLANK(); }
+    if (!M() || !M().active()) return s;
+    if (s.provider && !byId(s.provider)) s.provider = '';
+    for (const [pid, mid] of Object.entries(s.models || {})) if (!byId(pid) || !M().allowed(mid, pid)) delete s.models[pid];
+    return s;
+  }
   function save(s) {
     const clean = {};
     for (const k of Object.keys(BLANK())) if (s && s[k] !== undefined) clean[k] = s[k];

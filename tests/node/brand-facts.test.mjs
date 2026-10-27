@@ -8,7 +8,7 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { FACTS, BRAND, registry, appName, ROOT } from '../brand-facts.mjs';
 
-const LIT = String.raw`('(?:[^'\\\n]|\\.)*'|"(?:[^"\\\n]|\\.)*"|true|false|\[[^\]\n]*\])`;
+const LIT = String.raw`('(?:[^'\\\n]|\\.)*'|"(?:[^"\\\n]|\\.)*"|true|false|\[[^\]\n]*\]|\{[^\n]*\})`;
 const marker = (file, key) => {
   const m = new RegExp(String.raw`/\*profile:${key}\*/` + LIT).exec(readFileSync(path.join(ROOT, file), 'utf8'));
   assert.ok(m, `${file}: no ${key} marker`);
@@ -24,6 +24,7 @@ test('every fact is the marker of the code that acts on it', () => {
   assert.equal(FACTS.analytics, marker('shared/consent/config.js', 'analytics'));
   assert.equal(FACTS.defaultLang, marker('shared/i18n/i18n.js', 'defaultLang'));
   assert.equal(FACTS.seoIndex, marker('tools/seo/site.mjs', 'seoIndex'));
+  assert.deepEqual({ ...FACTS.aiModels }, marker('shared/ai/makers.js', 'aiModels'));
   const builtin = marker('shared/buddy/boot.js', 'mascot'), overlay = marker('shared/buddy/boot.js', 'mascotOverlay');
   assert.equal(FACTS.mascot, builtin ? 'builtin' : overlay ? 'overlay' : 'none');
   for (const f of ['drive/js/ui/empty.js', 'ai/js/ui/sloppo.js']) assert.equal(marker(f, 'mascot'), builtin, f);

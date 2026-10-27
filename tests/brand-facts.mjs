@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url';
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (f) => readFileSync(path.join(ROOT, f), 'utf8');
 
-/** The profile's switches: { naming, tone, mascot ('builtin' | 'overlay' | 'none'), media, analytics, defaultLang, hideApps, seoIndex }. */
+/** The profile's switches: { naming, tone, mascot ('builtin' | 'overlay' | 'none'), media, analytics, defaultLang, hideApps, seoIndex, aiModels }. */
 export const FACTS = (() => { const g = {}; vm.runInNewContext(read('tests/brand-facts.js'), g); return g.BRAND_FACTS; })();
 
 /** brand/brand.json as shipped. */

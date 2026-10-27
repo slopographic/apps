@@ -112,7 +112,7 @@
   async function importFolder(files) {
     files = [...files].map((f) => (f.file ? f : { file: f, path: f.webkitRelativePath || f.name }));
     const cfg = files.find((f) => /(^|\/)mlc-chat-config\.json$/.test(f.path));
-    if (!cfg) throw new Error('This folder has no mlc-chat-config.json. Pick an MLC model folder (for example Qwen2.5-1.5B-Instruct-q4f16_1-MLC).');
+    if (!cfg) throw new Error('This folder has no mlc-chat-config.json. Pick an MLC model folder (for example Llama-3.2-1B-Instruct-q4f16_1-MLC).');
     const root = cfg.path.replace(/mlc-chat-config\.json$/, '');
     const name = (root.replace(/\/$/, '').split('/').pop() || 'local-model').replace(/[^\w.-]+/g, '-');
     const id = 'local:' + name, base = cleanUrl(LOCAL_HOST + encodeURIComponent(name));

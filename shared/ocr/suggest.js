@@ -2,7 +2,8 @@
  * language), says whether another model would read the text better, the way Slop Transcribe gives a quick transcript first
  * and then offers a better model. Pure (no DOM), so Node tests run it.
  * suggestModel(lines, { model, catalog, locale }) -> null, or { language, model, script, reason }
- *   lines: the engine's [{ text, score, box: { w, h } }]; model: the id used; catalog: window.SlopOcrModels;
+ *   lines: the engine's [{ text, score, box: { w, h } }]; model: the id used; catalog: window.SlopOcrModels (or the
+ *   catalog of the engine chosen, shared/ocr/choose.js);
  *   locale: the browser's language as an OCR code (shared/ocr/languages.js fromLocale), or null; skipped: the lines the
  *   engine found but read as nothing (the worker's result.skipped).
  *   reason: 'script' (the text is in a script another model reads: Korean letters, kana, Arabic ...),
@@ -45,7 +46,9 @@ export function suggestModel(lines, { model, catalog, locale = null, skipped = 0
   const has = (script) => used.scripts.includes(script);
   const best = (script) => C.modelOfScript(script);
   const offer = (script, fallback, reason) => {
-    const m = best(script);
+    // the browser language's own model when that language is in this script (Tesseract has one per language), else the script's
+    const own = locale && C.scriptOf(locale).includes(script) ? C.modelFor(locale) : null;
+    const m = (own && own.id !== C.QUICK && own.scripts.includes(script) ? own : null) || best(script);
     if (!m || m.id === model) return null;
     const language = locale && m.languages.includes(locale) ? locale : fallback;
     return { language, model: m.id, script, reason };

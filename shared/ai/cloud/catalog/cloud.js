@@ -25,7 +25,7 @@
         { id: 'apiVersion', default: '2024-10-21' }],
       keyUrl: 'https://ai.azure.com/', modelsEndpoint: false, caps: TV, cors: 'verified',
       docs: 'https://learn.microsoft.com/en-us/azure/ai-foundry/openai/reference',
-      aliases: ['azure', 'api-version', 'deployment'], models: [{ id: 'deployment', hint: 'by_address' }] },
+      aliases: ['azure', 'api-version', 'deployment'], models: [{ id: 'deployment', hint: 'by_address', madeBy: 'openai' }] },
     { id: 'bedrock', name: 'Amazon Bedrock (API key)', who: 'Amazon Web Services', short: 'Bedrock', group: 'cloud', rank: 4, format: 'openai-chat',
       base: 'https://bedrock-mantle.{region}.api.aws/v1',
       fields: [{ id: 'region', default: 'us-east-1' }],

@@ -17,7 +17,7 @@
 
   const REPO = 'slopographic/cdn';
   /** The release of the cdn repository the site uses. A new asset version: push it there, tag it, change this line. */
-  const TAG = 'v2026.10.24';
+  const TAG = 'v2026.10.27';
   /** jsDelivr's limit for one file from GitHub ("File size exceeded the configured limit of 20 MB", 403). */
   const JSDELIVR_MAX = 20 * 1024 * 1024;
   /** A Hugging Face copy of the repository, for the files over JSDELIVR_MAX: { repo: 'datasets/<owner>/<name>', rev: TAG }.

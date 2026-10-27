@@ -1,8 +1,9 @@
-/* Slop PDF — Recognise text (OCR) on pages that have none. The engine is the AI tools' OCR (PaddleOCR on the inference
-   worker, aitools/common.js). Its model is stored on this device after one download (Get more), and then it runs offline.
+/* Slop PDF — Recognise text (OCR) on pages that have none. The engines are the site's OCR engines (shared/ocr/engines.js:
+   PaddleOCR on the inference worker of aitools/common.js, or Tesseract; the OCR panel's Text recognition engine picks one,
+   Auto by default). The model is stored on this device after one download (Get more), and then it runs offline.
    The OCR panel's Language and model button opens the shared dialog (shared/ocr/choose.js, loaded on first use) for the
-   model of another script; without a choice the bundled Chinese and English model reads, and a note after the run names
-   the model that would read the text better.
+   model of another script; without a choice the engine's quick model reads (PaddleOCR's bundled Chinese and English one),
+   and a note after the run names the model that would read the text better.
    Each page is rendered at 200 dpi, read line by line, and the words are written as an invisible text layer (ocr/layer.js).
    When the lines are small (small print, low contrast), the picture is read again at 2x, contrast stretched and sharpened
    (OCR.readPicture); the boxes of that reading are mapped back to the page's own pixels before the layer uses them.
@@ -12,7 +13,9 @@
   'use strict';
   var SP = window.SP, U = SP.util, E = SP.engine, Ed = SP.editor, A = SP.app, O = SP.organizer;
   var OCR = SP.ocr = {}, t = U.t;
-  var MODEL = 'ppocr-v4', DPI = 200, MAX_PX = 40e6;
+  var DPI = 200, MAX_PX = 40e6;
+  /** The quick model of the engine chosen (PaddleOCR's bundled one unless the site or the person chose otherwise). */
+  function quick() { return (window.SlopOcrEngines && window.SlopOcrEngines.quick()) || 'ppocr-v4'; }
   var SMALL_LINE = 40, ZOOM = 2; // a median line box under 40 px (about 14 pt at 200 dpi) is small text: read it at ZOOM
 
   var choiceP = null, choiceNow = null;
@@ -42,13 +45,13 @@
       throw err;
     }
     OCR.model = model; OCR.skipped = 0;
-    await T.ensure(model, onStatus);
+    await window.SlopOcrEngines.load(model, onStatus);
   };
   /** Opens the Get more dialog for the bundled model, or the Language and model dialog when a language is chosen
    *  (nothing downloads until the person confirms there). */
   OCR.getModel = function () {
     if (choiceNow && choiceNow.language !== 'auto') { OCR.chooseLanguage(); return; }
-    if (window.SlopAIGetMore) window.SlopAIGetMore.open(MODEL, { onInstalled: OCR.installed });
+    if (window.SlopAIGetMore) window.SlopAIGetMore.open(quick(), { onInstalled: OCR.installed });
   };
   /** Runs after the model is stored (the Get more dialog has closed). Asks whether to read the text now. "Run on this
    * page" is the primary button, so Enter never starts a whole-document run by accident. */
@@ -71,7 +74,7 @@
   /** Reads one picture (a canvas of the page). Resolves to lines [{ text, score, box: { x, y, w, h } }] in canvas pixels. */
   OCR.read = async function (canvas, onProgress) {
     var bitmap = await createImageBitmap(canvas);
-    var r = await window.SlopAITools.call('ocr', { model: OCR.model || MODEL, bitmap: bitmap, w: canvas.width, h: canvas.height }, { transfer: [bitmap], onProgress: onProgress });
+    var r = await window.SlopOcrEngines.run(OCR.model || quick(), { bitmap: bitmap, w: canvas.width, h: canvas.height }, { onProgress: onProgress });
     OCR.skipped = (OCR.skipped || 0) + (r.skipped || 0);
     return r.lines || [];
   };

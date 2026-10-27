@@ -87,6 +87,8 @@ sites live outside this repository, with the publish script; pass their folder w
 | `apps.hide`, `media` | Apps left out of every list, menu and sitemap (their guides and task pages too; tests read them from the brand facts, `hideApps`); `false` leaves out screenshots, clips and videos (they show this brand). |
 | `seo` | `homeTitle`, `homeDescription`, `titleSuffix` for the generated head blocks and the sitemap (the home copy is in the root language), and `langs`: the languages of the static SEO pages besides the root one, `"all"` (default), a list (`["sv", "de"]`) or `"none"` (below, "Languages of the SEO pages"). `index` (default `false`), `canonicalTo` and `canonicalOverride`: what search engines are told (below, "Search engines"). |
 | `mainApp`, `parent` | A site for one app: the app the site's root opens (an app id), and the suite it links back to, `{ name, url }` (below, "Single-app sites"). |
+| `ai` | Which AI models the site offers (default `{}`: all of them). See "AI models" below. |
+| `ocr` | Which text recognition engines the site offers and which one it uses first (default: both, Auto). See "Text recognition (OCR) engines" below. |
 | `legal` | `{ holder, year, trademarks? }`: the MIT licence's copyright holder, `NOTICE.md` and `TRADEMARKS.md` (`trademarks`: the names the holder claims; default the product name). |
 | `publish` | `{ repo, branch, secret, author, email }`: where the publish script pushes, the token's secret name, and the release commit's author. |
 | `font` | `{ spec, dir }`: the profile's own type family, a font spec for `tools/fonts/build.py` and its built folder (both relative to the profiles folder; build the folder ahead, the site build needs no Python). The build ships it as `shared/fonts/brand/` with its CSS and token names, and the typeface page. Without it, a build ships no family: the upstream fonts (Inter Tight and the others) and no typeface page. This site's family never goes into another build, and the leak scan reads the name tables inside every WOFF2 file and zip. The sample's family: `brand/profiles/fonts/acme/`. Only a plain brand mark may go into a family's Private Use Area, never the mascot (it is all-rights-reserved art; a font is OFL): the build refuses such a spec. |
@@ -95,6 +97,64 @@ sites live outside this repository, with the publish script; pass their folder w
 
 `tools/whitelabel/profile.mjs` `validate()` is the schema in code; `tests/node/whitelabel-profile.test.mjs` checks every
 profile here.
+
+### AI models
+
+Some sites cannot offer models from certain makers or countries. The `ai` field hides them everywhere a model can be
+picked: the providers of "Use your own AI account" and their suggested models, the lists fetched from a provider
+(OpenRouter, Together, Groq, a server on this computer...), the models on this device (Slop AI and the side panel), the
+picture models and the free-key guide. A provider that is a hidden maker's own API (DeepSeek, Qwen, Kimi, GLM) leaves the
+list, and so does one whose every model is hidden and that fetches no list. A saved choice of a hidden model or provider
+is not used: the next allowed one is (on this device, the default model falls back from Qwen2.5 1.5B to Llama 3.2 3B).
+
+```json
+"ai": {
+  "hideOrigins": ["CN"],
+  "hideMakers": ["deepseek"],
+  "hideModels": ["*-preview"],
+  "hideProviders": ["groq"],
+  "onlyMakers": []
+}
+```
+
+| Key | Hides |
+| --- | --- |
+| `hideOrigins` | every model whose maker is from these countries (ISO 3166 codes, upper case). `["CN"]` hides Qwen (Alibaba), DeepSeek, GLM (Zhipu, Z.ai), Kimi (Moonshot), MiniMax, Baichuan, Yi (01.AI), InternLM, Hunyuan (Tencent), ERNIE (Baidu), Doubao and Seed (ByteDance), Step (StepFun) and the other Chinese makers of the table. |
+| `hideMakers` | the makers by id (`qwen`, `deepseek`, `zhipu`, `moonshot`, `openai`...). |
+| `onlyMakers` | every maker but these; a model of no known maker is hidden too. |
+| `hideModels` | model ids by pattern, `*` for any text (`*-preview`, `gpt-4o*`). |
+| `hideProviders` | whole providers by catalog id (`shared/ai/cloud/catalog/*.js`: `groq`, `qwen`, `openrouter`...). |
+
+The maker table is `shared/ai/makers.js` (`MAKERS`: id, name, country, the pattern of its model ids, its own providers);
+a model can have two makers (a fine-tune names its base: `deepseek-r1-distill-llama` is DeepSeek's and Meta's) and is
+hidden when either is. Hiding by maker or country also hides OpenRouter's routers (`openrouter/auto`), which may pick
+any maker. `tests/node/ai-makers.test.mjs` checks that every model id in every catalog has a maker, so a new model cannot
+slip past unlabelled; add its maker to the table when it fails. The build writes the field into the
+`/*profile:aiModels*/` marker of `makers.js` (`tools/whitelabel/ai.mjs` checks it). Text that names a hidden model (the SEO
+pages' examples of Qwen2.5) is changed with `copy`.
+
+### Text recognition (OCR) engines
+
+Slop OCR, Slop PDF (Recognise text), AI Tools (OCR), the Serial counter and Expenses (receipts) read text with one of two
+engines (`shared/ocr/engines.js`): PaddleOCR (maker `baidu`, China) and Tesseract (maker `tesseract`, its open-source
+project). The `ai` field applies to them like to any model: `"hideOrigins": ["CN"]` hides PaddleOCR (and its models in
+the Language and model dialog, the model index and Get more), and every OCR page then reads with Tesseract. The `ocr`
+field restricts them further and picks the one used first:
+
+```json
+"ocr": { "engines": ["tesseract"], "default": "tesseract" }
+```
+
+| Key | Sets |
+| --- | --- |
+| `engines` | the engines offered (`paddle`, `tesseract`); default all that the `ai` field leaves. |
+| `default` | the engine a visitor starts with instead of Auto (they can still choose another one that is offered). |
+
+Auto ranks the models of every offered engine together for the language chosen, most accurate first: PaddleOCR for the
+scripts it has a model for, Tesseract for the languages PaddleOCR lacks (Hebrew, Vietnamese, Bengali, Georgian ...).
+A visitor's saved engine that the site no longer offers reads as `default`, else Auto. The build refuses a profile whose
+`ai` and `ocr` fields leave no engine. It writes the field into the `/*profile:ocrEngines*/` marker of `engines.js`
+(`tools/whitelabel/ai.mjs` checks it).
 
 ### The rename map
 

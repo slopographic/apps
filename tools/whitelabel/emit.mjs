@@ -5,6 +5,7 @@
 import { hasOverlay, artNotice, artTrademarks, slotMarkers } from './mascot.mjs';
 import { fontMarkers } from './font.mjs';
 import { EMPTY } from '../fonts/css.mjs';
+import { aiModels, ocrRules } from './ai.mjs';
 
 /** The value each marker key takes for a profile. A key whose value is undefined keeps the source literal. */
 export function markerValues(p) {
@@ -13,6 +14,8 @@ export function markerValues(p) {
     // mascot: the built-in buddy (only when the profile says true); mascotOverlay: the profile's own mascot instead
     naming: p.naming, tone: p.tone, mascot: p.mascot === true, mascotOverlay: hasOverlay(p), media: p.media, analytics: p.analytics, defaultLang: p.defaultLang,
     hideApps: (p.apps && p.apps.hide) || [], themes: p.themes || {},
+    aiModels: aiModels(p),                       // the AI models the site offers (shared/ai/makers.js, tools/whitelabel/ai.mjs)
+    ocrEngines: ocrRules(p),                     // the text recognition engines it offers (shared/ocr/engines.js)
     seoHomeTitle: seo.homeTitle, seoHomeDescription: seo.homeDescription, seoLangs: seo.langs,   // the static SEO pages' languages (tools/seo/lang.mjs)
     // search engines and single-app sites (tools/seo/site.mjs, shared/apps.js): indexed only when the profile says so
     seoIndex: seo.index === true, seoCanonicalTo: seo.canonicalTo || '', seoCanonicalOverride: seo.canonicalOverride || {},

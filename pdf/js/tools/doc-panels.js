@@ -65,7 +65,10 @@
       var off = SP.offline || !window.SlopAITools;
       var note = h('p', { class: 'hint' }, t(off ? 'pdf.tool.ocr.offline' : 'pdf.tool.ocr.intro'));
       b.appendChild(note);
+      var engine = h('div', { class: 'ocr-engine-row' });   // Text recognition engine (shared/ocr/choose.js), once the OCR list has loaded
+      if (!off) SP.ocr.choice().then(function (c) { engine.appendChild(c.engineSelect()); }, function () {});
       b.appendChild(section(t('pdf.tool.ocr.recognise'), [
+        row('', engine),
         row('', btn(t('pdf.tool.ocr.run_page'), 'ocr', function () { SP.app.recognisePage(); })),
         row('', btn(t('pdf.tool.ocr.run_doc'), 'ocr', function () { SP.app.recogniseAll(); })),
         row('', btn(t('pdf.tool.ocr.language'), 'ocr', function () { SP.ocr.chooseLanguage(); }))   // shared/ocr/choose.js

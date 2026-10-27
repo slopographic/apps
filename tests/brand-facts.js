@@ -10,6 +10,7 @@
  *   media, analytics   screenshots, clips and videos shown; third parties (analytics, ads, the consent strip)
  *   defaultLang the language a visitor gets when nothing is stored
  *   hideApps    app ids left out of every list
+ *   aiModels    the AI models the site hides ({} none; shared/ai/makers.js): { hideOrigins, hideMakers, onlyMakers, hideModels, hideProviders }
  *   seoIndex    search engines may index the site (brand profile seo.index): generated SEO pages, sitemaps, language
  *               folders and hreflang; without it every page says noindex and none of those exist (tools/seo/robots.mjs) */
 (function (root) {
@@ -23,6 +24,7 @@
     analytics: /*profile:analytics*/true,
     defaultLang: /*profile:defaultLang*/'en',
     hideApps: Object.freeze(/*profile:hideApps*/[]),
+    aiModels: Object.freeze(/*profile:aiModels*/{}),
     seoIndex: /*profile:seoIndex*/true,
   });
 })(typeof window !== 'undefined' ? window : globalThis);
