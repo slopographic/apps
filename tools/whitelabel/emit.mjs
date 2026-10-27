@@ -58,6 +58,8 @@ export function brandJson(source, p) {
     name: p.name, tagline: p.tagline, logo: typeof p.logo === 'string' ? p.logo : 'brand/mark.svg',
     colors: Object.assign({}, p.colors), footer: p.footer, links,
     support: Object.assign({ exportCard: true, donate: true, ads: true }, p.support),
+    // the desktop app's downloads (shared/desktop/download.js): only a brand that publishes its own release has them
+    desktop: p.desktop || undefined,
   });
 }
 

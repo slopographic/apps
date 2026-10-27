@@ -1,0 +1,196 @@
+name: Desktop app
+
+# The desktop app (desktop/README.md): Electron around a bundled copy of the site, built on each system and attached to a
+# GitHub Release. Nothing here runs on an ordinary push: the rules workflow never installs Electron.
+#   - a tag desktop-v<version> (desktop-v0.1.0): builds Windows (NSIS installer + portable), macOS (universal .dmg + the
+#     .zip the updater uses) and Linux (AppImage + .deb), then publishes them with the update feeds (latest*.yml) as the
+#     release of that tag; the installed apps update from it (desktop/main/updates.js);
+#   - Run workflow (workflow_dispatch): the same builds as artifacts of the run. dry_run (default on) never publishes; off,
+#     on a desktop-v* tag, it publishes as a tag push does. mas / appx add the Mac App Store and Microsoft Store builds,
+#     as artifacts only (they go to the stores by hand once the accounts exist).
+# Signing (desktop/README.md, "Signing"): each secret is optional; without them the builds are unsigned (macOS ad-hoc).
+on:
+  push:
+    tags: ['desktop-v*']
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Build only, upload the installers as artifacts, publish no release
+        type: boolean
+        default: true
+      mas:
+        description: Also build the Mac App Store package (artifact only)
+        type: boolean
+        default: false
+      appx:
+        description: Also build the Microsoft Store package (artifact only)
+        type: boolean
+        default: false
+
+# The GITHUB_TOKEN can only read the repository; a job that needs more says so in its own permissions block.
+permissions:
+  contents: read
+
+concurrency:
+  group: desktop-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build ${{ matrix.os }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: windows, runner: windows-latest, flag: --win }
+          - { os: mac, runner: macos-latest, flag: --mac }
+          - { os: linux, runner: ubuntu-latest, flag: --linux }
+    defaults:
+      run:
+        shell: bash
+        working-directory: desktop
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: desktop/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - name: The version from the tag (desktop-v0.1.0 → 0.1.0)
+        if: startsWith(github.ref, 'refs/tags/desktop-v')
+        run: npm version "${GITHUB_REF_NAME#desktop-v}" --no-git-tag-version --allow-same-version
+      - name: Bundle the site
+        run: node scripts/bundle.mjs
+      - name: Build the installers
+        env:
+          # Windows: a code-signing certificate (.pfx, base64) and its password
+          WIN_CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
+          WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+          # macOS: a Developer ID Application certificate (.p12, base64), its password, and the notarization login
+          CSC_LINK: ${{ matrix.os == 'mac' && secrets.MAC_CSC_LINK || '' }}
+          CSC_KEY_PASSWORD: ${{ matrix.os == 'mac' && secrets.MAC_CSC_KEY_PASSWORD || '' }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: npx electron-builder --config builder.config.js ${{ matrix.flag }} --publish never
+      - name: What was built
+        run: ls -la dist | grep -Ev '^d|unpacked'
+      - uses: actions/upload-artifact@v5
+        with:
+          name: desktop-${{ matrix.os }}
+          path: |
+            desktop/dist/*.exe
+            desktop/dist/*.dmg
+            desktop/dist/*.zip
+            desktop/dist/*.AppImage
+            desktop/dist/*.deb
+            desktop/dist/*.blockmap
+            desktop/dist/latest*.yml
+          if-no-files-found: error
+          retention-days: 14
+
+  # The store builds: never released here, only uploaded for a person to submit (desktop/README.md, "Store builds").
+  store:
+    name: Store build ${{ matrix.store }}
+    if: github.event_name == 'workflow_dispatch' && (inputs.mas || inputs.appx)
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { store: mas, runner: macos-latest, flag: --mac }
+          - { store: appx, runner: windows-latest, flag: --win }
+    defaults:
+      run:
+        shell: bash
+        working-directory: desktop
+    steps:
+      - name: Skip a store that was not asked for
+        id: want
+        run: echo "go=${{ (matrix.store == 'mas' && inputs.mas) || (matrix.store == 'appx' && inputs.appx) }}" >> "$GITHUB_OUTPUT"
+        working-directory: .
+      - uses: actions/checkout@v7
+        if: steps.want.outputs.go == 'true'
+      - uses: actions/setup-node@v7
+        if: steps.want.outputs.go == 'true'
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: desktop/package-lock.json
+      - if: steps.want.outputs.go == 'true'
+        run: npm ci --no-audit --no-fund && node scripts/bundle.mjs
+      - name: Build the store package
+        if: steps.want.outputs.go == 'true'
+        env:
+          DESKTOP_STORE: ${{ matrix.store }}
+          # Mac App Store: an Apple Distribution certificate and a Mac Installer Distribution certificate in one .p12,
+          # and the provisioning profile (base64; written to a file below)
+          CSC_LINK: ${{ matrix.store == 'mas' && secrets.MAS_CSC_LINK || '' }}
+          CSC_KEY_PASSWORD: ${{ matrix.store == 'mas' && secrets.MAS_CSC_KEY_PASSWORD || '' }}
+          MAS_PROVISION: ${{ secrets.MAS_PROVISIONING_PROFILE }}
+          # Microsoft Store: the package identity from Partner Center (the Store signs the package itself)
+          APPX_IDENTITY_NAME: ${{ secrets.APPX_IDENTITY_NAME }}
+          APPX_PUBLISHER: ${{ secrets.APPX_PUBLISHER }}
+          APPX_PUBLISHER_DISPLAY_NAME: ${{ secrets.APPX_PUBLISHER_DISPLAY_NAME }}
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: |
+          if [ -n "$MAS_PROVISION" ]; then echo "$MAS_PROVISION" | base64 --decode > build/embedded.provisionprofile; export MAS_PROVISIONING_PROFILE=build/embedded.provisionprofile; fi
+          npx electron-builder --config builder.config.js ${{ matrix.flag }} --publish never
+      - uses: actions/upload-artifact@v5
+        if: steps.want.outputs.go == 'true'
+        with:
+          name: desktop-store-${{ matrix.store }}
+          path: |
+            desktop/dist/*.pkg
+            desktop/dist/*.appx
+            desktop/dist/mas-universal/
+          if-no-files-found: error
+          retention-days: 14
+
+  # Publishes the builds as the release of the tag: on a tag push, or a run on a tag with dry_run off. The only job that
+  # can write to the repository.
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/desktop-v') && (github.event_name == 'push' || inputs.dry_run == false)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@v5
+        with:
+          pattern: desktop-*
+          path: out
+          merge-multiple: true
+      - name: Release notes
+        run: |
+          TAG="$GITHUB_REF_NAME"
+          PREV=$(git tag --list 'desktop-v*' --sort=-creatordate | grep -vx "$TAG" | head -1)
+          NAME=$(node -p "require('./desktop/app-brand.json').name" 2>/dev/null || node -p "require('./brand/brand.json').name")
+          {
+            echo "## $NAME desktop ${TAG#desktop-v}"
+            echo
+            echo "The whole suite as an app for Windows, macOS and Linux. It works offline, opens your files with a double-click and updates itself."
+            echo
+            echo "- **Windows**: the \`-Setup.exe\` installer (or the \`-Portable.exe\`, no install)"
+            echo "- **macOS**: the \`.dmg\` (Apple silicon and Intel)"
+            echo "- **Linux**: the \`.AppImage\` (updates itself) or the \`.deb\`"
+            echo
+            echo "### Changes"
+            git log --no-merges --format='- %s' ${PREV:+$PREV..}HEAD -- desktop | head -50
+          } > notes.md
+          cat notes.md
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ls -la out
+          gh release create "$GITHUB_REF_NAME" out/* --title "Desktop ${GITHUB_REF_NAME#desktop-v}" --notes-file notes.md --verify-tag

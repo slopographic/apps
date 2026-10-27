@@ -1,0 +1,24 @@
+{
+  "name": "slopographic-desktop",
+  "productName": "Slopographic",
+  "version": "0.1.0",
+  "private": true,
+  "description": "The suite as a desktop app for Windows, macOS and Linux: Electron around a bundled copy of the site.",
+  "license": "MIT",
+  "author": "Slopographic",
+  "homepage": "https://slopographic.com",
+  "main": "main/main.js",
+  "scripts": {
+    "bundle": "node scripts/bundle.mjs",
+    "start": "node scripts/bundle.mjs && electron .",
+    "dist": "node scripts/bundle.mjs && electron-builder --config builder.config.js --publish never",
+    "dir": "node scripts/bundle.mjs && electron-builder --config builder.config.js --dir --publish never"
+  },
+  "dependencies": {
+    "electron-updater": "6.8.10"
+  },
+  "devDependencies": {
+    "electron": "44.9.3",
+    "electron-builder": "26.17.0"
+  }
+}

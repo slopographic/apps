@@ -50,5 +50,13 @@
     "exportCard": true,
     "donate": true,
     "ads": true
+  },
+  "desktop": {
+    "release": "https://github.com/slopographic/apps/releases/latest",
+    "files": {
+      "windows": "Slopographic-Setup.exe",
+      "mac": "Slopographic.dmg",
+      "linux": "Slopographic.AppImage"
+    }
   }
 }

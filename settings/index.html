@@ -5,6 +5,7 @@
   <script src="../shared/theme/theme.js" data-app="settings" data-src="shared/theme/theme.js"></script>
   <script src="../shared/i18n/i18n.js" data-src="shared/i18n/i18n.js"></script>
   <script src="i18n/index.js" data-src="settings/i18n/index.js"></script>
+  <script src="../shared/desktop/i18n/index.js" data-src="shared/desktop/i18n/index.js"></script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Profile and settings: Slopographic</title>
@@ -129,6 +130,7 @@
       <p><span data-i18n="settings.updates.lede">Slopographic checks for a new version each time you open a page. If a page still looks old, load the latest version: the offline copies are fetched again and the page reloads. Your files, documents, settings and downloaded packs are kept.</span> <span data-i18n="settings.updates.fresh" data-i18n-vars='{"fresh":"?fresh"}'>On any page, adding ?fresh to the address does the same.</span></p>
       <p id="updates-version" class="settings-note"></p>
       <button type="button" class="btn" id="updates-refresh" data-i18n="settings.updates.refresh">Load the latest version</button>
+      <p id="desktop-download" class="settings-note" hidden></p>
     </section>
 
     <section aria-labelledby="rates-title">
@@ -240,6 +242,7 @@
   <script src="storage-keep.js"></script>
   <script src="storage.js"></script>
   <script src="../shared/pwa.js"></script>
+  <script src="../shared/desktop/download.js"></script>
   <script src="updates.js"></script>
   <script src="app-settings.js"></script>
   <script src="../shared/agent/boot.js"></script>

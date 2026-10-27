@@ -3315,6 +3315,9 @@ Covers: shared/biz/i18n/zh-TW/biz.js
 Covers: shared/biz/i18n/zh-TW/docs.js
 Covers: shared/biz/i18n/zh-TW/print.js
 Covers: shared/biz/i18n/zh-TW/print2.js
+Covers: shared/desktop/i18n/en/main.js
+Covers: shared/desktop/i18n/index.js
+Covers: shared/desktop/i18n/sv/main.js
 Covers: shared/i18n/af.js
 Covers: shared/i18n/am.js
 Covers: shared/i18n/ar.js
