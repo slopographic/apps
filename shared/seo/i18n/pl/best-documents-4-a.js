@@ -1,8 +1,8 @@
 /* SEO copy, Polish: best-documents-4-a. Translated from shared/seo/i18n/en/best-documents-4-a.js. Rules: shared/seo/i18n/README.md. */
 window.SlopI18n && window.SlopI18n.add('pl', {
   'seo.best.free-exif-remover.crumb': 'Darmowe narzędzia do usuwania EXIF',
-  'seo.best.free-exif-remover.title': 'Najlepszy darmowy sposób na usunięcie EXIF: usuń GPS i dane aparatu ze zdjęć',
-  'seo.best.free-exif-remover.description': 'Pięć darmowych sposobów na usunięcie EXIF, GPS i danych aparatu ze zdjęć porównanych: SlopClean, ExifTool, ExifCleaner, ImageOptim i Verexif. Formaty, serie, prywatność.',
+  'seo.best.free-exif-remover.title': 'Najlepszy darmowy sposób na usunięcie EXIF: GPS i dane aparatu',
+  'seo.best.free-exif-remover.description': 'Pięć darmowych sposobów na usunięcie EXIF, GPS i danych aparatu: SlopClean, ExifTool, ExifCleaner, ImageOptim i Verexif. Formaty, serie.',
   'seo.best.free-exif-remover.h1': 'Najlepsze darmowe narzędzia do usuwania EXIF',
   'seo.best.free-exif-remover.lead': 'Zdjęcie może zawierać miejsce wykonania, numer seryjny aparatu i datę. Te darmowe narzędzia pokazują te dane i usuwają je, zanim udostępnisz zdjęcie. Oto, co robi każde z nich, według ich własnych stron.',
   'seo.best.free-exif-remover.criteria.0': 'Za darmo, bez konta',
@@ -104,8 +104,8 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'seo.best.free-exif-remover.faq.3.0': 'A co ze zdjęciami HEIC z iPhone’a?',
   'seo.best.free-exif-remover.faq.3.1': 'SlopClean nie czyści jeszcze HEIC. ExifTool zapisuje metadane HEIC. Możesz też najpierw wyeksportować zdjęcie jako JPEG i wyczyścić je.',
   'seo.best.free-local-ai-chat.crumb': 'Darmowe aplikacje czatu AI na komputerze',
-  'seo.best.free-local-ai-chat.title': 'Najlepsze darmowe aplikacje czatu AI lokalnie: uruchom LLM na własnym komputerze',
-  'seo.best.free-local-ai-chat.description': 'LM Studio, Ollama, GPT4All, Jan, WebLLM Chat i Slop AI porównane: darmowy lokalny czat AI, który trzyma Twoje zapytania na Twoim komputerze. Instalacja, GPU, offline, modele.',
+  'seo.best.free-local-ai-chat.title': 'Najlepsze darmowe aplikacje czatu AI lokalnie: LLM na własnym komputerze',
+  'seo.best.free-local-ai-chat.description': 'LM Studio, Ollama, GPT4All, Jan, WebLLM Chat i Slop AI: darmowy lokalny czat AI, który trzyma zapytania na komputerze. Instalacja, GPU, offline.',
   'seo.best.free-local-ai-chat.h1': 'Najlepsze darmowe aplikacje do czatu AI na własnym komputerze',
   'seo.best.free-local-ai-chat.lead': 'Lokalny model AI odpowiada na Twoim sprzęcie, więc Twoje rozmowy nie trafiają do usługi w chmurze. Niektóre z tych aplikacji instalują się jak zwykły program, dwie działają w przeglądarce. Oto, co oferuje każda z nich, według ich własnych stron.',
   'seo.best.free-local-ai-chat.criteria.0': 'Za darmo do lokalnego uruchamiania modeli',

@@ -50,7 +50,7 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'seo.best.free-markdown-editors.faq.3.1': 'Dillinger eksportuje PDF bezpośrednio. Slop Notes otwiera widok druku, w którym opcja Zapisz jako PDF przeglądarki tworzy plik. Typora też eksportuje PDF, po okresie próbnym jako płatna aplikacja.',
   'seo.best.free-html-to-pdf-converters.crumb': 'Darmowe konwertery HTML na PDF',
   'seo.best.free-html-to-pdf-converters.title': 'Najlepsze darmowe konwertery HTML na PDF: pliki, wklejony kod i strony www',
-  'seo.best.free-html-to-pdf-converters.description': 'Darmowe konwertery HTML na PDF porównane: Slop HTML to PDF, PDF24, Sejda, iLovePDF i CloudConvert. Adresy www, opcje strony, darmowe limity i dokąd trafiają pliki.',
+  'seo.best.free-html-to-pdf-converters.description': 'Darmowe konwertery HTML na PDF: Slop HTML to PDF, PDF24, Sejda, iLovePDF i CloudConvert. Adresy www, opcje strony, darmowe limity, pliki.',
   'seo.best.free-html-to-pdf-converters.h1': 'Najlepsze darmowe konwertery HTML na PDF',
   'seo.best.free-html-to-pdf-converters.lead': 'Zamiana HTML na PDF jest łatwa, gdy strona jest online, i trudniejsza, gdy to zapisany plik z własnymi obrazami. Oto pięć darmowych konwerterów: cztery usługi online i jeden, który działa w przeglądarce bez przesyłania pliku.',
   'seo.best.free-html-to-pdf-converters.criteria.0': 'Za darmo do użytku i limity planu darmowego',

@@ -2,7 +2,7 @@
 window.SlopI18n && window.SlopI18n.add('pl', {
   'seo.best.free-diff-tools.crumb': 'Darmowe narzędzia do porównywania',
   'seo.best.free-diff-tools.title': 'Najlepsze darmowe narzędzia do porównywania: tekst, pliki, PDF i obrazy',
-  'seo.best.free-diff-tools.description': 'Cztery darmowe sposoby, by zobaczyć zmiany między dwoma plikami: Slop Compare w przeglądarce, Diffchecker, WinMerge i Meld. Teksty, foldery, PDF, obrazy i tabele.',
+  'seo.best.free-diff-tools.description': 'Cztery darmowe sposoby na zobaczenie zmian między dwoma plikami: Slop Compare, Diffchecker, WinMerge i Meld. Teksty, foldery, PDF, obrazy.',
   'seo.best.free-diff-tools.h1': 'Najlepsze darmowe narzędzia do porównywania plików',
   'seo.best.free-diff-tools.lead': 'Narzędzie do porównywania pokazuje, co zmieniło się między dwiema wersjami pliku. Wszystkie cztery są darmowe na start. Oto, co każde z nich porównuje i gdzie działa, według ich własnych stron.',
   'seo.best.free-diff-tools.criteria.0': 'Za darmo, bez konta',

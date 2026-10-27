@@ -1,8 +1,8 @@
 /* SEO copy, Polish: best-business. Translated from shared/seo/i18n/en/best-business.js. Rules: shared/seo/i18n/README.md. */
 window.SlopI18n && window.SlopI18n.add('pl', {
   'seo.best.free-invoice-generators.crumb': 'Najlepsze darmowe programy do fakturowania',
-  'seo.best.free-invoice-generators.title': 'Najlepsze darmowe programy do fakturowania (2026): Zoho Invoice, Wave, Invoice Ninja',
-  'seo.best.free-invoice-generators.description': 'Darmowe fakturowanie porównane: co Zoho Invoice, Wave, Invoice Ninja i Slop Invoices dają za darmo, ich limity, płatności i miejsce przechowywania faktur.',
+  'seo.best.free-invoice-generators.title': 'Darmowe programy do fakturowania (2026): Zoho Invoice, Wave, Invoice Ninja',
+  'seo.best.free-invoice-generators.description': 'Darmowe fakturowanie: co Zoho Invoice, Wave, Invoice Ninja i Slop Invoices dają za darmo, ich limity, płatności i miejsce przechowywania faktur.',
   'seo.best.free-invoice-generators.h1': 'Najlepsze darmowe programy do fakturowania, porównane',
   'seo.best.free-invoice-generators.lead': 'Darmowe narzędzia do fakturowania różnią się tym, co znaczy „za darmo”: limitem faktur lub klientów, markowaniem faktur albo płatnymi dodatkami do przypomnień i cyklicznych rachunków. Oto, co każde z nich daje bez płacenia, według ich własnych stron.',
   'seo.best.free-invoice-generators.criteria.0': 'Ile jest za darmo: limity faktur, klientów i użytkowników',
@@ -103,7 +103,7 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'seo.best.free-invoice-generators.faq.3.0': 'Czy darmowy program do fakturowania jest bezpieczny dla moich danych?',
   'seo.best.free-invoice-generators.faq.3.1': 'Usługi online przechowują faktury na swoich serwerach i opisują bezpieczeństwo na własnych stronach. Slop Invoices nie przesyła niczego, więc od czasu do czasu pobierz kopię zapasową: wyczyszczenie danych witryny w przeglądarce ją usuwa.',
   'seo.best.free-accounting-software.crumb': 'Najlepsze darmowe programy księgowe',
-  'seo.best.free-accounting-software.title': 'Najlepsze darmowe programy księgowe (2026): GnuCash, Manager, Wave, Zoho Books',
+  'seo.best.free-accounting-software.title': 'Najlepsze darmowe programy księgowe (2026): GnuCash, Manager, Wave',
   'seo.best.free-accounting-software.description': 'Darmowe programy księgowe porównane: GnuCash, Manager, Wave, Zoho Books i Slop Ledger. Import z banku, fakturowanie, limity i gdzie przechowywane są księgi.',
   'seo.best.free-accounting-software.h1': 'Najlepsze darmowe programy księgowe dla małych firm',
   'seo.best.free-accounting-software.lead': 'Możesz prowadzić porządne księgi bez płacenia, albo programem na komputer, który przechowuje je na Twoim komputerze, albo usługą online z darmowym planem. Oto, co robi każda opcja, według ich własnych stron.',
@@ -206,7 +206,7 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'seo.best.free-accounting-software.faq.3.0': 'Czy potrzebuję księgowania podwójnym zapisem?',
   'seo.best.free-accounting-software.faq.3.1': 'Tak prowadzą księgi księgowi: każda kwota jest zapisywana dwukrotnie, dzięki czemu błędy widać. GnuCash i Slop Ledger wprost podają, że działają na podwójnym zapisie; każde narzędzie sprawdź z księgowym.',
   'seo.best.free-expense-trackers.crumb': 'Najlepsze darmowe rejestry wydatków',
-  'seo.best.free-expense-trackers.title': 'Najlepsze darmowe rejestry wydatków firmowych (2026): Zoho Expense, Wave i inne',
+  'seo.best.free-expense-trackers.title': 'Najlepsze darmowe rejestry wydatków (2026): Zoho Expense, Wave i inne',
   'seo.best.free-expense-trackers.description': 'Darmowe rejestry wydatków porównane: skanowanie paragonów, kilometrówka i limity w Zoho Expense, Zoho Books, Wave i Slop Expenses oraz dokąd trafiają paragony.',
   'seo.best.free-expense-trackers.h1': 'Najlepsze darmowe rejestry wydatków dla małych firm',
   'seo.best.free-expense-trackers.lead': 'Dobry rejestr wydatków odczytuje paragony, zapisuje przebieg kilometrów i przekazuje sumy do Twoich ksiąg. Darmowe plany różnią się limitem skanów, liczbą użytkowników i tym, co czeka za ulepszeniem. Oto, co oferuje każde z nich, według ich własnych stron.',

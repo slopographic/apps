@@ -2,7 +2,7 @@
 window.SlopI18n && window.SlopI18n.add('pl', {
   'seo.best.free-eml-viewers.crumb': 'Darmowe przeglądarki plików EML',
   'seo.best.free-eml-viewers.title': 'Najlepsze darmowe przeglądarki EML: otwórz pliki .eml bez Outlooka',
-  'seo.best.free-eml-viewers.description': 'Darmowe sposoby otwierania pliku e-mail .eml porównane: Slop EML, Hypermatic, Loops i nowy Outlook. Wysyłanie, zdalne obrazy, załączniki, druk i PDF obok siebie.',
+  'seo.best.free-eml-viewers.description': 'Darmowe sposoby na otwarcie pliku e-mail .eml: Slop EML, Hypermatic, Loops i nowy Outlook. Wysyłanie, zdalne obrazy, załączniki, druk i PDF.',
   'seo.best.free-eml-viewers.h1': 'Najlepsze darmowe przeglądarki plików EML',
   'seo.best.free-eml-viewers.lead': 'Plik .eml to jeden zapisany e-mail: nagłówki, treść i załączniki w jednym pliku. Nie potrzebujesz konta pocztowego, by go przeczytać. Oto trzy darmowe przeglądarki działające w przeglądarce internetowej oraz Outlook, który też otwiera .eml.',
   'seo.best.free-eml-viewers.criteria.0': 'Za darmo, bez konta',
@@ -154,7 +154,7 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'seo.best.free-markdown-editors.tools.3.sources.0.label': 'Strona główna StackEdit',
   'seo.best.free-markdown-editors.tools.3.sources.1.label': 'StackEdit na GitHub',
   'seo.best.free-markdown-editors.tools.4.bestFor': 'Aplikacja do notatek open source na każdym urządzeniu, z synchronizacją szyfrowaną end-to-end i klipperem internetowym.',
-  'seo.best.free-markdown-editors.tools.4.cells.0': 'Aplikacja: nie podano (open source); Joplin Cloud od 2.99 € miesięcznie',
+  'seo.best.free-markdown-editors.tools.4.cells.0': 'Aplikacja: nie podano (open source); Joplin Cloud od €2.99 miesięcznie',
   'seo.best.free-markdown-editors.tools.4.cells.1': 'Windows, macOS, Linux, Android, iOS, terminal',
   'seo.best.free-markdown-editors.tools.4.cells.2': 'Nie podano; Joplin Cloud wymaga rejestracji',
   'seo.best.free-markdown-editors.tools.4.cells.4': 'Joplin Cloud, Dropbox, OneDrive i inne',
