@@ -10,7 +10,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'seo.reg.vector.title': 'SlopVector: 벡터 편집기',
   'seo.reg.vector.tagline': '브라우저를 위해 다시 만든 Illustrator.',
   'seo.reg.vector.features.0': '펜, 도형, 텍스트, 레이어',
-  'seo.reg.vector.features.1': '실제 Pathfinder 불리언 연산',
+  'seo.reg.vector.features.1': '실제 패스파인더 불리언 연산',
   'seo.reg.vector.features.2': 'SVG, PNG, PDF, .ai 내보내기',
   'seo.reg.vector.features.3': '오프라인 .html',
   'seo.reg.pdf.title': 'PDF 도구',
