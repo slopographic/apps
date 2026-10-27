@@ -2,7 +2,7 @@
 window.SlopI18n && window.SlopI18n.add('tr', {
   'seo.guide.effects.getting-started.crumb': 'Başlarken',
   'seo.guide.effects.getting-started.title': 'Slop Effects’e başlarken: ilk hareketli grafiğiniz',
-  'seo.guide.effects.getting-started.description': 'Slop Effects’i öğrenin: metin katmanı ekleyin, bir ön ayarla ya da anahtar karelerle canlandırın, parıltı ekleyin, önizleyin ve PNG dizisi, WebM ya da MP4 üretin.',
+  'seo.guide.effects.getting-started.description': 'Slop Effects’i öğrenin: metin katmanı ekleyin, ön ayarla ya da anahtar karelerle canlandırın, parıltı ekleyin, önizleyin ve PNG dizisi, WebM ya da MP4 üretin.',
   'seo.guide.effects.getting-started.h1': 'Slop Effects’e başlarken',
   'seo.guide.effects.getting-started.lead': 'Slop Effects tarayıcınızda hareketli grafikler yapar: katmanlar, anahtar kareler ve efektler, cihazınızda üretilir. Hiçbir şey yüklenmez.',
   'seo.guide.effects.getting-started.sections.0.h2': 'Bir katman ekleyin',
