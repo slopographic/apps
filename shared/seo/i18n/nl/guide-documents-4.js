@@ -2,7 +2,7 @@
 window.SlopI18n && window.SlopI18n.add('nl', {
   'seo.guide.checksum.getting-started.crumb': 'Aan de slag',
   'seo.guide.checksum.getting-started.title': 'Aan de slag met Checksum: een bestand hashen en een download controleren',
-  'seo.guide.checksum.getting-started.description': 'Leer Checksum in een paar minuten: haal de SHA-256-, SHA-384-, SHA-512- of SHA-1-hash van een bestand op en vergelijk die met een gepubliceerde hash. Niets geüpload.',
+  'seo.guide.checksum.getting-started.description': 'Leer Checksum in een paar minuten: haal de SHA-256-, SHA-384-, SHA-512- of SHA-1-hash van een bestand op en vergelijk die met een gepubliceerde hash.',
   'seo.guide.checksum.getting-started.h1': 'Aan de slag met Checksum',
   'seo.guide.checksum.getting-started.lead': 'Checksum laat je de hash van een bestand zien, en of die overeenkomt met de hash die de uitgever je gaf. Het bestand wordt in je browser gelezen en nooit geüpload.',
   'seo.guide.checksum.getting-started.sections.0.h2': 'Haal de hash van een bestand op',
