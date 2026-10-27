@@ -109,7 +109,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'seo.best.free-crm-software.faq.3.1': 'HubSpot, Zoho CRM und Bigin haben Telefon-Apps in den App-Stores. Slop CRM installiert sich aus dem Browser des Telefons (Zum Home-Bildschirm hinzufügen) und funktioniert offline, mit den Daten auf diesem Telefon.',
   'seo.best.free-inventory-management-software.crumb': 'Beste kostenlose Lagerverwaltung',
   'seo.best.free-inventory-management-software.title': 'Beste kostenlose Lagerverwaltung 2026: Sortly, Zoho Inventory',
-  'seo.best.free-inventory-management-software.description': 'Kostenlose Lagerverwaltung im Vergleich: Artikel- und Auftragsgrenzen, Barcode-Scan, Bestandszählung und Warnungen bei Sortly, Zoho Inventory und Slop Inventory.',
+  'seo.best.free-inventory-management-software.description': 'Kostenlose Lagerverwaltung im Vergleich: Artikel- und Auftragsgrenzen, Barcode-Scan, Zählung und Warnungen bei Sortly, Zoho Inventory, Slop Inventory.',
   'seo.best.free-inventory-management-software.h1': 'Die besten kostenlosen Lagerverwaltungsprogramme',
   'seo.best.free-inventory-management-software.lead': 'Kostenlose Lagerpläne sind meist eine Kostprobe: eine Grenze bei Artikeln oder Aufträgen, ein Benutzer, und die nützlichen Teile wie Bestandszählung und Warnungen im kostenpflichtigen Tarif. Hier steht, was jedes kostenlos bietet, laut den eigenen Seiten.',
   'seo.best.free-inventory-management-software.criteria.0': 'Was der kostenlose Tarif erlaubt: Artikel, Aufträge, Benutzer, Lagerorte',
