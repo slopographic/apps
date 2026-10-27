@@ -85,7 +85,7 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'seo.best.free-email-signature-generators.faq.3.0': 'Чи працюватиме підпис в Outlook і Gmail?',
   'seo.best.free-email-signature-generators.faq.3.1': 'Усі чотири інструменти тут створюють підписи для Gmail, Outlook і Apple Mail. Slop Signature показує кроки для кожного на сторінці.',
   'seo.best.free-to-do-list-apps.crumb': 'Найкращі безкоштовні застосунки списків справ',
-  'seo.best.free-to-do-list-apps.title': 'Найкращі безкоштовні списки справ (2026): Microsoft To Do, Todoist, TickTick',
+  'seo.best.free-to-do-list-apps.title': 'Найкращі списки справ (2026): Microsoft To Do, Todoist, TickTick',
   'seo.best.free-to-do-list-apps.description': 'Безкоштовні застосунки для справ: ліміти списків, нагадування, повтори, спільний доступ і синхронізація в Microsoft To Do, Todoist, TickTick і Slop To-do.',
   'seo.best.free-to-do-list-apps.h1': 'Найкращі безкоштовні застосунки списків справ',
   'seo.best.free-to-do-list-apps.lead': 'Усі великі застосунки для справ безкоштовні на старті, з лімітами на списки, нагадування чи перегляди, які знімаються після оплати. Ось що робить кожна безкоштовна версія, за даними з їхніх власних сторінок, і кому який підходить.',
