@@ -77,7 +77,10 @@ jobs:
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
-        run: npx electron-builder --config builder.config.js ${{ matrix.flag }} --publish never
+        run: |
+          # an unset secret arrives as an empty string, which electron-builder would read as a certificate path
+          for v in WIN_CSC_LINK WIN_CSC_KEY_PASSWORD CSC_LINK CSC_KEY_PASSWORD APPLE_ID APPLE_APP_SPECIFIC_PASSWORD APPLE_TEAM_ID APPX_IDENTITY_NAME APPX_PUBLISHER APPX_PUBLISHER_DISPLAY_NAME; do [ -n "${!v}" ] || unset "$v"; done
+          npx electron-builder --config builder.config.js ${{ matrix.flag }} --publish never
       - name: What was built
         run: ls -la .dist | grep -Ev '^d|unpacked'
       - uses: actions/upload-artifact@v5
@@ -92,6 +95,7 @@ jobs:
             desktop/.dist/*.blockmap
             desktop/.dist/latest*.yml
           if-no-files-found: error
+          include-hidden-files: true   # the build output is in desktop/.dist (a dot folder: the repo's tests skip it)
           retention-days: 14
 
   # The store builds: never released here, only uploaded for a person to submit (desktop/README.md, "Store builds").
@@ -140,6 +144,8 @@ jobs:
           APPX_PUBLISHER_DISPLAY_NAME: ${{ secrets.APPX_PUBLISHER_DISPLAY_NAME }}
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
         run: |
+          # an unset secret arrives as an empty string, which electron-builder would read as a certificate path
+          for v in WIN_CSC_LINK WIN_CSC_KEY_PASSWORD CSC_LINK CSC_KEY_PASSWORD APPLE_ID APPLE_APP_SPECIFIC_PASSWORD APPLE_TEAM_ID APPX_IDENTITY_NAME APPX_PUBLISHER APPX_PUBLISHER_DISPLAY_NAME; do [ -n "${!v}" ] || unset "$v"; done
           if [ -n "$MAS_PROVISION" ]; then echo "$MAS_PROVISION" | base64 --decode > build/embedded.provisionprofile; export MAS_PROVISIONING_PROFILE=build/embedded.provisionprofile; fi
           npx electron-builder --config builder.config.js ${{ matrix.flag }} --publish never
       - uses: actions/upload-artifact@v5
@@ -151,6 +157,7 @@ jobs:
             desktop/.dist/*.appx
             desktop/.dist/mas-universal/
           if-no-files-found: error
+          include-hidden-files: true   # the build output is in desktop/.dist (a dot folder: the repo's tests skip it)
           retention-days: 14
 
   # Publishes the builds as the release of the tag: on a tag push, or a run on a tag with dry_run off. The only job that
