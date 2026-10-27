@@ -112,7 +112,7 @@ window.SlopI18n && window.SlopI18n.add('ru', {
   'seo.guide.paste.getting-started.sections.2.steps.2': 'Выберите «Поделиться ссылкой» (Ctrl+Alt+L), чтобы получить ссылку на вставку, затем «Копировать» рядом с ней.',
   'seo.guide.paste.getting-started.sections.2.text.0': 'Ссылка открывает вставку только в этом браузере, потому что она хранится здесь. На другом устройстве она не работает.',
   'seo.guide.paste.getting-started.sections.3.h2': 'Находите и наводите порядок во вставках',
-  'seo.guide.paste.getting-started.sections.3.text.0': 'Список слева показывает сначала самые новые вставки. Ищите по заголовкам и тексту в поле поиска, а Ctrl+Alt+Вниз и Ctrl+Alt+Вверх листают список.',
+  'seo.guide.paste.getting-started.sections.3.text.0': 'Список слева показывает сначала самые новые вставки. Ищите по заголовкам и тексту в поле поиска, а Ctrl+Alt+Down и Ctrl+Alt+Up листают список.',
   'seo.guide.paste.getting-started.sections.3.text.1': 'Щёлкните вставку правой кнопкой для «Открыть вставку», «Копировать», «Скачать», «Копировать ссылку» и «Переместить в корзину…». «Корзина» перемещает вставку в корзину Slop Drive, откуда её можно восстановить.',
   'seo.guide.paste.getting-started.shortcuts.0.1': 'Вставить текст, код или картинку как новую вставку',
   'seo.guide.paste.getting-started.shortcuts.1.1': 'Новая вставка',

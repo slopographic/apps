@@ -70,7 +70,7 @@ window.SlopI18n && window.SlopI18n.add('ru', {
   'seo.guide.code.getting-started.sections.0.image.alt': 'Окно «Новый файл» в Slop Code: тип HTML и имя hello.html',
   'seo.guide.code.getting-started.sections.0.text.0': '«Проводник» показывает папки и файлы вашего Slop Drive. Кнопки «Файл» и «Папка» создают новые объекты в выбранной папке. Щёлкните строку правой кнопкой для «Переименовать», «Переместить в…», «Копировать путь» и «Удалить». «Удалить» переносит объект в корзину Slop Drive.',
   'seo.guide.code.getting-started.sections.1.h2': 'Правьте и сохраняйте',
-  'seo.guide.code.getting-started.sections.1.text.0': 'В редакторе есть номера строк, сворачивание блоков, подсветка парных скобок, поиск и замена и несколько курсоров (Ctrl+щелчок добавляет один). Ctrl+Пробел — дополнение и сниппеты. Enter или Tab принимает подсказку.',
+  'seo.guide.code.getting-started.sections.1.text.0': 'В редакторе есть номера строк, сворачивание блоков, подсветка парных скобок, поиск и замена и несколько курсоров (Ctrl+щелчок добавляет один). Ctrl+Space — дополнение и сниппеты. Enter или Tab принимает подсказку.',
   'seo.guide.code.getting-started.sections.1.text.1': 'Ваши правки хранятся как черновик на этом устройстве до сохранения. Точка отмечает вкладку с несохранёнными изменениями.',
   'seo.guide.code.getting-started.sections.1.steps.0': 'Нажмите Ctrl+S или «Сохранить», чтобы записать файл обратно в тот же файл Slop Drive.',
   'seo.guide.code.getting-started.sections.1.steps.1': 'Нажмите «Сохранить как», чтобы сохранить копию в выбранную папку.',
