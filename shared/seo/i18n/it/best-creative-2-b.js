@@ -88,7 +88,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'seo.best.free-qr-code-generators.faq.3.1': 'Solo con un codice dinamico, che è una funzione a pagamento in QR Code Monkey PRO, nel QR-Server di goQR.me e in QR Code Generator. QR SLOP crea solo codici statici.',
   'seo.best.free-online-video-editors.crumb': 'Editor video online gratuiti',
   'seo.best.free-online-video-editors.title': 'Migliori editor video online gratuiti: senza filigrana, limiti di esportazione a confronto',
-  'seo.best.free-online-video-editors.description': 'Editor video gratuiti nel browser a confronto: SlopCut, Clipchamp, CapCut e Kapwing. Risoluzione di esportazione, filigrane, registrazione, funzioni AI e dove finisce il girato.',
+  'seo.best.free-online-video-editors.description': 'Editor video gratuiti nel browser a confronto: SlopCut, Clipchamp, CapCut e Kapwing. Esportazione, filigrane, registrazione, AI e dove va il girato.',
   'seo.best.free-online-video-editors.h1': 'I migliori editor video gratuiti nel tuo browser',
   'seo.best.free-online-video-editors.lead': 'Oggi puoi modificare un video in una scheda del browser. Questi quattro editor funzionano tutti online gratis; differiscono per quanto va lontano l’esportazione gratuita, per la necessità di un account e per quanti extra AI e di archivio ottieni.',
   'seo.best.free-online-video-editors.criteria.0': 'Esportazioni gratuite senza filigrana, e a quale risoluzione',

@@ -2,7 +2,7 @@
 window.SlopI18n && window.SlopI18n.add('it', {
   'seo.best.free-ai-image-upscalers.crumb': 'Ingranditori di immagini AI gratuiti',
   'seo.best.free-ai-image-upscalers.title': 'Migliori ingranditori di immagini AI gratuiti a confronto: desktop, browser e online',
-  'seo.best.free-ai-image-upscalers.description': 'Ingranditori di immagini AI gratuiti a confronto: Upscayl, Slop Upscale, Upscale.media e Bigjpg. Scala, limiti gratuiti, lotti, video e dove finisce la tua immagine.',
+  'seo.best.free-ai-image-upscalers.description': 'Ingranditori di immagini AI gratuiti a confronto: Upscayl, Slop Upscale, Upscale.media e Bigjpg. Scala, limiti gratuiti, lotti, video e dove va la tua immagine.',
   'seo.best.free-ai-image-upscalers.h1': 'I migliori ingranditori di immagini AI gratuiti',
   'seo.best.free-ai-image-upscalers.lead': 'Un ingrandimento con AI rende più grande un’immagine piccola e aggiunge dettagli, invece di limitarsi a stirarla. Ecco quattro strumenti gratuiti: la nostra app nel browser che gira sul tuo dispositivo, un’app desktop e due servizi online.',
   'seo.best.free-ai-image-upscalers.criteria.0': 'Gratuito da usare senza un tetto mensile e senza filigrana',

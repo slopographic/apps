@@ -2,7 +2,7 @@
 window.SlopI18n && window.SlopI18n.add('it', {
   'seo.best.free-exif-remover.crumb': 'Rimozione EXIF gratuita',
   'seo.best.free-exif-remover.title': 'Migliore rimozione EXIF gratuita: elimina dati GPS e della fotocamera dalle foto',
-  'seo.best.free-exif-remover.description': 'Cinque modi gratuiti per rimuovere dati EXIF, GPS e della fotocamera dalle foto a confronto: SlopClean, ExifTool, ExifCleaner, ImageOptim e Verexif. Formati, lotti, privacy.',
+  'seo.best.free-exif-remover.description': 'Cinque modi gratuiti per rimuovere EXIF, GPS e dati della fotocamera dalle foto a confronto: SlopClean, ExifTool, ExifCleaner, ImageOptim e Verexif.',
   'seo.best.free-exif-remover.h1': 'Le migliori rimozioni EXIF gratuite',
   'seo.best.free-exif-remover.lead': 'Una foto può contenere dove è stata scattata, il numero di serie della fotocamera e la data. Questi strumenti gratuiti mostrano questi dati e li eliminano prima che tu condivida l’immagine. Ecco cosa fa ciascuno, dalle sue pagine.',
   'seo.best.free-exif-remover.criteria.0': 'Gratuito da usare, senza account',
@@ -105,7 +105,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'seo.best.free-exif-remover.faq.3.1': 'SlopClean non ripulisce ancora gli HEIC. ExifTool scrive i metadati HEIC. Oppure esporta prima la foto in JPEG e ripulisci quella.',
   'seo.best.free-local-ai-chat.crumb': 'App gratuite di chat AI in locale',
   'seo.best.free-local-ai-chat.title': 'Migliori app gratuite di chat AI in locale: fai girare un LLM sul tuo computer',
-  'seo.best.free-local-ai-chat.description': 'LM Studio, Ollama, GPT4All, Jan, WebLLM Chat e Slop AI a confronto: chat AI gratuite in locale che tengono i prompt sul tuo PC. Installazione, GPU, offline, modelli.',
+  'seo.best.free-local-ai-chat.description': 'LM Studio, Ollama, GPT4All, Jan, WebLLM Chat e Slop AI a confronto: chat AI gratuite in locale, con i prompt sul tuo PC. GPU, offline, modelli.',
   'seo.best.free-local-ai-chat.h1': 'Le migliori app gratuite per far girare una chat AI sul tuo computer',
   'seo.best.free-local-ai-chat.lead': 'Un modello AI locale risponde con il tuo hardware, quindi le tue chat non passano per un servizio cloud. Alcune di queste app si installano come un qualsiasi programma, due girano nel browser. Ecco cosa offre ciascuna, dalle sue pagine.',
   'seo.best.free-local-ai-chat.criteria.0': 'Gratuito per far girare i modelli in locale',

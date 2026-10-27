@@ -123,7 +123,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'seo.best.free-desktop-publishing-software.faq.3.1': 'Affinity e Canva richiedono un account Canva; Affinity lo richiede per scaricare e attivare. Slop Press non richiede alcun account.',
   'seo.best.free-motion-graphics-software.crumb': 'Software gratuito di motion graphics',
   'seo.best.free-motion-graphics-software.title': 'Miglior software gratuito di motion graphics: Cavalry, Blender e strumenti nel browser',
-  'seo.best.free-motion-graphics-software.description': 'Software gratuiti di motion graphics a confronto: Cavalry, Blender, Slop Effects e Jitter. Fotogrammi chiave, editor delle curve, limiti di esportazione, filigrane e video trasparente.',
+  'seo.best.free-motion-graphics-software.description': 'Motion graphics gratuite a confronto: Cavalry, Blender, Slop Effects e Jitter. Fotogrammi chiave, limiti di esportazione, filigrane e video trasparente.',
   'seo.best.free-motion-graphics-software.h1': 'Il miglior software gratuito di motion graphics',
   'seo.best.free-motion-graphics-software.lead': 'Titoli animati, animazioni di loghi e clip per i social richiedevano un abbonamento ad After Effects. Questi quattro strumenti animano gratis, dagli editor che girano in una scheda del browser ai programmi desktop professionali.',
   'seo.best.free-motion-graphics-software.criteria.0': 'Esportazioni gratuite: risoluzione e filigrana',

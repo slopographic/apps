@@ -93,7 +93,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'seo.best.free-eml-viewers.faq.3.1': '.eml è il formato standard che salva la maggior parte delle app di posta. .msg è il formato proprio di Outlook. Slop EML apre solo .eml; Microsoft dice che il nuovo Outlook apre entrambi, con un abbonamento Microsoft 365 idoneo per i .msg.',
   'seo.best.free-markdown-editors.crumb': 'Editor Markdown gratuiti',
   'seo.best.free-markdown-editors.title': 'Migliori editor Markdown gratuiti a confronto: online, desktop e privati',
-  'seo.best.free-markdown-editors.description': 'Obsidian, Dillinger, Slop Notes, StackEdit, Joplin e Typora a confronto: prezzo, anteprima in tempo reale, dove sono conservate le note, sincronizzazione ed esportazione.',
+  'seo.best.free-markdown-editors.description': 'Obsidian, Dillinger, Slop Notes, StackEdit, Joplin e Typora a confronto: prezzo, anteprima in tempo reale, dove sono le note, sincronizzazione ed esportazione.',
   'seo.best.free-markdown-editors.h1': 'I migliori editor Markdown gratuiti',
   'seo.best.free-markdown-editors.lead': 'Markdown è testo semplice con pochi segni per titoli, elenchi e link. Qualsiasi editor può scriverlo, ma un buon editor lo mostra in anteprima, tiene le note in ordine e le esporta. Ecco sei strumenti noti, gratuiti e a pagamento, nel browser e sul desktop.',
   'seo.best.free-markdown-editors.criteria.0': 'Gratuito per tutto, oppure quanto costa',
