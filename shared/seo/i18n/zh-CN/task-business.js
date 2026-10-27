@@ -120,7 +120,7 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'seo.task.quotes.quote-maker.h1': '制作带 PDF 的报价单或估价单',
   'seo.task.quotes.quote-maker.lead': '为客户报价，发送清晰的 PDF，并跟踪哪些已发送、已接受、已拒绝或已过期。Slop Quotes 在你的浏览器中运行，无需账户。',
   'seo.task.quotes.quote-maker.cta': '撰写报价单',
-  'seo.task.quotes.quote-maker.steps.0': '选择“新建报价”，然后选择客户，或点击“新建客户”添加客户。',
+  'seo.task.quotes.quote-maker.steps.0': '选择“新建报价单”，然后选择客户，或点击“新建客户”添加客户。',
   'seo.task.quotes.quote-maker.steps.1': '为每个商品或任务添加一项明细：描述、数量、单价、税率（%）和折扣（%）。',
   'seo.task.quotes.quote-maker.steps.2': '设置日期和“有效期至”，添加条款或不包含内容等备注，然后保存。',
   'seo.task.quotes.quote-maker.steps.3': '选择“导出 PDF”，并将文件发送给客户。',

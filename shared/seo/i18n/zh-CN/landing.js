@@ -120,7 +120,7 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'seo.landing.admin.description': 'Slop Admin 保存公司资料和默认货币，使用只能递增的编号，并提供经过验证的完整备份与恢复，以及带确认保护的重置功能。',
   'seo.landing.drive.title': 'Slop Drive：浏览器中的私密文件存储 | Slopographic',
   'seo.landing.drive.description': 'Slop Drive 把你的文件保存在你自己的浏览器中，而不是服务器上：支持文件夹、星标、标签、搜索、预览、重复项查找和单文件备份。无需账户。',
-  'seo.landing.code.title': 'Slop Code：用于 Slop Drive 文件的代码编辑器 | Slopographic',
+  'seo.landing.code.title': 'Slop Code：在 Slop Drive 中编辑代码文件 | Slopographic',
   'seo.landing.code.description': 'Slop Code 编辑 Slop Drive 中的 JavaScript、TypeScript、HTML、CSS、JSON、Markdown 和 Python 文件，支持查找和替换，并提供沙盒预览。',
   'seo.landing.gallery.title': '离线照片库，带相册和重复项查找 | Slop Gallery',
   'seo.landing.gallery.description': '只保存在这台设备上的照片库：按拍摄日期排列的时间线、相册、收藏、精确重复项查找和单文件备份。免费，无需账户。',

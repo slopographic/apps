@@ -60,7 +60,7 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'seo.app.invoices.description': '浏览器中的免费发票生成器：按税率计税，编号连续无跳号，五种模板的 PDF，收款、红字发票和定期发票。无需账户。',
   'seo.app.notes.title': 'Slop Notes：保存到 Slop Drive 的 Markdown 笔记本 | Slopographic',
   'seo.app.notes.description': '在笔记本中撰写 Markdown 笔记，支持文件夹、标签、置顶笔记、实时预览和跨所有笔记搜索。可导出 .md 或 .html。',
-  'seo.app.paste.title': 'Paste：通过链接分享文本、代码和图片 | Slopographic',
+  'seo.app.paste.title': 'Paste：文本、代码和图片的链接分享 | Slopographic',
   'seo.app.paste.description': '粘贴文本、代码或图片，通过链接分享。支持六种语言的语法高亮、有效期标签和本地分享链接。图片不会上传。',
   'seo.app.effects.title': 'Slop Effects：浏览器中的动态设计 | Slopographic',
   'seo.app.effects.description': '带关键帧和缓动的图层、曲线编辑器、可设种子的随机动态，以及发光、故障和颗粒等效果。可导出 WebM、MP4 或 PNG。',

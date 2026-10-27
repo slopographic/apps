@@ -11,7 +11,7 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'seo.guide.transcribe.getting-started.sections.1.h2': '添加音频并转录',
   'seo.guide.transcribe.getting-started.sections.1.steps.0': '把音频或视频文件拖到页面上，或选择“选择文件”。支持 MP3、WAV、M4A、OGG、FLAC 和视频文件，可一次添加多个。或选择“录制”，使用麦克风。',
   'seo.guide.transcribe.getting-started.sections.1.steps.1': '“口语语言”保持“自动检测”，或选择一种语言。',
-  'seo.guide.transcribe.getting-started.sections.1.steps.2': '选择“转录”。每个文件会依次处理，完成后标记为“完成”。',
+  'seo.guide.transcribe.getting-started.sections.1.steps.2': '选择“转写”。每个文件会依次处理，完成后标记为“完成”。',
   'seo.guide.transcribe.getting-started.sections.1.tip': 'Whisper tiny 速度快，但可能会把人名和嘈杂的音频识别错。使用前请先检查文字。',
   'seo.guide.transcribe.getting-started.sections.2.h2': '校正并保存文字',
   'seo.guide.transcribe.getting-started.sections.2.text.0': '在“文件”列表中选择一个文件即可查看其文字。在方框中输入即可校正；你的修改会保留，用于文本和 Word。“显示时间”会为每一行加上时间。',
