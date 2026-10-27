@@ -1,10 +1,11 @@
 // Text recognition engines (shared/ocr/engines.js): the registry, which engine Auto reads a language with, a site that
 // hides PaddleOCR (the brand profile's ai field: hideOrigins CN) reading everything with Tesseract, the saved choice of a
-// hidden engine falling back, the profile's ocr field (validation, the marker the build writes), the Tesseract models of
-// the OCR list and the lines tesseract.js gives. Each "site" is the real classic scripts run in a fresh vm, in page order.
+// hidden engine falling back, the Tesseract models of the OCR list and the lines tesseract.js gives. Each "site" is the real
+// classic scripts run in a fresh vm, in page order, with the profile's fields written into their markers as the build does
+// (the build itself, and the profile's ocr field: tests/node/whitelabel-ocr.test.mjs).
 // Run: node --test tests/node/ocr-engines.test.mjs
 // Covers: shared/ocr/engines.js, shared/ocr/engine-tesseract.js, aitools/ocr-tesseract.js, aitools/ocr-models.js, aitools/model-registry.js
-// Covers: shared/ai/makers.js, shared/ocr/suggest.js, tools/whitelabel/ai.mjs, tools/whitelabel/emit.mjs, tools/whitelabel/profile.mjs
+// Covers: shared/ai/makers.js, shared/ocr/suggest.js
 // Covers: shared/ocr/i18n/index.js, shared/ocr/i18n/en/engines.js, shared/ocr/i18n/sv/engines.js
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -12,9 +13,6 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';
 import { fileURLToPath } from 'node:url';
-import { ocrProblems, ocrRules, OCR_KEYS } from '../../tools/whitelabel/ai.mjs';
-import { validate, loadProfile, profilesDir, allProfiles } from '../../tools/whitelabel/profile.mjs';
-import { markerValues, applyMarkers } from '../../tools/whitelabel/emit.mjs';
 import { suggestModel } from '../../shared/ocr/suggest.js';
 import { linesOf } from '../../shared/ocr/engine-tesseract.js';
 
@@ -26,11 +24,12 @@ const memory = (init = {}) => { const m = new Map(Object.entries(init)); return 
 /** The OCR scripts of a page, run in order in a fresh vm, with the brand profile's ai and ocr fields written into their
  *  markers as the build does, and a localStorage. */
 function site({ ai = {}, ocr = {}, storage = memory() } = {}) {
-  const values = markerValues({ ai, ocr });
+  const values = { aiModels: ai, ocrEngines: ocr };
+  const applyMarkers = (src) => src.replace(/\/\*profile:(aiModels|ocrEngines)\*\/\{[^\n]*?\}(?=;)/g, (m, k) => `/*profile:${k}*/${JSON.stringify(values[k])}`);
   const win = { localStorage: storage, Intl, URL };
   win.window = win; win.globalThis = win;
   vm.createContext(win);
-  for (const p of SCRIPTS) vm.runInContext(applyMarkers(read(p), values), win, { filename: p });
+  for (const p of SCRIPTS) vm.runInContext(applyMarkers(read(p)), win, { filename: p });
   return win;
 }
 const ids = (list) => list.map((r) => r.model.id);
@@ -177,25 +176,4 @@ test('tesseract.js lines: text, a 0..1 score and a box per line, empty lines cou
   assert.equal(lines[1].score, 1);
   assert.equal(lines.skipped, 1);
   eq(linesOf(null), []);
-});
-
-test('the profile\'s ocr field: validation, the marker the build writes, and every profile here valid', () => {
-  for (const p of allProfiles(profilesDir(ROOT))) eq(ocrProblems(p), [], p.id);
-  eq(OCR_KEYS, ['engines', 'default']);
-  eq(ocrProblems({ ocr: { engines: ['tesseract'], default: 'tesseract' } }), []);
-  eq(ocrProblems({ ai: { hideOrigins: ['CN'] } }), [], 'Tesseract is left');
-  assert.match(ocrProblems({ ocr: [] })[0], /^ocr: an object/);
-  const errs = ocrProblems({ ocr: { engines: ['nope'], default: 'x', more: 1 } }).join('\n');
-  for (const k of ['ocr.more: unknown', 'ocr.engines: "nope"', 'ocr.default: "x"']) assert.ok(errs.includes(k), k + '\n' + errs);
-  assert.match(ocrProblems({ ocr: { engines: ['tesseract'], default: 'paddle' } }).join(), /not one of ocr.engines/);
-  assert.match(ocrProblems({ ai: { onlyMakers: ['openai'] } }).join(), /hide every OCR engine/);
-  assert.match(ocrProblems({ ai: { hideOrigins: ['CN'] }, ocr: { default: 'paddle' } }).join(), /paddle is hidden by the ai field/);
-  const sample = loadProfile(profilesDir(ROOT), 'sample');
-  assert.match(validate(Object.assign({}, sample, { ocr: { engines: ['nope'] } })).join('\n'), /^ocr\.engines:/m);
-  eq(ocrRules({}), {});
-  eq(ocrRules({ ocr: { engines: ['tesseract'], default: 'tesseract' } }), { engines: ['tesseract'], default: 'tesseract' });
-  // the build: this site's engines.js as it is; a profile's rules in the marker
-  const src = read('shared/ocr/engines.js');
-  assert.equal(applyMarkers(src, markerValues(loadProfile(profilesDir(ROOT), 'slopographic'))), src);
-  assert.match(applyMarkers(src, markerValues({ ocr: { default: 'tesseract' } })), /\/\*profile:ocrEngines\*\/\{"default":"tesseract"\}/);
 });

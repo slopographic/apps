@@ -60,7 +60,10 @@ export function createOcrChoice(o = {}) {
     if (language === 'auto') {
       const own = locale ? C.modelFor(locale) : null;
       if (own && (await ready(own.id))) return own.id;
-      return (await ready(C.QUICK)) ? C.QUICK : null;   // another engine's quick model may not be on this device yet: the dialog asks
+      // the quick model the page's gate made sure of (the site's own); another engine's, chosen since, may not be on this
+      // device yet: then the dialog asks
+      const gated = globalThis.SlopOcrModels && C.QUICK === globalThis.SlopOcrModels.QUICK;
+      return gated || (await ready(C.QUICK)) ? C.QUICK : null;
     }
     const pref = prefs.preferred(language);
     if (pref && C.fits(C.byId(pref), language) && (await ready(pref))) return pref;
