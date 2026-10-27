@@ -17,7 +17,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'seo.guide.resize.getting-started.sections.1.text.0': 'Değeri 0 bırakılan bir kenar resmi izler. En-boy oranını koru, resmin ezilmesini engeller.',
   'seo.guide.resize.getting-started.sections.1.image.alt': 'Hedefi Kare 1080 × 1080 ve dolguyu Kapla (kırp) olarak ayarlanmış, bekleyen dört örnek fotoğraf; Slop Resize’da',
   'seo.guide.resize.getting-started.sections.2.h2': 'Boyutlandırın ve indirin',
-  'seo.guide.resize.getting-started.sections.2.steps.0': 'Tümünü boyutlandır’a tıklayın. Her dosya yeni boyutunu ve Tamamlandı’yı gösterir.',
+  'seo.guide.resize.getting-started.sections.2.steps.0': 'Hepsini yeniden boyutlandır’a tıklayın. Her dosya yeni boyutunu ve Tamamlandı’yı gösterir.',
   'seo.guide.resize.getting-started.sections.2.steps.1': 'Her dosya için Tümünü indir (zip)’e, ya da tek bir dosyanın yanındaki İndir’e tıklayın.',
   'seo.guide.resize.getting-started.sections.2.steps.2': 'Slop Drive’a kaydet, sonuçları Slop Drive’da tutar.',
   'seo.guide.resize.getting-started.sections.2.image.alt': 'Her biri yeni dosya boyutu ve İndir, Drive’a kaydet ve Büyüt düğmeleriyle 1080 × 1080’e boyutlandırılmış dört fotoğraf',

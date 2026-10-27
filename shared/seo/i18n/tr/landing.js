@@ -62,7 +62,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'seo.landing.invoices.description': 'Slop Invoices, deftere işlenen boşluksuz numaralarla fatura düzenler; müşteri başına ödemeleri ve vadesi geçmiş bakiyeleri izler, PDF yazdırır.',
   'seo.landing.notes.title': 'Slop Notes: tarayıcınızda defterler ve Markdown notları | Slopographic',
   'seo.landing.notes.description': 'Slop Notes defterleri, klasörleri, etiketleri ve sabitlenmiş notları Markdown’da tutar; canlı önizleme ve arama. .md ya da .html olarak dışa aktarın.',
-  'seo.landing.paste.title': 'Paste: metni, kodu ve resimleri bağlantıyla paylaşın | Slopographic',
+  'seo.landing.paste.title': 'Paste: metin, kod ve resimleri bağlantıyla paylaşın | Slopographic',
   'seo.landing.paste.description': 'Metin, kod ya da resim yapıştırıp bağlantıyla paylaşın. Vurgulama altı dili kapsar ve her yapıştırmanın bir süre sonu etiketi vardır. Hiçbir şey yüklenmez.',
   'seo.landing.effects.title': 'Ücretsiz çevrimiçi hareket grafikleri düzenleyici | Slop Effects',
   'seo.landing.effects.description': 'Tarayıcınızda hareket grafikleri: katmanlar, anahtar kareler, yumuşatma, parıltı, bulanıklık ve glitch; MP4, WebM ve PNG dizisi dışa aktarır.',

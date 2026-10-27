@@ -42,7 +42,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'seo.guide.press.getting-started.sections.2.text.1': 'Sayfalar paneli her sayfayı gösterir. Sayfa ekle (Shift+Ctrl+P) bir sayfa ekler. Sayfa numaraları gibi bir ana sayfadaki öğeler, onu kullanan her sayfada görünür.',
   'seo.guide.press.getting-started.sections.2.text.2': 'Üstteki çubuktaki Belge kurulumu… ve Kenar boşlukları ve sütunlar… sayfa boyutunu, kenar boşluklarını, sütunları ve taşmayı değiştirir.',
   'seo.guide.press.getting-started.sections.3.h2': 'Bir PDF dışa aktarın',
-  'seo.guide.press.getting-started.sections.3.text.0': 'PDF\'yi dışa aktar…’a (Ctrl+E) tıklayın. Yazı tipleri gömülür; bir matbaa için taşma ve kesim işaretleri ekleyebilirsiniz. PNG dışa aktar… (Alt+Ctrl+E) sayfaların resimlerini yapar.',
+  'seo.guide.press.getting-started.sections.3.text.0': 'PDF olarak dışa aktar…’a (Ctrl+E) tıklayın. Yazı tipleri gömülür; bir matbaa için taşma ve kesim işaretleri ekleyebilirsiniz. PNG olarak dışa aktar… (Alt+Ctrl+E) sayfaların resimlerini yapar.',
   'seo.guide.press.getting-started.sections.3.text.1': 'Kaydet (Ctrl+S) belgeyi Slop Drive’da tutar.',
   'seo.guide.press.getting-started.shortcuts.0.1': 'Seçim Aracı',
   'seo.guide.press.getting-started.shortcuts.1.1': 'Yazı Aracı',

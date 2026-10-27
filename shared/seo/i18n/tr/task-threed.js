@@ -2,7 +2,7 @@
 window.SlopI18n && window.SlopI18n.add('tr', {
   'seo.task.3d.stl-viewer.crumb': 'STL görüntüleyici',
   'seo.task.3d.stl-viewer.title': 'Çevrimiçi STL görüntüleyici: ikili ve ASCII STL dosyalarını ücretsiz açın',
-  'seo.task.3d.stl-viewer.description': 'Yazdırmadan önce bir parçayı kontrol etmek için tarayıcınızda bir STL dosyası açın: etrafında dönün, yakınlaştırın, tel kafes ve bir PNG görüntüsü. İkili ve ASCII STL. Hiçbir şey yüklenmez.',
+  'seo.task.3d.stl-viewer.description': 'Yazdırmadan önce bir parçayı kontrol etmek için tarayıcınızda STL açın: döndürün, yakınlaştırın, tel kafes görün ve PNG alın. İkili ve ASCII STL. Yükleme yok.',
   'seo.task.3d.stl-viewer.h1': 'STL dosyalarını çevrimiçi görüntüleyin',
   'seo.task.3d.stl-viewer.lead': 'Bir model sitesinden, bir CAD programından ya da bir 3B tarayıcıdan gelen bir STL dosyasına hiçbir şey kurmadan bakın. Slop 3D onu tarayıcınızda, cihazınızda açar.',
   'seo.task.3d.stl-viewer.cta': 'Bir STL dosyası açın',
@@ -58,7 +58,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'seo.task.convert.3d-file-converter.faq.3.1': 'Evet. Çevirirken Birimler seçeneğini (örneğin milimetreden metreye) ve Yukarı ekseni seçeneğini (Z yukarı, Y yukarı) kullanın.',
   'seo.task.convert.3d-model-to-stl.crumb': '3B modelden STL’ye',
   'seo.task.convert.3d-model-to-stl.title': '3B baskı için bir 3B modeli STL’ye çevirin, ücretsiz ve özel',
-  'seo.task.convert.3d-model-to-stl.description': 'OBJ, FBX, GLB, glTF, PLY, 3MF ya da DAE modellerini dilimleyiciniz için tarayıcınızda STL’ye çevirin. İkili ya da ASCII; birimler ve yukarı ekseni ile. Yükleme yok.',
+  'seo.task.convert.3d-model-to-stl.description': 'OBJ, FBX, GLB, glTF, PLY, 3MF ya da DAE modellerini tarayıcınızda dilimleyici için STL’ye çevirin. İkili ya da ASCII; birimler ve yukarı ekseni ile.',
   'seo.task.convert.3d-model-to-stl.h1': 'Bir 3B modeli baskı için STL’ye çevirin',
   'seo.task.convert.3d-model-to-stl.lead': 'Dilimleyiciler STL ister. Bir oyun varlığı mağazasından, bir taramadan ya da bir tasarım aracından bir model bırakın; her parçası yerinde olan, dilimlemeye hazır bir STL alın.',
   'seo.task.convert.3d-model-to-stl.cta': 'Bir STL yapın',
