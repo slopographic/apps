@@ -168,7 +168,7 @@ window.SlopI18n && window.SlopI18n.add('pt-BR', {
   'seo.cv.ods-to-xlsx.faq.1.0': 'Os meus arquivos são enviados?',
   'seo.cv.ods-to-xlsx.faq.1.1': 'Não. A conversão roda no seu navegador, neste dispositivo. Os seus arquivos não são enviados à Slopographic nem a nenhum outro servidor.',
   'seo.cv.json-to-xlsx.title': 'Conversor de JSON para Excel: registros em XLSX, grátis | File convert',
-  'seo.cv.json-to-xlsx.description': 'Converta JSON em uma pasta de trabalho do Excel (XLSX) no navegador. Um array de objetos vira uma tabela com cabeçalho em negrito, uma coluna por chave. Sem envio.',
+  'seo.cv.json-to-xlsx.description': 'Converta JSON em uma pasta de trabalho do Excel (XLSX) no navegador. Um array de objetos vira uma tabela com cabeçalho em negrito, uma coluna por chave.',
   'seo.cv.json-to-xlsx.h1': 'Conversor de JSON para Excel (XLSX)',
   'seo.cv.json-to-xlsx.lead': 'Abra dados JSON no Excel: cada objeto vira uma linha e cada chave uma coluna, com números mantidos como números.',
   'seo.cv.json-to-xlsx.how.0': 'Um array de objetos dá uma coluna por chave, na ordem em que as chaves aparecem pela primeira vez. Um array de arrays dá linhas como estão. Um objeto cujos valores são arrays dá uma planilha por chave.',
