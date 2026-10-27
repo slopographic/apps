@@ -81,7 +81,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'seo.task.slopedit.trim-video.faq.3.0': 'Il mio video viene caricato?',
   'seo.task.slopedit.video-to-gif.crumb': 'Da video a GIF',
   'seo.task.slopedit.video-to-gif.title': 'Da video a GIF: crea una GIF animata da un clip, gratis',
-  'seo.task.slopedit.video-to-gif.description': 'Trasforma una breve parte di un video in GIF animata nel browser. Scegli la parte con i punti di entrata e uscita, 320-640 px, fino a 15 fps. Nessun caricamento.',
+  'seo.task.slopedit.video-to-gif.description': 'Trasforma una breve parte di un video in GIF animata nel browser. Scegli la parte con i punti di entrata e uscita, 320-640 px, 15 fps. Nessun caricamento.',
   'seo.task.slopedit.video-to-gif.h1': 'Crea una GIF da un video',
   'seo.task.slopedit.video-to-gif.lead': 'Scegli qualche secondo di un clip e esportalo come GIF animata in loop. Scegli la larghezza e la frequenza di fotogrammi; la GIF viene creata sul tuo dispositivo.',
   'seo.task.slopedit.video-to-gif.steps.0': 'Apri SlopCut e trascina il video nella pagina.',

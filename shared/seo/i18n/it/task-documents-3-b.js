@@ -39,7 +39,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'seo.task.checksum.sha512-checksum.faq.2.1': 'No. L’hash viene calcolato dal tuo browser sul tuo dispositivo.',
   'seo.task.hex.hex-viewer.crumb': 'Visualizzatore esadecimale',
   'seo.task.hex.hex-viewer.title': 'Visualizzatore esadecimale online: un file come byte, gratis',
-  'seo.task.hex.hex-viewer.description': 'Apri un file nel browser e vedi i suoi byte in colonne offset, esadecimale e ASCII. Trova byte o testo, vai a un offset. I file grandi si sfogliano. Nulla viene caricato.',
+  'seo.task.hex.hex-viewer.description': 'Apri un file nel browser e vedi i suoi byte in colonne offset, esadecimale e ASCII. Trova byte o testo, vai a un offset. Nulla viene caricato.',
   'seo.task.hex.hex-viewer.h1': 'Visualizza un file in esadecimale',
   'seo.task.hex.hex-viewer.lead': 'Vedi cosa c’è davvero dentro un file: ogni byte in esadecimale con il suo offset, e i caratteri leggibili accanto. I file grandi si aprono pagina per pagina.',
   'seo.task.hex.hex-viewer.steps.0': 'Trascina un file qualsiasi nella pagina, oppure scegli Apri.',
