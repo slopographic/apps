@@ -133,7 +133,7 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'seo.best.free-word-processors.faq.3.1': 'Google Docs les conserve dans Google Drive, et Word pour le web dans OneDrive. Slop Docs les conserve dans Slop Drive, un stockage à l’intérieur de votre propre navigateur ; ils ne sont donc pas envoyés.',
   'seo.best.free-online-spreadsheets.crumb': 'Meilleurs tableurs en ligne gratuits',
   'seo.best.free-online-spreadsheets.title': 'Meilleurs tableurs gratuits (2026) : Google Sheets, Excel, LibreOffice',
-  'seo.best.free-online-spreadsheets.description': 'Tableurs gratuits comparés : Google Sheets, Excel pour le web, LibreOffice Calc, Zoho Sheet, Slop Tables. Fichiers Excel, tableaux croisés, graphiques, hors ligne.',
+  'seo.best.free-online-spreadsheets.description': 'Tableurs gratuits comparés : Google Sheets, Excel web, LibreOffice Calc, Zoho Sheet, Slop Tables. Fichiers Excel, tableaux croisés, graphiques, hors ligne.',
   'seo.best.free-online-spreadsheets.h1': 'Les meilleurs tableurs gratuits, comparés',
   'seo.best.free-online-spreadsheets.lead': 'Formules, graphiques et tableaux croisés dynamiques sont gratuits dans plusieurs tableurs. Les différences tiennent aux comptes et au stockage, au traitement des fichiers Excel, à la richesse de l’analyse, et à la possibilité de travailler à plusieurs ou hors ligne.',
   'seo.best.free-online-spreadsheets.criteria.0': 'Gratuit pour les formules, les graphiques et les tableaux croisés dynamiques',
