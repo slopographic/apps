@@ -121,7 +121,7 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'seo.task.notes.markdown-to-pdf.faq.2.1': 'Obrazy wstawione przez Wstaw blok są zapisane w notatce i drukują się razem z nią. Zdalne obrazy nie są wczytywane.',
   'seo.task.paste.code-snippet-manager.crumb': 'Menedżer fragmentów kodu',
   'seo.task.paste.code-snippet-manager.title': 'Prywatny menedżer fragmentów kodu z podświetlaniem składni w przeglądarce',
-  'seo.task.paste.code-snippet-manager.description': 'Fragmenty kodu, tekst i zrzuty ekranu na jednej liście z wyszukiwaniem i podświetlaniem składni: JavaScript, Python, HTML, CSS, JSON, Markdown. Zapisane lokalnie.',
+  'seo.task.paste.code-snippet-manager.description': 'Fragmenty kodu, tekst i zrzuty ekranu na jednej liście z wyszukiwaniem i podświetlaniem składni: JavaScript, Python, HTML, CSS, JSON, Markdown. Lokalnie.',
   'seo.task.paste.code-snippet-manager.h1': 'Trzymaj fragmenty kodu w jednym miejscu',
   'seo.task.paste.code-snippet-manager.lead': 'Wklej fragment w dowolne miejsce na stronie, a zostanie zapisany, podświetlony i będzie można go przeszukać. Wklejka trzyma tekst, kod i obrazy w tej przeglądarce, nic nigdzie nie jest wysyłane.',
   'seo.task.paste.code-snippet-manager.cta': 'Zapisz fragment',
