@@ -38,6 +38,7 @@ export function overrides(cfg, opts = {}) {
     signingKey: { path: './upload.jks', alias: 'upload' },   // the workflow signs with jarsigner/apksigner itself
     fallbackType: 'customtabs',                               // a phone without a TWA-capable browser gets a Custom Tab
     enableNotifications: false,
+    minSdkVersion: 24,                                        // Android 7: what androidbrowserhelper needs
     enableSiteSettingsShortcut: true,
     generatorApp: 'bubblewrap-core',
     fingerprints: cfg.fingerprints.map((value) => ({ name: 'signing key', value })),

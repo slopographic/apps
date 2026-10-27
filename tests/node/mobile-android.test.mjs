@@ -29,6 +29,7 @@ test("the TWA takes the site's id, names, colours and icons", () => {
   assert.equal(o.appVersion, '1.0.7');
   assert.equal(o.fallbackType, 'customtabs');
   assert.equal(o.enableNotifications, false);
+  assert.equal(o.minSdkVersion, 24, 'androidbrowserhelper needs Android 7');
   assert.ok(!/\.jks$/.test(o.signingKey.path) || o.signingKey.path.startsWith('./'), 'the keystore is never a committed path');
 });
 

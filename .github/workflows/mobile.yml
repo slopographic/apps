@@ -10,9 +10,6 @@ name: Store apps
 #            unsigned simulator build (.app, zipped). With them: a signed .ipa (Xcode's cloud signing); with release, it
 #            is also uploaded to App Store Connect (TestFlight).
 on:
-  push:
-    branches: [wip/mobile-apps]
-    paths: [.github/workflows/mobile.yml]
   workflow_dispatch:
     inputs:
       platform:
