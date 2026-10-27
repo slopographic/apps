@@ -120,7 +120,7 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'seo.landing.admin.description': 'Slop Admin gère le profil de la société et la devise par défaut, une numérotation qui n’avance que vers l’avant, et une sauvegarde et restauration complètes.',
   'seo.landing.drive.title': 'Slop Drive : stockage de fichiers privé dans le navigateur | Slopographic',
   'seo.landing.drive.description': 'Slop Drive garde vos fichiers dans votre navigateur, pas sur un serveur : dossiers, favoris, étiquettes, recherche, aperçus et sauvegarde. Sans compte.',
-  'seo.landing.code.title': 'Slop Code : éditeur de code pour vos fichiers Slop Drive | Slopographic',
+  'seo.landing.code.title': 'Slop Code : éditeur de code pour Slop Drive | Slopographic',
   'seo.landing.code.description': 'Slop Code modifie les fichiers JavaScript, TypeScript, HTML, CSS, JSON, Markdown et Python de Slop Drive, avec recherche et remplacement et un aperçu isolé.',
   'seo.landing.gallery.title': 'Galerie de photos hors ligne, albums et doublons | Slop Gallery',
   'seo.landing.gallery.description': 'Photothèque qui reste sur cet appareil : chronologie par date, albums, favoris, détecteur de doublons exacts et sauvegarde. Gratuit, sans compte.',
