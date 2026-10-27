@@ -155,9 +155,14 @@
     for (let k = 0; k <= folds; k++) plan.push([true, kept, k]);
     if (ys.some(keep)) for (let k = 0; k <= folds; k++) plan.push([true, hidden, k]);
     // on the first row if they can be; else on the header's own rows (only where the app's controls take two rows)
-    // a layout that needs More before its script has loaded does not count: it would show the header without those
-    // buttons for a frame or two, then again with More (the page jumps twice); check() runs again once it has loaded
-    for (rows of [false, true]) for (const [tight, st, k] of plan) { if (apply(host, ys, fs, tight, st, k) && fits()) return tight; }
+    // a layout that needs More before its script has loaded is the last resort: it shows the header without those buttons
+    // until More comes (check() runs again once it has loaded), which beats a header pushed past the window's edge
+    let wait = null;
+    for (rows of [false, true]) for (const [tight, st, k] of plan) {
+      const ok = apply(host, ys, fs, tight, st, k);
+      if (fits()) { if (ok) return tight; if (!wait) wait = [rows, tight, st, k]; }
+    }
+    if (wait) { rows = wait[0]; apply(host, ys, fs, wait[1], wait[2], wait[3]); return wait[1]; }
     // nothing fits: the app's own controls overflow whatever we do; fold nothing (it would not help) and keep AI as an icon
     // when that adds no row, else hide it as before (the Theme menu and the command palette still offer it)
     apply(host, ys, fs, true, kept, 0);
@@ -186,6 +191,7 @@
     // A web font that arrives later changes the labels' and the title's widths but not the header's own size.
     const fonts = win.document.fonts;
     if (fonts && fonts.addEventListener) { fonts.addEventListener('loadingdone', later); fonts.ready.then(later); }
+    if (phone()) loadMenuButton();   // a phone header usually folds into More: its script on the way now, not when first needed
     check(host);
     return host;
   }
