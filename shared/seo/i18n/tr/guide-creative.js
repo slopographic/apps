@@ -2,7 +2,7 @@
 window.SlopI18n && window.SlopI18n.add('tr', {
   'seo.guide.photoslop.getting-started.crumb': 'Başlarken',
   'seo.guide.photoslop.getting-started.title': 'PhotoSlop’a başlarken: bir fotoğrafı açın, düzenleyin ve dışa aktarın',
-  'seo.guide.photoslop.getting-started.description': 'Kısa bir PhotoSlop eğitimi: fotoğraf açın, araçları ve Görüntü menüsünü kullanın, metni kendi katmanına ekleyin ve PNG, JPEG ya da WebP dışa aktarın. Yükleme yok.',
+  'seo.guide.photoslop.getting-started.description': 'Kısa bir PhotoSlop eğitimi: fotoğraf açın, araçları kullanın, metni kendi katmanına ekleyin ve PNG, JPEG ya da WebP dışa aktarın. Yükleme yok.',
   'seo.guide.photoslop.getting-started.h1': 'PhotoSlop’a başlarken',
   'seo.guide.photoslop.getting-started.lead': 'PhotoSlop, katmanları olan bir fotoğraf düzenleyicidir ve tarayıcınızda çalışır. Resimleriniz bu cihazda kalır: hiçbir zaman yüklenmezler.',
   'seo.guide.photoslop.getting-started.sections.0.h2': 'Bir fotoğraf açın',
@@ -44,7 +44,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'seo.guide.photoslop.getting-started.shortcuts.14.1': 'Farklı dışa aktar',
   'seo.guide.photoslop.layers.crumb': 'Katmanlar, maskeler ve karıştırma kipleri',
   'seo.guide.photoslop.layers.title': 'PhotoSlop katmanları: maskeler, karıştırma kipleri ve dolgular',
-  'seo.guide.photoslop.layers.description': 'PhotoSlop’ta katmanları öğrenin: ekleyin, sıralayın, birleştirin; karıştırma kipi ve opaklık ayarlayın, geçişli bir katman maskesi boyayın, düz renk dolgusu ekleyin.',
+  'seo.guide.photoslop.layers.description': 'PhotoSlop’ta katmanları öğrenin: ekleyin, sıralayın, birleştirin; karıştırma kipi ve opaklık ayarlayın, geçişli maske boyayın, düz renk dolgusu ekleyin.',
   'seo.guide.photoslop.layers.h1': 'PhotoSlop’ta katmanlar, maskeler ve karıştırma kipleri',
   'seo.guide.photoslop.layers.lead': 'Katmanlar bir resmin her parçasını ayrı tutar; böylece diğerlerine dokunmadan birini değiştirebilirsiniz. Bu rehber Katmanlar panelini, karıştırma kiplerini ve maskeleri anlatır.',
   'seo.guide.photoslop.layers.sections.0.h2': 'Katmanlar paneli',

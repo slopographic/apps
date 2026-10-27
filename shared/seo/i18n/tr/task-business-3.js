@@ -104,7 +104,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'seo.task.timesheets.free-timesheet.faq.2.1': 'Evet. Faturalandırılabilir’in işaretini kaldırın; bu, müşterisiz bir şirket içi süre olur. Toplamlarınıza girer ama asla faturalanmaz.',
   'seo.task.timesheets.billable-hours-tracker.crumb': 'Faturalandırılabilir saat takipçisi',
   'seo.task.timesheets.billable-hours-tracker.title': 'Faturalandırılabilir saat takipçisi: takip edilen süreyi faturaya çevirin',
-  'seo.task.timesheets.billable-hours-tracker.description': 'Faturalandırılabilir saatleri müşteri başına saatlik ücretinizle takip edin, açık süreyi tek tıkla taslak faturaya çevirin. Faturalanan süre kilitlenir. Ücretsiz.',
+  'seo.task.timesheets.billable-hours-tracker.description': 'Faturalandırılabilir saatleri müşteri başına saatlik ücretinizle takip edin; açık süreyi tek tıkla taslak faturaya çevirin. Faturalanan süre kilitlenir.',
   'seo.task.timesheets.billable-hours-tracker.h1': 'Faturalandırılabilir saatleri takip edin ve faturalandırın',
   'seo.task.timesheets.billable-hours-tracker.lead': 'Her müşteri için saatlerinizi saatlik ücretle kaydedin. Faturalama zamanı geldiğinde açık saatleri işaretleyin; Slop Timesheets her kayıt için bir satırla taslak faturayı yapar.',
   'seo.task.timesheets.billable-hours-tracker.cta': 'Saatlerinizi faturalandırın',

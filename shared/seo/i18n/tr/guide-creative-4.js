@@ -2,7 +2,7 @@
 window.SlopI18n && window.SlopI18n.add('tr', {
   'seo.guide.label.getting-started.crumb': 'Başlarken',
   'seo.guide.label.getting-started.title': 'SlopLabel’a başlarken: etiket tasarlayın, birleştirin ve yazdırın',
-  'seo.guide.label.getting-started.description': 'SlopLabel’i öğrenin: hazır bir etiketle başlayın, metin ve barkodları düzenleyin, bir CSV ya da Excel dosyasından satırları birleştirin ve PDF ile ZPL’yi yazdırın ya da dışa aktarın.',
+  'seo.guide.label.getting-started.description': 'SlopLabel’i öğrenin: hazır bir etiketle başlayın, metin ve barkodları düzenleyin, CSV ya da Excel’den satır birleştirin ve PDF ya da ZPL yazdırın.',
   'seo.guide.label.getting-started.h1': 'SlopLabel’a başlarken',
   'seo.guide.label.getting-started.lead': 'SlopLabel metin, barkod ve QR kodlu etiketler tasarlar, bunları bir e-tablodan doldurur ve bir sayfaya ya da termal yazıcıya yazdırır. Tarayıcınızda çalışır.',
   'seo.guide.label.getting-started.sections.0.h2': 'Bir etiket başlatın',
@@ -25,7 +25,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'seo.guide.label.getting-started.sections.3.text.0': 'Yazdır…’a tıklayın. Kayıtları ve kopya sayısını, sonra çıktıyı seçin: Tarayıcı yazdırması, PDF ya da yazıcı dilleri ZPL (Zebra), EPL2 ve TSPL (TSC).',
   'seo.guide.label.getting-started.sections.3.text.1': 'Dosya, Dışa aktar altında geçerli etiketin PNG ve SVG’sini de verir. Kaydet projeyi tutar; Projeyi indir (.sloplabel) onu bir dosya olarak kaydeder.',
   'seo.guide.press.getting-started.title': 'Slop Press’e başlarken: sayfa tasarlayın ve bir PDF dışa aktarın',
-  'seo.guide.press.getting-started.description': 'Slop Press’i öğrenin: bir şablondan başlayın, metin ve resim çerçeveleri ekleyin, paragraf stillerini ve ana sayfaları kullanın, taşmalı baskıya hazır bir PDF dışa aktarın.',
+  'seo.guide.press.getting-started.description': 'Slop Press’i öğrenin: bir şablondan başlayın, metin ve resim çerçeveleri ekleyin, paragraf stillerini kullanın, taşmalı bir PDF dışa aktarın.',
   'seo.guide.press.getting-started.h1': 'Slop Press’e başlarken',
   'seo.guide.press.getting-started.lead': 'Slop Press, tarayıcınızda broşürler, fanzinler, dergiler ve kartvizitler için bir sayfa düzeni uygulamasıdır. Baskıya hazır PDF’ler dışa aktarır. Hiçbir şey yüklenmez.',
   'seo.guide.press.getting-started.sections.0.h2': 'Bir belge başlatın',

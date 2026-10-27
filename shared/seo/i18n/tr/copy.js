@@ -35,7 +35,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'seo.app.remix.title': 'Reel Remix: klipleriniz için rastgele bir video kurgusu | Slopographic',
   'seo.app.remix.description': 'Klip ve fotoğraflarınızdan rastgele bir kurgu alın; yeniden karıştırın ya da birebir tekrarlayın. Telefondan 4K’ya ön ayarlarla dışa aktarın. Yükleme yok.',
   'seo.app.slopedit.title': 'SlopCut: hiçbir zaman yüklemeyen tarayıcı video düzenleyici | Slopographic',
-  'seo.app.slopedit.description': 'Tarayıcınız için çok parçalı bir video düzenleyici. Kırpın, bölün, geçiş ve başlık ekleyin, donanım hızlandırmalı MP4 dışa aktarın. Görüntüleriniz yerinde kalır.',
+  'seo.app.slopedit.description': 'Çok parçalı bir tarayıcı video düzenleyicisi. Kırpın, bölün, geçiş ve başlık ekleyin, donanım hızlandırmalı MP4 dışa aktarın. Görüntüleriniz yerinde kalır.',
   'seo.app.resize.title': 'Slop Resize: resim ve videoları belirli boyuta getirin | Slopographic',
   'seo.app.resize.description': 'Resim ve videoları tam piksel, yüzde ya da dosya boyutu sınırına göre boyutlandırın; sosyal medya ve 4K ön ayarları var. Videolar MP4 ya da WebM olur.',
   'seo.app.upscale.title': 'Slop Upscale: cihazınızda 2 ve 4 kat daha keskin resimler | Slopographic',
