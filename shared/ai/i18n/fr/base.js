@@ -11,7 +11,7 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'prompts.ui.send': 'Envoyer',
   'prompts.ui.cancel': 'Annuler',
   'prompts.when.selection': 'Sélectionnez d’abord du texte dans l’application',
-  'prompts.when.tools': 'Activez « Contrôler {app} » d’abord',
+  'prompts.when.tools': 'Activez « Piloter {app} » d’abord',
   'prompts.when.document': 'Ouvrez d’abord un document',
   'prompts.group.understand': 'Comprendre',
   'prompts.group.write': 'Rédiger',
