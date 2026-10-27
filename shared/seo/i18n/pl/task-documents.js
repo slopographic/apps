@@ -21,7 +21,7 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'seo.task.pdf.sign-pdf.faq.3.1': 'Tak. Umieść podpis na każdej stronie, która go wymaga; zapisany podpis jest o jedno kliknięcie od panelu Podpisz.',
   'seo.task.pdf.fill-pdf-form.crumb': 'Wypełnianie formularza PDF',
   'seo.task.pdf.fill-pdf-form.title': 'Wypełnij formularz PDF online za darmo, potem zapisz lub spłaszcz',
-  'seo.task.pdf.fill-pdf-form.description': 'Wypełniaj pola formularza PDF w przeglądarce: pola tekstowe, wyboru, listy rozwijane i przyciski opcji. Zachowaj formularz edytowalny lub go spłaszcz. Bez przesyłania.',
+  'seo.task.pdf.fill-pdf-form.description': 'Wypełniaj pola formularza PDF w przeglądarce: pola tekstowe, wyboru, listy i przyciski opcji. Zachowaj formularz edytowalny lub go spłaszcz. Bez przesyłania.',
   'seo.task.pdf.fill-pdf-form.h1': 'Wypełnij formularz PDF',
   'seo.task.pdf.fill-pdf-form.lead': 'Otwórz formularz PDF do wypełnienia, a każde pole pojawi się obok stron: wpisz odpowiedzi, zaznacz pola i wybierz z list, a potem pobierz wypełniony formularz.',
   'seo.task.pdf.fill-pdf-form.steps.0': 'Upuść formularz PDF na stronę.',
