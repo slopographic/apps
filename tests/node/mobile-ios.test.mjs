@@ -113,6 +113,35 @@ test('installed: engine fetches come from the app (no URL of their own), remote 
   assert.deepEqual(shared, [{ title: 'report.pdf', files: ['file:///cache/report.pdf'] }]);
 });
 
+test("the bands around the page: the colours at the page's top and bottom edges, reported to the app when they change", async () => {
+  assert.deepEqual(N.parseColor('rgb(10, 20, 30)'), [10, 20, 30]);
+  assert.deepEqual(N.parseColor('rgba(255, 255, 255, 0.9)'), [255, 255, 255]);
+  assert.deepEqual(N.parseColor('rgb(1 2 3 / 50%)'), [1, 2, 3]);
+  assert.equal(N.parseColor('rgba(0, 0, 0, 0)'), null);
+  assert.equal(N.parseColor('transparent'), null);
+  const node = (bg, parent = null) => ({ nodeType: 1, bg, parentElement: parent });
+  const body = node('rgb(250, 250, 250)'), header = node('rgb(255, 255, 255)', body), link = node('rgba(0, 0, 0, 0)', header);
+  const posted = [], frames = [], hooks = {};
+  const win = {
+    innerWidth: 400, innerHeight: 800, document: { body, documentElement: node('rgba(0, 0, 0, 0)'), elementFromPoint: (x, y) => (y < 10 ? link : body) },
+    getComputedStyle: (e) => ({ backgroundColor: e.bg }), matchMedia: () => ({ matches: false, addEventListener: () => {} }),
+    requestAnimationFrame: (f) => frames.push(f), addEventListener: (ev, f) => { hooks[ev] = f; },
+    MutationObserver: class { constructor(f) { hooks.mutation = f; } observe() {} },
+    webkit: { messageHandlers: { siteChrome: { postMessage: (m) => posted.push(m) } } },
+    location: { origin: 'capacitor://localhost' }, fetch: async () => new Response(''), HTMLAnchorElement: class { click() {} }, navigator: {},
+  };
+  win.document.addEventListener = () => {};
+  win.document.documentElement.classList = { add: () => {} };
+  assert.deepEqual(N.edgeColors(win), { top: [255, 255, 255], bottom: [250, 250, 250] });
+  N.install(win);
+  frames.shift()();
+  assert.deepEqual(posted, [{ top: [255, 255, 255], bottom: [250, 250, 250] }]);
+  hooks.scroll(); hooks.scroll(); assert.equal(frames.length, 1);   // once per frame
+  frames.shift()(); assert.equal(posted.length, 1);                 // unchanged: not sent again
+  header.bg = 'rgb(20, 20, 20)'; hooks.mutation(); frames.shift()();   // dark theme
+  assert.deepEqual(posted[1], { top: [20, 20, 20], bottom: [250, 250, 250] });
+});
+
 test("Capacitor settings and the Xcode project's changes", () => {
   const cfg = readConfig(ROOT);
   const c = capConfig(cfg, { start: '/' });
@@ -135,6 +164,8 @@ test("Capacitor settings and the Xcode project's changes", () => {
   assert.match(swift, /class SiteViewController: CAPBridgeViewController/);
   const once = appendOnce('class AppDelegate {}\n', swift);
   assert.equal(appendOnce(once, swift), once);
+  assert.equal(appendOnce(once.replace('SiteRouter()', 'Old()'), swift), once);   // a re-patch replaces an older copy
+  assert.match(swift, /web\.topAnchor\.constraint\(equalTo: safe\.topAnchor\)/);   // the web view inside the safe area
   const pbx = patchPbxproj('IPHONEOS_DEPLOYMENT_TARGET = 15.0;\nPRODUCT_BUNDLE_IDENTIFIER = com.getcapacitor.App;', 'com.example.app');
   assert.equal(pbx, `IPHONEOS_DEPLOYMENT_TARGET = ${MIN_IOS};\nPRODUCT_BUNDLE_IDENTIFIER = com.example.app;`);
   const svg = iconSvg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32"><rect/></svg>', '#000000', 1000, 0.8);

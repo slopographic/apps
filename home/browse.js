@@ -130,7 +130,9 @@
   } else {
     render(APPS, false);
   }
-  /* The hero's "Open the apps" (index.html, [data-to-finder]): scrolls to the finder and puts the cursor in its search. */
+  /* The hero's "Open the apps" (index.html, [data-to-finder]): scrolls to the finder and puts the cursor in its search; a tap
+   * on a touch screen only scrolls (focus would pop up the on-screen keyboard over half the page). Keyboard activation
+   * (a click with detail 0) always focuses. */
   document.addEventListener('click', (e) => {
     const go = e.target.closest && e.target.closest('a[data-to-finder]');
     const input = go && finderHost && finderHost.querySelector('.fd-input');
@@ -138,7 +140,7 @@
     e.preventDefault();
     const still = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
     finderHost.scrollIntoView({ behavior: still ? 'auto' : 'smooth', block: 'start' });
-    input.focus({ preventScroll: true });
+    if (desktop() || e.detail === 0) input.focus({ preventScroll: true });
   });
   window.SlopHomeBrowse = { render, result: () => lastResult };
 })();

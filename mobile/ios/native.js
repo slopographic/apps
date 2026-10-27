@@ -8,6 +8,9 @@
  *      models, font packs and other data still download at first use.
  *   3. Saving: a download link (a[download] on a blob: or data: address, clicked or .click()ed) opens the share sheet
  *      (Save to Files, AirDrop, Mail...) through Capacitor's Filesystem and Share plugins, or the Web Share API.
+ *   4. The bands around the page: the app keeps the web view inside the safe area (SiteRouter.swift) and paints the
+ *      status bar band and the rest (home indicator, landscape notch) in the colours at the page's top and bottom edges,
+ *      which this reports (the "siteChrome" message) on load and whenever they may change (theme, scroll, resize).
  * Pure helpers are exported for Node (tests/node/mobile-ios.test.mjs); the browser installs the hooks. */
 (function (root, factory) {
   const api = factory();
@@ -60,6 +63,44 @@
     return 'open';
   }
 
+  /** [r, g, b] for a CSS colour that shows (rgb()/rgba() with alpha > 0.1), else null. */
+  function parseColor(c) {
+    const m = /^rgba?\(\s*([\d.]+)[\s,]+([\d.]+)[\s,]+([\d.]+)(?:[\s,/]+([\d.]+%?))?\s*\)$/.exec(String(c || '').trim());
+    if (!m) return null;
+    const a = m[4] === undefined ? 1 : m[4].endsWith('%') ? parseFloat(m[4]) / 100 : parseFloat(m[4]);
+    return a > 0.1 ? [m[1], m[2], m[3]].map((n) => Math.round(+n)) : null;
+  }
+  /** The colour an element shows: its own background, else its nearest painted ancestor's. */
+  function paintOf(win, el) {
+    for (let e = el; e && e.nodeType === 1; e = e.parentElement) {
+      const c = parseColor(win.getComputedStyle(e).backgroundColor);
+      if (c) return c;
+    }
+    return null;
+  }
+  /** { top, bottom }: the colours at the middle of the page's top and bottom edges (the page's own as a fallback). */
+  function edgeColors(win) {
+    const d = win.document, x = win.innerWidth / 2, page = paintOf(win, d.body) || paintOf(win, d.documentElement)
+      || (win.matchMedia && win.matchMedia('(prefers-color-scheme: dark)').matches ? [0, 0, 0] : [255, 255, 255]);
+    return { top: paintOf(win, d.elementFromPoint(x, 1)) || page, bottom: paintOf(win, d.elementFromPoint(x, win.innerHeight - 1)) || page };
+  }
+  /** Reports the edge colours to the app when they change; checks once per frame at most. */
+  function watchEdges(win) {
+    const h = win.webkit && win.webkit.messageHandlers && win.webkit.messageHandlers.siteChrome;
+    if (!h) return;
+    let last = '', queued = false;
+    const check = () => {
+      queued = false;
+      const c = edgeColors(win), k = JSON.stringify(c);
+      if (k !== last) { last = k; h.postMessage(c); }
+    };
+    const soon = () => { if (!queued) { queued = true; win.requestAnimationFrame(check); } };
+    for (const ev of ['DOMContentLoaded', 'load', 'resize', 'scroll', 'pageshow']) win.addEventListener(ev, soon, { passive: true });
+    if (win.matchMedia) win.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', soon);
+    new win.MutationObserver(soon).observe(win.document.documentElement, { attributes: true, subtree: true, attributeFilter: ['class', 'style', 'data-theme', 'open', 'hidden'] });
+    soon();
+  }
+
   function install(win) {
     if (!win || win.__nativeInstalled) return;
     win.__nativeInstalled = true;
@@ -93,7 +134,8 @@
       save(t);
     }, true);
     win.document.documentElement.classList.add('native-app');
+    watchEdges(win);
   }
 
-  return { localFor, isRemoteCode, saveTarget, share, install, bare };
+  return { localFor, isRemoteCode, saveTarget, share, install, bare, parseColor, edgeColors };
 });

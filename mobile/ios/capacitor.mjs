@@ -3,8 +3,9 @@
 // committed: mobile/ios/ios, from `npx cap add ios`). From the site's facts (mobile/config.mjs), so a white-label build
 // gets its own app id, name and icon.
 //   node mobile/ios/capacitor.mjs config         write mobile/ios/capacitor.config.json
-//   node mobile/ios/capacitor.mjs patch          after `cap add ios`: the site's router (SiteRouter.swift), iOS 16.4 (the
-//                                                site's support target), the privacy texts, the app icon and splash
+//   node mobile/ios/capacitor.mjs patch          after `cap add ios`: the site's router and the web view inside the
+//                                                safe area (SiteRouter.swift), iOS 16.4 (the site's support target),
+//                                                the privacy texts, the app icon and splash
 // Node only. Tests: tests/node/mobile-ios.test.mjs.
 import { readFileSync, writeFileSync, existsSync, readdirSync } from 'node:fs';
 import { createRequire } from 'node:module';
@@ -55,7 +56,11 @@ export function patchPlist(xml, keys) {
 /** The project's Swift and storyboard: the app's view controller (SiteRouter.swift) in place of Capacitor's. */
 export function useSiteController(text) { return text.replace(/\bCAPBridgeViewController\(\)/g, 'SiteViewController()'); }
 export function useSiteStoryboard(xml) { return xml.replace(/customClass="CAPBridgeViewController" customModule="Capacitor"/g, 'customClass="SiteViewController" customModule="App" customModuleProvider="target"'); }
-export function appendOnce(text, add) { return text.includes(add.split('\n')[0]) ? text : text.replace(/\s*$/, '\n\n') + add; }
+/** text with add at its end, once: an older copy (from add's first line on) is replaced, so a re-patch updates it. */
+export function appendOnce(text, add) {
+  const at = text.indexOf(add.split('\n')[0]);
+  return (at < 0 ? text : text.slice(0, at)).replace(/\s*$/, '\n\n') + add;
+}
 /** The deployment target and the bundle id in project.pbxproj. */
 export function patchPbxproj(text, appId) {
   return text.replace(/IPHONEOS_DEPLOYMENT_TARGET = [\d.]+;/g, `IPHONEOS_DEPLOYMENT_TARGET = ${MIN_IOS};`)
