@@ -36,7 +36,7 @@ jobs:
           git archive HEAD | tar -x -C ../preview
           cd ../preview
           node tools/seo/write.mjs --langs
-          rm -rf CNAME .github .githooks sitemap*.xml
+          rm -rf CNAME .github .githooks .gitignore sitemap*.xml
           printf 'User-agent: *\nAllow: /\n' > robots.txt
           find . -name '*.html' -not -path './tests/*' -print0 | xargs -0 sed -i '0,/<head>/s//<head><meta name="robots" content="noindex, nofollow">/'
           test "$(grep -rl --include='*.html' 'content="noindex, nofollow"' . | grep -v '^./tests/' | wc -l)" -eq "$(find . -name '*.html' -not -path './tests/*' | wc -l)"

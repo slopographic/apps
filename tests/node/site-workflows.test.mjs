@@ -22,6 +22,10 @@ test('the preview copy is the only place that adds noindex to every page', () =>
   assert.match(wf, /rm -rf CNAME/, 'the preview never takes the live domain');
   // the language pages are written before the noindex pass, so it covers them too
   assert.ok(wf.indexOf('node tools/seo/write.mjs --langs') > 0 && wf.indexOf('node tools/seo/write.mjs --langs') < wf.indexOf('noindex, nofollow">'));
+  // Regression: the copy is committed with git add -A, and the repository's .gitignore ignores the language folders,
+  // so the copy must drop it first or the preview publishes no language page (every /sv/, /de/ … was a 404).
+  assert.match(wf, /rm -rf [^\n]*\.gitignore/, 'the preview copy drops .gitignore before it is committed');
+  assert.ok(wf.indexOf('.gitignore') < wf.indexOf('git add -A'));
 });
 
 // Covers: .github/workflows/pages.yml, .github/workflows/indexnow.yml
