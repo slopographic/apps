@@ -17,6 +17,8 @@ const R = await import(pathToFileURL(path.join(ROOT, 'tools/seo/roundups.mjs')).
 const { ROUNDUPS } = await import(pathToFileURL(path.join(ROOT, 'shared/seo/roundups/index.mjs')).href);
 const { loadRegistry, SITE } = await import(pathToFileURL(path.join(ROOT, 'tools/seo/site.mjs')).href);
 const apps = await loadRegistry();
+const { context, ROOT_LANG } = await import(pathToFileURL(path.join(ROOT, 'tools/seo/lang.mjs')).href);
+const EN = context('en');   // the templates' English words: these checks read them (the root language may be another)
 const { FACTS } = await import(pathToFileURL(path.join(ROOT, 'tests/brand-facts.mjs')).href);
 const tool = (name, extra = {}) => ({ name, url: `https://${name.toLowerCase()}.example/`, bestFor: 'x', pros: ['a'], cons: ['b'], cells: ['Free', 'Yes'],
   sources: [{ label: `${name} pricing`, url: `https://${name.toLowerCase()}.example/pricing` }], ...extra });
@@ -36,7 +38,7 @@ test('checks: a date the facts were checked, exactly one tool of ours, a con for
 });
 
 test('the page says which tool is ours, how they were compared, and links each source', () => {
-  const [p] = R.roundupPages(apps, SITE, [good]);
+  const [p] = R.roundupPages(apps, SITE, [good], {}, EN);
   assert.equal(p.dir, 'best/free-pdf-editors/');
   assert.match(p.html, /We make Slop PDF, one of the tools on this page/);
   assert.match(p.html, /<h2 id="how-we-compared-them">How we compared them<\/h2>/);
@@ -47,7 +49,7 @@ test('the page says which tool is ours, how they were compared, and links each s
 });
 
 test('JSON-LD: the article with its date, the list in order, the breadcrumb and the questions', () => {
-  const ld = R.roundupJsonLd(good, `${SITE}/best/free-pdf-editors/`, SITE), t = (k) => ld.find((x) => x['@type'] === k);
+  const ld = R.roundupJsonLd(good, `${SITE}/best/free-pdf-editors/`, SITE, EN), t = (k) => ld.find((x) => x['@type'] === k);
   assert.equal(t('Article').dateModified, '2026-10-24');
   assert.deepEqual(t('ItemList').itemListElement.map((i) => i.name), ['Slop PDF', 'Alpha', 'Beta']);
   assert.equal(t('ItemList').itemListElement[0].url, `${SITE}/apps/pdf/`);
@@ -56,7 +58,7 @@ test('JSON-LD: the article with its date, the list in order, the breadcrumb and 
 
 test('every round-up in the copy passes the checks, and the index lists them all', () => {
   for (const r of ROUNDUPS) assert.doesNotThrow(() => R.checkRoundup(r, apps), r.slug);
-  const idx = R.roundupIndex(SITE, ROUNDUPS);
+  const idx = R.roundupIndex(SITE, ROUNDUPS, EN);
   for (const r of ROUNDUPS) assert.ok(idx.html.includes(`href="/best/${r.slug}/"`));
 });
 
@@ -67,23 +69,23 @@ test('the feature matrix: one value per tool, shown with marks, and the same tab
   assert.doesNotThrow(() => R.checkRoundup(withMatrix, apps));
   assert.throws(() => R.checkRoundup({ ...withMatrix, matrix: withMatrix.matrix.slice(0, 3) }, apps), /at least 5/);
   assert.throws(() => R.checkRoundup({ ...withMatrix, matrix: [m('X', ['yes'])].concat(withMatrix.matrix) }, apps), /one value per tool/);
-  const html = R.compareTables(withMatrix);
+  const html = R.compareTables(withMatrix, EN);
   assert.match(html, /<td class="m-yes"><span aria-hidden="true">✓<\/span> Yes<\/td>/);
   assert.match(html, /<td class="m-partial">/);
   assert.match(html, /<td>2 a day<\/td>/);
   assert.match(html, /<tr class="us"><th scope="row">Slop PDF <span class="l-badge">ours<\/span>/);
   const L = await import(pathToFileURL(path.join(ROOT, 'tools/seo/landing.mjs')).href);
-  const page = L.landingPages(apps, SITE, new Proxy({}, { get: () => ({ title: 't', description: 'd' }) }), [], [withMatrix]).find((p) => p.key === 'pdf');
+  const page = L.landingPages(apps, SITE, new Proxy({}, { get: () => ({ title: 't', description: 'd' }) }), [], [withMatrix], [], EN).find((p) => p.key === 'pdf');
   const name = apps.find((a) => a.id === 'pdf').name;   // the heading and its id follow the app's name (this site: Slop PDF)
   assert.ok(page.html.includes(`<h2 id="how-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-compares">How ${name} compares</h2>`), page.html.slice(0, 400));
-  assert.ok(page.html.includes(R.compareTables(withMatrix)));
+  assert.ok(page.html.includes(R.compareTables(withMatrix, EN)));
   assert.match(page.html, /href="\/best\/free-pdf-editors\/"/);
 });
 
 test('the guide: a sidebar of the app\'s pages on its landing, task and comparison pages, with this page marked and its sections listed', async () => {
   const G = await import(pathToFileURL(path.join(ROOT, 'tools/seo/guide.mjs')).href);
   const pdf = apps.find((a) => a.id === 'pdf');
-  const nav = G.appNav(pdf, { tasks: [{ slug: 'sign-pdf', h1: 'Sign a PDF', crumb: 'Sign a PDF' }], roundups: [good] }, '/pdf/sign-pdf/');
+  const nav = G.appNav(pdf, { tasks: [{ slug: 'sign-pdf', h1: 'Sign a PDF', crumb: 'Sign a PDF' }], roundups: [good] }, '/pdf/sign-pdf/', EN);
   assert.match(nav, /<a href="\/pdf\/sign-pdf\/" aria-current="page">Sign a PDF<\/a>/);
   assert.match(nav, /<a href="\/best\/free-pdf-editors\/">Best free PDF editors<\/a>/);
   // Slop PDF has a tutorial in the registry; a build without media has none
@@ -92,8 +94,8 @@ test('the guide: a sidebar of the app\'s pages on its landing, task and comparis
   const { body, toc } = G.withToc('<h2>One</h2><p>x</p><h2 id="keep">Two</h2><h2>One</h2>');
   assert.deepEqual(toc.map((t) => t.id), ['one', 'keep', 'one-2']);
   assert.match(body, /<h2 id="one">One<\/h2>/);
-  assert.match(G.docsLayout(nav, toc, body), /<p class="l-side-h">On this page<\/p>/);
-  assert.doesNotMatch(G.docsLayout(nav, toc.slice(0, 2), body), /On this page/);   // short pages need no list
+  assert.match(G.docsLayout(nav, toc, body, EN), /<p class="l-side-h">On this page<\/p>/);
+  assert.doesNotMatch(G.docsLayout(nav, toc.slice(0, 2), body, EN), /On this page/);   // short pages need no list
 });
 
 test('our app is first in every round-up, and every feature row moved with it', async () => {
@@ -108,8 +110,9 @@ test('our app is first in every round-up, and every feature row moved with it', 
 });
 
 test('the install facts are stated once and every app landing page shows how to install it', async () => {
-  const { INSTALL } = await import(pathToFileURL(path.join(ROOT, 'shared/seo/install-copy.mjs')).href);
-  for (const k of ['short', 'pro', 'con', 'how']) assert.ok(typeof INSTALL[k] === 'string' && INSTALL[k].length > 10, k);
+  const { INSTALL: EN_INSTALL, installIn } = await import(pathToFileURL(path.join(ROOT, 'shared/seo/install-copy.mjs')).href);
+  for (const k of ['short', 'pro', 'con', 'how']) assert.ok(typeof EN_INSTALL[k] === 'string' && EN_INSTALL[k].length > 10, k);
+  const INSTALL = installIn(ROOT_LANG);   // the root pages are in the root language
   const { readFileSync, readdirSync } = await import('node:fs');
   for (const d of readdirSync(path.join(ROOT, 'apps'))) {
     const html = readFileSync(path.join(ROOT, 'apps', d, 'index.html'), 'utf8');

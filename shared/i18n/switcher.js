@@ -10,7 +10,9 @@
  *   SlopLangSwitch.items(I)    the menu rows for an i18n instance: [{ value, label, lang, dir, checked }]
  *   SlopLangSwitch.short(code) the button's text for a code: 'pt-BR' -> 'PT'
  *   SlopLangSwitch.search(I)   whether the menu has a filter box (more than SEARCH_FROM languages)
- *   SlopLangSwitch.pick(I, c)  chooses a language through I.set; returns its result
+ *   SlopLangSwitch.pick(I, c, doc, loc)  chooses a language through I.set; returns its result. On a page in one language
+ *                              (<html data-lang-page>, a static SEO page) it then goes to the same page in the language
+ *                              picked, its <link rel="alternate" hreflang>, when there is one (shared/seo/HANDOFF.md)
  * Classic script. Needs shared/i18n/i18n.js. See shared/i18n/HANDOFF.md. */
 (function (g) {
   'use strict';
@@ -34,7 +36,13 @@
       checked: l.code === now, tag: l.quality === 'beta' ? (beta === 'shell.beta' ? 'beta' : beta) : '' }));
   }
   /** Chooses a language with the one setter (SlopI18n.set): stored, applied and announced ('slop-lang') there. */
-  function pick(I, code) { return I.set(code); }
+  function pick(I, code, doc = g.document, loc = g.location) {
+    const r = I.set(code), el = doc && doc.documentElement;
+    if (!r.ok || !el || !el.hasAttribute('data-lang-page') || el.getAttribute('data-lang-page') === code) return r;
+    const alt = [...doc.querySelectorAll('link[rel="alternate"][hreflang]')].find((l) => l.getAttribute('hreflang') === code);
+    if (alt && loc) { const u = new URL(alt.getAttribute('href'), loc.href); r.go = u.pathname + loc.search + loc.hash; loc.assign(r.go); }
+    return r;
+  }
   const nameOf = (I, code) => (I.langs().find((l) => l.code === code) || {}).name || code;
 
   let mbP = null;

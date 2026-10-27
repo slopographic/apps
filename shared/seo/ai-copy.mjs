@@ -14,21 +14,10 @@
 //   - on the device, with no key: SlopIsolate (shared/cutout), Slop Upscale, Slop OCR, Slop Transcribe (Whisper),
 //     Slop Image to 3D, Slop AI Tools and PhotoSlop's Select Subject.
 // tests/node/seo-stale.test.mjs keeps the copy from drifting back to claims these facts contradict.
-export const AI = {
-  /** The feature row for the AI panel in a comparison table, and our value in it. */
-  row: 'AI assistant that uses the app',
-  short: 'Local model or your own key',
-  /** A pro in a round-up. */
-  pro: 'An AI button that can do the work in the app for you, with a model on your device, Ollama or LM Studio on your computer, or your own key for Claude, ChatGPT, Gemini and others',
-  /** What a key means, in one sentence. */
-  key: 'With your own key, what you ask (and any file you allow) goes to that provider, and its terms and prices apply.',
-  /** The free ways to use it. */
-  free: 'Models on your device and on your own computer cost nothing; Gemini, Groq and Mistral have free tiers, and OpenRouter has free models.',
-  /** Pictures made or changed by AI: never on the device. */
-  images: 'Generate Image… and Edit with AI… make or change a picture with your own OpenAI, Gemini or OpenRouter key; Edit with AI changes only the selected area',
-  /** Our value for a "Generative fill" row. */
-  imagesShort: 'With your own key',
-};
-
-/** The full answer for an FAQ: "Does it have AI?" */
-AI.how = `Yes, if you want it. The AI button can do the work in the app for you. It can use a model that runs on your device (WebGPU, downloaded once), Ollama or LM Studio on your computer, or your own key for a service such as Claude, ChatGPT or Gemini. ${AI.key} ${AI.free}`;
+// The words are the SEO tables' seo.ai.* (shared/seo/i18n/<code>/common.js): row (the feature row for the AI panel in a
+// comparison table) and short (our value in it), pro (a round-up pro), key (what a key means), free (the free ways to use
+// it), images (pictures made or changed by AI: never on the device), imagesShort (our value for a "Generative fill" row),
+// how (the full answer for an FAQ: "Does it have AI?").
+import { hydrate } from './i18n.mjs';
+export const aiIn = (code = 'en') => hydrate({}, 'seo.ai', code);
+export const AI = aiIn('en');

@@ -5,6 +5,7 @@
 //     [one per column], pros, cons (≥ 1), sources: [{ label, url }] (required for every tool that is not ours) }],
 //     matrix?: [≥ 5 of { feature, values: [one per tool: 'yes' | 'no' | 'partial' | 'unknown' | a short text] }] (the
 //     feature table, also shown on the app's landing page), verdict?: paragraphs, faq: [[question, answer], ≥ 3] }
+import { hydrate, seg } from '../i18n.mjs';
 import { ROUNDUPS as creative } from './creative.mjs';
 import { ROUNDUPS as creative2 } from './creative-2.mjs';
 import { ROUNDUPS as creative3 } from './creative-3.mjs';
@@ -29,4 +30,7 @@ export function oursFirst(r) {
   return { ...r, tools: move(r.tools), matrix: r.matrix && r.matrix.map((m) => ({ ...m, values: move(m.values) })) };
 }
 
-export const ROUNDUPS = [...creative, ...creative2, ...creative3, ...creative4, ...documents, ...documents2, ...documents3, ...documents4, ...business, ...business2, ...business3, ...compare, ...recorder, ...colors].map(oursFirst);
+const FACTS = [...creative, ...creative2, ...creative3, ...creative4, ...documents, ...documents2, ...documents3, ...documents4, ...business, ...business2, ...business3, ...compare, ...recorder, ...colors];
+/** Every round-up in one language: the facts joined with its words, our app first. */
+export const roundupsIn = (code = 'en') => FACTS.map((r) => oursFirst(hydrate(r, `seo.best.${seg(r.slug)}`, code)));
+export const ROUNDUPS = roundupsIn('en');

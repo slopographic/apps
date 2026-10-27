@@ -16,9 +16,12 @@ const pages = execFileSync('git', ['ls-files', '*.html'], { cwd: ROOT, encoding:
 const robotsOf = (html) => ((html.match(/<meta\s+name="robots"\s+content="([^"]*)"/i) || [])[1] || '').toLowerCase();
 const NOT_IN_RESULTS = new Set(['404.html', 'offline.html', 'settings/index.html']);
 const isMoved = (html) => /<title>\s*Moved\b/i.test(html);
+// Every sitemap: the index (sitemap-index.xml) names one per language (sitemap.xml for the root language).
+const sitemaps = () => [...new Set(['sitemap.xml', ...[...read('sitemap-index.xml').matchAll(/<loc>[^<]*\/([^/<]+\.xml)<\/loc>/g)].map((m) => m[1])])];
+const allUrls = () => sitemaps().flatMap((f) => [...read(f).matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]));
 
-test('every page in the sitemap is indexable: no noindex or nofollow', () => {
-  const urls = [...read('sitemap.xml').matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
+test('every page in the sitemaps (every language) is indexable: no noindex or nofollow', () => {
+  const urls = allUrls();
   assert.ok(urls.length > 20, 'the sitemap lists the site');
   for (const u of urls) {
     const rel = u.replace(SITE + '/', '');
@@ -30,13 +33,13 @@ test('every page in the sitemap is indexable: no noindex or nofollow', () => {
 });
 
 test('noindex is only on the 404 and offline pages, Settings, and "Moved" pages, and none of them is in the sitemap', () => {
-  const sitemap = read('sitemap.xml');
+  const sitemap = new Set(allUrls());
   for (const f of pages) {
     const html = read(f);
     if (!/noindex/.test(robotsOf(html))) continue;
     assert.ok(NOT_IN_RESULTS.has(f) || isMoved(html), `${f} says noindex: only pages kept out of results may (see this test)`);
     const url = SITE + '/' + f.replace(/index\.html$/, '');
-    assert.ok(!sitemap.includes(`<loc>${url}</loc>`), `${f} says noindex but the sitemap lists it`);
+    assert.ok(!sitemap.has(url), `${f} says noindex but a sitemap lists it`);
   }
 });
 

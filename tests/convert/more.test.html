@@ -15,6 +15,8 @@
   import { canEncode } from '../../convert/js/core/image.js';
   import { PAGES } from '../../convert/js/core/pages.js';
   import { CONVERT_PAGES } from '../../shared/seo/convert-copy.mjs';
+  // the English page: a build whose root language is another has it under /en/ (shared/seo/HANDOFF.md, "Languages")
+  const EN_DIR = window.BRAND_FACTS && window.BRAND_FACTS.defaultLang !== 'en' ? 'en/' : '';
   import { buildPreview } from '../../convert/js/preview/model.js';
   import { readZip } from '../../shared/office/zip.js';
   const { describe, it, expect, waitFor } = SlopTest;
@@ -57,7 +59,7 @@
       for (const slug of ['heic-to-jpg', 'xlsx-to-csv', 'json-to-yaml', 'srt-to-vtt', 'markdown-to-pdf', 'wav-to-mp3']) {
         const p = PAGES.find((x) => x.slug === slug);
         expect(CONVERT_PAGES[`convert/${slug}`].title).toBe(p.title);
-        const html = await (await fetch(`../../convert/${slug}/`)).text();
+        const html = await (await fetch(`../../${EN_DIR}convert/${slug}/`)).text();
         expect(html).toContain(`data-preset="${p.conv}"`);
         expect(html).toContain(`<title>${p.title}</title>`);
         for (const k of p.from) expect(conv(p.conv).from).toContain(k);

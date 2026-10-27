@@ -4,10 +4,9 @@
  * page names them (an app's i18n/index.js calls source()). Only English and the chosen language are fetched.
  * The language list (LANGS) is data: add an entry to make a language choosable. A key the chosen language lacks is read
  * from English, so a page never shows an empty label. quality: 'beta' marks a table that has not had a native review.
- * Storage: the choice is kept in SlopProfile under appId 'lang', key 'mode' (default DEFAULT_CHOICE: 'en', or the brand
- * profile's defaultLang in a white-label build; opts.defaultLang in create() overrides it).
- * The API (t and plurals, apply and data-i18n marks, num/date/money/list, label, on, at, shipped, create) is described in
- * shared/i18n/HANDOFF.md, section "The SlopI18n API"; APPS-HOWTO.md is the recipe. */
+ * Storage: the choice is kept in SlopProfile under appId 'lang', key 'mode' (default DEFAULT_CHOICE: 'en', or the brand profile's defaultLang in a white-label build; opts.defaultLang in create() overrides it).
+ * A page in one language only (<html data-lang-page="sv">: a static SEO page, a copy in a language's folder) reads in it.
+ * The API (t and plurals, apply and data-i18n marks, num/date/money/list, label, on, at, shipped, create) is described in shared/i18n/HANDOFF.md, section "The SlopI18n API"; APPS-HOWTO.md is the recipe. */
 (function (g) {
   'use strict';
   var L = function (code, name, en, dir, extra) { return Object.freeze(Object.assign({ code: code, name: name, en: en, dir: dir, complete: true }, extra || {})); };
@@ -44,12 +43,10 @@
     L('af', 'Afrikaans', 'Afrikaans', 'ltr', BETA),
   ]);
   var DEFAULT = 'en';   // the fallback language: a key missing in the chosen language is read from here
-  // The language a visitor gets when nothing is stored. The white-label build (tools/whitelabel) rewrites the literal after
-  // the marker from the brand profile's defaultLang; keep it on one line.
+  // The language a visitor gets when nothing is stored. tools/whitelabel rewrites the literal from the profile's defaultLang; keep it on one line.
   var DEFAULT_CHOICE = /*profile:defaultLang*/'en';
   var KEY_RE = /\{(\w+)\}/g;
-  // The shared components' tables beyond ui/<code>.js: shared/i18n/ui/<code>/<part>.js, for the languages that have them
-  // (the others read English). Written by node tools/i18n/i18n.mjs index ui; keep it on one line.
+  // The shared components' tables beyond ui/<code>.js (ui/<code>/<part>.js; other languages read English). Written by node tools/i18n/i18n.mjs index ui; keep it on one line.
   var UI_PARTS = /*ui-parts*/{ parts: ['agent', 'ai', 'ai2', 'ai5', 'ai6', 'ai7', 'ai8', 'ai9', 'backup', 'backup2', 'backup3', 'buddy', 'buddy2', 'calc', 'calendar', 'config', 'data', 'data2', 'finder', 'firstrun', 'fonts', 'graphics', 'guides', 'macros', 'misc', 'models', 'models2', 'ops', 'ops2', 'ops3', 'presets', 'preview', 'print', 'sheets', 'shell', 'shell2', 'templates', 'video', 'watermark', 'widgets'], langs: ['ar', 'de', 'en', 'es', 'fr', 'it', 'ja', 'ko', 'nl', 'pl', 'pt-BR', 'ru', 'sv', 'tr', 'uk', 'zh-CN', 'zh-TW'] };
   var me = typeof document !== 'undefined' ? document.currentScript : null;
 
@@ -69,9 +66,13 @@
         options: { lang: { mode: { label: 'Language', type: 'enum', values: list.map(function (l) { return l.code; }), default: choice } } },
       })
       : null);
+    // The page's own language (data-lang-page) wins until set(); one other than the default choice is also kept as the choice.
+    var el = doc && doc.documentElement, page = el && el.getAttribute ? el.getAttribute('data-lang-page') : null;
+    if (!byCode[page]) page = null; else if (page !== choice && prof && prof.get('lang', 'mode', choice) !== page) prof.set('lang', 'mode', page);
 
     /** The stored language code, or the default choice when nothing is stored or the stored one is not in the list. */
     function get() {
+      if (page) return page;
       var c = prof ? prof.get('lang', 'mode', choice) : choice;
       return byCode[c] ? c : choice;
     }
@@ -235,6 +236,7 @@
       if (!prof) return { ok: false, error: 'Could not save: browser storage is blocked.' };
       var r = prof.set('lang', 'mode', code);
       if (!r.ok) return r;
+      page = null;
       apply();
       emit('slop-lang');
       need(code).then(changed);

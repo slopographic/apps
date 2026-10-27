@@ -13,7 +13,7 @@ export function markerValues(p) {
     // mascot: the built-in buddy (only when the profile says true); mascotOverlay: the profile's own mascot instead
     naming: p.naming, tone: p.tone, mascot: p.mascot === true, mascotOverlay: hasOverlay(p), media: p.media, analytics: p.analytics, defaultLang: p.defaultLang,
     hideApps: (p.apps && p.apps.hide) || [], themes: p.themes || {},
-    seoHomeTitle: seo.homeTitle, seoHomeDescription: seo.homeDescription,
+    seoHomeTitle: seo.homeTitle, seoHomeDescription: seo.homeDescription, seoLangs: seo.langs,   // the static SEO pages' languages (tools/seo/lang.mjs)
     ...fontMarkers(p.fontManifest || EMPTY),     // the type family's token names, the typeface page, the preload
     ...slotMarkers(p),                            // the mascot slot's size and roaming (shared/mascot/slot.js)
     backupExt: backupExt(p), backupJson: backupExt(p) && backupExt(p) + '.json',

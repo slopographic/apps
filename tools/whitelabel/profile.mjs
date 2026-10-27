@@ -42,6 +42,9 @@ export function validate(p) {
   if (p.logo && typeof p.logo === 'object' && !isStr(p.logo.text)) errs.push('logo.text: the wordmark text');
   if (p.publish) for (const k of ['repo', 'branch', 'secret', 'author', 'email']) if (!isStr(p.publish[k])) errs.push(`publish.${k}: required`);
   if (p.publish && !/^[\w.-]+\/[\w.-]+$/.test(p.publish.repo || '')) errs.push('publish.repo: owner/name');
+  // seo.langs: the languages of the static SEO pages besides the root one (defaultLang): 'all' (default) or a list of codes
+  const sl = p.seo && p.seo.langs;
+  if (sl !== undefined && sl !== 'all' && !(Array.isArray(sl) && sl.every((c) => LANGS.includes(c)))) errs.push(`seo.langs: 'all' or a list of language codes (${LANGS.join(', ')})`);
   return errs;
 }
 
@@ -91,11 +94,11 @@ export function phrasePairs(root, p) {
   }
   for (const [a, b] of Object.entries(p.copy || {})) map.set(a, b);
   if (p.seo && p.seo.titleSuffix) map.set(' | Slopographic', p.seo.titleSuffix);   // page titles have a length limit
-  // The homepage title and description, wherever they are written (the copy file, a test that checks the head).
-  const copy = readFileSync(path.join(root, 'shared', 'seo', 'copy.mjs'), 'utf8');
-  for (const [key, field] of [['seoHomeTitle', 'homeTitle'], ['seoHomeDescription', 'homeDescription']]) {
-    const m = copy.match(new RegExp(`/\\*profile:${key}\\*/'((?:[^'\\\\]|\\\\.)*)'`));
-    if (m && p.seo && p.seo[field]) map.set(m[1], p.seo[field]);
+  // The homepage title and description, wherever they are written in English (the SEO table, a test that checks the head).
+  const copy = readFileSync(path.join(root, 'shared', 'seo', 'i18n', 'en', 'copy.js'), 'utf8');
+  for (const [key, field] of [['seo.home.title', 'homeTitle'], ['seo.home.description', 'homeDescription']]) {
+    const m = copy.match(new RegExp(`'${key.replace(/\./g, '\\.')}': '((?:[^'\\\\]|\\\\.)*)'`));
+    if (m && p.seo && p.seo[field]) map.set(m[1].replace(/\\'/g, "'"), p.seo[field]);
   }
   map.set('Slopographic', p.name);
   map.set('>slopographic<', `>${p.name}<`);

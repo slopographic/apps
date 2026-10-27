@@ -11,10 +11,13 @@ import path from 'node:path';
 import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
+import { context, ROOT_LANG } from '../../tools/seo/lang.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const SITE = 'https://slopographic.com';
 const read = (rel) => readFile(path.join(ROOT, rel), 'utf8');
+/** The root language's words (the profile's defaultLang: a build can have another than English at the root). */
+const R = context(ROOT_LANG);
 
 /** The registry, read as the browser reads it (a classic script that sets window.SLOP_APPS). */
 const win = {};
@@ -77,7 +80,7 @@ test('each page has a canonical link to its own URL', () => {
 test('each page has lang, viewport, and Open Graph and Twitter tags with an image that exists', () => {
   for (const p of pages) {
     const h = html[p.label];
-    assert.match(h, /<html[^>]*\slang="[a-z-]+"/i, `${p.label}: html lang`);
+    assert.match(h, /<html[^>]*\slang="[A-Za-z-]+"/, `${p.label}: html lang`);
     assert.match(h, /<meta name="viewport" content="width=device-width/, `${p.label}: viewport`);
     assert.equal(ogOf(h, 'title'), titleOf(h), `${p.label}: og:title matches title`);
     assert.equal(ogOf(h, 'url'), p.url, `${p.label}: og:url`);
@@ -109,7 +112,7 @@ test('each app page has SoftwareApplication and BreadcrumbList JSON-LD that pars
     assert.equal(sw.author.name, 'Slopographic', `${p.label}: author`);
     const [crumbs] = byType(blocks, 'BreadcrumbList');
     assert.ok(crumbs, `${p.label}: no BreadcrumbList`);
-    assert.deepEqual(crumbs.itemListElement.map((i) => i.name), ['Home', app.name], `${p.label}: breadcrumb`);
+    assert.deepEqual(crumbs.itemListElement.map((i) => i.name), [R.t('seo.ui.crumb.home'), app.name], `${p.label}: breadcrumb`);
     assert.equal(crumbs.itemListElement[1].item, p.url, `${p.label}: breadcrumb link`);
   }
 });
@@ -118,7 +121,7 @@ test('each about page has a BreadcrumbList with three levels', () => {
   for (const p of pages.filter((x) => x.about)) {
     const [crumbs] = byType(ldOf(html[p.label]), 'BreadcrumbList');
     assert.ok(crumbs, `${p.label}: no BreadcrumbList`);
-    assert.deepEqual(crumbs.itemListElement.map((i) => i.name), ['Home', p.app.name, 'About'], `${p.label}: breadcrumb`);
+    assert.deepEqual(crumbs.itemListElement.map((i) => i.name), [R.t('seo.ui.crumb.home'), p.app.name, R.t('seo.ui.crumb.about')], `${p.label}: breadcrumb`);
   }
 });
 

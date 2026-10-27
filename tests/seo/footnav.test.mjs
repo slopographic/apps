@@ -10,7 +10,8 @@ import path from 'node:path';
 import { buildFootNav, footNav, footNavLinks, converterFiles, addFootSlot, GUIDE_PICKS } from '../../tools/seo/footnav.mjs';
 import { registryWindow, isPage, ROOT, SITE } from '../../tools/seo/site.mjs';
 import { siteFoot } from '../../tools/seo/landing.mjs';
-import { ROUNDUPS } from '../../shared/seo/roundups/index.mjs';
+import { ROUNDUPS, roundupsIn } from '../../shared/seo/roundups/index.mjs';
+import { context, ROOT_LANG } from '../../tools/seo/lang.mjs';
 import { GUIDES } from '../../shared/seo/guides/index.mjs';
 import { PAGES as CONVERTERS } from '../../convert/js/core/pages.js';
 
@@ -18,6 +19,9 @@ const read = (f) => readFileSync(path.join(ROOT, f), 'utf8');
 const win = registryWindow(), apps = win.SLOP_APPS, groups = win.SLOP_GROUP_LABELS;
 const data = { apps, groups, roundups: ROUNDUPS, guides: GUIDES, converters: CONVERTERS };
 const nav = footNav(), links = footNavLinks(nav);
+// The root language's words (a build can have another root language than English): its round-ups and group headings.
+const R = context(ROOT_LANG), rootRoundups = roundupsIn(ROOT_LANG);
+const groupLabel = (key, label) => (ROOT_LANG === 'en' || win.SLOP_NAMING !== 'plain' ? label : R.chrome(`footer.group_${key}`, label));
 const sitemap = new Set([...read('sitemap.xml').matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]));
 const fileOf = (href) => (href.endsWith('/') ? `${href.slice(1)}index.html` : href.slice(1));
 
@@ -36,14 +40,14 @@ test('the homepage footer has the block, with every round-up, the compare hub an
   assert.ok(footer.includes(nav), 'index.html carries the current block (run node tools/seo/write.mjs)');
   const homeLinks = footNavLinks(footer);
   for (const r of ROUNDUPS) assert.ok(homeLinks.includes(`/best/${r.slug}/`), `${r.slug} is not linked`);
-  for (const r of ROUNDUPS) assert.ok(footer.includes(`>${(r.crumb || r.h1).replace(/&/g, '&amp;')}</a>`), `${r.slug}: its title`);
+  for (const r of rootRoundups) assert.ok(footer.includes(`>${(r.crumb || r.h1).replace(/&/g, '&amp;')}</a>`), `${r.slug}: its title`);
   assert.ok(homeLinks.includes('/compare/') && homeLinks.includes('/best/') && homeLinks.includes('/convert/') && homeLinks.includes('/how-it-works/') && homeLinks.includes('/sitemap.xml'));
   assert.ok(home.includes('href="shared/footnav/footnav.css"'), 'the homepage loads the footer styles');
 });
 
 test('the lists come from the shared data: every app page, one converter per category, the first getting-started guides', () => {
   for (const a of apps.filter(isPage)) assert.ok(links.includes(`/apps/${a.id}/`), `${a.id}: no link to its landing page`);
-  for (const g of Object.values(groups)) assert.ok(new RegExp(`<summary><span[^>]*>${g}</span>`).test(nav), `group ${g}: no column`);   // a plain-name build adds data-i18n
+  for (const [k, g] of Object.entries(groups)) assert.ok(new RegExp(`<summary><span[^>]*>${groupLabel(k, g)}</span>`).test(nav), `group ${g}: no column`);   // a plain-name build adds data-i18n
   const cats = new Set(CONVERTERS.map((p) => p.cat));
   assert.equal(links.filter((h) => /^\/convert\/[^/]+\/$/.test(h)).length, cats.size);
   assert.equal(links.filter((h) => h.endsWith('/getting-started/')).length, GUIDE_PICKS);

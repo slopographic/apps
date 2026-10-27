@@ -19,6 +19,8 @@
   import { buildPreview } from '../../convert/js/preview/model.js';
   import { PAGES } from '../../convert/js/core/pages.js';
   import { CONVERT_PAGES } from '../../shared/seo/convert-copy.mjs';
+  // the English page: a build whose root language is another has it under /en/ (shared/seo/HANDOFF.md, "Languages")
+  const EN_DIR = window.BRAND_FACTS && window.BRAND_FACTS.defaultLang !== 'en' ? 'en/' : '';
   const { describe, it, expect, waitFor } = SlopTest;
   const conv = (id) => CONVERSIONS.find((c) => c.id === id);
   const docx = async (name = 'Rapport.docx') => new File([await sampleDocx()], name, { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
@@ -47,7 +49,7 @@
         expect(!!conv(p.conv)).toBe(true);
         expect(CONVERT_PAGES[`convert/${slug}`].title).toBe(p.title);
         titles.add(p.title);
-        const html = await (await fetch(`../../convert/${slug}/`)).text();
+        const html = await (await fetch(`../../${EN_DIR}convert/${slug}/`)).text();
         expect(html).toContain(`data-preset="${p.conv}"`);
         expect(html).toContain(`<title>${p.title}</title>`);
         expect(html).toContain(`<h1>${p.h1}</h1>`);

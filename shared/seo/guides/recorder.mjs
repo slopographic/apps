@@ -1,28 +1,6 @@
 // The Slop Recorder guide (recorder/HANDOFF.md, recorder/index.html, recorder/js/main.js). Shape in tools/seo/guides.mjs.
+// The facts only: the words are in the SEO tables, shared/seo/i18n/<code>/guide-recorder*.js (keys seo.guide.*),
+// joined by index.mjs (shared/seo/i18n.mjs). '@<key>' is the text of that key. Rules: shared/seo/i18n/README.md.
 export const GUIDES = [
-  { app: 'recorder', slug: 'getting-started', crumb: 'Getting started',
-    title: 'Getting started with Slop Recorder: record, trim and save',
-    description: 'Learn Slop Recorder in a few minutes: record your screen, webcam or microphone, pause, trim the ends and save as WebM, MP4 or GIF. Nothing is uploaded.',
-    h1: 'Getting started with Slop Recorder',
-    lead: 'Slop Recorder records your screen, a window or tab, your webcam, your microphone, or the screen with your webcam in a corner. It runs in your browser and the recording stays on your device.',
-    sections: [
-      { h2: 'Choose what to record',
-        steps: ['On the right, under Record, pick Screen, Webcam, Screen + webcam or Microphone.',
-          'Under Sound, tick Sound from the screen or tab and Microphone as you need.',
-          'For Screen + webcam, pick the webcam\'s corner and size under Webcam.',
-          'Under Countdown, pick no countdown or 3, 5 or 10 seconds.'],
-        text: ['What this browser can record, under the stage, says what your browser allows: phones cannot record the screen, and only Chrome and Edge share sound from the screen.'] },
-      { h2: 'Record, pause and stop',
-        steps: ['Press Record at the foot of the panel (or Alt+R). For the screen, the browser asks what to share.',
-          'The countdown runs over the picture, then the red badge shows the time recorded.',
-          'Press Pause (Alt+P) to hold the recording and Resume to go on; the pause is left out of the video.',
-          'Press Stop, or Stop sharing in the browser\'s own bar.'] },
-      { h2: 'Trim and save',
-        steps: ['Play the recording in the player. Under Trim, move Start and End, or press Start at the playhead and End at the playhead.',
-          'Under Save as, choose WebM (as recorded), MP4 or GIF; a sound-only recording saves as WebM or WAV.',
-          'Press Download, Save to Slop Drive, or Open in… to send it to SlopCut or another app.'],
-        text: ['A WebM is trimmed by playing the kept part once in real time. MP4 and GIF are made by the video engine, a one-time download of about 32 MB, on your device.'],
-        tip: 'Open recording… in the header opens a recording you made before, to trim it or save it in another format.' },
-    ],
-    shortcuts: [['Alt+R', 'Record, or stop the recording'], ['Alt+P', 'Pause or resume'], ['Ctrl+K', 'Search every command']] },
+  { app: 'recorder', slug: 'getting-started', shortcuts: [['Alt+R'], ['Alt+P'], ['Ctrl+K']] },
 ];
