@@ -117,7 +117,7 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'seo.best.free-hex-editors.faq.3.1': 'Hex Fiend は、挿入、削除、並べ替えができると説明しています。Slop Hex はバイトをその場で上書きするだけです。',
   'seo.best.free-checksum-tools.crumb': '無料のチェックサムツール',
   'seo.best.free-checksum-tools.title': '無料のチェックサムツールおすすめ：ファイルの SHA-256 や MD5 のハッシュを確認',
-  'seo.best.free-checksum-tools.description': 'ファイルのハッシュを取得し、ダウンロードを確認する無料の 4 つの方法：ブラウザーの Checksum、PowerShell の Get-FileHash、HashMyFiles、QuickHash-GUI。アルゴリズム、一括処理。',
+  'seo.best.free-checksum-tools.description': 'ファイルのハッシュを取得して確認する無料の 4 つの方法：ブラウザーの Checksum、PowerShell の Get-FileHash、HashMyFiles、QuickHash-GUI。アルゴリズムと一括処理。',
   'seo.best.free-checksum-tools.h1': 'おすすめの無料チェックサムとファイルハッシュのツール',
   'seo.best.free-checksum-tools.lead': 'チェックサムを使うと、ダウンロードしたファイルが公開されたものと同じで、途中で変更されていないことを確かめられます。これらの無料ツールは、お使いのパソコン上でハッシュを計算します。各ツールのページの内容をもとに、それぞれの機能をまとめました。',
   'seo.best.free-checksum-tools.criteria.0': 'アカウント不要で無料',
