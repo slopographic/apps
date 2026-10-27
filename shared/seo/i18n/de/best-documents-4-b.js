@@ -117,7 +117,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'seo.best.free-hex-editors.faq.3.1': 'Hex Fiend sagt, dass Sie einfügen, löschen und umordnen können. Slop Hex überschreibt Bytes nur an Ort und Stelle.',
   'seo.best.free-checksum-tools.crumb': 'Kostenlose Prüfsummen-Werkzeuge',
   'seo.best.free-checksum-tools.title': 'Beste kostenlose Prüfsummen-Werkzeuge: SHA-256 oder MD5 einer Datei prüfen',
-  'seo.best.free-checksum-tools.description': 'Vier kostenlose Wege, den Hash einer Datei zu bilden und einen Download zu prüfen: Checksum im Browser, PowerShell Get-FileHash, HashMyFiles, QuickHash-GUI. Algorithmen, Stapel.',
+  'seo.best.free-checksum-tools.description': 'Vier kostenlose Wege, den Hash einer Datei zu bilden und Downloads zu prüfen: Checksum im Browser, PowerShell, HashMyFiles, QuickHash-GUI. Algorithmen, Stapel.',
   'seo.best.free-checksum-tools.h1': 'Die besten kostenlosen Werkzeuge für Prüfsummen und Datei-Hashes',
   'seo.best.free-checksum-tools.lead': 'Eine Prüfsumme zeigt, dass ein Download die veröffentlichte Datei ist und unterwegs nicht verändert wurde. Diese kostenlosen Werkzeuge berechnen den Hash auf Ihrem Computer. Hier steht, was jedes bietet, laut den eigenen Seiten.',
   'seo.best.free-checksum-tools.criteria.0': 'Kostenlos, ohne Konto',

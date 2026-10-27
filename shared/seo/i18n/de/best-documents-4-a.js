@@ -2,7 +2,7 @@
 window.SlopI18n && window.SlopI18n.add('de', {
   'seo.best.free-exif-remover.crumb': 'Kostenlose EXIF-Entferner',
   'seo.best.free-exif-remover.title': 'Bester kostenloser EXIF-Entferner: GPS- und Kameradaten aus Fotos löschen',
-  'seo.best.free-exif-remover.description': 'Fünf kostenlose Wege, EXIF-, GPS- und Kameradaten aus Fotos zu entfernen, im Vergleich: SlopClean, ExifTool, ExifCleaner, ImageOptim, Verexif. Formate, Stapel, Datenschutz.',
+  'seo.best.free-exif-remover.description': 'Fünf kostenlose Wege, EXIF-, GPS- und Kameradaten aus Fotos zu entfernen: SlopClean, ExifTool, ExifCleaner, ImageOptim, Verexif. Formate, Stapel, Datenschutz.',
   'seo.best.free-exif-remover.h1': 'Die besten kostenlosen EXIF-Entferner',
   'seo.best.free-exif-remover.lead': 'Ein Foto kann verraten, wo es aufgenommen wurde, die Seriennummer der Kamera und das Datum. Diese kostenlosen Werkzeuge zeigen diese Daten und entfernen sie, bevor Sie das Bild teilen. Hier steht, was jedes davon tut, laut den eigenen Seiten.',
   'seo.best.free-exif-remover.criteria.0': 'Kostenlos, ohne Konto',
