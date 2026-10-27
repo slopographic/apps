@@ -101,7 +101,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'seo.task.contacts.vcf-to-csv.faq.1.0': 'Bleiben die Fotos erhalten?',
   'seo.task.contacts.vcf-to-csv.faq.1.1': 'Nein. Fotos in einer vCard werden beim Import übersprungen, daher sind sie auch nicht in der CSV.',
   'seo.task.contacts.vcf-to-csv.faq.2.0': 'Kann ich nur einige Kontakte exportieren?',
-  'seo.task.contacts.vcf-to-csv.faq.2.1': 'Ja. Wählen Sie sie zuerst aus (Shift- oder Strg-Klick oder die Kästchen in der Tabellenansicht) und exportieren Sie dann: Nur die Auswahl wird geschrieben.',
+  'seo.task.contacts.vcf-to-csv.faq.2.1': 'Ja. Wählen Sie sie zuerst aus (Shift- oder Ctrl-Klick oder die Kästchen in der Tabellenansicht) und exportieren Sie dann: Nur die Auswahl wird geschrieben.',
   'seo.task.contacts.csv-to-vcf.crumb': 'CSV zu VCF',
   'seo.task.contacts.csv-to-vcf.title': 'CSV-zu-VCF-Konverter: Tabellenkontakte als vCard für das iPhone',
   'seo.task.contacts.csv-to-vcf.description': 'Eine CSV-Kontaktliste in .vcf für iPhone, Android oder Outlook umwandeln: Spalten zuordnen, Vorschau prüfen, vCard 3.0 oder 4.0 exportieren.',
