@@ -181,7 +181,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'seo.cv.json-to-xlsx.faq.2.0': 'Dosyalarım yükleniyor mu?',
   'seo.cv.json-to-xlsx.faq.2.1': 'Hayır. Dönüştürme tarayıcınızda, bu cihazda çalışır. Dosyalarınız Slopographic’e ya da başka bir sunucuya gönderilmez.',
   'seo.cv.json-to-yaml.title': 'Yapılandırma için JSON’dan YAML’a dönüştürücü | File convert',
-  'seo.cv.json-to-yaml.description': 'JSON’ı tarayıcınızda Kubernetes, Docker Compose, GitHub Actions ve diğer yapılandırmalar için YAML’a çevirin; geçersiz JSON’da hatanın yerini gösterir. Yüklenmez.',
+  'seo.cv.json-to-yaml.description': 'JSON’ı tarayıcınızda Kubernetes, Docker Compose, GitHub Actions ve diğer yapılandırmalar için YAML’a çevirin. Geçersiz JSON’da hata yerini gösterir.',
   'seo.cv.json-to-yaml.h1': 'JSON’dan YAML’a dönüştürücü',
   'seo.cv.json-to-yaml.lead': 'JSON’ı insanların okuyup düzenleyebileceği YAML’a çevirin: süslü parantez yok, gerekmediği yerde tırnak yok.',
   'seo.cv.json-to-yaml.how.0': 'JSON önce denetlenir; bir hata satırı ve sütunuyla bildirilir. YAML, js-yaml ile yazılır; metinler yalnızca YAML’ın gerektirdiği yerde tırnaklanır.',
