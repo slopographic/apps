@@ -14,6 +14,9 @@ export function markerValues(p) {
     naming: p.naming, tone: p.tone, mascot: p.mascot === true, mascotOverlay: hasOverlay(p), media: p.media, analytics: p.analytics, defaultLang: p.defaultLang,
     hideApps: (p.apps && p.apps.hide) || [], themes: p.themes || {},
     seoHomeTitle: seo.homeTitle, seoHomeDescription: seo.homeDescription, seoLangs: seo.langs,   // the static SEO pages' languages (tools/seo/lang.mjs)
+    // search engines and single-app sites (tools/seo/site.mjs, shared/apps.js): indexed only when the profile says so
+    seoIndex: seo.index === true, seoCanonicalTo: seo.canonicalTo || '', seoCanonicalOverride: seo.canonicalOverride || {},
+    mainApp: p.mainApp || '', parent: p.parent ? { name: p.parent.name, url: p.parent.url.replace(/\/+$/, '') } : null,
     ...fontMarkers(p.fontManifest || EMPTY),     // the type family's token names, the typeface page, the preload
     ...slotMarkers(p),                            // the mascot slot's size and roaming (shared/mascot/slot.js)
     backupExt: backupExt(p), backupJson: backupExt(p) && backupExt(p) + '.json',
@@ -22,8 +25,10 @@ export function markerValues(p) {
 /** The backup ZIP's extension for a profile: its backupExt, '.backup' for the plain tone, or undefined (the source's own,
  * renamed like any other token). The "Export everything" file is that extension plus .json. */
 export const backupExt = (p) => p.backupExt || (p.tone === 'plain' ? '.backup' : undefined);
-// a literal: a string, true, false, null, a number, {} or a list of double-quoted strings (["sv", "de"], [])
-const LITERAL = String.raw`'(?:[^'\\\n]|\\.)*'|"(?:[^"\\\n]|\\.)*"|true|false|null|-?\d+(?:\.\d+)?|\[(?:\s*"(?:[^"\\\n]|\\.)*"\s*,?)*\s*\]|\{\}`;
+// a literal: a string, true, false, null, a number, a list of double-quoted strings (["sv", "de"], []) or an object of
+// double-quoted strings ({}, {"/pdf/": "https://pdf.example/pdf/"})
+const STR = String.raw`"(?:[^"\\\n]|\\.)*"`;
+const LITERAL = String.raw`'(?:[^'\\\n]|\\.)*'|${STR}|true|false|null|-?\d+(?:\.\d+)?|\[(?:\s*${STR}\s*,?)*\s*\]|\{(?:\s*${STR}\s*:\s*${STR}\s*,?)*\s*\}`;
 const MARKER = new RegExp(String.raw`/\*profile:(\w+)\*/(${LITERAL})`, 'g');
 /** The value of a marker's literal (single-quoted strings read as JSON strings). */
 const literal = (lit) => JSON.parse(lit[0] === "'" ? '"' + lit.slice(1, -1).replace(/\\'/g, "'").replace(/"/g, '\\"') + '"' : lit);

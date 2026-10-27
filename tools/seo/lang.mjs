@@ -16,7 +16,7 @@
 import vm from 'node:vm';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
-import { ROOT, SITE } from './site.mjs';
+import { ROOT, SITE, INDEX } from './site.mjs';
 import { table, tableLangs, text } from '../../shared/seo/i18n.mjs';
 
 export const ROOT_LANG = /*profile:defaultLang*/'en';
@@ -36,7 +36,8 @@ export function missing(code) {
   for (const k of table('en').keys()) if (!k.includes('#') && !(t.get(k) || '').trim()) out.push(k);
   return out;
 }
-export const allowed = (code, langs = SEO_LANGS) => langs === 'all' || (Array.isArray(langs) && langs.includes(code));
+// a site that is not indexed (site.mjs INDEX) publishes its root language only: no language folders, no hreflang
+export const allowed = (code, langs = SEO_LANGS) => INDEX && (langs === 'all' || (Array.isArray(langs) && langs.includes(code)));
 
 export function published(langs = SEO_LANGS) {
   if (!byCode.has(ROOT_LANG)) throw new Error(`SEO: the root language ${ROOT_LANG} is not in LANGS`);
@@ -47,7 +48,7 @@ export function published(langs = SEO_LANGS) {
 }
 export function unpublished(langs = SEO_LANGS) {
   const pub = new Set(published(langs));
-  return tableLangs().filter((c) => !pub.has(c)).map((c) => ({ code: c, why: !byCode.has(c) ? 'not in LANGS' : !allowed(c, langs) ? 'left out by the profile (seo.langs)' : `${missing(c).length} keys missing` }));
+  return tableLangs().filter((c) => !pub.has(c)).map((c) => ({ code: c, why: !byCode.has(c) ? 'not in LANGS' : !INDEX ? 'the site is not indexed (seo.index)' : !allowed(c, langs) ? 'left out by the profile (seo.langs)' : `${missing(c).length} keys missing` }));
 }
 
 export const prefixOf = (code) => (code === ROOT_LANG ? '' : '/' + code.toLowerCase());

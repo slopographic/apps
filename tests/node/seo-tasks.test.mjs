@@ -24,6 +24,8 @@ const app = (id) => apps.find((a) => a.id === id);
 const { context, ROOT_LANG } = await import(pathToFileURL(path.join(ROOT, 'tools/seo/lang.mjs')).href);
 const EN = context('en');   // the templates' English words: these checks read them (the root language may be another)
 const { FACTS } = await import(pathToFileURL(path.join(ROOT, 'tests/brand-facts.mjs')).href);
+const INDEXED = { skip: !FACTS.seoIndex && 'the site is not indexed (seo.index): no generated pages or sitemaps (tests/seo/robots.test.mjs)' };
+const SHOWN = TASKS.filter((t) => app(t.app));   // the tasks of the apps the profile shows (apps.hide)
 const good = { app: 'cutout', slug: 'x-y', h1: 'Do a thing', lead: 'A lead long enough to say what the page is about, in a sentence or two.',
   steps: ['one', 'two', 'three'], faq: [['Q one?', 'An answer that is forty characters or longer, at least.'], ['Q two?', 'An answer that is forty characters or longer, at least.'], ['Q three?', 'An answer that is forty characters or longer, at least.']] };
 
@@ -59,9 +61,9 @@ test('JSON-LD: breadcrumb to the app, HowTo steps, FAQ and the tutorial as a Vid
   assert.equal(videoJsonLd(app('docs'), SITE), null);
 });
 
-test('every task page is on disk with its head block, and in the sitemap', () => {
+test('every task page is on disk with its head block, and in the sitemap', INDEXED, () => {
   const map = readFileSync(path.join(ROOT, 'sitemap.xml'), 'utf8');
-  for (const p of taskPages(apps, SITE, TASKS)) {
+  for (const p of taskPages(apps, SITE, SHOWN)) {
     const file = path.join(ROOT, p.dir, 'index.html');
     assert.ok(existsSync(file), `${p.dir} is written (node tools/seo/write.mjs)`);
     const html = readFileSync(file, 'utf8');
@@ -71,11 +73,11 @@ test('every task page is on disk with its head block, and in the sitemap', () =>
   }
 });
 
-test('the All tools hub lists every task page, is in the sitemap, and every landing page links it', async () => {
+test('the All tools hub lists every task page, is in the sitemap, and every landing page links it', INDEXED, async () => {
   const { hubPage } = await import(pathToFileURL(path.join(ROOT, 'tools/seo/tasks.mjs')).href);
-  const hub = hubPage(apps, SITE, TASKS), html = readFileSync(path.join(ROOT, 'all-tools/index.html'), 'utf8');
-  assert.equal(hub.count, TASKS.length);
-  for (const p of taskPages(apps, SITE, TASKS)) assert.ok(html.includes(`href="/${p.dir}"`), `${p.dir} is on the hub`);
+  const hub = hubPage(apps, SITE, SHOWN), html = readFileSync(path.join(ROOT, 'all-tools/index.html'), 'utf8');
+  assert.equal(hub.count, SHOWN.length);
+  for (const p of taskPages(apps, SITE, SHOWN)) assert.ok(html.includes(`href="/${p.dir}"`), `${p.dir} is on the hub`);
   assert.ok(readFileSync(path.join(ROOT, 'sitemap.xml'), 'utf8').includes(`<loc>${SITE}/all-tools/</loc>`));
-  assert.ok(readFileSync(path.join(ROOT, 'apps/cutout/index.html'), 'utf8').includes(`<a href="/all-tools/">${context(ROOT_LANG).t('seo.ui.nav.all_tools')}</a>`));
+  assert.ok(readFileSync(path.join(ROOT, `apps/${SHOWN[0].app}/index.html`), 'utf8').includes(`<a href="/all-tools/">${context(ROOT_LANG).t('seo.ui.nav.all_tools')}</a>`));
 });

@@ -5,10 +5,12 @@
 //   urlsFor(files, sitemapUrls, site) -> the URLs to send (pure; the tests call it)
 // A changed page file is sent as its URL; a change to this tool, the workflow or the key sends every sitemap URL.
 // The key is public by design: the engines fetch /<KEY>.txt from the site to check the request comes from its owner.
+// A site that is not indexed (the brand profile's seo.index, tools/seo/site.mjs INDEX) never pings: main() returns first.
 import { readFileSync, existsSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { INDEX } from './site.mjs';
 
 export const KEY = '606148179f6c838c4632d5a78f3ab36f';
 export const SITE = 'https://slopographic.com';
@@ -28,7 +30,8 @@ export function urlsFor(files, sitemapUrls, site = SITE) {
 }
 const sitemapUrls = () => [...readFileSync(path.join(ROOT, 'sitemap.xml'), 'utf8').matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
 
-async function main() {
+export async function main(index = INDEX) {
+  if (!index) { console.log('IndexNow: the site is not indexed (seo.index); nothing sent'); return false; }
   const [before, after] = process.argv.slice(2);
   const zero = !before || /^0+$/.test(before);
   const files = zero ? ['tools/seo/indexnow.mjs'] : execFileSync('git', ['diff', '--name-only', before, after], { cwd: ROOT, encoding: 'utf8' }).split('\n').filter(Boolean);

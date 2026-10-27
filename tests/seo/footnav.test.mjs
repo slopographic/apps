@@ -14,6 +14,7 @@ import { ROUNDUPS, roundupsIn } from '../../shared/seo/roundups/index.mjs';
 import { context, ROOT_LANG } from '../../tools/seo/lang.mjs';
 import { GUIDES } from '../../shared/seo/guides/index.mjs';
 import { PAGES as CONVERTERS } from '../../convert/js/core/pages.js';
+import { FACTS } from '../brand-facts.mjs';
 
 const read = (f) => readFileSync(path.join(ROOT, f), 'utf8');
 const win = registryWindow(), apps = win.SLOP_APPS, groups = win.SLOP_GROUP_LABELS;
@@ -22,20 +23,23 @@ const nav = footNav(), links = footNavLinks(nav);
 // The root language's words (a build can have another root language than English): its round-ups and group headings.
 const R = context(ROOT_LANG), rootRoundups = roundupsIn(ROOT_LANG);
 const groupLabel = (key, label) => (ROOT_LANG === 'en' || win.SLOP_NAMING !== 'plain' ? label : R.chrome(`footer.group_${key}`, label));
-const sitemap = new Set([...read('sitemap.xml').matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]));
+// a site that is not indexed (FACTS.seoIndex) has no sitemap and no generated pages: its footer links the apps themselves
+const sitemap = new Set(FACTS.seoIndex ? [...read('sitemap.xml').matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]) : []);
+const INDEXED = { skip: !FACTS.seoIndex && 'the site is not indexed (seo.index): no generated pages to link' };
 const fileOf = (href) => (href.endsWith('/') ? `${href.slice(1)}index.html` : href.slice(1));
 
 test('every footer link is a page of the repo, and every page link but Settings is in the sitemap', () => {
-  assert.ok(links.length > 100, `${links.length} links`);
+  assert.ok(links.length > (FACTS.seoIndex ? 100 : 20), `${links.length} links`);
   for (const href of links) {
+    if (win.SLOP_PARENT && href.startsWith(win.SLOP_PARENT.url)) continue;   // a single-app site's suite (shared/parent)
     assert.match(href, /^\/[\w./-]*$/, `${href}: a site path`);
     assert.ok(existsSync(path.join(ROOT, fileOf(href))), `${href}: no file ${fileOf(href)}`);
-    if (href.endsWith('/') && href !== '/settings/') assert.ok(sitemap.has(SITE + href), `${href}: not in sitemap.xml`);
+    if (FACTS.seoIndex && href.endsWith('/') && href !== '/settings/') assert.ok(sitemap.has(SITE + href), `${href}: not in sitemap.xml`);
   }
   assert.equal(new Set(links).size, links.length, 'no link twice');
 });
 
-test('the homepage footer has the block, with every round-up, the compare hub and the comparisons index', () => {
+test('the homepage footer has the block, with every round-up, the compare hub and the comparisons index', INDEXED, () => {
   const home = read('index.html'), footer = /<footer class="footer">[\s\S]*?<\/footer>/.exec(home)[0];
   assert.ok(footer.includes(nav), 'index.html carries the current block (run node tools/seo/write.mjs)');
   const homeLinks = footNavLinks(footer);
@@ -46,11 +50,11 @@ test('the homepage footer has the block, with every round-up, the compare hub an
 });
 
 test('the lists come from the shared data: every app page, one converter per category, the first getting-started guides', () => {
-  for (const a of apps.filter(isPage)) assert.ok(links.includes(`/apps/${a.id}/`), `${a.id}: no link to its landing page`);
+  for (const a of apps.filter(isPage)) assert.ok(links.includes(FACTS.seoIndex ? `/apps/${a.id}/` : `/${a.path}`), `${a.id}: no link to its landing page (or, not indexed, to the app)`);
   for (const [k, g] of Object.entries(groups)) assert.ok(new RegExp(`<summary><span[^>]*>${groupLabel(k, g)}</span>`).test(nav), `group ${g}: no column`);   // a plain-name build adds data-i18n
   const cats = new Set(CONVERTERS.map((p) => p.cat));
   assert.equal(links.filter((h) => /^\/convert\/[^/]+\/$/.test(h)).length, cats.size);
-  assert.equal(links.filter((h) => h.endsWith('/getting-started/')).length, GUIDE_PICKS);
+  assert.equal(links.filter((h) => h.endsWith('/getting-started/')).length, FACTS.seoIndex ? GUIDE_PICKS : 0);
 });
 
 test('adding a round-up, a converter category or an app adds a footer link', () => {
@@ -65,7 +69,7 @@ test('adding a round-up, a converter category or an app adds a footer link', () 
 
 test('the content pages, the hand-made pages with markers and every converter page carry the block', () => {
   assert.ok(siteFoot().includes(nav));
-  const content = ['apps/pdf/index.html', 'compare/index.html', 'best/index.html', `best/${ROUNDUPS[0].slug}/index.html`, 'all-tools/index.html',
+  const content = !FACTS.seoIndex ? ['how-it-works/index.html'] : ['apps/pdf/index.html', 'compare/index.html', 'best/index.html', `best/${ROUNDUPS[0].slug}/index.html`, 'all-tools/index.html',
     'how-it-works/index.html', 'photoslop/getting-started/index.html'];
   for (const f of content) assert.ok(read(f).includes(nav), `${f}: no footer navigation`);
   for (const f of converterFiles()) {
@@ -87,5 +91,6 @@ test('the columns fold on phones and every link shows without JavaScript', () =>
   assert.ok(!/<details(?![^>]*\sopen)[^>]*>/.test(nav), 'every column is open in the HTML');
   assert.match(nav, /matchMedia\('\(max-width: 640px\)'\)/);
   assert.match(read('shared/footnav/footnav.css'), /@media \(max-width: 640px\)/);
-  for (const k of [...nav.matchAll(/data-i18n="([^"]+)"/g)].map((m) => m[1])) assert.ok(read('shared/i18n/strings.js').includes(`'${k}'`), `${k}: no English string`);
+  // the parent site's link (a single-app site) has its words in shared/parent/i18n
+  for (const k of [...nav.matchAll(/data-i18n="([^"]+)"/g)].map((m) => m[1])) assert.ok(read(k.startsWith('parent.') ? 'shared/parent/i18n/en/parent.js' : 'shared/i18n/strings.js').includes(`'${k}'`), `${k}: no English string`);
 });

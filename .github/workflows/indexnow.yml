@@ -16,7 +16,8 @@ permissions:
   contents: read
 jobs:
   ping:
-    if: ${{ github.event_name == 'push' || github.event.workflow_run.conclusion == 'success' }}
+    # this repository only: a fork's copy is not indexed (pages.yml), so it never pings
+    if: ${{ github.repository == 'slopographic/apps' && (github.event_name == 'push' || github.event.workflow_run.conclusion == 'success') }}
     runs-on: ubuntu-latest
     permissions:
       contents: read

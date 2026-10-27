@@ -37,7 +37,8 @@ export function readApps(root = ROOT) {
 /** The pages of the checkout at root, keeping only those whose file is there (a page dir has an index.html). */
 export function discoverPages(root = ROOT) {
   const pages = allPages({
-    sitemap: sitemapPaths(readFileSync(path.join(root, 'sitemap.xml'), 'utf8')),
+    // a site that is not indexed has no sitemap (tools/seo/robots.mjs): its pages are the apps and the fixed ones
+    sitemap: existsSync(path.join(root, 'sitemap.xml')) ? sitemapPaths(readFileSync(path.join(root, 'sitemap.xml'), 'utf8')) : [],
     apps: appPaths(readApps(root)),
   });
   return pages.filter((p) => existsSync(path.join(root, p.endsWith('/') || p === '' ? p + 'index.html' : p)));

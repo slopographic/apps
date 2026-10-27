@@ -20,6 +20,7 @@ const apps = await loadRegistry();
 const { context, ROOT_LANG } = await import(pathToFileURL(path.join(ROOT, 'tools/seo/lang.mjs')).href);
 const EN = context('en');   // the templates' English words: these checks read them (the root language may be another)
 const { FACTS } = await import(pathToFileURL(path.join(ROOT, 'tests/brand-facts.mjs')).href);
+const INDEXED = { skip: !FACTS.seoIndex && 'the site is not indexed (seo.index): no generated pages or sitemaps (tests/seo/robots.test.mjs)' };
 const tool = (name, extra = {}) => ({ name, url: `https://${name.toLowerCase()}.example/`, bestFor: 'x', pros: ['a'], cons: ['b'], cells: ['Free', 'Yes'],
   sources: [{ label: `${name} pricing`, url: `https://${name.toLowerCase()}.example/pricing` }], ...extra });
 const good = { slug: 'free-pdf-editors', app: 'pdf', checked: '2026-10-24', title: 't', description: 'd', h1: 'Best free PDF editors', lead: 'l',
@@ -109,7 +110,7 @@ test('our app is first in every round-up, and every feature row moved with it', 
   assert.equal(oursFirst(o), o);   // already first: unchanged
 });
 
-test('the install facts are stated once and every app landing page shows how to install it', async () => {
+test('the install facts are stated once and every app landing page shows how to install it', INDEXED, async () => {
   const { INSTALL: EN_INSTALL, installIn } = await import(pathToFileURL(path.join(ROOT, 'shared/seo/install-copy.mjs')).href);
   for (const k of ['short', 'pro', 'con', 'how']) assert.ok(typeof EN_INSTALL[k] === 'string' && EN_INSTALL[k].length > 10, k);
   const INSTALL = installIn(ROOT_LANG);   // the root pages are in the root language

@@ -25,6 +25,7 @@ const resolveRef = (from, ref) => path.posix.normalize(path.posix.join(path.posi
 const EXTRA = ['offline.html', 'manifest.webmanifest', 'favicon.svg', 'assets/icons/icon-192.png', 'assets/icons/icon-512.png', 'shared/pwa.js',
   'shell/shell.js', 'brand/brand.js', 'brand/brand.json', 'brand/logo-128.webp',
   'style/tone.css',   // the plain tone's look: shared/theme/theme.js loads it from script, in a plain-tone build only
+  'shared/parent/i18n/index.js', 'shared/parent/i18n/en/parent.js',   // a single-app site's words (shared/parent/parent.js loads them)
   // the homepage's Authenticator view: home/view.js loads these the first time #detector opens
   'detector/rules.js', 'detector/samples.js', 'detector/detector.js', 'detector/detector.css',
   'vendor/lamejs/lame.min.js', 'vendor/lamejs/LICENSE',
@@ -63,12 +64,14 @@ function refsOf(p, txt) {
   }
   const out = [];
   if (p.endsWith('.html')) {
+    // a page with a base (a single-app site's root, tools/seo/mainapp.mjs): its addresses resolve from the base's folder
+    const base = /<base\s+href="([^"]+)"/i.exec(txt), from = base ? path.posix.join(path.posix.dirname(p), base[1], 'index.html') : p;
     for (const m of txt.matchAll(/<(script|link)\b[^>]*?>/gi)) {
       const tag = m[0];
       const attr = tag.match(/\b(?:src|href)=["']([^"'#?]+)/i);
       if (!attr || /^(https?:|\/\/|data:)/.test(attr[1])) continue;
       if (/^<link/i.test(tag) && !/rel=["']?(stylesheet|modulepreload)/i.test(tag)) continue;
-      out.push(attr[1].startsWith('/') ? attr[1].slice(1) : resolveRef(p, attr[1]));
+      out.push(attr[1].startsWith('/') ? attr[1].slice(1) : resolveRef(from, attr[1]));
     }
   } else if (/\.m?js$/.test(p)) {
     for (const m of txt.matchAll(/(?:import|export)\s[^'"`;]*?from\s*['"]([^'"]+)['"]|import\s*['"]([^'"]+)['"]/g)) {

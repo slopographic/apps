@@ -9,7 +9,9 @@
  *               shared/mascot/slot.js) or 'none'
  *   media, analytics   screenshots, clips and videos shown; third parties (analytics, ads, the consent strip)
  *   defaultLang the language a visitor gets when nothing is stored
- *   hideApps    app ids left out of every list */
+ *   hideApps    app ids left out of every list
+ *   seoIndex    search engines may index the site (brand profile seo.index): generated SEO pages, sitemaps, language
+ *               folders and hreflang; without it every page says noindex and none of those exist (tools/seo/robots.mjs) */
 (function (root) {
   'use strict';
   var builtin = /*profile:mascot*/true, overlay = /*profile:mascotOverlay*/false;
@@ -21,5 +23,6 @@
     analytics: /*profile:analytics*/true,
     defaultLang: /*profile:defaultLang*/'en',
     hideApps: Object.freeze(/*profile:hideApps*/[]),
+    seoIndex: /*profile:seoIndex*/true,
   });
 })(typeof window !== 'undefined' ? window : globalThis);

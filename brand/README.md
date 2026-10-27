@@ -85,7 +85,8 @@ sites live outside this repository, with the publish script; pass their folder w
 | `links`, `footer`, `support`, `analytics` | Footer and support links (empty hides them), the footer line, the export card parts, and third parties: `false` leaves out analytics, ads and the consent strip. |
 | `copy` | Extra phrase replacements for this site (`"source phrase": "replacement"`), on top of the tone's. |
 | `apps.hide`, `media` | Apps left out of every list, menu and sitemap (their guides and task pages too; tests read them from the brand facts, `hideApps`); `false` leaves out screenshots, clips and videos (they show this brand). |
-| `seo` | `homeTitle`, `homeDescription`, `titleSuffix` for the generated head blocks and the sitemap (the home copy is in the root language), and `langs`: the languages of the static SEO pages besides the root one, `"all"` (default), a list (`["sv", "de"]`) or `"none"` (below, "Languages of the SEO pages"). |
+| `seo` | `homeTitle`, `homeDescription`, `titleSuffix` for the generated head blocks and the sitemap (the home copy is in the root language), and `langs`: the languages of the static SEO pages besides the root one, `"all"` (default), a list (`["sv", "de"]`) or `"none"` (below, "Languages of the SEO pages"). `index` (default `false`), `canonicalTo` and `canonicalOverride`: what search engines are told (below, "Search engines"). |
+| `mainApp`, `parent` | A site for one app: the app the site's root opens (an app id), and the suite it links back to, `{ name, url }` (below, "Single-app sites"). |
 | `legal` | `{ holder, year, trademarks? }`: the MIT licence's copyright holder, `NOTICE.md` and `TRADEMARKS.md` (`trademarks`: the names the holder claims; default the product name). |
 | `publish` | `{ repo, branch, secret, author, email }`: where the publish script pushes, the token's secret name, and the release commit's author. |
 | `font` | `{ spec, dir }`: the profile's own type family, a font spec for `tools/fonts/build.py` and its built folder (both relative to the profiles folder; build the folder ahead, the site build needs no Python). The build ships it as `shared/fonts/brand/` with its CSS and token names, and the typeface page. Without it, a build ships no family: the upstream fonts (Inter Tight and the others) and no typeface page. This site's family never goes into another build, and the leak scan reads the name tables inside every WOFF2 file and zip. The sample's family: `brand/profiles/fonts/acme/`. Only a plain brand mark may go into a family's Private Use Area, never the mascot (it is all-rights-reserved art; a font is OFL): the build refuses such a spec. |
@@ -221,6 +222,67 @@ one folder down. The other languages stay reachable for visitors who search in t
 its own market with a short `seo.langs`. One field (`defaultLang`) sets both the start language and the root, so they can
 never disagree; the profile's `seo.homeTitle` and `seo.homeDescription` are in that language. The sample `sample-sv`
 publishes Swedish at the root and English under `/en/` (`"langs": ["sv", "en"]`).
+
+### Search engines
+
+```json
+"seo": { "index": true }
+```
+
+- `index` (default `false`, for every profile that does not say `true`): search engines may index the site. This site's
+  own profile sets it, and so does every profile of the owner's own sites. With `false`, every page says
+  `<meta name="robots" content="noindex">` (links are still followed), `robots.txt` allows crawling (a crawler must read
+  a page to see the tag) and names no sitemap, there are no sitemap files, no language folders and no hreflang, and the
+  generated SEO pages (landing, task, guide, round-up and compare pages) are not built at all. IndexNow never runs.
+- `canonicalTo`: an origin (`"https://tools.example.com"`) every page's canonical points to, with the same path. Without
+  it a page's canonical is its own address on the build's origin (`origin`); a build never points at this site.
+- `canonicalOverride`: `{ "<path>": "<URL>" }`, the canonical of the pages under a path from the site root ("/pdf/": the
+  app, its about, task and guide pages) is the URL with the rest of the path after it; `"=/pdf/"` matches that one page.
+  The longest key wins; a page in a language folder (`/sv/pdf/`) is matched without it and keeps it (`/sv/` after the
+  origin). Its sitemap leaves those pages out; their hreflang links stay on this site, so the language menu does too.
+
+Why off by default: a fork, or a build of someone else's profile, works as a free mirror of the tools. Its pages say
+noindex and credit the original through their canonical, so the copy never competes with the site it came from in
+search results. Turn indexing on (`"index": true`) when you publish your own content under your own name.
+
+A copy of an indexed site is not indexed either. The SEO writer puts a host guard at the top of every page's `<head>`
+(`tools/seo/robots.mjs`): on any host but the profile's `origin` (and `www.` of it; `localhost`, `127.0.0.1` and a file
+stay as they are) it adds the noindex tag, which Google honours after rendering. The production deploy
+(`.github/workflows/pages.yml`) also writes the static noindex into every page when it runs in any repository but this
+one, as the preview of `testing` does (`preview.yml`). The writer (`node tools/seo/write.mjs`, checked by `--check`)
+applies all of it, so every page, new ones included, follows the profile.
+
+### Single-app sites
+
+A domain for one app that links back to the full suite. The profile names the app and the parent site, and hides the
+apps it does not keep:
+
+```json
+"mainApp": "pdf",
+"parent": { "name": "Acme Tools", "url": "https://example.com" },
+"apps": { "hide": ["photoslop", "vector", "label", "..."] },
+"seo": { "index": true }
+```
+
+- The site's root (`/`) is the app: `index.html` is the app's page as the SEO writer writes it, with
+  `<base href="pdf/">` first in its head (`tools/seo/mainapp.mjs`), so every relative address, the service worker (scope
+  `/`) and the offline list (`tools/pwa-precache.mjs` reads the base) work as on `/pdf/`. Both pages name the root as
+  their canonical, so only `/` is in the sitemap. An in-page link (`#...`) stays on the page.
+- `parent` adds "More free tools →" to the header (a shared header button that folds into More,
+  `shared/parent/parent.js`) and a column to the site footer (`tools/seo/footnav.mjs`). A link into a hidden app's folder
+  goes to the same path on the parent (`SlopParent.href`, the one helper: every link on the page, the shell's
+  navigation, the footer). Hidden apps' folders stay in the build (the kept apps load scripts from some of them), but
+  their pages say noindex and no list, sitemap or generated page names them.
+- Search: with `index` true the site publishes only the shown apps' pages (their task, guide, round-up and landing pages;
+  the pages of a few apps, `/slop-365/` and `/creative-slop-pro/`, only when it shows them all).
+- On the parent (this site), point the app's pages at the new domain with `seo.canonicalOverride`, and set the same
+  value as the markers in `tools/seo/site.mjs` (the marker test holds them equal):
+  `{ "=/pdf/": "https://pdf.example.com/", "/pdf/": "https://pdf.example.com/pdf/", "/apps/pdf/": "https://pdf.example.com/apps/pdf/" }`.
+
+Recipe, the PDF app: `"mainApp": "pdf"` and hide every app except `pdf` and the apps it works with: `html2pdf` (HTML to
+PDF), `ocr` (text from scans), `watermark` (batch watermarks), `convert` (the Convert… dialog's file converter pages) and
+`drive` (where the apps keep their files). Hiding any of these sends its links to the parent instead. The made-up
+`brand/profiles/sample-single.json` ("Acme PDF") is this recipe.
 
 ### Tests in a mirror
 
