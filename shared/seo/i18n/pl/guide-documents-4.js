@@ -22,7 +22,7 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'seo.guide.checksum.getting-started.sections.2.image.alt': 'Checksum z wybranym plikiem JPEG, pokazanym skrótem SHA-256 i wklejonym skrótem zgłoszonym jako zgodny',
   'seo.guide.checksum.getting-started.sections.2.tip': 'Checksum liczy skrót jednego pliku naraz. Wybierz następny plik, aby zacząć od nowa.',
   'seo.guide.hex.getting-started.title': 'Pierwsze kroki w Slop Hex: otwórz, znajdź i edytuj bajty pliku',
-  'seo.guide.hex.getting-started.description': 'Krótki samouczek Slop Hex: otwórz dowolny plik jako bajty, skocz do przesunięcia, znajdź hex lub tekst, zmień bajt i zapisz nową wersję. Nic nie opuszcza przeglądarki.',
+  'seo.guide.hex.getting-started.description': 'Krótki samouczek Slop Hex: otwórz plik jako bajty, skocz do przesunięcia, znajdź hex lub tekst, zmień bajt i zapisz nową wersję. Nic nie opuszcza przeglądarki.',
   'seo.guide.hex.getting-started.h1': 'Pierwsze kroki w Slop Hex',
   'seo.guide.hex.getting-started.lead': 'Slop Hex pokazuje dowolny plik jako bajty: przesunięcia po lewej, 16 bajtów w wierszu w hex i te same bajty jako tekst po prawej. Możesz szukać, edytować i zapisać kopię. Nic nie jest przesyłane.',
   'seo.guide.hex.getting-started.sections.0.h2': 'Otwórz plik',

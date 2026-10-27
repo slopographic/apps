@@ -120,7 +120,7 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'seo.landing.admin.description': 'Slop Admin przechowuje profil firmy i domyślną walutę, numerację, która tylko rośnie, oraz pełną kopię zapasową i przywracanie z zabezpieczonym resetem.',
   'seo.landing.drive.title': 'Slop Drive: prywatne przechowywanie plików w przeglądarce | Slopographic',
   'seo.landing.drive.description': 'Slop Drive trzyma pliki w Twojej przeglądarce, nie na serwerze: foldery, gwiazdki, tagi, wyszukiwanie, podglądy i kopia zapasowa jednym plikiem. Bez konta.',
-  'seo.landing.code.title': 'Slop Code: edytor kodu dla plików z Slop Drive | Slopographic',
+  'seo.landing.code.title': 'Slop Code: edytor kodu do plików Slop Drive | Slopographic',
   'seo.landing.code.description': 'Slop Code edytuje pliki JavaScript, TypeScript, HTML, CSS, JSON, Markdown i Python z Slop Drive, z wyszukiwaniem i zamianą oraz podglądem w piaskownicy.',
   'seo.landing.gallery.title': 'Galeria zdjęć offline z albumami i wyszukiwaniem duplikatów | Slop Gallery',
   'seo.landing.gallery.description': 'Biblioteka zdjęć zostaje na tym urządzeniu: oś czasu, albumy, ulubione, wyszukiwanie dokładnych duplikatów i kopia zapasowa. Za darmo, bez konta.',

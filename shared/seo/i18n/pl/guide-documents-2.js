@@ -64,7 +64,7 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'seo.guide.slides.getting-started.shortcuts.6.1': 'Następny / poprzedni slajd',
   'seo.guide.slides.getting-started.shortcuts.8.1': 'Prezentuj z widokiem prelegenta',
   'seo.guide.tables.getting-started.title': 'Pierwsze kroki w Slop Tables: pierwszy arkusz kalkulacyjny',
-  'seo.guide.tables.getting-started.description': 'Poznaj Slop Tables: wpisuj liczby i formuły, formatuj komórki, dodawaj arkusze, wykresy i tabele przestawne, a potem zapisz w Slop Drive lub pobierz jako XLSX albo CSV.',
+  'seo.guide.tables.getting-started.description': 'Poznaj Slop Tables: wpisuj liczby i formuły, formatuj komórki, dodawaj arkusze, wykresy i tabele, zapisz w Slop Drive lub pobierz jako XLSX albo CSV.',
   'seo.guide.tables.getting-started.h1': 'Pierwsze kroki w Slop Tables',
   'seo.guide.tables.getting-started.lead': 'Slop Tables to arkusz kalkulacyjny w przeglądarce, z ponad 300 funkcjami. Skoroszyty zapisują się w Slop Drive na tym urządzeniu. Nic nie jest przesyłane.',
   'seo.guide.tables.getting-started.sections.0.h2': 'Wpisuj dane i formuły',

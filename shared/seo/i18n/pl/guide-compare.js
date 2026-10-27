@@ -2,7 +2,7 @@
 window.SlopI18n && window.SlopI18n.add('pl', {
   'seo.guide.diff.getting-started.crumb': 'Pierwsze kroki',
   'seo.guide.diff.getting-started.title': 'Pierwsze kroki w Slop Compare: zobacz, co się zmieniło między dwoma plikami',
-  'seo.guide.diff.getting-started.description': 'Poznaj Slop Compare w kilka minut: porównuj dwa teksty, pliki, PDF-y lub obrazy, przechodź po zmianach i eksportuj raport albo plik .patch. Nic nie jest przesyłane.',
+  'seo.guide.diff.getting-started.description': 'Poznaj Slop Compare: porównuj dwa teksty, pliki, PDF-y lub obrazy, przechodź po zmianach i eksportuj raport albo plik .patch. Nic nie jest przesyłane.',
   'seo.guide.diff.getting-started.h1': 'Pierwsze kroki w Slop Compare',
   'seo.guide.diff.getting-started.lead': 'Slop Compare pokazuje, co zmieniło się między dwiema wersjami: teksty i kod, JSON i CSV, PDF-y i obrazy. Wszystko jest czytane w przeglądarce i nigdy nie jest przesyłane.',
   'seo.guide.diff.getting-started.sections.0.h2': 'Wstaw dwie wersje',
