@@ -14,7 +14,7 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'seo.landing.pdf.description': 'Slop PDF réordonne, fusionne et scinde les PDF, ajoute texte et signatures, remplit formulaires et filigranes, et compresse ou convertit. Rien n’est envoyé.',
   'seo.landing.label.title': 'Créateur d’étiquettes code-barres : GS1, planches Avery et ZPL | SlopLabel',
   'seo.landing.label.description': 'Créateur gratuit d’étiquettes code-barres dans le navigateur : 17 types de codes, GS1, fusion de données Excel et CSV, planches Avery et export Zebra ZPL.',
-  'seo.landing.cutout.title': 'Suppression d’arrière-plan gratuite en lot, IA locale | SlopIsolate',
+  'seo.landing.cutout.title': 'Détourage gratuit en lot, IA locale : SlopIsolate | Slopographic',
   'seo.landing.cutout.description': 'SlopIsolate supprime les arrière-plans d’images en lot avec une IA locale : un réglage pour tout le lot, pinceaux de bords et export ZIP. Gratuit, sans envoi.',
   'seo.landing.aitools.title': 'Slop AI Tools : OCR, transcription et outils photo | Slopographic',
   'seo.landing.aitools.description': 'Slop AI Tools lit le texte d’images et de PDF numérisés, transcrit la parole avec export .srt, débruite les photos et les étiquette, sur votre appareil.',
