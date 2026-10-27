@@ -18,6 +18,7 @@ export function markerValues(p) {
     savings: p.savings !== false,                // the homepage's savings line and list
     aiModels: aiModels(p),                       // the AI models the site offers (shared/ai/makers.js, tools/whitelabel/ai.mjs)
     ocrEngines: ocrRules(p),                     // the text recognition engines it offers (shared/ocr/engines.js)
+    seoLenient: undefined,                       // the SEO length check: lenient in a renamed build (transform.mjs context)
     seoHomeTitle: seo.homeTitle, seoHomeDescription: seo.homeDescription, seoLangs: seo.langs,   // the static SEO pages' languages (tools/seo/lang.mjs)
     // search engines and single-app sites (tools/seo/site.mjs, shared/apps.js): indexed only when the profile says so
     seoIndex: seo.index === true, seoCanonicalTo: seo.canonicalTo || '', seoCanonicalOverride: seo.canonicalOverride || {},

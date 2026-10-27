@@ -41,8 +41,14 @@
       "text": "#f4f4f5",
       "accent": "#2dd4bf",
       "border": "#71717a"
-    }
+    },
+    "hide": [
+      "classic",
+      "lime"
+    ],
+    "names": "brandWord"
   },
+  "defaultTheme": "light",
   "logo": {
     "text": "Exempelbolaget Verktyg",
     "mark": "E",

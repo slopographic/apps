@@ -41,6 +41,7 @@
     add('co.panel', t('cutout.cmd.panel'), V, [], () => a.panel());
 
     for (const [v, l, s] of [['pro', 'cutout.menu.theme_pro', 'dark'], ['light', 'cutout.menu.theme_light', 'light'], ['classic', 'cutout.menu.theme_classic', 'classic']]) {
+      if (window.SlopTheme && !SlopTheme.has(s)) continue;   // a theme the site does not offer
       add('co.theme-' + v, t('cutout.cmd.theme', { name: t(l) }), V, [], () => a.theme(v), { checked: () => !!window.SlopTheme && SlopTheme.get() === s });
     }
     return C;

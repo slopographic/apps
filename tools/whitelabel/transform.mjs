@@ -12,6 +12,7 @@ export function context(root, p, map) {
   const pairs = phrasePairs(root, p), values = markerValues(p), rules = tokenRules(map);
   // the app ids a marker names are renamed like the registry's own (a source id never reaches a build)
   for (const k of ['hideApps', 'mainApp']) values[k] = JSON.parse(tokens(JSON.stringify(values[k]), rules));
+  values.seoLenient = true;   // renamed copy: its SEO lengths only warn, wherever its SEO writer runs (tools/seo/head.mjs)
   return {
     profile: p, map, pairs,
     urls: { origin: p.origin, github: p.github, repo: p.publish && p.publish.repo, mail: p.mailDomain || p.cname },

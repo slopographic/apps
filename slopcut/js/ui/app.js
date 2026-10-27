@@ -62,7 +62,8 @@
 
   /* ------------------------------------------------------------ theme */
   /* The app's names and the shared theme ids (shared/theme/theme.js): the choice is saved through SlopTheme.set. */
-  const THEMES = [['pro', 'slopedit.app.pro_dark', 'dark'], ['light', 'slopedit.app.light', 'light'], ['classic', 'slopedit.app.classic_98', 'classic']]; // the names are keys (U.t at use)
+  const THEMES = [['pro', 'slopedit.app.pro_dark', 'dark'], ['light', 'slopedit.app.light', 'light'], ['classic', 'slopedit.app.classic_98', 'classic']] // the names are keys (U.t at use)
+    .filter((x) => !window.SlopTheme || SlopTheme.has(x[2]));   // only the themes the site offers
   A.THEMES = THEMES;
   /* The choice is saved for every page by the shared switcher; this page only shows it. */
   A.paintMeta = function () {

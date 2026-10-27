@@ -52,6 +52,8 @@
       clearStore();
       try {
         const settings = await open('../../settings/');
+        // a build whose profile hides Classic 98 (tests/brand-facts.js themes) offers no such choice anywhere
+        if (!BRAND_FACTS.themes.includes('classic')) { expect(settings.contentDocument.getElementById('theme-classic')).toBe(null); return; }
         settings.contentDocument.getElementById('theme-classic').click();
         expect(localStorage.getItem('slop-tables.theme')).toBe('"pro"');
         const home = await open('../../index.html');
