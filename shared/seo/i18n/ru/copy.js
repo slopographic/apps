@@ -57,7 +57,7 @@ window.SlopI18n && window.SlopI18n.add('ru', {
   'seo.app.expenses.title': 'Бесплатный учёт расходов с чеками: Slop Expenses | Slopographic',
   'seo.app.expenses.description': 'Учитывайте деловые расходы бесплатно: распознавайте чеки на устройстве, ведите пробег, записывайте счета и налог к возврату, экспорт CSV. Без загрузки.',
   'seo.app.invoices.title': 'Slop Invoices: бесплатные счета с PDF, оплатами и учётом | Slopographic',
-  'seo.app.invoices.description': 'Бесплатный генератор счетов: налог по ставкам, сплошная нумерация, PDF в пяти шаблонах, оплаты, кредитовые ноты и повторные счета. Без учётной записи.',
+  'seo.app.invoices.description': 'Бесплатный генератор счетов: налог по ставкам, сплошная нумерация, PDF в пяти шаблонах, оплаты, кредитовые авизо и повторные счета. Без учётной записи.',
   'seo.app.notes.title': 'Slop Notes: блокноты с заметками в Markdown в Slop Drive | Slopographic',
   'seo.app.notes.description': 'Пишите заметки в Markdown по блокнотам, с папками, тегами, закреплёнными заметками, живым предпросмотром и поиском по всем заметкам. Экспорт в .md или .html.',
   'seo.app.paste.title': 'Paste: делитесь текстом, кодом и картинками по ссылке | Slopographic',
