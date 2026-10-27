@@ -16,12 +16,13 @@
 // (shared/seo/i18n), the facts in shared/seo, the app list in shared/apps.js. Each page gets one block between
 // <!-- seo:start --> and <!-- seo:end -->, placed after its charset tag.
 // A language folder holds only what this tool writes: a file there that it does not write is removed (and a folder of
-// a language no longer published) by a --langs run. Read shared/seo/HANDOFF.md first.
+// a language no longer published, every one when the site is not indexed; a folder left empty goes) by a --langs run.
+// Read shared/seo/HANDOFF.md first.
 // What search engines are told follows the profile (robots.mjs, brand/README.md "Search engines"): the root pass also
 // writes robots.txt, puts the noindex tag or the host guard at the top of every page of the site, and removes the
 // generated pages the site does not publish (all of them when it is not indexed, a hidden app's always).
 import { readFile, writeFile, mkdir, rm } from 'node:fs/promises';
-import { existsSync, readdirSync, statSync } from 'node:fs';
+import { existsSync, readdirSync, statSync, rmdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ROOT, SITE, INDEX, loadRegistry, registryWindow, isPage, pageUrl } from './site.mjs';
@@ -43,6 +44,14 @@ export { siteChrome } from './chrome.mjs';
 /** Every file under a folder, relative to the repo. */
 const walk = (dir) => readdirSync(path.join(ROOT, dir)).flatMap((f) => (statSync(path.join(ROOT, dir, f)).isDirectory() ? walk(`${dir}${f}/`) : [`${dir}${f}`]));
 
+/** Removes the folders a removal left empty, up to (not including) the site root: a language folder or a generated
+ *  page's folder that no longer holds anything is gone too (a copy that had them committed ends up without them). */
+function pruneEmpty(files) {
+  const dirs = [...new Set(files.map((f) => path.dirname(f)))].sort((a, b) => b.length - a.length);
+  for (let d of dirs) {
+    while (d.startsWith(ROOT + path.sep) && existsSync(d) && !readdirSync(d).length) { rmdirSync(d); d = path.dirname(d); }
+  }
+}
 /** The directories of the generated pages (the same in every language: a language is published only when complete): of
  *  the apps given (the shown ones), or of every app in the registry when all is true (the pages that may be on disk). */
 async function generatedDirs(apps, all = false) {
@@ -130,6 +139,7 @@ async function main() {
       await mkdir(path.dirname(f.file), { recursive: true });
       await writeFile(f.file, f.html);
     }
+    pruneEmpty(files.filter((f) => f.html === null).map((f) => f.file));
     console.log(`SEO written (${only}): ${stale.length} changed of ${files.length} files (lastmod ${date}); languages ${langs}${left ? `; not published: ${left}` : ''}`);
   }
 }

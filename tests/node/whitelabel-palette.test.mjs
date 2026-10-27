@@ -1,12 +1,15 @@
 // Covers: tools/whitelabel/palette.mjs, tools/whitelabel/transform.mjs
 // The accent family moves to the profile's hue; greys and other hues stay; lengths and alpha are kept. palette.neutral
-// moves the source's tinted greys; the profile's own colours (marker values) are never moved.
+// moves the source's tinted greys; the profile's own colours (marker values) are never moved; a test file moves only the
+// colours the site itself uses (its other colours are test data).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, readdirSync, existsSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync, mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { remapColors, shift, shiftNeutral, rgbToHsl, paletteFile, luminance, themeProblems, sourceThemes, contrast } from '../../tools/whitelabel/palette.mjs';
+import { remapColors, shift, shiftNeutral, rgbToHsl, paletteFile, luminance, themeProblems, sourceThemes, contrast, colorKeys } from '../../tools/whitelabel/palette.mjs';
 
 import { context, forward } from '../../tools/whitelabel/transform.mjs';
 import { loadProfile, loadMap, validate } from '../../tools/whitelabel/profile.mjs';
@@ -77,4 +80,27 @@ test('the profile\u2019s own colours in a marker are written as given, not moved
   assert.doesNotMatch(out.split('P =')[0], /#4f6c00/, 'the source colour moves');
   assert.match(out.split('P =')[1], /"accent":"#4f6c00"/);
   assert.match(out.split('P =')[1], /"background":"#ebe7de"/);
+});
+
+test('a test file moves only the site\u2019s own colours: its other colours are test data (a pptx theme colour, a drawn picture)', () => {
+  const pal = { hue: 4, from: [65, 100], neutral: { hue: 220 } };
+  assert.deepEqual([...colorKeys(['a { color: #4F6C00; border: #fff; } b { color: rgb(235, 231, 222) }'])], ['4f6c00', 'ffffff', 'ebe7de']);
+  assert.equal(remapColors('#fbfaf5 #4f6c00', pal, new Set(['ebe7de'])), '#fbfaf5 #4f6c00', 'only the listed colours');
+  assert.notEqual(remapColors('rgb(235, 231, 222)', pal, new Set(['ebe7de'])), 'rgb(235, 231, 222)');
+  // a source tree with one stylesheet: its colours are the site's
+  const root = mkdtempSync(path.join(os.tmpdir(), 'wl-palette-'));
+  try {
+    mkdirSync(path.join(root, 'app'));
+    writeFileSync(path.join(root, 'app/a.css'), 'a { color: #4f6c00; background: #ebe7de; }');
+    writeFileSync(path.join(root, 'app/notes.txt'), '#fbfaf5');   // not a palette file: not the site's look
+    execFileSync('git', ['init', '-q'], { cwd: root });
+    execFileSync('git', ['add', '-A'], { cwd: root });
+    const dir = path.join(ROOT, 'brand/profiles'), ctx = { ...context(ROOT, { ...loadProfile(dir, 'sample'), palette: pal }, loadMap(dir, 'sample')), root };
+    const test = "const fixture = '<a:srgbClr val=\"FBFAF5\"/>', want = ['#fbfaf5', '#ebe7de', '#4f6c00'];";
+    const out = forward(test, ctx, 'tests/node/deck.test.mjs');
+    assert.match(out, /FBFAF5/);
+    assert.match(out, /'#fbfaf5'/, 'the expected value of its own data stays with the data');
+    assert.doesNotMatch(out, /#ebe7de|#4f6c00/, 'the site\u2019s colours move, as in the site');
+    assert.doesNotMatch(forward(test, ctx, 'app/js/deck.js'), /#fbfaf5|#ebe7de|#4f6c00/, 'outside tests/ every colour of the families moves');
+  } finally { rmSync(root, { recursive: true, force: true }); }
 });
