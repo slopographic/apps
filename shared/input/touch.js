@@ -19,12 +19,13 @@
   const g = T.gesture.create();
   const PALM_MS = 400;      // touches stay ignored this long after the pen lifts
   const CLICK_MS = 700;     // a click this soon after a handled long press, or a palm, is swallowed
-  const BUSY_MS = 150;     // a long-press timer this late means the page was too busy to tell a hold from a tap
+  const BUSY_MS = 50;       // a timer this late: the page was busy
+  const QUIET_MS = 150;     // a long press waits until the page has been free this long (up to a second past its time)
   const NATIVE_MS = 800;    // a native dblclick/contextmenu this soon after ours is the same gesture: swallowed
 
   const info = new Map();   // pointer id → { target, kind, x, y, surface }
   const taken = new Set();  // pointer ids the app no longer sees (palm, or part of a pinch the layer handles)
-  let pens = 0, penUpAt = -Infinity, timer = 0, restarted = false;
+  let pens = 0, penUpAt = -Infinity, timer = 0, beat = 0, busyAt = -Infinity;
   let blockClickUntil = 0;  // Infinity while a finger whose long press opened a menu is still down
   let sentDbl = -Infinity, sentMenu = -Infinity, pendingDbl = null;
   T.palm = true;
@@ -34,18 +35,31 @@
   /** A finger or a pen, with a place (a mouse, or an event some code made without coordinates, is not ours). */
   const finger = (e) => (e.pointerType === 'touch' || e.pointerType === 'pen') && Number.isFinite(e.clientX) && Number.isFinite(e.clientY);
   const swallow = (e) => { e.stopImmediatePropagation(); if (e.cancelable) e.preventDefault(); };
-  const sample = (e) => ({ id: e.pointerId, x: e.clientX, y: e.clientY, t: now(), kind: e.pointerType });
+  // t: when the finger did it (a busy page handles a quick tap's lift late: it must not read as a hold); at: when the page
+  // got it, where the long-press clock starts (gesture.js)
+  const sample = (e) => ({ id: e.pointerId, x: e.clientX, y: e.clientY, t: T.gesture.stamp(e, now()), at: now(), kind: e.pointerType });
 
+  /** While a long press is pending, a beat every 30 ms: busyAt is when one came BUSY_MS late (the page was busy). */
+  function heartbeat() {
+    if (beat) return;
+    let last = now();
+    const tick = () => { const t = now(); if (t - last > 30 + BUSY_MS) busyAt = t; last = t; beat = g.deadline() === Infinity ? 0 : setTimeout(tick, 30); };
+    beat = setTimeout(tick, 30);
+  }
   function schedule() {
     clearTimeout(timer);
     const d = g.deadline();
     if (d === Infinity) return;
-    timer = setTimeout(() => {
-      // Late by more than BUSY_MS: the page was busy, and the finger's pointerup may still be waiting behind it. The
-      // hold starts again (once a gesture), so only a finger still down after another long-press time opens a menu.
-      if (now() - d > BUSY_MS && !restarted) { restarted = true; g.restartLong(now()); schedule(); return; }
-      run(g.tick(now()));
-    }, Math.max(0, d - now()) + 1);
+    heartbeat();
+    const due = () => {
+      // The page was busy just now: what the finger did meanwhile (a lift, a drag's moves: Chromium hands them over late
+      // and in bursts then) may still be on its way. Decided once the page has been free QUIET_MS, at the next frame.
+      const t = now(), wait = busyAt + QUIET_MS - t;
+      if (wait > 0 && t - d < 1000) { timer = setTimeout(due, wait + 1); return; }
+      const mine = timer;
+      requestAnimationFrame(() => { if (timer === mine) run(g.tick(now())); });
+    };
+    timer = setTimeout(due, Math.max(0, d - now()) + 1);
   }
   function takeFromApp(id) {
     const p = info.get(id);
@@ -118,8 +132,7 @@
       swallow(e);
       return;
     }
-    if (!info.size) restarted = false;
-    info.set(e.pointerId, { target: e.target, kind: e.pointerType, x: e.clientX, y: e.clientY, surface: E.surfaceOf(e.target) });
+    info.set(e.pointerId, { target: e.target, kind: e.pointerType, x: e.clientX, y: e.clientY, surface: E.surfaceOf(e.target), t: T.gesture.stamp(e, now()) });
     run(g.down(sample(e)), e);
   }
   function onMove(e) {
@@ -141,8 +154,10 @@
   }
 
   function onClick(e) {
-    // A real click means the fingers have lifted, even when the browser sent no pointerup: forget them (lost()).
-    if (e.isTrusted) for (const [id, p] of info) if (p.kind === 'touch' && !taken.has(id)) lost(id, p);
+    // A real click means the fingers that touched before it have lifted, even when the browser sent no pointerup:
+    // forget them (lost()). Not a finger that touched after it: a busy page hands over a tap's click late, after the
+    // next touch (the second tap of a double tap) has landed, and that finger is still down.
+    if (e.isTrusted) for (const [id, p] of info) if (p.kind === 'touch' && !taken.has(id) && T.gesture.clickAfter(e, p.t, now())) lost(id, p);
     if (now() < blockClickUntil && e.isTrusted) { blockClickUntil = 0; swallow(e); return; }
     if (pendingDbl && Math.hypot(e.clientX - pendingDbl.x, e.clientY - pendingDbl.y) <= 30) {
       const d = pendingDbl;

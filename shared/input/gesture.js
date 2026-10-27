@@ -7,12 +7,17 @@
  *   g.down({ id, x, y, t, kind })  g.move(...)  g.up(...)  g.cancel({ id })  → an array of actions
  *   g.tick(t)                      → actions due by time t (the long press); call it at g.deadline()
  *   g.deadline()                   → when tick next has something to do, or Infinity
- *   g.restartLong(t)               → the hold of every finger still down counts from t (the page was busy)
  *   g.reset()                      → forget everything (a pen came down, the page lost focus)
- * kind is 'touch' or 'pen' (mouse is not fed in). x, y in CSS pixels, t in milliseconds.
+ * kind is 'touch' or 'pen' (mouse is not fed in). x, y in CSS pixels, t in milliseconds: when the finger did it (taps
+ * and double taps are timed by it). down's optional at: when the page got the touch, where the long-press clock starts
+ * (a touch handled late must not long-press before the page has had its queued moves and lift); default t.
  * Actions: { type: 'tap', x, y, id } · { type: 'doubletap', x, y, id } · { type: 'longpress', x, y, id }
  *          { type: 'pinchstart', ids, cx, cy } · { type: 'pinch', scale, cx, cy, dx, dy } · { type: 'pinchend' }
- * pinch: scale is since the previous pinch action (multiply them up), cx/cy the midpoint now, dx/dy its move. */
+ * pinch: scale is since the previous pinch action (multiply them up), cx/cy the midpoint now, dx/dy its move.
+ * stamp(e, now) → when a pointer event happened (its timeStamp), on the clock of performance.now(): an app that times a
+ * tap by when its handler runs reads a quick tap as a hold while the page is busy (the lift waits in the queue).
+ * clickAfter(click, t, now) → a click came after a touch made at t (a busy page can hand over a tap's click after the
+ * next touch has landed: that click tells nothing of the newer finger). */
 (function () {
   'use strict';
   const DEFAULTS = {
@@ -38,7 +43,7 @@
 
     function down(p) {
       const out = [];
-      pts.set(p.id, { x0: p.x, y0: p.y, x: p.x, y: p.y, t0: p.t, tl: p.t, kind: p.kind || 'touch', moved: false, long: false });
+      pts.set(p.id, { x0: p.x, y0: p.y, x: p.x, y: p.y, t0: p.t, tl: p.at != null ? p.at : p.t, kind: p.kind || 'touch', moved: false, long: false });
       const touches = [...pts.entries()].filter(([, s]) => s.kind === 'touch');
       if (pts.size >= 2) {
         multi = true;
@@ -109,14 +114,11 @@
     /** No long press for this pointer: the browser opened its own menu, or the app took the gesture. */
     function skipLong(id) { const s = pts.get(id); if (s) s.long = true; }
 
-    /** The page was busy (the long press is due but came late): the hold counts again from t, so a finger that lifted
-     *  during the busy time (its pointerup still queued) is not taken for a long press. */
-    function restartLong(t) { for (const s of pts.values()) if (!s.long && !s.moved) s.tl = t; }
 
     function reset() { pts.clear(); lastTap = null; pinch = null; multi = false; }
 
     return {
-      down, move, tick, deadline, reset, skipLong, restartLong,
+      down, move, tick, deadline, reset, skipLong,
       up: (p) => end(p, false),
       cancel: (p) => end(p, true),
       get size() { return pts.size; },
@@ -134,7 +136,15 @@
     return p > 0 ? Math.min(1, p) : 0.5;
   }
 
-  const api = { create, DEFAULTS, pressure };
+  /** e.timeStamp when it is a time on now's clock (not later than now, nor a minute before it), else now. */
+  function stamp(e, now) {
+    const t = e && Number(e.timeStamp);
+    return Number.isFinite(t) && t > 0 && t <= now + 1 && now - t < 60000 ? t : now;
+  }
+
+  const clickAfter = (click, t, now) => stamp(click, now) >= t;
+
+  const api = { create, DEFAULTS, pressure, stamp, clickAfter };
   if (typeof window !== 'undefined') { window.SlopTouch = window.SlopTouch || {}; window.SlopTouch.gesture = api; }
   if (typeof module === 'object' && module.exports) module.exports = api;
 })();

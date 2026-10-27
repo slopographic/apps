@@ -30,6 +30,7 @@ Bad values (for example a `javascript:` link or a malformed colour) fall back to
 | Page title | The word "Slopographic" is replaced by `name`. |
 | `[data-brand-name]`, header `.brand-name` | Text: `name` |
 | `[data-brand-tagline]` | Text: `tagline` |
+| `[data-app-name="<app id>"]` | Text (or `aria-label`): the app's name as the app list shows it, in the chosen language (`slopAppName`, filled by `shared/i18n/i18n.js`) |
 | `[data-brand-logo]`, or the first svg in a header `.brand` link | The logo image from `logo` |
 | `[data-brand-home]`, and the logo link `header a.brand` on app pages | `href`: `home`, when it is set |
 | `[data-brand-footer]` | Text: `footer` |

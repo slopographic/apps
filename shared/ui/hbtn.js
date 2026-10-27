@@ -111,7 +111,10 @@
   function moreOf(host, make) {
     let m = host.querySelector(':scope .slop-hmore');
     if (m || !make) return m;
-    if (!win.SlopMenuButton) { const p = loadMenuButton(); if (p) p.then(() => { if (win.SlopMenuButton) check(host); }); return null; }
+    // its menu's script still on the way: the button is made now and gets its menu when the script comes, so the header
+    // takes its folded layout in one step (no every-button frame past the window's edge, no second jump)
+    const p = win.SlopMenuButton ? null : loadMenuButton();
+    if (!win.SlopMenuButton && !p) return null;   // no way to load it (an inline copy): no More
     const doc = host.ownerDocument;
     m = doc.createElement('button');
     m.type = 'button'; m.className = 'slop-hbtn slop-hmore'; m.hidden = true;
@@ -119,11 +122,12 @@
     m.title = more; m.setAttribute('aria-label', more); m.setAttribute('data-i18n-attr', 'title:shell.more;aria-label:shell.more');
     m.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/></svg>';
     const away = () => [...host.querySelectorAll('[data-hbtn-yield], ' + FOLD.join(', '))].filter((b) => b.hidden && (b.dataset.hbtnFolded || b.hasAttribute('data-hbtn-yield')) && b !== m);
-    win.SlopMenuButton.attach(m, {
+    const wire = () => win.SlopMenuButton.attach(m, {
       label: more, search: false,
       items: () => away().map((b, i) => { const ic = b.querySelector('svg'); return { value: String(i), label: labelOf(b), icon: ic ? ic.cloneNode(true) : null }; }),
       onPick: (v) => { const b = away()[+v]; if (b) b.click(); },
     });
+    if (p) p.then(() => { if (win.SlopMenuButton) wire(); }); else wire();
     (host.querySelector('.sh-hdr') || host).append(m);
     return m;
   }
@@ -135,7 +139,7 @@
     const need = folded > 0 || states.some((st, i) => st === 'hidden' && keep(ys[i]));
     const more = moreOf(host, need);
     if (more) more.hidden = !need;
-    return !need || !!more;   // false: buttons went into a More that is not there yet (its script is still loading)
+    return !need || !!more;   // false: buttons went into a More that cannot be made (no menu script)
   }
   /** Tries the layouts from the roomiest down and keeps the first that fits: labels go (Convert…, then AI), Convert… goes,
    *  everything goes tight (icons only), the other buttons fold into More one by one, and last AI goes into More too. */
@@ -155,8 +159,6 @@
     for (let k = 0; k <= folds; k++) plan.push([true, kept, k]);
     if (ys.some(keep)) for (let k = 0; k <= folds; k++) plan.push([true, hidden, k]);
     // on the first row if they can be; else on the header's own rows (only where the app's controls take two rows)
-    // a layout that needs More before its script has loaded does not count: it would show the header without those
-    // buttons for a frame or two, then again with More (the page jumps twice); check() runs again once it has loaded
     for (rows of [false, true]) for (const [tight, st, k] of plan) { if (apply(host, ys, fs, tight, st, k) && fits()) return tight; }
     // nothing fits: the app's own controls overflow whatever we do; fold nothing (it would not help) and keep AI as an icon
     // when that adds no row, else hide it as before (the Theme menu and the command palette still offer it)
@@ -186,6 +188,7 @@
     // A web font that arrives later changes the labels' and the title's widths but not the header's own size.
     const fonts = win.document.fonts;
     if (fonts && fonts.addEventListener) { fonts.addEventListener('loadingdone', later); fonts.ready.then(later); }
+    if (phone()) loadMenuButton();   // a phone header usually folds into More: its menu's script on the way now
     check(host);
     return host;
   }

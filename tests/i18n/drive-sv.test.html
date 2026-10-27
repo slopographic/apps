@@ -102,9 +102,20 @@
       const f = await open('sv', 390);
       const doc = f.contentDocument;
       await waitFor(() => doc.documentElement.getAttribute('lang') === 'sv', { timeout: 20000 });
-      expect(doc.documentElement.scrollWidth <= f.contentWindow.innerWidth + 1).toBe(true);
-      const bar = doc.querySelector('.topbar');
-      expect(bar.scrollWidth <= bar.clientWidth + 1).toBe(true);
+      const bar = doc.querySelector('.topbar'), W = f.contentWindow.innerWidth;
+      /** What reaches past the right edge, so a failure names it: [tag, class, left, right, text]. */
+      const past = () => [...doc.querySelectorAll('body *')].filter((k) => k.getBoundingClientRect().right > W + 1 && k.getClientRects().length)
+        .slice(0, 8).map((k) => [k.tagName, String(k.className).slice(0, 40), Math.round(k.getBoundingClientRect().left), Math.round(k.getBoundingClientRect().right), (k.textContent || '').trim().slice(0, 16)]);
+      expect(doc.documentElement.scrollWidth <= W + 1 ? [] : [doc.documentElement.scrollWidth, past()]).toEqual([]);
+      expect(bar.scrollWidth <= bar.clientWidth + 1 ? [] : [bar.scrollWidth, bar.clientWidth, past()]).toEqual([]);
+      // it fits before its More menu's script has come too (shared/ui/hbtn.js folds without More for that moment)
+      const win = f.contentWindow, MB = win.SlopMenuButton, had = !!doc.querySelector('.slop-hmore:not([hidden])');
+      win.SlopMenuButton = undefined; doc.querySelectorAll('.slop-hmore').forEach((m) => m.remove());
+      win.SlopHbtn.check(bar);
+      const early = [bar.scrollWidth <= bar.clientWidth + 1, doc.documentElement.scrollWidth <= W + 1];
+      win.SlopMenuButton = MB; win.SlopHbtn.check(bar);
+      expect(early).toEqual([true, true]);
+      if (had) expect(!!doc.querySelector('.slop-hmore:not([hidden])')).toBe(true);
       expect(KEY.test(visible(doc))).toBe(false);
     });
   });

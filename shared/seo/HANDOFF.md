@@ -74,6 +74,8 @@ the Creative Slop Pro page and the `/compare/` matrix. The body comes from `shar
 registry `title`, the feature matrix is the registry `features`, file types come from `accepts`), so
 edit the registry, not the page. The head copy is `LANDING` in `shared/seo/copy.mjs`. `node tools/seo/write.mjs`
 writes the bodies and their head blocks and the sitemap, and `--check` verifies them. Tests: `tests/seo/seo.landing.test.mjs`.
+A clip's `<video>` and a screenshot's `<img>` get the width and height of their picture (`assets/shots/<id>.jpg`, read by
+`tools/seo/jpeg-size.mjs`; the shots come in many sizes), so nothing below moves when the poster loads.
 
 ## The footer navigation (tools/seo/footnav.mjs)
 

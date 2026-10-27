@@ -157,18 +157,6 @@ test('options override the defaults', () => {
   assert.deepEqual(types(g.tick(300)), ['longpress']);
 });
 
-test('restartLong: after a busy page the hold counts again, and a lift in that time is no long press', () => {
-  const g = create();
-  g.down({ id: 1, x: 0, y: 0, t: 0 });
-  g.restartLong(2000); // the page was busy from 0 to 2000
-  assert.deepEqual(g.tick(2100), []);
-  assert.equal(g.deadline(), 2500);
-  assert.deepEqual(g.up({ id: 1, x: 0, y: 0, t: 2150 }), []); // held 2 s by the clock: not a tap either
-  g.down({ id: 2, x: 0, y: 0, t: 3000 });
-  g.restartLong(3200);
-  assert.deepEqual(types(g.tick(3700)), ['longpress']);
-});
-
 test('stroke pressure: a finger or a mouse paints at full pressure whatever it reports, a pen at its own', () => {
   const { pressure } = createRequire(import.meta.url)('../../shared/input/gesture.js');
   assert.equal(pressure({ pointerType: 'touch', pressure: 0 }), 1);   // iOS: a finger reports 0
@@ -178,4 +166,31 @@ test('stroke pressure: a finger or a mouse paints at full pressure whatever it r
   assert.equal(pressure({ pointerType: 'pen', pressure: 0 }), 0.5);   // some pens report 0 on the first contact
   assert.equal(pressure({ pointerType: 'pen', pressure: 1.4 }), 1);
   assert.equal(pressure(null), 1);
+});
+
+test('stamp: when an event happened (its timeStamp on the performance.now clock), else now', () => {
+  const { stamp } = createRequire(import.meta.url)('../../shared/input/gesture.js');
+  assert.equal(stamp({ timeStamp: 900 }, 2900), 900);       // handled 2 s late on a busy page: still 900
+  assert.equal(stamp({ timeStamp: 0 }, 2900), 2900);        // no stamp
+  assert.equal(stamp({ timeStamp: 5000 }, 2900), 2900);     // not on this clock (later than now)
+  assert.equal(stamp({ timeStamp: 1.7e12 }, 2900), 2900);   // an epoch time (old WebKit)
+  assert.equal(stamp({ timeStamp: 10 }, 90000), 90000);     // a minute or more ago: not this event's
+  assert.equal(stamp(null, 42), 42);
+});
+
+test('a touch the page got late: taps timed by when they happened, the long press from when the page got the touch', () => {
+  const g = create();
+  g.down({ id: 1, x: 0, y: 0, t: 1000, at: 1700 });                       // handled 700 ms late
+  assert.equal(g.deadline(), 1700 + DEFAULTS.longMs);
+  assert.deepEqual(g.tick(1710), []);                                       // no long press before its queued lift
+  assert.deepEqual(types(g.up({ id: 1, x: 0, y: 0, t: 1040 })), ['tap']);  // a 40 ms tap, though handled late
+  g.down({ id: 2, x: 0, y: 0, t: 1130, at: 1720 });
+  assert.deepEqual(types(g.up({ id: 2, x: 0, y: 0, t: 1170 })), ['doubletap']);
+});
+
+test('clickAfter: a click tells of the fingers that touched before it, not of one that touched after (a late click)', () => {
+  const { clickAfter } = createRequire(import.meta.url)('../../shared/input/gesture.js');
+  assert.equal(clickAfter({ timeStamp: 1000 }, 900, 1500), true);   // the finger touched before the click: it lifted
+  assert.equal(clickAfter({ timeStamp: 1000 }, 1090, 1500), false); // the next tap's finger, down after the click was made
+  assert.equal(clickAfter({ timeStamp: 0 }, 1090, 1500), true);     // no stamp: the click is now, after every finger
 });
