@@ -59,7 +59,8 @@ export function buildFootNav({ apps, groups = {}, plainNames = false, roundups =
     ...roundups.map((r) => [`/best/${r.slug}/`, r.crumb || r.h1])], 'footer.compare', word));
   const firsts = new Map();
   for (const p of converters) if (!firsts.has(p.cat)) firsts.set(p.cat, [`/convert/${p.slug}/`, p.label]);
-  cols.push(col('Converters', [...firsts.values(), ['/convert/', 'All conversions', 'footer.all_conversions']].map(([h, t, k]) => [route(h), t, k]), 'footer.converters', word));
+  // not indexed: the apps' columns link File convert itself already
+  cols.push(col('Converters', [...firsts.values(), ...(index ? [['/convert/', 'All conversions', 'footer.all_conversions']] : [])].map(([h, t, k]) => [route(h), t, k]), 'footer.converters', word));
   const order = new Map(pages.map((a, i) => [a.id, i]));
   const starts = guides.filter((g) => g.slug === 'getting-started' && order.has(g.app)).sort((x, y) => order.get(x.app) - order.get(y.app)).slice(0, GUIDE_PICKS);
   const path = (g) => pages.find((a) => a.id === g.app).path;

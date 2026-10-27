@@ -37,7 +37,7 @@ test('the site pages include every app in shared/apps.js and the fixed site page
   assert.ok(apps.length > 30, 'registry looks empty');
   const set = new Set(pages);
   assert.deepEqual(apps.filter((p) => !set.has(p)), [], 'apps with no page');
-  assert.deepEqual(FIXED.filter((p) => !set.has(p)), []);
+  assert.deepEqual(FIXED.filter((p) => !set.has(p) && existsSync(path.join(ROOT, p, 'index.html'))), []);   // a site not indexed has no generated pages
   for (const p of ['', 'settings/', 'how-it-works/', ...(FACTS.seoIndex ? ['all-tools/', 'compare/', 'best/'] : [])]) assert.ok(set.has(p), p || '/');
 });
 
