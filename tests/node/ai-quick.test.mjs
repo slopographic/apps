@@ -185,7 +185,10 @@ test('storage that throws or is missing: the page still works, in memory', () =>
   }
 });
 
-test('the prompts tables: only English and Swedish are shipped, so other languages read English until translated', () => {
-  assert.match(read('shared/ai/i18n/index.js'), /langs: \['en', 'sv'\]/);
+test('the prompts tables ship every language with a folder, and each language of the site\'s other tables has one', () => {
+  const langs = /langs: \[([^\]]*)\]/.exec(read('shared/ai/i18n/index.js'))[1].match(/[\w-]+/g);
+  const dirs = readdirSync(new URL('shared/ai/i18n/', ROOT), { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name).sort();
+  assert.deepEqual([...langs].sort(), dirs);
+  for (const c of ['en', 'sv', 'de', 'ja', 'ar', 'zh-CN']) assert.ok(langs.includes(c), c);
   assert.match(read('shared/ai/panel.js'), /'quick\/engine', 'quick\/context', 'quick\/shared', 'quick\/ui'/);
 });
