@@ -1,7 +1,7 @@
 /* SEO copy, Arabic: best-documents-3-a. Translated from shared/seo/i18n/en/best-documents-3-a.js. Rules: shared/seo/i18n/README.md. */
 window.SlopI18n && window.SlopI18n.add('ar', {
   'seo.best.free-eml-viewers.crumb': 'عارضات EML المجانية',
-  'seo.best.free-eml-viewers.title': 'أفضل عارضات EML المجانية: افتح ملفات البريد ‎.eml‎ دون Outlook',
+  'seo.best.free-eml-viewers.title': 'أفضل عارضات EML المجانية: افتح ملفات ‎.eml‎ دون Outlook',
   'seo.best.free-eml-viewers.description': 'مقارنة طرق مجانية لفتح ملف البريد ‎.eml‎: Slop EML وHypermatic وLoops وOutlook الجديد. الرفع، والصور البعيدة، والمرفقات، والطباعة وPDF جنبًا إلى جنب.',
   'seo.best.free-eml-viewers.h1': 'أفضل عارضات EML المجانية',
   'seo.best.free-eml-viewers.lead': 'ملف ‎.eml‎ هو رسالة بريد محفوظة: الترويسات والنص والمرفقات في ملف واحد. ولا تحتاج إلى حساب بريد لقراءته. فيما يلي ثلاثة عارضات مجانية تعمل في المتصفح، وOutlook الذي يفتح ‎.eml‎ أيضًا.',
@@ -93,7 +93,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'seo.best.free-eml-viewers.faq.3.1': '‎.eml‎ هو الصيغة القياسية التي تحفظها معظم تطبيقات البريد. و‎.msg‎ صيغة Outlook الخاصة. ويفتح Slop EML ملفات ‎.eml‎ فقط؛ وتقول Microsoft إن Outlook الجديد يفتح الصيغتين، مع اشتراك Microsoft 365 مؤهل لملفات ‎.msg‎.',
   'seo.best.free-markdown-editors.crumb': 'محررات Markdown المجانية',
   'seo.best.free-markdown-editors.title': 'أفضل محررات Markdown المجانية: على الإنترنت وسطح المكتب والخصوصية',
-  'seo.best.free-markdown-editors.description': 'مقارنة Obsidian وDillinger وSlop Notes وStackEdit وJoplin وTypora: السعر، والمعاينة الحية، ومكان حفظ الملاحظات، والمزامنة، والتصدير، وصيغة Markdown المدعومة لكل منها.',
+  'seo.best.free-markdown-editors.description': 'مقارنة Obsidian وDillinger وSlop Notes وStackEdit وJoplin وTypora: السعر، والمعاينة الحية، ومكان حفظ الملاحظات، والمزامنة، والتصدير، وصيغ Markdown المدعومة.',
   'seo.best.free-markdown-editors.h1': 'أفضل محررات Markdown المجانية',
   'seo.best.free-markdown-editors.lead': 'Markdown نص عادي مع بضع علامات للعناوين والقوائم والروابط. يستطيع أي محرر كتابته، لكن المحرر الجيد يعاينه ويرتب ملاحظاتك ويصدّرها. فيما يلي ستة محررات معروفة، مجانية ومدفوعة، في المتصفح وعلى سطح المكتب.',
   'seo.best.free-markdown-editors.criteria.0': 'مجاني للاستخدام في كل شيء، أو ما يكلّفه',

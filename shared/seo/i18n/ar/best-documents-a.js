@@ -132,7 +132,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'seo.best.free-pdf-editors.faq.3.0': 'هل يمكنني تنقيح ملف PDF مجانًا؟',
   'seo.best.free-pdf-editors.faq.3.1': 'نعم. لدى Slop PDF وPDF24 وiLovePDF وSmallpdf أدوات تنقيح. ويحوّل Slop PDF كل صفحة منقحة إلى صورة مع دمج المربعات السوداء فيها، فيزول النص المخفي من الملف.',
   'seo.best.free-file-converters.crumb': 'أفضل محوّلات الملفات المجانية',
-  'seo.best.free-file-converters.title': 'أفضل محوّلات الملفات المجانية على الإنترنت: CloudConvert وConvertio وFreeConvert',
+  'seo.best.free-file-converters.title': 'أفضل محوّلات الملفات المجانية: CloudConvert وConvertio وFreeConvert',
   'seo.best.free-file-converters.description': 'مقارنة محوّلات الملفات المجانية: الصيغ، والحدود اليومية، وحجم الملف، ومكان تنفيذ التحويل، لـ CloudConvert وConvertio وFreeConvert وFile convert.',
   'seo.best.free-file-converters.h1': 'أفضل محوّلات الملفات المجانية على الإنترنت، مقارنة',
   'seo.best.free-file-converters.lead': 'تتعامل المحوّلات على الإنترنت مع مئات الصيغ، لكنها تنفّذ التحويل على خوادمها وتحدّ الاستخدام المجاني. فيما يلي ما تمنحك إياه كل أداة مجانًا، وفق صفحاتها الخاصة، ومتى يكون المحوّل الذي يعمل في متصفحك هو الخيار الأفضل.',

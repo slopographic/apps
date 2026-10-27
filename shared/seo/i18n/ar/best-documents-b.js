@@ -62,7 +62,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'seo.best.free-file-converters.faq.3.0': 'هل يستطيع تحويل الفيديو؟',
   'seo.best.free-file-converters.faq.3.1': 'نعم: MOV إلى MP4، والفيديو إلى WebM أو GIF، وإطار إلى صورة، والفيديو أو الصوت إلى MP3 أو WAV. يعمل على جهازك، لذا تستغرق الفيديوهات الطويلة وقتًا على الحواسيب الأبطأ.',
   'seo.best.free-ocr-tools.crumb': 'أفضل أدوات OCR المجانية',
-  'seo.best.free-ocr-tools.title': 'أفضل أدوات OCR المجانية: تحويل الصورة إلى نص مع Google Drive وi2OCR وTesseract',
+  'seo.best.free-ocr-tools.title': 'أفضل أدوات OCR المجانية: الصورة إلى نص مع Google Drive وi2OCR وTesseract',
   'seo.best.free-ocr-tools.description': 'مقارنة OCR المجاني: Google Drive وOnlineOCR.net وi2OCR وTesseract وSlop OCR. اللغات، والحدود المجانية، والمخرجات، وهل يُرفع الماسح الضوئي.',
   'seo.best.free-ocr-tools.h1': 'أفضل أدوات OCR المجانية للصور والمسوحات الضوئية، مقارنة',
   'seo.best.free-ocr-tools.lead': 'يحوّل OCR الصورة أو لقطة الشاشة أو PDF الممسوح ضوئيًا إلى نص تستطيع نسخه وتحريره. وتختلف الخيارات المجانية كثيرًا في اللغات والحدود وفي مكان ذهاب الماسح الضوئي. فيما يلي ما تقوله كل أداة عن نفسها.',

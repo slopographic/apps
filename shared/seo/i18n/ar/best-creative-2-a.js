@@ -1,8 +1,8 @@
 /* SEO copy, Arabic: best-creative-2-a. Translated from shared/seo/i18n/en/best-creative-2-a.js. Rules: shared/seo/i18n/README.md. */
 window.SlopI18n && window.SlopI18n.add('ar', {
   'seo.best.free-ai-image-upscalers.crumb': 'أدوات تكبير الصور بالذكاء الاصطناعي المجانية',
-  'seo.best.free-ai-image-upscalers.title': 'أفضل أدوات تكبير الصور المجانية بالذكاء الاصطناعي: سطح المكتب والمتصفح والإنترنت',
-  'seo.best.free-ai-image-upscalers.description': 'مقارنة أدوات تكبير الصور المجانية بالذكاء الاصطناعي: Upscayl وSlop Upscale وUpscale.media وBigjpg. التكبير، والحدود المجانية، والدفعات، والفيديو، ومكان معالجة صورتك.',
+  'seo.best.free-ai-image-upscalers.title': 'أفضل مكبّرات الصور المجانية بالذكاء الاصطناعي: المكتب والمتصفح والإنترنت',
+  'seo.best.free-ai-image-upscalers.description': 'مقارنة مكبّرات الصور المجانية بالذكاء الاصطناعي: Upscayl وSlop Upscale وUpscale.media وBigjpg. التكبير، والحدود المجانية، والدفعات، والفيديو، ومكان المعالجة.',
   'seo.best.free-ai-image-upscalers.h1': 'أفضل أدوات تكبير الصور المجانية بالذكاء الاصطناعي',
   'seo.best.free-ai-image-upscalers.lead': 'يجعل المكبّر بالذكاء الاصطناعي الصورة الصغيرة أكبر ويضيف إليها تفاصيل، بدلًا من مجرد مطّها. فيما يلي أربع أدوات مجانية: تطبيقنا الذي يعمل على جهازك في المتصفح، وتطبيق سطح مكتب، وخدمتان على الإنترنت.',
   'seo.best.free-ai-image-upscalers.criteria.0': 'مجاني للاستخدام دون حد شهري، ودون علامة مائية',

@@ -123,7 +123,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'seo.best.free-desktop-publishing-software.faq.3.1': 'يحتاج Affinity وCanva إلى حساب Canva؛ ويحتاج Affinity إليه للتنزيل والتفعيل. ولا يحتاج Slop Press إلى حساب.',
   'seo.best.free-motion-graphics-software.crumb': 'برامج الرسوم المتحركة المجانية',
   'seo.best.free-motion-graphics-software.title': 'أفضل برامج الرسوم المتحركة المجانية: Cavalry وBlender وأدوات المتصفح',
-  'seo.best.free-motion-graphics-software.description': 'مقارنة برامج الرسوم المتحركة المجانية: Cavalry وBlender وSlop Effects وJitter. الإطارات المفتاحية، ومحرر المنحنيات، وحدود التصدير، والعلامات المائية، والفيديو الشفاف.',
+  'seo.best.free-motion-graphics-software.description': 'مقارنة برامج الرسوم المتحركة المجانية: Cavalry وBlender وSlop Effects وJitter. الإطارات المفتاحية، ومحرر المنحنيات، وحدود التصدير، والعلامات المائية.',
   'seo.best.free-motion-graphics-software.h1': 'أفضل برامج الرسوم المتحركة المجانية',
   'seo.best.free-motion-graphics-software.lead': 'كانت العناوين المتحركة وإظهارات الشعارات والمقاطع الاجتماعية تعني اشتراكًا في After Effects. تحرّك هذه الأدوات الأربع الرسوم مجانًا، من محررات تعمل في علامة تبويب متصفح إلى برامج سطح مكتب احترافية.',
   'seo.best.free-motion-graphics-software.criteria.0': 'التصدير المجاني: الدقة والعلامة المائية',

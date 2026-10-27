@@ -73,7 +73,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'seo.best.free-online-spreadsheets.faq.3.0': 'هل تُرفع جداولي؟',
   'seo.best.free-online-spreadsheets.faq.3.1': 'يحفظ Google Sheets جداولك في Google Drive، ويحفظها Excel للويب في OneDrive. أما Slop Tables فيحفظها في Slop Drive داخل متصفحك، لذا لا يُرفع شيء.',
   'seo.best.free-presentation-software.crumb': 'أفضل برامج العروض التقديمية المجانية',
-  'seo.best.free-presentation-software.title': 'أفضل برامج العروض التقديمية المجانية (2026): Google Slides وPowerPoint وZoho',
+  'seo.best.free-presentation-software.title': 'أفضل برامج العروض المجانية (2026): Google Slides وPowerPoint وZoho',
   'seo.best.free-presentation-software.description': 'مقارنة تطبيقات العروض المجانية: Google Slides وPowerPoint للويب وLibreOffice Impress وZoho Show وSlop Slides. ملفات PPTX، وعرض المقدّم، والعمل دون اتصال.',
   'seo.best.free-presentation-software.h1': 'أفضل برامج العروض التقديمية المجانية، مقارنة',
   'seo.best.free-presentation-software.lead': 'إنشاء الشرائح وعرضها لا يكلّف شيئًا في عدة تطبيقات. وتختلف في الحسابات والتخزين، ومدى جودة فتح ملفات PowerPoint وحفظها، وهل تحصل على عرض للمقدّم مع ملاحظاتك، وهل يمكنك العمل معًا.',

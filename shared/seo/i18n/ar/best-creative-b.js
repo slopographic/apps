@@ -15,7 +15,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'seo.best.free-vector-graphics-editors.faq.3.1': 'نعم. الثلاثة مجانية دون اشتراك، والثلاثة مفتوحة المصدر.',
   'seo.best.free-background-removers.crumb': 'أدوات إزالة الخلفية المجانية',
   'seo.best.free-background-removers.title': 'أفضل أدوات إزالة الخلفية المجانية: بالحجم الكامل والدفعات ودون تسجيل',
-  'seo.best.free-background-removers.description': 'مقارنة أدوات إزالة الخلفية المجانية بالذكاء الاصطناعي: SlopIsolate وPhotoroom وAdobe Express. حجم النتيجة المجانية، وحدود التصدير، والدفعات، والفيديو، والتسجيل، والخصوصية.',
+  'seo.best.free-background-removers.description': 'مقارنة أدوات إزالة الخلفية المجانية بالذكاء الاصطناعي: SlopIsolate وPhotoroom وAdobe Express. حجم النتيجة المجانية، وحدود التصدير، والدفعات، والخصوصية.',
   'seo.best.free-background-removers.h1': 'أفضل أدوات إزالة الخلفية المجانية',
   'seo.best.free-background-removers.lead': 'كل أداة لإزالة الخلفية تبدو مجانية حتى تنزّل النتيجة: بعضها يحد الحجم، وبعضها يحصي عمليات التصدير، وبعضها يحتاج إلى حساب. فيما يلي ما تحصل عليه فعليًا مجانًا من ثلاث أدوات شائعة لقص الصور بالذكاء الاصطناعي.',
   'seo.best.free-background-removers.criteria.0': 'النتيجة المجانية: بالحجم الكامل، دون علامة مائية، ودون حد للتصدير',

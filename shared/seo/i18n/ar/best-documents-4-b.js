@@ -116,7 +116,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'seo.best.free-hex-editors.faq.3.0': 'هل أستطيع إدراج البايتات، لا تغييرها فقط؟',
   'seo.best.free-hex-editors.faq.3.1': 'يقول Hex Fiend إنك تستطيع الإدراج والحذف وإعادة الترتيب. أما Slop Hex فيكتب فوق البايتات في مكانها فقط.',
   'seo.best.free-checksum-tools.crumb': 'أدوات المجاميع الاختبارية المجانية',
-  'seo.best.free-checksum-tools.title': 'أفضل أدوات المجاميع الاختبارية المجانية: تحقق من تجزئة SHA-256 أو MD5 لملف',
+  'seo.best.free-checksum-tools.title': 'أفضل أدوات التحقق من الملفات المجانية: SHA-256 وMD5',
   'seo.best.free-checksum-tools.description': 'أربع طرق مجانية للحصول على تجزئة ملف والتحقق من تنزيل: Checksum في المتصفح، وGet-FileHash في PowerShell، وHashMyFiles، وQuickHash-GUI. الخوارزميات والدفعات.',
   'seo.best.free-checksum-tools.h1': 'أفضل أدوات المجاميع الاختبارية وتجزئات الملفات المجانية',
   'seo.best.free-checksum-tools.lead': 'يخبرك المجموع الاختباري بأن التنزيل هو الملف الذي نُشر، ولم يتغير في الطريق. تحسب هذه الأدوات المجانية التجزئة على حاسوبك. فيما يلي ما تقدمه كل أداة، وفق صفحاتها الخاصة.',

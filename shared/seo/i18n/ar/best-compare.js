@@ -1,7 +1,7 @@
 /* SEO copy, Arabic: best-compare. Translated from shared/seo/i18n/en/best-compare.js. Rules: shared/seo/i18n/README.md. */
 window.SlopI18n && window.SlopI18n.add('ar', {
   'seo.best.free-diff-tools.crumb': 'أدوات مقارنة مجانية',
-  'seo.best.free-diff-tools.title': 'أفضل أدوات المقارنة المجانية: قارن النصوص والملفات وPDF والصور',
+  'seo.best.free-diff-tools.title': 'أفضل أدوات المقارنة المجانية: النصوص والملفات وPDF والصور',
   'seo.best.free-diff-tools.description': 'أربع طرق مجانية لمعرفة ما تغيّر بين ملفين: Slop Compare في المتصفح وDiffchecker وWinMerge وMeld. نصوص ومجلدات وPDF وصور وجداول.',
   'seo.best.free-diff-tools.h1': 'أفضل أدوات المقارنة المجانية لمقارنة الملفات',
   'seo.best.free-diff-tools.lead': 'تُظهر أداة المقارنة ما تغيّر بين نسختين من ملف. هذه الأدوات الأربع مجانية للبدء بها. فيما يلي ما تقارنه كل أداة وأين تعمل، وفق صفحاتها الخاصة.',
