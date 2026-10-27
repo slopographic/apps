@@ -30,7 +30,8 @@ const ids = (list) => list.map((r) => r.model.id);
 
 test('every OCR model is in the model index, valid, and its cdn files are at the release tag', () => {
   assert.deepEqual(R.problems(), []);
-  for (const m of O.MODELS) {
+  // the PaddleOCR models here; the Tesseract ones (one data file each) in tests/node/ocr-engines.test.mjs
+  for (const m of O.MODELS.filter((x) => x.engine === 'paddle')) {
     if (m.id === O.QUICK) assert.deepEqual(R.byId(m.id).files, m.files, 'the bundled model is the same in both lists');
     else assert.equal(R.byId(m.id), m, m.id + ' in the index');
     assert.equal(m.tool, 'ocr');
@@ -62,7 +63,7 @@ test('one table maps each language to its script group', () => {
   assert.deepEqual(O.scriptOf('zh-Hant'), ['cjk']);
   assert.deepEqual(O.scriptOf('ko'), ['korean']);
   assert.deepEqual(O.scriptOf('xx'), []);
-  for (const m of O.MODELS) assert.deepEqual(m.languages, [...new Set(m.scripts.flatMap((s) => O.SCRIPTS[s].languages))], m.id);
+  for (const m of O.MODELS.filter((x) => x.engine === 'paddle')) assert.deepEqual(m.languages, [...new Set(m.scripts.flatMap((s) => O.SCRIPTS[s].languages))], m.id);
   // every script group has its model, and the Latin one reads Romanian and Latvian too
   for (const s of Object.keys(O.SCRIPTS)) assert.ok(O.MODELS.some((m) => m.scripts.includes(s)), s);
   assert.deepEqual(O.scriptOf('ro'), ['latin']);
@@ -71,7 +72,7 @@ test('one table maps each language to its script group', () => {
 });
 
 test('ranking: the script model first for its languages, the quick model last where it reads the language', () => {
-  assert.deepEqual(ids(O.rank('sv')), ['ppocr-v6-small']);
+  assert.deepEqual(ids(O.rank('sv')), ['ppocr-v6-small', 'tesseract-swe']);
   assert.equal(O.rank('sv')[0].badges[0], 'recommended');
   assert.equal(O.modelFor('sv').id, 'ppocr-v6-small');
   assert.equal(O.modelFor('uk').id, 'ppocr-v5-cyrillic');
@@ -81,12 +82,12 @@ test('ranking: the script model first for its languages, the quick model last wh
   const zh = ids(O.rank('zh'));
   assert.equal(zh[0], 'ppocr-v6-small');
   assert.equal(zh[zh.length - 1], 'ppocr-v4');
-  assert.deepEqual(ids(O.rank('en')), ['ppocr-v6-small', 'ppocr-v4']);
+  assert.deepEqual(ids(O.rank('en')), ['ppocr-v6-small', 'tesseract-eng', 'ppocr-v4']);
   assert.ok(!ids(O.rank('ar')).includes('ppocr-v4'), 'the Chinese and English model is not offered for Arabic');
-  // no language yet: every model, the quick one first
+  // no language yet: the quick one first, then every PaddleOCR model of a script (Tesseract's are one per language)
   const auto = ids(O.rank('auto'));
   assert.equal(auto[0], 'ppocr-v4');
-  assert.equal(auto.length, O.MODELS.length);
+  assert.equal(auto.length, O.MODELS.filter((m) => m.engine === 'paddle').length);
 });
 
 test('the language list: names from the site list, search, the browser locale, the family object', () => {

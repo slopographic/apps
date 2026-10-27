@@ -7,7 +7,7 @@ import vm from 'node:vm';
 import { mascotProblems } from './mascot.mjs';
 import { fontProblems, fontManifest } from './font.mjs';
 import { backupExt } from './emit.mjs';
-import { aiProblems } from './ai.mjs';
+import { aiProblems, ocrProblems } from './ai.mjs';
 
 const HEX = /^#[0-9a-f]{3,8}$/i;
 const TOKENS = ['background', 'surface', 'text', 'accent', 'border'];
@@ -26,6 +26,7 @@ export function validate(p) {
   need('naming', (v) => v === 'brand' || v === 'plain', "'brand' or 'plain'");
   need('tone', (v) => v === 'playful' || v === 'plain', "'playful' or 'plain'");
   errs.push(...mascotProblems(p.mascot), ...fontProblems(p.font), ...aiProblems(p.ai));
+  if (!aiProblems(p.ai).length) errs.push(...ocrProblems(p));
 
   if (p.backupExt !== undefined && !/^\.[a-z0-9][a-z0-9-]{1,15}$/.test(p.backupExt)) errs.push("backupExt: the backup file's extension, like '.backup'");
   need('github', (v) => /^[A-Za-z0-9-]+$/.test(v || ''), 'GitHub account of the site');

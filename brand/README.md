@@ -86,6 +86,7 @@ sites live outside this repository, with the publish script; pass their folder w
 | `copy` | Extra phrase replacements for this site (`"source phrase": "replacement"`), on top of the tone's. |
 | `apps.hide`, `media` | Apps left out of every list, menu and sitemap (their guides and task pages too; tests read them from the brand facts, `hideApps`); `false` leaves out screenshots, clips and videos (they show this brand). |
 | `ai` | Which AI models the site offers (default `{}`: all of them). See "AI models" below. |
+| `ocr` | Which text recognition engines the site offers and which one it uses first (default: both, Auto). See "Text recognition (OCR) engines" below. |
 | `seo` | `homeTitle`, `homeDescription`, `titleSuffix` for the generated head blocks and the sitemap (the home copy is in the root language), and `langs`: the languages of the static SEO pages (below, "Languages of the SEO pages"). |
 | `legal` | `{ holder, year, trademarks? }`: the MIT licence's copyright holder, `NOTICE.md` and `TRADEMARKS.md` (`trademarks`: the names the holder claims; default the product name). |
 | `publish` | `{ repo, branch, secret, author, email }`: where the publish script pushes, the token's secret name, and the release commit's author. |
@@ -130,6 +131,29 @@ any maker. `tests/node/ai-makers.test.mjs` checks that every model id in every c
 slip past unlabelled; add its maker to the table when it fails. The build writes the field into the
 `/*profile:aiModels*/` marker of `makers.js` (`tools/whitelabel/ai.mjs` checks it). Text that names a hidden model (the SEO
 pages' examples of Qwen2.5) is changed with `copy`.
+
+### Text recognition (OCR) engines
+
+Slop OCR, Slop PDF (Recognise text), AI Tools (OCR), the Serial counter and Expenses (receipts) read text with one of two
+engines (`shared/ocr/engines.js`): PaddleOCR (maker `baidu`, China) and Tesseract (maker `tesseract`, its open-source
+project). The `ai` field applies to them like to any model: `"hideOrigins": ["CN"]` hides PaddleOCR (and its models in
+the Language and model dialog, the model index and Get more), and every OCR page then reads with Tesseract. The `ocr`
+field restricts them further and picks the one used first:
+
+```json
+"ocr": { "engines": ["tesseract"], "default": "tesseract" }
+```
+
+| Key | Sets |
+| --- | --- |
+| `engines` | the engines offered (`paddle`, `tesseract`); default all that the `ai` field leaves. |
+| `default` | the engine a visitor starts with instead of Auto (they can still choose another one that is offered). |
+
+Auto ranks the models of every offered engine together for the language chosen, most accurate first: PaddleOCR for the
+scripts it has a model for, Tesseract for the languages PaddleOCR lacks (Hebrew, Vietnamese, Bengali, Georgian ...).
+A visitor's saved engine that the site no longer offers reads as `default`, else Auto. The build refuses a profile whose
+`ai` and `ocr` fields leave no engine. It writes the field into the `/*profile:ocrEngines*/` marker of `engines.js`
+(`tools/whitelabel/ai.mjs` checks it).
 
 ### The rename map
 

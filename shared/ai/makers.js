@@ -64,6 +64,8 @@
     M('huggingface', 'Hugging Face', 'US', /smollm|huggingfacetb|zephyr|idefics/i),
     M('recraft', 'Recraft', 'US', /recraft/i, ['recraft']),
     M('writer', 'Writer', 'US', /palmyra|\bwriter\//i),
+    // the open-source OCR engine (HP, then Google, now its community; shared/ocr/engines.js)
+    M('tesseract', 'Tesseract (open source)', 'US', /tesseract/i),
     // a router picks the model for each request (any maker): hidden whenever the site hides by maker or country
     M('router', 'A router (any maker)', '*', /^openrouter\//i),
     // Europe and elsewhere

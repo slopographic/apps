@@ -5,7 +5,7 @@
 import { hasOverlay, artNotice, artTrademarks, slotMarkers } from './mascot.mjs';
 import { fontMarkers } from './font.mjs';
 import { EMPTY } from '../fonts/css.mjs';
-import { aiModels } from './ai.mjs';
+import { aiModels, ocrRules } from './ai.mjs';
 
 /** The value each marker key takes for a profile. A key whose value is undefined keeps the source literal. */
 export function markerValues(p) {
@@ -15,6 +15,7 @@ export function markerValues(p) {
     naming: p.naming, tone: p.tone, mascot: p.mascot === true, mascotOverlay: hasOverlay(p), media: p.media, analytics: p.analytics, defaultLang: p.defaultLang,
     hideApps: (p.apps && p.apps.hide) || [], themes: p.themes || {},
     aiModels: aiModels(p),                       // the AI models the site offers (shared/ai/makers.js, tools/whitelabel/ai.mjs)
+    ocrEngines: ocrRules(p),                     // the text recognition engines it offers (shared/ocr/engines.js)
     seoHomeTitle: seo.homeTitle, seoHomeDescription: seo.homeDescription, seoLangs: seo.langs,   // the static SEO pages' languages (tools/seo/lang.mjs)
     ...fontMarkers(p.fontManifest || EMPTY),     // the type family's token names, the typeface page, the preload
     ...slotMarkers(p),                            // the mascot slot's size and roaming (shared/mascot/slot.js)
