@@ -35,7 +35,7 @@
   if (signing()) add('cloud/signin', () => K.cloud && K.cloud.signin).catch(() => {});   // a phone's bottom sheet: as soon as it is here, not after the kit
   // The kit in two parts, each requested at once (K.load): what the chat needs (the composer works when it is in), then
   // what waits (permission settings, the model menu, pictures), which a send also waits for. A part that fails says so.
-  const CORE = ['permissions', 'app-skills', 'apptools', 'cmdtools', 'toolbox', 'prompt', 'filetools', 'optools', 'handoff', 'md', 'catalog', 'picker', 'panel-run'];
+  const CORE = ['permissions', 'app-skills', 'apptools', 'cmdtools', 'toolbox', 'prompt', 'filetools', 'optools', 'handoff', 'md', 'makers', 'catalog', 'picker', 'panel-run'];
   const LATER = ['permissions-ui', '../ui/menubutton', 'model-menu', 'imagegen/index'];
   K.panelKit = { CORE, LATER };
   const OPEN_KEY = 'slop-ai.open';   // '1' open, '0' closed: what the person did last, on any app (read by shell/header.js)

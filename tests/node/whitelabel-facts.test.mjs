@@ -15,8 +15,8 @@ const SRC = readFileSync(path.join(ROOT, 'tests/brand-facts.js'), 'utf8');
 
 test('here the facts are this site\'s profile: brand names, playful, the buddy, media, analytics, English, no app hidden', () => {
   const p = loadProfile(profilesDir(ROOT), 'slopographic');
-  assert.deepEqual({ ...FACTS, hideApps: [...FACTS.hideApps] }, { naming: p.naming, tone: p.tone, mascot: p.mascot === true ? 'builtin' : 'none',
-    media: p.media, analytics: p.analytics, defaultLang: p.defaultLang, hideApps: p.apps.hide });
+  assert.deepEqual({ ...FACTS, hideApps: [...FACTS.hideApps], aiModels: { ...FACTS.aiModels } }, { naming: p.naming, tone: p.tone, mascot: p.mascot === true ? 'builtin' : 'none',
+    media: p.media, analytics: p.analytics, defaultLang: p.defaultLang, hideApps: p.apps.hide, aiModels: {} });
   assert.deepEqual([FACTS.naming, FACTS.tone, FACTS.mascot, FACTS.defaultLang], ['brand', 'playful', 'builtin', 'en']);
   assert.equal(applyMarkers(SRC, markerValues(p)), SRC, 'this site\'s profile leaves the file as it is');
   assert.deepEqual(BRAND.support, brandJson(BRAND, p).support);

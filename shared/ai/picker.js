@@ -7,7 +7,8 @@
  *   picker.render(box, { appName, onReady(engine), engine: () => new Engine }) → draws the choice into box:
  *        no WebGPU → a plain message and what still works; otherwise the models with size, GPU memory, licence and
  *        a "good at app control" mark (strength 'tools'), Download / Use with progress and Cancel.
- *   picker.FIT: the catalog ids that follow tool instructions well enough to control an app, best first.
+ *   picker.FIT: the catalog ids that follow tool instructions well enough to control an app, best first (the ones the site
+ *        offers are shown, with catalog.DEFAULT: makers.js).
  *   Order: with an own-key provider in use, its section ("Use your own AI account", with the Model choice) comes first
  *        and the local models follow under "Models on this device"; otherwise the local models come first.
  *   picker.loadCloud() → loads "Use your own AI account" (shared/ai/cloud/), shown under the models in render, and
@@ -64,7 +65,7 @@
   }
 
   const CATALOG = ['main', 'open', 'cloud', 'more', 'local', 'images'].map((g) => 'cloud/catalog/' + g);   // the providers, as data
-  const CLOUD = ['cloud/net', ...CATALOG, 'cloud/providers', 'cloud/free', 'cloud/anthropic', 'cloud/openai', 'cloud/compat', 'cloud/gemini', 'cloud/keys', 'cloud/meter', 'cloud/engine', 'cloud/pick', 'cloud/local', 'cloud/local-ui', 'cloud/free-guide', '../sync/pkce', 'cloud/signin', 'cloud/connect'];
+  const CLOUD = ['makers', 'cloud/net', ...CATALOG, 'cloud/providers', 'cloud/free', 'cloud/anthropic', 'cloud/openai', 'cloud/compat', 'cloud/gemini', 'cloud/keys', 'cloud/meter', 'cloud/engine', 'cloud/pick', 'cloud/local', 'cloud/local-ui', 'cloud/free-guide', '../sync/pkce', 'cloud/signin', 'cloud/connect'];
   const loadCloud = () => K.load(['cmdtools', ...CLOUD]);
   async function cloud(box, o) {
     box.append(h('p', { class: 'sap-dim sap-pick-wait' }, T('ui.ai.pick.loading_own')));
@@ -114,13 +115,13 @@
         h('p', { class: 'sap-dim' }, withLink('ui.ai.pick.still', { app: o.appName || T('ui.ai.this_app') }, aiLink)));
       return;
     }
-    await K.load(['catalog', 'webllm']);
+    await K.load(['makers', 'catalog', 'webllm']);
     const p = prefs(), list = K.catalog.list.slice().sort((a, b) => rank(a) - rank(b));
     const st = new Map(await Promise.all(list.map(async (m) => [m.id, await statusOf(m.id)])));
     const have = list.find((m) => (st.get(m.id) || {}).state === 'ready' && (m.id === p.defaultModel || m.id === p.lastModel)) || list.find((m) => (st.get(m.id) || {}).state === 'ready');
     wrap.append(h('p', null, h('b', null, T(active ? 'ui.ai.pick.or_device' : 'ui.ai.pick.start')), ' ' + T('ui.ai.pick.once')));
     const rows = o.rows = h('div', { class: 'sap-pick-list' });
-    for (const m of list.filter((x) => FIT.includes(x.id) || x === have || x.id === p.defaultModel)) rows.append(row(m, st.get(m.id) || {}, m === have, o));
+    for (const m of list.filter((x) => FIT.includes(x.id) || x === have || x.id === p.defaultModel || x.id === K.catalog.DEFAULT)) rows.append(row(m, st.get(m.id) || {}, m === have, o));
     wrap.append(rows, h('p', { class: 'sap-dim' }, withLink('ui.ai.pick.smaller', {}, aiLink)));
   }
   const aiLink = () => h('a', { href: new URL('../../ai/#models', K.base || document.baseURI).href, target: '_blank', rel: 'noopener' }, 'Slop AI');

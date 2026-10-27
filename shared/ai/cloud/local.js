@@ -55,7 +55,7 @@
     if (bad) return out('address', bad);
     const F = C.formats[p.format], cfg = { key, base, provider: p, signal };
     let list;
-    try { list = await F.models(cfg); } catch (e) {
+    try { list = C.offered(p, await F.models(cfg)); } catch (e) {   // only the models the site offers (shared/ai/makers.js)
       if (e.kind === 'abort') throw e;
       if (e.kind === 'cors' || e.kind === 'network') {
         // the permission only matters for a public page (a page on this computer may always reach it), and only after a
@@ -92,7 +92,7 @@
         const res = await fetch(url, { signal: t.signal });
         if (!res.ok) return null;
         const j = await res.json().catch(() => ({}));
-        const models = (Array.isArray(j) ? j : j.data || j.models || []).map((m) => (typeof m === 'string' ? m : m.id || m.name)).filter(Boolean);
+        const models = C.offered(C.byId(e.ids[0]), (Array.isArray(j) ? j : j.data || j.models || []).map((m) => (typeof m === 'string' ? m : m.id || m.name)).filter(Boolean));
         return Object.assign({}, e, { state: 'ok', models });
       } catch (err) {
         if (t.signal.aborted) return null;

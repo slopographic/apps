@@ -22,9 +22,10 @@
     // "Send to Slop AI" from another app: text files become an attachment
     await AI.intake.launch(); // through the intake (ui/intake.js); a picture is refused: the local models read text only
     if (!AI.sys && AI.tab !== 'sys') AI.runCheck({ bench: false });
-    // the default model loads by itself only when it is already downloaded (never a surprise download)
+    // the default model loads by itself only when it is already downloaded (never a surprise download), and only while
+    // the site offers it (a model the site hides, shared/ai/makers.js, is no longer in the catalog)
     const def = AI.prefs.defaultModel;
-    if (def && !E.ready() && AI.autoload !== false) {
+    if (def && E.modelFor(def) && !E.ready() && AI.autoload !== false) {
       const st = await E.status(def).catch(() => null);
       if (st && st.state === 'ready') E.load(def, { skipConsent: true });
     }

@@ -9,7 +9,8 @@
  *               shared/mascot/slot.js) or 'none'
  *   media, analytics   screenshots, clips and videos shown; third parties (analytics, ads, the consent strip)
  *   defaultLang the language a visitor gets when nothing is stored
- *   hideApps    app ids left out of every list */
+ *   hideApps    app ids left out of every list
+ *   aiModels    the AI models the site hides ({} none; shared/ai/makers.js): { hideOrigins, hideMakers, onlyMakers, hideModels, hideProviders } */
 (function (root) {
   'use strict';
   var builtin = /*profile:mascot*/true, overlay = /*profile:mascotOverlay*/false;
@@ -21,5 +22,6 @@
     analytics: /*profile:analytics*/true,
     defaultLang: /*profile:defaultLang*/'en',
     hideApps: Object.freeze(/*profile:hideApps*/[]),
+    aiModels: Object.freeze(/*profile:aiModels*/{}),
   });
 })(typeof window !== 'undefined' ? window : globalThis);

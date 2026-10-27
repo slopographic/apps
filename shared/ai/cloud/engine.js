@@ -47,14 +47,15 @@
     info() { return Object.assign(super.info(), { kind: 'cloud', provider: this.provider.id, who: this.provider.who, short: this.provider.short }); }
     cfg(key, signal) { return { key, model: this.model.id, base: this.base, provider: this.provider, signal }; }
 
-    /** Test connection: the provider's own check (OpenRouter), else its model list. Resolves with the models ([] when it has none). */
+    /** Test connection: the provider's own check (OpenRouter), else its model list. Resolves with the models ([] when it has
+     * none), only those the site offers (providers.js offered, shared/ai/makers.js). */
     async test({ signal } = {}) {
       const key = await this.getKey(), F = C.formats[this.provider.format];
       if (this.provider.needsKey && !key) throw new C.CloudError('key', T('ui.ai.cloud.paste_key'));
       const cfg = this.cfg(key, signal);
       if (this.provider.test) await this.provider.test(cfg);
       if (this.provider.modelsEndpoint === false) return [];   // no model list (Azure deployments): the first request checks the key
-      return F.models(cfg).catch((e) => { if (this.provider.test && e.kind !== 'key') return []; throw e; });
+      return F.models(cfg).then((list) => C.offered(this.provider, list), (e) => { if (this.provider.test && e.kind !== 'key') return []; throw e; });
     }
 
     chat(messages, opts = {}) {

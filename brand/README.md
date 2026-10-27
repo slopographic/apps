@@ -85,6 +85,7 @@ sites live outside this repository, with the publish script; pass their folder w
 | `links`, `footer`, `support`, `analytics` | Footer and support links (empty hides them), the footer line, the export card parts, and third parties: `false` leaves out analytics, ads and the consent strip. |
 | `copy` | Extra phrase replacements for this site (`"source phrase": "replacement"`), on top of the tone's. |
 | `apps.hide`, `media` | Apps left out of every list, menu and sitemap (their guides and task pages too; tests read them from the brand facts, `hideApps`); `false` leaves out screenshots, clips and videos (they show this brand). |
+| `ai` | Which AI models the site offers (default `{}`: all of them). See "AI models" below. |
 | `seo` | `homeTitle`, `homeDescription`, `titleSuffix` for the generated head blocks and the sitemap (the home copy is in the root language), and `langs`: the languages of the static SEO pages (below, "Languages of the SEO pages"). |
 | `legal` | `{ holder, year, trademarks? }`: the MIT licence's copyright holder, `NOTICE.md` and `TRADEMARKS.md` (`trademarks`: the names the holder claims; default the product name). |
 | `publish` | `{ repo, branch, secret, author, email }`: where the publish script pushes, the token's secret name, and the release commit's author. |
@@ -94,6 +95,41 @@ sites live outside this repository, with the publish script; pass their folder w
 
 `tools/whitelabel/profile.mjs` `validate()` is the schema in code; `tests/node/whitelabel-profile.test.mjs` checks every
 profile here.
+
+### AI models
+
+Some sites cannot offer models from certain makers or countries. The `ai` field hides them everywhere a model can be
+picked: the providers of "Use your own AI account" and their suggested models, the lists fetched from a provider
+(OpenRouter, Together, Groq, a server on this computer...), the models on this device (Slop AI and the side panel), the
+picture models and the free-key guide. A provider that is a hidden maker's own API (DeepSeek, Qwen, Kimi, GLM) leaves the
+list, and so does one whose every model is hidden and that fetches no list. A saved choice of a hidden model or provider
+is not used: the next allowed one is (on this device, the default model falls back from Qwen2.5 1.5B to Llama 3.2 3B).
+
+```json
+"ai": {
+  "hideOrigins": ["CN"],
+  "hideMakers": ["deepseek"],
+  "hideModels": ["*-preview"],
+  "hideProviders": ["groq"],
+  "onlyMakers": []
+}
+```
+
+| Key | Hides |
+| --- | --- |
+| `hideOrigins` | every model whose maker is from these countries (ISO 3166 codes, upper case). `["CN"]` hides Qwen (Alibaba), DeepSeek, GLM (Zhipu, Z.ai), Kimi (Moonshot), MiniMax, Baichuan, Yi (01.AI), InternLM, Hunyuan (Tencent), ERNIE (Baidu), Doubao and Seed (ByteDance), Step (StepFun) and the other Chinese makers of the table. |
+| `hideMakers` | the makers by id (`qwen`, `deepseek`, `zhipu`, `moonshot`, `openai`...). |
+| `onlyMakers` | every maker but these; a model of no known maker is hidden too. |
+| `hideModels` | model ids by pattern, `*` for any text (`*-preview`, `gpt-4o*`). |
+| `hideProviders` | whole providers by catalog id (`shared/ai/cloud/catalog/*.js`: `groq`, `qwen`, `openrouter`...). |
+
+The maker table is `shared/ai/makers.js` (`MAKERS`: id, name, country, the pattern of its model ids, its own providers);
+a model can have two makers (a fine-tune names its base: `deepseek-r1-distill-llama` is DeepSeek's and Meta's) and is
+hidden when either is. Hiding by maker or country also hides OpenRouter's routers (`openrouter/auto`), which may pick
+any maker. `tests/node/ai-makers.test.mjs` checks that every model id in every catalog has a maker, so a new model cannot
+slip past unlabelled; add its maker to the table when it fails. The build writes the field into the
+`/*profile:aiModels*/` marker of `makers.js` (`tools/whitelabel/ai.mjs` checks it). Text that names a hidden model (the SEO
+pages' examples of Qwen2.5) is changed with `copy`.
 
 ### The rename map
 

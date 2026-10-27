@@ -31,7 +31,9 @@
     const id = [pref.provider, s.provider, active].find((x) => x && list.some((p) => p.id === x)) || (list[0] && list[0].id);
     if (!id) { G.current = null; return null; }
     const p = G.byId(id), cs = (C().keys.settings().providers || {})[id] || {};
-    const model = pref.model || (s.models || {})[id] || (p.models[0] || {}).id || cs.imageModel || '';
+    // the first choice the site offers (shared/ai/makers.js): a hidden model asked for or saved falls back to the next
+    const ok = (x) => x && (!K.makers || K.makers.allowed(x, id));
+    const model = [pref.model, (s.models || {})[id], (G.models(id)[0] || {}).id, cs.imageModel].find(ok) || '';
     G.current = { provider: id, model };
     return G.current;
   }
