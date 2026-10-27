@@ -1,7 +1,7 @@
 // The about pages and How it works as templates (tools/seo/template.mjs, shared/seo/pages/): every slot is a key of the
 // English tables and every key of their parts is used; the page on disk in the root language is its template drawn in
 // that language (in English, the words it has always had); every other published language has its own copy, with the
-// alternates, in the sitemap, and with none of the English page's sentences.
+// alternates, in the sitemap, and with none of the root language page's sentences.
 // Covers: tools/seo/template.mjs, tools/seo/build-lang.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -56,8 +56,8 @@ test('in English the pages keep their words', { skip: ROOT_LANG !== 'en' }, () =
     '<code>slop-drive</code></td><td>IndexedDB</td><td>Slop Drive files and folders, including the file contents.</td>']) assert.ok(how.includes(s), `how it works: ${s}`);
 });
 
-test('every other published language: its own copy, in the sitemap, with none of the English sentences', () => {
-  const en = table('en');
+test('every other published language: its own copy, in the sitemap, with none of the root page\'s sentences', () => {
+  const root = table(ROOT_LANG), rootText = (k) => root.get(k) ?? table('en').get(k);
   for (const code of codes.filter((c) => c !== ROOT_LANG)) {
     const map = read(sitemapName(code)), tt = table(code);
     for (const [dir, file] of pages) {
@@ -68,10 +68,12 @@ test('every other published language: its own copy, in the sitemap, with none of
       assert.ok(h.includes(`<link rel="canonical" href="${urlOf(code, dir)}">`), `${f}: canonical`);
       assert.ok(h.includes(`<link rel="alternate" hreflang="${ROOT_LANG}" href="${urlOf(ROOT_LANG, dir)}">`), `${f}: the root page as an alternate`);
       assert.ok(map.includes(`<loc>${urlOf(code, dir)}</loc>`), `${sitemapName(code)}: ${dir}`);
-      // a sample: the longer sentences of the page, which a translation always changes
-      const sample = templateKeys(file).filter((k) => en.get(k).length > 40 && tt.get(k) !== en.get(k)).slice(0, 8);
+      // a sample: the longer sentences of the page, which a translation always changes (in the language: English
+      // falls back to its own table's text)
+      const text = (k) => tt.get(k) ?? table('en').get(k);
+      const sample = templateKeys(file).filter((k) => rootText(k).length > 40 && text(k) !== rootText(k)).slice(0, 8);
       assert.ok(sample.length > 0, `${dir}: sentences to check`);
-      for (const k of sample) assert.ok(!body.includes(en.get(k)), `${f}: English text of ${k}`);
+      for (const k of sample) assert.ok(!body.includes(rootText(k)), `${f}: the root language's text of ${k}`);
     }
   }
 });
