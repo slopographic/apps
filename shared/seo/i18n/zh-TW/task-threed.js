@@ -64,7 +64,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'seo.task.convert.3d-model-to-stl.cta': '製作 STL',
   'seo.task.convert.3d-model-to-stl.steps.0': '將模型檔（OBJ、FBX、GLB、glTF、PLY、3MF 或 DAE）拖放到轉換工具上。',
   'seo.task.convert.3d-model-to-stl.steps.1': '選擇「轉為 STL」，再選擇二進位（較小）或 ASCII。',
-  'seo.task.convert.3d-model-to-stl.steps.2': '設定單位，讓切片軟體正確讀取尺寸：glTF 與 GLB 模型的單位是公尺，因此請選擇「公尺轉毫米」（× 1000）。',
+  'seo.task.convert.3d-model-to-stl.steps.2': '設定單位，讓切片軟體正確讀取尺寸：glTF 與 GLB 模型的單位是公尺，因此請選擇「公尺轉公釐（× 1000）」（× 1000）。',
   'seo.task.convert.3d-model-to-stl.steps.3': '若模型躺平，請選擇「Y 向上轉 Z 向上」。然後下載 STL。',
   'seo.task.convert.3d-model-to-stl.faq.0.0': '顏色與貼圖能列印出來嗎？',
   'seo.task.convert.3d-model-to-stl.faq.0.1': '不能。STL 只保存形狀。顏色、材質與貼圖會被略過，狀態列會列出它們。',

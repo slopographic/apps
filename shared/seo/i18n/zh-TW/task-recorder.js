@@ -24,7 +24,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'seo.task.recorder.record-screen-with-audio.lead': '網頁可錄製哪些聲音取決於瀏覽器。Slop Recorder 會顯示您的瀏覽器允許的範圍，同時錄製螢幕聲音與麥克風，並混合成一條音軌。',
   'seo.task.recorder.record-screen-with-audio.cta': '錄製含聲音的螢幕',
   'seo.task.recorder.record-screen-with-audio.steps.0': '開啟 Slop Recorder，並選擇「螢幕」。',
-  'seo.task.recorder.record-screen-with-audio.steps.1': '勾選「螢幕或分頁的聲音」；若也想錄製您的聲音，請勾選「麥克風」。',
+  'seo.task.recorder.record-screen-with-audio.steps.1': '勾選「來自螢幕或分頁的聲音」；若也想錄製您的聲音，請勾選「麥克風」。',
   'seo.task.recorder.record-screen-with-audio.steps.2': '按下「錄製」。在瀏覽器的分享視窗中，選擇一個分頁並勾選「分享分頁音訊」；或選擇整個螢幕，並在提供時勾選「分享系統音訊」。',
   'seo.task.recorder.record-screen-with-audio.steps.3': '完成後按「停止」，裁剪頭尾，然後儲存為 WebM 或 MP4。',
   'seo.task.recorder.record-screen-with-audio.body.0': 'Chrome 與 Edge 在任何情況下都能分享分頁的聲音，在 Windows 與 ChromeOS 上也能分享整個螢幕的聲音。Firefox 與 Safari 無法分享螢幕的聲音，因此在這些瀏覽器中只會錄到麥克風。頁面的「此瀏覽器可錄製的內容」會列出您的瀏覽器能做到的事。',

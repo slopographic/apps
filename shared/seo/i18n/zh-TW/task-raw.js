@@ -10,7 +10,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'seo.task.photoslop.open-raw-files.steps.1': '選擇白平衡（拍攝設定、自動或日光）、曝光（−3 到 +3 EV）與亮部（剪裁、混合或重建）。預覽會隨每次變更更新。',
   'seo.task.photoslop.open-raw-files.steps.2': '選擇「開啟」。全尺寸圖片會以 sRGB 顯影，並依相機記錄的方向擺正，成為「背景圖層」。',
   'seo.task.photoslop.open-raw-files.steps.3': '照常編輯，然後匯出 JPG、PNG 或 WebP，或儲存為含圖層的 PSD。',
-  'seo.task.photoslop.open-raw-files.body.0': 'PhotoSlop 可讀取 Canon 的 CR2、CR3 與 CRW，Nikon 的 NEF，Sony 的 ARW，Adobe 的 DNG，Fujifilm 的 RAF，Olympus 的 ORF，Panasonic 的 RW2，Pentax 的 PEF，Samsung 的 SRW，Leica 的 RWL，以及 Hasselblad 的 3FR。使用「內嵌預覽」會直接開啟相機存在檔案中的 JPEG，完全不需下載。',
+  'seo.task.photoslop.open-raw-files.body.0': 'PhotoSlop 可讀取 Canon 的 CR2、CR3 與 CRW，Nikon 的 NEF，Sony 的 ARW，Adobe 的 DNG，Fujifilm 的 RAF，Olympus 的 ORF，Panasonic 的 RW2，Pentax 的 PEF，Samsung 的 SRW，Leica 的 RWL，以及 Hasselblad 的 3FR。使用「使用內嵌預覽」會直接開啟相機存在檔案中的 JPEG，完全不需下載。',
   'seo.task.photoslop.open-raw-files.faq.0.0': '會下載什麼？何時下載？',
   'seo.task.photoslop.open-raw-files.faq.0.1': 'RAW 引擎 LibRaw，編譯後可在瀏覽器中執行（約 1.4 MB，採 LGPL-2.1 或 CDDL-1.0 授權）。首次顯影 RAW 檔案時，頁面會先詢問。引擎會以 SHA-256 核對，並由瀏覽器保存，因此只需下載一次。',
   'seo.task.photoslop.open-raw-files.faq.1.0': '我的 RAW 檔案會被上傳嗎？',

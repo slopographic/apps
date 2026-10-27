@@ -42,7 +42,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'seo.task.sheetview.xlsx-to-csv.steps.0': '將 .xlsx 檔案拖放到頁面上。',
   'seo.task.sheetview.xlsx-to-csv.steps.1': '使用工作表分頁選擇您要的工作表。',
   'seo.task.sheetview.xlsx-to-csv.steps.2': '若只需要部分列，請先篩選或排序。',
-  'seo.task.sheetview.xlsx-to-csv.steps.3': '選擇「匯出」，然後選擇「所有列：CSV」，或「可見的列：CSV」以匯出篩選後的列。',
+  'seo.task.sheetview.xlsx-to-csv.steps.3': '選擇「匯出」，然後選擇「所有資料列：CSV」，或「可見的資料列：CSV」以匯出篩選後的列。',
   'seo.task.sheetview.xlsx-to-csv.faq.0.0': 'CSV 中會有什麼內容？',
   'seo.task.sheetview.xlsx-to-csv.faq.0.1': '目前工作表的數值，每列一行。公式會以活頁簿中儲存的結果寫入。',
   'seo.task.sheetview.xlsx-to-csv.faq.1.0': '可以一次轉換所有工作表嗎？',

@@ -62,7 +62,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'seo.landing.invoices.description': 'Slop Invoices 以不跳號的編號開立發票並過帳至分類帳，依客戶追蹤收款與逾期餘額，並列印 PDF。不會上傳任何內容。',
   'seo.landing.notes.title': 'Slop Notes：瀏覽器中的筆記本與 Markdown 筆記 | Slopographic',
   'seo.landing.notes.description': 'Slop Notes 以 Markdown 保存筆記本、資料夾、標籤與釘選筆記，附即時預覽，並可搜尋所有筆記。可匯出為 .md 或獨立的 .html。',
-  'seo.landing.paste.title': 'Paste：以連結分享文字、程式碼與圖片 | Slopographic',
+  'seo.landing.paste.title': 'Paste 線上貼上工具：連結分享文字、程式碼與圖片 | Slopographic',
   'seo.landing.paste.description': '貼上文字、程式碼或圖片，並以連結分享。醒目提示支援六種語言，每則貼上內容都可設定到期標籤。不會上傳任何內容。',
   'seo.landing.effects.title': '免費線上動態圖形編輯器，支援關鍵影格 | Slop Effects',
   'seo.landing.effects.description': '瀏覽器中的免費動態圖形編輯器：圖層、關鍵影格、緩動、曲線編輯器、輝光、模糊與故障效果，可匯出 MP4、WebM 與 PNG 序列。',

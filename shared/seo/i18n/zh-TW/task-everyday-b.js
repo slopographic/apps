@@ -1,7 +1,7 @@
 /* SEO copy, Traditional Chinese (Taiwan): task-everyday-b. Translated from shared/seo/i18n/en/task-everyday-b.js. Rules: shared/seo/i18n/README.md. */
 window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'seo.task.calculator.date-calculator.lead': '用說話的方式輸入日期運算：兩個日期之間的天數、某日期加 90 天，或截止日期減兩週。Slopculator 會在您輸入時即時回答，並保留紙帶記錄。',
-  'seo.task.calculator.date-calculator.steps.0': '開啟 Slopculator，並點選「輸入算式」。',
+  'seo.task.calculator.date-calculator.steps.0': '開啟 Slopculator，並點選「輸入計算式」。',
   'seo.task.calculator.date-calculator.steps.1': '要計算兩個日期之間的天數，請輸入較晚的日期減去較早的日期：2026-12-25 - 2026-10-11 會得到 75 天。',
   'seo.task.calculator.date-calculator.steps.2': '要加減時間，請輸入日期加上或減去天、週、月或年：today + 90 days，或 2026-03-01 - 2 weeks。',
   'seo.task.calculator.date-calculator.steps.3': '在結尾加上 weeks 或 years 即可改變單位：2026-12-25 - today in weeks。',
@@ -30,7 +30,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'seo.task.calculator.time-calculator.faq.2.0': '可以加總一週的工時嗎？',
   'seo.task.calculator.time-calculator.faq.2.1': '可以。將每天的時數放在同一個算式中，例如 8h + 7h 30min + 9h 15min；或每輸入一天就按下 Enter，然後以 ans 加上下一天繼續。',
   'seo.task.calculator.time-calculator.faq.3.0': '我的計算紀錄會被保存嗎？',
-  'seo.task.calculator.time-calculator.faq.3.1': '您最近的 200 筆計算會保存在此瀏覽器的「歷史紀錄」中，可在其中搜尋。離開頁面時，紙帶會被清除。',
+  'seo.task.calculator.time-calculator.faq.3.1': '您最近的 200 筆計算會保存在此瀏覽器的「歷程記錄」中，可在其中搜尋。離開頁面時，紙帶會被清除。',
   'seo.task.calculator.percentage-calculator.crumb': '百分比計算機',
   'seo.task.calculator.percentage-calculator.title': '百分比計算機：求百分比、加上或扣除百分比',
   'seo.task.calculator.percentage-calculator.description': '以說話的方式輸入即可算出 150 的 20%、加上 20% 的稅、扣除 15%，或求出加成比例。免費的百分比計算機，附紙帶。',
@@ -53,7 +53,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'seo.task.calculator.unit-converter.cta': '換算單位',
   'seo.task.calculator.unit-converter.steps.0': '從本頁開啟 Slopculator：「換算」面板會被帶到可見的位置。',
   'seo.task.calculator.unit-converter.steps.1': '輸入「數值」，選擇「類別」，然後選擇「從」與「到」的單位。「交換」會將兩者對調。',
-  'seo.task.calculator.unit-converter.steps.2': '或在「輸入算式」中輸入換算式：100 C in F、2 gal to L、70 kg in lb。',
+  'seo.task.calculator.unit-converter.steps.2': '或在「輸入計算式」中輸入換算式：100 C in F、2 gal to L、70 kg in lb。',
   'seo.task.calculator.unit-converter.steps.3': '若算式中的單位衡量的是同一件事，可以混用：5 km + 300 m 得到 5.3 km。',
   'seo.task.calculator.unit-converter.faq.0.0': '有哪些單位？',
   'seo.task.calculator.unit-converter.faq.0.1': '長度（毫米到英里與海里）、質量（毫克到公噸、盎司、磅與英石）、容量（毫升到加侖，含茶匙、大匙與杯）、攝氏、華氏與克耳文的溫度、時間、日曆單位，以及從位元組到 TB 的資料量，並包含 MiB 等二進位單位。',

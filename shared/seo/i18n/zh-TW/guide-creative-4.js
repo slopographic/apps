@@ -68,7 +68,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'seo.guide.qr.getting-started.sections.0.image.alt': 'QR SLOP 中為網路 Slop Office 製作的 Wi-Fi QR Code，並附「內容」表單與即時預覽',
   'seo.guide.qr.getting-started.sections.0.tip': '「範本」提供常見代碼的現成表單。「原始文字」則讓您精確輸入要放入代碼的內容。',
   'seo.guide.qr.getting-started.sections.1.h2': '變更外觀',
-  'seo.guide.qr.getting-started.sections.1.text.0': '在「設計」頁籤中設定「模組顏色」與「背景顏色」，或勾選「使用漸層」。「模組」可在方形與圓角模組之間切換。另外還有「留白區」、「尺寸（px）」與「容錯等級」。',
+  'seo.guide.qr.getting-started.sections.1.text.0': '在「設計」頁籤中設定「模組顏色」與「背景顏色」，或勾選「使用漸層」。「模組」可在方形與圓角模組之間切換。另外還有「安靜區」、「大小（px）」與「容錯等級」。',
   'seo.guide.qr.getting-started.sections.1.text.1': '在「標誌」頁籤中拖入圖片，或選擇內建的標記，並設定標誌寬度。加上標誌時請使用較高的容錯等級，讓代碼仍可掃描。',
   'seo.guide.qr.getting-started.sections.1.image.alt': 'QR SLOP 的「設計」頁籤，模組顏色設為藍色，預覽中為藍色代碼',
   'seo.guide.qr.getting-started.sections.2.h2': '下載與保存',
