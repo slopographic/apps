@@ -74,7 +74,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'seo.best.free-online-spreadsheets.faq.3.1': 'Google Sheets bewahrt sie in Google Drive auf, Excel im Web in OneDrive. Slop Tables speichert sie in Slop Drive im eigenen Browser, es wird also nichts hochgeladen.',
   'seo.best.free-presentation-software.crumb': 'Beste kostenlose Präsentationssoftware',
   'seo.best.free-presentation-software.title': 'Beste kostenlose Präsentationen 2026: Google Slides, PowerPoint, Zoho',
-  'seo.best.free-presentation-software.description': 'Kostenlose Präsentationsprogramme im Vergleich: Google Slides, PowerPoint im Web, LibreOffice Impress, Zoho Show und Slop Slides. PPTX, Referentenansicht, Offline.',
+  'seo.best.free-presentation-software.description': 'Präsentationsprogramme gratis im Vergleich: Google Slides, PowerPoint im Web, LibreOffice Impress, Zoho Show, Slop Slides. PPTX, Referentenansicht, Offline.',
   'seo.best.free-presentation-software.h1': 'Die besten kostenlosen Präsentationsprogramme im Vergleich',
   'seo.best.free-presentation-software.lead': 'Folien erstellen und vorführen kostet in mehreren Programmen nichts. Sie unterscheiden sich in Konten und Speicher, im Umgang mit PowerPoint-Dateien, darin, ob es eine Referentenansicht mit Notizen gibt, und ob man gemeinsam arbeiten kann.',
   'seo.best.free-presentation-software.criteria.0': 'Kostenlos zum Erstellen und Vorführen von Folien',
