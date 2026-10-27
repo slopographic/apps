@@ -76,7 +76,7 @@ window.SlopI18n && window.SlopI18n.add('es', {
   'seo.guide.ai.getting-started.sections.2.text.1': 'La pestaña Crear pide al modelo que escriba una app pequeña en un solo archivo HTML y la ejecuta de forma segura en una vista previa.',
   'seo.guide.ai.getting-started.sections.2.image.alt': 'La pestaña Chat sin ningún modelo cargado, con las opciones Elegir un modelo y ¿Puede mi PC ejecutarlo?',
   'seo.guide.aitools.getting-started.title': 'Primeros pasos con Slop AI Tools: OCR, voz, reducción de ruido y más',
-  'seo.guide.aitools.getting-started.description': 'Cinco herramientas de IA en tu dispositivo: leer texto de imágenes, transcribir audio, reducir ruido en fotos, sugerir etiquetas y desenfocar fondos. Guía corta.',
+  'seo.guide.aitools.getting-started.description': 'Cinco herramientas de IA en tu dispositivo: leer texto de imágenes, transcribir audio, reducir ruido, sugerir etiquetas y desenfocar fondos. Guía corta.',
   'seo.guide.aitools.getting-started.h1': 'Primeros pasos con Slop AI Tools',
   'seo.guide.aitools.getting-started.lead': 'Slop AI Tools reúne cinco pequeñas herramientas de IA que funcionan en tu dispositivo. No se sube nada, y cada modelo solo se descarga cuando lo pides.',
   'seo.guide.aitools.getting-started.sections.0.h2': 'Las cinco herramientas',

@@ -104,7 +104,7 @@ window.SlopI18n && window.SlopI18n.add('es', {
   'seo.cv.ofx-to-csv.faq.2.0': '¿Excel leerá los importes como números?',
   'seo.cv.ofx-to-csv.faq.2.1': 'Elige coma para un Excel en inglés. Para Excel en sueco, alemán u otro idioma con coma decimal, elige punto y coma: los importes se escriben como 1234,50. El archivo empieza con una BOM para que letras como å, ä y ö se vean bien.',
   'seo.cv.qif-to-csv.title': 'QIF a CSV: archivos de Quicken como tabla, gratis | File convert',
-  'seo.cv.qif-to-csv.description': 'Convierte archivos QIF de Quicken, Microsoft Money y exportaciones bancarias a CSV en tu navegador. Se leen las secciones de banco, efectivo y tarjeta. Sin subidas.',
+  'seo.cv.qif-to-csv.description': 'Convierte archivos QIF de Quicken, Microsoft Money y bancos a CSV en tu navegador. Se leen las secciones de banco, efectivo y tarjeta. Sin subidas.',
   'seo.cv.qif-to-csv.h1': 'Conversor de QIF a CSV',
   'seo.cv.qif-to-csv.lead': 'QIF es el antiguo formato de Quicken que muchos bancos y programas de finanzas siguen exportando. Conviértelo en un CSV que puedas abrir en cualquier sitio.',
   'seo.cv.qif-to-csv.how.0': 'Suelta el archivo .qif. Se leen las secciones Bank, Cash, CCard y otras de activo o pasivo; las de categorías e inversiones se omiten.',
