@@ -56,7 +56,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'seo.task.label.zpl-viewer.faq.2.0': 'هل يكتب أيضًا EPL أو TSPL؟',
   'seo.task.label.zpl-viewer.faq.2.1': 'نعم. إلى جانب ZPL، تصدّر نافذة الطباعة EPL2 وTSPL لطابعات TSC.',
   'seo.task.label.zpl-viewer.faq.3.0': 'هل تُرفع شيفرة ملصقي؟',
-  'seo.task.label.zpl-viewer.faq.3.1': 'لا. يُقرأ ZPL ويُرسم في متصفحك.',
+  'seo.task.label.zpl-viewer.faq.3.1': 'لا. يُقرأ ملف ZPL ويُرسم في متصفحك، دون رفع أي شيء.',
   'seo.task.label.sscc-pallet-label.crumb': 'ملصق منصة SSCC',
   'seo.task.label.sscc-pallet-label.title': 'صانع ملصق منصة SSCC: ملصقات لوجستية GS1-128، مجانًا',
   'seo.task.label.sscc-pallet-label.description': 'أنشئ ملصقات منصات GS1-128 برمز SSCC وGTIN والكمية والدفعة وتاريخ الصلاحية. تُضاف أرقام التحقق وتُفحص نيابةً عنك. اطبع أو احفظ PDF أو ZPL. مجانًا تمامًا.',

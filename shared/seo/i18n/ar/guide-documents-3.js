@@ -48,7 +48,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'seo.guide.eml.getting-started.sections.2.h2': 'احفظ المرفقات',
   'seo.guide.eml.getting-started.sections.2.steps.0': 'مرّر إلى أسفل حتى "المرفقات". يعرض كل ملف اسمه ونوعه وحجمه.',
   'seo.guide.eml.getting-started.sections.2.steps.1': 'اختر اسم الملف لمعاينته، أو "حفظ" لتنزيله.',
-  'seo.guide.eml.getting-started.sections.2.steps.2': 'حدّد بعض الملفات واختر "تنزيل المحدد"، أو اختر "تنزيل الكل".',
+  'seo.guide.eml.getting-started.sections.2.steps.2': 'حدّد بعض الملفات واختر "تنزيل" ثم "المحددة"، أو اختر "تنزيل" ثم "الكل".',
   'seo.guide.eml.getting-started.sections.2.text.0': 'تُحفظ الملفات معاً، عند اختيار اثنين أو أكثر، في ملف ZIP واحد يحمل اسم الرسالة.',
   'seo.guide.eml.getting-started.sections.2.image.alt': 'قائمة المرفقات في Slop EML، وفيها دعوة .ics وفاتورة PDF، ولكل منهما زر حفظ، وتنزيل الكل (2)',
   'seo.guide.eml.getting-started.sections.3.h2': 'اطبع الرسالة أو احفظها كملف PDF',

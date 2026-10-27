@@ -44,7 +44,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'seo.guide.hex.getting-started.sections.3.h2': 'احفظ تغييراتك',
   'seo.guide.hex.getting-started.sections.3.text.0': 'لا يُحفظ شيء حتى تطلب ذلك، ولا يُستبدل الأصل أبداً.',
   'seo.guide.hex.getting-started.sections.3.steps.0': 'يكتب "حفظ نسخة" (Ctrl+S) ملفاً جديداً في Slop Drive بجوار الأصل، باسم مثل "name (v2).ext". والملف المفتوح من هذا الحاسوب يُحفظ في مجلد من Slop Drive تختاره.',
-  'seo.guide.hex.getting-started.sections.3.steps.1': 'يحفظ "حفظ كجديد" (في قائمة ملف) في مجلد من Slop Drive تختاره.',
+  'seo.guide.hex.getting-started.sections.3.steps.1': 'يحفظ "حفظ كملف جديد" (في قائمة ملف) في مجلد من Slop Drive تختاره.',
   'seo.guide.hex.getting-started.sections.3.steps.2': 'يحفظ "تنزيل" نسخة على هذا الحاسوب.',
   'seo.guide.hex.getting-started.sections.3.tip': 'انقر بالزر الأيمن على البايتات لتجد: تراجع، وإعادة، ونسخ التحديد كسداسي عشري، والانتقال إلى إزاحة، والبحث.',
   'seo.guide.hex.getting-started.shortcuts.0.1': 'فتح ملف من هذا الحاسوب',

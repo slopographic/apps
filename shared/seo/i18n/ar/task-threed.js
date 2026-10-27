@@ -73,5 +73,5 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'seo.task.convert.3d-model-to-stl.faq.2.0': 'هل تُجعل الشبكة مغلقة بإحكام؟',
   'seo.task.convert.3d-model-to-stl.faq.2.1': 'لا. تُكتب المثلثات كما هي. وقد يحتاج النموذج الذي فيه ثقوب، مثل كثير من نماذج الألعاب، إلى إصلاح في برنامج التقطيع أو أداة شبكات.',
   'seo.task.convert.3d-model-to-stl.faq.3.0': 'هل يُرفع أي شيء؟',
-  'seo.task.convert.3d-model-to-stl.faq.3.1': 'لا. يجري التحويل في متصفحك، على جهازك.',
+  'seo.task.convert.3d-model-to-stl.faq.3.1': 'لا. يجري التحويل في متصفحك، على جهازك، دون رفع النموذج إلى أي مكان.',
 });

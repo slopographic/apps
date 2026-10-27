@@ -222,7 +222,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'seo.guide.ledger.getting-started.lead': 'يُعد Slop Ledger دفتر القيد المزدوج الذي تقوم عليه تطبيقات الأعمال. تُرحَّل إليه الفواتير الصادرة والدفعات والمصروفات تلقائياً، ويمكنك إضافة قيودك الخاصة أيضاً.',
   'seo.guide.ledger.getting-started.sections.0.h2': 'رحّل قيد يومية',
   'seo.guide.ledger.getting-started.sections.0.steps.0': 'في علامة "دفتر اليومية"، اضبط "التاريخ" واكتب "البيان".',
-  'seo.guide.ledger.getting-started.sections.0.steps.1': 'في كل سطر، اختر حساباً واكتب "مدين" أو "دائن". اختر "إضافة سطر" لمزيد.',
+  'seo.guide.ledger.getting-started.sections.0.steps.1': 'في كل سطر، اختر حساباً واكتب "مدين" أو "دائن". اختر "إضافة بند" لمزيد.',
   'seo.guide.ledger.getting-started.sections.0.steps.2': 'تحقق من أن المجاميع أسفل السطور تقول "متوازن"، ثم اختر "ترحيل القيد".',
   'seo.guide.ledger.getting-started.sections.0.text.0': 'تُعرض القيود المرحّلة أدناه، الأحدث أولاً. والقيود التي أنشأتها تطبيقات أخرى تحمل علامة "من وحدة". ولا يمكن تغيير قيد مرحّل: "عكس…" يرحّل قيداً معاكساً بدلاً من ذلك.',
   'seo.guide.ledger.getting-started.sections.0.image.alt': 'قيد يومية جديد في Slop Ledger: 5,000 مدينة في البنك ودائنة في حقوق الملكية، ومتوازن',
