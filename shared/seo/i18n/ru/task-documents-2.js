@@ -36,7 +36,7 @@ window.SlopI18n && window.SlopI18n.add('ru', {
   'seo.task.convert.pdf-to-excel.faq.3.1': 'Нет. Конвертация выполняется в вашем браузере, а книга сохраняется на ваше устройство.',
   'seo.task.convert.pdf-to-powerpoint.crumb': 'PDF в PowerPoint',
   'seo.task.convert.pdf-to-powerpoint.title': 'Конвертер PDF в PowerPoint: слайд на страницу бесплатно',
-  'seo.task.convert.pdf-to-powerpoint.description': 'Превратите PDF в презентацию PowerPoint (PPTX) в браузере: слайд на страницу, каждая страница чёткой картинкой. Показывайте или добавляйте заметки. Без загрузки.',
+  'seo.task.convert.pdf-to-powerpoint.description': 'Превратите PDF в презентацию PowerPoint (PPTX) в браузере: один слайд на страницу, каждая страница чёткой картинкой. Заметки можно добавить. Без загрузки.',
   'seo.task.convert.pdf-to-powerpoint.h1': 'Конвертация PDF в PowerPoint (PPTX)',
   'seo.task.convert.pdf-to-powerpoint.lead': 'Покажите PDF как набор слайдов. Каждая страница становится одним слайдом, нарисованным картинкой с разрешением 144 dpi, готовым к показу или доработке в вашем приложении для презентаций.',
   'seo.task.convert.pdf-to-powerpoint.cta': 'Конвертировать PDF в PowerPoint',

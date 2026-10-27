@@ -8,7 +8,7 @@ window.SlopI18n && window.SlopI18n.add('ru', {
   'seo.task.checksum.sha256-checksum.faq.2.1': 'Нет. Браузеры не предлагают MD5 в Web Crypto, и для проверки файлов он небезопасен. Запросите у издателя хеш SHA-256.',
   'seo.task.checksum.verify-checksum.crumb': 'Проверка загрузки',
   'seo.task.checksum.verify-checksum.title': 'Проверка контрольной суммы файла: сверка загрузки с хешем',
-  'seo.task.checksum.verify-checksum.description': 'Проверьте, что загрузка — тот файл, что выпустил издатель: вставьте хеш SHA-256, SHA-512 или SHA-1 со страницы. Увидите «Совпадает» или «Не совпадает». Без загрузки.',
+  'seo.task.checksum.verify-checksum.description': 'Проверьте, что загрузка — тот файл, что выпустил издатель: вставьте хеш SHA-256, SHA-512 или SHA-1 со страницы и увидите результат. Без загрузки.',
   'seo.task.checksum.verify-checksum.h1': 'Проверка загрузки по контрольной сумме',
   'seo.task.checksum.verify-checksum.lead': 'Сайты программ публикуют хеш рядом с загрузкой. Сравните его с полученным файлом, чтобы убедиться, что он пришёл полностью и без изменений.',
   'seo.task.checksum.verify-checksum.cta': 'Проверить файл',
