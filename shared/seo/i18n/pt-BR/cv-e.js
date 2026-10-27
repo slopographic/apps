@@ -97,7 +97,7 @@ window.SlopI18n && window.SlopI18n.add('pt-BR', {
   'seo.cv.csv-to-yaml.faq.2.0': 'Os meus arquivos são enviados?',
   'seo.cv.csv-to-yaml.faq.2.1': 'Não. Os dois passos rodam no seu navegador, neste dispositivo. Os seus arquivos não são enviados à Slopographic nem a nenhum outro servidor.',
   'seo.cv.ics-to-xlsx.title': 'Conversor de ICS para Excel: eventos de calendário, grátis | File convert',
-  'seo.cv.ics-to-xlsx.description': 'Converta um calendário .ics em planilha Excel (XLSX) no navegador: cada evento vira uma linha, numa pasta de trabalho com as colunas de título, datas e local. Sem envio.',
+  'seo.cv.ics-to-xlsx.description': 'Converta um calendário .ics em planilha Excel (XLSX) no navegador: cada evento vira uma linha, com colunas de título, datas e local. Sem envio.',
   'seo.cv.ics-to-xlsx.h1': 'Conversor de calendário (ICS) para Excel',
   'seo.cv.ics-to-xlsx.lead': 'Obtenha os eventos de uma exportação de calendário como uma planilha que você pode ordenar, filtrar e compartilhar.',
   'seo.cv.ics-to-xlsx.how.0': 'O arquivo .ics é lido pelo mesmo leitor de calendário do Slop Calendar, e cada evento vira uma linha: título, início, fim, dia inteiro, local e observações.',
