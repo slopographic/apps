@@ -103,7 +103,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'seo.best.free-invoice-generators.faq.3.0': 'Ist kostenlose Rechnungssoftware sicher für meine Daten?',
   'seo.best.free-invoice-generators.faq.3.1': 'Die Online-Dienste bewahren Ihre Rechnungen auf ihren Servern auf und beschreiben ihre Sicherheit auf den eigenen Seiten. Slop Invoices lädt nichts hoch; erstellen Sie also ab und zu eine Sicherung, denn wenn Sie die Website-Daten des Browsers löschen, sind die Rechnungen weg.',
   'seo.best.free-accounting-software.crumb': 'Beste kostenlose Buchhaltungssoftware',
-  'seo.best.free-accounting-software.title': 'Beste kostenlose Buchhaltungssoftware 2026: GnuCash, Manager, Wave, Zoho Books',
+  'seo.best.free-accounting-software.title': 'Beste kostenlose Buchhaltung 2026: GnuCash, Manager, Wave, Zoho Books',
   'seo.best.free-accounting-software.description': 'Kostenlose Buchhaltungssoftware im Vergleich: GnuCash, Manager, Wave, Zoho Books und Slop Ledger. Bankimport, Rechnungen, Grenzen und wo Ihre Bücher liegen.',
   'seo.best.free-accounting-software.h1': 'Die besten kostenlosen Buchhaltungsprogramme für Kleinbetriebe',
   'seo.best.free-accounting-software.lead': 'Sie können ordentlich Bücher führen, ohne zu zahlen: mit Desktop-Software, die sie auf Ihrem Computer speichert, oder mit einem Online-Dienst mit kostenlosem Tarif. Hier steht, was jede Option tut, laut den eigenen Seiten.',
