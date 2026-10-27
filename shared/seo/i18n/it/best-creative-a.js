@@ -113,7 +113,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'seo.best.free-online-photo-editors.faq.3.0': 'Posso modificare le foto RAW gratis?',
   'seo.best.free-online-photo-editors.faq.3.1': 'Photopea apre file RAW come DNG, CR2, NEF e ARW. GIMP lavora con i RAW tramite darktable, RawTherapee o ART. PhotoSlop apre CR2, CR3, NEF, ARW, DNG, RAF e altri file RAW con una finestra Sviluppo per bilanciamento del bianco ed esposizione.',
   'seo.best.free-vector-graphics-editors.crumb': 'Editor vettoriali gratuiti',
-  'seo.best.free-vector-graphics-editors.title': 'Migliori editor di grafica vettoriale gratuiti: Inkscape, SlopVector, Graphite',
+  'seo.best.free-vector-graphics-editors.title': 'Migliori editor vettoriali gratuiti: Inkscape, SlopVector, Graphite',
   'seo.best.free-vector-graphics-editors.description': 'Editor vettoriali gratuiti a confronto: Inkscape, SlopVector e Graphite. Penna, booleani, SVG, PDF e file .ai, browser o desktop, e la maturità di ciascuno.',
   'seo.best.free-vector-graphics-editors.h1': 'I migliori editor di grafica vettoriale gratuiti',
   'seo.best.free-vector-graphics-editors.lead': 'Per loghi, icone e illustrazioni serve un editor vettoriale, e tre buoni sono gratuiti senza abbonamento: la nostra app nel browser in stile Illustrator, un’app desktop matura e un nuovo editor open source.',

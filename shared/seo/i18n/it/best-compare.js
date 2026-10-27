@@ -1,7 +1,7 @@
 /* SEO copy, Italian: best-compare. Translated from shared/seo/i18n/en/best-compare.js. Rules: shared/seo/i18n/README.md. */
 window.SlopI18n && window.SlopI18n.add('it', {
   'seo.best.free-diff-tools.crumb': 'Strumenti gratuiti di confronto',
-  'seo.best.free-diff-tools.title': 'I migliori strumenti gratuiti di confronto: testi, file, PDF e immagini',
+  'seo.best.free-diff-tools.title': 'Migliori strumenti gratuiti per confrontare file e testi',
   'seo.best.free-diff-tools.description': 'Quattro modi gratuiti per vedere cosa è cambiato tra due file: Slop Compare nel browser, Diffchecker, WinMerge e Meld. Testi, cartelle, PDF, immagini e tabelle.',
   'seo.best.free-diff-tools.h1': 'Gli strumenti di confronto gratuiti migliori per i file',
   'seo.best.free-diff-tools.lead': 'Uno strumento di confronto mostra cosa è cambiato tra due versioni di un file. Questi quattro sono gratuiti per iniziare. Ecco cosa confronta ciascuno e dove funziona, secondo le sue pagine.',

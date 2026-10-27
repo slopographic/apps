@@ -1,7 +1,7 @@
 /* SEO copy, Italian: best-creative-2-a. Translated from shared/seo/i18n/en/best-creative-2-a.js. Rules: shared/seo/i18n/README.md. */
 window.SlopI18n && window.SlopI18n.add('it', {
   'seo.best.free-ai-image-upscalers.crumb': 'Ingranditori di immagini AI gratuiti',
-  'seo.best.free-ai-image-upscalers.title': 'Migliori ingranditori di immagini AI gratuiti a confronto: desktop, browser e online',
+  'seo.best.free-ai-image-upscalers.title': 'Migliori ingranditori di immagini AI gratuiti: desktop, browser e online',
   'seo.best.free-ai-image-upscalers.description': 'Ingranditori di immagini AI gratuiti a confronto: Upscayl, Slop Upscale, Upscale.media e Bigjpg. Scala, limiti gratuiti, lotti, video e dove va la tua immagine.',
   'seo.best.free-ai-image-upscalers.h1': 'I migliori ingranditori di immagini AI gratuiti',
   'seo.best.free-ai-image-upscalers.lead': 'Un ingrandimento con AI rende più grande un’immagine piccola e aggiunge dettagli, invece di limitarsi a stirarla. Ecco quattro strumenti gratuiti: la nostra app nel browser che gira sul tuo dispositivo, un’app desktop e due servizi online.',
@@ -102,7 +102,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'seo.best.free-ai-image-upscalers.faq.3.0': 'Questi strumenti possono ingrandire i video?',
   'seo.best.free-ai-image-upscalers.faq.3.1': 'Upscale.media accetta video fino a 1 minuto. Slop Upscale fa clip fino a 15 secondi senza audio. Bigjpg rimanda a un sito separato per i video.',
   'seo.best.free-batch-watermark-tools.crumb': 'Strumenti gratuiti per filigranare in blocco',
-  'seo.best.free-batch-watermark-tools.title': 'Migliori strumenti gratuiti per applicare filigrane alle foto in blocco, a confronto',
+  'seo.best.free-batch-watermark-tools.title': 'Migliori strumenti gratuiti per filigrane in blocco, a confronto',
   'seo.best.free-batch-watermark-tools.description': 'Applica filigrane a molte foto in una volta, gratis: Slop Watermark, Watermarkly, Visual Watermark e iLoveIMG a confronto su limiti, marchi propri e privacy.',
   'seo.best.free-batch-watermark-tools.h1': 'I migliori strumenti gratuiti per applicare filigrane alle foto in blocco',
   'seo.best.free-batch-watermark-tools.lead': 'Fotografi, negozi e agenzie hanno bisogno dello stesso logo o della stessa riga © su un intero set di immagini. Questi quattro strumenti fanno tutti lotti; differiscono per ciò che la versione gratuita lascia sulle foto e per dove finiscono i file.',
@@ -194,6 +194,6 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'seo.best.free-batch-watermark-tools.faq.3.0': 'Posso applicare una filigrana a un video o a un PDF?',
   'seo.best.free-batch-watermark-tools.faq.3.1': 'Sì, con Slop Watermark: trascina video e PDF insieme alle foto, e la stessa filigrana va su ogni fotogramma e ogni pagina, sul tuo dispositivo. Watermarkly e Visual Watermark fanno PDF e video in alcune delle loro app.',
   'seo.best.free-qr-code-generators.crumb': 'Generatori gratuiti di codici QR',
-  'seo.best.free-qr-code-generators.title': 'Migliori generatori gratuiti di codici QR: loghi, SVG e codici che non scadono',
+  'seo.best.free-qr-code-generators.title': 'Migliori generatori gratuiti di codici QR: loghi, SVG e codici statici',
   'seo.best.free-qr-code-generators.description': 'Generatori gratuiti di codici QR a confronto: QR Code Monkey, QR SLOP, goQR.me e QR Code Generator. Loghi, SVG, registrazione, scadenza e cosa costa di più.',
 });

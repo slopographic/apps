@@ -1,7 +1,7 @@
 /* SEO copy, Italian: best-business-3. Translated from shared/seo/i18n/en/best-business-3.js. Rules: shared/seo/i18n/README.md. */
 window.SlopI18n && window.SlopI18n.add('it', {
   'seo.best.free-email-signature-generators.crumb': 'Migliori generatori gratuiti di firme email',
-  'seo.best.free-email-signature-generators.title': 'Migliori generatori gratuiti di firme email (2026): HubSpot, WiseStamp, altri',
+  'seo.best.free-email-signature-generators.title': 'Migliori generatori gratuiti di firme email (2026): HubSpot, WiseStamp',
   'seo.best.free-email-signature-generators.description': 'Generatori di firme email a confronto: modelli, loghi, icone social e registrazione di HubSpot, WiseStamp, MySignature e Slop Signature, per Gmail.',
   'seo.best.free-email-signature-generators.h1': 'I migliori generatori gratuiti di firme email',
   'seo.best.free-email-signature-generators.lead': 'Un generatore di firme email trasforma un breve modulo in HTML che incolli in Gmail, Outlook o Apple Mail. Alcuni sono gratuiti senza registrazione; altri sono una prova di un servizio a pagamento per i team. Ecco cosa offre ciascuno, dalle sue pagine.',
@@ -85,7 +85,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'seo.best.free-email-signature-generators.faq.3.0': 'La firma funzionerà in Outlook e Gmail?',
   'seo.best.free-email-signature-generators.faq.3.1': 'Tutti e quattro gli strumenti qui creano firme per Gmail, Outlook e Apple Mail. Slop Signature mostra nella pagina i passaggi per ciascuno.',
   'seo.best.free-to-do-list-apps.crumb': 'Migliori app gratuite per le liste di cose da fare',
-  'seo.best.free-to-do-list-apps.title': 'Migliori app gratuite per le liste di cose da fare (2026): Microsoft To Do, Todoist, TickTick',
+  'seo.best.free-to-do-list-apps.title': 'App gratuite per le cose da fare (2026): Microsoft To Do, Todoist, TickTick',
   'seo.best.free-to-do-list-apps.description': 'App gratuite per le cose da fare a confronto: liste, promemoria, ripetizioni e condivisione in Microsoft To Do, Todoist, TickTick e Slop To-do.',
   'seo.best.free-to-do-list-apps.h1': 'Le migliori app gratuite per le liste di cose da fare',
   'seo.best.free-to-do-list-apps.lead': 'Le grandi app per le cose da fare sono tutte gratuite per iniziare, con limiti su liste, promemoria o viste che si sbloccano quando paghi. Ecco cosa fa la versione gratuita di ciascuna, dalle sue pagine, e a chi si adatta.',
@@ -184,7 +184,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'seo.best.free-to-do-list-apps.faq.3.0': 'Quale app gratuita per le cose da fare si sincronizza tra telefono e computer?',
   'seo.best.free-to-do-list-apps.faq.3.1': 'Microsoft To Do e TickTick dicono di sincronizzarsi tra i dispositivi. Slop To-do non si sincronizza: ogni browser tiene la propria lista.',
   'seo.best.free-time-zone-converters.crumb': 'Migliori convertitori gratuiti di fusi orari',
-  'seo.best.free-time-zone-converters.title': 'Migliore convertitore di fusi orari e orologio mondiale gratuito (2026), a confronto',
+  'seo.best.free-time-zone-converters.title': 'Migliore convertitore di fusi orari gratuito (2026), a confronto',
   'seo.best.free-time-zone-converters.description': 'Convertitori di fusi orari gratuiti a confronto: World Time Buddy, Every Time Zone, Time.is e Slop Time. Pianificazione di riunioni, ora esatta, app e privacy.',
   'seo.best.free-time-zone-converters.h1': 'I migliori convertitori gratuiti di fusi orari e orologi mondiali',
   'seo.best.free-time-zone-converters.lead': 'Convertire un orario tra città è facile; trovare uno slot di riunione adatto a tutti, o sapere l’ora esatta, è dove gli strumenti si differenziano. Ecco cosa fa gratis ciascuno, dalle sue pagine.',

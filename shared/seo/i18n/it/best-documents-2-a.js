@@ -1,7 +1,7 @@
 /* SEO copy, Italian: best-documents-2-a. Translated from shared/seo/i18n/en/best-documents-2-a.js. Rules: shared/seo/i18n/README.md. */
 window.SlopI18n && window.SlopI18n.add('it', {
   'seo.best.free-word-processors.crumb': 'Migliori elaboratori di testi gratuiti',
-  'seo.best.free-word-processors.title': 'Migliori elaboratori di testi gratuiti (2026): Google Docs, Word, LibreOffice, Zoho',
+  'seo.best.free-word-processors.title': 'Migliori elaboratori di testi gratuiti (2026): Google Docs, Word, Zoho',
   'seo.best.free-word-processors.description': 'Elaboratori di testi gratuiti a confronto: Google Docs, Word per il web, LibreOffice Writer, Zoho Writer e Slop Docs. Account, file Word, offline, archivio.',
   'seo.best.free-word-processors.h1': 'I migliori elaboratori di testi gratuiti, a confronto',
   'seo.best.free-word-processors.lead': 'Puoi scrivere e formattare documenti gratis con diversi buoni strumenti. Differiscono per la necessità di un account, per dove vengono conservati i documenti, per la gestione dei file Word e per la possibilità di lavorare insieme o offline.',
@@ -132,7 +132,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'seo.best.free-word-processors.faq.3.0': 'Dove vengono conservati i miei documenti?',
   'seo.best.free-word-processors.faq.3.1': 'Google Docs li conserva in Google Drive e Word per il web in OneDrive. Slop Docs li conserva in Slop Drive, uno spazio di archiviazione nel tuo browser, quindi non vengono caricati.',
   'seo.best.free-online-spreadsheets.crumb': 'Migliori fogli di calcolo online gratuiti',
-  'seo.best.free-online-spreadsheets.title': 'Migliori software gratuiti per fogli di calcolo (2026): Google Fogli, Excel, LibreOffice',
+  'seo.best.free-online-spreadsheets.title': 'Migliori fogli di calcolo gratuiti (2026): Google Fogli, Excel, Calc',
   'seo.best.free-online-spreadsheets.description': 'Fogli di calcolo gratuiti a confronto: Google Fogli, Excel per il web, LibreOffice Calc, Zoho Sheet e Slop Tables. File Excel, pivot, grafici, offline.',
   'seo.best.free-online-spreadsheets.h1': 'Le migliori app gratuite per fogli di calcolo, a confronto',
   'seo.best.free-online-spreadsheets.lead': 'Formule, grafici e tabelle pivot sono gratuiti in diverse app per fogli di calcolo. Le differenze stanno negli account e nell’archiviazione, nel modo di trattare i file Excel, nella quantità di analisi offerta e nella possibilità di lavorare insieme o offline.',

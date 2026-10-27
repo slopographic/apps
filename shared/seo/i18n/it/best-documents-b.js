@@ -62,7 +62,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'seo.best.free-file-converters.faq.3.0': 'Può convertire i video?',
   'seo.best.free-file-converters.faq.3.1': 'Sì: da MOV a MP4, da video a WebM o GIF, un fotogramma in immagine, e video o audio in MP3 o WAV. Funziona sul tuo dispositivo, quindi i video lunghi richiedono tempo sui computer più lenti.',
   'seo.best.free-ocr-tools.crumb': 'Migliori strumenti OCR gratuiti',
-  'seo.best.free-ocr-tools.title': 'Migliori strumenti OCR gratuiti: da immagine a testo con Google Drive, i2OCR, Tesseract',
+  'seo.best.free-ocr-tools.title': 'Migliori strumenti OCR gratuiti: da immagine a testo, a confronto',
   'seo.best.free-ocr-tools.description': 'OCR gratuiti a confronto: Google Drive, OnlineOCR.net, i2OCR, Tesseract e Slop OCR. Lingue, limiti gratuiti, formati di uscita e se la scansione viene caricata.',
   'seo.best.free-ocr-tools.h1': 'I migliori strumenti OCR gratuiti per immagini e scansioni, a confronto',
   'seo.best.free-ocr-tools.lead': 'L’OCR trasforma una foto, uno screenshot o un PDF scansionato in testo che puoi copiare e modificare. Le opzioni gratuite differiscono molto per lingue, limiti e per dove finisce la scansione. Ecco cosa dice ciascuna di sé.',

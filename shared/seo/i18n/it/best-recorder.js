@@ -1,7 +1,7 @@
 /* SEO copy, Italian: best-recorder. Translated from shared/seo/i18n/en/best-recorder.js. Rules: shared/seo/i18n/README.md. */
 window.SlopI18n && window.SlopI18n.add('it', {
   'seo.best.free-screen-recorders.crumb': 'Registratori dello schermo gratuiti',
-  'seo.best.free-screen-recorders.title': 'I migliori registratori dello schermo gratuiti: browser, desktop e cloud a confronto',
+  'seo.best.free-screen-recorders.title': 'I migliori registratori dello schermo gratuiti: browser, desktop e cloud',
   'seo.best.free-screen-recorders.description': 'Slop Recorder nel browser, OBS Studio, ShareX e il piano gratuito di Loom a confronto: webcam, audio, ritaglio, formati, installazione e caricamenti.',
   'seo.best.free-screen-recorders.h1': 'I migliori registratori dello schermo gratuiti',
   'seo.best.free-screen-recorders.lead': 'Un registratore dello schermo per una breve dimostrazione, una segnalazione di bug o una lezione. Questi strumenti gratuiti registrano lo schermo; si differenziano per ciò che richiedono di installare, dove finisce il video e quanto sanno fare.',

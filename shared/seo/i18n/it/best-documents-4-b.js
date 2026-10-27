@@ -116,7 +116,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'seo.best.free-hex-editors.faq.3.0': 'Posso inserire byte, non solo modificarli?',
   'seo.best.free-hex-editors.faq.3.1': 'Hex Fiend dice che puoi inserire, eliminare e riordinare. Slop Hex sovrascrive solo i byte sul posto.',
   'seo.best.free-checksum-tools.crumb': 'Strumenti gratuiti per il checksum',
-  'seo.best.free-checksum-tools.title': 'Migliori strumenti gratuiti per il checksum: verifica l’hash SHA-256 o MD5 di un file',
+  'seo.best.free-checksum-tools.title': 'Migliori strumenti gratuiti per il checksum: SHA-256 e MD5',
   'seo.best.free-checksum-tools.description': 'Quattro modi gratuiti per calcolare l’hash di un file e verificare un download: Checksum nel browser, PowerShell Get-FileHash, HashMyFiles, QuickHash-GUI.',
   'seo.best.free-checksum-tools.h1': 'I migliori strumenti gratuiti per checksum e hash dei file',
   'seo.best.free-checksum-tools.lead': 'Un checksum ti dice che un download è il file che è stato pubblicato e che non è stato modificato lungo la strada. Questi strumenti gratuiti calcolano l’hash sul tuo computer. Ecco cosa offre ciascuno, dalle sue pagine.',

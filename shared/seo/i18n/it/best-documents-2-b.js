@@ -73,7 +73,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'seo.best.free-online-spreadsheets.faq.3.0': 'I miei fogli di calcolo vengono caricati?',
   'seo.best.free-online-spreadsheets.faq.3.1': 'Google Fogli li conserva in Google Drive ed Excel per il web in OneDrive. Slop Tables li conserva in Slop Drive dentro il tuo browser, quindi non si carica nulla.',
   'seo.best.free-presentation-software.crumb': 'Migliori software gratuiti per presentazioni',
-  'seo.best.free-presentation-software.title': 'Migliori software gratuiti per presentazioni (2026): Google Presentazioni, PowerPoint, Zoho',
+  'seo.best.free-presentation-software.title': 'Migliori presentazioni gratuite (2026): Google Presentazioni, PowerPoint',
   'seo.best.free-presentation-software.description': 'App gratuite per presentazioni a confronto: Google Presentazioni, PowerPoint per il web, LibreOffice Impress, Zoho Show e Slop Slides. PPTX, relatore, offline.',
   'seo.best.free-presentation-software.h1': 'I migliori software gratuiti per presentazioni, a confronto',
   'seo.best.free-presentation-software.lead': 'Creare e presentare diapositive non costa nulla in diverse app. Differiscono per account e archiviazione, per come aprono e salvano i file PowerPoint, per la visualizzazione del relatore con le note e per la possibilità di lavorare insieme.',

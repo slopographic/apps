@@ -1,7 +1,7 @@
 /* SEO copy, Italian: best-creative-3. Translated from shared/seo/i18n/en/best-creative-3.js. Rules: shared/seo/i18n/README.md. */
 window.SlopI18n && window.SlopI18n.add('it', {
   'seo.best.free-transcription-software.crumb': 'Software gratuito di trascrizione',
-  'seo.best.free-transcription-software.title': 'Miglior software gratuito di trascrizione: da audio a testo, a confronto',
+  'seo.best.free-transcription-software.title': 'Miglior software gratuito di trascrizione: da audio a testo',
   'seo.best.free-transcription-software.description': 'Strumenti gratuiti da audio a testo a confronto: Buzz, Slop Transcribe, TurboScribe e Otter. Minuti gratuiti, lingue, relatori, esportazioni e privacy.',
   'seo.best.free-transcription-software.h1': 'Il miglior software gratuito di trascrizione',
   'seo.best.free-transcription-software.lead': 'Trasformare un’intervista, una lezione o un promemoria vocale in testo può essere gratuito. Due di questi strumenti, il nostro e Buzz, fanno girare Whisper sul tuo computer; due sono servizi online con piani gratuiti. Ecco fin dove arriva ciascuna versione gratuita.',
@@ -115,7 +115,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'seo.best.free-transcription-software.faq.3.0': 'Posso fare i sottotitoli gratis?',
   'seo.best.free-transcription-software.faq.3.1': 'Buzz e Slop Transcribe esportano SRT e VTT gratis. TurboScribe esporta SRT e VTT, e Otter ha l’SRT nei piani a pagamento.',
   'seo.best.free-label-design-software.crumb': 'Software gratuito per la progettazione di etichette',
-  'seo.best.free-label-design-software.title': 'Miglior software gratuito per creare etichette: codici a barre, stampa unione, Zebra e Avery',
+  'seo.best.free-label-design-software.title': 'Miglior software gratuito per etichette: codici a barre, stampa unione',
   'seo.best.free-label-design-software.description': 'Software gratuiti per etichette a confronto: SlopLabel, Avery Design & Print, ZebraDesigner Essentials e gLabels. Codici a barre, unione dati e stampanti.',
   'seo.best.free-label-design-software.h1': 'Il miglior software gratuito per creare etichette',
   'seo.best.free-label-design-software.lead': 'Le etichette indirizzo su fogli, i cartellini prezzo con codici a barre e le etichette di spedizione su una stampante termica richiedono ciascuna uno strumento diverso, o uno che faccia tutte e tre. Ecco quattro progettatori gratuiti di etichette e cosa sanno stampare.',

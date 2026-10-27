@@ -1,7 +1,7 @@
 /* SEO copy, Italian: best-documents-a. Translated from shared/seo/i18n/en/best-documents-a.js. Rules: shared/seo/i18n/README.md. */
 window.SlopI18n && window.SlopI18n.add('it', {
   'seo.best.free-pdf-editors.crumb': 'Migliori editor PDF gratuiti',
-  'seo.best.free-pdf-editors.title': 'Migliori editor PDF gratuiti (2026): Acrobat, Smallpdf, iLovePDF, PDF24, Sejda',
+  'seo.best.free-pdf-editors.title': 'Migliori editor PDF gratuiti (2026): Acrobat, Smallpdf, iLovePDF, Sejda',
   'seo.best.free-pdf-editors.description': 'Editor PDF gratuiti a confronto: cosa fanno gratis Adobe Acrobat online, Smallpdf, iLovePDF, PDF24, Sejda e Slop PDF, i loro limiti e dove finisce il tuo file.',
   'seo.best.free-pdf-editors.h1': 'I migliori editor PDF gratuiti, a confronto',
   'seo.best.free-pdf-editors.lead': 'La maggior parte degli editor PDF gratuiti sono siti che elaborano il tuo file sui loro server e limitano ciò che puoi fare gratis. Ecco cosa offre ciascuno senza pagare, dalle sue pagine, e quale si adatta a quale lavoro.',
@@ -132,7 +132,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'seo.best.free-pdf-editors.faq.3.0': 'Posso oscurare un PDF gratis?',
   'seo.best.free-pdf-editors.faq.3.1': 'Sì. Slop PDF, PDF24, iLovePDF e Smallpdf hanno strumenti di oscuramento. Slop PDF trasforma ogni pagina oscurata in un’immagine con i riquadri neri incisi, così il testo nascosto scompare dal file.',
   'seo.best.free-file-converters.crumb': 'Migliori convertitori di file gratuiti',
-  'seo.best.free-file-converters.title': 'Migliori convertitori di file online gratuiti: CloudConvert, Convertio, FreeConvert',
+  'seo.best.free-file-converters.title': 'Migliori convertitori di file online gratuiti: CloudConvert, Convertio',
   'seo.best.free-file-converters.description': 'Convertitori gratuiti: formati, limiti giornalieri, dimensione dei file e dove avviene la conversione. CloudConvert, Convertio, FreeConvert e File convert.',
   'seo.best.free-file-converters.h1': 'I migliori convertitori di file online gratuiti, a confronto',
   'seo.best.free-file-converters.lead': 'I convertitori online gestiscono centinaia di formati, ma eseguono la conversione sui loro server e limitano l’uso gratuito. Ecco cosa offre gratis ciascuno, dalle sue pagine, e quando un convertitore che gira nel browser è la scelta migliore.',

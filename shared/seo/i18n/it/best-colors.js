@@ -1,7 +1,7 @@
 /* SEO copy, Italian: best-colors. Translated from shared/seo/i18n/en/best-colors.js. Rules: shared/seo/i18n/README.md. */
 window.SlopI18n && window.SlopI18n.add('it', {
   'seo.best.free-color-palette-tools.crumb': 'Strumenti gratuiti per palette colori',
-  'seo.best.free-color-palette-tools.title': 'I migliori strumenti gratuiti per palette colori: contagocce, generatori e contrasto',
+  'seo.best.free-color-palette-tools.title': 'Migliori strumenti gratuiti per palette: contagocce, generatori, contrasto',
   'seo.best.free-color-palette-tools.description': 'Slop Colors, Coolors, Adobe Color e il controllo WebAIM a confronto: colori dalle immagini, armonie, contrasto WCAG ed esportazione.',
   'seo.best.free-color-palette-tools.h1': 'Gli strumenti gratuiti migliori per palette colori e contrasto',
   'seo.best.free-color-palette-tools.lead': 'Uno strumento per le palette deve trovare i colori in un’immagine, creare armonie da un solo colore, verificare che il testo resti leggibile e passare la palette ai tuoi strumenti di design o di codice. Ecco cosa offre ciascuno, secondo le sue pagine.',

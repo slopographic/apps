@@ -1,7 +1,7 @@
 /* SEO copy, Italian: best-business. Translated from shared/seo/i18n/en/best-business.js. Rules: shared/seo/i18n/README.md. */
 window.SlopI18n && window.SlopI18n.add('it', {
   'seo.best.free-invoice-generators.crumb': 'Miglior software di fatturazione gratuito',
-  'seo.best.free-invoice-generators.title': 'Miglior software di fatturazione gratuito (2026): Zoho Invoice, Wave, Invoice Ninja',
+  'seo.best.free-invoice-generators.title': 'Miglior software di fatturazione gratuito (2026): Zoho Invoice, Wave',
   'seo.best.free-invoice-generators.description': 'Fatturazione gratuita a confronto: cosa offrono gratis Zoho Invoice, Wave, Invoice Ninja e Slop Invoices, i loro limiti, i pagamenti e dove sono le fatture.',
   'seo.best.free-invoice-generators.h1': 'Il miglior software di fatturazione gratuito, a confronto',
   'seo.best.free-invoice-generators.lead': 'Gli strumenti di fatturazione gratuiti differiscono nel significato di “gratuito”: un tetto su fatture o clienti, il marchio sulle tue fatture, o funzioni a pagamento per i solleciti e le fatture ricorrenti. Ecco cosa offre gratis ciascuno, dalle sue pagine.',
@@ -103,7 +103,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'seo.best.free-invoice-generators.faq.3.0': 'Un software di fatturazione gratuito è sicuro per i miei dati?',
   'seo.best.free-invoice-generators.faq.3.1': 'I servizi online conservano le tue fatture sui loro server e descrivono la sicurezza nelle proprie pagine. Slop Invoices non carica nulla, quindi scarica ogni tanto un backup: cancellare i dati del sito nel browser lo elimina.',
   'seo.best.free-accounting-software.crumb': 'Miglior software di contabilità gratuito',
-  'seo.best.free-accounting-software.title': 'Miglior software di contabilità gratuito (2026): GnuCash, Manager, Wave, Zoho Books',
+  'seo.best.free-accounting-software.title': 'Miglior software di contabilità gratuito (2026): GnuCash, Manager, Wave',
   'seo.best.free-accounting-software.description': 'Software di contabilità gratuiti a confronto: GnuCash, Manager, Wave, Zoho Books e Slop Ledger. Importazione bancaria, fatturazione, limiti e dove sono i libri.',
   'seo.best.free-accounting-software.h1': 'Il miglior software di contabilità gratuito per le piccole imprese',
   'seo.best.free-accounting-software.lead': 'Puoi tenere una contabilità in regola senza pagare, sia con un software desktop che conserva i libri sul computer, sia con un servizio online che ha un piano gratuito. Ecco cosa fa ciascuna opzione, dalle sue pagine.',
@@ -206,7 +206,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'seo.best.free-accounting-software.faq.3.0': 'Mi serve la partita doppia?',
   'seo.best.free-accounting-software.faq.3.1': 'È il modo in cui i commercialisti tengono i libri: ogni importo viene registrato due volte, così gli errori emergono. GnuCash e Slop Ledger dichiarano apertamente di usare la partita doppia; verifica qualsiasi strumento con il tuo commercialista.',
   'seo.best.free-expense-trackers.crumb': 'Migliori monitor gratuiti delle spese',
-  'seo.best.free-expense-trackers.title': 'Migliori monitor gratuiti delle spese aziendali (2026): Zoho Expense, Wave, altri',
+  'seo.best.free-expense-trackers.title': 'Migliori monitor gratuiti delle spese (2026): Zoho Expense, Wave, altri',
   'seo.best.free-expense-trackers.description': 'Monitor gratuiti delle spese a confronto: scansione delle ricevute, chilometraggio e limiti in Zoho Expense, Zoho Books, Wave e Slop Expenses, e dove finiscono.',
   'seo.best.free-expense-trackers.h1': 'I migliori monitor gratuiti delle spese per le piccole imprese',
   'seo.best.free-expense-trackers.lead': 'Un buon monitor delle spese legge le ricevute, registra il chilometraggio e porta i totali nei tuoi libri. I piani gratuiti differiscono per limiti di scansione, utenti e per ciò che aspetta dietro un upgrade. Ecco cosa offre ciascuno, dalle sue pagine.',

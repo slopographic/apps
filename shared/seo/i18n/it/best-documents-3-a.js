@@ -1,7 +1,7 @@
 /* SEO copy, Italian: best-documents-3-a. Translated from shared/seo/i18n/en/best-documents-3-a.js. Rules: shared/seo/i18n/README.md. */
 window.SlopI18n && window.SlopI18n.add('it', {
   'seo.best.free-eml-viewers.crumb': 'Visualizzatori EML gratuiti',
-  'seo.best.free-eml-viewers.title': 'Migliori visualizzatori EML gratuiti: apri i file email .eml senza Outlook',
+  'seo.best.free-eml-viewers.title': 'Visualizzatori EML gratuiti: apri i file .eml senza Outlook',
   'seo.best.free-eml-viewers.description': 'Modi gratuiti per aprire un file email .eml a confronto: Slop EML, Hypermatic, Loops e il nuovo Outlook. Caricamenti, immagini esterne, allegati, stampa e PDF.',
   'seo.best.free-eml-viewers.h1': 'I migliori visualizzatori EML gratuiti',
   'seo.best.free-eml-viewers.lead': 'Un file .eml è una email salvata: intestazioni, corpo e allegati in un unico file. Per leggerne uno non serve un account di posta. Ecco tre visualizzatori gratuiti che girano nel browser, e Outlook, che apre anche i .eml.',
