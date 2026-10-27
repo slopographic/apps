@@ -121,7 +121,7 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'seo.landing.drive.title': 'Slop Drive：ブラウザーの非公開ファイル保管 | Slopographic',
   'seo.landing.drive.description': 'Slop Driveは、サーバーではなく、ご自身のブラウザーにファイルを保管します。フォルダー、スター、タグ、検索、プレビュー、重複の検索、1ファイルのバックアップに対応しています。アカウントは不要です。',
   'seo.landing.code.title': 'Slop Code：Slop Driveのファイル向けのコードエディター | Slopographic',
-  'seo.landing.code.description': 'Slop Codeは、Slop Driveのファイル（JavaScript、TypeScript、HTML、CSS、JSON、Markdown、Python）を編集します。検索と置換、サンドボックスのプレビューに対応しています。',
+  'seo.landing.code.description': 'Slop Driveのファイル（JavaScript、TypeScript、HTML、CSS、JSON、Markdown、Python）を編集。検索と置換、サンドボックスのプレビューに対応しています。',
   'seo.landing.gallery.title': 'アルバムと重複検索付きのオフライン写真ギャラリー | Slop Gallery',
   'seo.landing.gallery.description': 'この端末に残る写真ライブラリです。撮影日順のタイムライン、アルバム、お気に入り、完全一致の重複検索、1ファイルのバックアップに対応しています。無料で、アカウントは不要です。',
   'seo.landing.3d.title': '無料のオンライン3Dエディターとビューアー：OBJ、STL、GLB、FBX | Slop 3D',
