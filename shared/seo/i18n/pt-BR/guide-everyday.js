@@ -40,7 +40,7 @@ window.SlopI18n && window.SlopI18n.add('pt-BR', {
   'seo.guide.time.getting-started.shortcuts.2.1': 'Iniciar ou parar o cronômetro',
   'seo.guide.time.getting-started.shortcuts.3.1': 'Pesquisar comandos (Cmd+K no Mac)',
   'seo.guide.calculator.getting-started.title': 'Primeiros passos com o Slopculator: somas, unidades, datas e fita de papel',
-  'seo.guide.calculator.getting-started.description': 'Digite um cálculo em palavras simples: porcentagens, imposto, unidades, moeda, datas e horas. Cada resposta vai para uma fita de papel e um histórico pesquisável.',
+  'seo.guide.calculator.getting-started.description': 'Digite um cálculo em palavras simples: porcentagens, imposto, unidades, moeda, datas e horas. Cada resposta vai para uma fita de papel e um histórico.',
   'seo.guide.calculator.getting-started.h1': 'Primeiros passos com o Slopculator',
   'seo.guide.calculator.getting-started.lead': 'O Slopculator é uma calculadora em que você digita. Ele entende porcentagens, unidades, moedas, datas e horas, e guarda uma fita de papel do que você calculou.',
   'seo.guide.calculator.getting-started.sections.0.h2': 'Digite um cálculo',

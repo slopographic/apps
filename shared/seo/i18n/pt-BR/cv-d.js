@@ -108,7 +108,7 @@ window.SlopI18n && window.SlopI18n.add('pt-BR', {
   'seo.cv.markdown-to-pdf.faq.2.0': 'Os meus arquivos são enviados?',
   'seo.cv.markdown-to-pdf.faq.2.1': 'Não. A conversão roda no seu navegador, neste dispositivo. Os seus arquivos não são enviados à Slopographic nem a nenhum outro servidor.',
   'seo.cv.txt-to-pdf.title': 'Conversor de TXT para PDF, em qualquer idioma | File convert',
-  'seo.cv.txt-to-pdf.description': 'Converta arquivos de texto simples em PDF no navegador, uma linha de texto por linha, em páginas A4 ou Carta. Qualquer idioma e escrita funcionam. Nada é enviado.',
+  'seo.cv.txt-to-pdf.description': 'Converta arquivos de texto simples em PDF no navegador, uma linha de texto por linha, em páginas A4 ou Carta. Qualquer idioma funciona. Nada é enviado.',
   'seo.cv.txt-to-pdf.h1': 'Conversor de texto (TXT) para PDF',
   'seo.cv.txt-to-pdf.lead': 'Transforme um arquivo .txt, um log ou uma carta num PDF para imprimir ou enviar. O texto continua sendo texto de verdade, que pode ser pesquisado.',
   'seo.cv.txt-to-pdf.how.0': 'Cada linha do texto vira uma linha na página; linhas longas quebram. A fonte padrão é monoespaçada, para as colunas se alinharem; escolha sem serifa ou com serifa para textos corridos.',

@@ -180,7 +180,7 @@ window.SlopI18n && window.SlopI18n.add('pt-BR', {
   'seo.cv.gif-to-png.faq.0.1': 'Não. Só o primeiro quadro é convertido. Para animação, use uma ferramenta de vídeo ou de animação.',
   'seo.cv.gif-to-png.faq.1.0': 'A transparência se mantém?',
   'seo.cv.gif-to-png.faq.1.1': 'Sim, pixels transparentes do primeiro quadro continuam transparentes.',
-  'seo.cv.svg-to-png.title': 'Conversor de SVG para PNG, com tamanho escolhido, no navegador | File convert',
+  'seo.cv.svg-to-png.title': 'Conversor de SVG para PNG, com tamanho escolhido | File convert',
   'seo.cv.svg-to-png.description': 'Converta imagens vetoriais SVG em PNG com a largura ou altura que quiser, no navegador. O desenho é renderizado no tamanho escolhido. Nada é enviado.',
   'seo.cv.svg-to-png.h1': 'Conversor de SVG para PNG',
   'seo.cv.svg-to-png.lead': 'Rasterize um SVG em PNG no tamanho que você precisa. O navegador desenha o vetor nesse tamanho, então as bordas continuam nítidas.',
