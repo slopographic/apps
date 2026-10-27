@@ -3,6 +3,14 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { loadInto, plain } from './fx-env.mjs';
+import { FACTS } from '../brand-facts.mjs';
+
+// The build's themes (tests/brand-facts.js): a brand profile can hide some, name Light and Dark after the brand ("<brand>
+// Light") and start a visitor on another theme than System. Here: all four, their plain names, System.
+const branded = (id) => !!FACTS.themeBrand && (id === 'light' || id === 'dark');
+const THEMES = [...FACTS.themes];   // an array of this realm (the facts come from a vm context)
+const names = (table) => THEMES.map((id) => (branded(id) ? `${FACTS.themeBrand} ${table[id]}` : table[id]));
+const CLASSIC = THEMES.includes('classic');
 
 const TOKENS = ['background', 'surface', 'text', 'accent', 'border'];
 const HEX = /^#[0-9a-f]{6}$/i;
@@ -31,8 +39,8 @@ const profileMode = (s) => {
 test('every theme has an id, a name, a colour scheme and all five tokens as hex colours', async () => {
   const { T } = await theme();
   const list = plain(T.THEMES);
-  assert.deepEqual(list.map((t) => t.id), ['light', 'dark', 'classic', 'lime']);
-  assert.deepEqual(list.map((t) => t.key), ['shell.theme_light', 'shell.theme_dark', 'shell.theme_classic', 'shell.theme_lime']);
+  assert.deepEqual(list.map((t) => t.id), THEMES);
+  assert.deepEqual(list.map((t) => t.key), THEMES.map((id) => (branded(id) ? 'shell.theme_brand_' : 'shell.theme_') + id));
   for (const t of list) {
     assert.ok(['light', 'dark'].includes(t.scheme), `${t.id} scheme`);
     assert.deepEqual(Object.keys(t.tokens).sort(), [...TOKENS].sort(), `${t.id} tokens`);
@@ -43,9 +51,9 @@ test('every theme has an id, a name, a colour scheme and all five tokens as hex 
 test('theme names come from the chrome tables and follow a language change (shell.theme_<id>)', async () => {
   const { T, I } = await themeI18n();
   I.set('en');
-  assert.deepEqual(Array.from(T.THEMES, (t) => t.name), ['Light', 'Dark', 'Classic 98', 'Slopographic Lime']);
+  assert.deepEqual(Array.from(T.THEMES, (t) => t.name), names({ light: 'Light', dark: 'Dark', classic: 'Classic 98', lime: 'Slopographic Lime' }));
   I.set('sv');
-  assert.deepEqual(Array.from(T.THEMES, (t) => t.name), ['Ljust', 'Mörkt', 'Klassiskt 98', 'Slopographic Lime']);
+  assert.deepEqual(Array.from(T.THEMES, (t) => t.name), names({ light: 'Ljust', dark: 'Mörkt', classic: 'Klassiskt 98', lime: 'Slopographic Lime' }));
 });
 
 test('System resolves to a real theme, from prefers-color-scheme', async () => {
@@ -54,7 +62,7 @@ test('System resolves to a real theme, from prefers-color-scheme', async () => {
   assert.equal((await theme({ prefersLight: false })).T.resolve('system'), 'dark');
   assert.ok(ids.includes((await theme()).T.resolve('system')));
   assert.equal((await theme()).T.SYSTEM, 'system');
-  assert.equal((await theme()).T.DEFAULT, 'system');
+  assert.equal((await theme()).T.DEFAULT, FACTS.defaultTheme);
 });
 
 test('an unknown choice resolves to Dark, never to nothing', async () => {
@@ -64,6 +72,13 @@ test('an unknown choice resolves to Dark, never to nothing', async () => {
 
 test('set stores the choice in the profile and mirrors it into each app key', async () => {
   const { T, storage } = await theme();
+  if (!CLASSIC) {   // a build without Classic 98: Light, which every app has
+    assert.deepEqual(plain(T.set('light')), { ok: true, id: 'light' });
+    assert.equal(T.get(), 'light');
+    assert.deepEqual([storage.m.get('slop-drive.theme'), storage.m.get('slopvector.theme'), storage.m.get('slop-tables.theme')], ['"light"', 'light', '"light"']);
+    assert.equal(plain(T.set('classic')).ok, false, 'a hidden theme is refused');
+    return;
+  }
   assert.deepEqual(plain(T.set('classic')), { ok: true, id: 'classic' });
   assert.equal(profileMode(storage), 'classic');
   assert.equal(T.get(), 'classic');
@@ -86,8 +101,9 @@ test('set Dark keeps the apps on the dark value; System writes the marker apps i
 });
 
 test('a person with only the old app keys keeps that choice', async () => {
-  const { T } = await theme({ seed: { 'slop-drive.theme': '"classic"' } });
-  assert.equal(T.get(), 'classic');
+  const old = CLASSIC ? 'classic' : 'light';
+  const { T } = await theme({ seed: { 'slop-drive.theme': JSON.stringify(old) } });
+  assert.equal(T.get(), old);
 });
 
 test('a choice outside the list is refused and nothing is written', async () => {
@@ -98,7 +114,7 @@ test('a choice outside the list is refused and nothing is written', async () => 
   assert.equal(storage.m.has('slop-drive.theme'), false);
 });
 
-test('corrupt legacy values are ignored and fall back to System', async () => {
+test('corrupt legacy values are ignored and fall back to the default (System here)', async () => {
   const { T } = await theme({ seed: { 'slop-drive.theme': '{not json', 'slop-ai.prefs': '[1,2]' } });
-  assert.equal(T.get(), 'system');
+  assert.equal(T.get(), FACTS.defaultTheme);
 });

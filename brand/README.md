@@ -67,7 +67,7 @@ reaches it at the next release.
 
 A site is one profile, `<id>.json`, next to its rename map, `<id>.map.json`. This repository holds only
 `brand/profiles/slopographic.json` (this site; no map, so a build of it is a plain copy with today's values) and two
-made-up samples that CI builds (`sample`: "Acme Tools", English; `sample-sv`: Swedish by default). The profiles of real
+made-up samples that CI builds (`sample`: "Acme Tools", English; `sample-sv`: Swedish by default, two themes named after the brand, light by default). The profiles of real
 sites live outside this repository, with the publish script; pass their folder with `--profiles=<dir>`.
 
 | Field | What it sets |

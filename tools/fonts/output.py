@@ -3,7 +3,9 @@ size-adjusted local fallbacks, OFL.txt, FONTLOG.txt and the zip. Used by build.p
 Tests: tests/node/brand-font.test.mjs (the files and faces.json), tests/fonts/brand-font.test.html (they load).
 """
 import io
+import re
 import zipfile
+from pathlib import Path
 
 from fontTools import subset
 from fontTools.ttLib import TTFont
@@ -30,6 +32,10 @@ LOCAL = {
              'cousine/ttf/Cousine'),
 }
 SAMPLE = 'The quick brown fox jumps over the lazy dog. Hamburgefonstiv 0123456789 åäö ÅÄÖ'
+# What a fallback stands in for where a swap shows most: the homepage hero, its title at 700 and its paragraph at 400 (both
+# tones, every language table). A fallback scaled on that text keeps the hero's line breaks when the web font arrives
+# (tests/node/cls.test.mjs); an average over SAMPLE missed the bold title by 2 to 3 per cent, a line at phone width.
+HERO = {400: ('plain.hero.sub', 'hero.sub'), 700: ('plain.hero.title', 'hero.lead', 'hero.accent')}
 
 
 def codepoints(ranges):
@@ -81,22 +87,35 @@ def full_ttf(data, features, pua):
     return _subset(data, codepoints(r['latin'] + ', ' + r['latin-ext']), features, None)
 
 
-def _avg_width(font, location=None):
+def hero_text(repo, weight):
+    """The hero's text at a weight, from every language table (shared/i18n/*.js), with SAMPLE."""
+    keys = '|'.join(re.escape(k) for k in HERO[weight])
+    pat = re.compile(r"'(?:" + keys + r")':\s*'((?:[^'\\]|\\.)*)'")
+    out = [SAMPLE]
+    for f in sorted(Path(repo, 'shared', 'i18n').glob('*.js')):
+        out += [m.group(1).replace("\\'", "'") for m in pat.finditer(f.read_text(encoding='utf-8'))]
+    return ' '.join(out)
+
+
+def _width(font, text, location=None, only=None):
+    """The advance of the text in em (characters in `only` alone, when given: the ones both fonts have)."""
     gs = font.getGlyphSet(location=location) if location else font.getGlyphSet()
     cmap = font.getBestCmap()
-    ws = [gs[cmap[ord(c)]].width for c in SAMPLE if ord(c) in cmap]
-    return sum(ws) / len(ws) / font['head'].unitsPerEm
+    return sum(gs[cmap[ord(c)]].width for c in text if ord(c) in cmap and (only is None or c in only)) / font['head'].unitsPerEm
 
 
 def fallbacks(font, family, category, repo):
     """Two @font-face descriptions (regular and bold) of a local font scaled to take the room of `family`: size-adjust
-    is the web font's average advance over the local one's, the overrides are the web font's line metrics over it."""
+    is the web font's advance over the local one's on the hero's text at that weight (HERO), the overrides are the web
+    font's line metrics over it."""
     local_regular, local_bold, twin = LOCAL.get(category, LOCAL['sans'])
     hhea, upm = font['hhea'], font['head'].unitsPerEm
     out = []
     for weight, names, twin_style, rng in ((400, local_regular, 'Regular', '100 549'), (700, local_bold, 'Bold', '550 1000')):
         loc = {'wght': weight} if 'fvar' in font and any(a.axisTag == 'wght' for a in font['fvar'].axes) else None
-        ratio = _avg_width(font, loc) / _avg_width(TTFont(f'{repo}/shared/fonts/{twin}-{twin_style}.ttf'))
+        local, text = TTFont(f'{repo}/shared/fonts/{twin}-{twin_style}.ttf'), hero_text(repo, weight)
+        both = set(chr(c) for c in font.getBestCmap()) & set(chr(c) for c in local.getBestCmap())
+        ratio = _width(font, text, loc, both) / _width(local, text, None, both)
         out.append({
             'family': f'{family} Fallback', 'weight': rng, 'local': names,
             'sizeAdjust': f'{ratio * 100:.2f}%', 'ascentOverride': f'{hhea.ascent / upm / ratio * 100:.2f}%',

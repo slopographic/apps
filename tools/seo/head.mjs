@@ -104,10 +104,13 @@ export function descLimits(code = 'en') {
   return [120, 160];
 }
 const TITLE_MAX = 75;
+// A renamed white-label build (tools/whitelabel/transform.mjs sets this marker): its copy is this site's with other words, so
+// lengths move; every run of the SEO writer there (its CI, its deploy, a language pass) is lenient without SEO_LENIENT.
+export const LENIENT_BUILD = /*profile:seoLenient*/false;
 
 /** Checks the copy of one language: description lengths, titles, unique titles and descriptions. Throws on the first
- *  problem; lenient (a white-label build, SEO_LENIENT=1, whose renamed copy is longer or shorter): lengths only warn. */
-export function validateCopy(entries, { lenient = process.env.SEO_LENIENT === '1', code = 'en' } = {}) {
+ *  problem; lenient (a renamed white-label build, or SEO_LENIENT=1): lengths and repeats only warn. */
+export function validateCopy(entries, { lenient = LENIENT_BUILD || process.env.SEO_LENIENT === '1', code = 'en' } = {}) {
   const titles = new Map(), descs = new Map(), [min, max] = descLimits(code);
   const bad = (m) => { if (lenient) console.warn(`seo (lenient): ${m}`); else throw new Error(m); };
   for (const [name, { title, description }] of entries) {

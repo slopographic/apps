@@ -289,6 +289,7 @@
     SYSTEM: SYSTEM,
     DEFAULT: DEFAULT,
     get: current,
+    has: function (id) { return !!byId[id === 'pro' ? 'dark' : id]; },   // offered here ('pro': an app's Dark); app menus skip others
     resolve: resolve,
     set: set,
     apply: apply,

@@ -205,7 +205,7 @@ const MENUS = [
       { k: 'pro_dark', check: () => theme() === 'pro', act: () => setTheme('pro') },
       { k: 'light', check: () => theme() === 'light', act: () => setTheme('light') },
       { k: 'paint_98', check: () => theme() === 'paint', act: () => setTheme('paint') },
-    ] },
+    ].filter((r) => !window.SlopTheme || SlopTheme.has({ pro_dark: 'dark', light: 'light', paint_98: 'classic' }[r.k])) },   // the site's themes
     { k: 'show_hide_panels', key: 'Tab', act: () => document.body.classList.toggle('no-panels') },
     { k: 'reset_panel_sizes', cmdId: 'view.resetPanels', act: () => window.SlopResizePanel && SlopResizePanel.resetAll() },   // shared/ui/resize-panel.js
   ]],

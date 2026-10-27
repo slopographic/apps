@@ -9,7 +9,9 @@
   const cur = () => S.current();
   const done = () => { const it = cur(); return !!it && it.status === 'done'; };
   /* The app's names and the shared theme ids (shared/theme/theme.js): the choice is saved through SlopTheme.set. */
-  const THEMES = [['pro', 'cutout.menu.theme_pro', 'dark'], ['light', 'cutout.menu.theme_light', 'light'], ['classic', 'cutout.menu.theme_classic', 'classic']];
+  const THEMES = [['pro', 'cutout.menu.theme_pro', 'dark'], ['light', 'cutout.menu.theme_light', 'light'], ['classic', 'cutout.menu.theme_classic', 'classic']]
+    .filter(([, , s]) => !window.SlopTheme || SlopTheme.has(s));   // only the themes the site offers
+  CO.THEMES = THEMES;
   /** Undo / Redo with the step's name (ui.undo_what), for the Edit menu, the canvas menu and the buttons' tooltips. */
   const stepLabel = (dir, l) => (l ? t('ui.' + dir + '_what', { what: l }) : t('ui.' + dir));
 

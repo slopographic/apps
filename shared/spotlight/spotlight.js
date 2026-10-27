@@ -35,7 +35,7 @@
   const tr = (k, v) => (I() ? I().t(k, v) : k);
   const own = (k, fallback) => (I() && I().has(k) ? I().t(k) : fallback);
   const nameOf = (a) => (window.slopAppName ? window.slopAppName(a) : own('app.' + a.id, a.name));   // the app's name in the chosen language
-  const descOf = (a) => ((window.SLOP_APP_SEARCH || {})[a.id] || {}).desc || own('apptag.' + a.id, a.tagline || '');   // the long description (ui.appdesc.*)
+  const descOf = (a) => ((window.SLOP_APP_SEARCH || {})[a.id] || {}).desc || (window.slopAppTagline ? window.slopAppTagline(a) : own('apptag.' + a.id, a.tagline || ''));   // the long description (ui.appdesc.*), else the one-liner
 
   function addStyle() {
     const st = document.createElement('style');

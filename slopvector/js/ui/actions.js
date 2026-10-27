@@ -138,7 +138,7 @@
   act('view.guides', ['mod+;'], togglePref('guides'), { checked: function () { return S.prefs.guides; } });
   act('view.lockGuides', ['mod+alt+;'], togglePref('lockGuides'), { checked: function () { return S.prefs.lockGuides; } });
   act('view.clearGuides', [], function () { S.doc.guides = { h: [], v: [] }; SV.commit('clear guides'); });
-  ['pro', 'light', 'classic'].forEach(function (t) {
+  ['pro', 'light', 'classic'].filter(function (t) { return !window.SlopTheme || SlopTheme.has(t); }).forEach(function (t) {   // the site's themes
     act('theme.' + t, [], function () { setTheme(t); }, { checked: function () { return UI.st.currentTheme === t; } });
   });
 

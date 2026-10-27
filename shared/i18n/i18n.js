@@ -48,6 +48,8 @@
   var KEY_RE = /\{(\w+)\}/g;
   // The shared components' tables beyond ui/<code>.js (ui/<code>/<part>.js; other languages read English). Written by node tools/i18n/i18n.mjs index ui; keep it on one line.
   var UI_PARTS = /*ui-parts*/{ parts: ['agent', 'ai', 'ai2', 'ai5', 'ai6', 'ai7', 'ai8', 'ai9', 'backup', 'backup2', 'backup3', 'buddy', 'buddy2', 'calc', 'calendar', 'config', 'data', 'data2', 'finder', 'firstrun', 'fonts', 'graphics', 'guides', 'macros', 'misc', 'models', 'models2', 'ops', 'ops2', 'ops3', 'presets', 'preview', 'print', 'sheets', 'shell', 'shell2', 'templates', 'video', 'watermark', 'widgets'], langs: ['ar', 'de', 'en', 'es', 'fr', 'it', 'ja', 'ko', 'nl', 'pl', 'pt-BR', 'ru', 'sv', 'tr', 'uk', 'zh-CN', 'zh-TW'] };
+  // The languages with app words (apps/<code>.js: titles, taglines, the homepage strip and footer). Written by node tools/seo/write.mjs (apptables.mjs); keep it on one line.
+  var APP_LANGS = /*app-langs*/['en', 'ar', 'de', 'es', 'fr', 'it', 'ja', 'ko', 'nl', 'pl', 'pt-BR', 'ru', 'sv', 'tr', 'uk', 'zh-CN', 'zh-TW'];
   var me = typeof document !== 'undefined' ? document.currentScript : null;
 
   function create(opts) {
@@ -261,9 +263,13 @@
       source({ ns: 'ui', files: function (c) {
         return [root + 'ui/' + c + '.js'].concat(UI_PARTS.langs.indexOf(c) < 0 ? [] : UI_PARTS.parts.map(function (p) { return root + 'ui/' + c + '/' + p + '.js'; }));
       } });
+      // English app words only once another language is in use (a page in English reads them from its HTML and the registry)
+      source({ ns: 'apps', files: function (c) {
+        return APP_LANGS.indexOf(c) < 0 || (c === DEFAULT && choice === DEFAULT && get() === DEFAULT) ? [] : [root + 'apps/' + c + '.js'];
+      } });
     }
     return {
-      LANGS: list, UI_PARTS: UI_PARTS, DEFAULT: DEFAULT, DEFAULT_CHOICE: choice,
+      LANGS: list, UI_PARTS: UI_PARTS, APP_LANGS: APP_LANGS, DEFAULT: DEFAULT, DEFAULT_CHOICE: choice,
       langs: function () { return list.slice(); },
       lang: function (code) { return byCode[code || get()] || null; },
       get: get, set: set, t: t, has: has, label: label, add: add, apply: apply, load: load,

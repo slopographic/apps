@@ -13,10 +13,14 @@
  *   aiModels    the AI models the site hides ({} none; shared/ai/makers.js): { hideOrigins, hideMakers, onlyMakers, hideModels, hideProviders }
  *   seoIndex    search engines may index the site (brand profile seo.index): generated SEO pages, sitemaps, language
  *               folders and hreflang; without it every page says noindex and none of those exist (tools/seo/robots.mjs)
- *   savings     the homepage's yearly savings line and its list (shared/savings) shown */
+ *   savings     the homepage's yearly savings line and its list (shared/savings) shown
+ *   themes      the theme ids the build offers, in menu order (shared/theme/theme.js; the profile's themes.hide left out)
+ *   themeBrand  the brand text that names Light and Dark ("<brand> Light"; '' for the plain names)
+ *   defaultTheme  the theme of a visitor who never chose one ('system' or a theme id) */
 (function (root) {
   'use strict';
   var builtin = /*profile:mascot*/true, overlay = /*profile:mascotOverlay*/false;
+  var themes = /*profile:themes*/{}, hide = themes.hide || [];
   root.BRAND_FACTS = Object.freeze({
     naming: /*profile:naming*/'brand',
     tone: /*profile:tone*/'playful',
@@ -28,5 +32,8 @@
     aiModels: Object.freeze(/*profile:aiModels*/{}),
     seoIndex: /*profile:seoIndex*/true,
     savings: /*profile:savings*/true,
+    themes: Object.freeze(['light', 'dark', 'classic', 'lime'].filter(function (id) { return hide.indexOf(id) < 0; })),
+    themeBrand: themes.brand || '',
+    defaultTheme: /*profile:defaultTheme*/'system',
   });
 })(typeof window !== 'undefined' ? window : globalThis);

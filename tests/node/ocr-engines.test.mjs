@@ -161,7 +161,10 @@ test('the Tesseract models: one file each on the cdn at the release tag, checked
   w.SlopI18n = { get: () => 'en', t: tr(words.en) };
   assert.equal(O.byId('tesseract-deu').name, 'Tesseract: German');
   assert.equal(O.byId('tesseract-srp-latn').name, 'Tesseract: Serbian (ui.models.script.latin)');
-  assert.match(read('shared/ocr/i18n/index.js'), /langs: \['en', 'sv'\]/);
+  // every language with a folder is shipped (English and Swedish at least); the index lists exactly the folders
+  const langs = /langs: \[([^\]]*)\]/.exec(read('shared/ocr/i18n/index.js'))[1].match(/[\w-]+/g);
+  for (const c of ['en', 'sv']) assert.ok(langs.includes(c), c);
+  for (const c of langs) assert.ok(read(`shared/ocr/i18n/${c}/engines.js`).includes(`add('${c}'`), c);
 });
 
 test('tesseract.js lines: text, a 0..1 score and a box per line, empty lines counted as skipped', () => {

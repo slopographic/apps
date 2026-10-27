@@ -57,9 +57,9 @@
   }
 
   function pool(layer) {
-    const tags = [], names = new Map();
+    const tags = [];
     let narrow = null, prev = new Set();
-    const text = (ic) => { const id = ic.app.id; if (!names.has(id)) names.set(id, ic.el.getAttribute('aria-label') || ''); return names.get(id); };
+    const text = (ic) => ic.el.getAttribute('aria-label') || '';   // the icon's name (globe.js renames it in a new language)
     function tag() {
       const el = document.createElement('span');
       el.className = 'gx-tag';
@@ -85,7 +85,7 @@
       for (const p of picks) {
         let t = tags.find((x) => x.id === p.id) || tags.find((x) => !x.on && now >= x.until) || (tags.length < o.max + 4 ? tag() : null);
         if (!t) continue;
-        if (t.id !== p.id) { t.id = p.id; t.el.textContent = byId.get(p.id).text; }
+        if (t.id !== p.id || t.el.textContent !== byId.get(p.id).text) { t.id = p.id; t.el.textContent = byId.get(p.id).text; }
         if (!t.on) { t.on = true; t.el.classList.add('is-on'); }
         t.el.classList.toggle('is-match', searching);
       }

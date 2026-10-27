@@ -64,7 +64,8 @@
   const sectionsText = (a) => [...new Set(H.placements(a).map((p) => H.titleOf(p.section)))].join(', ');
   const ready = (a) => (a.status === 'building' ? H.statusLabel('building') : tr('home.ready', 'Ready'));
   const search = (a) => SEARCH[a.id] || { desc: '', keywords: [] };
-  const tag = (a) => (window.slopAppTagline ? window.slopAppTagline(a) : a.tagline);   // in the chosen language (plain names)
+  const tag = (a) => (window.slopAppTagline ? window.slopAppTagline(a) : a.tagline);   // in the chosen language
+  const title = (a) => (window.slopAppTitle ? window.slopAppTitle(a) : a.title || a.name);
   const OPEN = tr('home.open', 'Open') + ' →';
   const finderHost = document.getElementById('app-finder');
   /** The finder's result for the hero's globe (home/globe/globe.js): the matching ids in the finder's order, and whether
@@ -91,7 +92,7 @@
       items: APPS,
       fields: [
         { key: 'name', label: 'Name', get: (a) => a.name },
-        { key: 'tagline', label: 'Description', get: (a) => a.tagline },
+        { key: 'tagline', label: 'Description', get: (a) => [...new Set([tag(a), a.tagline, title(a)])] },   // the chosen language's words, and the English
         { key: 'desc', label: 'Details', get: (a) => search(a).desc },
         { key: 'keywords', label: 'Keywords', get: (a) => search(a).keywords },
         { key: 'features', label: 'Features', get: (a) => a.features || [] },

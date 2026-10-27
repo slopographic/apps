@@ -21,6 +21,13 @@ text with tables of their own: the recipe is `APPS-HOWTO.md`, the progress `COVE
   buttons, the SlopCmd palette and shortcut editor, tours, SlopIntake/SlopOuttake, drop panels, document tabs, view modes).
 - `sv-apps.js`: Swedish app names, `app.<id>` and `apptag.<id>`, for every id in `shared/apps.js`
   (`tests/node/i18n-sv.test.mjs`). It loads after `sv.js` because the `sv` entry has `appNames: true`.
+- `apps/<code>.js`: the app words at run time (`seo.reg.<id>.title` / `.tagline`, the homepage strip `seo.mq.<id>`, the
+  footer's round-up, guide and converter links `seo.foot.*`), written by `node tools/seo/write.mjs` (`tools/seo/apptables.mjs`)
+  from the SEO tables (`shared/seo/i18n/<code>/reg-*.js`, `best-*`, `guide-*`) and the convert tables: never edit them,
+  translate the SEO tables. `i18n.js` loads the chosen language's file (`APP_LANGS`, rewritten by the same tool), and
+  English's (strip and footer only: the registry has the English titles) only once another language is in use. Pages read
+  them through `shared/apps.js`: `slopAppTitle(app)`, `slopAppTagline(app)` (and `slopAppLabel` on the homepage), English
+  where a language has none; brand names never change (`tests/node/app-words.test.mjs`, `tests/home/home-lang.test.html`).
 - `early.js`: the first frame in another language (Loading, below); precached with `i18n.js`.
 - `script/<script>.css`: per-script font fallbacks and line breaking (World-ready, below).
 - `settings/language.js`: the Language picker in Settings > Appearance (lists `LANGS` in order, `(beta)` after a beta one).

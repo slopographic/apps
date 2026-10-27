@@ -6,6 +6,8 @@
   const BRAND_KEY = 'slop.home.names';
   window.slopBrandNamesOn = () => { try { return localStorage.getItem(BRAND_KEY) === '1'; } catch (e) { return false; } };
   window.slopSetBrandNames = (on) => { try { localStorage.setItem(BRAND_KEY, on ? '1' : '0'); } catch (e) { /* storage blocked: the switch still works for this visit */ } };
-  // A profile with plain names (shared/apps.js) has one name per app, in the chosen language: slopAppName.
-  window.slopAppLabel = (a, withBrand) => (window.SLOP_NAMING === 'plain' && window.slopAppName ? window.slopAppName(a) : withBrand ? a.name : a.title || a.name);
+  // A profile with plain names (shared/apps.js) has one name per app, in the chosen language: slopAppName. The title is
+  // in the chosen language too (slopAppTitle: the SEO tables' words); the brand name stays as it is.
+  window.slopAppLabel = (a, withBrand) => (window.SLOP_NAMING === 'plain' && window.slopAppName ? window.slopAppName(a)
+    : withBrand ? a.name : window.slopAppTitle ? window.slopAppTitle(a) : a.title || a.name);
 })();

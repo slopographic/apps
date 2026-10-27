@@ -28,7 +28,7 @@
   const { describe, it, expect, waitFor, run } = SlopTest;
   const HEIGHT = 800;
   const WIDTHS = [390, 768, 1280];
-  const THEMES = ['light', 'dark', 'classic', 'lime'];
+  const THEMES = BRAND_FACTS.themes;   // the themes the build offers (a profile can hide some)
   const CONSENT_KEY = 'slop-consent';
   const PROFILE_KEY = 'slop-profile';
   const CONTROLS = 'button, a[href]';
