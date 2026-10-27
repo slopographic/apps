@@ -4,5 +4,5 @@ window.SlopI18n && window.SlopI18n.source({
   ns: 'ocrengine',
   base: ((document.currentScript || {}).src || '').replace(/[^/]*$/, ''),
   parts: ['engines'],
-  langs: ['en', 'sv'],
+  langs: ['ar', 'de', 'en', 'es', 'fr', 'it', 'ja', 'ko', 'nl', 'pl', 'pt-BR', 'ru', 'sv', 'tr', 'uk', 'zh-CN', 'zh-TW'],
 });
