@@ -1,4 +1,4 @@
-// What the desktop app carries and how it is named: the bundled site leaves out the repository's own folders, the other
+// What the desktop app carries and how it is named (a white-label brand.json has no download links: tests/node/whitelabel-profile.test.mjs): the bundled site leaves out the repository's own folders, the other
 // languages' SEO copies and the website-only root files; the name, id, installers and update feed come from the brand;
 // the site's download links point at exactly the installers the build makes; under app:// no service worker registers.
 // Covers: desktop/lib/bundle-list.js
@@ -8,7 +8,6 @@
 // Covers: shared/desktop/download.js
 // Covers: shared/pwa.js
 // Covers: settings/updates.js
-// Covers: tools/whitelabel/emit.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -17,7 +16,6 @@ import vm from 'node:vm';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 import { plan, languages } from '../../desktop/scripts/bundle.mjs';
-import { brandJson } from '../../tools/whitelabel/emit.mjs';
 
 const require = createRequire(import.meta.url);
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -62,18 +60,18 @@ test('the brand: name, app id and release home from the profile; GITHUB_REPOSITO
   assert.equal(b.repo, 'apps');
   const ci = B.loadBrand(ROOT, undefined, { GITHUB_REPOSITORY: 'someone/fork' });
   assert.deepEqual([ci.owner, ci.repo], ['someone', 'fork']);
-  assert.equal(B.slugOf('Acme Tools!'), 'Acme-Tools');
+  assert.equal(B.slugOf('Zed Works!'), 'Zed-Works');
 });
 
 test('the electron-builder configuration: installers, associations, signing only with secrets, store builds', () => {
-  const b = { name: 'Acme Tools', slug: 'Acme-Tools', appId: 'com.acme.tools', origin: 'https://tools.acme.example', owner: 'acme', repo: 'apps' };
+  const b = { name: 'Zed Works', slug: 'Zed-Works', appId: 'com.zed.works', origin: 'https://works.zed.example', owner: 'zed', repo: 'apps' };
   const c = B.builderConfig(b, {});
-  assert.equal(c.productName, 'Acme Tools');
-  assert.deepEqual(c.publish, [{ provider: 'github', owner: 'acme', repo: 'apps', releaseType: 'release' }]);
-  assert.equal(c.nsis.artifactName, 'Acme-Tools-Setup.exe');
-  assert.equal(c.dmg.artifactName, 'Acme-Tools.dmg');
-  assert.equal(c.mac.artifactName, 'Acme-Tools-mac.zip');
-  assert.equal(c.appImage.artifactName, 'Acme-Tools.AppImage');
+  assert.equal(c.productName, 'Zed Works');
+  assert.deepEqual(c.publish, [{ provider: 'github', owner: 'zed', repo: 'apps', releaseType: 'release' }]);
+  assert.equal(c.nsis.artifactName, 'Zed-Works-Setup.exe');
+  assert.equal(c.dmg.artifactName, 'Zed-Works.dmg');
+  assert.equal(c.mac.artifactName, 'Zed-Works-mac.zip');
+  assert.equal(c.appImage.artifactName, 'Zed-Works.AppImage');
   assert.deepEqual(c.mac.target.map((x) => x.target), ['dmg', 'zip'], 'the zip is what the mac updater downloads');
   assert.equal(c.mac.identity, '-', 'unsigned: ad-hoc');
   assert.equal(c.mac.notarize, false);
@@ -111,9 +109,6 @@ test('the site\'s download links name the installers the build makes; a brand wi
     assert.ok(l.every((x) => x.href.startsWith(brand.desktop.release.replace(/\/$/, '') + '/download/')));
     assert.equal(D.links(brand.desktop, 'Mozilla/5.0 (Linux; Android 14)').filter((x) => x.mine).length, 0);
   }
-  // a white-label build writes brand.json from its profile: no "desktop" unless the profile has one
-  const out = JSON.parse(JSON.stringify(brandJson(brand, { name: 'Acme', tagline: '', colors: {}, footer: '', links: {} })));
-  assert.equal(out.desktop, undefined);
 });
 
 test('under app:// the service worker is not registered and no install button shows', () => {

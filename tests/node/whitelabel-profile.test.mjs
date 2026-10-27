@@ -55,6 +55,13 @@ test('the site’s own profile writes today’s brand.json', () => {
   assert.deepEqual(brandJson(src, loadProfile(DIR, 'slopographic')), src);
 });
 
+test('a brand gets the desktop app\'s download links only when its profile has them', () => {
+  const src = JSON.parse(readFileSync(path.join(ROOT, 'brand/brand.json'), 'utf8'));
+  assert.ok(src.desktop && src.desktop.release, 'this site links its releases');
+  const out = JSON.parse(JSON.stringify(brandJson(src, loadProfile(DIR, 'sample'))));
+  assert.equal(out.desktop, undefined);
+});
+
 test('the site’s own profile leaves every marker literal as it is', () => {
   const values = markerValues(loadProfile(DIR, 'slopographic'));
   const files = ['shared/apps.js', 'shared/theme/theme.js', 'shared/buddy/boot.js', 'shared/consent/config.js', 'shared/i18n/i18n.js', 'ai/js/ui/sloppo.js', 'drive/js/ui/empty.js', 'shared/seo/copy.mjs'];
