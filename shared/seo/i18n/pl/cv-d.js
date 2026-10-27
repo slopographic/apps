@@ -145,7 +145,7 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'seo.cv.xlsx-to-csv.faq.2.0': 'Czy moje pliki są przesyłane?',
   'seo.cv.xlsx-to-csv.faq.2.1': 'Nie. Konwersja odbywa się w przeglądarce, na tym urządzeniu. Twoje pliki nie są wysyłane do Slopographic ani na żaden inny serwer.',
   'seo.cv.xlsx-to-json.title': 'Konwerter Excel na JSON: wiersze jako obiekty, za darmo | File convert',
-  'seo.cv.xlsx-to-json.description': 'Konwertuj arkusze XLSX i ODS na JSON w przeglądarce. Pierwszy wiersz nazywa klucze, liczby zostają liczbami, daty stają się tekstem ISO. Nic nie jest przesyłane.',
+  'seo.cv.xlsx-to-json.description': 'Konwertuj arkusze XLSX i ODS na JSON w przeglądarce. Pierwszy wiersz nazywa klucze, liczby zostają liczbami, daty są tekstem ISO. Nic nie jest przesyłane.',
   'seo.cv.xlsx-to-json.h1': 'Konwerter Excel (XLSX) na JSON',
   'seo.cv.xlsx-to-json.lead': 'Zamień arkusz w JSON dla aplikacji lub API: jeden obiekt na wiersz, z nazwami kolumn jako kluczami.',
   'seo.cv.xlsx-to-json.how.0': 'Skoroszyt czyta ten sam czytnik arkuszy co Slop Tables. Formuły nie są przeliczane: używana jest wartość, jaką Excel zapisał przy każdej formule.',
