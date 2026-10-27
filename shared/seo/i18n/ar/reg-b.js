@@ -95,7 +95,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'seo.reg.convert.tagline': 'صور وPDF وبيانات ونصوص، تُحوَّل على جهازك.',
   'seo.reg.convert.features.0': 'صور HEIC من الآيفون وصور RAW للكاميرا إلى JPG وPNG وWebP وPDF',
   'seo.reg.convert.features.1': 'PDF إلى صور وWord وExcel؛ ودمج وتقسيم',
-  'seo.reg.convert.features.2': 'Excel وCSV وJSON وYAML وTOML وXML والترجمات المصاحبة',
+  'seo.reg.convert.features.2': 'Excel وCSV وJSON وYAML وTOML وXML والترجمة المصاحبة',
   'seo.reg.convert.features.3': 'فيديو وصوت: MP4 وGIF وMP3 وFLAC وOGG وM4A',
   'seo.reg.convert.features.4': 'تحويل دفعي، والتنزيل ملف ZIP',
   'seo.reg.calculator.title': 'آلة حاسبة بشريط ورق',
