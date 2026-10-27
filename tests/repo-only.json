@@ -36,6 +36,10 @@
     {
       "file": "tests/node/whitelabel-*",
       "why": "the white-label tools (tools/whitelabel), which a build does not get"
+    },
+    {
+      "file": "tests/node/mobile-workflow.test.mjs",
+      "why": "the store apps' workflow (.github/workflows/mobile.yml), which a build does not get"
     }
   ]
 }
