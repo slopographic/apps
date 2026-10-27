@@ -11,8 +11,10 @@ import path from 'node:path';
 import { canonicalFor, guardScript, markHead, pageMark, robotsTxt, hiddenApp, unLang, NOINDEX, sitePages } from '../../tools/seo/robots.mjs';
 import { SITE, INDEX, ROOT } from '../../tools/seo/site.mjs';
 import { main as indexNow } from '../../tools/seo/indexnow.mjs';
+import { ROOT_LANG } from '../../tools/seo/lang.mjs';
 
 const HOST = new URL(SITE).hostname;
+const O = ROOT_LANG === 'sv' ? 'de' : 'sv';   // a language with its own folder (the root language has none)
 
 test('the canonical: the page itself, another origin, an override per path, one page, the language folder kept', () => {
   const none = { override: {}, to: '', main: null };
@@ -24,13 +26,13 @@ test('the canonical: the page itself, another origin, an override per path, one 
   assert.equal(canonicalFor(`${SITE}/pdf/`, o), 'https://pdf.example/', 'the one page');
   assert.equal(canonicalFor(`${SITE}/pdf/sign-pdf/`, o), 'https://pdf.example/pdf/sign-pdf/', 'the rest of the path after the URL');
   assert.equal(canonicalFor(`${SITE}/pdf/about/`, o), 'https://about.example/', 'the longest key wins');
-  assert.equal(canonicalFor(`${SITE}/sv/pdf/sign-pdf/`, o), 'https://pdf.example/sv/pdf/sign-pdf/', 'a language folder stays in front');
+  assert.equal(canonicalFor(`${SITE}/${O}/pdf/sign-pdf/`, o), `https://pdf.example/${O}/pdf/sign-pdf/`, 'a language folder stays in front');
   assert.equal(canonicalFor(`${SITE}/ocr/`, o), `${SITE}/ocr/`, 'outside the paths: unchanged');
   // a single-app site: its app's page names the root; the root language only
   const main = { ...none, main: { id: 'pdf', path: 'pdf/' } };
   assert.equal(canonicalFor(`${SITE}/pdf/`, main), `${SITE}/`);
   assert.equal(canonicalFor(`${SITE}/pdf/sign-pdf/`, main), `${SITE}/pdf/sign-pdf/`);
-  assert.equal(canonicalFor(`${SITE}/sv/pdf/`, main), `${SITE}/sv/pdf/`);
+  assert.equal(canonicalFor(`${SITE}/${O}/pdf/`, main), `${SITE}/${O}/pdf/`);
   // this site's own profile: every page is its own canonical
   assert.equal(canonicalFor(`${SITE}/pdf/`), `${SITE}/pdf/`);
 });
@@ -68,8 +70,8 @@ test('the mark at the top of every page: written once, replaced, never over a pa
   // which mark: noindex for a site that is not indexed, the guard on an indexed one
   assert.equal(pageMark('pdf/index.html', false), NOINDEX);
   assert.equal(pageMark('pdf/index.html', true), hiddenApp('pdf/') ? NOINDEX : guardScript());
-  assert.equal(unLang('sv/pdf/index.html'), 'pdf/index.html');
-  assert.equal(unLang('pdf/sv/index.html'), 'pdf/sv/index.html');
+  assert.equal(unLang(`${O}/pdf/index.html`), 'pdf/index.html');
+  assert.equal(unLang(`pdf/${O}/index.html`), `pdf/${O}/index.html`);
 });
 
 test('a hidden app\'s folder: the longest app folder decides', () => {

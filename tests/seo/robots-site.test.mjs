@@ -93,7 +93,7 @@ test('a single-app site: the app at the root, only its apps\' pages, the parent 
     for (const id of hide.slice(0, 5)) assert.ok(!existsSync(path.join(dir, 'apps', id, 'index.html')), `apps/${id}: gone`);
     const hiddenPage = all.find((a) => hide.includes(a.id) && a.path && !a.path.startsWith('#') && existsSync(path.join(dir, a.path, 'index.html')));
     assert.match(read(dir, `${hiddenPage.path}index.html`), /<meta name="robots" content="noindex">/, 'a hidden app\'s page says noindex');
-    assert.match(read(dir, 'convert/png-to-jpg/index.html'), /href="https:\/\/example\.com"[^>]*>More free tools →</, 'the parent in the footer');
+    assert.match(read(dir, 'convert/png-to-jpg/index.html'), /<span>Example Suite<\/span><\/summary><ul><li><a href="https:\/\/example\.com"[^>]*>[^<]+ →</, 'the parent in the footer');
     assert.match(write(dir, '--check'), /SEO up to date/);
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });

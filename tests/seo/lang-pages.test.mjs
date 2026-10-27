@@ -90,7 +90,7 @@ test('the sitemaps: one per language, all in the index, each listing its pages',
 // A sample check that a page in another language is not English underneath: English's commonest words, which the other
 // languages do not use, are rare in its main text (an English page has about one word in six of them).
 const ENGLISH = /\b(the|and|your|with|this|which|from|you)\b/gi;
-test('a page in another language than English has no English body (sample)', () => {
+test('a page in another language than English has no English body (sample)', INDEXED, () => {
   for (const code of codes.filter((c) => c !== 'en')) {
     const R = roundupsIn(code), T = tasksIn(code), G = guidesIn(code);
     const dirs = ['compare/', 'best/', 'all-tools/', ...apps.slice(0, 8).map((a) => `apps/${a.id}/`), ...R.slice(0, 6).map((r) => `best/${r.slug}/`),
