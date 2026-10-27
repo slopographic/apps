@@ -185,7 +185,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'seo.best.free-to-do-list-apps.faq.3.1': 'Microsoft To Do und TickTick sagen, dass sie zwischen Geräten synchronisieren. Slop To-do synchronisiert nicht; jeder Browser führt seine eigene Liste.',
   'seo.best.free-time-zone-converters.crumb': 'Beste kostenlose Zeitzonen-Umrechner',
   'seo.best.free-time-zone-converters.title': 'Bester kostenloser Zeitzonen-Umrechner und Weltuhr 2026 im Vergleich',
-  'seo.best.free-time-zone-converters.description': 'Kostenlose Zeitzonen-Umrechner im Vergleich: World Time Buddy, Every Time Zone, Time.is und Slop Time. Besprechungsplanung, Kalenderlinks, genaue Zeit, Apps, Datenschutz.',
+  'seo.best.free-time-zone-converters.description': 'Kostenlose Zeitzonen-Umrechner: World Time Buddy, Every Time Zone, Time.is und Slop Time im Vergleich. Besprechungen, Kalenderlinks, genaue Zeit, Datenschutz.',
   'seo.best.free-time-zone-converters.h1': 'Die besten kostenlosen Zeitzonen-Umrechner und Weltuhren',
   'seo.best.free-time-zone-converters.lead': 'Eine Uhrzeit zwischen Städten umzurechnen ist einfach; einen Termin zu finden, der allen passt, oder die genaue Zeit zu kennen, darin unterscheiden sich die Werkzeuge. Hier steht, was jedes kostenlos leistet, laut den eigenen Seiten.',
   'seo.best.free-time-zone-converters.criteria.0': 'Eine Uhrzeit umrechnen und mehrere Städte auf einmal vergleichen',
