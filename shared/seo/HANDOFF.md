@@ -48,8 +48,11 @@ site. The tool refuses to write otherwise.
    `DesignApplication`, `UtilitiesApplication`, `DeveloperApplication`).
 3. Make the page `name/index.html`, with `<html lang="en">`, `<meta name="viewport">` and
    `<meta charset="utf-8">`. Leave out the SEO tags, since the tool writes them.
-4. If the app has an about page at `name/about/index.html`, add its id to `ABOUT_IDS` and `seo.about.name.title` and
-   `.description` to the tables. The tool throws if an about page has no entry.
+4. If the app has an about page, write it as a template, `shared/seo/pages/about/name.html` (copy another one: the page's
+   HTML with every sentence a `{{key}}`, `tools/seo/template.mjs`), put its words in `shared/seo/i18n/en/about-*.js`
+   (`seo.aboutpage.name.*`) and every other language's, add its id to `ABOUT_IDS` and `seo.about.name.title` and
+   `.description` to the tables. The tool writes `name/about/index.html` and its copies; it throws if an about page has no
+   entry.
 5. Run `node tools/seo/write.mjs`, then `node tests/run.mjs seo`.
 
 An app on the homepage only (path `#something`) needs no page. Add it to `shared/apps.js` and it
@@ -124,7 +127,11 @@ Every static SEO page is written in every published language, each its own page 
   `data-i18n` element filled from that language's tables (so a crawler reads it without scripts), and a converter
   page's own copy from `seo.cv.*`. GitHub Pages has no rewrites, so a real file must be at `/sv/pdf/`; a redirect page
   would not be indexed as the language's page, and the app reading the prefix itself would need a server.
-  The about pages, How it works and the typeface page are written by hand in English and stay in the root language only.
+- **The about pages and How it works** are templates (`shared/seo/pages/`, `tools/seo/template.mjs`): the page's HTML with
+  every sentence a `{{key}}` of the tables (`about-*`, `how`). They are drawn in each language, the root one written at the
+  page's own folder (`pdf/about/index.html`) and the others as copies like the hand-made pages; edit the template and the
+  tables, never the written page. The typeface page is written by hand in English (its script writes English too) and
+  stays in the root language only.
 - **The head.** Every page that exists in more than one language lists them all with `<link rel="alternate" hreflang>`
   and `x-default` (the root language's page); the canonical is the page's own URL in its language. A hand-made page that
   keeps its own head (most converter pages) gets the alternates alone, between `<!-- seo:alt -->` markers.
