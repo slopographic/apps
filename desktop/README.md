@@ -91,8 +91,8 @@ accounts exist. Neither has an update feed: the store updates the app.
 **Mac App Store** (`mas`, a universal `.pkg`; sandbox entitlements in `build/entitlements.mas*.plist`). Needs an Apple
 Developer Program membership and an app record in App Store Connect. Secrets: `MAS_CSC_LINK` / `MAS_CSC_KEY_PASSWORD`
 (an "Apple Distribution" and a "Mac Installer Distribution" certificate in one .p12, base64) and
-`MAS_PROVISIONING_PROFILE` (the Mac App Store provisioning profile, base64). Without them the package is unsigned and
-only good for a look.
+`MAS_PROVISIONING_PROFILE` (the Mac App Store provisioning profile, base64). Without them electron-builder makes no
+.pkg: the artifact is the unsigned universal .app (`mas-universal/`), only good for a look.
 
 Apple does not allow an App Store app to download executable code. AI model weights may stay downloads (they are data),
 but these engines are fetched at run time today and must be bundled in the MAS build before a submission (follow-up):
