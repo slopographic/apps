@@ -71,7 +71,7 @@ window.SlopI18n && window.SlopI18n.add('ru', {
   'seo.task.html2pdf.html-to-pdf.faq.3.1': 'Нет. Он читается и печатается в вашем браузере.',
   'seo.task.html2pdf.saved-web-page-to-pdf.crumb': 'Сохранённая веб-страница в PDF',
   'seo.task.html2pdf.saved-web-page-to-pdf.title': 'Сохранённая веб-страница в PDF: печать .html со всеми картинками',
-  'seo.task.html2pdf.saved-web-page-to-pdf.description': 'Сделайте PDF из веб-страницы, сохранённой как .html, с её картинками. Прикрепите изображения из папки по имени, задайте бумагу и сохраните как PDF. Без загрузки.',
+  'seo.task.html2pdf.saved-web-page-to-pdf.description': 'Сделайте PDF из веб-страницы, сохранённой как .html, с её картинками. Прикрепите изображения из папки по имени, задайте бумагу и сохраните PDF. Без загрузки.',
   'seo.task.html2pdf.saved-web-page-to-pdf.h1': 'Превращение сохранённой веб-страницы в PDF',
   'seo.task.html2pdf.saved-web-page-to-pdf.lead': 'Страница, сохранённая через «Сохранить как» в браузере, — это файл .html и папка с картинками. Откройте оба здесь, чтобы напечатать страницу как PDF без загрузок из сети.',
   'seo.task.html2pdf.saved-web-page-to-pdf.cta': 'Напечатать сохранённую страницу',
