@@ -4,7 +4,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'seo.cv.heic-to-png.how.1': 'Safari apre da solo le foto HEIC, quindi lì non si scarica nulla. Gli altri browser hanno bisogno del decodificatore HEIC (libheif, circa 1,5 MB, LGPL-3.0): la pagina chiede prima, poi lo scarica una volta dal cdn di Slopographic, ne verifica l’SHA-256 e lo conserva.',
   'seo.cv.heic-to-png.how.2': 'Scegli una larghezza o un’altezza per ridimensionare, oppure mantieni la dimensione originale. I file PNG sono più grandi dei JPG.',
   'seo.cv.heic-to-png.faq.0.0': 'Perché gli iPhone salvano in HEIC?',
-  'seo.cv.heic-to-png.faq.0.1': 'HEIC (High Efficiency Image Container) conserva la stessa immagine in circa metà dello spazio di un JPG. Molte app, siti e PC Windows non riescono ancora ad aprirlo, ed è per questo che si converte.',
+  'seo.cv.heic-to-png.faq.0.1': 'HEIC (High Efficiency Immagine Container) conserva la stessa immagine in circa metà dello spazio di un JPG. Molte app, siti e PC Windows non riescono ancora ad aprirlo, ed è per questo che si converte.',
   'seo.cv.heic-to-png.faq.1.0': 'La foto resta dritta?',
   'seo.cv.heic-to-png.faq.1.1': 'Sì. Vengono applicate la rotazione e lo specchiamento salvati nel file HEIC, così l’immagine esce come l’aveva mostrata il telefono.',
   'seo.cv.heic-to-png.faq.2.0': 'E le Live Photo e le raffiche?',

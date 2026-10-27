@@ -12,7 +12,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'seo.guide.docs.getting-started.sections.0.steps.3': 'Usa la barra per carattere, dimensione, grassetto (Ctrl+B), corsivo (Ctrl+I), sottolineato (Ctrl+U), allineamento ed elenchi.',
   'seo.guide.docs.getting-started.sections.0.steps.4': 'Tx rimuove la formattazione dal testo selezionato.',
   'seo.guide.docs.getting-started.sections.0.image.alt': 'Un breve documento in Slop Docs con titolo, due titoli e un elenco puntato, e lo schema a sinistra',
-  'seo.guide.docs.getting-started.sections.0.tip': 'Random nella barra apre una finestra di modelli generati. Usa questo modello crea un nuovo documento da quello che scegli.',
+  'seo.guide.docs.getting-started.sections.0.tip': 'Casuale nella barra apre una finestra di modelli generati. Usa questo modello crea un nuovo documento da quello che scegli.',
   'seo.guide.docs.getting-started.sections.1.h2': 'Usa lo schema',
   'seo.guide.docs.getting-started.sections.1.text.0': 'Lo Schema a sinistra elenca i paragrafi Titolo 1-3. Cliccane uno per saltare lì.',
   'seo.guide.docs.getting-started.sections.1.text.1': 'Un titolo contiene il testo sotto di sé, fino al titolo successivo dello stesso livello. Alt+Su e Alt+Giù spostano l’intera sezione. Aggiungi sezione inserisce un nuovo titolo. Ctrl+Maiusc+O mostra o nasconde lo schema.',

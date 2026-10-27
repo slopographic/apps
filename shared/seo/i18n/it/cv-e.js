@@ -147,7 +147,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'seo.cv.docx-to-pdf.how.1': 'Mantieni il formato pagina del documento, oppure scegli A4 o US Letter.',
   'seo.cv.docx-to-pdf.how.2': 'Il testo in arabo, ebraico, cinese, hindi e altri sistemi di scrittura viene composto con un font Noto per quella scrittura, scaricato una volta dopo che la pagina lo chiede.',
   'seo.cv.docx-to-pdf.faq.0.0': 'Il PDF sarà identico a Word?',
-  'seo.cv.docx-to-pdf.faq.0.1': 'Simile, non identico. L’impaginazione è fatta da Slop Docs con font compatibili nelle metriche (Carlito per Calibri, Tinos per Times New Roman e così via), quindi le righe possono andare a capo in punti leggermente diversi.',
+  'seo.cv.docx-to-pdf.faq.0.1': 'Simile, non identico. L’impaginazione è fatta da Slop Docs con font compatibili nelle metriche (Carlito per Calibri, Tinos per Times Nuovo Roman e così via), quindi le righe possono andare a capo in punti leggermente diversi.',
   'seo.cv.docx-to-pdf.faq.1.0': 'E i vecchi file .doc e .ppt?',
   'seo.cv.docx-to-pdf.faq.1.1': 'Questi vecchi formati binari non vengono letti qui. Salvali prima come .docx o .pptx in Word, PowerPoint o LibreOffice.',
   'seo.cv.docx-to-pdf.faq.2.0': 'I miei file vengono caricati?',

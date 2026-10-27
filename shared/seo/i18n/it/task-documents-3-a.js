@@ -68,7 +68,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'seo.task.html2pdf.html-to-pdf.faq.2.0': 'Cos’è l’intestazione della pagina?',
   'seo.task.html2pdf.html-to-pdf.faq.2.1': 'Una riga facoltativa su ogni pagina con il nome del file, la data e un codice QR. Il codice QR può contenere il nome del file, un URL che scrivi o un testo tuo.',
   'seo.task.html2pdf.html-to-pdf.faq.3.0': 'L’HTML viene caricato?',
-  'seo.task.html2pdf.html-to-pdf.faq.3.1': 'No. Viene letto e stampato nel browser.',
+  'seo.task.html2pdf.html-to-pdf.faq.3.1': 'No. Viene letto e stampato nel tuo browser.',
   'seo.task.html2pdf.saved-web-page-to-pdf.crumb': 'Pagina web salvata in PDF',
   'seo.task.html2pdf.saved-web-page-to-pdf.title': 'Pagina web salvata in PDF: stampa una pagina .html con le immagini',
   'seo.task.html2pdf.saved-web-page-to-pdf.description': 'Crea un PDF da una pagina web salvata come .html, con le sue immagini. Allega le immagini della cartella per nome e salva in PDF. Nulla viene caricato.',

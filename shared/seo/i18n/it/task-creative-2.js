@@ -142,7 +142,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'seo.task.3d.glb-to-obj.faq.1.0': 'Posso convertire OBJ in GLB?',
   'seo.task.3d.glb-to-obj.faq.1.1': 'Sì. Importa l’OBJ (con il suo MTL e le texture) e scegli Esporta GLB…, oppure usa la pagina da OBJ a GLB in File convert.',
   'seo.task.3d.glb-to-obj.faq.2.0': 'Il file viene caricato?',
-  'seo.task.3d.glb-to-obj.faq.2.1': 'No. La conversione avviene nel browser.',
+  'seo.task.3d.glb-to-obj.faq.2.1': 'No. La conversione avviene nel tuo browser.',
   'seo.task.gallery.duplicate-photo-finder.crumb': 'Trova foto duplicate',
   'seo.task.gallery.duplicate-photo-finder.title': 'Trova foto duplicate: copie identiche da eliminare, gratis',
   'seo.task.gallery.duplicate-photo-finder.description': 'Trova le foto che hai più di una volta, anche con nomi diversi, e tienine una. Confronta il contenuto dei file nel browser. Gratis, nulla viene caricato.',

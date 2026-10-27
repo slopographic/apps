@@ -25,7 +25,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'seo.guide.fontcreator.getting-started.sections.3.steps.1': 'Nella vista Crenatura, scrivi due lettere, sposta il cursore e guarda la riga di esempio.',
   'seo.guide.fontcreator.getting-started.sections.3.steps.2': 'Controlla la vista Prova dei caratteri con il tuo testo, a più dimensioni, su chiaro o scuro.',
   'seo.guide.fontcreator.getting-started.sections.4.h2': 'Esporta e conserva',
-  'seo.guide.fontcreator.getting-started.sections.4.steps.0': 'In Carattere, imposta il nome della famiglia, il designer e la licenza (Usa la SIL Open Font License 1.1 la compila).',
+  'seo.guide.fontcreator.getting-started.sections.4.steps.0': 'In Carattere, imposta il nome della famiglia, il designer e la licenza (Usa la SIL Apri Tipo di carattere License 1.1 la compila).',
   'seo.guide.fontcreator.getting-started.sections.4.steps.1': 'In Esporta, scegli TTF, OTF, WOFF2 o WOFF e clicca su Scarica il font, oppure su Salva in Slop Drive….',
   'seo.guide.fontcreator.getting-started.sections.4.steps.2': 'Copia CSS @font-face dà la regola per un sito. Salva progetto conserva un file .sfont da modificare di nuovo.',
 });
