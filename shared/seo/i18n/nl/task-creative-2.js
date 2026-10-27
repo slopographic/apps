@@ -178,7 +178,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'seo.task.gallery.private-photo-organizer.faq.2.1': 'JPEG, PNG, WebP, GIF, AVIF, BMP en SVG. RAW-bestanden worden niet ondersteund, en HEIC alleen waar de browser het kan tonen.',
   'seo.task.sorter.cull-photos.crumb': 'Foto\'s snel selecteren',
   'seo.task.sorter.cull-photos.title': 'Foto\'s snel selecteren: kies de beste met de pijltjestoetsen',
-  'seo.task.sorter.cull-photos.description': 'Loop een shoot één foto per keer door: omhoog voor houden, omlaag voor afwijzen, taggen met één toets. Download de beste als ZIP of de lijst als CSV. Geen upload.',
+  'seo.task.sorter.cull-photos.description': 'Loop een shoot één foto per keer door: omhoog voor houden, omlaag voor afwijzen, taggen met één toets. Download de beste als ZIP of CSV. Geen upload.',
   'seo.task.sorter.cull-photos.h1': 'Een fotoshoot selecteren met de pijltjestoetsen',
   'seo.task.sorter.cull-photos.lead': 'Na een bruiloft, een evenement of een vakantie is het trage deel kiezen. Slop Photo Sorter toont één foto tegelijk en neemt één toets per beslissing, zodat je er snel doorheen gaat en alleen de beste downloadt.',
   'seo.task.sorter.cull-photos.cta': 'Beginnen met selecteren',
