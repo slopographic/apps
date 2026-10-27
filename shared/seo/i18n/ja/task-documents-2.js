@@ -157,7 +157,7 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'seo.task.docs.markdown-to-word.faq.3.1': 'はい。.docx も同じように読み込み、「Markdown（.md）をダウンロード」を選んでください。',
   'seo.task.docs.microsoft-word-alternative.crumb': 'Microsoft Word の代わり',
   'seo.task.docs.microsoft-word-alternative.title': 'ブラウザーで動く無料の Microsoft Word の代わり',
-  'seo.task.docs.microsoft-word-alternative.description': 'Slop Docs は、ブラウザーで使える無料のワープロです。本物のページ、スタイル、箇条書きに対応し、.docx の読み込みと書き出しができます。インストールもアカウントも不要。Microsoft とは提携していません。',
+  'seo.task.docs.microsoft-word-alternative.description': 'Slop Docs は、ブラウザーで使える無料のワープロです。ページ、スタイル、箇条書き、.docx の読み書きに対応。インストール不要、アカウント不要。Microsoft とは提携していません。',
   'seo.task.docs.microsoft-word-alternative.h1': 'ブラウザーで使える無料の Microsoft Word の代わり',
   'seo.task.docs.microsoft-word-alternative.lead': '手紙、エッセイ、簡単なレポートのために、Slop Docs はブラウザー タブでページ、スタイル、Word ファイルを提供します。インストールもアカウントも不要で、何もアップロードされません。',
   'seo.task.docs.microsoft-word-alternative.steps.0': 'Slop Docs を開いて入力を始めるか、Slop Drive にある .docx を読み込みます。',
