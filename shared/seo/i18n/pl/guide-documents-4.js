@@ -17,7 +17,7 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'seo.guide.checksum.getting-started.sections.2.steps.0': 'Wybierz pobrany plik, jak wyżej.',
   'seo.guide.checksum.getting-started.sections.2.steps.1': 'Skopiuj skrót ze strony pobierania.',
   'seo.guide.checksum.getting-started.sections.2.steps.2': 'Wklej go w pole Oczekiwany skrót, pod 3. Sprawdź względem opublikowanego skrótu.',
-  'seo.guide.checksum.getting-started.sections.2.steps.3': 'Przeczytaj wiersz pod nim. Zgodność oznacza, że plik jest tym, który opublikowano. Brak zgodności oznacza, że plik się różni.',
+  'seo.guide.checksum.getting-started.sections.2.steps.3': 'Przeczytaj wiersz pod nim. Zgodne oznacza, że plik jest tym, który opublikowano. Niezgodne oznacza, że plik się różni.',
   'seo.guide.checksum.getting-started.sections.2.text.0': 'Spacje, wielkie litery i prefiks w rodzaju „sha256:” są ignorowane. Jeśli długość jest zła, Checksum to mówi i prosi o sprawdzenie algorytmu.',
   'seo.guide.checksum.getting-started.sections.2.image.alt': 'Checksum z wybranym plikiem JPEG, pokazanym skrótem SHA-256 i wklejonym skrótem zgłoszonym jako zgodny',
   'seo.guide.checksum.getting-started.sections.2.tip': 'Checksum liczy skrót jednego pliku naraz. Wybierz następny plik, aby zacząć od nowa.',

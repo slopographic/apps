@@ -38,6 +38,8 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'seo.ui.video.on_youtube': 'Na YouTube, {length}.',
   'seo.ui.video.minutes': 'około {n} minut',
   'seo.ui.video.minutes#one': 'około minuty',
+  'seo.ui.video.minutes#few': 'około {n} minuty',
+  'seo.ui.video.minutes#many': 'około {n} minut',
   'seo.ui.video.minutes_2': 'około dwóch minut',
   'seo.ui.video.minutes_3': 'około trzech minut',
   'seo.ui.video.minutes_4': 'około czterech minut',
