@@ -25,7 +25,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'seo.task.fontcreator.handwriting-font.h1': 'El yazınızdan bir yazı tipi yapın',
   'seo.task.fontcreator.handwriting-font.lead': 'Alfabeyi kâğıda bir kez yazın ve kendi elinizde yazan bir yazı tipi alın. Slop Font sayfayı yazdırır, fotoğrafını okur ve her harfi taban çizgisi üzerinde izler.',
   'seo.task.fontcreator.handwriting-font.cta': 'El yazısı yazı tipi yapın',
-  'seo.task.fontcreator.handwriting-font.steps.0': 'El yazısı altındaki panelde Şablon yazdır…’a tıklayın, karakterleri (büyük harfler, küçük harfler, rakamlar…) ve kâğıdı seçin, sonra PDF’i indirin.',
+  'seo.task.fontcreator.handwriting-font.steps.0': 'El yazısı altındaki panelde Şablon yazdır…’a tıklayın, karakterleri (büyük harfler, küçük harfler, rakamlar…) ve kâğıdı seçin, sonra PDF\'i indirin.',
   'seo.task.fontcreator.handwriting-font.steps.1': 'Yüzde 100’de yazdırın, sonra her karakteri kendi kutusuna siyah bir kalemle, koyu çizgi üzerinde durarak yazın.',
   'seo.task.fontcreator.handwriting-font.steps.2': 'Sayfanın fotoğrafını düz ve iyi ışıkta çekin (ya da tarayın); dört siyah köşe karesinin resimde kalmasına dikkat edin.',
   'seo.task.fontcreator.handwriting-font.steps.3': 'Doldurulmuş şablonu oku…’ya tıklayın, fotoğrafı ve hangi şablon olduğunu seçin: yazılmış her kutu o harf olur.',
