@@ -1,7 +1,7 @@
 /* SEO copy, Portuguese (Brazil): cv-f. Translated from shared/seo/i18n/en/cv-f.js (the converter page lists). Rules: shared/seo/i18n/README.md. */
 window.SlopI18n && window.SlopI18n.add('pt-BR', {
   'seo.cv.pptx-to-text.faq.2.1': 'Não. A conversão roda no seu navegador, neste dispositivo. Os seus arquivos não são enviados à Slopographic nem a nenhum outro servidor.',
-  'seo.cv.html-to-markdown.title': 'Conversor de HTML para Markdown, Markdown limpo de uma página | File convert',
+  'seo.cv.html-to-markdown.title': 'Conversor de HTML para Markdown, limpo de uma página | File convert',
   'seo.cv.html-to-markdown.description': 'Converta HTML em Markdown no navegador: títulos, links, listas, blocos de código e tabelas viram Markdown limpo, e scripts ficam de fora. Nada é enviado.',
   'seo.cv.html-to-markdown.h1': 'Conversor de HTML para Markdown',
   'seo.cv.html-to-markdown.lead': 'Transforme uma página web salva, um modelo de e-mail ou uma exportação HTML em Markdown para um README, um wiki, notas ou um site estático.',
