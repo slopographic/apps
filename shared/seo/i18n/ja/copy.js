@@ -164,7 +164,7 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'seo.about.expenses.description': 'Slop Expensesについて。事業の支出を記録し、各経費を請求書と同じ帳簿に計上して、取り戻せる税額を集計します。',
   'seo.page.typeface.title': 'Slopographic書体：Sans、Serif、Mono、Condensed | Slopographic',
   'seo.page.typeface.crumb': '書体',
-  'seo.page.typeface.description': 'Slopographicの書体ファミリーです。Sans、Serif、Mono、Condensedがあり、ドロップドット、ドリップ合字、スタイルセットに対応しています。SIL Open Font Licenseのもとで無料です。',
+  'seo.page.typeface.description': 'Slopographicの書体ファミリー（Sans、Serif、Mono、Condensed）です。ドロップドット、ドリップ合字、スタイルセットに対応。SIL Open Font Licenseで無料です。',
   'seo.page.how-it-works.title': 'Slopographicの仕組み：ローカルファイル、保存先、通信 | Slopographic',
   'seo.page.how-it-works.crumb': 'このサイトの仕組み',
   'seo.page.how-it-works.description': 'Slopographicのアプリの仕組みです。ファイルは端末に残り、使われるブラウザーのAPI、すべての通信、自分で確認する方法を紹介します。',
