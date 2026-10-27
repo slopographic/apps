@@ -4,6 +4,29 @@ Free office and creative apps that run in your browser: a PDF editor, a photo ed
 
 Everything runs 100% in your browser: no installs, no accounts, no uploads, no watermarks. Static files, no backend, no build step. Each app is its own folder and can be downloaded as one offline `.html` file. Your files stay on your device, or in Slop Drive, the local drive every app shares. The optional AI runs on your device, or, if you connect your own AI account, sends your requests straight to that provider and nowhere else.
 
+The apps stand in for about **$1,700 a year** of paid software for one person, at list prices
+([how it is counted](https://slopographic.com/#savings)).
+
+## Fork me! (no, really)
+
+Every copy of Slopographic is one more place where people can use free, private, offline browser tools. A single site can go
+down, get blocked by a school or office filter, or simply disappear; a hundred copies are much harder to lose. It is MIT
+licensed, so hosting your own is not just allowed, it is the point.
+
+1. **Fork** this repository.
+2. **Enable GitHub Pages** on your fork (Settings → Pages) for your default branch, from the root folder. There is no
+   build step: the files are the site.
+3. **Give it a home of its own.** The site expects the root of a domain: name the fork `<your-account>.github.io`, or
+   put your own domain in `CNAME` (it holds ours, so change or delete it either way).
+4. **Optional: make it yours.** Name, colours and logo are one file: see [`brand/README.md`](brand/README.md).
+
+The code is MIT, but the name Slopographic, its logo, the mascot art and the media (screenshots, videos)
+are not part of that licence ([`NOTICE.md`](NOTICE.md), [`TRADEMARKS.md`](TRADEMARKS.md), [`LICENSE-ART`](LICENSE-ART)): a public copy brings its own.
+
+Congratulations: you now run a software suite, and your hosting bill is still zero.
+
+## The apps
+
 ### Creative
 
 | Path | App |

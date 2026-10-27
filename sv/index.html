@@ -9,6 +9,7 @@
   <script src="shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="shared/theme/theme.js" data-app="home" data-src="shared/theme/theme.js"></script>
   <script src="shared/i18n/i18n.js" data-src="shared/i18n/i18n.js"></script>
+  <script src="shared/savings/i18n/index.js" data-src="shared/savings/i18n/index.js"></script>
 <script src="shared/consent/config.js"></script>
 <script src="shared/consent/state.js"></script>
 <script src="shared/consent/consent-mode.js"></script>
@@ -82,6 +83,7 @@
             <a class="btn primary hx-btn" href="#app-finder" data-to-finder><span data-i18n="hero.open">Öppna apparna</span><span class="hx-arrow" aria-hidden="true">→</span></a>
             <a class="btn hx-btn" href="how-it-works/" data-i18n="hero.how">Så fungerar det</a>
           </div>
+          <!--profile:savings--><p class="hx-save"><span data-i18n="savings.hero.line" data-i18n-vars='{"total":1700}'>≈ $1,700 a year in software you don’t have to buy</span><a class="hx-save-star" href="#savings" title="How this figure is counted" aria-label="How this figure is counted" data-i18n-attr="title:savings.hero.how;aria-label:savings.hero.how">*</a></p><!--/profile:savings-->
           <p class="hx-meta"><a href="https://github.com/slopographic/apps" rel="noopener" data-i18n="hero.github">Öppen källkod på GitHub</a><span class="hx-terms"><span data-i18n="hero.offline">Fungerar offline</span><span data-i18n="hero.no_account">Inget konto behövs</span></span></p>
           <nav class="gx-nav" aria-label="Alla appar" data-i18n-attr="aria-label:hero.apps" data-live></nav>
         </div>
@@ -134,6 +136,7 @@
         </header>
         <div class="status-board" id="status-board" data-perch role="table" aria-label="Status för alla appar" data-i18n-attr="aria-label:home.status_table"></div>
       </section>
+      <!--profile:savings--><section id="savings" class="shelf savings" aria-labelledby="savings-title"><header class="shelf-head"><h2 id="savings-title" class="sec-num" data-num="04" data-i18n="savings.list.title">Where the number comes from</h2><p data-i18n="savings.list.lede">An estimate for one user at US list prices, excluding taxes and discounts: the paid subscriptions you would otherwise buy for the same work. A subscription that covers several apps here is counted once, apps with a free equivalent are left out, and the homepage rounds the sum down.</p></header><details class="savings-how" id="savings-how"><summary data-i18n="savings.list.open">Every subscription, its price and its source</summary><div class="savings-list" id="savings-list"></div></details></section><!--/profile:savings-->
     </section>
 
     <section id="view-detector" class="view" aria-label="The Authenticator" hidden></section><!-- filled by detector/detector.js (home/view.js loads it) -->
@@ -188,6 +191,7 @@
   <script src="home/globe/list.js"></script>
   <script src="home/marquee.js"></script>
   <script src="home/footer-mark.js"></script>
+  <script type="module" src="home/savings.js"></script>
   <script src="brand/brand.js"></script>
   <script type="module" src="home/mascot/index.js"></script>
   <script src="shell/shell.js"></script>

@@ -4056,6 +4056,9 @@ Covers: shared/i18n/yo.js
 Covers: shared/i18n/zh-CN.js
 Covers: shared/i18n/zh-TW.js
 Covers: shared/i18n/zu.js
+Covers: shared/savings/i18n/en/home.js
+Covers: shared/savings/i18n/index.js
+Covers: shared/savings/i18n/sv/home.js
 Covers: shared/seo/i18n/en/best-business-2.js
 Covers: shared/seo/i18n/en/best-business-3.js
 Covers: shared/seo/i18n/en/best-business.js
