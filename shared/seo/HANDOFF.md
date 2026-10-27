@@ -100,9 +100,21 @@ Every static SEO page is written in every published language, each its own page 
   `/pdf/`). Every other published language has a folder with the same paths (`/sv/compare/`, `/sv/pdf/`,
   `/sv/convert/jpg-to-png/`, `/sv/`). Slugs stay the same in every language, so one path is one page in every language.
 - **Which languages.** A language is published when its SEO tables are complete (`shared/seo/i18n/<code>/`, every English
-  key) and the profile lets it in (`seo.langs`: `'all'`, the default, or a list; brand/README.md). A language without
-  tables is not written at all: no English pages in its folder and no hreflang to it. `write.mjs` prints the languages it
-  built and why the others were left out. A language folder holds only what `write.mjs` writes; it removes the rest.
+  key) and the profile lets it in (`seo.langs`: `'all'`, the default, a list such as `["sv", "de"]`, or `'none'` / `[]`
+  for the root language only; brand/README.md). A language without tables is not written at all: no English pages in its
+  folder and no hreflang to it. `write.mjs` prints the languages it built and why the others were left out. A language
+  folder holds only what `write.mjs` writes; it removes the rest.
+- **Written on publish, never committed.** Only the root language's files are in git. The other languages' folders
+  (`/sv/`) and their sitemaps (`sitemap-sv.xml`) are written when the site is published, and git ignores them: a block in
+  `.gitignore` between `# seo:langs:start` and `# seo:langs:end`, written by `write.mjs` from the language list, anchored
+  to exactly those names (`/sv/`, `/sitemap-sv.xml`; never `pdf/` or `docs/`). `tools/seo/langdirs.mjs` keeps it, and
+  `write.mjs` refuses to write a language whose folder is an app's or not one it wrote. The modes:
+  `node tools/seo/write.mjs` (the root language: the committed files, and the block), `--langs` (the other languages
+  only: about 10 seconds a language), `--all` (both); `--check` with any of them. Who runs `--langs`: the production
+  deploy (`.github/workflows/pages.yml`), the preview (`preview.yml`), CI before the Node tests (`rules.yml`) and the
+  pre-push hook, since the tests read the pages; a white-label build runs `--all` and commits them in its mirror
+  (`tools/whitelabel/build.mjs`). For a local look at `/sv/`, run `--langs` (the folders stay out of git). With
+  `seo.langs: 'none'` none of this builds anything.
 - **The generated pages** (landing, task, guide, round-up and hub pages) are drawn in the language (`L`, a `lang.mjs`
   context: `L.t('seo.ui.*')` for the templates' own words); their links to another page that exists in the language
   go to that language's page.
@@ -121,11 +133,11 @@ Every static SEO page is written in every published language, each its own page 
   tests/node/first-paint-page-lang.test.mjs), keeps a language other than the default as the visitor's choice, and the header's
   language switcher goes to the same page in the language picked (its alternate) when there is one.
 - **Sitemaps.** `sitemap.xml` is the root language's pages, `sitemap-<code>.xml` each other language's, and
-  `sitemap-index.xml` lists them all; robots.txt names `sitemap.xml` and the index.
+  `sitemap-index.xml` lists them all; robots.txt names `sitemap.xml` and the index. `sitemap.xml` and the index are
+  committed; a language's sitemap is written with its folder, each page dated as the same page in `sitemap.xml`.
 - **Checks.** `write.mjs` refuses copy that breaks the rules in any language: description lengths by script
   (`head.mjs` `descLimits`: 120 to 160 for Latin and most scripts, 45 to 110 for Chinese and Japanese, 55 to 130 for
   Korean), titles of at most 75 characters, titles and descriptions unique within a language.
   `node tools/i18n/i18n.mjs --check` holds the SEO tables like every other table (`todo seo <code>` lists what a
   language lacks, `coverage` reports them). Tests: `tests/seo/lang.test.mjs`, `tests/seo/lang-pages.test.mjs`.
-- **Size.** Each published language adds about 560 pages (14 MB of HTML, about 1 MB compressed in git) and 1.1 MB of
-  tables. None of it is precached by the service worker: the precache list follows the app pages' own boot files only.
+- **Size.** Each published language adds about 560 pages (14 MB of HTML, none of it in git) and 1.1 MB of tables. None of it is precached by the service worker: the precache list follows the app pages' own boot files only.

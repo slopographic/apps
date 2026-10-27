@@ -63,9 +63,16 @@ npx http-server . -p 8080   # or: python3 -m http.server 8080
 
 ## Deploy (GitHub Pages)
 
-Pages serves this branch from the repo root:
+`main` is the live site. `.github/workflows/pages.yml` builds it on every push to `main`: the branch as it is, plus the SEO
+pages of the other languages (`/sv/`), which are written on publish and never committed (`node tools/seo/write.mjs
+--langs`; `shared/seo/HANDOFF.md`, "Languages"), and deploys that with GitHub's Pages actions.
 
-1. **Settings → Pages → Source: Deploy from a branch**, pick the branch, folder `/ (root)`.
+1. **Settings → Pages → Source: GitHub Actions.** While the source is "Deploy from a branch", Pages serves `main` as
+   committed, without the language folders, and the workflow builds but skips its deploy step. Switch the source just
+   before the push that brings this workflow to `main` (the deployed site stays up until the next deploy, which is then
+   this workflow's), or right after it and run the workflow by hand (Actions → Pages → Run workflow); in between, `/sv/`
+   is missing. IndexNow (`indexnow.yml`) follows the source: it pings after the push for a branch deploy, and after the
+   Pages workflow's run for an Actions deploy.
 2. **Custom domain:** `slopographic.com` (already in `CNAME`), with **Enforce HTTPS** on.
 3. **DNS** at your registrar: `A` records for `@` → `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`, and a `CNAME` for `www` → `slopographic.github.io`.
 

@@ -85,7 +85,7 @@ sites live outside this repository, with the publish script; pass their folder w
 | `links`, `footer`, `support`, `analytics` | Footer and support links (empty hides them), the footer line, the export card parts, and third parties: `false` leaves out analytics, ads and the consent strip. |
 | `copy` | Extra phrase replacements for this site (`"source phrase": "replacement"`), on top of the tone's. |
 | `apps.hide`, `media` | Apps left out of every list, menu and sitemap (their guides and task pages too; tests read them from the brand facts, `hideApps`); `false` leaves out screenshots, clips and videos (they show this brand). |
-| `seo` | `homeTitle`, `homeDescription`, `titleSuffix` for the generated head blocks and the sitemap (the home copy is in the root language), and `langs`: the languages of the static SEO pages (below, "Languages of the SEO pages"). |
+| `seo` | `homeTitle`, `homeDescription`, `titleSuffix` for the generated head blocks and the sitemap (the home copy is in the root language), and `langs`: the languages of the static SEO pages besides the root one, `"all"` (default), a list (`["sv", "de"]`) or `"none"` (below, "Languages of the SEO pages"). |
 | `legal` | `{ holder, year, trademarks? }`: the MIT licence's copyright holder, `NOTICE.md` and `TRADEMARKS.md` (`trademarks`: the names the holder claims; default the product name). |
 | `publish` | `{ repo, branch, secret, author, email }`: where the publish script pushes, the token's secret name, and the release commit's author. |
 | `font` | `{ spec, dir }`: the profile's own type family, a font spec for `tools/fonts/build.py` and its built folder (both relative to the profiles folder; build the folder ahead, the site build needs no Python). The build ships it as `shared/fonts/brand/` with its CSS and token names, and the typeface page. Without it, a build ships no family: the upstream fonts (Inter Tight and the others) and no typeface page. This site's family never goes into another build, and the leak scan reads the name tables inside every WOFF2 file and zip. The sample's family: `brand/profiles/fonts/acme/`. Only a plain brand mark may go into a family's Private Use Area, never the mascot (it is all-rights-reserved art; a font is OFL): the build refuses such a spec. |
@@ -193,8 +193,26 @@ The static SEO pages (landing, task, guide and comparison pages, the head of eve
 written in every language whose SEO tables are complete (`shared/seo/HANDOFF.md`, "Languages"). One profile field,
 `defaultLang`, decides both the language a visitor starts in and the **root language**: its pages are at the site root
 (`/compare/`), every other language in its own folder (`/en/compare/`, `/de/compare/`). `seo.langs` says which other
-languages a build publishes: `"all"` (the default) or a list (`["sv", "en"]`); a language left out has no pages and no
-hreflang.
+languages a build publishes:
+
+```json
+"seo": { "langs": ["sv", "de"] }
+```
+
+- `"all"` (the default, also when the field is left out): every language whose SEO tables are complete.
+- A list of the site's language codes (`shared/i18n/i18n.js` `LANGS`: `"sv"`, `"de"`, `"pt-BR"`, `"zh-CN"`...): those
+  of them whose tables are complete. It may name the root language; it changes nothing.
+- `"none"` (or `[]`): the root language only. No language folders, no language sitemaps, no hreflang, and nothing of
+  them is built anywhere.
+
+A language left out has no pages and no hreflang. The language folders are never committed in this repository: they are
+written when the site is published (`node tools/seo/write.mjs --langs`, `shared/seo/HANDOFF.md` "Languages"), and a
+white-label build writes them into its copy and keeps them (its mirror is the published site, so `build.mjs` drops the
+`.gitignore` block that keeps them out of git here). `tools/whitelabel/profile.mjs` refuses any other value.
+
+This site's own value is the marker in `tools/seo/lang.mjs` (`/*profile:seoLangs*/'all'`), which must equal
+`seo.langs` in `brand/profiles/slopographic.json` (`tests/node/whitelabel-profile.test.mjs` fails until both agree): set
+both, then run `node tools/seo/write.mjs` (the hreflang links and the sitemap index follow).
 
 Why the default language goes to the root: a site for one market is found in that language, and its plain addresses
 (`/compare/`) are the ones people share and search engines rank first, so they carry the language its visitors read.

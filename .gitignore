@@ -17,3 +17,65 @@ __pycache__/
 
 # local editor and assistant settings stay on each machine
 /.claude/
+
+# seo:langs:start
+# The SEO pages of the languages besides the root one and their sitemaps: written when the site is published
+# (node tools/seo/write.mjs --langs), never committed. Written by tools/seo/write.mjs from the language list
+# (shared/i18n/i18n.js); tools/seo/langdirs.mjs.
+/es/
+/sitemap-es.xml
+/fr/
+/sitemap-fr.xml
+/de/
+/sitemap-de.xml
+/pt-br/
+/sitemap-pt-br.xml
+/it/
+/sitemap-it.xml
+/ar/
+/sitemap-ar.xml
+/sv/
+/sitemap-sv.xml
+/zh-cn/
+/sitemap-zh-cn.xml
+/zh-tw/
+/sitemap-zh-tw.xml
+/ja/
+/sitemap-ja.xml
+/ko/
+/sitemap-ko.xml
+/hi/
+/sitemap-hi.xml
+/ru/
+/sitemap-ru.xml
+/uk/
+/sitemap-uk.xml
+/pl/
+/sitemap-pl.xml
+/nl/
+/sitemap-nl.xml
+/tr/
+/sitemap-tr.xml
+/id/
+/sitemap-id.xml
+/vi/
+/sitemap-vi.xml
+/he/
+/sitemap-he.xml
+/sw/
+/sitemap-sw.xml
+/am/
+/sitemap-am.xml
+/ha/
+/sitemap-ha.xml
+/yo/
+/sitemap-yo.xml
+/ig/
+/sitemap-ig.xml
+/zu/
+/sitemap-zu.xml
+/xh/
+/sitemap-xh.xml
+/af/
+/sitemap-af.xml
+# seo:langs:end

@@ -45,7 +45,7 @@ test('every published language has every kind of page, in its language, with its
   for (const code of codes) {
     for (const [dir, title] of samples(code)) {
       const f = fileOf(code, dir);
-      assert.ok(existsSync(path.join(ROOT, f)), `${code}: ${f} is missing (node tools/seo/write.mjs)`);
+      assert.ok(existsSync(path.join(ROOT, f)), `${code}: ${f} is missing (node tools/seo/write.mjs --all)`);
       const h = read(f);
       assert.equal(get(h, /<html[^>]*\slang="([^"]+)"/), code, `${f}: <html lang>`);
       if (dirOf(code) === 'rtl') assert.match(h, /<html[^>]*\sdir="rtl"/, `${f}: right to left`);

@@ -59,5 +59,7 @@ translation in the same change.
      tables), when it has one.
    - Brand and app names stay (Slopographic, PhotoSlop, Slop PDF, File convert...); never write "Slop" in another script.
    - Keep every `{placeholder}`; a key with `#one` (plurals) needs the forms the language uses.
-4. `node tools/seo/write.mjs` publishes the language once every key is there: its pages at `/<code>/...`, its sitemap,
-   and the hreflang links of every page. `node tools/seo/write.mjs --check` and `node tools/i18n/i18n.mjs --check` pass.
+4. `node tools/seo/write.mjs` publishes the language once every key is there: the hreflang links of every page and the
+   sitemap index; its pages at `/<code>/...` and its sitemap are written when the site is published (`--langs`; run it
+   to look at them locally, git ignores them). `node tools/seo/write.mjs --check --all` and `node tools/i18n/i18n.mjs
+   --check` pass.

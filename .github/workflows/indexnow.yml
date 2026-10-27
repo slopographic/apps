@@ -1,22 +1,56 @@
 # Production only: after GitHub Pages publishes a push to main, tell the IndexNow search engines which pages changed
 # (tools/seo/indexnow.mjs). The testing preview is noindex and never pinged.
+# Two ways in, one of which pings, by the Pages source (Settings -> Pages, read with the job's token):
+#   - deploy from the branch (build_type 'legacy', today): the push to main, after the time Pages takes to publish it;
+#   - GitHub Actions (build_type 'workflow'): the Pages workflow's run (.github/workflows/pages.yml), once it has deployed;
+#     the changes since the commit of its previous successful run.
 name: IndexNow
 on:
   push:
+    branches: [main]
+  workflow_run:
+    workflows: [Pages]
+    types: [completed]
     branches: [main]
 permissions:
   contents: read
 jobs:
   ping:
+    if: ${{ github.event_name == 'push' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: read
+      actions: read
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Wait for Pages to publish
-        run: sleep 150
+      - name: Which commits this deploy published
+        id: range
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT: ${{ github.event_name }}
+          BEFORE: ${{ github.event.before }}
+          RUN_SHA: ${{ github.event.workflow_run.head_sha }}
+          RUN_CREATED: ${{ github.event.workflow_run.created_at }}
+        run: |
+          type=$(gh api "repos/$GITHUB_REPOSITORY/pages" --jq .build_type 2>/dev/null || true)
+          echo "Pages build type: ${type:-unknown}"
+          if [ "$EVENT" = push ]; then
+            if [ "$type" = workflow ]; then echo "The Pages workflow deploys and pings"; echo run=no >> "$GITHUB_OUTPUT"; exit 0; fi
+            sleep 150   # the branch deploy takes about this long to publish
+            printf 'run=yes\nbefore=%s\nafter=%s\n' "$BEFORE" "$GITHUB_SHA" >> "$GITHUB_OUTPUT"
+          else
+            if [ "$type" != workflow ]; then echo "Pages deploys from the branch; the push pings"; echo run=no >> "$GITHUB_OUTPUT"; exit 0; fi
+            prev=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/pages.yml/runs?branch=main&status=success&per_page=20" \
+              --jq "[.workflow_runs[] | select(.created_at < \"$RUN_CREATED\")][0].head_sha // empty")
+            printf 'run=yes\nbefore=%s\nafter=%s\n' "$prev" "$RUN_SHA" >> "$GITHUB_OUTPUT"
+          fi
       - name: Send the changed pages
-        run: node tools/seo/indexnow.mjs "${{ github.event.before }}" "${{ github.sha }}"
+        if: ${{ steps.range.outputs.run == 'yes' }}
+        run: node tools/seo/indexnow.mjs "${{ steps.range.outputs.before }}" "${{ steps.range.outputs.after }}"

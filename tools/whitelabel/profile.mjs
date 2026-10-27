@@ -7,6 +7,7 @@ import vm from 'node:vm';
 import { mascotProblems } from './mascot.mjs';
 import { fontProblems, fontManifest } from './font.mjs';
 import { backupExt } from './emit.mjs';
+import { LANGS as SITE_LANGS } from '../seo/lang.mjs';
 
 const HEX = /^#[0-9a-f]{3,8}$/i;
 const TOKENS = ['background', 'surface', 'text', 'accent', 'border'];
@@ -42,9 +43,12 @@ export function validate(p) {
   if (p.logo && typeof p.logo === 'object' && !isStr(p.logo.text)) errs.push('logo.text: the wordmark text');
   if (p.publish) for (const k of ['repo', 'branch', 'secret', 'author', 'email']) if (!isStr(p.publish[k])) errs.push(`publish.${k}: required`);
   if (p.publish && !/^[\w.-]+\/[\w.-]+$/.test(p.publish.repo || '')) errs.push('publish.repo: owner/name');
-  // seo.langs: the languages of the static SEO pages besides the root one (defaultLang): 'all' (default) or a list of codes
-  const sl = p.seo && p.seo.langs;
-  if (sl !== undefined && sl !== 'all' && !(Array.isArray(sl) && sl.every((c) => LANGS.includes(c)))) errs.push(`seo.langs: 'all' or a list of language codes (${LANGS.join(', ')})`);
+  // seo.langs: the languages of the static SEO pages besides the root one (defaultLang): 'all' (default), a list of the
+  // site's language codes (shared/i18n/i18n.js), or 'none' (or []): the root language only, no language folders
+  const sl = p.seo && p.seo.langs, codes = SITE_LANGS.map((l) => l.code);
+  if (sl !== undefined && sl !== 'all' && sl !== 'none' && !(Array.isArray(sl) && sl.every((c) => codes.includes(c)) && new Set(sl).size === sl.length)) {
+    errs.push(`seo.langs: 'all', 'none' or a list of language codes without repeats (${codes.join(', ')})`);
+  }
   return errs;
 }
 

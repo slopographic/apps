@@ -22,7 +22,8 @@ export function markerValues(p) {
 /** The backup ZIP's extension for a profile: its backupExt, '.backup' for the plain tone, or undefined (the source's own,
  * renamed like any other token). The "Export everything" file is that extension plus .json. */
 export const backupExt = (p) => p.backupExt || (p.tone === 'plain' ? '.backup' : undefined);
-const LITERAL = String.raw`'(?:[^'\\\n]|\\.)*'|"(?:[^"\\\n]|\\.)*"|true|false|null|-?\d+(?:\.\d+)?|\[\]|\{\}`;
+// a literal: a string, true, false, null, a number, {} or a list of double-quoted strings (["sv", "de"], [])
+const LITERAL = String.raw`'(?:[^'\\\n]|\\.)*'|"(?:[^"\\\n]|\\.)*"|true|false|null|-?\d+(?:\.\d+)?|\[(?:\s*"(?:[^"\\\n]|\\.)*"\s*,?)*\s*\]|\{\}`;
 const MARKER = new RegExp(String.raw`/\*profile:(\w+)\*/(${LITERAL})`, 'g');
 /** The value of a marker's literal (single-quoted strings read as JSON strings). */
 const literal = (lit) => JSON.parse(lit[0] === "'" ? '"' + lit.slice(1, -1).replace(/\\'/g, "'").replace(/"/g, '\\"') + '"' : lit);

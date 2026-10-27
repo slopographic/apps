@@ -24,14 +24,22 @@ test('validate names each bad field', () => {
   for (const k of ['origin', 'naming', 'colors', 'defaultLang']) assert.match(errs, new RegExp(`^${k}:`, 'm'));
 });
 
-test('seo.langs: the SEO pages\' languages besides the root one, \'all\' or a list; the marker carries it to tools/seo', () => {
-  const sv = loadProfile(DIR, 'sample-sv');
+test('seo.langs: the SEO pages\' languages besides the root one, \'all\', a list or \'none\'; the marker carries it to tools/seo', () => {
+  const sv = loadProfile(DIR, 'sample-sv'), langs = (v) => validate({ ...sv, seo: { ...sv.seo, langs: v } });
   assert.deepEqual([sv.defaultLang, sv.seo.langs], ['sv', ['sv', 'en']]);
   assert.deepEqual(markerValues(sv).seoLangs, ['sv', 'en']);
   assert.equal(markerValues(loadProfile(DIR, 'sample')).seoLangs, undefined, 'unset: the code keeps \'all\'');
-  for (const langs of ['some', ['sv', 'xx'], 3]) assert.match(validate({ ...sv, seo: { ...sv.seo, langs } }).join('\n'), /^seo\.langs:/m);
-  assert.deepEqual(validate({ ...sv, seo: { ...sv.seo, langs: 'all' } }), []);
-  assert.match(readFileSync(path.join(ROOT, 'tools/seo/lang.mjs'), 'utf8'), /\/\*profile:defaultLang\*\/'en'[\s\S]*\/\*profile:seoLangs\*\/'all'/);
+  for (const ok of ['all', 'none', [], ['sv'], ['sv', 'de', 'pt-BR', 'zh-CN']]) assert.deepEqual(langs(ok), [], JSON.stringify(ok));
+  for (const bad of ['some', 'None', ['sv', 'xx'], ['pt-br'], ['sv', 'sv'], 3, null]) assert.match(langs(bad).join('\n'), /^seo\.langs:/m, JSON.stringify(bad));
+  // this site's value is its own profile's (brand/profiles/slopographic.json; the marker test below holds them equal), 'all' unset
+  const own = loadProfile(DIR, 'slopographic').seo.langs, src = readFileSync(path.join(ROOT, 'tools/seo/lang.mjs'), 'utf8');
+  assert.match(src, /\/\*profile:defaultLang\*\/'en'[\s\S]*\/\*profile:seoLangs\*\//);
+  if (own === undefined) assert.match(src, /\/\*profile:seoLangs\*\/'all'/);
+  // a list in the marker (this site's own value, set by hand to the profile's) is read back and rewritten like any literal
+  const line = "export const SEO_LANGS = /*profile:seoLangs*/'all';", list = applyMarkers(line, { seoLangs: ['sv', 'de'] });
+  assert.equal(list, 'export const SEO_LANGS = /*profile:seoLangs*/["sv","de"];');
+  assert.equal(applyMarkers(list, { seoLangs: ['sv', 'de'] }), list);
+  assert.equal(applyMarkers(list, { seoLangs: 'none' }), 'export const SEO_LANGS = /*profile:seoLangs*/"none";');
 });
 
 test('phrase pairs: registry plain names, the tone copy, the brand name', () => {
@@ -57,7 +65,7 @@ test('the site’s own profile writes today’s brand.json', () => {
 
 test('the site’s own profile leaves every marker literal as it is', () => {
   const values = markerValues(loadProfile(DIR, 'slopographic'));
-  const files = ['shared/apps.js', 'shared/theme/theme.js', 'shared/buddy/boot.js', 'shared/consent/config.js', 'shared/i18n/i18n.js', 'ai/js/ui/sloppo.js', 'drive/js/ui/empty.js', 'shared/seo/copy.mjs'];
+  const files = ['shared/apps.js', 'shared/theme/theme.js', 'shared/buddy/boot.js', 'shared/consent/config.js', 'shared/i18n/i18n.js', 'ai/js/ui/sloppo.js', 'drive/js/ui/empty.js', 'shared/seo/copy.mjs', 'tools/seo/lang.mjs'];
   for (const f of files) {
     const text = readFileSync(path.join(ROOT, f), 'utf8');
     assert.match(text, /\/\*profile:\w+\*\//, f);

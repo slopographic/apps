@@ -28,18 +28,19 @@ import { setHtmlLang } from './head.mjs';
 const escQ = (s) => esc(s);                                         // & < > "
 const escN = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');   // quotes as they are
 
-const tableCache = new Map();
+const tableCache = new Map(), loaded = new Map();
+const once = (key, load) => { if (!loaded.has(key)) loaded.set(key, load()); return loaded.get(key); };   // each table file is run once
 export function pageTables(code, appDir) {
   const id = code + ':' + (appDir || '');
   if (tableCache.has(id)) return tableCache.get(id);
   const m = new Map();
   const add = (src) => { if (src) for (const [k, v] of src) m.set(k, v); };
   for (const c of code === 'en' ? ['en'] : ['en', code]) {
-    add(sharedTables('chrome').tables[c]);
-    add(sharedTables('ui').tables[c]);
-    const parts = sharedAreas().find((a) => a.id === 'ui-parts');
-    if (parts) add(appTables(parts).tables[c]);
-    if (appDir) add(appTables({ id: appDir, dir: appDir }).tables[c]);
+    add(once('chrome', () => sharedTables('chrome')).tables[c]);
+    add(once('ui', () => sharedTables('ui')).tables[c]);
+    const parts = once('areas', () => sharedAreas()).find((a) => a.id === 'ui-parts');
+    if (parts) add(once('ui-parts', () => appTables(parts)).tables[c]);
+    if (appDir) add(once('app:' + appDir, () => appTables({ id: appDir, dir: appDir })).tables[c]);
   }
   tableCache.set(id, m);
   return m;

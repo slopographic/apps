@@ -1,11 +1,14 @@
 // The languages of the static SEO pages (shared/seo/HANDOFF.md, "Languages"). The build's root language is the brand
 // profile's defaultLang: its pages are at the site root (/compare/). Every other published language has its own folder
 // with the same paths (/sv/compare/, /de/pdf/). A language is published when its SEO tables are complete
-// (shared/seo/i18n/<code>/, every English key) and the profile's seo.langs lets it in ('all', or a list of codes).
+// (shared/seo/i18n/<code>/, every English key) and the profile's seo.langs lets it in ('all', a list of codes, or 'none'
+// or []: the root language only). The root language's pages are committed; the other languages' folders are written when
+// the site is published (write.mjs --langs) and never committed (langdirs.mjs).
 //   ROOT_LANG, SEO_LANGS          the profile markers (tools/whitelabel/emit.mjs markerValues)
 //   LANGS                         the site's language list (shared/i18n/i18n.js): { code, name, dir, ... }
-//   published()                   the published codes, the root language first; throws when the root one is incomplete
-//   unpublished()                 the codes with tables that are not published, and why
+//   allowed(code, langs)          whether seo.langs (default SEO_LANGS) lets a language in
+//   published(langs)              the published codes, the root language first; throws when the root one is incomplete
+//   unpublished(langs)            the codes with tables that are not published, and why
 //   prefixOf(code)                '' for the root language, else '/<code in lower case>'
 //   context(code)                 { code, prefix, dir, root, t(key, vars), chrome(key, fallback), ui(key) }
 //   alternates(path, codes)       [[hreflang, url]] for one page path ('/compare/') in every given language, x-default last
@@ -33,18 +36,18 @@ export function missing(code) {
   for (const k of table('en').keys()) if (!k.includes('#') && !(t.get(k) || '').trim()) out.push(k);
   return out;
 }
-const allowed = (code) => SEO_LANGS === 'all' || (Array.isArray(SEO_LANGS) && SEO_LANGS.includes(code));
+export const allowed = (code, langs = SEO_LANGS) => langs === 'all' || (Array.isArray(langs) && langs.includes(code));
 
-export function published() {
+export function published(langs = SEO_LANGS) {
   if (!byCode.has(ROOT_LANG)) throw new Error(`SEO: the root language ${ROOT_LANG} is not in LANGS`);
   const gap = missing(ROOT_LANG);
   if (gap.length) throw new Error(`SEO: the root language ${ROOT_LANG} lacks ${gap.length} keys in shared/seo/i18n/${ROOT_LANG}/ (first: ${gap[0]})`);
-  const others = tableLangs().filter((c) => c !== ROOT_LANG && byCode.has(c) && allowed(c) && !missing(c).length);
+  const others = tableLangs().filter((c) => c !== ROOT_LANG && byCode.has(c) && allowed(c, langs) && !missing(c).length);
   return [ROOT_LANG, ...others.sort((a, b) => LANGS.findIndex((l) => l.code === a) - LANGS.findIndex((l) => l.code === b))];
 }
-export function unpublished() {
-  const pub = new Set(published());
-  return tableLangs().filter((c) => !pub.has(c)).map((c) => ({ code: c, why: !byCode.has(c) ? 'not in LANGS' : !allowed(c) ? 'left out by the profile (seo.langs)' : `${missing(c).length} keys missing` }));
+export function unpublished(langs = SEO_LANGS) {
+  const pub = new Set(published(langs));
+  return tableLangs().filter((c) => !pub.has(c)).map((c) => ({ code: c, why: !byCode.has(c) ? 'not in LANGS' : !allowed(c, langs) ? 'left out by the profile (seo.langs)' : `${missing(c).length} keys missing` }));
 }
 
 export const prefixOf = (code) => (code === ROOT_LANG ? '' : '/' + code.toLowerCase());
