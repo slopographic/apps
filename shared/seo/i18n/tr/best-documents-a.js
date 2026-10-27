@@ -1,7 +1,7 @@
 /* SEO copy, Turkish: best-documents-a. Translated from shared/seo/i18n/en/best-documents-a.js. Rules: shared/seo/i18n/README.md. */
 window.SlopI18n && window.SlopI18n.add('tr', {
   'seo.best.free-pdf-editors.crumb': 'En iyi ücretsiz PDF düzenleyiciler',
-  'seo.best.free-pdf-editors.title': 'En iyi ücretsiz PDF düzenleyiciler (2026): Acrobat, Smallpdf, iLovePDF, PDF24',
+  'seo.best.free-pdf-editors.title': 'En iyi ücretsiz PDF düzenleyiciler (2026): iLovePDF, PDF24, Sejda, Smallpdf',
   'seo.best.free-pdf-editors.description': 'Ücretsiz PDF düzenleyiciler: Acrobat online, Smallpdf, iLovePDF, PDF24, Sejda ve Slop PDF; ücretsiz sunduklarıyla sınırları ve dosyanızın nereye gittiği.',
   'seo.best.free-pdf-editors.h1': 'En iyi ücretsiz PDF düzenleyiciler, karşılaştırmalı',
   'seo.best.free-pdf-editors.lead': 'Çoğu ücretsiz PDF düzenleyici, dosyanızı kendi sunucularında işleyen ve ücretsiz kullanımı sınırlayan web siteleridir. Her birinin ücretsiz sunduklarını, kendi sayfalarından alarak ve hangi işe hangisinin uyduğunu aşağıda bulabilirsiniz.',

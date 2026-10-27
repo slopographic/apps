@@ -1,8 +1,8 @@
 /* SEO copy, Turkish: best-creative-a. Translated from shared/seo/i18n/en/best-creative-a.js. Rules: shared/seo/i18n/README.md. */
 window.SlopI18n && window.SlopI18n.add('tr', {
   'seo.best.free-online-photo-editors.crumb': 'Ücretsiz çevrimiçi fotoğraf düzenleyiciler',
-  'seo.best.free-online-photo-editors.title': 'Katmanlı ve PSD destekli en iyi ücretsiz çevrimiçi fotoğraf düzenleyiciler (2026)',
-  'seo.best.free-online-photo-editors.description': 'Ücretsiz fotoğraf düzenleyiciler karşılaştırması: Photopea, PhotoSlop, GIMP ve Pixlr. Katmanlar, PSD dosyaları, RAW, yapay zekâ araçları, reklamlar, çevrimdışı kullanım.',
+  'seo.best.free-online-photo-editors.title': 'En iyi ücretsiz çevrimiçi fotoğraf düzenleyiciler: katman ve PSD (2026)',
+  'seo.best.free-online-photo-editors.description': 'Ücretsiz fotoğraf düzenleyiciler: Photopea, PhotoSlop, GIMP, Pixlr. Katmanlar, PSD, RAW, yapay zekâ araçları, reklamlar, çevrimdışı kullanım ve hesap.',
   'seo.best.free-online-photo-editors.h1': 'En iyi ücretsiz çevrimiçi fotoğraf düzenleyiciler',
   'seo.best.free-online-photo-editors.lead': 'Katmanlar, maskeler ve PSD dosyaları için artık ücretli bir abonelik gerekmiyor. Tarayıcıda çalışan üç ücretsiz düzenleyici ve klasik ücretsiz masaüstü düzenleyici, gerçekte ücretsiz neler yaptıklarına göre karşılaştırıldı.',
   'seo.best.free-online-photo-editors.criteria.0': 'Gerçek işler için filigransız ücretsiz kullanım',
@@ -113,8 +113,8 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'seo.best.free-online-photo-editors.faq.3.0': 'RAW fotoğrafları ücretsiz düzenleyebilir miyim?',
   'seo.best.free-online-photo-editors.faq.3.1': 'Photopea DNG, CR2, NEF ve ARW gibi RAW dosyalarını açar. GIMP, RAW ile darktable, RawTherapee ya da ART üzerinden çalışır. PhotoSlop CR2, CR3, NEF, ARW, DNG, RAF ve diğer RAW dosyalarını açar; beyaz dengesi ve pozlama için bir Geliştir penceresi vardır.',
   'seo.best.free-vector-graphics-editors.crumb': 'Ücretsiz vektör düzenleyiciler',
-  'seo.best.free-vector-graphics-editors.title': 'En iyi ücretsiz vektör grafik düzenleyiciler: Inkscape, SlopVector, Graphite',
-  'seo.best.free-vector-graphics-editors.description': 'Ücretsiz vektör düzenleyicileri karşılaştırması: Inkscape, SlopVector ve Graphite. Kalem ve birleştirme araçları, SVG, PDF ve .ai dosyaları, tarayıcı ya da masaüstü, olgunluk.',
+  'seo.best.free-vector-graphics-editors.title': 'En iyi ücretsiz vektör düzenleyiciler: Inkscape, SlopVector, Graphite',
+  'seo.best.free-vector-graphics-editors.description': 'Ücretsiz vektör düzenleyiciler: Inkscape, SlopVector, Graphite. Kalem ve birleştirme araçları, SVG, PDF ve .ai dosyaları, tarayıcı ya da masaüstü, olgunluk.',
   'seo.best.free-vector-graphics-editors.h1': 'En iyi ücretsiz vektör grafik düzenleyiciler',
   'seo.best.free-vector-graphics-editors.lead': 'Logolar, simgeler ve çizimler için bir vektör düzenleyicisi gerekir; üçü de abonelik olmadan ücretsizdir: Illustrator tarzında tarayıcı uygulamamız, olgun bir masaüstü uygulaması ve yeni bir açık kaynak düzenleyici.',
   'seo.best.free-vector-graphics-editors.criteria.0': 'Abonelik ya da deneme olmadan ücretsiz',

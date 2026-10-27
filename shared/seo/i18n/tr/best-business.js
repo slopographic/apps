@@ -1,8 +1,8 @@
 /* SEO copy, Turkish: best-business. Translated from shared/seo/i18n/en/best-business.js. Rules: shared/seo/i18n/README.md. */
 window.SlopI18n && window.SlopI18n.add('tr', {
   'seo.best.free-invoice-generators.crumb': 'En iyi ücretsiz faturalama yazılımları',
-  'seo.best.free-invoice-generators.title': 'En iyi ücretsiz faturalama yazılımları (2026): Zoho Invoice, Wave, Invoice Ninja',
-  'seo.best.free-invoice-generators.description': 'Ücretsiz faturalama karşılaştırması: Zoho Invoice, Wave, Invoice Ninja ve Slop Invoices ücretsiz neler sunar, sınırları, ödemeler, faturalarınızın nerede tutulduğu.',
+  'seo.best.free-invoice-generators.title': 'En iyi ücretsiz faturalama (2026): Zoho Invoice, Wave, Invoice Ninja',
+  'seo.best.free-invoice-generators.description': 'Ücretsiz faturalama: Zoho Invoice, Wave, Invoice Ninja ve Slop Invoices’ın sınırları, ödemeleri ve faturalarınızın nerede tutulduğu.',
   'seo.best.free-invoice-generators.h1': 'En iyi ücretsiz faturalama yazılımları, karşılaştırmalı',
   'seo.best.free-invoice-generators.lead': 'Ücretsiz faturalama araçları “ücretsiz” sözcüğünün anlamında ayrılır: fatura ya da müşteri sayısında sınır, faturalarınızda marka, ya da hatırlatmalar ve yinelenen faturalar için ücretli eklentiler. Her birinin ücret ödemeden sunduklarını kendi sayfalarından alarak aşağıda bulabilirsiniz.',
   'seo.best.free-invoice-generators.criteria.0': 'Ne kadarı ücretsiz: fatura, müşteri ve kullanıcı sınırları',
@@ -103,7 +103,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'seo.best.free-invoice-generators.faq.3.0': 'Ücretsiz faturalama yazılımı verilerim için güvenli mi?',
   'seo.best.free-invoice-generators.faq.3.1': 'Çevrimiçi hizmetler faturalarınızı kendi sunucularında tutar ve güvenliklerini kendi sayfalarında anlatır. Slop Invoices hiçbir şey yüklemez; bu yüzden ara sıra bir yedek indirin: tarayıcının site verilerini temizlemek onu siler.',
   'seo.best.free-accounting-software.crumb': 'En iyi ücretsiz muhasebe yazılımları',
-  'seo.best.free-accounting-software.title': 'En iyi ücretsiz muhasebe yazılımları (2026): GnuCash, Manager, Wave, Zoho Books',
+  'seo.best.free-accounting-software.title': 'En iyi ücretsiz muhasebe yazılımları (2026): GnuCash, Manager, Wave',
   'seo.best.free-accounting-software.description': 'Ücretsiz muhasebe yazılımları karşılaştırması: GnuCash, Manager, Wave, Zoho Books ve Slop Ledger. Banka içe aktarma, faturalama, sınırlar, defterlerin yeri.',
   'seo.best.free-accounting-software.h1': 'Küçük işletmeler için en iyi ücretsiz muhasebe yazılımları',
   'seo.best.free-accounting-software.lead': 'Ücret ödemeden düzgün defter tutabilirsiniz: defterleri bilgisayarınızda saklayan masaüstü bir yazılımla ya da ücretsiz planı olan çevrimiçi bir hizmetle. Her seçeneğin ne yaptığı, kendi sayfalarından alınarak aşağıda.',
@@ -206,7 +206,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'seo.best.free-accounting-software.faq.3.0': 'Çift taraflı defter tutmaya ihtiyacım var mı?',
   'seo.best.free-accounting-software.faq.3.1': 'Muhasebeciler defterleri böyle tutar: her tutar iki kez kaydedilir, böylece hatalar görünür olur. GnuCash ve Slop Ledger çift taraflı olduklarını açıkça söyler; herhangi bir aracı muhasebecinizle kontrol edin.',
   'seo.best.free-expense-trackers.crumb': 'En iyi ücretsiz gider takip araçları',
-  'seo.best.free-expense-trackers.title': 'En iyi ücretsiz iş gideri takip araçları (2026): Zoho Expense, Wave ve daha fazlası',
+  'seo.best.free-expense-trackers.title': 'En iyi ücretsiz gider takip araçları (2026): Zoho Expense, Wave',
   'seo.best.free-expense-trackers.description': 'Ücretsiz gider takip araçları karşılaştırması: Zoho Expense, Zoho Books, Wave ve Slop Expenses’ta fiş tarama, kilometre ve sınırlar; fişlerin nereye gittiği.',
   'seo.best.free-expense-trackers.h1': 'Küçük işletmeler için en iyi ücretsiz gider takip araçları',
   'seo.best.free-expense-trackers.lead': 'İyi bir gider takip aracı fişleri okur, kilometreyi kaydeder ve toplamları defterlerinize aktarır. Ücretsiz planlar tarama sınırları, kullanıcılar ve yükseltmenin ardında kalanlar bakımından birbirinden ayrılır. Her birinin sunduklarını kendi sayfalarından alarak aşağıda bulabilirsiniz.',

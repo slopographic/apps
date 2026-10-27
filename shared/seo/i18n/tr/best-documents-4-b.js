@@ -117,7 +117,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'seo.best.free-hex-editors.faq.3.1': 'Hex Fiend bayt ekleme, silme ve yeniden düzenleme yapabileceğinizi söylüyor. Slop Hex baytların yalnızca yerinde üzerine yazar.',
   'seo.best.free-checksum-tools.crumb': 'Ücretsiz sağlama toplamı araçları',
   'seo.best.free-checksum-tools.title': 'En iyi ücretsiz sağlama toplamı araçları: dosya SHA-256 ya da MD5 özeti',
-  'seo.best.free-checksum-tools.description': 'Bir dosyanın özetini alıp indirmeyi denetlemenin dört ücretsiz yolu: tarayıcıda Checksum, PowerShell Get-FileHash, HashMyFiles, QuickHash-GUI. Algoritmalar, toplu işlem.',
+  'seo.best.free-checksum-tools.description': 'Dosya özetini almanın dört ücretsiz yolu: tarayıcıda Checksum, PowerShell Get-FileHash, HashMyFiles, QuickHash-GUI. Algoritmalar ve toplu işlem.',
   'seo.best.free-checksum-tools.h1': 'En iyi ücretsiz sağlama toplamı ve dosya özeti araçları',
   'seo.best.free-checksum-tools.lead': 'Bir sağlama toplamı, bir indirmenin yayımlanan dosya olduğunu ve yol boyunca değişmediğini söyler. Bu ücretsiz araçlar özeti bilgisayarınızda hesaplar. Her birinin sunduklarını kendi sayfalarından alarak aşağıda bulabilirsiniz.',
   'seo.best.free-checksum-tools.criteria.0': 'Hesap gerekmeden ücretsiz',

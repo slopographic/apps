@@ -1,7 +1,7 @@
 /* SEO copy, Turkish: best-documents-2-a. Translated from shared/seo/i18n/en/best-documents-2-a.js. Rules: shared/seo/i18n/README.md. */
 window.SlopI18n && window.SlopI18n.add('tr', {
   'seo.best.free-word-processors.crumb': 'En iyi ücretsiz kelime işlemciler',
-  'seo.best.free-word-processors.title': 'En iyi ücretsiz kelime işlemciler (2026): Google Docs, Word, LibreOffice, Zoho',
+  'seo.best.free-word-processors.title': 'En iyi ücretsiz kelime işlemciler (2026): Google Docs, Word, LibreOffice',
   'seo.best.free-word-processors.description': 'Ücretsiz kelime işlemciler: Google Docs, Word web, LibreOffice Writer, Zoho Writer, Slop Docs. Hesap, Word dosyaları, çevrimdışı kullanım, depolama.',
   'seo.best.free-word-processors.h1': 'En iyi ücretsiz kelime işlemciler, karşılaştırmalı',
   'seo.best.free-word-processors.lead': 'Birkaç iyi araçta belgeleri ücretsiz yazabilir ve biçimlendirebilirsiniz. Aralarındaki fark; hesap gerekip gerekmediğinde, belgelerin nerede tutulduğunda, Word dosyalarını ne kadar iyi işlediklerinde ve birlikte ya da çevrimdışı çalışıp çalışamadığınızdadır.',
@@ -132,7 +132,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'seo.best.free-word-processors.faq.3.0': 'Belgelerim nerede saklanır?',
   'seo.best.free-word-processors.faq.3.1': 'Google Docs belgeleri Google Drive’da, Word web ise OneDrive’da tutar. Slop Docs belgeleri kendi tarayıcınızın içindeki depolama alanı olan Slop Drive’da tutar; bu yüzden hiçbir şey yüklenmez.',
   'seo.best.free-online-spreadsheets.crumb': 'En iyi ücretsiz çevrimiçi elektronik tablolar',
-  'seo.best.free-online-spreadsheets.title': 'En iyi ücretsiz elektronik tablo yazılımı (2026): Sheets, Excel, LibreOffice',
+  'seo.best.free-online-spreadsheets.title': 'En iyi ücretsiz elektronik tablolar (2026): Sheets, Excel, LibreOffice',
   'seo.best.free-online-spreadsheets.description': 'Ücretsiz elektronik tablolar: Google Sheets, Excel web, LibreOffice Calc, Zoho Sheet, Slop Tables. Excel dosyaları, özet tablolar, grafikler, çevrimdışı.',
   'seo.best.free-online-spreadsheets.h1': 'En iyi ücretsiz elektronik tablo uygulamaları, karşılaştırmalı',
   'seo.best.free-online-spreadsheets.lead': 'Formüller, grafikler ve özet tablolar birkaç elektronik tablo uygulamasında ücretsizdir. Farklar hesaplarda ve depolamada, Excel dosyalarını nasıl işlediklerinde, ne kadar analiz sunduklarında ve birlikte ya da çevrimdışı çalışıp çalışamadığınızdadır.',

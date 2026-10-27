@@ -50,7 +50,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'seo.best.free-markdown-editors.faq.3.1': 'Dillinger PDF’i doğrudan dışa aktarır. Slop Notes yazdırma görünümünü açar; orada tarayıcının PDF olarak Kaydet seçeneği dosyayı oluşturur. Typora da PDF dışa aktarır; ancak deneme süresinden sonra ücretli bir uygulama olarak.',
   'seo.best.free-html-to-pdf-converters.crumb': 'Ücretsiz HTML’den PDF’e dönüştürücüler',
   'seo.best.free-html-to-pdf-converters.title': 'En iyi ücretsiz HTML’den PDF’e dönüştürücüler: dosya, kod, web sayfası',
-  'seo.best.free-html-to-pdf-converters.description': 'Ücretsiz HTML’den PDF’e dönüştürücüler: Slop HTML to PDF, PDF24, Sejda, iLovePDF ve CloudConvert. Web adresleri, sayfa seçenekleri, sınırlar, dosyaların gittiği yer.',
+  'seo.best.free-html-to-pdf-converters.description': 'Ücretsiz HTML’den PDF’e: Slop HTML to PDF, PDF24, Sejda, iLovePDF, CloudConvert. Web adresleri, sayfa seçenekleri, sınırlar ve dosyaların gittiği yer.',
   'seo.best.free-html-to-pdf-converters.h1': 'En iyi ücretsiz HTML’den PDF’e dönüştürücüler',
   'seo.best.free-html-to-pdf-converters.lead': 'Sayfa çevrimiçiyse HTML’i PDF’e çevirmek kolaydır; kendi resimleri olan kaydedilmiş bir dosyaysa daha zordur. İşte beş ücretsiz dönüştürücü: dördü çevrimiçi hizmet, biri ise dosyayı yüklemeden tarayıcınızda çalışır.',
   'seo.best.free-html-to-pdf-converters.criteria.0': 'Ücretsiz kullanım ve ücretsiz planın sınırları',

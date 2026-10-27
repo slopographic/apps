@@ -1,7 +1,7 @@
 /* SEO copy, Turkish: best-creative-4. Translated from shared/seo/i18n/en/best-creative-4.js. Rules: shared/seo/i18n/README.md. */
 window.SlopI18n && window.SlopI18n.add('tr', {
   'seo.best.free-desktop-publishing-software.crumb': 'Ücretsiz masaüstü yayıncılık yazılımı',
-  'seo.best.free-desktop-publishing-software.title': 'En iyi ücretsiz masaüstü yayıncılık yazılımı: Affinity, Scribus ve daha fazlası',
+  'seo.best.free-desktop-publishing-software.title': 'En iyi ücretsiz masaüstü yayıncılık: Affinity, Scribus ve daha fazlası',
   'seo.best.free-desktop-publishing-software.description': 'Ücretsiz masaüstü yayıncılık yazılımları: Affinity, Scribus, Slop Press ve Canva. Ana sayfalar, CMYK, PDF/X, InDesign dosyaları ve her birinin çalıştığı yer.',
   'seo.best.free-desktop-publishing-software.h1': 'En iyi ücretsiz masaüstü yayıncılık yazılımı',
   'seo.best.free-desktop-publishing-software.lead': 'Broşürler, dergiler, el ilanları ve kitaplar sayfa düzeni ister: ana sayfalar, çerçeveden çerçeveye akan metin ve bir yazıcının kabul ettiği bir PDF. Dört araç bunu ücretsiz yapar; tarayıcı uygulamamızdan tam bir masaüstü paketine kadar.',
@@ -122,8 +122,8 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'seo.best.free-desktop-publishing-software.faq.3.0': 'Bir hesaba ihtiyacım var mı?',
   'seo.best.free-desktop-publishing-software.faq.3.1': 'Affinity ve Canva bir Canva hesabı ister; Affinity bunu indirmek ve etkinleştirmek için gerektirir. Slop Press hesap gerektirmez.',
   'seo.best.free-motion-graphics-software.crumb': 'Ücretsiz hareketli grafik yazılımı',
-  'seo.best.free-motion-graphics-software.title': 'En iyi ücretsiz hareketli grafik yazılımı: Cavalry, Blender ve tarayıcı araçları',
-  'seo.best.free-motion-graphics-software.description': 'Ücretsiz hareketli grafik yazılımları: Cavalry, Blender, Slop Effects ve Jitter. Anahtar kareler, grafik düzenleyici, dışa aktarma sınırları, filigranlar ve saydam video.',
+  'seo.best.free-motion-graphics-software.title': 'En iyi ücretsiz hareketli grafik: Cavalry, Blender ve tarayıcı araçları',
+  'seo.best.free-motion-graphics-software.description': 'Ücretsiz hareketli grafik: Cavalry, Blender, Slop Effects, Jitter. Anahtar kareler, grafik düzenleyici, dışa aktarma sınırları, filigran ve saydam video.',
   'seo.best.free-motion-graphics-software.h1': 'En iyi ücretsiz hareketli grafik yazılımı',
   'seo.best.free-motion-graphics-software.lead': 'Animasyonlu başlıklar, logo açılışları ve sosyal klipler bir After Effects aboneliği demekti. Bu dört araç ücretsiz animasyon yapar; bir tarayıcı sekmesinde çalışan düzenleyicilerden profesyonel masaüstü programlarına kadar.',
   'seo.best.free-motion-graphics-software.criteria.0': 'Ücretsiz dışa aktarmalar: çözünürlük ve filigran',

@@ -2,7 +2,7 @@
 window.SlopI18n && window.SlopI18n.add('tr', {
   'seo.best.free-ai-image-upscalers.crumb': 'Ücretsiz yapay zekâ resim büyütücüler',
   'seo.best.free-ai-image-upscalers.title': 'En iyi ücretsiz yapay zekâ resim büyütücüler: masaüstü, tarayıcı, çevrimiçi',
-  'seo.best.free-ai-image-upscalers.description': 'Ücretsiz yapay zekâ resim büyütücüler yan yana: Upscayl, Slop Upscale, Upscale.media ve Bigjpg. Ölçek, ücretsiz sınırlar, toplu işlem, video ve resminizin nereye gittiği.',
+  'seo.best.free-ai-image-upscalers.description': 'Ücretsiz yapay zekâ resim büyütücüler: Upscayl, Slop Upscale, Upscale.media, Bigjpg. Ölçek, ücretsiz sınırlar, toplu işlem, video ve resmin gittiği yer.',
   'seo.best.free-ai-image-upscalers.h1': 'En iyi ücretsiz yapay zekâ resim büyütücüler',
   'seo.best.free-ai-image-upscalers.lead': 'Yapay zekâ büyütücü, küçük bir resmi düz biçimde germek yerine ayrıntı ekleyerek büyütür. İşte dört ücretsiz seçenek: cihazınızda çalışan tarayıcı uygulamamız, bir masaüstü uygulaması ve iki çevrimiçi hizmet.',
   'seo.best.free-ai-image-upscalers.criteria.0': 'Aylık sınır olmadan ve filigran olmadan ücretsiz kullanım',
@@ -102,7 +102,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'seo.best.free-ai-image-upscalers.faq.3.0': 'Bunlar video büyütebilir mi?',
   'seo.best.free-ai-image-upscalers.faq.3.1': 'Upscale.media 1 dakikaya kadar videoları alır. Slop Upscale ses olmadan 15 saniyeye kadar klipleri işler. Bigjpg video için ayrı bir siteye yönlendirir.',
   'seo.best.free-batch-watermark-tools.crumb': 'Ücretsiz toplu filigran araçları',
-  'seo.best.free-batch-watermark-tools.title': 'Fotoğrafları toplu olarak filigranlamak için en iyi ücretsiz araçlar, karşılaştırmalı',
+  'seo.best.free-batch-watermark-tools.title': 'Fotoğrafları toplu filigranlamak için en iyi ücretsiz araçlar',
   'seo.best.free-batch-watermark-tools.description': 'Çok sayıda fotoğrafı ücretsiz ve tek seferde filigranlayın: Slop Watermark, Watermarkly, Visual Watermark ve iLoveIMG; sınırlar, kendi işaretleri ve gizlilik.',
   'seo.best.free-batch-watermark-tools.h1': 'Fotoğrafları toplu olarak filigranlamak için en iyi ücretsiz araçlar',
   'seo.best.free-batch-watermark-tools.lead': 'Fotoğrafçılar, dükkânlar ve ajanslar bir dizi resmin tamamında aynı logoya ya da © satırına ihtiyaç duyar. Bu dört araç da toplu işlem yapar; ücretsiz sürümün fotoğraflarınızda neyi bıraktığı ve dosyaların nereye gittiği bakımından ayrılırlar.',
@@ -194,6 +194,6 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'seo.best.free-batch-watermark-tools.faq.3.0': 'Bir video ya da PDF filigranlayabilir miyim?',
   'seo.best.free-batch-watermark-tools.faq.3.1': 'Slop Watermark’ta evet: fotoğraflarınızla birlikte videolar ve PDF’ler bırakın; aynı filigran her karede ve her sayfada, cihazınızda basılır. Watermarkly ve Visual Watermark bazı uygulamalarında PDF ve video yapar.',
   'seo.best.free-qr-code-generators.crumb': 'Ücretsiz QR kodu oluşturucular',
-  'seo.best.free-qr-code-generators.title': 'En iyi ücretsiz QR kodu oluşturucular: logolar, SVG ve hiç sona ermeyen kodlar',
+  'seo.best.free-qr-code-generators.title': 'En iyi ücretsiz QR kodu oluşturucular: logolu, SVG ve kalıcı kodlar',
   'seo.best.free-qr-code-generators.description': 'Ücretsiz QR kodu oluşturucular karşılaştırması: QR Code Monkey, QR SLOP, goQR.me ve QR Code Generator. Logolar, SVG, kayıt, son kullanma ve ek ücretler.',
 });
