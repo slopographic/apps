@@ -196,13 +196,15 @@
  * wraps onto the same lines, so nothing below it moves when the swap comes (the homepage's layout shift, CLS).
  * Listed after each web font in the stacks (style/base.css). size-adjust: the hero's text measured in Chrome, the web font
  * (at 400 for the regular face, 800 Archivo, 600 Inter Tight for the bold) over the local one (Arimo, Tinos, Cousine:
- * Arial's, Times's and Courier's metrics); the overrides are the web font's ascent and descent over that. */
+ * Arial's, Times's and Courier's metrics); the overrides are the web font's ascent and descent over that. The regular
+ * Inter Tight Fallback (also this site's sans fallback) is 101.35%: the hero's paragraph over Liberation Sans, in English
+ * and Swedish alike (0.94 of the web font's width at 95.27%, so the swap took the paragraph onto one more line). */
 @font-face { font-family: 'Archivo Fallback'; font-weight: 300 599; src: local('Arial'), local('ArialMT'), local('Liberation Sans'), local('LiberationSans'), local('Arimo Regular'), local('Arimo-Regular'), local('Roboto'), local('Roboto Regular'), local('Roboto-Regular');
   size-adjust: 98.37%; ascent-override: 89.26%; descent-override: 21.35%; line-gap-override: 0%; }
 @font-face { font-family: 'Archivo Fallback'; font-weight: 600 900; src: local('Arial Bold'), local('Arial-BoldMT'), local('Liberation Sans Bold'), local('LiberationSans-Bold'), local('Arimo Bold'), local('Arimo-Bold'), local('Roboto Bold'), local('Roboto-Bold');
   size-adjust: 102.89%; ascent-override: 85.33%; descent-override: 20.41%; line-gap-override: 0%; }
 @font-face { font-family: 'Inter Tight Fallback'; font-weight: 300 549; src: local('Arial'), local('ArialMT'), local('Liberation Sans'), local('LiberationSans'), local('Arimo Regular'), local('Arimo-Regular'), local('Roboto'), local('Roboto Regular'), local('Roboto-Regular');
-  size-adjust: 95.27%; ascent-override: 101.69%; descent-override: 25.32%; line-gap-override: 0%; }
+  size-adjust: 101.35%; ascent-override: 101.69%; descent-override: 25.32%; line-gap-override: 0%; }
 @font-face { font-family: 'Inter Tight Fallback'; font-weight: 550 900; src: local('Arial Bold'), local('Arial-BoldMT'), local('Liberation Sans Bold'), local('LiberationSans-Bold'), local('Arimo Bold'), local('Arimo-Bold'), local('Roboto Bold'), local('Roboto-Bold');
   size-adjust: 92.51%; ascent-override: 104.72%; descent-override: 26.07%; line-gap-override: 0%; }
 @font-face { font-family: 'Instrument Serif Fallback'; font-style: normal; src: local('Times New Roman'), local('TimesNewRomanPSMT'), local('Liberation Serif'), local('LiberationSerif'), local('Tinos Regular'), local('Tinos-Regular'), local('Noto Serif');

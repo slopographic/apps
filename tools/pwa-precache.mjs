@@ -54,8 +54,9 @@ async function pageRoots() {
 
 function refsOf(p, txt) {
   if (p === 'shell/shell.js') return shellLoads(txt).concat('shared/i18n/i18n.js');
-  // i18n.js fetches its tables at run time: English is cached up front, the chosen language when it is first used
-  if (p === 'shared/i18n/i18n.js') return ['shared/i18n/strings.js', 'shared/i18n/ui/en.js'];
+  // i18n.js fetches its tables at run time: English is cached up front, the chosen language when it is first used;
+  // early.js (the first frame in another language) up front too
+  if (p === 'shared/i18n/i18n.js') return ['shared/i18n/strings.js', 'shared/i18n/ui/en.js', 'shared/i18n/early.js'];
   if (/\/i18n\/index\.js$/.test(p)) {
     const parts = (/parts: \[([^\]]*)\]/.exec(txt) || [, ''])[1].match(/[\w-]+/g) || [];
     return parts.map((x) => path.posix.join(path.posix.dirname(p), 'en', x + '.js'));

@@ -3,7 +3,7 @@
 // languages an app does not ship are not fetched; the offline copy fetches nothing; plural forms through
 // Intl.PluralRules; num/date/money/list through Intl in the chosen language; the script stylesheet for CJK and friends.
 // at(code) and need(code, false, ns): another language's words without switching the page (printed business documents).
-// Covers: shared/i18n/i18n.js, pdf/i18n/index.js, shell/shell.js, shared/biz/i18n/index.js
+// Covers: shared/i18n/i18n.js, shared/i18n/early.js, pdf/i18n/index.js, shell/shell.js, shared/biz/i18n/index.js
 // Run: node --test tests/node/i18n-load.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -73,6 +73,27 @@ test('a Swedish page writes English and Swedish (and the Swedish app names), and
   p.script('shared/i18n/i18n.js');
   assert.deepEqual(urls(p.writes), ['shared/i18n/strings.js', 'shared/i18n/sv.js', 'shared/i18n/sv-apps.js', 'shared/i18n/ui/en.js', ...uiParts('en'), 'shared/i18n/ui/sv.js', ...uiParts('sv')]);
   assert.equal(p.I().t('nav.apps'), 'Appar');
+});
+
+test('a page parsed in another language first writes early.js, which fills each marked element as the parser adds it', () => {
+  const mos = [];
+  const watch = (p) => { p.ctx.MutationObserver = class { constructor(cb) { this.cb = cb; mos.push(this); } observe(t, o) { this.opts = o; } takeRecords() { return []; } disconnect() {} }; return p; };
+  const en = watch(page({ lang: 'en' }));
+  en.script('shared/i18n/i18n.js');
+  assert.ok(!urls(en.writes).includes('shared/i18n/early.js'), 'English needs no early fill');
+  const sv = watch(page({ lang: 'sv' }));
+  sv.script('shared/i18n/i18n.js');
+  assert.equal(urls(sv.writes)[0], 'shared/i18n/early.js', 'written before the tables');
+  assert.equal(sv.attrs.lang, 'sv', '<html lang> at once');
+  assert.equal(mos.length, 1);
+  assert.deepEqual({ ...mos[0].opts }, { childList: true, subtree: true, characterData: true });
+  const el = { nodeType: 1, attrs: { 'data-i18n': 'nav.apps' }, textContent: 'Apps', firstElementChild: null };
+  el.getAttribute = (n) => el.attrs[n] ?? null; el.hasAttribute = (n) => n in el.attrs; el.matches = () => true; el.closest = () => null;
+  mos[0].cb([{ target: { nodeType: 1, closest: () => null }, addedNodes: [el] }]);
+  assert.equal(el.textContent, 'Appar');
+  el.textContent = 'AppparApps';   // the parser added more text to it
+  mos[0].cb([{ target: { nodeType: 3, parentElement: null }, addedNodes: [] }]);
+  assert.equal(el.textContent, 'Appar', 'the last ones are filled again');
 });
 
 test("an app's index.js adds its parts for English and the chosen language, only for languages it ships", () => {

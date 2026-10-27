@@ -9,12 +9,15 @@ import { footNav } from './footnav.mjs';
 import OFFLINE_APPS from '../../shared/offline/manifest.js';
 import { INSTALL } from '../../shared/seo/install-copy.mjs';
 import { existsSync } from 'node:fs';
+import { jpegSize } from './jpeg-size.mjs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 /** Pictures and clips are found by name: assets/shots/<id>.jpg, assets/clips/<id>.webm and .mp4. */
 const hasFile = (rel) => existsSync(path.join(ROOT, rel));
+/** width and height attributes from a picture's own size (assets/shots come in many sizes), so its box is right before it loads. */
+const sizeAttrs = (rel, w, h) => { const s = jpegSize(path.join(ROOT, rel)) || (w ? { width: w, height: h } : null); return s ? ` width="${s.width}" height="${s.height}"` : ''; };
 /** An app's YouTube tutorial is in the registry (shared/apps.js `video`). Its thumbnail is kept in assets/video, so the
  *  page loads nothing from YouTube. */
 const lengthWords = (iso) => { const m = /PT(?:(\d+)M)?(?:(\d+)S)?/.exec(iso || '') || [], n = Math.max(1, Math.round((Number(m[1] || 0) * 60 + Number(m[2] || 0)) / 60));
@@ -108,13 +111,14 @@ export function videoLink(app) {
   return v ? `<a class="demo" href="https://www.youtube.com/watch?v=${esc(v.id)}" rel="noopener" data-slop-video="${esc(v.id)}" data-slop-video-title="${esc(v.title)}"><img src="/assets/video/yt-${esc(v.id)}.jpg" alt="" width="480" height="360" loading="lazy"><span><b>Watch the ${esc(v.title)}</b><br>On YouTube, ${lengthWords(v.duration)}.</span></a>` : '';
 }
 /** The app's screenshot as a figure (assets/shots/<id>.jpg), or '' when there is none. */
-export const shotFigure = (app) => (hasFile(`assets/shots/${app.id}.jpg`) ? `<figure class="shot"><img src="/assets/shots/${esc(app.id)}.jpg" alt="${esc(app.name)} open in a browser" width="1280" height="800" loading="lazy"></figure>` : '');
+export const shotFigure = (app) => (hasFile(`assets/shots/${app.id}.jpg`) ? `<figure class="shot"><img src="/assets/shots/${esc(app.id)}.jpg" alt="${esc(app.name)} open in a browser"${sizeAttrs(`assets/shots/${app.id}.jpg`, 1280, 800)} loading="lazy"></figure>` : '');
 export function mediaBlock(app) {
   const id = app.id, out = [];
   const clip = hasFile(`assets/clips/${id}.mp4`);
   if (!clip && shotFigure(app)) out.push(shotFigure(app));
   if (clip) {
-    const poster = hasFile(`assets/shots/${id}.jpg`) ? ` poster="/assets/shots/${esc(id)}.jpg"` : '';
+    // the poster's size: without it the video is 300 x 150 until the poster loads, and what follows moves
+    const poster = hasFile(`assets/shots/${id}.jpg`) ? ` poster="/assets/shots/${esc(id)}.jpg"${sizeAttrs(`assets/shots/${id}.jpg`)}` : '';
     out.push(`<video class="clip" controls preload="none" playsinline${poster}><source src="/assets/clips/${esc(id)}.webm" type="video/webm"><source src="/assets/clips/${esc(id)}.mp4" type="video/mp4">Your browser cannot play this clip.</video>`);
   }
   if (app.video) out.push(videoLink(app));

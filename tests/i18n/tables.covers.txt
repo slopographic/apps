@@ -3319,6 +3319,7 @@ Covers: shared/i18n/af.js
 Covers: shared/i18n/am.js
 Covers: shared/i18n/ar.js
 Covers: shared/i18n/de.js
+Covers: shared/i18n/early.js
 Covers: shared/i18n/es.js
 Covers: shared/i18n/fr.js
 Covers: shared/i18n/ha.js
