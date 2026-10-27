@@ -12,6 +12,7 @@ name: Desktop app
 on:
   push:
     tags: ['desktop-v*']
+    branches: [wip/desktop-app]   # TEMPORARY: proves the builds before the workflow is on main; removed before merging
   workflow_dispatch:
     inputs:
       dry_run:
@@ -96,7 +97,7 @@ jobs:
   # The store builds: never released here, only uploaded for a person to submit (desktop/README.md, "Store builds").
   store:
     name: Store build ${{ matrix.store }}
-    if: github.event_name == 'workflow_dispatch' && (inputs.mas || inputs.appx)
+    if: (github.event_name == 'workflow_dispatch' && (inputs.mas || inputs.appx)) || github.ref == 'refs/heads/wip/desktop-app'
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 45
     strategy:
@@ -112,7 +113,7 @@ jobs:
     steps:
       - name: Skip a store that was not asked for
         id: want
-        run: echo "go=${{ (matrix.store == 'mas' && inputs.mas) || (matrix.store == 'appx' && inputs.appx) }}" >> "$GITHUB_OUTPUT"
+        run: echo "go=${{ github.ref == 'refs/heads/wip/desktop-app' || (matrix.store == 'mas' && inputs.mas) || (matrix.store == 'appx' && inputs.appx) }}" >> "$GITHUB_OUTPUT"
         working-directory: .
       - uses: actions/checkout@v7
         if: steps.want.outputs.go == 'true'
