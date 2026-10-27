@@ -8,7 +8,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'seo.task.label.print-labels-from-excel.cta': 'Etiketten aus einer Tabelle zusammenführen',
   'seo.task.label.print-labels-from-excel.steps.0': 'Wählen Sie unter Etikett einrichten einen Etikettenbogen, etwa Avery 5160 oder L7160, eine Thermorolle oder eine eigene Größe.',
   'seo.task.label.print-labels-from-excel.steps.1': 'Wählen Sie Daten > CSV / Excel / JSON importieren… und wählen Sie Ihre .xlsx- oder .csv-Datei, oder fügen Sie Zeilen mit Daten einfügen… ein.',
-  'seo.task.label.print-labels-from-excel.steps.2': 'Fügen Sie Text und Barcodes hinzu und setzen Sie eine Spalte mit { } Feld einfügen ein, das {Spaltenname} schreibt.',
+  'seo.task.label.print-labels-from-excel.steps.2': 'Fügen Sie Text und Barcodes hinzu und setzen Sie eine Spalte mit { } Feld einfügen ein, das {Column name} schreibt.',
   'seo.task.label.print-labels-from-excel.steps.3': 'Blättern Sie mit Vorheriger Datensatz und Nächster Datensatz durch die Zeilen, um sie zu prüfen.',
   'seo.task.label.print-labels-from-excel.steps.4': 'Wählen Sie Drucken…, um alle Datensätze zu drucken, oder speichern Sie sie als PDF.',
   'seo.task.label.print-labels-from-excel.body.0': 'Eine Mengenspalte kann festlegen, wie viele Exemplare jedes Datensatzes gedruckt werden. Zähler, Datumsangaben und einfache Formeln stehen als Variablen zur Verfügung, und Filter wie {Name|upper} ändern einen Wert beim Drucken.',
