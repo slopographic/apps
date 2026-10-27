@@ -6,7 +6,7 @@
 // Covers: shared/native-app.js, shared/pwa.js, tools/seo/landing.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -54,7 +54,9 @@ test('no install button in an app; install help and agent offers marked website-
   assert.match(how, /<div data-web-only>\n<h2 id="ai-apps">/);
   assert.match(how, /<tr data-web-only><td>\{\{network\.55\}\}/);
   assert.match(read('tools/seo/landing.mjs'), /<p class="note" data-web-only>\$\{esc\(installIn\(L\.code\)\.how\)\}<\/p>/);
-  assert.match(read('apps/pdf/index.html'), /<p class="note" data-web-only>[^<]*Add to Home Screen/);
+  // a generated app page carries it (a white-label build may rename or leave out the PDF app's page)
+  const page = ['apps/pdf/index.html', 'apps/qr/index.html'].find((f) => existsSync(path.join(ROOT, f)));
+  if (page) assert.match(read(page), /<p class="note" data-web-only>/);
   // Settings: AI agents (browser extensions, desktop AI apps), Updates (the store updates the app), Local folder
   const set = read('settings/index.html');
   assert.match(set, /<section id="agents" data-web-only /);

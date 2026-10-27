@@ -55,7 +55,7 @@ test('English and Swedish hold the same keys; the name is {brand}; other languag
 });
 
 test('linked from the homepage footer and from Settings', () => {
-  assert.match(read('index.html'), /<a href="privacy\/" data-i18n="privacy\.link">Privacy policy<\/a>/);
+  assert.match(read('index.html'), /<p class="fine legal"><a href="privacy\/" data-i18n="privacy\.link">Privacy policy<\/a><\/p>/);
   assert.match(read('index.html'), /<script src="privacy\/i18n\/index\.js"/);
   const s = read('settings/index.html');
   assert.match(s, /<a class="btn" href="\.\.\/privacy\/" data-i18n="privacy\.link">/);
