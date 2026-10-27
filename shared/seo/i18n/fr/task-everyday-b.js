@@ -65,7 +65,7 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'seo.task.calculator.unit-converter.faq.3.1': 'La conversion elle-même est exacte. Les résultats à décimales infinies, comme 10 / 3, sont arrondis à l’affichage.',
   'seo.task.ai.run-ai-locally-in-browser.crumb': 'Faire tourner une IA en local',
   'seo.task.ai.run-ai-locally-in-browser.title': 'Faire tourner un modèle d’IA en local dans le navigateur, privé et gratuit',
-  'seo.task.ai.run-ai-locally-in-browser.description': 'Discutez avec Llama 3.2, Qwen2.5, Phi-3.5 ou Gemma 2, qui tournent sur votre GPU via WebGPU. Téléchargez un modèle une fois ; vos conversations restent sur l’appareil.',
+  'seo.task.ai.run-ai-locally-in-browser.description': 'Discutez avec Llama 3.2, Qwen2.5, Phi-3.5 ou Gemma 2, sur votre GPU via WebGPU. Téléchargez un modèle une fois ; vos conversations restent chez vous.',
   'seo.task.ai.run-ai-locally-in-browser.h1': 'Faire tourner un modèle d’IA local dans le navigateur',
   'seo.task.ai.run-ai-locally-in-browser.lead': 'Slop AI fait tourner des modèles ouverts comme Llama 3.2, Qwen2.5, Phi-3.5 mini et Gemma 2 sur votre propre carte graphique, via WebGPU. Après un téléchargement unique, le modèle répond sur votre appareil.',
   'seo.task.ai.run-ai-locally-in-browser.cta': 'Choisir un modèle',

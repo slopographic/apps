@@ -2,7 +2,7 @@
 window.SlopI18n && window.SlopI18n.add('fr', {
   'seo.task.eml.open-eml-file.crumb': 'Ouvrir un fichier EML',
   'seo.task.eml.open-eml-file.title': 'Ouvrir des fichiers EML en ligne : visionneuse EML gratuite, sans Outlook',
-  'seo.task.eml.open-eml-file.description': 'Ouvrez des e-mails .eml dans le navigateur, sans Outlook. Lisez en-têtes, HTML ou texte et pièces jointes. Les images distantes restent bloquées. Rien n’est envoyé.',
+  'seo.task.eml.open-eml-file.description': 'Ouvrez des e-mails .eml dans le navigateur, sans Outlook. En-têtes, HTML ou texte, pièces jointes. Images distantes bloquées. Rien n’est envoyé.',
   'seo.task.eml.open-eml-file.h1': 'Ouvrir un fichier e-mail .eml',
   'seo.task.eml.open-eml-file.lead': 'Un fichier .eml est un e-mail enregistré. Déposez-le ici pour le lire tel qu’il a été envoyé : expéditeur, date, objet, corps en HTML ou en texte, et pièces jointes.',
   'seo.task.eml.open-eml-file.steps.0': 'Déposez un ou plusieurs fichiers .eml sur la page, ou choisissez Ouvrir. Plusieurs à la fois vont dans une liste que vous pouvez chercher et trier.',
