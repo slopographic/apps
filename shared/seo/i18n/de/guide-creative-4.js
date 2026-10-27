@@ -40,7 +40,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'seo.guide.press.getting-started.sections.2.h2': 'Formate, Seiten und Musterseiten',
   'seo.guide.press.getting-started.sections.2.text.0': 'Die Panels Absatzformate und Zeichenformate formatieren Text mit einem Klick und ändern jede Verwendung eines Formats auf einmal.',
   'seo.guide.press.getting-started.sections.2.text.1': 'Das Panel Seiten zeigt jede Seite. „Seite hinzufügen“ (Shift+Ctrl+P) fügt eine hinzu. Objekte auf einer Musterseite, etwa Seitenzahlen, erscheinen auf jeder Seite, die sie nutzt.',
-  'seo.guide.press.getting-started.sections.2.text.2': '„Dokumenteinrichtung…“ und „Ränder und Spalten…“ in der Leiste oben ändern Seitengröße, Ränder, Spalten und Beschnitt.',
+  'seo.guide.press.getting-started.sections.2.text.2': '„Dokumenteinstellungen…“ und „Ränder und Spalten…“ in der Leiste oben ändern Seitengröße, Ränder, Spalten und Beschnitt.',
   'seo.guide.press.getting-started.sections.3.h2': 'Ein PDF exportieren',
   'seo.guide.press.getting-started.sections.3.text.0': '„PDF exportieren…“ (Ctrl+E) klicken. Die Schriften werden eingebettet, und Sie können für eine Druckerei Beschnitt und Schnittmarken hinzufügen. „PNG exportieren…“ (Alt+Ctrl+E) macht Bilder der Seiten.',
   'seo.guide.press.getting-started.sections.3.text.1': 'Speichern (Ctrl+S) behält das Dokument im Slop Drive.',

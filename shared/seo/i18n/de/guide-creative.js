@@ -2,7 +2,7 @@
 window.SlopI18n && window.SlopI18n.add('de', {
   'seo.guide.photoslop.getting-started.crumb': 'Erste Schritte',
   'seo.guide.photoslop.getting-started.title': 'Erste Schritte mit PhotoSlop: ein Foto öffnen, bearbeiten und exportieren',
-  'seo.guide.photoslop.getting-started.description': 'PhotoSlop-Anleitung: ein Foto öffnen, Werkzeuge und Menü Bild nutzen, Text auf einer eigenen Ebene setzen und als PNG oder JPEG exportieren. Nichts wird hochgeladen.',
+  'seo.guide.photoslop.getting-started.description': 'PhotoSlop-Anleitung: ein Foto öffnen, Werkzeuge und das Menü Bild nutzen, Text auf eigener Ebene setzen, als PNG oder JPEG exportieren. Nichts hochgeladen.',
   'seo.guide.photoslop.getting-started.h1': 'Erste Schritte mit PhotoSlop',
   'seo.guide.photoslop.getting-started.lead': 'PhotoSlop ist ein Fotoeditor mit Ebenen, im Browser. Ihre Bilder bleiben auf Ihrem Gerät: Sie werden nie hochgeladen.',
   'seo.guide.photoslop.getting-started.sections.0.h2': 'Ein Foto öffnen',

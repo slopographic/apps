@@ -259,7 +259,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'seo.task.upscale.upscale-video.steps.2': 'Wählen Sie die Bildrate des Videos (24 oder 30 fps).',
   'seo.task.upscale.upscale-video.steps.3': 'Drücken Sie Vergrößern und warten Sie: Jedes Bild wird der Reihe nach vergrößert.',
   'seo.task.upscale.upscale-video.steps.4': 'Laden Sie das Ergebnis als MP4 (H.264) oder WebM (VP9) herunter, je nachdem, was Ihr Browser erlaubt.',
-  'seo.task.upscale.upscale-video.faq.0.1': 'Nein. Das vergrößerte Video hat keine Tonspur, und die Seite sagt das. Fügen Sie den Ton in einem Videoeditor wie SlopCut wieder hinzu.',
+  'seo.task.upscale.upscale-video.faq.0.1': 'Nein. Das vergrößerte Video hat keine Tonspur, und die Seite sagt das. Fügen Sie den Ton in einem Videoschnittprogramm wie SlopCut wieder hinzu.',
   'seo.task.upscale.upscale-video.faq.1.0': 'Warum nur 15 Sekunden?',
   'seo.task.upscale.upscale-video.faq.1.1': 'Jedes Bild läuft auf Ihrem Gerät durch die KI, was Zeit kostet. Längere Clips werden abgelehnt, damit ein Lauf in angemessener Zeit fertig ist.',
   'seo.task.upscale.upscale-video.faq.2.0': 'Welche Browser funktionieren?',

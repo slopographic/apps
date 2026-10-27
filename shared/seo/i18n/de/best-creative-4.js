@@ -219,5 +219,5 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'seo.best.free-motion-graphics-software.faq.2.0': 'Kann ich ein transparentes Video kostenlos exportieren?',
   'seo.best.free-motion-graphics-software.faq.2.1': 'Cavalry (PNG-Sequenz, ProRes 4444), Blender (PNG, FFV1, VP9-WebM) und Slop Effects (PNG-Sequenz) können das. Jitter behält den transparenten Export für seinen Max-Tarif und höher.',
   'seo.best.free-motion-graphics-software.faq.3.0': 'Kann ich Musik hinzufügen?',
-  'seo.best.free-motion-graphics-software.faq.3.1': 'Cavalry, Blender und Jitter verarbeiten Audio. Slop Effects hat noch keinen Ton; fügen Sie den Klang in einem Videoeditor wie SlopCut hinzu.',
+  'seo.best.free-motion-graphics-software.faq.3.1': 'Cavalry, Blender und Jitter verarbeiten Audio. Slop Effects hat noch keinen Ton; fügen Sie den Klang in einem Videoschnittprogramm wie SlopCut hinzu.',
 });
