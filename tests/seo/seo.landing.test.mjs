@@ -14,6 +14,8 @@ import { loadRegistry, isPage, SITE, ROOT } from '../../tools/seo/site.mjs';
 import { esc, fileTypeList, related, SLOP365, STATUS, regWords } from '../../tools/seo/landing.mjs';
 import { context, ROOT_LANG } from '../../tools/seo/lang.mjs';
 import { jpegSize } from '../../tools/seo/jpeg-size.mjs';
+import { FACTS } from '../brand-facts.mjs';
+import { canonicalFor } from '../../tools/seo/robots.mjs';
 
 /** The root language's words (the profile's defaultLang: a build can have another than English at the root). */
 const R = context(ROOT_LANG), say = (k, v) => esc(R.t(k, v));
@@ -21,11 +23,16 @@ const R = context(ROOT_LANG), say = (k, v) => esc(R.t(k, v));
 const read = (rel) => readFile(path.join(ROOT, rel), 'utf8');
 const apps = await loadRegistry();
 const pageApps = apps.filter(isPage);
+// a site that is not indexed has none of these pages (tests/seo/robots.test.mjs); a page of a few apps is there only
+// when the profile shows them all (apps.hide)
+const INDEXED = { skip: !FACTS.seoIndex && 'the site is not indexed (seo.index): no landing pages' };
+const shows = (ids) => FACTS.seoIndex && ids.every((id) => apps.some((a) => a.id === id));
+const CREATIVE = ['photoslop', 'vector', 'slopedit'];
 const HUBS = [
-  { id: 'slop-365', dir: 'slop-365/' },
-  { id: 'creative-slop-pro', dir: 'creative-slop-pro/' },
-  { id: 'compare', dir: 'compare/' },
-];
+  { id: 'slop-365', dir: 'slop-365/', ids: SLOP365 },
+  { id: 'creative-slop-pro', dir: 'creative-slop-pro/', ids: CREATIVE },
+  { id: 'compare', dir: 'compare/', ids: [] },
+].filter((h) => !FACTS.seoIndex || shows(h.ids));
 const pages = [
   ...pageApps.map((a) => ({ id: a.id, dir: `apps/${a.id}/`, app: a })),
   ...HUBS.map((h) => ({ ...h, app: null })),
@@ -41,7 +48,7 @@ const canonicalOf = (h) => meta(h, /<link\s+rel="canonical"\s+href="([^"]*)"/);
 /** The feature matrix rows: [feature, status, file types] for the table in one page. */
 const rowsOf = (h) => [...h.matchAll(/<tr><td>([^<]*)<\/td><td>([^<]*)<\/td><td>([^<]*)<\/td><\/tr>/g)].map((m) => m.slice(1, 4));
 
-test('every app page in the registry has a landing page', () => {
+test('every app page in the registry has a landing page', INDEXED, () => {
   for (const a of pageApps) assert.ok(html[a.id], `${a.id}: no landing page at apps/${a.id}/index.html`);
   for (const h of HUBS) assert.ok(html[h.id], `${h.id}: no page at ${h.dir}index.html`);
 });
@@ -69,7 +76,7 @@ test('each landing page has a description, unique, and a canonical URL', () => {
     assert.ok(d, `${p.id}: no meta description`);
     assert.ok(!seen.has(d), `${p.id}: description repeats ${seen.get(d)}`);
     seen.set(d, p.id);
-    assert.equal(canonicalOf(html[p.id]), p.url, `${p.id}: canonical`);
+    assert.equal(canonicalOf(html[p.id]), canonicalFor(p.url), `${p.id}: canonical (the profile's: its own, or an override's)`);
   }
 });
 
@@ -95,14 +102,14 @@ test('each app landing page links to related landing pages, never to itself', ()
   }
 });
 
-test('the landing pages are in sitemap.xml with a lastmod date', async () => {
+test('the landing pages are in sitemap.xml with a lastmod date', INDEXED, async () => {
   const xml = await read('sitemap.xml');
   const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
   for (const p of pages) assert.ok(locs.includes(p.url), `sitemap is missing ${p.url}`);
   for (const m of xml.matchAll(/<url>[\s\S]*?<\/url>/g)) if (/\/apps\/|\/slop-365\/|\/creative-slop-pro\/|\/compare\//.test(m[0])) assert.match(m[0], /<lastmod>\d{4}-\d{2}-\d{2}<\/lastmod>/);
 });
 
-test('the compare page lists every app page with a link and its file types', () => {
+test('the compare page lists every app page with a link and its file types', INDEXED, () => {
   const h = html.compare;
   assert.ok(h, 'no compare page');
   assert.equal(h1Of(h).length, 1, 'compare: one H1');
@@ -110,7 +117,7 @@ test('the compare page lists every app page with a link and its file types', () 
   assert.ok(h.includes(say('seo.ui.cmp.lead', { n: pageApps.length })), 'compare: app count in the intro');
 });
 
-test('the Slop 365 page links to each of its tools', () => {
+test('the Slop 365 page links to each of its tools', { skip: !shows(SLOP365) && 'not indexed, or an app of the page is hidden' }, () => {
   const h = html['slop-365'];
   assert.ok(h, 'no Slop 365 page');
   for (const id of SLOP365) {
@@ -119,10 +126,10 @@ test('the Slop 365 page links to each of its tools', () => {
   }
 });
 
-test('the Creative Slop Pro page names the three apps and says it is not affiliated with Adobe', () => {
+test('the Creative Slop Pro page names the three apps and says it is not affiliated with Adobe', { skip: !shows(CREATIVE) && 'not indexed, or an app of the page is hidden' }, () => {
   const h = html['creative-slop-pro'];
   assert.ok(h, 'no Creative Slop Pro page');
-  for (const id of ['photoslop', 'vector', 'slopedit']) assert.ok(h.includes(`href="/apps/${id}/"`), `creative: missing ${id}`);
+  for (const id of CREATIVE) assert.ok(h.includes(`href="/apps/${id}/"`), `creative: missing ${id}`);
   for (const k of ['lead', 'not_1', 'not_2', 'not_3']) assert.ok(h.includes(say('seo.ui.csp.' + k)), `creative: ${k}`);
   if (ROOT_LANG === 'en') {   // the English words, as this site says them
     assert.match(h, /free browser alternative to Photoshop-style photo editing, Illustrator-style vector drawing and video editing/);

@@ -117,7 +117,11 @@ export function build(id, out, opts = {}) {
       const buf = readFileSync(path.join(ROOT, f));
       write(out, f, isText(buf) ? applyMarkers(buf.toString('utf8'), values) : buf);
     }
+    // the profile's search settings and single-app root (tools/seo/robots.mjs) are the SEO writer's: this site's own
+    // profile changes nothing there, another profile of this brand (a single-app site) gets its pages
+    if (!opts.noSeo) sh(process.execPath, ['tools/seo/write.mjs'], out);
     publishLangs(out, opts);
+    if (!opts.noSeo) sh(process.execPath, ['tools/pwa-precache.mjs'], out);
     log(`${p.id}: copied ${files.length} files to ${out}`);
     return { profile: p, out, files: files.length, found: [] };
   }

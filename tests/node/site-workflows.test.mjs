@@ -40,4 +40,11 @@ test('the production deploy: main as it is plus the language pages, deployed onl
   const ping = read('.github/workflows/indexnow.yml');
   assert.match(ping, /workflow_run:\n    workflows: \[Pages\]\n    types: \[completed\]/);
   assert.match(wf, /^name: Pages$/m);
+  // a fork's copy is not indexed: every page says noindex, no sitemap; and a fork never pings IndexNow
+  const fork = wf.slice(wf.indexOf("if: ${{ github.repository != 'slopographic/apps' }}"));
+  assert.ok(wf.includes("if: ${{ github.repository != 'slopographic/apps' }}") && fork.indexOf('upload-pages-artifact') > 0);
+  assert.match(fork, /<head><meta name="robots" content="noindex">/);
+  assert.match(fork, /rm -f sitemap\*\.xml/);
+  assert.match(fork, /printf 'User-agent: \*\\nAllow: \/\\n' > robots\.txt/);
+  assert.match(ping, /if: \$\{\{ github\.repository == 'slopographic\/apps' && /);
 });

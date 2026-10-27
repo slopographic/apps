@@ -5,6 +5,9 @@ name: Pages
 # (tools/seo/write.mjs --langs, for the languages tools/seo/lang.mjs publishes; none when seo.langs is 'none').
 # The copy is every tracked file, as the branch deploy serves it: CNAME, .nojekyll, tests/ and the rest; only .git and
 # .github are left out (actions/upload-pages-artifact always leaves them out).
+# A fork that runs this workflow publishes a copy nobody indexes: when the repository is not slopographic/apps, every page
+# says noindex, robots.txt names no sitemap and the sitemaps are left out (crawling stays allowed, so the tag is read).
+# The pages' own host guard does the same in the browser (tools/seo/robots.mjs); this is the static form of it.
 # Until Settings -> Pages -> Source is "GitHub Actions" (build_type 'workflow'), Pages still deploys main from the branch
 # and this workflow builds the copy but skips the deploy: the check below reads the Pages settings with the job's token.
 on:
@@ -50,6 +53,14 @@ jobs:
           cd ../site
           node tools/seo/write.mjs --langs
           echo "$(find . -type f | wc -l) files, $(du -sh . | cut -f1)"
+      - name: A copy elsewhere is not indexed
+        if: ${{ github.repository != 'slopographic/apps' }}
+        run: |
+          cd ../site
+          find . -name '*.html' -not -path './tests/*' -print0 | xargs -0 sed -i '0,/<head>/s//<head><meta name="robots" content="noindex">/'
+          test "$(grep -rl --include='*.html' '<head><meta name="robots" content="noindex">' . | grep -v '^./tests/' | wc -l)" -eq "$(grep -rl --include='*.html' '<head>' . | grep -v '^./tests/' | wc -l)"
+          rm -f sitemap*.xml
+          printf 'User-agent: *\nAllow: /\n' > robots.txt
       - uses: actions/upload-pages-artifact@v5
         with:
           path: ../site

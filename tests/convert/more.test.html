@@ -17,6 +17,8 @@
   import { CONVERT_PAGES } from '../../shared/seo/convert-copy.mjs';
   // the English page: a build whose root language is another has it under /en/ (shared/seo/HANDOFF.md, "Languages")
   const EN_DIR = window.BRAND_FACTS && window.BRAND_FACTS.defaultLang !== 'en' ? 'en/' : '';
+  // a build that is not indexed (seo.index) and starts in another language has no English copies of the pages
+  const EN_PAGES = !(EN_DIR && window.BRAND_FACTS && !window.BRAND_FACTS.seoIndex);
   import { buildPreview } from '../../convert/js/preview/model.js';
   import { readZip } from '../../shared/office/zip.js';
   const { describe, it, expect, waitFor } = SlopTest;
@@ -59,9 +61,9 @@
       for (const slug of ['heic-to-jpg', 'xlsx-to-csv', 'json-to-yaml', 'srt-to-vtt', 'markdown-to-pdf', 'wav-to-mp3']) {
         const p = PAGES.find((x) => x.slug === slug);
         expect(CONVERT_PAGES[`convert/${slug}`].title).toBe(p.title);
-        const html = await (await fetch(`../../${EN_DIR}convert/${slug}/`)).text();
-        expect(html).toContain(`data-preset="${p.conv}"`);
-        expect(html).toContain(`<title>${p.title}</title>`);
+        const html = EN_PAGES ? await (await fetch(`../../${EN_DIR}convert/${slug}/`)).text() : '';
+        if (EN_PAGES) expect(html).toContain(`data-preset="${p.conv}"`);
+        if (EN_PAGES) expect(html).toContain(`<title>${p.title}</title>`);
         for (const k of p.from) expect(conv(p.conv).from).toContain(k);
       }
     });

@@ -16,22 +16,22 @@
 // <!-- seo:start --> and <!-- seo:end -->, placed after its charset tag.
 // A language folder holds only what this tool writes: a file there that it does not write is removed (and a folder of
 // a language no longer published) by a --langs run. Read shared/seo/HANDOFF.md first.
+// What search engines are told follows the profile (robots.mjs, brand/README.md "Search engines"): the root pass also
+// writes robots.txt, puts the noindex tag or the host guard at the top of every page of the site, and removes the
+// generated pages the site does not publish (all of them when it is not indexed, a hidden app's always).
 import { readFile, writeFile, mkdir, rm } from 'node:fs/promises';
 import { existsSync, readdirSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { ROOT, SITE, loadRegistry, isPage, pageUrl } from './site.mjs';
+import { ROOT, SITE, INDEX, loadRegistry, registryWindow, isPage, pageUrl } from './site.mjs';
+import { markHead, pageMark, robotsTxt, sitePages } from './robots.mjs';
 import { published, unpublished, prefixOf, LANGS, ROOT_LANG, SEO_LANGS } from './lang.mjs';
 import { withBlock, clashes } from './langdirs.mjs';
-import { buildLang, pagePaths } from './build-lang.mjs';
+import { buildLang, pagePaths, generated } from './build-lang.mjs';
 import { converterFiles } from './footnav.mjs';
 import { sitemaps } from './sitemap.mjs';
 import { generatedParts } from './tables.mjs';
 import { context } from './lang.mjs';
-import { landingPages } from './landing.mjs';
-import { taskPages, hubPage } from './tasks.mjs';
-import { roundupPages, roundupIndex } from './roundups.mjs';
-import { guidePages } from './guides.mjs';
 
 export { ROOT, SITE, loadRegistry, isPage, pageUrl };
 export { headBlock, injectHead, validateCopy, imageFor, TRIAL_TOKENS } from './head.mjs';
@@ -41,15 +41,34 @@ export { siteChrome } from './chrome.mjs';
 /** Every file under a folder, relative to the repo. */
 const walk = (dir) => readdirSync(path.join(ROOT, dir)).flatMap((f) => (statSync(path.join(ROOT, dir, f)).isDirectory() ? walk(`${dir}${f}/`) : [`${dir}${f}`]));
 
-/** The directories of the generated pages (the same in every language: a language is published only when complete). */
-async function generatedDirs(apps) {
+/** The directories of the generated pages (the same in every language: a language is published only when complete): of
+ *  the apps given (the shown ones), or of every app in the registry when all is true (the pages that may be on disk). */
+async function generatedDirs(apps, all = false) {
   const { landingIn } = await import('../../shared/seo/copy.mjs');
   const { TASKS } = await import('../../shared/seo/tasks/index.mjs');
   const { ROUNDUPS } = await import('../../shared/seo/roundups/index.mjs');
   const { GUIDES } = await import('../../shared/seo/guides/index.mjs');
-  const L = context(ROOT_LANG);
-  return [...landingPages(apps, SITE, landingIn(ROOT_LANG), [], [], [], L), ...taskPages(apps, SITE, TASKS, {}, L), hubPage(apps, SITE, TASKS, L),
-    ...roundupPages(apps, SITE, ROUNDUPS, { TASKS, GUIDES }, L), roundupIndex(SITE, ROUNDUPS, L), ...guidePages(apps, SITE, GUIDES, { TASKS, ROUNDUPS }, L)].map((p) => p.dir);
+  if (!INDEX && !all) return [];
+  const ids = new Set(apps.map((a) => a.id)), shown = (x) => ids.has(x.app);
+  const g = generated(apps, context(ROOT_LANG), { LANDING: landingIn(ROOT_LANG), TASKS: TASKS.filter(shown), ROUNDUPS: ROUNDUPS.filter(shown), GUIDES: GUIDES.filter(shown) });
+  return [...g.landing, ...g.tasks, g.hub, ...g.best, g.bestIndex, ...g.guides].map((p) => p.dir);
+}
+/** The root pass's search-engine files: robots.txt, the generated pages on disk the site no longer publishes, and the
+ *  mark at the top of every page it does not write itself (out: the files written so far). */
+async function searchFiles(out, written, root) {
+  const files = [{ file: path.join(ROOT, 'robots.txt'), html: robotsTxt(INDEX ? ['sitemap.xml', 'sitemap-index.xml'] : []) }];
+  const keep = new Set(written), have = new Set(out.map((f) => f.file));
+  for (const d of await generatedDirs(registryWindow().SLOP_ALL_APPS, true)) {
+    const f = path.join(ROOT, d, 'index.html');
+    if (!keep.has(d) && existsSync(f)) files.push({ file: f, html: null });
+  }
+  const gone = new Set(files.filter((f) => f.html === null).map((f) => f.file));
+  for (const rel of root ? sitePages() : []) {
+    const f = path.join(ROOT, rel);
+    if (!have.has(f) && !gone.has(f)) files.push({ file: f, html: markHead(await readFile(f, 'utf8'), pageMark(rel)) });
+  }
+  for (const f of files) f.before = existsSync(f.file) ? await readFile(f.file, 'utf8') : undefined;
+  return files;
 }
 
 /** Builds every page's new content: [{ file, html, before }] (html null: the file goes). only: 'root' (the committed
@@ -64,7 +83,7 @@ export async function build({ date, only = 'root', langs = SEO_LANGS }) {
   const ignore = path.join(ROOT, '.gitignore');
   if (root && existsSync(ignore)) out.push({ file: ignore, html: withBlock(await readFile(ignore, 'utf8')) });
   for (const f of out) f.before = existsSync(f.file) ? await readFile(f.file, 'utf8') : '';
-  const paths = pagePaths(apps, await generatedDirs(apps));
+  const gen = await generatedDirs(apps), paths = pagePaths(apps, gen);
   const byLang = new Map();
   for (const code of codes) {
     if (code === ROOT_LANG ? !root : !other) continue;
@@ -79,7 +98,11 @@ export async function build({ date, only = 'root', langs = SEO_LANGS }) {
     if (!dir || !existsSync(path.join(ROOT, dir)) || clashes([l.code], apps).length) continue;
     for (const f of walk(dir + '/')) if (!written.has(path.join(ROOT, f))) out.push({ file: path.join(ROOT, f), html: null, before: await readFile(path.join(ROOT, f), 'utf8') });
   }
-  out.push(...await sitemaps(byLang, date, codes, { root, langs: other }));
+  if (root) out.push(...await searchFiles(out, gen, root));
+  const gone = new Set(out.filter((f) => f.html === null).map((f) => f.file));
+  out.push(...await sitemaps(byLang, date, codes, { root, langs: other, gone }));
+  // every page written here gets its mark at the top (robots.mjs pageMark): the noindex tag or the host guard
+  for (const f of out) if (f.html && f.file.endsWith('.html')) f.html = markHead(f.html, pageMark(path.relative(ROOT, f.file).split(path.sep).join('/')));
   return out;
 }
 

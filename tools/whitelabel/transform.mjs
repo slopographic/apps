@@ -9,12 +9,14 @@ import { remapColors, paletteFile } from './palette.mjs';
 
 /** Everything the steps need for one profile and its rename map. */
 export function context(root, p, map) {
-  const pairs = phrasePairs(root, p);
+  const pairs = phrasePairs(root, p), values = markerValues(p), rules = tokenRules(map);
+  // the app ids a marker names are renamed like the registry's own (a source id never reaches a build)
+  for (const k of ['hideApps', 'mainApp']) values[k] = JSON.parse(tokens(JSON.stringify(values[k]), rules));
   return {
     profile: p, map, pairs,
     urls: { origin: p.origin, github: p.github, repo: p.publish && p.publish.repo, mail: p.mailDomain || p.cname },
     phraseRules: phraseRules(pairs, p.brandWord || p.name),
-    tokenRules: tokenRules(map), reverseRules: reverseRules(map), values: markerValues(p),
+    tokenRules: rules, reverseRules: reverseRules(map), values,
   };
 }
 

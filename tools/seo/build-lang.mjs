@@ -6,10 +6,14 @@
 // language lists them all (hreflang).
 //   buildLang(code, codes, { apps, date, paths }) -> { files: [{ file, html, before }], urls: [url] }
 //   pagePaths(apps, code) -> Set of the page paths ('/compare/', '/pdf/') a published language has
+// A site that is not indexed (site.mjs INDEX false) gets none of the generated pages; a single-app site (MAIN_APP) gets
+// its app's page at the root (mainapp.mjs) instead of the homepage; a hidden app's pages (apps.hide) are left alone.
 import { readFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
-import { ROOT, SITE, registryWindow, isPage } from './site.mjs';
+import { ROOT, SITE, INDEX, registryWindow, isPage } from './site.mjs';
+import { mainApp, hiddenApp, markHead } from './robots.mjs';
+import { mainRoot } from './mainapp.mjs';
 import { context, prefixOf, alternates, localizeLinks, ROOT_LANG } from './lang.mjs';
 import { headBlock, injectHead, setAlternates, setHtmlLang, validateCopy, imageFor, DEFAULT_IMAGE, OS, AUTHOR } from './head.mjs';
 import { landingPages, regWords } from './landing.mjs';
@@ -47,7 +51,7 @@ const webPage = (L, name, description, url, type = 'WebPage') => ld(type, { name
 /** The page paths of a published language, the same in every one: the generated pages, the app pages and their about
  *  pages, the homepage, How it works and the converter pages. */
 export function pagePaths(apps, gen) {
-  const out = new Set(['/']);
+  const out = new Set(mainApp() ? [] : ['/']);   // a single-app site's root is the app's page, in the root language only
   for (const a of apps) if (isPage(a)) { out.add('/' + a.path); if (hasTemplate(aboutTemplate(a.id))) out.add(`/${a.path}about/`); }
   for (const slug of Object.keys(pagesIn())) if (hasTemplate(pageTemplate(slug))) out.add(`/${slug}/`);
   for (const f of converterFiles()) out.add('/' + f.replace(/index\.html$/, ''));
@@ -64,17 +68,14 @@ export async function buildLang(code, codes, { apps, paths }) {
   const APPS = appsIn(code), ABOUT = aboutIn(code), LANDING = landingIn(code), PAGES = pagesIn(code), HOME = homeIn(code, root);
   const TASKS = tasksIn(code).filter(shown), ROUNDUPS = roundupsIn(code).filter(shown), GUIDES = guidesIn(code).filter(shown);
 
-  const landing = landingPages(apps, SITE, LANDING, TASKS, ROUNDUPS, GUIDES, L);
-  const tasks = taskPages(apps, SITE, TASKS, { ROUNDUPS, GUIDES }, L);
-  const hub = hubPage(apps, SITE, TASKS, L);
-  const best = roundupPages(apps, SITE, ROUNDUPS, { TASKS, GUIDES }, L), bestIndex = roundupIndex(SITE, ROUNDUPS, L);
-  const guides = guidePages(apps, SITE, GUIDES, { TASKS, ROUNDUPS }, L);
+  const gen = INDEX ? generated(apps, L, { LANDING, TASKS, ROUNDUPS, GUIDES }) : { landing: [], tasks: [], hub: null, best: [], bestIndex: null, guides: [] };
+  const { landing, tasks, hub, best, bestIndex, guides } = gen;
   const aboutApps = apps.filter((a) => isPage(a) && hasTemplate(aboutTemplate(a.id)));
   const entries = [['home', HOME], ...apps.filter(isPage).map((a) => { if (!APPS[a.id]) throw new Error(`${a.id}: no entry in shared/seo/copy.mjs`); return [a.id, APPS[a.id]]; })];
   for (const a of aboutApps) { if (!ABOUT[a.id]) throw new Error(`${a.id}: has about/ but no entry in shared/seo/copy.mjs ABOUT`); entries.push([`${a.id} about`, ABOUT[a.id]]); }
   for (const p of landing) entries.push([`${p.key} landing`, LANDING[p.key]]);
   for (const p of tasks) entries.push([`${p.key} task`, p.task]);
-  entries.push(['all-tools landing', LANDING['all-tools']], ['best landing', LANDING.best]);
+  if (INDEX) entries.push(['all-tools landing', LANDING['all-tools']], ['best landing', LANDING.best]);
   for (const p of best) entries.push([`${p.key} roundup`, p.r]);
   for (const p of guides) entries.push([`${p.key} guide`, p.guide]);
   for (const slug of Object.keys(PAGES)) if (root || slug.startsWith('convert/') || hasTemplate(pageTemplate(slug))) entries.push([`${slug} page`, PAGES[slug]]);
@@ -95,12 +96,14 @@ export async function buildLang(code, codes, { apps, paths }) {
     const copy = copyPage(siteChrome(injectHead(source, head), L), { dir, L, paths });
     return put(fileOf(dir), prerender(copy, pageTables(code, app && app.path)), urlOf(dir));
   };
-  await own('', (vp) => block('', HOME.title, HOME.description, DEFAULT_IMAGE, homeJsonLd(apps, L), vp));
+  const main = mainApp();
+  if (!main) await own('', (vp) => block('', HOME.title, HOME.description, DEFAULT_IMAGE, homeJsonLd(apps, L), vp));
   for (const app of apps.filter(isPage)) {
     const copy = APPS[app.id], dir = app.path;
     if (!existsSync(path.join(ROOT, dir, 'index.html'))) throw new Error(`${app.id}: no page at ${dir}index.html`);
     await own(dir, (vp) => block(dir, copy.title, copy.description, imageFor(app), appJsonLd(app, copy, urlOf(dir), L), vp), { app });
   }
+  if (main && root) await put(path.join(ROOT, 'index.html'), mainRoot(markHead(files.find((f) => f.file === path.join(ROOT, main.path, 'index.html')).html, ''), main), `${SITE}/`);
   for (const app of aboutApps) {
     const dir = `${app.path}about/`, c = ABOUT[app.id];
     const jsonld = [crumbs([[L.t('seo.ui.crumb.home'), `${site(L)}/`], [app.name, urlOf(app.path)], [L.t('seo.ui.crumb.about'), urlOf(dir)]])];
@@ -108,7 +111,7 @@ export async function buildLang(code, codes, { apps, paths }) {
   }
   for (const [slug, c] of Object.entries(PAGES)) {
     const dir = `${slug}/`, conv = slug.startsWith('convert/'), template = !conv && hasTemplate(pageTemplate(slug)) && pageTemplate(slug);
-    if (!root && !conv && !template) continue;
+    if ((!root && !conv && !template) || hiddenApp(dir)) continue;   // a hidden app's page (the converters of a hidden File convert)
     const web = c.category
       ? ld('SoftwareApplication', { name: c.crumb, applicationCategory: c.category, operatingSystem: OS, offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' }, description: c.description, url: urlOf(dir), author: AUTHOR })
       : webPage(L, c.title, c.description, urlOf(dir));
@@ -132,7 +135,7 @@ export async function buildLang(code, codes, { apps, paths }) {
     return put(fileOf(dir), prerender(copyPage(make ? head : injectHead(source, converterHead(slug, L, dir, alt(dir))), { dir, L, paths }), pageTables(code, 'convert/')), urlOf(dir));
   }
   const inPages = new Set(Object.keys(PAGES).filter((s) => s.startsWith('convert/')).map((s) => s.slice(8)));
-  for (const f of converterFiles()) { const slug = f.split('/')[1]; if (!inPages.has(slug)) await convPage(slug, null); }
+  for (const f of converterFiles()) { const slug = f.split('/')[1]; if (!inPages.has(slug) && !hiddenApp(f)) await convPage(slug, null); }
 
   // the generated pages
   for (const p of landing) {
@@ -141,15 +144,22 @@ export async function buildLang(code, codes, { apps, paths }) {
     await put(fileOf(p.dir), local(injectHead(p.html, block(p.dir, c.title, c.description, DEFAULT_IMAGE, jsonld))), urlOf(p.dir));
   }
   for (const p of tasks) await put(fileOf(p.dir), local(injectHead(p.html, block(p.dir, p.task.title, p.task.description, imageFor(p.app), taskJsonLd(p.task, p.app, urlOf(p.dir), site(L), L)))), urlOf(p.dir));
-  { const c = LANDING['all-tools'], jsonld = [webPage(L, c.title, c.description, urlOf(hub.dir), 'CollectionPage'), crumbs([[L.t('seo.ui.crumb.home'), `${site(L)}/`], [L.t('seo.ui.crumb.all_tools'), urlOf(hub.dir)]])];
+  if (hub) { const c = LANDING['all-tools'], jsonld = [webPage(L, c.title, c.description, urlOf(hub.dir), 'CollectionPage'), crumbs([[L.t('seo.ui.crumb.home'), `${site(L)}/`], [L.t('seo.ui.crumb.all_tools'), urlOf(hub.dir)]])];
     await put(fileOf(hub.dir), local(injectHead(hub.html, block(hub.dir, c.title, c.description, DEFAULT_IMAGE, jsonld))), urlOf(hub.dir)); }
   for (const p of guides) await put(fileOf(p.dir), local(injectHead(p.html, block(p.dir, p.guide.title, p.guide.description, imageFor(p.app), guideJsonLd(p.guide, p.app, urlOf(p.dir), site(L), L)))), urlOf(p.dir));
-  for (const p of [...best, { ...bestIndex, r: null }]) {
+  for (const p of bestIndex ? [...best, { ...bestIndex, r: null }] : []) {
     const c = p.r || LANDING.best;
     const jsonld = p.r ? roundupJsonLd(p.r, urlOf(p.dir), site(L), L) : [ld('CollectionPage', { name: c.title, description: c.description, url: urlOf(p.dir) })];
     await put(fileOf(p.dir), local(injectHead(p.html, block(p.dir, c.title, c.description, DEFAULT_IMAGE, jsonld))), urlOf(p.dir));
   }
-  return { files, urls, generated: [...landing, ...tasks, hub, ...guides, ...best, bestIndex].map((p) => p.dir) };
+  return { files, urls, generated: [...landing, ...tasks, hub, ...guides, ...best, bestIndex].filter(Boolean).map((p) => p.dir) };
+}
+
+/** The generated pages of one language: landing, task, hub, round-up and guide pages (a site that is indexed only). */
+export function generated(apps, L, { LANDING, TASKS, ROUNDUPS, GUIDES }) {
+  return { landing: landingPages(apps, SITE, LANDING, TASKS, ROUNDUPS, GUIDES, L), tasks: taskPages(apps, SITE, TASKS, { ROUNDUPS, GUIDES }, L),
+    hub: hubPage(apps, SITE, TASKS, L), best: roundupPages(apps, SITE, ROUNDUPS, { TASKS, GUIDES }, L), bestIndex: roundupIndex(SITE, ROUNDUPS, L),
+    guides: guidePages(apps, SITE, GUIDES, { TASKS, ROUNDUPS }, L) };
 }
 
 /** A copy's head for a converter page whose root keeps its own hand-made head: the page's copy in the language. */

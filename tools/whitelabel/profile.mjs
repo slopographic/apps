@@ -8,6 +8,7 @@ import { mascotProblems } from './mascot.mjs';
 import { fontProblems, fontManifest } from './font.mjs';
 import { backupExt } from './emit.mjs';
 import { LANGS as SITE_LANGS } from '../seo/lang.mjs';
+import { registryWindow } from '../seo/site.mjs';
 
 const HEX = /^#[0-9a-f]{3,8}$/i;
 const TOKENS = ['background', 'surface', 'text', 'accent', 'border'];
@@ -49,6 +50,36 @@ export function validate(p) {
   if (sl !== undefined && sl !== 'all' && sl !== 'none' && !(Array.isArray(sl) && sl.every((c) => codes.includes(c)) && new Set(sl).size === sl.length)) {
     errs.push(`seo.langs: 'all', 'none' or a list of language codes without repeats (${codes.join(', ')})`);
   }
+  errs.push(...searchProblems(p.seo || {}), ...singleAppProblems(p));
+  return errs;
+}
+
+const ORIGIN = /^https:\/\/[a-z0-9.-]+(:\d+)?$/;
+/** seo.index (true: search engines may index the site; default false), seo.canonicalTo (an origin every canonical points
+ * to), seo.canonicalOverride ({ "/pdf/": "https://pdf.example/pdf/", "=/pdf/": "https://pdf.example/" }): brand/README.md
+ * "Search engines". */
+function searchProblems(seo) {
+  const errs = [];
+  if (seo.index !== undefined && typeof seo.index !== 'boolean') errs.push('seo.index: true (search engines may index the site) or false (the default)');
+  if (seo.canonicalTo !== undefined && !ORIGIN.test(seo.canonicalTo)) errs.push('seo.canonicalTo: an https origin without a trailing slash');
+  const o = seo.canonicalOverride;
+  if (o !== undefined && !(o && typeof o === 'object' && !Array.isArray(o))) errs.push('seo.canonicalOverride: { "<path prefix>": "<https URL>" }');
+  else for (const [k, v] of Object.entries(o || {})) {
+    if (!/^=?\/([\w.-]+\/)*$/.test(k)) errs.push(`seo.canonicalOverride: ${k}: a path from the site root ending in / ("/pdf/"), or "=" and one page ("=/pdf/")`);
+    if (typeof v !== 'string' || !/^https:\/\/[a-z0-9.-]+(:\d+)?\/([\w.-]+\/)*$/.test(v)) errs.push(`seo.canonicalOverride: ${k}: an https URL ending in /`);
+  }
+  return errs;
+}
+/** mainApp (the app the site's root opens) and parent ({ name, url }: the suite a single-app site links back to). */
+function singleAppProblems(p) {
+  const errs = [], all = registryWindow().SLOP_ALL_APPS, hide = (p.apps && p.apps.hide) || [];
+  if (p.mainApp !== undefined) {
+    const a = all.find((x) => x.id === p.mainApp);
+    if (!a || !a.path || a.path.startsWith('#') || a.kind !== 'app') errs.push('mainApp: the id of an app with a page (shared/apps.js)');
+    else if (hide.includes(a.id)) errs.push('mainApp: an app the profile hides (apps.hide)');
+  }
+  const par = p.parent;
+  if (par !== undefined && !(par && typeof par.name === 'string' && par.name.trim() && /^https:\/\/[a-z0-9.-]+(:\d+)?(\/[\w./-]*)?$/.test(par.url || ''))) errs.push('parent: { name, url }: the site\'s name and https address');
   return errs;
 }
 

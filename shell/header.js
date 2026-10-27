@@ -1,6 +1,7 @@
 /* SlopHeader: adds the shell's buttons to the page header: AI (the Slop AI panel, loaded on click), the language menu
  * (shared/i18n/switcher.js), the theme menu (every page, from SlopTheme), "Apps" (opens
- * the switcher), the notifications bell, and Tutorial (the app's YouTube tutorial, when the registry has one). Goes at the end of header.topbar, header.menubar or header.nav, or floats at the
+ * the switcher), the notifications bell, Tutorial (the app's YouTube tutorial, when the registry has one), and on a
+ * single-app site "More free tools", the link to its suite (shared/parent/parent.js). Goes at the end of header.topbar, header.menubar or header.nav, or floats at the
  * top right when the page has no header. Loaded and mounted by shell/shell.js, which applies the language after.
  * The Apps text and the button's aria-label are marked for SlopI18n; the title is set here (it carries the shortcut). */
 (function () {
@@ -181,12 +182,14 @@
     sw.innerHTML = ICON_SEARCH + '<span class="sh-hbtn-txt slop-hbtn-txt" data-i18n="nav.apps">Apps</span>';
     sw.addEventListener('click', () => window.SlopSwitcher.toggle());
     const tut = tutorialLink(), theme = themeButton(), conv = convertButton(), ai = aiButton();
+    const parent = window.SlopParent ? window.SlopParent.headerLink() : null;   // a single-app site: "More free tools" (shared/parent)
     const lang = window.SlopLangSwitch ? window.SlopLangSwitch.button() : null;   // the language menu (shared/i18n/switcher.js)
     if (ai) box.append(ai);
     if (conv) box.append(conv);
     if (tut) box.append(tut);
     if (lang) box.append(lang);
     if (theme) box.append(theme);
+    if (parent) box.append(parent);
     box.append(sw);
     shellBox = box;
     place();

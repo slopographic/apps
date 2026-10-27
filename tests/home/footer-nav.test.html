@@ -19,7 +19,8 @@
  * opens on a tap, and the page never scrolls sideways. Its text is audited for contrast (tests/a11y/contrast.js) in the
  * Light and Dark themes at both widths, each column scrolled into view (open on the phone). */
 const { describe, it, expect, waitFor, run } = SlopTest;
-const PAGES = ['../../index.html', '../../apps/pdf/', '../../convert/mov-to-mp4/'];
+// a site that is not indexed has no landing pages (tests/brand-facts.js seoIndex)
+const PAGES = ['../../index.html', ...(window.BRAND_FACTS.seoIndex ? ['../../apps/pdf/'] : []), '../../convert/mov-to-mp4/'];
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 async function open(src, width, theme = 'dark') {

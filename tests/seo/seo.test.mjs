@@ -12,6 +12,8 @@ import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { context, ROOT_LANG } from '../../tools/seo/lang.mjs';
+import { canonicalFor, mainApp } from '../../tools/seo/robots.mjs';
+import { FACTS } from '../brand-facts.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const SITE = 'https://slopographic.com';
@@ -28,9 +30,13 @@ const anchorApps = apps.filter((a) => a.path && a.path.startsWith('#'));
 const aboutOf = (a) => `${a.path}about/index.html`;
 const aboutApps = pageApps.filter((a) => existsSync(path.join(ROOT, aboutOf(a))));
 
+// A single-app site's root is its app's page (tools/seo/mainapp.mjs, tests/seo/robots-site.test.mjs): no homepage of its own.
+// A page's canonical and og:url are its address as the profile names it (robots.mjs canonicalFor; its own on this site).
+const MAIN = mainApp();
+const INDEXED = { skip: !FACTS.seoIndex && 'the site is not indexed (seo.index): no sitemap (tests/seo/robots.test.mjs)' };
 /** Every page this test checks: [{ label, file, url, app }]. */
 const pages = [
-  { label: 'homepage', file: 'index.html', url: `${SITE}/` },
+  ...(MAIN ? [] : [{ label: 'homepage', file: 'index.html', url: `${SITE}/` }]),
   ...pageApps.map((a) => ({ label: a.id, file: `${a.path}index.html`, url: `${SITE}/${a.path}`, app: a })),
   ...aboutApps.map((a) => ({ label: `${a.id} about`, file: aboutOf(a), url: `${SITE}/${a.path}about/`, app: a, about: true })),
 ];
@@ -74,7 +80,7 @@ test('each page has a description, unique across the site', () => {
 });
 
 test('each page has a canonical link to its own URL', () => {
-  for (const p of pages) assert.equal(canonicalOf(html[p.label]), p.url, `${p.label}: canonical`);
+  for (const p of pages) assert.equal(canonicalOf(html[p.label]), canonicalFor(p.url), `${p.label}: canonical`);
 });
 
 test('each page has lang, viewport, and Open Graph and Twitter tags with an image that exists', () => {
@@ -83,7 +89,7 @@ test('each page has lang, viewport, and Open Graph and Twitter tags with an imag
     assert.match(h, /<html[^>]*\slang="[A-Za-z-]+"/, `${p.label}: html lang`);
     assert.match(h, /<meta name="viewport" content="width=device-width/, `${p.label}: viewport`);
     assert.equal(ogOf(h, 'title'), titleOf(h), `${p.label}: og:title matches title`);
-    assert.equal(ogOf(h, 'url'), p.url, `${p.label}: og:url`);
+    assert.equal(ogOf(h, 'url'), canonicalFor(p.url), `${p.label}: og:url`);
     assert.equal(ogOf(h, 'description'), descOf(h), `${p.label}: og:description matches description`);
     assert.equal(twitterOf(h, 'card'), 'summary_large_image', `${p.label}: twitter:card`);
     const img = ogOf(h, 'image');
@@ -125,7 +131,7 @@ test('each about page has a BreadcrumbList with three levels', () => {
   }
 });
 
-test('the homepage has an ItemList of every app and the Organization schema', () => {
+test('the homepage has an ItemList of every app and the Organization schema', { skip: !!MAIN && 'a single-app site: its root is the app' }, () => {
   const blocks = ldOf(html.homepage);
   const [list] = byType(blocks, 'ItemList');
   assert.ok(list, 'homepage: no ItemList');
@@ -138,11 +144,11 @@ test('the homepage has an ItemList of every app and the Organization schema', ()
   assert.equal(org.url, `${SITE}/`);
 });
 
-test('every app in the registry is in the sitemap (anchor apps through the homepage)', async () => {
+test('every app in the registry is in the sitemap (anchor apps through the homepage)', INDEXED, async () => {
   const xml = await read('sitemap.xml');
   const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
   assert.equal(new Set(locs).size, locs.length, 'sitemap has duplicate entries');
-  for (const p of pages) assert.ok(locs.includes(p.url), `sitemap is missing ${p.url}`);
+  for (const p of pages) assert.ok(locs.includes(canonicalFor(p.url)), `sitemap is missing ${canonicalFor(p.url)}`);
   for (const l of locs) {
     const rel = l.slice(SITE.length);
     const file = rel.endsWith('/') ? `${rel}index.html` : rel;
@@ -151,10 +157,11 @@ test('every app in the registry is in the sitemap (anchor apps through the homep
   for (const m of xml.matchAll(/<url>[\s\S]*?<\/url>/g)) assert.match(m[0], /<lastmod>\d{4}-\d{2}-\d{2}<\/lastmod>/, `no lastmod: ${m[0]}`);
 });
 
-test('robots.txt allows crawling and points to the sitemap', async () => {
+test('robots.txt allows crawling and points to the sitemap (none on a site that is not indexed)', async () => {
   const t = await read('robots.txt');
   assert.match(t, /^User-agent: \*$/m);
   assert.match(t, /^Allow: \/$/m);
   assert.ok(!/^Disallow: \/$/m.test(t), 'robots.txt blocks the whole site');
-  assert.match(t, new RegExp(`^Sitemap: ${SITE}/sitemap\\.xml$`, 'm'));
+  if (FACTS.seoIndex) assert.match(t, new RegExp(`^Sitemap: ${SITE}/sitemap\\.xml$`, 'm'));
+  else assert.doesNotMatch(t, /Sitemap:/);
 });

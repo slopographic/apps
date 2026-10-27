@@ -16,7 +16,7 @@ const SRC = readFileSync(path.join(ROOT, 'tests/brand-facts.js'), 'utf8');
 test('here the facts are this site\'s profile: brand names, playful, the buddy, media, analytics, English, no app hidden', () => {
   const p = loadProfile(profilesDir(ROOT), 'slopographic');
   assert.deepEqual({ ...FACTS, hideApps: [...FACTS.hideApps] }, { naming: p.naming, tone: p.tone, mascot: p.mascot === true ? 'builtin' : 'none',
-    media: p.media, analytics: p.analytics, defaultLang: p.defaultLang, hideApps: p.apps.hide });
+    media: p.media, analytics: p.analytics, defaultLang: p.defaultLang, hideApps: p.apps.hide, seoIndex: p.seo.index });
   assert.deepEqual([FACTS.naming, FACTS.tone, FACTS.mascot, FACTS.defaultLang], ['brand', 'playful', 'builtin', 'en']);
   assert.equal(applyMarkers(SRC, markerValues(p)), SRC, 'this site\'s profile leaves the file as it is');
   assert.deepEqual(BRAND.support, brandJson(BRAND, p).support);
@@ -35,5 +35,6 @@ test('a build\'s facts follow its profile: the samples', () => {
   const sample = facts(applyMarkers(SRC, markerValues(loadProfile(dir, 'sample'))));
   assert.deepEqual([sample.naming, sample.tone, sample.mascot, sample.media, sample.analytics, sample.defaultLang], ['plain', 'plain', 'overlay', false, false, 'en']);
   const sv = facts(applyMarkers(SRC, markerValues(loadProfile(dir, 'sample-sv'))));
-  assert.deepEqual([sv.mascot, sv.defaultLang], ['none', 'sv']);
+  assert.deepEqual([sv.mascot, sv.defaultLang, sv.seoIndex], ['none', 'sv', false]);
+  assert.equal(sample.seoIndex, false, 'a profile that does not say true is not indexed');
 });
