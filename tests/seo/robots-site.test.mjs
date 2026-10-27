@@ -2,7 +2,8 @@
 // The SEO writer on a copy of the site with other profile markers (brand/README.md "Search engines", "Single-app
 // sites"): a site that is not indexed (noindex on every page, its own or canonicalTo's canonicals, no sitemaps, no
 // language folders, no generated pages), and a single-app site (its app at the root, only its apps' pages in the sitemap,
-// the parent in the footer, a canonical override per path). This site as it is: tests/seo/robots.test.mjs.
+// the parent in the footer, a canonical override per path). Language folders already in the copy (a white-label copy
+// commits them) are removed. This site as it is: tests/seo/robots.test.mjs.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, writeFileSync, existsSync, mkdirSync, cpSync, mkdtempSync, readdirSync, rmSync } from 'node:fs';
@@ -39,12 +40,14 @@ const pages = (dir, sub = '') => readdirSync(path.join(dir, sub), { withFileType
 test('a site that is not indexed: noindex everywhere, its own canonicals, no sitemaps, no generated pages', { timeout: 120000 }, () => {
   const dir = copySite();
   try {
+    // a site that published its languages before (a white-label copy commits their folders): a --langs run removes them
+    for (const f of ['sv/index.html', 'sv/pdf/index.html', 'de/index.html', 'de/compare/index.html']) { mkdirSync(path.dirname(path.join(dir, f)), { recursive: true }); writeFileSync(path.join(dir, f), `<!doctype html><html lang="${f.slice(0, 2)}" data-lang-page="${f.slice(0, 2)}"><title>old</title>`); }
     mark(dir, 'tools/seo/site.mjs', 'seoIndex', false);
     write(dir); write(dir, '--langs');
     assert.equal(read(dir, 'robots.txt'), 'User-agent: *\nAllow: /\n');
     assert.deepEqual(readdirSync(dir).filter((f) => /^sitemap/.test(f)), []);
     for (const d of ['compare', 'best', 'all-tools', 'apps/pdf', 'pdf/sign-pdf']) assert.ok(!existsSync(path.join(dir, d, 'index.html')), `${d}: not built`);
-    assert.ok(!existsSync(path.join(dir, 'sv')), 'no language folders');
+    for (const l of ['sv', 'de']) assert.ok(!existsSync(path.join(dir, l)), `no language folders: ${l}/`);
     for (const p of pages(dir)) {
       const html = read(dir, p);
       if (/<head(\s[^>]*)?>/i.test(html)) assert.match(html, /<meta name="robots" content="noindex">/, p);

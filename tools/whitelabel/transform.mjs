@@ -5,7 +5,10 @@
 import { urls, phraseRules, phrases, tokenRules, reverseRules, tokens, renamePath } from './rename.mjs';
 import { phrasePairs } from './profile.mjs';
 import { markerValues, applyMarkers } from './emit.mjs';
-import { remapColors, paletteFile } from './palette.mjs';
+import { readFileSync, existsSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import path from 'node:path';
+import { remapColors, paletteFile, colorKeys, TEST_FILE } from './palette.mjs';
 
 /** Everything the steps need for one profile and its rename map. */
 export function context(root, p, map) {
@@ -14,7 +17,7 @@ export function context(root, p, map) {
   for (const k of ['hideApps', 'mainApp']) values[k] = JSON.parse(tokens(JSON.stringify(values[k]), rules));
   values.seoLenient = true;   // renamed copy: its SEO lengths only warn, wherever its SEO writer runs (tools/seo/head.mjs)
   return {
-    profile: p, map, pairs,
+    root, profile: p, map, pairs,
     urls: { origin: p.origin, github: p.github, repo: p.publish && p.publish.repo, mail: p.mailDomain || p.cname },
     phraseRules: phraseRules(pairs, p.brandWord || p.name),
     tokenRules: rules, reverseRules: reverseRules(map), values,
@@ -24,10 +27,22 @@ export function context(root, p, map) {
 /** The profile's content steps (one way): links, visible names. Their result is what the token pass renames. */
 export const profileText = (text, ctx) => phrases(urls(text, ctx.urls), ctx.phraseRules);
 
+/** The colours the site's own files use (every palette file outside tests/ that git lists), read once per context. */
+export function siteColors(ctx) {
+  if (ctx._siteColors) return ctx._siteColors;
+  let files = [];
+  try { files = execFileSync('git', ['ls-files', '-z'], { cwd: ctx.root, encoding: 'utf8', maxBuffer: 1 << 28 }).split('\0'); } catch (e) { /* not a checkout: no site colours */ }
+  files = files.filter((f) => f && paletteFile(f) && !TEST_FILE.test(f) && existsSync(path.join(ctx.root, f)));
+  ctx._siteColors = colorKeys(files.map((f) => readFileSync(path.join(ctx.root, f), 'utf8')));
+  return ctx._siteColors;
+}
+/** The palette step of one file: a test file moves only the site's own colours (palette.mjs TEST_FILE). */
+const palette = (t, ctx, dest) => remapColors(t, ctx.profile.palette, TEST_FILE.test(dest) ? siteColors(ctx) : null);
+
 /** The whole forward step for one file (dest: its path in the copy, for the palette rule). */
 export function forward(text, ctx, dest) {
   let t = tokens(profileText(text, ctx), ctx.tokenRules);
-  if (ctx.profile.palette && paletteFile(dest)) t = remapColors(t, ctx.profile.palette);
+  if (ctx.profile.palette && paletteFile(dest)) t = palette(t, ctx, dest);
   // markers after the palette: the profile's own colours (its theme tokens) are written as the profile gives them
   return applyMarkers(t, ctx.values).replace(/brand\/logo(?:-128)?\.webp/g, 'brand/mark.svg');
 }
@@ -65,7 +80,7 @@ function sourcePairs(oldText, ctx, dest) {
   for (const m of oldText.matchAll(/\/\*profile:\w+\*\/('(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"|true|false|null|-?\d+|\[\]|\{\})/g)) out.push([m[0], applyMarkers(m[0], ctx.values)]);
   for (const m of oldText.matchAll(/brand\/logo(?:-128)?\.webp/g)) out.push([m[0], 'brand/mark.svg']);
   if (ctx.profile.palette && paletteFile(dest)) {
-    for (const m of oldText.matchAll(/#[0-9a-fA-F]{3,8}\b|\brgba?\([^)]*\)/g)) out.push([m[0], remapColors(m[0], ctx.profile.palette)]);
+    for (const m of oldText.matchAll(/#[0-9a-fA-F]{3,8}\b|\brgba?\([^)]*\)/g)) out.push([m[0], palette(m[0], ctx, dest)]);
   }
   return out;
 }

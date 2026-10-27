@@ -4,6 +4,7 @@
 // profile.palette: { hue: 221, from: [55, 110], minSaturation: 0.3, neutral? }. neutral: { hue, saturation, from, maxSaturation }
 // also turns the source's tinted greys (its warm paper and its near-blacks; pure greys stay) to the profile's own neutral
 // tint, with the same luminance: the apps' own backgrounds, fields and lines then match the profile's theme tokens.
+// Under tests/ both shifts move only the colours the site's own files use (TEST_FILE): any other is the test's data.
 // Node only. Tests: tests/node/whitelabel-palette.test.mjs.
 
 const hex2 = (n) => Math.round(Math.max(0, Math.min(255, n))).toString(16).padStart(2, '0');
@@ -55,19 +56,35 @@ export function shiftNeutral([r, g, b], n) {
 const HEX = /#([0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})\b/g;
 const RGB = /\brgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})(\s*[,)])/g;
 
-/** The text with its accent-family colours moved to the profile's hue. Hex keeps its length and case style. */
-export function remapColors(text, pal) {
+/** A colour literal's key: its six lowercase hex digits (no alpha), or null when it is not a colour literal. */
+export function colorKey(lit) {
+  let m = /^#([0-9a-fA-F]{3,8})$/.exec(lit);
+  if (m) { const h = m[1].length <= 4 ? m[1].split('').map((c) => c + c).join('') : m[1]; return h.length === 6 || h.length === 8 ? h.slice(0, 6).toLowerCase() : null; }
+  m = /^rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})/.exec(lit);
+  return m ? m.slice(1, 4).map((v) => hex2(+v)).join('') : null;
+}
+/** The keys of every colour literal in some texts (the site's own colours, for a test file's rule: TEST_FILE). */
+export function colorKeys(texts) {
+  const out = new Set();
+  for (const t of texts) for (const m of t.matchAll(/#[0-9a-fA-F]{3,8}\b|\brgba?\([^)]*\)/g)) { const k = colorKey(m[0]); if (k) out.add(k); }
+  return out;
+}
+
+/** The text with its accent-family colours moved to the profile's hue. Hex keeps its length and case style. only: a set
+ * of colour keys (colorKeys); when given, a colour not in it stays as it is. */
+export function remapColors(text, pal, only) {
   if (!pal || typeof pal.hue !== 'number') return text;
+  const moved = (rgb, lit) => (only && !only.has(colorKey(lit)) ? null : shift(rgb, pal) || shiftNeutral(rgb, pal.neutral));
   return text.replace(HEX, (m, h) => {
     const full = h.length <= 4 ? h.split('').map((c) => c + c).join('') : h;
     const rgb = [0, 2, 4].map((i) => parseInt(full.slice(i, i + 2), 16));
-    const n = shift(rgb, pal) || shiftNeutral(rgb, pal.neutral);
+    const n = moved(rgb, m);
     if (!n) return m;
     let out = n.map(hex2).join('') + (full.length === 8 ? full.slice(6) : '');
     if (h === h.toUpperCase() && /[A-F]/.test(h)) out = out.toUpperCase();
     return '#' + out;
   }).replace(RGB, (m, r, g, b, tail) => {
-    const n = shift([+r, +g, +b], pal) || shiftNeutral([+r, +g, +b], pal.neutral);
+    const n = moved([+r, +g, +b], m);
     return n ? m.slice(0, m.indexOf('(') + 1) + n.map(Math.round).join(', ') + tail : m;
   });
 }
@@ -77,6 +94,9 @@ export function remapColors(text, pal) {
 export const PALETTE_KEEP = /^tests\/(node\/colors-|.*fixtures\/)|^[\w-]+\/js\/io\/sample\.js$/;
 /** Which files the shift applies to: the site's own styles and code and the tests that check them; not third-party code. */
 export const paletteFile = (file) => /\.(css|m?js|html|svg)$/.test(file) && !/^vendor\//.test(file) && !PALETTE_KEEP.test(file);
+/** In a test file only the colours the site itself uses move (both shifts): such a colour is a check of the site's look;
+ * any other is the test's own data, which its inputs hold in forms the shift does not see (a pptx's bare "FBFAF5"). */
+export const TEST_FILE = /^tests\//;
 
 const hexRgb = (h) => { const f = h.length === 4 ? h.slice(1).split('').map((c) => c + c).join('') : h.slice(1, 7); return [0, 2, 4].map((i) => parseInt(f.slice(i, i + 2), 16)); };
 const mix = (a, b, t) => a.map((v, i) => v * t + b[i] * (1 - t));   // t of a over b
