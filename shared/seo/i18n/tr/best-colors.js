@@ -64,7 +64,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'seo.best.free-color-palette-tools.verdict.0': 'Renkler kendi resimlerinizden geliyorsa ve palet kod ya da bir tasarım aracına girmek zorundaysa Slop Colors’ı öneririz: damlalık, ana renkler, kontrast denetimi ve dışa aktarımlar tek sayfada yer alır, hiçbir şey yüklenmez.',
   'seo.best.free-color-palette-tools.verdict.1': 'Üreteci, kitaplığı ve eklentileri için Coolors’ı; renk çemberi ve Adobe kitaplığı için Adobe Color’ı, tek bir çifti denetleyip paylaşmak için ise WebAIM denetleyicisini seçin.',
   'seo.best.free-color-palette-tools.faq.0.0': 'Hangi kontrast oranı gerekir?',
-  'seo.best.free-color-palette-tools.faq.0.1': 'WCAG AA, normal metin için 4,5:1, büyük metin ve arayüz parçaları için 3:1 ister; AAA ise 7:1 ve 4,5:1. Dört araç da oranı gösterir.',
+  'seo.best.free-color-palette-tools.faq.0.1': 'WCAG AA, normal metin için 4.5:1, büyük metin ve arayüz parçaları için 3:1 ister; AAA ise 7:1 ve 4.5:1. Dört araç da oranı gösterir.',
   'seo.best.free-color-palette-tools.faq.1.0': 'Photoshop ya da Illustrator hangi dosyayı açar?',
   'seo.best.free-color-palette-tools.faq.1.1': 'Bir Adobe Swatch Exchange (.ase) dosyası. Slop Colors ve Coolors ikisi de bu dosyayı dışa aktarır.',
   'seo.best.free-color-palette-tools.faq.2.0': 'Resmim yüklenir mi?',
