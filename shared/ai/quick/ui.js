@@ -19,7 +19,8 @@
   // this app's own list (quick/apps/<id>.js), for a page of the registry (an app, Paint Classic); the chips and an open list follow it
   const id = P.appId(), isApp = (window.SLOP_APPS || []).some((a) => a.id === id && a.path && !a.path.startsWith('#'));
   const appList = isApp ? K.load(['quick/apps/' + id]).catch(() => null) : Promise.resolve();
-  appList.then(() => { if (mode === 'list') list(filterText()); else if (!P.messages.length && !P.busy) P.render(); });
+  // never P.render() here: it would redraw a model choice or a sign-in in progress (tests/ai/cloud-signin.test.html)
+  appList.then(() => { if (mode === 'list') list(filterText()); const c = P.list && P.list.querySelector('.sap-q-chips'); if (c) c.replaceWith(chips()); });
 
   const ctx = () => K.quickContext.now(P);
   const env = () => ({ tools: !!(P.toolsBox && P.toolsBox.checked && window.SlopCmd) });
