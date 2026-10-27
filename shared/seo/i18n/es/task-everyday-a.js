@@ -133,7 +133,7 @@ window.SlopI18n && window.SlopI18n.add('es', {
   'seo.task.time.online-stopwatch.faq.3.1': 'Un número son minutos (5), dos puntos separan minutos y segundos (4:30), y dos puntos dobles son horas, minutos y segundos (1:05:00).',
   'seo.task.time.timeanddate-alternative.crumb': 'Alternativa a timeanddate.com',
   'seo.task.time.timeanddate-alternative.title': 'Alternativa gratis a timeanddate.com en tu navegador',
-  'seo.task.time.timeanddate-alternative.description': 'Reloj mundial, conversor de zonas, planificador de reuniones, cronómetro y temporizador en una página del navegador. Tus ciudades se quedan en tu dispositivo. Sin cuenta.',
+  'seo.task.time.timeanddate-alternative.description': 'Reloj mundial, conversor de zonas, planificador de reuniones, cronómetro y temporizador en una página del navegador. Tus ciudades se quedan aquí. Sin cuenta.',
   'seo.task.time.timeanddate-alternative.h1': 'Una alternativa a timeanddate.com para relojes mundiales y zonas horarias',
   'seo.task.time.timeanddate-alternative.lead': 'Slop Time reúne en una página un reloj mundial, un conversor de zonas horarias, un planificador de reuniones, un cronómetro y una cuenta atrás. Funciona en tu navegador y guarda tus ciudades en este dispositivo.',
   'seo.task.time.timeanddate-alternative.steps.0': 'Abre Slop Time. El Reloj mundial empieza con Londres, Nueva York y Tokio.',
