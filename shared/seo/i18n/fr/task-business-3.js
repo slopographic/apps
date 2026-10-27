@@ -20,7 +20,7 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'seo.task.expenses.expense-tracker.faq.2.1': 'Non. Tout est gardé dans ce navigateur, sur cet appareil. Téléchargez une sauvegarde complète depuis Slop Admin pour garder une copie.',
   'seo.task.expenses.mileage-log.crumb': 'Carnet de kilométrage',
   'seo.task.expenses.mileage-log.title': 'Carnet de kilométrage et calcul des indemnités, gratuit dans le navigateur',
-  'seo.task.expenses.mileage-log.description': 'Notez vos déplacements professionnels en kilomètres ou en miles, à votre tarif, aller simple ou aller-retour. L’indemnité est calculée et enregistrée en dépense. Gratuit.',
+  'seo.task.expenses.mileage-log.description': 'Notez vos déplacements professionnels en kilomètres ou en miles, à votre tarif, aller simple ou aller-retour. L’indemnité est enregistrée en dépense. Gratuit.',
   'seo.task.expenses.mileage-log.h1': 'Noter les kilomètres et calculer l’indemnité',
   'seo.task.expenses.mileage-log.lead': 'Pour chaque déplacement professionnel, notez où vous êtes allé et pourquoi. Slop Expenses multiplie la distance par votre tarif et enregistre l’indemnité comme dépense, donc elle figure dans vos comptes et votre CSV.',
   'seo.task.expenses.mileage-log.cta': 'Noter un déplacement',
