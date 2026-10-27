@@ -232,7 +232,7 @@ window.SlopI18n && window.SlopI18n.add('pt-BR', {
   'seo.cv.raf-to-jpg.faq.2.1': 'Escolha Cancelar no aviso. O conversor então usa a prévia JPEG que a câmera guardou no arquivo, e a linha de status avisa. Muitas câmeras guardam uma prévia em tamanho original; algumas guardam uma menor.',
   'seo.cv.raf-to-jpg.faq.3.0': 'O meu arquivo RAW é enviado?',
   'seo.cv.raf-to-jpg.faq.3.1': 'Não. O arquivo é lido e revelado no seu navegador, neste dispositivo. Só o motor é baixado, uma vez; as suas fotos nunca são enviadas para lugar nenhum.',
-  'seo.cv.heic-to-jpg.title': 'Conversor de HEIC para JPG, fotos do iPhone, grátis e privado | File convert',
+  'seo.cv.heic-to-jpg.title': 'Conversor de HEIC para JPG, fotos do iPhone, grátis | File convert',
   'seo.cv.heic-to-jpg.description': 'Converta fotos HEIC e HEIF do iPhone em JPG no navegador, uma ou muitas de uma vez. Escolha a qualidade e o tamanho. Suas fotos nunca são enviadas.',
   'seo.cv.heic-to-jpg.h1': 'Conversor de HEIC para JPG',
   'seo.cv.heic-to-jpg.lead': 'Os iPhones salvam fotos em HEIC. Transforme-as em imagens JPG que todo app, site e computador abre, aqui mesmo no seu dispositivo.',
