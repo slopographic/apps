@@ -202,7 +202,7 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'seo.task.purchases.purchase-order-template.faq.2.1': '不会。采购订单、供应商和商品都保存在本设备的此浏览器中。在“数据”标签页中下载完整备份，即可保留一份副本。',
   'seo.task.purchases.receive-stock.crumb': '将采购订单收入库存',
   'seo.task.purchases.receive-stock.title': '将采购订单收入库存并记录供应商账单',
-  'seo.task.purchases.receive-stock.description': '货物到达时，一步将采购订单收入库存，然后将供应商账单记为费用。可查看逾期和未开票的订单。',
+  'seo.task.purchases.receive-stock.description': '货物到达时，一步将采购订单收入库存，再将供应商账单记为费用。可查看逾期和未开票的订单，全部在浏览器中完成。',
   'seo.task.purchases.receive-stock.h1': '货物入库并记录账单',
   'seo.task.purchases.receive-stock.lead': '完成采购的闭环：将到货直接收入 Slop Inventory，然后根据同一张采购订单，在账簿中将供应商的账单记为费用。',
   'seo.task.purchases.receive-stock.cta': '打开 Slop Purchases',
