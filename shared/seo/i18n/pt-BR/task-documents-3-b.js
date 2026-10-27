@@ -39,7 +39,7 @@ window.SlopI18n && window.SlopI18n.add('pt-BR', {
   'seo.task.checksum.sha512-checksum.faq.2.1': 'Não. O hash é calculado pelo seu navegador, no seu dispositivo.',
   'seo.task.hex.hex-viewer.crumb': 'Visualizador hexadecimal',
   'seo.task.hex.hex-viewer.title': 'Visualizador hexadecimal online: veja qualquer arquivo em bytes, grátis',
-  'seo.task.hex.hex-viewer.description': 'Abra qualquer arquivo no navegador e veja os bytes em colunas de deslocamento, hexadecimal e ASCII. Encontre bytes ou textos e vá a um deslocamento. Arquivos grandes são lidos por partes. Sem envio.',
+  'seo.task.hex.hex-viewer.description': 'Abra qualquer arquivo e veja os bytes em colunas de deslocamento, hex e ASCII. Ache bytes ou textos. Arquivos grandes são lidos por partes. Sem envio.',
   'seo.task.hex.hex-viewer.h1': 'Veja um arquivo em hexadecimal',
   'seo.task.hex.hex-viewer.lead': 'Veja o que há de fato dentro de um arquivo: cada byte em hexadecimal com o seu deslocamento, e os caracteres legíveis ao lado. Arquivos grandes abrem página por página.',
   'seo.task.hex.hex-viewer.steps.0': 'Solte qualquer arquivo na página, ou escolha Abrir.',
