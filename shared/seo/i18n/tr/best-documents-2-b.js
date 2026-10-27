@@ -74,7 +74,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'seo.best.free-online-spreadsheets.faq.3.1': 'Google Sheets bunları Google Drive’da, Excel web ise OneDrive’da tutar. Slop Tables ise tarayıcınızın içindeki Slop Drive’da tutar; bu yüzden hiçbir şey yüklenmez.',
   'seo.best.free-presentation-software.crumb': 'En iyi ücretsiz sunum yazılımı',
   'seo.best.free-presentation-software.title': 'En iyi ücretsiz sunum yazılımı (2026): Google Slides, PowerPoint, Zoho',
-  'seo.best.free-presentation-software.description': 'Ücretsiz sunum uygulamaları karşılaştırması: Google Slides, PowerPoint web, LibreOffice Impress, Zoho Show ve Slop Slides. PPTX, sunucu görünümü, çevrimdışı kullanım.',
+  'seo.best.free-presentation-software.description': 'Ücretsiz sunum uygulamaları: Google Slides, PowerPoint web, LibreOffice Impress, Zoho Show ve Slop Slides. PPTX, sunucu görünümü, çevrimdışı kullanım.',
   'seo.best.free-presentation-software.h1': 'En iyi ücretsiz sunum yazılımı, karşılaştırmalı',
   'seo.best.free-presentation-software.lead': 'Birkaç uygulamada slayt yapmak ve sunmak ücretsizdir. Aralarındaki fark; hesaplarda ve depolamada, PowerPoint dosyalarını ne kadar iyi açıp kaydettiklerinde, notlarınızla bir sunucu görünümü verip vermediklerinde ve birlikte çalışıp çalışamadığınızdadır.',
   'seo.best.free-presentation-software.criteria.0': 'Slayt yapmak ve sunmak için ücretsiz kullanım',
