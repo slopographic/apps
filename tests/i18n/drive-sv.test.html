@@ -102,9 +102,12 @@
       const f = await open('sv', 390);
       const doc = f.contentDocument;
       await waitFor(() => doc.documentElement.getAttribute('lang') === 'sv', { timeout: 20000 });
-      expect(doc.documentElement.scrollWidth <= f.contentWindow.innerWidth + 1).toBe(true);
-      const bar = doc.querySelector('.topbar');
-      expect(bar.scrollWidth <= bar.clientWidth + 1).toBe(true);
+      const bar = doc.querySelector('.topbar'), W = f.contentWindow.innerWidth;
+      /** What reaches past the right edge, so a failure names it: [tag, class, left, right, text]. */
+      const past = () => [...doc.querySelectorAll('body *')].filter((k) => k.getBoundingClientRect().right > W + 1 && k.getClientRects().length)
+        .slice(0, 8).map((k) => [k.tagName, String(k.className).slice(0, 40), Math.round(k.getBoundingClientRect().left), Math.round(k.getBoundingClientRect().right), (k.textContent || '').trim().slice(0, 16)]);
+      expect(doc.documentElement.scrollWidth <= W + 1 ? [] : [doc.documentElement.scrollWidth, past()]).toEqual([]);
+      expect(bar.scrollWidth <= bar.clientWidth + 1 ? [] : [bar.scrollWidth, bar.clientWidth, past()]).toEqual([]);
       expect(KEY.test(visible(doc))).toBe(false);
     });
   });
