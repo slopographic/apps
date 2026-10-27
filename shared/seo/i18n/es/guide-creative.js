@@ -7,7 +7,7 @@ window.SlopI18n && window.SlopI18n.add('es', {
   'seo.guide.photoslop.getting-started.lead': 'PhotoSlop es un editor de fotos con capas, en tu navegador. Tus imágenes se quedan en tu dispositivo: nunca se suben.',
   'seo.guide.photoslop.getting-started.sections.0.h2': 'Abre una foto',
   'seo.guide.photoslop.getting-started.sections.0.steps.0': 'Suelta una foto en la ventana, o elige Archivo, Abrir… (Ctrl+O). Los archivos PSD se abren con sus capas.',
-  'seo.guide.photoslop.getting-started.sections.0.steps.1': 'En tu primera visita, el lienzo en blanco muestra una tarjeta de bienvenida. Haz clic en Probar con una foto de ejemplo para tener una imagen con la que practicar.',
+  'seo.guide.photoslop.getting-started.sections.0.steps.1': 'En tu primera visita, el lienzo en blanco muestra una tarjeta de bienvenida. Haz clic en Pruébalo con una foto de ejemplo para tener una imagen con la que practicar.',
   'seo.guide.photoslop.getting-started.sections.0.steps.2': 'Archivo, Nuevo… (Ctrl+N) crea un lienzo vacío del tamaño que elijas.',
   'seo.guide.photoslop.getting-started.sections.0.text.0': 'Cada imagen abierta tiene una pestaña encima del lienzo. Las herramientas están a la izquierda, las opciones de la herramienta actual en la barra superior, y los paneles (Color, Muestras, Pinceles, Carácter, Marca de agua, Capas e Historial) a la derecha.',
   'seo.guide.photoslop.getting-started.sections.1.h2': 'Ajusta los colores',

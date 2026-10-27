@@ -43,7 +43,7 @@ window.SlopI18n && window.SlopI18n.add('es', {
   'seo.task.effects.text-animation-maker.cta': 'Animar un texto',
   'seo.task.effects.text-animation-maker.steps.0': 'Elige el tamaño de la composición: YouTube 1920×1080, Shorts/Reels/TikTok 1080×1920, cuadrado, vertical, 4K o personalizado.',
   'seo.task.effects.text-animation-maker.steps.1': 'Añade una capa de texto desde el menú Capa y escribe tus palabras; elige la fuente, el grosor, el tamaño y el color.',
-  'seo.task.effects.text-animation-maker.steps.2': 'En la pestaña Movimiento, elige Animar la entrada y Animar la salida (Aparecer gradualmente, Deslizar hacia arriba, Aparecer de golpe o Girar al entrar), o fija tus propios fotogramas clave para posición, escala, rotación y opacidad.',
+  'seo.task.effects.text-animation-maker.steps.2': 'En la pestaña Movimiento, elige Animar entrada y Animar salida (Aparecer gradualmente, Deslizar hacia arriba, Aparecer de golpe o Girar al entrar), o fija tus propios fotogramas clave para posición, escala, rotación y opacidad.',
   'seo.task.effects.text-animation-maker.steps.3': 'Ajusta el ritmo con las aceleraciones y el Editor de curvas, y añade efectos como Resplandor o Sombra paralela.',
   'seo.task.effects.text-animation-maker.steps.4': 'Pulsa Renderizar y elige MP4, WebM o una secuencia de PNG.',
   'seo.task.effects.text-animation-maker.body.0': 'Para un texto que quieras superponer sobre otro material, marca Fondo transparente y renderiza una secuencia de PNG: los fotogramas conservan la transparencia y la mayoría de editores de vídeo los importan como un solo clip.',

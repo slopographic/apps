@@ -27,7 +27,7 @@ window.SlopI18n && window.SlopI18n.add('es', {
   'seo.task.colors.color-picker-from-image.steps.0': 'Suelta la imagen en la página, o haz clic en Abrir imagen… (PNG, JPEG, WebP, GIF o SVG).',
   'seo.task.colors.color-picker-from-image.steps.1': 'Pasa sobre la imagen: la lupa muestra los píxeles y el color bajo el puntero. Haz clic para elegirlo; en el móvil, levanta el dedo.',
   'seo.task.colors.color-picker-from-image.steps.2': 'O usa el teclado: las flechas mueven un píxel, Mayús con una flecha mueve diez, y Enter añade el color a la paleta.',
-  'seo.task.colors.color-picker-from-image.steps.3': 'En Colores principales de la imagen, mira sus colores con su proporción; ajusta Colores que buscar en el panel para obtener más o menos.',
+  'seo.task.colors.color-picker-from-image.steps.3': 'En Colores principales de la imagen, mira sus colores con su proporción; ajusta Colores a encontrar en el panel para obtener más o menos.',
   'seo.task.colors.color-picker-from-image.steps.4': 'Haz clic en Añadir todos a la paleta y después en Descargar paleta, o copia cualquier valor.',
   'seo.task.colors.color-picker-from-image.faq.0.0': '¿Cómo se calculan los colores principales?',
   'seo.task.colors.color-picker-from-image.faq.0.1': 'Con agrupación k-means en el espacio de color OKLab, partiendo de una semilla fija, así que la misma imagen da siempre los mismos colores.',

@@ -252,7 +252,7 @@ window.SlopI18n && window.SlopI18n.add('es', {
   'seo.guide.slopedit.getting-started.lead': 'SlopCut es un editor de vídeo con un depósito de medios, una línea de tiempo de varias pistas y una vista previa en directo. Tu material nunca sale de tu dispositivo.',
   'seo.guide.slopedit.getting-started.sections.0.h2': 'Trae tus medios',
   'seo.guide.slopedit.getting-started.sections.0.text.0': 'Elige Importar en la pestaña Medios, o suelta vídeo, audio e imágenes en cualquier parte de la ventana. Drive trae archivos de Slop Drive. Los primeros clips que importas van a la línea de tiempo y fijan el tamaño de la secuencia.',
-  'seo.guide.slopedit.getting-started.sections.0.text.1': 'Para echar primero un vistazo, abre la búsqueda de comandos con Ctrl+K y elige Cargar proyecto de muestra.',
+  'seo.guide.slopedit.getting-started.sections.0.text.1': 'Para echar primero un vistazo, abre la búsqueda de comandos con Ctrl+K y elige Cargar proyecto de ejemplo.',
   'seo.guide.slopedit.getting-started.sections.0.image.alt': 'SlopCut con el proyecto de muestra: depósito de medios, vista previa, inspector y una línea de tiempo con pistas de título, logotipo, vídeo y audio',
   'seo.guide.slopedit.getting-started.sections.1.h2': 'Edita en la línea de tiempo',
   'seo.guide.slopedit.getting-started.sections.1.text.0': 'Arrastra clips desde el depósito a una pista, y arrástralos para moverlos. Arrastra el borde de un clip para recortarlo. S corta el clip en el cabezal de reproducción. Q y W recortan el inicio o el final hasta el cabezal y cierran el hueco.',

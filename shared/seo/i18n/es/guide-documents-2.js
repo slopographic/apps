@@ -97,7 +97,7 @@ window.SlopI18n && window.SlopI18n.add('es', {
   'seo.guide.sheetview.getting-started.lead': 'Slop Sheets abre hojas de cálculo para que puedas leerlas, ordenarlas y filtrarlas. No cambia el archivo. No se sube nada.',
   'seo.guide.sheetview.getting-started.sections.0.h2': 'Abre una hoja de cálculo',
   'seo.guide.sheetview.getting-started.sections.0.steps.0': 'Suelta un archivo .xlsx, .csv o .tsv en la página, o haz clic en Abrir una hoja de cálculo. Abrir (Ctrl+O), arriba, hace lo mismo.',
-  'seo.guide.sheetview.getting-started.sections.0.steps.1': 'Para probarlo, haz clic en Probar con una lista de precios de muestra.',
+  'seo.guide.sheetview.getting-started.sections.0.steps.1': 'Para probarlo, haz clic en Pruébalo con una lista de precios de ejemplo.',
   'seo.guide.sheetview.getting-started.sections.0.steps.2': 'Cada archivo recibe una pestaña bajo la barra superior, y cada hoja del archivo recibe un botón debajo. Haz clic en uno para cambiar.',
   'seo.guide.sheetview.getting-started.sections.0.text.0': 'Los archivos .xls antiguos no son compatibles. Guárdalos antes como .xlsx.',
   'seo.guide.sheetview.getting-started.sections.0.image.alt': 'La lista de precios de muestra abierta en Slop Sheets, con sus dos hojas, Lista de precios y Pedidos',

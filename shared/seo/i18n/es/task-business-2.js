@@ -24,7 +24,7 @@ window.SlopI18n && window.SlopI18n.add('es', {
   'seo.task.inventory.barcode-inventory-scanner.h1': 'Escanea códigos de barras en tu inventario',
   'seo.task.inventory.barcode-inventory-scanner.lead': 'Elige una acción y escanea: cada código de barras recibe, vende o cuenta un artículo (o la cantidad que fijes). Funciona con cualquier lector que escriba como un teclado, y con la cámara donde el navegador pueda leer códigos de barras.',
   'seo.task.inventory.barcode-inventory-scanner.cta': 'Empezar a escanear',
-  'seo.task.inventory.barcode-inventory-scanner.steps.0': 'Abre la pestaña Escanear y elige Teclado o lector, o Cámara.',
+  'seo.task.inventory.barcode-inventory-scanner.steps.0': 'Abre la pestaña Escanear y elige Teclado o escáner, o Cámara.',
   'seo.task.inventory.barcode-inventory-scanner.steps.1': 'Elige la acción: Recibir +, Vender −, Contar o Solo consultar. Fija la cantidad y la ubicación.',
   'seo.task.inventory.barcode-inventory-scanner.steps.2': 'Escanea. El resultado se muestra en pantalla durante dos segundos y entra en el Registro de escaneos.',
   'seo.task.inventory.barcode-inventory-scanner.steps.3': 'Para un EAN desconocido, elige Crear producto con este EAN, o Vincular EAN a este producto; el escaneo se aplica después.',
