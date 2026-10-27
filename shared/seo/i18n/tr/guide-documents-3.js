@@ -92,7 +92,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'seo.guide.notes.getting-started.shortcuts.5.1': 'Sonraki ya da önceki not',
   'seo.guide.notes.getting-started.shortcuts.6.1': 'Seçili notu, klasörü ya da defteri yeniden adlandır',
   'seo.guide.paste.getting-started.title': 'Paste’e başlarken: metin, kod ve resimleri elinizin altında tutun',
-  'seo.guide.paste.getting-started.description': 'Paste’i öğrenin: metin, kod ya da resim yapıştırıp kaydedin, vurgulama dili seçin, sonra bağlantısını kopyalayın, indirin ya da paylaşın. Yalnızca bu tarayıcıda.',
+  'seo.guide.paste.getting-started.description': 'Paste’i öğrenin: metin, kod ya da resim yapıştırıp kaydedin, vurgulama dili seçin, bağlantısını kopyalayın, indirin ya da paylaşın. Yalnızca bu tarayıcıda.',
   'seo.guide.paste.getting-started.h1': 'Paste’e başlarken',
   'seo.guide.paste.getting-started.lead': 'Paste, metin, kod ve resim parçalarını bu tarayıcıdaki Slop Drive’da tutar. Sunucu yoktur: yapıştırdığınız hiçbir şey yüklenmez.',
   'seo.guide.paste.getting-started.sections.0.h2': 'Bir yapıştırma yapın',
