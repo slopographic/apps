@@ -1,7 +1,7 @@
 // Store-app mode (shared/native-app.js): which app a page runs in (the iPhone/iPad app through Capacitor or its
 // capacitor:// address or the app's native config, the desktop app through app://, a test's SLOP_NATIVE), which pages are
 // the website's own, and what the store app hides; the iOS bundle loads it on every page; the install button stays
-// hidden in an app (shared/pwa.js); How it works and the app pages mark their install help as website-only.
+// hidden in an app (shared/pwa.js); Settings, How it works and the app pages mark their install help as website-only.
 // The browser side: tests/native/store-app.test.html.
 // Covers: shared/native-app.js, shared/pwa.js, tools/seo/landing.mjs
 import { test } from 'node:test';
@@ -55,4 +55,8 @@ test('no install button in an app; install help and agent offers marked website-
   assert.match(how, /<tr data-web-only><td>\{\{network\.55\}\}/);
   assert.match(read('tools/seo/landing.mjs'), /<p class="note" data-web-only>\$\{esc\(installIn\(L\.code\)\.how\)\}<\/p>/);
   assert.match(read('apps/pdf/index.html'), /<p class="note" data-web-only>[^<]*Add to Home Screen/);
+  // Settings: the AI agents section (browser extensions, desktop AI apps) and Updates (the store updates the app)
+  const set = read('settings/index.html');
+  assert.match(set, /<section id="agents" data-web-only /);
+  assert.match(set, /<section id="updates" data-web-only /);
 });

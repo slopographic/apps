@@ -1,8 +1,8 @@
 // The privacy policy page (privacy/): the analytics and ads paragraph only where the site has them, the contact links
 // (the site's own address, social links but never a payment link), the words in English and Swedish with the brand's
 // name as {brand}, and the links to it from the homepage footer and Settings. The page in a browser:
-// tests/privacy/page.test.html.
-// Covers: privacy/privacy.js, privacy/i18n/index.js, privacy/i18n/en/page.js, privacy/i18n/sv/page.js
+// tests/privacy/page.test.html. Also: Settings hides its analytics and ads switches where the site has neither.
+// Covers: settings/settings.js, privacy/privacy.js, privacy/i18n/index.js, privacy/i18n/en/page.js, privacy/i18n/sv/page.js
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -60,4 +60,9 @@ test('linked from the homepage footer and from Settings', () => {
   const s = read('settings/index.html');
   assert.match(s, /<a class="btn" href="\.\.\/privacy\/" data-i18n="privacy\.link">/);
   assert.match(s, /<p class="fine legal"><a href="\.\.\/privacy\/" data-i18n="privacy\.link">/);
+});
+
+test('Settings hides the analytics and ads switches on a site that has none', () => {
+  assert.match(read('settings/index.html'), /<section id="choices" aria-labelledby="choices-title">/);
+  assert.match(read('settings/settings.js'), /if \(box && \(cfg\.thirdParty === false \|\| \(!cfg\.ga4MeasurementId && !cfg\.adsensePublisherId\)\)\) box\.hidden = true;/);
 });

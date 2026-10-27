@@ -1,6 +1,7 @@
 /* Settings page: the consent toggles, read from and written to the same record as the banner. Classic script.
  * Needs config.js, state.js and consent-mode.js loaded first, and shared/i18n/i18n.js. Toggles save at once; the note
- * is drawn again on a language switch. */
+ * is drawn again on a language switch. A site with no analytics or ads at all (the brand's third-party switch off, or no
+ * IDs: shared/consent/config.js) has nothing to choose, and the section is hidden. */
 (function () {
   'use strict';
   var S = window.SlopConsentState;
@@ -9,6 +10,9 @@
   var ads = document.getElementById('set-ads');
   var note = document.getElementById('settings-note');
   var I = window.SlopI18n;
+  var cfg = window.SLOP_CONSENT_CONFIG || {};
+  var box = document.getElementById('choices');
+  if (box && (cfg.thirdParty === false || (!cfg.ga4MeasurementId && !cfg.adsensePublisherId))) box.hidden = true;
 
   function sync() {
     var cur = C.state();
