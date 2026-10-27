@@ -235,7 +235,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'seo.cv.fbx-to-obj.faq.1.1': 'تُحفظ نقوش الألوان كملفات PNG وتُسمّى في ملف MTL. نزّل الملفات معاً في ملف ZIP.',
   'seo.cv.fbx-to-obj.faq.2.0': 'هل يقرأ FBX بصيغة ASCII؟',
   'seo.cv.fbx-to-obj.faq.2.1': 'نعم، FBX 7.0 الثنائي والنصي ASCII وما بعده.',
-  'seo.cv.stl-to-glb.title': 'محوّل STL إلى GLB للويب ثلاثي الأبعاد والواقع المعزز، مجاناً | File convert',
+  'seo.cv.stl-to-glb.title': 'محوّل STL إلى GLB للويب والواقع المعزز | File convert',
   'seo.cv.stl-to-glb.description': 'حوّل ملف STL إلى GLB في متصفحك، للعارضات ثلاثية الأبعاد على الويب والواقع المعزز. حوّل المحور Z الصاعد إلى Y، والملليمتر إلى متر أثناء التحويل. لا يُرفع شيء.',
   'seo.cv.stl-to-glb.h1': 'محوّل STL إلى GLB',
   'seo.cv.stl-to-glb.lead': 'اعرض طباعة ثلاثية الأبعاد على موقع إلكتروني أو في الواقع المعزز. يحسب glTF بالمتر مع Y صاعداً، بينما تكون ملفات STL القادمة من CAD عادةً بالملليمتر مع Z صاعداً، ويمكن إصلاح الاثنين هنا.',

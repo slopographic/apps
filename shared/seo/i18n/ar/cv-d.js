@@ -35,7 +35,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'seo.cv.gif-to-mp4.faq.1.1': 'لا. لا يحمل فيديو MP4 شفافية، وتصبح المناطق الشفافة سوداء.',
   'seo.cv.gif-to-mp4.faq.2.0': 'هل تُرفع ملفاتي؟',
   'seo.cv.gif-to-mp4.faq.2.1': 'لا. يجري التحويل في متصفحك، على هذا الجهاز. ولا تُرسل ملفاتك إلى Slopographic أو إلى أي خادم آخر.',
-  'seo.cv.wav-to-mp3.title': 'محوّل WAV إلى MP3 بمعدل 128 إلى 320 kbps، مجاناً | File convert',
+  'seo.cv.wav-to-mp3.title': 'محوّل WAV إلى MP3 مجاناً، 128 إلى 320 kbps | File convert',
   'seo.cv.wav-to-mp3.description': 'حوّل تسجيلات WAV إلى MP3 في متصفحك بمعدل 128 أو 192 أو 320 kbps. يبقى الستيريو ستيريو. لا يُرفع أي شيء، فيبقى صوتك على هذا الجهاز.',
   'seo.cv.wav-to-mp3.h1': 'محوّل WAV إلى MP3',
   'seo.cv.wav-to-mp3.lead': 'أنشئ MP3 صغيراً من تسجيل WAV كبير، للمشاركة أو البودكاست أو الهاتف.',
