@@ -50,7 +50,7 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'seo.guide.slides.getting-started.sections.2.steps.0': 'Натисніть «Показати» або F5.',
   'seo.guide.slides.getting-started.sections.2.steps.1': 'Натисніть стрілку вправо, Space або Enter для наступного кроку, а стрілку вліво — для попереднього.',
   'seo.guide.slides.getting-started.sections.2.steps.2': 'Натисніть Escape, щоб зупинити.',
-  'seo.guide.slides.getting-started.sections.2.text.0': '«Показ з видом доповідача» (Alt+F5) у меню «Файл» показує ваші нотатки та наступний слайд у другому вікні.',
+  'seo.guide.slides.getting-started.sections.2.text.0': '«Показ із виглядом доповідача» (Alt+F5) у меню «Файл» показує ваші нотатки та наступний слайд у другому вікні.',
   'seo.guide.slides.getting-started.sections.3.h2': 'Збережіть і експортуйте',
   'seo.guide.slides.getting-started.sections.3.text.0': '«Зберегти» (Ctrl+S) зберігає презентацію в Slop Drive на цьому пристрої. У меню «Файл» також є «Завантажити PDF», «Експортувати PowerPoint (.pptx)», «Експортувати цей слайд як PNG» і «Завантажити .sslide».',
   'seo.guide.slides.getting-started.sections.3.text.1': 'Щоб відкрити файл PowerPoint, виберіть «Відкрити файл із цього комп’ютера…» або «Імпортувати PowerPoint чи зображення з Slop Drive…».',

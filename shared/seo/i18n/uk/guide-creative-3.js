@@ -45,7 +45,7 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'seo.guide.img3d.getting-started.sections.1.h2': 'Сформуйте результат',
   'seo.guide.img3d.getting-started.sections.1.text.0': '«Показувати як» вибирає «Сітку висот», «Хмару точок» або «Сплати». «Роздільна здатність» задає, наскільки дрібна сітка (від 64 до 256).',
   'seo.guide.img3d.getting-started.sections.1.text.1': '«Масштаб глибини» робить модель глибшою або плоскішою, «Згладжування» вирівнює поверхню, а «Розмір точки» стосується точок і сплатів.',
-  'seo.guide.img3d.getting-started.sections.1.text.2': '«Інвертувати глибину» міняє місцями близьке й далеке. «Лише суб’єкт» спершу прибирає фон тією самою моделлю, що й у SlopIsolate.',
+  'seo.guide.img3d.getting-started.sections.1.text.2': '«Інвертувати глибину» міняє місцями близьке й далеке. «Лише об’єкт» спершу прибирає фон тією самою моделлю, що й у SlopIsolate.',
   'seo.guide.img3d.getting-started.sections.2.h2': 'Експорт',
   'seo.guide.img3d.getting-started.sections.2.text.0': '«Експорт OBJ» і «Експорт GLB» завантажують модель. «Відкрити в Slop 3D» надсилає її в 3D-редактор, де її можна розмістити в сцені.',
   'seo.guide.img3d.getting-started.sections.2.tip': 'Це поверхня, видима спереду, а не повна модель, яку можна обійти. Задня частина порожня.',

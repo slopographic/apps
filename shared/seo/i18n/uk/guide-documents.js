@@ -86,7 +86,7 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'seo.guide.ocr.getting-started.sections.0.image.alt': 'Slop OCR до завантаження моделі з трьома кроками та кнопкою «Отримати більше»',
   'seo.guide.ocr.getting-started.sections.1.h2': 'Прочитайте текст',
   'seo.guide.ocr.getting-started.sections.1.steps.0': 'Перетягніть зображення або PDF у поле чи натисніть «Вибрати файли». Можна додати кілька одразу. Щоб спробувати, натисніть «Спробувати із зразковим чеком».',
-  'seo.guide.ocr.getting-started.sections.1.steps.1': 'Натисніть «Читати текст». Смуга поступу показує, скільки вже зроблено.',
+  'seo.guide.ocr.getting-started.sections.1.steps.1': 'Натисніть «Розпізнати текст». Смуга поступу показує, скільки вже зроблено.',
   'seo.guide.ocr.getting-started.sections.1.steps.2': 'Кожну сторінку показано з рамками навколо знайдених рядків. Зніміть позначку «Показувати рамки», щоб їх сховати.',
   'seo.guide.ocr.getting-started.sections.1.steps.3': 'Перемикайтеся між сторінками й файлами кнопками «Назад», «Далі» або списком сторінок.',
   'seo.guide.ocr.getting-started.sections.2.h2': 'Перевірте, виправте й збережіть',

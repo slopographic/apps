@@ -38,6 +38,8 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'seo.ui.video.on_youtube': 'На YouTube, {length}.',
   'seo.ui.video.minutes': 'близько {n} хвилин',
   'seo.ui.video.minutes#one': 'близько однієї хвилини',
+  'seo.ui.video.minutes#few': 'близько {n} хвилини',
+  'seo.ui.video.minutes#many': 'близько {n} хвилин',
   'seo.ui.video.minutes_2': 'близько двох хвилин',
   'seo.ui.video.minutes_3': 'близько трьох хвилин',
   'seo.ui.video.minutes_4': 'близько чотирьох хвилин',

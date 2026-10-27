@@ -40,7 +40,7 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'seo.guide.press.getting-started.sections.2.h2': 'Стилі, сторінки й майстер-сторінки',
   'seo.guide.press.getting-started.sections.2.text.0': 'Панелі «Стилі абзаців» і «Стилі символів» форматують текст в один клік і змінюють відразу всі місця використання стилю.',
   'seo.guide.press.getting-started.sections.2.text.1': 'Панель «Сторінки» показує всі сторінки. «Додати сторінку» (Shift+Ctrl+P) додає одну. Об’єкти на майстер-сторінці, наприклад номери сторінок, з’являються на кожній сторінці, яка її використовує.',
-  'seo.guide.press.getting-started.sections.2.text.2': '«Налаштування документа…» і «Поля й колонки…» на верхній панелі змінюють розмір сторінки, поля, колонки та вильоти.',
+  'seo.guide.press.getting-started.sections.2.text.2': '«Параметри документа…» і «Поля й колонки…» на верхній панелі змінюють розмір сторінки, поля, колонки та вильоти.',
   'seo.guide.press.getting-started.sections.3.h2': 'Експорт PDF',
   'seo.guide.press.getting-started.sections.3.text.0': 'Натисніть «Експорт PDF…» (Ctrl+E). Шрифти вбудовуються, і для друкарні можна додати вильоти та мітки обрізу. «Експорт PNG…» (Alt+Ctrl+E) створює зображення сторінок.',
   'seo.guide.press.getting-started.sections.3.text.1': '«Зберегти» (Ctrl+S) зберігає документ у Slop Drive.',
