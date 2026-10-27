@@ -80,8 +80,12 @@
   // A finger or a pen: the page scrolls under a drag, as on any phone, so the caret moves on the tap (the finger's lift,
   // unless it moved or a long press opened the menu); a double tap selects the word, a triple tap the paragraph. The
   // header and footer open on a double tap through the touch layer's dblclick (hf.js).
+  // Taps are timed as the touch layer times them (shared/input/gesture.js), by when the events happened: on a busy page
+  // a lift is handled late, and a quick tap must not read as a hold, nor a double tap as two taps.
   const finger = (e) => e.pointerType === 'touch' || e.pointerType === 'pen';
-  let press = null, taps = { n: 0, t: 0, x: 0, y: 0 };
+  const G = () => (window.SlopTouch && window.SlopTouch.gesture) || { DEFAULTS: { slop: 10, tapMs: 500, doubleMs: 300, doubleSlop: 24 }, stamp: (e, now) => now };
+  const when = (e) => G().stamp(e, performance.now());
+  let press = null, taps = { n: 0, t: -Infinity, x: 0, y: 0 };
   function place(h, count, shift) {
     const pos = { b: h.b, o: h.o };
     const p = S.doc.blocks[h.b], t = p && p.type === 'p' ? E().M.paraText(p) : '';
@@ -92,7 +96,7 @@
     else S.select(pos, pos);
     return anchor;
   }
-  const fingerDown = (e) => { press = { id: e.pointerId, x: e.clientX, y: e.clientY, t: Date.now(), shift: e.shiftKey }; };
+  const fingerDown = (e) => { press = { id: e.pointerId, x: e.clientX, y: e.clientY, t: when(e), shift: e.shiftKey }; };
   pages().addEventListener('pointerdown', (e) => {
     if (e.button !== 0) return;
     const h = S.R.hit(e.clientX, e.clientY);
@@ -105,11 +109,13 @@
   function tap(e) {
     const p = press;
     press = null;
-    if (!p || e.pointerId !== p.id || Date.now() - p.t > 500 || Math.hypot(e.clientX - p.x, e.clientY - p.y) > 10) return;
+    const o = G().DEFAULTS, t = when(e);
+    if (!p || e.pointerId !== p.id || t - p.t > o.tapMs || Math.hypot(e.clientX - p.x, e.clientY - p.y) > o.slop) return;
     const h = S.R.hit(e.clientX, e.clientY);
     if (!h) return;
-    const now = Date.now(), near = Math.hypot(e.clientX - taps.x, e.clientY - taps.y) <= 24;
-    taps = { n: near && now - taps.t < 350 ? taps.n % 3 + 1 : 1, t: now, x: e.clientX, y: e.clientY };
+    // a double (triple) tap: this touch came at most doubleMs after the last tap's lift, near it
+    const next = Math.hypot(p.x - taps.x, p.y - taps.y) <= o.doubleSlop && p.t - taps.t <= o.doubleMs;
+    taps = { n: next ? taps.n % 3 + 1 : 1, t, x: e.clientX, y: e.clientY };
     S.focusIme(); // in the pointerup, a user gesture: iOS shows the keyboard
     place(h, taps.n, p.shift);
   }

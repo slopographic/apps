@@ -1,7 +1,7 @@
 // The touch mode of the test runner (tests/touch.mjs): which pages run, on which device, and the CDP touches it sends.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { touchDevice, isTouchPage, cdpTouch, DEFAULT_DEVICE } from '../touch.mjs';
+import { touchDevice, isTouchPage, cdpTouch, paced, DEFAULT_DEVICE } from '../touch.mjs';
 
 const list = {
   'iPad Pro 11 landscape': { viewport: { width: 1194, height: 834 }, isMobile: true, hasTouch: true, defaultBrowserType: 'webkit' },
@@ -30,4 +30,18 @@ test('CDP touches: whole-pixel points for start and move, none for end and cance
   assert.equal(cdpTouch({ type: 'move', points: [{ id: 1, x: 0, y: 0 }, { id: 2, x: 5, y: 5 }] }).type, 'touchMove');
   assert.deepEqual(cdpTouch({ type: 'end', points: [{ id: 1, x: 0, y: 0 }] }), { type: 'touchEnd', touchPoints: [] });
   assert.throws(() => cdpTouch({ type: 'wiggle' }));
+});
+
+test('a partial lift is a move with the fingers still down; a timestamp passes through', () => {
+  assert.deepEqual(cdpTouch({ type: 'end', rest: [{ id: 2, x: 1, y: 2 }] }).touchPoints.map((p) => p.id), [2]);
+  assert.equal(cdpTouch({ type: 'end', rest: [{ id: 2, x: 1, y: 2 }] }).type, 'touchMove');
+  assert.equal(cdpTouch({ type: 'start', points: [{ id: 1, x: 0, y: 0 }] }, 12.5).timestamp, 12.5);
+  assert.equal('timestamp' in cdpTouch({ type: 'end' }), false);
+});
+
+test('a paced gesture: each step at its own time from t0, stamped with it, never earlier than the step before', () => {
+  const g = paced([{ type: 'start', points: [{ id: 1, x: 5, y: 5 }] }, { type: 'end', at: 40 }, { type: 'start', points: [{ id: 1, x: 5, y: 5 }], at: 30 }], 1000);
+  assert.deepEqual(g.map((s) => s.when), [1000, 1040, 1040]);
+  assert.deepEqual(g.map((s) => s.params.timestamp), [1, 1.04, 1.04]);
+  assert.deepEqual(g.map((s) => s.params.type), ['touchStart', 'touchEnd', 'touchStart']);
 });

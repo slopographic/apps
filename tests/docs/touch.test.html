@@ -23,19 +23,8 @@
     return { el: doc.documentElement, x: b.left + (L.x + x) * k, y: b.top + (L.y + L.line.h / 2) * k };
   }
   const collapsed = () => E.O.collapsed(S.sel);
-  /** A double tap. With real touches (Chromium) both taps go by CDP straight away: Playwright's own tap can take a
-   *  second or two to return there, which splits a double tap in two. */
-  async function doubleTap(t) {
-    if (!TouchKit.real) return TouchKit.doubleTap(t);
-    const p = TouchKit.where(t);
-    for (let i = 0; i < 2; i++) {
-      await window.__slopInput({ op: 'touch', type: 'start', points: [{ id: 1, x: p.x, y: p.y }] });
-      await sleep(30);
-      await window.__slopInput({ op: 'touch', type: 'end', points: [] });
-      await sleep(70);
-    }
-    await sleep(400);
-  }
+  /** TouchKit.busyTaps, then past the double-tap time (the next tap is a first one). */
+  const busyTaps = async (t, n) => { await TouchKit.busyTaps(t, n); await sleep(400); };
 
   describe('Slop Docs on touch', () => {
     it('opens the editor with a document, and the touch layer is on', async () => {
@@ -60,8 +49,17 @@
     });
 
     it('a double tap selects the word under it', async () => {
-      await doubleTap(onLine(2, 4));
+      await TouchKit.doubleTap(onLine(2, 4));
       try { await waitFor(() => !collapsed(), { timeout: 2000 }); } catch (e) { throw new Error('DEBUG ' + SEEN.join(',')); }
+      expect(S.sel.a.b).toBe(2);
+      expect(Math.abs(S.sel.f.o - S.sel.a.o)).toBe('Wonderful'.length);
+    });
+
+    it('on a busy page taps are timed by when they happened: a quick tap handled late places the caret, a late double tap selects the word', async () => {
+      await busyTaps(onLine(4, 4), 1);
+      expect(S.sel.f.b).toBe(4);
+      expect(collapsed()).toBe(true);
+      await busyTaps(onLine(2, 4), 2);
       expect(S.sel.a.b).toBe(2);
       expect(Math.abs(S.sel.f.o - S.sel.a.o)).toBe('Wonderful'.length);
     });
@@ -87,7 +85,7 @@
       doc.getElementById('stage').scrollTop = 0;
       await sleep(100);
       const b = pageBox();
-      await doubleTap({ el: doc.documentElement, x: b.left + b.width / 2, y: b.top + 12 });
+      await TouchKit.doubleTap({ el: doc.documentElement, x: b.left + b.width / 2, y: b.top + 12 });
       await waitFor(() => doc.querySelector('.sui-back:not(.sui-out) .hf-dlg'), { timeout: 3000 });
       const close = [...doc.querySelectorAll('.sui-back:not(.sui-out) button')].find((x) => /Cancel|Close|Done/.test(x.textContent));
       if (close) close.click();
