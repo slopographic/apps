@@ -10,11 +10,11 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { appId, manifestProblems, assetLinks, normalizeFingerprint, isFingerprint, pickIcon, readConfig } from '../../mobile/config.mjs';
 import { assetLinksText, FILE } from '../../mobile/android/assetlinks.mjs';
-import { maskableHtml } from '../../tools/whitelabel/images.mjs';
-import { ICON_FILES } from '../../tools/whitelabel/mascot.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const manifest = JSON.parse(readFileSync(path.join(ROOT, 'manifest.webmanifest'), 'utf8'));
+// the white-label tools are this repository's only (tests/repo-only.json): a white-label build has none, so skips that part
+const WL = existsSync(path.join(ROOT, 'tools/whitelabel/images.mjs'));
 const FP = 'AB:'.repeat(31) + 'CD';
 
 test('the app id is the domain reversed plus "app", as a valid Java package', () => {
@@ -45,7 +45,7 @@ test('a manifest without what a store app needs is refused, each gap named', () 
   for (const k of ['name:', 'short_name: at most 12', 'start_url', 'display', 'theme_color', 'background_color', 'purpose "any"', 'maskable', 'site path']) assert.ok(errs.includes(k), `${k} in\n${errs}`);
 });
 
-test('every icon the manifest lists exists, a PNG of its stated size (the maskable one too)', () => {
+test('every icon the manifest lists exists, a PNG of its stated size (the maskable one too)', async () => {
   for (const icon of manifest.icons) {
     const file = path.join(ROOT, icon.src);
     assert.ok(existsSync(file), icon.src);
@@ -54,6 +54,9 @@ test('every icon the manifest lists exists, a PNG of its stated size (the maskab
     assert.equal(png.toString('latin1', 1, 4), 'PNG', icon.src);
     assert.equal(`${png.readUInt32BE(16)}x${png.readUInt32BE(20)}`, icon.sizes, icon.src);
   }
+  if (!WL) return;
+  const { maskableHtml } = await import('../../tools/whitelabel/images.mjs');
+  const { ICON_FILES } = await import('../../tools/whitelabel/mascot.mjs');
   assert.ok(ICON_FILES.includes('assets/icons/icon-maskable-512.png'), 'a mascot overlay draws the maskable icon too');
   const html = maskableHtml({ colors: { ink: '#123456' } }, '<svg width="9" height="9" viewBox="0 0 32 32"></svg>');
   assert.match(html, /background:#123456/);

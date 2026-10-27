@@ -59,8 +59,9 @@ test('the page glue loads first, once; the app copy has no ads, donations or thi
   assert.equal(b.support.ads, false);
   assert.equal(b.support.donate, false);
   const consent = read('shared/consent/config.js');
-  assert.match(consent, /\/\*profile:analytics\*\/true/);
-  assert.match(thirdPartyOff(consent), /\/\*profile:analytics\*\/false/);
+  assert.match(consent, /\/\*profile:analytics\*\/(true|false)/);   // a white-label build may have it off already
+  const on = consent.replace(/(\/\*profile:analytics\*\/)false/, '$1true');
+  assert.match(thirdPartyOff(on), /\/\*profile:analytics\*\/false/);
 });
 
 test("native/config.js maps every place of an engine file (jsDelivr, GitHub) to the app's copy", () => {
