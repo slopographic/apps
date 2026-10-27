@@ -1,7 +1,7 @@
 /* SEO copy, Italian: best-documents-a. Translated from shared/seo/i18n/en/best-documents-a.js. Rules: shared/seo/i18n/README.md. */
 window.SlopI18n && window.SlopI18n.add('it', {
   'seo.best.free-pdf-editors.crumb': 'Migliori editor PDF gratuiti',
-  'seo.best.free-pdf-editors.title': 'Migliori editor PDF gratuiti (2026): Acrobat, Smallpdf, iLovePDF, Sejda',
+  'seo.best.free-pdf-editors.title': 'Migliori editor PDF gratuiti (2026): Acrobat, Smallpdf, iLovePDF, PDF24',
   'seo.best.free-pdf-editors.description': 'Editor PDF gratuiti a confronto: cosa fanno gratis Adobe Acrobat online, Smallpdf, iLovePDF, PDF24, Sejda e Slop PDF, i loro limiti e dove finisce il tuo file.',
   'seo.best.free-pdf-editors.h1': 'I migliori editor PDF gratuiti, a confronto',
   'seo.best.free-pdf-editors.lead': 'La maggior parte degli editor PDF gratuiti sono siti che elaborano il tuo file sui loro server e limitano ciò che puoi fare gratis. Ecco cosa offre ciascuno senza pagare, dalle sue pagine, e quale si adatta a quale lavoro.',
