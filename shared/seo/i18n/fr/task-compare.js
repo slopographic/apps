@@ -52,7 +52,7 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'seo.task.diff.compare-images.faq.3.1': 'Oui. C’est un usage courant : deux captures de la même page, avant et après une modification.',
   'seo.task.diff.json-csv-diff.crumb': 'Comparer du JSON ou du CSV',
   'seo.task.diff.json-csv-diff.title': 'Diff JSON et CSV : comparer les données par clé et par ligne, gratuit',
-  'seo.task.diff.json-csv-diff.description': 'Comparez deux JSON par chemin de clé, sans tenir compte de l’ordre, ou deux CSV ligne à ligne sur une colonne clé. Cellules modifiées signalées. Rien n’est envoyé.',
+  'seo.task.diff.json-csv-diff.description': 'Comparez deux JSON par chemin de clé, sans tenir compte de l’ordre, ou deux CSV ligne à ligne sur une colonne clé. Rien n’est envoyé.',
   'seo.task.diff.json-csv-diff.h1': 'Comparer deux fichiers JSON ou CSV',
   'seo.task.diff.json-csv-diff.lead': 'Un diff de texte sur des fichiers de données est bruyant : les clés se déplacent, les lignes changent d’ordre. Slop Compare compare les données elles-mêmes, pour que seules les vraies modifications apparaissent.',
   'seo.task.diff.json-csv-diff.steps.0': 'Déposez les deux fichiers .json ou .csv sur la page, ou collez le JSON dans A et B.',
