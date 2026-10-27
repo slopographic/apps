@@ -92,7 +92,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'seo.guide.tables.getting-started.shortcuts.5.1': 'Kaydet',
   'seo.guide.tables.getting-started.shortcuts.6.1': 'Slop Drive’dan aç',
   'seo.guide.sheetview.getting-started.title': 'Slop Sheets’e başlarken: bir sayfaya göz atın, sıralayın ve süzün',
-  'seo.guide.sheetview.getting-started.description': 'Slop Sheets’i öğrenin: bir XLSX, CSV ya da TSV dosyası açın, sayfalar arasında geçin, sütunları sıralayıp süzün ve gördüğünüz satırları dışa aktarın. Hiçbir şey tarayıcınızdan çıkmaz.',
+  'seo.guide.sheetview.getting-started.description': 'Slop Sheets’i öğrenin: bir XLSX, CSV ya da TSV açın, sayfalar arasında geçin, sütunları sıralayıp süzün ve gördüğünüz satırları dışa aktarın. Dosya tarayıcınızdan çıkmaz.',
   'seo.guide.sheetview.getting-started.h1': 'Slop Sheets’e başlarken',
   'seo.guide.sheetview.getting-started.lead': 'Slop Sheets, e-tabloları okuyup sıralayıp süzebilmeniz için açar. Dosyayı değiştirmez. Hiçbir şey yüklenmez.',
   'seo.guide.sheetview.getting-started.sections.0.h2': 'Bir e-tablo açın',
