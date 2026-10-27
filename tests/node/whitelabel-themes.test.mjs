@@ -2,7 +2,7 @@
 // A brand profile's theme options in a build: themes.names ("<brand> Light" / "<brand> Dark" in every language, through the
 // chrome keys shell.theme_brand_light / _dark) and defaultTheme (the theme of a visitor who never chose one; a choice
 // still wins). The theme script is run with the profile's markers applied, as tools/whitelabel/build.mjs writes it.
-// Run: node --test tests/node/theme-profile.test.mjs
+// Run: node --test tests/node/whitelabel-themes.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
@@ -43,7 +43,7 @@ test('themes.names: Light and Dark read "<brand> Light" / "<brand> Dark" in Engl
   assert.deepEqual(Array.from(T.THEMES, (t) => t.name), ['Acme Ljust', 'Acme Mörkt', 'Klassiskt 98']);
   const byName = await built(withThemes({ names: 'name' }));
   byName.I.set('en');
-  assert.equal(byName.T.THEMES[0].name, 'Acme Tools Light');
+  assert.equal(byName.T.THEMES[0].name, `${SAMPLE.name} Light`);
 });
 
 test('without themes.names the themes keep their plain names', async () => {
