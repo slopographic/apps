@@ -32,7 +32,7 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'seo.reg.checksum.features.0': 'SHA-256, SHA-384, SHA-512 i SHA-1',
   'seo.reg.checksum.features.1': 'Sprawdź plik względem opublikowanego skrótu',
   'seo.reg.checksum.features.2': 'Czyta plik na tym urządzeniu',
-  'seo.reg.diff.title': 'Slop Compare: porównanie dwóch tekstów, plików, PDF-ów lub obrazów',
+  'seo.reg.diff.title': 'Slop Compare: porównaj teksty, pliki, PDF-y lub obrazy',
   'seo.reg.diff.tagline': 'Porównuj dwa teksty, pliki, PDF-y lub obrazy i zobacz każdą zmianę. Nic nie jest przesyłane.',
   'seo.reg.diff.features.0': 'Teksty i kod obok siebie lub zunifikowane, słowo po słowie',
   'seo.reg.diff.features.1': 'JSON wg kluczy, CSV wg wiersza i komórki',
