@@ -7,7 +7,7 @@ window.SlopI18n && window.SlopI18n.add('pt-BR', {
   'seo.guide.photoslop.getting-started.lead': 'O PhotoSlop é um editor de fotos com camadas, no seu navegador. Suas imagens ficam no seu dispositivo e nunca são enviadas.',
   'seo.guide.photoslop.getting-started.sections.0.h2': 'Abra uma foto',
   'seo.guide.photoslop.getting-started.sections.0.steps.0': 'Solte uma foto na janela ou escolha Arquivo, Abrir… (Ctrl+O). Arquivos PSD abrem com as suas camadas.',
-  'seo.guide.photoslop.getting-started.sections.0.steps.1': 'Na sua primeira visita, a tela em branco mostra um cartão de boas-vindas. Clique em Experimentar com uma foto de exemplo para ter uma imagem para praticar.',
+  'seo.guide.photoslop.getting-started.sections.0.steps.1': 'Na sua primeira visita, a tela em branco mostra um cartão de boas-vindas. Clique em Experimente com uma foto de exemplo para ter uma imagem para praticar.',
   'seo.guide.photoslop.getting-started.sections.0.steps.2': 'Arquivo, Novo… (Ctrl+N) cria uma tela vazia do tamanho que você escolher.',
   'seo.guide.photoslop.getting-started.sections.0.text.0': 'Cada imagem aberta ganha uma aba acima da tela. As ferramentas ficam à esquerda, as opções da ferramenta atual ficam na barra do topo, e os painéis (Cor, Amostras, Pincéis, Caractere, Marca d’água, Camadas, Histórico) ficam à direita.',
   'seo.guide.photoslop.getting-started.sections.1.h2': 'Ajuste as cores',

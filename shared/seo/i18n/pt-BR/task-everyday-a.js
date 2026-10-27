@@ -104,7 +104,7 @@ window.SlopI18n && window.SlopI18n.add('pt-BR', {
   'seo.task.time.meeting-planner.steps.1': 'Abra Reuniões (o link desta página o abre) e escolha o Dia, no seu fuso horário.',
   'seo.task.time.meeting-planner.steps.2': 'Em Adicionar um fuso à reunião, digite uma cidade ou fuso e pressione Adicionar. Repita para cada pessoa, ou pressione Usar minhas cidades.',
   'seo.task.time.meeting-planner.steps.3': 'Escolha o Passo da janela: 15 min, 30 min ou 1 hora.',
-  'seo.task.time.meeting-planner.steps.4': 'Leia as janelas: cada uma mostra o seu horário e a hora local em todos os fusos. Pressione Adicionar ao calendário para salvar uma como reunião no Slop Calendar.',
+  'seo.task.time.meeting-planner.steps.4': 'Leia as janelas: cada uma mostra o seu horário e a hora local em todos os fusos. Pressione Adicionar ao Calendário para salvar uma como reunião no Slop Calendar.',
   'seo.task.time.meeting-planner.faq.0.0': 'Qual horário de trabalho ele usa?',
   'seo.task.time.meeting-planner.faq.0.1': 'O seu, da aba Meu horário, aplicado a cada fuso na hora local dele. Com 9 às 17 em dias úteis, ele procura horários em que cada fuso esteja entre 9 e 17 num dia útil.',
   'seo.task.time.meeting-planner.faq.1.0': 'E se nenhum horário funcionar?',

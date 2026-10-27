@@ -85,7 +85,7 @@ window.SlopI18n && window.SlopI18n.add('pt-BR', {
   'seo.guide.gallery.getting-started.lead': 'O Slop Gallery é uma biblioteca de fotos que fica no seu navegador. Suas fotos são processadas neste dispositivo e nunca são enviadas.',
   'seo.guide.gallery.getting-started.sections.0.h2': 'Importe fotos',
   'seo.guide.gallery.getting-started.sections.0.steps.0': 'Clique em Importar (Ctrl+O), ou solte fotos na página. Importar uma pasta… e Do Slop Drive… ficam em Biblioteca, à esquerda.',
-  'seo.guide.gallery.getting-started.sections.0.steps.1': 'Para experimentar, clique em Experimentar com 8 fotos de exemplo.',
+  'seo.guide.gallery.getting-started.sections.0.steps.1': 'Para experimentar, clique em Experimente com 8 fotos de exemplo.',
   'seo.guide.gallery.getting-started.sections.0.steps.2': 'As fotos aparecem em uma grade, agrupadas por mês, das mais recentes para as mais antigas. Clique em uma foto para vê-la grande; as setas do teclado passam de uma para outra.',
   'seo.guide.gallery.getting-started.sections.0.image.alt': 'Slop Gallery com oito fotos de exemplo na grade de outubro de 2026 e as visões Fotos, Favoritos, Duplicatas e Pessoas',
   'seo.guide.gallery.getting-started.sections.1.h2': 'Encontre e organize',

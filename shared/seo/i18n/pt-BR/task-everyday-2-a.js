@@ -138,7 +138,7 @@ window.SlopI18n && window.SlopI18n.add('pt-BR', {
   'seo.task.music.play-local-music-files.faq.2.0': 'Tem letras ou equalizador?',
   'seo.task.music.play-local-music-files.faq.2.1': 'Não. O Slop Music toca os seus arquivos: não há letras, nem equalizador, nem streaming, rádio ou podcasts.',
   'seo.task.music.play-local-music-files.faq.3.0': 'Posso testar sem os meus arquivos?',
-  'seo.task.music.play-local-music-files.faq.3.1': 'Sim. Com a biblioteca vazia, pressione Experimentar com 3 faixas de exemplo.',
+  'seo.task.music.play-local-music-files.faq.3.1': 'Sim. Com a biblioteca vazia, pressione Experimente com 3 faixas de exemplo.',
   'seo.task.music.flac-player.crumb': 'Player de FLAC',
   'seo.task.music.flac-player.title': 'Player de FLAC online: toque arquivos FLAC no navegador, grátis',
   'seo.task.music.flac-player.description': 'Toque arquivos FLAC no navegador, com biblioteca, playlists, busca pela forma de onda e teclas de mídia. Sua música sem perdas nunca é enviada.',

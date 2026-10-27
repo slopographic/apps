@@ -120,7 +120,7 @@ window.SlopI18n && window.SlopI18n.add('pt-BR', {
   'seo.landing.admin.description': 'O Slop Admin guarda o perfil da empresa e a moeda padrão, a numeração que só avança e um backup completo validado, com restauração e reset protegido.',
   'seo.landing.drive.title': 'Slop Drive: armazenamento privado de arquivos no navegador | Slopographic',
   'seo.landing.drive.description': 'O Slop Drive guarda os seus arquivos no seu próprio navegador, não em um servidor: pastas, estrelas, busca, prévias e backup. Sem conta.',
-  'seo.landing.code.title': 'Slop Code: editor de código para os arquivos do Slop Drive | Slopographic',
+  'seo.landing.code.title': 'Slop Code: editor de código online para o Slop Drive | Slopographic',
   'seo.landing.code.description': 'O Slop Code edita arquivos JavaScript, TypeScript, HTML, CSS, JSON, Markdown e Python do Slop Drive, com busca e substituição e uma prévia isolada.',
   'seo.landing.gallery.title': 'Galeria de fotos offline com álbuns e duplicatas | Slop Gallery',
   'seo.landing.gallery.description': 'Biblioteca de fotos que fica neste dispositivo: linha do tempo pela data, álbuns, favoritos, localizador de duplicatas exatas e backup. Grátis.',

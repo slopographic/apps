@@ -215,7 +215,7 @@ window.SlopI18n && window.SlopI18n.add('pt-BR', {
   'seo.task.qr.bulk-qr-code-generator.cta': 'Fazer códigos QR em lote',
   'seo.task.qr.bulk-qr-code-generator.steps.0': 'Defina antes o design e o logotipo, nas abas Design e Logotipo.',
   'seo.task.qr.bulk-qr-code-generator.steps.1': 'Na aba Em lote, cole um texto ou link por linha.',
-  'seo.task.qr.bulk-qr-code-generator.steps.2': 'Pressione Gerar códigos. Cada linha vira um cartão com o seu próprio código.',
+  'seo.task.qr.bulk-qr-code-generator.steps.2': 'Pressione Criar códigos. Cada linha vira um cartão com o seu próprio código.',
   'seo.task.qr.bulk-qr-code-generator.steps.3': 'Baixe cada cartão em SVG ou PNG.',
   'seo.task.qr.bulk-qr-code-generator.faq.0.0': 'Quantos códigos posso fazer de uma vez?',
   'seo.task.qr.bulk-qr-code-generator.faq.0.1': 'Até 100 linhas são desenhadas de uma vez. Para mais, rode as próximas 100 depois de baixar as primeiras.',

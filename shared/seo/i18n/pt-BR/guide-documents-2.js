@@ -97,7 +97,7 @@ window.SlopI18n && window.SlopI18n.add('pt-BR', {
   'seo.guide.sheetview.getting-started.lead': 'O Slop Sheets abre planilhas para você ler, ordenar e filtrar. Ele não altera o arquivo. Nada é enviado.',
   'seo.guide.sheetview.getting-started.sections.0.h2': 'Abra uma planilha',
   'seo.guide.sheetview.getting-started.sections.0.steps.0': 'Solte um arquivo .xlsx, .csv ou .tsv na página, ou clique em Abrir uma planilha. Abrir (Ctrl+O), no topo, faz o mesmo.',
-  'seo.guide.sheetview.getting-started.sections.0.steps.1': 'Para experimentar, clique em Testar com uma lista de preços de exemplo.',
+  'seo.guide.sheetview.getting-started.sections.0.steps.1': 'Para experimentar, clique em Experimente com uma lista de preços de exemplo.',
   'seo.guide.sheetview.getting-started.sections.0.steps.2': 'Cada arquivo ganha uma aba abaixo da barra do topo, e cada planilha do arquivo ganha um botão logo abaixo. Clique em um para trocar.',
   'seo.guide.sheetview.getting-started.sections.0.text.0': 'Arquivos .xls antigos não são suportados. Salve-os primeiro como .xlsx.',
   'seo.guide.sheetview.getting-started.sections.0.image.alt': 'A lista de preços de exemplo aberta no Slop Sheets, com as duas planilhas, Lista de preços e Pedidos',
