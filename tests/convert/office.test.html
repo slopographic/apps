@@ -21,6 +21,8 @@
   import { CONVERT_PAGES } from '../../shared/seo/convert-copy.mjs';
   // the English page: a build whose root language is another has it under /en/ (shared/seo/HANDOFF.md, "Languages")
   const EN_DIR = window.BRAND_FACTS && window.BRAND_FACTS.defaultLang !== 'en' ? 'en/' : '';
+  // a build that is not indexed (seo.index) and starts in another language has no English copies of the pages
+  const EN_PAGES = !(EN_DIR && window.BRAND_FACTS && !window.BRAND_FACTS.seoIndex);
   const { describe, it, expect, waitFor } = SlopTest;
   const conv = (id) => CONVERSIONS.find((c) => c.id === id);
   const docx = async (name = 'Rapport.docx') => new File([await sampleDocx()], name, { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
@@ -49,12 +51,14 @@
         expect(!!conv(p.conv)).toBe(true);
         expect(CONVERT_PAGES[`convert/${slug}`].title).toBe(p.title);
         titles.add(p.title);
+        if (!EN_PAGES) continue;
         const html = await (await fetch(`../../${EN_DIR}convert/${slug}/`)).text();
         expect(html).toContain(`data-preset="${p.conv}"`);
         expect(html).toContain(`<title>${p.title}</title>`);
         expect(html).toContain(`<h1>${p.h1}</h1>`);
       }
       expect(titles.size).toBe(slugs.length);
+      if (!window.BRAND_FACTS.seoIndex) return;   // a site that is not indexed has no sitemap (and no language folders)
       const sitemap = await (await fetch('../../sitemap.xml')).text();
       expect(slugs.every((s) => sitemap.includes(`/convert/${s}/`))).toBe(true);
     }, { timeout: 30000 });

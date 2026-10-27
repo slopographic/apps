@@ -9,7 +9,7 @@
   var note = document.getElementById('theme-note');
   var I = window.SlopI18n, Say = window.SlopSettingsSay;
   if (!T || !host) return;
-  var NAMED = { light: 'settings.theme.light', dark: 'settings.theme.dark' };   // the plain themes' names are words
+  var NAMED = { light: 'settings.theme.light', dark: 'settings.theme.dark' };   // the plain themes' names are words (a profile's "<brand> Light" keeps its own)
 
   function el(tag, cls, text) {
     var n = document.createElement(tag);
@@ -46,7 +46,7 @@
   /** The choices in the current language: System first, then each theme. */
   function choices() {
     return [{ id: T.SYSTEM, name: I.t('shell.theme_system'), hint: I.t('settings.theme.system_hint') }].concat(T.THEMES.map(function (th) {
-      return { id: th.id, name: NAMED[th.id] ? I.t(NAMED[th.id]) : th.name, theme: th, hint: I.t(th.scheme === 'dark' ? 'settings.theme.dark' : 'settings.theme.light') };
+      return { id: th.id, name: NAMED[th.id] && !th.branded ? I.t(NAMED[th.id]) : th.name, theme: th, hint: I.t(th.scheme === 'dark' ? 'settings.theme.dark' : 'settings.theme.light') };
     }));
   }
 

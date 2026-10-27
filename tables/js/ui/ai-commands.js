@@ -140,6 +140,19 @@ export function checkpoint() {
   };
 }
 
+/** What the AI panel's ready-made prompts fill in (shared/ai/quick/context.js): the file, the sheet, the selected range
+    and its cells as tab-separated text (at most 50 rows of 20 columns). */
+export function context() {
+  if (!S.wb) return { document: null };
+  const sh = sheet(), r = range(), rows = [];
+  for (let i = r.r1; i <= Math.min(r.r2, r.r1 + 49); i++) {
+    const row = [];
+    for (let j = r.c1; j <= Math.min(r.c2, r.c1 + 19); j++) row.push(show(sh.value(i, j)));
+    rows.push(row.join('\t'));
+  }
+  return { document: S.file.name, sheet: sh.name, range: rangeText(r.r1, r.c1, r.r2, r.c2), selection: rows.join('\n').trim() };
+}
+
 let done = false;
 /** Register the commands and the state provider with SlopCmd (once). */
 export function register() {
@@ -151,5 +164,5 @@ export function register() {
     id: 'tables.ai.' + tool.replace(/_/g, '-'), tool, title, group: 'AI', hidden: true, destructive: false, description, args,
     when: () => !!S.wb && !S.edit, run: (a) => fn(a || defaults(args)),
   }, extra || {})));
-  C.provide({ state, checkpoint });
+  C.provide({ state, checkpoint, context });
 }

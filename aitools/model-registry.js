@@ -10,10 +10,12 @@
   const speech = root.SlopSpeechModels || (node ? require('./speech-models.js') : null);
   const ocr = root.SlopOcrModels || (node ? require('./ocr-models.js') : null);   // only on the pages that offer OCR languages
   const cdn = root.SlopCdn || (node ? require('../shared/cdn/assets.js') : null);   // the cdn's hosts (shared/cdn/assets.js)
-  const api = factory(speech, ocr, cdn);
+  // the OCR engines this site offers (shared/ocr/engines.js; load shared/ai/makers.js and it first): a hidden engine's models are left out
+  const engines = root.SlopOcrEngines || (node ? require('../shared/ocr/engines.js') : null);
+  const api = factory(speech, ocr, cdn, engines, root);
   if (typeof module === 'object' && module.exports) module.exports = api;
   root.SlopAIModels = api;
-})(typeof window !== 'undefined' ? window : globalThis, function (speech, ocr, cdn) {
+})(typeof window !== 'undefined' ? window : globalThis, function (speech, ocr, cdn, engines, root) {
   'use strict';
 
   /** Licences a model may declare, with the name shown to the person. Anything else is refused. */
@@ -67,18 +69,26 @@
         { name: 'modnet-portrait.onnx', size: 25888640, sha256: '07c308cf0fc7e6e8b2065a12ed7fc07e1de8febb7dc7839d7b7f15dd66584df9', path: 'vendor/models/modnet-portrait.onnx' },
       ],
     },
-  ].map(named).concat(speech ? speech.MODELS : [])   // the speech models: aitools/speech-models.js (Whisper and its fine-tunes)
+  ].map(named).filter((m) => m.id !== 'ppocr-v4' || !engines || engines.allowed('paddle'))   // PaddleOCR's quick model, unless the site hides PaddleOCR
+    .concat(speech ? speech.MODELS : [])   // the speech models: aitools/speech-models.js (Whisper and its fine-tunes)
     // the text recognition models per script: aitools/ocr-models.js (its ppocr-v4 is the entry above, kept here for pages without it)
     .concat(ocr ? ocr.MODELS.filter((m) => m.id !== 'ppocr-v4') : []);
 
   const TOOLS = [
-    { id: 'ocr', name: 'OCR', page: 'ocr/', models: ['ppocr-v4'], blurb: 'Read text from an image or a scanned PDF page.' },   // i18n-ignore: shown through aitools.tool.<id>_name/_blurb (hub.js)
+    // OCR needs the quick model of the engine chosen (shared/ocr/engines.js), read when asked: the OCR list may load later
+    { id: 'ocr', name: 'OCR', page: 'ocr/', get models() { return ocrQuick(); }, blurb: 'Read text from an image or a scanned PDF page.' },   // i18n-ignore: shown through aitools.tool.<id>_name/_blurb (hub.js)
     { id: 'speech', name: 'Speech to text', page: 'speech/', models: ['whisper-tiny'], blurb: 'Transcribe audio or a video, with timestamps. Exports .srt and .txt.' },   // i18n-ignore: shown through aitools.tool.<id>_name/_blurb (hub.js)
     { id: 'denoise', name: 'Denoise', page: 'denoise/', models: [], blurb: 'Median and bilateral filters with a before and after slider. No model needed.' },   // i18n-ignore: shown through aitools.tool.<id>_name/_blurb (hub.js)
     { id: 'tags', name: 'Auto tags', page: 'tags/', models: ['mobilenetv3-l100'], blurb: 'Suggest tags for a photo. You accept or edit them, then they are saved to Slop Drive.' },   // i18n-ignore: shown through aitools.tool.<id>_name/_blurb (hub.js)
     { id: 'portrait', name: 'Portrait blur', page: 'portrait/', models: ['modnet-portrait'], blurb: 'Blur the background of a portrait, with a strength slider.' },   // i18n-ignore: shown through aitools.tool.<id>_name/_blurb (hub.js)
   ];
 
+  /** The OCR tool's model: the quick one of the engine chosen (the OCR list's, when the page has it), else PaddleOCR's
+   *  bundled one when offered; none when no engine is. */
+  function ocrQuick() {
+    const O = root.SlopOcrModels || ocr, id = O ? O.forEngine(engines ? engines.chosen() : 'auto').QUICK : MODELS.some((m) => m.id === 'ppocr-v4') ? 'ppocr-v4' : null;
+    return id ? [id] : [];
+  }
   const byId = (id) => MODELS.find((m) => m.id === id) || null;
   const remoteFiles = (m) => m.files.filter((f) => !f.path);
   /** The URLs a file is downloaded from: its url, or its parts' urls in order. */

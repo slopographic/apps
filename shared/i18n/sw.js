@@ -141,6 +141,8 @@
     'shell.theme_dark': 'Giza',
     'shell.theme_classic': 'Ya zamani 98',
     'shell.theme_lime': 'Slopographic Lime',
+    'shell.theme_brand_light': '{brand} Angavu',
+    'shell.theme_brand_dark': '{brand} Giza',
     'shell.more': 'Zaidi',
     'shell.install': 'Sakinisha',
     'shell.install_title': 'Sakinisha {brand}',

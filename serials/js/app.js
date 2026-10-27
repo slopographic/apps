@@ -1,9 +1,10 @@
 /* Slop Serial counter: many photos in, each read once on this device, a table of unique serials and a table of totals.
- * Recognition is the Slop AI Tools OCR engine (PP-OCRv4 in the inference worker), as on the OCR page. Photos stay in this
- * browser. The rules (pattern, tally, CSV) are in extract.js. */
+ * Recognition is the site's OCR engine (shared/ocr/engines.js) with its quick model (PP-OCRv4 in the inference worker,
+ * or Tesseract's English model where PaddleOCR is not offered or the person chose Tesseract), as on the OCR page. Photos
+ * stay in this browser. The rules (pattern, tally, CSV) are in extract.js. */
 import { DEFAULT_PATTERN, serialsFor, serialsIn, tally, csvOf } from './extract.js';
 
-const T = window.SlopAITools;
+const T = window.SlopAITools, E = window.SlopOcrEngines;
 const $ = (id) => document.getElementById(id);
 const MAX_SIDE = 2200; // photos are scaled down to this long side before reading: enough for small print, quicker to read
 const state = { photos: [], busy: false, nextId: 1 };
@@ -36,7 +37,7 @@ async function addFiles(list) {
 
 async function readOne(p, onProgress) {
   const { bitmap, w, h } = await T.image(p.file, { maxSide: MAX_SIDE });   // scaled in aitools/common.js
-  const r = await T.call('ocr', { bitmap, w, h }, { transfer: [bitmap], onProgress });
+  const r = await E.run(E.quick(), { bitmap, w, h }, { onProgress });
   p.text = r.lines.map((l) => l.text).join('\n');
   p.read = true;
   p.error = null;
@@ -50,7 +51,7 @@ async function readAll() {
   prog.value = 0;
   render();
   try {
-    await T.ensure('ppocr-v4', say);
+    await E.load(E.quick(), say);
     for (const [k, p] of todo.entries()) {
       say(t('serials.app.reading', { name: p.name, i: k + 1, n: todo.length }));
       try {

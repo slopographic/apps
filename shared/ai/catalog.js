@@ -1,7 +1,8 @@
 /* SlopAIKit catalog: the local models Slop AI offers. Classic script; adds SlopAIKit.catalog.
  * Ids are WebLLM prebuilt ids (vendor/web-llm prebuiltAppConfig.model_list, v0.2.86); vramMB and lowResource are
  * copied from there. sizeMB is the approximate one-time download (weights + tokenizer + kernels).
- * f32Id is the q4f32 build for GPUs without shader-f16. */
+ * f32Id is the q4f32 build for GPUs without shader-f16. The site may hide models by maker (makers.js, the brand profile's
+ * "ai"): list, byId and DEFAULT give only the models it offers, so a saved choice of a hidden one finds nothing. */
 (function () {
   'use strict';
   const K = (window.SlopAIKit = window.SlopAIKit || {});
@@ -20,7 +21,7 @@
     if (!Object.getOwnPropertyDescriptor(m, 'blurb')) Object.defineProperty(m, 'blurb', { enumerable: true, get: () => (m.k ? T('ui.models.ai.' + m.k) : '') });
     return m;
   };
-  const list = [
+  const all = [
     M('Qwen2.5-0.5B-Instruct-q4f16_1-MLC', { name: 'Qwen2.5 0.5B', maker: 'Alibaba Qwen', params: 0.5, sizeMB: 290, vramMB: 944.62, lowResource: true, license: LIC.apache,
       f32Id: 'Qwen2.5-0.5B-Instruct-q4f32_1-MLC', vram32: 1060.2, strengths: ['tiny', 'fast'], k: 'qwen25_05b' }),
     M('Llama-3.2-1B-Instruct-q4f16_1-MLC', { name: 'Llama 3.2 1B', maker: 'Meta', params: 1.2, sizeMB: 700, vramMB: 879.04, lowResource: true, license: LIC.llama,
@@ -42,7 +43,12 @@
     M('Qwen2.5-Coder-7B-Instruct-q4f16_1-MLC', { name: 'Qwen2.5 Coder 7B', maker: 'Alibaba Qwen', params: 7.6, sizeMB: 4300, vramMB: 5106.67, license: LIC.apache,
       f32Id: 'Qwen2.5-Coder-7B-Instruct-q4f32_1-MLC', vram32: 5900.09, strengths: ['code', 'mini-apps'], k: 'qwen25_coder_7b' }),
   ];
-  const byId = (id) => list.find((m) => m.id === id || m.f32Id === id) || null;
+  const offered = (m) => !K.makers || K.makers.allowed(m);
+  const list = () => all.filter(offered);
+  const byId = (id) => all.find((m) => (m.id === id || m.f32Id === id) && offered(m)) || null;
+  /** The model offered first: the small all-rounder, else the next of these the site offers (Llama when Qwen is hidden). */
+  const FIRST = ['Qwen2.5-1.5B-Instruct-q4f16_1-MLC', 'Llama-3.2-3B-Instruct-q4f16_1-MLC', 'Llama-3.2-1B-Instruct-q4f16_1-MLC', 'Phi-3.5-mini-instruct-q4f16_1-MLC', 'gemma-2-2b-it-q4f16_1-MLC'];
+  const first = () => { const l = list(), m = FIRST.map((id) => l.find((x) => x.id === id)).find(Boolean) || l[0]; return m ? m.id : null; };
   /** GPUs whose driver reports shader-f16 but cannot compile the f16 kernels (a load failed with a shader validation
    * error and the f32 build worked): remembered on this device by adapter vendor, architecture and description. */
   const F16_KEY = 'slop-ai.f16-broken';
@@ -55,5 +61,5 @@
   /** A model record for a folder loaded from disk (see webllm.js loadFromDisk). */
   const folder = { get name() { return T('ui.models.lic.custom'); }, get short() { return T('ui.models.lic.custom_short'); }, url: '' };
   const custom = (id, o = {}) => { const m = M(id, Object.assign({ name: id, license: folder, custom: true, sizeMB: 0, vramMB: 0, k: 'custom' }, o)); if (!('maker' in o)) Object.defineProperty(m, 'maker', { enumerable: true, get: () => T('ui.models.ai.custom_maker') }); return m; };
-  K.catalog = { list, byId, idFor, custom, gpuKey, f16Broken, markF16Broken, LICENSES: LIC, DEFAULT: 'Qwen2.5-1.5B-Instruct-q4f16_1-MLC' };
+  K.catalog = { get list() { return list(); }, all, byId, idFor, custom, gpuKey, f16Broken, markF16Broken, LICENSES: LIC, FIRST, get DEFAULT() { return first(); } };
 })();

@@ -80,12 +80,18 @@ sites live outside this repository, with the publish script; pass their folder w
 | `tone` | `playful` or `plain`: plain applies the copy layer, `brand/copy/plain.json`. |
 | `backupExt` | The backup file's extension (`.backup`, `.acme`): the backup ZIP is `<name>-backup-<date><ext>` and "Export everything" writes `<ext>.json`. Default `.backup` for the plain tone; a playful profile without it keeps this site's `.slop`, renamed by its map. The code reads it from `SlopBackup.EXT` / `JSON_EXT` (`shared/backup/index.js`); text that names it (guides, the homepage) is turned the same way. |
 | `mascot` | `false` turns the mascot off everywhere (the buddy, the Drive empty states, the AI top bar). An object puts the profile's own mascot in its place: `{ overlay, name, files, icon?, holder?, trademarks?, size?, roam? }` (see "A mascot of your own"). |
-| `colors`, `themes`, `palette` | `brand.json` colours; the Light and Dark theme tokens (`hide` drops themes such as `lime`); the hue every accent-coloured colour in the CSS and code moves to (`tools/whitelabel/palette.mjs`). |
+| `colors`, `themes`, `palette` | `brand.json` colours; the theme tokens (`themes.light` / `themes.dark`: `background`, `surface`, `text`, `accent`, `border`; `hide` drops themes such as `classic` and `lime`); the hue every accent-coloured colour in the CSS and code moves to (`tools/whitelabel/palette.mjs`). `palette.neutral` (`{ hue, saturation?, from?, maxSaturation? }`, default saturation 0.15, `from` `[[20, 60]]`, the warm paper greys) moves this site's tinted greys, the apps' own backgrounds, fields and lines, to the profile's grey tint with the same luminance (add `[225, 260]` to `from` for the near-blacks of the dark look); pure greys and colours stay. The profile's own colours (its theme tokens) are never moved. |
+| `themes.names` | `"name"` or `"brandWord"`: Light and Dark are called "<name> Light" and "<name> Dark" ("Acme Light", "Acme Ljust") in the Settings picker and the header's theme menu, in every language (chrome keys `shell.theme_brand_light` / `_dark`, with a `{brand}` placeholder). Unset: Light and Dark. |
+| `defaultTheme` | The theme of a visitor who never chose one: `system` (default: follows the device), `light`, `dark` or another theme the profile keeps. A visitor's own choice always wins. Set in `shared/theme/theme.js` through the `defaultTheme` marker. |
 | `logo` | `{ text, mark, color }`: the build draws a wordmark (`brand/logo.svg`), a square mark (`brand/mark.svg`, the favicon) and the PNG icons and share card from it. Replace the files in a later commit of the profile's folder if you have a real logo. |
 | `links`, `footer`, `support`, `analytics` | Footer and support links (empty hides them), the footer line, the export card parts, and third parties: `false` leaves out analytics, ads and the consent strip. |
 | `copy` | Extra phrase replacements for this site (`"source phrase": "replacement"`), on top of the tone's. |
+| `savings` | `false` leaves out the homepage's yearly savings line ("≈ $X a year in software you don't have to buy") and its list, and the line in the generated README. Default `true`: the same figure as this site, from `shared/savings/data.mjs` (one user, US list prices; the build's hidden apps stay counted, so hide it when you hide many). |
 | `apps.hide`, `media` | Apps left out of every list, menu and sitemap (their guides and task pages too; tests read them from the brand facts, `hideApps`); `false` leaves out screenshots, clips and videos (they show this brand). |
-| `seo` | `homeTitle`, `homeDescription`, `titleSuffix` for the generated head blocks and the sitemap (the home copy is in the root language), and `langs`: the languages of the static SEO pages (below, "Languages of the SEO pages"). |
+| `seo` | `homeTitle`, `homeDescription`, `titleSuffix` for the generated head blocks and the sitemap (the home copy is in the root language), and `langs`: the languages of the static SEO pages besides the root one, `"all"` (default), a list (`["sv", "de"]`) or `"none"` (below, "Languages of the SEO pages"). `index` (default `false`), `canonicalTo` and `canonicalOverride`: what search engines are told (below, "Search engines"). |
+| `mainApp`, `parent` | A site for one app: the app the site's root opens (an app id), and the suite it links back to, `{ name, url }` (below, "Single-app sites"). |
+| `ai` | Which AI models the site offers (default `{}`: all of them). See "AI models" below. |
+| `ocr` | Which text recognition engines the site offers and which one it uses first (default: both, Auto). See "Text recognition (OCR) engines" below. |
 | `legal` | `{ holder, year, trademarks? }`: the MIT licence's copyright holder, `NOTICE.md` and `TRADEMARKS.md` (`trademarks`: the names the holder claims; default the product name). |
 | `publish` | `{ repo, branch, secret, author, email }`: where the publish script pushes, the token's secret name, and the release commit's author. |
 | `font` | `{ spec, dir }`: the profile's own type family, a font spec for `tools/fonts/build.py` and its built folder (both relative to the profiles folder; build the folder ahead, the site build needs no Python). The build ships it as `shared/fonts/brand/` with its CSS and token names, and the typeface page. Without it, a build ships no family: the upstream fonts (Inter Tight and the others) and no typeface page. This site's family never goes into another build, and the leak scan reads the name tables inside every WOFF2 file and zip. The sample's family: `brand/profiles/fonts/acme/`. Only a plain brand mark may go into a family's Private Use Area, never the mascot (it is all-rights-reserved art; a font is OFL): the build refuses such a spec. |
@@ -94,6 +100,64 @@ sites live outside this repository, with the publish script; pass their folder w
 
 `tools/whitelabel/profile.mjs` `validate()` is the schema in code; `tests/node/whitelabel-profile.test.mjs` checks every
 profile here.
+
+### AI models
+
+Some sites cannot offer models from certain makers or countries. The `ai` field hides them everywhere a model can be
+picked: the providers of "Use your own AI account" and their suggested models, the lists fetched from a provider
+(OpenRouter, Together, Groq, a server on this computer...), the models on this device (Slop AI and the side panel), the
+picture models and the free-key guide. A provider that is a hidden maker's own API (DeepSeek, Qwen, Kimi, GLM) leaves the
+list, and so does one whose every model is hidden and that fetches no list. A saved choice of a hidden model or provider
+is not used: the next allowed one is (on this device, the default model falls back from Qwen2.5 1.5B to Llama 3.2 3B).
+
+```json
+"ai": {
+  "hideOrigins": ["CN"],
+  "hideMakers": ["deepseek"],
+  "hideModels": ["*-preview"],
+  "hideProviders": ["groq"],
+  "onlyMakers": []
+}
+```
+
+| Key | Hides |
+| --- | --- |
+| `hideOrigins` | every model whose maker is from these countries (ISO 3166 codes, upper case). `["CN"]` hides Qwen (Alibaba), DeepSeek, GLM (Zhipu, Z.ai), Kimi (Moonshot), MiniMax, Baichuan, Yi (01.AI), InternLM, Hunyuan (Tencent), ERNIE (Baidu), Doubao and Seed (ByteDance), Step (StepFun) and the other Chinese makers of the table. |
+| `hideMakers` | the makers by id (`qwen`, `deepseek`, `zhipu`, `moonshot`, `openai`...). |
+| `onlyMakers` | every maker but these; a model of no known maker is hidden too. |
+| `hideModels` | model ids by pattern, `*` for any text (`*-preview`, `gpt-4o*`). |
+| `hideProviders` | whole providers by catalog id (`shared/ai/cloud/catalog/*.js`: `groq`, `qwen`, `openrouter`...). |
+
+The maker table is `shared/ai/makers.js` (`MAKERS`: id, name, country, the pattern of its model ids, its own providers);
+a model can have two makers (a fine-tune names its base: `deepseek-r1-distill-llama` is DeepSeek's and Meta's) and is
+hidden when either is. Hiding by maker or country also hides OpenRouter's routers (`openrouter/auto`), which may pick
+any maker. `tests/node/ai-makers.test.mjs` checks that every model id in every catalog has a maker, so a new model cannot
+slip past unlabelled; add its maker to the table when it fails. The build writes the field into the
+`/*profile:aiModels*/` marker of `makers.js` (`tools/whitelabel/ai.mjs` checks it). Text that names a hidden model (the SEO
+pages' examples of Qwen2.5) is changed with `copy`.
+
+### Text recognition (OCR) engines
+
+Slop OCR, Slop PDF (Recognise text), AI Tools (OCR), the Serial counter and Expenses (receipts) read text with one of two
+engines (`shared/ocr/engines.js`): PaddleOCR (maker `baidu`, China) and Tesseract (maker `tesseract`, its open-source
+project). The `ai` field applies to them like to any model: `"hideOrigins": ["CN"]` hides PaddleOCR (and its models in
+the Language and model dialog, the model index and Get more), and every OCR page then reads with Tesseract. The `ocr`
+field restricts them further and picks the one used first:
+
+```json
+"ocr": { "engines": ["tesseract"], "default": "tesseract" }
+```
+
+| Key | Sets |
+| --- | --- |
+| `engines` | the engines offered (`paddle`, `tesseract`); default all that the `ai` field leaves. |
+| `default` | the engine a visitor starts with instead of Auto (they can still choose another one that is offered). |
+
+Auto ranks the models of every offered engine together for the language chosen, most accurate first: PaddleOCR for the
+scripts it has a model for, Tesseract for the languages PaddleOCR lacks (Hebrew, Vietnamese, Bengali, Georgian ...).
+A visitor's saved engine that the site no longer offers reads as `default`, else Auto. The build refuses a profile whose
+`ai` and `ocr` fields leave no engine. It writes the field into the `/*profile:ocrEngines*/` marker of `engines.js`
+(`tools/whitelabel/ai.mjs` checks it).
 
 ### The rename map
 
@@ -158,7 +222,7 @@ nothing):
 | Field | What it does |
 | --- | --- |
 | `size` | `{ "desktop": <px>, "phone": <px> }`: how tall the mascot is drawn (whole px, 32 to 360; phone: windows up to 700 px wide). The stage is then laid out at that size, so the overlay draws to fill its element. Without it the slot keeps its default (136 px, 84 px in a plain-tone build and 63 px on a phone there); a size of about 170 to 210 px makes a desktop mascot clearly larger. |
-| `roam` | `true` or `"float"`: the mascot floats around the page: it rests beside the edges of the content, travels to another clear spot now and then along gentle curves (ease in and out, a soft hover bob, a lean into the direction of travel, no jumps), moves aside when the pointer goes for something it covers, and holds still while the person types or scrolls. `"hop"`: the same with the buddy's hop arc instead. It never rests on a control, on text or media, or on an area a page marks `data-mascot-avoid`, and stays inside the window below the header. With reduced motion, on a phone or a touch screen it stays docked; a plain-tone build roams calmly. A press or Move to the other side parks it for a while, Hide stops it. It moves by transform only, so the page's layout never shifts. |
+| `roam` | `true` or `"float"`: the mascot floats around the page: it rests beside the edges of the content, travels to another clear spot now and then along gentle curves (ease in and out, a soft hover bob, a lean into the direction of travel, no jumps), moves aside when the pointer goes for something it covers, and holds still while the person types. It lives on the page, as the built-in mascot does: while the person scrolls it stays where it was on the page and scrolls away with the content, and once the scroll has been quiet for about 0.7 s it floats after them back into view to a clear spot (a quick trip from just past the window's edge, however far the scroll went; after 1.5 s out of view it comes back even while the scroll goes on). `"hop"`: the same with the buddy's hop arc instead. It never rests on a control, on text or media, or on an area a page marks `data-mascot-avoid`, and stays inside the window below the header. With reduced motion, on a phone or a touch screen it stays docked; a plain-tone build roams calmly. A press or Move to the other side parks it for a while, Hide stops it. It moves by transform only, so the page's layout never shifts. |
 
 The overlay hears the travel through `react('travel', { on, dx, dy, style })` (`on`: a trip starts or ends; `dx`, `dy`: its
 direction, -1, 0 or 1) and `look()` turns its eyes the way it goes. The paths are the buddy's own (`shared/roam/path.js`,
@@ -193,8 +257,26 @@ The static SEO pages (landing, task, guide and comparison pages, the head of eve
 written in every language whose SEO tables are complete (`shared/seo/HANDOFF.md`, "Languages"). One profile field,
 `defaultLang`, decides both the language a visitor starts in and the **root language**: its pages are at the site root
 (`/compare/`), every other language in its own folder (`/en/compare/`, `/de/compare/`). `seo.langs` says which other
-languages a build publishes: `"all"` (the default) or a list (`["sv", "en"]`); a language left out has no pages and no
-hreflang.
+languages a build publishes:
+
+```json
+"seo": { "langs": ["sv", "de"] }
+```
+
+- `"all"` (the default, also when the field is left out): every language whose SEO tables are complete.
+- A list of the site's language codes (`shared/i18n/i18n.js` `LANGS`: `"sv"`, `"de"`, `"pt-BR"`, `"zh-CN"`...): those
+  of them whose tables are complete. It may name the root language; it changes nothing.
+- `"none"` (or `[]`): the root language only. No language folders, no language sitemaps, no hreflang, and nothing of
+  them is built anywhere.
+
+A language left out has no pages and no hreflang. The language folders are never committed in this repository: they are
+written when the site is published (`node tools/seo/write.mjs --langs`, `shared/seo/HANDOFF.md` "Languages"), and a
+white-label build writes them into its copy and keeps them (its mirror is the published site, so `build.mjs` drops the
+`.gitignore` block that keeps them out of git here). `tools/whitelabel/profile.mjs` refuses any other value.
+
+This site's own value is the marker in `tools/seo/lang.mjs` (`/*profile:seoLangs*/'all'`), which must equal
+`seo.langs` in `brand/profiles/slopographic.json` (`tests/node/whitelabel-profile.test.mjs` fails until both agree): set
+both, then run `node tools/seo/write.mjs` (the hreflang links and the sitemap index follow).
 
 Why the default language goes to the root: a site for one market is found in that language, and its plain addresses
 (`/compare/`) are the ones people share and search engines rank first, so they carry the language its visitors read.
@@ -203,6 +285,67 @@ one folder down. The other languages stay reachable for visitors who search in t
 its own market with a short `seo.langs`. One field (`defaultLang`) sets both the start language and the root, so they can
 never disagree; the profile's `seo.homeTitle` and `seo.homeDescription` are in that language. The sample `sample-sv`
 publishes Swedish at the root and English under `/en/` (`"langs": ["sv", "en"]`).
+
+### Search engines
+
+```json
+"seo": { "index": true }
+```
+
+- `index` (default `false`, for every profile that does not say `true`): search engines may index the site. This site's
+  own profile sets it, and so does every profile of the owner's own sites. With `false`, every page says
+  `<meta name="robots" content="noindex">` (links are still followed), `robots.txt` allows crawling (a crawler must read
+  a page to see the tag) and names no sitemap, there are no sitemap files, no language folders and no hreflang, and the
+  generated SEO pages (landing, task, guide, round-up and compare pages) are not built at all. IndexNow never runs.
+- `canonicalTo`: an origin (`"https://tools.example.com"`) every page's canonical points to, with the same path. Without
+  it a page's canonical is its own address on the build's origin (`origin`); a build never points at this site.
+- `canonicalOverride`: `{ "<path>": "<URL>" }`, the canonical of the pages under a path from the site root ("/pdf/": the
+  app, its about, task and guide pages) is the URL with the rest of the path after it; `"=/pdf/"` matches that one page.
+  The longest key wins; a page in a language folder (`/sv/pdf/`) is matched without it and keeps it (`/sv/` after the
+  origin). Its sitemap leaves those pages out; their hreflang links stay on this site, so the language menu does too.
+
+Why off by default: a fork, or a build of someone else's profile, works as a free mirror of the tools. Its pages say
+noindex and credit the original through their canonical, so the copy never competes with the site it came from in
+search results. Turn indexing on (`"index": true`) when you publish your own content under your own name.
+
+A copy of an indexed site is not indexed either. The SEO writer puts a host guard at the top of every page's `<head>`
+(`tools/seo/robots.mjs`): on any host but the profile's `origin` (and `www.` of it; `localhost`, `127.0.0.1` and a file
+stay as they are) it adds the noindex tag, which Google honours after rendering. The production deploy
+(`.github/workflows/pages.yml`) also writes the static noindex into every page when it runs in any repository but this
+one, as the preview of `testing` does (`preview.yml`). The writer (`node tools/seo/write.mjs`, checked by `--check`)
+applies all of it, so every page, new ones included, follows the profile.
+
+### Single-app sites
+
+A domain for one app that links back to the full suite. The profile names the app and the parent site, and hides the
+apps it does not keep:
+
+```json
+"mainApp": "pdf",
+"parent": { "name": "Acme Tools", "url": "https://example.com" },
+"apps": { "hide": ["photoslop", "vector", "label", "..."] },
+"seo": { "index": true }
+```
+
+- The site's root (`/`) is the app: `index.html` is the app's page as the SEO writer writes it, with
+  `<base href="pdf/">` first in its head (`tools/seo/mainapp.mjs`), so every relative address, the service worker (scope
+  `/`) and the offline list (`tools/pwa-precache.mjs` reads the base) work as on `/pdf/`. Both pages name the root as
+  their canonical, so only `/` is in the sitemap. An in-page link (`#...`) stays on the page.
+- `parent` adds "More free tools →" to the header (a shared header button that folds into More,
+  `shared/parent/parent.js`) and a column to the site footer (`tools/seo/footnav.mjs`). A link into a hidden app's folder
+  goes to the same path on the parent (`SlopParent.href`, the one helper: every link on the page, the shell's
+  navigation, the footer). Hidden apps' folders stay in the build (the kept apps load scripts from some of them), but
+  their pages say noindex and no list, sitemap or generated page names them.
+- Search: with `index` true the site publishes only the shown apps' pages (their task, guide, round-up and landing pages;
+  the pages of a few apps, `/slop-365/` and `/creative-slop-pro/`, only when it shows them all).
+- On the parent (this site), point the app's pages at the new domain with `seo.canonicalOverride`, and set the same
+  value as the markers in `tools/seo/site.mjs` (the marker test holds them equal):
+  `{ "=/pdf/": "https://pdf.example.com/", "/pdf/": "https://pdf.example.com/pdf/", "/apps/pdf/": "https://pdf.example.com/apps/pdf/" }`.
+
+Recipe, the PDF app: `"mainApp": "pdf"` and hide every app except `pdf` and the apps it works with: `html2pdf` (HTML to
+PDF), `ocr` (text from scans), `watermark` (batch watermarks), `convert` (the Convert… dialog's file converter pages) and
+`drive` (where the apps keep their files). Hiding any of these sends its links to the parent instead. The made-up
+`brand/profiles/sample-single.json` ("Acme PDF") is this recipe.
 
 ### Tests in a mirror
 

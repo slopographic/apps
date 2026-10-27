@@ -1,9 +1,12 @@
 /* Text recognition (OCR): the "Language and model" button of Slop OCR, Slop PDF (Recognise text) and AI Tools (OCR), the
- * dialog behind it (shared/models/chooser.js with the OCR family, shared/ocr/family.js) and the line that offers a better
- * model after a first read (shared/ocr/suggest.js).
+ * dialog behind it (shared/models/chooser.js with the OCR family, shared/ocr/family.js), the line that offers a better
+ * model after a first read (shared/ocr/suggest.js) and the "Text recognition engine" select (shared/ocr/engines.js).
  *   createOcrChoice({ catalog, manager, ui, storageHref, locale, storage, onChange }) ->
- *     { language, model, label(), pick(), open(preset), suggest(lines, model, skipped), suggestion(s, onChosen), button(el, onChosen) }
- * loadOcr() loads the catalog, the model list and the dialog's styles on a page that has not (Slop PDF).
+ *     { language, model, label(), pick(), open(preset), suggest(lines, model, skipped), suggestion(s, onChosen),
+ *       button(el, onChosen), engineSelect(onChosen), catalog() }
+ * The models offered are those of the engine chosen (all offered engines' for Auto): catalog() is that list, read anew
+ * whenever the engine changes. pick() gives the model; the page reads with SlopOcrEngines.run(model, picture).
+ * loadOcr() loads the engines, the catalog, the model list and the dialog's styles on a page that has not (Slop PDF).
  * Without a choice the language is "Detect automatically": the bundled PP-OCRv4 model reads first (or the model for the
  * browser's language, when it is on this device), and suggest(lines) says when another script's model would read the
  * text better. "Always use …" in the dialog keeps the language and its model (shared/models/prefs.js, family 'ocr');
@@ -33,14 +36,19 @@ export async function loadOcr() {
   }
   if (!globalThis.SlopCdn) await script('shared/cdn/assets.js');   // the model URLs (jsDelivr, then GitHub)
   if (!globalThis.SlopModelCatalog) await script('shared/models/catalog.js');
+  if (!(globalThis.SlopAIKit && globalThis.SlopAIKit.makers)) await script('shared/ai/makers.js');   // which engines the site offers
+  if (!globalThis.SlopOcrEngines) await script('shared/ocr/engines.js');
+  if (!globalThis.SlopOcrTesseract) await script('aitools/ocr-tesseract.js');
   if (!globalThis.SlopOcrModels) await script('aitools/ocr-models.js');
   return globalThis.SlopOcrModels;
 }
 
 export function createOcrChoice(o = {}) {
-  const C = o.catalog || globalThis.SlopOcrModels, M = o.manager || globalThis.SlopAIManager;
+  const M = o.manager || globalThis.SlopAIManager, E = globalThis.SlopOcrEngines;
   const prefs = o.prefs || createPrefs('ocr', o.storage);
-  const L = ocrLanguages(C);
+  /** The models of the engine chosen (Auto: every offered engine's). */
+  const catalog = () => o.catalog || (E ? globalThis.SlopOcrModels.forEngine(E.chosen(o.storage)) : globalThis.SlopOcrModels);
+  let C = catalog(), L = ocrLanguages(C);
   const locale = o.locale !== undefined ? o.locale : L.fromLocale(globalThis.navigator && navigator.language);
   const state = { language: prefs.pinned() || 'auto', model: null };
   const drawers = [];   // the buttons' titles, redrawn on every choice
@@ -48,10 +56,14 @@ export function createOcrChoice(o = {}) {
 
   /** The model to run for the language: the one chosen, the preferred one, the first installed one that reads it. */
   async function modelFor(language) {
-    if (state.model && (language === 'auto' || C.fits(C.byId(state.model), language))) return state.model;
+    if (state.model && C.byId(state.model) && (language === 'auto' || C.fits(C.byId(state.model), language))) return state.model;
     if (language === 'auto') {
       const own = locale ? C.modelFor(locale) : null;
-      return own && (await ready(own.id)) ? own.id : C.QUICK;
+      if (own && (await ready(own.id))) return own.id;
+      // the quick model the page's gate made sure of (the site's own); another engine's, chosen since, may not be on this
+      // device yet: then the dialog asks
+      const gated = globalThis.SlopOcrModels && C.QUICK === globalThis.SlopOcrModels.QUICK;
+      return gated || (await ready(C.QUICK)) ? C.QUICK : null;
     }
     const pref = prefs.preferred(language);
     if (pref && C.fits(C.byId(pref), language) && (await ready(pref))) return pref;
@@ -140,8 +152,39 @@ export function createOcrChoice(o = {}) {
     b.addEventListener('click', async () => { const c = await open(); if (c && onChosen) onChosen(c); });
     return b;
   }
+  /** After the engine changed: its models, its languages, and the model chosen only if that engine has it. */
+  function sync() {
+    C = catalog(); L = ocrLanguages(C);
+    if (state.model && !C.byId(state.model)) state.model = null;
+    for (const d of drawers) d();
+  }
+  /** The "Text recognition engine" select: Auto and each engine the site offers (hidden when it offers one or none).
+   *  The choice is kept for every OCR page (shared/ocr/engines.js); onChosen(engine) runs after a change. */
+  function engineSelect(onChosen = null) {
+    const box = document.createElement('label'), span = document.createElement('span'), sel = document.createElement('select');
+    box.className = 'ocr-engine';
+    sel.className = 'ocr-engine-select';
+    box.append(span, sel);
+    const draw = () => {
+      const list = E ? E.offered() : [];
+      span.textContent = T('ocrengine.label');
+      sel.replaceChildren(...['auto'].concat(list.map((e) => e.id)).map((id) => new Option(id === 'auto' ? T('ocrengine.auto') : E.label(id), id)));
+      sel.value = E ? E.chosen(o.storage) : 'auto';
+      sel.title = T('ocrengine.note');
+      box.hidden = list.length < 2;
+    };
+    draw();
+    if (globalThis.SlopI18n && globalThis.SlopI18n.on) globalThis.SlopI18n.on(draw);   // a language change
+    sel.addEventListener('change', () => {
+      if (!E || !E.choose(sel.value, o.storage)) { draw(); return; }
+      sync();
+      if (o.onChange) o.onChange(state);
+      if (onChosen) onChosen(sel.value);
+    });
+    return box;
+  }
   return {
     get language() { return state.language; }, get model() { return state.model; },
-    label, pick, open, suggest, sentence, suggestion, button, modelFor,
+    label, pick, open, suggest, sentence, suggestion, button, modelFor, engineSelect, catalog: () => C,
   };
 }

@@ -40,7 +40,8 @@ test('a language is published only with every English key; the others are listed
   const none = LANGS.map((l) => l.code).find((c) => !tableLangs().includes(c));
   assert.ok(none && !codes.includes(none));
   assert.ok(!existsSync(path.join(ROOT, none.toLowerCase())), `${none}: no folder without tables`);
-  assert.ok(!readFileSync(path.join(ROOT, 'compare/index.html'), 'utf8').includes(`hreflang="${none}"`));
+  const page = ['compare/index.html', 'pdf/index.html'].find((f) => existsSync(path.join(ROOT, f)));   // no compare page: a site not indexed
+  assert.ok(!readFileSync(path.join(ROOT, page), 'utf8').includes(`hreflang="${none}"`));
 });
 
 test('URLs: the root language at the root, the others in a lower-case folder; alternates end with x-default', () => {

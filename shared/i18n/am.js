@@ -141,6 +141,8 @@
     'shell.theme_dark': 'ጨለማ',
     'shell.theme_classic': 'ክላሲክ 98',
     'shell.theme_lime': 'Slopographic Lime',
+    'shell.theme_brand_light': '{brand} ብሩህ',
+    'shell.theme_brand_dark': '{brand} ጨለማ',
     'shell.more': 'ተጨማሪ',
     'shell.install': 'ጫን',
     'shell.install_title': '{brand}ን ጫን',

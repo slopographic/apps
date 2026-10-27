@@ -18,7 +18,8 @@
    * "Zebra" alone is not listed: the apps support Zebra printers, and the names here are software products. */
   const DENYLIST = ['BarTender', 'Bartender', 'NiceLabel', 'Loftware', 'ZebraDesigner', 'Zebra Designer', 'CodeSoft', 'Seagull'];
 
-  /* One entry per app's about page. The app link is found by its "Open ..." text. */
+  /* One entry per app's about page. The app link is the hero's primary button ("Open ..." in English;
+   * a build whose root language is another shows it translated, so it is found by its place, not its text). */
   const PAGES = [
     { app: 'label', path: 'label/about/', column: 'Slop Label' },
     { app: 'photoslop', path: 'photoslop/about/', column: 'PhotoSlop' },
@@ -45,8 +46,9 @@
     const res = await fetch(new URL(href, base), { cache: 'no-store' });
     return { ok: res.ok, url: new URL(href, base) };
   }
-  /** Identity metadata (canonical link, og and twitter tags) names the public address; the browser never fetches it. */
-  const isIdentityTag = (el) => el.tagName === 'META' || (el.tagName === 'LINK' && el.getAttribute('rel') === 'canonical');
+  /** Identity metadata (canonical link, hreflang alternates, og and twitter tags) names the public address; the browser never fetches it. */
+  const isIdentityTag = (el) => el.tagName === 'META' || (el.tagName === 'LINK'
+    && (el.getAttribute('rel') === 'canonical' || (el.getAttribute('rel') === 'alternate' && el.hasAttribute('hreflang'))));
   const ATTRS = ['href', 'src', 'action', 'poster', 'data', 'srcset'];
 
   for (const p of PAGES) {
@@ -94,7 +96,7 @@
 
       it('the "Open" app link resolves to the app', async () => {
         const { url, doc } = await load(p);
-        const link = [...doc.querySelectorAll('a[href]')].find((a) => /^Open /.test(a.textContent.trim()));
+        const link = doc.querySelector('.l-cta a.l-btn.primary[href]');
         expect(link).toBeTruthy();
         const r = await resolves(link.getAttribute('href'), url);
         expect(r.ok).toBe(true);

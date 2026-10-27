@@ -7,6 +7,9 @@
 // and text through the profile's map (rename.mjs), set the profile markers, write the generated files (emit.mjs), run the
 // SEO writer and the precache list in the copy, render the icons (images.mjs), then scan for leftovers (scan.mjs) and
 // exit 1 when the scan finds any. A profile without a map file (slopographic) is copied as it is.
+// The SEO pages of the languages besides the root one are not in git here (tools/seo/langdirs.mjs): the build writes
+// them for the profile's seo.langs (write.mjs, then write.mjs --langs from the written root pages; none for 'none') and
+// drops the .gitignore block from its copy, so a mirror commits them (it is the published site).
 // A profile with its own mascot (mascot.mjs) gets the overlay in brand/mascot/, LICENSE-ART, and icons drawn by it.
 // --cdn-ref: the release tag of the profile's own cdn repository (cdn.mjs makes its content), when it differs from this
 // site's tag. The out dir's .git folder is kept, so a mirror checkout can be rebuilt in place.
@@ -28,6 +31,7 @@ import { themeProblems, sourceThemes } from './palette.mjs';
 import { isText, scan, report } from './scan.mjs';
 import { DEST, overlayDir, overlayProblems, overlayIcons, filesIn, licenseArt, hasOverlay, artAllow } from './mascot.mjs';
 import { emitFont, fontExcluded, fontFolderProblems, fontDir } from './font.mjs';
+import { withoutBlock } from '../seo/langdirs.mjs';
 
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 
@@ -113,6 +117,11 @@ export function build(id, out, opts = {}) {
       const buf = readFileSync(path.join(ROOT, f));
       write(out, f, isText(buf) ? applyMarkers(buf.toString('utf8'), values) : buf);
     }
+    // the profile's search settings and single-app root (tools/seo/robots.mjs) are the SEO writer's: this site's own
+    // profile changes nothing there, another profile of this brand (a single-app site) gets its pages
+    if (!opts.noSeo) sh(process.execPath, ['tools/seo/write.mjs'], out);
+    publishLangs(out, opts);
+    if (!opts.noSeo) sh(process.execPath, ['tools/pwa-precache.mjs'], out);
     log(`${p.id}: copied ${files.length} files to ${out}`);
     return { profile: p, out, files: files.length, found: [] };
   }
@@ -146,10 +155,20 @@ export function build(id, out, opts = {}) {
   if (!opts.noImages) sh(node, [path.join(ROOT, 'tools/whitelabel/images.mjs'), out]);   // before the precache list, which hashes them
   // the generated reports name the apps and files, so the build writes its own: the SEO pages, the i18n coverage report
   // (tests/node/i18n-tables.test.mjs checks it is up to date) and the precache list, which hashes the rest
-  if (!opts.noSeo) { sh(node, ['tools/seo/write.mjs'], out); sh(node, [path.join('tools', 'i18n', 'i18n.mjs'), 'coverage'], out); sh(node, ['tools/pwa-precache.mjs'], out); }
+  if (!opts.noSeo) sh(node, ['tools/seo/write.mjs'], out);
+  publishLangs(out, opts);
+  if (!opts.noSeo) { sh(node, [path.join('tools', 'i18n', 'i18n.mjs'), 'coverage'], out); sh(node, ['tools/pwa-precache.mjs'], out); }
   const res = scan(out, forbiddenTerms(dir, p).concat(videos.map((v) => v.toLowerCase())), SCAN_ALLOW.concat(p.scanAllow || [], artAllow(p)), { account: p.github.toLowerCase() });
   log(report(res));
   return { profile: p, out, files: n, found: res.found, allowed: res.allowed };
+}
+
+/** The copy's .gitignore without the language folders' block, and the SEO pages of its other languages (seo.langs), made
+ * from its root language's pages as they are now (written already). */
+function publishLangs(out, opts) {
+  const ignore = path.join(out, '.gitignore');
+  if (existsSync(ignore)) writeFileSync(ignore, withoutBlock(readFileSync(ignore, 'utf8')));
+  if (!opts.noSeo) sh(process.execPath, ['tools/seo/write.mjs', '--langs'], out);
 }
 
 /** The files written from the profile rather than copied. */

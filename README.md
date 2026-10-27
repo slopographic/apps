@@ -4,6 +4,29 @@ Free office and creative apps that run in your browser: a PDF editor, a photo ed
 
 Everything runs 100% in your browser: no installs, no accounts, no uploads, no watermarks. Static files, no backend, no build step. Each app is its own folder and can be downloaded as one offline `.html` file. Your files stay on your device, or in Slop Drive, the local drive every app shares. The optional AI runs on your device, or, if you connect your own AI account, sends your requests straight to that provider and nowhere else.
 
+The apps stand in for about **$1,700 a year** of paid software for one person, at list prices
+([how it is counted](https://slopographic.com/#savings)).
+
+## Fork me! (no, really)
+
+Every copy of Slopographic is one more place where people can use free, private, offline browser tools. A single site can go
+down, get blocked by a school or office filter, or simply disappear; a hundred copies are much harder to lose. It is MIT
+licensed, so hosting your own is not just allowed, it is the point.
+
+1. **Fork** this repository.
+2. **Enable GitHub Pages** on your fork (Settings → Pages) for your default branch, from the root folder. There is no
+   build step: the files are the site.
+3. **Give it a home of its own.** The site expects the root of a domain: name the fork `<your-account>.github.io`, or
+   put your own domain in `CNAME` (it holds ours, so change or delete it either way).
+4. **Optional: make it yours.** Name, colours and logo are one file: see [`brand/README.md`](brand/README.md).
+
+The code is MIT, but the name Slopographic, its logo, the mascot art and the media (screenshots, videos)
+are not part of that licence ([`NOTICE.md`](NOTICE.md), [`TRADEMARKS.md`](TRADEMARKS.md), [`LICENSE-ART`](LICENSE-ART)): a public copy brings its own.
+
+Congratulations: you now run a software suite, and your hosting bill is still zero.
+
+## The apps
+
 ### Creative
 
 | Path | App |
@@ -63,9 +86,16 @@ npx http-server . -p 8080   # or: python3 -m http.server 8080
 
 ## Deploy (GitHub Pages)
 
-Pages serves this branch from the repo root:
+`main` is the live site. `.github/workflows/pages.yml` builds it on every push to `main`: the branch as it is, plus the SEO
+pages of the other languages (`/sv/`), which are written on publish and never committed (`node tools/seo/write.mjs
+--langs`; `shared/seo/HANDOFF.md`, "Languages"), and deploys that with GitHub's Pages actions.
 
-1. **Settings → Pages → Source: Deploy from a branch**, pick the branch, folder `/ (root)`.
+1. **Settings → Pages → Source: GitHub Actions.** While the source is "Deploy from a branch", Pages serves `main` as
+   committed, without the language folders, and the workflow builds but skips its deploy step. Switch the source just
+   before the push that brings this workflow to `main` (the deployed site stays up until the next deploy, which is then
+   this workflow's), or right after it and run the workflow by hand (Actions → Pages → Run workflow); in between, `/sv/`
+   is missing. IndexNow (`indexnow.yml`) follows the source: it pings after the push for a branch deploy, and after the
+   Pages workflow's run for an Actions deploy.
 2. **Custom domain:** `slopographic.com` (already in `CNAME`), with **Enforce HTTPS** on.
 3. **DNS** at your registrar: `A` records for `@` → `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`, and a `CNAME` for `www` → `slopographic.github.io`.
 

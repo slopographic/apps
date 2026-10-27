@@ -7,7 +7,8 @@
  *     default, sample (for tools/check-ai-cors.mjs) }], asked in the form); a query in it (?api-version={apiVersion}) stays at the end of every URL
  *   auth: 'bearer' (default) | 'none' | 'optional' | { header, prefix }; headers: extra headers; keyUrl, keyHint, where
  *   modelsEndpoint: the path of its model list ('/models'), or false (then models are the only choices)
- *   models: [{ id, name, hint, by }] shown before the list is fetched (hint: the note's key, ui.ai.cloud.hint_<hint>); prefer: patterns for the fetched list; modelHints
+ *   models: [{ id, name, hint, by, madeBy }] shown before the list is fetched (hint: the note's key, ui.ai.cloud.hint_<hint>;
+ *     madeBy: the maker's id in shared/ai/makers.js when the id does not say it); prefer: patterns for the fetched list; modelHints
  *   caps: { tools, vision, images, streaming }; prices: { model: [in, out] } $ per million tokens; priceSource
  *   cors: 'verified' (a browser preflight from https://slopographic.com is allowed, checked 2026-10-24 with
  *     tools/check-ai-cors.mjs) | 'needs-proxy' (the browser is refused; corsNote says why in plain words) | 'unknown'

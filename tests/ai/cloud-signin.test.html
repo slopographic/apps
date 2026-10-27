@@ -8,6 +8,7 @@
   <script src="cloud-util.js"></script>
   <script>
   // openrouter.ai is never reached: the button's navigation is caught (signin.go) and the key exchange is the fake fetch.
+  // Also a regression test for shared/ai/quick/ui.js: its app list arriving redrew the panel and lost the sign-in in progress.
   // Covers: shared/ai/cloud/signin.js, shared/ai/cloud/connect.js, shared/ai/cloud/pick.js, shared/ai/cloud/free-guide.js,
   //   shared/ai/cloud/catalog/main.js, shared/ai/picker.js, shared/ai/panel.js, shell/header.js, shared/sync/pkce.js,
   //   shared/ai/cloud/keys.js, shared/i18n/ui/en/ai9.js, shared/i18n/ui/en/ai7.js

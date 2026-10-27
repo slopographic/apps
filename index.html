@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en" data-brand-tokens>
-<head>
+<head><script data-robots-guard>(function(h){if(["slopographic.com","www.slopographic.com","localhost","127.0.0.1","[::1]",""].indexOf(h)<0){var m=document.createElement('meta');m.name='robots';m.content='noindex';document.head.appendChild(m)}})(location.hostname)</script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
@@ -9,6 +9,7 @@
   <script src="shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="shared/theme/theme.js" data-app="home" data-src="shared/theme/theme.js"></script>
   <script src="shared/i18n/i18n.js" data-src="shared/i18n/i18n.js"></script>
+  <script src="shared/savings/i18n/index.js" data-src="shared/savings/i18n/index.js"></script>
 <script src="shared/consent/config.js"></script>
 <script src="shared/consent/state.js"></script>
 <script src="shared/consent/consent-mode.js"></script>
@@ -19,7 +20,7 @@
   <meta http-equiv="origin-trial" content="Ahqtn8XmvHDoOT0EWz2DncZHy77S1oas48699FT0baxjlZ5IQKCFX7UG61e6lKceKn6wW3Ri7F6gE8bsF6s1uA8AAABQeyJvcmlnaW4iOiJodHRwczovL3Nsb3BvZ3JhcGhpYy5jb206NDQzIiwiZmVhdHVyZSI6IldlYk1DUCIsImV4cGlyeSI6MTgwNjM2NDgwMH0="><meta http-equiv="origin-trial" content="Agvh5hzGm3mBgPusIUMY4a9EP/scDmk6C23hI6ekMMTrLXi7yPeoXNu0fzVwsP4waUss3Nr40FDx4AjYeTIflgIAAABWeyJvcmlnaW4iOiJodHRwczovL3Nsb3BvZ3JhcGhpYy5naXRodWIuaW86NDQzIiwiZmVhdHVyZSI6IldlYk1DUCIsImV4cGlyeSI6MTgwNjM2NDgwMH0=">
   <title>Slopographic: office and creative software in your browser</title>
   <meta name="description" content="Slopographic makes business and creative software that runs in your browser: documents, sheets, PDFs, labels and photo tools. Free, no accounts.">
-  <link rel="canonical" href="https://slopographic.com/"><link rel="alternate" hreflang="en" href="https://slopographic.com/"><link rel="alternate" hreflang="sv" href="https://slopographic.com/sv/"><link rel="alternate" hreflang="x-default" href="https://slopographic.com/">
+  <link rel="canonical" href="https://slopographic.com/"><link rel="alternate" hreflang="en" href="https://slopographic.com/"><link rel="alternate" hreflang="es" href="https://slopographic.com/es/"><link rel="alternate" hreflang="fr" href="https://slopographic.com/fr/"><link rel="alternate" hreflang="de" href="https://slopographic.com/de/"><link rel="alternate" hreflang="pt-BR" href="https://slopographic.com/pt-br/"><link rel="alternate" hreflang="it" href="https://slopographic.com/it/"><link rel="alternate" hreflang="ar" href="https://slopographic.com/ar/"><link rel="alternate" hreflang="sv" href="https://slopographic.com/sv/"><link rel="alternate" hreflang="zh-CN" href="https://slopographic.com/zh-cn/"><link rel="alternate" hreflang="zh-TW" href="https://slopographic.com/zh-tw/"><link rel="alternate" hreflang="ja" href="https://slopographic.com/ja/"><link rel="alternate" hreflang="ko" href="https://slopographic.com/ko/"><link rel="alternate" hreflang="ru" href="https://slopographic.com/ru/"><link rel="alternate" hreflang="uk" href="https://slopographic.com/uk/"><link rel="alternate" hreflang="pl" href="https://slopographic.com/pl/"><link rel="alternate" hreflang="nl" href="https://slopographic.com/nl/"><link rel="alternate" hreflang="tr" href="https://slopographic.com/tr/"><link rel="alternate" hreflang="x-default" href="https://slopographic.com/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Slopographic">
   <meta property="og:title" content="Slopographic: office and creative software in your browser">
@@ -82,6 +83,7 @@
             <a class="btn primary hx-btn" href="#app-finder" data-to-finder><span data-i18n="hero.open">Open the apps</span><span class="hx-arrow" aria-hidden="true">→</span></a>
             <a class="btn hx-btn" href="how-it-works/" data-i18n="hero.how">How it works</a>
           </div>
+          <!--profile:savings--><p class="hx-save"><span data-i18n="savings.hero.line" data-i18n-vars='{"total":1700}'>≈ $1,700 a year in software you don’t have to buy</span><a class="hx-save-star" href="#savings" title="How this figure is counted" aria-label="How this figure is counted" data-i18n-attr="title:savings.hero.how;aria-label:savings.hero.how">*</a></p><!--/profile:savings-->
           <p class="hx-meta"><a href="https://github.com/slopographic/apps" rel="noopener" data-i18n="hero.github">Open source on GitHub</a><span class="hx-terms"><span data-i18n="hero.offline">Works offline</span><span data-i18n="hero.no_account">No account needed</span></span></p>
           <nav class="gx-nav" aria-label="Every app" data-i18n-attr="aria-label:hero.apps" data-live></nav>
         </div>
@@ -134,6 +136,7 @@
         </header>
         <div class="status-board" id="status-board" data-perch role="table" aria-label="Status of every app" data-i18n-attr="aria-label:home.status_table"></div>
       </section>
+      <!--profile:savings--><section id="savings" class="shelf savings" aria-labelledby="savings-title"><header class="shelf-head"><h2 id="savings-title" class="sec-num" data-num="04" data-i18n="savings.list.title">Where the number comes from</h2><p data-i18n="savings.list.lede">An estimate for one user at US list prices, excluding taxes and discounts: the paid subscriptions you would otherwise buy for the same work. A subscription that covers several apps here is counted once, apps with a free equivalent are left out, and the homepage rounds the sum down.</p></header><details class="savings-how" id="savings-how"><summary data-i18n="savings.list.open">Every subscription, its price and its source</summary><div class="savings-list" id="savings-list"></div></details></section><!--/profile:savings-->
     </section>
 
     <section id="view-detector" class="view" aria-label="The Authenticator" hidden></section><!-- filled by detector/detector.js (home/view.js loads it) -->
@@ -188,6 +191,7 @@
   <script src="home/globe/list.js"></script>
   <script src="home/marquee.js"></script>
   <script src="home/footer-mark.js"></script>
+  <script type="module" src="home/savings.js"></script>
   <script src="brand/brand.js"></script>
   <script type="module" src="home/mascot/index.js"></script>
   <script src="shell/shell.js"></script>
