@@ -4,5 +4,5 @@ window.SlopI18n && window.SlopI18n.source({
   ns: 'prompts',
   base: ((document.currentScript || {}).src || '').replace(/[^/]*$/, ''),
   parts: ['base', 'biz', 'creative', 'creative2', 'media', 'office', 'office2'],
-  langs: ['en', 'sv'],
+  langs: ['ar', 'de', 'en', 'es', 'fr', 'it', 'ja', 'ko', 'nl', 'pl', 'pt-BR', 'ru', 'sv', 'tr', 'uk', 'zh-CN', 'zh-TW'],
 });
