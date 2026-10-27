@@ -44,7 +44,7 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'seo.task.photoslop.remove-blemishes.faq.3.1': 'いいえ。写真はお使いのブラウザーで開かれ、編集され、サーバーに送られることはありません。「AI で編集…」だけは、「編集」を押したあとに、使用しているキーの AI プロバイダーへコピーを送ります。',
   'seo.task.photoslop.deep-fry-meme.crumb': 'ディープフライのミーム作成',
   'seo.task.photoslop.deep-fry-meme.title': 'ディープフライのミーム作成：どの画像もオンラインで無料にディープフライ',
-  'seo.task.photoslop.deep-fry-meme.description': '1 つの操作で写真をディープフライにします。色を強め、くっきりとシャープにし、JPEG のアーティファクトを加えます。「カリカリ度」のスライダーで調整でき、グリッチや VHS の効果も追加できます。無料、ブラウザーで動作。',
+  'seo.task.photoslop.deep-fry-meme.description': 'ディープフライにします。「カリカリ度」で調整でき、グリッチや VHS も追加できます。無料、ブラウザーで動作。',
   'seo.task.photoslop.deep-fry-meme.h1': 'ミーム用に画像をディープフライにする',
   'seo.task.photoslop.deep-fry-meme.lead': 'ディープフライの見た目を好きなときに。彩度を極端に上げ、シャープネスを強くし、JPEG のざらつきを重ねます。任意の画像をドロップし、「カリカリ度」を上げて、「文字」ツールでミームの文字を追加してください。',
   'seo.task.photoslop.deep-fry-meme.cta': '画像をディープフライにする',
