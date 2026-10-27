@@ -38,7 +38,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'seo.task.cutout.white-background.faq.3.1': 'Gebruik de penselen Behouden en Verwijderen om delen van het onderwerp terug te zetten of weg te halen, en exporteer daarna opnieuw.',
   'seo.task.cutout.transparent-png.crumb': 'Transparante PNG maken',
   'seo.task.cutout.transparent-png.title': 'Transparante PNG maken: achtergrond van afbeelding verwijderen, gratis',
-  'seo.task.cutout.transparent-png.description': 'Maak van een foto, logo of handtekening een transparante PNG in je browser. De AI vindt het onderwerp; verfijn de randen en download. Geen watermerk, geen upload.',
+  'seo.task.cutout.transparent-png.description': 'Maak van foto, logo of handtekening een transparante PNG in je browser. De AI vindt het onderwerp; verfijn de randen en download. Geen watermerk, geen upload.',
   'seo.task.cutout.transparent-png.h1': 'Een transparante PNG maken van elke afbeelding',
   'seo.task.cutout.transparent-png.lead': 'Zet een foto, een logo of een gescande handtekening neer en download hem als PNG met een transparante achtergrond, klaar voor dia\'s, documenten, stickers of een website.',
   'seo.task.cutout.transparent-png.cta': 'Een transparante PNG maken',
