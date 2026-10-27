@@ -1,7 +1,9 @@
 // Every page of one language (tools/seo/write.mjs): the generated pages (landing, task, guide, round-up, hub pages) in
 // that language, and the head block of the hand-made ones. In the root language the hand-made pages are the files
-// themselves (each app page, its about page, the homepage, How it works, the converter pages); in another language they
-// are copies in its folder (copies.mjs). Every page that exists in more than one language lists them all (hreflang).
+// themselves (each app page, the homepage, the converter pages); in another language they are copies in its folder
+// (copies.mjs). The about pages and How it works are templates whose words are in the tables (template.mjs): written in
+// every language, the root one at the page's folder, the others as copies. Every page that exists in more than one
+// language lists them all (hreflang).
 //   buildLang(code, codes, { apps, date, paths }) -> { files: [{ file, html, before }], urls: [url] }
 //   pagePaths(apps, code) -> Set of the page paths ('/compare/', '/pdf/') a published language has
 import { readFile } from 'node:fs/promises';
@@ -17,6 +19,7 @@ import { guidePages, guideJsonLd } from './guides.mjs';
 import { addFootSlot, converterFiles } from './footnav.mjs';
 import { copyPage, prerender, pageTables, translate, converterPairs } from './copies.mjs';
 import { siteChrome } from './chrome.mjs';
+import { aboutTemplate, pageTemplate, hasTemplate, renderTemplate } from './template.mjs';
 import { appsIn, aboutIn, pagesIn, homeIn, landingIn } from '../../shared/seo/copy.mjs';
 import { tasksIn } from '../../shared/seo/tasks/index.mjs';
 import { roundupsIn } from '../../shared/seo/roundups/index.mjs';
@@ -41,11 +44,12 @@ export function homeJsonLd(apps, L = context(ROOT_LANG)) {
 }
 const webPage = (L, name, description, url, type = 'WebPage') => ld(type, { name, description, url, isPartOf: { '@type': 'WebSite', name: 'Slopographic', url: `${site(L)}/` } });
 
-/** The page paths of a published language, the same in every one: the generated pages, the app pages, the homepage
- *  and the converter pages. */
+/** The page paths of a published language, the same in every one: the generated pages, the app pages and their about
+ *  pages, the homepage, How it works and the converter pages. */
 export function pagePaths(apps, gen) {
   const out = new Set(['/']);
-  for (const a of apps) if (isPage(a)) out.add('/' + a.path);
+  for (const a of apps) if (isPage(a)) { out.add('/' + a.path); if (hasTemplate(aboutTemplate(a.id))) out.add(`/${a.path}about/`); }
+  for (const slug of Object.keys(pagesIn())) if (hasTemplate(pageTemplate(slug))) out.add(`/${slug}/`);
   for (const f of converterFiles()) out.add('/' + f.replace(/index\.html$/, ''));
   for (const d of gen) out.add('/' + d);
   return out;
@@ -65,7 +69,7 @@ export async function buildLang(code, codes, { apps, paths }) {
   const hub = hubPage(apps, SITE, TASKS, L);
   const best = roundupPages(apps, SITE, ROUNDUPS, { TASKS, GUIDES }, L), bestIndex = roundupIndex(SITE, ROUNDUPS, L);
   const guides = guidePages(apps, SITE, GUIDES, { TASKS, ROUNDUPS }, L);
-  const aboutApps = root ? apps.filter((a) => isPage(a) && existsSync(path.join(ROOT, a.path, 'about', 'index.html'))) : [];
+  const aboutApps = apps.filter((a) => isPage(a) && hasTemplate(aboutTemplate(a.id)));
   const entries = [['home', HOME], ...apps.filter(isPage).map((a) => { if (!APPS[a.id]) throw new Error(`${a.id}: no entry in shared/seo/copy.mjs`); return [a.id, APPS[a.id]]; })];
   for (const a of aboutApps) { if (!ABOUT[a.id]) throw new Error(`${a.id}: has about/ but no entry in shared/seo/copy.mjs ABOUT`); entries.push([`${a.id} about`, ABOUT[a.id]]); }
   for (const p of landing) entries.push([`${p.key} landing`, LANDING[p.key]]);
@@ -73,7 +77,7 @@ export async function buildLang(code, codes, { apps, paths }) {
   entries.push(['all-tools landing', LANDING['all-tools']], ['best landing', LANDING.best]);
   for (const p of best) entries.push([`${p.key} roundup`, p.r]);
   for (const p of guides) entries.push([`${p.key} guide`, p.guide]);
-  for (const slug of Object.keys(PAGES)) if (root || slug.startsWith('convert/')) entries.push([`${slug} page`, PAGES[slug]]);
+  for (const slug of Object.keys(PAGES)) if (root || slug.startsWith('convert/') || hasTemplate(pageTemplate(slug))) entries.push([`${slug} page`, PAGES[slug]]);
   validateCopy(entries, { code });
 
   const files = [], urls = [];
@@ -82,9 +86,9 @@ export async function buildLang(code, codes, { apps, paths }) {
   const block = (dir, title, description, image, jsonld, viewport = false) => headBlock({ title, description, url: urlOf(dir), image, jsonld, viewport, alternates: alt(dir) });
   const local = (html) => localizeLinks(html, L.prefix, paths);
 
-  // the hand-made pages: the root language's own files, or copies of them
-  const own = async (dir, make, { app } = {}) => {
-    const src = path.join(ROOT, dir, 'index.html'), source = await readFile(src, 'utf8');
+  // the hand-made pages: the root language's own files, or copies of them (a template page: drawn in the language first)
+  const own = async (dir, make, { app, template, vars } = {}) => {
+    const src = path.join(ROOT, dir, 'index.html'), source = template ? renderTemplate(template, L, vars) : await readFile(src, 'utf8');
     const outside = source.replace(/<!-- seo:start[\s\S]*?<!-- seo:end -->/, '');
     const head = make(!/<meta[^>]+name=["']viewport["']/i.test(outside));
     if (root) return put(src, siteChrome(setHtmlLang(injectHead(source, head), L), L), urlOf(dir));
@@ -98,20 +102,20 @@ export async function buildLang(code, codes, { apps, paths }) {
     await own(dir, (vp) => block(dir, copy.title, copy.description, imageFor(app), appJsonLd(app, copy, urlOf(dir), L), vp), { app });
   }
   for (const app of aboutApps) {
-    const dir = `${app.path}about/`, c = ABOUT[app.id], file = path.join(ROOT, dir, 'index.html'), source = await readFile(file, 'utf8');
-    const jsonld = [crumbs([[L.t('seo.ui.crumb.home'), `${SITE}/`], [app.name, `${SITE}/${app.path}`], [L.t('seo.ui.crumb.about'), urlOf(dir)]])];
-    const vp = !/<meta[^>]+name=["']viewport["']/i.test(source.replace(/<!-- seo:start[\s\S]*?<!-- seo:end -->/, ''));
-    await put(file, siteChrome(injectHead(source, headBlock({ title: c.title, description: c.description, url: urlOf(dir), image: imageFor(app), jsonld, viewport: vp })), L), urlOf(dir));
+    const dir = `${app.path}about/`, c = ABOUT[app.id];
+    const jsonld = [crumbs([[L.t('seo.ui.crumb.home'), `${site(L)}/`], [app.name, urlOf(app.path)], [L.t('seo.ui.crumb.about'), urlOf(dir)]])];
+    await own(dir, (vp) => block(dir, c.title, c.description, imageFor(app), jsonld, vp), { template: aboutTemplate(app.id), vars: { app: app.name } });
   }
   for (const [slug, c] of Object.entries(PAGES)) {
-    const dir = `${slug}/`, conv = slug.startsWith('convert/');
-    if (!root && !conv) continue;
+    const dir = `${slug}/`, conv = slug.startsWith('convert/'), template = !conv && hasTemplate(pageTemplate(slug)) && pageTemplate(slug);
+    if (!root && !conv && !template) continue;
     const web = c.category
       ? ld('SoftwareApplication', { name: c.crumb, applicationCategory: c.category, operatingSystem: OS, offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' }, description: c.description, url: urlOf(dir), author: AUTHOR })
       : webPage(L, c.title, c.description, urlOf(dir));
     const jsonld = [web, crumbs([[L.t('seo.ui.crumb.home'), `${site(L)}/`], [c.crumb, urlOf(dir)]])];
     if (conv) { await convPage(slug.slice(8), (vp) => block(dir, c.title, c.description, DEFAULT_IMAGE, jsonld, vp)); continue; }
-    // How it works and the typeface page: written by hand in English, in the root language only (no alternates)
+    if (template) { await own(dir, (vp) => block(dir, c.title, c.description, DEFAULT_IMAGE, jsonld, vp), { template }); continue; }
+    // the typeface page: written by hand in English (its script writes English too), in the root language only
     const file = path.join(ROOT, dir, 'index.html'), source = await read(file);
     const vp = !/<meta[^>]+name=["']viewport["']/i.test(source.replace(/<!-- seo:start[\s\S]*?<!-- seo:end -->/, ''));
     await put(file, siteChrome(injectHead(source, headBlock({ title: c.title, description: c.description, url: urlOf(dir), image: DEFAULT_IMAGE, jsonld, viewport: vp })), L), urlOf(dir));

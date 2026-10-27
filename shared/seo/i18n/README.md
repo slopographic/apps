@@ -25,13 +25,17 @@ the date its facts were checked, the marks of a feature table (yes, no, partial,
 | `seo.landing.<id>.*` | `shared/seo/landing-copy.mjs` | `landing` |
 | `seo.install.*`, `seo.ai.*` | `install-copy.mjs`, `ai-copy.mjs` | `common` |
 | `seo.ui.*` | the page templates in `tools/seo` | `ui` |
+| `seo.aboutpage.<id>.*`, `seo.ui.about.*` | the about pages' templates, `shared/seo/pages/about/<id>.html` | `about-a`, `about-b` |
+| `seo.how.*` | How it works, `shared/seo/pages/how-it-works.html` | `how` |
 | `seo.reg.<id>.*` | written from `shared/apps.js` (title, tagline, features) | `reg-*` |
 | `seo.cv.<slug>.*` | written from `convert/js/core/*pages*.js` | `cv-*` |
 | `seo.cvx.<slug>.<n>` | the converter pages' own extra lines (what each accepts) | `cv-page` |
 
 `reg-*` and `cv-*` in English are written by `tools/seo/tables.mjs` (run by `node tools/seo/write.mjs`, checked by
 `--check`) from the registry and the converter page lists, which stay the one source of those words; edit them there.
-A part has at most 300 lines (split as `-a`, `-b`).
+A part has at most 300 lines (split as `-a`, `-b`). The about pages and How it works are templates (`tools/seo/template.mjs`):
+a `{{key}}` slot takes the key's text as HTML, so a text there may hold the page's inline tags (`<code>`, `<strong>`, a link,
+`<span class="yes">`): a translation keeps every tag and attribute as it is and translates the words around them.
 
 ## Adding or changing copy
 
