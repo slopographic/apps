@@ -1,8 +1,8 @@
 /* SEO copy, Russian: task-colors. Translated from shared/seo/i18n/en/task-colors.js. Rules: shared/seo/i18n/README.md. */
 window.SlopI18n && window.SlopI18n.add('ru', {
   'seo.task.colors.contrast-checker.crumb': 'Проверка контраста',
-  'seo.task.colors.contrast-checker.title': 'Проверка контраста цвета: WCAG AA и AAA для текста, бесплатно',
-  'seo.task.colors.contrast-checker.description': 'Проверьте контраст цвета текста и фона по WCAG 2: коэффициент, AA и AAA для обычного и крупного текста и элементов интерфейса. Исправьте цвет, который не проходит.',
+  'seo.task.colors.contrast-checker.title': 'Проверка контраста: WCAG AA и AAA для текста, бесплатно',
+  'seo.task.colors.contrast-checker.description': 'Проверьте контраст текста и фона по WCAG 2: коэффициент, AA и AAA для обычного и крупного текста и элементов интерфейса. Исправьте цвет, который не проходит.',
   'seo.task.colors.contrast-checker.h1': 'Проверка контраста цветов по WCAG',
   'seo.task.colors.contrast-checker.lead': 'Серый текст на белом выглядит изящно, пока его никто не может прочитать. Введите два цвета, и Slop Colors покажет коэффициент WCAG, какие уровни пройдены и ближайший цвет текста, который проходит.',
   'seo.task.colors.contrast-checker.cta': 'Проверить контраст',
@@ -57,7 +57,7 @@ window.SlopI18n && window.SlopI18n.add('ru', {
   'seo.task.colors.color-palette-generator.faq.3.1': 'Палитра на странице сохраняется в этом браузере. «Сохранить в Slop Drive» создаёт файл, который можно снова открыть здесь.',
   'seo.task.colors.hex-to-rgb.crumb': 'HEX в RGB',
   'seo.task.colors.hex-to-rgb.title': 'Конвертер HEX в RGB, HSL, OKLCH и CMYK, бесплатно',
-  'seo.task.colors.hex-to-rgb.description': 'Переводите цвет между HEX, RGB, HSL, OKLCH и CMYK по мере ввода и копируйте любое значение как CSS. Цвета OKLCH вне охвата sRGB переводятся в sRGB. Ничего не отправляется.',
+  'seo.task.colors.hex-to-rgb.description': 'Переводите цвет между HEX, RGB, HSL, OKLCH и CMYK по мере ввода и копируйте любое значение как CSS. Цвета вне sRGB приводятся к sRGB. Ничего не отправляется.',
   'seo.task.colors.hex-to-rgb.h1': 'Перевод HEX в RGB, HSL, OKLCH или CMYK',
   'seo.task.colors.hex-to-rgb.lead': 'Введите цвет в любом формате и сразу увидите его во всех остальных, готовым для вставки в CSS.',
   'seo.task.colors.hex-to-rgb.cta': 'Перевести цвет',
