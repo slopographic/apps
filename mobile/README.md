@@ -58,6 +58,12 @@ carries the site: `mobile/ios/bundle.mjs` copies it into `mobile/ios/www`, Capac
   local chat models (WebLLM) fetch compiled model code, so `vendor/web-llm` is left out of the app; choosing a local
   chat model there ends in a load error. Cloud AI with your own key works.
 - **No analytics, ads or donation links** in the app (an App Store app may not point to outside payments).
+- **Store-app mode** (`shared/native-app.js`, loaded on every page of the app): no install button or "Add to Home
+  Screen" help, no desktop downloads, no other platforms or stores, no tip jar or payment links, and no links to the
+  website's own comparison and app pages (App Review 2.3.10 and 3.1.1). A page marks website-only text with
+  `data-web-only`.
+- **Privacy policy**: `/privacy/` (the footer and Settings link to it). Its address on the website is the App Store
+  Connect privacy policy URL.
 - **Saving**: a download opens the share sheet (Save to Files, AirDrop, Mail) through the Filesystem and Share plugins.
   Opening files works through the apps' own file pickers.
 - **Pages**: the site is many pages; `SiteRouter.swift` serves `/pdf/` as `/pdf/index.html` (Capacitor's own router

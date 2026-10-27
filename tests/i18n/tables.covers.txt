@@ -2776,6 +2776,9 @@ Covers: press/i18n/zh-TW/status.js
 Covers: press/i18n/zh-TW/styles.js
 Covers: press/i18n/zh-TW/templates.js
 Covers: press/i18n/zh-TW/toolbar.js
+Covers: privacy/i18n/en/page.js
+Covers: privacy/i18n/index.js
+Covers: privacy/i18n/sv/page.js
 Covers: projects/i18n/ar/commands.js
 Covers: projects/i18n/ar/editor.js
 Covers: projects/i18n/ar/page.js

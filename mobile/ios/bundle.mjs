@@ -6,8 +6,9 @@
 //     mobile/mobile.json ios.apps can narrow it to a few apps (a focused app) and ios.leaveOut leave out more;
 //   - every engine the apps fetch from the cdn repository (engines/: the video, HEIC, RAW and 3D engines) under cdn/, at the
 //     release tag the site pins (shared/cdn/assets.js), answered from there by native/native.js;
-//   - native/native.js and native/config.js, loaded first by every page; no analytics, ads or donation links (the
-//     brand's third-party switch is off in this copy).
+//   - native/native.js and native/config.js, loaded first by every page, then shared/native-app.js (store-app mode: no
+//     install button or help, other platforms, desktop downloads or payment links); no analytics, ads or donation links
+//     (the brand's third-party switch is off in this copy).
 //   node mobile/ios/bundle.mjs [--out=<dir>] [--no-engines]
 // Node only. Tests: tests/node/mobile-ios.test.mjs.
 import { readFileSync, writeFileSync, mkdirSync, rmSync, cpSync, existsSync, readdirSync, statSync } from 'node:fs';
@@ -47,9 +48,10 @@ export function bundleFiles(files, ios = {}, folders = {}) {
   return files.filter((f) => !LEAVE_OUT.some((re) => re.test(f)) && !extra.some((p) => f.startsWith(p)) && !drop(f));
 }
 
-/** A page with the app's glue loaded first (before any other script of the page). */
+/** A page with the app's glue loaded first (before any other script of the page), then the store-app mode
+ * (shared/native-app.js: hides install help, other platforms and payment links). */
 export function injectNative(html) {
-  const tag = '<script src="/native/config.js"></script><script src="/native/native.js"></script>';
+  const tag = '<script src="/native/config.js"></script><script src="/native/native.js"></script><script src="/shared/native-app.js"></script>';
   if (html.includes(tag)) return html;
   const m = html.match(/<head\b[^>]*>/i);
   return m ? html.replace(m[0], m[0] + tag) : tag + html;

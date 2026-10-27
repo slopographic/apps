@@ -89,8 +89,9 @@ Shared code (shell/, shared/) still has 3017 hard-coded strings; most belong to 
 | 62 | Serial counter | serials | 71 | 47 | 24 | 0 of 29 |
 | 63 | Slop Reminders | reminders | 44 | 44 | 0 | 17 of 29 |
 | 64 | Checksum | checksum | 42 | 24 | 18 | 0 of 29 |
+| 65 | Privacy page | privacy | 31 | 25 | 6 | 0 of 29 |
 
-Total: 22108 strings in 64 apps.
+Total: 22139 strings in 65 apps.
 
 ## Apps with tables, per language
 
@@ -160,3 +161,4 @@ Total: 22108 strings in 64 apps.
 | serials | 66% | 66% | 66% | 66% | 66% | 66% | 66% | 66% | 66% | 66% | 66% | 66% | 0% | 66% | 66% | 66% | 66% | 66% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
 | reminders | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 0% | 100% | 100% | 100% | 100% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
 | checksum | 57% | 57% | 57% | 57% | 57% | 57% | 57% | 57% | 57% | 57% | 57% | 57% | 0% | 57% | 57% | 57% | 57% | 57% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
+| privacy | 80% | 0% | 0% | 0% | 0% | 0% | 0% | 80% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |

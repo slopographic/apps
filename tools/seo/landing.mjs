@@ -45,7 +45,7 @@ function appBody(app, apps, tasks = [], roundups = [], L = ROOT_L) {
 <h1>${esc(title)}</h1>
 <p class="lead">${esc(L.code === 'en' ? app.tagline : L.t(`seo.reg.${seg(app.id)}.tagline`))}</p>
 <p><a class="btn" href="/${esc(app.path)}" aria-label="${esc(L.t('seo.ui.app.open_now_label', { app: name }))}">${esc(L.t('seo.ui.app.open_now'))}</a></p>${offlineLink(app, L)}
-<p class="note">${esc(installIn(L.code).how)}</p>
+<p class="note" data-web-only>${esc(installIn(L.code).how)}</p>
 ${mediaBlock(app, L)}
 <p>${esc(intro)}</p>
 ${note ? `<p class="note">${esc(note)}</p>` : ''}
