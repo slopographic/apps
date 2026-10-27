@@ -75,3 +75,20 @@ test('boxes, rests', () => {
   assert.ok(P.restMs(0) >= 5000 && P.restMs(1) <= 10000 && P.restMs(0, true) >= 9000);
   near(P.clamp(5, 0, 3), 3);
 });
+
+test('following after a scroll: waits for quiet or too long out of view, starts just past the edge, a quick trip', () => {
+  assert.equal(P.followDue(100, 0), false);
+  assert.equal(P.followDue(700, 0), true);
+  assert.equal(P.followDue(100, 1500), true);
+  assert.equal(P.followDue(100, 900, 700, 1000), false);
+  assert.deepEqual(P.entry({ x: 900, y: 300 }, 100, 120, 1440, 800), { x: 900, y: 300 });     // near: from its own place
+  assert.deepEqual(P.entry({ x: 900, y: -5000 }, 100, 120, 1440, 800), { x: 900, y: -128 });  // far above: just past the top
+  assert.deepEqual(P.entry({ x: 2000, y: 9000 }, 100, 120, 1440, 800), { x: 1448, y: 808 });
+  near(P.followTime(0), 0.7); near(P.followTime(100000), 1.5);
+  assert.ok(P.followTime(800) < P.floatTime(800));
+  assert.ok(P.followTime(400, true) > P.followTime(400));
+  assert.equal(P.outOf(0, -120, 100, 120, 1440, 800), true);
+  assert.equal(P.outOf(0, -119, 100, 120, 1440, 800), false);
+  assert.equal(P.outOf(0, 800, 100, 120, 1440, 800), true);
+  assert.equal(P.outOf(-100, 10, 100, 120, 1440, 800), true);
+});

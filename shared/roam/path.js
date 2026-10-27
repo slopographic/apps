@@ -84,3 +84,15 @@ export const overlaps = (a, b, pad = 0) => a.l - pad < b.r && a.r + pad > b.l &&
 
 /** The rest between two trips (ms) from a random number 0..1: longer when calm. */
 export const restMs = (rnd, calm = false) => (calm ? 9000 + rnd * 7000 : 5000 + rnd * 5000);
+
+/** Following the person after a scroll (the slot's roaming, like the buddy leaping back into view): a mascot left behind
+ * on the page waits until the scroll has been quiet followMs, or until it has been out of the window maxOffMs even while
+ * the scroll goes on, then travels back into view. */
+export const followDue = (quietMs, outMs, followMs = 700, maxOffMs = 1500) => quietMs >= followMs || outMs >= maxOffMs;
+/** Where the way back starts: its own place on the page, but never further out than just past the window's edge (a w x h
+ * box, a window vw x vh): a long fast scroll costs no longer a trip than a short one. */
+export const entry = (a, w, h, vw, vh, gap = 8) => ({ x: clamp(a.x, -w - gap, vw + gap), y: clamp(a.y, -h - gap, vh + gap) });
+/** The way back: seconds for a distance, quicker than a roaming trip; calm a little slower. */
+export const followTime = (dist, calm = false) => clamp(0.55 + dist / 700, 0.7, 1.5) * (calm ? 1.2 : 1);
+/** Is a w x h box at (x, y) wholly out of a window vw x vh? */
+export const outOf = (x, y, w, h, vw, vh) => x + w <= 0 || y + h <= 0 || x >= vw || y >= vh;
