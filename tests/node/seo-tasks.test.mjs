@@ -34,6 +34,11 @@ test('checkTask refuses copy that would make a thin or broken page', () => {
   assert.throws(() => checkTask({ ...good, steps: ['a', 'b'] }, app('cutout')), /3 to 6 steps/);
   assert.throws(() => checkTask({ ...good, faq: good.faq.slice(0, 2) }, app('cutout')), /at least 3 questions/);
   assert.throws(() => checkTask({ ...good, faq: [['No mark', 'An answer that is forty characters or longer, at least.'], ...good.faq] }, app('cutout')), /question mark/);
+  // Regression: translated copy uses its own script's question mark and says more per character (zh-CN failed the build)
+  const zh = { ...good, faq: [['一次能处理的图片数量有限制吗？', '没有固定上限，取决于设备内存，建议一次处理几十张。'], ...good.faq.slice(1)] };
+  assert.doesNotThrow(() => checkTask(zh, app('cutout'), 'zh-CN'));
+  assert.throws(() => checkTask(zh, app('cutout'), 'en'), /answer of 40\+/);
+  assert.doesNotThrow(() => checkTask({ ...good, faq: [['هل يعمل دون اتصال؟', 'نعم، يعمل كل شيء داخل المتصفح على جهازك دون رفع أي ملف.'], ...good.faq.slice(1)] }, app('cutout'), 'ar'));
   assert.throws(() => checkTask({ ...good, query: 'bg=white;rm' }, app('cutout')), /query/);
 });
 

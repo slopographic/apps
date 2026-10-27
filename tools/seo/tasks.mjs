@@ -9,18 +9,25 @@
 //   videoJsonLd(app, site, L) -> a VideoObject for an app's tutorial, or null
 import { ROOT_L, esc, shell, shotFigure, videoLink, cardList, related, taglineOf } from './frame.mjs';
 import { appNav, withToc, docsLayout } from './guide.mjs';
+import { descLimits } from './head.mjs';
+
+/** A question ends in its script's question mark: ? (Latin, Cyrillic…), ？ (Han, kana), ؟ (Arabic). */
+const QUESTION = /[?？؟]$/;
+/** The shortest lead and answer for a language: Han, kana and Hangul say more per character, so their minimum is
+ *  scaled like their description limits (descLimits: 45 of Latin's 120 for zh and ja). */
+const atLeast = (n, code) => Math.ceil(n * descLimits(code)[0] / descLimits('en')[0]);
 
 /** Checks one task's copy; throws with the task's key on the first problem. */
-export function checkTask(t, app) {
+export function checkTask(t, app, code = 'en') {
   const key = `${t.app}/${t.slug}`;
   const fail = (m) => { throw new Error(`task ${key}: ${m}`); };
   if (!app) fail('no such app in shared/apps.js');
   if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(t.slug || '')) fail('slug must be lower-case words joined by hyphens');
   if (!t.h1 || t.h1.length > 80) fail('h1 missing or longer than 80 characters');
-  if (!t.lead || t.lead.length < 60) fail('lead missing or shorter than 60 characters');
+  if (!t.lead || t.lead.length < atLeast(60, code)) fail(`lead missing or shorter than ${atLeast(60, code)} characters`);
   if (!Array.isArray(t.steps) || t.steps.length < 3 || t.steps.length > 6) fail('3 to 6 steps');
   if (!Array.isArray(t.faq) || t.faq.length < 3) fail('at least 3 questions');
-  for (const [q, a] of t.faq) if (!q || !q.endsWith('?') || !a || a.length < 40) fail(`question "${q}": a question mark and an answer of 40+ characters`);
+  for (const [q, a] of t.faq) if (!q || !QUESTION.test(q) || !a || a.length < atLeast(40, code)) fail(`question "${q}": a question mark and an answer of ${atLeast(40, code)}+ characters`);
   if (t.query && !/^[a-z0-9_-]+=[a-z0-9_.-]+(&[a-z0-9_-]+=[a-z0-9_.-]+)*$/i.test(t.query)) fail('query must be like key=value&key=value (plain words)');
   if (t.body && !Array.isArray(t.body)) fail('body is a list of paragraphs');
   if (t.image && (!/^\/assets\/[\w./-]+\.(jpg|png|webp)$/.test(t.image.src || '') || !t.image.alt)) fail('image: { src under /assets/, alt }');
@@ -88,7 +95,7 @@ export function taskPages(apps, site, TASKS, { ROUNDUPS = [], GUIDES = [] } = {}
   const seen = new Set();
   return TASKS.map((t) => {
     const app = byId.get(t.app);
-    checkTask(t, app);
+    checkTask(t, app, L.code);
     const dir = `${app.path}${t.slug}/`;
     if (seen.has(dir)) throw new Error(`task ${t.app}/${t.slug}: listed twice`);
     seen.add(dir);
