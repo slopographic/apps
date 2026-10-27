@@ -1,7 +1,7 @@
 /* SEO copy, Spanish: guide-documents-4. Translated from shared/seo/i18n/en/guide-documents-4.js. Rules: shared/seo/i18n/README.md. */
 window.SlopI18n && window.SlopI18n.add('es', {
   'seo.guide.checksum.getting-started.crumb': 'Primeros pasos',
-  'seo.guide.checksum.getting-started.title': 'Primeros pasos con Checksum: calcula el hash de un archivo y comprueba una descarga',
+  'seo.guide.checksum.getting-started.title': 'Primeros pasos con Checksum: calcula el hash de un archivo y compruébalo',
   'seo.guide.checksum.getting-started.description': 'Aprende Checksum en pocos minutos: obtén el hash SHA-256, SHA-384, SHA-512 o SHA-1 de cualquier archivo y compáralo con un hash publicado. No se sube nada.',
   'seo.guide.checksum.getting-started.h1': 'Primeros pasos con Checksum',
   'seo.guide.checksum.getting-started.lead': 'Checksum te indica el hash de un archivo y si coincide con el hash que te dio quien lo publicó. El archivo se lee en tu navegador y nunca se sube.',
@@ -22,7 +22,7 @@ window.SlopI18n && window.SlopI18n.add('es', {
   'seo.guide.checksum.getting-started.sections.2.image.alt': 'Checksum con un JPEG elegido, su hash SHA-256 mostrado, y un hash pegado indicado como coincidente',
   'seo.guide.checksum.getting-started.sections.2.tip': 'Checksum calcula el hash de un archivo cada vez. Elige el siguiente archivo para empezar de nuevo.',
   'seo.guide.hex.getting-started.title': 'Primeros pasos con Slop Hex: abre, busca y edita los bytes de un archivo',
-  'seo.guide.hex.getting-started.description': 'Un tutorial corto de Slop Hex: abre cualquier archivo como bytes, ve a un desplazamiento, busca hex o texto, edita un byte y guarda una versión nueva. Nada sale de tu navegador.',
+  'seo.guide.hex.getting-started.description': 'Slop Hex en pocos pasos: abre un archivo como bytes, ve a un desplazamiento, busca hex o texto, edita un byte y guarda una versión. Nada sale del navegador.',
   'seo.guide.hex.getting-started.h1': 'Primeros pasos con Slop Hex',
   'seo.guide.hex.getting-started.lead': 'Slop Hex muestra cualquier archivo como bytes: desplazamientos a la izquierda, 16 bytes por fila en hexadecimal, y los mismos bytes como texto a la derecha. Puedes buscar, editar y guardar una copia. No se sube nada.',
   'seo.guide.hex.getting-started.sections.0.h2': 'Abre un archivo',
@@ -59,7 +59,7 @@ window.SlopI18n && window.SlopI18n.add('es', {
   'seo.guide.hex.getting-started.shortcuts.9.1': 'Mover la selección',
   'seo.guide.hex.getting-started.shortcuts.10.1': 'Ir al inicio / final del archivo',
   'seo.guide.code.getting-started.title': 'Primeros pasos con Slop Code: edita, guarda y ejecuta en el navegador',
-  'seo.guide.code.getting-started.description': 'Aprende Slop Code paso a paso: crea un archivo en Slop Drive, edítalo con autocompletado, guárdalo y ejecuta una página HTML en la vista previa aislada con su consola.',
+  'seo.guide.code.getting-started.description': 'Aprende Slop Code paso a paso: crea un archivo en Slop Drive, edítalo con autocompletado, guárdalo y ejecuta una página HTML en una vista previa aislada.',
   'seo.guide.code.getting-started.h1': 'Primeros pasos con Slop Code',
   'seo.guide.code.getting-started.lead': 'Slop Code es un editor de código para los archivos de tu Slop Drive. Edita JavaScript, TypeScript, HTML, CSS, JSON, Markdown, Python y texto sin formato, y ejecuta HTML y JavaScript en una vista previa aislada. No se sube nada.',
   'seo.guide.code.getting-started.sections.0.h2': 'Crea o abre un archivo',

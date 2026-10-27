@@ -92,7 +92,7 @@ window.SlopI18n && window.SlopI18n.add('es', {
   'seo.guide.notes.getting-started.shortcuts.5.1': 'Nota siguiente o anterior',
   'seo.guide.notes.getting-started.shortcuts.6.1': 'Cambiar el nombre de la nota, carpeta o cuaderno seleccionado',
   'seo.guide.paste.getting-started.title': 'Primeros pasos con Paste: guarda texto, código e imágenes a mano',
-  'seo.guide.paste.getting-started.description': 'Aprende Paste: pega texto, código o una imagen para guardarlo, elige un lenguaje para resaltarlo, y copia, descarga o comparte un enlace. Solo en este navegador.',
+  'seo.guide.paste.getting-started.description': 'Aprende Paste: pega texto, código o una imagen para guardarlo, elige un lenguaje, y copia, descarga o comparte un enlace. Solo en este navegador.',
   'seo.guide.paste.getting-started.h1': 'Primeros pasos con Paste',
   'seo.guide.paste.getting-started.lead': 'Paste guarda fragmentos de texto, código e imágenes en Slop Drive, en este navegador. No hay servidor: nada de lo que pegas se sube.',
   'seo.guide.paste.getting-started.sections.0.h2': 'Crea un pegado',
