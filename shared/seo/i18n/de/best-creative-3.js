@@ -2,7 +2,7 @@
 window.SlopI18n && window.SlopI18n.add('de', {
   'seo.best.free-transcription-software.crumb': 'Kostenlose Transkriptionssoftware',
   'seo.best.free-transcription-software.title': 'Beste kostenlose Transkriptionssoftware: Audio in Text im Vergleich',
-  'seo.best.free-transcription-software.description': 'Kostenlose Audio-zu-Text-Werkzeuge im Vergleich: Buzz, Slop Transcribe, TurboScribe und Otter. Gratisminuten, Dateilänge, Sprachen, Sprecher, Exporte, Datenschutz.',
+  'seo.best.free-transcription-software.description': 'Kostenlose Audio-zu-Text-Werkzeuge im Vergleich: Buzz, Slop Transcribe, TurboScribe und Otter. Minuten, Dateilänge, Sprachen, Sprecher, Exporte, Datenschutz.',
   'seo.best.free-transcription-software.h1': 'Die besten kostenlosen Transkriptionsprogramme',
   'seo.best.free-transcription-software.lead': 'Ein Interview, eine Vorlesung oder eine Sprachnotiz in Text zu verwandeln, kann kostenlos sein. Zwei dieser Werkzeuge, unseres und Buzz, führen Whisper auf Ihrem eigenen Computer aus; zwei sind Online-Dienste mit kostenlosen Tarifen. Hier steht, wie weit jede kostenlose Version reicht.',
   'seo.best.free-transcription-software.criteria.0': 'Was kostenlos ist: Minuten, Dateilänge, Anzahl der Dateien',
@@ -116,7 +116,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'seo.best.free-transcription-software.faq.3.1': 'Buzz und Slop Transcribe exportieren SRT und VTT kostenlos. TurboScribe exportiert SRT und VTT, und Otter hat SRT nur in kostenpflichtigen Tarifen.',
   'seo.best.free-label-design-software.crumb': 'Kostenlose Etikettensoftware',
   'seo.best.free-label-design-software.title': 'Beste kostenlose Etikettensoftware: Barcodes, Serienbrief, Zebra, Avery',
-  'seo.best.free-label-design-software.description': 'Kostenlose Etikettensoftware im Vergleich: SlopLabel, Avery Design & Print, ZebraDesigner Essentials und gLabels. Barcodes, Datenzusammenführung, Bögen, Thermodrucker.',
+  'seo.best.free-label-design-software.description': 'Etikettensoftware gratis im Vergleich: SlopLabel, Avery Design & Print, ZebraDesigner Essentials, gLabels. Barcodes, Serienbrief, Bögen, Thermodrucker.',
   'seo.best.free-label-design-software.h1': 'Die besten kostenlosen Etikettenprogramme',
   'seo.best.free-label-design-software.lead': 'Adressetiketten auf Bögen, Preisschilder mit Barcodes und Versandetiketten auf einem Thermodrucker brauchen je ein eigenes Werkzeug, oder eines, das alles drei kann. Hier stehen vier kostenlose Etiketten-Designer und was jeder drucken kann.',
   'seo.best.free-label-design-software.criteria.0': 'Kostenlos, ohne kostenpflichtige Lizenz für die Funktionen, die Sie brauchen',
