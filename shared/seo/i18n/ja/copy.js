@@ -60,7 +60,7 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'seo.app.invoices.description': 'ブラウザーで使える無料の請求書作成ツールです。税率ごとの税額、連番の番号、5種類のテンプレートのPDF、入金、貸方票、定期請求書に対応しています。アカウントは不要です。',
   'seo.app.notes.title': 'Slop Notes：Slop Driveに保存するMarkdownノート | Slopographic',
   'seo.app.notes.description': 'Markdownのノートをノートブックに書けます。フォルダー、タグ、ピン留め、ライブプレビュー、全ノートを対象にした検索に対応しています。.mdや.htmlで書き出せます。',
-  'seo.app.paste.title': 'Paste：テキスト、コード、画像をリンクで共有 | Slopographic',
+  'seo.app.paste.title': 'Paste：文章・コード・画像をリンクで送る | Slopographic',
   'seo.app.paste.description': 'テキスト、コード、画像を貼り付けてリンクで共有できます。6言語のシンタックスハイライト、有効期限の設定、ローカルの共有リンクに対応しています。ファイルはアップロードされません。',
   'seo.app.effects.title': 'Slop Effects：ブラウザーのモーションデザイン | Slopographic',
   'seo.app.effects.description': 'キーフレームとイージングを使ったレイヤー、グラフエディター、シード値で再現できるランダムな動き、グロー、グリッチ、グレインなどの効果に対応しています。WebM、MP4、PNGで書き出せます。',
