@@ -5,7 +5,8 @@
  *   - the renderer has no Node: contextIsolation, sandbox and webSecurity on, the preload exposes only SlopDesktop and
  *     launchQueue (main/preload.js); links leave the app as main/navigation.js says;
  *   - the window's size and place are kept (main/window-state.js); updates come from GitHub Releases (main/updates.js).
- * Paths: the site is desktop/site/ (npm run bundle), the brand desktop/app-brand.json, both inside the package. */
+ * Paths: the site is resources/site/ in the package (desktop/.site/ in a development run: npm run bundle), the brand
+ * desktop/app-brand.json. */
 'use strict';
 const { app, BrowserWindow, Menu, dialog, ipcMain, protocol, screen, shell, session } = require('electron');
 const fs = require('node:fs');
@@ -20,7 +21,7 @@ const { openMap, loadRegistry, ASSOCIATIONS } = require('../lib/open-map');
 const { sitePath } = require('../lib/paths');
 
 const BASE = path.resolve(__dirname, '..');
-const SITE = path.join(BASE, 'site');
+const SITE = app.isPackaged ? path.join(process.resourcesPath, 'site') : path.join(BASE, '.site');
 const BRAND = (() => { try { return JSON.parse(fs.readFileSync(path.join(BASE, 'app-brand.json'), 'utf8')); } catch (e) { return {}; } })();
 if (BRAND.name) app.setName(BRAND.name);
 

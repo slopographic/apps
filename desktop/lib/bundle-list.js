@@ -1,4 +1,4 @@
-/* Which of the site's tracked files the desktop app carries (desktop/scripts/bundle.mjs copies them into desktop/site/).
+/* Which of the site's tracked files the desktop app carries (desktop/scripts/bundle.mjs copies them into desktop/.site/).
  * Everything the pages load stays; what only the repository or the public website needs is left out:
  *   - the repository's own folders: tests/, tools/, .github/, .githooks/, the desktop app itself;
  *   - the generated SEO copies in other languages (/sv/, /de/…: the app switches language in the page, it needs no

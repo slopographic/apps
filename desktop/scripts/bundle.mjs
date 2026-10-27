@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Copies the site into the desktop app before electron-builder packs it (npm run bundle; run by npm start/dist/dir):
-//   desktop/site/            the tracked site files the app carries (desktop/lib/bundle-list.js decides which)
+//   desktop/.site/           the tracked site files the app carries (desktop/lib/bundle-list.js decides which)
 //   desktop/build/icon.png   the app icon (assets/icons/icon-512.png; electron-builder makes .ico and .icns from it)
 //   desktop/app-brand.json   the name, id and website the running app reads (desktop/lib/brand.js loadBrand)
 // All three are build output (.gitignore). The file list is git ls-files, so a local file that is not committed never
@@ -45,7 +45,7 @@ function main(argv) {
     console.log(`${files.length} files, ${(bytes / 1048576).toFixed(1)} MB`);
     return 0;
   }
-  const site = path.join(DESKTOP, 'site');
+  const site = path.join(DESKTOP, '.site');
   rmSync(site, { recursive: true, force: true });
   for (const f of files) {
     const to = path.join(site, f);
@@ -56,7 +56,7 @@ function main(argv) {
   mkdirSync(path.join(DESKTOP, 'build'), { recursive: true });
   copyFileSync(path.join(ROOT, brand.icon), path.join(DESKTOP, 'build', 'icon.png'));
   writeFileSync(path.join(DESKTOP, 'app-brand.json'), JSON.stringify({ id: brand.id, name: brand.name, origin: brand.origin }, null, 2) + '\n');
-  console.log(`bundle: ${files.length} files, ${(bytes / 1048576).toFixed(1)} MB into desktop/site/ for ${brand.name}`);
+  console.log(`bundle: ${files.length} files, ${(bytes / 1048576).toFixed(1)} MB into desktop/.site/ for ${brand.name}`);
   return 0;
 }
 

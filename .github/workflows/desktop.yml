@@ -78,18 +78,18 @@ jobs:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
         run: npx electron-builder --config builder.config.js ${{ matrix.flag }} --publish never
       - name: What was built
-        run: ls -la dist | grep -Ev '^d|unpacked'
+        run: ls -la .dist | grep -Ev '^d|unpacked'
       - uses: actions/upload-artifact@v5
         with:
           name: desktop-${{ matrix.os }}
           path: |
-            desktop/dist/*.exe
-            desktop/dist/*.dmg
-            desktop/dist/*.zip
-            desktop/dist/*.AppImage
-            desktop/dist/*.deb
-            desktop/dist/*.blockmap
-            desktop/dist/latest*.yml
+            desktop/.dist/*.exe
+            desktop/.dist/*.dmg
+            desktop/.dist/*.zip
+            desktop/.dist/*.AppImage
+            desktop/.dist/*.deb
+            desktop/.dist/*.blockmap
+            desktop/.dist/latest*.yml
           if-no-files-found: error
           retention-days: 14
 
@@ -146,9 +146,9 @@ jobs:
         with:
           name: desktop-store-${{ matrix.store }}
           path: |
-            desktop/dist/*.pkg
-            desktop/dist/*.appx
-            desktop/dist/mas-universal/
+            desktop/.dist/*.pkg
+            desktop/.dist/*.appx
+            desktop/.dist/mas-universal/
           if-no-files-found: error
           retention-days: 14
 

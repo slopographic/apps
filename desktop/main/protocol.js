@@ -1,4 +1,4 @@
-/* The desktop app's own protocol: app://<host>/ serves the bundled site (desktop/site/) as the website serves it, so
+/* The desktop app's own protocol: app://<host>/ serves the bundled site (resources/site/) as the website serves it, so
  * root-relative paths (/shared/…), fetch, IndexedDB, OPFS, WebGPU, WASM and workers behave as on https. Registered as
  * standard + secure + supportFetchAPI + corsEnabled + stream before the app is ready (PRIVILEGES).
  * No COOP/COEP headers: the website sends none (aitools/workers/ort.js, shared/cutout/worker.js run single-threaded for

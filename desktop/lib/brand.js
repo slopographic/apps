@@ -53,8 +53,11 @@ function builderConfig(brand, env = process.env) {
     appId: brand.appId,
     productName: brand.name,
     copyright: `© ${brand.name}`,
-    directories: { output: 'dist', buildResources: 'build' },
-    files: ['main/**', 'lib/**', 'site/**', 'app-brand.json', 'package.json'],
+    // The site and the build output live in dot folders: the repository's Node tests walk the tree and skip those, so a
+    // local bundle is never read as the site's own code. The site goes beside app.asar (resources/site), not inside it.
+    directories: { output: '.dist', buildResources: 'build' },
+    files: ['main/**', 'lib/**', 'app-brand.json', 'package.json'],
+    extraResources: [{ from: '.site', to: 'site' }],
     asar: true,
     extraMetadata: { name: brand.slug.toLowerCase() + '-desktop', productName: brand.name, homepage: brand.origin || undefined },
     publish: [{ provider: 'github', owner: brand.owner, repo: brand.repo, releaseType: 'release' }],

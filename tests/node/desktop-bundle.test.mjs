@@ -78,7 +78,8 @@ test('the electron-builder configuration: installers, associations, signing only
   assert.equal(c.mac.identity, '-', 'unsigned: ad-hoc');
   assert.equal(c.mac.notarize, false);
   assert.ok(c.fileAssociations.some((f) => f.ext.includes('pdf')) && c.fileAssociations.some((f) => f.ext.includes('psd')));
-  assert.ok(c.files.includes('site/**') && !c.files.some((f) => /tests|tools/.test(f)));
+  assert.deepEqual(c.extraResources, [{ from: '.site', to: 'site' }], 'the site beside app.asar');
+  assert.ok(!c.files.some((f) => /tests|tools|site/.test(f)));
   const signed = B.builderConfig(b, { CSC_LINK: 'x', APPLE_ID: 'a' });
   assert.equal(signed.mac.identity, undefined);
   assert.equal(signed.mac.notarize, true);

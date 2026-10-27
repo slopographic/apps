@@ -20,7 +20,7 @@ __pycache__/
 
 # The desktop app's build output (desktop/scripts/bundle.mjs, electron-builder): never committed; GitHub Actions builds
 # the installers (.github/workflows/desktop.yml)
-desktop/site/
-desktop/dist/
+desktop/.site/
+desktop/.dist/
 desktop/build/icon.png
 desktop/app-brand.json

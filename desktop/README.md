@@ -52,8 +52,8 @@ updater and the site's download links pick them.
     cd desktop
     npm ci
     npm start                 # bundle the site, run the app from source
-    npm run dir               # bundle and build an unpacked app for this system in dist/
-    npm run dist              # bundle and build the installers for this system in dist/
+    npm run dir               # bundle and build an unpacked app for this system in .dist/
+    npm run dist              # bundle and build the installers for this system in .dist/
 
 `node scripts/bundle.mjs --list` prints what the app carries. `DESKTOP_PROFILE=<id>` builds another brand's app from
 `brand/profiles/<id>.json` (name, app id, icon); a white-label mirror, which has no profiles, uses its own
