@@ -4056,6 +4056,8 @@ Covers: shared/i18n/yo.js
 Covers: shared/i18n/zh-CN.js
 Covers: shared/i18n/zh-TW.js
 Covers: shared/i18n/zu.js
+Covers: shared/seo/i18n/en/about-a.js
+Covers: shared/seo/i18n/en/about-b.js
 Covers: shared/seo/i18n/en/best-business-2.js
 Covers: shared/seo/i18n/en/best-business-3.js
 Covers: shared/seo/i18n/en/best-business.js
@@ -4099,6 +4101,7 @@ Covers: shared/seo/i18n/en/guide-documents.js
 Covers: shared/seo/i18n/en/guide-everyday.js
 Covers: shared/seo/i18n/en/guide-fontcreator.js
 Covers: shared/seo/i18n/en/guide-recorder.js
+Covers: shared/seo/i18n/en/how.js
 Covers: shared/seo/i18n/en/landing.js
 Covers: shared/seo/i18n/en/reg-a.js
 Covers: shared/seo/i18n/en/reg-b.js
@@ -4127,6 +4130,8 @@ Covers: shared/seo/i18n/en/task-recorder.js
 Covers: shared/seo/i18n/en/task-threed.js
 Covers: shared/seo/i18n/en/ui.js
 Covers: shared/seo/i18n/index.js
+Covers: shared/seo/i18n/sv/about-a.js
+Covers: shared/seo/i18n/sv/about-b.js
 Covers: shared/seo/i18n/sv/best-business-2.js
 Covers: shared/seo/i18n/sv/best-business-3.js
 Covers: shared/seo/i18n/sv/best-business.js
@@ -4170,6 +4175,7 @@ Covers: shared/seo/i18n/sv/guide-documents.js
 Covers: shared/seo/i18n/sv/guide-everyday.js
 Covers: shared/seo/i18n/sv/guide-fontcreator.js
 Covers: shared/seo/i18n/sv/guide-recorder.js
+Covers: shared/seo/i18n/sv/how.js
 Covers: shared/seo/i18n/sv/landing.js
 Covers: shared/seo/i18n/sv/reg-a.js
 Covers: shared/seo/i18n/sv/reg-b.js
