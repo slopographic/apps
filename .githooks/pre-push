@@ -19,6 +19,8 @@ if [ "$major" -lt 20 ]; then
   echo "pre-push: Node $major is too old for the tests (need 20+); CI runs them." >&2
   exit 0
 fi
+# the tests read the other languages' SEO pages, which are written, never committed (tools/seo/langdirs.mjs)
+node tools/seo/write.mjs --langs >/tmp/slop-pre-push.log 2>&1 || { tail -5 /tmp/slop-pre-push.log >&2; echo "pre-push: node tools/seo/write.mjs --langs failed." >&2; exit 1; }
 node --test tests/node/*.test.mjs tests/seo/*.test.mjs >/tmp/slop-pre-push.log 2>&1 || {
   grep -E '^not ok' /tmp/slop-pre-push.log >&2
   echo "pre-push: the Node tests fail (full log: /tmp/slop-pre-push.log)." >&2

@@ -1,12 +1,13 @@
 <!doctype html>
 <html lang="en" data-theme="pro">
-<head>
+<head><script data-robots-guard>(function(h){if(["slopographic.com","www.slopographic.com","localhost","127.0.0.1","[::1]",""].indexOf(h)<0){var m=document.createElement('meta');m.name='robots';m.content='noindex';document.head.appendChild(m)}})(location.hostname)</script>
   <script src="../shared/profile/profile.js" data-src="shared/profile/profile.js"></script>
   <script src="../shared/theme/theme.js" data-app="expenses" data-src="shared/theme/theme.js"></script>
   <link rel="expect" href="#slop-built" blocking="render">
   <script src="../shared/i18n/i18n.js" data-src="shared/i18n/i18n.js"></script>
   <script src="../shared/biz/i18n/index.js" data-src="shared/biz/i18n/index.js"></script>
   <script src="i18n/index.js" data-src="expenses/i18n/index.js"></script>
+  <script src="../shared/ocr/i18n/index.js" data-src="shared/ocr/i18n/index.js"></script>
 <script src="../shared/consent/config.js"></script>
 <script src="../shared/consent/state.js"></script>
 <script src="../shared/consent/consent-mode.js"></script>
@@ -16,7 +17,7 @@
   <meta http-equiv="origin-trial" content="Ahqtn8XmvHDoOT0EWz2DncZHy77S1oas48699FT0baxjlZ5IQKCFX7UG61e6lKceKn6wW3Ri7F6gE8bsF6s1uA8AAABQeyJvcmlnaW4iOiJodHRwczovL3Nsb3BvZ3JhcGhpYy5jb206NDQzIiwiZmVhdHVyZSI6IldlYk1DUCIsImV4cGlyeSI6MTgwNjM2NDgwMH0="><meta http-equiv="origin-trial" content="Agvh5hzGm3mBgPusIUMY4a9EP/scDmk6C23hI6ekMMTrLXi7yPeoXNu0fzVwsP4waUss3Nr40FDx4AjYeTIflgIAAABWeyJvcmlnaW4iOiJodHRwczovL3Nsb3BvZ3JhcGhpYy5naXRodWIuaW86NDQzIiwiZmVhdHVyZSI6IldlYk1DUCIsImV4cGlyeSI6MTgwNjM2NDgwMH0=">
   <title>Free expense tracker with receipts: Slop Expenses | Slopographic</title>
   <meta name="description" content="Track business expenses free: read receipts on your device, log mileage, record bills to pay and the tax to reclaim, and export CSV. Nothing uploaded.">
-  <link rel="canonical" href="https://slopographic.com/expenses/"><link rel="alternate" hreflang="en" href="https://slopographic.com/expenses/"><link rel="alternate" hreflang="sv" href="https://slopographic.com/sv/expenses/"><link rel="alternate" hreflang="x-default" href="https://slopographic.com/expenses/">
+  <link rel="canonical" href="https://slopographic.com/expenses/"><link rel="alternate" hreflang="en" href="https://slopographic.com/expenses/"><link rel="alternate" hreflang="es" href="https://slopographic.com/es/expenses/"><link rel="alternate" hreflang="fr" href="https://slopographic.com/fr/expenses/"><link rel="alternate" hreflang="de" href="https://slopographic.com/de/expenses/"><link rel="alternate" hreflang="pt-BR" href="https://slopographic.com/pt-br/expenses/"><link rel="alternate" hreflang="it" href="https://slopographic.com/it/expenses/"><link rel="alternate" hreflang="ar" href="https://slopographic.com/ar/expenses/"><link rel="alternate" hreflang="sv" href="https://slopographic.com/sv/expenses/"><link rel="alternate" hreflang="zh-CN" href="https://slopographic.com/zh-cn/expenses/"><link rel="alternate" hreflang="zh-TW" href="https://slopographic.com/zh-tw/expenses/"><link rel="alternate" hreflang="ja" href="https://slopographic.com/ja/expenses/"><link rel="alternate" hreflang="ko" href="https://slopographic.com/ko/expenses/"><link rel="alternate" hreflang="ru" href="https://slopographic.com/ru/expenses/"><link rel="alternate" hreflang="uk" href="https://slopographic.com/uk/expenses/"><link rel="alternate" hreflang="pl" href="https://slopographic.com/pl/expenses/"><link rel="alternate" hreflang="nl" href="https://slopographic.com/nl/expenses/"><link rel="alternate" hreflang="tr" href="https://slopographic.com/tr/expenses/"><link rel="alternate" hreflang="x-default" href="https://slopographic.com/expenses/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Slopographic">
   <meta property="og:title" content="Free expense tracker with receipts: Slop Expenses | Slopographic">
@@ -159,7 +160,8 @@
   <script src="../shared/biz/router.js"></script><script src="../shared/biz/docbar.js"></script>
   <script src="../shared/ui/list.js"></script>
   <script src="../shared/ui/tabs.js"></script>
-  <script src="../aitools/model-registry.js"></script><script src="../aitools/models.js"></script><script src="../aitools/support.js"></script>
+  <script src="../shared/cdn/assets.js"></script><script src="../shared/models/catalog.js"></script><script src="../shared/ai/makers.js"></script><script src="../shared/ocr/engines.js"></script>
+  <script src="../aitools/ocr-tesseract.js"></script><script src="../aitools/ocr-models.js"></script><script src="../aitools/model-registry.js"></script><script src="../aitools/models.js"></script><script src="../aitools/support.js"></script>
   <script src="../aitools/get-more.js"></script><script src="../aitools/common.js"></script><script src="../shared/firstrun/notice.js"></script>
   <script src="js/core/expenses.js"></script><script src="../shared/data/readtext.js"></script><script src="js/core/receipt.js"></script><script src="js/core/mileage.js"></script>
   <script src="js/ui/list.js"></script>

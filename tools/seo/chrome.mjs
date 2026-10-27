@@ -9,5 +9,5 @@ import { marquee } from './marquee.mjs';
 
 export function siteChrome(html, L = ROOT_L) {
   const put = (name, body) => (h) => h.replace(new RegExp(`<!-- site:${name} -->[\\s\\S]*?<!-- /site:${name} -->`), () => `<!-- site:${name} -->\n${body()}\n<!-- /site:${name} -->`);
-  return [put('head', () => SITE_HEAD.map((t) => '  ' + t).join('\n')), put('top', () => siteTop(L)), put('foot', () => siteFoot(L)), put('footnav', () => footNav(L)), put('marquee', () => marquee())].reduce((h, f) => f(h), html);
+  return [put('head', () => SITE_HEAD.map((t) => '  ' + t).join('\n')), put('top', () => siteTop(L)), put('foot', () => siteFoot(L)), put('footnav', () => footNav(L)), put('marquee', () => marquee(L))].reduce((h, f) => f(h), html);
 }

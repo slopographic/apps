@@ -49,6 +49,10 @@ jobs:
           git config user.name slopographic
           git config user.email 340656300+slopographic@users.noreply.github.com
           npm ci --no-audit --no-fund
+      # The SEO pages of the languages besides the root one are written when the site is published, never committed
+      # (tools/seo/langdirs.mjs); the tests read them, so they are written here as a publish writes them.
+      - name: The other languages' SEO pages, as a publish writes them
+        run: node tools/seo/write.mjs --langs
       - name: Node tests
         run: node --test tests/node/*.test.mjs tests/seo/*.test.mjs
       - name: Every cdn file answers on jsDelivr (or GitHub when over its limit) with its size (tools/check-cdn.mjs)

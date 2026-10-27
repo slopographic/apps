@@ -1,0 +1,82 @@
+name: Pages
+
+# The production deploy of slopographic.com from main. The site is the branch as it is (no build step) plus what a publish
+# adds: the SEO pages of the languages besides the root one (/sv/) and their sitemaps, which are never committed
+# (tools/seo/write.mjs --langs, for the languages tools/seo/lang.mjs publishes; none when seo.langs is 'none').
+# The copy is every tracked file, as the branch deploy serves it: CNAME, .nojekyll, tests/ and the rest; only .git and
+# .github are left out (actions/upload-pages-artifact always leaves them out).
+# A fork that runs this workflow publishes a copy nobody indexes: when the repository is not slopographic/apps, every page
+# says noindex, robots.txt names no sitemap and the sitemaps are left out (crawling stays allowed, so the tag is read).
+# The pages' own host guard does the same in the browser (tools/seo/robots.mjs); this is the static form of it.
+# Until Settings -> Pages -> Source is "GitHub Actions" (build_type 'workflow'), Pages still deploys main from the branch
+# and this workflow builds the copy but skips the deploy: the check below reads the Pages settings with the job's token.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# The GITHUB_TOKEN can only read the repository; a job that needs more says so in its own permissions block.
+permissions:
+  contents: read
+
+# One deploy at a time; a newer push waits for the one that is going (a deploy is never cut off halfway).
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pages: read
+    outputs:
+      deploy: ${{ steps.source.outputs.deploy }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Does Pages deploy from this workflow?
+        id: source
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          type=$(gh api "repos/$GITHUB_REPOSITORY/pages" --jq .build_type 2>/dev/null || true)
+          echo "Pages build type: ${type:-unknown}"
+          if [ "$type" = workflow ]; then echo deploy=yes >> "$GITHUB_OUTPUT"; else echo deploy=no >> "$GITHUB_OUTPUT"; fi
+      - name: Build the site
+        run: |
+          mkdir ../site
+          git archive HEAD | tar -x -C ../site
+          cd ../site
+          node tools/seo/write.mjs --langs
+          echo "$(find . -type f | wc -l) files, $(du -sh . | cut -f1)"
+      - name: A copy elsewhere is not indexed
+        if: ${{ github.repository != 'slopographic/apps' }}
+        run: |
+          cd ../site
+          find . -name '*.html' -not -path './tests/*' -print0 | xargs -0 sed -i '0,/<head>/s//<head><meta name="robots" content="noindex">/'
+          test "$(grep -rl --include='*.html' '<head><meta name="robots" content="noindex">' . | grep -v '^./tests/' | wc -l)" -eq "$(grep -rl --include='*.html' '<head>' . | grep -v '^./tests/' | wc -l)"
+          rm -f sitemap*.xml
+          printf 'User-agent: *\nAllow: /\n' > robots.txt
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: ../site
+          include-hidden-files: true
+
+  deploy:
+    needs: build
+    if: ${{ needs.build.outputs.deploy == 'yes' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

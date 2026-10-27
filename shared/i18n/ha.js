@@ -141,6 +141,8 @@
     'shell.theme_dark': 'Mai duhu',
     'shell.theme_classic': 'Na gargajiya 98',
     'shell.theme_lime': 'Slopographic Lime',
+    'shell.theme_brand_light': '{brand} Mai haske',
+    'shell.theme_brand_dark': '{brand} Mai duhu',
     'shell.more': 'Ƙari',
     'shell.install': 'Girka',
     'shell.install_title': 'Girka {brand}',

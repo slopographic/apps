@@ -1,28 +1,37 @@
 /* Slop AI Tools: the text recognition (OCR) models, the second family of the shared model chooser (shared/models/: catalog.js
  * ranks them, chooser.js is the dialog). Pure data (no DOM, no storage), so a Node test can load it (module.exports); the
  * browser gets window.SlopOcrModels, and model-registry.js adds MODELS to the model index.
- * Classic script: load shared/models/catalog.js, then this file, then model-registry.js (or this file later: it adds its
- * models to the index then, see shared/ocr/choose.js loadOcr).
+ * Classic script: load shared/ai/makers.js, shared/ocr/engines.js, shared/models/catalog.js and aitools/ocr-tesseract.js,
+ * then this file, then model-registry.js (or this file later: it adds its models to the index then, see shared/ocr/choose.js
+ * loadOcr). Every model names its engine (shared/ocr/engines.js), which reads with it:
  * PaddleOCR reads one script per recognition model. SCRIPTS is the one table of which languages each script group reads
- * (codes as in shared/speech/languages.js, plus zh-Hant for traditional Chinese); every model's languages come from it.
+ * (codes as in shared/speech/languages.js, plus zh-Hant for traditional Chinese); every Paddle model's languages come from it.
  * The bundled PP-OCRv4 model (Chinese and English, the first one Slop OCR had) is the quick model, always offered; the
  * others are PaddleOCR recognisers (PP-OCRv6 small for Latin script, Chinese and Japanese; PP-OCRv5 mobile for the other
  * scripts) on the slopographic/cdn repository at the release tag in shared/cdn/assets.js (load it first)
  * (models/ocr/<id>/, with manifest.json, the licence and SOURCE.md), each with the same PP-OCRv4 text detector
  * (models/ocr/ppocr-det-v4/) and its own dictionary. The worker (workers/infer.worker.js) knows the files by their ends:
  * *_det_infer.onnx the detector, the other .onnx the recogniser, the .txt the dictionary.
- * Exposes the catalog (shared/models/catalog.js create()) with rank('auto') listing every model, the quick one first,
- * plus SCRIPTS, scriptOf(code), modelFor(code), modelOfScript(script), CDN, QUICK. Each model lists its script groups
- * (scripts) and its languages (the union of theirs). */
+ * Tesseract reads one language per model (tesseract-<its code>: one data file, aitools/ocr-tesseract.js); tesseract-eng is
+ * its quick model, the one read with when PaddleOCR is not offered.
+ * ALL is every model; MODELS only those of the engines this site offers (shared/ocr/engines.js allowed(): the brand
+ * profile can hide PaddleOCR), and QUICK the offered engines' first quick model (null when none is offered).
+ * Exposes the catalog (shared/models/catalog.js create()) of MODELS with rank('auto') listing the quick model first and the
+ * models of a script group, plus ALL, SCRIPTS, scriptOf(code), modelFor(code), modelOfScript(script), CDN, QUICK and
+ * forEngine(id): the same catalog of one engine's models ('auto': this one). Each model lists its script groups
+ * (scripts) and its languages. */
 (function (root, factory) {
-  const catalog = root.SlopModelCatalog || (typeof module === 'object' && module.exports ? require('../shared/models/catalog.js') : null);
-  const cdn = root.SlopCdn || (typeof module === 'object' && module.exports ? require('../shared/cdn/assets.js') : null);
-  const api = factory(catalog, cdn);
+  const node = typeof module === 'object' && module.exports;
+  const catalog = root.SlopModelCatalog || (node ? require('../shared/models/catalog.js') : null);
+  const cdn = root.SlopCdn || (node ? require('../shared/cdn/assets.js') : null);
+  const tess = root.SlopOcrTesseract || (node ? require('./ocr-tesseract.js') : null);
+  const engines = root.SlopOcrEngines || (node ? require('../shared/ocr/engines.js') : null);
+  const api = factory(catalog, cdn, tess, engines);
   if (typeof module === 'object' && module.exports) module.exports = api;
   root.SlopOcrModels = api;
   // loaded after the model index (on demand): the index takes these models now
   if (root.SlopAIModels && root.SlopAIModels.add) root.SlopAIModels.add(api.MODELS);
-})(typeof window !== 'undefined' ? window : globalThis, function (catalog, cdn) {
+})(typeof window !== 'undefined' ? window : globalThis, function (catalog, cdn, tess, engines) {
   'use strict';
   /** The models' folder in the cdn repository; every URL comes from shared/cdn/assets.js (jsDelivr, then GitHub). */
   const CDN = 'models/ocr/';
@@ -82,7 +91,7 @@
 
   /** The bundled model: the one every OCR page has used since the start, from Hugging Face (and its dictionary bundled). */
   const BUNDLED = words({
-    id: QUICK, tool: 'ocr',
+    id: QUICK, tool: 'ocr', engine: 'paddle', madeBy: 'baidu',
     maker: 'PaddlePaddle (Baidu)', scripts: ['han'], languages: SCRIPTS.han.languages, only: false, speed: 5, accuracy: 3,
     licence: 'Apache-2.0', upstream: PADDLE,
     source: HF + 'SWHL/RapidOCR',
@@ -93,9 +102,10 @@
     ],
   }, { name: () => T(key(QUICK) + '_name'), note: () => T(key(QUICK) + '_note'), arch: () => T(key(QUICK) + '_arch'), sourceNote: () => T(key(QUICK) + '_source') });
 
-  /** The entries for the model index (model-registry.js): the same shape as every other model there. */
-  const MODELS = [BUNDLED].concat(META.map((m) => words({
-    id: m.id, tool: 'ocr', maker: 'PaddlePaddle (Baidu)', scripts: m.scripts, languages: [...new Set(m.scripts.flatMap((x) => SCRIPTS[x].languages))], only: false,
+  /** The PaddleOCR models: the same shape as every other model of the index (model-registry.js). byScript: offered for its
+   *  script before a language is chosen. */
+  const PADDLE_MODELS = [BUNDLED].concat(META.map((m) => words({
+    id: m.id, tool: 'ocr', engine: 'paddle', madeBy: 'baidu', byScript: true, maker: 'PaddlePaddle (Baidu)', scripts: m.scripts, languages: [...new Set(m.scripts.flatMap((x) => SCRIPTS[x].languages))], only: false,
     speed: m.speed, accuracy: m.accuracy,
     licence: 'Apache-2.0', upstream: PADDLE, source: 'https://github.com/slopographic/cdn/tree/main/models/ocr/' + m.id,
     files: [DET].concat(REC[m.id].map(([name, size, sha256]) => ({ name, size, sha256, url: B(m.id, name) }))),
@@ -105,19 +115,58 @@
     sourceNote: () => T('ui.models.ocr.source'),
   })));
 
-  const C = catalog.create({ family: 'ocr', models: MODELS, quick: QUICK });
-  /** 'auto' (no language chosen): every model, the quick one first, so a script's model can be chosen without a language. */
-  function rank(language) {
-    if (language && language !== 'auto') return C.rank(language);
-    return [{ model: C.byId(QUICK), badges: ['fastest'] }].concat(MODELS.filter((m) => m.id !== QUICK).map((model) => ({ model, badges: [] })));
-  }
   /** The script groups a language is read by ([] when none). */
   const scriptOf = (code) => Object.keys(SCRIPTS).filter((s) => SCRIPTS[s].languages.includes(code));
-  /** The best model for a script group (not the quick one), or null. */
-  const modelOfScript = (script) => MODELS.find((m) => m.id !== QUICK && m.scripts.includes(script)) || null;
-  /** The best model for a language (null when none reads it). */
-  const modelFor = (code) => C.recommended(code) || (C.fits(C.byId(QUICK), code) ? C.byId(QUICK) : null);
-  /** Every language code some model reads. */
-  const CODES = [...new Set(MODELS.flatMap((m) => m.languages))];
-  return { ...C, rank, SCRIPTS, CODES, scriptOf, modelFor, modelOfScript, CDN };
+  /** A language's name in the page's language (Intl), for the Tesseract models' names; Whisper's jw is Intl's jv. */
+  function langName(code) {
+    const ui = (globalThis.SlopI18n && globalThis.SlopI18n.get && globalThis.SlopI18n.get()) || 'en';
+    try { return new Intl.DisplayNames([ui, 'en'], { type: 'language' }).of(code === 'jw' ? 'jv' : code) || code; } catch (e) { return code; }
+  }
+  /** The main language of each script group: the model offered for text in that script when the language is not known. */
+  const MAIN = { latin: 'en', cyrillic: 'ru', arabic: 'ar', devanagari: 'hi', korean: 'ko', cjk: 'ja', greek: 'el', thai: 'th', tamil: 'ta', telugu: 'te', han: 'zh' };
+  /** The Tesseract models, one per language (aitools/ocr-tesseract.js). English is read by the Chinese groups' Paddle models
+   *  too; its Tesseract model reads Latin script only. */
+  const TESSERACT_MODELS = (tess ? tess.ROWS : []).map(([codes, code, size, sha256]) => {
+    const languages = codes.split(' '), id = 'tesseract-' + code.replace(/_/g, '-'), file = code + '.traineddata.gz';
+    return words({
+      id, tool: 'ocr', engine: 'tesseract', madeBy: 'tesseract', tess: code, maker: 'Tesseract (open source)',   // i18n-ignore: a maker's name
+      scripts: code === 'eng' ? ['latin'] : [...new Set(languages.flatMap(scriptOf))], languages, only: false, speed: 3, accuracy: 3,
+      licence: 'Apache-2.0', upstream: 'https://github.com/tesseract-ocr/tessdata_best', source: 'https://github.com/slopographic/cdn/tree/main/' + tess.DIR,   // i18n-ignore: a licence id
+      files: [{ name: file, size, sha256, url: cdn.url(tess.DIR + file) }],
+    }, {
+      name: () => T('ocrengine.model_name', { lang: langName(languages[0]) + (code === 'srp_latn' ? ' (' + SCRIPTS.latin.name + ')' : '') }),
+      note: () => T('ocrengine.model_note'), arch: () => T('ocrengine.model_arch', { version: tess.VERSION }), sourceNote: () => T('ocrengine.model_source'),
+    });
+  });
+
+  /** Every model of every engine, and those of the engines this site offers. */
+  const ALL = PADDLE_MODELS.concat(TESSERACT_MODELS);
+  const MODELS = engines ? ALL.filter((m) => engines.allowed(m.engine)) : ALL;
+  /** The catalog of a list of models, its quick one first when no language is chosen. */
+  function view(models, quick) {
+    const C = catalog.create({ family: 'ocr', models, quick });
+    /** 'auto' (no language chosen): the quick model first, then the models of a script (PaddleOCR's), so a script's model
+     *  can be chosen without a language. */
+    function rank(language) {
+      if (language && language !== 'auto') return C.rank(language);
+      return (C.byId(quick) ? [{ model: C.byId(quick), badges: ['fastest'] }] : []).concat(models.filter((m) => m.id !== quick && m.byScript).map((model) => ({ model, badges: [] })));
+    }
+    /** The best model for a language (null when none reads it). */
+    const modelFor = (code) => C.recommended(code) || (C.fits(C.byId(quick), code) ? C.byId(quick) : null);
+    /** The best model for a script group (not the quick one), or null: a script's own model, else the one for its main language. */
+    const modelOfScript = (script) => models.find((m) => m.id !== quick && m.byScript && m.scripts.includes(script)) || (MAIN[script] && C.recommended(MAIN[script])) || null;
+    /** Every language code some model reads. */
+    const CODES = [...new Set(models.flatMap((m) => m.languages))];
+    /** The same catalog with one engine's models ('auto' or an unknown id: this one). */
+    function forEngine(id) {
+      const e = engines && engines.byId(id);
+      if (!e || id === 'auto') return api;
+      return view(models.filter((m) => m.engine === id), models.some((m) => m.id === e.quick) ? e.quick : null);
+    }
+    const api = { ...C, rank, ALL, SCRIPTS, CODES, scriptOf, modelFor, modelOfScript, forEngine, CDN };
+    return api;
+  }
+  /** The quick model: the first offered engine's (PaddleOCR's bundled one, else Tesseract's English). */
+  const quick = [QUICK, 'tesseract-eng'].find((id) => MODELS.some((m) => m.id === id)) || null;
+  return view(MODELS, quick);
 });

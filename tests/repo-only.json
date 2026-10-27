@@ -26,6 +26,10 @@
       "why": "this site's SEO copy lengths; a build's renamed copy is longer or shorter"
     },
     {
+      "file": "tests/seo/langdirs.test.mjs",
+      "why": "the language folders are git-ignored here and written on publish; a build commits them (its mirror is the published site)"
+    },
+    {
       "file": "tests/buddy/slot.test.html",
       "why": "the mascot slot with the sample overlay (brand/profiles/overlays), which a build does not ship; a build's own mascot runs tests/buddy/overlay.test.html"
     },

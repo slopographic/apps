@@ -5,7 +5,7 @@
   const S = DR.S, el = DR.el, $ = DR.$;
   // [id, label, key]: the labels are read when shown (DR.viewLabel / DR.themeLabel), so they follow a language switch.
   DR.VIEWS = [['grid', 'Grid', '1'], ['list', 'List', '2'], ['compact', 'Compact', '3'], ['columns', 'Columns', '4'], ['nodes', 'Nodes', '5'], ['usage', 'Disk usage', '6']];   // i18n-ignore: English fallback
-  DR.THEMES = [['pro', 'Pro (dark)'], ['light', 'Light'], ['classic', 'Classic 98']];   // i18n-ignore: English fallback
+  DR.THEMES = [['pro', 'Pro (dark)'], ['light', 'Light'], ['classic', 'Classic 98']].filter(([t]) => !window.SlopTheme || SlopTheme.has(t));   // i18n-ignore: English fallback
   DR.viewLabel = (v) => DR.t('drive.view.' + v);
   DR.themeLabel = (t) => DR.t('drive.theme.' + t);
 

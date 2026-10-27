@@ -139,12 +139,16 @@ test('every data-i18n key on the homepage and Settings has an English string', a
   const { readdirSync } = await import('node:fs');
   for (const f of readdirSync(path.join(ROOT, 'shared/i18n/ui/en')).filter((n) => n.endsWith('.js'))) new Function('window', await readFile(path.join(ROOT, 'shared/i18n/ui/en', f), 'utf8'))({ SlopI18n: I });
   // Settings keeps its own words like an app (settings/i18n/en/*.js, keys settings.<area>.<name>) beside the chrome's
-  const { pageAreas, appTables } = await import('../../tools/i18n/tables.mjs');
+  const { pageAreas, sharedAreas, appTables } = await import('../../tools/i18n/tables.mjs');
   const own = appTables(pageAreas().find((a) => a.id === 'settings')).tables.en;
+  // the app words (shared/i18n/apps/en.js: the homepage strip and footer links, seo.mq.* and seo.foot.*; tools/seo/apptables.mjs)
+  new Function('window', await readFile(path.join(ROOT, 'shared/i18n/apps/en.js'), 'utf8'))({ SlopI18n: I });
   I.add('en', Object.fromEntries(own));
   const missing = [];
   for (const f of ['index.html', 'settings/index.html']) {
     const html = await readFile(path.join(ROOT, f), 'utf8');
+    // a shared area's words (shared/<area>/i18n, e.g. the homepage's savings line) when the page loads its index.js
+    for (const a of sharedAreas()) if (a.id !== 'ui-parts' && html.includes(`src="${a.base}index.js"`)) I.add('en', Object.fromEntries(appTables(a).tables.en || []));
     for (const m of html.matchAll(/data-i18n(?:-attr)?="([^"]+)"/g)) {
       for (const pair of m[1].split(';')) {
         const key = pair.includes(':') ? pair.slice(pair.indexOf(':') + 1) : pair;

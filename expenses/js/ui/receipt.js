@@ -1,12 +1,15 @@
 // Slop Expenses: "From a receipt…". A photo of a receipt (the camera on a phone, or a picture chosen) is read on this device by
-// the Slop AI Tools text reader (PP-OCRv4; Get more offers it the first time, nothing downloads before), and what it says
+// the site's text reader (shared/ocr/engines.js with its quick model: PP-OCRv4, or Tesseract's English model where PaddleOCR is
+// not offered; Get more offers it the first time, nothing downloads before), and what it says
 // fills the new expense: supplier, date, amount and tax (SlopExpenses.receipt.parse). The photo is kept in Slop Drive and
 // linked to the expense (receiptId) when it is recorded. Everything stays on the device. Exposes SlopExpenses.receiptScan.
 (function (g) {
   'use strict';
   const NS = (g.SlopExpenses = g.SlopExpenses || {});
   const $ = (id) => document.getElementById(id);
-  const MODEL = 'ppocr-v4', MAX_SIDE = 2000;
+  const MAX_SIDE = 2000;
+  /** The reader's model: the quick one of the OCR engine chosen. */
+  const model = () => (g.SlopOcrEngines ? g.SlopOcrEngines.quick() : 'ppocr-v4');
   const t = (k, v) => (g.SlopI18n ? g.SlopI18n.t(k, v) : k);
   let pending = null;   // the Drive id of the photo read for the form now shown, until it is recorded or the form changes
 
@@ -14,17 +17,18 @@
   async function ensureModel() {
     const M = g.SlopAIManager;
     if (!M || !g.SlopAITools) throw new Error(t('expenses.rc.no_tool'));
-    if ((await M.status(MODEL)) !== 'needs-download') return true;
-    return new Promise((resolve) => g.SlopAIGetMore.open(MODEL, { onInstalled: () => resolve(true), onClose: () => resolve(false) }));
+    if ((await M.status(model())) !== 'needs-download') return true;
+    return new Promise((resolve) => g.SlopAIGetMore.open(model(), { onInstalled: () => resolve(true), onClose: () => resolve(false) }));
   }
 
   /** Reads one photo: its lines of text, top to bottom. */
   async function readLines(file, onStatus) {
     const T = g.SlopAITools;
-    await T.ensure(MODEL, onStatus);
+    const E = g.SlopOcrEngines;
+    await E.load(model(), onStatus);
     onStatus(t('expenses.rc.reading'));
     const { bitmap, w, h } = await T.image(file, { maxSide: MAX_SIDE });
-    const r = await T.call('ocr', { bitmap, w, h }, { transfer: [bitmap] });
+    const r = await E.run(model(), { bitmap, w, h });
     return r.lines.map((l) => l.text);
   }
 

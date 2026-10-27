@@ -8,7 +8,9 @@
  *   off (the default)             → this tab only (memory and sessionStorage): gone when the tab closes.
  * A key is sent only to its provider's API (shared/ai/cloud/<format>.js puts it in that request's header). The
  * settings (which provider, model, address, cap) are in localStorage 'slop-ai.cloud' and hold no key: save() refuses
- * anything that looks like one. Forget key removes it from all three places. */
+ * anything that looks like one. Forget key removes it from all three places. A saved choice the site no longer offers
+ * (shared/ai/makers.js, the brand profile's "ai") reads as not chosen: settings() leaves out a hidden provider (active,
+ * its entry, lastByApp) and a hidden model (the provider's suggested one is used instead). */
 (function () {
   'use strict';
   const T = (k, v) => (window.SlopI18n ? SlopI18n.t(k, v) : k);
@@ -71,7 +73,21 @@
 
   const BLANK = () => ({ active: '', providers: {}, cap: 0, steps: 12 });
   function settings() {
-    try { return Object.assign(BLANK(), JSON.parse(localStorage.getItem(SETTINGS)) || {}); } catch (e) { return BLANK(); }
+    let s; try { s = Object.assign(BLANK(), JSON.parse(localStorage.getItem(SETTINGS)) || {}); } catch (e) { s = BLANK(); }
+    return offered(s);
+  }
+  function offered(s) {
+    const M = K.makers;
+    if (!M || !M.active() || !C.byId) return s;
+    const ok = (pid, mid, name) => !!C.byId(pid) && (!mid || M.allowed({ id: mid, name }, pid));
+    if (s.active && !C.byId(s.active)) s.active = '';
+    for (const [pid, ps] of Object.entries(s.providers || {})) {
+      if (!C.byId(pid)) { delete s.providers[pid]; continue; }
+      if (ps && ps.model && !ok(pid, ps.model, ps.modelName)) { delete ps.model; delete ps.modelName; delete ps.price; }
+      if (ps && ps.imageModel && !ok(pid, ps.imageModel)) delete ps.imageModel;
+    }
+    for (const [app, l] of Object.entries(s.lastByApp || {})) if (!l || !ok(l.provider, l.model)) delete s.lastByApp[app];
+    return s;
   }
   /** Settings never carry a key: a value that looks like one is dropped before it is written. */
   function save(s) {

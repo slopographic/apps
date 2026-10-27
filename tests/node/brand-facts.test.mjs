@@ -6,9 +6,10 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
+import vm from 'node:vm';
 import { FACTS, BRAND, registry, appName, ROOT } from '../brand-facts.mjs';
 
-const LIT = String.raw`('(?:[^'\\\n]|\\.)*'|"(?:[^"\\\n]|\\.)*"|true|false|\[[^\]\n]*\])`;
+const LIT = String.raw`('(?:[^'\\\n]|\\.)*'|"(?:[^"\\\n]|\\.)*"|true|false|\[[^\]\n]*\]|\{[^\n]*\})`;
 const marker = (file, key) => {
   const m = new RegExp(String.raw`/\*profile:${key}\*/` + LIT).exec(readFileSync(path.join(ROOT, file), 'utf8'));
   assert.ok(m, `${file}: no ${key} marker`);
@@ -23,6 +24,15 @@ test('every fact is the marker of the code that acts on it', () => {
   assert.equal(FACTS.tone, marker('pdf/js/io/sample.js', 'tone'));
   assert.equal(FACTS.analytics, marker('shared/consent/config.js', 'analytics'));
   assert.equal(FACTS.defaultLang, marker('shared/i18n/i18n.js', 'defaultLang'));
+  assert.equal(FACTS.seoIndex, marker('tools/seo/site.mjs', 'seoIndex'));
+  assert.deepEqual({ ...FACTS.aiModels }, marker('shared/ai/makers.js', 'aiModels'));
+  assert.equal(FACTS.savings, marker('home/savings.js', 'savings'));
+  const themes = marker('shared/theme/theme.js', 'themes');
+  const w = {};
+  vm.runInNewContext(readFileSync(path.join(ROOT, 'shared/theme/theme.js'), 'utf8'), { window: w });
+  assert.deepEqual([...FACTS.themes], [...w.SlopTheme.THEMES].map((t) => t.id), 'the themes the site offers, in its order');
+  assert.equal(FACTS.themeBrand, themes.brand || '');
+  assert.equal(FACTS.defaultTheme, marker('shared/theme/theme.js', 'defaultTheme'));
   const builtin = marker('shared/buddy/boot.js', 'mascot'), overlay = marker('shared/buddy/boot.js', 'mascotOverlay');
   assert.equal(FACTS.mascot, builtin ? 'builtin' : overlay ? 'overlay' : 'none');
   for (const f of ['drive/js/ui/empty.js', 'ai/js/ui/sloppo.js']) assert.equal(marker(f, 'mascot'), builtin, f);

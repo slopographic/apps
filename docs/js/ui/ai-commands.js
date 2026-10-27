@@ -125,4 +125,5 @@ if (!window.SlopCmdSources) await new Promise((res, rej) => document.head.append
   { src: new URL('../../../shared/commands/sources.js', import.meta.url).href, onload: res, onerror: () => rej(new Error('Could not load sources.js')) })));
 createCommands(add);
 C.register(list);
-C.provide({ state, checkpoint });
+// what the AI panel's ready-made prompts fill in (shared/ai/quick/context.js): the page has no DOM selection to read
+C.provide({ state, checkpoint, context: () => ({ document: S.displayName(), selection: collapsed(S.sel) ? '' : textBetween(S.doc.blocks, S.sel) }) });

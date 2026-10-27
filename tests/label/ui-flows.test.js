@@ -101,8 +101,11 @@
       expect(dlg().querySelectorAll('.tpl canvas').length).toBe(W.TEMPLATES.length);
       await closeAll();
     });
-    it('switches between Pro, Light and Classic 98', () => {
-      for (const t of ['light', 'classic', 'pro']) { W.setTheme(t); expect(W.document.documentElement.dataset.theme).toBe(t); }
+    it('switches between Pro, Light and Classic 98 (the ones the site offers)', () => {
+      const classic = BRAND_FACTS.themes.includes('classic');   // a profile can hide it (tests/brand-facts.js)
+      for (const t of ['light', 'classic', 'pro']) { W.setTheme(t); expect(W.document.documentElement.dataset.theme).toBe(t === 'classic' && !classic ? 'pro' : t); }
+      expect([...W.THEMES].map(([id]) => id)).toEqual(classic ? ['pro', 'light', 'classic'] : ['pro', 'light']);
+      if (!classic) return;
       W.setTheme('classic');
       expect(WIN.getComputedStyle(W.document.body).backgroundColor).toBe('rgb(192, 192, 192)');
       W.setTheme('pro');

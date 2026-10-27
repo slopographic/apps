@@ -141,6 +141,8 @@
     'shell.theme_dark': 'Tối',
     'shell.theme_classic': 'Cổ điển 98',
     'shell.theme_lime': 'Slopographic Lime',
+    'shell.theme_brand_light': '{brand} Sáng',
+    'shell.theme_brand_dark': '{brand} Tối',
     'shell.more': 'Thêm',
     'shell.install': 'Cài đặt',
     'shell.install_title': 'Cài đặt {brand}',

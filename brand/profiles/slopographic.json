@@ -28,7 +28,7 @@
   "media": true,
   "support": { "exportCard": true, "donate": true, "ads": true },
   "analytics": true,
-  "seo": {},
+  "seo": { "index": true },
   "legal": { "holder": "Slopographic", "year": "2026" },
   "publish": null
 }

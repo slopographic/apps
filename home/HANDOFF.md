@@ -11,6 +11,12 @@
   `home/globe/paint.js`, `home/globe/labels.js`, `home/globe/globe.js`, `home/globe/drag.js`, `home/globe/list.js`,
   `home/marquee.js`, `home/footer-mark.js` and `home/mascot/index.js` (module). The shell loads the shared kit
   (`shared/slopui.js`, `window.SlopUI`: menus, dialogs, toasts) like on every other page. `home/hero.css` styles the hero, the strip and the numbered headings; `home/globe/globe.css` the globe.
+- `home/savings.js` (module): the savings list (`#savings`, after Status): one row per paid plan the suite stands in
+  for, from `shared/savings/data.mjs` (the one source: plans, prices, pricing pages, checked dates, `TOTAL`, `SHOWN`).
+  The hero's line under the buttons (`.hx-save`) is static HTML whose `data-i18n-vars` total is `SHOWN`
+  (`tests/node/savings.test.mjs` fails when they differ: update the number in `index.html` after changing a price); its
+  asterisk opens the list's `<details>`. Words: `shared/savings/i18n` (English and Swedish). A brand profile's
+  `"savings": false` empties both `<!--profile:savings-->` blocks.
 - `home/sections.js`: the six sections in order (`SECTION_DEFS`), the placement map `SECTIONS` keyed by app id (an array
   gives an app several places; a converter entry's `line` is its in-and-out line), the Print card (`SECTIONS.print`,
   opens `html2pdf/`), `placements()` (an app the map does not name keeps its old group: business, creative, or
@@ -86,6 +92,12 @@
   focus turns the globe to the app (SlopGlobe.focusApp: highlight and name chip), and a plain-names profile shows
   slopAppName. Run `node tools/seo/write.mjs` after
   changing the registry (tests/node/home-marquee.test.mjs fails when index.html is stale).
+- Languages: every title and tagline on the page (cards, finder rows, status board, globe, keyboard list) reads
+  `slopAppLabel` / `slopAppTagline` (shared/apps.js), which take the chosen language's words from `shared/i18n/apps/<code>.js`
+  (written from the SEO tables, `tools/seo/apptables.mjs`). The strip's labels and the footer's round-up, guide and
+  converter links carry `data-i18n` keys (`seo.mq.<id>`, `seo.foot.*`; not in a plain-names build, whose strip shows
+  slopAppName), and a language copy (`/de/`) is written in its language. A switch on the page relabels the cards, the
+  globe and its list on `slopi18n` (catalog.js, globe.js, list.js); the finder redraws itself. Test: tests/home/home-lang.test.html.
 
 ## Live regions
 - `[data-live]` marks a region that changes on its own after load: the globe's layer (`.gx-layer`, added by globe.js,

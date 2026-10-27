@@ -17,11 +17,15 @@ import { tasksIn } from '../../shared/seo/tasks/index.mjs';
 import { roundupsIn } from '../../shared/seo/roundups/index.mjs';
 import { guidesIn } from '../../shared/seo/guides/index.mjs';
 import { FACTS } from '../brand-facts.mjs';
+import { canonicalFor, mainApp } from '../../tools/seo/robots.mjs';
 
 const read = (f) => readFileSync(path.join(ROOT, f), 'utf8');
 const codes = published(), apps = (await loadRegistry()).filter(isPage);
 const fileOf = (code, dir) => path.posix.join(prefixOf(code).slice(1), dir, 'index.html');
 const urlOf = (code, dir) => `${SITE}${prefixOf(code)}/${dir}`;
+// the canonical and the alternates as the profile names them (robots.mjs; on this site a page's own address)
+const canon = (code, dir) => canonicalFor(urlOf(code, dir)), alt = (code, dir) => (canon(code, dir).startsWith(SITE + '/') ? canon(code, dir) : urlOf(code, dir));
+const INDEXED = { skip: !FACTS.seoIndex && 'the site is not indexed (seo.index): no generated pages, language folders or sitemaps' };
 const get = (h, re) => (h.match(re) || [])[1];
 const titleOf = (h) => get(h, /<title>([^<]*)<\/title>/);
 const alternatesOf = (h) => [...h.matchAll(/<link rel="alternate" hreflang="([^"]+)" href="([^"]+)">/g)].map((m) => [m[1], m[2]]);
@@ -29,10 +33,10 @@ const dirOf = (code) => (LANGS.find((l) => l.code === code) || {}).dir;
 
 /** A sample of every kind of page: [dir, title of the page in a language or null when the title is the app page's]. */
 function samples(code) {
-  const t = tasksIn(code)[0], r = roundupsIn(code)[0], g = guidesIn(code)[0], L = landingIn(code);
-  const appOf = (id) => apps.find((a) => a.id === id);
+  const appOf = (id) => apps.find((a) => a.id === id), shown = (x) => appOf(x.app);   // the profile's apps (apps.hide)
+  const t = tasksIn(code).find(shown), r = roundupsIn(code).find(shown), g = guidesIn(code).find(shown), L = landingIn(code);
   return [['compare/', L.compare.title], ['best/', L.best.title], ['all-tools/', L['all-tools'].title], [`apps/${apps[0].id}/`, L[apps[0].id].title],
-    [`${appOf(t.app).path}${t.slug}/`, t.title], [`best/${r.slug}/`, r.title], [`${appOf(g.app).path}${g.slug}/`, g.title], [apps[0].path, null], ['', null]];
+    [`${appOf(t.app).path}${t.slug}/`, t.title], [`best/${r.slug}/`, r.title], [`${appOf(g.app).path}${g.slug}/`, g.title], [apps[0].path, null], ...(mainApp() ? [] : [['', null]])];   // a single-app site's root: tests/seo/robots-site.test.mjs
 }
 
 test('the root language is the profile\'s defaultLang, and it is published', () => {
@@ -41,24 +45,24 @@ test('the root language is the profile\'s defaultLang, and it is published', () 
   assert.equal(prefixOf(ROOT_LANG), '');
 });
 
-test('every published language has every kind of page, in its language, with its own canonical and every alternate', () => {
+test('every published language has every kind of page, in its language, with its own canonical and every alternate', INDEXED, () => {
   for (const code of codes) {
     for (const [dir, title] of samples(code)) {
       const f = fileOf(code, dir);
-      assert.ok(existsSync(path.join(ROOT, f)), `${code}: ${f} is missing (node tools/seo/write.mjs)`);
+      assert.ok(existsSync(path.join(ROOT, f)), `${code}: ${f} is missing (node tools/seo/write.mjs --all)`);
       const h = read(f);
       assert.equal(get(h, /<html[^>]*\slang="([^"]+)"/), code, `${f}: <html lang>`);
       if (dirOf(code) === 'rtl') assert.match(h, /<html[^>]*\sdir="rtl"/, `${f}: right to left`);
-      assert.equal(get(h, /<link rel="canonical" href="([^"]+)">/), urlOf(code, dir), `${f}: canonical`);
+      assert.equal(get(h, /<link rel="canonical" href="([^"]+)">/), canon(code, dir), `${f}: canonical`);
       if (title) assert.equal(titleOf(h), escAttr(title), `${f}: the title of its language`);
       if (codes.length > 1) {
-        assert.deepEqual(alternatesOf(h), [...codes.map((c) => [c, urlOf(c, dir)]), ['x-default', urlOf(ROOT_LANG, dir)]], `${f}: alternates`);
+        assert.deepEqual(alternatesOf(h), [...codes.map((c) => [c, alt(c, dir)]), ['x-default', alt(ROOT_LANG, dir)]], `${f}: alternates`);
       }
     }
   }
 });
 
-test('a generated page carries its language for the switcher, and links stay in its language', () => {
+test('a generated page carries its language for the switcher, and links stay in its language', INDEXED, () => {
   for (const code of codes) {
     const h = read(fileOf(code, 'compare/'));
     assert.match(h, new RegExp(`<html[^>]*data-lang-page="${code}"`));
@@ -73,12 +77,12 @@ test('a generated page carries its language for the switcher, and links stay in 
   }
 });
 
-test('the sitemaps: one per language, all in the index, each listing its pages', () => {
+test('the sitemaps: one per language, all in the index, each listing its pages', INDEXED, () => {
   const index = read('sitemap-index.xml');
   for (const code of codes) {
     assert.ok(index.includes(`<loc>${SITE}/${sitemapName(code)}</loc>`), `${code}: in the sitemap index`);
     const map = read(sitemapName(code));
-    for (const [dir] of samples(code)) assert.ok(map.includes(`<loc>${urlOf(code, dir)}</loc>`), `${sitemapName(code)}: ${dir}`);
+    for (const [dir] of samples(code)) if (canon(code, dir) === urlOf(code, dir)) assert.ok(map.includes(`<loc>${urlOf(code, dir)}</loc>`), `${sitemapName(code)}: ${dir}`);
   }
   assert.match(read('robots.txt'), new RegExp(`^Sitemap: ${SITE}/sitemap-index\\.xml$`, 'm'));
 });
@@ -86,7 +90,7 @@ test('the sitemaps: one per language, all in the index, each listing its pages',
 // A sample check that a page in another language is not English underneath: English's commonest words, which the other
 // languages do not use, are rare in its main text (an English page has about one word in six of them).
 const ENGLISH = /\b(the|and|your|with|this|which|from|you)\b/gi;
-test('a page in another language than English has no English body (sample)', () => {
+test('a page in another language than English has no English body (sample)', INDEXED, () => {
   for (const code of codes.filter((c) => c !== 'en')) {
     const R = roundupsIn(code), T = tasksIn(code), G = guidesIn(code);
     const dirs = ['compare/', 'best/', 'all-tools/', ...apps.slice(0, 8).map((a) => `apps/${a.id}/`), ...R.slice(0, 6).map((r) => `best/${r.slug}/`),

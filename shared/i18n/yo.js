@@ -141,6 +141,8 @@
     'shell.theme_dark': 'Òkùnkùn',
     'shell.theme_classic': 'Àtijọ́ 98',
     'shell.theme_lime': 'Slopographic Lime',
+    'shell.theme_brand_light': '{brand} Ìmọ́lẹ̀',
+    'shell.theme_brand_dark': '{brand} Òkùnkùn',
     'shell.more': 'Síi',
     'shell.install': 'Fi sórí ẹ̀rọ',
     'shell.install_title': 'Fi {brand} sórí ẹ̀rọ',

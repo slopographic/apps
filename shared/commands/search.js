@@ -69,7 +69,7 @@
     const apps = window.SLOP_APPS || [];
     return apps.filter((a) => a.id !== C.app).map((a) => ({
       id: 'go.' + a.id, title: tr('ui.cmd.go_to_app', { name: a.name }), group: tr('ui.cmd.go_to'), icon: a.kind === 'game' ? '🎮' : a.kind === 'experiment' ? '🧪' : '↗',
-      keywords: [a.name, a.kind, a.tagline || ''], keys: [], enabled: true, go: a,
+      keywords: [a.name, a.kind, a.tagline || '', window.slopAppTagline ? window.slopAppTagline(a) : ''], keys: [], enabled: true, go: a,
     }));
   }
   /** Navigate to another app (a Go to entry). Overridable for tests: SlopCmd._parts.search.navigate = fn. */

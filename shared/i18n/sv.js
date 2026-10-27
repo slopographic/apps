@@ -26,6 +26,8 @@
     'shell.theme_dark': 'Mörkt',
     'shell.theme_classic': 'Klassiskt 98',
     'shell.theme_lime': 'Slopographic Lime',
+    'shell.theme_brand_light': '{brand} Ljust',
+    'shell.theme_brand_dark': '{brand} Mörkt',
     'shell.more': 'Mer',
     'shell.install': 'Installera',
     'shell.install_title': 'Installera {brand}',

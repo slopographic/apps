@@ -3,7 +3,7 @@
 (function (AI) {
   const E = AI.E;
   AI.TABS = [['chat', 'Chat', 'chat'], ['build', 'Build', 'build'], ['models', 'Models', 'models'], ['sys', 'Can my PC run it?', 'sys']];
-  AI.THEMES = [['pro', 'Pro'], ['light', 'Light'], ['classic', 'Classic 98']];
+  AI.THEMES = [['pro', 'Pro'], ['light', 'Light'], ['classic', 'Classic 98']].filter(([t]) => !window.SlopTheme || SlopTheme.has(t));   // the site's themes only
   /** The shown names (the English in TABS and THEMES is the fallback; the ids are API). */
   AI.tabLabel = (id) => AI.t('ai.tab.' + id);
   AI.themeLabel = (id) => AI.t('ai.theme.' + id);

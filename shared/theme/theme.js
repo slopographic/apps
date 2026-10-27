@@ -13,19 +13,19 @@
   var doc = typeof document !== 'undefined' ? document : null;
   // A screenshot under assets/ that is not there (a white-label build ships without them) is hidden, never shown broken.
   if (doc) doc.addEventListener('error', function (e) { var t = e.target; if (t && t.tagName === 'IMG' && /assets\/(shots|guides|video)\//.test(t.getAttribute('src') || '')) t.style.display = 'none'; }, true);
-  var DEFAULT = 'system', SYSTEM = 'system';
-  var tx = function (k) { var I = g.SlopI18n; return I && I.has(k) ? I.t(k) : k; };   // a shared-table key in the chosen language
+  /* The brand profile's colours (brand/profiles/<id>.json "themes", set by tools/whitelabel/build.mjs): { light: { background,
+   * surface, text, accent, border }, dark: {...}, hide: ['lime'], brand: 'Acme' (names Light and Dark "Acme Light"...) }.
+   * Empty here: this site's own. DEFAULT: the theme of a visitor who never chose one (the profile's defaultTheme). */
+  var PROFILE = /*profile:themes*/{}, DEFAULT = /*profile:defaultTheme*/'system', SYSTEM = 'system';
+  var tx = function (k, v) { var I = g.SlopI18n; return I && I.has(k) ? I.t(k, v) : k; };   // a shared-table key in the chosen language
   function th(id, scheme, bg, surface, text, accent, border) {
-    return { id: id, key: 'shell.theme_' + id, get name() { return tx(this.key); }, scheme: scheme, tokens: { background: bg, surface: surface, text: text, accent: accent, border: border } };
+    var branded = !!PROFILE.brand && (id === 'light' || id === 'dark');   // "<brand> Light": shell.theme_brand_<id>, {brand}
+    return { id: id, key: branded ? 'shell.theme_brand_' + id : 'shell.theme_' + id, branded: branded, get name() { return tx(this.key, branded ? { brand: PROFILE.brand } : undefined); }, scheme: scheme, tokens: { background: bg, surface: surface, text: text, accent: accent, border: border } };
   }
-  /** The real themes. Every theme has all five tokens; System resolves to one of these. `name` reads the chrome key
-   * 'shell.theme_<id>' (shared/i18n/strings.js) in the chosen language each time (the key on a page without SlopI18n). */
-  /* The brand profile's colours (brand/profiles/<id>.json "themes", set at build time by tools/whitelabel/build.mjs):
-   * { light: { background, surface, text, accent, border }, dark: {...}, hide: ['lime'] }. Empty here: this site's own. */
-  var PROFILE = /*profile:themes*/{};
   /* The profile's voice, names and media, set before first paint as <html data-tone="playful|plain" data-naming="brand|plain"
    * data-media="on|off">; a plain tone also loads style/tone.css (the calm business look) as a render-blocking stylesheet. */
   var TONE = /*profile:tone*/'playful', NAMING = /*profile:naming*/'brand', MEDIA = /*profile:media*/true;
+  /** The real themes, all five tokens each; System resolves to one. `name` reads the chrome key in the chosen language. */
   var THEMES = Object.freeze([
     th('light', 'light', '#ebe7de', '#f8f6f1', '#0a0a0a', '#4f6c00', '#8e8b82'),
     th('dark', 'dark', '#0a0a0a', '#151518', '#f1ede4', '#d4ff3a', '#66666a'),
@@ -289,6 +289,7 @@
     SYSTEM: SYSTEM,
     DEFAULT: DEFAULT,
     get: current,
+    has: function (id) { return !!byId[id === 'pro' ? 'dark' : id]; },   // offered here ('pro': an app's Dark); app menus skip others
     resolve: resolve,
     set: set,
     apply: apply,

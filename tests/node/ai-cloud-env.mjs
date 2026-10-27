@@ -4,7 +4,7 @@
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import vm from 'node:vm';
 
-export const FILES = ['shared/commands/args.js', 'shared/ai/engines.js', 'shared/ai/tools.js', 'shared/ai/permissions.js', 'shared/ai/cmdtools.js', 'shared/ai/apptools.js',
+export const FILES = ['shared/commands/args.js', 'shared/ai/makers.js', 'shared/ai/engines.js', 'shared/ai/tools.js', 'shared/ai/permissions.js', 'shared/ai/cmdtools.js', 'shared/ai/apptools.js',
   'shared/ai/cloud/net.js', ...['main', 'open', 'cloud', 'more', 'local', 'images'].map((g) => `shared/ai/cloud/catalog/${g}.js`), 'shared/ai/cloud/providers.js', 'shared/ai/cloud/free.js', 'shared/ai/cloud/anthropic.js', 'shared/ai/cloud/openai.js', 'shared/ai/cloud/compat.js',
   'shared/ai/cloud/gemini.js', 'shared/ai/cloud/meter.js', 'shared/ai/cloud/engine.js', 'shared/ai/cloud/local.js'];
 
@@ -27,8 +27,8 @@ export function sse(events) {
   return events.map((e) => (Array.isArray(e) ? `event: ${e[0]}\ndata: ${JSON.stringify(e[1])}\n\n` : `data: ${typeof e === 'string' ? e : JSON.stringify(e)}\n\n`)).join('');
 }
 
-/** The kit in a fresh context. win.requests: [{ url, init, body }]; win.answers: a queue of Responses (or functions). */
-export function kit() {
+/** The kit in a fresh context (hide: the makers.js rules, {} nothing hidden; null keeps the build's own). win.requests: [{ url, init, body }]; win.answers: a queue of Responses (or functions). */
+export function kit({ hide = {} } = {}) {
   const w = { console, TextDecoder, TextEncoder, ReadableStream, Response, Headers, URL, performance, setTimeout, clearTimeout, AbortController, Promise,
     btoa, atob, localStorage: store(), sessionStorage: store(), navigator: { onLine: true }, location: { origin: 'https://slopographic.com', href: 'https://slopographic.com/photoslop/' } };
   w.window = w; w.requests = []; w.answers = [];
@@ -46,6 +46,8 @@ export function kit() {
   const ui = new URL('../../shared/i18n/ui/en/', import.meta.url);
   if (existsSync(ui)) for (const f of readdirSync(ui).filter((x) => x.endsWith('.js')).sort()) vm.runInContext(readFileSync(new URL(f, ui), 'utf8'), ctx, { filename: 'shared/i18n/ui/en/' + f });
   for (const f of FILES) vm.runInContext(readFileSync(new URL('../../' + f, import.meta.url), 'utf8'), ctx, { filename: f });
+  // the code with nothing hidden, whatever the build's profile hides (tests/node/ai-makers.test.mjs checks the hiding)
+  if (hide !== null) w.SlopAIKit.makers.configure(hide);
   return w;
 }
 

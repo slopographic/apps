@@ -6,6 +6,8 @@ name: Preview of testing
 # workflows must not run there). Search engines: every page of the copy says noindex, nofollow, and robots.txt lets crawlers
 # read that (a robots.txt block alone would hide the tag); the pages' canonical links point at slopographic.com, and
 # main's own robots.txt and sitemap are untouched, so the live site is indexed as before. The push uses PREVIEW_TOKEN.
+# The SEO pages of the languages besides the root one (/sv/) are not committed: the build writes them here, as the
+# production deploy does (.github/workflows/pages.yml; tools/seo/write.mjs --langs), before the noindex pass covers them.
 on:
   push:
     branches: [testing]
@@ -25,12 +27,16 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
       - name: Build the preview copy
         run: |
           mkdir ../preview
           git archive HEAD | tar -x -C ../preview
           cd ../preview
-          rm -rf CNAME .github .githooks sitemap.xml
+          node tools/seo/write.mjs --langs
+          rm -rf CNAME .github .githooks .gitignore sitemap*.xml
           printf 'User-agent: *\nAllow: /\n' > robots.txt
           find . -name '*.html' -not -path './tests/*' -print0 | xargs -0 sed -i '0,/<head>/s//<head><meta name="robots" content="noindex, nofollow">/'
           test "$(grep -rl --include='*.html' 'content="noindex, nofollow"' . | grep -v '^./tests/' | wc -l)" -eq "$(find . -name '*.html' -not -path './tests/*' | wc -l)"

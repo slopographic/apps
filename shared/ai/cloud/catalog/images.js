@@ -29,7 +29,7 @@
       fields: [{ id: 'endpointId', default: 'black-forest-labs-flux-1-schnell' }],
       keyUrl: 'https://console.runpod.io/user/settings', cors: 'verified', docs: 'https://docs.runpod.io/hub/public-endpoints',
       aliases: ['runpod', 'flux', 'public endpoints'],
-      models: [{ id: 'default' }] }),
+      models: [{ id: 'default', madeBy: 'bfl' }] }),
     add({ id: 'replicate', name: 'Replicate', rank: 6, format: 'replicate', base: 'https://api.replicate.com/v1', keyHint: 'r8_…', keyUrl: 'https://replicate.com/account/api-tokens',
       cors: 'needs-proxy', docs: 'https://replicate.com/docs/reference/http', aliases: ['replicate'] }),
     add({ id: 'bfl', name: 'Black Forest Labs (FLUX API)', who: 'Black Forest Labs', short: 'BFL', rank: 7, format: 'bfl', base: 'https://api.bfl.ai/v1', auth: { header: 'x-key' },

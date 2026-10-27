@@ -114,3 +114,30 @@ body.sap-open .buddy-toggle { visibility: hidden; }
 .sap-gpu { display: grid; gap: 8px; color: var(--p-fg); }
 .sap-gpu p { margin: 0; }
 .sap-gpu-details { margin: 0; padding: 8px; max-height: 140px; overflow: auto; white-space: pre-wrap; word-break: break-word; font: 11px var(--p-mono); background: var(--p-input); border: 1px solid var(--p-line); border-radius: 6px; }
+/* quick prompts (quick/ui.js): the button beside the message box, the list above it ("/" filters), the form, the chips */
+.sap-qbtn { flex: none; width: 38px; height: 38px; border: 1px solid var(--p-line); border-radius: 10px; background: var(--p-bg2); color: var(--p-dim); display: grid; place-items: center; cursor: pointer; padding: 0; }
+.sap-qbtn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linejoin: round; }
+.sap-qbtn:hover, .sap-qbtn:focus-visible, .sap-qbtn[aria-expanded="true"] { color: var(--p-fg); border-color: var(--p-accent); }
+.sap-q { margin: 6px 12px 0; border: 1px solid var(--p-line); border-radius: var(--p-radius); background: var(--p-bg2); max-height: min(46vh, 360px); overflow: auto; overscroll-behavior: contain; }
+.sap-q[hidden] { display: none; }
+.sap-q-list { padding: 4px; }
+.sap-q-h { padding: 8px 8px 2px; color: var(--p-dim); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+.sap-q-o { display: grid; gap: 1px; padding: 7px 8px; border-radius: 6px; cursor: pointer; min-height: 34px; align-content: center; }
+.sap-q-o.on, .sap-q-o:hover { background: color-mix(in srgb, var(--p-accent) 16%, transparent); }
+.sap-q-o[aria-disabled="true"] { cursor: default; color: var(--p-dim); }
+.sap-q-o[aria-disabled="true"]:hover { background: none; }
+.sap-q-w { font-size: 11px; color: var(--p-dim); }
+.sap-q-none { padding: 10px 8px; color: var(--p-dim); }
+.sap-q-foot { position: sticky; bottom: 0; padding: 4px 10px; font-size: 11px; color: var(--p-dim); background: var(--p-bg2); border-top: 1px solid var(--p-line); }
+.sap-qf { display: grid; gap: 8px; padding: 10px; }
+.sap-qf-t { font-weight: 600; }
+.sap-qf-f { display: grid; gap: 3px; }
+.sap-qf-f label { font-size: 11.5px; color: var(--p-dim); }
+.sap-qf-f select, .sap-qf-f input, .sap-qf-f textarea { width: 100%; min-height: 34px; padding: 6px 8px; border-radius: var(--p-radius); border: 1px solid var(--p-line); background: var(--p-input); color: var(--p-fg); font: inherit; resize: vertical; }
+.sap-qf-f [aria-invalid="true"] { border-color: var(--p-danger); }
+.sap-qf-b { display: flex; justify-content: flex-end; gap: 8px; }
+.sap-q-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.sap-q-chip { border: 1px solid var(--p-line); border-radius: 999px; background: var(--p-bg2); color: var(--p-fg); font: inherit; font-size: 12.5px; padding: 5px 11px; cursor: pointer; text-align: start; }
+.sap-q-chip:hover, .sap-q-chip:focus-visible { border-color: var(--p-accent); }
+.sap-q-chip.more { color: var(--p-dim); }
+.sap-host.ssh-phone .sap-qf-f select, .sap-host.ssh-phone .sap-qf-f input, .sap-host.ssh-phone .sap-qf-f textarea { font-size: 16px; }

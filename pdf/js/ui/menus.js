@@ -9,7 +9,9 @@
   }
   A.sendSub = sendSub;
   /* The app's names (keys) and the shared theme ids (shared/theme/theme.js): the choice is saved through SlopTheme.set. */
-  var THEMES = [['pro', 'pdf.menu.theme_pro', 'dark'], ['light', 'pdf.menu.theme_light', 'light'], ['classic', 'pdf.menu.theme_classic', 'classic']];
+  var THEMES = [['pro', 'pdf.menu.theme_pro', 'dark'], ['light', 'pdf.menu.theme_light', 'light'], ['classic', 'pdf.menu.theme_classic', 'classic']]
+    .filter(function (r) { return !window.SlopTheme || SlopTheme.has(r[2]); });   // only the themes the site offers
+  A.THEMES = THEMES;
   /* ------------------------------------------------------------- menus */
   S.buildMenus = function () {
     var defs = [['menu.file', S.fileMenu], ['menu.edit', S.editMenu], ['menu.view', S.viewMenu], ['menu.help', S.helpMenu]];

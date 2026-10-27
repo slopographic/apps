@@ -71,6 +71,8 @@
     "hide": []
   },
   "media": false,
+  "ai": {},
+  "ocr": {},
   "support": {
     "exportCard": false,
     "donate": false,

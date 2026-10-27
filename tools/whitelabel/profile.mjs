@@ -1,15 +1,19 @@
 // Brand profiles (brand/profiles/<id>.json): loading, checking and the facts the build derives from one.
 // The schema is documented in brand/README.md ("Profiles"); validate() is its executable form.
-// Node only. Tests: tests/node/whitelabel-profile.test.mjs.
+// Node only. Tests: tests/node/whitelabel-profile.test.mjs, tests/node/whitelabel-readme-fork.test.mjs.
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';
 import { mascotProblems } from './mascot.mjs';
 import { fontProblems, fontManifest } from './font.mjs';
 import { backupExt } from './emit.mjs';
+import { LANGS as SITE_LANGS } from '../seo/lang.mjs';
+import { registryWindow } from '../seo/site.mjs';
+import { aiProblems, ocrProblems } from './ai.mjs';
 
 const HEX = /^#[0-9a-f]{3,8}$/i;
 const TOKENS = ['background', 'surface', 'text', 'accent', 'border'];
+const THEME_IDS = ['light', 'dark', 'classic', 'lime'];   // shared/theme/theme.js
 const LANGS = ['en', 'es', 'fr', 'de', 'pt-BR', 'it', 'ar', 'sv'];
 
 /** Every problem with a profile, as readable lines (empty when it is valid). */
@@ -24,7 +28,8 @@ export function validate(p) {
   need('defaultLang', (v) => LANGS.includes(v), `one of ${LANGS.join(', ')}`);
   need('naming', (v) => v === 'brand' || v === 'plain', "'brand' or 'plain'");
   need('tone', (v) => v === 'playful' || v === 'plain', "'playful' or 'plain'");
-  errs.push(...mascotProblems(p.mascot), ...fontProblems(p.font));
+  errs.push(...mascotProblems(p.mascot), ...fontProblems(p.font), ...aiProblems(p.ai));
+  if (!aiProblems(p.ai).length) errs.push(...ocrProblems(p));
 
   if (p.backupExt !== undefined && !/^\.[a-z0-9][a-z0-9-]{1,15}$/.test(p.backupExt)) errs.push("backupExt: the backup file's extension, like '.backup'");
   need('github', (v) => /^[A-Za-z0-9-]+$/.test(v || ''), 'GitHub account of the site');
@@ -32,19 +37,60 @@ export function validate(p) {
   need('colors', (v) => v && ['ink', 'paper', 'accent'].every((k) => HEX.test(v[k])), 'ink, paper and accent as #hex');
   need('media', (v) => typeof v === 'boolean', 'true (ship shots, clips and videos) or false');
   need('analytics', (v) => typeof v === 'boolean', 'true or false');
+  if (p.savings !== undefined && typeof p.savings !== 'boolean') errs.push('savings: true (show the yearly savings line and its list on the homepage, the default) or false');
   need('footer', (v) => typeof v === 'string', 'the footer line');
   need('legal', (v) => v && isStr(v.holder) && /^\d{4}$/.test(v.year || ''), '{ holder, year }');
   if (p.legal && p.legal.trademarks !== undefined && !(Array.isArray(p.legal.trademarks) && p.legal.trademarks.every(isStr))) errs.push('legal.trademarks: the names the holder claims');
   for (const [id, t] of Object.entries(p.themes || {})) {
-    if (id === 'hide') { if (!Array.isArray(t)) errs.push('themes.hide: a list of theme ids'); continue; }
+    if (id === 'hide') { if (!Array.isArray(t) || !t.every((x) => THEME_IDS.includes(x))) errs.push(`themes.hide: a list of theme ids (${THEME_IDS.join(', ')})`); continue; }
+    if (id === 'names') { if (!(t === 'name' || (t === 'brandWord' && isStr(p.brandWord)))) errs.push("themes.names: 'name' or 'brandWord' (with a brandWord)"); continue; }
+    if (!THEME_IDS.includes(id)) { errs.push(`themes.${id}: not a theme (${THEME_IDS.join(', ')}, hide, names)`); continue; }
     for (const k of TOKENS) if (!HEX.test((t || {})[k] || '')) errs.push(`themes.${id}.${k}: #hex`);
   }
+  const nt = p.palette && p.palette.neutral;
+  if (nt !== undefined && !(nt && typeof nt.hue === 'number' && (nt.from === undefined || (Array.isArray(nt.from) && nt.from.every((r) => Array.isArray(r) && r.length === 2))))) errs.push('palette.neutral: { hue, saturation?, from?: [[lo, hi], ...], maxSaturation? }');
+  // defaultTheme: the theme of a visitor who never chose one; System or a theme the profile keeps
+  const kept = THEME_IDS.filter((id) => !((p.themes || {}).hide || []).includes(id));
+  if (p.defaultTheme !== undefined && !['system', ...kept].includes(p.defaultTheme)) errs.push(`defaultTheme: 'system' or a kept theme (${kept.join(', ')})`);
   if (p.logo && typeof p.logo === 'object' && !isStr(p.logo.text)) errs.push('logo.text: the wordmark text');
   if (p.publish) for (const k of ['repo', 'branch', 'secret', 'author', 'email']) if (!isStr(p.publish[k])) errs.push(`publish.${k}: required`);
   if (p.publish && !/^[\w.-]+\/[\w.-]+$/.test(p.publish.repo || '')) errs.push('publish.repo: owner/name');
-  // seo.langs: the languages of the static SEO pages besides the root one (defaultLang): 'all' (default) or a list of codes
-  const sl = p.seo && p.seo.langs;
-  if (sl !== undefined && sl !== 'all' && !(Array.isArray(sl) && sl.every((c) => LANGS.includes(c)))) errs.push(`seo.langs: 'all' or a list of language codes (${LANGS.join(', ')})`);
+  // seo.langs: the languages of the static SEO pages besides the root one (defaultLang): 'all' (default), a list of the
+  // site's language codes (shared/i18n/i18n.js), or 'none' (or []): the root language only, no language folders
+  const sl = p.seo && p.seo.langs, codes = SITE_LANGS.map((l) => l.code);
+  if (sl !== undefined && sl !== 'all' && sl !== 'none' && !(Array.isArray(sl) && sl.every((c) => codes.includes(c)) && new Set(sl).size === sl.length)) {
+    errs.push(`seo.langs: 'all', 'none' or a list of language codes without repeats (${codes.join(', ')})`);
+  }
+  errs.push(...searchProblems(p.seo || {}), ...singleAppProblems(p));
+  return errs;
+}
+
+const ORIGIN = /^https:\/\/[a-z0-9.-]+(:\d+)?$/;
+/** seo.index (true: search engines may index the site; default false), seo.canonicalTo (an origin every canonical points
+ * to), seo.canonicalOverride ({ "/pdf/": "https://pdf.example/pdf/", "=/pdf/": "https://pdf.example/" }): brand/README.md
+ * "Search engines". */
+function searchProblems(seo) {
+  const errs = [];
+  if (seo.index !== undefined && typeof seo.index !== 'boolean') errs.push('seo.index: true (search engines may index the site) or false (the default)');
+  if (seo.canonicalTo !== undefined && !ORIGIN.test(seo.canonicalTo)) errs.push('seo.canonicalTo: an https origin without a trailing slash');
+  const o = seo.canonicalOverride;
+  if (o !== undefined && !(o && typeof o === 'object' && !Array.isArray(o))) errs.push('seo.canonicalOverride: { "<path prefix>": "<https URL>" }');
+  else for (const [k, v] of Object.entries(o || {})) {
+    if (!/^=?\/([\w.-]+\/)*$/.test(k)) errs.push(`seo.canonicalOverride: ${k}: a path from the site root ending in / ("/pdf/"), or "=" and one page ("=/pdf/")`);
+    if (typeof v !== 'string' || !/^https:\/\/[a-z0-9.-]+(:\d+)?\/([\w.-]+\/)*$/.test(v)) errs.push(`seo.canonicalOverride: ${k}: an https URL ending in /`);
+  }
+  return errs;
+}
+/** mainApp (the app the site's root opens) and parent ({ name, url }: the suite a single-app site links back to). */
+function singleAppProblems(p) {
+  const errs = [], all = registryWindow().SLOP_ALL_APPS, hide = (p.apps && p.apps.hide) || [];
+  if (p.mainApp !== undefined) {
+    const a = all.find((x) => x.id === p.mainApp);
+    if (!a || !a.path || a.path.startsWith('#') || a.kind !== 'app') errs.push('mainApp: the id of an app with a page (shared/apps.js)');
+    else if (hide.includes(a.id)) errs.push('mainApp: an app the profile hides (apps.hide)');
+  }
+  const par = p.parent;
+  if (par !== undefined && !(par && typeof par.name === 'string' && par.name.trim() && /^https:\/\/[a-z0-9.-]+(:\d+)?(\/[\w./-]*)?$/.test(par.url || ''))) errs.push('parent: { name, url }: the site\'s name and https address');
   return errs;
 }
 

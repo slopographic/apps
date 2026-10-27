@@ -26,6 +26,8 @@
     'shell.theme_dark': 'Sombre',
     'shell.theme_classic': 'Classique 98',
     'shell.theme_lime': 'Slopographic Lime',
+    'shell.theme_brand_light': '{brand} Clair',
+    'shell.theme_brand_dark': '{brand} Sombre',
     'shell.more': 'Plus',
     'shell.install': 'Installer',
     'shell.install_title': 'Installer {brand}',

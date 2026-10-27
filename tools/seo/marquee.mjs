@@ -11,9 +11,16 @@
 //     "Contacts (address book)" -> "Contacts"; a long label is cut at its first comma, or before "for", "with"...
 //   entries(apps, conversions, lead) -> [{ id, path, label }] (no repeated labels; apps only, with a page; lead ids first)
 //   capabilities(apps, conversions, lead) -> [label]
-//   buildMarquee(entries) -> html
-//   marquee() -> the html for the site's own data
+//   label(app, conversions) -> one app's label (File convert: its number of conversions, when given)
+//   buildMarquee(entries) -> html (an entry with a key gets data-i18n: the root page follows a language switch)
+//   marquee(L) -> the html for the site's own data in one language (a lang.mjs context; the root one when left out): the
+//     titles from that language's SEO tables (seo.reg.<id>.title, English when it lacks one). With brand names each
+//     label carries data-i18n="seo.mq.<id>" (the runtime words, apptables.mjs); a plain-names build shows slopAppName
+//     instead (home/marquee.js), so its labels carry no key.
+//   localTitles(apps, code) -> the registry entries with their titles in a language (the SEO tables)
 import { registryWindow } from './site.mjs';
+import { table } from '../../shared/seo/i18n.mjs';
+import { context, ROOT_LANG } from './lang.mjs';
 import { PAGES as CONVERTERS } from '../../convert/js/core/pages.js';
 import { createRequire } from 'node:module';
 
@@ -31,25 +38,36 @@ export function capability(a) {
   return x.trim();
 }
 
+export const label = (a, conversions) => (a.id === 'convert' && conversions ? `${conversions} conversions` : capability(a));
+export const shown = (a) => a.kind === 'app' && !!a.path && !a.path.startsWith('#');
 export function entries(apps, conversions, lead = []) {
   const out = [];
   for (const a of leadFirst(apps, lead)) {
-    if (a.kind !== 'app' || !a.path || a.path.startsWith('#')) continue;
-    const label = a.id === 'convert' && conversions ? `${conversions} conversions` : capability(a);
-    if (label && !out.some((x) => x.label.toLowerCase() === label.toLowerCase())) out.push({ id: a.id, path: a.path, label });
+    if (!shown(a)) continue;
+    const l = label(a, conversions);
+    if (l && !out.some((x) => x.label.toLowerCase() === l.toLowerCase())) out.push({ id: a.id, path: a.path, label: l });
   }
   return out;
+}
+export function localTitles(apps, code) {
+  const t = code === 'en' ? new Map() : table(code);
+  return apps.map((a) => Object.assign({}, a, { title: t.get(`seo.reg.${a.id}.title`) || a.title }));
 }
 export const capabilities = (apps, conversions, lead) => entries(apps, conversions, lead).map((e) => e.label);
 
 export function buildMarquee(list) {
-  const items = (copy) => list.map((e, i) => `<li><a href="${esc(e.path)}" data-id="${esc(e.id)}" tabindex="${!copy && !i ? 0 : -1}">${esc(e.label)}</a></li>`).join('');
+  const items = (copy) => list.map((e, i) => `<li><a href="${esc(e.path)}" data-id="${esc(e.id)}" tabindex="${!copy && !i ? 0 : -1}"${e.key ? ` data-i18n="${esc(e.key)}"` : ''}>${esc(e.label)}</a></li>`).join('');
   return `<div class="hx-marquee" data-controls><div class="mq-track"><ul class="mq-list" aria-label="What the apps do" data-i18n-attr="aria-label:hero.marquee">${items(false)}</ul>` +
     `<ul class="mq-list" aria-hidden="true">${items(true)}</ul></div></div>`;
 }
 
-let cached;
-export function marquee() {
-  if (!cached) { const win = registryWindow(); cached = buildMarquee(entries(win.SLOP_APPS, CONVERTERS.length, win.SLOP_LEAD)); }
-  return cached;
+const cached = new Map();
+export function marquee(L = context(ROOT_LANG)) {
+  if (cached.has(L.code)) return cached.get(L.code);
+  const win = registryWindow(), keyed = win.SLOP_NAMING !== 'plain';
+  // the number of conversions is English words: another language shows File convert's own title
+  const list = entries(localTitles(win.SLOP_APPS, L.code), L.code === 'en' ? CONVERTERS.length : 0, win.SLOP_LEAD);
+  const html = buildMarquee(list.map((e) => (keyed ? Object.assign(e, { key: `seo.mq.${e.id}` }) : e)));
+  cached.set(L.code, html);
+  return html;
 }
