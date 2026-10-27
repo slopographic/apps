@@ -35,7 +35,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'seo.task.recorder.record-screen-with-audio.faq.2.0': 'Kan ik het opslaan als MP4?',
   'seo.task.recorder.record-screen-with-audio.faq.2.1': 'Ja. Kies MP4 onder Opslaan als. Het wordt op je computer gemaakt door de video-engine, die de eerste keer wordt gedownload.',
   'seo.task.recorder.loom-alternative.crumb': 'Alternatief voor Loom',
-  'seo.task.recorder.loom-alternative.title': 'Gratis alternatief voor Loom: scherm en webcam opnemen, geen account',
+  'seo.task.recorder.loom-alternative.title': 'Gratis Loom-alternatief: scherm en webcam opnemen',
   'seo.task.recorder.loom-alternative.description': 'Neem je scherm en webcam op in de browser, zonder account en upload: aftellen, pauzeren, bijsnijden, dan WebM, MP4 of GIF. Een gratis alternatief voor Loom.',
   'seo.task.recorder.loom-alternative.h1': 'Een alternatief voor Loom dat de video op je computer houdt',
   'seo.task.recorder.loom-alternative.lead': 'Loom neemt je scherm en camera op en bewaart de video in de cloud om te delen. Slop Recorder doet het opnemen in je browser en laat het bestand bij jou: geen account, geen upload.',

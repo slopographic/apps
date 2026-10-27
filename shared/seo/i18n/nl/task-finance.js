@@ -1,7 +1,7 @@
 /* SEO copy, Dutch: task-finance. Translated from shared/seo/i18n/en/task-finance.js. Rules: shared/seo/i18n/README.md. */
 window.SlopI18n && window.SlopI18n.add('nl', {
   'seo.task.convert.open-sie-file.crumb': 'Een SIE-bestand openen',
-  'seo.task.convert.open-sie-file.title': 'Een SIE-bestand online openen: bekijk boekingen, rekeningen en saldi',
+  'seo.task.convert.open-sie-file.title': 'Een SIE-bestand online openen, gratis',
   'seo.task.convert.open-sie-file.description': 'Open een Zweeds SIE-bestand (.se of .si) in je browser en lees de boekingen, rekeningen en saldi als tabel, en sla het op voor Excel. Gratis, geen upload.',
   'seo.task.convert.open-sie-file.h1': 'Een SIE-bestand online openen',
   'seo.task.convert.open-sie-file.lead': 'Een SIE-bestand is de export die Zweedse boekhoudprogramma\'s maken. Zet er een op File convert om te zien wat erin staat, de boekingsregels en de saldi, zonder een boekhoudprogramma te installeren.',
@@ -19,7 +19,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'seo.task.convert.open-sie-file.faq.3.0': 'Wat als een boeking niet in balans is?',
   'seo.task.convert.open-sie-file.faq.3.1': 'Die staat er nog steeds, gemarkeerd als Boeking niet in balans, en de statusregel zegt welke en met hoeveel.',
   'seo.task.convert.sie-to-excel.crumb': 'SIE naar Excel',
-  'seo.task.convert.sie-to-excel.title': 'SIE naar Excel: zet een SIE-bestand om in een werkmap, gratis',
+  'seo.task.convert.sie-to-excel.title': 'SIE naar Excel: een werkmap maken, gratis',
   'seo.task.convert.sie-to-excel.description': 'Zet een SIE-bestand om in een Excel-werkmap met bladen voor boekingen, rekeningen en saldi. Datums zijn datums en bedragen zijn getallen. Gratis in je browser.',
   'seo.task.convert.sie-to-excel.h1': 'Een SIE-bestand omzetten naar Excel',
   'seo.task.convert.sie-to-excel.lead': 'Zet de inhoud van een SIE-export in Excel, LibreOffice of Slop Tables: één rij per boekingsregel, met debet en credit apart, klaar om te filteren, op te tellen en te draaien.',

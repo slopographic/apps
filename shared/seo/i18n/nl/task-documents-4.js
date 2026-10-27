@@ -1,7 +1,7 @@
 /* SEO copy, Dutch: task-documents-4 (the e-mail tasks: EML and mailbox). Translated from shared/seo/i18n/en/task-documents-4.js. Rules: shared/seo/i18n/README.md. */
 window.SlopI18n && window.SlopI18n.add('nl', {
   'seo.task.eml.open-eml-file.crumb': 'Een EML-bestand openen',
-  'seo.task.eml.open-eml-file.title': 'EML-bestanden online openen: gratis EML-viewer, geen Outlook nodig',
+  'seo.task.eml.open-eml-file.title': 'EML-bestanden online openen, gratis, zonder Outlook',
   'seo.task.eml.open-eml-file.description': 'Open .eml-bestanden in je browser zonder Outlook. Lees de koppen, de HTML of platte tekst en de bijlagen. Externe afbeeldingen blijven geblokkeerd. Geen upload.',
   'seo.task.eml.open-eml-file.h1': 'Een .eml-e-mailbestand openen',
   'seo.task.eml.open-eml-file.lead': 'Een .eml-bestand is één opgeslagen e-mail. Zet het hier neer om het te lezen zoals het is verzonden: afzender, datum, onderwerp, de HTML- of tekstinhoud en de bijlagen.',

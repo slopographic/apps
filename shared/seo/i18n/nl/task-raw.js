@@ -1,7 +1,7 @@
 /* SEO copy, Dutch: task-raw. Translated from shared/seo/i18n/en/task-raw.js. Rules: shared/seo/i18n/README.md. */
 window.SlopI18n && window.SlopI18n.add('nl', {
   'seo.task.photoslop.open-raw-files.crumb': 'RAW-bestanden online openen',
-  'seo.task.photoslop.open-raw-files.title': 'RAW-bestanden online openen: CR2, NEF, ARW en DNG bewerken, gratis',
+  'seo.task.photoslop.open-raw-files.title': 'RAW-bestanden online openen: CR2, NEF en DNG',
   'seo.task.photoslop.open-raw-files.description': 'Open camera-RAW-foto\'s (CR2, CR3, NEF, ARW, DNG, RAF en meer) in je browser, stel witbalans en belichting in en bewerk ze in lagen. Geen upload.',
   'seo.task.photoslop.open-raw-files.h1': 'RAW-bestanden van de camera online openen en bewerken',
   'seo.task.photoslop.open-raw-files.lead': 'Open een RAW-foto rechtstreeks van je camera in PhotoSlop. Stel de witbalans en belichting in het venster Ontwikkelen in, en retoucheer hem daarna met lagen, maskers en filters.',
@@ -20,7 +20,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'seo.task.photoslop.open-raw-files.faq.3.0': 'Wat als de engine de bestanden van mijn camera niet kan lezen?',
   'seo.task.photoslop.open-raw-files.faq.3.1': 'Een camera die nieuwer is dan LibRaw 0.22.1 kan misschien niet worden gelezen. Dan valt Openen terug op het ingesloten JPEG-voorbeeld van de camera, en dat wordt gezegd.',
   'seo.task.gallery.raw-photo-viewer.crumb': 'RAW-fotoviewer',
-  'seo.task.gallery.raw-photo-viewer.title': 'RAW-fotoviewer: NEF-, CR2-, ARW- en DNG-foto\'s bekijken, gratis',
+  'seo.task.gallery.raw-photo-viewer.title': 'RAW-fotoviewer: NEF-, CR2- en DNG-foto\'s, gratis',
   'seo.task.gallery.raw-photo-viewer.description': 'Bekijk camera-RAW-foto\'s (NEF, CR2, CR3, ARW, DNG, RAF en meer) in een privébibliotheek in je browser. Miniaturen verschijnen meteen. Geen upload.',
   'seo.task.gallery.raw-photo-viewer.h1': 'RAW-fotoviewer: NEF, CR2, ARW en DNG',
   'seo.task.gallery.raw-photo-viewer.lead': 'Zet een kaartje vol RAW-foto\'s in Slop Gallery en blader per maand, met de datum en camera uit elk bestand. De originelen blijven zoals ze zijn.',
@@ -37,7 +37,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'seo.task.gallery.raw-photo-viewer.faq.3.0': 'Kan ik dubbele exemplaren vinden onder mijn RAW-bestanden?',
   'seo.task.gallery.raw-photo-viewer.faq.3.1': 'Ja. Importeren slaat bestanden over waarvan de bytes al in de bibliotheek zitten, en Dubbele foto\'s zoeken groepeert exacte kopieën.',
   'seo.task.convert.dng-converter.crumb': 'DNG-converter',
-  'seo.task.convert.dng-converter.title': 'DNG-converter: DNG- en andere RAW-foto\'s naar JPG, PNG of WebP',
+  'seo.task.convert.dng-converter.title': 'DNG-converter: RAW-foto\'s naar JPG, PNG of WebP',
   'seo.task.convert.dng-converter.description': 'Zet DNG- en andere camera-RAW-bestanden in je browser om naar JPG, PNG of WebP, één of veel. Met witbalans, belichting en formaat. Geen upload.',
   'seo.task.convert.dng-converter.h1': 'DNG-converter: RAW-foto\'s naar JPG, PNG of WebP',
   'seo.task.convert.dng-converter.lead': 'Zet DNG-bestanden van een telefoon of camera, en RAW-bestanden van Canon, Nikon, Sony, Fujifilm en anderen om in afbeeldingen die elke app opent. Veel bestanden tegelijk, op je apparaat.',

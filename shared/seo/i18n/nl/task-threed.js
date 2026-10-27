@@ -1,7 +1,7 @@
 /* SEO copy, Dutch: task-threed. Translated from shared/seo/i18n/en/task-threed.js. Rules: shared/seo/i18n/README.md. */
 window.SlopI18n && window.SlopI18n.add('nl', {
   'seo.task.3d.stl-viewer.crumb': 'STL-viewer',
-  'seo.task.3d.stl-viewer.title': 'STL-viewer online: binaire en ASCII STL-bestanden openen, gratis',
+  'seo.task.3d.stl-viewer.title': 'STL-viewer online: STL-bestanden openen, gratis',
   'seo.task.3d.stl-viewer.description': 'Open een STL-bestand in je browser om een onderdeel te controleren voor je het print: draaien, zoomen, draadmodel en een PNG. Binaire en ASCII-STL. Geen upload.',
   'seo.task.3d.stl-viewer.h1': 'STL-bestanden online bekijken',
   'seo.task.3d.stl-viewer.lead': 'Bekijk een STL-bestand van een modelsite, een CAD-programma of een 3D-scanner zonder iets te installeren. Slop 3D opent het in de browser, op je apparaat.',
@@ -57,7 +57,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'seo.task.convert.3d-file-converter.faq.3.0': 'Mijn model heeft de verkeerde grootte of ligt op zijn zij. Kan ik dat oplossen?',
   'seo.task.convert.3d-file-converter.faq.3.1': 'Ja. Gebruik bij het converteren de optie Eenheden (bijvoorbeeld millimeter naar meter) en de optie Opwaartse as (Z omhoog naar Y omhoog).',
   'seo.task.convert.3d-model-to-stl.crumb': '3D-model naar STL',
-  'seo.task.convert.3d-model-to-stl.title': 'Een 3D-model naar STL converteren voor 3D-printen, gratis en privé',
+  'seo.task.convert.3d-model-to-stl.title': '3D-model naar STL converteren voor 3D-printen',
   'seo.task.convert.3d-model-to-stl.description': 'Zet OBJ-, FBX-, GLB-, glTF-, PLY-, 3MF- of DAE-modellen om in STL voor je slicer, in je browser. Binair of ASCII, met eenheden en opwaartse as.',
   'seo.task.convert.3d-model-to-stl.h1': 'Een 3D-model naar STL converteren voor printen',
   'seo.task.convert.3d-model-to-stl.lead': 'Slicers willen STL. Zet een model uit een winkel met game-assets, een scan of een ontwerpprogramma neer en krijg een STL met elk onderdeel op zijn plaats, klaar om te slicen.',

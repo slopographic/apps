@@ -1,7 +1,7 @@
 /* SEO copy, Dutch: task-everyday-2-a. Translated from shared/seo/i18n/en/task-everyday-2-a.js. Rules: shared/seo/i18n/README.md. */
 window.SlopI18n && window.SlopI18n.add('nl', {
   'seo.task.calendar.open-ics-file.crumb': 'Een .ics-bestand openen',
-  'seo.task.calendar.open-ics-file.title': 'Een .ics-bestand openen: agenda-afspraken gratis bekijken en importeren',
+  'seo.task.calendar.open-ics-file.title': 'Een .ics-bestand openen en importeren, gratis',
   'seo.task.calendar.open-ics-file.description': 'Open een .ics-agendabestand in je browser, bekijk de afspraken die erin staan, en voeg ze toe aan een privéagenda op je apparaat. Exporteer later weer .ics.',
   'seo.task.calendar.open-ics-file.h1': 'Een .ics-agendabestand openen',
   'seo.task.calendar.open-ics-file.lead': 'Een uitnodiging of een agenda-export als .ics-bestand gekregen? Open het in Slop Calendar om te zien wat erin staat voordat er iets wordt toegevoegd, en bekijk de afspraken daarna per maand, week, dag of lijst.',
@@ -140,7 +140,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'seo.task.music.play-local-music-files.faq.3.0': 'Kan ik het uitproberen zonder eigen bestanden?',
   'seo.task.music.play-local-music-files.faq.3.1': 'Ja. Met een lege bibliotheek klik je op Probeer het met 3 voorbeeldnummers.',
   'seo.task.music.flac-player.crumb': 'FLAC-speler',
-  'seo.task.music.flac-player.title': 'FLAC-speler online: FLAC-bestanden afspelen in je browser, gratis',
+  'seo.task.music.flac-player.title': 'FLAC-speler online: FLAC afspelen, gratis',
   'seo.task.music.flac-player.description': 'Speel FLAC-bestanden af in je browser, met een bibliotheek, afspeellijsten, zoeken in de golfvorm en mediatoetsen. Je muziek blijft op je apparaat.',
   'seo.task.music.flac-player.h1': 'FLAC-bestanden afspelen in je browser',
   'seo.task.music.flac-player.lead': 'Voeg je FLAC-albums toe aan Slop Music en speel ze af zonder software te installeren. Je browser decodeert de bestanden zonder verlies, en afspeellijsten, willekeurige volgorde en de bediening werken als bij elk nummer.',

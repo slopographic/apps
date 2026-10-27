@@ -1,7 +1,7 @@
 /* SEO copy, Dutch: task-everyday-a. Translated from shared/seo/i18n/en/task-everyday-a.js. Rules: shared/seo/i18n/README.md. */
 window.SlopI18n && window.SlopI18n.add('nl', {
   'seo.task.transcribe.audio-to-text.crumb': 'Audio naar tekst',
-  'seo.task.transcribe.audio-to-text.title': 'Audio naar tekst: MP3-, WAV- en M4A-bestanden gratis transcriberen',
+  'seo.task.transcribe.audio-to-text.title': 'Audio naar tekst: MP3, WAV en M4A, gratis',
   'seo.task.transcribe.audio-to-text.description': 'Transcribeer opnames (MP3, WAV, M4A, OGG of FLAC) naar tekst in je browser met Whisper. Verbeter de tekst en sla hem op als TXT of Word. Geen upload.',
   'seo.task.transcribe.audio-to-text.h1': 'Audio transcriberen naar tekst: MP3, WAV, M4A en meer',
   'seo.task.transcribe.audio-to-text.lead': 'Zet een interview, een college, een spraakmemo of een podcastaflevering neer. Whisper zet de spraak op je eigen apparaat om in tekst, en je kunt die verbeteren voordat je opslaat.',
@@ -21,7 +21,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'seo.task.transcribe.audio-to-text.faq.3.0': 'Herkent het verschillende sprekers?',
   'seo.task.transcribe.audio-to-text.faq.3.1': 'Nee. Het transcript is één tekst zonder sprekerlabels. Zet Tijden tonen aan om te zien wanneer elk deel is gezegd.',
   'seo.task.transcribe.video-to-text.crumb': 'Video naar tekst',
-  'seo.task.transcribe.video-to-text.title': 'Video naar tekst: MP4-, MOV- en WebM-video\'s gratis transcriberen',
+  'seo.task.transcribe.video-to-text.title': 'Video naar tekst: MP4, MOV en WebM, gratis',
   'seo.task.transcribe.video-to-text.description': 'Krijg een tekstuitschrift van een video in je browser. Zet een MP4-, MOV- of WebM-bestand neer; Whisper leest de spraak op je apparaat. Geen upload.',
   'seo.task.transcribe.video-to-text.h1': 'Een video transcriberen naar tekst',
   'seo.task.transcribe.video-to-text.lead': 'Zet een opgenomen vergadering, een college of een schermopname neer. Slop Transcribe haalt het geluid uit de video en zet de spraak om in tekst, helemaal op je apparaat.',
@@ -76,7 +76,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'seo.task.transcribe.otter-ai-alternative.faq.3.0': 'Hoe nauwkeurig is het?',
   'seo.task.transcribe.otter-ai-alternative.faq.3.1': 'Het gebruikt Whisper tiny, een klein model dat in een browser past. Duidelijke spraak komt er goed uit; namen, jargon en lawaaiige ruimtes geven fouten, dus controleer de tekst voordat je hem deelt.',
   'seo.task.time.time-zone-converter.crumb': 'Tijdzoneomrekenaar',
-  'seo.task.time.time-zone-converter.title': 'Tijdzoneomrekenaar: een tijd in alle steden tegelijk omrekenen',
+  'seo.task.time.time-zone-converter.title': 'Tijdzoneomrekenaar: een tijd in alle steden',
   'seo.task.time.time-zone-converter.description': 'Reken een tijd van de ene tijdzone om naar al je steden, met dagverschuiving en GMT-verschil, inclusief zomertijd. Gratis in je browser, niets te installeren.',
   'seo.task.time.time-zone-converter.lead': 'Typ een tijd in één zone en zie hem tegelijk in elke stad op je lijst, met de dag waarop hij valt en het verschil met GMT. Veranderingen van zomertijd worden voor je afgehandeld.',
   'seo.task.time.time-zone-converter.cta': 'Een tijd omrekenen',
@@ -149,7 +149,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'seo.task.time.timeanddate-alternative.faq.2.0': 'Worden mijn steden bewaard?',
   'seo.task.time.timeanddate-alternative.faq.2.1': 'Ja, in deze browser: de stadenlijst, je werkuren en eventuele klokverschuiving worden in de lokale opslag op dit apparaat bewaard en nergens naartoe gestuurd.',
   'seo.task.calculator.date-calculator.crumb': 'Datumcalculator',
-  'seo.task.calculator.date-calculator.title': 'Datumcalculator: dagen tussen datums, dagen optellen of aftrekken',
+  'seo.task.calculator.date-calculator.title': 'Datumcalculator: dagen tussen datums, gratis',
   'seo.task.calculator.date-calculator.description': 'Tel de dagen tussen twee datums, of tel dagen, weken en maanden bij een datum. Typ 2026-12-25 - vandaag en krijg het antwoord met een rekenrol. Gratis.',
   'seo.task.calculator.date-calculator.h1': 'Datumcalculator: dagen tussen twee datums',
 });

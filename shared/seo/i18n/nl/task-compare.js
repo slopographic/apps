@@ -1,7 +1,7 @@
 /* SEO copy, Dutch: task-compare. Translated from shared/seo/i18n/en/task-compare.js. Rules: shared/seo/i18n/README.md. */
 window.SlopI18n && window.SlopI18n.add('nl', {
   'seo.task.diff.compare-text.crumb': 'Twee teksten vergelijken',
-  'seo.task.diff.compare-text.title': 'Twee teksten online vergelijken: gratis diff-controle, woord voor woord',
+  'seo.task.diff.compare-text.title': 'Twee teksten online vergelijken: gratis, woord voor woord',
   'seo.task.diff.compare-text.description': 'Plak twee teksten of zet twee bestanden neer: elke toegevoegde, verwijderde en gewijzigde regel verschijnt, met de gewijzigde woorden gemarkeerd. Geen upload.',
   'seo.task.diff.compare-text.h1': 'Twee teksten vergelijken en zien wat er veranderd is',
   'seo.task.diff.compare-text.lead': 'Twee versies van een contract, een essay of een stuk code: plak ze naast elkaar en Slop Compare markeert elke wijziging, tot op het woord.',
@@ -35,7 +35,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'seo.task.diff.compare-pdf.faq.3.0': 'Werkt het met pdf\'s die met een wachtwoord zijn beveiligd?',
   'seo.task.diff.compare-pdf.faq.3.1': 'Niet zolang ze op slot zitten. Verwijder het wachtwoord eerst in File convert of Slop PDF.',
   'seo.task.diff.compare-images.crumb': 'Twee afbeeldingen vergelijken',
-  'seo.task.diff.compare-images.title': 'Twee afbeeldingen online vergelijken: verschillen vinden, gratis',
+  'seo.task.diff.compare-images.title': 'Twee afbeeldingen online vergelijken: verschillen vinden',
   'seo.task.diff.compare-images.description': 'Vergelijk twee afbeeldingen naast elkaar, met een schuifregelaar, of in een verschilweergave die gewijzigde pixels rood kleurt. Er wordt niets geüpload.',
   'seo.task.diff.compare-images.h1': 'Twee afbeeldingen vergelijken en de verschillen vinden',
   'seo.task.diff.compare-images.lead': 'Twee versies van een screenshot, een ontwerp of een foto: Slop Compare vindt de gewijzigde pixels en kadert elk gebied in, zodat niets ongemerkt blijft.',
@@ -51,7 +51,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'seo.task.diff.compare-images.faq.3.0': 'Kan ik screenshots van webpagina\'s vergelijken?',
   'seo.task.diff.compare-images.faq.3.1': 'Ja. Dat is een veelgebruikte toepassing: twee screenshots van dezelfde pagina, voor en na een wijziging.',
   'seo.task.diff.json-csv-diff.crumb': 'JSON of CSV vergelijken',
-  'seo.task.diff.json-csv-diff.title': 'JSON- en CSV-diff: gegevens vergelijken per sleutel en per rij, gratis',
+  'seo.task.diff.json-csv-diff.title': 'JSON- en CSV-diff: gegevens vergelijken, gratis',
   'seo.task.diff.json-csv-diff.description': 'Vergelijk JSON-bestanden op sleutelpad, in elke volgorde, of CSV-bestanden rij voor rij op een sleutelkolom, met gewijzigde cellen gemarkeerd. Geen upload.',
   'seo.task.diff.json-csv-diff.h1': 'Twee JSON- of CSV-bestanden vergelijken',
   'seo.task.diff.json-csv-diff.lead': 'Een tekstdiff van gegevensbestanden is rumoerig: sleutels schuiven, rijen wisselen van volgorde. Slop Compare vergelijkt de gegevens zelf, dus alleen echte wijzigingen verschijnen.',
