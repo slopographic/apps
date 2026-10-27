@@ -31,7 +31,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'seo.reg.checksum.features.0': 'SHA-256, SHA-384, SHA-512 und SHA-1',
   'seo.reg.checksum.features.1': 'Eine Datei gegen einen veröffentlichten Hash prüfen',
   'seo.reg.checksum.features.2': 'Liest die Datei auf diesem Gerät',
-  'seo.reg.diff.title': 'Slop Compare: zwei Texte, Dateien, PDFs oder Bilder vergleichen',
+  'seo.reg.diff.title': 'Slop Compare: zwei Texte, Dateien oder Bilder vergleichen',
   'seo.reg.diff.tagline': 'Zwei Texte, Dateien, PDFs oder Bilder vergleichen und jede Änderung sehen. Nichts wird hochgeladen.',
   'seo.reg.diff.features.0': 'Texte und Code nebeneinander oder vereinigt, Wort für Wort',
   'seo.reg.diff.features.1': 'JSON nach Schlüssel und CSV nach Zeile und Zelle',
