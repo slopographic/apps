@@ -45,8 +45,9 @@
     const res = await fetch(new URL(href, base), { cache: 'no-store' });
     return { ok: res.ok, url: new URL(href, base) };
   }
-  /** Identity metadata (canonical link, og and twitter tags) names the public address; the browser never fetches it. */
-  const isIdentityTag = (el) => el.tagName === 'META' || (el.tagName === 'LINK' && el.getAttribute('rel') === 'canonical');
+  /** Identity metadata (canonical link, hreflang alternates, og and twitter tags) names the public address; the browser never fetches it. */
+  const isIdentityTag = (el) => el.tagName === 'META' || (el.tagName === 'LINK'
+    && (el.getAttribute('rel') === 'canonical' || (el.getAttribute('rel') === 'alternate' && el.hasAttribute('hreflang'))));
   const ATTRS = ['href', 'src', 'action', 'poster', 'data', 'srcset'];
 
   for (const p of PAGES) {
