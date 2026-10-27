@@ -11,7 +11,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'seo.guide.colors.getting-started.sections.1.h2': 'Farben aus einem Bild aufnehmen',
   'seo.guide.colors.getting-started.sections.1.steps.0': '„Bild öffnen…“ wählen oder ein Bild auf die Seite ziehen.',
   'seo.guide.colors.getting-started.sections.1.steps.1': 'Über das Bild fahren und klicken, um eine Farbe aufzunehmen; die Lupe zeigt die Pixel unter dem Zeiger.',
-  'seo.guide.colors.getting-started.sections.1.steps.2': 'Mit den Pfeiltasten ein Pixel nach dem anderen bewegen und mit der Eingabetaste die Farbe zur Palette hinzufügen.',
+  'seo.guide.colors.getting-started.sections.1.steps.2': 'Mit den Pfeiltasten ein Pixel nach dem anderen bewegen und mit Enter die Farbe zur Palette hinzufügen.',
   'seo.guide.colors.getting-started.sections.1.steps.3': '„Alle zur Palette hinzufügen“ klicken, um die Hauptfarben des Bildes zu behalten.',
   'seo.guide.colors.getting-started.sections.1.tip': 'In Chrome und Edge nimmt „Vom Bildschirm aufnehmen“ eine Farbe von überall auf Ihrem Bildschirm auf.',
   'seo.guide.colors.getting-started.sections.2.h2': 'Die Palette bauen',
