@@ -62,7 +62,7 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'seo.best.free-file-converters.faq.3.0': 'Чи може він перетворювати відео?',
   'seo.best.free-file-converters.faq.3.1': 'Так: MOV у MP4, відео у WebM або GIF, кадр в зображення, а також відео або аудіо в MP3 чи WAV. Він працює на вашому пристрої, тож довгі відео на повільніших комп’ютерах тривають довго.',
   'seo.best.free-ocr-tools.crumb': 'Найкращі безкоштовні інструменти OCR',
-  'seo.best.free-ocr-tools.title': 'Найкращі безкоштовні інструменти OCR: зображення в текст із Google Диском, i2OCR, Tesseract',
+  'seo.best.free-ocr-tools.title': 'Найкращі безкоштовні OCR-інструменти: зображення в текст',
   'seo.best.free-ocr-tools.description': 'Безкоштовний OCR порівняно: Google Диск, OnlineOCR.net, i2OCR, Tesseract і Slop OCR. Мови, безкоштовні ліміти, результати й чи завантажується ваш скан.',
   'seo.best.free-ocr-tools.h1': 'Найкращі безкоштовні інструменти OCR для зображень і сканів, порівняно',
   'seo.best.free-ocr-tools.lead': 'OCR перетворює фото, знімок екрана чи сканований PDF на текст, який можна копіювати й редагувати. Безкоштовні варіанти дуже відрізняються мовами, лімітами й тим, куди йде ваш скан. Ось що каже про себе кожен з них.',
