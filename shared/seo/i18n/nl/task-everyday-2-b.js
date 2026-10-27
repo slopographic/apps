@@ -28,7 +28,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'seo.task.remix.automatic-video-editor.faq.2.1': 'Nee. De montage wordt gepland, voorbeeld getoond en opgenomen in je browser, en de clips blijven op je apparaat.',
   'seo.task.remix.photo-slideshow-with-music.crumb': 'Fotodiavoorstelling met muziek',
   'seo.task.remix.photo-slideshow-with-music.title': 'Maker van fotodiavoorstellingen met muziek: gratis, in je browser',
-  'seo.task.remix.photo-slideshow-with-music.description': 'Maak in je browser een diavoorstelling van je foto\'s en een nummer. Stel in hoe lang elke foto staat, voeg fades toe, kies het formaat en exporteer. Geen upload.',
+  'seo.task.remix.photo-slideshow-with-music.description': 'Maak in je browser een diavoorstelling van foto\'s en een nummer. Stel in hoe lang elke foto staat, voeg fades toe, kies het formaat en exporteer. Geen upload.',
   'seo.task.remix.photo-slideshow-with-music.h1': 'Maak een fotodiavoorstelling met muziek',
   'seo.task.remix.photo-slideshow-with-music.lead': 'Zet je foto\'s en een nummer neer, en Reel Remix maakt een diavoorstelling-video: elke foto voor de tijd die je instelt, met een fade of een schuif in en uit, en de muziek eronder voor het geheel.',
   'seo.task.remix.photo-slideshow-with-music.steps.0': 'Open Reel Remix en zet je foto\'s neer op Clips en foto\'s. Videoclips mogen ook mee.',
