@@ -50,6 +50,13 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'seo.reg.ocr.features.1': 'Kaders op de pagina, en de tekst bewerkbaar voordat je opslaat',
   'seo.reg.ocr.features.2': 'Kopiëren, .txt, .md, Word of een doorzoekbare pdf',
   'seo.reg.ocr.features.3': '85 talen, één model per schrift, op je apparaat',
+  'seo.reg.scan.title': 'Document scanner: photo to PDF',   // English until translated (Slop Scan)
+  'seo.reg.scan.tagline': 'Photos of pages to a clean PDF: edges found, shadows gone. Nothing uploaded.',   // English until translated (Slop Scan)
+  'seo.reg.scan.features.0': 'Take photos or add them, several pages at once; iPhone HEIC too',   // English until translated (Slop Scan)
+  'seo.reg.scan.features.1': 'Edges found and the page made flat; drag the corners with a magnifier',   // English until translated (Slop Scan)
+  'seo.reg.scan.features.2': 'Colour, greyscale, black & white and photo looks that take out shadows',   // English until translated (Slop Scan)
+  'seo.reg.scan.features.3': 'A4, Letter or the scan\'s own shape, margins and quality; searchable text with OCR',   // English until translated (Slop Scan)
+  'seo.reg.scan.features.4': 'One PDF, or the pages as JPG and PNG; open it in Slop PDF',   // English until translated (Slop Scan)
   'seo.reg.html2pdf.title': 'HTML naar PDF-converter',
   'seo.reg.html2pdf.tagline': 'Een HTML-bestand printen als pdf met een koptekst en QR-code. Niets geüpload.',
   'seo.reg.html2pdf.features.0': 'Zet een bestand neer, of plak HTML',

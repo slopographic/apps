@@ -50,6 +50,13 @@ window.SlopI18n && window.SlopI18n.add('es', {
   'seo.reg.ocr.features.1': 'Recuadros sobre la página, y el texto editable antes de guardar',
   'seo.reg.ocr.features.2': 'Copiar, .txt, .md, Word o PDF con búsqueda',
   'seo.reg.ocr.features.3': '85 idiomas, un modelo por escritura, en tu dispositivo',
+  'seo.reg.scan.title': 'Document scanner: photo to PDF',   // English until translated (Slop Scan)
+  'seo.reg.scan.tagline': 'Photos of pages to a clean PDF: edges found, shadows gone. Nothing uploaded.',   // English until translated (Slop Scan)
+  'seo.reg.scan.features.0': 'Take photos or add them, several pages at once; iPhone HEIC too',   // English until translated (Slop Scan)
+  'seo.reg.scan.features.1': 'Edges found and the page made flat; drag the corners with a magnifier',   // English until translated (Slop Scan)
+  'seo.reg.scan.features.2': 'Colour, greyscale, black & white and photo looks that take out shadows',   // English until translated (Slop Scan)
+  'seo.reg.scan.features.3': 'A4, Letter or the scan\'s own shape, margins and quality; searchable text with OCR',   // English until translated (Slop Scan)
+  'seo.reg.scan.features.4': 'One PDF, or the pages as JPG and PNG; open it in Slop PDF',   // English until translated (Slop Scan)
   'seo.reg.html2pdf.title': 'Convertidor de HTML a PDF',
   'seo.reg.html2pdf.tagline': 'Imprime un archivo HTML a PDF con encabezado y código QR. No se sube nada.',
   'seo.reg.html2pdf.features.0': 'Suelta un archivo o pega HTML',

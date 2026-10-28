@@ -9,6 +9,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'ui.appdesc.cutout': 'Den Hintergrund eines Fotos oder Hunderter auf einmal mit KI auf dem Gerät entfernen und ihn dann transparent, weiß, unscharf oder farbig machen.',
   'ui.appdesc.aitools': 'Helfer auf dem Gerät: Text aus Bildern und Scans lesen, Sprache zu Text, Bildrauschen bereinigen und Fotos mit Schlagwörtern versehen.',
   'ui.appdesc.ocr': 'Text aus Fotos und gescannten PDFs auf dem Gerät lesen und dann kopieren, als .txt speichern oder ein durchsuchbares PDF erstellen.',
+  'ui.appdesc.scan': 'Turn photos of pages into one clean PDF: the edges are found, the pages made flat and shadows removed, in colour or black and white, with searchable text.',   // English until translated (Slop Scan)
   'ui.appdesc.html2pdf': 'Eine HTML-Datei mit Kopfzeile, Datum und QR-Code auf jeder Seite als PDF drucken. Nichts wird hochgeladen.',
   'ui.appdesc.clean': 'Anzeigen, was ein Foto verrät (GPS, Kamera, Seriennummer und Datum), und diese Felder ohne Neukodierung entfernen.',
   'ui.appdesc.ai': 'Mit einem KI-Modell chatten, das über WebGPU auf dem eigenen Computer läuft, offline, nach einer vorherigen Systemprüfung.',

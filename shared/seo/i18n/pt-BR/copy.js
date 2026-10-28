@@ -16,6 +16,8 @@ window.SlopI18n && window.SlopI18n.add('pt-BR', {
   'seo.app.aitools.description': 'OCR para imagens e PDFs digitalizados, fala em texto com exportação de .srt, redução de ruído em fotos e desfoque de retrato. Roda no seu dispositivo.',
   'seo.app.ocr.title': 'Slop OCR: leia textos de imagens e PDFs no seu dispositivo | Slopographic',
   'seo.app.ocr.description': 'Leia textos de fotos e PDFs digitalizados no seu dispositivo. Edite e depois salve como TXT, Markdown, Word ou PDF pesquisável. Nada é enviado.',
+  'seo.app.scan.title': 'Slop Scan: turn photos of pages into a clean PDF | Slopographic',   // English until translated (Slop Scan)
+  'seo.app.scan.description': 'Photograph pages with your phone and get one clean PDF: edges found, pages made flat, shadows removed, in black & white or colour. Nothing is uploaded.',   // English until translated (Slop Scan)
   'seo.app.reports.title': 'Slop Reports: lucro por mês, faturas em aberto e CRM | Slopographic',
   'seo.app.reports.description': 'Relatórios dos seus próprios livros: lucro e fluxo de caixa por mês, imposto sobre vendas por trimestre, faturas em aberto e gastos por fornecedor. Só leitura.',
   'seo.app.html2pdf.title': 'Slop HTML to PDF: imprima HTML com cabeçalho e QR code | Slopographic',

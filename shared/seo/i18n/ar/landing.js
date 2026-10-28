@@ -22,6 +22,8 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'seo.landing.reports.description': 'يعرض Slop Reports إجماليات عبر جهات الاتصال والفواتير والمصروفات وCRM، بما فيها الأرباح حسب الشهر والفواتير غير المدفوعة. وهو للقراءة فقط، ويصدّر CSV.',
   'seo.landing.ocr.title': 'Slop OCR: قراءة النص من الصور وملفات PDF الممسوحة | Slopographic',
   'seo.landing.ocr.description': 'يقرأ Slop OCR النص من الصور وملفات PDF الممسوحة على جهازك، صفحةً صفحةً بدقة 200 dpi. عدّل النص، ثم انسخه أو احفظه بصيغة .txt أو .md أو PDF قابل للبحث.',
+  'seo.landing.scan.title': 'Free document scanner in your browser: photo to PDF | Slop Scan',   // English until translated (Slop Scan)
+  'seo.landing.scan.description': 'Free document scanner in your browser: take photos of pages, crop them automatically and download one PDF in black & white or colour. No app, no upload.',   // English until translated (Slop Scan)
   'seo.landing.html2pdf.title': 'Slop HTML to PDF: طباعة ملفات HTML مع رأس ورمز QR | Slopographic',
   'seo.landing.html2pdf.description': 'يطبع Slop HTML to PDF ملف HTML إلى PDF في متصفحك، مع رأس في كل صفحة يعرض الاسم والتاريخ ورمز QR. ولا يُرفع أي شيء ويبقى كل شيء على جهازك.',
   'seo.landing.clean.title': 'SlopClean: اعرض بيانات الصور المخفية مثل GPS وأزلها | Slopographic',

@@ -16,6 +16,8 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'seo.app.aitools.description': 'OCR для зображень і сканованих PDF, мовлення в текст з експортом .srt, очищення фото від шуму з повзунком «до і після» та розмиття портрета. На вашому пристрої.',
   'seo.app.ocr.title': 'Slop OCR: читання тексту із зображень і PDF на пристрої | Slopographic',
   'seo.app.ocr.description': 'Читайте текст із фото та сканованих PDF на своєму пристрої. Виправте його й збережіть як TXT, Markdown, Word або PDF з пошуком. Нічого не вивантажується.',
+  'seo.app.scan.title': 'Slop Scan: turn photos of pages into a clean PDF | Slopographic',   // English until translated (Slop Scan)
+  'seo.app.scan.description': 'Photograph pages with your phone and get one clean PDF: edges found, pages made flat, shadows removed, in black & white or colour. Nothing is uploaded.',   // English until translated (Slop Scan)
   'seo.app.reports.title': 'Slop Reports: прибуток за місяць, неоплачені рахунки, CRM | Slopographic',
   'seo.app.reports.description': 'Звіти з ваших книг: прибуток і рух коштів за місяцями, податок з продажів за кварталами, неоплачені рахунки та витрати за постачальниками. Експорт CSV.',
   'seo.app.html2pdf.title': 'Slop HTML to PDF: друк HTML з колонтитулом і QR-кодом | Slopographic',

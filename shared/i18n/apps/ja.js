@@ -9,6 +9,7 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'seo.reg.aitools.title': 'AIツール', 'seo.reg.aitools.tagline': 'OCR、音声の文字起こし、ノイズ除去、自動タグ、ポートレートのぼかし。端末上で動きます。', 'seo.mq.aitools': 'AIツール',
   'seo.reg.reports.title': 'レポート', 'seo.reg.reports.tagline': '連絡先、請求書、経費、CRMにまたがる集計と一覧。月ごとの利益も。参照のみです。', 'seo.mq.reports': 'レポート',
   'seo.reg.ocr.title': 'OCR：画像とスキャンから文字を読み取る', 'seo.reg.ocr.tagline': '画像とスキャンしたPDFの文字を端末上で読み取ります。アップロードはありません。', 'seo.mq.ocr': 'OCR：画像とスキャンから文字を読み取る',
+  'seo.reg.scan.title': 'Document scanner: photo to PDF', 'seo.reg.scan.tagline': 'Photos of pages to a clean PDF: edges found, shadows gone. Nothing uploaded.', 'seo.mq.scan': 'Document scanner',
   'seo.reg.html2pdf.title': 'HTMLからPDFへの変換ツール', 'seo.reg.html2pdf.tagline': 'HTMLファイルを、ヘッダーとQRコード付きでPDFに印刷します。アップロードはありません。', 'seo.mq.html2pdf': 'HTMLからPDFへの変換ツール',
   'seo.reg.clean.title': 'SlopClean：写真のメタデータ削除ツール', 'seo.reg.clean.tagline': '写真が明かす情報を確認して、削除します。アップロードはありません。', 'seo.mq.clean': 'SlopClean：写真のメタデータ削除ツール',
   'seo.reg.ai.title': 'AIチャット', 'seo.reg.ai.tagline': '自分のパソコンで動くAIとチャットできます。', 'seo.mq.ai': 'AIチャット',

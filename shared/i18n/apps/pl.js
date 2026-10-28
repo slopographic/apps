@@ -9,6 +9,7 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'seo.reg.aitools.title': 'Narzędzia AI', 'seo.reg.aitools.tagline': 'OCR, mowa na tekst, redukcja szumu, automatyczne tagi i rozmycie portretu. Na Twoim urządzeniu.', 'seo.mq.aitools': 'Narzędzia AI',
   'seo.reg.reports.title': 'Raporty', 'seo.reg.reports.tagline': 'Sumy i zestawienia z Contacts, Invoices, Expenses i CRM, z zyskiem miesięcznym. Tylko odczyt.', 'seo.mq.reports': 'Raporty',
   'seo.reg.ocr.title': 'OCR: odczyt tekstu ze zdjęć i skanów', 'seo.reg.ocr.tagline': 'Odczytuj tekst ze zdjęć i skanów PDF na swoim urządzeniu. Nic nie jest przesyłane.', 'seo.mq.ocr': 'OCR',
+  'seo.reg.scan.title': 'Document scanner: photo to PDF', 'seo.reg.scan.tagline': 'Photos of pages to a clean PDF: edges found, shadows gone. Nothing uploaded.', 'seo.mq.scan': 'Document scanner',
   'seo.reg.html2pdf.title': 'Konwerter HTML do PDF', 'seo.reg.html2pdf.tagline': 'Wydrukuj plik HTML do PDF z nagłówkiem i kodem QR. Nic nie jest przesyłane.', 'seo.mq.html2pdf': 'Konwerter HTML do PDF',
   'seo.reg.clean.title': 'SlopClean: usuwanie metadanych zdjęć', 'seo.reg.clean.tagline': 'Zobacz, co zdradza zdjęcie, i usuń to. Nic nie jest przesyłane.', 'seo.mq.clean': 'usuwanie metadanych zdjęć',
   'seo.reg.ai.title': 'Czat AI', 'seo.reg.ai.tagline': 'Rozmawiaj z AI działającym na Twoim komputerze.', 'seo.mq.ai': 'Czat AI',

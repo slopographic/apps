@@ -9,6 +9,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'seo.reg.aitools.title': 'AI 工具', 'seo.reg.aitools.tagline': 'OCR、語音轉文字、降噪、自動標籤與人像模糊。在您的裝置上執行。', 'seo.mq.aitools': 'AI 工具',
   'seo.reg.reports.title': '報表', 'seo.reg.reports.tagline': '聯絡人、發票、支出與 CRM 的合計與清單，並含每月獲利。唯讀。', 'seo.mq.reports': '報表',
   'seo.reg.ocr.title': 'OCR：從圖片與掃描檔辨識文字', 'seo.reg.ocr.tagline': '在您的裝置上從圖片與掃描 PDF 辨識文字。不會上傳任何內容。', 'seo.mq.ocr': 'OCR：從圖片與掃描檔辨識文字',
+  'seo.reg.scan.title': 'Document scanner: photo to PDF', 'seo.reg.scan.tagline': 'Photos of pages to a clean PDF: edges found, shadows gone. Nothing uploaded.', 'seo.mq.scan': 'Document scanner',
   'seo.reg.html2pdf.title': 'HTML 轉 PDF 轉換器', 'seo.reg.html2pdf.tagline': '將 HTML 檔案列印為含頁首與 QR Code 的 PDF。不會上傳任何內容。', 'seo.mq.html2pdf': 'HTML 轉 PDF 轉換器',
   'seo.reg.clean.title': 'SlopClean：照片中繼資料移除工具', 'seo.reg.clean.tagline': '查看照片洩露的資訊，並將其移除。不會上傳任何內容。', 'seo.mq.clean': 'SlopClean：照片中繼資料移除工具',
   'seo.reg.ai.title': 'AI 聊天', 'seo.reg.ai.tagline': '與在您自己電腦上執行的 AI 聊天。', 'seo.mq.ai': 'AI 聊天',

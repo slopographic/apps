@@ -38,11 +38,12 @@
   document.addEventListener('paste', onPaste);
 
   /* ---------- the file picker ---------- */
-  function pickFiles(accept, multiple, folder) {
-    if (!folder && window.SlopUI && window.SlopUI.pickFiles) return window.SlopUI.pickFiles({ accept, multiple });
+  function pickFiles(accept, multiple, folder, capture) {
+    if (!folder && window.SlopUI && window.SlopUI.pickFiles) return window.SlopUI.pickFiles({ accept, multiple, capture });
     return new Promise((res) => {
       const i = document.createElement('input');
       i.type = 'file'; i.accept = accept; i.multiple = multiple; i.style.cssText = 'position:fixed;left:-9999px';
+      if (capture) i.setAttribute('capture', capture);
       if (folder) i.webkitdirectory = true;
       i.addEventListener('change', () => { res([...i.files]); i.remove(); }, { once: true });
       i.addEventListener('cancel', () => { res([]); i.remove(); }, { once: true });
@@ -51,17 +52,19 @@
     });
   }
   /** Opens the picker for a spec and takes what is picked. o: { to, multiple (default: the spec's, else true), accept
-   *  (default: the spec's rules), folder (a whole folder), mode, data }. Resolves the summary (an empty one when nothing was picked). */
+   *  (default: the spec's rules), folder (a whole folder), capture ('environment': a phone opens its back camera, the photo
+   *  taken is the file; 'user': the front one; a computer shows its usual picker), mode, data }. Resolves the summary (an
+   *  empty one when nothing was picked). */
   SI.pick = async function (o) {
     o = o || {};
     const spec = SI.spec(o.to);
     const multiple = o.multiple != null ? o.multiple : spec && spec.multiple != null ? spec.multiple : !(spec && spec.limit === 1);
-    const files = await (SI.pickFiles || pickFiles)(o.accept != null ? o.accept : SI.acceptAttr(spec), multiple, !!o.folder);
+    const files = await (SI.pickFiles || pickFiles)(o.accept != null ? o.accept : SI.acceptAttr(spec), multiple, !!o.folder, o.capture || '');
     if (!files || !files.length) return { app: spec && spec.id, source: 'picker', added: [], skipped: [], refused: [], cancelled: true };
     return SI.take(files, Object.assign({}, o, { source: o.source || 'picker', to: o.to }));
   };
 
-  SI.pickFiles = null; // a test may stand in its own picker: (accept, multiple, folder) → File[]
+  SI.pickFiles = null; // a test may stand in its own picker: (accept, multiple, folder, capture) → File[]
 
   /** A part of a page with files of its own (a logo, a backup, a config, presets, fonts): spec is registered once, with
    *  main: false, paste: false and toast: false unless it says otherwise. Returns its id, for pick / fromDrive / take:

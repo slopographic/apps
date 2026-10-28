@@ -9,6 +9,7 @@ window.SlopI18n && window.SlopI18n.add('en', {
   'seo.mq.aitools': 'AI tools',
   'seo.mq.reports': 'Reports',
   'seo.mq.ocr': 'OCR',
+  'seo.mq.scan': 'Document scanner',
   'seo.mq.html2pdf': 'HTML to PDF converter',
   'seo.mq.clean': 'photo metadata remover',
   'seo.mq.ai': 'AI chat',

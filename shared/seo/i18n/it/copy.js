@@ -16,6 +16,8 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'seo.app.aitools.description': 'OCR per immagini e PDF scansionati, da voce a testo con .srt, riduzione del rumore con cursore prima/dopo e sfocatura del ritratto. Sul tuo dispositivo.',
   'seo.app.ocr.title': 'Slop OCR: leggi il testo da immagini e PDF sul dispositivo | Slopographic',
   'seo.app.ocr.description': 'Leggi il testo da foto e PDF scansionati sul tuo dispositivo. Modificalo, poi salva come TXT, Markdown, Word o PDF ricercabile. Nulla viene caricato.',
+  'seo.app.scan.title': 'Slop Scan: turn photos of pages into a clean PDF | Slopographic',   // English until translated (Slop Scan)
+  'seo.app.scan.description': 'Photograph pages with your phone and get one clean PDF: edges found, pages made flat, shadows removed, in black & white or colour. Nothing is uploaded.',   // English until translated (Slop Scan)
   'seo.app.reports.title': 'Slop Reports: utile per mese, fatture non pagate e CRM | Slopographic',
   'seo.app.reports.description': 'Report aziendali dai tuoi conti: utile e flusso di cassa per mese, IVA per trimestre, fatture non pagate e spese per fornitore. Sola lettura, esportazione CSV.',
   'seo.app.html2pdf.title': 'Slop HTML in PDF: stampa HTML con intestazione e codice QR | Slopographic',

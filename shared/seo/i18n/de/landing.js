@@ -22,6 +22,8 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'seo.landing.reports.description': 'Slop Reports zeigt Summen über Kontakte, Rechnungen, Ausgaben und CRM, mit Gewinn nach Monat und offenen Rechnungen. Es ist nur lesend und exportiert CSV.',
   'seo.landing.ocr.title': 'Slop OCR: Text aus Bildern und gescannten PDFs lesen | Slopographic',
   'seo.landing.ocr.description': 'Slop OCR liest Text aus Bildern und gescannten PDFs auf Ihrem Gerät mit 200 dpi. Korrigieren, dann kopieren oder als .txt, .md oder PDF speichern.',
+  'seo.landing.scan.title': 'Free document scanner in your browser: photo to PDF | Slop Scan',   // English until translated (Slop Scan)
+  'seo.landing.scan.description': 'Free document scanner in your browser: take photos of pages, crop them automatically and download one PDF in black & white or colour. No app, no upload.',   // English until translated (Slop Scan)
   'seo.landing.html2pdf.title': 'Slop HTML to PDF: HTML als PDF speichern, mit Kopfzeile | Slopographic',
   'seo.landing.html2pdf.description': 'Slop HTML to PDF druckt eine HTML-Datei im Browser als PDF, mit einer Kopfzeile auf jeder Seite mit Name, Datum und QR-Code. Nichts wird hochgeladen.',
   'seo.landing.clean.title': 'SlopClean: Fotodaten wie GPS sehen und entfernen | Slopographic',

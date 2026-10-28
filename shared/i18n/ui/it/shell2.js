@@ -9,6 +9,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'ui.appdesc.cutout': 'Rimuovi lo sfondo da una foto o da centinaia in una volta con l’IA sul tuo dispositivo, poi rendilo trasparente, bianco, sfocato o di un colore.',
   'ui.appdesc.aitools': 'Aiuti sul dispositivo: leggi il testo da immagini e scansioni, da voce a testo, pulisci il rumore delle foto ed etichetta le foto.',
   'ui.appdesc.ocr': 'Leggi il testo da foto e PDF scansionati sul tuo dispositivo, poi copialo, salvalo come .txt o crea un PDF ricercabile.',
+  'ui.appdesc.scan': 'Turn photos of pages into one clean PDF: the edges are found, the pages made flat and shadows removed, in colour or black and white, with searchable text.',   // English until translated (Slop Scan)
   'ui.appdesc.html2pdf': 'Stampa un file HTML in PDF con un’intestazione, una data e un codice QR su ogni pagina. Non viene caricato nulla.',
   'ui.appdesc.clean': 'Scopri che cosa rivela di te una foto (GPS, fotocamera, numero di serie e data) ed elimina quei campi senza ricodificare.',
   'ui.appdesc.ai': 'Chatta con un modello IA che gira sul tuo computer tramite WebGPU, offline, con un controllo di sistema prima.',

@@ -9,6 +9,7 @@ window.SlopI18n && window.SlopI18n.add('sv', {
   'ui.appdesc.cutout': 'Ta bort bakgrunden från en bild eller hundratals på en gång med AI på din enhet, och gör den genomskinlig, vit, suddig eller enfärgad.',
   'ui.appdesc.aitools': 'Hjälpmedel på din enhet: läs text från bilder och skanningar, tal till text, brusreducera bilder och tagga bilder.',
   'ui.appdesc.ocr': 'Läs text från bilder och skannade PDF:er på din enhet, och kopiera den, spara som .txt eller gör en sökbar PDF.',
+  'ui.appdesc.scan': 'Gör foton av sidor till en ren PDF: kanterna hittas, sidorna görs plana och skuggorna tas bort, i färg eller svartvitt, med sökbar text.',
   'ui.appdesc.html2pdf': 'Skriv ut en HTML-fil som PDF med sidhuvud, datum och QR-kod på varje sida. Inget laddas upp.',
   'ui.appdesc.clean': 'Se vad en bild avslöjar om dig (GPS, kamera, serienummer och datum) och ta bort de fälten utan omkodning.',
   'ui.appdesc.ai': 'Chatta med en AI-modell som körs på din egen dator via WebGPU, offline, efter en systemkontroll.',

@@ -9,6 +9,7 @@ window.SlopI18n && window.SlopI18n.add('pt-BR', {
   'seo.reg.aitools.title': 'Ferramentas de IA', 'seo.reg.aitools.tagline': 'OCR, fala em texto, redução de ruído, etiquetas automáticas e desfoque de retrato. No seu dispositivo.', 'seo.mq.aitools': 'Ferramentas de IA',
   'seo.reg.reports.title': 'Relatórios', 'seo.reg.reports.tagline': 'Totais e listas de Contatos, Faturas, Despesas e CRM, com lucro por mês. Somente leitura.', 'seo.mq.reports': 'Relatórios',
   'seo.reg.ocr.title': 'OCR: leia texto de imagens e digitalizações', 'seo.reg.ocr.tagline': 'Leia textos de imagens e PDFs digitalizados no seu dispositivo. Nada é enviado.', 'seo.mq.ocr': 'OCR',
+  'seo.reg.scan.title': 'Document scanner: photo to PDF', 'seo.reg.scan.tagline': 'Photos of pages to a clean PDF: edges found, shadows gone. Nothing uploaded.', 'seo.mq.scan': 'Document scanner',
   'seo.reg.html2pdf.title': 'Conversor de HTML para PDF', 'seo.reg.html2pdf.tagline': 'Imprima um arquivo HTML em PDF com cabeçalho e QR code. Nada é enviado.', 'seo.mq.html2pdf': 'Conversor de HTML para PDF',
   'seo.reg.clean.title': 'SlopClean: removedor de metadados de fotos', 'seo.reg.clean.tagline': 'Veja o que uma foto revela e remova. Nada é enviado.', 'seo.mq.clean': 'removedor de metadados de fotos',
   'seo.reg.ai.title': 'Chat de IA', 'seo.reg.ai.tagline': 'Converse com uma IA que roda no seu próprio computador.', 'seo.mq.ai': 'Chat de IA',

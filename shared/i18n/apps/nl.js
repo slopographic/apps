@@ -9,6 +9,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'seo.reg.aitools.title': 'AI-tools', 'seo.reg.aitools.tagline': 'OCR, spraak naar tekst, ruisfilter, automatische tags en portretvervaging. Op je apparaat.', 'seo.mq.aitools': 'AI-tools',
   'seo.reg.reports.title': 'Rapporten', 'seo.reg.reports.tagline': 'Totalen en lijsten over Contacten, Facturen, Uitgaven en CRM, met winst per maand. Alleen-lezen.', 'seo.mq.reports': 'Rapporten',
   'seo.reg.ocr.title': 'OCR: tekst lezen uit afbeeldingen en scans', 'seo.reg.ocr.tagline': 'Tekst lezen uit afbeeldingen en gescande pdf’s op je apparaat. Niets geüpload.', 'seo.mq.ocr': 'OCR',
+  'seo.reg.scan.title': 'Document scanner: photo to PDF', 'seo.reg.scan.tagline': 'Photos of pages to a clean PDF: edges found, shadows gone. Nothing uploaded.', 'seo.mq.scan': 'Document scanner',
   'seo.reg.html2pdf.title': 'HTML naar PDF-converter', 'seo.reg.html2pdf.tagline': 'Een HTML-bestand printen als pdf met een koptekst en QR-code. Niets geüpload.', 'seo.mq.html2pdf': 'HTML naar PDF-converter',
   'seo.reg.clean.title': 'SlopClean: verwijderaar van fotometagegevens', 'seo.reg.clean.tagline': 'Zie wat een foto onthult, en verwijder het. Niets geüpload.', 'seo.mq.clean': 'verwijderaar van fotometagegevens',
   'seo.reg.ai.title': 'AI-chat', 'seo.reg.ai.tagline': 'Chat met een AI die op je eigen computer draait.', 'seo.mq.ai': 'AI-chat',

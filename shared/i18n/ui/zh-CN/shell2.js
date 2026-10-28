@@ -7,6 +7,7 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'ui.appdesc.cutout': '在你的设备上使用 AI，一次去除一张或数百张照片的背景，然后将其改为透明、白色、模糊或纯色。',
   'ui.appdesc.aitools': '设备端辅助工具：从图片和扫描件中读取文字、语音转文字、清理照片噪点，并为照片添加标签。',
   'ui.appdesc.ocr': '在你的设备上读取照片和扫描 PDF 中的文字，然后复制、保存为 .txt，或生成可搜索的 PDF。',
+  'ui.appdesc.scan': 'Turn photos of pages into one clean PDF: the edges are found, the pages made flat and shadows removed, in colour or black and white, with searchable text.',   // English until translated (Slop Scan)
   'ui.appdesc.html2pdf': '将 HTML 文件打印为 PDF，每页都带有页眉、日期和二维码。不会上传任何内容。',
   'ui.appdesc.clean': '查看照片会泄露你哪些信息（GPS、相机、序列号和日期），并在不重新编码的情况下删除这些字段。',
   'ui.appdesc.ai': '通过 WebGPU 与在你自己的电脑上运行的 AI 模型聊天，可离线使用，并会先进行系统检查。',

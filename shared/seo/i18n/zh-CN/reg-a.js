@@ -50,6 +50,13 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'seo.reg.ocr.features.1': '页面上的方框，保存前可编辑文字',
   'seo.reg.ocr.features.2': '复制、.txt、.md、Word 或可搜索的 PDF',
   'seo.reg.ocr.features.3': '85 种语言，每种书写系统一个模型，在你的设备上运行',
+  'seo.reg.scan.title': 'Document scanner: photo to PDF',   // English until translated (Slop Scan)
+  'seo.reg.scan.tagline': 'Photos of pages to a clean PDF: edges found, shadows gone. Nothing uploaded.',   // English until translated (Slop Scan)
+  'seo.reg.scan.features.0': 'Take photos or add them, several pages at once; iPhone HEIC too',   // English until translated (Slop Scan)
+  'seo.reg.scan.features.1': 'Edges found and the page made flat; drag the corners with a magnifier',   // English until translated (Slop Scan)
+  'seo.reg.scan.features.2': 'Colour, greyscale, black & white and photo looks that take out shadows',   // English until translated (Slop Scan)
+  'seo.reg.scan.features.3': 'A4, Letter or the scan\'s own shape, margins and quality; searchable text with OCR',   // English until translated (Slop Scan)
+  'seo.reg.scan.features.4': 'One PDF, or the pages as JPG and PNG; open it in Slop PDF',   // English until translated (Slop Scan)
   'seo.reg.html2pdf.title': 'HTML 转 PDF 转换器',
   'seo.reg.html2pdf.tagline': '把 HTML 文件打印为带页眉和二维码的 PDF。不上传任何内容。',
   'seo.reg.html2pdf.features.0': '拖入文件，或粘贴 HTML',

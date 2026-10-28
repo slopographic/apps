@@ -9,6 +9,7 @@ window.SlopI18n && window.SlopI18n.add('sv', {
   'seo.reg.aitools.title': 'AI-verktyg', 'seo.reg.aitools.tagline': 'OCR, tal till text, brusreducering, automatiska taggar och porträttoskärpa. På din enhet.', 'seo.mq.aitools': 'AI-verktyg',
   'seo.reg.reports.title': 'Rapporter', 'seo.reg.reports.tagline': 'Summor och listor över Kontakter, Fakturor, Utgifter och CRM, med vinst per månad. Skrivskyddat.', 'seo.mq.reports': 'Rapporter',
   'seo.reg.ocr.title': 'OCR: läs text från bilder och skanningar', 'seo.reg.ocr.tagline': 'Läs text från bilder och skannade PDF:er på din enhet. Inget laddas upp.', 'seo.mq.ocr': 'OCR',
+  'seo.reg.scan.title': 'Dokumentskanner: foto till PDF', 'seo.reg.scan.tagline': 'Foton av sidor till en ren PDF: kanterna hittas, skuggorna försvinner. Inget laddas upp.', 'seo.mq.scan': 'Dokumentskanner',
   'seo.reg.html2pdf.title': 'Konvertera HTML till PDF', 'seo.reg.html2pdf.tagline': 'Skriv ut en HTML-fil till PDF med sidhuvud och QR-kod. Inget laddas upp.', 'seo.mq.html2pdf': 'Konvertera HTML till PDF',
   'seo.reg.clean.title': 'SlopClean: ta bort metadata från foton', 'seo.reg.clean.tagline': 'Se vad ett foto avslöjar, och ta bort det. Inget laddas upp.', 'seo.mq.clean': 'ta bort metadata från foton',
   'seo.reg.ai.title': 'AI-chatt', 'seo.reg.ai.tagline': 'Chatta med en AI som körs på din egen dator.', 'seo.mq.ai': 'AI-chatt',

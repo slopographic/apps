@@ -22,6 +22,8 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'seo.landing.reports.description': 'Slop Reports toont totalen over Contacten, Facturen, Uitgaven en CRM, met winst per maand en onbetaalde facturen. Het is alleen-lezen en exporteert CSV.',
   'seo.landing.ocr.title': 'Slop OCR: tekst lezen uit afbeeldingen en gescande pdf’s | Slopographic',
   'seo.landing.ocr.description': 'Slop OCR leest tekst uit afbeeldingen en gescande pdf’s op je apparaat, pagina voor pagina. Bewerk de tekst en sla op als .txt, .md of doorzoekbare pdf.',
+  'seo.landing.scan.title': 'Free document scanner in your browser: photo to PDF | Slop Scan',   // English until translated (Slop Scan)
+  'seo.landing.scan.description': 'Free document scanner in your browser: take photos of pages, crop them automatically and download one PDF in black & white or colour. No app, no upload.',   // English until translated (Slop Scan)
   'seo.landing.html2pdf.title': 'Slop HTML to PDF: HTML-bestanden printen met koptekst en QR | Slopographic',
   'seo.landing.html2pdf.description': 'Slop HTML to PDF drukt een HTML-bestand in je browser af als pdf, met een koptekst op elke pagina met een naam, datum en QR-code. Er wordt niets geüpload.',
   'seo.landing.clean.title': 'SlopClean: foto-metagegevens zoals GPS zien en verwijderen | Slopographic',

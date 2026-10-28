@@ -16,6 +16,8 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'seo.app.aitools.description': 'OCR للصور وملفات PDF الممسوحة، وتحويل الكلام إلى نص مع تصدير .srt، وإزالة ضوضاء الصور بشريط قبل وبعد، وتمويه البورتريه. تعمل على جهازك.',
   'seo.app.ocr.title': 'Slop OCR: قراءة النص من الصور وملفات PDF على جهازك | Slopographic',
   'seo.app.ocr.description': 'اقرأ النص من الصور وملفات PDF الممسوحة على جهازك. عدّله، ثم احفظه بصيغة TXT أو Markdown أو Word أو PDF قابل للبحث. ولا يُرفع أي شيء.',
+  'seo.app.scan.title': 'Slop Scan: turn photos of pages into a clean PDF | Slopographic',   // English until translated (Slop Scan)
+  'seo.app.scan.description': 'Photograph pages with your phone and get one clean PDF: edges found, pages made flat, shadows removed, in black & white or colour. Nothing is uploaded.',   // English until translated (Slop Scan)
   'seo.app.reports.title': 'Slop Reports: الأرباح حسب الشهر والفواتير غير المدفوعة و CRM | Slopographic',
   'seo.app.reports.description': 'تقارير أعمال من دفاترك: الأرباح والتدفق النقدي حسب الشهر، وضريبة المبيعات حسب الربع، والفواتير غير المدفوعة، والإنفاق حسب المورد. للقراءة فقط، مع تصدير CSV.',
   'seo.app.html2pdf.title': 'Slop HTML to PDF: طباعة HTML مع رأس ورمز QR | Slopographic',
