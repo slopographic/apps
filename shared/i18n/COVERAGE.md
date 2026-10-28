@@ -11,15 +11,15 @@ finds in its code (`node tools/i18n/i18n.mjs extract <app>` lists them). The rat
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | Shared chrome (header, switcher, footer, Settings) | 251 | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% |
 | Shared components (shared/i18n/ui) | 219 | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% |
-| Shared components, more (shared/i18n/ui/<code>/) | 3172 | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 0% | 100% | 100% | 100% | 100% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
-| Shared ai (shared/ai/i18n/) | 1171 | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 0% | 100% | 100% | 100% | 100% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
+| Shared components, more (shared/i18n/ui/<code>/) | 3173 | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 0% | 100% | 100% | 100% | 100% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
+| Shared ai (shared/ai/i18n/) | 1181 | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 0% | 100% | 100% | 100% | 100% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
 | Shared biz (shared/biz/i18n/) | 349 | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 0% | 100% | 100% | 100% | 100% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
 | Shared ocr (shared/ocr/i18n/) | 11 | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 0% | 100% | 100% | 100% | 100% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
 | Shared parent (shared/parent/i18n/) | 2 | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
 | Shared savings (shared/savings/i18n/) | 18 | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 0% | 100% | 100% | 100% | 100% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
-| Shared seo (shared/seo/i18n/) | 11373 | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 0% | 100% | 100% | 100% | 100% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
+| Shared seo (shared/seo/i18n/) | 11384 | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 0% | 100% | 100% | 100% | 100% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
 
-Shared code (shell/, shared/) still has 3017 hard-coded strings; most belong to one app family (office, biz, watermark, ...).
+Shared code (shell/, shared/) still has 3033 hard-coded strings; most belong to one app family (office, biz, watermark, ...).
 
 ## Apps, by strings to translate
 
@@ -69,29 +69,30 @@ Shared code (shell/, shared/) still has 3017 hard-coded strings; most belong to 
 | 42 | Slop Time | time | 152 | 152 | 0 | 17 of 29 |
 | 43 | Slop Transcribe | transcribe | 150 | 96 | 54 | 0 of 29 |
 | 44 | Slopnodes | nodes | 146 | 99 | 47 | 0 of 29 |
-| 45 | Settings page | settings | 145 | 139 | 6 | 0 of 29 |
-| 46 | Slop Watermark | watermark | 138 | 104 | 34 | 0 of 29 |
-| 47 | Slop Signature | signature | 136 | 135 | 1 | 0 of 29 |
-| 48 | Slop Sheets | sheetview | 122 | 78 | 44 | 0 of 29 |
-| 49 | Slop Orders | orders | 118 | 117 | 1 | 0 of 29 |
-| 50 | Slop Purchases | purchases | 115 | 115 | 0 | 17 of 29 |
-| 51 | Slop Reports | reports | 115 | 111 | 4 | 0 of 29 |
-| 52 | Slop Timesheets | timesheets | 111 | 111 | 0 | 17 of 29 |
-| 53 | Slop Admin | admin | 110 | 110 | 0 | 17 of 29 |
-| 54 | Slop Image to 3D | img3d | 109 | 74 | 35 | 0 of 29 |
-| 55 | Slop OCR | ocr | 109 | 75 | 34 | 0 of 29 |
-| 56 | Paste | paste | 107 | 84 | 23 | 0 of 29 |
-| 57 | Slop To-do | todo | 107 | 107 | 0 | 17 of 29 |
-| 58 | Slop Quotes | quotes | 104 | 104 | 0 | 17 of 29 |
-| 59 | Slopculator | calculator | 94 | 79 | 15 | 0 of 29 |
-| 60 | Slop HTML to PDF | html2pdf | 85 | 49 | 36 | 0 of 29 |
-| 61 | Slop Photo Sorter | sorter | 72 | 45 | 27 | 0 of 29 |
-| 62 | Serial counter | serials | 71 | 47 | 24 | 0 of 29 |
-| 63 | Slop Reminders | reminders | 44 | 44 | 0 | 17 of 29 |
-| 64 | Checksum | checksum | 42 | 24 | 18 | 0 of 29 |
-| 65 | Privacy page | privacy | 31 | 25 | 6 | 0 of 29 |
+| 45 | Slop Scan | scan | 145 | 117 | 28 | 0 of 29 |
+| 46 | Settings page | settings | 145 | 139 | 6 | 0 of 29 |
+| 47 | Slop Watermark | watermark | 138 | 104 | 34 | 0 of 29 |
+| 48 | Slop Signature | signature | 136 | 135 | 1 | 0 of 29 |
+| 49 | Slop Sheets | sheetview | 122 | 78 | 44 | 0 of 29 |
+| 50 | Slop Orders | orders | 118 | 117 | 1 | 0 of 29 |
+| 51 | Slop Purchases | purchases | 115 | 115 | 0 | 17 of 29 |
+| 52 | Slop Reports | reports | 115 | 111 | 4 | 0 of 29 |
+| 53 | Slop Timesheets | timesheets | 111 | 111 | 0 | 17 of 29 |
+| 54 | Slop Admin | admin | 110 | 110 | 0 | 17 of 29 |
+| 55 | Slop Image to 3D | img3d | 109 | 74 | 35 | 0 of 29 |
+| 56 | Slop OCR | ocr | 109 | 75 | 34 | 0 of 29 |
+| 57 | Paste | paste | 107 | 84 | 23 | 0 of 29 |
+| 58 | Slop To-do | todo | 107 | 107 | 0 | 17 of 29 |
+| 59 | Slop Quotes | quotes | 104 | 104 | 0 | 17 of 29 |
+| 60 | Slopculator | calculator | 94 | 79 | 15 | 0 of 29 |
+| 61 | Slop HTML to PDF | html2pdf | 85 | 49 | 36 | 0 of 29 |
+| 62 | Slop Photo Sorter | sorter | 72 | 45 | 27 | 0 of 29 |
+| 63 | Serial counter | serials | 71 | 47 | 24 | 0 of 29 |
+| 64 | Slop Reminders | reminders | 44 | 44 | 0 | 17 of 29 |
+| 65 | Checksum | checksum | 42 | 24 | 18 | 0 of 29 |
+| 66 | Privacy page | privacy | 31 | 25 | 6 | 0 of 29 |
 
-Total: 22139 strings in 65 apps.
+Total: 22284 strings in 66 apps.
 
 ## Apps with tables, per language
 
@@ -141,6 +142,7 @@ Total: 22139 strings in 65 apps.
 | time | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 100% | 0% | 100% | 100% | 100% | 100% | 100% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
 | transcribe | 64% | 64% | 64% | 64% | 64% | 64% | 64% | 64% | 64% | 64% | 64% | 64% | 0% | 64% | 64% | 64% | 64% | 64% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
 | nodes | 67% | 67% | 67% | 67% | 67% | 67% | 67% | 67% | 67% | 67% | 67% | 67% | 0% | 67% | 67% | 67% | 67% | 67% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
+| scan | 80% | 0% | 0% | 0% | 0% | 0% | 0% | 80% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
 | settings | 95% | 95% | 95% | 95% | 95% | 95% | 95% | 95% | 95% | 95% | 95% | 95% | 0% | 95% | 95% | 95% | 95% | 95% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
 | watermark | 75% | 75% | 75% | 75% | 75% | 75% | 75% | 75% | 75% | 75% | 75% | 75% | 0% | 75% | 75% | 75% | 75% | 75% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |
 | signature | 99% | 99% | 99% | 99% | 99% | 99% | 99% | 99% | 99% | 99% | 99% | 99% | 0% | 99% | 99% | 99% | 99% | 99% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% | 0% |

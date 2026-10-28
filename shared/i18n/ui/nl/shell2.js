@@ -7,6 +7,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'ui.appdesc.cutout': 'Verwijder de achtergrond van één foto of honderden tegelijk met AI op je apparaat, en maak hem daarna transparant, wit, vervaagd of in een kleur.',
   'ui.appdesc.aitools': 'Hulpmiddelen op het apparaat: tekst lezen uit afbeeldingen en scans, spraak naar tekst, ruis in foto’s opschonen en foto’s taggen.',
   'ui.appdesc.ocr': 'Lees tekst uit foto’s en gescande pdf’s op je apparaat, en kopieer hem, sla hem op als .txt, of maak een doorzoekbare pdf.',
+  'ui.appdesc.scan': 'Turn photos of pages into one clean PDF: the edges are found, the pages made flat and shadows removed, in colour or black and white, with searchable text.',   // English until translated (Slop Scan)
   'ui.appdesc.html2pdf': 'Druk een HTML-bestand af als pdf, met op elke pagina een kop, een datum en een QR-code. Er wordt niets geüpload.',
   'ui.appdesc.clean': 'Zie wat een foto over jou onthult (gps, camera, serienummer en datum) en verwijder die velden zonder opnieuw te coderen.',
   'ui.appdesc.ai': 'Chat met een AI-model dat op je eigen computer draait via WebGPU, offline, en eerst met een systeemcontrole.',

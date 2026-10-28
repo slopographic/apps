@@ -7,7 +7,7 @@
 import { hydrate, seg } from './i18n.mjs';
 const IDS = [
   'best', 'all-tools', 'watermark', 'photoslop', 'vector', 'pdf', 'label', 'cutout',
-  'aitools', 'reports', 'ocr', 'html2pdf', 'clean', 'ai', 'docs', 'tables',
+  'aitools', 'reports', 'ocr', 'scan', 'html2pdf', 'clean', 'ai', 'docs', 'tables',
   'slides', 'press', 'remix', 'slopedit', 'resize', 'upscale', 'contacts', 'inventory',
   'orders', 'quotes', 'purchases', 'timesheets', 'expenses', 'invoices', 'notes', 'paste',
   'effects', 'img3d', 'sheetview', 'hex', 'eml', 'checksum', 'diff', 'nodes',

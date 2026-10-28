@@ -19,7 +19,7 @@
 //    shared/ai/quick/apps/photoslop.js, shared/ai/quick/apps/press.js, shared/ai/quick/apps/projects.js
 //    shared/ai/quick/apps/purchases.js, shared/ai/quick/apps/qr.js, shared/ai/quick/apps/quotes.js
 //    shared/ai/quick/apps/recorder.js, shared/ai/quick/apps/reminders.js, shared/ai/quick/apps/remix.js
-//    shared/ai/quick/apps/reports.js, shared/ai/quick/apps/resize.js, shared/ai/quick/apps/serials.js
+//    shared/ai/quick/apps/reports.js, shared/ai/quick/apps/resize.js, shared/ai/quick/apps/scan.js, shared/ai/quick/apps/serials.js
 //    shared/ai/quick/apps/sheetview.js, shared/ai/quick/apps/signature.js, shared/ai/quick/apps/slides.js
 //    shared/ai/quick/apps/slopedit.js, shared/ai/quick/apps/sorter.js, shared/ai/quick/apps/tables.js
 //    shared/ai/quick/apps/time.js, shared/ai/quick/apps/timesheets.js, shared/ai/quick/apps/todo.js

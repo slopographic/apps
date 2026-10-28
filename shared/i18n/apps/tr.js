@@ -9,6 +9,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'seo.reg.aitools.title': 'YZ araçları', 'seo.reg.aitools.tagline': 'OCR, konuşmadan metne, gürültü azaltma, otomatik etiketler ve portre bulanıklaştırma. Cihazınızda.', 'seo.mq.aitools': 'YZ araçları',
   'seo.reg.reports.title': 'Raporlar', 'seo.reg.reports.tagline': 'Kişiler, Faturalar, Giderler ve CRM genelinde toplamlar ve listeler; aylık kârla. Salt okunur.', 'seo.mq.reports': 'Raporlar',
   'seo.reg.ocr.title': 'OCR: resimlerden ve taramalardan metin okuyun', 'seo.reg.ocr.tagline': 'Cihazınızda resimlerden ve taranmış PDF\'lerden metin okuyun. Hiçbir şey yüklenmez.', 'seo.mq.ocr': 'OCR',
+  'seo.reg.scan.title': 'Document scanner: photo to PDF', 'seo.reg.scan.tagline': 'Photos of pages to a clean PDF: edges found, shadows gone. Nothing uploaded.', 'seo.mq.scan': 'Document scanner',
   'seo.reg.html2pdf.title': 'HTML’den PDF\'ye dönüştürücü', 'seo.reg.html2pdf.tagline': 'Bir HTML dosyasını üstbilgi ve QR kodla PDF olarak yazdırın. Hiçbir şey yüklenmez.', 'seo.mq.html2pdf': 'HTML’den PDF\'ye dönüştürücü',
   'seo.reg.clean.title': 'SlopClean: fotoğraf üst verisi kaldırıcı', 'seo.reg.clean.tagline': 'Bir fotoğrafın neleri açığa çıkardığını görün ve kaldırın. Hiçbir şey yüklenmez.', 'seo.mq.clean': 'fotoğraf üst verisi kaldırıcı',
   'seo.reg.ai.title': 'YZ sohbeti', 'seo.reg.ai.tagline': 'Kendi bilgisayarınızda çalışan bir YZ ile sohbet edin.', 'seo.mq.ai': 'YZ sohbeti',

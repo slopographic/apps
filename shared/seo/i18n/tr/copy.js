@@ -16,6 +16,8 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'seo.app.aitools.description': 'Görseller ve taranmış PDF\'ler için OCR, .srt’li konuşmadan metne, önce-sonra kaydırıcılı gürültü azaltma ve portre bulanıklaştırma. Cihazınızda çalışır.',
   'seo.app.ocr.title': 'Slop OCR: görsel ve PDF\'lerden cihazınızda metin okuyun | Slopographic',
   'seo.app.ocr.description': 'Fotoğraflardan ve taranmış PDF\'lerden metni cihazınızda okuyun. Düzenleyin, sonra TXT, Markdown, Word ya da aranabilir PDF olarak kaydedin. Yükleme yok.',
+  'seo.app.scan.title': 'Slop Scan: turn photos of pages into a clean PDF | Slopographic',   // English until translated (Slop Scan)
+  'seo.app.scan.description': 'Photograph pages with your phone and get one clean PDF: edges found, pages made flat, shadows removed, in black & white or colour. Nothing is uploaded.',   // English until translated (Slop Scan)
   'seo.app.reports.title': 'Slop Reports: aylık kâr, ödenmemiş faturalar ve CRM | Slopographic',
   'seo.app.reports.description': 'Kendi defterlerinizden raporlar: aylık kâr ve nakit akışı, üç aylık satış vergisi, ödenmemiş faturalar, tedarikçi harcamaları. Salt okunur, CSV dışa aktarma.',
   'seo.app.html2pdf.title': 'Slop HTML’den PDF\'ye: üstbilgili ve QR kodlu yazdırma | Slopographic',

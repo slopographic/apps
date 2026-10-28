@@ -22,6 +22,8 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'seo.landing.reports.description': 'Slop Reports mostra i totali di Contatti, Fatture, Spese e CRM, con utile per mese e fatture non pagate. È in sola lettura e esporta in CSV.',
   'seo.landing.ocr.title': 'Slop OCR: leggi il testo da immagini e PDF scansionati | Slopographic',
   'seo.landing.ocr.description': 'Slop OCR legge il testo da immagini e PDF scansionati sul tuo dispositivo, pagina per pagina a 200 dpi. Modificalo, poi copialo o salvalo in .txt, .md o PDF.',
+  'seo.landing.scan.title': 'Free document scanner in your browser: photo to PDF | Slop Scan',   // English until translated (Slop Scan)
+  'seo.landing.scan.description': 'Free document scanner in your browser: take photos of pages, crop them automatically and download one PDF in black & white or colour. No app, no upload.',   // English until translated (Slop Scan)
   'seo.landing.html2pdf.title': 'Slop HTML in PDF: stampa file HTML con intestazione e QR | Slopographic',
   'seo.landing.html2pdf.description': 'Slop HTML in PDF stampa un file HTML in PDF nel browser, con un’intestazione su ogni pagina con nome, data e codice QR. Nulla viene caricato.',
   'seo.landing.clean.title': 'SlopClean: vedi e rimuovi metadati delle foto come il GPS | Slopographic',

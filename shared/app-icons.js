@@ -76,6 +76,7 @@
     qr: '<rect x="6" y="6" width="14" height="14" rx="1.5"/><rect x="11" y="11" width="4" height="4"/><rect x="28" y="6" width="14" height="14" rx="1.5"/><rect x="33" y="11" width="4" height="4"/><rect x="6" y="28" width="14" height="14" rx="1.5"/><rect x="11" y="33" width="4" height="4"/><path d="M28 28h4v4h-4zM36 28h6M28 36v6h4M36 36h6v6h-6z"/>',
     colors: '<path d="M24 6c-10 0-18 7.5-18 17 0 8 6 13 12 13h3a3 3 0 0 1 2.2 5A2 2 0 0 0 24 44c10 0 18-8 18-19S34 6 24 6z"/><circle cx="15" cy="20" r="3"/><circle cx="23" cy="14" r="3"/><circle cx="32" cy="17" r="3"/><circle cx="34" cy="27" r="3"/>',
     fontcreator: '<path d="M6 41 18 8h4l12 33M11 29h18"/><path d="M31 13h11M36.5 7.5v11"/><circle cx="36.5" cy="13" r="2.5"/>',
+    scan: '<path d="M6 14V8a2 2 0 0 1 2-2h6M34 6h6a2 2 0 0 1 2 2v6M42 34v6a2 2 0 0 1-2 2h-6M14 42H8a2 2 0 0 1-2-2v-6"/><path d="M15 11h14l5 5v21H15z"/><path d="M19 22h11M19 27h11M19 32h7"/>',
     calculator: '<rect x="10" y="6" width="28" height="36" rx="3"/><rect x="15" y="11" width="18" height="7" rx="1"/><path d="M15 26h3M22 26h3M29 26h3M15 33h3M22 33h3M29 33h3"/>',
     time: '<circle cx="24" cy="24" r="16"/><path d="M24 14v10l7 5"/>',
     calendar: '<rect x="7" y="10" width="34" height="31" rx="3"/><path d="M7 19h34M16 6v8M32 6v8M15 26h3M22 26h3M29 26h3M15 33h3M22 33h3"/>',

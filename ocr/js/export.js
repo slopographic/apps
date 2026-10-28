@@ -8,6 +8,7 @@
  *   saveBlob(name, blob), copyText(text) → Promise<boolean> */
 import { docxBlob } from '../../shared/office/docx.js';
 import { paragraphsOf, pairBoxes } from './layout.js';
+import { drawTextLayer } from '../../shared/ocr/text-layer.js';
 
 const DPI = 200;
 const PDF_LIB = new URL('../../vendor/pdf-lib/pdf-lib.min.js', import.meta.url).href;
@@ -56,41 +57,20 @@ function loadPdfLib() {
   return pdfLibP;
 }
 
-/** The characters the standard Helvetica font can draw (WinAnsi). Others are left out of the text layer. */
-function drawable(font) {
-  const seen = new Map();
-  return (ch) => {
-    if (!seen.has(ch)) {
-      let ok = true;
-      try { font.widthOfTextAtSize(ch, 10); } catch (e) { ok = false; }
-      seen.set(ch, ok);
-    }
-    return seen.get(ch);
-  };
-}
-
 export async function searchablePdf(pages, { title = '', onProgress } = {}) {
   const L = await loadPdfLib();
   const pdf = await L.PDFDocument.create();
   pdf.setTitle(title || 'Slop OCR');
   pdf.setProducer('Slop OCR');
   const font = await pdf.embedFont(L.StandardFonts.Helvetica);
-  const ok = drawable(font), k = 72 / DPI;
+  const k = 72 / DPI;
   for (let i = 0; i < pages.length; i++) {
     const p = pages[i];
     if (onProgress) onProgress(i, pages.length);
     const W = p.w * k, H = p.h * k;
     const page = pdf.addPage([W, H]);
     page.drawImage(await pdf.embedJpg(p.image), { x: 0, y: 0, width: W, height: H });
-    for (const { text, box } of pairBoxes(p.text, p.lines || [])) {
-      if (!box) continue;
-      const t = [...text.replace(/\s/g, ' ')].filter(ok).join('').replace(/ +/g, ' ').trim();
-      if (!t) continue;
-      const bh = box.h * k, bw = box.w * k;
-      const size = Math.min(bh * 0.85, bw / font.widthOfTextAtSize(t, 1));
-      if (!(size > 0.5)) continue;
-      page.drawText(t, { x: box.x * k, y: H - (box.y + box.h * 0.8) * k, size, font, opacity: 0 });
-    }
+    drawTextLayer(page, font, pairBoxes(p.text, p.lines || []), { k, x: 0, top: H });
   }
   return new Blob([await pdf.save()], { type: 'application/pdf' });
 }

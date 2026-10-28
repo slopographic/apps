@@ -1,6 +1,9 @@
 /* SEO copy, English (the source): reg-b. Written by tools/seo/tables.mjs from shared/apps.js: edit that, not this file.
  * Read by tools/seo (shared/seo/i18n.mjs), never by a page. Rules: shared/seo/i18n/README.md. */
 window.SlopI18n && window.SlopI18n.add('en', {
+  'seo.reg.effects.tagline': 'Motion design in the browser. Nothing uploaded.',
+  'seo.reg.effects.features.0': 'Layers, keyframes and easing',
+  'seo.reg.effects.features.1': 'Graph editor and seeded random motion',
   'seo.reg.effects.features.2': 'Blur, glow, shadow, colour, grain, vignette, glitch',
   'seo.reg.effects.features.3': 'WebM, MP4 and PNG sequence',
   'seo.reg.img3d.title': 'Image to 3D',

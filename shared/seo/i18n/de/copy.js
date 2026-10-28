@@ -16,6 +16,8 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'seo.app.aitools.description': 'OCR für Bilder und gescannte PDFs, Sprache zu Text mit SRT-Export, Fotoentrauschen mit Vorher-nachher-Regler und Porträtunschärfe. Läuft auf dem Gerät.',
   'seo.app.ocr.title': 'Slop OCR: Text aus Bildern und PDFs auf dem Gerät | Slopographic',
   'seo.app.ocr.description': 'Text aus Fotos und gescannten PDFs auf dem Gerät lesen. Bearbeiten und dann als TXT, Markdown, Word oder durchsuchbares PDF speichern. Nichts wird hochgeladen.',
+  'seo.app.scan.title': 'Slop Scan: turn photos of pages into a clean PDF | Slopographic',   // English until translated (Slop Scan)
+  'seo.app.scan.description': 'Photograph pages with your phone and get one clean PDF: edges found, pages made flat, shadows removed, in black & white or colour. Nothing is uploaded.',   // English until translated (Slop Scan)
   'seo.app.reports.title': 'Slop Reports: Gewinn pro Monat und offene Rechnungen | Slopographic',
   'seo.app.reports.description': 'Berichte aus Ihren Büchern: Gewinn und Cashflow pro Monat, Umsatzsteuer pro Quartal, offene Rechnungen und Ausgaben je Lieferant. Nur lesend, mit CSV-Export.',
   'seo.app.html2pdf.title': 'Slop HTML to PDF: HTML mit Kopfzeile und QR-Code drucken | Slopographic',

@@ -7,6 +7,7 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'ui.appdesc.cutout': 'Tek bir fotoğraftan ya da yüzlerce fotoğraftan, cihazınızda YZ ile arka planı kaldırın; ardından saydam, beyaz, bulanık ya da bir renk yapın.',
   'ui.appdesc.aitools': 'Cihaz üzerinde yardımcılar: resimlerden ve taramalardan metin okuma, konuşmayı metne çevirme, fotoğraf gürültüsünü temizleme ve fotoğrafları etiketleme.',
   'ui.appdesc.ocr': 'Fotoğraflardan ve taranmış PDF’lerden cihazınızda metin okuyun; ardından kopyalayın, .txt olarak kaydedin ya da aranabilir bir PDF yapın.',
+  'ui.appdesc.scan': 'Turn photos of pages into one clean PDF: the edges are found, the pages made flat and shadows removed, in colour or black and white, with searchable text.',   // English until translated (Slop Scan)
   'ui.appdesc.html2pdf': 'Bir HTML dosyasını her sayfada üstbilgi, tarih ve QR kodla PDF’ye yazdırın. Hiçbir şey karşıya yüklenmez.',
   'ui.appdesc.clean': 'Bir fotoğrafın sizin hakkınızda neleri ortaya koyduğunu görün (GPS, kamera, seri numarası ve tarih) ve bu alanları yeniden kodlamadan silin.',
   'ui.appdesc.ai': 'WebGPU üzerinden, bilgisayarınızda çalışan bir YZ modeliyle çevrimdışı sohbet edin; önce sistem denetimi yapılır.',

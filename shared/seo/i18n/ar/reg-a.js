@@ -50,6 +50,13 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'seo.reg.ocr.features.1': 'مربعات على الصفحة، والنص قابل للتحرير قبل الحفظ',
   'seo.reg.ocr.features.2': 'نسخ، و.txt، و.md، وWord، أو PDF قابل للبحث',
   'seo.reg.ocr.features.3': '85 لغة، ونموذج واحد لكل كتابة، على جهازك',
+  'seo.reg.scan.title': 'Document scanner: photo to PDF',   // English until translated (Slop Scan)
+  'seo.reg.scan.tagline': 'Photos of pages to a clean PDF: edges found, shadows gone. Nothing uploaded.',   // English until translated (Slop Scan)
+  'seo.reg.scan.features.0': 'Take photos or add them, several pages at once; iPhone HEIC too',   // English until translated (Slop Scan)
+  'seo.reg.scan.features.1': 'Edges found and the page made flat; drag the corners with a magnifier',   // English until translated (Slop Scan)
+  'seo.reg.scan.features.2': 'Colour, greyscale, black & white and photo looks that take out shadows',   // English until translated (Slop Scan)
+  'seo.reg.scan.features.3': 'A4, Letter or the scan\'s own shape, margins and quality; searchable text with OCR',   // English until translated (Slop Scan)
+  'seo.reg.scan.features.4': 'One PDF, or the pages as JPG and PNG; open it in Slop PDF',   // English until translated (Slop Scan)
   'seo.reg.html2pdf.title': 'محوّل HTML إلى PDF',
   'seo.reg.html2pdf.tagline': 'اطبع ملف HTML إلى PDF مع رأس ورمز QR. لا يُرفع أي شيء.',
   'seo.reg.html2pdf.features.0': 'أفلت ملفاً، أو الصق HTML',

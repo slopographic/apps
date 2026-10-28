@@ -9,6 +9,7 @@ window.SlopI18n && window.SlopI18n.add('en', {
   'ui.appdesc.cutout': 'Remove the background from one photo or hundreds at once with AI on your device, then make it transparent, white, blurred or a colour.',
   'ui.appdesc.aitools': 'On-device helpers: read text from images and scans, speech to text, clean up photo noise and tag photos.',
   'ui.appdesc.ocr': 'Read text from photos and scanned PDFs on your device, then copy it, save .txt, or make a searchable PDF.',
+  'ui.appdesc.scan': 'Turn photos of pages into one clean PDF: the edges are found, the pages made flat and shadows removed, in colour or black and white, with searchable text.',
   'ui.appdesc.html2pdf': 'Print an HTML file to PDF with a header, a date and a QR code on every page. Nothing is uploaded.',
   'ui.appdesc.clean': 'See what a photo reveals about you (GPS, camera, serial and date) and strip those fields without re-encoding.',
   'ui.appdesc.ai': 'Chat with an AI model that runs on your own computer through WebGPU, offline, with a system check first.',

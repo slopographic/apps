@@ -9,6 +9,7 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'seo.reg.aitools.title': 'Strumenti AI', 'seo.reg.aitools.tagline': 'OCR, da voce a testo, riduzione del rumore, tag automatici e sfocatura del ritratto. Sul tuo dispositivo.', 'seo.mq.aitools': 'Strumenti AI',
   'seo.reg.reports.title': 'Report', 'seo.reg.reports.tagline': 'Totali ed elenchi di Contatti, Fatture, Spese e CRM, con utile per mese. Sola lettura.', 'seo.mq.reports': 'Report',
   'seo.reg.ocr.title': 'OCR: leggi il testo da immagini e scansioni', 'seo.reg.ocr.tagline': 'Leggi il testo da immagini e PDF scansionati sul tuo dispositivo. Nulla viene caricato.', 'seo.mq.ocr': 'OCR',
+  'seo.reg.scan.title': 'Document scanner: photo to PDF', 'seo.reg.scan.tagline': 'Photos of pages to a clean PDF: edges found, shadows gone. Nothing uploaded.', 'seo.mq.scan': 'Document scanner',
   'seo.reg.html2pdf.title': 'Convertitore da HTML a PDF', 'seo.reg.html2pdf.tagline': 'Stampa un file HTML in PDF con intestazione e codice QR. Nulla viene caricato.', 'seo.mq.html2pdf': 'Convertitore da HTML a PDF',
   'seo.reg.clean.title': 'SlopClean: rimozione dei metadati delle foto', 'seo.reg.clean.tagline': 'Vedi cosa rivela una foto e rimuovi i dati. Nulla viene caricato.', 'seo.mq.clean': 'rimozione dei metadati delle foto',
   'seo.reg.ai.title': 'Chat AI', 'seo.reg.ai.tagline': 'Chatta con un’AI che gira sul tuo computer.', 'seo.mq.ai': 'Chat AI',

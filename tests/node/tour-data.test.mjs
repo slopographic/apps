@@ -45,7 +45,7 @@ for (const f of files) {
 }
 
 test('there is one tour file per app page and each defines exactly one tour', () => {
-  assert.equal(files.length, 28);
+  assert.equal(files.length, 29);
   for (const t of tours) assert.equal(t.tours.length, 1, t.file + ' must call SlopTour.define once');
 });
 

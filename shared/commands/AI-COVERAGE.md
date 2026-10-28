@@ -9,7 +9,7 @@ that this file is up to date and that no covered app loses a create, add or expo
 the picture look_at_canvas and app_snapshot take (`own` or `page`), **Driven** whether those commands reach an assistant
 in another app (the Slop AI workspace, open_in_app, agents). **Full** is all of it. ✗ marks a gap.
 
-Covered: 62 of 62 apps. Full suite: 62 of 62 apps.
+Covered: 63 of 63 apps. Full suite: 63 of 63 apps.
 
 | App | Create | Add | Edit | Export | Operations | State | Snapshot | Driven | Covered | Full |
 |---|---|---|---|---|---|---|---|---|---|---|
@@ -21,6 +21,7 @@ Covered: 62 of 62 apps. Full suite: 62 of 62 apps.
 | Slop AI Tools (`aitools`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop Reports (`reports`) | ✓ 1 | ✓ 1 | ✓ 5 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop OCR (`ocr`) | ✓ 1 | ✓ 1 | ✓ 2 | ✓ 1 | 1 | ✓ own | ✓ page | ✓ | yes | yes |
+| Slop Scan (`scan`) | ✓ 1 | ✓ 1 | ✓ 5 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop HTML to PDF (`html2pdf`) | ✓ 1 | ✓ 1 | ✓ 1 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
 | SlopClean (`clean`) | ✓ 1 | ✓ 1 | ✓ 2 | ✓ 1 | 1 | ✓ own | ✓ page | ✓ | yes | yes |
 | Slop AI (`ai`) | ✓ 1 | ✓ 1 | ✓ 3 | ✓ 1 |  | ✓ own | ✓ page | ✓ | yes | yes |
@@ -136,6 +137,13 @@ Covered: 62 of 62 apps. Full suite: 62 of 62 apps.
 - edit: `read_text`, `set_text`
 - export: `export_text`
 - operations: `ocr.read`
+
+### Slop Scan
+
+- create: `new_scan`
+- add: `add_photo`
+- edit: `move_page`, `remove_page`, `rotate_page`, `set_corners`, `set_page_style`
+- export: `export_pdf`
 
 ### Slop HTML to PDF
 

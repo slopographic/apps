@@ -3179,6 +3179,13 @@ Covers: resize/i18n/zh-CN/tour.js
 Covers: resize/i18n/zh-TW/app.js
 Covers: resize/i18n/zh-TW/panel.js
 Covers: resize/i18n/zh-TW/tour.js
+Covers: scan/i18n/en/app.js
+Covers: scan/i18n/en/panel.js
+Covers: scan/i18n/en/tour.js
+Covers: scan/i18n/index.js
+Covers: scan/i18n/sv/app.js
+Covers: scan/i18n/sv/panel.js
+Covers: scan/i18n/sv/tour.js
 Covers: serials/i18n/ar/app.js
 Covers: serials/i18n/de/app.js
 Covers: serials/i18n/en/app.js

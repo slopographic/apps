@@ -9,6 +9,7 @@
 <body>
   <!-- Loaded in an iframe by the consent tests. ?cfg=<json> overrides config, ?block=1 makes localStorage throw. -->
   <section id="donate-slot" data-donate hidden></section>
+  <p id="tp-note" data-third-party>Analytics and ads stay off unless you switch them on.</p>
   <script>
     window.__errors = [];
     addEventListener('error', function (e) { window.__errors.push(String(e.message)); });

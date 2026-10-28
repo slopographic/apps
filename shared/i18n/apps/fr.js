@@ -9,6 +9,7 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'seo.reg.aitools.title': 'Outils IA', 'seo.reg.aitools.tagline': 'OCR, parole en texte, débruitage, étiquettes auto et flou de portrait. Sur votre appareil.', 'seo.mq.aitools': 'Outils IA',
   'seo.reg.reports.title': 'Rapports', 'seo.reg.reports.tagline': 'Totaux et listes de Contacts, Factures, Dépenses et CRM, avec bénéfice par mois. Lecture seule.', 'seo.mq.reports': 'Rapports',
   'seo.reg.ocr.title': 'OCR : lire le texte d’images et de scans', 'seo.reg.ocr.tagline': 'Lisez le texte d’images et de PDF numérisés sur votre appareil. Rien n’est envoyé.', 'seo.mq.ocr': 'OCR',
+  'seo.reg.scan.title': 'Document scanner: photo to PDF', 'seo.reg.scan.tagline': 'Photos of pages to a clean PDF: edges found, shadows gone. Nothing uploaded.', 'seo.mq.scan': 'Document scanner',
   'seo.reg.html2pdf.title': 'Convertisseur HTML vers PDF', 'seo.reg.html2pdf.tagline': 'Imprimez un fichier HTML en PDF avec en-tête et code QR. Rien n’est envoyé.', 'seo.mq.html2pdf': 'Convertisseur HTML vers PDF',
   'seo.reg.clean.title': 'SlopClean : suppression des métadonnées des photos', 'seo.reg.clean.tagline': 'Voyez ce que révèle une photo, et supprimez-le. Rien n’est envoyé.', 'seo.mq.clean': 'SlopClean',
   'seo.reg.ai.title': 'Discussion IA', 'seo.reg.ai.tagline': 'Discutez avec une IA qui tourne sur votre propre ordinateur.', 'seo.mq.ai': 'Discussion IA',

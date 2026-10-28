@@ -9,6 +9,7 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'ui.appdesc.cutout': 'デバイス上の AI で、1 枚から数百枚の写真の背景を一度に削除し、透明、白、ぼかし、または色の背景にできます。',
   'ui.appdesc.aitools': 'デバイス上で動く補助機能：画像やスキャンからのテキスト読み取り、音声のテキスト化、写真のノイズ除去、写真へのタグ付け。',
   'ui.appdesc.ocr': 'デバイス上で写真やスキャンした PDF の文字を読み取り、コピーしたり、.txt で保存したり、検索可能な PDF にしたりできます。',
+  'ui.appdesc.scan': 'Turn photos of pages into one clean PDF: the edges are found, the pages made flat and shadows removed, in colour or black and white, with searchable text.',   // English until translated (Slop Scan)
   'ui.appdesc.html2pdf': 'HTML ファイルを、すべてのページにヘッダー、日付、QR コードを付けて PDF に印刷します。アップロードは行われません。',
   'ui.appdesc.clean': '写真から、位置情報、カメラ、シリアル番号、日付など、どの情報が分かるかを確認し、再エンコードせずにそれらの項目を削除します。',
   'ui.appdesc.ai': 'WebGPU を通じてお使いのパソコン上で動く AI モデルとチャットします。オフラインで動作し、まずシステム チェックを行います。',

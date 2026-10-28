@@ -42,6 +42,14 @@ test('a focused app (ios.apps): the other apps and their landing pages are left 
   for (const f of Object.values(folders)) assert.match(f, /^[a-z0-9-]+$/);
 });
 
+test('Slop Scan is in the app: its pages are bundled and get the glue and the store-app mode', () => {
+  const folders = appFolders(read('shared/apps.js'));
+  assert.equal(folders.scan, 'scan');
+  const files = ['scan/index.html', 'scan/js/main.js', 'apps/scan/index.html', 'shared/native-app.js'];
+  assert.deepEqual(bundleFiles(files, { apps: 'all', leaveOut: [] }, folders), files);
+  assert.match(injectNative(read('scan/index.html')), /<script src="\/shared\/native-app\.js"><\/script>/);
+});
+
 test('every cdn engine the apps fetch is under engines/ (the folder the bundle carries)', () => {
   const dirs = [
     [read('convert/js/core/ffmpeg-engine.js'), /CORE_DIR = '([^']+)'/], [read('shared/heic/engine.js'), /BASE = '([^']+)'/],

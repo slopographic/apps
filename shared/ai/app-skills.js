@@ -13,6 +13,7 @@
     "aitools": {"create":["new_job"],"add":["add_file"],"ops":[]},
     "reports": {"create":["create_report"],"add":["add_column"],"ops":[]},
     "ocr": {"create":["new_document"],"add":["add_files"],"ops":["ocr.read"]},
+    "scan": {"create":["new_scan"],"add":["add_photo"],"ops":[]},
     "html2pdf": {"create":["new_document"],"add":["add_images"],"ops":[]},
     "clean": {"create":["new_batch"],"add":["add_files"],"ops":["clean.metadata"]},
     "ai": {"create":["new_chat"],"add":["add_message"],"ops":[]},

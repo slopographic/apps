@@ -9,6 +9,7 @@ window.SlopI18n && window.SlopI18n.add('de', {
   'seo.reg.aitools.title': 'KI-Werkzeuge', 'seo.reg.aitools.tagline': 'OCR, Sprache zu Text, Entrauschen, automatische Schlagwörter und Porträt-Unschärfe. Auf Ihrem Gerät.', 'seo.mq.aitools': 'KI-Werkzeuge',
   'seo.reg.reports.title': 'Berichte', 'seo.reg.reports.tagline': 'Summen und Listen über Kontakte, Rechnungen, Ausgaben und CRM, mit Gewinn nach Monat. Nur lesend.', 'seo.mq.reports': 'Berichte',
   'seo.reg.ocr.title': 'OCR: Text aus Bildern und Scans lesen', 'seo.reg.ocr.tagline': 'Text aus Bildern und gescannten PDFs auf Ihrem Gerät lesen. Nichts wird hochgeladen.', 'seo.mq.ocr': 'OCR',
+  'seo.reg.scan.title': 'Document scanner: photo to PDF', 'seo.reg.scan.tagline': 'Photos of pages to a clean PDF: edges found, shadows gone. Nothing uploaded.', 'seo.mq.scan': 'Document scanner',
   'seo.reg.html2pdf.title': 'HTML-zu-PDF-Konverter', 'seo.reg.html2pdf.tagline': 'Eine HTML-Datei mit Kopfzeile und QR-Code als PDF drucken. Nichts wird hochgeladen.', 'seo.mq.html2pdf': 'HTML-zu-PDF-Konverter',
   'seo.reg.clean.title': 'SlopClean: Entferner für Fotometadaten', 'seo.reg.clean.tagline': 'Sehen, was ein Foto verrät, und es entfernen. Nichts wird hochgeladen.', 'seo.mq.clean': 'Entferner für Fotometadaten',
   'seo.reg.ai.title': 'KI-Chat', 'seo.reg.ai.tagline': 'Chatten mit einer KI, die auf Ihrem eigenen Computer läuft.', 'seo.mq.ai': 'KI-Chat',

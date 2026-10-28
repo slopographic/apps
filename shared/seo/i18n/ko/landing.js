@@ -22,6 +22,8 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'seo.landing.reports.description': 'Slop Reports는 연락처, 청구서, 지출, CRM 전체의 합계를 보여 줍니다. 월별 이익과 미납 청구서를 포함하며, 읽기 전용이고 CSV로 내보냅니다.',
   'seo.landing.ocr.title': 'Slop OCR: 이미지와 스캔한 PDF의 텍스트 읽기 | Slopographic',
   'seo.landing.ocr.description': 'Slop OCR은 기기에서 이미지와 스캔한 PDF를 200 dpi로 페이지마다 읽습니다. 텍스트를 편집한 뒤 복사하거나 .txt, .md, 검색 가능한 PDF로 저장하세요.',
+  'seo.landing.scan.title': 'Free document scanner in your browser: photo to PDF | Slop Scan',   // English until translated (Slop Scan)
+  'seo.landing.scan.description': 'Free document scanner in your browser: photos of pages to one PDF, cropped for you. No upload.',   // English until translated (Slop Scan)
   'seo.landing.html2pdf.title': 'Slop HTML to PDF: 머리글과 QR이 있는 HTML 인쇄 | Slopographic',
   'seo.landing.html2pdf.description': 'Slop HTML to PDF는 브라우저에서 HTML 파일을 PDF로 인쇄합니다. 모든 페이지에 이름, 날짜, QR 코드가 담긴 머리글이 들어갑니다. 업로드되지 않습니다.',
   'seo.landing.clean.title': 'SlopClean: GPS 같은 사진 메타데이터 확인과 제거 | Slopographic',

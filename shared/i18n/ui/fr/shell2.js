@@ -7,6 +7,7 @@ window.SlopI18n && window.SlopI18n.add('fr', {
   'ui.appdesc.cutout': 'Retirez l’arrière-plan d’une photo ou de centaines à la fois avec une IA sur votre appareil, puis rendez-le transparent, blanc, flou ou d’une couleur.',
   'ui.appdesc.aitools': 'Outils sur l’appareil : lire le texte des images et des scans, parole en texte, nettoyer le bruit d’une photo et étiqueter les photos.',
   'ui.appdesc.ocr': 'Lisez le texte des photos et des PDF numérisés sur votre appareil, puis copiez-le, enregistrez un .txt, ou créez un PDF consultable.',
+  'ui.appdesc.scan': 'Turn photos of pages into one clean PDF: the edges are found, the pages made flat and shadows removed, in colour or black and white, with searchable text.',   // English until translated (Slop Scan)
   'ui.appdesc.html2pdf': 'Imprimez un fichier HTML en PDF avec un en-tête, une date et un code QR sur chaque page. Rien n’est envoyé.',
   'ui.appdesc.clean': 'Voyez ce qu’une photo révèle de vous (GPS, appareil, numéro de série et date) et retirez ces champs sans réencoder l’image.',
   'ui.appdesc.ai': 'Discutez avec un modèle d’IA qui tourne sur votre ordinateur grâce à WebGPU, hors ligne, après un contrôle du système.',
