@@ -24,10 +24,8 @@
       svg.append(gr);
       return gr;
     });
-    svg.addEventListener('pointerdown', down);
-    svg.addEventListener('pointermove', move);
-    svg.addEventListener('pointerup', up);
-    svg.addEventListener('pointercancel', up);
+    // on the stage, not the handles: a finger is taken wherever the browser hit-tests it (the photo under a handle's edge too)
+    for (const [type, fn] of [['pointerdown', down], ['pointermove', move], ['pointerup', up], ['pointercancel', up]]) stage.addEventListener(type, fn);
     if (g.ResizeObserver) new ResizeObserver(() => layout()).observe(stage);
     words();
     if (g.SlopI18n && g.SlopI18n.on) g.SlopI18n.on(words);
@@ -91,7 +89,7 @@
     const p = at(e), i = cornerAt(e, p);
     if (i < 0) return;
     drag = { i, id: e.pointerId, dx: q[i].x - p.x, dy: q[i].y - p.y };
-    try { svg.setPointerCapture(e.pointerId); } catch (x) { /* a pointer the browser no longer tracks: the drag still follows moves over the photo */ }
+    try { stage.setPointerCapture(e.pointerId); } catch (x) { /* a pointer the browser no longer tracks: the drag still follows moves over the photo */ }
     dots[i].classList.add('is-drag');
     e.preventDefault();
     magnify(i);
