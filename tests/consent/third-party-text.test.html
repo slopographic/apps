@@ -22,11 +22,12 @@
       expect(w.SlopConsent.hasThirdParty()).toBe(false);
       expect(w.document.getElementById('tp-note').hidden).toBe(true);
     });
-    it('stays when the site has analytics or ads', async () => {
+    it('stays when the site has analytics or ads (a build with the third-party switch off has none, whatever the IDs)', async () => {
       for (const cfg of [{ ga4MeasurementId: GA, adsensePublisherId: '' }, { ga4MeasurementId: '', adsensePublisherId: ADS }]) {
         const w = await open({ cfg });
-        expect(w.SlopConsent.hasThirdParty()).toBe(true);
-        expect(w.document.getElementById('tp-note').hidden).toBe(false);
+        const on = w.SLOP_CONSENT_CONFIG.thirdParty !== false;
+        expect(w.SlopConsent.hasThirdParty()).toBe(on);
+        expect(w.document.getElementById('tp-note').hidden).toBe(!on);
       }
     });
     for (const [page, key] of [['../../index.html', 'footer.accounts_home'], ['../../settings/index.html', 'footer.accounts_settings']]) {

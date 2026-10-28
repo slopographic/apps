@@ -123,13 +123,13 @@
   /** True when the site can load analytics or ads at all (shared/consent/config.js). */
   function hasThirdParty() { return !!(cfg && cfg.thirdParty !== false && (cfg.ga4MeasurementId || cfg.adsensePublisherId)); }
   function hideThirdPartyText() {
-    if (hasThirdParty()) return;
+    if (hasThirdParty() || typeof document === 'undefined' || typeof document.querySelectorAll !== 'function') return;
     var els = document.querySelectorAll('[data-third-party]');
     for (var i = 0; i < els.length; i++) els[i].hidden = true;
   }
   api.hasThirdParty = hasThirdParty;
   window.SlopConsent = api;
   apply();
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', hideThirdPartyText);
+  if (typeof document !== 'undefined' && document.readyState === 'loading') document.addEventListener('DOMContentLoaded', hideThirdPartyText);
   else hideThirdPartyText();
 })();
