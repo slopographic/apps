@@ -27,6 +27,7 @@ struct SiteRouter: Router {
 /// bottom edge. The status bar text follows the top band (dark on light, light on dark).
 class SiteViewController: CAPBridgeViewController, WKScriptMessageHandler {
     private let topBand = UIView()
+    private var processGuard: ProcessGuard?
 
     override func router() -> Router {
         return SiteRouter()
@@ -52,6 +53,9 @@ class SiteViewController: CAPBridgeViewController, WKScriptMessageHandler {
             topBand.trailingAnchor.constraint(equalTo: box.trailingAnchor),
         ])
         web.configuration.userContentController.add(WeakMessageHandler(self), name: "siteChrome")
+        let guardian = ProcessGuard(web)
+        processGuard = guardian   // the web view holds its navigation delegate weakly
+        web.navigationDelegate = guardian
     }
 
     /// { top: [r, g, b], bottom: [r, g, b] } (0-255) from the page glue.
@@ -77,5 +81,42 @@ class WeakMessageHandler: NSObject, WKScriptMessageHandler {
     init(_ target: WKScriptMessageHandler) { self.target = target }
     func userContentController(_ ucc: WKUserContentController, didReceive message: WKScriptMessage) {
         target?.userContentController(ucc, didReceive: message)
+    }
+}
+
+/// When iOS ends the page's process (a page that used too much memory), the page comes back at the address it was on
+/// (the app it was in, which puts its saved work back), never at the start page. It stands in front of Capacitor's own
+/// navigation delegate and hands it everything else; Capacitor's handler runs first (it resets the bridge and reloads),
+/// and when the web view no longer knows its address, the last one it showed is loaded.
+class ProcessGuard: NSObject, WKNavigationDelegate {
+    private weak var inner: WKNavigationDelegate?
+    private var lastURL: URL?
+    private var seen: NSKeyValueObservation?
+
+    init(_ web: WKWebView) {
+        inner = web.navigationDelegate
+        lastURL = web.url
+        super.init()
+        seen = web.observe(\.url, options: [.new]) { [weak self] w, _ in
+            if let u = w.url, u.scheme != "about" { self?.lastURL = u }
+        }
+    }
+
+    override func responds(to aSelector: Selector!) -> Bool {
+        return super.responds(to: aSelector) || (inner?.responds(to: aSelector) ?? false)
+    }
+
+    override func forwardingTarget(for aSelector: Selector!) -> Any? {
+        return inner?.responds(to: aSelector) == true ? inner : nil
+    }
+
+    func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
+        let handled = inner?.responds(to: #selector(WKNavigationDelegate.webViewWebContentProcessDidTerminate(_:))) == true
+        if handled { inner?.webViewWebContentProcessDidTerminate?(webView) }
+        if webView.url == nil, let u = lastURL {
+            webView.load(URLRequest(url: u))
+        } else if !handled {
+            webView.reload()
+        }
     }
 }

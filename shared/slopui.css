@@ -122,3 +122,7 @@ textarea.sui-input { height: auto; resize: vertical; }
    and room for it. The one rule for SlopUI dialogs (.sui-x), sheets (shared/ui/sheet.js), the command palette and the
    app switcher. */
 @media (hover: none), (pointer: coarse), (max-width: 640px) { .slop-esc-hint { display: none !important; } }
+/* pdf.js's text layer puts a measuring canvas (one per language) at the end of <body>; its own viewer CSS hides it. Shown,
+   each one is a line below a one-screen app, so the page scrolls: on an iPhone the header slid under the status bar and a
+   grey band showed under the bottom bar (tests/pdf/phone-layout.test.html). */
+.hiddenCanvasElement { position: absolute; top: 0; left: 0; width: 0; height: 0; display: none; }

@@ -22,8 +22,8 @@
     };
   }
   function fill(act, r) {
-    Object.assign(act, { mask: r.mask, cutout: r.cutout, cut: null, bbox: C.bbox(r.mask, act.w, act.h) });
-    act.rev++;
+    Object.assign(act, { mask: r.mask, cutout: r.cutout, bbox: C.bbox(r.mask, act.w, act.h) });
+    C.touch(act, null);   // the whole cut-out, into the canvas it already has
   }
 
   /** Segment one item with the model. Resolves when it is done, failed or cancelled. */
@@ -154,6 +154,8 @@
   function free(act) {
     SlopCutout.release(act.jobId).catch(() => {});
     if (act.bitmap && act.bitmap.close) act.bitmap.close();
+    if (act.cut) { if (CO.view && CO.view.release) CO.view.release(act.cut); act.cut.width = act.cut.height = 0; act.cut = null; }
+    if (act.grey) { act.grey.width = act.grey.height = 0; act.grey = act.greyImg = null; }   // iOS frees a canvas's pixels only then
   }
 
   /** Re-run post-processing for the active image (settings or brush edits changed). Newest call wins. */
@@ -201,9 +203,11 @@
         m[i] = a; cut[i * 4 + 3] = a;
       }
     }
-    act.rev++; act.cut = null;
-    CO.emit('active', act);
+    C.touch(act, rect);
+    // one repaint per frame, however many pointer moves came in it
+    if (!liveFrame) liveFrame = (window.requestAnimationFrame || setTimeout)(() => { liveFrame = 0; if (P.active) CO.emit('active', P.active); });
   };
+  let liveFrame = 0;
 
   P.pending = () => queue.length + running.size;
   P.running = () => running.size;

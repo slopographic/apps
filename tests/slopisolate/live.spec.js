@@ -70,6 +70,30 @@
     }, { timeout: 260000 });
   });
 
+  describe('memory while painting (an iPhone ended the page within seconds of dragging Remove)', () => {
+    it('a long stroke makes no new canvases: the cut-out, its levels and the tint are drawn again in place', async () => {
+      const w = await open(), CO = w.CO;
+      CO.state.setTool('remove');
+      const p = subjectPoint(w), [cx, cy] = clientOf(w, p.sx, p.sy);
+      const stroke = async (n) => {
+        at(w, cx, cy, 'pointerdown', { button: 0 });
+        for (let k = 1; k <= n; k++) { at(w, cx + k, cy + (k % 7), 'pointermove', { buttons: 1 }); if (k % 4 === 0) await sleep(20); }
+        at(w, cx + n, cy, 'pointerup', { button: 0 });
+      };
+      await stroke(8);   // the first stroke makes what painting needs (the tint's screen-size canvas)
+      await sleep(400);
+      const make = w.document.createElement, made = [];
+      w.document.createElement = function (tag, o) { const st = new Error().stack; if (String(tag).toLowerCase() === 'canvas' && !/thumbs\.js/.test(st)) made.push(st); return make.call(this, tag, o); };
+      try {
+        const cut = CO.process.active.cut;
+        await stroke(60);
+        expect(made.length ? made[0] : '').toBe('');   // the queue tiles' small pictures (thumbs.js) are not counted
+        expect(CO.process.active.cut).toBe(cut);
+        expect(CO.history.can(CO.state.current(), 'undo')).toBe(true);
+      } finally { w.document.createElement = make; }
+    }, { timeout: 260000 });
+  });
+
   describe('right-button brush resize', () => {
     it('right-drag right increases the brush size; a small move keeps it', async () => {
       const w = await open(), CO = w.CO;

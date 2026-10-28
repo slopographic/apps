@@ -167,6 +167,11 @@ test("Capacitor settings and the Xcode project's changes", () => {
   assert.equal(appendOnce(once, swift), once);
   assert.equal(appendOnce(once.replace('SiteRouter()', 'Old()'), swift), once);   // a re-patch replaces an older copy
   assert.match(swift, /web\.topAnchor\.constraint\(equalTo: safe\.topAnchor\)/);   // the web view inside the safe area
+  // iOS ended the page's process (too much memory): the page comes back where it was (its saved work with it), not at the start
+  assert.match(swift, /web\.navigationDelegate = guardian/);
+  assert.match(swift, /func webViewWebContentProcessDidTerminate\(_ webView: WKWebView\)[\s\S]*webView\.load\(URLRequest\(url: u\)\)/);
+  assert.match(swift, /observe\(\\\.url/);   // the last address it showed is kept
+  assert.match(swift, /forwardingTarget\(for aSelector/);   // Capacitor's own delegate still gets everything else
   const pbx = patchPbxproj('IPHONEOS_DEPLOYMENT_TARGET = 15.0;\nPRODUCT_BUNDLE_IDENTIFIER = com.getcapacitor.App;', 'com.example.app');
   assert.equal(pbx, `IPHONEOS_DEPLOYMENT_TARGET = ${MIN_IOS};\nPRODUCT_BUNDLE_IDENTIFIER = com.example.app;`);
   const svg = iconSvg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32"><rect/></svg>', '#000000', 1000, 0.8);

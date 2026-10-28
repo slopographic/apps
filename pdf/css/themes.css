@@ -99,6 +99,12 @@
   .pp-row { grid-template-columns: 78px minmax(0, 1fr) auto; }
 }
 @media (max-width: 400px) { .topbar { gap: 2px; } }
+/* A finger: fields of 16 px or more, so iOS never zooms the page in when one takes the focus (the zoomed, shifted layout
+   then covered the buttons). */
+@media (max-width: 900px) and (pointer: coarse) {
+  .props input:not([type="range"]):not([type="checkbox"]):not([type="radio"]):not([type="color"]), .props select, .props textarea,
+  .topbar input, .ctxbar input, .ctxbar select { font-size: 16px; }
+}
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
 
 /* The shared header buttons keep their own light face on the title bar: dark text on it. */
