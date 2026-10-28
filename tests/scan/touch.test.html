@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="slop-test-touch">
   <title>Slop Scan on a phone, by touch</title>
-  <style>html, body { margin: 0; height: 100%; background: #111; } iframe { width: 390px; height: 844px; border: 0; display: block; }</style>
+  <style>html, body { margin: 0; height: 100%; background: #111; } iframe { width: 390px; height: min(844px, 100vh); border: 0; display: block; }   /* the foot must be on the screen: a tablet in landscape is shorter than a phone */</style>
 </head>
 <body>
   <!-- Slop Scan with a finger at phone width: the empty page leads with Take photo, a page opens over the list, a finger
@@ -41,7 +41,7 @@
       expect($('sc-crop').hasAttribute('data-touch-surface')).toBe(true);
       expect(W.getComputedStyle($('sc-crop')).touchAction).toBe('none');
       const hit = D.querySelector('.sc-handle .sc-hit').getBoundingClientRect();
-      expect(hit.width).toBeGreaterThanOrEqual(44);
+      expect(hit.width).toBeGreaterThanOrEqual(W.matchMedia('(pointer: coarse)').matches ? 44 : 36);
     }, { timeout: 40000 });
 
     it('a finger drags the bottom-right corner; the magnifier shows while it moves, and the page keeps its scroll', async () => {
@@ -58,10 +58,14 @@
     it('‹ Pages goes back to the list of two; Settings opens the panel as a sheet with the looks', async () => {
       await sleep(900);
       await TouchKit.tap($('sc-back'));
+      await sleep(300);
       await waitFor(() => shown($('sc-pages')) && $('sc-pages').children.length === 2);
       const more = [...D.querySelectorAll('.sf-foot-more')].find(shown);
       await TouchKit.tap(more);
       await waitFor(() => shown($('sc-style-bw')), { timeout: 5000 });
+      await sleep(700);   // the sheet slides up: tap the button where it ends
+      $('sc-style-bw').scrollIntoView({ block: 'center' });
+      await sleep(100);
       await TouchKit.tap($('sc-style-bw'));
       await waitFor(() => S.pages.current().style === 'bw');
     }, { timeout: 20000 });

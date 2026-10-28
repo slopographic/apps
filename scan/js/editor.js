@@ -20,11 +20,11 @@
     dots = NAMES.map((name, i) => {
       const gr = el('g', { class: 'sc-handle', tabindex: '0', role: 'button', 'data-i': String(i) });
       gr.append(el('circle', { class: 'sc-hit', r: '22' }), el('circle', { class: 'sc-dot', r: '9' }));
-      gr.addEventListener('pointerdown', down);
       gr.addEventListener('keydown', key);
       svg.append(gr);
       return gr;
     });
+    svg.addEventListener('pointerdown', down);
     svg.addEventListener('pointermove', move);
     svg.addEventListener('pointerup', up);
     svg.addEventListener('pointercancel', up);
@@ -77,11 +77,22 @@
     const r = svg.getBoundingClientRect();
     return { x: (e.clientX - r.left) / r.width, y: (e.clientY - r.top) / r.height };
   }
+  /** The corner a press takes: the handle it landed on, else the nearest corner within the handle's reach (a browser
+   *  may hit-test the photo under a finger's edge, not the handle's transparent ring). */
+  function cornerAt(e, p) {
+    const h = e.target.closest && e.target.closest('.sc-handle');
+    if (h) return Number(h.dataset.i);
+    const r = svg.getBoundingClientRect(), reach = parseFloat(dots[0].firstChild.getAttribute('r')) * r.width / cv.width;
+    let best = -1, d = Infinity;
+    q.forEach((c, i) => { const dd = Math.hypot((c.x - p.x) * r.width, (c.y - p.y) * r.height); if (dd < d) { d = dd; best = i; } });
+    return d <= reach ? best : -1;
+  }
   function down(e) {
-    const i = Number(e.currentTarget.dataset.i), p = at(e);
+    const p = at(e), i = cornerAt(e, p);
+    if (i < 0) return;
     drag = { i, id: e.pointerId, dx: q[i].x - p.x, dy: q[i].y - p.y };
     try { svg.setPointerCapture(e.pointerId); } catch (x) { /* a pointer the browser no longer tracks: the drag still follows moves over the photo */ }
-    e.currentTarget.classList.add('is-drag');
+    dots[i].classList.add('is-drag');
     e.preventDefault();
     magnify(i);
   }
