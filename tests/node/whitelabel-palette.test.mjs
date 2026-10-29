@@ -13,6 +13,7 @@ import { remapColors, shift, shiftNeutral, rgbToHsl, paletteFile, luminance, the
 
 import { context, forward } from '../../tools/whitelabel/transform.mjs';
 import { loadProfile, loadMap, validate } from '../../tools/whitelabel/profile.mjs';
+import { ENV } from '../../tools/whitelabel/history-git.mjs';   // a pre-push hook's GIT_DIR must not reach this test's git
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const hexRgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
@@ -93,8 +94,8 @@ test('a test file moves only the site\u2019s own colours: its other colours are 
     mkdirSync(path.join(root, 'app'));
     writeFileSync(path.join(root, 'app/a.css'), 'a { color: #4f6c00; background: #ebe7de; }');
     writeFileSync(path.join(root, 'app/notes.txt'), '#fbfaf5');   // not a palette file: not the site's look
-    execFileSync('git', ['init', '-q'], { cwd: root });
-    execFileSync('git', ['add', '-A'], { cwd: root });
+    execFileSync('git', ['init', '-q'], { cwd: root, env: ENV });
+    execFileSync('git', ['add', '-A'], { cwd: root, env: ENV });
     const dir = path.join(ROOT, 'brand/profiles'), ctx = { ...context(ROOT, { ...loadProfile(dir, 'sample'), palette: pal }, loadMap(dir, 'sample')), root };
     const test = "const fixture = '<a:srgbClr val=\"FBFAF5\"/>', want = ['#fbfaf5', '#ebe7de', '#4f6c00'];";
     const out = forward(test, ctx, 'tests/node/deck.test.mjs');
@@ -103,4 +104,23 @@ test('a test file moves only the site\u2019s own colours: its other colours are 
     assert.doesNotMatch(out, /#ebe7de|#4f6c00/, 'the site\u2019s colours move, as in the site');
     assert.doesNotMatch(forward(test, ctx, 'app/js/deck.js'), /#fbfaf5|#ebe7de|#4f6c00/, 'outside tests/ every colour of the families moves');
   } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test('the site colours come from the tree given, even inside a git hook that exports GIT_DIR', () => {
+  // A pre-push hook exports GIT_DIR: this test's git and siteColors once followed it, and `git add -A` in a temporary
+  // tree replaced the index of the checkout being pushed.
+  const tmp = (n) => mkdtempSync(path.join(os.tmpdir(), n)), root = tmp('wl-palette-'), hook = tmp('wl-hook-');
+  try {
+    for (const [d, file, css] of [[root, 'a.css', 'a { color: #4f6c00; }'], [hook, 'b.css', 'b { color: #123456; }']]) {
+      writeFileSync(path.join(d, file), css);
+      execFileSync('git', ['init', '-q'], { cwd: d, env: ENV }); execFileSync('git', ['add', '-A'], { cwd: d, env: ENV });
+    }
+    const probe = `import { siteColors } from ${JSON.stringify(path.join(ROOT, 'tools/whitelabel/transform.mjs'))};
+      process.stdout.write([...siteColors({ root: process.argv[1] })].join(' '));`;
+    const out = execFileSync(process.execPath, ['--input-type=module', '-e', probe, root], { encoding: 'utf8',
+      env: Object.assign({}, process.env, { GIT_DIR: path.join(hook, '.git'), GIT_WORK_TREE: hook }) });
+    assert.match(out, /4f6c00/, 'the colours of the tree given');
+    assert.doesNotMatch(out, /123456/, 'not those of the hook\u2019s repository');
+    assert.equal(execFileSync('git', ['ls-files'], { cwd: hook, env: ENV, encoding: 'utf8' }).trim(), 'b.css', 'the hook\u2019s index is untouched');
+  } finally { rmSync(root, { recursive: true, force: true }); rmSync(hook, { recursive: true, force: true }); }
 });
