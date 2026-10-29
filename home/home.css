@@ -14,7 +14,10 @@
 /* Room for the strip: the page's end clears it, and a control scrolled into view (jump link, focus) lands above it
  * and below the sticky header. Both are 0 while no strip is shown. */
 body { padding-bottom: var(--consent-h); }
-html { scroll-padding-top: calc(var(--top, 64px) + 8px); scroll-padding-bottom: var(--consent-h); } /* the sticky header and the strip; sections and jump links use this */
+html { scroll-padding-top: calc(var(--top, 64px) + 8px); scroll-padding-bottom: calc(var(--consent-h, 0px) + var(--corner-room)); } /* the sticky header and the strip; sections and jump links use this */
+/* The corner presence (the mascot or its toggle, fixed at the bottom right) never covers a control brought into view (focus,
+ * scrollIntoView): a right-aligned one, like the promo line's Hide, stops above it. */
+:root { --corner-room: 96px; }
 
 .home { padding: calc(var(--top, 64px) + 24px) clamp(16px, 4vw, 56px) 40px; max-width: 1280px; margin: 0 auto; }
 

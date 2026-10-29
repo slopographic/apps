@@ -9,6 +9,7 @@
 <body>
   <script src="../harness.js"></script>
   <script>
+  // Covers: home/home.css, shared/promo/promo.js
   /* The homepage at 390, 768 and 1280 px wide, in a same-origin iframe of that width and 800 px tall.
    * Three checks, each on the page as it is when the check runs:
    *  1. Overlaps (at the top of the page, the app globe held still, Sloppo hidden): no two visible buttons or links that
@@ -204,6 +205,13 @@
       it('every visible control is above the consent strip and not covered by anything when scrolled into view', async () => {
         const win = await openHome(w);
         hideMascot(win);
+        // the corner presence (the mascot's toggle, a build's own mascot) floats at the bottom right: a control brought into
+        // view stops above it (html scroll-padding-bottom, home/home.css --corner-room), so the promo line's Hide is never under it
+        const pad = parseFloat(win.getComputedStyle(win.document.documentElement).scrollPaddingBottom) || 0;
+        for (const c of win.document.querySelectorAll('.buddy-toggle, .mascot-slot')) {
+          if (!seen(c, win)) continue;
+          expect(win.innerHeight - c.getBoundingClientRect().top).toBeLessThanOrEqual(pad);
+        }
         const out = await coverageFailures(win);
         expect(out).toEqual([]);
       }, { timeout: 180000 });
