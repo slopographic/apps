@@ -120,3 +120,16 @@ test('ORT that cannot build a session in this browser (iOS 16.4) → code unavai
   assert.equal(log.creates.length, 2, 'the shipped start, then a fresh light one');
   assert.match(log.creates[1].mjs, /^blob:/);
 });
+
+test('iOS / iPadOS before 17: code unavailable at once, nothing imported or downloaded; iOS 17 starts as before', async () => {
+  const { rt, log, cfg } = world({ ios: true });
+  cfg.ua = 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148';
+  await assert.rejects(rt.session('quality', progressFor(log)), (e) => e.code === 'unavailable' && /iOS/.test(e.message));
+  assert.deepEqual(log.imports, []);
+  assert.deepEqual(log.texts, []);
+  assert.deepEqual(rt.loaded(), []);
+  cfg.ua = 'Mozilla/5.0 (iPad; CPU OS 17_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148';
+  const s = await rt.session('fast', progressFor(log));
+  assert.equal(s.light, true);
+  assert.equal(log.imports.length, 1);
+});

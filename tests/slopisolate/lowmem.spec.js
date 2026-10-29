@@ -2,7 +2,8 @@
  * RangeError: Out of memory"). The real app and worker run with a fake ONNX Runtime (through SlopCutout.configure's
  * sources, as an offline build passes its files) whose every session creation throws RangeError: Out of memory. The
  * engine retries lighter and with the smallest model, then gives up with code 'low-memory'; the app says so in words
- * (never the raw error), keeps the whole photo, and the Keep / Remove brushes still cut it by hand. */
+ * (never the raw error), keeps the whole photo, and the Keep / Remove brushes still cut it by hand. On iOS / iPadOS before
+ * 17 (stood in for through configure's ios / ua) the engine refuses at once with code 'unavailable'. */
 (function () {
   'use strict';
   const { describe, it, expect, waitFor, sleep } = SlopTest;
@@ -74,5 +75,19 @@
       await waitFor(() => CO.process.active && CO.process.active.mask[idx] < 128, { timeout: 20000 });
       expect(CO.history.can(CO.state.current(), 'undo')).toBe(true);
     }, { timeout: 60000 });
+
+    it('iOS / iPadOS before 17: the engine says at once that it cannot run here, without starting ORT', async () => {
+      const win = await open(), t0 = Date.now();
+      win.SlopCutout.configure({ ios: true, ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148' });
+      let err = null;
+      try { await win.SlopCutout.load('quality'); } catch (e) { err = e; }
+      expect(!!err).toBe(true);
+      expect(err.code).toBe('unavailable');
+      expect(err.message).toBe(win.SlopCutout.lowMemoryText('unavailable'));
+      expect(/iOS \/ iPadOS 17/.test(err.detail)).toBe(true);
+      expect(/no available backend|RangeError/.test(err.detail)).toBe(false);
+      expect(Date.now() - t0 < 5000).toBe(true);
+      win.SlopCutout.configure({ ios: false, ua: '' });
+    }, { timeout: 30000 });
   });
 })();

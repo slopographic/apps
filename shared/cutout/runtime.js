@@ -1,8 +1,9 @@
 /* SlopCutout runtime: starts ONNX Runtime Web and makes the model sessions, in the configuration memory.js plans, and
  * retries lighter when a device runs out of memory (memory.js says why: WebKit on iOS 16/17 refuses ORT's 4 GB shared
- * memory). Classic script for the worker (importScripts after memory.js); the page-free parts are injected, so Node tests
- * drive it with a fake ORT. Sets self.SlopCutoutRuntime = { create(opts) }.
- * opts: { cfg (vendor, models, sources, ios: live object, read when used), models (SlopCutoutModels),
+ * memory); on iOS / iPadOS before 17, where ORT cannot build any session, it fails at once with code 'unavailable'.
+ * Classic script for the worker (importScripts after memory.js); the page-free parts are injected, so Node tests drive it
+ * with a fake ORT. Sets self.SlopCutoutRuntime = { create(opts) }.
+ * opts: { cfg (vendor, models, sources, ios, ua: live object, read when used), models (SlopCutoutModels),
  *         fetchCached(url, { sha256, bytes, onProgress }) → { buffer, cached }, importModule(url), fetchText(url), gpuOK() } */
 (function (root) {
   'use strict';
@@ -26,6 +27,8 @@
       }
       return env;
     }
+    /** iOS / iPadOS before 17 (memory.js): nothing is downloaded or started. cfg.ua stands in for the browser's (tests). */
+    const tooOld = () => MEM.tooOldForEngine({ ios: !!cfg.ios, ua: cfg.ua || (root.navigator || {}).userAgent, modern: MEM.modernEngine() });
     /** Release the sessions (all, or all but one model's). */
     function drop(keep) {
       for (const [id, p] of sessions) if (id !== keep) { sessions.delete(id); p.then((s) => s.release && s.release()).catch(() => {}); }
@@ -81,6 +84,7 @@
     function session(modelId, progress) {
       const id = Ms.get(modelId).id;
       if (sessions.has(id)) return sessions.get(id);
+      if (tooOld()) return Promise.reject(Object.assign(new Error('The background remover cannot start in this browser (ONNX Runtime needs iOS / iPadOS 17 or later)'), { code: 'unavailable' }));
       return keep(id, (async () => {
         const list = MEM.attempts(id, await environment(), { light });
         const r = await MEM.withRetry(list, (a) => make(a, progress), (e, a) => {

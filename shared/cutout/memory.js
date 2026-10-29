@@ -29,6 +29,26 @@
     try { return !!new WebAssembly.Memory({ initial: 1, maximum: 65536, shared: true }); } catch (e) { return false; }
   }
 
+  /** The iOS / iPadOS major version a user agent names: "CPU iPhone OS 16_4 like Mac OS X", or Safari's "Version/16.4"
+   *  (an iPad asking for desktop sites); 0 when it names neither (an app's iPad web view: "Macintosh ... (KHTML, like Gecko)"). */
+  function iosVersion(ua) {
+    const s = String(ua || ''), m = /\bOS (\d+)[_.]\d+[^)]* like Mac OS X/.exec(s) || /\bVersion\/(\d+)\.\d+[^ ]* (?:Mobile\/\S+ )?Safari\//.exec(s);
+    return m ? +m[1] : 0;
+  }
+  /** Has this engine the JavaScript of WebKit 17 (the RegExp v flag, new in Safari 17)? Tells iOS 16 from 17 when the
+   *  user agent names no version. */
+  function modernEngine() {
+    try { return new RegExp('[a]', 'v').test('a'); } catch (e) { return false; }
+  }
+  /** Can ONNX Runtime Web 1.30 not run here at all? WebKit on iOS / iPadOS before 17 fails every session ("Could not find
+   *  OrtValue with name '1000'" from its allocation planner, with any memory, thread or optimisation setting), so the
+   *  remover says so at once instead of downloading the model and retrying. env { ios, ua, modern (modernEngine()) }. */
+  function tooOldForEngine(env) {
+    if (!env || !env.ios) return false;
+    const v = iosVersion(env.ua);
+    return v ? v < 17 : env.modern === false;
+  }
+
   /** The light configuration: what runs on the smallest devices. */
   const LIGHT = Object.freeze({ backend: 'wasm', sharedMemory: false, numThreads: 1, proxy: false });
   /** env { ios, crossOriginIsolated, sharedMemory (false when sharedMemoryOK() said no), gpu, cores } → the configuration
@@ -118,5 +138,5 @@
     return { buffer: b.buffer, patched };
   }
 
-  root.SlopCutoutMemory = { isLowMemory, isEngineFailure, sharedMemoryOK, plan, attempts, withRetry, patchGlue, patchWasm, LIGHT };
+  root.SlopCutoutMemory = { isLowMemory, isEngineFailure, sharedMemoryOK, iosVersion, modernEngine, tooOldForEngine, plan, attempts, withRetry, patchGlue, patchWasm, LIGHT };
 })(typeof self !== 'undefined' ? self : globalThis);

@@ -121,3 +121,35 @@ test('patchWasm(): both vendored ORT binaries import one shared memory; patched 
 test('sharedMemoryOK() answers without throwing', () => {
   assert.equal(typeof MEM.sharedMemoryOK(), 'boolean');
 });
+
+test('tooOldForEngine(): iOS / iPadOS before 17 (by user agent, else by the engine) cannot run ORT; others can', () => {
+  const UA = {
+    iphone16: 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.4 Mobile/15E148 Safari/604.1',
+    appIphone16: 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_7_10 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148',
+    ipad17: 'Mozilla/5.0 (iPad; CPU OS 17_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148',
+    ipadDesktop16: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Safari/605.1.15',
+    ipadApp: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko)',
+    iphone18: 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Mobile/15E148 Safari/604.1',
+    chromeIos16: 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/118.0 Mobile/15E148 Safari/604.1',
+    mac: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.4 Safari/605.1.15',
+  };
+  assert.equal(MEM.iosVersion(UA.iphone16), 16);
+  assert.equal(MEM.iosVersion(UA.appIphone16), 16);
+  assert.equal(MEM.iosVersion(UA.ipad17), 17);
+  assert.equal(MEM.iosVersion(UA.ipadDesktop16), 16);
+  assert.equal(MEM.iosVersion(UA.ipadApp), 0);
+  assert.equal(MEM.iosVersion(UA.chromeIos16), 16);
+  assert.equal(MEM.iosVersion(''), 0);
+  const old = (ua, ios = true, modern = true) => MEM.tooOldForEngine({ ios, ua, modern });
+  assert.ok(old(UA.iphone16));
+  assert.ok(old(UA.appIphone16));
+  assert.ok(old(UA.ipadDesktop16));
+  assert.ok(old(UA.chromeIos16));
+  assert.ok(!old(UA.ipad17, true, false), 'the user agent wins over the engine probe');
+  assert.ok(!old(UA.iphone18));
+  assert.ok(!old(UA.ipadApp), 'no version named: an engine with iOS 17 JavaScript runs');
+  assert.ok(old(UA.ipadApp, true, false), 'no version named: an engine without it is iOS 16');
+  assert.ok(!old(UA.mac, false), 'a Mac (Safari 16 runs ORT) is never refused');
+  assert.ok(!MEM.tooOldForEngine(null));
+  assert.equal(MEM.modernEngine(), true, 'Node has the RegExp v flag');
+});

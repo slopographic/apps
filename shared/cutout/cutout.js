@@ -217,13 +217,14 @@
     /** { fast: bool, quality: bool, portrait: bool }: which models are already stored on this device. */
     cached: () => call('cached'),
     info: () => call('info'),
-    /** configure({ workerUrl, backend: 'auto'|'wasm', vendor, models, sources, workers }) before the first call.
+    /** configure({ workerUrl, backend: 'auto'|'wasm', vendor, models, sources, workers, ios, ua }) before the first call.
+     *  ios / ua: stand-ins for the device check (tests); the browser's own are used otherwise.
      *  workers: how many images segment at once (0 = poolSize() decides). */
     configure(o = {}) {
       if (o.workerUrl) conf.workerUrl = o.workerUrl;
       if (o.workers !== undefined) conf.workers = Math.max(0, o.workers | 0);
       const init = {};
-      for (const k of ['backend', 'vendor', 'models', 'sources']) if (o[k] !== undefined) init[k] = o[k];
+      for (const k of ['backend', 'vendor', 'models', 'sources', 'ios', 'ua']) if (o[k] !== undefined) init[k] = o[k];
       conf.init = Object.assign(conf.init || {}, init);
       if (slots.size && Object.keys(init).length) {
         if (o.backend !== undefined) { seen = null; fail('Restarting with a new backend'); }
