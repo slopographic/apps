@@ -7,6 +7,9 @@
    * section), neutral status labels (no label for a ready app, "Preview" for one still in development) and its own wording
    * (the i18n keys plain.<key>). */
   const PLAIN = !!(window.SlopTheme && window.SlopTheme.tone === 'plain');
+  /* The iPhone/iPad app (shared/native-app.js): an App Store app shows no development stages (App Review 2.2: no beta or
+   * demo look), so no status badges, no Status board (index.html marks it data-web-only) and no Experiments shelf. */
+  const STORE = !!(window.SlopNative && window.SlopNative.isStoreApp && window.SlopNative.isStoreApp());
   const fill = (s, vars) => (vars ? s.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m)) : s);
   /** The text for an i18n key in the chosen language: plain.<key> first in a plain build, then the key, then en. */
   function tr(key, en, vars) {
@@ -19,7 +22,7 @@
   const STATUS_EN = { live: 'Live', beta: 'Beta', building: 'In development' };
   /** The status words: on a card badge ('' = no badge) and in the status table. */
   const statusLabel = (status) => tr('status.' + status, STATUS_EN[status] || status);
-  const badgeLabel = (status, always) => (status === 'live' && (PLAIN || !always) ? '' : statusLabel(status));
+  const badgeLabel = (status, always) => (STORE || (status === 'live' && (PLAIN || !always)) ? '' : statusLabel(status));
   const def = (id, title, desc, extra) => Object.assign({ id, title: tr('home.sec_' + id, title), desc: tr('home.sec_' + id + '_d', desc) }, extra);
   const SECTION_DEFS = [
     def('documents', 'Documents and PDF', 'Write, sheet, slide, read and sign. Files open and save on this device.'),
@@ -31,7 +34,7 @@
   ];
   /** Shown after the six, only when it has apps (an experiment no section names lands here). None in a plain build. */
   const EXPERIMENTS = def('experiments', 'Experiments', 'Playful extras. Try them, no promises.', { tiles: true });
-  const SHELVES = PLAIN ? SECTION_DEFS : SECTION_DEFS.concat([EXPERIMENTS]);
+  const SHELVES = PLAIN || STORE ? SECTION_DEFS : SECTION_DEFS.concat([EXPERIMENTS]);
   const cv = (key, en) => tr('home.cv_' + key, en);
   const TITLES = Object.fromEntries(SECTION_DEFS.concat([EXPERIMENTS]).map((d) => [d.id, d.title]));
   const FALLBACK = { business: 'business', creative: 'creative' };
@@ -121,5 +124,5 @@
   /** Apps with a guided tour: keep in step with TOURS in shared/tour/mount.js. */
   const TOUR_DIRS = new Set(['photoslop', 'slopvector', 'slopcut', 'remix', 'slopisolate', 'drive', 'orders', 'invoices', 'crm', 'calendar', 'todo', 'notes', 'paste', 'resize', 'upscale', 'aitools', '3d', 'img3d', 'effects', 'docs', 'slides', 'tables', 'label', 'gallery', 'hex', 'code']);
 
-  window.SlopHomeSections = { PLAIN, SECTION_DEFS, EXPERIMENTS, SHELVES, SECTIONS, PRINT, TOUR_DIRS, placements, titleOf, typeKinds, tr, statusLabel, badgeLabel };
+  window.SlopHomeSections = { PLAIN, STORE, SECTION_DEFS, EXPERIMENTS, SHELVES, SECTIONS, PRINT, TOUR_DIRS, placements, titleOf, typeKinds, tr, statusLabel, badgeLabel };
 })();

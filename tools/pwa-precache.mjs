@@ -26,6 +26,7 @@ const EXTRA = ['offline.html', 'manifest.webmanifest', 'favicon.svg', 'assets/ic
   'shell/shell.js', 'brand/brand.js', 'brand/brand.json', 'brand/logo-128.webp',
   'style/tone.css',   // the plain tone's look: shared/theme/theme.js loads it from script, in a plain-tone build only
   'shared/parent/i18n/index.js', 'shared/parent/i18n/en/parent.js',   // a single-app site's words (shared/parent/parent.js loads them)
+  'shared/promo/i18n/index.js', 'shared/promo/i18n/en/promo.js', 'shared/promo/i18n/sv/promo.js',   // the promo line's words (shared/promo/promo.js loads them when the profile has one)
   // the homepage's Authenticator view: home/view.js loads these the first time #detector opens
   'detector/rules.js', 'detector/samples.js', 'detector/detector.js', 'detector/detector.css',
   'vendor/lamejs/lame.min.js', 'vendor/lamejs/LICENSE',

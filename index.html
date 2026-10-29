@@ -62,7 +62,7 @@
     </a>
     <nav class="tabs" aria-label="Sections">
       <a class="tab" href="#apps" data-jump data-i18n="nav.apps">Apps</a>
-      <a class="tab" href="#status" data-jump data-i18n="nav.status">Status</a>
+      <a class="tab" href="#status" data-jump data-i18n="nav.status" data-web-only>Status</a>
       <a class="tab" href="settings/" data-i18n="nav.profile">Profile</a>
     </nav>
     <button type="button" class="pwa-install slop-hbtn" id="pwa-install" title="Install Slopographic" aria-label="Install Slopographic" data-i18n-attr="title:shell.install_title;aria-label:shell.install_title" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m-4.5-4.5L12 15l4.5-4.5M5 19.5h14"/></svg><span class="slop-hbtn-txt" data-i18n="shell.install">Install</span></button>
@@ -129,8 +129,9 @@
         <label class="names-switch"><input type="checkbox" id="slop-names"> Show the brand names (SlopCut, PhotoSlop…)</label>
         <div id="app-sections"></div>
       </section>
+      <div class="promo-slot" data-promo-slot="home" hidden></div><!-- the brand profile's promo line, if any (shared/promo/promo.js) -->
 
-      <section id="status" class="shelf status" aria-labelledby="status-title">
+      <section id="status" class="shelf status" aria-labelledby="status-title" data-web-only>
         <header class="shelf-head">
           <h2 id="status-title" class="sec-num" data-num="03" data-perch data-i18n="nav.status">Status</h2>
           <p class="status-sum" id="status-sum"></p>
@@ -196,6 +197,7 @@
   <script type="module" src="home/savings.js"></script>
   <script src="brand/brand.js"></script>
   <script type="module" src="home/mascot/index.js"></script>
+  <script src="shared/promo/promo.js"></script>
   <script src="shell/shell.js"></script>
   <script src="shared/tour/mount.js" data-home="1"></script>
 </body>

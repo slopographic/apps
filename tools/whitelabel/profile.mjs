@@ -61,7 +61,24 @@ export function validate(p) {
   if (sl !== undefined && sl !== 'all' && sl !== 'none' && !(Array.isArray(sl) && sl.every((c) => codes.includes(c)) && new Set(sl).size === sl.length)) {
     errs.push(`seo.langs: 'all', 'none' or a list of language codes without repeats (${codes.join(', ')})`);
   }
-  errs.push(...searchProblems(p.seo || {}), ...singleAppProblems(p));
+  errs.push(...searchProblems(p.seo || {}), ...singleAppProblems(p), ...promoProblems(p.promo));
+  return errs;
+}
+
+export const PROMO_PLACES = ['home', 'settings'];   // shared/promo/promo.js: where a page has a slot
+/** promo: { text, url, where? }: the owner's own line and link (brand/README.md "A promo line"). text is one string or
+ * { "<language code>": string }; where a list of PROMO_PLACES (default all). */
+export function promoProblems(pr) {
+  if (pr === undefined) return [];
+  const errs = [], codes = SITE_LANGS.map((l) => l.code), line = (v) => typeof v === 'string' && v.trim() !== '' && v.length <= 120;
+  if (!pr || typeof pr !== 'object' || Array.isArray(pr)) return ['promo: { text, url, where? }'];
+  if (!/^https:\/\/[a-z0-9.-]+(:\d+)?(\/[^\s"'<>]*)?$/i.test(pr.url || '')) errs.push('promo.url: an https address');
+  const t = pr.text;
+  if (!(line(t) || (t && typeof t === 'object' && !Array.isArray(t) && Object.keys(t).length && Object.entries(t).every(([k, v]) => codes.includes(k) && line(v))))) {
+    errs.push('promo.text: one line (at most 120 characters), or { "<language code>": line }');
+  }
+  const w = pr.where;
+  if (w !== undefined && !(Array.isArray(w) && w.length && w.every((x) => PROMO_PLACES.includes(x)) && new Set(w).size === w.length)) errs.push(`promo.where: a list of ${PROMO_PLACES.join(', ')} without repeats`);
   return errs;
 }
 

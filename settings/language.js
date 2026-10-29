@@ -6,14 +6,16 @@
   var select = document.getElementById('lang-select');
   var note = document.getElementById('lang-note');
   if (!I || !select) return;
+  var store = !!(window.SlopNative && window.SlopNative.isStoreApp && window.SlopNative.isStoreApp());
 
   function render() {
     select.textContent = '';
     I.langs().forEach(function (l) {
       var o = document.createElement('option');
       o.value = l.code;
-      // each in its own name; a table without a native review yet says so (LANGS quality: 'beta')
-      o.textContent = l.quality === 'beta' ? I.t('settings.lang.beta', { name: l.name }) : l.name;
+      // each in its own name; a table without a native review yet says so (LANGS quality: 'beta'), except in the
+      // iPhone/iPad app, which shows no beta labels (shared/native-app.js)
+      o.textContent = l.quality === 'beta' && !store ? I.t('settings.lang.beta', { name: l.name }) : l.name;
       if (l.en) o.title = l.en;
       o.lang = l.code;
       select.appendChild(o);

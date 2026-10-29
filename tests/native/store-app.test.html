@@ -19,6 +19,8 @@
   <ul><li id="li-best"><a href="/best/free-pdf-editors/">Best free PDF editors</a></li><li id="li-app"><a href="/pdf/">Open the PDF app</a></li></ul>
   <p id="line">See <a id="a-compare" href="../../compare/">the comparison</a> and more.</p>
   <p id="keep">Works with PDF, DOCX and PNG files.</p>
+  <span id="stage-badge" class="badge beta" data-stage="beta">Beta</span>
+  <ul class="cards"><li id="card"><a href="/pdf/">PDF</a><br><span class="note" id="card-note">In development</span><br id="card-br"><span id="card-tag">Edit PDFs.</span></li></ul>
   <a id="settings" href="/settings/">Settings</a> <a id="privacy" href="/privacy/">Privacy policy</a>
   <script src="../../shared/pwa.js"></script>
   <script src="../harness.js"></script>
@@ -57,8 +59,15 @@
       expect(shown('a-compare')).toBe(false);
       expect(shown('line')).toBe(true);
     });
+    it('shows no development stages: badges and the status line of a card list (App Review 2.2)', async () => {
+      if (document.readyState === 'loading') await new Promise((r) => document.addEventListener('DOMContentLoaded', r, { once: true }));
+      expect(shown('stage-badge')).toBe(false);
+      expect(shown('card-note')).toBe(false);
+      expect(document.getElementById('card-br').hidden).toBe(true);
+      expect(shown('card-tag')).toBe(true);
+    });
     it('keeps everything else', () => {
-      for (const id of ['li-app', 'keep', 'settings', 'privacy']) expect(shown(id)).toBe(true);
+      for (const id of ['li-app', 'keep', 'settings', 'privacy', 'card']) expect(shown(id)).toBe(true);
     });
   });
   SlopTest.run();
