@@ -23,19 +23,43 @@ test('page states: SlopFlow tiles and aria-busy regions', () => {
   assert.equal(stateOf(null), null);
 });
 
-test('work: working once, done when the last task ends, error at once, short busy spells are not done', () => {
+test('work: a task works at once, done when the last one ends, error at once', () => {
   let now = 0;
   const out = [], w = workTracker((m) => out.push(m), () => now);
-  w.update('a', 'run'); w.update('b', 'run');
+  w.update('a', 'run', true); w.update('b', 'run', true);
   assert.deepEqual(out, ['working']);
   w.update('a', 'done');
   assert.deepEqual(out, ['working']);                                // b still runs
   w.update('b', 'error');
   assert.deepEqual(out, ['working', 'error']);
-  w.update('c', 'run'); now = DONE_AFTER_MS - 1; w.update('c', 'end');
-  assert.deepEqual(out, ['working', 'error', 'working']);
-  w.update('c', 'run'); now += DONE_AFTER_MS; w.update('c', 'end');
-  assert.deepEqual(out.slice(-1), ['done']);
+  w.update('c', 'run', true); now += 10; w.update('c', 'end');      // a task that stopped: the working loop still ends
+  assert.deepEqual(out, ['working', 'error', 'working', 'done']);
+  assert.equal(w.busy, 0);
+});
+
+test('work: a busy region works only once it has been busy a while, and its end always ends the loop', () => {
+  let now = 0;
+  const out = [], w = workTracker((m) => out.push(m), () => now);
+  w.update('c', 'run'); now = DONE_AFTER_MS - 1; w.tick(now); w.update('c', 'end');
+  assert.deepEqual(out, []);                                          // a short busy spell (a page drawing): nothing
+  w.update('c', 'run'); now += DONE_AFTER_MS; w.tick(now);
+  assert.deepEqual(out, ['working']);
+  w.tick(now + 5000);
+  assert.deepEqual(out, ['working']);                                 // once
+  w.update('d', 'run'); w.update('c', 'end'); now += 100; w.update('d', 'end');
+  assert.deepEqual(out, ['working', 'done']);                         // the last one was short, but the loop had started
+  w.update('x', 'end'); w.update('x', 'done');
+  assert.deepEqual(out, ['working', 'done']);                         // never busy: no moment
+});
+
+test('work: a region that leaves the page while busy ends at the next tick', () => {
+  let now = 0;
+  const out = [], w = workTracker((m) => out.push(m), () => now);
+  const el = { isConnected: true };
+  w.update(el, 'run'); now = DONE_AFTER_MS; w.tick(now);
+  assert.deepEqual(out, ['working']);
+  el.isConnected = false; now += 100; w.tick(now);
+  assert.deepEqual(out, ['working', 'done']);
   assert.equal(w.busy, 0);
 });
 
