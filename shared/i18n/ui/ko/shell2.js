@@ -7,6 +7,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'ui.appdesc.cutout': 'AI로 사진 한 장 또는 수백 장의 배경을 기기에서 한 번에 제거한 다음, 투명, 흰색, 흐림 또는 단색으로 바꿉니다.',
   'ui.appdesc.aitools': '기기에서 실행되는 도우미입니다. 이미지와 스캔본에서 텍스트를 읽고, 음성을 텍스트로 바꾸고, 사진의 노이즈를 정리하고, 사진에 태그를 붙입니다.',
   'ui.appdesc.ocr': '사진과 스캔한 PDF에서 기기 안에서 텍스트를 읽은 다음, 복사하거나 .txt로 저장하거나 검색 가능한 PDF로 만듭니다.',
+  'ui.appdesc.scan': 'Turn photos of pages into one clean PDF: the edges are found, the pages made flat and shadows removed, in colour or black and white, with searchable text.',   // English until translated (Slop Scan)
   'ui.appdesc.html2pdf': 'HTML 파일을 PDF로 인쇄하며, 모든 페이지에 머리글, 날짜, QR 코드를 넣습니다. 아무것도 업로드되지 않습니다.',
   'ui.appdesc.clean': '사진이 나에 대해 무엇을 드러내는지(GPS, 카메라, 일련번호, 날짜) 확인하고, 다시 인코딩하지 않고 그 항목을 제거합니다.',
   'ui.appdesc.ai': 'WebGPU를 통해 내 컴퓨터에서 실행되는 AI 모델과 오프라인으로 대화합니다. 먼저 시스템 검사를 합니다.',

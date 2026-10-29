@@ -16,7 +16,7 @@ const SITE = 'https://slopographic.com';
 const read = (f) => readFileSync(path.join(ROOT, f), 'utf8');
 const pages = execFileSync('git', ['ls-files', '*.html'], { cwd: ROOT, encoding: 'utf8' }).split('\n').filter((f) => f && !f.startsWith('tests/'));
 const robotsOf = (html) => ((html.match(/<meta\s+name="robots"\s+content="([^"]*)"/i) || [])[1] || '').toLowerCase();
-const NOT_IN_RESULTS = new Set(['404.html', 'offline.html', 'settings/index.html']);
+const NOT_IN_RESULTS = new Set(['404.html', 'offline.html', 'settings/index.html', 'privacy/index.html']);
 // A site that is not indexed says noindex on every page and has no sitemap (tests/seo/robots.test.mjs checks that).
 const INDEXED = { skip: !FACTS.seoIndex && 'the site is not indexed (seo.index): no generated pages or sitemaps (tests/seo/robots.test.mjs)' };
 const isMoved = (html) => /<title>\s*Moved\b/i.test(html);
@@ -36,7 +36,7 @@ test('every page in the sitemaps (every language) is indexable: no noindex or no
   }
 });
 
-test('noindex is only on the 404 and offline pages, Settings, "Moved" pages and a hidden app\'s pages, and none of them is in the sitemap', INDEXED, () => {
+test('noindex is only on the 404 and offline pages, Settings, the privacy policy, "Moved" pages and a hidden app\'s pages, and none of them is in the sitemap', INDEXED, () => {
   const sitemap = new Set(allUrls());
   for (const f of pages) {
     const html = read(f);

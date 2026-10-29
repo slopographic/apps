@@ -9,6 +9,7 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'ui.appdesc.cutout': 'Прибирайте фон з одного фото або відразу з сотень за допомогою ШІ на вашому пристрої, а потім робіть його прозорим, білим, розмитим або кольоровим.',
   'ui.appdesc.aitools': 'Помічники на пристрої: читання тексту із зображень і сканів, мовлення в текст, прибирання шуму на фото та позначання фото.',
   'ui.appdesc.ocr': 'Розпізнавайте текст із фото та сканованих PDF на вашому пристрої, потім копіюйте його, зберігайте .txt або створюйте PDF з можливістю пошуку.',
+  'ui.appdesc.scan': 'Turn photos of pages into one clean PDF: the edges are found, the pages made flat and shadows removed, in colour or black and white, with searchable text.',   // English until translated (Slop Scan)
   'ui.appdesc.html2pdf': 'Друкуйте HTML-файл у PDF із верхнім колонтитулом, датою та QR-кодом на кожній сторінці. Нічого не завантажується.',
   'ui.appdesc.clean': 'Дізнайтеся, що фото розкриває про вас (GPS, камера, серійний номер і дата), і видаліть ці поля без перекодування.',
   'ui.appdesc.ai': 'Спілкуйтеся з моделлю ШІ, яка працює на вашому комп’ютері через WebGPU, без мережі, після перевірки системи.',

@@ -9,6 +9,7 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'seo.reg.aitools.title': 'AI 도구', 'seo.reg.aitools.tagline': 'OCR, 음성 텍스트 변환, 노이즈 제거, 자동 태그, 인물 흐림. 기기에서 실행됩니다.', 'seo.mq.aitools': 'AI 도구',
   'seo.reg.reports.title': '보고서', 'seo.reg.reports.tagline': '연락처, 청구서, 지출, CRM 전체의 합계와 목록, 월별 이익. 읽기 전용입니다.', 'seo.mq.reports': '보고서',
   'seo.reg.ocr.title': 'OCR: 이미지와 스캔본에서 텍스트 읽기', 'seo.reg.ocr.tagline': '기기에서 이미지와 스캔한 PDF의 텍스트를 읽으세요. 업로드되지 않습니다.', 'seo.mq.ocr': 'OCR',
+  'seo.reg.scan.title': 'Document scanner: photo to PDF', 'seo.reg.scan.tagline': 'Photos of pages to a clean PDF: edges found, shadows gone. Nothing uploaded.', 'seo.mq.scan': 'Document scanner',
   'seo.reg.html2pdf.title': 'HTML에서 PDF로 변환기', 'seo.reg.html2pdf.tagline': 'HTML 파일을 머리글과 QR 코드가 있는 PDF로 인쇄하세요. 업로드되지 않습니다.', 'seo.mq.html2pdf': 'HTML에서 PDF로 변환기',
   'seo.reg.clean.title': 'SlopClean: 사진 메타데이터 제거기', 'seo.reg.clean.tagline': '사진이 드러내는 정보를 확인하고 지우세요. 업로드되지 않습니다.', 'seo.mq.clean': '사진 메타데이터 제거기',
   'seo.reg.ai.title': 'AI 대화', 'seo.reg.ai.tagline': '내 컴퓨터에서 실행되는 AI와 대화하세요.', 'seo.mq.ai': 'AI 대화',

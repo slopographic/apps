@@ -22,6 +22,8 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'seo.landing.reports.description': 'Slop Reports 顯示聯絡人、發票、支出與 CRM 的合計，包括每月獲利與未付發票。報表為唯讀，並可匯出 CSV。',
   'seo.landing.ocr.title': 'Slop OCR：從圖片與掃描 PDF 辨識文字 | Slopographic',
   'seo.landing.ocr.description': 'Slop OCR 在您的裝置上以 200 dpi 逐頁辨識圖片與掃描 PDF 中的文字。可編輯文字，再複製或存為 .txt、.md 或可搜尋的 PDF。',
+  'seo.landing.scan.title': 'Free document scanner in your browser: photo to PDF | Slop Scan',   // English until translated (Slop Scan)
+  'seo.landing.scan.description': 'Free document scanner in your browser: photos of pages to one PDF, cropped for you. No upload.',   // English until translated (Slop Scan)
   'seo.landing.html2pdf.title': 'Slop HTML to PDF：列印含頁首與 QR Code 的 HTML | Slopographic',
   'seo.landing.html2pdf.description': 'Slop HTML to PDF 在瀏覽器中將 HTML 檔案列印為 PDF，每頁頁首都顯示名稱、日期與 QR Code。不會上傳任何內容。',
   'seo.landing.clean.title': 'SlopClean：查看並移除 GPS 等照片中繼資料 | Slopographic',

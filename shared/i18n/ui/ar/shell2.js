@@ -9,6 +9,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'ui.appdesc.cutout': 'أزل الخلفية من صورة واحدة أو مئات الصور دفعة واحدة بالذكاء الاصطناعي على جهازك، ثم اجعلها شفافة أو بيضاء أو ضبابية أو بلون.',
   'ui.appdesc.aitools': 'أدوات مساعدة على الجهاز: استخرج النص من الصور والمسوحات، وحوّل الكلام إلى نص، ونظّف ضوضاء الصور، ووسم الصور.',
   'ui.appdesc.ocr': 'اقرأ النص من الصور وملفات PDF الممسوحة ضوئيًا على جهازك، ثم انسخه، أو احفظه بصيغة .txt، أو أنشئ ملف PDF قابلًا للبحث.',
+  'ui.appdesc.scan': 'Turn photos of pages into one clean PDF: the edges are found, the pages made flat and shadows removed, in colour or black and white, with searchable text.',   // English until translated (Slop Scan)
   'ui.appdesc.html2pdf': 'اطبع ملف HTML إلى PDF مع ترويسة وتاريخ ورمز QR في كل صفحة. لا يُرفع أي شيء.',
   'ui.appdesc.clean': 'اكتشف ما تكشفه الصورة عنك (الموقع الجغرافي وبيانات الكاميرا والرقم التسلسلي والتاريخ) وأزل هذه الحقول دون إعادة ترميز.',
   'ui.appdesc.ai': 'تحدّث مع نموذج ذكاء اصطناعي يعمل على حاسوبك عبر WebGPU، دون اتصال، مع فحص للنظام أولًا.',

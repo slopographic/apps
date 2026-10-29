@@ -22,6 +22,8 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'seo.landing.reports.description': 'Slop Reportsは、連絡先、請求書、経費、CRMの集計を表示します。月ごとの利益と未払い請求書も含まれます。参照のみで、CSVに書き出せます。',
   'seo.landing.ocr.title': 'Slop OCR：画像とスキャンしたPDFの文字を読み取り | Slopographic',
   'seo.landing.ocr.description': 'Slop OCRは、画像とスキャンしたPDFの文字を端末上で、200 dpiでページごとに読み取ります。テキストを編集して、コピーするか、.txt、.md、検索できるPDFで保存できます。',
+  'seo.landing.scan.title': 'Free document scanner in your browser: photo to PDF | Slop Scan',   // English until translated (Slop Scan)
+  'seo.landing.scan.description': 'Free document scanner in your browser: photos of pages to one PDF, cropped for you. No upload.',   // English until translated (Slop Scan)
   'seo.landing.html2pdf.title': 'Slop HTML to PDF：ヘッダーとQR付きでHTMLを印刷 | Slopographic',
   'seo.landing.html2pdf.description': 'Slop HTML to PDFは、ブラウザーでHTMLファイルをPDFに印刷します。名前、日付、QRコードを示すヘッダーがすべてのページに付きます。アップロードはありません。',
   'seo.landing.clean.title': 'SlopClean：GPSなど写真のメタデータを確認して削除 | Slopographic',

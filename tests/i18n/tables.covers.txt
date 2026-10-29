@@ -2776,6 +2776,9 @@ Covers: press/i18n/zh-TW/status.js
 Covers: press/i18n/zh-TW/styles.js
 Covers: press/i18n/zh-TW/templates.js
 Covers: press/i18n/zh-TW/toolbar.js
+Covers: privacy/i18n/en/page.js
+Covers: privacy/i18n/index.js
+Covers: privacy/i18n/sv/page.js
 Covers: projects/i18n/ar/commands.js
 Covers: projects/i18n/ar/editor.js
 Covers: projects/i18n/ar/page.js
@@ -3176,6 +3179,13 @@ Covers: resize/i18n/zh-CN/tour.js
 Covers: resize/i18n/zh-TW/app.js
 Covers: resize/i18n/zh-TW/panel.js
 Covers: resize/i18n/zh-TW/tour.js
+Covers: scan/i18n/en/app.js
+Covers: scan/i18n/en/panel.js
+Covers: scan/i18n/en/tour.js
+Covers: scan/i18n/index.js
+Covers: scan/i18n/sv/app.js
+Covers: scan/i18n/sv/panel.js
+Covers: scan/i18n/sv/tour.js
 Covers: serials/i18n/ar/app.js
 Covers: serials/i18n/de/app.js
 Covers: serials/i18n/en/app.js
@@ -3435,6 +3445,9 @@ Covers: shared/biz/i18n/zh-TW/biz.js
 Covers: shared/biz/i18n/zh-TW/docs.js
 Covers: shared/biz/i18n/zh-TW/print.js
 Covers: shared/biz/i18n/zh-TW/print2.js
+Covers: shared/cutout/i18n/en/memory.js
+Covers: shared/cutout/i18n/index.js
+Covers: shared/cutout/i18n/sv/memory.js
 Covers: shared/i18n/af.js
 Covers: shared/i18n/am.js
 Covers: shared/i18n/ar.js
@@ -4176,6 +4189,9 @@ Covers: shared/i18n/yo.js
 Covers: shared/i18n/zh-CN.js
 Covers: shared/i18n/zh-TW.js
 Covers: shared/i18n/zu.js
+Covers: shared/native/i18n/en/files.js
+Covers: shared/native/i18n/index.js
+Covers: shared/native/i18n/sv/files.js
 Covers: shared/ocr/i18n/ar/engines.js
 Covers: shared/ocr/i18n/de/engines.js
 Covers: shared/ocr/i18n/en/engines.js

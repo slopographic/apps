@@ -22,6 +22,8 @@ window.SlopI18n && window.SlopI18n.add('sv', {
   'seo.landing.reports.description': 'Slop Reports visar summor för Contacts, Invoices, Expenses och CRM, bland annat vinst per månad och obetalda fakturor. Skrivskyddat och exporterar CSV.',
   'seo.landing.ocr.title': 'Slop OCR: läs text i bilder och skannade PDF:er | Slopographic',
   'seo.landing.ocr.description': 'Slop OCR läser text i bilder och skannade PDF:er på din enhet, sida för sida i 200 dpi. Redigera texten och kopiera den eller spara .txt, .md eller sökbar PDF.',
+  'seo.landing.scan.title': 'Gratis dokumentskanner i webbläsaren: foto till PDF | Slop Scan',
+  'seo.landing.scan.description': 'Gratis dokumentskanner i webbläsaren: fotografera sidor, beskär dem automatiskt och ladda ned en PDF i svartvitt eller färg. Ingen app, ingen uppladdning.',
   'seo.landing.html2pdf.title': 'Slop HTML to PDF: skriv ut HTML-filer med sidhuvud och QR | Slopographic',
   'seo.landing.html2pdf.description': 'Slop HTML to PDF skriver ut en HTML-fil till PDF i webbläsaren, med ett sidhuvud på varje sida som visar namn, datum och QR-kod. Inget laddas upp.',
   'seo.landing.clean.title': 'SlopClean: se och ta bort metadata som GPS i foton | Slopographic',

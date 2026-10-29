@@ -53,6 +53,9 @@
       accepts: ['image/*', 'application/pdf'],
       features: ['Every page of a PDF, read at 200 dpi', 'Boxes on the page, and the text editable before you save', 'Copy, .txt, .md, Word or a searchable PDF', '85 languages, one model per script, on your device'],
       icon: 'doc', status: 'beta' }),
+    A('scan', 'app', 'Slop Scan', 'scan/', 'Photos of pages to a clean PDF: edges found, shadows gone. Nothing uploaded.', { title: 'Document scanner: photo to PDF', group: 'business', tool: true, accepts: ['image/*'],
+      features: ['Take photos or add them, several pages at once; iPhone HEIC too', 'Edges found and the page made flat; drag the corners with a magnifier', 'Colour, greyscale, black & white and photo looks that take out shadows', 'A4, Letter or the scan\'s own shape, margins and quality; searchable text with OCR', 'One PDF, or the pages as JPG and PNG; open it in Slop PDF'],
+      icon: 'doc', status: 'beta' }),
     A('html2pdf', 'app', 'Slop HTML to PDF', 'html2pdf/', 'Print an HTML file to PDF with a header and QR code. Nothing uploaded.', { title: 'HTML to PDF converter', group: 'business', tool: true,
       accepts: ['text/html', '.htm', '.html'],
       features: ['Drop a file, or paste HTML', 'Preview with remote images blocked', 'Header on every page: name, date and QR', 'Paper, margins, scale and background graphics'],
@@ -253,7 +256,7 @@
   const PLAIN = {
     photoslop: ['Image Editor', 'Edit photos with layers, masks and filters.'], vector: ['Vector Editor', 'Draw vector graphics with pens, shapes and layers.'],
     pdf: ['PDF Editor'], label: ['Label Designer'], cutout: ['Background Remover'], aitools: ['AI Tools'], reports: ['Reports'],
-    ocr: ['OCR'], html2pdf: ['HTML to PDF'], clean: ['Metadata Remover'], ai: ['Assistant'],
+    ocr: ['OCR'], scan: ['Document Scanner'], html2pdf: ['HTML to PDF'], clean: ['Metadata Remover'], ai: ['Assistant'],
     docs: ['Documents', 'Write documents with pages, styles and lists. Opens and saves DOCX.'],
     tables: ['Spreadsheets', 'Spreadsheets with formulas, charts and pivot tables. Opens and saves XLSX.'],
     slides: ['Presentations', 'Build slide decks with themes and layouts. Opens and saves PPTX.'],

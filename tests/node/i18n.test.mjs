@@ -149,6 +149,7 @@ test('every data-i18n key on the homepage and Settings has an English string', a
     const html = await readFile(path.join(ROOT, f), 'utf8');
     // a shared area's words (shared/<area>/i18n, e.g. the homepage's savings line) when the page loads its index.js
     for (const a of sharedAreas()) if (a.id !== 'ui-parts' && html.includes(`src="${a.base}index.js"`)) I.add('en', Object.fromEntries(appTables(a).tables.en || []));
+    for (const a of pageAreas()) if (html.includes(`${a.dir}i18n/index.js"`)) I.add('en', Object.fromEntries(appTables(a).tables.en || [])); // privacy/i18n: the link
     for (const m of html.matchAll(/data-i18n(?:-attr)?="([^"]+)"/g)) {
       for (const pair of m[1].split(';')) {
         const key = pair.includes(':') ? pair.slice(pair.indexOf(':') + 1) : pair;

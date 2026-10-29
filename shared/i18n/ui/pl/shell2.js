@@ -9,6 +9,7 @@ window.SlopI18n && window.SlopI18n.add('pl', {
   'ui.appdesc.cutout': 'Usuń tło z jednego zdjęcia albo setek naraz za pomocą AI na Twoim urządzeniu, potem ustaw je jako przezroczyste, białe, rozmyte lub w kolorze.',
   'ui.appdesc.aitools': 'Pomocnicy działający na urządzeniu: odczyt tekstu z obrazów i skanów, zamiana mowy na tekst, usuwanie szumu ze zdjęć i tagowanie zdjęć.',
   'ui.appdesc.ocr': 'Odczytuj tekst ze zdjęć i zeskanowanych PDF na swoim urządzeniu, potem kopiuj go, zapisz jako .txt albo zrób PDF z możliwością wyszukiwania.',
+  'ui.appdesc.scan': 'Turn photos of pages into one clean PDF: the edges are found, the pages made flat and shadows removed, in colour or black and white, with searchable text.',   // English until translated (Slop Scan)
   'ui.appdesc.html2pdf': 'Wydrukuj plik HTML do PDF z nagłówkiem, datą i kodem QR na każdej stronie. Nic nie jest przesyłane.',
   'ui.appdesc.clean': 'Zobacz, co zdjęcie o Tobie zdradza (GPS, aparat, numer seryjny i datę), i usuń te pola bez ponownego kodowania.',
   'ui.appdesc.ai': 'Rozmawiaj z modelem AI działającym na Twoim komputerze przez WebGPU, offline, po wcześniejszym sprawdzeniu systemu.',

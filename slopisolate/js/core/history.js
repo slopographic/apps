@@ -12,6 +12,14 @@
   const LOOK_KEYS = ['s', 'bg', 'shadow', 'crop'];
   const MAX = 200;
   const H = CO.history = {};
+  /* The bytes a picture's undo steps may hold (a stroke keeps the tiles it changed): the oldest go first, the newest always
+   * stays. Less on a phone, where the page is reloaded when it uses too much memory. */
+  const mem = (typeof navigator !== 'undefined' && navigator.deviceMemory) || 4;
+  H.maxBytes = (U.isIOS || mem <= 2 ? 32 : mem <= 4 ? 96 : 192) * 1048576;
+  /** Bytes an entry holds: a stroke's tiles (looks are a few small objects). */
+  H.bytesOf = (e) => (e && e.kind === 'stroke' ? e.tiles.reduce((n, t) => n + t.bytes.length, 0) : 0);
+  /** Bytes all of a picture's undo and redo steps hold. */
+  H.bytes = (it) => { const h = it && it.hist; return h ? h.undo.concat(h.redo).reduce((n, e) => n + H.bytesOf(e), 0) : 0; };
 
   const snap = (it) => { const o = {}; for (const k of LOOK_KEYS) o[k] = { ...it[k] }; return o; };
   H.snapLook = snap;
@@ -37,8 +45,10 @@
     if (!entry) return;
     const h = it.hist;
     h.undo.push(entry);
-    if (h.undo.length > MAX) h.undo.shift();
     h.redo.length = 0;
+    if (h.undo.length > MAX) h.undo.shift();
+    let bytes = H.bytes(it);
+    while (h.undo.length > 1 && bytes > H.maxBytes) bytes -= H.bytesOf(h.undo.shift());
     CO.emit('history', { it, entry, dir: 'push' });
     CO.emit('item', it);
   };

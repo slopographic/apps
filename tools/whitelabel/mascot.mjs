@@ -18,7 +18,7 @@ export const DEST = 'brand/mascot';
 /** The modules every overlay has (slot.js loads them by these names). */
 export const REQUIRED = ['mascot.js', 'icon.js'];
 /** The build's files drawn from the overlay's icon (they are the character's art too). */
-export const ICON_FILES = ['brand/mark.svg', 'brand/logo.svg', 'favicon.svg', 'favicon.ico', 'assets/icons/icon-192.png', 'assets/icons/icon-512.png', 'og-share.png'];
+export const ICON_FILES = ['brand/mark.svg', 'brand/logo.svg', 'favicon.svg', 'favicon.ico', 'assets/icons/icon-192.png', 'assets/icons/icon-512.png', 'assets/icons/icon-maskable-512.png', 'og-share.png'];
 
 /** The roaming styles of the mascot slot (shared/mascot/roam.js); true is the first. */
 export const ROAM = ['float', 'hop'];

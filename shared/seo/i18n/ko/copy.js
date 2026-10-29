@@ -16,6 +16,8 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'seo.app.aitools.description': '이미지와 스캔한 PDF의 OCR, .srt 내보내기를 지원하는 음성 텍스트 변환, 전후 비교 슬라이더가 있는 사진 노이즈 제거와 인물 사진 흐림 처리를 기기에서 실행합니다.',
   'seo.app.ocr.title': 'Slop OCR: 기기에서 이미지와 PDF의 텍스트 읽기 | Slopographic',
   'seo.app.ocr.description': '기기에서 사진과 스캔한 PDF의 텍스트를 읽으세요. 편집한 뒤 TXT, Markdown, Word 또는 검색 가능한 PDF로 저장할 수 있습니다. 이미지는 업로드되지 않습니다.',
+  'seo.app.scan.title': 'Slop Scan: turn photos of pages into a clean PDF | Slopographic',   // English until translated (Slop Scan)
+  'seo.app.scan.description': 'Photos of pages to one clean PDF: edges found, pages made flat, shadows removed. Nothing is uploaded.',   // English until translated (Slop Scan)
   'seo.app.reports.title': 'Slop Reports: 월별 이익, 미납 청구서, CRM | Slopographic',
   'seo.app.reports.description': '내 장부로 만든 업무 보고서입니다. 월별 이익과 현금 흐름, 분기별 부가세, 미납 청구서, 공급업체별 지출을 보고 CSV로 내보내세요. 읽기 전용입니다.',
   'seo.app.html2pdf.title': 'Slop HTML to PDF: 머리글과 QR 코드가 있는 HTML 인쇄 | Slopographic',

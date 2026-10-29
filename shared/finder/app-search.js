@@ -58,6 +58,7 @@
     qr: ['qr', 'qr code', 'barcode', 'wifi', 'wi-fi', 'vcard', 'link code', 'generate'],
     colors: ['color picker', 'colour picker', 'palette', 'eyedropper', 'contrast checker', 'wcag', 'hex to rgb', 'oklch', 'swatches', 'tailwind colors'],
     fontcreator: ['font maker', 'font creator', 'make a font', 'handwriting font', 'typeface', 'glyph editor', 'ttf', 'woff2', 'fontforge', 'kerning'],
+    scan: ['scanner', 'document scanner', 'scan to pdf', 'photo to pdf', 'camera scanner', 'scan document', 'receipt scan', 'heic to pdf', 'crop document', 'black and white'],
     workflows: ['workflow', 'batch', 'automation', 'pipeline', 'macro', 'chain', 'bulk edit', 'actions'],
     convert: ['convert', 'converter', 'image converter', 'pdf to png', 'png to jpg', 'webp', 'csv to json', 'base64'],
     calculator: ['calculator', 'maths', 'math', 'units', 'currency', 'percent', 'tape', 'date calculator'],

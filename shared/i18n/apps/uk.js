@@ -9,6 +9,7 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'seo.reg.aitools.title': 'Інструменти ШІ', 'seo.reg.aitools.tagline': 'OCR, мовлення в текст, шумозаглушення, авто-теги і розмиття портрета. На вашому пристрої.', 'seo.mq.aitools': 'Інструменти ШІ',
   'seo.reg.reports.title': 'Звіти', 'seo.reg.reports.tagline': 'Підсумки й списки з контактів, рахунків, витрат і CRM, із прибутком за місяцями. Лише читання.', 'seo.mq.reports': 'Звіти',
   'seo.reg.ocr.title': 'OCR: читання тексту із зображень і сканів', 'seo.reg.ocr.tagline': 'Читайте текст із зображень і сканованих PDF на своєму пристрої. Нічого не вивантажується.', 'seo.mq.ocr': 'OCR',
+  'seo.reg.scan.title': 'Document scanner: photo to PDF', 'seo.reg.scan.tagline': 'Photos of pages to a clean PDF: edges found, shadows gone. Nothing uploaded.', 'seo.mq.scan': 'Document scanner',
   'seo.reg.html2pdf.title': 'Конвертер HTML у PDF', 'seo.reg.html2pdf.tagline': 'Друкуйте HTML-файл у PDF з колонтитулом і QR-кодом. Нічого не вивантажується.', 'seo.mq.html2pdf': 'Конвертер HTML у PDF',
   'seo.reg.clean.title': 'SlopClean: видалення метаданих фото', 'seo.reg.clean.tagline': 'Перегляньте, що розкриває фото, і видаліть це. Нічого не вивантажується.', 'seo.mq.clean': 'видалення метаданих фото',
   'seo.reg.ai.title': 'ШІ-чат', 'seo.reg.ai.tagline': 'Спілкуйтеся зі ШІ, який працює на вашому комп’ютері.', 'seo.mq.ai': 'ШІ-чат',

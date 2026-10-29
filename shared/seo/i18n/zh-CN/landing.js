@@ -22,6 +22,8 @@ window.SlopI18n && window.SlopI18n.add('zh-CN', {
   'seo.landing.reports.description': 'Slop Reports 汇总联系人、发票、费用和 CRM 的数据，包括按月利润和未付发票。只读，并支持 CSV 导出。',
   'seo.landing.ocr.title': 'Slop OCR：从图片和扫描 PDF 中识别文字 | Slopographic',
   'seo.landing.ocr.description': 'Slop OCR 在你的设备上从图片和扫描 PDF 中识别文字，每页以 200 dpi 处理。可编辑文字，然后复制，或保存为 .txt、.md 或可搜索的 PDF。',
+  'seo.landing.scan.title': 'Free document scanner in your browser: photo to PDF | Slop Scan',   // English until translated (Slop Scan)
+  'seo.landing.scan.description': 'Free document scanner in your browser: photos of pages to one PDF, cropped for you. No upload.',   // English until translated (Slop Scan)
   'seo.landing.html2pdf.title': 'Slop HTML to PDF：带页眉和二维码打印 HTML 文件 | Slopographic',
   'seo.landing.html2pdf.description': 'Slop HTML to PDF 在浏览器中把 HTML 文件打印为 PDF，每页都带有显示名称、日期和二维码的页眉。不上传任何内容。',
   'seo.landing.clean.title': 'SlopClean：查看并删除照片中的 GPS 等元数据 | Slopographic',

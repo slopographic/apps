@@ -22,6 +22,8 @@ window.SlopI18n && window.SlopI18n.add('tr', {
   'seo.landing.reports.description': 'Slop Reports; Kişiler, Faturalar, Giderler ve CRM genelinde toplamları, aylık kârı ve ödenmemiş faturaları gösterir. Salt okunurdur ve CSV dışa aktarır.',
   'seo.landing.ocr.title': 'Slop OCR: resimlerden ve taranmış PDF\'lerden metin okuyun | Slopographic',
   'seo.landing.ocr.description': 'Slop OCR cihazınızda resim ve taranmış PDF\'lerden metni 200 dpi’de okur. Düzenleyin, sonra kopyalayın ya da .txt, .md veya aranabilir PDF kaydedin.',
+  'seo.landing.scan.title': 'Free document scanner in your browser: photo to PDF | Slop Scan',   // English until translated (Slop Scan)
+  'seo.landing.scan.description': 'Free document scanner in your browser: take photos of pages, crop them automatically and download one PDF in black & white or colour. No app, no upload.',   // English until translated (Slop Scan)
   'seo.landing.html2pdf.title': 'Slop HTML’den PDF\'ye: üstbilgili ve QR kodlu HTML yazdırma | Slopographic',
   'seo.landing.html2pdf.description': 'Slop HTML’den PDF\'ye, bir HTML dosyasını tarayıcınızda PDF olarak yazdırır; her sayfada ad, tarih ve QR kodu gösteren bir üstbilgiyle. Hiçbir şey yüklenmez.',
   'seo.landing.clean.title': 'SlopClean: GPS gibi fotoğraf verilerini görün ve kaldırın | Slopographic',

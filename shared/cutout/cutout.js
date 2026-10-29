@@ -24,6 +24,29 @@
   const conf = { workerUrl: BASE + 'worker.js', init: null, workers: 0 };
   /** A failure shown to the person (ui.cutout.*), in the chosen language when it happens. */
   const tr = (k, v) => { const I = window.SlopI18n; return I ? I.t(k, v) : k; };
+  /** The low-memory words (shared/cutout/i18n, keys cutoutmem.*: English and Swedish; other languages read English),
+   *  with the English text when the tables are not loaded. */
+  const EN = {
+    low_memory: 'This device is low on memory, so the AI background remover cannot run here.',
+    manual: 'This device is low on memory, so the AI background remover cannot run here. Brush Remove over the background (and Keep over the subject) to cut it out by hand.',
+    smaller: 'This device is low on memory: the Fast model was used instead.',
+    unavailable: 'The AI background remover cannot run in this browser.',
+    manual_unavailable: 'The AI background remover cannot run in this browser. Brush Remove over the background (and Keep over the subject) to cut it out by hand.',
+  };
+  function lowText(k, v) { const key = 'cutoutmem.' + k, s = tr(key, v); return s && s !== key ? s : EN[k]; }
+  if (window.SlopI18n && SlopI18n.source && document.head) {   // the tables: English and the chosen language
+    const s = document.createElement('script');
+    s.src = BASE + 'i18n/index.js';
+    document.head.append(s);
+  }
+  const isIOS = (nav) => /iPad|iPhone|iPod/.test(nav.userAgent || '') || (nav.platform === 'MacIntel' && nav.maxTouchPoints > 1);
+  /** An Error for the page; code 'low-memory' (the device could not fit the model) or 'unavailable' (ONNX Runtime cannot
+   *  start in this browser) gets the words people read, the engine's own message stays in .detail. */
+  function failure(message, code) {
+    const e = new Error(code === 'low-memory' ? lowText('low_memory') : code === 'unavailable' ? lowText('unavailable') : message || tr('ui.cutout.failed'));
+    if (code) { e.code = code; e.detail = message; }
+    return e;
+  }
   // A pool of workers, each with its own ONNX Runtime and model session: without cross-origin isolation WebAssembly runs
   // single-threaded, so separate workers are the only way to segment several images at once. Worker 0 also answers the
   // plain calls (load, cached, info, ping). One more worker, 'edit', holds the jobs made by createJob (the image on screen):
@@ -38,8 +61,7 @@
   function poolSize() {
     if (conf.workers > 0) return conf.workers;
     const nav = typeof navigator !== 'undefined' ? navigator : {}, cores = nav.hardwareConcurrency || 2, mem = nav.deviceMemory || 8;
-    const ios = /iPad|iPhone|iPod/.test(nav.userAgent || '') || (nav.platform === 'MacIntel' && nav.maxTouchPoints > 1);
-    if (ios || mem <= 2) return 1;
+    if (isIOS(nav) || mem <= 2) return 1;
     // Before the first pass, a browser with WebGPU is assumed to use it; a software adapter falls back to WebAssembly.
     const gpu = seen ? seen === 'webgpu' : !!nav.gpu && !(conf.init && conf.init.backend === 'wasm');
     const n = gpu ? 2 : Math.min(3, Math.max(1, Math.floor(cores / 2)));
@@ -47,9 +69,9 @@
   }
 
   /** Stop one worker (or all): its calls reject with msg, its jobs are gone. The next call starts a fresh one. */
-  function fail(msg, only) {
+  function fail(msg, only, code) {
     for (const s of only ? [only] : [...slots.values()]) {
-      for (const p of s.pending.values()) p.reject(new Error(msg));
+      for (const p of s.pending.values()) p.reject(code ? failure(msg, code) : new Error(msg));
       s.pending.clear();
       s.worker.terminate();
       if (slots.get(s.key) === s) slots.delete(s.key);
@@ -60,15 +82,16 @@
     if (slots.has(key)) return slots.get(key);
     const s = { key, worker: new Worker(conf.workerUrl), pending: new Map(), running: new Set() };
     s.worker.onmessage = (e) => {
-      const { id, type, data, message } = e.data || {}, p = s.pending.get(id);
+      const { id, type, data, message, code } = e.data || {}, p = s.pending.get(id);
       if (type !== 'progress') s.running.delete(id);
       if (!p) return;
       if (type === 'progress') { if (p.onProgress) try { p.onProgress(data); } catch (err) { console.warn(err); } return; }
       s.pending.delete(id);
-      if (type === 'error') p.reject(new Error(message || tr('ui.cutout.failed'))); else p.resolve(data);
+      if (type === 'error') p.reject(failure(message, code)); else p.resolve(data);
     };
-    s.worker.onerror = (e) => { e.preventDefault(); fail(e.message ? tr('ui.cutout.stopped_why', { error: e.message }) : tr('ui.cutout.stopped_oom'), s); };
-    if (conf.init) s.worker.postMessage({ id: ++seq, type: 'init', data: conf.init });
+    // a worker that dies without a word was almost always killed for its memory
+    s.worker.onerror = (e) => { e.preventDefault(); fail(e.message ? tr('ui.cutout.stopped_why', { error: e.message }) : tr('ui.cutout.stopped_oom'), s, e.message ? null : 'low-memory'); };
+    s.worker.postMessage({ id: ++seq, type: 'init', data: Object.assign({ ios: isIOS(typeof navigator !== 'undefined' ? navigator : {}) }, conf.init) });
     slots.set(key, s);
     return s;
   }
@@ -186,18 +209,22 @@
 
   window.SlopCutout = {
     removeBackground, finish, createJob, release, poolSize,
+    /** Words for a device the model cannot run on: 'low_memory', 'unavailable' (the engine cannot run), 'manual',
+     *  'manual_unavailable' (brush by hand instead), 'smaller' (the Fast model was used). */
+    lowMemoryText: lowText,
     /** Download (or read from cache) and initialise a model ahead of time. */
     load: (model = 'fast', onProgress) => call('load', { model }, { onProgress }),
     /** { fast: bool, quality: bool, portrait: bool }: which models are already stored on this device. */
     cached: () => call('cached'),
     info: () => call('info'),
-    /** configure({ workerUrl, backend: 'auto'|'wasm', vendor, models, sources, workers }) before the first call.
+    /** configure({ workerUrl, backend: 'auto'|'wasm', vendor, models, sources, workers, ios, ua }) before the first call.
+     *  ios / ua: stand-ins for the device check (tests); the browser's own are used otherwise.
      *  workers: how many images segment at once (0 = poolSize() decides). */
     configure(o = {}) {
       if (o.workerUrl) conf.workerUrl = o.workerUrl;
       if (o.workers !== undefined) conf.workers = Math.max(0, o.workers | 0);
       const init = {};
-      for (const k of ['backend', 'vendor', 'models', 'sources']) if (o[k] !== undefined) init[k] = o[k];
+      for (const k of ['backend', 'vendor', 'models', 'sources', 'ios', 'ua']) if (o[k] !== undefined) init[k] = o[k];
       conf.init = Object.assign(conf.init || {}, init);
       if (slots.size && Object.keys(init).length) {
         if (o.backend !== undefined) { seen = null; fail('Restarting with a new backend'); }

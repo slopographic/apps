@@ -55,6 +55,29 @@
       await waitFor(() => last() === 'error');
       expect(document.querySelector('.mascot-slot [data-anim]').dataset.anim).toBe('oops');
     });
+    it('a busy app (the PDF editor: aria-busy set, then taken off) never leaves it shaking in the working loop', async () => {
+      const app = document.createElement('div');
+      document.body.append(app);
+      const n = played.length;
+      for (let i = 0; i < 3; i++) {                                 // short spells: nothing plays
+        app.setAttribute('aria-busy', 'true'); await new Promise((r) => setTimeout(r, 150)); app.removeAttribute('aria-busy');
+      }
+      await new Promise((r) => setTimeout(r, 1500));
+      expect(played.length).toBe(n);
+      expect(S.state().busy).toBe(0);
+      app.setAttribute('aria-busy', 'true');                        // a long one works, and its removal ends the loop
+      await waitFor(() => last() === 'working', { timeout: 4000 });
+      expect(S.state().holding).toBe('working');
+      app.removeAttribute('aria-busy');
+      await waitFor(() => last() === 'done');
+      expect(S.state().holding).toBe(null);
+      expect(S.state().busy).toBe(0);
+      app.setAttribute('aria-busy', 'true');                        // removed from the page while busy: ends too
+      await waitFor(() => last() === 'working', { timeout: 4000 });
+      app.remove();
+      await waitFor(() => last() === 'done', { timeout: 8000 });
+      expect(S.state().busy).toBe(0);
+    });
     it('points at a control when a page asks, and plays any named moment', async () => {
       document.dispatchEvent(new CustomEvent('mascot-moment', { detail: { moment: 'point', target: document.getElementById('open') } }));
       expect(last()).toBe('point');

@@ -7,6 +7,7 @@ window.SlopI18n && window.SlopI18n.add('zh-TW', {
   'ui.appdesc.cutout': '在您的裝置上以 AI 為一張或數百張照片去背，再將背景變為透明、白色、模糊或一種顏色。',
   'ui.appdesc.aitools': '在裝置上執行的輔助工具：從圖片與掃描件讀取文字、語音轉文字、清除照片雜訊，以及為照片加上標籤。',
   'ui.appdesc.ocr': '在您的裝置上從照片與掃描 PDF 讀取文字，然後複製、儲存為 .txt，或製作可搜尋的 PDF。',
+  'ui.appdesc.scan': 'Turn photos of pages into one clean PDF: the edges are found, the pages made flat and shadows removed, in colour or black and white, with searchable text.',   // English until translated (Slop Scan)
   'ui.appdesc.html2pdf': '將 HTML 檔案列印為 PDF，每頁都有頁首、日期與 QR 碼。不會上傳任何內容。',
   'ui.appdesc.clean': '查看照片會透露哪些關於您的資訊（GPS、相機、序號與日期），並在不重新編碼的情況下移除這些欄位。',
   'ui.appdesc.ai': '透過 WebGPU 在您自己的電腦上執行 AI 模型，可離線聊天，且會先進行系統檢查。',

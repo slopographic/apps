@@ -8,7 +8,7 @@
   const V = CO.view = {};
   const MIN = 0.02, MAX = 40, PAD = 24;
   const T = { scale: 1, ox: 0, oy: 0 };
-  let cv = null, cx = null, dpr = 1, fitted = null, frame = 0, checker = null;
+  let cv = null, cx = null, dpr = 1, fitted = null, frame = 0, checker = null, tint = null;
   const memo = new Map();     // kind -> { act, key, canvas }
   const mips = new WeakMap(); // source canvas -> [half-size levels]
   const $ = U.$;
@@ -17,32 +17,48 @@
   /** Visible rectangle in image px: the crop box in the result view, else the whole image. */
   const rectOf = (act) => (S.view === 'result' ? C.boxOf(act.item, act) : { x: 0, y: 0, w: act.w, h: act.h });
 
-  /** Reuse the last composed canvas of a kind while its act and key are unchanged. */
+  /** A canvas's pixels go now (iOS counts them until the canvas is collected), its half-size levels too. */
+  function release(c) {
+    const m = c && mips.get(c);
+    if (m) { m.lv.forEach((l) => { if (l) l.width = l.height = 0; }); mips.delete(c); }
+  }
+  /** Reuse the last composed canvas of a kind while its act and key are unchanged; else draw it again, into the same
+   *  canvas when make() takes it (no new full-size canvas per brush step). */
   function cached(kind, act, key, make) {
     const m = memo.get(kind);
     if (m && m.act === act && m.key === key) return m.canvas;
-    const canvas = make();
+    const old = m && m.canvas, canvas = make(old);
+    if (old && old !== canvas) { release(old); old.width = old.height = 0; }
     memo.set(kind, { act, key, canvas });
     return canvas;
   }
-  /** Half-size levels of a source, so zoomed-out drawing samples fewer pixels. */
-  function level(src, n) {
+  /** Half-size levels of a source, so zoomed-out drawing samples fewer pixels. ver: the source's version; a source drawn
+   *  again (same canvas, new pixels) redraws its levels into the canvases they already have. */
+  function level(src, n, ver) {
     if (n <= 0) return src;
-    let lv = mips.get(src);
-    if (!lv) mips.set(src, (lv = []));
-    if (!lv[n]) {
-      const prev = level(src, n - 1), c = U.canvas(prev.width / 2, prev.height / 2), g = U.ctx(c);
+    let m = mips.get(src);
+    if (!m) mips.set(src, (m = { ver, lv: [], ok: [] }));
+    if (m.ver !== ver) { m.ver = ver; m.ok = []; }
+    if (!m.ok[n]) {
+      const prev = level(src, n - 1, ver), w = Math.max(1, Math.round(prev.width / 2)), h = Math.max(1, Math.round(prev.height / 2));
+      let c = m.lv[n];
+      if (!c || c.width !== w || c.height !== h) { if (c) c.width = c.height = 0; c = m.lv[n] = U.canvas(w, h); }
+      const g = U.ctx(c);
+      g.clearRect(0, 0, w, h);
       g.imageSmoothingQuality = 'high';
-      g.drawImage(prev, 0, 0, c.width, c.height);
-      lv[n] = c;
+      g.drawImage(prev, 0, 0, w, h);
+      m.ok[n] = true;
     }
-    return lv[n];
+    return m.lv[n];
+  }
+  /** The level of a source to draw an image rect w px wide at the current zoom. */
+  function pick(src, w, ver) {
+    const k = dpr * T.scale * w / src.width; // device px per source px
+    return level(src, k < 1 ? Math.min(6, Math.floor(Math.log2(1 / k))) : 0, ver);
   }
   /** Draw a source covering the image rect (x, y, w, h) in image px. */
-  function put(src, x, y, w, h) {
-    const k = dpr * T.scale * w / src.width; // device px per source px
-    const n = k < 1 ? Math.min(6, Math.floor(Math.log2(1 / k))) : 0;
-    cx.drawImage(level(src, n), T.ox + x * T.scale, T.oy + y * T.scale, w * T.scale, h * T.scale);
+  function put(src, x, y, w, h, ver) {
+    cx.drawImage(pick(src, w, ver), T.ox + x * T.scale, T.oy + y * T.scale, w * T.scale, h * T.scale);
   }
   function checkerboard() {
     if (!checker) {
@@ -55,26 +71,42 @@
   }
   function drawResult(act) {
     const it = act.item, b = C.boxOf(it, act);
-    const c = cached('result', act, act.rev + '|' + JSON.stringify(S.lookOf(it)), () => C.render(it, act));
+    // the plain look (transparent, no shadow, whole picture) is the cut-out itself: no second full-size canvas
+    const plain = it.bg.mode === 'transparent' && !(it.shadow.on && it.shadow.opacity > 0) && !b.x && !b.y && b.w === act.w && b.h === act.h;
+    const key = act.rev + '|' + JSON.stringify(S.lookOf(it));
+    const c = plain ? C.cutCanvas(act) : cached('result', act, key, (old) => C.render(it, act, old));
     if (it.bg.mode === 'transparent') {
       cx.fillStyle = checkerboard();
       cx.fillRect(T.ox + b.x * T.scale, T.oy + b.y * T.scale, b.w * T.scale, b.h * T.scale);
     }
-    put(c, b.x, b.y, b.w, b.h);
+    put(c, b.x, b.y, b.w, b.h, plain ? 'cut' + act.rev : key);
   }
-  /** Brush tools: the removed part is tinted so the matte can be seen on the picture while painting. */
+  /** Brush tools: the removed part is tinted so the matte can be seen on the picture while painting. Drawn at screen size
+   *  (one canvas the size of the view, kept): pink over the picture, less the cut-out's alpha, at half strength. */
   function drawTint(act) {
-    const c = cached('tint', act, act.rev, () => {
-      const t = U.canvas(act.w, act.h), g = t.getContext('2d'), img = g.createImageData(act.w, act.h), d = img.data, m = act.mask;
-      for (let i = 0, n = act.w * act.h; i < n; i++) { d[i * 4] = 255; d[i * 4 + 1] = 40; d[i * 4 + 2] = 120; d[i * 4 + 3] = Math.round((255 - m[i]) * 0.5); }
-      g.putImageData(img, 0, 0);
-      return t;
-    });
-    put(c, 0, 0, act.w, act.h);
+    const W = cv.width, H = cv.height, cut = C.cutCanvas(act);
+    if (!tint) tint = U.canvas(W, H); else if (tint.width !== W || tint.height !== H) { tint.width = W; tint.height = H; }
+    const g = U.ctx(tint), x = T.ox, y = T.oy, w = act.w * T.scale, h = act.h * T.scale;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.globalCompositeOperation = 'source-over';
+    g.clearRect(0, 0, W, H);
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    g.fillStyle = 'rgb(255,40,120)';
+    g.fillRect(x, y, w, h);
+    g.globalCompositeOperation = 'destination-out';
+    g.imageSmoothingEnabled = true;
+    g.drawImage(pick(cut, act.w, 'cut' + act.rev), x, y, w, h);
+    g.globalCompositeOperation = 'source-over';
+    cx.save();
+    cx.setTransform(1, 0, 0, 1, 0, 0);
+    cx.globalAlpha = 0.5;
+    cx.drawImage(tint, 0, 0);
+    cx.restore();
   }
   function drawMask(act) {
     const it = act.item, b = C.boxOf(it, act);
-    put(cached('mask', act, act.rev + '|' + JSON.stringify(it.crop), () => C.maskCanvas(it, act)), b.x, b.y, b.w, b.h);
+    const key = act.rev + '|' + JSON.stringify(it.crop);
+    put(cached('mask', act, key, (old) => C.maskCanvas(it, act, old)), b.x, b.y, b.w, b.h, key);
   }
 
   /** Centre the visible rect in the stage. */
@@ -126,14 +158,14 @@
     if (S.view === 'split') {
       const sx = Math.round(U.clamp(S.split, 0, 1) * sz.w);
       cx.save(); cx.beginPath(); cx.rect(0, 0, sx, sz.h); cx.clip();
-      put(act.bitmap, 0, 0, act.w, act.h);
+      put(act.bitmap, 0, 0, act.w, act.h, 0);
       cx.restore();
       cx.save(); cx.beginPath(); cx.rect(sx, 0, sz.w - sx, sz.h); cx.clip();
       drawResult(act);
       cx.restore();
       placeSplit(true, sx);
     } else {
-      if (S.view === 'before') put(act.bitmap, 0, 0, act.w, act.h);
+      if (S.view === 'before') put(act.bitmap, 0, 0, act.w, act.h, 0);
       else if (S.view === 'mask') drawMask(act);
       else { drawResult(act); if (S.tool === 'keep' || S.tool === 'remove') drawTint(act); }
       placeSplit(false);
@@ -161,4 +193,5 @@
   };
   V.panBy = function (dx, dy) { T.ox += dx; T.oy += dy; V.draw(); };
   V.zoomPct = () => Math.round(T.scale * 100);
+  V.release = release;
 })();

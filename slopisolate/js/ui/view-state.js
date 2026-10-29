@@ -16,14 +16,16 @@
   const copyLook = (it) => ({ s: it.s, bg: Object.assign({}, it.bg, { image: null }), shadow: it.shadow, crop: it.crop });
   const u8 = (a) => (a ? new Uint8ClampedArray(a) : null);
 
+  /* The arrays go as they are: IndexedDB copies them when it stores the value (a copy here too was two more full-size
+   * copies of every picture's masks on each save, after every brush stroke). */
   function getValue() {
     const list = kept();
     return {
       v: 2,
       items: list.map((it) => {
-        const rec = { kind: it.kind || 'image', name: it.name, file: it.file, model: it.model || null, modelUsed: it.modelUsed || null, look: copyLook(it), edit: it.edit ? u8(it.edit) : null, done: true };
-        if (rec.kind === 'image') Object.assign(rec, { base: it.base ? u8(it.base) : null, w: it.w, h: it.h });
-        if (rec.kind === 'video' && it.vid && it.vid.res) rec.res = { masks: it.vid.res.masks.map((m) => u8(m)), mw: it.vid.res.mw, mh: it.vid.res.mh };
+        const rec = { kind: it.kind || 'image', name: it.name, file: it.file, model: it.model || null, modelUsed: it.modelUsed || null, look: copyLook(it), edit: it.edit || null, done: true };
+        if (rec.kind === 'image') Object.assign(rec, { base: it.base || null, w: it.w, h: it.h });
+        if (rec.kind === 'video' && it.vid && it.vid.res) rec.res = { masks: it.vid.res.masks.slice(), mw: it.vid.res.mw, mh: it.vid.res.mh };
         return rec;
       }),
       active: list.findIndex((it) => it.id === S.activeId),

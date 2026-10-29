@@ -29,6 +29,16 @@ window.SlopI18n && window.SlopI18n.add('ko', {
   'prompts.ocr.summary.text': '열려 있는 파일에서 읽은 텍스트를 요약해 주세요. 길이: {length}.',
   'prompts.ocr.translate_read': '읽은 텍스트 번역하기',
   'prompts.ocr.translate_read.text': '열려 있는 파일에서 읽은 텍스트를 {language}로 번역해 주세요. 번역문만 주세요.',
+  'prompts.scan.plain': 'Make it look like a plain PDF',   // English until translated (Slop Scan)
+  'prompts.scan.plain.text': 'Set every page of the scan to black & white so it reads like a clean photocopy, and tell me which pages need their corners checked.',   // English until translated (Slop Scan)
+  'prompts.scan.a4': 'Make an A4 PDF',   // English until translated (Slop Scan)
+  'prompts.scan.a4.text': 'Put the scan on A4 pages with small margins and download the PDF.',   // English until translated (Slop Scan)
+  'prompts.scan.order': 'Check the page order',   // English until translated (Slop Scan)
+  'prompts.scan.order.text': 'Look at the pages of the scan, tell me if they seem out of order, and move them into reading order.',   // English until translated (Slop Scan)
+  'prompts.scan.searchable': 'Make the text searchable',   // English until translated (Slop Scan)
+  'prompts.scan.searchable.text': 'Turn on searchable text (OCR) and make the PDF, so its words can be searched and copied.',   // English until translated (Slop Scan)
+  'prompts.scan.receipts': 'Scan receipts',   // English until translated (Slop Scan)
+  'prompts.scan.receipts.text': 'Set the scan up for receipts: the scan\'s own page size, no margins, black & white. Then save the PDF to Slop Drive.',   // English until translated (Slop Scan)
   'prompts.html2pdf.header': '머리글 한 줄 쓰기',
   'prompts.html2pdf.header.text': '열려 있는 HTML 파일을 PDF로 만들 때 넣을 짧은 머리글 문구를 제안해 주세요. 제목과 오늘 날짜를 포함하세요.',
   'prompts.html2pdf.print_check': '인쇄가 잘 될까요?',

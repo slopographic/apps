@@ -12,7 +12,7 @@
   // Covers: home/globe/globe.js, home/globe/list.js, home/globe/sphere.js, shared/apps.js, home/browse.js, index.html
   /* The hero's links: every globe icon is a link to its app with the app's name, pointing at one brings it to the front
    * and shows the name, the keyboard list holds every app as one tab stop moved with the arrow keys, Open the apps puts the cursor in
-   * the finder's search, How it works opens its page; the copy is translated through shared/i18n. */
+   * the finder's search (a touch tap only scrolls there), How it works opens its page; the copy is translated through shared/i18n. */
   const { describe, it, expect, waitFor, sleep, run } = SlopTest;
   // the page's copy in its language: English here, the build's start language elsewhere (tests/harness.js said)
   const said = (key, english) => SlopTest.said(win, key, english);
@@ -128,6 +128,26 @@
       expect(doc.activeElement === doc.querySelector('#app-finder .fd-input')).toBe(false);
       btn.click();
       expect(doc.activeElement).toBe(doc.querySelector('#app-finder .fd-input'));
+      await waitFor(() => Math.abs(doc.getElementById('app-finder').getBoundingClientRect().top) < 200, { timeout: 5000 });
+      win.scrollTo(0, 0);
+    });
+    it('a tap on a touch screen scrolls to the finder without focusing its search (no on-screen keyboard)', async () => {
+      await ready;
+      const btn = doc.querySelector('.hx-cta a[data-to-finder]'), input = doc.querySelector('#app-finder .fd-input');
+      // a click as a touch screen sends it (no hover, a coarse pointer), only while the click is handled; reduced motion too,
+      // so the jump is instant (a smooth scroll in a test frame can stall); the page answers every other query as before
+      const mm = win.matchMedia;
+      const touchClick = (detail) => {
+        win.matchMedia = (q) => (/hover|pointer|reduced-motion/.test(q) ? { matches: /coarse|hover: none|reduce/.test(q), media: q, addEventListener() {}, removeEventListener() {} } : mm.call(win, q));
+        try { btn.dispatchEvent(new win.MouseEvent('click', { bubbles: true, cancelable: true, detail })); } finally { win.matchMedia = mm; }
+      };
+      if (doc.activeElement) doc.activeElement.blur();
+      touchClick(1);
+      expect(doc.activeElement === input).toBe(false);
+      await waitFor(() => Math.abs(doc.getElementById('app-finder').getBoundingClientRect().top) < 200, { timeout: 5000 });
+      win.scrollTo(0, 0);
+      touchClick(0);   // Enter on the link: the keyboard's user gets the cursor
+      expect(doc.activeElement).toBe(input);
       await waitFor(() => Math.abs(doc.getElementById('app-finder').getBoundingClientRect().top) < 200, { timeout: 5000 });
       win.scrollTo(0, 0);
     });

@@ -3,7 +3,9 @@
  * 'denied' BEFORE any tag, then loads what the stored choice allows. Nothing is loaded while an ID is empty.
  * Revoking sets consent to denied, does not reload the page, and stops future loads (window['ga-disable-<ID>'] = true).
  * Every apply() dispatches a window 'slop-consent' event (detail: the categories), so ad slots react at once.
- * Tests replace the loader: set window.SLOP_CONSENT_LOADER before this file, or SlopConsent.loadScript later. */
+ * Tests replace the loader: set window.SLOP_CONSENT_LOADER before this file, or SlopConsent.loadScript later.
+ * Text about analytics and ads (marked data-third-party, like the footer's "stay off unless you switch them on") is hidden
+ * on a site that has none: the brand's third-party switch off (the store app) or no IDs. */
 (function () {
   'use strict';
   var cfg = window.SLOP_CONSENT_CONFIG;
@@ -118,6 +120,16 @@
     /** The categories in force right now (necessary is always true). */
     state: function () { return S.current(); }
   };
+  /** True when the site can load analytics or ads at all (shared/consent/config.js). */
+  function hasThirdParty() { return !!(cfg && cfg.thirdParty !== false && (cfg.ga4MeasurementId || cfg.adsensePublisherId)); }
+  function hideThirdPartyText() {
+    if (hasThirdParty() || typeof document === 'undefined' || typeof document.querySelectorAll !== 'function') return;
+    var els = document.querySelectorAll('[data-third-party]');
+    for (var i = 0; i < els.length; i++) els[i].hidden = true;
+  }
+  api.hasThirdParty = hasThirdParty;
   window.SlopConsent = api;
   apply();
+  if (typeof document !== 'undefined' && document.readyState === 'loading') document.addEventListener('DOMContentLoaded', hideThirdPartyText);
+  else hideThirdPartyText();
 })();

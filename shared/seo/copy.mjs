@@ -35,7 +35,7 @@ const CATEGORY = {
   eml: 'UtilitiesApplication', checksum: 'UtilitiesApplication', diff: 'UtilitiesApplication',
   nodes: 'BusinessApplication', sorter: 'MultimediaApplication', signature: 'BusinessApplication',
   transcribe: 'BusinessApplication', recorder: 'MultimediaApplication', serials: 'BusinessApplication',
-  qr: 'UtilitiesApplication', colors: 'DesignApplication', fontcreator: 'DesignApplication',
+  qr: 'UtilitiesApplication', colors: 'DesignApplication', fontcreator: 'DesignApplication', scan: 'BusinessApplication',
   workflows: 'UtilitiesApplication', convert: 'UtilitiesApplication', calculator: 'UtilitiesApplication',
   time: 'UtilitiesApplication', crm: 'BusinessApplication', calendar: 'BusinessApplication',
   todo: 'BusinessApplication', projects: 'BusinessApplication', reminders: 'BusinessApplication',

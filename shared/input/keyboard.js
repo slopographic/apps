@@ -68,8 +68,9 @@
     kb = h;
     root.style.setProperty('--slop-kb', kb + 'px');
     root.classList.toggle('slop-kb-open', kb > 0);
-    // iOS scrolls the whole page to a field inside a fixed box; a one-screen app page must stay where it is
-    if (kb && IOS && doc.scrollingElement && doc.scrollingElement.scrollHeight <= layoutH() + 1 && g.scrollY) g.scrollTo(0, 0);
+    // iOS scrolls the whole page to a field inside a fixed box, and may leave it there when the keyboard goes down (the
+    // header then sat under the status bar, a grey band under the bottom bar): a one-screen app page stays where it is
+    if (IOS && doc.scrollingElement && doc.scrollingElement.scrollHeight <= layoutH() + 1 && g.scrollY) g.scrollTo(0, 0);
     try { g.dispatchEvent(new g.CustomEvent('slopkeyboard', { detail: { height: kb } })); } catch (e) { /* old engines */ }
     if (kb) reveal(); else restore();
   }

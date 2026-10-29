@@ -31,6 +31,8 @@
         expect(w.document.getElementById('slopc-banner')).toBe(null);
         const third = [...w.document.querySelectorAll('script[src]')].map((s) => s.src).filter((s) => /googletagmanager|googlesyndication|google-analytics|doubleclick/.test(s));
         expect(third).toEqual([]);
+        // no line about analytics and ads that "stay off unless you switch them on" (the footer's)
+        expect([...w.document.querySelectorAll('[data-third-party]')].filter((e) => !e.hidden).length).toBe(0);
         f.remove();
       }, { timeout: 40000 });
     }

@@ -9,6 +9,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'seo.reg.aitools.title': 'أدوات الذكاء الاصطناعي', 'seo.reg.aitools.tagline': 'OCR والكلام إلى نص وإزالة الضوضاء والوسوم التلقائية وتمويه البورتريه. على جهازك.', 'seo.mq.aitools': 'أدوات الذكاء الاصطناعي',
   'seo.reg.reports.title': 'التقارير', 'seo.reg.reports.tagline': 'إجماليات وقوائم عبر جهات الاتصال والفواتير والمصروفات وCRM، مع الأرباح حسب الشهر. للقراءة فقط.', 'seo.mq.reports': 'التقارير',
   'seo.reg.ocr.title': 'OCR: قراءة النص من الصور والمسوحات', 'seo.reg.ocr.tagline': 'اقرأ النص من الصور وملفات PDF الممسوحة على جهازك. لا يُرفع أي شيء.', 'seo.mq.ocr': 'OCR',
+  'seo.reg.scan.title': 'Document scanner: photo to PDF', 'seo.reg.scan.tagline': 'Photos of pages to a clean PDF: edges found, shadows gone. Nothing uploaded.', 'seo.mq.scan': 'Document scanner',
   'seo.reg.html2pdf.title': 'محوّل HTML إلى PDF', 'seo.reg.html2pdf.tagline': 'اطبع ملف HTML إلى PDF مع رأس ورمز QR. لا يُرفع أي شيء.', 'seo.mq.html2pdf': 'محوّل HTML إلى PDF',
   'seo.reg.clean.title': 'SlopClean: مزيل بيانات الصور الوصفية', 'seo.reg.clean.tagline': 'اعرف ما تكشفه الصورة، وأزله. لا يُرفع أي شيء.', 'seo.mq.clean': 'مزيل بيانات الصور الوصفية',
   'seo.reg.ai.title': 'دردشة الذكاء الاصطناعي', 'seo.reg.ai.tagline': 'تحدث مع ذكاء اصطناعي يعمل على حاسوبك.', 'seo.mq.ai': 'دردشة الذكاء الاصطناعي',

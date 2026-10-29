@@ -29,6 +29,16 @@ window.SlopI18n && window.SlopI18n.add('it', {
   'prompts.ocr.summary.text': 'Riassumi il testo letto dal file aperto. Lunghezza: {length}.',
   'prompts.ocr.translate_read': 'Traduci il testo letto',
   'prompts.ocr.translate_read.text': 'Traduci in {language} il testo letto dal file aperto. Dai solo la traduzione.',
+  'prompts.scan.plain': 'Make it look like a plain PDF',   // English until translated (Slop Scan)
+  'prompts.scan.plain.text': 'Set every page of the scan to black & white so it reads like a clean photocopy, and tell me which pages need their corners checked.',   // English until translated (Slop Scan)
+  'prompts.scan.a4': 'Make an A4 PDF',   // English until translated (Slop Scan)
+  'prompts.scan.a4.text': 'Put the scan on A4 pages with small margins and download the PDF.',   // English until translated (Slop Scan)
+  'prompts.scan.order': 'Check the page order',   // English until translated (Slop Scan)
+  'prompts.scan.order.text': 'Look at the pages of the scan, tell me if they seem out of order, and move them into reading order.',   // English until translated (Slop Scan)
+  'prompts.scan.searchable': 'Make the text searchable',   // English until translated (Slop Scan)
+  'prompts.scan.searchable.text': 'Turn on searchable text (OCR) and make the PDF, so its words can be searched and copied.',   // English until translated (Slop Scan)
+  'prompts.scan.receipts': 'Scan receipts',   // English until translated (Slop Scan)
+  'prompts.scan.receipts.text': 'Set the scan up for receipts: the scan\'s own page size, no margins, black & white. Then save the PDF to Slop Drive.',   // English until translated (Slop Scan)
   'prompts.html2pdf.header': 'Scrivi una riga di intestazione',
   'prompts.html2pdf.header.text': 'Proponi un breve testo di intestazione per il PDF del file HTML aperto, con il suo titolo e la data di oggi.',
   'prompts.html2pdf.print_check': 'Verrà stampato bene?',

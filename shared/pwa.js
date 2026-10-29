@@ -2,7 +2,9 @@
  *   SlopPWA.mount({ install: '#pwa-install' })  once per page. Registers the service worker
  *     after the page load, shows the install button only when the browser offers an install,
  *     and asks for persistent storage after install or when running standalone.
- *     A no-op (returns false) when the browser has no service worker support.
+ *     A no-op (returns false) when the browser has no service worker support, and in the suite's own apps
+ *     (shared/native-app.js SlopNative.isApp(): the app has its files and installs from its store), where the
+ *     install button stays hidden.
  *   SlopPWA.requestPersist()   asks the browser to keep storage; returns and records the answer.
  *   SlopPWA.persistAnswer()    the recorded answer: 'granted' | 'denied' | 'unsupported' | null.
  *   SlopPWA.persistMessage(a)  plain-words text for an answer (shown in Slop Drive).
@@ -88,6 +90,7 @@
   }
 
   function mount(opts = {}) {
+    if (win.SlopNative && win.SlopNative.isApp()) { resolve(opts.install).forEach((b) => { b.hidden = true; }); return false; }
     if (mounted || !NAV || !('serviceWorker' in NAV) || !NAV.serviceWorker) return false;
     mounted = true;
     injectStyle();

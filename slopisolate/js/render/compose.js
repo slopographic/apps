@@ -35,12 +35,24 @@
     };
   };
 
-  /** The canvas for a cutout's ImageData (cached on the active record). */
+  /** Mark part of the cut-out as changed (rect {x, y, x1, y1}; null: all of it). The next cutCanvas() copies only that
+   *  part into the canvas it keeps: a brush step never makes a new full-size canvas (on an iPhone, a new 12 MP canvas
+   *  per finger move ran the page out of memory within seconds and iOS reloaded it). */
+  C.touch = function (act, rect) {
+    act.rev = (act.rev || 0) + 1;
+    if (!rect || act.cutAll) { act.cutAll = true; act.cutRect = null; return; }
+    const d = act.cutRect;
+    act.cutRect = d ? { x: Math.min(d.x, rect.x), y: Math.min(d.y, rect.y), x1: Math.max(d.x1, rect.x1), y1: Math.max(d.y1, rect.y1) } : { x: rect.x, y: rect.y, x1: rect.x1, y1: rect.y1 };
+  };
+
+  /** The canvas for a cutout's ImageData: one per active record, updated in place (see C.touch). */
   C.cutCanvas = function (act) {
-    if (act.cut) return act.cut;
-    const c = U.canvas(act.w, act.h);
-    U.ctx(c).putImageData(act.cutout, 0, 0);
-    act.cut = c;
+    let c = act.cut;
+    if (!c || c.width !== act.w || c.height !== act.h) { c = act.cut = U.canvas(act.w, act.h); act.cutAll = true; }
+    const r = act.cutRect;
+    if (act.cutAll) U.ctx(c).putImageData(act.cutout, 0, 0);
+    else if (r && r.x1 > r.x && r.y1 > r.y) U.ctx(c).putImageData(act.cutout, 0, 0, r.x, r.y, r.x1 - r.x, r.y1 - r.y);
+    act.cutAll = false; act.cutRect = null;
     return c;
   };
 
@@ -70,9 +82,11 @@
   }
 
   /** Full-resolution picture for an item's look. Transparent backgrounds keep alpha. */
-  C.render = function (it, act) {
-    const box = C.boxOf(it, act);
-    const c = U.canvas(box.w, box.h), g = U.ctx(c);
+  /** into: a canvas to draw on again when it has the right size (the view's last one), so no new canvas is made. */
+  C.render = function (it, act, into) {
+    const box = C.boxOf(it, act), W = Math.max(1, Math.round(box.w)), H = Math.max(1, Math.round(box.h));
+    const c = into && into.width === W && into.height === H ? into : U.canvas(box.w, box.h), g = U.ctx(c);
+    if (c === into) { g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, W, H); }
     paintBackground(g, it, act, box);
     const sh = it.shadow;
     if (sh.on && sh.opacity > 0) {
@@ -85,12 +99,19 @@
     return c;
   };
 
-  /** Grey view of the mask (white = keep), cropped like the result. */
-  C.maskCanvas = function (it, act) {
-    const box = C.boxOf(it, act), src = U.canvas(act.w, act.h), sg = U.ctx(src);
-    sg.putImageData(new ImageData(new Uint8ClampedArray(act.w * act.h * 4).map((_, i) => (i % 4 === 3 ? 255 : act.mask[i >> 2])), act.w, act.h), 0, 0);
-    const c = U.canvas(box.w, box.h);
-    U.ctx(c).drawImage(src, -box.x, -box.y);
+  /** Grey view of the mask (white = keep), cropped like the result. into: the last one, drawn again when the size fits;
+   *  its full-size grey picture and pixels stay on the record, so a brush step in this view makes no new ones. */
+  C.maskCanvas = function (it, act, into) {
+    const box = C.boxOf(it, act), n = act.w * act.h;
+    if (!act.greyImg || act.greyImg.width !== act.w || act.greyImg.height !== act.h) { act.greyImg = new ImageData(act.w, act.h); act.greyImg.data.fill(255); }
+    if (!act.grey || act.grey.width !== act.w || act.grey.height !== act.h) act.grey = U.canvas(act.w, act.h);
+    const d = act.greyImg.data, m = act.mask;
+    for (let i = 0; i < n; i++) { const v = m[i]; d[i * 4] = v; d[i * 4 + 1] = v; d[i * 4 + 2] = v; }
+    U.ctx(act.grey).putImageData(act.greyImg, 0, 0);
+    const W = Math.max(1, Math.round(box.w)), H = Math.max(1, Math.round(box.h));
+    const c = into && into.width === W && into.height === H ? into : U.canvas(box.w, box.h), g = U.ctx(c);
+    g.clearRect(0, 0, W, H);
+    g.drawImage(act.grey, -box.x, -box.y);
     return c;
   };
 })();

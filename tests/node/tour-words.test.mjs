@@ -8,7 +8,7 @@
 //   shared/tour/tours/effects.js, shared/tour/tours/fontcreator.js, shared/tour/tours/gallery.js, shared/tour/tours/hex.js,
 //   shared/tour/tours/img3d.js, shared/tour/tours/invoices.js, shared/tour/tours/label.js, shared/tour/tours/notes.js,
 //   shared/tour/tours/orders.js, shared/tour/tours/paste.js, shared/tour/tours/photoslop.js, shared/tour/tours/projects.js,
-//   shared/tour/tours/remix.js, shared/tour/tours/resize.js, shared/tour/tours/slides.js, shared/tour/tours/slopcut.js,
+//   shared/tour/tours/remix.js, shared/tour/tours/resize.js, shared/tour/tours/scan.js, shared/tour/tours/slides.js, shared/tour/tours/slopcut.js,
 //   shared/tour/tours/slopisolate.js, shared/tour/tours/slopvector.js, shared/tour/tours/tables.js, shared/tour/tours/todo.js,
 //   shared/tour/tours/upscale.js
 import { test } from 'node:test';
@@ -31,7 +31,7 @@ const tours = readdirSync(DIR).filter((f) => f.endsWith('.js')).sort().map((f) =
 const registry = apps();
 
 test('(a) a tour file is data only: no title or text, no words read by the file itself', () => {
-  assert.equal(tours.length, 28);
+  assert.equal(tours.length, 29);
   for (const { file, src, tour } of tours) {
     const code = src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
     assert.doesNotMatch(code, /\b(title|text)\s*[:(]|SlopI18n|\bget\s+\w+\s*\(/, file + ' holds words or reads them');

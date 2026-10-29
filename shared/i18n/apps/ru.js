@@ -9,6 +9,7 @@ window.SlopI18n && window.SlopI18n.add('ru', {
   'seo.reg.aitools.title': 'Инструменты ИИ', 'seo.reg.aitools.tagline': 'OCR, речь в текст, шумоподавление, автоматические теги и размытие портрета. На вашем устройстве.', 'seo.mq.aitools': 'Инструменты ИИ',
   'seo.reg.reports.title': 'Отчёты', 'seo.reg.reports.tagline': 'Итоги и списки по контактам, счетам, расходам и CRM, с прибылью по месяцам. Только чтение.', 'seo.mq.reports': 'Отчёты',
   'seo.reg.ocr.title': 'OCR: чтение текста с изображений и сканов', 'seo.reg.ocr.tagline': 'Читайте текст с изображений и сканов PDF на вашем устройстве. Ничего не отправляется.', 'seo.mq.ocr': 'OCR',
+  'seo.reg.scan.title': 'Document scanner: photo to PDF', 'seo.reg.scan.tagline': 'Photos of pages to a clean PDF: edges found, shadows gone. Nothing uploaded.', 'seo.mq.scan': 'Document scanner',
   'seo.reg.html2pdf.title': 'Преобразование HTML в PDF', 'seo.reg.html2pdf.tagline': 'Печатайте HTML-файл в PDF с колонтитулом и QR-кодом. Ничего не отправляется.', 'seo.mq.html2pdf': 'Преобразование HTML в PDF',
   'seo.reg.clean.title': 'SlopClean: удаление метаданных фото', 'seo.reg.clean.tagline': 'Посмотрите, что раскрывает фото, и удалите это. Ничего не отправляется.', 'seo.mq.clean': 'удаление метаданных фото',
   'seo.reg.ai.title': 'Чат с ИИ', 'seo.reg.ai.tagline': 'Общайтесь с ИИ, который работает на вашем компьютере.', 'seo.mq.ai': 'Чат с ИИ',

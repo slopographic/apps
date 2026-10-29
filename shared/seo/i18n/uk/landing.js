@@ -22,6 +22,8 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'seo.landing.reports.description': 'Slop Reports показує підсумки з контактів, рахунків, витрат і CRM, зокрема прибуток за місяцями та неоплачені рахунки. Лише читання, експорт CSV.',
   'seo.landing.ocr.title': 'Slop OCR: читання тексту з зображень і сканованих PDF | Slopographic',
   'seo.landing.ocr.description': 'Slop OCR читає текст зі зображень і сканованих PDF на пристрої, по сторінках при 200 dpi. Виправте текст і збережіть як .txt, .md або PDF з пошуком.',
+  'seo.landing.scan.title': 'Free document scanner in your browser: photo to PDF | Slop Scan',   // English until translated (Slop Scan)
+  'seo.landing.scan.description': 'Free document scanner in your browser: take photos of pages, crop them automatically and download one PDF in black & white or colour. No app, no upload.',   // English until translated (Slop Scan)
   'seo.landing.html2pdf.title': 'Slop HTML to PDF: друк HTML-файлів з колонтитулом і QR-кодом | Slopographic',
   'seo.landing.html2pdf.description': 'Slop HTML to PDF друкує HTML-файл у PDF у вашому браузері з колонтитулом на кожній сторінці: назва, дата й QR-код. Нічого не вивантажується.',
   'seo.landing.clean.title': 'SlopClean: перегляд і видалення метаданих фото, як-от GPS | Slopographic',

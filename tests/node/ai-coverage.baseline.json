@@ -71,6 +71,15 @@
   "snapshot": "page",
   "driven": true
  },
+ "scan": {
+  "create": true,
+  "add": true,
+  "edit": true,
+  "export": true,
+  "state": "app",
+  "snapshot": "page",
+  "driven": true
+ },
  "html2pdf": {
   "create": true,
   "add": true,

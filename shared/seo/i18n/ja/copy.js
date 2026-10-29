@@ -16,6 +16,8 @@ window.SlopI18n && window.SlopI18n.add('ja', {
   'seo.app.aitools.description': '画像やスキャンしたPDFのOCR、.srt書き出しに対応した音声の文字起こし、比較スライダー付きの写真のノイズ除去、ポートレートのぼかしに対応しています。端末上で動きます。',
   'seo.app.ocr.title': 'Slop OCR：画像やPDFの文字を端末上で読み取り | Slopographic',
   'seo.app.ocr.description': '写真やスキャンしたPDFから、端末上で文字を読み取ります。編集してから、TXT、Markdown、Word、検索可能なPDFとして保存できます。ファイルはアップロードされません。',
+  'seo.app.scan.title': 'Slop Scan: turn photos of pages into a clean PDF | Slopographic',   // English until translated (Slop Scan)
+  'seo.app.scan.description': 'Photos of pages to one clean PDF: edges found, pages made flat, shadows removed. Nothing is uploaded.',   // English until translated (Slop Scan)
   'seo.app.reports.title': 'Slop Reports：月別の利益、未払い請求書、CRM | Slopographic',
   'seo.app.reports.description': '自分の帳簿から、月ごとの利益とキャッシュフロー、四半期ごとの消費税、未払い請求書、仕入先別の支出をレポートします。参照のみで、CSVに書き出せます。',
   'seo.app.html2pdf.title': 'Slop HTML to PDF：ヘッダーとQRコード付きでHTMLを印刷 | Slopographic',

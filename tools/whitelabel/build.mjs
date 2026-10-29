@@ -152,6 +152,7 @@ export function build(id, out, opts = {}) {
   if (videos.length) stripMedia(out, videos);
   log(`${p.id}: wrote ${n} files to ${out}`);
   const node = process.execPath;
+  sh(node, ['mobile/android/assetlinks.mjs'], out);   // the Android app's asset links: the build's own app id (from its CNAME)
   if (!opts.noImages) sh(node, [path.join(ROOT, 'tools/whitelabel/images.mjs'), out]);   // before the precache list, which hashes them
   // the generated reports name the apps and files, so the build writes its own: the SEO pages, the i18n coverage report
   // (tests/node/i18n-tables.test.mjs checks it is up to date) and the precache list, which hashes the rest

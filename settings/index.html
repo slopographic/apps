@@ -5,6 +5,7 @@
   <script src="../shared/theme/theme.js" data-app="settings" data-src="shared/theme/theme.js"></script>
   <script src="../shared/i18n/i18n.js" data-src="shared/i18n/i18n.js"></script>
   <script src="i18n/index.js" data-src="settings/i18n/index.js"></script>
+  <script src="../privacy/i18n/index.js" data-src="privacy/i18n/index.js"></script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Profile and settings: Slopographic</title>
@@ -61,14 +62,15 @@
     <section aria-labelledby="privacy-title">
       <h2 id="privacy-title" data-i18n="settings.privacy">Privacy</h2>
       <p class="privacy" data-i18n="settings.page.privacy">Slopographic runs in your browser and your files never leave your device. Your choices on this page are stored in this browser's local storage and nowhere else. Analytics and ads are off until you turn them on, and no third-party script loads until you do. You can change this at any time.</p>
+      <p><a class="btn" href="../privacy/" data-i18n="privacy.link">Privacy policy</a></p>
     </section>
 
-    <section id="agents" aria-labelledby="agents-title">
+    <section id="agents" data-web-only aria-labelledby="agents-title">
       <h2 id="agents-title" data-i18n="settings.page.agents">AI agents</h2>
       <div class="privacy" data-slop-agents-note></div>
     </section>
 
-    <section aria-labelledby="choices-title">
+    <section id="choices" aria-labelledby="choices-title">
       <h2 id="choices-title" data-i18n="settings.analytics_ads">Analytics and ads</h2>
       <div class="set-row">
         <div>
@@ -107,7 +109,7 @@
       <p id="defaults-note" class="settings-note" role="status" aria-live="polite"></p>
     </section>
 
-    <section aria-labelledby="folder-title">
+    <section id="folder" data-web-only aria-labelledby="folder-title">
       <h2 id="folder-title" data-i18n="settings.folder.title">Local folder</h2>
       <p data-i18n="settings.folder.lede">Keep a copy of your Slopographic settings in a folder on this computer. It is the same folder Slop Drive uses, so you can connect it in either place. Files are written only into that folder, and nothing is sent anywhere.</p>
       <div id="folder-box" class="folder-box"></div>
@@ -117,6 +119,8 @@
       <p class="settings-note"><span data-i18n="settings.folder.see_files">To see the files in this folder:</span> <a href="../drive/" data-i18n="settings.folder.open_drive">Open Slop Drive</a></p>
     </section>
 
+    <section id="native-files" hidden aria-labelledby="native-files-title"></section>
+
     <section id="storage" aria-labelledby="storage-title">
       <h2 id="storage-title" data-i18n="settings.storage.title">Storage</h2>
       <p data-i18n="settings.storage.lede">How much room this site uses in your browser, and what uses it. Your files, documents and saved projects are stored here too. Clearing a cache removes only what is made again when needed.</p>
@@ -124,7 +128,7 @@
       <p id="storage-note" class="settings-note" role="status" aria-live="polite"></p>
     </section>
 
-    <section id="updates" aria-labelledby="updates-title">
+    <section id="updates" data-web-only aria-labelledby="updates-title">
       <h2 id="updates-title" data-i18n="settings.updates.title">Updates</h2>
       <p><span data-i18n="settings.updates.lede">Slopographic checks for a new version each time you open a page. If a page still looks old, load the latest version: the offline copies are fetched again and the page reloads. Your files, documents, settings and downloaded packs are kept.</span> <span data-i18n="settings.updates.fresh" data-i18n-vars='{"fresh":"?fresh"}'>On any page, adding ?fresh to the address does the same.</span></p>
       <p id="updates-version" class="settings-note"></p>
@@ -190,11 +194,11 @@
     <div class="footer-cols">
       <p><strong>Slopographic</strong><br><span data-i18n="footer.creative">Creative software that runs in your browser.</span></p>
       <p><span data-i18n="footer.offline">Everything works offline-first. Your files never leave your device.</span></p>
-      <p><span data-i18n="footer.accounts_settings">No accounts. Analytics and ads are off unless you turn them on in Settings.</span></p>
+      <p data-third-party><span data-i18n="footer.accounts_settings">No accounts. Analytics and ads are off unless you turn them on in Settings.</span></p>
     </div>
     <p class="fine">© 2026 Slopographic.</p>
     <p class="fine made" data-i18n="footer.made">Made with ❤️ in Sweden</p>
-    <p class="fine legal"><a href="https://github.com/slopographic/apps/blob/main/LICENSE" data-i18n="footer.code_license">Code MIT</a> · <a href="https://github.com/slopographic/apps/blob/main/TRADEMARKS.md" data-i18n="footer.trademarks">Sloppo™ and Slopographic™ are trademarks</a></p>
+    <p class="fine legal"><a href="../privacy/" data-i18n="privacy.link">Privacy policy</a> · <a href="https://github.com/slopographic/apps/blob/main/LICENSE" data-i18n="footer.code_license">Code MIT</a> · <a href="https://github.com/slopographic/apps/blob/main/TRADEMARKS.md" data-i18n="footer.trademarks">Sloppo™ and Slopographic™ are trademarks</a></p>
   </footer>
 
   <script src="../shared/consent/config.js"></script>
@@ -239,6 +243,8 @@
   <script src="folder.js"></script>
   <script src="storage-keep.js"></script>
   <script src="storage.js"></script>
+  <script src="../shared/native/words.js"></script>
+  <script src="../shared/native/settings.js"></script>
   <script src="../shared/pwa.js"></script>
   <script src="updates.js"></script>
   <script src="app-settings.js"></script>
