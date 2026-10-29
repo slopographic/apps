@@ -9,6 +9,7 @@ import { readFileSync, existsSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { remapColors, paletteFile, colorKeys, TEST_FILE } from './palette.mjs';
+import { ENV } from './history-git.mjs';   // without a git hook's GIT_DIR, which would list the hook's repository
 
 /** Everything the steps need for one profile and its rename map. */
 export function context(root, p, map) {
@@ -31,7 +32,7 @@ export const profileText = (text, ctx) => phrases(urls(text, ctx.urls), ctx.phra
 export function siteColors(ctx) {
   if (ctx._siteColors) return ctx._siteColors;
   let files = [];
-  try { files = execFileSync('git', ['ls-files', '-z'], { cwd: ctx.root, encoding: 'utf8', maxBuffer: 1 << 28 }).split('\0'); } catch (e) { /* not a checkout: no site colours */ }
+  try { files = execFileSync('git', ['ls-files', '-z'], { cwd: ctx.root, encoding: 'utf8', maxBuffer: 1 << 28, env: ENV }).split('\0'); } catch (e) { /* not a checkout: no site colours */ }
   files = files.filter((f) => f && paletteFile(f) && !TEST_FILE.test(f) && existsSync(path.join(ctx.root, f)));
   ctx._siteColors = colorKeys(files.map((f) => readFileSync(path.join(ctx.root, f), 'utf8')));
   return ctx._siteColors;

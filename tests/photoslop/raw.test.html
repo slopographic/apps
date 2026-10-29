@@ -68,7 +68,7 @@
       const done = W.handleFiles([await nef()], false);
       await waitFor(() => dlg() && /Download the camera RAW engine/.test(dlg().textContent));
       button('Cancel').click();
-      await waitFor(() => dlg() && /Develop/.test(dlg().textContent));
+      await waitFor(() => dlg() && /Develop DSC_0042/.test(dlg().textContent));
       button('Cancel').click();
       const failed = await done;
       expect(failed.length).toBe(0);
