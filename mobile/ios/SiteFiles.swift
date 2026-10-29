@@ -147,10 +147,11 @@ public class SiteFilesPlugin: CAPPlugin, CAPBridgedPlugin, UIDocumentPickerDeleg
             return SiteFilesPlugin.stat(u)
         }
     }
-    /// Moves from to path, replacing what is there.
+    /// Moves the file at from to to (paths in the root), replacing what is there.
     @objc func move(_ call: CAPPluginCall) {
         run(call) {
-            let from = try self.place(call, "from"), to = try self.place(call), fm = FileManager.default
+            let from = try self.place(call, "from"), to = try self.place(call, "to"), fm = FileManager.default
+            guard !(call.getString("from") ?? "").isEmpty, !(call.getString("to") ?? "").isEmpty else { throw SiteError("Move what where?") }
             try fm.createDirectory(at: to.deletingLastPathComponent(), withIntermediateDirectories: true)
             try siteCoordinated(to, writing: true) { w in
                 if fm.fileExists(atPath: w.path) { try fm.removeItem(at: w) }

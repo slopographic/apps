@@ -6,6 +6,7 @@ window.SlopI18n && window.SlopI18n.add('en', {
   'native.saved_icloud': 'Saved in iCloud Drive: {path}',
   'native.saved_back': 'Saved to {name}, where you opened it.',
   'native.save_as': 'Save as…',
+  'native.save_over': 'Save over {name}',
   'native.share': 'Share…',
   'native.not_saved': 'Could not save {name}: {error}',
   'native.title': 'Files',

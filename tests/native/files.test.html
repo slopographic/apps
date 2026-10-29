@@ -109,12 +109,12 @@
       expect(fs.text('documents', 'out (2).pdf')).toBe('out 2');
       const note = document.querySelector('.native-note');
       expect(note.textContent).toContain('Saved in Files: out (2).pdf');
-      const [saveAs, share] = note.querySelectorAll('button');
-      expect(saveAs.textContent).toBe('Save as…');
+      const buttons = [...note.querySelectorAll('button')], saveAs = buttons.find((b) => b.textContent === 'Save as…'), share = buttons.find((b) => b.textContent === 'Share…');
+      expect(buttons[0].textContent).toBe('Save over doc.pdf');   // this page was opened with a PDF in place
       saveAs.click();
       await waitFor(() => fs.exported.length);
       expect(fs.exported[0]).toEqual(['documents', 'out (2).pdf']);
-      expect(share.textContent).toBe('Share…');
+      expect(!!share).toBe(true);
     });
     it('a download link (a[download]) in the app saves there too', async () => {
       const a = document.createElement('a');
@@ -128,6 +128,16 @@
       expect(fs.back.t1).toBe('%PDF edited');
       expect(document.querySelector('.native-note').textContent).toContain('Saved to doc.pdf, where you opened it.');
       expect(fs.has('documents', 'doc.pdf')).toBe(false);
+    });
+    it('a result under another name (doc-edited.pdf) can be saved over the file opened in place, from the note', async () => {
+      fs.back = {};
+      await F().saveDownload(new Blob(['%PDF v2']), 'doc-edited.pdf');
+      expect(fs.text('documents', 'doc-edited.pdf')).toBe('%PDF v2');
+      const over = document.querySelector('.native-note button');
+      expect(over.textContent).toBe('Save over doc.pdf');
+      over.click();
+      await waitFor(() => fs.back.t1);
+      expect(fs.back.t1).toBe('%PDF v2');
     });
   });
 

@@ -136,7 +136,10 @@
   }
 
   g.addEventListener('slop-drive-change', () => { if (!applying) soon(); });
-  g.document.addEventListener('visibilitychange', () => { if (g.document.visibilityState === 'hidden') run().catch(() => null); else soon(400); });
+  // Back in front: the Files app may have changed the folder. Nothing starts as the page goes away: WebKit keeps a
+  // leaving page's Slop Drive transactions open (back/forward cache) and the next page's would wait behind them.
+  g.document.addEventListener('visibilitychange', () => { if (g.document.visibilityState === 'visible') soon(400); else clearTimeout(timer); });
+  g.addEventListener('pagehide', () => clearTimeout(timer));
   g.SlopNativeSync = { run, soon, appFolder, setICloud };
   soon(1200);
 })(window);

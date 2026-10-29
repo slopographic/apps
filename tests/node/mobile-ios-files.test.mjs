@@ -101,6 +101,7 @@ test('SceneDelegate hands every opened file to the inbox first, at launch and la
   const read = (f) => readFileSync(path.join(ROOT, 'mobile/ios', f), 'utf8');
   assert.match(read('SiteRouter.swift'), /bridge\?\.registerPluginInstance\(SiteFilesPlugin\(\)\)/);
   for (const m of ['info', 'setICloud', 'tree', 'write', 'move', 'remove', 'mkdir', 'takeOpened', 'writeBack', 'exportFile']) assert.match(read('SiteFiles.swift'), new RegExp(`@objc func ${m}\\(`), m);
+  assert.match(read('SiteFiles.swift'), /to = try self\.place\(call, "to"\)/, 'move takes its target from "to" (files.js), never the root itself');
   assert.match(read('SiteInbox.swift'), /func receive\(_ contexts: Set<UIOpenURLContext>\)/);
   assert.match(read('capacitor.mjs'), /'SiteRouter\.swift', 'SiteFiles\.swift', 'SiteInbox\.swift'/);
 });
@@ -109,11 +110,11 @@ test('the files glue: the page a file opens in, a file of the app\'s own folder 
   const map = { pdf: '/pdf/', docx: '/docs/' };
   assert.equal(FJ.routeFor('A.PDF', map), '/pdf/');
   assert.equal(FJ.routeFor('archive.zip', map), '/drive/');
-  assert.equal(FJ.join('file:///docs/', 'Slop PDF/a b#.pdf'), 'file:///docs/Slop%20PDF/a%20b%23.pdf');
+  assert.equal(FJ.join('file:///docs/', 'My Papers/a b#.pdf'), 'file:///docs/My%20Papers/a%20b%23.pdf');
   assert.equal(FJ.partOf('a/b/c.pdf'), 'a/b/.c.pdf.part');
   assert.equal(FJ.partOf('c.pdf'), '.c.pdf.part');
-  const state = { root: 'documents', files: { id1: { p: 'Slop PDF/a.pdf' } } };
-  const g = FJ.group([{ name: 'a.pdf', inside: 'documents', rel: 'Slop PDF/a.pdf' }, { name: 'b.docx', inside: '' }, { name: 'c.pdf', inside: 'icloud', rel: 'Slop PDF/a.pdf' }], map, state);
+  const state = { root: 'documents', files: { id1: { p: 'My Papers/a.pdf' } } };
+  const g = FJ.group([{ name: 'a.pdf', inside: 'documents', rel: 'My Papers/a.pdf' }, { name: 'b.docx', inside: '' }, { name: 'c.pdf', inside: 'icloud', rel: 'My Papers/a.pdf' }], map, state);
   assert.equal(g['/pdf/'][0].drive, 'id1');
   assert.equal(g['/pdf/'][1].drive, undefined, 'another root: not that Drive file');
   assert.equal(g['/docs/'].length, 1);

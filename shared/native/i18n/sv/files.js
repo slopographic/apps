@@ -5,6 +5,7 @@ window.SlopI18n && window.SlopI18n.add('sv', {
   'native.saved_icloud': 'Sparad i iCloud Drive: {path}',
   'native.saved_back': 'Sparad till {name}, där du öppnade den.',
   'native.save_as': 'Spara som…',
+  'native.save_over': 'Spara över {name}',
   'native.share': 'Dela…',
   'native.not_saved': 'Det gick inte att spara {name}: {error}',
   'native.title': 'Filer',

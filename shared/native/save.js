@@ -2,7 +2,8 @@
  * app's download hook calls (native/native.js); never on the website or the desktop app. Classic script; exposes
  * window.SlopNativeSave:
  *   save(blob, name)   - this page was opened with a file of that name in place (from Files, iCloud Drive, another
- *                        provider): the save goes back over it;
+ *                        provider): the save goes back over it; one of the same type under another name (an app that
+ *                        names its result "report-edited.pdf") is offered as Save over report.pdf in the note;
  *                      - otherwise into the app's folder (On My iPhone/iPad › the app, or its iCloud Drive folder), in the
  *                        folder of the app it came from (Slop Drive's app folder), under a free name; the next sync
  *                        brings it into Slop Drive (shared/native/files-sync.js).
@@ -30,7 +31,11 @@
   /** The app's own folder in the app's folder: Slop Drive's folder for it (shared/native/files-sync.js), else its name. */
   async function folderOf(app) {
     if (!app) return '';
-    if (g.SlopNativeSync) { try { return await g.SlopNativeSync.appFolder(app.id); } catch (e) { /* the name below */ } }
+    if (g.SlopNativeSync) {
+      // Slop Drive answers at once, but a page that keeps it busy (a long transaction) must not hold the save: its name then
+      const late = new Promise((res) => setTimeout(() => res(null), 1500));
+      try { const p = await Promise.race([g.SlopNativeSync.appFolder(app.id), late]); if (p != null) return p; } catch (e) { /* the name below */ }
+    }
     return g.SlopNativePlan ? g.SlopNativePlan.safeName(app.name) : String(app.name).replace(/[\/:]/g, '-');
   }
 
@@ -70,7 +75,8 @@
     await need(here + 'words.js').then(() => W().ready()).catch(() => null);
     const t = (k, v) => (W() ? W().t(k, v) : k);
     try {
-      const back = files.opened().filter((f) => f.inPlace && lower(f.name) === lower(name)).pop();
+      const mine = files.opened().filter((f) => f.inPlace), ext = (n) => (/\.[^.]+$/.exec(lower(n)) || [''])[0];
+      const back = mine.filter((f) => lower(f.name) === lower(name)).pop(), like = mine.filter((f) => ext(f.name) === ext(name)).pop();
       if (back) {
         const where = await files.writeBack(back.token, blob);
         show(t('native.saved_back', { name: where }), [{ label: t('native.save_as'), run: () => quiet(saveAs(blob, name)) }]);
@@ -83,10 +89,11 @@
       const file = P.freeName(names, P.safeName(name)), path = dir ? dir + '/' + file : file;
       await files.write(root, path, blob);
       if (g.SlopNativeSync) g.SlopNativeSync.soon(300);
-      show(t(root === 'icloud' ? 'native.saved_icloud' : 'native.saved_files', { path: path.split('/').join(' › ') }), [
+      const over = like ? [{ label: t('native.save_over', { name: like.name }), run: () => quiet(files.writeBack(like.token, blob).then((n) => show(t('native.saved_back', { name: n }), []))) }] : [];
+      show(t(root === 'icloud' ? 'native.saved_icloud' : 'native.saved_files', { path: path.split('/').join(' › ') }), over.concat([
         { label: t('native.save_as'), run: () => quiet(files.exportFile(root, path)) },
         { label: t('native.share'), run: () => quiet(files.share(root, path)) },
-      ]);
+      ]));
       return { where: 'folder', path };
     } catch (e) {
       show(t('native.not_saved', { name, error: String((e && e.message) || e) }), [{ label: t('native.share'), run: () => quiet(g.SlopNativeGlue.share(blob, name)) }]);

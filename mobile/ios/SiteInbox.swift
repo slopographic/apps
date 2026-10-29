@@ -54,6 +54,8 @@ final class SiteInbox {
             entry["inPlace"] = true
         } else if !inPlace, url.path.contains("Inbox/") {
             try? fm.removeItem(at: url)   // the system's copy for this app: the cache copy is the one the page reads
+            let box = url.deletingLastPathComponent()
+            if box.lastPathComponent == "Inbox", (try? fm.contentsOfDirectory(atPath: box.path))?.isEmpty == true { try? fm.removeItem(at: box) }
         }
         return entry
     }
