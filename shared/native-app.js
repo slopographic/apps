@@ -10,6 +10,10 @@
  *   SlopNative.isStoreApp()    true in the iPhone/iPad app (the one App Review sees)
  *   SlopNative.webOnlyPath(p)  true for a page that is the website's own (comparisons, the app pages, All tools)
  *   SlopNative.hideLinks(doc)  hides the links to those pages (and a list item or line that holds only that link)
+ *   SlopNative.files()         the iPhone/iPad app's file storage (window.SlopNativeFiles from the app's native/files.js:
+ *                              its folder in the Files app, iCloud Drive, files opened from other apps), or null: the
+ *                              website and the desktop app keep their own storage (shared/native/: Slop Drive's sync,
+ *                              downloads into the folder, Settings › Files)
  * On <html>: class native-app and native-<kind> in an app, store-app in the iPhone/iPad app. In the store app this
  * hides: [data-web-only] (a page marks website-only text with it), .pwa-install, the tip jar ([data-donate]), the brand's
  * payment links ([data-brand-link=patreon|gumroad|support]), ad slots (.slop-ad), the desktop downloads
@@ -63,6 +67,13 @@
     return n;
   }
 
+  /** The app's file storage, or null outside the iPhone/iPad app (or in an app build without the files plugin). */
+  function files(win) {
+    const w = win || (typeof window !== 'undefined' ? window : {});
+    const F = w.SlopNativeFiles;
+    return kind(w) === 'ios' && F && typeof F.available === 'function' && F.available() ? F : null;
+  }
+
   function install(win) {
     const k = kind(win), html = win.document.documentElement;
     if (!k) return null;
@@ -83,6 +94,7 @@
     kind: () => kind(),
     isApp: () => kind() !== null,
     isStoreApp: () => kind() === 'ios',
+    files: (win) => files(win),
     webOnlyPath, hideLinks, install, detect: kind, STYLE, HIDE,
   };
 });

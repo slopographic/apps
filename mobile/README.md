@@ -64,8 +64,18 @@ carries the site: `mobile/ios/bundle.mjs` copies it into `mobile/ios/www`, Capac
   `data-web-only`.
 - **Privacy policy**: `/privacy/` (the footer and Settings link to it). Its address on the website is the App Store
   Connect privacy policy URL.
-- **Saving**: a download opens the share sheet (Save to Files, AirDrop, Mail) through the Filesystem and Share plugins.
-  Opening files works through the apps' own file pickers.
+- **Files** (`SiteFiles.swift`, `SiteInbox.swift`, `files.js`; the site side in `shared/native/`, used only where
+  `SlopNative.files()` says the page runs in this app): the app's Documents folder shows in the Files app (On My
+  iPhone/iPad › the app) and is in device backups. Slop Drive keeps a real file there for each of its files, at the path of
+  its folders, and what is added, changed or deleted in Files comes back (`shared/native/files-sync.js`; the first sync
+  writes everything Slop Drive already had). A download saves into the app's folder of the app it came from, with Save
+  as… (the system's Save to Files sheet) and Share…. Other apps can hand the app a file (Open in…, the share sheet,
+  Files, Mail) for every type in `desktop/lib/open-map.js` (the desktop app's table): it opens in the app the site uses for
+  it, through `window.launchQueue` like an installed web app, and a file opened in place is saved back over itself.
+- **iCloud Drive** (optional): with an iCloud container id (`ios.icloud` in `mobile/mobile.json`, or
+  `node capacitor.mjs icloud iCloud.<id>` after `patch`; keep a brand's id with the brand), the app gets the entitlement
+  and Settings › Files shows **Keep files in iCloud Drive**, which moves the folder there and back. The App ID needs the
+  iCloud capability and the container (Xcode's automatic signing adds them with `-allowProvisioningUpdates`).
 - **Pages**: the site is many pages; `SiteRouter.swift` serves `/pdf/` as `/pdf/index.html` (Capacitor's own router
   sends everything to the homepage).
 - **Size**: about 250 MB installed, about 125 MB to download (onnxruntime-web and the bundled models are most of it).

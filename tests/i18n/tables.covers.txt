@@ -4189,6 +4189,9 @@ Covers: shared/i18n/yo.js
 Covers: shared/i18n/zh-CN.js
 Covers: shared/i18n/zh-TW.js
 Covers: shared/i18n/zu.js
+Covers: shared/native/i18n/en/files.js
+Covers: shared/native/i18n/index.js
+Covers: shared/native/i18n/sv/files.js
 Covers: shared/ocr/i18n/ar/engines.js
 Covers: shared/ocr/i18n/de/engines.js
 Covers: shared/ocr/i18n/en/engines.js

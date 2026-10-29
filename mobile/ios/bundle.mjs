@@ -6,7 +6,9 @@
 //     mobile/mobile.json ios.apps can narrow it to a few apps (a focused app) and ios.leaveOut leave out more;
 //   - every engine the apps fetch from the cdn repository (engines/: the video, HEIC, RAW and 3D engines) under cdn/, at the
 //     release tag the site pins (shared/cdn/assets.js), answered from there by native/native.js;
-//   - native/native.js and native/config.js, loaded first by every page, then shared/native-app.js (store-app mode: no
+//   - native/native.js, native/files.js (the app's folder in Files, files opened from other apps) and native/config.js
+//     (with the page each file type opens in: desktop/lib/open-map.js), loaded first by every page, then
+//     shared/native-app.js (store-app mode: no
 //     install button or help, other platforms, desktop downloads or payment links); no analytics, ads or donation links
 //     (the brand's third-party switch is off in this copy).
 //   node mobile/ios/bundle.mjs [--out=<dir>] [--no-engines]
@@ -51,7 +53,7 @@ export function bundleFiles(files, ios = {}, folders = {}) {
 /** A page with the app's glue loaded first (before any other script of the page), then the store-app mode
  * (shared/native-app.js: hides install help, other platforms and payment links). */
 export function injectNative(html) {
-  const tag = '<script src="/native/config.js"></script><script src="/native/native.js"></script><script src="/shared/native-app.js"></script>';
+  const tag = '<script src="/native/config.js"></script><script src="/native/native.js"></script><script src="/native/files.js"></script><script src="/shared/native-app.js"></script>';
   if (html.includes(tag)) return html;
   const m = html.match(/<head\b[^>]*>/i);
   return m ? html.replace(m[0], m[0] + tag) : tag + html;
@@ -66,11 +68,12 @@ export function appBrand(text) {
 /** The brand's third-party switch, off: no analytics, no ad script, no consent strip (shared/consent/config.js). */
 export const thirdPartyOff = (text) => text.replace(/\/\*profile:analytics\*\/true/g, '/*profile:analytics*/false');
 
-/** native/config.js: every cdn URL of the bundled engine files -> the app's copy. C: SlopCdn; paths: engine paths. */
-export function nativeConfig(C, paths, start = '/') {
+/** native/config.js: every cdn URL of the bundled engine files -> the app's copy (C: SlopCdn; paths: engine paths), and
+ * open: { ext: route }, the page each file type opens in (desktop/lib/open-map.js openMap). */
+export function nativeConfig(C, paths, start = '/', open = {}) {
   const local = {};
   for (const p of paths) for (const u of C.urls(p)) local[u] = '/cdn/' + p;
-  return `window.NATIVE_CONFIG = ${JSON.stringify({ tag: C.TAG, start, local }, null, 1)};\n`;
+  return `window.NATIVE_CONFIG = ${JSON.stringify({ tag: C.TAG, start, local, open }, null, 1)};\n`;
 }
 
 /** Every file under dir, as paths relative to it. */
@@ -116,8 +119,9 @@ function main(args) {
   const engines = args.includes('--no-engines') ? [] : fetchEngines(C, out);
   const engineBytes = engines.reduce((n, p) => n + statSync(path.join(out, 'cdn', p)).size, 0);
   mkdirSync(path.join(out, 'native'), { recursive: true });
-  cpSync(path.join(HERE, 'native.js'), path.join(out, 'native', 'native.js'));
-  writeFileSync(path.join(out, 'native', 'config.js'), nativeConfig(C, engines, ios.start || '/'));
+  for (const f of ['native.js', 'files.js']) cpSync(path.join(HERE, f), path.join(out, 'native', f));
+  const OM = createRequire(import.meta.url)(path.join(ROOT, 'desktop/lib/open-map.js')), reg = OM.loadRegistry(ROOT);
+  writeFileSync(path.join(out, 'native', 'config.js'), nativeConfig(C, engines, ios.start || '/', OM.openMap(reg.manifest, reg.apps)));
   const mb = (n) => (n / 1e6).toFixed(1) + ' MB';
   console.log(`${files.length} site files (${mb(bytes)}) and ${engines.length} engine files (${mb(engineBytes)}) -> ${path.relative(process.cwd(), out) || '.'}`);
 }

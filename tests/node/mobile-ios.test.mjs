@@ -60,7 +60,7 @@ test('every cdn engine the apps fetch is under engines/ (the folder the bundle c
 
 test('the page glue loads first, once; the app copy has no ads, donations or third parties', () => {
   const html = injectNative('<!doctype html><html><head lang="en"><script src="/x.js"></script></head></html>');
-  assert.match(html, /<head lang="en"><script src="\/native\/config\.js"><\/script><script src="\/native\/native\.js"><\/script><script src="\/shared\/native-app\.js"><\/script><script src="\/x\.js">/);
+  assert.match(html, /<head lang="en"><script src="\/native\/config\.js"><\/script><script src="\/native\/native\.js"><\/script><script src="\/native\/files\.js"><\/script><script src="\/shared\/native-app\.js"><\/script><script src="\/x\.js">/);
   assert.equal(injectNative(html), html);
   assert.ok(injectNative('<p>x</p>').startsWith('<script src="/native/config.js">'));
   const b = JSON.parse(appBrand(read('brand/brand.json')));

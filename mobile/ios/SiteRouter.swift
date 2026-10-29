@@ -53,6 +53,7 @@ class SiteViewController: CAPBridgeViewController, WKScriptMessageHandler {
             topBand.trailingAnchor.constraint(equalTo: box.trailingAnchor),
         ])
         web.configuration.userContentController.add(WeakMessageHandler(self), name: "siteChrome")
+        bridge?.registerPluginInstance(SiteFilesPlugin())   // the app's files: SiteFiles.swift
         let guardian = ProcessGuard(web)
         processGuard = guardian   // the web view holds its navigation delegate weakly
         web.navigationDelegate = guardian

@@ -6,11 +6,14 @@
  *      helper's host check (shared/cdn/assets.js fetchVerified) sees the cdn address it asked for.
  *   2. No downloaded code: any other fetch of a script or WebAssembly file from another host is refused (App Review 2.5.2);
  *      models, font packs and other data still download at first use.
- *   3. Saving: a download link (a[download] on a blob: or data: address, clicked or .click()ed) opens the share sheet
- *      (Save to Files, AirDrop, Mail...) through Capacitor's Filesystem and Share plugins, or the Web Share API.
+ *   3. Saving: a download link (a[download] on a blob: or data: address, clicked or .click()ed) saves the file in the
+ *      app's folder (native/files.js, shared/native/save.js: Files › On My iPhone/iPad, or back over a file opened in
+ *      place); an app without that plugin opens the share sheet (Save to Files, AirDrop, Mail...) through Capacitor's
+ *      Filesystem and Share plugins, or the Web Share API.
  *   4. The bands around the page: the app keeps the web view inside the safe area (SiteRouter.swift) and paints the
  *      status bar band and the rest (home indicator, landscape notch) in the colours at the page's top and bottom edges,
  *      which this reports (the "siteChrome" message) on load and whenever they may change (theme, scroll, resize).
+ * window.SlopNativeGlue: { base64Of(blob), load(src) (a same-origin script, once), share(blob, name) } for native/files.js.
  * Pure helpers are exported for Node (tests/node/mobile-ios.test.mjs); the browser installs the hooks. */
 (function (root, factory) {
   const api = factory();
@@ -117,9 +120,17 @@
       return fetch0(input, init);
     };
     const plugins = () => (win.Capacitor && win.Capacitor.Plugins) || null;
+    const loaded = new Map();
+    const load = (src) => {
+      if (!loaded.has(src)) loaded.set(src, new Promise((res, rej) => { const s = win.document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => { loaded.delete(src); rej(new Error('could not load ' + src)); }; win.document.head.appendChild(s); }));
+      return loaded.get(src);
+    };
+    win.SlopNativeGlue = { base64Of, load, share: (b, name) => share(win, b, name, plugins()) };
     const save = (t) => {
-      fetch0(t.href).then((r) => r.blob()).then((b) => share(win, b, t.name, plugins()))
-        .catch((e) => { if (!/cancel|abort/i.test(String(e && (e.message || e)))) console.warn('save', e); });
+      fetch0(t.href).then((r) => r.blob()).then((b) => {
+        const F = win.SlopNativeFiles;
+        return F && F.available() ? F.saveDownload(b, t.name) : share(win, b, t.name, plugins());
+      }).catch((e) => { if (!/cancel|abort/i.test(String(e && (e.message || e)))) console.warn('save', e); });
     };
     const click0 = win.HTMLAnchorElement.prototype.click;
     win.HTMLAnchorElement.prototype.click = function () {
