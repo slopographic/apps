@@ -19,7 +19,7 @@
 // then laid out at that size, interact.js dims()) and let it roam the page ("roam": "float" | "hop" | true; roam.js);
 // both come in through the profile markers below. Tests: tests/buddy/roam.test.html (size and roaming), tests/node/mascot-moments.test.mjs, tests/node/mascot-interact.test.mjs (the logic),
 // tests/buddy/slot.test.html (the slot on a page).
-import { animationFor, stateOf, workTracker, idleTracker, sideOf, MOMENTS } from './moments.js';
+import { animationFor, stateOf, workTracker, idleTracker, sideOf, MOMENTS, DONE_AFTER_MS } from './moments.js';
 import { attach } from './ui.js';
 import { dims } from './interact.js';
 import { createRoam, styleOf } from './roam.js';
@@ -78,12 +78,18 @@ let work = null, idle = null, observer = null, timer = 0;
 function watch() {
   work = workTracker((m) => moment(m));
   idle = idleTracker((m) => moment(m));
-  const seen = (el) => { const s = stateOf(el); if (s) work.update(el, s); };
-  observer = new MutationObserver((list) => { for (const r of list) if (r.type === 'attributes') seen(r.target); });
+  // aria-busy taken off (removeAttribute) ends the region too; a region busy long enough starts 'working' on a tick
+  const seen = (el, attr) => {
+    const s = stateOf(el) || (attr === 'aria-busy' ? 'end' : null);
+    if (!s) return;
+    work.update(el, s, s === 'run' && el.classList.contains('sflow'));
+    if (s === 'run') setTimeout(() => work.tick(Date.now()), DONE_AFTER_MS + 50);
+  };
+  observer = new MutationObserver((list) => { for (const r of list) if (r.type === 'attributes') seen(r.target, r.attributeName); });
   observer.observe(document.body, { subtree: true, attributes: true, attributeFilter: ['data-state', 'aria-busy'] });
   const poke = () => idle.activity(Date.now());
   for (const t of ['pointerdown', 'keydown', 'wheel', 'touchstart']) addEventListener(t, poke, { passive: true, capture: true });
-  timer = setInterval(() => idle.tick(Date.now()), 5000);
+  timer = setInterval(() => { idle.tick(Date.now()); work.tick(Date.now()); }, 5000);
   document.addEventListener('mascot-moment', (e) => {
     const d = e.detail || {};
     if (d.moment === 'point') point(d.target); else if (d.moment && MOMENTS[d.moment]) moment(d.moment, d);
