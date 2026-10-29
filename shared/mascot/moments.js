@@ -32,22 +32,37 @@ export function stateOf(el) {
   return busy === 'true' ? 'run' : busy == null ? null : 'end';
 }
 
-/** Turns element states into moments: 'working' when the first region starts, 'done' when the last one ends well (an
- * explicit done, or an aria-busy region that was busy long enough), 'error' at once. emit(moment). */
+/** Turns element states into moments. A SlopFlow tile that runs (task: true) is a task: 'working' at once. Any other
+ * busy region (aria-busy: a page loading, a viewer drawing) counts only once it has been busy DONE_AFTER_MS: tick(now)
+ * says 'working' then, so the short busy spells of a busy app never start the working loop. When the last region ends:
+ * 'done' if it says so, ran long enough or 'working' had started (the loop always ends), 'error' at once. A region that
+ * leaves the page while busy (isConnected false) ends at the next tick. emit(moment). */
 export function workTracker(emit, clock = () => Date.now()) {
   const busy = new Map();
+  let started = false;
+  const end = (el, state) => {
+    const since = busy.get(el);
+    if (since === undefined && state !== 'error') return;
+    busy.delete(el);
+    if (state === 'error') { emit('error'); if (!busy.size) started = false; return; }
+    if (busy.size) return;
+    const was = started;
+    started = false;
+    if (state === 'done' || was || clock() - since >= DONE_AFTER_MS) emit('done');
+  };
   return {
-    update(el, state) {
+    update(el, state, task = false) {
       if (state === 'run') {
-        if (!busy.has(el)) { busy.set(el, clock()); if (busy.size === 1) emit('working'); }
+        if (busy.has(el)) return;
+        busy.set(el, clock());
+        if (task && !started) { started = true; emit('working'); }
         return;
       }
-      if (state !== 'done' && state !== 'error' && state !== 'end') return;
-      const since = busy.get(el);
-      busy.delete(el);
-      if (state === 'error') emit('error');
-      else if (busy.size) return;
-      else if (state === 'done' || (since !== undefined && clock() - since >= DONE_AFTER_MS)) emit('done');
+      if (state === 'done' || state === 'error' || state === 'end') end(el, state);
+    },
+    tick(now = clock()) {
+      for (const el of [...busy.keys()]) if (el && el.isConnected === false) end(el, 'end');
+      if (!started && [...busy.values()].some((since) => now - since >= DONE_AFTER_MS)) { started = true; emit('working'); }
     },
     get busy() { return busy.size; },
   };
