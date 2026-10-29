@@ -1,16 +1,16 @@
 /* SlopCutout worker: runs ONNX Runtime Web and the full pre/post-processing off the main thread.
  * Classic worker (importScripts for the pipeline, dynamic import() for ONNX Runtime's ES module).
  * Backend: WebGPU when available (full build), else single-thread WebAssembly SIMD (wasm-only build).
- * No COOP/COEP on the site → no SharedArrayBuffer → numThreads = 1, proxy off.
+ * No COOP/COEP on the site → no SharedArrayBuffer → numThreads = 1, proxy off. Starting ORT and the retries when a device
+ * runs out of memory (iOS 16/17 refuse ORT's 4 GB shared memory): runtime.js and memory.js.
  * Protocol (all messages carry id): main → { type: 'init'|'load'|'segment'|'finish'|'release'|'cached'|'info'|'ping'|'fail', … }
- *                                   worker → { id, type: 'progress', data } | { id, type: 'done', data } | { id, type: 'error', message }. */
+ *                                   worker → { id, type: 'progress', data } | { id, type: 'done', data } | { id, type: 'error', message, code }. */
 /* global importScripts */
 'use strict';
-importScripts('pipeline.js', 'refine.js', 'models.js', 'loader.js');
-const P = self.SlopCutoutPipeline, M = self.SlopCutoutModels, L = self.SlopCutoutLoader;
-const cfg = { vendor: new URL('../../vendor/onnxruntime-web/', self.location.href).href, models: new URL('../../vendor/models/', self.location.href).href, backend: 'auto', sources: null };
-let ortp = null, backend = null;
-const sessions = new Map(), jobs = new Map();
+importScripts('pipeline.js', 'refine.js', 'models.js', 'loader.js', 'memory.js', 'runtime.js');
+const P = self.SlopCutoutPipeline, M = self.SlopCutoutModels, L = self.SlopCutoutLoader, MEM = self.SlopCutoutMemory;
+const cfg = { vendor: new URL('../../vendor/onnxruntime-web/', self.location.href).href, models: new URL('../../vendor/models/', self.location.href).href, backend: 'auto', sources: null, ios: false };
+const jobs = new Map();
 /** One model pass at a time in this worker: segment messages are async, so two can be in flight here, and a session
  *  must not run twice at once (the WebGPU backend's run is asynchronous and shares its buffers between runs). */
 let gate = Promise.resolve();
@@ -29,47 +29,14 @@ async function gpuOK() {
     return !/swiftshader|llvmpipe|software|basic render/i.test([info.vendor, info.architecture, info.device, info.description].join(' '));
   } catch (e) { return false; }
 }
+async function fetchText(url) {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error('Download failed (' + r.status + ') for ' + url.split('/').pop());
+  return r.text();
+}
 /** A source URL: the vendored file, or a Blob URL from an offline single-file build. */
 const src = (base, file) => (cfg.sources && cfg.sources[file]) || base + file;
-function initOrt(progress) {
-  if (!ortp) ortp = (async () => {
-    const gpu = await gpuOK();
-    const js = gpu ? 'ort.min.mjs' : 'ort.wasm.min.mjs', glue = gpu ? 'ort-wasm-simd-threaded.jsep.mjs' : 'ort-wasm-simd-threaded.mjs', wasm = gpu ? 'ort-wasm-simd-threaded.jsep.wasm' : 'ort-wasm-simd-threaded.wasm';
-    const ort = await import(src(cfg.vendor, js));
-    ort.env.wasm.numThreads = 1;
-    ort.env.wasm.proxy = false;
-    ort.env.wasm.wasmPaths = { mjs: src(cfg.vendor, glue), wasm: src(cfg.vendor, wasm) };
-    ort.env.logLevel = 'error';
-    const bin = await L.fetchCached(src(cfg.vendor, wasm), { onProgress: (p) => progress({ phase: 'runtime', ...p }) });
-    ort.env.wasm.wasmBinary = bin.buffer;
-    backend = gpu ? 'webgpu' : 'wasm';
-    return ort;
-  })().catch((e) => { ortp = null; throw e; });
-  return ortp;
-}
-async function session(modelId, progress, forceWasm) {
-  const m = M.get(modelId);
-  if (sessions.has(m.id) && !forceWasm) return sessions.get(m.id);
-  const p = (async () => {
-    const ort = await initOrt(progress);
-    const file = await L.fetchCached(src(cfg.models, m.file), { sha256: m.sha256, bytes: m.bytes, onProgress: (x) => progress({ phase: 'model', model: m.id, ...x }) });
-    progress({ phase: 'init', model: m.id });
-    const t0 = performance.now();
-    let s = null;
-    if (backend === 'webgpu' && !forceWasm) {
-      try { s = await ort.InferenceSession.create(file.buffer, { executionProviders: ['webgpu', 'wasm'], graphOptimizationLevel: 'all' }); s.backend = 'webgpu'; }
-      catch (e) { console.warn('SlopCutout: WebGPU session failed, using WebAssembly', e); }
-    }
-    if (!s) { s = await ort.InferenceSession.create(file.buffer, { executionProviders: ['wasm'], graphOptimizationLevel: 'all' }); s.backend = 'wasm'; }
-    s.initMs = performance.now() - t0;
-    s.cached = file.cached;
-    return s;
-  })();
-  if (forceWasm && sessions.has(m.id)) sessions.get(m.id).then((old) => old.release && old.release()).catch(() => {});
-  sessions.set(m.id, p);
-  p.catch(() => sessions.delete(m.id));
-  return p;
-}
+const RT = self.SlopCutoutRuntime.create({ cfg, models: M, fetchCached: L.fetchCached, importModule: (u) => import(u), fetchText, gpuOK });
 
 /* ---------- images ---------- */
 function pixels(img) {
@@ -81,38 +48,48 @@ function pixels(img) {
 }
 
 /** Run the model on rgba and return the low-res mask (Float32 0..1) and its size. */
+
+/** Run the model on rgba and return the low-res mask (Float32 0..1) and its size. The session may run a smaller model
+ *  than asked for (a device low on memory): its .model is the one used, and the input is made for that one. */
 async function infer(modelId, rgba, W, H, progress) {
-  const m = M.get(modelId), ort = await initOrt(progress);
-  let s = await session(m.id, progress);
-  const [tw, th] = M.inputSize(m, W, H);
-  progress({ phase: 'infer', model: m.id });
-  const small = P.resizeRGBA(rgba, W, H, tw, th);
-  const tensor = new ort.Tensor('float32', P.toTensor(small, tw, th, m), [1, 3, th, tw]);
-  const feed = (sess) => ({ [sess.inputNames.includes(m.input) ? m.input : sess.inputNames[0]]: tensor });
-  let t0 = performance.now(), out;
+  let s = await RT.session(modelId, progress), t0 = 0, out = null, tensor = null;
+  const pass = async () => {
+    const m = M.get(s.model), [tw, th] = M.inputSize(m, W, H);
+    progress({ phase: 'infer', model: m.id });
+    const small = P.resizeRGBA(rgba, W, H, tw, th);
+    tensor = new s.ort.Tensor('float32', P.toTensor(small, tw, th, m), [1, 3, th, tw]);
+    t0 = performance.now();
+    try { return await exclusive(() => s.run({ [s.inputNames.includes(m.input) ? m.input : s.inputNames[0]]: tensor })); }
+    finally { if (tensor.dispose) tensor.dispose(); tensor = null; }
+  };
   try {
-    out = await exclusive(() => s.run(feed(s)));
+    out = await pass();
     if (s.backend === 'webgpu') { const d = out[s.outputNames[0]].data; for (let i = 0; i < d.length; i += 97) if (!Number.isFinite(d[i])) throw new Error('non-finite output'); }
   } catch (e) {
-    if (s.backend !== 'webgpu') throw e;
-    console.warn('SlopCutout: WebGPU run failed, retrying on WebAssembly:', e.message);
-    s = await session(m.id, progress, true);
-    t0 = performance.now(); out = await exclusive(() => s.run(feed(s)));
+    if (MEM.isLowMemory(e)) {   // the pass itself did not fit: start over light (and smaller)
+      console.warn('SlopCutout: out of memory in a model pass, retrying lighter:', e.message || e);
+      s = await RT.lighter(modelId, progress);
+    } else if (s.backend === 'webgpu') {
+      console.warn('SlopCutout: WebGPU run failed, retrying on WebAssembly:', e.message);
+      s = await RT.wasmSession(modelId, progress);
+    } else throw e;
+    try { out = await pass(); }
+    catch (e2) { if (!MEM.isLowMemory(e2)) throw e2; const err = new Error('Not enough memory for the background remover on this device'); err.code = 'low-memory'; throw err; }
   }
-  const ms = performance.now() - t0;
+  const ms = performance.now() - t0, m = M.get(s.model);
   const res = out[s.outputNames[0]], dims = res.dims, low = new Float32Array(res.data);
   if (res.dispose) res.dispose();
   if (m.minMax) P.minMax(low); else for (let i = 0; i < low.length; i++) low[i] = P.clamp(low[i], 0, 1);
-  return { low, mw: dims[dims.length - 1], mh: dims[dims.length - 2], ms, backend: s.backend, initMs: s.initMs, cached: s.cached };
+  return { low, mw: dims[dims.length - 1], mh: dims[dims.length - 2], ms, model: m.id, backend: s.backend, initMs: s.initMs, cached: s.cached, light: !!s.light };
 }
 
 /* ---------- handlers ---------- */
 const handlers = {
   ping(d, progress) { for (let i = 1; i <= ((d && d.steps) || 0); i++) progress({ phase: 'ping', loaded: i, total: d.steps }); return { pong: d && d.value, time: Date.now() }; },
-  fail: (d) => { throw new Error((d && d.message) || 'Requested failure'); },
+  fail: (d) => { const e = new Error((d && d.message) || 'Requested failure'); if (d && d.code) e.code = d.code; throw e; },
   init(d) { Object.assign(cfg, d || {}); return { ok: true }; },
-  async info() { return { backend, gpu: !!(self.navigator && navigator.gpu), loaded: [...sessions.keys()], jobs: jobs.size }; },
-  async load(d, progress) { const s = await session(d.model, progress); return { model: M.get(d.model).id, backend: s.backend, initMs: s.initMs, cached: s.cached }; },
+  async info() { return { backend: RT.backend, light: RT.light, gpu: !!(self.navigator && navigator.gpu), loaded: RT.loaded(), jobs: jobs.size }; },
+  async load(d, progress) { const s = await RT.session(d.model, progress); return { model: s.model, backend: s.backend, initMs: s.initMs, cached: s.cached, light: !!s.light }; },
   async cached() {
     const out = {};
     for (const id of M.ids) out[id] = await L.isCached(src(cfg.models, M.MODELS[id].file), M.MODELS[id].sha256);
@@ -129,8 +106,8 @@ const handlers = {
     const fin = P.finish(rgba, W, H, base, null, d.settings || {});
     if (d.jobId != null) jobs.set(d.jobId, { rgba, W, H, base });
     const baseOut = d.jobId != null ? base.slice() : base;
-    const timings = { total: performance.now() - t0, infer: r.ms, post: performance.now() - t1, init: r.initMs, backend: r.backend, cached: r.cached, input: M.inputSize(d.model, W, H) };
-    return { result: { width: W, height: H, base: baseOut, mask: fin.mask, cutout: fin.cutout, low: d.wantLow ? r.low : null, lowSize: [r.mw, r.mh], model: M.get(d.model).id, timings },
+    const timings = { total: performance.now() - t0, infer: r.ms, post: performance.now() - t1, init: r.initMs, backend: r.backend, cached: r.cached, light: r.light, input: M.inputSize(r.model, W, H) };
+    return { result: { width: W, height: H, base: baseOut, mask: fin.mask, cutout: fin.cutout, low: d.wantLow ? r.low : null, lowSize: [r.mw, r.mh], model: r.model, asked: M.get(d.model).id, timings },
       transfer: [baseOut.buffer, fin.mask.buffer, fin.cutout.buffer] };
   },
   /** { jobId, edit?, settings, base? } → { mask, cutout } using the job's stored pixels. */
@@ -159,6 +136,7 @@ self.onmessage = async (e) => {
     const out = await h(data, (p) => send(id, 'progress', p));
     if (out && out.transfer) send(id, 'done', out.result, out.transfer); else send(id, 'done', out);
   } catch (err) {
-    self.postMessage({ id, type: 'error', message: (err && err.message) || String(err) });
+    // code 'low-memory': the device could not fit the model in any configuration (the page says so in its own words)
+    self.postMessage({ id, type: 'error', message: (err && err.message) || String(err), code: MEM.isLowMemory(err) ? 'low-memory' : (err && err.code) || null });   // 'unavailable': ORT cannot start here
   }
 };

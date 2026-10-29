@@ -38,17 +38,43 @@
         onProgress: (p) => { it.phase = p.phase; it.progress = p.total ? p.loaded / p.total : null; CO.emit('progress', { it, p }); },
       });
       if (ac.signal.aborted || !S.get(it.id)) return;
-      it.base = r.base.slice(); it.w = r.width; it.h = r.height;
+      it.base = r.base.slice(); it.w = r.width; it.h = r.height; it.manual = false;
       it.modelUsed = r.model; it.timings = r.timings; it.progress = null; it.phase = null;
       S.setStatus(it, 'done');
+      if (r.asked && r.model !== r.asked) P.notice('smaller');
       if (CO.drive && CO.drive.ready()) CO.drive.saveImage(it, r);
       if (!P.active && S.activeId === it.id) P.select(it);
     } catch (e) {
-      if (!ac.signal.aborted) S.setStatus(it, 'error', { error: e.message || String(e), progress: null });
+      if (ac.signal.aborted) return;
+      if (e && (e.code === 'low-memory' || e.code === 'unavailable')) await manual(it, e);
+      else S.setStatus(it, 'error', { error: e.message || String(e), progress: null });
     } finally {
       if (running.get(it) === ac) running.delete(it);
     }
   }
+  /** The model cannot run here (too little memory, or ORT cannot start in this browser): the image is done without it. Its base keeps every pixel (alpha
+   *  255), so Keep / Remove brushing, the look and export all work; the person is told once why, in their language. */
+  async function manual(it, e) {
+    try {
+      const bmp = await U.decode(it.file), w = bmp.width, h = bmp.height, small = bmp.downscaled;
+      if (bmp.close) bmp.close();
+      if (small) throw e;   // over the pixel cap: the brush map could not match the full image
+      if (!S.get(it.id)) return;
+      const kind = e.code === 'unavailable' ? 'manual_unavailable' : 'manual';
+      Object.assign(it, { base: new Uint8ClampedArray(w * h).fill(255), w, h, manual: kind, modelUsed: null, progress: null, phase: null });
+      S.setStatus(it, 'done');
+      P.notice(kind);
+      if (!P.active && S.activeId === it.id) P.select(it);
+    } catch (err) { S.setStatus(it, 'error', { error: e.message, progress: null }); }
+  }
+  const told = new Set();
+  /** Tell the person about a fallback once per visit (SlopCutout's words: en, sv, else English). */
+  P.notice = function (kind) {
+    if (told.has(kind)) return;
+    told.add(kind);
+    const msg = SlopCutout.lowMemoryText ? SlopCutout.lowMemoryText(kind) : '';
+    if (msg && window.SlopUI && SlopUI.toast) SlopUI.toast(msg);
+  };
   /** Start queued items while there is room in the pool. */
   function pump() {
     while (queue.length && running.size < limit()) {

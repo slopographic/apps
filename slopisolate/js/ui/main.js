@@ -27,6 +27,7 @@
     let msg = '';
     if (it) {
       if (it.status === 'error') msg = it.error || t('cutout.app.st_error');
+      else if (it.status === 'done' && it.manual && SlopCutout.lowMemoryText) msg = SlopCutout.lowMemoryText(it.manual);
       else if (it.status === 'working') msg = t('cutout.app.st_cutting');
       else if (it.status === 'queued') msg = P && P.pending() > 1 ? t('cutout.app.st_queued_more', { n: P.pending() - 1 }) : t('cutout.app.st_queued');
     }

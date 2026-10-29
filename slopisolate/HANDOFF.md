@@ -9,6 +9,21 @@ models in `vendor/models/`, ONNX Runtime Web in `vendor/onnxruntime-web/`. Modul
 - Tests: `node tests/run.mjs slopisolate` (engine, inference, app, sample, saved session) and
   `node tests/run.mjs mask-transfer` (node). PhotoSlop round trip: `node tests/run.mjs isolate-roundtrip`.
 
+## Older iOS: the AI out of memory (Oct 2026)
+- **Cause (confirmed on the iPad, iPadOS 17.7, and the iOS 16.4 simulator).** onnxruntime-web 1.30 ships only the threaded
+  build; its glue makes a 4 GB *shared* WebAssembly memory. WebKit on iOS 16/17 reserves a shared memory's whole maximum at
+  once and refuses: `no available backend found. ERR: [wasm] RangeError: Out of memory`, before any model or photo is read
+  (inputs were already at the model size). Probe in Safari 16.4: shared 64k/48k/32k pages fail, a plain memory of 64k works.
+- **Fix.** `shared/cutout/memory.js` plans the start (iOS, or a failed 4 GB shared probe → plain memory, 1 thread, WebAssembly;
+  desktop unchanged: shared memory, WebGPU when usable) and patches a copy of the glue (unshared memory, no SharedArrayBuffer
+  stand-in, no mailbox waitAsync) and of the wasm (memory import flag). `shared/cutout/runtime.js` retries a failed session
+  in a fresh ORT copy with the light setup, then with the Fast model; a pass out of memory restarts light. On the iPad the
+  sample is now cut out by the AI (Fast, about 8 s).
+- **When nothing runs** (code `low-memory`, or `unavailable`: ORT 1.30 cannot build a session in iOS 16.4's engine at all,
+  "Could not find OrtValue with name ..." with any memory or optimisation level) the image opens uncut with a toast and
+  status line in words (shared/cutout/i18n, en + sv), and Keep / Remove brushing, look and export work by hand.
+- Tests: `tests/node/cutout-memory.test.mjs`, `tests/node/cutout-runtime.test.mjs` (fake ORT), `tests/slopisolate/lowmem.test.html`.
+
 ## Batches: one model for all, one way in, a pool (Oct 2026)
 - **Why a batch looked worse.** The Model panel changed only the image on screen (`it.model = id; rerun(it)`); every
   other image kept the model it was given when it was added. Dropping several photos, seeing the first and choosing
