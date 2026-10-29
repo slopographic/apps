@@ -11,7 +11,7 @@ import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { bundleFiles, appFolders, injectNative, appBrand, thirdPartyOff, nativeConfig } from '../../mobile/ios/bundle.mjs';
-import { capConfig, patchPlist, useSiteController, useSiteStoryboard, appendOnce, patchPbxproj, iconSvg, privacyKeys, MIN_IOS } from '../../mobile/ios/capacitor.mjs';
+import { capConfig, patchPlist, useSiteController, useSiteStoryboard, appendOnce, patchPbxproj, iconSvg, privacyKeys, infoKeys, MIN_IOS } from '../../mobile/ios/capacitor.mjs';
 import { readConfig } from '../../mobile/config.mjs';
 import { TARGET } from '../../tools/compat/features.mjs';
 
@@ -184,4 +184,16 @@ test("Capacitor settings and the Xcode project's changes", () => {
   assert.equal(pbx, `IPHONEOS_DEPLOYMENT_TARGET = ${MIN_IOS};\nPRODUCT_BUNDLE_IDENTIFIER = com.example.app;`);
   const svg = iconSvg('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32"><rect/></svg>', '#000000', 1000, 0.8);
   assert.match(svg, /^<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg" width="1000" height="1000"[^>]*><rect width="1000" height="1000" fill="#000000"\/><svg xmlns="http:\/\/www\.w3\.org\/2000\/svg" viewBox="0 0 32 32" x="100" y="100" width="800" height="800"><rect\/><\/svg><\/svg>$/);
+});
+
+test('export compliance: every build says it uses no non-exempt encryption (no question in App Store Connect)', () => {
+  const cfg = readConfig(ROOT);
+  const keys = infoKeys(cfg, []);
+  assert.equal(keys.ITSAppUsesNonExemptEncryption, false);
+  assert.equal(infoKeys({ name: 'A long app name here', shortName: 'A very long short name' }).CFBundleDisplayName, 'A long app name here');
+  const plist = '<plist><dict>\n<key>ITSAppUsesNonExemptEncryption</key>\n<true/>\n</dict></plist>';
+  const out = patchPlist(plist, keys);
+  assert.match(out, /<key>ITSAppUsesNonExemptEncryption<\/key>\n<false\/>/);   // a true from elsewhere is turned off
+  assert.equal(out.split('ITSAppUsesNonExemptEncryption').length, 2);
+  assert.match(readFileSync(path.join(ROOT, 'mobile', 'ios', 'capacitor.mjs'), 'utf8'), /patchPlist\(t, infoKeys\(cfg, ASSOCIATIONS\)\)/);
 });

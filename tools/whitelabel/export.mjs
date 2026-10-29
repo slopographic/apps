@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Source to mirror: the one command a release runs for a profile. It checks that the rename map comes back over the whole
 // tree (roundtrip.mjs), builds the site into the mirror's checkout (build.mjs; its .git folder is kept, everything else
-// is replaced) and fails when the leak scan finds anything. Committing and pushing are the caller's (a publish script
+// is replaced) and fails when the leak scan finds anything or the rename doubled a word (repeats.mjs: "Files files"). Committing and pushing are the caller's (a publish script
 // outside this repository, which holds the real profiles and the token).
 //   node tools/whitelabel/export.mjs <profile id> <mirror checkout> [--profiles=<dir>] [--release=<text>] [--no-images] [--cdn-ref=<tag>]
 // Node only. Tests: tests/node/whitelabel-build.test.mjs.
@@ -17,8 +17,9 @@ export function exportProfile(id, out, opts = {}) {
   lines.push(`round trip: ${rt.files} files, ${rt.bad.length} do not come back`, ...rt.bad.slice(0, 20).map((b) => '  ' + b));
   if (rt.bad.length) return { ok: false, lines };
   const r = build(id, out, opts);
-  lines.push(`build: ${r.files} files, ${r.found.length} leftover match(es), ${(r.allowed || []).length} allowed`);
-  return { ok: r.found.length === 0, lines };
+  const reps = r.repeats || [];
+  lines.push(`build: ${r.files} files, ${r.found.length} leftover match(es), ${(r.allowed || []).length} allowed, ${reps.length} doubled word(s)`);
+  return { ok: r.found.length === 0 && reps.length === 0, lines };
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

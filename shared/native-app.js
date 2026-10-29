@@ -17,7 +17,9 @@
  * On <html>: class native-app and native-<kind> in an app, store-app in the iPhone/iPad app. In the store app this
  * hides: [data-web-only] (a page marks website-only text with it), .pwa-install, the tip jar ([data-donate]), the brand's
  * payment links ([data-brand-link=patreon|gumroad|support]), ad slots (.slop-ad), the desktop downloads
- * (#desktop-download) and the footer site map of the website's pages (.fnav).
+ * (#desktop-download), the footer site map of the website's pages (.fnav) and development stages ([data-stage]: the Beta
+ * and Preview badges; App Review 2.2, no beta or demo look). The status line of an app in a card list of a generated page
+ * (tools/seo/frame.mjs cardList: a span.note) goes too: hideStages(doc).
  * Test hook: window.SLOP_NATIVE = 'ios' | 'desktop' set before this file loads stands in for the app.
  * Tests: tests/native/store-app.test.html (browser), tests/node/native-app.test.mjs (Node). */
 (function (root, factory) {
@@ -30,7 +32,7 @@
   /** The website's own pages: marketing and comparison pages a store app does not link to. */
   const WEB_ONLY = [/^\/best\//, /^\/compare\//, /^\/all-tools\//, /^\/apps\/[^/]+\//];
   const HIDE = ['[data-web-only]', '.pwa-install', '[data-donate]', '[data-brand-link="patreon"]', '[data-brand-link="gumroad"]',
-    '[data-brand-link="support"]', '.slop-ad', '#desktop-download', '.fnav'];
+    '[data-brand-link="support"]', '.slop-ad', '#desktop-download', '.fnav', '[data-stage]'];
   /** The style the store app adds (selectors above, hidden whatever a script sets later). */
   const STYLE = HIDE.map((s) => `.store-app ${s}`).join(',') + '{display:none!important}';
 
@@ -67,6 +69,19 @@
     return n;
   }
 
+  /** Hides the status line ("Beta", "In development") of each app in a generated card list, with its line break. */
+  function hideStages(doc) {
+    let n = 0;
+    for (const note of doc.querySelectorAll('ul.cards > li > span.note')) {
+      const br = note.nextElementSibling;
+      if (br && br.tagName === 'BR') br.hidden = true;
+      note.hidden = true;
+      note.setAttribute('data-stage', '');
+      n++;
+    }
+    return n;
+  }
+
   /** The app's file storage, or null outside the iPhone/iPad app (or in an app build without the files plugin). */
   function files(win) {
     const w = win || (typeof window !== 'undefined' ? window : {});
@@ -84,7 +99,7 @@
     style.setAttribute('data-store-app', '');
     style.textContent = STYLE;
     (win.document.head || html).appendChild(style);
-    const run = () => hideLinks(win.document);
+    const run = () => { hideLinks(win.document); hideStages(win.document); };
     if (win.document.readyState === 'loading') win.document.addEventListener('DOMContentLoaded', run, { once: true });
     else run();
     return k;
@@ -95,6 +110,6 @@
     isApp: () => kind() !== null,
     isStoreApp: () => kind() === 'ios',
     files: (win) => files(win),
-    webOnlyPath, hideLinks, install, detect: kind, STYLE, HIDE,
+    webOnlyPath, hideLinks, hideStages, install, detect: kind, STYLE, HIDE,
   };
 });

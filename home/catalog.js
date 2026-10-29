@@ -51,7 +51,7 @@
     return s;
   };
   /** The status badge. Live tiles stay unbadged; app cards always show their status. */
-  const badge = (a, always) => { const t = H.badgeLabel ? H.badgeLabel(a.status, always) : (a.status === 'live' && !always ? '' : STATUS[a.status]); return t ? el('span', { class: 'badge ' + a.status }, t) : null; };
+  const badge = (a, always) => { const t = H.badgeLabel ? H.badgeLabel(a.status, always) : (a.status === 'live' && !always ? '' : STATUS[a.status]); return t ? el('span', { class: 'badge ' + a.status, 'data-stage': a.status }, t) : null; };
 
   /** A screenshot, or (until one exists) a generated tile in the app's colours. */
   function shot(a) {
@@ -147,7 +147,7 @@
       el('div', { class: 'app-body' },
         el('div', { class: 'app-name' }, el('h3', { class: 'app-title', 'data-id': a.id }, label(a)), badge(a, true)),
         el('p', { class: 'app-tag', 'data-tag': line ? null : a.id }, line || tag(a)),
-        el('span', { class: 'go' }, (a.status === 'building' && !H.PLAIN ? tr('home.preview', 'Preview') : tr('home.open', 'Open')) + ' →')));
+        el('span', { class: 'go' }, (a.status === 'building' && !H.PLAIN && !H.STORE ? tr('home.preview', 'Preview') : tr('home.open', 'Open')) + ' →')));
   }
   function tile(a) {
     return el('a', { class: 'tile', href: a.path, 'data-perch': 'card', 'data-id': a.id, ...(a.path.startsWith('#') ? { 'data-view': a.path.slice(1) } : {}) },
@@ -156,7 +156,7 @@
   }
   /* ---------- status board ---------- */
   const board = document.getElementById('status-board');
-  if (board) {
+  if (board && !H.STORE) {   // the iPhone/iPad app has no Status board (home/sections.js STORE)
     const counts = { live: 0, beta: 0, building: 0 };
     APPS.forEach((a) => counts[a.status]++);
     document.getElementById('status-sum').textContent = tr('home.status_sum', '{n} projects: {live} live, {beta} in beta, {building} in development. Statuses come straight from the app registry, so this board is always current.',

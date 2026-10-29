@@ -35,7 +35,7 @@ test("the website's own pages", () => {
 });
 
 test('what the store app hides', () => {
-  for (const s of ['[data-web-only]', '.pwa-install', '[data-donate]', '[data-brand-link="patreon"]', '[data-brand-link="gumroad"]', '#desktop-download', '.slop-ad', '.fnav']) {
+  for (const s of ['[data-web-only]', '.pwa-install', '[data-donate]', '[data-brand-link="patreon"]', '[data-brand-link="gumroad"]', '#desktop-download', '.slop-ad', '.fnav', '[data-stage]']) {
     assert.ok(N.STYLE.includes(`.store-app ${s}`), s);
   }
   assert.match(N.STYLE, /\{display:none!important\}$/);

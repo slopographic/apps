@@ -61,7 +61,7 @@
         b.id = 'sh-opt-' + i;
         b.setAttribute('role', 'option');
         b.dataset.i = String(i);
-        b.innerHTML = `<span class="sh-badge" style="--h:${hue(L.name)}">${esc(L.letter.toUpperCase())}</span><span class="sh-opt-text"><span class="sh-opt-name">${esc(L.name)}</span>${L.sub ? `<span class="sh-opt-sub">${esc(L.sub)}</span>` : ''}</span>${L.status && L.status !== 'live' ? `<span class="sh-tag">${esc(statusWord(L.status))}</span>` : ''}`;
+        b.innerHTML = `<span class="sh-badge" style="--h:${hue(L.name)}">${esc(L.letter.toUpperCase())}</span><span class="sh-opt-text"><span class="sh-opt-name">${esc(L.name)}</span>${L.sub ? `<span class="sh-opt-sub">${esc(L.sub)}</span>` : ''}</span>${L.status && L.status !== 'live' ? `<span class="sh-tag" data-stage="${esc(L.status)}">${esc(statusWord(L.status))}</span>` : ''}`;
         b.addEventListener('click', () => activate(i));
         b.addEventListener('pointermove', () => setActive(i, false));
         listEl.append(b);

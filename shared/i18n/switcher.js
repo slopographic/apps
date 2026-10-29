@@ -29,11 +29,12 @@
     try { return new Intl.DisplayNames(['en'], { type: 'language' }).of(l.code) || ''; } catch (e) { return ''; }   // compat-ok: no DisplayNames, filter by name and code
   }
   /** The menu rows: every language in the instance's list, in list order, by its own name; the chosen one checked, and a
-   *  "beta" tag on an entry marked quality: 'beta'. */
+   *  "beta" tag on an entry marked quality: 'beta' (none in the iPhone/iPad app: shared/native-app.js, App Review 2.2). */
   function items(I) {
-    const now = I.get(), beta = I.t('shell.beta');
+    const now = I.get(), store = !!(g.SlopNative && g.SlopNative.isStoreApp && g.SlopNative.isStoreApp());
+    const beta = store ? '' : I.t('shell.beta');
     return I.langs().map((l) => ({ value: l.code, label: l.name, lang: l.code, dir: l.dir, keywords: [l.code, english(l)].filter(Boolean),
-      checked: l.code === now, tag: l.quality === 'beta' ? (beta === 'shell.beta' ? 'beta' : beta) : '' }));
+      checked: l.code === now, tag: l.quality === 'beta' && !store ? (beta === 'shell.beta' ? 'beta' : beta) : '' }));
   }
   /** Chooses a language with the one setter (SlopI18n.set): stored, applied and announced ('slop-lang') there. */
   function pick(I, code, doc = g.document, loc = g.location) {

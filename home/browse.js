@@ -102,7 +102,7 @@
       facets: [
         { key: 'section', label: tr('finder.section', 'Section'), values: (a) => H.placements(a).map((p) => H.titleOf(p.section)) },
         { key: 'type', label: tr('finder.types', 'File types'), values: (a) => H.typeKinds(a.accepts) },
-        { key: 'status', label: tr('finder.status', 'Status'), values: (a) => [ready(a)] },
+        ...(H.STORE ? [] : [{ key: 'status', label: tr('finder.status', 'Status'), values: (a) => [ready(a)] }]),   // no stages in the store app
         { key: 'tour', label: tr('finder.tour', 'Guided tour'), values: (a) => [H.TOUR_DIRS.has(folder(a)) ? tr('finder.has_tour', 'Has a tour') : tr('finder.no_tour', 'No tour')] },
       ],
       columns: [

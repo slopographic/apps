@@ -14,6 +14,8 @@
 // --cdn-ref: the release tag of the profile's own cdn repository (cdn.mjs makes its content), when it differs from this
 // site's tag. The out dir's .git folder is kept, so a mirror checkout can be rebuilt in place.
 // A profile's type family (font.mjs) replaces this site's: shared/fonts/brand/, its CSS block and its token names.
+// It also reports each word the rename doubled ("your Files files", repeats.mjs; a profile's repeatAllow lists pairs it
+// means), and export.mjs fails on them like on a leftover name.
 // Tests: tests/node/whitelabel-build.test.mjs, tests/node/whitelabel-mascot-slot.test.mjs, tests/node/whitelabel-font.test.mjs.
 import { readFileSync, writeFileSync, mkdirSync, rmSync, readdirSync, existsSync, statSync } from 'node:fs';
 import { createHash } from 'node:crypto';
@@ -29,6 +31,7 @@ import { markerValues, applyMarkers, brandJson, markSvg, logoSvg, manifest, home
 import { mirrorWorkflow } from './workflow.mjs';
 import { themeProblems, sourceThemes } from './palette.mjs';
 import { isText, scan, report } from './scan.mjs';
+import { newRepeats, repeatReport } from './repeats.mjs';
 import { DEST, overlayDir, overlayProblems, overlayIcons, filesIn, licenseArt, hasOverlay, artAllow } from './mascot.mjs';
 import { emitFont, fontExcluded, fontFolderProblems, fontDir } from './font.mjs';
 import { withoutBlock } from '../seo/langdirs.mjs';
@@ -126,7 +129,7 @@ export function build(id, out, opts = {}) {
     return { profile: p, out, files: files.length, found: [] };
   }
   const ctx = context(ROOT, p, map);
-  const seen = new Map(), clashes = [], hashes = new Map();
+  const seen = new Map(), clashes = [], hashes = new Map(), repeats = [];
   let n = 0;
   for (const f of files) {
     if (excluded(f, p)) continue;
@@ -141,7 +144,9 @@ export function build(id, out, opts = {}) {
     }
     const src = buf.toString('utf8');
     for (const [t, c] of collisions(profileText(src, ctx), map)) clashes.push(`${f}: '${t}' x${c}`);
-    write(out, dest, forward(src, ctx, dest));
+    const text = forward(src, ctx, dest);
+    for (const r of newRepeats(src, text, dest)) repeats.push(r);   // "your Files files": a plain name next to its own word
+    write(out, dest, text);
     n++;
   }
   for (const [t] of collisions(files.join('\n'), map)) clashes.push(`(file names): '${t}'`);
@@ -161,7 +166,10 @@ export function build(id, out, opts = {}) {
   if (!opts.noSeo) { sh(node, [path.join('tools', 'i18n', 'i18n.mjs'), 'coverage'], out); sh(node, ['tools/pwa-precache.mjs'], out); }
   const res = scan(out, forbiddenTerms(dir, p).concat(videos.map((v) => v.toLowerCase())), SCAN_ALLOW.concat(p.scanAllow || [], artAllow(p)), { account: p.github.toLowerCase() });
   log(report(res));
-  return { profile: p, out, files: n, found: res.found, allowed: res.allowed };
+  const allow = new Set((p.repeatAllow || []).map((x) => String(x).toLowerCase()));
+  const made = repeats.filter((r) => !allow.has(r.pair));
+  log(repeatReport(made));
+  return { profile: p, out, files: n, found: res.found, allowed: res.allowed, repeats: made };
 }
 
 /** The copy's .gitignore without the language folders' block, and the SEO pages of its other languages (seo.langs), made

@@ -5,7 +5,8 @@
 //   node mobile/ios/capacitor.mjs config         write mobile/ios/capacitor.config.json
 //   node mobile/ios/capacitor.mjs patch          after `cap add ios`: the site's router and the web view inside the
 //                                                safe area (SiteRouter.swift), iOS 16.4 (the site's support target),
-//                                                the privacy texts, the app icon and splash, and the app's files
+//                                                the privacy texts, export compliance (infoKeys), the app icon
+//                                                and splash, and the app's files
 //                                                (SiteFiles.swift, mobile/ios/doctypes.mjs: the folder in Files, Open
 //                                                in…, files opened in place; iCloud Drive with mobile.json ios.icloud)
 //   node mobile/ios/capacitor.mjs icloud <id>    after patch: the iCloud Drive folder in container <id> (iCloud.<…>),
@@ -48,6 +49,14 @@ export function privacyKeys(name) {
   };
 }
 
+/** The Info.plist keys patch sets: the home-screen name (the short name when it fits, else the name), export compliance
+ * (ITSAppUsesNonExemptEncryption false: the app uses only HTTPS and the system's own encryption, so App Store Connect
+ * asks no encryption question for a build), the privacy texts and the file types (doctypes.mjs fileKeys). */
+export function infoKeys(cfg, associations = []) {
+  const display = cfg.shortName.length <= 12 ? cfg.shortName : cfg.name;
+  return Object.assign({ CFBundleDisplayName: display, ITSAppUsesNonExemptEncryption: false }, privacyKeys(cfg.name), fileKeys(associations));
+}
+
 /** The project's Swift and storyboard: the app's view controller (SiteRouter.swift) in place of Capacitor's. */
 export function useSiteController(text) { return text.replace(/\bCAPBridgeViewController\(\)/g, 'SiteViewController()'); }
 export function useSiteStoryboard(xml) { return xml.replace(/customClass="CAPBridgeViewController" customModule="Capacitor"/g, 'customClass="SiteViewController" customModule="App" customModuleProvider="target"'); }
@@ -78,9 +87,8 @@ function patch() {
   edit('AppDelegate.swift', (t) => appendOnce(t, swift));
   edit('SceneDelegate.swift', (t) => hookScene(useSiteController(t)));
   edit('Base.lproj/Main.storyboard', useSiteStoryboard);
-  const display = cfg.shortName.length <= 12 ? cfg.shortName : cfg.name;
   const { ASSOCIATIONS } = createRequire(import.meta.url)('../../desktop/lib/open-map.js');
-  edit('Info.plist', (t) => patchPlist(t, Object.assign({ CFBundleDisplayName: display, ITSAppUsesNonExemptEncryption: false }, privacyKeys(cfg.name), fileKeys(ASSOCIATIONS))));
+  edit('Info.plist', (t) => patchPlist(t, infoKeys(cfg, ASSOCIATIONS)));
   const pbx = path.join(app, '..', 'App.xcodeproj', 'project.pbxproj');
   writeFileSync(pbx, patchPbxproj(readFileSync(pbx, 'utf8'), cfg.appId));
   if (cfg.mobile && cfg.mobile.ios && cfg.mobile.ios.icloud) icloud(cfg.mobile.ios.icloud);
