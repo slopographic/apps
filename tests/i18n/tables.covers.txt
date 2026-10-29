@@ -4213,6 +4213,9 @@ Covers: shared/ocr/i18n/zh-TW/engines.js
 Covers: shared/parent/i18n/en/parent.js
 Covers: shared/parent/i18n/index.js
 Covers: shared/parent/i18n/sv/parent.js
+Covers: shared/promo/i18n/en/promo.js
+Covers: shared/promo/i18n/index.js
+Covers: shared/promo/i18n/sv/promo.js
 Covers: shared/savings/i18n/ar/home.js
 Covers: shared/savings/i18n/de/home.js
 Covers: shared/savings/i18n/en/home.js

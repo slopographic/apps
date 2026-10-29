@@ -90,6 +90,7 @@ sites live outside this repository, with the publish script; pass their folder w
 | `apps.hide`, `media` | Apps left out of every list, menu and sitemap (their guides and task pages too; tests read them from the brand facts, `hideApps`); `false` leaves out screenshots, clips and videos (they show this brand). |
 | `seo` | `homeTitle`, `homeDescription`, `titleSuffix` for the generated head blocks and the sitemap (the home copy is in the root language), and `langs`: the languages of the static SEO pages besides the root one, `"all"` (default), a list (`["sv", "de"]`) or `"none"` (below, "Languages of the SEO pages"). `index` (default `false`), `canonicalTo` and `canonicalOverride`: what search engines are told (below, "Search engines"). |
 | `mainApp`, `parent` | A site for one app: the app the site's root opens (an app id), and the suite it links back to, `{ name, url }` (below, "Single-app sites"). |
+| `promo` | One line about the site owner's own business, with a link: `{ text, url, where? }` (below, "A promo line"). Default none. |
 | `ai` | Which AI models the site offers (default `{}`: all of them). See "AI models" below. |
 | `ocr` | Which text recognition engines the site offers and which one it uses first (default: both, Auto). See "Text recognition (OCR) engines" below. |
 | `legal` | `{ holder, year, trademarks? }`: the MIT licence's copyright holder, `NOTICE.md` and `TRADEMARKS.md` (`trademarks`: the names the holder claims; default the product name). |
@@ -101,7 +102,23 @@ sites live outside this repository, with the publish script; pass their folder w
 `tools/whitelabel/profile.mjs` `validate()` is the schema in code; `tests/node/whitelabel-profile.test.mjs` checks every
 profile here.
 
-### AI models
+### A promo line
+
+A site may show one short line about its owner's own business instead of ads: no ad network, no script, image or
+request from anyone else, no cookie.
+
+```json
+"promo": { "text": { "en": "Need parts? Compare prices at example.com", "sv": "Behöver du delar? Jämför på example.com" }, "url": "https://example.com", "where": ["home", "settings"] }
+```
+
+- `text`: one line (at most 120 characters) for every language, or one per language code; a language it lacks reads
+  English, then the first one given. `url`: an https address. `where`: `home` (under the homepage's app list) and/or
+  `settings` (the end of Settings); default both. Editors never show it.
+- `shared/promo/promo.js` holds the value (the `promo` marker, `null` on this site) and fills each
+  `<div data-promo-slot="home|settings" hidden>` of a page. The link opens a new tab without a referrer; in the
+  iPhone/iPad app the system browser opens it. Hide (×) keeps it away on that device until the line or address changes.
+  Its few words (the label, Hide) are in `shared/promo/i18n` (en, sv).
+
 
 Some sites cannot offer models from certain makers or countries. The `ai` field hides them everywhere a model can be
 picked: the providers of "Use your own AI account" and their suggested models, the lists fetched from a provider

@@ -22,11 +22,19 @@ export function markerValues(p) {
     seoHomeTitle: seo.homeTitle, seoHomeDescription: seo.homeDescription, seoLangs: seo.langs,   // the static SEO pages' languages (tools/seo/lang.mjs)
     // search engines and single-app sites (tools/seo/site.mjs, shared/apps.js): indexed only when the profile says so
     seoIndex: seo.index === true, seoCanonicalTo: seo.canonicalTo || '', seoCanonicalOverride: seo.canonicalOverride || {},
+    promo: promoMarker(p),                        // the owner's promo line (shared/promo/promo.js), null without one
     mainApp: p.mainApp || '', parent: p.parent ? { name: p.parent.name, url: p.parent.url.replace(/\/+$/, '') } : null,
     ...fontMarkers(p.fontManifest || EMPTY),     // the type family's token names, the typeface page, the preload
     ...slotMarkers(p),                            // the mascot slot's size and roaming (shared/mascot/slot.js)
     backupExt: backupExt(p), backupJson: backupExt(p) && backupExt(p) + '.json',
   };
+}
+/** The promo marker: { text: { code: line }, url, where } (a single line is the default language's), or null. */
+export function promoMarker(p) {
+  const pr = p.promo;
+  if (!pr) return null;
+  const text = typeof pr.text === 'string' ? { [p.defaultLang || 'en']: pr.text } : Object.assign({}, pr.text);
+  return { text, url: pr.url, where: pr.where || ['home', 'settings'] };
 }
 /** The themes marker: the profile's tokens and hide list, and with themes.names ('name' or 'brandWord') the brand text
  * that names Light and Dark ("<brand> Light", the chrome keys shell.theme_brand_light / _dark). */
