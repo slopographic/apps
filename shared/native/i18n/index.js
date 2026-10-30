@@ -3,6 +3,6 @@
 window.SlopI18n && window.SlopI18n.source({
   ns: 'native',
   base: ((document.currentScript || {}).src || '').replace(/[^/]*$/, ''),
-  parts: ['files'],
+  parts: ['files', 'wording'],
   langs: ['en', 'sv'],
 });

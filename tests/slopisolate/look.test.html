@@ -79,6 +79,15 @@
         D.dispatchEvent(new D.defaultView.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
       }
     }, { timeout: 60000 });
+
+    it('at iPad width (1024) the Export panel shows its lock as an icon, never SVG markup as text', async () => {
+      const D = await open(1024), props = D.getElementById('props');
+      const nowm = await waitFor(() => props.querySelector('.no-wm'), { timeout: 8000 });
+      expect(nowm.querySelector('svg.ic')).toBeTruthy();
+      expect(nowm.textContent).not.toContain('<svg');
+      expect(props.textContent).not.toContain('<svg');
+      expect(props.textContent).not.toContain('viewBox');
+    }, { timeout: 40000 });
   });
   SlopTest.run({ name: 'SlopIsolate: the look' });
   </script>

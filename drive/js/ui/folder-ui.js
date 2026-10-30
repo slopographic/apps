@@ -1,7 +1,9 @@
 /* Slop Drive — ui/folder-ui: the "Local folder" box in the sidebar, Connect folder (menu and palette), the question
  * about saving the Slopographic config in the folder, and Load config from folder (the changes are listed before
  * Apply). Logic is in core/folder.js and shared/config/folder.js. Where showDirectoryPicker is missing, the box and the
- * menu say that folders need Chrome or Edge. */
+ * menu say that folders need Chrome or Edge. In the iPhone/iPad app (shared/native-app.js) the files are the app's own
+ * (its folder in Files), so there is no folder to connect: no menu row or command, and the sidebar boxes are hidden
+ * (data-web-only in index.html). */
 'use strict';
 (function (DR) {
   const el = DR.el, $ = DR.$, ui = () => window.SlopUI;
@@ -16,6 +18,7 @@
   const configReady = async () => { try { await DR.ensureConfig(); return true; } catch (e) { await ui().alert(DR.t('drive.folder.config_na'), DR.t('drive.folder.config_na_body', { msg: e.message })); return false; } };
 
   DR.connectFolder = async function () {
+    if (DR.noFolders()) return;
     if (!DR.folderSupported()) return ui().alert(DR.t('drive.folder.need_chrome'), DR.folderUnsupported());
     const r = await window.SlopSyncProviders.local.pick();
     if (!r.ok) { if (!r.cancelled) ui().alert(DR.t('drive.folder.not_connected'), r.error); return; }
@@ -65,9 +68,13 @@
     if (yes) await DR.folderDisconnect();
   };
 
-  /** The rows for the More menu: one "Connect" row, or the connected folder's submenu. */
+  /** True in the iPhone/iPad app, where Drive has no local folders (and no "needs Chrome or Edge" note). */
+  DR.noFolders = () => !!(window.SlopNative && window.SlopNative.isStoreApp && window.SlopNative.isStoreApp());
+
+  /** The rows for the More menu: one "Connect" row, or the connected folder's submenu; none in the app. */
   DR.folderMenuRows = function () {
     const st = F();
+    if (DR.noFolders()) return [];
     if (!st.name) return [{ label: DR.t('drive.folder.connect'), act: act(() => DR.connectFolder()) }];
     const granted = st.perm === 'granted';
     return [{
