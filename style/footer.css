@@ -24,6 +24,7 @@
 .footer .fine.legal { margin-top: 8px; }
 .footer .fine a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
 .footer .fine a:hover { color: var(--bone); }
+.footer .fine [data-contact-email] { text-transform: none; letter-spacing: 0.02em; }   /* an address reads as written */
 
 /* ---------- responsive ---------- */
 

@@ -77,6 +77,7 @@
     'footer.how': 'كيف يعمل',
     'footer.all_tools': 'كل الأدوات',
     'footer.sitemap': 'خريطة الموقع (XML)',
+    'footer.contact': 'Contact', // English until translated (contact)
 
     'hero.kicker': 'برامج مكتبية وإبداعية',
     'hero.lead': 'تطبيقات مكتبية وإبداعية،',

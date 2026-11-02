@@ -72,6 +72,7 @@
     'footer.how': 'So funktioniert es',
     'footer.all_tools': 'Alle Werkzeuge',
     'footer.sitemap': 'Sitemap',
+    'footer.contact': 'Contact', // English until translated (contact)
 
     'hero.kicker': 'Büro- und Kreativsoftware',
     'hero.lead': 'Büro- und Kreativ-Apps,',

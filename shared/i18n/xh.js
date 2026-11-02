@@ -50,6 +50,7 @@
     'footer.how': 'Isebenza njani',
     'footer.all_tools': 'Zonke izixhobo',
     'footer.sitemap': 'Imaphu yesayithi',
+    'footer.contact': 'Contact', // English until translated (contact)
 
     'hero.kicker': 'Isoftwe yeofisi neyobuchule',
     'hero.lead': 'Ii-app zeofisi nezobuchule,',

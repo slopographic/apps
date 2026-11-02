@@ -49,6 +49,7 @@
     'footer.how': 'Як це працює',
     'footer.all_tools': 'Усі інструменти',
     'footer.sitemap': 'Мапа сайту',
+    'footer.contact': 'Contact', // English until translated (contact)
 
     'hero.kicker': 'Офісні та творчі програми',
     'hero.lead': 'Офісні та творчі застосунки,',

@@ -50,6 +50,7 @@
     'footer.how': 'እንዴት እንደሚሠራ',
     'footer.all_tools': 'ሁሉም መሣሪያዎች',
     'footer.sitemap': 'የጣቢያ ካርታ',
+    'footer.contact': 'Contact', // English until translated (contact)
 
     'hero.kicker': 'የቢሮ እና የፈጠራ ሶፍትዌሮች',
     'hero.lead': 'የቢሮ እና የፈጠራ መተግበሪያዎች፣',
