@@ -46,6 +46,7 @@
   // The language a visitor gets when nothing is stored. tools/whitelabel rewrites the literal from the profile's defaultLang; keep it on one line.
   var DEFAULT_CHOICE = /*profile:defaultLang*/'en';
   var KEY_RE = /\{(\w+)\}/g;
+  var APP = 'native.app.';   // the prefix of the iPhone/iPad app's own wording (appWord)
   // The shared components' tables beyond ui/<code>.js (ui/<code>/<part>.js; other languages read English). Written by node tools/i18n/i18n.mjs index ui; keep it on one line.
   var UI_PARTS = /*ui-parts*/{ parts: ['agent', 'ai', 'ai2', 'ai5', 'ai6', 'ai7', 'ai8', 'ai9', 'backup', 'backup2', 'backup3', 'buddy', 'buddy2', 'calc', 'calendar', 'config', 'data', 'data2', 'finder', 'firstrun', 'fonts', 'graphics', 'guides', 'macros', 'misc', 'models', 'models2', 'ops', 'ops2', 'ops3', 'presets', 'preview', 'print', 'sheets', 'shell', 'shell2', 'templates', 'video', 'watermark', 'widgets'], langs: ['ar', 'de', 'en', 'es', 'fr', 'it', 'ja', 'ko', 'nl', 'pl', 'pt-BR', 'ru', 'sv', 'tr', 'uk', 'zh-CN', 'zh-TW'] };
   // The languages with app words (apps/<code>.js: titles, taglines, the homepage strip and footer). Written by node tools/seo/write.mjs (apptables.mjs); keep it on one line.
@@ -95,6 +96,13 @@
     function pluralOf(code, n) {
       try { return (rules[code] = rules[code] || new Intl.PluralRules(code)).select(n); } catch (e) { return n === 1 ? 'one' : 'other'; }
     }
+    /** The iPhone/iPad app's wording of a key (native.app.<key>, shared/native/i18n: no "browser" in the App Store app), or null. */
+    function appWord(code, key, vars) {
+      var on = opts.storeApp !== undefined ? opts.storeApp : !!(g.SlopNative && g.SlopNative.isStoreApp && g.SlopNative.isStoreApp());
+      if (!on || !key || key.indexOf(APP) === 0) return null;
+      var s = lookup(code, APP + key, vars);
+      return s !== null ? s : lookup(DEFAULT, APP + key, vars);
+    }
     /** A key in one language: the plural form for vars.n first ('key#one'), then the plain key. */
     function lookup(code, key, vars) {
       if (vars && typeof vars.n === 'number') { var p = find(code, key + '#' + pluralOf(code, vars.n)); if (p !== null) return p; }
@@ -107,7 +115,8 @@
     }
     /** Text for a key in a language (numbers in vars formatted for loc), falling back to English, then to the key itself. */
     function tr(code, key, vars, loc) {
-      var s = lookup(code, key, vars);
+      var s = appWord(code, key, vars);
+      if (s === null) s = lookup(code, key, vars);
       if (s === null) s = lookup(DEFAULT, key, vars);
       if (s === null) return key;
       return fill(s, Object.assign({ brand: brand() }, vars || {}), loc);
@@ -144,7 +153,7 @@
 
     function varsOf(el) { var v = { brand: brand() }, raw = el.getAttribute('data-i18n-vars'); // {brand}, data-i18n-vars (JSON)
       try { if (raw) Object.assign(v, JSON.parse(raw)); } catch (e) { /* not JSON: no vars */ } return v; }
-    function pick(code, key, el) { var s = key ? find(code, key) : null; if (s === null && key) s = find(DEFAULT, key); return s === null ? null : fill(s, varsOf(el)); }
+    function pick(code, key, el) { var s = appWord(code, key); if (s === null && key) s = find(code, key); if (s === null && key) s = find(DEFAULT, key); return s === null ? null : fill(s, varsOf(el)); }
     /** One element's data-i18n text and data-i18n-attr attributes in a language (English for a key it lacks; a key missing
      * in both leaves it as it is: the HTML holds the English text). Text that already reads right is not rewritten. */
     function fillEl(el, code) {
@@ -256,6 +265,8 @@
       cssRoot = root;
       // parsed in another language: early.js fills each marked element as the parser adds it (the first frame in it)
       if (get() !== DEFAULT && g.MutationObserver && doc.readyState === 'loading' && !me.hasAttribute('data-late')) { mark(get()); doc.write('<script src="' + root + 'early.js"><\/script>'); }
+      // the iPhone/iPad app's own wording (native.app.*) is in before the page's text is filled
+      if (g.SlopNative && g.SlopNative.isStoreApp && g.SlopNative.isStoreApp()) fetchOne(root + '../native/i18n/index.js', doc.readyState === 'loading' && !me.hasAttribute('data-late'));
       source({ ns: 'chrome', files: function (c) {
         if (c === DEFAULT) return [root + 'strings.js'];
         return [root + c + '.js'].concat(byCode[c] && byCode[c].appNames ? [root + c + '-apps.js'] : []);

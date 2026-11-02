@@ -31,6 +31,18 @@
       }
     });
 
+    it('every built-in template has readable columns: its widths are characters, never a few pixels (A–E of Budget)', async () => {
+      for (const id of BUILTIN_IDS) {
+        await TB.T.templates.openBuiltin(id);
+        const sh = TB.T.wb.sheets[0];
+        for (const c of sh.cols.keys()) expect(id + ' ' + c + ' ' + (sh.colW(c) >= 60)).toBe(id + ' ' + c + ' true');
+      }
+      await TB.T.templates.openBuiltin('budget');
+      const sh = TB.T.wb.sheets[0];
+      for (let c = 0; c <= 4; c++) expect(sh.colW(c)).toBeGreaterThan(60);
+      expect(sh.colW(0)).toBe(22 * 7);
+    });
+
     it('Budget: the quarter income equals the sum of the monthly amounts, and the balance is income less expenses', async () => {
       await TB.T.templates.openBuiltin('budget');
       const T = TB.T;
@@ -70,6 +82,8 @@
       await waitFor(() => TB.T.S.file.name === 'Invoice');
       expect(TB.T.value('F9')).toBe(1440);
       expect(TB.T.S.file.dirty).toBeFalsy();
+      // through the dialog (the native round trip) the columns keep their widths too
+      for (let c = 0; c <= 5; c++) expect(TB.T.wb.sheets[0].colW(c)).toBeGreaterThan(60);
     });
   });
 

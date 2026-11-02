@@ -48,7 +48,7 @@
       C('tags', t('drive.cmd.tags'), G.edit, [], () => DR.tagPrompt(live().filter((i) => !i.isFolder)), { when: () => live().some((i) => !i.isFolder), keywords: ['label', 'tag'] }),
       ...DR.THEMES.map(([th]) => C('theme.' + th, t('drive.cmd.theme_of', { theme: DR.themeLabel(th) }), G.view, [], () => DR.setTheme(th), { checked: () => document.documentElement.getAttribute('data-theme') === th })),
       C('dupes', t('drive.cmd.dupes'), G.tools, [], () => DR.dupesDialog(), { keywords: ['duplicate', 'same', 'space', 'clean'] }),
-      C('connectFolder', t('drive.cmd.connect_folder'), G.tools, [], DR.folderAct(() => DR.connectFolder()), { keywords: ['local', 'disk', 'computer', 'folder', 'save'] }),
+      C('connectFolder', t('drive.cmd.connect_folder'), G.tools, [], DR.folderAct(() => DR.connectFolder()), { when: () => !DR.noFolders(), keywords: ['local', 'disk', 'computer', 'folder', 'save'] }),
       C('folderLoadConfig', t('drive.cmd.folder_load_config'), G.tools, [], DR.folderAct(() => DR.folderLoadConfig()), { when: () => !!DR.folderState.name && DR.folderState.perm === 'granted', keywords: ['settings', 'slopographic', 'import'] }),
       C('folderSaveConfig', t('drive.cmd.folder_save_config'), G.tools, [], DR.folderAct(() => DR.folderSaveConfig()), { when: () => !!DR.folderState.name && DR.folderState.perm === 'granted', keywords: ['settings', 'slopographic', 'export'] }),
       C('disconnectFolder', t('drive.cmd.disconnect_folder'), G.tools, [], DR.folderAct(() => DR.folderDisconnectAsk()), { when: () => !!DR.folderState.name, keywords: ['forget', 'local'] }),

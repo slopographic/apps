@@ -42,7 +42,7 @@
         keep,
         answer ? el('p', { class: 'persist-answer', role: 'status', text: answer }) : null,
       ]),
-      el('div', { class: 'storage-limit', 'data-engine': est.browser.engine }, [
+      el('div', { class: 'storage-limit', 'data-engine': est.browser.engine, 'data-web-only': '' }, [   // browser limits and Chrome-only folders: the website's (shared/native-app.js hides it in the iPhone/iPad app)
         el('h3', { text: t('storage.limit_title') }),
         el('p', { text: Q.limitText(est.browser.engine) }),
         folder,

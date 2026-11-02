@@ -119,7 +119,7 @@
       all.disabled = !S.items.some((i) => i.status === 'done');
     });
     return K.section(t('cutout.panel.export'), fmt, q, jpg,
-      h('div', { class: 'no-wm' }, U.icon('lock'), h('span', null, t('cutout.panel.no_wm'))),
+      h('div', { class: 'no-wm', html: U.icon('lock') }, h('span', null, t('cutout.panel.no_wm'))),
       h('div', { class: 'pp-btns' }, all));
   }
 

@@ -20,6 +20,7 @@
 
   /** Picks a folder (the browser needs the press), then asks for a name. A name already used gets " (2)". */
   DR.addLocalDrive = async function () {
+    if (DR.noFolders && DR.noFolders()) return;   // the iPhone/iPad app has no local drives (ui/folder-ui.js)
     if (typeof window.showDirectoryPicker !== 'function') return window.SlopUI.alert(DR.t('drive.prov.need_chrome'), DR.t('drive.prov.need_chrome_body'));
     let h;
     try { h = await window.showDirectoryPicker({ mode: 'readwrite' }); } catch (e) { if (e && e.name === 'AbortError') return; throw e; }
