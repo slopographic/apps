@@ -50,7 +50,8 @@
     'footer.how': 'Jinsi inavyofanya kazi',
     'footer.all_tools': 'Zana zote',
     'footer.sitemap': 'Ramani ya tovuti',
-    'footer.contact': 'Contact', // English until translated (contact)
+    // English until translated (contact)
+    'footer.contact': 'Contact',
 
     'hero.kicker': 'Programu za ofisi na ubunifu',
     'hero.lead': 'Programu za ofisi na ubunifu,',

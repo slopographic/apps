@@ -50,7 +50,8 @@
     'footer.how': 'Yadda yake aiki',
     'footer.all_tools': 'Duk kayan aiki',
     'footer.sitemap': 'Taswirar shafin',
-    'footer.contact': 'Contact', // English until translated (contact)
+    // English until translated (contact)
+    'footer.contact': 'Contact',
 
     'hero.kicker': 'Manhajojin ofis da na ƙirƙira',
     'hero.lead': 'Manhajojin ofis da na ƙirƙira,',

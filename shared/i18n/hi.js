@@ -49,7 +49,8 @@
     'footer.how': 'यह कैसे काम करता है',
     'footer.all_tools': 'सभी टूल',
     'footer.sitemap': 'साइटमैप (XML)',
-    'footer.contact': 'Contact', // English until translated (contact)
+    // English until translated (contact)
+    'footer.contact': 'Contact',
 
     'hero.kicker': 'ऑफ़िस और क्रिएटिव सॉफ़्टवेयर',
     'hero.lead': 'ऑफ़िस और क्रिएटिव ऐप्स,',

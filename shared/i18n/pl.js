@@ -49,7 +49,8 @@
     'footer.how': 'Jak to działa',
     'footer.all_tools': 'Wszystkie narzędzia',
     'footer.sitemap': 'Mapa witryny',
-    'footer.contact': 'Contact', // English until translated (contact)
+    // English until translated (contact)
+    'footer.contact': 'Contact',
 
     'hero.kicker': 'Programy biurowe i kreatywne',
     'hero.lead': 'Aplikacje biurowe i kreatywne,',

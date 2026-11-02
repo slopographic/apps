@@ -50,7 +50,8 @@
     'footer.how': 'しくみ',
     'footer.all_tools': 'すべてのツール',
     'footer.sitemap': 'サイトマップ (XML)',
-    'footer.contact': 'Contact', // English until translated (contact)
+    // English until translated (contact)
+    'footer.contact': 'Contact',
 
     'hero.kicker': 'オフィスソフトとクリエイティブソフト',
     'hero.lead': 'オフィスアプリもクリエイティブアプリも、',
