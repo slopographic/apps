@@ -153,10 +153,13 @@
     }, { timeout: 40000 });
 
     it('a retake replaces the photo of one page and keeps its place; remove leaves one page', async () => {
-      const id = S.pages.all()[1].id, files = await S.sample(1);
+      const id = S.pages.all()[1].id, files = await S.sample(1), before = S.pages.get(id).photo;
       W.SlopIntake.pickFiles = (accept, multiple, folder, capture) => { picked.push({ multiple, capture }); return Promise.resolve(files); };
       D.querySelectorAll('.sc-row .sc-retake')[1].click();
-      await waitFor(() => S.pages.get(id).name === 'Sample letter 1.jpg', { timeout: 20000 });
+      // the new photo itself, not the name: after the reorder above, page 2 may already be called "Sample letter 1.jpg", and a
+      // retake still running would then land after the next test's new_scan as an extra page
+      await waitFor(() => S.pages.get(id).photo !== before, { timeout: 20000 });
+      expect(S.pages.get(id).name).toBe('Sample letter 1.jpg');
       expect(picked[picked.length - 1].multiple).toBe(false);
       expect(S.pages.index(id)).toBe(1);
       expect(S.pages.size()).toBe(2);
