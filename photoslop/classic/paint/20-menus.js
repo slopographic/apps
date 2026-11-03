@@ -90,7 +90,7 @@ const MENUS = [
     M('paint-classic.menu.clear_image', { key: 'Ctrl+Shift+X', act: 'clearImage' }),
     M('paint-classic.menu.opaque', { act: 'opaque', checked: () => !S.transparent }),
     '-',
-    M('paint-classic.menu.slopify', { act: 'slopify', cls: 'slopify' }),
+    M('paint-classic.menu.slopify', { act: 'slopify', cls: 'slopify', acc: 'l' }),
   ] }),
   M('paint-classic.menu.colors', { items: [
     M('paint-classic.menu.edit_colors', { act: 'editColors' }),
@@ -104,8 +104,15 @@ const MENUS = [
     M('paint-classic.menu.home', { act: 'home' }),
   ] }),
 ];
-const accel = label => { const i = label.indexOf('&'); if (i < 0) return document.createTextNode(label); const s = h('span'); s.append(label.slice(0, i), h('u', { text: label[i + 1] }), label.slice(i + 2)); return s; };
-const accKey = label => { const i = label.indexOf('&'); return i < 0 ? '' : label[i + 1].toLowerCase(); };
+/** A label with its Alt key letter underlined: the letter after the &, or in a label without one the first of the item's
+ *  own letter (acc). An item names its letter when an & would split a word, so a name a build renames stays whole. */
+const accel = (label, acc) => {
+  let i = label.indexOf('&');
+  if (i >= 0) label = label.slice(0, i) + label.slice(i + 1); else i = acc ? label.toLowerCase().indexOf(acc) : -1;
+  if (i < 0) return document.createTextNode(label);
+  const s = h('span'); s.append(label.slice(0, i), h('u', { text: label[i] }), label.slice(i + 1)); return s;
+};
+const accKey = (label, acc) => { const i = label.indexOf('&'); return i < 0 ? acc || '' : label[i + 1].toLowerCase(); };
 const menubar = $('#menubar');
 function run(act) { const f = ACTIONS[act]; if (f) f(); }
 function closeMenus() {
@@ -124,8 +131,8 @@ function showMenu(i, focusFirst) {
     if (it === '-') { m.append(h('div', { class: 'sep', role: 'separator' })); continue; }
     const dis = it.enabled ? !it.enabled() : false;
     const chk = it.checked ? it.checked() : null;
-    const b = h('button', { class: 'mi' + (it.cls ? ' ' + it.cls : ''), type: 'button', role: chk == null ? 'menuitem' : 'menuitemcheckbox', 'aria-checked': chk == null ? null : String(chk), 'aria-disabled': dis ? 'true' : null, 'data-acc': accKey(it.label) },
-      h('span', { class: 'chk', text: chk ? '✓' : '' }), h('span', { class: 'lbl' }, accel(it.label)), h('span', { class: 'k', text: (window.SlopCmd && SlopCmd.get(it.act === 'palette' ? 'cmd.palette' : 'paint.' + it.act) ? SlopCmd.keyFor(it.act === 'palette' ? 'cmd.palette' : 'paint.' + it.act) : it.key) || '' }));
+    const b = h('button', { class: 'mi' + (it.cls ? ' ' + it.cls : ''), type: 'button', role: chk == null ? 'menuitem' : 'menuitemcheckbox', 'aria-checked': chk == null ? null : String(chk), 'aria-disabled': dis ? 'true' : null, 'data-acc': accKey(it.label, it.acc) },
+      h('span', { class: 'chk', text: chk ? '✓' : '' }), h('span', { class: 'lbl' }, accel(it.label, it.acc)), h('span', { class: 'k', text: (window.SlopCmd && SlopCmd.get(it.act === 'palette' ? 'cmd.palette' : 'paint.' + it.act) ? SlopCmd.keyFor(it.act === 'palette' ? 'cmd.palette' : 'paint.' + it.act) : it.key) || '' }));
     b.addEventListener('pointerenter', () => b.focus({ preventScroll: true }));
     b.addEventListener('click', () => { if (dis) return; closeMenus(); run(it.act); });
     m.append(b);

@@ -35,7 +35,7 @@ window.SlopI18n && window.SlopI18n.add('ar', {
   'paint-classic.menu.attributes': '&الخصائص...',
   'paint-classic.menu.clear_image': '&مسح الصورة',
   'paint-classic.menu.opaque': '&رسم معتم',
-  'paint-classic.menu.slopify': 'S&LOPIFY',
+  'paint-classic.menu.slopify': 'SLOPIFY',
   'paint-classic.menu.colors': '&الألوان',
   'paint-classic.menu.edit_colors': '&تحرير الألوان...',
   'paint-classic.menu.help': '&مساعدة',

@@ -1,4 +1,4 @@
-// Covers: tools/whitelabel/build.mjs, tools/whitelabel/export.mjs, tools/whitelabel/images.mjs, tools/whitelabel/workflow.mjs, tools/whitelabel/pages.mjs
+// Covers: tools/whitelabel/build.mjs, tools/whitelabel/export.mjs, tools/whitelabel/images.mjs, tools/whitelabel/workflow.mjs, tools/whitelabel/pages.mjs, tools/whitelabel/history.mjs
 // The build's parts that need no browser: what it leaves out, the model-file patch, the mirror's workflow, the icon file,
 // the share card, the repo-only tests. CI's white-label jobs run the whole build, the scan and its whole suite on the samples.
 import { test } from 'node:test';
@@ -8,12 +8,14 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { excluded, patchBinary, SCAN_ALLOW, REPO_ONLY, repoOnly, rehash } from '../../tools/whitelabel/build.mjs';
 import { exportProfile } from '../../tools/whitelabel/export.mjs';
 import { ico, cardHtml } from '../../tools/whitelabel/images.mjs';
 import { mirrorWorkflow, DROP_STEPS, DROP_JOBS } from '../../tools/whitelabel/workflow.mjs';
 import { buildPages } from '../../tools/whitelabel/pages.mjs';
 import { loadMap, profilesDir } from '../../tools/whitelabel/profile.mjs';
+import { HISTORY_ALLOW } from '../../tools/whitelabel/history.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const P = { support: { ads: false }, media: false };
@@ -31,7 +33,12 @@ test('model files: the tool name is patched at the same length', () => {
   assert.equal(out.length, buf.length);
   assert.ok(!out.includes('slopographic') && out.includes('modelbuilder'));
   assert.equal(patchBinary('a.png', buf), buf);
-  assert.ok(SCAN_ALLOW.every((a) => a.file && a.why));
+  // an allowed hit is for the file's exact bytes as the build writes them (scan.mjs): each entry names their SHA-256
+  for (const a of SCAN_ALLOW) {
+    assert.ok(a.file && a.why && /^[0-9a-f]{64}$/.test(a.sha256), a.file);
+    assert.equal(createHash('sha256').update(patchBinary(a.file, readFileSync(path.join(ROOT, a.file)))).digest('hex'), a.sha256, `${a.file}: the pinned bytes are the build's`);
+  }
+  assert.ok(HISTORY_ALLOW.every((a) => a.file && a.why && /^[0-9a-f]{64}$/.test(a.sha256)));
   // the code that checks a patched model's SHA-256 gets the patched file's
   const dir = mkdtempSync(path.join(os.tmpdir(), 'wl-rehash-')), A = 'a'.repeat(64), B = 'b'.repeat(64);
   mkdirSync(path.join(dir, 'm'));

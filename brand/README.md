@@ -99,7 +99,7 @@ sites live outside this repository, with the publish script; pass their folder w
 | `publish` | `{ repo, branch, secret, author, email }`: where the publish script pushes, the token's secret name, and the release commit's author. |
 | `font` | `{ spec, dir }`: the profile's own type family, a font spec for `tools/fonts/build.py` and its built folder (both relative to the profiles folder; build the folder ahead, the site build needs no Python). The build ships it as `shared/fonts/brand/` with its CSS and token names, and the typeface page. Without it, a build ships no family: the upstream fonts (Inter Tight and the others) and no typeface page. This site's family never goes into another build, and the leak scan reads the name tables inside every WOFF2 file and zip. The sample's family: `brand/profiles/fonts/acme/`. Only a plain brand mark may go into a family's Private Use Area, never the mascot (it is all-rights-reserved art; a font is OFL): the build refuses such a spec. |
 | `history` | For a copy with its whole history (`tools/whitelabel/history.mjs`): `since` (a source commit: everything up to it becomes one "Initial version" commit at its time), `forbidPaths` (regular expressions of source paths no mapped commit carries) and `forbidWords` (regular expressions: a source line holding one is left out of the mapped file, a message part holding one is left out), and `forbidMessages` (the same for messages only). |
-| `brandTerms`, `forbid`, `scanAllow` | Words only this site uses (no other build may contain them), extra words to forbid, and allowed scan hits (`{ file, term, why }`, reported every time). |
+| `brandTerms`, `forbid`, `scanAllow` | Words only this site uses (no other build may contain them), extra words to forbid, and allowed scan hits (`{ file, term, why, sha256 }`, reported every time). An entry is for the file's exact bytes: `sha256` is their SHA-256 (hex), and a file with other bytes, or an entry without it, allows nothing (the hit is reported with a note). |
 
 `tools/whitelabel/profile.mjs` `validate()` is the schema in code; `tests/node/whitelabel-profile.test.mjs` checks every
 profile here.
@@ -213,9 +213,13 @@ node tools/whitelabel/export.mjs <id> <mirror checkout> --profiles=<dir>   # rou
 A build copies every file (`git ls-files`), leaves out this brand's own files (licence notices, trademarks, its
 workflows' identity checks, the profiles, this tool), renames paths and text through the map, writes the profile's files
 (`brand/brand.json`, `CNAME`, `LICENSE`, `NOTICE.md`, `TRADEMARKS.md`, `SECURITY.md`, a README that says "generated - do
-not edit", the manifest, logo, favicon, icons, share card and the mirror's own CI workflow), runs the SEO writer and the
+not edit", the manifest, logo, favicon, icons, share card and the mirror's two workflows, its CI and its content check), runs the SEO writer and the
 precache list inside the copy, and then scans every file name, text line and binary for this brand's words and every
-other profile's terms. Any hit fails the build. Serve the folder with any static server to look at it.
+other profile's terms. Text is also read as spelled (`tools/content-check/spelled.mjs`: quoted pieces joined, as in
+`'a', 'c'` or `'ac' + 'me'`, escapes, entities and character codes read; such a hit says "(spelled)"), and a binary also
+for what it holds (`tools/content-check/unpack.mjs`: a WOFF2 font's tables, a zip's members, a PNG's compressed text, a
+PDF's pages, information and metadata through the vendored pdf.js). A PDF the scan cannot read (a user password, a
+broken file) is a hit too. Any hit fails the build. Serve the folder with any static server to look at it.
 
 ### A mascot of your own
 
@@ -428,6 +432,32 @@ not on the machine that publishes. The publish script refuses to run when the
 mirror has a commit it did not make, and names it, instead of overwriting it. The script and the real profiles are kept
 outside this repository; CI here builds the samples on every push, so a change that would break a white-label build
 fails here first.
+
+### The content check
+
+The leak scan runs where a build is made. A mirror also checks itself on GitHub: the build writes a second workflow,
+`.github/workflows/content.yml` (from `tools/whitelabel/content-check.yml`), which runs `tools/content-check/check.mjs`
+on every push to any branch or tag. It reads everything in the repository, not only the checked-out files: every commit
+and tag (author, committer, message), every file and folder name, every version of every file (read as the build's leak
+scan reads files, spellings and PDFs included) and every branch and tag name. The words are not in the code: they come
+from the mirror's repository secret `CONTENT_RULES`:
+
+```json
+{ "terms": ["acme", "acme tools"], "keep": ["acmeology"], "allow": ["<git blob id>"] }
+```
+
+`terms` are the words the repository must not hold, found inside longer words too and in any case; `keep` lists whole
+words that contain a term and are allowed (the leak scan's rule, `tools/content-check/words.mjs`); `allow` lists blob ids
+whose exact bytes may hold a term or cannot be read (a third-party model whose weights spell one by chance, an
+encrypted test PDF), each reported as allowed. Without the secret, or with no terms, the check fails. Its log is public:
+it masks every word first and names only the object (kind, id, a path with the words shown as `***`) and a count (how
+many were spelled; an unreadable PDF). It takes seconds on this repository's whole history.
+`node tools/whitelabel/content-rules.mjs <id> <build dir> --profiles=<dir>` prints a profile's rules: its leak scan's
+words and the blob ids of the files its scan allows (CI here runs each sample build's checker with them).
+
+Make the check required: in the mirror's settings, a ruleset on `main` with "Require status checks to pass" and the
+check `Content check` (the job's name). `main` then moves only to a commit whose push (to `testing`) passed it, so nothing
+unchecked goes live.
 
 ### A copy with its whole history
 

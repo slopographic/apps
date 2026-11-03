@@ -1,5 +1,5 @@
 // The members of a zip file in Node (stored or deflated), enough to check the font download (shared/fonts/brand/*.zip)
-// and to let the leak scan read inside archives (tools/whitelabel/unpack.mjs).
+// and to let the content checks read inside archives (tools/content-check/unpack.mjs).
 // Node only. Tests: tests/node/brand-font.test.mjs, tests/node/whitelabel-font.test.mjs.
 import { inflateRawSync } from 'node:zlib';
 

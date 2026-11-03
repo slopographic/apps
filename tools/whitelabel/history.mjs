@@ -28,10 +28,10 @@ import { brandJson, manifest } from './emit.mjs';
 import { mirrorWorkflow } from './workflow.mjs';
 import { pinCdn, TEXT } from './cdnpin.mjs';
 import { isText, scan, report, listFiles } from './scan.mjs';
-import { artAllow } from './mascot.mjs';
+import { overlayDir } from './mascot.mjs';
 import { mediaIds, stripText } from './media.mjs';
 import { withBlock, START, EMPTY } from '../fonts/css.mjs';
-import { excluded, patchBinary, isUtf8, SCAN_ALLOW } from './build.mjs';
+import { excluded, patchBinary, isUtf8, SCAN_ALLOW, artPins } from './build.mjs';
 import { chain, commits, diffTree, lsTree, readBlobs, blobSha, git, FastImport } from './history-git.mjs';
 import { mapMessage, combine, areas, areaNames, checker } from './history-message.mjs';
 
@@ -51,14 +51,16 @@ export function setup(root, dir, id, opts = {}) {
   const terms = [...new Set(forbiddenTerms(dir, p).concat(videos, opts.forbid || []).map((t) => t.toLowerCase()))];
   const ok0 = checker(terms, account, map.stem[1]), ok = (x) => ok0(x) && !mdrop.some((re) => re.test(x)), names = areaNames(root);
   const skip = (f) => excluded(f, p) || gone.some((re) => re.test(f));
-  return { p, ctx, terms, videos, skip, gone, drop, mdrop, account, ok, names, allow: SCAN_ALLOW.concat(HISTORY_ALLOW, p.scanAllow || [], artAllow(p)), fix: (s) => tokens(s, ctx.tokenRules) };
+  return { p, ctx, terms, videos, skip, gone, drop, mdrop, account, ok, names, allow: SCAN_ALLOW.concat(HISTORY_ALLOW, p.scanAllow || [], artPins(p, overlayDir(dir, p))), fix: (s) => tokens(s, ctx.tokenRules) };
 }
 
 export const fresh = () => ({ version: 1, base: null, tag: null, src: {}, out: {}, pinned: [], pending: [], map: {} });
 
-/** Files of past trees only, where a scan hit is not a name (reported as allowed, like build.mjs SCAN_ALLOW). */
+/** Files of past trees only, where a scan hit is not a name (reported as allowed, like build.mjs SCAN_ALLOW: for these
+ * exact bytes only). */
 export const HISTORY_ALLOW = [
-  { file: 'vendor/models/depth/depth-anything-v2-small.onnx', term: 'slop', why: 'bytes of the model weights happen to spell it; the file left the tree later' },
+  { file: 'vendor/models/depth/depth-anything-v2-small.onnx', term: 'slop', why: 'bytes of the model weights happen to spell it; the file left the tree later',
+    sha256: 'fcf51f1b230362b28690bb9d1809bf0431f29cad20534e3f589bd7285547f20d' },
 ];
 /** English words the renamer keeps (rename.mjs KEEP) but the scan refuses, and a word the scan forbids: old trees have
  * them in comments and test names, so a mapped commit says them another way (the case kept). */
