@@ -21,7 +21,7 @@
     return { f, w, C: w.SlopCmd, key, $: (s) => w.document.querySelector(s) };
   }
   describe('single-file apps', () => {
-    it('Slop Paint Classic: menu actions, tools, Win98 palette and Help entries', async () => {
+    it('Slop Paint Classic: menu actions, tools, Win98 palette, Help entries and an item\'s own Alt key letter', async () => {
       const { f, w, C, key, $ } = await load('../../photoslop/classic/index.html', 'paint.invert');
       expect(C.app).toBe('paint-classic');
       const P = w.slopPaint;
@@ -43,7 +43,16 @@
       key('Escape');
       openMenu('Image');
       expect([...w.document.querySelectorAll('.menu .mi')].find((b) => b.textContent.startsWith('Invert')).textContent).toContain('Ctrl+Shift+I');
-      key('Escape');
+      // Slopify names its own Alt key letter (no & inside the word, which a build renames): L, underlined where the label has one
+      const sl = $('.menu .mi.slopify'), lbl = sl.querySelector('.lbl'), text = lbl.textContent, at = text.toLowerCase().indexOf('l');
+      expect(sl.dataset.acc).toBe('l');
+      expect(lbl.innerHTML).toBe(at < 0 ? text : `<span>${text.slice(0, at)}<u>${text[at]}</u>${text.slice(at + 1)}</span>`);
+      $('.menu').dispatchEvent(new w.KeyboardEvent('keydown', { key: 'l', bubbles: true, cancelable: true }));
+      await waitFor(() => $('#sbMsg').textContent === w.SlopI18n.t('paint-classic.status.slopified'), { timeout: 10000 });   // done
+      expect($('.menu')).toBe(null);
+      expect(P.undoDepth()).toBe(1);
+      key('z', { ctrlKey: true, code: 'KeyZ' });
+      expect(P.undoDepth()).toBe(0);
       C.resetKeys(); f.remove();
     }, { timeout: 30000 });
   });
