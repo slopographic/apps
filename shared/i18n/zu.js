@@ -50,6 +50,8 @@
     'footer.how': 'Kusebenza kanjani',
     'footer.all_tools': 'Wonke amathuluzi',
     'footer.sitemap': 'Imephu yesayithi',
+    // English until translated (contact)
+    'footer.contact': 'Contact',
 
     'hero.kicker': 'Isofthiwe yasehhovisi neyokudala',
     'hero.lead': 'Ama-app asehhovisi nawokudala,',

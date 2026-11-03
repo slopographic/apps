@@ -36,7 +36,7 @@ window.SlopI18n && window.SlopI18n.add('sv', {
   'paint-classic.menu.attributes': '&Attribut...',
   'paint-classic.menu.clear_image': '&Rensa bild',
   'paint-classic.menu.opaque': 'Rita &ogenomskinligt',
-  'paint-classic.menu.slopify': 'S&LOPIFIERA',
+  'paint-classic.menu.slopify': 'SLOPIFIERA',
   'paint-classic.menu.colors': '&Färger',
   'paint-classic.menu.edit_colors': '&Redigera färger...',
   'paint-classic.menu.help': '&Hjälp',

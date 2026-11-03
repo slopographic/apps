@@ -35,7 +35,7 @@ window.SlopI18n && window.SlopI18n.add('es', {
   'paint-classic.menu.attributes': '&Atributos...',
   'paint-classic.menu.clear_image': '&Borrar imagen',
   'paint-classic.menu.opaque': '&Dibujar opaco',
-  'paint-classic.menu.slopify': 'S&LOPIFICAR',
+  'paint-classic.menu.slopify': 'SLOPIFICAR',
   'paint-classic.menu.colors': '&Colores',
   'paint-classic.menu.edit_colors': '&Editar colores...',
   'paint-classic.menu.help': '&Ayuda',

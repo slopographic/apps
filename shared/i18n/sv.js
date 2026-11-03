@@ -72,6 +72,7 @@
     'footer.how': 'Så fungerar det',
     'footer.all_tools': 'Alla verktyg',
     'footer.sitemap': 'Webbplatskarta',
+    'footer.contact': 'Kontakt',
 
     'hero.kicker': 'Kontors- och kreativa program',
     'hero.lead': 'Kontors- och kreativa appar,',

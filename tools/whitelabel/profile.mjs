@@ -61,9 +61,14 @@ export function validate(p) {
   if (sl !== undefined && sl !== 'all' && sl !== 'none' && !(Array.isArray(sl) && sl.every((c) => codes.includes(c)) && new Set(sl).size === sl.length)) {
     errs.push(`seo.langs: 'all', 'none' or a list of language codes without repeats (${codes.join(', ')})`);
   }
-  errs.push(...searchProblems(p.seo || {}), ...singleAppProblems(p), ...promoProblems(p.promo));
+  errs.push(...searchProblems(p.seo || {}), ...singleAppProblems(p), ...promoProblems(p.promo), ...emailProblems(p.email));
   return errs;
 }
+
+/** email: the site's contact address (shared/contact/contact.js, brand/README.md "A contact address"), or null / absent
+ * for no contact line. The same pattern as the script's, so a value the build writes is one the page shows. */
+export const EMAIL = /^[^\s@"'<>():;,]+@[a-z0-9-]+(\.[a-z0-9-]+)+$/i;
+export const emailProblems = (e) => (e === undefined || e === null || (typeof e === 'string' && e.length <= 120 && EMAIL.test(e)) ? [] : ['email: a contact address (name@example.com), or null for none']);
 
 export const PROMO_PLACES = ['home', 'settings'];   // shared/promo/promo.js: where a page has a slot
 /** promo: { text, url, where? }: the owner's own line and link (brand/README.md "A promo line"). text is one string or

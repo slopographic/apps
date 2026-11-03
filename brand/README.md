@@ -92,13 +92,14 @@ sites live outside this repository, with the publish script; pass their folder w
 | `seo` | `homeTitle`, `homeDescription`, `titleSuffix` for the generated head blocks and the sitemap (the home copy is in the root language), and `langs`: the languages of the static SEO pages besides the root one, `"all"` (default), a list (`["sv", "de"]`) or `"none"` (below, "Languages of the SEO pages"). `index` (default `false`), `canonicalTo` and `canonicalOverride`: what search engines are told (below, "Search engines"). |
 | `mainApp`, `parent` | A site for one app: the app the site's root opens (an app id), and the suite it links back to, `{ name, url }` (below, "Single-app sites"). |
 | `promo` | One line about the site owner's own business, with a link: `{ text, url, where? }` (below, "A promo line"). Default none. |
+| `email` | The site's contact address (`"info@example.com"`): "Contact: <address>" as a mailto link in the site footer and on the privacy page (below, "A contact address"). `null` or absent: no contact line anywhere. |
 | `ai` | Which AI models the site offers (default `{}`: all of them). See "AI models" below. |
 | `ocr` | Which text recognition engines the site offers and which one it uses first (default: both, Auto). See "Text recognition (OCR) engines" below. |
 | `legal` | `{ holder, year, trademarks? }`: the MIT licence's copyright holder, `NOTICE.md` and `TRADEMARKS.md` (`trademarks`: the names the holder claims; default the product name). |
 | `publish` | `{ repo, branch, secret, author, email }`: where the publish script pushes, the token's secret name, and the release commit's author. |
 | `font` | `{ spec, dir }`: the profile's own type family, a font spec for `tools/fonts/build.py` and its built folder (both relative to the profiles folder; build the folder ahead, the site build needs no Python). The build ships it as `shared/fonts/brand/` with its CSS and token names, and the typeface page. Without it, a build ships no family: the upstream fonts (Inter Tight and the others) and no typeface page. This site's family never goes into another build, and the leak scan reads the name tables inside every WOFF2 file and zip. The sample's family: `brand/profiles/fonts/acme/`. Only a plain brand mark may go into a family's Private Use Area, never the mascot (it is all-rights-reserved art; a font is OFL): the build refuses such a spec. |
 | `history` | For a copy with its whole history (`tools/whitelabel/history.mjs`): `since` (a source commit: everything up to it becomes one "Initial version" commit at its time), `forbidPaths` (regular expressions of source paths no mapped commit carries) and `forbidWords` (regular expressions: a source line holding one is left out of the mapped file, a message part holding one is left out), and `forbidMessages` (the same for messages only). |
-| `brandTerms`, `forbid`, `scanAllow` | Words only this site uses (no other build may contain them), extra words to forbid, and allowed scan hits (`{ file, term, why }`, reported every time). |
+| `brandTerms`, `forbid`, `scanAllow` | Words only this site uses (no other build may contain them), extra words to forbid, and allowed scan hits (`{ file, term, why, sha256 }`, reported every time). An entry is for the file's exact bytes: `sha256` is their SHA-256 (hex), and a file with other bytes, or an entry without it, allows nothing (the hit is reported with a note). |
 
 `tools/whitelabel/profile.mjs` `validate()` is the schema in code; `tests/node/whitelabel-profile.test.mjs` checks every
 profile here.
@@ -120,6 +121,21 @@ request from anyone else, no cookie.
   iPhone/iPad app the system browser opens it. Hide (×) keeps it away on that device until the line or address changes.
   Its few words (the label, Hide) are in `shared/promo/i18n` (en, sv).
 
+
+### A contact address
+
+```json
+"email": "info@example.com"
+```
+
+- One address (a plain `name@domain`, at most 120 characters), or `null` / absent for none: then no page shows a
+  contact line, and no address of this site reaches the build (its leak scan would fail on one).
+- `shared/contact/contact.js` holds the value (the `email` marker; this site's is its own address) and is the only
+  place it is set. The SEO writer bakes "Contact: <address>" under the footer navigation of every page that has it
+  (`tools/seo/footnav.mjs`: the homepage, the content pages, the converter pages), so it shows without JavaScript; the
+  privacy page fills its `[data-contact]` line from the script. The label is the chrome key `footer.contact`.
+
+### AI models
 
 Some sites cannot offer models from certain makers or countries. The `ai` field hides them everywhere a model can be
 picked: the providers of "Use your own AI account" and their suggested models, the lists fetched from a provider
@@ -197,9 +213,13 @@ node tools/whitelabel/export.mjs <id> <mirror checkout> --profiles=<dir>   # rou
 A build copies every file (`git ls-files`), leaves out this brand's own files (licence notices, trademarks, its
 workflows' identity checks, the profiles, this tool), renames paths and text through the map, writes the profile's files
 (`brand/brand.json`, `CNAME`, `LICENSE`, `NOTICE.md`, `TRADEMARKS.md`, `SECURITY.md`, a README that says "generated - do
-not edit", the manifest, logo, favicon, icons, share card and the mirror's own CI workflow), runs the SEO writer and the
+not edit", the manifest, logo, favicon, icons, share card and the mirror's two workflows, its CI and its content check), runs the SEO writer and the
 precache list inside the copy, and then scans every file name, text line and binary for this brand's words and every
-other profile's terms. Any hit fails the build. Serve the folder with any static server to look at it.
+other profile's terms. Text is also read as spelled (`tools/content-check/spelled.mjs`: quoted pieces joined, as in
+`'a', 'c'` or `'ac' + 'me'`, escapes, entities and character codes read; such a hit says "(spelled)"), and a binary also
+for what it holds (`tools/content-check/unpack.mjs`: a WOFF2 font's tables, a zip's members, a PNG's compressed text, a
+PDF's pages, information and metadata through the vendored pdf.js). A PDF the scan cannot read (a user password, a
+broken file) is a hit too. Any hit fails the build. Serve the folder with any static server to look at it.
 
 ### A mascot of your own
 
@@ -412,6 +432,32 @@ not on the machine that publishes. The publish script refuses to run when the
 mirror has a commit it did not make, and names it, instead of overwriting it. The script and the real profiles are kept
 outside this repository; CI here builds the samples on every push, so a change that would break a white-label build
 fails here first.
+
+### The content check
+
+The leak scan runs where a build is made. A mirror also checks itself on GitHub: the build writes a second workflow,
+`.github/workflows/content.yml` (from `tools/whitelabel/content-check.yml`), which runs `tools/content-check/check.mjs`
+on every push to any branch or tag. It reads everything in the repository, not only the checked-out files: every commit
+and tag (author, committer, message), every file and folder name, every version of every file (read as the build's leak
+scan reads files, spellings and PDFs included) and every branch and tag name. The words are not in the code: they come
+from the mirror's repository secret `CONTENT_RULES`:
+
+```json
+{ "terms": ["acme", "acme tools"], "keep": ["acmeology"], "allow": ["<git blob id>"] }
+```
+
+`terms` are the words the repository must not hold, found inside longer words too and in any case; `keep` lists whole
+words that contain a term and are allowed (the leak scan's rule, `tools/content-check/words.mjs`); `allow` lists blob ids
+whose exact bytes may hold a term or cannot be read (a third-party model whose weights spell one by chance, an
+encrypted test PDF), each reported as allowed. Without the secret, or with no terms, the check fails. Its log is public:
+it masks every word first and names only the object (kind, id, a path with the words shown as `***`) and a count (how
+many were spelled; an unreadable PDF). It takes seconds on this repository's whole history.
+`node tools/whitelabel/content-rules.mjs <id> <build dir> --profiles=<dir>` prints a profile's rules: its leak scan's
+words and the blob ids of the files its scan allows (CI here runs each sample build's checker with them).
+
+Make the check required: in the mirror's settings, a ruleset on `main` with "Require status checks to pass" and the
+check `Content check` (the job's name). `main` then moves only to a commit whose push (to `testing`) passed it, so nothing
+unchecked goes live.
 
 ### A copy with its whole history
 

@@ -7,7 +7,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';
 import path from 'node:path';
-import { buildFootNav, footNav, footNavLinks, converterFiles, addFootSlot, GUIDE_PICKS } from '../../tools/seo/footnav.mjs';
+import { buildFootNav, footNav, footNavLinks, converterFiles, addFootSlot, GUIDE_PICKS, contactEmail } from '../../tools/seo/footnav.mjs';
 import { registryWindow, isPage, ROOT, SITE } from '../../tools/seo/site.mjs';
 import { siteFoot } from '../../tools/seo/landing.mjs';
 import { ROUNDUPS, roundupsIn } from '../../shared/seo/roundups/index.mjs';
@@ -37,6 +37,12 @@ test('every footer link is a page of the repo, and every page link but Settings 
     if (FACTS.seoIndex && href.endsWith('/') && href !== '/settings/') assert.ok(sitemap.has(SITE + href), `${href}: not in sitemap.xml`);
   }
   assert.equal(new Set(links).size, links.length, 'no link twice');
+});
+
+test("the contact line follows the site's address (shared/contact/contact.js): a mailto link with one, nothing without", () => {
+  const at = contactEmail();
+  if (at) assert.ok(nav.includes(`<a href="mailto:${at}" data-contact-email>${at}</a></p>`), 'the address under the site map');
+  else assert.ok(!nav.includes('fn-contact') && !nav.includes('mailto:'), 'no contact line');
 });
 
 test('the homepage footer has the block, with every round-up, the compare hub and the comparisons index', INDEXED, () => {

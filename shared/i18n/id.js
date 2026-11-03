@@ -50,6 +50,8 @@
     'footer.how': 'Cara kerjanya',
     'footer.all_tools': 'Semua alat',
     'footer.sitemap': 'Peta situs (XML)',
+    // English until translated (contact)
+    'footer.contact': 'Contact',
 
     'hero.kicker': 'Perangkat lunak perkantoran dan kreatif',
     'hero.lead': 'Aplikasi perkantoran dan kreatif,',

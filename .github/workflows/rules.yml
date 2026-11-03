@@ -179,8 +179,8 @@ jobs:
 
   # The white-label build (tools/whitelabel; brand/README.md, "White-label builds"), on every push: the made-up sample
   # profiles (brand/profiles/sample*.json) built the way a mirror is, so a change here cannot break a white-label site
-  # unnoticed. The rename map's round trip over the whole repository, the build with its leak scan and the build's own Node
-  # tests; the build then goes to the jobs below, which run its whole browser suite and its touch pages.
+  # unnoticed. The rename map's round trip over the whole repository, the build with its leak scan, the build's own Node
+  # tests and its content check; the build then goes to the jobs below, which run its whole browser suite and its touch pages.
   whitelabel:
     name: White-label build ${{ matrix.profile }}
     needs: plan
@@ -224,6 +224,13 @@ jobs:
         run: |
           cd "$OUT" && git init -q && git add -A && git -c user.name=mirror -c user.email=mirror@example.invalid commit -qm build
           npm ci --no-audit --no-fund && node --test tests/node/*.test.mjs tests/seo/*.test.mjs
+      # The build's own content check, as its mirror runs it on every push (tools/content-check; brand/README.md, "The
+      # content check"): the build ships the checker and its workflow, and its commit holds no word this profile's leak
+      # scan forbids (the rules as tools/whitelabel/content-rules.mjs makes the mirror's CONTENT_RULES secret).
+      - name: The build passes its own content check
+        run: |
+          test -f "$OUT/.github/workflows/content.yml"
+          CONTENT_RULES="$(node tools/whitelabel/content-rules.mjs ${{ matrix.profile }} "$OUT")" node "$OUT/tools/content-check/check.mjs" "$OUT"
 
   # The browser suite of each sample build, served from the build: on testing and main the whole suite in 8 slices per
   # profile (balanced by the build's tests/timings.json); on a work branch only the plan's pages, renamed for the build

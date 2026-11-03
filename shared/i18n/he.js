@@ -49,6 +49,8 @@
     'footer.how': 'איך זה עובד',
     'footer.all_tools': 'כל הכלים',
     'footer.sitemap': 'מפת האתר',
+    // English until translated (contact)
+    'footer.contact': 'Contact',
 
     'hero.kicker': 'תוכנות משרד ויצירה',
     'hero.lead': 'אפליקציות משרד ויצירה,',

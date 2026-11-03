@@ -148,10 +148,10 @@ opens them through `A.addFiles`, captures downloads and reads output back with p
 - `pdf.spec-export.js`: merge order/rotation/blank pages, annotation placement pixel-checked on /Rotate 90,
   user-rotated and offset-MediaBox pages, text/pen/arrow/image/stamps, metadata, forms (fill + keep
   editable, flatten), split to zip and to files, extract.
-- `pdf.spec-io.js`: RC4-128/AES-128/AES-256/owner-only fixtures (`tests/pdf/fixtures/`, made with pypdf;
-  user password `slop`), wrong/cancelled password, broken files, autosave to IndexedDB + restore after reload,
-  autosave off, Slop Hub (Send to items, Send page as image → Drive + `?drive=`, open from Drive picker,
-  launch with `?drive=`), offline build (self-contained, byte-identical rebuild, boots and exports).
+- `pdf.spec-io.js`: RC4-128/AES-128/AES-256/owner-only fixtures (`tests/pdf/fixtures/`, made with pypdf by
+  `make-encrypted.py` there; user password `fixture`), wrong/cancelled password, broken files, autosave to IndexedDB +
+  restore after reload, autosave off, Slop Hub (Send to items, Send page as image → Drive + `?drive=`, open from
+  Drive picker, launch with `?drive=`), offline build (self-contained, byte-identical rebuild, boots and exports).
 - `pdf.spec-redact.js`: presets/regex/Luhn, match boxes on a rotated page, apply on a 3-page file (secret
   e-mail, text, form field and drawn box gone from pdf.js text extraction AND from every decoded stream/string;
   untouched pages keep text; rotation/size kept; metadata gone; link outside kept; black pixels), shared

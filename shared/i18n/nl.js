@@ -49,6 +49,8 @@
     'footer.how': 'Zo werkt het',
     'footer.all_tools': 'Alle tools',
     'footer.sitemap': 'Sitemap',
+    // English until translated (contact)
+    'footer.contact': 'Contact',
 
     'hero.kicker': 'Kantoor- en creatieve software',
     'hero.lead': 'Kantoor- en creatieve apps,',

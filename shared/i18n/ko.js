@@ -49,6 +49,8 @@
     'footer.how': '작동 방식',
     'footer.all_tools': '모든 도구',
     'footer.sitemap': '사이트맵(XML)',
+    // English until translated (contact)
+    'footer.contact': 'Contact',
 
     'hero.kicker': '오피스 및 크리에이티브 소프트웨어',
     'hero.lead': '오피스 앱과 크리에이티브 앱,',

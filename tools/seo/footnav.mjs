@@ -7,6 +7,8 @@
 //   Compare     /compare/, /best/ and every round-up (shared/seo/roundups/)
 //   Converters  the first converter page of each category (convert/js/core/pages.js order), and /convert/
 //   Guides      How it works, All tools, the first getting-started guides (registry order), Settings, the sitemap
+// Under the columns, "Contact: <address>" (a mailto link, data-contact) when the site has an address
+// (shared/contact/contact.js, the brand profile's email); none without one.
 // Each column is a <details open> with its links in a grid (a long list the whole width, a short one half); a small inline script folds them on phones (max-width: 640px) and opens them again on wider
 // screens, so without JavaScript every link shows. Styles: shared/footnav/footnav.css. Labels with a data-i18n key are
 // translated where the page loads shared/i18n (the homepage): the chrome's footer.* words, and the round-ups', guides'
@@ -17,12 +19,16 @@
 // A site that is not indexed (site.mjs INDEX) has no generated pages: its apps link to their own pages, and Compare, All
 // tools, the guides and the sitemap are left out. A single-app site's suite (shared/apps.js SLOP_PARENT) gets a column of
 // its own, "More free tools", and a link into a hidden app's folder goes to the same path there (route).
-//   buildFootNav({ apps, groups, roundups, guides, converters, word, index, parent, route }) -> html (pure: tests pass
+//   buildFootNav({ apps, groups, roundups, guides, converters, word, index, parent, route, email }) -> html (pure: tests pass
 //                 their own data; word(key, english) gives a label in the page's language, English when left out)
 //   footNav(L) -> the html for the site's own data in one language (a lang.mjs context; the root one when left out)
-//   footNavLinks(html) -> [href] in the block
+//   footNavLinks(html) -> [href] in the block (the site map; the contact line is after it)
+//   contactEmail() -> the site's contact address from shared/contact/contact.js, '' when it has none
 //   addFootSlot(html) -> a converter page with an empty <!-- site:footnav --> slot before its shell script
-import { isPage, registryWindow, INDEX } from './site.mjs';
+import vm from 'node:vm';
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
+import { isPage, registryWindow, INDEX, ROOT } from './site.mjs';
 import { hiddenApp } from './robots.mjs';
 import { roundupsIn } from '../../shared/seo/roundups/index.mjs';
 import { guidesIn } from '../../shared/seo/guides/index.mjs';
@@ -45,7 +51,7 @@ function col(head, links, key, word) {
 }
 
 const english = (key, text) => text;
-export function buildFootNav({ apps, groups = {}, plainNames = false, roundups = [], guides = [], converters = [], word = english, index = true, parent = null, route = (h) => h }) {
+export function buildFootNav({ apps, groups = {}, plainNames = false, roundups = [], guides = [], converters = [], word = english, index = true, parent = null, route = (h) => h, email = '' }) {
   const pages = apps.filter(isPage);
   const byGroup = new Map(Object.keys(groups).map((g) => [g, []]));
   // an app without a group joins the group of the app it lives in (photoslop/classic/ is PhotoSlop's), else More apps
@@ -70,7 +76,15 @@ export function buildFootNav({ apps, groups = {}, plainNames = false, roundups =
     : [['/how-it-works/', 'How it works', 'footer.how'], ['/settings/', 'Settings and privacy', 'footer.settings_link']], 'footer.guides', word));
   if (parent) cols.push(col(parent.name, [[parent.url, 'More free tools →', 'parent.more_tools']], '', word));
   const fold = `<script>(function(){var m=matchMedia('${PHONE}'),s=function(){document.querySelectorAll('.fnav details').forEach(function(d){d.open=!m.matches})};s();m.addEventListener('change',s)})()</script>`;
-  return `<nav class="fnav" aria-label="${esc(word('footer.site_map', 'Site map'))}" data-i18n-attr="aria-label:footer.site_map"><div class="fn-grid">${cols.join('')}</div></nav>${fold}`;
+  const contact = email ? `<p class="fn-contact" data-contact><span data-i18n="footer.contact">${esc(word('footer.contact', 'Contact'))}</span>: <a href="mailto:${esc(email)}" data-contact-email>${esc(email)}</a></p>` : '';
+  return `<nav class="fnav" aria-label="${esc(word('footer.site_map', 'Site map'))}" data-i18n-attr="aria-label:footer.site_map"><div class="fn-grid">${cols.join('')}</div></nav>${contact}${fold}`;
+}
+
+/** The site's contact address (shared/contact/contact.js, run in a bare context like the registry), '' without one. */
+export function contactEmail() {
+  const win = {};
+  vm.runInNewContext(readFileSync(path.join(ROOT, 'shared', 'contact', 'contact.js'), 'utf8'), { window: win });
+  return win.SlopContact.email();
 }
 
 const cached = new Map();
@@ -82,7 +96,7 @@ export function footNav(L = context(ROOT_LANG)) {
   const own = (key, text) => (key.startsWith('parent.') ? appTable('shared/parent', L.code).get(key) || appTable('shared/parent', 'en').get(key) || text : null);
   const word = (key, text) => (!key || key.startsWith('seo.foot.') ? text : own(key, text) ?? (en ? text : L.chrome(key, text)));
   const parent = win.SLOP_PARENT || null, route = (h) => (parent && hiddenApp(h.slice(1)) ? parent.url + h : h);
-  const html = buildFootNav({ apps: win.SLOP_APPS, groups: win.SLOP_GROUP_LABELS || {}, plainNames: win.SLOP_NAMING === 'plain', roundups: roundupsIn(L.code).filter((r) => win.SLOP_APPS.some((a) => a.id === r.app)), guides: guidesIn(L.code), converters, word, index: INDEX, parent, route });
+  const html = buildFootNav({ apps: win.SLOP_APPS, groups: win.SLOP_GROUP_LABELS || {}, plainNames: win.SLOP_NAMING === 'plain', roundups: roundupsIn(L.code).filter((r) => win.SLOP_APPS.some((a) => a.id === r.app)), guides: guidesIn(L.code), converters, word, index: INDEX, parent, route, email: contactEmail() });
   cached.set(L.code, html);
   return html;
 }

@@ -37,7 +37,7 @@ window.SlopI18n && window.SlopI18n.add('nl', {
   'paint-classic.menu.attributes': '&Kenmerken...',
   'paint-classic.menu.clear_image': 'Afbeelding &wissen',
   'paint-classic.menu.opaque': '&Ondoorzichtig tekenen',
-  'paint-classic.menu.slopify': 'S&LOPIFY',
+  'paint-classic.menu.slopify': 'SLOPIFY',
   'paint-classic.menu.colors': '&Kleuren',
   'paint-classic.menu.edit_colors': '&Kleuren bewerken...',
   'paint-classic.menu.help': '&Help',

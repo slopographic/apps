@@ -49,6 +49,8 @@
     'footer.how': 'Nasıl çalışır',
     'footer.all_tools': 'Tüm araçlar',
     'footer.sitemap': 'Site haritası',
+    // English until translated (contact)
+    'footer.contact': 'Contact',
 
     'hero.kicker': 'Ofis ve yaratıcı yazılımlar',
     'hero.lead': 'Ofis ve yaratıcı uygulamalar,',

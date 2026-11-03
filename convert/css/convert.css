@@ -97,4 +97,4 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .cv-pair-go { margin-top: auto; align-self: flex-start; }
 .cv-cards-empty { color: var(--muted); }
 .cv-foot { padding-top: 0; }
-.cv-foot .fnav { --fn-fg: var(--ink); --fn-dim: var(--muted); --fn-line: var(--line); }
+.cv-foot .fnav, .cv-foot .fn-contact { --fn-fg: var(--ink); --fn-dim: var(--muted); --fn-line: var(--line); }

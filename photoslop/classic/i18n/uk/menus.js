@@ -36,7 +36,7 @@ window.SlopI18n && window.SlopI18n.add('uk', {
   'paint-classic.menu.attributes': '&Атрибути...',
   'paint-classic.menu.clear_image': '&Очистити зображення',
   'paint-classic.menu.opaque': '&Малювати непрозоро',
-  'paint-classic.menu.slopify': 'S&LOPIFY',
+  'paint-classic.menu.slopify': 'SLOPIFY',
   'paint-classic.menu.colors': '&Кольори',
   'paint-classic.menu.edit_colors': '&Редагувати кольори...',
   'paint-classic.menu.help': '&Довідка',
