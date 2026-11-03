@@ -50,6 +50,8 @@
     'footer.how': 'Otu o si arụ ọrụ',
     'footer.all_tools': 'Ngwaọrụ niile',
     'footer.sitemap': 'Maapụ saịtị',
+    // English until translated (contact)
+    'footer.contact': 'Contact',
 
     'hero.kicker': 'Ngwanrọ ọfịs na okike',
     'hero.lead': 'Ngwa ọfịs na okike,',

@@ -76,6 +76,7 @@
     'footer.how': 'How it works',
     'footer.all_tools': 'All tools',
     'footer.sitemap': 'Sitemap',
+    'footer.contact': 'Contact',
 
     'hero.kicker': 'Office and creative software',
     'hero.lead': 'Office and creative apps,',

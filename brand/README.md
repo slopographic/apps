@@ -92,6 +92,7 @@ sites live outside this repository, with the publish script; pass their folder w
 | `seo` | `homeTitle`, `homeDescription`, `titleSuffix` for the generated head blocks and the sitemap (the home copy is in the root language), and `langs`: the languages of the static SEO pages besides the root one, `"all"` (default), a list (`["sv", "de"]`) or `"none"` (below, "Languages of the SEO pages"). `index` (default `false`), `canonicalTo` and `canonicalOverride`: what search engines are told (below, "Search engines"). |
 | `mainApp`, `parent` | A site for one app: the app the site's root opens (an app id), and the suite it links back to, `{ name, url }` (below, "Single-app sites"). |
 | `promo` | One line about the site owner's own business, with a link: `{ text, url, where? }` (below, "A promo line"). Default none. |
+| `email` | The site's contact address (`"info@example.com"`): "Contact: <address>" as a mailto link in the site footer and on the privacy page (below, "A contact address"). `null` or absent: no contact line anywhere. |
 | `ai` | Which AI models the site offers (default `{}`: all of them). See "AI models" below. |
 | `ocr` | Which text recognition engines the site offers and which one it uses first (default: both, Auto). See "Text recognition (OCR) engines" below. |
 | `legal` | `{ holder, year, trademarks? }`: the MIT licence's copyright holder, `NOTICE.md` and `TRADEMARKS.md` (`trademarks`: the names the holder claims; default the product name). |
@@ -120,6 +121,21 @@ request from anyone else, no cookie.
   iPhone/iPad app the system browser opens it. Hide (×) keeps it away on that device until the line or address changes.
   Its few words (the label, Hide) are in `shared/promo/i18n` (en, sv).
 
+
+### A contact address
+
+```json
+"email": "info@example.com"
+```
+
+- One address (a plain `name@domain`, at most 120 characters), or `null` / absent for none: then no page shows a
+  contact line, and no address of this site reaches the build (its leak scan would fail on one).
+- `shared/contact/contact.js` holds the value (the `email` marker; this site's is its own address) and is the only
+  place it is set. The SEO writer bakes "Contact: <address>" under the footer navigation of every page that has it
+  (`tools/seo/footnav.mjs`: the homepage, the content pages, the converter pages), so it shows without JavaScript; the
+  privacy page fills its `[data-contact]` line from the script. The label is the chrome key `footer.contact`.
+
+### AI models
 
 Some sites cannot offer models from certain makers or countries. The `ai` field hides them everywhere a model can be
 picked: the providers of "Use your own AI account" and their suggested models, the lists fetched from a provider

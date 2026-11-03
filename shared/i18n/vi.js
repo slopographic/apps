@@ -50,6 +50,8 @@
     'footer.how': 'Cách hoạt động',
     'footer.all_tools': 'Tất cả công cụ',
     'footer.sitemap': 'Sơ đồ trang web (XML)',
+    // English until translated (contact)
+    'footer.contact': 'Contact',
 
     'hero.kicker': 'Phần mềm văn phòng và sáng tạo',
     'hero.lead': 'Ứng dụng văn phòng và sáng tạo,',

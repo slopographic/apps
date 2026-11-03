@@ -50,6 +50,8 @@
     'footer.how': '工作原理',
     'footer.all_tools': '所有工具',
     'footer.sitemap': '网站地图 (XML)',
+    // English until translated (contact)
+    'footer.contact': 'Contact',
 
     'hero.kicker': '办公和创意软件',
     'hero.lead': '办公和创意应用，',

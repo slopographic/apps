@@ -50,6 +50,8 @@
     'footer.how': '運作方式',
     'footer.all_tools': '所有工具',
     'footer.sitemap': '網站地圖 (XML)',
+    // English until translated (contact)
+    'footer.contact': 'Contact',
 
     'hero.kicker': '辦公室與創作軟體',
     'hero.lead': '辦公室與創作應用程式，',

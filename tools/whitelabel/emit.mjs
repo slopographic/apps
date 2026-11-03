@@ -23,6 +23,7 @@ export function markerValues(p) {
     // search engines and single-app sites (tools/seo/site.mjs, shared/apps.js): indexed only when the profile says so
     seoIndex: seo.index === true, seoCanonicalTo: seo.canonicalTo || '', seoCanonicalOverride: seo.canonicalOverride || {},
     promo: promoMarker(p),                        // the owner's promo line (shared/promo/promo.js), null without one
+    email: p.email || null,                       // the contact address (shared/contact/contact.js), null: no contact line
     mainApp: p.mainApp || '', parent: p.parent ? { name: p.parent.name, url: p.parent.url.replace(/\/+$/, '') } : null,
     ...fontMarkers(p.fontManifest || EMPTY),     // the type family's token names, the typeface page, the preload
     ...slotMarkers(p),                            // the mascot slot's size and roaming (shared/mascot/slot.js)

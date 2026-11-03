@@ -50,6 +50,8 @@
     'footer.how': 'Bó ṣe ń ṣiṣẹ́',
     'footer.all_tools': 'Gbogbo irinṣẹ́',
     'footer.sitemap': 'Àwòrán ojú-òpó',
+    // English until translated (contact)
+    'footer.contact': 'Contact',
 
     'hero.kicker': 'Sọ́fítíwọ̀ ọ́fíìsì àti iṣẹ́ ọnà',
     'hero.lead': 'Áàpù ọ́fíìsì àti iṣẹ́ ọnà,',
