@@ -50,9 +50,9 @@ export const SCAN_ALLOW = [
     sha256: 'd26c429eb10cb83457239610a7cc4ccf21775e7bc18c16bc626c5bbf3b9743b8' },
   encrypted('tests/pdf-crypto/fixtures/qpdf-aes128.pdf', 'title "Fixture", "Known answer page"', 'a5fc18631ef31592aff1fb5c7437be4bdb440dc454855cd775ca467fd39eccd1'),
   encrypted('tests/pdf-crypto/fixtures/qpdf-aes256.pdf', 'title "Fixture", "Known answer page"', 'b2e03f79d3831294be006edb61fbf8ef2dedfba94c8b35bfafe354e529010694'),
-  encrypted('tests/pdf/fixtures/aes-128.pdf', '"Secret page 1", "Secret page 2"', '50b2ddc8d90587f157bdcf4b05107ddf6265a8809583bd1f848a93c5c9a64ac6'),
-  encrypted('tests/pdf/fixtures/aes-256.pdf', '"Secret page 1", "Secret page 2"', 'a7def689830601283ce55a132af31c0b117d70eff37e175be0206f313acc1eaa'),
-  encrypted('tests/pdf/fixtures/rc4-128.pdf', '"Secret page 1", "Secret page 2"', 'cded4b89e9f03e51cc68c7f455a4e5144d2934014f81c65dae35884880dfc42c'),
+  encrypted('tests/pdf/fixtures/aes-128.pdf', '"Secret page 1", "Secret page 2"', 'c724c4b718a3fea35aaaed4c9986b25f4b539090d3e9764676e1c23d92ec760b'),
+  encrypted('tests/pdf/fixtures/aes-256.pdf', '"Secret page 1", "Secret page 2"', 'e6c6dd794232d0544e4f0e1eeaf717282828d3be28fb6bcd9e00b00ff9eed5df'),
+  encrypted('tests/pdf/fixtures/rc4-128.pdf', '"Secret page 1", "Secret page 2"', '8305bc5642ce70a1c28da62197fb1266e75210cb50c13f10f3996e587a08b5b9'),
 ];
 
 /** The mascot art's allow entries (mascot.mjs artAllow), each for the bytes the build writes there: the profile's own art
