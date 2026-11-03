@@ -3,7 +3,10 @@
 // the white-label jobs (a mirror cannot build mirrors), the changed-script rule (it needs this repository's history), the
 // commit identity of this repository and the cdn check (it reads this repository's cdn). The tests that are about this
 // repository only are not in a build at all (tests/repo-only.json), so the mirror runs every test it has. The build then
-// renames the workflow like every other file. Node only. Tests: tests/node/whitelabel-build.test.mjs.
+// renames the workflow like every other file. A mirror's second workflow, the content check, comes from content-check.yml
+// (kept here, so this repository does not run it) and is renamed the same way. Node only.
+// Tests: tests/node/whitelabel-build.test.mjs.
+import { readFileSync } from 'node:fs';
 
 /** Steps left out of a mirror, by the start of their name. */
 export const DROP_STEPS = ['Every changed script has a test', 'Every cdn file answers'];
@@ -42,3 +45,7 @@ export function mirrorWorkflow(yml) {
     .replace(/^# The file rules[\s\S]*?\n(?=on:)/m, '# Generated with the site: the file rules, the Node tests and the browser tests, on every push.\n')
     .replace(/name: Set up the repo as a clone is[^\n]*/, 'name: Install the test dependencies');
 }
+
+/** A mirror's .github/workflows/content.yml: the content check (tools/content-check/check.mjs) on every push, with the
+ * words from the mirror's CONTENT_RULES secret. Its job's name, Content check, is the status check main requires. */
+export const contentWorkflow = () => readFileSync(new URL('./content-check.yml', import.meta.url), 'utf8');

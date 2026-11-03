@@ -6,7 +6,9 @@
 // Steps: copy every file of the working tree (git ls-files) except the source brand's own files (EXCLUDE), rename paths
 // and text through the profile's map (rename.mjs), set the profile markers, write the generated files (emit.mjs), run the
 // SEO writer and the precache list in the copy, render the icons (images.mjs), then scan for leftovers (scan.mjs) and
-// exit 1 when the scan finds any. A profile without a map file (slopographic) is copied as it is.
+// exit 1 when the scan finds any. A profile without a map file (slopographic) is copied as it is. A mirror gets two
+// workflows: its CI (workflow.mjs) and the content check, which searches its whole repository on every push
+// (tools/content-check; brand/README.md, "The content check").
 // The SEO pages of the languages besides the root one are not in git here (tools/seo/langdirs.mjs): the build writes
 // them for the profile's seo.langs (write.mjs, then write.mjs --langs from the written root pages; none for 'none') and
 // drops the .gitignore block from its copy, so a mirror commits them (it is the published site).
@@ -28,7 +30,7 @@ import { pinBuild } from './cdnpin.mjs';
 import { mediaIds, stripMedia } from './media.mjs';
 import { context, profileText, forward, forwardPath } from './transform.mjs';
 import { markerValues, applyMarkers, brandJson, markSvg, logoSvg, manifest, homeThemeColor, mit, notice, trademarks, security, readme } from './emit.mjs';
-import { mirrorWorkflow } from './workflow.mjs';
+import { mirrorWorkflow, contentWorkflow } from './workflow.mjs';
 import { themeProblems, sourceThemes } from './palette.mjs';
 import { isText, scan, report } from './scan.mjs';
 import { newRepeats, repeatReport } from './repeats.mjs';
@@ -37,11 +39,29 @@ import { emitFont, fontExcluded, fontFolderProblems, fontDir } from './font.mjs'
 import { withoutBlock } from '../seo/langdirs.mjs';
 
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
+const sha = (buf) => createHash('sha256').update(buf).digest('hex');
 
-/** Third-party files where a match is not a name: reported as allowed, never fixed. */
+/** Files where a hit is not a name: reported as allowed, never fixed. Each entry is for the file's exact bytes in the build
+ * (sha256, hex); a file with other bytes is scanned like any other (scan.mjs). The encrypted PDFs: test files with a user
+ * password, which the scan cannot open (an unreadable PDF is a hit); opened with it, each reads only what `why` says. */
+const encrypted = (file, text, sha256) => ({ file, term: '(unreadable)', why: `encrypted test PDF (user password); its text: ${text}`, sha256 });
 export const SCAN_ALLOW = [
-  { file: 'vendor/models/isnet-general-w8.onnx', term: 'slop', why: 'four bytes of the model weights happen to spell it ("PRSLOPHJM"); not text' },
+  { file: 'vendor/models/isnet-general-w8.onnx', term: 'slop', why: 'four bytes of the model weights happen to spell it ("PRSLOPHJM"); not text',
+    sha256: 'd26c429eb10cb83457239610a7cc4ccf21775e7bc18c16bc626c5bbf3b9743b8' },
+  encrypted('tests/pdf-crypto/fixtures/qpdf-aes128.pdf', 'title "Fixture", "Known answer page"', 'a5fc18631ef31592aff1fb5c7437be4bdb440dc454855cd775ca467fd39eccd1'),
+  encrypted('tests/pdf-crypto/fixtures/qpdf-aes256.pdf', 'title "Fixture", "Known answer page"', 'b2e03f79d3831294be006edb61fbf8ef2dedfba94c8b35bfafe354e529010694'),
+  encrypted('tests/pdf/fixtures/aes-128.pdf', '"Secret page 1", "Secret page 2"', '50b2ddc8d90587f157bdcf4b05107ddf6265a8809583bd1f848a93c5c9a64ac6'),
+  encrypted('tests/pdf/fixtures/aes-256.pdf', '"Secret page 1", "Secret page 2"', 'a7def689830601283ce55a132af31c0b117d70eff37e175be0206f313acc1eaa'),
+  encrypted('tests/pdf/fixtures/rc4-128.pdf', '"Secret page 1", "Secret page 2"', 'cded4b89e9f03e51cc68c7f455a4e5144d2934014f81c65dae35884880dfc42c'),
 ];
+
+/** The mascot art's allow entries (mascot.mjs artAllow), each for the bytes the build writes there: the profile's own art
+ * files (overlay: its folder) and the notices made from the profile. */
+export function artPins(p, overlay) {
+  const made = { 'LICENSE-ART': licenseArt, 'NOTICE.md': notice, 'TRADEMARKS.md': trademarks };
+  const bytes = (f) => (made[f] ? Buffer.from(made[f](p)) : readFileSync(path.join(overlay, f.slice(DEST.length + 1))));
+  return artAllow(p).map((a) => Object.assign({ sha256: sha(bytes(a.file)) }, a));
+}
 
 /** Model files carry the name of the tool that wrote them in a string field: the same number of bytes, so the file
  * stays valid. Other binaries are copied as they are (the scan reports any name left in them). */
@@ -72,13 +92,12 @@ export function rehash(out, hashes, dir = out) {
   }
   return n;
 }
-const sha = (buf) => createHash('sha256').update(buf).digest('hex');
 
 /** Files of the source brand that a renamed build leaves out (it writes its own where one is needed). */
 export function excluded(file, p) {
   if (/^(brand\/profiles|brand\/copy|tools\/whitelabel)\//.test(file) || file === 'brand/README.md') return true;
   // this repository's own automation: every workflow (deploys, pings, checks that only make sense here; the build writes the
-  // mirror's one rules.yml), and the tests that are about this repository only, declared in one place (tests/repo-only.json)
+  // mirror's rules.yml and content.yml), and the tests that are about this repository only, declared in one place (tests/repo-only.json)
   if (/^\.github\/(workflows\/|dependabot\.yml$)/.test(file) || repoOnly(file)) return true;
   if (fontExcluded(file, p)) return true;                                                    // this site's type family (font.mjs)
   if (/^(TRADEMARKS\.md|NOTICE\.md|LICENSE|LICENSE-ART|README\.md|SECURITY\.md|CNAME|favicon\.svg|favicon\.ico|og-share\.png)$/.test(file)) return true;
@@ -164,7 +183,7 @@ export function build(id, out, opts = {}) {
   if (!opts.noSeo) sh(node, ['tools/seo/write.mjs'], out);
   publishLangs(out, opts);
   if (!opts.noSeo) { sh(node, [path.join('tools', 'i18n', 'i18n.mjs'), 'coverage'], out); sh(node, ['tools/pwa-precache.mjs'], out); }
-  const res = scan(out, forbiddenTerms(dir, p).concat(videos.map((v) => v.toLowerCase())), SCAN_ALLOW.concat(p.scanAllow || [], artAllow(p)), { account: p.github.toLowerCase() });
+  const res = scan(out, forbiddenTerms(dir, p).concat(videos.map((v) => v.toLowerCase())), SCAN_ALLOW.concat(p.scanAllow || [], artPins(p, overlay)), { account: p.github.toLowerCase() });
   log(report(res));
   const allow = new Set((p.repeatAllow || []).map((x) => String(x).toLowerCase()));
   const made = repeats.filter((r) => !allow.has(r.pair));
@@ -210,8 +229,10 @@ function emit(out, p, opts, ctx) {
   write(out, 'index.html', homeThemeColor(readFileSync(path.join(out, 'index.html'), 'utf8'), p));
   const trial = path.join(out, 'shared/agent/trial-tokens.json');
   if (existsSync(trial)) { const t = JSON.parse(readFileSync(trial, 'utf8')); t.tokens = []; writeFileSync(trial, JSON.stringify(t, null, 2) + '\n'); }
-  const wf = readFileSync(path.join(ROOT, '.github/workflows/rules.yml'), 'utf8');
-  write(out, '.github/workflows/rules.yml', tokens(phrases(urls(mirrorWorkflow(wf), ctx.urls), ctx.phraseRules), ctx.tokenRules));
+  // the mirror's workflows: its CI (rules.yml, made from this repository's) and its content check, which main requires
+  const mirrorText = (t) => tokens(phrases(urls(t, ctx.urls), ctx.phraseRules), ctx.tokenRules);
+  write(out, '.github/workflows/rules.yml', mirrorText(mirrorWorkflow(readFileSync(path.join(ROOT, '.github/workflows/rules.yml'), 'utf8'))));
+  write(out, '.github/workflows/content.yml', mirrorText(contentWorkflow()));
   write(out, '.nojekyll', '');
 }
 

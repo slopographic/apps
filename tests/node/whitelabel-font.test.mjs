@@ -2,7 +2,7 @@
 // built folder, the build ships that family instead of this site's (or no family, and the upstream fonts, without one),
 // the token markers and the typeface page follow, and the leak scan reads the name tables inside WOFF2 files and zips,
 // so no build can carry a font named after another brand.
-// Covers: tools/whitelabel/font.mjs, tools/whitelabel/unpack.mjs, tools/whitelabel/emit.mjs, tools/whitelabel/build.mjs, tools/whitelabel/scan.mjs, tools/whitelabel/profile.mjs, tools/fonts/zip.mjs, tools/fonts/spec-rules.mjs
+// Covers: tools/whitelabel/font.mjs, tools/content-check/unpack.mjs, tools/whitelabel/emit.mjs, tools/whitelabel/build.mjs, tools/whitelabel/scan.mjs, tools/whitelabel/profile.mjs, tools/fonts/zip.mjs, tools/fonts/spec-rules.mjs
 // Run: node --test tests/node/whitelabel-font.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -15,7 +15,7 @@ import { markerValues, applyMarkers, applyBlocks } from '../../tools/whitelabel/
 import { excluded } from '../../tools/whitelabel/build.mjs';
 import { fontProblems, fontFolderProblems, emitFont, fontDir, DEST, PAGE } from '../../tools/whitelabel/font.mjs';
 import { scan } from '../../tools/whitelabel/scan.mjs';
-import { unpack } from '../../tools/whitelabel/unpack.mjs';
+import { unpack } from '../../tools/content-check/unpack.mjs';
 import { woff2Tables, nameRecords } from '../../tools/fonts/woff2.mjs';
 import { START, END } from '../../tools/fonts/css.mjs';
 import { specProblems } from '../../tools/fonts/spec-rules.mjs';
