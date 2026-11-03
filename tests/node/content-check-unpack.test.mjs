@@ -31,11 +31,14 @@ test('spelled words: joined pieces, escapes, entities and character codes', () =
   assert.deepEqual(spelled('String.fromCharCode(97, 99, 109, 101)'), ['acme']);
   assert.deepEqual(spelled('const k = [0x61, 0x63, 0x6d, 0x65].map((c) => String.fromCharCode(c));'), ['acme']);
   assert.equal(unescapeJs('\\x61\\u0063\\u{6d}e\\n\\\'q'), "acme\n'q");
+  assert.deepEqual(spelled("'menu.x': 'A&CME', 'menu.y': 'A&amp;CMEIFY',"), ['ACME', 'ACMEIFY'], 'a menu-key mark inside the word');
+  assert.deepEqual(spelled('<p><b>A</b>CME and a\u00adc\u200bme</p>'), ['ACME', 'acme'], 'a tag, a soft hyphen, an invisible character');
   assert.ok(spellings("x = ['a', 'b']").every((v) => typeof v.index === 'number' && v.end > v.index));
 });
 
 test('ordinary text is not read as a spelling', () => {
   assert.deepEqual(spelled("const cities = ['Tac', 'meal', 'Paris'];"), [], 'a list of words is not joined');
+  assert.deepEqual(spelled('<b>ac</b> <i>me</i> R&D'), [], 'a space between the pieces keeps them apart');
   assert.deepEqual(spelled("log('made by acme' + suffix); x = 'acme' + 'x';"), [], 'a word the text shows plainly is found plainly');
   assert.deepEqual(spelled("const w = 'acme' + 'ology';"), [], 'a keep word stays allowed');
   assert.deepEqual(spelled('const r = "emca"; // emca'), [], 'no reversed text');
