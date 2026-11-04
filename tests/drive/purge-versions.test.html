@@ -10,7 +10,7 @@
 
   /** A PDF original with two saved versions (the first has a change list). Returns the original's id and the hub ids of its records. */
   async function pdfWithVersions(name, folderId) {
-    const pdf = new Blob([await (await fetch('fixtures/versions-sample.pdf')).arrayBuffer()], { type: 'application/pdf' });
+    const pdf = new Blob([await (await fetch('fixtures/garden-sample.pdf')).arrayBuffer()], { type: 'application/pdf' });
     const id = await H.put(pdf, { name, from: 'pdf', folderId, meta: { pdf: { role: 'original' } } });
     await V.add(H, await H.get(id), {
       blob: pdf, name,

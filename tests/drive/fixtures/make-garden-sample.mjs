@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-// Writes versions-sample.pdf, the two-page PDF of the Drive version tests (tests/drive/versions.test.html,
+// Writes garden-sample.pdf, the two-page PDF of the Drive version tests (tests/drive/versions.test.html,
 // tests/drive/purge-versions.test.html) and the convert dialog's contrast check (tests/a11y/components.js).
 // Made with the vendored pdf-lib, with a fixed date and a seeded random (pdf-lib names each font resource with a random
-// suffix), so the same pdf-lib writes the same bytes:   node tests/drive/fixtures/make-versions-sample.mjs
+// suffix), so the same pdf-lib writes the same bytes:   node tests/drive/fixtures/make-garden-sample.mjs
 import { writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
@@ -41,4 +41,4 @@ PAGES.forEach(([title, ...lines], i) => {
   page.drawCircle({ x: 520, y: 150, size: 40, color: rgb(0.25, 0.45, 0.75) });
   page.drawText(String(i + 1), { x: 56, y: 40, size: 9, font: bold, color: ink });
 });
-writeFileSync(path.join(HERE, 'versions-sample.pdf'), await doc.save());
+writeFileSync(path.join(HERE, 'garden-sample.pdf'), await doc.save());
