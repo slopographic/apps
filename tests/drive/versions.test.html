@@ -16,7 +16,7 @@
       W = await DT.frame('../../drive/', (w) => w.document.body.classList.contains('ready'), { width: 1280, height: 780 });
       DR = W.DR; H = W.SlopHub; V = W.SlopVersions;
       await H.clear();
-      const pdf = await (await fetch('fixtures/versions-sample.pdf')).arrayBuffer();
+      const pdf = await (await fetch('fixtures/garden-sample.pdf')).arrayBuffer();
       const id = await H.put(new Blob([pdf], { type: 'application/pdf' }), { name: 'contract.pdf', from: 'pdf', meta: { pdf: { role: 'original' } } });
       await V.add(H, await H.get(id), {
         blob: new Blob([pdf], { type: 'application/pdf' }), name: 'contract.pdf',

@@ -106,7 +106,7 @@
     return fails;
   }
   async function convert(W) {
-    const pdf = await (await W.fetch('/tests/drive/fixtures/versions-sample.pdf')).blob();
+    const pdf = await (await W.fetch('/tests/drive/fixtures/garden-sample.pdf')).blob();
     const file = new W.File([pdf], 'document.pdf', { type: 'application/pdf' });
     const m = await W.eval('import("/shared/convert/dialog.js")');
     const ctl = m.open({ file });

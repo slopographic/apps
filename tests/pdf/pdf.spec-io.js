@@ -5,7 +5,7 @@
 
   describe('decryption', () => {
     const PW = 'fixture';   // the fixtures' user password (tests/pdf/fixtures/make-encrypted.py)
-    const cases = [['rc4-128.pdf', PW], ['aes-128.pdf', PW], ['aes-256.pdf', PW], ['owner-only.pdf', null]];
+    const cases = [['locked-rc4-128.pdf', PW], ['locked-aes-128.pdf', PW], ['locked-aes-256.pdf', PW], ['owner-only.pdf', null]];
     for (const [name, pw] of cases) {
       it(`opens ${name}, removes the encryption and exports clean pages`, async () => {
         PT.reset();
@@ -27,7 +27,7 @@
       PT.reset();
       const orig = PT.A.askPassword;
       PT.A.askPassword = () => Promise.resolve(null);
-      try { await PT.open(await PT.fixture('aes-128.pdf'), 'x.pdf'); } finally { PT.A.askPassword = orig; }
+      try { await PT.open(await PT.fixture('locked-aes-128.pdf'), 'x.pdf'); } finally { PT.A.askPassword = orig; }
       expect(PT.E.state.pages.length).toBe(0);
       expect(PT.closeDialogs()).toBe('');
     });

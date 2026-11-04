@@ -5,9 +5,9 @@
 
 Encrypted by pypdf, not by this site's own encryptor (shared/pdf-crypto/), so the tests check the decryptor against an
 independent implementation. Each file is the same two 300 x 200 pages in Helvetica, "Secret page 1" and "Secret page 2":
-  rc4-128.pdf     RC4 128-bit (V 2, R 3)          user password "fixture", owner password "fixture-owner"
-  aes-128.pdf     AES-128 (V 4, R 4, AESV2)       the same passwords
-  aes-256.pdf     AES-256 (V 5, R 6, AESV3)       the same passwords
+  locked-rc4-128.pdf     RC4 128-bit (V 2, R 3)          user password "fixture", owner password "fixture-owner"
+  locked-aes-128.pdf     AES-128 (V 4, R 4, AESV2)       the same passwords
+  locked-aes-256.pdf     AES-256 (V 5, R 6, AESV3)       the same passwords
   owner-only.pdf  AES-128, no user password (it opens freely), owner password "fixture-owner", every permission off
 The keys, IVs and file ids are random, so a rerun writes other bytes with the same content.
 """
@@ -22,9 +22,9 @@ USER, OWNER = "fixture", "fixture-owner"
 ALL = UserAccessPermissions(0xFFFFFFFF)              # every bit set (P -1)
 NO_PERMISSIONS = UserAccessPermissions(0xFFFFF0C0)   # only the reserved bits set (P -3904)
 FILES = [
-    ("rc4-128.pdf", "RC4-128", USER, ALL),
-    ("aes-128.pdf", "AES-128", USER, ALL),
-    ("aes-256.pdf", "AES-256", USER, ALL),
+    ("locked-rc4-128.pdf", "RC4-128", USER, ALL),
+    ("locked-aes-128.pdf", "AES-128", USER, ALL),
+    ("locked-aes-256.pdf", "AES-256", USER, ALL),
     ("owner-only.pdf", "AES-128", "", NO_PERMISSIONS),
 ]
 
