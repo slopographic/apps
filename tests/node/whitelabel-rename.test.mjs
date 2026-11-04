@@ -57,3 +57,16 @@ test('collisions: a target that already occurs in the source is found', () => {
   assert.deepEqual(collisions('a Tlbx and an imageeditor', MAP).map((c) => c[0]).sort(), ['Tlbx', 'imageeditor']);
   assert.ok(mapPairs(MAP).pairs.some(([a, b]) => a === 'SLOP' && b === 'TLBX'));
 });
+
+test('plain copy: the classic paint menu label has a plain word in every language', async () => {
+  // The rename leaves a name before ( alone (a call), so SLOPIFY(&L) needs its own phrase, as each translation does.
+  const { readFileSync, readdirSync } = await import('node:fs');
+  const root = new URL('../../', import.meta.url), dir = new URL('photoslop/classic/i18n/', root);
+  const pairs = Object.entries(JSON.parse(readFileSync(new URL('brand/copy/plain.json', root), 'utf8'))).filter(([k]) => k !== '_');
+  const rules = phraseRules(pairs, 'Acme');
+  for (const lang of readdirSync(dir, { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name)) {
+    const m = readFileSync(new URL(`${lang}/menus.js`, dir), 'utf8').match(/'paint-classic\.menu\.slopify': ('[^']*')/);
+    if (!m) continue;
+    assert.doesNotMatch(phrases(m[1], rules), /slop/i, `${lang}: ${m[1]}`);
+  }
+});
